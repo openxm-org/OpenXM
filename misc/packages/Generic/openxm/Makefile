@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.15 2000/03/13 02:41:37 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.16 2000/03/16 10:07:04 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -10,7 +10,7 @@
 ## For committers: prepare cvs-OpenXM under your search path 
 ## to access to CVS servers.
 RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
-### cvs-OpenXM is the following shell script
+### cvs-OpenXM is the following shell script in my case.
 ## #!/bin/sh
 ## CVS_RSH=ssh
 ## export CVS_RSH
@@ -18,8 +18,9 @@ RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 
 ## Configurations.
 ## OpenXM Version Number.
-VERSION=1.1.2
+VERSION=1.1.3
 TAG=HEAD
+FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
 
 RELEASE=
 ## If you like to have a release name as a part of tar ball, then uncomment
@@ -52,13 +53,16 @@ MAN_PAGES    = openxm.1 sm1.1
 
 EXECUTABLES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_math
 
-usage :
+usage : usage-of-real-make
+	@echo "    "
+	@echo "Usage for building tar balls for distribution:"
 	@echo "Targets are "
 	@echo "  fetch  :   get the sources from the cvs server under $(WORK)"
 	@echo "  tar-ball : generate openxm-${VERSION}.tar.gz under $(TAR_WORK)"
 	@echo "  tar-ball-01 : generate openxm01-${VERSION}.tar.gz under $(TAR_WORK)"
 	@echo "  binary-tar-ball : generate OpenXM-binary-OS-CPU.tgz under $(TAR_WORK)"
 	@echo "  shared-tar-ball : generate OpenXM-shared.tgz under $(TAR_WORK)"
+	@echo  "  install-tar-to-ftp-area : copy openxm-${VERSION}.tar.gz to ${FTP_AREA}"
 	@echo "  clean-work "
 	@echo "  clean-for-make "
 	@echo -n "Type is "
@@ -67,6 +71,8 @@ usage :
 	@echo  $(INSTALL_WORK)
 	@echo -n "TAR_WORK is "
 	@echo  $(TAR_WORK)
+	@echo -n "FTP_AREA is "
+	@echo  $(FTP_AREA)
 	@echo " "
 
 ### Start of Makefile  to work in the directory work/openxm-$(VERSION)
@@ -75,7 +81,8 @@ usage :
 ### Absolute path should be used for TAR_WORK
 
 usage-of-real-make:
-	@echo "Targets are all, install, clean, distclean"
+	@echo "Usage for building OpenXM binaries:"
+	@echo "Targets are configure, all, install, clean, distclean"
 	@echo "You need to specify the PREFIX to install,"
 	@echo "e.g., make install PREFIX=/usr/local"
 
@@ -125,11 +132,11 @@ install.man : install
 	-gzip ${MAN_DIR}/sm1.1 ${MAN_DIR}/openxm.1 
 
 clean :
-	cd $(srcdir)/OpenXM/src ; make clean
+	-(cd $(srcdir)/OpenXM/src ; make clean)
 	rm -f .*_done*
 
 distclean :
-	cd $(srcdir)/OpenXM/src ; make distclean
+	-(cd $(srcdir)/OpenXM/src ; make distclean)
 	rm -f .*_done*
 
 clean-installed-openxm:
@@ -147,12 +154,25 @@ fetch :
 	fi
 	@touch ./.fetch_done
 
-tar-ball: fetch
-	cp Makefile ${WORK}/Makefile 
-	(cd ${WORK}/OpenXM/src ; make generate-source-distribution)
-	(cd work ; tar czvf ${TAR_WORK}/openxm-${VERSION}.tar.gz openxm-${VERSION})
+build-tar-work:
+	@if [ ! -d ${TAR_WORK} ]; then \
+		mkdir ${TAR_WORK} ; \
+	fi
 
-tar-ball-01: fetch
+build-ftp-area:
+	@if [ ! -d ${FTP_AREA} ]; then \
+		mkdir ${FTP_AREA} ; \
+	fi
+
+tar-ball: fetch build-tar-work
+	@if [ ! -f ./.tar-ball_done ]; then \
+		cp Makefile ${WORK}/Makefile ; \
+		(cd ${WORK}/OpenXM/src ; make generate-source-distribution) ; \
+		(cd work ; tar czvf ${TAR_WORK}/openxm-${VERSION}.tar.gz openxm-${VERSION}) ; \
+	fi
+	touch ./.tar-ball_done
+
+tar-ball-01: fetch build-tar-work
 	@if [ ! -f ./.tar-ball-01_done ]; then \
 		cp Makefile ${WORK}/Makefile  ; \
 		(cd ${WORK}/OpenXM/src ; make generate-source-distribution) ; \
@@ -176,6 +196,8 @@ shared-tar-ball : fetch
 	(cd ${WORK} ; make install-shared-files PREFIX=${INSTALL_WORK})
 	(cd ${INSTALL_WORK} ; tar czf ${TAR_WORK}/OpenXM-shared.tgz ${SHARED_FILES})
 
+install-tar-to-ftp-area: build-ftp-area tar-ball
+	cp ${TAR_WORK}/openxm-${VERSION}.tar.gz ${FTP_AREA}
 
 clean-work :
 	/bin/rm -rf .*_done *~
