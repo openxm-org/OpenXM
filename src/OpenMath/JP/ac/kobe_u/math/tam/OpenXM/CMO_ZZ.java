@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.10 2000/03/16 10:15:22 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.11 2000/03/16 12:28:43 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -56,7 +56,7 @@ final public class CMO_ZZ extends CMO{
       for(BigInteger a = this.num.abs();a.compareTo(new BigInteger("0"))>0;
 	  a = a.divide(new BigInteger("4294967296"))){
 	os.writeInt(a.remainder(new BigInteger("4294967296")).intValue());
-	System.out.println("remaind: "+a.remainder(new BigInteger("4294967296")).intValue());
+	//System.out.println("remaind: "+a.remainder(new BigInteger("4294967296")).intValue());
       }
     }
   }
