@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.1 2004/07/02 09:05:14 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -54,7 +54,7 @@ localf act_theta_D, act_theta_DE, act_difference;
 localf multi, multi_D, multi_DE, multiL;
 localf dp_coef_gcd, red1, red2, reducible, division, division_D, division_DE;
 localf nf, reduction, add, spolynomial, spolynomial_D, spolynomial_DE;
-localf criterionF, criterionM, dp_revcmp, gr2rgr, buchberger, in, stdmon;
+localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
 localf dp_ltom, pfaffian, check_pfaffian;
 localf check_frac_expansion_before, check_frac_expansion_after;
 localf frac_expansion, sing_point, residue;
@@ -777,6 +777,11 @@ def buchberger(F) {
     return gr2rgr(G); /* Reducing G a Groebner basis. */
 }
 
+def gr(F) {
+    OPTS=getopt();
+    return buchberger(F|option_list=OPTS);
+}
+
 /* it returns in(G) */
 def in(Gr) {
     L = [];
@@ -1071,11 +1076,7 @@ def gkz_D(GKZ) {
         for(J=0; J<Row; J++) {
             L[I] += A[I][J]*dp_vtoe(vector_unit(N,J));
         }
-        if (op_diff(operator_id(B[I]))== -1) {
-            L[I]-=B[I];
-        }else {
-            L[I]+=B[I]; /* lower compatibility */
-        }
+        L[I] -= B[I];
     }
     return vtol(L);
 }
