@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/kan96xx/trans/Makefile.in,v 1.2 2003/12/04 07:49:24 takayama Exp $
+# $OpenXM: OpenXM/src/kan96xx/trans/Makefile.in,v 1.3 2003/12/04 07:54:51 takayama Exp $
 OpenXM_HOME=../../..
 OpenXM_include=${OpenXM_HOME}/include
 OpenXM_lib=${OpenXM_HOME}/lib
@@ -7,7 +7,8 @@ AR=ar
 CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@
-YACC=yacc -d
+#YACC=yacc -d
+YACC=@YACC@
 KANHEADERS=../Kan/datatype.h ../Kan/stackm.h ../Kan/extern.h ../Kan/gradedset.h ../Kan/extern2.h ../Kan/kclass.h ../plugin/file2.h
 
 all: trans.a polymake2tfb
@@ -34,9 +35,9 @@ yymain_polymake.o:yymain_polymake.c yy_polymake.tab.h
 yylex_polymake.o:yylex_polymake.c yylex_polymake.h yy_polymake.tab.h
 yy_polymake.tab.o : yy_polymake.tab.c 
 yy_polymake.tab.c : yy_polymake.y yylex_polymake.h
-	${YACC} -b yy_polymake -p PM yy_polymake.y
+	${YACC} -d -b yy_polymake -p PM yy_polymake.y
 yy_polymake.tab.h : yy_polymake.y yylex_polymake.h
-	${YACC} -b yy_polymake -p PM yy_polymake.y
+	${YACC} -d -b yy_polymake -p PM yy_polymake.y
 
 clean:
 	rm -r -f *.o *~ *.tab.* polymake2tfb
