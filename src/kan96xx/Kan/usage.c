@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.19 2003/08/23 02:28:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.20 2003/08/24 05:19:43 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -249,6 +249,9 @@ void Kusage2(fp,s)
 	fppp(fp,"   [(degreeShift) (value)] homogenize ::\n");
 	fppp(fp,"Note. min of ord (-1,1)[0,1] is min {-1,1, 1+1,1+0} = -1 =m \n");
     fppp(fp,"      Degree of H is b-a+v(i)-m where v=[0,1]\n");
+    fppp(fp,"Side effects:  It changes h-degree shift vector and s-degree shift vector\n");
+	fppp(fp,"   in homogenizeObject_go(), which is called from ecart division codes\n");
+    fppp(fp,"   as well as the function homogenize.\n");
     fppp(fp,"DegreeShift is automatically reset when set_up_ring is called.\n");
   }else if (strcmp(s,"idiv") == 0) {
     fppp(fp,"<< a b idiv a/b >>\n");
