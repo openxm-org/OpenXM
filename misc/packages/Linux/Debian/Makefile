@@ -1,4 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile,v 1.2 2002/03/02 01:00:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile,v 1.3 2003/02/22 07:14:44 takayama Exp $
+
+## You need the following packages to build *.deb
+## apt-get install fakeroot
+## apt-get install debhelper
 
 VERSION=1.2.1
 ## configuration only for committers
