@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.8 2001/08/14 13:13:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.9 2001/08/17 11:57:51 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -120,7 +120,10 @@ def matrix_det(M) {
 }
 def matrix_minors(M,K) { NOT_YET; }
 def matrix_trace(M) { NOT_YET; }
-def matrix_solve_linear(M,B) { NOT_YET; }  /* LinearSolve[ ] */
+def matrix_solve_linear(M,X,B) {  
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_solve(M,X,B);
+}  /* LinearSolve[ ] */
 def matrix_kernel(M) {  
   OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_kernel(M);

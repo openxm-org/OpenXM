@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.8 2001/08/15 04:20:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.9 2001/08/17 11:57:51 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -256,10 +256,14 @@ def omatrix_solve(A, X, Y) {
   F = [];
   for (I = 0; I < Size_Z[0]; I++) {
     if (Z[I] != 0) {
-      F = append(F, [Z[I]]);
+      if (type(Z[I]) == 3) {
+        F = append(F,[ nm(red(Z[I])) ]);
+      }else{
+        F = append(F, [Z[I]]);
+      }
     }
   }
-  
+
   if (F == []) {
     return vtol(Sol);
   }
