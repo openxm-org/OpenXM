@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/simple.y,v 1.2 2000/01/21 03:01:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/simple.y,v 1.3 2001/01/13 12:40:56 takayama Exp $ */
 /* simple.y 1996, 1/1 --- 1/6 */
 /* simple.y.ccc,  1996, 4/1 --- */
 %{
@@ -93,8 +93,9 @@ return :
   ;
 
 break : BREAK  { pkkan(" exit "); }
+;
 
-list_prefix 
+list_prefix  
   :
     '['  { pkkan("[ "); }
   ;
@@ -145,7 +146,7 @@ for
   : for_prefix curryBrace
                { pkkan("} %% end of B part. {B}\n"); 
                  pkkan(" 2 1 roll] {exec} map pop\n} loop %%end of for\n"); }
-
+;
 PSfor_prefix
   : PSFOR '(' ID '=' exp ';'
      { pkkan("%%PSfor initvalue.\n (integer) data_conversion \n");
@@ -192,7 +193,7 @@ load :
   | LOAD ID              {   loadFile($2);  }
   | LOAD QUOTE           {   loadFile($2);  }
   | LOAD '[' QUOTE ']'   {   loadFileWithCpp($3); }
-
+;
 sm1ArgList :
   | sm1ArgList ',' QUOTE  { pkkan(" "); printObjectSymbol($3); pkkan(" "); }
   | QUOTE                 { pkkan(" "); printObjectSymbol($1); pkkan(" "); }
@@ -479,7 +480,7 @@ class_definition_prefix
 	  K00putIncetanceVariable(IRESET," ");
 	}
       }
-
+;
 incetance_variables
   : LOCAL incetance_variables_list ';'
       {
@@ -499,7 +500,7 @@ incetance_variables_list
     {
       K00putIncetanceVariable(IPUT,objectSymbolToString($1));
     }
-
+;
 operatorfunctionHead
   : DEF OPERATOR ID 
         { pkkan("/"); printObjectSymbol($3); pkkan(" {\n"); ips($3);
