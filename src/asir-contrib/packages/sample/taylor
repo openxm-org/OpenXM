@@ -3,14 +3,21 @@ def taylor(F,X,P,N){
 	A = F;
 
 	for(I=0;I<N;I++){
-		if(I!=0){
-			A /= I;
-		}
 		R += subst(A,X,P) * x^I;
-		A = diff(A,X);
+		A = diff(A,X)/(I+1);
 	}
 	return R;
 }
 
-taylor(1/(1-x),x,0,20);
+def taylor_test(){
+	print(taylor(exp(z),z,0,10));
+	print(taylor(sin(z),z,0,10));
+	print(taylor(cos(z),z,0,10));
+	print(taylor(cos(z),z,1,10));
+	print(taylor(1/(1-z),z,0,10));
+	print(taylor((1-z)^(1/2),z,0,10));
+	print(taylor((1-z)^(1/2),z,2,10));
+}
+
+/* taylor_test(); */
 quit;
