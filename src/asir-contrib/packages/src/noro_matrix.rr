@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.6 2004/06/08 05:29:44 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.7 2004/06/08 09:30:37 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -746,7 +746,11 @@ def jordan_canonical_form(A)
 {
 	N = size(A)[0];
 	M = minipoly_mat(A);
-	FM = fctr(M);
+	if ( type(Ext=getopt(ext)) != -1 ) {
+		FM = af(M,Ext);
+	} else {
+		FM = fctr(M);
+	}
 	/* skip const */
 	FM = cdr(FM);
 	L = length(FM);
@@ -763,15 +767,42 @@ def jordan_canonical_form(A)
 	}
 
 	Q = matrix(N,N);
+	Prefix = strtoascii("a")[0];
+	DefIdeal = [];
 	for ( K = 0, J = 0; K < L; K++ ) {
 		JBK = compute_jordan_block_basis(A,Alpha[K],E[K]);
-		for ( T = JBK; T != []; T = cdr(T), J++ ) {
-			V = car(T);
-			for ( I = 0; I < N; I++ )
-				Q[I][J] = V[I];
+		if ( (DK = D[K]) == 1 ) {
+			for ( T = JBK; T != []; T = cdr(T), J++ ) {
+				V = car(T);
+				for ( I = 0; I < N; I++ )
+					Q[I][J] = V[I];
+			}
+		} else {
+			AlgV = algptorat(Alpha[K]);
+			AlphaV = vector(DK);
+			for ( U = 0; U < DK; U++ ) {
+				AlphaV[U] = strtov(asciitostr([Prefix])+rtostr(U));
+				for ( T = JBK; T != []; T = cdr(T), J++ ) {
+					V = car(T);
+					for ( I = 0; I < N; I++ )
+						Q[I][J] = subst(algptorat(V[I]),AlgV,AlphaV[U]);
+				}
+			}
+			Sym = generate_elementary_symmetric_form(DK|vars=AlphaV);
+			Sym = map(dp_dtop,Sym[0],Sym[1]);
+			Sym = ltov(reverse(vtol(Sym)));
+			F = FM[K][0];
+			for ( I = 0, T = []; I < DK; I++ )
+				T = cons(Sym[I]-(-1)^(DK-I)*coef(F,I),T);
+			DefIdeal = cons(T,DefIdeal);
+			Prefix++;
 		}
 	}
-	return Q;
+	DefIdeal = reverse(DefIdeal);
+	if ( DefIdeal != [] )
+		return [Q,DefIdeal];
+	else
+		return Q;
 }
 
 def is_integer(A)
@@ -798,6 +829,7 @@ def reduce_vect(M,Base)
 			mulsub_vect(M,C1,BM,C2);
 		}
 	}
+	M = map(simpalg,M);
 	for ( I = 0; I < N; I++ )
 		if ( M[I] ) return [M,I];
 	return [0,-1];
@@ -837,7 +869,7 @@ def compute_jordan_block_basis(A,Alpha,E)
 				Base = insert_to_base(Red,Base);
 				/* Kry = [N^I*v,N^(I-1)*v,...,v] */
 				for ( Kry = [car(T)[0]], K = 0; K < I; K++ )
-					Kry = cons(N*car(Kry),Kry);
+					Kry = cons(map(simpalg,N*car(Kry)),Kry);
 				AllBase = append(reverse(Kry),AllBase);
 			}
 		}
@@ -886,9 +918,12 @@ def reduce_symmetric_form(F,E,V)
 def generate_elementary_symmetric_form(N)
 {
 	C = vector(N);
-	V = vector(N);
-	for ( I = 0; I < N; I++ )
-		V[I] = strtov("x"+rtostr(I));
+	V = getopt(vars);
+	if ( type(V) == -1 ) {
+		V = vector(N);
+		for ( I = 0; I < N; I++ )
+			V[I] = strtov("x"+rtostr(I));
+	}
 	R = [1];
 	for ( I = 1; I <= N; I++ ) {
 		for ( J = 0; J < I; J++ ) C[J] = J;
