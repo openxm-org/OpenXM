@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/openxm.spec.in,v 1.1 2000/03/09 03:09:21 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/openxm.spec.in,v 1.2 2000/03/09 08:35:43 takayama Exp $
 #  openxm.spec.in
 #
 %define ver      1.1.2
@@ -14,6 +14,8 @@ Group:     Mathematical Software
 Source:    ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/openxm-1.1.2.tar.gz
 URL:       http://www.math.sci.kobe-u.ac.jp/OpenXM
 BuildRoot:  %{work}/%{name}-root
+## BuildRoot should be removed in the real package building.
+
 
 %description
 The OpenXM package is a collection of mathematical softwares that
@@ -33,10 +35,16 @@ make
 make install PREFIX=$RPM_BUILD_ROOT%{prefix}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT%{prefix}/OpenXM
+rm -rf $RPM_BUILD_ROOT%{prefix}/bin/asir
+rm -rf $RPM_BUILD_ROOT%{prefix}/bin/sm1
+rm -rf $RPM_BUILD_ROOT%{prefix}/bin/oxmath
+rm -rf $RPM_BUILD_ROOT%{prefix}/bin/oxMathematica
+rm -rf $RPM_BUILD_ROOT%{prefix}/bin/openxm
+rm -rf $RPM_BUILD_ROOT%{prefix}/bin/oxgp
 
 %files
-# %defattr(-, root, root)
+%defattr(-, root, root)
 %{prefix}/OpenXM/bin/*
 %{prefix}/OpenXM/lib/*
 %{prefix}/OpenXM/man/*
@@ -44,12 +52,12 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/OpenXM/rc/*
 %{prefix}/OpenXM/Copyright/*
 %doc  %{prefix}/OpenXM/doc/*
-## Comment out the following for the test.
 %{prefix}/bin/asir
 %{prefix}/bin/sm1
 %{prefix}/bin/oxmath
 %{prefix}/bin/oxMathematica
 %{prefix}/bin/openxm
-## end of comment out.
+%{prefix}/bin/oxgp
+
 
 

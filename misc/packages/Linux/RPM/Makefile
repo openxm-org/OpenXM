@@ -1,5 +1,6 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.1 2000/03/09 03:09:21 takayama Exp $
-# *Preparation for debugging this Makefile and openxm.spec.in
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.2 2000/03/09 08:35:43 takayama Exp $
+# *If you do not like to use /usr/src/redhat area to put *rpm files, 
+#  do as follows.
 # 0. Generate ~/.rpmrc and set the TopDir for the work.
 #    Here is my .rpmrc
 #
@@ -7,10 +8,6 @@
 #
 #  [ To extract a source from *src.rpm to SOURCES dir, 
 #    type in "make make-directory" and "rpm -i your.src.rpm" ]
-# *Preparations to use this redhat-package builder for OpenXM
-#  and make a binary distribution.
-# 0. You must be a root to execute 5 and later.
-#    rm TopDir: in your ~/.rpmrc
 #
 # *How to build a binary package.
 # 1. Make ole by make ole at  $(OpenXM_HOME)/src/kan96xx/Doc.
@@ -19,7 +16,10 @@
 # 3. Generate a source tar ball openxm-1.1.2.tar.gz by
 #     cd $(OpenXM_HOME)/misc/packages/FreeBSD/openxm-1.1.2 ; make make-tar-ball
 # 4. Type in make link-for-real-openxm
-# 5. Type in make build-binary-rpm
+# 5. Type in make build-binary-rpm  (for test)
+# REAL 5. Edit openxm.spec.in and remove the line BuildRoot.
+#          Su and type in make build-binary-rpm
+#         work should be removed by the super user.
 # The binary package will be generated at  work/RPMS/i386.
 #
 # Example 1 :  debug this Makefile and openxm.spec.in

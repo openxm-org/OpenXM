@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.9 2000/03/06 04:29:01 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.10 2000/03/09 08:35:42 takayama Exp $
 
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
@@ -109,12 +109,18 @@ fake-openxm: clean-this-directory
 	mkdir OpenXM/Copyright OpenXM/misc
 	touch OpenXM/bin/hoge-bin OpenXM/lib/hoge-lib OpenXM/doc/hoge-doc
 	(cd OpenXM/bin ; ln -s ../lib/hoge-lib hoge-lib-link)
+	touch OpenXM/include/hoge
+	touch OpenXM/Copyright/hoge
+	touch OpenXM/man/hoge-man
+	touch OpenXM/rc/openxm 	OpenXM/rc/oxgp OpenXM/rc/asir OpenXM/rc/sm1
+	touch OpenXM/rc/oxmath OpenXM/rc/oxMathematica
 	mkdir OpenXM/src
 	echo "configure:" >OpenXM/src/Makefile
 	echo "	echo configure" >>OpenXM/src/Makefile
 	echo "binary-dist:" >>OpenXM/src/Makefile
 	echo "	echo binary-dist" >>OpenXM/src/Makefile
 	echo "install:" >OpenXM/rc/Makefile 
+	echo '	cp * $${PREFIX}/bin' >>OpenXM/rc/Makefile 
 	echo "Creating a fake tar ball at ${TAR_WORK}"
 	(cd .. ; tar czf ${TAR_WORK}/openxm-fake.tar.gz openxm-1.1.2)
 
