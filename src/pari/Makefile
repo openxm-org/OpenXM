@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.3 2000/01/08 18:25:36 maekawa Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.4 2000/01/08 18:30:18 maekawa Exp $
 
 PARI = ../../../OpenXM_contrib/pari
 CURDIR = ../../OpenXM/src/pari
@@ -11,10 +11,7 @@ all: configure
 	@touch ./.make_done
 
 install: all
-	@if [ ! -f ./.install_done ]; then \
-		(cd $(PARI) ; make install install-lib-sta) \
-	fi
-	@touch ./.install_done
+	(cd $(PARI) ; make install install-lib-sta) \
 
 clean:
 	@if [ -f ./.make_done ]; then \
@@ -26,7 +23,6 @@ distclean:
 	rm -rf ../../lib/libpari.* ../../lib/pari
 	rm -rf ../../include/pari
 	rm -rf $(BINDIR)/gp $(BINDIR)/gp-2.0
-	@rm -f ./.install_done
 
 configure:
 	@if [ ! -f ./.configure_done ]; then \
