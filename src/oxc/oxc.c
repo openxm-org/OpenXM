@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,11 +45,23 @@ OXFILE *connection()
     return oxfp;
 }
 
+/* xterm, kterm, rxvt, gnome-terminal, ... */
+static char *xterminal()
+{
+	char *e = getenv("OpenXM_XTERM");
+	return (e != NULL)? e: "xterm";
+}
+
 int main(int argc, char *argv[])
 {
     OXFILE *oxfp;
+	char *port_s = "";
+	char *xterm =  xterminal();
+	char *myname = argv[0];
+	int oxlog = 0;
     int c;
-    while ((c = getopt(argc, argv, "c:p:h:")) != -1) {
+
+    while ((c = getopt(argc, argv, "c:p:h:x")) != -1) {
         switch(c) {
         case 'h':
             remote_host = optarg;
@@ -59,6 +71,12 @@ int main(int argc, char *argv[])
             break;
         case 'p':
             port = atoi(optarg);
+			port_s = optarg;
+            break;
+		case 'x':
+			if (getenv("DISPLAY") != NULL) {
+				oxlog = 1;
+			}
             break;
         default:
         }
@@ -66,6 +84,10 @@ int main(int argc, char *argv[])
     argc -= optind;
     argv += optind;
 
+	if (oxlog) {
+		execlp(xterm, xterm, "-e", myname, 
+			   "-h", remote_host, "-p", port_s, "-c", password);
+	}
     fprintf(stderr, "start connection!\n");
     if (strlen(remote_host) == 0 || strlen(password) == 0 || port == 0) {
         fprintf(stderr, "oxc: invalid arguments.\n");
