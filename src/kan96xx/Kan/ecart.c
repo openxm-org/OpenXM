@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.2 2003/07/17 12:11:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.3 2003/07/17 23:37:01 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -137,11 +137,11 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
     for (i=0; i<set->size; i++) {
       if (set->gh[i] == POLYNULL) {
         /* goHomogenize set->gh[i] */
-		  if (EcartAutomaticHomogenization) {
-			  set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
-		  }else{
-			  set->gh[i] = set->g[i];
-		  }
+          if (EcartAutomaticHomogenization) {
+              set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
+          }else{
+              set->gh[i] = set->g[i];
+          }
       }
       ell = ecartGetEll(r,set->gh[i]);
       if ((ell>=0) && (ell < ell1)) {
@@ -217,14 +217,14 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
   }
 
   if (r != POLYNULL) {
-	rp = r->m->ringp;
-	if (! rp->weightedHomogenization) {
-	  errorKan1("%s\n","ecart.c: the given ring must be declared with [(weightedHomogenization) 1]");
-	}
+    rp = r->m->ringp;
+    if (! rp->weightedHomogenization) {
+      errorKan1("%s\n","ecart.c: the given ring must be declared with [(weightedHomogenization) 1]");
+    }
   }
 
   if (EcartAutomaticHomogenization) {
-	  r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
+      r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
   }
   /* 1 means homogenize only s */
 
