@@ -236,6 +236,22 @@ rm -rf ./usr/share/info/gmp.info-1.gz
 #
 rm -rf ./usr/local/OpenXM/rc/repl
 #
+# Remove some documents to shape-up.
+rm -rf ./usr/local/OpenXM/doc/Makefile
+rm -rf ./usr/local/OpenXM/doc/asir-contrib/cman-en.ps
+rm -rf ./usr/local/OpenXM/doc/asir-contrib/cman-ja.ps
+rm -rf ./usr/local/OpenXM/doc/kan96xx/onlinehelp.ps
+rm -rf ./usr/local/OpenXM/doc/kan96xx/onlinehelp.tex
+rm -rf ./usr/local/OpenXM/doc/kan96xx/intro.tex
+rm -rf ./usr/local/OpenXM/doc/ox_math/math2ox.texi
+rm -rf ./usr/local/OpenXM/doc/ox_math/ox_math.tex
+rm -rf ./usr/local/OpenXM/doc/sci-semi2001
+rm -rf ./usr/local/OpenXM/lib/sm1/Makefile
+rm -rf ./usr/local/OpenXM/lib/sm1/Makefile.in
+rm -rf ./usr/local/OpenXM/lib/sm1/ttt.*
+rm -rf ./usr/local/OpenXM/lib/sm1/onlinehelp.*
+rm -rf ./usr/local/OpenXM/lib/sm1/ex.tex
+#
 # A temporary hack to remove gnuplot.
 rm -rf ./usr/local/OpenXM/bin/gnuplot
 rm -rf ./usr/local/OpenXM/libexec/gnuplot
