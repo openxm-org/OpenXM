@@ -1,6 +1,7 @@
-/* $OpenXM$ */
-/* RFC 3174 */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.1 2004/01/12 13:16:28 iwane Exp $ */
+/* RFC 3174 - SHA-1 (US Secure Hash Algorithm 1 (SHA1))*/
 
+#include "sha1.h"
 
 /* Global Constant */
 static const unsigned int K[4] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
@@ -72,7 +73,7 @@ f(unsigned int t, unsigned int b, unsigned int c, unsigned int d)
 		return ((b & c) | (b & d) | (c & d));
 	}
 	
-	// Invalid Parameter.
+	/* Invalid Parameter. */
 	return (0);
 }
 
@@ -88,7 +89,7 @@ md(unsigned int *h, const unsigned char *msg)
 	int i;
 	unsigned int w[80];
 
-	/* ....  */
+	/* ... */
 	for (t = 0; t < 16; t++) {
 		w[t] = 0;
 		for (i = 0; i < 4; i++) {
@@ -124,10 +125,13 @@ md(unsigned int *h, const unsigned char *msg)
 }
 
 int
-sha1_h(unsigned char *Ph, const unsigned char *msg, int len, unsigned int *h)
+sha1_h(unsigned char *Ph, const unsigned char *msg, int len, const unsigned int *hp)
 {
 	int i, j, cnt, l = len;
 	unsigned char buf[1024];
+	unsigned int h[sizeof(H) / sizeof(H[0])];
+
+	memcpy(h, hp, sizeof(h));
 
 	while (l > BLOCK) {
 		md(h, msg);
@@ -155,12 +159,7 @@ sha1_h(unsigned char *Ph, const unsigned char *msg, int len, unsigned int *h)
 int
 sha1(unsigned char *Ph, const unsigned char *msg, int len)
 {
-	unsigned int h[sizeof(H) / sizeof(H[0])];
-
-	memcpy(h, H, sizeof(H));
-
-	return (sha1_h(Ph, msg, len, h));
-
+	return (sha1_h(Ph, msg, len, H));
 }
 
 

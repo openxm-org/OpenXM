@@ -1,5 +1,5 @@
-/* $OpenXM$ */
-/* see sha1.c */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/ntlsha.cpp,v 1.1 2004/01/12 13:16:28 iwane Exp $ */
+/* RFC 3174 -- see sha1.c */
 
 #include <NTL/ZZ.h>
 

@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/Makefile,v 1.1 2004/01/12 13:16:28 iwane Exp $
 
 CPP=g++
 CC =gcc
@@ -37,4 +37,5 @@ clean:
 	-$(RM) -f $(OBJC) $(PROGS)
 
 
+ntlsha.cpp: sha1.h
 
