@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.1 1999/12/16 06:55:07 ohara Exp $ */
 
 /*
   This program explains how to get
@@ -10,8 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <gmp.h>
-#include "ox.h"
+#include "ox_toolkit.h"
 
 int explain_cmo(cmo *);
 

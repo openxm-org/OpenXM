@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.1 1999/12/16 06:09:42 ohara Exp $ */
 
 /*
    This sample program explains how to construct
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "ox.h"
+#include "ox_toolkit.h"
 
 /* This program uses High-level functions of OpenXM C library. */
 int main()

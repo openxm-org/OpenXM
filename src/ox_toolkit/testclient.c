@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.2 1999/12/15 07:51:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.3 1999/12/22 11:26:37 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -9,8 +9,8 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include "ox.h"
-#include "parse.h"
+
+#include "ox_toolkit.h"
 
 ox_file_t sv;
 

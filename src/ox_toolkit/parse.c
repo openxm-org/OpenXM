@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.2 1999/12/22 11:26:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.3 2000/01/17 19:55:56 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -12,8 +12,8 @@
 #include <string.h>
 #include <sys/param.h>
 #include <setjmp.h>
-#include "oxtag.h"
-#include "ox.h"
+
+#include "ox_toolkit.h"
 #include "parse.h"
 
 /* --- Parser --- */
@@ -620,7 +620,7 @@ static char *lex_digit()
 #define MK_KEY_SM(x)   { #x , x  , TOKEN(SM) , IS_SM  }
 #define MK_KEY_OX(x)   { #x , x  , TOKEN(x)  , IS_OX  }
 
-static symbol symbol_list[] = {
+static struct symbol symbol_list[] = {
     MK_KEY_CMO(CMO_NULL),
     MK_KEY_CMO(CMO_INT32), 
     MK_KEY_CMO(CMO_DATUM),
@@ -650,9 +650,9 @@ static symbol symbol_list[] = {
     {NULL, 0, 0, 0}        /* a gate keeper */
 }; 
 
-symbol* lookup_by_symbol(char *key)
+symbol_t lookup_by_symbol(char *key)
 {
-    symbol *symp;
+    symbol_t symp;
     for(symp = symbol_list; symp->key != NULL; symp++) {
         if (strcmp(key, symp->key)==0) {
             return symp;
@@ -661,9 +661,9 @@ symbol* lookup_by_symbol(char *key)
     return NULL;
 }
 
-symbol* lookup_by_token(int tok)
+symbol_t lookup_by_token(int tok)
 {
-    symbol *symp;
+    symbol_t symp;
     for(symp = symbol_list; symp->key != NULL; symp++) {
         if (tok == symp->token) {
             return symp;
@@ -672,9 +672,9 @@ symbol* lookup_by_token(int tok)
     return NULL;
 }
 
-symbol* lookup_by_tag(int tag)
+symbol_t lookup_by_tag(int tag)
 {
-    symbol *symp;
+    symbol_t symp;
     for(symp = symbol_list; symp->key != NULL; symp++) {
         if (tag == symp->tag) {
             return symp;
@@ -683,9 +683,14 @@ symbol* lookup_by_tag(int tag)
     return NULL;
 }
 
-symbol* lookup(int i)
+symbol_t lookup(int i)
 {
     return &symbol_list[i];
+}
+
+char *symbol_get_key(symbol_t sp)
+{
+	return sp->key;
 }
 
 /* no measure for buffer overflow */
@@ -716,7 +721,7 @@ static char *lex_quoted_string()
 
 static int token_of_symbol(char *key)
 {
-    symbol *symp = lookup_by_symbol(key);
+    symbol_t symp = lookup_by_symbol(key);
     if (symp != NULL) {
         yylval.d = symp->tag;
         return symp->token;

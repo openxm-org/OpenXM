@@ -1,17 +1,14 @@
-/* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.6 2000/01/17 19:55:55 ohara Exp $ */
+/* -*- mode: C -*- */
+/* $OpenXM$ */
 
-/* 
-   Some commnets is written in Japanese by the EUC-JP coded 
-   character set.
-*/
+#ifndef _OX_TOOLKIT_H_
 
-#ifndef _OX_H_
-
-#define _OX_H_
+#define _OX_TOOLKIT_H_
 
 #include <gmp.h>  
-#include "oxtag.h"
+#include "ox_toolkit_tags.h"
+
+/* functions related to ox.c */
 
 #define LOGFILE  "/tmp/oxtk.XXXXXX"
 
@@ -203,4 +200,20 @@ typedef cmo *(*hook_t)(int, cmo *);
 int add_hook_before_send_cmo(hook_t func);
 int add_hook_after_send_cmo(hook_t func);
 
-#endif /* _OX_H_ */
+/* functions related to parse.c */
+
+#define PFLAG_ADDREV   1
+
+typedef struct symbol *symbol_t;
+
+int setflag_parse(int flag);
+cmo *parse();
+int init_parser(char *s);
+
+symbol_t lookup_by_symbol(char *key);
+symbol_t lookup_by_token(int tok);
+symbol_t lookup_by_tag(int tag);
+symbol_t lookup(int i);
+char *symbol_get_key(symbol_t sp);
+
+#endif /* _OX_TOOLKIT_H_ */

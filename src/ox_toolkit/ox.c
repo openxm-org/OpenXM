@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.10 2000/01/20 15:38:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.11 2000/02/04 08:01:30 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -15,10 +15,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/file.h>
-#include <gmp.h>
 
 #include "mysocket.h"
-#include "ox.h"
+#include "ox_toolkit.h"
 #include "parse.h"
 
 static int          cmolen_cmo_int32(cmo_int32* c);
@@ -562,7 +561,7 @@ int print_cmo(cmo* c)
 {
     int tag = c->tag;
 
-    symbol* symp = lookup_by_tag(tag);
+    symbol_t symp = lookup_by_tag(tag);
     if (symp != NULL) {
         fprintf(stderr, "(%s", symp->key);
     }else {     
@@ -1355,7 +1354,7 @@ static cmo_list* make_list_of_id(int ver, char* ver_s, char* sysname)
 static cmo_list *make_list_of_tag(int type)
 {
     cmo_list *li = new_cmo_list();
-    symbol *symp;
+    symbol_t symp;
     int i = 0;
     while((symp = lookup(i++))->key != NULL) {
         if (symp->type == type) {
@@ -1460,7 +1459,7 @@ static char *new_string_set_cmo_list(cmo_list *m)
 
 char *new_string_set_cmo(cmo *m)
 {
-    symbol *symp;
+    symbol_t symp;
     switch(m->tag) {
     case CMO_ZZ:
         return new_string_set_cmo_zz((cmo_zz *)m);

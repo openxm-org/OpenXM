@@ -1,13 +1,13 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.1 1999/12/15 05:21:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.2 1999/12/22 11:26:37 ohara Exp $ */
 
 /* bconv can convert an OX expression or a CMO expression to a byte stream. */
 /* Any expressions, as a string, must have shorter length than 8192.*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ox.h"
-#include "parse.h"
+
+#include "ox_toolkit.h"
 
 static int display(ox *m)
 {

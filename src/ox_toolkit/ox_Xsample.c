@@ -1,8 +1,8 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.1 1999/12/16 11:35:48 ohara Exp $ */
 
 #include <stdio.h>
-#include "ox.h"
+#include "ox_toolkit.h"
 
 int fd_rw = 3;
 

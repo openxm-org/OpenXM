@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.8 2000/01/19 18:31:33 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.9 2000/01/20 17:18:55 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -25,9 +25,7 @@ In order to use libox.a, you need to include the following header files:
 */
 /*&common
 
-#include <oxtag.h>
-#include <ox.h>
-#include <parse.h>
+#include <ox_toolkit.h>
 
 */
 /*&ja
@@ -42,7 +40,7 @@ In order to use libox.a, you need to include the following header files:
 1. Types
 
 1.1 CMO (Common Math Object)
-The following structures are defined in ox.h:
+The following structures are defined in ox_toolkit.h:
 */
 /*&common
 
@@ -82,7 +80,7 @@ class.
 */
 /*&en
 1.2 OX objects
-The following structures are defined in ox.h:
+The following structures are defined in ox_toolkit.h:
 */
 /*&common
 
@@ -222,7 +220,7 @@ void  ox_push_cmd(ox_file_t sv, int sm_code);
 */
 /*&en
 ox_push_cmd() sends an operation code to an OpenXM stack machine.
-See OpenXM/src/ox_toolkit/oxtag.h for a list of operation codes.
+See OpenXM/include/ox_toolkit_tags.h for a list of operation codes.
 
 */
 /*&ja
