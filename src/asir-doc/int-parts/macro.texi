@@ -1,9 +1,12 @@
-@comment $OpenXM$
-@chapter マクロ, 大域変数
+@comment $OpenXM: OpenXM/src/asir-doc/int-parts/macro.texi,v 1.1 2001/04/23 05:45:35 noro Exp $
+\JP @chapter マクロ, 大域変数
+\EG @chapter Macros and global variables
 
 @section macro
-@samp{ca.h} で定義される主なマクロは次の通りである. 
-@subsection 一般マクロ
+\JP @samp{ca.h} で定義される主なマクロは次の通りである. 
+\EG @samp{ca.h} 
+\JP @subsection 一般マクロ
+\EG @subsection General macros
 @table @code
 @item MAX(a,b)
 @code{((a) > (b) ? (a) : (b) )}
@@ -31,67 +34,98 @@
 @code{((n)->b)}
 @end table
 
-@subsection 述語
+\JP @subsection 述語
+\EG @subsection Predicates
 @table @code
 @item NUM(a)
 @code{ID(a)==O_Q}
 @item INT(a)
 @code{(!DN(a))}
 @item UNIQ(a)
-@code{a が有理数の 1 に等しい}
+\JP @code{a} が有理数の 1 に等しい
+\EG @code{a} is equal to 1 as a rational number.
 @item MUNIQ(a)
-@code{a が有理数の -1 に等しい}
+\JP @code{a} が有理数の -1 に等しい
+\EG @code{a} is equal to -1 as a rational number.
 @item UNIN(a)
-@code{a が自然数の 1 に等しい}
+\JP @code{a} が自然数の 1 に等しい
+\EG @code{a} is equal to 1 as a natural number.
 @end table
 
-@subsection メモリ割り当て器
+\JP @subsection メモリ割り当て器
+\EG @subsection Memory allocators
 @table @code
 @item (char *) MALLOC(d)
-@code{d bytes の領域を割り当てる. }
+\JP @code{d} bytes の領域を割り当てる. 
+\EG allocates a byte array of length @code{d} bytes.
 @item (char *) CALLOC(d,e)
-@code{d * e bytes の領域を割り当てて, 0 で初期化する. }
+\JP @code{d * e} bytes の領域を割り当てて, 0 で初期化する. 
+\EG allocates a byte array of @code{d * e} bytes, and sets all that
+region to 0.
 @item (N) NALLOC(d)
-@code{d 桁の自然数用の領域を割り当てる. }
+\JP @code{d} 桁の自然数用の領域を割り当てる.
+\EG allocates a region for a natural number of @code{d} digits.
 @end table
 @noindent
-これらはすべて領域の先頭ポインタを返す. 
+\JP これらはすべて領域の先頭ポインタを返す. 
+\EG These macros return a pointer to the allocate memory.
+
 @subsection cell allocators
 @table @code
 @item NEWQ(q)
-@code{q に Q 用の領域を割り当てる. }
+\JP @code{q} に \code{Q} 用の領域を割り当てる. 
+\EG 
 @item NEWP(p)
-@code{p に P 用の領域を割り当てる. }
+\JP @code{p} に \code{P} 用の領域を割り当てる. 
+\EG 
 @item NEWR(r)
-@code{r に R 用の領域を割り当てる. }
+\JP @code{r} に \code{R} 用の領域を割り当てる. 
+\EG 
 @item NEWNODE(a)
-@code{a に NODE 用の領域を割り当てる. }
+\JP @code{a} に \code{NODE} 用の領域を割り当てる. 
+\EG 
 @item NEWDC(dc)
-@code{dc に DCP 用の領域を割り当てる. }
+\JP @code{dc} に \code{DCP} 用の領域を割り当てる. 
+\EG 
 @item NEWV(v)
-@code{v に V 用の領域を割り当てる. }
+\JP @code{v} に \code{V} 用の領域を割り当てる. 
+\EG 
 @item NEWVL(vl)
-@code{vl に VL 用の領域を割り当てる. }
+\JP @code{vl} に \code{VL} 用の領域を割り当てる. 
+\EG 
 @end table
 @noindent
+\BJP
 @code{NEWP()}, @code{NEWQ()}, @code{NEWR()} においては, メンバ @code{id} 
 もしかるべき値に初期化される. 
+\E
+\BEG
+\E
 
-@section 主な大域変数
+\JP @section 主な大域変数
+\EG @section Global variables
 @table @code
 @item VL CO;
-@code{現在の変数順序. }
+\JP 現在の変数順序. 
+\EG 
 @item Q ONE;
-@code{有理数の 1. } 
+\JP 有理数の 1.  
+\EG 
 @item N ONEN;
-@code{自然数の 1. }
+\JP 自然数の 1. 
+\EG 
 @item int prime[];
-@code{4 桁までの素数(小->大). }
+\JP 4 桁までの素数(小->大). 
+\EG 
 @item int lprime[];
-@code{8 桁程度の素数 1000 個(大->小). }
+\JP 8 桁程度の素数 1000 個(大->小). 
+\EG 
 @end table
 @noindent
+\BJP
 @code{CO} は, ユーザが初期化, および新たに変数が出現した場合に更新する必
 要がある. また, @code{ONER}, @code{ONE}, @code{ONEN}は, 起動時に函数
 @code{nglob_init()} により初期化する必要がある. 
-
+\E
+\BEG
+\E

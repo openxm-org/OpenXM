@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/ff.texi,v 1.2 1999/12/21 02:47:31 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/ff.texi,v 1.3 2000/01/13 08:29:56 noro Exp $
 \BJP
 @node 有限体に関する演算,,, Top
 @chapter 有限体に関する演算
@@ -34,13 +34,15 @@
 
 @noindent
 \BJP
-@b{Asir} においては, 有限体は, 正標数素体 GF(p), 標数 2 の有限体 GF(2^n)
+@b{Asir} においては, 有限体は, 正標数素体 GF(p), 標数 2 の有限体 GF(2^n),
+GF(p) の n 次拡大 GF(p^n)
 が定義できる. これらは全て, @code{setmod_ff()} により定義される. 
 \E
 \BEG
-On @b{Asir} @var{GF(p)} and @var{GF(2^n)} can be defined, where
-@var{GF(p)} is a finite prime field of charateristic @var{p} and
-@var{GF(2^n)} is a finite field of characteristic 2. These are
+On @b{Asir} @var{GF(p)}, @var{GF(2^n)}, @var{GF(p^n} can be defined, where
+@var{GF(p)} is a finite prime field of charateristic @var{p},
+@var{GF(2^n)} is a finite field of characteristic 2 and
+@var{GF(p^n} is a finite extension of @var{GF(p)}. These are
 all defined by @code{setmod_ff()}.
 \E
 
@@ -59,11 +61,21 @@ x^50+x^4+x^3+x^2+1
 x^50+x^4+x^3+x^2+1
 [6] field_type_ff();
 2
+[7] setmod_ff(x^3+x+1,1125899906842679);
+[1*x^3+1*x+1,1125899906842679]
+[8] field_type_ff();
+3
+[9] setmod_ff(3,5);
+[3,x^5+2*x+1,x]
+[10] field_type_ff();
+4
 @end example
 \BJP
-@code{setmod_ff()} は, 引数が正整数 p の場合 GF(p), n 次多項式 f(x) の場
+@code{setmod_ff()} は, さまざまなタイプの有限体を基礎体としてセットする. 
+引数が正整数 p の場合 GF(p), n 次多項式 f(x) の場
 合, f(x) mod 2 を定義多項式とする GF(2^n) をそれぞれ基礎体としてセットす
-る. @code{setmod_ff()} においては引数の既約チェックは行わず, 呼び出し側
+る. また, 有限素体の有限次拡大も定義できる. 詳しくは @xref{数の型}.
+@code{setmod_ff()} においては引数の既約チェックは行わず, 呼び出し側
 が責任を持つ.
 
 基礎体とは, あくまで有限体の元として宣言あるいは定義されたオブジェクトが, 
@@ -87,7 +99,9 @@ If @var{f} is a univariate polynomial of degree @var{n},
 @code{setmod_ff(@var{f})} sets @var{GF(2^n)} as the current
 base field.  @var{GF(2^n)} is represented
 as an algebraic extension of @var{GF(2)} with the defining polynomial
-@var{f mod 2}. In both cases the primality check of the argument is
+@var{f mod 2}. Furthermore, finite extensions of prime finite fields
+can be defined. @xref{Types of numbers}.
+In all cases the primality check of the argument is
 not done and the caller is responsible for it.
 
 Correctly speaking there is no actual object corresponding to a 'base field'.

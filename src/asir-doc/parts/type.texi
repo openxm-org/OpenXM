@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.8 2001/03/12 05:01:18 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.9 2002/09/03 01:50:58 noro Exp $
 \BJP
 @node 型,,, Top
 @chapter 型
@@ -625,22 +625,73 @@ coefficients of a polynomial.
 \E
 
 @end itemize
+
+
+@item 8
+\JP @b{位数 @var{p^n} の有限体の元}
+\EG @b{element of a finite field of characteristic @var{p^n}}
+
+\BJP
+位数が @var{p^n} (@var{p} は任意の素数, @var{n} は正整数) は, 
+標数 @var{p} および @var{GF(p)} 上既約な @var{n} 次多項式 @var{m(x)}
+を @code{setmod_ff} により指定することにより設定する. 
+この体の元は @var{m(x)} を法とする @var{GF(p)} 上の多項式として
+表現される. 
+\E
+\BEG
+A finite field of order @var{p^n}, where @var{p} is an arbitrary prime
+and @var{n} is a positive integer, is set by @code{setmod_ff}
+by specifying its characteristic @var{p} and an irreducible polynomial
+of degree @var{n} over @var{GF(p)}. An element of this field
+is represented by a polynomial over @var{GF(p)} modulo @var{m(x)}.
+\E
+
+@item 9
+\JP @b{位数 @var{p^n} の有限体の元 (小位数)}
+\EG @b{element of a finite field of characteristic @var{p^n} (small order)}
+
+\BJP
+位数が @var{p^n} の有限体 (@var{p^n} が @var{2^29} 以下, @var{p} が @var{2^14} 以上
+なら @var{n} は 1) は, 
+標数 @var{p} および拡大次数 @var{n} 
+を @code{setmod_ff} により指定することにより設定する. 
+この体の 0 でない元は, @var{p} が @var{2^14} 未満の場合, 
+@var{GF(p^n)} の乗法群の生成元を固定すること
+により, この元のべきとして表される. これにより, この体の 0 でない元
+は, このべき指数として表現される. @var{p} が @var{2^14} 以上
+の場合は通常の剰余による表現となるが, 共通のプログラムで
+双方の場合を扱えるようにこのような仕様となっている. 
+
+\E
+\BEG
+A finite field of order @var{p^n}, where @var{p^n} must be less than
+@var{2^29} and @var{n} must be equal to 1 if @var{p} is greater or
+equal to @var{2^14}@, 
+is set by @code{setmod_ff}
+by specifying its characteristic @var{p} the extension degree
+@var{n}. If @var{p} is less than @var{2^14}, each non-zero element 
+of this field
+is a power of a fixed element, which is a generator of the multiplicative
+group of the field, and it is represented by its exponent.
+Otherwise, each element is represented by the redue modulo @var{p}.
+This specification is useful for treating both cases in a single 
+program.
+\E
+
 @end table
 
 \BJP
-大標数素体の標数, 標数 2 の有限体の定義多項式は, @code{setmod_ff}
-で設定する. 
-有限体の元どうしの演算では, @code{setmod_ff} により設定されている
-modulus で, 属する体が分かり, その中で演算が行われる. 
+小標数有限素体以外の有限体は @code{setmod_ff} で設定する. 
+有限体の元どうしの演算では,
 一方が有理数の場合には, その有理数は自動的に現在設定されている
 有限体の元に変換され, 演算が行われる. 
 \E
 \BEG
-The characteristic of a large finite prime field and the defining
-polynomial of a finite field of characteristic 2 are set by @code{setmod_ff}.
+Finite fields other than small finite prime fields are
+set by @code{setmod_ff}.
 Elements of finite fields do not have informations about the modulus.
-Upon an arithmetic operation, the modulus set by @code{setmod_ff} is
-used. If one of the operands is a rational number, it is automatically
+Upon an arithmetic operation, i
+f one of the operands is a rational number, it is automatically
 converted into an element of the finite field currently set and
 the operation is done in the finite field.
 \E

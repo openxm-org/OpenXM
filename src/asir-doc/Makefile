@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.11 2001/06/28 08:18:02 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.12 2002/08/13 07:44:03 noro Exp $
 
 WHICH=../../misc/which.pl
 
@@ -77,7 +77,7 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
 tmpJP: $(SRCS)
 	-rm -rf tmpJP
 	-mkdir tmpJP tmpJP/parts tmpJP/parts/builtin
-	-cp texinfo.* txt*tex tmpJP
+	-cp texinfo.* txi*tex tmpJP
 	-for i in ${SRCS}; do ./extract_man JP $$i > tmpJP/$$i; done
 
 tmpJPeuc: $(SRCS)

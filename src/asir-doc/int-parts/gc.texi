@@ -1,8 +1,11 @@
-@comment $OpenXM$
-@chapter $B%a%b%j4IM}(B
+@comment $OpenXM: OpenXM/src/asir-doc/int-parts/gc.texi,v 1.1 2001/04/23 05:45:35 noro Exp $
+\JP @chapter $B%a%b%j4IM}(B
+\EG @chapter Memory management
 
-@section $B%a%b%j4IM}5!9=(B
+\JP @section $B%a%b%j4IM}5!9=(B
+\EG @section Machinery for memory management
 
+\BJP
 @code{risa} $B$K$*$1$k%a%b%j4IM}$O(B, [Boehm,Weiser] $B$K$h$k$b$N$rMQ$$$F$$$k(B. 
 $B$3$N%a%b%j4IM}5!9=$NFCD'$O(B, $B%?%0IU$1$rI,MW$H$;$:(B, $B<+F0E*$K%,!<%Y%C%8%3%l(B
 $B%/%7%g%s(B(GC) $B$r9T$J$&$3$H$G$"$k(B. $B=>$C$F%f!<%6$OI,MW$JNN0h$r<h$j$C$Q$J$7(B
@@ -20,7 +23,11 @@
 $B$NNN0h$O(B, $BJ#?t$NNN0h$+$i;2>H$5$l$F$$$k2DG=@-$,$"$k$?$a(B, $B%f!<%6$,3+J|$9$k(B
 $B$3$H$O4m81$G$"$k(B. $B$?$@$7(B, $B:n6HMQ$N%P%C%U%!$J$I(B, $BL@$i$+$KB>$+$i$N;2>H$,$J(B
 $B$$$b$N$K4X$7$F$O3+J|$7$F9=$o$J$$(B. $B%a%b%j4IM}4X78$N<g$JH!?t$O<!$NDL$j(B.
+\E
+\BEG
+\E
 
+\BJP
 @example
 void GC_init()
 $B=i4|2=%k!<%A%s(B. $B5/F0;~$K<B9T$9$k(B. 
@@ -41,10 +48,24 @@ p $B$N;X$9NN0h$r3+J|$9$k(B. Risa $B$G$O(B, $B$"$kNN0h$,$I$3$+$i$I$N0L;X$5$l
 $B%s%?$r4^$^$J$$$3$H$,J,$+$C$F$$$kNN0hMQ$K(B @code{GC_malloc_atomic()} $B$,MQ(B
 $B0U$5$l$F$$$k(B. GC $B%k!<%A%s$O(B, @code{GC_malloc_atomic()} $B$K$h$j3d$jEv$F$i(B
 $B$l$?NN0h$NFbIt$O%9%-%c%s$7$J$$$N$G(B, GC $B$N8zN($,NI$/$J$k(B. 
+\E
+\BEG
+@example
+void GC_init()
 
+void *GC_malloc(int n)
 
-@section Risa $B$K$*$1$k%a%b%j$N;HMQ(B
+void *GC_malloc_atomic(int n)
 
+GC_free(void *p)
+@end example
+@noindent
+\E
+
+\JP @section Risa $B$K$*$1$k%a%b%j$N;HMQ(B
+\EG @section Usage of memory in Risa
+
+\BJP
 Risa $B$K$*$1$k3F1i;;4X?t$K$D$$$F6&DL$N?6Iq$$$H$7$F(B, $B7k2L$H$7$F@8@.$5$l$k(B
 object $B$NFbIt$G(B, $BF~NO$G$"$k(B object $B$N3FIt$X$N;2>H$,9T$o$l$F$$$k2DG=@-(B
 $B$,$"$k(B, $B$H$$$&$3$H$,$"$k(B. 
@@ -53,6 +74,9 @@ object $B$NFbIt$G(B, $BF~NO$G$"$k(B object $B$N3FIt$X$N;2>H$,9T$o$l$F$$$k2D
 $B>l9g$K$O(B, $B78?t(B($B$X$N%]%$%s%?(B)$B$,$=$N$^$^7k2L$K%3%T!<$5$l$F$$$k(B. $B$^$?(B, 
 $B0z?t$N0lJ}$N<!?t78?t%j%9%H$NKvHx$^$G$?$I$C$?;~$K(B, $B0lJ}$N<!?t78?t%j%9%H$,(B
 $B;D$C$F$$$k>l9g$K$O(B, $B$=$N;D$j$,$=$N$^$^7k2L$N<!?t78?t%j%9%H$K$D$J$,$l$k(B. 
+\E
+\BEG
+\E
 
 @example
 #include "ca.h"
@@ -120,7 +144,11 @@ P p1,p2,*pr;
 @}
 @end example
 
+\BJP
 $B$3$N$h$&$K(B, Risa $B$N1i;;4X?t$G$O(B, $B0l8+ITMW$K$J$C$?Cf4VE*$J7k2L$G$b(B, $B$=$N(B
 $BItJ,<0$,:G=*7k2L$KMQ$$$i$l$F$$$k$3$H$,$"$k$?$a(B, $BCm0U$,I,MW$G$"$k(B. $BFC$K(B, 
 $BG[Ns$r=q$-49$($kI,MW$,$"$k>l9g$J$I$K$O(B, $BG[Ns$=$N$b$N$r?7$7$/@8@.$7$F(B, $B@.(B
 $BJ,$r%3%T!<$7$F$+$iMQ$$$kI,MW$,$"$k(B.
+\E
+\BEG
+\E
