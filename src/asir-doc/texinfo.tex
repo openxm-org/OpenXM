@@ -86,7 +86,28 @@
 % For @tex, we can use \tabalign.
 \let\+ = \relax
 
+% (Aug. 17, 1999 A.K.)
+% Japanese support. (pTeX is a free Japanese TeX by ASCII corp., Japan,
+% and jTeX is a free Japanese TeX by NTT corp. and T. Sakurai)
+\newif\ifjaTeX
+\newif\ifpTeX
+\ifx\kanjiskip\undefined\else
+  \pTeXtrue
+  \jaTeXtrue
+\fi
+\newif\ifjTeX
+\ifx\jkern\undefined\else
+  \jTeXtrue
+  \jaTeXtrue
+\fi
+
 \message{Basics,}
+\ifpTeX
+\message{ASCII-pTeX,}
+\fi
+\ifjTeX
+\message{NTT-jTeX,}
+\fi
 \chardef\other=12
 
 % If this character appears in an error message or help string, it
@@ -891,7 +912,8 @@ where each line of input produces a line of output.}
     \fi}
   \def\pdfmkdest#1{\pdfdest name{#1@} xyz}
   \def\pdfmkpgn#1{#1@}
-  \let\linkcolor = \Cyan
+%   \let\linkcolor = \Cyan
+  \let\linkcolor = \Green
   \def\endlink{\Black\pdfendlink}
   % Adding outlines to PDF; macros for calculating structure of outlines
   % come from Petr Olsak
@@ -1023,10 +1045,26 @@ where each line of input produces a line of output.}
 \message{fonts,}
 % Font-change commands.
 
+% Japanese fonts.
+\newfam\mcfam
+\newfam\gtfam
+\ifjaTeX
+\catcode`\@ =11
+\def\mc{\fam\mcfam \tenmin}
+\def\gt{\fam\gtfam \tengt}
+\def\rm{\mc \fam\z@ \tenrm}
+\def\bf{\gt \fam\bffam \tenbf}
+\catcode`\@ =12
+\fi
+
 % Texinfo sort of supports the sans serif font style, which plain TeX does not.
 % So we set up a \sf analogous to plain's \rm, etc.
 \newfam\sffam
+\ifjaTeX
+\def\sf{\gt \fam\sffam \tensf}
+\else
 \def\sf{\fam=\sffam \tensf}
+\fi
 \let\li = \sf % Sometimes we call it \li, not \sf.
 
 % We don't need math for this one.
@@ -1068,9 +1106,25 @@ where each line of input produces a line of output.}
 \let\mainmagstep=\magstep1
 \setfont\textrm\rmshape{12}{1000}
 \setfont\texttt\ttshape{12}{1000}
+\ifpTeX
+\font\textmc=min10 scaled 1200
+\font\textgt=goth10 scaled 1200
+\fi
+\ifjTeX
+\jfont\textmc=dm12
+\jfont\textgt=dg12
+\fi
 \else
 \setfont\textrm\rmshape{10}{\mainmagstep}
 \setfont\texttt\ttshape{10}{\mainmagstep}
+\ifpTeX
+\font\textmc=min10 scaled \magstephalf
+\font\textgt=goth10 scaled \magstephalf
+\fi
+\ifjTeX
+\jfont\textmc=dm10 scaled \magstephalf
+\jfont\textgt=dg10 scaled \magstephalf
+\fi
 \fi
 % Instead of cmb10, you many want to use cmbx10.
 % cmbx10 is a prettier font on its own, but cmb10
@@ -1085,9 +1139,25 @@ where each line of input produces a line of output.}
 \font\textsy=cmsy10 scaled \mainmagstep
 
 % A few fonts for @defun, etc.
+\ifpTeX
+\setfont\defbf\bxshape{10}{\magstep1} %was 1314
+\setfont\deftt\ttshape{10}{\magstep1}
+\font\defmc=min10 scaled \magstep1
+\font\defgt=goth10 scaled \magstep1
+\def\df{\let\tentt=\deftt \let\tenmin=\defmc
+\let\tengt=\defgt \let\tenbf = \defbf \bf}
+\else\ifjTeX
+\setfont\defbf\bxshape{10}{\magstep1} %was 1314
+\setfont\deftt\ttshape{10}{\magstep1}
+\jfont\defmc=dm10 scaled \magstep1
+\jfont\defgt=dg10 scaled \magstep1
+\def\df{\let\tentt=\deftt \let\tenmin=\defmc
+\let\tengt=\defgt \let\tenbf = \defbf \bf}
+\else
 \setfont\defbf\bxshape{10}{\magstep1} %was 1314
 \setfont\deftt\ttshape{10}{\magstep1}
 \def\df{\let\tentt=\deftt \let\tenbf = \defbf \bf}
+\fi\fi
 
 % Fonts for indices, footnotes, small examples (9pt).
 \setfont\smallrm\rmshape{9}{1000}
@@ -1100,6 +1170,14 @@ where each line of input produces a line of output.}
 \setfont\smallttsl\ttslshape{10}{900}
 \font\smalli=cmmi9
 \font\smallsy=cmsy9
+\ifpTeX
+\font\smallmc=min9
+\font\smallgt=goth9
+\fi
+\ifjTeX
+\jfont\smallmc=dm9
+\jfont\smallgt=dg9
+\fi
 
 % Fonts for title page:
 \setfont\titlerm\rmbshape{12}{\magstep3}
@@ -1108,11 +1186,22 @@ where each line of input produces a line of output.}
 \setfont\titlett\ttbshape{12}{\magstep3}
 \setfont\titlettsl\ttslshape{10}{\magstep4}
 \setfont\titlesf\sfbshape{17}{\magstep1}
+\ifpTeX
+\font\titlemc=min10 scaled \magstep4
+\font\titlegt=goth10 scaled \magstep4
+\fi
+\ifjTeX
+\jfont\titlemc=dm10 scaled \magstep4
+\jfont\titlegt=dg10 scaled \magstep4
+\fi
 \let\titlebf=\titlerm
 \setfont\titlesc\scbshape{10}{\magstep4}
 \font\titlei=cmmi12 scaled \magstep3
 \font\titlesy=cmsy10 scaled \magstep4
 \def\authorrm{\secrm}
+\ifjaTeX
+\def\authormc{\secmc}
+\fi
 
 % Chapter (and unnumbered) fonts (17.28pt).
 \setfont\chaprm\rmbshape{12}{\magstep2}
@@ -1121,6 +1210,14 @@ where each line of input produces a line of output.}
 \setfont\chaptt\ttbshape{12}{\magstep2}
 \setfont\chapttsl\ttslshape{10}{\magstep3}
 \setfont\chapsf\sfbshape{17}{1000}
+\ifpTeX
+\font\chapmc=min10 scaled \magstep3
+\font\chapgt=goth10 scaled \magstep3
+\fi
+\ifjTeX
+\jfont\chapmc=dm10 scaled \magstep3
+\jfont\chapgt=dg10 scaled \magstep3
+\fi
 \let\chapbf=\chaprm
 \setfont\chapsc\scbshape{10}{\magstep3}
 \font\chapi=cmmi12 scaled \magstep2
@@ -1133,6 +1230,14 @@ where each line of input produces a line of output.}
 \setfont\sectt\ttbshape{12}{\magstep1}
 \setfont\secttsl\ttslshape{10}{\magstep2}
 \setfont\secsf\sfbshape{12}{\magstep1}
+\ifpTeX
+\font\secmc=min10 scaled \magstep2
+\font\secgt=goth10 scaled \magstep2
+\fi
+\ifjTeX
+\jfont\secmc=dm10 scaled \magstep2
+\jfont\secgt=dg10 scaled \magstep2
+\fi
 \let\secbf\secrm
 \setfont\secsc\scbshape{10}{\magstep2}
 \font\seci=cmmi12 scaled \magstep1
@@ -1144,9 +1249,9 @@ where each line of input produces a line of output.}
 % \setfont\ssectt\ttshape{10}{\magstep1}
 % \setfont\ssecsf\sfshape{10}{\magstep1}
 
-%\setfont\ssecrm\bfshape{10}{1315}      % Note the use of cmb rather than cmbx.
-%\setfont\ssecit\itshape{10}{1315}      % Also, the size is a little larger than
-%\setfont\ssecsl\slshape{10}{1315}      % being scaled magstep1.
+%\setfont\ssecrm\bfshape{10}{1315}    % Note the use of cmb rather than cmbx.
+%\setfont\ssecit\itshape{10}{1315}    % Also, the size is a little larger than
+%\setfont\ssecsl\slshape{10}{1315}    % being scaled magstep1.
 %\setfont\ssectt\ttshape{10}{1315}
 %\setfont\ssecsf\sfshape{10}{1315}
 
@@ -1159,6 +1264,14 @@ where each line of input produces a line of output.}
 \setfont\ssectt\ttbshape{12}{\magstephalf}
 \setfont\ssecttsl\ttslshape{10}{1315}
 \setfont\ssecsf\sfbshape{12}{\magstephalf}
+\ifpTeX
+\font\ssecmc=min10 scaled 1315
+\font\ssecgt=goth10 scaled 1315
+\fi
+\ifjTeX
+\jfont\ssecmc=dm10 scaled 1315
+\jfont\ssecgt=dg10 scaled 1315
+\fi
 \let\ssecbf\ssecrm
 \setfont\ssecsc\scbshape{10}{\magstep1}
 \font\sseci=cmmi12 scaled \magstephalf
@@ -1172,12 +1285,20 @@ where each line of input produces a line of output.}
 % don't bother to reset \scriptfont and \scriptscriptfont (which would
 % also require loading a lot more fonts).
 %
+\ifpTeX
+\def\resetmathfonts{%
+  \textfont0 = \tenrm \textfont1 = \teni \textfont2 = \tensy
+  \textfont\itfam = \tenit \textfont\slfam = \tensl \textfont\bffam = \tenbf
+  \textfont\ttfam = \tentt \textfont\sffam = \tensf
+  \textfont\mcfam = \tenmin \textfont\gtfam = \tengt
+}
+\else
 \def\resetmathfonts{%
   \textfont0 = \tenrm \textfont1 = \teni \textfont2 = \tensy
   \textfont\itfam = \tenit \textfont\slfam = \tensl \textfont\bffam = \tenbf
   \textfont\ttfam = \tentt \textfont\sffam = \tensf
 }
-
+\fi
 
 % The font-changing commands redefine the meanings of \tenSTYLE, instead
 % of just \STYLE.  We do this so that font changes will continue to work
@@ -1185,41 +1306,101 @@ where each line of input produces a line of output.}
 % cases, not the current font.  Plain TeX does \def\bf{\fam=\bffam
 % \tenbf}, for example.  By redefining \tenbf, we obviate the need to
 % redefine \bf itself.
+\ifjaTeX
+\def\textfonts{%
+  \let\tenrm=\textrm \let\tenit=\textit \let\tensl=\textsl
+  \let\tenbf=\textbf \let\tentt=\texttt \let\smallcaps=\textsc
+  \let\tensf=\textsf \let\teni=\texti \let\tensy=\textsy \let\tenttsl=\textttsl
+  \let\tenmin=\textmc \let\tengt=\textgt
+  \resetmathfonts}
+\else
 \def\textfonts{%
   \let\tenrm=\textrm \let\tenit=\textit \let\tensl=\textsl
   \let\tenbf=\textbf \let\tentt=\texttt \let\smallcaps=\textsc
   \let\tensf=\textsf \let\teni=\texti \let\tensy=\textsy \let\tenttsl=\textttsl
   \resetmathfonts}
+\fi
+%
+\ifjaTeX
+\def\titlefonts{%
+  \let\tenrm=\titlerm \let\tenit=\titleit \let\tensl=\titlesl
+  \let\tenbf=\titlebf \let\tentt=\titlett \let\smallcaps=\titlesc
+  \let\tensf=\titlesf \let\teni=\titlei \let\tensy=\titlesy
+  \let\tenttsl=\titlettsl
+  \let\tenmin=\titlemc \let\tengt=\titlegt
+  \resetmathfonts \setleading{25pt}}
+\else
 \def\titlefonts{%
   \let\tenrm=\titlerm \let\tenit=\titleit \let\tensl=\titlesl
   \let\tenbf=\titlebf \let\tentt=\titlett \let\smallcaps=\titlesc
   \let\tensf=\titlesf \let\teni=\titlei \let\tensy=\titlesy
   \let\tenttsl=\titlettsl
   \resetmathfonts \setleading{25pt}}
+\fi
 \def\titlefont#1{{\titlefonts\rm #1}}
+%
+\ifjaTeX
+\def\chapfonts{%
+  \let\tenrm=\chaprm \let\tenit=\chapit \let\tensl=\chapsl
+  \let\tenbf=\chapbf \let\tentt=\chaptt \let\smallcaps=\chapsc
+  \let\tensf=\chapsf \let\teni=\chapi \let\tensy=\chapsy \let\tenttsl=\chapttsl
+  \let\tenmin=\chapmc \let\tengt=\chapgt
+  \resetmathfonts \setleading{19pt}}
+\else
 \def\chapfonts{%
   \let\tenrm=\chaprm \let\tenit=\chapit \let\tensl=\chapsl
   \let\tenbf=\chapbf \let\tentt=\chaptt \let\smallcaps=\chapsc
   \let\tensf=\chapsf \let\teni=\chapi \let\tensy=\chapsy \let\tenttsl=\chapttsl
   \resetmathfonts \setleading{19pt}}
+\fi
+%
+\ifjaTeX
+\def\secfonts{%
+  \let\tenrm=\secrm \let\tenit=\secit \let\tensl=\secsl
+  \let\tenbf=\secbf \let\tentt=\sectt \let\smallcaps=\secsc
+  \let\tensf=\secsf \let\teni=\seci \let\tensy=\secsy \let\tenttsl=\secttsl
+  \let\tenmin=\secmc \let\tengt=\secgt
+  \resetmathfonts \setleading{16pt}}
+\else
 \def\secfonts{%
   \let\tenrm=\secrm \let\tenit=\secit \let\tensl=\secsl
   \let\tenbf=\secbf \let\tentt=\sectt \let\smallcaps=\secsc
   \let\tensf=\secsf \let\teni=\seci \let\tensy=\secsy \let\tenttsl=\secttsl
   \resetmathfonts \setleading{16pt}}
+\fi
+%
+\ifjaTeX
+\def\subsecfonts{%
+  \let\tenrm=\ssecrm \let\tenit=\ssecit \let\tensl=\ssecsl
+  \let\tenbf=\ssecbf \let\tentt=\ssectt \let\smallcaps=\ssecsc
+  \let\tensf=\ssecsf \let\teni=\sseci \let\tensy=\ssecsy \let\tenttsl=\ssecttsl
+  \let\tenmin=\ssecmc \let\tengt=\ssecgt
+  \resetmathfonts \setleading{15pt}}
+\else
 \def\subsecfonts{%
   \let\tenrm=\ssecrm \let\tenit=\ssecit \let\tensl=\ssecsl
   \let\tenbf=\ssecbf \let\tentt=\ssectt \let\smallcaps=\ssecsc
   \let\tensf=\ssecsf \let\teni=\sseci \let\tensy=\ssecsy \let\tenttsl=\ssecttsl
   \resetmathfonts \setleading{15pt}}
+\fi
 \let\subsubsecfonts = \subsecfonts % Maybe make sssec fonts scaled magstephalf?
+%
+\ifjaTeX
+\def\smallfonts{%
+  \let\tenrm=\smallrm \let\tenit=\smallit \let\tensl=\smallsl
+  \let\tenbf=\smallbf \let\tentt=\smalltt \let\smallcaps=\smallsc
+  \let\tensf=\smallsf \let\teni=\smalli \let\tensy=\smallsy
+  \let\tenttsl=\smallttsl
+  \let\tenmin=\smallmc \let\tengt=\smallgt
+  \resetmathfonts \setleading{11pt}}
+\else
 \def\smallfonts{%
   \let\tenrm=\smallrm \let\tenit=\smallit \let\tensl=\smallsl
   \let\tenbf=\smallbf \let\tentt=\smalltt \let\smallcaps=\smallsc
   \let\tensf=\smallsf \let\teni=\smalli \let\tensy=\smallsy
   \let\tenttsl=\smallttsl
   \resetmathfonts \setleading{11pt}}
-
+\fi
 % Set up the default fonts, so we can use them for creating boxes.
 %
 \textfonts
@@ -1235,7 +1416,14 @@ where each line of input produces a line of output.}
 \setfont\shortcontrm\rmshape{12}{1000}
 \setfont\shortcontbf\bxshape{12}{1000}
 \setfont\shortcontsl\slshape{12}{1000}
-
+\ifpTeX
+\font\shortcontmc=min10 scaled \magstep1
+\font\shortcontgt=goth10 scaled \magstep1
+\fi
+\ifjTeX
+\jfont\shortcontmc=dm10 scaled \magstep1
+\jfont\shortcontgt=dg10 scaled \magstep1
+\fi
 %% Add scribe-like font environments, plus @l for inline lisp (usually sans
 %% serif) and @ii for TeX italic
 
@@ -1474,7 +1662,12 @@ where each line of input produces a line of output.}
    \let\subtitlerm=\tenrm
    \def\subtitlefont{\subtitlerm \normalbaselineskip = 13pt \normalbaselines}%
    %
+\ifjaTeX
+   \def\authorfont{\authormc\authorrm
+   \normalbaselineskip = 16pt \normalbaselines}%
+\else
    \def\authorfont{\authorrm \normalbaselineskip = 16pt \normalbaselines}%
+\fi
    %
    % Leave some space at the very top of the page.
    \vglue\titlepagetopglue
@@ -2987,7 +3180,11 @@ width0pt\relax} \fi
 
 \def\initial#1{{%
   % Some minor font changes for the special characters.
+\ifjaTeX
+  \let\tentt=\sectt \let\tt=\sectt \let\sf=\gt\sectt
+\else
   \let\tentt=\sectt \let\tt=\sectt \let\sf=\sectt
+\fi
   %
   % Remove any glue we may have, we'll be inserting our own.
   \removelastskip
@@ -3826,7 +4023,12 @@ width0pt\relax} \fi
       % We want a true roman here for the page numbers.
       \secfonts
       \let\rm=\shortcontrm \let\bf=\shortcontbf \let\sl=\shortcontsl
+\ifjaTeX
+      \let\mc=\shortcontmc \let\gt=\shortcontgt
+      \mc\rm
+\else
       \rm
+\fi
       \hyphenpenalty = 10000
       \advance\baselineskip by 1pt % Open it up a little.
       \def\secentry ##1##2##3##4{}
@@ -3875,7 +4077,11 @@ width0pt\relax} \fi
 %
 \def\shortchaplabel#1{%
   % Compute width of word "Appendix", may change with language.
-  \setbox0 = \hbox{\shortcontrm \putwordAppendix}%
+  \ifjaTeX
+  \setbox0 = \hbox{\shortcontmc\shortcontrm \putwordAppendix }
+  \else
+  \setbox0 = \hbox{\shortcontrm \putwordAppendix }
+  \fi
   \shortappendixwidth = \wd0
   %
   % We typeset #1 in a box of constant width, regardless of the text of

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.10 2001/05/20 09:19:16 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.11 2001/06/28 08:18:02 takayama Exp $
 
 WHICH=../../misc/which.pl
 
@@ -77,13 +77,13 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
 tmpJP: $(SRCS)
 	-rm -rf tmpJP
 	-mkdir tmpJP tmpJP/parts tmpJP/parts/builtin
-	-cp jtexinfo.tex texinfo-js.tex tmpJP
+	-cp texinfo.* txt*tex tmpJP
 	-for i in ${SRCS}; do ./extract_man JP $$i > tmpJP/$$i; done
 
 tmpJPeuc: $(SRCS)
 	-rm -rf tmpJPeuc
 	-mkdir tmpJPeuc tmpJPeuc/parts tmpJPeuc/parts/builtin
-	-cp jtexinfo.tex texinfo-js.tex tmpJPeuc
+	-cp texinfo.* txi*tex tmpJPeuc
 	-for i in ${SRCS}; do \
 	  ./extract_man JP $$i | nkf -e > tmpJPeuc/$$i; \
 	done
@@ -91,7 +91,7 @@ tmpJPeuc: $(SRCS)
 tmpJPhtml: $(SRCS)
 	-rm -rf tmpJPhtml
 	-mkdir tmpJPhtml tmpJPhtml/parts tmpJPhtml/parts/builtin
-	-cp jtexinfo.tex texinfo-js.tex tmpJPhtml
+	-cp texinfo.* txi*tex tmpJPhtml
 	-for i in ${SRCS}; do \
 	  ./extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmpJPhtml/$$i; \
 	done 
@@ -99,13 +99,13 @@ tmpJPhtml: $(SRCS)
 tmpEG: $(SRCS)
 	-rm -rf tmpEG
 	-mkdir tmpEG tmpEG/parts tmpEG/parts/builtin
-	-cp texinfo.tex tmpEG
+	-cp texinfo.* txi*tex tmpEG
 	-for i in ${SRCS}; do ./extract_man EG $$i > tmpEG/$$i; done
 
 tmpEGhtml: $(SRCS)
 	-rm -rf tmpEGhtml
 	-mkdir tmpEGhtml tmpEGhtml/parts tmpEGhtml/parts/builtin
-	-cp texinfo.tex tmpEG
+	-cp texinfo.* txi*tex tmpEG
 	-for i in ${SRCS}; do \
 		./extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i;\
 	done
@@ -113,7 +113,7 @@ tmpEGhtml: $(SRCS)
 tmp-internal-JAhtml: $(INTERNAL_SRCS)
 	-rm -rf tmp-internal-JAhtml
 	-mkdir tmp-internal-JAhtml tmp-internal-JAhtml/int-parts tmp-internal-JAhtml/int-parts/datatype
-	-cp jtexinfo.tex texinfo-js.tex tmp-internal-JAhtml
+	-cp texinfo.* txi*tex tmp-internal-JAhtml
 	-for i in ${INTERNAL_SRCS}; do \
 	  ./extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmp-internal-JAhtml/$$i; \
 	done 
