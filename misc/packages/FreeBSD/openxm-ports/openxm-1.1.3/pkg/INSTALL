@@ -1,0 +1,15 @@
+#!/bin/sh
+# $OpenXM$
+# If you change this, modify Makefile/ post-install, too.
+echo "pkg/INSTALL script"
+echo -n "PKG_PREFIX is "
+echo $PKG_PREFIX
+if [ $2 = "PRE-INSTALL" ] ; then
+	(/bin/rm -rf $PKG_PREFIX/OpenXM ; mkdir $PKG_PREFIX/OpenXM ; mkdir $PKG_PREFIX/OpenXM/lib ; mkdir $PKG_PREFIX/OpenXM/lib/sm1 ; mkdir $PKG_PREFIX/OpenXM/lib/sm1/bin ) 
+fi
+if [ $2 = "POST-INSTALL" ] ; then
+	(cd $PKG_PREFIX/OpenXM/rc ; make clean ; make install PREFIX=$PKG_PREFIX) ;
+	cp $PKG_PREFIX/OpenXM/man/man1/sm1.1 $PKG_PREFIX/man/man1 ;
+	cp $PKG_PREFIX/OpenXM/man/man1/openxm.1 $PKG_PREFIX/man/man1 ;
+	gzip -f $PKG_PREFIX/man/man1/sm1.1 $PKG_PREFIX/man/man1/openxm.1 ;
+fi
