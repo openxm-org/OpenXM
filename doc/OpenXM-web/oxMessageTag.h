@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/oxMessageTag.h,v 1.1 2000/01/18 07:30:12 takayama Exp $ */
 /* oxMessageTag.h */
 
 #define OX_COMMAND                   513	
@@ -15,4 +15,6 @@
 #define OX_BYTE_NETWORK_BYTE_ORDER    0
 #define OX_BYTE_LITTLE_ENDIAN         1
 #define OX_BYTE_BIG_ENDIAN         0xff
+
+#define OX_PRIVATE               0x7fff0000
 

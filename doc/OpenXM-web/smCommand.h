@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.1 2000/01/18 07:30:13 takayama Exp $ */
 /* smCommand.h */
 
 #define SM_popSerializedLocalObject 258
@@ -23,3 +23,5 @@
 #define SM_control_reset_connection  1030
 #define SM_control_to_debug_mode 1025
 #define SM_control_exit_debug_mode 1026
+
+#define  SM_PRIVATE         0x7fff0000
