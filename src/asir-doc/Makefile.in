@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.1 2004/06/30 12:13:05 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.2 2004/06/30 22:14:06 takayama Exp $
 OpenXM_HOME=@prefix@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -6,7 +6,7 @@ OpenXM_man=${OpenXM_HOME}/man/man1
 CC=@CC@
 DVIPDF=dvipdfmx
 
-all:
+all: update-makefile
 	if [ ! -f .make_done ]; then make all2 ; touch .make_done ; fi
 install:
 	if [ ! -f .install_done ] ; then make install2 ; touch .install_done ; fi
@@ -37,6 +37,10 @@ install-jp: all-jp
 
 install-man-pages:
 	-install asir.1 ${OpenXM_man}
+
+update-makefile: Makefile
+Makefile: Makefile.in
+	(rm -f .configure_done ; ./make-configure)
 
 configure:
 	(cd jtexindex/C; ./configure; make clean)

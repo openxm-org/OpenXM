@@ -1,6 +1,6 @@
 #!/bin/sh
-# $OpenXM$
-if test ! -f ./.configure_done 
+# $OpenXM: OpenXM/src/asir-doc/make-configure,v 1.1 2004/06/30 12:13:05 takayama Exp $
+if test ! -f ./.configure_done  -o ! -f ./Makefile
 then 
  echo "--prefix=`cd ../../../OpenXM ; pwd`"
  ./configure --prefix="`cd ../../../OpenXM ; pwd`"
