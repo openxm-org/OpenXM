@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.5 1999/11/02 15:58:11 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.6 1999/11/10 21:25:48 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -171,6 +171,11 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 		 +"("+ ControlPort +","+ DataPort +")\n");
 
     try{
+      /*
+	Runtime r = Runtime.getRuntime();
+
+	r.exec("ox -ox ox_sm1");
+	*/
       oxm = new OpenXM(host,ControlPort,DataPort);
       textarea.append("Connected.\n");
       oxm.sendCMO(new CMO_STRING("(cohom.sm1) run ;\n"));
