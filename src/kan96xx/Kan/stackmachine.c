@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.27 2004/09/16 23:53:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.28 2004/09/17 02:42:57 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -74,6 +74,7 @@ static strToInteger(char *);
 static power(int s,int i);
 static void pstack(void);
 static struct object executableStringToExecutableArray(char *str);
+static int isThereExecutableArrayOnStack(int n);
 
 extern int SerialCurrent;
 extern int QuoteMode;
@@ -464,6 +465,32 @@ struct object peek(k)
   }
 }
 
+static int isThereExecutableArray(struct object ob) {
+  int n,i;
+  struct object otmp;
+  if (ob.tag == SexecutableArray) return(1);
+  if (ob.tag == Sarray) {
+    n = getoaSize(ob);
+    for (i=0; i<n; i++) {
+      otmp = getoa(ob,i);
+      if (isThereExecutableArray(otmp)) return(1);
+    }
+    return(0);
+  }
+  /* Class and list is not checked, since there is no parser
+     to directory translte these objects. */
+  return(0);
+}
+static int isThereExecutableArrayOnStack(int n) {
+  int i;
+  struct object ob;
+  for (i=0; i<n; i++) {
+    if (Osp-i-1 < 0) return(0);
+    ob = peek(i);
+    if (isThereExecutableArray(ob)) return(1); 
+  }
+  return(0);
+}
 
 struct object newOperandStack(int size)
 {
@@ -997,6 +1024,11 @@ int executeToken(token)
           if (RestrictedMode) {
             if (UD_attr & ATTR_EXPORT) {
               localRestrictedMode_saved = RestrictedMode; RestrictedMode = 0;
+              if (isThereExecutableArrayOnStack(5)) {
+				int i;
+                for (i=0; i<5; i++) { (void) Kpop(); }
+                errorStackmachine("Executable array is on the argument stack (restricted mode). They are automatically removed.\n");
+			  }
             }else{
               tracePushName(token.token);
               errorStackmachine("You cannot execute this function in restricted mode.\n");

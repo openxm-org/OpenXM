@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.7 2004/09/11 23:49:34 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.8 2004/09/13 11:24:10 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -229,4 +229,47 @@ input 形式の ring を object として格納.
 \item Todo: {\tt KgetRingInfo} を実装する. index から 変数, 変数から index 等.
 \end{enumerate}
 
+\section{2004-09, {\tt ATTR\_EXPORT} と {\tt RestrictedMode}}
+
+\noindent
+現在の RestrictedMode には以下の脆弱性がある (2004.9.19).
+\begin{verbatim}
+(cohom.sm1) run
+[(or_attr) 8 /gb] extension 
+[(or_attr) 8 /;] extension ;
+[(RestrictedMode) 1] system_variable ;
+[ [{(hello) message } ] (x,y) ] gb ;
+hello     <----  error を起こす前に {(hello) message} が実行されてしまう.
+ERROR(sm): 
+<< /name object def >>  or  << object /name set >>
+\end{verbatim}
+\noindent 原因: 
+引数に executableArray を与えることにより, 評価が抑制され
+{\tt ATTR\_EXPORT} bit がセットされた関数の評価がはじまってから
+executableArray が変数 {\tt arg1} に代入され, その変数を scanner
+が評価することにより, executableArray が評価される.
+
+\noindent 対策:
+{\tt isThereExecutableArrayOnStack(ob)} でスタックを検査するようにする.
+\begin{verbatim}
+(cohom.sm1) run
+[(or_attr) 8 /gb] extension 
+[(or_attr) 8 /;] extension ;
+0 1 10 { pop pop } for
+[(RestrictedMode) 1] system_variable ;
+[ [{(hello) message } ] (x,y) ] gb ;
+\end{verbatim}
+
+テスト 2 (こちらは正常に動くはず).
+\begin{verbatim}
+(ox.sm1) run
+[(or_attr) 8 /fctr] extension 
+[(or_attr) 8 /pmat] extension ;
+[(or_attr) 8 /;] extension ;
+0 1 10 { pop pop } for
+[(RestrictedMode) 1] system_variable ;
+[ (x^2-1) (x,y) ] fctr pmat ;
+\end{verbatim}
+
 \end{document}
+
