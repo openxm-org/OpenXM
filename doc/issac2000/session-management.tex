@@ -1,8 +1,212 @@
-% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.1 1999/12/23 10:25:09 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
 
-\section{Session Management}  (Noryo)
+\section{Session Management}
 
-MEMO: key words:
-Security (ssh PAM), initial negotiation of byte order,
-mathcap, interruption, debugging window, etc.
+%MEMO: key words:
+%Security (ssh PAM), initial negotiation of byte order,
+%mathcap, interruption, debugging window, etc.
  
+In this section we show the realization of control integration in
+OpenXM.  In OpenXM it is assumed that various clients and servers
+establish connections dynamically and communicate to each
+other. Therefore it is necessary to unify the communication interface
+and the method of communication establishment.  Besides, interruption
+of an execution and debugging are common operations when we use
+programming systems. OpenXM provides a method to realize them for
+distributed computation.
+
+\subsection{Interface of servers}
+
+A server has the following I/O streams at its startup. The numbers
+indicate stream descriptors.
+
+\begin{description}
+\item{\bf 1} standard output
+\item{\bf 2} standard error
+\item{\bf 3} input from a client
+\item{\bf 4} output to a client
+\end{description}
+
+A server reads data from the stream {\bf 3} and writes results to the
+stream {\bf 4}. The streams {\bf 1} and {\bf 2} are provided for
+diagnostic messages from the server.  As {\bf 3} and {\bf 4} are
+streams for binary data, the byte order conversion is necessary when a
+client and a server have different byte orders. There are several
+methods to treat it and we adopted the following scheme.
+
+\begin{itemize}
+\item A server writes 1 byte representing the preferable byte order.
+\item After reading the byte, a client writes 1 byte representing the
+preferable byte order.
+\item On each side, if the preference coicides with each other then
+the byte order is used. Otherwise the network byte order is used.
+\end{itemize}
+
+This implies that all servers and clients can handle the network byte
+order. Nevertheless it is necessary to negotiate the byte order to
+skip the byte order conversion because its cost is often dominant over
+fast networks.
+
+\subsection{Invocation of servers}
+\label{launcher}
+
+In general it is complicated to establish a connection over TCP/IP.
+On the other hand a server itself does not have any function to
+make a connection. In order to fill this gap an application called
+{\bf launcher} is provided. A connection is established by using
+the launcher as follows.
+
+\begin{enumerate}
+\item A launcher is invoked from a client or by hand.
+When the launcher is invoked, a port number for TCP/IP connection
+and the name of a server should be informed.
+\item The launcher and the client establish a conection with the
+specified port number.
+\item The launcher create a process and execute the server after
+setting the streams {\bf 3} and {\bf 4} appropriately.
+An application to display messages written to the streams {\bf 1} and
+{\bf 2} may be invoked if necessary.
+\end{enumerate}
+
+Though the above is all the task as a launcher, the launcher process
+acts as a control server and controls the server process created by
+itself. As for a control server see Section \ref{control}.
+
+\subsection{Control server}
+\label{control}
+When we use a mathematical software, an execution time or necessary
+storage is often unknown in advance. Therefore it is desirable
+to be able to abort an execution and to start another execution.
+On a usual session on UNIX it is done by an interruption from a keyboard.
+Internally it is realized by an exeption processing initiated by
+a {\bf signal}, but it is not easy to send a signal to a server.
+Especially if a server and a client run on different machines,
+the client cannot send a signal to the server directly.
+Though Some operating systems provide facilities to attach 
+signals such as {\tt SIGIO} and {\tt SIGURG} to a stream data, they are
+system dependent and lack robustness.
+On OpenXM we adopted the following simple and robust method.
+
+An OpenXM server has logically two I/O channels: one for exchanging
+data for computations and the other for controling computations. The
+control channel is used to send commands to control execution on the
+server. There are several ways of implementing the control channel.
+Among them it is common to use the launcher introduced in Section
+\ref{launcher} as a control process. We call such a process a {\bf
+control server}. In contrast, we call a server for computation an {\bf
+engine}. In this case the control server and the engine runs on the
+same machine and it is easy to maniputalate the engine, especially to
+send a signal from the control server. A control server is also an
+OpenXM stackmachine and the following {\tt SM} commands are provided.
+
+\begin{description}
+\item {\tt SM\_control\_reset\_connection}
+It requests a control server to send the {\tt SIGUSR1} signal.
+
+\item {\tt SM\_control\_kill}
+It requests a control server to terminate an engine.
+
+\item {\tt SM\_control\_intr}
+It requests a control server to send the {\tt SIGINT} signal.
+\end{description}
+
+\subsection{Resetting a connection}
+
+By using the control channel a client can send a signal to an engine
+at any time. However, I/O operations are usually buffered and several
+additional operations on buffers after sending a signal is necessary
+to reset connections safely. Here a safe resetting means the
+following:
+
+\begin{enumerate}
+\item A sending of an {\tt OX} message must be completed.
+
+As an {\tt OX} message is sent as a combination of several {\tt CMO}
+data, a global exit without sending all the data confuses the
+subsequent communication.
+
+\item After restarting a server, a request from a client 
+must correctly corresponds to the response from the server.
+
+An incorrect correspondence occurs if some data remain on the stream
+after restarting a server.
+\end{enumerate}
+
+{\tt SM\_control\_reset\_connection} is an {\tt SM} command to
+initiate a safe resetting of a connection. We show the action of 
+a server and a client from the initiation to the completion of
+a resetting.
+
+\noindent
+\fbox{client}
+
+\begin{enumerate}
+\item The client sends {\tt SM\_control\_reset\_connection} to the
+control server.
+\item The client enters the resetting state. it skips all {\tt
+OX} messages from the engine until it recieves {\tt OX\_SYNC\_BALL}.
+\item After receiving {\tt OX\_SYNC\_BALL} the client sends 
+{\tt OX\_SYNC\_BALL} to the engine and returns to the usual state.
+\end{enumerate}
+
+\noindent
+\fbox{engine}
+
+\begin{enumerate}
+\item After receiving {\tt SIGUSR1} from the control server,
+the engine enters the resetting state.
+\item If an {\tt OX} message is being sent or received, then
+the engine completes it. This does not block because
+the client reads and skips {\tt OX} messages soon after sending
+{\tt SM\_control\_reset\_connection}.
+\item The engine sends {\tt OX\_SYNC\_BALL} to the client.
+\item The engine skips all {\tt OX} messages from the engine until it
+recieves {\tt OX\_SYNC\_BALL}.
+\item After receiving {\tt OX\_SYNC\_BALL} the engine returns to the
+usual state.
+\end{enumerate}
+
+{\tt OX\_SYNC\_BALL} means an end mark of the data remaining in the
+I/O streams. After reading it it is assured that the stream is empty
+and that a request from a client correctly corresponds to the response
+from the server.  For a safe resetting, it is important that the
+following actions are executed always in that order.
+
+\begin{enumerate}
+\item A signal is sent to an engine by a request from a client.
+\item The engine sends {\tt OX\_SYNC\_BALL} to the client.
+\item The client sends {\tt OX\_SYNC\_BALL} to the engine after
+receiving {\tt OX\_SYNC\_BALL}.
+\end{enumerate}
+
+This assures that the peer is in the resetting state when one receives
+{\tt OX\_SYNC\_BALL}. By this fact we don't have to associate it with
+any special action to be executed by the server. Especially it can be
+ignored if processes are in the usual state. If the above order is not
+preserved, then both {\tt SM\_control\_reset\_connection} and {\tt
+OX\_SYNC\_BALL} must initiate an engine into entering the resetting
+state, and it makes the resetting scheme complicated and it may
+introduce unexpected bugs. For example, if a client sends {\tt
+OX\_SYNC\_BALL} without waiting {\tt OX\_SYNC\_BALL} from the engine,
+then it is possible that the engine recieves it before the arrival of
+the signal. We note that we really encountered serious bugs caused
+by such an inappropriate protocol before reaching the final specicication.
+
+\subsection{Debugging}
+An OpenXM server may allow definition and execution of functions
+written in the user language proper to the server.  To help debugging
+such functions on the server, various supports are possible. If
+servers are executed on X window system, then the control server can
+attach an {\tt xterm} to the standard outputs of the engine, which
+makes it possible to display messages from the engine. Furthermore, if
+the engine provides an inteface to input commands which directly
+controls the engine, then debugging of user define programs will be
+possible. For example {\tt Risa/Asir} provides a function {\tt
+debug()} to debug user defined functions. {\tt ox\_asir}, which is
+the OpenXM server of {\tt Risa/Asir}, pops up a window to input
+debug commands when {\tt debug()} is executed on the server.
+As the responses to the commands are displayed on the {\tt xterm},
+the debugging similar to that on usual terminals is possible.
+Moreover one can send {\tt SIGINT} by using {\tt SM\_control\_intr}
+and it provides a similar functinality to entering the debugging
+mode from a keyboard interruption.
