@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.10 2002/11/04 10:53:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.11 2002/11/04 11:08:59 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -816,7 +816,7 @@ void scanner() {
         fprintf(Fstack,"\nscanner> ");
       }
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
-      KSexecuteString(" (Computation is interrupted.) ");
+      KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook? */
       continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
@@ -1115,7 +1115,7 @@ KSexecuteString(s)
       recursive--;
       if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
-      KSexecuteString(" (Computation is interrupted.) ");
+      KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook?*/
       return(-1);
     }else{ }
   }else{
