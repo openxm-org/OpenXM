@@ -1,10 +1,10 @@
 
 module noro_simplify;
 
+localf flatten;
 localf remove_paren;
 localf remove_paren0;
 localf is_monomial;
-localf is_paren;
 
 #define O_QUOTE 17
 
@@ -26,6 +26,38 @@ def is_monomial(Q)
 		return 1;
 	else
 		return 0;
+}
+
+def flatten(Q,Opname)
+{
+	FA = quote_to_funargs(Q);
+	if ( FA[0] == I_BOP && (Name=get_function_name(FA[1]))==Opname ) {
+		F2 = remove_paren(flatten(FA[2],Opname));
+		F3 = remove_paren(flatten(FA[3],Opname));
+		FA2 = quote_to_funargs(F2);
+		if ( FA2[0] == I_BOP && get_function_name(FA2[1])==Opname ) {
+			/* [op [op A B] C] => [op A [op B C]] */
+			return funargs_to_quote([FA[0],FA[1],FA2[2],
+				funargs_to_quote([FA[0],FA[1],FA2[3],F3])]);
+		} else
+			return funargs_to_quote([FA[0],FA[1],F2,F3]);
+	} else if ( FA[0] == I_LIST ) {
+		R = [];
+		for ( T = FA[1]; T != []; T = cdr(T) ) {
+			Arg = flatten(car(T),Opname);
+			R = cons(Arg,R);	
+		}
+		return funargs_to_quote([FA[0],reverse(R)]);
+	} else {
+		R = [];
+		for ( T = FA; T != []; T = cdr(T) ) {
+			Arg = car(T);
+			if ( type(Arg) == O_QUOTE )
+				Arg = flatten(Arg,Opname);
+			R = cons(Arg,R);
+		}
+		return funargs_to_quote(reverse(R));
+	}
 }
 
 def remove_paren0(Q,Top)
