@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.2 1999/11/21 20:38:41 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.3 1999/12/09 00:32:36 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -183,9 +183,9 @@ class elimi extends Applet implements ActionListener,Runnable{
 	com += ")] gb";
 
 	debug("command: "+ com);
-	oxm.sendCMO(new CMO_STRING(com));
-	oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
-	oxm.sendSM(new SM(SM.SM_popString));
+	oxm.send(new CMO_STRING(com));
+	oxm.send(new SM(SM.SM_executeStringByLocalParser));
+	oxm.send(new SM(SM.SM_popString));
       }catch(java.io.IOException e){}
     }
     /*
@@ -219,8 +219,8 @@ class elimi extends Applet implements ActionListener,Runnable{
 
       oxm = new OpenXM(host,ControlPort,DataPort);
       System.out.println("Connected.");
-      oxm.sendCMO(new CMO_STRING("(cohom.sm1) run ;\n"));
-      oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
+      oxm.send(new CMO_STRING("(cohom.sm1) run ;\n"));
+      oxm.send(new SM(SM.SM_executeStringByLocalParser));
 
       thread = new Thread(this);
       thread.start();

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.20 2000/03/15 17:58:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.21 2000/03/16 04:54:57 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -56,10 +56,10 @@ abstract public class CMO extends OXbody{
 
   final public void write(OpenXMconnection os)
        throws IOException,MathcapViolation{
-    CMO[] mathcap
-      = ((CMO_LIST)(os.getMathcap(OXmessage.OX_DATA))[1]).getElements();
+    CMO[] mathcap = os.getMathcap(OXmessage.OX_DATA);
 
     if(mathcap != null){ // check mathcap
+      CMO[] datacap = ((CMO_LIST)mathcap[1]).getElements();
       int i=0;
 
       for(;i<mathcap.length;i++){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.5 2000/03/14 05:38:51 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.6 2000/03/15 17:58:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -43,7 +43,7 @@ final public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
     }
     variables = (CMO_LIST)tmp;
 
-    polynomial = receive(is);
+    polynomial = CMO.receive(is);
 
     return new CMO_RECURSIVE_POLYNOMIAL(variables,polynomial);
   }

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java,v 1.4 2000/03/14 05:06:47 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java,v 1.5 2000/03/15 17:58:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -26,7 +26,7 @@ final public class CMO_MATHCAP extends CMO{
   }
 
   static protected CMO receive(OpenXMconnection is) throws IOException{
-    CMO_LIST list = (CMO_LIST)receive(is);
+    CMO_LIST list = (CMO_LIST)CMO.receive(is);
 
     return new CMO_MATHCAP(list);
   }

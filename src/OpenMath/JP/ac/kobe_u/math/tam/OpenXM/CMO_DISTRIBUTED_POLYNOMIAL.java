@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.5 2000/03/14 05:38:50 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.6 2000/03/15 17:58:06 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -47,7 +47,7 @@ final public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
     }
     ring = tmp;
 
-    tmp = (CMO_MONOMIAL32)receive(is);
+    tmp = (CMO_MONOMIAL32)CMO.receive(is);
     if(tmp instanceof CMO_ZERO && m == 1){
       monomials = new CMO_MONOMIAL32[0];
     }else{
@@ -56,7 +56,7 @@ final public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
     }
 
     for(int i=1;i<m;i++){
-      monomials[i] = (CMO_MONOMIAL32)receive(is);
+      monomials[i] = (CMO_MONOMIAL32)CMO.receive(is);
     }
 
     return new CMO_DISTRIBUTED_POLYNOMIAL(ring,monomials);
