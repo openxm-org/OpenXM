@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.9 2000/01/22 06:29:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.10 2000/02/14 09:39:12 ohara Exp $ */
 
 int OX_start P((const char *));
 :Begin:
@@ -43,6 +43,16 @@ int OX_parse P((int id, const char *));
 :Begin:
 :Function: OX_parse
 :Pattern: OxParse[id_Integer, s_String]
+:Arguments: {id, s}
+:ArgumentTypes: {Integer, String}
+:ReturnType: Integer
+:End:
+
+int OX_sendMessage P((int id, const char *));
+
+:Begin:
+:Function: OX_sendMessage
+:Pattern: OxSendMessage[id_Integer, s_String]
 :Arguments: {id, s}
 :ArgumentTypes: {Integer, String}
 :ReturnType: Integer
