@@ -1,3 +1,7 @@
+# ox.rb OpenXM client written by Ruby
+#
+# $OpenXM$
+# 
 require 'socket'
 include Socket::Constants
 
@@ -112,28 +116,26 @@ SM_control_stop_watch_thread = 1029
 # end of CMO constants
 
 class CMO
-  def tag
-    return @tag
-  end
-  def tag= (tag)
+  def set_tag(tag)
     @tag = tag
   end
+  attr_accessor :tag
 end
 class CMONull < CMO
   def initialize
-    tag = CMO_NULL
+    set_tag(CMO_NULL)
   end
 end
 class CMOInt32 < CMO
   def initialize(i)
-    tag = CMO_INT32
+    set_tag(CMO_INT32)
     @i = i
   end
   attr_accessor :i
 end
 class CMOString < CMO
   def initialize(str)
-    tag = CMO_STRING
+    set_tag(CMO_STRING)
     @str = str
     @len = str.length
   end
@@ -145,14 +147,14 @@ end
 
 class OXCommand < OX
   def initialize(command)
-    tag = OX_COMMAND
+    set_tag(OX_COMMAND)
     @command = command
   end
   attr_accessor :command
 end
 class OXData < OX
   def initialize(cmo)
-    tag = OX_DATA
+    set_tag(OX_DATA)
     @cmo = cmo
   end
   attr_accessor :cmo
@@ -212,7 +214,6 @@ class OXSession
 
   def send_int32(n)
     b = n.to_a.pack("N")
-    p b
     return datap.write(b)
   end
 
@@ -301,7 +302,7 @@ end
 
 # Usage:
 #
-# Very simple example to connec to OpenXM server from Ruby.
+# Very simple example to connect to OpenXM server from Ruby.
 # % ox -ox ../ox_toolkit/ox_Xsample
 #
 # % ruby ox.rb
@@ -309,14 +310,18 @@ end
 
 s = OXSession.new()
 
-a = OXData.new(CMOInt32.new(100))
-b = OXData.new(CMOString.new("lineto"))
-c = OXCommand.new(SM_executeFunction)
-s.send(a)
-s.send(a)
-s.send(b)
-s.send(c)
+s.send(OXData.new(CMOInt32.new(100)))
+s.send(OXData.new(CMOInt32.new(100)))
+s.send(OXData.new(CMOInt32.new(2)))
+s.send(OXData.new(CMOString.new("lineto")))
+s.send(OXCommand.new(SM_executeFunction))
 
 while 1
-  break if gets
+  print '> '
+  STDOUT.flush
+  input = gets
+  break if not input
+  str = input
+  str.chop!
+  eval(str)
 end
