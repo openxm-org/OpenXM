@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/ascm2001/homogeneous-network.tex,v 1.1 2001/03/07 02:42:10 noro Exp $
+% $OpenXM: OpenXM/doc/ascm2001/homogeneous-network.tex,v 1.2 2001/03/07 07:17:02 noro Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -133,7 +133,7 @@ typical example is {\it quicksort}, where an array to be sorted is
 partitioned into two sub-arrays and the algorithm is applied to each
 sub-array. In each level of recursion, two subtasks are generated
 and one can ask other OpenXM servers to execute them. Though
-this make little contribution to the efficiency, it is worth
+this makes little contribution to the efficiency, it is worth
 to show that such an attempt is very easy under OpenXM.
 Here is an Asir program.
 A predefined constant {\tt LevelMax} determines
@@ -211,6 +211,7 @@ def c_z(F,E,Level)
         /* launch a server if necessary */
         if ( Proc1 < 0 ) Proc1 = ox_launch();
         /* send a request with Level = Level+1 */
+        /* ox_c_z is a wrapper of c_z on the server */
         ox_cmo_rpc(Proc1,"ox_c_z",lmptop(G),E,
             setmod_ff(),Level+1);
         /* the rest is done on this server */
