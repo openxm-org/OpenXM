@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.24 2004/05/13 05:33:10 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.25 2004/05/13 05:52:53 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -1799,7 +1799,7 @@
 } def
 /ecart.homogenize01Ideal {
  /arg1 set
- [/in.ecart.homogenize01Ideal /ll /vv /wv] pushVariables
+ [/in.ecart.homogenize01Ideal /ll /vv /wv /ans] pushVariables
  [
    /ll arg1 0 get def
    /vv arg1 1 get def
@@ -1813,7 +1813,9 @@
    [vv ring_of_differential_operators
     vv ecart.stdOrder weight_vector 0
     [(weightedHomogenization) 1]] define_ring
-   ll ,,, {ecart.homogenize01 ecart.dehomogenizeH} map /arg1 set
+   ll ,,, {ecart.homogenize01 ecart.dehomogenizeH} map /ans set
+   ecart.end
+   /arg1 ans def
  ] pop
  popVariables
  arg1
