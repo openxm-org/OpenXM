@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.17 2003/05/25 16:35:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.18 2003/05/28 08:43:59 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -44,6 +44,9 @@ typedef struct OXFILE{
     struct OXFILE *control;  /* pointer to his control server. */
     struct mathcap *mathcap;
     int error;
+    char *wbuf;
+    int wbuf_size;
+    int wbuf_count;
 } OXFILE;
 
 typedef struct cmo {

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.14 2003/01/13 12:03:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.15 2003/03/23 20:17:35 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -32,6 +32,20 @@ static int send_int32_nbo(OXFILE *oxfp, int int32);
 static int receive_int32_lbo(OXFILE *oxfp);
 static int receive_int32_nbo(OXFILE *oxfp);
 
+/* enable write buffering */
+int oxf_setbuffer(OXFILE *oxfp, char *buf, int size)
+{
+    if (buf == NULL && size > 0) {
+        buf = malloc(size);
+    }
+    if (oxfp->wbuf != NULL) {
+        oxf_flush(oxfp);
+    }
+    oxfp->wbuf = buf; 
+    oxfp->wbuf_size  = size;
+    oxfp->wbuf_count = 0;
+}
+
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
     int n = read(oxfp->fd, buffer, size*num);
@@ -43,7 +57,17 @@ int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
-    return write(oxfp->fd, buffer, size*num);
+    size_t sz = size*num;
+    if (oxfp->wbuf == NULL) { /* no buffering */
+        return write(oxfp->fd, buffer, sz);
+    }
+    if ((oxfp->wbuf_count + sz) >= oxfp->wbuf_size) {
+        oxf_flush(oxfp);
+        return write(oxfp->fd, buffer, sz);
+    }
+    memcpy(oxfp->wbuf + oxfp->wbuf_count, buffer, sz);
+    oxfp->wbuf_count += sz;
+    return sz;
 }
 
 /* sending an object of int32 type with Network Byte Order. 
@@ -95,6 +119,9 @@ OXFILE *oxf_open(int fd)
     oxfp->control = NULL;
     oxfp->error = 0;
     oxfp->mathcap = NULL;
+    oxfp->wbuf = NULL;
+    oxfp->wbuf_size = 0;
+    oxfp->wbuf_count = 0;
     return oxfp;
     /* oxfp->fp = fdopen(fd, "a+"); */
     /* return (oxfp->fp != NULL)? oxfp: NULL; */
@@ -142,13 +169,16 @@ void oxf_determine_byteorder_server(OXFILE *oxfp)
 
 void oxf_flush(OXFILE *oxfp)
 {
-    /* fflush(oxfp->fp); */
+    if (oxfp->wbuf != NULL) {
+        write(oxfp->fd, oxfp->wbuf, oxfp->wbuf_count);
+        oxfp->wbuf_count = 0;
+    }
 }
 
 void oxf_close(OXFILE *oxfp)
 {
+    oxf_flush(oxfp);
     close(oxfp->fd);
-    /* fclose(oxfp->fp); */
 }
 
 #define OXF_SETOPT_NBO  0
