@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.36 2003/07/21 08:07:37 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.37 2003/08/29 07:26:51 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -29,7 +29,7 @@ all: copy-binary-phc copy-binary copy-binary-asir win-correction win-correction-
 
 build-binary-openxm-cygwin:
 	if [ ! -f .build-binary-openxm-cygwin-done ] ; then \
-		(cd ${OpenXM_TOP}/src ; make install-kan-ox ; make install-phc) ; \
+		(cd ${OpenXM_TOP}/src ; make install-asir-contrib ) ; \
 		touch .build-binary-openxm-cygwin-done ; \
 	fi
 
