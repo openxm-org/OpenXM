@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.19 2001/12/28 08:05:44 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.20 2002/08/03 06:02:35 takayama Exp $
 
 /ox.sm1.loaded 1 def
 %%%%%%%%%%%% Configuration: Specify your server path
@@ -145,6 +145,7 @@ ox.version [(Version)] system_variable gt
  (oxpopcmo1, oxpopcmo2,  sm1connect2, sm1connect3) 
  (sm1connectr ox_launch, ox_launch_nox)
  (oxNoX : set an environment to invoke oxlog without xterm and to call oxlog with >& /dev/null)
+ (oxresetAll,  oxIsInterruptable, [(oxGetClientList)] extension )
  $        ex 1.  (ox.sm1) run oxNoX sm1connectr $
  $        ex 2.  (oxasir.sm1) run oxNoX (x^2-1). fctr pmat ; $
  ]
@@ -1073,6 +1074,34 @@ ox.verbose {
   ] pop
   popVariables
   arg1
+} def
+
+/oxIsInterruptable {
+  /arg1 set  % Client Object
+  [/in-ox_get_server_name /mcap /ans /sname] pushVariables
+  [
+    /mcap arg1 def
+    /ans 0 def
+    mcap tag 6 eq {
+     mcap 10 get tag 6 eq {
+      mcap 10 get 1 get 0 get 1 get /sname set
+     }{ /sname (  ) def } ifelse
+    }{   
+      /sname (  ) def
+    } ifelse
+    (ox_sm1) sname isSubstr -1 eq {
+    } { /ans 1 def } ifelse
+    (ox_asir) sname isSubstr -1 eq {
+    } { /ans 1 def } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/oxresetAll {
+ [(oxGetClientList)] extension 
+ { dup oxIsInterruptable { oxreset } { pop } ifelse } map
 } def
 
 [(ostype)] extension  0 get

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.8 2002/02/09 06:21:02 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.9 2002/02/12 08:54:55 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3645,6 +3645,48 @@ $ [ff ff] fromVectors :: $
   (it returns 1 else it returns 0.)
   $Example: (hoge) boundp ::$
 ]] putUsages
+[(isSubstr) 
+ [
+  (s1 s2 isSubstr pos)
+  (If s1 is a substring of s2, isSubstr returns the position in s2 from which)
+  (s1 is contained in s2.)
+  (If s1 is not a substring of s2, then isSubstr returns -1.)
+ ]
+] putUsages
+/isSubstr {
+  /arg2 set /arg1 set
+  [/in-isSubstr /s1 /s2 /i1 /i2 /n1 /n2
+   /ans /flg
+  ]  pushVariables
+  [
+    /s1 arg1 def
+    /s2 arg2 def
+    s1 (array) dc /s1 set
+    s2 (array) dc /s2 set
+    /n1 s1 length def
+    /n2 s2 length def
+    /ans -1 def
+    0 1 n2 n1 sub {
+      /i2 set
+      /flg 1 def
+      0 1 n1 1 sub {
+        /i1 set
+        s1 i1 get s2 i2 i1 add get eq {
+        } { 
+          /flg 0 def exit
+        } ifelse
+      } for
+      flg {
+        /ans i2 def  
+        /isSubstr.L2 goto
+      } { /ans -1 def } ifelse
+    } for
+    /isSubstr.L2
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
 
 ;
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.15 2002/11/07 23:52:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.16 2002/11/08 02:54:12 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -1329,11 +1329,26 @@ void oxClientListRemove(struct object ob) {
 	/* errorOxmisc2("oxClientListRemove(): the client table is full.\n");*/
   }
 }
+static void KoxCleanClientList() {
+  extern int OxClientListn;
+  extern struct object OxClientList[];
+  int i,j,n;
+  struct object ob;
+  n = 0;
+  for (i=0; i<OxClientListn; i++) {
+	if ((OxClientList[i]).tag != Snull) {
+	  if (!isItClientObject(OxClientList[i])) {
+		(OxClientList[i]).tag = Snull;
+	  }
+	}
+  }
+}
 struct object KoxGetClientList() {
   extern int OxClientListn;
   extern struct object OxClientList[];
   int i,j,n;
   struct object rob;
+  KoxCleanClientList();
   n = 0;
   for (i=0; i<OxClientListn; i++) {
 	if ((OxClientList[i]).tag != Snull) n++;
