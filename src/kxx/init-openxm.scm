@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.12 2004/03/25 01:05:34 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.13 2004/04/16 07:50:22 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -94,7 +94,7 @@
 (define (openxm-serialize lan t)
   (import-from (texmacs plugin plugin-cmd))
   (with u (pre-serialize lan t)
-    (with s (texmacs->verbatim (object->tree u))
+    (with s (texmacs->verbatim (stree->tree u))
       (string-append (string-replace s "\n" "\v") "\n")
       )))
 
