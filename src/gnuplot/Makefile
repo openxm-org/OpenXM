@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.2 2000/01/08 16:36:24 maekawa Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.3 2000/01/15 12:23:37 takayama Exp $
 
 GNUPLOT = ../../../OpenXM_contrib/gnuplot
 CURDIR = ../../OpenXM/src/gnuplot
@@ -6,7 +6,12 @@ BINDIR = ../../bin
 
 all: configure
 	@if [ ! -f ./.make_done ]; then \
-		(cd $(GNUPLOT) ; make all) \
+	   if test `uname` = "SunOS" ; \
+	   then \
+	    (cd $(GNUPLOT) ; make all LDFLAGS=-lsocket -lnsl ) ; \
+	   else \
+		(cd $(GNUPLOT) ; make all) ; \
+	   fi ; \
 	fi
 	@touch ./.make_done
 
