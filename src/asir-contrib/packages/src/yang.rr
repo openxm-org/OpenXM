@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.5 2004/07/07 09:04:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.6 2004/07/09 06:27:40 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -72,7 +72,7 @@ localf partial_to_euler_i, partial_to_euler_term_i;
 localf partial_to_euler, partial_to_euler_term;
 localf a2k, sigma, gen_gamma, pochhammer, eval_gamma, gamma1, gamma2;
 localf vector_to_rat;
-localf series, series1, series2;
+localf series, series_algorithm1, series_algorithm3, series1, series2;
 localf pattern, pattern_full, pattern_weight, all_integers;
 localf 'std_+', 'std_*', 'std_=';
 localf list_incr, list_sum, list_second, list_add_prefix;
@@ -1428,8 +1428,13 @@ def gamma2(L)
 }
 
 /* GKZ = [A,B] */
-/* gm/series.tex: Algorithm 1 */
+
 def series(MaxDeg, GKZ, W, AT) {
+    return series_algorithm3(MaxDeg, GKZ, W, AT)
+}
+
+/* gm/series.tex: Algorithm 1 */
+def series_algorithm1(MaxDeg, GKZ, W, AT) {
     LenAT = length(AT);
     Index = sigma(AT, GKZ[1]);
     LenIndex = length(Index);
@@ -1446,6 +1451,26 @@ def series(MaxDeg, GKZ, W, AT) {
         }
     }
     return reverse(F); /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
+}
+
+def series_algorithm3(MaxDeg, GKZ, W, AT) {
+    LenAT = length(AT);
+    Index = sigma(AT, GKZ[1]);
+    LenIndex = length(Index);
+    U = a2k(GKZ[0], AT, Index);
+    K = U[1]; U = U[0];
+    F = [];
+    for(Ks = pattern_full(MaxDeg, LenIndex); Ks != []; Ks = cdr(Ks)) {
+        K0 = car(Ks);
+        U0 = ltov(base_replace(U, assoc(K, K0)));
+        IP = vector_inner_product(U0, W);
+        if(IP >= 0 && all_integers(U0)) {
+            C = gen_gamma(AT,U0);
+            F = cons([list_sum(K0), IP, C, U0], F);
+        }
+    }
+    F = map('cdr', map('cdr', qsort(F)));
+    return F; /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
 }
 
 def vector_to_rat(E,V,N) {
