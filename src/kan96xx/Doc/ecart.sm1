@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.21 2004/05/04 08:29:35 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.22 2004/05/05 06:57:09 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -1692,7 +1692,8 @@
      dvv { 1 } map /wv1 set
      vv { -1 } map dvv { 1 } map join /wv2 set
      /arg1 [wv1 wv2 ] def
-  ] popVariables
+  ] pop
+  popVariables
   arg1
 } def
 
@@ -1773,6 +1774,51 @@
  $The ideals ii and jj will be compared in the ring h[0,1](D).$
  $ii and jj are re-parsed.$
  $Example 1: [ [((1-x) Dx + h)]  [((1-x)^2 Dx + h (1-x))] (x)] ecartd.isSameIdeal_h $
+]] putUsages
+
+/ecart.01Order {
+  /arg1 set
+  [/in-ecart.01Order /vv /tt /dvv /wv1 /wv2 
+  ] pushVariables
+  [
+     /vv arg1 def
+     vv isString { [ vv to_records pop] /vv set }
+     { } ifelse
+     vv { toString} map /vv set
+
+     vv { /tt set [@@@.Dsymbol tt] cat } map /dvv set
+     dvv { 1 } map /wv1 set
+     /arg1 [wv1] def
+  ] pop 
+  popVariables
+  arg1
+} def
+/ecart.homogenize01Ideal {
+ /arg1 set
+ [/in.ecart.homogenize01Ideal /ll /vv /wv] pushVariables
+ [
+   /ll arg1 0 get def
+   /vv arg1 1 get def
+   vv isArray { vv from_records /vv set } {  } ifelse
+   vv ecart.01Order /wv set
+   [vv ring_of_differential_operators 0] define_ring
+   ll ,,, /ll set ll dehomogenize /ll set
+   [ll vv wv] gb 0 get /ll set
+
+   ecart.begin
+   [vv ring_of_differential_operators
+    vv ecart.stdOrder weight_vector 0
+    [(weightedHomogenization) 1]] define_ring
+   ll ,,, {ecart.homogenize01 ecart.dehomogenizeH} map /arg1 set
+ ] pop
+ popVariables
+ arg1
+} def
+[(ecart.homogenize01Ideal)
+[([ii vv] ecartd.homogenize01Ideal)
+ (ii : ideal, vv : variables)
+ $The ideal ii is homogenized in h[0,1](D).$
+ $Example 1: [ [((1-x) Dx + 1)] (x)] ecart.homogenize01Ideal $
 ]] putUsages
 
 
