@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.50 2003/08/22 23:56:27 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.51 2004/02/23 11:38:36 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -397,10 +397,12 @@ install-help: help
 	-cp -f help-en/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 
 install-html-help: gen-html-en gen-html-ja
+	-mkdir $(OpenXM_doc)/asir-contrib
 	-( tar cf - html-en | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 	-( tar cf - html-ja | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 
 install-document2 :  gen-dvi-ps
+	-mkdir $(OpenXM_doc)/asir-contrib
 	-cp cman-ja.dvi $(OpenXM_doc)/asir-contrib/cman-ja.dvi
 	-$(DVIPS) cman-ja >$(OpenXM_doc)/asir-contrib/cman-ja.ps
 	-cp cman-en.dvi $(OpenXM_doc)/asir-contrib/cman-en.dvi
