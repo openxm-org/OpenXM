@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.46 2004/09/17 00:47:08 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.47 2004/09/20 02:11:22 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4383,7 +4383,14 @@ $ [ff ff] fromVectors :: $
 } def
 /~put~ makeInfix
 
-
+/toTokensBySpace {
+  /arg1 set
+  [(cgiToTokens) arg1 [ ]] extension
+} def 
+[(toTokensBySpace)
+[
+ ( string toTokensBySpace token_array )
+]] putUsages
 ;
 
 

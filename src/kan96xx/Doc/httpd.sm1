@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpdsm1,v 1.14 2002/11/09 12:42:25 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.15 2002/11/10 07:00:03 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -287,27 +287,6 @@ def
  } ifelse
 
 
-%% Decompose into tokens separated by a space.
-%% (GET /hoge.jpeg ???) ---> [(GET) (/hoge.jpeg) (???)]
-/toTokensBySpace {
-  /arg1 set
-  [/in-toTokesBySpace /ss /ss2 /i] pushVariables
-  [
-    /ss arg1 def
-    ss 1 copy /ss set
-    ss (array) dc /ss2 set
-    0 1 ss2 length 1 sub {
-      /i set
-      ss2 i get 32 eq { %% equal to space
-        ss i (,) put
-      } {  } ifelse
-    } for
-    httpd.debug { ss message } {  } ifelse
-    [ ss to_records pop] /arg1 set
-  ] pop
-  popVariables
-  arg1
-} def
 
 /askToSendFile {
   /arg1 set

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.hh,v 1.2 2004/09/24 08:35:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.hh,v 1.3 2004/09/27 01:20:46 takayama Exp $ */
 else if (strcmp(key,"cgiUrlEncodingToKeyValuePair") == 0) {
   if (size != 2) errorKan1("%s\n","[(cgiUrlEncodingToKeyValuePair)  obj] extension kv-pair.");
   obj1 = getoa(obj,1);
@@ -33,4 +33,10 @@ else if (strcmp(key,"cgiHttpToKeyValuePair") == 0) {
   }else if (obj1.tag == SbyteArray) {
 	  rob = cgiHttpToKeyValuePair(KopByteArray(obj1),getByteArraySize(obj1));
   }else errorKan1("%s\n","cgiHttpToKeyValuePair: argument must be a string or a byte aray.");
+}
+else if (strcmp(key,"cgiToTokens") == 0) {
+  if (size != 3) errorKan1("%s\n","[(cgiToTokens) obj sep] extension tokens");
+  obj1= getoa(obj,1);
+  obj2= getoa(obj,2);
+  rob = KooToTokens(obj1,obj2);
 }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.6 2004/09/28 12:27:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.7 2004/11/23 01:37:47 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -552,4 +552,74 @@ struct object KooUrlEncodedStringToObj(struct object sob) {
     n = getByteArraySize(sob);
   }else errorKan1("%s\n","KooUrlEncodedStringToObj: argument must be a string.");
   return urlEncodedStringToObj(s,0,n-1,0);
+}
+
+static struct object toTokens(char *s,int *sep,int nsep) {
+  /* s is the input, and sep are the separators. */
+  /* -1 means <=' ' are separators */
+  int nOfTokens,n,i,done,k,start,sav;
+  struct object rob;
+  char *t;
+
+  rob = NullObject;
+  if (nsep < 1) return rob;
+  if (sep[0] != -1) {
+	fprintf(stderr,"cgiToTokens: Not implemeted for this separator.\n");
+	return rob;
+  }
+
+  /* Count the number of tokens */
+  n = strlen(s); i = 0; nOfTokens=0;
+  while (i < n) {
+	done = 0;
+	while (s[i] <= ' ') {
+	  i++; if (i >= n) { done=1; break;}
+	}
+	if (done==1) break;
+	nOfTokens++;
+	while (s[i] > ' ') {
+	  i++; if (i >= n) { done=1; break; }
+	}
+	if (done == 1) break;
+  }
+
+  rob = newObjectArray(nOfTokens);
+  n = strlen(s); i = 0; k = 0;
+  while (i < n) {
+	done = 0;
+	while (s[i] <= ' ') {
+	  i++; if (i >= n) { done=1; break;}
+	}
+	if (done==1) break;
+	start = i;
+	while (s[i] > ' ') {
+	  i++; if (i >= n) { done=1; break; }
+	}
+	t = (char *) GC_malloc(i-start+1);
+	if (t == NULL) { fprintf(stderr,"No more memory.\n"); exit(10); }
+	t[i-start] = 0;
+    strncpy(t,&(s[start]),i-start);
+	putoa(rob,k,KpoString(t));
+	k++;
+	if (done == 1) break;
+  }
+
+  return rob;
+}
+  
+struct object KooToTokens(struct object ob,struct object sep) {
+  char *s;
+  int n;
+  int tmp[1];
+  tmp[0] = -1;
+  if (ob.tag == Sdollar) {
+    s = KopString(ob);
+    n = strlen((char *)s);
+  }else errorKan1("%s\n","KooToTokens: the first argument must be a string.");
+  if (sep.tag == Sarray) {
+	if (getoaSize(sep) != 0) {
+	  errorKan1("%s\n","This separators have not been implemented.");
+	}
+  }else errorKan1("%s\n","KooToTokens: the second argument(separators) must be an array.");
+  return toTokens(s,tmp,1);
 }
