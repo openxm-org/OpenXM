@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.16 2004/03/09 07:10:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.17 2004/03/11 03:32:46 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -263,17 +263,19 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     fprintf(Dfp,"[%x] ",c); fflush(Dfp); 
 #endif
     if (c == END_OF_INPUT) {
+      /* If there remains data in the stream,
+         read the remaining data. */
+	  /*
       if (oxSocketSelect0(0,1)) {
-        /* If there remains data in the stream,
-           read the remaining data. */
         if (c == '\n') c=' ';
         s[n++] = c; s[n] = 0;  m++;
         INC_BUF ;
         continue;
       }
+      */
       break;
     }
-    if (c == '\n') c=' ';
+    if ( c == '\v') c=' ';
     s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
