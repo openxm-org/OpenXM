@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.62 2002/11/20 02:04:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.63 2002/12/01 06:50:21 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -362,14 +362,21 @@ def poly_weight_vector(W) { NOT_YET; }
 /* Canonical function names for hypergeometric functions of
    one variables. 
 */
-def hypergeometric_2f1(A,B,C,X) { NOT_YET; }
-def hypergeometric_pfp1(A,B,X) { NOT_YET; }
-def hypergeometric_confluent_pfp1(P,Q,A,B,X) { NOT_YET; }
+/* Experimental. cf. Xm_eval */
+def hypergeometric_2f1(A,B,C,X) { 
+  return taka_pfp_hypergeometric_2f1(A,B,C,X);
+}
+def hypergeometric_pfq(A,B,X) { 
+  return taka_pfp_hypergeometric_pfq(A,B,X);
+}
+def hypergeometric_confluent_pfq(P,Q,A,B,X) { NOT_YET; }
 def hypergeometric_airy(X) { NOT_YET; }
 def hypergeometric_bessel_y(X) { NOT_YET; }
 def hypergeometric_bessel_k(X) { NOT_YET; }
 def hypergeometric_beta(A,B) { NOT_YET; }
-def hypergeometric_gamma(A) { NOT_YET; }
+def hypergeometric_gamma(A) { 
+  return taka_pfp_gamma(A);
+}
 def hypergeometric_legendre_p(N,X) { NOT_YET; }
 def hypergeometric_legendre_q(N,X) { NOT_YET; }
 /*&usage   begin:

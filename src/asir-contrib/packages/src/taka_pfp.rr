@@ -1,4 +1,42 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.2 2002/11/15 07:29:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.3 2002/11/16 08:09:31 takayama Exp $ */
+
+/* Table. It should be moved to ??? in a fugure. Experimental */
+#define Xm_eval_in_quote  0
+#define Xm_eval_in_series 0x100
+#define Xm_eval_in_num    0x200
+/*  minor numbers
+#define Xm_by_series      20
+#define Xm_by_int         30
+#define Xm_by_runge_kutta 40
+*/
+                        /* _need space */
+Xm_eval = Xm_eval_in_series  $
+
+def taka_pfp_hypergeometric_pfq(A,B,Z) {
+  extern Xm_eval;
+  if (iand(Xm_eval,Xm_eval_in_series) ||
+      iand(Xm_eval,Xm_eval_in_num)) {
+    return taka_pfp(A,B,Z,10); /* first ten terms, experimental */
+  }
+  F=base_replace(quote(hypergeometric_pfp(a,b,z)),
+                 [[a,A],[b,B],[z,Z]]);
+  return F;
+}
+
+def taka_pfp_hypergeometric_2f1(A,B,C,Z) {
+  return taka_pfp_hypergeometric_pfq([A,B],[C],Z);
+}
+
+def taka_pfp_gamma(A) {
+  extern Xm_eval;
+  if (Xm_eval == 0) {
+    F=base_replace(quote(hypergeometric_gamma(a)),
+                 [[a,A]]);
+    return F;
+  }else{
+    return(pari(gamma,A));
+  }
+}
 
 /* They have not yet been registered in names.rr */
 
