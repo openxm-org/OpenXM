@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.12 2002/10/30 13:23:06 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.13 2002/11/03 12:43:03 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -642,8 +642,143 @@ def
      /ans set
 
      /httpd.exit
+     ans length 1 lt {
+       /ans [(Unknown)] def
+     } {  } ifelse
      /arg1 ans def
  ] pop
  popVariables
  arg1
+} def
+
+/httpd.root [(getenv) (OXWEB_HTTPD_ROOT)] extension def
+%% /usr/local/www/data/   Assume slash!!
+
+% [(GET-file) (filename)] httpd_sendfile
+% [(MSG) (message)]       httpd_sendfile
+/httpd_sendfile {
+  /arg1 set
+  [/in-htpd_sendfile /msg /fname /fname2
+   /fsize
+  ] pushVariables
+  [
+     /msg arg1 def
+     %% Send message.  [(MSG) msg2 ...] httpd_sendfile
+     msg message
+     msg 0 get (MSG) eq {
+       (HTTP/0.9 200 OK) sendln
+       (Connection: close) sendln
+       (Content-Type: text/html) sendln
+       0 sendln
+       msg rest { sendln } map
+       0 sendln
+       [(flush)] extension
+       /httpd_sendfile.L1 goto
+     }{ } ifelse
+     %% Get a file message.  [(GET-file) fname] httpd_sendfile
+     msg 0 get (GET-file) eq {
+       httpd.root tag 5 eq not {
+         [(MSG) (<h1> File transfer is not allowed on this server. </h1>)]
+         httpd_sendfile
+         /httpd_sendfile.L1 /httpd_sendfile.L1 goto
+       } {  } ifelse
+       msg length 1 eq {
+           /fname (index.html) def
+       }{  
+           /fname msg 1 get def
+           fname tag 5 eq not {
+             [(MSG) (<h1> Invalid file name. </h1>)]
+             httpd_sendfile
+             /httpd_sendfile.L1 /httpd_sendfile.L1 goto
+           } {  } ifelse
+           fname (array) dc /fname set
+           fname length 1 lt {
+             [(MSG) (<h1> Invalid file name. </h1>)]
+             httpd_sendfile
+             /httpd_sendfile.L1 /httpd_sendfile.L1 goto
+           } {  } ifelse
+
+           fname [47] eq {
+              /fname (index.html) (array) dc def
+           }{ } ifelse
+
+           fname 0 get 47 eq {  %% /
+             /fname fname rest def
+           } {  } ifelse
+
+           fname { (string) dc } map cat /fname  set
+       } ifelse
+
+       /fname2 fname def
+       [httpd.root fname2] cat /fname set
+       [(fname=) fname] cat message
+       [(stat) fname] extension 0 get tag 0 eq {
+         [(MSG) (Warning (sendfile): the file )  fname2 ( is not found.) ]
+          httpd_sendfile
+         /httpd_sendfile.L1 /httpd_sendfile.L1 goto
+       }{  }ifelse
+       [(stat) fname] extension 1 get 0 get toString /fsize set
+       (HTTP/1.1 200 OK)  sendln
+       (Server: httpd_sm1) sendln
+       %% (ETag: "2197-bf6c-3b2d6541") sendln ???
+       (Accept-Ranges: bytes) sendln
+       [(Content-Length: ) fsize] cat  sendln
+       (Connection: close) sendln
+       [(Content-Type: ) fname httpd_type] cat sendln
+       [(flush)] extension 
+       0 sendln
+       fname sendBinaryFile
+       0 sendln
+       [(flush)] extension
+       0 sendln
+       [(flush)] extension
+       /httpd_sendfile.L1 goto
+     }{ 
+       [(MSG) (Warning: unknown argument type for httpd_sendfile)]
+       httpd_sendfile
+     } ifelse
+     /httpd_sendfile.L1 
+   ] pop
+   popVariables
+} def
+
+/httpd_type {
+  /arg1 set
+  [/in-httpd_type /fname /ftype /i /ans] pushVariables
+  [
+    /fname arg1 def
+    fname (array) dc /fname set
+    fname reverse /fname set
+    [
+     0 1 fname length 1 sub {
+       /i set
+       fname i get 46 eq {   % '.'
+         exit
+       } { fname i get } ifelse
+     } for
+    ] /ftype set
+    ftype reverse {(string) dc} map cat /ftype set
+    /ans (text/plain) def
+    ftype (gif) eq {
+      /ans (image/gif) def
+    }{ } ifelse
+    ftype (jpeg) eq ftype (jpg) eq or {
+      /ans (image/jpeg) def
+    }{ } ifelse
+    ftype (png) eq {
+      /ans (image/png) def
+    }{ } ifelse
+    ftype (png) eq {
+      /ans (image/png) def
+    }{ } ifelse
+    ftype (html) eq ftype (htm) eq or {
+      /ans (text/html) def
+    } {  } ifelse
+    ftype (txt) eq {
+      /ans (text/html) def
+    } {  } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1  
 } def
