@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.19 2004/08/22 12:52:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.20 2004/08/31 04:45:42 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -157,7 +157,7 @@ struct object KooLess(struct object o1,struct object o2);
 
 /** Conversion */
 struct object KdataConversion(struct object ob1, char *key);
-struct object Kto_int(struct object ob);
+struct object Kto_int32(struct object ob);
 struct object KpoInteger(int i);
 struct object KpoString(char *s);
 struct object KpoPOLY(POLY f);

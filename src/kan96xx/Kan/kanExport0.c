@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.27 2004/08/28 07:28:54 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.28 2004/08/31 04:45:42 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1212,8 +1212,8 @@ struct object KdataConversion(obj,key)
   return(NullObject);
 }
 
-/* cf. macro to_int */
-struct object Kto_int(struct object ob) {
+/* cf. macro to_int32 */
+struct object Kto_int32(struct object ob) {
   int n,i;
   struct object otmp;
   struct object rob;
@@ -1222,7 +1222,7 @@ struct object Kto_int(struct object ob) {
 	n = getoaSize(ob);
 	rob = newObjectArray(n);
 	for (i=0; i<n; i++) {
-	  otmp = Kto_int(getoa(ob,i));
+	  otmp = Kto_int32(getoa(ob,i));
 	  putoa(rob,i,otmp);
 	}
 	return rob;
@@ -1597,7 +1597,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
     }
   }
 
-  ob4 = Kto_int(ob4); /* order matrix */
+  ob4 = Kto_int32(ob4); /* order matrix */
   oasize = getoaSize(ob4);
   order = (int *)sGC_malloc(sizeof(int)*((2*n)*oasize+1));
   if (order == (int *)NULL) errorKan1("%s\n","No memory.");

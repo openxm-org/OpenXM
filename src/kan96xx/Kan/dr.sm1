@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.31 2004/08/27 08:33:27 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.32 2004/08/31 04:45:42 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -1328,7 +1328,7 @@
     /univ vars 0 get reverse
           vars 1 get reverse join
     def
-    w-vectors to_int /w-vectors set
+    w-vectors to_int32 /w-vectors set
     [
     0 1 << w-vectors length 1 sub >> 
     {
@@ -1352,7 +1352,7 @@
   [/univ /www /k /vname /vweight /ans] pushVariables
   /univ arg1 def /www arg2 def
   [
-    www to_int /www set 
+    www to_int32 /www set 
     /ans << univ length >> -1 0 evecw def
     0  2  << www length 2 sub >>
     {
@@ -2524,7 +2524,7 @@ newline
   [
     /fff arg1 def
     /www arg2 def
-    www to_int /www set
+    www to_int32 /www set
     fff (0). eq { /ddd -intInfinity def /ord_w.LLL goto} { } ifelse
     fff (ring) dc /rrr set
     fff init /fff set
@@ -2556,7 +2556,7 @@ newline
   [
     /fff arg1 def
     /www arg2 def
-    www to_int /www set
+    www to_int32 /www set
     fff (0). eq { /ddd -intInfinity def /ord_w_all.LLL goto} { } ifelse
     /ddd -intInfinity def
     fff (ring) dc /rrr set
@@ -3661,6 +3661,34 @@ $ [ff ff] fromVectors :: $
  (         ff to_int { tag } map :: )
 ]] putUsages
 
+/to_int32 {
+  /arg1 set
+  [/to-int32 /ob /ans] pushVariables
+  [
+    /ob arg1 def
+    /ans ob def
+    ob isArray {
+      ob {to_int32} map /ans set
+      /LLL.to_int32 goto
+    } {  } ifelse
+    ob isUniversalNumber {
+      ob (integer) dc /ans set
+      /LLL.to_int32 goto
+    } {  } ifelse
+    /LLL.to_int32
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(to_int32)
+[(obj to_int32 obj2)
+ $All universalNumber in obj are changed to integer (int32).$
+ (Example: /ff [1 (2).. [(hello) (0).]] def  ff { tag } map ::)
+ (         ff to_int32 { tag } map :: )
+ (cf. to_int, to_univNum )
+]] putUsages
+
 /define_ring_variables {
   [/in-define_ring_variables /drv._v /drv._p /drv._v0] pushVariables
 %% You cannot use these names for names for polynomials.
@@ -3881,7 +3909,7 @@ $ [ff ff] fromVectors :: $
 [(to_univNum) 
 [(obj to_univNum obj2)
  (Example. [ 2 (3).. ] to_univNum)
- (cf. to_int)
+ $cf. to_int32. (to_int)$
 ]] putUsages
 
 [(lcm)
