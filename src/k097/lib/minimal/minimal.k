@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.31 2000/12/10 03:12:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.32 2000/12/10 09:34:28 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -139,8 +139,15 @@ def Max(v) {
 HelpAdd(["Max",
 ["Max(v) returns the maximal element in v."]]);
 
-def Kernel(f) {
-  sm1(" [f] syz /FunctionValue set ");
+def Kernel(f,v) {
+  local ans;
+  /* v :  string or ring */
+  if (Length(Arglist) < 2) {
+    sm1(" [f] syz /ans set ");
+  }else{
+    sm1(" [f v] syz /ans set ");
+  }
+  return(ans);
 }
 def Syz(f) {
   sm1(" [f] syz /FunctionValue set ");

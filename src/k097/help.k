@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.4 2000/12/12 13:58:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.5 2000/12/28 00:08:13 takayama Exp $ */
 if (K00_verbose)
   Println("help.k (help.ccc).  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -270,6 +270,10 @@ HelpAdd(["IsString",
 ["IsString(obj) returns true if << obj >> is a string (object obj).",
  "Example:  if (IsString(\"abc\")) Println(\"Hello\"); ;"]]);
 
+HelpAdd(["IsRing",
+["IsRing(obj) returns true if << obj >> is a ring (object obj)."
+]]);
+
 
 HelpAdd(["IsSm1Integer",
 ["IsSm1Integer(obj) returns true if << obj >> is an integer of sm1(object obj)."]]);
@@ -366,6 +370,10 @@ def IsString(ob) {
 
 def IsSm1Integer(ob) {
   sm1(ob , " isInteger /FunctionValue set ");
+}
+
+def IsRing(ob) {
+  sm1(ob , " isRing /FunctionValue set ");
 }
 
 

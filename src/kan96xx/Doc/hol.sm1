@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.7 2000/06/12 08:03:56 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.8 2000/08/01 05:53:18 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -775,12 +775,23 @@ message-quiet
        /v aa 1 get def
        /setarg 1 def
     } { } ifelse
+    typev [ArrayP RingP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
     typev [ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
        /setarg 1 def
     } { } ifelse
     typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP RingP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get def
        /wv aa 2 get def
@@ -800,7 +811,11 @@ message-quiet
 
 
     %%% Start of the preprocess
-    f getRing /rr set
+    v tag RingP eq {
+      /rr v def
+    }{
+       f getRing /rr set
+    } ifelse
     %% To the normal form : matrix expression.
     f gb.toMatrixOfString /f set
     /mm gb.itWasMatrix def
@@ -870,6 +885,7 @@ message-quiet
   (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
   (a : [f v];   array f; string v;  v is the variables.)
   (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
+  ( v may be a ring object. )
   $Example 1: [(x,y) ring_of_polynomials 0] define_ring $
   $           [ [(x^2+y^2-4). (x y -1).] ] syz :: $
   $Example 2: [ [(x^2+y^2) (x y)]   (x,y)  [ [(x) -1 (y) -1] ] ] syz :: $

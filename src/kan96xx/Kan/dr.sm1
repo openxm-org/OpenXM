@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.5 2000/12/10 03:33:46 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.6 2000/12/10 07:48:42 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -1472,6 +1472,13 @@
 ] putUsages
 /isRational {
   (type?) data_conversion  RationalFunctionP eq
+} def
+
+[(isRing)
+ [(obj isRing bool) ]
+] putUsages
+/isRing {
+  (type?) data_conversion  RingP eq
 } def
 
 /toString.tmp {

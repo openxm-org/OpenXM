@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/complex.sm1,v 1.4 2000/07/30 09:55:39 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/complex.sm1,v 1.5 2000/08/01 07:26:23 takayama Exp $
 %% lib/complex.sm1  [ functions for complex ], 1999, 9/9
 %% cf.  yama:1999/Int/uli.sm1
 %%%%%%%%%%%%%%%%%%%   commands %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -267,12 +267,19 @@
 %% [M d] res-solv c'/r  ;   M : matrix,  d, c' : vectors, r : scalar, c'/r =c
 /res-solv {
   /arg1 set
-  [/in-res-solv /M /d /ans /B /vv /G /rr /rng] pushVariables
+  [/in-res-solv /M /d /ans /B /vv /G /rr /rng /nn] pushVariables
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
+     /nn arg1 length def
      /M arg1  0 get def
      /d arg1  1 get def
-     M getRing /rng set
+     nn 3 eq {
+       /rng arg1 2 get def
+     }{
+       M getRing /rng set
+       rng tag RingP eq {  }
+       { d getRing /rng set } ifelse
+     }ifelse
      rng res-getx /vv set
      uli.verbose { (res-solv : vv = ) messagen vv message } { } ifelse
      uli.verbose { } { [(KanGBmessage) 0] system_variable } ifelse
@@ -318,6 +325,9 @@
  (Note that M and d are not treated as an element of the homogenized Weyl)
  (algebra. If M or d contains the homogenization variable h, it automatically)
  (set to 1. If you need to use h, use the command res-solv-h)
+ $[M d rng] res-solv [c' r] $ 
+ $ rng is a ring object. $
+ $ res-solv extracts variables names from rng, but defines a new ring. $
  $Example 1:  [(x,y) ring_of_differential_operators [[(x) -1 (Dx) 1]] weight_vector 0] $
  $              define_ring $
  $ [ [ [(x Dx + 2).] [ (Dx (x Dx + 3) - (x Dx + 2) (x Dx -4)).]]   [(1).]] $
@@ -359,12 +369,19 @@
 %% M : matrix,  d, c' : vectors, r : scalar, c'/r =c
 /res-solv-h {
   /arg1 set
-  [/in-res-solv-h /M /d /ans /B /vv /G /rr /rng] pushVariables
+  [/in-res-solv-h /M /d /ans /B /vv /G /rr /rng /nn] pushVariables
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
+     /nn arg1 length def
      /M arg1  0 get def
      /d arg1  1 get def
-     M getRing /rng set
+     nn 3 eq {
+       /rng arg1 2 get def
+     }{
+       M getRing /rng set
+       rng tag RingP eq {  }
+       { d getRing /rng set } ifelse
+     }ifelse
      rng res-getx /vv set
      uli.verbose { (res-solv-h : vv = ) messagen vv message } { } ifelse
      uli.verbose { } { [(KanGBmessage) 0] system_variable } ifelse
