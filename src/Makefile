@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.75 2000/02/01 04:24:18 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.76 2000/02/01 05:11:09 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -112,9 +112,9 @@ clean:
 	(cd gnuplot ; make clean)
 	(cd k097 ; make clean)
 	(cd kan96xx ; make clean)
-	(cd kxx ; make clean)
+	-(cd kxx ; make clean)
 	(cd OpenMath ; make clean)
-#	(cd ox_math ; make clean)
+	-(cd ox_math ; make clean)
 	(cd pari ; make clean)
 	(cd phc ; make clean)
 	(cd tigers ; make clean)
@@ -126,6 +126,7 @@ distclean: clean
 	(cd asir2000 ; make distclean)
 	(cd gnuplot ; make distclean)
 	(cd kan96xx ; make distclean)
+	-(cd kxx ; make distclean)
 	(cd OpenMath ; make distclean)
 	(cd pari ; make distclean)
 	(cd phc ; make distclean)
@@ -154,7 +155,7 @@ configure-kan96xx:
 	(cd kan96xx ; make configure)
 
 configure-kxx: 
-	(cd kxx ; make configure)
+	( cd kxx ; ./make-configure) 
 
 configure-links:
 	rm -f -r $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp

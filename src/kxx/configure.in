@@ -1,0 +1,14 @@
+dnl  $OpenXM$
+dnl  If you change this file, do not forget to run autoconf and rm .configure_done
+
+
+AC_INIT(oxmain.c)
+AC_PROG_CC
+AC_PROG_RANLIB
+
+AC_CHECK_FUNC(socket)
+if test "$ac_cv_func_socket" = no ; then
+  AC_CHECK_LIB(socket,socket)
+fi
+
+AC_OUTPUT(Makefile)

@@ -1,0 +1,13 @@
+#!/bin/sh
+# $OpenXM$
+if ! test -f ./.configure_done 
+then 
+ if test -f configure 
+ then 
+   ./configure 
+  else 
+    autoconf 
+    ./configure 
+  fi
+fi
+touch .configure_done 
