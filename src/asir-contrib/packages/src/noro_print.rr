@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.1 2004/02/26 10:48:06 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.2 2004/03/04 13:01:51 noro Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -119,19 +119,19 @@ def noro_tex_form_frac(A,Tb) {
 def noro_tex_form_struct(S,Tb) {
   if (struct_type(S) == POLY_FACTORED_POLYNOMIAL || 
       struct_type(S) == POLY_FACTORED_RATIONAL) {
-      Str = noro_poly_tex_form_poly_factored_polynomial(S);
+      Str = taka_poly_tex_form_poly_factored_polynomial(S);
 	  write_to_tb(Str,Tb);
   }
   else if (struct_type(S) == POLY_RING) {
-      Str = noro_poly_tex_form_poly_ring(S);
+      Str = taka_poly_tex_form_poly_ring(S);
 	  write_to_tb(Str,Tb);
   }
   else if (struct_type(S) == POLY_POLYNOMIAL) {
-      Str = noro_poly_tex_form_poly_polynomial(S);
+      Str = taka_poly_tex_form_poly_polynomial(S);
 	  write_to_tb(Str,Tb);
   }
   else if (struct_type(S) == POLY_IDEAL) {
-      Str = noro_poly_tex_form_poly_ideal(S);
+      Str = taka_poly_tex_form_poly_ideal(S);
 	  write_to_tb(Str,Tb);
   }else {
      print("Unknown struct object for tex_form. Return ???");
