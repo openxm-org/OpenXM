@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.1 2000/03/05 02:26:31 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathome.
 
@@ -11,6 +11,8 @@ RELEASE=
 ## If you like to have a release name as a part of tar ball, then uncomment
 ## the next line.
 ##RELEASE=`uname -a`
+
+BINARY_TAR_BALL_FOR_FREE_BSD=./work/OpenXM-binary-FreeBSD-i386.tgz
 
 usage :
 	@echo "Targets are "
@@ -47,13 +49,13 @@ make-binary-tar-ball : make-tar-ball-01
 	(cd work/OpenXM/src ; make distclean )
 
 make-binary-tar-ball-using-binary-FreeBSD :
-	@if [ ! -f ./work/OpenXM-binary-FreeBSD-i386.tgz ]; then \
-		echo "Generate work/OpenXM-binary-FreeBSD-i386.tgz first" ; \
+	@if [ ! -f $(BINARY_TAR_BALL_FOR_FREE_BSD) ]; then \
+		echo "Generate $BINARY_TAR_BALL_FOR_FREE_BSD first" ; \
 		exit \
 	fi
 	/bin/rm -rf work/binary-$(TYPE)
 	mkdir work/binary-$(TYPE)
-	(cd work/binary-$(TYPE) ; tar xzf ../OpenXM-binary-FreeBSD-i386.tgz )
+	tar xzf - $(BINARY_TAR_BALL_FOR_FREE_BSD) | (cd work/binary-$(TYPE) ; tar xzf - )
 	(cd work/binary-$(TYPE) ; /bin/rm -rf OpenXM/bin )
 	(cd work/OpenXM/src ; make binary-dist )
 	(cd work ; tar czf - OpenXM/bin OpenXM/lib OpenXM/rc ) | (cd work/binary-$(TYPE) ; tar xzf - )
