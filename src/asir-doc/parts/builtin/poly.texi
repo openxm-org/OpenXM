@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.6 2003/11/27 15:56:08 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.7 2003/12/23 10:41:10 ohara Exp $
 \BJP
 @node 多項式および有理式の演算,,, 組み込み函数
 @section 多項式, 有理式の演算
@@ -1293,6 +1293,9 @@ an integral polynomial such that GCD of all its coefficients is 1.
 分子多項式の係数は有理数のままであり, 有理式の分子を求める
 @code{nm()} では, 分数係数多項式は, 分数係数のままの形で出力されるため, 
 直ちに整数係数多項式を得る事は出来ない. 
+@item オプション factor が設定された場合の戻り値はリスト [g,c] である.
+ここで c は有理数であり, g がオプションのない場合の戻り値であり,
+ @var{poly} = c*g となる.
 \E
 \BEG
 @item 
@@ -1310,6 +1313,9 @@ You cannot obtain an integral polynomial by direct use of the function
 @code{nm()}.  The function @code{nm()} returns the numerator of its
 argument, and a polynomial with rational coefficients is
 the numerator of itself and will be returned as it is.
+@item When the option factor is set, the return value is a list [g,c].
+Here, c is a rational number, g is an integral polynomial 
+and @var{poly} = c*g holds.
 \E
 @end itemize
 
