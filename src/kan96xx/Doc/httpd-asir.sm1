@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.15 2001/08/29 11:18:57 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.16 2001/09/20 05:57:40 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -9,6 +9,7 @@
 /httpd.initialization
 %% Put initialization codes here.
  [
+  (XM_debug=0; ctrl("debug_window",0);)
   ("Asirweb version 0.80. "+
    " Risa/Asir oxasir version "+rtostr(version());)
  ] cat
