@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.2 2005/04/04 07:36:44 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.3 2005/04/04 12:38:32 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
@@ -41,6 +41,7 @@ int GenExample = 0;
 int DebugItem = 0;
 char *Title = NULL;
 char *Author = NULL;
+int NoSorting = 0;
 
 main(int argc,char *argv[]) {
   char *t;
@@ -72,6 +73,8 @@ main(int argc,char *argv[]) {
       i++; Title = str(argv[i]);
     }else if (strcmp(argv[i],"--author") == 0) {
       i++; Author = str(argv[i]);
+    }else if (strcmp(argv[i],"--noSorting") == 0) {
+      NoSorting = 1;
     }else {
       fprintf(stderr,"Unknown option\n"); exit(1);
     }
@@ -108,9 +111,12 @@ main(int argc,char *argv[]) {
       items[n++] = tt;
     }
   }
-  if (Debug) fprintf(stderr,"Sorting...\n");
-  shell(items,n);
-  if (Debug) fprintf(stderr,"Done.\n");
+  
+  if (!NoSorting) {
+    if (Debug) fprintf(stderr,"Sorting...\n");
+    shell(items,n);
+    if (Debug) fprintf(stderr,"Done.\n");
+  }
 
   if (DebugItem) {
 	for (i=0; i<n; i++) {
@@ -606,10 +612,16 @@ printTexi1(FILE *fp, struct item *it) {
 outputExample(FILE *fp,char *s) {
   int i;
   for (i=0; s[i] != 0; i++) {
-	if (s[i] == '{') fprintf(fp,"%s","@{");
-	else if (s[i] == '}') fprintf(fp,"%s","@}");
-	else if (s[i] == '@') fprintf(fp,"%s","@@");
-	else fputc(s[i],fp);
+	if (s[i] == '@') {
+	  if (s[i+1] == '{') {fprintf(fp,"%s","@{"); i += 1;}
+	  else if (s[i+1] == '}') {fprintf(fp,"%s","@}"); i += 1;}
+	  else if (s[i+1] == '@') {fprintf(fp,"%s","@@"); i += 1;}
+	  else if (strncmp(&(s[i+1]),"colon",5)==0) {
+		fprintf(fp,":"); i += 5;
+	  }else fprintf(fp,"@@");
+    }else{
+	  fputc(s[i],fp);
+    }
   }
 }
 
@@ -642,7 +654,6 @@ outputOfExample(char *com) {
 
 printTitlePage(char *title, char *author) {
   printf("\\input texinfo\n");
-  printf("@def@pi{PI}\n");
   printf("@def@colon{:}\n\n");
   printf("@iftex\n");
   printf("@catcode`@#=6\n");
