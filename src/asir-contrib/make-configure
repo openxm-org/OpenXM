@@ -1,0 +1,8 @@
+#!/bin/sh
+# $OpenXM$
+if test ! -f ./.configure_done   -o ! -f ./Makefile
+then 
+ echo "--prefix=`cd ../../../OpenXM ; pwd`"
+ ./configure --prefix="`cd ../../../OpenXM ; pwd`"
+fi
+touch .configure_done 

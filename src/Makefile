@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.141 2004/06/30 12:13:05 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.142 2004/06/30 22:14:06 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -144,7 +144,7 @@ install-phc: all-phc
 install-tigers: all-tigers
 	(cd tigers ; make install)
 
-install-asir-contrib: install-asir-contrib-asir-progs \
+install-asir-contrib: configure-asir-contrib install-asir-contrib-asir-progs \
                       install-asir-contrib-oxservers
 install-asir-contrib-oxservers: install-asir install-util \
                 install-k097 install-kxx install-openmath install-oxmath \
@@ -217,7 +217,7 @@ distclean: clean
 configure: configure-util configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
-	   configure-pari configure-gmp configure-asir-doc
+	   configure-pari configure-gmp configure-asir-doc configure-asir-contrib
 
 configure-util:
 	(cd util; ./make-configure)
@@ -227,6 +227,9 @@ configure-gmp: install-util
 
 configure-asir: 
 	(cd asir2000 ; make configure) 
+
+configure-asir-contrib: 
+	-(cd asir-contrib ; ./make-configure) 
 
 configure-asir-doc: 
 	-(cd asir-doc ; ./make-configure) 
