@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.19 2000/12/25 14:14:34 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.20 2001/01/08 05:26:47 takayama Exp $
 # targets
 # all 
 #     compile
@@ -24,7 +24,7 @@ KHOME = $(OpenXM_HOME)/src/kan96xx
 LOAD_K_PATH ='"/usr/local/lib/k0/"'
 LOAD_SM1_PATH2 ='"/this_directory_does_not_exists/"'
 ##
-LIBGMP=$(OpenXM_HOME)/lib/libgmp.a
+LIBGMP=-L$(OpenXM_HOME)/lib -lgmp 
 ## This line is for buggy linux-gmp.
 ## LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 EXTRALIB = 
