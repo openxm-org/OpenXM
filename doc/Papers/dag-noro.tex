@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dag-noro.tex,v 1.3 2001/10/12 02:22:17 noro Exp $ 
+% $OpenXM: OpenXM/doc/Papers/dag-noro.tex,v 1.4 2001/10/12 02:58:35 noro Exp $ 
 \documentclass{slides}
 \usepackage{color}
 \usepackage{rgb}
@@ -69,32 +69,31 @@
 \begin{slide}{}
 \fbox{\fbc A computer algebra system Risa/Asir}
 
-({\urlc \tt http://www.math.kobe-u.ac.jp/Asir/asir.html})
-
 \begin{itemize}
 \item {\itc Software mainly for polynomial computation}
 
+Polynomial factorization, Groebner basis computation
 \item {\itc User language with C-like syntax}
 
 C language without type declaration, with list processing
 
 \item {\itc Builtin {\tt gdb}-like debugger for user programs}
 
-\item {\itc Open source}
+\item {\itc Open source} ({\urlc \tt http://www.math.kobe-u.ac.jp/Asir/asir.html})
 
-Whole source tree is available via CVS
+The source and binaries are available via ftp or CVS
 
-The latest version : see {\urlc \tt http://www.openxm.org}
+See {\urlc \tt http://www.openxm.org} to get the latest version
 
 \item {\itc OpenXM interface}
 
 \begin{itemize}
-\item OpenXM 
+\item OpenXM ({\urlc \tt http://www.openxm.org})
 
 An infrastructure for exchanging mathematical data
-\item Risa/Asir is a main client in OpenXM package.
-\item An OpenXM server {\tt ox\_asir}
-\item A library with OpenXM library interface {\tt libasir.a}
+\item Risa/Asir is a main client in OpenXM package
+\item {\tt ox\_asir} is an OpenXM server
+\item {\tt libasir.a} provides OpenXM interface via function call
 \end{itemize}
 \end{itemize}
 \end{slide}
@@ -174,6 +173,8 @@ Univariate factorization over algebraic number fields
 
 Intensive use of successive extension, non-squarefree norms
 
+Application to splitting field and Galois group computation
+
 \item {\itc 1996-1998}
 
 Univariate factorization over large finite fields
@@ -226,11 +227,11 @@ Efficient $b$-function computation[OAKU97] by a modular method
 
 \underline{\itc Univariate; over {\bf Q}}
 
-$N_i$ : a norm of a polynomial, $\deg(N_i) = i$
+$N_{i,j}$ : a norm of a polynomial, $\deg(N_i) = i$ with $j$ modular factor
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|} \hline
-		& $N_{105}$ & $N_{120}$ & $N_{168}$ & $N_{210}$ \\ \hline
-Asir 	& 0.86	& 59 & 840 & hard \\ \hline
+		& $N_{105,23}$ & $N_{120,20}$ & $N_{168,24}$ & $N_{210,54}$ \\ \hline
+{\tc Asir} 	& {\tc 0.86}	& {\tc 59} & {\tc 840} & {\tc hard} \\ \hline
 Asir NormFactor & 1.6 	& 2.2& 6.1& hard \\ \hline
 %Singular& hard?	& hard?& hard? & hard? \\ \hline
 CoCoA 4 & 0.2 	& 7.1	& 16 & 0.5 \\ \hline\hline
@@ -244,7 +245,9 @@ $W_{i,j,k} = Wang[i]\cdot Wang[j]\cdot Wang[k]$ in {\tt asir2000/lib/fctrdata}
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|} \hline
 	& $W_{1,2,3}$ & $W_{4,5,6}$ & $W_{7,8,9}$ & $W_{10,11,12}$ & $W_{13,14,15}$ \\ \hline
-Asir 	& 0.2 & 4.7 & 14 & 17 & 0.4 \\ \hline
+variables & 3 & 5 & 5 & 5 & 4 \\ \hline
+monomials & 905 & 41369 & 51940 & 30988 & 3344 \\ \hline\hline
+{\tc Asir} 	& {\tc 0.2} & {\tc 4.7} & {\tc 14} & {\tc 17} & {\tc 0.4} \\ \hline
 %Singular& $>$15min 	& ---	& ---& ---& ---\\ \hline
 CoCoA 4 & 5.2 & $>$15min 	& $>$15min & $>$15min & 117 \\ \hline\hline
 Mathematica 4& 0.2 	& 16 	& 23 & 36 & 1.1 \\ \hline
@@ -262,10 +265,10 @@ Maple 7& 0.5 	& 18 	& 967  & 48 & 1.3 \\ \hline
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|c|c|} \hline
 		& $C_7$ & $C_8$ & $K_7$ & $K_8$ & $K_9$ & $K_{10}$ & $K_{11}$ \\ \hline
-Asir $Buchberger$ 	& 31 & 1687  & 2.6  & 27 & 294  & 4309 & --- \\ \hline
+{\tc Asir $Buchberger$}	& {\tc 31} & {\tc 1687}  & {\tc 2.6}  & {\tc 27} & {\tc 294}  & {\tc 4309} & --- \\ \hline
 Singular & 8.7 & 278 & 0.6 & 5.6 & 54 & 508 & 5510 \\ \hline
 CoCoA 4 & 241 & $>$ 5h & 3.8 & 35 & 402 &7021  & --- \\ \hline\hline
-Asir $F_4$ 	& 5.3 & 129 & 0.5  & 4.5 & 31  & 273 & 2641 \\ \hline
+{\tc Asir $F_4$} 	& {\tc 5.3} & {\tc 129} & {\tc 0.5}  & {\tc 4.5} & {\tc 31}  & {\tc 273} & {\tc 2641} \\ \hline
 FGb(estimated)	& 0.9 & 23 & 0.1 & 0.8 & 6 & 51 & 366 \\ \hline
 \end{tabular}
 \end{center}
@@ -275,10 +278,10 @@ FGb(estimated)	& 0.9 & 23 & 0.1 & 0.8 & 6 & 51 & 366 \\ \hline
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|} \hline
 		& $C_7$ & $Homog. C_7$ & $K_7$ & $K_8$ & $McKay$ \\ \hline
-Asir $Buchberger$ 	& 389 & 594 & 29 & 299 & 34950 \\ \hline
+{\tc Asir $Buchberger$} 	& {\tc 389} & {\tc 594} & {\tc 29} & {\tc 299} & {\tc 34950} \\ \hline
 Singular & --- & 15247 & 7.6 & 79 & $>$ 20h \\ \hline
 CoCoA 4 & --- & 13227 & 57 & 709 & --- \\ \hline\hline
-Asir $F_4$ 	&  989 & 456 & 90 & 991 & 4939 \\ \hline
+{\tc Asir $F_4$} 	&  {\tc 989} & {\tc 456} & {\tc 90} & {\tc 991} & {\tc 4939} \\ \hline
 FGb(estimated)	& 8 &11 & 0.6 & 5 & 10 \\ \hline
 \end{tabular}
 \end{center}
