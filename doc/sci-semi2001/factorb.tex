@@ -1,0 +1,628 @@
+% $OpenXM$
+
+\Large
+\parskip 0pt
+
+\begin{slide}{}
+\fbox{\bf 1. はじめに}
+
+computer = compute するためのもの
+
+compute = 計算する
+
+最近では communication の手段となってしまった
+
+さまざまな情報をデジタル化 (符号化) してネットワークを通して送受信
+
+$\Rightarrow$ 「計算」に使っている人はごく少数
+
+例 : email, ウェブ $\cdots$ 「インターネットする」
+
+しかし, 計算機の能力は異様に向上
+
+計算に使わないのはもったいない(と思う)
+\end{slide}
+
+\begin{slide}{}
+\fbox{\bf 2. コンピュータについてのイロハ}
+
+\begin{itemize}
+\item CPU
+
+プログラムに従って命令を実行
+
+\item メモリ
+
+プログラム, データを置く場所. 場所 (番地) を指定して高速に出し入れができる. 
+
+\item レジスタ
+
+CPU が持っている特別なメモリで, 演算の対象になる. 数は多くなく, 大きさ
+(長さ) も小さい.
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 命令の例}
+\begin{itemize}
+\item 10 番地から 1 バイト読んで A レジスタに入れよ
+\item A, B レジスタの値を足して C レジスタに入れよ
+\item A レジスタの値が 0 なら 100 番地先に飛べ
+\end{itemize}
+
+\underline{\bf 扱える数}
+
+レジスタの大きさで扱える数の範囲が決まる. 
+
+32ビットレジスタ $\Rightarrow$ 0 から $2^{32}-1$ までの整数しか扱えない
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 数学に使う場合を考えると...}
+
+$11111111111 \times 11111111111$
+
+$\Rightarrow 1332508849$ ??? (=結果を $2^{32}$ で割った余り)
+
+かといって
+
+$11111111111 \times 11111111111$
+
+$\Rightarrow 1.234567 \times 10^{20}$ 
+
+も困る
+
+誤差が入ると数学としては無意味な計算
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf とりあえず大きな整数は扱えないといけない}
+
+$\Rightarrow$ プログラムを書けばよい
+
+メモリ上に整数を並べて, コンピュータに「筆算」をさせればよい
+
+\begin{itemize}
+\item 人間
+
+ひとけた : 0 以上 9 以下
+
+\item コンピュータ
+
+ひとけた : 0 以上 $2^{32}-1$ 以下
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 例 : 整数の足し算}
+
+\begin{tabular}{ccccc}
+& 5 & 4001257187 & 1914644777 & (= $3^{42}$) \\
++ &  & 2830677074 & 689956897 & (= $3^{40}$) \\ \hline
+& 6 & 2536966965 & 2604601674 & 
+\end{tabular}
+
+\underline{\bf 一変数多項式}
+
+各次数の係数を並ればよい
+
+$\Rightarrow$ これで, 整数係数の多項式を数学的に扱える
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{\bf 3. 多項式の因数分解 --- 中学高校的方法}
+
+\begin{enumerate}
+\item 眼力法 (解と係数の関係)
+
+$x^2+ax+b \Rightarrow$ 足して $a$, かけて $b$ になる数の組
+
+$x^3+ax^2+bx+c$ はどうする?
+
+\item 因数定理
+
+代入して 0 になる数を探す (どうやって探す?)
+
+\item 解の公式
+
+$x^2+ax+b$ の根 ${-b \pm \sqrt{a^2-4b}} \over 2$
+
+$\Rightarrow$ $a^2-4b = t^2$ ($t$ : 整数) とかけるかどうか調べる
+\end{enumerate}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 眼力法は問題を難しくしている}
+
+例 : $x^2+11508x+28386587$
+
+$28386587=3581\times 7927$ がめのこで分かる人は少ない(と思う)
+
+\underline{\bf 解の公式法は有望}
+
+$(a^2-4b)/4 = 4717584 = 2172^2$ なら何とかなる?
+
+$\Rightarrow$ $x^2-t$ の整数根を探す方法があればよい
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 3 次以下の場合}
+
+\underline{\bf 整数上で分解できるなら, 一次因子を持つ}
+
+根を探す方法が適用できる. 
+
+根拠 : 中間値の定理 
+「$f(a) < 0, f(b) > 0$ なら $a$, $b$ の間に $f(c)=0$ なる $c$ がある.」
+
+\begin{itemize}
+\item 二分法
+
+区間を半分ずつ狭めて追い込む
+
+\item Newton 法
+
+二分法よりずっと高速
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 4 次以上の場合}
+
+いろいろな分解パターンがあり得る
+
+4 次 = 2 次 $\times$ 2 次
+
+$\Rightarrow$ 根を探す方法は適用困難
+
+\underline{\bf コンピュータ用には, もう少し統一的な方法が必要}
+
+中間値の定理は, 実数における {\bf 近似} の利用
+
+別の近似 $\Rightarrow$ {\bf 割った余り}に注目
+\end{slide}
+
+\begin{slide}{}
+\fbox{\bf 4. $p$-進近似による多項式の因数分解}
+
+\underline{\bf 原理} : {\bf 整数 $m$ が 0} $\Leftrightarrow$
+
+{\bf $m$ はどんな整数でも割り切れる}
+
+({\bf $m$ は十分大きい整数で割り切れる})
+
+たとえば, 
+
+\begin{enumerate}
+\item 最初, $f(x)-g_1(x)h_1(x)$ の係数が整数 $p$ で割り切れるような $g_1$,
+$h_1$ を見つける. 
+
+\item $f(x)-g_k(x)h_k(x)$ の係数が $p^k$ で割り切れるように $g_k$, $h_k$ を
+作っていく ($k=1,2,\ldots$)
+
+\item $g_1$, $h_1$ が当たりなら, 適当な $k$ のところでほんとに割り切れるだろう. 
+\end{enumerate}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 言いかえれば...}
+
+以下, 簡単のため, $f(x)$ および因子の係数は全て正であるとする. 
+
+$f(x) = a_0(x)+p\cdot a_1(x)+p^2\cdot a_2(x)+\cdots$
+
+と「べき級数展開」する. ( $a_i$ の係数は $p-1$ 以下)
+
+$g(x) = b_0(x)+p\cdot b_1(x)+p^2\cdot b_2(x)+\cdots$
+
+$h(x) = c_0(x)+p\cdot c_1(x)+p^2\cdot c_2(x)+\cdots$
+
+とおいて $f(x)-g(x)h(x)=0$ から $b_i$, $c_i$ を決める. 
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 記号 $a \equiv b \bmod M$}
+
+$M$ を整数とする. $a \equiv b \bmod M$ とは
+
+\begin{itemize}
+\item $a,b$ が整数のとき, 
+
+$a-b$ が $M$ で割り切れること
+
+\item $a,b$ が整数係数多項式のとき
+
+$a-b$ の各係数が $M$ で割り切れること
+\end{itemize}
+
+$a$ を $M$ で割った余りも $a \bmod M$ と書く
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf$b_0(x)$, $c_0(x)$ からスタート}
+
+$f-gh = a_0-b_0c_0$ + ($p$で割り切れる多項式)
+
+だから, $f=gh$ なら $a_0 \equiv b_0c_0 \bmod p$ のはず
+
+\underline{例}
+
+\begin{tabbing}
+$f(x)=$ \= $x^4+17056x^3+72658809x^2$ \\
+\> $+3504023212x+30603759869$
+\end{tabbing}
+
+$p = 3$ とすると $a_0(x)=x^4+x^3+x+2$
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 一次因子があるか?}
+
+$b_0(x) = x+p$, $h_0(x) = x^3+qx^2+rx+s$ とおく. 
+
+$a_0 \equiv b_0c_0 \bmod 3$ より\\
+
+$\left\{
+\parbox[c]{6in}{
+$p+q \equiv 1 \bmod 3$ \\
+$pq+r \equiv 0 \bmod 3$ \\
+$pr+s \equiv 1 \bmod 3$ \\
+$ps \equiv 2 \bmod 3$}
+\right.$\\
+
+$p$, $q$, $r$, $s$ に 0, 1, 2 をどう入れてもダメ. 
+
+よって, 一次因子はない.
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 二次因子はあるか? --- まず $b_0$, $c_0$ を探す}
+
+$b_0(x) = x^2+px+q$, $h_0(x) = x^2+rx+s$ とおく
+
+$a_0 \equiv b_0c_0 \bmod 3$ より\\
+
+$\left\{
+\parbox[c]{6in}{
+$p+r \equiv 1 \bmod 3$ \\
+$pr+q+s \equiv 0 \bmod 3$ \\
+$ps+qr \equiv 1 \bmod 3$ \\
+$sq \equiv 2 \bmod 3$}
+\right.$\\
+
+$p$, $q$, $r$, $s$ に 0, 1, 2 の値を入れてみれば
+
+$(p,q,r,s) = (0,1,1,2), (1,2,0,1)$ が見つかる. 
+
+一方が $b_0$, 他方が $c_0$ とみなせばこれらは同じもの
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 二次因子つづき --- $b_1$, $c_1$ が満たす性質}
+
+$b_0 = x^2+1$, $c_0 = x^2+x+2$ とすると
+
+\centerline{$f-b_0c_0 \equiv 0 \bmod 3$}
+
+$f-gh \equiv a_0-b_0c_0+p(a_1-(b_0c_1+b_1c_0)) \bmod 3^2$
+
+より, 両辺を 3 で割って
+
+${{f-gh} \over 3} \equiv {{a_0-b_0c_0}\over 3} + (a_1-(b_0c_1+b_1c_0)) \bmod 3$
+
+左辺は $3$ で何回でも割れる $\Rightarrow$  右辺は $3$ で割れる
+
+補正項 $b_1$, $c_1$ : $x^2$ の係数は 0 としてよい
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 二次因子つづき --- $b_1$, $c_1$ が満たす方程式}
+
+$b_1 = px+q$, $c_1 = rx+s$ とおく.
+
+\begin{tabbing}
+右辺 = \= $-(p+r)x^3-(p+q+s+1)x^2$\\
+\> $-(2p+q+r-1)x-(2q+s)$
+\end{tabbing}
+
+$右辺 \equiv 0 \bmod 3$ より\\
+
+$\left\{
+\parbox[c]{6in}{
+$p+r \equiv 0 \bmod 3$ \\
+$p+q+s+1 \equiv 0 \bmod 3$ \\
+$2p+q+r-1 \equiv 0 \bmod 3$ \\
+$2q+s \equiv 0 \bmod 3$}
+\right.$\\
+
+こんどは連立一次方程式(合同式). これを解くと
+
+$(p,q,r,s) = (0,1,0,1)$ すなわち $b_1 = 1$, $c_1 = 1$
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 二次因子つづき --- $b_k$, $c_k$ も同様}
+
+これで, 
+
+\centerline{$f \equiv (b_0+3b_1)(c_0+3c_1) \bmod 3^2$}
+
+以下同様に, 
+
+\centerline{$b_k = px+q, c_k = rx+s$}
+
+とおいて, $(p,q,r,s)$ の連立一次方程式を解けば
+
+\centerline{$f \equiv (b_0+\ldots+3^{k-1}b_{k-1})(c_0+\ldots+3^{k-1}c_{k-1}) \bmod 3^k$}
+
+すなわち 
+
+\centerline{$f \equiv g_kh_k \bmod 3^k$}
+
+となる $g_k, h_k$ が決まる. 
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf $(g_k, h_k)$ の表}
+
+{\large
+\begin{tabular} { c | c c }
+$k$ & $g_k$ & $h_k$ \\ \hline
+1&$x^2+1$&$x^2+x+2$\\ \hline
+2&$x^2+4$&$x^2+x+5$\\ \hline
+3&$x^2+18x+4$&$x^2+x+5$\\ \hline
+4&$x^2+45x+4$&$x^2+x+59$\\ \hline
+5&$x^2+45x+166$&$x^2+x+140$\\ \hline
+6&$x^2+531x+409$&$x^2+487x+626$\\ \hline
+7&$x^2+1260x+1867$&$x^2+487x+1355$\\ \hline
+8&$x^2+1260x+4054$&$x^2+2674x+1355$\\ \hline
+9&$x^2+7821x+10615$&$x^2+9235x+7916$\\ \hline
+10&$x^2+7821x+30298$&$x^2+9235x+47282$\\ \hline
+11&$x^2+7821x+89347$&$x^2+9235x+165380$\\ \hline
+12&$x^2+7821x+89347$&$x^2+9235x+342527$\\ \hline
+13&$x^2+7821x+89347$&$x^2+9235x+342527$\\ \hline
+\end{tabular}}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf $\bmod 3^k$ での因子から真の因子へ}
+
+表で見ると, $k=12$ から $k=13$ で変化がない
+
+$\Rightarrow$ $f-g_{13}h_{13}$ を計算してみると 0 になっている!
+
+すなわち
+
+$f(x) = $ 
+
+$(x^2+7821x+89347)(x^2+9235x+342527)$
+
+\underline{\bf 実際には...}
+
+\begin{itemize}
+\item 負の係数の場合を扱うための工夫が必要
+
+\item 失敗の可能性もあるので, $k$ をどこまで上げればいいかの上限が必要
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf $\bmod p$ での分解が一番大切}
+
+出て来た, 係数の方程式
+
+\begin{itemize}
+\item $k > 1$
+
+単なる連立一次方程式
+
+\item $k = 1$
+
+一次方程式でない $\Rightarrow$ しらみつぶしで解くのはあまりに効率
+がわるい (いくらコンピュータでも)
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{\bf 5. 有限体 $GF(p) = \{0,1,\cdots,p-1\}$ }
+
+$p$ が素数のとき, 
+$GF(p) = \{0,1,\cdots,p-1\}$ に, $+$, $-$, $\times$ を
+「結果を $p$ で 割った余り」で定義すると
+
+\begin{enumerate}
+\item 加減乗算で閉じている. 
+\item 0 以外の元で割算ができる. 
+
+「$a {\not \equiv} 0 \bmod p$ なら $ab \equiv 1 \bmod p$ となる $b$ がとれる」
+\end{enumerate}
+
+すなわち, {\bf $GF(p)$ は体(タイ)} 
+
+元の個数が有限個 ($p$ 個)なので {\bf 有限体} とよぶ. 
+
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf $k=1$ での計算は, 有限体上での因数分解}
+
+$a_0 \equiv f \bmod p$ を $GF(p)$ 係数多項式とみる. 
+
+$\Rightarrow$ $a_0 \equiv b_0c_0 \bmod p$ となる $b_0$, $c_0$ を
+求めることは, $GF(p)$ 上での因数分解に相当
+
+$\Rightarrow$ {\bf よいアルゴリズムがたくさんある}
+
+\underline{\bf $k > 1$ での計算は, 有限体上での連立一次方程式求解}
+
+実際には, $k=1$ の結果から機械的に計算できる.
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 因数分解のまとめ (Zassenhaus アルゴリズム)}
+
+\begin{enumerate}
+\item よい素数 $p$ を選んで $f \bmod p$ を因数分解
+
+$f$ の最高次係数を割らない
+
+$GF(p)$ での因子が全て異なる etc.
+
+\item 次を繰り返し
+
+\begin{enumerate}
+\item $GF(p)$ 上の因子を二組に分ける
+
+\item 各組の積を $g_1$, $h_1$ とする. 
+
+\item $f \equiv g_kh_k \bmod p^k$ なる $g_k$, $h_k$ を作る
+
+\item 係数の正負を調節して試し割り
+\end{enumerate}
+
+\end{enumerate}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 裏にはいろいろ数学が隠れている}
+
+\begin{itemize}
+\item 体の上での因数分解の一意性
+
+体上の多項式環の性質
+
+\item 有限体上での因数分解アルゴリズム
+
+Berlekamp アルゴリズム
+
+\item $\bmod p$ から $\bmod p^k$ への持ち上げ
+
+Euclid の互除法, Hensel の補題
+\end{itemize}
+
+$\Rightarrow$ 計算機のパワーだけではダメ. 数学をうまく利用した
+アルゴリズム設計が必要ということ. 
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{\bf 6. 有限体の応用例 : 暗号}
+
+\underline{\bf ネットワーク上での通信は基本的に筒抜け}
+
+自分の身は自分で守る $\Rightarrow$ 通信内容を{\bf 暗号}化
+
+\underline{\bf 暗号化通信の一例}
+
+\begin{enumerate}
+\item 共通の暗号化/復号化鍵を共有する.
+
+\item 送信側 : 鍵で暗号化 $\Rightarrow$ 受信側 : 鍵で復号化
+\end{enumerate}
+
+\underline{\bf 問題 : 通信路が筒抜けのときに, どうやって鍵を共有?}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf A さんと B さんが鍵を共有 --- Diffie-Hellman}
+
+\begin{itemize}
+\item 公開情報
+
+大きい素数 $p$, $0 < g < p$ なる整数 $g$
+
+\item A さんの仕事
+
+\begin{enumerate}
+\item $0 < s_A < p$ なる整数 $s_A$ (秘密) を作る. 
+\item $w_A = g^{s_A} \bmod p$ を B さんに送る.
+\item $s = w_B^{s_A} \bmod p$ を作る. 
+\end{enumerate}
+
+\item B さんの仕事
+
+\begin{enumerate}
+\item $0 < s_B < p$ なる整数 $s_B$ (秘密) を作る.
+\item $w_B = g^{s_B} \bmod p$ を A さんに送る.
+\item $s = w_A^{s_B} \bmod p$ を作る. 
+\end{enumerate}
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 大事な点}
+
+\begin{itemize}
+\item $w_B^{s_A} = w_A^{s_B} \bmod p$
+
+これで鍵が共有できた
+
+\item $w_A$, $w_B$ は暗号化されない
+
+$g^{s_A} \bmod p$ から $s_A$ を求めるのは難しい
+
+(有限体の乗法群における離散対数問題)
+
+\item $\overline{a^b} = a^b \bmod p$ は $p$ 程度の数のかけ算割算に帰着
+
+$\overline{a^{100}} = \overline{(\overline{a^{50}})^2}$,
+$\overline{a^{50}} = \overline{(\overline{a^{25}})^2}$,
+$\overline{a^{25}} = \overline{\overline{(\overline{a^{12}})^2} \times \overline{a}}$,
+$\overline{a^{12}} = \overline{(\overline{a^{6}})^2}$,
+$\overline{a^{6}} = \overline{(\overline{a^{3}})^2}$,
+$\overline{a^{3}} = \overline{\overline{(\overline{a})^2} \times \overline{a}}$
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\underline{\bf 他にもいろいろある}
+
+\begin{itemize}
+\item RSA 暗号
+
+大きな整数の素因数分解の難しさを利用
+
+\item 楕円曲線暗号
+
+有限体上で $y^2=x^3+ax+b$ の解 $P=(x,y)$ を考えると,
+$k$ 倍算 $kP$ が定義できる.
+
+$kP$ から $k$ を求める計算の難しさを利用
+\end{itemize}
+
+$\Rightarrow$ {\bf いずれも, 直接, 間接に整数の剰余演算が関与}
+\end{slide}
+
+\begin{slide}{}
+\fbox{\bf 7. まとめ}
+
+\begin{enumerate}
+\item {\bf 多項式因数分解程度でも, 効率よい実現は大変}
+
+数学が意外に役に立つ $\cdots$ 特に有限体
+
+\item {\bf でも有限体なんて他に何の役に立つの?}
+
+実は IT 社会を裏で支えている. 
+
+\item {\bf 数学の奥深さ}
+
+後になってとんでもないところに応用される可能性がある
+という楽しさ, 奥深さ
+\end{enumerate}
+
+\end{slide}
+
+%\begin{slide}{}
+%\fbox{\bf}
+%\end{slide}
