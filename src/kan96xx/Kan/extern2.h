@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -185,7 +185,7 @@ int (*grade)(POLY f);
 #define checkRing2(f,g) {\
   if ((f)->m->ringp != (g)->m->ringp) {\
     fprintf(stderr,"f and g must be in a same ring. Type in ctrl-\\");\
-    getchar(); getchar(); exit();\
+    getchar(); getchar(); exit(1);\
     }\
 }
 
