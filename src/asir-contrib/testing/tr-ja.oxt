@@ -1,7 +1,7 @@
 /*&generate-prologue
 */
 $Id$
-$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.1 2005/04/01 08:08:36 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.2 2005/04/01 11:34:21 takayama Exp $
 
 $BCm0U(B: testing/tr.rr $B$G$O(B quote $B$r(B quotetolist $B$G(B list $B$KJQ49$7$F07$&$?$a(B,
       $B2<$N;EMM$H$O$3$H$J$j(B, list $B7?$G%G!<%?$rLa$9>l9g$bB?$$(B.
@@ -26,6 +26,7 @@ end: */
 /*&usage begin: qt_child(Q,K)
  quote $B%G!<%?(B {Q} $B$N(B {K} $BHVL\$N;R6!$rLa$9(B.
  example: qt_child(quote(1+2*3),1)     quote(2*3) $B$rLa$9(B.
+ example: qt_child(quote(1+2*3),0)     quote(1) $B$rLa$9(B.
 end: */
 
 @c --------------------------------------------------------------------
@@ -55,12 +56,16 @@ end: */
 /*&usage begin: qt_replace(Qobj,[[x,Valuex],[y,Valuey],...])
    quote object {Qobj} $B$NCf$N(B x $B$r(B Valuex, y $B$r(B Valuey, ... $B$KCV$-49$($?(B
    quote object $B$rLa$9(B.
+   example: qt_replace(quote(sin(x*@pi)), [[x,quote( (2*t+3) )]])
 end: */
+
+   qt_replace $B$O(B asir-contrib $B$N(B base_replace $B$H;w$?5!G=(B.
+   quote $B$NFbIt$KBgJ8;z$G$O$8$^$kJQ?t(B($BI>2A$9$k(B)$B$,=q$1$J$$$?$a(B.
 
 /*&usage begin: qt_parenthesis(Qobj)
    quote object {Qobj} $B$NCf$N3g8L$,B-$j$J$$$H$-$K$OJd$$(B, $BB?$$$H$-$K$O<h$j5n$C$?(B
    quote object $B$r:n$k(B.
-   +, *, /, ^, - $BEy$K$D$$$F$N(B asir $B$NJ8K!$G$N1i;;;R$N6/$5$r2>Dj$9$k(B.
+   +, *, /, ^, - $BEy$K$D$$$F(B asir $B$NJ8K!$G$N1i;;;R$N6/$5$r2>Dj$9$k(B.
 end: */
 
 /*&usage begin: qt_eval(Qobj,type)
@@ -71,7 +76,6 @@ end: */
    asir $B$N(B Obj $B$r(B quote $B7?$KJQ49(B.  
 end: */
 
-$B$=$NB>(B qt_expand, qt_sort, qt_ht, qt_rest, qt_mtov $B$b4pAC4X?t$H$7$FM_$7$$(B.
 
 @c --------------------------------------------------------------------
 @section tr (term rewriting) $B$N%H%C%W%l%Y%k$N4X?t(B
@@ -79,8 +83,10 @@ end: */
 /*&usage begin: tr_match0(Qobj,P)
  quote $B%G!<%?(B {Qobj} $B$,(B $B%Q%?!<%s(B {P} $B$KE,9g$9$l$P(B 1 $B$rLa$7(B, $B$=$&$G$J$1$l$P(B 0
  $B$rLa$9(B. 
- example: tr_match0(quote(1+2*3),quote(pn(x)+pn(y)))                   
-          tr_match0(quote(1+2*3),quote(pn(x)+pn(y,qt_is_integer,x)))
+ example: tr_match0(quote(1+2*3),quote(pn(x)+pn(y)))        
+                 x $B$K(B quote(1), y $B$K(B quote(2*3)           
+          tr_match0(quote(1+2*3),quote(pn(x)+pn(y,qt_is_integer,y)))
+                 qt_is_integer(2*3) $B$O(B 0 $B$J$N$G(B y $B$K$O%^%C%A$7$J$$(B.
 end: */
 
 pn(x) $B$OG$0U$N(B quote object $B$K%^%C%A$7(B, $BL>A0(B x $B$r$D$1$k(B.
@@ -89,11 +95,11 @@ tr_match0(quote(1+2*3),quote(pn(x)+pn(y,tr_is_integer,x))) $B$O(B 0 $B$r$b$I$
 2*3 $B$O(B integer $B$+$i:n$i$l$?(B fnode $B$G$O$"$k$,(B integer $B$G$O$J$$$N$G(B qt_is_integer
 $B$,(B 0 $B$rLa$9$?$a(B.
                  
-/*&usage begin: tr_match1(Qobj,P,Act)
+/*&usage begin: tr_match_act(Qobj,P,Act)
  quote $B%G!<%?(B {Qobj} $B$,(B $B%Q%?!<%s(B {P} $B$KE,9g$9$l$P(B {Act} $B$r8F$S=P$7$=$NCM$rLa$9(B.
  $B%Q%?!<%s(B {P} $B$K%^%C%A$7$J$$$H$-$O(B 0.
 
- example: tr_match1(quote(1+2*3),quote(pn(x)+pn(y)),[myadd,x,y])                   
+ example: tr_match_act(quote(1+2*3),quote(pn(x)+pn(y)),[myadd,x,y])                   
 end: */
 
 /*&usage begin: tr_or_match1(Qobj,Rules)
@@ -103,12 +109,14 @@ end: */
  quote $B%G!<%?(B {Qobj} $B$NLZ$rI}M%@hC5:w$7(B, 
  $B%Q%?!<%s(B {P} $B$KE,9g$9$k$b$N$,$"$k$H$-$O(B {Act} $B$r8F$S=P$7$=$NCM$rLa$9(B.
  $B$D$^$j(B top node $B$,(B {P} $B$KE,9g$9$k$+D4$Y(B, $BE,9g$7$J$$>l9g$O$=$N;R6!$K(B
-  tr_apply_rule1 $B$rE,MQ$9$k(B ($B$3$3$,(B tr_match1 $B$H$O0[$J$k(B). 
+  tr_apply_rule1 $B$rE,MQ$9$k(B ($B$3$3$,(B tr_match_act $B$H$O0[$J$k(B). 
  $B%^%C%A$7$J$$>l9g$O(B Qobj $B$r$=$N$^$^La$9(B ($B$3$l$,:F5"E*$KE,MQ$5$l$k(B).
 
  example: tr_apply_rule1(quote(1+sin(2*@pi)),quote(sin(pn(x)*@pi)),[sin_int,x])
 end: */
 
+ $B$3$3$G(B sin_int(X) $B$O(B X $B$,(B integer $B$N;~$O(B quote(0) $B$rLa$7(B,
+ $B$=$&$G$J$$$H$-$O(B quote(sin(X*@pi)) $B$rLa$9(B.
  $B?<$5M%@h$G=q$-49$($r$9$k$K$O(B $B4X?t(B sin_int $B$NCf$G$^$?(B tr_apply_rule1 $B$r8F$S=P$;$P(B
  $B$h$$(B.
 
@@ -117,7 +125,7 @@ end: */
 
 @subsection $BFbIt4X?t(B
 
-/*&usage begin: tr_apply_function0(Qobj,Arg1,...)
+/*&usage begin: tr_apply_function0(Qobj,BindingTable)
 end: */
 
 /*&usage begin: tr_rp(Qobj,P,A)
@@ -142,7 +150,7 @@ fn(f,pn(x),pn(y))        $BG$0U$N4X?t$K%^%C%A(B. $B%^%C%A$7$?4X?tL>$r(B f $
 $B%Q%?!<%s$O(B quote $B$GM?$($k(B.
 $BM=Ls8l(B  tr_and, tr_or, tr_not  $B$O%Q%?!<%s$N%^%C%A$K4X$7$FO@M}1i;;$r$*$3$J$&(B.
 $B$?$H$($P(B
-quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative)))
+quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
 $B$O(B x $B$,(B $B@0?t$G(B - $B$,@hF,$K$D$$$F$$$J$$>l9g%^%C%A$9$k(B.
 
 @c ---------------------------------------------------------
@@ -232,7 +240,52 @@ quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative)))
 
 
 
+@section  Todo:
+ $BNc(B. Mathematica $B$N(B N[ ] $BAjEv$N4X?t$r%f!<%6$,=q$1$k$h$&$K(B.
+    nn(sin(cos(@pi)+sqrt(2))) 
+    --> nn(sin(nn(cos(nn(@pi)))+nn(sqrt(nn(2)))))
+    $BG$0U4X?t$H$N(B match.
 
+ $BNc(B: $BQQ5i?t$N7W;;$r(B quote $B$G<B8=(B.
+        sort $B$d(B expand $B$OAH$_9~$_$G(B.
+
+ $BNc(B: Mathematica $B$N(B Expand[], Toghether[] $BAjEv$N$b$N(B.
+
+ $BNc(B: D $B$N3]$1;;$r(B $B%Q%?!<%s%^%C%A$G<B8=(B.  
+
+ $BNc(B: (x^(1/n))^n --> x $BEy(B.
+
+ $BNc(B: $B5-9fHyJ,$HHyJ,4D$G$N7W;;(B.
+       y''+xy=0,  y''=y^2+x $BEy(B.
+
+ $BNc(B: QE, $BO@M}<0(B.
+
+@section $B9M$(J}$K$D$$$F$N35@b(B
+
+ $B%H%C%W%l%Y%k$N4X?tC#(B.  (stylesheet $B$N9M$($K;w$F$k(B.)
+  iterator $B$N0l<o(B.
+
+@c ------------------------------------------------
+@section   $B$^$@%9%1%C%A$N$_$N4X?t;EMM(B
+
+  qt_ltor, qt_rtol : $BLZ$N9=B$$NJQ49(B; $BNc(B (x*y)*z --> x*(y*z)
+
+  idxtov(x,i)  x_i $B$r@8@.(B.  x_i $B$N(B index (idx) $BB0@-(B $B$r(B i $B$K(B. 
+                                    base_name $BB0@-$r(B  x $B$K(B.
+  idxtov(x,[i,j])  x_i_j $B$r@8@.(B.  x_i_i $B$N(B index (idx) $BB0@-(B $B$r(B [i,j] $B$K(B. 
+  vtoidx(x_i) $B$O(B i $B$rLa$9(B. $BB0@-$N8!:w$J$N$G9bB.(B. idx $BB0@-$,L5$$>l9g$O(B i $B$r@_Dj(B.
+
+  idxtov $B4X?t$O(B $B4X?tL>$K$b;H$($k$h$&$K$9$k(B --> $BHyJ,4DBP1~(B.
+
+  qt_function($BL>A0(B, $B0z?t(B) --> quote($BL>A0(B($B0z?t(B)) $B$r@8@.(B.  
+   index $BIU$-4X?t$OHyJ,4D$N<h07$KI,MW(B.
+
+  $B6R5i?t$N<h07(B, dp $B$N(B pretty print $B$N$?$a(B.
+  qt_qttodp(Qobj | vlist,  order?)  quote $B$+$i(B dp $B$r:n$k(B. 
+       exponent $B$,?t$G$J$$$H:n$l$:(B.
+  qt_dptoqt(Qobj | vlist)  dp $B$+$i(B quote $B$r:n$k(B.  vlist $B$OB0@-$GBP1~(B?
+
+  qt_expand, qt_sort, qt_ht, qt_rest, qt_mtov $B$b4pAC4X?t$H$7$FM_$7$$(B.
 
 /*&generate-epilogue
 */

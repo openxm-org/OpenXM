@@ -1,0 +1,105 @@
+/* $OpenXM$ */
+/* $Id$ */
+
+load("tr.rr")$
+
+
+
+
+def test0() {
+  A = quotetolist(quote(1+sin(x)+sin(3*@pi)*sin(0)));
+  P = quotetolist(quote(sin(pn("x")*@pi)));
+  Q = ["qt_sin_int","x"];
+  print(A);
+  print(P);
+  print(Q);
+  print("----------------");
+  print(tr_match0(A,P));
+  A2 = quotetolist(quote(sin(2*@pi)));
+  print(tr_match0(A2,P));
+  print("----------------");
+  print("---- tr_make_binding --------");
+  print(tr_make_binding(A2,P));
+  print("-----tr_rp -------------");
+  R=tr_rp(A,P,Q);
+  print("--------------------");
+  print(R);
+  print("--------------------");
+  return quote_input_form_quote_list(R);
+}
+
+def test1()  {
+  Rule1=[quote(sin(pn("x")*@pi)),["qt_sin_int","x"]]; /* sin(整数*@pi) --> 0 */
+  Rule2=[quote(0*pn("y")),       ["qt_zero"]];       /* 0*any --> 0 */
+  Rule3=[quote(pn("y")*0),       ["qt_zero"]];       /* any*0 --> 0 */
+  Rule4=[quote(pn("y")+0),       ["qt_id","y"]];       /* any+0 --> any */
+  Rule5=[quote(0+pn("y")),       ["qt_id","y"]];       /* 0+any --> any */
+  Rule6=[quote(sin(0)),          ["qt_zero"]];       /* sin(0) --> 0 */
+  R0 = quote(1+sin(sin(2*@pi)*sin(@pi/2))+sin(5*@pi));
+  print(print_input_form(R0));
+  R=tr_apply_rule1(R0,Rule1[0],Rule1[1]);
+  print(print_input_form(R));
+  R=tr_apply_rule1(R,Rule2[0],Rule2[1]);
+  print(print_input_form(R));
+  R=tr_apply_rule1(R,Rule4[0],Rule4[1]);
+  print(print_input_form(R));
+  R=tr_apply_rule1(R,Rule6[0],Rule6[1]);
+  print(print_input_form(R));
+  R=tr_apply_rule1(R,Rule4[0],Rule4[1]);
+  print(print_input_form(R));
+  return R;
+}
+
+
+/* 不定積分計算の例  
+    c x^n の和の不定積分 (c は x に依存せず)
+   いろいろ 問題点あり:  たとえば c が 無いときの処理できず.
+*/
+
+/* 右辺関数.  c x^n の不定積分 (c は x に依存せず)
+   Todo: 右辺関数を容易に書く方法.
+*/
+def r_integral0(C,N) {
+  NN = eval_str(quote_input_form_quote_list(quotetolist(N)));
+  CC = quote_input_form_quote_list(quotetolist(C));
+  if (NN == -1) {
+     R = "quote("+CC+"*log(x))";
+  }else{
+     R = "quote("+CC+"/"+rtostr(NN+1)+"*x^"+rtostr(NN+1)+")";
+  }
+  print("r_integral0:",0);print(R);
+  R = eval_str(R);
+  return quotetolist(R);
+}
+/* 右辺関数 積分の線型性 */
+def r_int_linear(F,G) {
+  FF = quote_input_form_quote_list(quotetolist(F));
+  GG = quote_input_form_quote_list(quotetolist(G));
+  R = "quote(integral("+FF+")+integral("+GG+"))";
+  print("r_int_linear:",0);print(R);
+  R = eval_str(R);
+  return quotetolist(R);
+}
+def test3() {
+  R0 = quote(1+integral(2*x^(-1)+2*x^2));
+  return test3a(R0);
+}
+def test3a(R0)  {
+  Rules=[
+     /* c*x^n --> (c/(n+1))*x^(n+1) or c*log(x) */
+     [quote(integral(pn("c")*x^pn("n"))),["r_integral0","c","n"]],
+     [quote(integral(pn("f")+pn("g"))),  ["r_int_linear","f","g"]]
+  ];
+  print("Input=",0); print(print_input_form(R0));
+  N = length(Rules);
+  R = R0;
+  for (J=0; J<3; J++) {  /* Todo: フラグがないので, とりあえず 3 回 */
+    for (I=0; I<N; I++) {
+      print(print_input_form(R));
+      R=tr_apply_rule1(R,Rules[I][0],Rules[I][1]);
+    }
+  }
+  return R;
+}
+
+end$

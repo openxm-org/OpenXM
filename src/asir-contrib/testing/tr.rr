@@ -1,0 +1,241 @@
+/* $OpenXM$ */
+/* $Id$ */
+
+/*  
+  OpenXM版の Risa/Asir で実行のこと. OpenXM 版の関数を用いるため.
+*/
+/* $Id$
+  このファイルは quotetolist でリストに変換したデータに対して
+  パターンマッチおよびそれを応用した変形を行う.
+  tr.oxt の仕様とことなり quotetolist で変換したものを扱う.
+  テストプログラムのため効率は無視.   (append の多用, 無駄な2重呼び出し, など))
+*/
+
+extern Debug$
+Debug=0$
+def dprint(X) {
+  if (Debug) print(X);
+}
+def dprint0(X) {
+  if (Debug) print(X,0);
+}
+
+
+def qt_node(F) {
+   return [F[0],F[1]];
+}
+/* Number of  child */
+def qt_nchild(F) {
+   return length(F)-2;
+}
+def qt_child(F,K) {
+   return F[K+2];
+}
+
+/* 
+   リスト F が リスト P に(先頭からの比較で)マッチしたら 1.
+   そうでないから 0.  幅優先探索.
+    Todo: P に任意関数を含む仕組みはまだ実装してない.  
+*/
+def tr_match0(F,P)  {
+  dprint0("tr_match0: F="); dprint(F);
+  dprint0("tr_match0: P="); dprint(P);  
+
+  if (type(F) != type(P)) return 0;
+  if (type(F) != 4) {
+    if (F == P) return 1;
+    else return 0;
+  }
+  Node = qt_node(F);
+  Node2 = qt_node(P);
+  if (Node2 == ["function","pn"]) return 2;
+  if (Node != Node2) return 0;
+  N = qt_nchild(F);
+  if (N != qt_nchild(P)) return 0;
+  for (I=0; I<N; I++) {
+     C = qt_child(F,I);
+     C2 = qt_child(P,I);
+     if (!tr_match0(C,C2)) return 0;
+  }
+  return 1;
+}
+
+/* F と P が tr_match0 するとき  bindingTable をもどす.
+  [[変数の名前(文字列), 値(list)], ...]
+*/
+def tr_make_binding(F,P) {
+  Ans = [ ];
+  if (F == P) return Ans;
+
+  Node = qt_node(F);
+  Node2 = qt_node(P);
+
+  if (Node2 == ["function", "pn"]) {
+     Ans = append(Ans,[[P[2][1],F]]);
+     return Ans;
+  }
+  N = qt_nchild(F);
+  for (I=0; I<N; I++) {
+     C = qt_child(F,I);
+     C2 = qt_child(P,I);
+     Ans = append(Ans,tr_make_binding(C,C2));
+  }
+  return Ans;
+}
+
+/* 
+   Tree の中を幅優先探索で検索して 置き換える.
+   幅優先探索なので, 同じ rule にマッチするものが入れ子になった場合, 
+   内側は置き換えられない.
+   深さ優先探索にした --> action 関数の中で再帰的に呼べば深さ優先となる.
+   Todo: 書き換えがおこったかのフラグ.
+*/
+def tr_rp(F,P,Q) {
+  dprint0("tr_rp, F="); dprint(F);
+  dprint0("tr_rp, P="); dprint(P);
+  dprint0("tr_rp, Q="); dprint(Q);
+  if (tr_match0(F,P)) {
+     BindTable = tr_make_binding(F,P);
+     dprint0("BindTable="); dprint(BindTable);
+     return tr_apply_function0(Q,BindTable);
+  }
+  if (type(F) != 4) return F;
+  Node = qt_node(F);
+  N = qt_nchild(F);
+  Ans = Node;
+  for (I=0; I<N; I++) {
+    T = tr_rp(qt_child(F,I),P,Q);
+    Ans = append(Ans,[T]); 
+  }
+  return Ans;
+}
+
+/* ["f","x"],[["x",[internal,3]]]  の時は
+   f(3) を計算する.
+*/
+def tr_apply_function0(Q,BindTable) {
+  B = [ ];
+  N = length(BindTable);
+  /* BindTable の右辺値を quote(...) なる文字列に */
+  for (I=0; I<N; I++) {
+    B = append(B,[[BindTable[I][0],"quote("+quote_input_form_quote_list(BindTable[I][1])+")"]]);
+  } 
+  dprint0("tr_apply_function0: "); dprint(B);
+  N = length(Q)-1; /* 引数の数 */
+  M = length(B);   /*  binding table のサイズ */
+  R = Q[0]+"(";
+  for (I=0; I<N; I++) {
+    X = rtostr(Q[I+1]); /* 変数 */
+    /* binding Table をサーチ */
+    for (J=0; J<M; J++) {
+       Y = rtostr(B[J][0]);
+       if (X == Y) {
+          R = R+B[J][1];
+          if (I != N-1) R = R+",";
+          break;
+       }
+       if (J == M-1) error("No binding data.");
+    }
+  }
+  R = R+")";
+  dprint0("R="); dprint(R);
+  return eval_str(R);
+}
+
+
+/* L が左規則. R が右規則.  幅優先探索.
+   書き換えをするためのトップレベルの関数 (のひとつ).
+  例: 
+    tr_apply_rule1(quote(1+sin(3*@pi)*sin(@pi/2)),
+                quote(sin(pn("x")*@pi)),
+                ["qt_sin_int","x"]);
+*/
+def tr_apply_rule1(Obj,L,R) {
+  dprint("--------  start of tr_apply_rule1 ------------ ");
+  Obj = quotetolist(Obj);
+  L = quotetolist(L);
+  R = tr_rp(Obj,L,R);
+  RR = "quote("+quote_input_form_quote_list(R)+")";
+  dprint("--------  end of tr_apply_rule1 ------------ ");
+  return eval_str(RR);  
+}
+
+/* quote に対する 述語 */
+def qt_is_integer(Qlist) {
+  if (Qlist[0] == "internal") {
+     Z = eval_str(rtostr(Qlist[1]));
+  }else{ 
+     return 0;
+  }
+  if (type(Z) == 0) return 1;
+  if ((type(Z) == 1) && (ntype(Z) == 0)) return 1;
+  return 0;
+}
+
+/* quote の生成 */
+/* 右規則関数.   0 を戻す. */
+def qt_zero() {
+  return quotetolist(quote(0));
+}
+
+/* 右規則関数.   恒等式 */
+def qt_id(X) {
+  return quotetolist(X);
+}
+
+/* ------------  test --------------------------- */
+extern Rule_test2$
+Rule_test2=[quote(sin(pn("x")*@pi)),["qt_sin_int2","x"]]$
+
+def test2() {
+  /* 幅優先探索の場合, R0 は simplify できず.  */
+  Rule1=[quote(sin(pn("x")*@pi)),["qt_sin_int","x"]];
+  R0 = quote(1+sin(sin(2*@pi)*@pi)*sin(@pi/2));
+  print(print_input_form(R0));
+  R=tr_apply_rule1(R0,Rule1[0],Rule1[1]);
+  print(print_input_form(R));
+  print("-----------------------");
+  /* 次のように書くと深さ優先で書ける */
+  R0 = quote(1+sin(sin(2*@pi)*@pi)*sin(@pi/2));
+  print(print_input_form(R0));
+  R=tr_apply_rule1(R0,Rule_test2[0],Rule_test2[1]);
+  print(print_input_form(R));
+}
+
+/* 右規則関数.  sin(整数*@pi) を 0 に */
+def qt_sin_int(X) {
+  /* いま X は quote 型 */
+  Y = quotetolist(X);
+  /* Todo: このようなものを作る機能は組み込みで欲しい. */
+  R = "quote(sin("+quote_input_form_quote_list(Y)+"*@pi))";
+  print(R);
+  R = eval_str(R);
+  /* Todo: X が 数字かどうか調べる機能も組み込みで欲しい.
+  */
+  if (Y[0] == "internal") {
+     Z = eval_str(rtostr(Y[1]));
+  }else{ 
+    return quotetolist(R);
+  }
+  if (type(Z) == 0) return quotetolist(quote(0));
+  if ((type(Z) == 1) &&   (ntype(Z) == 0)) return quotetolist(quote(0));
+  return quotetolist(R);
+}
+
+/* 右規則関数.  sin(整数*@pi) を 0 に. 深さ優先用 */
+def qt_sin_int2(X) {
+  /* tr_apply_rule1 を再帰的によぶ. この方法で構文解析もかける. */
+  X = tr_apply_rule1(X,Rule_test2[0],Rule_test2[1]);
+  Y = quotetolist(X);
+  R = "quote(sin("+quote_input_form_quote_list(Y)+"*@pi))";
+  print(R);
+  R = eval_str(R);
+  if (qt_is_integer(Y)) return quotetolist(quote(0));
+  else return quotetolist(R);
+}
+
+
+/* これら以外のテストプログラムは test1-tr.rr を 
+*/
+
+end$
