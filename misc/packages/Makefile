@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.15 2000/03/13 00:52:20 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.16 2000/03/13 00:57:44 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -49,8 +49,6 @@ print:
 generate-tar-balls:
 	-mkdir ${TAR_WORK}
 	make clean
-	(cd Linux/RPM ; make make-directory)
-	(cd Linux/RPM ; make link-for-real-openxm)
 	(cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
 	make update-plist
@@ -59,8 +57,12 @@ generate-tar-balls:
 update-plist:
 	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} update-plist )
 
+prepare-build-rpm:
+	(cd Linux/RPM ; make make-directory)
+	(cd Linux/RPM ; make link-for-real-openxm)
+
 # set path=(/usr/local/jdk1.1.8/bin $path) ; rehash
-build-on-orange:
+build-on-orange: prepare-build-rpm
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} shared-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} clean-work)
@@ -73,8 +75,8 @@ build-on-pear:
 	(cd /usr/ports/math ; /bin/rm -rf openxm ; tar xzvf ${TAR_WORK_EXPLICIT}/openxm-port.tar.gz)
 	(PATH=/usr/local/${JDK}/bin:$(PATH) ; export PATH ; cd /usr/ports/math/openxm ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
 
-build-on-redhat:
-	(cd Generic/openxm ; make clean-for-make)
+build-on-redhat: prepare-build-rpm
+	(cd Generic/openxm ; make clean-work ; make fetch)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Linux/RPM ; make build-binary-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
@@ -82,8 +84,7 @@ build-on-redhat:
 # set path=(/usr/ccs/bin /usr/local/bin $path); rehash
 # (Note for taka). On unkei, cd Solaris/OpenXM/misc/packages and make build-on-unkei
 build-on-unkei:
-	(cd Generic/openxm ; make fetch)
-	(cd Generic/openxm ; make clean-for-make)
+	(cd Generic/openxm ; make clean-work ; make fetch)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 
 copy-to-ftp-area:

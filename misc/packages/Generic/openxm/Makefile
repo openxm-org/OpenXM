@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.13 2000/03/11 06:22:34 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.14 2000/03/13 00:52:21 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -155,7 +155,7 @@ tar-ball-01: fetch
 	fi
 	@touch ./.tar-ball-01_done
 
-binary-tar-ball : tar-ball-01
+binary-tar-ball : fetch
 	cp Makefile ${WORK}/Makefile 
 	rm -rf ${INSTALL_WORK}
 	mkdir ${INSTALL_WORK} ${INSTALL_WORK}/bin ${INSTALL_WORK}/man 
@@ -163,7 +163,7 @@ binary-tar-ball : tar-ball-01
 	(cd ${WORK} ; make install-binary-files PREFIX=${INSTALL_WORK})
 	(cd ${INSTALL_WORK} ; tar czf ${TAR_WORK}/OpenXM-binary-$(TYPE)$(RELEASE).tgz ${BINARY_FILES})
 
-shared-tar-ball : tar-ball-01
+shared-tar-ball : fetch
 	cp Makefile ${WORK}/Makefile 
 	rm -rf ${INSTALL_WORK}
 	mkdir ${INSTALL_WORK} ${INSTALL_WORK}/bin ${INSTALL_WORK}/man 
