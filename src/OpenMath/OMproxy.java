@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.21 2000/01/19 15:21:58 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.22 2000/01/19 15:32:50 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -34,7 +34,7 @@ class OMproxy implements Runnable{
 	  debug("push: "+ stack.peek());
 	  break;
 	}
-      }catch(Exception e){
+      }catch(Throwable e){
 	System.err.println(e.getMessage());
 	e.printStackTrace();
 	debug("error occured. stack was cleared.");
