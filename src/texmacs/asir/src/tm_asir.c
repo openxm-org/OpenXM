@@ -1,5 +1,10 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/texmacs/asir/src/tm_asir.c,v 1.1 2004/02/25 14:45:28 ohara Exp $ */
+
+/*
+usage: tm_asir
+       tm_asir -d [logfile]
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +31,7 @@
 #define SM_executeFunction            269
 
 #define SIZE_BUFFER 2048
+#define DEFAULT_LOG_FILE "/tmp/tm_asir.log"
 
 #define WRITE(ptr,size)  fwrite((ptr),1,(size),ox_fp)
 #define READ(ptr,size)   fread((ptr),1,(size),ox_fp)
@@ -39,6 +45,28 @@ int cmd_exeString[3]   = {OX_COMMAND, 0, SM_executeStringByLocalParser};
 int cmd_popString[3]   = {OX_COMMAND, 0, SM_popString};
 
 FILE *ox_fp;
+FILE *logfp;
+static int counter;
+
+char *chomp(char *s)
+{
+    char *t = s+strlen(s)-1;
+    *t = (*t != '\n')? *t: 0;
+    return s;
+}
+
+void put_log(char *format, char *mesg)
+{
+    fprintf(logfp, "[%d]", counter++);
+    fprintf(logfp, format);
+    fprintf(logfp, ":%s\n", mesg);
+    fflush(logfp);
+}
+
+void open_log(char *logfile)
+{
+    logfp = fopen(logfile, "a");
+}
 
 void load_asir()
 {
@@ -147,13 +175,33 @@ void output_verbatim(char *s)
     fflush(stdout);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     char buffer[SIZE_BUFFER];
-    load_asir();
-    output_verbatim(asir_copyright());
+    int debug = 0;
+    char *logfile = DEFAULT_LOG_FILE;
+    if (argc > 1 && strcmp(argv[1], "-d") == 0) {
+        debug = 1;
+        if (argc > 2) {
+            logfile = argv[2];
+        }
+    }
+    if (!debug) {
+        load_asir();
+        output_verbatim(asir_copyright());
+    }else {
+        open_log(logfile);
+        sprintf(buffer, "This is Plugin Debuger with logging to %s.", logfile);
+        output_verbatim(buffer);
+		put_log("verbatim", buffer);
+    }
     while(fgets(buffer, SIZE_BUFFER, stdin) != NULL) {
-        output_latex(asir(buffer));
+        if (!debug) {
+            output_latex(asir(buffer));
+        }else {
+            output_verbatim(chomp(buffer));
+			put_log("verbatim", buffer);
+        }
     }
     return 0;
 }
