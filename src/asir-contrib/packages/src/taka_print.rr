@@ -1,24 +1,6 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.12 2001/08/22 08:21:52 takayama Exp $ */
-
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.13 2001/08/23 02:29:21 takayama Exp $ */
+#include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
-
-#define Number 1
-#define NUMBER 1
-#define RPolynomial 2
-#define RPOLYNOMIAL 2
-#define Rational 3
-#define RATIONAL 3
-#define List 4
-#define LIST 4
-#define Vector 5
-#define VECTOR 5
-#define Matrix 6
-#define MATRIX 6
-#define STRING 7
-#define STRUCT 8
-#define DPolynomial   9
-#define DPOLYNOMIAL   9
-#define QUOTE 17
 
 Taka_print_dp_vlist_vname="x"$
 
@@ -31,17 +13,17 @@ def taka_print_dp_vlist(N) {
      and taka_dp_print  */
 
 def taka_tex_form(S) {
-  if (type(S) == Matrix) {
+  if (type(S) == MATRIX) {
      return taka_tex_form_matrix(S);
-  }else if (type(S) == Vector) {
+  }else if (type(S) == VECTOR) {
      return taka_tex_form_vector(S);
-  }else if (type(S) == List) {
+  }else if (type(S) == LIST) {
      return taka_tex_form_list(S);
   }else if (taka_is_fractional(S)) {
      return( taka_tex_form_frac(S) );
-  }else if (type(S) == DPolynomial) {
+  }else if (type(S) == DPOLYNOMIAL) {
      return taka_tex_form_dpolynomial(S);
-  }else if (type(S) == RPolynomial) {
+  }else if (type(S) == RPOLYNOMIAL) {
      return taka_tex_form_rpolynomial(S);
   }else if (type(S) == STRUCT) {
      return taka_tex_form_struct(S);
@@ -95,8 +77,8 @@ def taka_tex_form_list(A) {
 }
 
 def taka_is_fractional(A) {
-  if (type(A) == Rational) return 1;
-  else if (type(A) == Number && dn(A) != 1) return 1;
+  if (type(A) == RATIONAL) return 1;
+  else if (type(A) == NUMBER && dn(A) != 1) return 1;
   else return 0;
 }
 
@@ -182,8 +164,9 @@ def taka_tex_form_rpolynomial(S) {
 
 /* Tentative code */
 def taka_tex_form_struct(S) {
-  if (S->Tag == "poly_factored_polynomial" || S->Tag == "poly_factored_rational") {
-     return taka_tex_form_quote( quote_factored_form_to_quote(S));
+  if (S->Tag == POLY_FACTORED_POLYNOMIAL || 
+      S->Tag == POLY_FACTORED_RATIONAL) {
+     return taka_poly_tex_form_poly_factored_polynomial(S);
   }else {
      print("Unknown struct object for tex_form. Return ???");
      return "???";
@@ -196,7 +179,7 @@ def taka_tex_form_quote(S) {
 }
 
 def taka_tex_form_quote_list(S) {
-  if (type(S) != List) return taka_tex_form_node_name(S);
+  if (type(S) != LIST) return taka_tex_form_node_name(S);
   A = " ";
   if (S[0] == "u_op") {
      return taka_tex_form_quote_list_u_op(cdr(S));
@@ -442,7 +425,7 @@ def taka_output(S) {
 }
 
 def taka_print(S) {
-  if (type(S) == DPolynomial) {
+  if (type(S) == DPOLYNOMIAL) {
     return taka_dp_print(S);
   }else{
     return rtostr(S);
@@ -541,7 +524,7 @@ def taka_jpeg_form(S) {
   File0 = F[1];
   File = F[0];
   /* BUG: it does not work for now. We need png, too */
-  shell(" (cd "+Work_dir+" ; pstoimg -type jpeg -crop a -scape 2 "+File0+".ps ) ");
+  shell(" (cd "+Work_dir+" ; pstoimg -type jpeg -crop a -scale 2 "+File0+".ps ) ");
   return [File0+".jpeg",F[1],F[2],F[3]];
 }
 
@@ -549,6 +532,44 @@ def taka_xv_form(S) {
   F = taka_gif_form(S);
   shell(" xv "+F[1]+".gif &");
   return F;
+}
+
+def taka_input_form(S) {
+  A = 0;
+  if (type(S) == QUOTE) {
+    A = quote_input_form(S);
+  }
+  else if (type(S) == STRUCT) {
+    if (S->Tag == POLY_FACTORED_POLYNOMIAL) {
+       A = taka_poly_input_form_poly_factored_polynomial(S);
+    }else if (S->Tag == POLY_FACTORED_RATIONAL) {
+       A = taka_poly_input_form_poly_factored_rational(S);
+    }else {
+      error("input_form() for this object has not yet been implemented.");
+    }
+  }else {
+    A = rtostr(S);
+  }
+  return A;
+}
+
+def taka_terminal_form(S) {
+  A = 0;
+  if (type(S) == QUOTE) {
+    A = quote_input_form(S);
+  }
+  else if (type(S) == STRUCT) {
+    if (S->Tag == POLY_FACTORED_POLYNOMIAL) {
+       A = taka_poly_terminal_form_poly_factored_polynomial(S);
+    }else if (S->Tag == POLY_FACTORED_RATIONAL) {
+       A = taka_poly_terminal_form_poly_factored_rational(S);
+    }else{
+       error("terminal_form() for this object has not yet been implemented.");
+    }
+  }else {
+    A = rtostr(S);
+  }
+  return A;
 }
 
 Loaded_taka_print=1$

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.18 2001/08/22 08:21:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.19 2001/08/23 02:29:21 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -204,7 +204,10 @@ def print_gif_form(F) {
   return taka_gif_form(F);
 }
 def print_html_form(F) { NOT_YET; }
-def print_input_form(F) { NOT_YET;}
+def print_input_form(F) { 
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return taka_input_form(F);
+}
 def print_open_math_xml_form(F) { 
   OX_LOADFILE(Loaded_om,"om");
   return(ox_xml(F)); 
@@ -212,6 +215,10 @@ def print_open_math_xml_form(F) {
 def print_png_form(F) {
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_png_form(F);
+}
+def print_terminal_form(F) {  
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return taka_terminal_form(F);
 }
 def print_tex_form(F) {  
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");

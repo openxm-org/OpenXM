@@ -1,12 +1,5 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.6 2001/08/21 02:12:26 takayama Exp $ */
-#define NUMBER 1
-#define RPOLYNOMIAL 2
-#define RATIONAL 3
-#define LIST 4
-#define VECTOR 5
-#define MATRIX 6
-#define STRING 7
-#define STRUCT 8
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.7 2001/08/21 11:27:16 takayama Exp $ */
+#include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
   if (type(F) == 3) { /* Rational */
@@ -105,6 +98,44 @@ def taka_poly_factor(S) {
   /* It has not yet been implemented. */
   return S;
 }
+
+/* 
+  printing method for POLY_FACTORED_FORM 
+*/
+def taka_poly_tex_form_poly_factored_polynomial(S) {
+  return taka_tex_form_quote( quote_factored_form_to_quote(S));
+}
+def taka_poly_terminal_form_poly_factored_polynomial(S) {
+  A="{";
+  A += "F->";
+  A += print_terminal_form(S->F);
+  A += "}";
+  return A;
+}
+def taka_poly_terminal_form_poly_factored_rational(S) {
+  A="{";
+  A += "Numerator->";
+  A += print_terminal_form(S->Numerator);
+  A += ", Denominator->";
+  A += print_terminal_form(S->Denominator);
+  A += "}";
+  return A;
+}
+def taka_poly_input_form_poly_factored_polynomial(S) {
+  A="new__poly_factored_polynomial(";
+  A += print_input_form(S->F);
+  A += ")";
+  return A;
+}
+def taka_poly_input_form_poly_factored_rational(S) {
+  A="new__poly_factored_rational(";
+  A += print_input_form(S->Numerator);
+  A += ",";
+  A += print_input_form(S->Denominator);
+  A += ")";
+  return A;
+}
+
 
 /*
   taka_poly_elimination_ideal(I,V,VV|grobner_basis=yes);
