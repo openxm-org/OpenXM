@@ -1,0 +1,464 @@
+\documentclass{jarticle}
+
+%\usepackage{amsmath}
+
+\pagestyle{empty}
+
+\title{\bf Open XM の設計と実装}
+\author{
+	Maekawa \\
+	Noro \\
+	: \\
+	: \\
+}
+\date{ 1999年, 11月25日}
+
+\begin{document}
+\maketitle
+%\Large
+
+{\Large OpenXM の設計と実装}
+
+
+\vspace{5mm}
+
+\begin{itemize} \normalsize \setlength{\itemsep}{-3mm}
+\item Maekawa, Masahide  (Oct., 1999 -- : CVS server) 
+\item Noro, Masayuki     (Jan., 1996 -- : OpenXM Protocol, asir99)
+\item Ohara, Katsuyoshi  (Jan., 1998 -- : ox\_math)
+\item Okutani, Yukio     (Oct., 1999 -- : asir contrib)
+\item Takayama, Nobuki   (Jan., 1996 -- : OpenXM Protocol, kan)
+\item Tamura, Yasushi    (Nov., 1998 -- : OpenMath proxy)
+\end{itemize}
+
+
+\section{OpenXM とは？}
+
+Open message eXchange protocol for Mathematics の略である。
+これは、同種、もしくは異なる数学ソフトの間で「メッセージ」を
+交換するための規約である。発端は野呂正行先生と高山信毅先生により、
+asir と kan/sm1 を相互に文字列で呼び出す機能を実現したことである。
+現在ではフリーの数学ソフトをむすんで、様々な数学ソフトを
+１つのパッケージとして好きな言語から簡単に使えるようにする
+のが目標である。
+
+
+\vspace{5mm}
+
+メッセージの交換方法
+
+メッセージの交換方法には大別して以下の２つの方法がある。
+
+\begin{itemize}
+\item 文字列によるメッセージの交換
+
+相手側のシステムの文法に従ったコマンド文字列により、
+メッセージの交換を行なう。効率的でないが使いやすい。
+
+\item 共通表現形式によるメッセージの交換
+
+各システム毎にメッセージを用意しなくて済む。
+現在は OpenXM 規約オリジナルのデータ形式である、
+CMO(Common Mathematical Object format) 形式、
+及び asir による binary 表現形式がある。
+将来的に MP や OpenMath の XML, binary 形式などの
+他の形式をも交換できるようにしてある。
+CMO 形式に限って言えば、文字列によるメッセージの
+交換よりもはるかに効率的である。
+\end{itemize}
+
+
+\section{OpenXM のメッセージ構造}
+
+OpenXM で規定されているメッセージは下の図のような
+論理構造をしており、規約ではメッセージを論理的に
+OX 層、 SM 層、 CMO 層にわけて定義している。
+
+\[ \overbrace{
+        \underbrace{
+                \begin{tabular}{|c|} \hline
+                        \hspace{15mm}   \\ \hline
+                \end{tabular}
+        }_{\mbox{OX tag}}
+        \underbrace{
+                \begin{tabular}{|c|} \hline
+                        \hspace{80mm}  \\ \hline
+                \end{tabular}
+        }_{\begin{array}{l}
+		\mbox{SM(Stack Machine command)}
+			\rightarrow \mbox{コントロール用}\\
+		\left. \begin{array}{l}
+		\mbox{CMO データ} \\
+		\mbox{ASIR 独自 binary} \\
+		\mbox{OpenMath XML} \\
+		\vdots \\
+		\end{array} \right\} \rightarrow \mbox{データ用} \\
+	\end{array}}
+}^{\mbox{OX メッセージ}} \]
+
+なお、 SM(Stack Machine command) とはプロセスに
+対する動作を指定するメッセージである。
+これら以外の規定外のデータのメッセージのやりとりを
+行なうことも可能となっており、実際に asir と ifplot の間で
+独自表現のメッセージがすでに存在し、実装されている。
+
+
+\section{OpenXM での計算の進行モデル}
+
+OpenXM では server を StackMachine としている。
+
+オブジェクトデータが client から server へ送られても、
+そのデータは指定がない限り server の stack に積まれるだけで、
+client からの依頼がない限り、 server は計算を行なわない。
+
+ client からコマンドが送られると server は stack から
+必要なだけデータを取り出し、関数呼び出しの引数として計算を行ない、
+計算結果を stack に積む。
+ server はたとえエラーが起こっても、
+ただ単にエラーオブジェクトを stack に積むだけで、
+積極的にメッセージの送信を行なおうとはしない。
+
+結果を server から client へ送信させるためには、
+client が server に結果送付依頼のメッセージを送ればよい。
+このメッセージを受け取った server は stack からデータを
+取り出し、ここで初めて client にデータを送信する。
+
+つまり、 OpenXM 規約での client, server モデルは、
+RPC のように client が server の応答を待つわけではなく、
+「非同期的に動作」を行なう。もし、 RPC のように動作
+させたい場合でも、このモデルならエミュレーションも可能である。
+
+以下、メッセージの交換を文字列によって行なう方法と
+CMO 形式によって行なう方法とに分けて順を追って
+説明しよう。
+
+\begin{enumerate}
+\item client が server へデータを送る。 \\
+server は受け取ったデータをスタックに積む。
+
+\begin{center}
+client $\stackrel{\mbox{``3+5''}}{\longrightarrow}$ server \hspace{7mm}
+\begin{tabular}{c} \hline
+        \multicolumn{1}{|c|}{``3+5''} \\ \hline
+        stack
+\end{tabular}
+\end{center}
+
+\item client が server へ計算実行依頼のメッセージを送る。
+server は計算を実行し、結果を stack に積む。
+
+\begin{center}
+client $\stackrel{\mbox{executeStringByLocalParser}}{\longrightarrow}$ server \hspace{7mm}
+\begin{tabular}{c} \hline
+	\multicolumn{1}{|c|}{$8$} \\ \hline
+	stack
+\end{tabular}
+\end{center}
+
+＊エラーが起きた場合にはエラーオブジェクトを stack に積む
+
+\item client が server へ結果送付依頼のメッセージを送る。
+server は stack からデータを取り出し、 client へ送る。
+
+\begin{center}
+client
+\begin{tabular}{c}
+$\stackrel{\mbox{popString}}{\longrightarrow}$ \\
+$\stackrel{\mbox{``8''}}{\longleftarrow}$
+\end{tabular}%
+server \hspace{7mm}
+\begin{tabular}{c} %\hline
+        \multicolumn{1}{|c|}{$$} \\ \hline
+        stack
+\end{tabular}
+\end{center}
+\end{enumerate}
+
+client として asir を用い、以上のことを行なう場合には
+次のようになる。
+
+\begin{verbatim}
+1:ox_execute_string(0,"3+5;");
+2:ox_pop_string(0);
+\end{verbatim}
+
+1 行目で文字列 ``{\tt 3+5;}'' と、 SM コマンド
+{\tt executeStringByLocalParser} を server 側へ送っている。
+この時点で server 側の stack には計算結果が積まれる。
+2 行目で SM コマンド {\tt popString} を server 側へ送り、
+stack に積まれている計算結果を文字列形式に
+直して pop してもらっている。
+
+
+\begin{enumerate}
+\item client が server へデータを送る。 \\
+server は受け取ったデータをスタックに積む。
+
+\begin{center}
+client $\stackrel{3,5,2,\mbox{``plus''}}{\longrightarrow}$ server \hspace{7mm}
+\begin{tabular}{c} \hline
+        \multicolumn{1}{|c|}{``plus''} \\ \hline
+        \multicolumn{1}{|c|}{$2$} \\ \hline
+        \multicolumn{1}{|c|}{$5$} \\ \hline
+        \multicolumn{1}{|c|}{$3$} \\ \hline
+        stack
+\end{tabular}
+\end{center}
+
+\item client が server へ計算実行依頼のメッセージを送る。
+server は計算を実行し、結果を stack に積む。
+
+\begin{center}
+client $\stackrel{\mbox{executeFunction}}{\longrightarrow}$ server \hspace{7mm}
+\begin{tabular}{c} \hline
+	\multicolumn{1}{|c|}{$8$} \\ \hline
+	stack
+\end{tabular}
+\end{center}
+
+＊エラーが起きた場合にはエラーオブジェクトを stack に積む
+
+\item client が server へ結果送付依頼のメッセージを送る。
+server は stack からデータを取り出し、 client へ送る。
+
+\begin{center}
+client
+\begin{tabular}{c}
+$\stackrel{\mbox{popCMO}}{\longrightarrow}$ \\
+$\stackrel{8}{\longleftarrow}$
+\end{tabular}%
+server \hspace{7mm}
+\begin{tabular}{c} %\hline
+	\multicolumn{1}{|c|}{$$} \\ \hline
+	stack
+\end{tabular}
+\end{center}
+\end{enumerate}
+
+client として asir を用い、以上のことを行なう場合には
+次のようになる。
+
+\begin{verbatim}
+1:ox_push_cmo(0,3);
+2:ox_push_cmo(0,5);
+3:ox_push_cmo(0,2);
+4:ox_push_cmo(0,"plus");
+5:ox_push_cmd(0,269);
+6:ox_pop_cmo(0);
+\end{verbatim}
+
+1-4 行目で文字列 ``{\tt 3+5;}'' と、 SM コマンド
+{\tt executeStringByLocalParser} を server 側へ送っている。
+この時点で server 側の stack には計算結果が積まれる。
+5 行目で SM コマンド {\tt popString} を server 側へ送り、
+stack に積まれている計算結果を文字列形式に
+直して pop してもらっている。
+
+
+\section{CMO について}
+
+CMO は図のようにデータの種別を示す tag とデータ本体から成る。
+
+\[	\underbrace{
+		\begin{tabular}{|c|} \hline
+			\hspace{15mm}   \\ \hline
+		\end{tabular}
+	}_{\mbox{CMO tag}}
+	\underbrace{
+		\begin{tabular}{|c|} \hline
+			\hspace{75mm}  \\ \hline
+		\end{tabular}
+	}_{\mbox{\begin{tabular}{l}
+		データ \\
+	\end{tabular}}} \]
+
+ex. CMO\_ZZ(多倍長整数)
+
+\begin{tabular}{|c|c|c|c|c|} \hline
+int32 CMO\_ZZ & int32 $n$ & int32 $b_0$ & $\cdots$ & int32 $b_{|n|-1}$ \\ \hline
+\end{tabular}
+
+\[ \mbox{sgn}(n) \times \left( b_0 \cdot (2^{32})^0
+        + b_1 \cdot (2^{32})^1 + \cdots
+        + b_{n-1} \cdot (2^{32})^{n-1} \right) \]
+を表す。ただし、
+$ \mbox{sgn}(n) = \left\{ \begin{array}{ll}
+        1       & n>0 \\
+        0       & n=0 \\
+        -1      & n<0 \\ \end{array} \right. $ \\[10mm]
+
+CMO\_ZZ による $4294967298 = 1 \cdot 2^{32} + 2$ の表現例
+
+\[      \underbrace{\tt 00\ 00\ 00\ 14\ }_{CMO\_ZZ}
+        \underbrace{\tt 00\ 00\ 00\ 02\ }_{長さ 2 かつ正}
+        \underbrace{\tt 00\ 00\ 00\ 02\ }_{b_0}
+        \underbrace{\tt 00\ 00\ 00\ 01\ }_{b_1} \] \\
+
+CMO\_ZZ による $-1$ の表現例
+
+\[      \underbrace{\tt 00\ 00\ 00\ 14\ }_{CMO\_ZZ}
+        \underbrace{\tt ff\ ff\ ff\ ff\ }_{長さ 1 かつ負}
+        \underbrace{\tt 00\ 00\ 00\ 01\ }_{b_0} \] \\
+
+network byte order を使った場合、 10Mb 程のデータ転送時に、
+byte order の変換に 8,9 割ほどの時間がかかっている。
+
+
+\section{MathCap について}
+
+server, client 共に、 OpenXM で規定されている全てのメッセージを
+理解できるとは限らない。
+しかし、相手側が理解できないメッセージを送ってしまった場合でも
+それ以後のメッセージの交換に支障をきたさないようにメッセージの
+長さを添付するのは効率がわるくなる。
+そのため、 OpenXM では相手側の理解可能なメッセージを収得する方法を
+用意している。 MathCap とはこの理解可能なメッセージ種別を表すデータであり、
+MathCap 自身もまた CMO である。このため、双方共に少なくとも
+CMO の基本的なデータ形式(CMO\_MATHCAP, CMO\_LIST, CMO\_STRING, CMO\_INT32)が
+理解できる必要がある。
+\footnote{これらは CMO Basic0 グループとして規定されており、
+	OpenXM 規約を実装する全ての server が実装していると仮定している。}
+
+MathCap は長さが 3 のリストからなる。
+
+\begin{center}
+\begin{tabular}{|c|} \hline
+        %(server 情報) \\
+        $[$ version number(INT32), server name(STRING) ,... $]$ \\[2mm] \hline
+
+        %(理解可能な SM メッセージ) \\
+        $[$ (理解可能な SM の tag list) $]$ \\[2mm] \hline
+
+        %(理解可能なデータ形式) \\
+        \\[-4mm]
+        \begin{tabular}{|c|} \hline
+                %(処理可能なデータの形式) \\[2mm]
+                $[$ (OX の tag list) $]$ \\[2mm] \hline
+                $[$ 形式 1 の情報, 形式 2 の情報,... $]$ \\[2mm] \hline
+        \end{tabular} \\[6mm] \hline
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+
+現在の ox\_asir の MathCap
+
+\begin{verbatim}
+[ [199901160,ox_asir],
+  [276,275,258,262,263,266,267,268,274
+    ,269,272,265,264,273,300,270,271],
+  [ [514,2144202544],
+    [1,2,3,4,5,2130706433,2130706434
+      ,17,19,20,21,22,24,25,26,31,27,33,60],
+    [0,1]
+  ]
+]
+\end{verbatim}
+
+CMO が理解できることと、CMO の論理的構造が理解できることとは
+まったく別であり、現在のこの MathCap のデータ形式では、
+理解可能な論理的構造まではわからない。
+
+
+\section{security 対策}
+
+OpenXM では以下のようなセキュリティ対策を施している。
+
+\begin{itemize}
+\item 接続が必要な時にだけ、 client が server socket を開く。
+
+ 常時、口を開けているわけではないので、 crack されにくい。
+
+\item client が接続する port number をランダムに決定する。
+
+ どこに口が開くか分からないので、 crack されにくくなる。
+
+\item 接続時に client がランダムな one time password を発行し、
+   認証を行なう。
+
+ local なマシンでないと password がわからない。
+\end{itemize}
+
+接続後のメッセージの送受信に関しては、現在は
+必要があれば ssh の port forwarding 機能を
+使えばよいと考えている。
+
+
+\section{他のプロジェクトについて}
+
+\begin{itemize}
+\item OpenMath
+
+        http://www.openmath.org/omsoc/index.html
+        A.M.Cohen
+
+	数学的なオブジェクトの format の決定。
+	主に XML を使用している。
+\item NetSolve
+
+        http://www.cs.utk.edu/netsolve/
+
+	OpenXM と似通っているが、数値計算指向が高い。
+\item MP
+
+        http://symbolicNet.mcs.kent.edu/SN/areas/protocols/mp.html
+
+	tree 構造。
+\item MCP
+
+        http://horse.mcs.kent.edu/\~{ }pwang/
+        pwang@mcs.kent.edu
+\end{itemize}
+
+
+\begin{verbatim}
+<OMOBJ>
+  <OMA>
+    <OMS cd="basic" name="plus"/>
+    <OMI> 1 </OMI>
+    <OMV name="x"/>
+  </OMA>
+</OMOBJ>
+\end{verbatim}
+
+
+\section{現在提供しているソフトウェア}
+
+\begin{itemize}
+\item asir + ox\_asir + ox\_sm1 + ox\_gnuplot + ox\_math
+        + ox\_phc + ox\_tiger + OMproxy
+\item sm1 + ox\_asir + ox\_sm1 + ox\_gnuplot + ox\_math
+        + ox\_phc + ox\_tiger + OMproxy
+\item Mathematica + ox\_asir + ox\_sm1 + ox\_gnuplot + ox\_math
+        + ox\_phc + ox\_tiger + OMproxy
+\item JAVA + ox\_asir + ox\_sm1
+\end{itemize}
+
+
+\vspace{10mm}
+%\pagebreak
+
+asir によるデモプログラム
+
+\begin{verbatim}
+This is Asir, Version 991116.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+3 March 1994. All rights reserved.
+[0] load("xm");
+1
+xm Version 19991118. ox_help(0); ox_help("keyword"); for hel
+p message 
+[101] gnuplot_start();
+0
+[102] gnuplot(0,"plot sin(x);");
+0
+[103] Heat_N=20; heat(0.001,30);
+\end{verbatim}
+
+
+\vspace{5mm}
+
+CVS サーバ, CVS web を用いた開発(FreeBSD スタイル)
+
+
+\end{document}
