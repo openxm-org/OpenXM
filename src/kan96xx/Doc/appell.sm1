@@ -1,5 +1,5 @@
 %% appell.sm1, 1998,  11/8
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Doc/appell.sm1,v 1.3 2003/07/29 08:37:16 takayama Exp $
 /appell.version (2.981108) def
 appell.version [(Version)] system_variable gt
 { (This package requires the latest version of kan/sm1) message
@@ -162,6 +162,68 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
  ]
 ] putUsages
 
+/appell4r {
+  /arg1 set
+  [/in-appell4r /typev /setarg /b /n /vv /i /a /c /bb /ans
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
+  [
+    /aa arg1 def
+    aa isArray { } { (array appell) message (appell4) usage error } ifelse
+    /setarg 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /b aa 0 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ ] eq
+    {
+       /b appell.b def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (Argument mismatch) message (appell4) usage error } ifelse
+    
+    [(KanGBmessage) appell.verbose] system_variable
+
+    /n b length 2 sub def   %% Lauricella F_C^n
+    
+    %% vv = [(x1) (x2)]
+    [
+      1 1 n {
+        /i set
+        (x) i gensym
+      } for
+    ] /vv set
+
+    [vv from_records ring_of_differential_operators 0] define_ring
+
+    %% b = [a  b  c_1 ... c_n ]
+    /a b 0 get def
+    /c b 1 get def
+    /bb b rest rest def    
+
+    [ 1 1 n { 
+        /i set
+           [@@@.Dsymbol (x)] cat i gensym  .
+           i i appellr.euler . bb i 1 sub get (1)..  sub add  
+           mul
+
+           1 n appellr.euler . (0).. a add add
+           1 n appellr.euler . (0).. c add add 
+           mul
+
+           sub  
+           (numerator) dc cancelCoeff dehomogenize        
+           toString
+      } for
+    ] /ans set
+    /arg1 [ans vv] def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+%% [ [(1).. (2).. div -4 -2 5 6] ] appell4r
 
 
 /appell.euler {
@@ -172,6 +234,21 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
     /n0 arg1 def
     /n arg2 def
     [ n0 1 n { /i set (x) i gensym  ( ) [@@@.Dsymbol (x)] cat i gensym  ( + ) } for ]  cat
+    /arg1 set
+  ] pop 
+  popVariables
+  arg1
+} def
+
+/appellr.euler {
+  /arg2 set
+  /arg1 set
+  [/n /i /n0] pushVariables
+  [
+    /n0 arg1 def
+    /n arg2 def
+    [ n0 1 n { /i set (x) i gensym  ( ) [@@@.Dsymbol (x)] cat i gensym  
+               i n eq not { ( + ) } {  } ifelse } for ]  cat
     /arg1 set
   ] pop 
   popVariables
@@ -241,5 +318,67 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
  ]
 ] putUsages
 
+/appell2r {
+  /arg1 set
+  [/in-appell2r /typev /setarg /b /n /vv /i /a /c /bb /ans
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
+  [
+    /aa arg1 def
+    aa isArray { } { (array appell) message (appell2) usage error } ifelse
+    /setarg 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /b aa 0 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ ] eq
+    {
+       /b [1 [2 3] [4 5]] def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (Argument mismatch) message (appell2) usage error } ifelse
+
+    [(KanGBmessage) appell.verbose] system_variable
+
+    /n b 1 get length def   %% Lauricella F_A^n
+    
+    %% vv = [(x1) (x2)]
+    [
+      1 1 n {
+        /i set
+        (x) i gensym
+      } for
+    ] /vv set
+
+    [vv from_records ring_of_differential_operators 0] define_ring
+
+    %% b = [a  [b_1 ... b_n]  [c_1 ... c_n] ]
+    /a b 0 get def
+    /c b 2 get def
+    /bb b 1 get def    
+
+    [ 1 1 n { 
+        /i set
+           [@@@.Dsymbol (x)] cat i gensym .
+           i i appellr.euler . c i 1 sub get (1).. sub add
+           mul
+
+           1 n appellr.euler . (0).. a add add
+           i i appellr.euler . (0).. bb i 1 sub get add add
+           mul
+
+           sub
+           (numerator) dc cancelCoeff dehomogenize        
+           toString
+      } for
+    ] /ans set
+    /arg1 [ans vv] def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+%%[[(1).. (2).. div [(1).. (2).. div (1).. (2).. div] [1 1]] ] appell2r rank ::
 
 ( ) message-quiet ;

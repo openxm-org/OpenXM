@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.5 2003/08/04 11:42:42 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.6 2003/08/13 03:52:25 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -133,10 +133,53 @@
   arg1 
 } def
 
+/ecart.gb {ecartd.gb}  def
+
+[(ecart.gb)
+ [(a ecart.gb b)
+  (array a; array b;)
+  $b : [g ii];  array g; array in; g is a standard (Grobner) basis of f$
+  (             in the ring of differential operators.)
+  (The computation is done by using Ecart division algorithm and )
+  (the double homogenization.)
+  (cf. M.Granger and T.Oaku: Minimal filtered free resolutions ... 2003)
+   $            ii is the initial ideal in case of w is given or <<a>> belongs$
+   $            to a ring. In the other cases, it returns the initial monominal.$
+  (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
+  (a : [f v];   array f; string v;  v is the variables. )
+  (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
+  (a : [f v w ds]; array f; string v; array of array w; w is the weight matirx.)
+  (                array ds; ds is the degree shift )
+  (  )
+  $cf. ecarth.gb (homogenized),  ecartd.gb (dehomogenize) $
+  ( )
+  $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) ( x y Dx Dy -1)] (x,y) $
+  $             [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
+  (Example 2: )
+  $ [ [(2 x Dx + 3 y Dy+6) (2 y Dx + 3 x^2 Dy)] (x,y) $
+  $   [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] ecart.gb  pmat ;$
+  (  )
+  $Example 3: [ [( (x Dx)^2 + (y Dy)^2 -1) (  x y Dx Dy -1)] (x,y) $
+  $             [ [ (Dx) 1 (Dy) 1] ] ] ecart.gb pmat ; $
+  (  )
+  $Example 4: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
+  $             [ [ (x) -1 (y) -1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
+  (  )
+  $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
+  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  [[0 1] [-3 1] ] ] ecart.gb pmat ; $
+  (  )
+  (cf. gb, groebner, ecarth.gb, ecartd.gb, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
+  (    ecart.dehomogenize, ecart.dehomogenizeH)
+  ( [(weightedHomogenization) 1 (degreeShift) [[1 2 1]]] : options for )
+  (                                                          define_ring )
+  (/ecart.autoHomogenize 0 def )
+  (               not to dehomogenize and homogenize)
+]] putUsages
+
 /ecart.gb.verbose 1 def
-/ecart.gb {
+/ecarth.gb {
   /arg1 set
-  [/in-ecart.gb /aa /typev /setarg /f /v 
+  [/in-ecarth.gb /aa /typev /setarg /f /v 
    /gg /wv /vec /ans /rr /mm
    /degreeShift  /env2 /opt /ans.gb
   ] pushVariables 
@@ -321,10 +364,10 @@
   popVariables
   arg1
 } def
-(ecart.gb ) messagen-quiet 
+(ecarth.gb ) messagen-quiet 
 
-[(ecart.gb)
- [(a ecart.gb b)
+[(ecarth.gb)
+ [(a ecarth.gb b)
   (array a; array b;)
   $b : [g ii];  array g; array in; g is a standard (Grobner) basis of f$
   (             in the ring of differential operators.)
@@ -343,22 +386,22 @@
   (               not to dehomogenize and homogenize)
   ( )
   $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) ( x y Dx Dy -1)] (x,y) $
-  $             [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
+  $             [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecarth.gb pmat ; $
   (Example 2: )
   (To put H and h=1, type in, e.g., )
   $ [ [(2 x Dx + 3 y Dy+6) (2 y Dx + 3 x^2 Dy)] (x,y) $
-  $   [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] ecart.gb /gg set gg ecart.dehomogenize pmat ;$
+  $   [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] ecarth.gb /gg set gg ecart.dehomogenize pmat ;$
   (  )
   $Example 3: [ [( (x Dx)^2 + (y Dy)^2 -1) (  x y Dx Dy -1)] (x,y) $
-  $             [ [ (Dx) 1 (Dy) 1] ] ] ecart.gb pmat ; $
+  $             [ [ (Dx) 1 (Dy) 1] ] ] ecarth.gb pmat ; $
   (  )
   $Example 4: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [ (x) -1 (y) -1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
+  $             [ [ (x) -1 (y) -1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecarth.gb pmat ; $
   (  )
   $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  [[0 1] [-3 1] ] ] ecart.gb pmat ; (buggy infinite loop)$
+  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  [[0 1] [-3 1] ] ] ecarth.gb pmat ; (buggy infinite loop)$
   (  )
-  (cf. gb, groebner, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
+  (cf. gb, groebner, ecart.gb, ecartd.gb, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
   (    ecart.dehomogenize, ecart.dehomogenizeH)
   ( [(weightedHomogenization) 1 (degreeShift) [[1 2 1]]] : options for )
   (                                                          define_ring )
