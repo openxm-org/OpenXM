@@ -1,4 +1,9 @@
 \documentclass[12pt]{jarticle}
+\topmargin -0.5in
+\oddsidemargin -0in
+\evensidemargin -0in
+\textheight 9.5in
+\textwidth 6in
 \IfFileExists{my.sty}{\usepackage{my}}{}
 \IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
 \IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
@@ -54,26 +59,28 @@ Risa/Asir $B$N%0%l%V%J!<4pDl7W;;$K$*$$$F$O!"%Z%"$NA*Br@oN,!"@F<!2=!"%b%8%e(B
 $B$^$?!"M-M}?tBN>e$K$*$$$F$b!"B?G\D91i;;$K(B {\tt gmp} $B$r;HMQ$7$F$$$k(B
 Singular $B$J$I$N%7%9%F%`$G$O!"6aG/$H$_$K9bB.2=$7$?(B
 {\tt gmp} $B$N@-G=$H!"(BRisa/Asir $B$G(B
-$B;HMQ$7$F$k<+<g3+H/$NB?G\D91i;;5!G=$H$N@-G=:9$K$h$j!"I,$:$7$b(B Risa/Asir $B$N(B
+$B;HMQ$7$F$$$k<+<g3+H/$NB?G\D91i;;5!G=$H$N@-G=:9$K$h$j!"I,$:$7$b(B Risa/Asir $B$N(B
 $BM%0L@-$,<gD%$G$-$J$/$J$C$F$-$?!#(B
 $B0lJ}$G!"(BPC $B$KEk:\$G$-$k%a%b%jNL$b?t(B GB $B$KC#$7!"(BCPU $B$b$I$s$I$s9bB.2=$7!"(B
 $B%0%l%V%J!<4pDl7W;;$N1~MQHO0O$O$I$s$I$sBg$-$/$J$C$F$$$k!#$=$3$G!"(B
 $B$3$l$^$G$N$5$^$6$^$J7P83$*$h$S!"<BAu$K4X$9$k:G6a$NCN8+$r$b$H$K!"(B
 $B$G$-$k8B$j9bB.$JJ,;6I=8=B?9`<07W;;$*$h$S%0%l%V%J!<4pDl7W;;$r<B8=$9$k(B
-$B%Q%C%1!<%8$r?75,$K=q$/$3$H$K$7$?!#(B
+$B%Q%C%1!<%8(B {\bf nd} (New Distributed polynomial package) $B$r?75,$K=q$/$3$H$K$7$?!#(B
 
-\section{$B9bB.2=$N9)IW(B}
+\section{$B8zN(2=$N9)IW(B}
 
 Buchberger $B%"%k%4%j%:%`$K4X$7$F$O!"(B
 Gebauer-Moeller $B$N(B useless pair detection$B!"(Bsugar strategy $B$J$I$K(B
 $B$h$j!"%"%k%4%j%:%`E*$K$O$"$kDxEY8G$^$C$?$,!":G6a$K$J$C$F$$$/$D$+(B
 $B<BAu$K4X$9$kDs0F$,$J$5$l$?!#:#2s$N<BAu$K:N$jF~$l$?$b$N$K$D$$$F(B
-$B@bL@$9$k!#(B
+$B@bL@$9$k(B. 
 
-\begin{itemize}
+\begin{enumerate}
 \item geobucket
 
-$B$3$l$O!"B?9`<0$N2C;;$r8zN(2=$9$k$?$a$NJ}K!$G$"$k!#(B
+$B$3$l$O!"B?9`<0$N2C;;$r8zN(2=$9$k$?$a$NJ}K!$G$"$j(B, 
+\cite{Geo} $B$GDs0F$5$l(B, Macaulay2, Singular $B$J$IB?$/$N%7%9%F%`$G(B
+$B:NMQ$5$l(B, $B<B:]$K8z2L$,$"$k$3$H$,<B>Z$5$l$F$$$k(B.
 $B@55,2=7W;;$G$O(B, $B?tB?$/$NB?9`<0$N2C;;$,9T$o$l$k$,(B, $BHs>o$K(B
 $B9`?t$NB?$$B?9`<0$K(B, $B9`?t$NHf3SE*>/$J$$B?9`<0$r7+$jJV$7B-$9$h$&$J>l9g(B,
 $B9`$I$&$7$NHf3S1i;;$N%3%9%H$,BgJQBg$-$/$J$k(B. geobucket $B$H$O(B, $BB?9`<0$r(B
@@ -85,13 +92,15 @@ $b^i$ $B$h$jBg$-$1$l$P(B $g[i+1]$ $B$K2C$($k(B, $B$H$$$&A`:n$r(B geobucket
 $B>r7o$,K~$?$5$l$k$^$GB3$1$k(B. $B$3$l$K$h$j(B, $BOB$K8=$o$l$kB?9`<0$N9`$NAm?t$r(B
 $N$ $B$H$9$k$H$-(B, $O(N\log N)$ $B$N%3%9%H$GB?9`<0$NOB$,7W;;$G$-$k(B.
 
+
 \item $B2DJQD9;X?t%Y%/%H%k(B
 
 {\tt oDL} $B$N%a%s%P!<$G$O(B, $BC19`<0$NJQ?t$N3F;X?t$r(B 32 bit $B8GDj$GI=8=$7$F(B
 $B$$$?$,(B, $BB?$/$N>l9g$3$l$O2aJ,$G$"$j(B, $B7k2L$H$7$F(B, $BB?9`<0$N$b$D>pJsNL(B
 $B$h$j$bM>J,$K%a%b%j$,I,MW$H$J$C$F$$$?(B. $B$3$l$KBP$7$F(B, $BI,MW:G>.8B$N(B
 bit $BD9$r;X?t$K3d$jEv$F$F$*$-(B, $B$"$U$l$,@8$8$k:]$K(B, $B%5%$%:$rJQ99$7$F(B
-$BB?9`<0$r:n$j$J$*$9$H$$$&$N$,$3$NJ}K!$G$"$k(B.
+$BB?9`<0$r:n$j$J$*$9$H$$$&$N$,$3$NJ}K!$G$"$k(B. $B$3$l$O(B \cite{Singular}
+$B$GDs0F$5$l$F$$$kJ}K!$G$"$k(B.
 
 \item $BG[Ns$K$h$kB?9`<0$NJ];}(B
 
@@ -124,10 +133,22 @@ $i$ $B$N>.$5$$=g$+$iC5$7$F(B, $t$ $B$r3d$j@Z$k:G=i$N$b$N$rMQ$$$k$N$,(B
 $B$h$$$H$5$l$k(B ($BNc30$b$"$k$,(B). $B$3$N$?$a(B, $t$ $B$N(B reducer $B$O$"$l$P0l0U(B
 $B$K$-$^$k(B. 
 $t$ $B$N(B reducer $g_t$ $B$,8+$D$+$C$?$i(B, 
-$t$ $B$N%O%C%7%eCM(B $h_t$ $B$r7W;;$7$F(B, $B$"$k%F!<%V%k$N(B $h_t$ $B$N0LCV$K(B,
+$t$ $B$N%O%C%7%eCM(B $h_t$ $B$r7W;;$7$F(B, $B%O%C%7%e%F!<%V%k$N(B $h_t$ $B$N0LCV$K(B,
 $(t,g_t)$ $B$rEPO?$9$k(B. $t$ $B$N(B reducer $B$rC5$9:]$K$O(B, $h_t$ $B$N0LCV(B
 $B$KEPO?$5$l$?%G!<%?$+$i(B, $t$ $B$N(B reducer $B$rC5$7$F(B, $B$b$7$"$l$P$=$l$r(B
 $BMQ$$$l$P$h$$(B. 
+
+\item $B@F<!$N>l9g$N8zN(2=(B
+
+$B0lHL$K$O(B, $B?7$?$K@8@.$5$l$?Cf4V4pDl$G(B, $B4{B8$NCf4V4pDl$N@55,2=$O9T$o$J$$$,(B,
+$BF~NO$,@F<!$N>l9g$K$O(B, $B$"$k(B(weight $B$D$-(B)$BA4<!?t$N=hM}$,=*$C$?;~E@$G(B
+$B$=$N<!?t$NCf4V4pDl$I$&$7$G(B inter reduction $B$r9T$&(B. $B$3$N>l9g(B, $BF,9`$O(B
+$BJQ2=$7$J$$$N$G(B, criteria $B$X$N1F6A$O$J$/(B, $B$^$?(B, $BDc$$A4<!?t$+$i=g$K(B
+$BCf4V4pDl$r@8@.$7$F$$$l$P(B, $B4{$K(B, $B8=<!?t$^$G$N4JLs%0%l%V%J!<4pDl$N(B
+$B$9$Y$F$NMWAG$,F@$i$l$F$$$k$N$G(B, $B$3$l$^$G$K(B 0 $B$K4JLs$5$l$?(B S-poly $B$O(B
+$B$d$O$j?7$7$$4pDl$G$b(B 0 $B$K4JLs$5$l$k(B. $B$3$N=hM}$r9T$&$3$H$K$h$j(B,
+$B0J9_$N7W;;$,4JLs4pDl$K$h$j@55,2=$5$l$k$3$H$K$J$j(B, $B@55,2=$,8zN(2=(B
+$B$5$l$k$3$H$,4|BT$G$-$k(B. 
 
 \item $B%a%b%j4IM}(B
 
@@ -137,7 +158,7 @@ $(t,g_t)$ $B$rEPO?$9$k(B. $t$ $B$N(B reducer $B$rC5$9:]$K$O(B, $h_t$ $B$N
 $B$,0lDj$N%3%9%H$rH<$&$?$a$G$"$k(B.  $B$3$N4IM}$O(B nd $B%Q%C%1!<%8Fb$GJD$8$F$*(B
 $B$j(B, $B$+$D%U%j!<%j%9%H$N(B root $B$r(B 0 $B$K$7$F$*$1$P(B, $B$$$:$l(B GC $B$K$h$j2s<}$5(B
 $B$l$k(B.
-\end{itemize}
+\end{enumerate}
 
 \section{$B4pK\%G!<%?9=B$(B}
 
@@ -147,9 +168,7 @@ $(t,g_t)$ $B$rEPO?$9$k(B. $t$ $B$N(B reducer $B$rC5$9:]$K$O(B, $h_t$ $B$N
 \begin{verbatim}
 typedef struct oND {
     struct oNM *body;
-    int nv;
-    int len;
-    int sugar;
+    int nv,len,sugar;
 } *ND;
 \end{verbatim}
 \end{minipage}
@@ -158,9 +177,7 @@ typedef struct oND {
 \begin{verbatim}
 typedef struct oNDV {
     struct oNMV *body;
-    int nv;
-    int len;
-    int sugar;
+    int nv,len,sugar;
 } *NDV;
 \end{verbatim}
 \end{minipage}
@@ -195,11 +212,15 @@ typedef struct oNMV {
 \vskip 5mm
 
 $B$3$l$i$O(B, $BC19`<0$rI=$9$?$a$N9=B$BN$G$"$k(B.  {\tt dl} $B$OC19`<0$N;X?t%Y%/(B
-$B%H%k$rI=$7$F$*$j!"<B:]$K$OJQ?t$N8D?tJ,$ND9$5$NG[Ns$,%;%C%H$5$l$k(B.
+$B%H%k$rI=$7$F$*$j!"<B:]$K$O(B, $B9=B$BN:n@.;~E@$G$N;X?t$N(Bbit $BD9$HJQ?t$N(B
+$B8D?t$K1~$8$?D9$5$NG[Ns$NBg$-$5J,$NNN0h$,3NJ]$5$l$k(B.
 {\tt NM} $B$O(B linked list $B7A<0$N(B, {\tt NMV} $B$OG[Ns7A<0$NB?9`<0$K$*$1$k(B
-$BC19`<0$rI=$9(B. {\tt NDV} $B$O(B, {oNMV} $B$9$J$o$A9=B$BN$=$N$b$N$N(B
-$BG[Ns$X$N%]%$%s%?$r;}$D(B. {\tt NDC} $B$O78?t$rJ];}$9$k$?$a$NHFMQ$N6&MQBN(B
-$B$G$"$k(B. 
+$BC19`<0$rI=$9(B. {\tt NDV} $B$O(B, {\tt oNMV} $B$9$J$o$A9=B$BN$=$N$b$N$N(B
+$BG[Ns$X$N%]%$%s%?$r;}$D(B. 
+
+\vskip 5mm
+\begin{tabular}{cc}
+\begin{minipage}{.5\hsize}
 \begin{verbatim}
 typedef union oNDC {
     int m;
@@ -207,10 +228,8 @@ typedef union oNDC {
     P p;
 } *NDC;
 \end{verbatim}
-{\tt m} $B$O(B, $B0L?t$,(B 1 $B%o!<%I$G<}$^$kM-8BBN$N85$rJ];}$9$k$?$a$N(B
-$B%a%s%P!<$G$"$k(B. 
-
-\begin{tabular}{cc}
+\end{minipage}
+&
 \begin{minipage}{.5\hsize}
 \begin{verbatim}
 typedef struct oRHist {
@@ -221,22 +240,14 @@ typedef struct oRHist {
 } *RHist;
 \end{verbatim}
 \end{minipage}
-&
-\begin{minipage}{.5\hsize}
-\begin{verbatim}
-typedef struct oND_pairs {
-    struct oND_pairs *next;
-    int i1,i2;
-    int sugar;
-    UINT lcm[1];
-} *ND_pairs;
-\end{verbatim}
-\end{minipage}
 \end{tabular}
+\vskip 5mm
 
+{\tt NDC} $B$O78?t$rJ];}$9$k$?$a$NHFMQ$N6&MQBN$G$"$k(B. 
+{\tt m} $B$O(B, $B0L?t$,(B 1 $B%o!<%I$G<}$^$kM-8BBN$N85$rJ];}$9$k$?$a$N(B
+$B%a%s%P!<$G$"$k(B. 
 {\tt RHist} $B$O(B reducer $B$NMzNr$r%O%C%7%e%F!<%V%k$KEPO?$9$k$?$a$N9=B$BN$G$"$k(B.
-$B3F%(%s%H%j$O(B, {\tt RHist} $B$N%j%9%H$H$7$FEPO?$5$l$k(B. $B$^$?(B {\tt ND\_pairs}
-$B$O(B S-pair $B$rJ];}$9$k$?$a$N9=B$BN$G$"$j(B, $B$d$O$j%j%9%H$G$"$k(B.
+$B3F%(%s%H%j$O(B, {\tt RHist} $B$N%j%9%H$H$7$FEPO?$5$l$k(B. 
 \section{$B3FIt$N>\:Y(B}
 
 \subsection{$B%I%i%$%P(B}
@@ -294,34 +305,103 @@ nd $B$K$*$$$F$b(B, $BCf4V4pDl$r%G%#%9%/>e$N;XDj$5$l$?%G%#%l%/%H%j$K(B
 \section{$B@-G=(B}
 
 $B0lHL$K(B, $BM-8BBN>e$N7W;;$N>l9g(B, {\tt nd\_gr} $B$O(B {\tt dp\_gr\_mod\_main}
-$B$h$j?tG\$+$i==?tG\9bB.$G$"$k(B. $B$^$?(B, $BLdBj$K$b$h$k$,(B, {\tt nd\_f4} $B$O(B
+$B$h$j?tG\9bB.$G$"$k(B. $B$^$?(B, $BLdBj$K$b$h$k$,(B, {\tt nd\_f4} $B$O(B
 {\tt nd\_gr} $B$N?tG\DxEY9bB.$J>l9g$,$"$k(B. $B$*$J$8$_$N(B cyclic-$n$ $B$G(B
 $BHf3S$9$k$HI=(B \ref{tab:cyclic}$B$N$h$&$J7k2L$rF@$k(B.
 
 \begin{table}[hbtp] 
 \begin{center}
-\begin{tabular}{c||c|c|c|c} \hline
- $n$        & {\tt nd\_gr} & {\tt nd\_f4} & Singular & {\tt dp\_gr\_mod\_main} \\ \hline
-  7         &              &              &          &                         \\ \hline
-  8         &              &              &          &                         \\ \hline
-  9         &              &              &          &                         \\ \hline
+\begin{tabular}{c||c|c|c|c}
+ $n$        & {\tt nd\_gr} & Singular & {\tt nd\_f4} & {\tt dp\_gr\_mod\_main} \\ \hline
+  7         &   5.1        &  5.0         & 1.8      & 17                      \\
+  8         &   124        &  135         & 34       & 564                     \\
+  9         &   27810      &  29725       & 3951     &    ---                  \\
 \end{tabular}
 \end{center}
-\caption{$GF(31991)$ $B>e$G$N(B DRL $B=g=x%0%l%V%J!<4pDl7W;;(B}
+\caption{$GF(31991)$ $B>e$G$N(B DRL $B=g=x%0%l%V%J!<4pDl7W;;(B (cyclic-$n$)}
 \label{tab:cyclic}
 \end{table}
 $B$3$N$h$&$K(B, $B>/$J$/$H$b(B cyclic-$n$ $B$G$O(B, nd $B$N<BAu$N8z2L$,==J,$K8=$o$l$F$$$k(B.
-$BI=(B \ref{tab:janet} $B$O(B, $B<o!9$N%Y%s%A%^!<%/LdBj$N7W;;;~4V$r<($9(B.
+$BI=(B \ref{tab:janet} $B$O(B, $B<o!9$N%Y%s%A%^!<%/LdBj(B \cite{janet} $B$N7W;;;~4V$r<($9(B.
+\begin{table}[hbtp] 
+\begin{center}
+\begin{tabular}{cc}
+\begin{minipage}{.5\hsize}
+\begin{tabular}{c||c|c|c}
+       & {\tt nd\_gr} & Singular & {\tt nd\_f4} \\ \hline
+dl & 5.9 & 4.9 &4.0 \\
+eco10 & 7.1 & 10 &3.1 \\
+eco11 & 63 & 106 &23 \\
+eco12 & 507 & 1012 &198 \\
+extcyc6 & 11 & 9.4 &4.1 \\
+extcyc7 & 1813 & 1283 &447 \\
+f855 & 3.6 & 3.4 &2.5 \\
+filter9 & 0.28 & 0.80 &3.2 \\
+hairer2 & 5.9 & 3.8 &4.5 \\
+hairer3 & 11 & 35 &* \\
+hcyclic7 & 6.5 & 4.8 &3.1 \\
+hcyclic8 & 213 & 163 &82 \\
+hf744 & 1.1 & 1.1 &1.6 \\
+hf855 & 25 & 25 &17 \\
+ilias13 & 11 & 8.4 &6.0\\
+ilias\_k\_2 & 3.1 & 2.7 &1.1
+\end{tabular}
+\end{minipage}
+&
+\begin{minipage}{.5\hsize}
+\begin{tabular}{c||c|c|c}
+       & {\tt nd\_gr} & Singular & {\tt nd\_f4} \\ \hline
+ilias\_k\_3 & 4.4 & 2.9 &1.2 \\
+katsura10 & 285 & 218 &80 \\
+katsura8 & 4.1 & 3.3 &1.3 \\
+katsura9 & 35 & 29 &11 \\
+noon7 & 4.4 & 1.8 &13 \\
+noon8 & 35 & 18 &220 \\
+pinchon1 & 3.6 & 1.0 &7.6 \\
+rbpl & 1.0 & 0.89 &1.2 \\
+redcyc7 & 3.5 & 3.3 &1.2 \\
+redeco10 & 2.8 & 2.3 &1.3 \\
+redeco11 & 24 & 18 &12 \\
+redeco12 & 177 & 134 &74 \\
+reimer6 & 11 & 32 &10 \\
+reimer7 & 4000 & 4108 & 956 \\
+virasoro & 1.8 & 1.4 & 0.65 
+\end{tabular}
+\end{minipage}
+\end{tabular}
+
+\end{center}
+\caption{$GF(31991)$ $B>e$G$N(B DRL $B=g=x%0%l%V%J!<4pDl7W;;(B}
+\label{tab:janet}
+\end{table}
 
 $BM-M}?tBN>e$N7W;;$N>l9g(B, $BB?9`<0$d(B, $B;X?t%Y%/%H%k$NI=8=J}K!0J30$K(B, $BESCf$"$i$o$l$k(B
 $B78?t$NKDD%$NJ}$,(B, $B7W;;;~4V$KBg$-$/1F6A$rM?$($k>l9g$,B?$$(B. $B$3$NE@$G$O(B
 {\tt nd\_gr\_trace} $B$H(B {\tt dp\_gr\_main} $B$H$G$OBg:9$J$$$N$G3d0&$9$k$,(B,
-$B$h$j0-$/$J$k$3$H$O$J$$(B.
+$B$h$j0-$/$J$k$3$H$O$J$$(B. $BFC$K(B, weight $B$rE,@Z$K@_Dj$9$k$3$H$K$h$j(B \cite{Kimura}, 
+$B78?tKDD%$K4X$7$F$b$h$j5sF0$N$h$$7W;;$,2DG=$H$J$k$3$H$KCm0U$7$F$*$/(B.
 
 \section{$B:#8e$NM=Dj(B}
 
 {\tt dp} $B7O$K$"$C$F(B nd $B$K$J$$5!G=$H$7$F(B, $BM-M}4X?tBN78?t$N%0%l%V%J!<4pDl(B
 $B7W;;$H(B, $BM-M}?tBN>e$N(B $F_4$ $B7W;;$,$"$k(B. $B$J$k$Y$/Aa$$$&$A$K$3$l$i$r<BAu(B
-$B$7$?$$$H9M$($F$$$k(B.
+$B$7$?$$$H9M$($F$$$k(B. $B$^$?(B, 
+tangent cone $B%"%k%4%j%:%`$rMQ$$$?(B local ring $B$G$NI8=`4pDl(B
+$B7W;;$b(B, reducer $B$rC5$94X?t$r?7$?$KMQ0U$9$k$3$H$GBP1~2DG=$H9M$($F$$$k(B.
 
+\begin{thebibliography}{99}
+\bibitem{Geo}
+Yan, T., The Geobucket Data Structure for Polynomials.
+Journal of Symbolic Computation, {\bf 25}, 3 (1998), 285-293.
+\bibitem{Singular}
+Sch\"onemann, H., Singular in a Framework for Polynomial Computations.
+Joswig, M. and Takayama, N. (eds.), Algebra, Geometry, and Software Systems, 
+Springer (2003), 163-176.
+\bibitem{janet}
+{\tt http://invo.jinr.ru/}. $B$^$?(B {\tt http://www.symbolicdata.org}
+$B$K$O$5$i$KB?$/$N%Y%s%A%^!<%/LdBj$,$*$$$F$"$k(B.
+\bibitem{Kimura}
+$BLZB<(B, $BLnO$(B, $B%0%l%V%J!<4pDl7W;;$N$?$a$N(B weight $B@8@.%"%k%4%j%:%`(B.
+$BK\8&5f=82q$K$*$1$kH/I=(B (2003).
+\end{thebibliography}
 \end{document}

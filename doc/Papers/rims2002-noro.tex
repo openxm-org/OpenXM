@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/rims2002-noro.tex,v 1.1 2002/12/09 02:09:23 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/rims2002-noro.tex,v 1.2 2002/12/09 04:23:05 noro Exp $
 \documentclass{slides}
 \usepackage{color}
 \usepackage{rgb}
@@ -42,7 +42,7 @@
 \fbox{\fbc \large 無平方分解 (復習)}
 \end{center}
 
-modification of Bernardin's algorithm [Ber97]
+modification of Bernardin's algorithm [1]
 
 $f \in F[x_1,\ldots,x_n]$, $F$ : 有限体 $Char(F) = p$
 
@@ -53,7 +53,7 @@ $H=\prod h_k^{c_k}$
 $f_i, g_j, h_k$ : 無平方, 互いに素.
 
 $'$ を $d/dx_1$ として
-$f_i' \neq 0$, $p \not{|}a_j$, $p | b_j$, $h_k' = 0$
+$f_i' \neq 0$, $p {\not|}a_j$, $p | b_j$, $h_k' = 0$
 と書くと
 
 $f' = F'GH$ すると $GCD(f,f') = GCD(F,F')GH$
@@ -190,9 +190,9 @@ $g_0$, $h_0$ の $x$ に関する主係数の決め方
 同様に $h_0$ に対しても $\lc_h$ を求める. 
 
 もし, 
-$\lc_x(g_0) \not{|}\, \lc_g(a)$ または $\lc_x(h_0) \not{|}\, \lc_h(a)$
+$\lc_x(g_0) {\not|}\, \lc_g(a)$ または $\lc_x(h_0) {\not|}\, \lc_h(a)$
 または, 
-$\lc_x(f) \not{|}\, \lc_g \cdot \lc_h$
+$\lc_x(f) {\not|}\, \lc_g \cdot \lc_h$
 ならば, それは, $f_a$ の因子の組合せが正しくないことを意味するので, 
 $g_0$, $h_0$ をとり直す. 
 
@@ -238,10 +238,10 @@ Hensel 構成は $\bmod\,  y^d$ で行う.
 \fbox{\fbc \large Hensel 構成}
 \end{center}
 $f = g_kh_k \bmod (I^{k+1},y^d)$ だが, 
-十分大きい $k$ に対し $f = g_kh_k$
+$k$ 十分大 $\Rightarrow$ $f = g_kh_k$
 
-$u$, $v$ の計算 : Hensel 構成
-($g_0(a)|_{y=0}$, $h_0(a)_{y=0}$ が互いに素)
+$u$, $v$ : Hensel 構成
+($g_0(a)|_{y=0}$, $h_0(a)|_{y=0}$ が互いに素)
 
 $K[y]$ 上の Hensel 構成は次のように行う. 
 
@@ -293,9 +293,9 @@ Asir : 小位数有限体 $K$ の代数拡大を表現する型 (GFSN) がある
 
 $K[y]/(m(y))$ として表現 $\Rightarrow$ $m(y)=y^d$ として流用
 
-逆元計算については, 0 でない定数項を持つ多項式は可逆 (互除法)
+逆元計算 : 定数項が 0 でない多項式は可逆 (互除法)
 
-$\lc_x \neq 0$ より $K[y]/(y^d)$ がこの方法でできる. 
+$\lc_x(g)$ の定数項 $\neq 0$ よりこの方法で計算可能
 
 多変数多項式 : Hensel 構成の最初で, この型の係数を持つ多項式に変換
 
@@ -416,24 +416,26 @@ $p$ & 10 & 11 & 12 & 13 & 14 &  15 \\ \hline
 \item 体の標数が十分大きい場合に, 無平方分解を標数 0 と
 同様の Hensel 構成で行うようにする. 
 
-\item 2 変数の因数分解において, \cite{funny01} で述べた, 多項式
+\item 2 変数の因数分解において, [2] で述べた, 多項式
 時間アルゴリズムを自動的に選択して実行する. 
 \end{itemize}
 \end{slide}
 
-\end{document}
+\begin{slide}{}
+\begin{center}
+\fbox{\fbc \large 文献}
+\end{center}
+[1] Bernardin, L. (1997).
 
-\begin{thebibliography}{99}
-\bibitem{B97-2}
-Bernardin, L. (1997).
 On square-free factorization of multivariate polynomials over a finite
 field.
 {\em Theoret.\ Comput.\ Sci.\/} {\bf 187}, 105--116. 
 
-\bibitem{funny01}
-M. Noro and K. Yokoyama (2002).
+[2] M. Noro and K. Yokoyama (2002).
+
 Yet Another Practical Implementation of Polynomial Factorization
  over Finite Fields.
 Proceedings of ISSAC2002, ACM Press, 200--206.
-\end{thebibliography}
+\end{slide}
+\end{document}
 
