@@ -1,6 +1,8 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.12 2000/01/20 07:47:39 takayama Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.13 2000/01/20 08:12:43 takayama Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
+ASIR_PARI = ../../../OpenXM_contrib2/asir2000-pari
+ASIR_SMALL = ../../../OpenXM_contrib2/asir2000-small
 PARI = ../pari
 
 all: configure
@@ -9,21 +11,61 @@ all: configure
 	fi
 	@touch ./.make_done
 
+with-pari: configure-with-pari
+	@if [ ! -f ./.make_with_pari_done ]; then \
+		(cd $(ASIR_PARI) ; make all) \
+	fi
+	@touch ./.make_with_pari_done
+
+small: configure-small
+	@if [ ! -f ./.make_small_done ]; then \
+		(cd $(ASIR_SMALL) ; make all) \
+	fi
+	@touch ./.make_small_done
+
 install: all
-	(cd $(ASIR) ; make install ; make install-lib)
+	(cd $(ASIR) ; make install ; make install-lib; \
+		make install-libasir ; make install-libgc )
+
+install-lib-with-pari: with-pari
+	(cd $(ASIR_PARI) ; make install-libasir)
+
+install-lib-small: small
+	(cd $(ASIR_SMALL) ; make install-libasir)
 
 clean:
 	(cd $(ASIR) ; make clean)
-	@rm -f ./.make_done ./.configure_done ./.install-pari_done
+	-@if [ -d $(ASIR_PARI) ]; then (cd $(ASIR_PARI) ; make clean)  fi
+	-@if [ -d $(ASIR_SMALL) ]; then (cd $(ASIR_SMALL) ; make clean)  fi
+	@rm -f ./.make_* ./.configure_* ./.install-*
 
 distclean: clean
+	@rm -rf $(ASIR_PARI)
+	@rm -rf $(ASIR_SMALL)
 	@cat BINARIES | xargs -t rm -rf
 
 configure: install-pari
 	@if [ ! -f ./.configure_done ]; then \
-		(cd $(ASIR) ; ./configure ; xmkmf ; make Makefiles ; make depend) \
+		(cd $(ASIR) ; ./configure -plot -pari; \
+			xmkmf ; make Makefiles ; make depend) \
 	fi
 	@touch ./.configure_done
+
+configure-with-pari: configure
+	-@if [ ! -f ./.configure_with_pari_done ]; then \
+		mkdir $(ASIR_PARI) ; \
+		(cd $(ASIR_PARI) ; lndir ../asir2000 ; ./configure -pari ; \
+			xmkmf ; make Makefiles ; make clean; make depend) \
+	fi
+	@touch ./.configure_with_pari_done
+
+configure-small: configure
+	-@if [ ! -f ./.configure_small_done ]; then \
+		mkdir $(ASIR_SMALL) ; \
+		(cd $(ASIR_SMALL) ; lndir ../asir2000 ; ./configure ; \
+			xmkmf ; make Makefiles ; make clean; make depend) \
+	fi
+	@touch ./.configure_small_done
 
 install-pari:
 	@if [ ! -f ./.install-pari_done ]; then \
