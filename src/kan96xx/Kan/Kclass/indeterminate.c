@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.4 2001/04/12 06:48:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.5 2001/05/04 01:06:29 takayama Exp $ */
 /* Kclass/indeterminate.c    */
 /* This file handles   indeterminate, tree, recursivePolynomial,
     polynomialInOneVariable
@@ -61,8 +61,8 @@ struct object KpoTree(struct object ob) {
     errorKan1("%s\n","Kclass/indeterminate.c, the length must 3 or more than 3. [name, cdname, arglist].");
   }
   ob1 = getoa(ob,0); ob2 = getoa(ob,1); ob3 = getoa(ob,2);
-  if (ob1.tag != Sdollar || ob2.tag != Sdollar || ob3.tag != Sarray) {
-    errorKan1("%s\n","Kclass/indeterminate.c, [string name, string cdname, list arglist].");
+  if (ob1.tag != Sdollar || ob2.tag != Sarray || ob3.tag != Sarray) {
+    errorKan1("%s\n","Kclass/indeterminate.c, [string name, list attributes, list arglist].");
   }
   *newobp = ob;
   rob.rc.voidp = newobp;

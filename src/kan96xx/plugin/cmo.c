@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.7 2001/04/15 07:55:07 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.8 2001/05/04 01:06:29 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -1011,8 +1011,8 @@ struct object cmoCmoToObject00(struct cmoBuffer *cb)
     }else{
       ob1 = getoa(rob,0);
       if (ob1.tag != Sdollar) warningCmo("CMO_TREE : the first arg must be the node name by a string.");
-      ob2 = getoa(rob,1); /* content dictionary name. */
-      if (ob2.tag != Sdollar) warningCmo("CMO_TREE : the second arg must be the node name by a string.");
+      ob2 = getoa(rob,1); /* Attribute List */
+      if (ob2.tag != Sarray) warningCmo("CMO_TREE : the second arg must be a list of attributes.");
       rob = KpoTree(rob);
     }
     break;
