@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.4 2002/04/10 08:55:45 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.5 2002/04/24 07:45:14 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -89,7 +89,7 @@ static char *concat_openxm_home_bin(char *s)
         return s;
     }
 
-    path = malloc(strlen(OpenXM_HOME)+6+strlen(s));
+    path = MALLOC(strlen(OpenXM_HOME)+6+strlen(s));
     sprintf(path, "%s/bin/%s", OpenXM_HOME, s);
     return path;
 }

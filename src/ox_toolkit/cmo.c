@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.9 2003/03/23 20:17:34 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.10 2003/03/30 08:05:22 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -24,7 +24,7 @@ static char*        new_string_set_cmo_double(cmo_double *m);
 /* functions for a cmo_list */
 static cell* new_cell(cmo *ob)
 {
-    cell* h = malloc(sizeof(cell));
+    cell* h = MALLOC(sizeof(cell));
     h->next = NULL;
     h->prev = NULL;
     h->cmo  = ob;
@@ -112,7 +112,7 @@ void resize_mpz(mpz_ptr mpz, int size)
 /* functions named new_cmo_*. */
 cmo_null* new_cmo_null()
 {
-    cmo_null* m = malloc(sizeof(cmo_null));
+    cmo_null* m = MALLOC(sizeof(cmo_null));
     m->tag = CMO_NULL;
     return m;
 }
@@ -120,7 +120,7 @@ cmo_null* new_cmo_null()
 cmo_int32* new_cmo_int32(int i)
 {
     cmo_int32* c;
-    c = malloc(sizeof(cmo_int32));
+    c = MALLOC(sizeof(cmo_int32));
     c->tag     = CMO_INT32;
     c->i = i;
     return c;
@@ -128,10 +128,10 @@ cmo_int32* new_cmo_int32(int i)
 
 cmo_string* new_cmo_string(char* s)
 {
-    cmo_string* c = malloc(sizeof(cmo_string));
+    cmo_string* c = MALLOC(sizeof(cmo_string));
     c->tag = CMO_STRING;
     if (s != NULL) {
-        c->s = malloc(strlen(s)+1);
+        c->s = MALLOC(strlen(s)+1);
         strcpy(c->s, s);
     }else {
         c->s = NULL;
@@ -141,7 +141,7 @@ cmo_string* new_cmo_string(char* s)
 
 cmo_mathcap* new_cmo_mathcap(cmo* ob)
 {
-    cmo_mathcap* c = malloc(sizeof(cmo_mathcap));
+    cmo_mathcap* c = MALLOC(sizeof(cmo_mathcap));
     c->tag = CMO_MATHCAP;
     c->ob  = ob;
     return c;
@@ -149,7 +149,7 @@ cmo_mathcap* new_cmo_mathcap(cmo* ob)
 
 cmo_list* new_cmo_list()
 {
-    cmo_list* c = malloc(sizeof(cmo_list));
+    cmo_list* c = MALLOC(sizeof(cmo_list));
     c->tag    = CMO_LIST;
     c->length = 0;
     c->head->next = c->head;
@@ -159,7 +159,7 @@ cmo_list* new_cmo_list()
 
 cmo_monomial32* new_cmo_monomial32()
 {
-    cmo_monomial32* c = malloc(sizeof(cmo_monomial32));
+    cmo_monomial32* c = MALLOC(sizeof(cmo_monomial32));
     c->tag  = CMO_MONOMIAL32;
     return c;
 }
@@ -169,14 +169,14 @@ cmo_monomial32* new_cmo_monomial32_size(int size)
     cmo_monomial32* c = new_cmo_monomial32();
     if (size>0) {
         c->length = size;
-        c->exps = malloc(sizeof(int)*size);
+        c->exps = MALLOC(sizeof(int)*size);
     }
     return c;
 }
 
 cmo_zz* new_cmo_zz()
 {
-    cmo_zz* c = malloc(sizeof(cmo_zz));
+    cmo_zz* c = MALLOC(sizeof(cmo_zz));
     c->tag  = CMO_ZZ;
     mpz_init(c->mpz);
     return c;
@@ -184,7 +184,7 @@ cmo_zz* new_cmo_zz()
 
 cmo_zz* new_cmo_zz_noinit()
 {
-    cmo_zz* c = malloc(sizeof(cmo_zz));
+    cmo_zz* c = MALLOC(sizeof(cmo_zz));
     c->tag  = CMO_ZZ;
     return c;
 }
@@ -219,14 +219,14 @@ cmo_zz* new_cmo_zz_size(int size)
 
 cmo_zero* new_cmo_zero()
 {
-    cmo_zero* m = malloc(sizeof(cmo_zero));
+    cmo_zero* m = MALLOC(sizeof(cmo_zero));
     m->tag = CMO_ZERO;
     return m;
 }
 
 cmo_double *new_cmo_double(double d)
 {
-    cmo_double* m = malloc(sizeof(cmo_double));
+    cmo_double* m = MALLOC(sizeof(cmo_double));
     m->tag = CMO_64BIT_MACHINE_DOUBLE;
     m->d = d;
     return m;
@@ -234,14 +234,14 @@ cmo_double *new_cmo_double(double d)
 
 cmo_dms_generic* new_cmo_dms_generic()
 {
-    cmo_dms_generic* m = malloc(sizeof(cmo_dms_generic));
+    cmo_dms_generic* m = MALLOC(sizeof(cmo_dms_generic));
     m->tag = CMO_DMS_GENERIC;
     return m;
 }
 
 cmo_ring_by_name* new_cmo_ring_by_name(cmo* ob)
 {
-    cmo_ring_by_name* c = malloc(sizeof(cmo_ring_by_name));
+    cmo_ring_by_name* c = MALLOC(sizeof(cmo_ring_by_name));
     c->tag = CMO_RING_BY_NAME;
     c->ob  = ob;
     return c;
@@ -249,7 +249,7 @@ cmo_ring_by_name* new_cmo_ring_by_name(cmo* ob)
 
 cmo_indeterminate* new_cmo_indeterminate(cmo* ob)
 {
-    cmo_indeterminate* c = malloc(sizeof(cmo_indeterminate));
+    cmo_indeterminate* c = MALLOC(sizeof(cmo_indeterminate));
     c->tag = CMO_INDETERMINATE;
     c->ob  = ob;
     return c;
@@ -257,7 +257,7 @@ cmo_indeterminate* new_cmo_indeterminate(cmo* ob)
 
 cmo_distributed_polynomial* new_cmo_distributed_polynomial()
 {
-    cmo_distributed_polynomial* c = malloc(sizeof(cmo_distributed_polynomial));
+    cmo_distributed_polynomial* c = MALLOC(sizeof(cmo_distributed_polynomial));
     c->tag     = CMO_DISTRIBUTED_POLYNOMIAL;
     c->length  = 0;
     c->head->next = c->head;
@@ -268,7 +268,7 @@ cmo_distributed_polynomial* new_cmo_distributed_polynomial()
 
 cmo_error2* new_cmo_error2(cmo* ob)
 {
-    cmo_error2* c = malloc(sizeof(cmo_error2));
+    cmo_error2* c = MALLOC(sizeof(cmo_error2));
     c->tag = CMO_ERROR2;
     c->ob  = ob;
     return c;
@@ -293,7 +293,7 @@ static char *new_string_set_cmo_int32(int integer)
     char *s;
 
     sprintf(buff, "%d", integer);
-    s = malloc(strlen(buff)+1);
+    s = MALLOC(strlen(buff)+1);
     strcpy(s, buff);
 
     return s;
@@ -305,7 +305,7 @@ static char *new_string_set_cmo_list(cmo_list *m)
     int i;
     int size = 0;
     int len = list_length(m);
-    char **sp = malloc(len*sizeof(cmo *));
+    char **sp = ALLOCA(len*sizeof(cmo *));
 
     cell* cp = list_first(m);
     for(i = 0; i < len; i++) {
@@ -313,7 +313,7 @@ static char *new_string_set_cmo_list(cmo_list *m)
         size += strlen(sp[i]) + 3;
         cp = list_next(cp);
     }
-    s = malloc(size+2);
+    s = MALLOC(size+2);
     strcpy(s, "[ ");
     for(i = 0; i < len - 1; i++) {
         strcat(s, sp[i]);
@@ -321,7 +321,6 @@ static char *new_string_set_cmo_list(cmo_list *m)
     }
     strcat(s, sp[len-1]);
     strcat(s, " ]");
-    free(sp);
     return s;
 }
 
@@ -331,7 +330,7 @@ static char *new_string_set_cmo_double(cmo_double *m)
     char *s;
 
     sprintf(buff, "%lf", m->d);
-    s = malloc(strlen(buff)+1);
+    s = MALLOC(strlen(buff)+1);
     strcpy(s, buff);
 
     return s;

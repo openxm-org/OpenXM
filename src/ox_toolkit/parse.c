@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.12 2003/03/23 22:09:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.13 2003/03/30 08:05:23 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -278,19 +278,16 @@ static void parse_comma()
 
 static mpz_ptr new_mpz_set_str(char *s)
 {
-    mpz_ptr z = malloc(sizeof(mpz_t));
+    mpz_ptr z = MALLOC(sizeof(mpz_t));
     mpz_init_set_str(z, s, 10);
     return z;
 }
 
 static mpz_ptr my_mpz_neg(mpz_ptr src)
 {
-    mpz_ptr z = malloc(sizeof(mpz_t));
+    mpz_ptr z = MALLOC(sizeof(mpz_t));
     mpz_init(z);
     mpz_neg(z, src);
-#ifdef DEBUG
-    free(src);
-#endif
     return z;
 }
 
@@ -313,9 +310,6 @@ static mpz_ptr parse_mpz_integer()
     if (sign == -1) {
         val = my_mpz_neg(val);
     }
-#ifdef DEBUG
-    free(yylval.sym);
-#endif
     token = lex();
     return val;
 }
@@ -339,9 +333,6 @@ static int parse_integer()
         parse_error("no integer.");
     }
     val = sign*atoi(yylval.sym);
-#ifdef DEBUG
-    free(yylval.sym);
-#endif
     token = lex();
     return val;
 #endif
@@ -612,14 +603,11 @@ static void init_lex(char *s)
 #define SIZE_BUFFER  8192
 static char buffer[SIZE_BUFFER];
 
-static char *mkstr(char *src)
+static char *new_string(char *s)
 {
-    int len;
-    char *s;
-    len = strlen(src);
-    s = malloc(len+1);
-    strcpy(s, src);
-    return s;
+    char *t = MALLOC(strlen(s)+1);
+    strcpy(t, s);
+    return t;
 }
 
 /* no measure for buffer overflow */
@@ -633,12 +621,12 @@ static char *lex_digit()
             buff[i] = c;
         }else {
             buff[i] = '\0';
-            return mkstr(buff);
+            return new_string(buff);
         }
         c = mygetc();
     }
     buff[SIZE_BUFFER-1] = '\0';
-    return mkstr(buff);
+    return new_string(buff);
 }
 
 #define MK_KEY_CMO(x)  { #x , x  , TOKEN(x)  , IS_CMO }
@@ -730,7 +718,7 @@ static char *lex_quoted_string()
         if(c == '"') {
             c = mygetc();
             buffer[i]='\0';
-            return mkstr(buffer);
+            return new_string(buffer);
         }else if (c == '\\') {
             c0 = c;
             c = mygetc();

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.7 2000/12/03 16:15:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.8 2003/05/19 06:57:38 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -87,7 +87,7 @@ static table *new_table(int *src)
     int i;
     while (src[len++] != 0) {
     }
-    new = malloc(sizeof(table)*len);
+    new = MALLOC(sizeof(table)*len);
     for(i=0; i<len; i++) {
         table_init(new+i, src[i]);
     }
@@ -236,7 +236,7 @@ static cmo_list *sysinfo_get()
 
 static char *new_string(char *s)
 {
-    char *t = malloc(strlen(s)+1);
+    char *t = MALLOC(strlen(s)+1);
     strcpy(t, s);
     return t;
 }
@@ -247,7 +247,7 @@ static int *new_int_array(int *array)
     int length = 0;
     while(array[length++] != 0)
         ;
-    new_array = malloc(sizeof(int)*length);
+    new_array = MALLOC(sizeof(int)*length);
     return memcpy(new_array, array, sizeof(int)*length);
 }
 
@@ -268,7 +268,7 @@ void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[])
 
 mathcap *new_mathcap()
 {
-    mathcap *new = malloc(sizeof(mathcap));
+    mathcap *new = MALLOC(sizeof(mathcap));
     new->cmotbl = new_table(sysinfo.cmo_tags);
     new->smtbl  = new_table(sysinfo.sm_cmds);
     return new;

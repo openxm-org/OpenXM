@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.15 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.16 2003/05/29 15:50:49 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -36,7 +36,7 @@ static int receive_int32_nbo(OXFILE *oxfp);
 int oxf_setbuffer(OXFILE *oxfp, char *buf, int size)
 {
     if (buf == NULL && size > 0) {
-        buf = malloc(size);
+        buf = MALLOC(size);
     }
     if (oxfp->wbuf != NULL) {
         oxf_flush(oxfp);
@@ -110,8 +110,8 @@ static int receive_int32_lbo(OXFILE *oxfp)
 */
 OXFILE *oxf_open(int fd)
 {
-    OXFILE *oxfp = (OXFILE *)malloc(sizeof(OXFILE));
-    oxfp = (OXFILE *)malloc(sizeof(OXFILE));
+    OXFILE *oxfp = (OXFILE *)MALLOC(sizeof(OXFILE));
+    oxfp = (OXFILE *)MALLOC(sizeof(OXFILE));
     oxfp->fd = fd;
     oxfp->send_int32    = send_int32_nbo;
     oxfp->receive_int32 = receive_int32_nbo;
@@ -238,7 +238,7 @@ char *generate_otp()
 int oxf_confirm_client(OXFILE *oxfp, char *passwd)
 {
     int len = strlen(passwd)+1;
-    char *buf = alloca(len);
+    char *buf = ALLOCA(len);
     
     oxf_read(buf, 1, len, oxfp);
     return !strcmp(passwd, buf);
@@ -274,16 +274,16 @@ char *which(char *exe, const char *env)
     char *tok;
     char *path;
     char delim[] = ":";
-    char *e = alloca(strlen(env)+1);
+    char *e = ALLOCA(strlen(env)+1);
     strcpy(e, env);
     tok = strtok(e, delim);
     while (tok != NULL) {
-        path = malloc(strlen(tok)+strlen(exe)+2);
+        path = MALLOC(strlen(tok)+strlen(exe)+2);
         sprintf(path, "%s/%s", tok, exe);
         if (access(path, X_OK&R_OK) == 0) {
             return path;
         }
-        free(path);
+        FREE(path);
         tok = strtok(NULL, delim);
     }
     return NULL;
@@ -348,7 +348,7 @@ static char *pipe_read_string()
 	char *s;
 	read(0, &len, sizeof(int));
 	len = ntohl(len)+1;
-	s = malloc(len);
+	s = MALLOC(len);
 	read(0, s, len);
 	return s;
 }

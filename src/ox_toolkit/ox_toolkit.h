@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.18 2003/05/28 08:43:59 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.19 2003/05/29 15:50:49 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -18,6 +18,10 @@ extern "C" {
 #include <ox/cmotag.h>
 #include <ox/oxMessageTag.h>
 #include <ox/smCommand.h>
+
+#define MALLOC(x) malloc((x))
+#define ALLOCA(x) alloca((x))
+#define FREE(x)   free((x))
 
 #if !defined(__GNUC__) && !defined(__inline__)
 #define __inline__

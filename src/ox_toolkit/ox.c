@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.23 2003/03/30 08:05:22 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.24 2003/05/25 16:35:40 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -142,7 +142,7 @@ static cmo_int32* receive_cmo_int32(OXFILE *oxfp)
 static cmo_string* receive_cmo_string(OXFILE *oxfp)
 {
     int len = receive_int32(oxfp);
-    char* s = malloc(len+1);
+    char* s = MALLOC(len+1);
     memset(s, '\0', len+1);
     if (len > 0) {
         oxf_read(s, 1, len, oxfp);
@@ -547,7 +547,7 @@ static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
 
 ox_data* new_ox_data(cmo* c)
 {
-    ox_data* m = malloc(sizeof(ox_data));
+    ox_data* m = MALLOC(sizeof(ox_data));
     m->tag = OX_DATA;
     m->cmo = c;
     return m;
@@ -555,7 +555,7 @@ ox_data* new_ox_data(cmo* c)
 
 ox_command* new_ox_command(int sm_code)
 {
-    ox_command* m = malloc(sizeof(ox_command));
+    ox_command* m = MALLOC(sizeof(ox_command));
     m->tag = OX_COMMAND;
     m->command = sm_code;
     return m;
@@ -563,7 +563,7 @@ ox_command* new_ox_command(int sm_code)
 
 ox_sync_ball* new_ox_sync_ball()
 {
-    ox_sync_ball *m = malloc(sizeof(ox_sync_ball));
+    ox_sync_ball *m = MALLOC(sizeof(ox_sync_ball));
     m->tag = OX_SYNC_BALL;
     return m;
 }
