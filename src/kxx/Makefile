@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.4 1999/11/03 00:22:50 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.5 1999/11/07 06:45:26 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -11,7 +11,7 @@ CFLAGS = -g
 ### Set the server name in oxmain.c if you do not use the environmental
 ### variable LOAD_SM1_PATH.  cf. $KANHOME/lib/ox.sm1
 
-all : all-plugin kanlib.a ox ox_sm1  oxlog
+all : all-plugin kanlib.a ox ox_sm1  oxlog oxweave
 
 all2 : all-plugin kanlib.a ox ox_sm1 testclient oxlog
 
@@ -64,6 +64,8 @@ ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
 
 oxlog : oxlog.c
 	gcc -o oxlog oxlog.c
+
+oxweave : oxweave.c
 
 ## file2.c file2.h is in SSkan/plugin/
 file2.o : $(KANHOME)/plugin/file2.c  $(KANHOME)/plugin/file2.h
