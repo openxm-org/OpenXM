@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.6 2000/03/11 02:01:39 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.7 2000/03/11 02:45:52 takayama Exp $
 
 VERSION=1.1.2
 TAR_WORK=$(HOME)/tmp
@@ -16,6 +16,7 @@ usage :
 	@echo "Targets "
 	@echo "  clean "
 	@echo "  print "
+	@echo "Do not forget to put java and javac in your search path." 
 	@echo "1.  generate-tar-balls"
 	@echo "  (update-plist)"
 	@echo "2.  build-on-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
@@ -34,6 +35,7 @@ print:
 	$(PS) Linux/RPM/Makefile | $(LPR)	
 	$(PS) Linux/RPM/openxm-*spec.in | $(LPR)	
 	$(PS) FreeBSD/openxm-ports/openxm-1.1.2/Makefile | $(LPR)	
+	$(PS) Makefile | $(LPR)	
 
 
 generate-tar-balls:
