@@ -1,5 +1,5 @@
 /**
- * PolyCalc.java $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.2 1999/11/02 14:54:37 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -95,18 +95,19 @@ class PolyCalc extends Applet{
     add(poly2);
   }
 
+
+
   public void start(){
     textarea.append("Connecting to "+ host
 		 +"("+ ControlPort +","+ DataPort +")\n");
 
     try{
       oxm = new OpenXM(host,ControlPort,DataPort);
+      textarea.append("Connected.\n");
     }catch(java.io.IOException e){
       textarea.append("failed.\n");
       stop();
-      return;
     }
-    textarea.append("Connected.\n");
   }
 
   public static void main(String argv[]){
