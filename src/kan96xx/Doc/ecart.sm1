@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.36 2004/09/14 05:49:36 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.37 2004/09/14 08:30:47 takayama Exp $ 
 (hol_loaded) boundp { }
 { [(parse) (hol.sm1) pushfile] extension } ifelse
 %[(parse) (appell.sm1) pushfile] extension
@@ -1839,7 +1839,7 @@
   [/in-ecartd.isSameIdeal_h /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f
    /ecartd.isSameIdeal_h.opt
    /save-ecart.autoHomogenize  /wv /save-ecart.message.quiet
-   /vvGlobal  /rng
+   /vvGlobal  /rng /noRecomputation
    ] pushVariables
   [(CurrentRingp) (Homogenize_vec)] pushEnv
   [
@@ -1847,13 +1847,13 @@
     gb.verbose { (Getting in ecartd.isSameIdeal_h) message } { } ifelse
     %% comparison of hilbert series has not yet been implemented.
     /save-ecart.message.quiet ecart.message.quiet def
-    aa length 3 eq , aa length 4 eq , or {    }
+    aa length 2 gt {    }
     { ([ii jj vv] ecartd.isSameIdeal_h) error } ifelse
     /ii aa 0 get def
     /jj aa 1 get def
     /vv aa 2 get def
 
-    aa length 4 eq {
+    aa length 3 gt {
       /vvGlobal aa 3 get def
       vvGlobal isString { [vvGlobal to_records pop] /vvGlobal set } 
       { vvGlobal { toString } map /vvGlobal set } ifelse
@@ -1869,11 +1869,19 @@
       /rng [vv wv [(partialEcartGlobalVarX) vvGlobal]] def
     } ifelse
 
-    /save-ecart.autoHomogenize ecart.autoHomogenize def
-    /ecart.autoHomogenize 0 def
-    [ii] rng join  ecartd.gb  /iigg set
-    [jj] rng join ecartd.gb  /jjgg set
-    save-ecart.autoHomogenize /ecart.autoHomogenize set
+    aa (noRecomputation) getNode /noRecomputation set
+    noRecomputation tag 0 eq { /noRecomputation 0 def } { 
+      /noRecomputation 1 def
+    } ifelse
+    noRecomputation {
+      [ii] /iigg set  [jj] /jjgg set
+    } { 
+      /save-ecart.autoHomogenize ecart.autoHomogenize def
+      /ecart.autoHomogenize 0 def
+      [ii] rng join  ecartd.gb  /iigg set
+      [jj] rng join ecartd.gb  /jjgg set
+      save-ecart.autoHomogenize /ecart.autoHomogenize set
+    } ifelse
 
     iigg getRing ring_def
 
@@ -1883,6 +1891,7 @@
     iigg 0 get /iigg set
     jjgg 0 get /jjgg set
     %%Bug: not implemented for the case of module.
+    /ecartd.isSameIdeal_h.gb [iigg jjgg] def
 
     /save-ecart.message.quiet ecart.message.quiet def
     /ecart.message.quiet 1 def
@@ -1931,10 +1940,17 @@
  $The ideals ii and jj will be compared in the ring h[0,1](D_0).$
  $ii and jj are re-parsed.$
  $Example 1: [ [((1-x) Dx + h)]  [((1-x)^2 Dx + h (1-x))] (x)] ecartd.isSameIdeal_h $
+ ( )
  ([ii jj vv vvGlobal] ecartd.isSameIdeal_h bool)
  $ Ideals are compared in Q(x')_0 [x''] <Dx',Dx'',h> $
  (  where x'' is specified in vvGlobal.)
  (cf. partialEcartGlobalVarX option)
+ ( )
+ $Option list: [(noRecomputation) 1] $
+ $Example 2: [ [((1-x) Dx + h)]  [((1-x)^2 Dx + h (1-x))] (x)] ecartd.isSameIdeal_h $
+ $    ecartd.isSameIdeal_h.gb 0 get /ii set $
+ $    ecartd.isSameIdeal_h.gb 1 get /jj set $
+ $   [ ii jj (x) [[(noRecomputation) 1]] ] ecartd.isSameIdeal_h $
 ]] putUsages
 
 /ecartd.isSameIdeal_noh {
@@ -1942,7 +1958,7 @@
   [/aa /ii /jj /iigg /jjgg /vv /ans /k /n /f
    /ecartd.isSameIdeal_h.opt
    /save-ecart.autoHomogenize  /wv /save-ecart.message.quiet
-   /vvGlobal  /rng
+   /vvGlobal  /rng /noRecomputation
    ] pushVariables
   [(CurrentRingp) (Homogenize_vec)] pushEnv
   [
@@ -1950,13 +1966,13 @@
     gb.verbose { (Getting in ecartd.isSameIdeal_noh) message } { } ifelse
     %% comparison of hilbert series has not yet been implemented.
     /save-ecart.message.quiet ecart.message.quiet def
-    aa length 3 eq , aa length 4 eq , or {    }
+    aa length 2 gt {    }
     { ([ii jj vv] ecartd.isSameIdeal_noh) error } ifelse
     /ii aa 0 get def
     /jj aa 1 get def
     /vv aa 2 get def
 
-    aa length 4 eq {
+    aa length 3 gt {
       /vvGlobal aa 3 get def
       vvGlobal isString { [vvGlobal to_records pop] /vvGlobal set } 
       { vvGlobal { toString } map /vvGlobal set } ifelse
@@ -1972,11 +1988,19 @@
       /rng [vv wv [(partialEcartGlobalVarX) vvGlobal]] def
     } ifelse
 
-    /save-ecart.autoHomogenize ecart.autoHomogenize def
-    /ecart.autoHomogenize 0 def
-    [ii] rng join  ecartd.gb  /iigg set
-    [jj] rng join ecartd.gb  /jjgg set
-    save-ecart.autoHomogenize /ecart.autoHomogenize set
+    aa (noRecomputation) getNode /noRecomputation set
+    noRecomputation tag 0 eq { /noRecomputation 0 def } { 
+      /noRecomputation 1 def
+    } ifelse
+    noRecomputation {
+      [ii] /iigg set  [jj] /jjgg set
+    } { 
+      /save-ecart.autoHomogenize ecart.autoHomogenize def
+      /ecart.autoHomogenize 0 def
+      [ii] rng join  ecartd.gb  /iigg set
+      [jj] rng join ecartd.gb  /jjgg set
+      save-ecart.autoHomogenize /ecart.autoHomogenize set
+    } ifelse
 
     iigg getRing ring_def
 
@@ -1985,6 +2009,7 @@
     /ans 1 def
     iigg 0 get /iigg set
     jjgg 0 get /jjgg set
+    /ecartd.isSameIdeal_noh.gb [iigg jjgg] def
     %%Bug: not implemented for the case of module.
 
     /save-ecart.message.quiet ecart.message.quiet def
@@ -2039,6 +2064,11 @@
  (cf. partialEcartGlobalVarX option, ecartd.reduction_noh, ecartd.isSameIdeal_h)
  $Example 2: [ [(1-z) (1-x-y-z)]  [(1-x) (1-y)] (x,y,z) [(x)]] $
  $            ecartd.isSameIdeal_noh $
+ $Option list: [(noRecomputation) 1] $
+ $Example 2': [ [(1-z) (1-x-y-z)]  [(1-x) (1-y)] (x,y,z) [(x)]] ecartd.isSameIdeal_noh$
+ $    ecartd.isSameIdeal_noh.gb 0 get /ii set $
+ $    ecartd.isSameIdeal_noh.gb 1 get /jj set $
+ $   [ ii jj (x) [[(noRecomputation) 1]] ] ecartd.isSameIdeal_noh $
 ]] putUsages
 (ecartd.isSameIdeal_noh ) messagen-quiet
 

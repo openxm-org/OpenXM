@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.41 2004/09/14 02:02:02 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.42 2004/09/14 02:13:29 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4153,15 +4153,29 @@ $ [ff ff] fromVectors :: $
 /getNode {
   /arg2 set
   /arg1 set
-  [/in-getNode /ob /key /rr /rr /ii] pushVariables
+  [/in-getNode /ob /key /rr /tt /ii] pushVariables
   [
     /ob arg1 def
     /key arg2 def
     /rr null def
     {
+      ob isArray {
+        ob length 1 gt {
+          ob 0 get isString {
+            ob 0 get , key eq {
+              /rr ob 1 get def exit
+            } {  } ifelse
+          } { } ifelse
+        }{ } ifelse
+        ob { key getNode , dup tag 0 eq {pop} { } ifelse }  map /tt set
+        tt length 0 gt { /rr tt 0 get def exit } 
+        {/rr null def exit } ifelse    
+      } { } ifelse
+
       ob isClass {
         ob (array) dc /ob set
-      } { exit } ifelse
+      } { } ifelse
+      ob isClass , ob isArray or { } { exit } ifelse 
       ob 0 get key eq {
         /rr ob def
         exit
@@ -4180,15 +4194,18 @@ $ [ff ff] fromVectors :: $
   arg1
 } def
 [(getNode)
-[(ob key getNode)
- (ob is a class object.)
+[(ob key getNode node-value)
+ (ob is a class object or an array.)
  (The operator getNode returns the node with the key in ob.)
- (The node is an array of the format [key attr-list node-list])
+ (When ob is a class, the node is an array of the format [key attr-list node-list])
+ (When ob is an array, the node is a value of key-value pairs.)
  (Example:)
  (  /dog [(dog) [[(legs) 4] ] [ ]] [(class) (tree)] dc def)
  (  /man [(man) [[(legs) 2] ] [ ]] [(class) (tree)] dc def)
  (  /ma [(mammal) [ ] [man dog]] [(class) (tree)] dc def)
  (  ma (dog) getNode )
+ (Example 2:)
+ ( [ [1 ] [2 3] [[(dog) 2]]] (dog) getNode ::)
 ]] putUsages 
 
 /cons {
