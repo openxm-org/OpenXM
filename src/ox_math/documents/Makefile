@@ -1,16 +1,23 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_math/documents/Makefile,v 1.1 2000/01/20 07:47:30 ohara Exp $
+
+## platex is a localized tex compiler for Japanese language.
+## ox_math.tex is written in Japanese by the EUC-JP coded character set.
+## Therefore, we need platex, which supports the EUC-JP, to compile it.
 
 OpenXM_HOME = ../../..
 LATEX = latex
-DOCUMENTS = math2ox.tex math2ox.dvi ox_math.tex readme.jp samplelog-sm1.txt
+PLATEX = platex
+DOCUMENTS = math2ox.tex math2ox.dvi ox_math.tex ox_math.dvi readme.jp samplelog-sm1.txt
 
-.SUFFIXES: .dvi .tex
+all: ${DOCUMENTS}
 
-.tex.dvi:
-	${LATEX} $<
-	${LATEX} $<
+math2ox.dvi: math2ox.tex
+	${LATEX} math2ox.tex
+	${LATEX} math2ox.tex
 
-all: math2ox.dvi
+ox_math.dvi: ox_math.tex
+	${PLATEX} ox_math.tex
+	${PLATEX} ox_math.tex
 
 install: install-document install-binary
 
