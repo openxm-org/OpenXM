@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.2 2004/04/08 01:49:04 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -67,6 +67,13 @@ int PMlex_aux() {
   if (S[Pt] == PM_emptyLineCode) {Pt++; return PM_emptyLine; }
   if (S[Pt] == '{') { Pt++; return PM_LCurryBrace; }
   if (S[Pt] == '}') { Pt++; return PM_RCurryBrace; }
+  if (S[Pt] == '<') { Pt++; return PM_LAngle; }
+  if (S[Pt] == '>') { Pt++; return PM_RAngle; }
+  if (S[Pt] == '(') { Pt++; return PM_LBrace; }
+  if (S[Pt] == ')') { Pt++; return PM_RBrace; }
+  if (S[Pt] == '[') { Pt++; return PM_LBracket; }
+  if (S[Pt] == ']') { Pt++; return PM_RBracket; }
+  if (S[Pt] == ':') { Pt++; return PM_colon; }
   if (((S[Pt] >= '0') && (S[Pt] <= '9')) || (S[Pt] == '-')) {
 	putstr(-1); putstr(S[Pt++]);
 	while (((S[Pt]>='0') && (S[Pt]<='9')) || (S[Pt] == '/')) putstr(S[Pt++]);

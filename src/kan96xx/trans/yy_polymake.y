@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.2 2004/04/08 01:49:04 takayama Exp $ */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y ; gcc yylex_polymake.c  yy_polymake.tab.c*/
 %{
@@ -7,7 +7,7 @@
 %}
 
 
-%token PM_emptyLine PM_keyword PM_LCurryBrace PM_RCurryBrace
+%token PM_emptyLine PM_keyword PM_LCurryBrace PM_RCurryBrace PM_LAngle PM_RAngle PM_LBracket PM_RBracket PM_colon PM_LBrace PM_RBrace
 %token PM_number PM_newline
 
 %%
@@ -57,13 +57,50 @@ PM_number {
 }
 ;
 
-
 pmline
-: pmnumberList  PM_newline {
+: dataUnitList PM_newline {
   $$=$1;
 }
-| PM_LCurryBrace pmnumberList PM_RCurryBrace PM_newline {
-  $$=$2;
+;
+
+dataUnitList
+: dataUnit {
+  $$=$1;
+}
+| dataUnit dataUnitList {
+  pmObjectp t;
+  t=pmNewListObject($2);
+  $$=pmCons($1,(struct pmList *)(t->body));
+}
+| dataUnitList PM_colon dataUnitList { /* a : b --> COLON(a,b) */
+  pmObjectp t;
+  pmObjectp r;
+  r = pmNewTreeObject("_colon");
+  r = pmAddChild($3,r);
+  r = pmAddChild($1,r);
+  $$=r;
+}
+;
+
+dataUnit
+: pmnumberList {
+  $$=$1;
+}
+| PM_LCurryBrace dataUnitList PM_RCurryBrace {
+  $$=pmAddChild($2,pmNewTreeObject("_set")); /* set */
+  /*printf("{}");pmPrintObject(stdout,$2);*/
+}
+| PM_LAngle dataUnitList PM_RAngle {
+  $$=pmAddChild($2,pmNewTreeObject("_pairs"));   /* pairs */
+  /* printf("<>");pmPrintObject(stdout,$2); */
+}
+| PM_LBracket dataUnitList PM_RBracket {
+  $$=pmAddChild($2,pmNewTreeObject("_bracket"));  /* bracket */
+  /* printf("[]");pmPrintObject(stdout,$2); */
+}
+| PM_LBrace dataUnitList PM_RBrace {
+  $$=pmAddChild($2,pmNewTreeObject("_tuple"));  /* tuple */
+  /* printf("()");pmPrintObject(stdout,$2); */
 }
 ;
 
