@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot-diff/Makefile,v 1.6 1999/11/19 16:39:29 maekawa Exp $
+# $OpenXM: OpenXM/src/gnuplot-diff/Makefile,v 1.7 1999/11/22 08:02:10 maekawa Exp $
 
 GNUPLOT = ../gnuplot
 CURDIR = ../gnuplot-diff
@@ -11,8 +11,8 @@ all : patch
 	@touch $(CURDIR)/.make_done
 
 install: all
-	cp $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox
-	cp $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11
+	install -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox
+	install -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11
 
 clean : patch-clean
 	@if [ -f $(CURDIR).make_done ]; then \
