@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.22 2003/08/26 12:46:04 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.23 2003/09/12 02:52:50 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3828,6 +3828,52 @@ $ [ff ff] fromVectors :: $
   arg1
 } def
 
+/usages {
+  /arg1 set
+  [/name /flag /n /k /slist /m /i /sss] pushVariables
+  [
+    /name arg1 def
+    /flag true def
+
+ %BUG: should use regular expression in a future.
+ name tag 1 eq { 
+   @.usages { 0 get } map shell { (, ) nl } map /sss set
+ } { 
+
+    /sss [ ] def
+   @.usages length /n set  
+   0 1 << n 1 sub >> 
+   {   
+      /k set
+      name << @.usages k get 0 get >> eq
+      {
+        /slist @.usages k get 1 get def
+        /m slist length def
+        0 1 << m 1 sub >> {
+          /i set
+          sss slist i get append nl append /sss set
+        } for
+        /flag false def
+      }
+      { }
+      ifelse
+   } for
+      
+   %BUG:  cannot get usages of primitives.
+   flag
+   {name Usage  /sss [(Usage of ) name ( could not obtained.) nl ] def}
+   { }
+   ifelse
+ } ifelse
+   /arg1 sss cat def
+   ] pop
+   popVariables
+   arg1
+} def
+[(usages)
+ [(key usages usages-as-a-string)
+  (num usages list-of-key-words)
+]] putUsages
 
 ;
 
