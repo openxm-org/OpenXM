@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.8 2000/01/19 02:49:27 noro Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.9 2000/01/19 05:17:02 noro Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 PARI = ../pari
@@ -16,7 +16,7 @@ clean:
 	(cd $(ASIR) ; make clean)
 	@rm -f ./.make_done ./.configure_done ./.install-pari_done
 
-distclean:
+distclean: clean
 	@cat BINARIES | xargs -t rm -rf
 
 configure: install-pari
