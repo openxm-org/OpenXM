@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.2 1999/12/13 02:27:15 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -60,7 +60,7 @@ static int          dump_mpz(mpz_ptr mpz);
 static int          login_with_otp(int fd, char* passwd);
 static char         *create_otp();
 
-/* CMO_xxx の値順にならべること(デバッグのため) */
+/* CMO_xxx の値の順にならべること(デバッグのため) */
 static cmo_null*         receive_cmo_null(int fd);
 static cmo_int32*        receive_cmo_int32(int fd);
 static cmo_string*       receive_cmo_string(int fd);
@@ -88,6 +88,16 @@ static int          send_mpz(int fd, mpz_ptr mpz);
 static int          send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c);
 
 static void         resize_mpz(mpz_ptr mpz, int size);
+
+static int          print_cmo_int32(cmo_int32* c);
+static int          print_cmo_list(cmo_list* li);
+static int          print_cmo_mathcap(cmo_mathcap* c);
+static int          print_cmo_string(cmo_string* c);
+
+static char*        new_string_set_cmo_null();
+static char*        new_string_set_cmo_int32(int integer);
+static char*        new_string_set_cmo_list(cmo_list *c);
+static char*        new_string_set_cmo_zz(cmo_zz *c);
 
 int current_fd = 0;
 int set_current_fd(int fd)
@@ -210,6 +220,18 @@ int append_cmo_list(cmo_list* this, cmo* newcmo)
     cp->next = new_cell();
     this->length++;
     return 0;
+}
+
+cmo *nth_cmo_list(cmo_list* this, int n)
+{
+	cell *cp = this->head;
+	if(this->length <= n) {
+		return NULL;
+	}
+	while(n-- > 0) {
+		cp = cp->next;
+	}
+	return cp->cmo;
 }
 
 int length_cmo_list(cmo_list* this)
@@ -582,12 +604,12 @@ int print_cmo(cmo* c)
     }
 }
 
-int print_cmo_int32(cmo_int32* c)
+static int print_cmo_int32(cmo_int32* c)
 {
     fprintf(stderr, ", %d)", c->i);
 }
 
-int print_cmo_list(cmo_list* li)
+static int print_cmo_list(cmo_list* li)
 {
     cell* cp = li->head;
     while(cp->next != NULL) {
@@ -598,14 +620,14 @@ int print_cmo_list(cmo_list* li)
     fprintf(stderr, ")");
 }
 
-int print_cmo_mathcap(cmo_mathcap* c)
+static int print_cmo_mathcap(cmo_mathcap* c)
 {
     fprintf(stderr, ", ");
     print_cmo(c->ob);
     fprintf(stderr, ")");
 }
 
-int print_cmo_string(cmo_string* c)
+static int print_cmo_string(cmo_string* c)
 {
     fprintf(stderr, ", \"%s\")", c->s);
 }
@@ -619,14 +641,32 @@ void ox_close(ox_file_t sv)
 #endif
 }
 
-void ox_executeStringByLocalParser(ox_file_t sv, char* s)
+void ox_shutdown(ox_file_t sv)
 {
-    if (s != NULL) {
-        /* 文字列ををスタックにプッシュ. */
-        send_ox_cmo(sv->stream, (cmo *)new_cmo_string(s));
-        /* サーバに実行させる. */
-        send_ox_command(sv->stream, SM_executeStringByLocalParser);
-    }
+	/* 後で SM_shutdown を用いるものに書き換える予定. */
+	ox_close(sv);
+}
+
+int ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[])
+{
+	int i = argc;
+	while(i-- > 0) {
+		send_ox_cmo(sv->stream, argv[i]);
+	}
+	send_ox_cmo(sv->stream, (cmo *)new_cmo_int32(argc));
+	send_ox_cmo(sv->stream, (cmo *)new_cmo_string(function));
+	send_ox_command(sv->stream, SM_executeFunction);
+}
+
+void ox_execute_string(ox_file_t sv, char* s)
+{
+	send_ox_cmo(sv->stream, (cmo *)new_cmo_string(s));
+	send_ox_command(sv->stream, SM_executeStringByLocalParser);
+}
+
+void ox_push_cmd(ox_file_t sv, int sm_code)
+{
+    send_ox_command(sv->stream, sm_code);
 }
 
 /* ox_mathcap() をコールする.  */
@@ -638,21 +678,38 @@ cmo_mathcap* ox_mathcap(ox_file_t sv)
     return (cmo_mathcap *)receive_cmo(sv->stream);
 }
 
-char* ox_popString(ox_file_t sv, int fd)
+char* ox_popString(ox_file_t sv)
 {
     cmo_string* m = NULL;
 
-    send_ox_command(fd, SM_popString);
-    receive_ox_tag(fd); /* OX_DATA */
-    m = (cmo_string *)receive_cmo(fd);
+    send_ox_command(sv->stream, SM_popString);
+    receive_ox_tag(sv->stream); /* OX_DATA */
+    m = (cmo_string *)receive_cmo(sv->stream);
     return m->s;
 }
 
-cmo* ox_pop_cmo(ox_file_t sv, int fd)
+int ox_pops(ox_file_t sv, int num)
 {
-    send_ox_command(fd, SM_popCMO);
-    receive_ox_tag(fd); /* OX_DATA */
-    return receive_cmo(fd);
+	send_ox_cmo(sv->stream, (cmo *)new_cmo_int32(num));
+    send_ox_command(sv->stream, SM_pops);
+}
+
+cmo* ox_pop_cmo(ox_file_t sv)
+{
+    send_ox_command(sv->stream, SM_popCMO);
+    receive_ox_tag(sv->stream); /* OX_DATA */
+    return receive_cmo(sv->stream);
+}
+
+void ox_push_cmo(ox_file_t sv, cmo *c)
+{
+	send_ox_cmo(sv->stream, c);
+}
+
+/* バッファのフラッシュの振りをする. */
+int ox_flush(ox_file_t sv)
+{
+	return 1;
 }
 
 /* 手抜き. (後で改善しよう...) */
@@ -728,7 +785,7 @@ static int mysocketAccept2(int fd, char *pass)
 /*
    (-reverse 版の ox_start)
    ox_start は クライアントが呼び出すための関数である.
-   サーバでは使われない.  ctl_prog は コントロールサーバであり,
+   サーバでは使われない.  ctl_prog はコントロールサーバであり,
    -ox, -reverse, -data, -control, -pass, -host
    というオプションを理解することを仮定する. dat_prog は計算サーバである.
    接続時には, sv->control を先にオープンする.
@@ -742,6 +799,7 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
     short portStream  = 0;
     ox_file_t sv = NULL;
     char *dir;
+	char *oxlog = "/home/ohara/OpenXM/bin/oxlog";
 
     if ((dir = search_ox(ctl_prog)) == NULL) {
         fprintf(stderr, "client:: %s not found.\n", ctl_prog);
@@ -759,7 +817,8 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
         dup2(2, 1);
         dup2(open(DEFAULT_LOGFILE, O_RDWR|O_CREAT|O_TRUNC, 0644), 2);
         chdir(dir);
-        execl(ctl_prog, ctl_prog, "-reverse", "-ox", dat_prog,
+        execl(oxlog, oxlog, "/usr/X11R6/bin/xterm", "-icon", "-e", 
+			  ctl_prog, "-reverse", "-ox", dat_prog,
               "-data", dat, "-control", ctl, "-pass", pass,
               "-host", host, NULL);
     }
@@ -1058,23 +1117,21 @@ int dump_ox_command(ox_command* m)
     dump_integer(m->command);
 }
 
-int send_ox(ox_file_t s, ox *m)
+int send_ox(int fd, ox *m)
 {
-    int tag = m->tag;
     int code;
-    if (tag == OX_DATA) {
-        send_ox_cmo(s->stream, ((ox_data *)m)->cmo);
-    }else if (tag == OX_COMMAND) {
-        code = ((ox_command *)m)->command;
-        if (code >= 1024) {
-            /* control command */
-            send_ox_command(s->control, code);
-        }else {
-            send_ox_command(s->stream, code);
-        }
-    }else {
+	switch(m->tag) {
+	case OX_DATA:
+        send_ox_cmo(fd, ((ox_data *)m)->cmo);
+		break;
+	case OX_COMMAND:
+		send_ox_command(fd, ((ox_command *)m)->command);
+		break;
+	default:
+#if 0
         /* CMO?? */
         send_ox_cmo(s->stream, (cmo *)m);
+#endif
     }
 }
 
@@ -1312,18 +1369,18 @@ int decideByteOrderServer(oxfd fd, int order)
 }
 
 /* cmo と string (ここではC言語のstring) の変換関数群 */
-char *convert_zz_to_string(cmo_zz *c)
+static char *new_string_set_cmo_zz(cmo_zz *c)
 {
     return mpz_get_str(NULL, 10, c->mpz);
 }
 
-char *convert_null_to_string()
+static char *new_string_set_cmo_null()
 {
     static char* null_string = "";
     return null_string;
 }
 
-char *convert_int_to_string(int integer)
+static char *new_string_set_cmo_int32(int integer)
 {
     char buff[1024];
     char *s;
@@ -1335,7 +1392,7 @@ char *convert_int_to_string(int integer)
     return s;
 }
 
-char *convert_cmo_list_to_string(cmo_list *m)
+static char *new_string_set_cmo_list(cmo_list *m)
 {
     char *s;
     int i;
@@ -1345,7 +1402,7 @@ char *convert_cmo_list_to_string(cmo_list *m)
 
     cell *cp = m->head;
     for(i = 0; i < len; i++) {
-        sp[i] = convert_cmo_to_string(cp->cmo);
+        sp[i] = new_string_set_cmo(cp->cmo);
         size += strlen(sp[i]) + 3;
         cp = cp->next;
     }
@@ -1361,20 +1418,20 @@ char *convert_cmo_list_to_string(cmo_list *m)
     return s;
 }
 
-char *convert_cmo_to_string(cmo *m)
+char *new_string_set_cmo(cmo *m)
 {
     symbol *symp;
     switch(m->tag) {
     case CMO_ZZ:
-        return convert_zz_to_string((cmo_zz *)m);
+        return new_string_set_cmo_zz((cmo_zz *)m);
     case CMO_INT32:
-        return convert_int_to_string(((cmo_int32 *)m)->i);
+        return new_string_set_cmo_int32(((cmo_int32 *)m)->i);
     case CMO_STRING:
         return ((cmo_string *)m)->s;
     case CMO_NULL:
-        return convert_null_to_string();
+        return new_string_set_cmo_null();
     case CMO_LIST:
-        return convert_cmo_list_to_string((cmo_list *)m);
+        return new_string_set_cmo_list((cmo_list *)m);
     default:
 #ifdef DEBUG
         symp = lookup_by_tag(m->tag);

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.2 1999/12/13 02:27:15 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -18,9 +18,9 @@
 (3) send_cmo 関数はCMOタグとデータ本体を送信する.
 (4) send_cmo_XXX 関数はCMOタグを親の関数で送信してから呼び出される関数で、
 データ本体のみを送信する.
+(5) receive_ox_XXX 関数は存在しない(作らない).  receive_cmo を利用する.
 
 ----
-(5) receive_ox_XXX 関数は存在しない(作らない).  receive_cmo を利用する.
 (6) send_ox_XXX 関数は OX タグを含めて送信する.
 (7) ox_XXX 関数は一連の送受信を含むより抽象的な操作を表現する.
 ox_XXX 関数は、第一引数として、ox_file_t型の変数 sv をとる.
@@ -39,8 +39,7 @@ typedef int oxfd;
 #if 0
 /* そのうちこちらに移行したい... */
 typedef struct {
-    int fd_read;
-    int fd_write;
+    int fd;
     int byteorder;
 } oxfile;
 typedef oxfile *oxfd;
@@ -158,6 +157,7 @@ cmo_zz*            new_cmo_zz();
 cmo_zz*            new_cmo_zz_size(int size);
 cmo_zz*            new_cmo_zz_set_si(int integer);
 cmo_zz*            new_cmo_zz_noinit();
+cmo_zz*            new_cmo_zz_set_string(char *s);
 cmo_zero*          new_cmo_zero();
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();
 cmo_dms_generic*   new_cmo_dms_generic();
@@ -168,17 +168,18 @@ cmo_error2*        new_cmo_error2(cmo* ob);
 ox_data*           new_ox_data(cmo* c);
 ox_command*        new_ox_command(int sm_code);
 
+char*              new_string_set_cmo(cmo *m);
+
 cmo_error2*        make_error_object(int err_code, cmo *ob);
 cmo*               make_mathcap_object(int version, char *id_string);
 
 cmo*               receive_cmo(int fd);
-cmo*               receive_cmo2(int fd);
 int                receive_int32(int fd);
 int                receive_ox_tag(int fd);
 
 int           send_cmo(int fd, cmo* m);
 int           send_int32(int fd, int integer);
-int           send_ox(ox_file_t s, ox* m);
+int           send_ox(int fd, ox* m);
 int           send_ox_cmo(int fd, cmo* m);
 void          send_ox_command(int fd, int sm_command);
 int           send_ox_tag(int fd, int tag);
@@ -189,10 +190,11 @@ cell*         next_cell(cell *this);
 int           cmolen_cmo(cmo* m);
 
 void          ox_close(ox_file_t sv);
-void          ox_executeStringByLocalParser(ox_file_t sv, char* str);
+void          ox_execute_string(ox_file_t sv, char* str);
 cmo_mathcap*  ox_mathcap(ox_file_t sv);
-char*         ox_popString(ox_file_t sv, int fd);
-cmo*          ox_pop_cmo(ox_file_t sv, int fd);
+char*         ox_popString(ox_file_t sv);
+int           ox_pops(ox_file_t sv, int num);
+cmo*          ox_pop_cmo(ox_file_t sv);
 void          ox_reset(ox_file_t sv);
 ox_file_t     ox_start(char* host, char* prog1, char* prog2);
 ox_file_t     ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
@@ -203,21 +205,11 @@ int           dump_ox_command(ox_command* m);
 int           dump_ox_data(ox_data* m);
 
 int           print_cmo(cmo* c);
-int           print_cmo_int32(cmo_int32* c);
-int           print_cmo_list(cmo_list* li);
-int           print_cmo_mathcap(cmo_mathcap* c);
-int           print_cmo_string(cmo_string* c);
 
-int           decideByteOrderClient(oxfd fd, int order);
-int           decideByteOrderServer(oxfd fd, int order);
+int           decideByteOrderClient(int fd, int order);
+int           decideByteOrderServer(int fd, int order);
 int           next_serial();
 void          setCmotypeDisable(int type);
-
-cmo_zz*       new_cmo_zz_set_string(char *s);
-char*         convert_zz_to_string(cmo_zz *c);
-char*         convert_cmo_to_string(cmo *m);
-char*         convert_null_to_string();
-char*         convert_int_to_string(int integer);
 
 typedef cmo *(*hook_t)(int, cmo *);
 
