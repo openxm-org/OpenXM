@@ -1,6 +1,7 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.14 2001/12/27 07:16:01 noro Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.15 2001/12/27 08:31:38 noro Exp $
 
-PARI = ../../../OpenXM_contrib/pari-2.2
+#PARI = ../../../OpenXM_contrib/pari-2.2
+PARI = ../../../OpenXM_contrib/pari
 OpenXM_ROOT = ../../../OpenXM
 
 all: configure
@@ -63,4 +64,5 @@ patch-clean:
 
 install-lib: all
 	(cd $(PARI) ; make install-lib-sta)
-	ranlib ../../lib/libpari-2.2.a
+#	ranlib ../../lib/libpari-2.2.a
+	ranlib ../../lib/libpari.a

@@ -1,46 +1,39 @@
-*** Makefile.SH.sav	Wed Sep 11 09:51:16 2002
---- Makefile.SH	Wed Sep 11 09:53:03 2002
+*** Makefile.SH.sav	Mon Jan 10 02:35:29 2000
+--- Makefile.SH		Fri Mar  7 17:44:20 2003
 ***************
-*** 572,578 ****
-      ;;
-    plot*-dyn)
+*** 429,445 ****
+    plot-dyn)
+      source="$src/graph/\$(PLOTFILE)"
       cflags="\$(DYNFLAGS) \$(PLOTCFLAGS)"
-!     depend="$src/graph/rect.h \$(LIBPARI).dll libpari_dll.h libpari_globals.h \$(LIBPARI).dll"
+!     depend="$src/graph/rect.h libpari.dll libpari_dll.h libpari_globals.h libpari.dll"
       ;;
-    plot*)
-      cflags="\$(PLOTCFLAGS)"
---- 572,578 ----
-      ;;
-    plot*-dyn)
-      cflags="\$(DYNFLAGS) \$(PLOTCFLAGS)"
-!     depend="$src/graph/rect.h \$(LIBPARI).dll libpari_dll.h \$(LIBPARI).dll"
-      ;;
-    plot*)
-      cflags="\$(PLOTCFLAGS)"
-***************
-*** 581,592 ****
     gp-dyn|gp_rl-dyn)
       source=$src\/`echo $dir | sed -e "s/dyn//"`\/`echo $f | cut -f1 -d-`.c
       cflags="\$(DYNFLAGS) -I$src/language \$(RLINCLUDE)"
-!     depend="$src/language/anal.h $src/gp/gp.h ./paricfg.h libpari_dll.h libpari_globals.h \$(LIBPARI).dll"
+!     depend="$src/language/anal.h $src/gp/gp.h ./paricfg.h libpari_dll.h libpari_globals.h libpari.dll"
       ;;
     gp_init-dyn|plotport-dyn)
       source=$src\/`echo $dir | sed -e "s/dyn//"`\/`echo $f | cut -f1 -d-`.c
       cflags="\$(DYNFLAGS) -I$src/graph"
-!     depend="$src/graph/rect.h libpari_dll.h libpari_globals.h \$(LIBPARI).dll"
+!     depend="$src/graph/rect.h libpari_dll.h libpari_globals.h libpari.dll"
       ;;
     init|es|sumiter)
       depend="$src/language/anal.h"
---- 581,592 ----
+--- 429,445 ----
+    plot-dyn)
+      source="$src/graph/\$(PLOTFILE)"
+      cflags="\$(DYNFLAGS) \$(PLOTCFLAGS)"
+!     depend="$src/graph/rect.h libpari.dll libpari_dll.h libpari.dll"
+      ;;
     gp-dyn|gp_rl-dyn)
       source=$src\/`echo $dir | sed -e "s/dyn//"`\/`echo $f | cut -f1 -d-`.c
       cflags="\$(DYNFLAGS) -I$src/language \$(RLINCLUDE)"
-!     depend="$src/language/anal.h $src/gp/gp.h ./paricfg.h libpari_dll.h \$(LIBPARI).dll"
+!     depend="$src/language/anal.h $src/gp/gp.h ./paricfg.h libpari_dll.h libpari.dll"
       ;;
     gp_init-dyn|plotport-dyn)
       source=$src\/`echo $dir | sed -e "s/dyn//"`\/`echo $f | cut -f1 -d-`.c
       cflags="\$(DYNFLAGS) -I$src/graph"
-!     depend="$src/graph/rect.h libpari_dll.h \$(LIBPARI).dll"
+!     depend="$src/graph/rect.h libpari_dll.h libpari.dll"
       ;;
     init|es|sumiter)
       depend="$src/language/anal.h"
