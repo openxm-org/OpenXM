@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.27 2004/05/15 12:00:48 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.28 2004/05/27 11:13:49 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -1689,6 +1689,38 @@
   $ [[( 2*(1-x-y) Dx + h ) ( 2*(1-x-y) Dy + h )] $
   $   (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set $
   $ (Dx+Dy) ggg ecartd.reduction :: $
+]] putUsages
+
+/ecartd.reduction_noh {
+  /arg2 set
+  /arg1 set
+  [/in-ecarth.reduction_noh /gbasis /flist] pushVariables
+  [(Homogenize)] pushEnv
+  [
+     /gbasis arg2  def
+     /flist  arg1  def
+     [(Homogenize) 0] system_variable
+     flist gbasis ecartd.reduction /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+[(ecartd.reduction_noh)
+[ (f basis ecartd.reduction_noh r)
+  (f is reduced by basis by the tangent cone algorithm.)
+  (The first element of basis <g_1,...,g_m> must be a standard basis.)
+  (r is the return value format of reduction.)
+  (r=[h,c0,syz,input], h = c0 f + \sum syz_i g_i)
+  (basis is given in the argument format of ecartd.gb and)
+  (it should not contain the variable h.  cf. dehomogenize)
+  $h[0,1](D)-homogenization is NOT used.$
+  (cf. reduction, ecartd.gb, ecartd.reduction )
+  $Example:$
+  $ [[( 2*(1-x-y) Dx + 1 ) ( 2*(1-x-y) Dy + 1 )] $
+  $   (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set $
+  $ (Dx+Dy) ggg ecartd.reduction_noh :: $
 ]] putUsages
 
 /ecart.stdOrder {
