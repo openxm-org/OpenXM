@@ -1,20 +1,19 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/ox_math/mathlink/configure-cygwin,v 1.2 2002/08/23 07:20:36 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/mathlink/configure-cygwin,v 1.3 2003/01/12 02:35:57 ohara Exp $
 
-ARCHIVE=Windows-ml_v3r9.zip
-URL=http://support.wolfram.com/mathematica/mathlink/updates/v3r9/"${ARCHIVE}"
 BASE="/usr/local/mathematica/AddOns/MathLink/DeveloperKit"
 OpenXM_HOME=${OpenXM_HOME:-../../../../OpenXM}
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+DISTFILE=Windows-ml_v3r9.zip
+URL=http://support.wolfram.com/mathematica/mathlink/updates/v3r9/"${DISTFILE}"
 
 _fetch () {
-    if [ ! -f "${ARCHIVE}" ] ; then
-        wget --quiet --no-directories --timestamping "${URL}"
-    fi
-    if [ ! -f "${ARCHIVE}" ] ; then
+    oxfetch.sh "${URL}" ${DISTDIR}
+    if [ ! -f "${DISTDIR}/${DISTFILE}" ] ; then
         echo 'MathLink libraries cannot be fetched.'
         exit 1
     fi
-    unzip -q "${ARCHIVE}"
+    unzip -q "${DISTFILE}"
 }
 
 _xcopy () {
@@ -60,7 +59,7 @@ _install () {
 }
 
 if [ ! -f ./.configure_done ]; then 
-    if [ ! -d "${BASE}" -o -f "${ARCHIVE}" ]; then 
+    if [ ! -d "${BASE}" -o -f "${DISTDIR}/${DISTFILE}" ]; then 
         _fetch
         BASE=.
     fi
