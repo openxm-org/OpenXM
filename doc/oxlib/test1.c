@@ -1,4 +1,5 @@
-/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.3 2000/03/16 07:34:37 noro Exp $ */
+/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.4 2003/03/08 07:49:59 takayama Exp $ */
+#include <stdio.h>
 #include <ox/cmotag.h>
 #include <ox/smCommand.h>
 
