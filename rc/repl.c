@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.11 2003/01/17 00:41:05 maekawa Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.12 2003/01/17 00:53:09 maekawa Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +61,11 @@ main(int argc,char *argv[]) {
   fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
   fprintf(fp," 390 290 moveto  (F) show \n");
   fprintf(fp,"showpage \n");
-  fclose(fp);
+  while (fclose(fp) != 0) {
+	if (errno == EINTR)
+		continue;
+	break;
+  }
 
   if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.img >/dev/null")) {
 	if (type == 'b') {
