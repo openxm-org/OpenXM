@@ -1,4 +1,4 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/kxx/oxweaveUsage.h,v 1.2 1999/12/14 06:48:28 takayama Exp $*/
   fprintf(stderr,"oxweave [--plain] [--source] [--recursive] [key1 key2 ...]\n");
   fprintf(stderr,"oxweave reads bytes from the standarndard input stream \n");
   fprintf(stderr,"and outputs them if one of the following conditions\n");
@@ -10,6 +10,7 @@
   fprintf(stderr,"(3) If the option --plain is given, all texts out of /*&xyz */ and //&xyz \n");
   fprintf(stderr,"    are output.\n");
   fprintf(stderr,"(4) If the option --recursive is given, the symbol */ is treated recursively.\n");
+  fprintf(stderr,"(5) --debug is used to find unmatched /* and */\n");
   fprintf(stderr,"Example 1: oxweave --source jp <oxweave.c >t.tex\n");
   fprintf(stderr,"Example 2: oxweave  jp <oxweave.c >t.tex\n");
   fprintf(stderr,"Example 3: oxweave --plain  <oxweave.c >t.tex\n");

@@ -14,7 +14,7 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.4 1999/12/13 14:47:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.5 1999/12/14 06:41:03 takayama Exp $ */
 #include <stdio.h>
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
@@ -27,6 +27,7 @@ char *EndComment1="\n";
 #define BSIZE 256
 #define VSIZE 256
 static int Debug = 0;
+static int Debug2 = 0;
 static int Plain = 0;
 /*&jp \noindent
   再帰 option を on にした場合 ({\tt Recursive = 1},
@@ -86,6 +87,8 @@ main(int argc,char *argv[]) {
 	Plain = 1; OutputNoTaggedSegment = 1;
       }else if (strcmp(argv[i],"--recursive") == 0) {
 	Recursive = 1;
+      }else if (strcmp(argv[i],"--debug") == 0) {
+	Debug2 = 1;
       } else{
 	if (strcmp(argv[i]," ") == 0) {
 	  argv[i] = "";
@@ -252,7 +255,7 @@ findEndTag(int tagc,char *tagv[],int rule) {
     i = rule;
     if (wcmp(tagv[i]) == 0) {
       LevelState1--;
-      /* printf("LevelState1=%d\n",LevelState1);*/
+      if (Debug2) printf("[LevelState1=%d by end of comment in the state 1.]\n",LevelState1);
       if (LevelState1 > 0 && Recursive) {
 	wgetc(strlen(tagv[i]));
 	printf("%s",tagv[i]);
@@ -271,7 +274,7 @@ findEndTag(int tagc,char *tagv[],int rule) {
     /* Our state is 1. */
     if (wcmp("/*") >= 0 ) {
       LevelState1++;
-      /* printf("LevelState1++=%d\n",LevelState1); */
+      if (Debug2) printf("[LevelState1++=%d by / * in state 1.]\n",LevelState1); 
     }
     c = wgetc(1);
     putchar(c);
