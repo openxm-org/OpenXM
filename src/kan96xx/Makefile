@@ -1,3 +1,4 @@
+##  $OpenXM$
 ## Type in make configure and make all to build all
 all :   
 	(cd gc; make)
@@ -59,7 +60,10 @@ clean-binary :
 	echo "after 10 seconds. To cancel type in ctrl-C."
 	( sleep 10 ; /bin/rm -rf ../kanbinary* )
 install-openXM-bin :
+	/bin/rm -f ../bin/sm1
 	cp Kan/sm1 ../bin
+install2 :
+	ln -sf ../src/kan96xx/Kan/sm1 ../bin/sm1
 
 ##############
 clean :
