@@ -1,0 +1,256 @@
+%% $OpenXM$
+\section{ 1077 functions are available on our servers and libraries}
+
+This is a list of examples and functions which our
+servers provide.
+For details, see manuals of each system.
+
+\noindent
+\fbox{\large {Operations on Integers}}
+
+\noindent
+{idiv},{irem} (division with remainder),
+{ishift} (bit shifting),
+{iand},{ior},{ixor} (logical operations),
+{igcd},(GCD by various methods such as Euclid's algorithm and
+the accelerated GCD algorithm),
+{fac} (factorial),
+{inv} (inverse modulo an integer),
+{random} (random number generator by the Mersenne twister algorithm).
+
+\medbreak
+\noindent
+\fbox{\large {Ground Fields}}
+
+\noindent
+Arithmetics on various fields: the rationals,
+${\bf Q}(\alpha_1,\alpha_2,\ldots,\alpha_n)$
+($\alpha_i$ is algebraic over ${\bf Q}(\alpha_1,\ldots,\alpha_{i-1})$),
+$GF(p)$ ($p$ is a prime of arbitrary size), $GF(2^n)$.
+
+\medbreak
+\noindent
+\fbox{\large {Operations on Polynomials}}
+
+\noindent
+{sdiv }, {srem } (division with remainder),
+{ptozp } (removal of the integer content),
+{diff } (differentiation),
+{gcd } (GCD over the rationals),
+{res } (resultant),
+{subst } (substitution),
+{umul} (fast multiplication of dense univariate polynomials
+by a hybrid method with Karatsuba and FFT+Chinese remainder),
+{urembymul\_precomp} (fast dense univariate polynomial
+division with remainder by the fast multiplication and
+the precomputed inverse of a divisor),
+
+\noindent
+\fbox{\large {Polynomial Factorization}}
+{fctr } (factorization over the rationals),
+{fctr\_ff } (univariate factorization over finite fields),
+{af } (univariate factorization over algebraic number fields),
+{sp} (splitting field computation).
+
+\medbreak
+\noindent
+\fbox{\large {Groebner basis}}
+
+\noindent
+{dp\_gr\_main } (Groebner basis computation of a polynomial ideal
+over the rationals by the trace lifting),
+{dp\_gr\_mod\_main } (Groebner basis over small finite fields),
+{tolex } (Modular change of ordering for a zero-dimensional ideal),
+{tolex\_gsl } (Modular rational univariate representation
+for a zero-dimensional ideal),
+{dp\_f4\_main } ($F_4$ over the rationals),
+{dp\_f4\_mod\_main } ($F_4$ over small finite fields).
+
+\medbreak
+\noindent
+\fbox{\large {Ideal Decomposition}}
+
+\noindent
+{primedec} (Prime decomposition of the radical),
+{primadec} (Primary decomposition of ideals by Shimoyama/Yokoyama algorithm).
+
+\medbreak
+\noindent
+\fbox{\large {Quantifier Elimination}}
+
+\noindent
+{qe} (real quantifier elimination in a linear and
+quadratic first-order formula),
+{simpl} (heuristic simplification of a first-order formula).
+
+%%$
+{\scriptsize
+\begin{verbatim}
+[0] MTP2 = ex([x11,x12,x13,x21,x22,x23,x31,x32,x33],
+x11+x12+x13 @== a1 @&& x21+x22+x23 @== a2 @&& x31+x32+x33 @== a3
+@&& x11+x21+x31 @== b1 @&& x12+x22+x32 @== b2 @&& x13+x23+x33 @== b3
+@&& 0 @<= x11 @&& 0 @<= x12 @&& 0 @<= x13 @&& 0 @<= x21
+@&& 0 @<= x22 @&& 0 @<= x23 @&& 0 @<= x31 @&& 0 @<= x32 @&& 0 @<= x33)$
+[1] TSOL= a1+a2+a3@=b1+b2+b3 @&& a1@>=0 @&& a2@>=0 @&& a3@>=0
+@&& b1@>=0 @&& b2@>=0 @&& b3@>=0$
+[2] QE_MTP2 = qe(MTP2)$
+[3] qe(all([a1,a2,a3,b1,b2,b3],QE_MTP2 @equiv TSOL));
+@true
+\end{verbatim}}
+
+\medbreak
+\noindent
+\fbox{\large {Visualization of curves}}
+
+\noindent
+{plot} (plotting of a univariate function),
+{ifplot} (plotting zeros of a bivariate polynomial),
+{conplot} (contour plotting of a bivariate polynomial function).
+
+\medbreak
+\noindent
+\fbox{\large {Miscellaneous functions}}
+
+\noindent
+{det} (determinant),
+{qsort} (sorting of an array by the quick sort algorithm),
+{eval} (evaluation of a formula containing transcendental functions
+such as
+{sin}, {cos}, {tan}, {exp},
+{log})
+{roots} (finding all roots of a univariate polynomial),
+{lll} (computation of an LLL-reduced basis of a lattice).
+
+\medbreak
+\noindent
+\fbox{\large {$D$-modules}} ($D$ is the Weyl algebra)
+
+\noindent
+{gb } (Gr\"obner basis),
+{syz} (syzygy),
+{annfs} (Annhilating ideal of $f^s$),
+{bfunction},
+{schreyer} (free resolution by the Schreyer method),
+{vMinRes} (V-minimal free resolution),
+{characteristic} (Characteristic variety),
+{restriction} in the derived category of $D$-modules,
+{integration} in the derived category,
+{tensor}  in the derived category,
+{dual} (Dual as a D-module),
+{slope}.
+
+\medbreak
+\noindent
+\fbox{\large {Cohomology groups}}
+
+\noindent
+{deRham} (The de Rham cohomology groups of
+${\bf C}^n \setminus V(f)$,
+{ext} (Ext modules for a holonomic $D$-module $M$
+and the ring of formal power series).
+
+\medbreak
+\noindent
+\fbox{\large {Differential equations}}
+
+\noindent
+Helping to derive and prove {combinatorial} and
+{special function identities},
+{gkz} (GKZ hypergeometric differential equations),
+{appell} (Appell's hypergeometric differential equations),
+{indicial} (indicial equations),
+{rank} (Holonomic rank),
+{rrank} (Holonomic rank of regular holonomic systems),
+{dsolv} (series solutions of holonomic systems).
+
+\medbreak
+\noindent
+\fbox{\large {OpenMATH support}}
+
+\noindent
+{om\_xml} (CMO to OpenMATH XML),
+{om\_xml\_to\_cmo} (OpenMATH XML to CMO).
+
+\medbreak
+\noindent
+\fbox{\large {Homotopy Method}}
+
+\noindent
+{phc} (Solving systems of algebraic equations by
+numerical and polyhedral homotopy methods).
+
+\medbreak
+\noindent
+\fbox{\large {Toric ideal}}
+
+\noindent
+{tigers} (Enumerate all Gr\"obner basis of a toric ideal.
+Finding test sets for integer program),
+{arithDeg} (Arithmetic degree of a monomial ideal),
+{stdPair} (Standard pair decomposition of a monomial ideal).
+
+\medbreak
+\noindent
+\fbox{\large {Communications}}
+
+\noindent
+{ox\_launch} (starting a server),
+{ox\_launch\_nox},
+{ox\_shutdown},
+{ox\_launch\_generic},
+{generate\_port},
+{try\_bind\_listen},
+{try\_connect},
+{try\_accept},
+{register\_server},
+{ox\_rpc},
+{ox\_cmo\_rpc},
+{ox\_execute\_string},
+{ox\_reset} (reset the server),
+{ox\_intr},
+{register\_handler},
+{ox\_push\_cmo},
+{ox\_push\_local},
+{ox\_pop\_cmo},
+{ox\_pop\_local},
+{ox\_push\_cmd},
+{ox\_sync},
+{ox\_get},
+{ox\_pops},
+{ox\_select},
+{ox\_flush},
+{ox\_get\_serverinfo}
+
+\medbreak
+\noindent
+In addition to these functions, {Mathematica functions}
+can be called as server functions.
+
+\medbreak
+\noindent
+\fbox{\large {Examples}}
+{\footnotesize
+\begin{verbatim}
+[345] sm1_deRham([x^3-y^2*z^2,[x,y,z]]);
+[1,1,0,0]
+/* dim H^i = 1 (i=0,1), =0 (i=2,3) */
+\end{verbatim}}
+
+%%\noindent
+%%{\footnotesize \begin{verbatim}
+%%[287] phc(katsura(7)); B=map(first,Phc)$
+%%[291] gnuplot_plotDots(B,0)$
+%%\end{verbatim} }
+
+% \epsfxsize=3cm
+% \begin{center}
+% %\epsffile{../calc2000/katsura7.ps}
+% \epsffile{katsura7.ps}
+% \end{center}
+%%The first components of the solutions to the system of algebraic equations Katsura 7.
+
+\medbreak
+\noindent
+\fbox{ {Authors}}
+Castro-Jim\'enez, Dolzmann, Hubert, Murao, Noro, Oaku, Okutani,
+Shimoyama, Sturm, Takayama, Tamura, Verschelde, Yokoyama.
