@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.13 2000/10/31 06:17:58 maekawa Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.14 2000/10/31 06:24:05 maekawa Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 
@@ -40,11 +40,11 @@ configure-freebsd:
 
 configure-linux:
 	if [ -f ${PHCLINUX}.gz.uuencoded ]; then \
-		uudecode -p ${PHCLINUX}.gz.uuencoded | zcat - > phc ; \
+		uudecode -o /dev/stdout ${PHCLINUX}.gz.uuencoded | zcat - > phc ; \
 		chmod +x phc ; \
 	fi
 	if [ -f ${FEPLINUX}.gz.uuencoded ]; then \
-		uudecode -p ${FEPLINUX}.gz.uuencoded | zcat - > fep ; \
+		uudecode -o /dev/stdout ${FEPLINUX}.gz.uuencoded | zcat - > fep ; \
 		chmod +x fep ; \
 	fi
 
@@ -54,14 +54,14 @@ distclean:
 
 uuencode:
 	@if [ -f $(FEPLINUX) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.13 2000/10/31 06:17:58 maekawa Exp $' > $(FEPLINUX).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.14 2000/10/31 06:24:05 maekawa Exp $' > $(FEPLINUX).gz.uuencoded ; \
 		gzip -c $(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(FEPLINUX).gz.uuencoded ; \
 	fi
 	@if [ -f $(FEPFBSD) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.13 2000/10/31 06:17:58 maekawa Exp $' > $(FEPFBSD).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.14 2000/10/31 06:24:05 maekawa Exp $' > $(FEPFBSD).gz.uuencoded ; \
 		gzip -c $(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(FEPFBSD).gz.uuencoded ; \
 	fi
 	@if [ -f $(PHC) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.13 2000/10/31 06:17:58 maekawa Exp $' > $(PHC).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.14 2000/10/31 06:24:05 maekawa Exp $' > $(PHC).gz.uuencoded ; \
 		gzip -c $(PHC) | uuencode $(PHC).gz >> $(PHC).gz.uuencoded ; \
 	fi
