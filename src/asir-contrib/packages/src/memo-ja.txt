@@ -1,5 +1,27 @@
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/packages/src/memo-ja.txt,v 1.1 2001/08/11 08:55:33 takayama Exp $
 このファイルは開発中のメモを記した 一時ファイルです.
+
+[2001,9/7]
+  memory_ifplot() : a version of ifplot() which pushes
+  [Width,Height,ByteArray] onto the stack, where ByteArray represents
+  a bitmap. (experimental)
+  
+  (x,y) <-> ByteArray[y*len+((x)>>3)] & ((x)&7)
+  
+
+  A trace generating facility for groebner basis computation is being
+  implemented. 'lib/gr/tracetogen' converts the trace into the generating
+  coefficients. (Experimental)
+  
+  Example:
+  
+  [...] dp_gr_flags(["GenTrace",1,"OXCheck",-1]);
+  [...] G = dp_gr_main(B,V,0,0,0)$ /*G[0] : gb, G[1] : gbindex, G[2] : trace */
+  [...] Tr = tracetogen(G[1],G[2])$
+  
+  Tr is a vector whose i-th element is a vector containing coefficients
+  of the generation of the i-th intermediate basis element.
+
 
 [2001, 8/11]
 tex_form を gif 形式に変換するには,
