@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.6 2000/12/14 04:35:16 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.7 2000/12/14 10:04:57 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -78,7 +78,7 @@ class OXcontrol extends Object {
     sm1(" /data peer 1 get toString def ");
     s = AddString(
       [GetEnv("OpenXM_HOME"),
-       "/src/oxc/oxc", 
+       "/bin/oxc", 
        " -c ", pass, " -h "," localhost ", " -p ", data, " -x ",
        " & "]);
     sm1(" [ (/bin/csh -c \") s (\") ] cat /stmp set ");

@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.102 2000/12/21 08:20:09 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.103 2000/12/21 09:13:05 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -77,6 +77,9 @@ all-misc :
 	(cd ../rc ; make repl)
 	(cd ../doc ; make all-install)
 	(cd ../doc ; make all-spec)
+
+all-rc:
+	(cd ../rc ; make )
 
 install: install-asir install-gnuplot install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
@@ -161,6 +164,9 @@ install-asir-doc: install-asir
 
 install-misc:
 	(cd ../rc ; make install.man)
+
+install-rc: all-rc
+	(cd ../rc ; make install)
 
 clean:
 	-rm ./.configure-links-done
@@ -323,4 +329,5 @@ configure-all-k0-ox :  configure-links configure-include  configure-asir \
                        configure-kan96xx configure-kxx configure-k097 \
                        configure-oxc
 all-k0-ox:  configure-all-k0-ox all-asir all-kan96xx all-kxx all-k097 all-oxc
-install-k0-ox: all-k0-ox  install-asir install-kan96xx install-kxx install-k097
+install-k0-ox: all-k0-ox  install-asir install-kan96xx install-kxx \
+               install-k097 install-oxc
