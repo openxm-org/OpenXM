@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.1 2004/07/02 09:05:14 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.2 2004/07/03 15:23:14 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -1430,7 +1430,7 @@ def series(MaxDeg, GKZ, W, AT) {
             K0 = car(Ks);
             U0 = ltov(base_replace(U, assoc(K, K0)));
             IP = vector_inner_product(U0, W);
-            if(IP > 0 && all_integers(U0)) {
+            if(IP >= 0 && all_integers(U0)) {
                 C = gen_gamma(AT,U0);
                 F = cons([C, U0], F);
             }
