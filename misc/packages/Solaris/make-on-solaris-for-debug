@@ -1,0 +1,29 @@
+#!/bin/csh
+set path=(/usr/ccs/bin /usr/local/bin $path)
+rehash
+pushd OpenXM/src
+make configure
+echo "All"
+make all-pari
+make all-kan96xx
+make all-kxx
+make all-asir
+make all-oxmath
+
+echo "Install"
+make install-pari
+make install-kxx
+make install-kan96xx
+make install-asir
+make install-oxmath
+
+echo "install-for-debug"
+cd kan96xx 
+make install-for-debug
+cd ..
+cd kxx
+make install-for-debug
+cd ..
+
+echo "Do no forget to source dot.bashrc"
+
