@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.8 2000/06/19 07:48:01 ohara Exp $*/
+/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.9 2001/05/06 07:53:00 takayama Exp $*/
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -22,6 +22,7 @@
           2     3
 */
 static int Debug_which = 1;
+extern char **environ;
 
 /*which("xterm", getenv("PATH"));*/
 char *which(char *prog, char *path_env)
@@ -87,7 +88,19 @@ int main(int argc, char *argv[])
     if (oxname == NULL) {
       oxname = "NULL";
     } /* Why? */
-    execv(oxname, argv+1);
+
+    /*
+	{
+	  int i;
+	  i=0;
+	  while (environ[i] != NULL) {
+		fprintf(stderr,"%s ",environ[i++]);
+	  }
+	  fprintf(stderr,"\n");
+	}
+    */
+
+    execve(oxname, argv+1,environ);
 
     fprintf(stderr, "\nError in oxlog: Failed to start the process.\n");
     fprintf(stderr, "oxname=%s\n", oxname);

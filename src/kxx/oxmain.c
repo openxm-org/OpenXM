@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.12 2002/10/28 00:38:32 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.13 2003/11/18 11:08:27 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -10,12 +10,14 @@
 #include <netdb.h>
 #include <signal.h>
 #include <setjmp.h>
+#include <stdlib.h>
 /* -lnsl -lsocket /usr/ucblib/libucb.a */
 #include "ox_kan.h"
 #include "serversm.h"
 
 #define SERVERNAME "ox_sm1"
 
+extern char **environ;
 int OxCritical = 0;
 int OxInterruptFlag = 0;
 int OxTerminateMode = 0;
@@ -326,14 +328,41 @@ childServerMain(int fdControl, int fdStream) {
     }
   }
   fprintf(stderr,"childServerMain: Starting the server %s\n",ServerName); fflush(NULL);
+
+  /*  
+  {
+	int i;
+	i=0;
+	while (environ[i] != NULL) {
+	  fprintf(stderr,"%s ",environ[i++]);
+	}
+	fprintf(stderr,"\n");
+  }
+  */
+  /* bug: xterm of potato does not seem to pass the LD_LIBRARY_PATH.
+      So, the new gc does not work.
+     it is an workaround for OpenXM */
+  if (getenv("LD_LIBRARY_PATH") == (char *)NULL) {
+	char *s,*o;
+    fprintf(stderr,"Hmm... LD_LIBRARY_PATH does not seem to be set.\n");
+    o = getenv("OpenXM_HOME");
+	if (o == NULL) {
+	  fprintf(stderr,"Giving up to set the LD_LIBRARY_PATH variable.\n");
+	}else{
+	  s = (char *)malloc(strlen(o)+64);
+	  sprintf(s,"LD_LIBRARY_PATH=%s/lib",o);
+	  putenv(s);
+	}
+  }
+
   if (PacketMonitor) {
-    if (execl(ServerName,ServerName,"-monitor",NULL)) {
+    if (execle(ServerName,ServerName,"-monitor",NULL,environ)) {
       fprintf(stderr,"%s cannot be executed with -monitor.\n",ServerName);
       fflush(NULL);
       return(-1);
     }
   }else {
-    if (execl(ServerName,ServerName,NULL)) {
+    if (execle(ServerName,ServerName,NULL,environ)) {
       fprintf(stderr,"%s cannot be executed.\n",ServerName);
       fflush(NULL);
       return(-1);
@@ -350,7 +379,6 @@ restoreLockCtrlCForOx() { ; }
 static int findOxServer(char *server) {
   char *p;
   char *p2;
-  char *getenv(char *s);
   if (strlen(server) == 0) return(-1);
   /* fd = open(server,O_RDONLY); */
   if (access(server,X_OK&R_OK) == 0) {

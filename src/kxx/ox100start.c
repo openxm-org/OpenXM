@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.3 2003/07/21 12:41:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.4 2003/07/21 13:36:42 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -128,6 +128,25 @@ static int forkExec(char **argv) {
 	  dup2(fileno(null),1);
 	  dup2(fileno(null),2);
 	}
+
+    /*
+	{
+	  int i;
+	  i = 0;
+	  fprintf(stderr,"argv-----------\n");
+	  while (argv[i] != NULL) {
+		fprintf(stderr,"%s  ",argv[i++]);
+	  }
+      fprintf(stderr,"\n");
+	  i = 0;
+	  fprintf(stderr,"environ-----------\n");
+	  while (environ[i] != NULL) {
+		fprintf(stderr,"%s  ",environ[i++]);
+	  }
+	  fprintf(stderr,"\n");
+    }	
+	*/
+
     execve(argv[0],argv,environ);
     /* This place will never be reached unless execv fails. */
     fprintf(stderr,"forkExec fails: ");
