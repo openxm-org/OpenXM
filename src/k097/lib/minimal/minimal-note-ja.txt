@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.5 2000/06/14 07:44:04 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.6 2000/06/15 07:38:35 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -647,3 +647,22 @@ TODO:
 
 -------------
 Schreyer skelton がどうして 1 を要素にもつかしらべる.
+
+June 24 (Sat), 22:30 at Posthouse (Heathrow) www.posthouse-hotels.com
+Sevilla 滞在, Mega もようやくおわり minimal resolution の check に戻る.
+resol1.c に次の line を加えた.
+	  /* If isConstant(sv.a) is added, (x^3 - y^2 z^2) deRham stops
+         with an error. I've not yet understood the reason.
+         At Posthouse at Heathrow. June 24, 2000 */
+	  if (isConstant(sv.b)) { 
+		s->deleted = 1;
+	  }
+
+isConstant(sv.a) がないと, こんどは,
+Sminimal([x^2+y^2,x*y]); がエラーでとまる.
+(x,y の weight は -1).
+LaScala-Stillman の論文をもう一度ながめよう.
+
+commit すべき:  misc/mega2000 (cvs-misc add)
+                OpenXM/src/kan96xx
+                OpenXM/src/k097/lib/minimal
