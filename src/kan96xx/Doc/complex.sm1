@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/complex.sm1,v 1.6 2000/12/29 07:19:37 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/complex.sm1,v 1.7 2001/11/26 01:25:44 takayama Exp $
 %% lib/complex.sm1  [ functions for complex ], 1999, 9/9
 %% cf.  yama:1999/Int/uli.sm1
 %%%%%%%%%%%%%%%%%%%   commands %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -882,6 +882,9 @@
     /vlist ff 2 get  def
     /mm slist length def
 
+    vlist tag ArrayP eq {
+      vlist { toString } map from_records /vlist set
+    } {  } ifelse
     [vlist to_records pop] [(_z) (_y)] join /vlist2 set
     [vlist2 from_records ring_of_polynomials 
      [[(_z) 1 (_y) 1]] weight_vector

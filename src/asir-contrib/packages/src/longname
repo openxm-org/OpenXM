@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.8 2001/08/26 09:50:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.9 2002/08/08 08:56:34 takayama Exp $ */
 /*&C-texi
 
 */
@@ -74,8 +74,6 @@ Poly_lexicogrpahic = 2$
 Poly_gradedLexicographic = 1$
 Poly_gradedReverseLexicographic = 0$
 def poly_degreeWrt(A,B)       @{ return(deg(A,B)); @}
-def poly_factor(A) @{ return(taka_poly_factor(A)); @}
-def poly_gcd(A,B)  @{ return(gcd(A,B)); @}
 def poly_resultant(A,B,V) @{ return(res(V,A,B)); @}
 def poly_groebner(O,P,V)  @{ return(gr(P,V,O)); @}
 def poly_hilbert_polynomial(I)  @{ return(taka_poly_hilbert_polynomial(I)); @}
@@ -119,8 +117,6 @@ Poly_lexicogrpahic = 2$
 Poly_gradedLexicographic = 1$
 Poly_gradedReverseLexicographic = 0$
 def poly_degreeWrt(A,B)       { return(deg(A,B)); }
-def poly_factor(A) { return(taka_poly_factor(A)); }
-def poly_gcd(A,B)  { return(gcd(A,B)); }
 /* poly_lcm(A,B) */
 def poly_resultant(A,B,V) { return(res(V,A,B)); }
 def poly_groebner(O,P,V)  { return(gr(P,V,O)); }

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfphom.rr,v 1.2 2002/02/09 08:50:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfphom.rr,v 1.3 2002/08/08 08:56:35 takayama Exp $ */
 
 /* cycles
      C1 = [t,1] \otimes q_1
@@ -10,9 +10,11 @@
 
 /*&usage 
 begin: pfphom_intersection(P)
+ intersection matrix of homology cycles.
 description:  
    Computing intersection matrix of cycles associated to p F_(p-1). 
-
+   As to the meaning of parameters c1, c2, c3, ..., see the paper
+   Ohara, Kyushu J. Math. Vol. 51 PP.123.
 
 example:
          SS = pfphom_intersection(3)$
@@ -338,10 +340,15 @@ def taka_pfp_iv(V,I) {
 /*&usage begin: pfp_omega(P)
  It returns the Gauss-Manin connection {Omega} 
  for the generalized hypergeometric function 
-  {P} F {P-1} (aa1,aa2, ...; cc1, cc2, ...;x) .
- The vector valued function Y of which elements are 
+  P F P-1 (aa1,aa2, ...; cc1, cc2, ...;x) .
+ description:
+ Define a vector valued function Y of which elements are 
  generalized hypergeometric function f_1=F and
- f_2=xdf_1/dx, f3=xd f_2/dx, ... satisfies  dY/dx={Omega} Y.
+ f_2=xdf_1/dx, f3=xd f_2/dx, ...
+ It satisfies  dY/dx={Omega} Y.
+ Generalized hypergeometric function is defined by the series
+ p F p-1(aa1,aa2, ...; cc1, cc2, ...;x) =
+ sum(k=0,infty; (aa1)_k (aa2)_k .../( (1)_k (cc1)_k (cc2)_k ... ) x^k)
  example: pfp_omega(3);
 end: */
 def pfp_omega(P) { return taka_pfp_omega(P); }

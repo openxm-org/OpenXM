@@ -1,6 +1,23 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/plucker.rr,v 1.1 2002/07/14 13:14:37 takayama Exp $ */
+#define OX_LOADFILE(A,B)   /* Do nothing. */
 
-/* call taka_plucker */
-/* usages should be put. */
+load("taka_plucker.rr")$
+/* plucker */
+/*&usage begin: plucker_index(V)
+ It gets the index of the variable {V}.
+ example: plucker_index(plucker_y([1,2,3]));
+end: */
+def plucker_index(F) { 
+  OX_LOADFILE(Loaded_taka_plucker,"taka_plucker.rr");
+  return(taka_plucker_index(F));
+}
+def plucker_relation(L,M) { 
+  OX_LOADFILE(Loaded_taka_plucker,"taka_plucker.rr");
+  return(taka_plucker_relation(L,M));
+}
+def plucker_y(L) { 
+  OX_LOADFILE(Loaded_taka_plucker,"taka_plucker.rr");
+  return(taka_plucker_y(L));
+}
 
 end$

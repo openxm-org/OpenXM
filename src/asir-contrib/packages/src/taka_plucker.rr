@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plucker.rr,v 1.1 2001/12/02 07:43:05 takayama Exp $  */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plucker.rr,v 1.2 2001/12/13 09:27:45 takayama Exp $  */
 /* Documents are written in plucker.oxweave
    ox_help("plucker_relation"|form="tex");
    ox_help("plucker_relation"|form="abstract");
@@ -110,5 +110,25 @@ def taka_plucker_test1() {
   return [L,L2,V];
 }
 
+def taka_plucker_index(V) {
+  S = rtostr(V);
+  S = strtoascii(S);
+  Id = [];
+  I = 0;
+  while (I < length(S)) {
+    if (S[I] == 95) {  /* 95 == '_' */
+      J = 0; I++;
+      while ( I<length(S) && S[I] != 95) {
+        J = J*10+eval_str(asciitostr([S[I]]));
+        I++;
+      }
+      Id=cons(J,Id);
+      I--;
+    }
+    I++;
+  }
+  return newvect(length(Id),reverse(Id));
+}
 
+Loaded_taka_plucker=1$
 end$
