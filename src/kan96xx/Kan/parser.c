@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.4 2002/02/24 10:27:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.5 2002/11/04 10:53:55 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -410,6 +410,7 @@ static void term() {
     
     }else {
       if (ftype == NUM && gtype == NUM) {
+		errorParser("num/num is not supported yet.\n");
         mpz_div(f,f,g);
         utmp.ival = f;
         push(NUM,utmp);
