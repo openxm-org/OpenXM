@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.10 1999/11/11 20:22:19 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.11 1999/11/16 13:16:22 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -128,8 +128,13 @@ class OMproxy implements Runnable{
 			 new CMO_INT32(CMO.CMO_ZZ),
 			 new CMO_INT32(CMO.CMO_QQ),
 			 new CMO_INT32(CMO.CMO_ZERO),
+			 new CMO_INT32(CMO.CMO_DMS_GENERIC),
+			 //new CMO_INT32(CMO.CMO_RECURSIVE_POLYNOMIAL),
 			 new CMO_INT32(CMO.CMO_DISTRIBUTED_POLYNOMIAL),
-			 new CMO_INT32(CMO.CMO_DMS_GENERIC)};
+			 //new CMO_INT32(CMO.CMO_POLYNOMIAL_IN_ONE_VARIABLE),
+			 new CMO_INT32(CMO.CMO_BIGFLOAT),
+			 new CMO_INT32(CMO.CMO_INDETERMINATE),
+			 new CMO_INT32(CMO.CMO_TREE)};
       CMO[] list = {new CMO_LIST(DataFormat),
 		    new CMO_LIST(CMOFormat)};
       mathcap[2] = new CMO_LIST(list);
