@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.4 1999/11/11 17:18:48 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.5 1999/11/11 20:17:18 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -79,7 +79,7 @@ public class OpenXM implements Runnable{
     }finally{
       debug("computer process interrupting...");
       thread.stop();
-      debug("interrupted. OK! I'll dead.");
+      debug("interrupted. OK! I'll shutdown.");
       try{stream.close();}catch(IOException e){}
       try{control.close();}catch(IOException e){}
     }

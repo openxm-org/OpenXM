@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.2 1999/11/04 19:36:41 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -39,6 +39,7 @@ final class OM2OXM implements Runnable{
   private int token = TT_NULL;
   private boolean lexPushbackFlag = false;
   private OpenXM asir; // for debug
+  private boolean debug = true;
 
   // Token Type for lexical analyzer
   final static int TT_NULL      = 0;
@@ -220,7 +221,7 @@ final class OM2OXM implements Runnable{
     }else if(ch != -1){
       is.unread(ch);
       while((ch = is.read()) != '<' && ch != -1){
-	System.out.println("debug: "+ch);
+	debug("debug: "+ch);
 	if(isSpace(ch)){
 	  String spaces = String.valueOf(ch);
 
@@ -250,7 +251,7 @@ final class OM2OXM implements Runnable{
       parse_error("We expect type :'"+ type
 		  +"', but we got type :'"+ token +"'("+ attribute +").");
     }
-    //System.out.println(":"+token+":"+attribute+":"+type);
+    //debug(":"+token+":"+attribute+":"+type);
     return true;
   }
 
@@ -266,7 +267,7 @@ final class OM2OXM implements Runnable{
     }
 
     ret = parse_object();
-	
+
     exceptTokenTypeInParse(TT_EndTag);
     if(!attribute.equals("OMOBJ")){
       parse_error("We expect '</OMOBJ>'.");
@@ -278,6 +279,7 @@ final class OM2OXM implements Runnable{
   private CMO parse_object() throws IOException{
     // object -> variable
     //         | '<OMI>' S? integer S? '</OMI>'
+    //         | '<OMSTR>' S? utf7 S? '</OMSTR>'
     //         | '<OMA>' S? symbol S? objects S? '</OMA>'
     CMO ret;
 
@@ -291,6 +293,9 @@ final class OM2OXM implements Runnable{
     }else if(attribute.equals("OMI")){
       pushbackLex();
       ret = parse_OMI();
+    }else if(attribute.equals("OMSTR")){
+      pushbackLex();
+      ret = parse_OMSTR();
     }else if(attribute.equals("OMA")){
       String name,cdname;
       int argnum = 0;
@@ -328,6 +333,30 @@ final class OM2OXM implements Runnable{
     exceptTokenTypeInParse(TT_EndTag);
     if(!attribute.equals("OMI")){
       parse_error("We expect '</OMI>'.");
+    }
+
+    return ret;
+  }
+
+  private CMO_STRING parse_OMSTR() throws IOException{
+    CMO_STRING ret;
+
+    exceptTokenTypeInParse(TT_StartTag);
+    if(!attribute.equals("OMSTR")){
+      parse_error("We expect '<OMSTR>'.");
+    }
+
+    if(readNextToken() == TT_String){
+      //ret = (CMO_STRING)parse_utf7();
+      ret = new CMO_STRING(attribute);
+    }else{
+      ret = new CMO_STRING("");
+      pushbackLex();
+    }
+
+    exceptTokenTypeInParse(TT_EndTag);
+    if(!attribute.equals("OMSTR")){
+      parse_error("We expect '</OMSTR>'.");
     }
 
     return ret;
@@ -630,6 +659,12 @@ final class OM2OXM implements Runnable{
       System.err.println((char)is.read());
     }catch(IOException e){}
     System.exit(1);
+  }
+
+  private void debug(String str){
+    if(debug){
+      System.err.println(str);
+    }
   }
 
   public static void main(String[] argv) throws IOException{
