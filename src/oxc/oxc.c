@@ -1,9 +1,10 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.9 2000/12/15 03:34:43 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.10 2000/12/16 01:52:32 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <string.h>
 #include "mysocket.h"
 #include "ox_toolkit.h"
@@ -53,11 +54,77 @@ OXFILE *connection()
     return oxfp;
 }
 
+__inline__
+static char *sskip(char *s)
+{
+    while (isspace(*s)) {
+        s++;
+    }
+    return s;
+}
+
+__inline__
+static char *wskip(char *s)
+{
+    while (!isspace(*s) && *s != '\0') {
+        s++;
+    }
+    return s;
+}
+
+static int wc(char *s)
+{
+    int n = 0;
+    s = sskip(s);
+    while(*s != '\0') {
+        s = wskip(s);
+        s = sskip(s);
+        n++;
+    }
+    return n;
+}
+
+static void word(char *str, int argc, char *argv[])
+{
+    int i;
+    char *s = strcpy(malloc(strlen(str)+1), str);
+    for(i=0; i<argc; i++) {
+        s = sskip(s);
+        argv[i] = s;
+        s = wskip(s);
+        *s++ = '\0';
+    }
+    argv[i] = NULL;
+}
+
+__inline__
+static int arglen(char *args[])
+{
+    int len;
+    for(len = 0; args[len] != NULL; len++) {
+        ;
+    }
+    return len;
+}
+
 /* xterm, kterm, rxvt, gnome-terminal, ... */
-static char *xterminal()
+static char **makeargs(char **oldargs)
 {
     char *e = getenv("OpenXM_XTERM");
-    return (e != NULL)? e: "xterm";
+    int argc;
+    char **newargs;
+    int len = arglen(oldargs);
+    if (e == NULL) {
+        argc = 1;
+        newargs = malloc((len+1+argc)*sizeof(char *));
+        newargs[0] = "xterm";
+    }else {
+        argc = wc(e);
+        newargs = malloc((len+1+argc)*sizeof(char *));
+        word(e, argc, newargs);
+    }
+    memcpy(newargs+argc, oldargs, (len+1)*sizeof(char *));
+    return newargs;
 }
 
 static int basic0[] =  {
@@ -83,7 +150,6 @@ int main(int argc, char *argv[])
 {
     OXFILE *oxfp;
     char *port_s = "";
-    char *xterm =  xterminal();
     char *myname = argv[0];
     int oxlog = 0;
     int c;
@@ -124,8 +190,11 @@ int main(int argc, char *argv[])
         sprintf(port_s, "%d", port);
     }
     if (oxlog) {
-        execlp(xterm, xterm, "-e", myname, "-d", delay_s,
-               "-h", remote_host, "-p", port_s, "-c", password, NULL);
+        char *common_args[] = {"-e", myname, "-d", delay_s,
+                          "-h", remote_host, "-p", port_s, "-c", 
+                          password, NULL};
+        char **args = makeargs(common_args);
+        execvp(args[0], args);
     }
 
     fprintf(stderr, "start connection!\n");
