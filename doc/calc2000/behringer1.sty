@@ -1,0 +1,214 @@
+% FILENAME: behringer1.sty
+% Physical page layout
+\setlength\topmargin{0.1in}
+ %\setlength\oddsidemargin{-0.14in}
+%\setlength\evensidemargin{-0.14in}
+\setlength\textheight{41pc}
+ \setlength\textwidth{27pc}
+%\setlength\columnsep{0.29in} 
+ \setlength\headheight{12pt}  
+ \setlength\headsep{14pt}
+\pagestyle{myheadings}
+\flushbottom 
+
+
+
+
+\def\@makechapterhead#1{%
+  %\vspace*{50\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      \if@mainmatter
+        \huge\bfseries \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip 20\p@
+      \fi
+    \fi
+    \interlinepenalty\@M
+    \huge \bfseries #1\par\nobreak
+    \vskip 40\p@
+  }}
+\def\@schapter#1{\if@twocolumn
+                   \@topnewpage[\@makeschapterhead{#1}]%
+                 \else
+                   \@makeschapterhead{#1}%
+                   \@afterheading
+\addcontentsline{toc}{chapter}{#1}
+                 \fi}
+\def\@makeschapterhead#1{%
+ % \vspace*{50\p@}%
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    \huge \bfseries  #1\par\nobreak
+    \vskip 10\p@
+  }}
+
+\renewcommand\part{%
+  \if@openright
+    \cleardoublepage
+  \else
+    \clearpage
+  \fi
+  \thispagestyle{empty}%
+  \if@twocolumn
+    \onecolumn
+    \@tempswatrue
+  \else
+    \@tempswafalse
+  \fi
+  \null\vfil
+  \secdef\@part\@spart}
+
+
+\def\@part[#1]#2#3{%
+    \ifnum \c@secnumdepth >-2\relax
+      \refstepcounter{part}%
+      \addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
+    \else
+      \addcontentsline{toc}{part}{#1}%
+    \fi
+    \markboth{}{}%
+\vspace*{-11.5pc}
+    {\centering
+     \interlinepenalty \@M
+     \normalfont
+     \ifnum \c@secnumdepth >-2\relax
+       \huge\bfseries \partname~\thepart
+       \par
+       \vskip 20\p@
+     \fi
+    \Huge \bfseries  #2\par}%
+%\vskip 40\p@
+\vspace*{8pc}
+\normalsize \noindent {\it #3} \par
+    \@endpart}
+\def\@spart#1{%
+    {\centering
+     \interlinepenalty \@M
+     \normalfont
+     \Huge \bfseries #1\par}%
+    \@endpart}
+\def\@endpart{\vfil\newpage
+              \if@twoside
+                \null
+                \thispagestyle{empty}%
+                \newpage
+              \fi
+              \if@tempswa
+                \twocolumn
+              \fi}
+
+\newcommand\authors[1]{
+{\noindent \large  #1}
+}
+\renewcommand\bibname{References}
+\newcommand\abstract[1]{
+\vskip 40\p@
+\noindent {\bfseries Abstract.} {\itshape #1}}
+
+
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+                                   {-3.5ex \@plus -1ex \@minus -.2ex}%
+                                   {2.3ex \@plus.2ex}%
+                                   {\normalfont\large\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\large}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                    {3.25ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\normalfont\normalsize\bfseries}}
+%\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+                               %        {3.25ex \@plus1ex \@minus .2ex}%
+                                %       {-1em}%
+ 
+\@addtoreset {equation}{chapter}
+\renewcommand\theequation
+ {\ifnum \c@chapter>\z@ \fi \@arabic\c@equation}
+%\newcounter{figure}[chapter]
+\renewcommand \thefigure
+     {\ifnum \c@chapter>\z@ \fi \@arabic\c@figure}
+\renewcommand\thesection {\@arabic\c@section}
+\renewcommand\thesubsection   {\thesection.\@arabic\c@subsection}
+\renewcommand\thesubsubsection{\thesubsection .\@arabic\c@subsubsection                                     {\normalfont\normalsize\bfseries}}
+\newenvironment{thebibliographys}[1]
+     {\section*{\bibname
+        \@mkboth{\bibname}{\bibname}}%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliographys' environment}}%
+      \endlist}
+\renewcommand\newblock{\hskip .11em\@plus.33em\@minus.07em}
+\let\@openbib@code\@empty
+
+\def\ps@myheadings{%
+    \let\@oddfoot\@empty\let\@evenfoot\@empty
+    \def\@evenhead{\small \thepage\hfil\slshape\leftmark}%
+    \def\@oddhead{\small {\slshape\rightmark}\hfil\thepage}%
+    \let\@mkboth\@gobbletwo
+    \let\chaptermark\@gobble
+    \let\sectionmark\@gobble
+    }
+
+
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip 
+  \sbox\@tempboxa{\small {\bfseries #1.} #2}%
+  \ifdim \wd\@tempboxa >\hsize
+  {\small \bfseries  #1.} \small #2\par
+  \else
+    \global \@minipagefalse
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+%\newcounter{figure}[chapter]
+\renewcommand \thefigure
+     {\ifnum \c@chapter>\z@ \fi \@arabic\c@figure}
+\setlength\abovecaptionskip{5\p@}
+\setlength\belowcaptionskip{0\p@}
+
+
+\def\@citex[#1]#2{\if@filesw\immediate\write\@auxout{\string\citation{#2}}\fi 
+\def\@citea{}\@cite{\@for\@citeb:=#2\do
+{\@citea\def\@citea{,\penalty\@m\ }\@ifundefined
+	{b@\@citeb}{{\bf ?}\@warning
+	{Citation `\@citeb' on page \thepage \space undefined}}%
+{\csname b@\@citeb\endcsname}}}{#1}}
+\def\@cite#1#2{[{\normalsize #1\if@tempswa , \rm #2\fi}]}
+
+\def\footcite{\@ifnextchar [{\@footcitea}{\@footcite}} 
+
+\def\@footcitea[#1]#2{{\let\@etalbox=\@etalf\def\@cite##1##2{[{\scriptsize ##1\if@tempswa , \rm 
+##2\fi}]}\cite[#1]{#2}}} 
+\def\@footcite#1{{\let\@etalbox=\@etalf\def\@cite##1##2{[{\scriptsize ##1\if@tempswa , \rm ##2\fi}]}\cite{#1}}} 
+
+\def\smallcite{\@ifnextchar [{\@smallcitea}{\@smallcite}} 
+\def\@smallcitea[#1]#2{{\let\@etalbox=\@etals\def\@cite##1##2{[{\footnotesize ##1\if@tempswa , 
+\rm ##2\fi}]}\cite[#1]{#2}}} 
+\def\@smallcite#1{{\let\@etalbox=\@etals\def\@cite##1##2{[{\footnotesize ##1\if@tempswa , \rm ##2\fi}]}\cite{#1}}}
+%
+% if the bibliography section is footnotesize, make the
+% labels be footnote size too. 
+\def\@biblabel#1{[{\small #1}]\hfill}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% end of citation definitions 
+%%%%
+
