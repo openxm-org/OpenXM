@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.19 2000/03/13 03:06:09 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.20 2000/03/16 01:51:09 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -71,6 +71,7 @@ build-on-orange: prepare-build-rpm
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} clean-work)
 	(cd Linux/RPM ; make  TAG=${TAG} VERSION=${VERSION} build-shared-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
+	(cp Linux/RPM/work/RPMS/noarch/*.rpm ${TAR_WORK})
 
 # You should be a super user.
 build-on-pear:
