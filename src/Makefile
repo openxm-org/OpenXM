@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.112 2002/04/05 01:43:48 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.113 2002/09/03 01:05:28 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -56,7 +56,7 @@ all-openmath:
 	fi
 
 all-oxmath: configure-oxmath install-oxtoolkit
-	-@if test -x /usr/local/bin/math ; then \
+	-@if test -d /usr/local/mathematica ; then \
 		(cd ox_math ; make) ; \
 	else \
 		echo -n "Warning: Mathematica is not found. " ; \
@@ -141,7 +141,7 @@ install-oxc: all-oxc
 	(cd oxc; make install)
 
 install-oxmath: all-oxmath configure-util
-	-@if test -x /usr/local/bin/math ; then \
+	-@if test -d /usr/local/mathematica ; then \
 		(cd ox_math ; make install) ; \
 	else \
 		echo -n "Warning: Mathematica is not found. " ; \
@@ -247,7 +247,7 @@ configure-gmp: configure-links
 	  (cd gmp ; ./configure --prefix=`pwd`/../../OpenXM; touch .gmp_configured) ; \
 	fi 
 
-configure-asir:
+configure-asir: configure-directory
 	@if test -d $(OPENXM_CONTRIB2) ; then \
 		(cd asir2000 ; make configure) ; \
 	else \
@@ -293,7 +293,7 @@ configure-oxtoolkit: configure-include
 configure-oxc: configure-include
 	(cd oxc; ./make-configure)
 
-configure-oxmath: configure-include
+configure-oxmath: configure-include configure-directory
 	(cd ox_math; ./make-configure)
 
 configure-pari:
