@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.15 2003/09/15 09:31:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.16 2003/09/18 12:46:08 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -366,7 +366,8 @@ static char *new_string_set_cmo_list(cmo_list *m)
         strcat(s, sp[i]);
         strcat(s, " , ");
     }
-    strcat(s, sp[len-1]);
+    if (len > 0)
+      strcat(s, sp[len-1]);
     strcat(s, " ]");
     return s;
 }
