@@ -1,5 +1,10 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.5 1999/12/16 06:58:01 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.6 2000/01/17 19:55:55 ohara Exp $ */
+
+/* 
+   Some commnets is written in Japanese by the EUC-JP coded 
+   character set.
+*/
 
 #ifndef _OX_H_
 
@@ -8,36 +13,12 @@
 #include <gmp.h>  
 #include "oxtag.h"
 
-/*
-関数の名前付け規約(その2)
-(1) receive_cmo 関数はCMOタグとデータ本体を受信する. この関数は CMOタグの
-値が事前に分からないときに使用する. 返り値として、cmo へのポインタを返す。
-(2) receive_cmo_XXX 関数は, CMOタグを親の関数で受信してから呼び出される関
-数で、データ本体のみを受信し、cmo_XXX へのポインタを返す。しかも、
-関数内部で new_cmo_XXX 関数を呼び出す。
-(3) send_cmo 関数はCMOタグとデータ本体を送信する.
-(4) send_cmo_XXX 関数はCMOタグを親の関数で送信してから呼び出される関数で、
-データ本体のみを送信する.
-(5) receive_ox_XXX 関数は存在しない(作らない).  receive_cmo を利用する.
-
-----
-(6) send_ox_XXX 関数は OX タグを含めて送信する.
-(7) ox_XXX 関数は一連の送受信を含むより抽象的な操作を表現する.
-ox_XXX 関数は、第一引数として、ox_file_t型の変数 sv をとる.
-
-(8) YYY_cmo 関数と YYY_cmo_XXX 関数の関係は次の通り:
-まず YYY_cmo 関数で cmo のタグを処理し、タグを除いた残りの部分を
-YYY_cmo_XXX 関数が処理する。cmo の内部に cmo_ZZZ へのポインタが
-あるときには、その種類によらずに YYY_cmo 関数を呼び出す 
-*/
-
 #define LOGFILE  "/tmp/oxtk.XXXXXX"
 
 /* Open Xm File Descripter */
 typedef int oxfd;
 
 #if 0
-/* そのうちこちらに移行したい... */
 typedef struct {
     int fd;
     int byteorder;
@@ -45,7 +26,7 @@ typedef struct {
 typedef oxfile *oxfd;
 #endif
 
-/* サーバーとの通信路に用いるファイルディスクリプタのペア. */
+/* descripter pair. (needed by a client) */
 typedef struct {
     oxfd stream;
     oxfd control;
@@ -53,14 +34,6 @@ typedef struct {
 
 typedef __ox_file_struct *ox_file_t;
 
-/*
-警告:
-cmo_list 型のリストには破壊的な代入をしてはいけない.
-cmo_list の各メンバに直接アクセスしてはいけない.
-メソッド(..._cmo_list 関数)を用いること.
-*/
-
-/* ここからは新しい定義 */
 typedef struct {
     int tag;
 } cmo;
@@ -101,7 +74,7 @@ typedef struct cell {
 
 typedef struct {
     int tag;
-    int length;   /* リストの長さ(必要??) */
+    int length;   /* length of this list (unnecessary) */
     cell head[1];
 } cmo_list;
 
@@ -120,11 +93,12 @@ typedef struct {
 
 typedef struct {
     int tag;
-    cmo *num;  /* 分子 (cmo_zz) */
-    cmo *den;  /* 分母 (cmo_zz) */
+    cmo *num;  /* Bunshi (cmo_zz) */
+    cmo *den;  /* Bunbo (cmo_zz) */
 } cmo_qq;
 
-/* cmo_list の派生. append_cmo_list を使ってよい. */
+/* The following is a derived class from cmo_list. 
+   that is, append_cmo_list can be used. */
 typedef struct {
     int tag;
     int length;    /* number of monomials */
@@ -175,7 +149,7 @@ char*              new_string_set_cmo(cmo* m);
 cmo_error2*        make_error_object(int err_code, cmo* ob);
 cmo*               make_mathcap_object(int version, char *id_string);
 
-/* 低水準 API */
+/* Low level API */
 cmo*               receive_cmo(int fd);
 int                receive_int32(int fd);
 int                receive_ox_tag(int fd);
@@ -195,9 +169,11 @@ cell*              new_cell();
 cmo*               nth_cmo_list(cmo_list* this, int n);
 int                set_current_fd(int fd);
 
-/* 高水準 API */
+/* High level API */
 ox_file_t          ox_start(char* host, char* prog1, char* prog2);
 ox_file_t          ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
+ox_file_t          ox_start_remote_with_ssh(char *dat_prog, char* host);
+
 void               ox_close(ox_file_t sv);
 void               ox_shutdown(ox_file_t sv);
 void               ox_reset(ox_file_t sv);
