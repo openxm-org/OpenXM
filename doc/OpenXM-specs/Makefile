@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.17 2003/09/15 08:53:34 ohara Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.18 2003/12/10 23:22:52 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -11,7 +11,7 @@ NKF=nkf -e
 OXWEAVE=../../bin/oxweave
 OXWEAVE_C=../../src/util/oxweave.c
 OXWEAVEFLAG=--recursive --plain
-OXREPLACE=../../src/util/oxreplace
+OXREPLACE=../../bin/oxreplace
 SRC= OpenXM.tex cmo-basic0.tex cmo-basic1.tex\
 cmo-register.tex communication-model.tex control.tex\
 error.tex formal-expression.tex howtowrite.tex\
