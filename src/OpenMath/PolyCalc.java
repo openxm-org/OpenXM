@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.6 1999/11/10 21:25:48 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.7 1999/11/19 08:49:06 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -149,7 +149,9 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 	oxm.sendCMO(new CMO_STRING("[[("+ poly1.getText() +") ("+ poly2.getText() +")] (x,y)] gb"));
 	oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
 	oxm.sendSM(new SM(SM.SM_popString));
-      }catch(java.io.IOException e){}
+      }catch(java.io.IOException e){
+      }catch(MathcapViolation e){
+      }
     }
     /*
       if ("first".equals(arg)) {
@@ -186,6 +188,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
     }catch(java.io.IOException e){
       textarea.append("failed.\n");
       stop();
+    }catch(MathcapViolation e){
     }
   }
 
