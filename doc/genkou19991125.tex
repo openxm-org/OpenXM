@@ -1,17 +1,10 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.91 1999/12/25 15:57:31 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.92 1999/12/25 17:05:28 tam Exp $
 
 \usepackage{jssac}
-\title{OpenXM の現状について
-1. 意味もない修飾過剰な語句は排除しましょう. \\
-2. せっかく fill しているのをいじらないでくれ. \\
-3. 田村が遊んでばかりでおればかり仕事をしているのはどう考えても不公平だ.
-なんで仕事をしないのか, いい加減仕事をしろ, 田村. \\
-3.5 そういうご飯とかつまらない話じゃなくて, commit の情報をみれば田村が
-如何に仕事をしていないのかよくわかるよ. \\
-}
 
+\title{OpenXM の現状について}
 \author{奥 谷 　 行 央\affil{神戸大学大学院自然科学研究科}
 		\mail{okutani@math.sci.kobe-u.ac.jp}
   \and	小 原 　 功 任\affil{金沢大学理学部}
@@ -353,7 +346,7 @@ cmo\_mathcap := (CMO\_MATHCAP, {\sl cmo\_list})
 \end{quote}
 
 第一要素 $a$ はまた cmo\_list であり, リスト長は 4 以上, $a_1$ は 
-cmo\_int32 でバージョンを表す, $a_2$, $a_3$, $a_4$ は cmo\_string であり, 
+cmo\_int32 でバージョンを表す. $a_2$, $a_3$, $a_4$ は cmo\_string であり, 
 それぞれシステムの名前, バージョン, HOSTTYPE を表すことになっている.
 \begin{quote}
 (CMO\_LIST, {\sl int32},
@@ -372,40 +365,35 @@ $a_3$, {\sl cmo\_string} $a_4$, $\ldots$)
 	$\ldots$, {\sl cmo\_int32} $b_n$)
 \end{quote}
 
-第三要素 $c$ は以下のようなリスト構造をしている.
+第三要素 $c$ は以下のようなリスト構造をしていなければならない.
 \begin{quote}
-(CMO\_LIST, {\sl int32} $m$, \\
-  \hspace{10mm}	(CMO\_LIST, {\sl int32} $l_1$, {\sl cmo\_int32} $c_{11}$,
-		{\sl cmo} $c_{12}$, $\ldots$, {\sl cmo} $c_{1l_1}$), \\
-  \hspace{10mm}	(CMO\_LIST, {\sl int32} $l_2$, {\sl cmo\_int32} $c_{21}$,
-		{\sl cmo} $c_{22}$, $\ldots$, {\sl cmo} $c_{1l_2}$), \\
-  \hspace{10mm}	$\ldots$ \\
-  \hspace{10mm}	(CMO\_LIST, {\sl int32} $l_m$, {\sl cmo\_int32} $c_{m1}$,
-		{\sl cmo} $c_{m2}$, $\ldots$, {\sl cmo} $c_{1l_m}$))
+(CMO\_LIST, {\sl int32} $m$,
+	{\sl cmo\_list} $list_1$, {\sl cmo\_list} $list_2$,
+		$\ldots$, {\sl cmo\_list} $list_m$)
 \end{quote}
-{\Large 以下、全然説明が分かりません。}
-どの $c_{i1}$ にも cmo\_int32 が入っており,
-OX\_COMMAND 以外の, 受け取れるメッセージの識別子が入っている.
-$c_{i2}$ 以降については最初の $c_{i1}$ の値によってそれぞれ異なる.
+
+どの $list_i$ も 1 つ以上の要素を持っており,
+1 番目の要素は必ず cmo\_int32 となっていなければならない.
+これは受け取れるオブジェクトのメッセージの識別子を
+入れるためである.
 ここでは, OX\_DATA の場合についてのみ説明する.
-この $c_{i1}$ が OX\_DATA の場合,
-$c_{i1}$, $c_{i2}$, $\ldots$, $c_{il_i}$ を要素とする cmo\_list は
-CMO 形式についての情報を表しており, $l_i=2$ と決められている.
-$c_{i1}$ にはもちろんのこと OX\_DATA が入っており,
-$c_{i2}$ は以下の図のような cmo\_list になっている.
-各要素は cmo\_int32 であり,
-受け取ることが可能な CMO 形式のタグが入る.
+
+1 番目の要素が OX\_DATA の場合,
+リスト $list_i$ は以下のような構造となっている.
+各 $c_{ij}$ は cmo\_int32 であり,
+受け取ることが可能な CMO 形式のタグとなる.
 \begin{quote}
-	(CMO\_LIST, {\sl int32} $k$,
-		{\sl cmo\_int32} $c_{i21}$, {\sl cmo\_int32} $c_{i22}$,
-			$\ldots$, {\sl cmo\_int32} $c_{i2k}$)
+(CMO\_LIST, 2, (CMO\_INT32, OX\_DATA), \\
+\ \ 	(CMO\_LIST, {\sl int32} $k$,
+		{\sl cmo\_int32} $c_{i1}$, {\sl cmo\_int32} $c_{i2}$,
+			$\ldots$, {\sl cmo\_int32} $c_{ik}$))
 \end{quote}
 
 具体的な mathcap の例をあげよう.  名前が ``ox\_test'', バージョンナンバー
 が 199911250 のサーバで, PC-UNIX 上で動いており,
-さらに, このサーバのスタックマシンが命令 SM\_popCMO, SM\_popString,
+このサーバのスタックマシンが命令 SM\_popCMO, SM\_popString,
 SM\_mathcap, SM\_executeStringByLocalParser を利用可能,
-かつ, cmo\_int32, cmo\_string, cmo\_mathcap, cmo\_list のみに制限したい
+かつ cmo\_int32, cmo\_string, cmo\_mathcap, cmo\_list のみに制限したい
 ときの mathcap は
 \begin{quote}
 (CMO\_LIST, 3, \\
@@ -490,7 +478,6 @@ http://horse.mcs.kent.edu/\~{}pwang/
 数学的な計算を行なうための HTTP スタイルのプロトコル.
 クライアント・サーバモデルを採用しており,
 ピアツーピアのストリームコネクションを行なう.
-RPC よりも, telnet でサーバにログインして計算を行なう感覚に近い.
 数学的なオブジェクトを MP や MathML で定められた方法で
 表現することが考えられている.
 すでに OpenMath を用いた実装が存在する.
