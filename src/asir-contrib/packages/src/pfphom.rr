@@ -1,0 +1,297 @@
+/* -*- mode: C -*- */
+/* $OpenXM$ */
+/*&usage
+Abstract:
+Computing intersection matrix of cycles associated to 3F2 
+See "Ohara, Sugiki, Takayama, Quadratic Relations for Generalized
+     Hypergeometric Functions ${}_p F_{p-1}$"
+for methematical details.
+*/
+/* cycles
+     C1 = [t,1] \otimes q_1
+     C2 = [0,t] \otimes q_1
+     C3 = [0,t] \otimes q_2
+     intersection := <lf(C),reg(dual(C))>
+*/
+
+/*&usage 
+
+   (1) In order to get the intersection matrix of homologies for 3F2,
+       you must put the following on asir console:
+         SS = pfphom_intersection(3)$
+       SS is a 3x3-matrix.
+   (2) In order to get monodromy matricies for 3F2,
+       you must put the following on asir console:
+	     MP = pfphom_monodromy_pair_kyushu(3)$
+       MP is a list of 3x3-matricies.
+*/
+
+extern Pfphom_RuleDual$
+extern Pfphom_RuleNormal$
+extern Pfphom_Parameters$
+
+Pfphom_Parameters = [c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20]$
+
+Pfphom_RuleDual  = [[c1, 1/c1], [c2, 1/c2], [c3, 1/c3], [c4, 1/c4], [c5, 1/c5], [c6, 1/c6], [c7, 1/c7], [c8, 1/c8], [c9, 1/c9], [c10,1/c10], [c11,1/c11], [c12,1/c12], [c13, 1/c13], [c14, 1/c14], [c16, 1/c16], [c17, 1/c17]]$
+
+Pfphom_RuleNormal = [[c1,1/c2],[c3,1],[c6,1/(c5*c4)],[c9,1/(c8*c7)],[c12,1/(c10*c11)],[c15,1/(c13*c14)],[c18,1/(c16*c17)],[d2,c2-1],[d4,c4-1],[d5,c5-1],[d8,c8-1]]$
+
+def pfphom_dual(F) {
+    return base_replace(F, Pfphom_RuleDual);
+}
+
+/* Monodromy Functions for pFp-1 (P<=6) */
+def pfphom_monodromy_triple(P) {
+    C = Pfphom_Parameters;
+    L2 = pfphom_monodromy_pair_kyushu(P);
+    L3 = [C[3*P+1]*L2[0],L2[1],C[3*P+2]];
+    return base_replace(L3,Pfphom_RuleNormal);
+}
+
+/* Kyushu J. Math. Vol.51 PP.123 (1997) */
+def pfphom_monodromy_pair_kyushu(P) {
+    C = Pfphom_Parameters;
+    M1 = pfphom_monodromy_M1(P);
+    M2 = pfphom_monodromy_M2(P);
+    MPair = [M1,M2];
+    return base_replace(MPair,Pfphom_RuleNormal);
+}
+
+def pfphom_monodromy_M1(P) {
+    C = Pfphom_Parameters;
+    M1 = newmat(P,P);
+    for(I=0;I<P;I++) {
+        M1[I][I] = C[3*(P-I)];
+        for(J=0;J<I;J++) {
+            M1[I][J] = (-1)^(I+J+1) *(C[3*(P-I)+3]*C[3*(P-I)+2] - C[3*(P-I)]);
+        }
+    }
+    return M1;
+}
+
+def pfphom_monodromy_M2(P) {
+    C = Pfphom_Parameters;
+    M2 = matrix_identity_matrix(P);
+    CC = 1;
+    for(I=0;I<P;I++) {
+        CC = CC*C[3*I+2];
+        M2[0][P-1-I] += (-1)^(P-1-I) * (CC-1);
+    }
+    return M2;  
+}
+
+/* Check Functions */
+/* trans(M^-1)* S *Dual(M^-1) == S */
+def pfphom_check(M,S) {
+    R = (matrix_transpose(matrix_inverse(M)) * S) - (S * pfphom_dual(M));
+    return base_cancel(R);
+}
+
+def pfphom_checkNumeric(M,S,Rule) {
+    D = base_replace(pfphom_dual(M), Rule);
+    M = base_replace(M, Rule);
+    S = base_replace(S, Rule);
+    R = (matrix_transpose(matrix_inverse(M)) * S) - (S * D);
+    return base_cancel(R);
+}
+
+def pfphom_intersection_checkNumeric(ML,S) {
+    I=0;
+    /* fixed rule */
+    RuleNumeric = [[c2, 1/3],[c4,-1/5],[c5,1/7],[c7,-1/11],[c8,1/13],[c10,-1/17],[c11,1/19],[c13,-1/23],[c14,1/29],[c16,-1/31]];
+    print([I,"check(M1)=",pfphom_checkNumeric(ML[0],S,RuleNumeric)]);
+    print([I,"check(M2)=",pfphom_checkNumeric(ML[1],S,RuleNumeric)]);
+    /* random rule */
+    for(I=1;I<=5;I++) {
+        RuleNumeric = pfphom_makeRuleNumeric(I);
+        print([I,"check(M1)=",pfphom_checkNumeric(ML[0],S,RuleNumeric)]);
+        print([I,"check(M2)=",pfphom_checkNumeric(ML[1],S,RuleNumeric)]);
+    }
+}
+
+def pfphom_makeRuleNumeric(Seed) {
+    random(Seed);
+    Length = length(Pfphom_Parameters);
+    R = newmat(Length,2);
+    for(I=0;I<Length;I++) {
+        R[I][0]=Pfphom_Parameters[I];
+        R[I][1]=random();
+    }
+    return matrix_matrix_to_list(R);
+}
+
+/* Matrix Functions */
+def pfphom_matrix_to_identity(M) {
+
+    return matrix_identity_matrix(car(size(M)));
+}
+
+def pfphom_di(M) {
+    return base_cancel(matrix_inverse(M - pfphom_matrix_to_identity(M)));
+}
+
+def pfphom_getN1(M, L) {
+    return pfphom_di(M) + (L/(L-1)) * pfphom_matrix_to_identity(M);
+}
+
+def pfphom_getN2(M, L) {
+    return (L*M-1)/((L-1)*(M-1));
+}
+
+/* ML = [M1,M2,Mt]: List of monodormies, 
+   M1,M2: monodromy matricies, Mt: a scalar, S: bilinear form */
+def pfphom_intersection_ML(ML,S) {
+    PP = car(size(S));
+    SS = newmat(PP+1,PP+1);
+    M1 = ML[0];
+    M2 = ML[1];
+    Mt = ML[2];
+
+    if (type(Mt) == 6) {
+        Mt = Mt[0][0];
+    }
+    if (type(M2) == 6) {
+        M2 = M2[0][0];
+    }
+
+    SS[0][0] = red(S[0][0]*pfphom_dual(pfphom_getN2(M2, Mt)));
+
+    CC1 = pfphom_dual(-1/(Mt-1));
+    CC2 = pfphom_dual(-Mt/(Mt-1));
+    for(I=0;I<PP;I++) {
+        SS[0][I+1] = red(CC1 * S[0][I]);
+        SS[I+1][0] = red(CC2 * S[I][0]);
+    }
+
+    SN1  = S * pfphom_dual(pfphom_getN1(M1, Mt));
+    for(I=0;I<PP;I++) {
+        for(J=0;J<PP;J++) {
+            SS[I+1][J+1] = red(SN1[I][J]);
+        }
+    }
+    return base_replace(SS,Pfphom_RuleNormal);
+}
+
+def pfphom_intersection(P) {
+    if (P==1) {
+        return matrix_identity_matrix(1);
+    }
+    return pfphom_intersection_ML(pfphom_monodromy_triple(P-1),pfphom_intersection(P-1));
+}
+
+/* Remark Ih for P is a PxP matrix,
+   F == 1: Numerical check by random numbers */
+def pfphom_intersection_check(Ih, F) {
+    P = car(size(P));
+    ML = pfphom_monodromy_triple(P);
+    if (F == 1) {
+        intersection_check_numeric(ML,Ih);
+    }else {
+        print(["check(M1)=",pfphom_check(ML[0],S)]);
+        print(["check(M2)=",pfphom_check(ML[1],S)]);
+    }
+}
+
+/**** Examples ****/
+
+/* 1F0 */
+/* monodromy$
+XM1 = c4*matrix_list_to_matrix([[c3]])$
+XM2 = matrix_list_to_matrix([[c2]])$
+XMt = c5$
+XM1 = base_replace(XM1,Pfphom_RuleNormal)$
+XM2 = base_replace(XM2,Pfphom_RuleNormal)$
+XMt = base_replace(XMt,Pfphom_RuleNormal)$
+*/
+/*
+ML = pfphom_monodromy_triple(1)$
+XM1 = ML[0]$ XM2 = ML[1]$ XMt = ML[2]$
+Ih21 = pfphom_intersection(2);
+*/
+/* Ih21$
+Ih21 = -matrix_list_to_matrix(
+    [[(c2*c5-1)/(d5*d2), -c5/d5],
+     [-1/d5, (c4*c5-1)/(d4*d5)]])$
+Ih21 = base_replace(Ih21,Pfphom_RuleNormal)$
+*/
+
+/* 2F1 */
+/* monodromy$
+M1 = c7*matrix_list_to_matrix([[c6,0],[c5*c6-1,1]])$
+M2 = matrix_list_to_matrix([[c2*c5,1-c2],[0,1]])$
+Mt = c8$
+
+M1 = base_replace(M1,Pfphom_RuleNormal)$
+M2 = base_replace(M2,Pfphom_RuleNormal)$
+Mt = base_replace(Mt,Pfphom_RuleNormal)$
+*/
+/*
+ML = pfphom_monodromy_triple(2)$
+M1 = ML[0]$ M2 = ML[1]$ Mt = ML[2]$
+Ih32 = pfphom_intersection(3)$
+*/
+/* 3F2 */
+/* monodromy$
+MM1 = c10*matrix_list_to_matrix(
+    [[c9,0,0],
+     [c8*c9-c6,c6,0],
+     [1-c5*c6,c5*c6-1,1]])$
+MM2 = matrix_list_to_matrix(
+    [[c2*c5*c8,1-c2*c5,c2-1],
+    [0,1,0],
+    [0,0,1]])$
+MMt = c11$
+
+MM1 = base_replace(MM1,Pfphom_RuleNormal)$
+MM2 = base_replace(MM2,Pfphom_RuleNormal)$
+MMt = base_replace(MMt,Pfphom_RuleNormal)$
+*/
+/*
+ML = pfphom_monodromy_triple(3)$
+MM1 = ML[0]$ MM2 = ML[1]$ MMt = ML[2]$
+
+Ih43 = pfphom_intersection(4)$
+print_xdvi_form(poly_factor(Ih43))$
+
+ML = pfphom_monodromy_triple(3)$
+MMM1 = ML[0]$ MMM2 = ML[1]$ MMMt = ML[2]$
+print(["check(MMM1,Ih43)=",pfphom_checkNumeric(MMM1,Ih43,RuleNumeric1)])$
+print(["check(MMM2,Ih43)=",pfphom_checkNumeric(MMM2,Ih43,RuleNumeric1)])$
+*/
+
+
+/* 4F3 */
+/* monodromy$
+MMM1 = c13*matrix_list_to_matrix(
+    [[c12,        0,        0,       0],
+     [c11*c12-c9, c9,       0,       0],
+     [-c8*c9+c6,  c8*c9-c6, c6,      0],
+     [c5*c6-1,    -c5*c6+1, c5*c6-1, 1]])$
+MMM2 = matrix_list_to_matrix(
+    [[c2*c5*c8*c11, 1-c2*c5*c8, c2*c5-1, 1-c2],
+     [0,            1,          0,       0],
+     [0,            0,          1,       0],
+     [0,            0,          0,       1]])$
+MMMt = c14$
+
+MMM1 = base_replace(MMM1,Pfphom_RuleNormal)$
+MMM2 = base_replace(MMM2,Pfphom_RuleNormal)$
+MMMt = base_replace(MMMt,Pfphom_RuleNormal)$
+*/
+/*
+ML = pfphom_monodromy_triple(3)$
+MMM1 = ML[0]$ MMM2 = ML[1]$ MMMt = ML[2]$
+Ih54 = pfphom_intersection(5)$
+*/
+
+
+/* Ih32 == Ti0 */
+/* Takayama's 3F2 intersection matrix */
+/*
+Ti0 = base_cancel(matrix_list_to_matrix(
+[[ (c8*c5*c2-1)/(((c8-1)*c5-c8+1)*c2+(-c8+1)*c5+c8-1),(-c8*c5*c2+c8)/(((c8-1)*c5-c8+1)*c2+(-c8+1)*c5+c8-1), (c8*c5)/((c8-1)*c5-c8+1) ],
+[ (-c5*c2+1)/(((c8-1)*c5-c8+1)*c2+(-c8+1)*c5+c8-1), (((-c7+1)*c4*c5^2+((-c7*c8+c7)*c4+c7^2*c8-c7)*c5)*c2+((c7*c8-1)*c4-c7*c8+c7)*c5+(-c7^2+c7)*c8)/((((-c7+1)*c8+c7-1)*c4*c5^2+(((c7-1)*c8-c7+1)*c4+(c7^2-c7)*c8-c7^2+c7)*c5+(-c7^2+c7)*c8+c7^2-c7)*c2+((c7-1)*c8-c7+1)*c4*c5^2+(((-c7+1)*c8+c7-1)*c4+(-c7^2+c7)*c8+c7^2-c7)*c5+(c7^2-c7)*c8-c7^2+c7), ((c7*c8-1)*c5)/(((-c7+1)*c8+c7-1)*c5+(c7-1)*c8-c7+1) ],
+[ (1)/((c8-1)*c5-c8+1), (c7*c8-1)/(((-c7+1)*c8+c7-1)*c5+(c7-1)*c8-c7+1), ((c7*c8-1)*c4*c5-c7*c8+1)/((((c7-1)*c8-c7+1)*c4+(-c7+1)*c8+c7-1)*c5+((-c7+1)*c8+c7-1)*c4+(c7-1)*c8-c7+1) ]]))$
+*/
+
+end$
