@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.12 2000/03/14 04:44:17 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.13 2000/03/14 04:56:24 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -14,7 +14,7 @@ abstract public class CMO extends OXbody{
   final public static int NULL    = 1;
   final public static int INT32   = 2;
   final public static int DATUM   = 3;
-  final public static int CMO_STRING  = 4;
+  final public static int STRING  = 4;
   final public static int CMO_MATHCAP = 5;
   final public static int CMO_LIST    = 17;
 
@@ -94,20 +94,20 @@ abstract public class CMO extends OXbody{
     case CMO_ERROR:
       return new CMO_ERROR().receiveByObject(is);
 
-    case ERROR2:
+    case CMO.ERROR2:
       return CMO_ERROR2.receive(is);
 
-    case NULL:
+    case CMO.NULL:
       return CMO_NULL.receive(is);
 
-    case INT32:
+    case CMO.INT32:
       return CMO_INT32.receive(is);
 
-    case DATUM:
+    case CMO.DATUM:
       return CMO_DATUM.receive(is);
 
-    case CMO_STRING:
-      return new CMO_STRING().receiveByObject(is);
+    case CMO.STRING:
+      return new CMO_STRING().receive(is);
 
     case CMO_MATHCAP:
       return new CMO_MATHCAP().receiveByObject(is);
@@ -139,7 +139,7 @@ abstract public class CMO extends OXbody{
     case CMO_DISTRIBUTED_POLYNOMIAL:
       return new CMO_DISTRIBUTED_POLYNOMIAL().receiveByObject(is);
 
-    case POLYNOMIAL_IN_ONE_VARIABLE:
+    case CMO.POLYNOMIAL_IN_ONE_VARIABLE:
       return CMO_POLYNOMIAL_IN_ONE_VARIABLE.receive(is);
 
     case CMO_RATIONAL:

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.7 2000/03/14 04:44:18 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -29,7 +29,7 @@ final public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return POLYNOMIAL_IN_ONE_VARIABLE;
+    return CMO.POLYNOMIAL_IN_ONE_VARIABLE;
   }
 
   protected void sendByObject(DataOutputStream os)

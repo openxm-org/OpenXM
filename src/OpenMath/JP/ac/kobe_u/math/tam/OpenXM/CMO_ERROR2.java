@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java,v 1.6 2000/03/14 04:44:17 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -13,7 +13,7 @@ public class CMO_ERROR2 extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return ERROR2;
+    return CMO.ERROR2;
   }
 
   public void sendByObject(DataOutputStream os)

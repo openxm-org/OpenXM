@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.18 2000/02/28 14:10:28 takayama Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.19 2000/03/14 04:44:16 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -85,7 +85,7 @@ final class OM2OXM implements Runnable{
 
       // case CMO.CMO_DATUM:
 
-    case CMO.CMO_STRING:
+    case CMO.STRING:
       return "<OMSTR>"+ ((CMO_STRING)cmo).getString() +"</OMSTR>";
 
     case CMO.CMO_LIST:

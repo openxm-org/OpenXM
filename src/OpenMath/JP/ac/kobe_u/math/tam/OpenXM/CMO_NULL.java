@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.java,v 1.3 2000/03/14 04:44:18 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -9,7 +9,7 @@ final public class CMO_NULL extends CMO{
   public CMO_NULL(){}
 
   public int DISCRIMINATOR(){
-    return NULL;
+    return CMO.NULL;
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{

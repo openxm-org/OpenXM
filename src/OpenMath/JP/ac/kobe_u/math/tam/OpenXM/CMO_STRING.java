@@ -1,11 +1,11 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java,v 1.2 1999/11/07 21:22:03 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java,v 1.3 1999/11/17 13:23:16 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_STRING extends CMO{
+final public class CMO_STRING extends CMO{
   private String str = null;
 
   public CMO_STRING(){
@@ -21,10 +21,10 @@ public class CMO_STRING extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_STRING;
+    return CMO.STRING;
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
     int len;
     byte[] buf=null;
 

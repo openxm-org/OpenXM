@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.java,v 1.3 2000/03/14 04:44:18 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -13,7 +13,7 @@ final public class CMO_INT32 extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return INT32;
+    return CMO.INT32;
   }
 
   public int intValue(){
