@@ -1,0 +1,48 @@
+module noro_simplify;
+
+localf remove_paren;
+
+#define O_QUOTE 17
+
+#define I_LIST 18
+#define I_PAREN 34
+#define I_MINUS 35
+#define I_FORMULA 17
+
+def remove_paren(Q)
+{
+	FA = quote_to_funargs(Q);
+	if ( FA[0] == I_PAREN ) {
+		Arg = remove_paren(FA[1]);
+		FB = quote_to_funargs(Arg);
+		if ( FB[0] == I_FORMULA && nmono(FB[1]) == 1 )
+			return Arg;
+		else
+			return funargs_to_quote([FA[0],Arg]);
+	} else if ( FA[0] == I_MINUS ) {
+		Arg = remove_paren(FA[1]);
+		FB = quote_to_funargs(Arg);
+		if ( FB[0] != I_FORMULA || nmono(FB[1]) != 1 )
+			Arg = funargs_to_quote([I_PAREN,Arg]);
+		return funargs_to_quote([FA[0],Arg]);
+	} else if ( FA[0] == I_LIST ) {
+		R = [];
+		for ( T = FA[1]; T != []; T = cdr(T) ) {
+			Arg = remove_paren(car(T));
+			R = cons(Arg,R);	
+		}
+		return funargs_to_quote([FA[0],reverse(R)]);
+	} else {
+		R = [];
+		for ( T = FA; T != []; T = cdr(T) ) {
+			Arg = car(T);
+			if ( type(Arg) == O_QUOTE )
+				Arg = remove_paren(Arg);
+			R = cons(Arg,R);
+		}
+		return funargs_to_quote(reverse(R));
+	}
+}
+
+endmodule;
+end$
