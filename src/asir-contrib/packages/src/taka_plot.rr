@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plot.rr,v 1.1 2002/08/08 08:56:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plot.rr,v 1.2 2002/11/16 08:09:31 takayama Exp $ */
 
 def taka_glib_plot(F,Opt) {
   if (type(F) == LIST) {
@@ -71,6 +71,8 @@ def taka_plot_auto(T) {
   if (Taka_plot_coord) {
     M = idiv(N-1,2);
     glib_print(T[M][0],T[M][1],rtostr([deval(T[M][0]),deval(T[M][1])])|color=0xff0000);
+    glib_line(Xmin,0.0,Xmax,0.0|color=0xff0000);
+    glib_line(0.0,Ymin,0.0,Ymax|color=0xff0000);
   }
 }
 
