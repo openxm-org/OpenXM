@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.42 2004/09/10 13:20:22 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.43 2004/09/17 07:27:28 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -360,7 +360,7 @@ ox.verbose { oxhelp } {  } ifelse
  /arg1 set
  [/in-launch_nox /pass /peer /data /control /name /machine
   /your-peer /comm /remoteOpenXMbin /remoteServer /myhost
-  /argNumber /aaa 
+  /argNumber /aaa  /myssh
  ] pushVariables
  [
    /aaa arg1 def
@@ -370,35 +370,37 @@ ox.verbose { oxhelp } {  } ifelse
      aaa 1 get ox_launch_localhost /your-peer set
      /LLL.end goto
    } {
-     /remoteOpenXMbin aaa 1 get def
-     /remoteServer aaa 2 get def
-     /name aaa 3 get def
-     /myhost aaa 4 get def
+     /remoteServer aaa 1 get def
+     /name aaa 2 get def
+     /myhost aaa 3 get def
    } ifelse
 
+   /myssh [(which) (ssh)] oxshell def
+   myssh tag 0 eq {
+     (ssh is not found.) error
+   } { } ifelse
    /pass ox_encrypt_104_genPass def
    /peer [(oxGetPort) myhost] extension def
    /data peer 1 get toString def
    /control peer 3 get toString def
    peer message
- [(ssh -f ) machine ( -l ) name ( ")
-
-   @@@.ox_launch_nox {
-   } {
-     remoteOpenXMbin(/oxlog )
-     ( /usr/X11R6/bin/xterm -icon -e )
-   } ifelse
-
-  ( ) remoteOpenXMbin (/ox ) 
-  ( -reverse -ox ) remoteServer
-  ( -host ) myhost
-  ( -data ) data ( -control ) control   pass [1 2] get  
-  oxpath.null
-  ( ")
+   peer 0 get -1 eq {
+     (Error in oxGetPort) error
+   } { } ifelse
+ [myssh ( -f ) machine ( -l ) name ( )
+    [
+     (ox100start ) % it must be on a path of the remote host
+     @@@.quiet { ( -quiet ) } {  } ifelse
+     Xm_noX { ( -nox ) } { } ifelse
+     ( -oxserver ) remoteServer ( -e )
+     ( -reverse )
+     ( -data ) data ( -control ) control   pass [1 2] get  
+    ] cat 
  ] cat /comm set
- (Executing the command : ) messagen comm message message
-  comm system
- (sleep 5) system-csh
+ (Executing the command : ) messagen comm message 
+  comm execve 0 lt {
+    (Fork exec failed) error
+  } { } ifelse
  [(oxCreateClient2) peer 1 pass 0 get] extension /your-peer set
  /LLL.end
  /arg1 your-peer def
@@ -408,22 +410,22 @@ ox.verbose { oxhelp } {  } ifelse
 } def
 
 [(ox_launch)
-[( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
+[( [remote remote-ox-server remote-login-name myhostname] )
  (  ox_launch  client )
  $or $
  $ [(localhost) ox-server-name] ox_launch client$
  (Example 1: )
- $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
- $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $ [(tau.math.kobe-u.ac.jp) $
+ $  (bin/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
  $ ] ox_launch /@@@.oxmath set $
 ]] putUsages
 
 [(ox_launch_nox)
-[( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
+[( [remote remote-ox-server remote-login-name myhostname] )
  (  ox_launch_nox  client )
  (Example 1: )
- $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
- $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $ [(tau.math.kobe-u.ac.jp) $
+ $  (bin/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
  $ ] ox_launch_nox /@@@.oxmath set $
 ]] putUsages
 
@@ -438,10 +440,14 @@ ox.verbose { oxhelp } {  } ifelse
     /data peer 1 get toString def
     /control peer 3 get toString def
     peer message
-    [oxpath.oxlog.xterm  oxpath.ox ( -reverse -ox ) oxserver
+    [
+     oxstart100
+     @@@.quiet { ( -quiet ) } {  } ifelse
+     Xm_noX { ( -nox ) } { } ifelse
+     ( -oxserver ) oxserver ( -e )
+     ( -reverse )
      ( -data ) data ( -control ) control   pass [1 2] get  
-      oxpath.null
-     ( &)] cat system-csh
+    ] cat execve
     [(oxCreateClient2) peer 0 pass 0 get] extension /my-peer set
                          %% 0 means connect from only localhost. 
     /arg1 my-peer def
