@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.28 2004/09/13 11:24:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.29 2004/09/20 02:11:22 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -139,6 +139,7 @@ struct object KarrayToList(struct object ob);
 struct object listToArray(struct object *op);
 struct object *arrayToList(struct object ob);
 struct object newByteArray(int size,struct object obj);
+struct object newByteArrayFromStr(char *s,int size);
 struct object byteArrayToArray(struct object obj);
 
 /* kanExport0.c */
