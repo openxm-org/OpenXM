@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.11 2000/03/16 12:28:43 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.12 2000/03/16 14:17:12 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -46,7 +46,7 @@ final public class CMO_ZZ extends CMO{
     if(this.num.signum()==0){
       os.writeInt(0);
     }else{
-      int len = (this.num.bitLength()+31)/32;
+      int len = (this.num.abs().bitLength()+31)/32;
       //System.out.println("sing0: "+this.num.bitLength());
       //System.out.println("sing1: "+this.num.abs().bitLength());
 
