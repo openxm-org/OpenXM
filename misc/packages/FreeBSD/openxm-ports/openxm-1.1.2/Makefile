@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.18 2000/03/10 13:05:09 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.21 2000/03/17 15:35:47 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.2
 ## For debugging. 
@@ -48,11 +48,13 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
                 dvips:${PORTSDIR}/japanese/dvipsk-vflib \
 				/usr/local/bin/perl:${PORTSDIR}/japanese/perl5 \
                 jlatex2html:${PORTSDIR}/japanese/latex2html \
-                makeinfo:${PORTSDIR}/japanese/texinfo \
+                jmakeinfo:${PORTSDIR}/japanese/texinfo \
 				texi2html:${PORTSDIR}/textproc/texi2html \
                 /usr/local/jdk1.1.8/bin/javac:${PORTSDIR}/java/jdk \
 				bash:${PORTSDIR}/shells/bash2 \
 			    autoconf:${PORTSDIR}/devel/autoconf \
+## I could not find a package for makeinfo.
+##                makeinfo:${PORTSDIR}/print/texinfo \
 ### Note:
 ### In order to make dvips work, you need to modify 
 ###  /usr/local/share/texmf/web2c/texmf.cnf. 
@@ -70,7 +72,7 @@ RUN_DEPENDS=/compat/linux/usr/i486-linux-libc5/lib/libc.so.5:${PORTSDIR}/emulato
 			 
 
 pre-install:
-	-/bin/rm -rf ${PREFIX}/OpenXM
+	-${RM} -rf ${PREFIX}/OpenXM
 
 
 OpenXM_MANPAGES=${PREFIX}/OpenXM/man/man1/sm1.1 ${PREFIX}/OpenXM/man/man1/openxm.1
@@ -80,9 +82,9 @@ post-install :
 #    Modify pkg/INSTALL, too.
 	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
-	-cp $(OpenXM_MANPAGES) ${PREFIX}/man/man1
-	-gzip ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
-	-cat pkg/MESSAGE
+	-${CP} $(OpenXM_MANPAGES) ${PREFIX}/man/man1
+	-${GZIP_CMD} ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
+	-${CAT} pkg/MESSAGE
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk
 ## make -d A
