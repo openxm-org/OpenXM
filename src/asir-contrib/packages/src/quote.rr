@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.10 2001/08/31 23:51:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.11 2001/09/01 07:12:38 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -131,6 +131,8 @@ def quote_input_form_quote_list(S) {
      return quote_input_form_quote_list_list(cdr(S));
   }else if (S[0] == "internal") {
      return quote_input_form_quote_list_internal(cdr(S));
+  }else if (S[0] == "variable") {
+     return quote_input_form_quote_list_variable(cdr(S));
   }else if (S[0] == "function") {
     if (S[1] == "exponent_vector") {
       return quote_input_form_quote_list_exponent_vector(cdr(cdr(S)));
@@ -233,6 +235,11 @@ def quote_input_form_quote_list_function(S) {
 
 def quote_input_form_quote_list_internal(S) {
   return rtostr(car(S));
+}
+
+def quote_input_form_quote_list_variable(S) {
+  if (type(S[0]) == STRING) return S[0];
+  else return rtostr(S[0]);
 }
 
 /*  test data

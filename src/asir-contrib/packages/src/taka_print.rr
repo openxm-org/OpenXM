@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.16 2001/08/29 11:18:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.17 2001/09/01 07:12:38 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -203,6 +203,8 @@ def taka_tex_form_quote_list(S) {
      return taka_tex_form_quote_list_exponent_vector(cdr(S));
   }else if (S[0] == "internal") {
      return taka_tex_form_quote_list_internal(cdr(S));
+  }else if (S[0] == "variable") {
+     return taka_tex_form_quote_list_variable(cdr(S));
   }else if (S[0] == "function") {
      return taka_tex_form_quote_list_function(cdr(S));
   }else {
@@ -434,6 +436,11 @@ def taka_tex_form_quote_list_internal(S) {
     return taka_tex_symbol(rtostr(X));
   }
   return rtostr(X);
+}
+def taka_tex_form_quote_list_variable(S) {
+  X = car(S);
+  if (type(X) == STRING) return X;
+  else return rtostr(X);
 }
 
 def taka_tex_form_node_name(S) {
