@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.7 2000/01/24 07:21:07 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.8 2000/01/24 07:49:22 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 DVIPS=dvips -f
-LATEX2HTML=jlatex2html
+LATEX2HTML=jlatex2html -tmp /tmp
 
 all : install-web-kobe
 
