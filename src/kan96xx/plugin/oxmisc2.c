@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.17 2002/11/08 14:18:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.18 2003/11/17 05:45:47 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -678,6 +678,7 @@ struct object KoxLog(struct object client,struct object in,struct object out)
 	return rob;
   }
   k = fp2log(cc1->datafp2,in.rc.file,out.rc.file);
+  fputc(cc1->engineByteOrder,out.rc.file); /* Output engineByteOrder. */
   /* synchronize cc1 and client. */
   oxClientToObject(cc1,client);
 
