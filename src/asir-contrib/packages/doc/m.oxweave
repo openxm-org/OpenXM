@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/m.oxweave,v 1.1 2003/05/19 05:15:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/m.oxweave,v 1.2 2003/05/20 23:25:28 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -235,7 +235,7 @@ mathematica.complex(2.3 , 4.55)
 [362] mathematica.tree_to_string(["Plus",["Complex",1.2,3.5],1/2]);
 (mathematica.complex(1.2 , 3.5))+(1/2)
 [380] eval_str(@@);
-(1.7+3.5*@i)
+(1.7+3.5*@@i)
 @end example
 */
 /*&jp-texi
@@ -318,7 +318,7 @@ This function makes this sort of translations.
 /*&C-texi
 @example
 [259] mathematica.rtomstr([1,2,3]);
-{1,2,3}
+@{1,2,3@}
 [260] mathematica.rtomstr([[1,x,x^2],[1,y,y^2]]);
 @{@{1,x,x^2@},@{1,y,y^2@}@}
 @end example
