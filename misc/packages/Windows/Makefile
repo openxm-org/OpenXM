@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.25 2002/08/15 00:03:28 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.26 2002/09/29 01:31:10 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -195,14 +195,22 @@ copy-to-asir-book-prog:
 	fi
 	touch .copy-to-asir-book-prog
 
-MEADOW=meadow-xxx.exe
+MEADOW=Meadow-1.14-i386-base.tar.gz
 WGET_MEADOW=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/${MEADOW}
+WINTAR=tar.exe
+WGET_WINTAR=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/${WINTAR}
+WINGZIP=gzip.exe
+WGET_WINGZIP=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/${WINGZIP}
 copy-to-asir-book-meadow:
 	if [ ! -f .copy-to-asir-book-meadow ] ; then \
 	 if [ ! -f work/${MEADOW} ] ; then \
 		(cd work ; wget ${WGET_MEADOW} ) ; \
+		(cd work ; wget ${WGET_WINTAR} ) ; \
+		(cd work ; wget ${WGET_WINGZIP} ) ; \
 	 fi ; \
 	 (cd asir-book ; cp ../work/${MEADOW} asir-book/Meadow) ; \
+	 (cd asir-book ; cp ../work/${WINTAR} asir-book/Meadow) ; \
+	 (cd asir-book ; cp ../work/${WINGZIP} asir-book/Meadow) ; \
 	fi
 	touch .copy-to-asir-book-meadow
 
