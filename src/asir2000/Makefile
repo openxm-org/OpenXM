@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.6 2000/01/09 20:39:49 maekawa Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.7 2000/01/19 01:15:46 noro Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 PARI = ../pari
@@ -21,7 +21,7 @@ distclean:
 
 configure: install-pari
 	@if [ ! -f ./.configure_done ]; then \
-		(cd $(ASIR) ; ./configure ; xmkmf -a ; make depend) \
+		(cd $(ASIR) ; ./configure ; xmkmf ; make Makefiles; make depend) \
 	fi
 	@touch ./.configure_done
 
