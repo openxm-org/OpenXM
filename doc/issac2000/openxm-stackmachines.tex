@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.5 2000/01/07 10:22:41 ohara Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.6 2000/01/13 10:54:33 ohara Exp $
 
 \section{OpenXM Stack machines}\label{sec:ox-stackmachines} (Tamura)
 
@@ -7,8 +7,7 @@ These are called OpenXM stack machines.
 When a server ox\_xyz gets an OX data message,
 it translates the data into an object of its local mathematical system 
 and push the object on the stack.
-The translation scheme together with definitions of 
-mathematical operations
+The translation scheme together with definitions of mathematical operations
 of the system ox\_xyz is called the {\it PhraseBook} of
 ox\_xyz following the OpenMath specification.
 
@@ -69,7 +68,8 @@ which caused the error, and an error message.
 error([8,fctr : invalid argument])
 \end{verbatim}
 
-Errors are not sent to the client except a SM\_pop* command is received.
+OpenXM server won't send error messages to the client
+except when it receives a SM\_pop* command.
 OX stackmachines works in the asynchronous mode which is similar 
 to X servers.
 For servers for graphic applications, it is an advantageous feature.
