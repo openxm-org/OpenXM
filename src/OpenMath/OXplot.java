@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.6 2000/10/11 08:32:13 ohara Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.7 2000/11/09 06:50:16 tam Exp $
  */
 
 import ORG.openxm.tam.*;
@@ -9,7 +9,7 @@ import java.awt.*;
 
 
 
-public class OXplot extends OpenXMserver{
+public class OXplot extends OpenXMControlServer{
   private Stack stack = new Stack();
   private Vector plotframe = new Vector();
   protected boolean debug = true;
@@ -236,7 +236,7 @@ public class OXplot extends OpenXMserver{
   public static void main(String[] argv){
     String hostname = "localhost";
     int ControlPort = 1200, DataPort = 1300;
-    OpenXMserver ox;
+    OpenXMControlServer ox;
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){

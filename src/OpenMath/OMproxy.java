@@ -1,12 +1,12 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.40 2000/09/13 06:44:55 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.41 2000/10/11 08:32:13 ohara Exp $
  */
 
 import ORG.openxm.tam.*;
 import java.util.Stack;
 import java.io.*;
 
-public class OMproxy extends OpenXMserver{
+public class OMproxy extends OpenXMControlServer{
   private Stack stack = new Stack();
   protected boolean debug = false;
   final int version = 200006130;
@@ -266,7 +266,7 @@ public class OMproxy extends OpenXMserver{
   public static void main(String[] argv){
     String hostname = "localhost";
     int ControlPort = 1200, DataPort = 1300;
-    OpenXMserver ox;
+    OpenXMControlServer ox;
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
