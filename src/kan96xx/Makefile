@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.15 2000/01/18 09:46:52 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.16 2000/01/19 02:43:12 takayama Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -15,7 +15,7 @@ all :   all-gc all-gmp all-plugin all-sm1 all-kanlib.a
 all2 :  all-gc all-gmp
 	(cd Kan; make all)
 
-all-gc:
+all-gc: configure_symbolic_links
 	(cd $(GC) ; make all)
 
 all-gmp: configure-gmp
@@ -31,7 +31,7 @@ all-gmp: configure-gmp
 all-sm1 : all-plugin
 	(cd Kan; make all)
 
-all-plugin :
+all-plugin : configure_symbolic_links
 	 (cd plugin ; make all)
 
 all-kanlib.a : all-plugin
@@ -45,7 +45,7 @@ sm1.nogc :
 
 configure: configure_symbolic_links configure-gmp
 
-configure-gmp:
+configure-gmp: configure_symbolic_links
 	if test -f $(GMP)/.gmp_configured ; \
 	then \
 	  echo "MESSAGE(kan96xx/Makefile): gmp is already configured. (.gmp_configured) " ;  \
@@ -54,12 +54,15 @@ configure-gmp:
 	fi 
 
 configure_symbolic_links :
-	/bin/rm -f gc gmp lib Doc/var.sm1
-	ln -f -s $(OpenXM_contrib)/gc gc
-	ln -f -s $(OpenXM_contrib)/gmp gmp
-#	ln -f -s gmp-2.0.2-ssh-2 gmp
-	ln -f -s ./Doc lib
-	(cd Doc; ln -f -s ../Kan/var.sm1 var.sm1)
+	@if  ! test -f ./.done_links  ; \
+	then \
+	 /bin/rm -f gc gmp lib Doc/var.sm1 ; \
+	 ln -f -s $(OpenXM_contrib)/gc gc ; \
+	 ln -f -s $(OpenXM_contrib)/gmp gmp ; \
+	 ln -f -s ./Doc lib ; \
+	 (cd Doc; ln -f -s ../Kan/var.sm1 var.sm1) ; \
+	fi
+	@touch ./.done_links
 
 ### generate a distribution.
 dist :
@@ -111,6 +114,7 @@ clean-for-debug :
 	/bin/rm -f $(OpenXM_bin)/sm1
 
 clean :
+	/bin/rm -f ./.done_links
 	if test -f $(GMP)/Makefile ; \
 	then \
 	  (cd $(GMP) ; make clean) ; \
@@ -127,7 +131,7 @@ clean :
 ### clean also *.a files.
 cleana:  distclean
 
-distclean :
+distclean : clean
 	if test -f $(GMP)/Makefile ; \
 	then \
 	  (cd $(GMP) ; make distclean) ; \
@@ -139,3 +143,5 @@ distclean :
 	fi
 	(cd Kan; make cleana)
 	(cd plugin; make clean; /bin/rm -f *.a)
+	/bin/rm -rf gc gmp lib Doc/var.sm1
+

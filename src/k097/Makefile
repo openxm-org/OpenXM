@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.7 2000/01/17 21:12:22 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.8 2000/01/20 08:33:30 takayama Exp $
 # targets
 # all 
 #     compile
@@ -10,6 +10,7 @@ BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
 OpenXM_lib=../../lib
+DDD=-D_BSD_SOURCE
 
 ## Kan source.  kan sources must be built up by hand.
 KHOME = ../kan96xx
@@ -55,13 +56,13 @@ new :
 	sed -f new.sed <Makefile >Makefile.new
 
 d0 : simple.tab.o d.o dic.o dm.c 
-	$(CC) $(FLAG) -o d0 dm.c d.o dic.o simple.tab.o
+	$(CC) $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o
 
 d.o : d.c simple.tab.h Stable/sm1symbol.h
-	$(CC) $(FLAG) -o d.o -c d.c
+	$(CC) $(FLAG) $(DDD) -o d.o -c d.c
 
 simple.tab.o : simple.tab.c 
-	$(CC) $(FLAG) -o simple.tab.o -c simple.tab.c
+	$(CC) $(FLAG) $(DDD) -o simple.tab.o -c simple.tab.c
 
 simple.tab.c : simple.y d.h
 	$(MYYACC) $(YACCPREFIX) simple.y
@@ -100,22 +101,22 @@ KXXASIR = simple.tab.o d.o ki-asir.o dic.o
 k0 :  k0.o $(KXX) $(KAN_HOME)/kanlib.a $(GC) $(GMP) $(KAN_HOME)/lookup.h
 	if test `uname` = "SunOS" ; \
 	then \
-	$(CC) $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
+	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
 	else \
-	$(CC) $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
+	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
 	fi
 
 k0.o : k2.c
-	$(CC) -c $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0.o k2.c
+	$(CC) -c $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0.o k2.c
 
 ki.o : ki.c
-	$(CC) -c $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o ki.o ki.c
+	$(CC) -c $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o ki.o ki.c
 
 ki-asir.o : ki.c
-	$(CC) -c $(FLAG) -DCALLASIR -I$(GMP_HOME) -I$(KAN_HOME) -o ki-asir.o ki.c
+	$(CC) -c $(FLAG) $(DDD) -DCALLASIR -I$(GMP_HOME) -I$(KAN_HOME) -o ki-asir.o ki.c
 
 dic.o : dic.c d.h
-	$(CC) -c $(FLAG)  -o dic.o dic.c
+	$(CC) -c $(FLAG) $(DDD)  -o dic.o dic.c
 
 $(KAN_HOME)/kanlib.a : $(KAN_HOME)/sm1
 	(cd $(KAN_HOME); make kanlib.a)
@@ -138,10 +139,10 @@ ASIRKAN = $(ASIRKAN_HOME)/ak.a
 K2INCLUDE = -I$(ASIR_INCLUDE)  -I$(ASIR_INCLUDE2) -I$(KHOME)/Kan -I$(ASIRKAN_HOME) $(SOLARIS_EXTRA_INCLUDE)
 
 k2 : k2.c $(KAN_HOME)/kanlib.a  $(KXXASIR) msg1.o $(ASIRKAN) $(ASIRKAN_HOME)/$(CALL_ASIR) $(ASIRGC) $(GMP)
-	$(CC) $(FLAG) -DCALLASIR $(K2INCLUDE) -o k2 k2.c $(KXXASIR) msg1.o  $(ASIRKAN_HOME)/$(CALL_ASIR) -L/usr/X11R6/lib -L$(ALIB) $(LFLAG) $(KAN_HOME)/kanlib.a $(ASIRKAN) $(GMP) $(ASIRGC)
+	$(CC) $(FLAG) $(DDD) -DCALLASIR $(K2INCLUDE) -o k2 k2.c $(KXXASIR) msg1.o  $(ASIRKAN_HOME)/$(CALL_ASIR) -L/usr/X11R6/lib -L$(ALIB) $(LFLAG) $(KAN_HOME)/kanlib.a $(ASIRKAN) $(GMP) $(ASIRGC)
 
 msg1.o : msg1.c
-	$(CC) $(FLAG) -DCALLASIR $(K2INCLUDE) -c msg1.c
+	$(CC) $(FLAG) $(DDD) -DCALLASIR $(K2INCLUDE) -c msg1.c
 
 
 $(ASIRKAN) :
@@ -157,7 +158,7 @@ $(GC) :
 ##########  
 ## A sample to compilation:  source is test0.c, output is test0
 test0 :  test0.c  $(KXX) $(KAN_HOME)/kanlib.a  $(GC) $(GMP) $(KAN_HOME)/lookup.h
-	$(CC) $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o test0 test0.c $(KXX) $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC)
+	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o test0 test0.c $(KXX) $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC)
 
 
 

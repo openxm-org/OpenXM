@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.15 2000/01/16 01:35:50 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.16 2000/01/16 01:40:32 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -14,10 +14,11 @@ OpenXM_contrib=../../../OpenXM_contrib
 OpenXM_ROOT=../../../OpenXM
 OpenXM_bin=$(OpenXM_ROOT)/bin
 OpenXM_lib=$(OpenXM_ROOT)/lib
-KANHOME = ../SSkan
+KANHOME=$(OpenXM_ROOT)/src/kan96xx
 LFLAG =
 SOLARISLFLAG = -lnsl -lsocket /usr/ucblib/libucb.a
 CFLAGS = -g
+DDD=-D_BSD_SOURCE
 ########## end of configurations
 
 ### Set the server name in oxmain.c if you do not use the environmental
@@ -36,7 +37,7 @@ dist :
 ## 1998, 2/7  , Old version is at S/kan.backup/kxx.tar.gz.19980206
 ##
 .c.o :
-	gcc  $(CFLAGS) -c  $<
+	gcc  $(CFLAGS) ${DDD} -c  $<
 
 all-plugin :
 	(cd $(KANHOME)/plugin ; make )
@@ -45,50 +46,50 @@ kanlib.a :
 ox.a : 
 	/bin/rm -f ox.a
 	ln -s $(KANHOME)/plugin/ox.a ox.a
-ox_kan.h :
+ox_kan.h : $(KANHOME)/plugin/ox_kan.h
 	/bin/rm -f ox_kan.h
 	ln -s $(KANHOME)/plugin/ox_kan.h ox_kan.h
 
 ox : oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
 	if test `uname` = "SunOS" ; \
 	then \
-	gcc $(CFLAGS) oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(SOLARISLFLAG) ; \
+	gcc $(CFLAGS) ${DDD} oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(SOLARISLFLAG) ; \
 	else \
-	gcc $(CFLAGS) oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LFLAG) ; \
+	gcc $(CFLAGS) ${DDD} oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LFLAG) ; \
 	fi
 
 ox_null : oxserver00.c ox.a nullstackmachine.o file2.o ox_kan.h
 	if test `uname` = "SunOS" ; \
 	then \
-	gcc $(CFLAGS) oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(SOLARISLFLAG) ; \
+	gcc $(CFLAGS)  ${DDD} oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(SOLARISLFLAG) ; \
 	else \
-	gcc $(CFLAGS) oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LFLAG) ; \
+	gcc $(CFLAGS)  ${DDD} oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LFLAG) ; \
 	fi
 
 ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
 	(cd $(KANHOME)/Kan ; make kanlib.a)
 	if test `uname` = "SunOS" ; \
 	then \
-	gcc $(CFLAGS) oxserver00.c sm1stackmachine.o -o ox_sm1  $(SOLARISLFLAG) $(KANLIB) ; \
+	gcc $(CFLAGS)  ${DDD} oxserver00.c sm1stackmachine.o -o ox_sm1  $(SOLARISLFLAG) $(KANLIB) ; \
 	else \
-	gcc $(CFLAGS) oxserver00.c sm1stackmachine.o -o ox_sm1  $(LFLAG) $(KANLIB) ; \
+	gcc $(CFLAGS)  ${DDD} oxserver00.c sm1stackmachine.o -o ox_sm1  $(LFLAG) $(KANLIB) ; \
 	fi
 
 oxlog : oxlog.c
-	gcc -o oxlog oxlog.c
+	gcc  ${DDD} -o oxlog oxlog.c
 
 oxweave : oxweave.c oxweaveUsage.h
-	gcc -o oxweave -g oxweave.c
+	gcc  ${DDD} -o oxweave -g oxweave.c
 
 ## file2.c file2.h is in SSkan/plugin/
 file2.o : $(KANHOME)/plugin/file2.c  $(KANHOME)/plugin/file2.h
-	gcc $(CFLAGS) -DKXX=1 -I$(KANHOME)/plugin -c $(KANHOME)/plugin/file2.c 
+	gcc $(CFLAGS)  ${DDD} -DKXX=1 -I$(KANHOME)/plugin -c $(KANHOME)/plugin/file2.c 
 
 nullstackmachine.o : nullstackmachine.c ox_kan.h
 sm1stackmachine.o : sm1stackmachine.c  ox_kan.h
 
 testclient : testclient.c ox.a file2.o ox_kan.h
-	gcc $(CFLAGS) testclient.c -o testclient ox.a file2.o $(LFLAG)
+	gcc $(CFLAGS)  ${DDD} testclient.c -o testclient ox.a file2.o $(LFLAG)
 
 
 #KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gmp/mpn/libmpn.a $(KANHOME)/gc/gc.a
@@ -97,10 +98,10 @@ KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gc/gc.a
 ## file2 should be linked from kanlib.a
 
 testclient2a : testclient2.c ox.a  ox_kan.h $(KANHOME)/Kan/kanlib.a
-	gcc $(CFLAGS) -I$(KANHOME)/Kan testclient2.c ox.a  -o testclient2a  $(LFLAG) $(KANLIB)
+	gcc $(CFLAGS)  ${DDD} -I$(KANHOME)/Kan testclient2.c ox.a  -o testclient2a  $(LFLAG) $(KANLIB)
 
 testclient2 : testclient2.c  ox_kan.h $(KANHOME)/Kan/kanlib.a ox.a
-	gcc $(CFLAGS) -I$(KANHOME)/Kan testclient2.c -o testclient2  $(LFLAG) $(KANLIB)
+	gcc $(CFLAGS)  ${DDD} -I$(KANHOME)/Kan testclient2.c -o testclient2  $(LFLAG) $(KANLIB)
 
 
 clean : 
@@ -155,9 +156,8 @@ clean-for-install :
 	-/bin/rm -rf $(OpenXM_lib)/sm1
 	-/bin/rm -rf $(OpenXM_bin)/oxlog $(OpenXM_bin)/oxweave $(OpenXM_bin)/ox_sm1 $(OpenXM_bin)/ox   
 
+
 configure:
-	/bin/rm -f ox_kan.h 
-	ln -f -s  ../SSkan/plugin/ox_kan.h ox_kan.h
 
 ## openxm document generation.
 install-document :

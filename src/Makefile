@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.73 2000/01/25 02:10:02 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.74 2000/01/25 02:52:23 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -15,13 +15,13 @@ all-asir: configure-asir
 all-gnuplot: configure-gnuplot
 	(cd gnuplot ; make all)
 
-all-k097: configure-k097
+all-k097: configure-k097 all-kan96xx
 	(cd k097 ; make all)
 
 all-kan96xx: configure-kan96xx
 	(cd kan96xx ; make all)
 
-all-kxx: configure-kxx
+all-kxx: configure-kxx all-kan96xx
 	(cd kxx ; make all)
 
 all-openmath:
@@ -148,12 +148,12 @@ configure-bin:
 configure-gnuplot:
 	(cd gnuplot ; make configure)
 
-configure-k097: install-kan96xx
+configure-k097: 
 
 configure-kan96xx:
 	(cd kan96xx ; make configure)
 
-configure-kxx: install-kan96xx
+configure-kxx: 
 	(cd kxx ; make configure)
 
 configure-links:

@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.4 2000/01/18 09:46:52 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.5 2000/01/19 02:43:13 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -6,12 +6,11 @@ all : sm1
 CC = gcc
 #### Gargabe collector? If GC = nogc.c, then you need to define -DNOGC.
 GC = ../gc/gc.a
-##GC = /fuji/taka/noro/libgc.a
-##GC = /dosc/work/noro/libgc.a
 #GC = nogc.c
 #### -D options
-DDD =
-#DDD = -DNOGC
+DDD = -D_BSD_SOURCE
+#DDD = -DNOGC -D_BSD_SOURCE
+
 
 #### Optimization level etc.
 #CFLAGS = 

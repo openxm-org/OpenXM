@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.8 2000/01/19 02:38:51 takayama Exp $ 
+## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.9 2000/01/19 06:25:47 takayama Exp $ 
 
 OPENXM=../../../../OpenXM
 OPEMXM_CONTRIB=../../../../OpenXM_contrib
@@ -10,9 +10,11 @@ KAN96XX=$(OPENXM)/src/kan96xx
 AR=ar
 RM=/bin/rm
 
+DDD=-D_BSD_SOURCE
+
 CC=gcc
-#CFLAGS+=-g -I$(GMP) -I../Kan
-CFLAGS=-g -I$(GMP) -I../Kan
+#CFLAGS+=-g -I$(GMP) -I../Kan 
+CFLAGS=-g -I$(GMP) -I../Kan 
 
 all: all-gc all-gmp asirconv.a cmo.a file2.a ox.a sample.a sm1Socket.a
 
@@ -121,7 +123,7 @@ libasir.a:
 	ln -s /dosc/work/noro/libasir.a
 
 .c.o:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) ${DDD} -c $<
 
 # GNU make only.
 #.o.a:
