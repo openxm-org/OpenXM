@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.8 2004/03/16 04:53:29 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.9 2004/03/16 11:41:15 ohara Exp $
 
 (define (openxm-eval t)
   (import-from (texmacs plugin plugin-cmd))
@@ -66,7 +66,8 @@
           ("Asir-contrib manual"
            (w3m-search "doc/asir-contrib/html-ja/cman-ja_toc.html")))
         (-> "Web"
-          ("The OpenXM Project"  (w3m "http://www.math.kobe-u.ac.jp/OpenXM/")))
+          ("The OpenXM Project"  (w3m "http://www.math.kobe-u.ac.jp/OpenXM/"))
+          ("Risa/Asir web page"  (w3m "http://www.math.kobe-u.ac.jp/Asir/index-ja.html")))
         )))
 )
 
