@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* ox_message_tag.h */
 /* If you add new OX_DATA_your_new_format,
    you need to change KSmathCapByStruct() in cmo.c
@@ -20,6 +21,6 @@
 
 /* OX BYTE command */
 #define OX_BYTE_NETWORK_BYTE_ORDER    0
-#define OX_BYTE_LITTLE_INDIAN         1
-#define OX_BYTE_BIG_INDIAN         0xff
+#define OX_BYTE_LITTLE_ENDIAN         1
+#define OX_BYTE_BIG_ENDIAN         0xff
 
