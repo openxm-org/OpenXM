@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.44 2003/09/12 01:02:50 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.45 2004/05/16 10:18:16 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -63,6 +63,7 @@ all-current: configure-dir
 	cp index-doc.html ${CURRENT_DOC}/index-doc.html
 	@echo "***************************************************"
 	@echo "*  Have you done (cd OpenXM/src ; make install)   *"
+	@echo "*                (cd OpenXM/src ; make install-document) "
 	@echo "*  to generate the documents?                     *"
 	@echo "***************************************************"
 	(cd ${OpenXM_doc} ; ${RSYNC} ${MANUALS} ${CURRENT_DOC})
