@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_MONOMIAL32.java,v 1.1 2000/09/12 07:05:06 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -26,7 +26,7 @@ final public class CMO_MONOMIAL32 extends CMO{
     return CMO.MONOMIAL32;
   }
 
-  public void sendByObject(OpenXMconnection os)
+  public void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{
     os.writeInt(degree.length);
     for(int i=0;i<degree.length;i++){
@@ -35,7 +35,7 @@ final public class CMO_MONOMIAL32 extends CMO{
     coefficient.write(os);
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     int n;
     int[] degree;
     CMO coefficient;

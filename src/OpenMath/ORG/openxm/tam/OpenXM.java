@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.2 2000/09/07 11:07:01 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.3 2000/09/08 07:29:45 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -13,7 +13,7 @@ import java.net.*;
  * 接続するサーバ毎に一つの OpenXM クラスが必要.
  */
 public class OpenXM{
-  private OpenXMconnection control = null, stream = null;
+  private OpenXMstream control = null, stream = null;
   final protected boolean debug = false;
 
   /**
@@ -22,7 +22,7 @@ public class OpenXM{
    * ポート番号 StreamPort にデータ用の接続を行なう.
    */
   public OpenXM(String host,int CtrlPort,int StreamPort) throws IOException{
-    control = new OpenXMconnection(host,CtrlPort);
+    control = new OpenXMstream(host,CtrlPort);
 
     try{
       Thread.sleep(100); // We need a few wait for starting up server.
@@ -30,7 +30,7 @@ public class OpenXM{
       System.err.println(e.getMessage());
     }
 
-    stream = new OpenXMconnection(host,StreamPort);
+    stream = new OpenXMstream(host,StreamPort);
 
     control.sendByteOrder();
     stream.sendByteOrder();

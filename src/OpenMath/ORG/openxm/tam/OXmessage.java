@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OXmessage.java,v 1.1 2000/09/08 07:29:45 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -73,7 +73,7 @@ public class OXmessage{
     return this.body;
   }
 
-  public void write(OpenXMconnection os) throws IOException,MathcapViolation{
+  public void write(OpenXMstream os) throws IOException,MathcapViolation{
     os.writeInt(this.tag);
     os.writeInt(this.serial);
     body.write(os);

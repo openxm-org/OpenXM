@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_ZZ.java,v 1.1 2000/09/12 07:05:07 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -54,7 +54,7 @@ final public class CMO_ZZ extends CMO{
     return 0;
   }
 
-  public void sendByObject(OpenXMconnection os) throws IOException{
+  public void sendByObject(OpenXMstream os) throws IOException{
     if(this.num.signum()==0){
       os.writeInt(0);
     }else{
@@ -73,7 +73,7 @@ final public class CMO_ZZ extends CMO{
     }
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     int len;
     BigInteger a = new BigInteger("0");
 

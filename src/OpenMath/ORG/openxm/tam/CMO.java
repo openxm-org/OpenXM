@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO.java,v 1.1 2000/09/09 11:54:08 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -54,10 +54,10 @@ abstract public class CMO extends OXbody{
     return this.DISCRIMINATOR();
   }
 
-  abstract protected void sendByObject(OpenXMconnection stream)
+  abstract protected void sendByObject(OpenXMstream stream)
        throws IOException,MathcapViolation;
 
-  final public void write(OpenXMconnection os)
+  final public void write(OpenXMstream os)
        throws IOException,MathcapViolation{
     CMO[] mathcap = os.getMathcap(OXmessage.OX_DATA);
 
@@ -78,7 +78,7 @@ abstract public class CMO extends OXbody{
     this.sendByObject(os);
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     int a = is.readInt();
 
     switch(a){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_RATIONAL.java,v 1.1 2000/09/12 07:05:06 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -38,13 +38,13 @@ public class CMO_RATIONAL extends CMO{
     return CMO.RATIONAL;
   }
 
-  protected void sendByObject(OpenXMconnection os)
+  protected void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{
     a.write(os);
     b.write(os);
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     CMO a,b;
 
     a = CMO.receive(is);

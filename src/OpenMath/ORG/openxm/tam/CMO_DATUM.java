@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_DATUM.java,v 1.1 2000/09/12 07:05:05 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -22,14 +22,14 @@ public class CMO_DATUM extends CMO{
     return DATUM;
   }
 
-  public void sendByObject(OpenXMconnection os) throws IOException{
+  public void sendByObject(OpenXMstream os) throws IOException{
     os.writeInt(data.length);
     for(int i=0;i<data.length;i++){
       os.writeByte(data[i]);
     }
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     int len;
     byte[] data;
 

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_MATHCAP.java,v 1.1 2000/09/12 07:05:06 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -30,12 +30,12 @@ final public class CMO_MATHCAP extends CMO{
     return CMO.MATHCAP;
   }
 
-  public void sendByObject(OpenXMconnection os)
+  public void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{
     list.write(os);
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     CMO_LIST list = (CMO_LIST)CMO.receive(is);
 
     return new CMO_MATHCAP(list);

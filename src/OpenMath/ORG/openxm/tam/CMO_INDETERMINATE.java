@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_INDETERMINATE.java,v 1.1 2000/09/12 07:05:06 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -29,12 +29,12 @@ final public class CMO_INDETERMINATE extends CMO{
     return CMO.INDETERMINATE;
   }
 
-  public void sendByObject(OpenXMconnection os)
+  public void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{
     variable.write(os);
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     CMO_STRING variable;
     CMO tmp;
 

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_ERROR2.java,v 1.1 2000/09/12 07:05:05 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -22,12 +22,12 @@ final public class CMO_ERROR2 extends CMO{
     return CMO.ERROR2;
   }
 
-  public void sendByObject(OpenXMconnection os)
+  public void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{
     ob.write(os);
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     return new CMO_ERROR2(CMO.receive(is));
   }
 

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMserver.java,v 1.1 2000/09/07 11:07:01 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMserver.java,v 1.2 2000/09/08 07:29:45 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -12,8 +12,8 @@ import java.net.*;
  */
 public abstract class OpenXMserver{
   private OpenXMserver server = null;
-  private OpenXMconnection control = null;
-  private OpenXMconnection stream = null;
+  private OpenXMstream control = null;
+  private OpenXMstream stream = null;
   private Thread computeThread = null;
   final protected boolean debug = false;
 
@@ -25,8 +25,8 @@ public abstract class OpenXMserver{
     server = this;
 
     try{
-      control = new OpenXMconnection(host,CtrlPort,true);
-      stream = new OpenXMconnection(host,StreamPort,true);
+      control = new OpenXMstream(host,CtrlPort,true);
+      stream = new OpenXMstream(host,StreamPort,true);
 
       this.start();
     }catch(IOException e){}
@@ -78,9 +78,9 @@ public abstract class OpenXMserver{
     }
   }
 
-  abstract protected void computeProcess(OpenXMconnection DataStream);
+  abstract protected void computeProcess(OpenXMstream DataStream);
   /*
-  private void computeProcess(OpenXMconnection DataStream){
+  private void computeProcess(OpenXMstream DataStream){
     while(true){
       debug("test process executing");
       try{

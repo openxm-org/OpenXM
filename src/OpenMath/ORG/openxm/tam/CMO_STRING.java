@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_STRING.java,v 1.1 2000/09/12 07:05:07 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -36,7 +36,7 @@ final public class CMO_STRING extends CMO{
     return CMO.STRING;
   }
 
-  protected void sendByObject(OpenXMconnection os) throws IOException{
+  protected void sendByObject(OpenXMstream os) throws IOException{
     byte[] buf = str.getBytes();
 
     os.writeInt(buf.length);
@@ -45,7 +45,7 @@ final public class CMO_STRING extends CMO{
     }
   }
 
-  static protected CMO receive(OpenXMconnection is) throws IOException{
+  static protected CMO receive(OpenXMstream is) throws IOException{
     int len;
     byte[] buf=null;
 
