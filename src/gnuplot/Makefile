@@ -1,12 +1,12 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.1 2000/01/07 18:03:25 maekawa Exp $
 
 GNUPLOT = ../../../OpenXM_contrib/gnuplot
 CURDIR = ../../OpenXM/src/gnuplot
 BINDIR = ../../bin
 
-all: patch
+all: configure
 	@if [ ! -f ./.make_done ]; then \
-		(cd $(GNUPLOT) ; ./configure --with-x ; make) \
+		(cd $(GNUPLOT) ; make all) \
 	fi
 	@touch ./.make_done
 
@@ -18,8 +18,16 @@ clean: patch-clean
 	@if [ -f ./.make_done ]; then \
 		(cd $(GNUPLOT) ; make distclean) \
 	fi
+	@rm -f ./.make_done ./.configure_done
+
+distclean:
 	rm -f $(BINDIR)/gnuplot4ox $(BINDIR)/gnuplot_x11
-	@rm -f ./.make_done
+
+configure: patch
+	@if [ ! -f ./.configure_done ]; then \
+		(cd $(GNUPLOT) ; ./configure --with-x) \
+	fi
+	@touch ./.configure_done
 
 patch:
 	@if [ ! -f ./.patch_done ]; then \
