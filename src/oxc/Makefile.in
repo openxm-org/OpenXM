@@ -1,9 +1,10 @@
-## $OpenXM$
+## $OpenXM: OpenXM/src/oxc/Makefile.in,v 1.1 2000/10/13 06:05:11 ohara Exp $
 
 OpenXM_HOME=../..
 CC         = @CC@
 CFLAGS     = @CFLAGS@ -g -Wall -O2 -finline-functions -I${OpenXM_HOME}/src/ox_toolkit -I${OpenXM_HOME}/include
 LIBS       = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgmp
+INSTALL_PROGRAM= cp -f
 
 all: oxc
 
@@ -12,11 +13,14 @@ oxc: oxc.o sm.o sm_ext.o
 
 sm.o sm_ext.o : sm.h
 
-smtest: smtest.o sm.o sm_ext.o ${GETOPT}
-	${CC} -o smtest smtest.o sm.o sm_ext.o ${GETOPT} ${LIBS}
+install: oxc
+	${INSTALL_PROGRAM} oxc ${OpenXM_HOME}/bin
+
+install-for-debug: oxc
+	ln -sf ../src/oxc/oxc ${OpenXM_HOME}/bin
 
 clean:
-	-rm -f *.o *~ smtest oxc
+	-rm -f *.o *~ oxc
 
 distclean: clean
 	-rm -f .configure_done configure config.cache config.log config.status Makefile
