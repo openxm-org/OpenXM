@@ -1,7 +1,8 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.5 2000/02/01 02:38:58 noro Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.6 2001/05/04 01:06:29 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
+#include <limits.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -166,10 +167,9 @@ cmoOutGMPCoeff_new(mpz_srcptr x)
   tmp[0] = htonl(CMO_ZZ);
   cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
 
-  if (BITS_PER_CHAR != 8) {
-    fprintf(stderr,"BITS_PER_CHAR = %d\n",BITS_PER_CHAR);
+  if (CHAR_BIT != 8) {
+    fprintf(stderr,"CHAR_BIT = %d\n",CHAR_BIT);
     fprintf(stderr,"cmo-gmp.c does not work on this CPU.\n");
-    fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
     exit(10);
   }
   
@@ -215,10 +215,9 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
   mp_size_t in_bytesize;
   int neg_flag;
 
-  if (BITS_PER_CHAR != 8) {
-    fprintf(stderr,"BITS_PER_CHAR = %d\n",BITS_PER_CHAR);
+  if (CHAR_BIT != 8) {
+    fprintf(stderr,"CHAR_BIT = %d\n",CHAR_BIT);
     fprintf(stderr,"cmo-gmp.c does not work on this CPU.\n");
-    fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
     exit(10);
   }
 
@@ -274,10 +273,9 @@ cmoOutGMPCoeff_new(mpz_srcptr x)
     fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
     exit(10);
   }
-  if (BITS_PER_CHAR != 8) {
-    fprintf(stderr,"BITS_PER_CHAR = %d\n",BITS_PER_CHAR);
+  if (CHAR_BIT != 8) {
+    fprintf(stderr,"CHAR_BIT = %d\n",CHAR_BIT);
     fprintf(stderr,"cmo-gmp.c does not work on this CPU.\n");
-    fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
     exit(10);
   }
   
@@ -320,10 +318,9 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
     fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
     exit(10);
   }
-  if (BITS_PER_CHAR != 8) {
-    fprintf(stderr,"BITS_PER_CHAR = %d\n",BITS_PER_CHAR);
+  if (CHAR_BIT != 8) {
+    fprintf(stderr,"CHAR_BIT = %d\n",CHAR_BIT);
     fprintf(stderr,"cmo-gmp.c does not work on this CPU.\n");
-    fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
     exit(10);
   }
 

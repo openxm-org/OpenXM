@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.120 2003/07/21 11:36:09 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.121 2003/08/25 14:24:45 ohara Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -19,7 +19,7 @@ all-gc:
 	@touch gc/.gc_make_done
 
 all-gmp: configure-gmp
-	@if test ! -f gmp/.gmp_make_done ; then \
+	-@if test ! -f gmp/.gmp_make_done ; then \
 		(cd gmp ; make) ; \
 	fi
 	@touch gmp/.gmp_make_done 
@@ -116,9 +116,10 @@ install-asir-gc : configure-asir
 
 
 install-gmp : all-gmp
-	-@if test ! -f gmp/.gmp_installed ; \
+	@if test ! -f gmp/.gmp_installed ; \
 	then \
-		(cd gmp; make install) ; \
+		(cd gmp; make install-exec) ; \
+		(cd gmp; cp gmp.h ../../OpenXM/include) ; \
 	fi 
 	@touch gmp/.gmp_installed
 
