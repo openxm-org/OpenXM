@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.4 2004/05/19 01:08:22 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.5 2004/05/31 01:08:18 noro Exp $ */
 
 /* functions for linear algebra over Q */
 
@@ -6,9 +6,9 @@
 
 module linalg;
 
-localf random_mat,random_smat,subst_mat,mulsub_mat;
-localf dup_mat,unit_mat,minipoly_mat,reduce_mat,insert_to_base;
-localf mat_to_smat,smat_to_mat,vect_to_svect,random_vect;
+localf random_mat,random_smat,random_unimodular_mat,subst_mat,mulsub_mat;
+localf etrans_mat,dup_mat,unit_mat,minipoly_mat,reduce_mat,insert_to_base;
+localf mat_to_smat,smat_to_mat,vect_to_svect,random_vect,swap_mat,denom_mat;
 localf mulsub_vect,muladd_vect,dup_vect,mul_smat_vect,mul_svect_vect;
 localf minipoly_cand_mat,minipoly_cand_smat;
 localf reduce_vect,insert_to_sbase,minipoly_check_mat;
@@ -52,6 +52,70 @@ def random_smat(N,Bound,Percent)
 		R = cons([I,V],R);
 	}
 	return cons([N,N],R);
+}
+
+def denom_mat(A)
+{
+	S = size(A); M = S[0]; N = S[1];
+	LCM = 1;
+	for ( I = 0; I < M; I++ )
+		for ( J = 0; J < N; J++ )
+			if ( T = A[I][J] )
+				LCM = ilcm(dn(T),LCM);
+	return LCM;
+}
+
+def etrans_mat(A,I,J,C,Left)
+{
+	M = size(A)[0];
+	N = size(A)[1];
+	if ( Left ) {
+		for ( K = 0; K < N; K++ )
+			A[I][K] += C*A[J][K];
+	} else {
+		for ( K = 0; K < M; K++ )
+			A[K][J] += C*A[K][I];
+	}
+}
+
+def swap_mat(A,I,J,Row)
+{
+	M = size(A)[0];
+	N = size(A)[1];
+	if ( Row ) {
+		for ( K = 0; K < N; K++ ) {
+			T = A[I][K]; A[I][K] = A[J][K]; A[J][K] = T;
+		}
+	} else {
+		for ( K = 0; K < M; K++ ) {
+			T = A[K][I]; A[K][I] = A[K][J]; A[K][J] = T;
+		}
+	}
+}
+
+def random_unimodular_mat(N)
+{
+	P = unit_mat(N);
+	PI = unit_mat(N);
+	for ( I = 0; I < N; I++ ) {
+		K = random()%N;
+		while ( 1 ) {
+			L = random()%N;
+			if ( K != L ) break;
+		}
+		C = random()%10;
+		Left = random()%2;
+		etrans_mat(P,K,L,C,Left);
+		etrans_mat(PI,K,L,-C,!Left);
+		K = random()%N;
+		while ( 1 ) {
+			L = random()%N;
+			if ( K != L ) break;
+		}
+		swap_mat(P,K,L,1);
+		swap_mat(PI,K,L,0);
+	}
+	return [P,PI];
 }
 
 def subst_mat(P,A)
@@ -476,6 +540,7 @@ def sample_mat(Data)
 	if ( type(Asis) != -1 )
 		return A;
 
+#if 0
 	P = matrix(N,N);
 	while ( 1 ) {
 		for ( I = 0; I < N; I++ )
@@ -489,6 +554,11 @@ def sample_mat(Data)
 			return (Z[0]*A*P)/Z[1];			
 		}
 	}
+#else
+	/* L = [P,P^-1] */
+	L = random_unimodular_mat(N);
+	return L[1]*A*L[0];
+#endif
 }
 
 def jordan_decomp(A)
