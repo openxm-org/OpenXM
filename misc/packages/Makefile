@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.14 2000/03/11 11:08:30 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.15 2000/03/13 00:52:20 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -82,6 +82,7 @@ build-on-redhat:
 # set path=(/usr/ccs/bin /usr/local/bin $path); rehash
 # (Note for taka). On unkei, cd Solaris/OpenXM/misc/packages and make build-on-unkei
 build-on-unkei:
+	(cd Generic/openxm ; make fetch)
 	(cd Generic/openxm ; make clean-for-make)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 
