@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -613,3 +613,66 @@ void initSyzRingp() {
   SyzRingp->name = ringName;
 }
 
+POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,
+			       int needSyz,struct syz0 *syzp,
+			       int skipGrd,int skipi, int *reducedp)
+{
+  int reduced,reduced1,reduced2;
+  int grd;
+  struct polySet *set;
+  POLY cf,syz;
+  int i;
+  POLY cc,cg;
+  POLY fs;
+
+  extern struct ring *CurrentRingp;
+  struct ring *rp;
+
+  *reducedp = 0;
+  if (needSyz) {
+    if (f ISZERO) { rp = CurrentRingp; } else {rp = f->m->ringp; }
+    cf = cxx(1,0,0,rp);
+    syz = ZERO;
+  }
+
+  reduced = 0; /* no */
+  do {
+    reduced1 = 0; /* no */
+    grd = 0;
+    while (grd < gset->maxGrade) {
+      /*
+	 if (!Sugar) {
+	    if (grd > (*grade)(f)) break;
+	 }
+      */
+      set = gset->polys[grd];
+      do {
+	reduced2 = 0; /* no */
+	for (i=0; i<set->size; i++) {
+	  if (f ISZERO) goto ss;
+	  if ((!((grd == skipGrd) && (i == skipi))) && (set->del[i]==0)) {
+                                          /*  Do not use deleted element.*/
+	    if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) {
+	      f = (*reduction1Cdr)(f,fs,set->g[i],needSyz,&cc,&cg);
+	      /* What is cg? */
+	      if (needSyz) {
+		cf = ppMult(cc,cf);
+		syz = cpMult(toSyzCoeff(cc),syz);
+		syz = ppAddv(syz,toSyzPoly(cg,grd,i));
+	      }
+	      *reducedp = reduced = reduced1 = reduced2 = 1; /* yes */
+	    }
+	  }
+	}
+      } while (reduced2 != 0);
+      grd++;
+    }
+  }while (reduced1 != 0);
+
+  ss: ;
+  if (needSyz) {
+    syzp->cf = cf;
+    syzp->syz = syz;
+  }
+  return(f);
+}

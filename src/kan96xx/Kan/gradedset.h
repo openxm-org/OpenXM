@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 /* gradedset.h */
 #define max(a,b) (a>b?a:b)
 
@@ -70,6 +70,11 @@ POLY lcm_gen(POLY f,POLY g);
 struct spValue sp_gen(POLY f,POLY g);
 struct spValue sp_q(POLY f,POLY g);
 int grade_gen(POLY f);
+POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,
+			       int needSyz,struct syz0 *syzp,
+			       int grd,int i, int *reduced);
+ /* Polynomial at (grd,i) is not used for reduction.
+    if del[j] == 1, then the attached polynomial is not used for reduction.*/
 
 /* constructor */
 POLY toSyzPoly(POLY cg,int grade,int index);
@@ -89,6 +94,8 @@ struct gradedPairs *updatePairs(struct gradedPairs *grD, POLY gt,
 				int gtGrade, int t,
 				struct gradedPolySet *grG);
 /* add gt to grD. gt is indexed by (gtGrade,t) */
+void toReducedBasis(struct gradedPolySet *grP,int needBack, int needSyz);
+
 
 /* gbGM.c */
 struct gradedPolySet *groebner_gm(struct arrayOfPOLY *f,

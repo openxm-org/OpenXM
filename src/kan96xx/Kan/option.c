@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.2 1999/11/07 13:24:19 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -25,6 +25,7 @@ struct object ob; /* Sarray */
   extern int CheckHomogenization;
   extern int Homogenize;
   extern int Statistics;
+  extern int AutoReduce;
   extern int Osp;
   extern struct operandStack StandardStack;
   extern struct operandStack ErrorStack;
@@ -95,6 +96,8 @@ struct object ob; /* Sarray */
 	rob = KpoInteger(Homogenize);
       }else if (strcmp(ob1.lc.str,"Statistics") == 0) {
 	rob = KpoInteger(Statistics);
+      }else if (strcmp(ob1.lc.str,"AutoReduce") == 0) {
+	rob = KpoInteger(AutoReduce);
       }else if (strcmp(ob1.lc.str,"StackPointer") == 0) {
 	rob = KpoInteger(Osp);
       }else if (strcmp(ob1.lc.str,"StandardOperandStack") == 0) {
@@ -223,6 +226,9 @@ struct object ob; /* Sarray */
       }else if (strcmp(ob1.lc.str,"Statistics") == 0) {
 	Statistics = ob2.lc.ival;
 	rob = KpoInteger(Statistics);
+      }else if (strcmp(ob1.lc.str,"AutoReduce") == 0) {
+	AutoReduce = ob2.lc.ival;
+	rob = KpoInteger(AutoReduce);
       }else if (strcmp(ob1.lc.str,"ErrorMessageMode") == 0) {
 	ErrorMessageMode = ob2.lc.ival;
 	rob = KpoInteger(ErrorMessageMode);

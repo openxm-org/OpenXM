@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -20,6 +20,7 @@ extern int UseCriterion1;
 extern int UseCriterion2B;
 extern int Spairs;
 extern int Criterion2B, Criterion2F, Criterion2M;
+extern int AutoReduce;
 
 
 struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
@@ -358,6 +359,9 @@ int forceReduction;
     Spairs = Criterion1 = Criterion2M = Criterion2F = Criterion2B = 0;
   }
 
+  if (AutoReduce) {
+    toReducedBasis(g,needBack,needSyz);
+  }
   
   return(g);
 }
@@ -383,5 +387,75 @@ static int sugarGrade(struct pair *inode,struct gradedPolySet *grG,
   return( a > b ? a : b);
 }
 
+void toReducedBasis(struct gradedPolySet *grP,int needBack, int needSyz)
+{
+  int changed, grd, i, reduced, grade,indx;
+  struct syz0 syz;
+  struct syz0 *syzp;
+  POLY f;
+  POLY rd;
+  struct polySet *set;
+
+  /* KanGBmessage=1; */
+  do {
+    if (KanGBmessage) {
+      printf("s"); fflush(stdout);
+    }
+    changed = 0;
+    grd = 0;
+    while (grd < grP->maxGrade) {
+      set = grP->polys[grd];
+      for (i=0; i<set->size; i++) {
+	if (set->del[i] == 0) {
+	  f = set->g[i];
+	  if (KanGBmessage) {
+	    /* printf("(%d,%d)",grd,i);  */
+	    fflush(stdout);
+	  }
+	  rd = reductionCdr_except_grd_i(f,grP,needBack,&syz,grd,i,&reduced);
+	  if (KanGBmessage) {
+	    if (reduced) {
+	      printf(".");
+	    }else{
+	      printf("o");
+	    }
+	    fflush(stdout);
+	  }
+	  if (reduced) {
+	    changed = 1;
+	    set->del[i] = 1;
+	    if (rd != ZERO) {
+	      if (needSyz) {
+		syzp = newSyz0();
+		syzp->cf = syz.cf; /* no meaning */
+		syzp->syz = toSyzPoly(cxx(1,0,0,rd->m->ringp),grd,i);
+		syzp->syz = cpMult(toSyzCoeff(syz.cf),syzp->syz);
+		syzp->syz = ppAdd(syzp->syz,syz.syz);
+		/* rd = c*f + \sum c_{d,i} g_{d,i}
+		   c : syz.cf,  \sum c_{d,j} g_{d,j} : syz.syz.
+		   c*grade^grd*index^i + \sum c_{d,j} grade^d*index^j
+		   grP is a set of polynomials. Polynomials are indexed by
+		   grade and index.
+		 */
+		/* printf("%s, ",POLYToString(syzp->cf,' ',1));
+		printf("%s\n",POLYToString(syzp->syz,' ',1)); */
+	      }else{
+		syzp = NULL;
+	      }
+	      grade = -1; whereInG(grP,rd,&grade,&indx,Sugar);
+	      /* Do not forget to set grade to -1 */
+	      /* printf("grade=%d, indx=%d, ",grade,indx); */
+	      putPolyInG(grP,rd,grade,indx,syzp,0,-1);
+	    }
+	  }
+	}
+      }
+      grd++;
+    }
+  } while(changed);
+  if (KanGBmessage) {
+    printf("Done(reduced basis)\n");
+  }
+}
 
 

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.2 1999/11/07 13:24:20 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -443,16 +443,17 @@ char *s;
     fppp(fp,"<< [(key word) optional arg] system_variable result >>\n");
     fppp(fp,"The primitive returns the value of a given system constant.\n");
     fppp(fp,"The primitive sets the value of a given system constant.\n");
-    fppp(fp,"PrintDollar [0,1,2], Wrap, P, N, NN, M, MM, L, LL, C, CC,ringName\n");
-    fppp(fp,"CurrentRingp, Verbose, UseCriterion1, UseCriterion2B\n");
-    fppp(fp,"ReduceLowerTerms, CheckHomogenization, Homogenize, Sugar, Homogenize_vec\n");
-    fppp(fp,"Statistics, StackPointer, StandardOperandStack\n");
-    fppp(fp,"ErrorStack, ErrorMessageMode, WarningMessageMode\n");
-    fppp(fp,"CatchCtrlC, Strict, CurrentContextp, NullContextp, Strict2\n");
-    fppp(fp,"SigIgn, KSPushEnvMode, PrimitiveContextp, KanGBmessage\n");
+    fppp(fp,"PrintDollar [0,1,2], Wrap, P, N, NN, M, MM, L, LL, C, CC,ringName,\n");
+    fppp(fp,"CurrentRingp, Verbose, UseCriterion1, UseCriterion2B,\n");
+    fppp(fp,"ReduceLowerTerms, CheckHomogenization, Homogenize, Sugar, Homogenize_vec,\n");
+    fppp(fp,"Statistics, StackPointer, StandardOperandStack,\n");
+    fppp(fp,"ErrorStack, ErrorMessageMode, WarningMessageMode,\n");
+    fppp(fp,"CatchCtrlC, Strict, CurrentContextp, NullContextp, Strict2,\n");
+    fppp(fp,"SigIgn, KSPushEnvMode, PrimitiveContextp, KanGBmessage,\n");
     fppp(fp,"orderMatrix, gbListTower, Schreyer, \n");
-    fppp(fp,"outputOrder, multSymbol, variableNames, Version\n");
-    fppp(fp,"AvoidTheSameRing, RingStack, LeftBracket, RightBracket\n");
+    fppp(fp,"outputOrder, multSymbol, variableNames, Version,\n");
+    fppp(fp,"AvoidTheSameRing, RingStack, LeftBracket, RightBracket,\n");
+    fppp(fp,"AutoReduce\n");
     fppp(fp,"Example: [(N)] system_variable\n");
     fppp(fp,"                             (maximum number of variables)/2.\n");
     fppp(fp,"         [(x) (var) 3] system_variable\n");
