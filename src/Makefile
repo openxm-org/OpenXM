@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM$
+## $OpenXM: OpenXM/src/Makefile,v 1.6 1999/11/02 09:17:08 takayama Exp $
 all : all1 all2 all3
 
 all1 :
@@ -33,14 +33,14 @@ clean :
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6
 
 configure :
-	ln -fs ../bin bin
-	ln -fs ./kan96xx SSkan
-	ln -fs ./kan96xx/gmp gmp
-	ln -fs ./kan96xx/gc gc
-	(cd ../lib ; ln -fs ../src/k097 k097 ; ln -fs ../src/kan96xx/Doc sm1)
+	ln -f -s ../bin bin
+	ln -f -s ./kan96xx SSkan
+	ln -f -s ./kan96xx/gmp gmp
+	ln -f -s ./kan96xx/gc gc
+	(cd ../lib ; ln -f -s ../src/k097 k097 ; ln -f -s ../src/kan96xx/Doc sm1)
 	(cd ../bin ; ./configure2 )
 	(cd kan96xx ; make configure )
-	(cd kxx ; ln -fs  ../SSkan/plugin/ox_kan.h ox_kan.h)
+	(cd kxx ; ln -f -s  ../SSkan/plugin/ox_kan.h ox_kan.h)
 	(cd ../lib/asir ; ./configure2 )
 
 install-usr-local : 
