@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.63 2000/01/19 01:15:45 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.64 2000/01/19 03:03:34 noro Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -113,7 +113,7 @@ distclean: clean
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 
-configure: configure-links configure-gmp configure-bin configure-asir \
+configure: configure-links configure-bin configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari
@@ -150,5 +150,3 @@ configure-oxmath:
 configure-pari:
 	(cd pari ; make configure)
 
-configure-gmp:
-	(cd $(OPENXM_CONTRIB)/gmp ; rm -f .gmp_configured)
