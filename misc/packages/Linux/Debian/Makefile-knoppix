@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile-knoppix,v 1.1 2004/02/22 08:09:00 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile-knoppix,v 1.2 2004/02/22 12:46:38 takayama Exp $
 
 ## You need the following packages to build *.deb
 ## apt-get install fakeroot
@@ -21,7 +21,7 @@ usage :
 
 clean:
 	${RM} -rf work
-#	(cd ../../Generic/openxm ; make clean-work )
+#	(cd ../../Generic/openxm ; make -f Makefile-knoppix clean-work )
 
 build-noclean:
 	-mkdir  work
@@ -29,7 +29,7 @@ build-noclean:
 	(cd work ; tar xzvf ${TAR_WORK}/openxm-${VERSION}.tar.gz)
 	-(cd work/openxm-${VERSION} ; ln -s ../../debian)
 	touch work/openxm-${VERSION}/OpenXM/src/asir-port/for_knoppix
-	make build-main
+	make -f Makefile-knoppix build-main
 build-main: 
 ## Start of build
 	(cd work/openxm-${VERSION}; fakeroot debian/rules build)
@@ -37,7 +37,7 @@ build-main:
 	(cd work/openxm-${VERSION}; fakeroot dpkg-buildpackage)
 
 build :  clean 
-	make build-noclean
+	make -f Makefile-knoppix build-noclean
 
 copy-to-ftp-area:
 	-scp work/openxm-*.deb ${WHO}:${FTP_AREA}
