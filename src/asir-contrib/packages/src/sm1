@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.20 2000/02/07 04:46:25 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.21 2000/02/07 05:36:39 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -2629,6 +2629,74 @@ holonomic. It is generally faster than @code{sm1_rank}.
 @end example
 
 */
+
+def sm1_auto_reduce(T) {
+  SM1_FIND_PROC(P);
+  sm1(P,"[(AutoReduce) "+rtostr(T)+" ] system_variable ");
+  ox_check_errors2(P);
+  R = sm1_pop(P);
+  return(R);
+}
+
+/*&eg-texi
+@menu
+* sm1_auto_reduce::
+@end menu
+@node sm1_auto_reduce,,, SM1 Functions
+@subsection @code{sm1_auto_reduce}
+@findex sm1_auto_reduce
+@table @t
+@item sm1_auto_reduce(@var{s}|proc=@var{p})
+::  Set the flag "AutoReduce" to @var{s}.
+@end table
+
+@table @var
+@item return
+Number
+@item p
+Number
+@item s
+Number
+@end table
+
+@itemize @bullet
+@item  If @var{s} is 1, then all Grobner bases to be computed 
+will be the reduced Grobner bases.
+@item If @var{s} is 0, then Grobner bases are not necessarily the reduced
+Grobner bases.  This is the default.
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_auto_reduce::
+@end menu
+@node sm1_auto_reduce,,, SM1 函数
+@subsection @code{sm1_auto_reduce}
+@findex sm1_auto_reduce
+@table @t
+@item sm1_auto_reduce(@var{s}|proc=@var{p})
+::  フラグ "AutoReduce" を @var{s} に設定.
+@end table
+
+@table @var
+@item 戻り値
+数
+@item p
+数
+@item s
+数
+@end table
+
+@itemize @bullet
+@item  @var{s} が 1 のとき, 以後計算されるグレブナ基底はすべて,
+reduced グレブナ基底となる.
+@item  @var{s} が 0 のとき, 計算されるグレブナ基底は
+reduced グレブナ基底とはかぎらない. こちらがデフォールト.
+@end itemize
+*/
+  
+
 
 
 end$
