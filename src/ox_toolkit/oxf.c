@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.1 2000/10/10 05:23:21 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.2 2000/10/11 06:56:03 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -22,8 +22,8 @@
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
 	int n = read(oxfp->fd, buffer, size*num);
-	if (n == 0) {
-		oxfp->errno = 1;
+	if (n <= 0) {
+		oxfp->error = 1;
 	}
     return n;
 }
@@ -40,7 +40,7 @@ OXFILE *oxf_open(int fd)
     oxfp->send_int32    = send_int32_nbo;
     oxfp->receive_int32 = receive_int32_nbo;
 	oxfp->control = NULL;
-	oxfp->errno = 0;
+	oxfp->error = 0;
     return oxfp;
     /* oxfp->fp = fdopen(fd, "a+"); */
     /* return (oxfp->fp != NULL)? oxfp: NULL; */

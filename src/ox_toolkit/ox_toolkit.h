@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.1 2000/03/10 12:24:39 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.2 2000/10/10 05:23:20 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -28,6 +28,7 @@ typedef struct OXFILE{
 	int (*receive_int32)(struct OXFILE *oxfp);
 	int serial_number;
 	struct OXFILE *control;  /* pointer to his control server. */
+	int error;
 } OXFILE;
 
 typedef struct {
