@@ -1,161 +1,193 @@
 /*&generate-prologue
 */
 $Id$
-$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.2 2005/04/01 11:34:21 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.3 2005/04/02 05:56:57 takayama Exp $
 
 注意: testing/tr.rr では quote を quotetolist で list に変換して扱うため,
       下の仕様とはことなり, list 型でデータを戻す場合も多い.
       ユーザ言語で書いている関係上 pn(x) を pn("x") としている. 
       他にも同様な関数があり.
 
+gentexi <tr.oxt >t.texi
+t.texi に
+\input texinfo
+@def@pi{PI}
+を加えてから ptex t.texi で 大体見れるが,
+
+cat pre.texi >t.texi
+${OpenXM_HOME}/asir-contrib/packages/doc/gentexi tr.oxt >>t.texi
+echo "@bye" >>t.texi
+ptex t.texi
+とすればもっとマニュアルっぽいものができる.
+
 @c --------------------------------------------------------------------
 @section quote に対する基本関数
 
-/*&usage begin: qt_node(Q)
+begin: qt_node(Q)
  quote データ {Q} の node を取り出す.
  example: qt_node(quote(1+2*3))     
-end: */
+end:
 
 
-/*&usage begin: qt_nchild(Q)
+begin: qt_nchild(Q)
  quote データ {Q} の 子供の数を戻す.
  example: qt_nchild(quote(1+2*3))     2 を戻す.
-end: */
+end:
 
 
-/*&usage begin: qt_child(Q,K)
+begin: qt_child(Q,K)
  quote データ {Q} の {K} 番目の子供を戻す.
  example: qt_child(quote(1+2*3),1)     quote(2*3) を戻す.
  example: qt_child(quote(1+2*3),0)     quote(1) を戻す.
-end: */
+end:
 
 @c --------------------------------------------------------------------
 @subsection quote に対する述語
 
-/*&usage begin: qt_is_integer(Q)
+begin: qt_is_integer(Q)
  quote データ {Q} が整数なら 1
  example: qt_is_integer(quote(0))     
-end: */
+end:
 
-/*&usage begin: qt_depend(Q,x)
+begin: qt_depend(Q,x)
  quote データ {Q} が不定元 {x} を含むと 1, 含まないと 0.
  example: qt_depend(quote(1+1/x),x)
-end: */
+end:
+
+begin: qt_is_function(Q)
+ quote データ {Q} が関数のとき 1, そうでないとき 0.
+ example: qt_is_function(f(x,y));
+end:
 
 @c --------------------------------------------------------------------
 @subsection quote に対するコンストラクタ
 
-/*&usage begin: qt_zero()
+begin: qt_zero()
  quote 0 を戻す.
-end: */
+end:
 
-/*&usage begin: qt_id(Qobj)
+begin: qt_id(Qobj)
  quote object {Qobj} をそのまま戻す.
-end: */
+end:
 
-/*&usage begin: qt_replace(Qobj,[[x,Valuex],[y,Valuey],...])
+begin: qt_replace(Qobj,[[x,Valuex],[y,Valuey],...])
    quote object {Qobj} の中の x を Valuex, y を Valuey, ... に置き換えた
    quote object を戻す.
    example: qt_replace(quote(sin(x*@pi)), [[x,quote( (2*t+3) )]])
-end: */
+end:
 
    qt_replace は asir-contrib の base_replace と似た機能.
    quote の内部に大文字ではじまる変数(評価する)が書けないため.
 
-/*&usage begin: qt_parenthesis(Qobj)
+begin: qt_parenthesis(Qobj)
    quote object {Qobj} の中の括弧が足りないときには補い, 多いときには取り去った
    quote object を作る.
    +, *, /, ^, - 等について asir の文法での演算子の強さを仮定する.
-end: */
+end:
 
-/*&usage begin: qt_eval(Qobj,type)
+begin: qt_eval(Qobj,type)
    Qobj を asir の他の object に変換.
-end: */
+end:
 
-/*&usage begin: qt_(Obj)
+begin: qt_(Obj)
    asir の Obj を quote 型に変換.  
-end: */
+end:
 
 
 @c --------------------------------------------------------------------
 @section tr (term rewriting) のトップレベルの関数
 
-/*&usage begin: tr_match0(Qobj,P)
+begin: tr_match0(Qobj,P)
  quote データ {Qobj} が パターン {P} に適合すれば 1 を戻し, そうでなければ 0
  を戻す. 
  example: tr_match0(quote(1+2*3),quote(pn(x)+pn(y)))        
                  x に quote(1), y に quote(2*3)           
           tr_match0(quote(1+2*3),quote(pn(x)+pn(y,qt_is_integer,y)))
                  qt_is_integer(2*3) は 0 なので y にはマッチしない.
-end: */
+end:
 
-pn(x) は任意の quote object にマッチし, 名前 x をつける.
-tr_match0(quote(1+2*3),quote(pn(x)+pn(y)))  は 1 を戻すが,
-tr_match0(quote(1+2*3),quote(pn(x)+pn(y,tr_is_integer,x))) は 0 をもどす.
-2*3 は integer から作られた fnode ではあるが integer ではないので qt_is_integer
-が 0 を戻すため.
+begin: pn(X)
+  pn(x) は任意の quote object にマッチし, 名前 x をつける.
+description:
+  tr_match0(quote(1+2*3),quote(pn(x)+pn(y)))  は 1 を戻すが,
+  tr_match0(quote(1+2*3),quote(pn(x)+pn(y,tr_is_integer,x))) は 0 をもどす.
+  2*3 は integer から作られた fnode ではあるが integer ではないので qt_is_integer
+  が 0 を戻すため.
+end:
                  
-/*&usage begin: tr_match_act(Qobj,P,Act)
+begin: tr_match0_act(Qobj,P,Act)
  quote データ {Qobj} が パターン {P} に適合すれば {Act} を呼び出しその値を戻す.
  パターン {P} にマッチしないときは 0.
 
- example: tr_match_act(quote(1+2*3),quote(pn(x)+pn(y)),[myadd,x,y])                   
-end: */
+ example: tr_match0_act(quote(1+2*3),quote(pn(x)+pn(y)),[myadd,x,y])                   
+end:
 
-/*&usage begin: tr_or_match1(Qobj,Rules)
-end: */
+begin: tr_or_match0_act(Qobj,Rules)
+end:
 
-/*&usage begin: tr_apply_rule1(Qobj,P,Act)
+begin: tr_apply_rule1(Qobj,P,Act)
  quote データ {Qobj} の木を幅優先探索し, 
  パターン {P} に適合するものがあるときは {Act} を呼び出しその値を戻す.
  つまり top node が {P} に適合するか調べ, 適合しない場合はその子供に
   tr_apply_rule1 を適用する (ここが tr_match_act とは異なる). 
  マッチしない場合は Qobj をそのまま戻す (これが再帰的に適用される).
 
- example: tr_apply_rule1(quote(1+sin(2*@pi)),quote(sin(pn(x)*@pi)),[sin_int,x])
-end: */
-
+description:
  ここで sin_int(X) は X が integer の時は quote(0) を戻し,
  そうでないときは quote(sin(X*@pi)) を戻す.
  深さ優先で書き換えをするには 関数 sin_int の中でまた tr_apply_rule1 を呼び出せば
  よい.
 
-/*&usage begin: tr_apply_or_rules(Qobj,Rules)
-end: */
+ example: tr_apply_rule1(quote(1+sin(2*@pi)),quote(sin(pn(x)*@pi)),[sin_int,x])
+end:
+
+
+begin: tr_apply_or_rules(Qobj,Rules)
+end:
 
 @subsection 内部関数
 
-/*&usage begin: tr_apply_function0(Qobj,BindingTable)
-end: */
+begin: tr_apply_function0(Qobj,BindingTable)
+end:
 
-/*&usage begin: tr_rp(Qobj,P,A)
-end: */
+begin: tr_rp(Qobj,P,A)
+end:
 
-/*&usage begin: tr_make_binding(Qobj,P)
-end: */
+begin: tr_make_binding(Qobj,P)
+end:
 
 @c ---------------------------------------------------------
 @section 変数パターンと関数パターン
 
-例:
+begin: remark_on_pn()
+変数パターン
+example:
 pn(x)                    任意のものにマッチ. マッチしたものを x に bind.
 pn(x,qt_is_integer(x))
+
+Todo; fn は多分いらない. qt_is_function(x) で OK.
 fn(f)                    任意の関数にマッチ. マッチした関数名を f に bind.
 fn(f,pn(x),pn(y))        任意の関数にマッチ. マッチした関数名を f に bind.
                          f の引数を x, y に bind               
+end:
 
 @c ---------------------------------------------------------
 @section パターン
 
+begin: remark_pattern()
 パターンは quote で与える.
 予約語  tr_and, tr_or, tr_not  はパターンのマッチに関して論理演算をおこなう.
 たとえば
 quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
 は x が 整数で - が先頭についていない場合マッチする.
+end:
 
 @c ---------------------------------------------------------
 @section 例題  sin(整数*@pi) を 0 に.
 
+begin: example_sin_int();
+例題  sin(整数*@pi) を 0 に.
+example:
    /* 準備 */
    extern P,A;
    P=quote(sin(pn(x)*@pi));  /* パターン */
@@ -169,11 +201,36 @@ quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
    /* 計算 */
    Qobj=quote(1+sin(sin(2*@pi)*@pi)*sin((1/2)*@pi));
    tr_apply_rule1(Qobj,P,A);
+end:
    
+@c ------------------------------------------------------
+@section 例題 Mathematica の N[ ] 相当の関数をユーザが書けるように.
+
+begin: example_Mathematica_N()
+例題 Mathematica の N[ ] 相当の関数をユーザが書けるように.
+example:
+    nn(sin(cos(@pi)+sqrt(2))) 
+    --> nn(sin(nn(cos(nn(@pi)))+nn(sqrt(nn(2)))))
+   Prog; test1-tr.rr の test4().
+
+  qt_map_arg 関数を用いる.
+  def test4() {
+    Rule=[quote(nn(pn(f))),[qt_map_arg,nn,f]];
+    /* nn で囲まれたものがあれば, nn をその内部に再帰的に apply する */
+    R0 = quote(nn(sin(1/2)*cos(1/3)));
+    print(print_input_form(R0));
+    R=tr_apply_rule1(R0,Rule[0],Rule[1]);
+    return R;
+  }
+
+end:
 
 @c ---------------------------------------------------------
 @section 例題  不定積分
 
+begin: example_indefinite_integral()
+例題  不定積分
+example:
    /* integral(f+g) => integral(f)+integral(g) */
    S1=[quote(integral(pn(f)+pn(g))),
        [int_linear1,f,g]];
@@ -195,10 +252,14 @@ quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
    a*integral(x^2)+integral(x)+integral(2/x);   
 
    quote(integral(x^pn(n))) --> x^(n+1)/(n+1) or log(x) を書く.
+end:
 
 @c ---------------------------------------------------------
 @section 例題  簡単な構文解析
 
+begin: example_parsing()
+例題  簡単な構文解析
+example:
    式(expression) は 式+式 | 式*式 | (式) | 整数
 
    extern R1,R2,R3,R4,S1,S2,S3,S4;
@@ -234,31 +295,28 @@ quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
 
    /* 計算 */
    tr_eval_expression(quote(1+2*(3+15)));
+end:
 
 @c ---------------------------------------------------------
 @section 例題  非可換環の簡単な構文解析
 
 
 
-@section  Todo:
- 例. Mathematica の N[ ] 相当の関数をユーザが書けるように.
-    nn(sin(cos(@pi)+sqrt(2))) 
-    --> nn(sin(nn(cos(nn(@pi)))+nn(sqrt(nn(2)))))
-    任意関数との match.
+@section  Todo;
 
- 例: 冪級数の計算を quote で実現.
+ 例; 冪級数の計算を quote で実現.
         sort や expand は組み込みで.
 
- 例: Mathematica の Expand[], Toghether[] 相当のもの.
+ 例; Mathematica の Expand[], Toghether[] 相当のもの.
 
- 例: D の掛け算を パターンマッチで実現.  
+ 例; D の掛け算を パターンマッチで実現.  
 
- 例: (x^(1/n))^n --> x 等.
+ 例; (x^(1/n))^n --> x 等.
 
- 例: 記号微分と微分環での計算.
-       y''+xy=0,  y''=y^2+x 等.
+ 例; 記号微分と微分環での計算.
+       y''+xy=0,  y''=y^2+x 等.  index 付きの変数生成が必要. idxtov
 
- 例: QE, 論理式.
+ 例; QE, 論理式.
 
 @section 考え方についての概説
 
@@ -266,6 +324,15 @@ quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
   iterator の一種.
 
 @c ------------------------------------------------
+@section 実験的関数
+
+begin: qt_map_arg(F,Q)
+ 関数 F を quote データ {Q} の すべてのノードに再帰的に
+ apply した quote データを戻す.
+ example: qt_map_arg(nn,quote(sin(@pi)+2/3))
+           nn(nn(sin(nn(@pi)))+nn(nn(2)/nn(3)))
+end:
+
 @section   まだスケッチのみの関数仕様
 
   qt_ltor, qt_rtol : 木の構造の変換; 例 (x*y)*z --> x*(y*z)
