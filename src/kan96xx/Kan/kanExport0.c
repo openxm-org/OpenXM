@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.3 2000/06/08 08:35:02 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.4 2000/07/17 02:58:45 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -985,6 +985,7 @@ char *key;
     break;
   case Spoly:
     if (strcmp(key,"poly")==0) {
+      rob = obj;
       return(rob);
     }else if (strcmp(key,"integer")==0) {
       if (obj.lc.poly == ZERO) return(KpoInteger(0));
