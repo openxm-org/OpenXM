@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.17 2003/09/02 14:26:06 takayama Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.18 2003/11/10 09:12:24 noro Exp $
 
 #PARI = ../../../OpenXM_contrib/pari-2.2
 PARI = ../../../OpenXM_contrib/pari
@@ -37,8 +37,8 @@ install-doc: all
 	@if [ ! -d $(OpenXM_ROOT)/doc/pari ]; then \
 	   mkdir $(OpenXM_ROOT)/doc/pari ;\
 	fi
-	-cp $(OpenXM_ROOT)/lib/pari/users.dvi  $(OpenXM_ROOT)/doc/pari/users.dvi
-	-cp $(OpenXM_ROOT)/lib/pari/tutorial.dvi  $(OpenXM_ROOT)/doc/pari/tutorial.dvi
+	-cp $(PARI)/doc/users.dvi  $(OpenXM_ROOT)/doc/pari/users.dvi
+	-cp $(PARI)/doc/tutorial.dvi  $(OpenXM_ROOT)/doc/pari/tutorial.dvi
 
 clean: patch-clean
 	@if [ -f ./.make_done ]; then \
