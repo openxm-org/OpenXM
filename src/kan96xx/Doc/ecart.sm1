@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.3 2003/07/29 08:36:39 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.4 2003/07/30 09:00:51 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -264,6 +264,9 @@
          degreeShift message
        } ifelse
     } { } ifelse
+
+    %%BUG: case of v is integer
+    v ecart.checkOrder
 
     ecart.begin
 
@@ -534,6 +537,9 @@
        } ifelse
     } { } ifelse
 
+    %%BUG: case of v is integer
+    v ecart.checkOrder
+
     ecartn.begin
 
     ecart.gb.verbose { (ecartn.gb : ecart.gb without ecart division.) message } { } ifelse
@@ -712,6 +718,9 @@
        } ifelse
     } { } ifelse
 
+    %%BUG: case of v is integer
+    v ecart.checkOrder
+
     ecart.begin
     [(EcartAutomaticHomogenization) 1] system_variable
 
@@ -762,4 +771,63 @@
 } def
 (ecartd.gb[results are dehomogenized at each reduction step] ) messagen-quiet 
 
+/ecart.checkOrder {
+  /arg1 set
+  [/in-ecart.checkOrder /vv /tt /dd /n /i] pushVariables
+  [
+    /vv arg1 def
+    vv isArray
+    { } { [vv to_records pop] /vv set } ifelse
+    vv {toString} map /vv set
+    vv { /tt set [@@@.Dsymbol tt] cat } map /dd set
+    % Starting the checks. 
+    0 1 vv length 1 sub {
+       /i set
+       vv i get . dd i get . mul /tt set
+       tt @@@.hsymbol . add init tt eq { }
+       { [@@@.hsymbol ( is larger than ) vv i get ( ) dd i get] cat error} ifelse
+    } for
+
+    0 1 vv length 1 sub {
+       /i set
+       vv i get . /tt set
+       tt (1). add init (1). eq { }
+       { [vv i get ( is larger than 1) vv i get] cat error} ifelse
+    } for
+    /arg1 1 def
+  ] pop
+  popVariables
+  arg1
+} def
+[(ecart.checkOrder)
+ [(v ecart.checkOrder bool checks if the given order is relevant)
+  (for the ecart division.)
+  (cf. ecartd.gb, ecart.gb, ecartn.gb)
+ ]
+] putUsages 
+
+/ecart.wv_last {
+  /arg1 set
+  [/in-ecart.wv_last /vv /tt /dd /n /i] pushVariables
+  [
+    /vv arg1 def
+    vv isArray
+    { } { [vv to_records pop] /vv set } ifelse
+    vv {toString} map /vv set
+    vv { /tt set [@@@.Dsymbol tt] cat } map /dd set
+    vv {  -1 } map
+    dd {   1 } map join /arg1 set 
+  ] pop
+  popVariables
+  arg1
+} def
+[(ecart.wv_last)
+ [(v ecart.wv_last wt )
+  (It returns the weight vector -1,-1,...-1; 1,1, ..., 1)
+  (Use this weight vector as the last weight vector for ecart division)
+  (if ecart.checkOrder complains about the order given.)
+ ]
+] putUsages 
+
 ( ) message-quiet 
+
