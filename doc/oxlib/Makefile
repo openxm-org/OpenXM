@@ -1,5 +1,5 @@
-# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.4 2000/03/17 02:04:08 takayama Exp $
-all : test1 test2 test3
+# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.5 2000/09/07 21:34:06 takayama Exp $
+all : test test1 test2 test3
 ##
 ## make   
 ## make OpenXM_HOME=/usr/local/OpenXM
@@ -28,6 +28,11 @@ test2 : test2.o
 test3 : test3.o 
 	gcc -o test3 test3.o $(ASIR_LIB) $(GC) $(EXTRALIB) -lm
 
+## test : test.o  
+test : test.o 
+	gcc -o test test.o $(ASIR_LIB) $(GC) $(EXTRALIB) -lm
+
+
 .c.o :
 	${CC} $(CFLAGS) -I$(INCLUDE) -c -g $<
 
@@ -36,4 +41,4 @@ test3 : test3.o
 
 
 clean :
-	rm -f test1 test2 test3 *.o *~ *.a  a.out
+	rm -f test test1 test2 test3 *.o *~ *.a  a.out

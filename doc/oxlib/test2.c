@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/doc/oxlib/test2.c,v 1.1 2000/02/08 13:25:41 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/oxlib/test2.c,v 1.2 2000/03/16 07:34:37 noro Exp $ */
 #include <asir/ox.h>
 
-char *asir_ox_pop_string();
+char *test2_ox_pop_string();
 
 main() {
   char *s;
@@ -26,12 +26,12 @@ main() {
   asir_ox_push_cmd(SM_executeFunction);
   */
 
-  s = asir_ox_pop_string();
+  s = test2_ox_pop_string();
   printf("%s\n",s);
 
   printf("------------------------------------------\n");
   asir_ox_push_object_given_by_a_string("12345;");
-  s = asir_ox_pop_string();
+  s = test2_ox_pop_string();
   printf("%s\n",s);
 
 }
@@ -62,7 +62,7 @@ asir_ox_push_object_given_by_a_string(char *s) {
   asir_ox_push_cmd(SM_executeStringByLocalParser);
 }
 
-char *asir_ox_pop_string() {
+char *test2_ox_pop_string() {
   int size;
   char *s;
   int tag;
@@ -82,7 +82,7 @@ char *asir_ox_pop_string() {
 	return(s+8);
   }
 }
-  
+
 debug_packet(char *p,int size) {
   int i;
   for (i=0; i<size; i++) {
