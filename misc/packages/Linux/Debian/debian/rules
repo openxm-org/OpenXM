@@ -62,6 +62,8 @@ install: build
 	sed 's/^OpenXM_HOME=$$HOME/OpenXM_HOME=\/usr\/local/' <${INST_PREFIX}/OpenXM/rc/bashrc >${INST_PREFIX}/OpenXM/rc/dot.bashrc
 	mkdir ${INST_PREFIX}/bin
 	(cd ${INST_PREFIX}/OpenXM/rc ; make openxm ; ./gen-shell-scripts ; cp ${SHELL_SCRIPTS} ../../bin )
+	mkdir -p ${INST_PREFIX}/../../usr/lib/menu
+	cp ${INST_PREFIX}/OpenXM/rc/kde/asir-knoppix ${INST_PREFIX}/OpenXM/rc/kde/asir-openxm-knoppix ${INST_PREFIX}/OpenXM/rc/kde/sm1 ${INST_PREFIX}/../../usr/lib/menu
 	#dh_movefiles
 
 # Build architecture-independent files here.
