@@ -1,3 +1,5 @@
+# $OpenXM$
+
 GNUPLOT = ../gnuplot
 BINDIR = ../../bin
 
