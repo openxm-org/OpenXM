@@ -1,5 +1,5 @@
 $Id$
-$OpenXM$
+$OpenXM: OpenXM/src/asir-port/cgi/install-ja.txt,v 1.1 2005/02/24 06:13:30 takayama Exp $
 cgi-asir.sh のインストール方法.
 
 0. cgi を実行可能な apache を用意する.
@@ -21,7 +21,7 @@ cgi-asir.sh のインストール方法.
    みたいな感じでテスト.
 
 Q. テストしても動きません. チェックすべきことを教えてください.
-A. httpd サーバの log (/var/log/httpd/?) をまず見てください.
+A. httpd サーバの log (/var/log/httpd/access_log など) をまず見てください.
 ---------------------------------------------------
 
 とりあえず動く状態になったら
@@ -80,4 +80,5 @@ httpd のリスタートは必要ない.
     export CGI_ASIR_TLIMIT="10"  
    
 
-
+注意:  cgi-asir.sh の現在の実装では GET method での実行はうけつけない.
+       POST のみ.  Todo: GET の実装 or POST を使えとのエラーメッセージ.
