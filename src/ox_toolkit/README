@@ -1,11 +1,18 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.5 1999/12/15 09:24:46 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.6 1999/12/22 11:29:15 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
 */
 /*&en A user's guide for OpenXM C library.
+
+*/
+/* &ja いきさつ
+このライブラリは ox_math および math2ox を開発するために設計された。
+ライブラリ自身には、 Mathematica に依存した部分はない。
+*/
+/* &en Introduction
 
 */
 /*&ja
@@ -65,8 +72,8 @@ cmo_error2
 
 */
 /*&en
-The cmo above is abstract base class; 
-you never make an object of cmo class.
+The cmo above is abstract base class; you never make an object of cmo
+class.
 
 */
 /*&ja
@@ -101,10 +108,8 @@ The ox above is abstract base class.
 /*&en
 2. How to make CMObjects?
 
-Use the following functions to generate an object.
-It returns a pointer to the object.
-*/
-/*&common
+Use the following functions to generate an object.  It returns a
+pointer to the object.  */ /*&common
 
 new_cmo_null();
 new_cmo_int32(int i);
@@ -141,8 +146,8 @@ High-level API is prepared to help an implementation of OpenXM clients.
 
 3.1 How to make connections to OpenXM servers?
 
-In order to open a connection to an OpenXM server, 
-you need to call ox_start() or to call ox_start_insecure_nonreverse().
+In order to open a connection to an OpenXM server, you need to call
+ox_start() or to call ox_start_insecure_nonreverse().
 */
 /*&common
 
@@ -167,6 +172,15 @@ portStream は計算サーバとの通信のためのポート番号である。
 この識別子は高水準 API の各関数で利用される。
 
 */
+/*&en
+The ox_start() function invoke an OpenXM server on its local machine
+and open a connection to the server with "reverse" mode.  The client
+choose a port number of TCP/IP automatically.
+
+The ox_start_insecure_nonreverse() function open a connection to an
+OpenXM server run on a remote host and you need to provide port numbers.
+
+*/
 /*&ja
 3.2 通信の終了
 
@@ -176,8 +190,8 @@ portStream は計算サーバとの通信のためのポート番号である。
 /*&en
 3.2 How to close connections to OpenXM servers?
 
-In order to close a connection to an OpenXM server,
-you need to call ox_close() or to call ox_shutdown().
+In order to close a connection to an OpenXM server, you need to call
+ox_close() or to call ox_shutdown().
 
 */
 /*&common
@@ -190,7 +204,7 @@ void ox_shutdown(ox_file_t sv);
 サーバを終了させる。第二の関数は計算サーバに SM_shutdown を送ることに
 よって、サーバを終了させる(予定)。
 
-/*
+*/
 /*&ja
 3.3 SM コマンドの送信
 */
@@ -204,57 +218,103 @@ void  ox_push_cmd(ox_file_t sv, int sm_code);
 */
 /*&ja
 サーバにスタックマシンコマンドを送る。コマンドはコマンド番号で与える。
+
 */
 /*&en
 ox_push_cmd() sends an operation code to an OpenXM stack machine.
-See oxtag.h.
+See OpenXM/src/ox_toolkit/oxtag.h for a list of operation codes.
+
 */
 /*&ja
-
 3.4 CMO の送受信
+*/
+/*&en
+3.4 How to receive a CMO?
+*/
+/*&common
 
 void  ox_push_cmo(ox_file_t sv, cmo *c);
 cmo*  ox_pop_cmo(ox_file_t sv);
 char* ox_popString(ox_file_t sv);
 
+*/
+/*&ja
 ox_push_cmo は cmo を送信、ox_pop_cmo は cmo を受信する。ox_popString
 は cmo を文字列形式に変換して受信するが、変換の結果はサーバによって異
 なる。
 
+*/
+/*&en
+*/
+/*&ja
 3.5 スタック処理
+*/
+/*&common
 
 int ox_pops(ox_file_t sv, int num);
 
+*/
+/*&ja
 スタック上の num 個のオブジェクトを廃棄する。
 
-3.6
+*/
+/*&ja
+3.6 通信路のフラッシュ
+*/
+/*&common
 
 int ox_flush(ox_file_t sv);
 
+*/
+/*&ja
 通信路を flush する(実際には何もしない)。
 
-3.7 
+*/
+/*&ja
+3.7 通信の中断
+*/
+/*&common
 
 void ox_reset(ox_file_t sv);
 
+*/
+/*&ja
 計算を中断する。
 
-3.8
+*/
+/*&ja
+3.8 ローカル言語で書かれたコマンドの評価
+*/
+/*&common
 
 void ox_execute_string(ox_file_t sv, char* str);
 
+*/
+/*&ja
 サーバのローカル言語で書かれた命令を評価し、結果をスタックに積む。
 
-3.9 
+*/
+/*&ja
+3.9 関数呼び出し
+*/
+/*&common
 
 int ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
 
+*/
+/*&ja
 function(argv[1], ...) を計算し、結果をスタックに積む。
 
-3.10
+*/
+/*&ja
+3.10 Mathcap の受信
 
+*/
+/*&common
 cmo_mathcap* ox_mathcap(ox_file_t sv);
 
+*/
+/*&ja
 Mathcap を受け取る。現在は Mathcap の処理はユーザプログラムに任されている。
 いずれこの関数は廃止される予定。
 */
@@ -273,9 +333,9 @@ Mathcap を受け取る。現在は Mathcap の処理はユーザプログラムに任されている。
 In this section, ``fd'' is an identifier of an OpenXM connection.
 
 4.1 How to decide a byte order of integers?
+
 */
 /*&common
-
 int decideByteOrderServer(int fd, int order);
 
 */
@@ -295,6 +355,8 @@ as an expression for integers.
 
 4.2 
 
+*/
+/*&common
 int send_int32(int fd, int integer);
 int receive_int32(int fd);
 
@@ -311,6 +373,8 @@ receive_int32() reads 32bits integer from an OpenXM connection.
 
 4.3 
 
+*/
+/*&common
 int  send_cmo(int fd, cmo* m);
 cmo* receive_cmo(int fd);
 
@@ -327,6 +391,8 @@ receive_cmo() reads an CMObject from an OpenXM connection.
 
 4.4
 
+*/
+/*&common
 int next_serial();
 
 */
@@ -340,6 +406,8 @@ next_serial() generates a serial number for ox message.
 
 4.5
 
+*/
+/*&common
 int  send_ox_tag(int fd, int tag);
 int  receive_ox_tag(int fd);
 
@@ -358,6 +426,8 @@ receive_ox_tag() reads a tag and a serial number of an ox message.
 
 4.6 
 
+*/
+/*&common
 int  send_ox(int fd, ox* m);
 int  send_ox_cmo(int fd, cmo* m);
 void send_ox_command(int fd, int sm_command);
@@ -371,22 +441,36 @@ ox メッセージを送信する。
 
 5. OX expression パーサ
 
+*/
+/*&ja
 OpenXM C library には 文字列表現された 
 OX expression および CMO expression から、
 ox 構造体または cmo 構造体を生成するためのパーサが付属している。
 
 ここではこのパーサについて説明する。
 
+*/
+/*&common
 int setflag_parse(int flag);
 
+*/
+/*&ja
 setflag_parse(PFLAG_ADDREV) によって、CMO の短縮表現を許す。
 
+*/
+/*&common
 int init_parser(char *str);
 
+*/
+/*&ja
 パーサが処理すべき文字列をセットする。
 
+*/
+/*&common
 cmo *parse();
 
+*/
+/*&ja
 Lisp 表現による OX expression, CMO expression の構文解析器。あらかじめ
 設定された文字列を解析して ox 構造体、あるいは cmo 構造体を生成する。
 */
@@ -394,19 +478,45 @@ Lisp 表現による OX expression, CMO expression の構文解析器。あらかじめ
 
 7. 付属プログラムについて
 
+*/
+/*&en
+
+7. Sample programs.
+
+*/
+/*&common
 testclient
 
+*/
+/*&ja
 テスト用の小さな OpenXM クライアント。OX expression を入力して送信する
 ことのみ可能。SM_popCMO, SM_popString を含むメッセージを送信した場合に
 は、サーバから送られてくるメッセージを表示する。
 
+*/
+/*&en
+This is a small OpenXM client.  We send an OX message by inputting an
+OX expression and display data messages gotten from a server.
+
+*/
+/*&common
 bconv
 
+*/
+/*&ja
 バイトコードエンコーダ。OX expression あるいは CMO expression を入力す
 ると、対応するバイト列を表示する。
 
+*/
+/*&en
+A byte code encoder.  It shows a byte stream which corresponds to an
+OX expression.
+
+/*&common
 ox_Xsample
 
+*/
+/*&ja
 GUI 表示する OpenXM サーバのサンプル。
 
 */
