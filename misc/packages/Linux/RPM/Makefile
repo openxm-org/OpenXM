@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.15 2000/09/02 01:37:21 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.16 2000/09/02 02:45:02 takayama Exp $
 
 #Edit this.  VERSION number must be compatible between Generic/openxm/Makefile
 # and *.spec.in
@@ -61,16 +61,23 @@ usage :
 	@echo "build-source-rpm "
 	@echo "make-directory"
 	@echo "link-for-real-openxm "
+	@echo "link-for-fake-openxm "
 
 build-binary-rpm: openxm-binary-spec
 	(cd work/SPECS ; rpm -bb openxm-binary.spec )
 
 build-shared-rpm: openxm-shared-spec
-	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -bb openxm-shared.spec )
+# For rpm 2.*
+#	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -bb openxm-shared.spec )
+# For rpm 3.* or later
+	(cd work/SPECS ; rpm --target noarch-OpenXM-Linux -bb openxm-shared.spec )
 
 build-source-rpm:  openxm-binary-spec openxm-shared-spec
 	(cd work/SPECS ; rpm -ba openxm-binary.spec )
-	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -ba openxm-shared.spec )
+# for rpm 2.*
+#	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -ba openxm-shared.spec )
+# for rpm 3.* or later
+	(cd work/SPECS ; rpm --target noarch-OpenXM-Linux -ba openxm-shared.spec )
 
 ## This is obsolete
 build-rpm: openxm-spec
@@ -79,7 +86,7 @@ build-rpm: openxm-spec
 make-directory: clean
 	mkdir work
 	mkdir work/SOURCES work/SPECS work/BUILD work/RPMS 
-	mkdir work/RPMS/i386 work/RPMS/noarch work/SPRMS work/RPMS/ppc work/RPMS/sparc work/RPMS/alpha
+	mkdir work/RPMS/i386 work/RPMS/noarch work/SPRMS work/RPMS/ppc work/RPMS/sparc work/RPMS/alpha work/SRPMS
 	mkdir ${RPM_BUILD_BINARY_ROOT}
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr/local
@@ -121,3 +128,11 @@ link-for-debug: make-directory clean
 
 link-for-real-openxm: make-directory clean
 	(cd work/SOURCES ; rm -rf openxm-$(VERSION).tar.gz ; ln -s $(HOME)/tmp/openxm-$(VERSION).tar.gz ./openxm-$(VERSION).tar.gz)
+
+link-for-fake-openxm: make-directory clean
+	(cd work/SOURCES ; rm -rf openxm-$(VERSION).tar.gz ; ln -s $(HOME)/tmp/openxm-fake.tar.gz ./openxm-$(VERSION).tar.gz)
+
+
+
+
+
