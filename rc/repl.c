@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.1 2000/01/18 09:38:58 takayama Exp $ */
 #include <stdio.h>
 #include <unistd.h>
 
@@ -16,6 +16,7 @@ main() {
 	  printf("%s",s);
 	}
   }
+  exit(0);
 }
 
 	  
