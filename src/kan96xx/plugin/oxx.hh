@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.5 2000/12/03 08:19:55 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.6 2000/12/05 12:03:44 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
@@ -76,7 +76,7 @@ else if (strcmp(key,"oxGetPort") == 0) {
 else if (strcmp(key,"oxGetPort1") == 0) {
   if (size != 2) errorKan1("%s\n","[(oxGetPort1) host] extension obj");
   if (SecureMode) errorKan1("%s\n","Security violation for oxGetPort.");
-  rob = KoxGetPort(getoa(obj,1));
+  rob = KoxGetPort1(getoa(obj,1));
 }
 else if (strcmp(key,"oxCreateClient2") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient2) peer ipmask pass] extension client.");
@@ -129,6 +129,11 @@ else if (strcmp(key,"oxCreateControl_RFC_101") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateControl_RFC_101) peer ipmask pass] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateControl_RFC_101.");
   rob = KoxCreateControl_RFC_101(getoa(obj,1),getoa(obj,2),getoa(obj,3));
+}
+else if (strcmp(key,"oxCreateEngine_RFC_101") == 0) {
+  if (size != 5) errorKan1("%s\n","[(oxCreateEngine_RFC_101) peer ipmask pass engineID] extension client.");
+  if (SecureMode) errorKan1("%s\n","Security violation for oxCreateEngine_RFC_101.");
+  rob = KoxCreateEngine_RFC_101(getoa(obj,1),getoa(obj,2),getoa(obj,3),getoa(obj,4));
 }
 
 

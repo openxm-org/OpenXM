@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxx.h,v 1.3 2000/12/03 07:29:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxx.h,v 1.4 2000/12/05 12:03:43 takayama Exp $ */
 struct object KoxCreateClient(struct object ip,struct object portStream,
 			      struct object portControl);
 struct object KoxCloseClient(struct object client);
@@ -21,5 +21,5 @@ int KgetCmoTagOfObject(struct object obj);
 struct object KoxPushCMD(struct object client,struct object cmd);
 struct object KoxPushCMO(struct object client,struct object ob);
 struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,struct object pass);
-struct object KoxStartEngine_RFC_101(struct object control,struct object name);
+struct object KoxCreateEngine_RFC_101(struct object peer,struct object ipmask,struct object pass,struct object engineID);
 

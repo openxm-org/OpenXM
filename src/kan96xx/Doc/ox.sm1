@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.13 2000/12/05 11:20:26 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.14 2000/12/05 12:03:43 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -87,6 +87,7 @@ ox.version [(Version)] system_variable gt
 
 /SM_control_kill 1024 def
 /SM_control_reset_connection  1030 def
+/SM_control_spawn_server  1027 def
 
 /Etag_error 257 def
 
@@ -916,7 +917,7 @@ ox.verbose {
 } def
 
 %% Test code for oxCreateControl_RFC_101
-/sm1connect101 {
+/sm1StartControl101 {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [
  /pass [(oxGenPass)] extension def
@@ -937,15 +938,18 @@ ox.verbose {
 } def
 
 /sm1StartEngine101 {
- [/in-sm1StartEngine101 /peer /data /control ] pushVariables
+ [/in-sm1StartEngine101 /peer /data /control /engineID] pushVariables
  [
     /peer [(oxGetPort1) (localhost)] extension def
     /data peer 1 get def
+
     ox.ccc data oxpushcmo
     ox.ccc (/home/nobuki/OpenXM/bin/ox_sm1) oxpushcmo
     [(oxPushCMD) ox.ccc SM_control_spawn_server] extension
-    (Implementation has not yet completed.) error
-    %% how can I get client structure?
+    ox.ccc oxpopcmo /engineID set
+    [(oxCreateEngine_RFC_101) peer 0 (Empty) engineID] extension
+    /ox.ddd set
+    (The engine is binded to the variables ox.ddd) message
  ] pop
  popVariables
  arg1
