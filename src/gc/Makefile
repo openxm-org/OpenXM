@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.4 2003/11/10 23:13:38 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.5 2004/02/13 00:47:12 takayama Exp $
 OpenXM_HOME=../..
 OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
 OpenXM_lib=${OpenXM_HOME}/lib
@@ -19,7 +19,7 @@ install:
 		make -f Makefile-ports install ; \
 	fi
 
-all-l:
+all-l: configure-l
 	@if [ ! -f ./.make_done ]; then \
 		(cd ${GC} ; make) ; \
 		touch ./.make_done ; \
@@ -32,6 +32,15 @@ install-l: all-l
 		cp ${GC}/include/gc.h ${GC}/include/gc_cpp.h ${OpenXM_include}/gc ; \
 		touch ./.install_done ; \
 	fi
+
+configure-l:
+	@if [ ! -f ./.configure_done ]; then \
+	    if [ `uname` = "Interix" ]; then \
+	        cat ./gc5_interix.diff | ( cd ${OpenXM_contrib}/gc; patch ); \
+	    fi ; \
+	    touch ./.configure_done ; \
+	fi
+
 clean: 
 	@if [ -f ./.make_done ]; then \
 		(cd ${GC} ; make clean) \

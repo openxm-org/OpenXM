@@ -1,0 +1,14 @@
+# $OpenXM$
+--- gcconfig.h.orig	Sun Feb 22 03:57:51 2004
++++ gcconfig.h	Sat Feb 28 23:36:16 2004
+@@ -40,6 +40,10 @@
+ 
+ /* Machine specific parts contributed by various people.  See README file. */
+ 
++#if defined(__INTERIX)
++#define __CYGWIN__
++#endif
++
+ /* First a unified test for Linux: */
+ # if defined(linux) || defined(__linux__)
+ #  ifndef LINUX
