@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.8 2000/12/14 03:14:01 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.9 2000/12/15 03:34:43 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,13 +34,22 @@ int lf_oxc_open_main(char *cmd, short port)
     return pid; /* if error, pid == 0 */
 }
 
+#define MAX_RETRY  2000
+
 OXFILE *connection()
 {
-    OXFILE *oxfp = oxf_connect_active(remote_host, port);
-    if (oxfp != NULL) {
-        oxf_confirm_server(oxfp, password);
-        oxf_determine_byteorder_server(oxfp);
+    OXFILE *oxfp;
+    int counter = MAX_RETRY;
+    while((oxfp = oxf_connect_active(remote_host, port)) == NULL) {
+        if (--counter > 0) {
+            usleep(100); /* spends 100 micro seconds */
+        }else {
+            fprintf(stderr, "oxc: cannot connect.\n");
+            return NULL;
+        }
     }
+    oxf_confirm_server(oxfp, password);
+    oxf_determine_byteorder_server(oxfp);
     return oxfp;
 }
 
@@ -78,8 +87,8 @@ int main(int argc, char *argv[])
     char *myname = argv[0];
     int oxlog = 0;
     int c;
-	int delay = 0;
-	char *delay_s = "0";
+    int delay = 0;
+    char *delay_s = "0";
 
     while ((c = getopt(argc, argv, "d:c:p:h:x")) != -1) {
         switch(c) {
@@ -99,10 +108,10 @@ int main(int argc, char *argv[])
                 oxlog = 1;
             }
             break;
-		case 'd':
-			delay_s = optarg;
-			delay = atoi(optarg);
-			break;			
+        case 'd':
+            delay_s = optarg;
+            delay = atoi(optarg);
+            break;            
         default:
         }
     }
@@ -120,10 +129,8 @@ int main(int argc, char *argv[])
     }
 
     fprintf(stderr, "start connection!\n");
-	usleep(delay);
-    if ((oxfp = connection()) == NULL) {
-        fprintf(stderr, "oxc: cannot connect.\n");
-    }else {
+    usleep(delay);
+    if ((oxfp = connection()) != NULL) {
         fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
         mathcap_init(20001006, "v2000.10.06", "oxc", basic0, NULL);
         sm(oxfp);
