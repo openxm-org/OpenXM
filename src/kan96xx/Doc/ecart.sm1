@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.13 2003/08/26 12:46:03 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.14 2003/08/27 03:11:13 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -14,6 +14,52 @@
 /ecartd.end {  
   ecart.end 
   [(EcartAutomaticHomogenization) 0] system_variable
+} def
+
+/ecart.setOpt {
+  /arg1 set
+  [/in-ecart.setOpt /opt /i /n /ans] pushVariables
+  [
+    /opt arg1 def
+    /ans [ ] def
+    /n opt length def
+    0 2 n 1 sub {
+      /i set
+      opt i get tag StringP eq not {
+         (ecart.setOpt : [keyword value keyword value ....] ) error
+      } {  } ifelse
+     {  % start of the loop
+% Global:  degreeShift
+      opt i get (degreeShift) eq {
+        /degreeShift opt i 1 add get def 
+        exit
+      } {  } ifelse
+% Global:  hdShift
+      opt i get (startingShift) eq {
+        /hdShift opt i 1 add get def
+        exit
+      } {  } ifelse
+% Global:  hdShift
+      opt i get (noAutoHomogenize) eq {
+        /hdShift -1 def
+        exit
+      } {  } ifelse
+      ans [opt i get opt i 1 add get ]  append /ans set
+      exit
+     } loop
+    } for 
+
+    ecart.gb.verbose {
+      (ecart.setOpt:) message
+      (degreeShift=) messagen degreeShift message
+      $hdShift(startingShift)=$ messagen hdShift message
+      (Other options=) messagen ans message
+    } {  } ifelse
+
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
 } def
 
 /ecart.dehomogenize {
@@ -171,12 +217,12 @@
   (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
   (a : [f v];   array f; string v;  v is the variables. )
   (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
-  (a : [f v w ds]; array f; string v; array of array w; w is the weight matirx.)
+  $a : [f v w [(degreeShift) ds]]; array f; string v; array of array w; w is the weight matirx.$
   (                array ds; ds is the degree shift for the ring. )
-  (a : [f v w ds hdShift]; array f; string v; array of array w; w is the weight matirx.)
+  $a : [f v w [(degreeShift) ds (startingShift) hdShift]]; array f; string v; array of array w; w is the weight matirx.$
   (        array ds; ds is the degree shift for the ring. )
   (        array hsShift is the degree shift for the homogenization. cf.homogenize )
-  $a : [f v w ds (no)]; array f; string v; array of array w; w is the weight matirx.$
+  $a : [f v w [(degreeShift) ds (noAutoHomogenize) 1]]; array f; string v; array of array w; w is the weight matirx.$
   (       No automatic homogenization.)
   (  )
   $cf. ecarth.gb (homogenized),  ecartd.gb (dehomogenize) $
@@ -198,7 +244,8 @@
   (   This example will cause an error on order.)
   (  )
   $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  [[0 1] [-3 1] ] ] ecart.gb pmat ; $
+  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  $
+  $             [(degreeShift) [[0 1] [-3 1]]] ] ecart.gb pmat ; $
   (  )
   (cf. gb, groebner, ecarth.gb, ecartd.gb, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
   (    ecart.dehomogenize, ecart.dehomogenizeH)
@@ -259,59 +306,19 @@
        /wv aa 2 get def
        /setarg 1 def
     } { } ifelse
+
     typev [ArrayP StringP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /setarg 1 def
-    } { } ifelse
-
-    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
-    {  /f aa 0 get def
-       /v aa 1 get def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
     typev [ArrayP ArrayP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
-    {  /f aa 0 get def
-       /v aa 1 get from_records def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP ArrayP ArrayP ArrayP StringP] eq
-    {  /f aa 0 get def
-       /v aa 1 get from_records def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       aa 4 get (no) eq {
-         /hdShift -1 def
-       } {  
-         (Unknown keyword for the 5th argument) error
-       } ifelse
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP StringP ArrayP ArrayP StringP] eq
-    {  /f aa 0 get def
-       /v aa 1 get  def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       aa 4 get (no) eq {
-         /hdShift -1 def
-       } {  
-         (Unknown keyword for the 5th argument) error
-       } ifelse
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
 
@@ -472,7 +479,7 @@
   (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
   (a : [f v];   array f; string v;  v is the variables. )
   (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
-  (a : [f v w ds]; array f; string v; array of array w; w is the weight matirx.)
+  $a : [f v w [(degreeShift) ds]]; array f; string v; array of array w; w is the weight matirx.$
   (                array ds; ds is the degree shift )
   (  )
   (/ecart.autoHomogenize 0 def )
@@ -492,7 +499,8 @@
   $             [ [ (x) -1 (y) -1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecarth.gb pmat ; $
   (  )
   $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  [[0 1] [-3 1] ] ] ecarth.gb pmat ; (buggy infinite loop)$
+  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ] $
+  $            [(degreeShift) [[0 1] [-3 1] ]]  ] ecarth.gb pmat ; $
   (  )
   (cf. gb, groebner, ecart.gb, ecartd.gb, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
   (    ecart.dehomogenize, ecart.dehomogenizeH)
@@ -592,18 +600,19 @@
        /wv aa 2 get def
        /setarg 1 def
     } { } ifelse
+
     typev [ArrayP StringP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
     typev [ArrayP ArrayP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
 
@@ -786,58 +795,19 @@
        /wv aa 2 get def
        /setarg 1 def
     } { } ifelse
+
     typev [ArrayP StringP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
     typev [ArrayP ArrayP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
-    {  /f aa 0 get def
-       /v aa 1 get def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
-    {  /f aa 0 get def
-       /v aa 1 get from_records def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP ArrayP ArrayP ArrayP StringP] eq
-    {  /f aa 0 get def
-       /v aa 1 get from_records def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       aa 4 get (no) eq {
-         /hdShift -1 def
-       } {  
-         (Unknown keyword for the 5th argument) error
-       } ifelse
-       /setarg 1 def
-    } { } ifelse
-    typev [ArrayP StringP ArrayP ArrayP StringP] eq
-    {  /f aa 0 get def
-       /v aa 1 get def
-       /wv aa 2 get def
-       /degreeShift aa 3 get def
-       aa 4 get (no) eq {
-         /hdShift -1 def
-       } {  
-         (Unknown keyword for the 5th argument) error
-       } ifelse
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
 
@@ -1049,7 +1019,7 @@
   /shift [ [1 0 1 0 0] ] def
   /weight [ [(t) -1 (Dt) 1] [(t) -1 (x) -1 (y) -1 (Dt) 1 (Dx) 1 (Dy) 1]] def
 
-  [ff (t,x,y) weight shift nmshift] ecart.minimalBase
+  [ff (t,x,y) weight [(degreeShift) shift (startingShift) nmshift]] ecart.minimalBase
 
 
 }  def
@@ -1145,21 +1115,20 @@
     /wv 0 def
     /degreeShift 0 def
     /hdShift 0 def 
+    /opt [ ] def
     aa { tag } map /typev set
-    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
+    typev [ArrayP StringP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
-    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
+    typev [ArrayP ArrayP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
     setarg { } { (ecart.minimalBase : Argument mismatch) error } ifelse
@@ -1169,51 +1138,53 @@
     f 0 get tag ArrayP eq {  }
     {  f { /tt set [ tt ] } map /f set } ifelse
 
-    [f v wv degreeShift [hdShift 0 get degreeShift 0 get]]
+    [f v wv [(degreeShift) degreeShift (startingShift) [hdShift 0 get degreeShift 0 get]] opt join]
     ecart.gb /ff set
     ff getRing ring_def 
 
     ff 0 get { {toString } map } map /ff set
  
-    [ff v wv degreeShift [hdShift 0 get degreeShift 0 get]] /arg1 set
+    [ff v wv 
+      [(degreeShift) degreeShift (startingShift) [hdShift 0 get degreeShift 0 get]] opt join
+    ] /arg1 set
   ] pop
   popVariables
   arg1
 } def
 [(ecart.gen_input)
-[([ff v weight_vector uv_shift_m [D_shift_n uv_shift_m]]  ecart.gen_input )
- (               [gg_h v weight_vector uv_shift_m [D_shift_n uv_shift_m]] )
+[$[ff v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]] ]  ecart.gen_input $
+ $               [gg_h v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]] $
  (It generates the input for the minimal filtered free resolution.)
  (Current ring is changed to the ring of gg_h.)
  (cf. ecart.minimalBase)
   $Example: [ [(t-x^3+y^2) (Dx+ 3 x^2 Dt) (Dy - 2 y Dt)] (t,x,y) $
   $           [ [(t) -1 (Dt) 1] [(t) -1 (x) -1 (y) -1 (Dt) 1 (Dx) 1 (Dy) 1]] $
-  $           [ [0] ] $
-  $           [ [0] [0] ] ] ecart.gen_input /gg set gg pmat $
+  $          [(degreeShift) [ [0] ] $
+  $           (startingShift) [ [0] [0] ]] ] ecart.gen_input /gg set gg pmat $
 ]] putUsages
 
   
 [(ecart.minimalBase)
-[([ff v weight_vector uv_shift_m [D_shift_n uv_shift_m]]  ecart.minimalBase )
+[$[ff v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]]  ecart.minimalBase $
  (  [mbase gr_of_mbase )
- (     [syz v weight_vector new_uv_shift_m [new_D_shift_n new_uv_shift_m]])
+ $     [syz v weight_vector [(degreeShift) new_uv_shift_m (startingShift) [new_D_shift_n new_uv_shift_m]]]$
  (     gr_of_syz ])
  (mbase is the minimal generators of ff in D^h in the sense of filtered minimal)
  (generators.)
   $Example: [ [(t-x^3+y^2) (Dx+ 3 x^2 Dt) (Dy - 2 y Dt)] (t,x,y) $
   $           [ [(t) -1 (Dt) 1] [(t) -1 (x) -1 (y) -1 (Dt) 1 (Dx) 1 (Dy) 1]] $
-  $           [ [0] ] $
-  $           [ [0] [0] ] ] ecart.gen_input /gg0 set $
+  $           [(degreeShift) [ [0] ] $
+  $            (startingShift) [ [0] [0] ] ] ] ecart.gen_input /gg0 set $
   $         gg0 ecart.minimalBase /ss0 set $
   $         ss0 2 get ecart.minimalBase /ss1 set $
   $         ss1 2 get ecart.minimalBase /ss2 set $
   $     (---------  minimal filtered resolution -------) message $
   $     ss0 0 get pmat ss1 0 get pmat ss2 0 get pmat  $
   $     (---------  degree shift (n,m) n:D-shift m:uv-shift  -------) message $
-  $     gg0       4 get message $
-  $     ss0 2 get 4 get message $
-  $     ss1 2 get 4 get message $
-  $     ss2 2 get 4 get message ; $
+  $     gg0       3 get 3 get message $
+  $     ss0 2 get 3 get 3 get message $
+  $     ss1 2 get 3 get 3 get message $
+  $     ss2 2 get 3 get 3 get message ; $
 
 ]] putUsages
 /ecart.minimalBase {
@@ -1236,21 +1207,20 @@
     /wv 0 def
     /degreeShift 0 def
     /hdShift 0 def 
+    /opt [ ] def
     aa { tag } map /typev set
-    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
+    typev [ArrayP StringP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
-    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
+    typev [ArrayP ArrayP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
        /wv aa 2 get def
-       /degreeShift aa 3 get def
-       /hdShift aa 4 get def
+       opt aa 3 get ecart.setOpt join /opt set
        /setarg 1 def
     } { } ifelse
     setarg { } { (ecart.minimalBase : Argument mismatch) error } ifelse
@@ -1259,7 +1229,7 @@
 
     f 0 get tag ArrayP eq {  }
     {  f { /tt set [ tt ] } map /f set } ifelse
-    [f v wv degreeShift (no)] ecart.syz /ss0 set
+    [f v wv [(degreeShift) degreeShift (noAutoHomogenize) 1] opt join] ecart.syz /ss0 set
 
     ss0 getRing ring_def
     /degreeShiftD  hdShift 0 get def
@@ -1352,7 +1322,7 @@
    /arg1 
      [  ai1 
         ai1 {[wv 0 get weightv  degreeShift 0 get] init} map %Getting gr of A_{i-1}
-        [ai v wv [degreeShiftUVnew] [degreeShiftDnew degreeShiftUVnew]] 
+        [ai v wv [(degreeShift) [degreeShiftUVnew] (startingShift) [degreeShiftDnew degreeShiftUVnew]]] 
         ai {[wv 0 get weightv  degreeShiftUVnew] init} map %Getting gr of A_i
      ] 
    def
@@ -1361,6 +1331,51 @@
   arg1
 } def
 
+/ecart.minimalResol {
+  /arg1 set
+  [/in-ecart.minimalResol /aa /ans /gg0 /ansds /ans_gr /c] pushVariables
+  [
+     /aa arg1 def
+     /ans [ ] def
+     /ansds [ ] def
+     /ans_gr [ ] def
+     /c 0 def
+
+    (---- ecart.gen_input ----) message
+     aa ecart.gen_input /gg0 set
+     ansds gg0 3 get 3 get append /ansds set
+     (---- ecart.minimalBase --- Degree ) messagen c message c 1 add /c set
+     gg0 ecart.minimalBase /ssi set
+     ansds ssi 2 get 3 get 3 get append /ansds set
+     ans ssi 0 get  append /ans set
+     ans_gr ssi 1 get append /ans_gr set 
+     {
+       ssi 3 get [ ] eq { exit } { } ifelse
+       (---- ecart.minimalBase --- Degree ) messagen c message c 1 add /c set
+       ssi 2 get ecart.minimalBase /ssi_new set
+       ans ssi_new 0 get append /ans set
+       ansds ssi_new 2 get 3 get 3 get append /ansds set
+       ans_gr ssi_new 1 get append /ans_gr set
+       /ssi ssi_new def
+     } loop
+     /arg1 [ans ansds ans_gr] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+(ecart.minimalResol) message
+
+[(ecart.minimalResol)
+[
+
+ $[ff v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]]  ecart.minimalResol $
+ (  [resol degree_shifts gr_of_resol_by_uv_shift_m] )
+  $Example1: [ [(t-x^3+y^2) (Dx+ 3 x^2 Dt) (Dy - 2 y Dt)] (t,x,y) $
+  $           [ [(t) -1 (Dt) 1] [(t) -1 (x) -1 (y) -1 (Dt) 1 (Dx) 1 (Dy) 1]] $
+  $           [(degreeShift) [ [0] ] $
+  $            (startingShift) [ [0] [0] ] ] ] ecart.minimalResol /gg set gg pmat $
+]] putUsages
 
 ( ) message-quiet 
 
