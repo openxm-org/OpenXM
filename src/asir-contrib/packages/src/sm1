@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.37 2002/07/28 05:20:43 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.38 2002/07/30 12:55:29 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -72,7 +72,7 @@ def sm1_start_windows(U) {
   extern Sm1_lib;
   extern Xm_noX;
   extern Sm1_proc;
-  extern Xm_use_timer_start_server;
+  extern Xm_use_timer_to_start_server;
 
   CPort = generate_port();
   SPort = generate_port();
@@ -107,7 +107,7 @@ def sm1_start_windows(U) {
   print(Com +"\n");
   shell(Com);
   if (Xm_use_timer_to_start_server) {
-    print("Sleeping 3 seconds."); sleep(3000); 
+    print("Waiting for 3 seconds."); sleep(3000); 
   }else{
     purge_stdin(); print("Type in Return to connect to the server.");
     get_line();
