@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.1 2000/02/08 13:25:41 takayama Exp $ */
 #include <stdio.h>
 #include "oxasir.h"
 
@@ -26,7 +26,7 @@ hoge() {
   {00, 00, 00, 04, 00, 00, 00, 04,
    0x69,0x67,0x63,0x64 };
   unsigned char cmo[1024];
-  int i;
+  int i,size;
 
   asir_ox_init(0);
   asir_ox_push_cmo(cmo0);
@@ -36,9 +36,15 @@ hoge() {
 
   asir_ox_push_cmd(SM_executeFunction);  /* execute function */
   
-  asir_ox_pop_cmo(cmo, 20);
+  size = asir_ox_peek_cmo_size();
+  if (size < 1024) {
+	asir_ox_pop_cmo(cmo, size);
+  }else{
+	fprintf(stderr,"Too big cmo size.\n"); exit(1);
+  }
 
-  for (i=0; i<20; i++) {
+  printf("gcd of 12 and 8, in the cmo format, is \n");
+  for (i=0; i<size; i++) {
 	printf(" %2x ",cmo[i]);
   }
   printf("\n");

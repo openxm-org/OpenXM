@@ -1,6 +1,6 @@
-# $OpenXM$
+# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.1 2000/02/08 13:25:41 takayama Exp $
 all : test1 test2
-
+CC=gcc
 ASIR_SOURCE=../../OpenXM_contrib2/asir2000
 A=$(ASIR_SOURCE)
 P=$(HOME)/OpenXM/lib
@@ -19,7 +19,7 @@ test2 : test2.o
 	gcc -o test2 test2.o $(ASIR_LIB) $(GC) -lm
 
 .c.o :
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c -g $<
+	${CC} $(CFLAGS) -I$(INCLUDE) -c -g $<
 
 
 
