@@ -1,0 +1,30 @@
+ox_maple 開発のためのノート.
+
+(1) OpenXM_HOME を正しく設定.
+(2) source dot.bashrc 
+      で ox_maple のテスト環境を設定.
+
+simple.* は  maple から ox をよぶ短いサンプルプログラム. 
+これ以上長くしないこと. 
+
+入力例 1:
+maple
+read `simple.ml`;
+ox_execute_string("1+2;");
+ox_pop_string();
+ox_execute_string("fctr(x^3-1);");
+ox_pop_string();
+
+
+------------------------------------------------------
+たかやま local note:
+ssh mango -l takayama 
+bash 
+cd /private/taka/OpenXM/src/ox_maple   (-l taka は使わず.)
+export OpenXM_HOME=/private/taka/OpenXM
+source dot.bashrc
+
+cd ../ox_toolkit ; make libox.so  をやっておく.
+
+
+$OpenXM$
