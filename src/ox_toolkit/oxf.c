@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.12 2002/04/10 08:55:45 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.13 2003/01/11 11:42:31 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -271,7 +271,7 @@ int oxc_start(char *remote_host, short port, char *passwd)
         if ((pid = fork()) == 0) {
             sprintf(ports, "%d", port);
 #ifdef DEBUG
-            fprintf(ox_stderr, "oxf.c:: oxc_start() does %s(ssh) -f %s -h %s -p %s -c %s\n", remote_host, cmd, localhost, ports, passwd);
+            ox_printf("oxf.c:: oxc_start() does %s(ssh) -f %s -h %s -p %s -c %s\n", remote_host, cmd, localhost, ports, passwd);
 #endif
             execlp("ssh", remote_host, "-f", cmd,
                   "-h", localhost, "-p", ports,"-c", passwd, NULL);

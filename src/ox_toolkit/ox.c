@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.18 2000/12/05 08:30:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.19 2003/01/11 11:42:31 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -18,6 +19,8 @@
 #include "mysocket.h"
 #include "ox_toolkit.h"
 #include "parse.h"
+
+static FILE *ox_stderr = NULL;
 
 /* sorting by the value of CMO_xxx.  (for debugging) */
 static cmo_null*         receive_cmo_null(OXFILE *oxfp);
@@ -271,7 +274,7 @@ cmo* receive_cmo(OXFILE *oxfp)
     case CMO_QQ:
     default:
         m = NULL;
-        fprintf(ox_stderr, "the CMO (%d) is not implemented.\n", tag);
+        ox_printf("the CMO (%d) is not implemented.\n", tag);
     }
     return m;
 }
@@ -301,7 +304,7 @@ void ox_close(OXFILE *sv)
 #ifdef DEBUG
     sleep(2);
     /* We wait thar an OpenXM server terminates. */
-    fprintf(ox_stderr, "I have closed the connection to an Open XM server.\n");
+    ox_printf("I have closed the connection to an Open XM server.\n");
 #endif
 }
 
@@ -384,7 +387,7 @@ void ox_reset(OXFILE *sv)
 
     send_ox_tag(sv, OX_SYNC_BALL);
 #ifdef DEBUG
-    fprintf(ox_stderr, "I have reset an Open XM server.\n");
+    ox_printf("I have reset an Open XM server.\n");
 #endif
 }
 
@@ -568,4 +571,11 @@ int ox_stderr_init(FILE *fp)
 {
     ox_stderr = (fp != NULL)? fp: (stderr);
     setbuf(ox_stderr, NULL);
+}
+
+int ox_printf(char *format, ...)
+{
+	va_list ap;
+	va_start(ap, format);
+	vfprintf(ox_stderr, format, ap);
 }

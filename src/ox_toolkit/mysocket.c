@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.6 2000/12/01 16:31:11 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.7 2003/01/11 11:42:31 ohara Exp $ */
 /*
 Q: How to get a local port number?
 A: You do setsockopt() to set options and do socket(), bind().
@@ -53,7 +53,7 @@ static int ox_connect(char *hostname, int port, ox_sockopt *opt)
     struct sockaddr_in serv;
     int s = getsocket(&serv, hostname, port);
     if (connect(s, (struct sockaddr *)&serv, sizeof(serv)) != 0) {
-        fprintf(ox_stderr, "ox_connect: failed. socket = %d, errno = %d\n", s, errno);
+        ox_printf("ox_connect: failed. socket = %d, errno = %d\n", s, errno);
         return -1;
     }
     return s;
@@ -68,7 +68,7 @@ static int ox_listen(char *hostname, int *port, int backlog, ox_sockopt *opt)
                opt->option_value, opt->option_len);
     if (bind(s_waiting, (struct sockaddr *)&me, sizeof(me)) < 0
         || listen(s_waiting, backlog) < 0) {
-        fprintf(ox_stderr, "ox_listen: failed.\n");
+        ox_printf("ox_listen: failed.\n");
         return -1;
     }
     return s_waiting;
@@ -79,7 +79,7 @@ static int ox_getport(int s_waiting)
     struct sockaddr_in me;
     int len = sizeof(me);
     if (getsockname(s_waiting, (struct sockaddr *)&me, &len) < 0) {
-        fprintf(ox_stderr, "ox_getport: failed.\n");
+        ox_printf("ox_getport: failed.\n");
         return -1;
     }
     return ntohs(me.sin_port);
@@ -113,7 +113,7 @@ int mypipe(char *program, int fd1, int fd2)
 {
     int sockfd[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockfd) < 0) {
-        fprintf(ox_stderr, "socketpair: fail! errno = %d\n", errno);
+        ox_printf("socketpair: fail! errno = %d\n", errno);
     }
     if (fork() == 0) {
         /* child process */
