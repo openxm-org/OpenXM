@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.3 2004/03/18 05:45:08 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.4 2004/03/20 01:09:47 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -170,12 +170,15 @@ symbol_table $B$K$h$kJQ49$,:G=i$KE,MQ$5$l$k(B.
 alpha, beta, $BEy$O<+F0E*$r%.%j%7%cJ8;z$KJQ49$9$k%F!<%V%k$O(B
 $BFbB"$:$_(B.
 @item 
-dp_vars_prefix: $BJ,;6I=8=B?9`<0$O(B
-@tex 
-$x_0, x_1, \cdots$
-@end tex 
-$B$NB?9`<0$H$7$F(B latex $B7A<0$KJQ49$5$l$k$,$3$N(B
-x $B$NItJ,$rJQ99$9$k(B.
+  dp_vars_prefix: $BJ,;6I=8=B?9`<0$O(B
+  @tex 
+  $x_0, x_1, \cdots$
+  @end tex 
+  $B$NB?9`<0$H$7$F(B latex $B7A<0$KJQ49$5$l$k$,$3$N(B
+  x $B$NItJ,$rJQ99$9$k(B.
+@item 
+  dp_vars_origin: $B%$%s%G%C%/%9$N;O$^$j$NCM$r;XDj$9$k(B.
+  $B%G%U%)!<%k%H$O(B 0.
 @item
 dp_vars_hweyl: $BJ,;6I=8=B?9`<0$r%o%$%kBe?t$N85$H$_$J$7$F(B
 latex $B7A<0$KJQ49$9$k(B.
@@ -190,6 +193,11 @@ $\partial_0, \partial_1, \cdots$
 @end tex 
 $B$KJQ49$9$k(B.
 $B4q?t8D$N>l9g$O:G8e$NJQ?t$,F1;~2=JQ?t$H$7$F(B h $B$GI=<($5$l$k(B.
+@item
+  dp_dvars_prefix: dp_vars_hweyl $B$,(B 1 $B$N;~$K8eH>ItJ,$N(B prefix $B$r;XDj$9$k(B.
+  $B%G%U%)!<%k%H$O(B @tex $\partial$ @end tex
+@item
+  dp_dvars_origin: dp_vars_hweyl $B$,(B 1 $B$N;~$N%$%s%G%C%/%9$N;O$^$j$NCM(B.
 @item 
 conv_func: $B%f!<%6Dj5A$NJQ494X?t$r$h$V(B.
 @item 
@@ -218,20 +226,27 @@ print_tex_form(contrib)
 @noindent
 ChangeLog
 @itemize @bullet
-@item $B$3$N4X?t$O(B 2004$BG/(B2$B7nKv$+$i(B3$B7n$K$+$1$F(B asir $B$r(B 
-knoppix $BHG(B texmacs $B$KBP1~$5$;$k$?$a$K=q$+$l$?(B. 
-Asir-contrib $B$N(B print_tex_form $B$,$=$N867?$G$"$j(B, $B$=$l$r8zN(2=$7$^$?(B
-$B=PNO7A<0$r2~A1$7$?(B.
-OpenXM/src/kxx/ox_texmacs.c, OpenXM/src/texmacs $B$b;2>H(B.
-@item OpenXM/src/asir-contrib/packages/src/noro_print.rr 1.1--1.8, 
-noro_print_default.rr 1.1--1.3 $B$b;2>H(B.
-@item $BJQ99$r<u$1$?%U%!%$%k$O(B OpenXM_contrib2/asir2000 $B$N2<$N<!$N%U%!%$%k(B.
+@item 
+ $B$3$N4X?t$O(B 2004$BG/(B2$B7nKv$+$i(B3$B7n$K$+$1$F(B asir $B$r(B 
+ knoppix $BHG(B texmacs $B$KBP1~$5$;$k$?$a$K=q$+$l$?(B. 
+ Asir-contrib $B$N(B print_tex_form $B$,$=$N867?$G$"$j(B, $B$=$l$r8zN(2=$7$^$?(B
+ $B=PNO7A<0$r2~A1$7$?(B.
+ OpenXM/src/kxx/ox_texmacs.c, OpenXM/src/texmacs $B$b;2>H(B.
+@item 
+ OpenXM/src/asir-contrib/packages/src/noro_print.rr 1.1--1.8, 
+ noro_print_default.rr 1.1--1.3 $B$b;2>H(B.
+@item 
+ $BJQ99$r<u$1$?%U%!%$%k$O(B OpenXM_contrib2/asir2000 $B$N2<$N<!$N%U%!%$%k(B.
   builtin/strobj.c 1.14--1.43,
   include/ca.h 1.46, io/cexpr.c 1.18, io/pexpr.c 1.32, io.sexpr.c 1.29,
   parse/arith.c 1.12, parse/parse.h 1.28--1.29,
   parse/quote.c 1.7--1.8, 1.12.
 @item 
   knoppix/math $B$O(B $BJ!2,Bg3X$N_@ED$5$s$,Cf?4$H$J$j3+H/$5$l$F$$$k(B.
+@item 
+  dp_dvars_prefix, *_origin $B$O(B builtin/strobj.c 1.46 $B$GF3F~$5$l$?(B.
+@item
+  Todo: quotetoterminalform ($BJ,;6I=8=B?9`<0$N8+0W$$=PNO(B).
 @end itemize
 
 
@@ -383,10 +398,15 @@ Hello world!
 @noindent
 ChangeLog
 @itemize @bullet
-@item $B$3$N4X?t$O(B 2004-3 $B$K(B print_tex_form $B$r8zN(2=$9$k$?$a$K=q$+$l$?(B.
-@item OpenXM_contrib2/asir2000 $B$N2<$N0J2<$N%U%!%$%k$r8+$h(B.
+@item 
+ $B$3$N4X?t$O(B 2004-3 $B$K(B print_tex_form $B$r8zN(2=$9$k$?$a$K=q$+$l$?(B.
+@item 
+ OpenXM_contrib2/asir2000 $B$N2<$N0J2<$N%U%!%$%k$r8+$h(B.
 io/ox_asir.c 1.52, builtin/strobj.c 1.12--1.13, 1.16,
 engine/str.c 1.5, parse/quote.c 1.9.
+@item 
+ rtostr $B$,(B text buffer $B7?$N%G!<%?$K4X$7$F$*$=$+$C$?(B. $BB.EY$N2~A1$O(B
+ asir2000/io/pexpr_body.c 1.2, asir2000/parse/lex.c 1.32.
 @end itemize
 
 
@@ -420,7 +440,7 @@ engine/str.c 1.5, parse/quote.c 1.9.
 @item b
 ???
 @item sw
-Sugar strategy $B$rE,MQ$9$k$H$-$N(B weight vector.
+Sugar strategy $B$rE,MQ$9$k$H$-$N(B weight vector. $BA4$F$NMWAG$OHsIi(B.
 @end table
 
 @itemize @bullet
@@ -433,24 +453,38 @@ Sugar strategy $B$rE,MQ$9$k$H$-$N(B weight vector.
 @item $B=g=x(B order $B$O<!$NJ8K!$GDj5A$9$k(B.  @{, @} $B$O(B 0 $B2s0J>e$N7+$jJV$7$r0UL#$9$k(B.
 @verbatim
   order         : '[' orderElement { ',' orderElement } ']'
-  orderElemnt   :  weightVec | builtinOrder
+  orderElement   :  weightVec | builtinOrder
   weightVec     : '[' weightElement { ',' weightElement } ']'
   builtiniOrder : '[' orderName  ',' setOfVariables ']'
   weightElement :   NUMBER | setOfVariables ',' NUMBER
   setOfVariables:  V | range(V,V)
-  ornderName    : @grlex | @glex | @lex
+  orderName    : @grlex | @glex | @lex
 @end verbatim
 $B$3$3$G(B @code{V} $B$O(B $BJQ?tL>(B, @code{NUMBER} $B$O@0?t$r$"$o$i$9(B.
 $BNc(B1:  @code{v=[x,y,z,u,v], order=[[x,10,y,5,z,1],[@@grlex,range(x,v)]]}
 $B$O(B @code{x},@code{y},@code{z} $B$,$=$l$>$l(B weight 10, 5, 1 $B$r$b$D(B
 $B=g=x$GHf3S$7$?$"$H(B, @code{[x,y,z,u,v]} $B$K$D$$$F$N(B 
 graded reverse lexicographic order $B$r(B tie-breaker $B$H$7$FMQ$$$k$3$H$r0UL#$9$k(B.
-$B;29M=q(B: SST, S, $BEy(B.
+$B;29M=q(B: B.Sturmfels: Gr\"obner Bases and Convex Polytopes (1995).
+M.Saito, B.Sturmfels, N.Takayama:
+Gr\"obner Deformations of Hypergeometric Differential Equations (2000).
+@item
+  $B=g=xMWAG(B (orderElement) $B$N;XDjJ}K!$O(B 
+ (1) $BJQ?tL>$^$?$O(B range$B$G;XDj$5$l$?JQ?t$N=89g$H=E$_$NCM$N7+$jJV$7(B
+ (2) $B=E$_$NCM$rJQ?t%j%9%H$N=gHV$KJB$Y$kJ}K!(B
+ (3) $BJQ?tL>$^$?$O(B range$B$G;XDj$5$l$?JQ?t$N=89g$H=g=xL>$NAH(B
+ $B$N;0DL$j$N4pACE*J}K!$,$"$k(B.
+ $B;w$?;XDjJ}K!$,(B Macaulay, Singular, CoCoA, Kan/sm1 $BEy$N4DO@%7%9%F%`$G(B 
+ $B;HMQ$5$l$F$$$?(B. Risa/Asir $B$N;XDjJ}K!$O$3$l$i$N%7%9%F%`$N;XDjJ}K!$r;29M$K(B
+ $B$5$i$K2~NI$r2C$($?$b$N$G=@Fp@-$,9b$$(B.
 @item 
   order $B$N(B tie-breaker $B$O(B grlex $B$,%G%U%)!<%k%H(B.
 @item 
   $BJ,;6I=8=B?9`<0$r0z?t$H$7$?$H$-$O7k2L$bJ,;6I=8=B?9`<0$H$7$FLa$k(B.
   order $B;XDj$K$b$A$$$k%G%U%)!<%k%H$NJQ?tL>$O$3$N$H$-(B x0, x1, x2, ... $B$H$J$k(B.
+@item
+  $B%*%W%7%g%s$NCM$O(B option_list $B%-!<%o!<%I$rMQ$$$F%j%9%H$GM?$($F$b$h$$(B.
+  $B2<$NNc$r;2>H(B.
 @end itemize
 
 @example
@@ -471,6 +505,13 @@ graded reverse lexicographic order $B$r(B tie-breaker $B$H$7$FMQ$$$k$3$H$r0UL
 [ 1 1 1 1 0 ]
 [ R R R R R ]
 [(47774098944)*<<0,0,0,0,13>>+ ... ]
+
+[1153] Opt=[["v",[x,y]], ["order",[[x,5,y,1]]]];  
+[[v,[x,y]],[order,[[x,5,y,1]]]]
+[1154]  dp_gr_main([x^2+y^2-1,x*y-1] | option_list=Opt);
+[ 5 1 ]
+[ R R ]
+[-y^4+y^2-1,x+y^3-y]
 @end example
 
 @table @t
@@ -504,6 +545,9 @@ parse/arith.c 1.11,
 parse/glob.c 1.44-1.45,
 parse/lex.c 1.29,
 parse/parse.h 1.23--1.26
+@item
+ Todo: return $B%-!<%o!<%I$GLa$jCM$N%G!<%?$r(B quote $B$N%j%9%H$K$G$-$k$h$&$K(B.
+  attribute, ring $B9=B$BN(B.
 @end itemize
 
 @comment --- $B"~"~"~"~(B  $B4X?t(B syz_pqr, xyz_stu $B$N@bL@(B $B"~"~"~"~(B 
