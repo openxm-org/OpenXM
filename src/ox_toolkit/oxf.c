@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.6 2000/11/28 04:24:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.7 2000/11/28 22:11:14 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -272,6 +272,80 @@ int oxc_start(char *remote_host, short port, char *passwd)
         }
     }
     return pid;
+}
+
+/* Remarks: ssh determines remote host by his name, i.e. by arg[0]. */
+int oxc_start_with_pipe(char *remote_host, int port, char *passwd)
+{
+    char localhost[MAXHOSTNAMELEN];
+    char ports[128];
+    int  pid = 0;
+    char *cmd = "oxc";
+	int  pipefd[2];
+
+    if (gethostname(localhost, MAXHOSTNAMELEN)==0) {
+		if (pipe(pipefd) < 0) {
+			return -1;
+		}
+        if ((pid = fork()) == 0) {
+			dup2(pipefd[1], 0);
+			close(pipefd[0]);
+			close(pipefd[1]);
+            execlp("ssh", remote_host, cmd, NULL);
+			exit(1);
+        }
+		close(pipefd[1]);
+		pipe_send_info(pipefd[0], localhost, port, passwd);
+    }
+    return pid;
+}
+
+/* pipe_*_info で送る情報の形式の定義 */
+/* Integer port    : 4byte, ポート番号, Network byte order 
+   String  hostname: ホスト名
+   String  password: パスワード
+
+   String は C のストリングではなくて、cmo_string のような、長さ付きの
+   ストリングである。ただし、\0 文字を含む。
+   すなわち、"Hello" は (int32)6 H e l l o \0 に展開される(合計10byte)。
+*/
+
+static void pipe_send_string(int fd, char *s)
+{
+	int len  = strlen(s)+1;
+	int lenN = htonl(len);
+	write(fd, &lenN, sizeof(int));
+	write(fd, s, len);
+}
+
+static char *pipe_read_string()
+{
+	int len;
+	char *s;
+	read(0, &len, sizeof(int));
+	len = ntohl(len);
+	s = malloc(len);
+	read(0, s, len);
+	return s;
+}
+
+void pipe_send_info(int fd, char *hostname, int port, char *password)
+{
+	port = htonl(port);
+	write(fd, &port, sizeof(int));
+	pipe_send_string(fd, hostname);
+	pipe_send_string(fd, password);
+}
+
+void pipe_read_info(char **hostname, int *port, char **password)
+{
+	if (read(0, port, sizeof(int)) > 0) {
+		*port = ntohl(*port);
+		*hostname = pipe_read_string();
+		*password = pipe_read_string();
+		return 0;
+	}
+	return -1;
 }
 
 /*  Example: oxf_execute_cmd(oxfp, "ox_sm1"); */
