@@ -1,7 +1,15 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.3 2004/05/05 10:41:45 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.4 2005/02/03 06:42:40 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
-# Risa/Asir is installed under $OpenXM_HOME/bin
+# under $HOME/.asir-tmp
+#
+# In the Debian package, /usr/local/OpenXM/bin/asir is the symbolic link to
+# /home/knoppix/.asir-tmp/asir.
+# So, on non-knoppix system, execute
+# (export HOME=/home/knoppix; openxm asir-install.sh)
+# as the root in the bash.
+#
+echo $HOME
 os=`uname -s`
 md=`cat $OpenXM_HOME/lib/asir/distinfo-asir`
 libmd=`cat $OpenXM_HOME/lib/asir/distinfo-lib`
