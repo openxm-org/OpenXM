@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.9 2000/03/10 08:03:27 takayama Exp $
 
 LIBDIR=../lib
 FEPLINUX=fep.linux
@@ -11,8 +11,10 @@ configure:
 		echo "OpenXM/bin is already configured." ; \
 	else \
 		make configure-real ; \
-		$(RM) -f *uuencoded* ; \
 	fi
+
+clean-for-install:
+	$(RM) -f *uuencoded* 
 
 configure-real: $(FEPLINUX) $(FEPFBSD) $(PHC)
 	@if [ "`uname`" = "Linux" ]; then \
@@ -63,14 +65,14 @@ distclean:
 
 uuencode:
 	@if [ -f $(FEPLINUX) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $' > $(FEPLINUX).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.9 2000/03/10 08:03:27 takayama Exp $' > $(FEPLINUX).gz.uuencoded ; \
 		gzip -c $(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(FEPLINUX).gz.uuencoded ; \
 	fi
 	@if [ -f $(FEPFBSD) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $' > $(FEPFBSD).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.9 2000/03/10 08:03:27 takayama Exp $' > $(FEPFBSD).gz.uuencoded ; \
 		gzip -c $(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(FEPFBSD).gz.uuencoded ; \
 	fi
 	@if [ -f $(PHC) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $' > $(PHC).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.9 2000/03/10 08:03:27 takayama Exp $' > $(PHC).gz.uuencoded ; \
 		gzip -c $(PHC) | uuencode $(PHC).gz >> $(PHC).gz.uuencoded ; \
 	fi
