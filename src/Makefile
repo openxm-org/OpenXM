@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.43 2000/01/08 20:13:30 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.44 2000/01/08 20:46:20 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
@@ -10,10 +10,10 @@ all-asir: configure-asir
 all-gnuplot: configure-gnuplot
 	(cd gnuplot ; make all ; make install)
 
-all-kan96xx:
+all-kan96xx: configure-kan96xx
 	(cd kan96xx ; make all ; make install2)
 
-all-kxx:
+all-kxx: configure-kxx
 	(cd kxx ; make all ; make install2)
 
 all-k097:
@@ -27,7 +27,7 @@ all-openmath:
 		echo "in your search path. OpenMath will not be compiled." ; \
 	fi
 
-all-oxmath:
+all-oxmath: configure-oxmath
 	@if test -d /usr/local/mathematica ; then \
 		(cd ox_math ; make) ; \
 	else \
@@ -47,7 +47,7 @@ all-tigers:
 install: install-pari
 
 install-pari: all-pari
-	(cd pari ; make install ; ranlib ../../../OpenXM/lib/libpari.a)
+	(cd pari ; make install)
 
 clean:
 	(cd kan96xx ; make clean)
@@ -68,20 +68,29 @@ distclean: clean
 	(cd phc ; make distclean)
 	(cd tigers ; make distclean)
 
-configure: configure-links configure-asir configure-gnuplot
-	(cd ../bin ; ./configure2)
-	(cd kxx ; make configure)
-	(cd kan96xx ; make configure)
-	(cd ox_math; ./configure)
+configure: configure-links configure-asir configure-bin configure-gnuplot \
+	   configure-kan96xx configure-kxx configure-oxmath configure-pari
 
 configure-asir: install-pari
 	(cd asir2000; make configure)
 
+configure-bin:
+	(cd ../bin ; ./configure2)
+
 configure-gnuplot:
 	(cd gnuplot ; make configure)
 
+configure-kan96xx:
+	(cd kan96xx ; make configure)
+
+configure-kxx:
+	(cd kxx ; make configure)
+
 configure-links:
 	./make-links
+
+configure-oxmath:
+	(cd ox_math; ./configure)
 
 configure-pari:
 	(cd pari ; make configure)
