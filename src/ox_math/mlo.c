@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.12 2003/01/15 05:08:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.13 2003/01/15 10:46:09 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -41,6 +41,8 @@ static unsigned state = 0;
 
 static int ml_current_packet = -1;
 
+static double mathkernel_version;
+
 /* If this flag sets then we identify MLTKSYM to CMO_INDETERMINATE. */
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 
@@ -51,11 +53,19 @@ mlo *receive_mlo_real()
 {
     char *s;
     cmo *ob;
+
+#if 1
+    double d;
+    MLGetReal(stdlink, &d);
+    ox_printf("MLTKREAL(%lf)", d);
+    ob = new_cmo_double(d);
+#else
     /* Yet we have no implementation of CMO_DOUBLE... */
     MLGetString(stdlink, &s);
     ox_printf("MLTKREAL(%s)", s);
     ob = (cmo *)new_cmo_string(s);
     MLDisownString(stdlink, s);
+#endif
     return ob;
 }
 
@@ -186,6 +196,10 @@ int ml_init()
         ox_printf("Mathematica Kernel not found.\n");
         exit(1);
     }
+    /* set the version of Mathematica kernel. */
+    ml_evaluateStringByLocalParser("$VersionNumber");
+    mathkernel_version = ((cmo_double *)ml_return())->d;
+    ox_printf("Kernel Version = %lf\n", mathkernel_version);
     return 0;
 }
 
