@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.4 2000/01/20 03:00:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.5 2000/01/26 01:37:33 noro Exp $
 \BJP
 @node 型,,, Top
 @chapter 型
@@ -289,9 +289,17 @@ afotake
 newstruct(afo)
 @end example
 
-\JP 構造体に関しては, 章を改めて解説する予定である. 
-\EG For type @b{structure}, we shall describe it in a later chapter.
-(Not written yet.)
+\BJP
+Asir における構造体は, C における構造体を簡易化したものである. 
+固定長配列の各成分を名前でアクセスできるオブジェクトで, 
+構造体定義毎に名前をつける. 
+\E
+
+\BEG
+The type @b{structure} is a simplified version of that in C language.
+It is defined as a fixed length array and each entry of the array
+is accessed by its name. A name is associated with each structure.
+\E
 
 \JP @item 9 @b{分散表現多項式}
 \EG @item 9 @b{distributed polynomial}

@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.3 2000/03/10 07:18:40 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.4 2000/03/17 02:17:03 noro Exp $
 \BJP
 @node 代数的数に関する演算,,, Top
 @chapter 代数的数に関する演算
@@ -1269,7 +1269,28 @@ first.
 \E
 @item
 \BJP
-@code{sp_noalg} では, @var{poly} に含まれる代数的数 @var{ai} を不定元 @var{vi}
+@code{af(F,AL)} において, @code{AL} は代数的数のリストであり, 有理数体の
+代数拡大を表す. @code{AL=[An,...,A1]} と書くとき, 各 @code{Ak} は, それより
+右にある代数的数を係数とした, モニックな定義多項式で定義されていなければ
+ならない.
+\E
+\BEG
+In @code{af(F,AL)}, @code{AL} denotes a list of @code{roots} and it
+represents an algebraic number field. In @code{AL=[An,...,A1]} each
+@code{Ak} should be defined as a root of a defining polynomial
+whose coefficients are in @code{Q(A(k+1),...,An)}.
+\E       
+
+@example
+[1] A1 = newalg(x^2+1);
+[2] A2 = newalg(x^2+A1);
+[3] A3 = newalg(x^2+A2*x+A1);
+[4] af(x^2+A2*x+A1,[A2,A1]);
+[[x^2+(#1)*x+(#0),1]]
+@end example
+
+\BJP
+@code{af_noalg} では, @var{poly} に含まれる代数的数 @var{ai} を不定元 @var{vi}
 で置き換える. @code{defpolylist} は, @var{[[vn,dn(vn,...,v1)],...,[v1,d(v1)]]}
 なるリストである. ここで @var{di(vi,...,v1)} は @var{ai} の定義多項式において
 代数的数を全て @var{vj} に置き換えたものである. 
@@ -1281,6 +1302,12 @@ is a list @var{[[vn,dn(vn,...,v1)],...,[v1,d(v1)]]}. In this expression
 @var{di(vi,...,v1)} is a defining polynomial of @var{ai} represented
 as a multivariate polynomial.
 \E
+
+@example
+[1] af_noalg(x^2+a2*x+a1,[[a2,a2^2+a1],[a1,a1^2+1]]);
+[[x^2+a2*x+a1,1]]
+@end example
+
 @item
 \BJP
 結果は, 通常の無平方分解, 因数分解と同様 [@b{因子}, @b{重複度}] 
@@ -1302,10 +1329,14 @@ the input polynomial by a constant.
 @end itemize
 
 @example
+[98] A = newalg(t^2-2);
+(#0)
 [99] asq(-x^4+6*x^3+(2*alg(0)-9)*x^2+(-6*alg(0))*x-2);
 [[-x^2+3*x+(#0),2]]
 [100] af(-x^2+3*x+alg(0),[alg(0)]);
 [[x+(#0-1),1],[-x+(#0+2),1]]
+[101] af_noalg(-x^2+3*x+a,[[a,x^2-2]]);
+[[x+a-1,1],[-x+a+2,1]]
 @end example
 
 @table @t
