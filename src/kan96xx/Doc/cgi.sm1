@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.8 2004/11/22 12:30:32 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.9 2004/11/23 01:37:47 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -99,7 +99,14 @@
 /cgiPolymake {
   {
    [(getenv) (CONTENT_LENGTH)] extension /cgi.content_length set
+   cgi.content_length isString {
+   } {
+       cgiPolymake.errorMessage message  exit
+   } ifelse 
    cgi.content_length .. (integer) dc /cgi.content_length set
+   cgi.content_length 1 lt {
+       cgiPolymake.errorMessage message  exit
+   } { } ifelse
    [(read) 0 cgi.content_length] extension /cgi.query_string set
    cgi.query_string isString { 
      cgi.query_string length 0 eq  {
