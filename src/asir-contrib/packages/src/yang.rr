@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.10 2004/07/14 06:59:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.11 2004/11/09 08:32:28 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -83,6 +83,10 @@ localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
 localf vector_const, vector_split;
 localf order_by_weight, terms_of_given_order;
 localf head_sum;
+
+localf bin_to_pair, coef_deriv, determine_term, gkz_series, make_terms; 
+localf make_tree, s2poly, search_parent, series_to_sym, terms_to_series;
+localf toric_list;
 
 function ggamma(x);
 
@@ -1818,6 +1822,158 @@ def terms_of_given_order(P,Order,W,V) {
 		}
 	}
 	return Q;
+}
+
+/* from sr.rr */
+
+#define nodeToRoute(Node)  ((Node)[0])
+#define nodeToTerm(Node)   ((Node)[1])
+#define new_vector(V)      ((V)+newvect(length(V)))
+
+def gkz_series(GKZ,W,Deg) {
+    yang.define_gkz_ring(GKZ);
+    T=map(ltov,yang.gkz_distraction(GKZ|weight=W));
+    print(length(T));
+    print(T);
+    IAGr=toric_list(GKZ,W);
+    print(IAGr); /* debug */
+    N=length(T);
+    print("--")$
+    for(S=[],I=0;I<N;I++) {
+        TT=make_terms(T[I],IAGr,Deg);
+        S=cons(terms_to_series(TT),S);
+    }
+    return S;
+}
+
+def terms_to_series(Terms) {
+    H=Terms[0]; Terms=Terms[1];
+    for(S=[]; Terms!=[]; Terms=cdr(Terms)) {
+        for(Level=car(Terms); Level!=[]; Level=cdr(Level)) {
+            Node=car(Level);
+            S=cons(nodeToTerm(Node),S);
+        }
+    }
+    return [H,reverse(S)];
+}
+
+def bin_to_pair(Bin,V,W) {
+    DP = dp_ptod(Bin, V);
+    A = dp_etov(dp_ht(DP)); AC = dp_hc(DP); DP = dp_rest(DP);
+    B = dp_etov(dp_ht(DP)); BC = dp_hc(DP); DP = dp_rest(DP);
+    if (DP == 0) {
+        AW=yang.vector_inner_product(A,W);
+        BW=yang.vector_inner_product(B,W);
+        return (AW>BW)? [A,B]: [B,A];
+    }
+    return 0;
+}
+
+/* all U[I] >= 0 */
+def coef_deriv(M,U) {
+    N = length(M);
+    for(A=1,I=0; I<N; I++) {
+        for(J=U[I],K=M[I]; J>0; J--,K--) {
+            A *= K;
+        }
+    }
+    return A;
+}
+
+def toric_list(GKZ,W) {
+    IA = yang.compute_toric_kernel(GKZ);
+    N=length(GKZ[0][0]);
+    for(V=[],L=IA[1];N>0;N--,L=cdr(L)) {
+        V=cons(car(L),V);
+    }
+    V=reverse(V);
+    Gr=dp_gr_main(IA[0]|v=V,order=[W]);
+    return map(bin_to_pair,Gr,V,W);
+}
+
+/*
+Input: Start,IAGr,W
+  Start: vector
+  IAGr: a list of pairs of vector.
+  W: weight vector
+*/
+def make_terms(Start,IAGr,Depth) {
+/** Local:
+    N := length of IAGr
+    S := [NodeList, NodeList, NodeList, ...]
+    NodeList := [Node, Node, ... ]
+    Node  := (vector)[Leaf, Term]
+    Tree  := [LeafList, LeafList, LeafList, ...]
+    LeafList := [Leaf, Leaf, ... ]
+    Leaf  := (N-dim. vector)
+ **/
+    N=length(IAGr);
+    M=length(car(IAGr)[0]);
+    Tree=make_tree(Depth,N);
+    S=[Prev=[[ltov(car(car(Tree))),[1,newvect(M)]]]];
+    for(Tree=cdr(Tree); Tree!=[]; Tree=cdr(Tree)) {
+        Cur=[];
+        for(C=car(Tree); C!=[]; C=cdr(C)) {
+            Leaf=ltov(car(C));
+            CC=search_parent(Leaf,Prev,N);
+            Term=determine_term(CC[0],Start,IAGr[CC[1]]);
+            Cur=cons([Leaf,Term],Cur);
+        }
+        S=cons(Prev=reverse(Cur),S);
+    }
+    return [Start,reverse(S)];
+}
+
+def search_parent(Leaf,Prev,N) {
+    for(I=0; I<N && Leaf[I]==0; I++) {
+    }
+    Parent=new_vector(Leaf); Parent[I]--;
+    for(; Prev !=[]; Prev=cdr(Prev)) {
+        C = car(Prev);
+        if (nodeToRoute(C)==Parent) {
+            return [nodeToTerm(C),I];
+        }
+    }
+}
+
+/* determine Coef as Coef (D^{UP} . X^{NU+M+(UP-UM)}) = (D^{UM} . X^{NU+M}) */
+def determine_term(P,NU,UL) {
+    C = P[0]; M = P[1];
+    UP = UL[0]; UM = UL[1];
+    L = M+UP-UM;
+    if (C==0) return [0,L];
+    A = coef_deriv(NU+L, UP);
+    B = coef_deriv(NU+M, UM);
+    return [(B*C)/A, L];
+}
+
+def make_tree(Depth,Dim) {
+    Tree = [];
+    for(I=0; I<=Depth; I++) {
+        Tree = cons(yang.pattern(I,Dim),Tree);
+    }
+    return reverse(Tree);
+}
+
+def series_to_sym(S) {
+    H=S[0]; N=length(H);
+    V=yang.list_add_prefix("x", yang.list_incr(1,N+1));
+    H=dp_dtop(dp_vtoe(H),V);
+    for(S=S[1],L=[]; S!=[]; S=cdr(S)) {
+        T=car(S);
+        L=cons([T[0],dp_dtop(dp_vtoe(T[1]),V)],L);
+    }
+    return [H,reverse(L)];
+}
+
+def s2poly(S) {
+	S=series_to_sym(S);
+    H=S[0]; T=0;
+    for(S=S[1]; S!=[]; S=cdr(S)){
+        Term=car(S);
+        T+=Term[0]*Term[1];
+    }
+    return H*T;
 }
 
 endmodule;
