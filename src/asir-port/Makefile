@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.3 2004/02/23 00:24:09 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.4 2004/02/24 00:37:28 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix. 
 KNOPPIX_HOME=/home/knoppix
@@ -19,7 +19,7 @@ install: all
 
 # Remove files under FLL.
 install-for-knoppix:
-	rm -f ../../bin/asir
+	rm -f ../../bin/asir 
 	ln -s ${KNOPPIX_HOME}/.asir-tmp/asir ../../bin/asir
 	for i in ${LIBS} ; do \
 		(cd ${OpenXM_HOME_}/lib/asir ; rm -f $$i ; ln -s ${KNOPPIX_HOME}/.asir-tmp/$$i .) ; \
@@ -59,3 +59,9 @@ copy-for-knoppix:
 
 clean:
 	rm -rf for_knoppix work
+
+clean-for-knoppix:
+	if [ -f ./for_knoppix ]; then \
+		rm -f ../../lib/*.a ../../lib/libpari*.a* ; \
+		rm -rf ../../lib/NTL  ; \
+	fi
