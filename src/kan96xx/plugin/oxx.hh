@@ -1,9 +1,9 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.9 2003/11/17 05:45:47 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.10 2004/09/17 08:46:10 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size < 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport (optional pass)] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
   if (size == 4) {
-    rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3));
+    rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3),NullObject);
   }else if (size == 5) {
     rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3),getoa(obj,4));
   }
@@ -11,7 +11,7 @@ else if (strcmp(key,"oxCreateClient") == 0) {
 else if (strcmp(key,"oxCreateClientFile") == 0) {
   if (size != 3) errorKan1("%s\n","[(oxCreateClientFile) fname mode] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClientFile.");
-  rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,2));
+  rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,2),NullObject);
                                                  /* dummy */
 }
 else if (strcmp(key,"oxReq") == 0) {
