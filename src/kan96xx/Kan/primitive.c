@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.6 2003/08/23 02:28:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.7 2003/08/24 05:19:43 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -24,6 +24,7 @@ extern int ClassTypes[];   /* kclass.c */
 extern struct context *PrimitiveContextp;
 extern struct context *CurrentContextp;
 extern struct dictionary *SystemDictionary;
+extern int QuoteMode;
 
 static char *operatorType(int i);
 
@@ -1558,7 +1559,34 @@ int executePrimitive(ob)
     for (i=0; i<size; i++) {
       token = tokenArray[i];
       status = executeToken(token);
-      if (status != 0) break;
+      if (QuoteMode && (status==DO_QUOTE)) {
+        /* generate tree object, for kan/k0 */
+        struct object qob;
+        struct object qattr;
+        struct object qattr2;
+        if (i==0) { Kpop(); Kpop();}
+        qob = newObjectArray(3);
+        qattr = newObjectArray(1);
+        qattr2 = newObjectArray(2);
+		/* Set the node name of the tree. */
+        if (token.kind == ID) {
+          putoa(qob,0,KpoString(token.token));
+        }else{
+          putoa(qob,0,KpoString("unknown"));
+        }
+        /* Set the attibute list; class=className */
+        putoa(qattr2,0,KpoString("class"));
+        if (ob2.tag == Sdollar) {
+          putoa(qattr2,1,ob2);
+        }else{
+          putoa(qattr2,1,KpoString(CurrentContextp->contextName));
+        }
+        putoa(qattr,0,qattr2);
+        putoa(qob,1,qattr);
+        putoa(qob,2,ob4);  /* Argument */
+        qob = KpoTree(qob);
+        Kpush(qob);
+      } else if (status != 0) break;
     }
     if (ccflag) {
       contextControl(CCPOP); ccflag = 0;

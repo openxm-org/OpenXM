@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.11 2002/11/04 11:08:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.12 2002/11/07 23:35:23 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -74,6 +74,7 @@ static void pstack(void);
 static struct object executableStringToExecutableArray(char *str);
 
 extern int SerialCurrent;
+extern int QuoteMode;
 
 int SGClock = 0;
 int UserCtrlC = 0;
@@ -962,6 +963,9 @@ int executeToken(token)
         ob.lc.ival = primitive;
         return(executePrimitive(ob));
       } else {
+		if (QuoteMode) {
+		  return(DO_QUOTE);
+		}
         if (WarningMessageMode == 1 || WarningMessageMode == 2) {
           char tmpc[1024];
           if (strlen(token.token) < 900) {

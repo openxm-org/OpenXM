@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.9 2001/01/08 05:26:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.10 2001/01/13 01:17:36 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -469,3 +469,10 @@ def void Pmat(a) {
    sm1(" a pmat ");
 }
 
+def void QuoteMode(a) {
+  if ( a == 0) {
+    sm1("[(QuoteMode) 0] system_variable ");
+  }else{
+    sm1("[(QuoteMode) 1] system_variable ");
+  }
+}

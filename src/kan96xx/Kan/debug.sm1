@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/debug.sm1,v 1.1 2001/04/12 06:48:25 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Kan/debug.sm1,v 1.2 2003/11/20 07:36:03 takayama Exp $ 
 
 %%% debugging for new OpenXM-RFC 100.  indeterminate or tree.
 [(parse) (../plugin/cmo.sm1) pushfile] extension
@@ -16,5 +16,18 @@ gg message
 [(cmoObjectToCmo) gg] extension /ggg set 
 ggg message
 [(cmoCmoToObject) ggg] extension message
+
+%% Example of QuoteMode.
+%% In k0, sm1(" [(QuoteMode) 1] system_variable ");
+%%   class polymake extends PrimitiveObject 
+%%   { local ; def dummy() { return (1); } }
+%%   polymake.foo(1,2):
+(  ) message
+(QuoteMode ------ ) message
+[(QuoteMode) 1] system_variable
+(polymake)
+[ [(1).. (2)..] ] {foo} sendmsg2 /pp set
+pp message
+[(QuoteMode) 0] system_variable
 
 

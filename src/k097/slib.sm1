@@ -503,9 +503,11 @@ weightMatrix ] {Length} sendmsg2
 this [ %% function args 
 size ] {NewVector} sendmsg2 
 /new0  set
-  /@@@.indexMode.flag.save @@@.indexMode.flag def    0 @@@.indexMode  (0).. %%PSfor initvalue.
+  /@@@.indexMode.flag.save @@@.indexMode.flag def    0 @@@.indexMode  (0).. size  2 -1 roll 
+%%PSfor initvalue.
  (integer) data_conversion 
-size  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+ 2 -1 roll 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
 { %% for body
  (universalNumber) data_conversion /i  set 
 weightMatrix [i  ]  Get
@@ -1123,6 +1125,22 @@ FunctionValue } def
  [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
  [Argthis] Arglist join ArgNames mapset
   a pmat  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/QuoteMode {
+ db.DebugStack setstack $In function : QuoteMode of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+a (0)..  eq
+ %% if-condition
+  { %%ifbody
+ [(QuoteMode) 0] system_variable    }%%end if if body
+  { %%if- else part
+ [(QuoteMode) 1] system_variable    } ifelse
+/ExitPoint ]pop popVariables %%pop argValues
  db.DebugStack setstack pop stdstack 
 } def
 %%end of function

@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.25 2003/08/20 01:39:17 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.26 2003/08/21 12:30:15 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -108,6 +108,7 @@ int EcartAutomaticHomogenization = 0;
 int TraceLift = 0;
 struct ring *TraceLift_ringmod = NULL;
 int DoCancel = 0;
+int QuoteMode = 0;
 
 /* global variables for stackmachine.c  */
 int VerboseStack = 1;     /* 0 is quiet, 1 is standard, 2 ... */

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.23 2003/09/12 02:52:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.24 2003/11/17 00:28:13 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -488,7 +488,7 @@ void Kusage2(fp,s)
     fppp(fp,"ReduceLowerTerms, CheckHomogenization, Homogenize, Sugar, Homogenize_vec,\n");
     fppp(fp,"Statistics, StackPointer, StandardOperandStack,\n");
     fppp(fp,"ErrorStack, ErrorMessageMode, WarningMessageMode,\n");
-    fppp(fp,"CatchCtrlC, Strict, CurrentContextp, NullContextp, Strict2,\n");
+    fppp(fp,"CatchCtrlC, Strict, CurrentContextp, NullContextp, Strict2, QuoteMode\n");
     fppp(fp,"SigIgn, KSPushEnvMode, PrimitiveContextp, KanGBmessage,\n");
     fppp(fp,"orderMatrix, gbListTower, Schreyer, \n");
     fppp(fp,"outputOrder, multSymbol, variableNames, Version,\n");
