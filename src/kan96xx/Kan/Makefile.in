@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.2 2002/02/04 07:58:28 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.3 2002/02/09 06:21:02 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -88,7 +88,7 @@ kanlibS2 = scanner.o scanner2.o list.o global.o kclass.o
 kanlibS3 = usage.o option.o
 kanlibS4 = primitive.o
 kanlibK = matrix.o poly4.o replace.o poly3.o poly3a.o poly.o output.o coeff.o order.o switch.o poly2.o parser.o parserpass0.o rat.o ext.o
-kanlibK2 = gradedset.o red.o gb.o gbGM.o syz0.o redm.o sugar.o resol.o hilbert.o
+kanlibK2 = gradedset.o red.o gb.o gbGM.o syz0.o redm.o sugar.o resol.o hilbert.o ecart.o
 kanlibKclass = Kclass/sample.o Kclass/rawcmo.o Kclass/indeterminate.o
 
 ##### Add also to Kclass/Makefile
@@ -110,6 +110,7 @@ gbGM.o : extern2.h gradedset.h $(HEADERS)
 gb.o : extern2.h gradedset.h $(HEADERS)
 red.o : extern2.h gradedset.h $(HEADERS)
 gradedset.o : extern2.h gradedset.h $(HEADERS)
+ecart.o : extern2.h gradedset.h $(HEADERS)
 
 ########
 matrix.o : extern2.h matrix.h $(HEADERS)
