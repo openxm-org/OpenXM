@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.6 2000/05/06 07:58:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.7 2000/05/06 10:35:33 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1157,7 +1157,7 @@ def Sschreyer(g) {
                   Print("c2="); Println(c2);
                   nn = Length(bases);
                   for (ii=0; ii<nn;ii++) {
-                     if ((ii != place) && (! IsNull(bases[ii]))) {
+                     if ((ii != i) && (! IsNull(bases[ii]))) {
                        m = Length(bases[ii]);
                        for (jj=0; jj<m; jj++) {
                          if (jj != place) {
