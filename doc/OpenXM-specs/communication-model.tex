@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/communication-model.tex,v 1.5 2000/01/21 08:44:54 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/communication-model.tex,v 1.6 2000/01/24 02:48:24 noro Exp $
 //&jp \section{ OpenXM の通信モデル}
 //&eg \section{ Communication model of OpenXM}
 
@@ -13,6 +13,7 @@
 \item Library として直接リンクして通信する.
 \item TCP/IP ソケットの利用.
 \item Remote Procedure call の利用.
+\item JAVA RMI.
 \item マルチスレッドの利用.
 \item PVM ライブラリの利用.
 \item MPI ライブラリの利用.
@@ -32,6 +33,7 @@ mathematical processes.
 \item Linking as a subroutine library.
 \item TCP/IP streams.
 \item Remote Procedure call.
+\item JAVA RMI.
 \item Multi-thread.
 \item PVM library.
 \item MPI library.
@@ -172,8 +174,41 @@ a local function ``hoge''.
 */
 
 /*&jp
+標準エンコード法では, それぞれのタグは 32 bit (4 bytes) の
+ネットワークバイトオーダでの整数として表現される.
+*/
+/*&eg
 In our standard encoding method, each tag is expressed as
-a 32 bit (4 byte) integer with the network byte order.
+a 32 bit (4 bytes) integer with the network byte order.
+*/
+
+/*&C
+
+*/
+
+/*&jp
+OX メッセージは XML で表現することも可能である.  次に例を示す.
+*/
+/*&eg
+OX messages can be expressed by XML.  The following is an example.
+*/
+/*&C
+\begin{verbatim}
+<ox>
+   <ox_data>
+      <ox_serial> <int32> 0 </int32> </ox_serial>
+      <cmo>  <cmo_string> 
+                 <int32 for="length"> 5 </int32>
+                 <string> "Hello" </string>
+             </cmo_string>
+      </cmo>
+   </ox_data>
+   <ox_command> 
+       <ox_serial> <int32> 1 </int32> </ox_serial>
+       <sm_popCMO/> 
+   </ox_command>
+</ox>
+\end{verbatim}
 */
 
 //&jp \subsection{OXexpression の 標準 encoding と TCP/IP ソケットによる実装法}

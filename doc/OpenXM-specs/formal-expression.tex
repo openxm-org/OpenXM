@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.4 2000/09/08 17:14:54 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.5 2000/09/08 18:57:49 takayama Exp $
 //&jp \section{ CMO の形式的表現方法 }
 //&eg \section{ A formal expression of CMO }
 
@@ -235,26 +235,47 @@ CMOexpression と, CMObject の区別を理解しておくのは重要である.
 書く.
 */
 /*&eg
-It is possible to express CMO by XML like Open math (\cite{openmath}).
+It is possible to express CMO by XML like Open Math (\cite{openmath}).
 See example below.
 */
 
 /*&C
 
 \begin{verbatim}
-<cmo_int32>
-1234
-</cmo_int32>
+<cmo>
+ <cmo_int32>
+   <int32> 1234 </int32>
+ </cmo_int32>
 
-<cmo_string>
-5
-"Hello"
-</cmo_string>
+ <cmo_string>
+   <int32 for="length"> 5 </int32>
+   <string> "Hello" </string>
+ </cmo_string>
+</cmo>
 \end{verbatim}
 */
 
+//&jp \noindent cmo\_string は次のようにあらわしてもよい.
+//&eg \noindent cmo\_string can also be expressed as follows.
+/*&C
+\begin{verbatim}
+
+<cmo>
+ <cmo_string>
+   <int32 for="length"> 5 </int32>
+   <byte> 'H' </byte> <byte> 'e' </byte>    <byte> 'l' </byte>
+   <byte> 'l' </byte> <byte> 'o' </byte>
+ </cmo_string>
+</cmo>
+\end{verbatim}
+*/
+
+//&jp \noindent この場合の cmo\_string の DTD による定義は次のようになる. \\
+//&eg \noindent In this case, the DTD for cmo\_string is as follows; \\
+//&C \verb+  <!ELEMENT cmo_string (int32, byte*)>  +
 /*&C
 
+\bigbreak
 */
 
 /*&jp
@@ -342,13 +363,13 @@ is the encoding of the CMOexpression
 
 /*&jp
 (実験的)
-CMO は XML 規格に準拠している.
+CMO および OX packets は XML 規格に準拠している.
 XML 規格の Attribute を binary encode するために
 特別なタグ \\
 */
 /*&eg
 (Experimental)
-CMO is complient to XML specification.
+CMO and OX packets are complient to XML specification.
 In order to encode ``Attribute'' in XML in a binary format,
 we have a tag: \\
 */
