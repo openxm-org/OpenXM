@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.7 2000/12/14 01:35:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.8 2000/12/14 03:14:01 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,8 +78,10 @@ int main(int argc, char *argv[])
     char *myname = argv[0];
     int oxlog = 0;
     int c;
+	int delay = 0;
+	char *delay_s = "0";
 
-    while ((c = getopt(argc, argv, "c:p:h:x")) != -1) {
+    while ((c = getopt(argc, argv, "d:c:p:h:x")) != -1) {
         switch(c) {
         case 'h':
             remote_host = optarg;
@@ -97,6 +99,10 @@ int main(int argc, char *argv[])
                 oxlog = 1;
             }
             break;
+		case 'd':
+			delay_s = optarg;
+			delay = atoi(optarg);
+			break;			
         default:
         }
     }
@@ -109,12 +115,12 @@ int main(int argc, char *argv[])
         sprintf(port_s, "%d", port);
     }
     if (oxlog) {
-        execlp(xterm, xterm, "-e", myname, 
+        execlp(xterm, xterm, "-e", myname, "-d", delay_s,
                "-h", remote_host, "-p", port_s, "-c", password, NULL);
-		fprintf(stderr, "oxc:: cannot exec \"%s oxc ...\"\n", xterm);
     }
 
     fprintf(stderr, "start connection!\n");
+	usleep(delay);
     if ((oxfp = connection()) == NULL) {
         fprintf(stderr, "oxc: cannot connect.\n");
     }else {
