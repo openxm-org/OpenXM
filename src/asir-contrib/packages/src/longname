@@ -1,33 +1,85 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.1 2000/02/11 04:31:35 takayama Exp $ */
 /*&C-texi
 
 */
 /*&eg-texi 
+@node LONGNAME,,, Top
+@chapter LONGNAME
+
    Asir/OpenXM supports 
    function names in the long function name format partly following OpenMath
    Content Dictionaries. 
  */
 /*&jp-texi 
+@node LONGNAME,,, Top
+@chapter LONGNAME
+
    Asir/OpenXM (OpenXM 対応の asir) は
     OpenMath の Content Dictionaries に部分的に対応した,
    以下の函数名をサポートする.
  */
 
 /*&C-texi
-basic_add, basic_sub, basic_mul, basic_div
+
+@example
+Basic_Pi = @@pi $
+Basic_true = 1$
+Basic_false = 0$
+Basic_e = @@e$
+def basic_plus(A,B) @{ return(A+B); @}
+def basic_times(A,B) @{ return(A*B); @}
+def basic_minus(A,B) @{ return(A-B); @}
+def basic_over(A,B) @{ return(A/B); @}
+def basic_power(A,B) @{ return(A^B); @}
+def basic_and(A,B)   @{ return(A && B); @}
+def basic_or(A,B)    @{ return(A || B); @}
+def basic_not(A)   @{ return(! A); @}
+def basic_IntegerQuotient(A,B) @{ return(idiv(A,B)); @}
+def basic_IntegerRemainder(A,B) @{ return(irem(A,B)); @}
+def basic_IntegerGcd(A,B)  @{ return(igcd(A,B)); @}
+
+def poly_factor(A) @{ return(fctr(A)); @}
+@end example
 */
 
 /* Double check the names */
-def basic_add(A,B) { return(A+B); }
-def basic_sub(A,B) { return(A-B); }
-def basic_mul(A,B) { return(A*B); }
-def basic_div(A,B) { return(A/B); }
+Basic_Pi = @pi $
+Basic_true = 1$
+Basic_false = 0$
+Basic_e = @e$
+def basic_plus(A,B) { return(A+B); }
+def basic_times(A,B) { return(A*B); }
+def basic_minus(A,B) { return(A-B); }
+def basic_over(A,B) { return(A/B); }
+def basic_power(A,B) { return(A^B); }
+def basic_and(A,B)   { return(A && B); }
+def basic_or(A,B)    { return(A || B); }
+def basic_not(A)   { return(! A); }
+def basic_IntegerQuotient(A,B) { return(idiv(A,B)); }
+def basic_IntegerRemainder(A,B) { return(irem(A,B)); }
+def basic_IntegerGcd(A,B)  { return(igcd(A,B)); }
 
-/*&C-texi
-factorize, cancel, numerator, denominator
+
+def poly_factor(A) { return(fctr(A)); }
+
+/*&eg-texi
+
+It is convinient to have function names without Basic_ etc.
+*/
+/*&jp-texi
+
+Basic_ などがつかないつぎのような函数名も登録してある.
+
 */
 
-def factorize(F) { return(fctr(F)); }
+/*&C-texi
+
+@example
+factor, cancel, numerator, denominator
+@end example
+*/
+
+def factor(F) { return(poly_factor(F)); }
 def cancel(F)  { return(red(F)); }
 def numerator(F) { return(nm(F)); }
 def denominator(F) { return(dn(F)); }

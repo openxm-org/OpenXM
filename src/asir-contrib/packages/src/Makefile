@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile,v 1.1 2000/01/16 22:12:58 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile,v 1.2 2000/01/16 22:16:42 takayama Exp $
 # targets
 # all : 
 #     do nothing
@@ -8,7 +8,7 @@
 
 OpenXM_ROOT=../../../../../OpenXM
 OpenXM_lib=$(OpenXM_ROOT)/lib
-SOURCE=Matrix    fourier-0 m   sets Diff   bench-1   gnuplot   om     sm1  Dmodule   beta   igraph    phc    tigers
+SOURCE=Matrix    fourier-0 m   sets Diff   bench-1   gnuplot   om     sm1  Dmodule   beta   igraph    phc    tigers longname
 
 
 all :
