@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.4 2000/12/10 03:12:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.5 2000/12/10 09:34:27 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -371,3 +371,11 @@ HelpAdd(["Load_sm1",
 ["Load_sm1(s,flag) loads a sm1 program from s[0], s[1], ....",
  "If loading is succeeded, the already-loaded flag is set to true.",
  "(list s, string flag)."]]);
+
+def GetRing(f) {
+  sm1(" f getRing /FunctionValue set ");
+}
+
+def SetRing(r) {
+  sm1(" r ring_def ");
+}

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.3 2000/12/10 09:34:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.4 2000/12/12 13:58:21 takayama Exp $ */
 if (K00_verbose)
   Println("help.k (help.ccc).  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -376,7 +376,13 @@ def CancelNumber(rn) {
   sm1(" tmp (denominator) dc (1).. eq { /FunctionValue tmp (numerator) dc def} { /FunctionValue tmp def } ifelse ");
 }
 
+def DC_polynomial(obj) {
+  return(DC(obj,"polynomial"));
+}
 def DC(obj,key) {
+  if (IsArray(obj) && key=="polynomial") {
+    return(Map(obj,"DC_polynomial"));
+  }
   if (key == "string") { return(ToString(obj)); }
   else if (key == "integer") { key = "universalNumber"; }
   else if (key == "sm1integer") { key = "integer"; }

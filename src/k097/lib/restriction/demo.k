@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.3 2000/12/27 08:09:27 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.4 2000/12/27 10:16:13 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -43,28 +43,15 @@ def asir_generic_bfct(a,ii,vv,dd,ww) {
    asir_generic_bfct(a,[Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]): */
 
 /* usage: misc/tmp/complex-ja.texi */
-def changeRing(F) {
-  local n,i,f;
-  if (IsArray(F)) {
-    n = Length(F);
-    for (i=0; i<n; i++) {
-      if (IsArray(F[i])) {
-         if (changeRing(F)) return(true);
-      }else if (IsPolynomial(F[i])) {
-         if (F[i] != Poly("0")) {
-            f = F[i];
-            sm1(" f (ring) dc ring_def ");
-            return(true);
-         }
-      }
-    }
-  }else if (IsPolynomial(F)) {
-     if (F != Poly("0")) {
-        sm1(" F (ring) dc ring_def ");
-        return(true);
-     }
+def changeRing(f) {
+  local r;
+  r = GetRing(f);
+  if (Tag(r) == 14) {
+    SetRing(r);
+    return(true);
+  }else{
+    return(false);
   }
-  return(false);
 }
 
 def asir_BfRoots2(G) {

@@ -838,3 +838,23 @@ FunctionValue } def
 
 this [ %% function args 
 [ (Load_sm1) [ (Load_sm1(s,flag) loads a sm1 program from s[0], s[1], ....) (If loading is succeeded, the already-loaded flag is set to true.) ((list s, string flag).)   ]   ] ] {HelpAdd} sendmsg2 
+/GetRing {
+ db.DebugStack setstack $In function : GetRing of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+  f getRing /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/SetRing {
+ db.DebugStack setstack $In function : SetRing of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /r  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+  r ring_def  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
