@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.10 2003/04/28 03:09:23 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.11 2003/04/28 06:43:10 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1412,6 +1412,14 @@ strategy による計算, @code{hgr()} は trace-lifting および
 @item
 @code{dgr()} で表示される時間は, この函数が実行されているプロセスでの
 CPU 時間であり, この函数の場合はほとんど通信のための時間である. 
+@item
+多項式リスト @var{plist} の要素が分散表現多項式の場合は
+結果も分散表現多項式のリストである.
+この場合, 引数の分散多項式は与えられた順序に従い @code{dp_sort} で
+ソートされてから計算される.
+多項式リストの要素が分散表現多項式の場合も
+変数の数分の不定元のリストを @var{vlist} 引数として与えないといけない
+(ダミー).
 \E
 \BEG
 @item 
@@ -1440,6 +1448,13 @@ Therefore this function is useful to reduce the actual elapsed time.
 The CPU time shown after an exection of @code{dgr()} indicates
 that of the master process, and most of the time corresponds to the time
 for communication.
+@item
+When the elements of @var{plist} are distributed polynomials,
+the result is also a list of distributed polynomials.
+In this case, firstly  the elements of @var{plist} is sorted by @code{dp_sort}
+and the Grobner basis computation is started.
+Variables must be given in @var{vlist} even in this case
+(these variables are dummy).
 \E
 @end itemize
 
