@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.40 2002/08/23 11:52:08 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.41 2002/11/14 09:29:24 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -48,10 +48,12 @@ EGSRCS= opening.texi oxxm-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi
 
 JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi \
        print-auto-ja.texi matrix-auto-ja.texi glib-auto-ja.texi \
-	   sm1-auto-ja.texi plucker-auto-ja.texi util-auto-ja.texi
+	   sm1-auto-ja.texi plucker-auto-ja.texi util-auto-ja.texi \
+       number-auto-ja.texi
 ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi \
        print-auto-en.texi matrix-auto-en.texi glib-auto-en.texi \
-	   sm1-auto-en.texi plucker-auto-en.texi util-auto-en.texi
+	   sm1-auto-en.texi plucker-auto-en.texi util-auto-en.texi \
+       number-auto-en.texi
 
 all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
 	@echo "Type in  tex cman-en.texi to generate the manual(en) in dvi format."
@@ -115,6 +117,7 @@ hypergeometric-en.texi : hypergeometric.oxweave
 	$(RM) -f hypergeometric-en.texi
 	$(OXWEAVE) C en  <hypergeometric.oxweave >hypergeometric-en.texi
 
+### number
 number-ja.texi : number.oxweave
 	$(RM) -f number-ja.texi
 	$(OXWEAVE) C ja  <number.oxweave >number-ja.texi
@@ -122,6 +125,12 @@ number-ja.texi : number.oxweave
 number-en.texi : number.oxweave
 	$(RM) -f number-en.texi
 	$(OXWEAVE) C en  <number.oxweave >number-en.texi
+number-auto-en.texi :  $(CONTRIB)/names.rr gentexi
+	$(RM) -f number-auto-en.texi
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage | ./gentexi  --category number --en --upnode "Numbers (Standard Mathematical Functions)" ${OPTGENTEXI} >number-auto-en.texi
+number-auto-ja.texi : $(CONTRIB)/names.rr gentexi
+	$(RM) -f number-auto-ja.texi
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage  | ./gentexi   --category number  --ja --upnode "Numbers (Standard Mathematical Functions)" ${OPTGENTEXI} >number-auto-ja.texi
 
 calculus-ja.texi : calculus.oxweave
 	$(RM) -f calculus-ja.texi

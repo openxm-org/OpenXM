@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.63 2002/12/01 06:50:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.64 2002/12/04 23:19:47 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -201,17 +201,24 @@ def base_subsets_of_size(K,S) {
 
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
+/*&usage begin: number_abs(X) example: number_abs(-3); end: */
 def number_abs(X)  { return(pari(abs,X)); }
 def number_base_form(X,B) { NOT_YET; }
 def number_binomial(P,Q) { NOT_YET; }
+/*&usage begin: number_ceiling(X) example: number_abs(1.5); end: */
 def number_ceiling(X) { return(pari(ceil,X)); }
 def number_chop(Exp,Dx) {  NOT_YET; }
+/*&usage begin: number_floor(X) example: number_floor(1.5); end: */
 def number_floor(X) { return(pari(floor,X)); }
+/*&usage begin: number_imaginary_part(X) example: number_imaginary_part(1+2*@@i); end: */
 def number_imaginary_part(X) { return(taka_base_imaginary_part(X)); }
+/*&usage begin: number_is_integer(X) example: number_is_integer(2/3); end: */
+def number_is_integer(X) { return(taka_base_is_integer(X)); }
 def number_max(X)  { NOT_YET; }
 def number_min(X)  { NOT_YET; }
 def number_n(Exp)  { NOT_YET; }  /* N [ ], numerical evaluator. */
 def number_round(X) { NOT_YET; }
+/*&usage begin: number_real_part(X) example: number_real_part(1+2*@@i); end: */
 def number_real_part(X) { return(taka_base_real_part(X)); }
 def number_sign(X) { NOT_YET; }
 
