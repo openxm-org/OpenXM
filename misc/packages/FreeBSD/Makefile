@@ -1,5 +1,5 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.10 2000/03/13 00:52:21 takayama Exp $
-VERSION=1.1.2
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.11 2000/03/13 05:31:58 takayama Exp $
+VERSION=1.1.3
 TAG=HEAD
 TAR_WORK=$(HOME)/tmp
 
@@ -13,8 +13,8 @@ usage:
 all :
 
 clean:
-	-/bin/rm -rf openxm-ports/openxm-1.1.2/work openxm-ports/openxm-1.1.2/openxm-1.1.2.tgz work
-##  tmp2 might be used to debug openxm-1.1.2 for ports.
+	-/bin/rm -rf openxm-ports/openxm-1.1.3/work openxm-ports/openxm-1.1.3/openxm-1.1.3.tgz work
+##  tmp2 might be used to debug openxm-1.1.3 for ports.
 	-/bin/rm -rf $(HOME)/tmp2/OpenXM $(HOME)/tmp2/bin
 	-mkdir $(HOME)/tmp2
 	-mkdir $(HOME)/tmp2/bin
@@ -35,6 +35,6 @@ make-tar-ball-for-openxm-port:
 	rm -rf work
 	mkdir work
 	(cd work ; $(RCVS) export -r${TAG} OpenXM/misc/packages/FreeBSD)
-	(cd work ; mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm)
+	(cd work ; mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.3 openxm)
 	(cd work ; tar czf ${TAR_WORK}/openxm-port.tar.gz openxm)
 
