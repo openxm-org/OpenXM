@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.1 1999/12/15 05:21:25 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -75,6 +75,12 @@ int test_1()
     print_cmo(c);
     fputc('\n', stderr);
 }
+
+/*  Example:
+  testclient
+  >(OX_DATA,(CMO_INT32,123))
+  >(OX_COMMAND,(SM_popCMO))
+  */
 
 int main(int argc, char* argv[])
 {
