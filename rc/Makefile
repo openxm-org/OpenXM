@@ -1,16 +1,14 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.21 2004/03/01 03:10:26 takayama Exp $
-# make repl
-# make all
-# make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
+# $OpenXM: OpenXM/rc/Makefile,v 1.22 2004/06/14 11:03:52 takayama Exp $
+# make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
+prefix=/usr/local
 CC=gcc
 # SHELL_SCRIPTS=asir sm1 oxgp k0 oxmath oxMathematica ox
 SHELL_SCRIPTS=asir sm1 oxmath oxMathematica ox openxm webasir
-PREFIX=/usr/local
-INSTALL_DIR=${PREFIX}/bin
+INSTALL_DIR=${prefix}/bin
 MAN_DIR=../man/man1
 KDE_MENU_DIR=/usr/lib/menu
 
-all :  dot.bashrc  dot.cshrc  openxm  .done_gen-shell-scripts
+all-trad :  dot.bashrc  dot.cshrc .done_gen-shell-scripts
 
 dot.bashrc : bashrc repl 
 	rm -f dot.bashrc 
@@ -27,32 +25,55 @@ repl : repl.c
 	${CC} -o ../bin/rc.repl repl.c
 	ln -s ../bin/rc.repl repl
 
-openxm : dot.bashrc
-	rm -f openxm
-	echo "#!/bin/sh" >openxm
-	cat dot.bashrc >>openxm
-	echo 'exec $$*' >>openxm
-	chmod +x openxm
-	cp -f openxm ../bin
-
 .done_gen-shell-scripts : dot.cshrc Makefile gen-shell-scripts
 	./gen-shell-scripts
+	-install openxm ../bin
 	touch .done_gen-shell-scripts
 
-install : install-usr-bin install-kde-menu
-install-usr-bin: all
-	-cp -f $(SHELL_SCRIPTS) ${INSTALL_DIR}
+#For the backword compatibility.
+install: install-trad
+install-trad : all-trad  install-man
+	-install $(SHELL_SCRIPTS) ${INSTALL_DIR}
+install-man :
+	-install openxm.1 ${MAN_DIR}
 install-kde-menu-knoppix:
 	install kde/openxm-binary-knoppix ${KDE_MENU_DIR}/openxm-binary
-install.man :
-	-cp openxm.1 ${MAN_DIR}
-
-install.asir_key:
-	-../bin/sm1 -f fetch_asir_key.sm1
-
-install-bin :
-	cp -f webasir ../bin
 
 clean :
-	rm -rf dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .done_gen-shell-scripts work
+	rm -rf dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .done_gen-shell-scripts work global .done_global
+
+## New targets.  Relocate OpenXM under ${prefix}
+## They are designed to be a top level Makefile
+all:
+	(cd ../src ; make all)
+all-non-free:
+	(cd ../src ; make all-asir2000)
+all-global-shell-scripts: repl
+	@if [ ! -f .done_global ] ; then \
+	echo "Generating shell scripts in global" ; \
+	rm -rf global ; mkdir global ; \
+	(cd global ; ../repl bash --prefix ${prefix} <../bashrc >dot.bashrc); \
+	(cd global ; ../repl csh --prefix ${prefix} <../cshrc >dot.cshrc); \
+	(cd global ; ../gen-shell-scripts) ; \
+	touch .done_global ; \
+	fi
+install-under-prefix: all-global-shell-scripts  
+	(cd ../src ; make install)
+	make copy-free
+	make copy-non-free
+
+clean-under-prefix:
+	-(cd ${prefix} ; rm -rf ${prefix}/OpenXM )
+
+# junk-list is not a collection of real junk files. 
+# Files in it are not necessary for the binary package. They are important.
+copy-free: all-global-shell-scripts
+	-mkdir ${prefix}
+	-(cd ../.. ; tar czf - --exclude-from OpenXM/rc/non-free-list --exclude OpenXM/misc --exclude OpenXM/rc --exclude OpenXM/src --exclude-from OpenXM/rc/junk-list OpenXM) | (cd ${prefix} ; tar xvzf -)
+# During installation OpenXM/bin/openxm must be overridden by global/openxm
+	install global/openxm ${prefix}/OpenXM/bin
+
+copy-non-free:
+	-mkdir ${prefix}
+	-(cd ../.. ; tar czf - --exclude-from OpenXM/rc/junk-list `cat OpenXM/rc/non-free-list`) | (cd ${prefix} ; tar xvzf -)
 

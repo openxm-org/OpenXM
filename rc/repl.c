@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.15 2004/02/13 03:10:19 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.16 2004/06/14 11:10:40 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,15 +22,9 @@ main(int argc,char *argv[]) {
   char *slash;
   char type = 'b';
   FILE *fp;
-  int fd;
+  int fd,i;
   char sss_png[SSIZE];
   char sss_gif[SSIZE];
-
-  if (argc >= 2) {
-	if (strcmp(argv[1],"csh")==0) {
-	  type = 'c';
-	}
-  }
 
   if (getcwd(cwd, sizeof(cwd)) == NULL) {
 	fprintf(stderr, "getcwd: %s\n", strerror(errno));
@@ -41,6 +35,25 @@ main(int argc,char *argv[]) {
 	exit(EXIT_FAILURE);
   }
   *slash = 0;
+
+  for (i=1; i<argc; i++) {
+    if (strcmp(argv[i],"csh")==0) {
+      type = 'c';
+    }else if (strcmp(argv[i],"bash")==0) {
+      type = 'b';
+    }else if (strcmp(argv[i],"--prefix")==0) {
+      i++;
+      strcpy(cwd,argv[i]);
+	  strcat(cwd,"/OpenXM");
+      if (cwd[0] != '/') {
+        fprintf(stderr,"Warning: prefix must start with /\n");
+        fprintf(stderr,"Your prefix is %d\n",cwd);
+      }
+    }else{
+      fprintf(stderr,"Warning: Unknown option.\n");
+    }
+  }
+
   while (fgets(s,BUFSIZE,stdin) != NULL) {
 	if (strcmp(s,"OpenXM_HOME=$HOME/OpenXM\n") == 0) {
 	  printf("OpenXM_HOME=%s\n",cwd);
