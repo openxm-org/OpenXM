@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.8 2000/01/20 08:33:30 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.9 2000/02/01 04:24:18 takayama Exp $
 # targets
 # all 
 #     compile
@@ -11,6 +11,7 @@ CC = gcc
 GC = $(KHOME)/gc/gc.a
 OpenXM_lib=../../lib
 DDD=-D_BSD_SOURCE
+LINKFLAG=-static
 
 ## Kan source.  kan sources must be built up by hand.
 KHOME = ../kan96xx
@@ -56,7 +57,7 @@ new :
 	sed -f new.sed <Makefile >Makefile.new
 
 d0 : simple.tab.o d.o dic.o dm.c 
-	$(CC) $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o
+	$(CC) ${LINKFLAG} $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o
 
 d.o : d.c simple.tab.h Stable/sm1symbol.h
 	$(CC) $(FLAG) $(DDD) -o d.o -c d.c
@@ -101,9 +102,9 @@ KXXASIR = simple.tab.o d.o ki-asir.o dic.o
 k0 :  k0.o $(KXX) $(KAN_HOME)/kanlib.a $(GC) $(GMP) $(KAN_HOME)/lookup.h
 	if test `uname` = "SunOS" ; \
 	then \
-	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
+	$(CC) ${LINKFLAG} $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
 	else \
-	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
+	$(CC) ${LINKFLAG} $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
 	fi
 
 k0.o : k2.c

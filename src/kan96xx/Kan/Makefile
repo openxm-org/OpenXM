@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.5 2000/01/19 02:43:13 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.6 2000/02/01 04:24:20 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -10,7 +10,7 @@ GC = ../gc/gc.a
 #### -D options
 DDD = -D_BSD_SOURCE
 #DDD = -DNOGC -D_BSD_SOURCE
-
+LINKFLAG = -static
 
 #### Optimization level etc.
 #CFLAGS = 
@@ -129,9 +129,9 @@ MSG0 = msg0.o
 sm1 : sm.c  $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) $(GC) 
 	if test `uname` = "SunOS" ; \
 	then \
-	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB) ; \
+	$(CC) ${LINKFLAG} -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB) ; \
 	else \
-	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG)  ; \
+	$(CC) ${LINKFLAG} -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG)  ; \
 	fi
 
 

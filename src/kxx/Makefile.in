@@ -1,4 +1,4 @@
-##  $OpenXM$
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.1 2000/02/01 09:59:43 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -21,6 +21,7 @@ RANLIB=@RANLIB@
 LIBS=@LIBS@ 
 CFLAGS = -g
 DDD=-D_BSD_SOURCE
+LINKFLAG=-static
 ########## end of configurations
 
 ### Set the server name in oxmain.c if you do not use the environmental
@@ -59,19 +60,19 @@ ox_kan.h : $(KANHOME)/plugin/ox_kan.h
 	ln -s $(KANHOME)/plugin/ox_kan.h ox_kan.h
 
 ox : oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
-	$(CC) $(CFLAGS) ${DDD} oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LIBS) 
+	$(CC) ${LINKFLAG} $(CFLAGS) ${DDD} oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LIBS) 
 
 ox_null : oxserver00.c ox.a nullstackmachine.o file2.o ox_kan.h
-	$(CC) $(CFLAGS)  ${DDD} oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LIBS) ; \
+	$(CC)  ${LINKFLAG} $(CFLAGS)  ${DDD} oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LIBS) ; \
 
 ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
-	$(CC) $(CFLAGS)  ${DDD} oxserver00.c sm1stackmachine.o -o ox_sm1  $(LIBS) $(KANLIB)
+	$(CC)  ${LINKFLAG} $(CFLAGS)  ${DDD} oxserver00.c sm1stackmachine.o -o ox_sm1  $(LIBS) $(KANLIB)
 
 oxlog : oxlog.c
-	$(CC)  ${DDD} -o oxlog oxlog.c
+	$(CC)   ${LINKFLAG} ${DDD} -o oxlog oxlog.c
 
 oxweave : oxweave.c oxweaveUsage.h
-	$(CC)  ${DDD} -o oxweave -g oxweave.c
+	$(CC)   ${LINKFLAG} ${DDD} -o oxweave -g oxweave.c
 
 ## file2.c file2.h is in SSkan/plugin/
 file2.o : $(KANHOME)/plugin/file2.c  $(KANHOME)/plugin/file2.h
