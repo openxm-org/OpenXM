@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.7 2003/08/18 06:36:50 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.8 2003/08/21 12:28:58 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -165,7 +165,9 @@
   $             [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
   (Example 2: )
   $ [ [(2 x Dx + 3 y Dy+6) (2 y Dx + 3 x^2 Dy)] (x,y) $
-  $   [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] ecart.gb  pmat ;$
+  $   [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] ecart.gb  /ff set ff pmat ;$
+  (To set the current ring to the ring in which ff belongs )
+  (      ff getRing ring_def  )
   (  )
   $Example 3: [ [( (x Dx)^2 + (y Dy)^2 -1) (  x y Dx Dy -1)] (x,y) $
   $             [ [ (Dx) 1 (Dy) 1] ] ] ecart.gb pmat ; $
@@ -442,6 +444,8 @@
   $ ff 0 get ff 3 get mul pmat $
   $ ff 2 get  ff 3 get mul [ff 1 get ] transpose sub pmat ; $
   (  )
+  (To set the current ring to the ring in which ff belongs )
+  (      ff getRing ring_def  )
   $Example 2: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
   $             [ [(Dx) 1 (Dy) 1] [ (x) -1 (y) -1] ]  [[0 1] [-3 1] ] ] ecart.syz pmat ; $
   (  )
