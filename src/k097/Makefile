@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.2 1999/11/11 12:36:06 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.3 1999/11/22 04:22:56 takayama Exp $
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
@@ -12,9 +12,9 @@ LOAD_K_PATH ='"/usr/local/lib/k0/"'
 LOAD_SM1_PATH2 ='"/home/nobuki/SSkan/Kan/"'
 ##
 GMP_HOME = $(KHOME)/gmp
-##LIBGMP=$(GMP_HOME)/libgmp.a
+LIBGMP=$(GMP_HOME)/libgmp.a
 ## This line is for buggy linux-gmp.
-LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
+## LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 EXTRALIB = 
 ########### end of configuration.
 
