@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/testclient.c,v 1.4 1999/11/07 12:12:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/testclient.c,v 1.5 1999/12/14 09:31:56 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    if (strcmp(argv[1], "ox_math")==0) {
+    if (strcmp(server, "ox_math")==0) {
         test_1();
     }
 
