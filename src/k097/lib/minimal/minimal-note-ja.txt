@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.1 2000/05/19 11:16:51 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.2 2000/05/24 15:24:54 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -77,3 +77,28 @@ test8() で sm1 で書いた方の Schreyer を見ると,
 kernel = image
 となっているので以後この option は 1 のまま使うこととする.
 要するに k0 のコードがどうやらおかしいらしい.
+
+-----------------------------------
+June 8, 2000 (Thu), 9:10 (Spain local time)
+hol.sm1 :  gb_h, syz_h, isSameIdeal, isSameIdeal_h
+complex.sm1 :  isExact, isExact_h
+
+syzygy を homogenization を介して計算するのは問題あり.
+--> usage of isExact
+
+[(Homogenize_vec) 0] system_variable : vector の homogenize をしない.
+(grade) (module1v) switch_function : vector 変数は, total
+       degree に数えない.
+==> 無限ループに注意   ---> gb_h, syz_h  の usage.
+
+minimal-test.k の ann(x^3-y^2*z^2) の laplace 変換の
+betti 数が変, exact でない, を isExact_h で check 
+しよう.
+
+minimal-test.k
+test10();
+  LaScala-Stillman の方法でつくった, schreyer resol が exact か   
+  調べる.
+  例題は, ann(1/(x^3-y^2 z^2)) の Laplace 変換.
+
+ 

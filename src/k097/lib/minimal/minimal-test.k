@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.1 2000/05/24 15:31:28 takayama Exp $ */
 load["minimal.k"];
 def test5() {
   local a,b,c,cc,v;
@@ -173,5 +173,32 @@ def test9() {
   ans2 = ans_all[0];
 
   return([ans,ans2]);
+
+}
+
+/* Check if the complex is exact or not? */
+def test10() {
+  local p,pp,ans,b,c,cc,ww,ww2,ans_all,ans2, r;
+  f = "x^3-y^2*z^2";
+  p = Sannfs(f,"x,y,z");
+  ww2 = [["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]];
+  sm1(" p 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /p set ");
+  Sweyl("x,y,z",ww2);
+  pp = Map(p,"Spoly");
+  ans = sm1_resol1([pp,"x,y,z",ww2]);
+
+  f = "x^3-y^2*z^2";
+  p = Sannfs(f,"x,y,z");
+  sm1(" p 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /p set ");
+  ww = [["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]];
+  Sweyl("x,y,z",ww);
+  pp = Map(p,"Spoly");
+  ans_all = Sschreyer(pp);  /* Schreyer by LaScala-Stillman */
+  ans2 = ans_all[0];
+ 
+  r= SisExact_h(ans2,[x,y,z]);
+  Print(r);
+  
+  return([r,[ans,ans2]]);
 
 }

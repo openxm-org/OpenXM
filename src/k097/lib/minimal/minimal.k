@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.11 2000/05/19 11:16:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.12 2000/05/24 15:24:54 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1639,6 +1639,13 @@ def sm1_gb(f,v) {
   f =ToString_array(f);
   v = ToString_array(v);
   sm1(" [f v] gb /FunctionValue set ");
+}
+
+def SisExact_h(c,v) {
+  local a;
+  v = ToString_array(v);
+  a = [c,v];
+  sm1(a," isExact /FunctionValue set ");
 }
 
 def SisComplex(a) {
