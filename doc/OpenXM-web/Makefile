@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.19 2000/04/12 08:39:57 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.20 2000/04/13 00:35:52 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.2
@@ -40,7 +40,7 @@ namagize-html: copy-html
 
 
 
-install-web-kobe :  $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-eg.txt $(WEBKOBE1)/install-jp.txt  $(WEBKOBE1)/ERRATA.html $(WEBKOBE1)/index-binary.html $(WEBKOBE1)/index-packages.html $(WEBKOBE1)/install-faq.txt $(WEBKOBE1)/OpenXM-FAQ-jp.txt
+install-web-kobe :  $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-eg.txt $(WEBKOBE1)/install-jp.txt  $(WEBKOBE1)/ERRATA.html $(WEBKOBE1)/index-binary.html $(WEBKOBE1)/index-packages.html $(WEBKOBE1)/install-faq.txt $(WEBKOBE1)/OpenXM-FAQ-jp.txt $(WEBKOBE1)/doc/index.html
 
 $(WEBKOBE)/index.html : index.html
 	cp -f index.html $(WEBKOBE)
@@ -94,6 +94,8 @@ $(WEBKOBE1)/install-faq.txt : install-faq.txt
 	cp -f install-faq.txt $(WEBKOBE1)/install-faq.txt
 $(WEBKOBE1)/OpenXM-FAQ-jp.txt : ../OpenXM-FAQ-jp.txt
 	cp -f ../OpenXM-FAQ-jp.txt $(WEBKOBE1)/OpenXM-FAQ-jp.txt
+$(WEBKOBE1)/doc/index.html : index-doc.html
+	cp -f index-doc.html $(WEBKOBE1)/doc/index.html
 
 copy-errata : 
 	cp -f ERRATA.html $(WEBKOBE1)/ERRATA.html
