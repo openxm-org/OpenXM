@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.7 2000/10/11 09:34:06 ohara Exp $
+ * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.8 2001/01/28 19:17:23 tam Exp $
  */
 
 import ORG.openxm.tam.*;
@@ -203,12 +203,11 @@ class elimi extends Applet implements ActionListener,Runnable{
 
     try{
       Runtime runtime = Runtime.getRuntime();
-
-      //runtime.exec("sh -c \"xterm -name $OpenXM_HOME\"");
+      //Process proc = runtime.exec("xterm -name test");
       //runtime.getInputstream();
       //runtime.getOutput();
       //runtime.exec("sh -c \"/home/tam/work/OpenXM/lib/sm1/bin/oxlog /usr/X11R6/bin/xterm -name echo ${OpenXM_HOME} /home/tam/OpenXM/lib/sm1/bin/ox -ox /home/tam/OpenXM/lib/sm1/bin/ox_sm1_forAsir -data "+ DataPort +" -control "+ ControlPort +"\"");
-      runtime.exec("sh -c \"xterm ox -ox ox_sm1_forAsir -data "+ DataPort +" -control "+ ControlPort +"\"");
+      runtime.exec("xterm -e ox -ox /home/tam/work/OpenXM/bin/ox_sm1 -data "+ DataPort +" -control "+ ControlPort );
 
       Thread.sleep(3000);
 
