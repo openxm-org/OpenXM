@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.2 1999/12/07 09:35:22 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.3 1999/12/10 09:17:50 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5.
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -270,6 +270,7 @@ message-quiet
 
 /gb.v 1 def
 /gb.verbose 0 def
+/gb.options [ ] def
 /gb {
   /arg1 set
   [/in-gb /aa /typev /setarg /f /v 
@@ -347,14 +348,14 @@ message-quiet
     } ifelse
     %%% Enf of the preprocess
 
-
+    gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
     termorder {
       f { {. dehomogenize} map } map /f set
-      [f] groebner_sugar 0 get /gg set
+      [f gb.options] groebner_sugar 0 get /gg set
     }{
       f { {. dehomogenize} map} map /f set
       f fromVectors { homogenize } map /f set
-      [f] groebner 0 get /gg set
+      [f gb.options] groebner 0 get /gg set
     }ifelse
     wv isInteger {
       /ans [gg gg {init} map] def
@@ -455,17 +456,17 @@ message-quiet
     } ifelse
     %%% Enf of the preprocess
 
-
+    gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
     termorder {
       f { {. dehomogenize} map } map /f set
       [(UseCriterion1) 1] system_variable
-      [f] groebner_sugar 0 get /gg set
+      [f gb.options] groebner_sugar 0 get /gg set
       [(UseCriterion1) 0] system_variable
     }{
       f { {. dehomogenize} map} map /f set
       f fromVectors { homogenize } map /f set
       [(UseCriterion1) 1] system_variable
-      [f] groebner 0 get /gg set
+      [f gb.options] groebner 0 get /gg set
       [(UseCriterion1) 0] system_variable
     }ifelse
     wv isInteger {
