@@ -1,4 +1,17 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.11 2004/03/19 07:53:43 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.12 2004/03/25 01:05:34 ohara Exp $
+
+(define (alist-search alist)
+  (let* ((lang (or (getenv "LANG") "C"))
+         (ent (assoc (substring lang 0 (min (string-length lang) 2)) alist)))
+    (if ent (cdr ent) (cdr (assoc "C" alist)))))
+
+(define manual-asir2000 
+  (alist-search
+   '(("C"  . "doc/asir2000/html-eg/man_toc.html") ("ja" . "doc/asir2000/html-jp/man_toc.html"))))
+
+(define manual-asir-contrib
+  (alist-search
+   '(("C"  . "doc/asir-contrib/html-en/cman-en_toc.html") ("ja" . "doc/asir-contrib/html-ja/cman-ja_toc.html"))))
 
 (define (openxm-eval t)
   (import-from (texmacs plugin plugin-cmd))
@@ -40,7 +53,7 @@
     (if (in-openxm?)
     |
     ((balloon (icon "tm_help.xpm") "Risa/Asir manual")
-     (w3m-search "doc/asir2000/html-jp/man_toc.html"))))
+     (w3m-search manual-asir2000))))
   (menu-extend texmacs-extra-menu
     (if (in-openxm?)
       (=> "OpenXM"
@@ -69,9 +82,9 @@
         ---
         (-> "Manuals"
           ("Risa/Asir manual"
-           (w3m-search "doc/asir2000/html-jp/man_toc.html"))
+           (w3m-search manual-asir2000))
           ("Asir-contrib manual"
-           (w3m-search "doc/asir-contrib/html-ja/cman-ja_toc.html")))
+           (w3m-search manual-asir-contrib)))
         (-> "Web"
           ("The OpenXM Project"  (w3m "http://www.math.kobe-u.ac.jp/OpenXM/"))
           ("Risa/Asir web page"  (w3m "http://www.math.kobe-u.ac.jp/Asir/index-ja.html")))
