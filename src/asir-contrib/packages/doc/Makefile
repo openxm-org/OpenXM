@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.31 2002/07/14 12:13:42 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.32 2002/07/14 13:14:37 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -25,7 +25,7 @@
 #       (JAAUTO, ENAUTO)
 #       xxx-auto*.texi's are extracted from xxx or xxx.rr
 #   (3) xxx-en.texi and xxx-ja.texi should be included from cman.texi 
-#     and cman-eg.texi
+#     and cman-en.texi
 #  cf.  glib*  base*
 ########################################################################
 OpenXM_ROOT=../../../../../OpenXM
@@ -40,8 +40,8 @@ DVIPS=dvips -f
 OXWEAVE= ../../../kxx/oxweave
 TEXI2HTML=texi2html -menu -split_node
 
-JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro.texi Diff.texi Dmodule.texi Matrix.texi base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi
-EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-eg.texi cman-eg.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi
+JPSRCS= oxxm-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi longname-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi Matrix-ja.texi base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi
+EGSRCS= oxxm-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi longname-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi
 
 JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi \
        print-auto-ja.texi matrix-auto-ja.texi glib-auto-ja.texi \
@@ -51,8 +51,8 @@ ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi \
 	   sm1-auto-en.texi plucker-auto-en.texi
 
 all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
-	@echo "Type in  tex cman-eg.texi to generate the manual(en) in dvi format."
-	@echo "Type in  ptex cman.texi   to generate the manual(ja) in dvi format."
+	@echo "Type in  tex cman-en.texi to generate the manual(en) in dvi format."
+	@echo "Type in  ptex cman-ja.texi   to generate the manual(ja) in dvi format."
 install :
 	@if [ ! -f ./.done_install ] ; \
 	then \
@@ -196,45 +196,45 @@ complex-en.texi : complex.oxweave
 	$(OXWEAVE) C en  <complex.oxweave >complex-en.texi
 
 
-oxxm.texi : $(ASIRLIB)/xm Makefile
-	/bin/rm -f oxxm.texi
-	$(OXWEAVE) C-texi jp-texi  <$(ASIRLIB)/xm >oxxm.texi
+oxxm-ja.texi : $(ASIRLIB)/xm Makefile
+	/bin/rm -f oxxm-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(ASIRLIB)/xm >oxxm-ja.texi
 
-oxxm-eg.texi : $(ASIRLIB)/xm Makefile
-	/bin/rm -f oxxm-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(ASIRLIB)/xm >oxxm-eg.texi
+oxxm-en.texi : $(ASIRLIB)/xm Makefile
+	/bin/rm -f oxxm-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(ASIRLIB)/xm >oxxm-en.texi
 
-oxmath.texi : $(CONTRIB)/m Makefile
-	/bin/rm -f oxmath.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/m >oxmath.texi
+oxmath-ja.texi : $(CONTRIB)/m Makefile
+	/bin/rm -f oxmath-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/m >oxmath-ja.texi
 
-oxmath-eg.texi : $(CONTRIB)/m Makefile
-	/bin/rm -f oxmath-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/m >oxmath-eg.texi
+oxmath-en.texi : $(CONTRIB)/m Makefile
+	/bin/rm -f oxmath-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/m >oxmath-en.texi
 
-oxphc.texi : $(CONTRIB)/phc Makefile
-	/bin/rm -f oxphc.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/phc >oxphc.texi
+oxphc-ja.texi : $(CONTRIB)/phc Makefile
+	/bin/rm -f oxphc-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/phc >oxphc-ja.texi
 
-oxphc-eg.texi : $(CONTRIB)/phc Makefile
-	/bin/rm -f oxphc-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/phc >oxphc-eg.texi
+oxphc-en.texi : $(CONTRIB)/phc Makefile
+	/bin/rm -f oxphc-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/phc >oxphc-en.texi
 
-oxgnuplot.texi : $(CONTRIB)/gnuplot Makefile
-	/bin/rm -f oxgnuplot.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/gnuplot >oxgnuplot.texi
+oxgnuplot-ja.texi : $(CONTRIB)/gnuplot Makefile
+	/bin/rm -f oxgnuplot-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/gnuplot >oxgnuplot-ja.texi
 
-oxgnuplot-eg.texi : $(CONTRIB)/gnuplot Makefile
-	/bin/rm -f oxgnuplot-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/gnuplot >oxgnuplot-eg.texi
+oxgnuplot-en.texi : $(CONTRIB)/gnuplot Makefile
+	/bin/rm -f oxgnuplot-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/gnuplot >oxgnuplot-en.texi
 
 ###sm1
-oxsm1.texi : sm1.oxweave Makefile sm1-auto-ja.texi
-	/bin/rm -f oxsm1.texi
-	$(OXWEAVE) C-texi jp-texi  <sm1.oxweave >oxsm1.texi
-oxsm1-eg.texi : sm1.oxweave Makefile sm1-auto-en.texi
-	/bin/rm -f oxsm1-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <sm1.oxweave >oxsm1-eg.texi
+oxsm1-ja.texi : sm1.oxweave Makefile sm1-auto-ja.texi
+	/bin/rm -f oxsm1-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <sm1.oxweave >oxsm1-ja.texi
+oxsm1-en.texi : sm1.oxweave Makefile sm1-auto-en.texi
+	/bin/rm -f oxsm1-en.texi
+	$(OXWEAVE) C-texi eg-texi  <sm1.oxweave >oxsm1-en.texi
 sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
 	rm -f sm1-auto-en.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode Top ${OPTGENTEXI} >sm1-auto-en.texi
@@ -242,37 +242,37 @@ sm1-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f sm1-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode Top ${OPTGENTEXI} >sm1-auto-ja.texi
 
-oxom.texi : $(CONTRIB)/om Makefile
-	/bin/rm -f oxom.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/om >oxom.texi
+oxom-ja.texi : $(CONTRIB)/om Makefile
+	/bin/rm -f oxom-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/om >oxom-ja.texi
 
-oxom-eg.texi : $(CONTRIB)/om Makefile
-	/bin/rm -f oxom-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/om >oxom-eg.texi
+oxom-en.texi : $(CONTRIB)/om Makefile
+	/bin/rm -f oxom-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/om >oxom-en.texi
 
-dsolv-jp.texi : dsolv.oxweave Makefile
-	/bin/rm -f dsolv-jp.texi
-	$(OXWEAVE) C-texi jp-texi  <dsolv.oxweave >dsolv-jp.texi
+dsolv-ja.texi : dsolv.oxweave Makefile
+	/bin/rm -f dsolv-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <dsolv.oxweave >dsolv-ja.texi
 
-dsolv-eg.texi : dsolv.oxweave Makefile
-	/bin/rm -f dsolv-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <dsolv.oxweave >dsolv-eg.texi
+dsolv-en.texi : dsolv.oxweave Makefile
+	/bin/rm -f dsolv-en.texi
+	$(OXWEAVE) C-texi eg-texi  <dsolv.oxweave >dsolv-en.texi
 
-longname-jp.texi : $(CONTRIB)/longname Makefile
-	/bin/rm -f longname-jp.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/longname >longname-jp.texi
+longname-ja.texi : $(CONTRIB)/longname Makefile
+	/bin/rm -f longname-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/longname >longname-ja.texi
 
-longname-eg.texi : $(CONTRIB)/longname Makefile
-	/bin/rm -f longname-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/longname >longname-eg.texi
+longname-en.texi : $(CONTRIB)/longname Makefile
+	/bin/rm -f longname-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/longname >longname-en.texi
 
-oxtigers-jp.texi : $(CONTRIB)/tigers Makefile
-	/bin/rm -f oxtigers-jp.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/tigers >oxtigers-jp.texi
+oxtigers-ja.texi : $(CONTRIB)/tigers Makefile
+	/bin/rm -f oxtigers-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/tigers >oxtigers-ja.texi
 
-oxtigers-eg.texi : $(CONTRIB)/tigers Makefile
-	/bin/rm -f oxtigers-eg.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/tigers >oxtigers-eg.texi
+oxtigers-en.texi : $(CONTRIB)/tigers Makefile
+	/bin/rm -f oxtigers-en.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/tigers >oxtigers-en.texi
 
 ###misc
 misc-ja.texi : misc.oxweave
@@ -311,59 +311,58 @@ pfp-auto-ja.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
 	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage  | ./gentexi  --ja --upnode Top ${OPTGENTEXI} >pfp-auto-ja.texi
 
 ###### Generating online manual
-gen-help-eg: $(EGSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
-	-rm -rf tmp help-eg
-	mkdir help-eg tmp
-	cp cman-eg.texi $(EGSRCS) $(ENAUTO) tmp
-	-(cd tmp; makeinfo --force cman-eg.texi)
-	(cd help-eg; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
+gen-help-en: $(EGSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
+	-rm -rf tmp help-en
+	mkdir help-en tmp
+	cp cman-en.texi $(EGSRCS) $(ENAUTO) tmp
+	-(cd tmp; makeinfo --force cman-en.texi)
+	(cd help-en; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
 ## duplicate some help files
-	-(cd help-eg; cp sm1_hilbert hilbert_polynomial)
+	-(cd help-en; cp sm1_hilbert hilbert_polynomial)
 
-gen-help-jp: $(JPSRCS) $(ASIRDOC)/extract_func $(JAAUTO)
-	-rm -rf tmp-ja help-jp
-	mkdir help-jp tmp-ja
-	for i in cman.texi $(JPSRCS) $(JAAUTO); do nkf -e $$i > tmp-ja/$$i; done
-	-(cd tmp-ja; makeinfo --force cman.texi)
-	(cd help-jp; for i in ../tmp-ja/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
+gen-help-ja: $(JPSRCS) $(ASIRDOC)/extract_func $(JAAUTO)
+	-rm -rf tmp-ja help-ja
+	mkdir help-ja tmp-ja
+	for i in cman-ja.texi $(JPSRCS) $(JAAUTO); do nkf -e $$i > tmp-ja/$$i; done
+	-(cd tmp-ja; makeinfo --force cman-ja.texi)
+	(cd help-ja; for i in ../tmp-ja/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
 ## duplicate some help files
-	-(cd help-jp; cp sm1_hilbert hilbert_polynomial)
+	-(cd help-ja; cp sm1_hilbert hilbert_polynomial)
 
-gen-html-en: gen-help-eg
+gen-html-en: gen-help-en
 	-rm -rf html-en
 	-mkdir html-en
 	-cp tmp/*.texi html-en
-	-(cd html-en; ${TEXI2HTML} cman-eg.texi)
+	-(cd html-en; ${TEXI2HTML} cman-en.texi)
 
-gen-html-ja: gen-help-jp
+gen-html-ja: gen-help-ja
 	-mkdir html-ja
 	-cp tmp-ja/*.texi html-ja
-	-cp tmp-ja/cman.texi html-ja/cman-ja.texi
+	-cp tmp-ja/cman-ja.texi html-ja/cman-ja.texi
 	-(cd html-ja; ${TEXI2HTML} cman-ja.texi)
 
-help: gen-help-eg gen-help-jp
+help: gen-help-en gen-help-ja
 
 install-help: help
 	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
-	-cp -f help-jp/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+	-cp -f help-ja/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
-	-cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+	-cp -f help-en/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 
 install-html-help: gen-html-en gen-html-ja
 	-( tar cf - html-en | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 	-( tar cf - html-ja | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 
 install-document : all clean-document
-	-ptex cman.texi
-	-ptex cman.texi
-	-cp cman.dvi $(OpenXM_doc)/asir-contrib/cman-jp.dvi
-	-$(DVIPS) cman >$(OpenXM_doc)/asir-contrib/cman-jp.ps
-	-tex cman-eg.texi
-	-tex cman-eg.texi
-	-cp cman-eg.dvi $(OpenXM_doc)/asir-contrib/cman-eg.dvi
-	-$(DVIPS) cman-eg >$(OpenXM_doc)/asir-contrib/cman-eg.ps
+	-ptex cman-ja.texi
+	-ptex cman-ja.texi
+	-$(DVIPS) cman-ja >$(OpenXM_doc)/asir-contrib/cman-ja.ps
+	-tex cman-en.texi
+	-tex cman-en.texi
+	-cp cman-en.dvi $(OpenXM_doc)/asir-contrib/cman-en.dvi
+	-$(DVIPS) cman-en >$(OpenXM_doc)/asir-contrib/cman-en.ps
 
 
 clean-document :
@@ -376,5 +375,5 @@ clean-document :
 clean :
 	rm -f ./.done_install
 	rm -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
-	rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi
-	/bin/rm -rf help-jp help-eg tmp tmp-ja html-en html-ja
+	rm -f oxxm-ja.texi oxxm-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi
+	/bin/rm -rf help-ja help-en tmp tmp-ja html-en html-ja
