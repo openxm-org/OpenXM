@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.13 2003/01/17 01:01:04 maekawa Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.14 2003/02/02 01:52:50 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,8 +9,9 @@
 #include <unistd.h>
 
 #define BUFSIZE 10000
-#define SSIZE  1024
+#define SSIZE  1024   
 
+/* If you make the following two strings longer, increase the number SSIZE */
 #define	REPL_IMGFILE	"repl_test.img"
 #define	REPL_PSFILE	    "repl_test.ps"
 
@@ -65,14 +66,8 @@ main(int argc,char *argv[]) {
 	break;
   }
 
-  if (snprintf(sss_png,SSIZE,"pstoimg -type png %s -out %s >/dev/null",REPL_PSFILE,REPL_IMGFILE) <0) {
-	fprintf(stderr,"SSIZE is small.\n");
-	exit(EXIT_FAILURE);
-  }
-  if (snprintf(sss_gif,SSIZE,"pstoimg -type gif %s -out %s >/dev/null",REPL_PSFILE,REPL_IMGFILE) <0) {
-	fprintf(stderr,"SSIZE is small.\n");
-	exit(EXIT_FAILURE);
-  }
+  sprintf(sss_png,"pstoimg -type png %s -out %s >/dev/null",REPL_PSFILE,REPL_IMGFILE);
+  sprintf(sss_gif,"pstoimg -type gif %s -out %s >/dev/null",REPL_PSFILE,REPL_IMGFILE);
   
   if (!system(sss_png)) {
 	if (type == 'b') {
