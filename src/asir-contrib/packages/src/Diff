@@ -1,13 +1,13 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.9 2000/02/14 07:33:19 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.10 2000/02/20 11:30:43 okutani Exp $ */
 
 /*------------------------------------*/
 /* Package for differential equations */
 /*------------------------------------*/
 
-#define _DEBUG_Diff_ 0
-#define _OPTIMIZE_Diff_ 1
+#define _DEBUG_Odiff_ 0
+#define _OPTIMIZE_Odiff_ 1
 
-Diff_ActList1 = [ newvect(2, [ [(1)/(x),[x]], newvect(1,[(1)/(x)]) ]) ]$
+Odiff_ActList1 = [ newvect(2, [ [(1)/(x),[x]], newvect(1,[(1)/(x)]) ]) ]$
 
 /* [[[F,V] DF],...] */
 /* DF: vector with vector elements */
@@ -16,13 +16,13 @@ Diff_ActList1 = [ newvect(2, [ [(1)/(x),[x]], newvect(1,[(1)/(x)]) ]) ]$
          ...
          [Dv0^N(F)] ] */
 
-Diff_ActList2 = [ newvect(2, [ [(1)/(x*y),[x,y]],
+Odiff_ActList2 = [ newvect(2, [ [(1)/(x*y),[x,y]],
 			       newvect(1,[ newvect(1,[(1)/(x*y)]) ]) ]) ]$
 
 /*---------*/
 /* Utility */
 /*---------*/
-def diff_is_int(N) {
+def odiff_is_int(N) {
   if (type(N) <= 1) {
     if (dn(N) == 1) {
       return 1;
@@ -31,22 +31,22 @@ def diff_is_int(N) {
   return 0;
 }
 
-def diff_is_neg_int(N) {
-  if (diff_is_int(N) && N < 0) {
+def odiff_is_neg_int(N) {
+  if (odiff_is_int(N) && N < 0) {
     return 1;
   }
   return 0;
 }
 
-def diff_is_neg0_int(N) {
-  if (diff_is_int(N) && N <= 0) {
+def odiff_is_neg0_int(N) {
+  if (odiff_is_int(N) && N <= 0) {
     return 1;
   }
   return 0;
 }
 
 /* [x1,x2,...] -> [dx1,dx2,...] */
-def diff_make_dv(V) {
+def odiff_make_dv(V) {
   if (type(V) != 4) {
     error("parameter type error.");
   }
@@ -57,8 +57,8 @@ def diff_make_dv(V) {
   return Dv;
 }
 
-def diff_op_toasir(L_list, V) {
-  Dv = diff_make_dv(V);
+def odiff_op_toasir(L_list, V) {
+  Dv = odiff_make_dv(V);
   L_list_asir = [];
   for (I = 0; I < length(L_list); I++) {
     L = L_list[I];
@@ -71,8 +71,8 @@ def diff_op_toasir(L_list, V) {
   return L_list_asir;
 }
 
-def diff_op_fromasir(D_list, V) {
-  Dv = diff_make_dv(V);
+def odiff_op_fromasir(D_list, V) {
+  Dv = odiff_make_dv(V);
   L_list = [];
   for (I = 0; I < length(D_list); I++) {
     D = dp_ptod(D_list[I], Dv);
@@ -92,7 +92,7 @@ def diff_op_fromasir(D_list, V) {
 }
 
 /* translate coefficients of type 3 to of type 2. */
-def diff_op_rat2p(L_list) {
+def odiff_op_rat2p(L_list) {
   NewL_list = [];
   for (I = 0; I < length(L_list); I++) {
     L = L_list[I];
@@ -116,8 +116,8 @@ def diff_op_rat2p(L_list) {
 }
 
 /* translate coefficients of type 3 to of type 2 with integer coef. */
-def diff_op_rat2zp(L_list) {
-  L_list = diff_op_rat2p(L_list);
+def odiff_op_rat2zp(L_list) {
+  L_list = odiff_op_rat2p(L_list);
   NewL_list = [];
   for (I = 0; I < length(L_list); I++) {
     L = L_list[I];
@@ -142,7 +142,7 @@ def diff_op_rat2zp(L_list) {
 
 /* asir polynomial -> sm1 string */
 /* note! sm1 understand only polynomial with integer coefficients. */
-def diff_poly_tosm1(Poly, V) {
+def odiff_poly_tosm1(Poly, V) {
   if (type(Poly) > 2 || type(V) != 4) {
     error("parameter type error.");
   }
@@ -155,7 +155,7 @@ def diff_poly_tosm1(Poly, V) {
     Hc = dp_hc(Dpoly);
     Ht = dp_ht(Dpoly);
     HtV = dp_etov(Ht);
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
     print("Dpoly: ", 0); print(Dpoly);
     print("Hc: ", 0); print(Hc);
     print("Ht: ", 0); print(Ht);
@@ -167,12 +167,12 @@ def diff_poly_tosm1(Poly, V) {
       Str_poly += " + (" + rtostr(Hc) + ")";
     }
     else {
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
       print("Hc is polynomial.");
 #endif
-      Str_poly += " + (" + diff_poly_tosm1(Hc, vars(Hc)) + ")";
+      Str_poly += " + (" + odiff_poly_tosm1(Hc, vars(Hc)) + ")";
     }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
     print("coefficient OK.");
 #endif
     /* power product */
@@ -183,7 +183,7 @@ def diff_poly_tosm1(Poly, V) {
       }
     }
     Str_poly += Str_mono;
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
     print("power product OK.");
 #endif
     Dpoly -= dp_hm(Dpoly);
@@ -193,18 +193,18 @@ def diff_poly_tosm1(Poly, V) {
 
 /* differential operators with polynomial coefficients -> sm1 string */
 /* L_list: [ [[fa(V),[a1,...,an]],...], ... ], coefficient must be polynomial. */
-def diff_op_tosm1(L_list, V) {
+def odiff_op_tosm1(L_list, V) {
   if (type(L_list[0]) <= 2) {
-    L_list = diff_op_fromasir(L_list, V);
+    L_list = odiff_op_fromasir(L_list, V);
   }
-  L_list = diff_op_rat2zp(L_list);
+  L_list = odiff_op_rat2zp(L_list);
   L_str_list = [];
   for (I = 0; I < length(L_list); I++) {
     L_str = "";
     for (J = 0; J < length(L_list[I]); J++) {
       Poly = red(L_list[I][J][0]);
       if (Poly != 0) {
-	Str_Poly = "(" + diff_poly_tosm1(Poly, V) + ")";
+	Str_Poly = "(" + odiff_poly_tosm1(Poly, V) + ")";
 	Str_D = "";
 	Index = L_list[I][J][1];
 	for (K = 0; K < length(Index); K++) {
@@ -215,7 +215,7 @@ def diff_op_tosm1(L_list, V) {
 	L_str += " + " + Str_Poly + Str_D;
       }
     }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
     print("L_str: ", 0); print(L_str);
 #endif
     if (L_str == "") {
@@ -228,17 +228,17 @@ def diff_op_tosm1(L_list, V) {
   return L_str_list;
 }
 
-def diff_get_param(D_ideal, V) {
+def odiff_get_param(D_ideal, V) {
   if (type(D_ideal[0]) <= 2) {
-    D_ideal = diff_op_fromasir(D_ideal, V);
+    D_ideal = odiff_op_fromasir(D_ideal, V);
   }
   Vars = vars(D_ideal);
   for (Param = [], I = 0; I < length(Vars); I++) {
-    if (!diff_lookup(Vars[I],V)) {
+    if (!odiff_lookup(Vars[I],V)) {
       Param = append(Param, [Vars[I]]);
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("generic parameter: ", 0); print(Param);
 #endif
   return Param;
@@ -247,23 +247,23 @@ def diff_get_param(D_ideal, V) {
 /*-------------------------------*/
 /* In the case of many variables */
 /*-------------------------------*/
-def diff_act1(L, F, V) {
+def odiff_act1(L, F, V) {
   if (length(V) != 1) {
     error("a length of list V is wrong.");
   }
-  extern Diff_ActList1;
+  extern Odiff_ActList1;
   /* search list */
-  for (I = 0; I < length(Diff_ActList1); I++) {
-    if (Diff_ActList1[I][0] == [F, V]) {
+  for (I = 0; I < length(Odiff_ActList1); I++) {
+    if (Odiff_ActList1[I][0] == [F, V]) {
       break;
     }
   }
   N = I;
-  if (N == length(Diff_ActList1)) {
-    /* make Diff_ActList1[N] */
-    Diff_ActList1 = append(Diff_ActList1, [ newvect(2, [[F,V],newvect(1,[F])]) ]);
+  if (N == length(Odiff_ActList1)) {
+    /* make Odiff_ActList1[N] */
+    Odiff_ActList1 = append(Odiff_ActList1, [ newvect(2, [[F,V],newvect(1,[F])]) ]);
   }
-  Table = Diff_ActList1[N];
+  Table = Odiff_ActList1[N];
   /* calculate order of L */
   MaxOrd = 0;
   for (I = 0; I < length(L); I++) {
@@ -271,7 +271,7 @@ def diff_act1(L, F, V) {
       MaxOrd = L[I][1][0];
     }
   }
-  /* if MaxOrd >= length(Diff_ActList1[N][1][0]), extend Diff_ActList1[N][1]. */
+  /* if MaxOrd >= length(Odiff_ActList1[N][1][0]), extend Odiff_ActList1[N][1]. */
   if (MaxOrd >= size(Table[1])[0]) {
     New = newvect(MaxOrd+1, vtol(Table[1]));
     for (I = size(Table[1])[0]; I <= MaxOrd; I++) {
@@ -280,7 +280,7 @@ def diff_act1(L, F, V) {
     Table[1] = New;
   }
   /* action L */
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("calculate Lf... ", 0);
 #endif
   Lf = 0;
@@ -289,30 +289,30 @@ def diff_act1(L, F, V) {
     Lf += L[I][0]*Df;
     Lf = red(Lf);
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("done.");
 #endif
   return Lf;
 }
 
-def diff_act2(L, F, V) {
+def odiff_act2(L, F, V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
-  extern Diff_ActList2;
+  extern Odiff_ActList2;
   /* search list */
-  for (I = 0; I < length(Diff_ActList2); I++) {
-    if (Diff_ActList2[I][0] == [F, V]) {
+  for (I = 0; I < length(Odiff_ActList2); I++) {
+    if (Odiff_ActList2[I][0] == [F, V]) {
       break;
     }
   }
   N = I;
-  if (N == length(Diff_ActList2)) {
-    /* make Diff_ActList2[N] */
-    Diff_ActList2 = append(Diff_ActList2,
+  if (N == length(Odiff_ActList2)) {
+    /* make Odiff_ActList2[N] */
+    Odiff_ActList2 = append(Odiff_ActList2,
 			   [ newvect(2, [[F, V],newvect(1,[newvect(1,[F])])]) ]);
   }
-  Table = Diff_ActList2[N];  /* a vetor of size 2 */
+  Table = Odiff_ActList2[N];  /* a vetor of size 2 */
   /* calculate order of L */
   MaxOrd = 0;
   for (I = 0; I < length(L); I++) {
@@ -320,7 +320,7 @@ def diff_act2(L, F, V) {
       MaxOrd = L[I][1][0] + L[I][1][1];
     }
   }
-  /* if MaxOrd >= length(Diff_ActList2[N][1][0]), extend Diff_ActList2[N][1]. */
+  /* if MaxOrd >= length(Odiff_ActList2[N][1][0]), extend Odiff_ActList2[N][1]. */
   if (MaxOrd >= size(Table[1])[0]) {
     NewTable = newvect(MaxOrd+1);
     for (I = 0; I <= MaxOrd; I++) {
@@ -352,7 +352,7 @@ def diff_act2(L, F, V) {
 /* D: list, [a1,...,an] */
 /* F: rational expr */
 /* V: list, [x1,...,xn] */
-def diff_act_mono(D, F, V) {
+def odiff_act_mono(D, F, V) {
   Var = [];
   for (I = 0; I < length(V); I++) {
     for (J = 0; J < D[I]; J++) {
@@ -362,7 +362,7 @@ def diff_act_mono(D, F, V) {
   return diff(F, Var);
 }
 
-def diff_contain_uc(Obj) {
+def odiff_contain_uc(Obj) {
   List = vars(Obj);
   for (I = 0; I < length(List); I++) {
     if (vtype(List[I]) == 1) {
@@ -376,36 +376,36 @@ def diff_contain_uc(Obj) {
 /* F: rational expr */
 /* V: list, [x1,...,xn] */
 /* the return value of this function is reduced by using 'red()'. */
-def diff_act(L, F, V) {
+def odiff_act(L, F, V) {
   if (type(L) <= 2) {
-    L = diff_op_fromasir([L], V)[0];
+    L = odiff_op_fromasir([L], V)[0];
   }
 
-#if _OPTIMIZE_Diff_
+#if _OPTIMIZE_Odiff_
   if (length(V) == 1 && type(F) == 3) {
-    return diff_act1(L, F, V);
+    return odiff_act1(L, F, V);
   }
-  /* if (length(V) == 2 && type(F) == 3 && !diff_contain_uc(F)) { */
+  /* if (length(V) == 2 && type(F) == 3 && !odiff_contain_uc(F)) { */
   if (length(V) == 2 && type(F) == 3) {
-    return diff_act2(L, F, V);
+    return odiff_act2(L, F, V);
   }
 #endif
 
   Lf = 0;
   for (I = length(L) - 1; I >= 0; I--) {
-    Lf += L[I][0]*diff_act_mono(L[I][1], F, V);
+    Lf += L[I][0]*odiff_act_mono(L[I][1], F, V);
     Lf = red(Lf);
   }
   return Lf;
 }
 
-def diff_acts(L_list, F, V) {
-  return map(diff_act, L_list, F, V);
+def odiff_acts(L_list, F, V) {
+  return map(odiff_act, L_list, F, V);
 }
 
 /* Dim: a number of variables */
 /* Deg: degree */
-def diff_make_basis(Dim, Deg) {
+def odiff_make_basis(Dim, Deg) {
   if(Dim <= 0 || Deg < 0) {
     error("parameter range error.");
   }
@@ -420,7 +420,7 @@ def diff_make_basis(Dim, Deg) {
 
   if (Dim > 1) {
     Basis = [];
-    B = diff_make_basis(Dim - 1,Deg);
+    B = odiff_make_basis(Dim - 1,Deg);
     for (I = 0; I <= Deg; I++) {
       HBasis = [];
       for (J = 0; J <= I; J++) {
@@ -434,8 +434,8 @@ def diff_make_basis(Dim, Deg) {
   }
 }
 
-def diff_get_homog(Poly, Deg, V) {
-  Basis = diff_make_basis(length(V), Deg);
+def odiff_get_homog(Poly, Deg, V) {
+  Basis = odiff_make_basis(length(V), Deg);
   HPoly = 0;
   for (I = 0; I < length(Basis[Deg]); I++) {
     Coef = Poly;
@@ -451,7 +451,7 @@ def diff_get_homog(Poly, Deg, V) {
 
 /* Sol: list, [U, UC] */
 /* Value: rat or list */
-def diff_assign_uc(Sol,Value) {
+def odiff_assign_uc(Sol,Value) {
   if (type(Value) >= 0 && type(Value) <= 3) {
     U = Sol[0];
     for (I = 0; I < length(Sol[1]); I++) {
@@ -469,16 +469,16 @@ def diff_assign_uc(Sol,Value) {
   error("parameter type error");
 }
 
-def diff_rat_solve(L_list, Dn, N, V) {
+def odiff_rat_solve(L_list, Dn, N, V) {
   /* OK: calculate the degree of U */
   Deg_U = N;
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("Deg_U: ", 0); print(Deg_U);
 #endif
 
   /* OK: make a basis of U */
-  Basis_U = diff_make_basis(length(V), Deg_U);
-#if _DEBUG_Diff_
+  Basis_U = odiff_make_basis(length(V), Deg_U);
+#if _DEBUG_Odiff_
   print("Basis_U: ", 0); print(Basis_U);
 #endif
 
@@ -491,7 +491,7 @@ def diff_rat_solve(L_list, Dn, N, V) {
     }
     Coef_U = append(Coef_U, [HCoef_U]);
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("Coef_U: ", 0); print(Coef_U);
 #endif
 
@@ -502,17 +502,17 @@ def diff_rat_solve(L_list, Dn, N, V) {
       U += Coef_U[I][J]*dp_dtop(dp_vtoe(matrix_ltov(Basis_U[I][J])), V);
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("U: ", 0); print(U);
 #endif
 
   /* OK: calculate Lu_list */
-  List = diff_acts(L_list, U/Dn, V);
+  List = odiff_acts(L_list, U/Dn, V);
   Lu_list = [];
   for (I = 0; I < length(List); I++) {
     Lu_list = append(Lu_list, [nm(List[I])]);
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("Lu_list: ", 0); print(Lu_list);
 #endif
 
@@ -529,14 +529,14 @@ def diff_rat_solve(L_list, Dn, N, V) {
   if (Coef_Lu_list == []) {
     Coef_Lu_list = [0];
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("Coef_Lu_list: ", 0); print(Coef_Lu_list);
 #endif
 
   /* OK: calculate the size of matrix A and vector X */
   Size_Row = length(Coef_Lu_list);
   Size_Col = fac(length(V) + Deg_U)/(fac(length(V))*fac(Deg_U));
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("Size of A: [", 0);
   print(Size_Row, 0); print(",", 0); print(Size_Col, 0);
   print("]");
@@ -551,7 +551,7 @@ def diff_rat_solve(L_list, Dn, N, V) {
       K++;
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("X: ", 0); print(X);
 #endif
 
@@ -564,13 +564,13 @@ def diff_rat_solve(L_list, Dn, N, V) {
       A[Row][Col] = coef(Coef_Nm, 1, X[Col])/Coef_Dn;
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("A: ", 0); print(A);
 #endif
 
   /* OK: solve A*X = 0 */
   Sol = matrix_solve(A, X, newvect(Size_Row));
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("Sol: ", 0); print(Sol);
 #endif
 
@@ -584,7 +584,7 @@ def diff_rat_solve(L_list, Dn, N, V) {
       U = subst(U, Sol[I][0], 0);
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("U: ", 0); print(U);
 #endif
 
@@ -596,18 +596,18 @@ def diff_rat_solve(L_list, Dn, N, V) {
       UC = append(UC, [Vars_U[I]]);
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("UC: ", 0); print(UC);
 #endif
 
   return [red(U/Dn), UC];
 }
 
-def diff_poly_solve(L_list, N, V) {
-  return diff_rat_solve(L_list, 1, N, V);
+def odiff_poly_solve(L_list, N, V) {
+  return odiff_rat_solve(L_list, 1, N, V);
 }
 
-def diff_pochhammer(A, K) {
+def odiff_pochhammer(A, K) {
   A_K = 1;
   for (I = 0; I < K; I++) {
     A_K *= (A+I);
@@ -618,7 +618,7 @@ def diff_pochhammer(A, K) {
 /*--------------------------*/
 /* the case of one variable */
 /*--------------------------*/
-def diff_op_hg1(A,B,C,V) {
+def odiff_op_hg1(A,B,C,V) {
   if (length(V) != 1) {
     error("a length of list V is too long.");
   }
@@ -627,106 +627,106 @@ def diff_op_hg1(A,B,C,V) {
 	     [-A*B,[0]] ] ];
 }
 
-def diff_act_hg1(A,B,C,F,V) {
-  return diff_acts(diff_op_hg1(A,B,C,V),F,V);
+def odiff_act_hg1(A,B,C,F,V) {
+  return odiff_acts(odiff_op_hg1(A,B,C,V),F,V);
 }
 
-def diff_sol_hg1_type1(Deg,A,B,C,I,V) {
+def odiff_sol_hg1_type1(Deg,A,B,C,I,V) {
   for (Sol = 0, M = 0; M <= Deg; M++) {
-    A_m = diff_pochhammer(A, M);
-    B_m = diff_pochhammer(B, M);
-    C_m = diff_pochhammer(C, M);
-    I_m = diff_pochhammer(I, M);
+    A_m = odiff_pochhammer(A, M);
+    B_m = odiff_pochhammer(B, M);
+    C_m = odiff_pochhammer(C, M);
+    I_m = odiff_pochhammer(I, M);
     Sol += (A_m*B_m)/(C_m*I_m)*V[0]^M;
   }
   return Sol;
 }
 
-def diff_poly_solve_hg1(A,B,C,V) {
-  A_is_neg0_int = diff_is_neg0_int(A);
-  B_is_neg0_int = diff_is_neg0_int(B);
+def odiff_poly_solve_hg1(A,B,C,V) {
+  A_is_neg0_int = odiff_is_neg0_int(A);
+  B_is_neg0_int = odiff_is_neg0_int(B);
   /* polynomial solution does not exist. */
   if (!(A_is_neg0_int || B_is_neg0_int)) {
     return [0,[]];
   }
   /* polynomial solution exists. */
-  if (!diff_is_neg0_int(C)) {
+  if (!odiff_is_neg0_int(C)) {
     if (A_is_neg0_int && B_is_neg0_int) {
       Max = (-A <= -B) ? (-A):(-B);
-      Sol = diff_sol_hg1_type1(Max,A,B,C,1,V);
+      Sol = odiff_sol_hg1_type1(Max,A,B,C,1,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (A_is_neg0_int && !B_is_neg0_int) {
-      Sol = diff_sol_hg1_type1(-A,A,B,C,1,V);
+      Sol = odiff_sol_hg1_type1(-A,A,B,C,1,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (!A_is_neg0_int && B_is_neg0_int) {
-      Sol = diff_sol_hg1_type1(-B,A,B,C,1,V);
+      Sol = odiff_sol_hg1_type1(-B,A,B,C,1,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
   }
   else {
     if (!A_is_neg0_int && C <= B && B <= 0) {
-      Sol = diff_sol_hg1_type1(-B,A,B,C,1,V);
+      Sol = odiff_sol_hg1_type1(-B,A,B,C,1,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (!A_is_neg0_int && B <= C-1) {
-      Sol = V[0]^(1-C)*diff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V);
+      Sol = V[0]^(1-C)*odiff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (C <= A && A <= 0 && !B_is_neg0_int) {
-      Sol = diff_sol_hg1_type1(-A,A,B,C,1,V);
+      Sol = odiff_sol_hg1_type1(-A,A,B,C,1,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (C <= A && A <= 0 && C <= B && B <= 0) {
       Max = (-A <= -B) ? (-A):(-B);
-      Sol = diff_sol_hg1_type1(Max,A,B,C,1,V);
+      Sol = odiff_sol_hg1_type1(Max,A,B,C,1,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (C <= A && A <= 0 && B <= C-1) {
-      Sol1 = diff_sol_hg1_type1(-A,A,B,C,1,V);
-      Sol2 = V[0]^(1-C)*diff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V);
+      Sol1 = odiff_sol_hg1_type1(-A,A,B,C,1,V);
+      Sol2 = V[0]^(1-C)*odiff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V);
       UC1 = uc(); UC2 = uc();
       return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
     }
     if (A <= C-1 && !B_is_neg0_int) {
-      Sol = V[0]^(1-C)*diff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V);
+      Sol = V[0]^(1-C)*odiff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (A <= C-1 && C <= B && B <= 0) {
-      Sol1 = diff_sol_hg1_type1(-B,A,B,C,1,V);
-      Sol2 = V[0]^(1-C)*diff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V);
+      Sol1 = odiff_sol_hg1_type1(-B,A,B,C,1,V);
+      Sol2 = V[0]^(1-C)*odiff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V);
       UC1 = uc(); UC2 = uc();
       return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
     }
     if (A <= C-1 && B <= C-1) {
       Max = (-A <= -B) ? (-A):(-B);
-      Sol = V[0]^(1-C)*diff_sol_hg1_type1(Max+C-1,A-C+1,B-C+1,1,2-C,V);
+      Sol = V[0]^(1-C)*odiff_sol_hg1_type1(Max+C-1,A-C+1,B-C+1,1,2-C,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
   }
-  /* return diff_poly_solve(diff_op_hg1(A,B,C,V),N,V); */
+  /* return odiff_poly_solve(odiff_op_hg1(A,B,C,V),N,V); */
 }
 
-def diff_poly_solve_hg1_check(A,B,C,V) {
-  Sol = diff_poly_solve_hg1(A,B,C,V);
-  if (diff_act_hg1(A,B,C,Sol[0],V) != [0]) {
-    error("diff_poly_solve_hg1 contains bugs.");
+def odiff_poly_solve_hg1_check(A,B,C,V) {
+  Sol = odiff_poly_solve_hg1(A,B,C,V);
+  if (odiff_act_hg1(A,B,C,Sol[0],V) != [0]) {
+    error("odiff_poly_solve_hg1 contains bugs.");
     return 0;
   }
   return 1;
 }
 
-def diff_op_hg1_rat(A,B,C,K1,K2,V) {
+def odiff_op_hg1_rat(A,B,C,K1,K2,V) {
   A3 = A+B-2*K1-2*K2+1;
   A2 = -A-B-C+4*K1+2*K2-1;
   A1 = C-2*K1;
@@ -738,64 +738,64 @@ def diff_op_hg1_rat(A,B,C,K1,K2,V) {
              [B2*V[0]^2+B1*V[0]+B0,[0]] ] ];
 }
 
-def diff_act_hg1_rat(A,B,C,K1,K2,F,V) {
-  return diff_acts(diff_op_hg1_rat(A,B,C,K1,K2,V),F,V);
+def odiff_act_hg1_rat(A,B,C,K1,K2,F,V) {
+  return odiff_acts(odiff_op_hg1_rat(A,B,C,K1,K2,V),F,V);
 }
 
-def diff_rat_solve_hg1(A,B,C,V) {
-  A_is_int = diff_is_int(A);
-  B_is_int = diff_is_int(B);
+def odiff_rat_solve_hg1(A,B,C,V) {
+  A_is_int = odiff_is_int(A);
+  B_is_int = odiff_is_int(B);
   if (!(A_is_int || B_is_int)) {
     return [0,[]];
   }
 
-  Dim_poly = length(diff_poly_solve_hg1(A,B,C,V)[1]);
+  Dim_poly = length(odiff_poly_solve_hg1(A,B,C,V)[1]);
   if (Dim_poly == 2) {
     return [0,[]];
   }
   Dim_rat = 0;
 
   Sol1 = 0;
-  C_is_int = diff_is_int(C);
+  C_is_int = odiff_is_int(C);
   if (C_is_int && C >= 2) {
     if (A_is_int && 1 <= A && A <= C-1) {
       if (B_is_int && 1 <= B && B <= C-1) {
 	Deg = -((A > B) ? (A):(B))+C-1;
-	Sol1 = diff_sol_hg1_type1(Deg,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
+	Sol1 = odiff_sol_hg1_type1(Deg,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
 	Dim_rat++;
       }
       else {
-	Sol1 = diff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
+	Sol1 = odiff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
 	Dim_rat++;
       }
     }
     else {
       if (B_is_int && 1 <= B && B <= C-1) {
-	Sol1 = diff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
+	Sol1 = odiff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
 	Dim_rat++;
       }
     }
   }
   Sol2 = 0;
   CC = A+B-C+1;
-  CC_is_int = diff_is_int(CC);
+  CC_is_int = odiff_is_int(CC);
   if (CC_is_int && CC >= 2) {
     if (A_is_int && 1 <= A && A <= CC-1) {
       if (B_is_int && 1 <= B && B <= CC-1) {
 	Deg = -((A > B) ? (A):(B))+CC-1;
-	Sol2 = diff_sol_hg1_type1(Deg,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
+	Sol2 = odiff_sol_hg1_type1(Deg,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
 	Sol2 = subst(Sol2,V[0],1-V[0]);
 	Dim_rat++;
       }
       else {
-	Sol2 = diff_sol_hg1_type1(-A+CC-1,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
+	Sol2 = odiff_sol_hg1_type1(-A+CC-1,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
 	Sol2 = subst(Sol2,V[0],1-V[0]);
 	Dim_rat++;
       }
     }
     else {
       if (B_is_int && 1 <= B && B <= CC-1) {
-	Sol2 = diff_sol_hg1_type1(-B+CC-1,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
+	Sol2 = odiff_sol_hg1_type1(-B+CC-1,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
 	Sol2 = subst(Sol2,V[0],1-V[0]);
 	Dim_rat++;
       }
@@ -822,7 +822,7 @@ def diff_rat_solve_hg1(A,B,C,V) {
 /* the case of two variables */
 /*---------------------------*/
 /* appell1 */
-def diff_op_appell1(A,B1,B2,C,V) {
+def odiff_op_appell1(A,B1,B2,C,V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
@@ -841,16 +841,16 @@ def diff_op_appell1(A,B1,B2,C,V) {
 	     [B1,[0,1]] ] ];
 }
 
-def diff_act_appell1(A,B1,B2,C,F,V) {
-  return diff_acts(diff_op_appell1(A,B1,B2,C,V),F,V);
+def odiff_act_appell1(A,B1,B2,C,F,V) {
+  return odiff_acts(odiff_op_appell1(A,B1,B2,C,V),F,V);
 }
 
-def diff_poly_solve_appell1(A,B1,B2,C,N,V) {
-  return diff_poly_solve(diff_op_appell1(A,B1,B2,C,V),N,V);
+def odiff_poly_solve_appell1(A,B1,B2,C,N,V) {
+  return odiff_poly_solve(odiff_op_appell1(A,B1,B2,C,V),N,V);
 }
 
-def diff_poly_solve_appell1_check(Sol,A,B1,B2,C,V) {
-  Lf_list = diff_act_appell1(A,B1,B2,C,Sol[0],V);
+def odiff_poly_solve_appell1_check(Sol,A,B1,B2,C,V) {
+  Lf_list = odiff_act_appell1(A,B1,B2,C,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
       return 0;
@@ -859,13 +859,13 @@ def diff_poly_solve_appell1_check(Sol,A,B1,B2,C,V) {
   return 1;
 }
 
-def diff_poly_solve_appell1s(R_A,R_B1,R_B2,R_C,N,V) {
+def odiff_poly_solve_appell1s(R_A,R_B1,R_B2,R_C,N,V) {
   Sols = [];
   for (C = R_C[0]; C <= R_C[1]; C += R_C[2]) {
     for (A = R_A[0]; A <= R_A[1]; A += R_A[2]) {
       for (B1 = R_B1[0]; B1 <= R_B1[1]; B1 += R_B1[2]) {
 	for (B2 = R_B2[0]; B2 <= R_B2[1]; B2 += R_B2[2]) {
-	  Sols = append(Sols, [[A,B1,B2,C,diff_poly_solve_appell1(A,B1,B2,C,N,V)]]);
+	  Sols = append(Sols, [[A,B1,B2,C,odiff_poly_solve_appell1(A,B1,B2,C,N,V)]]);
 	}
       }
     }
@@ -874,7 +874,7 @@ def diff_poly_solve_appell1s(R_A,R_B1,R_B2,R_C,N,V) {
 }
 
 /* appell2 */
-def diff_op_appell2(A,B1,B2,C1,C2,V) {
+def odiff_op_appell2(A,B1,B2,C1,C2,V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
@@ -897,16 +897,16 @@ def diff_op_appell2(A,B1,B2,C1,C2,V) {
 	     [-B1*C2,[0,1]] ] ];
 }
 
-def diff_act_appell2(A,B1,B2,C1,C2,F,V) {
-  return diff_acts(diff_op_appell2(A,B1,B2,C1,C2,V),F,V);
+def odiff_act_appell2(A,B1,B2,C1,C2,F,V) {
+  return odiff_acts(odiff_op_appell2(A,B1,B2,C1,C2,V),F,V);
 }
 
-def diff_poly_solve_appell2(A,B1,B2,C1,C2,N,V) {
-  return diff_poly_solve(diff_op_appell2(A,B1,B2,C1,C2,V),N,V);
+def odiff_poly_solve_appell2(A,B1,B2,C1,C2,N,V) {
+  return odiff_poly_solve(odiff_op_appell2(A,B1,B2,C1,C2,V),N,V);
 }
 
-def diff_poly_solve_appell2_check(Sol,A,B1,B2,C1,C2,V) {
-  Lf_list = diff_act_appell2(A,B1,B2,C1,C2,Sol[0],V);
+def odiff_poly_solve_appell2_check(Sol,A,B1,B2,C1,C2,V) {
+  Lf_list = odiff_act_appell2(A,B1,B2,C1,C2,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
       return 0;
@@ -916,7 +916,7 @@ def diff_poly_solve_appell2_check(Sol,A,B1,B2,C1,C2,V) {
 }
 
 /* appell3 */
-def diff_op_appell3(A1,A2,B1,B2,C,V) {
+def odiff_op_appell3(A1,A2,B1,B2,C,V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
@@ -930,16 +930,16 @@ def diff_op_appell3(A1,A2,B1,B2,C,V) {
              [-A2*B2,[0,0]] ] ];
 }
 
-def diff_act_appell3(A1,A2,B1,B2,C,F,V) {
-  return diff_acts(diff_op_appell3(A1,A2,B1,B2,C,V),F,V);
+def odiff_act_appell3(A1,A2,B1,B2,C,F,V) {
+  return odiff_acts(odiff_op_appell3(A1,A2,B1,B2,C,V),F,V);
 }
 
-def diff_poly_solve_appell3(A1,A2,B1,B2,C,N,V) {
-  return diff_poly_solve(diff_op_appell3(A1,A2,B1,B2,C,V),N,V);
+def odiff_poly_solve_appell3(A1,A2,B1,B2,C,N,V) {
+  return odiff_poly_solve(odiff_op_appell3(A1,A2,B1,B2,C,V),N,V);
 }
 
-def diff_poly_solve_appell3_check(Sol,A1,A2,B1,B2,C,V) {
-  Lf_list = diff_act_appell3(A1,A2,B1,B2,C,Sol[0],V);
+def odiff_poly_solve_appell3_check(Sol,A1,A2,B1,B2,C,V) {
+  Lf_list = odiff_act_appell3(A1,A2,B1,B2,C,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
       return 0;
@@ -949,18 +949,18 @@ def diff_poly_solve_appell3_check(Sol,A1,A2,B1,B2,C,V) {
 }
 
 /* appell4 */
-def diff_pseries_appell4(A,B,C1,C2,N,V) {
+def odiff_pseries_appell4(A,B,C1,C2,N,V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
-  Basis = diff_make_basis(2, N);
+  Basis = odiff_make_basis(2, N);
   Pseries = 0;
   for (I = 0; I < length(Basis); I++) {
     for (J = 0; J < length(Basis[I]); J++) {
-      A_K = diff_pochhammer(A, Basis[I][J][0] + Basis[I][J][1]);
-      B_K = diff_pochhammer(B, Basis[I][J][0] + Basis[I][J][1]);
-      C1_M = diff_pochhammer(C1, Basis[I][J][0]);
-      C2_N = diff_pochhammer(C2, Basis[I][J][1]);
+      A_K = odiff_pochhammer(A, Basis[I][J][0] + Basis[I][J][1]);
+      B_K = odiff_pochhammer(B, Basis[I][J][0] + Basis[I][J][1]);
+      C1_M = odiff_pochhammer(C1, Basis[I][J][0]);
+      C2_N = odiff_pochhammer(C2, Basis[I][J][1]);
       Coef = A_K*B_K/(C1_M*C2_N*fac(Basis[I][J][0])*fac(Basis[I][J][1]));
       Pseries += red(Coef)*dp_dtop(dp_vtoe(matrix_ltov(Basis[I][J])), V);
     }
@@ -968,7 +968,7 @@ def diff_pseries_appell4(A,B,C1,C2,N,V) {
   return Pseries;
 }
 
-def diff_op_appell4(A,B,C1,C2,V) {
+def odiff_op_appell4(A,B,C1,C2,V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
@@ -986,64 +986,64 @@ def diff_op_appell4(A,B,C1,C2,V) {
 	     [-A*B,[0,0]] ] ];
 }
 
-def diff_act_appell4(A,B,C1,C2,F,V) {
-  return diff_acts(diff_op_appell4(A,B,C1,C2,V),F,V);
+def odiff_act_appell4(A,B,C1,C2,F,V) {
+  return odiff_acts(odiff_op_appell4(A,B,C1,C2,V),F,V);
 }
 
-def diff_sol_appell4_type1(Deg,A,B,C1,C2,V) {
-  Basis = diff_make_basis(2, Deg);
+def odiff_sol_appell4_type1(Deg,A,B,C1,C2,V) {
+  Basis = odiff_make_basis(2, Deg);
   for (Sol = 0, I = 0; I < length(Basis); I++) {
     for (J = 0; J < length(Basis[I]); J++) {
-      A_mn = diff_pochhammer(A, Basis[I][J][0]+Basis[I][J][1]);
-      B_mn = diff_pochhammer(B, Basis[I][J][0]+Basis[I][J][1]);
-      C1_m = diff_pochhammer(C1, Basis[I][J][0]);
-      C2_n = diff_pochhammer(C2, Basis[I][J][1]);
-      N1_m = diff_pochhammer(1, Basis[I][J][0]);
-      N2_n = diff_pochhammer(1, Basis[I][J][1]);
+      A_mn = odiff_pochhammer(A, Basis[I][J][0]+Basis[I][J][1]);
+      B_mn = odiff_pochhammer(B, Basis[I][J][0]+Basis[I][J][1]);
+      C1_m = odiff_pochhammer(C1, Basis[I][J][0]);
+      C2_n = odiff_pochhammer(C2, Basis[I][J][1]);
+      N1_m = odiff_pochhammer(1, Basis[I][J][0]);
+      N2_n = odiff_pochhammer(1, Basis[I][J][1]);
       Sol += (A_mn*B_mn)/(C1_m*C2_n*N1_m*N2_n)*V[0]^Basis[I][J][0]*V[1]^Basis[I][J][1];
     }
   }
   return Sol;
 }
 
-def diff_sol_appell4_type2(Deg,A,B,C1,C2,N1,N2,V) {
-  Basis = diff_make_basis(2, Deg);
+def odiff_sol_appell4_type2(Deg,A,B,C1,C2,N1,N2,V) {
+  Basis = odiff_make_basis(2, Deg);
   for (Sol = 0, I = 0; I < length(Basis); I++) {
     for (J = 0; J < length(Basis[I]); J++) {
-      A_mn = diff_pochhammer(A, Basis[I][J][0]+Basis[I][J][1]);
-      B_mn = diff_pochhammer(B, Basis[I][J][0]+Basis[I][J][1]);
-      C1_m = diff_pochhammer(C1, Basis[I][J][0]);
-      C2_n = diff_pochhammer(C2, Basis[I][J][1]);
-      N1_m = diff_pochhammer(N1, Basis[I][J][0]);
-      N2_n = diff_pochhammer(N2, Basis[I][J][1]);
+      A_mn = odiff_pochhammer(A, Basis[I][J][0]+Basis[I][J][1]);
+      B_mn = odiff_pochhammer(B, Basis[I][J][0]+Basis[I][J][1]);
+      C1_m = odiff_pochhammer(C1, Basis[I][J][0]);
+      C2_n = odiff_pochhammer(C2, Basis[I][J][1]);
+      N1_m = odiff_pochhammer(N1, Basis[I][J][0]);
+      N2_n = odiff_pochhammer(N2, Basis[I][J][1]);
       Sol += (A_mn*B_mn)/(C1_m*C2_n*N1_m*N2_n)*V[0]^Basis[I][J][0]*V[1]^Basis[I][J][1];
     }
   }
   return Sol;
 }
 
-def diff_poly_solve_appell4(A,B,C1,C2,V) {
-  A_is_neg0_int = diff_is_neg0_int(A);
-  B_is_neg0_int = diff_is_neg0_int(B);
-  C1_is_neg0_int = diff_is_neg0_int(C1);
-  C2_is_neg0_int = diff_is_neg0_int(C2);
+def odiff_poly_solve_appell4(A,B,C1,C2,V) {
+  A_is_neg0_int = odiff_is_neg0_int(A);
+  B_is_neg0_int = odiff_is_neg0_int(B);
+  C1_is_neg0_int = odiff_is_neg0_int(C1);
+  C2_is_neg0_int = odiff_is_neg0_int(C2);
   if (!(A_is_neg0_int || B_is_neg0_int)) {
     return [0,[]];
   }
   if (!C1_is_neg0_int && !C2_is_neg0_int) {
     if (A_is_neg0_int && !B_is_neg0_int) {
-      Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+      Sol = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (!A_is_neg0_int && B_is_neg0_int) {
-      Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+      Sol = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
     if (A_is_neg0_int && B_is_neg0_int) {
       Max = (-A <= -B) ? (-A):(-B);
-      Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+      Sol = odiff_sol_appell4_type1(Max,A,B,C1,C2,V);
       UC = uc();
       return [UC*Sol,[UC]];
     }
@@ -1051,50 +1051,50 @@ def diff_poly_solve_appell4(A,B,C1,C2,V) {
   if (C1_is_neg0_int && !C2_is_neg0_int) {
     if (!A_is_neg0_int) {
       if (C1 <= B && B <= 0) {
-	Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (B <= C1-1) {
-	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
     }
     if (C1 <= A && A <= 0) {
       if (!B_is_neg0_int) {
-	Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1 <= B && B <= 0) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(Max,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (B <= C1-1) {
-	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol1 = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
     }
     if (A <= C1-1) {
       if (!B_is_neg0_int) {
-	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1 <= B && B <= 0) {
-	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol1 = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (B <= C1-1) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol = V[0]^(1-C1)*odiff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
@@ -1103,50 +1103,50 @@ def diff_poly_solve_appell4(A,B,C1,C2,V) {
   if (!C1_is_neg0_int && C2_is_neg0_int) {
     if (!A_is_neg0_int) {
       if (C2 <= B && B <= 0) {
-	Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (B <= C2-1) {
-	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
     }
     if (C2 <= A && A <= 0) {
       if (!B_is_neg0_int) {
-	Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C2 <= B && B <= 0) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(Max,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (B <= C2-1) {
-	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
     }
     if (A <= C2-1) {
       if (!B_is_neg0_int) {
-	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C2 <= B && B <= 0) {
-	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (B <= C2-1) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol = V[1]^(1-C2)*odiff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
@@ -1157,222 +1157,222 @@ def diff_poly_solve_appell4(A,B,C1,C2,V) {
     Max_C = (C1 > C2) ? C1:C2;
     if (!A_is_neg0_int) {
       if (Max_C <= B && B <= 0) {
-	Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1 > C2 && C2 <= B && B <= C1-1) {
-	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1 < C2 && C1 <= B && B <= C2-1) {
-	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1+C2-1 <= B && B <= Min_C-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (B <= C1+C2-2) {
-	Sol = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
     }
     if (Max_C <= A && A <= 0) {
       if (!B_is_neg0_int) {
-	Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (Max_C <= B && B <= 0) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+	Sol = odiff_sol_appell4_type1(Max,A,B,C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1 > C2 && C2 <= B && B <= C1-1) {
-	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol1 = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1 < C2 && C1 <= B && B <= C2-1) {
-	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1+C2-1 <= B && B <= Min_C-1) {
-	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol3 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol3 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc(); UC3 = uc();
 	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
       }
       if (B <= C1+C2-2) {
-	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
     }
     if (C1 > C2 && C2 <= A && A <= C1-1) {
       if (!B_is_neg0_int) {
-	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (Max_C <= B && B <= 0) {
-	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol1 = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1 > C2 && C2 <= B && B <= C1-1) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol = V[0]^(1-C1)*odiff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1+C2-1 <= B && B <= Min_C-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (B <= C1+C2-2) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
     }
     if (C1 < C2 && C1 <= A && A <= C2-1) {
       if (!B_is_neg0_int) {
-	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (Max_C <= B && B <= 0) {
-	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1 < C2 && C1 <= B && B <= C2-1) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol = V[1]^(1-C2)*odiff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (C1+C2-1 <= B && B <= Min_C-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (B <= C1+C2-2) {
-	Sol1 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
-	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
     }
     if (C1+C2-1 <= A && A <= Min_C-1) {
       if (!B_is_neg0_int) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (Max_C <= B && B <= 0) {
-	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol3 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol3 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc(); UC3 = uc();
 	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
       }
       if (C1 > C2 && C2 <= B && B <= C1-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1 < C2 && C1 <= B && B <= C2-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1+C2-1 <= B && B <= Min_C-1) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (B <= C1+C2-2) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
-	Sol3 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol3 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc(); UC3 = uc();
 	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
       }
     }
     if (A <= C1+C2-2) {
       if (!B_is_neg0_int) {
-	Sol = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
       if (Max_C <= B && B <= 0) {
-	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
-	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = odiff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1 > C2 && C2 <= B && B <= C1-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1 < C2 && C1 <= B && B <= C2-1) {
-	Sol1 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
-	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc();
 	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
       }
       if (C1+C2-1 <= B && B <= Min_C-1) {
-	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
-	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
-	Sol3 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol1 = V[0]^(1-C1)*odiff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*odiff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol3 = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC1 = uc(); UC2 = uc(); UC3 = uc();
 	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
       }
       if (B <= C1+C2-2) {
 	Max = (-A <= -B) ? (-A):(-B);
-	Sol = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(Max+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	Sol = V[0]^(1-C1)*V[1]^(1-C2)*odiff_sol_appell4_type1(Max+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
 	UC = uc();
 	return [UC*Sol,[UC]];
       }
     }
   }
 
-  error("diff_poly_solve_appell4 contains bugs. parameter is "+rtostr([A,B,C1,C2])+".");
+  error("odiff_poly_solve_appell4 contains bugs. parameter is "+rtostr([A,B,C1,C2])+".");
 }
 
-def diff_poly_solve_appell4_check(A,B,C1,C2,V) {
-  Sol = diff_poly_solve_appell4(A,B,C1,C2,V);
-  Lf_list = diff_act_appell4(A,B,C1,C2,Sol[0],V);
+def odiff_poly_solve_appell4_check(A,B,C1,C2,V) {
+  Sol = odiff_poly_solve_appell4(A,B,C1,C2,V);
+  Lf_list = odiff_act_appell4(A,B,C1,C2,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
-      error("diff_poly_solve_appell4 contains bugs."
+      error("odiff_poly_solve_appell4 contains bugs."
             +"the parameter is "+rtostr([A,B,C1,C2])+".");
       return 0;
     }
@@ -1380,7 +1380,7 @@ def diff_poly_solve_appell4_check(A,B,C1,C2,V) {
   return 1;
 }
 
-def diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V) {
+def odiff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V) {
   C1Gxx = V[0]^2*(1-V[0])*((V[0]-1)^2-2*(V[0]+1)*V[1]+V[1]^2);
   C1Gxy = -2*V[0]^2*V[1]*((V[0]-1)^2-2*(V[0]+1)*V[1]+V[1]^2);
   C1Gyy = -V[0]*V[1]^2*((V[0]-1)^2-2*(V[0]+1)*V[1]+V[1]^2);
@@ -1437,18 +1437,18 @@ def diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V) {
              [C2Gx,[1,0]],[C2Gy,[0,1]],[C2G,[0,0]] ] ];
 }
 
-def diff_act_appell4_rat(A,B,C1,C2,K1,K2,K3,Nm,V) {
-  return diff_acts(diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V),Nm,V);
+def odiff_act_appell4_rat(A,B,C1,C2,K1,K2,K3,Nm,V) {
+  return odiff_acts(odiff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V),Nm,V);
 }
 
-def diff_rat_solve_appell4(A,B,C1,C2,K1,K2,K3,N,V) {
+def odiff_rat_solve_appell4(A,B,C1,C2,K1,K2,K3,N,V) {
   Dn = V[0]^K1*V[1]^K2*((V[0]-V[1])^2-2*(V[0]+V[1])+1)^K3;
-  Sol = diff_poly_solve(diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V),N,V);
+  Sol = odiff_poly_solve(odiff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V),N,V);
   return [red(Sol[0]/Dn), Sol[1]];
 }
 
 /* selberg2 */
-def diff_op_selberg2(A,B,C,S,V) {
+def odiff_op_selberg2(A,B,C,S,V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
@@ -1462,16 +1462,16 @@ def diff_op_selberg2(A,B,C,S,V) {
 	     [-A*B*(V[1]-V[0]),[0,0]] ] ];
 }
 
-def diff_act_selberg2(A,B,C,S,F,V) {
-  return diff_acts(diff_op_selberg2(A,B,C,S,V),F,V);
+def odiff_act_selberg2(A,B,C,S,F,V) {
+  return odiff_acts(odiff_op_selberg2(A,B,C,S,V),F,V);
 }
 
-def diff_poly_solve_selberg2(A,B,C,S,N,V) {
-  return diff_poly_solve(diff_op_selberg2(A,B,C,S,V),N,V);
+def odiff_poly_solve_selberg2(A,B,C,S,N,V) {
+  return odiff_poly_solve(odiff_op_selberg2(A,B,C,S,V),N,V);
 }
 
-def diff_poly_solve_selberg2_check(Sol,A,B,C,S,V) {
-  Lf_list = diff_act_selberg2(A,B,C,S,Sol[0],V);
+def odiff_poly_solve_selberg2_check(Sol,A,B,C,S,V) {
+  Lf_list = odiff_act_selberg2(A,B,C,S,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
       return 0;
@@ -1480,14 +1480,14 @@ def diff_poly_solve_selberg2_check(Sol,A,B,C,S,V) {
   return 1;
 }
 
-def diff_poly_solve_selberg2s(R_A,R_B,R_C,R_S,N,V) {
+def odiff_poly_solve_selberg2s(R_A,R_B,R_C,R_S,N,V) {
   Sols = [];
   for (S = R_S[0]; S <= R_S[1]; S += R_S[2]) {
     if (S != 0) {
       for (C = R_C[0]; C <= R_C[1]; C += R_C[2]) {
 	for (A = R_A[0]; A <= R_A[1]; A += R_A[2]) {
 	  for (B = R_B[0]; B <= R_B[1]; B += R_B[2]) {
-	    Sols = append(Sols, [[A,B,C,S,diff_poly_solve_selberg2(A,B,C,S,N,V)]]);
+	    Sols = append(Sols, [[A,B,C,S,odiff_poly_solve_selberg2(A,B,C,S,N,V)]]);
 	  }
 	}
       }
@@ -1496,23 +1496,23 @@ def diff_poly_solve_selberg2s(R_A,R_B,R_C,R_S,N,V) {
   return Sols;
 }
 
-def diff_op_selberg2_1(A,B,K1,K2,V) {
+def odiff_op_selberg2_1(A,B,K1,K2,V) {
   if (A+B+K1+K2+1 == 0) {
     error("A+B+K1+K2+1 == 0");
   }
-  return diff_op_selberg2(A,B,A+B+K2+1,1/(A+B+K1+K2+1),V);
+  return odiff_op_selberg2(A,B,A+B+K2+1,1/(A+B+K1+K2+1),V);
 }
 
-def diff_act_selberg2_1(A,B,K1,K2,F,V) {
-  return diff_acts(diff_op_selberg2_1(A,B,K1,K2,V),F,V);
+def odiff_act_selberg2_1(A,B,K1,K2,F,V) {
+  return odiff_acts(odiff_op_selberg2_1(A,B,K1,K2,V),F,V);
 }
 
-def diff_poly_solve_selberg2_1 (A,B,K1,K2,N,V) {
-  return diff_poly_solve(diff_op_selberg2_1(A,B,K1,K2,V),N,V);
+def odiff_poly_solve_selberg2_1 (A,B,K1,K2,N,V) {
+  return odiff_poly_solve(odiff_op_selberg2_1(A,B,K1,K2,V),N,V);
 }
 
-def diff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) {
-  Lf_list = diff_act_selberg2_1(A,B,K1,K2,Sol[0],V);
+def odiff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) {
+  Lf_list = odiff_act_selberg2_1(A,B,K1,K2,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
       return 0;
@@ -1521,15 +1521,15 @@ def diff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) {
   return 1;
 }
 
-def diff_poly_solve_selberg2s_1 (R_A,R_B,R_K1,R_K2,N,V) {
+def odiff_poly_solve_selberg2s_1 (R_A,R_B,R_K1,R_K2,N,V) {
   Sols = [];
   for (K1 = R_K1[0]; K1 <= R_K1[1]; K1 += R_K1[2]) {
     for (K2 = R_K2[0]; K2 <= R_K2[1]; K2 += R_K2[2]) {
       for (A = R_A[0]; A <= R_A[1]; A += R_A[2]) {
 	for (B = R_B[0]; B <= R_B[1]; B += R_B[2]) {
 	  if (A+B+K1+K2+1 != 0) {
-	    Sol = diff_poly_solve_selberg2_1(A,B,K1,K2,N,V);
-	    if (diff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) == 1) {
+	    Sol = odiff_poly_solve_selberg2_1(A,B,K1,K2,N,V);
+	    if (odiff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) == 1) {
 	      Sols = append(Sols,[[A,B,K1,K2,Sol]]);
 	    }
 	  }
@@ -1540,15 +1540,15 @@ def diff_poly_solve_selberg2s_1 (R_A,R_B,R_K1,R_K2,N,V) {
   return Sols;
 }
 
-def diff_poly_solve_selberg2s_1_half (R_AB,R_K1,R_K2,N,V) {
+def odiff_poly_solve_selberg2s_1_half (R_AB,R_K1,R_K2,N,V) {
   Sols = [];
   for (K1 = R_K1[0]; K1 <= R_K1[1]; K1 += R_K1[2]) {
     for (K2 = R_K2[0]; K2 <= R_K2[1]; K2 += R_K2[2]) {
       for (A = R_AB[0]; A <= R_AB[1]; A += R_AB[2]) {
 	for (B = R_AB[0]; B <= R_AB[1]; B += R_AB[2]) {
 	  if (A <= B && A+B+K1+K2+1 != 0) {
-	    Sol = diff_poly_solve_selberg2_1(A,B,K1,K2,N,V);
-	    if (diff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) == 1) {
+	    Sol = odiff_poly_solve_selberg2_1(A,B,K1,K2,N,V);
+	    if (odiff_poly_solve_selberg2_1_check(Sol,A,B,K1,K2,V) == 1) {
 	      Sols = append(Sols,[[A,B,K1,K2,Sol]]);
 	    }
 	  }
@@ -1559,7 +1559,7 @@ def diff_poly_solve_selberg2s_1_half (R_AB,R_K1,R_K2,N,V) {
   return Sols;
 }
 
-def diff_lookup(X, List) {
+def odiff_lookup(X, List) {
   if (type(List) != 4) {
     error("parameter type error.");
   }
@@ -1576,7 +1576,7 @@ def diff_lookup(X, List) {
 /*---------------------------*/
 /* return generators of toric ideal I_{A} */
 /* [[u1,v1],[u2,v2],...] <- { x^u1-x^v1, x^u2-x^v2,...} */
-def diff_toric_ideal(A) {
+def odiff_toric_ideal(A) {
   if (type(A) == 6) {
     A = matrix_mtol(A);
   }
@@ -1622,12 +1622,12 @@ def diff_toric_ideal(A) {
   }
   F -= 1;
   FF = append(FF, [F]);
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("FF: ", 0); print(FF);
 #endif
 
   GG = gr(FF, V, 2);
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("V: ", 0); print(V);
   print("GG: ", 0); print(GG);
 #endif
@@ -1638,7 +1638,7 @@ def diff_toric_ideal(A) {
     Vars = vars(GG[I]);
     Flag = 1;
     for (J = 0; J < length(Vt_all); J++) {
-      if (diff_lookup(Vt_all[J], Vars)) {
+      if (odiff_lookup(Vt_all[J], Vars)) {
 	Flag = 0;
 	break;
       }
@@ -1647,7 +1647,7 @@ def diff_toric_ideal(A) {
       Toric = append(Toric, [GG[I]]);
     }
   }
-#if _DEBUG_Diff_
+#if _DEBUG_Odiff_
   print("toric ideal: ", 0); print(Toric);
 #endif
 
@@ -1670,7 +1670,7 @@ def diff_toric_ideal(A) {
 
 /* A: matrix or list, Elements must be integer. */
 /* B: vetor or list */
-def diff_op_gkz(A, B, V) {
+def odiff_op_gkz(A, B, V) {
   if (type(A) == 6) {
     A = matrix_mtol(A);
   }
@@ -1696,7 +1696,7 @@ def diff_op_gkz(A, B, V) {
     L_list = append(L_list, [L]);
   }
   /* toric */
-  Toric = diff_toric_ideal(A);
+  Toric = odiff_toric_ideal(A);
   for (I = 0; I < length(Toric); I++) {
     L = [[1,Toric[I][0]],[-1,Toric[I][1]]];
     L_list = append(L_list, [L]);
@@ -1704,16 +1704,16 @@ def diff_op_gkz(A, B, V) {
   return L_list;
 }
 
-def diff_act_gkz(A, B, F, V) {
-  return diff_acts(diff_op_gkz(A, B, V), F, V);
+def odiff_act_gkz(A, B, F, V) {
+  return odiff_acts(odiff_op_gkz(A, B, V), F, V);
 }
 
-def diff_poly_solve_gkz(A, B, N, V) {
-  return diff_poly_solve(diff_op_gkz(A, B, V), N, V);
+def odiff_poly_solve_gkz(A, B, N, V) {
+  return odiff_poly_solve(odiff_op_gkz(A, B, V), N, V);
 }
 
-def diff_poly_solve_gkz_check(Sol, A, B, V) {
-  Lf_list = diff_act_gkz(A, B, Sol[0], V);
+def odiff_poly_solve_gkz_check(Sol, A, B, V) {
+  Lf_list = odiff_act_gkz(A, B, Sol[0], V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
       return 0;

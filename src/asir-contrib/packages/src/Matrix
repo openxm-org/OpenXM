@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.2 2000/01/03 09:15:54 okutani Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -9,14 +9,14 @@
 /*---------*/
 /* Utility */
 /*---------*/
-def matrix_ltom(L) {
+def omatrix_ltom(L) {
   if (type(L) != 4) {
     error("parameter type error.");
   }
   return newmat(length(L), length(L[0]), L);
 }
 
-def matrix_mtol(M) {
+def omatrix_mtol(M) {
   if (type(M) != 6) {
     error("parameter type error.");
   }
@@ -32,7 +32,7 @@ def matrix_mtol(M) {
   return L;
 }
 
-def matrix_ltov(L) {
+def omatrix_ltov(L) {
   if (type(L) != 4) {
     error("parameter type error.");
   }
@@ -42,7 +42,7 @@ def matrix_ltov(L) {
 /*-------------------*/
 /* matrix operations */
 /*-------------------*/
-def matrix_is_0(L) {
+def omatrix_is_0(L) {
   if (type(L) == 5) {
     L = vtol(L);
   }
@@ -57,7 +57,7 @@ def matrix_is_0(L) {
   return 1;
 }
 
-def matrix_1(N) {
+def omatrix_1(N) {
   R = newmat(N, N);
   for (I = 0; I < N; I++) {
     R[I][I] = 1;
@@ -65,7 +65,7 @@ def matrix_1(N) {
   return R;
 }
 
-def matrix_diag(L) {
+def omatrix_diag(L) {
   if (type(L) == 5) {
     L = vtol(L);
   }
@@ -78,9 +78,9 @@ def matrix_diag(L) {
   return R;
 }
 
-def matrix_mini(A, Row, Col) {
+def omatrix_mini(A, Row, Col) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   if (type(A) != 6) {
     error("parameter type is wrong.");
@@ -104,9 +104,9 @@ def matrix_mini(A, Row, Col) {
   return R;
 }
 
-def matrix_det(A) {
+def omatrix_det(A) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   if (type(A) != 6) {
     error("parameter type is wrong.");
@@ -123,15 +123,15 @@ def matrix_det(A) {
   else {
     Det = 0;
     for (I = 0; I < Size; I++) {
-      Det += (-1)^I*A[0][I]*matrix_det(matrix_mini(A, 0, I));
+      Det += (-1)^I*A[0][I]*omatrix_det(omatrix_mini(A, 0, I));
     }
     return red(Det);
   }
 }
 
-def matrix_cofactor(A, Row, Col) {
+def omatrix_cofactor(A, Row, Col) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   Size_A = size(A);
   if (Size_A[0] != Size_A[1]) {
@@ -143,13 +143,13 @@ def matrix_cofactor(A, Row, Col) {
     return 1;
   }
   else {
-    return (-1)^(Row + Col)*matrix_det(matrix_mini(A, Row, Col));
+    return (-1)^(Row + Col)*omatrix_det(omatrix_mini(A, Row, Col));
   }
 }
 
-def matrix_adjugate(A) {
+def omatrix_adjugate(A) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   Size_A = size(A);
   if (Size_A[0] != Size_A[1]) {
@@ -160,15 +160,15 @@ def matrix_adjugate(A) {
   R = newmat(Size, Size);
   for (I = 0; I < Size; I++) {
     for (J = 0; J < Size; J++) {
-      R[I][J] = matrix_cofactor(A, J, I);
+      R[I][J] = omatrix_cofactor(A, J, I);
     }
   }
   return R;
 }
 
-def matrix_inverse(A) {
+def omatrix_inverse(A) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   Size_A = size(A);
   if (Size_A[0] != Size_A[1]) {
@@ -176,17 +176,17 @@ def matrix_inverse(A) {
   }
   Size = Size_A[0];
 
-  Det_A = matrix_det(A);
+  Det_A = omatrix_det(A);
   if (Det_A == 0) {
     error("Det(A) is zero.");
   }
 
-  return matrix_adjugate(A)/Det_A;
+  return omatrix_adjugate(A)/Det_A;
 }
 
-def matrix_trans(A) {
+def omatrix_trans(A) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   Size_A = size(A);
   Size_row = Size_A[1];
@@ -202,15 +202,15 @@ def matrix_trans(A) {
 }
 
 /* Solve A*X=Y */
-def matrix_solve(A, X, Y) {
+def omatrix_solve(A, X, Y) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
   if (type(X) == 4) {
-    X = matrix_ltov(X);
+    X = omatrix_ltov(X);
   }
   if (type(Y) == 4) {
-    Y = matrix_ltov(Y);
+    Y = omatrix_ltov(Y);
   }
 
   Size_A = size(A);
@@ -260,9 +260,9 @@ def matrix_solve(A, X, Y) {
 }
 
 /* A basis of Ker(A) */
-def matrix_kernel(A) {
+def omatrix_kernel(A) {
   if (type(A) == 4) {
-    A = matrix_ltom(A);
+    A = omatrix_ltom(A);
   }
 
   Size_A = size(A);
@@ -283,7 +283,7 @@ def matrix_kernel(A) {
   }
 
   if (F == []) {
-    E = matrix_1(Size_A[1]);
+    E = omatrix_1(Size_A[1]);
     Basis = newvect(Size_A[1]);
     for (I = 0; I < Size_A[1]; I++) {
       Basis[I] = E[I];
@@ -330,12 +330,12 @@ def matrix_kernel(A) {
 	Sol_Nm = nm(Sol[J][1]); Sol_Dn = dn(Sol[J][1]);
 	E = append(E, [red(coef(Sol_Nm,1,X[I])/Sol_Dn)/Sol[J][2]]);
       }
-      if (!matrix_is_0(E)) {
+      if (!omatrix_is_0(E)) {
 	Basis = append(Basis, [E]);
       }
     }
     if (Dim != length(Basis)) {
-      error("algorithm error in matrix_kernel().");
+      error("algorithm error in omatrix_kernel().");
     }
     return append([Dim], [Basis]);
   }

@@ -1,21 +1,25 @@
-@c $OpenXM$
-@node Matrix operations,,, その他の函数
-@section Matrix operations
-ファイル @file{gr} が必要です.
+@c $OpenXM: OpenXM/src/asir-contrib/packages/doc/Matrix.texi,v 1.3 2000/01/03 09:15:53 okutani Exp $
+@node Matrix operations (library by Okutani),,, Top
+@section Matrix operations (library by Okutani)
+ファイル @file{gr} が必要です.  
+
+Yukio Okutani 氏による Risa/Asir 言語で書かれた行列計算用のライブラリです.
+すべての関数名は omatrix_ で始まります. 
+
 @menu
-* matrix_1::
-* matrix_diag::
-* matrix_trans::
-* matrix_inverse::
-* matrix_solve::
-* matrix_kernel::
+* omatrix_1::
+* omatrix_diag::
+* omatrix_trans::
+* omatrix_inverse::
+* omatrix_solve::
+* omatrix_kernel::
 @end menu
 
-@node matrix_1,,, Matrix operations
-@subsection @code{matrix_1}
-@findex matrix_1
+@node omatrix_1,,, Matrix operations (library by Okutani)
+@subsection @code{omatrix_1}
+@findex omatrix_1
 @table @t
-@item matrix_1(@var{N})
+@item omatrix_1(@var{N})
 ::  @var{N} 次単位行列を生成します.
 @end table
 @table @var
@@ -25,27 +29,27 @@
 整数
 @end table
 @itemize @bullet
-@item  @code{matrix_1}の例.
+@item  @code{omatrix_1}の例.
 @end itemize
 @example
-[297] matrix_1(1);
+[297] omatrix_1(1);
 [ 1 ]
 
-[298] matrix_1(2);
+[298] omatrix_1(2);
 [ 1 0 ]
 [ 0 1 ]
 
-[299] matrix_1(3);
+[299] omatrix_1(3);
 [ 1 0 0 ]
 [ 0 1 0 ]
 [ 0 0 1 ]
 @end example
 
-@node matrix_diag,,, Matrix operations
-@subsection @code{matrix_diag}
-@findex matrix_diag
+@node omatrix_diag,,, Matrix operations (library by Okutani)
+@subsection @code{omatrix_diag}
+@findex omatrix_diag
 @table @t
-@item matrix_diag(@var{L})
+@item omatrix_diag(@var{L})
 ::  リスト @var{L} の要素を対角成分とする対角行列を生成します.
 @end table
 @table @var
@@ -55,25 +59,25 @@
 リスト
 @end table
 @itemize @bullet
-@item  @code{matrix_diag}の例.
+@item  @code{omatrix_diag}の例.
 @end itemize
 @example
-[301] matrix_diag([1,2,3]);
+[301] omatrix_diag([1,2,3]);
 [ 1 0 0 ]
 [ 0 2 0 ]
 [ 0 0 3 ]
 
-[302] matrix_diag([a,b,c]);
+[302] omatrix_diag([a,b,c]);
 [ a 0 0 ]
 [ 0 b 0 ]
 [ 0 0 c ]
 @end example
 
-@node matrix_trans,,, Matrix operations
-@subsection @code{matrix_trans}
-@findex matrix_trans
+@node omatrix_trans,,, Matrix operations (library by Okutani)
+@subsection @code{omatrix_trans}
+@findex omatrix_trans
 @table @t
-@item matrix_trans(@var{A})
+@item omatrix_trans(@var{A})
 ::  行列 @var{A} の転置行列を求めます.
 @end table
 @table @var
@@ -83,24 +87,24 @@
 行列 or リスト
 @end table
 @itemize @bullet
-@item  @code{matrix_trans}の例.
+@item  @code{omatrix_trans}の例.
 @end itemize
 @example
-[303] matrix_trans([[a,b],[c,d]]);
+[303] omatrix_trans([[a,b],[c,d]]);
 [ a c ]
 [ b d ]
 
-[304] matrix_trans([[1,2,3],[4,5,6],[7,8,9]]);
+[304] omatrix_trans([[1,2,3],[4,5,6],[7,8,9]]);
 [ 1 4 7 ]
 [ 2 5 8 ]
 [ 3 6 9 ]
 @end example
 
-@node matrix_inverse,,, Matrix operations
-@subsection @code{matrix_inverse}
-@findex matrix_inverse
+@node omatrix_inverse,,, Matrix operations (library by Okutani)
+@subsection @code{omatrix_inverse}
+@findex omatrix_inverse
 @table @t
-@item matrix_inverse(@var{A})
+@item omatrix_inverse(@var{A})
 ::  行列 @var{A} の逆行列を求めます.
 @end table
 @table @var
@@ -111,24 +115,24 @@
 @end table
 @itemize @bullet
 @item 行列 @var{A} の成分は有理数 or 多項式.
-@item @code{matrix_inverse}の例.
+@item @code{omatrix_inverse}の例.
 @end itemize
 @example
-[309] matrix_inverse([[1,1],[1,2]]);
+[309] omatrix_inverse([[1,1],[1,2]]);
 [ 2 -1 ]
 [ -1 1 ]
 
-[310] matrix_inverse([[a,b],[c,d]]);
+[310] omatrix_inverse([[a,b],[c,d]]);
 [ (d)/(d*a-c*b) (-b)/(d*a-c*b) ]
 [ (-c)/(d*a-c*b) (a)/(d*a-c*b) ]
 @end example
 
-@node matrix_solve,,, Matrix operations
-@subsection @code{matrix_solve}
-@findex matrix_solve
+@node omatrix_solve,,, Matrix operations (library by Okutani)
+@subsection @code{omatrix_solve}
+@findex omatrix_solve
 @table @t
-@item matrix_solve(@var{A},@var{X},@var{Y})
-::  @code{matrix_solve}は方程式 A*X=Y の解を求めます.
+@item omatrix_solve(@var{A},@var{X},@var{Y})
+::  @code{omatrix_solve}は方程式 A*X=Y の解を求めます.
 @end table
 @table @var
 @item return
@@ -142,22 +146,22 @@
 @end table
 @itemize @bullet
 @item 行列 @var{A} の成分は有理数 or 多項式.
-@item  @code{matrix_solve}の例.
+@item  @code{omatrix_solve}の例.
 @end itemize
 @example
-[376] matrix_solve([[1,-1],[2,3]],[x,y],[1,1]);
+[376] omatrix_solve([[1,-1],[2,3]],[x,y],[1,1]);
 [[x,4/5],[y,-1/5]]
 
-[377] matrix_solve([[a,b],[c,d]],[x,y],[1,1]);
+[377] omatrix_solve([[a,b],[c,d]],[x,y],[1,1]);
 [[x,(-b+d)/(d*a-c*b)],[y,(a-c)/(d*a-c*b)]]
 @end example
 
-@node matrix_kernel,,, Matrix operations
-@subsection @code{matrix_kernel}
-@findex matrix_kernel
+@node omatrix_kernel,,, Matrix operations (library by Okutani)
+@subsection @code{omatrix_kernel}
+@findex omatrix_kernel
 @table @t
-@item matrix_kernel(@var{A})
-::  @code{matrix_kernel}は行列 A の kernel の基底を求めます.
+@item omatrix_kernel(@var{A})
+::  @code{omatrix_kernel}は行列 A の kernel の基底を求めます.
 @end table
 @table @var
 @item return
@@ -167,12 +171,12 @@
 @end table
 @itemize @bullet
 @item 行列 @var{A} の成分は有理数 or 多項式.
-@item  @code{matrix_kernel}の例.
+@item  @code{omatrix_kernel}の例.
 @end itemize
 @example
-[383] matrix_kernel([[1,2,3,4],[1,0,1,0]]);
+[383] omatrix_kernel([[1,2,3,4],[1,0,1,0]]);
 [2,[[1,0,-1,1/2],[0,1,0,-1/2]]]
 
-[384] matrix_kernel([[1,2,3,4],[1,0,1,0],[0,0,0,1]]);
+[384] omatrix_kernel([[1,2,3,4],[1,0,1,0],[0,0,0,1]]);
 [1,[[1,1,-1,0]]]
 @end example
