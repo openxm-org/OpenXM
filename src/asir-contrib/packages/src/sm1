@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.26 2001/02/23 12:28:34 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.27 2001/06/18 03:12:21 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -469,6 +469,29 @@ def toAsirForm(V) {
   }
 }
 
+def sm1_toOrdered(V) {
+  if (type(V) == 4) { /* list */
+    if((length(V) == 3) && (V[0] == "sm1_dp")) {
+       Vlist = map(strtov,V[1]);
+       Ans = "";
+       F = V[2];
+       while (F != 0) {
+          G = dp_hm(F);
+          F = dp_rest(F);
+          if (dp_hc(G)>0) {
+            Ans += "+";
+          }
+          Ans += rtostr(dp_dtop(G,Vlist));
+       }
+       return Ans; 
+    } else {
+       return(map(sm1_toOrdered,V));
+    }
+  }else{
+    return(V);
+  }
+}
+
 
 def sm1_push_poly0_R(A,P,Vlist) {
   return(sm1_push_poly0(P,A,Vlist));
@@ -699,6 +722,13 @@ def sm1_pop(P) {
   sm1(P," toAsirForm ");
   V_sm1_pop = ox_pop_cmo(P);
   return(toAsirForm(V_sm1_pop));
+}
+
+def sm1_pop2(P) {
+  extern V_sm1_pop;
+  sm1(P," toAsirForm ");
+  V_sm1_pop = ox_pop_cmo(P);
+  return([toAsirForm(V_sm1_pop),V_sm1_pop]);
 }
 
 def sm1_check_arg_gb(A,Fname) {
@@ -963,7 +993,8 @@ def sm1_gb(A) {
   sm1_check_arg_gb(A,"Error in sm1_gb");
   sm1_push_int0(P,A);
   sm1(P," gb ");
-  return(sm1_pop(P));
+  T = sm1_pop2(P);
+  return(append(T[0],[sm1_toOrdered(T[1])]));
 }
 def sm1_gb_d(A) {
   SM1_FIND_PROC(P);
