@@ -62,7 +62,7 @@ master-server $B4V$NDL?.O)$O(B, server $B$,5/F0$7$?;~E@$G$9$G$KB8:_$7$F(B
 \begin{enumerate}
 \item
 \begin{verbatim}
-SM_set_rank
+SM_set_rank_102
 \end{verbatim}
 
 server $B4V$N(B broadcast $B$O(B, $B$$$/$D$+$N(B server $B$r%0%k!<%W2=$7$F9T$&$N$,(B
@@ -73,7 +73,7 @@ $nserver$ $B$H(B, $B$=$N%0%k!<%WFb$G$N<1JL;R(B $rank$ ($0\le rank \le nserve
 
 Request:
 \begin{tabular}{|c|c|}  \hline
-{\tt int32 OX\_COMMAND} & {\tt int32 SM\_set\_rank} \\ \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_set\_rank\_102} \\ \hline
 {\tt int32 $nserver$} & {\tt int32 $rank$} \\
 \hline
 \end{tabular}
@@ -82,12 +82,12 @@ Output: none.
 
 \item
 \begin{verbatim}
-SM_tcp_accept
+SM_tcp_accept_102
 \end{verbatim}
 
 Request:
 \begin{tabular}{|c|c|}  \hline
-{\tt int32 OX\_COMMAND} & {\tt int32 SM\_accept} \\ \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_accept\_102} \\ \hline
 {\tt int32 $port$} & {\tt int32 $peer$} \\
 \hline
 \end{tabular}
@@ -100,7 +100,7 @@ Stack after the request:
 
 Output: none.
 
-$B<!9`$N(B {\tt SM\_tcp\_connect} $B$H%Z%"$G(B, $B4{$KB8:_$7$F$$$k(B 2 $B$D$N(B server 
+$B<!9`$N(B {\tt SM\_tcp\_connect\_102} $B$H%Z%"$G(B, $B4{$KB8:_$7$F$$$k(B 2 $B$D$N(B server 
 $B$N4V$N(B TCP/IP $B$K$h$kDL?.O)$r3+@_$9$k(B. $port$ $B$O(B, master $B$,(B ($B%i%s%@%`$K(B) $BA*$s$@(B
 TCP $B$N%]!<%HHV9f$G$"$k(B. $B$3$N%j%/%(%9%H$r<u$1<h$k$H(B, server $B$O(B, 
 bind, listen, accept $BF0:n$r<B9T$7(B, connect $BBT$A>uBV$KF~$k(B. $B$$$:$l$+$NF0:n(B
@@ -110,12 +110,12 @@ $0$ $B$r%9%?%C%/$KCV$/(B. $peer$ $B$O(B, $BAj<j$N(B server $B$N%0%k!<%WFb
 
 \item
 \begin{verbatim}
-SM_tcp_connect
+SM_tcp_connect_102
 \end{verbatim}
 
 Request:
 \begin{tabular}{|c|c|}  \hline
-{\tt int32 OX\_COMMAND} & {\tt int32 SM\_tcp\_connect} \\ \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_tcp\_connect\_102} \\ \hline
 {\tt int32 CMO\_String} & {$hostname$} \\ \hline
 {\tt int32 $port$} & {\tt int32 $peer$} \\
 \hline
@@ -129,7 +129,7 @@ Stack after the request:
 
 Output: none.
 
-$BA09`$N(B {\tt SM\_tcp\_accept} $B$H%Z%"$G(B, $B4{$KB8:_$7$F$$$k(B 2 $B$D$N(B server
+$BA09`$N(B {\tt SM\_tcp\_accept\_102} $B$H%Z%"$G(B, $B4{$KB8:_$7$F$$$k(B 2 $B$D$N(B server
 $B$N4V$N(B TCP/IP $B$K$h$kDL?.O)$r3+@_$9$k(B. $host$ $B$OAj<j$N(B server $B$,F0:n$7$F(B
 $B$$$k%[%9%HL>$G$"$k(B. $host$ $B>e(B, $B%]!<%HHV9f(B $port$ $B$G(B accept $B$7$F$$$k(B server $B$KBP$7(B,
 connect $B$9$k(B. 
@@ -206,6 +206,21 @@ for $j = i+1$ to $nserver-1$ do\\
 end for
 \end{tabbing}
 $B$3$N<j=g$K$h$j(B, $B%G%C%I%m%C%/$J$7$KA4$F$NDL?.O)$r6u$K$9$k$3$H$,$G$-$k(B.
+$B$3$NA`:n$O(B, master-server $BDL?.O)$N%j%;%C%H8e$K9T$o$l$k$?$a(B, $B3F(B server
+$B$O(B master $B$+$i$N%G!<%?BT$A>uBV$K$"$k(B. $B$h$C$F(B, $B<!$N(B SM $B%3%^%s%I$r(B
+$B3F(B server $B$K0l@F$KAw$k$3$H$K$h$j9T$&(B.
+
+\begin{verbatim}
+SM_reset_102
+\end{verbatim}
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_reset\_102} \\ \hline
+\end{tabular}
+
+Output: none.
+
 \section{API}
 
 $B0J2<(B, asir $B$K$*$1$k(B RFC-102 $B4XO"$N(B API $B$r>R2p$9$k(B.
@@ -213,10 +228,11 @@ end for
 \subsection{server $B4VDL?.O)3+@_(B}
 
 \begin{itemize}
-\item {\tt ox\_set\_rank\_102($Nserver$,$Rank$)}
+\item {\tt ox\_set\_rank\_102($Server$,$Nserver$,$Rank$)}
 
-$BDL?.Aj<j$N(B server $B$,B0$9$k%0%k!<%W$KB0$9$k(B server $B$NAm?t(B $Nserver$ $B$H(B,
-$B$=$N(B server $B$N%0%k!<%WFb<1JL;R(B $Rank$ $B$rDLCN$9$k(B.
+$Server$ $B$,B0$9$k%0%k!<%W$KB0$9$k(B server $B$NAm?t(B $Nserver$ $B$H(B,
+$B$=$N(B server $B$N%0%k!<%WFb<1JL;R(B $Rank$ $B$rDLCN$9$k(B. $B$3$N4X?t$O(B,
+master $BMQ$G$"$k(B.
 
 \item {\tt ox\_tcp\_accept\_102($Port$,$Rank$)}
 
@@ -234,12 +250,12 @@ end for
 \subsection{server $B4VDL?.(B}
 
 \begin{itemize}
-\item {\tt ox\_send\_cmo\_102($Rank$,$Data$)}
+\item {\tt ox\_send\_102($Rank$,$Data$)}
 
 $B<1JL;R(B $Rank$ $B$N(B server $B$K(B $Data$ $B$r(B OX $B%G!<%?$H$7$FAw?.$9$k(B.
 $B<1JL;R(B $Rank$ $B$N%5!<%P$OBP1~$9$k<u?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
 
-\item {\tt ox\_recv\_cmo\_102($Rank$)}
+\item {\tt ox\_recv\_102($Rank$)}
 
 $B<1JL;R(B $Rank$ $B$N(B server $B$+$i(B OX $B%G!<%?$r<u?.$9$k(B.
 $B<1JL;R(B $Rank$ $B$N%5!<%P$OBP1~$9$kAw?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
