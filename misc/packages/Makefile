@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.25 2000/09/25 07:12:43 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.26 2000/12/21 12:26:57 takayama Exp $
 
 VERSION=1.1.3
 TAG=HEAD
@@ -13,6 +13,7 @@ TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
 FTP_AREA_HEAD=/export/home01/ftp/pub/OpenXM/Head
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/home/cvs
 ## TAG for the CVS server.
 
 # Modify below for priting.
@@ -120,7 +121,7 @@ copy-head-tar-ball-to-ftp-area:
 	-mkdir ${TAR_WORK}
 	-mkdir work
 	(cd work ; /bin/rm -rf *)
-	(cd work ; rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2)
+	(cd work ; ${RCVS} checkout OpenXM OpenXM_contrib OpenXM_contrib2)
 	(cd work ; tar czvf ${TAR_WORK}/openxm-head.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
 	/bin/rm -rf work
 	-scp ${TAR_WORK}/openxm-head.tar.gz ${WHO}:${FTP_AREA_HEAD}
