@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.6 2004/12/18 01:56:03 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.7 2004/12/21 03:25:04 takayama Exp $
 %%% 1999, 6/7 Mon.
 [(parse) (ox.sm1) pushfile] extension
 [(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
@@ -136,6 +136,7 @@
 
 /gnuplot.1 {
   /cccc set
+  gnuplot.read.1
   [(fp2fputs) [cccc nl] cat gnuplot.pfp] extension pop
   [(fp2fflush) gnuplot.pfp] extension pop
   gnuplot.read.1
