@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.9 2004/06/27 10:08:56 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.10 2004/06/27 17:44:55 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -457,15 +457,15 @@ Sugar strategy を適用するときの weight vector. 全ての要素は非負.
  dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
 @comment  ~taka/this03/misc-2003/A2/dp
 @item 順序 order は次の文法で定義する.  @{, @} は 0 回以上の繰り返しを意味する.
-@verbatim
+@example
   order         : '[' orderElement { ',' orderElement } ']'
   orderElement   :  weightVec | builtinOrder
   weightVec     : '[' weightElement { ',' weightElement } ']'
   builtiniOrder : '[' orderName  ',' setOfVariables ']'
   weightElement :   NUMBER | setOfVariables ',' NUMBER
   setOfVariables:  V | range(V,V)
-  orderName    : @grlex | @glex | @lex
-@end verbatim
+  orderName    : @@grlex | @@glex | @@lex
+@end example
 ここで @code{V} は 変数名, @code{NUMBER} は整数をあわらす.
 例1:  @code{v=[x,y,z,u,v], order=[[x,10,y,5,z,1],[@@grlex,range(x,v)]]}
 は @code{x},@code{y},@code{z} がそれぞれ weight 10, 5, 1 をもつ
@@ -519,11 +519,6 @@ Gr\"obner Deformations of Hypergeometric Differential Equations (2000).
 [ R R ]
 [-y^4+y^2-1,x+y^3-y]
 @end example
-
-@table @t
-@item 参照
-@ref{xyz_abc}
-@end table
 
 @comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
 @noindent
