@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.5 2002/10/24 07:45:03 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.6 2002/10/28 08:57:28 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -9,6 +9,9 @@ def
 /httpd.port 8090 def
 /httpd.serial 0 def
 
+/httpd.oxasir.timer 1 def  %% 1 to use timer, but it accepts only one command
+                           %% 0 not to use timer. It accepts programs.
+
 %%******* Put initialization codes for ox_asir here. 
 /httpd.initialization
  [
@@ -18,6 +21,12 @@ def
  ] cat
 def
 
+/httpd.asirman
+ ("http://www.math.sci.kobe-u.ac.jp/OpenXM/1.2.1/doc/asir2000/html-eg/man_toc.html")
+def
+/httpd.asirman.ja
+ ("http://www.math.sci.kobe-u.ac.jp/OpenXM/1.2.1/doc/asir2000/html-jp/man_toc.html")
+def
 
 [(parse) (oxasir.sm1) pushfile] extension 
 oxNoX 
@@ -200,10 +209,7 @@ oxNoX
    (Content-Type: text/html) sendln
    0 sendln
 
-  (<H1> Usage </H2> <br> ) sendln
-  [(Ask by GET /?) httpd.textarea.name (=) ( encoded_codes  HTTP/1.0)] cat 
-  sendln
-  (<br>) sendln
+  (<H1><font color="green">OpenXM/Risa/Asir Online</font></H2><br>) sendln
   [(getenv) (OXWEB_POST)] extension tag 0 eq {
     (<FORM NAME="myFORM">) sendln  % use get
   }{
@@ -213,10 +219,27 @@ oxNoX
    [(<textarea name=) httpd.textarea.name 
     ( rows=10 cols="80" wrap="soft"></textarea>)] cat sendln
    (</FORM>) sendln
-   [$<a href="http://localhost:$ httpd.port toString
-    $/?msg=httpdAsirMeta+quit"> Shutdown the server. </a>, $
-   ] cat sendln
 
+  (Input example---factorization:<font color="blue"> fctr(x^3-1)</font>) sendln
+  (<br>) sendln
+  [(<font color="blue"> 
+    <a href=) httpd.asirman ( > AsirManual (En) </a> </font>, )] cat sendln
+  [(<font color="blue"> 
+    <a href=) httpd.asirman.ja ( > AsirManual (Ja) </a> </font>)] cat sendln
+   httpd.oxasir.timer {
+    (<br> It accepts only one command. The limit of CPU time is 30 seconds.
+          <font color="red"> Do not put <font color="blue"> ; </font> 
+                             (semi-colon) after the command. 
+          </font>) sendln
+   }{ } ifelse  
+   (<br>) sendln
+  [(You can also retrieve the result by GET /?) httpd.textarea.name (=) ( encoded_codes  HTTP/1.0)] cat 
+  sendln
+   (<br>) sendln
+   [$<a href="http://localhost:$ httpd.port toString
+    $/?msg=httpdAsirMeta+quit"> Shutdown the oxserver (and restart it). </a>$
+   ] cat sendln
+   (<h3 align="right"><font color="gree">Powered by OpenXM and httpd on Kan/sm1 </font> </h3>_) sendln
    0 sendln
    [(flush)] extension
   ] pop
@@ -287,13 +310,38 @@ oxNoX
 } def
 
 %% ******* sample of cooked command
-/cookedCommand {
+/cookedCommand.simplest {
   /arg1 set
   [/in-cookedCommand /httpd.com] pushVariables
   [
     /httpd.com arg1 def
     [(if (1) {)  httpd.com  (; };)] cat
     /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+/cookedCommand {
+  /arg1 set
+  [/in-cookedCommand /httpd.com /fff] pushVariables
+  [
+    /httpd.com arg1 def
+    httpd.oxasir.timer not {
+      [(if (1) {)  httpd.com  (; };)] cat
+      /fff set
+    }{
+%%  It does not work.
+%%      [$timer(30,eval_str("$ 
+%%          (if (1) {)  httpd.com  (; };)
+%%       $"),"Computation is aborted with the resource limit ( 30 seconds)");$
+%%      ] cat
+     [$timer(30,$   httpd.com
+        $,"Computation is aborted with the resource limit ( 30 seconds) or there was a syntax error.");$
+     ] cat
+      /fff set
+    } ifelse
+    (cooked command is ) messagen fff message
+    /arg1 fff def
   ] pop
   popVariables
   arg1
