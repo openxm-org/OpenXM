@@ -1,35 +1,34 @@
-# $OpenXM: OpenXM/src/gnuplot-diff/Makefile,v 1.8 1999/11/22 08:38:25 maekawa Exp $
+# $OpenXM: OpenXM/src/gnuplot-diff/Makefile,v 1.9 1999/11/27 20:30:03 maekawa Exp $
 
 GNUPLOT = ../../../OpenXM_contrib/gnuplot
-PATCHDIR = ../../OpenXM/src/gnuplot-diff
-CURDIR = ../gnuplot-diff
+CURDIR = ../../OpenXM/src/gnuplot-diff
 BINDIR = ../../bin
 
 all : patch
-	@if [ ! -f $(CURDIR)/.make_done ]; then \
+	@if [ ! -f ./.make_done ]; then \
 		(cd $(GNUPLOT) ; ./configure --with-x ; make) \
 	fi
-	@touch $(CURDIR)/.make_done
+	@touch ./.make_done
 
 install: all
 	install -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox
 	install -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11
 
 clean : patch-clean
-	@if [ -f $(CURDIR).make_done ]; then \
+	@if [ -f ./.make_done ]; then \
 		(cd $(GNUPLOT) ; make distclean) \
 	fi
 	rm -f $(BINDIR)/gnuplot4ox $(BINDIR)/gnuplot_x11
-	@rm -f $(CURDIR)/.make_done
+	@rm -f ./.make_done
 
 patch:
-	@if [ ! -f $(CURDIR)/.patch_done ]; then \
-		(cd $(GNUPLOT) ; patch < $(PATCHDIR)/plot.c.diff) \
+	@if [ ! -f ./.patch_done ]; then \
+		(cd $(GNUPLOT) ; patch < $(CURDIR)/plot.c.diff) \
 	fi
-	@touch $(CURDIR)/.patch_done
+	@touch ./.patch_done
 
 patch-clean:
-	@if [ -f $(CURDIR)/.patch_done ]; then \
-		(cd $(GNUPLOT) ; patch -R < $(PATCHDIR)/plot.c.diff) \
+	@if [ -f ./.patch_done ]; then \
+		(cd $(GNUPLOT) ; patch -R < $(CURDIR)/plot.c.diff) \
 	fi
-	@rm -f $(CURDIR)/.patch_done
+	@rm -f ./.patch_done
