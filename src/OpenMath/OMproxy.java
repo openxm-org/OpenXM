@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.13 1999/11/17 13:23:16 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.14 1999/11/19 08:49:06 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -119,7 +119,6 @@ class OMproxy implements Runnable{
     }
 
     {
-      CMO[] DataFormat = {new CMO_INT32(OpenXM.OX_DATA)};
       CMO[] CMOFormat = {new CMO_INT32(CMO.CMO_NULL),
 			 new CMO_INT32(CMO.CMO_INT32),
 			 new CMO_INT32(CMO.CMO_STRING),
@@ -135,8 +134,10 @@ class OMproxy implements Runnable{
 			 new CMO_INT32(CMO.CMO_BIGFLOAT),
 			 new CMO_INT32(CMO.CMO_INDETERMINATE),
 			 new CMO_INT32(CMO.CMO_TREE)};
-      CMO[] list = {new CMO_LIST(DataFormat),
-		    new CMO_LIST(CMOFormat)};
+      CMO[] DataFormat1 = {new CMO_INT32(OpenXM.OX_DATA),
+			   new CMO_LIST(CMOFormat)};
+      CMO[] list = {new CMO_LIST(DataFormat1)};
+
       mathcap[2] = new CMO_LIST(list);
     }
 
