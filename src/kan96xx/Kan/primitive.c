@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.14 2004/09/12 08:55:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.15 2004/09/12 10:22:50 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -39,6 +39,9 @@ static char *operatorType(type)
  }
  return("Unknown operator");
 }
+
+#define evalEA(ob1) if (ob1.tag == SexecutableArray) {\
+	  executeExecutableArray(ob1,(char *)NULL,0); ob1 = Kpop();}
 
 /****** primitive functions *****************************************
   the values must be greater than 1. 0 is used for special purposes.*/
@@ -540,31 +543,36 @@ int executePrimitive(ob)
 
     /* Postscript primitives :arithmetic */
   case Sadd:
-    ob1 = Kpop();
+    ob1 = Kpop();  
     ob2 = Kpop();
+    evalEA(ob1); evalEA(ob2);
     rob = KooAdd(ob1,ob2);
     Kpush(rob);
     break;
   case Ssub:
     ob2 = Kpop();
     ob1 = Kpop();
+    evalEA(ob1); evalEA(ob2);
     rob = KooSub(ob1,ob2);
     Kpush(rob);
     break;
   case Smult:
     ob2 = Kpop();
     ob1 = Kpop();
+    evalEA(ob1); evalEA(ob2);
     rob = KooMult(ob1,ob2);
     Kpush(rob);
     break;
   case Sidiv:
     ob2 = Kpop(); ob1 = Kpop();
+    evalEA(ob1); evalEA(ob2);
     rob = KooDiv(ob1,ob2);
     Kpush(rob);
     break;
 
   case Sdiv:
     ob2 = Kpop(); ob1 = Kpop();
+    evalEA(ob1); evalEA(ob2);
     rob = KooDiv2(ob1,ob2);
     Kpush(rob);
     break;
