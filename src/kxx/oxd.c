@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.4 2002/10/27 10:39:33 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.5 2002/10/28 00:38:32 takayama Exp $
 */
 
 #include <stdio.h>
@@ -137,6 +137,8 @@ childServerMain(int fd) {
   extern int Serial;
   char *openxm;
   int resultCode;
+  int st;
+
   /* Starting oxd session */
   signal(SIGALRM,exitServer);
   alarm(60);
@@ -209,6 +211,10 @@ childServerMain(int fd) {
   GET_COMMAND   /* expect <login/> */
 
   fclose(fp); /* close the connection */
+  fprintf(stderr,"Waiting the termination of the child process (ox server).\n");
+  fflush(NULL);
+  wait(&st);
+  fprintf(stderr,"%d: The child process is terminated.\n",Serial);
   exit(0);
 }
 
