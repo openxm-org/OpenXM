@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.14 2003/12/04 03:17:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.15 2003/12/04 05:27:19 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -141,7 +141,7 @@ int oxForkExec(char **argv) {
     fprintf(stderr,"Cannot fork and exec.\n"); return -1;
   }
   if ((pid = fork()) > 0) {
-	oxResetRedirect();
+    oxResetRedirect();
     if (m&2) {
       /* Do not call singal to turn around a trouble on cygwin. BUG. */
     }else{
@@ -186,7 +186,7 @@ int oxForkExecBlocked(char **argv) {
     fprintf(stderr,"Cannot fork and exec.\n"); return -1;
   }
   if ((pid = fork()) > 0) {
-	oxResetRedirect();
+    oxResetRedirect();
     Myforkchildren[Myforkcp++] = pid;
     if (Myforkcp >= MYFORKCP_SIZE-1) {
       fprintf(stderr,"Child process table is full.\n");
@@ -195,6 +195,7 @@ int oxForkExecBlocked(char **argv) {
     if (waitpid(pid,&status,0) < 0) {  /* blocked */
       perror("waitpid");
     }
+    Myforkcp--;
     return status;
   }else{
     /* close the specified files */
@@ -1098,4 +1099,19 @@ int oxDeleteFile(char *fname) {
   }else{
     return(-1);
   }
+}
+
+/* This function just kills processes, so if there is a process which
+   uses ox protocol, it is not relevant to use this functions.
+*/
+int oxKillAll(void) {
+  int i;
+  int pid;
+  int status;
+  for (i=0; i<Myforkcp; i++) {
+    pid = Myforkchildren[i];
+    signal(SIGKILL,myforkwait);
+  }
+  Myforkcp = 0;
+  return(0);
 }

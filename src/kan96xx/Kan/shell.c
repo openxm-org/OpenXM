@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.5 2003/12/04 05:27:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.6 2003/12/04 05:29:12 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -53,7 +53,8 @@ struct object KoxShell(struct object ob) {
 
 /* A temporary help system */
 void KoxShellHelp(char *key,FILE *fp) {
-  char *keys[]={"command","export","which","redirect","@@@@gatekeeper"};
+  char *keys[]={"command","export","keep_tmp_files",
+                "killall","redirect","which","@@@@gatekeeper"};
   int i;
 #define HSIZE 20
   char *s[HSIZE];
@@ -89,6 +90,13 @@ void KoxShellHelp(char *key,FILE *fp) {
     s[2] = "Example 1: [(ls) (hoge) (2>) (stringOut://afo)] oxshell\n    afo ::";
     s[3] = "Example 2: [(cp) ] addStdoutStderr oxshell\n      [@@@stdout @@@stderr] ::";
     s[4] = NULL;
+  }else if (strcmp(key,"killall")==0) {
+    s[0] = "Kill all the processes envoked by oxshell";
+    s[1] = NULL;
+  }else if (strcmp(key,"keep_tmp_files")==0) {
+    s[0] = "keep_tmp_files value";
+    s[1] = "If value is zero, then temporary files are removed after execution.";
+    s[2] = NULL;
   }else{
   }
   i = 0;
@@ -126,6 +134,19 @@ static struct object KoxShell_test1(struct object ob) {
     return(rob);
   }else if (strcmp(cmd,"export")==0) {
     rob=oxsSetenv(ob);
+  }else if (strcmp(cmd,"keep_tmp_files")==0) {
+    if (n != 2) errorKan1("%s\n","shell: << keep_tmp_files value >>");
+    if (strcmp("0",KopString(getoa(ob,1))) == 0) {
+      KeepTmpFiles = 0;
+    }else{
+      KeepTmpFiles = 1;
+    }
+    rob = KpoInteger(KeepTmpFiles);
+  }else if (strcmp(cmd,"killall")==0) {
+	/* It is called from ctrl-C hook of oxrfc103.sm1 */
+	fprintf(stderr,"Killing all child processes (oxshell) ...");
+    rob = KpoInteger(oxKillAll());
+	fprintf(stderr,"\nDone.\n");
   }else{
     rob = oxsExecuteBlocked(ob);
   }
