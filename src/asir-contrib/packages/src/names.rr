@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.60 2002/11/16 07:44:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.61 2002/11/16 08:09:31 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -538,6 +538,14 @@ def graphic_parametric_plot_3d(F,R) { NOT_YET; }
 /* Canonical function names for printing. cf. Mathematica/Output */
 def print_cmo_xml_form(F) { NOT_YET; }
 
+/*&usage begin: print_em(S)
+ It outputs {S} by a font to emphasize it.
+ example: print_em(x^2-1);
+end: */
+def print_em(F) {
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return taka_em(F);
+}
 /*&usage begin: print_dvi_form(S)
  It outputs {S} to a dvi file.
  example: print_dvi_form(x^2-1);

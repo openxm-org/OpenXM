@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.27 2002/09/22 12:41:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.28 2002/10/11 11:16:54 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -1140,6 +1140,11 @@ def taka_print_warning(S) {
   if (Taka_print_warning) {
     print(S);
   }
+}
+def taka_em(S) {
+  S1 = asciitostr([0x1b])+"[31m";  /* "[1m" */
+  S2 = asciitostr([0x1b])+"[0m";
+  print(S1+rtostr(S)+S2);
 }
 Loaded_taka_print=1$
 end$
