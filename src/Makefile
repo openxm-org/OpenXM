@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.78 2000/02/01 10:12:47 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.79 2000/02/08 12:03:39 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -167,7 +167,7 @@ configure-links:
 	ln -f -s $(OPENXM_CONTRIB)/gmp gmp
 
 configure-oxmath:
-	(cd ox_math; ./configure)
+	(cd ox_math; ./make-configure)
 
 configure-pari:
 	(cd pari ; make configure)
