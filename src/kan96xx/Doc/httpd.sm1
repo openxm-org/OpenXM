@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.1 2001/08/23 00:16:55 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.2 2001/08/23 00:49:00 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 
@@ -411,10 +411,11 @@
   arg1
 } def
 
-/executeStringAndSelectInputFromBrowsersAndOxserver {
+/executeStringAndSelectInputFromBrowserAndOxserver {
+  /arg3 set
   /arg2 set
   /arg1 set
-  [/in-executeStringAndSelectInputFromBrowsersAndOxserver
+  [/in-executeStringAndSelectInputFromBrowserAndOxserver
     /oxserver.ccc
     /command.to.oxserver
     /sss.engine
@@ -422,11 +423,13 @@
     /sss
     /err
     /httpd.result
+    /stringOrCmo
   ] pushVariables
 % Global var: httpd.server.fd
   [
      /oxserver.ccc arg1 def
      /command.to.oxserver arg2 def
+     /stringOrCmo arg3 def
             oxserver.ccc 
             command.to.oxserver
             oxexecutestring ;
@@ -434,7 +437,11 @@
             [(oxReq) oxserver.ccc SM_dupErrors ] extension pop
 
             [(oxReq) oxserver.ccc SM_popCMO ] extension pop
-            [(oxReq) oxserver.ccc SM_popString ] extension pop
+            stringOrCmo (string) eq {
+              [(oxReq) oxserver.ccc SM_popString ] extension pop
+            }{
+              [(oxReq) oxserver.ccc SM_popCMO ] extension pop
+            } ifelse
             [(flush)] extension pop
             %% Select inputs for interruption.
             %% Wait by the spin lock.
@@ -453,7 +460,6 @@
             sss 0 get {
                 [(oxGet) oxserver.ccc] extension  /err          set
                 [(oxGet) oxserver.ccc] extension  /httpd.result set
-                %% oxserver.ccc oxpopstring /httpd.result set
             } {
                 oxserver.ccc oxreset
                 oxserver.ccc ("computation is interrupted.";) oxexecutestring ;

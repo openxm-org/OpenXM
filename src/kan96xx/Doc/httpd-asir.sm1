@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.12 2001/08/23 00:16:55 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.13 2001/08/23 00:49:00 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -84,12 +84,7 @@ def
                  [Oxserver_history_variable httpd.serial toString] cat
               def
               oxasir.ccc 
-%% original     (if (1) {)  httpd.com  (; };)
-               [(if (1) {)
-                oxserver.vname (=) httpd.com
-                (; };)
-                oxserver.vname (;)
-               ] cat
+              [(if (1) {)  httpd.com  (; };)] cat
               oxexecutestring ;
             }{
               send-page-warning  exit
@@ -97,6 +92,10 @@ def
             [(oxReq) oxasir.ccc SM_dupErrors ] extension pop
 
             [(oxReq) oxasir.ccc SM_popCMO ] extension pop
+
+            [(oxReq) oxasir.ccc SM_setName oxserver.vname] extension pop
+            oxasir.ccc [oxserver.vname (;)] cat oxexecutestring
+
             [(oxReq) oxasir.ccc SM_popString ] extension pop
             [(flush)] extension pop
             %% Select inputs for interruption.
@@ -231,7 +230,9 @@ def
 
 /metaCommand {
   /arg1 set
-  [/in-metaCommand /msg /result /msg2 /nn] pushVariables
+  [/in-metaCommand /msg /result /msg2 /nn
+   /err /fn
+  ] pushVariables
   [
     /msg arg1 def
     /result 1 def
@@ -242,10 +243,24 @@ def
       {
         msg2 2 get . (integer) dc /nn set 
 
-        %%BUG: This part should be rewritten.
         %% Reformat the "nn"-th result by tex and send it.
-        httpd.result.history nn get message
-        httpd.image.name httpd.image.type send-image
+        %% BUG: index is out of bound. httpd.result.history nn get message
+
+        oxasir.ccc
+        [$print_gif_form(Oxserver_history_variable_$
+         nn toString
+         $);$
+        ] cat
+        (cmo)
+        executeStringAndSelectInputFromBrowserAndOxserver
+        dup 0 get /err set
+            1 get /fn set
+        err [ ] eq {
+           fn 0 get (gif) send-image          
+        } {
+           [err preformatHTML] cat
+           send-page-3
+        } ifelse
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         /result 0 def
