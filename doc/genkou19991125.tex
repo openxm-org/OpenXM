@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.112 1999/12/28 08:49:03 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.113 1999/12/28 14:03:30 tam Exp $
 
 \usepackage{jssac}
 
@@ -451,6 +451,7 @@ OpenXM 規約の CMO 形式の定義は OpenMath 規約の content dictionary の概念
 また, 共通データ形式と数学システム固有のオブジェクトとの変換は OpenMath
 規約の Phrasebook と同じアイデアを用いている.
 
+
 \item NetSolve
 
 http://www.cs.utk.edu/netsolve/
@@ -462,6 +463,7 @@ NetSolve はクライアント・サーバ型の分散システムであり, 単なる計算システ
 タベース的役割を果たす.  また Agent によって負荷分散が可能になる.  現在
 の NetSolve は RPC を基礎にして実装されている.
 
+
 \item MP (Multi Project)
 
 http://symbolicnet.mcs.kent.edu/SN/areas/protocols/mp.html
@@ -470,10 +472,14 @@ http://symbolicnet.mcs.kent.edu/SN/areas/protocols/mp.html
 提供するプロジェクト.
 このプロジェクトでは, 数学ソフト間で数学データをやりとりする際の
 通信路上での表現方法を規定している.
-すでに C 言語によるライブラリがあり, Common Lisp による
-実装も行なわれている.
+数学データは木構造を使って表しており, OpenMath と同様,
+異なる種類の数式処理システム間で意味の食い違いが起こらないよう,
+情報を付加できるようになっている.
+また, 通信路はピアツーピアのバイトストリームでなければならないが,
 通信方法には幾らかの自由度があり,
 OpenXM や MPI, MCP(後述) で利用することも考えられている.
+すでに C 言語によるライブラリがあり, Common Lisp による
+実装も行なわれている.
 
 
 \item MCP (Mathematical Computation Protocol)
