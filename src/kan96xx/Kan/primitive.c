@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.9 2003/12/03 01:21:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.10 2003/12/05 13:51:31 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -1580,10 +1580,11 @@ int executePrimitive(ob)
           putoa(qob,0,KpoString("unknown"));
         }
         /* Set the attibute list; class=className */
-        putoa(qattr2,0,KpoString("class"));
         if (ob2.tag == Sdollar) {
+          putoa(qattr2,0,KpoString("cd"));
           putoa(qattr2,1,ob2);
         }else{
+          putoa(qattr2,0,KpoString("class"));
           putoa(qattr2,1,KpoString(CurrentContextp->contextName));
         }
         putoa(qattr,0,qattr2);

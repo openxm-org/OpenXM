@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.4 2003/11/24 08:16:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.5 2003/12/05 13:51:32 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -56,7 +56,7 @@ int isTreeAdd(struct object ob) {
   if (name.tag != Sdollar) {
     errorKan1("%s\n","CLASSNAME_tree is broken. Should be string.");
   }
-  if (strcmp(KopString(name),"add") == 0) {
+  if (strcmp(KopString(name),"plus") == 0) {
     return(1);
   }else{
     return(0);
@@ -69,7 +69,9 @@ struct object addTree(struct object ob1, struct object ob2)
   struct object ob3,ob4;
   struct object attr;
   struct object keyValue;
+  struct object to;
   int i;
+  to = ob2; ob2=ob1; ob1=to; /* Exchange ob1 and ob2 */
   if (isTreeAdd(ob1) && !isTreeAdd(ob2)) {
     ob1 = KopTree(ob1);
     ob3 = getoa(ob1,2);
@@ -105,11 +107,11 @@ struct object addTree(struct object ob1, struct object ob2)
   }
   attr = newObjectArray(1);
   keyValue = newObjectArray(2);
-  putoa(keyValue,0,KpoString("arith1"));
-  putoa(keyValue,1,KpoString("plus"));
+  putoa(keyValue,0,KpoString("cd"));
+  putoa(keyValue,1,KpoString("arith1"));
   putoa(attr,0,keyValue);
   rob = newObjectArray(3);
-  putoa(rob,0,KpoString("add"));
+  putoa(rob,0,KpoString("plus"));
   putoa(rob,1,attr);
   putoa(rob,2,aob);
   return(KpoTree(rob));
