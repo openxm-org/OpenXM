@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.10 2003/08/22 11:47:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.11 2003/08/23 02:28:38 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -700,9 +700,11 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei,int onlyS)
   message = 1;
   if (f == POLYNULL) return(POLYNULL);
   rp = f->m->ringp;
+  /*
   if ((rp->degreeShiftSize == 0) && (dssize > 0)) {
 	warningPoly("You are trying to homogenize a polynomial with degree shift. However, the polynomial belongs to the ring without degreeShift option. It may cause a trouble in comparison in free module.\n");
   }
+  */
   node = &nod;
   node->next = POLYNULL;
   lastf = POLYNULL;
@@ -754,7 +756,7 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei,int onlyS)
   h = node->next;
   /*go-debug printf("m=%d, mp=%d\n",m,mp); */
   while (h != POLYNULL) {
-    /*go-debug printf("Old: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x); */
+    /*go-debug printf("Old: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x);  */
     if (!onlyS) h->m->e[0].D += m;   /* h */
     h->m->e[0].x += -mp; /* H, s*/
     /*go-debug printf("New: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x); */

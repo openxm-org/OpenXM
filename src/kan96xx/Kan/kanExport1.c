@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.7 2003/08/22 11:47:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.8 2003/08/23 02:28:38 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -15,6 +15,9 @@ extern int KanGBmessage;
 struct object DegreeShifto;
 int DegreeShifto_size = 0;
 int *DegreeShifto_vec = NULL;
+struct object DegreeShiftD;
+int DegreeShiftD_size = 0;
+int *DegreeShiftD_vec = NULL;
 
 /** :kan, :ring */
 struct object Kreduction(f,set)
@@ -771,6 +774,15 @@ struct object homogenizeObject_vec(ob,gradep)
   }
 }
 
+void KresetDegreeShift() {
+  DegreeShifto = NullObject;
+  DegreeShifto_vec = (int *)NULL;
+  DegreeShifto_size = 0;
+  DegreeShiftD = NullObject;
+  DegreeShiftD_vec = (int *)NULL;
+  DegreeShiftD_size = 0;
+}
+
 struct object homogenizeObject_go(struct object ob,int *gradep) {
   int size,i,dssize,j;
   struct object ob0;
@@ -781,7 +793,27 @@ struct object homogenizeObject_go(struct object ob,int *gradep) {
   struct object ob1t;
   int *ds;
   POLY f;
+  int onlyS; 
+
+  onlyS = 0;  /* default value */
   rob = NullObject;
+  /*printf("[%d,%d]\n",DegreeShiftD_size,DegreeShifto_size);*/
+  if (DegreeShifto_size == 0) DegreeShifto = NullObject;
+  if (DegreeShiftD_size == 0) DegreeShiftD = NullObject;
+  /*
+      DegreeShiftD : Degree shift vector for (0,1)-h-homogenization,
+                     which is {\vec n} in G-O paper.
+                     It is used in dGrade1()  redm.c
+      DegreeShifto : Degree shift vector for (u,v)-s-homogenization
+                     which is used only in ecart division and (u,v) is
+                     usually (-1,1).
+                     This shift vector is written {\vec v} in G-O paper.
+                     It may differ from the degree shift for the ring,
+                     which is used to get (minimal) Schreyer resolution.
+                     This shift vector is denoted by {\vec m} in G-O paper.  
+                     It is often used as an argument for uvGrade1 and
+                     goHomogenize*
+   */
   if (ob.tag != Sarray) errorKan1("%s\n","homogenizeObject_go(): Invalid argument data type.");
 
   size = getoaSize(ob);
@@ -792,47 +824,76 @@ struct object homogenizeObject_go(struct object ob,int *gradep) {
   }
   if (strcmp(KopString(ob0),"degreeShift") == 0) {
     if (size < 2)
-      errorKan1("%s\n","homogenizeObject_go(): [(degreeShift) shift-vector obj] or [(degreeShift) shift-vector] or [(degreeShift) (value)] homogenize");
+      errorKan1("%s\n","homogenizeObject_go(): [(degreeShift) shift-vector obj] or [(degreeShift) shift-vector] or [(degreeShift) (value)] homogenize.\nshift-vector=(0,1)-shift vector or [(0,1)-shift vector, (u,v)-shift vector].");
     ob1 = getoa(ob,1);
 	if (ob1.tag != Sarray) {
-	  if (DegreeShifto_size != 0) {
-		return DegreeShifto;
-	  }else{
-        rob = NullObject;
-        return rob;
+	  if ((ob1.tag == Sdollar) && (strcmp(KopString(ob1),"value")==0)) {
+        /* Reporting the value. It is done below. */
+	  }else if ((ob1.tag == Sdollar) && (strcmp(KopString(ob1),"reset")==0)) {
+		KresetDegreeShift();
 	  }
+	  rob = newObjectArray(2);
+	  putoa(rob,0,DegreeShiftD);
+	  putoa(rob,1,DegreeShifto);
+	  return rob;
 	}
-    dssize = getoaSize(ob1);
-    ds = (int *)sGC_malloc(sizeof(int)*(dssize>0?dssize:1));
-    for (i=0; i<dssize; i++) {
-      ds[i] = objToInteger(getoa(ob1,i));
-    }
-    if (size == 2) {
-      DegreeShifto = ob1;
+
+	if (getoaSize(ob1) == 2) {
+	  /* [(degreeShift) [ [1 2]   [3 4] ]  ...] homogenize */
+      /*                  (0,1)-h (u,v)-s                  */
+	  DegreeShiftD = getoa(ob1,0);
+	  dssize = getoaSize(DegreeShiftD);
+	  ds = (int *)sGC_malloc(sizeof(int)*(dssize>0?dssize:1));
+	  if (ds == NULL) errorKan1("%s\n","no more memory.");
+	  for (i=0; i<dssize; i++) {
+		ds[i] = objToInteger(getoa(DegreeShiftD,i));
+	  }
+      DegreeShiftD_size = dssize;
+	  DegreeShiftD_vec = ds;
+
+	  DegreeShifto = getoa(ob1,1);
+	  dssize = getoaSize(DegreeShifto);
+	  ds = (int *)sGC_malloc(sizeof(int)*(dssize>0?dssize:1));
+	  if (ds == NULL) errorKan1("%s\n","no more memory.");
+	  for (i=0; i<dssize; i++) {
+		ds[i] = objToInteger(getoa(DegreeShifto,i));
+	  }
       DegreeShifto_size = dssize;
-      DegreeShifto_vec = ds;
-      rob = ob1;
+	  DegreeShifto_vec = ds;
+	}else if (getoaSize(ob1) == 1) {
+	  /* Set only  for (0,1)-h */
+	  DegreeShiftD = getoa(ob1,0);
+	  dssize = getoaSize(DegreeShiftD);
+	  ds = (int *)sGC_malloc(sizeof(int)*(dssize>0?dssize:1));
+	  if (ds == NULL) errorKan1("%s\n","no more memory.");
+	  for (i=0; i<dssize; i++) {
+		ds[i] = objToInteger(getoa(DegreeShiftD,i));
+	  }
+      DegreeShiftD_size = dssize;
+	  DegreeShiftD_vec = ds;
+	}
+
+	ds = DegreeShifto_vec;
+	dssize = DegreeShifto_size;
+
+    if (size == 2) {
+	  rob = newObjectArray(2);
+	  putoa(rob,0,DegreeShiftD);
+	  putoa(rob,1,DegreeShifto);
+	  return rob;
     }else{
       ob2 = getoa(ob,2);
       if (ob2.tag == Spoly) {
-        f = goHomogenize11(KopPOLY(ob2),ds,dssize,-1,0);
+        f = goHomogenize11(KopPOLY(ob2),ds,dssize,-1,onlyS);
         rob = KpoPOLY(f);
       }else if (ob2.tag == SuniversalNumber) {
         rob = ob2;
       }else if (ob2.tag == Sarray) {
-        rob = newObjectArray(getoaSize(ob2));
-        for (i=0; i<getoaSize(ob2); i++) {
-          tob = newObjectArray(3);
-          ob1t = newObjectArray(dssize);
-          if (getoa(ob2,i).tag == Spoly) {
-            for (j=0; j<dssize; j++) getoa(ob1t,j) = KpoInteger(0);
-            for (j=0; j<dssize-i; j++) getoa(ob1t,j) = getoa(ob1,j+i);
-          }else{
-            ob1t = ob1;
-          }
-          getoa(tob,0) = ob0; getoa(tob,1) = ob1t; getoa(tob,2) = getoa(ob2,i);
-          getoa(rob,i) = homogenizeObject_go(tob,gradep);
-        }
+		int mm;
+		mm = getoaSize(ob2);
+		f = objArrayToPOLY(ob2);
+        f = goHomogenize11(f,ds,dssize,-1,onlyS);
+        rob = POLYtoObjArray(f,mm);
       }else{
         errorKan1("%s\n","homogenizeObject_go(): invalid object for the third element.");
       }

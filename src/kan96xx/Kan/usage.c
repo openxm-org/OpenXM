@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.18 2003/08/22 11:47:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.19 2003/08/23 02:28:39 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -233,7 +233,23 @@ void Kusage2(fp,s)
   }else if (strcmp(s,"homogenize") == 0) {
     fppp(fp,"<< f homogenize g >>\n");
     fppp(fp,"poly f,g;\n");
-    fppp(fp,"array of poly f,g;\n");
+    fppp(fp,"array of poly f,g;\n\n");
+	fppp(fp,"[(degreeShift) (value)] homogenize [shiftD shiftUV]\n");
+	fppp(fp,"[(degreeShift) (reset)] homogenize [null null]\n");
+	fppp(fp,"[(degreeShift) shiftD ] homogenize [shiftD shiftUV]\n");
+	fppp(fp,"[(degreeShift) [shiftD shiftUV]] homogenize [shiftD shiftUV]\n");
+	fppp(fp,"[(degreeShift) [ ]     fv] homogenize   hfv\n");
+	fppp(fp,"[(degreeShift) shiftD  fv] homogenize   hfv\n");
+	fppp(fp,"[(degreeShift) [shiftD shiftUV] fv] homogenize hfv\n");
+    fppp(fp,"shiftD : degree shift vector for (0,1)-h homogenization\n");
+    fppp(fp,"shiftUV : degree shift vector for (-1,1)-s homogenization (internal for ecart.)\n");
+    fppp(fp,"fv : polynomial or vector of polynomials.\n");
+    fppp(fp,"Example:  [(x) ring_of_differential_operators 0] define_ring\n");
+	fppp(fp,"   [(degreeShift) [[1 0] [0 1]] [(x+1). (Dx+1).]] homogenize ::\n");
+	fppp(fp,"   [(degreeShift) (value)] homogenize ::\n");
+	fppp(fp,"Note. min of ord (-1,1)[0,1] is min {-1,1, 1+1,1+0} = -1 =m \n");
+    fppp(fp,"      Degree of H is b-a+v(i)-m where v=[0,1]\n");
+    fppp(fp,"DegreeShift is automatically reset when set_up_ring is called.\n");
   }else if (strcmp(s,"idiv") == 0) {
     fppp(fp,"<< a b idiv a/b >>\n");
     fppp(fp,"int a,b,a/b;\n");

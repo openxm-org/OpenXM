@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.9 2003/08/22 23:55:21 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.10 2003/08/23 02:28:40 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -69,11 +69,18 @@
 
 /ecart.homogenize01 {
  /arg1 set
- [/in.ecart.homogenize01 /ll ] pushVariables
+ [/in.ecart.homogenize01 /ll /ll0] pushVariables
  [
    /ll arg1 def
-   [(degreeShift) [ ] ll ] homogenize
-   /arg1 set
+   ll tag ArrayP eq {
+     ll 0 get tag ArrayP eq not {
+       [(degreeShift) [ ] ll ] homogenize   /arg1 set
+     } {
+       ll { ecart.homogenize01 } map /arg1 set
+     } ifelse
+   } {
+       [(degreeShift) [ ] ll ] homogenize   /arg1 set
+   }
  ] pop
  popVariables
  arg1
@@ -88,30 +95,38 @@
   (    [(x1) -1 (x2) -1])
   (   ] weight_vector )
   (   0  )
-  (   [(degreeShift) [[0 0 0]]])
+  (   [(weightedHomogenization) 1 (degreeShift) [[0 0 0]]])
   (  ] define_ring)
   ( ecart.begin)
   ( [[1 -4 -2 5]] appell4 0 get /eqs set)
   ( eqs { . [[(x1). (x1+2).] [(x2). (x2+4).]] replace} map )
-  ( ecart.homogenize01 /eqs2 set)
+  ( {ecart.homogenize01} map /eqs2 set)
   ( [eqs2] groebner )
 ]] putUsages
 
 /ecart.homogenize01_with_shiftVector {
  /arg2.set
  /arg1 set
- [/in.ecart.homogenize01 /ll /sv] pushVariables
+ [/in.ecart.homogenize01 /ll /sv /ll0] pushVariables
  [
    /sv arg2 def
    /ll arg1 def
-   [(degreeShift) sv ll ] homogenize
-   /arg1 set
+   ll tag ArrayP eq {
+     ll 0 get tag ArrayP eq not {
+       [(degreeShift) sv ll ] homogenize   /arg1 set
+     } {
+       ll { ecart.homogenize01_with_shiftVector } map /arg1 set
+     } ifelse
+   } {
+       [(degreeShift) sv ll ] homogenize   /arg1 set
+   }
  ] pop
  popVariables
  arg1
 } def
 [(ecart.dehomogenize01_with_degreeShift)
  [(obj shift-vector ecart.dehomogenize01_with_degreeShift r)
+  (cf. homogenize)
 ]] putUsages
 
 %% Aux functions to return the default weight vectors.
@@ -157,7 +172,12 @@
   (a : [f v];   array f; string v;  v is the variables. )
   (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
   (a : [f v w ds]; array f; string v; array of array w; w is the weight matirx.)
-  (                array ds; ds is the degree shift )
+  (                array ds; ds is the degree shift for the ring. )
+  (a : [f v w ds hdShift]; array f; string v; array of array w; w is the weight matirx.)
+  (        array ds; ds is the degree shift for the ring. )
+  (        array hsShift is the degree shift for the homogenization. cf.homogenize )
+  $a : [f v w ds (no)]; array f; string v; array of array w; w is the weight matirx.$
+  (       No automatic homogenization.)
   (  )
   $cf. ecarth.gb (homogenized),  ecartd.gb (dehomogenize) $
   ( )
@@ -347,9 +367,9 @@
     ecart.needSyz {
       mm {
        gg 0 get { /tmp set [mm tmp] toVectors } map /ans.gb set
-      } { /ans.gb gg 0 get def } ifelse
-      /ans [gg 2 get , ans.gb , gg 1 get , f ] def
-      ans pmat ;
+       } { /ans.gb gg 0 get def } ifelse
+       /ans [gg 2 get , ans.gb , gg 1 get , f ] def
+%      ans pmat ;
     } { 
       wv isInteger {
         /ans [gg gg {init} map] def
@@ -628,7 +648,7 @@
        gg 0 get { /tmp set [mm tmp] toVectors } map /ans.gb set
       } { /ans.gb gg 0 get def } ifelse
       /ans [gg 2 get , ans.gb , gg 1 get , f ] def
-      ans pmat ;
+%      ans pmat ;
     } { 
       wv isInteger {
         /ans [gg gg {init} map] def
@@ -666,6 +686,7 @@
   [/in-ecart.gb /aa /typev /setarg /f /v 
    /gg /wv /vec /ans /rr /mm
    /degreeShift  /env2 /opt /ans.gb
+   /hdShift
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -674,6 +695,7 @@
     /setarg 0 def
     /wv 0 def
     /degreeShift 0 def
+    /hdShift 0 def
     /opt [(weightedHomogenization) 1] def
     aa { tag } map /typev set
     typev [ ArrayP ] eq
@@ -720,6 +742,34 @@
        /v aa 1 get from_records def
        /wv aa 2 get def
        /degreeShift aa 3 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /hdShift aa 4 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /hdShift aa 4 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       aa 4 get (no) eq {
+         /hdShift -1 def
+       } {  
+         (Unknown keyword for the 5th argument) error
+       } ifelse
        /setarg 1 def
     } { } ifelse
 
@@ -792,9 +842,22 @@
 
     ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
 
-    f { {. ecart.dehomogenize} map} map /f set   
-    f ecart.homogenize01 /f set
-    f { { [[(H). (1).]] replace } map } map /f set
+    hdShift tag 1 eq {
+     hdShift -1 eq {
+% No automatic h-homogenization.
+       f { {. } map} map /f set   
+     } {
+% Automatic h-homogenization without degreeShift
+       f { {. ecart.dehomogenize} map} map /f set   
+       f ecart.homogenize01 /f set
+       f { { [[(H). (1).]] replace } map } map /f set
+     } ifelse
+   } {
+% Automatic h-homogenization with degreeShift
+       f { {. ecart.dehomogenize} map} map /f set   
+       f {/fi set [(degreeShift) hdShift fi] homogenize} map /f set
+       f { { [[(H). (1).]] replace } map } map /f set
+   }ifelse
 
     ecart.needSyz {
       [f [(needSyz)] gb.options join ] groebner /gg set
@@ -807,11 +870,12 @@
        gg 0 get { /tmp set [mm tmp] toVectors } map /ans.gb set
       } { /ans.gb gg 0 get def } ifelse
       /ans [gg 2 get , ans.gb , gg 1 get , f ] def
-      ans pmat ;
+%      ans pmat ;
     } { 
       wv isInteger {
         /ans [gg gg {init} map] def
       }{
+%% Get the initial ideal
        degreeShift isInteger {
          /ans [gg gg {wv 0 get weightv init} map] def
        } {

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.5 2002/11/04 10:53:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.6 2003/08/23 02:28:39 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -1283,6 +1283,7 @@ int executePrimitive(ob)
     KsetOrderByObjArray(ob1);
     break;
   case Sset_up_ring:
+	KresetDegreeShift();
     ob5 = Kpop(); ob4=Kpop(); ob3=Kpop(); ob2=Kpop(); ob1=Kpop();
     KsetUpRing(ob1,ob2,ob3,ob4,ob5);
     break;

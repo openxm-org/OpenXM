@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.4 2003/07/10 08:20:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.5 2003/07/17 09:10:54 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -333,6 +333,8 @@ int dGrade1(f)
   MONOMIAL tf;
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
+  extern int *DegreeShiftD_vec;
+  extern int DegreeShiftD_size;
 
   if (f ISZERO) return(-1);
   tf = f->m;
@@ -351,6 +353,13 @@ int dGrade1(f)
   r = 0;
   for (i=m; i<nn; i++) {
     r += tf->e[i].D;
+  }
+  if (DegreeShiftD_size > 0) {
+	if ((tf->e[n-1].x <DegreeShiftD_size) && (tf->e[n-1].x >= 0)) {
+	  r += DegreeShiftD_vec[tf->e[n-1].x];
+	}else{
+	  /* warning. out of range. */ 
+	}
   }
   return(r);
 }
