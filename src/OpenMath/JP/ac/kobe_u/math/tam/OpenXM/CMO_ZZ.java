@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.3 1999/11/12 14:09:50 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.4 1999/11/14 22:57:45 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -56,13 +56,23 @@ public class CMO_ZZ extends CMO{
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{
-    int len = (this.num.abs().bitLength()+7)/8;
-    byte[] bignum = this.num.abs().toByteArray();
-
-    //System.err.println("CMO_ZZ:"+ len +":"+ bignum.length +":"+ bignum[0]);
     if(this.num.signum()==0){
       os.writeInt(0);
     }else{
+      byte[] bignum = this.num.abs().toByteArray();
+      int len = bignum.length;
+
+      while(bignum[0] == 0){
+	byte[] tmp = new byte[len-1];
+
+	for(int i=0;i<tmp.length;i++){
+	  tmp[i] = bignum[i+1];
+	}
+	bignum = tmp;
+	len = bignum.length;
+      }
+
+      //System.err.println("CMO_ZZ:"+ len +":"+ bignum.length +":"+ bignum[0]);
       os.writeInt((len+3)/4*(this.num.signum()));
       for(int i=len;(i-=4)>=0;){
 	os.write(bignum,i,4);

@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.4 1999/11/02 16:23:07 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.5 1999/11/16 13:19:14 tam Exp $
 
 make:
 	if ! test -d ../../lib/java-support; then \
@@ -16,11 +16,11 @@ clean:
 dist:
 	tar cvfz ../OM2OXM.tgz .
 
-dist-clean: #clean dist
+distclean: #clean dist
 	make clean
 	find . -name '*~' \
 		-exec echo rm -f {} \; \
 		-exec rm -f {} \;
 
 test:
-	javac -d . -deprecation -g *.java
+	/usr/local/jdk1.1.8/bin/javac -d . -deprecation -g *.java
