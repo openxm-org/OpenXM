@@ -1,5 +1,6 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.2 1999/11/03 00:22:49 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.3 1999/11/27 13:24:41 takayama Exp $
 all : sm1
+.SUFFIXES:
 ########################## configuration ##############################
 ####  What C compiler do you use?
 CC = gcc
