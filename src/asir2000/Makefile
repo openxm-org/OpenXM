@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.15 2000/03/10 02:59:50 noro Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.16 2000/03/16 07:25:06 noro Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 ASIR_PARI = ../../../OpenXM_contrib2/asir2000-pari
@@ -63,6 +63,26 @@ configure-small: configure
 		mkdir $(ASIR_SMALL) ; \
 		(cd $(ASIR_SMALL) ; lndir ../asir2000 ; ./configure ; \
 			xmkmf ; make Makefiles ; make clean; make depend) \
+	fi
+	@touch ./.configure_small_done
+
+configure-xmkmf: install-pari
+	@if [ ! -f ./.configure_done ]; then \
+		(cd $(ASIR) ; ./configure-xmkmf -plot -pari ) \
+	fi
+	@touch ./.configure_done
+
+configure-xmkmf-with-pari: configure-xmkmf
+	-@if [ ! -f ./.configure_with_pari_done ]; then \
+		mkdir $(ASIR_PARI) ; \
+		(cd $(ASIR_PARI) ; lndir ../asir2000 ; ./configure-xmkmf -pari ) \
+	fi
+	@touch ./.configure_with_pari_done
+
+configure-xmkmf-small: configure-xmkmf
+	-@if [ ! -f ./.configure_small_done ]; then \
+		mkdir $(ASIR_SMALL) ; \
+		(cd $(ASIR_SMALL) ; lndir ../asir2000 ; ./configure-xmkmf ) \
 	fi
 	@touch ./.configure_small_done
 
