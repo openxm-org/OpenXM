@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.38 2004/09/11 01:00:42 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.39 2004/09/12 02:47:45 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4266,14 +4266,22 @@ $ [ff ff] fromVectors :: $
 
 /usages {
   /arg1 set
-  [/name /flag /n /k /slist /m /i /sss] pushVariables
+  [/name /flag /n /k /slist /m /i /sss /key /ukeys] pushVariables
   [
     /name arg1 def
     /flag true def
+    {  % begin loop
 
- %BUG: should use regular expression in a future.
+       name isArray {
+         /ukeys @.usages { 0 get } map def
+         name { /key set [(regexec) key ukeys] extension
+                { 0 get } map } map /sss set
+         exit
+       } {  } ifelse
+
  name tag 1 eq { 
    @.usages { 0 get } map shell { (, ) nl } map /sss set
+   exit
  } { 
 
     /sss [ ] def
@@ -4300,7 +4308,10 @@ $ [ff ff] fromVectors :: $
    {name Usage  /sss [(Usage of ) name ( could not obtained.) nl ] def}
    { }
    ifelse
+   exit
  } ifelse
+
+} loop
    /arg1 sss cat def
    ] pop
    popVariables
@@ -4309,6 +4320,7 @@ $ [ff ff] fromVectors :: $
 [(usages)
  [(key usages usages-as-a-string)
   (num usages list-of-key-words)
+  ([key1 key2 ... ] usages list-of-key-words  : it accepts regular expressions.)
 ]] putUsages
 
 ;

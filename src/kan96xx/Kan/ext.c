@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.28 2004/09/11 23:49:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.29 2004/09/12 01:32:08 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -15,6 +15,7 @@
 #include "kclass.h"
 #include <ctype.h>
 #include <errno.h>
+#include <regex.h>
 #include "ox_pathfinder.h"
 
 extern int Quiet;
@@ -86,6 +87,8 @@ static char *ext_generateUniqueFileName(char *s)
   errorKan1("%s\n","ext_generateUniqueFileName: could not generate a unique file name. Exhausted all the names.");
   return(NULL);
 }
+
+static struct object oregexec(struct object oregex,struct object ostrArray,struct object oflag);
 
 struct object Kextension(struct object obj)
 {
@@ -421,6 +424,16 @@ struct object Kextension(struct object obj)
     }else{
       rob = NullObject;
     }
+  }else if (strcmp(key,"regexec")==0) {
+    if ((size != 3) && (size != 4)) errorKan1("%s\n","[(regexec) reg strArray flag(optional)] extension b");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","regexec, the first argument should be a string (regular expression).");
+    obj2 = getoa(obj,2); 
+    if (obj2.tag != Sarray) errorKan1("%s\n","regexec, the second argument should be an array of a string.");
+    if (size == 3) obj3 = newObjectArray(0);
+    else obj3 = getoa(obj,3);
+    rob = oregexec(obj1,obj2,obj3);
+
   }
 #include "plugin.hh"
 #include "Kclass/tree.hh"
@@ -467,3 +480,80 @@ struct object KregionMatches(struct object sobj, struct object keyArray)
   return rob;
 }
 
+static struct object oregexec(struct object oregex,struct object ostrArray,struct object oflag) {
+  struct object rob;
+  struct object ob;
+  int n,i,j,m,keyn,cflag,eflag,er;
+  char *regex;
+  regex_t preg;
+  char *s;
+  char *mbuf; int mbufSize;
+#define REGMATCH_SIZE 100
+  regmatch_t pmatch[100]; size_t nmatch;
+  int size;
+
+  nmatch = (size_t) REGMATCH_SIZE;
+  rob = newObjectArray(0);
+  mbufSize = 1024;
+
+  if (oregex.tag != Sdollar) return rob;
+  if (ostrArray.tag != Sarray) return rob;
+  n = getoaSize(ostrArray);
+  for (i=0; i<n; i++) {
+    if (getoa(ostrArray,i).tag != Sdollar) { return rob; }
+  }
+  if (oflag.tag != Sarray) errorKan1("%s\n","oregexec: oflag should be an array of integers.");
+  cflag = eflag = 0;
+  oflag = Kto_int32(oflag);
+  for (i=0; i<getoaSize(oflag); i++) {
+    ob = getoa(oflag,i);
+    if (ob.tag != Sinteger) errorKan1("%s\n","oregexec: oflag is not an array of integers.");
+    if (i == 0) cflag = KopInteger(ob);
+    if (i == 1) eflag = KopInteger(ob);
+  }
+
+  regex = KopString(oregex);
+  if (er=regcomp(&preg,regex,cflag)) {
+    mbuf = (char *) sGC_malloc(mbufSize);
+    if (mbuf == NULL) errorKan1("%s\n","No more memory.");
+    regerror(er,&preg,mbuf,mbufSize-1);
+    errorKan1("regcomp error: %s\n",mbuf);
+  }
+
+  size = 0; /* We should use list instead of counting the size. */
+  for (i=0; i<n; i++) {
+    s = KopString(getoa(ostrArray,i));
+    er=regexec(&preg,s,nmatch,pmatch,eflag);
+    if ((er != 0) && (er != REG_NOMATCH)) { 
+      mbuf = (char *) sGC_malloc(mbufSize);
+      if (mbuf == NULL) errorKan1("%s\n","No more memory.");
+      regerror(er,&preg,mbuf,mbufSize-1);
+      errorKan1("regcomp error: %s\n",mbuf);
+    }
+    if (er == 0) size++;
+  }
+
+  rob = newObjectArray(size);
+  size = 0;
+  for (i=0; i<n; i++) {
+    s = KopString(getoa(ostrArray,i));
+    er=regexec(&preg,s,nmatch,pmatch,eflag);
+    if ((er != 0) && (er != REG_NOMATCH)) { 
+      mbuf = (char *) sGC_malloc(mbufSize);
+      if (mbuf == NULL) errorKan1("%s\n","No more memory.");
+      regerror(er,&preg,mbuf,mbufSize-1);
+      errorKan1("regcomp error: %s\n",mbuf);
+    }
+    if (er == 0) {
+      ob = newObjectArray(3);
+      putoa(ob,0,KpoString(s));
+      /* temporary */
+      putoa(ob,1,KpoInteger((int) (pmatch[0].rm_so)));
+      putoa(ob,2,KpoInteger((int) (pmatch[0].rm_eo)));
+      putoa(rob,size,ob);
+      size++;
+    }
+  }
+  regfree(&preg);
+  return rob;
+}
