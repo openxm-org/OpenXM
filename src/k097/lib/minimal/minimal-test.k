@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.14 2000/08/02 04:26:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.15 2000/08/02 05:14:31 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -369,5 +369,69 @@ def test22() {
    test_if_v_strict(b,w,"x,y,z");
    return(a);
 }          
+
+def FillFromLeft(mat,p,z) {
+  local m,n,i,j,aa;
+  m = Length(mat); n = Length(mat[0]);
+  aa = NewMatrix(m,n+p);
+  for (i=0; i<m; i++) {
+    for (j=0; j<p; j++) {
+      aa[i,j] = z; /* zero */
+    }
+    for (j=0; j<n; j++) {
+      aa[i,j+p] = mat[i,j];
+    }
+  }
+  return(aa);
+}
+
+def FillFromRight(mat,p,z) {
+  local m,n,i,j,aa;
+  m = Length(mat); n = Length(mat[0]);
+  aa = NewMatrix(m,n+p);
+  for (i=0; i<m; i++) {
+    for (j=n; j<n+p; j++) {
+      aa[i,j] = z; /* zero */
+    }
+    for (j=0; j<n; j++) {
+      aa[i,j] = mat[i,j];
+    }
+  }
+  return(aa);
+}
+
+def test23() {
+  w = ["Dx1",1,"Dx2",1,"Dx3",1,"x1",-1,"x2",-1,"x3",-1];
+  Sweyl("x1,x2,x3",[w]);
+  d2 = [[Dx1^2-Dx2*h] , [-Dx1*Dx2+Dx3*h] , [Dx2^2-Dx1*Dx3] ];
+  d1 = [[-Dx2, -Dx1, -h],[Dx3,Dx2,Dx1]];
+  LL = x1*Dx1 + 2*x2*Dx2+3*x3*Dx3;
+  /* It is exact for LL = Dx1 + 2*Dx2+3*Dx3;  */
+  u1 = [[LL+4*h^2,Poly("0")],[Poly("0"),LL+5*h^2]];
+  u2 = [[LL+2*h^2,Poly("0"),Poly("0")],
+        [Poly("0"),LL+3*h^2,Poly("0")],
+        [Poly("0"),Poly("0"),LL+4*h^2]];
+  u3 = [[LL]];
+  Println("Checking if it is a double complex. ");
+  Println("u^2 d^2 - d^2 u^3");
+  sm1_pmat(u2*d2 - d2*u3);
+  Println("u^1 d^1 - d^1 u^2");
+  sm1_pmat(u1*d1 - d1*u2);
+  aa = [
+         Join(u3,d2),
+         Join(FillFromLeft(u2,1,Poly("0"))-FillFromRight(d2,3,Poly("0")),
+              FillFromLeft(d1,1,Poly("0"))),
+         FillFromLeft(u1,3,Poly("0"))-FillFromRight(d1,2,Poly("0"))
+       ];
+  Println([ aa[1]*aa[0], aa[2]*aa[1] ]);
+  r= IsExact_h(aa,[x1,x2,x3]);
+  Println(r);
+  /* sm1_pmat(aa); */
+  return(aa);
+}
+
+
+
+
 
 

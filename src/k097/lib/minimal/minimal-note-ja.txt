@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.10 2000/08/01 08:51:02 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.11 2000/08/02 05:14:30 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -744,3 +744,435 @@ Sminimal は [(Homogenize_vec) 0] system_variable にするようで,
 test17b(), test18() は正常動作.
 
 
+August 7, Mon 13:00JST ( 5:00 St.Andrews, Scotland, 4039 号室)
+example-ja.tex を書くための出力.
+
+% k0
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 6/15, 2000. 
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+This is kan/k0 Version 1998,12/15
+WARNING: This is an EXPERIMENTAL version
+sm1>var.sm1 : Version 3/7, 1997
+
+
+In(1)=Loading startup files (startup.k)   1997, 3/11.
+sm1 version = 3.000726
+Default ring is Z[x,h].
+WARNING(sm): You rewrited the protected symbol pushVariables.
+WARNING(sm): You rewrited the protected symbol popVariables.
+In(2)=load["minimal-test.k"];;
+cpp: -lang-c++: linker input file unused since linking not done
+cpp: -lang-c++: linker input file unused since linking not done
+cohom.sm1 is the top of an experimental package to compute restrictions
+of all degrees based on restall.sm1 and restall_s.sm1
+See, http://www.math.kobe-u.ac.jp to get these files of the latest version.
+Note that the package b-function.sm1 cannot be used with this package.
+r-interface.sm1 (C) N.Takayama,  restriction, deRham
+  
+oxasir.sm1, --- open asir protocol module 3/1 1998, 6/5 1999
+   asirconnect, asir, fctr, primadec, (C) M.Noro, N.Takayama 
+ox.sm1, --- open sm1 protocol module 11/11,1999  (C) N.Takayama. oxhelp for help
+hol.sm1, basic package for holonomic systems (C) N.Takayama, 2000, 06/08 
+rank characteristic ch rrank gb pgb syz  genericAnn  annfs gb_h syz_h isSameIdeal isSameIdeal_h  
+sm1>gkz.sm1 generates gkz systems (C) N.Takayama, 1998, 11/8, cf. rrank in hol.sm1 
+gkz  
+sm1>appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayama, 1998, 11/8, cf. rank in hol.sm1 
+appell1 appell4  
+sm1>resol0.sm1, package to construct schreyer resolutions -- not minimal 
+                               (C) N.Takayama, 1999, 5/18. resol0, resol1 
+complex.sm1 : 1999, 9/28, res-div, res-solv, res-kernel-image, res-dual 
+              2000, 6/8,  isExact_h, isExact 
+In this package, complex is expressed in terms of matrices.
+restall.sm1 ... compute all the cohomology groups of the restriction
+                of a D-module to tt = (t_1,...,t_d) = (0,...,0).
+non-Schreyer Version: 19980415 by T.Oaku
+usage: [(P1)...] [(t1)...] bfm --> the b-function
+       [(P1)...] [(t1)...] k0 k1 deg restall --> cohomologies of restriction
+       [(P1)...] [(t1)...] intbfm --> the b-function for integration
+       [(P1)...] [(t1)...] k0 k1 deg intall --> cohomologies of integration
+restall_s.sm1...compute all the cohomology groups of the restriction
+                of a D-module to tt = (t_1,...,t_d) = (0,...,0).
+Schreyer Version: 19990521 by N.Takayama & T.Oaku
+usage: [(P1)...] [(t1)...] k0 k1 deg restall_s -> cohomologies of restriction
+       [(P1)...] [(t1)...] k0 k1 deg intall_s --> cohomologies of integration
+No truncation from below in restall
+The variable Schreyer is set to 2.
+Loading tower.sm1 in the standard context. You cannot use Schyrer 1. It is controlled from cohom.sm1
+  
+oxpath.oxlog.xterm is set to /home/nobuki/OpenXM/lib/sm1/bin/oxlog 
+In(3)=a=Sannfs2("x^3-y^2");
+Starting ox_asir server.
+Hello from open. serverName is localhost and portnumber is 0
+Done the initialization. port =1024
+Hello from open. serverName is localhost and portnumber is 0
+Done the initialization. port =1025
+[    7 , 1025 , 6 , 1024 ] 
+[1] 250
+Trying to accept from localhost... len= 16
+ 4  2  7f  0  0  1  0  0  0  0  0  0  0  0  8  0 
+Authentification: localhost is allowed to be accepted.
+Accepted.
+Trying to accept from localhost... len= 16
+ 4  3  7f  0  0  1  0  0  0  0  0  0  0  0  6  0 
+Authentification: localhost is allowed to be accepted.
+Accepted.
+
+Control port 1024 : Connected.
+
+Stream port 1025 : Connected.
+Byte order for control process is network byte order.
+Byte order for engine process is network byte order.
+WeightOfSweyl=[    x , -1 , y , -1 , Dx , 1 , Dy , 1 ] 
+Automatic homogenization.
+[    -2*x*Dx , -3*y*Dx^2 , -9*y^2*Dx*Dy , -27*y^3*Dy^2 ] 
+Warning: Homogenization and ReduceLowerTerms options are automatically turned off.
+....Done. betti=4
+Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.
+Warning: Homogenization and ReduceLowerTerms options are automatically turned off.
+.Done. betti=1
+Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.
+Warning: Homogenization and ReduceLowerTerms options are automatically turned off.
+Done. betti=0
+Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.
+rf= [ 
+  [ 
+   [ 
+     [    -9*y^2*Dy , 0 , 2*x , 0 ] 
+     [    0 , 0 , -3*y*Dy , Dx ] 
+     [    0 , -3*y*Dy , Dx , 0 ] 
+     [    -3*y*Dx , 2*x , 0 , 0 ] 
+   ]
+   [ 
+     [    -Dx , 0 , 0 , 3*y*Dy ] 
+   ]
+    [   ] 
+  ]
+  [ 
+    [    -2*x*Dx , -3*y*Dx^2 , -9*y^2*Dx*Dy , -27*y^3*Dy^2 ] 
+    [    -9*y^2*Dy , -3*es^2*y*Dy , -3*es*y*Dy , -3*y*Dx ] 
+    [    -Dx ] 
+  ]
+  [ 
+    [   ] 
+   [ 
+    [ 
+      [    0 , 2 ] 
+      [    -9*y^2*Dy , 2*x ] 
+    ]
+    [ 
+      [    2 , 3 ] 
+      [    -3*y*Dy , Dx ] 
+    ]
+    [ 
+      [    1 , 2 ] 
+      [    -3*y*Dy , Dx ] 
+    ]
+    [ 
+      [    0 , 1 ] 
+      [    -3*y*Dx , 2*x ] 
+    ]
+   ]
+   [ 
+    [ 
+      [    0 , 3 ] 
+      [    -Dx , 3*y*Dy ] 
+    ]
+   ]
+    [   ] 
+  ]
+  [ 
+    [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , -9*y^2*Dx*Dy-3*y*Dx*h^2-4*x^2*Dy*h , -27*y^3*Dy^2-27*y^2*Dy*h^2+3*y*h^4+8*x^3*Dy*h ] 
+  ]
+ ]
+Generating reduction table which gives an order of reduction.
+WeghtOfSweyl=[    x , -1 , y , -1 , Dx , 1 , Dy , 1 ] 
+tower[    [    -2*x*Dx , -3*y*Dx^2 , -9*y^2*Dx*Dy , -27*y^3*Dy^2 ]  , [    -9*y^2*Dy , -3*es^2*y*Dy , -3*es*y*Dy , -3*y*Dx ]  , [    -Dx ]  ] 
+reductionTable= [ 
+   [    1 , 2 , 3 , 4 ] 
+   [    3 , 4 , 3 , 2 ] 
+   [    3 ] 
+ ]
+[    0 , 0 ] 
+Processing [level,i]= [    0 , 0 ]    Strategy = 1
+[    0 , 1 ] 
+Processing [level,i]= [    0 , 1 ]    Strategy = 2
+[    1 , 3 ] 
+Processing [level,i]= [    1 , 3 ]    Strategy = 2
+SpairAndReduction:
+[    p and bases  , [    [    0 , 1 ]  , [    -3*y*Dx , 2*x ]  ]  , [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , %[null] , %[null] ]  ] 
+[    level= , 1 ] 
+[    tower2= , [    [   ]  ]  ] 
+[    -3*y*Dx , 2*es*x ] 
+[gi, gj] = [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h ] 
+1
+Reduce the element 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h
+by  [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , %[null] , %[null] ] 
+result is [    9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h , 1 , [    0 , 0 , 0 , 0 ]  ] 
+vdegree of the original = 0
+vdegree of the remainder = 0
+[    9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h , [    -3*y*Dx , 2*x , 0 , 0 ]  , 3 , 2 , 0 , 0 ] 
+[    0 , 2 ] 
+Processing [level,i]= [    0 , 2 ]    Strategy = 3
+[    1 , 0 ] 
+Processing [level,i]= [    1 , 0 ]    Strategy = 3
+SpairAndReduction:
+[    p and bases  , [    [    0 , 2 ]  , [    -9*y^2*Dy , 2*x ]  ]  , [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h , %[null] ]  ] 
+[    level= , 1 ] 
+[    tower2= , [    [   ]  ]  ] 
+[    9*y^2*Dy , 2*es^2*x ] 
+[gi, gj] = [    -2*x*Dx-3*y*Dy+h^2 , 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h ] 
+1
+Reduce the element -27*y^3*Dy^2+6*x*y*Dx*h^2-18*y^2*Dy*h^2+8*x^3*Dy*h
+by  [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h , %[null] ] 
+result is [    27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h , -1 , [    -3*y*h^2 , 0 , 0 , 0 ]  ] 
+vdegree of the original = -1
+vdegree of the remainder = -1
+[    27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h , [    -9*y^2*Dy-3*y*h^2 , 0 , -2*x , 0 ]  , 0 , 3 , -1 , -1 ] 
+[    1 , 2 ] 
+Processing [level,i]= [    1 , 2 ]    Strategy = 3
+SpairAndReduction:
+[    p and bases  , [    [    1 , 2 ]  , [    -3*y*Dy , Dx ]  ]  , [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h , 27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h ]  ] 
+[    level= , 1 ] 
+[    tower2= , [    [   ]  ]  ] 
+[    3*es*y*Dy , es^2*Dx ] 
+[gi, gj] = [    -3*y*Dx^2+2*x*Dy*h , 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h ] 
+1
+Reduce the element -6*y*Dx^2*h^2+4*x^2*Dx*Dy*h+6*x*y*Dy^2*h+8*x*Dy*h^3
+by  [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , 9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h , 27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h ] 
+result is [    0 , 1 , [    2*x*Dy*h , -2*h^2 , 0 , 0 ]  ] 
+vdegree of the original = 1
+vdegree of the remainder = %[null]
+[    0 , [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ]  , 2 , -1 , 1 , %[null] ] 
+[    2 , 0 ] 
+Processing [level,i]= [    2 , 0 ]    Strategy = 3
+SpairAndReduction:
+[    p and bases  , [    [    0 , 3 ]  , [    -Dx , 3*y*Dy ]  ]  , [    [    9*y^2*Dy+3*y*h^2 , 0 , 2*x , 1 ]  , %[null] , [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ]  , [    3*y*Dx , -2*x , 1 , 0 ]  ]  ] 
+[    level= , 2 ] 
+[    tower2= , [    [    -2*x*Dx , -3*y*Dx^2 , -9*y^2*Dx*Dy , -27*y^3*Dy^2 ]  ]  ] 
+[    Dx , -3*es^3*y*Dy ] 
+[gi, gj] = [    9*y^2*Dy+2*es^2*x+es^3+3*y*h^2 , 3*y*Dx-2*es*x+es^2 ] 
+1
+Reduce the element 6*es*x*y*Dy+2*es^2*x*Dx-3*es^2*y*Dy+es^3*Dx-6*y*Dx*h^2+2*es^2*h^2
+by  [    [    9*y^2*Dy+3*y*h^2 , 0 , 2*x , 1 ]  , %[null] , [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ]  , [    3*y*Dx , -2*x , 1 , 0 ]  ] 
+result is [    -3*es^2*y*Dy+es^3*Dx+4*es^2*h^2-4*x^2*Dy*h , 1 , [    0 , 0 , -2*x , 2*h^2 ]  ] 
+vdegree of the original = 0
+vdegree of the remainder = 0
+[    -3*es^2*y*Dy+es^3*Dx+4*es^2*h^2-4*x^2*Dy*h , [    Dx , 0 , -2*x , -3*y*Dy+2*h^2 ]  , 0 , 1 , 0 , 0 ] 
+[    0 , 3 ] 
+Processing [level,i]= [    0 , 3 ]    Strategy = 4
+[    1 , 1 ] 
+Processing [level,i]= [    1 , 1 ]    Strategy = 4
+Betti numbers are ------
+  [    2 , 1 , 0 ] 
+[seq,level,q]=[    3 , 1 , 1 ] 
+[    level, q = , 1 , 1 ] 
+bases=
+ [ 
+   [    -Dx , 1 , 2*x , 3*y*Dy-2*h^2 ] 
+ ]
+dr=
+  [    Dx , -1 , -2*x , -3*y*Dy+2*h^2 ] 
+newbases=
+ [ 
+   [    0 , 0 , 0 , 0 ] 
+ ]
+[seq,level,q]=[    2 , 0 , 3 ] 
+[    level, q = , 0 , 3 ] 
+bases=
+ [ 
+   [    9*y^2*Dy+3*y*h^2 , 0 , 2*x , 1 ] 
+   [    -4*x^2*Dy*h , 0 , -3*y*Dy+4*h^2 , Dx ] 
+   [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ] 
+   [    3*y*Dx , -2*x , 1 , 0 ] 
+ ]
+dr=
+  [    -9*y^2*Dy-3*y*h^2 , 0 , -2*x , -1 ] 
+newbases=
+ [ 
+   [    0 , 0 , 0 , 0 ] 
+   [    -9*y^2*Dx*Dy-3*y*Dx*h^2-4*x^2*Dy*h , 0 , -2*x*Dx-3*y*Dy+2*h^2 , 0 ] 
+   [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ] 
+   [    3*y*Dx , -2*x , 1 , 0 ] 
+ ]
+[seq,level,q]=[    1 , 0 , 2 ] 
+[    level, q = , 0 , 2 ] 
+bases=
+ [ 
+   [    0 , 0 , 0 , 0 ] 
+   [    -9*y^2*Dx*Dy-3*y*Dx*h^2-4*x^2*Dy*h , 0 , -2*x*Dx-3*y*Dy+2*h^2 , 0 ] 
+   [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ] 
+   [    3*y*Dx , -2*x , 1 , 0 ] 
+ ]
+dr=
+  [    -3*y*Dx , 2*x , -1 , 0 ] 
+newbases=
+ [ 
+   [    0 , 0 , 0 , 0 ] 
+   [    6*x*y*Dx^2-4*x^2*Dy*h , -4*x^2*Dx-6*x*y*Dy , 0 , 0 ] 
+   [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy , 0 , 0 ] 
+   [    0 , 0 , 0 , 0 ] 
+ ]
+[    level= , 0 ] 
+ [ 
+   [    -2*x*Dx-3*y*Dy+h^2 ] 
+   [    -3*y*Dx^2+2*x*Dy*h ] 
+ ]
+ [ 
+   [    -2*x*Dx-3*y*Dy+h^2 ] 
+   [    -3*y*Dx^2+2*x*Dy*h ] 
+ ]
+[    level= , 1 ] 
+ [ 
+   [    0 , 0 , 0 , 0 ] 
+   [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy , 0 , 0 ] 
+   [    0 , 0 , 0 , 0 ] 
+ ]
+ [ 
+   [    0 , 0 ] 
+   [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy ] 
+   [    0 , 0 ] 
+ ]
+[    level= , 2 ] 
+ [ 
+   [    0 , 0 , 0 , 0 ] 
+ ]
+ [ 
+   [    0 , 0 , 0 ] 
+ ]
+------------ Note -----------------------------
+To get shift vectors, use Reparse and SgetShifts(resmat,w)
+To get initial of the complex, use Reparse and Sinit_w(resmat,w)
+0: minimal resolution, 3: Schreyer resolution 
+------------ Resolution Summary  --------------
+Betti numbers : [    2 , 1 ] 
+Betti numbers of the Schreyer frame: [    4 , 4 , 1 ] 
+-----------------------------------------------
+In(4)=sm1_pmat(a);
+ [ 
+  [ 
+   [ 
+     [    -2*x*Dx-3*y*Dy+h^2 ] 
+     [    -3*y*Dx^2+2*x*Dy*h ] 
+   ]
+   [ 
+     [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy ] 
+   ]
+  ]
+  [ 
+   [ 
+     [    -2*x*Dx-3*y*Dy+h^2 ] 
+     [    -3*y*Dx^2+2*x*Dy*h ] 
+   ]
+   [ 
+     [    0 , 0 ] 
+     [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy ] 
+     [    0 , 0 ] 
+   ]
+   [ 
+     [    0 , 0 , 0 ] 
+   ]
+  ]
+  [ 
+   [ 
+    [ 
+      [    -2*x*Dx-3*y*Dy+h^2 ] 
+      [    -3*y*Dx^2+2*x*Dy*h ] 
+      [    9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h ] 
+      [    27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h ] 
+    ]
+    [ 
+      [    0 , 0 , 0 , 0 ] 
+      [    6*x*y*Dx^2-4*x^2*Dy*h , -4*x^2*Dx-6*x*y*Dy , 0 , 0 ] 
+      [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy , 0 , 0 ] 
+      [    0 , 0 , 0 , 0 ] 
+    ]
+    [ 
+      [    0 , 0 , 0 , 0 ] 
+    ]
+   ]
+   [ 
+     [    0 , 0 , 1 , 2 ] 
+     [    0 , 3 , 0 , 0 ] 
+     [    0 ] 
+   ]
+   [ 
+     [    %[null] , %[null] , [    -3*y*Dx , 2*x , -1 , 0 ]  , [    -9*y^2*Dy-3*y*h^2 , 0 , -2*x , -1 ]  ] 
+     [    %[null] , [    Dx , -1 , -2*x , -3*y*Dy+2*h^2 ]  , %[null] , %[null] ] 
+     [    %[null] ] 
+   ]
+    [    1 , 4 , 4 , 1 ] 
+   [ 
+     [    0 , 0 , 1 , 2 ] 
+     [    0 , 3 , %[null] , 0 ] 
+     [    0 ] 
+   ]
+  ]
+  [ 
+   [ 
+     [    -2*x*Dx-3*y*Dy+h^2 ] 
+     [    -3*y*Dx^2+2*x*Dy*h ] 
+     [    9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h ] 
+     [    27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h ] 
+   ]
+   [ 
+     [    9*y^2*Dy+3*y*h^2 , 0 , 2*x , 1 ] 
+     [    -4*x^2*Dy*h , 0 , -3*y*Dy+4*h^2 , Dx ] 
+     [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ] 
+     [    3*y*Dx , -2*x , 1 , 0 ] 
+   ]
+   [ 
+     [    -Dx , 1 , 2*x , 3*y*Dy-2*h^2 ] 
+   ]
+  ]
+  [ 
+   [ 
+    [ 
+      [    -9*y^2*Dy , 0 , 2*x , 0 ] 
+      [    0 , 0 , -3*y*Dy , Dx ] 
+      [    0 , -3*y*Dy , Dx , 0 ] 
+      [    -3*y*Dx , 2*x , 0 , 0 ] 
+    ]
+    [ 
+      [    -Dx , 0 , 0 , 3*y*Dy ] 
+    ]
+     [   ] 
+   ]
+   [ 
+     [    -2*x*Dx , -3*y*Dx^2 , -9*y^2*Dx*Dy , -27*y^3*Dy^2 ] 
+     [    -9*y^2*Dy , -3*es^2*y*Dy , -3*es*y*Dy , -3*y*Dx ] 
+     [    -Dx ] 
+   ]
+   [ 
+     [   ] 
+    [ 
+     [ 
+       [    0 , 2 ] 
+       [    -9*y^2*Dy , 2*x ] 
+     ]
+     [ 
+       [    2 , 3 ] 
+       [    -3*y*Dy , Dx ] 
+     ]
+     [ 
+       [    1 , 2 ] 
+       [    -3*y*Dy , Dx ] 
+     ]
+     [ 
+       [    0 , 1 ] 
+       [    -3*y*Dx , 2*x ] 
+     ]
+    ]
+    [ 
+     [ 
+       [    0 , 3 ] 
+       [    -Dx , 3*y*Dy ] 
+     ]
+    ]
+     [   ] 
+   ]
+   [ 
+     [    -2*x*Dx-3*y*Dy+h^2 , -3*y*Dx^2+2*x*Dy*h , -9*y^2*Dx*Dy-3*y*Dx*h^2-4*x^2*Dy*h , -27*y^3*Dy^2-27*y^2*Dy*h^2+3*y*h^4+8*x^3*Dy*h ] 
+   ]
+  ]
+ ]
+In(5)=
