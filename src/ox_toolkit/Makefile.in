@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.2 2000/02/08 20:33:06 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.3 2000/03/05 14:55:18 ohara Exp $
 
 OpenXM_HOME = ../..
 GMPSRC      = ${OpenXM_HOME}/src/gmp
@@ -12,9 +12,8 @@ DOCUMENTS   = readme-eg readme-jp bnf-eg bnf-jp
 X11INC      = @X_CFLAGS@
 X11LIB      = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@
 RANLIB      = @RANLIB@
-LIBS        = @LIBS@ -L. -lox -lgmp
+LIBS        = @LIBS@ -L${OpenXM_HOME}/lib -L. -lox -lgmp
 INSTALL_DATA= cp -f 
-LN          = @LN_S@
 
 all: libox.a libgmp.a ${BINARIES} ${DOCUMENTS}
 
@@ -22,10 +21,6 @@ all2: all ox_Xsample
 
 ox.o mysocket.o: mysocket.h
 ox.o parse.o:    ox.h oxtag.h parse.h
-
-libgmp.a:
-	test -f ${GMPSRC}/libgmp.a || (cd ${GMPSRC}; ./configure; ${MAKE})
-	-${LN} ${GMPSRC}/libgmp.a .
 
 libox.a: ${OBJS}
 	-rm -f $@
@@ -62,11 +57,14 @@ bnf-eg: bnf.oxweave
 install: install-document install-binary
 
 install-binary: libox.a ox.h
-	-if [ ! -d ${OpenXM_HOME}/include/ox ]; then \
-		mkdir -p ${OpenXM_HOME}/include/ox ;\
+	-if [ ! -d ${OpenXM_HOME}/lib ]; then \
+		mkdir -p ${OpenXM_HOME}/lib ;\
 	fi
-	cp -f libox.a ${OpenXM_HOME}/lib
-	cp -f ox.h ${OpenXM_HOME}/include/ox
+	-if [ ! -d ${OpenXM_HOME}/include ]; then \
+		mkdir -p ${OpenXM_HOME}/include ;\
+	fi
+	${INSTALL_DATA} libox.a ${OpenXM_HOME}/lib
+	${INSTALL_DATA} ox.h    ${OpenXM_HOME}/include
 
 install-for-debug:
 	@echo "No binaries are installed."
@@ -82,3 +80,6 @@ clean-binary:
 	-rm -f *.o *~ libox.a libgmp.a ${BINARIES} ox_Xsample core a.out
 
 clean: clean-document clean-binary
+
+distclean:
+	-rm -f .configure_done configure config.cache config.log config.status Makefile
