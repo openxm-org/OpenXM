@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.8 2000/03/14 05:10:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.9 2000/03/14 05:38:50 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -20,7 +20,7 @@ final public class CMO_LIST extends CMO{
     return CMO.LIST;
   }
 
-  public void sendByObject(DataOutputStream os)
+  public void sendByObject(OpenXMconnection os)
        throws IOException,MathcapViolation{
     os.writeInt(ob.length);
 
@@ -29,7 +29,7 @@ final public class CMO_LIST extends CMO{
     }
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     int len;
     CMO[] ob;
 

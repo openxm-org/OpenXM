@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.7 2000/03/14 04:44:18 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.8 2000/03/14 05:02:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -32,7 +32,7 @@ final public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
     return CMO.POLYNOMIAL_IN_ONE_VARIABLE;
   }
 
-  protected void sendByObject(DataOutputStream os)
+  protected void sendByObject(OpenXMconnection os)
        throws IOException,MathcapViolation{
     int m = degrees.length;
 
@@ -44,7 +44,7 @@ final public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
     }
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     int variable;
     int[] degrees;
     CMO[] coefficients;

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.4 2000/02/21 03:48:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.5 2000/03/14 05:38:50 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -18,7 +18,7 @@ final public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
     return CMO.DISTRIBUTED_POLYNOMIAL;
   }
 
-  public void sendByObject(DataOutputStream os)
+  public void sendByObject(OpenXMconnection os)
        throws IOException,MathcapViolation{
     if(monomials.length == 0){
       os.writeInt(1);
@@ -33,7 +33,7 @@ final public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
     }
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     CMO ring;
     CMO_MONOMIAL32[] monomials;
     CMO tmp;

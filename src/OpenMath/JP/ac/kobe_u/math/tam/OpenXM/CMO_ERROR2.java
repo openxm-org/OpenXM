@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java,v 1.7 2000/03/14 05:02:35 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java,v 1.8 2000/03/14 05:06:47 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -16,12 +16,12 @@ final public class CMO_ERROR2 extends CMO{
     return CMO.ERROR2;
   }
 
-  public void sendByObject(DataOutputStream os)
+  public void sendByObject(OpenXMconnection os)
        throws IOException,MathcapViolation{
     ob.write(os);
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     return new CMO_ERROR2(CMO.receive(is));
   }
 

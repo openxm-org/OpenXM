@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.18 2000/03/14 14:12:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.19 2000/03/15 15:02:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -61,15 +61,10 @@ abstract public class CMO extends OXbody{
     return this.DISCRIMINATOR();
   }
 
-  abstract protected void sendByObject(DataOutputStream os)
+  abstract protected void sendByObject(OpenXMconnection stream)
        throws IOException,MathcapViolation;
 
   final public void write(OpenXMconnection os)
-       throws IOException,MathcapViolation{
-    write(new DataOutputStream(os.os));
-  }
-
-  final protected void write(DataOutputStream os)
        throws IOException,MathcapViolation{
     if(mathcap != null){ // check mathcap
       int i=0;
@@ -87,12 +82,7 @@ abstract public class CMO extends OXbody{
     this.sendByObject(os);
   }
 
-  static protected CMO receive(OpenXMconnection stream) throws IOException{
-    DataInputStream is = new DataInputStream(stream.is);
-    return receive(is);
-  }
-
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     int a = is.readInt();
 
     switch(a){

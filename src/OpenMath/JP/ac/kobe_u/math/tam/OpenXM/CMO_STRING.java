@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java,v 1.3 1999/11/17 13:23:16 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java,v 1.4 2000/03/14 05:02:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -24,7 +24,16 @@ final public class CMO_STRING extends CMO{
     return CMO.STRING;
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  protected void sendByObject(OpenXMconnection os) throws IOException{
+    byte[] buf = str.getBytes();
+
+    os.writeInt(buf.length);
+    for(int i=0;i<buf.length;i++){
+      os.writeByte(buf[i]);
+    }
+  }
+
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     int len;
     byte[] buf=null;
 
@@ -34,14 +43,11 @@ final public class CMO_STRING extends CMO{
     }
 
     buf = new byte[len];
-    is.readFully(buf,0,len);
+    for(int i=0;i<len;i++){
+      buf[i] = is.readByte();
+    }
 
     return new CMO_STRING(new String(buf));
-  }
-
-  protected void sendByObject(DataOutputStream os) throws IOException{
-    os.writeInt(str.getBytes().length);
-    os.write(str.getBytes());
   }
 
   protected String toCMOexpressionByObject(){

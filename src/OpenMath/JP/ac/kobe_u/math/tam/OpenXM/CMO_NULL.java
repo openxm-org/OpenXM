@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.java,v 1.3 2000/03/14 04:44:18 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.java,v 1.4 2000/03/14 05:02:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -12,10 +12,10 @@ final public class CMO_NULL extends CMO{
     return CMO.NULL;
   }
 
-  public void sendByObject(DataOutputStream os) throws IOException{
+  public void sendByObject(OpenXMconnection os) throws IOException{
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     return new CMO_NULL();
   }
 

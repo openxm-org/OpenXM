@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.12 2000/03/12 14:24:22 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.13 2000/03/15 15:02:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -8,12 +8,12 @@ import java.net.*;
 
 class OpenXMconnection{
   protected int serial_num = 0x12345678;
-  Socket socket = null;
-  InputStream  is = null;
-  OutputStream os = null;
-  int order = OX_BYTE_NETWORK_BYTE_ORDER;
-  CMO_MATHCAP mathcap = null;
-  ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+  private Socket socket = null;
+  private InputStream  is = null;
+  private OutputStream os = null;
+  private int order = OX_BYTE_NETWORK_BYTE_ORDER;
+  private CMO_MATHCAP mathcap = null;
+  private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
   // OX message_tag
   final public static int OX_COMMAND                  = 513;
@@ -70,12 +70,20 @@ class OpenXMconnection{
     buffer.write(b);
   }
 
+  /*
+  public void write(byte[] buf) throws IOException{
+    for(int i=0;i<buf.length;i++){
+      buffer.write(b[i]);
+    }
+  }
+  */
+
   public void writeInt(int i) throws IOException{
     new DataOutputStream(buffer).writeInt(i);
   }
 
-  public int readByte() throws IOException{
-    return is.read();
+  public byte readByte() throws IOException{
+    return (byte)is.read();
   }
 
   public int readInt() throws IOException{

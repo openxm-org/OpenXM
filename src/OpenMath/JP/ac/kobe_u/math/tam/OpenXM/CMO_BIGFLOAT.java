@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java,v 1.4 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java,v 1.5 2000/03/14 05:38:50 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -18,12 +18,12 @@ final public class CMO_BIGFLOAT extends CMO{
     return CMO.BIGFLOAT;
   }
 
-  public void sendByObject(DataOutputStream os) throws IOException{
+  public void sendByObject(OpenXMconnection os) throws IOException{
     a.sendByObject(os);
     e.sendByObject(os);
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     CMO_ZZ a,e;
 
     a = (CMO_ZZ) CMO_ZZ.receive(is);

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java,v 1.5 2000/02/21 03:48:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java,v 1.6 2000/03/14 05:38:50 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -20,7 +20,12 @@ final public class CMO_INDETERMINATE extends CMO{
     return CMO.INDETERMINATE;
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  public void sendByObject(OpenXMconnection os)
+       throws IOException,MathcapViolation{
+    variable.write(os);
+  }
+
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     CMO_STRING variable;
     CMO tmp;
 
@@ -31,11 +36,6 @@ final public class CMO_INDETERMINATE extends CMO{
     variable = (CMO_STRING)tmp;
 
     return new CMO_INDETERMINATE(variable.getString());
-  }
-
-  public void sendByObject(DataOutputStream os)
-       throws IOException,MathcapViolation{
-    variable.write(os);
   }
 
   public String toCMOexpressionByObject(){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.6 2000/01/19 13:12:05 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.7 2000/03/14 05:38:51 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -42,46 +42,37 @@ final public class CMO_ZZ extends CMO{
     return 0;
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
-    int len;
-    byte[] bignum;
-
-    len = is.readInt();
-    bignum = new byte[4 * Math.abs(len)];
-    for(int i=Math.abs(len);--i>=0;){
-      is.readFully(bignum,i*4,4);
-    }
-
-    return new CMO_ZZ(new BigInteger(sign(len),bignum));
-  }
-
-  public void sendByObject(DataOutputStream os) throws IOException{
+  public void sendByObject(OpenXMconnection os) throws IOException{
     if(this.num.signum()==0){
       os.writeInt(0);
     }else{
-      byte[] bignum = this.num.abs().toByteArray();
-      int len = bignum.length;
-
-      while(bignum[0] == 0){
-	byte[] tmp = new byte[len-1];
-
-	for(int i=0;i<tmp.length;i++){
-	  tmp[i] = bignum[i+1];
-	}
-	bignum = tmp;
-	len = bignum.length;
-      }
+      int len = (this.num.abs().getLowestSetBit()+31)/32;
 
       //System.err.println("CMO_ZZ:"+ len +":"+ bignum.length +":"+ bignum[0]);
-      os.writeInt((len+3)/4*(this.num.signum()));
-      for(int i=len;(i-=4)>=0;){
-	os.write(bignum,i,4);
+      os.writeInt(this.num.signum()*len);
+
+      for(BigInteger a = this.num.abs();
+	  a.compareTo(new BigInteger("0"))>0;
+	  a = a.divide(new BigInteger("4294967296"))){
+	os.writeInt(a.remainder(new BigInteger("4294967296")).intValue());
       }
-      for(int i=0;i<(4-len%4)%4;i++){
-	os.write(0);
-      }
-      os.write(bignum,0,len%4);
     }
+  }
+
+  static protected CMO receive(DataInputStream is) throws IOException{
+    int len;
+    BigInteger a = new BigInteger("0");
+
+    len = is.readInt();
+    for(int i=0;i<Math.abs(len);i++){
+      a.add(new BigInteger("4294967296").pow(i).multiply(new BigInteger(""+is.readInt())));
+    }
+
+    if(len<0){
+      a = a.negate();
+    }
+
+    return new CMO_ZZ(a);
   }
 
   public String toCMOexpressionByObject() throws NumberFormatException{

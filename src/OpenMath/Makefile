@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.26 2000/03/14 04:44:16 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.27 2000/03/14 14:12:33 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -40,6 +40,8 @@ PKGSRCS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.java \
 	JP/ac/kobe_u/math/tam/OpenXM/MathcapViolation.java \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java \
+	JP/ac/kobe_u/math/tam/OpenXM/OXbody.java \
+	JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java \
 	JP/ac/kobe_u/math/tam/OpenXM/SM.java
 PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.class \
@@ -65,8 +67,9 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/DebugInputStream.class \
 	JP/ac/kobe_u/math/tam/OpenXM/MathcapViolation.class \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXM.class \
-	JP/ac/kobe_u/math/tam/OpenXM/OXbody.class \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.class \
+	JP/ac/kobe_u/math/tam/OpenXM/OXbody.class \
+	JP/ac/kobe_u/math/tam/OpenXM/OXmessage.class \
 	JP/ac/kobe_u/math/tam/OpenXM/SM.class
 #JP/ac/kobe_u/math/tam/OpenXM/OXmessage.class \
 
