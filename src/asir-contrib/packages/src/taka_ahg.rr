@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.4 2004/04/07 01:06:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.5 2004/07/02 03:13:46 takayama Exp $ */
 
 module taka_ahg;
 
@@ -176,9 +176,10 @@ def a_grassman(K,N) {
     A = cons(vtol(P),A);
   }
   A = reverse(A);
+  A = cdr(A);
 
   B = [];
-  for (I=1; I<=K+M; I++) {
+  for (I=1; I<=K+M-1; I++) {
     B = cons(eval_str("b"+rtostr(I)),B);
   }
   B = reverse(B);
