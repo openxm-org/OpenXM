@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.15 1999/11/25 12:17:31 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.16 2000/01/13 12:35:56 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -221,6 +221,7 @@ class OMproxy implements Runnable{
     ret += "\t -data port \t (default 1300)\n";
     ret += "\t -control port \t (default 1200)\n";
     ret += "\t -insecure \t this version ignore this option\n";
+    ret += "\t -nohup \t ignore signals (required libnative.so)\n";
 
     return ret;
   }
@@ -242,15 +243,15 @@ class OMproxy implements Runnable{
       }else if(argv[i].equals("-control")){
 	ControlPort = Integer.valueOf(argv[++i]).intValue();
       }else if(argv[i].equals("-insecure")){
+      }else if(argv[i].equals("-nohup")){
+	System.loadLibrary("native");
+	setNoInterrupt();
       }else{
 	System.err.println("unknown option : "+ argv[i]);
 	System.err.print(usage());
 	System.exit(1);
       }
     }
-
-    //System.loadLibrary("native");
-    //setNoInterrupt();
 
     System.out.println("host(ctrl,data): "+ host
 		       +"("+ ControlPort +","+ DataPort +")");
