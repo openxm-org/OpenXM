@@ -1,6 +1,5 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotag.h,v 1.2 2000/01/16 07:55:46 takayama Exp $ */
 /*  cmotag.h */
-/* #define     CMO   1024  It is defined in stackm.h. */
 /* Never Use 0 as a CMO tag. */
 #define LARGEID   0x7f000000
 #define CMO_PRIVATE 0x7fff0000
@@ -12,15 +11,9 @@
 #define CMO_STRING 4
 #define CMO_MATHCAP 5
 
-
-#define CMO_START_SIGNATURE    0x7fabcd03     
-#define CMO_LOCAL_OBJECT       0x7fcdef03
-#define CMO_LOCAL_OBJECT_ASIR  (CMO_LOCAL_OBJECT+0)
-#define CMO_LOCAL_OBJECT_SM1  (CMO_LOCAL_OBJECT+1)
-
-#define     CMO_ARRAY  16
+#define     CMO_ARRAY  16 
 #define     CMO_LIST 17
-#define     CMO_ATOM 18
+/* #define     CMO_ATOM 18 */
 #define     CMO_MONOMIAL32  19
 /* #define     CMO_ZZ_OLD      20  */
 #define     CMO_ZZ_OLD      -20 
@@ -51,5 +44,12 @@
 #define     CMO_TREE           61
 #define     CMO_LAMBDA         62    /* for function definition */
 
+
+#define CMO_START_SIGNATURE    0x7fabcd03     
+#define CMO_LOCAL_OBJECT       0x7fcdef03
+#define CMO_LOCAL_OBJECT_ASIR  (CMO_LOCAL_OBJECT+0)
+#define CMO_LOCAL_OBJECT_SM1  (CMO_LOCAL_OBJECT+1)
+
 /* end of cmotag.h */
 
+/* #define     CMO   1024  It is defined in stackm.h. */
