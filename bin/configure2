@@ -1,5 +1,7 @@
 #!/bin/sh
-#  $OpenXM: OpenXM/bin/configure2,v 1.5 1999/11/02 12:34:37 takayama Exp $
+#  $OpenXM: OpenXM/bin/configure2,v 1.6 1999/11/07 06:45:23 takayama Exp $
+if test `uname` = "Linux"
+then
 if test -f lin_phcv2p.gz.uuencoded
 then
    uudecode lin_phcv2p.gz.uuencoded
@@ -12,6 +14,8 @@ then
    gunzip fep.linux.gz
    chmod +x fep.linux
 fi
+fi
+
 if test `uname` = "Linux"
 then
   /bin/rm -f fep phc
