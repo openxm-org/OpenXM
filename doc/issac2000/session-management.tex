@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.8 2000/01/16 03:15:49 noro Exp $
+% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.9 2000/01/16 06:39:39 takayama Exp $
 
 \section{Session Management}
 \label{secsession}
@@ -11,8 +11,9 @@ OpenXM.  We assume that various clients and servers
 establish connections dynamically and communicate to each
 other. Therefore it is necessary to give a dynamical and unified
 method to start servers and to establish connections.
-In addition to that, interruption of executions and debugging
-supports are necessary for interactive distributed computation.
+In addition to that, interruption of executions and 
+debugging facilities
+are necessary for interactive distributed computation.
 
 %\subsection{Interface of servers}
 %
@@ -42,14 +43,15 @@ When the launcher is invoked, the client
 informs the launcher of a port number for TCP/IP connection
 and the name of a server.
 \item The launcher and the client establish a connection with the
-specified port number.
+specified port number. One time password may be used to prevent
+launcher spoofing.
 \item The launcher creates a process and executes the server after
 setting the data channel appropriately.
 \end{enumerate}
 
 After finishing the above task as a launcher, the launcher process
 acts as a control server and controls the server process created by
-itself. As for a control server see Section \ref{control}.
+itself. As to the control server see Section \ref{control}.
 
 As the data channel is used to exchange binary data,
 the byte order conversion is necessary when a
@@ -85,15 +87,14 @@ to send signals to a server or to terminate a server.
 
 A client can send a signal to an engine by using the control channel 
 at any time. However, I/O operations are usually buffered,
-which may cause troubles without care for remaining data in 
-the buffers.  To reset a server safely the following are required.
+which may cause troubles.
+To reset a server safely the following are required.
 
 \begin{enumerate}
-\item A sending of an {\tt OX} message must be completed.
+\item Any OX message must be a synchronized object in the sense of Java.
 
 As an {\tt OX} message is sent as a combination of several {\tt CMO}
-data, a global exit without sending all the data confuses the
-subsequent communication.
+data, a global exit without sending all may generate broken data.
 
 \item After restarting a server, a request from a client 
 must correctly corresponds to the response from the server.
@@ -103,9 +104,8 @@ after restarting a server.
 \end{enumerate}
 
 {\tt SM\_control\_reset\_connection} is an {\tt SM} command to
-initiate a safe resetting of a server. We show the action of 
-a server and a client from the initiation to the completion of
-a resetting.
+initiate a safe resetting of a server.
+Under the OpenXM reset protocol a server and a client act as follows.
 
 \centerline{\fbox{client}}
 
@@ -142,14 +142,15 @@ any special action to be executed by the server because it is
 assured that the peer is in the resetting state when one has received
 {\tt OX\_SYNC\_BALL}.
 
-\subsection{Debugging supports}
+\subsection{Debugging facilities}
 Debugging is not easy for distributed computations.
-If servers are executed on X window system, then the control server can
-attach an {\tt xterm} to the standard outputs of the engine to display
-diagnostic messages from the engine.
+We provide two methods to help debugging.
+If servers are executed on X window system, 
+the diagnostic messages from the engine are displayed in a {\tt xterm}
+window.
 Furthermore, if the engine provides an interface to input commands,
-then debugging of user defined programs will be
-possible on the engine. For example {\tt ox\_asir}, which is
+then each engine can pop up a debug window.
+For example {\tt ox\_asir}, which is
 the OpenXM server of {\tt Risa/Asir}, can pop up a window to input
 debug commands and the debugging similar to that on usual terminals is possible.
 One can also send {\tt SIGINT} by using {\tt SM\_control\_to\_debug\_mode}
