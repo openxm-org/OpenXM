@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.3 2003/07/21 12:41:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.4 2003/07/21 13:36:43 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -9,6 +10,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <ctype.h>
+#include <time.h>
+#include <string.h>
 #include "ox_pathfinder.h"
 
 extern char **environ;
@@ -22,6 +25,7 @@ static char *get_ox_sm1_path();
 static char *get_ox_path();
 static char *get_oxc_path();
 static char *get_oxlog_path();
+static int getFileSize(char *fn);
 
 
 
@@ -43,6 +47,48 @@ int ox_pathfinderVerbose(int f) {
   Verbose_get_home = f;
   return f;
 }
+
+/* test main   */
+/*
+main() {
+  char *outfile;
+  char *cpp;
+  char *argv[10];
+  int n;
+  char *sfile = "ox_pathfinder.c";
+  if (getFileSize(sfile) < 0) {
+    fprintf(stderr,"The source file is not found.\n"); return -1;
+  }
+  cpp = getCppPath();
+  if (cpp == NULL) {
+    fprintf(stderr,"cpp is not found.\n"); return -1;
+  }
+  printf("%s\n",cpp);
+  outfile = generateTMPfileName("seed");
+  if (outfile == NULL) {
+    fprintf(stderr,"Failed to generate a temporary file name.\n"); return -1;
+  }
+  printf("%s\n",outfile);
+  if ((char *)strstr(cpp,"/asir/bin/cpp.exe") == NULL) {
+    argv[0] = cpp;
+    argv[1] = "-P";
+    argv[2] = "-lang-c++";
+    argv[3] = sfile;
+    argv[4] = outfile;
+    argv[5] = NULL;
+  }else{
+    argv[0] = cpp;
+    argv[1] = cygwinPathToWinPath(sfile);
+    argv[2] = cygwinPathToWinPath(outfile);
+    argv[3] = NULL;
+  }
+  n=oxForkExecBlocked(argv);
+}
+
+void *sGC_malloc(int s) { return (void *) malloc(s); }
+*/
+
+/* -------- end of test main ----------- */
 
 /* See kxx/ox100start.c for main */
 
@@ -77,32 +123,76 @@ int oxForkExec(char **argv) {
   }
   if ((pid = fork()) > 0) {
     if (m&2) {
-	  /* Do not call singal to turn around a trouble on cygwin. BUG. */
-	}else{
-	  signal(SIGCHLD,myforkwait); /* to kill Zombie */
-	}
-	Myforkchildren[Myforkcp++] = pid;
-	if (Myforkcp >= MYFORKCP_SIZE-1) {
-	  fprintf(stderr,"Child process table is full.\n");
-	  Myforkcp = 0;
-	}
+      /* Do not call singal to turn around a trouble on cygwin. BUG. */
+    }else{
+      signal(SIGCHLD,myforkwait); /* to kill Zombie */
+    }
+    Myforkchildren[Myforkcp++] = pid;
+    if (Myforkcp >= MYFORKCP_SIZE-1) {
+      fprintf(stderr,"Child process table is full.\n");
+      Myforkcp = 0;
+    }
   }else{
     /* close the specified files */
-	if (m&1) {
+    if (m&1) {
        sigset_t sss;
        sigemptyset(&sss);
        sigaddset(&sss,SIGINT);
        sigprocmask(SIG_BLOCK,&sss,NULL);
-	}
-	if (NoX) {
-	  FILE *null;
-	  null = fopen("/dev/null","wb");
-	  dup2(fileno(null),1);
-	  dup2(fileno(null),2);
-	}
+    }
+    if (NoX) {
+      FILE *null;
+      null = fopen("/dev/null","wb");
+      dup2(fileno(null),1);
+      dup2(fileno(null),2);
+    }
     execve(argv[0],argv,environ);
     /* This place will never be reached unless execv fails. */
     fprintf(stderr,"oxForkExec fails: ");
+    exit(3);
+  }
+}
+
+int oxForkExecBlocked(char **argv) {
+  int pid;
+  char **eee;
+  int m;
+  int status;
+  m = 0;
+  if (argv == NULL) {
+    fprintf(stderr,"Cannot fork and exec.\n"); return -1;
+  }
+  if ((pid = fork()) > 0) {
+    if (m&2) {
+      /* Do not call singal to turn around a trouble on cygwin. BUG. */
+    }else{
+      signal(SIGCHLD,myforkwait); /* to kill Zombie */
+    }
+    Myforkchildren[Myforkcp++] = pid;
+    if (Myforkcp >= MYFORKCP_SIZE-1) {
+      fprintf(stderr,"Child process table is full.\n");
+      Myforkcp = 0;
+    }
+    waitpid(pid,&status,0);  /* block */
+    return status;
+  }else{
+    /* close the specified files */
+    if (m&1) {
+       sigset_t sss;
+       sigemptyset(&sss);
+       sigaddset(&sss,SIGINT);
+       sigprocmask(SIG_BLOCK,&sss,NULL);
+    }
+    if (NoX) {
+      FILE *null;
+      null = fopen("/dev/null","wb");
+      dup2(fileno(null),1);
+      dup2(fileno(null),2);
+    }
+    execve(argv[0],argv,environ);
+    /* This place will never be reached unless execv fails. */
+    fprintf(stderr,"oxForkExecBlock fails: ");
+    exit(3);
   }
 }
 
@@ -471,11 +561,11 @@ char **getServerEnv(char *oxServer) {
   char **aaa;
 
   if (Verbose_get_home) {
-	if (oxServer == NULL) {
-	  fprintf(stderr,"Server name is NULL.\n");
-	}else{
-	  fprintf(stderr,"Server name is %s\n",oxServer);
-	}
+    if (oxServer == NULL) {
+      fprintf(stderr,"Server name is NULL.\n");
+    }else{
+      fprintf(stderr,"Server name is %s\n",oxServer);
+    }
   }
   
   if (oxServer == NULL) return NULL;
@@ -503,43 +593,43 @@ char **getServerEnv(char *oxServer) {
   strcpy(oxServer,p);
 
   if ((ostype == 0) || (ostype == 2)) {
-	if (!NoX) {
-	  xterm = "/usr/X11R6/bin/xterm";
-	  if (getFileSize(xterm) == -1) {
-		msg_get_home(2,"xterm is not found. NoX is automatically set.");
-		NoX = 1;
-	  }
-	}
+    if (!NoX) {
+      xterm = "/usr/X11R6/bin/xterm";
+      if (getFileSize(xterm) == -1) {
+        msg_get_home(2,"xterm is not found. NoX is automatically set.");
+        NoX = 1;
+      }
+    }
     oxlog = get_oxlog_path();
     xterm = "/usr/X11R6/bin/xterm -icon -e ";
     argv[i] = oxlog; i++; argv[i] = NULL;
-	if (!NoX) {
-	  argv[i] = "/usr/X11R6/bin/xterm"; i++; argv[i] = NULL;
-	  argv[i] = "-icon"; i++; argv[i] = NULL;
-	  argv[i] = "-e"; i++; argv[i] = NULL;
-	}
+    if (!NoX) {
+      argv[i] = "/usr/X11R6/bin/xterm"; i++; argv[i] = NULL;
+      argv[i] = "-icon"; i++; argv[i] = NULL;
+      argv[i] = "-e"; i++; argv[i] = NULL;
+    }
     argv[i] = get_ox_path(); i++; argv[i] = NULL;
     argv[i] = "-ox"; i++; argv[i] = NULL;
     argv[i] = oxServer; i++; argv[i] = NULL;
   }else{
-	if (!NoX) {
-	  if (getFileSize("/cygdrive/c/winnt/system32/cmd.exe") >= 0) {
-		xterm = "/cygdrive/c/winnt/system32/cmd.exe /c start /min ";
-		argv[i] = "/cygdrive/c/winnt/system32/cmd.exe"; i++; argv[i] = NULL;
-	  }else if (getFileSize("/cygdrive/c/windows/system32/cmd.exe") >= 0) {
-		xterm = "/cygdrive/c/windows/system32/cmd.exe  /c start /min ";
-		argv[i] = "/cygdrive/c/windows/system32/cmd.exe"; i++; argv[i] = NULL;
-	  }else{
-		msg_get_home(2,"cmd.exe is not found. NoX is automatically set.");
+    if (!NoX) {
+      if (getFileSize("/cygdrive/c/winnt/system32/cmd.exe") >= 0) {
+        xterm = "/cygdrive/c/winnt/system32/cmd.exe /c start /min ";
+        argv[i] = "/cygdrive/c/winnt/system32/cmd.exe"; i++; argv[i] = NULL;
+      }else if (getFileSize("/cygdrive/c/windows/system32/cmd.exe") >= 0) {
+        xterm = "/cygdrive/c/windows/system32/cmd.exe  /c start /min ";
+        argv[i] = "/cygdrive/c/windows/system32/cmd.exe"; i++; argv[i] = NULL;
+      }else{
+        msg_get_home(2,"cmd.exe is not found. NoX is automatically set.");
         NoX = 1;
-	  }
-	}
+      }
+    }
     oxlog = " ";
-	if (!NoX) {
-	  argv[i] = "/c"; i++; argv[i] = NULL;
-	  argv[i] = "start"; i++; argv[i] = NULL;
-	  argv[i] = "/min"; i++; argv[i] = NULL;
-	}
+    if (!NoX) {
+      argv[i] = "/c"; i++; argv[i] = NULL;
+      argv[i] = "start"; i++; argv[i] = NULL;
+      argv[i] = "/min"; i++; argv[i] = NULL;
+    }
     argv[i] = cygwinPathToWinPath(get_ox_path()); i++; argv[i] = NULL;
     argv[i] = "-ox"; i++; argv[i] = NULL;
     argv[i] = oxServer; i++; argv[i] = NULL;
@@ -648,7 +738,7 @@ char **catArgv(char **argv1,char **argv2)
   for (i=0; i<n2; i++) argv[n1+i] = argv2[i];
   argv[n1+n2]=NULL;
   for (i=0; i<n1+n2; i++) {
-	msg_get_home(5,argv[i]);
+    msg_get_home(5,argv[i]);
   }
   return argv;
 }
@@ -659,7 +749,7 @@ char *getLOAD_SM1_PATH2() {
   if (p == NULL) {
     return("/usr/local/lib/sm1/");
   }else{
-	return p;
+    return p;
   }
 }
 
@@ -669,6 +759,122 @@ char *getLOAD_K_PATH2(void) {
   if (p == NULL) {
     return("/usr/local/lib/kxx97/yacc/");
   }else{
-	return p;
+    return p;
+  }
+}
+
+char *winPathToCygwinPath(char *s) {
+  char *new;
+  int n,i;
+  if (s == NULL) return s;
+  new = (char *) mymalloc(strlen(s)+20);
+  if (new == NULL) nomemory(new);
+  if (strlen(s) >= 3) {
+    /* case of c:\xxx ==> /cygdrive/c/xxx */
+    if ((s[1] == ':') && (s[2] == '\\')) {
+      sprintf(new,"/cygdrive/%c/%s",s[0],&(s[3]));
+    }else{
+      strcpy(new,s);
+    }
+  }else{
+    strcpy(new,s);
+  }
+  n = strlen(s);
+  for (i=0; i<n; i++) {
+    if (new[i] == '\\') new[i] = '/';
+  }
+  return new;
+}
+
+char *generateTMPfileName(char *seed) {
+  char *tmp;
+  char *fname;
+  char *tt;
+  int num;
+  int i;
+  int clean = 0;
+  tmp = getenv("TMP");
+  if (tmp == NULL) {
+    tmp = getenv("TEMP");
+  }
+  if ((tmp == NULL) && (strcmp(getOStypes(),"Windows-native") != 0)) {
+    tmp = "/tmp";
+  }
+  tmp = winPathToCygwinPath(tmp);
+  if (tmp != NULL) {
+    fname = (char *)mymalloc(strlen(tmp)+strlen(seed)+40);
+    if (fname == NULL) nomemory(fname);
+  }else{
+    fname = (char *)mymalloc(strlen(seed)+40);
+    if (fname == NULL) nomemory(fname);
+  }
+  for (num=0; num <100; num++) {
+    if (tmp != NULL) {
+      sprintf(fname,"%s/%s-tmp-%d.txt",tmp,seed,num);
+    }else{
+      sprintf(fname,"%s-tmp-%d.txt",seed,num);
+    }
+    if (getFileSize(fname) < 0) return fname;
+    else {
+      if ((num > 90) && (!clean)) {
+        /* Clean the old garbages. */
+        for (i=0; i<100; i++) {
+          if (tmp != NULL) {
+            sprintf(fname,"%s/%s-tmp-%d.txt",tmp,seed,i);
+          }else{
+            sprintf(fname,"%s-tmp-%d.txt",seed,i);
+          }
+          {
+            struct stat buf;
+            int m;
+            m = stat(fname,&buf);
+#if defined(__CYGWIN__)
+#define _POSIX_SOURCE
+#endif
+#ifndef _POSIX_SOURCE
+            if ((m >= 0) && (buf.st_mtimespec.tv_sec+120 < time(NULL))) {
+              unlink(fname);
+            }
+#else
+            if ((m >= 0) && (buf.st_mtime+120 < time(NULL))) {
+              unlink(fname);
+            }
+#endif
+          }
+        }
+        num = 0; clean=1;
+      }
+    }
+  }
+  return NULL;
+}
+
+
+char *getCppPath(void) {
+  static char *cpp = "/usr/local/bin/cpp"; 
+  int ostype;
+  char *oxhome;
+  if ((cpp != NULL) && (getFileSize(cpp) >= 0)) return cpp;
+  ostype = getOStypei();
+  if (ostype < 3) {
+    /* unix or cygwin env */
+    cpp = "/lib/cpp";       /* on linux */ 
+    if (getFileSize(cpp) >= 0) return cpp;
+    cpp = "/usr/bin/cpp";   /* on freebsd, on cygwin */ 
+    if (getFileSize(cpp) >= 0) return cpp;
+    cpp = "/bin/cpp";     
+    if (getFileSize(cpp) >= 0) return cpp;
+    cpp = NULL; return cpp;
+  }else {
+    /* On Windows */
+    oxhome = getOpenXM_HOME();
+    if (oxhome == NULL) {
+      cpp = NULL; return cpp;
+    }
+    cpp = (char *) mymalloc(strlen(oxhome)+strlen("/asir/bin/cpp.exe")+5);
+    if (cpp == NULL) nomemory(cpp);
+    sprintf(cpp,"%s/asir/bin/cpp.exe",oxhome);
+    if (getFileSize(cpp) >= 0) return cpp;
+    else return NULL;
   }
 }

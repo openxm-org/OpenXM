@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.9 2003/07/13 08:18:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.10 2003/07/21 12:41:22 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1058,6 +1058,11 @@ void loadFileWithCpp(objectp op)
   char tmpName[1024];
   int pid;
   objectp ob;
+  char *outfile;
+  char *cpp;
+  char *argv[10];
+  int n;
+  char *sfile = NULL;
   if (op->tag != Sstring) {
     fprintf(stderr,"File name must be given as an argment of load.\n");
     return;
@@ -1068,21 +1073,44 @@ void loadFileWithCpp(objectp op)
     fprintf(stderr,"Too long file name.\n");
     return;
   }
-  system("/bin/rm -f k00.cppload.tmp");
-  /* Use gcc -v to know what symbols are defined. */
-#if defined(linux) || defined(__linux__)
-  strcpy(fname,"/lib/cpp -P -lang-c++ <");
-#else
-  strcpy(fname,"cpp -P -lang-c++ <");
-#endif
-  strcat(fname,op->lc.str);
-  strcat(fname,"  >k00.cppload.tmp");
-  system(fname);
+  /* Use gcc -v to know what symbols are defined. 
+	 if  defined(linux) || defined(__linux__) 
+	 Removed old codes. */
+
+  sfile = op->lc.str;
+  if (getFileSize(sfile) < 0) {
+	fprintf(stderr,"The source file is not found.\n"); return;
+  }
+  cpp = getCppPath();
+  if (cpp == NULL) {
+	fprintf(stderr,"cpp is not found.\n"); return;
+  }
+  /* printf("%s\n",cpp); */
+  outfile = generateTMPfileName("k0-cpp");
+  if (outfile == NULL) {
+	fprintf(stderr,"Failed to generate a temporary file name.\n"); return;
+  }
+  /* printf("%s\n",outfile); */
+  if ((char *)strstr(cpp,"/asir/bin/cpp.exe") == NULL) {
+	argv[0] = cpp;
+	argv[1] = "-P";
+	argv[2] = "-lang-c++";
+	argv[3] = sfile;
+	argv[4] = outfile;
+	argv[5] = NULL;
+  }else{
+	argv[0] = cpp;
+	argv[1] = cygwinPathToWinPath(sfile);
+	argv[2] = cygwinPathToWinPath(outfile);
+	argv[3] = NULL;
+  }
+  n=oxForkExecBlocked(argv);
+
   ob = newObject_d();
   ob->tag = Sstring;
-  ob->lc.str = "k00.cppload.tmp";
+  ob->lc.str = outfile;
   loadFile(ob);
-  system("/bin/rm -f k00.cppload.tmp");
+  unlink(outfile);
 }
 
 void showStringBuff(objectp op)
