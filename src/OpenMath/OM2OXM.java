@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.21 2000/03/14 05:10:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.22 2000/03/14 05:38:49 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -52,19 +52,12 @@ final class OM2OXM implements Runnable{
     //サーバ側から送信された文字列を受信します。
     try{
       while(true){
-	CMO tmp;
+	OXmessage message = asir.receive();
 
-	switch(asir.receiveOXtag()){
-	case OpenXM.OX_COMMAND:
-          asir.receiveSM();
-          break;
-
-	case OpenXM.OX_DATA:
-          tmp = asir.receiveCMO();
-	  System.out.println("=> "+ CMO2OM(tmp));
+	if(message.getTag() == OpenXM.OX_DATA){
+	  System.out.println("=> "+ CMO2OM((CMO)message.getBody()));
           break;
 	}
-
       }
     }catch(IOException e){}
   }
@@ -773,7 +766,7 @@ final class OM2OXM implements Runnable{
 
     try{
       asir = new OpenXM(host,CtrlPort,StreamPort);
-      asir.sendSM(new SM(SM.SM_mathcap));
+      asir.send(new SM(SM.SM_mathcap));
     }catch(UnknownHostException e){
       System.err.println("host unknown.");
       System.err.println(e.getMessage());
@@ -781,6 +774,10 @@ final class OM2OXM implements Runnable{
     }catch(IOException e){
       System.err.println("connection failed.");
       System.err.println("IOException occuer !!");
+      System.err.println(e.getMessage());
+      return;
+    }catch(MathcapViolation e){
+      System.err.println("MathcapViolation !!");
       System.err.println(e.getMessage());
       return;
     }
@@ -797,7 +794,7 @@ final class OM2OXM implements Runnable{
 	try{
 	  CMO obj = P.parse(System.in);
 	  asir.send(obj);
-	  asir.sendSM(new SM(SM.SM_popCMO));
+	  asir.send(new SM(SM.SM_popCMO));
 	}catch(NumberFormatException e){
 	  System.err.println(e.getMessage());
 	}catch(MathcapViolation e){

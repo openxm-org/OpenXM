@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/testclient.java,v 1.1 2000/01/28 06:22:01 tam Exp $
  *
  */
 
@@ -62,16 +62,15 @@ final class testclient{
 
     try{ // receive a data which come from server
       while(true){
-	CMO tmp;
+	OXmessage message = asir.receive();
 
-	switch(asir.receiveOXtag()){
-	case OpenXM.OX_COMMAND:
-          System.out.println("> "+ asir.receiveSM());
+	switch(message.getTag()){
+	case OXmessage.OX_COMMAND:
+          System.out.println("SM> "+ message.getBody());
           break;
 
-	case OpenXM.OX_DATA:
-          tmp = asir.receiveCMO();
-	  System.out.println("=> "+ tmp);
+	case OXmessage.OX_DATA:
+	  System.out.println("CMO> "+ message.getBody());
           break;
 	}
       }

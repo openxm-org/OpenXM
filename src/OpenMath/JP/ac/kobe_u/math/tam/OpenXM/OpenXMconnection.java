@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.11 2000/02/21 03:48:22 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.12 2000/03/12 14:24:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -13,6 +13,7 @@ class OpenXMconnection{
   OutputStream os = null;
   int order = OX_BYTE_NETWORK_BYTE_ORDER;
   CMO_MATHCAP mathcap = null;
+  ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
   // OX message_tag
   final public static int OX_COMMAND                  = 513;
@@ -66,11 +67,11 @@ class OpenXMconnection{
   }
 
   public void writeByte(int b) throws IOException{
-    os.write(b);
+    buffer.write(b);
   }
 
   public void writeInt(int i) throws IOException{
-    new DataOutputStream(os).writeInt(i);
+    new DataOutputStream(buffer).writeInt(i);
   }
 
   public int readByte() throws IOException{
@@ -81,13 +82,20 @@ class OpenXMconnection{
     return new DataInputStream(is).readInt();
   }
 
-  public void sendSM(SM code) throws IOException{
-    DataOutputStream dos = new DataOutputStream(os);
-
-    dos.writeInt(OX_COMMAND);
-    dos.writeInt(serial_num);
-    code.write(this);
+  public void write(OXmessage message) throws IOException,MathcapViolation{
+    buffer.reset();
+    message.write(this);
+    buffer.writeTo(os);
     os.flush();
+  }
+
+
+  public void sendSM(OXbody code) throws IOException,MathcapViolation{
+    this.write(new OXmessage(serial_num,code));
+  }
+
+  public void send(OXbody object) throws IOException,MathcapViolation{
+    this.sendSM(object);
   }
 
   public void sendCMO(CMO object) throws IOException,MathcapViolation{
@@ -112,67 +120,19 @@ class OpenXMconnection{
       }
     }
 
-    dos.writeInt(OX_DATA);
-    dos.writeInt(serial_num);
-    object.write(dos);
-    dos.flush();
-    bos.writeTo(os);
+    this.write(new OXmessage(serial_num,object));
   }
 
-  public void send(Object object) throws IOException,MathcapViolation{
-    if(object instanceof CMO){
-      sendCMO((CMO)object);
-    }else if(object instanceof SM){
-      sendSM((SM)object);
-    }
+  public void sendOX_SYNC_BALL() throws IOException,MathcapViolation{
+    this.send(null);
   }
 
-  public void sendOX_SYNC_BALL() throws IOException{
-    DataOutputStream dos = new DataOutputStream(os);
-
-    dos.writeInt(OX_SYNC_BALL);
-    dos.writeInt(serial_num);
-  }
-
-  public CMO receiveCMO() throws IOException{
-    return CMO.receive(new DataInputStream(is));
-  }
-
-  public SM receiveSM() throws IOException{
-    return new SM(is);
-  }
-
-  public int receiveOXtag() throws IOException{
-    DataInputStream dis = new DataInputStream(is);
-    int tag = dis.readInt();
-
-    dis.readInt(); // read serial
-
-    return tag;
+  public OXmessage receive() throws IOException{
+    return new OXmessage(this);
   }
 
   public void setMathCap(CMO_MATHCAP mathcap){
     this.mathcap = mathcap;
-  }
-
-  public void receive() throws IOException{
-    DataInputStream dis = new DataInputStream(is);
-    int tag = receiveOXtag();
-
-    System.out.print("("+ toString(tag) +",");
-    //System.out.print("serial="+ dis.readInt() +"," );
-
-    switch(tag){
-    case OX_COMMAND:
-      System.out.print(""+ receiveSM());
-      break;
-
-    case OX_DATA:
-      System.out.print(""+ receiveCMO());
-      break;
-    }
-
-    System.out.println(")");
   }
 
   public static String toString(int tag){

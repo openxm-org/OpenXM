@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.17 2000/03/14 05:38:50 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.18 2000/03/14 14:12:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -47,11 +47,13 @@ abstract public class CMO extends OXbody{
 
   final public static int PRIVATE = 0x7fff0000;
 
+  /*
   public CMO(){}
 
   public CMO(InputStream is) throws IOException{
     //DataInputStream is;
   }
+  */
 
   abstract protected int DISCRIMINATOR();
 
@@ -85,10 +87,13 @@ abstract public class CMO extends OXbody{
     this.sendByObject(os);
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
-    int a = 0;
+  static protected CMO receive(OpenXMconnection stream) throws IOException{
+    DataInputStream is = new DataInputStream(stream.is);
+    return receive(is);
+  }
 
-    a = is.readInt();
+  static protected CMO receive(DataInputStream is) throws IOException{
+    int a = is.readInt();
 
     switch(a){
     case CMO.ERROR2:

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.33 2000/03/14 05:10:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.34 2000/03/14 05:38:49 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -23,15 +23,16 @@ class OMproxy implements Runnable{
     try{
       while(true){
 	try{
-	  int ox_tag = ox.receiveOXtag();
+	  OXmessage message = ox.receive();
+	  int ox_tag = message.getTag();
 
 	  switch(ox_tag){
 	  case OpenXM.OX_COMMAND:
-	    StackMachine(ox.receiveSM());
+	    StackMachine((SM)message.getBody());
 	    break;
 
 	  case OpenXM.OX_DATA:
-	    stack.push(ox.receiveCMO());
+	    stack.push(message.getBody());
 	    debug("push: "+ stack.peek());
 	    break;
 	  }
@@ -69,7 +70,7 @@ class OMproxy implements Runnable{
 	ox.send(new CMO_NULL());
       }else{
 	debug("sending CMO: "+ stack.peek());
-	ox.send(stack.pop());
+	ox.send((CMO)stack.pop());
       }
     }catch(MathcapViolation e){
       try{

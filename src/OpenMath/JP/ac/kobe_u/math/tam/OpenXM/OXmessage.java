@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java,v 1.1 2000/02/02 11:48:32 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java,v 1.2 2000/02/21 03:48:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -20,25 +20,45 @@ public class OXmessage{
   final public static int OX_DATA_MP                  = 525;
   final public static int OX_PRIVATE                  = 0x7fff0000;
 
-  public OXmessage(DataInputStream is) throws IOException{
-    tag    = is.readInt();
-    serial = is.readInt();
-  }
-
   public OXmessage(OpenXMconnection is) throws IOException{
     tag    = is.readInt();
     serial = is.readInt();
+    switch(tag){
+    case OX_COMMAND:
+      body = SM.receive(is);
+      break;
+
+    case OX_DATA:
+      body = CMO.receive(is);
+      break;
+
+    case OX_SYNC_BALL:
+      body = null;
+      break;
+    }
+  }
+
+  public OXmessage(int serial,OXbody body){
+    this.serial = serial;
+    this.body = body;
+
+    if(body == null){
+      this.tag = OX_SYNC_BALL;
+    }else if(body instanceof SM){
+      this.tag = OX_COMMAND;
+    }else if(body instanceof CMO){
+      this.tag = OX_DATA;
+    }else{
+      this.tag = OX_PRIVATE;
+    }
   }
 
   public int getTag(){
     return this.tag;
   }
 
-  public void write(DataOutputStream os) throws IOException,MathcapViolation{
-    os.writeInt(this.tag);
-    os.writeInt(this.serial);
-    body.write(os);
-    return;
+  public OXbody getBody(){
+    return this.body;
   }
 
   public void write(OpenXMconnection os) throws IOException,MathcapViolation{
@@ -46,10 +66,6 @@ public class OXmessage{
     os.writeInt(this.serial);
     body.write(os);
     return;
-  }
-
-  public static OX read(DataInputStream is) throws IOException{
-    return new OX(is);
   }
 
   public String toOXexpression(){

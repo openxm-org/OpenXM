@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.8 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.9 2000/01/20 18:55:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -22,7 +22,7 @@ public class OpenXM implements Runnable{
     control = new OpenXMconnection(host,CtrlPort);
 
     try{
-      Thread.sleep(100); // server がすぐに反応できないので wait が必要
+      Thread.sleep(100); // We need a few wait for starting up server.
     }catch(InterruptedException e){
       System.err.println(e.getMessage());
     }
@@ -49,26 +49,23 @@ public class OpenXM implements Runnable{
     try{
       control.sendByteOrder();
 
+      debug("control: wait OX");
       while(true){
-	debug("control: wait OX");
-	switch(control.receiveOXtag()){
-	case OX_DATA:
-	  control.receiveCMO();
-	  break;
+	OXmessage message = control.receive();
 
+	switch(message.getTag()){
 	case OX_COMMAND:
-	  switch(control.receiveSM().getCode()){
+	  switch(((SM)message.getBody()).getCode()){
 	  case SM.SM_control_kill:
 	    return;
 
 	  case SM.SM_control_reset_connection:
 	    this.resetConnection();
 	    break;
-
-	  default:
 	  }
 	  break;
 
+	case OX_DATA:
 	case OX_SYNC_BALL:
 	default:
 	  break;
@@ -102,70 +99,25 @@ public class OpenXM implements Runnable{
 
       debug("control: waiting to receive SYNC BALL.");
       while(true){
-	int ox_tag = stream.receiveOXtag();
+	OXmessage message = stream.receive();
 
-	debug("control: received "+ toString(ox_tag));
-	if(ox_tag == OX_SYNC_BALL){
-	  break;
-	}
-
-	switch(ox_tag){
-	case OpenXM.OX_COMMAND:
-	  stream.receiveSM();
-	  break;
-
-	case OpenXM.OX_DATA:
-	  stream.receiveCMO();
+	debug("control: received "+ message);
+	if(message.getTag() == OX_SYNC_BALL){
 	  break;
 	}
       }
       debug("control: received SYNC BALL and restart computer process");
       thread = new Thread(this.process);
       thread.start();
-    }catch(IOException e){}
+    }catch(IOException e){}catch(MathcapViolation e){}
   }
 
-  public void sendSM(SM code) throws IOException{
-    stream.sendSM(code);
-  }
-
-  public void sendCMO(CMO object) throws IOException,MathcapViolation{
-    stream.sendCMO(object);
-  }
-
-  public void send(Object object) throws IOException,MathcapViolation{
+  public void send(OXbody object) throws IOException,MathcapViolation{
     stream.send(object);
   }
 
-  public CMO receiveCMO() throws IOException{
-    return stream.receiveCMO();
-  }
-
-  public SM receiveSM() throws IOException{
-    return stream.receiveSM();
-  }
-
-  public int receiveOXtag() throws IOException{
-    return stream.receiveOXtag();
-  }
-
-  public void receive() throws IOException{
-    int tag = stream.receiveOXtag();
-
-    System.out.print("("+ toString(tag) +",");
-    //System.out.print("serial="+ dis.readInt() +"," );
-
-    switch(tag){
-    case OX_COMMAND:
-      System.out.print(""+ stream.receiveSM());
-      break;
-
-    case OX_DATA:
-      System.out.print(""+ stream.receiveCMO());
-      break;
-    }
-
-    System.out.println(")");
+  public OXmessage receive() throws IOException{
+    return stream.receive();
   }
 
   public void setMathCap(CMO_MATHCAP mathcap){
@@ -212,36 +164,36 @@ public class OpenXM implements Runnable{
 
     try{
       //サーバ側へ文字列を送信します。
-      ox.sendSM(new SM(SM.SM_mathcap));
-      ox.sendSM(new SM(SM.SM_popString));
+      ox.send(new SM(SM.SM_mathcap));
+      ox.send(new SM(SM.SM_popString));
 
-      //ox.sendCMO(os,new CMO_STRING("print(\"Hello world!!\");\n"));
-      //ox.sendSM(os,new SM(SM.SM_executeStringByLocalParser));
+      //ox.send(new CMO_STRING("print(\"Hello world!!\");\n"));
+      //ox.send(new SM(SM.SM_executeStringByLocalParser));
 
-      //ox.sendCMO(os,new CMO_STRING("def sub(B,A){return B-A;}"));
-      //ox.sendSM(os,new SM(SM.SM_executeStringByLocalParser));
-      //ox.sendSM(os,new SM(SM.SM_popString));
+      //ox.send(new CMO_STRING("def sub(B,A){return B-A;}"));
+      //ox.send(new SM(SM.SM_executeStringByLocalParser));
+      //ox.send(new SM(SM.SM_popString));
 
-      //ox.sendCMO(os,new CMO_STRING("diff((x+2*y)^2,x);\0 1+2;"));
-      //ox.sendSM(os,new SM(SM.SM_executeStringByLocalParser));
-      //ox.sendSM(os,new SM(SM.SM_popString));
+      //ox.send(new CMO_STRING("diff((x+2*y)^2,x);\0 1+2;"));
+      //ox.send(new SM(SM.SM_executeStringByLocalParser));
+      //ox.send(new SM(SM.SM_popString));
 
-      //ox.sendCMO(os,new CMO_ZZ("1"));
-      ox.sendCMO(new CMO_ZZ("-2"));
-      //ox.sendCMO(os,new CMO_INT32(2));
-      //ox.sendCMO(os,new CMO_STRING("sub"));
-      //ox.sendSM(os,new SM(SM.SM_executeFunction));
-      ox.sendSM(new SM(SM.SM_popCMO));
+      //ox.send(new CMO_ZZ("1"));
+      ox.send(new CMO_ZZ("-2"));
+      //ox.send(new CMO_INT32(2));
+      //ox.send(new CMO_STRING("sub"));
+      //ox.send(new SM(SM.SM_executeFunction));
+      ox.send(new SM(SM.SM_popCMO));
 
       { int[] array = {1,2};
-      ox.sendCMO(new CMO_MONOMIAL32(array,new CMO_ZZ("-2")));
+      ox.send(new CMO_MONOMIAL32(array,new CMO_ZZ("-2")));
       }
-      ox.sendSM(new SM(SM.SM_popCMO));
+      ox.send(new SM(SM.SM_popCMO));
 
-      ox.sendSM(new SM(SM.SM_popString));
-      //ox.sendSM(os,new SM(SM.SM_popString));
+      ox.send(new SM(SM.SM_popString));
+      //ox.send(new SM(SM.SM_popString));
 
-      ox.sendSM(new SM(SM.SM_control_kill));
+      ox.send(new SM(SM.SM_control_kill));
 
       //os.flush();
 
