@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.17 2000/02/05 07:25:37 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.18 2000/02/06 06:39:49 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -2264,6 +2264,7 @@ x^2+3*x+2
 @end table
 */
 
+/* Temporary functions */
 /* Use this function for a while to wait a fix of asir. */
 def sm1_ntoint32(I) {
   SM1_FIND_PROC(P);
@@ -2271,6 +2272,27 @@ def sm1_ntoint32(I) {
   sm1(P," "+rtostr(I)+" ");
   return(ox_pop_cmo(P));
 }
+def sm1_to_ascii_array(S) {
+  SM1_FIND_PROC(P);
+  ox_push_cmo(P,S);
+  sm1(P," (array) dc { (universalNumber) dc } map ");
+  return(ox_pop_cmo(P));
+}
+def sm1_from_ascii_array(S) {
+  SM1_FIND_PROC(P);
+  ox_push_cmo(P,S);
+  sm1(P," { (integer) dc (string) dc } map cat ");
+  return(ox_pop_cmo(P));
+}
+
+/*
+[288]  sm1_to_ascii_array("Hello");
+[72,101,108,108,111]
+[289] sm1_from_ascii_array(@@);
+Hello
+*/
+
+/* end of temporary functions */
 
 def sm1_gkz(S) {
   SM1_FIND_PROC(P);
