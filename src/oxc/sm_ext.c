@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.7 2000/12/01 01:53:34 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.8 2000/12/03 14:32:40 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -196,42 +196,50 @@ cmo_error2 *type_checker(cmo *ob, int type)
     return NULL;
 }
 
-static int sm_control_spawn_main(int argc, cmo *argv[])
-{
-    char *cmd = ((cmo_string *)argv[0])->s;
-    int  port = ((cmo_int32 *)argv[1])->i;
-    pid_t pid = lf_oxc_open_main(cmd, port);
-    if (pid > 0) {
-        push(new_cmo_int32(pid));
-        pid_regist(pid);
-    }
-    return pid;
-}
-
 int lf_oxc_open()
 {
-    cmo **argv;
-    if (getargs(&argv) != 2 || 
-        type_checker(argv[0], CMO_STRING) != NULL 
-        || type_checker(argv[0], CMO_INT32) != NULL) {
-        fprintf(stderr, "oxc: invalid arguments\n");
-        return -1;
-    }
-    return sm_control_spawn_main(2, argv);
+    cmo_int32 *argc = pop();
+	if (argc->tag == CMO_INT32 && argc->i == 1) {
+		return sm_control_spawn();
+	}
+	push_error(-1, argc);
+	return -1;
+}
+
+int sm_control_spawn_typecheck(cmo_list *args, cmo_list *ports, cmo_int32 *port, cmo_string *sname)
+{
+	char *cmd = sname->s;
+
+	return args->tag == CMO_LIST 
+		&& list_length(args) > 1
+		&& ports->tag == CMO_LIST
+		&& list_length(ports) > 0
+		&& port->tag == CMO_INT32
+		&& sname->tag == CMO_STRING
+		&& cmd != NULL 
+		&& which(cmd, getenv("PATH")) != NULL;
 }
 
 static int sm_control_spawn()
 {
-    cmo *argv[2];
-    argv[0] = pop();
-    argv[1] = pop();
+	cmo_list *args    = pop();
+	cmo_list *ports   = list_first_cmo(args);
+	cmo_int32 *port   = list_first_cmo(ports);
+	cmo_string *sname = list_nth(args, 1);
+	pid_t pid;
 
-    if (type_checker(argv[0], CMO_STRING) != NULL 
-        || type_checker(argv[0], CMO_INT32) != NULL) {
-        fprintf(stderr, "oxc: invalid arguments\n");
-        return -1;
-    }
-    return sm_control_spawn_main(2, argv);
+	if (sm_control_spawn_typecheck(args, ports, port, sname)) {
+		pid = lf_oxc_open_main(sname->s, port->i);
+		if (pid > 0) {
+			push(new_cmo_int32(pid));
+			pid_regist(pid);
+			fprintf(stderr, "oxc: spawns %s\n", sname->s);
+			return pid;
+		}
+	}
+	push_error(-1, args);
+	return 0;
+
 }
 
 void sm_mathcap()

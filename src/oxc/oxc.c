@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.5 2000/12/01 07:34:48 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.6 2000/12/03 14:32:40 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,13 +25,12 @@ int oxf_connect_dup(char *remote, short port)
 
 int lf_oxc_open_main(char *cmd, short port)
 {
-    int pid = 0;
-    if (cmd != NULL && (pid = fork()) == 0) {
+    pid_t pid;
+    if ((pid = fork()) == 0) {
         oxf_connect_dup(remote_host, port);
         fprintf(stderr, "oxc: oxc_open(%s, %d)\n", cmd, port);
         execlp(cmd, cmd, NULL);
     }
-    fprintf(stderr, "oxc: cannnot oxc_open(%s, %d).\n", cmd, port);
     return pid; /* if error, pid == 0 */
 }
 
