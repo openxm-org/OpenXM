@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.46 2003/05/24 23:56:32 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.47 2003/05/25 00:00:20 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -11,6 +11,8 @@
 #        Copy html help to OpenXM/doc/asir-contrib
 # gen-html-en  gen-html-ja
 #        Generate HTML documents under html-en and html-ja
+# gen-help-en  gen-help-ja
+#        Generate help files.
 # gen-dvi-ps
 #        Generate dvi and ps files.
 #
@@ -250,7 +252,7 @@ oxsm1-en.texi : sm1.oxweave Makefile sm1-auto-en.texi
 sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
 	$(RM) -f sm1-auto-en.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-en.texi
-sm1-auto-ja.texi : $(CONTRIB)/names.rr gentexi
+sm1-auto-ja.texi : $(CONTRIB)/sm1 gentexi
 	$(RM) -f sm1-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-ja.texi
 

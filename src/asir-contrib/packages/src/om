@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.23 2002/08/23 08:16:15 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.24 2003/07/27 13:18:48 takayama Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -20,15 +20,17 @@ def om_find_proc() {
 @node OpenMath Functions,,, Top
 */
 /*&jp-texi
-@chapter OpenMath 函数(1999版)
+@chapter OpenMath 函数(1999版)
 
-@file{om} にこの節の関数は定義されている.
-JAVA の実行環境が適切に設定されている必要がある.
+@file{om}にこの節で定義されている関数が定義されている.
+Java の実行環境が設定されていることが必要である.
 */
 /*&eg-texi
 @chapter OpenMath Functions(Version 1999)
 
-The functions in this section is defined in the file@file{om}.
+The functions in this section is defined in the file @file{om}.
+An environment to execute Java codes must be set to call the functions
+described in this section.
 */
 
 /*&C-texi
@@ -65,13 +67,13 @@ Number
 @findex om_start
 @table @t
 @item om_start()
-::  @code{OMproxy} をスタートする. このサーバは CMO と OpenMath XML (CD's in 1999)
-との間の変換をおこなう.
+::  @code{OMproxy} をスタートする. このサーバは CMO と OpenMath XML (CD's in 1999)
+との間の変換をおこなう.
 @end table
 
 @table @var
 @item return
-数
+数
 @end table
 */
 /*&C-texi
@@ -163,20 +165,20 @@ Translate CMO @var{s} to a XML expression of OpenMath(CD's in 1999).
 @findex om_xml
 @table @t
 @item om_xml(@var{s}|proc=@var{p})
-::  @var{s} の CMO 表現を OpenMath の XML (CD's in 1999) 表現になおす.
+::  @var{s} の CMO 表現を OpenMath の XML (CD's in 1999) 表現になおす.
 @end table
 
 @table @var
 @item return
-文字列
+文字列
 @item p
-数
+数
 @item s
-オブジェクト
+オブジェクト
 @end table
 
 @itemize @bullet
-@item   @var{s} の CMO 表現を OpenMath の XML (CD's in 1999) 表現になおす.
+@item   @var{s} の CMO 表現を OpenMath の XML (CD's in 1999) 表現になおす.
 @end itemize
 */
 /*&C-texi
@@ -228,20 +230,20 @@ Translate XML expression (CD's in 1999) @var{s} of OpenMath to a CMO.
 @findex om_xml_to_cmo
 @table @t
 @item om_xml_to_cmo(@var{s}|proc=@var{p})
-::  OpenMath の XML (CD's in 1999) 表現 @var{s} を CMO になおす.
+::  OpenMath の XML (CD's in 1999) 表現 @var{s} を CMO になおす.
 @end table
 
 @table @var
 @item return
-オブジェクト
+オブジェクト
 @item p
-数
+数
 @item s
-文字列
+文字列
 @end table
 
 @itemize @bullet
-@item   OpenMath の XML (CD's in 1999) 表現 @var{s} を CMO に変換する.
+@item   OpenMath の XML (CD's in 1999) 表現 @var{s} を CMO に変換する.
 @end itemize
 */
 
