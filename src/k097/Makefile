@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.20 2001/01/08 05:26:47 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.21 2003/01/15 00:11:08 takayama Exp $
 # targets
 # all 
 #     compile
@@ -107,6 +107,9 @@ kanlib.a :
 $(KAN_HOME)/lookup.h :
 	(cd $(KAN_HOME); make lookup.h)
 
+
+ox_k0 : ox_k0.c k0 ox_k0.c sm1sm.c
+	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -I$(OpenXM_include) -I$(KAN_HOME) -o ox_k0 ox_k0.c sm1sm.c $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB)
 
 ##########  
 ## A sample to compilation:  source is test0.c, output is test0
