@@ -1,0 +1,682 @@
+%% $OpenXM$
+%% この文書には ox_ntl, oxshell, OX RFC 102, 103 が解説されている.
+%% ChangeLog には http://www.openxm.org の cvsweb でのソースファイル名および
+%% そのバージョンが書かれている.
+\documentclass[twocolumn]{jarticle}
+%% this03/misc-2003/12/RIMS
+%% See also OpenXM/doc/Papersrims-2003-12-16-ja-ohp.tex
+%\usepackage{rims02}
+\usepackage{color}
+\usepackage{rgb}
+\usepackage{epsfig}
+\def\nnn{ {\color{red} $\bullet$}\ }    %% 事実
+\def\ppp{ {\color{blue} $\bullet$}\ }    %% 事実
+\def\eee{ {\color{magenta} Example}:\ } %% 例
+\def\ttt{ {\color{red} $\bullet$}\ }   %% 定理
+
+\def\pagetitle#1{ \fbox{{\color{magenta} #1 }}}
+
+\newenvironment{FRAME}{\begin{trivlist}\item[]
+  \hrule
+  \hbox to \linewidth\bgroup
+  \advance\linewidth by -30pt
+  \hsize=\linewidth
+  \vrule\hfill
+  \vbox\bgroup
+    \vskip15pt
+    \def\thempfootnote{\arabic{mpfootnote}}
+    \begin{minipage}{\linewidth}}{%
+    \end{minipage}\vskip15pt
+  \egroup\hfill\vrule
+ \egroup\hrule
+\end{trivlist}}
+
+\title{OpenXM の新サーバ, 新プロトコル}
+\author{OpenXM 開発グループ \\ (岩根, 小原, 野呂, 高山) \\
+   OpenXM committers \\ openxm.org
+%%\ename{OpenXM committers}%
+% \thanks{個人毎の謝辞}%                      
+%%    \affil{openxm.org} %\eaffil{所属のローマ字表記}%
+%  \mail{著者のメールアドレス}%                
+%  \and 
+}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{OpenXM の目的と歴史}
+
+OpenXM は
+\ppp 数学での並列計算,  
+\ppp 数学ソフトウエアの統合化 または Conglomerate 化 (A.Solomon) 
+\ppp 数学的知識のマネージメント (Mathematical Knowledge Management) 
+\ppp 実際に数学の研究や数学の応用に使えるパッケージの開発,
+などを目標に数年前からパッケージの開発, プロトコルの開発をしている. 
+この小文では講演に用いたスライドを元に OpenXM の新しいサーバおよび新しい通信プロトコルを
+紹介する.
+
+\noindent  OpenXMの歴史 \\
+\nnn OpenXM 1.1.1 (January 24, 2000): 最初の実験版. \\
+\nnn OpenXM 1.1.2 (March 20, 2000): とりあえず使える版. \\
+\nnn OpenXM 1.1.3 (September 26, 2000): 1.1 系の最終版. OpenXM RFC 100 形式
+   のプロセス木. 1077 個の数学関数を提供. 
+   提供しているサーバは {\tt ox\_asir}, {\tt ox\_sm1},
+   {\tt ox\_phc}, {\tt ox\_gnuplot}, {\tt ox\_m2}, {\tt ox\_tigers},
+   {\tt ox\_math}(ematica), {\tt OMproxy}. \\
+\nnn OpenXM 1.2.1 (March 2, 2002): Cygwin (Windows) への対応開始. 
+       マニュアル自動生成(gentexi)など. \\
+\nnn OpenXM 1.2.2 (May 13, 2003):  RFC 103 (部分的), autoconf\\ 
+(\nnn) Digital formula book, OpenMath, tfb, CD (hypergeo*, weylalgebra*, intpath*),
+ 数値計算.
+
+
+
+\section{ {\color{blue} 新しいサーバ ntl}}
+http://www.shoup.net/ntl,
+NTL is a high-performance, portable C++ library providing data structures and algorithms for manipulating signed, arbitrary length integers, and for vectors,
+matrices, and polynomials over the integers and over finite fields. 
+
+
+{\color{blue} ox\_toolkit $+$ NTL ライブラリ}
+$\Rightarrow$ {\color{red} ox\_ntl}
+{\footnotesize
+\begin{verbatim}
+[1145]PID=ox_launch_nox(0,
+        "/home/taka/OX4/OpenXM/bin/ox_ntl");
+[1028] F=ntl.ex_data(4)$
+[1029] F = F * subst(F, x, x + 1)$
+[1030] ntl.factor(PID, F);  
+/* NTL の knapsac factorizer */
+[[1,1],
+ [x^16+16*x^15- ... , 1]
+ [x^16-136*x^14+ ..., 1]]
+\end{verbatim}
+}
+% [x^16+16*x^15-16*x^14-1344*x^13-4080*x^12+32576*x^11+157376*x^10-255232*x^9-2062624*x^8-249088*x^7+10702080*x^6+9126912*x^5-18643712*x^4-24167424*x^3+2712576*x^2+10653696*x+2324736,1],
+% [x^16-136*x^14+6476*x^12-141912*x^10+1513334*x^8-7453176*x^6+13950764*x^4-5596840*x^2+46225,1]]
+
+実装により明らかになったこと: \quad ox\_toolkit の有効性,
+ox\_toolkit の問題点の改善, LLL をよぶために CMO array も必要.
+
+\leftline{\fbox{この機能に関する ChangeLog}}
+\noindent
+OpenXM/src/ox\_ntl の下の全てのファイル (2003年12月まで).
+OpenXM/src/ox\_toolkit の下の次のファイル.
+\nnn cmo.c 1.17, ox.c 1.13--1.26,
+ox\_toolkit.h 1.24--1.27.
+
+\rightline{開発: 岩根 (小原)}
+
+
+\section{{\color{blue} 新しいサーバ polymake と oxshell}}
+
+{\color{red} Polymake } : 多面体用ソフトウエア.
+{\tt http://www.math.tu-berlin.de/polymake},
+by Ewgenji Gawrilow, Michael Joswig. \\
+% polemake logo
+Facets, Convex hull, Triangulation, 構成, polytope data,
+Visualization by JavaView and Povray.
+
+
+\eee
+点 $(1,0,0)$, $(1,1,0)$, $(1,0,1)$, $(1,1,1)$ 上の cone の facet を求めよ. \\
+{\tt polymake} ではつぎような入力ファイル {\tt square.poly} をまず作成する.
+
+\begin{minipage}{7cm}
+{\footnotesize \color{blue} 
+\begin{verbatim}
+POINTS 
+1 0 0 
+1 1 0 
+1 0 1 
+1 1 1 
+\end{verbatim}
+}
+\end{minipage}
+\begin{minipage}{7cm}
+入力: 
+{\color{red} \verb@ polymake square.poly FACETS @ } \\
+結果:
+{\footnotesize \begin{verbatim}
+FACETS
+0 0 1
+0 1 0
+1 0 -1
+1 -1 0
+\end{verbatim} }
+\end{minipage}
+
+\begin{figure}[t]
+\epsfxsize=5cm
+\epsffile{rims-2003-12-16-sq.eps}
+\end{figure}
+
+
+\subsection{ Polymake の OX 100, 101 サーバ化で何が問題であったか?}
+%C 詳しいことはここに書いてることを読んでもらうことにして, 一言でいえば
+%C C の外部プログラム呼び出しシステムコール system の機能を強化しようということ
+
+新しい OX RFC 100 準拠のサーバを作る場合には
+ターゲットとする数学ソフトウエアシステムのソースコードに OX RFC 100 対応部分
+を加える作業をしないといけない.
+この作業はソースコードの理解とかなりの手間を要する.
+C++ で書かれた polymake のソースは先端的な C++ の機能を
+利用しておりコンパイルが容易でない.
+
+
+Polymake はあらかじめファイルにコマンドやデータを書き出しておくことにより
+unix の shell 
+から利用可能なように作られている: 
+このようなアプリケーションを {\color{red} バッチ処理対応アプリケーション}
+と呼ぶ.
+サーバとの通信の頻度は問題によるがある程度大きい計算の場合は通信時間は無視できる.
+Polymake は対話的利用は想定しておらずサーバの計算を中断して, 再度開始するなどの必要がない.
+したがって {\tt system} 関数
+で polymake を呼び出して, 結果が書き出されたファイルを解析すればよい.
+しかしこの {\tt system} 関数は使いにくい.
+問題点はファイルシステムや OS の違いを吸収できない, プロセス管理のやりにくさ
+などである.
+我々は {\tt system} の強化版として {\color{blue} oxshell}
+を導入する.
+
+
+\subsection{ Oxshell とは }
+Oxshell は上記のようなバッチ処理対応アプリケーションをソースコードの改変なく 
+OX RFC 100 準拠にするためのいわゆるラッパー型の OX サーバを書くための補助機能を
+提供する sm1 への組み込み関数である.
+
+Oxshell を用いて OX サーバを実現するのが適切な数学ソフトウエアは以下のような特徴をもつものであろう. \\
+\nnn バッチ処理対応アプリケーションである.
+\nnn ソースコードの変更ができないか困難. 
+\nnn サーバとの通信が頻繁におきない. 
+\nnn サーバの計算を中断して, 再度開始するなどの必要がない.
+\nnn Windows でも unix でも動かしたい.  
+
+\subsection{ OX RFC 100 の復習}
+
+クライアント-サーバモデル.
+サーバは stackmachine. 
+(1) スタックマシンへのメッセージを送ることにより計算が進行する.
+(2) 計算の中断などのメッセージもある.
+(3) サーバはエンジンとコントロールプロセスよりなる.
+
+\noindent OX RFC 100 には\underline{ファイルの概念がない}. したがって, \\
+\verb@ polymake ファイル名 動作 @ \\
+みたいなプログラムは OX スタックマシンの上のデータをファイルに書き出してから
+実行して, それからまたスタックマシンの上のデータに変換しないといけない.
+(単純仕事, しかし,  ZPG の極致; unix と windows 違い,
+/bin/sh の存在, プログラムが大変読みにくく保守もしにくい)
+
+%C アイディアは一言でいえば次の一行のみ.
+{\tt oxshell} ではこの仕事は次の 1 行で書く. \\
+{\color{red} \verb@[(polymake) (stringInOut://スタックマシン変数名.poly) 動作] oxshell@}\\
+スタックマシンの変数をファイルをみなしている.
+
+このような考え方は, なにも新しいものではない. \\
+例: Java の io.StringReader \\ ( io.InputStreamReader の代わり). \\
+例: スクリプト言語である Python \\
+  \verb@ x=os.popen("abc","r").read(); @
+%C netscape の plugin なども内部的には似たアイディアを用いていると思われる. 
+
+\noindent
+{\color{blue} 新しい部分}:
+この考えを数学ソフトウエアの統合化のために使うための実装は存在していなかった.
+これが oxshell コマンドの導入によって解決される点の一つである.
+考え方が整理されプログラムの保守性が大変よくなり, また新しいバッチ型アプリケーションのOX サーバ化が楽になった.
+
+
+
+\eee
+文字列 {\tt S} に格納された単語 dog, cat, lion を unix のツール sort で
+並べ変えるには次のように書く.
+入力は oxshell を実行しているスタックマシンの変数 {\tt S} に格納されている.
+
+{\footnotesize
+\begin{verbatim}
+[1163]:= S="dog\ncat\nlion\n";
+[1164]:= oxshell.set_value("S",S);
+[1165]:= T=oxshell.oxshell(
+            ["sort","stringIn://S"]);
+[cat
+dog
+lion
+,]
+\end{verbatim}
+}
+
+
+\subsection{ oxshell.facets() の実装, 数学関数の実装例 }
+
+%C もう一つのポイントは tfb, OpenMath の有効性の実証.
+%C 当り前だが無くてはならない研究だった.
+\noindent
+\nnn データ変換には tfb/2 (田村)format を利用, OpenMath アーキテクチャを利用.
+{\color{blue}成果}: その有効性を実証できた.)
+%% これも新しい点であろう.
+{\footnotesize \begin{verbatim}
+[$polymake.data(
+    polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1]]),
+  polymake.FACETS([[0,0,1],[0,1,0],[1,0,-1],[1,-1,0]]),
+  polymake.AFFINE_HULL())$
+ CMO tree expression of the data above
+ Outputs to stdout and stderr ]
+\end{verbatim} }
+
+%C 数学的には次の動機.  D-module の計算で facet だせる.
+%C (斎藤むつみの) $b$ function を polytope algorithm で求める初めての実装.
+{\color{red} taka\_ahg.b(A,Idx)}(OpenXM/src/asir-contrib/packages/src/taka\_ahg.rr)
+oxshell による polymake 呼び出し機能を用いた数学関数.
+この関数は 行列 {\tt A} に付随した 方向 {\tt Idx} のある $b$ 関数を計算する.
+これは {\tt A} の定義する cone のファセットをあらわす一次式の積で表現されることが,
+知られている
+(Saito, Mutsumi; Sturmfels, Bernd; Takayama, Nobuki; Hypergeometric polynomials and integer programming. Compositio Math. 115 (1999), no. 2, 185--204
+および
+Saito, Mutsumi; Parameter shift in normal generalized hypergeometric systems. Tohoku Math. J. (2) 44 (1992), no. 4, 523--534
+をみよ.)
+
+
+
+\begin{minipage}{10cm}
+{\footnotesize
+\begin{verbatim}
+[1163]:= load("oxshell.rr");
+[1164]:= load("taka_ahg.rr");
+[1165]:=  A=[[1,0,0],[1,1,0],[1,0,1],[1,1,1],[1,2,0]];
+[1166]:= fctr(taka_ahg.b(A,0,[s1,s2,s3]));
+[[1,1],[s1-s3,1],[2*s1-s2-s3,1],[2*s1-s2-s3-1,1]]
+\end{verbatim}
+}
+\end{minipage}
+%
+\begin{minipage}{10cm}
+\epsfxsize=8cm
+\epsffile{rims-2003-12-16-sq2.eps}
+\end{minipage}
+
+{\footnotesize
+\begin{verbatim}
+def b(A,Idx,V) {
+  F = oxshell.facets(A);    
+  /* Computing all the facets by polymake server.*/
+  F = F[1];        /* F is the set of the facets */
+  P = A[Idx];
+  Nfacets = length(F);
+  F = toPrimitive2(P,F);   
+  /* Translate into primitive supporting function */
+  Bf = 1;
+  for (I=0; I<Nfacets; I++) {
+    H = matrix_inner_product(P,F[I]);
+    if (H != 0) {
+      B = matrix_inner_product(P,V);
+      for (J=0; J<H; J++) {
+        Bf = Bf*(B-J);  /* See the papers above. */
+      }
+    }
+  } 
+  return(Bf);
+}
+\end{verbatim}
+}
+
+\leftline{\fbox{この機能に関する ChangeLog}}
+\noindent OpenXM/src/kan96xx の下の次の各ファイル.
+\nnn Doc/oxshell.oxw 1.1--1.2.
+\nnn trans の下のファイルすべて(2003年12月).
+\nnn Kan/kanExport0.c 1.19--1.20,
+option.c 1.13, primitive.c 1.10--1.11,
+shell.c 1.1--1.9,
+stackmachine.c 1.13--1.14,
+kclass.h 1.4--1.5.
+\nnn kclass/tree.c 1.1--1.7, tree.hh 1.1--1.2. \\
+OpenXM/src/k097 の下の次の各ファイル.
+\nnn help.k 1.11--1.12, ki.c 1.16, ox\_k0.c 1.5,
+slib.k 1.11, slib.sm1 1.10. \\
+OpenXM/src/asir-contrib/packages/src の下の
+oxshell.rr 1.1--1.3. \\
+OpenXM/src/util の下の
+ox\_pathfinder.c 1.8--1.17.
+
+\rightline{開発: 高山}
+
+\noindent
+\section{{\color{blue} OX-RFC 103 ( 100, 101 補遺)}}
+
+この RFC は OpenXM RFC 100 (および 101) の実装により明らかになった種々の問題点をもとに
+RFC 100 プロトコルへの幾つかの追加を提案する.
+
+\noindent
+\nnn ファイルへの読み書き \\
+\nnn 新しい CMO \\
+\nnn  エンジン認証手続き \\
+\nnn 中断および変数の伝播 \\
+1. 自分の子供プロセスをすべてリストする
+  (asirの場合:{\tt ox\_get\_serverinfo()}) \\
+2. 子供プロセスに順番に OpenXM-RFC 100 の中断メッセージを送る.
+
+\noindent
+{\color{red} ox103\_set\_shared\_variable(} CMO string {\tt Name}, CMO object {\tt
+value}{\tt )}
+エンジンスタックマシンの変数 {\tt Name} に値
+{\tt value} が設定,
+さらに子どものプロセスすべてのエンジン関数
+ {\tt ox103\_set\_shared\_variable}
+をよぶ.
+
+\noindent
+\leftline{\fbox{この機能に関するChangeLog}}
+OpenXM/src の下の次のファイル. \\
+asir-contrib/packages/src/oxrfc103.rr 1.1--1.4,
+kan96xx/Doc/oxrfc103.sm1 1.1--1.3,
+util/ox\_pathfinder.c 1.17.
+
+\rightline{開発: 高山}
+
+
+\section{{\color{blue} OX-RFC 102 -- 本格的なサーバ間通信を用いた分散計算}}
+
+
+OX-RFC-100, 101 : master-server 間通信を用いた分散計算
+
+OX-RFC-102 : server-server 間通信
+
+\underline{目標} : 本格的分散並列計算を可能にすること
+
+\underline{応用例}
+\begin{itemize}
+\item broadcast を効率化する
+N 個の server への broadcast が $O(\log_2 N)$ でできる
+\item LU 分解の分散並列計算
+ScaLAPACK 風に, 行列を分散保持して並列計算
+\end{itemize}
+
+\underline{仕様}
+
+MPI-2 の, 動的プロセス生成, プロセスグループ間 broadcast の仕様を
+参考にする.  {\tt http://www-unix.mcs.anl.gov/mpi}
+
+\underline{新しい点}
+
+OX RFC 100 を前提 $\Rightarrow$ データ型の管理の必要がない,
+100 の中断プロトコルの拡張,
+などMPI より容易に利用可能. 
+%C また, システムの設計で寄与できなくても, 実例での有効性, ある特定の問題での
+%C 設計の改善等を考える.  我々は Shoup の アルゴリズムが効率良く実装できる
+%C ことを示した.
+
+\subsection{server の起動, server 間通信路の開設}
+
+server は OX RFC-100, 101 により起動する. この通信路に以下の SM
+コマンドを送る.
+
+\begin{itemize}
+\item {\tt SM\_set\_rank\_102} $nserver$ $rank$
+
+server に, グループ内の server の総数 $nserver$ と, その中での
+識別子 $rank$ ($0 \le rank \le nserver$) を通知する.
+
+\item {\tt SM\_tcp\_accept\_102} $port$ $peer$
+
+ポート番号 $port$ の TCP ポートで, bind, listen, accept を実行
+して connect を待つ. 通信が成立したら, byte order negotiation
+を行い, 相手先テーブルに登録する.
+
+\item {\tt SM\_tcp\_connect\_102} $peerhost$ $port$ $peer$
+
+ホスト $peerhost$ のポート番号 $port$ の TCP ポートに connect する. 
+通信が成立したら, byte order negotiation を行い, 相手先テーブルに登録
+する.
+
+\end{itemize}
+
+
+
+\noindent
+\subsection{server 間通信, broadcast, reduction}
+
+server 間通信は, 相互の信頼に基づき行う --- 送り手が送信したら, 受け手は
+ちゃんと受信動作に入ること
+
+データは OX タグ付きで --- {\tt OX\_SYNC\_BALL} による通信路リセットに必要
+
+以下の SM コマンドは collective 操作である. すなわち, 同一引数で
+グループ内の全ての server で実行されなければいけない.
+
+\begin{itemize}
+\item {\tt SM\_bcast\_102} $root$
+
+識別子 $root$ の server のスタック上のデータを pop し, グループ内に
+broadcast する. 各 server のスタックに broadcast されたデータが push
+される.
+
+\item {\tt SM\_reduce\_102} $root$ $opname$
+
+各 server のスタック上のデータが pop され, $opname$ で指定される
+二項演算(結合則が必要) を順に行い, 結果を $root$ で指定される server
+のスタックに push する. 他の server には $0$ が push 
+される.
+\end{itemize}
+
+
+
+\noindent
+\subsection{broadcast の手続き}
+
+{SM\_bcast\_102} の実行 
+
+$root=0$ で, 識別子が $b2^k$ ($b$ は奇数) の server の動作
+
+\vskip\baselineskip
+\begin{tabbing}
+$data \leftarrow$ 識別子が $(b-1)2^k$ の server からのデータ\\
+for \= $i=k-1$ down to $0$\\
+    \> 識別子が $b2^k+2^i$ の server に $data$ を送信\\
+end for
+\end{tabbing}
+\vskip\baselineskip
+2 で割り切れる回数が多い識別子を持つ server が先にデータ送信
+
+$\Rightarrow$ デッドロックにならない
+
+独立なペアどうしの通信が同時に行えるなら、高々 $\lceil \log_2 N\rceil$ ステップ
+($N$ は server の総数) で broadcast 完了.
+
+
+
+%C 細部は省略. あとで 16 個のサーバの実例で説明.
+\noindent
+\subsection{reduction の手続き}
+
+{SM\_reduce\_102} の実行 
+
+server 数 $N$, $root=0$ で, 識別子が $b$ の server の動作
+
+手持ちのデータを $data$ とする
+
+\vskip\baselineskip
+\begin{tabbing}
+for \= $i=0$ to $\lfloor \log_2 N \rfloor$\\
+    \> if \= ( $b$ に $2^i$ の bit がある) then\\
+    \>    \> 識別子 $b-2^i$ の server に $data$ を送信して終了\\
+    \> else if ( $b+2^i < N$ ) then \\
+    \>     \> $data_0 \leftarrow$ 識別子 $b+2^i$ の server からのデータ\\
+    \>      \> $data \leftarrow data$ と $data_0$ の二項演算結果 \\
+    \> end if\\
+end for
+\end{tabbing}
+\vskip\baselineskip
+
+この場合も, 独立なペアどうしの通信が同時に行えるなら、高々 $\lceil \log_2 N\rceil$ ステップ
+($N$ は server の総数) で reduction 完了. 結果は root に残る.
+
+
+\noindent
+\subsection{broadcast 時のデータの流れ}
+
+
+$N=16$, $root=0$ の場合
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+step 1 & step 2 & step 3 & step 4 \\ \hline
+$0\rightarrow 8$&$0\rightarrow 4$ &$0\rightarrow 2$  &$0\rightarrow 1$ \\
+                &$8\rightarrow 12$&$8\rightarrow 10$  &$8\rightarrow 9$ \\
+                &                 &$4\rightarrow 6$ &$4\rightarrow 5$ \\
+                &                 &$12\rightarrow 14$&$12\rightarrow 13$ \\
+                &                 &                  &$2\rightarrow 3$ \\
+                &                 &                  &$10\rightarrow 11$ \\
+                &                 &                  &$6\rightarrow 7$ \\
+                &                 &                  &$14\rightarrow 15$
+\end{tabular}
+\end{center}
+
+reduction の場合, データの流れは逆になる (step 4 $\rightarrow$ step 1,
+矢印が逆)
+
+
+%C これはオリジナル.
+\noindent
+\subsection{エラー処理}
+
+master-server 間通信路は, OX RFC-100 で規定されている.
+
+server-server 間通信路を空にするための, 識別子 $i$ の server での操作
+
+\begin{tabbing}
+for \= $j = 0$ \= to $i-1$ do\\
+    \> do\\
+    \>         \>$data$ $\leftarrow$ 識別子 $j$ の server からの OX データ\\
+    \> while $data \neq$ {\tt OX\_SYNC\_BALL}\\
+end for\\
+for $j = i+1$ to $nserver-1$ do\\
+    \> {\tt OX\_SYNC\_BALL} を 識別子 $j$ の server に送信\\
+end for
+\end{tabbing}
+
+master-server リセット後 : 各 server はコマンド待ち状態
+
+$\Rightarrow$ 次の SM コマンドを各 server に送信すればよい
+
+\begin{itemize}
+\item {\tt SM\_reset\_102} (引数なし, collective)
+\end{itemize}
+
+
+\subsection{Asir (master) 上での API}
+
+\begin{itemize}
+\item {\tt ox\_set\_rank\_102($Server$,$Nserver$,$Rank$)}
+
+$Server$ に {\tt SM\_set\_rank\_102} を送る.
+
+\item {\tt ox\_tcp\_accept\_102($Server$,$Port$,$Rank$)}
+
+$Server$ に {\tt SM\_tcp\_accept\_102} を送る.
+
+\item {\tt ox\_tcp\_connect\_102($Server$,$Host$, \\ \quad\quad\quad\quad\quad $Port$,$Rank$)}
+
+$Server$ に {\tt SM\_tcp\_connect\_102} を送る.
+
+\item {\tt ox\_reset\_102($Server$)} (collective)
+
+$Server$ に {\tt SM\_reset\_102} を送る
+
+\end{itemize}
+
+
+
+\noindent
+\subsection{Asir (server) 上での API}
+
+\begin{itemize}
+\item {\tt ox\_send\_102($Rank$,$Data$)}
+
+識別子 $Rank$ の server に $Data$ を OX データとして送信する.
+識別子 $Rank$ の server は対応する受信を開始しなければならない.
+
+\item {\tt ox\_recv\_102($Rank$)}
+
+識別子 $Rank$ の server から OX データを受信する.
+識別子 $Rank$ の server は対応する送信を開始しなければならない.
+
+\item {\tt ox\_bcast\_102($Root$[,$Data$])} (collective)
+
+識別子 $Root$ の server を root として, グループ内で broadcast する.
+$Data$ が指定された場合, スタックにプッシュされる.
+識別子が $Root$ に等しい server で, スタック
+からデータがポップされ, そのデータが, 各呼び出しの戻り値となる.
+
+\item {\tt ox\_reduce\_102($Root$,$Operation$[,$Data$])} (collective)
+
+グループ内の各 server のスタックからポップしたデータに対し
+$Operation$ で指定される二項演算を行い,
+結果を $Root$ で指定される server での関数呼び出しの戻り値として
+返す.
+$Data$ が指定された場合, スタックにプッシュしてから上記の操作を
+実行する. $Root$ 以外の server での戻り値は 0 である.
+\end{itemize}
+
+
+
+
+\noindent
+\subsection{実行例 : 一変数多項式の積 (master 側)}
+
+{\footnotesize
+\begin{verbatim}
+def d_mul(F1,F2)
+{
+    Procs = getopt(proc);
+    /* process 指定がない場合には, 自分で計算 */
+    if ( type(Procs) == -1 ) return umul(F1,F2);
+    if ( !var(F1) || !var(F2) ) return F1*F2;
+    NP = length(Procs);
+    /* 引数を server 0 に送る */
+    ox_push_cmo(0,[F1,F2]);
+    /* 各 server に, server 0 を root として仕事を始めるよう依頼 */
+    for ( I = 0; I < NP; I++ ) 
+        ox_cmo_rpc(I,"d_mul_main",0);
+    /* server 0 から結果を受け取る */
+    R = ox_pop_cmo(0);
+    return R;
+}
+\end{verbatim}
+}
+
+\subsection{実行例 : 一変数多項式の積 (server 側; collective)}
+{\footnotesize
+\begin{verbatim}
+def d_mul_main(Root)   /* Shoup's algorithm */
+{
+    /* server の総数, 自分の id を知る */
+    Id = ox_get_rank_102(); NP = Id[0]; Rank = Id[1];
+    /* Root にある引数を broadcast で共有 */
+    Arg = ox_bcast_102(Root); F1 = Arg[0]; F2 = Arg[1];
+    L = setup_modarrays(F1,F2,NP);
+    Marray = L[0]; MIarray = L[1]; M = L[2];
+    R = umul_chrem(F1,F2,MIarray[Rank],Marray[Rank],M);
+    Arg = 0; F1 = 0; F2 = 0;
+    /* 各 server の結果を足し合わせて, Root に置く */
+    R = ox_reduce_102(Root,"+",R);
+    /* Root のみ, 結果を normalize する */
+    if ( Rank == Root )
+        R = uadj_coef(R%M,M,ishift(M,1));
+    return R;
+}
+\end{verbatim}
+}
+
+\leftline{\fbox{この機能に関するChangeLog}}
+\noindent
+OpenXM\_contrib2/asir2000/
+の下の次の各ファイル.
+\nnn lib/dmul102,  1.1--1.2.
+\nnn include/ox.h,  1.18--1.19. 
+\nnn parse/glob.c,  1.41. 
+\nnn io/tcpf.c  1.43--1.50,
+ox.c 1.21--1.24, ox\_asir.c 1.45--1.50.
+
+\rightline{開発: 野呂}
+
+\end{document}
