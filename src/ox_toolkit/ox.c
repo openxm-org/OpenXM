@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.12 2000/03/10 12:24:38 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.13 2000/10/10 05:23:20 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <time.h>
@@ -85,18 +84,6 @@ static cmo *call_hook_after_send_cmo(OXFILE *oxfp, cmo *c)
         return hook_after_send_cmo(oxfp, c);
     }
     return c;
-}
-
-int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
-{
-    return read(oxfp->fd, buffer, size*num);
-/*  return fread(buffer, size, num, oxfp->fp); */
-}
-
-int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp)
-{
-    return write(oxfp->fd, buffer, size*num);
-/*  return fwrite(buffer, size, num, oxfp->fp); */
 }
 
 /* Handling an error. */

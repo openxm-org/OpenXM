@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.1 2000/10/10 05:23:21 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/param.h>
@@ -20,6 +19,20 @@
 #include "mysocket.h"
 #include "ox_toolkit.h"
 
+int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
+{
+	int n = read(oxfp->fd, buffer, size*num);
+	if (n == 0) {
+		oxfp->errno = 1;
+	}
+    return n;
+}
+
+int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp)
+{
+    return write(oxfp->fd, buffer, size*num);
+}
+
 OXFILE *oxf_open(int fd)
 {
     OXFILE *oxfp = (OXFILE *)malloc(sizeof(OXFILE));
@@ -27,6 +40,7 @@ OXFILE *oxf_open(int fd)
     oxfp->send_int32    = send_int32_nbo;
     oxfp->receive_int32 = receive_int32_nbo;
 	oxfp->control = NULL;
+	oxfp->errno = 0;
     return oxfp;
     /* oxfp->fp = fdopen(fd, "a+"); */
     /* return (oxfp->fp != NULL)? oxfp: NULL; */
@@ -165,8 +179,7 @@ int oxc_start(char *remote_host, short port, char *passwd)
     char localhost[MAXHOSTNAMELEN];
     char ports[128];
     int pid = 0;
-    char *cmd = "echo";
-/*  char *cmd = "oxc"; */
+    char *cmd = "oxc";
 
     if (gethostname(localhost, MAXHOSTNAMELEN)==0) {
         if ((pid = fork()) == 0) {
