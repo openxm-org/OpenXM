@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.21 2004/03/01 07:19:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.22 2004/03/08 08:24:42 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -1023,6 +1023,7 @@ struct object KoxCreateClient2(struct object peer,
   int fdStream, portStream, fdControl, portControl;
   int i;
   struct object ob1;
+  struct object opassControl, opassData;
   rob.tag = Snull;
   if (peer.tag != Sarray) {
     errorOxmisc2("KoxCreateClient2(): The first argument must be an array [fdStream, portStream, fdControl, portControl]");
@@ -1046,12 +1047,22 @@ struct object KoxCreateClient2(struct object peer,
   if (ipmask.tag != Sinteger) {
     errorOxmisc2("KoxCreateClient2(): ipmask must be an integer.");
   }
-  if (pass.tag != Sdollar) {
-    errorOxmisc2("KoxCreateClient2(): pass must be a string.");
+  if (pass.tag == Sdollar) {
+    opassControl = pass; opassData = pass;
+  }else if (pass.tag == Sarray) {
+    if (getoaSize(pass) < 2) errorOxmisc2("KoxCreateClient2: #passArray < 2.");
+    opassControl = getoa(pass,0);
+    opassData = getoa(pass,1);
+  }else{
+    errorOxmisc2("KoxCreateClient2(): pass must be a string or an array.");
+  }
+  if ((opassControl.tag != Sdollar) || (opassData.tag != Sdollar)) {
+    errorOxmisc2("KoxCreateClient2(): opassControl or opassData must be a string.");
   }
 
   client = oxCreateClient2(fdStream, portStream, fdControl, portControl,
-                           KopInteger(ipmask), KopString(pass));
+                           KopInteger(ipmask),
+                           KopString(opassControl),KopString(opassData));
   if (client == NULL) {
     errorOxmisc2("KoxCreateClient2(): Open error.");
     return(rob);

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.41 2004/08/28 05:23:55 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.42 2004/09/10 13:20:22 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -376,7 +376,7 @@ ox.verbose { oxhelp } {  } ifelse
      /myhost aaa 4 get def
    } ifelse
 
-   /pass [(oxGenPass)] extension def
+   /pass ox_encrypt_104_genPass def
    /peer [(oxGetPort) myhost] extension def
    /data peer 1 get toString def
    /control peer 3 get toString def
@@ -392,14 +392,14 @@ ox.verbose { oxhelp } {  } ifelse
   ( ) remoteOpenXMbin (/ox ) 
   ( -reverse -ox ) remoteServer
   ( -host ) myhost
-  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -data ) data ( -control ) control   pass [1 2] get  
   oxpath.null
   ( ")
  ] cat /comm set
  (Executing the command : ) messagen comm message message
   comm system
  (sleep 5) system-csh
- [(oxCreateClient2) peer 1 pass] extension /your-peer set
+ [(oxCreateClient2) peer 1 pass 0 get] extension /your-peer set
  /LLL.end
  /arg1 your-peer def
  ] pop
@@ -433,16 +433,16 @@ ox.verbose { oxhelp } {  } ifelse
   /my-peer] pushVariables
  [
     /oxserver arg1 def
-    /pass [(oxGenPass)] extension def
+    /pass ox_encrypt_104_genPass def
     /peer [(oxGetPort) (localhost)] extension def
     /data peer 1 get toString def
     /control peer 3 get toString def
     peer message
     [oxpath.oxlog.xterm  oxpath.ox ( -reverse -ox ) oxserver
-     ( -data ) data ( -control ) control  ( -pass ) pass 
+     ( -data ) data ( -control ) control   pass [1 2] get  
       oxpath.null
      ( &)] cat system-csh
-    [(oxCreateClient2) peer 0 pass] extension /my-peer set
+    [(oxCreateClient2) peer 0 pass 0 get] extension /my-peer set
                          %% 0 means connect from only localhost. 
     /arg1 my-peer def
  ] pop
@@ -502,7 +502,7 @@ ox.verbose { oxhelp } {  } ifelse
 /sm1StartControl101 {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [
- /pass [(oxGenPass)] extension def
+ /pass ox_encrypt_104_genPass def
  /peer [(oxGetPort1) (localhost)] extension def
  /data peer 1 get toString def
  peer message
@@ -662,7 +662,7 @@ ox.verbose { oxhelp } {  } ifelse
    [(getServerEnv) (bin/ox_sm1)] extension tag 0 eq {
      (Server bin/ox_sm1 is not found.) error
    }{ } ifelse
- /pass [(oxGenPass)] extension def
+ /pass ox_encrypt_104_genPass def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
@@ -672,9 +672,9 @@ ox.verbose { oxhelp } {  } ifelse
   @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
   ( -oxserver bin/ox_sm1 -e ) ( -reverse )
-  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
- [(oxCreateClient2) peer 0 pass] extension /oxsm1.ccc set
+ [(oxCreateClient2) peer 0 pass 0 get] extension /oxsm1.ccc set
                      %% 0 means connect from only localhost. 
  (The server is binded to the variable oxsm1.ccc) message-quiet
   /ox.ccc oxsm1.ccc def
@@ -703,7 +703,7 @@ ox.verbose { oxhelp } {  } ifelse
  /machine arg1 0 get def
  /name arg1 1 get def
 
- /pass [(oxGenPass)] extension def
+ /pass ox_encrypt_104_genPass def
  /peer [(oxGetPort) myhostname-ssh] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
@@ -711,14 +711,14 @@ ox.verbose { oxhelp } {  } ifelse
  [(ssh -f ) machine ( -l ) name ( ")
   oxpath.oxlog.xterm-ssh  oxpath.ox-ssh ( -reverse -ox ) oxpath.oxsm1-ssh
   ( -host ) myhostname-ssh
-  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -data ) data ( -control ) control   pass [1 2] get  
   oxpath.null
   ( ")
  ] cat /comm set
  (Executing the command : ) messagen comm message message
   comm system
  (sleep 5) system-csh
- [(oxCreateClient2) peer 1 pass] extension /your-peer set
+ [(oxCreateClient2) peer 1 pass 0 get] extension /your-peer set
  /arg1 your-peer def
  ] pop
  popVariables
@@ -757,7 +757,7 @@ ox.verbose { oxhelp } {  } ifelse
    [(getServerEnv) (bin/ox_ntl)] extension tag 0 eq {
      (Server bin/ox_ntl is not found.) error
    }{ } ifelse
- /pass [(oxGenPass)] extension def
+ /pass ox_encrypt_104_genPass def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
@@ -766,9 +766,9 @@ ox.verbose { oxhelp } {  } ifelse
   oxstart100
   Xm_noX { ( -nox ) } {  } ifelse
   ( -oxserver bin/ox_ntl -e ) ( -reverse )
-  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
- [(oxCreateClient2) peer 0 pass] extension /oxntl.ccc set
+ [(oxCreateClient2) peer 0 pass 0 get] extension /oxntl.ccc set
                      %% 0 means connect from only localhost. 
  (The server is binded to the variable oxntl.ccc) message-quiet
 %  oxntl.ccc.init 
@@ -1706,7 +1706,7 @@ oxasir.verbose {
      (Server bin/ox_sm1 is not found.) error
    }{ } ifelse
 
- /pass [(oxGenPass)] extension def
+ /pass ox_encrypt_104_genPass def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
@@ -1716,9 +1716,9 @@ oxasir.verbose {
   @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
   ( -oxserver bin/ox_asir -e ) ( -reverse )
-  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
- [(oxCreateClient2) peer 0 pass] extension /oxasir.ccc set
+ [(oxCreateClient2) peer 0 pass 0 get] extension /oxasir.ccc set
                      %% 0 means connect from only localhost. 
  oxasir.ccc asir.init
  /arg1 oxasir.ccc def
@@ -1753,7 +1753,7 @@ oxasir.verbose {
      (Server bin/ox_sm1 is not found.) error
    }{ } ifelse
 
- /pass [(oxGenPass)] extension def
+ /pass ox_encrypt_104_genPass def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
@@ -1762,9 +1762,9 @@ oxasir.verbose {
   oxstart100 
   Xm_noX { ( -nox ) } {  } ifelse
   ( -oxserver bin/ox_k0 -e ) ( -reverse )
-  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
- [(oxCreateClient2) peer 0 pass] extension /oxk0.ccc set
+ [(oxCreateClient2) peer 0 pass 0 get] extension /oxk0.ccc set
                      %% 0 means connect from only localhost. 
  (The server is binded to the variable oxk0.ccc) message-quiet
   ox.k0.init 
@@ -1777,5 +1777,53 @@ oxasir.verbose {
 
 /ox_server_mode {
   /:: {   } def  % do nothing
+} def
 
+%% Encryption methods
+/ox_encrypt_104.NONE  0 def
+/ox_encrypt_104.FILE  1 def
+/ox_encrypt_104.RSA   2 def
+/@@@.ox_encrypt_104.method  ox_encrypt_104.NONE  def
+/ox_encrypt_104.1 {
+  /arg1 set
+  [/sss /rrr] pushVariables
+  [
+    /sss arg1 def
+    sss toString /sss set
+    { 
+      @@@.ox_encrypt_104.method  ox_encrypt_104.NONE  eq {
+        /rrr [sss] def
+        exit
+      } {  } ifelse
+      (The encryption method has not yet been implemented.) error
+    } loop
+    /arg1 rrr def 
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: ox_encrypt_104_genPass 
+%  [[ c-pass d-pass ] [c-pass-encrypted d-pass-encrypted ox-command-str ] ...]
+%>
+/ox_encrypt_104_genPass {
+  [/sss /p1 /p2 /e1 /e2 /rrr] pushVariables
+  [
+    /r1 [(oxGenPass)] extension def
+    /r2 [(oxGenPass)] extension def
+    r1 ox_encrypt_104.1 /e1 set
+    r2 ox_encrypt_104.1 /e2 set
+    {
+      @@@.ox_encrypt_104.method  ox_encrypt_104.NONE  eq {
+        [( -passControl ) e1 0 get ( -passData ) e2 0 get ( )] cat /sss set
+        [[r1 r2] [e1 0 get , e2 0 get , sss]] /rrr set
+        exit
+      } { } ifelse
+      (The encryption method has not been implemented.) error
+    } loop
+    rrr /arg1 set
+  ] pop
+  popVariables
+  arg1
 } def

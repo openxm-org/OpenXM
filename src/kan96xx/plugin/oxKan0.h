@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.8 2004/02/23 09:03:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.9 2004/03/08 08:24:42 takayama Exp $ */
 /* ox_kan0.h */
 
 #define mymalloc(n) sGC_malloc(n)
@@ -90,7 +90,7 @@ int oxIsThereErrorClient(oxclientp client);  /* 1 : error, 0 : OK. */
 oxclientp oxCreateClient(char *ipname,int portStream,int portControl);
 oxclientp oxCreateClientFile(char *fileName,char *mode,char *controlFileName,char *cmode);
 oxclientp oxCreateClient2(int fdstream,int portStream,
-			  int fdcontrol,int portControl,int ipmask,char *pass);
+			  int fdcontrol,int portControl,int ipmask,char *cpass,char *dpass);
 int oxSetByteOrder(int fd);
 int oxTellMyByteOrder(int fdOut,int fdIn);
 

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.20 2004/03/08 08:24:42 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.21 2004/09/16 23:53:45 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -909,7 +909,8 @@ static void cancelConnection() {
 }
 
 oxclientp oxCreateClient2(int fdstream,int portStream,
-                          int fdcontrol,int portControl,int ipmask,char *pass)
+                          int fdcontrol,int portControl,int ipmask,
+                          char *passControl, char *passData)
 {
   int v = 0;
   int fdControl = -1;
@@ -957,17 +958,21 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
   }
 
   /* Authentication by password. */
-  m = strlen(pass);
+  m = strlen(passControl)+strlen(passData);
   if (m > 0) {
     s = (char *)mymalloc(sizeof(char)*(m+1));
+    m = strlen(passControl); s[0] = 0;
     read(fdControl,s,m+1); s[m] = '\0';
-    if (strcmp(s,pass) != 0) {
+    if (strcmp(s,passControl) != 0) {
+      fprintf(stderr,"s=%s, passControl=%s\n",s,passControl);
       fprintf(stderr,"oxCreateClient2(): password authentication failed for control channel.\n");
       close(fdControl);
       return(NULL);
     }
+    m = strlen(passData); s[0] = 0;
     read(fdStream,s,m+1); s[m] = '\0';
-    if (strcmp(s,pass) != 0) {
+    if (strcmp(s,passData) != 0) {
+      fprintf(stderr,"s=%s, passData=%s\n",s,passData);
       fprintf(stderr,"oxCreateClient2(): password authentication failed for data channel.\n");
       close(fdStream);
       return(NULL);

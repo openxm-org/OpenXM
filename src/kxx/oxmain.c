@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.16 2004/02/25 23:14:36 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.17 2004/03/03 02:31:50 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -55,6 +55,8 @@ main(int argc, char *argv[]) {
   extern int OpenedSocket;
   char portfile[1024];
   char *pass = NULL;
+  char *passControl = NULL;
+  char *passData = NULL;
   int result;
   int sleepingTime = 0;
   extern int OxTerminateMode;
@@ -101,6 +103,16 @@ main(int argc, char *argv[]) {
       if (i<argc) {
         pass = argv[i];
       }
+    }else if (strcmp(argv[i],"-passData") == 0) {
+      i++;
+      if (i<argc) {
+        passData = argv[i];
+      }
+    }else if (strcmp(argv[i],"-passControl") == 0) {
+      i++;
+      if (i<argc) {
+        passControl = argv[i];
+      }
     }else if (strcmp(argv[i],"-wait") == 0) {
       i++;
       if (i<argc) {
@@ -127,10 +139,17 @@ main(int argc, char *argv[]) {
     fprintf(stderr,"\nTrying to connect\n");
   }
 
+  if ((pass != NULL) && (passData == NULL)) {
+	passData = pass;
+  }
+  if ((pass != NULL) && (passControl == NULL)) {
+    passControl = pass;
+  }
+
   if (reverse) {
     /* The order is very important. */
-    fdControl = socketConnectWithPass(sname,portControl,pass);
-    fdStream = socketConnectWithPass(sname,portStream,pass);
+    fdControl = socketConnectWithPass(sname,portControl,passControl);
+    fdStream = socketConnectWithPass(sname,portStream,passData);
 
     fprintf(stderr,"Connected: control = %d, data = %d.\n",fdControl,fdStream);
     result = 0;
@@ -224,13 +243,14 @@ static void errorToStartEngine(void) {
 oxmainUsage() {
   fprintf(stderr,"Usage: \n");
   fprintf(stderr,"  ox [-ox serverprogram -host name -data portnum -control portnum -monitor]\n");
-  fprintf(stderr," [-insecure -portfile fname -reverse -pass xxxyyyzzz]");
+  fprintf(stderr," [-insecure -portfile fname -reverse -passControl xxxyyyzzz -passData pppqqqrrr]");
   fprintf(stderr," [-finish]");
   fprintf(stderr,"\n");
   fprintf(stderr,"-reverse: ox server connects to the client.\n");
-  fprintf(stderr,"          The client must give a one time password to ox server to connect to the client with -pass option.\n");
+  fprintf(stderr,"          The client must give a one time password to ox server to connect to the client with -pass* option.\n");
   fprintf(stderr,"          The one time password can be seen by ps command, so you must not use this one time password system on an untrustful host.\n");
   fprintf(stderr,"          The one time password should be sent by a safe communication line like ssh and the ox server should be started by ssh. Do not use rsh\n");
+  fprintf(stderr,"          (The option -pass is obsolete.)\n");
   fprintf(stderr,"          If -reverse is not given, the client connect to the ox server\n");
   fprintf(stderr,"          See OpenXM/src/SSkan/Doc/ox.sm1, /sm1connectr\n");
   fprintf(stderr,"-insecure : \n");
