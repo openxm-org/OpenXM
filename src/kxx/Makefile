@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM$
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.2 1999/10/30 02:24:26 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -102,19 +102,19 @@ print :
 install :
 	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog
 	cp  ox ox_sm1 oxlog ../bin
-	ln -sf ../../../bin/ox $(KANHOME)/lib/bin/ox
-	ln -sf ../../../bin/oxlog $(KANHOME)/lib/bin/oxlog
-	ln -sf ../../../bin/ox_sm1 $(KANHOME)/lib/bin/ox_sm1
-	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_forAsir
-	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_gnuplot
-	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_phc
-	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_tigers
-	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_basicCD
+	ln -f -s ../../../bin/ox $(KANHOME)/lib/bin/ox
+	ln -f -s ../../../bin/oxlog $(KANHOME)/lib/bin/oxlog
+	ln -f -s ../../../bin/ox_sm1 $(KANHOME)/lib/bin/ox_sm1
+	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_forAsir
+	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_gnuplot
+	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_phc
+	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_tigers
+	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_basicCD
 
 install2 :
-	ln -sf  ../src/kxx/ox ../bin/ox
-	ln -sf  ../src/kxx/ox_sm1 ../bin/ox_sm1
-	ln -sf  ../src/kxx/oxlog ../bin/oxlog
+	ln -f -s  ../src/kxx/ox ../bin/ox
+	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
+	ln -f -s  ../src/kxx/oxlog ../bin/oxlog
 
 
 clean-binary :
