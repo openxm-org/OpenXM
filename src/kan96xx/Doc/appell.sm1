@@ -1,5 +1,5 @@
 %% appell.sm1, 1998,  11/8
-% $OpenXM: OpenXM/src/kan96xx/Doc/appell.sm1,v 1.3 2003/07/29 08:37:16 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/appell.sm1,v 1.4 2003/08/18 06:36:49 takayama Exp $
 /appell.version (2.981108) def
 appell.version [(Version)] system_variable gt
 { (This package requires the latest version of kan/sm1) message
@@ -82,7 +82,8 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
 [(appell1)
  [(param appell1 c)
   (array param; array c;)
-  (appell1 returns the Lauricella function F_D(a,b_1, ..., b_n,c; x_1,...,x_n))
+  (appell1 returns an annihilating ideal for )
+  (the Lauricella function F_D(a,b_1, ..., b_n,c; x_1,...,x_n))
   (for the parameter << param >> = [a, c, b_1, ..., b_n].)
   (In case of n=2, the function is called the Appell function F_1.)
   (c = [ generators,  variables ])
@@ -152,8 +153,9 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
 [(appell4)
  [(param appell4 c)
   (array param; array c;)
-  (appell4 returns the Lauricella function F_C(a,b, c_1, ..., c_n; x_1,...,x_n))
-  (for the parameter << param >> = [a, c, b_1, ..., b_n].)
+  (appell4 returns an annihilating ideal for )
+  (the Lauricella function F_C(a,b, c_1, ..., c_n; x_1,...,x_n))
+  (for the parameter << param >> = [a, b, c_1, ..., c_n].)
   (In case of n=2, the function is called the Appell function F_4.)
   (c = [ generators,  variables ])
   (Note that for a special set of parameters, the returned differential equation)
@@ -164,7 +166,7 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
 
 /appell4r {
   /arg1 set
-  [/in-appell4r /typev /setarg /b /n /vv /i /a /c /bb /ans
+  [/in-appell4r /typev /setarg /b /n /vv /i /a /c /bb /ans /rr
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
   [
@@ -172,8 +174,14 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
     aa isArray { } { (array appell) message (appell4) usage error } ifelse
     /setarg 0 def
     aa { tag } map /typev set
+    /rr 0 def
     typev [ ArrayP ] eq
     {  /b aa 0 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ ArrayP RingP] eq
+    {  /b aa 0 get def
+       /rr aa 1 get def
        /setarg 1 def
     } { } ifelse
     typev [ ] eq
@@ -195,7 +203,11 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
       } for
     ] /vv set
 
-    [vv from_records ring_of_differential_operators 0] define_ring
+    rr tag 1 eq { 
+      [vv from_records ring_of_differential_operators 0] define_ring
+    } {
+      rr ring_def
+    } ifelse
 
     %% b = [a  b  c_1 ... c_n ]
     /a b 0 get def
@@ -224,6 +236,19 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
   arg1
 } def
 %% [ [(1).. (2).. div -4 -2 5 6] ] appell4r
+[(appell4r)
+ [(param appell4r c)
+  (array param; array c;)
+  (appell4r returns an annihilating ideal for )
+  (the Lauricella function F_C(a,b, c_1, ..., c_n; x_1,...,x_n))
+  (for the parameter << param >> = [a, b, c_1, ..., c_n].)
+  (In case of n=2, the function is called the Appell function F_4.)
+  (c = [ generators,  variables ])
+  (Example 1. [ [(1).. (2).. div -4 -2 5 6] ] appell4r rank ::)
+  $Example 2. [(a,x1,x2) ring_of_differential_operators 0] define_ring /r set $
+  $           [ [(a). (2).. div (a). (1). (1).] r] appell4r $
+ ]
+] putUsages
 
 
 /appell.euler {
@@ -310,7 +335,8 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
 [(appell2)
  [(param appell2 c)
   (array param; array c;)
-  (appell2 returns the Lauricella function F_A(a,b_1, ..., b_n, c_1, ..., c_n; x_1,...,x_n))
+  (appell2 returns an annihilating ideal for )
+  (the Lauricella function F_A(a,b_1, ..., b_n, c_1, ..., c_n; x_1,...,x_n))
   (for the parameter << param >> = [a, [b_1, ..., b_n],[c_1, ..., c_n]].)
   (In case of n=2, the function is called the Appell function F_2.)
   (c = [ generators,  variables ])
@@ -320,7 +346,7 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
 
 /appell2r {
   /arg1 set
-  [/in-appell2r /typev /setarg /b /n /vv /i /a /c /bb /ans
+  [/in-appell2r /typev /setarg /b /n /vv /i /a /c /bb /ans /r
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
   [
@@ -328,9 +354,15 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
     aa isArray { } { (array appell) message (appell2) usage error } ifelse
     /setarg 0 def
     aa { tag } map /typev set
+    /r 0 def
     typev [ ArrayP ] eq
     {  /b aa 0 get def
        /setarg 1 def
+    } { } ifelse
+    typev [ ArrayP RingP] eq
+    {  /b aa 0 get def
+       /setarg 1 def
+       /r aa 1 get def
     } { } ifelse
     typev [ ] eq
     {
@@ -351,7 +383,11 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
       } for
     ] /vv set
 
-    [vv from_records ring_of_differential_operators 0] define_ring
+    r tag 1 eq {
+      [vv from_records ring_of_differential_operators 0] define_ring
+    } {
+      r ring_def
+    } ifelse
 
     %% b = [a  [b_1 ... b_n]  [c_1 ... c_n] ]
     /a b 0 get def
@@ -380,5 +416,18 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
   arg1
 } def
 %%[[(1).. (2).. div [(1).. (2).. div (1).. (2).. div] [1 1]] ] appell2r rank ::
+[(appell2r)
+ [(param appell2r c)
+  (array param; array c;)
+  (appell2r returns an annihilating ideal for )
+  (the Lauricella function F_A(a,b_1, ..., b_n, c_1, ..., c_n; x_1,...,x_n))
+  (for the parameter << param >> = [a, [b_1, ..., b_n], [c_1, ..., c_n]].)
+  (In case of n=2, the function is called the Appell function F_2.)
+  (c = [ generators,  variables ])
+  (Example 1. [ [(1).. (2).. div [-4 -2] [5 6]] ] appell2r rank ::)
+  $Example 2. [(a,x1,x2) ring_of_differential_operators 0] define_ring /r set $
+  $           [ [(a). (2).. div [(a). (1).. (3).. div] [(1). (1).]] r] appell2r $
+ ]
+] putUsages
 
 ( ) message-quiet ;
