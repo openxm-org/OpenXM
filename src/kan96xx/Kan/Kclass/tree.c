@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.1 2003/11/21 02:10:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.2 2003/11/24 02:13:40 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -112,37 +112,36 @@ struct object addTree(struct object ob1, struct object ob2)
 struct object KtreeGetDocumentElement(struct object to) {
   struct object rob;
   struct object ob;
-  rob = NullObject;
-  if (to.tag != Sclass) return rob;
-  if (ectag(to) != CLASSNAME_tree) return rob;
+  if (to.tag != Sclass) errorKan1("%s\n","KtreeGetDocumentElement");
+  if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetDocumentElement");
   ob = KopTree(to);
+  if (ob.tag != Sdollar) errorKan1("%s\n","KtreeGetDocumentElement: element name is not a string.");
   return getoa(ob,0);
 }
 
 struct object KtreeGetAttributes(struct object to) {
   struct object rob;
   struct object ob;
-  rob = NullObject;
-  if (to.tag != Sclass) return rob;
-  if (ectag(to) != CLASSNAME_tree) return rob;
+  if (to.tag != Sclass) errorKan1("%s\n","KtreeGetAttributes:");
+  if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetAttributes:");
   ob = KopTree(to);
+  if (ob.tag != Sarray) errorKan1("%s\n","KtreeGetAttributes: not an array.");
   return getoa(ob,1);
 }
 
 struct object KtreeGetChildNodes(struct object to) {
   struct object rob;
   struct object ob;
-  rob = NullObject;
-  if (to.tag != Sclass) return rob;
-  if (ectag(to) != CLASSNAME_tree) return rob;
+  if (to.tag != Sclass) errorKan1("%s\n","KtreeGetChildNodes:");
+  if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetChildNodes:");
   ob = KopTree(to);
+  if (ob.tag != Sarray) errorKan1("%s\n","KtreeGetChildNodes: not an array.");
   return getoa(ob,2);
 }
 
 struct object KtreeCreateElement(struct object ostr) {
   struct object ob;
-  ob = NullObject;
-  if (ostr.tag != Sdollar) return NullObject;
+  if (ostr.tag != Sdollar) errorKan1("%s\n","KtreeCreateElement: not a string.");
   ob = newObjectArray(3);
   getoa(ob,0)=ostr;
   getoa(ob,1) = newObjectArray(0);
