@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.13 2000/01/22 06:29:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.14 2000/03/10 12:38:47 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -95,7 +95,7 @@ int sm_popCMO(int fd_write)
 {
     cmo* m = pop();
 #ifdef DEBUG
-    symbol *symp = lookup_by_tag(m->tag);
+    symbol_t symp = lookup_by_tag(m->tag);
     fprintf(stderr, "ox_math:: opecode = SM_popCMO. (%s)\n", symbol_get_key(symp));
 #endif
 
@@ -158,7 +158,7 @@ int local_execute(char *s)
 /* The following function is depend on an implementation of a server. */
 int sm_executeStringByLocalParser(int fd_write)
 {
-    symbol *symp;
+    symbol_t symp;
     cmo* m = pop();
     char *s = NULL;
 #ifdef DEBUG
