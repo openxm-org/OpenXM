@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.30 2000/11/19 05:50:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.31 2000/12/10 03:12:20 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -46,28 +46,10 @@ def Sprint2(s) {
 
 /* We cannot use load command in the if statement. */
 load("lib/minimal/cohom.k");
+Load_sm1(["k0-tower.sm1","lib/minimal/k0-tower.sm1"],"k0-tower.sm1.loaded");
+Load_sm1(["new.sm1","lib/minimal/new.sm1"],"new.sm1.loaded");
+sm1(" oxNoX ");
 
-def load_tower() {
-  local ppp;
-  if (Boundp("k0-tower.sm1.loaded")) {
-  }else{
-    if (Tag(GetPathName("k0-tower.sm1")) == 0) {
-      ppp = GetPathName("lib/minimal/k0-tower.sm1");
-      sm1(" [(parse) ppp pushfile ] extension ");
-    }else{
-      sm1(" [(parse) (k0-tower.sm1) pushfile ] extension ");
-    }
-    if (Tag(GetPathName("new.sm1")) == 0) {
-      ppp = GetPathName("lib/minimal/new.sm1");
-      sm1(" [(parse) ppp pushfile ] extension ");
-    }else{
-      sm1(" [(parse) (new.sm1) pushfile ] extension ");
-    }
-    sm1(" /k0-tower.sm1.loaded 1 def ");
-  }
-  sm1(" oxNoX ");
-}
-load_tower();
 SonAutoReduce = true;
 def Factor(f) {
    sm1(f, " fctr /FunctionValue set");

@@ -213,7 +213,9 @@ argsize (1)..  eq
  %% if-condition
   { %%ifbody
  [  vList  ring_of_differential_operators ( ) elimination_order 0 ] define_ring
-         /tmp set  tmp  /FunctionValue set  {/ExitPoint goto} exec %%return
+         /tmp set  this [ %% function args 
+] {SetRingVariables} sendmsg2 
+tmp  /FunctionValue set  {/ExitPoint goto} exec %%return
   }%%end if if body
   { %%if- else part
   } ifelse
@@ -270,6 +272,8 @@ tmp [j  ]  Get
 new0 [i  ] newtmp  Put
   } for 
  [  vList  ring_of_differential_operators   new0   weight_vector  pp   ] define_ring /ringpp  set
+this [ %% function args 
+] {SetRingVariables} sendmsg2 
   @@@.indexMode.flag.save @@@.indexMode  ringpp  /FunctionValue set  {/ExitPoint goto} exec %%return
 /ExitPoint ]pop popVariables %%pop the local variables
 /ExitPoint ]pop popVariables %%pop argValues
@@ -307,7 +311,7 @@ FunctionValue } def
 FunctionValue } def
 %%end of function
 
-true /SetRingVariables_Verbose  set
+false /SetRingVariables_Verbose  set
 /SetRingVariables {
  db.DebugStack setstack $In function : SetRingVariables of class PrimitiveObject$  stdstack 
  /Arglist set /Argthis set /FunctionValue [ ] def
@@ -321,13 +325,12 @@ this [ %% function args
   { %%if- else part
   } ifelse
 this [ %% function args 
-(0)..  [(CC)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
-this [ %% function args 
- [(C)] system_variable (universalNumber) dc   [(LL)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
-this [ %% function args 
- [(L)] system_variable (universalNumber) dc   [(MM)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
-this [ %% function args 
- [(M)] system_variable (universalNumber) dc   [(NN)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
+(0)..  [(N)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
+ %% if-condition
+  { %%ifbody
+  define_ring_variables    }%%end if if body
+  { %%if- else part
+  } ifelse
 SetRingVariables_Verbose  %% if-condition
   { %%ifbody
 this [ %% function args 
@@ -371,64 +374,49 @@ FunctionValue } def
 /k00setRingVariables {
  db.DebugStack setstack $In function : k00setRingVariables of class PrimitiveObject$  stdstack 
  /Arglist set /Argthis set /FunctionValue [ ] def
- [/this /tmp002_p /tmp002_q  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [/this /p /q  ] /ArgNames set ArgNames pushVariables [ %%function body
  [Argthis] Arglist join ArgNames mapset
 [ %%start of local variables
-/tmp002_i /tmp002_v /tmp002_str ] pushVariables [ %%local variables
-tmp002_p %%PSfor initvalue.
- (integer) data_conversion 
-tmp002_q  (1).. sub  (integer) data_conversion  1  2 -1 roll 
-{ %% for body
- (universalNumber) data_conversion /tmp002_i  set 
+/v /i ] pushVariables [ %%local variables
+p /i  set
+%%for init.
+%%for
+{ i q  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. {add} sendmsg2 def
+} %%end of increment{A}
+{%%start of B part{B}
 this [ %% function args 
-tmp002_i ] {getxvar} sendmsg2 
-/tmp002_v  set
+i ] {getxvar} sendmsg2 
+/v  set
 this [ %% function args 
-tmp002_v ] {k00AreThereLeftBrace} sendmsg2 
+v ] {k00AreThereLeftBrace} sendmsg2 
  %% if-condition
   { %%ifbody
-  }%%end if if body
-  { %%if- else part
-SetRingVariables_Verbose  %% if-condition
-  { %%ifbody
-this [ %% function args 
-tmp002_v ] {Print} sendmsg2 
-this [ %% function args 
-( ) ] {Print} sendmsg2 
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
   }%%end if if body
   { %%if- else part
   } ifelse
 this [ %% function args 
-[ (/) tmp002_v ( $) tmp002_v ($ (poly) data_conversion def )   ] ] {AddString} sendmsg2 
-/str  set
- [(parse)   str   ] extension    } ifelse
+i ] {getdvar} sendmsg2 
+/v  set
 this [ %% function args 
-tmp002_i ] {getdvar} sendmsg2 
-/tmp002_v  set
-this [ %% function args 
-tmp002_v ] {k00AreThereLeftBrace} sendmsg2 
+v ] {k00AreThereLeftBrace} sendmsg2 
  %% if-condition
   { %%ifbody
-  }%%end if if body
-  { %%if- else part
-SetRingVariables_Verbose  %% if-condition
-  { %%ifbody
-this [ %% function args 
-tmp002_v ] {Print} sendmsg2 
-this [ %% function args 
-( ) ] {Print} sendmsg2 
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
   }%%end if if body
   { %%if- else part
   } ifelse
-this [ %% function args 
-[ (/) tmp002_v ( $) tmp002_v ($ (poly) data_conversion def )   ] ] {AddString} sendmsg2 
-/str  set
- [(parse)   str   ] extension    } ifelse
-  } for 
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+true  /FunctionValue set  {/ExitPoint goto} exec %%return
 /ExitPoint ]pop popVariables %%pop the local variables
 /ExitPoint ]pop popVariables %%pop argValues
  db.DebugStack setstack pop stdstack 
-} def
+FunctionValue } def
 %%end of function
 
 /AddString {
@@ -797,3 +785,56 @@ FunctionValue } def
 
 this [ %% function args 
 [ (GetPathName) [ (GetPathName(s) checks if the file s exists in the current directory or) (in LOAD_K_PATH. If there exists, it returns the path name (string s).)   ]   ] ] {HelpAdd} sendmsg2 
+/Load_sm1 {
+ db.DebugStack setstack $In function : Load_sm1 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /fnames /flag  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ppp /n /i /cmd ] pushVariables [ %%local variables
+this [ %% function args 
+flag ] {Boundp} sendmsg2 
+ %% if-condition
+  { %%ifbody
+  }%%end if if body
+  { %%if- else part
+this [ %% function args 
+fnames ] {Length} sendmsg2 
+/n  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. {add} sendmsg2 def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+fnames [i  ]  Get
+] {GetPathName} sendmsg2 
+/ppp  set
+this [ %% function args 
+ppp ] {Tag} sendmsg2 
+(0)..  eq not
+ %% if-condition
+  { %%ifbody
+  [(parse) ppp pushfile ] extension  this [ %% function args 
+[ (/) flag ( 1 def )   ] ] {AddString} sendmsg2 
+/cmd  set
+  [(parse) cmd ] extension  n /i  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+  } ifelse
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Load_sm1) [ (Load_sm1(s,flag) loads a sm1 program from s[0], s[1], ....) (If loading is succeeded, the already-loaded flag is set to true.) ((list s, string flag).)   ]   ] ] {HelpAdd} sendmsg2 

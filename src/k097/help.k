@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
 if (K00_verbose)
   Println("help.k (help.ccc).  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -331,6 +331,7 @@ def RingPoly(vList,weightMatrix,pp) {
     sm1("[", vList, 
         "ring_of_polynomials ( ) elimination_order 0 ] define_ring
          /tmp set ");
+    SetRingVariables();
     return(tmp);
   } else ;
   if (argsize == 2) {
@@ -351,6 +352,7 @@ def RingPoly(vList,weightMatrix,pp) {
     }
     new0[i] = newtmp;
   }
+  SetRingVariables();
   ringpp =
   sm1("[", vList, 
       "ring_of_polynomials ", new0, " weight_vector", pp, " ] define_ring");
@@ -506,7 +508,6 @@ def RingDonIndexedVariables(vList, size, weightMatrix,pp) {
   if (argsize == 2) {
     vListD = AddString(["D",vList]);
     myring = RingD(IndexedVariables(vList,size));
-    SetRingVariables();
     tmp = NewArray(size);
     for (k00_i=0; k00_i<size; k00_i++) {tmp[k00_i]=Poly(Indexed(vList,k00_i));}
     sm1(vList, " (literal) dc ", tmp, " def ");

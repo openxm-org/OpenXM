@@ -1,43 +1,5 @@
-%%  $OpenXM: OpenXM/src/k097/lib/minimal/k0-cohom.sm1,v 1.1 2000/05/03 06:42:07 takayama Exp $
+%%  $OpenXM: OpenXM/src/k097/lib/minimal/k0-cohom.sm1,v 1.2 2000/07/31 01:21:41 takayama Exp $
 
-%%  These macros should be moved to dr.sm1 with usages.
-/define_ring_variables {
-  [/in-define_ring_variables /v /p /v0] pushVariables
-  [
-     /v getVariableNames def
-     /v0 v def
-     v { dup /p set (/) 2 1 roll ( $) p ($. def ) } map cat
-     /v set
-%     v message
-     [(parse) v] extension 
-  ] pop
-  popVariables
-} def
-[(define_ring_variables)
-[(It binds  a variable <<a>> in the current ring to the sm1 variable <<a>>.)
- (For example, if x is a variable in the current ring, it defines the sm1)
- (variable x by /x (x) def)
-]] putUsages
-
-/boundp {
-  /arg1 set
-  [/a /ans] pushVariables
-  [
-    /a arg1 def
-    [(parse) [(/) a ( load tag 0 eq { /ans 0 def } )
-                    (               { /ans 1 def } ifelse )] cat ] extension
-    /arg1 ans def
-  ] pop
-  popVariables
-  arg1
-} def
-[(boundp)
- [( a boundp b)
-  (string a, b is 0 or 1.)
-  (If the variable named << a >> is bounded to a value,)
-  (it returns 1 else it returns 0.)
-  $Example: (hoge) boundp ::$
-]] putUsages
 
 % w_to_vec in dr.sm1 should be replaced by the following.
 [(chattr) 0 /w_to_vec] extension

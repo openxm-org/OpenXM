@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.3 2000/12/10 02:21:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.4 2000/12/10 03:12:19 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -94,6 +94,7 @@ def RingD(vList,weightMatrix,pp) {
     sm1("[", vList, 
         "ring_of_differential_operators ( ) elimination_order 0 ] define_ring
          /tmp set ");
+    SetRingVariables();
     return(tmp);
   } else ;
   if (argsize == 2) {
@@ -117,7 +118,7 @@ def RingD(vList,weightMatrix,pp) {
   ringpp =
   sm1("[", vList, 
       "ring_of_differential_operators ", new0, " weight_vector",pp, " ] define_ring");
-  /* setRingVariables();  It doesn't work. It's a mystery. */
+  SetRingVariables();
   sm1(" @@@.indexMode.flag.save @@@.indexMode ");
   return( ringpp );
 }
@@ -144,7 +145,7 @@ def getvarn() {
   sm1( "[(N)] system_variable (universalNumber) dc /FunctionValue set ");
 }
 
-SetRingVariables_Verbose = true;
+SetRingVariables_Verbose = false;
 def SetRingVariables() {
   /* Don't use local variables in this function,
      because we set global variables in this function.
@@ -152,13 +153,9 @@ def SetRingVariables() {
   if (SetRingVariables_Verbose ) {
     Print("SetRingVariables() Setting the global variables : ");
   }
-  k00setRingVariables(0,sm1( "[(CC)] system_variable (universalNumber) dc "));
-  k00setRingVariables(sm1( "[(C)] system_variable (universalNumber) dc "),
-                      sm1( "[(LL)] system_variable (universalNumber) dc "));
-  k00setRingVariables(sm1( "[(L)] system_variable (universalNumber) dc "),
-                      sm1( "[(MM)] system_variable (universalNumber) dc "));
-  k00setRingVariables(sm1( "[(M)] system_variable (universalNumber) dc "),
-                      sm1( "[(NN)] system_variable (universalNumber) dc "));
+  if (k00setRingVariables(0,sm1( "[(N)] system_variable (universalNumber) dc "))) {
+    sm1(" define_ring_variables ");
+  }
   if (SetRingVariables_Verbose) {Ln();}
 }
 
@@ -169,25 +166,19 @@ def k00AreThereLeftBrace(s) {
   if (jj != -1) return(true); else return(false);
 }
 
-def void k00setRingVariables(tmp002_p,tmp002_q) {
-  /* tmp002_ must not be used as variables names. */
-  local tmp002_i,tmp002_v,tmp002_str;
-  PSfor (tmp002_i=tmp002_p;tmp002_i<tmp002_q;tmp002_i++) {
-    tmp002_v = getxvar(tmp002_i);
-    if (k00AreThereLeftBrace(tmp002_v)) { ; } 
-    else {
-      if (SetRingVariables_Verbose) {Print(tmp002_v); Print(" ");}
-      str = AddString(["/",tmp002_v," $",tmp002_v,"$ (poly) data_conversion def "]);
-      sm1("[(parse) ",str," ] extension ");
+def k00setRingVariables(p,q) {
+  local v,i;
+  for (i = p; i< q; i++) {
+    v = getxvar(i);
+    if (k00AreThereLeftBrace(v)) { 
+       return(false);
     }
-    tmp002_v = getdvar(tmp002_i);
-    if (k00AreThereLeftBrace(tmp002_v)) { ; } 
-    else {
-      if (SetRingVariables_Verbose) {Print(tmp002_v); Print(" ");}
-      str = AddString(["/",tmp002_v," $",tmp002_v,"$ (poly) data_conversion def "]);
-      sm1("[(parse) ",str," ] extension ");
+	v = getdvar(i);
+    if (k00AreThereLeftBrace(v)) {
+       return(false);
     }
   }
+  return(true);
 }
 /* ---------------------------------- */
 
@@ -359,3 +350,24 @@ HelpAdd(["GetPathName",
 ["GetPathName(s) checks if the file s exists in the current directory or",
  "in LOAD_K_PATH. If there exists, it returns the path name (string s)."]]);
 
+def Load_sm1(fnames,flag) {
+  local ppp,n,i,cmd;
+  if (Boundp(flag)) {
+  }else{
+    n = Length(fnames);
+    for (i=0; i<n; i++) {
+       ppp = GetPathName(fnames[i]);
+       if (Tag(ppp) != 0) {
+          sm1(" [(parse) ppp pushfile ] extension ");
+          cmd = AddString(["/",flag," 1 def "]);
+          sm1(" [(parse) cmd ] extension ");
+          i=n; /* break; */
+       }
+    }
+  }
+}
+
+HelpAdd(["Load_sm1",
+["Load_sm1(s,flag) loads a sm1 program from s[0], s[1], ....",
+ "If loading is succeeded, the already-loaded flag is set to true.",
+ "(list s, string flag)."]]);
