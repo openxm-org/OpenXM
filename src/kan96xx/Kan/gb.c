@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.4 2000/03/15 01:31:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.5 2001/05/04 01:06:23 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -8,6 +8,7 @@
 
 #define INITGRADE 4
 #define INITSIZE 2
+#define DMAX 100
 
 int KanGBmessage = 1;
 
@@ -22,7 +23,8 @@ extern int UseCriterion2B;
 extern int Spairs;
 extern int Criterion2B, Criterion2F, Criterion2M;
 extern int AutoReduce;
-
+static int MaxLength[DMAX];
+static int SpNumber[DMAX];
 
 struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
      struct gradedPairs *grD;  /* set of pairs */
@@ -190,7 +192,11 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
   extern struct ring *CurrentRingp;
   extern char *F_mpMult;
   struct ring *rp;
+  int statisticsPL, statisticsCount;
 
+  if (Statistics) {
+    for (i=0; i<DMAX; i++) MaxLength[i] = SpNumber[i] = 0;
+  }
   r = f->n;
   if (r<=0) return((struct gradedPolySet *)NULL);
   if (UseCriterion1) {
@@ -249,6 +255,17 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
     Spairs++;
     h = (*sp)(gi,gj);
     rd = ppAddv(ppMult(h.a,gi),ppMult(h.b,gj));
+
+    if (Statistics) {
+      if (top->grade >=0 && top->grade < DMAX) {
+        statisticsPL = pLength(rd);
+		SpNumber[top->grade]++;
+        if (MaxLength[top->grade] < statisticsPL) {
+          MaxLength[top->grade] = statisticsPL;
+        }
+      }
+    }
+
     if (!Sugar || forceReduction) {
       rd = (*reduction)(rd,g,needBack,&syz);
     }else{
@@ -361,6 +378,19 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
     printf("Criterion1 is applied %d times.\n",Criterion1);
     printf("Criterions M,F and B are applied M=%d, F=%d, B=%d times.\n",Criterion2M,Criterion2F,Criterion2B);
     Spairs = Criterion1 = Criterion2M = Criterion2F = Criterion2B = 0;
+
+    printf("degree(number of spolys): maximal polynomial size\n");
+    statisticsCount = 0;
+    for (i=0; i<DMAX; i++) {
+      if (SpNumber[i] > 0) {
+        printf("%3d(%3d): %5d, ",i,SpNumber[i],MaxLength[i]);
+		if (statisticsCount % 4 == 3) {
+		  printf("\n");
+		  statisticsCount = 0;
+		}else{ statisticsCount++; }
+      }
+    }
+    printf("\n");
   }
 
   if (AutoReduce) {
