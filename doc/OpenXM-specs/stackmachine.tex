@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.8 2000/09/08 20:01:38 takayama Exp $
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.9 2000/09/09 21:59:13 takayama Exp $
 //&jp \section{ OX スタックマシン }
 //&eg \section{ OX stack machine }
 \label{sec:stackmachine}
@@ -533,7 +533,7 @@ OpenXM/XML expression of the example above:
 
        <cmo_list>
           <int32 for="length"> 4 </int32>
-          <int32 for="Protocol version">  001001003 </int32>
+          <cmo_int32 for="Protocol version">  001001003 </cmo_int32>
           <cmo_string for="system name"> Ox_system=ox_sm1.plain  </cmo_string>
           <cmo_string for="system version"> Version=2.990911  </cmo_string>
           <cmo_string for="hosttype"> HOSTTYPE=i386  </cmo_string>
@@ -541,8 +541,8 @@ OpenXM/XML expression of the example above:
 
        <cmo_list for="Available SM tags">
           <int32 for="length"> 11 </int32>
-          <int32> 262 </int32> 
-          <int32> 263 </int32> 
+          <cmo_int32> 262 </cmo_int32> 
+          <cmo_int32> 263 </cmo_int32> 
            ...
        </cmo_list>
 
@@ -550,12 +550,12 @@ OpenXM/XML expression of the example above:
           <int32 for="length"> 2 </int32>
           <cmo_list for="OX_DATA tag">
              <int32 for="length"> 1 </int32>
-             <int32 comment="OX_DATA">  514 </int32>
+             <cmo_int32 comment="OX_DATA">  514 </cmo_int32>
           </cmo_list>
           <cmo_list for="Available CMO tags">
              <int32 for="length"> 21 </int32>
-             <int32 comment="CMO_ERROR2">  2130706434 </int32>
-             <int32 comment="CMO_NULL"> 1 </int32>
+             <cmo_int32 comment="CMO_ERROR2">  2130706434 </cmo_int32>
+             <cmo_int32 comment="CMO_NULL"> 1 </cmo_int32>
               ....
           </cmo_list>
 
