@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/numeric.texi,v 1.1 2003/12/20 13:38:44 ohara Exp $
 \BJP
 @node 数値函数,,, 組み込み函数
 @section 数値函数
@@ -62,7 +62,9 @@
 これらの函数は C 言語の標準数学ライブラリを用いる.
 したがって, 計算結果はオペレーティングシステムとコンパイラに依存する.
 @item
-@@pi や @@i などのシンボルを引数に与えることはできない.
+複素数に対しては正しくない結果を返すので注意しなければならない.
+@item
+@@pi などのシンボルを引数に与えることはできない.
 \E
 \BEG
 @item
@@ -118,7 +120,10 @@ So results depend on operating systems and a C compilers.
 これらの函数は C 言語の標準数学ライブラリを用いる.
 したがって, 計算結果はオペレーティングシステムとコンパイラに依存する.
 @item
-@@pi や @@i などのシンボルを引数に与えることはできない.
+@code{dabs()}と@code{dsqrt()}を除き、
+複素数に対しては正しくない結果を返すので注意しなければならない.
+@item
+@@pi などのシンボルを引数に与えることはできない.
 \E
 \BEG
 @item
@@ -176,7 +181,9 @@ So results depend on operating systems and a C compilers.
 @item
 浮動小数を整数にまるめる方法は, オペレーティングシステムとコンパイラに依存する.
 @item
-@@pi や @@i などのシンボルを引数に与えることはできない.
+複素数に対しては正しくない結果を返すので注意しなければならない.
+@item
+@@pi などのシンボルを引数に与えることはできない.
 \E
 @end itemize
 
