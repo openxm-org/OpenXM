@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.1 2000/05/03 06:42:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.2 2000/05/03 07:50:38 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* Test sequences. 
@@ -638,7 +638,9 @@ def SpairAndReduction(skel,level,ii,freeRes,tower,ww) {
 
   Print("result is "); Println(tmp);
 
-  vdeg = SvDegree(si*gi+sj*gj,tower,level-1,ww);
+  /* This is essential part for V-minimal resolution. */
+  /* vdeg = SvDegree(si*gi+sj*gj,tower,level-1,ww); */
+  vdeg = SvDegree(si*gi,tower,level-1,ww); 
   vdeg_reduced = SvDegree(tmp[0],tower,level-1,ww);  
   Print("vdegree of the original = "); Println(vdeg);
   Print("vdegree of the remainder = "); Println(vdeg_reduced);
@@ -823,8 +825,9 @@ def Sminimal(g) {
     }
    }
    return([Stetris(minRes,redundantTable),
-          [ minRes, redundantTable, reducer,r[3],r[4]]]);
+          [ minRes, redundantTable, reducer,r[3],r[4]],r[0]]);
   /* r[4] is the redundantTable_ordinary */
+  /* r[0] is the freeResolution */
 }  
 
 
@@ -933,6 +936,7 @@ In(20)=SvDegree(x,tt,2,ww):
 def SvDegree(f,tower,level,w) {
   local i,ans;
   if (IsZero(f)) return(null);
+  f = Init(f);
   if (level <= 0) {
     return(Sord_w(f,w));
   }
@@ -960,10 +964,19 @@ def Sannfs2(f) {
   return(Sminimal(pp));
 }
 
+def Sannfs3(f) {
+  local p,pp;
+  p = Sannfs(f,"x,y,z");
+  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
+  pp = Map(p[0],"Spoly");
+  return(Sminimal(pp));
+}
+
 /*
   The betti numbers of most examples are 2,1. (0-th and 1-th).
   a=Sannfs2("x*y*(x+y-1)"); ==> The betti numbers are 3, 2. 
   a=Sannfs2("x^3-y^2-x");    : it causes an error. It should be fixed.
+  a=Sannfs2("x*y*(x-y)");    : it causes an error. It should be fixed.
 
 */
      
