@@ -1,13 +1,13 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001/design-outline.tex,v 1.1 2001/03/07 02:42:10 noro Exp $
 
-\section{Design Outline} 
+\section{Design Outline and OpenXM Request for Comments (OpenXM-RFC)} 
 
 As Schefstr\"om clarified in \cite{schefstrom},
-integration of tools and softwares has three dimensions:
+integration of tools and software has three dimensions:
 data, control, and user interface.
 
 Data integration concerns with the exchange of data between different
-softwares or same softwares.
+software or same software.
 OpenMath \cite{OpenMath} and MP (Multi Protocol) \cite{GKW} are,
 for example, general purpose mathematical data protocols.
 They provide standard ways to express mathematical objects.
@@ -67,25 +67,28 @@ We thought that it is necessary to provide a data and control protocol
 for Risa/Asir to work as a server of factorization and primary ideal
 decomposition.
 \item We have been profited from increasing number 
-of mathematical softwares.
+of mathematical software.
 These are usually ``expert'' systems in one area of mathematics
 such as ideals, groups, numbers, polytopes, and so on.
 They have their own interfaces and data formats,
 which are fine for intensive users of these systems.
 However, a unified system will be more convenient
 for users who want to explore a new area of mathematics with these
-softwares or users who need these systems only occasionally.
+software or users who need these systems only occasionally.
 
 \item  We believe that an open integrated system is a future of mathematical
-softwares.
+software.
 However, it might be just a dream without realizability.
 We want to build a prototype of such an open system by using
-existing standards, technologies and several mathematical softwares.
+existing standards, technologies and several mathematical software.
 We want to see how far we can go with this approach.
 \end{enumerate}
 
 Motivated with these, we started the OpenXM project with the following
-fundamental architecture.
+fundamental architecture, which is currently described in
+OpenXM RFC 100  proposed standard %% ``draft standard'' and ``standard''
+``Design and Implementation of OpenXM client-server model and common
+mathematical object format''.
 \begin{enumerate}
 \item Communication is an exchange of messages. The messages are classified into
 three types:
@@ -95,18 +98,19 @@ Among the three types,
 {\it OX data messages} wrap mathematical data.
 We use standards of mathematical data formats such as OpenMath and MP
 as well as our own data format {\it CMO}
-({\it Common Mathematical Object format}).
+({\it Common Mathematical Object format}),
+which can be described in XML.
 \item Servers, which provide services to other processes, are stack machines.
 The stack machine is called the
 {\it OX stack machine}.
-Existing mathematical softwares are wrapped with this stack machine.
+Existing mathematical software are wrapped with this stack machine.
 Minimal requirements for a target software wrapped with the OX stack machine
 are as follows:
 \begin{enumerate}
 \item The target must have a serialized interface such as a character based
 interface.
 \item An output of the target must be understandable for computer programs;
-it should follow a grammar that can be parsed with other softwares.
+it should follow a grammar that can be parsed with other software.
 \end{enumerate}
 \item Any server may have a hybrid interface;
 it may accept and execute not only stack machine commands, 
@@ -132,12 +136,25 @@ the Asir client to the {\tt ox\_sm1} server:
 \end{verbatim}
 Here, {\tt ox\_sm1} is an OpenXM server based on Kan/sm1.
 
-The OpenXM package is implemented on the  OpenXM for TCP/IP, 
+The OpenXM package is implemented on the OpenXM RFC 100 for TCP/IP, 
 which uses the client-server model.
+In this paper, we discuss mainly on systems implementing
+OpenXM RFC 100 on TCP/IP.
+
+Our project is taking the ``RFC'' approach, which has been
+used to develop internet protocols, to integrate mathematical software
+systems.
+We hope that other groups, who are working on standard protocols,
+take the ``RFC'' approach.
+
 The OpenXM on MPI \cite{MPI} is currently running on Risa/Asir
 as we will see in Section \ref{section:homog}.
-In this paper, we discuss only on systems for TCP/IP
-to concentrate on the core part of our design.
+We are now preparing the OpenXM RFC 102 ``Mathematical communication
+on MPI'' (draft protocol)
+based on our experiments on MPI.
+
+
+
 
 
 
