@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_jv.rr,v 1.1 2003/04/17 12:45:30 takayama Exp $ */
 /* cf. misc-2002/03/RisaCon-ohp */
 #define jv_adapted_to_fixed(A,B,C,D) taka_jv_adapted_to_fixed(A,B,C,D)
 #define jv_ij_to_n(I,J,M) taka_jv_ij_to_n(I,J,M)
@@ -14,6 +14,9 @@ taka_jv_tabledata_to_jvdata(Table)
 extern Taka_jv_BIG $
 Taka_jv_BIG = 10000 $
 def jv_adapted_to_fixed(Data,X0,X1,H) {
+  if (X0 >= X1) {
+    error("taka_jv_adapted_to_fixed: X0 >= X1");
+  }
   N = length(Data);
   F = [];
   for (I=0; I<N-1; I++) {
@@ -72,6 +75,15 @@ def jv_gen_obj(Fname,Data) {
 }
 
 def jv_adapted_y_to_obj(Data,Yrange,Hy) {
+  Opt = getopt();
+  Interporate = 1;
+  for (I=0; I<length(Opt); I++)   {
+   if (Opt[I][0] == "interporation") {
+    if (Opt[I][1] == "no") {
+      Interporate = 0;
+    }
+   }
+  }
   M = length(Data);
   N = number_ceiling((Yrange[1]-Yrange[0])/Hy);
   Ftable = newmat(M,N);
@@ -79,7 +91,8 @@ def jv_adapted_y_to_obj(Data,Yrange,Hy) {
   for (I=0; I<M; I++) {
    DataY = Data[I][0];
    X = Data[I][1];
-   DataY = jv_adapted_to_fixed(DataY,Yrange[0],Yrange[1],Hy);
+   if (Interporate) 
+     DataY = jv_adapted_to_fixed(DataY,Yrange[0],Yrange[1],Hy);
    for (J=0; J<N; J++) {
      XYtable[I][J] = [X,DataY[J][0]];
      Ftable[I][J]  = DataY[J][1];
@@ -172,30 +185,98 @@ def taka_jv_plot3d(F,Xrange,Yrange) {
     ....
   ]
 */
+/*
+#define DEBUG
+*/
 def taka_jv_tabledata_to_jvdata(Table) {
   Opt = getopt();
-  /* Todo: NOT YET WRITTEN */
+
+  N = length(Table);
+  if (N < 1) return [];
+  Xmax = Xmin = Table[0][0];
+  Ymax = Ymin = Table[0][1];
+  Zmax = Zmin = Table[0][2];
+  Xsum = 0; Ysum = 0; Zsum = 0;
+  for (I=0; I<N; I++) {
+    if (Table[I][0] > Xmax) Xmax = Table[I][0];
+    if (Table[I][0] < Xmin) Xmin = Table[I][0];
+    Xsum += Table[I][0];
+    if (Table[I][1] > Ymax) Ymax = Table[I][1];
+    if (Table[I][1] < Ymin) Ymin = Table[I][1];
+    Ysum += Table[I][1];
+    if (Table[I][2] > Zmax) Zmax = Table[I][2];
+    if (Table[I][2] < Zmin) Zmin = Table[I][2];
+    Zsum += Table[I][2];
+  }
   /* Set default values */
-  DX = eval(exp(0)*(Xrange[1]-Xrange[0])/20);
-  DY = eval(exp(0)*(Yrange[1]-Yrange[0])/20);
-  V1 = x; V2 = y;
-  /* 
-    Todo:  get DX and DY 
-  */
-  Data = [ ];
-  for (X=Xrange[0]; X<Xrange[1]; X += DX) {
-    D = [];
-    for (Y=Yrange[0]; Y<Yrange[1]; Y += DY) {
-      D = cons([Y,eval(base_replace(F,[[V1,X],[V2,Y]]))],D);
+#define DEFAULT_MESH_SIZE 10
+  DX = eval(exp(0)*(Xmax-Xmin)/DEFAULT_MESH_SIZE);
+  DY = eval(exp(0)*(Ymax-Ymin)/DEFAULT_MESH_SIZE);
+
+  Xepsilon = DX/4; /* It has not yet been used. */
+  XsamplePoints = [];
+  for (I=0; I<N; I++) {
+    XsamplePoints = cons(Table[I][0],XsamplePoints);
+  }
+  XsamplePoints = newvect(length(XsamplePoints),XsamplePoints);
+  qsort(XsamplePoints);
+
+  XsamplePoints2 = [];
+  J = -1;
+  for (I=0; I<N; I++) {
+    if (J<0) {
+       XsamplePoints2 = cons(XsamplePoints[I],XsamplePoints2);
+       J++;
+    } else if (XsamplePoints2[0] != XsamplePoints[I]) {
+       XsamplePoints2 = cons(XsamplePoints[I],XsamplePoints2);
     }
-    D = reverse(D);
-    D2 = jv_adapted_to_fixed(D,Yrange[0],Yrange[1],DY);
+  }
+  XsamplePoints = reverse(XsamplePoints2);
+
+  Data = [ ];
+  for (X=car(XsamplePoints); XsamplePoints != []; 
+                             XsamplePoints = cdr(XsamplePoints)) {
+    X = car(XsamplePoints);
+    D = [];
+    for (I=0; I<N; I++) {
+      if (Table[I][0] == X) {
+        D = cons([Table[I][1],Table[I][2]],D);
+      }
+    }
+    D = qsort(newvect(length(D),D));
+    D = vtol(D);
+#ifdef DEBUG
+    print([X,D]);
+#endif
+    /* (x,y) domain is assumed to be a square!! */
+    D2 = jv_adapted_to_fixed(D,Ymin,Ymax,DY);
     Data = cons([D2,X],Data);
   }
   Data = reverse(Data);
-  /* print(Data); */
-  Jdata = taka_jv_adapted_y_to_obj(Data,[Xrange[0],Xrange[1]],DX);
+#ifdef DEBUG
+  print(Data);
+#endif
+
+  /* BUG: there is a bug in the linear interporation code. */
+  Jdata = taka_jv_adapted_y_to_obj(Data,[Xmin,Xmax],DX|interporation="no");
+
+#ifdef DEBUG
+  return [Data,Jdata];
+#else
   return Jdata;
+#endif
+}
+
+def taka_jv_test2() {
+  Data = [];
+  for (X=0; X<2; X += 0.2) {
+   for (Y=0; Y<1; Y += 0.2) {
+     Data = cons([X,Y,eval(sin(X*2)*cos(Y*4))],Data);
+   }
+  } 
+  Jv = taka_jv_tabledata_to_jvdata(Data);
+  jv_gen_obj("taka_jv_test2.obj",Jv);
+  return Jv;
 }
 
 end$
