@@ -1,0 +1,357 @@
+/* $OpenXM$ */
+/* functions for linear algebra; currently only works for integer matrices. */
+
+/* dense matrix */
+
+def random_mat(N,Bound)
+{
+	A = newmat(N,N);
+	for ( I = 0; I < N; I++ )
+		for ( J = 0; J < N; J++ )
+			A[I][J] = (random()%Bound)*(random()%2?-1:1);
+	return A;
+}
+
+def random_smat(N,Bound,Percent)
+{
+	R = [];
+	for ( I = N-1; I >= 0; I-- ) {
+		V = [];
+		for ( J = N-1; J >= 0; J-- ) {
+			if ( (random()%100) < Percent ) {
+				C = (random()%Bound)*(random()%2?-1:1);
+				V = cons([J,C],V);
+			}
+		}
+		R = cons([I,V],R);
+	}
+	return cons([N,N],R);
+}
+
+def subst_mat(P,A)
+{
+	N = size(A)[0];
+	if ( type(P) <= 1 )
+		return P*unit_mat(N);
+	else {
+		V = var(P);
+		QR = sqr(P,V);
+		/* P = Q*V+R */
+		return subst_mat(QR[0],A)*A+QR[1]*unit_mat(N);
+	}
+}
+
+/* A = A*C1-B*C2 */
+
+def mulsub_mat(A,C1,B,C2)
+{
+	S = size(A); R = S[0]; C = S[1];
+	for( I = 0; I < R; I++ )
+		for ( J = 0; J < C; J++ )
+			A[I][J] = A[I][J]*C1-B[I][J]*C2;
+}
+
+def dup_mat(A)
+{
+	S = size(A); R = S[0]; C = S[1];
+	M = matrix(R,C);
+	for( I = 0; I < R; I++ )
+		for ( J = 0; J < C; J++ )
+			M[I][J] = A[I][J];
+	return M;
+}
+
+def unit_mat(N)
+{
+	M = matrix(N,N);
+	for ( I = 0; I < N; I++ ) M[I][I] = 1;
+	return M;
+}
+
+/* Base = [[Mat,I,J,Poly],...] */
+
+def minipoly_mat(A)
+{
+	N = size(A)[0];
+	E = unit_mat(N);
+	Base = [[E,0,0,1]];
+	Ak = E;
+	for ( K = 1; ; K++ ) {
+		Ak *= A;	
+		R = reduce_mat(Ak,x^K,Base);
+		if ( !R[0] ) {
+			P = ptozp(R[3]);
+			if ( coef(P,deg(P,x)) < 0 )
+				P = -P;
+			return P;
+		} else
+			Base = insert_to_base(R,Base);
+	}
+}
+
+def reduce_mat(M,P,Base)
+{
+	N = size(M)[0];
+	M = dup_mat(M);
+	for ( T = Base; T != []; T = cdr(T) ) {	
+		B = car(T);
+		BM = B[0]; I = B[1]; J = B[2]; BP = B[3];
+		if ( M[I][J] ) {
+			/* M <- M*BM[I][J]-M[I][J]*BM */
+			/* P <- P*BM[I][J]-M[I][J]*BP */
+			C1 = BM[I][J]; C2 = M[I][J];
+			G = igcd(C1,C2);
+			C1 = idiv(C1,G);
+			C2 = idiv(C2,G);
+			mulsub_mat(M,C1,BM,C2);
+			P = P*C1-BP*C2;
+		}
+	}
+	for ( I = 0; I < N; I++ )
+		for ( J = 0; J < N; J++ )
+			if ( M[I][J] ) return [M,I,J,P];
+	return [0,-1,-1,P];
+}
+
+def insert_to_base(R,Base)
+{
+	if ( Base == [] )
+		return [R];
+	Top = car(Base);
+	if ( R[1] < Top[1] || (R[1] == Top[1] && R[2] < Top[2]) )
+		return cons(R,Base);
+	else
+		return cons(Top,insert_to_base(R,cdr(Base)));
+}
+
+/* sparse matrix */
+
+def mat_to_smat(A)
+{
+	N = size(A)[0];
+	R = [];
+	for ( I = N-1; I >= 0; I-- ) {
+		V = vect_to_svect(A[I]);
+		R = cons([I,V],R);
+	}
+	return cons(size(A),R);
+}
+
+def smat_to_mat(A)
+{
+	Size = A[0];
+	R = matrix(Size[0],Size[1]);
+	for ( T = cdr(A); T != []; T = cdr(T) ) {
+		P = car(T);
+		I = P[0]; V = P[1];
+		for ( S = V; S != []; S = cdr(S) ) {
+			P = car(S);
+			R[I][P[0]] = P[1];
+		}
+	}
+	return R;
+}
+
+def vect_to_svect(V)
+{
+	N = size(V)[0];
+	R = [];
+	for ( I = N-1; I >= 0; I-- )
+		if ( V[I] )
+			R = cons([I,V[I]],R);
+	return R;
+}
+
+def random_vect(N,Bound)
+{
+	A = vector(N);
+	for ( I = 0; I < N; I++ )
+		A[I] = (random()%Bound)*(random()%2?-1:1);
+	return A;
+}
+
+/* A = A*C1-B*C2 */
+
+def mulsub_vect(A,C1,B,C2)
+{
+	S = size(A); R = S[0];
+	for( I = 0; I < R; I++ )
+		A[I] = A[I]*C1-B[I]*C2;
+}
+
+/* A += B*C */
+
+def muladd_vect(A,B,C)
+{
+	S = size(A); R = S[0];
+	for( I = 0; I < R; I++ )
+		A[I] += B[I]*C;
+}
+
+def dup_vect(A)
+{
+	S = size(A); R = S[0];
+	M = vector(R);
+	for( I = 0; I < R; I++ )
+		M[I] = A[I];
+	return M;
+}
+
+/* A = [[R,C],[I,[[J,AIJ],...]],...] */
+
+def mul_smat_vect(A,V)
+{
+	N = size(V)[0];
+	Row = A[0][0];
+	R = vector(Row);
+	for ( T = cdr(A), I = 0; T != []; T = cdr(T), I++ )
+		R[I] = mul_svect_vect(car(T)[1],V);
+	return R;
+}
+
+/* A = [[J,AIJ],...] */
+
+def mul_svect_vect(A,V)
+{
+	R = 0;
+	for ( T = A; T != []; T = cdr(T) ) {
+		S = car(T);
+		R += S[1]*V[S[0]];
+	}
+	return R;
+}
+
+/* Base = [[Vect,I,Poly],...] */
+def minipoly_cand_mat(A)
+{
+	N = size(A)[0];
+	V = random_vect(N,50);
+	Base = [[V,0,1]];
+	AkV = V;
+	for ( K = 1; ; K++ ) {
+		AkV = A*AkV;
+		R = reduce_vect(AkV,x^K,Base);
+		if ( !R[0] ) {
+			P = ptozp(R[2]);
+			if ( coef(P,deg(P,x)) < 0 )
+				P = -P;
+			return P;
+		} else
+			Base = insert_to_sbase(R,Base);
+	}
+}
+
+/* Base = [[Vect,I,Poly],...] */
+def minipoly_cand_smat(A)
+{
+	N = A[0][0];
+	V = random_vect(N,50);
+	Base = [[V,0,1]];
+	AkV = V;
+	for ( K = 1; ; K++ ) {
+		AkV = mul_smat_vect(A,AkV);
+		R = reduce_vect(AkV,x^K,Base);
+		if ( !R[0] ) {
+			P = ptozp(R[2]);
+			if ( coef(P,deg(P,x)) < 0 )
+				P = -P;
+			return P;
+		} else
+			Base = insert_to_sbase(R,Base);
+	}
+}
+
+def reduce_vect(M,P,Base)
+{
+	N = size(M)[0];
+	M = dup_vect(M);
+	for ( T = Base; T != []; T = cdr(T) ) {	
+		B = car(T);
+		BM = B[0]; I = B[1]; BP = B[2];
+		if ( M[I] ) {
+			/* M <- M*BM[I]-M[I]*BM */
+			/* P <- P*BM[I]-M[I]*BP */
+			C1 = BM[I]; C2 = M[I];
+			G = igcd(C1,C2);
+			C1 = idiv(C1,G);
+			C2 = idiv(C2,G);
+			mulsub_vect(M,C1,BM,C2);
+			P = P*C1-BP*C2;
+		}
+	}
+	for ( I = 0; I < N; I++ )
+		if ( M[I] ) return [M,I,P];
+	return [0,-1,P];
+}
+
+def insert_to_sbase(R,Base)
+{
+	if ( Base == [] )
+		return [R];
+	Top = car(Base);
+	if ( R[1] < Top[1] )
+		return cons(R,Base);
+	else
+		return cons(Top,insert_to_sbase(R,cdr(Base)));
+}
+
+def minipoly_check_mat(S,P)
+{
+#if 0
+	Size = size(S);
+	N = Size[0];
+	V = vector(N);
+	X = var(P);
+	D = deg(P,X);
+	C = vector(D+1);
+	for ( I = 0; I <= D; I++ )
+		C[I] = coef(P,I,X);
+	for ( I = 0; I < N; I++ ) {
+		for ( J = 0; J < N; J++ )
+			V[J] = J==I?1:0;
+		AkV = dup_vect(V);
+		V *= C[0];
+		for ( K = 1; K <= D; K++ ) {
+			AkV = S*AkV;
+			muladd_vect(V,AkV,C[K]);
+		}
+		for ( J = 0; J < N; J++ )
+			if ( V[J] ) break;
+		if ( J < N ) return 0;
+	}
+	return 1;
+#else
+	B = subst_mat(P,S);
+	for ( I = 0; I < N; I++ )
+		for ( J = 0; J < N; J++ )
+			if ( B[I][J] ) return 0;
+	return 1;
+#endif
+}
+
+def minipoly_check_smat(S,P)
+{
+	Size = S[0];
+	N = Size[0];
+	V = vector(N);
+	X = var(P);
+	D = deg(P,X);
+	C = vector(D+1);
+	for ( I = 0; I <= D; I++ )
+		C[I] = coef(P,I,X);
+	for ( I = 0; I < N; I++ ) {
+		for ( J = 0; J < N; J++ )
+			V[J] = J==I?1:0;
+		AkV = dup_vect(V);
+		V *= C[0];
+		for ( K = 1; K <= D; K++ ) {
+			AkV = mul_smat_vect(S,AkV);
+			muladd_vect(V,AkV,C[K]);
+		}
+		for ( J = 0; J < N; J++ )
+			if ( V[J] ) break;
+		if ( J < N ) return 0;
+	}
+	return 1;
+}
+end$
