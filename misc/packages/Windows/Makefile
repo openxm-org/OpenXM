@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.22 2002/08/10 07:05:47 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.23 2002/08/10 11:12:31 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -12,7 +12,7 @@ WINASIR=c:/home/asir
 usage:
 	@echo "Targets: all build-tgz clean clean-work link-for-debug"
 	@echo "         remove-experimental gen-cd"
-	@echo :Other targets: win-correction3, build-bat"  
+	@echo "Other targets: win-correction3, build-bat"  
 
 clean:
 	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc
