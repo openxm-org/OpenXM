@@ -1,10 +1,11 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.32 2000/11/30 03:26:59 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.33 2001/03/07 07:34:19 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 OpenXM_calc=../calc2000p
+OpenXM_ascm=../ascm2001
 DVIPS=dvips -f
 LATEX2HTML=latex2html -tmp /tmp
 OXWEAVE=../../bin/oxweave
@@ -30,7 +31,7 @@ copy-doc :
 	mkdir ${WEBKOBE1}/doc
 	-(cd ../../doc ; cp -r Papers asir-contrib asir2000 kan96xx ox_math pari ${WEBKOBE1}/doc)
 
-copy-html: copy-html-spec copy-html-poster copy-html-spec-101
+copy-html: copy-html-intro copy-html-spec copy-html-poster copy-html-spec-101
 
 copy-html-spec: copy-html-spec-ja copy-html-spec-en
 
@@ -80,6 +81,13 @@ copy-html-poster:
 	-(cd tmp-poster ; latex func2 ; $(LATEX2HTML) func2 )
 	-(cd tmp-poster ; latex efficient ; $(LATEX2HTML) efficient )
 	-(cd tmp-poster ; cp -rf func1 func2 efficient ${WEBKOBE1}/html/OpenXM-poster)
+
+copy-html-intro: 
+	$(SSH) /bin/rm -rf ${WEBKOBE}/ascm2001
+	-$(SSH) mkdir ${WEBKOBE}/ascm2001
+	$(SSH) mkdir ${WEBKOBE1}/ascm2001
+	-(cd $(OpenXM_ascm) ; latex ascm2001; latex ascm2001 ; $(LATEX2HTML) ascm2001 )
+	-(cd $(OpenXM_ascm) ; $(RSYNC) ascm2001 $(WHO):${WEBKOBE}/ascm2001)
 
 ## Under construction.
 namagize-html: copy-html
