@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.3 2000/11/28 18:11:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.4 2000/11/30 10:27:02 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +59,7 @@ void pops(int n)
 
 void push_error(int errcode, cmo* pushback)
 {
-	return push((cmo *)make_error_object(errcode, pushback));
+    return push((cmo *)make_error_object(errcode, pushback));
 }
 
 /*
@@ -78,8 +78,8 @@ void sm_pops()
     if (m->tag == CMO_INT32) {
         pops(((cmo_int32 *)m)->i);
     }else {
-		push_error(-1, m); /* m is invalid. */
-	}
+        push_error(-1, m); /* m is invalid. */
+    }
 }
 
 void sm_run(int code)
@@ -129,7 +129,7 @@ int oxf_error(OXFILE *oxfp)
 
 int sm(OXFILE *oxfp)
 {
-	stack_oxfp = oxfp;
+    stack_oxfp = oxfp;
     stack_extend();
     while (sm_receive_ox()) {
     }

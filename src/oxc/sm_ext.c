@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.6 2000/11/30 10:27:02 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.7 2000/12/01 01:53:34 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,13 +10,28 @@
 #include <ox_toolkit.h>
 #include "sm.h"
 
+static int  sm_control_spawn();
+static void sm_control_terminate();
+static void sm_control_kill();
+static void sm_control_reset_pid();
+
+static void pid_extend();
+static int  pid_lookup(pid_t pid);
+static int  pid_registed(pid_t pid);
+static void pid_regist(pid_t pid);
+static void pid_delete(pid_t pid);
+static int  pid_reset(pid_t pid);
+static int  pid_kill(pid_t pid);
+static void pid_kill_all();
+
 /* ultra loose data base. */
-static db db_localfunc[] = {
+static struct { int (*func_ptr)(); char *key; } tbl_lfunc[] = {
     {lf_oxc_open, "spawn"}, 
+    {lf_oxc_open, "oxc_open"}, 
     {NULL, NULL}
 };
 
-static db db_sm[] = {
+static struct { int (*func_ptr)(); int key; } tbl_smcmd[] = {
     {sm_control_spawn,     SM_control_spawn_server},
     {sm_control_terminate, SM_control_terminate_server},
     {sm_executeFunction, SM_executeFunction}, 
@@ -24,28 +39,33 @@ static db db_sm[] = {
     {sm_set_mathcap,     SM_setMathCap},
     {sm_popCMO,          SM_popCMO},
     {sm_pops,            SM_pops},
-	{sm_control_reset_pid, SM_control_reset_connection_server},
-	{sm_control_kill, SM_control_kill},
+    {sm_control_reset_pid, SM_control_reset_connection_server},
+    {sm_control_kill, SM_control_kill},
     {NULL, NULL}
 };
 
 extern OXFILE *stack_oxfp;
 
-__inline__
-static int (*db_search(void *key, db *dbs, int (*cmp)(void *, void *)))()
+int (*sm_search_f(int code))()
 {
-    while (dbs->key != NULL) {
-        if (cmp(key, dbs->key) == 0) {
-            return dbs->func_ptr;
+    int i;
+    for (i=0; tbl_smcmd[i].key != NULL; i++) {
+        if (code == tbl_smcmd[i].key) {
+            return tbl_smcmd[i].func_ptr;
         }
-        dbs++;
     }
     return NULL;
 }
 
 static int (*lookup_localfunction(char *name))()
 {
-    return db_search(name, db_localfunc, strcmp);
+    int i;
+    for (i=0; tbl_lfunc[i].key != NULL; i++) {
+        if (strcmp(name, tbl_lfunc[i].key) == 0) {
+            return tbl_lfunc[i].func_ptr;
+        }
+    }
+    return NULL;
 }
 
 /* 
@@ -108,7 +128,7 @@ static void pids_extend()
     pids = pids2;
 }
 
-int pid_lookup(pid_t pid)
+static int pid_lookup(pid_t pid)
 {
     int i;
     for(i=0; i<pid_ptr; i++) {
@@ -119,20 +139,20 @@ int pid_lookup(pid_t pid)
     return -1;
 }
 
-int pid_registed(pid_t pid)
+static int pid_registed(pid_t pid)
 {
     return pid_lookup(pid)+1;
 }
 
-void pid_regist(pid_t pid)
+static void pid_regist(pid_t pid)
 {
     if (pid_ptr >= pid_size) {
-		pids_extend();
+        pids_extend();
     }
-	pids[pid_ptr++] = pid;
+    pids[pid_ptr++] = pid;
 }
 
-void pid_delete(pid_t pid)
+static void pid_delete(pid_t pid)
 {
     int i = pid_lookup(pid);
     if (i >= 0 && i != --pid_ptr) {
@@ -140,43 +160,43 @@ void pid_delete(pid_t pid)
     }
 }
 
-int pid_reset(pid_t pid)
+static int pid_reset(pid_t pid)
 {
-	if (pid_registed(pid)) {
-		kill(pid, SIGUSR1);
-		return 1;
-	}
-	return 0;
+    if (pid_registed(pid)) {
+        kill(pid, SIGUSR1);
+        return 1;
+    }
+    return 0;
 }
 
-int pid_kill(pid_t pid)
+static int pid_kill(pid_t pid)
 {
-	if (pid_registed(pid)) {
-		kill(pid, SIGKILL);
-		pid_delete(pid);
-		return 1;
-	}
-	return 0;
+    if (pid_registed(pid)) {
+        kill(pid, SIGKILL);
+        pid_delete(pid);
+        return 1;
+    }
+    return 0;
 }
 
 /* Killing all child processes */
-void pid_kill_all()
+static void pid_kill_all()
 {
-	while(pid_ptr > 0) {
+    while(pid_ptr > 0) {
         kill(pids[--pid_ptr], SIGKILL);
-	}
+    }
 }
 
 cmo_error2 *type_checker(cmo *ob, int type)
 {
-/*	cmo_error2 *err_ob; */
-	if (ob->tag != type) {
-		/* push and return an error object */
-	}
-	return NULL;
+/*  cmo_error2 *err_ob; */
+    if (ob->tag != type) {
+        /* push and return an error object */
+    }
+    return NULL;
 }
 
-int sm_control_spawn_main(int argc, cmo *argv[])
+static int sm_control_spawn_main(int argc, cmo *argv[])
 {
     char *cmd = ((cmo_string *)argv[0])->s;
     int  port = ((cmo_int32 *)argv[1])->i;
@@ -191,27 +211,27 @@ int sm_control_spawn_main(int argc, cmo *argv[])
 int lf_oxc_open()
 {
     cmo **argv;
-	if (getargs(&argv) != 2 || 
-		type_checker(argv[0], CMO_STRING) != NULL 
-		|| type_checker(argv[0], CMO_INT32) != NULL) {
+    if (getargs(&argv) != 2 || 
+        type_checker(argv[0], CMO_STRING) != NULL 
+        || type_checker(argv[0], CMO_INT32) != NULL) {
         fprintf(stderr, "oxc: invalid arguments\n");
         return -1;
     }
-	return sm_control_spawn_main(2, argv);
+    return sm_control_spawn_main(2, argv);
 }
 
-int sm_control_spawn()
+static int sm_control_spawn()
 {
     cmo *argv[2];
-	argv[0] = pop();
-	argv[1] = pop();
+    argv[0] = pop();
+    argv[1] = pop();
 
-	if (type_checker(argv[0], CMO_STRING) != NULL 
-		|| type_checker(argv[0], CMO_INT32) != NULL) {
+    if (type_checker(argv[0], CMO_STRING) != NULL 
+        || type_checker(argv[0], CMO_INT32) != NULL) {
         fprintf(stderr, "oxc: invalid arguments\n");
         return -1;
     }
-	return sm_control_spawn_main(2, argv);
+    return sm_control_spawn_main(2, argv);
 }
 
 void sm_mathcap()
@@ -230,12 +250,12 @@ void sm_set_mathcap()
     }
 }
 
-void sm_control_kill()
+static void sm_control_kill()
 {
-	pid_kill_all();
+    pid_kill_all();
 }
 
-void sm_control_terminate()
+static void sm_control_terminate()
 {
     cmo_int32 *m = (cmo_int32 *)pop();
     pid_t pid = m->i;
@@ -244,23 +264,13 @@ void sm_control_terminate()
     }
 }
 
-void sm_control_reset_pid()
+static void sm_control_reset_pid()
 {
     cmo_int32 *m = (cmo_int32 *)pop();
     pid_t pid = m->i;
     if (m->tag != CMO_INT32 || !pid_reset(pid)) {
         push_error(-1, m);
-		return;
+        return;
     }
-	/* ... */
-}
-
-static int intcmp(int key1, int key2)
-{
-    return key1 != key2;
-}
-
-int (*sm_search_f(int code))()
-{
-    return db_search(code, db_sm, intcmp);
+    /* ... */
 }

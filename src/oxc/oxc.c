@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.4 2000/11/28 04:02:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.5 2000/12/01 07:34:48 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,19 +48,19 @@ OXFILE *connection()
 /* xterm, kterm, rxvt, gnome-terminal, ... */
 static char *xterminal()
 {
-	char *e = getenv("OpenXM_XTERM");
-	return (e != NULL)? e: "xterm";
+    char *e = getenv("OpenXM_XTERM");
+    return (e != NULL)? e: "xterm";
 }
 
 static int basic0[] =  {
-	CMO_ERROR2,
-	CMO_NULL,
-	CMO_INT32,
-	CMO_DATUM,
-	CMO_STRING,
-	CMO_MATHCAP,
-	CMO_LIST,
-	0
+    CMO_ERROR2,
+    CMO_NULL,
+    CMO_INT32,
+    CMO_DATUM,
+    CMO_STRING,
+    CMO_MATHCAP,
+    CMO_LIST,
+    0
 }; 
 
 /* We assume that data has the following format:
@@ -74,10 +74,10 @@ void pipe_read_info(char **hostname, int *port, char **password);
 int main(int argc, char *argv[])
 {
     OXFILE *oxfp;
-	char *port_s = "";
-	char *xterm =  xterminal();
-	char *myname = argv[0];
-	int oxlog = 0;
+    char *port_s = "";
+    char *xterm =  xterminal();
+    char *myname = argv[0];
+    int oxlog = 0;
     int c;
 
     while ((c = getopt(argc, argv, "c:p:h:x")) != -1) {
@@ -87,16 +87,16 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             password = optarg;
-			
+            
             break;
         case 'p':
             port = atoi(optarg);
-			port_s = optarg;
+            port_s = optarg;
             break;
-		case 'x':
-			if (getenv("DISPLAY") != NULL) {
-				oxlog = 1;
-			}
+        case 'x':
+            if (getenv("DISPLAY") != NULL) {
+                oxlog = 1;
+            }
             break;
         default:
         }
@@ -105,22 +105,22 @@ int main(int argc, char *argv[])
     argv += optind;
 
     if (strlen(remote_host) == 0) {
-		pipe_read_info(&remote_host, &port, &password);
-		port_s = malloc(32);
-		sprintf(port_s, "%d", port);
+        pipe_read_info(&remote_host, &port, &password);
+        port_s = malloc(32);
+        sprintf(port_s, "%d", port);
     }
-	if (oxlog) {
-		execlp(xterm, xterm, "-e", myname, 
-			   "-h", remote_host, "-p", port_s, "-c", password);
-	}
+    if (oxlog) {
+        execlp(xterm, xterm, "-e", myname, 
+               "-h", remote_host, "-p", port_s, "-c", password);
+    }
 
     fprintf(stderr, "start connection!\n");
-	if ((oxfp = connection()) == NULL) {
+    if ((oxfp = connection()) == NULL) {
         fprintf(stderr, "oxc: cannot connect.\n");
     }else {
-		fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
-	    mathcap_init(20001006, "v2000.10.06", "oxc", basic0, NULL);
-		sm(oxfp);
-	}
+        fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
+        mathcap_init(20001006, "v2000.10.06", "oxc", basic0, NULL);
+        sm(oxfp);
+    }
     return 0;
 }
