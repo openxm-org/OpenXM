@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.6 2000/12/03 14:32:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.7 2000/12/14 01:35:58 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,7 +110,8 @@ int main(int argc, char *argv[])
     }
     if (oxlog) {
         execlp(xterm, xterm, "-e", myname, 
-               "-h", remote_host, "-p", port_s, "-c", password);
+               "-h", remote_host, "-p", port_s, "-c", password, NULL);
+		fprintf(stderr, "oxc:: cannot exec \"%s oxc ...\"\n", xterm);
     }
 
     fprintf(stderr, "start connection!\n");
