@@ -1,4 +1,4 @@
- /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.6 2002/10/23 01:11:41 takayama Exp $  */
+ /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.7 2002/10/23 01:14:16 takayama Exp $  */
 
 #include <stdio.h>
 int Debug = 0;
@@ -239,7 +239,7 @@ char *getCategory(char *key) {
   char *s;
   s = str(key);
   for (i=0; i<strlen(s); i++) {
-    if (s[i] == '_') {
+    if ((s[i] == '_') || s[i] == '.') {
       s[i] = 0;
       return s;
     }
@@ -252,7 +252,7 @@ char *getCategory2(char *key) {
   int count;
   s = str(key);
   for (i=0; i<strlen(s); i++) {
-    if (s[i] == '_') count++;
+    if ((s[i] == '_') || (s[i] == '.')) count++;
     if (count == 2) {
       s[i] = 0; return s;
     }
