@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.1 2000/03/08 06:59:37 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.2 2000/03/11 09:17:42 ohara Exp $
 
 \input texinfo
 @iftex
@@ -38,6 +38,96 @@
 * Sample Programs::
 @end menu
 
+@node Starting OX servers,,, Top
+
+@chapter Starting OX servers
+
+@node Starting OX servers on the localhost,,, Starting OX servers
+@section Starting OX servers on the localhost
+
+@c  Description of OxStart
+@menu
+* OxStart::
+@end menu
+@node OxStart,,, 
+@subsection @code{OxStart}
+@findex OxStart
+@table @t
+@item OxStart[@var{s}]
+::  Start the OX server @code{s}. 
+@end table
+
+@table @var
+@item return
+Integer
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  It starts the OX server @code{s}. 
+@item Servers are looked for in the directory $OenXM_HOME/bin, hoge hoge.
+@end itemize
+
+@example
+In[1]:= Install["math2ox"]
+In[2]:= pid = OxStart["ox_sm1"]
+@end example
+
+In this example, @code{ox_sm1} is started on the local machine.
+
+
+
+
+@node Starting OX servers on a remote machine,,, Top
+@section Starting OX servers on a remote machine
+
+The OpenXM ptotocol says that, if we need to run an OX server on a
+remote machine, then an OX client connect to the OX server on the remote
+machine by insecure mode.
+
+We note that insecure mode has a risk.
+For example, we are afraid our packets are listened in.
+However we know a simple method to plug such a security hole.
+That is, a connection by ssh (Secure SHell).
+Of course OpenXM protocol does not request ssh formally, but our
+mathematica client (math2ox) in current implementation
+needs ssh to connect a remote server.
+
+@c  Description of OxStartRemoteSSH
+@menu
+* OxStartRemoteSSH::
+@end menu
+@node OxStartRemoteSSH,,, 
+@subsection @code{OxStartRemoteSSH}
+@findex OxStartRemoteSSH
+@table @t
+@item OxStartRemoteSSH[@var{s}, @var{host}]
+::  start the OX server @code{s} on the remote machine @code{host} via ssh. 
+@end table
+
+@table @var
+@item return
+Integer
+@item s
+String
+@item host
+String
+@end table
+
+We note that the inplementation of function is incomplete!
+
+@itemize @bullet
+@item  It starts the OX server @code{s}. 
+@item Servers are looked for in the directory $OenXM_HOME/bin, hoge hoge.
+@end itemize
+
+@example
+In[2]:= pid = OxStartRemoteSSH["ox_sm1", "remotehost"]
+@end example
+
+In this example, @code{ox_sm1} is started on the remote machine @code{remotehost}.
+
 @node Mathematica Client Functions,,, Top
 
 @chapter Mathematica Client Functions
@@ -68,7 +158,7 @@ String
 
 @itemize @bullet
 @item  It starts the OX server @code{s}. 
-@item Servers are looked for in the directory $OenXM_HOME/bin , hoge hoge.
+@item Servers are looked for in the directory $OenXM_HOME/bin, hoge hoge.
 @end itemize
 
 @example
@@ -87,22 +177,17 @@ In this example, @code{ox_sm1} is started on the local machine.
 @findex OxSendMessage
 @table @t
 @item OxSendMessage[@var{pid}, @var{s}]
-::  SendMessage @code{s} to the OX server @code{pid}.
+::  send a message @code{s} to the OX server @code{pid}.
 @end table
 
 @table @var
 @item return
 Integer
-@item id
+@item pid
 Integer
 @item s
 String
 @end table
-
-@itemize @bullet
-@item  It starts the OX server @code{s}. 
-@item Servers are looked for in the directory $OenXM_HOME/bin , hoge hoge.
-@end itemize
 
 @example
 In[4] := OxSendMessage[pid, "(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
@@ -114,11 +199,141 @@ In this example, an OX data message
 and an OX command message (OX_COMMAND, (SM_popCMO)) are sent to 
 the OX server @code{pid}.
 
+@c  Description of OxPopCMO
+@menu
+* OxPopCMO::
+@end menu
+@node OxPopCMO,,, Mathematica Client Functions
+@section @code{OxPopCMO}
+@findex OxPopCMO
+@table @t
+@item OxPopCMO[@var{pid}]
+::  pop an object on the top of the stack.
+@end table
+
+@table @var
+@item return
+Manual
+@item pid
+Integer
+@end table
+
+The @code{OxPopCMO[]} function pop an object on the top of the stack of
+the OX stack machine @code{pid} and returns the object.
+
+@example
+In[5] := cmo = OxPopCMO[]
+@end example
+
+@c  Description of OxPopString
+@menu
+* OxPopString::
+@end menu
+@node OxPopString,,, Mathematica Client Functions
+@section @code{OxPopString}
+@findex OxPopString
+@table @t
+@item OxPopString[@var{pid}]
+::  get a string from the OX server @code{pid}.
+@end table
+
+@table @var
+@item return
+String
+@item pid
+Integer
+@end table
+
+The @code{OxPopString[]} function pop an object on the top of the stack
+of the OX stack machine @code{pid} and returns a string which is
+translate from the object by the OX stack machine.
+
+@example
+In[5] := string = OxPopString[]
+@end example
+
+@c  Description of OxClose
+@menu
+* OxClose::
+@end menu
+@node OxClose,,, Mathematica Client Functions
+@section @code{OxClose}
+@findex OxClose
+@table @t
+@item OxClose[@var{pid}]
+::  close the connection to the OX server @code{pid}.
+@end table
+
+@table @var
+@item return
+none
+@item pid
+Integer
+@end table
+
+The @code{OxClose[]} function close the connection to the OX server 
+@code{pid}.
+
+@example
+In[5] := OxClose[]
+@end example
+
+@c  Description of OxExecuteString
+@menu
+* OxExecuteString::
+@end menu
+@node OxExecuteString,,, Mathematica Client Functions
+@section @code{OxExecuteString}
+@findex OxExecuteString
+@table @t
+@item OxExecuteString[@var{pid}, @var{command}]
+::  execute @code{command} on the OX server @code{pid}.
+@end table
+
+@table @var
+@item return
+none
+@item pid
+Integer
+@item command
+String
+@end table
+
+The @code{OxExecuteString[]} function executes @code{command} on the OX server 
+@code{pid}.
+@code{command} is interpreted in local language of the OX server.
+
+@example
+In[5] := OxExecuteString["print(1+2);"]
+@end example
+
+@c  Description of OxGet
+@menu
+* OxGet::
+@end menu
+@node OxGet,,, Mathematica Client Functions
+@section @code{OxGet}
+@findex OxGet
+@table @t
+@item OxGet[@var{pid}]
+::  get an object from the connection to the OX server @code{pid}.
+@end table
+
+@table @var
+@item return
+Manual
+@item pid
+Integer
+@end table
+
+The @code{OxGet[]} function get an object from the connection to the OX server 
+@code{pid}.
+
+@example
+In[5] := cmo = OxGet[]
+@end example
+
 @c  Put descriptions of a next function.
-
-
-@node Starting OX servers on a remote machines,,, Top
-@chapter Starting OX servers on a remote machines
 
 @node Sample Programs,,, Top
 @chapter Sample Programs
