@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.44 2002/09/04 04:45:10 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.45 2003/03/15 01:00:53 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dx,dy,dz,du,dv,dw,dp,dq,dr,ds,dt,da,db,dc,dd,de,df,dg,dh,di,dj,dk,dl,dm,dn,
@@ -412,7 +412,7 @@ def sm1_gb(A) {
     Dehomo = 1;
   }
   P = sm1_check_server(P);
-  A = cons(sm1_rat_to_p(A[0])[0],cdr(A));
+  if ((length(A[0]) >= 1) && (type(A[0][0]) != type(""))) A = cons(sm1_rat_to_p(A[0])[0],cdr(A));
   sm1_check_arg_gb(A,"Error in sm1_gb");
   sm1_push_int0(P,A);
   sm1(P," gb ");
