@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.14 2003/09/28 01:31:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.15 2004/12/16 11:41:58 takayama Exp $ */
 
 module gnuplot;
 
@@ -132,8 +132,10 @@ def isAlive(P) {
 }
 
 def stop() {
+  if (Gnuplot_proc == -1) return 0;
   GNUPLOTL_FIND_PROC(P) ;
   sm1.sm1(P," plotstop.aux ");
+  return 0;
 }
 
 def gnuplot(S) {

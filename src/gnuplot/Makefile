@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.12 2004/04/14 03:04:04 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.13 2004/12/15 12:09:33 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
@@ -48,7 +48,7 @@ install: build
 		prefix=`cd ${OpenXM_HOME}; pwd`; \
 		mkdir -p $${prefix}/libexec/gnuplot/4.0; \
 		(cd ${WRKSRC}/src; \
-		 ${INSTALL_PROGRAM} gnuplot     $${prefix}/bin/gnuplot4ox ; \
+		 ${INSTALL_PROGRAM} gnuplot     $${prefix}/bin/gnuplot ; \
 		 ${INSTALL_PROGRAM} gnuplot_x11 $${prefix}/libexec/gnuplot/4.0) ; \
 	fi
 	@touch work/.install_done
@@ -57,4 +57,4 @@ clean:
 	-rm -rf work
 
 distclean: clean
-	-rm -f ${OpenXM_HOME}/bin/gnuplot4ox ${OpenXM_HOME}/bin/gnuplot_x11
+	-rm -f ${OpenXM_HOME}/bin/gnuplot ${OpenXM_HOME}/bin/gnuplot_x11

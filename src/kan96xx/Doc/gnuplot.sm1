@@ -1,14 +1,15 @@
-%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.3 2004/12/16 08:42:14 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.4 2004/12/16 11:41:58 takayama Exp $
 %%% 1999, 6/7 Mon.
 [(parse) (ox.sm1) pushfile] extension
 [(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
 
-[OpenXM_HOME (/bin/gnuplot4ox)] cat /plot.gnuplotexec set
+[OpenXM_HOME (/bin/gnuplot)] cat /plot.gnuplotexec set
 %(gnuplot) /plot.gnuplotexec set
 
 (SSkan/lib/plot.sm1 for ox_sm1_gnuplot.  1999/09/03. ) message
 
 /gnuplot.callingMethod 1 def  % 0 : old, 1 : pipe, 2: file 
+% If your gnuplot is version 3, then set the callingMethod to 0.
 
 /plotstart {
   sm1connectr
@@ -62,8 +63,10 @@
     [(fp2popen) plot.gnuplotexec (w)] extension /gnuplot.pfp set
     (Started gnuplot) message
 
-    [(fp2fputs) [(set mouse; set print ") gnuplot.fifo (" ; ) nl ] cat
+    [(fp2fputs) [(set print ") gnuplot.fifo (" ; ) nl ] cat
      gnuplot.pfp ] extension message
+    [(fp2fflush) gnuplot.pfp] extension message
+    [(fp2fputs) [(set mouse ; ) nl ] cat gnuplot.pfp ] extension message
     [(fp2fflush) gnuplot.pfp] extension message
 
     [(fp2fopen) gnuplot.fifo (r)] extension /gnuplot.fifoFp set

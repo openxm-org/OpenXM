@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.9 2004/09/19 00:47:47 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.10 2004/11/23 12:14:48 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -305,6 +305,37 @@ GET では受渡しできるデータの量に制限があるため
 {\tt misc-2004/11/cgi} も参照のこと.
 Risa/Asir の \verb@ set_secure_mode @ , \verb@ set_secure_flag @
 にも対応中.
+
+\section{2004-12-16, gnuplot v4 への対応.}
+
+\begin{enumerate}
+\item 1.3-1.4     OpenXM/src/kan96xx/Doc/gnuplot.sm1 
+\item 1.11        OpenXM/src/kan96xx/plugin/file2.c 
+\item 1.6           OpenXM/src/kan96xx/plugin/file2.h
+\item 1.6        OpenXM/src/kan96xx/plugin/file2.hh
+\item 1.4          OpenXM/src/kan96xx/plugin/file2.sm1
+\item 1.15        OpenXM/src/asir-contrib/packages/src/gnuplot
+\end{enumerate}
+
+gnuplot で mouse  を利用できるようにしたい.
+そのため, gnuplot を batch mode でなく,
+interactive mode で利用できるようにした.
+http://www.gnuplot.info にあった, サンプルプログラム
+{\tt gpReadMouseTest.c} ({\tt misc-2004/12/misc}) 
+を参考に mkfifo, popen 等を用いて実装した.
+mkfifo, popen 等のシステムコールは plugin-file2 へ加えた.
+
+sm1 でやるテストの手順は以下のとおり.
+\begin{verbatim}
+ (gnuplot.sm1) run
+ plotstart.aux
+ (splot x**2-y**2;) gnuplot
+ plotstop.aux
+\end{verbatim}
+
+Windows, Debian package の build のテストはまだ.
+({\tt gnuplot4ox} は {\tt gnuplot} に. {\tt gnuplot\_x11} は {\tt libexec}
+の下へ install されるため.)
 
 \end{document}
 
