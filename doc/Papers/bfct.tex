@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/bfct.tex,v 1.1 2001/02/06 07:54:18 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/bfct.tex,v 1.2 2001/02/06 08:38:31 noro Exp $
 \documentclass{jarticle}
 \usepackage[theorem,useeps,FVerb]{jssac}
 \title{Risa/Asir における Weyl Algebra 上のグレブナ基底計算およびその応用}
@@ -9,6 +9,14 @@
 \maketitle
 
 \section{Weyl Algebra}
+
+さまざまな計算機代数システム上で Weyl Algebra に関する演算が実装されて
+いる. 代表的なものとして, Kan/sm1 \cite{Kan}, Macaulay2
+\cite{Mac2}\cite{Tsai}, Maple Ore algebra package,
+Singular \cite{Singular}などがある. 以下では Risa/Asir における Weyl
+Algebra 関連機能の実装について述べるが, ここで述べられている改良その他
+は, 文献として参照することはできないものの, 上記システムそれぞれにおい
+て採り入れられていると考えられる.
 
 \subsection{Leibnitz rule}
 
@@ -303,14 +311,35 @@ $(x_1x_2)^2+(x_3x_4)^2+(x_5x_6)^2+(x_7x_8)^2$ &16 & -- & 61 \\ \hline
 
 \section{おわりに}
 
-Risa/Asir における, Weyl Algebra 関連機能の実装および, その応用として $b$-function
-の計算方法の改良について述べた. ここで述べた方法により, より広い範囲の多項式および
-イデアルに対して $b$-function が計算できるようになったことは確かである. しかし, 
-既に他の方法で結果が知られているものでも計算不可能な問題は存在し, また
-いわゆる多重 $b$-function に対しては, 最小多項式による方法は無力である. 
-これらに対処するためにはさらなる改良, あるいは新しい方法が必要であろう. 
+Risa/Asir における, Weyl Algebra 関連機能の実装および, その応用として 
+$b$-functionの計算方法の改良について述べた. $b$-function 計算は 
+Kan/sm1, Macaulay 2 にも実装されいてるが, 本稿で述べたような, 最小多項
+式を未定係数法で求める方法を用いた例はないようである. 一方で 
+$b$-function は$f$ の局所モノドロミーと関係することが知られているが,
+Singular においては, 全く異なる立場から isolated singularity でのモノ
+ドロミー行列を求める機能を提供している. これについて, 効率の面から
+の比較も必要と考えられるが, 得られる結果が異なることもありまだ詳細
+な比較は行っていない. 
+
+本稿で述べた方法により, より広い範囲の多項式およびイデアルに対して 
+$b$-function が計算できるようになったことは確かである. しかし, 既に他
+の方法で結果が知られているものでも計算不可能な問題は存在し, またいわゆ
+る多重 $b$-function に対しては, 最小多項式による方法は無力である. これ
+らに対処するためにはさらなる改良, あるいは新しい方法が必要であろう.
 
 \begin{thebibliography}{99}
+
+\bibitem{Mac2} Grayson, D., Stillman, M.:
+Macaulay 2, a software system for research in algebraic geometry.
+{\tt http://www.math.ucuc.edu/Macaulay2}.
+
+\bibitem{Singular} Greuel, G.-M., Pfister, G., Sch\"onemann, H.:
+SINGULAR, A Computer Algebra System for Polynomial Computations.
+{\tt http://www.singular.uni-kl.de/}.
+
+\bibitem{Tsai} Leykin, A., Tsai, H.:
+D-module package for Macaulay 2.
+{\tt http://www.math.cornell.edu/\verb+~+tsai}.
 
 \bibitem{RUR} Noro, M., Yokoyama, K.:
 A Modular Method to Compute the Rational Univariate
@@ -336,6 +365,10 @@ J. Pure Appl.\ Algebra (in press).
 Saito, M., Sturmfels, B., Takayama, N.:
 Gr\"obner Deformations of Hypergeometric Differential Equations.
 Algorithms and Computation in Mathematics {\bf 6}, Springer (2000).
+
+\bibitem{Kan} Takayama, N.:
+Kan --- A system for doing algebraic analysis by computer.
+{\tt http://www.math.kobe-u.ac.jp/KAN}.
 
 \bibitem{yano-bfct} Yano, T.:
 On the theory of $b$-functions.
