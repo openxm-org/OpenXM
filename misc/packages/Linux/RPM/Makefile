@@ -1,10 +1,16 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.11 2000/03/24 08:44:18 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.12 2000/03/24 08:48:15 takayama Exp $
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
-# 0. Generate ~/.rpmrc and set the TopDir for the work.
-#    Here is my .rpmrc
+# 0. If your rpm version is less than 3,
+#      Generate ~/.rpmrc and set the TopDir for the work.
+#      Here is my .rpmrc
 #
-#    TopDir: home/taka/OpenXM/misc/packages/Linux/RPM/work
+#      TopDir: home/taka/OpenXM/misc/packages/Linux/RPM/work
+#    If you rpm version is more than or equal to 3,
+#      Generate ~/.rpmmacros and set the %_topdir for the work.
+#      Here is my .rpmmacros
+#
+#      %_topdir  home/taka/OpenXM/misc/packages/Linux/RPM/work
 #
 #  [ To extract a source from *src.rpm to SOURCES dir, 
 #    type in "make make-directory" and "rpm -i your.src.rpm" ]

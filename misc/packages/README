@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/README,v 1.5 2000/03/24 08:32:30 takayama Exp $
+$OpenXM: OpenXM/misc/packages/README,v 1.6 2000/04/06 02:20:31 takayama Exp $
 
 /*&japanese
 
@@ -30,10 +30,10 @@ FTP_AREA      ftp 用の tar をおく場所. mkdir しておくこと.
 # RPM は /var/tmp/openxm* に, binary を一時的に install します. 50 M 程度の
 領域が必要でしょう.  変更には, Linux/RPM/Makefile, *spec.in を編集.
 # mkdir ${TAR_WORK}  つまり mkdir ~/tmp
-# $(HOME)/.rpmrc
- rpm 3.0 以上の場合 (普通はこちら)
+# $(HOME)/.rpmrc or .rpmmacros
+ rpm 3.0 以上の場合 (普通はこちら  .rpmmacros に書く. )
   内容: %_topdir /home/taka/OpenXM/misc/packages/Linux/RPM/work
- rpm 3.0 未満の場合 (FreeBSD 3.3 )
+ rpm 3.0 未満の場合 (FreeBSD 3.3 :  .rpmrc に書く.)
   内容: TopDir: /home/taka/OpenXM/misc/packages/Linux/RPM/work
 
    /home/taka は $(HOME) の値
