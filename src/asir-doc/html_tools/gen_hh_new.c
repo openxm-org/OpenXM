@@ -96,7 +96,7 @@ char *in,*out,*prefix_;
 		fgets(buf,BUFSIZ,inf);
 		if ( !strncmp(buf,"Jump to:",strlen("Jump to:")) )
 			break;
-		if ( fname = strstr(buf,"prefix_") ) {
+		if ( fname = strstr(buf,prefix_) ) {
 			ptr = strchr(buf,'#');
 			*ptr = 0;
 			ptr = strchr(ptr+1,'>');
