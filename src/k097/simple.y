@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/simple.y,v 1.5 2002/11/29 06:20:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/simple.y,v 1.6 2003/04/30 06:17:57 takayama Exp $ */
 /* simple.y 1996, 1/1 --- 1/6 */
 /* simple.y.ccc,  1996, 4/1 --- */
 %{
@@ -150,7 +150,9 @@ for
 PSfor_prefix
   : PSFOR '(' ID '=' exp ';'  ID '<' exp ';' ID INCREMENT  ')' 
      { 
+       pkkan(" 2 -1 roll \n");
        pkkan("%%PSfor initvalue.\n (integer) data_conversion \n");
+       pkkan(" 2 -1 roll \n");
        ips($3); 
        ips($7); ips($11); 
        /* They must be equal id, but it is not checked. */
