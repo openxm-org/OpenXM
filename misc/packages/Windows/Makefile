@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.33 2003/07/20 07:30:25 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.34 2003/07/21 03:19:43 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -160,7 +160,9 @@ debug-tools/crlf :  debug-tools/crlf.c
 	(cd debug-tools; gcc -o crlf crlf.c)
 debug-tools/debug-sed : debug-tools/debug-sed.c
 	(cd debug-tools; gcc -o debug-sed debug-sed.c)
-build-bat: debug-tools/crlf debug-tools/debug-sed
+debug-tools/gcwd : debug-tools/gcwd.c
+	(cd debug-tools; gcc -o gcwd gcwd.c)
+build-bat: debug-tools/crlf debug-tools/debug-sed debug-tools/gcwd
 	-mkdir OpenXM-win/bin-windows
 	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirgui-cd.bat ; ./crlf ../OpenXM-win/bin-windows/asirgui-cd.bat)
 	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat ; ./crlf ../OpenXM-win/bin-windows/webasir.bat)
@@ -169,6 +171,7 @@ build-bat: debug-tools/crlf debug-tools/debug-sed
 	cp OpenXM-win/bin-windows/asirgui-cd.bat OpenXM-win/asir/bin
 	rm -f debug-tools/debug.sed ; debug-tools/debug-sed `pwd` >debug-tools/debug.sed
 	(cd debug-tools; sed -f debug.sed <asirgui-cd.bat >asirgui-debug.bat ; ./crlf asirgui-debug.bat)
+	(cd debug-tools; cp gcwd.exe ../OpenXM-win/bin-windows) 
 
 remove-experimental:
 	-rm -f OpenXM-win/bin-windows/*web*.bat

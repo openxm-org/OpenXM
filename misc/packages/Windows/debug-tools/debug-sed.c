@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/misc/packages/Windows/debug-tools/debug-sed.c,v 1.1 2002/07/28 08:10:24 takayama Exp $ */
 #include <stdio.h>
 main(int argc, char *argv[]) {
   char path[1024];
@@ -16,7 +16,7 @@ main(int argc, char *argv[]) {
     }
   }
   printf("s/set HOME=c:\\\\cygwin\\\\home\\\\nobuki//g\n");
-  printf("s/set OpenXM_WIN_ROOT=c:\\\\cygwin\\\\home\\\\nobuki\\\\OpenXM\\\\misc\\\\packages\\\\Windows\\\\OpenXM-win/set OpenXM_WIN_ROOT=%s\\\\OpenXM-win/g\n",path);
+  printf("s/set OpenXM_HOME_WIN=c:\\\\cygwin\\\\home\\\\%USERNAME%\\\\OpenXM\\\\misc\\\\packages\\\\Windows\\\\OpenXM-win/set OpenXM_HOME_WIN=%s\\\\OpenXM-win/g\n",path);
   printf("s/\\\\src\\\\kan96xx\\\\Kan/\\\\bin/g\n");
   exit(0);
 }
