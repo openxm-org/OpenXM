@@ -1,8 +1,9 @@
+% $OpenXM$
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
 @@@.quiet {   }
-{ (macro package : dr.sm1,   9/26,1995 --- Version 9/8, 1999. ) message } ifelse
+{ (macro package : dr.sm1,   9/26,1995 --- Version 11/8, 1999. ) message } ifelse
 
 /ctrlC-hook {
 %%% define your own routing in case of error.
@@ -1527,7 +1528,7 @@
     /obj arg1 def
     obj isArray 
     { 
-       ( [ )
+       [(LeftBracket)] system_variable %%( [ )
        obj {toString.tmp2} map /r set
        /n r length 1 sub def
        [0 1  n  {
@@ -1539,7 +1540,7 @@
           ifelse
         } for
        ] aload length cat_n
-       ( ] )
+       [(RightBracket)] system_variable %%( ] )
        3 cat_n
      }
      {
