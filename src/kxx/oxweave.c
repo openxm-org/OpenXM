@@ -6,10 +6,10 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.1 1999/11/16 07:57:37 takayama Exp $ */
 #include <stdio.h>
-#define BSIZE 10
-#define VSIZE 10
+#define BSIZE 256
+#define VSIZE 256
 static int Debug = 0;
 /*&jp \noindent
   {\tt Buf} は標準出力よりのデータを一時格納しておく領域.
