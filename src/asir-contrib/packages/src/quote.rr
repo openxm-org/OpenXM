@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.6 2001/08/25 04:39:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.7 2001/08/26 09:50:28 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -240,6 +240,32 @@ def quote_input_form_quote_list_internal(S) {
    quote_input_form(quote(newmat(2,2,[[1,2],[1/x,exp(x)]])));
 */
 
-
+/* Replace X by A in F.
+   x must be indeterminate.
+   A must be quotelist.
+*/ 
+def quote_replace(F,X,A) {
+  if (type(F) == QUOTE) {
+    F = quotetolist(F);
+  }
+  if (type(A) != LIST) {
+    A = quotetolist(A);
+  }
+  P = car(F);
+  Q = cdr(F);
+  if (type(P) == STRING) {
+    if (P == "internal" && type(Q[0]) == RPOLYNOMIAL) {
+      if (Q[0] == X) {
+        return(["u_op","()",A]);
+      }
+    }
+  }
+  return cons(F,quote_replace(Q,X,A));
+}
+/* Test data.
+ F=quote( (x+1)^3+3*x );
+ A=quote(1/y);
+ quote_replace(F,x,A);
+*/
 
 end$
