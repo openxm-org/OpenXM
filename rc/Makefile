@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.16 2001/09/18 05:30:55 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.17 2001/09/20 06:06:05 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -26,7 +26,7 @@ repl : repl.c
 	${CC} -static -o ../bin/rc.repl repl.c
 	ln -s ../bin/rc.repl repl
 
-openxm : dot.cshrc
+openxm : dot.bashrc
 	rm -f openxm
 	echo "#!/bin/sh" >openxm
 	cat dot.bashrc >>openxm
@@ -51,5 +51,5 @@ install-bin :
 	cp -f webasir ../bin
 
 clean :
-	rm -rf dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .gen-shell-scripts work
+	rm -rf dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .done_gen-shell-scripts work
 
