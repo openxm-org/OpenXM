@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.7 2000/03/11 01:18:25 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.8 2000/03/13 06:46:39 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -10,7 +10,8 @@ GC = ../gc/gc.a
 #### -D options
 DDD = -D_BSD_SOURCE
 #DDD = -DNOGC -D_BSD_SOURCE
-STATIC_LINK_FLAG = -static
+#STATIC_LINK_FLAG = -static
+STATIC_LINK_FLAG = 
 
 #### Optimization level etc.
 #CFLAGS = 
