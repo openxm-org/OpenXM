@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.24 2000/03/12 14:24:21 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.25 2000/03/14 02:09:17 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -22,13 +22,13 @@ PKGSRCS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR.java \
-	JP/ac/kobe_u/math/tam/OpenXM/cmoError2.java \
+	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java \
-	JP/ac/kobe_u/math/tam/OpenXM/cmoInt32.java \
+	JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java \
-	JP/ac/kobe_u/math/tam/OpenXM/cmoNull.java \
+	JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.java \
@@ -49,13 +49,13 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR.class \
-	JP/ac/kobe_u/math/tam/OpenXM/cmoError2.class \
+	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.class \
-	JP/ac/kobe_u/math/tam/OpenXM/cmoInt32.class \
+	JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.class \
-	JP/ac/kobe_u/math/tam/OpenXM/cmoNull.class \
+	JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.class \

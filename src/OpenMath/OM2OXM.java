@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.17 2000/01/21 12:17:49 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.18 2000/02/28 14:10:28 takayama Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -77,10 +77,10 @@ final class OM2OXM implements Runnable{
     String ret = "";
 
     switch(cmo.getDISCRIMINATOR()){
-    case CMO.CMO_NULL:
+    case CMO.NULL:
       return "<OMI>0</OMI>";
 
-    case CMO.CMO_INT32:
+    case CMO.INT32:
       return "<OMI>"+ ((CMO_INT32)cmo).intValue() +"</OMI>";
 
       // case CMO.CMO_DATUM:
@@ -142,7 +142,7 @@ final class OM2OXM implements Runnable{
       ret += "</OMA></OMA>";
       return ret;
 
-      //case CMO.CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+      //case CMO.POLYNOMIAL_IN_ONE_VARIABLE:
 
     case CMO.CMO_BIGFLOAT:
       ret += "<OMA><OMS name=\"times\" cd=\"basic\"/>";

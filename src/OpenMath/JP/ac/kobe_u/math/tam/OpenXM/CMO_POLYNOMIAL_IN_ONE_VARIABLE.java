@@ -1,16 +1,14 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.5 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM$
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
+final public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
   private int variable;
   private int[] degrees;
   private CMO[] coefficients;
-
-  public CMO_POLYNOMIAL_IN_ONE_VARIABLE(){}
 
   public CMO_POLYNOMIAL_IN_ONE_VARIABLE(int variable,int[] degrees,CMO[] coefficients){
     this.variable = variable;
@@ -31,10 +29,25 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_POLYNOMIAL_IN_ONE_VARIABLE;
+    return POLYNOMIAL_IN_ONE_VARIABLE;
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  protected void sendByObject(DataOutputStream os)
+       throws IOException,MathcapViolation{
+    int m = degrees.length;
+
+    new CMO_INT32(m).write(os);
+    new CMO_INT32(variable).write(os);
+    for(int i=0;i<m;i++){
+      new CMO_INT32(degrees[i]).write(os);
+      coefficients[i].write(os);
+    }
+  }
+
+  static protected CMO receive(DataInputStream is) throws IOException{
+    int variable;
+    int[] degrees;
+    CMO[] coefficients;
     int m;
 
     m = is.readInt();
@@ -48,18 +61,6 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
     }
  
     return new CMO_POLYNOMIAL_IN_ONE_VARIABLE(variable,degrees,coefficients);
-  }
-
-  protected void sendByObject(DataOutputStream os)
-       throws IOException,MathcapViolation{
-    int m = degrees.length;
-
-    new CMO_INT32(m).write(os);
-    new CMO_INT32(variable).write(os);
-    for(int i=0;i<m;i++){
-      new CMO_INT32(degrees[i]).write(os);
-      coefficients[i].write(os);
-    }
   }
 
   protected String toCMOexpressionByObject(){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.29 2000/01/21 07:33:18 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.30 2000/03/12 14:24:21 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -73,7 +73,7 @@ class OMproxy implements Runnable{
       }
     }catch(MathcapViolation e){
       try{
-	ox.send(new cmoError2(new CMO_STRING("MathcapViolation: "+
+	ox.send(new CMO_ERROR2(new CMO_STRING("MathcapViolation: "+
 					      e.getMessage())));
       }catch(MathcapViolation tmp){}
     }
@@ -85,7 +85,7 @@ class OMproxy implements Runnable{
     int argc;
 
     if(!(stack.peek() instanceof CMO_STRING)){
-      stack.push(new cmoError2(new cmoNull()));
+      stack.push(new CMO_ERROR2(new CMO_NULL()));
       return;
     }
     function_name = ((CMO_STRING)stack.pop()).getString();
@@ -96,7 +96,7 @@ class OMproxy implements Runnable{
     }
 
     if(argc != 1){
-      stack.push(new cmoError2(new cmoNull()));
+      stack.push(new CMO_ERROR2(new CMO_NULL()));
       return;
     }
 
@@ -108,7 +108,7 @@ class OMproxy implements Runnable{
       return;
     }
 
-    stack.push(new cmoError2(new cmoNull()));
+    stack.push(new CMO_ERROR2(new CMO_NULL()));
     return;
   }
 
@@ -134,8 +134,8 @@ class OMproxy implements Runnable{
     }
 
     {
-      CMO[] CMOFormat = {new CMO_INT32(CMO.CMO_NULL),
-			 new CMO_INT32(CMO.CMO_INT32),
+      CMO[] CMOFormat = {new CMO_INT32(CMO.NULL),
+			 new CMO_INT32(CMO.INT32),
 			 new CMO_INT32(CMO.CMO_STRING),
 			 new CMO_INT32(CMO.CMO_LIST),
 			 new CMO_INT32(CMO.CMO_MONOMIAL32),
@@ -145,7 +145,7 @@ class OMproxy implements Runnable{
 			 new CMO_INT32(CMO.CMO_DMS_GENERIC),
 			 new CMO_INT32(CMO.CMO_RECURSIVE_POLYNOMIAL),
 			 new CMO_INT32(CMO.CMO_DISTRIBUTED_POLYNOMIAL),
-			 new CMO_INT32(CMO.CMO_POLYNOMIAL_IN_ONE_VARIABLE),
+			 new CMO_INT32(CMO.POLYNOMIAL_IN_ONE_VARIABLE),
 			 new CMO_INT32(CMO.CMO_BIGFLOAT),
 			 new CMO_INT32(CMO.CMO_INDETERMINATE),
 			 new CMO_INT32(CMO.CMO_TREE)};
@@ -164,7 +164,7 @@ class OMproxy implements Runnable{
     Object mathcap = stack.pop();
 
     if(mathcap instanceof CMO_MATHCAP){
-      stack.push(new cmoError2(new cmoNull()));
+      stack.push(new CMO_ERROR2(new CMO_NULL()));
     }
     ox.setMathCap((CMO_MATHCAP)mathcap);
   }
@@ -201,7 +201,7 @@ class OMproxy implements Runnable{
       str = OM2OXM.CMO2OM(obj);
     }catch(NumberFormatException e){
       debug("CMO2OMXML occuered error in trans");
-      return new cmoError2(new CMO_STRING(e.toString()));
+      return new CMO_ERROR2(new CMO_STRING(e.toString()));
     }
 
     return new CMO_STRING(str);
@@ -215,7 +215,7 @@ class OMproxy implements Runnable{
 
     debug("OMXML2CMO called: "+obj);
     if(!(obj instanceof CMO_STRING)){
-      return new cmoError2(new CMO_STRING("It's not CMO_STRING."));
+      return new CMO_ERROR2(new CMO_STRING("It's not CMO_STRING."));
     }
 
     try{
@@ -223,10 +223,10 @@ class OMproxy implements Runnable{
       ret = trans.parse(stream);
     }catch(IOException e){
       debug("OMXML2CMO occuered error in trans");
-      return new cmoError2(new CMO_STRING(e.toString()));
+      return new CMO_ERROR2(new CMO_STRING(e.toString()));
     }catch(NumberFormatException e){
       debug("OMXML2CMO occuered error in trans");
-      return new cmoError2(new CMO_STRING(e.toString()));
+      return new CMO_ERROR2(new CMO_STRING(e.toString()));
     }
 
     debug("push: "+ret);

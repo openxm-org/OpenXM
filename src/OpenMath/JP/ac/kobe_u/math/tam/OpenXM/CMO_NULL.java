@@ -5,18 +5,18 @@ package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_NULL extends CMO{
+final public class CMO_NULL extends CMO{
   public CMO_NULL(){}
 
   public int DISCRIMINATOR(){
-    return CMO_NULL;
+    return NULL;
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
-    return this;
+  static protected CMO receive(DataInputStream is) throws IOException{
+    return new CMO_NULL();
   }
 
   public String toCMOexpressionByObject(){
