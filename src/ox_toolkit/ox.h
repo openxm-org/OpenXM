@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.2 1999/12/13 02:27:15 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.3 1999/12/14 09:29:13 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -157,7 +157,7 @@ cmo_zz*            new_cmo_zz();
 cmo_zz*            new_cmo_zz_size(int size);
 cmo_zz*            new_cmo_zz_set_si(int integer);
 cmo_zz*            new_cmo_zz_noinit();
-cmo_zz*            new_cmo_zz_set_string(char *s);
+cmo_zz*            new_cmo_zz_set_string(char* s);
 cmo_zero*          new_cmo_zero();
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();
 cmo_dms_generic*   new_cmo_dms_generic();
@@ -167,49 +167,59 @@ cmo_error2*        new_cmo_error2(cmo* ob);
 
 ox_data*           new_ox_data(cmo* c);
 ox_command*        new_ox_command(int sm_code);
+ox_sync_ball*      new_ox_sync_ball();
 
-char*              new_string_set_cmo(cmo *m);
+char*              new_string_set_cmo(cmo* m);
 
-cmo_error2*        make_error_object(int err_code, cmo *ob);
+cmo_error2*        make_error_object(int err_code, cmo* ob);
 cmo*               make_mathcap_object(int version, char *id_string);
 
+/* 低水準 API */
 cmo*               receive_cmo(int fd);
 int                receive_int32(int fd);
 int                receive_ox_tag(int fd);
 
-int           send_cmo(int fd, cmo* m);
-int           send_int32(int fd, int integer);
-int           send_ox(int fd, ox* m);
-int           send_ox_cmo(int fd, cmo* m);
-void          send_ox_command(int fd, int sm_command);
-int           send_ox_tag(int fd, int tag);
+int                send_cmo(int fd, cmo* m);
+int                send_int32(int fd, int integer);
+int                send_ox(int fd, ox* m);
+int                send_ox_cmo(int fd, cmo* m);
+void               send_ox_command(int fd, int sm_command);
+int                send_ox_tag(int fd, int tag);
 
-int           append_cmo_list(cmo_list* this, cmo *ob);
-int           length_cmo_list(cmo_list* this);
-cell*         next_cell(cell *this);
-int           cmolen_cmo(cmo* m);
+int                decideByteOrderClient(int fd, int order);
+int                decideByteOrderServer(int fd, int order);
+int                next_serial();
+void               setCmotypeDisable(int type);
+cell*              new_cell();
+cmo*               nth_cmo_list(cmo_list* this, int n);
+int                set_current_fd(int fd);
 
-void          ox_close(ox_file_t sv);
-void          ox_execute_string(ox_file_t sv, char* str);
-cmo_mathcap*  ox_mathcap(ox_file_t sv);
-char*         ox_popString(ox_file_t sv);
-int           ox_pops(ox_file_t sv, int num);
-cmo*          ox_pop_cmo(ox_file_t sv);
-void          ox_reset(ox_file_t sv);
-ox_file_t     ox_start(char* host, char* prog1, char* prog2);
-ox_file_t     ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
+/* 高水準 API */
+ox_file_t          ox_start(char* host, char* prog1, char* prog2);
+ox_file_t          ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
+void               ox_close(ox_file_t sv);
+void               ox_shutdown(ox_file_t sv);
+void               ox_reset(ox_file_t sv);
+void               ox_execute_string(ox_file_t sv, char* str);
+cmo_mathcap*       ox_mathcap(ox_file_t sv);
+char*              ox_popString(ox_file_t sv);
+int                ox_pops(ox_file_t sv, int num);
+cmo*               ox_pop_cmo(ox_file_t sv);
+void               ox_push_cmo(ox_file_t sv, cmo *c);
+void               ox_push_cmd(ox_file_t sv, int sm_code);
+int                ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
+int                ox_flush(ox_file_t sv);
 
-int           init_dump_buff(char *buff);
-int           dump_cmo(cmo* m);
-int           dump_ox_command(ox_command* m);
-int           dump_ox_data(ox_data* m);
+int                append_cmo_list(cmo_list* this, cmo *ob);
+int                length_cmo_list(cmo_list* this);
+cell*              next_cell(cell *this);
+int                cmolen_cmo(cmo* m);
+int                init_dump_buff(char *buff);
+int                dump_cmo(cmo* m);
+int                dump_ox_command(ox_command* m);
+int                dump_ox_data(ox_data* m);
 
-int           print_cmo(cmo* c);
-
-int           decideByteOrderClient(int fd, int order);
-int           decideByteOrderServer(int fd, int order);
-int           next_serial();
-void          setCmotypeDisable(int type);
+int                print_cmo(cmo* c);
 
 typedef cmo *(*hook_t)(int, cmo *);
 
