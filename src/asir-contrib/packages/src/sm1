@@ -1,6 +1,7 @@
-/*$OpenXM: OpenXM/src/asir99/lib/contrib/packages/src/sm1,v 1.9 1999/11/27 01:39:57 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.1.1.1 1999/11/27 11:25:19 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
+Sm1_proc = -1$
 
 /* Search : oxPrintMessage, see cmoDebugCMO, too. */
 /************** end of configure *******************************/
@@ -80,10 +81,10 @@ Grobner Deformations of Hypergeometric Differential Equations,
 See the appendix.
 */
 /*&jp-texi
-@section{@code{ox_sm1_forAsir} サーバ}
+@section @code{ox_sm1_forAsir} サーバ
 */ 
 /*&eg-texi
-@section{@code{ox_sm1_forAsir} Server}
+@section @code{ox_sm1_forAsir} Server
 */ 
 
 /*&eg-texi
@@ -91,7 +92,7 @@ See the appendix.
 * ox_sm1_forAsir::
 @end menu
 @node ox_sm1_forAsir,,, Top
-@subsection{@code{ox_sm1_forAsir}}
+@subsection @code{ox_sm1_forAsir}
 @findex ox_sm1_forAsir
 @table @t
 @item ox_sm1_forAsir
@@ -125,7 +126,7 @@ to build your own server by reading @code{sm1} macros.
 * ox_sm1_forAsir::
 @end menu
 @node ox_sm1_forAsir,,, Top
-@subsection{@code{ox_sm1_forAsir}}
+@subsection @code{ox_sm1_forAsir}
 @findex ox_sm1_forAsir
 @table @t
 @item ox_sm1_forAsir
@@ -172,10 +173,10 @@ def sm1_check_server(P) {
 }
 
 /*&jp-texi
-@section{函数一覧}
+@section 函数一覧
 */ 
 /*&eg-texi
-@section{Functions}
+@section Functions
 */ 
 
 /*&eg-texi
@@ -183,7 +184,7 @@ def sm1_check_server(P) {
 * sm1_start::
 @end menu
 @node sm1_start,,, SM1 Functions
-@subsection{@code{sm1_start}}
+@subsection @code{sm1_start}
 @findex sm1_start
 @table @t
 @item sm1_start()
@@ -220,7 +221,7 @@ for computation in @code{sm1}.
 * sm1_start::
 @end menu
 @node sm1_start,,, SM1 函数
-@subsection{@code{sm1_start}}
+@subsection @code{sm1_start}
 @findex sm1_start
 @table @t
 @item sm1_start()
@@ -287,6 +288,7 @@ a*da
 def sm1_start() {
  extern Sm1_lib;
  extern Xm_noX;
+ extern Sm1_proc;
  if (Xm_noX) {
    P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_forAsir");
  }else{
@@ -296,6 +298,7 @@ def sm1_start() {
    sm1(P," oxNoX ");
  }
  ox_check_errors(P);
+ Sm1_proc = P;
  return(P);
 }
 
@@ -316,7 +319,7 @@ def sm1push(P,F) {
 * sm1::
 @end menu
 @node sm1,,, SM1 Functions
-@subsection{@code{sm1}}
+@subsection @code{sm1}
 @findex sm1
 @table @t
 @item sm1(@var{p},@var{s})
@@ -342,7 +345,7 @@ to execute the command string @var{s}.
 * sm1::
 @end menu
 @node sm1,,, SM1 函数
-@subsection{@code{sm1}}
+@subsection @code{sm1}
 @findex sm1
 @table @t
 @item sm1(@var{p},@var{s})
@@ -478,7 +481,7 @@ def sm1_push_int0_R(A,P) {
 * sm1_push_int0::
 @end menu
 @node sm1_push_int0,,, SM1 Functions
-@subsection{@code{sm1_push_int0}}
+@subsection @code{sm1_push_int0}
 @findex sm1_push_int0
 @table @t
 @item sm1_push_int0(@var{p},@var{f})
@@ -518,7 +521,7 @@ Note that @code{ox_push_cmo(@var{p},1234)} send the bignum 1234 to the
 * sm1_push_int0::
 @end menu
 @node sm1_push_int0,,, SM1 函数
-@subsection{@code{sm1_push_int0}}
+@subsection @code{sm1_push_int0}
 @findex sm1_push_int0
 @table @t
 @item sm1_push_int0(@var{p},@var{f})
@@ -706,7 +709,7 @@ def sm1_isListOfVar(A) {
 @end menu
 @node sm1_gb,,, SM1 Functions
 @node sm1_gb_d,,, SM1 Functions
-@subsection{@code{sm1_gb}}
+@subsection @code{sm1_gb}
 @findex sm1_gb
 @findex sm1_gb_d
 @table @t
@@ -758,7 +761,7 @@ List
 @end menu
 @node sm1_gb,,, SM1 函数
 @node sm1_gb_d,,, SM1 函数
-@subsection{@code{sm1_gb}}
+@subsection @code{sm1_gb}
 @findex sm1_gb
 @findex sm1_gb_d
 @table @t
@@ -922,7 +925,7 @@ def sm1_pgb(P,A) {
 * sm1_deRham::
 @end menu
 @node sm1_deRham,,, SM1 Functions
-@subsection{@code{sm1_deRham}}
+@subsection @code{sm1_deRham}
 @findex sm1_deRham
 @table @t
 @item sm1_deRham(@var{p},[@var{f},@var{v}])
@@ -965,7 +968,7 @@ List
 * sm1_deRham::
 @end menu
 @node sm1_deRham,,, SM1 函数
-@subsection{@code{sm1_deRham}}
+@subsection @code{sm1_deRham}
 @findex sm1_deRham
 @table @t
 @item sm1_deRham(@var{p},[@var{f},@var{v}])
@@ -1133,7 +1136,7 @@ def sm1_reduction_noH_d(P,F,G) {
 * sm1_hilbert::
 @end menu
 @node sm1_hilbert,,, SM1 Functions
-@subsection{@code{sm1_hilbert}}
+@subsection @code{sm1_hilbert}
 @findex sm1_hilbert
 @table @t
 @item sm1_hilbert(@var{p},[@var{f},@var{v}])
@@ -1174,7 +1177,7 @@ List
 * sm1_hilbert::
 @end menu
 @node sm1_hilbert,,, SM1 函数
-@subsection{@code{sm1_hilbert}}
+@subsection @code{sm1_hilbert}
 @findex sm1_hilbert
 @table @t
 @item sm1_hilbert(@var{p},[@var{f},@var{v}])
@@ -1261,7 +1264,7 @@ def sm1_hilbert(P,A) {
 * sm1_genericAnn::
 @end menu
 @node sm1_genericAnn,,, SM1 Functions
-@subsection{@code{sm1_genericAnn}}
+@subsection @code{sm1_genericAnn}
 @findex sm1_genericAnn
 @table @t
 @item sm1_genericAnn(@var{p},[@var{f},@var{v}])
@@ -1292,7 +1295,7 @@ List
 * sm1_genericAnn::
 @end menu
 @node sm1_genericAnn,,, SM1 函数
-@subsection{@code{sm1_genericAnn}}
+@subsection @code{sm1_genericAnn}
 @findex sm1_genericAnn
 @table @t
 @item sm1_genericAnn(@var{p},[@var{f},@var{v}])
@@ -1359,7 +1362,7 @@ def sm1_tensor0(P,F) {
 * sm1_wTensor0::
 @end menu
 @node sm1_wTensor0,,, SM1 Functions
-@subsection{@code{sm1_wTensor0}}
+@subsection @code{sm1_wTensor0}
 @findex sm1_wTensor0
 @table @t
 @item sm1_wTensor0(@var{p},[@var{f},@var{g},@var{v},@var{w}])
@@ -1402,7 +1405,7 @@ the inputs @var{f} and @var{g} are left ideals of D.
 * sm1_wTensor0::
 @end menu
 @node sm1_wTensor0,,, SM1 函数
-@subsection{@code{sm1_wTensor0}}
+@subsection @code{sm1_wTensor0}
 @findex sm1_wTensor0
 @table @t
 @item sm1_wTensor0(@var{p},[@var{f},@var{g},@var{v},@var{w}])
@@ -1455,6 +1458,39 @@ def sm1_wTensor0(P,F) {
   B = sm1_pop(P);
   return(B);
 }
+
+/* @@@ */
+def sm1_check_proc() {
+  extern Sm1_proc;
+  if (Sm1_proc == -1) {
+     A = ox_get_serverinfo();
+     /* Look for ox_sm1. Not yet written */
+     /* Start sm1 automatically if there is not ox_sm1 */
+     Sm1_proc = sm1_start();
+  }
+  return(Sm1_proc);
+}
+/*  cf.
+sm1_reduction_d(P,F,G)
+sm1_reduction_noH_d(P,F,G)
+*/
+def sm1_reduction(A) {
+  /* Example: sm1_reduction(A|proc=10) */
+  P = getopt(proc);
+  if (type(P) == -1) {
+    P = sm1_check_proc();  /* Set Sm1_proc */
+  }
+  /* check the arguments */
+  if (type(A) != 4) {
+   error("sm1_reduction(A|proc=p): A must be a list.");
+  }
+  sm1(P," /reduction*.noH 0 def ");
+  sm1_push_int0(P,A);
+  sm1(P," reduction* ");
+  ox_check_errors2(P);
+  return(sm1_pop(P));
+}
+
 
 
 def sm1_wbf(P,A) {

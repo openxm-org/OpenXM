@@ -1,9 +1,9 @@
-#$OpenXM: OpenXM/src/asir99/lib/contrib/packages/doc/Makefile,v 1.7 1999/11/20 06:18:58 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.1.1.1 1999/11/27 11:25:18 takayama Exp $
 all : oxxm.texi oxxm-eg.texi oxmath.texi oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom.texi oxom-eg.texi
 
-ASIRDOC=$(OpenXM_HOME)/src/asir99/doc
-ASIRLIB=$(OpenXM_HOME)/src/asir99/lib
-CONTRIB=$(ASIRLIB)/contrib/packages/src
+ASIRDOC=$(OpenXM_HOME)/src/asir-doc/doc
+ASIRLIB=$(OpenXM_HOME)/src/asir2000/lib
+CONTRIB=$(OpenXM_HOME)/src/asir-contrib/packages/src
 
 oxxm.texi : $(ASIRLIB)/xm Makefile
 	/bin/rm -f oxxm.texi
