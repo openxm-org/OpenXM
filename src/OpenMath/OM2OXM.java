@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.12 1999/11/18 15:13:01 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.13 1999/12/09 00:32:36 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -39,7 +39,7 @@ final class OM2OXM implements Runnable{
   private int token = TT_NULL;
   private boolean lexPushbackFlag = false;
   private OpenXM asir; // for debug
-  private boolean debug = true;
+  protected boolean debug = false; // for debug message
 
   // Token Type for lexical analyzer
   final static int TT_NULL      = 0;

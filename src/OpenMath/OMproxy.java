@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.20 2000/01/19 15:19:29 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.21 2000/01/19 15:21:58 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -9,7 +9,7 @@ import java.io.*;
 class OMproxy implements Runnable{
   private OpenXM ox;
   private Stack stack = new Stack();
-  private boolean debug = true;
+  protected boolean debug = false;
   final int version = 200001190;
 
   public OMproxy(String host,int ControlPort,int DataPort) throws IOException{
@@ -222,7 +222,7 @@ class OMproxy implements Runnable{
     ret += "\t -data port \t (default 1300)\n";
     ret += "\t -control port \t (default 1200)\n";
     ret += "\t -insecure \t this version ignore this option\n";
-    ret += "\t -nohup \t ignore signals (required libnative.so)\n";
+    ret += "\t -debug \t display debug messages\n";
 
     return ret;
   }
@@ -230,6 +230,7 @@ class OMproxy implements Runnable{
   public static void main(String argv[]){
     String host = "localhost";
     int DataPort = 1300, ControlPort = 1200;
+    boolean debug = false;
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
@@ -242,6 +243,8 @@ class OMproxy implements Runnable{
       }else if(argv[i].equals("-control")){
 	ControlPort = Integer.valueOf(argv[++i]).intValue();
       }else if(argv[i].equals("-insecure")){
+      }else if(argv[i].equals("-debug")){
+	debug = true;
       }else{
 	System.err.println("unknown option : "+ argv[i]);
 	System.err.print(usage());
@@ -253,7 +256,7 @@ class OMproxy implements Runnable{
 		       +"("+ ControlPort +","+ DataPort +")");
 
     try{
-      new OMproxy(host,ControlPort,DataPort);
+      new OMproxy(host,ControlPort,DataPort).debug = debug;
       System.out.println("connected.");
     }catch(IOException e){
       System.err.println("Error occured: "+ e);

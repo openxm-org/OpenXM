@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.5 1999/11/11 20:17:18 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.6 1999/11/12 07:46:37 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -10,7 +10,7 @@ public class OpenXM implements Runnable{
   private OpenXMconnection control = null, stream = null;
   private Runnable process = null;
   private Thread thread = null;
-  final boolean debug = true;
+  final protected boolean debug = false;
 
   // OX message_tag
   final public static int OX_COMMAND                  = 513;
