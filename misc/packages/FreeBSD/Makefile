@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.11 2000/03/13 05:31:58 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.12 2000/09/23 07:28:13 takayama Exp $
 VERSION=1.1.3
 TAG=HEAD
 TAR_WORK=$(HOME)/tmp
 
-RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/home/cvs
 
 usage:
 	@echo "Targets:  "
