@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.1 2003/11/03 03:11:21 iwane Exp $
 #
 #
 #
@@ -73,7 +73,9 @@ pre-fetch-ntl:
 
 fetch-ntl: pre-fetch-ntl
 	@if [ ! -f .fetch-ntl-done ]; then \
-		(cd ${DISTDIR}; wget --passive-ftp ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE)); \
+		if [ ! -f ${DISTDIR}/${DISTFILE} ]; then \
+		(cd ${DISTDIR}; wget --no-directories --passive-ftp ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE)) ; \
+		fi ; \
 		(cd ${WORK}; tar xvzf ${DISTDIR}/${DISTFILE}); \
 		touch .fetch-ntl-done; \
 	fi
@@ -82,7 +84,7 @@ patch-ntl: fetch-ntl
 	@if [ ! -f .patch-ntl-done ]; then \
 		touch .patch-ntl-done; \
 	fi
-	
+
 
 build-ntl: patch-ntl
 	@if [ ! -f .build-ntl-done ]; then \
