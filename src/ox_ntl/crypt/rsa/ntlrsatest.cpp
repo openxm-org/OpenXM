@@ -1,8 +1,33 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/ntlrsatest.cpp,v 1.1 2004/05/16 15:04:54 iwane Exp $ */
 
 #include "ntlrsa.h"
 #include <stdio.h>
 #include <string.h>
+
+static void
+enctest(NtlRsa *rsa, const char *C)
+{
+	unsigned char code[1024];
+	unsigned char buf[1024];
+	int a1 = rsa->encryptByPublicKey(code, C);
+	int a2 = rsa->decryptByPrivateKey(buf, code);
+
+	printf("<%2d>: [%s] ==> [%s][%02x %02x %02x %02x %02x]", strncmp(C, (char *)buf, a1), C, buf, buf[0], buf[1], buf[2], buf[3], buf[4]);
+	printf("%d %d %d\n", a1, a2, strlen(C));
+	if (a1 < 0 || a2 < 0) {
+		printf("error\n");
+		exit(-1);
+	}
+
+	a1 = rsa->encryptByPrivateKey(code, C);
+	a2 = rsa->decryptByPublicKey(buf, code);
+	printf("<%2d>: [%s] ==> [%s]", strncmp(C, (char *)buf, a2), C, buf);
+	printf("\t\t%d %d\n", a1, a2);
+	if (a1 < 0 || a2 < 0) {
+		printf("error\n");
+		exit(-1);
+	}
+}
 
 /*
  * example: NtlRsa
@@ -24,21 +49,8 @@ main(int argc, char *argv[])
 
 
 
-#define enctest(C) do {					\
-	a1 = rsa.encryptByPublicKey(code, C);				\
-	a2 = rsa.decryptByPrivateKey(buf, code); \
-	printf("<%2d>: [%s] ==> [%s][%02x %02x %02x %02x %02x]", strncmp(C, (char *)buf, a1), C, buf, buf[0], buf[1], buf[2], buf[3], buf[4]);		\
-	printf("%d %d %d\n", a1, a2, strlen(C)); \
-	if (a1 < 0 || a2 < 0) { printf("error\n"); return (-1); } \
-	a1 = rsa.encryptByPrivateKey(code, C);				\
-	a2 = rsa.decryptByPublicKey(buf, code); \
-	printf("<%2d>: [%s] ==> [%s]", strncmp(C, (char *)buf, a2), C, buf);		\
-	printf("\t\t%d %d\n", a1, a2); \
-	if (a1 < 0 || a2 < 0) { printf("error\n"); return (-1); } \
-} while (0)
-
 	for (int i = 0; i < argc; i++) {
-		enctest(argv[i]);
+		enctest(&rsa, argv[i]);
 	}
 
 	char *ptr = msg;
@@ -74,7 +86,7 @@ main(int argc, char *argv[])
 		p += a2;
 	}
 
-	cout << "decrypt: " << strcmp((char *)buf, msg) << ": " << buf << endl;
+	cout << "decrypt: " << strcmp((char *)buf, msg) << endl;
 }
 
 

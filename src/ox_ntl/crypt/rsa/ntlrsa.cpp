@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/ntlrsa.cpp,v 1.1 2004/05/16 15:04:54 iwane Exp $ */
 /*-- References: RFC 3447 PKCS #1: RSA Encryption Version 2.1 --*/
 
 #include <stdio.h>
@@ -179,7 +179,7 @@ NtlRsa::encrypt(unsigned char *eb, const unsigned char *msg, int size, int k, co
 	PowerMod(y, x, c, mod);
 
 	//--------------------------------------------------
-	// Inteer-to-octet-string conversion
+	// Integer-to-octet-string conversion
 	//--------------------------------------------------
 	memset(eb, 0, sizeof(k));
 	BytesFromZZ(eb, y, k);

@@ -1,4 +1,6 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/Makefile,v 1.1 2004/05/16 15:04:54 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/Makefile,v 1.2 2004/07/04 02:31:51 iwane Exp $
+
+VPATH=.:../sha1
 
 OpenXM_HOME ?= ${PWD}/../../../..
 PREFIX=$(OpenXM_HOME)
@@ -12,7 +14,7 @@ CP  ?= /bin/cp
 
 CFLAGS   += -g -Wall
 CXXFLAGS += -g -Wall
-CPPFLAGS  = -I$(PREFIX)/include 
+CPPFLAGS  = -I$(PREFIX)/include  -I../sha1
 
 
 NTL_LIBDIR=$(PREFIX)/lib/NTL
@@ -22,19 +24,28 @@ LDFLAGS=-L$(LIBDIR) -L$(NTL_LIBDIR)
 
 .SUFFIXES: .cpp .o .c
 
-SRCC=
-SRCP=ntlrsa.cpp ntlrsatest.cpp
+SRCCG=gmprsa.c sha1.c gmprsatest.c
+SRCPN=ntlrsa.cpp ntlrsatest.cpp
 
-PROG=rsa
-OBJC=$(SRCP:.cpp=.o)
+NTL=ntlrsatest
+GMP=gmprsatest
 
-all: rsa
+PROGS=$(NTL) $(GMP)
+
+OBJCN=$(SRCPN:.cpp=.o) $(SRCCN:.c=.o)
+OBJCG=$(SRCPG:.cpp=.o) $(SRCCG:.c=.o)
 
 
-$(PROG): $(OBJC)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJC) -o $@ -lntl -lgmp
+
+all: $(PROGS)
 
 
+$(GMP): $(OBJCG)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJCG) -o $@ -lgmp
+
+
+$(NTL): $(OBJCN)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJCN) -o $@ -lntl -lgmp
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
@@ -42,6 +53,11 @@ $(PROG): $(OBJC)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) -f $(OBJC) $(PROG)
+	-$(RM) -f $(OBJCG) $(OBJCN) $(PROGS)
 
 
+
+gmprsa.o: gmprsa.h
+gmprsatest.o: gmprsa.h
+ntlrsa.o: ntlrsa.h
+ntlrsatest.o : ntlrsa.h
