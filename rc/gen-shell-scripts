@@ -1,0 +1,25 @@
+#!/bin/sh
+# $OpenXM$
+
+#asir
+	rm -f asir
+	echo "#!/bin/csh" >asir
+	cat dot.cshrc >>asir
+	echo '$OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir' >>asir
+	chmod +x asir
+
+#sm1
+	rm -f sm1
+	echo "#!/bin/csh" >sm1
+	cat dot.cshrc >>sm1
+	echo '$OpenXM_HOME/bin/fep $OpenXM_HOME/bin/sm1' >>sm1
+	chmod +x sm1
+
+#gp
+	rm -f gp
+	echo "#!/bin/csh" >gp
+	cat dot.cshrc >>gp
+	echo '$OpenXM_HOME/bin/fep $OpenXM_HOME/bin/gp' >>gp
+	chmod +x gp
+
+

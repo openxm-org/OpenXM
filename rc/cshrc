@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/cshrc,v 1.10 2000/01/26 23:14:41 takayama Exp $
+# $OpenXM: OpenXM/rc/cshrc,v 1.11 2000/01/27 00:52:16 takayama Exp $
 setenv OpenXM_HOME $HOME/OpenXM
 set path=($OpenXM_HOME/bin $path)
 rehash
@@ -8,7 +8,7 @@ setenv ASIR_CONFIG $OpenXM_HOME/rc/asirrc
 setenv LOAD_SM1_PATH $OpenXM_HOME/lib/sm1
 setenv LOAD_K_PATH   $OpenXM_HOME/lib/k097
 if ( ${?LD_LIBRARY_PATH} == 1) then
-   setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib:$OpenXM_HOME/lib
+   setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/lib:$OpenXM_HOME/lib
 else
    setenv LD_LIBRARY_PATH /usr/lib:$OpenXM_HOME/lib
 endif
