@@ -1,7 +1,7 @@
 /*&jp \documentclass{jarticle}
 \begin{document}
 */
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.14 2002/08/23 08:16:15 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.15 2002/10/24 08:25:45 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -713,7 +713,7 @@ def m_TeXForm(M) {
 
   A = m_rtostr(M);
   ox_execute_string(P,"ToString[TeXForm["+A+"]]");
-  B = ox_pop_cmo(B);
+  B = ox_pop_cmo(P);
   C = m_tree_to_string(B);
   return C;
 }
