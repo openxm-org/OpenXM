@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.4 2003/01/11 11:42:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.5 2003/01/13 12:03:12 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -220,6 +220,14 @@ cmo_zero* new_cmo_zero()
 {
     cmo_zero* m = malloc(sizeof(cmo_zero));
     m->tag = CMO_ZERO;
+    return m;
+}
+
+cmo_double *new_cmo_double(double d)
+{
+    cmo_double* m = malloc(sizeof(cmo_double));
+    m->tag = CMO_64BIT_MACHINE_DOUBLE;
+    m->d = d;
     return m;
 }
 

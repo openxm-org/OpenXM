@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.10 2003/01/11 11:42:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.11 2003/01/13 12:03:12 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -102,6 +102,11 @@ typedef struct {
     cmo *den;  /* Bunbo (cmo_zz) */
 } cmo_qq;
 
+typedef struct {
+    int tag;
+    double d; /* machine dependent */
+} cmo_double;
+
 /* The following is a derived class from cmo_list. 
    that is, list_append can be used. */
 typedef struct {
@@ -139,6 +144,7 @@ cmo_zz*            new_cmo_zz_set_mpz(mpz_ptr z);
 cmo_zz*            new_cmo_zz_noinit();
 cmo_zz*            new_cmo_zz_set_string(char* s);
 cmo_zero*          new_cmo_zero();
+cmo_double*        new_cmo_double(double d);
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();
 cmo_dms_generic*   new_cmo_dms_generic();
 cmo_ring_by_name*  new_cmo_ring_by_name(cmo* ob);
