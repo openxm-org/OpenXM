@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.29 2004/08/22 12:52:34 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.30 2004/08/23 08:33:55 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4111,6 +4111,48 @@ $ [ff ff] fromVectors :: $
  (It normalizes a given vector of Q into a vector of Z with relatively prime)
  (entries by multiplying a postive number.)
 ]] putUsages
+
+/getNode {
+  /arg2 set
+  /arg1 set
+  [/in-getNode /ob /key /rr /rr /ii] pushVariables
+  [
+    /ob arg1 def
+    /key arg2 def
+    /rr null def
+    {
+      ob isClass {
+        ob (array) dc /ob set
+      } { exit } ifelse
+      ob 0 get key eq {
+        /rr ob def
+        exit
+      } {  } ifelse
+      ob 2 get /ob set
+      0 1 ob length 1 sub {
+         /ii set
+         ob ii get key getNode /rr set
+         rr tag 0 eq { } { exit } ifelse
+      } for 
+      exit
+    } loop 
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+[(getNode)
+[(ob key getNode)
+ (ob is a class object.)
+ (The operator getNode returns the node with the key in ob.)
+ (The node is an array of the format [key attr-list node-list])
+ (Example:)
+ (  /dog [(dog) [[(legs) 4] ] [ ]] [(class) (tree)] dc def)
+ (  /man [(man) [[(legs) 2] ] [ ]] [(class) (tree)] dc def)
+ (  /ma [(mammal) [ ] [man dog]] [(class) (tree)] dc def)
+ (  ma (dog) getNode )
+]] putUsages 
+
 
 /usages {
   /arg1 set
