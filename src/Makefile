@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.85 2000/03/06 14:58:00 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.86 2000/03/08 04:51:37 ohara Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 OPENXM_CONTRIB2=../../OpenXM_contrib2
@@ -26,6 +26,9 @@ all-gmp: configure-gmp
 	else \
 	 (if test ! -f .gmp_make_done ; then cd gmp ; make ; touch .gmp_make_done ; fi) ; \
 	fi
+
+all-oxtoolkit: configure-oxtoolkit install-gmp
+	(cd ox_toolkit; make)
 
 all-asir: configure-asir
 	@if test -d $(OPENXM_CONTRIB2) ; then \
@@ -130,6 +133,8 @@ install-openmath: all-openmath
 		echo "in your search path. OpenMath will not be installed." ; \
 	fi
 
+install-oxtoolkit: all-oxtoolkit
+	(cd ox_toolkit; make install)
 
 install-oxmath: all-oxmath
 	@if test -x /usr/local/bin/math ; then \
@@ -236,6 +241,9 @@ configure-links:
 	ln -f -s $(BINDIR) bin
 	ln -f -s $(OPENXM_CONTRIB)/gc gc
 	ln -f -s $(OPENXM_CONTRIB)/gmp gmp
+
+configure-oxtoolkit:
+	(cd ox_toolkit; ./make-configure)
 
 configure-oxmath:
 	(cd ox_math; ./make-configure)
