@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.10 2000/02/20 11:30:43 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.11 2001/06/24 01:14:23 takayama Exp $ */
 
 /*----------------------*/
 /* package for D-module */
@@ -31,7 +31,7 @@ def odmodule_sm1_restart() {
 
 /* [x1,x2,...] -> [dx1,dx2,...] */
 def odmodule_make_dv(V) {
-  return diff_make_dv(V);
+  return odiff_make_dv(V);
 }
 
 /* [x1,x2,...] -> [tx1,tx2,...] */
@@ -68,17 +68,17 @@ def odmodule_var_tosm1(V) {
 /* differential operators with polynomial coefficients -> sm1 string */
 /* L_list: [ [[fa(V),[a1,...,an]],...], ... ], coefficient must be polynomial. */
 def odmodule_d_op_tosm1(L_list, V) {
-  return diff_op_tosm1(L_list, V);
+  return odiff_op_tosm1(L_list, V);
 }
 
 /* list form -> asir form */
 def odmodule_d_op_toasir(L_list, V) {
-  return diff_op_toasir(L_list, V);
+  return odiff_op_toasir(L_list, V);
 }
 
 /* asir form -> list form */
 def odmodule_d_op_fromasir(D_list, V) {
-  return diff_op_fromasir(D_list, V);
+  return odiff_op_fromasir(D_list, V);
 }
 
 def odmodule_filt(V, W) {
@@ -178,11 +178,11 @@ def odmodule_ptogp(Poly, W, V) {
 /* D_ideal: asir form, list form */
 /* V: [x1,x2,...] */
 def odmodule_ch_ideal(D_ideal, V) {
-  Param = diff_get_param(D_ideal, V);
+  Param = odiff_get_param(D_ideal, V);
 #if _DEBUG_Dmodule_
   print("generic parameter: ", 0); print(Param);
 #endif
-  D_ideal = diff_op_tosm1(D_ideal, V);
+  D_ideal = odiff_op_tosm1(D_ideal, V);
   Gb = sm1_gb([ D_ideal, odmodule_var_tosm1(append(V,Param)),
                 [odmodule_order_filt(append(V,Param))] ]);
 #if _DEBUG_Dmodule_
@@ -192,31 +192,31 @@ def odmodule_ch_ideal(D_ideal, V) {
 }
 
 def odmodule_ch_ideal_appell1(A, B1, B2, C, V) {
-  return odmodule_ch_ideal(diff_op_appell1(A, B1, B2, C, V), V);
+  return odmodule_ch_ideal(odiff_op_appell1(A, B1, B2, C, V), V);
 }
 
 def odmodule_ch_ideal_appell2(A, B1, B2, C1, C2, V) {
-  return odmodule_ch_ideal(diff_op_appell2(A, B1, B2, C1, C2, V), V);
+  return odmodule_ch_ideal(odiff_op_appell2(A, B1, B2, C1, C2, V), V);
 }
 
 def odmodule_ch_ideal_appell3(A1, A2, B1, B2, C, V) {
-  return odmodule_ch_ideal(diff_op_appell3(A1, A2, B1, B2, C, V), V);
+  return odmodule_ch_ideal(odiff_op_appell3(A1, A2, B1, B2, C, V), V);
 }
 
 def odmodule_ch_ideal_appell4(A, B, C1, C2, V) {
-  return odmodule_ch_ideal(diff_op_appell4(A, B, C1, C2, V), V);
+  return odmodule_ch_ideal(odiff_op_appell4(A, B, C1, C2, V), V);
 }
 
 def odmodule_ch_ideal_selberg2(A, B, C, S, V) {
-  return odmodule_ch_ideal(diff_op_selberg2(A, B, C, S, V), V);
+  return odmodule_ch_ideal(odiff_op_selberg2(A, B, C, S, V), V);
 }
 
 def odmodule_ch_ideal_selberg2_1(A, B, K1, K2, V) {
-  return odmodule_ch_ideal(diff_op_selberg2_1(A, B, K1, K2, V), V);
+  return odmodule_ch_ideal(odiff_op_selberg2_1(A, B, K1, K2, V), V);
 }
 
 def odmodule_ch_ideal_gkz(A, B, V) {
-  return odmodule_ch_ideal(diff_op_gkz(A, B, V), V);
+  return odmodule_ch_ideal(odiff_op_gkz(A, B, V), V);
 }
 
 /* elimination in polynomial ring */
@@ -250,7 +250,7 @@ def odmodule_singular_locus(D_ideal, V) {
 #if _DEBUG_Dmodule_
   print("characteristic ideal:",0);print(Ch_ideal);
 #endif
-  Dv = diff_make_dv(V);
+  Dv = odiff_make_dv(V);
   UC_y = uc();
   for (F = 0, I = 0; I < length(Dv); I++) {
     F += UC_y^I*Dv[I];
@@ -271,7 +271,7 @@ def odmodule_krull_dim(Poly_ideal, V) {
 /* V: [x1,x2,...] */
 def odmodule_restriction(D_ideal, V, Rest) {
   /* check if D_ideal have generic parameter. */
-  Param = diff_get_param(D_ideal, V);
+  Param = odiff_get_param(D_ideal, V);
 #if _DEBUG_Dmodule_
   print("generic parameter: ", 0); print(Param);
 #endif
@@ -284,7 +284,7 @@ def odmodule_restriction(D_ideal, V, Rest) {
 }
 
 def odmodule_restriction_no_generic(D_ideal, V, Rest) {
-  D_ideal = diff_op_tosm1(D_ideal, V);
+  D_ideal = odiff_op_tosm1(D_ideal, V);
   D_ideal_str = "";
   for (I = 0; I < length(D_ideal); I++) {
     D_ideal_str += " (" + D_ideal[I] + ") ";
@@ -306,7 +306,7 @@ def odmodule_restriction_no_generic(D_ideal, V, Rest) {
 }
 
 def odmodule_restriction_generic(D_ideal, Param, V, Rest) {
-  D_ideal = diff_op_tosm1(D_ideal, V);
+  D_ideal = odiff_op_tosm1(D_ideal, V);
   D_ideal_str = "";
   for (I = 0; I < length(D_ideal); I++) {
     D_ideal_str += " (" + D_ideal[I] + ") ";
@@ -331,35 +331,35 @@ def odmodule_restriction_generic(D_ideal, Param, V, Rest) {
 }
 
 def odmodule_restriction_appell1(A, B1, B2, C, V, Rest) {
-  return odmodule_restriction(diff_op_appell1(A, B1, B2, C, V), V, Rest);
+  return odmodule_restriction(odiff_op_appell1(A, B1, B2, C, V), V, Rest);
 }
 
 def odmodule_restriction_appell2(A, B1, B2, C1, C2, V, Rest) {
-  return odmodule_restriction(diff_op_appell2(A, B1, B2, C1, C2, V), V, Rest);
+  return odmodule_restriction(odiff_op_appell2(A, B1, B2, C1, C2, V), V, Rest);
 }
 
 def odmodule_restriction_appell3(A1, A2, B1, B2, C, V, Rest) {
-  return odmodule_restriction(diff_op_appell3(A1, A2, B1, B2, C, V), V, Rest);
+  return odmodule_restriction(odiff_op_appell3(A1, A2, B1, B2, C, V), V, Rest);
 }
 
 def odmodule_restriction_appell4(A, B, C1, C2, V, Rest) {
-  return odmodule_restriction(diff_op_appell4(A, B, C1, C2, V), V, Rest);
+  return odmodule_restriction(odiff_op_appell4(A, B, C1, C2, V), V, Rest);
 }
 
 def odmodule_restriction_selberg2(A, B, C, S, V, Rest) {
-  return odmodule_restriction(diff_op_selberg2(A, B, C, S, V), V, Rest);
+  return odmodule_restriction(odiff_op_selberg2(A, B, C, S, V), V, Rest);
 }
 
 def odmodule_restriction_selberg2_1(A, B, K1, K2, V, Rest) {
-  return odmodule_restriction(diff_op_selberg2_1(A, B, K1, K2, V), V, Rest);
+  return odmodule_restriction(odiff_op_selberg2_1(A, B, K1, K2, V), V, Rest);
 }
 
 def odmodule_restriction_gkz(A, B, V, Rest) {
-  return odmodule_restriction(diff_op_gkz(A, B, V), V, Rest);
+  return odmodule_restriction(odiff_op_gkz(A, B, V), V, Rest);
 }
 
 def odmodule_lookup(X, List) {
-  return diff_lookup(X, List);
+  return odiff_lookup(X, List);
 }
 
 /* odmodule_assign0(Rat, [x,y,z]); -> x=0,y=0,z=0 */
@@ -434,11 +434,11 @@ def odmodule_elimination_order(V, Elim) {
 /* Elim: [[x1,...,xt],[a1,...,at]] -> restrict to {x1=a1,...,xt=at} */
 def odmodule_elimination(D_ideal, V, Elim) {
   /* check if D_ideal have generic parameter. */
-  Param = diff_get_param(D_ideal, V);
+  Param = odiff_get_param(D_ideal, V);
 #if _DEBUG_Dmodule_
   print("generic parameter: ", 0); print(Param);
 #endif
-  D_ideal = diff_op_tosm1(D_ideal, V);
+  D_ideal = odiff_op_tosm1(D_ideal, V);
 #if _DEBUG_Dmodule_
   print("D-ideal: ", 0); print(D_ideal);
 #endif
@@ -483,19 +483,19 @@ def odmodule_elimination(D_ideal, V, Elim) {
 }
 
 def odmodule_elimination_appell1(A, B1, B2, C, V, Elim) {
-  return odmodule_elimination(diff_op_appell1(A, B1, B2, C, V), V, Elim);
+  return odmodule_elimination(odiff_op_appell1(A, B1, B2, C, V), V, Elim);
 }
 
 def odmodule_elimination_appell2(A, B1, B2, C1, C2, V, Elim) {
-  return odmodule_elimination(diff_op_appell2(A, B1, B2, C1, C2, V), V, Elim);
+  return odmodule_elimination(odiff_op_appell2(A, B1, B2, C1, C2, V), V, Elim);
 }
 
 def odmodule_elimination_appell3(A1, A2, B1, B2, C, V, Elim) {
-  return odmodule_elimination(diff_op_appell3(A1, A2, B1, B2, C, V), V, Elim);
+  return odmodule_elimination(odiff_op_appell3(A1, A2, B1, B2, C, V), V, Elim);
 }
 
 def odmodule_elimination_appell4(A, B, C1, C2, V, Elim) {
-  return odmodule_elimination(diff_op_appell4(A, B, C1, C2, V), V, Elim);
+  return odmodule_elimination(odiff_op_appell4(A, B, C1, C2, V), V, Elim);
 }
 
 def odmodule_elimination_appell4s(R_A, R_B, R_C1, R_C2, V, Elim, Flag) {
@@ -517,15 +517,15 @@ def odmodule_elimination_appell4s(R_A, R_B, R_C1, R_C2, V, Elim, Flag) {
 }
 
 def odmodule_elimination_selberg2(A, B, C, S, V, Elim) {
-  return odmodule_elimination(diff_op_selberg2(A, B, C, S, V), V, Elim);
+  return odmodule_elimination(odiff_op_selberg2(A, B, C, S, V), V, Elim);
 }
 
 def odmodule_elimination_selberg2_1(A, B, K1, K2, V, Elim) {
-  return odmodule_elimination(diff_op_selberg2_1(A, B, K1, K2, V), V, Elim);
+  return odmodule_elimination(odiff_op_selberg2_1(A, B, K1, K2, V), V, Elim);
 }
 
 def odmodule_elimination_gkz(A, B, V, Elim) {
-  return odmodule_elimination(diff_op_gkz(A, B, V), V, Elim);
+  return odmodule_elimination(odiff_op_gkz(A, B, V), V, Elim);
 }
 
 /* (V[0] dV[0])^N -> V[0]^N dV[0]^N + ... */
@@ -569,9 +569,9 @@ def odmodule_contiguity_hg1(Param, V) {
 
 def odmodule_contiguity_sol_hg1(Sol, Param, V) {
   C = odmodule_contiguity_hg1(Param, V);
-  C_Sol = [ diff_acts(C[0], Sol, V),
-            diff_acts(C[1], Sol, V),
-	    diff_acts(C[2], Sol, V) ];
+  C_Sol = [ odiff_acts(C[0], Sol, V),
+            odiff_acts(C[1], Sol, V),
+	    odiff_acts(C[2], Sol, V) ];
   return C_Sol;
 }
 
@@ -588,7 +588,7 @@ def odmodule_contiguity_generic_appell4(Param, V) {
   Dv = odmodule_make_dv(V);
   Var = append(V, vars(Param));
   Weight = [[Dv[0],1,Dv[1],1,V[0],1,V[1],1]];
-  D_list = diff_op_toasir(diff_op_appell4(Param[0],Param[1],Param[2],Param[3],V),V);
+  D_list = odiff_op_toasir(odiff_op_appell4(Param[0],Param[1],Param[2],Param[3],V),V);
   Cont_list = [];
   D = [V[0]*Dv[0]+V[1]*Dv[1]+Param[0],
        V[0]*Dv[0]+V[1]*Dv[1]+Param[1],
@@ -629,7 +629,7 @@ def odmodule_contiguity_appell4(Param, V) {
   if (A == C1 || B == C1 || A == C1+C2-1 || B == C1+C2-1) {
     print("contiguity of C2 is not isomorphism.");
   } */
-  Dv = diff_make_dv(V);
+  Dv = odiff_make_dv(V);
   D_A = [ /* A -> A+1 */ V[0]*Dv[0]+V[1]*Dv[1]+A,
           /* A -> A-1 */ 4*V[1]*V[0]^2*Dv[0]^2+(((-8*(A-1)+4*C1+4*C2-8)*V[1]*V[0]^2+((8*(A-1)-4*C1-4*C2+16)*V[1]^2+(8*(A-1)-4*C1-4*C2+8)*V[1])*V[0])*Dv[1]+(4*(A-1)^2+(-4*C1-8*C2+12)*(A-1)+(4*C2-4)*C1+4*C2^2-12*C2+8)*V[0]^2+((12*(A-1)^2+(-12*C1-8*C2+32)*(A-1)+4*B+4*C1^2+(4*C2-16)*C1-8*C2+24)*V[1]-4*(A-1)^2+(4*C1+8*C2-12)*(A-1)+(-4*C2+4)*C1-4*C2^2+12*C2-8)*V[0])*Dv[0]+((-8*(A-1)+4*C1+4*C2-8)*V[1]^2*V[0]+(8*(A-1)-4*C1-4*C2+12)*V[1]^3+(-8*(A-1)+4*C1+4*C2-12)*V[1]^2)*Dv[1]^2+((4*(A-1)^2+(-8*B-4*C1-8*C2+4)*(A-1)+(4*C1+4*C2-8)*B+4*C2*C1+4*C2^2-8*C2)*V[1]*V[0]+(12*(A-1)^2+(8*B-12*C1-8*C2+40)*(A-1)+(-4*C1-4*C2+12)*B+4*C1^2+(4*C2-20)*C1-12*C2+32)*V[1]^2+(-4*(A-1)^2+(8*C1-4*C2-12)*(A-1)-4*C1^2+12*C1+4*C2^2-8*C2-8)*V[1])*Dv[1]+(4*B*(A-1)^2+(-4*C1-8*C2+12)*B*(A-1)+((4*C2-4)*C1+4*C2^2-12*C2+8)*B)*V[0]+(12*B*(A-1)^2+(-12*C1-8*C2+32)*B*(A-1)+(4*C1^2+(4*C2-16)*C1-8*C2+20)*B)*V[1]+4*(A-1)^3+(-8*C1-8*C2+16)*(A-1)^2+(4*C1^2+(12*C2-20)*C1+4*C2^2-20*C2+20)*(A-1)+(-4*C2+4)*C1^2+(-4*C2^2+16*C2-12)*C1+4*C2^2-12*C2+8 ];
   D_B = [ /* B -> B+1 */ V[0]*Dv[0]+V[1]*Dv[1]+B,
@@ -638,10 +638,10 @@ def odmodule_contiguity_appell4(Param, V) {
            /* C1 -> C1-1 */ V[0]*Dv[0]+C1-1 ];
   D_C2 = [ /* C2 -> C2+1 */ (-2*A-2*B+2*C1+4*(C2+1)-6)*V[0]^2*Dv[0]^2+(((-A-B+C1+2*(C2+1)-3)*V[0]^2+((-A-B+C1+2*(C2+1)-3)*V[1]+A+B-C1-2*(C2+1)+3)*V[0])*Dv[1]+(-A^2+(-C1+(C2+1)-2)*A-B^2+(-C1+(C2+1)-2)*B+2*C1^2+(3*(C2+1)-5)*C1+(C2+1)-1)*V[0])*Dv[0]+((-A^2+(-B+C1+3*(C2+1)-5)*A-B^2+(C1+3*(C2+1)-5)*B+(-2*(C2+1)+3)*C1-3*(C2+1)^2+10*(C2+1)-8)*V[0]+((B-C1-(C2+1)+2)*A+(-C1-(C2+1)+2)*B+C1^2+(2*(C2+1)-4)*C1+(C2+1)^2-4*(C2+1)+4)*V[1]+(-B+C1+(C2+1)-2)*A+(C1+(C2+1)-2)*B-C1^2+(-2*(C2+1)+4)*C1-(C2+1)^2+4*(C2+1)-4)*Dv[1]+(B-C1-(C2+1)+2)*A^2+(B^2+(-2*C1-3*(C2+1)+5)*B+C1^2+(3*(C2+1)-5)*C1+2*(C2+1)^2-7*(C2+1)+6)*A+(-C1-(C2+1)+2)*B^2+(C1^2+(3*(C2+1)-5)*C1+2*(C2+1)^2-7*(C2+1)+6)*B+(-(C2+1)+1)*C1^2+(-2*(C2+1)^2+6*(C2+1)-4)*C1-(C2+1)^3+5*(C2+1)^2-8*(C2+1)+4,
            /* C2 -> C2-1 */ V[1]*Dv[1]+C2-1 ];
-  return [ diff_op_fromasir(D_A, V),
-           diff_op_fromasir(D_B, V),
-           diff_op_fromasir(D_C1, V),
-           diff_op_fromasir(D_C2, V) ];
+  return [ odiff_op_fromasir(D_A, V),
+           odiff_op_fromasir(D_B, V),
+           odiff_op_fromasir(D_C1, V),
+           odiff_op_fromasir(D_C2, V) ];
 }
 
 /* Sol(a,b,c1,c2)->[ [Sol(a+1,b,c1,c2),Sol(a-1,b,c1,c2)],
@@ -650,10 +650,10 @@ def odmodule_contiguity_appell4(Param, V) {
                      [Sol(a,b,c1,c2+1),Sol(a,b,c1,c2-1)] ] */
 def odmodule_contiguity_sol_appell4(Sol, Param, V) {
   C = odmodule_contiguity_appell4(Param, V);
-  C_Sol = [ diff_acts(C[0], Sol, V),
-            diff_acts(C[1], Sol, V),
-            diff_acts(C[2], Sol, V),
-            diff_acts(C[3], Sol, V) ];
+  C_Sol = [ odiff_acts(C[0], Sol, V),
+            odiff_acts(C[1], Sol, V),
+            odiff_acts(C[2], Sol, V),
+            odiff_acts(C[3], Sol, V) ];
   return C_Sol;
 }
 
