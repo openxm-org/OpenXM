@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.9 2000/03/10 14:21:45 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.10 2000/03/10 14:57:51 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -170,7 +170,7 @@ shared-tar-ball : tar-ball-01
 
 clean-work :
 	/bin/rm -rf .*_done *~
-	/bin/rm -rf work
+	/bin/rm -rf work work-fake
 
 clean-for-make:
 	(cd ${WORK} ; make distclean)

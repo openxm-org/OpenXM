@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.4 2000/03/10 14:21:43 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.5 2000/03/10 14:26:51 takayama Exp $
 
 # Modify below for priting.
 PS=a2ps-j
@@ -26,3 +26,4 @@ print:
 	$(PS) Linux/RPM/Makefile | $(LPR)	
 	$(PS) Linux/RPM/openxm-*spec.in | $(LPR)	
 	$(PS) FreeBSD/openxm-ports/openxm-1.1.2/Makefile | $(LPR)	
+
