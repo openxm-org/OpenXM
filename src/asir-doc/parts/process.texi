@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.13 2003/04/19 15:44:56 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.14 2003/04/20 08:01:26 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -1466,14 +1466,16 @@ Finally call @code{ox_get} for a ready process.
 @end itemize
 
 @example
-[3] ox_rpc(0,"fctr",x^100-y^100);
+[341] ox_cmo_rpc(0,"fctr",x^2-1);
 0
-[4] ox_push_cmd(0,258);
+[342] ox_pop_cmo(0);
+[[1,1],[x-1,1],[x+1,1]]
+[343] ox_cmo_rpc(0,"newvect",3);
 0
-[5] ox_select([0]);
-[0]
-[6] ox_get(0);
-[[1,1],[x^2+y^2,1],[x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],...]
+[344] ox_pop_cmo(0);
+error([41,cannot convert to CMO object])
+[345] ox_pop_local(0);
+[ 0 0 0 ]
 @end example
 
 @table @t
@@ -1543,6 +1545,17 @@ these functions are prepared to send these data explicitly.
 Usually @b{OX_SYNC_BALL} will be ignored by the peer.
 \E
 @end itemize
+
+@example
+[3] ox_rpc(0,"fctr",x^100-y^100);
+0
+[4] ox_push_cmd(0,258);
+0
+[5] ox_select([0]);
+[0]
+[6] ox_get(0);
+[[1,1],[x^2+y^2,1],[x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],...]
+@end example
 
 @table @t
 \JP @item 参照
