@@ -1,3 +1,4 @@
+% $OpenXM$
 %% kxx/oxasir.sm1   1998, 2/12 (this version is at Old/oxasir.sm1.19980212
 %%   3/1, 1995, 11/5, 11/21
 %% This file is error clean.
@@ -83,16 +84,16 @@ oxasir.verbose {
 /asirconnect2 {
 [oxpath.oxlog.xterm oxpath.ox ( -ox ) oxasirpath.oxasir
  oxpath.null
- ( & )] cat system
-% (xterm -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_asir &) system
-% (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_asir &) system
+ ( & )] cat system-csh
+% (xterm -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_asir &) system-csh
+% (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_asir &) system-csh
 % For MSRI
 % Eterm is also nice (including kanji). rxvt is also nice.
-%(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_asir2 &) system
-%(kterm2 -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_asir2 &) system
+%(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_asir2 &) system-csh
+%(kterm2 -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_asir2 &) system-csh
 % (If you start the server automatically, you may have a trouble to) message
 % (oxreset. In order to avoid this trouble, start the server by hand.) message
- (sleep 5) system
+ (sleep 5) system-csh
  [(localhost) 1300 1200] oxconnect /oxasir.ccc set
  /ccc oxasir.ccc def   %% for compatibility.
  oxasir.ccc asirinit
@@ -108,10 +109,10 @@ oxasir.verbose {
 /asirconnect3 {
 [oxpath.oxlog.xterm oxpath.ox ( -ox ) oxasirpath.oxasir
  ( -data 2300 -control 2200) oxpath.null
- ( & )] cat system
+ ( & )] cat system-csh
 % (If you start the server automatically, you may have a trouble to) message
 % (oxreset. In order to avoid this trouble, start the server by hand.) message
- (sleep 5) system
+ (sleep 5) system-csh
  [(localhost) 2300 2200] oxconnect /oxasir.ccc2 set
  /ccc2 oxasir.ccc2 def   %% for compatibility.
  oxasir.ccc2  asirinit
@@ -401,7 +402,7 @@ oxasir.verbose {
  [oxpath.oxlog.xterm  oxpath.ox ( -reverse -ox ) oxasirpath.oxasir
   ( -data ) data ( -control ) control  ( -pass ) pass 
   oxpath.null
-  ( &)] cat system
+  ( &)] cat system-csh
  [(oxCreateClient2) peer 0 pass] extension /oxasir set
                      %% 0 means connect from only localhost. 
  oxasir asirinit

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.3 1999/11/03 00:45:43 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.4 1999/11/04 12:08:43 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -7,7 +7,8 @@
 /oxpath.oxlog (bin/oxlog) def
 /oxpath.xterm (/usr/X11R6/bin/xterm  -icon  -e ) def
 /oxpath.null  (  ) def
-/oxpath.null00  ( >& /dev/null ) def   %% cf oxNoX
+/oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
+/oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
 %%%%%%%%%%%%%  The following is used only for sm1connectr-ssh.
 %%%%%%%%%%%%%  Configure path for ox and ox_sm1 on your remote machine.
 /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def
@@ -52,7 +53,7 @@ ox.version [(Version)] system_variable gt
   (Please get it from http://www.math.kobe-u.ac.jp/KAN) message
   error
 } { } ifelse
-(ox.sm1, --- open sm1 protocol module 10/1,1999  (C) N.Takayama. oxhelp for help) message-quiet
+(ox.sm1, --- open sm1 protocol module 11/11,1999  (C) N.Takayama. oxhelp for help) message-quiet
 
 /ox.ccc load isArray 
 { }
@@ -160,13 +161,13 @@ ox.verbose { oxhelp } {  } ifelse
 /sm1connect2 {
  [oxpath.oxlog.xterm   oxpath.ox ( -ox ) oxpath.oxsm1 
   oxpath.null
-  ( &)] cat system
+  ( &)] cat system-csh
 % (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_sm1 &) system
 % For MSRI, or Eterm, 
 %(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_sm1 &) system
  (If you start the server automatically, you may have a trouble to) message
  (oxreset. In order to avoid this trouble, start the server by hand.) message
- (sleep 5) system
+ (sleep 5) system-csh
   [(localhost) 1300 1200] oxconnect /ox.ccc set
  (The server is binded to the variable ox.ccc) message
  ox.ccc.init
@@ -176,13 +177,13 @@ ox.verbose { oxhelp } {  } ifelse
  [oxpath.oxlog.xterm   oxpath.ox ( -ox ) oxpath.oxsm1 
   (  -data 2300 -control 2200 )  
   oxpath.null
-  ( &)] cat system
-% (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_sm1 -data 2300 -control 2200 &) system
+  ( &)] cat system-csh
+% (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_sm1 -data 2300 -control 2200 &) system-csh
 % For MSRI
-%(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_sm1 -data 2300 -control 2200&) system
+%(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_sm1 -data 2300 -control 2200&) system-csh
  (If you start the server automatically, you may have a trouble to) message
  (oxreset. In order to avoid this trouble, start the server by hand.) message
- (sleep 5) system
+ (sleep 5) system-csh
   [(localhost) 2300 2200] oxconnect /ox.ccc2 set
  (The server is binded to the variable ox.ccc2) message
 } def
@@ -193,8 +194,8 @@ ox.verbose { oxhelp } {  } ifelse
  [oxpath.oxlog.xterm   oxpath.ox ( -ox ) oxpath.oxsm1 
   ( -portfile ) ox.ccc.portfile
   oxpath.null
-  ( &)] cat system
- (sleep 5) system
+  ( &)] cat system-csh
+ (sleep 5) system-csh
  [(oxReadPortFile) ox.ccc.portfile] extension /ox.ccc.control set
  ox.ccc.control message
  [(localhost) ox.ccc.control 1200] /ox.ccc set
@@ -484,7 +485,7 @@ def
   /exhausted 0 def
   % clear the busy flag.
   /busy [1 1 enginesN { pop 0 } for ] def
-  (date) system
+  (date) system-csh
   {{
   exhausted 0 eq {
     0 1 enginesN 1 sub {
@@ -513,7 +514,7 @@ def
     } { } ifelse
   } for
   } loop } timer
-  (date) system
+  (date) system-csh
   (result is in result) message
   (Number of s-pairs checked is ) messagen result length message
 } def
@@ -585,7 +586,7 @@ ox.verbose {
  [oxpath.oxlog.xterm  oxpath.ox ( -reverse -ox ) oxpath.oxsm1
   ( -data ) data ( -control ) control  ( -pass ) pass 
   oxpath.null
-  ( &)] cat system
+  ( &)] cat system-csh
  [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
                      %% 0 means connect from only localhost. 
  (The server is binded to the variable ox.ccc) message
@@ -617,7 +618,7 @@ ox.verbose {
  ] cat /comm set
  (Executing the command : ) messagen comm message message
   comm system
- (sleep 5) system
+ (sleep 5) system-csh
  [(oxCreateClient2) peer 1 pass] extension /your-peer set
  /arg1 your-peer def
  ] pop
@@ -821,7 +822,7 @@ ox.verbose {
  ] cat /comm set
  (Executing the command : ) messagen comm message message
   comm system
- (sleep 5) system
+ (sleep 5) system-csh
  [(oxCreateClient2) peer 1 pass] extension /your-peer set
  /arg1 your-peer def
  ] pop
@@ -847,7 +848,18 @@ ox.verbose {
  $ ] ox_launch_nox /@@@.oxmath set $
 ]] putUsages
 
-
+/system-csh {
+  /arg1 set
+  [/in-system-csh /com /com2] pushVariables
+  [
+    /com arg1 def
+    [(/bin/csh -c ") com (")] cat
+    /com2 set
+    %% com2 message
+    com2 system
+  ] pop
+  popVariables
+} def
 
 
 initializePathNamesForOx  %% This should be 
