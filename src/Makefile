@@ -35,6 +35,7 @@ configure :
 	ln -fs ../bin bin
 	ln -fs ./kan96xx SSkan
 	ln -fs ./kan96xx/gmp gmp
+	ln -fs ./kan96xx/gc gc
 	(cd ../lib ; ln -fs ../src/k097 k097 ; ln -fs ../src/kan96xx/Doc sm1)
 	(cd ../bin ; ./configure2 )
 	(cd kan96xx ; make configure )
