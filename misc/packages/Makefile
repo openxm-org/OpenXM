@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.29 2001/03/29 01:25:00 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.30 2002/03/02 01:00:26 takayama Exp $
 
 VERSION=1.2.1
 TAG=HEAD
@@ -11,9 +11,9 @@ WHO=taka@orange
 # It must be equal to TAR_WORK. To work as a super user. Used in build-on-pear-root.
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
-FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
-FTP_AREA_HEAD=/export/home01/ftp/pub/OpenXM/Head
-FTP_AREA_ASIR=/export/home01/ftp/pub/asir
+FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
+FTP_AREA_HEAD=/home/ftp/pub/OpenXM/Head
+FTP_AREA_ASIR=/home/ftp/pub/asir
 RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/home/cvs
 ## TAG for the CVS server.
 
@@ -37,7 +37,7 @@ usage :
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
-	@echo "7.  copy-head-tar-ball-to-ftp-area "
+	@echo "7.  copy-head-tar-all-to-ftp-area "
 	@echo "7.b  copy-release-tar-ball-to-ftp-area "
 	@echo "8.  copy-asir-head-tar-ball-to-ftp-area "
 	@echo "9.  copy-asir-stable-tar-ball-to-ftp-area "
@@ -138,7 +138,7 @@ copy-head-tar-ball-to-ftp-area:
 	(cd work ; ${RCVS} checkout OpenXM OpenXM_contrib OpenXM_contrib2)
 	(cd work ; tar czvf ${TAR_WORK}/openxm-head.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
 	/bin/rm -rf work
-	-scp ${TAR_WORK}/openxm-head.tar.gz ${WHO}:${FTP_AREA_HEAD}
+	cp ${TAR_WORK}/openxm-head.tar.gz ${FTP_AREA_HEAD}
 
 copy-asir-head-tar-ball-to-ftp-area:
 	-mkdir ${TAR_WORK}
