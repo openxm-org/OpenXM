@@ -1,10 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.3 2004/05/18 09:26:26 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.4 2004/05/19 01:08:22 noro Exp $ */
 
 /* functions for linear algebra over Q */
 
 /* dense matrix */
 
-#if 0
 module linalg;
 
 localf random_mat,random_smat,subst_mat,mulsub_mat;
@@ -15,7 +14,11 @@ localf minipoly_cand_mat,minipoly_cand_smat;
 localf reduce_vect,insert_to_sbase,minipoly_check_mat;
 localf minipoly_check_smat,ptozp_mat;
 localf create_basis,sample_mat,jordan_decomp;
-#endif
+localf random_rmat,minipoly_mat_direct,ptozp_vect;
+localf jordan_canonical_form,compute_jordan_block_basis;
+localf compute_jordan_block_basis_main,first_element;
+localf compute_image,compute_kernel,reduced_form_mat,mat_to_col,zero_vector;
+localf zero_mat,extended_euclid2,extended_euclid;
 
 def random_mat(N,Bound)
 {
@@ -841,7 +844,5 @@ def extended_euclid(F)
 	return [G,GCD];
 }
 
-#if 0
 endmodule$
-#endif
 end$

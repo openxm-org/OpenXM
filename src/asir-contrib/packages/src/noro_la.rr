@@ -1,3 +1,6 @@
+load("gr")$
+load("sp")$
+
 def random_mat(N,Bound)
 {
 	A = matrix(N,N);
@@ -61,43 +64,193 @@ def const_term(F)
 		return F;
 }
 
+def get_alg(L)
+{
+	for ( T = L, R = []; T != []; T = cdr(T) )
+		R = union_sort(R,getalgtreep(car(T)));
+	return R;
+}
+
 def compute_kernel(A)
 {
 	B = getopt(rhs);
 	if ( type(B) == -1 || (type(B)==5 && zero_vector(B)) ) B = 0;
-	S = size(A);
-	M = S[0]; N = S[1];
-	V = vector(N);
-	for ( I = 0; I < N; I++ )
-		V[I] = strtov("x"+rtostr(I));
-	if ( B )
-		E = vtol(A*V+B);
-	else
-		E = vtol(A*V);
+	S = size(A); M = S[0]; N = S[1];
+	for ( I = 0, V = vector(N); I < N; I++ ) V[I] = strtov("x"+rtostr(I));
 	VL = reverse(vtol(V));
-	G = nd_gr(E,VL,0,2);
+	E = B ? vtol(A*V-B) : vtol(A*V);
+	Alg = get_alg(E);
+	if ( Alg != [] ) {
+		AlgV = map(algptorat,Alg);
+		Defpoly = map(defpoly,Alg);
+		Eext = append(reverse(Defpoly),map(algptorat,E));
+		VLext = append(VL,AlgV);
+		Ord = [[0,N],[0,length(Alg)]];
+#if 1
+		G = dp_f4_main(Eext,VLext,Ord);
+#else
+		G = nd_gr(Eext,VLext,0,Ord);
+#endif
+		G = map(rattoalgp,G,Alg);
+		for ( T = G, G0 = []; T != []; T = cdr(T) )
+			if ( vars(car(T)) != [] ) G0 = cons(car(T),G0);
+		G = reverse(G0);
+	} else
+		G = nd_gr(E,VL,0,0);
 	D = map(dp_ptod,G,VL);
-	for ( I = 0, LCM = 1, T = D; I < N; I++, T = cdr(T) )
-		LCM = ilcm(dp_hc(car(D)),LCM);
-	Sol = LCM*V;
-	for ( T = D; T != []; T = cdr(T) ) {
+	for ( LCM = 1, T = D; T != []; T = cdr(T) )
+		LCM = ilcm(dp_hc(car(T)),LCM);
+	for ( T = D, Sol = LCM*V; T != []; T = cdr(T) ) {
 		P = car(T);
-		H = dp_ht(P);
-		C = dp_hc(P);
-		EV = dp_etov(H);
+		EV = dp_etov(dp_ht(P));
 		for ( I = 0; !EV[I]; I++ );
-		Sol[N-I-1] = dp_dtop((-LCM/C)*dp_rest(P),VL);
+		Sol[N-I-1] = dp_dtop((-LCM/dp_hc(P))*dp_rest(P),VL);
 	}
-	PV = vars(Sol);
-	for ( T = PV, Ker = []; T != []; T = cdr(T) ) {
-		V0 = car(T);
-		Sol0 = map(coef,Sol,1,V0);
-		Ker = cons(Sol0,Ker);
+	for ( T = reverse(vars(Sol)), Ker = []; T != []; T = cdr(T) ) {
+		Sol0 = map(coef,Sol,1,car(T));
+		for ( I = 0; I < N && !Sol0[I]; I++ );
+		Ker = cons([Sol0,I],Ker);
 	}
-	if ( B ) {
-		Sol0 = map(const_term,Sol);
-		return [Sol0/(-LCM),Ker];
-	} else 
-		return Ker;
+	return B ? [map(const_term,Sol)/LCM,Ker] : Ker;
 }
+
+def jordan_canonical_form(A)
+{
+	N = size(A)[0];
+	M = linalg.minipoly_mat(A);
+	FM = fctr(M);
+	/* skip const */
+	FM = cdr(FM);
+	L = length(FM);
+
+	/* extracting roots and multiplicities */
+	Alpha = vector(L);
+	E = vector(L);
+	D = vector(L);
+	for ( I = 0; I < L; I++ ) {
+		F = FM[I][0];
+		D[I] = deg(F,x));
+		Alpha[I] = D[I]==1 ? -coef(F,0,x)/coef(F,1,x) : newalg(F);
+		E[I] = FM[I][1];
+	}
+
+	/* (A-Alpha[I])^E[I] */
+	P = vector(L);
+	for ( I = 0; I < L; I++ )
+		P[I] = subst_mat(simpalg((x-Alpha[I])^E[I]),A);
+	/* computation of Vi */
+	Q = matrix(N,N);
+	for ( K = 0, J = 0; K < L; K++ ) {
+		BK = compute_kernel(P[K]);
+		JBK = compute_jordan_block_basis(A,Alpha[K],E[K],BK);
+		for ( T = JBK; T != []; T = cdr(T), J++ ) {
+			V = car(T);
+			for ( I = 0; I < N; I++ )
+				Q[I][J] = V[I];
+		}
+	}
+#if 1
+	QI = invmat(Q);
+	return [QI[0]*A*Q/QI[1],Q];
+#else
+	return Q;
+#endif
+}
+
+/* Span(Base) = Ker((A-Alpha*E)^E) */
+/* Base = [[V1,Pos1],[V2,Pos2],...] (Pos1 > Pos2 > ...) */
+
+def compute_jordan_block_basis(A,Alpha,E,Base)
+{
+	/* S = dim(V) */
+	S = size(A)[0];
+	/* D = dim(Span(Base)) */
+	D = length(Base);
+	N = A-Alpha*unit_mat(S);
+	/* represent N wrt Base */
+	Mat = matrix(D,D);
+	for ( J = 0; J < D; J++ ) {
+		/* N*ej = sum_i mij*ei */
+		Nej = N*Base[J][0];
+		for ( I = 0; I < D; I++ ) {
+			K = Base[I][1];
+			if ( Nej[K] ) {
+				Mat[I][J] = Nej[K]/Base[I][0][K];
+				Nej -= Mat[I][J]*Base[I][0];	
+			}
+		}
+		if ( !zero_vector(Nej) )
+			error("afo");
+	}
+	JB = compute_jordan_block_basis_main(Mat,E);
+#if 0
+	/* check */
+	P = matrix(D,D);
+	for ( J = 0; J < D; J++ ) {
+		V = JB[J];
+		for ( I = 0; I < D; I++ )
+			P[I][J] = V[I];
+	}
+	Pinv = invmat(P);
+	print(Pinv[0]*Mat*P/Pinv[1]);
+#endif
+	/* create a matrix whose columns are vectors in Base */
+	BMat = matrix(S,D);
+	for ( J = 0; J < D; J++ ) {
+		V = Base[J][0];
+		for ( I = 0; I < S; I++ )
+			BMat[I][J] = V[I];
+	}
+	JB1 = [];
+	for ( T = JB; T != []; T = cdr(T) ) {
+		JB1 = cons(BMat*car(T),JB1);
+	}
+	return reverse(JB1);
+}
+
+/* N : nilpotent; N^(E-1) neq 0, N^E = 0 */
+
+def compute_jordan_block_basis_main(N,E)
+{
+	Np = vector(E+1);
+	D = size(N)[0];
+	Np[0] = unit_mat(D);
+	for ( I = 1; I <= E; I++ )
+		Np[I] = Np[I-1]*N;
+	Ker = vector(E+1);
+	R = vector(E+1);
+	for ( I = 0; I <= E; I++ ) {
+		Ker[I] = map(first_element,compute_kernel(Np[I]));
+		R[I] = length(Ker[I]);
+	}
+
+	PW = [];
+	AllBase = [];
+	for ( I = E-1; I >= 0; I-- ) {
+		/* NPW = N*PW */
+		for ( T = PW, S = []; T != []; T = cdr(T) )
+			S = cons(N*car(T),S);
+		NPW = reverse(S);
+		/* number of elements to be added */
+		DW = R[I+1]-R[I]-length(NPW);
+		Base = create_basis(append(Ker[I],NPW));
+		W = [];
+		for ( T = Ker[I+1]; T != []; T = cdr(T), L++ ) {
+			Red = reduce_vect(car(T),0,Base);
+			if ( Red[0] ) {
+				Base = insert_to_sbase(Red,Base);
+				for ( K = I; K >= 0; K-- )
+					AllBase = cons(Np[K]*car(T),AllBase);
+			}
+		}
+		PW = map(first_element,Base);
+	}
+	return reverse(AllBase);
+}
+
+def first_element(L)
+{
+	return car(L);
+}
+
 end$
