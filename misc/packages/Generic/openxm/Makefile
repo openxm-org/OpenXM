@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.14 2000/03/13 00:52:21 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.15 2000/03/13 02:41:37 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -48,6 +48,7 @@ SHARED_FILES = OpenXM/Copyright OpenXM/doc OpenXM/include OpenXM/man \
                OpenXM/lib/sm1 OpenXM/lib/asir 
 BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so* OpenXM/lib/*.a.* \
                OpenXM/rc
+MAN_PAGES    = openxm.1 sm1.1
 
 EXECUTABLES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_math
 
@@ -103,6 +104,7 @@ install-shell-scripts:
 # Install shell scripts to ${prefix}/bin, which is typically /usr/local/bin
 	(cd ${prefix}/OpenXM/rc ; make ; make install PREFIX=${prefix})
 
+
 install-binary-files:  all
 	@echo "install-binary-files with PREFIX= "
 	@echo ${prefix}
@@ -115,8 +117,11 @@ install-shared-files:  all
 	@echo ${prefix}
 	tar cf - ${SHARED_FILES} | (cd ${prefix} ; tar xf -)
 
+install-man-pages-for-rpm:
+	-(cd ${prefix}/OpenXM/man/man1 ; cp $(MAN_PAGES) ${PREFIX}/man/man1)
+
 install.man : install
-	-cp ${prefix}/OpenXM/man/man1/sm1.1 ${prefix}/OpenXM/man/man1/openxm.1 ${MAN_DIR}
+	-(cd ${prefix}/OpenXM/man/man1 ; cp ${MAN_PAGES} ${MAN_DIR})
 	-gzip ${MAN_DIR}/sm1.1 ${MAN_DIR}/openxm.1 
 
 clean :
