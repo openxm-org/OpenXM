@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.11 2000/01/20 15:32:21 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.12 2000/01/22 06:29:17 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -29,19 +29,18 @@ static char *host    = "localhost";
 static char *ctlserv = "ox";
 static char *oxprog  = "ox_sm1";
 
-ox_file_t sv;
-static ox_file_t *svs = NULL;
-static int len_svs = 0;
+static ox_file_t *ss = NULL;
+static int len_ss = 0;
 static int max_process = 0;
 
 /* The following functions are called from Mathematica.
    See math2.tm for detail. */
-void OX_get()
+void OX_get(int id)
 {
     cmo *c = NULL;
 
-    receive_ox_tag(sv->stream);
-    c = receive_cmo(sv->stream);
+    receive_ox_tag(ss[id]->stream);
+    c = receive_cmo(ss[id]->stream);
 #ifdef DEBUG
     fprintf(stderr, "ox message is received in OxGet[].\n");
     print_cmo(c);
@@ -51,38 +50,38 @@ void OX_get()
 	ml_flush();
 }
 
-int OX_execute_string(const char *str)
+int OX_execute_string(int id, const char *str)
 {
-    ox_execute_string(sv, str);
+    ox_execute_string(ss[id], str);
     return 0;
 }
 
-char *OX_popString()
+char *OX_popString(int id)
 {
-    return ox_popString(sv);
+    return ox_popString(ss[id]);
 }
 
-void OX_popCMO()
+void OX_popCMO(int id)
 {
-    cmo *c = ox_pop_cmo(sv);
+    cmo *c = ox_pop_cmo(ss[id]);
     send_mlo(c);
 	ml_flush();
 }
 
-int OX_close()
+int OX_close(int id)
 {
-    ox_close(sv);
+    ox_close(ss[id]);
     return 0;
 }
 
-int OX_reset()
+int OX_reset(int id)
 {
-    ox_reset(sv);
+    ox_reset(ss[id]);
     return 0;
 }
 
 /* Parsing s and sending its cmo to an OX server. */
-int OX_parse(char *s)
+int OX_parse(int id, char *s)
 {
     cmo *m;
     symbol *symp;
@@ -91,11 +90,11 @@ int OX_parse(char *s)
 
     if(s != NULL && len > 0 && (m = parse()) != NULL) {
         if (m->tag == OX_DATA) {
-            send_ox_cmo(sv->stream, ((ox_data *)m)->cmo);
+            send_ox_cmo(ss[id]->stream, ((ox_data *)m)->cmo);
         }else if (m->tag == OX_COMMAND) {
-            send_ox_command(sv->stream, ((ox_command *)m)->command);
+            send_ox_command(ss[id]->stream, ((ox_command *)m)->command);
         }else {
-            send_ox_cmo(sv->stream, m);     
+            send_ox_cmo(ss[id]->stream, m);     
         }
         return 0;
     }
@@ -107,10 +106,9 @@ int OX_start(char* s)
     if (s != NULL && s[0] != '\0') {
         oxprog = s;
     }
-	if (++max_process < len_svs) {
-		sv = ox_start(host, ctlserv, oxprog);
+	if (++max_process < len_ss) {
+		ss[max_process] = ox_start(host, ctlserv, oxprog);
 		fprintf(stderr, "open (%s)\n", "localhost");
-		svs[max_process] = sv;
 		return max_process;
 	}
 	return -1;
@@ -124,10 +122,9 @@ int OX_start_remote_ssh(char *s, char *host)
     if (host != NULL || host[0] == '\0') {
         host = "localhost";
     }
-	if (++max_process < len_svs) {
-		sv = ox_start_remote_with_ssh(oxprog, host);
+	if (++max_process < len_ss) {
+		ss[max_process] = ox_start_remote_with_ssh(oxprog, host);
 		fprintf(stderr, "open (%s)\n", host);
-		svs[max_process] = sv;
 		return max_process;
 	}
     return -1;
@@ -145,10 +142,13 @@ int OX_start_insecure(char *host, int portCtl, int portDat)
         portDat = 1300;
     }
     
-    sv = ox_start_insecure_nonreverse(host, portCtl, portDat);
-    fprintf(stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
+	if (++max_process < len_ss) {
+		ss[max_process] = ox_start_insecure_nonreverse(host, portCtl, portDat);
+		fprintf(stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
+		return max_process;
+	}
 
-    return 0;
+    return -1;
 }
 
 static char *cp_str(char *src)
@@ -166,12 +166,28 @@ int OX_setClientParam(char *h, char* c, char* p)
     return 0;
 }
 
+static ox_file_t *new_sstack(int size)
+{
+	max_process = 0;
+	len_ss = size;
+	return (ox_file_t *)malloc(sizeof(ox_file_t)*len_ss);
+}
+
+static ox_file_t ss_id(int id)
+{
+	return ss[id];
+}
+
+static int  ss_id_stream(int id)
+{
+	return ss[id]->stream;
+}
+
 int main(int argc, char *argv[])
 {
     /* setting the OX parser */
     setflag_parse(PFLAG_ADDREV);
-	len_svs = 20;
-	svs = (ox_file_t *)malloc(sizeof(ox_file_t)*len_svs);
+	ss = new_sstack(20);
     
     MLMain(argc, argv);
 }
