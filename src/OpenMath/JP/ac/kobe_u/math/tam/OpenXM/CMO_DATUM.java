@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DATUM.java,v 1.2 1999/11/07 21:22:02 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -8,14 +8,12 @@ import java.io.*;
 public class CMO_DATUM extends CMO{
   private byte data[];
 
-  CMO_DATUM(){}
-
   CMO_DATUM(byte in[]){
     data = in;
   }
 
   public int DISCRIMINATOR(){
-    return CMO_DATUM;
+    return DATUM;
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{
@@ -23,8 +21,9 @@ public class CMO_DATUM extends CMO{
     os.write(data,0,data.length);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
     int len;
+    byte[] data;
 
     len = is.readInt();
     data = new byte[len];
@@ -33,7 +32,7 @@ public class CMO_DATUM extends CMO{
       data[i] = is.readByte();
     }
 
-    return this;
+    return new CMO_DATUM(data);
   }
 
   public String toCMOexpressionByObject(){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.11 2000/03/14 02:09:18 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.12 2000/03/14 04:44:17 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -13,7 +13,7 @@ abstract public class CMO extends OXbody{
   final public static int ERROR2  = ( LARGEID +2 );
   final public static int NULL    = 1;
   final public static int INT32   = 2;
-  final public static int CMO_DATUM   = 3;
+  final public static int DATUM   = 3;
   final public static int CMO_STRING  = 4;
   final public static int CMO_MATHCAP = 5;
   final public static int CMO_LIST    = 17;
@@ -103,8 +103,8 @@ abstract public class CMO extends OXbody{
     case INT32:
       return CMO_INT32.receive(is);
 
-    case CMO_DATUM:
-      return new CMO_DATUM().receiveByObject(is);
+    case DATUM:
+      return CMO_DATUM.receive(is);
 
     case CMO_STRING:
       return new CMO_STRING().receiveByObject(is);
