@@ -1,4 +1,11 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.5 1999/12/04 06:18:39 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.6 2000/01/17 01:08:34 takayama Exp $
+# targets
+# all 
+#     compile
+# intall : all
+#     
+# todo : install-lib, install-for-debug, install-lib-for-debug
+#
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
