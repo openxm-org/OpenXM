@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.4 1999/12/15 11:40:23 ohara Exp $*/
+/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.5 2000/01/19 03:13:40 takayama Exp $*/
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -21,6 +21,7 @@
          -ox /home/nobuki/kxx/ox_asir  >& /dev/null
           2     3
 */
+static int Debug_which = 1;
 char *toFullPath(char *s);
 char *which(char *s,char *env);
 main(int argc, char *argv[]) {
@@ -32,11 +33,15 @@ main(int argc, char *argv[]) {
   sigemptyset(&sss);
   sigaddset(&sss,SIGINT);
   sigprocmask(SIG_BLOCK,&sss,NULL);
-  if (argc > 2) {
+  if (argc >= 2) {
     oxname = argv[1];
     oxname = toFullPath(oxname);
   }
-  if (argc == 4) {
+  if (argc == 2) {
+    execl(oxname,oxname,NULL);
+  }else if (argc == 3) {
+    execl(oxname,oxname,argv[2],NULL);
+  }else if (argc == 4) {
     execl(oxname,oxname,argv[2],argv[3],NULL);
   }else if (argc == 5) {
     execl(oxname,oxname,argv[2],argv[3],argv[4],NULL);
@@ -74,6 +79,18 @@ main(int argc, char *argv[]) {
   }else if (argc == 17) {
     execl(oxname,oxname,argv[2],argv[3],argv[4],argv[5],argv[6],
 	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],NULL);
+  }else if (argc == 18) {
+    execl(oxname,oxname,argv[2],argv[3],argv[4],argv[5],argv[6],
+	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],argv[17],NULL);
+  }else if (argc == 19) {
+    execl(oxname,oxname,argv[2],argv[3],argv[4],argv[5],argv[6],
+	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],argv[17],argv[18],NULL);
+  }else if (argc == 20) {
+    execl(oxname,oxname,argv[2],argv[3],argv[4],argv[5],argv[6],
+	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],argv[17],argv[18],argv[19],NULL);
+  }else if (argc == 21) {
+    execl(oxname,oxname,argv[2],argv[3],argv[4],argv[5],argv[6],
+	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],argv[17],argv[18],argv[19],argv[20],NULL);
   }else {
     fprintf(stderr,"Error in oxlog: cannot handle argc=%d\n",argc);
     fprintf(stderr,"oxname=%s\n",oxname);
@@ -112,6 +129,8 @@ mainold1() {
 }
 
 char *toFullPath(char *s) {
+  extern int Debug_which;
+  char *path ="/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/usr/openwin/bin:/usr/X/bin";
   if (strlen(s) == 0) {
     return(s);
   }
@@ -119,21 +138,31 @@ char *toFullPath(char *s) {
   else {
     s = which(s,getenv("PATH"));
   }
+  if (s == NULL) {
+	if (Debug_which) fprintf(stderr,"Could not find %s in your search path.\n",s);
+	if (Debug_which) fprintf(stderr,"You path is %s.\n",getenv("PATH"));
+	if (Debug_which) fprintf(stderr,"Trying to find in the path: %s\n",path);
+	s = which(s,path);
+  }
+  return(s);
 }
 
 /*which("xterm", getenv("PATH"));*/
 char *which(char *prog, char *path_env)
 {
+  extern int Debug_which ;
   char *tok;
   char *path;
   char delim[] = ":";
   char *e = alloca(strlen(path_env)+1);
   strcpy(e, path_env);
   tok = strtok(e, delim);
+  if (Debug_which) fprintf(stderr,"PATH=%s\n",path_env);
   while (tok != NULL) {
     char *path = malloc(strlen(tok)+strlen(prog)+2);
     sprintf(path, "%s/%s", tok, prog);
     if (access(path, X_OK&R_OK) == 0) {
+	  if (Debug_which) fprintf(stderr,"Found: %s\n",path);
       return path;
     }
     free(path);
