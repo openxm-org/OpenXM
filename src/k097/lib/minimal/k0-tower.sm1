@@ -1,0 +1,649 @@
+%%  $OpenXM$
+
+%% It is used to check the mmLarger_tower,  1997, 10/26 at Heidelberg.
+%% It is used to check the mmLarger_tower,  1997, 10/27 -- 29 at Oberwolfach.
+%% 1997, 11/7   s_ring_of_differential_operators  at Kobe
+%% 1998, 1/28   Homogenize_vec = 0;
+%% 1998, 11/5   Doc/tower.sm1
+%%
+%% tower.sm1 is kept in this directory for the compatibility to
+%% old demo programs and packages.  It is being merged to 
+%%     resol0.sm1        cf. r-interface.sm1, tower.sm1, tower-sugar.sm1
+%%
+/tower.version (2.981105) def
+tower.version [(Version)] system_variable gt
+{ (This package requires the latest version of kan/sm1) message
+  (Please get it from http://www.math.kobe-u.ac.jp/KAN) message
+  error
+} { } ifelse
+
+/debug.res0 0 def
+/debug.sResolution 0 def
+/stat.tower 0 def
+/tower.verbose 0 def
+%(tower-test.sm1) run
+tower.verbose
+{ (Doc/tower.sm1 is still under construction.) message } { } ifelse
+
+[(sResolution)
+ [( sResolution constructs the Schreyer resolution.)
+  ( depth f sResolution r   where )
+  ( r = [starting Groebner basis g, [ s1, s2 , s3, ...], order-def].)
+  ( g is the reduced Groebner basis for f, )
+  ( s1 is the syzygy of f,)
+  ( s2 is the syzygy of s1,)
+  ( s3 is the syzygy of s2 and so on.)
+  (Note that es and ES are reserved for schreyer ordering.)
+  (Note also that schreyer order causes troubles for other computations)
+  (except sResolution in kan/sm1.)
+  (Example:)
+  $  [(x,y) s_ring_of_differential_operators$
+  $   [[(Dx) 1 (x) -1]] s_weight_vector$
+  $   0 [(schreyer) 1]] define_ring$
+  $   $
+  $  [( x^3-y^2 ) tparse$
+  $   ( 2 x Dx + 3 y Dy + 6 ) tparse$
+  $   ( 2 y Dx + 3 x^2 Dy) tparse$
+  $  ] sResolution /ans set ; $
+ ]] putUsages
+
+/offTower {
+  [(AvoidTheSameRing)] pushEnv 
+  [ [(AvoidTheSameRing) 0] system_variable 
+    [(gbListTower) [[ ]] (list) dc] system_variable
+  ] pop popEnv
+} def
+  
+
+/tparse {
+  /arg1 set
+  [/f /ans /fhead /val] pushVariables
+  [ 
+    /f arg1 def
+    (report) (mmLarger) switch_function /val set
+    f isString {  }  { f toString /f set } ifelse
+    (mmLarger) (matrix) switch_function
+    f expand /f set
+    [(AvoidTheSameRing)] pushEnv [ [(AvoidTheSameRing) 0] system_variable (mmLarger) (tower) switch_function ] pop popEnv
+    /ans  (0). def
+    {
+      f (0). eq {exit} { } ifelse
+     (mmLarger) (matrix) switch_function
+      f init /fhead set f fhead sub /f set
+     [(AvoidTheSameRing)] pushEnv [ [(AvoidTheSameRing) 0] system_variable (mmLarger) (tower) switch_function ] pop popEnv
+      ans fhead add /ans set
+    } loop
+    (mmLarger) val switch_function  
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/toes {
+  %% [x+2, y x ] ===> x + 2 + y x es (sorted by the schreyer order.)
+  /arg1 set
+  [/vec] pushVariables
+  [
+    /vec arg1 def
+    vec isPolynomial { /vec [vec] def } {  } ifelse
+    [(toes) vec] gbext /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/toE {
+  %% [x+2, y x ] ===> x e + 2 e + y s e (sorted by the schreyer order.)
+  /arg1 set
+  [/n /vec /oures /i /ppp] pushVariables
+  [
+    /vec arg1 def
+    /oures @@@.esymbol . def
+    vec isPolynomial { /vec [vec] def } { } ifelse
+    vec isArray
+    { } {(error: vec toE, vec must be an array) message error} ifelse
+    /n vec length def
+    0 1 n 1 sub 
+    { /i set   
+      vec i get oures degree  0 eq
+      {  }
+      {(error: vec toE, vec must not contain the variable e) message error}
+      ifelse
+    } for
+
+    [ 0 1 n 1 sub { /i set oures i power } for ] /ppp set
+    %% ppp message
+    vec ppp mul /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/res0 {
+  /arg1 set
+  [/g /t.syz /nexttower /m /t.gb /skel /betti  /gg
+   /k /i /j /pair  /tmp  /si /sj /grG /syzAll] pushVariables
+  [
+    /g arg1 def  %% g = [g_1, ..., g_m] g_i does not contain h and es.
+    [(Homogenize)] system_variable 0 eq
+    { tower.verbose {
+        (Warning: Homogenization option is automatically turned on. ReduceLowerTerms = 1) message
+      } {  } ifelse
+      [(Homogenize) 1] system_variable
+      [(ReduceLowerTerms) 1] system_variable
+    } {  } ifelse
+    g length 0 eq { (error: [ ] argument to res0.) message error } { } ifelse
+    g { toes } map /g set
+    stat.tower { (Size of g is ) messagen  g length messagen } { } ifelse
+    stat.tower { (, sizes of each element in g are ) messagen  
+           g { length } map message } { } ifelse
+    debug.res0 {(es expression of g: ) messagen g message } { } ifelse
+    stat.tower { (Computing the skelton.) message } { } ifelse
+    [(schreyerSkelton) g] gbext /skel set
+    /betti skel length def
+    stat.tower { (Done. Number of skelton is ) messagen betti message } { } ifelse
+
+    debug.res0  
+      { (init of original g : ) messagen g {init} map  message
+        (length of skelton ) messagen betti message
+        (schreyerSkelton g : ) messagen skel message
+        (Doing reduction ) messagen
+      } { } ifelse
+
+    %(red@) (debug) switch_function
+    %(red@) (module1v) switch_function
+
+    /grG g (gradedPolySet) dc def
+    [ 0 1 betti 1 sub { pop 0 } for ] /syzAll set
+     0 1 betti 1 sub {  
+       /k set  
+       [
+       /pair skel  k get def
+       pair 0 get 0 get /i set
+       pair 0 get 1 get /j set
+       pair 1 get 0 get /si set
+       pair 1 get 1 get	/sj set
+       si  g  i get mul
+       sj  g  j get mul  add   
+       grG reduction /tmp set  % si g[i] + sj g[j] + \sum tmp[2][k] g[k] = 0.
+       tmp 0 get (0). eq { 
+           tower.verbose { (.) messagen  [(flush)] extension pop } { } ifelse
+       }
+       { 
+         (Error: the result of resolution is not zero) message 
+         ( [i,j], [si,sj] = ) messagen [ [ i j ] [si sj ]] message
+         error 
+       } ifelse
+       /t.syz tmp 2 get def
+       << tmp 1 get >> si  mul << t.syz i get >> add /si set
+       << tmp 1 get >> sj  mul << t.syz j get >> add /sj set
+       t.syz i si put
+       t.syz j sj put
+       ] pop
+       syzAll k t.syz put
+     } for
+
+     /t.syz syzAll def    
+     tower.verbose {
+      ( Done. betti=) messagen  betti message
+     } {  } ifelse
+   
+    /nexttower g {init } map def
+    /arg1 [t.syz nexttower] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/sResolution {
+  /arg1 set
+  /arg2 set  %% optional parameter.
+  [/g  /gbTower /ans /ff /opt /count /startingGB /opts /vectorInput
+  ] pushVariables
+  [ /g arg1 def
+    /opt arg2 def
+
+    setupEnvForResolution
+
+    /count -1 def
+    %% optional parameter.
+    opt isInteger {
+      /count opt def
+    } {  } ifelse
+
+    (mmLarger) (matrix) switch_function
+    %% new code of 1999, 5/18
+    g 0 get isArray {
+       /vectorInput 1 def
+    } { 
+       /vectorInput 0 def
+    } ifelse
+    vectorInput {
+      tower.verbose { (tower.sm1: Vector input is homogenized : ) message 
+                      [g { sHomogenize2 } map ] message } { } ifelse
+      [g { sHomogenize2 } map ] groebner 0 get /g set
+    } {
+      tower.verbose { (tower.sm1: Homogenize the scalar input : ) message
+                      [g {sHomogenize} map ] message } { } ifelse
+      [g {sHomogenize} map ] groebner 0 get  /g set
+    } ifelse
+
+
+    /startingGB g def
+    debug.sResolution
+    {
+     (g is ) messagen g message
+     (---------------------------------------------------) message
+    } { } ifelse
+    /ans [ ] def
+    % /gbTower [g {init} map  ] def
+    /gbTower [  ] def
+    [(AvoidTheSameRing)] pushEnv [ [(AvoidTheSameRing) 0] system_variable (mmLarger) (tower) switch_function ] pop popEnv
+    {
+      g res0 /ff set
+      ans ff 0 get append /ans set %% store the syzygy.
+      debug.sResolution 
+      {
+       (Syzygy : ) messagen ff 0 get message
+       (----------------------------------------------------) message
+      } { } ifelse
+      [ff 1 get] gbTower  join /gbTower set
+      /g  ff 0 get def
+      g length 0 eq { exit } { } ifelse
+
+      [(AvoidTheSameRing)] pushEnv 
+      [ [(AvoidTheSameRing) 0] system_variable 
+        [(gbListTower) gbTower (list) dc] system_variable
+      ] pop popEnv
+
+      count 0 eq { (Resolution procedure stoped because counter == 0.) message
+                    exit }
+      { } ifelse
+      count 1 sub /count set
+
+
+     } loop
+
+     restoreEnvAfterResolution
+
+     /arg1 [startingGB ans gbTower] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/sHomogenize {
+  /arg1 set
+  [/ff ] pushVariables
+  [
+    /ff arg1 def
+    ff homogenize 
+    toString tparse   %% homogenization may destroy the order.
+                      %%   cf. 97feb4.txt 1997, 10/29
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+  
+/sHomogenize2 {
+  /arg1 set
+  [/ff /vectorInput /f2deg /f2 /tt /f2max /ttdeg /ans] pushVariables
+  [
+    /ff arg1 def
+    %% (sHomogenize2) message
+    %% ff message
+    %% print_switch_status show_ring
+    ff isArray{ 
+      ff homogenize /f2 set 
+      f2 {toString tparse} map /f2 set  
+      f2 {/tt set [(grade) tt] gbext} map /f2deg set
+      [-1] f2deg join shell reverse 0 get /f2max set
+      f2 { /tt set [(grade) tt] gbext /ttdeg set
+           tt [@@@.hsymbol (^) f2max ttdeg sub toString] cat . mul
+      } map 
+    } {
+      ff homogenize 
+      toString tparse   %% homogenization may destroy the order.
+                        %%   cf. 97feb4.txt 1997, 10/29
+    } ifelse
+    /ans set
+    %% [f2 f2deg f2max @@@.hsymbol] { message } map
+    %% ans message
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+  
+
+
+/s_ring_of_differential_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (grade) (module1v) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     [(H)] xList join [(es) @@@.esymbol ] join /xList set
+    %% You cannot change the order of es and e, because
+    %% mmLarger_tower automatically assumes es is at the bottom
+    %% of [nn,n-1] variables.
+     [(h)] dList join [(ES) @@@.Esymbol ] join /dList set
+     [0 1 1 1 << xList length >>
+        1 1 1 << xList length 2 sub >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/s_weight_vector {
+  /arg2 set  /arg1 set
+  [/vars /univ /w-vectors /www /k /order1 /order2] pushVariables
+  /vars arg1 def /w-vectors arg2 def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+    [
+    0 1 << w-vectors length 1 sub >> 
+    {
+      /k set
+      univ w-vectors k get w_to_vec
+    } for
+    ] /order1 set
+    %% order1 ::
+    
+    vars s_reverse_lex_order 3 get /order2 set
+    vars [ << order1 order2 join >> ] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/s_reverse_lex_order {
+%% [x-list d-list params]  elimination_order 
+%%  vars 
+%% [x-list d-list params order]
+   /arg1 set
+  [/vars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 3 sub >>
+    0
+    eliminationOrderTemplate /order set
+
+    [[1]] [[1]] oplus order oplus [[1]] oplus /order set
+
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/setupEnvForResolution {
+    getOptions /opts set
+    [(Homogenize_vec)] system_variable 1 eq
+    {  [(Homogenize_vec) 0] system_variable
+      (grade) (module1v) switch_function
+      tower.verbose {
+         (Homogenize_vec is automatically set to 0. grade is set to module1v) message 
+      } { } ifelse
+    } {  } ifelse
+
+   [(Schreyer)] system_variable 1 eq
+   {   }
+   {(Error: You can compute resolutions only in the ring defined with) message
+    $the [(schreyer) 1] option.  cf. s_ring_of_differential_operators$ message
+    error
+   } ifelse
+
+   (report) (mmLarger) switch_function (tower) eq
+   {   }
+   { tower.verbose {
+         $Warning: (mmLarger) (tower) switch_function is executed.$ message
+     } { } ifelse
+     [(AvoidTheSameRing)] pushEnv [ [(AvoidTheSameRing) 0] system_variable (mmLarger) (tower) switch_function ] pop popEnv
+   } ifelse
+
+} def
+
+/restoreEnvAfterResolution {
+  [(AvoidTheSameRing)] pushEnv 
+  [ [(AvoidTheSameRing) 0] system_variable 
+    [(gbListTower) [[ ]] (list) dc] system_variable
+  ] pop popEnv
+  opts restoreOptions
+} def
+
+%%%%%  1998, 4/11. To get frame for homogenized resolutions.
+/sResolutionFrame {
+  /arg1 set
+  /arg2 set  %% optional parameter.
+  [/g  /gbTower /ans /ff /opt /count /startingGB /opts] pushVariables
+  [ /g arg1 def
+    /opt arg2 def
+    
+    
+    stat.tower {  [(Statistics) 1] system_variable } {  } ifelse
+    /count -1 def
+    %% optional parameter.
+    opt isInteger {
+      /count opt def
+    } {  } ifelse
+
+    (mmLarger) (matrix) switch_function
+    [g {sHomogenize} map ] groebner  0 get /g set
+    g { init } map /g set
+
+    setupEnvForResolution-sugar
+
+    /startingGB g def
+    debug.sResolution
+    {
+     (g is ) messagen g message
+     (---------------------------------------------------) message
+    } { } ifelse
+    /ans [ ] def
+    % /gbTower [g {init} map  ] def
+    /gbTower [  ] def
+    [(AvoidTheSameRing)] pushEnv [ [(AvoidTheSameRing) 0] system_variable (mmLarger) (tower) switch_function ] pop popEnv
+    {
+      g res0Frame /ff set
+      ans ff 0 get append /ans set %% store the syzygy.
+      debug.sResolution 
+      {
+       (Syzygy : ) messagen ff 0 get message
+       (----------------------------------------------------) message
+      } { } ifelse
+      [ff 1 get] gbTower  join /gbTower set
+      /g  ff 0 get def
+      g length 0 eq { exit } { } ifelse
+
+      [(AvoidTheSameRing)] pushEnv 
+      [ [(AvoidTheSameRing) 0] system_variable 
+        [(gbListTower) gbTower (list) dc] system_variable
+      ] pop popEnv
+
+      count 0 eq { (Resolution prodecure stoped because counter == 0.) message
+                    exit }
+      { } ifelse
+      count 1 sub /count set
+
+
+     } loop
+     
+     restoreEnvAfterResolution-sugar
+
+     /arg1 [startingGB ans  gbTower] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/newPolyVector {
+  /arg1 set
+  /arg2 (0). def
+  [ 1 1 arg1 { pop arg2 } for ]
+} def
+
+/res0Frame {
+  /arg1 set
+  [/g /t.syz /nexttower /m /t.gb /skel /betti  /gg
+   /k /i /j /pair  /tmp  /si /sj /grG /syzAll /gLength] pushVariables
+  [
+    /g arg1 def  %% g = [g_1, ..., g_m] g_i does not contain h and es.
+    [(Homogenize)] system_variable 1 eq
+    { (Warning: Homogenization and ReduceLowerTerms options are automatically turned off.) message
+      [(Homogenize) 0] system_variable
+      [(ReduceLowerTerms) 0] system_variable
+    } {  } ifelse
+    g length 0 eq { (error: [ ] argument to res0.) message error } { } ifelse
+    g { toes } map /g set
+    stat.tower { (Size of g is ) messagen  g length messagen } { } ifelse
+    stat.tower { (, sizes of each element in g are ) messagen  
+           g { length } map message } { } ifelse
+    debug.res0 {(es expression of g: ) messagen g message } { } ifelse
+    stat.tower { (Computing the skelton.) message } { } ifelse
+    [(schreyerSkelton) g] gbext /skel set
+    /betti skel length def
+    stat.tower { (Done. Number of skelton is ) messagen betti message } { } ifelse
+
+    debug.res0  
+      { (init of original g : ) messagen g {init} map  message
+        (length of skelton ) messagen betti message
+        (schreyerSkelton g : ) messagen skel message
+        (Doing reduction ) messagen
+      } { } ifelse
+ 
+    g length /gLength set
+    /grG g (gradedPolySet) dc def
+    [ 0 1 betti 1 sub { pop 0 } for ] /syzAll set
+     0 1 betti 1 sub {  
+       /k set  
+       [
+       /pair skel  k get def
+       pair 0 get 0 get /i set
+       pair 0 get 1 get /j set
+       pair 1 get 0 get /si set
+       pair 1 get 1 get	/sj set
+       % si g[i] + sj g[j] + \sum tmp[2][k] g[k] = 0.
+       (.) messagen  [(flush)] extension pop 
+
+       /t.syz gLength newPolyVector def
+       t.syz i si put
+       t.syz j sj put
+       ] pop
+       syzAll k t.syz put
+     } for
+
+     /t.syz syzAll def    
+    ( Done. betti=) messagen  betti message
+   
+
+    /nexttower g {init } map def
+    /arg1 [t.syz nexttower] def
+    %% clear all unnecessary variables to save memory.
+    /g 0 def /t.syz 0 def /nexttower 0 def /t.gb 0 def /skel 0 def /gg 0 def
+    /k 0 def /tmp 0 def /grG 0 def /syzAll 0 def 
+  ] pop
+  popVariables
+  arg1
+} def
+
+/s_ring_of_polynomials {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (poly) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set
+     vars length evenQ
+     { }
+     { vars [(PAD)] join /vars set }
+     ifelse
+     vars length 2 idiv /n set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars i get
+          } for
+     ] /xList set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars << i n add >> get
+          } for
+     ] /dList set
+
+     [(H)] xList join [(es) @@@.esymbol ] join /xList set
+     %% You cannot change the order of es and e, because
+     %% mmLarger_tower automatically assumes es is at the bottom
+     %% of [nn,n-1] variables.
+     [(h)] dList join [(ES) @@@.Esymbol ] join /dList set
+     [0 %% dummy characteristic
+      << xList length 2 sub >> << xList length 2 sub >> 
+      << xList length 2 sub >> << xList length >>
+     %%    c  l   m   n
+      << xList length 2 sub >> << xList length 2 sub >> 
+      << xList length 2 sub >> << xList length 2 sub >>
+     %%   cc  ll  mm  nn    es must belong to differential variables.
+     ] /param set
+     [xList dList param] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/setupEnvForResolution-sugar {
+   getOptions /opts set
+   [(Homogenize)] system_variable 1 eq
+   { (Warning: Homogenization and ReduceLowerTerms options are automatically turned off.) message
+     [(Homogenize) 0] system_variable
+     [(ReduceLowerTerms) 0] system_variable
+   } {  } ifelse
+
+   [(Schreyer)] system_variable 1 eq
+   {   }
+   {(Error: You can compute resolutions only in the ring defined with) message
+    $the [(schreyer) 1] option.  cf. s_ring_of_differential_operators$ message
+    error
+   } ifelse
+
+   (report) (mmLarger) switch_function (tower) eq
+   {   }
+   { $Warning: (mmLarger) (tower) switch_function is executed.$ message
+     [(AvoidTheSameRing)] pushEnv [ [(AvoidTheSameRing) 0] system_variable (mmLarger) (tower) switch_function ] pop popEnv
+   } ifelse
+
+} def
+
+/restoreEnvAfterResolution-sugar {
+  %% Turn off tower by (mmLarger) (tower)  switch_function
+  %% and clear the tower of orders by [(gbListTower) [[]] (list) dc] system_variable
+  [(AvoidTheSameRing)] pushEnv 
+  [ [(AvoidTheSameRing) 0] system_variable 
+    [(gbListTower) [[]] (list) dc] system_variable
+  ] pop popEnv
+  opts restoreOptions
+} def
+
+
