@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.8 2000/07/31 01:21:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.9 2000/08/01 03:42:35 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -252,38 +252,73 @@ def test17() {
    sm1_pmat(c);
    Println(IsExact_h(c,"x,y,z"));
 }          
-def test17b() {
-   a=Sannfs3("x^3-y^2*z^2");
-   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
-   Sweyl("x,y,z",[w]); b = Reparse(b);
+
+def test_if_v_strict(resmat,w,v) {
+   local b,c;
+   Sweyl(v,[w]); b = Reparse(resmat);
    c=Sinit_w(b,w); 
    Println("Resolution (b)----");
    sm1_pmat(b);
    Println("Initial (c)----");
    sm1_pmat(c);
-   Println(IsExact_h(c,"x,y,z"));
+   Println("Exactness of the resolution ---");
+   Println(IsExact_h(b,v));
+   Println("Exactness of the initial complex.---");
+   Println(IsExact_h(c,v));
    g = Sinvolutive(b[0],w);
-   Println("Involutive basis ---");
-   sm1_pmat(g);
+   /* Println("Involutive basis ---");
+     sm1_pmat(g); */
    Println("Is same ideal?");
    Println(IsSameIdeal_h(g,c[0],"x,y"));
+}
+def test17b() {
+   a=Sannfs3("x^3-y^2*z^2");
+   b=a[0]; w = ["x",-1,"y",-1,"z",-5,"Dx",1,"Dy",1,"Dz",5];
+   test_if_v_strict(b,w,"x,y,z");
+   return(a);
 }          
 
 def test18() {
    a=Sannfs2("x^3-y^2");
    b=a[0]; w = ["x",-1,"y",-1,"Dx",1,"Dy",1];
-   Sweyl("x,y",[w]); b = Reparse(b);
-   c=Sinit_w(b,w); 
-   Println("Resolution (b)----");
-   sm1_pmat(b);
-   Println("Initial (c)----");
-   sm1_pmat(c);
-   g = Sinvolutive(b[0],w);
-   Println("Involutive basis ---");
-   sm1_pmat(g);
-   Println("Is same ideal?");
-   Println(IsSameIdeal_h(g,c[0],"x,y"));
-   
+   test_if_v_strict(b,w,"x,y");
+   return(a);
 }          
 
+def test19() {
+  Println("test19 try to construct a minimal free resolution and check if it is v-strict.");
+  Println("of a GKZ system [[1,2,3]] by -1,1");
+  ww2 = ["Dx1",1,"Dx2",1,"Dx3",1,"x1",-1,"x2",-1,"x3",-1];
+  ans2 = GKZ([[1,2,3]],[0]);  
+  Sweyl("x1,x2,x3",[ww2]);
+  ans2 = ReParse(ans2[0]);
+  a = Sminimal(ans2);
+  Println("Minimal Resolution is "); sm1_pmat(a[0]);
+  b = a[0];
+  test_if_v_strict(b,ww2,"x1,x2,x3");
+  return(a);
+}
+
+def test20() {
+  w = ["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1,"x1",-1,"x2",-1,"x3",-1,"x4",-1];
+  ans2 = GKZ([[1,1,1,1],[0,1,3,4]],[0,0]);  
+  Sweyl("x1,x2,x3,x4",[w]);
+  ans2 = ReParse(ans2[0]);
+  a = Sminimal(ans2);
+  Println("Minimal Resolution is "); sm1_pmat(a[0]);
+  b = a[0];
+  /* test_if_v_strict(b,w,"x1,x2,x3,x4"); */
+  return(a);
+}
+def test20b() {
+  w = ["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1,"x1",-1,"x2",-1,"x3",-1,"x4",-1];
+  ans2 = GKZ([[1,1,1,1],[0,1,3,4]],[1,2]);  
+  Sweyl("x1,x2,x3,x4",[w]);
+  ans2 = ReParse(ans2[0]);
+  a = Sminimal(ans2);
+  Println("Minimal Resolution is "); sm1_pmat(a[0]);
+  b = a[0];
+  /* test_if_v_strict(b,w,"x1,x2,x3,x4"); */
+  return(a);
+}
 
