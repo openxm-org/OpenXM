@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.4 2000/07/30 09:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.5 2001/05/06 07:53:01 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -64,9 +64,13 @@ main(int argc, char *argv[]) {
 
 static char *getSuffix(char *s) {
   /* getSuffix("ox_sm1_forAsir") returns "forAsir" */
+  /* getSuffix("ox_sm1_forAsir.exe") returns "forAsir" */
   /* getSuffix("ox_sm1_gnuplot") returns "gnuplot" */
   int n,i,k;
   n = strlen(s);
+  if (n > 5 && (strcmp(".exe",&(s[n-4]))==0 || strcmp(".EXE",&(s[n-4]))==0)) {
+    s[n-4] = '\0';
+  }
   for (i=n-1; i>=0; i--) {
     if (s[i] == '_') {
       return( s+i+1 );
