@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.7 2003/07/30 09:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.8 2003/08/19 08:02:09 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -40,6 +40,7 @@ static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
 extern int DebugReductionRed;
 extern int TraceLift;
 struct ring *TraceLift_ringmod;
+extern DoCancel;
 int DebugReductionEcart = 0;
 
 /* This is used for goHomogenization */
@@ -252,7 +253,7 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
 		warningPoly("reduction_ecart: TraceLift_ringmod is not set.\n");
 		return reduction_ecart1(r,gset,needSyz,syzp);
 	  }
-	  rn = reduction_ecart1_mod(r,gset);
+	  rn = reduction_ecart1_mod(r,gset); /* BUG: syzygy is not obtained. */
 	  if (rn == POLYNULL) return rn;
 	  else return reduction_ecart1(r,gset,needSyz,syzp);
 	}else{
@@ -399,9 +400,11 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   POLY pp;
   int ell;
   int se;
+  struct coeff *cont;
 
   extern struct ring *CurrentRingp;
   struct ring *rp;
+  extern struct ring *SmallRingp;
 
   gg = NULL;
   if (needSyz) {
@@ -435,7 +438,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
       if (ells.first) {
         pp = ((gset->polys[ells.grade])->gh)[ells.gseti];
       }else{
-        if (DebugReductionEcart & 4) printf("+");
+        if (DebugReductionEcart & 4) {printf("+"); fflush(NULL);}
         pp = (gg->pa)[ells.ggi];
       }
       if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
@@ -466,6 +469,14 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   }
 
   r = goDeHomogenizeS(r);
+  if (DoCancel && (r != POLYNULL)) { /* BUG: syzygy should be corrected. */
+	if (r->m->ringp->p == 0) {
+	  if (coeffSizeMin(r) >= DoCancel) {
+		r = reduceContentOfPoly(r,&cont);
+        if (DebugReductionEcart || DebugReductionRed) printf("cont=%d ",coeffToString(cont));	  
+	  }
+	}
+  }
 
   return(r);
 }
@@ -598,7 +609,7 @@ static POLY reduction_ecart1_mod(r,gset)
       if (ells.first) {
         pp = ((gset->polys[ells.grade])->gmod)[ells.gseti];
       }else{
-        if (DebugReductionEcart & 4) printf("+");
+        if (DebugReductionEcart & 4) {printf("+"); fflush(NULL);}
         pp = (gg->pa)[ells.ggi];
       }
       if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.16 2003/07/17 12:11:09 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.17 2003/07/17 23:37:01 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3322,6 +3322,10 @@ newline
 ]] putUsages
 
 /cancelCoeff {
+  /arg1 set
+  [(reduceContent) arg1] gbext 0 get
+} def
+/cancelCoeff_org {
  /arg1 set
  [/in-cancelCoeff /ff /gg /dd /dd2] pushVariables
  [  /ff arg1 def

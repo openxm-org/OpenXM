@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -947,4 +947,60 @@ POLY mapZmonom(f,ringp)
   node->coeffp->val.f = ff;
   return(node);
 }
+
+POLY reduceContentOfPoly(POLY f,struct coeff **contp) {
+  struct coeff *cont;
+  struct coeff *cOne = NULL;
+  extern struct ring *SmallRingp;
+  if (cOne == NULL) cOne = intToCoeff(1,SmallRingp);
   
+  if (f == POLYNULL) return f;
+  if (f->m->ringp->p != 0) return f;
+  if (f->coeffp->tag != MP_INTEGER) return f;
+  cont = gcdOfCoeff(f);
+  *contp = cont;
+  if (coeffGreater(cont,cOne)) {
+	f = quotientByNumber(f,cont).first;
+  }
+  return f;
+}
+
+int coeffSizeMin(POLY f) {
+  int size;
+  int t;
+  if (f == POLYNULL) return 0;
+  if (f->m->ringp->p != 0) return 0;
+  if (f->coeffp->tag != MP_INTEGER) return 0;
+  size = mpz_size(f->coeffp->val.bigp);
+  while (f != POLYNULL) {
+	t = mpz_size(f->coeffp->val.bigp);
+	if (t < size)  size = t;
+	if (size == 1) return size;
+	f = f->next;
+  }
+}
+
+struct coeff *gcdOfCoeff(POLY f) {
+  extern struct ring *SmallRingp;
+  struct coeff *t;
+  MP_INT *tmp;
+  MP_INT *tmp2;
+  static MP_INT *cOne = NULL;
+  if (cOne == NULL) {
+	cOne = newMP_INT();
+	mpz_set_si(cOne,(long) 1);
+  }
+  if (f == POLYNULL) return 0;
+  if (f->m->ringp->p != 0) return intToCoeff(0,SmallRingp);
+  if (f->coeffp->tag != MP_INTEGER) return intToCoeff(0,SmallRingp);
+  tmp = f->coeffp->val.bigp;
+  tmp2 = newMP_INT();
+  while (f != POLYNULL) {
+    mpz_gcd(tmp2,tmp,f->coeffp->val.bigp); /* tmp = tmp2 OK? */
+	tmp = tmp2;
+	if (mpz_cmp(tmp,cOne)==0) return intToCoeff(1,SmallRingp);
+	f = f->next;
+  }
+  return mpintToCoeff(tmp,SmallRingp);
+  
+}

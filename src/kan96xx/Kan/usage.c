@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.13 2003/07/17 07:33:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.14 2003/07/17 23:37:02 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -194,6 +194,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(toe_) poly] gbext poly   \n");
     fppp(fp,"  [(toe_) array_of_poly] gbext poly   cf. toVectors \n");
     fppp(fp,"  [(isOrdered) poly] gbext poly \n");
+    fppp(fp,"  [(reduceContent) poly] gbext [poly c] \n");
   }else if (strcmp(s,"get")==0) {
     fppp(fp,"<< [f0 f1 ... fn] k get fk >>\n");
     fppp(fp,"integer k;");

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.14 2003/07/14 12:49:52 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.15 2003/08/18 11:59:56 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2242,6 +2242,7 @@ struct object KgbExtension(struct object obj)
   POLY f;
   int m,i;
   struct pairOfPOLY pf;
+  struct coeff *cont;
 
   if (obj.tag != Sarray) errorKan1("%s\n","KgbExtension(): The argument must be an array.");
   size = getoaSize(obj);
@@ -2355,6 +2356,20 @@ struct object KgbExtension(struct object obj)
     obj1 = getoa(obj,1);
     if (obj1.tag != Spoly) errorKan1("%s\n","[(isOrdered) poly] gbext poly");
     return(KisOrdered(obj1));
+  }else if (strcmp(key,"reduceContent")==0) {
+    if (size != 2) errorKan1("%s\n","[(reduceContent)  poly1 ] gbext.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Spoly)
+      errorKan1("%s\n","[(reduceContent)  poly1 ] gbext.");
+    f1 = KopPOLY(obj1);
+	rob = newObjectArray(2);
+	f1 = reduceContentOfPoly(f1,&cont);
+	putoa(rob,0,KpoPOLY(f1));
+	if (f1 == POLYNULL) {
+	  putoa(rob,1,KpoPOLY(f1));
+	}else{
+	  putoa(rob,1,KpoPOLY(newCell(cont,newMonomial(f1->m->ringp))));
+	}
   }else {
     errorKan1("%s\n","gbext : unknown tag.");
   }
