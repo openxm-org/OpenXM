@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.57 2002/11/14 11:23:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.58 2002/11/15 07:16:33 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -716,6 +716,20 @@ end: */
 def util_load_file_as_a_string(F) { 
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
   return(taka_util_load_file_as_a_string(F));
+}
+/*&usage begin: util_read_file_as_a_string(F)
+ It reads a file {F} as a string.
+end: */
+def util_read_file_as_a_string(F) { 
+  OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
+  return(taka_util_load_file_as_a_string(F));
+}
+/*&usage begin: util_write_string_to_a_file(Fname,S)
+ It writes a string {S} to a file {Fname}.
+end: */
+def util_write_string_to_a_file(Fname,S) { 
+  OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
+  return(taka_util_write_string_to_a_file(Fname,S));
 }
 /*&usage begin: util_filter(Command,Input|env)
  It executes the filter program {Command} with the {Input}
