@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.62 2000/01/19 00:26:20 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.63 2000/01/19 01:15:45 noro Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -97,6 +97,7 @@ clean:
 	(cd pari ; make clean)
 	(cd phc ; make clean)
 	(cd tigers ; make clean)
+	(cd asir-doc ; make clean)
 	(cd asir-contrib ; make clean)
 
 distclean: clean
