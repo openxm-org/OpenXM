@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.3 1999/12/15 11:31:57 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.4 1999/12/15 11:40:23 ohara Exp $*/
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -26,13 +26,13 @@ char *which(char *s,char *env);
 main(int argc, char *argv[]) {
   sigset_t sss;
   int i;
-  char *oxname;
+  char *oxname ="???";
   /* char *env[2];
   env[0] = NULL;*/
   sigemptyset(&sss);
   sigaddset(&sss,SIGINT);
   sigprocmask(SIG_BLOCK,&sss,NULL);
-  if (argc > 1) {
+  if (argc > 2) {
     oxname = argv[1];
     oxname = toFullPath(oxname);
   }
