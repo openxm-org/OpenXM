@@ -1,4 +1,4 @@
-/* $OpenXM$  */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/hg21,v 1.1 2000/12/16 13:29:47 takayama Exp $  */
 
 /* Contiguity relations for 2F1 */
 /* hi increases parameter i, i=1 <==> A, i=2 <==> B, i=3 <==> C */
@@ -174,7 +174,7 @@ def tam(A,B,C,Z) {
       R = d1(AA-I,BB,CC,Z)*R;
    }
    for (I=0; I< -Bminus; I++) {
-      R = u2(A,BB-I,CC,Z)*R;
+      R = u2(A,BB+I,CC,Z)*R;
    }
    for (I=0; I<Cplus; I++) {
       R = d3(A,B,CC-I,Z)*R;
