@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.6 1999/11/14 22:57:44 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.7 1999/11/15 06:19:26 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -145,8 +145,8 @@ final class OM2OXM implements Runnable{
 
       /*
 	case CMO.CMO_TREE:
-      return "<OMA><OMS name=\""+ "\"/>"+
-	"</OMA>";
+	return "<OMA><OMS name=\""+ ((CMO_TREE)cmo).getName() +"\" cdname=\""+
+	((CMO_TREE)cmo).getCDName() +"\"/>" + "</OMA>";
 	*/
 
     default:
@@ -437,7 +437,7 @@ final class OM2OXM implements Runnable{
     return new CMO_MONOMIAL32(array,(CMO_ZZ)degree.elementAt(0));
   }
 
-  private CMO parse_objects() throws IOException{
+  private CMO_LIST parse_objects() throws IOException{
     // 解析された object を LIST で返す
     Vector objects = new Vector();
     CMO[] array;
