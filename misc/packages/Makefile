@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.22 2000/03/16 12:23:01 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.23 2000/03/18 08:06:14 takayama Exp $
 
-VERSION=1.1.2
+VERSION=1.1.3
 TAG=HEAD
-## TAG=RELEASE_1_1_2
+## TAG=RELEASE_1_1_3
 
 TAR_WORK=$(HOME)/tmp
 NAME=taka
