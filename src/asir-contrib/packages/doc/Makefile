@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.8 2000/01/17 06:12:13 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.9 2000/01/18 02:03:43 noro Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -83,7 +83,7 @@ help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 	mkdir help-jp tmp
 	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp/$$i; done
 	-(cd tmp; makeinfo --force cman.texi)
-	(cd help-jp; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
+	(cd help-jp; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
 
 help: help-eg help-jp
 

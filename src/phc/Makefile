@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/phc/Makefile,v 1.4 2000/01/07 21:49:13 maekawa Exp $
+# $OpenXM: OpenXM/src/phc/Makefile,v 1.5 2000/01/08 20:46:20 maekawa Exp $
 
 PROG=phc6
 
@@ -10,7 +10,11 @@ BINDIR=../../bin
 all: $(PROG)
 
 install: all
-	install -c -s $(PROG) $(BINDIR)/$(PROG)
+	if test `uname` = "OSF1" ; then \
+		installbsd -c -s $(PROG) $(BINDIR)/$(PROG) ; \
+	else \
+		install -c -s $(PROG) $(BINDIR)/$(PROG) ; \
+	fi
 
 clean:
 	rm -f $(PROG)

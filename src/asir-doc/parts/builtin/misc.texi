@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.3 1999/12/21 02:47:33 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.4 1999/12/24 04:38:06 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -94,6 +94,10 @@ on の時, 函数の再定義時にメッセージを表示する.
 1 のとき, 送信データを相手プロセスが受け取れるかどうかチェックする. 
 0 のときしない. (デフォルト値は 1.)
 @xref{分散計算}
+@item ox_exchange_mathcap
+1 のとき, OX server との接続開始時に, 自動的に mathcap の交換を行う. 
+(デフォルト値は 1.)
+@xref{分散計算}
 @end table
 \E
 \BEG
@@ -152,6 +156,10 @@ The default value is 'off'.
 @xref{Distributed computation}
 @item ox_check
 If 'on' the check by mathcap is done before sending data.
+The default value is 'on'.
+@xref{Distributed computation}
+@item ox_exchange_mathcap
+If 'on' Asir forces the exchange of mathcaps at the communication startup.
 The default value is 'on'.
 @xref{Distributed computation}
 @end table

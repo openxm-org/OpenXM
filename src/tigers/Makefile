@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/tigers/Makefile,v 1.1 2000/01/07 22:53:42 maekawa Exp $
+# $OpenXM: OpenXM/src/tigers/Makefile,v 1.2 2000/01/08 18:43:02 maekawa Exp $
 
 TIGERS = ../../../OpenXM_contrib/TiGERS_0.9
 CURDIR = ../../OpenXM/src/tigers
@@ -11,7 +11,11 @@ all: patch
 	@touch ./.make_done
 
 install: all
-	install -c -s $(TIGERS)/tigers $(BINDIR)/tigers
+	if test `uname` = "OSF1" ; then \
+		installbsd -c -s $(TIGERS)/tigers $(BINDIR)/tigers ; \
+	else \
+		install -c -s $(TIGERS)/tigers $(BINDIR)/tigers ; \
+	fi
 
 clean: patch-clean
 	(cd $(TIGERS) ; rm -f *.o tigers)

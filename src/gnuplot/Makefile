@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.3 2000/01/15 12:23:37 takayama Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.4 2000/01/19 07:07:51 takayama Exp $
 
 GNUPLOT = ../../../OpenXM_contrib/gnuplot
 CURDIR = ../../OpenXM/src/gnuplot
@@ -16,8 +16,13 @@ all: configure
 	@touch ./.make_done
 
 install: all
-	install -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox
-	install -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11
+	if test `uname` = "OSF1" ; then \
+		installbsd -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox ; \
+		installbsd -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11 ; \
+	else \
+		install -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox ; \
+		install -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11; \
+	fi
 
 clean: patch-clean
 	@if [ -f ./.make_done ]; then \
