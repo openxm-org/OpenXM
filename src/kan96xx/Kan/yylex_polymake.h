@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 struct pmObject {
   int tag;
   void *body;
