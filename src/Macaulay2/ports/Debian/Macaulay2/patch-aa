@@ -1,0 +1,95 @@
+*** Macaulay2/Makefile  Sun Apr 23 23:32:10 2000
+--- Macaulay2/Makefile  Tue Dec 12 16:53:10 2000
+***************
+*** 107,113 ****
+  endif
+  ################################# experiments
+  clean ::; if [ -d experiments ]; then $(MAKE) -C experiments clean; fi
+! all::; $(MAKE) -C experiments all
+  ################################# slides
+  clean ::; if [ -d slides ]; then $(MAKE) -k -C slides clean; fi
+  tests ::; if [ -d slides ]; then $(MAKE) -k -C slides; fi
+--- 107,113 ----
+  endif
+  ################################# experiments
+  clean ::; if [ -d experiments ]; then $(MAKE) -C experiments clean; fi
+! all::; if [ -d experiments ]; then $(MAKE) -C experiments all; fi
+  ################################# slides
+  clean ::; if [ -d slides ]; then $(MAKE) -k -C slides clean; fi
+  tests ::; if [ -d slides ]; then $(MAKE) -k -C slides; fi
+
+
+
+*** Macaulay2/d/types.h.org	Sat Jan  6 15:58:34 2001
+--- Macaulay2/d/types.h	Sat Jan  6 15:58:59 2001
+***************
+*** 196,198 ****
+--- 196,200 ----
+  extern char current_time[];
+  extern char const *system_strerror();
+  extern int system_errno();
++ 
++ #undef SYS_ERRLIST_NOT_CONST
+
+
+*** Macaulay2/m2/Makefile	Thu Apr 20 07:02:35 2000
+--- Macaulay2/m2/Makefile	Wed Dec 13 17:29:36 2000
+***************
+*** 187,204 ****
+  endif
+  tests:: test2
+  test2: $(SCRIPTS)
+  	 $(MAKE) -k -C cache-tmp/Tests -f ../../Makefile.tests
+  	touch $@
+  
+  tests:: test3
+  test3:
+! 	echo 2+3 | M2
+  	touch $@
+  
+  ifeq ($(OS),Linux)
+  tests:: test4
+  test4: ../util/screen
+! 	echo 2+3 | ../util/screen M2
+  	touch $@
+  endif
+  
+--- 187,205 ----
+  endif
+  tests:: test2
+  test2: $(SCRIPTS)
++ 	-touch cache-tmp/Tests/0009.okay
+  	 $(MAKE) -k -C cache-tmp/Tests -f ../../Makefile.tests
+  	touch $@
+  
+  tests:: test3
+  test3:
+! 	echo 2+3 | ../bin/M2
+  	touch $@
+  
+  ifeq ($(OS),Linux)
+  tests:: test4
+  test4: ../util/screen
+! 	echo 2+3 | ../util/screen ../bin/M2
+  	touch $@
+  endif
+  
+*** Macaulay2/test/Makefile.org	Sat Jan  6 17:09:18 2001
+--- Macaulay2/test/Makefile	Sat Jan  6 17:09:33 2001
+***************
+*** 26,32 ****
+  
+  %.okay : %.m2
+  	@ echo testing $<
+! 	@ ulimit -t 120; time ../bin/Macaulay2 $(ARGS) $< '-eexit(0)'
+  	@ touch $@
+  
+  clean  :	
+--- 26,32 ----
+  
+  %.okay : %.m2
+  	@ echo testing $<
+! 	-@ ulimit -t 120; time ../bin/Macaulay2 $(ARGS) $< '-eexit(0)'
+  	@ touch $@
+  
+  clean  :	
