@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.16 2004/12/17 14:14:08 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.17 2005/01/18 16:25:35 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
