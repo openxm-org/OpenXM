@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001/homogeneous-network.tex,v 1.1 2001/03/07 02:42:10 noro Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -54,10 +54,14 @@ the computational cost and the communication cost for each unit operation.
 Figure \ref{speedup} shows that 
 the speedup is satisfactory if the degree is large and $L$
 is not large, say, up to 10 under the above environment.
-If OpenXM provides operations for the broadcast and the reduction
+If OpenXM provides collective operations for broadcast and reduction
 such as {\tt MPI\_Bcast} and {\tt MPI\_Reduce} respectively, the cost of 
 sending $f_1$, $f_2$ and gathering $F_j$ may be reduced to $O(\log_2L)$
-and we can expect better results in such a case.
+and we can expect better results in such a case. In order to implement
+such operations we need new specifications for inter-sever communication
+and the session management. The will be proposed as OpenXM-RFC-102 in future.
+We note that preliminary experiments shows the collective operations
+works well on OpenXM.
 
 \subsubsection{Competitive distributed computation by various strategies}
 
@@ -95,3 +99,133 @@ def dgr(G,V,O,P0,P1)
   return [Win,R];
 }
 \end{verbatim}
+
+\subsubsection{Nesting of client-server communication}
+
+Under OpenXM-RFC-100 an OpenXM server can be a client of other servers.
+Figure \ref{tree} illustrates a tree-like structure of an OpenXM
+client-server communication.
+\begin{figure}
+\label{tree}
+\begin{center}
+\begin{picture}(200,140)(0,0)
+\put(70,120){\framebox(40,15){client}}
+\put(20,60){\framebox(40,15){server}}
+\put(70,60){\framebox(40,15){server}}
+\put(120,60){\framebox(40,15){server}}
+\put(0,0){\framebox(40,15){server}}
+\put(50,0){\framebox(40,15){server}}
+\put(135,0){\framebox(40,15){server}}
+
+\put(90,120){\vector(-1,-1){43}}
+\put(90,120){\vector(0,-1){43}}
+\put(90,120){\vector(1,-1){43}}
+\put(40,60){\vector(-1,-2){22}}
+\put(40,60){\vector(1,-2){22}}
+\put(140,60){\vector(1,-3){14}}
+\end{picture}
+\caption{Tree-like structure of client-server communication}
+\end{center}
+\end{figure}
+Such a computational model is useful for parallel implementation of
+algorithms whose task can be divided into subtasks recursively.  A
+typical example is {\it quicksort}, where an array to be sorted is
+partitioned into two sub-arrays and the algorithm is applied to each
+sub-array. In each level of recursion, two subtasks are generated
+and one can ask other OpenXM servers to execute them. Though
+this make little contribution to the efficiency, it is worth
+to show that such an attempt is very easy under OpenXM.
+Here is an Asir program.
+A predefined constant {\tt LevelMax} determines
+whether new servers are launched or whole subtasks are done on the server.
+
+\begin{verbatim}
+#define LevelMax 2
+extern Proc1, Proc2;
+Proc1 = -1$ Proc2 = -1$
+
+/* sort [A[P],...,A[Q]] by quicksort */
+def quickSort(A,P,Q,Level) {
+  if (Q-P < 1) return A;
+  Mp = idiv(P+Q,2); M = A[Mp]; B = P; E = Q;
+  while (1) {
+    while (A[B] < M) B++;
+    while (A[E] > M && B <= E) E--;
+    if (B >= E) break;
+    else { T = A[B]; A[B] = A[E]; A[E] = T; E--; }
+  }
+  if (E < P) E = P;
+  if (Level < LevelMax) {
+   /* launch new servers if necessary */
+   if (Proc1 == -1) Proc1 = ox_launch(0);
+   if (Proc2 == -1) Proc2 = ox_launch(0);
+   /* send the requests to the servers */
+   ox_rpc(Proc1,"quickSort",A,P,E,Level+1);
+   ox_rpc(Proc2,"quickSort",A,E+1,Q,Level+1);
+   if (E-P < Q-E) {
+     A1 = ox_pop_local(Proc1);
+     A2 = ox_pop_local(Proc2);
+   }else{
+     A2 = ox_pop_local(Proc2);
+     A1 = ox_pop_local(Proc1);
+   }
+   for (I=P; I<=E; I++) A[I] = A1[I];
+   for (I=E+1; I<=Q; I++) A[I] = A2[I];
+   return(A);
+  }else{
+   /* everything is done on this server */
+   quickSort(A,P,E,Level+1);
+   quickSort(A,E+1,Q,Level+1);
+   return(A);
+  }
+}
+\end{verbatim}
+
+Another example is a parallelization of the Cantor-Zassenhaus
+algorithm for polynomial factorization over finite fields. Its
+fundamental structure is similar to that of quicksort. By choosing a
+random polynomial, a polynomial is divided into two sub-factors with
+some probability. Then each subfactor is factorized recursively.  In
+the following program, one of the two sub-factors generated on a server
+is sent to another server and the other subfactor is factorized on the server
+itself. 
+\begin{verbatim}
+/* factorization of F */
+/* E = degree of irreducible factors in F */
+def c_z(F,E,Level)
+{
+  V = var(F); N = deg(F,V);
+  if ( N == E ) return [F];
+  M = field_order_ff(); K = idiv(N,E); L = [F];
+  while ( 1 ) {
+    W = monic_randpoly_ff(2*E,V);
+    T = generic_pwrmod_ff(W,F,idiv(M^E-1,2));
+    if ( !(W = T-1) ) continue;
+    G = ugcd(F,W);
+    if ( deg(G,V) && deg(G,V) < N ) {
+      if ( Level >= LevelMax ) {
+        /* everything is done on this server */
+        L1 = c_z(G,E,Level+1);
+        L2 = c_z(sdiv(F,G),E,Level+1);
+      } else {
+        /* launch a server if necessary */
+        if ( Proc1 < 0 ) Proc1 = ox_launch();
+        /* send a request with Level = Level+1 */
+        ox_cmo_rpc(Proc1,"ox_c_z",lmptop(G),E,
+            setmod_ff(),Level+1);
+        /* the rest is done on this server */
+        L2 = c_z(sdiv(F,G),E,Level+1);
+        L1 = map(simp_ff,ox_pop_cmo(Proc1));
+      }
+      return append(L1,L2);
+    }
+  }
+}
+\end{verbatim}
+
+
+
+
+
+
+
