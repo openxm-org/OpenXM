@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/syz0.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/syz0.c,v 1.3 2001/05/04 01:06:26 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -237,6 +237,7 @@ struct matrixOfPOLY *getSyzygy(grG,zeroPairs,grBasesp,backwardMatp)
 
   if (KanGBmessage) {printf("#"); fflush(stdout); }
   mp0 = getSyzygy01(*grBasesp,excludePairs);
+  if (mp0 == NULL) return NULL;
   if (KanGBmessage) {printf("#"); fflush(stdout); }
   
   /* We compute E-CB. The number of G (G-basis) is serial. */

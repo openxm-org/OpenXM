@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.8 2003/08/23 02:28:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.9 2003/08/24 05:19:42 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -274,6 +274,7 @@ struct object Kgroebner(ob)
       fflush(stdout);
     }
     mp = getSyzygy(grG,grP->next,&grBases,&backwardMat);
+	if (mp == NULL) errorKan1("%s\n","Internal error in getSyzygy(). BUG of sm1.");
     if (KanGBmessage) printf("Done.\n");
 
     putoa(rob,0,gradedPolySetToArray(grG,0));

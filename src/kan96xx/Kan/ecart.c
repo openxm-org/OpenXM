@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.14 2003/08/26 05:06:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.15 2003/08/26 05:52:43 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -36,6 +36,8 @@ static POLY reduction_ecart1(POLY r,struct gradedPolySet *gset,
 static POLY reduction_ecart1_mod(POLY r,struct gradedPolySet *gset);
 static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
                             struct gradedPolySet *gg,POLY r);
+static void  ecartCheckSyz0_printinfo(POLY cf,POLY r_0,POLY syz,
+                            struct gradedPolySet *gg,POLY r);
 
 extern int DebugReductionRed;
 extern int TraceLift;
@@ -67,6 +69,18 @@ static POLY ecartDivideSv(POLY r,int *d) {
     }
     r = r->next;
   }
+
+  if (k > 0) {
+    *d = k;
+	return ppMult(cxx(1,0,-k,f->m->ringp),f);
+  }else{
+	return f;
+  }
+
+  /* Do not do the below. It caused a bug. cf. misc-2003/07/ecart/b4.sm1 test2.
+     Note. 2003.8.26
+   */
+  /*
   if (k > 0) {
     *d = k;
     f = r;
@@ -76,6 +90,7 @@ static POLY ecartDivideSv(POLY r,int *d) {
     }
   }
   return f;
+  */
 }
 
 static int ecartGetEll(POLY f,POLY g) {
@@ -240,6 +255,35 @@ static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
   return f;
 }
 
+static void  ecartCheckSyz0_printinfo(POLY cf,POLY r_0,POLY syz,
+                                      struct gradedPolySet *gg,POLY r)
+{
+  POLY f;
+  int grd,i;
+  POLY q;
+  struct coeff *c;
+  fprintf(stderr,"cf=%s\n",POLYToString(cf,'*',1));
+  fprintf(stderr,"r_0=%s\n",POLYToString(r_0,'*',1));
+  fprintf(stderr,"syz=%s\n",POLYToString(syz,'*',1));
+  fprintf(stderr,"r=%s\n",POLYToString(r,'*',1));
+  f = ppMult(cf,r_0);
+  while (syz != POLYNULL) {
+    grd = syz->m->e[0].x;
+    i = syz->m->e[0].D;
+    c = syz->coeffp;
+    if (c->tag == POLY_COEFF) {
+      q = c->val.f;
+    }else{
+      q = POLYNULL;
+    }
+	fprintf(stderr,"[grd,idx]=[%d,%d], %s\n",grd,i,
+			POLYToString(((gg->polys[grd])->g)[i],'*',1));
+    /* f = ppAdd(f,ppMult(q,((gg->polys[grd])->g)[i])); */
+    syz = syz->next;
+  }
+  /* f = ppSub(f,r); */
+}
+
 
 POLY reduction_ecart(r,gset,needSyz,syzp)
      POLY r;
@@ -341,7 +385,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
         if (DebugReductionEcart & 4) printf("#");
         pp = (gg->pa)[ells.ggi];
       }
-      if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+      if (ell > 0) r = ppMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
       r = (*reduction1)(r,pp,needSyz,&cc,&cg);
 
       if (DoCancel && (r != POLYNULL)) { 
@@ -374,7 +418,8 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
           tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
           if (tp != POLYNULL) {
             fprintf(stderr,"reduction_ecart0(): sygyzy is broken. Return the Current values.\n");
-            fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
+            fprintf(stderr,"tp=%s\n",POLYToString(tp,'*',1));
+			ecartCheckSyz0_printinfo(cf,r_0,syz,gset,r);
             syzp->cf = cf;
             syzp->syz = syz;
             return r;
@@ -388,7 +433,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
 	  if (needSyz && (se > 0)) {
 		POLY tt;
 		tt = cxx(1,0,-se,rp);
-		cf = mpMult(tt,cf);
+		cf = ppMult(tt,cf);
 		syz = cpMult(toSyzCoeff(tt),syz);
 	  }
 
@@ -397,8 +442,8 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
 
  ss: ;
   if (needSyz) {
-    syzp->cf = cf;   /* cf is in the CurrentRingp */
-    syzp->syz = syz; /* syz is in the SyzRingp */
+    syzp->cf = cf;   /* cf is in the ring of r */
+    syzp->syz = syz; /* syz is in the syzRing of r */
   }
 
   if (DoCancel && (r != POLYNULL)) { 
@@ -472,11 +517,11 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
     ell = ells.ell;
     if (ell > 0) {
       if (DebugReductionEcart & 2) printf("%");
-	  if (needSyz) {
-		gg = ecartPutPolyInG(r,gg,cf,syz);
-	  }else{
-		gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
-	  }
+      if (needSyz) {
+        gg = ecartPutPolyInG(r,gg,cf,syz);
+      }else{
+        gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
+      }
     }
     if (ell >= 0) {
       if (ells.first) {
@@ -485,7 +530,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
         if (DebugReductionEcart & 4) {printf("+"); fflush(NULL);}
         pp = (gg->pa)[ells.ggi];
       }
-      if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+      if (ell > 0) r = ppMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
       r = (*reduction1)(r,pp,needSyz,&cc,&cg);
 
       if (DoCancel && (r != POLYNULL)) { 
@@ -498,10 +543,10 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
 
       if (needSyz) {
         if (ells.first) {
-		  if (ell > 0) cc = ppMult(cc,cxx(1,0,ell,rp));
+          if (ell > 0) cc = ppMult(cc,cxx(1,0,ell,rp));
           cf = ppMult(cc,cf);
           syz = cpMult(toSyzCoeff(cc),syz);
-          syz = ppAddv(syz,toSyzPoly(cg,ells.grade,ells.gseti));
+          syz = ppAdd(syz,toSyzPoly(cg,ells.grade,ells.gseti));
         }else{
           if (ell >0) cc = ppMult(cc,cxx(1,0,ell,rp));
           cf_o = (gg->cf)[ells.ggi];
@@ -517,9 +562,9 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
       if (DebugReductionRed) {
         POLY tp;
         tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
-		tp = goDeHomogenizeS(tp);
+        tp = goDeHomogenizeS(tp);
         if (tp != POLYNULL) {
-          fprintf(stderr,"reduction_ecart1(): sygyzy is broken. Return the Current values.\n");
+          fprintf(stderr,"Error: reduction_ecart1(): sygyzy is broken. Return the Current values.\n");
           fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
           syzp->cf = cf;
           syzp->syz = syz;
@@ -530,13 +575,27 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
       if (r ISZERO) goto ss1;
       r = ecartDivideSv(r,&se); /* r = r/s^? */
 
-	  if (needSyz && (se > 0)) { /* It may not necessary because of dehomo*/
-		POLY tt;
-		/*printf("!1/H!"); fflush(NULL);*/ /* misc-2003/ecart/t1.sm1 foo4 */
-		tt = cxx(1,0,-se,rp);
-		cf = mpMult(tt,cf);
-		syz = cpMult(toSyzCoeff(tt),syz);
-	  }
+      if (needSyz && (se > 0)) { /* It may not necessary because of dehomo*/
+        POLY tt;
+        /*printf("!1/H!"); fflush(NULL);*/ /* misc-2003/ecart/t1.sm1 foo4 */
+        tt = cxx(1,0,-se,rp);
+        cf = ppMult(tt,cf);
+        syz = cpMult(toSyzCoeff(tt),syz);
+      }
+
+      /* For debug */
+      if (DebugReductionRed && needSyz) {
+        POLY tp;
+        tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
+        tp = goDeHomogenizeS(tp);
+        if (tp != POLYNULL) {
+          fprintf(stderr,"Error: reduction_ecart1() after divide: sygyzy is broken. Return the Current values.\n");
+          fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
+          syzp->cf = cf;
+          syzp->syz = syz;
+          return r;
+        }
+      }
 
     }
   }while (ell >= 0);
@@ -544,10 +603,10 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
  ss1: ;
   if (needSyz) {
     /* dehomogenize the syzygy. BUG, this may be inefficient.  */
-	cf = goDeHomogenizeS(cf);
-	syz = goDeHomogenizeS(syz);
-	/*printf("cf=%s\n",POLYToString(cf,'*',1));
-	  printf("syz=%s\n",POLYToString(syz,'*',1));*/
+    cf = goDeHomogenizeS(cf);
+    syz = goDeHomogenizeS(syz);
+    /*printf("cf=%s\n",POLYToString(cf,'*',1));
+      printf("syz=%s\n",POLYToString(syz,'*',1));*/
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
   }
@@ -555,8 +614,22 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   r = goDeHomogenizeS(r);
   if (DoCancel && (r != POLYNULL)) { 
     if (r->m->ringp->p == 0) {
-	  r = reduceContentOfPoly(r,&cont);
-	  if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("cont=%s ",coeffToString(cont));     
+      r = reduceContentOfPoly(r,&cont);
+      if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("cont=%s ",coeffToString(cont));     
+    }
+  }
+
+  /* For debug */
+  if (DebugReductionRed && needSyz) {
+    POLY tp;
+    tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
+    tp = goDeHomogenizeS(tp);
+    if (tp != POLYNULL) {
+      fprintf(stderr,"Error: reduction_ecart1() last step: sygyzy is broken. Return the Current values.\n");
+      fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
+      syzp->cf = cf;
+      syzp->syz = syz;
+      return r;
     }
   }
 
@@ -694,7 +767,7 @@ static POLY reduction_ecart1_mod(r,gset)
         if (DebugReductionEcart & 4) {printf("+"); fflush(NULL);}
         pp = (gg->pa)[ells.ggi];
       }
-      if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+      if (ell > 0) r = ppMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
       r = (*reduction1)(r,pp,0,&cc,&cg);
       if (r ISZERO) goto ss1;
       r = ecartDivideSv(r,&se); /* r = r/s^? */
