@@ -1,4 +1,4 @@
-$OpenXM$   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.1 2000/05/19 11:16:51 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -61,3 +61,19 @@ In(17)=sm1_pmat(a2[2]);
  ]
 In(18)=  
 
+---------------------------
+
+May 22, (Tue),  5:50 (Spain local time, 12:50 JST)
+
+kan96xx/Kan/resol.c で,
+   RemoveRedundantInSchreyerSkelton = 0
+に変えて (この option もあたらしく加える), schreyer が正しく動くか
+調べることにする.
+( commit は kan96xx と k097 両方すべし.)
+
+test8() で sm1 で書いた方の Schreyer を見ると,
+   RemoveRedundantInSchreyerSkelton = 1
+でも, 
+kernel = image
+となっているので以後この option は 1 のまま使うこととする.
+要するに k0 のコードがどうやらおかしいらしい.

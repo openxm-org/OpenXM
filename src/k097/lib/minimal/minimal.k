@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.10 2000/05/07 02:10:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.11 2000/05/19 11:16:51 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1641,48 +1641,23 @@ def sm1_gb(f,v) {
   sm1(" [f v] gb /FunctionValue set ");
 }
 
-def test5() {
-  local a,b,c,cc,v;
-  a = Sannfs3_laScala2("x^3-y^2*z^2");
-  b = a[0];
-  v = [x,y,z];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  Println("-----------------------------------");
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  return(a);
-}
-def test6() {
-  local a,b,c,cc,v;
-  a = Sannfs3("x^3-y^2*z^2");
-  b = a[0];
-  v = [x,y,z];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  Println("-------ker = im for minimal ?---------------------");
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  Println("------ ker=im for Schreyer ?------------------");
-  b = a[3];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  return(a);
+def SisComplex(a) {
+  local n,i,j,k,b,p,q;
+  n = Length(a);
+  for (i=0; i<n-1; i++) {
+    if (Length(a[i+1]) != 0) {
+      b = a[i+1]*a[i];
+      p = Length(b); q = Length(b[0]);
+      for (j=0; j<p; j++) {
+        for (k=0; k<q; k++) {
+          if (!IsZero(b[j,k])) {
+             Print("Is is not complex at ");
+             Println([i,j,k]);
+             return(false);
+          }
+        }
+      }
+    }
+  }
+  return(true);
 }
