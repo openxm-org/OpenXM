@@ -1,11 +1,12 @@
-% $OpenXM$
+%#!make OX-RFC-101-ja.dvi
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.1 2000/11/30 02:41:36 takayama Exp $
 \documentclass{article}
 %%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \usepackage{html}
 /*&jp
-\title{{\bf $B%(%s%8%s5/F0%W%m%H%3%k(B, OpenXM RFC 101 Draft}}
-\author{ $B>.868yG$(B\thanks{{$B6bBtBg3XM}3XIt7W;;2J3X65<<(B, \htmladdnormallink{http://www.s.kanazawa.ac.jp}{http://www.s.kanazawa.ac.jp}}}}
-\date{ 2000$BG/(B, 11$B7n(B30$BF|(B}
+\title{{\bf ¥¨¥ó¥¸¥óµ¯Æ°¥×¥í¥È¥³¥ë, OpenXM RFC 101 Draft}}
+\author{ ¾®¸¶¸ùÇ¤\thanks{{¶âÂôÂç³ØÍý³ØÉô·×»»²Ê³Ø¶µ¼¼, \htmladdnormallink{http://omega.s.kanazawa-u.ac.jp/ohara/}{http://omega.s.kanazawa-u.ac.jp/ohara/}}}}
+\date{ 2000Ç¯, 11·î30Æü}
 */
 /*&eg
 \title{{\bf Protocol to Start Engines, OpenXM RFC 101 Draft}}
@@ -18,10 +19,10 @@
 \section{Session Management}
 
 /*&jp
-$B$3$NJ8=q$G$O(B ``OpenXM RFC 100, OpenXM $B$N@_7W$H<BAu(B''\ 
+¤³¤ÎÊ¸½ñ¤Ç¤Ï ``OpenXM RFC 100, OpenXM ¤ÎÀß·×¤È¼ÂÁõ''\ 
 \htmladdnormallink{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}
-$B$GDj5A$5$l$?%3%s%H%m!<%k%5!<%P$rCV$-49$($k?7$7$$%3%s%H%m!<%k%5!<%P$N(B
-$B;EMM$r@bL@$9$k(B.
+¤ÇÄêµÁ¤µ¤ì¤¿¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤òÃÖ¤­´¹¤¨¤ë¿·¤·¤¤¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Î
+»ÅÍÍ¤òÀâÌÀ¤¹¤ë.
 */
 
 /*&eg
@@ -36,48 +37,162 @@ a replacement of the control server defined in
 
 /*&jp
 
-$B2f!9$O?7$7$$%3%s%H%m!<%k%5!<%P$rDs0F$9$k!#$=$N%5%s%W%k<BAu$H$7$F(B oxc $B$,(B
-$BDs6!$5$l$k!#?7$7$$%3%s%H%m!<%k%5!<%P$O0J2<$NE@$G=>Mh$N$b$N$H0[$J$k!#(B
+²æ¡¹¤Ï¿·¤·¤¤¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤òÄó°Æ¤¹¤ë¡£¤½¤Î¥µ¥ó¥×¥ë¼ÂÁõ¤È¤·¤Æ oxc ¤¬
+Äó¶¡¤µ¤ì¤ë¡£¿·¤·¤¤¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï°Ê²¼¤ÎÅÀ¤Ç½¾Íè¤Î¤â¤Î¤È°Û¤Ê¤ë¡£
 \begin{enumerate}
-\item $B%3%s%H%m!<%k%5!<%P$O(B OpenXM $B%9%?%C%/%^%7%s$G$"$j!"(B
-CMObject/Primitive $B$r%5%]!<%H$9$k!#(B
-\item $B7W;;%5!<%P$N5/F0$O%9%?%C%/%^%7%s%3%^%s%I$r2p$7$F9T$&!#(B
-\item $B0l$D$N%3%s%H%m!<%k%5!<%P$+$iJ#?t$N7W;;%5!<%P$r5/F0$G$-$k!#(B
+\item ¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï OpenXM ¥¹¥¿¥Ã¥¯¥Þ¥·¥ó¤Ç¤¢¤ê¡¢
+CMObject/Primitive ¤ò¥µ¥Ý¡¼¥È¤¹¤ë¡£
+\item ·×»»¥µ¡¼¥Ð¤Îµ¯Æ°¤Ï¥¹¥¿¥Ã¥¯¥Þ¥·¥ó¥³¥Þ¥ó¥É¤ò²ð¤·¤Æ¹Ô¤¦¡£
+\item °ì¤Ä¤Î¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤«¤éÊ£¿ô¤Î·×»»¥µ¡¼¥Ð¤òµ¯Æ°¤Ç¤­¤ë¡£
 \end{enumerate}
 
-oxc $B$NF3F~$K$h$j!"$$$^$^$G$N%5!<%P$N5/F0<j=g$O%3%s%H%m!<%k%5!<%P$N5/F0$H(B
-$B7W;;%5!<%P$N5/F0$KJ,N%$5$l$k!#%3%s%H%m!<%k%5!<%P$r5/F0$9$k$K$O<!$N<j=g$r(B
-$B<h$k!#$^$:!"E,Ev$J%*%W%7%g%s(B($B8e=R(B)$B$r$D$1$F!"%3%s%H%m!<%k%5!<%P$r5/F0$9$k(B
-$B$H!"%3%s%H%m!<%k%5!<%P$O%=%1%C%H$r:n@.$7!"(Bconnect $B$9$k!#%/%i%$%"%s%H$O!"(B
-listen, accept $B$9$k!#@\B38e!"%P%$%H%*!<%@$r7hDj$9$k!#%P%$%H%*!<%@$N7hDj(B
-$B$K$D$$$F$O(B???$B$r8+$h!#$=$N8e!"%3%s%H%m!<%k%5!<%P$OBT5!>uBV$K$O$$$k!#%3%s(B
-$B%H%m!<%k%5!<%P$O(B OpenXM $B%9%?%C%/%^%7%s$G$"$k$+$i!"(Bmathcap $B$N8r49$J$I$N<j(B
-$BB3$-$KF~$C$F$b$h$$!#(B
+oxc ¤ÎÆ³Æþ¤Ë¤è¤ê¡¢¤¤¤Þ¤Þ¤Ç¤Î¥µ¡¼¥Ð¤Îµ¯Æ°¼ê½ç¤Ï¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Îµ¯Æ°¤È
+·×»»¥µ¡¼¥Ð¤Îµ¯Æ°¤ËÊ¬Î¥¤µ¤ì¤ë¡£¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤òµ¯Æ°¤¹¤ë¤Ë¤Ï¼¡¤Î¼ê½ç¤ò
+¼è¤ë¡£¤Þ¤º¡¢Å¬Åö¤Ê¥ª¥×¥·¥ç¥ó(¸å½Ò)¤ò¤Ä¤±¤Æ¡¢¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤òµ¯Æ°¤¹¤ë
+¤È¡¢¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï¥½¥±¥Ã¥È¤òºîÀ®¤·¡¢connect ¤¹¤ë¡£¥¯¥é¥¤¥¢¥ó¥È¤Ï¡¢
+listen, accept ¤¹¤ë¡£ÀÜÂ³¸å¡¢¥Ð¥¤¥È¥ª¡¼¥À¤ò·èÄê¤¹¤ë¡£¥Ð¥¤¥È¥ª¡¼¥À¤Î·èÄê
+ÊýË¡¤Ë¤Ä¤¤¤Æ¤Ï¡¢½¾Íè¤Î¤â¤Î¤ÈÊÑ¹¹¤Ï¤Ê¤¤¡£
+OpenXM/doc/OpenXM-specs/control.tex ¤ò¸«¤è¡£¤½¤Î¸å¡¢¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï
+ÂÔµ¡¾õÂÖ¤Ë¤Ï¤¤¤ë¡£¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï OpenXM ¥¹¥¿¥Ã¥¯¥Þ¥·¥ó¤Ç¤¢¤ë¤«¤é¡¢
+mathcap ¤Î¸ò´¹¤Ê¤É¤Î¼êÂ³¤­¤ËÆþ¤Ã¤Æ¤â¤è¤¤¡£
 
-$B7W;;%5!<%P$N5/F0$O!"(Boxc $B$N%m!<%+%k4X?t(B oxc\_open $B$K$h$k!#(Boxc\_open $B$O>/(B
-$B$J$/$H$b(B 4 $B8D$N0z?t$r;}$D!#$9$J$o$A!"(B
+\subsection{OpenXM control stack machine}
+
+¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï¡¢¼¡¤Î¥¹¥¿¥Ã¥¯¥Þ¥·¥ó¥³¥Þ¥ó¥É¤ò¼ÂÁõ¤·¤Ê¤±¤ì¤Ð¤Ê¤é¤Ê¤¤¡£
+¤½¤ì¤¾¤ì¤Î¥¹¥¿¥Ã¥¯¥³¥Þ¥ó¥É¤Î°ÕÌ£¤Ï¡¢{\bf °ÊÁ°¤Î¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤È¤Ï°Û¤Ê¤ë¡£}
+
+\begin{enumerate}
+\item
 \begin{verbatim}
-oxc_open($B7W;;%5!<%PL>(B, $B%[%9%HL>(B, $B%]!<%HHV9f(B, $B%b!<%I(B, ...)
+SM_control_spawn_server
 \end{verbatim}
-$B$H$$$&7A<0$G$"$k!#$3$3$G!"!V7W;;%5!<%PL>!W!"!V%[%9%HL>!W$O(B CMO\_STRING 
-$B7?$N%*%V%8%'%/%H!"!V%]!<%HHV9f!W!"!V%b!<%I!W$O(B CMO\_INT32$B7?(B
-$B$N%*%V%8%'%/%H$G$"$k!#%[%9%HL>$H$$$&$N$O(BOpenXM$B%/%i%$%"%s%H$N%[(B
-$B%9%HL>$N$3$H$G$"$k!#%m!<%+%k4X?t$N<B9T$O(B SM\_executeFunction $B$K$h$k!#$9(B
-$B$J$o$A3F0z?t$r=g$K%9%?%C%/$K@Q$_!":G8e$K(BSM\_executeFunction $B$r<B9T$9$k!#(B
-SM\_executeStringByLocalParser $B$OMxMQ$G$-$J$$$N$GCm0U$9$k!#(B
+¿·¤¿¤Ë·×»»¥µ¡¼¥Ð¤òµ¯Æ°¤¹¤ë¡£¥µ¡¼¥Ð¤Îµ¯Æ°¤ËÀ®¸ù¤¹¤ë¤È¡¢¤½¤Î ID ¤òÊÖ¤¹¡£
 
-oxc\_open $B$O!"7W;;%5!<%P$N5/F0$K@.8y$7$?$i(B (CMO\_INT32, $B%5!<%P(BID) $B$r!"<:(B
-$BGT$7$?$i%(%i!<%*%V%8%'%/%H$r%9%?%C%/$K@Q$`!#Nc$($P7W;;%5!<%P$,H/8+$G$-$J(B
-$B$+$C$?>l9g$K$O%(%i!<%*%V%8%'%/%H$r@Q$`$3$H$K$J$k!#%3%s%H%m!<%k%5!<%P$O(B 
-access(2) $B$rMQ$$$F(B PATH $B$+$i7W;;%5!<%P$rC5$9!#$b$78+$D$+$i$J$1$l$P!"(Bfork 
-$B$r$;$:$K!"%(%i!<%*%V%8%'%/%H$r%9%?%C%/$K@Q$`!#(B
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_spawn\_server}  \\
+\hline
+\end{tabular}
 
-$B%3%s%H%m!<%k%5!<%P$N<B9T7A<0$O0J2<$N%*%W%7%g%s$r5v$9!#(B
+Stack before the request: 
+\begin{tabular}{|c|c|}  \hline
+{\sl Integer32} Port & {\sl String} ServerName \\
+\hline
+\end{tabular}
+
+Stack after the request: 
+\begin{tabular}{|c|c|}  \hline
+{\sl Integer32} ServerID \\
+\hline
+\end{tabular}
+
+Output: none.
+
+\item
 \begin{verbatim}
-     --pass
-     --host
-     --port
+SM_control_terminate_server
 \end{verbatim}
+»ØÄê¤µ¤ì¤¿·×»»¥µ¡¼¥Ð¤Ë SIGKILL ¤òÁ÷¤ë¡£
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_terminate\_server}  \\
+\hline
+\end{tabular}
+
+Stack before the request:
+\begin{tabular}{|c|c|}  \hline
+{\sl Integer32} ServerID \\
+\hline
+\end{tabular}
+
+Output: none.
+
+\item
+\begin{verbatim}
+SM_control_kill
+\end{verbatim}
+Á´¤Æ¤Î·×»»¥µ¡¼¥Ð¤Ë SIGKILL ¤òÁ÷¤ë¡£
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_kill}  \\
+\hline
+\end{tabular}
+
+Output: none.
+
+\item
+\begin{verbatim}
+SM_control_reset_connection_server
+\end{verbatim}
+»ØÄê¤µ¤ì¤¿·×»»¥µ¡¼¥Ð¤Ë SIGUSR1 ¤òÁ÷¤ë¡£
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_reset\_connection\_server}  \\
+\hline
+\end{tabular}
+
+Stack before the request:
+\begin{tabular}{|c|c|}  \hline
+{\sl Integer32} ServerID \\
+\hline
+\end{tabular}
+
+Output: none.
+
+\item
+\begin{verbatim}
+SM_control_reset_connection
+\end{verbatim}
+Á´¤Æ¤Î·×»»¥µ¡¼¥Ð¤Ë SIGUSR1 ¤òÁ÷¤ë¡£¤³¤ì¤Ï²¼°Ì¸ß´¹À­¤Î¤¿¤á¤ÎÁ¼ÃÖ¤Ç¤¢¤ë¡£
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_reset\_connection}  \\
+\hline
+\end{tabular}
+
+Output: none.
+
+\end{enumerate}
+
+\bigskip
+\bigskip
+
+\subsection{A sample implementation}
+
+\subsubsection{Command Line Arguments}
+¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Î¼Â¹Ô·Á¼°¤Ï getopt(1) ¤Ë ``c:p:h:x'' ¤Ç»ØÄê¤¹¤ë¥ª¥×¥·¥ç
+¥ó¤ò»ý¤Ä¡£¤¹¤Ê¤ï¤Á¡¢
+\begin{verbatim}
+oxc -c [password] -h [hostname] -p [portnumber] -x
+\end{verbatim}
+
+\subsubsection{Local Functions}
+
+¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Î³Æ¼ÂÁõ¤Ï¡¢ÆÈ¼«¤Ë¥í¡¼¥«¥ë´Ø¿ô¤ò¥µ¥Ý¡¼¥È¤·¤Æ¤â¤è¤¤¡£
+¼ÂºÝ¡¢¥µ¥ó¥×¥ë¼ÂÁõ oxc ¤Ï¥í¡¼¥«¥ë´Ø¿ô¤ò¥µ¥Ý¡¼¥È¤·¤Æ¤¤¤ë¡£
+
+¤³¤³¤Ç¤Ï¡¢oxc ¤Î¥í¡¼¥«¥ë´Ø¿ô spawn ¤Ë¤Ä¤¤¤ÆÀâÌÀ¤·¤è¤¦¡£
+
+spawn ¤Ï·×»»¥µ¡¼¥Ð¤òµ¯Æ°¤·¡¢¾¯¤Ê¤¯¤È¤â 2 ¸Ä¤Î°ú¿ô¤ò»ý¤Ä¡£¤¹¤Ê¤ï¤Á¡¢
+\begin{verbatim}
+spawn(·×»»¥µ¡¼¥ÐÌ¾, ¥Ý¡¼¥ÈÈÖ¹æ, ¥â¡¼¥É, ...)
+\end{verbatim}
+¤È¤¤¤¦·Á¼°¤Ç¤¢¤ë¡£¡Ö¥â¡¼¥É¡×¤Ï¤Ê¤¯¤Æ¤â¤è¤¤¡£¤³¤³¤Ç¡¢¡Ö·×»»¥µ¡¼¥ÐÌ¾¡×¤Ï 
+CMO\_STRING ·¿¤Î¥ª¥Ö¥¸¥§¥¯¥È¡¢¡Ö¥Ý¡¼¥ÈÈÖ¹æ¡×¡¢¡Ö¥â¡¼¥É¡×¤Ï CMO\_INT32·¿
+¤Î¥ª¥Ö¥¸¥§¥¯¥È¤Ç¤¢¤ë¡£¥í¡¼¥«¥ë´Ø¿ô¤Î¼Â¹Ô¤Ï SM\_executeFunction ¤Ë¤è¤ë¡£
+¤¹¤Ê¤ï¤Á³Æ°ú¿ô¤ò½ç¤Ë¥¹¥¿¥Ã¥¯¤ËÀÑ¤ß¡¢ºÇ¸å¤ËSM\_executeFunction ¤ò¼Â¹Ô¤¹¤ë¡£
+SM\_executeStringByLocalParser ¤ÏÍøÍÑ¤Ç¤­¤Ê¤¤¤Î¤ÇÃí°Õ¤¹¤ë¡£
+
+spawn ¤Ï¡¢·×»»¥µ¡¼¥Ð¤Îµ¯Æ°¤ËÀ®¸ù¤·¤¿¤é (CMO\_INT32, ¥µ¡¼¥ÐID) ¤ò¡¢¼º
+ÇÔ¤·¤¿¤é¥¨¥é¡¼¥ª¥Ö¥¸¥§¥¯¥È¤ò¥¹¥¿¥Ã¥¯¤ËÀÑ¤à¡£Îã¤¨¤Ð·×»»¥µ¡¼¥Ð¤¬È¯¸«¤Ç¤­¤Ê
+¤«¤Ã¤¿¾ì¹ç¤Ë¤Ï¥¨¥é¡¼¥ª¥Ö¥¸¥§¥¯¥È¤òÀÑ¤à¤³¤È¤Ë¤Ê¤ë¡£¥³¥ó¥È¥í¡¼¥ë¥µ¡¼¥Ð¤Ï 
+access(2) ¤òÍÑ¤¤¤Æ PATH ¤«¤é·×»»¥µ¡¼¥Ð¤òÃµ¤¹¡£¤â¤·¸«¤Ä¤«¤é¤Ê¤±¤ì¤Ð¡¢fork 
+¤ò¤»¤º¤Ë¡¢¥¨¥é¡¼¥ª¥Ö¥¸¥§¥¯¥È¤ò¥¹¥¿¥Ã¥¯¤ËÀÑ¤à¡£
+
 */
 
 /*&eg
