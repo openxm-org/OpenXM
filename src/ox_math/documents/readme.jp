@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_math/documents/readme.jp,v 1.2 1999/11/02 06:12:00 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/documents/readme.jp,v 1.3 1999/11/06 21:33:42 ohara Exp $
 
 ☆ Open Mathematica マニュアル
 
@@ -10,6 +10,7 @@
     このプログラムは、Linux (kernel 2.0.36, 2.2.12)
     および Solaris 2.6 だけでテストされています。
     対象にしている Mathematica の version は 3.0 です。
+    (2000/01/20注: 現在のバージョンは Linux 2.2.12 だけでテストされている)
 
 2)  Linux における準備
     Linux + glibc2 環境で動作させるには MathLink Library の version 3
@@ -21,9 +22,6 @@
     を使った方がいいかもしれません。(環境がないのでテストはしてません)
 
 3)  このソースから何が生成されますか。
-    libox.a        ライブラリ(このプログラム集以外では意味がないでしょう)
-    bconv          バイトコードエンコーダ
-    testclient     テスト用の小さなクライアント
     ox_math        OpenMathematica Server
     math2ox        Mathematica の外部プログラム. 
                    Mathematica を OX client にするのに必要。
@@ -58,14 +56,7 @@ In[4] := OxClose[]
 (1) SM_popString が来たときに、CMO_ERROR2 を返すようにする。
     (注) ox_sm1 は、長さ0の文字列を返す。
 (2) CMO_ERROR2 に SM_popString できない CMO 型の列を返す。
-(3) ox の -insecure オプションに対応したクライアントの設計。(done)
-(4) bconv の逆向き変換。
-(5) bconv で
-    (CMO_DISTRIBUTED_POLYNOMIAL,(CMO_DMS_GENERIC),(CMO_ZERO))
-    が変換できるようにする。(done)
-(6) mathcap 新仕様への追随。(done)
-(7) ox_math スタックマシンの挙動を制御できるようにする。
+(3) ox の -insecure オプションに対応したクライアントの設計。
+(4) ox_math スタックマシンの挙動を制御できるようにする。
     例 executeStringByLocalParser(":indeterminate2string")
-(8) OxParse で スタックマシンコマンドを扱えるようにする。(done)
-(9) CMO_ERROR2 の実装に問題あり。
-(10) Solaris で正しく走るようにする。(done)
+(5) CMO_ERROR2 の実装に問題あり。

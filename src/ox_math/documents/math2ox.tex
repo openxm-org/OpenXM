@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.tex,v 1.1 2000/01/20 07:47:30 ohara Exp $
 
 \documentclass{article}
 \title{Mathematica Client for Open XM}
@@ -18,7 +18,9 @@ communication with Mathematica by MathLink.  The math2ox interpret our
 commands and translate them to OX messages.
 
 The {\tt math2ox} has the following commands:\\
-{\tt OxStart[s\_String], OxStartInsecure[s\_String],
+{\tt OxStart[s\_String], 
+OxStartInsecure[s\_String, p\_Integer, q\_Integer],
+OxStartRemoteSSH[s\_String, t\_String], 
 OxExecuteString[s\_String], OxParse[s\_String], OxGet[], OxPopCMO[],
 OxPopString[], OxClose[], OxReset[]}.
 
@@ -41,14 +43,14 @@ In[2] := OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
 The mode is not secured but you can crypt data stream by using ssh
 (Secure SHell).
 \begin{verbatim}
-In[2] := OxStartInsecureSSH["ox_sm1", "water.s.kanazawa-u.ac.jp"]
+In[3] := Run["ssh -f water ox -insecure -ox ox_sm1 -host water"]
 \end{verbatim}
 
 Third, let us send an OX message to the OX server.
 We can send an OX message written in OX/CMO expressions.
 \begin{verbatim}
-In[3] := OxParse["(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
-In[4] := OxParse["(OX_COMMAND, (SM_popCMO))"]
+In[4] := OxParse["(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
+In[5] := OxParse["(OX_COMMAND, (SM_popCMO))"]
 \end{verbatim}
 If the expression is illegal, then nothing is sent.
 
@@ -57,13 +59,13 @@ OX stack machine returns the top of the stack to the {\tt math2ox}.
 Then, in order to receive the message, we need to call the {\tt OxGet[]}
 function.
 \begin{verbatim}
-In[5] := OxGet[]
+In[6] := OxGet[]
 \end{verbatim}
 
 If we do not use the {\tt OxParse} function and use the {\tt OxPopCMO[]}
 function, then we do not need to call the {\tt OxGet[]}.
 \begin{verbatim}
-In[4] := OxPopCMO[]
+In[5] := OxPopCMO[]
 \end{verbatim}
 
 Fourth, if we send a command expressed in the local language of the OX

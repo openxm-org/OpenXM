@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.3 1999/11/23 03:08:26 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.4 1999/11/29 12:05:15 ohara Exp $
 
 \documentclass{jarticle}
 \title{Mathematica の Open XM 化について
@@ -132,8 +132,8 @@ SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap(受け取るだけ
 で何もしない)である。
 
 \section{Mathematica を OX のクライアントに}
-OpenXM クライアントは Mathematica の外部プログラム(math2ox)の形で
-実現されている。
+OpenXM クライアントは Mathematica の外部プログラム({\tt math2ox})
+の形で実現されている。
 すなわち、Mathematica -- math2ox の間は MathLink プロトコルで、
 math2ox -- OpenXM サーバの間は OpenXM プロトコルで通信し、
 math2ox が適切に情報を変換しながらやりとりする。
@@ -145,8 +145,8 @@ In[1]:= Install["math2ox"]
 \end{verbatim}
 として、math2ox をロードしなければならない。
 Mathematica に新たに定義されるコマンドは、
-{\tt OxStart[s\_String], OxStartInsecure[s\_String],
-OxExecute[s\_String], OxParse[s\_String], OxReceive[],
+{\tt OxStart[s\_String], OxStartInsecure[s\_String, p\_Integer, q\_Integer],
+OxExecuteString[s\_String], OxParse[s\_String], OxGet[],
 OxPopCMO[], OxPopString[], OxClose[], OxReset[]}
 の9つである。
 
@@ -179,13 +179,13 @@ OX メッセージが送られてくる場合があるが、OxParse[] を用いた場合、
 このメッセージは自動的には受信しない(現在の仕様では)。したがって明示的に
 受信する必要がある。そのためには
 \begin{verbatim}
-In[5] := OxReceive[]
+In[5] := OxGet[]
 \end{verbatim}
 とするだけでよい。返ってくるオブジェクトは CMO に対応するものである。
 \begin{verbatim}
 In[6] := OxPopCMO[]
 \end{verbatim}
-を用いる場合にはもちろん {\tt OxReceive[]} を呼び出す必要はない。
+を用いる場合にはもちろん {\tt OxGet[]} を呼び出す必要はない。
 
 計算を実行するには {\tt OxExecute[]}
 (SM\_executeStringByLocalParser) か、適切な OX メッセージを送信すること。
