@@ -1,0 +1,346 @@
+% $OpenXM$
+\documentclass{jarticle}
+\usepackage[theorem,useeps,FVerb]{jssac}
+\title{Risa/Asir における Weyl Algebra 上のグレブナ基底計算およびその応用}
+\author{野呂 正行\affil{神戸大学}\mail{noro@math.kobe-u.ac.jp}}
+\art{論文}
+
+\begin{document}
+\maketitle
+
+\section{Weyl Algebra}
+
+\subsection{Leibnitz rule}
+
+体 $K$ 上の $n$ 次元 Weyl Algebra 
+$$D_n = K\langle x_1,\cdots,x_n,\partial_1,\cdots,\partial_n \rangle$$
+における積の計算は, よく知られているように Leibnitz rule で計算できる. 
+すなわち, $2n$ 変数多項式環 
+$K[x,\xi]=K[x_1,\cdots,x_n,\xi_1,\cdots,\xi_n]$ から
+$D_n$ への $K$ 線形写像 $\Psi$ を 
+$\Psi(x^\alpha \xi^\beta) = x^\alpha \partial^\beta$
+で定義するとき, 
+$$\Psi(f)\Psi(g) = \Psi(\sum_{k_1,\ldots,k_n \ge 0} {1 \over {k_1!\cdots k_n!}}
+{{\partial^k f} \over {\partial \xi^k}} {{\partial^k g} \over {\partial x^k}})$$
+($f,g\in K[x,\xi]$) となる. Weyl Algebra における計算の効率化のためには 
+積の効率化が重要であり, そのためには Leibnitz rule をどう使うかが鍵となる. 
+特に, グレブナ基底計算を考える場合, monomial $\times$ polynomial の高速
+化が必要である. 
+
+\subsection{Asir における実装}
+
+Asir における初期の実装では, これを
+
+$m$ : monomial, $f= \sum f_j$ ($f_j$ : monomial) に対し
+$mf = \sum mf_j$
+
+として計算していた. ここで monomial どうしの積は
+$$x^k D^l\cdot x^a D^b = (x_1^{k_1}(D_1^{l_1}x_1^{a_1})D_1^{b_1})\cdots
+(x_n^{k_n}(D_n^{l_n}x_n^{a_n})D_n^{b_n})$$
+として, 右辺の $D_i^{k_i}x_i^{a_i}$ を Leibnitz rule により
+$$D_i^{l_i}x_i^{a_i} = \sum_{j=0}^{Min(l_i,a_i)}j!{l_i\choose j}
+{a_i\choose j}x_i^{a_i-j}D_i^{l_i-j}$$
+とし, これらの積を, 通常の可換な多項式として展開する, という方法
+を採っていた. しかし, この monomial の積自体が多項式となるため, 
+これらを足し合わせる際にに項の比較およびリストのつなぎ換えが多数
+生じ, 特に $f$ の項数が多い場合に効率が悪いことが分かった. 
+
+\subsection{改良}
+
+Leibnitz rule に現れる微分を $f\in K[x,\xi]$に作用させても monomial
+の順序は変わらないことに注意すれば, 左からかける monomial $m$ を固定
+したとき, 前項の monomial どうしの積において
+
+\begin{enumerate}
+\item $D_i^{l_i}x_i^{a_i}$ を変形して得られる和を常に $\sum_{j=0}^{l_i}$ 
+とする. $l_i>Min(l_i,a_i)$ の場合, 係数は 0 としておく. 
+
+\item 適当な順序を定めて, 積を構成する monomial を整列し, 対応する位置の
+monomial どうしの和をまず作る. これは既に整列されている $f_j$ と同順でよい. 
+
+\item 最後にそれらを足し合わせる. 
+\end{enumerate}
+要するに, Leibnitz rule において, 微分に関する和を先に計算するというこ
+とだが, これで $m$ の $\partial$ に関する次数がよほど高くない限り効率
+化する. (これは, Kan/sm1 で既に行われていた. ) さらに, 次の改良が考え
+られる.
+
+\begin{itemize}
+\item 
+$(x_1^{k_1}(D_1^{l_1}x_1^{a_1})D_1^{b_1})\cdots
+(x_n^{k_n}(D_n^{l_n}x_n^{a_n})D_n^{b_n})$
+の 計算を incremental に行う. 
+
+これは ${1 \over {k_1!\cdots k_n!}}$ に現れる共通の部分積を重複して計
+算しないということであり, 次数が高い場合に有効かもしれない. 
+
+\item $l_i, a_i$ が 0 の場合の shortcut.
+
+一般に次数が 0 になる部分が多いでこれは重要である.
+
+\item exponent vector, monomial などを表す構造体のメモリ管理を自前で行う. 
+
+これは, Weyl に限らず, 有限体上の場合には一般に用いている. これも
+効率に大きく影響する. 
+\end{itemize}
+以上の改良を加えることで, 初期実装に比較して十分効率化することができた. 
+
+\subsection{Weyl Algebra における Buchberger アルゴリズム}
+
+多項式環上の Buchberger アルゴリズム実装においては, 種々の criteria お
+よびselection strategy が考案され実用化されているが, Weyl Algebra にお
+いてもBuchberger's criterion (S-polynomial を構成する多項式の頭項の 
+GCD が 1 の場合にはその S-polynomial は 0 に正規化される) 以外はそのまま
+使える. よって, あとは積を前節のものに換えれば, 多項式環用のドライバ, 
+サブルーチンが使え, 容易に Weyl Algebra 上の Buchberger アルゴリズムの
+実装が得られる. 
+
+\section{b-function の計算}
+\label{orig}
+
+\subsection{b-function}
+$D=D_n=K\langle x_1,\cdots,x_n,\partial_1,\cdots,\partial_n\rangle$
+($\partial_i = \partial/\partial x_i$), $f \in K[x_1,\cdots,x_n]$ とす
+るとき$P(s)f^{s+1}=b_f(s)f^s$ なる $P(s) \in D[s]$ が存在するような最小
+次数の $b_f(s) \in K[s]$ を $f$ の (global) $b$-function と呼ぶ 
+\footnote{本来は $\tilde b(s)$ と書くべきだが, 本稿では $b(s)$ と
+書くことにする.}.
+大阿久\cite{oaku-bfct} により $b$-function は以下のように計算できる. まず,
+$n+1$ 次元の Weyl Algebra $D_{n+1}=K\langle
+t,x_1,\cdots,x_n,\partial_t,\partial_1,\cdots,\partial_n\rangle$ を考
+える.
+
+\begin{Def}
+$D_{n+1}$ の元
+$P = \sum c_{\mu\nu\alpha\beta}t^\mu x^\alpha \partial_t^\nu \partial^\beta$
+に対し, $${\rm ord}_F(P) := \max\{\nu-\mu | ある \alpha, \beta に対し
+c_{\mu\nu\alpha\beta} \neq 0 \}$$
+$$\hat{\sigma}(P) := 
+\sum_{\nu-\mu={\rm ord}_F(P)} c_{\mu\nu\alpha\beta}t^\mu x^\alpha \partial_t^\nu \partial^\beta$$
+\end{Def}
+
+\begin{Def}
+${\rm ord}_F(P) = m$ なる $P \in D_{n+1}$ に対し, $\psi(P) \in D[s]$ を
+$$
+\psi(P)(t\partial_t) = 
+\left\{
+\parbox[c]{2in}{
+$\hat{\sigma}(t^mP)$ \quad\quad  $(m\ge 0)$\\
+$\hat{\sigma}(\partial_t^{-m}P)$ \quad $(m< 0)$
+}
+\right.
+$$
+で定義する. 
+\end{Def}
+
+\begin{Th} 
+$$I=Id(t-y_1f,\partial_1+y_1 (\partial f/\partial x_1) \partial_t, \cdots, 
+\partial_n+ y_1 (\partial f/\partial x_n) f_n \partial_t)$$
+に対し, $G_1$ を $I_1 = I \cap D$ のグレブナ基底とする. この時, 
+$$Id(\psi(G_1)) \cap K[s] = Id(b(-s-1))$$
+\end{Th}
+大阿久 \cite{oaku-bfct} では 
+$$(Id(\psi(G_1)) \cap K[x,s]) \cap K[s]$$なる二段階の elimination によ
+る計算を提案している. これは, local な b-functionの計算に 
+$(Id(\psi(G_1)) \cap K[x,s])$ が必要となるためと考えられるが, global
+b-function のみを求める場合には, 直接 $K[s]$ との交わりを求めて構わな
+い. よって, 任意の順序に関する $Id(\psi(G_1))$ のグレブナ基底が求まって
+いれば, $b(s)$ は可換多項式環の場合と同様に, 未定係数法より求める
+ことができる. 
+
+\subsection{\Q 上の Weyl Algebra における最小多項式の modular 計算}
+\label{mod1}
+
+$D$ を $\Q$ 上の Weyl Algebra, $J \subset D$, $P \in D$ かつ $P$ は整
+数係数とし, $J\cap \Q[P] \neq \{0\}$ とする. この時, $J\cap \Q[P] =
+Id(b(P))$ とすれば
+$b(s)$ は$D/J$ における $P$ の \Q 上の最小多項式となる. 
+ここで, $b(s) \in \Z[s]$ かつ \Z 上原始的と取れる. 
+
+$J$ の, 順序 $<$ に関するグレブナ基底で, 各元の頭係数が 1 であるものを $G$ 
+とし, $G$ の各元の の係数が $\Z_{(p)} = \{a/b | a\in \Z, b \notin
+p\Z\}$ に属するような $p$を選ぶ. $\phi_p$ を $\Z_{(p)}$ から $GF(p)$ 
+への標準的射影 (およびその $D$ への拡張) とする.
+
+\begin{Lem}
+$\phi_p(G)$ は $Id(\phi_p(G))$ の $<$ に関するグレブナ基底で, $\phi_p(b(P)) \in
+Id(\phi_p(G))$.
+\end{Lem}
+\begin{Proof}
+$G$ から作られる S-polynomial の $G$ による 0 への reduction が $Z_{(p)}$ 上
+で行える. よって, その $\phi_p$ による像がそのまま $\phi_p(G)$ による
+reduction になるから, $\phi_p(G)$ は $Id(\phi_p(G))$ のグレブナ基底と
+なる. 後半も同様である. 
+\end{Proof}
+
+仮定により $\phi_p(b(s))$ は 0でないから, $\phi_p(P)$
+の $\phi_p(D)/Id(\phi_p(G))$ における最小多項式 $b_p(s)$ が存在して
+$b_p(s) | \phi_p(b(s))$ が成り立つ. 特に $\deg(b_p(s)) \le \deg(b(s))$.
+
+\begin{Th}
+\label{invimg}
+$b_p(s)$ を $\phi_p(D)/Id(\phi_p(G))$ における $\phi_p(P)$ の最小多項
+式とするとき, $\deg(f(s)) = \deg(b_p(s))$, $f(P)
+\in Id(G)$なる $f \in \Z[s]$ が存在すれば, $f(s) = b(s)$.
+\end{Th}
+\begin{Proof}
+仮定より $b(s)|f(s)$. 一方で $\deg(f(s)) = \deg(b_p(s)) \le \deg(b(s))$ だから
+$b(s)=f(s)$.
+\end{Proof}
+
+\begin{Alg}
+\label{modbfct}
+\begin{tabbing}
+Input: \= 項順序 $<$, $<$ に関するグレブナ基底 $G \subset D$ (頭係数が 1),\\
+      \> $Id(G) \cap \Q[P] \neq \{0\}$ なる $P\in D$ (整数係数)\\
+Output: $Id(G) \cap \Q[P] = Id(b(P))$ なる $b(s) \in \Q[s]$\\
+do \= \{\\
+   \> $p \leftarrow G \in \Z_{(p)}$ なる未使用の素数\\
+   \> $b_p \leftarrow$ $\phi_p(P)$ の $\phi_p(D)/Id(\phi_p(G))$ における最小多項式\\
+   \> $d \leftarrow deg(b_p)$\\
+   \> $c \leftarrow NF(P^d,G)+\sum_{i=0}^{d-1}c_i NF(P^i,G)$ ($c_i$ は未定係数)\\
+   \> $C \leftarrow \{C_t(c_0,\cdots,c_{d-1})=0 | C_t$ は $c$ の各 {\rm monomial} の係数\}\\
+   \> if \= $C$ が解 $\{c_0=a_0,\cdots,c_{d-1}=a_{d-1}\}$ を持つ \{\\
+   \>    \> return $s^d+\sum_{i=0}^{d-1}a_is^i$\\
+   \> \}\\
+\}
+\end{tabbing}
+\end{Alg}
+法 $p$ での最小多項式は, $NF(\phi_p(P^k),Id(\phi_p(G)))$ を順に計算して
+線形関係を探すことで得られる. 
+$b(s) \in \Z[s]$ とした時の主係数を割らない $p$ に対しては定理 \ref{invimg}
+の $f$は存在するから, アルゴリズム \ref{modbfct} は停止する. また, $C$ が
+解を持つなら, 法 $p$ での一意性よりそれは一意的に決まる. 
+$C$ の求解は, 法 $p$ での一意性を利用して, Hensel 構成により効率よく求める
+ことができる. 詳細は \cite{RUR} を参照.
+
+\subsection{ホロノミックな ideal に対する $b$-function}
+\label{mod2}
+
+ideal $I \subset D_n$,$w \in \R^n \setminus \{0\}$ に対し,
+weight $(-w,w)$ に関する initial ideal $in_{(-w,w)}(I)$ が, Weyl Algebra
+におけるグレブナ基底計算により求まる (\cite{SST} Theorem 1.1.6).
+$I$ の characteristic variety の次元が $n$ である
+とき $I$ はホロノミックと呼ばれるが, このとき \cite{SST} Theorem 5.1.2
+により
+$$in_{(-w,w)}(I) \cap K[s] = Id(b(s))$$ ($s =
+w_1\theta_1+\cdots+w_n\theta_n, \theta_i = x_i\partial_i$) なる 0 でな
+い多項式 $b(s)$ が存在する. この $b(s)$ を, $I$ の (global) $b$-function
+と呼ぶ.
+特に, 多項式 $f$ に対し, 
+$$I_f=Id(t-f,\partial_1+(\partial f/\partial x_1) \partial_t, \cdots,
+\partial_n+ (\partial f/\partial x_n) \partial_t)$$とおく時, $I_f$ 
+はホロノミックで, $t$ を先頭の変数とする時 $I_f$ の 
+$w=(1,0,\cdots,0)$ に関する global $b$-function を $B(s)$とすれば,
+$b_f(s) = B(-s-1)$ が成り立つ. よって, $D/in_{(-w,w)}(I_f)$ における 
+$t\partial_t$ の最小多項式から $b_f(s)$ を求めることもできる.
+ここで, $in_{(-w,w)}(I_f)$ の計算には non-term order によるグレブナ基底
+計算が必要となるが, \cite{SST} で述べられている斉次化により
+ある term order のもとでのグレブナ基底計算に帰着できる. 
+
+\subsection{タイミングデータ}
+
+Section \ref{orig} で紹介した, 二段階の消去による方法 (方法 1)と,
+$Id(\psi(G_1))\cap K[s]$を Section \ref{mod1} で述べたように最小多項式
+として求める方法 (方法 2), および Section \ref{mod2} で述べた方法 (方
+法 3)による計算時間をさまざまな多項式に対して比較する. いずれも,
+$b$-function の計算はmodular 計算で最小多項式求める方法により行っ
+た. 例題は\cite{oaku-bfct}, \cite{yano-bfct} から採った. 後半の
+$x^a+xy^{b-1}+y^b$ に関しては, 本講究録中の大阿久, 高山両氏による稿を
+参照. 計算は, PentiumIII 1GHz 上で行った. 単位は秒でガーベッジコレクショ
+ン時間は除いてある. ``--'' は, 他の方法と比較して時間がかかり過ぎるた
+め中断したことを意味する.  表 1では計算が比較的容易なものが扱われてお
+り, 各方法で大差はないが, 表 2 では, 方法 1 では計算が困難なものが, 方
+法 2, 3 により計算できている. また, 次数が上がるにつれ, 方法 3が優位と
+なる. これは, 方法 2 に現れるグレブナ基底計算が, 方法 3 における 
+$in_{(-w,w)}(I_f)$ の計算に比べて困難となるためである. これは表 3 にお
+いてさらに顕著となり, 方法 2 では計算できない例も出
+て来る. 実際には, 方法 3 では, 最小多項式の計算が 
+dominant となる例もしばしば見られる.
+
+\begin{table}[hbtp]
+\begin{tabular}{c|c|c|c|c} \hline
+ & $\deg(b(s))$ & 方法 1  & 方法 2 & 方法 3 \\ \hline
+$x^5+x^3y^3+y^5$ & 7 &1.4 &2.4 &1.3 \\ \hline
+$x^3+y^3+z^3+x^2y^2z^2+xyz$ & 5 &3.5 &3.9 & 10\\ \hline
+$x^6+y^4+z^3$ &18 &0.4 &0.7 & 0.2 \\ \hline
+$x^4+y^4+z^3+xyz$ &8 &0.3 &0.6 & 0.3\\ \hline
+$(x^3-y^2z^2)^2$ &14 &0.7 &1.5 & 0.2\\ \hline
+$y(x^5-y^2z^2)$ &18 &0.8 &0.5 & 0.1 \\ \hline
+$y((y+1)x^3-y^2z^2)$ &11 &0.6 &1.1 & 0.7 \\ \hline
+\end{tabular}
+\caption{\cite{oaku-bfct} からの例題}
+\end{table}
+
+
+\begin{table}[hbtp]
+\begin{tabular}{c|c|c|c|c} \hline
+ & $\deg(b(s))$ & 方法 1  & 方法 2 & 方法 3 \\ \hline
+$x^4+xy^4+y^5$ &13 &135 &5.0 & 3.4 \\ \hline
+$x^4+xy^5+y^6$ &13 &15 &2.9 & 2.1 \\ \hline
+$x^4+xy^6+y^7$ &19 &719 &5.1 & 6.9 \\ \hline
+$x^4+xy^7+y^8$ &11 &19 &7.3 & 4.0 \\ \hline
+$x^4+xy^8+y^9$ &25 &-- &14 & 11 \\ \hline
+$x^4+xy^9+y^{10}$ &23 &-- &22 & 14\\ \hline
+$x^5+xy^5+y^6$ &21 &-- &158 & 21\\ \hline
+$x^5+xy^6+y^7$ &25 &-- &32 & 19\\ \hline
+\end{tabular}
+
+\caption{\cite{yano-bfct} からの例題}
+\end{table}
+
+\begin{table}[hbtp]
+\begin{tabular}{c|c|c|c} \hline
+ & $\deg(b(s))$ & 方法 2 & 方法 3 \\ \hline
+$x^6+y^{12}z^8$ & 50 & 71 & 1.8 \\ \hline
+$x_1x_2^3+x_3x_4^5+x_5x_6^7$ &106 & 404 & 14 \\ \hline
+$(x_1x_2)^3+(x_3x_4)^3+(x_5x_6)^3$ &23 & -- & 27 \\ \hline
+$(x_1x_2)^2+(x_3x_4)^2+(x_5x_6)^2+(x_7x_8)^2$ &16 & -- & 61 \\ \hline
+\end{tabular}
+
+\caption{\cite{yano-bfct} からの例題 (non-isolated singularities)}
+\end{table}
+
+\section{おわりに}
+
+Risa/Asir における, Weyl Algebra 関連機能の実装および, その応用として $b$-function
+の計算方法の改良について述べた. ここで述べた方法により, より広い範囲の多項式および
+イデアルに対して $b$-function が計算できるようになったことは確かである. しかし, 
+既に他の方法で結果が知られているものでも計算不可能な問題は存在し, また
+いわゆる多重 $b$-function に対しては, 最小多項式による方法は無力である. 
+これらに対処するためにはさらなる改良, あるいは新しい方法が必要であろう. 
+
+\begin{thebibliography}{99}
+
+\bibitem{RUR} Noro, M., Yokoyama, K.:
+A Modular Method to Compute the Rational Univariate
+Representation of Zero-Dimensional Ideals.
+J. Symb. Comp., {\bf 28},1 (1999) 243--263.
+
+\bibitem{oaku-bfct} Oaku, T.:
+Algorithm for the $b$-function and
+$D$-modules associated to a polynomial. J. Pure Appl. Algebra, {\bf
+117} \& {\bf 118} (1997) 495--518.
+
+\bibitem{deRham} Oaku, T., Takayama, N.:
+An algorithm for de Rham cohomology groups of the
+complement of an affine variety via $D$-module computation. 
+J. Pure Appl. Algebra, {\bf 139} (1999), 201--233.
+
+\bibitem{algDmod} Oaku, T., Takayama, N.:
+Algorithms for $D$-modules ---restriction, tensor product, 
+localization, and local cohomology groups.  
+J. Pure Appl.\ Algebra (in press).
+
+\bibitem{SST}
+Saito, M., Sturmfels, B., Takayama, N.:
+Gr\"obner Deformations of Hypergeometric Differential Equations.
+Algorithms and Computation in Mathematics {\bf 6}, Springer (2000).
+
+\bibitem{yano-bfct} Yano, T.:
+On the theory of $b$-functions.
+Publ. RIMS Kyoto Univ. {\bf 14} (1978), 111--202.
+\end{thebibliography}
+
+\end{document}
+
