@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.22 2003/05/14 07:09:47 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.23 2003/05/14 07:24:53 takayama Exp $
 # targets
 # all 
 #     compile
@@ -134,7 +134,7 @@ install-for-debug : all install-lib-for-debug
 	(cd ../../bin ; ln -s ../src/k097/k0 k0)
 	(cd ../../bin ; ln -s ../src/k097/d0 d0)
 	(cd ../../bin ; ln -s ../src/k097/ox_k0 ox_k0)
-	(cd ../../lib/sm1/bin ; ln -s ../../../src/k097/ox_k0 ox_k0)
+	(cd ../../lib/sm1/bin ; ln -s ../../../../src/k097/ox_k0 ox_k0)
 
 install-lib :
 	/bin/rm -rf $(OpenXM_lib)/k097
