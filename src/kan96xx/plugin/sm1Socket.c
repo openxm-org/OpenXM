@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.7 2002/10/21 00:37:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.8 2002/10/21 01:11:44 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -574,7 +574,7 @@ struct object KsocketReadHTTP(struct object socketObj) {
 		break;
 	  }
 	}
-	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d, contentLength\n",flagmax,contentLength);
+	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d, contentLength=%d\n",flagmax,contentLength);
 	if (strlen(s) == 0) {fprintf(stderr,"but I'm not receiving data. Expecting a bug.\n");
 	}else{
 	  /* for debugging. */
@@ -582,7 +582,7 @@ struct object KsocketReadHTTP(struct object socketObj) {
 		if ((sss[i] >= ' ') && (sss[i] < 0x7f)) {
 		  fprintf(stderr,"%c",sss[i]);
 		}else{
-          fprintf(stderr,"%3x",sss[i]);
+          fprintf(stderr,"(%3x)",sss[i]);
 		  if (sss[i] == 0xa) fprintf(stderr,"\n");
 		}
 

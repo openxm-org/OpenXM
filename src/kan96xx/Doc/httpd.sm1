@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.5 2001/09/20 05:57:40 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.6 2002/10/17 13:40:28 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -127,7 +127,11 @@ def
    %%(<img src="hoge.jpeg"> <img>) sendln %%test.  It does not work always?!
    %%(<a href="hoge.jpeg"> Pretty format </a>) sendln %%test. It works.
 
-   (<FORM NAME="myFORM">) sendln
+  [(getenv) (OXWEB_POST)] extension tag 0 eq {
+    (<FORM NAME="myFORM">) sendln  % use get
+  }{
+    (<FORM NAME="myFORM" METHOD="POST">) sendln
+  } ifelse
    (<INPUT TYPE=submit VALUE="submit">) sendln
    [(<textarea name=) httpd.textarea.name 
     ( rows=10 cols="80" wrap="soft"></textarea>)] cat sendln
@@ -322,25 +326,37 @@ def
 /removeGET {
   /arg1 set
   [/in-removeGET /s /s2 /i /j /i0
-   /tname
+   /tname  /nnn
   ] pushVariables
   [
      /s arg1 def
      /httpd.textarea.valid 1 def
      s 1 copy /s2 set
      s (array) dc /s set
+     /nnn httpd.textarea.name.aaa length 6 sub def
 
      /tname  [  ] def
      0 1 s length 1 sub {
        /i0 set
        s i0 get 61 eq {  %% 61 is = 
          i0 1 add /i0 set
+
+         [
+          << tname length 1 sub  >> -1
+          << tname length nnn sub >> {
+             /i set
+             tname i get
+          } for
+         ] reverse /tname set
+         (GET /?) (array) dc tname join /tname set
+
          tname message
          httpd.textarea.name.aaa message
          tname httpd.textarea.name.aaa eq {
            /httpd.textarea.valid 1 def
          } {
            /httpd.textarea.valid 0 def
+           httpd.textarea.name.aaa { (string) dc } map cat message
            (Warning: got an invalid name for the text field.) message
          } ifelse
          exit
