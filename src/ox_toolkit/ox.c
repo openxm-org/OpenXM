@@ -1,28 +1,12 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.6 1999/12/22 11:26:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.7 2000/01/17 19:55:55 ohara Exp $ */
 
-/*
-関数の名前付け規約(その2):
-(1) receive_cmo 関数はCMOタグとデータ本体を受信する. この関数は CMOタグの
-値が事前に分からないときに使用する. 返り値として、cmo へのポインタを返す.
-(2) receive_cmo_XXX 関数は, CMOタグを親の関数で受信してから呼び出される関
-数で、データ本体のみを受信し、cmo_XXX へのポインタを返す.  しかも、
-関数内部で new_cmo_XXX 関数を呼び出す.
-(3) send_cmo 関数はCMOタグとデータ本体を送信する.
-(4) send_cmo_XXX 関数はCMOタグを親の関数で送信してから呼び出される関数で、
-データ本体のみを送信する.
-
-----
-(5) receive_ox_XXX 関数は存在しない(作らない).  receive_cmo を利用する.
-(6) send_ox_XXX 関数は OX タグを含めて送信する.
-(7) ox_XXX 関数は一連の送受信を含むより抽象的な操作を表現する.
-ox_XXX 関数は、第一引数として、ox_file_t型の変数 sv をとる.
-
-(8) YYY_cmo 関数と YYY_cmo_XXX 関数の関係は次の通り:
-まず YYY_cmo 関数で cmo のタグを処理し、タグを除いた残りの部分を
-YYY_cmo_XXX 関数が処理する.  cmo の内部に cmo_ZZZ へのポインタが
-あるときには、その種類によらずに YYY_cmo 関数を呼び出す.
+/* 
+   This module includes functions for sending/receiveng CMO's.
+   Some commnets is written in Japanese by the EUC-JP coded 
+   character set.
 */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,7 +88,7 @@ int set_current_fd(int fd)
 	current_fd = fd;
 }
 
-/* hook 関数 */
+/* hook functions. (yet not implemented) */
 static hook_t hook_before_send_cmo = NULL;
 static hook_t hook_after_send_cmo  = NULL;
 
@@ -148,7 +132,6 @@ cmo_error2* make_error_object(int err_code, cmo *ob)
     return new_cmo_error2((cmo *)li);
 }
 
-/* add at Mon Sep  7 15:51:28 JST 1998 */
 #define DEFAULT_SERIAL_NUMBER 0x0000ffff
 #define receive_serial_number(x)   (receive_int32(x))
 
@@ -747,18 +730,21 @@ static int login_with_otp(int fd, char* passwd)
     return ret;
 }
 
-static int chdir_openxm_home_bin()
+/* The environment variable OpenXM_HOME must be defined. */
+static char *concat_openxm_home_bin(char *s)
 {
-    char *dir;
-    char *base = getenv("OpenXM_HOME");
+    char *path;
+    char *base;
 
-	if (base != NULL) {
-		dir = alloca(strlen(base)+5);
-		sprintf(dir, "%s/bin", base);
-	}else {
-		dir = "/usr/local/OpenXM/bin";
+    /* if s includes '/' then it is not concaticated. */
+	if (strchr(s, '/') != NULL) {
+		return s;
 	}
-	return chdir(dir);
+
+	base = getenv("OpenXM_HOME");
+	path = malloc(strlen(base)+5+strlen(s));
+	sprintf(path, "%s/bin/%s", base, s);
+	return path;
 }
 
 /* example: which("xterm", getenv("PATH")); */
@@ -793,7 +779,7 @@ static int mysocketAccept2(int fd, char *pass)
     return -1;
 }
 
-/* 0 でなければ、oxlog を介して ox を起動する。*/
+/* if it is not 0, then we use oxlog to execute ox. */
 static int flag_ox_start_with_oxlog = 1;
 
 /*
@@ -810,10 +796,16 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
     ox_file_t sv = NULL;
     char *pass;
     char ctl[128], dat[128];
-    short portControl = 0; /* short であることに注意 */
+    short portControl = 0;  /* short! */
     short portStream  = 0;
-    char *dir;
-	char *oxlog = "oxlog";
+	char *oxlog;
+
+	/* not overwrite */
+	setenv("OpenXM_HOME", "/usr/local/OpenXM", 0);
+
+	oxlog    = concat_openxm_home_bin("oxlog");
+	ctl_prog = concat_openxm_home_bin(ctl_prog);
+	dat_prog = concat_openxm_home_bin(dat_prog);
 
     sv = malloc(sizeof(__ox_file_struct));
     sv->control = mysocketListen(host, &portControl);
@@ -824,7 +816,6 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
     pass = create_otp();
 
     if (fork() == 0) {
-		chdir_openxm_home_bin();
 		if (flag_ox_start_with_oxlog) {
 			execl(oxlog, oxlog, "xterm", "-icon", "-e", ctl_prog, 
 				  "-reverse", "-ox", dat_prog,
@@ -844,7 +835,7 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
         close(sv->stream);
         return NULL;
     }
-    /* 10マイクロ秒, 時間稼ぎする. */
+    /* waiting 10 micro second. */
     usleep(10);
     if((sv->stream  = mysocketAccept2(sv->stream, pass)) == -1) {
         return NULL;
@@ -855,8 +846,16 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 /* ssh -f host oxlog xterm -e ox -ox ox_asir ... */
 int ssh_ox_server(char *host, char *ctl_prog, char *dat_prog, short portControl, short portStream)
 {
+	char *oxlog;
+	char *ssh;
+	oxlog    = concat_openxm_home_bin("oxlog");
+	ctl_prog = concat_openxm_home_bin(ctl_prog);
+	dat_prog = concat_openxm_home_bin(dat_prog);
+
+	ssh = which("ssh", getenv(PATH));
+
 	if (fork() == 0) {
-		execl("ssh", "ssh", "-f", host, "oxlog", "xterm", "-icon",
+		execl(ssh, ssh, "-f", host, oxlog, "xterm", "-icon",
 			  "-e", ctl_prog, "-insecure", "-ox", dat_prog, 
 			  "-data", portStream, "-control", portControl, "-host", host, NULL);
 		exit(1);
@@ -881,7 +880,7 @@ ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short port
     /* ox は insecure のとき byte order の決定が正しくできないようだ... */
     decideByteOrderClient(sv->control, 0);
 #endif
-    /* 10マイクロ秒, 時間稼ぎする. */
+    /* wainting 10 micro second. */
     usleep(10);
     sv->stream  = mysocketOpen(host, portStream);
     decideByteOrderClient(sv->stream, 0);
@@ -890,7 +889,7 @@ ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short port
 
 ox_file_t ox_start_insecure_nonreverse2(char* host, char *ctl_prog, char *dat_prog)
 {
-	short portControl= 1200; /* 自動生成させよう... */
+	short portControl= 1200;  /* 自動生成させよう... */
 	short portStream = 1300;
 
 	ssh_ox_server(host, ctl_prog, dat_prog, portControl, portStream);
@@ -914,7 +913,7 @@ void ox_reset(ox_file_t sv)
 #endif
 }
 
-/* 以下は bconv.c で必要とする関数群である. */
+/* the following functions are needed by bconv.c */
 
 /* cmolen 関数は cmo の(送信時の)バイト長を返す. */
 /* cmolen_XXX 関数は cmo_XXX の tag を除いたバイト長を返す. */
@@ -968,7 +967,7 @@ static int cmolen_cmo_distributed_polynomial(cmo_distributed_polynomial* c)
     return cmolen_cmo_list((cmo_list *)c) + cmolen_cmo(c->ringdef);
 }
 
-/* CMO がバイトエンコードされた場合のバイト列の長さを求める */
+/* calculating the length of the byte stream of given CMO.  */
 int cmolen_cmo(cmo* c)
 {
     int size = sizeof(int);
@@ -1079,7 +1078,7 @@ static int dump_cmo_distributed_polynomial(cmo_distributed_polynomial* m)
     }
 }
 
-/* タグを書き出してから、各関数を呼び出す */
+/* after its tag is sent, we invoke each functions. */
 int dump_cmo(cmo* m)
 {
     dump_integer(m->tag);
@@ -1178,7 +1177,7 @@ int send_ox_cmo(int fd, cmo* m)
     send_cmo(fd, m);
 }
 
-/* send_cmo_xxx 関数群 */
+/* send_cmo_* functions */
 static int send_cmo_null(int fd, cmo_null* c)
 {
     return 0;
@@ -1256,7 +1255,7 @@ static int send_cmo_error2(int fd, cmo_error2* c)
     return 0;
 }
 
-/* CMOを送る.  OX_tag は送信済*/
+/* sending a CMO.  (Remarks: OX_tag is already sent.) */
 int send_cmo(int fd, cmo* c)
 {
     int tag = c->tag;
@@ -1268,7 +1267,7 @@ int send_cmo(int fd, cmo* c)
     case CMO_NULL:
     case CMO_ZERO:
     case CMO_DMS_GENERIC:
-        send_cmo_null(fd, c);  /* 空の関数 */
+        send_cmo_null(fd, c);  /* empty function. */
         break;
     case CMO_INT32:
         send_cmo_int32(fd, (cmo_int32 *)c);
@@ -1472,7 +1471,7 @@ char *new_string_set_cmo(cmo *m)
         symp = lookup_by_tag(m->tag);
         fprintf(stderr, "I do not know how to convert %s to a string.\n", symp->key);
 #endif
-        /* まだ実装していません. */
+        /* yet not implemented. */
         return NULL;
     }
 }
