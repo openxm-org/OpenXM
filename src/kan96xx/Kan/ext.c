@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.22 2004/02/25 23:14:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.23 2004/02/28 13:39:42 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -372,6 +372,17 @@ struct object Kextension(struct object obj)
 #else
     putoa(rob,0,KpoString("unix"));
 #endif
+  }else if (strcmp(key,"traceClearStack")==0) {
+    traceClearStack();
+    rob = NullObject;
+  }else if (strcmp(key,"traceShowStack")==0) {
+    char *ssst;
+    ssst = traceShowStack();
+    if (ssst != NULL) {
+      rob = KpoString(ssst);
+    }else{
+      rob = NullObject;
+    }
   }
 #include "plugin.hh"
 #include "Kclass/tree.hh"

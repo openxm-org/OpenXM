@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.28 2004/08/31 04:45:42 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.29 2004/08/31 05:30:20 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2972,6 +2972,7 @@ errorKan1(str,message)
   if (ErrorMessageMode != 1) {
     fprintf(stderr,"\nERROR(kanExport[0|1].c): ");
     fprintf(stderr,str,message);
+    (void) traceShowStack(); traceClearStack();
   }
   /* fprintf(stderr,"Hello "); */
   if (GotoP) {

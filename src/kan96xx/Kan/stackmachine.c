@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.13 2003/11/20 09:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.14 2003/12/05 13:51:31 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -951,20 +951,27 @@ int executeToken(token)
       if (ob.tag >= 0) {
         /* there is a definition in the user dictionary */
         if (ob.tag == SexecutableArray) {
+          tracePushName(token.token);
           tokenArray = ob.lc.tokenArray;
           size = ob.rc.ival;
           for (i=0; i<size; i++) {
             status = executeToken(tokenArray[i]);
-            if (status != 0) return(status);
+            if (status != 0) {
+              return(status);
+			}
           }
+          tracePopName();
         }else {
           Kpush(ob);
         }
       } else if (primitive) { 
+        tracePushName(token.token);
         /* system operator */
         ob.tag = Soperator;
         ob.lc.ival = primitive;
-        return(executePrimitive(ob));
+        status = executePrimitive(ob);
+        if (status == 0) tracePopName(); 
+        return(status);
       } else {
         if (QuoteMode) {
           if (InSendmsg2) return(DO_QUOTE);
@@ -1054,6 +1061,7 @@ errorStackmachine(str)
       fprintf(stderr,str);
     }
     fprintf(stderr,"\n");
+    (void) traceShowStack(); traceClearStack();
   }
   if (GotoP) {
     fprintf(Fstack,"The interpreter was looking for the label <<%s>>. It is also aborted.\n",GotoLabel);
@@ -1495,4 +1503,58 @@ struct object KSdupErrors() {
 void cancelAlarm() {
   alarm((unsigned int) 0);
   signal(SIGALRM,SIG_DFL);
+}
+
+/* back-trace */
+#define TraceNameStackSize 3000
+char *TraceNameStack[TraceNameStackSize];
+int TraceNameStackp = 0;
+void tracePushName(char *s) {
+  char *t;
+  /*
+  t = (char *)sGC_malloc(strlen(s)+1);
+  if (t == NULL) {
+    fprintf(stderr,"No more memory.\n"); return;
+  }
+  strcpy(t,s);
+  */
+  t = s;
+  TraceNameStack[TraceNameStackp++] = t;
+  if (TraceNameStackp >= TraceNameStackSize) {
+    fprintf(stderr,"Warning: TraceNameStack overflow. Clearing the stack.\n");
+    TraceNameStackp = 0;
+  }
+}
+void traceClearStack(void) {
+  TraceNameStackp = 0;
+}
+char *tracePopName(void) {
+  if (TraceNameStackp <= 0) return (char *) NULL;
+  return TraceNameStack[--TraceNameStackp];
+}
+#define TRACE_MSG_SIZE 320
+char *traceShowStack(void) {
+  char *s;
+  char *t;
+  int p;
+  s = (char *) sGC_malloc(TRACE_MSG_SIZE);
+  if (s == NULL) {
+    fprintf(stderr,"No more memory.\n"); return NULL;
+  }
+  sprintf(s,"Trace: ");
+  p = strlen(s);
+  do {
+    t = tracePopName();
+    if (t == NULL) {
+      s[p] = ';'; s[p+1] = 0;
+      break;
+    }else if (strlen(t) + p -10 > TRACE_MSG_SIZE) {
+      strcpy(&(s[p])," ...");
+      break;
+    }
+    strcpy(&(s[p]),t); p += strlen(t);
+    strcpy(&(s[p]),"<-"); p += 2;
+  } while (t != (char *)NULL);
+  fprintf(stderr,"%s\n",s);
+  return s;
 }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.20 2004/08/31 04:45:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.21 2004/08/31 05:30:20 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -89,6 +89,12 @@ void fprintContext(FILE *fp,struct context *c);
 void KsetContext(struct object contextobj);
 void contextControl(actionOfContextControl ctl);
 struct object getSuperContext(struct object contextObj) ;
+
+/* stackmachine.c back-trace */
+void tracePushName(char *s);
+void traceClearStack(void);
+char *tracePopName(void);
+char *traceShowStack(void); 
 
 /* kclass.c */
 int initClassDataBase();

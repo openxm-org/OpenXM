@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.28 2004/05/13 04:38:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.29 2004/07/30 11:21:55 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -161,6 +161,8 @@ void Kusage2(fp,s)
     fppp(fp,"  [(outputObjectToFile) path obj] extension null \n");
     fppp(fp,"  [(ostype)] extension list \n");
     fppp(fp,"  [(regionMatches) string stringArray] extension list \n");
+    fppp(fp,"  [(traceClearStack)] extension null \n");
+    fppp(fp,"  [(traceShowStack)] extension str \n");
     /* fppp(fp,"  [(asir0) string] extension result-object \n"); */
     fppp(fp,"See also plugin-* in ??. \n");
   }else if (strcmp(s,"file")==0) {
