@@ -1,18 +1,21 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.20 2002/07/31 02:00:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.21 2002/08/09 07:51:28 fujimoto Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
+VERSION=1.2.2
 WGET_ARG=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
 WGET_PHC=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/phc.exe
+WGET_HEAD=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
 
 WINASIR=c:/home/asir
 
 usage:
 	@echo "Targets: all build-tgz clean clean-work link-for-debug"
-	@echo "         remove-experimental "
+	@echo "         remove-experimental gen-cd"
 
 clean:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc
+
 clean-work:
 	-rm -rf work
 clean0:
@@ -39,7 +42,8 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/src/asir-contrib src ; \
 	   find . -name 'CVS' -print | xargs rm -rf ; \
 	  ) ; \
-	   cp readme-ja.html OpenXM-win ; \
+	   cp Readme-CD/readme-ja.html OpenXM-win ; \
+	   cp Readme-CD/readme-en.html OpenXM-win ; \
 	   touch .copy-binary-done ; \
 	fi 
 
@@ -148,3 +152,9 @@ remove-experimental:
 	-rm -f OpenXM-win/bin-windows/*web*.bat
 
 
+gen-cd:
+	-(make all; make remove-experimental)
+	-mkdir OpenXM-unix
+	cp Readme-CD/readme-unix-en.html OpenXM-unix
+	(cd OpenXM-unix; wget ${WGET_HEAD} )
+	@echo "Copy OpenXM-unix and OpenXM-win to the CD."

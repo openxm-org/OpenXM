@@ -1,4 +1,7 @@
-$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.1 2002/03/16 01:26:07 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.2 2002/07/28 08:10:24 takayama Exp $
+
+
+THIS IS A NOTE FOR DEVELOPPERS.
 
 In order to build asir on cygwin, set the following path.
     export PATH=/usr/X11R6/bin:$PATH
