@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.12 2000/12/03 15:19:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.13 2000/12/03 21:46:52 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -18,15 +18,14 @@
 #include <ox_toolkit.h>
 #include "sm.h"
 
-static int send_ox_sync_ball();
-
 extern OXFILE *stack_oxfp;
-
-static int flag_sigusr1 = 0;
-static int flag_sigusr2 = 0;
 
 /* if in_critical equals to 1 then we do not permit an interrupt. */
 static int in_critical = 0; 
+static int already_send_ox_sync_ball = 0;
+static int flag_sigusr1 = 0;
+
+static int send_ox_sync_ball();
 
 static int set_critical()
 {
@@ -41,8 +40,6 @@ static int unset_critical()
 static int critical_p() {
     return in_critical;
 }
-
-static int already_send_ox_sync_ball = 0;
 
 /* SM_control_reset_connection */
 static int handler_reset1()
@@ -70,7 +67,7 @@ static int send_ox_sync_ball()
     send_ox_tag(stack_oxfp, OX_SYNC_BALL);
 }
 
-static int exchange_ox_syncball()
+static int exchange_ox_sync_ball()
 {
     int tag;
 
@@ -83,6 +80,32 @@ static int exchange_ox_syncball()
         }
     }
     fprintf(stderr, "received a sync_ball.\n");
+}
+
+int shutdown()
+{
+    oxf_close(stack_oxfp);
+    ml_exit();
+    exit(0);
+}
+
+#define VERSION 0x11121400
+#define ID_STRING  "2000/11/29"
+
+int main()
+{
+    OXFILE* sv;
+
+    ml_init();
+    mathcap_init(VERSION, ID_STRING, "ox_math", NULL, NULL);
+
+    signal(SIGUSR1, handler_reset1);
+    signal(SIGKILL, handler_kill);
+
+    sv = oxf_open(3);
+    oxf_determine_byteorder_server(sv);
+    sm(sv);
+    shutdown();
 }
 
 /* a part of stack machine. */
@@ -113,41 +136,6 @@ int sm_receive_ox()
     return 1;
 }
 
-int shutdown()
-{
-    oxf_close(stack_oxfp);
-    ml_exit();
-    exit(0);
-}
-
-#define VERSION 0x11121400
-#define ID_STRING  "2000/11/29"
-
-int oxf_error(OXFILE *oxfp)
-{
-    int e = oxfp->error;
-    if (e != 0) {
-        oxfp->error = 0;
-    }
-    return e;
-}
-
-int main()
-{
-    OXFILE* sv;
-
-    ml_init();
-    mathcap_init(VERSION, ID_STRING, "ox_math", NULL, NULL);
-
-    signal(SIGUSR1, handler_reset1);
-    signal(SIGKILL, handler_kill);
-
-    sv = oxf_open(3);
-    oxf_determine_byteorder_server(sv);
-    sm(sv);
-    shutdown();
-}
-
 int sm(OXFILE *oxfp)
 {
     stack_oxfp = oxfp;
@@ -158,7 +146,7 @@ int sm(OXFILE *oxfp)
               send_ox_sync_ball();
                 already_send_ox_sync_ball = 1;
             }
-            exchange_ox_syncball();
+            exchange_ox_sync_ball();
             flag_sigusr1 = 0;
             already_send_ox_sync_ball = 0;
         }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/sm.h,v 1.1 2000/12/03 21:45:18 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
@@ -12,16 +12,31 @@
 #define ERROR_ID_UNKNOWN_SM 10
 #define ERROR_ID_FAILURE_MLINK         11
 
-void  push(cmo *m);
+/* sm.c */
+void push_error(int errcode, cmo* pushback);
+int  sm_receive_ox();
+int  oxf_error(OXFILE *oxfp);
+
+void push(cmo *m);
 cmo  *pop();
-int  sm_popCMO(OXFILE *oxfp);
-int  sm_popString(OXFILE *oxfp);
-int  sm_pops(OXFILE *oxfp);
-int  sm_executeStringByLocalParser();
-int  sm_executeFunction(OXFILE *oxfp);
+void pops(int n);
+void sm_popCMO();
+void sm_popString();
+void sm_pops();
+void sm_executeStringByLocalParser();
+void sm_executeFunction();
+void sm_run(int code);
+int  shutdown();
 
-int  receive_sm_command(OXFILE *oxfp);
-int  execute_sm_command(OXFILE *oxfp, int code);
+/* sm_ext.c */
+int (*sm_search_f(int code))();
+void sm_popString();
+int local_execute(char *s);
+void sm_executeStringByLocalParser();
+void sm_executeFunction();
+void sm_mathcap();
+void sm_set_mathcap();
 
-int shutdown();
+#define  receive_sm_command(x)   receive_int32((x))
+
 #endif
