@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.10 2000/09/11 17:37:28 takayama Exp $
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.11 2003/08/23 08:42:35 takayama Exp $
 //&jp \section{ OX スタックマシン }
 //&eg \section{ OX stack machine }
 \label{sec:stackmachine}
@@ -825,6 +825,52 @@ Output:
 {\tt int32 OX\_DATA} &   {\it Serialized CMO} \\
 \hline 
 \end{tabular}
+
+
+\item 
+\begin{verbatim}
+SM_executeFunctionWithOptionalArgument
+\end{verbatim}
+/*&jp
+スタックより {\it n} 個のデータおよび一つの optional 引数 {\it opt} を pop して, 
+サーバのローカル関数{\it s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
+る.
+{\it opt} はキーワードと値のリストのリストである. キーワードは文字列型である.
+*/
+/*&eg
+It requests a server to pop {\it s} as a function name, 
+to pop an optional argument {\it opt},
+to pop {\it n} as the number of arguments and to execute
+a local function {\it s} with {\it n} arguments popped from
+the stack.
+If an error has occurred {\tt CMO\_ERROR2} is pushed to the stack.
+{\it opt} is a list of lists of a keyword and a value.
+Keywords are strings.
+*/
+
+//&jp Stack before the request: \\
+//&eg Stack before the request: \\
+\begin{tabular}{|c|c|c|c|c|c|}  \hline
+{\it objn} & $\cdots$ & {\it obj1} & {\it INT32 n} & {\it Obj opt} & {\it String s} \\
+\hline 
+\end{tabular}
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_executeFunctionWithOptionalArgument}  \\
+\hline
+\end{tabular}
+
+//&jp Stack after the request: 関数実行の結果.
+//&eg Stack after the request: The Output of the execution.
+
+Output: none.
+
+\noindent
+Example of {\it opt} : \verb@ (("p", 13),("vars",("x","y")))@
+
+\noindent
+[Added in 2004-3-8]
 
 \end{enumerate}
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.7 2000/11/30 10:19:53 ohara Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.8 2003/02/13 05:12:27 takayama Exp $ */
 /* smCommand.h */
 
 #define SM_popSerializedLocalObject 258
@@ -21,6 +21,7 @@
 #define SM_pushCMOtag 277
 #define SM_executeFunctionAndPopCMO 278
 #define SM_executeFunctionAndPopSerializedLocalObject 279
+#define SM_executeFunctionWithOptionalArgument 280
 
 
 #define SM_control_kill 1024
