@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.12 2003/03/23 20:17:34 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.13 2003/03/30 08:05:22 ohara Exp $
 
 OpenXM_HOME = ../..
 OXWEAVE     = ${OpenXM_HOME}/bin/oxweave
@@ -66,7 +66,7 @@ bnf-en.txt: bnf.oxweave
 
 install: install-document install-binary
 
-install-binary: libox.a ox_toolkit.h
+install-binary: libox.a ox_toolkit.h gmp_fake.h
 	-if [ ! -d ${OpenXM_HOME}/lib ]; then \
 		mkdir -p ${OpenXM_HOME}/lib ;\
 	fi
@@ -75,6 +75,7 @@ install-binary: libox.a ox_toolkit.h
 	fi
 	${INSTALL_DATA} libox.a ${OpenXM_HOME}/lib
 	${INSTALL_DATA} ox_toolkit.h ${OpenXM_HOME}/include
+	${INSTALL_DATA} gmp_fake.h   ${OpenXM_HOME}/include
 
 install-for-debug:
 	@echo "No binaries are installed."
