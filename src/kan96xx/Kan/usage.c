@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.36 2004/09/16 23:53:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.37 2004/09/17 02:42:57 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -149,6 +149,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(flush) ] extension null \n");
     fppp(fp,"  [(getpid) ] extension result-integer \n");
     fppp(fp,"  [(getenv) envName] extension valueOfEnvName \n");
+    fppp(fp,"  [(gethostname) ] extension myhostname \n");
     fppp(fp,"  [(stat) fname] extension v \n");
     fppp(fp,"       v = [null,[(error no), p]] or [0, [size ]]\n");
     fppp(fp,"  [(forkExec) argList fdList sigblock] extension pid\n");

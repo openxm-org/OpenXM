@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.43 2004/09/17 07:27:28 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.44 2004/09/17 11:05:56 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -348,11 +348,12 @@ ox.verbose { oxhelp } {  } ifelse
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /ox_launch_nox { 
-  /@@@.ox_launch_nox  1 def
+  Xm_noX /ox_launch_nox.save set
+  oxNoX
   ox_launch_aux
+  /Xm_noX ox_launch_nox.save def
 } def
 /ox_launch { 
-  /@@@.ox_launch_nox  0 def
   ox_launch_aux
 } def
 
@@ -372,13 +373,15 @@ ox.verbose { oxhelp } {  } ifelse
    } {
      /remoteServer aaa 1 get def
      /name aaa 2 get def
-     /myhost aaa 3 get def
    } ifelse
 
    /myssh [(which) (ssh)] oxshell def
    myssh tag 0 eq {
      (ssh is not found.) error
    } { } ifelse
+
+   [(gethostname)] extension /myhost set
+
    /pass ox_encrypt_104_genPass def
    /peer [(oxGetPort) myhost] extension def
    /data peer 1 get toString def
@@ -387,13 +390,14 @@ ox.verbose { oxhelp } {  } ifelse
    peer 0 get -1 eq {
      (Error in oxGetPort) error
    } { } ifelse
- [myssh ( -f ) machine ( -l ) name ( )
+ [myssh ( -X -f ) machine ( -l ) name ( )
     [
      (ox100start ) % it must be on a path of the remote host
      @@@.quiet { ( -quiet ) } {  } ifelse
      Xm_noX { ( -nox ) } { } ifelse
      ( -oxserver ) remoteServer ( -e )
      ( -reverse )
+     ( -host ) myhost
      ( -data ) data ( -control ) control   pass [1 2] get  
     ] cat 
  ] cat /comm set
@@ -401,7 +405,8 @@ ox.verbose { oxhelp } {  } ifelse
   comm execve 0 lt {
     (Fork exec failed) error
   } { } ifelse
- [(oxCreateClient2) peer 1 pass 0 get] extension /your-peer set
+% ipmask must be 1 to accept from a global address.
+ [(oxCreateClient2) peer 1 , pass 0 get] extension /your-peer set
  /LLL.end
  /arg1 your-peer def
  ] pop
@@ -410,22 +415,24 @@ ox.verbose { oxhelp } {  } ifelse
 } def
 
 [(ox_launch)
-[( [remote remote-ox-server remote-login-name myhostname] )
+[( [remote-machine remote-ox-server-name remote-login-name] )
  (  ox_launch  client )
  $or $
  $ [(localhost) ox-server-name] ox_launch client$
+ (This command launches ox server via ssh.)
+ (My hostname is set by the function gethostname.)
  (Example 1: )
- $ [(tau.math.kobe-u.ac.jp) $
- $  (bin/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
- $ ] ox_launch /@@@.oxmath set $
+ $ [(orange2-clone) $
+ $  (bin/ox_sm1) (taka)$
+ $ ] ox_launch /@@@.oxsm1 set $
 ]] putUsages
 
 [(ox_launch_nox)
-[( [remote remote-ox-server remote-login-name myhostname] )
+[( [remote-machine remote-ox-server-name remote-login-name] )
  (  ox_launch_nox  client )
  (Example 1: )
  $ [(tau.math.kobe-u.ac.jp) $
- $  (bin/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $  (bin/ox_math) (taka) $
  $ ] ox_launch_nox /@@@.oxmath set $
 ]] putUsages
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.30 2004/09/14 01:57:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.31 2004/09/16 23:53:44 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -218,6 +218,12 @@ struct object Kextension(struct object obj)
       putoa(obj3,0,KpoInteger((int) buf.st_size));
       putoa(rob,1,obj3); /* We have not yet read buf fully */
     }
+  }else if (strcmp(key,"gethostname")==0) {
+    abc = (char *)sGC_malloc(sizeof(char)*1024);
+    if (gethostname(abc,1023) < 0) {
+	  errorKan1("%s\n","hostname could not be obtained.");
+	}
+	rob = KpoString(abc);
   }else if (strcmp(key,"forkExec")==0) {
     if (size != 4) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension.");
     obj1 = getoa(obj,1);

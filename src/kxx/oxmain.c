@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.18 2004/09/17 07:27:28 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.19 2004/09/17 08:46:10 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -157,6 +157,11 @@ main(int argc, char *argv[]) {
     result = 0;
 
 
+    if ((fdControl < 0) ||  (fdStream < 0)) {
+      fprintf(stderr,"Waiting for 10 seconds to show an error.\n");
+      sleep(10);
+    }
+
     if (portControl != -1) {
       MyServerPid = fork();
       if (MyServerPid > 0 ) parentServerMain(fdControl,fdStream);
@@ -249,6 +254,12 @@ main(int argc, char *argv[]) {
     free(s);
   }
 
+  if ((fdControl < 0) ||  (fdStream < 0)) {
+    fprintf(stderr,"Waiting for 10 seconds to show an error.\n");
+    sleep(10);
+  }
+
+
   result = 0;
   if (portControl != -1) {
     MyServerPid = fork();
@@ -269,7 +280,7 @@ static void errorToStartEngine(void) {
      If you implement this, set Do_not_use_control_stream_to_tell_no_server to
      zero.
   */
-  sleep(2);
+  sleep(10);
   exit(-1);
 }
 
