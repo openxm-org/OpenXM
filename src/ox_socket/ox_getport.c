@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.4 2000/12/01 08:16:27 maekawa Exp $
+ *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.5 2000/12/01 08:34:37 maekawa Exp $
  */
 
 #include <sys/types.h>
@@ -49,7 +49,7 @@
 #define	_SS_PAD1SIZE	(_SS_ALIGNSIZE - sizeof(sa_family_t))
 #endif /* HAVE_SOCKADDR_LEN */
 #define	_SS_PAD2SIZE	(_SS_MAXSIZE - sizeof(sa_family_t) \
-			 + _SS_PAD1SIZE + _SS_ALIGNSIZE)
+			 - _SS_PAD1SIZE - _SS_ALIGNSIZE)
 
 struct sockaddr_storage {
 #ifdef HAVE_SOCKADDR_LEN
