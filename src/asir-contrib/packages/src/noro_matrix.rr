@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.8 2004/06/14 08:39:23 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.9 2004/06/14 09:02:01 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -95,7 +95,7 @@ def random_unimodular_mat(N)
 {
 	P = unit_mat(N);
 	PI = unit_mat(N);
-	for ( I = 0; I < N; I++ ) {
+	for ( I = 0; I < N+3; I++ ) {
 		K = random()%N;
 		while ( 1 ) {
 			L = random()%N;
@@ -189,7 +189,7 @@ def minipoly_mat(A)
 	B = L[0]; DN = L[1];
 	while ( 1 ) {
 		P = minipoly_cand_mat(B);
-		if ( minipoly_check_mat(B,P) ) break;
+		if ( P && minipoly_check_mat(B,P) ) break;
 	}
 	/* m_B(x)=P  => m_A(x)=m_B(DN*x) */
 	return ptozp(subst(P,x,DN*x));
@@ -867,7 +867,7 @@ def compute_jordan_block_basis(A,Alpha,E)
 				/* append the new element to Base */
 				Base = insert_to_base(Red,Base);
 				/* Kry = [N^I*v,N^(I-1)*v,...,v] */
-				for ( Kry = [car(T)[0]], K = 0; K < I; K++ )
+				for ( Kry = [ptozp_vect(car(T)[0])[0]], K = 0; K < I; K++ )
 					Kry = cons(map(simpalg,N*car(Kry)),Kry);
 				AllBase = append(reverse(Kry),AllBase);
 			}
