@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.1 2001/06/19 07:32:58 noro Exp $
+% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.2 2001/06/20 01:43:12 noro Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -9,36 +9,77 @@ not include communication between servers, one cannot expect
 the maximal parallel speedup. However it is possible to execute
 several types of distributed computation as follows.
 
-\subsubsection{Nesting of client-server communication}
+\subsubsection{Competitive distributed computation by various strategies}
 
-Under OpenXM-RFC 100 an OpenXM server can be a client of other servers.
-Figure \ref{tree} illustrates a tree-like structure of an OpenXM
-client-server communication.
-\begin{figure}
-\label{tree}
-\begin{center}
-\begin{picture}(200,70)(0,0)
-\put(70,70){\framebox(40,15){client}}
-\put(20,30){\framebox(40,15){server}}
-\put(70,30){\framebox(40,15){server}}
-\put(120,30){\framebox(40,15){server}}
-\put(0,0){\framebox(40,15){server}}
-\put(50,0){\framebox(40,15){server}}
-\put(150,0){\framebox(40,15){server}}
+SINGULAR \cite{Singular} implements {\it MP} interface for distributed
+computation and a competitive Gr\"obner basis computation is
+illustrated as an example of distributed computation.
+Such a distributed computation is also possible on OpenXM as follows:
 
-\put(90,70){\vector(-2,-1){43}}
-\put(90,70){\vector(0,-1){21}}
-\put(90,70){\vector(2,-1){43}}
-\put(40,30){\vector(-2,-1){22}}
-\put(40,30){\vector(2,-1){22}}
-\put(140,30){\vector(2,-1){22}}
-\end{picture}
-\caption{Tree-like structure of client-server communication}
-\end{center}
-\end{figure}
-Such a computational model is useful for parallel implementation of
-algorithms whose task can be divided into subtasks recursively.  
+The client creates two servers and it requests 
+Gr\"obner basis comutations by the Buchberger algorithm the $F_4$ algorithm
+to the servers for the same input.
+The client watches the streams by {\tt ox\_select()}
+and the result which is returned first is taken. Then the remaining
+server is reset.
 
+\begin{verbatim}
+extern Proc1,Proc2$
+Proc1 = -1$ Proc2 = -1$
+/* G:set of polys; V:list of variables */
+/* Mod: the Ground field GF(Mod); O:type of order */
+def dgr(G,V,Mod,O)
+{
+  /* invoke servers if necessary */
+  if ( Proc1 == -1 ) Proc1 = ox_launch();
+  if ( Proc2 == -1 ) Proc2 = ox_launch();
+  P = [Proc1,Proc2];
+  map(ox_reset,P); /* reset servers */
+  /* P0 executes Buchberger algorithm over GF(Mod) */
+  ox_cmo_rpc(P[0],"dp_gr_mod_main",G,V,0,Mod,O);
+  /* P1 executes F4 algorithm over GF(Mod) */
+  ox_cmo_rpc(P[1],"dp_f4_mod_main",G,V,Mod,O);
+  map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
+  F = ox_select(P); /* wait for data */
+  /* F[0] is a server's id which is ready */
+  R = ox_get(F[0]);
+  if ( F[0] == P[0] ) { Win = "Buchberger"; Lose = P[1]; }
+  else { Win = "F4"; Lose = P[0]; }
+  ox_reset(Lose); /* reset the loser */
+  return [Win,R];
+}
+\end{verbatim}
+
+%\subsubsection{Nesting of client-server communication}
+%
+%Under OpenXM-RFC 100 an OpenXM server can be a client of other servers.
+%Figure \ref{tree} illustrates a tree-like structure of an OpenXM
+%client-server communication.
+%\begin{figure}
+%\label{tree}
+%\begin{center}
+%\begin{picture}(200,70)(0,0)
+%\put(70,70){\framebox(40,15){client}}
+%\put(20,30){\framebox(40,15){server}}
+%\put(70,30){\framebox(40,15){server}}
+%\put(120,30){\framebox(40,15){server}}
+%\put(0,0){\framebox(40,15){server}}
+%\put(50,0){\framebox(40,15){server}}
+%\put(150,0){\framebox(40,15){server}}
+%
+%\put(90,70){\vector(-2,-1){43}}
+%\put(90,70){\vector(0,-1){21}}
+%\put(90,70){\vector(2,-1){43}}
+%\put(40,30){\vector(-2,-1){22}}
+%\put(40,30){\vector(2,-1){22}}
+%\put(140,30){\vector(2,-1){22}}
+%\end{picture}
+%\caption{Tree-like structure of client-server communication}
+%\end{center}
+%\end{figure}
+%Such a computational model is useful for parallel implementation of
+%algorithms whose task can be divided into subtasks recursively.  
+%
 %A typical example is {\it quicksort}, where an array to be sorted is
 %partitioned into two sub-arrays and the algorithm is applied to each
 %sub-array. In each level of recursion, two subtasks are generated
@@ -90,17 +131,17 @@ algorithms whose task can be divided into subtasks recursively.
 %  }
 %}
 %\end{verbatim}
-
-A typical example is a parallelization of the Cantor-Zassenhaus
-algorithm for polynomial factorization over finite fields.
-which is a recursive algorithm.
-At each level of the recursion, a given polynomial can be
-divided into two non-trivial factors with some probability by using 
-a randomly generated polynomial as a {\it separator}.
-We can apply the following simple parallelization:
-When two non-trivial factors are generated on a server,
-one is sent to another server and the other factor is factorized on the server
-itself. 
+%
+%A typical example is a parallelization of the Cantor-Zassenhaus
+%algorithm for polynomial factorization over finite fields.
+%which is a recursive algorithm.
+%At each level of the recursion, a given polynomial can be
+%divided into two non-trivial factors with some probability by using 
+%a randomly generated polynomial as a {\it separator}.
+%We can apply the following simple parallelization:
+%When two non-trivial factors are generated on a server,
+%one is sent to another server and the other factor is factorized on the server
+%itself. 
 %\begin{verbatim}
 %/* factorization of F */
 %/* E = degree of irreducible factors in F */
