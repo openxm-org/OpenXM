@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.11 2003/01/13 12:04:53 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.12 2003/01/15 05:08:10 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -33,7 +33,7 @@ static mlo *ml_return0();
 /* #define STATE_NONE */
 #define STATE_INTERRUPTED         1
 #define STATE_ABORTED             2
-#define STATE_RESERVE_INTERRUTION 4
+#define STATE_RESERVE_INTERRUPTION 4
 #define STATE_RESERVE_ABORTION    8
 #define STATE_IDLE                16
 
@@ -202,7 +202,7 @@ int ml_select()
 {
     while(!MLReady(stdlink)) {
 #if 0
-        if (state == STATE_RESERVE_INTERRUTION) {
+        if (state == STATE_RESERVE_INTERRUPTION) {
             ml_interrupt();
         }else if (state == STATE_RESERVE_ABORTION) {
             ml_abort();
