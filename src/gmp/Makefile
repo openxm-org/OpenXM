@@ -1,55 +1,48 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.6 2004/02/24 00:02:10 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.7 2004/03/25 01:52:18 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm -rf
-MASTER_CITES=ftp.math.kobe-u.ac.jp
-# MASTER_CITES2 = 
-#DISTFILES=gmp-3.1.tar.gz
-#GMP=gmp-3.1
+MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTFILES=gmp-4.1.2.tar.gz
 GMP=gmp-4.1.2
 
 all : build 
-install : post-install
 
 fetch:
-	@if test ! -f .fetch_done ; \
-	then \
-		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/${DISTFILES} ${DISTDIR}; \
+	@if [ ! -f .fetch_done ]; then \
+		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
 	fi 
 	@touch .fetch_done
 
-patch : fetch
-	@if test ! -f .patch_done ; \
-	then \
-	  $(RM) work ; \
-	  mkdir work ; \
-	  (cd work ; tar xzvf ../${DISTDIR}/${DISTFILES} ) ; \
+extract: fetch
+	-mkdir work
+	@if [ ! -f .extract_done ]; then \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
 	fi 
+	@touch .extract_done
+
+patch: extract
 	@touch .patch_done
-#	  (cd work; patch -c -p0 <../patch-aa ; patch -c -p0 <../patch-bb ; patch -c -p0 <../patch-cc) ; \
 
 build : patch
-	@if test ! -f .build_done ; \
-	then \
-		(cd work/${GMP} ; ./configure --prefix `pwd`/../../../../../OpenXM ; make ) ; \
+	@if test ! -f .build_done ; then \
+		(cd work/${GMP} ; ./configure --prefix `cd ../..; cd ${OpenXM_HOME}; pwd`; ${MAKE}) ; \
 	fi
 	@touch .build_done
 
-post-install: build
-	@if test ! -f .post-install_done ; \
-	then \
-		if [ ! -d ${PREFIX}/lib ]; then mkdir ${PREFIX}/lib ; fi ; \
-		if [ ! -d ${PREFIX}/bin ]; then mkdir ${PREFIX}/bin ; fi ; \
-		(cd work/${GMP} ; make install) ; \
-		(cd work/${GMP} ; cp gmp-impl.h config.h gmp-mparam.h ../../${OpenXM_HOME}/include) ; \
+install: build
+	-mkdir ${PREFIX}/bin ${PREFIX}/lib
+	@if [ ! -f .install_done ]; then \
+		(cd work/${GMP} ; ${MAKE} install) ; \
+		for i in config.h gmp-impl.h gmp-mparam.h; do \
+			cp work/${GMP}/$$i ${OpenXM_HOME}/include ; \
+		done ; \
 	fi
-	@touch .post-install_done
+	@touch .install_done
 
 clean:
-	$(RM)  .*_done
-	-(cd work/${GMP} ; make clean)
-distclean:
-	$(RM)  .*_done ./.use_ports
-	-(cd work/${GMP} ; make distclean)
+	-$(RM) ./.*_done
+	-$(RM) -rf work
+
+distclean: clean
