@@ -1,6 +1,7 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.7 2000/03/11 06:22:33 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.8 2000/03/11 07:10:03 takayama Exp $
 VERSION=1.1.2
 TAG=HEAD
+TAR_WORK=$(HOME)/tmp
 
 RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 
@@ -29,7 +30,8 @@ update-plist :
 
 make-tar-ball-for-openxm-port:
 	rm -rf work
+	mkdir work
 	(cd work ; $(RCVS) export -r${TAG} OpenXM/misc/packages/FreeBSD)
-	(cd work ; OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm)
+	(cd work ; mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm)
 	(cd work ; tar czf ${TAR_WORK}/openxm-port.tar.gz openxm)
 

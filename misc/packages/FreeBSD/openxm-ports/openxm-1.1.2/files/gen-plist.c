@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.5 2000/03/06 04:29:02 takayama Exp $ */
+/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.6 2000/03/10 15:09:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,6 +22,7 @@ main() {
 
   /* Initial data */
   system("grep \'$OpenXM\' ../pkg/PLIST");
+  system("grep \'$OpenXM\' ../../pkg/PLIST");
   printf("bin/asir\n");
   printf("bin/sm1\n");
   printf("bin/oxMathematica\n");
