@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.15 2004/07/14 05:48:44 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.16 2004/07/28 11:46:23 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -125,6 +125,8 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * quote_to_funargs::
 * funargs_to_quote::
 * remove_paren::
+* set_secure_mode::
+* set_secure_flag::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -1326,6 +1328,7 @@ quote(f(1-x))
 @ref{quotetolist}
 @end table
 
+
 @noindent
 ChangeLog
 @itemize @bullet
@@ -1340,6 +1343,88 @@ ChangeLog
 @item 
  2004-6-26 の計算代数セミナーにおいて, 中川さんが simplifier についていろいろ問題提起
 をした (計算代数セミナービデオ参照).
+@end itemize
+
+@node set_secure_flag,,, 実験的仕様の関数
+@subsection @code{set_secure_flag}, @code{set_secure_mode}
+@findex set_secure_flag
+@findex set_secure_mode
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item set_secure_flag(@var{fname},@var{m})
+@itemx set_secure_mode(@var{m})
+:: 関数の実行権限を設定する.  (web サービス用)
+@end table
+
+@table @var
+@item return
+整数
+@item fname
+文字列
+@item m
+整数
+@end table
+
+@itemize @bullet
+@item @code{set_secure_flag}, @code{set_secure_mode} は asir を web サーバ等で公開するために
+加えられた関数. sm1 の同様な関数 RestrictedMode で採用された方法を用いて
+いる. 
+つまり, @code{set_secure_flag} で公開する関数を指定する.
+@code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
+関数しか実行できない.
+v関数の実行途中では @code{secure_mode} が 0 となっているので,
+任意の関数を実行できる.
+またエラーの時等は, @code{secure_mode} は 1 に自動的に復帰する.
+ただし @code{def} は実行できない. 
+公開する関数では, その処理中は任意の関数が実行できるので,
+security に十分注意した実装をする必要がある.
+@item
+@code{set_secure_flag} は, @var{fname} の secure flag を @var{m} 
+にする.
+通常公開する命令は flag 1 に設定する.
+@item
+@var{set_secure_mode(1)} で @code{secure_mode} が 1 となり,
+公開された関数しか実行できなくなる.
+quit 等も実行できないので注意.
+@end itemize
+
+@example
+[1194] set_secure_flag("print_input_form_",1);
+1
+[1195] set_secure_flag("fctr",1);
+1
+[220] set_secure_mode(1);
+1
+[1197] fctr((x-1)^3);
+[[1,1],[x-1,3]]
+[1198] fctr(shell("ls"));
+evalf : shell not permitted
+return to toplevel
+@end example
+
+@table @t
+@item 参照
+@ref{timer}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-10-27 から 2004-11-22 にかけて開発された.
+@item cgiasir.sm1, cgi-asir.sh と組み合わせて cgi サービスを提供するために
+利用する.
+cgi-asir.sh では
+@code{CGI_ASIR_ALLOW} 環境変数で公開するコマンドを指定する.
+@item  
+  1.24--1.25      OpenXM_contrib2/asir2000/builtin/miscf.c 
+@item
+  1.36--1.38      OpenXM_contrib2/asir2000/parse/eval.c 
+@item
+  1.6--1.7       OpenXM_contrib2/asir2000/parse/function.c 
+@item
+  1.33      OpenXM_contrib2/asir2000/parse/parse.h
 @end itemize
 
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
