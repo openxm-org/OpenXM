@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/samplelog-sm1.txt,v 1.1 1999/11/05 03:00:34 takayama Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/samplelog-sm1.txt,v 1.2 1999/11/07 00:19:44 takayama Exp $
 samplelog-sm1.txt  :  sm1 から, ox_math を呼び出す例.
 例題は, Mathematica Book (S.Wolfram) A Tour of Mathematica より
 とった.
@@ -278,3 +278,102 @@ Your options are:
 	back out (or b) to back out of the MathLink call--the link may die.
 
 Interrupt during LinkConnect> quit
+
+
+---------------  sm1 の array をあらわす [ ] を { } に変えて
+---------------  sm1 の出力を ToExpression で読み込む例
+[tau]bash
+bash$ cd OpenXM
+bash$ cd src/ox_math
+bash$ math
+couldn't set locale correctly
+Mathematica 3.0 for Solaris
+Copyright 1988-97 Wolfram Research, Inc.
+ -- Motif graphics initialized -- 
+
+In[1]:= Install["math2ox"]
+couldn't set locale correctly
+
+Out[1]= LinkObject['./math2ox', 1, 1]
+
+In[2]:= OxStart["/home/taka/OpenXM/lib/sm1/bin/ox_sm1_forAsir"]
+Trying to connect port 53755, ip=ffbef02c
+connected.
+Trying to connect port 53756, ip=ffbef02c
+connected.
+Socket#18: login!.
+password = (otpasswd), 9 bytes.
+received = (otpasswd), 9 bytes.
+Socket#20: login!.
+password = (otpasswd), 9 bytes.
+received = (otpasswd), 9 bytes.
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 11/8, 1999. 
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+sm1>cohom.sm1 is the top of an experimental package to compute restrictions
+         省略
+Loading tower.sm1 in the standard context. You cannot use Schyrer 1. It is controlled from cohom.sm1
+  
+ SSkan/lib/callsm1.sm1, 1999/6/23.  
+---------------------------------------------------
+open (localhost)
+
+Out[2]= 0
+
+
+In[10]:= OxExecute[" [(LeftBracket) ({)] system_variable [(RightBracket) (})] system_variable "]
+           [ を { へ,  ] を  } へ.
+
+Out[10]= 0
+
+In[11]:= (CMO_STRING[4],[size=74],$ [(LeftBracket) ({)] system_variable [(RightBracket) (})] system_variable $),
+In[11]:= OxExecute[" [[(x dx + y dy + 1) (x dx x dx - y dy)] (x,y)
+            [[(dx) 1 (dy) 1]]] gb "]
+        グレブナ基底を Q<x,y,dx,dy> で.  weight は dx=1, dy=1.
+         
+Out[11]= 0
+
+In[12]:= (CMO_STRING[4],[size=81],$ [[(x dx + y dy + 1) (x dx x dx - y dy)] (x,y)             [[(dx) 1 (dy) 1]]] gb $),
+In[12]:= ans = OxPopString[]
+
+Out[12]= {{x*dx+y*dy+1 , -y^2*dy^2+x*dx-y*dy} , {x*dx+y*dy , -y^2*dy^2}}
+       グレブナ基底が文字列でかえる.  
+       最初が Groebner,  2 番目が weight dx=1, dy=1 での主要部.
+
+In[13]:= ans2 = ToExpression[ans]
+       Mathematica の多項式に変換.
+                                            2  2                     2  2
+Out[13]= {{1 + dx x + dy y, dx x - dy y - dy  y }, {dx x + dy y, -(dy  y )}}
+
+
+In[17]:= OxExecute[" [[(x dx x dx + y dy y dy -4) (x dx y dy -1)] (x,y)
+                     [[(dx) 1]]] gb "]
+
+           dx の weight を 1 にして, グレブナ基底を計算.
+       ******  dx の 消去法
+
+Out[17]= 0
+
+In[18]:= (CMO_STRING[4],[size=79],$ [[(x dx x dx + y dy y dy -4) (x dx y dy -1)] (x,y)             [[(dx) 1]]] gb $),
+In[18]:= ans = OxPopString[]
+
+Out[18]= {{x*dx+y^3*dy^3+3*y^2*dy^2-3*y*dy ,\
+ 
+>    -y^4*dy^4-6*y^3*dy^3-3*y^2*dy^2+3*y*dy-1} , {x*dx ,\
+ 
+>    -y^4*dy^4-6*y^3*dy^3-3*y^2*dy^2+3*y*dy-1}}
+
+   dx を含まない微分作用素があるのに注意!!  つまり dy についての
+   常微分方程式がでた.
+
+In[19]:= ToExpression[ans]
+
+                               2  2     3  3
+Out[19]= {{dx x - 3 dy y + 3 dy  y  + dy  y , 
+ 
+                        2  2       3  3     4  4
+>     -1 + 3 dy y - 3 dy  y  - 6 dy  y  - dy  y }, 
+ 
+                              2  2       3  3     4  4
+>    {dx x, -1 + 3 dy y - 3 dy  y  - 6 dy  y  - dy  y }}
+
+In[20]:= 
