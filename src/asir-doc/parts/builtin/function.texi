@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/function.texi,v 1.3 2002/09/03 01:50:59 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/function.texi,v 1.4 2003/04/20 08:01:28 noro Exp $
 \BJP
 @node 函数に対する操作,,, 組み込み函数
 @section 函数に対する操作
@@ -9,8 +9,61 @@
 \E
 
 @menu
+* call::
 * functor args funargs::
 @end menu
+
+\JP @node call,,, 函数に対する操作
+\EG @node call,,, Operations on functions
+@subsection @code{call}
+@findex call
+
+@table @t
+@item call(@var{name}, @var{args})
+\JP :: 函数 @var{name} を呼び出す.
+\EG :: Call the function @var{name} with @var{args}.
+@end table
+
+@table @var
+@item return
+\JP 函数 @code{name()} の返り値.
+\EG a return value of @code{name()}.
+@item name
+\JP 函数名を表す不定元(函数子とは限らない)
+\EG indefinite (function name)
+@item args
+\JP 引数のリスト
+\EG a list of arguments
+@end table
+
+@itemize @bullet
+\BJP
+@item
+函数子に関しては, @code{vtype()} を参照. 
+@item
+引数の個数があらかじめ分かっているときは @code{(*@var{name})()} の形式, 
+分からないときは @code{call()} を使うとよい.
+\E
+\BEG
+@item
+See @ref{vtype} for function form.
+\E
+@end itemize
+
+@example
+[0] A=igcd;
+igcd
+[1] call(A,[4,6]);
+2
+[2] (*A)(4,6);
+2
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{vtype}.
+@end table
 
 \JP @node functor args funargs,,, 函数に対する操作
 \EG @node functor args funargs,,, Operations on functions
