@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.8 2002/10/21 01:11:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.9 2002/10/21 01:59:16 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -574,7 +574,7 @@ struct object KsocketReadHTTP(struct object socketObj) {
 		break;
 	  }
 	}
-	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d, contentLength=%d\n",flagmax,contentLength);
+	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d, content-length=%d, received content-length=%d\n",flagmax,contentLength,getReceivedContentLength(sss));
 	if (strlen(s) == 0) {fprintf(stderr,"but I'm not receiving data. Expecting a bug.\n");
 	}else{
 	  /* for debugging. */
@@ -660,17 +660,22 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
 
 static int getContentLength(char *s) {
   int n;
-  int i;
+  int i,j;
   int len = -1;
-  char *s1 = "Content-length:";
-  char *s2 = "CONTENT-LENGTH:";
+  char *s1 = "content-length:";
+  char s0[256];
+  int m;
+  m = strlen(s1);
   n = strlen(s);
   for (i=0; i<n; i++) {
-	if ((strncmp(&(s[i]),s1,strlen(s1)) == 0) ||
-		(strncmp(&(s[i]),s2,strlen(s2)) == 0)) {
-	  sscanf(&(s[i+strlen(s1)]),"%d",&len);
-	  break;
-	}
+    strncpy(s0,&(s[i]),m+1);
+    for (j=0; j<m; j++) {
+      if ((s0[j] >= 'A') && (s0[j] <= 'Z')) s0[j] = s0[j]+0x20;
+    }
+    if (strncmp(s0,s1,strlen(s1)) == 0) {
+      sscanf(&(s[i+strlen(s1)]),"%d",&len);
+      break;
+    }
   }
   return len;
 }
