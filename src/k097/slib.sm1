@@ -716,3 +716,15 @@ FunctionValue } def
 
 this [ %% function args 
 [ (NewArray) [ (NewArray(n) returns an array of size n (integer n).)   ]   ] ] {HelpAdd} sendmsg2 
+/GetEnv {
+ db.DebugStack setstack $In function : GetEnv of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /s  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+  [(getenv) s] extension /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (GetEnv) [ (GetEnv(s) returns the value of the environmental variable s (string s).)   ]   ] ] {HelpAdd} sendmsg2 

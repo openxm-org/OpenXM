@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.14 2000/05/24 15:24:53 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.15 2000/09/17 03:12:10 takayama Exp $
 # targets
 # all 
 #     compile
@@ -94,6 +94,9 @@ slib:   d0
 	touch slib.sm1
 	/bin/rm slib.sm1
 	./d0 -DebugMode <slib.k >slib.sm1
+
+slib.sm1 : slib.k
+	make slib
 
 ####################################################################
 #############    kxx main parts.
