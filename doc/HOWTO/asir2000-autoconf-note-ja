@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/doc/HOWTO/asir2000-autoconf-note-ja,v 1.1 2003/03/06 08:31:17 ohara Exp $
+$OpenXM: OpenXM/doc/HOWTO/asir2000-autoconf-note-ja,v 1.2 2003/03/08 09:58:02 ohara Exp $
 
 autoconf 版 asir2000 を新しいオペレーティングシステムに対応させる方法
 
@@ -51,8 +51,8 @@ configure に修正を加えるには
 automake や autoconf を走らせて Makefile.in や configure を生成しなけ
 ればなりません。しかしながら automake をかけると、Makefile.am が変更さ
 れていなくても、必ず Makefile.in が上書きされてしまいます。なぜかとい
-うと、新規作成される Makefile.in は Makefile.am から $OpenXM$ タグ(た
-だのコメント)を継承しますから、元からあるものと $OpenXM$ タグだけ違っ
+うと、新規作成される Makefile.in は Makefile.am から OpenXM タグ(た
+だのコメント)を継承しますから、元からあるものと OpenXM タグだけ違っ
 てしまい、上書きの必要ありと automake が判断するからです。したがって 
 commit するときは、あらかじめ cvs diff で確認して本当に変更されたファ
 イルだけを commit してください。
