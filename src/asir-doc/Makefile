@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.9 2001/04/23 05:45:34 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.10 2001/05/20 09:19:16 takayama Exp $
 
 WHICH=../../misc/which.pl
 
@@ -6,7 +6,7 @@ all: all-eg all-jp
 install: install-eg install-jp 
 
 all-eg: texindex extract_man extract_func man-eg.dvi help-eg html-eg
-all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp
+all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp html-internal-ja
 
 install-eg: all-eg
 	-rm -r -f ../../lib/asir/help-eg
@@ -23,6 +23,7 @@ install-jp: all-jp
 	-rm -r -f ../../doc/asir2000/html-jp
 	-tar cf - html-jp | ( cd ../../doc/asir2000; tar xf - )
 	-cp man-jp.dvi ../../doc/asir2000
+	-tar cf - html-internal-ja | ( cd ../../doc/asir2000; tar xf - )
 
 install-man-pages:
 	-cp asir.1 ../../man/man1
@@ -53,6 +54,25 @@ PARTS=\
 	parts/intro.texi parts/risa.texi parts/type.texi
 
 SRCS=man.texi $(PARTS) $(BUILTINS)
+
+INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
+    int-parts/inter.texi int-parts/intro.texi int-parts/macro.texi\
+    int-parts/operation.texi int-parts/parser.texi int-parts/port.texi\
+    int-parts/datatype/algnum.texi\
+    int-parts/datatype/char2ff.texi\
+    int-parts/datatype/dpoly.texi\
+    int-parts/datatype/float.texi\
+    int-parts/datatype/largeff.texi\
+    int-parts/datatype/list.texi\
+    int-parts/datatype/mat.texi\
+    int-parts/datatype/number.texi\
+    int-parts/datatype/poly.texi\
+    int-parts/datatype/ratexp.texi\
+    int-parts/datatype/ratnum.texi\
+    int-parts/datatype/risaobj.texi\
+    int-parts/datatype/smallff.texi\
+    int-parts/datatype/string.texi\
+    int-parts/datatype/vect.texi
 
 tmpJP: $(SRCS)
 	-rm -rf tmpJP
@@ -89,6 +109,14 @@ tmpEGhtml: $(SRCS)
 	-for i in ${SRCS}; do \
 		./extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i;\
 	done
+
+tmp-internal-JAhtml: $(INTERNAL_SRCS)
+	-rm -rf tmp-internal-JAhtml
+	-mkdir tmp-internal-JAhtml tmp-internal-JAhtml/int-parts tmp-internal-JAhtml/int-parts/datatype
+	-cp jtexinfo.tex texinfo-js.tex tmp-internal-JAhtml
+	-for i in ${INTERNAL_SRCS}; do \
+	  ./extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmp-internal-JAhtml/$$i; \
+	done 
 
 man-jp.dvi: tmpJP
 	-rm man-jp.dvi
@@ -135,6 +163,11 @@ html-win-eg: html-eg gen_hh
 	-mkdir html-win-eg
 	(cd html-eg; for i in *; do nkf -s $$i > ../html-win-eg/$$i; done)
 	gen_hh html-win-eg html-win-eg
+
+html-internal-ja: tmp-internal-JAhtml
+	-rm -rf html-internal-ja
+	-mkdir html-internal-ja
+	-(cd html-internal-ja; texi2html ../tmp-internal-JAhtml/internal.texi)
 
 extract_func: extract_func.c
 	gcc -o extract_func extract_func.c
