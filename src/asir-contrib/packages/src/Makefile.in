@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.1 2004/07/02 07:48:47 takayama Exp $
 # targets
 # all : 
 #     do nothing
@@ -23,6 +23,9 @@ clean :
 install : clean-for-install
 	cp $(SOURCE)  $(OpenXM_lib)/asir-contrib		
 	cp $(SOURCE2)  $(OpenXM_lib)/asir-contrib		
+# Installation of libraries in directories. Todo: write a better method.
+	mkdir -p $(OpenXM_lib)/asir-contrib/todo_parametrize		
+	cp -r todo_parametrize/*.rr  $(OpenXM_lib)/asir-contrib/todo_parametrize		
 
 clean-for-install :
 	/bin/rm -rf $(OpenXM_lib)/asir-contrib
