@@ -1,0 +1,51 @@
+$OpenXM$
+
+Windows 上で cvs を使う方法
+
+0. ファイルの入手
+
+http://bmrc.berkeley.edu/people/chaffee/winntutil.html から
+
+ssh-1.2.14-win32bin.zip と cvs.exe を入手する.
+
+1. SSH のインストール
+
+1.1 適当なディレクトリ(例えば c:\Program Files\cvs) で展開する.
+    
+C:\Program Files\cvs> unzip ssh-1.2.14-win32bin.zip
+...
+
+1.2 cvs.exe も 1.2 と同じディレクトリにいれておく. 
+
+3 環境変数の登録, 追加
+
+CVS_RSH  -> ssh
+CVSROOT  -> kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
+HOME     -> 自分のホームディレクトリ
+Path     -> 1.2 のディレクトリ名を追加
+
+Windows2000 の場合, 
+
+マイコンピュータ右クリック->プロパティ->詳細->環境変数
+
+Windows9X 上の場合, autoexec.bat に書いて再起動
+
+4 .ssh の作成
+
+HOME に ディレクトリ .ssh を作り, その中に, UNIX 上で使っている
+identity, identity.pub, random_seed を置く. (フロッピーなどで運ぶ)
+ssh-1.2.14-win32bin.zip 中の ssh-keygen は壊れているので使わない. 
+
+5. 使用法
+
+コマンドプロンプトを kterm だと思って, 
+
+...> cvs checkout OpenXM
+
+とか 
+
+...> cvs update
+
+とすればよい. ssh-agent はないので, いちいち passphrase を聞かれる
+が我慢する.
+
