@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.9 2000/12/03 22:09:34 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.10 2003/01/11 12:39:11 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -35,10 +35,6 @@ ox_math: serv1.o sm.o sm_ext.o mlo.o
 
 math2ox: math2ox.o math2.o mlo.o sm.o sm_ext.o
 	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ math2ox.o math2.o sm.o sm_ext.o mlo.o ${LIBS}
-
-math2.c: math2.tm
-	-rm -f $@
-	${MPREP} $? > $@
 
 install: install-binary install-document
 
