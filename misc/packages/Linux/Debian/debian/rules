@@ -59,7 +59,7 @@ install: build
 	-for i in $(EXECUTABLES); do strip ${INST_PREFIX}/OpenXM/bin/$$i ; done
 	make -C ${INST_PREFIX}/OpenXM/rc repl
 	sed 's/setenv OpenXM_HOME $$HOME/setenv OpenXM_HOME \/usr\/local/' <${INST_PREFIX}/OpenXM/rc/cshrc >${INST_PREFIX}/OpenXM/rc/dot.cshrc
-	sed 's/^OpenXM_HOME=$$HOME/OpenXM_HOME=\/usr\local/' <${INST_PREFIX}/OpenXM/rc/bashrc >${INST_PREFIX}/OpenXM/rc/dot.bashrc
+	sed 's/^OpenXM_HOME=$$HOME/OpenXM_HOME=\/usr\/local/' <${INST_PREFIX}/OpenXM/rc/bashrc >${INST_PREFIX}/OpenXM/rc/dot.bashrc
 	mkdir ${INST_PREFIX}/bin
 	(cd ${INST_PREFIX}/OpenXM/rc ; make openxm ; ./gen-shell-scripts ; cp ${SHELL_SCRIPTS} ../../bin )
 	#dh_movefiles
