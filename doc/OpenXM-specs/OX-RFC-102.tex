@@ -74,7 +74,7 @@ $nserver$ $B$H(B, $B$=$N%0%k!<%WFb$G$N<1JL;R(B $rank$ ($0\le rank \le nserve
 Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_set\_rank} \\ \hline
-{\tt int32 $nproc$} & {\tt int32 $rank$} \\
+{\tt int32 $nserver$} & {\tt int32 $rank$} \\
 \hline
 \end{tabular}
 
@@ -144,21 +144,9 @@ RFC-102 $B2<$G$N%W%m%0%i%_%s%0%9%?%$%k$O(B, $B4pK\E*$K$O(B RFC-100,101 $B$H
 $B$9$J$o$A(B, master $B$G$"$k%W%m%0%i%`$,<B9T$5$l(B, $BI,MW$K1~$8$F(B server $B$K(B
 $B;E;v$,0MMj$5$l(B, master $B$O$=$N7k2L$r;H$C$F<+$i$N;E;v$rB39T$9$k(B.
 $B$3$l$K2C$($F(B, RFC-102 $B$G$O(B, server $B$I$&$7$,!V<+N'E*!W$K%G!<%?$NAw<u?.(B
-$B$r9T$&$3$H$,$G$-$k(B. $B$3$N$?$a(B, server $B$O(B, server $B4VDL?.O)$K(B CMO $B%G!<%?$r(B
-$BAw?.$9$k5!G=(B, $B$^$?!"(Bserver $B4VDL?.O)$+$i(B CMO $B%G!<%?$r<u?.$9$k5!G=$r(B
-$BDs6!$7$J$1$l$P$J$i$J$$(B. $BDL>o(B, server $B$O8GM-$N8@8l$r;}$D$N$G(B, $B$3$N5!G=(B
-$B$O(B server $B$NAH$_9~$_4X?t$H$7$F<B8=$9$k$N$,<+A3$G$"$m$&(B. $BNc$($P(B {\tt asir}
-({\tt ox\_asir}) $B$N>l9g(B
-
-\begin{enumerate}
-\item {\tt ox\_send\_cmo\_102($Rank$,$Data$)}
-
-$B<1JL;R(B $Rank$ $B$N(B server $B$K(B $Data$ $B$r(B CMO $B$H$7$FAw?.$9$k(B.
-\item {\tt ox\_recv\_cmo\_102($Rank$)}
-
-$B<1JL;R(B $Rank$ $B$N(B server $B$+$i(B CMO $B%G!<%?$r<u?.$9$k(B.
-\end{enumerate}
-$B$H$7$F<B8=$5$l$F$$$k(B.
+$B$r9T$&$3$H$,$G$-$k(B. $B$3$N$?$a(B, server $B$O(B, server $B4VDL?.O)$K(B OX $B%G!<%?$r(B
+$BAw?.$9$k5!G=(B, $B$^$?!"(Bserver $B4VDL?.O)$+$i(B OX $B%G!<%?$r<u?.$9$k5!G=$r(B
+$BDs6!$7$J$1$l$P$J$i$J$$(B. 
 
 \subsection{broadcast}
 
@@ -172,7 +160,6 @@ server $B4VDL?.$rMxMQ$9$k:G$bE57?E*$JNc$H$7$F(B broadcast $B$,$"$k(B.
 $B%m%0%i%`$K$*$$$F(B, $B0l@F$K$"$k4X?t$r8F$S=P$9$3$H$K$h$j(B, $B$=$N4X?t$+$iI|5"(B
 $B$7$?$H$-$K(B, broadcast $B$5$l$?%G!<%?$,JV$5$l$k(B, $B$H$$$&7A$r$H$k(B. $B$3$N>l9g(B
 $B$K%G!<%?$NH/?.85(B (root)$B$N<1JL;R$O3F(B server $B$,$"$i$+$8$aCN$C$F$*$/I,MW$,$"$k(B.
-
 
 \item master $B$+$i(B server $B%0%k!<%W$X$N(B broadcast
 
@@ -200,16 +187,68 @@ broadcast $B$r<B9T$5$;$k$?$a$N%3%^%s%I$rC`<!Aw?.$9$k(B.
 server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nserver\rceil$
 $B%9%F%C%W8e$K$OA4$F$N(B server $B$K%G!<%?$,9T$-EO$k(B.
 
-
-
-
 \section{$B%(%i!<=hM}(B}
 
 server $B$O(B RFC-100,101 $B$N(B $B%j%;%C%H%W%m%H%3%k$r<BAu$7$F$$$l$P(B,
 master $B$+$i(B server $B$r%j%;%C%H$7(B, master-server $B4V$NDL?.O)$r(B
-$B%j%;%C%H$9$k$3$H$O$G$-$k(B. 
+$B%j%;%C%H$9$k$3$H$O$G$-$k(B. $B$3$l$K2C$($F(B,$B%0%k!<%WFb$N(B server $B4VDL?.O)(B
+$B$r%j%;%C%H$9$kI,MW$,$"$k$,(B, $B$3$l$r<!$N<j=g$G9T$&(B.
 
+\begin{tabbing}
+\underline{$B<1JL;R$,(B $i$ ($0\le i \le nserver$) $B$N(B server $B$NF0:n(B}\\
+for \= $j = 0$ \= to $i-1$ do\\
+    \> do\\
+    \>         \>$data$ $\leftarrow$ $B<1JL;R(B $j$ $B$N(B server $B$+$i$N(B OX $B%G!<%?(B\\
+    \> while $data \neq$ {\tt OX\_SYNC\_BALL}\\
+end for\\
+for $j = i+1$ to $nserver-1$ do\\
+    \> {\tt OX\_SYNC\_BALL} $B$r(B $B<1JL;R(B $j$ $B$N(B server $B$KAw?.(B\\
+end for
+\end{tabbing}
+$B$3$N<j=g$K$h$j(B, $B%G%C%I%m%C%/$J$7$KA4$F$NDL?.O)$r6u$K$9$k$3$H$,$G$-$k(B.
 \section{API}
+
+$B0J2<(B, asir $B$K$*$1$k(B RFC-102 $B4XO"$N(B API $B$r>R2p$9$k(B.
+
+\subsection{server $B4VDL?.O)3+@_(B}
+
+\begin{itemize}
+\item {\tt ox\_set\_rank\_102($Nserver$,$Rank$)}
+
+$BDL?.Aj<j$N(B server $B$,B0$9$k%0%k!<%W$KB0$9$k(B server $B$NAm?t(B $Nserver$ $B$H(B,
+$B$=$N(B server $B$N%0%k!<%WFb<1JL;R(B $Rank$ $B$rDLCN$9$k(B.
+
+\item {\tt ox\_tcp\_accept\_102($Port$,$Rank$)}
+
+$B%]!<%HHV9f(B $Port$ $B$G(B, $B<1JL;R(B $Rank$ $B$N(B server $B$+$i$N(B connect $BBT$A>uBV(B
+$B$KF~$j(B, $BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, 
+$BAj<j@h%F!<%V%k$X$NEPO?$J$I$r9T$&(B.
+
+\item {\tt ox\_tcp\_connect\_102($Host$,$Port$,$Rank$)}
+
+$B%[%9%HL>(B $Host$ $B$N%]!<%HHV9f(B $Port$ $B$N(B TCP $B%]!<%H$KBP$7$F(B connect $B$9$k(B.
+$BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, $BAj<j$r(B $Rank$ $B$H$7$F(B
+$BAj<j@h%F!<%V%k$X$NEPO?$J$I$r9T$&(B.
+\end{itemize}
+
+\subsection{server $B4VDL?.(B}
+
+\begin{itemize}
+\item {\tt ox\_send\_cmo\_102($Rank$,$Data$)}
+
+$B<1JL;R(B $Rank$ $B$N(B server $B$K(B $Data$ $B$r(B OX $B%G!<%?$H$7$FAw?.$9$k(B.
+$B<1JL;R(B $Rank$ $B$N%5!<%P$OBP1~$9$k<u?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
+
+\item {\tt ox\_recv\_cmo\_102($Rank$)}
+
+$B<1JL;R(B $Rank$ $B$N(B server $B$+$i(B OX $B%G!<%?$r<u?.$9$k(B.
+$B<1JL;R(B $Rank$ $B$N%5!<%P$OBP1~$9$kAw?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
+
+\item {\tt ox\_reset\_102()}
+
+$BDL?.O)%j%;%C%HF0:n$r9T$&(B. $B$3$NA`:n$O(B, $B%0%k!<%WFbA4$F$N(B server 
+$B$G9T$o$l$J$1$l$P$J$i$J$$(B.
+\end{itemize}
 
 
 \end{document}
