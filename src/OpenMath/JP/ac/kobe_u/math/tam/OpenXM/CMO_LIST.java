@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.2 1999/11/07 21:14:39 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.3 1999/11/15 23:13:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -12,6 +12,10 @@ public class CMO_LIST extends CMO{
 
   public CMO_LIST(CMO[] src){
     ob = src;
+  }
+
+  public CMO[] getElement(){
+    return ob;
   }
 
   public int DISCRIMINATOR(){
