@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.16 2001/09/20 05:57:40 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.17 2001/09/20 06:42:37 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -34,9 +34,26 @@ def
   /httpd.port 1200 rrr add def
   httpd.port message 
 
-  [(sleep 3; netscape -geometry 800x500 http://localhost:)
-    httpd.port toString
-   ( &)] cat system
+  %%[(sleep 3; netscape -geometry 800x500 http://localhost:)
+  %%  httpd.port toString
+  %% ( &)] cat system
+   [(ostype)] extension 0 get
+   (windows) eq {
+     %% On windows.
+      [(forkExec)
+       [
+         (c:\windows\command\start)
+         (iexplore)   %% Starting internet explorer (TM).
+         [(http://localhost:) httpd.port toString] cat
+       ]
+       [  ]
+      3] extension
+   }{
+      %% On unix.
+      [(sleep 3 ; netscape http://localhost:) httpd.port toString ( & ) ] cat
+      system
+   } ifelse
+
    httpd ;
   ] pop
   popVariables
