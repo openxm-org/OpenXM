@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.1 2000/01/08 19:11:10 maekawa Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 BINDIR = ../../bin
@@ -15,7 +15,7 @@ install: all
 
 clean:
 	(cd $(ASIR) ; make clean)
-	@rm -f ./.make_done
+	@rm -f ./.make_done ./.configure_done
 
 distclean:
 	@cat BINARIES | xargs -t rm -rf
