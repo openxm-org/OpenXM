@@ -1,3 +1,4 @@
+## $OpenXM$ 
 CC = gcc
 INCLUDE = -I ../gmp -I ../Kan
 FLAG = -g
@@ -89,4 +90,5 @@ ox_kan.h : oxMessageTag.h oxFunctionId.h file2.h cmotag.h oxKan0.h mathcap.h
 
 
 clean :
-	/bin/rm -f *.a *.o *~ a.out cmotagToName
+	/bin/rm -f *.a *.o *~ a.out cmotagToName cmo.h cmotag.hh ox.h ox.hh ox_kan.h cmptag.htmp
+

@@ -20,10 +20,10 @@ configure : configure_symbolic_links
 	(cd gmp; ./configure )	
 
 configure_symbolic_links :
-	ln -fs ./gc-4.14 gc
-#	ln -fs ./gmp-2.0.2 gmp
-	ln -fs ./gmp-2.0.2-ssh-2 gmp
-	ln -fs ./Doc lib
+	ln -f -s ./gc-4.14 gc
+#	ln -f -s ./gmp-2.0.2 gmp
+	ln -f -s ./gmp-2.0.2-ssh-2 gmp
+	ln -f -s ./Doc lib
 
 ### generate a distribution.
 dist :
