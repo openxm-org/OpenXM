@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.13 2002/07/19 00:42:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.14 2002/08/08 08:56:33 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -548,6 +548,25 @@ def omatrix_inner_product(A,B) {
     P += A[I]*B[I];
   }
   return P;
+}
+
+def omatrix_submatrix(M,Ind) {
+  if (type(M) == 6 || type(M) == 5) {
+    Flag = 1;
+    M = matrix_matrix_to_list(M);
+  }
+  R = [];
+  N = length(Ind);
+  for (I=N-1; I>=0; I--) {
+    R = cons(M[Ind[I]],R);
+  }
+  /* Return the value in the same data type with the argument. */
+  if (Flag) {
+    if (R == []) return 0;
+    return matrix_list_to_matrix(R);
+  }else{
+    return R;
+  }
 }
 
 Loaded_Matrix = 1 $

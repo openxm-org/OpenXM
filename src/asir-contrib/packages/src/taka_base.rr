@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.15 2001/09/05 06:26:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.16 2001/12/13 09:27:45 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -221,6 +221,33 @@ def taka_base_choose(L,M) {
   V2 = taka_base_choose(cdr(L),M-1);
   V2 = map(append,V2,[car(L)]);
   return append(V1,V2);
+}
+
+def taka_base_subsets_of_size(K,S) {
+  if (length(S) < K) return [ ];
+  if (K < 0) error("base_subsets_of_size: the size must be non-negative.");
+  if (K == 0) return [ ];
+  if (K == 1) {
+    N = length(S);
+    R = [];
+    for (I=0; I<N; I++) {
+       R = cons([S[I]],R);
+    }
+    return R;
+  }else {
+    N = length(S);
+    R = []; P = [];
+    for (I=0; I<N; I++) {
+      P = cons(S[I],P);
+      T = taka_base_set_minus(S,P);
+      Ri = taka_base_subsets_of_size(K-1,T);
+      M = length(Ri);
+      for (J=0; J<M; J++) {
+        R = cons( cons(S[I],Ri[J]), R);
+      }
+    }
+    return R;
+  }
 }
 
 Taka_base_loaded = 1$

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.51 2002/09/22 12:41:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.52 2002/09/22 12:43:07 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -186,6 +186,16 @@ def base_subsetq(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_subsetq(A,B);
 }
+/*&usage begin: base_subsets_of_size(K,S)
+ It outputs all subsets of {S} of the size {K}.
+ BUG: it uses a slow algorithm. Do not input a large {S}.
+ example: base_subsets_of_size(2,[3,5,3,2]);
+end: */
+def base_subsets_of_size(K,S) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_subsets_of_size(K,S);
+}
+
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
 def number_base_form(X,B) { NOT_YET; }
@@ -469,6 +479,14 @@ def matrix_solve_linear(M,X,B) {
   OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_solve(M,X,B);
 }  /* LinearSolve[ ] */
+/*&usage begin: matrix_submatrix(M,Ind)
+ It returns the submatrix of {M} defined by the index set {Ind}.
+ example: matrix_submatrix([[0,1],[2,3],[4,5]],[1,2]);
+end: */
+def matrix_submatrix(M,Ind) {  
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_submatrix(M,Ind);
+}  
 
 /*&usage begin: matrix_kernel(M)
  It returns the basis of the kernel of the matrix {M}.
