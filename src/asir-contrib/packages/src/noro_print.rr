@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.5 2004/03/11 01:57:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.6 2004/03/11 07:41:27 noro Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -40,6 +40,10 @@ def taka_tex_form(S,Tb) {
      taka_tex_form_struct(S,Tb);
   }else if (type(S) == QUOTE) {
      taka_tex_form_quote(S,Tb);
+  }else if (type(S) == STRING) {
+     write_to_tb("\\verb`",Tb);
+     write_to_tb(rtostr(S),Tb);
+     write_to_tb("`",Tb);
   }else {
    /* How to translate sin to \sin?
       Use vtype, get args, ... to print sin. 
@@ -51,8 +55,13 @@ def taka_tex_form(S,Tb) {
 }
 
 def taka_tex_form_list(A,Tb) {
-  S = objtoquote(A);
-  quotetotex_tb(S,Tb);
+  N = length(A);
+  write_to_tb("[",Tb);
+  for (I=0; I<N; I++) { 
+    taka_tex_form(A[I],Tb);
+    if (I != N-1) write_to_tb(",",Tb);
+  }
+  write_to_tb("]",Tb);
 }
 
 def taka_tex_form_polynomial(S,Tb) {
