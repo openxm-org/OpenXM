@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.24 2004/03/04 05:13:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.25 2004/03/04 12:22:47 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -642,6 +642,10 @@ char **getServerEnv(char *oxServer) {
       }else{
         argv[i] = oxtermOpt; i++; argv[i] = NULL;
       }
+	  /* dirty hack for buggy international xterm cf. OpenXM FAQ */
+      argv[i] = "-xrm"; i++; argv[i] = NULL;
+      argv[i] = "XTerm*locale:false"; i++; argv[i] = NULL;
+
 	  if (((char *)getenv("OX_XTERM_SCROLL")) != NULL) {
 		argv[i] = "-sb"; i++; argv[i] = NULL;
 		argv[i] = "-sl"; i++; argv[i] = NULL;
