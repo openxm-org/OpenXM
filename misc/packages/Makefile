@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.12 2000/03/11 08:58:32 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.13 2000/03/11 10:32:27 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -29,7 +29,6 @@ usage :
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
-	cvs-OpenXM hoge
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
@@ -72,11 +71,13 @@ build-on-pear:
 	(PATH=/usr/local/${JDK}/bin:$(PATH) ; export PATH ; cd /usr/ports/math/openxm ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
 
 build-on-redhat:
+	(cd Generic/openxm ; make clean-for-make)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Linux/RPM ; make build-binary-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
 
 build-on-unkei:
+	(cd Generic/openxm ; make clean-for-make)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 
 copy-to-ftp-area:

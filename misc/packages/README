@@ -1,0 +1,98 @@
+$OpenXM$
+
+/*&japanese
+
+この Makefile は, 神戸において binary package を製作し,
+ftp cite へおくための自動化スクリプトがはいっています.
+ただし, 以下のような準備をおこなえば, committer はどこでも binary package
+の make をおこなえます. もっと portable な, binary package builder
+については, 次の version になるでしょう.
+
+基本的な考えかた:
+たとえば,
+Generic/openxm/Makefile
+は, cvs server (kerberos.math.sci.kobe-u.ac.cp)
+よりソースをとりだし work 以下に展開して, make をおこない
+TAR_WORK に tar file をおきます.
+
+設定の必要な Makefile のパラメータ:
+TAG           cvs server より ソースをとりだすときのタグ. 現在値 HEAD
+TAR_WORK      できあがった, tar file をおく場所.          現在値 $(HOME)/tmp
+VERSION       OpenXM の Version                           現在値 1.1.2
+TAR_WORK_EXPLICIT TAR_WORK を展開した値. build-on-pear (root) で利用
+FTP_AREA      ftp 用の tar をおく場所. mkdir しておくこと.
+
+
+用意しておくファイル, directory
+# OpenXM, OpenXM_contrib, OpenXM_contrib2 は $(HOME) 直下にあると仮定.
+# RPM は /var/tmp/openxm* に, binary を一時的に install します. 50 M 程度の
+領域が必要でしょう.  変更には, Linux/RPM/Makefile, *spec.in を編集.
+# mkdir ${TAR_WORK}
+# $(HOME)/.rpmrc
+  内容: TopDir: /home/taka/OpenXM/misc/packages/Linux/RPM/work
+   /home/taka は $(HOME) の値
+   rpm は この direcotry 以下で作業を行う.
+# サーチパスに実行可能なスクリプト cvs-OpenXM (cvs サーバにアクセスするため)
+  参考: (私の cvs-OpenXM)
+    orange% cat bin/cvs-OpenXM
+     #!/bin/sh
+     CVS_RSH=ssh-takayama
+     export CVS_RSH
+     cvs $*
+    orange% cat bin/ssh-takayama
+     #!/bin/sh
+     ssh1 -l takayama $*
+
+パス設定:
+set path=(/usr/local/jdk1.1.8/bin $path) として, java, javac をサーチ
+パスにいれること. [build-on-pear では自動]
+
+マシン構成:
+   すべてのマシンで home は NFS で共有されている.
+   orange : FreeBSD
+   pear :   FreeBSD  root になり, FreeBSD 用の package をつくる.
+            ${TAR_WORK} に root 権限で access できないといけない.
+   unkei :  Solaris
+
+手順:
+	@echo "1.  generate-tar-balls"   FreeBSD machine で実行すること.
+	@echo "  (update-plist)"
+	@echo "2.  build-on-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
+	@echo "3.  build-on-pear (do it as a super user)"
+	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
+	@echo "5.  build-on-unkei"
+	@echo "6.  copy-to-ftp-area "
+
+2 と 3 は並列でおこなえるが, NFS で共有されてる限り, 並列に build してはい
+けない.
+
+generate-tar-ball は複雑なので, 解説:
+  make clean     
+         すべての work を消去.
+ (cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} tar-ball)
+         ${TAR_WORK} へ openxm-${VERSION}.tar.gz をつくる.
+ (cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
+         ${TAR_WORK} へ openxm01-${VERSION}.tar.gz をつくる.
+         [ OpenXM_contrib2 をつくらない. ]
+ make update-plist
+         これが複雑.
+         FreeBSD/openxm-ports/openxm へ cd して,
+         ${TAR_WORK}/openxm-${VERSION}.tar.gz より,
+         FreeBSD port を用いて, make する. ( ここは時間がかかる) 
+         このとき, port の依存関係で, make に失敗する場合は,
+         とりあえず, port の Makefile を編集してから, [ あとで説明 ]
+         root になり make すると自動で必要な tool を install する.
+         make clean して, root での作業を消し,
+         それから, 一般ユーザに戻り generate-tar-balls に戻る.
+         なお /usr/local/share/texmf/texmf.cnf 等の編集が必要かも.
+         
+         make したら, work/openxm-${VERSION}/OpenXM/bin 等を
+         みながら, PLIST を更新して, 自動的に commit する.
+ (cd FreeBSD   ; make TAG=${TAG} VERSION=${VERSION} make-tar-ball-for-openxm-port)
+         CVS server より PLIST を含む FreeBSD port をとりだし,
+         tar 化.  build-on-pear で使う.
+ (cd Linux/RPM ; make make-directory)
+ (cd Linux/RPM ; make link-for-real-openxm)
+         これは, rpm 用の初期か. すぐおわる.
+
+*/
