@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 /* resol.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -11,6 +11,8 @@ static void shellForMonomialSyz(struct monomialSyz **p,int size);
 static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i);
 static struct arrayOfMonomialSyz putMonomialSyz(struct arrayOfMonomialSyz a,
 						struct monomialSyz *s);
+
+static int RemoveRedundantInSchreyerSkelton = 1;
 
 struct monomialSyz *newMonomialSyz(void)
 {
@@ -50,6 +52,8 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
   struct monomialSyz *s;
   struct spValue sv;
   struct arrayOfMonomialSyz ans;
+  extern int RemoveRedundantInSchreyerSkelton;
+  /* It was 1. */
 
   m = g.n;
   if (m > s_ij_size) {
@@ -70,15 +74,17 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
     }
   }
   shellForMonomialSyz(s_ij,m-i-1);
-  for (j=0; j<m-i-1;j++) {
+  if (RemoveRedundantInSchreyerSkelton) {
+   for (j=0; j<m-i-1;j++) {
     s = s_ij[j];
     if (s->deleted != 1) {
       for (k=j+1; k<m-i-1; k++) {
-	if (s_ij[k]->deleted != 1) {
-	  if ((*isReducible)(s_ij[k]->a,s->a)) s_ij[k]->deleted = 1;
-	}
+        if (s_ij[k]->deleted != 1) {
+          if ((*isReducible)(s_ij[k]->a,s->a)) s_ij[k]->deleted = 1;
+        }
       }
     }
+   }
   }
   ans.size = m-i-1;
   ans.limit = s_ij_size;
@@ -113,7 +119,7 @@ struct arrayOfMonomialSyz schreyerSkelton(struct arrayOfPOLY g)
     ipart = schreyerSkelton0(g,i);
     for (k=0; k< ipart.size; k++) {
       if ((ipart.p)[k]->deleted != 1) {
-	ans = putMonomialSyz(ans,(ipart.p)[k]);
+        ans = putMonomialSyz(ans,(ipart.p)[k]);
       }
     }
   }
