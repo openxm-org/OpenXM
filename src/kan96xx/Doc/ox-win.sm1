@@ -1,4 +1,10 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.14 2002/01/13 06:55:30 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.15 2002/07/29 05:02:58 takayama Exp $
+
+(ox-win.start.noiconic) boundp {
+  /ox-win.start.iconic 0 def
+}{
+  /ox-win.start.iconic 1 def
+} ifelse
 
 /ox-win.sm1.loaded 1 def
 (ox.sm1.loaded) boundp {
@@ -32,9 +38,10 @@ OpenXM_HOME_WIN tag 0 eq {
 /ox.win.set.start {
   [(stat) (c:\windows\system32.cmd.exe)] extension 0 get
   null eq {
-    /ox.win.start [     (c:\windows\system32\cmd.exe) (/c) (start) ] def
+    /ox.win.start [(c:\windows\system32\cmd.exe) (/c) (start) 
+                   ox-win.start.iconic { (/min) } { } ifelse ] def
   }{
-    /ox.win.start [ (start) ] def
+    /ox.win.start [ (start) ox-win.start.iconic { (/min) } { } ifelse ] def
   } ifelse
 } def
 ox.win.set.start
@@ -53,7 +60,7 @@ ox.ostype (cygwin) eq {
  /oxpath.ox (bin/ox.exe) def
  /oxpath.oxsm1 (bin/ox_sm1.exe) def
  /oxpath.oxlog (bin/oxlog.exe) def
- /oxpath.xterm (cmd /c start ) def
+ /oxpath.xterm ox.win.start { ( ) } map cat def
  /oxpath.null  (  ) def
  /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
  /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
