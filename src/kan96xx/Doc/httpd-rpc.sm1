@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.7 2002/10/28 23:55:57 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.8 2002/10/29 00:19:56 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -237,7 +237,8 @@ oxNoX
   [(You can also retrieve the result by GET /?) httpd.textarea.name (=) ( encoded_codes  HTTP/1.0)] cat 
   sendln
    (<br>) sendln
-   [$<a href="http://localhost:$ httpd.port toString
+   [$<a href="http://$ [(sm1.socket) (gethostname) []] extension 
+    $:$ httpd.port toString
     $/?msg=httpdAsirMeta+quit"> Shutdown the oxserver (and restart it). </a>$
    ] cat sendln
    (<h3 align="right"><font color="gree">Powered by OpenXM and httpd on Kan/sm1 </font> </h3>_) sendln
