@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.17 2001/07/16 07:33:48 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.18 2002/07/28 05:20:43 takayama Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -93,8 +93,15 @@ Trying to connect to the server... Done.
 (1)*<<1,0>>+(2)*<<0,1>>
 @end example
 */
-
 def om_start() {
+  extern Xm_unix;
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
+    return om_start_windows(0);
+  else
+    return om_start_unix();
+}
+
+def om_start_unix() {
   extern Om_proc;
  /* ctrl("ox_check",0);   for buggy mathcap of OMproxy */
   CPort = generate_port();
@@ -120,6 +127,9 @@ def om_start() {
   return(A);
 }
 
+def om_start_windows(S) {
+  error("The component om has not yet been implemented on Windows(native).");
+}
 /*&eg-texi
 @menu
 * om_xml::

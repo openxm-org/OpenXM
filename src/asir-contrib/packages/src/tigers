@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tigers,v 1.1.1.1 1999/11/27 11:25:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tigers,v 1.2 2000/02/27 05:24:27 takayama Exp $ */
 
 Tigers_proc = -1$
 
@@ -19,7 +19,15 @@ def tigers_find_proc() {
 }
 /*  tigers */
 def tigers_start() {
+  extern Xm_unix;
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
+    return tigers_start_windows(0);
+  else
+    return tigers_start_unix();
+}
+def tigers_start_unix() {
   extern Xm_noX;
+  extern Sm1_lib;
   if (Xm_noX) {
     P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_tigers"); 
   }else{
@@ -27,6 +35,10 @@ def tigers_start() {
   }
   ox_check_errors(P);
   return(P);
+}
+
+def tigers_start_windows(S) {
+  error("The component tigers has not been implemented on Windows(native).");
 }
 
 def tigers(A) {

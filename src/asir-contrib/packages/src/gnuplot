@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.7 2000/02/06 07:42:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.8 2000/02/07 04:46:25 takayama Exp $ */
 
 Gnuplot_proc = -1$
 #define GNUPLOT_FIND_PROC(P)  P = getopt(proc);\
@@ -184,9 +184,17 @@ P = gnuplot_start();
 #define PROCESS_MAX  20
 Gnuplot_pid = newvect(20) $
 def gnuplot_start() {
+  extern Xm_unix;
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
+    return gnuplot_start_windows(0);
+  else
+    return gnuplot_start_unix();
+}
+def gnuplot_start_unix() {
   extern Gnuplot_pid;
   extern Xm_noX;
   extern Gnuplot_proc;
+  extern Sm1_lib;
   if (Xm_noX) {
     P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_gnuplot");
   }else{
@@ -210,6 +218,10 @@ def gnuplot_start() {
   ox_check_errors(P);
   Gnuplot_proc = P;
   return(P);
+}
+
+def gnuplot_start_windows(S) {
+  error("The componet gnuplot has not yet been implemented on Windows(native).");
 }
 
 def gnuplot_isAlive(P) {
