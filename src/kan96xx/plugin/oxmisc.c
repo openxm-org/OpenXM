@@ -1,3 +1,4 @@
+/*  $OpenXM$ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -913,13 +914,13 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
   /* Authentification by password. */
   m = strlen(pass);
   s = (char *)mymalloc(sizeof(char)*(m+1));
-  read(fdControl,s,m); s[m] = '\0';
+  read(fdControl,s,m+1); s[m] = '\0';
   if (strcmp(s,pass) != 0) {
     fprintf(stderr,"oxCreateClient2(): password authentification failed for control channel.\n");
     close(fdControl);
     return(NULL);
   }
-  read(fdStream,s,m); s[m] = '\0';
+  read(fdStream,s,m+1); s[m] = '\0';
   if (strcmp(s,pass) != 0) {
     fprintf(stderr,"oxCreateClient2(): password authentification failed for data channel.\n");
     close(fdStream);

@@ -1,3 +1,4 @@
+/*  $OpenXM$ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -251,8 +252,8 @@ socketConnectWithPass(char *servername,int port,char *pass)
   int m;
   fd = socketConnect(servername,port);
   if (fd >= 0) {
-    m = write(fd,pass,strlen(pass));
-    if (m != strlen(pass)) {
+    m = write(fd,pass,strlen(pass)+1);
+    if (m != strlen(pass)+1) {
       fprintf(TcpioError,"Fail to send password to fd=%d.\n",fd);
       return(-1);
     }
