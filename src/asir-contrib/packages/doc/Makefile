@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.56 2004/03/05 16:58:57 ohara Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.57 2004/03/05 19:05:11 ohara Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -206,12 +206,15 @@ gen-html-ja: gen-help-ja
 	-cp tmp-ja/cman-ja.texi html-ja/cman-ja.texi
 	-(cd html-ja; ${TEXI2HTML} cman-ja.texi)
 
-help: gen-help-en gen-help-ja
+install-help: 
+	-make install-help-en
+	-make install-help-ja
 
-install-help: help
+install-help-ja: gen-help-ja
 	$(RM) -rf $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	-cp -f help-ja/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+install-help-en: gen-help-en
 	$(RM) -rf $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	-cp -f help-en/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
