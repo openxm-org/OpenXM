@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.37 2004/09/10 13:20:23 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.38 2004/09/11 01:00:42 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4252,6 +4252,17 @@ $ [ff ff] fromVectors :: $
 [(list listToArray a)
 ]] putUsages
 
+/makeInfix {
+  [(or_attr) 4   4 -1 roll ] extension
+} def
+[(makeInfix)
+[(literal makeInfix)
+ (Change literal to an infix operator.)
+ (Example: /+ { add } def )
+ (  /+ makeInfix)
+ (  /s 0 def 1 1 100 { /i set s + i /s set } for s message)
+ (  [ 1 2 3 ] { /i set i + 2 } map ::)
+]] putUsages
 
 /usages {
   /arg1 set
