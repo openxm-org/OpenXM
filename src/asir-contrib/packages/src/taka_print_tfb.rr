@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.4 2002/11/16 08:39:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.5 2002/11/20 01:25:44 takayama Exp $ */
 
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
@@ -229,7 +229,7 @@ def taka_tfb_form_quote_list_u_op(S) {
     A += ") ";
   }else
   if (S[0] == "-") {
-    A += "arith1.uninaryminus(";
+    A += "arith1.unary_minus(";
     A += taka_tfb_form_quote_list(S[1]);
     A += ")";
   }else{
