@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -6,7 +6,9 @@
 
 #define mymax(p,q) (p>q?p:q)
 
-static int DebugReduction = 0;
+/* static int DebugReduction = 0; 
+*/
+extern DebugReductionRed;
 
 POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
                      struct syz0 *syzp,int sugarGrade)
@@ -92,7 +94,7 @@ POLY reduction1_sugar(f,g,needSyz,c,h,sugarGrade)
 
   sv = (*sp)(f,g);
   f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
-  if (DebugReduction) {
+  if (DebugReductionRed) {
     printf("c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
            POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));       
     printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
@@ -110,7 +112,7 @@ POLY reduction1_sugar(f,g,needSyz,c,h,sugarGrade)
     if (tdegm+grd <= sugarGrade) {
       sv = (*sp)(f,g);
       f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
-      if (DebugReduction) {
+      if (DebugReductionRed) {
         printf("! c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
                POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));       
         printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
