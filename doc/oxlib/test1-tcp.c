@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/doc/oxlib/test1-tcp.c,v 1.1 2000/09/07 21:34:06 takayama Exp $ */
 /* A sample code to explain how to use ox_asir by TCP/IP and
    OpenXM control protocol.
    It computes the gcd of 12 and 8 by calling ox_asir server.
@@ -125,11 +125,12 @@ ox_pop_string(int dataPort,char *buf,int limit) {
 	exit(1);
   }
   length = ox_pop_int32(dataPort);
-  if (length > limit) {
+  if (length > limit-1) {
 	fprintf(stderr,"Too long string to read.\n");
 	exit(1);
   }
-  read(dataPort,buf,length);  
+  read(dataPort,buf,length);
+  buf[length]=0;
 }
 
 #define SIZE 1024
