@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMstream.java,v 1.1 2000/09/08 07:29:45 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMstream.java,v 1.2 2000/10/11 08:32:15 ohara Exp $
  */
 package ORG.openxm.tam;
 
@@ -15,7 +15,7 @@ import java.net.*;
  */
 public class OpenXMstream{
   private int serial = 0;
-  private Socket socket = null;
+  //private Socket socket = null;
   private InputStream  is = null;
   private OutputStream os = null;
   private int order = OX_BYTE_NETWORK_BYTE_ORDER;
@@ -41,8 +41,16 @@ public class OpenXMstream{
   final public static int OX_BYTE_BIG_INDIAN         = 0xff;
 
   /**
+   * InputStream is と OutputStream os を用いて OpenXM 通信を行なう.
+   */
+  public OpenXMstream(InputStream is,OutputStream os) throws IOException{
+    this.is = is;
+    this.os = os;
+  }
+
+  /**
    * マシン名 host のポート番号 Port へ TCP 接続を行ない,
-   * 接続を行なう.
+   * 接続を行なう. 現在は互換性のために残してある.
    */
   public OpenXMstream(String host,int Port) throws IOException{
     this(host,Port,false);
@@ -51,9 +59,11 @@ public class OpenXMstream{
   /**
    * マシン名 host のポート番号 Port へ TCP 接続を行ない,
    * 接続を行なう. reverse が true のとき、 TCP ソケットを
-   * 作成し, 接続を待つ.
+   * 作成し, 接続を待つ. 現在は互換性のために残してある.
    */
   public OpenXMstream(String host,int Port,boolean reverse) throws IOException{
+    Socket socket;
+
     // create socket
     if(!reverse){
       socket = new Socket(host,Port);
@@ -62,14 +72,14 @@ public class OpenXMstream{
     }
 
     //is =new DebugInputStream(new BufferedInputStream(socket.getInputStream()));
-    is = new BufferedInputStream(socket.getInputStream());
+    is= new BufferedInputStream(socket.getInputStream());
     os = socket.getOutputStream();
   }
 
   /**
    * バイトオーダの決定を行なう. 現在はネットワークバイトオーダーのみ.
    */
-  public int sendByteOrder() throws IOException{
+  public int exchangeByteOrder(int order) throws IOException{
     // send byte order
     os.write(OX_BYTE_NETWORK_BYTE_ORDER);
     os.flush();
@@ -78,9 +88,17 @@ public class OpenXMstream{
     //System.err.println("get: "+is.read());
     is.read();
 
-    order = OX_BYTE_NETWORK_BYTE_ORDER;
+    this.order = OX_BYTE_NETWORK_BYTE_ORDER;
 
-    return order;
+    return this.order;
+  }
+
+  /**
+   * バイトオーダの決定を行なう. 現在はネットワークバイトオーダーのみ.
+   * 推奨されない.
+   */
+  public int sendByteOrder() throws IOException{
+    return exchangeByteOrder(OX_BYTE_NETWORK_BYTE_ORDER);
   }
 
   /**
@@ -89,7 +107,6 @@ public class OpenXMstream{
   public void close() throws IOException{
     is.close();
     os.close();
-    socket.close();
   }
 
   /**
