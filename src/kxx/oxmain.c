@@ -1,7 +1,8 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.8 2001/05/06 08:11:48 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.9 2001/12/28 01:20:27 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -336,7 +337,8 @@ static int findOxServer(char *server) {
   int fd;
   char *getenv(char *s);
   if (strlen(server) == 0) return(-1);
-  fd = open(server,O_RDONLY);
+  /* fd = open(server,O_RDONLY); */
+  fd = access(server,X_OK&R_OK);
   if (fd >= 0) {
     fprintf(stderr,"Starting OX server : %s\n",server);
     close(fd);
@@ -354,7 +356,8 @@ static int findOxServer(char *server) {
   p2 = (char *) malloc(sizeof(char)*(strlen(p)+strlen("/bin/")+3+strlen(server)));
   if (p2 == NULL) { fprintf(stderr,"No more memory.\n"); exit(10); }
   strcpy(p2,p); strcat(p2,"/bin/"); strcat(p2,server);
-  fd = open(p2,O_RDONLY);
+  /* fd = open(p2,O_RDONLY); */
+  fd = access(p2,X_OK&R_OK);
   if (fd >= 0) {
     fprintf(stderr,"Starting OX server : %s\n",p2);
     if (strlen(p2) < SERVERNAME_SIZE) strcpy(server,p2);
