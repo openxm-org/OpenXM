@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.4 2001/08/12 07:20:37 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.5 2001/08/12 07:54:47 takayama Exp $
 %% http server by sm1
 %% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
@@ -23,26 +23,27 @@
  ] cat
 def
 
-[(getenv) (OSTYPE)] extension
-tag 0 eq {
+[(ostype)] extension 0 get
+(windows) eq {
+  %% Native windows environment or cygwin.
   [(parse) (ox-win.sm1) pushfile] extension 
 }{ 
-  [(getenv) (OSTYPE)] extension
-  (cygwin) eq {
-    [(parse) (ox-win.sm1) pushfile] extension 
-  }{
-    [(parse) (ox.sm1) pushfile] extension
-  } ifelse
+  [(parse) (ox.sm1) pushfile] extension
 } ifelse
 
 (ox_sm1.started) boundp { 
 } {
   %% Initialize ox_sm1
-  [(getenv) (OSTYPE)] extension
-  tag 0 eq {
-     sm1connectr_win  %% Assume that it is native Windows.
+  [(ostype)] extension 0 get
+  (windows) eq {
+    [(getenv) (OSTYPE)] extension
+    (cygwin) eq {
+      sm1connectr      %% Cygwin
+    }{
+      sm1connectr_win  %% Native Windows.
+    }
   }{
-     sm1connectr      %% cygwin or unix.
+     sm1connectr      %% Unix
   } ifelse
   ox.ccc oxmathcap
   ox.ccc oxsetmathcap
@@ -60,14 +61,22 @@ tag 0 eq {
 %  [(sleep 3; start iexplore http://localhost:)
 %    httpd.port toString
 %   ( &)] cat system
-   [(forkExec)
-    [
-      (c:/windows/command/start)
-      (iexplore)   %% Starting internet explorer (TM).
-      [(http://localhost:) httpd.port toString] cat
-    ]
-    [  ]
-   3] extension
+   [(ostype)] extension 0 get
+   (windows) eq {
+     %% On windows.
+      [(forkExec)
+       [
+         (c:/windows/command/start)
+         (iexplore)   %% Starting internet explorer (TM).
+         [(http://localhost:) httpd.port toString] cat
+       ]
+       [  ]
+      3] extension
+   }{
+      %% On unix.
+      [(sleep 3 ; netscape http://localhost:) httpd.port toString ( & ) ] cat
+      system
+   } ifelse
    httpd ;
   ] pop
   popVariables

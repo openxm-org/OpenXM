@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.6 2001/08/09 22:13:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.7 2001/08/10 13:48:38 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -279,6 +279,14 @@ struct object Kextension(struct object obj)
       errorKan1("%s\n","The number must be 0, 1 or 2.");
     putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
                        m,CurrentContextp->userDictionary);
+  }else if (strcmp(key,"ostype")==0) {
+    rob = newObjectArray(1);
+    /* Hard encode the OS type. */
+#if defined(__CYGWIN__)
+    putoa(rob,0,KpoString("windows"));
+#else
+    putoa(rob,0,KpoString("unix"));
+#endif
   }
 #include "plugin.hh"
   else{
