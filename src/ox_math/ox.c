@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.13 1999/11/11 09:08:52 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.14 1999/11/12 12:55:47 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -1323,28 +1323,6 @@ char *convert_zz_to_string(cmo_zz *c)
     return mpz_get_str(NULL, 10, c->mpz);
 }
 
-char *convert_cmo_to_string(cmo *m)
-{
-    symbol *symp;
-    switch(m->tag) {
-    case CMO_ZZ:
-        return convert_zz_to_string((cmo_zz *)m);
-    case CMO_INT32:
-        return convert_int_to_string(((cmo_int32 *)m)->i);
-    case CMO_STRING:
-        return ((cmo_string *)m)->s;
-    case CMO_NULL:
-        return convert_null_to_string();
-    default:
-#ifdef DEBUG
-        symp = lookup_by_tag(m->tag);
-        fprintf(stderr, "I do not know how to convert %s to a string.\n", symp->key);
-#endif
-        /* まだ実装していません. */
-        return NULL;
-    }
-}
-
 char *convert_null_to_string()
 {
     static char* null_string = "";
@@ -1361,4 +1339,54 @@ char *convert_int_to_string(int integer)
     strcpy(s, buff);
 
     return s;
+}
+
+char *convert_cmo_list_to_string(cmo_list *m)
+{
+	char *s;
+	int i;
+	int size = 0;
+	int len = length_cmo_list(m);
+	char **sp = malloc(len*sizeof(cmo *));
+
+    cell *cp = m->head;
+    for(i = 0; i < len; i++) {
+		sp[i] = convert_cmo_to_string(cp->cmo);
+		size += strlen(sp[i]) + 3;
+        cp = cp->next;
+    }
+	s = malloc(size+2);
+	strcpy(s, "[ ");
+	for(i = 0; i < len - 1; i++) {
+		strcat(s, sp[i]);
+		strcat(s, " , ");
+	}
+	strcat(s, sp[len-1]);
+	strcat(s, " ]");
+	free(sp);
+	return s;
+}
+
+char *convert_cmo_to_string(cmo *m)
+{
+    symbol *symp;
+    switch(m->tag) {
+    case CMO_ZZ:
+        return convert_zz_to_string((cmo_zz *)m);
+    case CMO_INT32:
+        return convert_int_to_string(((cmo_int32 *)m)->i);
+    case CMO_STRING:
+        return ((cmo_string *)m)->s;
+    case CMO_NULL:
+        return convert_null_to_string();
+    case CMO_LIST:
+        return convert_cmo_list_to_string((cmo_list *)m);
+    default:
+#ifdef DEBUG
+        symp = lookup_by_tag(m->tag);
+        fprintf(stderr, "I do not know how to convert %s to a string.\n", symp->key);
+#endif
+        /* まだ実装していません. */
+        return NULL;
+    }
 }
