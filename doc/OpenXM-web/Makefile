@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.43 2003/09/02 14:34:17 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.44 2003/09/12 01:02:50 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -72,6 +72,7 @@ all-current-spec: configure-dir
 
 all-top: configure-dir
 	cp top.html ${OXHOME}/index.html
+	cp ../../Copyright/contrib-and-hist-ja.txt ${OXHOME}
 	${RSYNC} people.html ${OXHOME}
 	${RSYNC} ${LOGOS} ${STABLE}
 
