@@ -1,5 +1,5 @@
 /**
- * OM2OXM.java
+ * $OpenXM$
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -62,7 +62,7 @@ final class OM2OXM implements Runnable{
 
 	case OpenXM.OX_DATA:
           tmp = asir.receiveCMO();
-	  System.out.println("=> <OMOBJ>"+ CMO2OM(tmp) +"</OMOBJ>");
+	  System.out.println("=> "+ CMO2OM(tmp));
           break;
 	}
 
@@ -71,6 +71,10 @@ final class OM2OXM implements Runnable{
   }
 
   public static String CMO2OM(CMO cmo){
+    return "<OMOBJ>"+ CMO2OM_sub(cmo) +"</OMOBJ>";
+  }
+
+  private static String CMO2OM_sub(CMO cmo){
     String ret = "";
 
     switch(cmo.getDISCRIMINATOR()){
@@ -89,7 +93,7 @@ final class OM2OXM implements Runnable{
 
     case CMO.CMO_MONOMIAL32:
       ret += "<OMA><OMS name=\"Monom\" cd=\"poly\"/>";
-      ret += CMO2OM(((CMO_MONOMIAL32)cmo).getCoefficient());
+      ret += CMO2OM_sub(((CMO_MONOMIAL32)cmo).getCoefficient());
       for(int i=0;i<((CMO_MONOMIAL32)cmo).getDegree().length;i++){
 	ret += "<OMI>"+ ((CMO_MONOMIAL32)cmo).getDegree()[i] +"</OMI>";
       }
@@ -101,8 +105,9 @@ final class OM2OXM implements Runnable{
 
     case CMO.CMO_QQ:
       return "<OMA><OMS name=\"over\" cd=\"basic\"/>"+
-	CMO2OM(((CMO_QQ)cmo).getBunshi()) + CMO2OM(((CMO_QQ)cmo).getBunbo())
-	+"</OMA>";
+	CMO2OM_sub(((CMO_QQ)cmo).getBunshi())+
+	CMO2OM_sub(((CMO_QQ)cmo).getBunbo())+
+	"</OMA>";
 
     case CMO.CMO_ZERO:
       return "<OMI> 0 </OMI>";
@@ -116,10 +121,11 @@ final class OM2OXM implements Runnable{
 
     case CMO.CMO_DISTRIBUTED_POLYNOMIAL:
       ret += "<OMA><OMS name=\"DMP\" cd=\"poly\"/>";
-      ret += CMO2OM(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getRing());
+      ret += CMO2OM_sub(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getRing());
       ret += "<OMA><OMS name=\"SDMP\" cd=\"poly\"/>";
-      for(int i=0;i<((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getMonomials().length;i++){
-	ret += CMO2OM(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getMonomials()[i]);
+      for(int i=0;i<((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getMonomials().length;
+	  i++){
+	ret += CMO2OM_sub(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getMonomials()[i]);
       }
       ret += "</OMA></OMA>";
       return ret;
