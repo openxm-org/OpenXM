@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.5 2003/05/08 03:45:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.6 2003/05/18 09:57:34 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 
 /* ctrl("show_crossref",1)$ */
@@ -16,8 +16,10 @@ ox_loadfile(Loaded_Matrix,"Matrix")$
 
 module lasg;
 
-localf matrix_to_dp, v, dp_to_matrix,
-       lasg_1, lasg_2, lt, gen_1, should_zero,
+localf matrix_to_dp $
+localf v $ 
+localf dp_to_matrix,
+       lasg_1, lasg_2, lasg_3, lt, gen_1, should_zero,
        gen_1b, gen_rank_prob, print_matrix_list,
        gen_eq_prob, gen_eq_nosol_prob,
        make_dense, copy_matrix, reduced_form,
@@ -30,6 +32,7 @@ localf matrix_to_dp, v, dp_to_matrix,
 #define Step 2
 #define MaxC 1
 print("Type in lasg.test();  Problems will be saved in hoge.tex")$
+
 static Seed0 $
 static Dense $
 static Lasg_test_data_1 $
@@ -38,6 +41,10 @@ Seed0 = 1 $
 Dense = 1 $
 
 def matrix_to_dp(M) {
+  local S;
+  local Ans;
+  local I,J;
+  local F;
   S = size(M);
   Ans = [];
   for (I=0; I<S[0]; I++) {
@@ -57,6 +64,7 @@ def v(I,N) {
 }
 
 def dp_to_matrix(FF,N) {
+  local M, A, I, F, HH, H, K;
   M = length(FF);
   A = newmat(M,N);
   for (I=0; I<M; I++) {
@@ -227,7 +235,6 @@ def print_matrix_list(B) {
  ref: lasg.gen_lineq_quiz.
 end: */
 def gen_eq_prob(M,Rank,P) {
-  /* extern Seed0; */
   Ans = [ ];
   N = M+1;
   for (K=0; K<P; K++) {
@@ -273,7 +280,7 @@ def gen_eq_prob(M,Rank,P) {
 }
 
 def gen_eq_nosol_prob(M,Rank,P) {
-  /* extern Seed0; */
+
   Ans = [ ];
   if (Rank >= M) error();
   N = M+1;
