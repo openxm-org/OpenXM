@@ -1,7 +1,7 @@
 /*&jp \documentclass{jarticle}
 \begin{document}
 */
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.6 2000/02/02 13:06:47 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.7 2002/05/08 02:57:22 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -205,10 +205,11 @@ def m_start_org() {
 }
 
 def m_start() {
-   print("Starting ox_math.");
-   print("ox_math: Portions copyright 2000 Wolfram Research, Inc. ");
-   print("See OpenXM/Copyright/Copyright.mathlink for details.");
-  if (ox_ostype()[0] == "windows") 
+  extern Xm_unix;
+  print("Starting ox_math.");
+  print("ox_math: Portions copyright 2000 Wolfram Research, Inc. ");
+  print("See OpenXM/Copyright/Copyright.mathlink for details.");
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0) 
     return m_start_windows(0);
   else
     return m_start_unix();
