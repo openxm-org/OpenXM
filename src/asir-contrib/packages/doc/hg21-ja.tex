@@ -1,0 +1,133 @@
+% $OpenXM$
+\documentclass{jarticle}
+
+\begin{document}
+
+{\tt u1(a,b,c,z)} の戻す行列を $U_1$ とするとき
+(u は ``up'' の u である),
+$$\pmatrix{
+     F'(a+1,b,c;z) \cr
+     F(a+1,b,c;z) \cr} = U_1 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+がなりたつ.
+
+{\tt u2(a,b,c,z)} の戻す行列を $U_2$ とするとき
+(u は ``up'' の u である),
+$$\pmatrix{
+     F'(a,b+1,c;z) \cr
+     F(a,b+1,c;z) \cr} = U_2 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+がなりたつ.
+
+{\tt u3(a,b,c,z)} の戻す行列を $U_3$ とするとき
+(u は ``up'' の u である),
+$$\pmatrix{
+     F'(a,b,c+1;z) \cr
+     F(a,b,c+1;z) \cr} = U_3 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+がなりたつ.
+
+{\tt d1(a,b,c,z)} の戻す行列を $D_1$ とするとき
+(d は ``down'' の d である),
+$$\pmatrix{
+     F'(a-1,b,c;z) \cr
+     F(a-1,b,c;z) \cr} = D_1 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+がなりたつ.
+
+{\tt d2(a,b,c,z)} の戻す行列を $D_2$ とするとき
+(d は ``down'' の d である),
+$$\pmatrix{
+     F'(a,b-1,c;z) \cr
+     F(a,b-1,c;z) \cr} = D_2 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+がなりたつ.
+
+{\tt d3(a,b,c,z)} の戻す行列を $D_3$ とするとき
+(d は ``down'' の d である),
+$$\pmatrix{
+     F'(a,b,c-1;z) \cr
+     F(a,b,c-1;z) \cr} = D_3 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+がなりたつ.
+
+これらは, ガウスの超幾何関数のよくしられた公式である.\\
+例:
+\begin{verbatim}
+[377] load("hg21")$
+[378] u1(a,b,c,z);
+[ (b*z-c+a+1)/(-a*z+a) (b)/(-z+1) ]
+[ (z)/(a) 1 ]
+\end{verbatim}
+
+
+{\tt hg21\_check()} ではこれらの変換公式がただしいか
+どうかを,
+たとえば,
+\verb@  R = d1(a+1,b,c,z)*u1(a,b,c,z); @
+が単位行列かどうかをみることにより, チェックしている.
+
+$p, q, r$ を整数とするとき,
+これらの行列をかけ算することにより,
+次の式をみたす $T$ を得ることが可能である.
+$$\pmatrix{
+     F'(a+p,b+q,c+r;z) \cr
+     F(a+p,b+q,c+r;z) \cr} = T 
+  \pmatrix{
+     F'(a,b,c;z) \cr
+     F(a,b,c;z) \cr} 
+$$
+ただし, 行列 $U_i, D_i$ の分母が $0$ にならない
+ことが必要である.
+
+\noindent
+例:
+\begin{verbatim}
+[379] tam(1/2,1/2,1,3/4);
+[Aplus,Bminus,Cplus]=[3,-3,6]
+[[ 9402863/1505280 170306533/752640 ]
+[ -8131157/430080 -147868387/215040 ],[7/2,-5/2,7]]
+[380] 
+\end{verbatim}
+この出力は,
+$$\pmatrix{
+     F'(1/2,1/2,1;3/4) \cr
+     F(1/2,1/2,1;3/4) \cr} = T 
+  \pmatrix{
+     F'(7/2,-5/2,7;3/4) \cr
+     F(7/2,-5/2,7;3/4) \cr} 
+$$
+であることを意味する.
+ここで,
+$$ T = \pmatrix{ 9402863/1505280 & 170306533/752640 \cr
+                 -8131157/430080 & -147868387/215040 \cr}
+$$
+とおく.
+関数 {\tt tam} の戻り値の第一成分が 行列 $T$ である.
+(cf. 田村氏の, HG function の精度保証計算のプログラム).
+
+
+なお,  $F'(a,b,c;z)$ は $F(a,b,c;z)$ と $F(a+1,b,c;z)$
+で表すことが可能である.
+それには次のよくしられた超幾何関数の公式を使えばよい:
+$$ \frac{1}{a} z F'(a,b,c;z) = - F(a,b,c;z) + F(a+1,b,c;z). $$
+
+\end{document}

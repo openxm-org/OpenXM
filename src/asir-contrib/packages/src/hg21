@@ -1,0 +1,191 @@
+/* $OpenXM$  */
+
+/* Contiguity relations for 2F1 */
+/* hi increases parameter i, i=1 <==> A, i=2 <==> B, i=3 <==> C */
+/* bi decreases paramter i */
+def h1(A,B,C,Z) {
+  P = Z/A;
+  Q = 1;
+  return([P,Q]);
+}
+def h2(A,B,C,Z) {
+  P = Z/B;
+  Q = 1;
+  return([P,Q]);
+}
+def h3(A,B,C,Z) {
+  P = C*(1-Z)/((C-A)*(C-B));
+  Q = C*(C-A-B)/((C-A)*(C-B));
+  return([P,Q]);
+}
+
+def b1(A,B,C,Z) {
+  P = Z*(1-Z)/(C-A);
+  Q = (C-A-B*Z)/(C-A);
+  return([P,Q]);
+}
+def b2(A,B,C,Z) {
+  P = Z*(1-Z)/(C-B);
+  Q = (C-B-A*Z)/(C-B);
+  return([P,Q]);
+}
+def b3(A,B,C,Z) {
+  P = Z/(C-1);
+  Q = 1;
+  return([P,Q]);
+}
+
+/*  f'' = S f' + T f where f is HG function.*/
+def heq(A,B,C,Z) {
+  S = -(C-(A+B+1)*Z)/(Z*(1-Z));
+  T = A*B/(Z*(1-Z));
+  return([S,T]);
+}
+
+def der(A,B,C,Z,L) {
+  R = heq(A,B,C,Z);
+  S = R[0]; T = R[1];
+  P = L[0]; Q = L[1];
+  return([ red(diff(P,Z)+Q+P*S), red(diff(Q,Z)+P*T) ]);
+}
+
+def hh1(A,B,C,Z) {
+  L = h1(A,B,C,z);
+  T = der(A,B,C,z,L);
+  return([subst(T[0],z,Z),subst(T[1],z,Z)]);
+}
+def hh2(A,B,C,Z) {
+  L = h2(A,B,C,z);
+  T = der(A,B,C,z,L);
+  return([subst(T[0],z,Z),subst(T[1],z,Z)]);
+}
+def hh3(A,B,C,Z) {
+  L = h3(A,B,C,z);
+  T=der(A,B,C,z,L);
+  return([subst(T[0],z,Z),subst(T[1],z,Z)]);
+}
+def bb1(A,B,C,Z) {
+  L = b1(A,B,C,z);
+  T=der(A,B,C,z,L);
+  return([subst(T[0],z,Z),subst(T[1],z,Z)]);
+}
+def bb2(A,B,C,Z) {
+  L = b2(A,B,C,z);
+  T=der(A,B,C,z,L);
+  return([subst(T[0],z,Z),subst(T[1],z,Z)]);
+}
+def bb3(A,B,C,Z) {
+  L = b3(A,B,C,z);
+  T=der(A,B,C,z,L);
+  return([subst(T[0],z,Z),subst(T[1],z,Z)]);
+}
+
+/*  "u" stands for "up".
+   | F'(A+1,B,C,Z) |               | F'(A,B,C,Z) |
+   |               | = u1(A,B,C,Z) |             |
+   |  F(A+1,B,C,Z) |               |  F(A,B,C,Z) |
+*/
+def u1(A,B,C,Z) {
+  return(newmat(2,2,[ hh1(A,B,C,Z), h1(A,B,C,Z)]));
+}
+def u2(A,B,C,Z) {
+  return(newmat(2,2,[ hh2(A,B,C,Z), h2(A,B,C,Z)]));
+}
+def u3(A,B,C,Z) {
+  return(newmat(2,2,[ hh3(A,B,C,Z), h3(A,B,C,Z)]));
+}
+
+/*  "d" stands for "down".
+   | F'(A-1,B,C,Z) |               | F'(A,B,C,Z) |
+   |               | = d1(A,B,C,Z) |             |
+   |  F(A-1,B,C,Z) |               |  F(A,B,C,Z) |
+*/
+def d1(A,B,C,Z) {
+  return(newmat(2,2,[ bb1(A,B,C,Z), b1(A,B,C,Z)]));
+}
+def d2(A,B,C,Z) {
+  return(newmat(2,2,[ bb2(A,B,C,Z), b2(A,B,C,Z)]));
+}
+def d3(A,B,C,Z) {
+  return(newmat(2,2,[ bb3(A,B,C,Z), b3(A,B,C,Z)]));
+}
+
+def hg21_check() {
+  R = d1(a+1,b,c,z)*u1(a,b,c,z);
+  print([[red(R[0][0]),red(R[0][1])],
+         [red(R[1][0]),red(R[1][1])]]);
+  R = d2(a,b+1,c,z)*u2(a,b,c,z);
+  print([[red(R[0][0]),red(R[0][1])],
+         [red(R[1][0]),red(R[1][1])]]);
+  R = d3(a,b,c+1,z)*u3(a,b,c,z);
+  print([[red(R[0][0]),red(R[0][1])],
+         [red(R[1][0]),red(R[1][1])]]);
+  R = u1(a-1,b,c,z)*d1(a,b,c,z);
+  print([[red(R[0][0]),red(R[0][1])],
+         [red(R[1][0]),red(R[1][1])]]);
+  R = u2(a,b-1,c,z)*d2(a,b,c,z);
+  print([[red(R[0][0]),red(R[0][1])],
+         [red(R[1][0]),red(R[1][1])]]);
+  R = u3(a,b,c-1,z)*d3(a,b,c,z);
+  print([[red(R[0][0]),red(R[0][1])],
+         [red(R[1][0]),red(R[1][1])]]);
+}
+
+def hg21_ceiling(P) {
+  N = nm(P);
+  D = dn(P);
+  R = idiv(N,D);
+  if (irem(N,D) != 0 && N > 0) {
+    R++;
+  }
+  return(R);
+}
+
+/*  
+   | F'(A,B,C,Z) |                | F'(AA,BB,CC,Z) |
+   |             | = tam(A,B,C,Z) |                |
+   |  F(A,B,C,Z) |                |  F(AA,BB,CC,Z) |,
+   AA >=3, BB <= -2, CC >= A+3.
+*/
+
+def tam(A,B,C,Z) {
+   if (A < 3) {
+      Aplus = hg21_ceiling(3-A);
+   }else{
+      Aplus = 0;
+   }
+   if (B >-2) {
+      Bminus = -2-hg21_ceiling(B);
+   }else{
+      Bminus = 0;
+   }
+   if (C < A+Aplus+3) {
+      Cplus = hg21_ceiling(A+Aplus+3-C);
+   }else{
+      Cplus = 0;
+   }
+   print("[Aplus,Bminus,Cplus]=",0);
+   print([Aplus,Bminus,Cplus]);
+   AA = A+Aplus;
+   BB = B+Bminus;
+   CC = C+Cplus;
+   R = newmat(2,2,[[1,0],[0,1]]);
+   for (I=0; I<Aplus; I++) {
+      R = d1(AA-I,BB,CC,Z)*R;
+   }
+   for (I=0; I< -Bminus; I++) {
+      R = u2(A,BB-I,CC,Z)*R;
+   }
+   for (I=0; I<Cplus; I++) {
+      R = d3(A,B,CC-I,Z)*R;
+   }
+   RR = newmat(2,2);
+   RR[0][0] = red(R[0][0]);
+   RR[0][1] = red(R[0][1]);
+   RR[1][0] = red(R[1][0]);
+   RR[1][1] = red(R[1][1]);
+   return([RR,[AA,BB,CC]]);
+}
+
+
+end$
