@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.1 2004/02/23 07:51:02 takayama Exp $ 
+$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.2 2004/02/23 23:17:15 takayama Exp $ 
 2004/02/23 by Takayama
 
 deb package の生成の仕方:
@@ -32,6 +32,11 @@ asir (OpenXM 版) の使い方:
   dpkg --install openxm-shared*.deb
   dpkg --install openxm-binary*.deb
 
+package の中のファイル名を見る方法.
+  dpkg -c openxm-binary*.deb
+uninstall
+  dpkg --remove openxm-binary
+  dpkg --remove openxm-shared
 -----------------------
 
 注意.  make install-document すると asir がもう一度 install されるので
