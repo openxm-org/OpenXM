@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.9 2004/07/12 07:33:28 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.10 2004/07/14 06:59:42 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -50,6 +50,7 @@ localf modulo, modulo_list, left, right;
 localf verbose, quiet, message;
 localf spair_lcm, spair_compare, spair_sugar;
 localf euler_diff, euler_diff_list, euler_diff_dp_list, euler_diff_dp;
+localf operator_shift;
 localf act_theta_D, act_theta_DE, act_difference;
 localf multi, multi_D, multi_DE, multiL;
 localf dp_coef_gcd, red1, red2, reducible, division, division_D, division_DE;
@@ -67,20 +68,23 @@ localf compute_toric_kernel, gkz_toric_partial, gkz_toric;
 localf gkz_toric_partial_sm1, gkz_toric_sm1;
 localf initial_term_weight, check_gkz_generic_weight, gkz_distraction;
 localf action_monomial_DE, action_DE, action;
-localf dp_dtol;
+localf dp_dtol, dp_ptol;
 localf partial_to_euler_i, partial_to_euler_term_i;
 localf partial_to_euler, partial_to_euler_term;
 localf a2k, sigma, gen_gamma, pochhammer, eval_gamma, gamma1, gamma2;
+localf gamma3;
 localf vector_to_rat;
-localf series, series_algorithm1, series_algorithm2, series_algorithm3, series1, series2;
+localf series, series_term, series_generic, series_algorithm1, series_algorithm2, series_algorithm3, series1, series1_5, series2, series3;
 localf compare_algorithm2;
 localf pattern, pattern_full, pattern_weight, all_integers;
 localf 'std_+', 'std_*', 'std_=';
 localf list_incr, list_sum, list_second, list_add_prefix;
 localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
 localf vector_const, vector_split;
+localf order_by_weight, terms_of_given_order;
+localf head_sum;
 
-function gamma(x);
+function ggamma(x);
 
 static Verbose, Ring, Vars, VarF, VarDiff, RingStack;
 if (RingStack == 0) {
@@ -143,7 +147,7 @@ def parse_ringdef(RingDef) {
     Vars = append(Vars, map(left, VSet));
     VarF = append(VarF, F);
     VarDiff = append(VarDiff, D);
-    return cdr(cdr(RingDef));
+    return cddr(RingDef);
 }
 
 def print_ring()
@@ -424,6 +428,23 @@ def act_theta_DE(E,Q) {
 def act_difference(DE,P) {
     DE = op_nomatch(DE,EULER);
     return dp_hc(act_theta_DE(DE, P));
+}
+
+/* 作用素の積 x^(-E) P(theta) x^E == P(theta+E) を求める。
+   ベクトル E の長さは yang の内部変数 Vars の長さと一致しなければならない。
+   また、x = x1 x2 ...も Vars と一致しなければならない。
+   したがってこの関数を用いるユーザは、
+   事前に yang の内部データ構造を確認していると仮定する。
+*/
+def operator_shift(P,E)
+"P: op., E: exp => x^(-E) P x^E "
+{
+    E = islist(E)? ltov(E): E;
+    N = ring_size();
+    T = list_add_prefix("_t", list_incr(0,N));
+    Q = dp_dtop(P, T);
+    Q = base_replace(Q, assoc(T, vtol(ltov(T)+E)));
+    return dp_ptod(Q, T);
 }
 
 /* Leibnitz rule: P,Q: 分散表現多項式 */
@@ -1278,6 +1299,22 @@ def dp_dtol(P) {
     return reverse(L);
 }
 
+/* 再帰多項式(有理式)を associated list に変換 */
+def dp_ptol(P,V)
+"dp_ptol(x+y/t,[x,y]) => [[1,[1 0]],[1/t,[0 1]]]"
+{
+	Dn = dp_ptod(dn(P),V);
+	C = dp_hc(Dn);
+	DnE = dp_etov(Dn);
+	if (dp_rest(Dn) != 0) {
+		error("illeagal argument.");
+	}
+	for(L = [], P = dp_ptod(nm(P),V); P != 0; P = dp_rest(P)) {
+		L = cons([red(dp_hc(P)/C), dp_etov(P)-DnE],L);
+	}
+	return reverse(L);
+}
+
 /* --------------------------------
    偏微分作用素をオイラー作用素に変換する
    -------------------------------- */
@@ -1355,13 +1392,12 @@ yang.a2k(A,AT,Index) => [ [1/2*_k0,-_k0,1/2*_k0], [_k0] ]
 */
 
 def a2k(A, AT, Index) {
-    K  = list_add_prefix("_k", list_incr(0,length(Index)));
+    K  = list_add_prefix("k", list_incr(0,length(Index)));
     U  = list_add_prefix("__", list_incr(0,length(AT)));
     Eq = vtol(matrix_list_to_matrix(A)*ltov(U));
     for(KK=K; KK != []; KK=cdr(KK),Index=cdr(Index)) {
         I  = car(Index);
-        /* E  = U[I]-AT[I]+car(KK); */
-        E  = U[I]-AT[I]-car(KK);
+        E  = U[I]+AT[I]-car(KK);
         Eq = cons(E, Eq);
     }
     return [map(list_second, poly_solve_linear(Eq, U)), K];
@@ -1380,10 +1416,11 @@ def sigma(AT, B) {
 }
 
 def gen_gamma(AV,KV)
-"gen_gamma([a1,a2,a3],[n1,n2,n3]) ==> [[a1,n1,-1],[a2,n2,-1],[a3,n3,-1]]"
+"gen_gamma([a1,a2,a3],[n1,n2,n3]) ==> [[a1,n1+1,-1],[a2,n2+1,-1],[a3,n3+1,-1]]"
 {
     if (isvect(AV)) AV = vtol(AV);
-    if (isvect(KV)) KV = vtol(KV);
+    One = vector_const(length(AV),1);
+    KV = vtol((isvect(KV)? KV: ltov(KV))+One);
     return map(append, assoc(AV,KV), [-1]);
 }
 
@@ -1429,11 +1466,25 @@ def gamma1(L)
 }
 
 def gamma2(L)
-"[u, [a1,n1,e1],[a2,n2,e2]] => u*(gamma(a1+n1)^e1)*(gamma(a2+n2)^e2)"
+"[u, [a1,n1,e1],[a2,n2,e2]] => u*(ggamma(a1+n1)^e1)*(ggamma(a2+n2)^e2)"
 {
     for(G=1 ; L != []; L=cdr(L)) {
         LL = car(L);
-        G *= (islist(LL))? gamma(LL[0]+LL[1])^LL[2]: LL;
+        G *= (islist(LL))? ggamma(LL[0]+LL[1])^LL[2]: LL;
+    }
+    return G;
+}
+
+def gamma3(L)
+"[u, [a1,n1,e1],[a2,n2,e2]] => u*(ggamma(a1+n1)^e1)*(ggamma(a2+n2)^e2)"
+{
+    for(G=1 ; L != []; L=cdr(L)) {
+        LL = car(L);
+        if (islist(LL)) {
+            N = LL[0]+LL[1];
+            LL = (isnum_int(N) && (N > 0))? fac(N-1)^LL[2]: ggamma(N)^LL[2];
+        }
+        G *= LL;
     }
     return G;
 }
@@ -1441,30 +1492,27 @@ def gamma2(L)
 /* GKZ = [A,B] */
 
 def series(MaxDeg, GKZ, W, AT) {
-    return series_algorithm2(MaxDeg, GKZ, W, AT);
+    if (type(getopt(term)) != -1) {
+        return series_term(GKZ, AT);
+    }
+    Strategy = getopt(strategy);
+    if (type(Strategy) == -1) Strategy=2;
+    return series_generic(MaxDeg, GKZ, W, AT, Strategy);
 }
 
-/* gm/series.tex: Algorithm 1 */
-def series_algorithm1(MaxDeg, GKZ, W, AT) {
+/* 出力: 級数の一般項 F.
+   F[0]*x^F[1] が パラメータ F[2] に関する一般項になる.
+*/
+def series_term(GKZ, AT) {
     LenAT = length(AT);
     Index = sigma(AT, GKZ[1]);
     LenIndex = length(Index);
     U = a2k(GKZ[0], AT, Index);
-    K = U[1]; U = U[0];
-    F = [];
-    for(Ks = pattern_full(MaxDeg, LenIndex); Ks != []; Ks = cdr(Ks)) {
-        K0 = car(Ks);
-        U0 = ltov(base_replace(U, assoc(K, K0)));
-        IP = vector_inner_product(U0, W);
-        if(IP >= 0 && all_integers(U0)) {
-            C = gen_gamma(AT,U0);
-            F = cons([C, U0], F);
-        }
-    }
-    return reverse(F); /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
+    F = [ltov(AT),[[gen_gamma(AT,U[0]), U[0], U[1]]]];
+    return F;
 }
 
-def series_algorithm2(MaxDeg, GKZ, W, AT) {
+def series_generic(MaxDeg, GKZ, W, AT, Strategy) {
     LenAT = length(AT);
     Index = sigma(AT, GKZ[1]);
     LenIndex = length(Index);
@@ -1480,28 +1528,15 @@ def series_algorithm2(MaxDeg, GKZ, W, AT) {
             F = cons([K0, IP, C, U0], F);
         }
     }
-    F = map('cdr', map('cdr', qsort(F, compare_algorithm2)));
-    return F; /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
+    if (Strategy==1) F = reverse(F);
+    if (Strategy==2) F = qsort(F, compare_algorithm2);
+    if (Strategy==3) F = qsort(map(head_sum, F));
+    return [ltov(AT),map(cddr,F)];
+    /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
 }
 
-def series_algorithm3(MaxDeg, GKZ, W, AT) {
-    LenAT = length(AT);
-    Index = sigma(AT, GKZ[1]);
-    LenIndex = length(Index);
-    U = a2k(GKZ[0], AT, Index);
-    K = U[1]; U = U[0];
-    F = [];
-    for(Ks = pattern_full(MaxDeg, LenIndex); Ks != []; Ks = cdr(Ks)) {
-        K0 = car(Ks);
-        U0 = ltov(base_replace(U, assoc(K, K0)));
-        IP = vector_inner_product(U0, W);
-        if(IP >= 0 && all_integers(U0)) {
-            C = gen_gamma(AT,U0);
-            F = cons([list_sum(K0), IP, C, U0], F);
-        }
-    }
-    F = map('cdr', map('cdr', qsort(F)));
-    return F; /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
+def head_sum(L) {
+    return cons(list_sum(car(L)),cdr(L));
 }
 
 def compare_algorithm2(A,B) {
@@ -1519,8 +1554,11 @@ def vector_to_rat(E,V,N) {
 
 /* Series: series() の出力 */
 def series1(Series) {
+    AT = Series[0];
+    Series = Series[1];
+/*	Series = cddr(Series); */
     N = length(car(Series)[1]);
-    V = list_add_prefix("x", list_incr(0,N));
+    V = list_add_prefix("x", list_incr(1,N+1));
     for(L = []; Series != []; Series = cdr(Series)) {
         C = car(Series);
         G = red(gamma1(C[0])); E = C[1];
@@ -1528,13 +1566,35 @@ def series1(Series) {
             L = cons([G,vector_to_rat(E,V,N)],L);
         }
     }
-    return reverse(L);
+    L = reverse(L);
+    AT = vector_to_rat(AT,V,N);
+    return [AT,L];
+}
+
+/* Series: series() の出力 */
+def series1_5(Series) {
+    AT = Series[0];
+    Series = Series[1];
+/*	Series = cddr(Series); */
+    N = length(car(Series)[1]);
+    V = list_add_prefix("x", list_incr(1,N+1)); /* !!! */
+    for(L = []; Series != []; Series = cdr(Series)) {
+        C = car(Series);
+        G = red(gamma1(C[0])); E = C[1];
+        if (G != 0) {
+            L = cons([G,vector_to_rat(E,V,N)],L);
+        }
+    }
+    L = reverse(L);
+    return [AT,L];
 }
 
 /* Series: series() の出力 */
 def series2(Series) {
+    AT = Series[0];
+    Series = Series[1];
     N = length(car(Series)[1]);
-    V = list_add_prefix("x", list_incr(0,N));
+    V = list_add_prefix("x", list_incr(1,N+1));
     for(L = []; Series != []; Series = cdr(Series)) {
         C = car(Series);
         G = red(gamma2(C[0])); E = C[1];
@@ -1542,7 +1602,27 @@ def series2(Series) {
             L = cons([G,vector_to_rat(E,V,N)],L);
         }
     }
-    return reverse(L);
+    L = reverse(L);
+    AT = vector_to_rat(AT,V,N);
+    return [AT,L];
+}
+
+/* Series: series() の出力 */
+def series3(Series) {
+    AT = Series[0];
+    Series = Series[1];
+    N = length(car(Series)[1]);
+    V = list_add_prefix("x", list_incr(1,N+1));
+    for(L = []; Series != []; Series = cdr(Series)) {
+        C = car(Series);
+        G = red(gamma3(C[0])); E = C[1];
+        if (G != 0) {
+            L = cons([G,vector_to_rat(E,V,N)],L);
+        }
+    }
+    L = reverse(L);
+    AT = vector_to_rat(AT,V,N);
+    return [AT,L];
 }
 
 def pattern(M, N)
@@ -1712,6 +1792,32 @@ def vector_split(V)
         }
     }
     return [Pos, Neg];
+}
+
+def order_by_weight(P,W,V) {
+    if (P==0) return "-infinity";
+    W = isvect(W)? W: ltov(W);
+    P = dp_ptol(P,V);
+    H = car(P)[1];
+    Min = vector_inner_product(H,W);
+    for (P = cdr(P); P != []; P = cdr(P)) {
+        H = car(P)[1];
+        Cur = vector_inner_product(H,W);
+        Min = MIN(Min,Cur);
+    }
+    return Min;
+}
+
+def terms_of_given_order(P,Order,W,V) {
+	Q = [];
+	for(P = dp_ptol(P,V); P != []; P = cdr(P)) {
+		H = car(P)[1];
+		I = vector_inner_product(H,W);
+		if (I==Order) {
+			Q = cons(car(P),Q);
+		}
+	}
+	return Q;
 }
 
 endmodule;
