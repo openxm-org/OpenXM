@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.5 2000/01/21 11:45:43 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.6 2000/01/31 10:56:52 okutani Exp $ */
 
 /*----------------------*/
 /* package for D-module */
@@ -157,37 +157,11 @@ def dmodule_d_op_tosm1(L_list, V) {
 }
 
 def dmodule_d_op_toasir(L_list, V) {
-  Dv = dmodule_make_dv(V);
-  L_list_asir = [];
-  for (I = 0; I < length(L_list); I++) {
-    L = L_list[I];
-    L_asir = 0;
-    for (J = 0; J < length(L); J++) {
-      L_asir += L[J][0]*dp_dtop(dp_vtoe(matrix_ltov(L[J][1])), Dv);
-    }
-    L_list_asir = append(L_list_asir, [L_asir]);
-  }
-  return L_list_asir;
+  return diff_op_toasir(L_list, V);
 }
 
 def dmodule_d_op_fromasir(D_list, V) {
-  Dv = dmodule_make_dv(V);
-  L_list = [];
-  for (I = 0; I < length(D_list); I++) {
-    D = dp_ptod(D_list[I], Dv);
-    L = [];
-    if (D == 0) {
-      L = append(L, [[0,[0,0]]]);
-    }
-    else {
-      while (D != 0) {
-	L = append(L, [[dp_hc(D),vtol(dp_etov(dp_ht(D)))]]);
-	D -= dp_hm(D);
-      }
-    }
-    L_list = append(L_list, [L]);
-  }
-  return L_list;
+  return diff_op_fromasir(D_list, V);
 }
 
 def dmodule_filt(V, W) {
@@ -230,6 +204,57 @@ def dmodule_bernstein_filt(V) {
 #if _DEBUG_Dmodule_
   print("bernstein filtration: ", 0); print(Order);
 #endif
+}
+
+def dmodule_calc_w(E, W) {
+  if (type(E) == 5) {
+    E = vtol(E);
+  }
+  if (type(W) == 5) {
+    W = vtol(W);
+  }
+  for (M = 0, I = 0; I < length(E); I++) {
+    M += E[I]*W[I];
+  }
+  return M;
+}
+
+def dmodule_initial_form(Poly, W, V) {
+  if (Poly == 0) {
+    return 0;
+  }
+  Dpoly = dp_ptod(Poly, V);
+  MaxW = dmodule_calc_w(dp_etov(dp_ht(Dpoly)), W);
+  In = dp_dtop(dp_hm(Dpoly), V);
+  Dpoly -= dp_hm(Dpoly);
+  while (Dpoly != 0) {
+    M = dmodule_calc_w(dp_etov(dp_ht(Dpoly)), W);
+    if (MaxW < M) {
+      MaxW = M;
+      In = dp_dtop(dp_hm(Dpoly), V);
+    }
+    else if (MaxW == M) {
+      In += dp_dtop(dp_hm(Dpoly), V);
+    }
+    Dpoly -= dp_hm(Dpoly);
+  }
+  return In;
+}
+
+def dmodule_min_form(Poly, W, V) {
+  return dmodule_initial_form(Poly, -matrix_ltov(W), V);
+}
+
+/* a21*x^2*y+a11*x*y+a20*x^2+a01*y
+   -> [a21*x^2, a11*x*y+a20*x^2, a01*y] */
+def dmodule_ptogp(Poly, W, V) {
+  GPoly = [];
+  do {
+    In = dmodule_initial_form(Poly, W, V);
+    GPoly = append(GPoly, [In]);
+    Poly -= In;
+  } while (Poly != 0);
+  return GPoly;
 }
 
 /* D_ideal: ["...", "...",...], string is sm1 format. */
@@ -615,23 +640,68 @@ def dmodule_contiguity_hg1(Param, V) {
            [ [[1-V[0],[1]],[C-A-B,[0]]],[[V[0],[1]],[C-1,[0]]] ] ];
 }
 
+def dmodule_contiguity_sol_hg1(Sol, Param, V) {
+  C = dmodule_contiguity_hg1(Param, V);
+  C_Sol = [diff_acts(C[0], Sol, V),
+           diff_acts(C[1], Sol, V),
+	   diff_acts(C[2], Sol, V)];
+  return C_Sol;
+}
+
+def dmodule_contiguity_param_only(F,V) {
+  Dv = dmodule_make_dv(V);
+  if (deg(F,V[0]) != 0) return(0);
+  if (deg(F,V[1]) != 0) return(0);
+  if (deg(F,Dv[0]) != 0) return(0);
+  if (deg(F,Dv[1]) != 0) return(0);
+  return(F);
+}
+
+def dmodule_contiguity_generic_appell4(Param, V) {
+  Dv = dmodule_make_dv(V);
+  Var = append(V, vars(Param));
+  Weight = [[Dv[0],1,Dv[1],1,V[0],1,V[1],1]];
+  D_list = dmodule_d_op_toasir(diff_op_appell4(Param[0],Param[1],Param[2],Param[3],V),V);
+  Cont_list = [];
+  D = [V[0]*Dv[0]+V[1]*Dv[1]+Param[0],
+       V[0]*Dv[0]+V[1]*Dv[1]+Param[1],
+       V[0]*Dv[0]+Param[2]-1,
+       V[1]*Dv[1]+Param[3]-1];
+
+  for (II = 0; II < length(D); II++) {
+    F = append([D[II]],D_list);
+    G = sm1_syz([F,Var,Weight]);
+    Gb = map(first,G[1][0]);
+    Cont  = G[1][1];
+    Ans = [ ];
+    for (I=0; I<length(Gb); I++) {
+      if (dmodule_contiguity_param_only(Gb[I],V) != 0) {
+	Ans = append(Ans,[ [Gb[I],Cont[I][0]] ]);
+	/* print(sm1_mul(C[I],F,[x,y,a,b,c,cp])); */ /* check ! */
+      }
+    }
+    Cont_list = append(Cont_list, [[D[II],Ans[0]]]);
+  }
+  return Cont_list;
+}
+
 def dmodule_contiguity_appell4(Param, V) {
   if (length(V) != 2) {
     error("a length of List V is wrong.");
   }
-  A = Param[0]; B = Param[1]; C1 = Param[2]; C2 = Param[3];
+  /* A = Param[0]; B = Param[1]; C1 = Param[2]; C2 = Param[3];
   if (A == 0 || A == C1 || A == C2 || A == C1+C2-1) {
-    print("contiguity of "+rtostr(A)+" is not isomorphism.");
+    print("contiguity of A is not isomorphism.");
   }
   if (B == 0 || B == C1 || B == C2 || B == C1+C2-1) {
-    print("contiguity of "+rtostr(B)+" is not isomorphism.");
+    print("contiguity of B is not isomorphism.");
   }
   if (A == C1 || B == C1 || A == C1+C2-1 || B == C1+C2-1) {
-    print("contiguity of "+rtostr(C1)+" is not isomorphism.");
+    print("contiguity of C1 is not isomorphism.");
   }
   if (A == C1 || B == C1 || A == C1+C2-1 || B == C1+C2-1) {
-    print("contiguity of "+rtostr(C2)+" is not isomorphism.");
-  }
+    print("contiguity of C2 is not isomorphism.");
+  } */
   return [ [ [[V[0],[1,0]],[V[1],[0,1]],[A,[0,0]]],
              [[(4*V[1]*V[0]^2),[2,0]],[(-8*(A-1)+4*C1+4*C2-8)*V[1]*V[0]^2+((8*(A-1)-4*C1-4*C2+16)*V[1]^2+(8*(A-1)-4*C1-4*C2+8)*V[1])*V[0],[1,1]],[(-8*(A-1)+4*C1+4*C2-8)*V[1]^2*V[0]+(8*(A-1)-4*C1-4*C2+12)*V[1]^3+(-8*(A-1)+4*C1+4*C2-12)*V[1]^2,[0,2]],[(4*(A-1)^2+(-4*C1-8*C2+12)*(A-1)+(4*C2-4)*C1+4*C2^2-12*C2+8)*V[0]^2+((12*(A-1)^2+(-12*C1-8*C2+32)*(A-1)+4*B+4*C1^2+(4*C2-16)*C1-8*C2+24)*V[1]-4*(A-1)^2+(4*C1+8*C2-12)*(A-1)+(-4*C2+4)*C1-4*C2^2+12*C2-8)*V[0],[1,0]],[(4*(A-1)^2+(-8*B-4*C1-8*C2+4)*(A-1)+(4*C1+4*C2-8)*B+4*C2*C1+4*C2^2-8*C2)*V[1]*V[0]+(12*(A-1)^2+(8*B-12*C1-8*C2+40)*(A-1)+(-4*C1-4*C2+12)*B+4*C1^2+(4*C2-20)*C1-12*C2+32)*V[1]^2+(-4*(A-1)^2+(8*C1-4*C2-12)*(A-1)-4*C1^2+12*C1+4*C2^2-8*C2-8)*V[1],[0,1]],[(4*B*(A-1)^2+(-4*C1-8*C2+12)*B*(A-1)+((4*C2-4)*C1+4*C2^2-12*C2+8)*B)*V[0]+(12*B*(A-1)^2+(-12*C1-8*C2+32)*B*(A-1)+(4*C1^2+(4*C2-16)*C1-8*C2+20)*B)*V[1]+4*(A-1)^3+(-8*C1-8*C2+16)*(A-1)^2+(4*C1^2+(12*C2-20)*C1+4*C2^2-20*C2+20)*(A-1)+(-4*C2+4)*C1^2+(-4*C2^2+16*C2-12)*C1+4*C2^2-12*C2+8,[0,0]]] ],
            [ [[V[0],[1,0]],[V[1],[0,1]],[B,[0,0]]],

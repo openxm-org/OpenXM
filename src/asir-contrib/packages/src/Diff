@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.5 2000/01/21 11:45:43 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.6 2000/01/31 10:56:52 okutani Exp $ */
 
 /*------------------------------------*/
 /* Package for differential equations */
@@ -43,6 +43,52 @@ def diff_is_neg0_int(N) {
     return 1;
   }
   return 0;
+}
+
+/* [x1,x2,...] -> [dx1,dx2,...] */
+def diff_make_dv(V) {
+  if (type(V) != 4) {
+    error("parameter type error.");
+  }
+  Dv = [];
+  for (I = 0; I < length(V); I++) {
+    Dv = append(Dv, [strtov("d" + rtostr(V[I]))]);
+  }
+  return Dv;
+}
+
+def diff_op_toasir(L_list, V) {
+  Dv = diff_make_dv(V);
+  L_list_asir = [];
+  for (I = 0; I < length(L_list); I++) {
+    L = L_list[I];
+    L_asir = 0;
+    for (J = 0; J < length(L); J++) {
+      L_asir += L[J][0]*dp_dtop(dp_vtoe(matrix_ltov(L[J][1])), Dv);
+    }
+    L_list_asir = append(L_list_asir, [L_asir]);
+  }
+  return L_list_asir;
+}
+
+def diff_op_fromasir(D_list, V) {
+  Dv = diff_make_dv(V);
+  L_list = [];
+  for (I = 0; I < length(D_list); I++) {
+    D = dp_ptod(D_list[I], Dv);
+    L = [];
+    if (D == 0) {
+      L = append(L, [[0,[0,0]]]);
+    }
+    else {
+      while (D != 0) {
+	L = append(L, [[dp_hc(D),vtol(dp_etov(dp_ht(D)))]]);
+	D -= dp_hm(D);
+      }
+    }
+    L_list = append(L_list, [L]);
+  }
+  return L_list;
 }
 
 /* translate coefficients of type 3 to of type 2. */
@@ -227,6 +273,10 @@ def diff_contain_uc(Obj) {
 /* V: list, [x1,...,xn] */
 /* the return value of this function is reduced by using 'red()'. */
 def diff_act(L, F, V) {
+  if (type(L) == 2) {
+    L = diff_op_fromasir([L], V)[0];
+  }
+
 #if _OPTIMIZE_Diff_
   if (length(V) == 1 && type(F) == 3) {
     return diff_act1(L, F, V);
@@ -592,15 +642,81 @@ def diff_act_hg1_rat(A,B,C,K1,K2,F,V) {
   return diff_acts(diff_op_hg1_rat(A,B,C,K1,K2,V),F,V);
 }
 
-def diff_rat_solve_hg1(A,B,C,K1,K2,N,V) {
+def diff_rat_solve_hg1(A,B,C,V) {
   A_is_int = diff_is_int(A);
   B_is_int = diff_is_int(B);
   if (!(A_is_int || B_is_int)) {
     return [0,[]];
   }
-  L_list = diff_op_hg1_rat(A,B,C,K1,K2,V);
-  Sol = diff_poly_solve(L_list,N,V);
-  return [red(Sol[0]/(V[0]^K1*(1-V[0])^K2)), Sol[1]];
+
+  Dim_poly = length(diff_poly_solve_hg1(A,B,C,V)[1]);
+  if (Dim_poly == 2) {
+    return [0,[]];
+  }
+  Dim_rat = 0;
+
+  Sol1 = 0;
+  C_is_int = diff_is_int(C);
+  if (C_is_int && C >= 2) {
+    if (A_is_int && 1 <= A && A <= C-1) {
+      if (B_is_int && 1 <= B && B <= C-1) {
+	Deg = -((A > B) ? (A):(B))+C-1;
+	Sol1 = diff_sol_hg1_type1(Deg,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
+	Dim_rat++;
+      }
+      else {
+	Sol1 = diff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
+	Dim_rat++;
+      }
+    }
+    else {
+      if (B_is_int && 1 <= B && B <= C-1) {
+	Sol1 = diff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V)/V[0]^(C-1);
+	Dim_rat++;
+      }
+    }
+  }
+  Sol2 = 0;
+  CC = A+B-C+1;
+  CC_is_int = diff_is_int(CC);
+  if (CC_is_int && CC >= 2) {
+    if (A_is_int && 1 <= A && A <= CC-1) {
+      if (B_is_int && 1 <= B && B <= CC-1) {
+	Deg = -((A > B) ? (A):(B))+CC-1;
+	Sol2 = diff_sol_hg1_type1(Deg,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
+	Sol2 = subst(Sol2,V[0],1-V[0]);
+	Dim_rat++;
+      }
+      else {
+	Sol2 = diff_sol_hg1_type1(-A+CC-1,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
+	Sol2 = subst(Sol2,V[0],1-V[0]);
+	Dim_rat++;
+      }
+    }
+    else {
+      if (B_is_int && 1 <= B && B <= CC-1) {
+	Sol2 = diff_sol_hg1_type1(-B+CC-1,A-CC+1,B-CC+1,1,2-CC,V)/V[0]^(CC-1);
+	Sol2 = subst(Sol2,V[0],1-V[0]);
+	Dim_rat++;
+      }
+    }
+  }
+
+  if (Sol1 != 0 && Sol2 != 0) {
+    UC1 = uc(); UC2 = uc();
+    return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+  }
+  if (Sol1 != 0 && Sol2 == 0) {
+    UC1 = uc();
+    return [UC1*Sol1,[UC1]];
+  }
+  if (Sol1 == 0 && Sol2 != 0) {
+    UC2 = uc();
+    return [UC2*Sol2,[UC2]];
+  }
+  if (Sol1 == 0 && Sol2 == 0) {
+    return [0,[]];
+  }
 }
 /*---------------------------*/
 /* the case of two variables */
@@ -784,6 +900,22 @@ def diff_sol_appell4_type1(Deg,A,B,C1,C2,V) {
       C2_n = diff_pochhammer(C2, Basis[I][J][1]);
       N1_m = diff_pochhammer(1, Basis[I][J][0]);
       N2_n = diff_pochhammer(1, Basis[I][J][1]);
+      Sol += (A_mn*B_mn)/(C1_m*C2_n*N1_m*N2_n)*V[0]^Basis[I][J][0]*V[1]^Basis[I][J][1];
+    }
+  }
+  return Sol;
+}
+
+def diff_sol_appell4_type2(Deg,A,B,C1,C2,N1,N2,V) {
+  Basis = diff_make_basis(2, Deg);
+  for (Sol = 0, I = 0; I < length(Basis); I++) {
+    for (J = 0; J < length(Basis[I]); J++) {
+      A_mn = diff_pochhammer(A, Basis[I][J][0]+Basis[I][J][1]);
+      B_mn = diff_pochhammer(B, Basis[I][J][0]+Basis[I][J][1]);
+      C1_m = diff_pochhammer(C1, Basis[I][J][0]);
+      C2_n = diff_pochhammer(C2, Basis[I][J][1]);
+      N1_m = diff_pochhammer(N1, Basis[I][J][0]);
+      N2_n = diff_pochhammer(N2, Basis[I][J][1]);
       Sol += (A_mn*B_mn)/(C1_m*C2_n*N1_m*N2_n)*V[0]^Basis[I][J][0]*V[1]^Basis[I][J][1];
     }
   }
