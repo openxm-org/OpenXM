@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.9 2003/09/11 00:52:05 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.10 2003/11/20 06:04:04 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -51,7 +51,7 @@ kanlibS3 = usage.o option.o
 kanlibS4 = primitive.o
 kanlibK = matrix.o poly4.o replace.o poly3.o poly3a.o poly.o output.o coeff.o order.o switch.o poly2.o parser.o parserpass0.o rat.o ext.o
 kanlibK2 = gradedset.o red.o gb.o gbGM.o syz0.o redm.o sugar.o resol.o hilbert.o ecart.o
-kanlibKclass = Kclass/sample.o Kclass/rawcmo.o Kclass/indeterminate.o
+kanlibKclass = Kclass/sample.o Kclass/rawcmo.o Kclass/indeterminate.o Kclass/tree.o
 
 ##### Add also to Kclass/Makefile
 Kclass/sample.o : $(HEADERS) Kclass/sample.c
@@ -60,6 +60,8 @@ Kclass/rawcmo.o : $(HEADERS) Kclass/rawcmo.c
 	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' rawcmo.o )
 Kclass/indeterminate.o : $(HEADERS) Kclass/indeterminate.c
 	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' indeterminate.o )
+Kclass/tree.o : $(HEADERS) Kclass/tree.c
+	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' tree.o )
 
 
 ######
