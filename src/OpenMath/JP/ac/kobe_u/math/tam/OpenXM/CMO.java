@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.21 2000/03/16 04:54:57 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.22 2000/03/16 09:14:53 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -62,12 +62,12 @@ abstract public class CMO extends OXbody{
       CMO[] datacap = ((CMO_LIST)mathcap[1]).getElements();
       int i=0;
 
-      for(;i<mathcap.length;i++){
-	if(((CMO_INT32)mathcap[i]).intValue() == this.DISCRIMINATOR()){
+      for(;i<datacap.length;i++){
+	if(((CMO_INT32)datacap[i]).intValue() == this.DISCRIMINATOR()){
 	  break;
 	}
       }
-      if(i>=mathcap.length){
+      if(i>=datacap.length){
 	throw new MathcapViolation(this.toCMOexpression());
       }
     }
