@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc,v 1.5 2000/01/20 12:37:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc,v 1.6 2000/02/02 13:06:47 takayama Exp $ */
 
 Phc_proc = -1$
 #define PHC_FIND_PROC(P)  P = getopt(proc);\
@@ -156,6 +156,14 @@ P = phc_start()
 */
 /* phc */
 def phc_start() {
+  extern Xm_unix;
+  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
+    return phc_start_windows(0);
+  else
+    return phc_start_unix();
+}
+
+def phc_start_unix() {
   extern Xm_noX;
   extern Phc_proc;
   if (Xm_noX) {
@@ -167,6 +175,59 @@ def phc_start() {
   Phc_proc = P;
   return(P);
 }
+
+def phc_start_windows(U) {
+  extern Sm1_lib;
+  extern Xm_noX;
+  extern Phc_proc;
+  extern Xm_use_timer_to_start_server;
+
+  CPort = generate_port();
+  SPort = generate_port();
+ 
+  if (U) {  /* Test on unix. */
+    Com = "ox -ox " + Sm1_lib+"/bin/ox_sm1_phc " +
+          " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
+    Com = "oxlog xterm -iconic -T ox_sm1 -n ox_sm1 -e "+ Com + "& ";
+  }else{
+    OpenXM_HOME_WIN = ox_getenv("OpenXM_HOME_WIN");
+    OpenXM_START_EXE = ox_getenv("OpenXM_START_EXE");
+    Sm1_lib = OpenXM_HOME_WIN+"/lib/sm1"; 
+    Ox_sm1_forAsir = OpenXM_HOME_WIN+"\\lib\\sm1\\bin\\ox_sm1_phc.exe"; 
+    F = open_file(Ox_sm1_forAsir);
+    if (F < 0) {
+      error("ox_sm1_phc.exe is not existing.  Check your installation.");
+      return(-1);
+    }
+    close_file(F);
+    Com = OpenXM_HOME_WIN+"\\bin\\ox -ox " + 
+          Ox_sm1_forAsir + " " +
+          " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
+    Com = OpenXM_START_EXE+" /MIN "+Com ;
+  }
+
+  print(Com +"\n");
+  shell(Com);
+  if (Xm_use_timer_to_start_server) {
+    print("Waiting for 3 seconds."); sleep(3000); 
+  }else{
+    purge_stdin(); print("Type in Return to connect to the server.");
+    get_line();
+  }
+  print("Trying to connect to the server...",0)$
+  CSocket = try_connect("localhost",CPort);
+  SSocket = try_connect("localhost",SPort);
+  P = register_server(CSocket,CPort,SSocket,SPort);
+  print(" Done.");
+
+ if (Xm_noX) {
+   sm1(P," oxNoX ");
+ }
+ ox_check_errors(P);
+ Phc_proc = P;
+ return(P);
+}
+
 
 /*&jp-texi
 @menu
