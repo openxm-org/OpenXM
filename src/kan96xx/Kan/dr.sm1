@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.25 2003/12/04 05:27:19 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.26 2003/12/06 02:49:22 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3835,6 +3835,24 @@ $ [ff ff] fromVectors :: $
 
 /addStdoutStderr {
   [(>) (stringOut://@@@stdout) (2>) (stringOut://@@@stderr)] join
+} def
+
+[(,,,)
+[(reparse a polynomial or polynomials)]
+] putUsages
+/,,, {
+  /arg1 set
+  [/in-reparse /ff] pushVariables
+  [
+    /ff arg1 def
+    ff tag 6 eq {
+      ff { ,,, } map /arg1 set
+    } {
+      ff toString . /arg1 set
+    } ifelse
+  ] pop
+  popVariables
+  arg1
 } def
 
 /usages {
