@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.h,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.h,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
 
 #ifndef __NTL_H__
 #define __NTL_H__
@@ -6,7 +6,7 @@
 #include <NTL/ZZXFactoring.h>
 #include <NTL/mat_ZZ.h>
 #include "ox_toolkit.h"
-#include "oxserv.h"
+#include "oxserv.h"	/* for block interrupt input */
 
 #define NTL_FAILURE	(-1)
 #define NTL_SUCCESS	( 0)
@@ -59,7 +59,7 @@ cmon_zzx_t	*	new_cmon_zzx	(ZZX &, cmo_indeterminate *x);
 cmon_mat_zz_t	*	new_cmon_mat_zz	(void);
 cmon_mat_zz_t	*	new_cmon_mat_zz	(mat_ZZ &);
 cmon_factors_t	*	new_cmon_factors	(void);
-cmon_factors_t	*	new_cmon_factors	(ZZ &, vec_pair_ZZX_long &, cmo_indeterminate *x, int);
+cmon_factors_t	*	new_cmon_factors	(ZZ &, vec_pair_ZZX_long &, cmo_indeterminate *x);
 
 
 /*===========================================================================*
@@ -70,6 +70,7 @@ void	delete_cmon_zzx	(cmon_zzx_t *);
 void	delete_cmon_mat_zz	(cmon_mat_zz_t *);
 void	delete_cmon_factors	(cmon_factors_t *);
 void	delete_cmon	(cmo *);
+
 
 /*** ntlconv.cpp ***/
 
@@ -88,6 +89,9 @@ cmo_list	*vec_pair_ZZX_long_to_cmo	(vec_pair_ZZX_long &, cmo_indeterminate *);
 
 int		 cmo_to_mat_zz	(mat_ZZ &, cmo *);
 cmo_list	*mat_zz_to_cmo	(mat_ZZ &);
+
+
+/*** ntl.cpp ***/
 
 /*===========================================================================*
  * NTL

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.2 2003/11/15 09:06:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.3 2003/11/16 13:48:08 iwane Exp $ */
 
 #include <NTL/ZZX.h>
 #include <NTL/mat_ZZ.h>
@@ -150,7 +150,7 @@ ZZ_to_cmo_zz(const ZZ &z)
 	cmo_zz *c;
 	char *ptr;
 
-	ostrstream sout;
+	std::ostrstream sout;
 	sout << z << '\0';
 	ptr = sout.str();
 
@@ -346,7 +346,7 @@ cmo_to_ZZX(ZZX &f, cmo *m, cmo_indeterminate *&x)
 			return (NTL_FAILURE);
 		}
 		{
-			istrstream sin(str, strlen(str));
+			std::istrstream sin(str, strlen(str));
 			sin >> f;
 		}
 		break;

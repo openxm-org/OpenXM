@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
 
 #include "ox_toolkit.h"
 #include "oxserv.h"
@@ -7,13 +7,6 @@
 
 #define VERSION 0x00000001
 #define ID_STRING "$Revision$"
-
-#if 0
-extern "C" {
-void dprintf(const char *, ...);
-}
-#endif
-
 
 static void
 ntl_executeFunction(const char *func, cmo **arg, int argc)

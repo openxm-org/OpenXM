@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.7 2003/11/14 03:20:07 ohara Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.8 2003/11/15 09:06:20 iwane Exp $
 #
 #
 #
@@ -52,19 +52,17 @@ $(PROG): $(OBJC) $(LIBDIR)/libox.a $(NTL_LIBDIR)/libntl.a
 	$(CPP) $(CPPFLAGS) -L$(LIBDIR) -L$(NTL_LIBDIR) $(OBJC) -o $@ -lntl -lgmp -lox -lgc ${LIBS}
 
 
-ox_ntl_debug: ntl.cpp ntl.h oxstack.o
-	$(CPP) $(CPPFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) ntl.cpp ntlconv.o oxstack.o -o $@ -lntl -lgmp -lox -lgc
-
-oxserv_debug: oxserv.h oxserv.c
-	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
-
 oxserv.c: oxserv.h oxstack.h
 
 oxstack.c: oxstack.h
 
 main.cpp: oxserv.h ntl.h oxstack.h
 
+cmon.cpp: ntl.h
+
 ntl.cpp: ntl.h
+
+ntlconv.cpp: ntl.h
 
 .cpp.o:
 	$(CPP) $(CPPFLAGS) $(DEFS) -c $< -o $@
@@ -78,7 +76,9 @@ install: all
 clean:
 	-$(RM) -f $(OBJC) $(PROG) ox_ntl_debug oxserv_debug
 	-$(RM) -fr ${WORK}
-	@-$(RM) -f .*-ntl-done
+
+distclean:
+	-$(RM) -f .*-ntl-done
 
 
 fetch-ntl:
@@ -105,7 +105,7 @@ build-ntl: patch-ntl
 		(cd ${WORK}/${DISTFILEDIR}/src; \
 		 LD_LIBRARY_PATH=${OpenXM_HOME}/lib; \
 		 export LD_LIBRARY_PATH; \
-		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT};
+		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT};	\
 		 make); \
 		touch .build-ntl-done; \
 	fi
@@ -115,4 +115,14 @@ install-ntl: build-ntl
 		(cd ${WORK}/${DISTFILEDIR}/src; make install); \
 		touch .install-ntl-done; \
 	fi
+
+#########################################
+# DEBUG
+#########################################
+ox_ntl_debug: ntl.cpp ntl.h ntlconv.cpp oxserv.h
+	$(CPP) $(CPPFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) $(DEFS) ntl.cpp ntlconv.o cmon.o oxserv.o oxstack.o -o $@ -lntl -lgmp -lox -lgc
+
+oxserv_debug: oxserv.h oxserv.c
+	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) $(DEFS) oxserv.c oxstack.o -o $@ -lgmp -lox -lgc
+
 

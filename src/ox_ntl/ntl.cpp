@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
 
 #include <NTL/ZZXFactoring.h>
 #include <NTL/LLL.h>
@@ -10,7 +10,6 @@
 #define __NTL_PRINT (1)
 #endif
 
-#define __NTL_PRINT (1)
 #define DPRINTF(x)	printf x; fflush(stdout)
 
 /****************************************************************************
@@ -80,36 +79,25 @@ ntl_lll(cmo **arg, int argc)
 	ZZX f;
 	int ret;
 	cmon_mat_zz_t *mat;
-	
-DPRINTF(("lll start\n"));
 
 	if (argc != 1) {
-DPRINTF(("invalid argc %d\n", argc));
 		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
 	}
 
 	mat = new_cmon_mat_zz();
 	ret = cmo_to_mat_zz(*mat->mat, arg[0]);
-DPRINTF(("ret = %d, convert\n", ret));
 	if (ret != NTL_SUCCESS) {
-DPRINTF(("convert failed\n", ret));
 		delete_cmon_mat_zz(mat);
 		/* format error */
 		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(type)")));
 	}
 
-DPRINTF(("convert success\n", ret));
-
 #if __NTL_PRINT
-DPRINTF(("convert success\n", ret));
 	cout << "input: " << (*mat->mat) << endl;
 #endif
 
-
-DPRINTF(("lll start\n", ret));
 	ZZ det2;
 	long rd = LLL(det2, *mat->mat);
-
 
 #if __NTL_PRINT
 	cout << "output: " << (*mat->mat) << endl;
@@ -122,11 +110,27 @@ DPRINTF(("lll start\n", ret));
 
 #if __NTL_DEBUG /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
+#include <unistd.h>
+#include <gc/gc.h>
+#include <strstream>
+#include "gmp.h"
+
+void ntl_free(void *ptr, size_t size) {}
+
+void *ntl_realloc(void *org, size_t old, size_t size)
+{
+	void *ptr = GC_realloc(org, size);
+	return (ptr);
+}
+
+
 int
 main(int argc, char *argv[])
 {
+#if 0
+{
 	ZZX f;
-	const char *str = "[1 -1 -1 1]";
+	const char *str = "12345";
 	int num = 1;
 	char *var = "x";
 	cmo *c;
@@ -140,9 +144,40 @@ main(int argc, char *argv[])
 	arg[0] = (cmo *)poly;
 
 	c = ntl_fctr(arg, num);
+}
+#endif
+
+{
+	cmo_zz *n;
+	
+	istrstream istr("[3 -3 -6]");
+	ZZ cont;
+	ZZX fac;
+	vec_pair_ZZX_long facs;
+	cmo_indeterminate *x = new_cmo_indeterminate((cmo *)new_cmo_string("x"));
+	istr >> fac;
+
+	factor(cont, facs, fac);
+
+	//	mpz_clear(ppp->mpz);
+	mp_set_memory_functions(GC_malloc, ntl_realloc, ntl_free);
+	for (int i = 0;; i++) {
+
+		cmon_factors_t *mat = new_cmon_factors(cont, facs, x);
+		cmo *aaa = convert_cmon((cmo *)mat);
+		delete_cmon((cmo *)mat);
+
+		if (i % 1000 == 0) {
+			printf("GC-counts: %d,   size: %u\n", GC_gc_no, GC_get_heap_size());
+			GC_gcollect();
+			usleep(1);
+		}
+	}
+}
+
 
 	return (0);
 }
 
-#endif
+#endif /* __NTL_DEBUG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
