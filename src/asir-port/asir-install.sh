@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.2 2004/03/02 09:51:45 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.3 2004/05/05 10:41:45 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $OpenXM_HOME/bin
 os=`uname -s`
@@ -11,12 +11,12 @@ libmd=`cat $OpenXM_HOME/lib/asir/distinfo-lib`
 #asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/tar.exe"
 #asirlibname="tar.exe"
 # 
-asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix/asir-$os-$md.gz"
+asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2005-02/asir-$os-$md.gz"
 asirnamegunzip="asir-$os-$md"
 asirname="asir-$os-$md.gz"
-asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix/asirlib-$os-$libmd.tar.gz"
+asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2005-02/asirlib-$os-$libmd.tar.gz"
 asirlibname="asirlib-$os-$libmd.tar.gz"
-ot="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix/ox-texmacs-$os.tar.gz"
+ot="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2005-02/ox-texmacs-$os.tar.gz"
 otname="ox-texmacs-$os.tar.gz"
 
 ASIR_LIB_FILES="alph bfct bgk const cyclic defs.h dmul fctrdata fctrtest \

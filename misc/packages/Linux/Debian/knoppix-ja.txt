@@ -1,12 +1,16 @@
-$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.6 2004/03/01 03:10:26 takayama Exp $ 
+$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.7 2004/03/10 11:34:24 takayama Exp $ 
 2004/02/23 by Takayama
+2005/02/03 Revised.
 
 deb package の生成の仕方:
-[1] make -f Makefile-knoppix build
+[0] OpenXM_HOME を適切に設定.
+[0'] src/asir-port ; set ftp directory for this version
+     in Makefile and asir-install.sh
+[1] make -f Makefile-knoppix VERSION=1.2.3 build 
    FLL-free な部分のみを work へ Debian package 化.
    具体的には OpenXM/bin/asir と OpenXM/lib/asir/... 以外.
 
-[2] cd work/openxm-head/OpenXM/src/asir-port
+[2] cd work/openxm-1.2.3/OpenXM/src/asir-port
     make copy-for-knoppix
    FLL の部分を ftp サーバへコピー.
 
@@ -91,3 +95,5 @@ hamada>http://plaza25.mbn.or.jp/~efialtes/docs/menu_ja.html/ch3.html
 =========================
 高山の個人ノート:  参照  計算ノート 2004-3-10, 
                          ~taka/this03/misc-2003/A3/knoppix-03-05
+                         ~taka/this04/misc-2004/A2/knoppix-02
+                   
