@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.1 1999/12/09 22:44:55 ohara Exp $
 
 ☆ libox.a マニュアル。
 
@@ -22,8 +22,11 @@ receive_cmo() を用います。これらの関数は OX ヘッダを扱いませんので、OX
 メッセージを送受信するときには send_ox_tag(), receive_ox_tag() をその
 前に呼ぶ必要があります。
 
+1. データ型
 
-☆ CMO オブジェクト
+このツールキットで定義されている各構造体の生成については次節を参照せよ。
+
+1.1 CMO (Common Math Object)
 次のデータ型(構造体)が用意されている。
 
 cmo
@@ -44,9 +47,23 @@ cmo_indeterminate
 cmo_error2
 
 このうち cmo 型はいわば抽象基底クラスに相当するものであり、この型のオ
-ブジェクトをつくってはいけない。また cmo_distributed_polynomial は 
-cmo_list の派生クラスであると思ってもよい。ユーザはオブジェクトの実体を
-直接扱ってはならない。必ず、new_... 関数、すなわち
+ブジェクトを明示的には生成されない。このクラスはポインタ型のキャストの
+ために用意されている。また cmo_distributed_polynomial は cmo_list の派
+生クラスであると思ってもよい。
+
+1.2 OX オブジェクト
+次のデータ型(構造体)が用意されている。
+
+ox
+ox_command
+ox_data
+
+このうち、ox 型は抽象基底クラスなので、オブジェクトをつくってはいけない。
+
+2. オブジェクトの生成
+
+オブジェクトを生成するために、new 関数群が用意されている。それぞれの関
+数はオブジェクトを生成して、そのオブジェクトへのポインタを返す。
 
 new_cmo_null();
 new_cmo_int32(int i);
@@ -66,14 +83,97 @@ new_cmo_ring_by_name(cmo* ob);
 new_cmo_indeterminate(cmo* ob);
 new_cmo_error2(cmo* ob);
 
-によってオブジェクトを生成し、ユーザはポインタのみを扱うこと。
+3. 高水準 API
 
-☆ OX オブジェクト
-次のデータ型(構造体)が用意されている。
+高水準 API は「OpenXM クライアント」から利用することを前提に設計されている。
 
-ox
-ox_command
-ox_data
+3.1 通信の開始   
 
-このうち、ox 型は抽象基底クラスなので、オブジェクトをつくってはいけない。
+通信を開始する場合には、次の関数のいずれかを利用する。
+
+ox_file_t ox_start(char* host, char* prog1, char* prog2);
+ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
+
+第一の関数は、ローカルマシン上に OpenXM サーバを起動し、そのサーバとの
+間に"reverse モード"で通信路を開設する。通信に使われるポート番号は自動
+的に生成される。host はローカルマシンのホスト名(あるいは "localhost")、
+prog1 はコントロールサーバの実行ファイル名、
+prog2 は計算サーバの実行ファイル名でなければならない。
+
+第二の関数は、リモートマシン上に既に起動されている OpenXM サーバとの間に
+通信路を開設する。通信に使われるポート番号は明示的に与えなければならない。
+host はリモートマシンのホスト名、
+portControl はコントロールサーバとの通信のためのポート番号、
+portStream は計算サーバとの通信のためのポート番号である。
+
+それぞれの関数はサーバ(正確には二つのサーバの組)の識別子を返す。
+この識別子は高水準 API の各関数で利用される。
+
+3.2 通信の終了
+
+通信の終了のためには次の二つの関数が用意されている。
+
+void ox_close(ox_file_t sv);
+void ox_shutdown(ox_file_t sv);
+
+第一の関数はコントロールサーバに SM_control_kill を送ることによって、
+サーバを終了させる。第二の関数は計算サーバに SM_shutdown を送ることに
+よって、サーバを終了させる(予定)。
+
+3.3 SM コマンドの送信
+
+void  ox_push_cmd(ox_file_t sv, int sm_code);
+
+サーバにスタックマシンコマンドを送る。コマンドはコマンド番号で与える。
+
+3.4 CMO の送受信
+
+void  ox_push_cmo(ox_file_t sv, cmo *c);
+cmo*  ox_pop_cmo(ox_file_t sv);
+char* ox_popString(ox_file_t sv);
+
+ox_push_cmo は cmo を送信、ox_pop_cmo は cmo を受信する。ox_popString
+は cmo を文字列形式に変換して受信するが、変換の結果はサーバによって異
+なる。
+
+3.5 スタック処理
+
+int ox_pops(ox_file_t sv, int num);
+
+スタック上の num 個のオブジェクトを廃棄する。
+
+3.6
+
+int ox_flush(ox_file_t sv);
+
+通信路を flush する(実際には何もしない)。
+
+3.7 
+
+void ox_reset(ox_file_t sv);
+
+計算を中断する。
+
+3.8
+
+void ox_execute_string(ox_file_t sv, char* str);
+
+サーバのローカル言語で書かれた命令を評価し、結果をスタックに積む。
+
+3.9 
+
+int   ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
+
+function(argv[1], ...) を計算し、結果をスタックに積む。
+
+3.10
+
+cmo_mathcap* ox_mathcap(ox_file_t sv);
+
+Mathcap を受け取る。現在は Mathcap の処理はユーザプログラムに任されている。
+いずれこの関数は廃止される予定。
+
+4. 低水準 API
+
+4.1 通信の開始   
 
