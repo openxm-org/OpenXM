@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.12 2002/04/05 01:28:47 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.13 2002/04/06 02:17:55 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -169,7 +169,7 @@ install_lib_bin_windows :
 copy-kan-lib : clean-for-install
 	mkdir $(OpenXM_lib)/sm1
 	touch $(OpenXM_lib)/sm1/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_COPIED_FROM_kan96xx_Doc
-	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
+	-if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  cp $(KANHOME)/Doc/* $(OpenXM_lib)/sm1 ; \
 	  mkdir $(OpenXM_lib)/sm1/bin ; \
 	else \
