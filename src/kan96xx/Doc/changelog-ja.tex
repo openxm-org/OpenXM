@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.11 2004/12/17 00:13:08 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.12 2005/01/23 02:41:16 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -345,6 +345,23 @@ Bug: {\tt plot\_dots} $B$G(B, $B7W;;$7$J$,$iI=<($9$k$H$$$&J}K!$,$&$^$/$$$+$J$
 \item scanner2 $B$N(B bug $B$K$h$j(B, $B%H%C%W%l%Y%k0J30$G$O(B 8 bit $B$NL>A0$r$&$1$D$1(B
     $B$J$+$C$?(B.
 \item {\tt OpenXM/src/kan96xx/Kan/scanner2.c} 1.7
+\end{enumerate}
+
+\section{2005-02-28, ox, bug fix}
+
+\begin{enumerate}
+\item Engine $B$N$_$r(B quit  $B$9$k$H(B control server $B$,;D$k%P%0(B.
+$B2r7h(B: oxmain.c $B$G(B  SIGCHLD $B$r<u$1<h$k$h$&$K$7$?(B.
+\item Engine $B$r(B quit $B$7$F$7$^$C$?$"$H(B, Engine $B$G%G!<%?$r$*$/$m$&$H$9$k$H(B,
+SIGPIPE $B$G(B $B%/%i%$%"%s%H$,=*N;$7$F$7$^$&%P%0(B.
+\begin{verbatim}
+  (ox.sm1) run
+  sm1connectr
+  oxsm1.ccc (quit) oxsubmit
+  oxsm1.ccc oxpopcmo --> $B%/%i%$%"%s%H=*N;(B.
+\end{verbatim}
+$B$^$@40A4$K2r7h$7$F$J$$(B. 
+ox texmacs $B$,@5$7$/F0:n$9$k$N$+MW%F%9%H(B.
 \end{enumerate}
 
 \end{document}

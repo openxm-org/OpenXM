@@ -1,8 +1,9 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.10 2004/02/25 23:14:35 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.11 2004/12/16 08:42:14 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 #include <errno.h>
 #include "file2.h"
 
@@ -98,10 +99,17 @@ int fp2fflush(FILE2 *fp2) {
   if (checkfp2(fp2,"fp2fflush ") == -1) return(-1);
   if (fp2->fd == -1) return(0);
   if (fp2->writepos > 0) {
+	signal(SIGPIPE,SIG_IGN);
     r = write(fp2->fd,fp2->writeBuf,fp2->writepos);
+	signal(SIGPIPE,SIG_DFL);
     fp2->writepos = 0;
     if (r <= 0) {
       fprintf(stderr,"fp2fflush(): write failed on %d.\n",fp2->fd);
+	  if (errno == EPIPE) {
+		fprintf(stderr,"Your peer is closed --- SIGPIPE. Closing this fp2.\n");
+		fp2fclose(fp2);
+		return r;
+	  }
     }
     return(r);
   }else{
@@ -395,3 +403,4 @@ int fp2fputs(char *s,FILE2 *fp) {
     ....
  }
 */
+

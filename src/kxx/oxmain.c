@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.19 2004/09/17 08:46:10 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.20 2004/09/17 12:32:11 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -37,6 +37,7 @@ static void errorToStartEngine(void);
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
 /*  gcc -v -c hoge.c */
+static void mywait();
 
 void *sGC_malloc(int n) {
   return (void *)malloc(n);
@@ -326,6 +327,7 @@ parentServerMain(int fdControl, int fdStream) {
   extern OxTerminateMode;
   extern void myServerExit();
 
+  signal(SIGCHLD,mywait);
   if (OxTerminateMode) {
 	/*
 	  OxTerminateMode cannot be used if you run ox by xterm -exec ox ...
@@ -482,5 +484,16 @@ static void couldNotFind(char *s) {
 }
 
 
+static void mywait() {
+  int status;
+  int pid;
+  int i,j;
+  /* signal(SIGCHLD,SIG_IGN); */
+  pid = wait(&status);
+  fprintf(stderr,"Control: child process %d is exiting.\n",pid);
+  fprintf(stderr,"Control: Shutting down the control server.\n");
+  sleep(2);
+  exit(0);
+}
 
 
