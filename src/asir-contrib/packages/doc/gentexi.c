@@ -1,4 +1,4 @@
- /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.5 2002/08/23 03:26:16 noro Exp $  */
+ /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.6 2002/10/23 01:11:41 takayama Exp $  */
 
 #include <stdio.h>
 int Debug = 0;
@@ -276,7 +276,7 @@ struct item *getItem() {
     if (strcmp(key,"begin:") == 0) break;
   }while (p >= 0);
   if (p < 0) {
-    fprintf(stderr,"gentexi: End of input file.\n");
+    /* fprintf(stderr,"gentexi: End of input file.\n"); */
     return NULL;
   }
   p = nextToken(key,LIMIT);
