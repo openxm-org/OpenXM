@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.4 2000/06/15 07:33:29 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.5 2000/12/10 03:33:46 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3562,14 +3562,15 @@ $ [ff ff] fromVectors :: $
 ]] putUsages
 
 /define_ring_variables {
-  [/in-define_ring_variables /v /p /v0] pushVariables
+  [/in-define_ring_variables /drv._v /drv._p /drv._v0] pushVariables
+%% You cannot use these names for names for polynomials.
   [
-     /v getVariableNames def
-     /v0 v def
-     v { dup /p set (/) 2 1 roll ( $) p ($. def ) } map cat
-     /v set
-%     v message
-     [(parse) v] extension 
+     /drv._v getVariableNames def
+     /drv._v0 drv._v def
+     drv._v { dup /drv._p set (/) 2 1 roll ( $) drv._p ($. def ) } map cat
+     /drv._v set
+%     drv._v message
+     [(parse) drv._v] extension 
   ] pop
   popVariables
 } def
