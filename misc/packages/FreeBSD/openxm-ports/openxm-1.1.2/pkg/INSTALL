@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/pkg/INSTALL,v 1.3 2000/03/04 07:25:35 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/pkg/INSTALL,v 1.4 2000/03/06 04:29:02 takayama Exp $
 # If you change this, modify Makefile/ post-install, too.
 echo "pkg/INSTALL script"
 echo -n "PKG_PREFIX is "
@@ -11,5 +11,8 @@ if [ $2 = "POST-INSTALL" ] ; then
 	(cd $PKG_PREFIX/OpenXM/rc ; make clean ; make install PREFIX=$PKG_PREFIX) ;
 	cp $PKG_PREFIX/OpenXM/man/man1/sm1.1 $PKG_PREFIX/man/man1 ;
 	cp $PKG_PREFIX/OpenXM/man/man1/openxm.1 $PKG_PREFIX/man/man1 ;
-	gzip $PKG_PREFIX/man/man1/sm1.1 $PKG_PREFIX/man/man1/openxm.1 ;
+	gzip -f $PKG_PREFIX/man/man1/sm1.1 $PKG_PREFIX/man/man1/openxm.1 ;
+	if [ -f /var/tmp/asir_key.save ] ; then
+		cp -f /var/tmp/asir_key.save $PKG_PREFIX/OpenXM/lib/asir/asir_key ;
+    fi ;
 fi

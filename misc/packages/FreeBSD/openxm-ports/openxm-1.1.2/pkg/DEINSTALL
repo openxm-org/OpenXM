@@ -1,0 +1,20 @@
+#!/bin/sh
+# $OpenXM$
+
+prefix=/usr/local
+
+cat << END
+
+Deinstalling the OpenXM package will remove your 
+$prefix/OpenXM/lib/asir/asir_key file.
+It will be moved to /var/tmp/asir_key.save before the deletion.
+If the install script finds /var/tmp/asir_key.save,
+the original asir_key in the package will be replaced by
+/var/tmp/asir_key.save
+
+END
+
+if [ -f ${prefix}/OpenXM/lib/asir/asir_key ]; then
+	echo "Copying" ;
+	cp -f ${prefix}/OpenXM/lib/asir/asir_key /var/tmp/asir_key.save ;
+fi
