@@ -1,9 +1,9 @@
 
-/* $OpenXM: OpenXM/src/ruby/testserv1.c,v 1.1 2000/01/28 07:04:25 ogino Exp $ */
+/* $OpenXM: OpenXM/src/ruby/testserv1.c,v 1.2 2000/01/28 08:24:42 ogino Exp $ */
 
 #include <stdio.h>
 /* #include <pari.h> */
-#include "../ox_toolkit/ox.h"
+#include "ox_toolkit.h"
 
 int fd_rw = 3;
 
