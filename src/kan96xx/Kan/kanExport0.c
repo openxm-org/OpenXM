@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.11 2003/06/26 08:14:46 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.12 2003/06/26 13:00:10 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1621,6 +1621,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
             }
           }
         }
+		switch_function("grade","module1v");
+		/* Warning: grading is changed to module1v!! */
       } else {
         errorKan1("%s\n","Unknown keyword to set_up_ring@");
       }

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.10 2001/01/04 12:29:33 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.11 2003/06/26 08:14:45 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -276,7 +276,7 @@ message-quiet
   /arg1 set
   [/in-gb /aa /typev /setarg /f /v 
    /gg /wv /termorder /vec /ans /rr /mm
-   /degreeShift
+   /degreeShift  /env2
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -333,6 +333,8 @@ message-quiet
        /degreeShift aa 3 get def
        /setarg 1 def
     } { } ifelse
+
+    /env1 getOptions def
 
     setarg { } { (gb : Argument mismatch) error } ifelse
     
@@ -407,6 +409,7 @@ message-quiet
     }{ }
     ifelse
     %% 
+    env1 restoreOptions  %% degreeShift changes "grade"
 
     /arg1 ans def
   ] pop
@@ -763,6 +766,9 @@ message-quiet
   (  )
   $Example 4: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
   $             [ [ (x) -1 (y) -1] ] ] gb pmat ; $
+  (  )
+  $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
+  $             [ [ (x) -1 (y) -1] ]  [[0 1] [-3 1] ] ] gb pmat ; $
   (  )
   (cf. gb, groebner, groebner_sugar, syz. )
 ]] putUsages
