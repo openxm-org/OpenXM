@@ -1,76 +1,215 @@
-%% $OpenXM$
-//&jp \section{コントロールメッセージ (SMObject/TCPIP/Control)}
-//&eg \section{Control message (SMObject/TCPIP/Control)} (This section has not been translated.)
+%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+\section{Session Management}
+
+\subsection{Control server}
+/*&jp
+OpenXM では, 次に述べるような単純かつロバストなサーバの制御方法
+を採用している. 
+
+OpenXM サーバは論理的に 2 つの I/O channel をもつ: 一方は計算データ
+用であり, 他方は計算制御用である. 制御 channel はサーバを制御する
+ためのコマンドを送るために使われる. 
+サンプルサーバ ({\tt oxmain.c}) では, そのようなコントロールメッセージ
+は別のプロセスが行っている. 以下, そのプロセスをコントロールサーバ
+と呼ぶ. これに対して, 計算用サーバをエンジンと呼ぶ. 
+コントロールサーバとエンジンは同一のマシン上で動作する. 
+このため, コントロールサーバからエンジンに signal を送ることは容易である. 
+コントロールサーバ自体も OX スタックマシンであり
+{\tt SM\_control\_*} コマンドを受け取る. それらはエンジンへの
+signal 送信, engine process の終了などの request のためのコマンドである. 
+*/
+
+/*&eg
+In OpenXM we adopted the following simple and robust method to 
+control servers.
+
+An OpenXM server has logically two I/O channels: one for exchanging
+data for computations and the other for controlling computations. The
+control channel is used to send commands to control execution on the
+server. The sample server ({\tt oxmain.c}) processes such control
+messages on another process. We call such a process a {\it
+control server}. In contrast, we call a server for computation an {\it
+engine}. As the control server and the engine runs on the
+same machine, it is easy to send a signal from the control server. 
+A control server is also an
+OpenXM stack machine and it accepts {\tt SM\_control\_*} commands
+to send signals to a server or to terminate a server.
+*/
+
+\subsection{OpenXM reset protocol}
 
 /*&jp
+クライアントはコントロールサーバ経由でいつでもエンジンに signal を
+送ることができる. しかし, I/O 操作は通常バッファリングされている
+ため, トラブルが生ずる場合がある. エンジンを安全にリセットするため
+次が必要である. 
+
 \begin{enumerate}
-\item
-サーバは {\tt SM\_control\_reset\_connection} 
-メッセージを受信したら, 現在の計算を中断する.
-中断操作は細心の注意をもって行なわないといけない.
-サンプルサーバ ({\tt oxmain.c})では, コントロールメッセージの
-処理は別のプロセスがおこなっており, SIGUSR1 割り込みをスタックマシンへ
-かける.
-もしサーバがメッセージの通信中であれば, このコントロールメッセージ
-をすぐには実行せず, メッセージ通信を終了するのを待つ.
-当然, メッセージを発信中に, このメッセージを送信してもいけない.
-(Java 風にいえば, すべての メッセージは synchronized object である.)
-また, たとえば file IO なども, 中断をうけてはならない, synchronized な
-操作であろう.
-クライアントがサーバに controlResetConnection コントロールメッセージを
-おくったら, サーバは, 現在の受信バッファをすべてクリアし,
-クライアントへ
-{\tt OX\_SYNC\_BALL}
-を送る.
-クライアントは, コントロールメッセージをおくったあと,
-待機モードに入り, {\tt OX\_SYNC\_BALL}
-をうけとるまですべてのメッセージを読み飛ばす.
-クライアントは {\tt OX\_SYNC\_BALL} をうけとったら,
-サーバに {\tt OX\_SYNC\_BALL} を送る.
-サーバは, 最初の {\tt OX\_SYNC\_BALL} を投げたあと,
-待機モードに入り, 
-{\tt OX\_SYNC\_BALL}
-をうけとるまですべてのメッセージを読み飛ばす.
-%% 最後に,  サーバ
-%% はすべての操作が終了したことを通知するため,
-%% クライアントに
-%% {\tt OX\_SYNC\_BALL} を投げる.
-\\ Request:
+\item 全ての OX メッセージは Java の意味で synchronized object である. 
+
+\item エンジンのリセット後に送られるクライアントからの計算要求メッセージと
+エンジンからの返答が正しく対応していなければならない. 
+\end{enumerate}
+
+{\tt SM\_control\_reset\_connection} は, エンジンの安全なリセットを
+行う一連の手続きを開始するための SM コマンドである. 
+クライアントから {\tt SM\_control\_reset\_connection} がコントロール
+サーバに送られると, コントロールサーバは {\tt SIGUSR1} をエンジンに
+送る. 以後の手続きは次の通りである. 
+
+\vskip 2mm
+\noindent
+{\it クライアント側} 
+\begin{enumerate}
+\item {\tt SM\_control\_reset\_connection} をコントロールサーバに
+送った後, クライアントはリセット状態に入る. リセット状態では, 
+{\tt OX\_SYNC\_BALL} を受け取るまですべてのメッセージを読みとばす. 
+\item {\tt OX\_SYNC\_BALL} を受け取ったあと, クライアントは
+{\tt OX\_SYNC\_BALL} をエンジンに送り, 通常状態に戻る. 
+\end{enumerate}
+
+\noindent
+{\it エンジン側}
+\begin{enumerate}
+\item 
+{\tt SIGUSR1} をコントロールサーバから受け取ったら, エンジンは
+リセット状態に入る. {\tt OX\_SYNC\_BALL} をクライアントに送る. 
+この時点でクライアントは既にリセット状態にあるので, この送信が
+ブロックされることはない. 
+\item エンジンは
+{\tt OX\_SYNC\_BALL} を受け取るまですべてのメッセージを読みとばす. 
+{\tt OX\_SYNC\_BALL} を受け取ったら通常状態に戻る. 
+\end{enumerate}
+*/
+/*&eg
+A client can send a signal to an engine by using the control channel 
+at any time. However, I/O operations are usually buffered,
+which may cause troubles.
+To reset an engine safely the following are required.
+
+\begin{enumerate}
+\item Any OX message must be a synchronized object in the sense of Java.
+
+\item After restarting an engine, a request from a client 
+must correctly corresponds to the response from the engine.
+\end{enumerate}
+
+{\tt SM\_control\_reset\_connection} is a stack machine command to
+initiate a safe resetting of an engine.
+The control server sends {\tt SIGUSR1} to the engine if it receives
+{\tt SM\_control\_reset\_connection} from the client.
+Under the OpenXM reset protocol, an engine and a client act as follows.
+
+\vskip 2mm
+\noindent
+{\it Client side} 
+\begin{enumerate}
+\item After sending {\tt SM\_control\_reset\_connection} to the
+control server, the client enters the resetting state. It discards all {\tt
+OX} messages from the engine until it receives {\tt OX\_SYNC\_BALL}.
+\item After receiving {\tt OX\_SYNC\_BALL} the client sends 
+{\tt OX\_SYNC\_BALL} to the engine and returns to the usual state.
+\end{enumerate}
+
+\noindent
+{\it Engine side}
+\begin{enumerate}
+\item 
+After receiving {\tt SIGUSR1} from the control server,
+the engine enters the resetting state.
+The engine sends {\tt OX\_SYNC\_BALL} to the client.
+The operation does not block because
+the client is now in the resetting state.
+\item The engine discards all OX messages from the engine until it
+receives {\tt OX\_SYNC\_BALL}. After receiving {\tt OX\_SYNC\_BALL} 
+the engine returns to the usual state.
+\end{enumerate}
+*/
+
+\begin{figure}[htbp]
+\epsfxsize=17cm
+\epsffile{reset.eps}
+\caption{OpenXM reset procedure}
+\label{reset}
+\end{figure}
+
+/*&eg
+Figure \ref{reset} illustrates the flow of data.
+{\tt OX\_SYNC\_BALL} is a special OX message and
+is used to mark the end of data remaining in the
+I/O streams. After reading it, it is assured that each stream is empty
+and that the subsequent request from a client correctly 
+corresponds to the response from the engine.
+*/
+/*&jp
+図 \ref{reset} はデータの流れを示す. 
+{\tt OX\_SYNC\_BALL} は特殊な OX メッセージであり, 
+I/O stream に残るデータの終りを示す. 
+{\tt OX\_SYNC\_BALL} を読んだ後, それぞれの stream は空であり, 
+後に続くクライアントからのリクエストと, エンジンからの返答が
+正しく対応する. 
+*/
+\subsection{Control message (SMObject/TCPIP/Control)}
+
+\begin{enumerate}
+\item 
+\begin{verbatim}
+SM_control_reset_connection 
+\end{verbatim}
+/*&jp
+コントロールサーバに, {\tt SIGUSR1} をエンジンに送るよう要求する. 
+*/
+/*&eg
+It requests a control server to send {\tt SIGUSR1} to the engine.
+The control server should immediately reply an acknowledgment to
+the client.
+*/
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_reset\_connection}  \\
 \hline 
 \end{tabular}
-\\ Result:  
+Result:  
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt CMO\_INT32} {\rm result} \\
 \hline 
 \end{tabular}
 
-@@@
-
 \item
-サーバはこのメッセージを受信したらただちにコントロールメッセージへの
-返答をおくり, すべてのファイルをクローズして終了する.
-\\ Request:
+\begin{verbatim}
+SM_control_kill
+\end{verbatim}
+/*&jp
+サーバはこのメッセージを受信したら
+%ただちに返答をおくり, 
+すべてのファイルをクローズして終了する.
+*/
+/*&eg
+It requests a control server to terminate the engine and the control server
+itself. 
+%The control server should immediately reply an acknowledgment to
+%the client.
+All files and streams should be closed before the termination of servers.
+*/
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_kill}  \\
 \hline 
 \end{tabular}
-\\ Result:  
-Empty \\
-
-
+Result: none.
 \end{enumerate}
 
 \medbreak
 \noindent
-{\bf 例}: (シリアル番号は省略してある.)\ 
+//&jp {\bf 例}: (シリアル番号は省略してある.) 
+//&eg {\bf Example}: (serial numbers are omitted.)
 \begin{verbatim}
 0  0 2 01 (OX_COMMAND) 
 0  0 4 06 (SM_control_reset_connection)
 \end{verbatim}
 
-Reset に対する返事.
+//&jp Reset に対する返事.
+//&eg Reply to the reset request
 \begin{verbatim}
 0  0 2 02 (OX_DATA)
 0  0 0  2 (CMO_INT32)
@@ -78,12 +217,11 @@ Reset に対する返事.
 \end{verbatim}
 
 
-第1のチャンネルでは次の {\tt OX\_SYNC\_BALL} が交換されて同期が
-取られる.
+//&jp 第1のチャンネルでは次の {\tt OX\_SYNC\_BALL} が交換されて同期が取られる.
+//&eg {\tt OX\_SYNC\_BALL} are exchanged on the data channel for synchronization.
+
 \begin{verbatim}
 0   0   2   03   (OX_SYNC_BALL)
 \end{verbatim}
-
-*/
 
 

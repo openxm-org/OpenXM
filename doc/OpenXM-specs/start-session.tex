@@ -1,7 +1,76 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
 //&jp \section{TCP/IP でのセッションのスタート}
-//&eg \section{How to start a session on TCP/IP} (This section has not yet been translated.)
+//&eg \section{How to start a session on TCP/IP}
 
+\subsection{Standard I/O on OX servers}
+
+/*&jp
+サーバの実装を容易にするために, サーバは, 起動時に file descriptor 3,
+4 がそれぞれクライアントからの入力, クライアントへの出力用に open され
+ていると仮定する. すなわち, サーバ自体が通信を成立させるための socket 
+操作を行う必要はない. 但し, OX message の効率よい送受信のために, data 
+のバッファリングを行うことはサーバ側の責任である. UNIX においては,
+file descriptor へのbuffer の attach は {\tt fdopen()} で行うことがで
+きる.
+*/
+
+/*&eg
+In order to make it easy to implement servers, one can assume that
+any server has two opened socket descriptors 3 and 4,
+which are for input from a client and for output to a client respectively.
+That is, servers do not have to do socket operations to establish
+connections. However servers are responsible for buffering data
+to exchange OX messages efficiently. Note that associating a buffered stream
+with a descriptor can be done by {\tt fdopen()}.
+*/
+
+\subsection{Launcher}
+/*&jp
+サーバは, クライアントから起動されるが, TCP/IP 接続のためには socket の
+生成から始まる一連の操作が必要である. 一方で, すでに述べたように, サーバ
+自体はそういう機能はもたない. launcher は, この両者の橋渡しをする application
+である. launcher の働きは次の通りである. 
+
+\begin{enumerate}
+\item launcher はクライアントが起動する. launcher には使用する port 番号, 
+サーバ application のファイル名が伝えられる. 
+\item client はまず launcher と通信を成立させる. この際, one time password
+が用いられる場合もある. 
+\item launcher は新しいプロセスを起動し, そのプロセスにおいて client と通信
+を成立させる. そして, その通信路が file descriptor の 3, 4 となるように
+セットし, サーバを exec する. 
+\end{enumerate}
+
+以上の操作のあと, launcher はコントロールサーバとなり, 自身が作った
+したサーバの制御を行う. 
+*/
+/*&eg
+Though there need several socket operations to establish a 
+connetion over TCP/IP, servers do not have any functionality for
+connection establishment.
+An application called {\it launcher} is provided to start servers
+and to establish connections as follows.
+
+\begin{enumerate}
+\item A launcher is invoked from a client.
+When the launcher is invoked, the client 
+informs the launcher of a port number for TCP/IP connection
+and the name of a server.
+\item The launcher and the client establish a connection with the
+specified port number. One time password may be used to prevent
+launcher spoofing.
+\item The launcher creates a process and establishes a connection
+to the client. Then the launcher arranges for the newly created descriptors
+to be 3 and 4, and executes the specified server.
+\end{enumerate}
+
+After finishing the above task as a launcher, the launcher process
+acts as a control server and controls the server process created by
+itself.
+*/
+
+//&jp \subsection{byte order の決定}
+//&eg \subsection{Negotiation of the byte order}
 /*&jp
 コントロールプロセス, 計算プロセス
 ともに, 起動直後に
@@ -27,6 +96,32 @@ Network byte order しか実装していないシステムでは,
 {\tt 0} をおくればよい.
 ただし効率が問題となる通信において, network byte order への変換は
 おおきなボトルネックとなることがあることを了解しておくべきである.
+*/
+/*&eg
+A client and a server exchanges one byte data soon after
+the communication has started as follows.
+
+\begin{itemize}
+\item The server writes one byte representing the preferable byte order
+to the client,
+then waits for one byte to come from the client.
+\item After reading the byte, the client writes one byte representing the
+preferable byte order to the server.
+\end{itemize}
+
+The one byte data is {\tt 0}, {\tt 1} or {\tt 0xFF}.
+{\tt 0} means that one wants to use the network byte order to
+send 16 or 32bit quantities.
+{\tt 1} means that one wants to use the little endian order.
+{\tt 0xFF} means that one wants to use the little endian order.
+On each side, if the preference coicides with each other then
+the byte order is used. Otherwise the network byte order is used.
+
+If a system implements only the network byte order, then
+it is sufficient to send always {\tt 0}.
+However unnecessary byte order conversion may add large overhead
+and it is often a bottle-neck on fast networks.
+*/
 
 \begin{verbatim}
 #define OX_BYTE_NETWORK_BYTE_ORDER    0
@@ -34,7 +129,9 @@ Network byte order しか実装していないシステムでは,
 #define OX_BYTE_BIG_ENDIAN         0xff
 \end{verbatim}
 
-
+//&jp \subsection{launcher の例 : {\tt ox}}
+//&eg \subsection{An example of launcher : {\tt ox}}
+/*&jp
 注意: {\tt OpenXM/src/kxx} に含まれる, {\tt ox} (コントロールプロセス,
 計算プロセスをたちあげるローンチャ)は, 標準で One Time Password
 の機能をもっています.
@@ -64,6 +161,34 @@ One time パスワードを安全に配送し, リモートマシンの {\rm ox}
 以下は {\rm sm1} での実装, 動作例です.
 ここでは, {\tt yama} の {\tt sm1} より {\tt dc1} の {\tt ox} 
 を立ち上げています.
+*/
+/*&eg
+\noindent
+Remark: {\tt ox}, included in {\tt OpenXM/src/kxx}, 
+is a launcher to invoke an engine. After invoking an
+engine, it acts as a control server. By default {\tt ox} requires
+a one time password. To skip it, use {\tt -insecure} option.
+A one time password is a null-terminated byte sequence and
+a client informs the both a control server and an engine of
+byte sequences as one time passwords.
+
+{\tt ox} is created from {\tt oxmain.c} and {\tt
+kan96xx/plugin/oxmisc.c}.  In {\tt ox} {\tt oxTellMyByteOrder()}
+executes the exchange of the byte order information. In a client it is
+done in {\tt oxSetByteOrder()}.
+
+One time passwords should be sent via secure communication channels.
+Note that in the current implementation of {\rm ox}, one time passwords
+are visible to all users logging in machines on which the server
+and the client run, assuming that there is no evil person in the users.
+One may use {\tt ssh} with {\tt -f } option when one wants to send 
+a one time password securely to a remote machine.
+
+The following example shows invocation of an {\tt ox\_sm1}
+server and the comminucation establishment on {\rm sm1}.
+In this example {\tt ox} on the host {\tt ox} is invoked from 
+{\tt sm1} on the host {\tt yama}.
+*/
 {\footnotesize
 \begin{verbatim}
 yama% sm1
@@ -91,6 +216,4 @@ Byte order for control process is network byte order.
 Byte order for engine process is network byte order.
 \end{verbatim}
 }
-
-*/
 
