@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.6 2002/03/16 00:53:55 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.7 2002/08/10 13:30:49 takayama Exp $
 %% kxx/oxasir.sm1   1998, 2/12 (this version is at Old/oxasir.sm1.19980212
 %%   3/1, 1995, 11/5, 11/21
 %% This file is error clean.
@@ -614,7 +614,7 @@ oxasir.verbose {
 } def
 
 [(bfct)
- [(You need to install ox_asir server to use this function. (ox_asir function))
+ [
   ( f bfct b )
   ( poly f; poly b)
   ([f v] bfct b)
@@ -628,6 +628,7 @@ oxasir.verbose {
   (to interrupt the ox_asir server.)
   (  )
   (This function requires plugins cmo, socket and ox_asir server. cf.oxasir)
+  (You need to install ox_asir server to use this function. (ox_asir function))
 ]] putUsages
 
 /bfct {
@@ -658,6 +659,119 @@ oxasir.verbose {
   arg1
 } def
 
+[(generic_bfct)
+ [
+  ( [ii weight] generic_bfct b )
+  ( list of poly ii; list weight)
+  ([ii weight variables] generic_bfct b)
+  ( list of string ii; list weight; list variables)
+  ( b is the general b-function of the ideal ii w.r.t the weight.)
+  (Example: [[(Dx^2) (Dy^2)] [(x) -1 (Dx) 1] [(x) (y)]] generic_bfct :: )
+  (Notion: Saito, Sturmfels, Takayama, Grobner deformations of hypergeometric differential equaitons)
+  (Algorithm:  M.Noro, Mathematical Software, icms 2002, pp.???-???)
+  (  )
+  (If you interrupted the computation by typing ctrl-C, type in )
+  (   oxasir.ccc oxreset  ; )
+  (to interrupt the ox_asir server.)
+  (  )
+  (This function requires plugins cmo, socket and ox_asir server. cf.oxasir)
+  (You need to install ox_asir server to use this function. (ox_asir function))
+]] putUsages
+
+/generic_bfct {
+  /arg1 set
+  [/in-generic_bfct /aa /f  /comm /vvv0 /n /vvv /ddd /r /setarg 
+   /bf /wt ] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /aa arg1 def
+    aa isArray { } { (<<array>> generic_bfct) error } ifelse
+    /setarg 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       f 0 tag PolyP { } {  (The first argument must be a list of differential operators. Give the third variable: a list of variables) error } ifelse
+       f 0 get (ring) dc /r set
+       [(CurrentRingp) r] system_variable
+       /wt aa 1 get def
+
+       /vvv0 getVariableNames def
+       /n [(N)] system_variable def
+       /vvv vvv0 n carN rest reverse rest reverse def
+       /ddd vvv0 reverse n carN reverse 
+                   rest reverse rest reverse def
+
+       /wt wt generic_bfct.aux1 def
+
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP StringP] eq
+    {  /f aa 0 get def
+       /vvv [ aa 2 get to_records pop ] def
+       /wt aa 1 get def
+
+       /n vvv length def
+       /ddd vvv { (D) 2 1 roll 2 cat_n } map def
+
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /vvv aa 2 get {toString} map def
+       /wt aa 1 get def
+ 
+       /n vvv length def
+       /ddd vvv { (D) 2 1 roll 2 cat_n } map def
+
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (generic_bfct : Argument mismatch) error } ifelse
+
+    f 0 get isPolynomial {
+
+    }
+    {
+      [vvv from_records ring_of_differential_operators 0] define_ring
+      f { toString . } map /f set
+      vvv { . } map /vvv set
+      ddd { . } map /ddd set
+      /wt wt generic_bfct.aux1 def  
+    } ifelse
+    [f vvv ddd wt] message
+
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+
+    oxasir.ccc [(oxasir_generic_bfct) f vvv ddd wt] asir /bf set
+    [(s) ring_of_polynomials 0] define_ring
+    bf . /bf set
+    [bf bf fctr] /arg1 set 
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+/generic_bfct.aux1 {
+  /arg1 set
+  [/in-generic_bfct.aux1 /wt /wtx /wtd /n]  pushVariables
+  [
+    arg1 /wt set
+    /n [(N)] system_variable def
+    wt { dup tag PolyP eq { toString } {    } ifelse } map /wt set
+    wt weightv /wt set
+    /wtx wt n carN rest reverse rest reverse def
+    /wtd wt reverse n carN reverse 
+                   rest reverse rest reverse def
+    wtx wtd join /wt set
+    wt { dup tag IntegerP eq { (universalNumber) dc } {    } ifelse } map /wt set
+    wt /arg1 set
+  ] pop
+  popVariables
+  arg1 
+} def
 
 /oxasir.sm1.loaded 1 def
 [(ostype)] extension  0 get (windows) eq {
