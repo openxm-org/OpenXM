@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.136 2004/02/26 23:29:46 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.137 2004/03/25 01:52:18 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -74,7 +74,7 @@ all-misc : install-util
 
 all-rc:
 	(cd ../rc ; make )
-all-util: 
+all-util: configure-util
 	(cd util ; make all)
 
 install: install-oxtags install-util install-asir install-gnuplot \
@@ -214,10 +214,13 @@ distclean: clean
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 
 
-configure: configure-asir \
+configure: configure-util configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp
+
+configure-util:
+	(cd util; ./make-configure)
 
 configure-gmp: install-util
 	(cd gmp; make configure)
