@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/project.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/project.tex,v 1.2 2000/01/24 07:36:35 noro Exp $
 //&jp \section{現在検討中の機能}
 //&eg \section{Projects in work in progress}
 
@@ -87,7 +87,7 @@ If {\tt size} of Tail is equal to 0, then it has no digital signature.
 */
 /*&eg
 Suppose that the mathcap handling is incomplete and an application
-has received unknown CMObject. If the mode 1 is used,
+has received unknown CMObject.
 In mode 1, the application cannot detect the end of the CMObject
 and it will not be able to understand the subsequent messages.
 In mode 2, the application can detect the end of the unknown CMObject
@@ -125,7 +125,7 @@ OX Message, SMobject を表現するために使用する.
 /*&eg
 0x10000 ID's beginning from 
 {\tt CMO\_PRIVATE} = {\tt OX\_PRIVATE} = {\tt SM\_PRIVATE} 
-is reserved for private use.
+are reserved for private use.
 They can be used to represent OX tags, CMObjects, SMobjects
 which are not authorized yet.
 */
@@ -161,6 +161,6 @@ add, sub, mul, などの基本的な計算は {\tt SM\_executeFunction}
 Fundamental operations such as {\tt add}, {\tt sub}, {\tt mul} should be
 executed on any server by {\tt SM\_executeFunction}.
 Control structures on stack machines such as {\tt if} and {\tt for}
-are also considered.
+are also being considered.
 */
 

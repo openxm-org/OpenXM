@@ -236,6 +236,11 @@ The server can avoid to send OX messages unknown to its peer.
 */
 @plugin/mathcap.h)
 
+Stack before the request:
+\begin{tabular}{|c|}  \hline
+{\it Mathcap m}  \\
+\hline
+\end{tabular}\\
 Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl Mathcap} m  \\ \hline
@@ -348,7 +353,7 @@ It requests a server to pop an object from {\tt OperandStack},
 to convert it into a character string according to the output format
 of the local system, and to send the character string via TCP/IP stream.
 {\tt (char *)NULL} is returned when the stack is empty.
-The returned strings is sent as a CMO string data.
+The returned string is sent as a CMO string data.
 {\tt CMO\_ERROR2} should be returned if an error has occurred.
 */
 
@@ -472,7 +477,7 @@ In the above example, {\tt Ox\_system} denotes the system name.
 enviroment variable.
 The second component consists of avaiable SM commands.
 The third component is a list of pairs. Each pair consists
-of an OX message tag and the available message tags.
+of an OX message tag and the list of available message tags.
 Again in the above example, 514 is the value of {\tt OX\_DATA}
 and it indicates that the server accepts CMO (without size information)
 as mathematical data messages. In this case the subsequent
@@ -563,7 +568,7 @@ operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn}
 */
 /*&eg
 It requests a server to pop {\it n} and to discard elements {\it obj1, obj2,
-$\ldots$, objn}) from the stack.
+$\ldots$, objn} from the stack.
 */
 
 //&jp Stack before the request: \\
@@ -629,7 +634,7 @@ OutputObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
 It requests a server to pop {\it name} and to evaluate a variable
 {\it name} in the current name space. The Output of the evaluation
 {\it OutputObj} is pushed to the stack.
-If an error has occurred {\tt CMO\_ERROR2} is pushed to the stack.
+If an error has occurred {\tt CMO\_ERROR2} is pushed onto the stack.
 */
 
 //&jp Stack before the request:

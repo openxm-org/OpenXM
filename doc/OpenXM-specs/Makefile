@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.5 2000/01/24 07:36:35 noro Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.6 2000/01/24 07:49:58 noro Exp $
 all : doc
 
 OXWEAVE=../../src/kxx/oxweave
@@ -33,5 +33,6 @@ $(OXWEAVE) : $(OXWEAVE).c
 
 clean :
 	/bin/rm -rf tmpEG tmpJP
+	/bin/rm -f OpenXM-eg.dvi OpenXM-jp.dvi
 
 
