@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.3 2000/01/25 03:04:56 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.4 2000/01/25 04:26:34 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -13,24 +13,10 @@ $OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.3 2000/01/25 03:04:56 takayama Ex
 <H1>ERRATA (20000124) (OpenXM) </H1>
 
 <OL>
-<LI>  (OpenXM/src/Makefile)
-      Symbolic link of OpenXM/bin/asir must be to ./ox_asir.
-      Symbolic links of OpenXM/lib/asir/ox_* must be to ./asir.
-      Symbolic links of OpenXM/lib/asir/help must be to ./help-eg.
-      It is fixed in the binary distributions.
 
 <LI>  (OpenXM/doc/install-??.txt) 
       The line "source .cshrc" should be added at the last of .login
       in some unix distributions.
-
-<LI>  IMPORTANT:
-      ox_sm1* servers crush if the environmental variable HOSTTYPE
-      is not set.  That is, if you are using csh or sh, then you cannot invoke
-      most ox servers from asir and ox_sm1* servers terminate with a core.
-      To avoid this trouble, use bash or tcsh or set the environmental variable
-      HOSTYPE by
-      "setenv HOSTTYPE hogehoge" ( in .cshrc for csh) or
-      "HOSTYPE=hogehoge ; export HOSTTYPE ( in .profile for sh).
 
 </OL>
 
