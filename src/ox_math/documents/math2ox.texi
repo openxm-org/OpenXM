@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.5 2000/03/14 14:25:27 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.6 2000/03/14 14:59:39 ohara Exp $
 
 \input texinfo
 @iftex
@@ -52,11 +52,12 @@ to call OpenXM servers.
 The @code{math2ox} communicates with OpenXM servers by the OpenXM protocol
 and communicates with Mathematica by MathLink.
 
+In order to execute @code{math2ox}, you need to type as follows:
 @example
 In[1]:= Install["math2ox"]
 @end example
 
-We recommend loading a mathematica program @code{oxclient.m} instead of
+We recommend loading a Mathematica program @code{oxclient.m} instead of
 calling @code{Install[]} directly:
 @example
 In[1] := <<oxclient.m
@@ -109,6 +110,32 @@ The function @code{OxStartRemoteSSH[]} does not request your password,
 that is, you need to be using @code{ssh-agent} before calling
 @code{OxStartRemoteSSH[]}.
 Then there will be no check of password.
+
+@node Starting the X Window System with ssh-agent,,, Starting OX servers on a remote machine
+@subsection Starting the X Window System with ssh-agent
+
+If you use the @code{startx} command to boot the X Window System, then 
+we recommend you replace the command by @code{ssh-agent startx}.
+@example
+bash$ ssh-agent startx
+@end example
+If you use @code{xdm} program to login your machine, 
+then your @code{.xsession} script needs to contain the followings:
+@example
+exec ssh-agent .xinitrc
+@end example
+@noindent 
+where @code{.xinitrc} is executable.
+
+After booting the X Window System, you need to type on suitable terminal
+emulator as follows:
+@example
+bash$ ssh-add
+@end example
+@noindent
+and input your passphrase.
+
+See ssh(1), ssh-agent(1), ssh-add(1), and ssh-keygen(1) for detail.
 
 @c  Description of OxStartRemoteSSH
 @menu
@@ -351,6 +378,11 @@ In[5] := cmo = OxGet[pid]
 
 @enumerate
 @item
+@code{OpenXM/lib/math/oxclient.m} is a Mathematica program
+to load the @code{math2ox} and to define some Mathematica 
+functions for @code{primadec.m} and @code{beta.m}.
+
+@item
 @code{OpenXM/lib/math/primadec.m} is a Mathematica program
 to make primary ideal decompositions by calling
 @code{ox_asir}.
@@ -366,11 +398,16 @@ to get beta-nbc bases by calling @code{ox_asir}.
 
 The @code{math2ox} has the following commands:
 
-@code{OxStart[s_String], 
-OxStartInsecure[s_String, p_Integer, q_Integer],
-OxStartRemoteSSH[s_String, t_String], 
-OxExecuteString[s_String], OxSendMessage[s_String], OxGet[], OxPopCMO[],
-OxPopString[], OxClose[], OxReset[]}.
+@code{OxStart[], 
+OxStartInsecure[],
+OxStartRemoteSSH[], 
+OxExecuteString[], 
+OxSendMessage[], 
+OxGet[],
+OxPopCMO[],
+OxPopString[], 
+OxClose[], 
+OxReset[]}.
 
 First, let us load the math2ox.
 @example
@@ -380,41 +417,55 @@ In[1]:= <<oxclient.m
 Second, let us open a connection with an OX server.
 For example, if we want to call the @code{ox_sm1} (the kan/sm1 server), then
 @example
-In[2] := pid = OxStart[pid, "ox_sm1"]
+In[2] := pid = OxStart["ox_sm1"]
 @end example
-where we have the connection of reverse mode.  The OxStart function
-automatically invoke @code{ox_sm1} on the local machine.  If you need to
-connect an OX server on a remote machine, then you can use reverse mode.
+@noindent
+where we have the connection of reverse mode.  The @code{OxStart}
+function automatically invoke @code{ox_sm1} on the localhost.  
+If you need to connect remote OX servers, then you can use reverse mode.
 @example
-In[2] := pid = OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
+In[2] := pid = OxStartRemoteSSH["ox_sm1", "orange.math.kobe-u.ac.jp"]
 @end example
-The mode is not secured but you can crypt data stream by using ssh
-(Secure SHell).
-@example
-In[3] := Run["ssh -f water ox -insecure -ox ox_sm1 -host water"]
-@end example
+
+@c  Remarks: old version.
+@c  @example
+@c  In[2] := pid = OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
+@c  @end example
+@c  The mode is not secured but you can crypt data stream by using ssh
+@c  (Secure SHell).
+@c  @example
+@c  In[3] := Run["ssh -f water ox -insecure -ox ox_sm1 -host water"]
+@c  @end example
 
 Third, let us send an OX message to the OX server.
 We can send an OX message written in OX/CMO expressions.
 @example
 In[4] := OxSendMessage[pid, "(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
-In[5] := OxSendMessage[pid, "(OX_COMMAND, (SM_popCMO))"]
 @end example
+@noindent
 If the expression contains syntax errors, then nothing is sent.
 
-Remarks: if @code{SM_popCMO} is sent by the @code{OxSendMessage[]} function, then the
-OX stack machine returns the top of the stack to the @code{math2ox}.
-Then, in order to receive the message, we need to call the @code{OxGet[]}
-function always after executing @code{OxSendMessage[]}
+If you need to get the object on the top of the stack of an OX server
+@code{pid}, then you can call the following function:
 @example
-In[6] := OxGet[pid]
+In[5] := cmo = OxPopCMO[pid]
 @end example
 
-If we do not use the @code{OxSendMessage} function and use the @code{OxPopCMO[]}
-function, then we do not need to call the @code{OxGet[]}.
+The function @code{OxPopCMO} above is equivalent to 
+the following two command:
 @example
-In[5] := OxPopCMO[pid]
+In[5] := OxSendMessage[pid, "(OX_COMMAND, (SM_popCMO))"]
+In[6] := cmo = OxGet[pid]
 @end example
+
+Remarks: 
+if @code{SM_popCMO} is sent by the @code{OxSendMessage[]} function, then
+the OX stack machine returns the top of the stack to the @code{math2ox}.
+Then, in order to receive the message, we need to call the
+@code{OxGet[]} function always after executing @code{OxSendMessage[]}.
+That is @code{OxGet} flushes the communication route to @code{pid}.  If
+we never use the @code{OxSendMessage} function, then we do not need to
+call the @code{OxGet[]}.
 
 Fourth, if we send a command expressed in the local language of the OX
 server, then we need to call the @code{OxExecuteString[]} function.
