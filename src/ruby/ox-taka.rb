@@ -1,7 +1,7 @@
 # ox-taka.rb OpenXM client written by Ruby  
 #   (takayama's version based on ogino's ox.rb)
 #
-# $OpenXM: OpenXM/src/ruby/ox-taka.rb,v 1.2 2000/07/28 07:08:30 takayama Exp $
+# $OpenXM: OpenXM/src/ruby/ox-taka.rb,v 1.3 2000/07/28 07:45:28 takayama Exp $
 # 
 require 'socket'
 include Socket::Constants
@@ -176,27 +176,32 @@ class OXSession
       end
 
       oxserver = oxhome+"bin/"+oxserver
+      srand()
       @controlport = rand(20000)+1024
  	  @dataport = @controlport+1
-      printf(oxhome+"\n")
       printf("Starting the server %s\n",oxserver)
       $stdout.flush
+      Thread.start {
+        printf("Connection from %s, \n", host)
+        printf("Waiting a connection to controlport %d, \n", @controlport)
+        $stdout.flush
+#        @controlp = TCPserver.open(@controlport)
+        $ccccontrolp = TCPserver.open(@controlport)
+      }
+      printf("Waiting a connection to dataport %d, \n", @dataport)
+      $stdout.flush
+      @datap = TCPserver.open(@dataport)
+
+      sleep 3 # Heuristic wait that TPCserver switches to accept mode.
+      printf(oxhome+"\n")
       ox = oxhome+"bin/ox"
-      system("oxlog  /usr/X11R6/bin/xterm -e "+ox+" -ox "+oxserver+" -control "+@controlport.to_s()+" -data "+@dataport.to_s()+" &");
+      system("oxlog  /usr/X11R6/bin/xterm -e "+ox+" -ox "+oxserver+" -control "+@controlport.to_s()+" -data "+@dataport.to_s()+" -reverse -pass a &");
       if $? == nil
          printf("failed to start the ox server.\n")
          exit()
       end
-      sleep 3
-      printf("Connecting to %s, \n", host)
-      printf("Trying to connect to controlport %d, \n", @controlport)
-      $stdout.flush
-      @controlp = TCPSocket.new(host, @controlport)
       sleep 2
-      printf("Trying to connect to dataport %d, \n", @dataport)
-      $stdout.flush
-      @datap = TCPSocket.new(host, @dataport)
-      sleep 2
+      @controlp = $ccccontrolp
 #    rescue
 
     
