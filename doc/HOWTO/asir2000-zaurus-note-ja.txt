@@ -1,0 +1,93 @@
+Linux Zaurus (SL-A300/B500/C700/C750/C760) 用の Asir バイナリの生成法
+
+0. コンパイル方法の選択
+
+クロスコンパイルとセルフコンパイルによる方法があります。
+x86系CPU の Linux マシンを持っている方はクロスコンパイルが簡単です。
+
+
+1. クロスコンパイルによる方法
+
+http://more.sbc.co.jp/sl_j/tool/tools.htm
+
+から必要なファイルをダウンロードし、PC(Linux) 上にクロスコンパイル
+環境を構築します。
+
+ソース OpenXM_contrib2/asir2000 をダウンロードし、そこで以下を実行します。
+
+# PATH=/opt/Embedix/tools/bin:/opt/Embedix/tools/arm-linux/bin/:${PATH}
+# export CC=arm-linux-gcc
+# ./configure --prefix=/usr/local --host=arm-linux
+# make all
+# make tarball
+
+asir-openxm-{VERSION}.tgz ができるので、これを Zaurus にコピーして、
+/usr/local で展開して下さい。
+
+※ ゼロページバグについて
+SL-A300 の ROM Ver.1.0/1.1/1.2 には、suspend/resume 後に ZERO_PAGE に
+非ゼロのデータが書き込まれるバグがあります。このバグのために Boehm の GC
+を利用したアプリケーションは起動後ただちに segmentation fault をおこして
+落ちてしまいます。ROM Ver.1.3/1.4 ではこのバグは修正されていますが、
+このバージョンにアップデートしていない方は、次の configure を実行して
+から make all して下さい。
+
+./configure --prefix=/usr/local --host=arm-linux --enable-gc-zeropage
+
+これで Asir 側で resume 時に ZERO_PAGE をクリアするようになります。
+
+
+2. セルフコンパイルによる方法
+
+Linux Zaurus にはセルフコンパイル用の gcc が用意されています。
+
+http://www.netfort.gr.jp/~tosihisa/zaurus/gcc_self.txt
+
+を参考にインストールして下さい。Asir のコンパイルには、さらに、bison, 
+diff, patch も必要となりますので、インストールして下さい。
+これらのソースは以下からダウンロードできます。
+
+ftp://sunsite.sut.ac.jp/pub/archives/gnu/
+
+Zaurus に標準で入っている ar は busybox 版で、オプションが足りません。
+上の gcc をインストールすると、フルオプション対応の ar もインストール
+されるので、/usr/bin/ar は mv しておきます。
+
+ソース OpenXM_contrib2/asir2000 をダウンロードし、そこで以下を実行します。
+
+# ./configure --prefix=/usr/local
+# make all
+# make install
+# make install-lib
+
+
+3. cpp について
+
+Asir ではファイルを load するときに、cpp が使用されます。
+セルフ版 gcc と一緒に配布されている cpp を /usr/local/bin/ にコピー
+すると自動的に呼び出されます。
+
+4. fep について(セルフコンパイル)
+
+ソース OpenXM_contrib2/fep をダウンロードし、fep_main.c の 869 行目を
+以下のように変更して make を実行して下さい。
+
+869c869
+<     for (c = 'p'; c <= 's'; c++) {
+---
+>     for (c = 'a'; c <= 's'; c++) {
+
+sample.feprc を ホームディレクトリに .feprc という名前でコピーすると
+よいでしょう。
+
+
+5. PARI について
+
+PARI 2.0系は ARM CPU には対応していません。
+(Linux Zaurus の CPU は ARM 系の Xscale)
+
+
+6. ox_plot について
+
+Linux Zaurus には XFree86 環境が用意されていますが、現時点では
+ox_plot は未対応です。
