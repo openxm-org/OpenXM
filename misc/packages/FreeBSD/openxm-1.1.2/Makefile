@@ -1,5 +1,11 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.10 2000/03/09 08:35:42 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.11 2000/03/09 09:26:25 takayama Exp $
 
+### THIS IS OBSOLETE. THIS DIRECTORY WILL BE REMOVED SOON.
+### USE Generic/openxm/Makefile instead.
+###  fake-openxm:
+###  comments 
+### are useful and should be moved to somewhere.
+###
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
 ### How to generate openxm-port.tar.gz  (the tar ball of the port for openxm)?

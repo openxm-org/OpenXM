@@ -4,26 +4,29 @@ bin/oxMathematica
 bin/oxmath
 bin/ox
 bin/oxgp
+bin/openxm
 man/man1/sm1.1.gz
 man/man1/openxm.1.gz
 OpenXM/bin/Makefile
 OpenXM/bin/fep.fbsd
 OpenXM/bin/lin_phcv2p
+OpenXM/bin/.configure_done
 OpenXM/bin/gp-2.0
 OpenXM/bin/gphelp
+OpenXM/bin/oxweave
+OpenXM/bin/oxlog
+OpenXM/bin/ox_sm1
+OpenXM/bin/ox
+OpenXM/bin/rc.repl
+OpenXM/bin/asir
 OpenXM/bin/gnuplot4ox
 OpenXM/bin/gnuplot_x11
 OpenXM/bin/d0
 OpenXM/bin/k0
 OpenXM/bin/sm1
-OpenXM/bin/oxweave
-OpenXM/bin/oxlog
-OpenXM/bin/ox_sm1
-OpenXM/bin/ox
 OpenXM/bin/phc6
 OpenXM/bin/tigers
 OpenXM/lib/asir/asir_key
-OpenXM/lib/asir/asir
 OpenXM/lib/asir/alpi
 OpenXM/lib/asir/xm
 OpenXM/lib/asir/sturm
@@ -472,8 +475,6 @@ OpenXM/lib/k097/help.k
 OpenXM/lib/k097/slib.sm1
 OpenXM/lib/k097/incmac.sm1
 OpenXM/lib/k097/factor-b.sm1
-OpenXM/lib/gc.a
-OpenXM/lib/libgmp.a
 OpenXM/lib/sm1/util.sm1
 OpenXM/lib/sm1/tu1.sm1
 OpenXM/lib/sm1/tower.sm1
@@ -534,6 +535,9 @@ OpenXM/lib/pari/users.dvi
 OpenXM/lib/pari/tutorial.dvi
 OpenXM/lib/pari/refcard.dvi
 OpenXM/lib/pari/refcard.ps
+OpenXM/lib/libgc.a
+OpenXM/lib/libgmp.a
+OpenXM/lib/libox.a
 OpenXM/lib/libasir_pari_X.a
 OpenXM/lib/libasir-gc.a
 OpenXM/lib/java-support/JP/ac/kobe_u/math/tam/OpenXM/CMO.class
@@ -659,6 +663,10 @@ OpenXM/doc/oxlib/test1.c
 OpenXM/doc/oxlib/test2.c
 OpenXM/doc/pari/users.dvi
 OpenXM/doc/pari/tutorial.dvi
+OpenXM/doc/ox_toolkit/bnf-jp
+OpenXM/doc/ox_toolkit/bnf-eg
+OpenXM/doc/ox_toolkit/readme-jp
+OpenXM/doc/ox_toolkit/readme-eg
 OpenXM/doc/kan96xx/intro.tex
 OpenXM/doc/kan96xx/onlinehelp.tex
 OpenXM/doc/kan96xx/intro.ps
@@ -1186,7 +1194,6 @@ OpenXM/doc/asir-contrib/cman-jp.dvi
 OpenXM/doc/asir-contrib/cman-jp.ps
 OpenXM/doc/asir-contrib/cman-eg.dvi
 OpenXM/doc/asir-contrib/cman-eg.ps
-OpenXM/include/gmp.h
 OpenXM/include/pari/paricfg.h
 OpenXM/include/pari/pariinl.h
 OpenXM/include/pari/pari.h
@@ -1199,24 +1206,31 @@ OpenXM/include/pari/paristio.h
 OpenXM/include/pari/parisys.h
 OpenXM/include/pari/pariport.h
 OpenXM/include/pari/paridecl.h
+OpenXM/include/gmp.h
+OpenXM/include/parse.h
+OpenXM/include/oxtag.h
+OpenXM/include/ox.h
 OpenXM/man/man1/gphelp.1
 OpenXM/man/man1/gp.1
+OpenXM/man/man1/sm1.1
+OpenXM/man/man1/openxm.1
 OpenXM/rc/Makefile
 OpenXM/rc/asirrc
 OpenXM/rc/bashrc
 OpenXM/rc/cshrc
+OpenXM/rc/fetch_asir_key.sm1
 OpenXM/rc/gen-shell-scripts
+OpenXM/rc/openxm.1
 OpenXM/rc/repl.c
-OpenXM/rc/repl
 @exec ln -fs fep.fbsd %D/OpenXM/bin/fep
 @exec ln -fs lin_phcv2p %D/OpenXM/bin/phc
-@exec ln -fs ./ox_asir %D/OpenXM/bin/asir
-@exec ln -fs ../lib/asir/asir %D/OpenXM/bin/ox_asir
+@exec ln -fs ./asir %D/OpenXM/bin/ox_asir
 @exec ln -fs gp-2.0 %D/OpenXM/bin/gp
-@exec ln -fs ./asir %D/OpenXM/lib/asir/ox_asir
-@exec ln -fs ./asir %D/OpenXM/lib/asir/ox_launch
-@exec ln -fs ./asir %D/OpenXM/lib/asir/ox_plot
-@exec ln -fs ./help-eg %D/OpenXM/lib/asir/help
+@exec ln -fs help-eg %D/OpenXM/lib/asir/help
+@exec ln -fs ./../../bin/asir %D/OpenXM/lib/asir/asir
+@exec ln -fs asir %D/OpenXM/lib/asir/ox_asir
+@exec ln -fs asir %D/OpenXM/lib/asir/ox_launch
+@exec ln -fs asir %D/OpenXM/lib/asir/ox_plot
 @exec ln -fs loop %D/OpenXM/lib/asir/help-eg/break
 @exec ln -fs loop %D/OpenXM/lib/asir/help-eg/return
 @exec ln -fs loop %D/OpenXM/lib/asir/help-eg/continue
@@ -1444,4 +1458,5 @@ OpenXM/rc/repl
 @exec ln -fs ../reset.eps %D/OpenXM/doc/OpenXM-specs/tmpJP/reset.eps
 @exec ln -fs pari.h %D/OpenXM/include/pari/genpari.h
 @exec ln -fs ../../../OpenXM/man/man1/gp.1 %D/OpenXM/man/man1/pari.1
+@exec ln -fs ../bin/rc.repl %D/OpenXM/rc/repl
 @dirrm OpenXM

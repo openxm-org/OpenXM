@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.2 2000/03/09 08:35:43 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.3 2000/03/09 09:26:26 takayama Exp $
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
 # 0. Generate ~/.rpmrc and set the TopDir for the work.
@@ -39,8 +39,20 @@ OLE=$(HOME)/OpenXM/src/kan96xx/Doc/ole -q
 RPM_BUILD_BINARY_ROOT=/var/tmp/openxm-root
 
 usage :
+	@echo "Usage:"
+	@echo "build-binary-rpm "
+	@echo "build-shared-rpm "
+	@echo "make-directory"
+	@echo "link-for-real-openxm "
 
-build-binary-rpm: openxm-spec
+build-binary-rpm: openxm-binary-spec
+	(cd work/SPECS ; rpm -bb openxm-binary.spec )
+
+build-shared-rpm: openxm-shared-spec
+	(cd work/SPECS ; rpm -bb openxm-shared.spec )
+
+## This is obsolete
+build-rpm: openxm-spec
 	(cd work/SPECS ; rpm -bb openxm.spec )
 
 make-directory: clean
@@ -58,6 +70,14 @@ make-directory: clean
 openxm-spec:
 	rm -rf work/SPECS/openxm.spec
 	${OLE} <openxm.spec.in >work/SPECS/openxm.spec
+
+openxm-binary-spec:
+	rm -rf work/SPECS/openxm-binary.spec
+	${OLE} <openxm-binary.spec.in >work/SPECS/openxm-binary.spec
+
+openxm-shared-spec:
+	rm -rf work/SPECS/openxm-shared.spec
+	${OLE} <openxm-shared.spec.in >work/SPECS/openxm-shared.spec
 
 clean :
 	-/bin/rm -rf work ${RPM_BUILD_BINARY_ROOT}
