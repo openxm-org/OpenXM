@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.3 1999/12/11 06:49:15 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.4 2000/01/18 12:49:14 tam Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -89,12 +89,16 @@ def om_start() {
   CPort = generate_port();
   SPort = generate_port();
  
- /* Outfile = " > /dev/null "; */
- /* Outfile = "  "; */
+  Outfile = " > /dev/null ";
   Lib = getenv("OpenXM_HOME")+"/lib/java-support"$
-  Com = " ( cd " + Lib + " ; java OMproxy -data " + rtostr(SPort) + 
-        " -control " + rtostr(CPort) + Outfile + " ) ";
-  shell("xterm -e /bin/csh -c \"" + Com + "\" &");
+  Com = "java OMproxy -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
+ /* Com = Com +" -nohup || "+ Com;	for not to stop by CTRL-C */
+  Com = "cd "+ Lib +";"+ Com;
+  Com = "/bin/csh -c \""+ Com +"\"";
+  Com = "/bin/csh -c '(xterm -T OMproxy -n OMproxy -e "+ Com +">&/dev/null)"
+	+"||"+ Com + Outfile +"' &";
+ /* print(Com +"\n"); */
+  shell(Com);
   shell("sleep 5");
   print("Trying to connect to the server...",0)$
   CSocket = try_connect("localhost",CPort);
