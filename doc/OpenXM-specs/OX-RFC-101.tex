@@ -1,5 +1,5 @@
 %#!make OX-RFC-101-ja.dvi
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.2 2000/11/30 08:46:23 ohara Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.3 2000/11/30 10:15:24 ohara Exp $
 \documentclass{article}
 %%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \usepackage{html}
@@ -178,6 +178,53 @@ hostname:port を開いて待ち受けなければならない。
 の端末に出力する。oxc の用いる端末の種類は環境変数OpenXM\_XTERM で指定す
 る。デフォルトは xterm である。
 
+オプション {\tt -h} が指定されないときには特別な動作を行う。
+
+\subsubsection{パイプを利用した接続}
+
+oxc はオプション {\tt -h} が指定されないときには、コマンドラインで与えら
+れるべき情報を、標準入力から得ようとする。ここでは、この機能について説明
+する。まず、標準入力から受け取るデータは次の形式をしていなければならない。
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+{\sl int32} port & {\sl String} hostname & {\sl byte} 0 & {\sl String} password & {\sl byte} 0\\
+\hline
+\end{tabular}
+
+\medskip
+
+String は C のストリングではなくて、cmo\_string のような、長さ付きの
+ストリングである。
+
+\noindent
+データの例: \\
+port = 1324 = 0x052c, hostname = ``orange'', password = ``hogehoge''
+の場合
+\begin{verbatim}
+00 00 05 2c 00 00 00 07 6f 72 61 6e 67 65 00 00
+00 00 09 68 6f 67 65 68 6f 67 65 00
+\end{verbatim}
+
+さて具体的な起動プロセスは次の通りである。
+
+\begin{enumerate}
+\item 
+クライアントは pipe(2) を用いて、ファイルディスクリプタ fd0, fd1 を
+手にいれる。
+\item
+fork(2) で子プロセスを生成し、子プロセスは dup2(fd1, 0) を実行する。
+これで 親プロセスの fd0 と子プロセスの 0 が接続されている。
+\item
+子プロセスは exec("ssh remotehost controlserver") としてリモートプロセ
+ス起動する。このとき、親プロセスの fd0 とリモートプロセスの 0 が接続さ
+れている。
+\item
+この通信路はリモートプロセスからは標準入力として見えている。
+リモートプロセスは標準入力から既に述べたフォーマットにしたがってデータを
+読み込む。リモートプロセスは、そのデータを用いて connect(2) を実行する。
+\end{enumerate}
+
+
 \subsubsection{Local Functions}
 
 コントロールサーバの各実装は、独自にローカル関数をサポートしてもよい。
@@ -200,6 +247,9 @@ spawn は、計算サーバの起動に成功したら (CMO\_INT32, サーバID) を、失
 かった場合にはエラーオブジェクトを積むことになる。コントロールサーバは 
 access(2) を用いて PATH から計算サーバを探す。もし見つからなければ、fork 
 をせずに、エラーオブジェクトをスタックに積む。
+
+
+
 
 */
 
