@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.3 2000/11/18 06:03:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.4 2000/11/28 04:02:56 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,7 +60,16 @@ static int basic0[] =  {
 	CMO_STRING,
 	CMO_MATHCAP,
 	CMO_LIST,
-	0}; 
+	0
+}; 
+
+/* We assume that data has the following format:
+   LENGTH hostname '\0' port '\0' password '\0'
+   where LENGTH is an integer with network byte order and its value
+   equals to the sum of the length of three data above.
+*/
+
+void pipe_read_info(char **hostname, int *port, char **password);
 
 int main(int argc, char *argv[])
 {
@@ -78,6 +87,7 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             password = optarg;
+			
             break;
         case 'p':
             port = atoi(optarg);
@@ -94,15 +104,18 @@ int main(int argc, char *argv[])
     argc -= optind;
     argv += optind;
 
+    if (strlen(remote_host) == 0) {
+		pipe_read_info(&remote_host, &port, &password);
+		port_s = malloc(32);
+		sprintf(port_s, "%d", port);
+    }
 	if (oxlog) {
 		execlp(xterm, xterm, "-e", myname, 
 			   "-h", remote_host, "-p", port_s, "-c", password);
 	}
+
     fprintf(stderr, "start connection!\n");
-    if (strlen(remote_host) == 0 || strlen(password) == 0 || port == 0) {
-        fprintf(stderr, "oxc: invalid arguments.\n");
-		fprintf(stderr, "usage: oxc -p port -h host -c password.\n");
-    }else if ((oxfp = connection()) == NULL) {
+	if ((oxfp = connection()) == NULL) {
         fprintf(stderr, "oxc: cannot connect.\n");
     }else {
 		fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
