@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.119 2003/06/26 08:59:12 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.120 2003/07/21 11:36:09 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -19,7 +19,10 @@ all-gc:
 	@touch gc/.gc_make_done
 
 all-gmp: configure-gmp
-	(if test ! -f .gmp_make_done ; then cd gmp ; make ; touch .gmp_make_done ; fi) ; 
+	@if test ! -f gmp/.gmp_make_done ; then \
+		(cd gmp ; make) ; \
+	fi
+	@touch gmp/.gmp_make_done 
 
 all-oxtoolkit: configure-oxtoolkit install-gmp install-gc configure-util
 	(cd ox_toolkit; make)
