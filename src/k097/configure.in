@@ -1,4 +1,4 @@
-dnl  $OpenXM$
+dnl  $OpenXM: OpenXM/src/k097/configure.in,v 1.1 2003/09/02 03:24:52 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
@@ -13,6 +13,10 @@ fi
 AC_CHECK_FUNC(gethostbyname)
 if test "$ac_cv_func_gethostbyname" = no ; then
   AC_CHECK_LIB(nsl,gethostbyname)
+fi
+AC_CHECK_FUNC(dlopen)
+if test "$ac_cv_func_dlopen" = no ; then
+  AC_CHECK_LIB(dl,dlopen)
 fi
 
 
