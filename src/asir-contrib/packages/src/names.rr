@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.30 2001/10/11 05:38:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.31 2001/12/13 09:27:45 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -33,6 +33,15 @@ ox_loadfile(Loaded_taka_poly,"taka_poly.rr") $
 */
 
 #define OX_LOADFILE(A,B)   /* Do nothing. */
+
+/* Function to check OSTYPE (temporary) */
+def ox_ostype() {
+  if (getenv("OPENXMHOMEWIN") != 0) {
+    return(["windows"]);
+  }else{
+    return(["unix"]);
+  }
+}
 
 Print_tex_form_fraction_format="auto"$  /* "frac" or "auto" or "/" */
 Print_tex_form_no_automatic_subscript=0$ /* 0 or 1 */
