@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.4 2003/05/28 00:37:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.5 2003/07/21 05:46:09 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -48,6 +48,13 @@ def ox_help(A) {
       A = rtostr(A);
     }else if (type(A) != 7) {
       return("Usage: ox_help(keyword)");
+    }
+    S = strtoascii(A);
+    for (I=0; I<length(S); I++) {
+      if (S[I] == 42 || S[I] == 63) {
+        shell("(cd "+ox_getenv("OpenXM_HOME")+"/lib/asir/help/xm.help ; ls "+A+")");
+        return;
+      }
     }
     help("xm.help/"+A)$
   }
