@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.11 2000/01/31 13:48:20 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.12 2000/02/02 09:07:58 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -2347,7 +2347,205 @@ List
 */
 
 
+def sm1_appell1(A) {
+  SM1_FIND_PROC(P);
+  A = [map(ntoint32,A)];
+  sm1_push_int0(P,A);
+  sm1(P," appell1 ");
+  ox_check_errors2(P);
+  R = sm1_pop(P);
+  E = R[0];
+  V = map(eval_str,R[1]);
+  E2 = map(sm1_mul,E,1,V);
+  return([E2,V]);
+}
 
+
+/*&eg-texi
+@menu
+* sm1_appell1::
+@end menu
+@node sm1_appell1,,, SM1 Functions
+@subsection @code{sm1_appell1}
+@findex sm1_appell1
+@table @t
+@item sm1_appell1(@var{a}|proc=@var{p})
+::  Returns the Appell hypergeometric system F_1 or F_D. 
+@end table
+
+@table @var
+@item return
+List
+@item p
+Number
+@item a
+List
+@end table
+
+@itemize @bullet
+@item Returns the Appell hypergeometric system for the Lauricella function
+F_D(a,b1,b2,...,bn,c;x1,...,xn)
+where @var{a} =(a,c,b1,...,bn).
+When n=2, the Lauricella function is called the Appell function F_1.
+The parameters a, c, b1, ..., bn must be integers.
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_appell1::
+@end menu
+@node sm1_appell1,,, SM1 函数
+@subsection @code{sm1_appell1}
+@findex sm1_appell1
+@table @t
+@item sm1_appell1(@var{a}|proc=@var{p})
+:: F_1 または F_D に対応すう, 方程式系を戻す. 
+@end table
+
+@table @var
+@item return
+リスト
+@item p
+数
+@item a
+リスト
+@end table
+
+@itemize @bullet
+@item Appell の関数 F_1 および その n 変数化である Lauricella の関数
+F_D(a,b1,b2,...,bn,c;x1,...,xn)
+のみたす微分方程式系を戻す. ここで,
+@var{a} =(a,c,b1,...,bn).
+パラメータは整数のみ.
+@end itemize
+*/
+
+/*&C-texi
+
+@example
+
+[281] sm1_appell1([1,2,3,4]);
+[[((-x1+1)*x2*dx1-3*x2)*dx2+(-x1^2+x1)*dx1^2+(-5*x1+2)*dx1-3,
+  (-x2^2+x2)*dx2^2+((-x1*x2+x1)*dx1-6*x2+2)*dx2-4*x1*dx1-4,
+  ((-x2+x1)*dx1+3)*dx2-4*dx1],       equations
+ [x1,x2]]                            the list of variables
+
+[282] sm1_gb(@@);
+[[((-x2+x1)*dx1+3)*dx2-4*dx1,((-x1+1)*x2*dx1-3*x2)*dx2+(-x1^2+x1)*dx1^2
+  +(-5*x1+2)*dx1-3,(-x2^2+x2)*dx2^2+((-x2^2+x1)*dx1-3*x2+2)*dx2
+  +(-4*x2-4*x1)*dx1-4,
+  (x2^3+(-x1-1)*x2^2+x1*x2)*dx2^2+((-x1*x2+x1^2)*dx1+6*x2^2
+ +(-3*x1-2)*x2+2*x1)*dx2-4*x1^2*dx1+4*x2-4*x1],
+ [x1*dx1*dx2,-x1^2*dx1^2,-x2^2*dx1*dx2,-x1*x2^2*dx2^2]]
+
+@end example
+
+*/
+
+def sm1_rank(A) {
+  SM1_FIND_PROC(P);
+  sm1_push_int0(P,A);
+  sm1(P," rank toString .. ");
+  ox_check_errors2(P);
+  R = sm1_pop(P);
+  return(R);
+}
+
+def sm1_rrank(A) {
+  SM1_FIND_PROC(P);
+  sm1_push_int0(P,A);
+  sm1(P," rrank toString .. ");
+  ox_check_errors2(P);
+  R = sm1_pop(P);
+  return(R);
+}
+
+
+/*&eg-texi
+@menu
+* sm1_rank::
+@end menu
+@node sm1_rank,,, SM1 Functions
+@subsection @code{sm1_rank}
+@findex sm1_rank
+@table @t
+@item sm1_rank(@var{a}|proc=@var{p})
+::  Returns the holonomic rank of the system of differential equations @var{a}.
+@end table
+
+@table @var
+@item return
+Number
+@item p
+Number
+@item a
+List
+@end table
+
+@itemize @bullet
+@item It evaluates the dimension of the space of holomorphic solutions
+at a generic point of the system of differential equations @var{a}.
+The dimension is called the holonomic rank.
+@item @var{a} is a list consisting of a list of differential equations and
+a list of variables.
+@item @code{sm1_rrank} returns the holonomic rank when @var{a} is regular
+holonomic. It is generally faster than @code{sm1_rank}.
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_rank::
+@end menu
+@node sm1_rank,,, SM1 函数
+@subsection @code{sm1_rank}
+@findex sm1_rank
+@table @t
+@item sm1_rank(@var{a}|proc=@var{p})
+::  微分方程式系 @var{a} の holonomic rank を戻す.
+@end table
+
+@table @var
+@item return
+数
+@item p
+数
+@item a
+リスト
+@end table
+
+@itemize @bullet
+@item 微分方程式系 @var{a} の, generic point での正則解の次元を
+戻す. この次元を, holonomic rank と呼ぶ.
+@item @var{a} は微分作用素のリストと変数のリストよりなる.
+@item  @var{a} が regular holonomic のときは @code{sm1_rrank}
+も holonomic rank を戻す.
+いっぱんにこの関数の方が @code{sm1_rank} より早い.
+@end itemize
+*/
+
+/*&C-texi
+
+@example
+
+[284]  sm1_gkz([  [[1,1,1,1],[0,1,3,4]],  [0,2] ]);
+[[x4*dx4+x3*dx3+x2*dx2+x1*dx1,4*x4*dx4+3*x3*dx3+x2*dx2-2,
+  -dx1*dx4+dx2*dx3, -dx2^2*dx4+dx1*dx3^2,dx1^2*dx3-dx2^3,-dx2*dx4^2+dx3^3],
+ [x1,x2,x3,x4]]
+[285] sm1_rrank(@@);
+4
+
+[286]  sm1_gkz([  [[1,1,1,1],[0,1,3,4]],  [1,2]]);
+[[x4*dx4+x3*dx3+x2*dx2+x1*dx1-1,4*x4*dx4+3*x3*dx3+x2*dx2-2,
+ -dx1*dx4+dx2*dx3,-dx2^2*dx4+dx1*dx3^2,dx1^2*dx3-dx2^3,-dx2*dx4^2+dx3^3],
+ [x1,x2,x3,x4]]
+[287] sm1_rrank(@@);
+5
+
+@end example
+
+*/
 
 
 end$
