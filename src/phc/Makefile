@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/phc/Makefile,v 1.3 2000/01/07 20:41:51 maekawa Exp $
+# $OpenXM: OpenXM/src/phc/Makefile,v 1.4 2000/01/07 21:49:13 maekawa Exp $
 
 PROG=phc6
 
@@ -14,6 +14,9 @@ install: all
 
 clean:
 	rm -f $(PROG)
+
+distclean:
+	rm -f $(BINDIR)/$(PROG)
 
 $(PROG): $(SRCS)
 	$(CC) -o $(PROG) $(SRCS)
