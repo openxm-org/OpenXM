@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.5 2003/04/20 08:01:25 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.6 2003/04/20 09:55:18 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -449,6 +449,13 @@ If `on', various informations during a Groebner basis computation is
 displayed.
 \E
 
+@item PrintShort
+\JP on で、Print が off の場合, グレブナ基底計算の途中の情報を短縮形で表示する. 
+\BEG
+If `on' and Print is `off', short information during a Groebner basis computation is
+displayed.
+\E
+
 @item Stat
 \BJP
 on で @code{Print} が off ならば, @code{Print} が on のとき表示さ
@@ -471,24 +478,28 @@ is shown after every normal computation.  After comleting the
 computation the maximal value among the sums is shown.
 \E
 
-@item Multiple
+@item Content
+@itemx Multiple
 \BJP
-0 でない整数の時, 有理数上の正規形計算において, 係数のビット長の和が
-@code{Multiple} 倍になるごとに係数全体の GCD が計算され, その GCD で
-割った多項式を簡約する. @code{Multiple} が 1 ならば, 簡約するごとに
-GCD 計算が行われ一般には効率が悪くなるが, @code{Multiple} を 2 程度
+0 でない有理数の時, 有理数上の正規形計算において, 係数のビット長の和が
+@code{Content} 倍になるごとに係数全体の GCD が計算され, その GCD で
+割った多項式を簡約する. @code{Content} が 1 ならば, 簡約するごとに
+GCD 計算が行われ一般には効率が悪くなるが, @code{Content} を 2 程度
 とすると, 巨大な整数が係数に現れる場合, 効率が良くなる場合がある. 
+backward compatibility のため、@code{Multiple} で整数値を指定できる.
 \E
 \BEG
-If a non-zero integer, in a normal form computation
+If a non-zero rational number, in a normal form computation
 over the rationals, the integer content of the polynomial being
-reduced is removed when its magnitude becomes @code{Multiple} times
+reduced is removed when its magnitude becomes @code{Content} times
 larger than a registered value, which is set to the magnitude of the
 input polynomial. After each content removal the registered value is
-set to the magnitude of the resulting polynomial. @code{Multiple} is
+set to the magnitude of the resulting polynomial. @code{Content} is
 equal to 1, the simiplification is done after every normal form computation.
-It is empirically known that it is often efficient to set @code{Multiple} to 2
+It is empirically known that it is often efficient to set @code{Content} to 2
 for the case where large integers appear during the computation.
+An integer value can be set by the keyword @code{Multiple} for
+backward compatibility.
 \E
 
 @item Demand
@@ -2150,7 +2161,7 @@ except for lack of the argument for controlling homogenization.
 
 @table @t
 @item dp_gr_flags([@var{list}])
-@itemx dp_gr_print([@var{0|1}])
+@itemx dp_gr_print([@var{i}])
 \JP :: 計算および表示用パラメタの設定, 参照
 \BEG :: Set and show various parameters for cotrolling computations 
 and showing informations.
@@ -2164,6 +2175,9 @@ and showing informations.
 @item list
 \JP リスト
 \EG list
+@item i
+\JP 整数
+\EG integer
 @end table
 
 @itemize @bullet
@@ -2177,9 +2191,18 @@ and showing informations.
 引数は, @code{["Print",1,"NoSugar",1,...]} なる形のリストで, 左から順に
 設定される. パラメタ名は文字列で与える必要がある. 
 @item
-@code{dp_gr_print()} は, 特にパラメタ @code{Print} の値を直接設定, 参照
-できる. これは, @code{dp_gr_main()} などをサブルーチンとして用いるユーザ
-函数において, @code{Print} の値を見て, そのサブルーチンが中間情報の表示
+@code{dp_gr_print()} は, 特にパラメタ @code{Print}, @code{PrintShort} の値を直接設定, 参照
+できる. 設定される値は次の通りである。
+@table @var
+@item i=0
+@code{Print=0}, @code{PrintShort=0}
+@item i=1
+@code{Print=1}, @code{PrintShort=0}
+@item i=2
+@code{Print=0}, @code{PrintShort=1}
+@end table
+これは, @code{dp_gr_main()} などをサブルーチンとして用いるユーザ
+函数において, そのサブルーチンが中間情報の表示
 を行う際に, 迅速にフラグを見ることができるように用意されている. 
 \E
 \BEG
@@ -2194,8 +2217,17 @@ Arguments must be specified as a list such as
 strings.
 @item
 @code{dp_gr_print()} is used to set and show the value of a parameter
-@code{Print}. This functions is prepared to get quickly the value of
-@code{Print} when a user defined function calling @code{dp_gr_main()} etc.
+@code{Print} and @code{PrintShort}. 
+@table @var
+@item i=0
+@code{Print=0}, @code{PrintShort=0}
+@item i=1
+@code{Print=1}, @code{PrintShort=0}
+@item i=2
+@code{Print=0}, @code{PrintShort=1}
+@end table
+This functions is prepared to get quickly the value
+when a user defined function calling @code{dp_gr_main()} etc.
 uses the value as a flag for showing intermediate informations.
 \E
 @end itemize
@@ -3831,6 +3863,9 @@ if an input ideal is not radical.
 部分を計算することによる early termination を行う. 一般に, 
 イデアルの次元が高い場合に有効だが, 0 次元の場合など, 次元が小さい
 場合には overhead が大きい場合がある. 
+@item
+計算途中で内部情報を見たい場合には、
+前もって @code{dp_gr_print(2)} を実行しておけばよい.
 \E
 \BEG
 @item
@@ -3855,6 +3890,9 @@ is tried by computing the intersection of obtained components
 incrementally. In general, this strategy is useful when the krull
 dimension of the ideal is high, but it may add some overhead
 if the dimension is small.
+@item
+If you want to see internal information during the computation,
+execute @code{dp_gr_print(2)} in advance.
 \E
 @end itemize
 
@@ -3876,7 +3914,8 @@ if the dimension is small.
 @fref{modfctr},
 @fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
 \JP @fref{項順序の設定}.
-\EG @fref{Setting term orderings}.
+\EG @fref{Setting term orderings},
+@fref{dp_gr_flags dp_gr_print}.
 @end table
 
 \JP @node bfunction generic_bfct,,, グレブナ基底に関する函数
@@ -3916,7 +3955,7 @@ if the dimension is small.
 ウェイト @var{weight} に関する global b 関数を計算する. 
 @var{vlist} は @code{x}-変数, @var{vlist} は対応する @code{D}-変数
 を順に並べる. 
-@item 詳細については, [SST] を見よ. 
+@item 詳細については, [Saito,Sturmfels,Takayama] を見よ. 
 \E
 \BEG
 @item These functions are defined in @samp{bfct}.
@@ -3930,7 +3969,7 @@ computes the global b-function of a left ideal @code{I} in @code{D}
 generated by @var{plist}, with respect to @var{weight}.
 @var{vlist} is the list of @code{x}-variables, 
 @var{vlist} is the list of corresponding @code{D}-variables.
-@item See [SST] for the details.
+@item See [Saito,Sturmfels,Takayama] for the details.
 \E
 @end itemize
 
