@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.10 2000/09/17 03:12:11 takayama Exp $
+###  $OpenXM$
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -26,7 +26,7 @@ CFLAGS = -O
 #CFLAGS = -O
 
 GMP_HOME2 = ../../gmp
-LIBGMP = $(OpenXM_HOME)/lib/libgmp.so -Wl,--rpath -Wl,$(OpenXM_HOME)/lib
+LIBGMP = @@@LIBGMP@@@
 ## This line is for buggy linux-gmp.
 ##LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 
@@ -195,7 +195,7 @@ install-lib: kanlib.a
 
 
 clean :
-	rm -f mklookup mm  core sm1 lookup.h smacro.h *.o *~ *.a mon.out sm1.nogc kanlib.a plugin.h plugin.hh plugin-tmp/*.o Kclass/*.o Kclass/*~
+	rm -f mklookup mm  core sm1 lookup.h smacro.h *.o *~ *.a mon.out sm1.nogc kanlib.a plugin.h plugin.hh plugin-tmp/*.o Kclass/*.o Kclass/*~ makeconf makeconf.sed
 
 cleana :
-	rm -f mklookup mm  core sm1 lookup.h smacro.h *.o *~ *.a mon.out sm1.nogc kanlib.a plugin.h plugin.hh  plugin-tmp/*.o  Kclass/*.o Kclass/*~
+	rm -f mklookup mm  core sm1 lookup.h smacro.h *.o *~ *.a mon.out sm1.nogc kanlib.a plugin.h plugin.hh  plugin-tmp/*.o  Kclass/*.o Kclass/*~ makeconf makeconf.sed Makefile

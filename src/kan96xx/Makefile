@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.24 2000/09/17 03:12:10 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.25 2000/12/25 06:19:10 takayama Exp $
 
 ## Type in make configure and make all to build all
 TOPDIR=../../../OpenXM
@@ -34,7 +34,7 @@ sm1.nogc :
 	(cd Kan; make sm1.nogc)
 
 configure: configure_symbolic_links 
-
+	(cd Kan; sh configure)
 
 configure_symbolic_links :
 	@if test ! -f ./.done_links  ; \
@@ -100,10 +100,18 @@ clean-binary :
 install-openXM-bin: install-bin-OpenXM  #alias
 
 install-bin-OpenXM: clean-for-debug
-	cp Kan/sm1 $(OpenXM_bin)
+	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	  cp Kan/sm1.exe $(OpenXM_bin) ; \
+	else \
+	  cp Kan/sm1 $(OpenXM_bin) ; \
+	fi
 
 install-for-debug :
-	ln -f -s ../src/kan96xx/Kan/sm1 $(OpenXM_bin)/sm1
+	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	  ln -f -s ../src/kan96xx/Kan/sm1.exe $(OpenXM_bin)/sm1.exe ; \
+	else \
+	  ln -f -s ../src/kan96xx/Kan/sm1 $(OpenXM_bin)/sm1 ; \
+	fi
 
 install-doc:  install-document
 

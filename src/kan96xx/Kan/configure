@@ -1,0 +1,4 @@
+:
+:  $OpenXM$
+gcc makeconf.c -o makeconf ; ./makeconf >makeconf.sed
+rm  -f Makefile; sed -f makeconf.sed <Makefile.in >Makefile

@@ -1,0 +1,958 @@
+%%%%%%%%%%%  $OpenXM$
+%%%%%%%%%%%% Configuration: Specify your server path
+%%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
+%%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
+/oxpath.ox (bin/ox.exe) def
+/oxpath.oxsm1 (bin/ox_sm1.exe) def
+/oxpath.oxlog (bin/oxlog.exe) def
+/oxpath.xterm (start ) def
+/oxpath.null  (  ) def
+/oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
+/oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
+%%%%%%%%%%%%%  The following is used only for sm1connectr-ssh.
+%%%%%%%%%%%%%  Configure path for ox and ox_sm1 on your remote machine.
+/oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def
+/oxpath.oxsm1-ssh (/home/taka/OpenXM/bin/ox_sm1) def
+/oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def
+/myhostname-ssh   (yama.math.kobe-u.ac.jp) def
+%% for debugging.
+%/oxpath.oxlog.xterm-ssh ( ) def  
+%/oxpath.oxsm1-ssh (/home/nobuki/OpenXM/bin/ox_sm1) def
+%/oxpath.ox-ssh    (/home/nobuki/OpenXM/bin/ox) def
+%/myhostname-ssh   (localhost) def
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Old full path.
+%/oxpath.ox (/home/nobuki/kxx/ox) def
+%/oxpath.oxsm1 (/home/nobuki/kxx/ox_sm1) def
+%/oxpath.oxlog (/home/nobuki/kxx/oxlog) def
+%/oxpath.xterm (/usr/X11R6/bin/xterm  -icon  -e ) def
+
+%% This macro is invoked when this package is loaded.
+/initializePathNamesForOx  {
+%%   [oxpath.ox] getPathNameSm1 /oxpath.ox set
+%%   [oxpath.oxsm1] getPathNameSm1 /oxpath.oxsm1 set
+%%   [oxpath.oxlog] getPathNameSm1 /oxpath.oxlog set
+%%   /oxpath.oxlog.xterm [oxpath.oxlog ( ) oxpath.xterm] cat def
+} def
+
+%% Execute this macro, then xterm will not be executed and the output
+%% will be redirected to /dev/null.
+/oxNoX {
+   /oxpath.null oxpath.null00 def
+   /oxpath.oxlog.xterm [oxpath.oxlog ( )] cat def
+   (oxpath.oxlog.xterm is set to ) messagen
+   oxpath.oxlog.xterm message
+} def
+
+/ox.ccc.init { ox.ccc ( [(oxPrintMessage) 0] extension pop ) oxsubmit } def
+
+/ox.verbose 0   def
+/ox.version (2.981105) def
+ox.version [(Version)] system_variable gt 
+{ (This package requires the latest version of kan/sm1) message
+  (Please get it from http://www.math.kobe-u.ac.jp/KAN) message
+  error
+} { } ifelse
+(ox.sm1, --- open sm1 protocol module 11/11,1999  (C) N.Takayama. oxhelp for help) message-quiet
+
+/ox.ccc load isArray 
+{ }
+{ /ox.ccc [ ] def } ifelse
+
+
+
+/ox.logsize 10 def
+/ox.log [1 1 ox.logsize {pop 0} for ] def
+/ox.mod { dup ox.logsize idiv ox.logsize mul sub } def
+/ox.takelog 1 def
+
+/SM_executeStringByLocalParser 268 def
+/SM_execute 268 def
+/SM_popString  263  def
+/SM_mathcap 264 def
+
+/SM_popCMO 262 def
+/SM_executeFunction 269 def
+/SM_DUMMY_sendcmo   2147418112 1 add def    %%% SM_PRIVATE+1
+/SM_sync_ball 281 def
+
+/SM_pops  265  def
+/SM_setName 266  def
+/SM_evalName 267  def
+
+/SM_setMathCap 273 def
+
+/SM_getsp     275  def
+/SM_dupErrors 276  def
+
+/SM_control_kill 1024 def
+/SM_control_reset_connection  1030 def
+/SM_control_spawn_server  1027 def
+
+/Etag_error 257 def
+
+/enginesList [
+  [(localhost) 1300 1200]
+  [(localhost) 2300 2200]
+] def
+%% cf. startengines
+/enginesList.2 [
+  [(dc1) 1300 1200]
+  [(dc2) 2300 2200]
+] def
+%% cf. se12
+
+/oxconnect {
+  /arg1 set
+  [(oxCreateClient) arg1 aload pop] extension 
+} def
+[(oxconnect)
+ [([hostname data-port control-port] oxconnect pid)
+  (oxconnect is used to connect this to a server on the hostname with data-port)
+  (and control-port)
+  (Example 1:  ox -ox ox_sm1 -data 1300 -control 1200    <== on server.)
+  (            [$localhost$ 1300 1200] oxconnect /ox.ccc set  <== on client.)
+  (Example 2:  ox -ox ox_sm1 -host s.OpenXM.org -insecure -data 1300 -control 1200    <== on server.)
+  (            [$s.OpenXM.org$ 1300 1200] oxconnect /ox.ccc set  <== on client.)
+  (Example 3:  ox -ox ox_sm1 -data 1300 -control 1200  >& /dev/null &<== on server.)
+  (            [$localhost$ 1300 1200] oxconnect /ox.ccc set  <== on client.)
+  (           cf. oxNoX)
+  (See also ox)
+ ]
+] putUsages
+
+[(ox)
+ [
+  (client aa oxpushcmo (oxsendcmo), client oxpopcmo dd, client popstring dd, client ss oxrpc) 
+ (Example: ox.ccc [1 2 3] oxpushcmo ox.ccc oxpopcmo /ff set  ff :: ) 
+ (  )
+ (client ss oxexecutestring(oxsubmit) <<executeString>>, client ss oxexec <<executeFunction>>) 
+ 
+ (Example: ox.ccc (0 1 10 { pop $Hello$ message } for) oxexecutestring ) 
+ (Example: ox.ccc (2).. oxpushcmo ox.ccc (10).. oxpushcmo )
+ (         ox.ccc (power) oxexec  ox.ccc oxpopcmo :: )
+ (  )
+ (client str oxevalname, client str oxsetname, client num oxpops, client oxget) 
+ (   )
+ (client oxmathcap, client oxsetmathcap, oxgenportfile, oxremoveportfile)
+ (   )
+ (client oxgetsp --- get stack pointer,  client oxgeterrors --- get all errors)
+ (cleint oxisData, client oxreset, client oxshutdown)
+ (oxhelp for this message, [(oxWatch) client] extension to start a log.)
+ ([(oxSerial)] extension serial-number-of-out-going-ox-packet.)
+ (oxpopcmo1, oxpopcmo2,  sm1connect2, sm1connect3) 
+ (sm1connectr ox_launch, ox_launch_nox)
+ (oxNoX : set an environment to invoke oxlog without xterm and to call oxlog with >& /dev/null)
+ $        ex 1.  (ox.sm1) run oxNoX sm1connectr $
+ $        ex 2.  (oxasir.sm1) run oxNoX (x^2-1). fctr pmat ; $
+ ]
+] putUsages
+
+/oxhelp {
+ (oxconnect) usage
+ (  ) message
+ (ox) usage
+} def
+[(oxhelp)
+ [(oxhelp  outputs help messages for ox commands.)
+]] putUsages
+
+ox.verbose { oxhelp } {  } ifelse
+
+/sm1connect2 {
+ [oxpath.oxlog.xterm   oxpath.ox ( -ox ) oxpath.oxsm1 
+  oxpath.null
+  ( &)] cat system-csh
+% (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_sm1 &) system
+% For MSRI, or Eterm, 
+%(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_sm1 &) system
+ (If you start the server automatically, you may have a trouble to) message
+ (oxreset. In order to avoid this trouble, start the server by hand.) message
+ (sleep 5) system-csh
+  [(localhost) 1300 1200] oxconnect /ox.ccc set
+ (The server is binded to the variable ox.ccc) message
+ ox.ccc.init
+} def
+
+/sm1connect3 {
+ [oxpath.oxlog.xterm   oxpath.ox ( -ox ) oxpath.oxsm1 
+  (  -data 2300 -control 2200 )  
+  oxpath.null
+  ( &)] cat system-csh
+% (kterm -iconic -e /home/nobuki/kxx/ox -ox /home/nobuki/kxx/ox_sm1 -data 2300 -control 2200 &) system-csh
+% For MSRI
+%(xterm -icon -e /u/nobuki/tmp/kxx/ox -ox /u/nobuki/tmp/Ox/ox_sm1 -data 2300 -control 2200&) system-csh
+ (If you start the server automatically, you may have a trouble to) message
+ (oxreset. In order to avoid this trouble, start the server by hand.) message
+ (sleep 5) system-csh
+  [(localhost) 2300 2200] oxconnect /ox.ccc2 set
+ (The server is binded to the variable ox.ccc2) message
+} def
+
+/sm1connect4 {
+ %% test version.
+ /ox.ccc.portfile oxgenportfile def
+ [oxpath.oxlog.xterm   oxpath.ox ( -ox ) oxpath.oxsm1 
+  ( -portfile ) ox.ccc.portfile
+  oxpath.null
+  ( &)] cat system-csh
+ (sleep 5) system-csh
+ [(oxReadPortFile) ox.ccc.portfile] extension /ox.ccc.control set
+ ox.ccc.control message
+ [(localhost) ox.ccc.control 1200] /ox.ccc set
+ (The server is binded to the variable ox.ccc) message
+ oxremoveportfile
+} def
+
+/oxpushcmo { oxsendcmo } def
+/oxsendcmo {
+  /arg1 set
+  /arg2 set
+  ox.takelog { ox.log [(oxSerial)] extension ox.mod arg1 put 
+  } {  } ifelse
+  [(oxReq) arg2 SM_DUMMY_sendcmo arg1] extension pop
+} def
+
+/oxpopcmo {
+  /arg1 set
+  [(oxReq) arg1 SM_popCMO ] extension pop
+  [(oxGet) arg1] extension 
+} def
+
+/oxgetsp {
+  /arg1 set
+  [(oxReq) arg1 SM_getsp ] extension pop
+  [(oxReq) arg1 SM_popCMO ] extension pop
+  [(oxGet) arg1] extension 
+} def
+
+/oxgeterrors {
+  /arg1 set
+  [(oxReq) arg1 SM_dupErrors ] extension pop
+  [(oxReq) arg1 SM_popCMO ] extension pop
+  [(oxGet) arg1] extension 
+} def
+
+/oxmathcap0 {
+  /arg1 set
+  [(oxReq) arg1 SM_mathcap ] extension pop
+} def
+/oxmathcap {
+  /arg1 set
+  [/in-oxmathcap /mypeer /mmm] pushVariables
+  [ /mypeer arg1 def
+    mypeer oxmathcap0 
+    mypeer oxpopcmo /mmm set
+    mypeer 10 mmm put  %% set math cap.
+  ] pop
+  popVariables
+} def
+/oxsetmathcap {
+  /arg1 set
+  [/in-oxsetmathcap /mypeer /mymathcap] pushVariables
+  [
+    /mypeer arg1 def
+    /mymathcap     [(cmoMathCap)] extension (array) dc def
+    [(oxReq) 
+      mypeer   SM_setMathCap
+      mymathcap
+    ] extension pop
+  ] pop
+  popVariables
+} def
+/oxsetmathcap.old {
+  /arg1 set
+  [(oxReq) 
+    arg1   SM_setMathCap
+    [(mathcap-object)
+     [[199901160 (sm1)]
+      [2130706434 , 1 , 2 , 4 , 17 , 19 , 20 , 22 , 23 , 24 , 25 , 26 , 30 ]
+      %% mathcap for sm1.
+      %% [1 2 3 4 5]   %% for test.   cf. cmoCheckMathCap, Sm1_mathcap()
+     ]
+    ]  %% Never write a broken data here.
+  ] extension pop
+} def
+/oxpopcmo1 {  %% ask of the transmission.
+  /arg1 set
+  [(oxReq) arg1 SM_popCMO ] extension pop
+} def
+/oxpopcmo2 {  %% wait the data.
+  /arg1 set
+  [(oxGet) arg1] extension 
+} def
+
+
+/oxpopstring {
+  /arg1 set
+  [(oxReq) arg1 SM_popString ] extension pop
+  [(oxGet) arg1] extension 
+} def
+
+/oxrpc {
+  /arg1 set
+  /arg2 set
+  [/ans /ff] pushVariables
+  [
+   /ff arg2 def
+   ox.takelog { ox.log [(oxSerial)] extension ox.mod arg1 put 
+                ox.log [(oxSerial)] extension 1 add ox.mod (executeString) put
+   } {  } ifelse
+   [(oxReq) ff SM_execute arg1] extension pop
+   [(oxReq) ff SM_popCMO] extension pop
+   [(oxGet) ff] extension /ans set
+   ans etag Etag_error  eq {
+     (Got an error object.) message
+     /arg1 ans def
+   }
+   {  /arg1 ans def
+    } ifelse
+  ] pop
+  popVariables
+  arg1
+} def
+
+/oxexecutestring { oxsubmit } def
+/oxsubmit {
+  /arg1 set
+  /arg2 set
+   ox.takelog { ox.log [(oxSerial)] extension ox.mod arg1 put 
+                ox.log [(oxSerial)] extension 1 add ox.mod (executeString) put
+   } {  } ifelse
+  [(oxReq) arg2 SM_execute arg1] extension pop
+} def
+
+/oxexec {
+  /arg1 set
+  /arg2 set
+   ox.takelog { ox.log [(oxSerial)] extension ox.mod arg1 put
+                ox.log [(oxSerial)] extension 1 add ox.mod (executeFunction) put
+   } {  } ifelse
+  [(oxReq) arg2 SM_executeFunction arg1] extension pop
+} def
+/oxsubmit2 {
+  oxexec
+} def
+
+/oxpops {
+  /arg1 set
+  /arg2 set
+  [(oxReq) arg2 SM_pops arg1] extension pop
+} def
+
+/oxsetname {
+  /arg1 set
+  /arg2 set
+  [(oxReq) arg2 SM_setName arg1] extension pop
+} def
+
+/oxevalname {
+  /arg1 set
+  /arg2 set
+  [(oxReq) arg2 SM_evalName arg1] extension pop
+} def
+
+
+/oxreset {
+  /arg1 set
+  [(oxReq) arg1 SM_control_reset_connection] extension pop
+%%  [(oxGetFromControl) arg1 ] extension pop
+  [(oxGet) arg1] extension message
+} def
+
+/oxisData {
+  /arg1 set
+  [/pp /ff] pushVariables
+  [
+    /ff arg1 def
+    [(oxMultiSelect) [ff] 10] extension /pp set
+    pp message
+    pp 0 get 1 eq {
+      pp 1 get 0 get 1 eq {  %% data is in the data stream.
+        /arg1 [(oxGet) ff] extension def
+      } {/arg1 (no data) def  } ifelse
+    }
+    { /arg1 (no data) def }
+    ifelse
+  ] pop
+  popVariables
+  arg1
+} def
+
+/oxget {
+  oxisData
+} def
+
+
+/oxshutdown {
+  /arg1 set
+  [(fp2fclose) arg1 1 get] extension
+  [(oxReq) arg1 SM_control_kill] extension
+  arg1 0 (closed) put
+} def
+
+/oxgenportfile {
+  [(oxGenPortFile)] extension
+}def
+/oxremoveportfile {
+  [(oxRemovePortFile)] extension
+}def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/enginescmd
+  $ /computesp {
+       /arg1 set
+       [arg1 myid] arg1 message
+    } def
+  $
+def
+
+
+/genPairs {
+  /arg1 set
+  [/n /i /j] pushVariables
+  [
+    /n arg1 def
+    /genPairs.list [  ] def
+    /genPairs.i 0 def
+    0 1 n 1 sub {
+      /i set
+      i 1 add 1 n 1 sub {
+         /j set
+         genPairs.list [i j] append /genPairs.list set
+      } for
+    } for
+    /genPairs.n genPairs.list length def
+  ] pop
+  popVariables
+} def
+
+/getPair {
+  [/i ] pushVariables
+  [
+    genPairs.i genPairs.n lt {
+      genPairs.list genPairs.i get /ans set
+      genPairs.i 1 add /genPairs.i set
+    }
+    { [-1 -1] /ans set} ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/sumUp {
+  /arg1 set
+  [/ans /v /i /n] pushVariables
+  [
+    /v arg1 def
+    /n v length def
+    /ans 0 def
+    0 1 n 1 sub {
+      /i set
+      ans v i get add /ans set
+    } for
+    /arg1 ans def
+   ] pop
+   popVariables
+   arg1
+} def
+
+
+/dist {
+  /dist.debug 0 def
+  /result [  ] def
+  enginesList {oxconnect} map /engines set
+  /enginesN engines length def
+  % broadcast the program.
+  (ox-1.sm1) pushfile /enginescmd set  %% read a file.
+  [(parse) enginescmd] extension
+  engines {enginescmd oxsubmit} map
+  engines { (slave-start) oxsubmit} map    %% initialize slave codes.
+                                           %% send pid.
+  0 1 enginesN 1 sub {
+    /i set
+    engines i get i oxsendcmo
+    engines i get (/myid set) oxsubmit
+  } for
+
+  master-start %% initialize master codes
+  %% gbsize genPairs   %% obsolete
+  /gbsize ans length def
+  ans makePairs /genPairs.list set
+  /genPairs.i 0 def  /genPairs.n genPairs.list length def
+  
+
+  /exhausted 0 def
+  % clear the busy flag.
+  /busy [1 1 enginesN { pop 0 } for ] def
+  (date) system-csh
+  {{
+  exhausted 0 eq {
+    0 1 enginesN 1 sub {
+      /i set
+      busy i get 0 eq {
+        getPair /p set
+        p 0 get -1 eq {/exhausted 1 def exit} { } ifelse
+        busy i 1 put
+        engines i get p oxsendcmo
+        engines i get ( computesp ) oxsubmit
+        engines i get oxpopcmo1
+      } { } ifelse
+    } for
+  } {  } ifelse
+  dist.debug { (busy=) messagen busy message } { } ifelse
+  busy sumUp 0 eq { result message exit error  } {  } ifelse
+  [(oxMultiSelect) engines -1] extension /status set   
+  /datastatus status 1 get def
+  dist.debug { (datastatus=) messagen datastatus message } { } ifelse
+  0 1 enginesN 1 sub {
+    /i set
+    datastatus i get 1 eq {
+      engines i get oxpopcmo2 /ans set
+      busy i 0 put
+      result ans append /result set
+    } { } ifelse
+  } for
+  } loop } timer
+  (date) system-csh
+  (result is in result) message
+  (Number of s-pairs checked is ) messagen result length message
+} def
+
+ox.verbose {  
+ (dist for experiments for distributed computing. cf. startengines) message
+} { } ifelse
+
+/oxIsServerReady {
+  /arg1 set
+  [/in-isServerReady /sdata /ans] pushVariables
+  [
+    /sdata arg1 def
+    /ans 0 def
+    sdata isArray {
+     sdata length 1 gt {
+       sdata 0 get (client) eq { /ans 1 def } { } ifelse
+     } { } ifelse
+    } { } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+%%%%%%%%%%%%%%%  tests 
+ox.verbose {
+  (test10 : test to read and write ox-data and ox-command to a file) message
+} {  } ifelse
+
+/test10 {
+  [(oxCreateClientFile) (afo) (w)] extension /ccc set
+  [(oxWatch) ccc] extension
+  ccc (x-1). oxsendcmo
+  [(oxReq) ccc SM_executeStringByLocalParser
+   ( dup add message )] extension pop
+  ccc (quit) oxsendcmo
+
+  [(oxCloseClient) ccc] extension
+} def
+
+/test11 {
+  [(oxCreateClientFile) (afo) (r)] extension /ccc set
+  [(oxGet) ccc] extension ::
+  [(oxGet) ccc] extension ::
+} def
+
+ox.verbose {
+ (test12 : ccc is the client. ff poly in Q<x,y,z,dx,dy,dz>  ) message
+} { } ifelse
+/test12 {
+  [(localhost) 1300 1200] oxconnect /ccc set
+  [(x,y,z) ring_of_differential_operators ( ) elimination_order 0] define_ring
+  (x+y). /ff set
+  /eee (hello) (error) dc def
+  /eee0 eee (error) dc def
+  (eee is the CMO_ERROR2 object [CMO_ERROR2 hello], eee0 is the CMO_ERROR object) message
+} def
+
+/sm1connectr {
+ [/in-sm1connectr /pass /peer /data /control ] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(start ox ) ( -reverse -ox ) (/home/nobuki/OpenXM/src/kxx/ox_sm1.exe)
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( )] cat system 
+ [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
+                     %% 0 means connect from only localhost. 
+ (The server is binded to the variable ox.ccc) message
+  ox.ccc.init 
+ ] pop
+ popVariables
+} def
+
+/sm1connectr-ssh {
+ /arg1 set
+ [/in-sm1connectr /pass /peer /data /control /name /machine
+  /your-peer /comm
+ ] pushVariables
+ [
+ /machine arg1 0 get def
+ /name arg1 1 get def
+
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) myhostname-ssh] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(ssh -f ) machine ( -l ) name ( ")
+  oxpath.oxlog.xterm-ssh  oxpath.ox-ssh ( -reverse -ox ) oxpath.oxsm1-ssh
+  ( -host ) myhostname-ssh
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( ")
+ ] cat /comm set
+ (Executing the command : ) messagen comm message message
+  comm system
+ (sleep 5) system-csh
+ [(oxCreateClient2) peer 1 pass] extension /your-peer set
+ /arg1 your-peer def
+ ] pop
+ popVariables
+ arg1
+} def
+[(sm1connectr-ssh)
+[([hostname login-name] sm1connectr-ssh client)
+ (Starting oxpath.oxsm1-ssh by the launcher oxpath.ox-ssh on the "hostname".)
+ (cf. oxNoX )
+ (Set the following varialbes to appropriate values:)
+ (oxpath.oxlog.xterm-ssh  oxpath.oxsm1-ssh  oxpath.ox-ssh myhostname-ssh )
+ $Example 1: $
+ $  *** Path names on the remote machine dc1.math.kobe-u.ac.jp $
+ $    /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def $
+ $    /oxpath.oxsm1-ssh (/home/taka/OpenXM/bin/ox_sm1) def $
+ $    /oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def $
+ $  *** The machine name on which you are running sm1. $
+ $    /myhostname-ssh   (yama.math.kobe-u.ac.jp) def $
+ $         [(dc1.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set  $
+ $Example 2: $
+ $  *** Path names on the remote machine dc2.math.kobe-u.ac.jp $
+ $  *** We will not use X11 debug windows. $
+ $    oxNoX $
+ $    /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog ) def $
+ $    /oxpath.oxsm1-ssh (/home/taka/OpenXM/bin/ox_sm1) def $
+ $    /oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def $
+ $  *** the machine name on which you are running sm1. $
+ $    /myhostname-ssh   (dc1.math.kobe-u.ac.jp) def $
+ $         [(dc2.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set  $
+]] putUsages
+
+/addSlash {
+  /arg1 set
+  [/in-addSlash /ss /aaa /ans] pushVariables
+  [
+    /ss arg1 def
+    ss (array) dc /aaa set
+    aaa length 0 eq {
+      /ans (/) def
+    }{
+      aaa aaa length 1 sub get  47  eq %% The last equals / ?
+      {
+        /ans ss def
+      }{
+        /ans [ss (/)] cat def
+      } ifelse
+    } ifelse
+    /arg1 ans def
+  ] pop
+  arg1 
+} def
+
+/getPathNameSm1 {
+  /arg1 set
+  [/in-getPathNameSm1 /fname /fullname /tname] pushVariables
+  [
+     /fname arg1 0 get def
+     %% If fullname is given, use it.
+     fname (array) dc 0 get 
+     (/) (array) dc 0 get eq
+     {  /fullname fname def
+        /getPathNameSm1.LLL goto
+     } { } ifelse
+
+     %% Else first try to find it in LOAD_SM1_PATH
+     [(getenv) (LOAD_SM1_PATH)] extension /tname set
+     tname isString 
+     { 
+       tname addSlash /tname set
+       [(stat) [tname fname] cat] extension
+       0 get isInteger  %% The file was found.
+       {  /fullname [tname fname] cat def
+          /getPathNameSm1.LLL goto
+       } { } ifelse
+     } {  } ifelse
+
+     %% Else first try to find it in OpenXM_HOME
+     [(getenv) (OpenXM_HOME)] extension /tname set
+     tname isString 
+     { 
+       tname addSlash /tname set
+       [tname (lib/sm1/)] cat /tname set
+       [(stat) [tname fname] cat] extension
+       0 get isInteger  %% The file was found.
+       {  /fullname [tname fname] cat def
+          /getPathNameSm1.LLL goto
+       } { } ifelse
+     } {  } ifelse
+
+     %% Else try to find it in /usr/local/lib/sm1
+     [(stat) [(/usr/local/lib/sm1/) fname] cat] extension
+     0 get isInteger  %% The file was found.
+     {  /fullname [(/usr/local/lib/sm1/) fname] cat def
+        /getPathNameSm1.LLL goto
+     } { } ifelse
+
+     %% Otherwise error.
+       [(getPathNameSm1: The file ) fname 
+        ( could not be found ) 
+        (neigher in LOAD\_SM1\_PATH=)
+        [(getenv) (LOAD_SM1_PATH)] extension
+        ( nor in OpenXM\_HOME/lib/sm1=)
+        [(getenv) (OpenXM_HOME)] extension
+        (/lib/sm1)
+        ( nor in /usr/local/lib/sm1)
+       ] cat /getPathNameSm1.errorMessage set
+       getPathNameSm1.errorMessage message
+     ] pop popVariables getPathNameSm1.errorMessage error
+
+     /getPathNameSm1.LLL
+     /arg1 fullname def
+  ] pop
+  popVariables
+  arg1
+} def
+[(getPathNameSm1)
+[([fname] getPathNameSm1 fullname)
+ (string fname, fullname)
+ (This command searches the fname in LOAD_SM1_PATH, )
+ (OpenXM_HOME/lib/sm1, and /usr/local/lib/sm1)
+ (It returns the fullname.)
+]] putUsages
+
+/getPathNameAsir {
+  /arg1 set
+  [/in-getPathNameAsir /fname /fullname /tname] pushVariables
+  [
+     /fname arg1 0 get def
+     %% If fullname is given, use it.
+     fname (array) dc 0 get 
+     (/) (array) dc 0 get eq
+     {  /fullname fname def
+        /getPathNameAsir.LLL goto
+     } { } ifelse
+
+     %% Else try to find it in ASIR_LIBDIR
+     [(getenv) (ASIR_LIBDIR)] extension /tname set
+     tname isString 
+     { 
+       [(stat) [tname (/) fname] cat] extension
+       0 get isInteger  %% The file was found.
+       {  /fullname [tname (/) fname] cat def
+          /getPathNameAsir.LLL goto
+       } { } ifelse
+ 
+     } {  } ifelse
+     
+     %% Else try to find it in /usr/local/lib/asir
+     [(stat) [(/usr/local/lib/asir/) fname] cat] extension
+     0 get isInteger  %% The file was found.
+     {  /fullname [(/usr/local/lib/asir/) fname] cat def
+        /getPathNameAsir.LLL goto
+     } { } ifelse
+
+     %% Otherwise error.
+       [ (getPathNameAsir: The file )  
+          fname  (ox_asir) eq
+          {(ox\_asir)} { fname }ifelse
+       ( could not be found ) 
+       (neigher in /usr/local/lib/asir nor in ASIR\_LIBDIR. )
+       ] cat /getPathNameAsir.errorMessage set
+       getPathNameAsir.errorMessage message
+     ] pop popVariables getPathNameAsir.errorMessage error
+
+     /getPathNameAsir.LLL
+     /arg1 fullname def
+  ] pop
+  popVariables
+  arg1
+} def
+[(getPathNameAsir)
+[([fname] getPathNameAsir fullname)
+ (string fname, fullname)
+ (This command searches the fname in /usr/local/lib/asir and ASIR_LIBDIR)
+ (and returns the fullname.)
+]] putUsages
+
+
+/ox_launch_nox { 
+  /@@@.ox_launch_nox  1 def
+  ox_launch_aux
+} def
+/ox_launch { 
+  /@@@.ox_launch_nox  0 def
+  ox_launch_aux
+} def
+
+/ox_launch_aux {
+ /arg1 set
+ [/in-launch_nox /pass /peer /data /control /name /machine
+  /your-peer /comm /remoteOpenXMbin /remoteServer /myhost
+  /argNumber /aaa 
+ ] pushVariables
+ [
+   /aaa arg1 def
+   /argNumber aaa length def 
+   /machine aaa 0 get def
+   machine (localhost) eq argNumber 5 lt and {
+     aaa 1 get ox_launch_localhost /your-peer set
+     /LLL.end goto
+   } {
+     /remoteOpenXMbin aaa 1 get def
+     /remoteServer aaa 2 get def
+     /name aaa 3 get def
+     /myhost aaa 4 get def
+   } ifelse
+
+   /pass [(oxGenPass)] extension def
+   /peer [(oxGetPort) myhost] extension def
+   /data peer 1 get toString def
+   /control peer 3 get toString def
+   peer message
+ [(ssh -f ) machine ( -l ) name ( ")
+
+   @@@.ox_launch_nox {
+   } {
+     remoteOpenXMbin(/oxlog )
+     ( /usr/X11R6/bin/xterm -icon -e )
+   } ifelse
+
+  ( ) remoteOpenXMbin (/ox ) 
+  ( -reverse -ox ) remoteServer
+  ( -host ) myhost
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( ")
+ ] cat /comm set
+ (Executing the command : ) messagen comm message message
+  comm system
+ (sleep 5) system-csh
+ [(oxCreateClient2) peer 1 pass] extension /your-peer set
+ /LLL.end
+ /arg1 your-peer def
+ ] pop
+ popVariables
+ arg1
+} def
+
+[(ox_launch)
+[( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
+ (  ox_launch  client )
+ $or $
+ $ [(localhost) ox-server-name] ox_launch client$
+ (Example 1: )
+ $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
+ $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $ ] ox_launch /@@@.oxmath set $
+]] putUsages
+
+[(ox_launch_nox)
+[( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
+ (  ox_launch_nox  client )
+ (Example 1: )
+ $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
+ $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $ ] ox_launch_nox /@@@.oxmath set $
+]] putUsages
+
+/system-csh {
+  /arg1 set
+  [/in-system-csh /com /com2] pushVariables
+  [
+    /com arg1 def
+    [(/bin/csh -c ") com (")] cat
+    /com2 set
+    %%com2 message
+    com2 system
+  ] pop
+  popVariables
+} def
+
+/ox_launch_localhost {
+ /arg1 set
+ [/in-ox_launch_localhost /pass /peer /data /control /oxserver
+  /my-peer] pushVariables
+ [
+    /oxserver arg1 def
+    /pass [(oxGenPass)] extension def
+    /peer [(oxGetPort) (localhost)] extension def
+    /data peer 1 get toString def
+    /control peer 3 get toString def
+    peer message
+    [oxpath.oxlog.xterm  oxpath.ox ( -reverse -ox ) oxserver
+     ( -data ) data ( -control ) control  ( -pass ) pass 
+      oxpath.null
+     ( &)] cat system-csh
+    [(oxCreateClient2) peer 0 pass] extension /my-peer set
+                         %% 0 means connect from only localhost. 
+    (The server is binded to the variable ox.ccc) message
+    /arg1 my-peer def
+ ] pop
+ popVariables
+ arg1
+} def
+
+%% Test code for oxCreateControl_RFC_101
+/sm1StartControl101 {
+ [/in-sm1connectr /pass /peer /data /control ] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort1) (localhost)] extension def
+ /data peer 1 get toString def
+ peer message
+ [(/home/nobuki/OpenXM/src/oxc/oxc)
+  ( -c ) pass ( -h ) (localhost) ( -p ) data ( -x )
+  oxpath.null
+  ( &)] cat system-csh
+
+ [(oxCreateControl_RFC_101) peer 0 pass] extension /ox.ccc set
+                     %% 0 means connect from only localhost. 
+ (The server is binded to the variable ox.ccc) message
+  ox.ccc
+ ] pop
+ popVariables
+} def
+
+/sm1StartEngine101 {
+ [/in-sm1StartEngine101 /peer /data /control /engineID] pushVariables
+ [
+    /peer [(oxGetPort1) (localhost)] extension def
+    /data peer 1 get def
+
+    ox.ccc data oxpushcmo
+    ox.ccc (/home/nobuki/OpenXM/bin/ox_sm1) oxpushcmo
+    [(oxPushCMD) ox.ccc SM_control_spawn_server] extension
+    ox.ccc oxpopcmo /engineID set
+    [(oxCreateEngine_RFC_101) peer 0 (Empty) engineID] extension
+    /ox.ddd set
+    (The engine is binded to the variables ox.ddd) message
+ ] pop
+ popVariables
+ arg1
+} def
+
+initializePathNamesForOx  %% This should be 
