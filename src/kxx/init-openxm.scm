@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.10 2004/03/17 13:28:38 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.11 2004/03/19 07:53:43 ohara Exp $
 
 (define (openxm-eval t)
   (import-from (texmacs plugin plugin-cmd))
@@ -78,8 +78,16 @@
         )))
 )
 
+(define (openxm-serialize lan t)
+  (import-from (texmacs plugin plugin-cmd))
+  (with u (pre-serialize lan t)
+    (with s (texmacs->verbatim (object->tree u))
+      (string-append (string-replace s "\n" "\v") "\n")
+      )))
+
 (plugin-configure openxm
   (:require (url-exists-in-path? "openxm"))
   (:initialize (openxm-initialize))
+  (:serializer ,openxm-serialize)
   (:launch "exec openxm ox_texmacs")
   (:session "OpenXM[asir,sm1]"))
