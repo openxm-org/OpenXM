@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.12 2003/06/03 16:06:48 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.13 2003/06/05 21:12:07 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -271,6 +271,26 @@ cmo_distributed_polynomial* new_cmo_distributed_polynomial()
     c->head->next = c->head;
     c->head->prev = c->head;
     c->ringdef = NULL;
+    return c;
+}
+
+cmo_polynomial_in_one_variable* new_cmo_polynomial_in_one_variable(int var)
+{
+    cmo_polynomial_in_one_variable* c = MALLOC(sizeof(cmo_polynomial_in_one_variable));
+    c->tag     = CMO_POLYNOMIAL_IN_ONE_VARIABLE;
+    c->length = 0;
+    c->head->next = c->head;
+    c->head->prev = c->head;
+	c->var = var; 
+    return c;
+}
+
+cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo* ringdef, cmo* coef)
+{
+    cmo_recursive_polynomial* c = MALLOC(sizeof(cmo_recursive_polynomial));
+    c->tag     = CMO_RECURSIVE_POLYNOMIAL;
+    c->ringdef = ringdef;
+	c->coef    = coef;
     return c;
 }
 

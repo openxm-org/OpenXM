@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.24 2003/05/25 16:35:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.25 2003/06/02 10:25:56 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -33,6 +33,8 @@ static cmo_zero*         receive_cmo_zero(OXFILE *oxfp);
 static cmo_dms_generic*  receive_cmo_dms_generic(OXFILE *oxfp);
 static cmo_ring_by_name* receive_cmo_ring_by_name(OXFILE *oxfp);
 static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(OXFILE *oxfp);
+static cmo_recursive_polynomial* receive_cmo_recursive_polynomial(OXFILE *oxfp);
+static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OXFILE *oxfp);
 static cmo_error2*       receive_cmo_error2(OXFILE *oxfp);
 
 static int          send_cmo_null(OXFILE *oxfp, cmo_null* c);
@@ -43,6 +45,8 @@ static int          send_cmo_list(OXFILE *oxfp, cmo_list* c);
 static int          send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c);
 static int          send_cmo_error2(OXFILE *oxfp, cmo_error2* c);
 static int          send_cmo_distributed_polynomial(OXFILE *oxfp, cmo_distributed_polynomial* c);
+static int send_cmo_polynomial_in_one_variable(OXFILE *oxfp, cmo_polynomial_in_one_variable* c);
+static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial* c);
 
 static cmo_zz*      receive_cmo_zz(OXFILE *oxfp);
 static void         receive_mpz(OXFILE *oxfp, mpz_ptr mpz);
@@ -207,6 +211,13 @@ static cmo_ring_by_name* receive_cmo_ring_by_name(OXFILE *oxfp)
     return new_cmo_ring_by_name(ob);
 }
 
+static cmo_recursive_polynomial* receive_cmo_recursive_polynomial(OXFILE *oxfp)
+{
+	cmo* ringdef = receive_cmo(oxfp);
+	cmo* coef    = receive_cmo(oxfp);
+    return new_cmo_recursive_polynomial(ringdef, coef);
+}
+
 static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(OXFILE *oxfp)
 {
     cmo* ob;
@@ -217,6 +228,23 @@ static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(OXFILE *ox
     while (len>0) {
         ob = receive_cmo(oxfp);
         list_append((cmo_list *)c, ob);
+        len--;
+    }
+    return c;
+}
+
+static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OXFILE *oxfp)
+{
+    cmo* coef;
+    cmo_polynomial_in_one_variable* c;
+    int len = receive_int32(oxfp);
+    int var = receive_int32(oxfp);
+    int exp;
+    c = new_cmo_polynomial_in_one_variable(var);
+    while (len>0) {
+        exp  = receive_int32(oxfp);
+        coef = receive_cmo(oxfp);
+        list_append_monomial(c, coef, exp);
         len--;
     }
     return c;
@@ -272,6 +300,11 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
     case CMO_DISTRIBUTED_POLYNOMIAL:
         m = (cmo *)receive_cmo_distributed_polynomial(oxfp);
         break;
+    case CMO_RECURSIVE_POLYNOMIAL:
+        m = (cmo *)receive_cmo_recursive_polynomial(oxfp);
+        break;
+    case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+        m = (cmo *)receive_cmo_polynomial_in_one_variable(oxfp);
     case CMO_ERROR2:
         m = (cmo *)receive_cmo_error2(oxfp);
         break;
@@ -467,6 +500,21 @@ static int send_cmo_distributed_polynomial(OXFILE *oxfp, cmo_distributed_polynom
     return 0;
 }
 
+static int send_cmo_polynomial_in_one_variable(OXFILE *oxfp, cmo_polynomial_in_one_variable* c)
+{
+    cell* el = list_first(c);
+    int len = list_length(c);
+    send_int32(oxfp, len);
+	send_int32(oxfp, c->var);
+
+    while(!list_endof(c, el)) {
+        send_cmo(oxfp, el->exp);
+        send_cmo(oxfp, el->cmo);
+        el = list_next(el);
+    }
+    return 0;
+}
+
 static int send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c)
 {
     int i;
@@ -482,6 +530,13 @@ static int send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c)
 static int send_cmo_zz(OXFILE *oxfp, cmo_zz* c)
 {
     send_mpz(oxfp, c->mpz);
+    return 0;
+}
+
+static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial* c)
+{
+	send_cmo(oxfp, c->ringdef);
+    send_cmo(oxfp, c->coef);
     return 0;
 }
 
@@ -528,6 +583,12 @@ void send_cmo(OXFILE *oxfp, cmo* c)
         break;
     case CMO_DISTRIBUTED_POLYNOMIAL:
         send_cmo_distributed_polynomial(oxfp, (cmo_distributed_polynomial *)c);
+        break;
+    case CMO_RECURSIVE_POLYNOMIAL:
+        send_cmo_recursive_polynomial(oxfp, (cmo_recursive_polynomial *)c);
+        break;
+    case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
+        send_cmo_polynomial_in_one_variable(oxfp, (cmo_polynomial_in_one_variable *)c);
         break;
     default:
         call_hook_after_send_cmo(oxfp, c);

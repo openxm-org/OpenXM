@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.22 2003/06/03 16:06:48 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.23 2003/06/05 21:12:07 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -134,6 +134,21 @@ typedef struct {
     cell head[1];  /* a list of monomials */
     cmo *ringdef;
 } cmo_distributed_polynomial;
+
+/* The following is a derived class from cmo_list. 
+   that is, list_append can be used. */
+typedef struct {
+    int tag;
+    int length;   /* number of monomials */
+    cell head[1]; /* list of monomials */
+    int var;      /* name of the main variable */
+} cmo_polynomial_in_one_variable;
+
+typedef struct {
+    int tag;
+    cmo_list *ringdef; /* list of variables */
+    cmo *coef;  /* ZZ, QQ, int32, Poly_in_1var, Tree, Zero, DPoly */
+} cmo_recursive_polynomial;
 
 typedef cmo ox;
 
