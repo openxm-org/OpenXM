@@ -1,11 +1,11 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java,v 1.6 2000/03/14 04:44:17 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java,v 1.7 2000/03/14 05:02:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_ERROR2 extends CMO{
+final public class CMO_ERROR2 extends CMO{
   private CMO ob = new CMO_NULL();
 
   public CMO_ERROR2(CMO src){

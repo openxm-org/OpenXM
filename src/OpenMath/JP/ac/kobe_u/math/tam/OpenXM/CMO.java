@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.13 2000/03/14 04:56:24 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.14 2000/03/14 05:02:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -15,7 +15,7 @@ abstract public class CMO extends OXbody{
   final public static int INT32   = 2;
   final public static int DATUM   = 3;
   final public static int STRING  = 4;
-  final public static int CMO_MATHCAP = 5;
+  final public static int MATHCAP = 5;
   final public static int CMO_LIST    = 17;
 
   final public static int CMO_MONOMIAL32         = 19;
@@ -107,10 +107,10 @@ abstract public class CMO extends OXbody{
       return CMO_DATUM.receive(is);
 
     case CMO.STRING:
-      return new CMO_STRING().receive(is);
+      return CMO_STRING.receive(is);
 
-    case CMO_MATHCAP:
-      return new CMO_MATHCAP().receiveByObject(is);
+    case CMO.MATHCAP:
+      return CMO_MATHCAP.receive(is);
 
     case CMO_LIST:
       return new CMO_LIST().receiveByObject(is);

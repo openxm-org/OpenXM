@@ -1,14 +1,12 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java,v 1.2 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java,v 1.3 2000/02/21 03:48:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_MATHCAP extends CMO{
+final public class CMO_MATHCAP extends CMO{
   private CMO_LIST list;
-
-  public CMO_MATHCAP(){}
 
   public CMO_MATHCAP(CMO_LIST src){
     list = src;
@@ -19,7 +17,7 @@ public class CMO_MATHCAP extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_MATHCAP;
+    return CMO.MATHCAP;
   }
 
   public void sendByObject(DataOutputStream os)
@@ -27,11 +25,10 @@ public class CMO_MATHCAP extends CMO{
     list.write(os);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
-    int len;
+  static protected CMO receive(DataInputStream is) throws IOException{
+    CMO_LIST list = (CMO_LIST)receive(is);
 
-    list = (CMO_LIST)receive(is);
-    return this;
+    return new CMO_MATHCAP(list);
   }
 
   public String toCMOexpressionByObject(){
