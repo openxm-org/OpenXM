@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.8 2000/01/21 06:29:54 tam Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.9 2000/01/21 06:40:35 tam Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -252,5 +252,29 @@ def om_xml_to_cmo(F) {
   return(ox_pop_cmo(P));
 }
 
-end$
+def om_test(A){
+	B = om_xml(A);
+	C = om_xml_to_cmo(B);
+	if(A!=C){
+		print(A);
+		print(C);
+		print("difference found.\n");
+		quit;
+	}else{
+		print(C);
+		print("OK!");
+	}
+	return 0;
+}
 
+def om_test_auto(){
+	for(I=-2^35;I<2^35;I+=random()){
+		om_test(I);
+	}
+
+	for(I=-100;I<100;I+=random()/random()){
+		om_test(I);
+	}
+}
+
+end$
