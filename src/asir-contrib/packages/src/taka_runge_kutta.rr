@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.2 2002/11/16 08:10:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.3 2003/03/11 01:11:31 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -202,7 +202,8 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
     Yk3 = Yk2+H2*(K1/6+K2/3+K3/3+K4/6);
 
     /* This is a strategy which you may change. */
-    WantedPrec = Taka_Runge_kutta_epsilon*taka_runge_kutta_abs(Yk);
+    /* WantedPrec = Taka_Runge_kutta_epsilon*taka_runge_kutta_abs(Yk);*/
+    WantedPrec = Taka_Runge_kutta_epsilon;
 
     Delta1 = DEVAL(taka_runge_kutta_abs(Yk3-Yk1));
     if (Delta1 != 0) {
@@ -211,7 +212,7 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
     }else{
       Habs = 2; /* Any large number */
     }
-    /* print(Habs); */
+    /* print("Habs="+rtostr(Habs)); */
     if (Habs < 1) { /* Compute again.  */
       H = H*Habs;
       print("Changing to Smaller step size: "+rtostr(H));
@@ -221,7 +222,7 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
       Yk = Yk1;
       if ((H<Taka_Runge_kutta_H_Upper_Bound) && Taka_Runge_kutta_Make_Larger) {
         H = (Habs*H > Taka_Runge_kutta_H_Upper_Bound? 
-             Taka_Runge_kutta_H_Upper_Bound :
+             (H/number_abs(H))*Taka_Runge_kutta_H_Upper_Bound :
              Habs*H);  /* Habs*H2*2 */
         print("Changing to a larger step size: "+rtostr(H));
       }
