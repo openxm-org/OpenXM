@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/simple.y,v 1.3 2001/01/13 12:40:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/simple.y,v 1.4 2002/11/28 01:25:36 takayama Exp $ */
 /* simple.y 1996, 1/1 --- 1/6 */
 /* simple.y.ccc,  1996, 4/1 --- */
 %{
@@ -228,7 +228,7 @@ primitive
 
 functionCall_prefix
   :
-    ID '('  { pkkan("this [ %% function args \n"); $$ = $1 }
+   ID '('  { pkkan("this [ %% function args \n"); $$ = $1; }
   ;
 
 /* function call. cf. Schreiner 19p */
@@ -450,7 +450,7 @@ member_functionCall
   ;
 member_functionCall_prefix
   :
-    ID '('  { pkkan(" [ %% function args \n"); $$ = $1 }
+    ID '('  { pkkan(" [ %% function args \n"); $$ = $1; }
   ;
 
 
