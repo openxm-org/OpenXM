@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.144 2004/07/03 06:53:55 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.145 2004/07/27 07:12:25 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -259,7 +259,7 @@ configure-oxmath:
 		echo "ox_math will not be compiled." ; \
 	fi
 
-configure-pari:
+configure-pari: install-util
 	(cd pari ; make configure)
 
 
