@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.java,v 1.1 1999/11/21 20:38:41 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -33,8 +33,8 @@ public class CMO_RATIONAL extends CMO{
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
-    a.receive(is);
-    b.receive(is);
+    a = CMO.receive(is);
+    b = CMO.receive(is);
 
     return this;
   }

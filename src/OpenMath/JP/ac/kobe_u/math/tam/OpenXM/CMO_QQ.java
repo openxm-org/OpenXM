@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.2 1999/11/07 21:22:03 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.3 1999/11/21 20:38:41 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -33,8 +33,19 @@ public class CMO_QQ extends CMO{
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
-    a.receive(is);
-    b.receive(is);
+    CMO tmp;
+
+    tmp = CMO.receive(is);
+    if(!(tmp instanceof CMO_ZZ)){
+      System.err.println("not CMOobject");
+    }
+    a = (CMO_ZZ)tmp;
+
+    tmp = CMO.receive(is);
+    if(!(tmp instanceof CMO_ZZ)){
+      System.err.println("not CMOobject");
+    }
+    b = (CMO_ZZ)tmp;
 
     return this;
   }

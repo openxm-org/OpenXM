@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java,v 1.2 1999/11/07 21:22:03 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -23,7 +23,7 @@ public class CMO_ERROR2 extends CMO{
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
-    ob.receive(is);
+    ob = CMO.receive(is);
     return this;
   }
 
