@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.18 2001/09/05 02:10:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.19 2001/09/05 23:44:04 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -732,6 +732,339 @@ def print_tex_form_topology_circle(S) {
     }
     if (N>=3) A += ")";
     return A;
+}
+
+
+def taka_om_xml_form(R) {
+  if (type(R) != DPOLYNOMIAL) {
+    R = quote_new(R);
+    return taka_xml_basic_form_quote(R);
+  }else{
+    return om_xml(R);
+  }
+}
+
+def taka_xml_basic_form_quote(S) {
+  if (type(S) == LIST) {
+    A = taka_oma_basic("list");
+    SS = map(taka_xml_basic_form_quote,S);
+    for (I=0; I<length(SS); I++) {
+      A += SS[I];
+    }
+    A += taka_end_oma();
+    return A;
+  }
+  S = quotetolist(S);
+  return taka_xml_basic_form_quote_list(S);
+}
+
+def taka_xml_basic_form_quote_list(S) {
+  if (type(S) != LIST) return taka_xml_basic_form_node_name(S);
+  A = " ";
+  if (S[0] == "u_op") {
+     return taka_xml_basic_form_quote_list_u_op(cdr(S));
+  }else if (S[0] == "b_op") {
+     return taka_xml_basic_form_quote_list_b_op(cdr(S));
+  }else if (S[0] == "t_op") {
+     return taka_xml_basic_form_quote_list_t_op(cdr(S));
+  }else if (S[0] == "list") {
+     return taka_xml_basic_form_quote_list_list(cdr(S));
+  }else if (S[0] == "exponent_vector") {
+     return taka_xml_basic_form_quote_list_exponent_vector(cdr(S));
+  }else if (S[0] == "internal") {
+     return taka_xml_basic_form_quote_list_internal(cdr(S));
+  }else if (S[0] == "variable") {
+     return taka_xml_basic_form_quote_list_variable(cdr(S));
+  }else if (S[0] == "function") {
+     return taka_xml_basic_form_quote_list_function(cdr(S));
+  }else {
+     error("Unknown quote format.");
+  }
+}
+
+def taka_oma(S,CD) {
+  return "<oma> "+"<oms name=\""+S+"\" cd=\""+CD+"\"/>";
+}
+def taka_oma_basic(S) {
+  return "<oma> "+"<oms name=\""+S+"\" cd=\"basic\"/>";
+}
+def taka_end_oma() {
+  return "</oma>";
+}
+def taka_omv(S) {
+  return "<omv name=\""+S+"\"/>";
+}
+
+def taka_xml_basic_form_quote_list_u_op(S) {
+  if (S[0] == "()") {
+    /* Remove ( ) */
+    A += taka_xml_basic_form_quote_list(S[1]);
+  }else
+  if (S[0] == "!") {
+    A += taka_oma_basic("not");
+    A += taka_xml_basic_form_quote_list(S[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "@!") {
+    A += taka_oma_basic("not");
+    A += taka_xml_basic_form_quote_list(S[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "-") {
+    A += taka_oma_basic("minus");
+    A += taka_xml_basic_form_quote_list(S[1]);
+    A += taka_end_oma();
+  }else{
+    error("Not implemented");
+  }
+  return A;
+}
+
+def taka_xml_basic_form_quote_list_b_op(S) {
+   if (S[0] == "+") {
+    T = cdr(S);
+    N = length(T);
+    A += taka_oma_basic("plus");
+    for (I=0; I<N; I++) {
+      A += taka_xml_basic_form_quote_list(T[I]);
+    }
+    A += taka_end_oma();
+  }else
+  if (S[0] == "-") {
+    T = cdr(S);
+    N = length(T);
+    A += taka_oma_basic("minus");
+    for (I=0; I<N; I++) {
+      if (I == 0 && taka_is_internal_zero(T[I])) {
+         /* Do not print 0. */
+      } else {
+         A += taka_xml_basic_form_quote_list(T[I]);
+      }
+    }
+    A += taka_end_oma();
+  } else
+  if (S[0] == "*") {
+    T = cdr(S);
+    N = length(T);
+    A += taka_oma_basic("times");
+    for (I=0; I<N; I++) {
+      A += taka_xml_basic_form_quote_list(T[I]);
+      A += " ";
+    }
+    A += taka_end_oma();
+  } else
+  if (S[0] == "/") {
+    T = cdr(S);
+    A += taka_oma_basic("over");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  } else
+  if (S[0] == "^") {
+    T = cdr(S);
+    A += taka_oma_basic("power");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  } else
+  if (S[0] == "%") {
+    T = cdr(S);
+    A += taka_oma_basic("% (undefined)");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  } else
+  if (S[0] == "==" || S[0] == "@==") {
+    T = cdr(S);
+    A += taka_oma_basic("equal");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "&&") {
+    T = cdr(S);
+    A += taka_oma_basic("and");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "||") {
+    T = cdr(S);
+    A += taka_oma_basic("or");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "<" || S[0] == "@<") {
+    T = cdr(S);
+    A += taka_oma_basic("less");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == ">" || S[0] == "@>") {
+    T = cdr(S);
+    A += taka_oma_basic("greater");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "<=" || S[0] == "@<=") {
+    T = cdr(S);
+    A += taka_oma_basic("lessequal");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == ">=" || S[0] == "@>=") {
+    T = cdr(S);
+    A += taka_oma_basic("greaterequal");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else
+  if (S[0] == "!=" || S[0] == "@!=") {
+    T = cdr(S);
+    A += taka_oma_basic("unequal");
+    A += taka_xml_basic_form_quote_list(T[0]);
+    A += taka_xml_basic_form_quote_list(T[1]);
+    A += taka_end_oma();
+  }else {
+    error("Not implemented.");
+  }
+  return A;
+}
+
+def taka_xml_basic_form_list_t_op(S) {
+  NOT_YET ;
+}
+
+
+def taka_xml_basic_form_quote_list_list(S) {
+    T = S;
+    A = taka_oma_basic("list");
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_xml_basic_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += taka_end_oma();
+    return A;
+}
+
+def taka_xml_basic_form_quote_list_exponent_vector(S) {
+    NOT_YET;
+    A = "(";
+    T = cdr(S);
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_xml_basic_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += ")";
+    return(A);
+}
+
+def taka_xml_basic_form_quote_list_function(S) {
+    if (S[0] == "exponent_vector") {
+      return taka_xml_basic_form_quote_list_exponent_vector(cdr(S));
+    }
+    if (S[0] == "topology_circle") {
+      return print_xml_basic_form_topology_circle(S);
+    }else if (S[0] == "topology_open_segment") {
+      return print_xml_basic_form_topology_open_segment(S);
+    }else if (taka_is_infix(S[0])) {
+      /* printing general infix function */
+      NOT_YET;
+      A = "(";
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += "(";
+        A += taka_xml_basic_form_quote_list(T[I]);
+        A += ")";
+        if (I != N-1) {
+          A += taka_xml_basic_form_node_name(S[0]);
+        }
+      }
+      A += ")";
+      return(A);
+    }else {
+      /* printing general prefix functions. */
+      TT = taka_xml_basic_form_node_name_cd(S[0]);
+      A = taka_oma(taka_xml_basic_form_node_name(S[0]),TT);
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += taka_xml_basic_form_quote_list(T[I]);
+      }
+      A += taka_end_oma();
+      return(A);
+   }
+}
+
+def taka_xml_basic_form_quote_list_internal(S) {
+  X = car(S);
+  if (type(X) == RPOLYNOMIAL) {
+    return taka_omv(taka_xml_basic_symbol(rtostr(X)));
+  }
+  if (type(X) == NUMBER && ntype(X) == 0) {
+    return "<omi>"+rtostr(X)+"</omi>";
+  }
+  return rtostr(X);
+}
+def taka_xml_basic_form_quote_list_variable(S) {
+  X = car(S);
+  if (type(X) == STRING) return X;
+  else return rtostr(X);
+}
+
+def taka_xml_basic_form_node_name(S) {
+  if (type(S) != STRING) return rtostr(S);
+  /* Table of Mathematical Symbols. */
+  return taka_xml_basic_symbol(S);
+}
+
+
+def taka_xml_basic_symbol(S) {
+  /* R = taka_is_indexed(S);
+  if (R[0]) {
+    return taka_xml_basic_symbol_(R[1])+"_{"+R[2]+"}";
+  } 
+  return taka_xml_basic_symbol_(R[1]);
+  */
+  return taka_xml_basic_symbol_(S);
+
+}
+
+def taka_xml_basic_symbol_(S) {
+  extern Xml_basic_symbol_table;
+  extern Xml_basic_symbol_table;
+  N = size(Xml_basic_symbol_table)[0];
+  /* Linear search for now*/
+  for (I=0; I<N; I++) {
+    if (S == Xml_basic_symbol_table[I][0]) {
+       return Xml_basic_symbol_table[I][1];
+    }
+  }
+  return S;
+}
+
+def taka_xml_basic_form_node_name_cd(S) {
+  extern Xml_basic_symbol_table;
+  extern Xml_basic_symbol_table;
+  N = size(Xml_basic_symbol_table)[0];
+  /* Linear search for now*/
+  for (I=0; I<N; I++) {
+    if (S == Xml_basic_symbol_table[I][0]) {
+       return Xml_basic_symbol_table[I][2];
+    }
+  }
+  return "unknown";
 }
 
 Loaded_taka_print=1$
