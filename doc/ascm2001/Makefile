@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/doc/ascm2001/Makefile,v 1.1 2003/03/26 00:25:29 takayama Exp $
 LATEX2HTML=latex2html -tmp /tmp
 FILES=ascm2001.tex bib.tex data-format.tex design-outline.tex \
       heterotic-network.tex homogeneous-network.tex \
@@ -19,3 +19,4 @@ all-html: .all-html.done
 
 clean:
 	rm -rf .[a-z]*done ascm
+	rm -rf ascm2001
