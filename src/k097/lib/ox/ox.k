@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.7 2000/12/14 10:04:57 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.8 2000/12/21 09:25:23 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -156,7 +156,7 @@ class OX extends OXcontrol {
     return(engine.channel.popString());
   }
 
-  def rpc(func,ar) {
+  def rpc_submit(func,ar) {
      local n,i,one,comm;
      if (! IsString(func)) {
        Error("The first argument of rpc must be a string.");
@@ -184,12 +184,22 @@ class OX extends OXcontrol {
      this.pushCMO(func);
      this.pushCMD(SM_executeFunction);
 
+  }
+
+  def rpc(func,ar) {
+     local one;
+     sm1(" /one 1 def ");
+     rpc_submit(func,ar);
      this.pushCMO(one);
      this.pushCMO("ox_ptod");
      this.pushCMD(SM_executeFunction);
      return(this.popCMO());
   }
-  
+
+  def rpc_str(func,ar) {
+     rpc_submit(func,ar);
+     return(this.popString());
+  }
   def executeString(s) {
      this.pushCMO(s);
      this.pushCMD(SM_executeStringByLocalParser);

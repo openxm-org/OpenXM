@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.2 2000/12/15 02:44:32 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.3 2000/12/27 08:09:27 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -8,6 +8,7 @@ def demoSendAsirCommand(a) {
   a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
   a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
   a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }; ");
+  a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}; ");
 }
 
 as = startAsir();
@@ -32,32 +33,45 @@ def asirAnnfsXYZ(a,f) {
   return(b);
 }
 
-def asir_rpc_old(argv_rpc_asir) {
-   sm1(" oxasir.ccc [ ] eq {
-       (Starting ox_asir server.) message
-        ox_asirConnectMethod
-        } {  } ifelse ");
-   sm1(" oxasir.ccc argv_rpc_asir asir /FunctionValue set ");
-}
-def asir_define_own_functions() {
-   asir_rpc_old(["igcd",2,3]);
-   sm1(" oxasir.ccc (def mygeneric_bfct(Id,V,DV,W)  {
-                            return( rtostr(generic_bfct(Id,V,DV,W))); 
-                      })  oxsubmit ");
-}
 
-def asir_generic_bfct(ii,vv,dd,ww) {
+def asir_generic_bfct(a,ii,vv,dd,ww) {
    local ans;
-   ans = asir_rpc_old(["mygeneric_bfct",ii,vv,dd,ww]);
+   ans = a.rpc_str("mygeneric_bfct",[ii,vv,dd,ww]);
    return(ans);
 }
-/* asir_generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]): */
+/* a=startAsir();
+   asir_generic_bfct(a,[Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]): */
+
+/* usage: misc/tmp/complex-ja.texi */
+def changeRing(F) {
+  local n,i,f;
+  if (IsArray(F)) {
+    n = Length(F);
+    for (i=0; i<n; i++) {
+      if (IsArray(F[i])) {
+         if (changeRing(F)) return(true);
+      }else if (IsPolynomial(F[i])) {
+         if (F[i] != Poly("0")) {
+            f = F[i];
+            sm1(" f (ring) dc ring_def ");
+            return(true);
+         }
+      }
+    }
+  }else if (IsPolynomial(F)) {
+     if (F != Poly("0")) {
+        sm1(" F (ring) dc ring_def ");
+        return(true);
+     }
+  }
+  return(false);
+}
 
 def asir_BfRoots2(G) {
    local bb,ans,ss;
    sm1(" G flatten {dehomogenize} map /G set ");
-   asir_define_own_functions();
-   ss = asir_generic_bfct(G,[x,y],[Dx,Dy],[1,1]);
+   changeRing(G);
+   ss = asir_generic_bfct(asssssir,G,[x,y],[Dx,Dy],[1,1]);
    bb = [ss];
    sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
    return([ans, bb]);
@@ -65,8 +79,8 @@ def asir_BfRoots2(G) {
 def asir_BfRoots3(G) {
    local bb,ans,ss;
    sm1(" G flatten {dehomogenize} map /G set ");
-   asir_define_own_functions();
-   ss = asir_generic_bfct(G,[x,y,z],[Dx,Dy,Dz],[1,1,1]);
+   changeRing(G);
+   ss = asir_generic_bfct(asssssir,G,[x,y,z],[Dx,Dy,Dz],[1,1,1]);
    bb = [ss];
    sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
    return([ans, bb]);
@@ -157,7 +171,7 @@ def DeRham3WithAsir(f) {
   Res = Sminimal(pp);
   Res0 = Res[0];
   Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-/*  R = BfRoots1(Res0[0],"x,y,z"); */
+  /* R = BfRoots1(Res0[0],"x,y,z");  */
   R = asir_BfRoots3(Res0[0]);
   Println("Step3: computing the cohomology of the truncated complex.");
   Print("Roots and b-function are "); Println(R);
