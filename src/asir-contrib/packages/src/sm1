@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.28 2001/07/10 13:41:27 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.29 2001/07/11 01:00:23 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -106,6 +106,12 @@ def toAsirForm(V) {
 }
 
 def sm1_toOrdered(V) {
+  Dehomo = getopt(dehomogenize);
+  if (type(Dehomo) == -1) {
+    Dehomo = 0;
+  }else{
+    Dehomo = 1;
+  }
   if (type(V) == 4) { /* list */
     if((length(V) == 3) && (V[0] == "sm1_dp")) {
        Vlist = map(strtov,V[1]);
@@ -117,17 +123,28 @@ def sm1_toOrdered(V) {
           if (dp_hc(G)>0) {
             Ans += "+";
           }
-          Ans += rtostr(dp_dtop(G,Vlist));
+          if (Dehomo) {
+            Ans += rtostr(subst(dp_dtop(G,Vlist),h,1));
+          }else{
+            Ans += rtostr(dp_dtop(G,Vlist));
+          }
        }
        return Ans; 
     } else {
-       return(map(sm1_toOrdered,V));
+       if (Dehomo) {
+         return(map(sm1_toOrdered_dehomo,V));
+       }else{
+         return(map(sm1_toOrdered,V));
+       }
     }
   }else{
     return(V);
   }
 }
 
+def sm1_toOrdered_dehomo(F) {
+  return(sm1_toOrdered(F|dehomogenize=1));
+}
 
 def sm1_push_poly0_R(A,P,Vlist) {
   return(sm1_push_poly0(P,A,Vlist));
@@ -317,13 +334,23 @@ def sm1_gb(A) {
   }else{
     Sorted = 1;
   }
+  Dehomo = getopt(dehomogenize);
+  if (type(Dehomo) == -1) {
+    Dehomo = 0;
+  }else{
+    Dehomo = 1;
+  }
   P = sm1_check_server(P);
   sm1_check_arg_gb(A,"Error in sm1_gb");
   sm1_push_int0(P,A);
   sm1(P," gb ");
   if (Sorted) {
     T = sm1_pop2(P);
-    return(append(T[0],[sm1_toOrdered(T[1])]));
+    if (Dehomo) {
+      return(append(T[0],[sm1_toOrdered(T[1]|dehomogenize=1)]));
+    }else{
+      return(append(T[0],[sm1_toOrdered(T[1])]));
+    }
   }else{
     return(sm1_pop(P));
   }
