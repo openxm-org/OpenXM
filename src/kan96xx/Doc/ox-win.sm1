@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM$
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.1 2001/05/20 07:48:18 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -588,6 +588,27 @@ ox.verbose {
   ( -data ) data ( -control ) control  ( -pass ) pass 
   oxpath.null
   ( )] cat system 
+ [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
+                     %% 0 means connect from only localhost. 
+ (The server is binded to the variable ox.ccc) message
+  ox.ccc.init 
+ ] pop
+ popVariables
+} def
+
+/asirconnectr {
+ [/in-sm1connectr /pass /peer /data /control ] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(start ox_launch ) ( 127.0.0.1 ) ( 0 )
+   control ( ) data (ox_asir) ( 1 )
+  oxpath.null
+  ( )] cat % system 
+ control message data message
  [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
                      %% 0 means connect from only localhost. 
  (The server is binded to the variable ox.ccc) message
