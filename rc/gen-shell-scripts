@@ -1,47 +1,47 @@
 #!/bin/sh
-# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.7 2000/03/06 08:08:11 takayama Exp $
+# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.8 2000/03/06 09:16:08 takayama Exp $
 
 #asir
 	rm -f asir
-	echo "#!/bin/csh" >asir
-	cat dot.cshrc >>asir
+	echo "#!/bin/sh" >asir
+	cat dot.bashrc >>asir
 #	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $*' >>asir
 	echo 'exec $OpenXM_HOME/bin/asir $*' >>asir
 	chmod +x asir
 
 #sm1
 	rm -f sm1
-	echo "#!/bin/csh" >sm1
-	cat dot.cshrc >>sm1
+	echo "#!/bin/sh" >sm1
+	cat dot.bashrc >>sm1
 #	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/sm1 $*' >>sm1
 	echo 'exec $OpenXM_HOME/bin/sm1 $*' >>sm1
 	chmod +x sm1
 
 #gp
 	rm -f oxgp
-	echo "#!/bin/csh" >oxgp
-	cat dot.cshrc >>oxgp
+	echo "#!/bin/sh" >oxgp
+	cat dot.bashrc >>oxgp
 	echo 'exec $OpenXM_HOME/bin/gp $*' >>oxgp
 	chmod +x oxgp
 
 #oxmath
 	rm -f oxmath
-	echo "#!/bin/csh" >oxmath
-	cat dot.cshrc >>oxmath
+	echo "#!/bin/sh" >oxmath
+	cat dot.bashrc >>oxmath
 #	echo 'exec $OpenXM_HOME/bin/fep math $*' >>oxmath
 	echo 'exec math $*' >>oxmath
 	chmod +x oxmath
 
 #oxMathematica
 	rm -f oxMathematica
-	echo "#!/bin/csh" >oxMathematica
-	cat dot.cshrc >>oxMathematica
+	echo "#!/bin/sh" >oxMathematica
+	cat dot.bashrc >>oxMathematica
 	echo 'exec Mathematica  $*' >>oxMathematica
 	chmod +x oxMathematica
 
 #ox  (launcher of kxx)
 	rm -f ox
-	echo "#!/bin/csh" >ox
-	cat dot.cshrc >>ox
+	echo "#!/bin/sh" >ox
+	cat dot.bashrc >>ox
 	echo 'exec $OpenXM_HOME/bin/ox $*' >>ox
 	chmod +x ox
