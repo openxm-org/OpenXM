@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.12 2000/01/17 01:23:41 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.13 2000/01/17 08:06:15 noro Exp $
 
 \section{OpenXM Stack machines}\label{sec:ox-stackmachines}
 
@@ -7,11 +7,10 @@ In OpenXM specification, all servers are stack machines.
 When a server ox\_xyz gets an OX data message,
 it translates the data into a local object of ox\_xyz
 and pushes the object onto the stack.
-According to the OpenMath specification, 
-the translation scheme 
+The translation scheme 
 %% together with definitions of mathematical operations
 %% of the system ox\_xyz 
-is called the {\it PhraseBook} of ox\_xyz.
+is called the {\it PhraseBook} of ox\_xyz (cf. OpenMath \cite{OpenMath}).
 For example, the Asir command {\tt ox\_push\_cmo(P,1)}
 (push integer $1$ onto the server $P$)
 sends an OX data message
