@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.13 2000/02/27 07:26:21 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.14 2000/03/01 09:58:14 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
@@ -6,6 +6,10 @@ OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 DVIPS=dvips -f
 LATEX2HTML=jlatex2html -tmp /tmp
+
+# Only for print target.
+PS=a2ps-j
+LPR=lpr -Pdousan
 
 all : install-web-kobe
 
@@ -86,3 +90,7 @@ copy-index-top :
 
 clean-web-kobe :
 	-rm $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h $(WEBKOBE1)/openxm-eg.ps $(WEBKOBE1)/openxm-jp.ps
+
+print:
+	$(PS) Makefile | $(LPR)
+	$(PS) index.html | $(LPR)
