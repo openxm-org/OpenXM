@@ -1,0 +1,76 @@
+\documentclass{jarticle}
+
+\title{\bf Open XM(タイトル未定)}
+\author{
+        Maekawa \\
+        Noro \\
+        : \\
+        : \\
+}
+\date{ 1999年, 11月25日}
+
+\pagestyle{empty}
+
+\begin{document}
+\maketitle
+
+\section{OpenXM の計算モデル}
+
+OpenXM は数学ソフト間でメッセージを交換するための規約である。
+OpenXM とは Open message eXchange protocol for Mathematics の略である。
+数学ソフト間でメッセージをやりとりさせることにより、
+ある数学ソフトから他の数学ソフトを呼び出して計算を行なったり、
+他のマシンで計算を行なわせたりできるようにする。
+発端は野呂正行先生と高山信毅先生により、 asir と kan/sm1 を
+相互に呼び出す機能を実装したことである。
+現在の目標は、フリーの数学ソフトを相互に接続して
+好きな言語から簡単に他の数学ソフトを使えるようにすることである。
+
+発端となった asir と kan/sm1 での実装時には、
+お互いに相手側のコマンド文字列を送っていた。
+この方法は現在の OpenXM 規約でも可能であり、
+使いやすくはあるが、効率的であるとはいい難い。
+さらに、この方法では相手側のソフトが asir なのか kan/sm1 なのかを
+判別して、相手側に合わせてコマンド文字列を作成する必要がある。
+
+これ以外の方法として、 OpenXM 規約では共通表現形式による
+メッセージを用意している。
+OpenXM 規約独自のデータ形式である CMO 形式(Common Mathematical Object format)
+以外にも、 MP や OpenMath の XML, binary 表現形式といった他の形式をも
+扱えるようにしてある。
+
+
+\section{OpenXM のメッセージの構造}
+
+%%没
+%OpenXM で規定されているメッセージは論理的に OX 層、 SM 層、 CMO 層に
+%わけている。 SM 層、 CMO 層で定義されているメッセージは単独で
+%メッセージとして送ることはできず、
+
+OpenXM で規定しているメッセージは論理的に
+OX 層、 SM 層、 CMO 層に分けることができる。
+この中で、メッセージとして送ることが可能なのは
+OX 層で定義されたものだけであり、
+SM 層、 CMO 層で定義されているデータは
+OX 層で定義されているデータの一部に埋め込まれて
+送られる。
+SM 層、 CMO 層で定義されているデータ以外にも
+前述の MP や OpenMath の XML, binary 表現も
+OX 層に埋め込まれて送られるわけであるが、
+どのようなデータが埋め込まれているかは、
+OX 層の先頭の tag を見れば判別できるようになっている。
+
+
+\section{OpenXM の計算の進行方法}
+
+\section{CMO のデータ構造}
+
+\section{MathCap について}
+
+\section{security 対策}
+
+\section{他のプロジェクト}
+
+\section{現在提供されているソフトウェア}
+
+\end{document}
