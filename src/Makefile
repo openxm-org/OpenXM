@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.81 2000/02/28 08:03:08 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.82 2000/03/01 00:15:46 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 OPENXM_CONTRIB2=../../OpenXM_contrib2
@@ -62,7 +62,8 @@ all-misc :
 
 install: install-asir install-gnuplot install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
-	 install-phc install-tigers install-asir-doc install-asir-contrib
+	 install-phc install-tigers install-asir-doc install-asir-contrib \
+	 install-misc
 
 install-asir: all-asir
 	@if test -d $(OPENXM_CONTRIB2) ; then \
@@ -117,6 +118,9 @@ install-asir-contrib: install-asir install-kxx
 
 install-asir-doc: install-asir
 	(cd asir-doc ; make install)
+
+install-misc:
+	(cd ../rc ; make install.man)
 
 clean:
 	(cd asir2000 ; make clean)

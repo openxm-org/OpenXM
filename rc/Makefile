@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.9 2000/03/02 02:05:13 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.10 2000/03/04 11:03:36 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -7,6 +7,7 @@ CC=gcc
 SHELL_SCRIPTS=asir sm1 oxgp oxmath oxMathematica ox openxm
 PREFIX=/usr/local
 INSTALL_DIR=${PREFIX}/bin
+MAN_DIR=../man/man1
 
 all :  dot.bashrc  dot.cshrc  openxm  .done_gen-shell-scripts
 
@@ -37,6 +38,9 @@ openxm : dot.cshrc
 
 install : all
 	cp -f $(SHELL_SCRIPTS) ${INSTALL_DIR}
+
+install.man :
+	-cp openxm.1 ${MAN_DIR}
 
 clean :
 	rm -f dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .gen-shell-scripts
