@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.4 2000/01/07 07:52:26 ohara Exp $
+% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.5 2000/01/11 05:35:48 noro Exp $
 
 \section{Design Outline} 
 
@@ -10,7 +10,7 @@ Data integration concerns with the exchange of data between different
 softwares or same softwares.
 OpenMath \cite{OpenMath} and MP (Multi Protocol) \cite{GKW} are,
 for example, general purpose mathematical data protocols.
-They provide a standard way to express mathematical objects.
+They provide standard ways to express mathematical objects.
 For example,
 \begin{verbatim}
  <OMOBJ>  <OMI> 123 </OMI> </OMOBJ>
@@ -19,7 +19,7 @@ means the (OpenMath) integer $123$ in OpenMath/XML expression.
 
 Control integration concerns with the establishment and management of
 inter-software communications.
-Control involves, for example, a way to ask computation to other processes
+Control involves, for example, a way to ask computations to other processes
 and a method to interrupt computations on servers from a client.
 RPC, HTTP, MPI, PVM are regarded as a general purpose control protocols or
 infrastructures.
@@ -29,30 +29,30 @@ by Wang \cite{iamc} is such a protocol specialized to mathematics.
 Although, data and control are orthogonal to each other,
 real world requires both.
 NetSolve \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
-and MathLink of Mathematica provide both data and control integration.
-These are currently studied ways of data and control integration.
+and MathLink \cite{mathlink} provide both data and control integration.
 Each integration method has their own special features due to their
 own design goals and design motivations.
-OpenXM is a project aiming to integrate data, control and user interfaces
-from a different emphasis of a set of design goals with other projects.
+OpenXM (Open message eXchange protocol for Mathematics)
+is a project aiming to integrate data, control and user interfaces
+with itw own set of design goals.
 To explain our design outline, we start with a list of
 our motivations.
 \begin{enumerate}
-\item Noro,  who is one of the authors of OpenXM, has developed a general
+\item Noro has developed a general
 purpose computer algebra system Risa/Asir \cite{asir}.
 A set of functions for interactive distributed computations were introduced
 in Risa/Asir version 950831 released in 1995.
 The model of computation was RPC (remote procedure call)
 and it had its own serialization method for objects.
 A robust interruption method was provided by having two communication channels
-like ftp, which implements the simple network management protocol.
+like ftp.
 As an application of this robust and interactive distributed computation
 system, speed-up was achieved for a huge Gr\"obner basis computation
 to determine all odd order replicable functions 
 by Noro and McKay \cite{noro-mckay}.
 However, the protocol was closed in Asir and we thought that we should
 design an open protocol.
-\item Takayama, who is also one of the authors of OpenXM, has developed
+\item Takayama has developed
 a special purpose computer algebra system Kan/sm1 \cite{kan},
 which is a Gr\"obner engine for the ring of differential operators $D$ and
 a package for computational algebraic geometry via D-module computations.
@@ -82,7 +82,7 @@ softwares or users who need these systems only occasionally,
 a unified system will be more convenient.
 For example, if we can call and use mathematical softwares
 like CoCoa, GAP, Macaulay2, Porta, Singular, Snapea, $\ldots$
-from Asir, Axiom, Maple, muPAD, Mathematica, and so on,
+from Aldor, Asir, Axiom, Maple, Magma, muPAD, Mathematica, and so on,
 it will be wonderful in research and education
 of mathematics. This is an unification of user interfaces of mathematical
 softwares.
@@ -131,9 +131,10 @@ the Asir client to the OX sm1 server:
 The current system, OpenXM on TCP/IP, 
 uses client-server model and the TCP/IP is used for interprocess
 communications.
-A prototype OpenXM system on MPI \cite{MPI} already exists for Risa/Asir and
-a general OpenXM on MPI is a work in progress.
+The OpenXM on MPI \cite{MPI} is currently running on Risa/Asir
+as we will see Section \ref{section:homog}.
 However, we focus only on the system based on TCP/IP in this paper.
+
 
 
 
