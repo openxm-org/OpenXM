@@ -1,0 +1,271 @@
+Expand Macaulay2-0.8.60-porting-src.tar.gz in the directory "work".
+diff -c --recursive work.orig/Macaulay2/d/M2lib.c work/Macaulay2/d/M2lib.c
+*** Macaulay2/d/M2lib.c	Thu Apr 20 07:01:10 2000
+--- Macaulay2/d/M2lib.c	Sat Dec  2 16:51:12 2000
+***************
+*** 326,336 ****
+       }
+  #endif
+  
+! #if defined(__sun__) || defined(_WIN32)
+  #define __environ _environ
+  #endif
+  
+  extern char **__environ;
+  extern char timestamp[];
+  static void clean_up();
+  
+--- 326,342 ----
+       }
+  #endif
+  
+! #if defined(__sun__) || defined(_WIN32) 
+  #define __environ _environ
+  #endif
+  
++ #if defined(__FreeBSD__)
++ #define __environ environ
++ #endif
++ 
++ 
+  extern char **__environ;
++ 
+  extern char timestamp[];
+  static void clean_up();
+  
+diff -c --recursive work.orig/Macaulay2/d/types.h work/Macaulay2/d/types.h
+*** Macaulay2/d/types.h	Thu Apr 20 07:01:16 2000
+--- Macaulay2/d/types.h	Wed Dec 13 11:26:29 2000
+***************
+*** 108,121 ****
+  #endif
+  
+  #ifndef PAGESIZE
+! #if !defined(__linux__) && !defined(__osf__)
+  extern size_t getpagesize();
+  #endif
+  #define PAGESIZE getpagesize()
+  #endif
+  #define RUP(x) ((((x) + PAGESIZE - 1) / PAGESIZE) * PAGESIZE)
+  
+  void *sbrk();		/* not really ansi standard, sigh */
+  
+  #ifdef MP
+  #define link _link
+--- 108,123 ----
+  #endif
+  
+  #ifndef PAGESIZE
+! #if !defined(__linux__) && !defined(__osf__) && !defined(__FreeBSD__)
+  extern size_t getpagesize();
+  #endif
+  #define PAGESIZE getpagesize()
+  #endif
+  #define RUP(x) ((((x) + PAGESIZE - 1) / PAGESIZE) * PAGESIZE)
+  
++ #if !defined(__FreeBSD__)
+  void *sbrk();		/* not really ansi standard, sigh */
++ #endif
+  
+  #ifdef MP
+  #define link _link
+***************
+*** 127,134 ****
+--- 129,138 ----
+   /* on the NeXT Step i386 machine, brk always returns -1, and doesn't work. */
+  #   define brk(p) (int)sbrk(p-sbrk(0))
+  #else
++ #if !defined(__FreeBSD__)
+  int brk();		/* not really ansi standard, sigh */
+  #endif
++ #endif
+  
+  #define STDIN 0
+  #define STDOUT 1
+***************
+*** 196,198 ****
+--- 200,206 ----
+  extern char current_time[];
+  extern char const *system_strerror();
+  extern int system_errno();
++ 
++ #if defined(__FreeBSD__)
++ #undef SYS_ERRLIST_NOT_CONST
++ #endif
+
+diff -c --recursive work.orig/Makeconf work/Makeconf
+*** Makeconf	Fri Apr 21 10:05:53 2000
+--- Makeconf	Sat Dec 16 15:09:48 2000
+***************
+*** 87,97 ****
+  	echo '# DEBUG       := TRUE' >>$@
+  	echo '# VERBOSE     := TRUE' >>$@
+  	echo 'export OLDENGINE := TRUE' >>$@
+! 	echo '# NODUMPDATA  := TRUE' >>$@
+  	echo 'NEWDUMPDATA   := TRUE' >>$@
+  	echo 'NOMP          := TRUE' >>$@
+  	echo '# NOFACTORY   := TRUE' >>$@
+! 	echo '# SOCKS       := TRUE' >>$@
+  	echo '# if you change CC or CXX, then remove config.cache' >>$@
+  	echo '# SHAREDLIBS  := TRUE' >>$@
+  	echo 'NOSTATIC      := TRUE' >>$@
+--- 87,97 ----
+  	echo '# DEBUG       := TRUE' >>$@
+  	echo '# VERBOSE     := TRUE' >>$@
+  	echo 'export OLDENGINE := TRUE' >>$@
+! 	echo 'NODUMPDATA  := TRUE' >>$@
+  	echo 'NEWDUMPDATA   := TRUE' >>$@
+  	echo 'NOMP          := TRUE' >>$@
+  	echo '# NOFACTORY   := TRUE' >>$@
+! 	echo '#SOCKS       := TRUE' >>$@
+  	echo '# if you change CC or CXX, then remove config.cache' >>$@
+  	echo '# SHAREDLIBS  := TRUE' >>$@
+  	echo 'NOSTATIC      := TRUE' >>$@
+
+*** gmp/mpn/configure.in	Sat Aug 28 05:27:31 1999
+--- gmp/mpn/configure.in	Sat Dec  9 17:36:47 2000
+***************
+*** 38,45 ****
+    a29k*-*-*) path="am29000" ;;
+  
+  # Intel x86 configurations
+!   i[34]86*-*-linuxaout* | i[34]86*-*-linuxoldld* | \
+!   i[34]86*-*-*bsd*)			# x86 running BSD or Linux with a.out
+  	echo '#define BSD_SYNTAX' >asm-syntax.h
+  	echo '#include "'$srcdir'/x86/syntax.h"' >>asm-syntax.h
+  	path="x86" ;;
+--- 38,44 ----
+    a29k*-*-*) path="am29000" ;;
+  
+  # Intel x86 configurations
+!   i[34]86*-*-linuxaout* | i[34]86*-*-linuxoldld* )
+  	echo '#define BSD_SYNTAX' >asm-syntax.h
+  	echo '#include "'$srcdir'/x86/syntax.h"' >>asm-syntax.h
+  	path="x86" ;;
+***************
+*** 109,123 ****
+  
+  case "${target}" in
+    *-*-linuxaout* | *-*-linuxoldld*) config=bsd.h ;;
+!   *-sysv* | *-solaris* | *-*-linux*) config="sysv.h" ;;
+!   *) config="bsd.h" ;;
+  esac
+  
+  case "${target}" in
+-   i[3456]86*-*-*bsd* | i[3456]86*-*-linuxaout* | i[3456]86*-*-linuxoldld* | \
+-   pentium-*-*bsd* | pentium-*-linuxaout* | pentium-*-linuxoldld* | \
+-   pentiumpro-*-*bsd* | pentiumpro-*-linuxaout* | pentiumpro-*-linuxoldld*)
+-     target_makefile_frag=config/t-oldgas ;;
+    rs6000-*-aix[456789]* | rs6000-*-aix3.2.[456789])
+      target_makefile_frag=config/t-pwr-aix ;;
+    ppc601-*-aix[456789]* | ppc601-*-aix3.2.[456789] | \
+--- 108,117 ----
+  
+  case "${target}" in
+    *-*-linuxaout* | *-*-linuxoldld*) config=bsd.h ;;
+!   *) config="sysv.h" ;;
+  esac
+  
+  case "${target}" in
+    rs6000-*-aix[456789]* | rs6000-*-aix3.2.[456789])
+      target_makefile_frag=config/t-pwr-aix ;;
+    ppc601-*-aix[456789]* | ppc601-*-aix3.2.[456789] | \
+
+*** Macaulay2/Makefile	Sun Apr 23 23:32:10 2000
+--- Macaulay2/Makefile	Tue Dec 12 16:53:10 2000
+***************
+*** 107,113 ****
+  endif
+  ################################# experiments
+  clean ::; if [ -d experiments ]; then $(MAKE) -C experiments clean; fi
+! all::; $(MAKE) -C experiments all
+  ################################# slides
+  clean ::; if [ -d slides ]; then $(MAKE) -k -C slides clean; fi
+  tests ::; if [ -d slides ]; then $(MAKE) -k -C slides; fi
+--- 107,113 ----
+  endif
+  ################################# experiments
+  clean ::; if [ -d experiments ]; then $(MAKE) -C experiments clean; fi
+! all::; if [ -d experiments ]; then $(MAKE) -C experiments all; fi
+  ################################# slides
+  clean ::; if [ -d slides ]; then $(MAKE) -k -C slides clean; fi
+  tests ::; if [ -d slides ]; then $(MAKE) -k -C slides; fi
+
+*** Macaulay2/m2/Makefile	Thu Apr 20 07:02:35 2000
+--- Macaulay2/m2/Makefile	Wed Dec 13 17:29:36 2000
+***************
+*** 187,204 ****
+  endif
+  tests:: test2
+  test2: $(SCRIPTS)
+  	 $(MAKE) -k -C cache-tmp/Tests -f ../../Makefile.tests
+  	touch $@
+  
+  tests:: test3
+  test3:
+! 	echo 2+3 | M2
+  	touch $@
+  
+  ifeq ($(OS),Linux)
+  tests:: test4
+  test4: ../util/screen
+! 	echo 2+3 | ../util/screen M2
+  	touch $@
+  endif
+  
+--- 187,205 ----
+  endif
+  tests:: test2
+  test2: $(SCRIPTS)
++ 	-touch cache-tmp/Tests/0009.okay
+  	 $(MAKE) -k -C cache-tmp/Tests -f ../../Makefile.tests
+  	touch $@
+  
+  tests:: test3
+  test3:
+! 	echo 2+3 | ../bin/M2
+  	touch $@
+  
+  ifeq ($(OS),Linux)
+  tests:: test4
+  test4: ../util/screen
+! 	echo 2+3 | ../util/screen ../bin/M2
+  	touch $@
+  endif
+  
+*** Macaulay2/test/Makefile	Fri Apr 21 10:06:48 2000
+--- Macaulay2/test/Makefile	Sat Dec 16 15:04:38 2000
+***************
+*** 8,14 ****
+  
+  all :: $(RESULTS)
+  
+! $(RESULTS) : ../bin/Macaulay2 ../cache/Macaulay2-doc ../cache/Macaulay2-made
+  
+  ifndef NODUMPDATA
+  dumpdata.okay : dumpdata.1 dumpdata.2 dumpdata.3
+--- 8,14 ----
+  
+  all :: $(RESULTS)
+  
+! $(RESULTS) : ../bin/Macaulay2 ../cache/Macaulay2-doc ../cache/Macaulay2-made 
+  
+  ifndef NODUMPDATA
+  dumpdata.okay : dumpdata.1 dumpdata.2 dumpdata.3
+***************
+*** 26,32 ****
+  
+  %.okay : %.m2
+  	@ echo testing $<
+! 	@ ulimit -t 120; time ../bin/Macaulay2 $(ARGS) $< '-eexit(0)'
+  	@ touch $@
+  
+  clean  :	
+--- 26,32 ----
+  
+  %.okay : %.m2
+  	@ echo testing $<
+! 	-@ ulimit -t 120; time ../bin/Macaulay2 $(ARGS) $< '-eexit(0)'
+  	@ touch $@
+  
+  clean  :	
