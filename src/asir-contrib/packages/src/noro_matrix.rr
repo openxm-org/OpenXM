@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.11 2004/06/16 10:48:32 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.12 2004/06/19 00:21:50 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -29,6 +29,8 @@ localf print_kernel,print_vect;
 localf next_combination,reduce_symmetric_form,generate_elementary_symmetric_form;
 
 localf extended_euclid2,extended_euclid;
+localf binomial_coef;
+localf power_mat;
 
 def random_mat(N,Bound)
 {
@@ -96,7 +98,7 @@ def random_unimodular_mat(N)
 {
 	P = unit_mat(N);
 	PI = unit_mat(N);
-	for ( I = 0; I < N+3; I++ ) {
+	for ( I = 0; I < N; I++ ) {
 		K = random()%N;
 		while ( 1 ) {
 			L = random()%N;
@@ -566,6 +568,39 @@ def jordan_decomp(A)
 	return [S,A-S];
 }
 
+def binomial_coef(M,I)
+{
+	R = 1;
+	for ( J = 0; J < I; J++ ) R *= M-J;
+	return R/fac(I);
+}
+
+def power_mat(A)
+{
+	/* JCF = [P,Block,DefIdeal] */
+	JCF = jordan_canonical_form(A);
+	P = JCF[0];
+	Block = JCF[1];
+	DefIdeal = JCF[2];
+	Inv = invmat(P); PI = Inv[0]/Inv[1];
+	N = size(A)[0];
+	PAPM = matrix(N,N);
+	for ( T = Block, I = 0; T != []; T = cdr(T) ) {
+		BI = car(T); Alpha = BI[0]; K = BI[1]; R = BI[2];
+		JM = matrix(K,K);
+		for ( Y = 0; Y < K; Y++ ) {
+			Ent = (Alpha==1?1:Alpha^m)*binomial_coef(m,Y)/Alpha^Y;
+			for ( X = 0; X+Y < K; X++ )
+				JM[X][X+Y] = Ent;
+		}
+		for ( J = 0; J < R; J++, I += K )
+			for ( X = 0; X < K; X++ )
+				for ( Y = X; Y < K; Y++ )
+					PAPM[I+X][I+Y] = JM[X][Y];
+	}
+	return P*PAPM*PI;
+}
+
 def compute_image(A)
 {
 	B = mat_to_col(A);
@@ -786,33 +821,37 @@ def jordan_canonical_form(A)
 	Q = matrix(N,N);
 	Prefix = strtoascii("a")[0];
 	DefIdeal = [];
+	JCF = [];
 	for ( K = 0, J = 0; K < L; K++ ) {
 		if ( Verbose ) {
 			print("computing jordan blocks for Alpha = ",0); print(Alpha[K]);
 		}
-		if ( Verbose )
-			JBK = compute_jordan_block_basis(A,Alpha[K],E[K]|verbose=1);
-		else
-			JBK = compute_jordan_block_basis(A,Alpha[K],E[K]);
+		/* JBK = [P,BlockInfo] */
+		JBK = compute_jordan_block_basis(A,Alpha[K],E[K],Verbose);
 		if ( (DK = D[K]) == 1 ) {
-			for ( T = JBK; T != []; T = cdr(T), J++ ) {
+			for ( T = JBK[0]; T != []; T = cdr(T), J++ ) {
 				V = car(T);
 				for ( I = 0; I < N; I++ )
 					Q[I][J] = V[I];
 			}
+			JCF = append(reverse(JBK[1]),JCF);
 		} else {
 			AlgV = algptorat(Alpha[K]);
 			AlphaV = vector(DK);
 			Sym = 1;
+			Block = JBK[1];
 			for ( U = 0; U < DK; U++ ) {
 				AlphaV[U] = strtov(asciitostr([Prefix])+rtostr(U));
 				Sym *= (x-AlphaV[U]);
-				for ( T = JBK; T != []; T = cdr(T), J++ ) {
+				for ( T = JBK[0]; T != []; T = cdr(T), J++ ) {
 					V = car(T);
 					for ( I = 0; I < N; I++ )
 						Q[I][J] = subst(algptorat(V[I]),AlgV,AlphaV[U]);
 				}
 			}
+			for ( U = 0; U < DK; U++ )
+				for ( Tmp = Block; Tmp != []; Tmp = cdr(Tmp) )
+					JCF = cons([AlphaV[U],car(Tmp)[1],car(Tmp)[2]],JCF);
 			F = Sym-FM[K][0];
 			for ( I = 0, T = []; I < DK; I++ )
 				T = cons(coef(F,I,x),T);
@@ -820,11 +859,7 @@ def jordan_canonical_form(A)
 			Prefix++;
 		}
 	}
-	DefIdeal = reverse(DefIdeal);
-	if ( DefIdeal != [] )
-		return [Q,DefIdeal];
-	else
-		return Q;
+	return [Q,reverse(JCF),reverse(DefIdeal)];
 }
 
 def is_integer(A)
@@ -883,11 +918,8 @@ def print_vect(V)
 	}
 }
 
-def compute_jordan_block_basis(A,Alpha,E)
+def compute_jordan_block_basis(A,Alpha,E,Verbose)
 {
-	Verbose = getopt(verbose);
-	Verbose = type(getopt(verbose))==-1?0:1;
-
 	NI = unit_mat(size(A)[0]);
 	N = A-Alpha*NI;
 	if ( Verbose ) Ns = rtostr("A-(")+rtostr(Alpha)+")E";
@@ -899,8 +931,9 @@ def compute_jordan_block_basis(A,Alpha,E)
 		if ( Verbose )
 			print_kernel(Ker[I]);
 	}
+	/* Block = a list of block info : [Alpha,K,M] -> J(Alpha,K) x M */
 	/* PW : previous W */
-	for ( PW = AllBase = [], I = E-1; I >= 0; I-- ) {
+	for ( PW = AllBase = Block = [], I = E-1; I >= 0; I-- ) {
 		/* NPW = N*PW */
 		NPW = [];
 		/* create a basis of Ker[I]+N*PW */
@@ -918,7 +951,7 @@ def compute_jordan_block_basis(A,Alpha,E)
 			print_kernel(Base);
 			print("number of bases to be added=",0); print(DW);
 		}
-
+		if ( DW ) Block = cons([Alpha,I+1,DW],Block);
 		for ( PW = NPW, T = Ker[I+1]; DW > 0; T = cdr(T) ) {
 			/* take an element of Ker[I+1] and reduce it by Base */
 			Red = reduce_vect(car(T)[0],Base);
@@ -947,7 +980,7 @@ def compute_jordan_block_basis(A,Alpha,E)
 			}
 		}
 	}
-	return reverse(AllBase);
+	return [reverse(AllBase),reverse(Block)];
 }
 
 def next_combination(N,K,C)
