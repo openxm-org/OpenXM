@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.18 2003/09/30 00:06:56 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.19 2004/04/29 12:04:45 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -1656,9 +1656,10 @@
 [(ecartd.reduction)
 [ (f basis ecartd.reduction r)
   (f is reduced by basis by the tangent cone algorithm.)
+  (The first element of basis <g_1,...,g_m> must be a standard basis.)
   (r is the return value format of reduction.)
-  (basis is the argument format of ecartd.gb.)
-  (The first element of basis must be a standard basis.)
+  (r=[h,c0,syz,input], h = c0 f + \sum syz_i g_i)
+  (basis is given in the argument format of ecartd.gb.)
   (cf. reduction, ecartd.gb, ecartd.reduction.test )
   $Example:$
   $ [[( 2*(1-x-y) Dx + h ) ( 2*(1-x-y) Dy + h )] $

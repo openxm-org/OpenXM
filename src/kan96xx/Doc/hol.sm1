@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.13 2003/07/29 08:36:39 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.14 2004/05/04 07:48:47 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -1822,7 +1822,72 @@ message-quiet
  $       [[(x Dx -h^2) (0)] [(Dx^2) (1)] [(Dx^3) (Dx)]] (x,y)] isSameIdeal_h $
 ]] putUsages
 
+/gb.reduction {
+  /arg2 set
+  /arg1 set
+  [/in-gb.reduction /gbasis /flist /ans /gbasis2
+  ] pushVariables
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+     /gbasis arg2  def
+     /flist  arg1  def
+     gbasis 0 get tag 6 eq { }
+     { (gb.reduction: the second argument must be a list of lists) error }
+     ifelse
 
+     gbasis length 1 eq {
+       gbasis getRing ring_def
+       /gbasis2 gbasis 0 get def
+     } {
+       [ [(1)] ] gbasis rest join gb 0 get getRing ring_def
+       /gbasis2 gbasis 0 get ,,, def
+     } ifelse
+
+
+     flist ,,, /flist set
+     flist tag 6 eq {
+       flist { gbasis2 reduction } map /ans set
+     }{
+       flist gbasis2 reduction /ans set
+     } ifelse
+     /arg1 ans def
+
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+/gb.reduction.test {
+  [
+    [( 2*(1-x-y) Dx + 1 ) ( 2*(1-x-y) Dy + 1 )]
+    (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]]
+  gb /gg set
+
+  ((h-x-y)*Dx) [gg 0 get] gb.reduction /gg2 set
+  gg2 message
+  (-----------------------------) message
+
+    [[( 2*(h-x-y) Dx + h^2 ) ( 2*(h-x-y) Dy + h^2 )]
+      (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set
+   ((h-x-y)*Dx) ggg gb.reduction /gg4 set
+   gg4 message
+  (-----------------------------) message
+  [gg2 gg4]
+} def
+[(gb.reduction)
+[ (f basis gb.reduction r)
+  (f is reduced by basis by the normal form algorithm.)
+  (The first element of basis <g_1,...,g_m> must be a Grobner basis.)
+  (r is the return value format of reduction;)
+  (r=[h,c0,syz,input], h = c0 f + \sum syz_i g_i)
+  (basis is given in the argument format of gb.)
+  (cf. reduction, gb, ecartd.gb, gb.reduction.test )
+  $Example:$
+  $ [[( 2*(h-x-y) Dx + h^2 ) ( 2*(h-x-y) Dy + h^2 )] $
+  $   (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set $
+  $ ((h-x-y)^2*Dx*Dy) ggg gb.reduction :: $
+]] putUsages
 
 ( ) message-quiet ;
 
