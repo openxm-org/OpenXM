@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.13 2000/01/20 08:12:43 takayama Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.14 2000/02/08 04:47:08 noro Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 ASIR_PARI = ../../../OpenXM_contrib2/asir2000-pari
@@ -24,8 +24,7 @@ small: configure-small
 	@touch ./.make_small_done
 
 install: all
-	(cd $(ASIR) ; make install ; make install-lib; \
-		make install-libasir ; make install-libgc )
+	(cd $(ASIR) ; make install-bin-lib ; make install-libasir ; make install-libgc )
 
 install-lib-with-pari: with-pari
 	(cd $(ASIR_PARI) ; make install-libasir)
