@@ -1,9 +1,22 @@
-% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.2 2000/01/02 07:32:11 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.3 2000/01/03 04:27:52 takayama Exp $
 
-\subsection{Heterotic Network}   (Takayama)
+\subsection{Heterogeneous Servers}
 
 \def\pd#1{ \partial_{#1} }
-\subsubsection{Annihilating ideal}
+
+By using OpenXM, we can treat OpenXM servers essentially 
+like a subroutine.
+Since OpenXM provides a universal stackmachine which does not
+depend each servers, 
+it is relatively easy to install new servers.
+We can build a new computer math system by assembling
+different OpenXM servers.
+It is similar to building a toy house by LEGO blocks.
+
+We will see two examples of special purpose systems
+built by OpenXM servers.
+
+\subsubsection{Computation of annihilating ideals by kan/sm1 and ox\_asir}
 
 Let $D = {\bf Q} \langle x_1, \ldots, x_n , \pd{1}, \ldots, \pd{n} \rangle$
 be the ring of differential operators.
@@ -17,13 +30,16 @@ Here, $\bullet$ denotes the action of $D$ to functions.
 The annihilating ideal can be regarded as the maximal differential
 equations for the function $f^{-1}$.
 An algorithm to determine generators of the annihilating ideal
-was given by Oaku in 1995 (see, e.g., \cite[5.3]{sst-book}).
+was given by Oaku (see, e.g., \cite[5.3]{sst-book}).
 His algorithm reduces the problem to computations of Gr\"obner bases
 in $D$ and to find the maximal integral root of a polynomial.
-An implementation of this algorithm (the function {\tt annfs})
-on kan/sm1 \cite{kan}
-calls ox\_asir to factorize polynomials to find the integral
+This algorithm (the function {\tt annfs}) is implemented by
+kan/sm1 \cite{kan}, for Gr\"obner basis computation in $D$, and
+ox\_asir, to factorize polynomials to find the integral
 roots.
+These two OpenXM complient systems are integrated by
+OpenXM protocol.
+
 For example, the following is a sm1 session to find the annihilating
 ideal for $f = x^3 - y^2 z^2$.
 \begin{verbatim}
@@ -41,30 +57,12 @@ $-12(s+1)(3s+5)(3s+4)(6s+5)(6s+7)$
 and the minimal integral root is $-1$
 as shown in the output.
 
-\subsubsection{Primary ideal decomposition and
-a stratification of singularity}
-Let ${\cal D} = {\cal O}\langle \pd{1}, \ldots, \pd{n} \rangle$
-be the sheaf of algebraic differential operators on ${\bf C}^n$.
-For a given polynomial
-$f \in {\bf Q}[x_1, \ldots, x_n]$,
-minimal degree non-zero polynomial $b_a(s)$ such that
-$ b_a(s) f^s \in {\cal D}_{a} \bullet f^{s+1} $
-is called the local $b$-function of $f^s$ at
-$x=a$.
-Here, ${\cal D}_a$ denotes the germ of the sheaf ${\cal D}$ at
-$x=a$.
-The polynomial $b_a(s)$ depends on $a$ and ${\bf C}^n$ is
-stratified into a finite algebraic sets such that
-$b_a(s)$ is a constant with respect to $a$ on each 
-algebraic set.
-An algorithm to determine the stratification
-was given by Oaku in 1997 \cite{oaku-advance}.
-His algorithm reduces the problem to computations of Gr\"obner bases
-in $D$ and primary ideal decompositions.
-An implementation of this algorithm 
-uses sm1 for Gr\"obner basis computation in $D$ and 
-ox\_asir for primary ideal decomposition and Gr\"obner basis computation
-in the ring of polynomials.
+Similarly, 
+an algorithm to stratify singularity 
+\cite{oaku-advance}
+is implemented by
+kan/sm1 \cite{kan}, for Gr\"obner basis computation in $D$, and
+ox\_asir, for primary ideal decompositions.
 
 \subsubsection{A Course on Solving Algebraic Equations}
 
@@ -73,9 +71,9 @@ which is good at Gr\"obner basis computations for zero dimensional ideal
 with ${\bf Q}$ coefficients.
 However, it is not good at graphical presentations and
 numerical methods.
-We used Risa/asir with ox\_sm1\_phc (based on PHC pack by Verschelde \cite{phc}
+We integrated Risa/asir, ox\_phc (based on PHC pack by Verschelde \cite{phc}
 for the polyhedral homotopy method) and
-ox\_sm1\_gnuplot (GNUPLOT) servers
+ox\_gnuplot (GNUPLOT) servers
 to teach a course on solving algebraic equations.
 This course was presented with the text book \cite{CLO} which discusses
 on the Gr\"obner basis method and the polyhedral homotopy method
