@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.21 2002/08/09 07:51:28 fujimoto Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.22 2002/08/10 07:05:47 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -12,6 +12,7 @@ WINASIR=c:/home/asir
 usage:
 	@echo "Targets: all build-tgz clean clean-work link-for-debug"
 	@echo "         remove-experimental gen-cd"
+	@echo :Other targets: win-correction3, build-bat"  
 
 clean:
 	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc
@@ -109,6 +110,13 @@ win-correction2: win-correction1
 	cp oxasir-win.rr OpenXM-win/asir/bin
 	cp oxasir-win.rr OpenXM-win/lib/asir
 	cp oxasir-win.rr OpenXM-win/lib/sm1
+
+## it is for an obsolete asirwin-*.tgz
+win-correction3: debug-tools/crlf
+	cp ${OpenXM_TOP}/../OpenXM_contrib2/asir2000/lib/xm OpenXM-win/asir/lib
+	cp ${OpenXM_TOP}/../OpenXM_contrib2/asir2000/lib/glib OpenXM-win/asir/lib
+	./debug-tools/crlf OpenXM-win/asir/lib/xm
+	./debug-tools/crlf OpenXM-win/asir/lib/glib
 
 win-correction-clean:
 	-find OpenXM-win -name '*~' -print | xargs rm -f

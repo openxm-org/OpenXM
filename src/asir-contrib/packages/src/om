@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.19 2002/08/03 13:14:20 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.20 2002/08/08 08:56:34 takayama Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -127,7 +127,10 @@ def om_start_unix() {
 }
 
 def om_start_windows(S) {
-  error("The component om has not yet been implemented on Windows(native).");
+  extern Xm_debug_on_win_1;
+  if (!Xm_debug_on_win_1) {
+    error("The component phc has not yet been implemented on Windows(native).");
+  }
 }
 /*&eg-texi
 @menu

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc,v 1.7 2002/08/03 07:44:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc,v 1.8 2002/08/03 13:14:20 takayama Exp $ */
 
 Phc_proc = -1$
 #define PHC_FIND_PROC(P)  P = getopt(proc);\
@@ -182,8 +182,11 @@ def phc_start_windows(U) {
   extern Xm_noX;
   extern Phc_proc;
   extern Xm_use_timer_to_start_server;
+  extern Xm_debug_on_win_1;
 
-  error("The component phc has not yet been implemented on Windows(native).");
+  if (!Xm_debug_on_win_1) {
+    error("The component phc has not yet been implemented on Windows(native).");
+  }
 
   CPort = generate_port();
   SPort = generate_port();
