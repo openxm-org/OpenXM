@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.9 2000/12/27 10:16:12 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.10 2001/01/13 12:40:57 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -62,16 +62,27 @@ class OXcontrol extends Object {
   def getControl() {
     return(control);
   }
-  def generate(c) {
+  def generate(c,useX) {
+     if (Length(Arglist) <= 1) {
+       useX = true;
+     }
      if (Tag(c) != 0) {
        control = c;
        return(this);
      }else{
-       return(start());
+       return(start(useX));
      }
   }
-  def start() {
-    local c,e, pass, peer, data, s, stmp;
+  def start(useX) {
+    local c,e, pass, peer, data, s, stmp, xopt;
+    if (Length(Arglist) == 0) {
+       useX = true;
+    }
+    if (useX) {
+        xopt = " -x ";
+    }else{
+        xopt = "  ";
+    }
     this = new(Object.new0());
     sm1(" [(oxGenPass)] extension /pass set ");
     sm1(" [(oxGetPort1) (localhost)] extension /peer set ");
@@ -79,7 +90,7 @@ class OXcontrol extends Object {
     s = AddString(
       [GetEnv("OpenXM_HOME"),
        "/bin/oxc", 
-       " -c ", pass, " -h "," localhost ", " -p ", data, " -x ",
+       " -c ", pass, " -h "," localhost ", " -p ", data, xopt,
        " & "]);
     sm1(" [ (/bin/csh -c \") s (\") ] cat /stmp set ");
     sm1(" stmp message ");
@@ -117,15 +128,19 @@ class OX extends OXcontrol {
      return(engineIDs);
   }
   /* OX.generate("ox_sm1"); or OX.generate("ox_sm1",null) */
-  def generate(name,control) {
-    local c,e, pass, peer, data, s, stmp, engineID;
-    if (Length(Arglist) == 0) {
-      name = "ox_sm1";  control = null;
+  def generate(name,control,useX) {
+    local c,e, pass, peer, data, s, stmp, engineID,nn;
+    nn = Length(Arglist);
+    if (nn == 0) {
+      name = "ox_sm1";  control = null; useX = true;
     }
-    if (Length(Arglist) == 1) {
-      control = null;
+    if (nn == 1) {
+      control = null; useX = true;
     }
-    this = new(OXcontrol.generate(control));
+    if (nn == 2) {
+      useX = true;
+    }
+    this = new(OXcontrol.generate(control,useX));
     control = this.getControl();
     sm1(" [(oxGetPort1) (localhost)] extension /peer set ");
     sm1(" /data peer 1 get def ");
@@ -214,23 +229,36 @@ class OX extends OXcontrol {
      Println(f);
 */
 def startAsir() {
-  local a,asirpeer;
-  a = OX.generate("ox_asir");
-  asirpeer = (a.getEngine()).getChannel();
-  Println(asirpeer);
-  sm1(" [asirpeer oxasirpath.asirlib] loadAsirFile ");
-  return(a);
+  return(Asir.generate());  
 }
 
 class Asir extends OX {
   local ;
-  def generate() {
+  def generate(useX) {
     local asirpeer,a;
-    this = new(OX.generate("ox_asir",null));
+    if (Length(Arglist) == 0) { useX = true; }
+    this = new(OX.generate("ox_asir",null,useX));
     a = this;
     asirpeer = (a.getEngine()).getChannel();
     Println(asirpeer);
     sm1(" [asirpeer oxasirpath.asirlib] loadAsirFile ");
     return(this);
+  }
+  def OnTimer() {
+    local a;
+    a = this;
+    a.executeString("K0_timer=time();");
+    a.popString();
+    a.executeString("K0_timer_CPU=K0_timer[0];");
+    a.popString();
+    a.executeString("K0_timer_GC=K0_timer[1];");
+    a.popString();
+  }
+  def OffTimer() {
+    local a;
+    a = this;
+    a.executeString("map(rtostr,[time()[0]-K0_timer_CPU,
+                                 time()[1]-K0_timer_GC]);");
+    return(a.popCMO());
   }
 }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.5 2000/12/28 00:08:14 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.6 2001/01/05 11:14:29 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -11,7 +11,12 @@ def demoSendAsirCommand(a) {
   a.executeString(" def mygeneric_bfct(F,VV,DD,WW) { print([F,VV,DD,WW]); return(generic_bfct(F,VV,DD,WW));}; ");
 }
 
-as = startAsir();
+if (Boundp("NoX")) {
+  as = Asir.generate(false); 
+}else{
+  as = Asir.generate();
+}
+
 asssssir = as;
 demoSendAsirCommand(as);
 RingD("x,y,z,s");
@@ -94,6 +99,10 @@ def asirAnnXYZ(a,f) {
 
 def nonquasi2(p,q) {
   local s,ans,f;
+
+  sm1("0 set_timer "); sm1(" oxNoX ");
+  asssssir.OnTimer();
+
   f = x^p+y^q+x*y^(q-1);
   Print("f=");Println(f);
   s = ToString(f);
@@ -114,6 +123,10 @@ def nonquasi2(p,q) {
   Print("Roots and b-function are "); Println(R);
   R0 = R[0];
   Ans=Srestall(Res0, ["x", "y"],  ["x", "y"], R0[Length(R0)-1]);
+
+  Println("Timing data: sm1 "); sm1(" 1 set_timer ");
+  Print("     ox_asir [CPU,GC]:  ");Println(asssssir.OffTimer());
+
   Print("Answer is "); Println(Ans[0]);
   return(Ans);
 }
@@ -129,6 +142,10 @@ def asirAnn0XYZ(a,f) {
 
 def DeRham2WithAsir(f) {
   local s;
+
+  sm1("0 set_timer "); sm1(" oxNoX ");
+  asssssir.OnTimer();
+
   s = ToString(f);
   II = asirAnn0XYZ(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
@@ -144,11 +161,19 @@ def DeRham2WithAsir(f) {
   Print("Roots and b-function are "); Println(R);
   R0 = R[0];
   Ans=Srestall(Res0, ["x", "y"],  ["x", "y"],R0[Length(R0)-1] );
+
+  Println("Timing data: sm1 "); sm1(" 1 set_timer ");
+  Print("     ox_asir [CPU,GC]:  ");Println(asssssir.OffTimer());
+
   Print("Answer is ");Println(Ans[0]);
   return(Ans);
 }
 def DeRham3WithAsir(f) {
   local s;
+
+  sm1("0 set_timer "); sm1(" oxNoX ");
+  asssssir.OnTimer();
+
   s = ToString(f);
   II = asirAnn0XYZ(asssssir,f);
   Print("Step 1: Annhilating ideal (II)"); Println(II);
@@ -164,6 +189,46 @@ def DeRham3WithAsir(f) {
   Print("Roots and b-function are "); Println(R);
   R0 = R[0];
   Ans=Srestall(Res0, ["x", "y", "z"],  ["x", "y", "z"],R0[Length(R0)-1] );
+
+  Println("Timing data: sm1 "); sm1(" 1 set_timer ");
+  Print("     ox_asir [CPU,GC]:  ");Println(asssssir.OffTimer());
+
   Print("Answer is ");Println(Ans[0]);
   return(Ans);
 }
+
+/*  test data 
+
+   NoX=true;
+   nonquasi2(4,5);
+   nonquasi2(4,6);
+   nonquasi2(4,7);
+   nonquasi2(4,8);
+   nonquasi2(4,9);
+   nonquasi2(4,10);
+
+   nonquasi2(5,6);
+   nonquasi2(6,7);
+   nonquasi2(7,8);
+   nonquasi2(8,9);
+   nonquasi2(9,10);
+*/
+
+   P2 = [
+     "x^3-y^2",
+     "y^2-x^3-x-1",
+     "y^2-x^5-x-1",
+     "y^2-x^7-x-1",
+     "y^2-x^9-x-1",
+     "y^2-x^11-x-1"
+   ];
+
+   P3 = [
+     "x^3-y^2*z^2",
+     "x^2*z+y^3+y^2*z+z^3",
+     "y*z^2+x^3+x^2*y^2+y^6",
+     "x*z^2+x^2*y+x*y^3+y^5"
+   ];
+
+
+
