@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.1 1999/12/09 22:44:55 ohara Exp $ */
 /* 
 setsockopt()してオプションを設定後,
 socket, bind
@@ -94,13 +94,13 @@ int mypipe(char *program, int fd1, int fd2)
         fprintf(stderr, "socketpair: fail! errno = %d\n", errno);
     }
     if (fork() == 0) {
-        /* 子プロセス */
+        /* child process */
         close(sockfd[0]);
         dup2(sockfd[1], fd1);
         dup2(sockfd[1], fd2);
         execl(program, program, NULL);
   }
-  /* 親プロセス */
+  /* parent process */
     close(sockfd[1]);
     return sockfd[0];
 }

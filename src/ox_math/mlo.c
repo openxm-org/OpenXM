@@ -1,10 +1,5 @@
-/* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.2 1999/12/09 22:50:56 ohara Exp $ */
-
-/* Open Mathematica サーバ */
-/* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
-
-/* MathLink との通信部分 */
+/* -*- mode: C -*- */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.3 1999/12/14 09:31:55 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,13 +8,13 @@
 #include <mathlink.h>
 #include "oxtag.h"
 #include "ox.h"
-#include "parse.h"
 #include "mlo.h"
 #include "serv2.h"
 
+/* If this flag sets then we identify MLTKSYM to CMO_INDETERMINATE. */
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 
-/* MLINK はポインタ型. */
+/* MLINK is a indentifier of MathLink connection. */
 MLINK stdlink;
 
 mlo *receive_mlo_zz()
@@ -131,7 +126,7 @@ cmo *receive_mlo_symbol()
     return ob;
 }
 
-/* Mathematica との通信を開始する. */
+/* starting a MathLink connection. */
 int ml_init()
 {
     int argc = 2;
@@ -145,7 +140,7 @@ int ml_init()
     return 0;
 }
 
-/* Mathematica との通信を終了する. */
+/* closing a MathLink connection. */
 int ml_exit()
 {
     /* quit Mathematica then close the link */
@@ -153,7 +148,7 @@ int ml_exit()
     MLClose(stdlink);
 }
 
-/* receive_mlo() する前に必ず ml_select() しなければならない */
+/* Never forget call ml_select() before calling receive_mlo(). */
 int ml_select()
 {
     /* skip any packets before the first ReturnPacket */
@@ -163,7 +158,7 @@ int ml_select()
     }
 }
 
-/* send_mlo() した後で必ず ml_flush() しなければならない */
+/* Never forget call ml_flush() after calling send_mlo(). */
 int ml_flush()
 {
     MLEndPacket(stdlink);
@@ -180,7 +175,7 @@ cmo *receive_mlo()
     case MLTKSTR:
         return receive_mlo_string();
     case MLTKREAL:
-        /* double はまだ... */
+        /* Yet we have no implementation of CMO_DOUBLE... */
         fprintf(stderr, "--debug: MLO == MLTKREAL.\n");
         MLGetString(stdlink, &s);
         return (cmo *)new_cmo_string(s);

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.10 1999/11/29 12:09:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.11 1999/12/14 09:31:56 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -200,7 +200,6 @@ int sm_executeFunction(int fd_write)
     return 0;
 }
 
-/* 平成12年12月14日 */
 #define VERSION 0x11121400
 #define ID_STRING  "ox_math server 1999/12/14 15:25:00"
 

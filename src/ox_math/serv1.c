@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.5 1999/11/18 22:07:50 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.6 1999/11/29 12:09:58 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,7 @@ static int sv_write = 4;
 static int flag_sigusr1 = 0;
 static int flag_sigusr2 = 0;
 
-/* 1 のとき割り込み禁止 */
+/* if in_critical equals to 1 then we do not permit an interrupt. */
 static int in_critical = 0; 
 
 static int set_critical()
@@ -79,7 +79,7 @@ static int exchange_ox_syncball(int fd)
     fprintf(stderr, "received a sync_ball.\n");
 }
 
-/* スタックマシン部分 */
+/* a part of stack machine. */
 int receive_ox(int fd_read, int fd_write)
 {
     int tag;
@@ -120,7 +120,6 @@ int main()
     signal(SIGUSR1, handler_reset1);
     signal(SIGKILL, handler_kill);
 
-    /* バイトオーダの決定 */
     decideByteOrderServer(sv_read, 0);
 
     while(1) {
