@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.15 2004/09/04 11:25:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.16 2004/09/05 00:51:17 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -349,7 +349,7 @@ int hash0(str)
 {
   int h=0;
   while (*str != '\0') {
-    h = ((h*128)+(*str)) % USER_DICTIONARY_SIZE;
+    h = ((h*128)+((unsigned char)(*str))) % USER_DICTIONARY_SIZE;
     str++;
   }
   return(h);
@@ -358,7 +358,7 @@ int hash0(str)
 int hash1(str)
      char *str;
 {
-  return(8-(str[0]%8));
+  return(8-((unsigned char)(str[0])%8));
 }
 
 void hashInitialize(struct dictionary *dic)
