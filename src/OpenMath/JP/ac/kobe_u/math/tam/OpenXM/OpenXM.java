@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.3 1999/11/10 21:25:48 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.4 1999/11/11 17:18:48 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -58,6 +58,9 @@ public class OpenXM implements Runnable{
 
 	case OX_COMMAND:
 	  switch(control.receiveSM().getCode()){
+	  case SM.SM_control_kill:
+	    return;
+
 	  case SM.SM_control_reset_connection:
 	    this.resetConnection();
 	    break;
@@ -72,8 +75,13 @@ public class OpenXM implements Runnable{
 	}
       }
     }catch(IOException e){
-      thread.stop();
       System.err.println(e.getMessage());
+    }finally{
+      debug("computer process interrupting...");
+      thread.stop();
+      debug("interrupted. OK! I'll dead.");
+      try{stream.close();}catch(IOException e){}
+      try{control.close();}catch(IOException e){}
     }
   }
 
