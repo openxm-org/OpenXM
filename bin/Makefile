@@ -1,23 +1,32 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.3 2000/01/09 20:27:28 maekawa Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.4 2000/01/09 21:04:04 maekawa Exp $
 
 LIBDIR=../lib
-FEP=fep.linux
+FEPLINUX=fep.linux
+FEPFBSD=fep.fbsd
 PHC=lin_phcv2p
 
 configure:
-	@if [ -f $(FEP).gz.uuencoded ]; then \
-		uudecode -p $(FEP).gz.uuencoded | gzip -dc > $(FEP) ; \
-		chmod +x $(FEP) ; \
+	@if [ -f $(FEPLINUX).gz.uuencoded ]; then \
+		uudecode $(FEPLINUX).gz.uuencoded ; \
+		gzip -d $(FEPLINUX).gz ; \
+		chmod +x $(FEPLINUX) ; \
+	fi
+
+	@if [ -f $(FEPFBSD).gz.uuencoded ]; then \
+		uudecode $(FEPFBSD).gz.uuencoded ; \
+		gzip -d $(FEPFBSD).gz ; \
+		chmod +x $(FEPFBSD) ; \
 	fi
 
 	@if [ -f $(PHC).gz.uuencoded ]; then \
-		uudecode -p $(PHC).gz.uuencoded | gzip -dc > $(PHC) ; \
+		uudecode $(PHC).gz.uuencoded ; \
+		gzip -d $(PHC).gz ; \
 		chmod +x $(PHC) ; \
 	fi
 
 	@if [ "`uname`" = "Linux" ]; then \
 		rm -f fep phc ; \
-		ln -f -s $(FEP) fep ; \
+		ln -f -s $(FEPLINUX) fep ; \
 		ln -f -s $(PHC) phc ; \
 	else \
 		echo "We have the binary of phc only for linux." ; \
@@ -30,11 +39,15 @@ distclean:
 	rm -f asir fep fep.linux lin_phcv2p phc
 
 uuencode:
-	@if [ -f $(FEP) ]; then \
-		echo '$OpenXM$' > $(FEP).gz.uuencoded ; \
-		gzip -c $(FEP) | uuencode $(FEP).gz >> $(FEP).gz.uuencoded ; \
+	@if [ -f $(FEPLINUX) ]; then \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.4 2000/01/09 21:04:04 maekawa Exp $' > $(FEPLINUX).gz.uuencoded ; \
+		gzip -c $(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(FEPLINUX).gz.uuencoded ; \
+	fi
+	@if [ -f $(FEPFBSD) ]; then \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.4 2000/01/09 21:04:04 maekawa Exp $' > $(FEPFBSD).gz.uuencoded ; \
+		gzip -c $(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(FEPFBSD).gz.uuencoded ; \
 	fi
 	@if [ -f $(PHC) ]; then \
-		echo '$OpenXM$' > $(PHC).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.4 2000/01/09 21:04:04 maekawa Exp $' > $(PHC).gz.uuencoded ; \
 		gzip -c $(PHC) | uuencode $(PHC).gz >> $(PHC).gz.uuencoded ; \
 	fi
