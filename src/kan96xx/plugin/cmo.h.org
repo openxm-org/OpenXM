@@ -1,0 +1,97 @@
+/*cmo.h : Dont edit  this file. */
+/*  cmotag.h */
+/* #define     CMO   1024  It is defined in stackm.h. */
+#define LARGEID   0x7f000000
+
+#define CMO_ERROR  (LARGEID+1)
+#define CMO_ERROR2 (LARGEID+2)
+#define CMO_NULL   1
+#define CMO_INT32  2
+#define CMO_DATUM  3
+#define CMO_STRING 4
+#define CMO_ARRAYOFINT32 5
+
+#define CMO_START_SIGNATURE    0x7fabcd03     
+#define CMO_LOCAL_OBJECT       0x7fcdef03
+
+
+#define     CMO_TAG  16
+#define     CMO_LIST 17
+#define     CMO_ATOM 18
+#define     CMO_MONOMIAL32  19
+#define     CMO_ZZ          20   /* CMO_GMPCOEF */
+#define     CMO_QQ          21
+#define     CMO_ZERO        22
+#define     CMO_DMS         23   /* Distributed monomial system */
+#define     CMO_DMS_GENERIC     24
+#define     CMO_DMS_OF_N_VARIABLES 25
+#define     CMO_RING_BY_NAME  26
+
+#define     CMO_INT32COEFF  30  /* it should be thrown a way. */
+
+/* end of cmotag.h */
+
+/*  cmo0.h */
+
+typedef enum {CMOINIT,CMOPUT,CMOGET,CMOFLUSH,
+	      CMOINITSTREAM,CMOGETBYTE} cmoAction;
+typedef unsigned long int cmoint;
+
+struct  cmoBuffer {
+  int size;
+  int pos;
+  int rpos;
+  int isStream;
+  FILE2 *fp;
+  void *buf;
+};
+
+/* ------------------------------------------- */
+struct object cmoObjectToCmo(struct object ob);
+void cmoPrintCmo(struct object ob);
+struct object cmoCmoToObject(struct object ob);
+
+/* ----------------------- */
+int errorCmo(char *s);
+struct cmoBuffer *cmoOutputToBuf(cmoAction a,void *data, int size);
+int dumpCmoBuf(struct cmoBuffer *cb);
+int cmoOutInt32(int k);
+int cmoOutString(char *s,int size);
+int cmoOutInt32Coeff(int k);
+int cmoGetIntFromBuf(cmoAction a,struct cmoBuffer *cb);
+int cmoOutMonomial32(POLY cell);
+int cmoOutDMS() ;
+int cmoOutPolynomial(POLY f) ;
+int cmoOutRingDefinition(struct ring * rp,int option);
+
+void *cmoGetString(struct cmoBuffer *cb, int size);
+struct coeff * cmoGetInt32Coeff(struct cmoBuffer *cb);
+POLY cmoGetMonomial32(struct cmoBuffer *cb);
+POLY cmoListToPOLY(struct object ob); /* Assumes [CMO_ADD, ....] */
+struct object streamToCmo(struct object of);
+int cmoToStream(struct object cmoObj, struct object of);
+struct object cmoListToPoly(struct object ob);
+struct object cmoObjectToStream(struct object ob, struct object obStream);
+struct object cmoObjectFromStream(struct object obStream);
+struct object cmoObjectFromStream2(FILE2 *fp2);
+struct object cmoObjectToStream2(struct object ob,FILE2 *fp2);
+
+int Kan_PushBinary(int size,void *data);
+void *Kan_PopBinary(int *sizep);
+int Kan_pushCMOFromStream(FILE2 *fp);
+int Kan_popCMOToStream(FILE2 *fp);
+
+
+int cmoOutRawInt(int k);
+/* ---------------- end of cmo.h ---------------------*/
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+#!/bin/csh
+if ( `pwd` != "/home/nobuki/openXM/src/kxx" ) then
+    echo "Invalid directory to run cleanForDist"
+    exit
+endif
+
+make clean
+/bin/rm -rf client.class client.java cmotest.sm1 ox-1.sm1 ox.a oxlog*.txt sample1.* startengines streamListener.class testclient*.c  ox_asir ox_sm1 ox_asir2 t.asr missfont.log
+/bin/rm -rf Old Prog ox_asir.old
+/bin/rm -rf cmo1.txt   memo1.txt noro.txt  ex1.txt  moushikomi.txt
+/bin/rm -rf Trash afo asirstack.tex junk.c showpage.ps
+
+
+

@@ -1,0 +1,85 @@
+StandardContextp setcontext
+[(parse) (/home/nobuki/SSWork/yacc/incmac.sm1) pushfile] extension
+
+%% These are defined in incmac.sm1
+%%/PrimitiveContextp StandardContextp def
+%%/Object  [PrimitiveContextp]  def
+
+/new {Object} def
+
+/Complex [(Complex) Object 0 get newcontext] def
+     Complex 0 get setcontext
+
+/new {
+       /Arglist set /FunctionValue [ ] def
+       [/a /b] /ArgNames set 
+       [/a /b /this /super] pushVariables
+       [
+        Arglist ArgNames mapset
+        /super Object def
+        super [ ] {new} sendmsg2  /this set
+        Complex this {rest} primmsg {append} primmsg
+        [null null] {append} primmsg  /this set
+        this 1 a {put} primmsg
+        this 2 b {put} primmsg
+        /FunctionValue this def
+       ] pop
+       popVariables
+       FunctionValue
+} def
+       
+/new0 {
+       /Arglist set /Argthis set /FunctionValue [ ] def
+       [/a /b] /ArgNames set 
+       [/this /a /b  /super] pushVariables
+       [
+        Arglist ArgNames mapset
+        /super Object def
+        super [ ] {new} sendmsg2  /this set
+        Complex this {rest} primmsg {append} primmsg
+        [null null] {append} primmsg  /this set
+        this 1 a {put} primmsg
+        this 2 b {put} primmsg
+        /FunctionValue this def
+       ] pop
+       popVariables
+       FunctionValue
+} def
+
+/add {
+   /Arglist set /Argthis set
+   [/this /ans /b] pushVariables
+   [
+      /this Argthis def /b Arglist def
+      /ans Complex [0 0] {new0} sendmsg2 def
+      [/ans 1 ] << this 1 get >> << b 1 get >> {add} sendmsg2 Put
+      [/ans 2 ] << this 2 get >> << b 2 get >> {add} sendmsg2 Put
+      /FunctionValue ans def
+   ] pop
+   popVariables
+   FunctionValue
+} def
+
+/mul {
+   /Arglist set /Argthis set
+   [/this /ans /b /x1 /x2 /y1 /y2] pushVariables
+   [
+      /this Argthis def /b Arglist def
+      /ans Complex [0 0] {new0} sendmsg2 def
+      /x1 this 1 get def /x2 this 2 get def
+      /y1 b 1 get def    /y2 b    2 get def
+      [/ans 1 ] x1 y1 {mul} sendmsg2 x2 y2 {mul} sendmsg2 {sub} sendmsg2 Put
+      [/ans 2 ] x1 y2 {mul} sendmsg2 x2 y1 {mul} sendmsg2 {add} sendmsg2 Put
+      /FunctionValue ans def
+   ] pop
+   popVariables
+   FunctionValue
+} def
+
+
+Object 0 get setcontext
+
+
+
+
+

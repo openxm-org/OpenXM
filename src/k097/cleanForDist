@@ -1,0 +1,36 @@
+#!/bin/tcsh
+if ( `pwd` != "/home/nobuki/openXM/src/k097" ) then
+    echo "Invalid directory to run cleanForDist"
+    exit
+endif
+
+make clean
+mv Makefile Makefile.t
+sed 's/CFLAGS = -g/CFLAGS = -O/g' Makefile.t >Makefile.t0
+sed 's/\/home\/nobuki\/SSkopen/..\/..\/kan96xx/g' Makefile.t0 >Makefile.t1
+sed 's/\/home\/nobuki\/SSWork\//..\//g' Makefile.t1 >Makefile.t2
+mv Makefile.t2 Makefile
+/bin/rm -rf Makefile.t*
+make new
+/bin/rm -fr Backup
+/bin/rm -rf Test 
+/bin/rm -rf Trash
+/bin/rm -rf Sample2
+/bin/rm -rf copyToPvmDir
+/bin/rm -rf memo.txt 
+/bin/rm -rf *~ 
+/bin/rm -rf ip-k 
+cd Doc
+Clean
+cd ..
+cd debug
+Clean
+cd ..
+cd Sample
+Clean
+cd ..
+
+
+
+
+

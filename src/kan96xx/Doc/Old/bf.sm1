@@ -1,0 +1,161 @@
+(bf.sm1  Version Sep 26, 1995) message
+( Computing b-function by the algorithm by Oaku. Type in demo1 to see a demo.)
+ message
+
+%%%% demo1 can be used as a template to compute the b-function of your own
+%%%% polynomial.
+/demo1 {
+  %%% Give your variables. s is used for FW-filtration.
+   [(s,t,x,y) ring_of_differential_operators
+  %%% Give the weight vector here.
+    [[(s) 1] [(Dx) 1 (Dy) 1 (x) 1 (y) 1]] weight_vector 0 ] define_ring
+  %%% Give the generators.  t - s f(x), Dx + s Df/Dx Dt
+   [( t- s x^2 + s y^3).
+    (  Dx + 2 s x Dt).
+    (  Dy - 3 s y^2 Dt).
+   ] /ff set
+
+  %%%%%%%%%%% Don't touch. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   ff print
+   (  are generators.) message (   ) message
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing groebner basis) message
+   {[ff] groebner 0 get /ans set } timer
+   (     ) message
+   ans fw_principal /ans0 set 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  %%% Give variables to eliminate
+  ans0 [(Dx)  (Dy) (x)  (y) ] eliminatev
+  /ans1 set
+
+
+  (The answer [ans1] is ) message
+  ans1 print (  ) message   
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% demo2 : degree 26. Time = 355s + 60s
+/demo2 {
+  %%% Give your variables. s is used for FW-filtration.
+   [(s,t,x,y,z) ring_of_differential_operators
+  %%% Give the weight vector here.
+    [[(s) 1] [(Dx) 1 (Dy) 1 (Dz) 1 (x) 1 (y) 1 (z) 1 ]] weight_vector 
+   0 ] define_ring
+  %%% Give the generators.  t - s f(x), Dx + s Df/Dx Dt
+   [( t - s (-x^2 z^2 + x^4 + y^4)).
+    (  Dx + s (-2 x z^2 + 4 x^3) Dt ).
+    (  Dy + s (4 y^3 ) Dt ).
+    (  Dz + s (-2 x^2 z) Dt).
+   ] /ff set
+
+  %%%%%%%%%%% Don't touch. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   ff print
+   (  are generators.) message (   ) message
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing groebner basis) message
+   {[ff] groebner 0 get /ans set } timer
+   (     ) message
+   ans fw_principal /ans0 set 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  %%% Give variables to eliminate
+  ans0 [(Dx) (Dy) (Dz) (x)  (y)  (z) ] eliminatev
+  /ans1 set
+
+
+  (The answer [ans1] is ) message
+  ans1 print (  ) message   
+} def
+
+/bf3_0 {
+  %%% Give your variables. s is used for FW-filtration.
+   [(s,t,x,y,z) ring_of_differential_operators
+  %%% Give the weight vector here.
+    [[(s) 1] [(Dx) 1 (Dy) 1 (Dz) 1 (x) 1 (y) 1 (z) 1 ]] weight_vector 
+   0 ] define_ring
+   /s (s). def /x (x). def /y (y). def /z (z). def
+              /Dx (Dx). def /Dy (Dy). def /Dz (Dz). def
+   /t (t). def /Dt (Dt). def /h (h). def
+} def
+
+%%% Give the generators.  t - s f(x), Dx + s Df/Dx Dt as ff
+
+/bf3_1 {
+  /ff set
+  %%%%%%%%%%% Don't touch. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   ff print
+   (  are generators.) message (   ) message
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing groebner basis) message
+   {[ff] groebner 0 get /ans set } timer
+   (     ) message
+   ans fw_principal /ans0 set 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  %%% Give variables to eliminate
+  ans0 [(Dx) (Dy) (Dz) (x)  (y)  (z) ] eliminatev
+  /ans1 set
+
+  (The answer [ans1] is ) message
+  ans1 print (  ) message   
+  ans1
+} def
+
+
+%% [   ] {outputans1} map ;
+/outputans1 {
+ (t.t) (a) file /fd set
+ (string) data_conversion /tmp0 set
+ fd tmp0 writestring
+ fd (  ,) writestring
+ fd 10 (string) data_conversion writestring
+ fd closefile
+} def
+
+
+
+
+/fw_principal {
+   {[[(h). (1).]] replace} map {(s). coefficients 1 get 0 get} map
+} def
+
+
+%%%%%%%%%%%%%%%%%%%%%
+% [g1 g2 g3 ...] var eliminate0
+/eliminate0 {
+  /arg2 set /arg1 set
+  [/gb /degs /ans /n /var] pushVariables
+  [
+  /gb arg1 def
+  /var arg2 def
+  /degs gb {var . degree} map def
+  /ans [
+    0 1 << gb length 1 sub >> {
+      /n set
+      << degs n get  >>  0 eq
+      { gb n get /ff set
+        ff (0). eq
+        {  }
+        { ff } ifelse
+      }
+      {   } ifelse
+    } for
+  ] def
+  /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,125 @@
+%%% supporting code for printSVector.
+/greaterThanOrEqual {
+  /arg2 set /arg1 set
+  arg1 arg2 gt { 1 }
+  { arg1 arg2 eq {1} {0} ifelse} ifelse
+} def
+
+/lengthUniv {
+ length (universalNumber) dc
+} def
+
+/getUniv {
+ (integer) dc get
+} def  %% Do not forget to thow away /.
+
+[(printSVector)
+ [( vector printSVector   outputs the <<vector>> in a pretty way.)
+  ( The elements of the vector must be strings.)
+ ]
+] putUsages
+
+%%% compiled code by d0, 1996, 8/17.
+/printSVector {
+ /arg1 set
+[ %%start of local variables
+/keys /i /j /n /max /width /m /k /kk /tmp0 ] pushVariables [ %%local variables
+/keys arg1 def
+/n 
+keys lengthUniv
+ def
+/max (0)..  def
+/i (0)..  def
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+keys i  getUniv lengthUniv
+max  gt
+ %% if-condition
+  { %%ifbody
+/max 
+keys i   getUniv lengthUniv
+ def 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+/max max (3)..  add
+ def
+/width (80)..  def
+/m (0)..  def
+
+%%while
+{ m max  mul
+(80)..  lt
+ { } {exit} ifelse
+ /m m (1)..  add
+ def
+} loop
+/k (0)..  def
+/kk (0)..  def
+/i (0)..  def
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+keys i getUniv messagen
+/kk kk (1)..  add
+ def
+/k k 
+keys i getUniv lengthUniv
+ add
+ def
+/tmp0 max 
+keys i  getUniv lengthUniv
+ sub
+ def
+/j (0)..  def
+%%for init.
+%%for
+{ j tmp0  lt
+ {  } {exit} ifelse
+[ {%%increment
+/j  j (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+/k k (1)..  add
+ def
+kk m  lt
+ %% if-condition
+  { %%ifbody
+( ) messagen
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+kk m  greaterThanOrEqual
+ %% if-condition
+  { %%ifbody
+/kk (0)..  def
+/k (0)..  def
+newline
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+newline
+/ExitPoint ]pop popVariables %%pop the local variables
+} def
+%%end of function
+

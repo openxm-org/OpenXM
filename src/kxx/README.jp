@@ -1,0 +1,102 @@
+1999, 9/30   Open XM (open protocol for mathematical softwares)
+This is a README file in Japanse.
+
+ソースからの生成法:
+このディレクトリには, open sm1 server:  ox, ox_sm1, を作成するための
+ソースコードがはいっています.
+
+コンパイルには, kan96.tgz (kan/sm1 のソースコード)が必要です.
+以下コンパイルの手順を説明します.
+
+(1) kan96.tgz を ftp.math.kobe-u.ac.jp よりコピー.
+
+(2) kan/sm1 の directory 名を, kan96xx より SSkan に変更.
+    ディレクトリ kxx と SSkan を同じディレクトリの下へおきます.
+    [つまり]
+    ls
+    SSkan kxx
+
+(3) kan の top directory で make all する.
+(4) cd SSkan/Kan してから, make kanlib.a でライブラリを作成.
+
+(5) ディレクトリ kxx で make
+
+    これで次の二つのファイルが作成されます.
+     ox : サーバ.
+     ox_sm1 : open sm1 サーバ.
+     ox_log
+
+oxlog は ctrl-C を block したのちに, xterm, ox などを立ち上げるための
+短いプログラムです.
+
+--------------------------------------------------------------
+make 終了後,
+ox, ox_sm1 , oxlog を /usr/local/lib/sm1 or LOAD_SM1_PATH
+(sm1 のライブラリーのパス) の下の bin におく.
+
+kan/sm1 がこれらを起動する場合, ox.sm1 のなかのライブラリ関数は
+これらを自動的に探すのでなにもする必要ありません.
+(これをおこなわない場合, kan/sm1 の lib/ の下の、 oxasir.sm1, ox.sm1 の
+パス設定の変更が必要.)
+
+asir より ox_sm1 を起動する場合は,
+このディレクトリの xm (昔の callsm1.asir) の
+Sm1_lib 変数をただしく設定するか,
+環境変数
+OpenXM_HOMEを
+$OpenXM_HOME/lib/sm1/
+に sm1 の lib directory が存在するように設定する必要がある.
+xm をロード後, sm1_start() で, ox_sm1 がスタートする.
+
+            以上でインストール終了.
+-------------------------------------------------------------
+
+kan/sm1 より oxasir.sm1 を使用する場合,
+$OpenXM_HOME/lib/asir または /usr/local/lib/asir 
+に, ox_asir, ox_launch (ox_asir へのシンボリックリンク) が必要.
+
+--------------------------------------------------------------
+
+
+正しくインストールされていると次のように動作します.
+
+[nobuki@yama kxx]$ sm1  <== 入力
+
+Kan/StackMachine1                         1991 April --- 1998.
+                              Release 2.990914 (C) N. Takayama
+gc 4.14 (C) Boehm, Demers, GNU MP 2.0.2 (C) Free Software Foundation,
+Open XM. 
+This software may be freely distributed as is with no warranty expressed.
+Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp. ? for help.
+
+Ready
+
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 9/8, 1999. 
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+sm1>(ox.sm1) run ;     <== 入力
+ox.sm1, --- open sm1 protocol module 1/10,1998  (C) N.Takayama. oxhelp for help
+sm1>sm1connectr ;      <== 入力
+Hello from open. serverName is localhost and portnumber is 0
+Done the initialization. port =1024
+Hello from open. serverName is localhost and portnumber is 0
+Done the initialization. port =1026
+[    4 , 1026 , 3 , 1024 ] 
+Trying to accept from localhost... len= 16
+ 4  3  7f  0  0  1  1  0  0  0  22  70  0  40  5  0 
+Authentification: localhost is allowed to be accepted.
+Accepted.
+Trying to accept from localhost... len= 16
+ 4  4  7f  0  0  1  1  0  0  0  22  70  0  40  3  0 
+Authentification: localhost is allowed to be accepted.
+Accepted.
+
+Control port 1024 : Connected.
+
+Stream port 1026 : Connected.
+Byte order for control process is network byte order.
+Byte order for engine process is network byte order.
+The server is binded to the variable ox.ccc
+sm1>ox.ccc 10 oxpushcmo ;     <== 入力
+sm1>ox.ccc oxpopcmo ::        <== 入力
+10                            <== 10 をおくって返してもらった.
+sm1>

@@ -1,0 +1,189 @@
+openXM/install.txt    in Japanese
+As to English version see install.eg.txt
+
+
+★ openXM パッケージの利用方法
+[1] 環境変数 OpenXM_HOME の設定.  
+      ( rc の下にテンプレートあり. これを正しく編集して source コマンド
+        で読み込めばよろしい. 
+        現在は, ホームディレクトリの下に,  openXM を置いたと仮定してる.
+        bash の場合なら,  cd rc ; source bashrc
+        csh  の場合なら,  cd rc ; source cshrc
+        これを実行した場合 [4] は不要.        
+       )
+setenv OpenXM_HOME  openXMへのパス      (Cシェル, tcsh の場合)
+または
+OpenXM_HOME = openXMへのパス            (sh, bash の場合)
+export OpenXM_HOME
+で openXM のホームディレクトリを指定します.
+たとえば,
+  OpenXM_HOME = /home/nobuki/openXM
+  export OpenXM_HOME
+
+[2]
+cd $OpenXM_HOME
+cd src
+make all
+ですべてのバイナリをソースより生成します. phc, ox_asir はバイナリ配布です.
+
+[3]
+~/.asirrc に
+load("gr")$
+load("primdec")$
+end$
+と書いておく.
+
+[4] (または [5])
+環境変数を設定することにより, [5] のように/usr/local へリンクをはれなくてもOK.
+
+[a] ASIR_LIBDIR=$OpenXM_HOME/lib/asir
+[b] LOAD_SM1_PATH=$OpenXM_HOME/lib/sm1
+[c] $OpenXM_HOME/bin をコマンドサーチバスに加える.
+csh の場合 : set path=($OpenXM_HOME/bin $path)
+             rehash
+bash の場合 : PATH=$OpenXM_HOME/bin:$PATH
+              export PATH
+
+
+(LOAD_K_PATH )
+
+または
+[5] 
+以下のように, シンボリックリンクをはって下さい.
+
+ln -s  $OpenXM_HOME/lib/asir /usr/local/lib/asir
+ln -s  $OpenXM_HOME/lib/sm1 /usr/local/lib/sm1
+
+* Open XM 対応 gnuplot を利用したい場合,
+$OpenXM_HOME/bin のしたの gnuplot_x11 へコマンドサーチパスからリンクをはります.
+たとえば
+ln -s OpenXM_HOME/bin/gnuplot_x11 /usr/local/bin
+$OpenXM_HOME/bin/gnuplot_x11 自体を移動するとただしく動作しないので注意.
+* asir を利用したい場合,
+$OpenXM_HOME/bin のしたの asir へコマンドサーチパスからリンクをはります.
+* sm1 を利用したい場合,
+$OpenXM_HOME/bin のしたの sm1 へコマンドサーチパスからリンクをはります.
+
+
+$OpenXM_HOME/bin の下の, fep, phc, asir は, いまのところ
+linux 用のバイナリまたはバイナリへのシンボリックリンクです. 
+Linux 以外の場合はバイナリを入れ換える必要があります.
+
+---------------  インストール完了 ---------------------------
+
+openXM は X-window 上でしか動作しません. 
+
+----------------   例 : asir に kan/sm1  を組み込む.
+asir
+load("xm");
+P=sm1_start();    /* P はプロセス番号 */
+load("katsura");
+sm1_pgb(P,[katsura(4),[u0,u1,u2,u3,u4]]); /* sm1 でグレブナ基底を計算 */
+
+---------------    例 : asir より gnuplot を呼び出す.
+asir
+load("xm");
+P=gnuplot_start();
+gnuplot(P,"plot  tan(x); ");
+gnuplot(P,"splot sin(x)*cos(x); ");
+
+---------------    例 : asir より tigers を呼び出す.
+asir
+load("xm");
+tigers_start();
+B = tigers(0,[[1,1,1,1],[0,1,2,3]]);
+length(B) は 8 です.  これは, 行列 A = [[1,1,1,1],[0,1,2,3]]
+に付随した, toric ideal I_A の Grobner fan が 8 つの maximal
+dimensional fan を持つことを意味します.
+A[i] は i 番目の GB (グレブナ基底)です.
+Binomial polynomial x^a-x^b を [[a_1, ..., a_n],[b_1, ..., b_n]] なる形式で
+表示します.
+たとえば A[0];
+[[[1,0,1,0],[0,2,0,0]],[[1,0,0,1],[0,1,1,0]],[[0,1,0,1],[0,0,2,0]]]
+ですから,
+x1 x3 - x2^2, x1 x4 - x2 x3, x2 x4 - x3^2
+が GB であり, initial ideal は
+x1 x3 , x1 x4 , x2 x4 
+で生成されています.
+
+
+
+[著作権表示] (現在テスト版のため情報が完備してません)
+openXM : url http://www.math.kobe-u.ac.jp/openXM
+sm1 :  作者 Nobuki Takayama, url http://www.math.kobe-u.ac.jp/KAN, 
+       ライセンス形態   ??
+asir :    作者  url
+         ライセンス形態   
+gnuplot : 作者  url
+         ライセンス形態   GPL
+phc : 作者 Jan Verschelde,  url
+         ライセンス形態   
+tigers : 作者 Birk Hubert,  url
+         ライセンス形態   
+
+
+[OpenXM_HOME 下のファイルの構成]
+lib/asir には, asir のライブラリ, ox_asir 本体
+(ox_asir.xxyyzz.os なる名前で格納されています)
+
+lib/sm1 は src/SSkan/Doc への symbolic link
+であり, sm1 のライブラリファイルが格納されています.
+lib/sm1/bin には, binaryfiles
+    sm1, ox_sm1, ox,  ox_log, ox_sm1_*
+へのシンボリックリンクが格納されます.
+このシンボリックリンクは src/kxx で make install を実行することにより
+作成されます.
+
+sm1 が ox_asir を利用するのに必要なファイル.
+   lib/asir/ox_asir, 
+   lib/sm1/bin/ox, lib/sm1/bin/ox_log  (src/kxx/ox, src/kxx/ox_log)
+   lib/sm1/ox.sm1, lib/sm1/oxasir.sm1
+
+asir が ox_sm1_forAsir を利用するのに必要なファイル:
+   lib/asir/ox_launch
+   lib/sm1/bin/ox_sm1_forAsir (ox_sm1 へのリンク)
+   lib/asir/xm  
+   lib/sm1/*.sm1 の全ての cohom ライブラリファイル.
+     callsm1.sm1 callsm1b.sm1 
+     (ox_sm1_forAsir の定義ファイル, src/kxx/oxserver00.c 
+      ox_sm1 が ox_sm1_forAsir という名前で呼ばれるとこれらのファイルをロード.)
+
+asir が ox_sm1_gnuplot を利用するのに必要なファイル:
+    lib/asir/ox_launch
+    lib/sm1/bin/ox_sm1_gnuplot (ox_sm1 へのリンク, ox_sm1_gnuplot は fork して
+                                gnuplot_forox を実行します.)
+    lib/asir/xm  
+    lib/sm1/callsm1.sm1, lib/sm1/gnuplot.sm1
+     (ox_sm1_gnuplot の定義ファイル, src/kxx/oxserver00.c 
+      ox_sm1 が ox_sm1_gnuplot という名前で呼ばれるとこれらのファイルをロード.)
+    bin/gnuplot_forox,  bin/gnuplot_x11  (gnuplot 本体, src/gnuplot*)
+
+   
+
+----------------------------------------
+[開発者用メモ]
+openXM ディレクトリ配布版の作成方法.  (yama, 300CT 上で)
+cd SSkan ; make dist
+cd kxx   ; make dist
+cd asir-xx ; make dist 
+cd k0 ; make dist
+操作チェックは dc1 などの他のマシンで行います.
+(これを一気にやるには yama では makeOpenXMDist : あとで説明)
+
+openXM/src で make clean の後,
+mount-unkei-dc1
+backupdir5b openXM
+で dc1:/export/taka/tmp へ openXM がコピーされます.
+
+(yama の上では, bin/makeOpenXMDist で上の作業をすべて自動でやります.)
+
+yama では, 開発用に 
+  /usr/local/lib/sm1 は /home/nobuki/SSkan/lib への symbolic link,
+  /usr/local/lib/asir は /home/nobuki/openXM/lib/asir への symbolic link,
+となっています.
+  xm は /home/nobuki/asir-xx/xm で開発されています.
+  gnuplot_forox, gnuplot_x11, phc, tigers は 
+   /home/nobuki/openXM/bin の下の物が使用されます.
+
+
+

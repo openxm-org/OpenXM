@@ -1,0 +1,4527 @@
+ /K00_verbose 0 def 
+
+
+%% start of var.sm1.  1997, 2/27
+%%(type in initv to initialize the variable stack and type in test.var to start a test) message
+
+/sm1.var.Verbose 0 def
+/@@@.quiet.var 1 def
+@@@.quiet.var {   }
+{ (var.sm1 (module for debugging):  Version 3/7, 1997. cf. strictMode, debugMode) message } ifelse
+
+/db.initVariableStack {
+  1000 newstack /db.VariableStack set
+} def
+
+
+/localVariables {
+  { dup [ 3 1 roll load ] } map  /db.arg0 set
+  db.VariableStack setstack db.arg0 stdstack
+} def
+
+/restoreVariables {
+  db.VariableStack setstack
+  % dup print
+  { aload pop def } map pop
+  stdstack
+} def
+
+
+
+/db.where {
+  db.VariableStack setstack
+  pstack
+  stdstack
+} def
+
+/db.clear {
+  db.VariableStack setstack
+  /db.arg1 [(StackPointer) ] system_variable 2 sub def
+  %% arg1 print
+  0 1 db.arg1
+  {
+     pop pop
+  } for
+  stdstack
+} def
+
+/db.restore {  %% You cannot use local variable in this function.
+  db.VariableStack setstack
+  /db.arg1 [(StackPointer) ] system_variable 2 sub def
+  0 1 db.arg1
+  {
+     pop /db.variableArray set
+     sm1.var.Verbose { db.variableArray print } { } ifelse
+     db.variableArray isArray 
+     {  db.variableArray length 0 gt
+        { 
+           db.variableArray   { aload pop def } map pop 
+        }
+        { } ifelse
+     }
+     %%% Don't call restoreVariables. Otherwise, stack is set to stdstack.
+     {  } ifelse
+  } for
+  stdstack
+} def
+
+
+
+/db.initDebugStack { 1000 newstack /db.DebugStack set } def
+
+
+/db.where.ds {
+  db.DebugStack setstack
+  pstack
+  stdstack
+} def
+
+/db.clear.ds {
+  db.DebugStack setstack
+  /db.arg1 [(StackPointer) ] system_variable 2 sub def
+  %% arg1 print
+  0 1 db.arg1
+  {
+     pop pop
+  } for
+  stdstack
+} def
+
+
+/db.initErrorStack {
+  [(ErrorStack)] system_variable /db.ErrorStack set 
+} def
+
+/db.where.es {
+  db.ErrorStack setstack
+  /db.arg1 [(StackPointer) ] system_variable 2 sub def
+  %% db.arg1 print
+  0 1 db.arg1
+  {
+     pop rc message
+     %% pop rc message  %% This caused coredump for %%Warning:The identifier...
+     %% This bug was  a mistery. (1997, 3/1)
+     %% Perhaps you do not output dollar sign, you get the core.
+     %% I found the missing "%s" in the function printObject() and fixed the
+     %% bug.
+  } for
+  stdstack
+} def
+
+
+/db.clear.es {
+  db.ErrorStack setstack
+  /db.arg1 [(StackPointer) ] system_variable 2 sub def
+  %% arg1 print
+  0 1 db.arg1
+  {
+     pop pop
+  } for
+  stdstack
+} def
+
+%%% Usages.
+[(resolution)
+ [(Only slow version of resolution is implemented in kan/sm1.)
+  (DMacaulay provides a function to compute resolution in the ring of)
+  (differential operators. See http://www.math.s.kobe-u.ac.jp/KAN)
+ ]
+] putUsages
+
+[(db.where)
+ [(db.where shows the db.VariableStack)
+  (cf. localVariables, restoreVariables,)
+  (    db.clear, db.restore, db.where.ds, db.where.es, debugMode)
+ ]
+] putUsages
+
+[(db.clear)
+ [(db.clear cleans db.VariableStack)
+  (cf.  db.restore, db.where, db.clear.ds, db.clear.es, debugMode)
+ ]
+] putUsages
+
+[(db.restore)
+ [(db.restore recovers bindings of variables by reading db.VariableStack)
+  (cf. localVariables, restoreVariables,)
+  (    db.clear, db.where , debugMode)
+ ]
+] putUsages
+
+[(db.where.ds)
+ [(db.where.ds shows the db.DebugStack)
+  (db.DebugStack is used by kan/k? to get error lines.)
+  (cf. db.clear.ds, db.where, debugMode)
+ ]
+] putUsages
+
+[(db.clear.ds)
+ [(db.clear.ds cleans db.DebugStack)
+  (cf.  db.where.ds, db.clear, debugMode)
+ ]
+] putUsages
+
+[(db.where.es)
+ [(db.where.es shows the db.ErrorStack)
+  (Error and warning messages are put in db.ErrorStack when the global)
+  (variables ErrorMessageMode or WarningMessageMode are set to 1 or 2.)
+  (cf. db.where, system_variable)
+ ]
+] putUsages
+
+[(db.clear.es)
+ [(db.clear.es cleans db.ErrorStack)
+  (cf.  db.clear, db.where.es)
+ ]
+] putUsages
+
+[(localVariables)
+ [(This function is as same as pushVariables, but it pushes the variable to)
+  (db.VariableStack)
+  (cf. db.where, pushVariables, restoreVariables, debugMode)
+ ]
+] putUsages
+
+[(restoreVariables)
+ [(This function is as same as popVariables, but it pops the variable from)
+  (db.VariableStack)
+  (cf. db.where, popVariables, localVariables, debugMode)
+ ]
+] putUsages
+
+/initv { db.initVariableStack db.initDebugStack db.initErrorStack } def
+initv 
+%% (initv is executed.) message
+
+/db.pop.es {
+  db.ErrorStack setstack
+  /db.arg1 set
+  stdstack
+  db.arg1
+} def
+
+/db.pop.ds {
+  db.DebugStack setstack
+  /db.arg1 set
+  stdstack
+  db.arg1
+} def
+
+/db.push.ds {
+  /db.arg1 set
+  db.DebugStack setstack
+  db.arg1
+  stdstack
+} def
+
+
+%%% if you like rigorous naming system execute the following command.
+/strictMode {
+[(Strict2) 1] system_variable
+[(chattrs) 1] extension
+[(chattr) 0 /arg1] extension
+[(chattr) 0 /arg2] extension
+[(chattr) 0 /arg3] extension
+[(chattr) 0 /v1] extension  %% used in join.
+[(chattr) 0 /v2] extension
+[(chattr) 0 /@.usages] extension
+@@@.quiet.var {   }
+{ (var.sm1 : Strict control of the name space is enabled. (cf. extension)) message }
+ifelse
+} def
+[(strictMode) 
+ [(StrictMode enables the protection for an unexpected redefinition)]
+] putUsages
+
+/debugMode {
+ /pushVariables { localVariables } def
+ /popVariables { restoreVariables } def
+} def
+[(debugMode)
+ [(debugMode overrides on the functions pushVariables and popVariables)
+  (and enables to use db.where)
+ ]
+] putUsages
+
+%%%% Test Codes.
+/foo1 {
+  /arg1 set
+  [/n /val] localVariables
+  /n arg1 def
+  n 2 le 
+  {
+     /val 1 def
+  }
+  {
+     /val n 1 sub  foo1 n 2 sub foo1 add def
+  } ifelse
+  /arg1 val def
+  restoreVariables
+  arg1
+} def
+
+/test.var.1 {
+  (Now, we are testing new features ErrorStack of sm1 (1997, 3/1 )...) message
+  (ErrorStack:) message
+  [(ErrorStack)] system_variable /db.ErrorStack set
+  db.ErrorStack message
+  db.ErrorStack lc message
+  db.ErrorStack rc message
+  (ErrorMessageMode:) message
+  [(ErrorMessageMode)] system_variable message
+  [(ErrorMessageMode) 2 ] system_variable 
+  [(WarningMessageMode) 2 ] system_variable 
+  [(ErrorMessageMode)] system_variable message
+
+  (Cause an error with the mode 1) message
+  0 1 get     %% The macro  breaks here.
+  0 2 get
+  db.where.es
+  db.clear.es
+  db.where.es  
+
+  [(ErrorMessageMode) 0 ] system_variable 
+  [(ErrorMessageMode)] system_variable message
+
+  (Cause an error with the mode 0) message
+  0 1 get 
+  0 2 get
+  db.where.es
+} def
+
+/test.var {
+  (Now, we are testing new features <<gb>> of sm1 (1997, 3/1 )...) message
+  [(x,y) ring_of_polynomials ( ) elimination_order 0] define_ring 
+  [(isReducible) (x^2 y). (x y).] gb message
+  [(lcm) (x y). (y^2).] gb message
+  [(grade) (x^2 y). ] gb message
+  ( --- 1 , xy^2,  3  OK? ----) message
+  (Computing isReducible for 1000 times.... ) messagen
+  { 1 1 1000   { pop [(isReducible) (x^2 y). (x y).] gb pop } for 
+     ( ) message } timer
+  (Done) message
+} def
+%%% end of test codes.
+%% end of var.sm1
+
+
+
+
+
+
+
+%%  incmac.sm1 ,   1996, 4/2.
+%% macros for the translator.
+%%% /goto { pop } def  %% should be changed later.
+%( incmac.sm1: 4/16, 1997 ) messagen 
+%% Note that you cannot use incmac.k as an argument of the local function.
+%% BUG: [/incmac.k] pushvarable was [/k] pushVariables, but it caused 
+%% error when you try to run a program foo(k) { for (i=0; i<k; i++) ... }.
+/mapset {
+  /arg2 set /arg1 set
+  [/incmac.k ] pushVariables
+  0 1 arg1 length 1 {sub} primmsg {
+    /incmac.k set
+    arg1 incmac.k get
+    arg2 incmac.k get
+    set
+  } for
+  popVariables
+} def
+
+%%%  a [i] b Put  <=== a[i] = b;
+%%%  a [i] Get    <=== a[i]
+/a [[1 2] [3 4]] def
+/@@@.indexMode {
+0 eq {  %%% C-style
+ /@@@.indexMode.flag  0 def
+ /Get {
+ /arg2 set
+ /arg1 set
+ [/incmac.k ] pushVariables
+ [
+   arg1
+   0 1 arg2 length 1 {sub} primmsg {
+      /incmac.k set
+      arg2 incmac.k get ..int get
+   } for
+   /arg1 set
+  ] pop 
+  popVariables
+  arg1
+ } def
+
+ /Put {
+ /arg3 set
+ /arg2 set
+ /arg1 set
+ [/incmac.k ] pushVariables
+ arg1 
+ [ 0 1 arg2 length 1 {sub} primmsg {
+     /incmac.k set
+     arg2 incmac.k get ..int
+   } for
+ ] arg3 put
+ popVariables
+ } def
+} { %% else
+  (Warning: Do not use indexmode 1.) message
+  (Warning: Do not use indexmode 1.) message
+ /@@@.indexMode.flag  1 def
+ /Get {
+ /arg1 set
+ [/incmac.k ] pushVariables
+ [
+   arg1 0 get load
+   1 1 arg1 length 1 {sub} primmsg {
+      /incmac.k set
+      arg1 incmac.k get ..int 1 {sub} primmsg get
+   } for
+   /arg1 set
+  ] pop 
+  popVariables
+  arg1
+ } def
+
+ /Put {
+ /arg2 set
+ /arg1 set
+ [/incmac.k ] pushVariables
+ arg1 0 get load
+ [ 1 1 arg1 length 1 {sub} primmsg {
+     /incmac.k set
+     arg1 incmac.k get ..int 1 {sub} primmsg
+   } for
+ ] arg2 put
+ popVariables
+ } def
+} ifelse
+} def
+
+0 @@@.indexMode   %% Default index mode is C-style
+
+
+
+
+%%%%%%%%%%%%  1996, 4/28
+%% (2).. NewVector
+/NewVector {
+  0 get /arg1 set
+  pop  %% remove this
+  arg1 (integer) dc /arg1 set
+  [ 1 1 arg1 { pop (0).. } for ]
+} def
+
+%% (2).. (3).. NewMatrix
+/NewMatrix {
+  dup 0 get /arg1 set  
+      1 get /arg2 set
+  pop  %% remove this  
+  arg1 (integer) dc /arg1 set
+  arg2 (integer) dc /arg2 set
+  [1 1 arg1 { pop this [arg2] NewVector } for ]
+} def
+
+/Join {
+  2 -1 roll pop %% remove this.
+  aload pop join
+} def
+
+
+
+/lessThanOrEqual {
+  /arg2 set /arg1 set
+  arg1 arg2 lt { 1 }
+  { arg1 arg2 eq {1} {0} ifelse} ifelse
+} def
+
+%%% For objects
+/this null def
+/PrimitiveContextp StandardContextp def
+/PrimitiveObject  [PrimitiveContextp]  def
+
+/showln { pop message } def
+
+/KxxTrash0 {  % we do not need.
+/k.mapReplace {  {[[(h). (1).]] replace} map } def
+/Dehomogenize {
+  0 get /arg1 set
+  [
+    arg1 isArray not { arg1 [[(h). (1).]] replace } 
+    { arg1 0 get isArray not { arg1 k.mapReplace }
+                             { arg1 {k.mapReplace} map } ifelse
+    } ifelse
+    /arg1 set
+  ] pop
+  arg1
+} def
+} def
+
+
+
+
+
+
+K00_verbose  %% if-condition
+  { %%ifbody
+  ( slib.k (slib.ccc): 8/17,1996, 3/4 -- 3/10,1997 ) message    }%%end if if body
+  { %%if- else part
+  } ifelse
+[   ] /Helplist  set
+/HelpAdd {
+ db.DebugStack setstack $In function : HelpAdd of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /s  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+Helplist s ] {Append} sendmsg2 
+/Helplist  set
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/Print {
+ db.DebugStack setstack $In function : Print of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   messagen /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Println {
+ db.DebugStack setstack $In function : Println of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   message /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Ln {
+ db.DebugStack setstack $In function : Ln of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+  ( ) message /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Poly {
+ db.DebugStack setstack $In function : Poly of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   expand /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/PolyR {
+ db.DebugStack setstack $In function : PolyR of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /r  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f  r   ,, /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Degree {
+ db.DebugStack setstack $In function : Degree of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /v  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f  v   degree (universalNumber) dc /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Append {
+ db.DebugStack setstack $In function : Append of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /g  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+f [ g   ] ] {Join} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Length {
+ db.DebugStack setstack $In function : Length of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   length (universalNumber) dc /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Indexed {
+ db.DebugStack setstack $In function : Indexed of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /name /i  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ name  i   s.Indexed /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Indexed2 {
+ db.DebugStack setstack $In function : Indexed2 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /name /i /j  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ name  i  j   s.Indexed2 /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Transpose {
+ db.DebugStack setstack $In function : Transpose of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /mat  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ mat   transpose /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+ 
+/s.Indexed {
+  (integer) dc /arg2 set
+  /arg1 set
+  arg1 ([) arg2 (dollar) dc (]) 4 cat_n
+} def
+
+/s.Indexed2 {
+  (integer) dc /arg3 set
+  (integer) dc /arg2 set
+  /arg1 set
+  arg1 ([) arg2 (dollar) dc (,) arg3 (dollar) dc (]) 6 cat_n
+} def
+ /Groebner {
+ db.DebugStack setstack $In function : Groebner of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /F  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ F   {[[(h). (1).]] replace homogenize} map /arg1 set
+                            [arg1] groebner 0 get 
+                            /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/GroebnerTime {
+ db.DebugStack setstack $In function : GroebnerTime of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /F  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ F   {[[(h). (1).]] replace homogenize} map /arg1 set
+                            { [arg1] groebner 0 get } timer
+                            /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/LiftStd {
+ db.DebugStack setstack $In function : LiftStd of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /F  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ F   {[[(h). (1).]] replace homogenize} map /arg1 set
+                            [arg1 [(needBack)]] groebner 
+                            /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Reduction {
+ db.DebugStack setstack $In function : Reduction of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /G  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f  G   reduction /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IntegerToSm1Integer {
+ db.DebugStack setstack $In function : IntegerToSm1Integer of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   (integer) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/RingD {
+ db.DebugStack setstack $In function : RingD of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /vList /weightMatrix /pp  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/new0 /tmp /size /n /i /j /newtmp /ringpp /argsize ] pushVariables [ %%local variables
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+/argsize  set
+argsize (1)..  eq
+ %% if-condition
+  { %%ifbody
+ [  vList  ring_of_differential_operators ( ) elimination_order 0 ] define_ring
+         /tmp set  tmp  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+argsize (2)..  eq
+ %% if-condition
+  { %%ifbody
+(0).. /pp  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+pp ] {IntegerToSm1Integer} sendmsg2 
+/pp  set
+this [ %% function args 
+weightMatrix ] {Length} sendmsg2 
+/size  set
+this [ %% function args 
+size ] {NewVector} sendmsg2 
+/new0  set
+  /@@@.indexMode.flag.save @@@.indexMode.flag def    0 @@@.indexMode  (0).. %%PSfor initvalue.
+ (integer) data_conversion 
+size  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+weightMatrix [i  ]  Get
+/tmp  set
+this [ %% function args 
+tmp ] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+n ] {NewVector} sendmsg2 
+/newtmp  set
+(1).. /j  set
+%%for init.
+%%for
+{ j n  lt
+ {  } {exit} ifelse
+[ {%%increment
+j (2)..  {add} sendmsg2 
+/j  set
+} %%end of increment{A}
+{%%start of B part{B}
+newtmp [j (1)..  {sub} sendmsg2 
+ ] tmp [j (1)..  {sub} sendmsg2 
+ ]  Get
+ Put
+newtmp [j  ] this [ %% function args 
+tmp [j  ]  Get
+] {IntegerToSm1Integer} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+new0 [i  ] newtmp  Put
+  } for 
+ [  vList  ring_of_differential_operators   new0   weight_vector  pp   ] define_ring /ringpp  set
+  @@@.indexMode.flag.save @@@.indexMode  ringpp  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/getxvar {
+ db.DebugStack setstack $In function : getxvar of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /i  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(x) (var)   i   ..int ] system_variable /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/getdvar {
+ db.DebugStack setstack $In function : getdvar of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /i  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(D) (var)   i   ..int ] system_variable /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/getvarn {
+ db.DebugStack setstack $In function : getvarn of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+ [(N)] system_variable (universalNumber) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+true /SetRingVariables_Verbose  set
+/SetRingVariables {
+ db.DebugStack setstack $In function : SetRingVariables of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(SetRingVariables() Setting the global variables : ) ] {Print} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+(0)..  [(CC)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
+this [ %% function args 
+ [(C)] system_variable (universalNumber) dc   [(LL)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
+this [ %% function args 
+ [(L)] system_variable (universalNumber) dc   [(MM)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
+this [ %% function args 
+ [(M)] system_variable (universalNumber) dc   [(NN)] system_variable (universalNumber) dc  ] {k00setRingVariables} sendmsg2 
+SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/k00AreThereLeftBrace {
+ db.DebugStack setstack $In function : k00AreThereLeftBrace of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /s  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/leftBrace /jj /slist ] pushVariables [ %%local variables
+  $[$ (array) dc 0 get (universalNumber) dc  /leftBrace  set
+this [ %% function args 
+this [ %% function args 
+s ] {StringToIntegerArray} sendmsg2 
+leftBrace ] {Position} sendmsg2 
+/jj  set
+jj (1)..  (0)..  2 1 roll {sub} sendmsg 
+ eq not
+ %% if-condition
+  { %%ifbody
+true  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
+  } ifelse
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/k00setRingVariables {
+ db.DebugStack setstack $In function : k00setRingVariables of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /tmp002_p /tmp002_q  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/tmp002_i /tmp002_v /tmp002_str ] pushVariables [ %%local variables
+tmp002_p %%PSfor initvalue.
+ (integer) data_conversion 
+tmp002_q  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /tmp002_i  set 
+this [ %% function args 
+tmp002_i ] {getxvar} sendmsg2 
+/tmp002_v  set
+this [ %% function args 
+tmp002_v ] {k00AreThereLeftBrace} sendmsg2 
+ %% if-condition
+  { %%ifbody
+  }%%end if if body
+  { %%if- else part
+SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+tmp002_v ] {Print} sendmsg2 
+this [ %% function args 
+( ) ] {Print} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+[ (/) tmp002_v ( $) tmp002_v ($ expand def )   ] ] {AddString} sendmsg2 
+/str  set
+ [(parse)   str   ] extension    } ifelse
+this [ %% function args 
+tmp002_i ] {getdvar} sendmsg2 
+/tmp002_v  set
+this [ %% function args 
+tmp002_v ] {k00AreThereLeftBrace} sendmsg2 
+ %% if-condition
+  { %%ifbody
+  }%%end if if body
+  { %%if- else part
+SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+tmp002_v ] {Print} sendmsg2 
+this [ %% function args 
+( ) ] {Print} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+[ (/) tmp002_v ( $) tmp002_v ($ expand def )   ] ] {AddString} sendmsg2 
+/str  set
+ [(parse)   str   ] extension    } ifelse
+  } for 
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/AddString {
+ db.DebugStack setstack $In function : AddString of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f    aload length cat_n /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IntegerToString {
+ db.DebugStack setstack $In function : IntegerToString of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   (string) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Replace {
+ db.DebugStack setstack $In function : Replace of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /rule  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f  rule   replace /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/AsciiToString {
+ db.DebugStack setstack $In function : AsciiToString of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /c  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ c   (integer) dc (string) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ToString {
+ db.DebugStack setstack $In function : ToString of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /p  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/n /ans /i ] pushVariables [ %%local variables
+[   ] /ans  set
+this [ %% function args 
+p ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+p ] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+ans ([ ) ] {Append} sendmsg2 
+/ans  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+ans this [ %% function args 
+p [i  ]  Get
+] {ToString} sendmsg2 
+] {Append} sendmsg2 
+/ans  set
+i n (1)..  {sub} sendmsg2 
+ eq not
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+ans ( , ) ] {Append} sendmsg2 
+/ans  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+this [ %% function args 
+ans ( ] ) ] {Append} sendmsg2 
+/ans  set
+  }%%end if if body
+  { %%if- else part
+[  p   (dollar) dc    ] /ans  set
+  } ifelse
+this [ %% function args 
+ans ] {AddString} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IsArray {
+ db.DebugStack setstack $In function : IsArray of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /p  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ p   isArray /FunctionValue set   /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Denominator {
+ db.DebugStack setstack $In function : Denominator of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   (denominator) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Numerator {
+ db.DebugStack setstack $In function : Numerator of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   (numerator) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Replace {
+ db.DebugStack setstack $In function : Replace of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /rule  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /n /tmp /i /num /den ] pushVariables [ %%local variables
+this [ %% function args 
+f ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+f ] {Length} sendmsg2 
+/n  set
+[   ] /ans  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+ans this [ %% function args 
+f [i  ]  Get
+rule ] {Replace} sendmsg2 
+] {Append} sendmsg2 
+/ans  set
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ f   tag RationalFunctionP eq   %% if-condition
+  { %%ifbody
+this [ %% function args 
+f ] {Numerator} sendmsg2 
+/num  set
+this [ %% function args 
+f ] {Denominator} sendmsg2 
+/den  set
+ num  rule   replace  /num  set
+ den  rule   replace  /den  set
+num den  {div} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ f  rule   replace /FunctionValue set  /ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Map {
+ db.DebugStack setstack $In function : Map of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /karg /func  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ karg   { [ 2 -1 roll ] this 2 -1 roll [(parse)   func   ] extension pop } map /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Map) [ (Map(karg,func) applies the function <<func>> to the <<karg>>(string func).) ( Ex. Map([82,83,85],"AsciiToString"):)   ]   ] ] {HelpAdd} sendmsg2 
+/Position {
+ db.DebugStack setstack $In function : Position of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /list /elem  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/n /pos /i ] pushVariables [ %%local variables
+this [ %% function args 
+list ] {Length} sendmsg2 
+/n  set
+(1)..  (0)..  2 1 roll {sub} sendmsg 
+/pos  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+elem list [i  ]  Get
+ eq
+ %% if-condition
+  { %%ifbody
+i /pos  set
+  /k00.label0 goto    }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+  /k00.label0  pos  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Position) [ (Position(list,elem) returns the position p of the element <<elem>> in) ( the array <<list>>. If <<elem>> is not in <<list>>, it return -1) ( (array list).) (Ex. Position([1,34,2],34): )   ]   ] ] {HelpAdd} sendmsg2 
+/StringToIntegerArray {
+ db.DebugStack setstack $In function : StringToIntegerArray of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /s  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ s   (array) dc { (universalNumber) dc } map /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (StringToIntegerArray) [ (StringToIntegerArray(s) decomposes the string <<s>> into an array of) (ascii codes of <<s>>  (string s).) (cf. AsciiToString.)   ]   ] ] {HelpAdd} sendmsg2 
+/StringToAsciiArray {
+ db.DebugStack setstack $In function : StringToAsciiArray of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /s  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+s ] {StringToIntegerArray} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (StringToAsciiArray) [ (StringToAsciiArray(s) is StringToIntegerArray(s).)   ]   ] ] {HelpAdd} sendmsg2 
+/NewArray {
+ db.DebugStack setstack $In function : NewArray of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /n  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+n ] {NewVector} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (NewArray) [ (NewArray(n) returns an array of size n (integer n).)   ]   ] ] {HelpAdd} sendmsg2 
+%% This package requires kan/sm1 version 951228 or later.
+%% The binary file of kan/sm1 of this version is temporary obtainable from
+%% ftp.math.s.kobe-u.ac.jp. The file /pub/kan/sm1.binary.sunos4.3.japanese
+%% is for sun with JLE.
+%% How to Install
+%% 1.Copy this file and rename it to sm1 (mv sm1.binary.sunos4.3.japanese sm1).
+%% 2.Add executable property (chmod +x sm1).
+
+
+%% NEW feature of factor-b.sm1.  [ ---> kanLeftBrace, ] ---> kanRightBrace
+{
+(factor-b.sm1 : kan/sm1 package to factor polynomials by calling risa/asir.)
+message
+(             : kan/sm1 package to simplify rationals by calling risa/asir.)
+message
+(                 CANCEL HAS NOT BEEN TESTED.) message
+(             : kan/sm1 package to compute hilbert polynomials by calling sm0.)
+message
+(               Version March 5, 1997. It runs on kan/sm1 version 951228 or later.) message
+}
+
+[(factor)
+ [(polynomial factor list_of_strings)
+  (Example: (x^2-1). factor :: ---> [[$1$ $1$] [$x-1$ $1$] [$x+1$ $1$]])
+  (cf.:     data_conversion, map, get, pushfile)
+  (Note:    The function call creates work files asir-tmp.t, asir-tmp.tt,)
+  (          asir-tmp-out.t, asir-tmp-log.t and asir-tmp-out.tt )
+  (          in the current directory.)
+ ]
+] putUsages
+
+%% /f (Dx^10*d*a-d*a) def
+
+/factor-asir-1 {
+ /arg1 set
+ [/f /fd /fnewline] pushVariables
+ [
+  arg1 /f set
+  %%(factor-asir-1 is tested with Asir version 950831 on Linux.) message
+  (asir-tmp.t) (w) file /fd set
+  /fnewline { fd 10 (string) data_conversion writestring } def
+  fd $output("asir-tmp-out.t");$ writestring fnewline
+  fd $fctr($ writestring 
+  fd  f writestring
+  fd $); output(); quit(); $ writestring fnewline
+  fd closefile
+  (/bin/rm -f asir-tmp.tt) system
+  (sed "s/D/kanD/g" asir-tmp.t | sed "s/E/kanE/g" | sed "s/Q/kanQ/g" | sed "s/\[/kanLeftBrace/g" | sed "s/\]/kanRightBrace/g" | sed "s/\,/kanComma/g" >asir-tmp.tt) system
+  (/bin/rm -f asir-tmp-out.t asir-tmp-out.tt asir-tmp-log.t) system
+  (asir <asir-tmp.tt >asir-tmp-log.t) system
+  (sed "s/\[1\]/ /g" asir-tmp-out.t | sed "s/\[2\]/ /g" | sed "1s/1/ /g"| sed "s/\[/{/g" | sed "s/\]/}/g" | sed "s/kanD/D/g" | sed "s/kanE/E/g" | sed "s/kanQ/Q/g" | sed "s/kanLeftBrace/\[/g" | sed "s/kanRightBrace/\]/g" | sed "s/kanComma/\,/g" >asir-tmp-out.tt) system
+ ] pop
+ popVariables
+} def
+
+/clean-workfiles {
+ (/bin/rm -f asir-tmp-out.t asir-tmp-out.tt asir-tmp.t asir-tmp.tt sm0-tmp.t sm0-tmp-out.t asir-tmp-log.t sm0-tmp-out.tt) system
+} def
+
+
+%% comment: there is not data conversion function from string --> array
+%%                           e.g. (abc) ---> [0x61, 0x62, 0x63]
+%%          We can do (abc) 1 10 put, but "get" does not work for strings.
+
+%% f factor-asir-1
+
+%%/aaa 
+%% ({{1,1},{x-1,1},{x+1,1},{x^4+x^3+x^2+x+1,1},{x^4-x^3+x^2-x+1,1}})
+%%def
+
+/asir-list-to-kan {
+  /arg1 set
+  [/aaa /ftmp /ftmp2] pushVariables
+  [
+    /aaa arg1 def
+    [ aaa to_records pop ] /ftmp set
+    ftmp { to_records pop [ 3 1 roll ] } map /ftmp2 set
+    /arg1 ftmp2 def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/foo {
+  (input string is in f) message
+  f ::
+  f factor-asir-1
+  %% (asir-tmp-out.tt) run 
+  %% (answer in @asir.out) message
+  %% bug of run.
+  (asir-tmp-out.tt) pushfile /@asir.out set
+  @asir.out asir-list-to-kan /ff2 set
+  (answer in ff2) message
+} def
+
+/factor {
+  (string) data_conversion
+  factor-asir-1
+  (asir-tmp-out.tt) pushfile asir-list-to-kan
+} def
+
+%%%%%%%%%%%%%%%%% macros for simplification (reduction, cancel)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[(cancel)
+ [(polynomial cancel list_of_strings)
+  (This function simplifies rationals.)
+  (Example: $x^2-1$. $x+1$. div cancel :: ---> [[$x-1$ , $1$]])
+  (Note:    The function call creates work files asir-tmp.t, asir-tmp.tt,)
+  (          asir-tmp-out.t, asri-tmp-log.t and asir-tmp-out.tt )
+  (          in the current directory.)
+ ]
+] putUsages
+
+/reduce-asir-1 {
+ /arg1 set
+ [/f /fd /fnewline] pushVariables
+ [
+  arg1 /f set
+  %% (reduce-asir-1 is tested with Asir version 950831 on Linux.) message
+  (asir-tmp.t) (w) file /fd set
+  /fnewline { fd 10 (string) data_conversion writestring } def
+  fd $output("asir-tmp-out.t");$ writestring fnewline
+  fd $AsirTmp012=red($ writestring 
+  fd  f writestring
+  fd $)$ writestring 
+  fd ($ )  writestring fnewline
+  fd $[[nm(AsirTmp012), dn(AsirTmp012)]];output();quit(); $ writestring fnewline
+  fd closefile
+  (/bin/rm -f asir-tmp.tt) system
+  (sed "s/D/kanD/g" asir-tmp.t | sed "s/E/kanE/g" | sed "s/Q/kanQ/g" >asir-tmp.tt) system
+  (/bin/rm -f asir-tmp-out.t asir-tmp-out.tt asir-tmp-log.t) system
+  (asir <asir-tmp.tt >asir-tmp-log.t) system
+  (sed "s/\[1\]/ /g" asir-tmp-out.t | sed "s/\[2\]/ /g" |sed "s/\[3\]/ /g" | sed "1s/1/ /g"| sed "s/\[/{/g" | sed "s/\]/}/g" | sed "s/kanD/D/g" | sed "s/kanE/E/g" | sed "s/kanQ/Q/g" | sed "s/kanLeftBrace/\[/g" | sed "s/kanRightBrace/\]/g" | sed "s/kanComma/\,/g" >asir-tmp-out.tt) system
+ ] pop
+ popVariables
+} def
+
+/cancel {
+  (string) data_conversion
+  reduce-asir-1
+  (asir-tmp-out.tt) pushfile asir-list-to-kan
+} def
+%%%%%%%%%%%%%%%%% macros for Hilbert functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/hilbert {
+ /arg2 set
+ /arg1 set
+ [/bases /vars] pushVariables
+ [
+   /bases arg1 def
+   /vars arg2 def
+   bases {init (string) data_conversion} map /bases set
+   bases vars execSm0
+
+   (sed '1s/^\$/{/g' sm0-tmp-out.t | sed '1s/\$$/ , /g' | sed '2s/^\$//g' | sed '2s/\$$/}/g' | sed 's/V//g' >sm0-tmp-out.tt) system
+ ] pop
+ popVariables
+ [ (sm0-tmp-out.tt) pushfile to_records pop]
+} def
+[(hilbert)
+ [(------------------------------------------------------------------------)
+  (list_of_polynomials variables hilbert hilbert_function)
+  (Example: [(x^2-1). (x y -2).] (x,y)  hilbert :: ---> [$...$ $,,,$] )
+  (cf.:     data_conversion, map, get, pushfile)
+  (Note:    The function call creates work files sm0-tmp.t, sm0-tmp-out.tt,)
+  (         sm0-tmp-log.t and sm0-tmp-out.t in the current directory.)
+ ]
+] putUsages
+
+
+%% Ex. [(x^2) (y^3) (x y)] (x,y) execSm0
+/execSm0 {
+ /arg2 set
+ /arg1 set
+ [/monoms /fd /tmp /vars] pushVariables
+ [
+  /monoms arg1 def
+  /vars arg2 def
+  (/bin/rm -f sm0-tmp-out.t sm0-tmp-out.tt sm0-tmp-log.t) system
+  (sm0-tmp.t) (w) file /fd set
+  fd ( ${-p,0}$ options ) writestring
+  fd ( $) writestring
+  ${$ vars $}$ 3 cat_n /tmp set
+  fd tmp writestring
+  fd ($  ) writestring
+  fd ( polynomial_ring set_up_ring ${-proof}$ options ) writestring
+  fd monoms writeArray
+  fd ( /ff =  ff yaGroebner /gg = gg hilbert2 /ans = ) writestring
+  fd (ans :: ans decompose $sm0-tmp-out.t$ printn_to_file quit) writestring
+  fd closefile
+  (sm0 -f sm0-tmp.t >sm0-tmp-log.t) system
+  (When the output is [$ a V^k + ... $ $p!$], the multiplicity is ) message
+  $               (k! a)/p! $ message
+  (    ) message
+ ] pop
+ popVariables
+} def
+
+
+/writeArray {
+  /arg2 set /arg1 set
+  [/fd /arr /k] pushVariables
+  [ /fd arg1 def
+    /arr arg2 def
+    fd ([ ) writestring
+    0 1 arr length 1 sub
+    {
+      /k set
+      fd ($ ) writestring
+      fd arr k get writestring
+      fd ($     ) writestring
+    } for
+    fd ( ] ) writestring
+  ] pop
+  popVariables
+} def
+
+
+
+%%(Loaded macros "factor", "hilbert".) message
+
+[(primadec)
+ [([polynomials] [variables] primadec list_of_strings)
+  (cf.:     data_conversion, map, get, pushfile)
+  (Note:    The function call creates work files asir-tmp.t, asir-tmp.tt,)
+  (          asir-tmp-out.t, asir-tmp-log.t and asir-tmp-out.tt )
+  (          in the current directory.)
+ ]
+] putUsages
+
+
+/sendcommand-to-asir2 {  %% arg1 arg2  command  sendcommand-to-asir2
+ /arg3 set /arg2 set /arg1 set
+ [/f /fd /fnewline /com /g] pushVariables
+ [
+  arg1 /f set  arg2 /g set arg3 /com set 
+  (asir-tmp.t) (w) file /fd set
+  /fnewline { fd 10 (string) data_conversion writestring } def
+  fd $load("gr"); load("primdec"); output("asir-tmp-out.t");$ writestring fnewline
+  fd com $($ 2 cat_n writestring 
+  fd f writestring
+  fd $,$ writestring
+  fd g writestring
+  fd $); output(); quit(); $ writestring fnewline
+  fd closefile
+  (/bin/rm -f asir-tmp.tt) system
+  (sed "s/D/kanD/g" asir-tmp.t | sed "s/E/kanE/g" | sed "s/Q/kanQ/g"  >asir-tmp.tt) system
+  (/bin/rm -f asir-tmp-out.t asir-tmp-out.tt asir-tmp-log.t) system
+  (asir <asir-tmp.tt >asir-tmp-log.t) system
+  (sed "s/\[147\]/ /g" asir-tmp-out.t | sed "s/\[148\]/ /g" | sed "1s/1/ /g"| sed "s/kanD/D/g" | sed "s/kanE/E/g" | sed "s/kanQ/Q/g"  >asir-tmp-out.tt) system
+ ] pop
+ popVariables
+} def
+
+/clean-workfiles {
+ (/bin/rm -f asir-tmp-out.t asir-tmp-out.tt asir-tmp.t asir-tmp.tt sm0-tmp.t sm0-tmp-out.t asir-tmp-log.t sm0-tmp-out.tt) system
+} def
+
+
+/asir-list-to-kan {
+  /arg1 set
+  [/aaa /ftmp /ftmp2] pushVariables
+  [
+    /aaa arg1 def
+    [ aaa to_records pop ] /ftmp set
+    ftmp { to_records pop [ 3 1 roll ] } map /ftmp2 set
+    /arg1 ftmp2 def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/primadec {
+  /arg2 set /arg1 set
+  [/f /g] pushVariables
+  [
+    /f arg1 def /g arg2 def
+    f { (string) dc removeBrace } map  toString  
+    g { (string) dc removeBrace } map toString (primadec)
+    sendcommand-to-asir2
+    (asir-tmp-out.tt) pushfile asir-list-to-kan /arg1
+  ]  pop popVariables
+  arg1
+} def
+
+/removeBrace {  %% string removeBrace string
+ %% (z[1]^2-1) removeBrace (z_1 ^2-1)
+  /arg1 set
+  [/f /i /ans /fa] pushVariables
+  [
+    /f arg1 def f 1 copy /f set
+    f (array) dc /fa set
+    0 1 fa length 1 sub {
+      /i set
+      fa i get  91 eq
+      {  f i 95 put }
+      {        } ifelse
+      fa i get 93 eq 
+      {  f i 32 put }
+      {         } ifelse
+    } for
+    % fa aload length cat_n /arg1 set %% This may cause operand stack overflow.
+    f /arg1 set  
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+
+
+
+
+
+
+K00_verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(help.k (help.ccc).  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 4/29, 1997.) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+/help {
+ db.DebugStack setstack $In function : help of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /x  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+(1)..  lt
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ) ] {ShowKeyWords} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+this [ %% function args 
+x ] {Help} sendmsg2 
+  } ifelse
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Help {
+ db.DebugStack setstack $In function : Help of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /key  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/n /i /item /m /item1 /j ] pushVariables [ %%local variables
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+(1)..  lt
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ) ] {ShowKeyWords} sendmsg2 
+[   ]  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+key (ALL)  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+(ALL) ] {ShowKeyWords} sendmsg2 
+(0)..  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+Helplist ] {Length} sendmsg2 
+/n  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+Helplist [i  ]  Get
+/item  set
+item [(0)..  ]  Get
+key  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+item [(1)..  ]  Get
+] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+item [(1)..  ]  Get
+/item1  set
+this [ %% function args 
+item1 ] {Length} sendmsg2 
+/m  set
+(0).. /j  set
+%%for init.
+%%for
+{ j m  lt
+ {  } {exit} ifelse
+[ {%%increment
+/j j (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+item1 [j  ]  Get
+] {Println} sendmsg2 
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+  }%%end if if body
+  { %%if- else part
+this [ %% function args 
+item [(1)..  ]  Get
+] {Println} sendmsg2 
+  } ifelse
+item  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } for 
+this [ %% function args 
+(The key word <<) ] {Print} sendmsg2 
+this [ %% function args 
+key ] {Print} sendmsg2 
+this [ %% function args 
+(>> could not be found.) ] {Println} sendmsg2 
+[   ]  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ShowKeyWords {
+ db.DebugStack setstack $In function : ShowKeyWords of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /ss  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/i /j /n /keys /max /width /m /k /kk /tmp0 ] pushVariables [ %%local variables
+this [ %% function args 
+] {Ln} sendmsg2 
+this [ %% function args 
+Helplist ] {Length} sendmsg2 
+/n  set
+[ ( )   ] /keys  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+keys Helplist [i (0)..  ]  Get
+] {Append} sendmsg2 
+/keys  set
+  } for 
+ keys   shell  /keys  set
+this [ %% function args 
+keys ] {Length} sendmsg2 
+/n  set
+ss (ALL)  eq
+ %% if-condition
+  { %%ifbody
+(1).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+(# ) ] {Print} sendmsg2 
+this [ %% function args 
+keys [i  ]  Get
+] {Print} sendmsg2 
+this [ %% function args 
+] {Ln} sendmsg2 
+this [ %% function args 
+keys [i  ]  Get
+] {Help} sendmsg2 
+this [ %% function args 
+] {Ln} sendmsg2 
+  } for 
+(0)..  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+(0).. /max  set
+(1).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+max  gt
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+/max  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } for 
+max (3)..  {add} sendmsg2 
+/max  set
+(80).. /width  set
+(0).. /m  set
+
+%%while
+{ m max  {mul} sendmsg2 
+(80)..  lt
+ { } {exit} ifelse
+ m (1)..  {add} sendmsg2 
+/m  set
+} loop
+m (1)..  gt
+ %% if-condition
+  { %%ifbody
+m (1)..  {sub} sendmsg2 
+/m  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+(0).. /k  set
+(0).. /kk  set
+(1).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+keys [i  ]  Get
+] {Print} sendmsg2 
+kk (1)..  {add} sendmsg2 
+/kk  set
+k this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+ {add} sendmsg2 
+/k  set
+max this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+ {sub} sendmsg2 
+/tmp0  set
+k tmp0  {add} sendmsg2 
+/k  set
+kk m  lt
+ %% if-condition
+  { %%ifbody
+  [ 0 1   tmp0   (integer) dc 1 sub { pop $ $ } for ] aload length cat_n messagen    }%%end if if body
+  { %%if- else part
+  } ifelse
+kk m  greaterThanOrEqual
+ %% if-condition
+  { %%ifbody
+(0).. /kk  set
+(0).. /k  set
+this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } for 
+this [ %% function args 
+] {Ln} sendmsg2 
+this [ %% function args 
+(Type in Help(keyword);  to see a help message (string keyword).) ] {Println} sendmsg2 
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ShowKeyWordsOfSm1 {
+ db.DebugStack setstack $In function : ShowKeyWordsOfSm1 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /ss  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/i /j /n /keys /max /width /m /k /kk /tmp0 ] pushVariables [ %%local variables
+this [ %% function args 
+] {Ln} sendmsg2 
+  /help_Sm1Macro @.usages def  this [ %% function args 
+help_Sm1Macro ] {Length} sendmsg2 
+/n  set
+[ ( )   ] /keys  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+keys help_Sm1Macro [i (0)..  ]  Get
+] {Append} sendmsg2 
+/keys  set
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ keys   shell  /keys  set
+this [ %% function args 
+keys ] {Length} sendmsg2 
+/n  set
+ss (ALL)  eq
+ %% if-condition
+  { %%ifbody
+(1).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+keys [i  ]  Get
+/tmp0  set
+this [ %% function args 
+(# ) ] {Print} sendmsg2 
+this [ %% function args 
+tmp0 ] {Print} sendmsg2 
+this [ %% function args 
+] {Ln} sendmsg2 
+ tmp0   usage  this [ %% function args 
+] {Ln} sendmsg2 
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+(0)..  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+(0).. /max  set
+(1).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+max  gt
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+/max  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+max (3)..  {add} sendmsg2 
+/max  set
+(80).. /width  set
+(0).. /m  set
+
+%%while
+{ m max  {mul} sendmsg2 
+(80)..  lt
+ { } {exit} ifelse
+ m (1)..  {add} sendmsg2 
+/m  set
+} loop
+(0).. /k  set
+(0).. /kk  set
+(1).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+keys [i  ]  Get
+] {Print} sendmsg2 
+kk (1)..  {add} sendmsg2 
+/kk  set
+k this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+ {add} sendmsg2 
+/k  set
+max this [ %% function args 
+keys [i  ]  Get
+] {Length} sendmsg2 
+ {sub} sendmsg2 
+/tmp0  set
+kk m  greaterThanOrEqual
+ %% if-condition
+  { %%ifbody
+  }%%end if if body
+  { %%if- else part
+(0).. /j  set
+%%for init.
+%%for
+{ j tmp0  lt
+ {  } {exit} ifelse
+[ {%%increment
+/j j (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+k (1)..  {add} sendmsg2 
+/k  set
+this [ %% function args 
+( ) ] {Print} sendmsg2 
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+  } ifelse
+kk m  greaterThanOrEqual
+ %% if-condition
+  { %%ifbody
+(0).. /kk  set
+(0).. /k  set
+this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+this [ %% function args 
+] {Ln} sendmsg2 
+this [ %% function args 
+] {Ln} sendmsg2 
+this [ %% function args 
+(Type in (keyword) usage ;  to see a help message.) ] {Println} sendmsg2 
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Help) (Help(key) shows an explanation on the key (string key).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (HelpAdd) [ (HelpAdd([key,explanation]) (string key, string explanation)) ( or (string key, array explanation).)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (load) [ (load(fname) loads the file << fname >>(string fname).) (load fname  loads the file << fname >>.) (load[fname] loads the file << fname >> with the preprocessing by /lib/cpp.)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Ln) (Ln() newline.)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Println) (Println(f) prints f and goes to the new line.)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Print) (Print(f) prints f.)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Poly) (Poly(name) returns the polynomial name in the current ring 
+  (string name).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (PolyR) (PolyR(name,r) returns the polynomial name in the ring r 
+ (string name, ring r).
+ Ex. r = RingD("x,y"); y = PolyR("y",r); )   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (RingD) [ (RingD(names) defines a new ring (string names).) (RingD(names,weight_vector) defines a new ring with the weight vector) ((string names, array weight_vector).) (RingD(names,weight_vector,characteristic)) ( Ex. RingD("x,y",[["x",2,"y",1]]) )   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Reduction) (Reduction(f,G) returns the remainder and sygygies when
+f is devided by G (polynomial f, array G).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (AddString) (AddString(list) returns the concatnated string (array list).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (AsciiToString) (AsciiToString(ascii_code) returns the string of which
+ascii code is ascii_code (integer ascii_code).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (ToString) (ToString(obj) transforms the <<obj>> to a string.)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Numerator) (Numerator(f) returns the numerator of <<f>> (rational f).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Denominator) (Denominator(f) returns the denominator of <<f>> (rational f).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Replace) (Replace(f,rule) (polynomial f, array rule).  
+           Ex. Replace( (x+y)^3, [[x,Poly("1")]]))   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (SetRingVariables) (SetRingVariables()
+  Set the generators of the current ring as global variables.
+  cf. RingD(), Poly(), PolyR())   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Append) (Append([f1,...,fn],g) returns the list [f1,...,fn,g])   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Join) (Join([f1,...,fn],[g1,...,gm]) returns the list
+  [f1,...,fn,g1,...,gm])   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Indexed) (Indexed(name,i) returns the string name[i]
+  (string name, integer i))   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (-ReservedName1) [ (The names k00*, K00*, sm1* , arg1,arg2,arg3,arg4,....,) (Helplist, Arglist, FunctionValue,) (@@@*, db.*, k.*, tmp002*, tmp00* are used for system functions.)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (IntegerToSm1Integer) (IntegerToSm1Integer(i) translates integer i
+  to sm1.integer (integer i).)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (true) (true returns sm1.integer 1.)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (false) (false returns sm1.integer 0.)   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (IsArray) [ (If f is the array object, then IsArray(f) returns true,) (else IsArray(f) returns false.)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Init_w) [ (Init_w(f,vars,w) returns the initial terms with respect to the) (weight vector <<w>> (array of integer) of the polynomial <<f>>) ((polynomial).  Here, <<f>> is regarded as a polynomial with respect) (to the variables <<vars>> (array of polynomials).) (Example: Init_w(x^2+y^2+x,[x,y],[1,1]):)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (RingDonIndexedVariables) [ (RingDonIndexedVariables(name,n) defines and returns the ring of) (homogenized differential operators) (Q<h, name[0], ..., name[n-1], Dname[0], ..., Dname[n-1]>) (where <<name>> is a string and <<n>> is an integer.) (Note that this function defines global variables) (h, name[0], ..., name[n-1], Dname[0], ..., Dname[n-1].) (Example: RingDonIndexedVariables("x",3).) (RingDonIndexedVariables(name,n,w) defines and returns the ring of) (homogenized differential operators with the ordering defined by ) (the weight vector <<w>> (array)) (Example: RingDonIndexedVariables("x",3,[["x[0]",1,"x[2]",3]]).)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Groebner) [ (Groebner(input) returns Groebner basis of the left module (or ideal)) (defined by <<input>> (array of polynomials)) (The order is that of the ring to which each element of <<input>>) (belongs.) (The input is automatically homogenized.) (Example: RingD("x,y",[["x" 10 "y" 1]]);) (         Groebner([Poly(" x^2+y^2-4"),Poly(" x*y-1 ")]):) (cf. RingD, Homogenize)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (RingPoly) [ (RingPoly(names) defines a Ring of Polyomials (string names).) (The names of variables of that ring are <<names>>  and ) (the homogenization variable h.) (cf. SetRingVariables, RingD) (Example: R=RingPoly("x,y");) (  ) (RingPoly(names,weight_vector) defines a Ring of Polynomials) (with the order defined by the << weight_vector >>) ((string names, array of array weight_vector).) (RingPoly(names,weight_vector,characteristic)) (Example: R=RingPoly("x,y",[["x",10,"y",1]]);) (         (x+y)^10: )   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (CancelNumber) [ (CancelNumber(rn) reduces the rational number <<rn>>) ((rational rn).) (Example: CancelNumber( 2/6 ) : )   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (IsString) [ (IsString(obj) returns true if << obj >> is a string (object obj).) (Example:  if (IsString("abc")) Println("Hello"); ;)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (IsSm1Integer) [ (IsSm1Integer(obj) returns true if << obj >> is an integer of sm1(object obj).)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (sm1) [ (sm1(arg1,arg2,...) is used to embed sm1 native code in the kxx program.) (Example: sm1( 2, 2, " add print "); ) (Example: def myadd(a,b) { sm1(a,b," add /FunctionValue set "); })   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (DC) [ (DC(obj,key) converts << obj >> to a new object in the primitive) (class << key >> (object obj, string key)) (Example:  DC(" (x+1)^10 ", "polynomial"): )   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Length) [ (Length(vec) returns the length of the array << vec >>) ((array vec))   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Transpose) [ (Transpose(m) return the transpose of the matrix << m >>) ((array of array m).)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Save) [ (Save(obj) appends << obj >> to the file sm1out.txt (object obj).)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Coefficients) [ (Coefficients(f,v) returns [exponents, coefficients] of << f >>) (with respect to the variable << v >>) ((polynomial f,v).) (Example: Coefficients(Poly("(x+1)^2"),Poly("x")): )   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (System) [ (System(comm) executes the unix system command << comm >>) ((string comm)) (Example: System("ls");)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Exponent) [ (Expoent(f,vars) returns the vector of exponents of the polynomial f) (Ex. Exponent( x^2*y-1,[x,y]))   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (Protect) [ (Protect(name) protects the symbol <<name>> (string)) (Protect(name,level) protects the symbol <<name>> (string) with ) (<<level>> )   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (IsPolynomial) [ (IsPolynomial(f) returns true if <<f>> (object) is a polynomial.)   ]   ] ] {HelpAdd} sendmsg2 
+/RingPoly {
+ db.DebugStack setstack $In function : RingPoly of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /vList /weightMatrix /pp  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/new0 /tmp /size /n /i /j /newtmp /ringpp /argsize ] pushVariables [ %%local variables
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+/argsize  set
+argsize (1)..  eq
+ %% if-condition
+  { %%ifbody
+ [  vList  ring_of_polynomials ( ) elimination_order 0 ] define_ring
+         /tmp set  tmp  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+argsize (2)..  eq
+ %% if-condition
+  { %%ifbody
+(0).. /pp  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+pp ] {IntegerToSm1Integer} sendmsg2 
+/pp  set
+this [ %% function args 
+weightMatrix ] {Length} sendmsg2 
+/size  set
+this [ %% function args 
+size ] {NewVector} sendmsg2 
+/new0  set
+  /@@@.indexMode.flag.save @@@.indexMode.flag def    0 @@@.indexMode  (0).. /i  set
+%%for init.
+%%for
+{ i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+weightMatrix [i  ]  Get
+/tmp  set
+this [ %% function args 
+tmp ] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+n ] {NewVector} sendmsg2 
+/newtmp  set
+(1).. /j  set
+%%for init.
+%%for
+{ j n  lt
+ {  } {exit} ifelse
+[ {%%increment
+j (2)..  {add} sendmsg2 
+/j  set
+} %%end of increment{A}
+{%%start of B part{B}
+newtmp [j (1)..  {sub} sendmsg2 
+ ] tmp [j (1)..  {sub} sendmsg2 
+ ]  Get
+ Put
+newtmp [j  ] this [ %% function args 
+tmp [j  ]  Get
+] {IntegerToSm1Integer} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+new0 [i  ] newtmp  Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ [  vList  ring_of_polynomials   new0   weight_vector  pp   ] define_ring /ringpp  set
+  @@@.indexMode.flag.save @@@.indexMode  ringpp  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IsString {
+ db.DebugStack setstack $In function : IsString of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /ob  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ ob   isString /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IsSm1Integer {
+ db.DebugStack setstack $In function : IsSm1Integer of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /ob  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ ob   isInteger /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/CancelNumber {
+ db.DebugStack setstack $In function : CancelNumber of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /rn  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/tmp ] pushVariables [ %%local variables
+  [(cancel)   rn   ] mpzext /tmp set  this [ %% function args 
+tmp ] {IsInteger} sendmsg2 
+ %% if-condition
+  { %%ifbody
+tmp  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  tmp (denominator) dc (1).. eq { /FunctionValue tmp (numerator) dc def} { /FunctionValue tmp def } ifelse  /ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/DC {
+ db.DebugStack setstack $In function : DC of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /obj /key  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+key (string)  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+obj ] {ToString} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+key (integer)  eq
+ %% if-condition
+  { %%ifbody
+(universalNumber) /key  set
+  }%%end if if body
+  { %%if- else part
+key (sm1integer)  eq
+ %% if-condition
+  { %%ifbody
+(integer) /key  set
+  }%%end if if body
+  { %%if- else part
+key (polynomial)  eq
+ %% if-condition
+  { %%ifbody
+(poly) /key  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } ifelse
+  } ifelse
+  } ifelse
+ obj  key   data_conversion /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Transpose {
+ db.DebugStack setstack $In function : Transpose of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /m  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ m   transpose /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Save {
+ db.DebugStack setstack $In function : Save of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /obj  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ obj   output  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/System {
+ db.DebugStack setstack $In function : System of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /comm  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ comm   system  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/IsReducible {
+ db.DebugStack setstack $In function : IsReducible of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /g  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [ (isReducible)   f  g   ] gbext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IsPolynomial {
+ db.DebugStack setstack $In function : IsPolynomial of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+  f isPolynomial /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+  /k00.toric0.mydegree {2 1 roll degree} def  /Exponent {
+ db.DebugStack setstack $In function : Exponent of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /vars  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/n /i /ans ] pushVariables [ %%local variables
+f this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+[   ]  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ f   /ff.tmp set   vars   {ff.tmp k00.toric0.mydegree (universalNumber) dc }map /FunctionValue set  /ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Protect {
+ db.DebugStack setstack $In function : Protect of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /name /level  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/n /str ] pushVariables [ %%local variables
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+/n  set
+n (1)..  eq
+ %% if-condition
+  { %%ifbody
+(1).. /level  set
+this [ %% function args 
+[ ([(chattr) ) this [ %% function args 
+level ] {ToString} sendmsg2 
+( /) name ( ) ( ] extension pop )   ] ] {AddString} sendmsg2 
+/str  set
+  [(parse)   str   ] extension pop    }%%end if if body
+  { %%if- else part
+n (2)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+[ ([(chattr) ) this [ %% function args 
+level ] {ToString} sendmsg2 
+( /) name ( ) ( ] extension pop )   ] ] {AddString} sendmsg2 
+/str  set
+  [(parse)   str   ] extension pop    }%%end if if body
+  { %%if- else part
+this [ %% function args 
+(Protect) (Arguments must be one or two. ) ] {k00_error} sendmsg2 
+  error    } ifelse
+  } ifelse
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/k00_error {
+ db.DebugStack setstack $In function : k00_error of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /name /msg  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+(Error in ) ] {Print} sendmsg2 
+this [ %% function args 
+name ] {Print} sendmsg2 
+this [ %% function args 
+(. ) ] {Print} sendmsg2 
+this [ %% function args 
+msg ] {Println} sendmsg2 
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/Init {
+ db.DebugStack setstack $In function : Init of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+f ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+f (Init) ] {Map} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+this [ %% function args 
+f ] {IsPolynomial} sendmsg2 
+ %% if-condition
+  { %%ifbody
+ f    init  /FunctionValue set    }%%end if if body
+  { %%if- else part
+this [ %% function args 
+(Init) (Argment must be polynomial or an array of polynomials) ] {k00_error} sendmsg2 
+  error    } ifelse
+  } ifelse
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Init) [ (Init(f) returns the initial term of the polynomial <<f>> (polynomial)) (Init(list) returns the array of initial terms of the array of polynomials) (<< list >> (array))   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+[ (NewMatrix) [ (NewMatrix(m,n) returns the (m,n)-matrix (array) with the entries 0.)   ]   ] ] {HelpAdd} sendmsg2 
+/Eliminatev {
+ db.DebugStack setstack $In function : Eliminatev of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /list /var  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ list  var   eliminatev /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Eliminatev) [ (Eliminatev(list,var) prunes polynomials in << list >>(array of polynomials)) (which contains the variables in << var >> ( array of strings )) (Example: Eliminatev([Poly(" x+h "),Poly(" x ")],[ "h" ]): )   ]   ] ] {HelpAdd} sendmsg2 
+/ReducedBase {
+ db.DebugStack setstack $In function : ReducedBase of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /base  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ base   reducedBase /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (ReducedBase) [ (ReducedBase[base] prunes redundant elements in the Grobner basis <<base>> (array).)   ]   ] ] {HelpAdd} sendmsg2 
+/IndexedVariables {
+ db.DebugStack setstack $In function : IndexedVariables of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /name /size  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/result /i /result2 ] pushVariables [ %%local variables
+[   ] /result  set
+(0).. /i  set
+%%for init.
+%%for
+{ i size (1)..  {sub} sendmsg2 
+ lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+result this [ %% function args 
+name i ] {Indexed} sendmsg2 
+] {Append} sendmsg2 
+/result  set
+this [ %% function args 
+result (,) ] {Append} sendmsg2 
+/result  set
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+size (1)..  {sub} sendmsg2 
+(0)..  greaterThanOrEqual
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+result this [ %% function args 
+name size (1)..  {sub} sendmsg2 
+] {Indexed} sendmsg2 
+] {Append} sendmsg2 
+/result  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+[ ({)   ] result ] {Join} sendmsg2 
+/result2  set
+this [ %% function args 
+result2 [ (})   ] ] {Join} sendmsg2 
+/result2  set
+this [ %% function args 
+result2 ] {AddString} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (IndexedVariables) [ (IndexedVariables(name,size) returns the string ) ( {name[0],name[1],...,name[size-1]} which can be used as inputs to ) ( the function RingD  (string name, integer size).) ( cf. RingDonIndexedVariables.) ( Ex. R = RingD(IndexedVariables("a",3)); ) (     h = Poly("h");) (     a = NewArray(3);) (     for (i=0; i<3; i++) {a[i] = Poly(Indexed("a",i));} ;)   ]   ] ] {HelpAdd} sendmsg2 
+/RingDonIndexedVariables {
+ db.DebugStack setstack $In function : RingDonIndexedVariables of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /vList /size /weightMatrix /pp  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/myring /tmp /k00_i /argsize /vListD ] pushVariables [ %%local variables
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+/argsize  set
+argsize (1)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Error (IndexedRingD): ) ] {Println} sendmsg2 
+null  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+argsize (2)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+[ (D) vList   ] ] {AddString} sendmsg2 
+/vListD  set
+this [ %% function args 
+this [ %% function args 
+vList size ] {IndexedVariables} sendmsg2 
+] {RingD} sendmsg2 
+/myring  set
+this [ %% function args 
+] {SetRingVariables} sendmsg2 
+this [ %% function args 
+size ] {NewArray} sendmsg2 
+/tmp  set
+(0).. /k00_i  set
+%%for init.
+%%for
+{ k00_i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/k00_i k00_i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+tmp [k00_i  ] this [ %% function args 
+this [ %% function args 
+vList k00_i ] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ vList   (literal) dc   tmp   def  this [ %% function args 
+size ] {NewArray} sendmsg2 
+/tmp  set
+(0).. /k00_i  set
+%%for init.
+%%for
+{ k00_i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/k00_i k00_i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+tmp [k00_i  ] this [ %% function args 
+this [ %% function args 
+vListD k00_i ] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ vListD   (literal) dc   tmp   def  SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Set the global variables ) ] {Print} sendmsg2 
+ [(parse)   vList   ] extension pop print   [(parse)   vListD   ] extension pop print  this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+ [(parse)   vList   ] extension pop    [(parse)   vListD   ] extension pop    } ifelse
+myring  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+argsize (3)..  eq
+argsize (4)..  eq
+ or
+ %% if-condition
+  { %%ifbody
+argsize (3)..  eq
+ %% if-condition
+  { %%ifbody
+(0).. /pp  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+[ (D) vList   ] ] {AddString} sendmsg2 
+/vListD  set
+this [ %% function args 
+this [ %% function args 
+vList size ] {IndexedVariables} sendmsg2 
+weightMatrix pp ] {RingD} sendmsg2 
+/myring  set
+this [ %% function args 
+] {SetRingVariables} sendmsg2 
+this [ %% function args 
+size ] {NewArray} sendmsg2 
+/tmp  set
+(0).. /k00_i  set
+%%for init.
+%%for
+{ k00_i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/k00_i k00_i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+tmp [k00_i  ] this [ %% function args 
+this [ %% function args 
+vList k00_i ] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ vList   (literal) dc   tmp   def  this [ %% function args 
+size ] {NewArray} sendmsg2 
+/tmp  set
+(0).. /k00_i  set
+%%for init.
+%%for
+{ k00_i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/k00_i k00_i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+tmp [k00_i  ] this [ %% function args 
+this [ %% function args 
+vListD k00_i ] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ vListD   (literal) dc   tmp   def  SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Set the global variables ) ] {Print} sendmsg2 
+ [(parse)   vList   ] extension pop print   [(parse)   vListD   ] extension pop print  this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+ [(parse)   vList   ] extension pop    [(parse)   vListD   ] extension pop    } ifelse
+myring  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+(1)..  (0)..  2 1 roll {sub} sendmsg 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Ringp {
+ db.DebugStack setstack $In function : Ringp of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   (ring) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Ringp) [ (Ringp(f) ( polynomial f ) returns the ring to which the polynomial << f >>) (belongs.)   ]   ] ] {HelpAdd} sendmsg2 
+/Coefficients {
+ db.DebugStack setstack $In function : Coefficients of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /v  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /exp ] pushVariables [ %%local variables
+ f  v   coefficients  /ans  set
+ans [(0)..  ]  Get
+/exp  set
+ exp   { (universalNumber) dc } map  /exp  set
+[ exp ans [(1)..  ]  Get
+  ]  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IsInteger {
+ db.DebugStack setstack $In function : IsInteger of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   isUniversalNumber /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (IsInteger) [ (IsInteger(a) returns true if << a >> is an integer (object a).) (It returns false if << a >> is not.) (cf. IsSm1Integer)   ]   ] ] {HelpAdd} sendmsg2 
+/IsRational {
+ db.DebugStack setstack $In function : IsRational of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   isRational /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (IsRational) [ (IsRational(a) returns true if << a >> is a rational (object a).) (It returns false if << a >> is not.)   ]   ] ] {HelpAdd} sendmsg2 
+/IsDouble {
+ db.DebugStack setstack $In function : IsDouble of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   isDouble /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (IsDouble) [ (IsDouble(a) returns true if << a >> is a double (object a).) (It returns false if << a >> is not.)   ]   ] ] {HelpAdd} sendmsg2 
+  /cs { this  [ ] Cleards  } def  /Init_w {
+ db.DebugStack setstack $In function : Init_w of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /vars /weight  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/w /top /ans /wtop ] pushVariables [ %%local variables
+f this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ f   init  /top  set
+this [ %% function args 
+top vars ] {Exponent} sendmsg2 
+weight  {mul} sendmsg2 
+/w  set
+w /wtop  set
+top /ans  set
+f top  {sub} sendmsg2 
+/f  set
+
+%%while
+{ true  { } {exit} ifelse
+ f this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+  exit    }%%end if if body
+  { %%if- else part
+  } ifelse
+ f   init  /top  set
+this [ %% function args 
+top vars ] {Exponent} sendmsg2 
+weight  {mul} sendmsg2 
+/w  set
+w wtop  lt
+ %% if-condition
+  { %%ifbody
+  exit    }%%end if if body
+  { %%if- else part
+  } ifelse
+ans top  {add} sendmsg2 
+/ans  set
+f top  {sub} sendmsg2 
+/f  set
+} loop
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Mapto) [ (Mapto(obj,ring) parses << obj >> as elements of the << ring >>.) ((ring << ring >>, polynomial << obj >> or array of polynomial << obj >>).) (Ex. R = RingD("x,y"); SetRingVariables();) (    f = (x+y)^2; R2 = RingD("x,y,z",[["y",1]]); ) (    f2 = Mapto(f,R2); f2: )   ]   ] ] {HelpAdd} sendmsg2 
+/Mapto {
+ db.DebugStack setstack $In function : Mapto of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /obj /ring  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /i /n ] pushVariables [ %%local variables
+this [ %% function args 
+obj ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+obj ] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+obj (ToString) ] {Map} sendmsg2 
+/ans  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+ans [i  ] this [ %% function args 
+ans [i  ]  Get
+ring ] {PolyR} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+  }%%end if if body
+  { %%if- else part
+this [ %% function args 
+obj ] {ToString} sendmsg2 
+/ans  set
+this [ %% function args 
+ans ring ] {PolyR} sendmsg2 
+/ans  set
+  } ifelse
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (ToDouble) [ (ToDouble(f) translates << f >> into double when it is possible) (object << f >>.) (Example: ToDouble([1,1/2,[5]]): )   ]   ] ] {HelpAdd} sendmsg2 
+/k00_toDouble {
+ db.DebugStack setstack $In function : k00_toDouble of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+f (double) ] {DC} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ToDouble {
+ db.DebugStack setstack $In function : ToDouble of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+f ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+f (ToDouble) ] {Map} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {IsDouble} sendmsg2 
+ %% if-condition
+  { %%ifbody
+f  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {k00_toDouble} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/RingPonIndexedVariables {
+ db.DebugStack setstack $In function : RingPonIndexedVariables of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /vList /size /weightMatrix  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/myring /tmp /k00_i /argsize /vListD ] pushVariables [ %%local variables
+this [ %% function args 
+Arglist ] {Length} sendmsg2 
+/argsize  set
+argsize (1)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Error (RingPonIndexedVariables): ) ] {Println} sendmsg2 
+null  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+argsize (2)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+this [ %% function args 
+vList size ] {IndexedVariables} sendmsg2 
+] {RingPoly} sendmsg2 
+/myring  set
+this [ %% function args 
+] {SetRingVariables} sendmsg2 
+this [ %% function args 
+size ] {NewArray} sendmsg2 
+/tmp  set
+(0).. /k00_i  set
+%%for init.
+%%for
+{ k00_i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/k00_i k00_i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+tmp [k00_i  ] this [ %% function args 
+this [ %% function args 
+vList k00_i ] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ vList   (literal) dc   tmp   def  SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Set the global variables ) ] {Print} sendmsg2 
+ [(parse)   vList   ] extension pop print  this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+ [(parse)   vList   ] extension pop     } ifelse
+myring  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+argsize (3)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+this [ %% function args 
+vList size ] {IndexedVariables} sendmsg2 
+weightMatrix ] {RingPoly} sendmsg2 
+/myring  set
+this [ %% function args 
+] {SetRingVariables} sendmsg2 
+this [ %% function args 
+size ] {NewArray} sendmsg2 
+/tmp  set
+(0).. /k00_i  set
+%%for init.
+%%for
+{ k00_i size  lt
+ {  } {exit} ifelse
+[ {%%increment
+/k00_i k00_i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+tmp [k00_i  ] this [ %% function args 
+this [ %% function args 
+vList k00_i ] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ vList   (literal) dc   tmp   def  SetRingVariables_Verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Set the global variables ) ] {Print} sendmsg2 
+ [(parse)   vList   ] extension pop print  this [ %% function args 
+] {Ln} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+ [(parse)   vList   ] extension pop    } ifelse
+myring  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+(1)..  (0)..  2 1 roll {sub} sendmsg 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (RingPonIndexedVariables) [ (RingPonIndexedVariables(name,n) defines and returns the ring of) (polynomials) (Q<h, name[0], ..., name[n-1] >) (where <<name>> is a string and <<n>> is an integer.) (Note that this function defines global variables) (h, name[0], ..., name[n-1].) (Example: RingPonIndexedVariables("x",3).) (RingPonIndexedVariables(name,n,w) defines and returns the ring of) (polynomials with the ordering defined by ) (the weight vector <<w>> (array)) (Example: RingPonIndexedVariables("x",3,[["x[0]",1,"x[2]",3]]).)   ]   ] ] {HelpAdd} sendmsg2 
+/Mod {
+ db.DebugStack setstack $In function : Mod of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /n  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+f ] {IsPolynomial} sendmsg2 
+ %% if-condition
+  { %%ifbody
+ [(mod)   f  n  ] gbext  /FunctionValue set    }%%end if if body
+  { %%if- else part
+this [ %% function args 
+f ] {IsInteger} sendmsg2 
+ %% if-condition
+  { %%ifbody
+Gmp  [ %% function args 
+f n ] {Mod}   sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } ifelse
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Mod) [ (Mod(f,p) returns f modulo n  where << f >> (polynomial) and) ( << p >> (integer). )   ]   ] ] {HelpAdd} sendmsg2 
+/Characteristic {
+ db.DebugStack setstack $In function : Characteristic of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /ringp  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/r /p ] pushVariables [ %%local variables
+  [(CurrentRingp)] system_variable  /r  set
+ [(CurrentRingp)   ringp   ] system_variable   [(P)] system_variable (universalNumber) dc  /p  set
+ [(CurrentRingp)   r   ] system_variable  p  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Characteristic) [ (Characteristic(ring) returns the characteristic of the << ring >>.)   ]   ] ] {HelpAdd} sendmsg2 
+/IsConstant {
+ db.DebugStack setstack $In function : IsConstant of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+f ] {Length} sendmsg2 
+(1)..  gt
+ %% if-condition
+  { %%ifbody
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ [(isConstant)   f   ] gbext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (IsConstant) [ (IsConstant(f) returns true if the polynomial << f >> is a constant.)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+(Default ring is Z[x,h].) ] {Println} sendmsg2 
+this [ %% function args 
+(x) ] {Poly} sendmsg2 
+/x  set
+this [ %% function args 
+(h) ] {Poly} sendmsg2 
+/h  set
+/Substitute {
+ db.DebugStack setstack $In function : Substitute of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /xx /g  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/tmp /coeff /ex /i /n /newex ] pushVariables [ %%local variables
+this [ %% function args 
+f ] {IsInteger} sendmsg2 
+ %% if-condition
+  { %%ifbody
+f  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {IsPolynomial} sendmsg2 
+ not
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Substitute) (The first argument must be polynomial.) ] {k00_error} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f xx ] {Coefficients} sendmsg2 
+/tmp  set
+tmp [(1)..  ]  Get
+/coeff  set
+tmp [(0)..  ]  Get
+/ex  set
+this [ %% function args 
+ex ] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+n ] {NewVector} sendmsg2 
+/newex  set
+n (0)..  gt
+ %% if-condition
+  { %%ifbody
+newex [n (1)..  {sub} sendmsg2 
+ ] g ex [n (1)..  {sub} sendmsg2 
+ ]  Get
+ power
+ Put
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+n (2)..  {sub} sendmsg2 
+/i  set
+%%for init.
+%%for
+{ i (0)..  greaterThanOrEqual
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. sub def
+} %%end of increment{A}
+{%%start of B part{B}
+newex [i  ] newex [i (1)..  {add} sendmsg2 
+ ]  Get
+g ex [i  ]  Get
+ex [i (1)..  {add} sendmsg2 
+ ]  Get
+ {sub} sendmsg2 
+ power
+ {mul} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+this [ %% function args 
+coeff newex  {mul} sendmsg2 
+] {Cancel} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Substitute) [ (Substitute(f,xx,g) replaces << xx >> in << f >> by << g >>.) (This function takes coeffients of << f >> with respect to << xx >>) (and returns the inner product of the vector of coefficients and the vector) (of which elements are g^(corresponding exponent).) (Note that it may cause an unexpected result in non-commutative rings.)   ]   ] ] {HelpAdd} sendmsg2 
+K00_verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( debug/db.k (db.ccc), 1997, 3/2 (Sun) : checking debug functions of kxx) ] {Println} sendmsg2 
+this [ %% function args 
+( Type in test0(). ) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  /pushVariables {localVariables}  def    /popVariables {restoreVariables} def  K00_verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( Overloaded on pushVariables and popVariables.) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  [(CatchCtrlC) 1] system_variable    [(Strict) 1] system_variable  K00_verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ctrl-C signal is caught in KSexecuteString() and <<Warning>> is regarded as an error.) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+/test0 {
+ db.DebugStack setstack $In function : test0 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+  [(ErrorMessageMode) 2] system_variable    [(WarningMessageMode) 2] system_variable  this [ %% function args 
+(15).. ] {fib} sendmsg2 
+  db.where.es  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Where {
+ db.DebugStack setstack $In function : Where of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+this [ %% function args 
+(CurrentContext is ...) ] {Println} sendmsg2 
+  [(CurrentContextp)] system_variable {message} primmsg  this [ %% function args 
+(VariableStack trace is....) ] {Println} sendmsg2 
+  db.where  this [ %% function args 
+(DebugStack trace is ....) ] {Println} sendmsg2 
+  db.where.ds  this [ %% function args 
+(To clear VariableStack, DebugStack and ErrorStack, type in Cleards().) ] {Println} sendmsg2 
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/Cleards {
+ db.DebugStack setstack $In function : Cleards of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+this [ %% function args 
+(Clearing DebugStack and ErrorStack...) ] {Print} sendmsg2 
+  db.clear.ds db.clear.es  this [ %% function args 
+( ) ] {Println} sendmsg2 
+this [ %% function args 
+(Restoring variables....) ] {Print} sendmsg2 
+  db.restore     [  ] localVariables  this [ %% function args 
+(Done) ] {Println} sendmsg2 
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/fib {
+ db.DebugStack setstack $In function : fib of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /n  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /a /b ] pushVariables [ %%local variables
+this [ %% function args 
+(fib of ) ] {Print} sendmsg2 
+this [ %% function args 
+n ] {Println} sendmsg2 
+n (2)..  lt
+ %% if-condition
+  { %%ifbody
+(1)..  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+n (1)..  {sub} sendmsg2 
+/a  set
+n (2)..  {sub} sendmsg2 
+/b  set
+a (11)..  eq
+ %% if-condition
+  { %%ifbody
+a [i  ] (2)..  Put
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+a ] {fib} sendmsg2 
+this [ %% function args 
+b ] {fib} sendmsg2 
+ {add} sendmsg2 
+/ans  set
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+K00_verbose  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(debug/asir0.k    you need to start k0 with -f option. ) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+/Factor {
+ db.DebugStack setstack $In function : Factor of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f   factor /FunctionValue set   clean-workfiles  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Factor) [ ( Not Yet. <<need asir, start k0 with -f option.>>)   ]   ] ] {HelpAdd} sendmsg2 
+/Cancel {
+ db.DebugStack setstack $In function : Cancel of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/tmp /den /num ] pushVariables [ %%local variables
+this [ %% function args 
+f ] {IsRational} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+this [ %% function args 
+f ] {Denominator} sendmsg2 
+] {Cancel} sendmsg2 
+/den  set
+this [ %% function args 
+this [ %% function args 
+f ] {Numerator} sendmsg2 
+] {Cancel} sendmsg2 
+/num  set
+this [ %% function args 
+den ] {IsInteger} sendmsg2 
+this [ %% function args 
+num ] {IsInteger} sendmsg2 
+ and
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+num den  {div} sendmsg2 
+] {CancelNumber} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+den ] {IsInteger} sendmsg2 
+ %% if-condition
+  { %%ifbody
+ [(divByN)   num  den   ] gbext  /tmp  set
+tmp [(1)..  ]  Get
+this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+tmp [(0)..  ]  Get
+] {Cancel} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+f  /FunctionValue set  {/ExitPoint goto} exec %%return
+  } ifelse
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {IsInteger} sendmsg2 
+ %% if-condition
+  { %%ifbody
+f  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {IsPolynomial} sendmsg2 
+ %% if-condition
+  { %%ifbody
+f this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+(0)..  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+this [ %% function args 
+f ] {Ringp} sendmsg2 
+] {Characteristic} sendmsg2 
+(0)..  eq not
+ %% if-condition
+  { %%ifbody
+f  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {IsConstant} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+f (integer) ] {DC} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+f  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ f   cancel /FunctionValue set   clean-workfiles  /ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Cancel) [ ( Not Yet. <<need asir, start k0 with -f option>>)   ]   ] ] {HelpAdd} sendmsg2 
+/Primadec {
+ db.DebugStack setstack $In function : Primadec of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /g  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ f  g   primadec /FunctionValue set   clean-workfiles  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Primadec) [ ( Not Yet. <<need asir, start k0 with -f option.>>)   ]   ] ] {HelpAdd} sendmsg2 
+this [ %% function args 
+(showln) (0).. ] {Protect} sendmsg2 
+[ $Object$ PrimitiveObject 0 get  newcontext ] /Object set 
+Object 0 get setcontext 
+/new0 {
+ db.DebugStack setstack $In function : new0 of class Object$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+Object  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/showln {
+ db.DebugStack setstack $In function : showln of class Object$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+this [ %% function args 
+ this ] {Println} sendmsg2 
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/getClass {
+ db.DebugStack setstack $In function : getClass of class Object$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+  this 0 get /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+ PrimitiveContextp setcontext   /ectag { dup isClass not { pop -1 } { lc } ifelse } def  /k00ecTag {
+ db.DebugStack setstack $In function : k00ecTag of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   ectag /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/IsObject {
+ db.DebugStack setstack $In function : IsObject of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+this [ %% function args 
+a ] {IsArray} sendmsg2 
+ not
+ %% if-condition
+  { %%ifbody
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+a ] {Length} sendmsg2 
+(1)..  lt
+ %% if-condition
+  { %%ifbody
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+a [(0)..  ]  Get
+] {k00ecTag} sendmsg2 
+this [ %% function args 
+Object [(0)..  ]  Get
+] {k00ecTag} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+true  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+false  /FunctionValue set  {/ExitPoint goto} exec %%return
+  } ifelse
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (IsObject) [ (IsObject(a) return true if a is an Object.)   ]   ] ] {HelpAdd} sendmsg2 
+[ $Gmp$ Object 0 get  newcontext ] /Gmp set 
+Gmp 0 get setcontext 
+/BitAnd {
+ db.DebugStack setstack $In function : BitAnd of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a /b  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(and)   a     b   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/BitOr {
+ db.DebugStack setstack $In function : BitOr of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a /b  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(ior)   a     b   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ModuloPower {
+ db.DebugStack setstack $In function : ModuloPower of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /base /ex /mmod  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(powm)   base     ex     mmod   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ProbabilisticPrimeP {
+ db.DebugStack setstack $In function : ProbabilisticPrimeP of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /p /reps  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(probab_prime_p)   p     reps   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Sqrt {
+ db.DebugStack setstack $In function : Sqrt of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(sqrt)   a   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Gcd {
+ db.DebugStack setstack $In function : Gcd of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a /b  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(gcd)   a     b   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Div {
+ db.DebugStack setstack $In function : Div of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a /b  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(tdiv_qr)   a     b   ] mpzext /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/Mod {
+ db.DebugStack setstack $In function : Mod of class Gmp$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a /b  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ [(tdiv_qr)   a     b   ] mpzext 1 get /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+ PrimitiveContextp setcontext this [ %% function args 
+[ (Gmp.) [ (Gmp is a class which supports the following methods:) (BitAnd, BitOr, ModuloPower, ProbabilisticPrimeP, Sqrt,) (Gcd, Div, Mod.) (Ex.  r = Gmp.Gcd(5,8); ) (These methods call functions of Gnu-MP package.) (The Copyright notice is in kan96xx/gmp.) (Note that there is no method to create an instance.)   ]   ] ] {HelpAdd} sendmsg2 
+true /ShimomuraSpecial  set
+true /OnePath  set
+false /Vvv  set
+false /SetRingVariables_Verbose  set
+/QuietKan {
+ db.DebugStack setstack $In function : QuietKan of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+  [(KanGBmessage) 0] system_variable  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+/testhg1 {
+ db.DebugStack setstack $In function : testhg1 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+[ [ (1).. (1).. (1).. (1).. (1).. (1)..   ] [ (0).. (0).. (0).. (1).. (1).. (1)..   ] [ (0).. (1).. (0).. (0).. (1).. (0)..   ] [ (0).. (0).. (1).. (0).. (0).. (1)..   ]   ] /a  set
+this [ %% function args 
+a ] {idhg} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/testhg2 {
+ db.DebugStack setstack $In function : testhg2 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis]  ArgNames mapset
+[ [ (1).. (1).. (1).. (1).. (1)..   ] [ (0).. (2).. (3).. (4).. (3)..   ] [ (0).. (1).. (1).. (0).. (2)..   ]   ] /a  set
+this [ %% function args 
+a ] {idhg} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/idhg {
+ db.DebugStack setstack $In function : idhg of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/a /ans /rd /i /ans2 /ans3 /n /ff /d /zlist ] pushVariables [ %%local variables
+this [ %% function args 
+a ] {toric} sendmsg2 
+/ans  set
+ShimomuraSpecial  %% if-condition
+  { %%ifbody
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(-------- S-special ---------) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ans (Init) ] {Map} sendmsg2 
+/ans  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ans (ToString) ] {Map} sendmsg2 
+/ans  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+ans ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+(z) this [ %% function args 
+a [(0)..  ]  Get
+] {Length} sendmsg2 
+(1)..  {add} sendmsg2 
+this [ %% function args 
+a ] {Length} sendmsg2 
+ {add} sendmsg2 
+] {RingDonIndexedVariables} sendmsg2 
+/rd  set
+this [ %% function args 
+ans (Poly) ] {Map} sendmsg2 
+/ans  set
+this [ %% function args 
+a [(0)..  ]  Get
+] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+a ] {Length} sendmsg2 
+/d  set
+this [ %% function args 
+this [ %% function args 
+ans ] {Length} sendmsg2 
+] {NewArray} sendmsg2 
+/ans2  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+this [ %% function args 
+ans ] {Length} sendmsg2 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+ans2 [i  ] this [ %% function args 
+ans [i  ]  Get
+n ] {ztoDz} sendmsg2 
+ Put
+  } for 
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+ans2 ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+a ] {atolin} sendmsg2 
+/ans3  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+ans3 ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+this [ %% function args 
+ans2 ans3 ] {Join} sendmsg2 
+(ToString) ] {Map} sendmsg2 
+/ff  set
+this [ %% function args 
+ff n d ] {zindicial} sendmsg2 
+/ans  set
+[   ] /zlist  set
+n %%PSfor initvalue.
+ (integer) data_conversion 
+n d  {add} sendmsg2 
+(1)..  {add} sendmsg2 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+zlist this [ %% function args 
+(z) i ] {Indexed} sendmsg2 
+] {Append} sendmsg2 
+/zlist  set
+  } for 
+[ ans zlist   ]  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/toric0_toMonom {
+ db.DebugStack setstack $In function : toric0_toMonom of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /aa /i /offset /ring  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/j /ans /m ] pushVariables [ %%local variables
+this [ %% function args 
+aa ] {Length} sendmsg2 
+/m  set
+this [ %% function args 
+(1) ring ] {PolyR} sendmsg2 
+/ans  set
+(0).. /j  set
+%%for init.
+%%for
+{ j m  lt
+ {  } {exit} ifelse
+[ {%%increment
+/j j (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+ans z [offset j  {add} sendmsg2 
+ ]  Get
+aa [j i  ]  Get
+ power
+ {mul} sendmsg2 
+/ans  set
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/toric {
+ db.DebugStack setstack $In function : toric of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /aa  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/i /j /rz /n /d /ideal /ans /univ /rule /nn /weight /elim ] pushVariables [ %%local variables
+this [ %% function args 
+aa ] {Length} sendmsg2 
+/d  set
+this [ %% function args 
+aa [(0)..  ]  Get
+] {Length} sendmsg2 
+/n  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+aa ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+[   ] /weight  set
+[   ] /elim  set
+n %%PSfor initvalue.
+ (integer) data_conversion 
+n d  {add} sendmsg2 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+weight [ this [ %% function args 
+(z) i ] {Indexed} sendmsg2 
+(1)..   ] ] {Join} sendmsg2 
+/weight  set
+this [ %% function args 
+elim this [ %% function args 
+(z) i ] {Indexed} sendmsg2 
+] {Append} sendmsg2 
+/elim  set
+  } for 
+this [ %% function args 
+[ weight   ] [ this [ %% function args 
+(z) n (1)..  {sub} sendmsg2 
+] {Indexed} sendmsg2 
+(1)..   ] ] {Append} sendmsg2 
+/weight  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+weight ] {Println} sendmsg2 
+this [ %% function args 
+elim ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+(z) n d  {add} sendmsg2 
+weight ] {RingPonIndexedVariables} sendmsg2 
+/rz  set
+[   ] /ideal  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+ideal z [i  ]  Get
+this [ %% function args 
+aa i n rz ] {toric0_toMonom} sendmsg2 
+ {sub} sendmsg2 
+] {Append} sendmsg2 
+/ideal  set
+  } for 
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( --------- input ideal -------------) ] {Println} sendmsg2 
+this [ %% function args 
+( z[) ] {Print} sendmsg2 
+this [ %% function args 
+n ] {Print} sendmsg2 
+this [ %% function args 
+(] --- z[) ] {Print} sendmsg2 
+this [ %% function args 
+n d  {add} sendmsg2 
+(1)..  {sub} sendmsg2 
+] {Print} sendmsg2 
+this [ %% function args 
+(] should be eliminated.) ] {Println} sendmsg2 
+this [ %% function args 
+ideal ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ideal ] {Groebner} sendmsg2 
+/ans  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( -------------- gb is ----------------- ) ] {Println} sendmsg2 
+this [ %% function args 
+ans ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ans elim ] {Eliminatev} sendmsg2 
+/ans  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ------------ eliminated -------------- ) ] {Println} sendmsg2 
+this [ %% function args 
+ans ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+[ [ h this [ %% function args 
+(1) rz ] {PolyR} sendmsg2 
+  ]   ] /rule  set
+this [ %% function args 
+ans ] {Length} sendmsg2 
+/nn  set
+[   ] /univ  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+nn  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+univ this [ %% function args 
+ans [i  ]  Get
+rule ] {Replace} sendmsg2 
+] {Append} sendmsg2 
+/univ  set
+  } for 
+this [ %% function args 
+univ ] {ReducedBase} sendmsg2 
+/ans  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ----------- removed redundant elements ----------- ) ] {Println} sendmsg2 
+this [ %% function args 
+( ---------- generators of the toric ideal are ----- ) ] {Println} sendmsg2 
+this [ %% function args 
+ans ] {Println} sendmsg2 
+this [ %% function args 
+( ) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/zindicial0 {
+ db.DebugStack setstack $In function : zindicial0 of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /input /n /m  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/rz /weight /ww /i /rule /zinverse /m /d /ans /elim /tmp ] pushVariables [ %%local variables
+OnePath  not
+ %% if-condition
+  { %%ifbody
+[   ] /ww  set
+[   ] /elim  set
+[ [ this [ %% function args 
+(z) n ] {Indexed} sendmsg2 
+(1)..   ]   ] /weight  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(-------- weight ---------: ) ] {Print} sendmsg2 
+this [ %% function args 
+weight ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+(z) n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+weight ] {RingDonIndexedVariables} sendmsg2 
+/rz  set
+this [ %% function args 
+n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+] {NewArray} sendmsg2 
+/z  set
+this [ %% function args 
+n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+] {NewArray} sendmsg2 
+/Dz  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+z [i  ] this [ %% function args 
+this [ %% function args 
+(z) i ] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+ Put
+Dz [i  ] this [ %% function args 
+this [ %% function args 
+(Dz) i ] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+ Put
+  } for 
+this [ %% function args 
+input rz ] {Mapto} sendmsg2 
+/input  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(------------ input ------------) ] {Println} sendmsg2 
+this [ %% function args 
+input ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+this [ %% function args 
+[ this [ %% function args 
+(z) n ] {Indexed} sendmsg2 
+(^(-1))   ] ] {AddString} sendmsg2 
+rz ] {PolyR} sendmsg2 
+/zinverse  set
+[ [ Dz [n (1)..  {sub} sendmsg2 
+ ]  Get
+Dz [n (1)..  {sub} sendmsg2 
+ ]  Get
+z [n  ]  Get
+ {mul} sendmsg2 
+  ] [ z [n (1)..  {sub} sendmsg2 
+ ]  Get
+z [n (1)..  {sub} sendmsg2 
+ ]  Get
+zinverse  {mul} sendmsg2 
+  ]   ] /rule  set
+this [ %% function args 
+input rule ] {Replace} sendmsg2 
+/input  set
+this [ %% function args 
+input ] {Length} sendmsg2 
+/m  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+m  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+this [ %% function args 
+input [i  ]  Get
+[ [ z [n  ]  Get
+zinverse   ]   ] ] {Replace} sendmsg2 
+z [n  ]  Get
+] {Degree} sendmsg2 
+ (0)..  2 1 roll {sub} sendmsg 
+/d  set
+d (0)..  lt
+ %% if-condition
+  { %%ifbody
+input [i  ] z [n  ]  Get
+d  (0)..  2 1 roll {sub} sendmsg 
+ power
+input [i  ]  Get
+ {mul} sendmsg2 
+ Put
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } for 
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(------ input : ) ] {Print} sendmsg2 
+this [ %% function args 
+input ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+input ] {GroebnerTime} sendmsg2 
+/ans  set
+this [ %% function args 
+ans ] {Length} sendmsg2 
+/m  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+m  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+ans [i  ]  Get
+z [n  ]  Get
+] {Coefficients} sendmsg2 
+/tmp  set
+ans [i  ] tmp [(1).. (0)..  ]  Get
+ Put
+  } for 
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(--------FW principal parts : ) ] {Print} sendmsg2 
+this [ %% function args 
+ans ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ans (ToString) ] {Map} sendmsg2 
+/input  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+[   ] /ww  set
+[   ] /elim  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n (1)..  {sub} sendmsg2 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+ww [ this [ %% function args 
+(Dz) i ] {Indexed} sendmsg2 
+(1)..   ] ] {Join} sendmsg2 
+/ww  set
+i n (1)..  {sub} sendmsg2 
+ eq not
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+elim this [ %% function args 
+(Dz) i ] {Indexed} sendmsg2 
+] {Append} sendmsg2 
+/elim  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } for 
+[ [ this [ %% function args 
+(z) n ] {Indexed} sendmsg2 
+(1)..   ] ww   ] /weight  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(-------- weight ---------: ) ] {Print} sendmsg2 
+this [ %% function args 
+weight ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+(z) n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+weight ] {RingDonIndexedVariables} sendmsg2 
+/rz  set
+this [ %% function args 
+n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+] {NewArray} sendmsg2 
+/z  set
+this [ %% function args 
+n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+] {NewArray} sendmsg2 
+/Dz  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n (1)..  {add} sendmsg2 
+m  {add} sendmsg2 
+ (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+z [i  ] this [ %% function args 
+this [ %% function args 
+(z) i ] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+ Put
+Dz [i  ] this [ %% function args 
+this [ %% function args 
+(Dz) i ] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+ Put
+  } for 
+this [ %% function args 
+input rz ] {Mapto} sendmsg2 
+/input  set
+OnePath  %% if-condition
+  { %%ifbody
+this [ %% function args 
+this [ %% function args 
+[ this [ %% function args 
+(z) n ] {Indexed} sendmsg2 
+(^(-1))   ] ] {AddString} sendmsg2 
+rz ] {PolyR} sendmsg2 
+/zinverse  set
+[ [ Dz [n (1)..  {sub} sendmsg2 
+ ]  Get
+Dz [n (1)..  {sub} sendmsg2 
+ ]  Get
+z [n  ]  Get
+ {mul} sendmsg2 
+  ] [ z [n (1)..  {sub} sendmsg2 
+ ]  Get
+z [n (1)..  {sub} sendmsg2 
+ ]  Get
+zinverse  {mul} sendmsg2 
+  ]   ] /rule  set
+this [ %% function args 
+input rule ] {Replace} sendmsg2 
+/input  set
+this [ %% function args 
+input ] {Length} sendmsg2 
+/m  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+m  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+this [ %% function args 
+input [i  ]  Get
+[ [ z [n  ]  Get
+zinverse   ]   ] ] {Replace} sendmsg2 
+z [n  ]  Get
+] {Degree} sendmsg2 
+ (0)..  2 1 roll {sub} sendmsg 
+/d  set
+d (0)..  lt
+ %% if-condition
+  { %%ifbody
+input [i  ] z [n  ]  Get
+d  (0)..  2 1 roll {sub} sendmsg 
+ power
+input [i  ]  Get
+ {mul} sendmsg2 
+ Put
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  } for 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(------ input : ) ] {Print} sendmsg2 
+this [ %% function args 
+input ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+input ] {GroebnerTime} sendmsg2 
+/ans  set
+this [ %% function args 
+ans ] {Length} sendmsg2 
+/m  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+m  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+this [ %% function args 
+ans [i  ]  Get
+z [n  ]  Get
+] {Coefficients} sendmsg2 
+/tmp  set
+ans [i  ] tmp [(1).. (0)..  ]  Get
+ Put
+  } for 
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+(--------FW principal parts : ) ] {Print} sendmsg2 
+this [ %% function args 
+ans ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ans elim ] {Eliminatev} sendmsg2 
+/ans  set
+this [ %% function args 
+ans ] {Length} sendmsg2 
+/m  set
+(0).. /i  set
+%%for init.
+%%for
+{ i m  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+ans [i  ] this [ %% function args 
+ans [i  ]  Get
+[ [ h this [ %% function args 
+(1) rz ] {PolyR} sendmsg2 
+  ] [ this [ %% function args 
+this [ %% function args 
+(z) n ] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+this [ %% function args 
+(1) rz ] {PolyR} sendmsg2 
+  ]   ] ] {Replace} sendmsg2 
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ) ] {Println} sendmsg2 
+this [ %% function args 
+( ) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/zrho {
+ db.DebugStack setstack $In function : zrho of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /n  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /i /top /w /rz ] pushVariables [ %%local variables
+(0).. /ans  set
+this [ %% function args 
+f ] {Ringp} sendmsg2 
+/rz  set
+
+%%while
+{ true  { } {exit} ifelse
+ f this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+  exit    }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {Init} sendmsg2 
+/top  set
+f top  {sub} sendmsg2 
+/f  set
+this [ %% function args 
+top [ this [ %% function args 
+this [ %% function args 
+(Dz) n (1)..  {sub} sendmsg2 
+] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+  ] ] {Exponent} sendmsg2 
+/w  set
+this [ %% function args 
+top [ [ this [ %% function args 
+this [ %% function args 
+(Dz) n (1)..  {sub} sendmsg2 
+] {Indexed} sendmsg2 
+rz ] {PolyR} sendmsg2 
+this [ %% function args 
+(1) rz ] {PolyR} sendmsg2 
+  ]   ] ] {Replace} sendmsg2 
+this [ %% function args 
+z [n  ]  Get
+w [(0)..  ]  Get
+] {zipoch} sendmsg2 
+ {mul} sendmsg2 
+/top  set
+ans top  {add} sendmsg2 
+/ans  set
+} loop
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/zipoch {
+ db.DebugStack setstack $In function : zipoch of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /w  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /i ] pushVariables [ %%local variables
+(1).. /ans  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+w  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+ans f i  {sub} sendmsg2 
+ {mul} sendmsg2 
+/ans  set
+  } for 
+ans  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/zindicial {
+ db.DebugStack setstack $In function : zindicial of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /fff /n /mm  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/ans /n /i /m /r /tmp ] pushVariables [ %%local variables
+this [ %% function args 
+fff n mm ] {zindicial0} sendmsg2 
+/ans  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+ans ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+ans ] {Length} sendmsg2 
+/m  set
+[   ] /r  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+this [ %% function args 
+[ (------ The generic indicial polynomial  along z[) this [ %% function args 
+n (1)..  {sub} sendmsg2 
+] {ToString} sendmsg2 
+(] = 0 is the minimal degree polynomial of the following) (polynomials.)   ] ] {AddString} sendmsg2 
+] {Println} sendmsg2 
+this [ %% function args 
+this [ %% function args 
+[ (z[) this [ %% function args 
+n ] {ToString} sendmsg2 
+(] is equal to s.)   ] ] {AddString} sendmsg2 
+] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+m  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+ans [i  ]  Get
+/tmp  set
+this [ %% function args 
+tmp [ [ this [ %% function args 
+this [ %% function args 
+(z) n (1)..  {sub} sendmsg2 
+] {Indexed} sendmsg2 
+] {Poly} sendmsg2 
+this [ %% function args 
+(1) ] {Poly} sendmsg2 
+  ]   ] ] {Replace} sendmsg2 
+/tmp  set
+this [ %% function args 
+tmp n ] {zrho} sendmsg2 
+/tmp  set
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+i ] {Print} sendmsg2 
+this [ %% function args 
+( :  ) ] {Print} sendmsg2 
+this [ %% function args 
+tmp ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+r tmp ] {Append} sendmsg2 
+/r  set
+  } for 
+Vvv  %% if-condition
+  { %%ifbody
+this [ %% function args 
+( ) ] {Println} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+r  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/ztoDz {
+ db.DebugStack setstack $In function : ztoDz of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /f /n  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/rule /i ] pushVariables [ %%local variables
+this [ %% function args 
+n ] {NewArray} sendmsg2 
+/rule  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+rule [i  ] [ z [i  ]  Get
+Dz [i  ]  Get
+  ]  Put
+  } for 
+this [ %% function args 
+f rule ] {Replace} sendmsg2 
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+/atolin {
+ db.DebugStack setstack $In function : atolin of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/d /n /eqs /ans /i /j ] pushVariables [ %%local variables
+this [ %% function args 
+a ] {Length} sendmsg2 
+/d  set
+this [ %% function args 
+a [(0)..  ]  Get
+] {Length} sendmsg2 
+/n  set
+this [ %% function args 
+d ] {NewArray} sendmsg2 
+/eqs  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+d  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /i  set 
+(0).. /ans  set
+(0).. %%PSfor initvalue.
+ (integer) data_conversion 
+n  (1).. sub  (integer) data_conversion  1  2 -1 roll 
+{ %% for body
+ (universalNumber) data_conversion /j  set 
+ans a [i j  ]  Get
+z [j  ]  Get
+ {mul} sendmsg2 
+Dz [j  ]  Get
+ {mul} sendmsg2 
+ {add} sendmsg2 
+/ans  set
+  } for 
+ans z [n (1)..  {add} sendmsg2 
+i  {add} sendmsg2 
+ ]  Get
+ {sub} sendmsg2 
+/ans  set
+eqs [i  ] ans  Put
+  } for 
+eqs  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+  ;  

@@ -1,0 +1,43 @@
+#!/bin/csh
+if ( `pwd` != "/home/nobuki/openXM/src/kan96xx" ) then
+    echo "Invalid directory to run cleanForDist"
+    exit
+endif
+
+cd Kan
+mv Makefile Makefile.t
+sed 's/CFLAGS = -g/CFLAGS = -O/g' Makefile.t >Makefile
+mv Makefile Makefile.t
+sed -f clean0.sed Makefile.t >Makefile
+/bin/rm Makefile.t
+make clean
+/bin/rm -f *.a
+cd ..
+
+cd gmp
+make distclean
+/bin/rm -f *.a
+cd ..
+
+cd gc
+make clean
+/bin/rm -f *.a
+cd ..
+
+cd Doc
+make clean
+/bin/rm -f bench1.sm1
+/bin/rm -fr checkData
+cd ..
+
+cd plugin
+make clean
+cd ..
+
+/bin/rm -rf test 
+/bin/rm -rf makeDist 
+/bin/rm -rf develop
+/bin/rm -rf FAQ/*~ *~ Doc.1 Examples Info Kan-ps Samples Sm TestData kan-mathematica mails  Kan/Test Kan.old Kan/debug 
+
+
+

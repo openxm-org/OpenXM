@@ -1,0 +1,3498 @@
+%% dr.sm1 (Define Ring) 1994/9/25, 26
+%% This file is error clean.
+
+@@@.quiet {   }
+{ (macro package : dr.sm1,   9/26,1995 --- Version 9/8, 1999. ) message } ifelse
+
+/ctrlC-hook {
+%%% define your own routing in case of error.
+} def
+[(ctrlC-hook)
+[(When ctrl-C is pressed, this function is executed.)
+ (User can define one's own ctrlC-hook function.)
+]] putUsages
+
+%% n evenQ  bool
+/evenQ {
+  /arg1 set
+  arg1 2 idiv  2 mul arg1 sub 0 eq
+  { true }
+  { false } ifelse
+} def
+
+%% (x,y,z) polynomial_ring [x-list, d-list , paramList]
+/ring_of_polynomials {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  %dup print (-----) message
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (poly) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set
+     vars length evenQ
+     { }
+     { vars [(PAD)] join /vars set }
+     ifelse
+     vars length 2 idiv /n set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars i get
+          } for
+     ] /xList set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars << i n add >> get
+          } for
+     ] /dList set
+
+     [(H)] xList join [@@@.esymbol] join /xList set
+     [(h)] dList join [@@@.Esymbol] join /dList set
+     [0 %% dummy characteristic
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+      << xList length 1 sub >> << xList length >> << xList length >> 
+                                                  << xList length >>
+     ] /param set
+
+     [xList dList param] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+%% (x,y,z) polynomial_ring [x-list, d-list , paramList]
+%% with no graduation and homogenization variables.
+/ring_of_polynomials2 {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  %dup print (-----) message
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (poly) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set
+     vars length evenQ
+     { }
+     { vars [(PAD)] join /vars set }
+     ifelse
+     vars length 2 idiv /n set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars i get
+          } for
+     ] /xList set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars << i n add >> get
+          } for
+     ] /dList set
+
+     [0 %% dummy characteristic
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+     ] /param set
+
+     [xList dList param] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+%% (x,y,z) polynomial_ring [x-list, d-list , paramList]
+%% with no homogenization variables.
+/ring_of_polynomials3 {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  %dup print (-----) message
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (poly) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set
+     vars length evenQ
+     { }
+     { vars [(PAD)] join /vars set }
+     ifelse
+     vars length 2 idiv /n set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars i get
+          } for
+     ] /xList set
+     xList [@@@.esymbol] join /xList set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars << i n add >> get
+          } for
+     ] /dList set
+     dList [@@@.Esymbol] join /dList set
+
+     [0 %% dummy characteristic
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+     ] /param set
+
+     [xList dList param] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+/ring_of_differential_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     [(H)] xList join [@@@.esymbol] join /xList set
+     [(h)] dList join [@@@.Esymbol] join /dList set
+     [0 1 1 1 << xList length >>
+        1 1 1 << xList length 1 sub >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_differential_operators3 {
+%% with no homogenization variables.
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     xList [@@@.esymbol] join /xList set
+     dList [@@@.Esymbol] join /dList set
+     [0 0 0 0 << xList length >>
+        0 0 0 << xList length 1 sub >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_q_difference_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {@@@.Qsymbol 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     [(q)] xList join [@@@.esymbol] join /xList set
+     [(h)] dList join [@@@.Esymbol] join /dList set
+     [0 1 << xList length >> << xList length >> << xList length >>
+        1 << xList length 1 sub >> << xList length >> << xList length >> ]
+     /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_q_difference_operators3 {
+%% with no homogenization and q variables.
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {@@@.Qsymbol 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     xList  [@@@.esymbol] join /xList set
+     dList  [@@@.Esymbol] join /dList set
+     [0 0 << xList length >> << xList length >> << xList length >>
+        0 << xList length 1 sub >> << xList length >> << xList length >> ]
+     /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_difference_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (difference) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {@@@.diffEsymbol 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     [(H)] xList join [@@@.esymbol] join /xList set
+     [(h)] dList join [@@@.Esymbol] join /dList set
+     [0 1 1 << xList length >> << xList length >>
+        1 1 << xList length 1 sub >> << xList length >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+
+/reverse {
+  /arg1 set
+  arg1 length 1 lt
+  { [ ] }
+  {
+    [
+     <<  arg1 length 1 sub >> -1 0 
+     {
+        arg1 2 1 roll get
+      } for
+     ]
+   } ifelse
+} def
+
+/memberQ {
+%% a set0 memberQ bool
+  /arg2 set  /arg1 set
+  [/a /set0 /flag /i ] pushVariables
+  [
+     /a arg1 def  /set0 arg2 def
+     /flag 0 def
+     0 1 << set0 length 1 sub >>
+     {
+        /i set
+        << set0 i get >> a eq
+        {
+           /flag 1 def 
+         }
+        { }
+        ifelse
+     } for
+  ] pop
+  /arg1 flag def
+  popVariables
+  arg1
+} def
+
+/transpose {
+  /arg1 set
+  [/mat /m /n /ans /i /j] pushVariables
+  [
+    /mat arg1 def
+    /m mat length def
+    mat 0 get isArray 
+    {   }
+    { (transpose: Argument must be an array of arrays.) error }
+    ifelse
+    /n mat 0 get length def
+    /ans [ 1 1 n { pop [ 1 1 m { pop 0 } for ]} for ] def
+    0 1 << m 1 sub >> {
+       /i set
+       0 1 << n 1 sub >> {
+         /j set
+         ans [ j i ]  <<  mat i get j get >> put
+      } for
+    } for
+   /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+    
+/getPerm {
+%% old new getPerm perm
+  /arg2 set /arg1 set
+  [/old /new /i /j /p] pushVariables
+  [
+    /old arg1 def
+    /new arg2 def
+    [
+        /p old length def
+        0 1 << p 1 sub >> 
+        {
+           /i set
+           0 1 << p 1 sub >>
+           {
+              /j set
+              old i get
+              new j get
+              eq
+              { j }
+              {   } ifelse
+            } for
+         } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+/permuteOrderMatrix {
+%% order perm puermuteOrderMatrix newOrder
+  /arg2 set /arg1 set
+  [/order /perm /newOrder /k ] pushVariables
+  [
+    /order arg1 def
+    /perm arg2 def
+    order transpose /order set
+    order 1 copy /newOrder set pop
+
+    0 1 << perm length 1 sub >> 
+    {
+       /k set
+       newOrder << perm k get >> << order k get >> put
+    } for
+    newOrder transpose /newOrder set
+  ] pop
+  /arg1 newOrder def
+  popVariables
+  arg1
+} def
+
+
+
+/complement {
+%% set0 universe complement compl
+  /arg2 set /arg1 set
+  [/set0 /universe /compl /i] pushVariables
+   /set0 arg1 def  /universe arg2 def
+  [
+     0 1 << universe length 1 sub >>
+     {
+        /i set
+        << universe i get >> set0 memberQ
+        {   }
+        { universe i get }
+        ifelse
+      } for
+   ] /arg1 set
+   popVariables
+   arg1
+} def
+
+
+%%% from order.sm1
+
+%% size i evec [0 0 ... 0 1 0 ... 0]
+/evec {
+ /arg2 set /arg1 set
+ [/size /iii] pushVariables
+ /size arg1 def  /iii arg2 def
+ [
+   0 1 << size 1 sub >>
+   {
+      iii eq
+      {  1 }
+      {  0 }
+      ifelse
+   } for
+  ] /arg1 set
+  popVariables
+  arg1
+} def
+
+%% size i evec_neg [0 0 ... 0 -1 0 ... 0]
+/evec_neg {
+ /arg2 set /arg1 set
+ [/size /iii] pushVariables
+ /size arg1 def  /iii arg2 def
+ [
+   0 1 << size 1 sub >>
+   {
+      iii eq
+      {  -1 }
+      {  0 }
+      ifelse
+   } for
+  ] /arg1 set
+  popVariables
+  arg1
+} def
+
+
+%% size i j e_ij  << matrix e(i,j) >>
+/e_ij {
+  /arg3 set /arg2 set /arg1 set
+  [/size /k /i /j] pushVariables
+  [
+    /size arg1 def  /i arg2 def /j arg3 def
+    [ 0 1 << size 1 sub >>
+      {
+         /k set
+         k i eq
+         { size j evec }
+         {
+            k j eq
+            { size i evec }
+            { size k evec }
+            ifelse
+          } ifelse
+       } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+
+%% size i j d_ij  << matrix E_{ij} >>
+/d_ij {
+  /arg3 set /arg2 set /arg1 set
+  [/size /k /i /j] pushVariables
+  [
+    /size arg1 def  /i arg2 def /j arg3 def
+    [ 0 1 << size 1 sub >>
+      {
+         /k set
+         k i eq
+         { size j evec }
+         {
+            [ 0 1 << size 1 sub >> { pop 0} for ]
+          } ifelse
+       } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+%% size matid << id matrix  >>
+/matid {
+  /arg1 set
+  [/size /k ] pushVariables
+  [
+    /size arg1 def 
+    [ 0 1 << size 1 sub >>
+      {
+         /k set
+         size k evec
+       } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+
+%% m1 m2 oplus
+/oplus {
+  /arg2 set /arg1 set
+  [/m1 /m2 /n /m  /k ] pushVariables
+  [
+    /m1 arg1 def  /m2 arg2 def
+    m1 length /n set
+    m2 length /m set
+    [
+      0 1 << n m add 1 sub >>
+      { 
+        /k set
+        k n lt
+        {
+            << m1 k get >> << m -1 evec >> join
+        }
+        {
+            << n -1 evec >> << m2 << k n sub >> get >> join
+        } ifelse
+      } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1   
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%
+
+/eliminationOrderTemplate  { %% esize >= 1
+%% if esize == 0, it returns reverse lexicographic order.
+%%  m esize eliminationOrderTemplate mat
+  /arg2 set /arg1 set
+  [/m  /esize /m1 /m2 /k ] pushVariables
+  [
+    /m arg1 def  /esize arg2 def
+    /m1 m esize sub 1 sub def
+    /m2 esize 1 sub def
+     [esize 0 gt
+      {
+       [1 1 esize
+        { pop 1 } for
+        esize 1 << m 1 sub >>
+        { pop 0 } for
+       ]  %% 1st vector
+      }
+      { } ifelse
+
+      m esize gt
+      {    
+       [1 1  esize 
+        { pop 0 } for
+        esize 1 << m 1 sub >>
+        { pop 1 } for
+       ]  %% 2nd vector
+      }
+      { } ifelse
+
+      m1 0 gt
+      {
+         m 1 sub -1 << m m1 sub >>
+         {
+              /k set
+              m  k  evec_neg
+         } for
+      }
+      { } ifelse
+
+      m2 0 gt
+      {
+         << esize 1 sub >> -1 1
+         {
+              /k set
+              m  k  evec_neg
+         } for
+      }
+      { } ifelse
+
+    ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+/elimination_order {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 2 sub >>
+    << evars length >>
+    eliminationOrderTemplate /order set
+
+    [[1]] order oplus [[1]] oplus /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y,h] --> [x,y,h]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/elimination_order2 {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+%% with no graduation and homogenization variables.
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length  >>
+    << evars length >>
+    eliminationOrderTemplate /order set
+    /compl 
+      evars << evars univ complement >> join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/elimination_order3 {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 1 sub >>
+    << evars length >>
+    eliminationOrderTemplate /order set
+
+    [[1]] order oplus  /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y] --> [x,y]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/define_ring {
+%[  (x,y,z) ring_of_polynominals
+%   (x,y) elimination_order
+%   17
+%] define_ring   
+% or
+%[  (x,y,z) ring_of_polynominals
+%   (x,y) elimination_order
+%   17
+%   [(keyword) value (keyword) value ...] 
+%] define_ring
+   /arg1 set
+   [/rp /param /foo] pushVariables
+   [/rp arg1 def
+
+     rp 0 get length 3 eq {
+       rp 0  [rp 0 get 0 get rp 0 get 1 get rp 0 get 2 get ]
+             ( ) elimination_order put
+     } { } ifelse
+
+    [
+      rp 0 get 0 get             %% x-list
+      rp 0 get 1 get             %% d-list
+      rp 0 get 2 get /param set
+      param 0 << rp 1 get >> put %% << rp 1 get >> is 17 in the example.
+      param                      %% parameters.
+      rp 0 get 3 get             %% order matrix.
+      rp length 2 eq
+      { [  ] }                   %% null optional argument.
+      { rp 2 get }
+      ifelse  
+    ]  /foo set
+    foo aload pop set_up_ring@
+   ] pop
+   popVariables
+   [(CurrentRingp)] system_variable
+} def
+
+
+[(define_qring)
+  [( [varlist ring_of_q_difference_operators order characteristic] define_qring)
+   (    Pointer to the ring. )
+   (Example: [$x,y$ ring_of_q_difference_operators $Qx,Qy$ elimination_order)
+   (          0] define_qring )
+   (cf. define_ring, set_up_ring@ <coefficient ring>, ring_def, << ,, >>)
+  ]
+] putUsages
+/define_qring {
+%[  (x,y,z) ring_of_q_difference_operators
+%   (Qx,Qy) elimination_order
+%   17
+%] define_qring   
+   /arg1 set
+   [/rp /param /foo /cring /ppp] pushVariables
+   [/rp arg1 def
+    /ppp rp 1 get def
+    %% define coefficient ring.
+    [(q) @@@.esymbol] [(h) @@@.Esymbol]
+    [ppp 2 2 2 2 1 2 2 2]
+    [[1 0 0 0] [0 1 0 0] [0 0 1 0] [0 0 0 1]]
+    [(mpMult) (poly)] set_up_ring@
+    /cring  [(CurrentRingp)] system_variable def
+
+     rp 0 get length 3 eq {
+       rp 0  [rp 0 get 0 get rp 0 get 1 get rp 0 get 2 get ]
+             ( ) elimination_order put
+     } { } ifelse
+
+    [
+      rp 0 get 0 get             %% x-list
+      rp 0 get 1 get             %% d-list
+      rp 0 get 2 get /param set
+      param 0 << rp 1 get >> put %% << rp 1 get >> is 17 in the example.
+      param                      %% parameters.
+      rp 0 get 3 get             %% order matrix.
+      rp length 2 eq
+      { [(mpMult) (diff) (coefficient ring) cring] }  %% optional argument.
+      { [(mpMult) (diff) (coefficient ring) cring] rp 2 get join }
+      ifelse  
+    ]  /foo set
+    foo aload pop set_up_ring@
+   ] pop
+   popVariables
+   [(CurrentRingp)] system_variable
+} def
+
+[(ring_def)
+ [(ring ring_def) 
+  (Set the current ring to the <<ring>>)
+  (Example: [(x,y) ring_of_polynomials [[(x) 1]] weight_vector 0 ] define_ring)
+  (          /R set)
+  (          R ring_def)
+  (In order to get the ring object R to which a given polynomial f belongs,)
+  (one may use the command )
+  (          f (ring) data_conversion /R set)
+  (cf. define_ring, define_qring, system_variable, poly (ring) data_conversion)
+  (cf. << ,, >>)
+ ]
+] putUsages
+
+/ring_def {
+  /arg1 set
+  [(CurrentRingp) arg1] system_variable
+} def
+
+
+
+/lexicographicOrderTemplate {
+% size lexicographicOrderTemplate matrix
+  /arg1 set
+  [/k /size] pushVariables
+  [
+    /size arg1 def
+    [ 0 1 << size 1 sub >> 
+      { 
+         /k set 
+         size k evec
+       } for
+    ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/lexicographic_order {
+%% [x-list d-list params]  (x,y,z) lexicograhic_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 2 sub >>
+    lexicographicOrderTemplate /order set
+
+    [[1]] order oplus [[1]] oplus /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y,h] --> [x,y,h]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/lexicographic_order2 {
+%% [x-list d-list params]  (x,y,z) lexicograhic_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+%% with no graduation and homogenization variables
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length  >>
+    lexicographicOrderTemplate /order set
+
+    /compl 
+      evars << evars univ complement >> join
+    def
+    compl univ
+    getPerm /perm set
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/lexicographic_order3 {
+%% [x-list d-list params]  (x,y,z) lexicograhic_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+%% with no homogenization variable.
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 1 sub >>
+    lexicographicOrderTemplate /order set
+
+    [[1]] order oplus /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y] --> [x,y]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%   add_rings %%%%%%%%%%%%%% 10/5
+
+/graded_reverse_lexicographic_order {
+  (  ) elimination_order
+} def
+
+
+/getX {
+%% param [1|2|3|4] getX [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     func 1 eq
+     { 
+       /low 0 def
+     }
+     {
+       /low << param 2 get >> << func 1 sub >> get def
+     } ifelse
+     /top << param 2 get >> << func 4 add >> get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 0 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getD {
+%% param [1|2|3|4] getD [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     func 1 eq
+     { 
+       /low 0 def
+     }
+     {
+       /low << param 2 get >> << func 1 sub >> get def
+     } ifelse
+     /top << param 2 get >> << func 4 add >> get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 1 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getXV {
+%% param [1|2|3|4] getXV [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     /low << param 2 get >> << func 4 add >> get def
+     /top << param 2 get >>  func get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 0 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getDV {
+%% param [1|2|3|4] getDV [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     /low << param 2 get >> << func 4 add >> get def
+     /top << param 2 get >>  func get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 1 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/reNaming {
+  %% It also changes oldx2 and oldd2, which are globals.
+  /arg1 set
+  [/i /j /new /count /ostr /k] pushVariables
+  [
+    /new arg1 def
+    /count 0 def
+    0 1 << new length 1 sub >> {
+       /i set  
+      << i 1 add >> 1 << new length 1 sub >> {
+          /j set 
+          << new i get >> << new j get >> eq
+          {
+             new j get /ostr set
+             (The two rings have the same name :) messagen
+             new i get messagen (.) message
+             (The name ) messagen
+             new i get messagen ( is changed into ) messagen
+             new j << new i get << 48 count add $string$ data_conversion >>
+                      2 cat_n >> put
+             new j get messagen (.) message
+             /oldx2 ostr << new j get >> reNaming2
+             /oldd2 ostr << new j get >> reNaming2
+             /count count 1 add def
+           }
+           { }
+           ifelse
+      } for
+    } for
+    /arg1 new def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/reNaming2 {
+  %% array oldString newString reNaming2
+  %% /aa (x) (y) reNaming2
+  /arg3 set /arg2 set /arg1 set
+  [/array /oldString /newString /k] pushVariables
+  [
+    /array arg1 def /oldString arg2 def /newString arg3 def
+      0 1 << array load length 1 sub >>
+      {
+         /k set
+         << array load k get  >> oldString eq
+         {
+            array load k newString put
+          }
+          { } ifelse
+      } for
+   ] pop
+   popVariables
+} def
+
+/add_rings {
+  /arg2 set /arg1 set
+  [/param1 /param2 
+   /newx /newd  /newv
+   /k /const /od1 /od2 /od
+   /oldx2 /oldd2  % these will be changed in reNaming.
+   /oldv
+  ] pushVariables
+  [
+     /param1 arg1 def /param2 arg2 def
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     /newx 
+       [ ]  
+       param2 1 getX join  param1 1 getX join 
+       param2 1 getXV join param1 1 getXV join
+
+       param2 2 getX join  param1 2 getX join 
+       param2 2 getXV join param1 2 getXV join
+
+       param2 3 getX join  param1 3 getX join 
+       param2 3 getXV join param1 3 getXV join
+
+       param2 4 getX join  param1 4 getX join 
+       param2 4 getXV join param1 4 getXV join
+     def
+     /newd 
+       [ ]  
+       param2 1 getD join  param1 1 getD join 
+       param2 1 getDV join param1 1 getDV join
+
+       param2 2 getD join  param1 2 getD join 
+       param2 2 getDV join param1 2 getDV join
+
+       param2 3 getD join  param1 3 getD join 
+       param2 3 getDV join param1 3 getDV join
+
+       param2 4 getD join  param1 4 getD join 
+       param2 4 getDV join param1 4 getDV join
+     def
+
+     /newv  newx newd join def
+     /oldx2 param2 0 get def  /oldd2 param2 1 get def
+     /oldx2 oldx2 {1 copy 2 1 roll pop} map def
+     /oldd2 oldd2 {1 copy 2 1 roll pop} map def
+     /newv newv reNaming def
+
+     /newx [
+       0 1 << newv length 2 idiv 1 sub >> 
+       { 
+          /k set
+          newv k get
+       } for
+     ] def
+     /newd [
+       0 1 << newv length 2 idiv 1 sub >> 
+       { 
+          /k set
+          newv << newv length 2 idiv k add >> get
+       } for
+     ] def
+     /const [
+        << param1 2 get 0 get >>
+        << param1 2 get 1 get  param2 2 get 1 get add >>
+        << param1 2 get 2 get  param2 2 get 2 get add >>
+        << param1 2 get 3 get  param2 2 get 3 get add >>
+        << param1 2 get 4 get  param2 2 get 4 get add >>
+        << param1 2 get 5 get  param2 2 get 5 get add >>
+        << param1 2 get 6 get  param2 2 get 6 get add >>
+        << param1 2 get 7 get  param2 2 get 7 get add >>
+        << param1 2 get 8 get  param2 2 get 8 get add >>
+    ] def
+
+    /od1 param1 3 get def /od2 param2 3 get def
+    od1 od2 oplus /od set
+    
+    %%oldx2 :: oldd2 ::        
+    << param1 0 get reverse >> << param1 1 get reverse >> join
+    << oldx2 reverse >> << oldd2 reverse >> join
+    join /oldv set
+
+
+    od << oldv << newx reverse newd reverse join >> getPerm >>
+    permuteOrderMatrix /od set
+
+     /arg1 [newx newd const od] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+%%%% end of add_rings
+
+
+
+[(swap01) [
+   $[ .... ] swap01 [....]$
+   $Examples: [(x,y) ring_of_polynomials (x) elmination_order 0] swap01 $
+   $          define_ring$
+]] putUsages
+%
+/swap01 {
+  /arg1 set
+  [/rg /ch ] pushVariables
+  [
+    arg1 0 get /rg set  % ring
+    arg1 1 get /ch set  % characteristics
+    [rg 0 get , rg 1 get , rg 2 get , 
+     << rg 3 get length >> 0 1 e_ij << rg 3 get >> mul ] /rg set
+    /arg1 [ rg ch ] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(swap0k) [
+   $[ .... ] k swap0k [....]$
+   $Examples: [(x,y) ring_of_polynomials (x) elmination_order 0] 1 swap0k $
+   $          define_ring$
+   $swap01 == 1 swap0k$
+]] putUsages
+%
+/swap0k {
+  /arg2 set
+  /arg1 set
+  [/rg /ch /kk] pushVariables
+  [
+    arg2 /kk set
+    arg1 0 get /rg set  % ring
+    arg1 1 get /ch set  % characteristics
+    [rg 0 get , rg 1 get , rg 2 get , 
+     << rg 3 get length >> 0 kk e_ij << rg 3 get >> mul ] /rg set
+    /arg1 [ rg ch ] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%%%%%%%%   weight vector
+[(position)
+  [(set element position number)
+   (Example: [(cat) (dog) (hot chocolate)] (cat) position ===> 0.)
+  ]
+] putUsages
+/position {
+  /arg2 set /arg1 set
+  [/univ /elem /num /flag] pushVariables
+  [
+     /univ arg1 def 
+     /elem arg2 def
+     /num -1 def /flag -1 def
+     0 1 << univ length 1 sub >> 
+     {
+        /num set
+        univ num get  elem  eq
+        { /flag 0 def exit }
+        {    }
+        ifelse   
+     }  for
+     flag -1 eq
+     {/num -1 def}
+     {  }
+     ifelse
+  ] pop
+  /arg1 num def
+  popVariables
+  arg1
+} def
+
+
+[(evecw)
+  [(size position weight evecw  [0 0 ... 0 weight 0 ... 0] )
+   (Example: 3 0 113 evecw ===> [113  0  0])
+  ]
+] putUsages
+/evecw {
+ /arg3 set /arg2 set /arg1 set
+ [/size /iii /www] pushVariables
+ /size arg1 def  /iii arg2 def /www arg3 def
+ [
+   0 1 << size 1 sub >>
+   {
+      iii eq
+      {  www }
+      {  0 }
+      ifelse
+   } for
+  ] /arg1 set
+  popVariables
+  arg1
+} def
+
+[(weight_vector)
+ [ ([x-list d-list params] [[(name) weight ...] [...] ...] weight_vector)
+   ([x-list d-list params order])
+   (Example:)
+   (   [(x,y,z) ring_of_polynomials [[(x) 100 (y) 10]] weight_vector 0] )
+   (   define_ring )
+  ]
+] putUsages
+/weight_vector {
+  /arg2 set  /arg1 set
+  [/vars /univ /w-vectors /www /k /order1 /order2] pushVariables
+  /vars arg1 def /w-vectors arg2 def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+    [
+    0 1 << w-vectors length 1 sub >> 
+    {
+      /k set
+      univ w-vectors k get w_to_vec
+    } for
+    ] /order1 set
+    %% order1 ::
+    
+    vars ( ) elimination_order 3 get /order2 set
+    vars [ << order1 order2 join >> ] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% [@@@.esymbol (x) (y) (h)] [(x) 100 (y) 10] w_to_vec [0 100 10 0]
+%%  univ              www
+/w_to_vec {
+  /arg2 set  /arg1 set
+  [/univ /www /k /vname /vweight /ans] pushVariables
+  /univ arg1 def /www arg2 def
+  [ 
+    /ans << univ length >> -1 0 evecw def
+    0  2  << www length 2 sub >>
+    {
+      %% ans ::
+      /k set
+      www k get /vname set
+      www << k 1 add >> get /vweight set
+      << univ length >> 
+      << univ vname position >>
+      vweight evecw
+      ans add /ans set
+    } for
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%%%%% end of weight_vector macro
+
+%%%%%%%% eliminatev macro
+[(eliminatev)
+ [([g1 g2 g3 ...gm] [list of variables] eliminatev [r1 ... rp])
+  (Example: [(x y z - 1). (z-1). (y-1).] [(x) (y)] eliminatev [ z-1 ])
+ ]
+] putUsages
+/eliminatev {
+ /arg2 set /arg1 set
+ [/gb /var /vars /ans /k] pushVariables
+ [
+   /gb arg1 def
+   /vars arg2 def
+   /ans gb def
+   0 1 << vars length 1 sub >> {
+     /k set
+     ans  << vars k get >> eliminatev.tmp
+     /ans set
+   } for
+   /arg1 ans def
+ ] pop
+ popVariables
+ arg1
+} def
+/eliminatev.tmp {
+  /arg2 set /arg1 set
+  [/gb /degs /ans /n /var /ff /rr /gg] pushVariables
+  [
+  /gb arg1 def
+  /var arg2 def
+  /degs gb {
+       /gg set
+       gg (0). eq 
+       { 0 }
+       { gg (ring) data_conversion /rr set 
+         gg  << var rr ,, >> degree
+       } ifelse
+    } map def
+  %%degs message
+  /ans [
+    0 1 << gb length 1 sub >> {
+      /n set
+      << degs n get  >>  0 eq
+      { gb n get /ff set
+        ff (0). eq
+        {  }
+        { ff } ifelse
+      }
+      {   } ifelse
+    } for
+  ] def
+  /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/eliminatev.tmp.org {
+  /arg2 set /arg1 set
+  [/gb /degs /ans /n /var /ff] pushVariables
+  [
+  /gb arg1 def
+  /var arg2 def
+  /degs gb {var . degree} map def
+  /ans [
+    0 1 << gb length 1 sub >> {
+      /n set
+      << degs n get  >>  0 eq
+      { gb n get /ff set
+        ff (0). eq
+        {  }
+        { ff } ifelse
+      }
+      {   } ifelse
+    } for
+  ] def
+  /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+%%% end of eliminatev macro
+
+%%% macro for output
+
+[(isInteger)
+ [(obj isInteger bool) ]
+] putUsages
+/isInteger {
+  (type?) data_conversion  << 0  (type?) data_conversion >> eq
+} def
+
+[(isArray)
+ [(obj isArray bool) ]
+] putUsages
+/isArray {
+  (type?) data_conversion << [ ] (type?) data_conversion >>  eq
+} def
+
+[(isPolynomial)
+ [(obj isPolynomial bool) ]
+] putUsages
+/isPolynomial {
+  (type?) data_conversion  
+   << [(x) (var) 0] system_variable . (type?) data_conversion >> eq
+} def
+
+[(isString)
+ [(obj isString bool) ]
+] putUsages
+/isString {
+  (type?) data_conversion  
+   << (Hi) (type?) data_conversion >> eq
+} def
+
+[(isClass)
+ [(obj isClass bool) ]
+] putUsages
+/isClass {
+  (type?) data_conversion  ClassP eq
+} def
+
+[(isUniversalNumber)
+ [(obj isUniversalNumber bool) ]
+] putUsages
+/isUniversalNumber {
+  (type?) data_conversion  UniversalNumberP eq
+} def
+
+[(isDouble)
+ [(obj isDouble bool) ]
+] putUsages
+/isDouble {
+  (type?) data_conversion  DoubleP eq
+} def
+
+[(isRational)
+ [(obj isRational bool) ]
+] putUsages
+/isRational {
+  (type?) data_conversion  RationalFunctionP eq
+} def
+
+/toString.tmp {
+  /arg1 set
+  [/obj /fname] pushVariables
+  /obj arg1 def
+  [
+    obj isArray
+    {
+       obj {toString.tmp} map
+    }
+    { } ifelse
+    obj isInteger
+    {
+       obj (dollar) data_conversion  %% not string. It returns the ascii code.
+    }
+    { } ifelse
+    obj isPolynomial
+    {
+       obj (string) data_conversion
+    } 
+    { } ifelse
+    obj isString
+    { obj }
+    { } ifelse
+    obj isUniversalNumber
+    { obj (string) data_conversion } { } ifelse
+    obj isDouble
+    { obj (string) data_conversion } { } ifelse
+    obj isRational
+    { obj (string) data_conversion } { } ifelse
+    obj tag 0 eq
+    { (null) } { } ifelse
+
+    %%% New code that uses a file.
+    obj tag 2 eq obj tag 13 eq or obj tag 14 eq or obj tag 17 eq or
+    { [(getUniqueFileName) (/tmp/sm1_toString)] extension /fname set
+      [(outputObjectToFile) fname obj] extension pop
+      fname pushfile
+      [(/bin/rm -rf ) fname] cat system
+    } { } ifelse
+  ] /arg1 set
+  popVariables
+  arg1 aload pop
+} def
+
+
+
+%% [(xy) [(x+1) (2)]] toString.tmp2 ([ xy , [ x+1 , 2 ] ])       
+/toString.tmp2 {
+  /arg1 set
+  [/obj /i /n /r] pushVariables
+  [
+    /obj arg1 def
+    obj isArray 
+    { 
+       ( [ )
+       obj {toString.tmp2} map /r set
+       /n r length 1 sub def
+       [0 1  n  {
+          /i set
+          i n eq {
+            r i get
+          }
+          { r i get ( , ) 2 cat_n }
+          ifelse
+        } for
+       ] aload length cat_n
+       ( ] )
+       3 cat_n
+     }
+     {
+        obj 
+     } ifelse
+   ] /arg1 set
+   popVariables
+   arg1 aload pop
+} def
+
+
+[(toString)
+ [(obj toString)
+  (Convert obj to a string.)
+  (Example: [ 1 (x+1). [ 2 (Hello)]] toString ==> $[ 1 , x+1 , [ 2 , Hello ]  ]$)
+ ]
+] putUsages
+/toString {
+  /arg1 set
+  [/obj ] pushVariables
+  [
+    /obj arg1 def
+    obj isString
+    { obj }
+    { obj toString.tmp toString.tmp2 }
+    ifelse /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(output)
+ [(obj output) (Output the object to the standard file sm1out.txt)]
+] putUsages
+/output {
+  /arg1 set
+  [/obj /fd ] pushVariables
+  [
+    /obj arg1 def
+    (sm1out.txt) (a) file /fd set
+    (Writing to sm1out.txt  ...) messagen
+    [ fd << obj toString >> writestring ] pop
+    [ fd << 10 (string) data_conversion >> writestring ] pop
+    ( Done.) message
+    fd closefile
+  ] pop
+  popVariables
+} def
+%%%% end of macro for output.
+[(tag)
+ [(obj tag integer)
+  (tag returns datatype.)
+  (cf. data_conversion)
+  (Example: 2 tag IntegerP eq ---> 1)
+ ]
+] putUsages
+/etag {(type??) data_conversion} def
+[(etag)
+ [(obj etag integer)
+  (etag returns extended object tag. cf. kclass.c)
+ ]
+] putUsages
+/tag {(type?) data_conversion} def
+%% datatype constants
+/IntegerP 1  (type?) data_conversion def
+/LiteralP /arg1 (type?) data_conversion def   %Sstring
+/StringP (?) (type?) data_conversion def      %Sdollar
+/ExecutableArrayP  { 1 } (type?) data_conversion def
+/ArrayP [ 0 ] (type?) data_conversion def
+/PolyP  (1).  (type?) data_conversion def
+/FileP  13 def
+/RingP  14 def
+/UniversalNumberP 15 def
+/RationalFunctionP 16 def
+/ClassP 17 def
+/DoubleP 18 def
+/@.datatypeConstant.usage [
+ (IntegerP, LiteralP, StringP, ExecutableArrayP, ArrayP, PolyP, FileP, RingP,)
+ (UniversalNumberP, RationalFunctionP, ClassP, DoubleP)
+ (      return data type identifiers.)
+ (Example:  7 tag IntegerP eq  ---> 1)
+] def
+[(IntegerP) @.datatypeConstant.usage ] putUsages
+[(LiteralP) @.datatypeConstant.usage ] putUsages
+[(StringP) @.datatypeConstant.usage ] putUsages
+[(ExecutableArrayP) @.datatypeConstant.usage ] putUsages
+[(ArrayP) @.datatypeConstant.usage ] putUsages
+[(PolyP) @.datatypeConstant.usage ] putUsages
+[(RingP) @.datatypeConstant.usage ] putUsages
+[(UniversalNumberP) @.datatypeConstant.usage ] putUsages
+[(RationalFunctionP) @.datatypeConstant.usage ] putUsages
+[(ClassP) @.datatypeConstant.usage ] putUsages
+[(DoubleP) @.datatypeConstant.usage ] putUsages
+
+[(,,)
+ [( string ring ,, polynomial)
+  (Parse the <<string>> as an element in the <<ring>> and returns)
+  (the polynomial.)
+  (cf. define_ring, define_qring, ring_def)
+  (Example: [(x,y) ring_of_polynomials [[(x) 1]] weight_vector 7]define_ring)
+  (         /myring set)
+  (         ((x+y)^4) myring ,, /f set)
+]] putUsages
+ 
+/,, {
+  /arg2 set /arg1 set
+  [/rrr] pushVariables
+  [ arg1 tag StringP eq
+    arg2 tag RingP eq  and
+    { [(CurrentRingp)] system_variable /rrr set
+      [(CurrentRingp) arg2] system_variable
+      /arg1 arg1 expand def
+      [(CurrentRingp) rrr] system_variable
+    }
+    {(Argument Error for ,, ) error }
+    ifelse
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(..) 
+ [( string .. universalNumber)
+  (Parse the << string >> as a universalNumber.)
+  (Example:  (123431232123123).. /n set)
+]] putUsages
+/.. { (universalNumber) data_conversion } def
+
+[(dc) 
+ [(Abbreviation of data_conversion.)
+]] putUsages
+/dc { data_conversion } def
+
+
+%%% start of shell sort macro.
+[(and) [(obj1 obj2 and bool)]] putUsages
+/and { add 1 copy 2 eq {pop 1} {pop 0} ifelse } def
+
+[(or) [(obj1 obj2 or bool)]] putUsages
+/or  { add 1 copy 2 eq {pop 1} { } ifelse} def
+
+[(ge) [(obj1 obj2 ge bool) (greater than or equal)]] putUsages
+%% 2 copy is equivalent to  dup 3 -1 roll dup 4 -2 roll 3 -1 roll 2 -1 roll
+/ge  { dup 3 -1 roll dup 4 -2 roll 3 -1 roll 2 -1 roll
+               eq {pop pop 1}
+                  { gt {1}
+                       {0}
+                       ifelse}
+                  ifelse} def
+
+[(le) [(obj1 obj2 le bool) (less than or equal)]] putUsages
+/le  { dup 3 -1 roll dup 4 -2 roll 3 -1 roll 2 -1 roll
+               eq {pop pop 1}
+                  { lt {1}
+                       {0}
+                       ifelse}
+                  ifelse} def
+
+[(break)
+ [(bool break)]
+] putUsages
+/break { {exit} { } ifelse } def
+
+/not { 0 eq {1} {0} ifelse} def
+/append { /arg2 set [arg2] join } def
+
+[(power)
+ [(obj1 obj2 power obj3)
+  $obj3 is (obj1)^(obj2). cf. npower$
+  $Example:  (2). 8 power ::  ===>  256 $
+ ]
+] putUsages
+%% From SSWork/yacc/incmac.sm1
+%% f k power f^k
+/power {
+  /arg2 set
+  /arg1 set
+  [/f /k /i /ans] pushVariables
+  [
+     /ans (1).. def
+     /f arg1 def   /k arg2 ..int def
+     k 0 lt {
+       1 1 << 0 k sub >> {
+         /ans f ans {mul} sendmsg2 def
+       } for
+       /ans (1).. ans {div} sendmsg2 def
+     }
+     {
+       1 1 k {
+         /ans f ans {mul} sendmsg2 def
+       } for
+     } ifelse
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(..int)
+ [ (universalNumber ..int int)]] putUsages
+/..int { %% universal number to int
+  (integer) data_conversion
+} def
+[(SmallRing) [(SmallRing is the ring of polynomials Q[t,x,T,h].)]] putUsages
+/SmallRing  [(CurrentRingp)] system_variable  def
+
+%%% From SSWork/yacc/lib/printSVector.modified.sm1
+%%% supporting code for printSVector.
+/greaterThanOrEqual {
+  /arg2 set /arg1 set
+  arg1 arg2 gt { 1 }
+  { arg1 arg2 eq {1} {0} ifelse} ifelse
+} def
+
+/lengthUniv {
+ length (universalNumber) dc
+} def
+
+/getUniv {
+ (integer) dc get
+} def  %% Do not forget to thow away /.
+
+%%[(@@@.printSVector)
+%% [( vector @@@.printSVector   outputs the <<vector>> in a pretty way.)
+%%  ( The elements of the vector must be strings.)
+%% ]
+%%] putUsages
+
+%%% compiled code by d0, 1996, 8/17.
+/@@@.printSVector {
+ /arg1 set
+[ %%start of local variables
+/keys /i /j /n /max /width /m /k /kk /tmp0 ] pushVariables [ %%local variables
+/keys arg1 def
+/n 
+keys lengthUniv
+ def
+/max (0)..  def
+/i (0)..  def
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+keys i  getUniv lengthUniv
+max  gt
+ %% if-condition
+  { %%ifbody
+/max 
+keys i   getUniv lengthUniv
+ def 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+/max max (3)..  add
+ def
+/width (80)..  def
+/m (0)..  def
+
+%%while
+{ m max  mul
+(80)..  lt
+ { } {exit} ifelse
+ /m m (1)..  add
+ def
+} loop
+/k (0)..  def
+/kk (0)..  def
+/i (0)..  def
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+keys i getUniv messagen
+/kk kk (1)..  add
+ def
+/k k 
+keys i getUniv lengthUniv
+ add
+ def
+/tmp0 max 
+keys i  getUniv lengthUniv
+ sub
+ def
+/j (0)..  def
+%%for init.
+%%for
+{ j tmp0  lt
+ {  } {exit} ifelse
+[ {%%increment
+/j  j (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+/k k (1)..  add
+ def
+kk m  lt
+ %% if-condition
+  { %%ifbody
+( ) messagen
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+kk m  greaterThanOrEqual
+ %% if-condition
+  { %%ifbody
+/kk (0)..  def
+/k (0)..  def
+newline
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+newline
+/ExitPoint ]pop popVariables %%pop the local variables
+} def
+%%end of function
+
+/rest { % returns remainder of a given list
+  [ 2 1 roll  aload length -1 roll pop ]
+} def
+[(rest)
+ [(array rest the-rest-of-the-array)
+  (Ex. [1 2 [3 0]] rest ===> [2 [3 0]])
+ ]
+] putUsages
+
+%% from SSkan/develop/minbase.sm1
+/reducedBase {
+  /arg1 set
+  [/base /minbase /n /i /j /myring /zero /f] pushVariables
+  [  
+     /base arg1 def
+     base isArray { }
+     { (The argument of reducedBase must be an array of polynomials)
+        error
+     } ifelse
+     base 0 get isPolynomial { }
+     { (The element of the argument of reducedBase must be polynomials)
+        error
+     } ifelse
+     /myring  base 0 get (ring) dc def
+     /zero (0) myring ,, def
+     base length 1 sub /n set
+     /minbase [ 0 1 n { /i set base i get } for ] def
+     0 1 n {
+       /i set
+       minbase i get  /f set
+       f zero eq {
+       }
+       {
+           0 1 n {
+               /j set
+              << minbase j get zero eq >> << i j eq >> or {
+              }
+              {
+                 [(isReducible) << minbase j get >> f] gbext
+                 {
+                     minbase j zero put
+                  }
+                 {  } ifelse
+              } ifelse
+           } for
+       } ifelse
+     } for
+     minbase { minbase.iszero } map /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(reducedBase)
+ [(base reducedBase reducedBase) 
+  (<<reducedBase>> prunes redundant elements in the Grobner basis <<base>> and)
+  (returns <<reducedBase>>.)
+  (Ex. [(x^2+1). (x+1). (x^3).] reducedBase ---> [(x+1).])
+ ]
+] putUsages 
+
+%% package functions
+/minbase.iszero {
+  dup (0). eq {
+    pop
+  }
+  { } ifelse
+} def
+
+/== {
+  message
+} def
+[(==)
+ [(obj ==)
+  (Print obj)
+ ]
+] putUsages
+
+/@@@.all_variables {
+  [/n /i] pushVariables
+  [
+     /n [(N)] system_variable def
+     [
+      0 1 n 1 sub {
+          /i set
+          [(x) (var) i] system_variable
+      } for
+      0 1 n 1 sub {
+          /i set
+          [(D) (var) i] system_variable
+      } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/weightv {
+  @@@.all_variables 
+  2 1 roll w_to_vec
+} def
+
+[(weightv)
+ [(array weightv weight_vector_for_init)
+  (cf. init)
+  (Example: /w [(x) 10 (h) 2] weightv def)
+  (         ((x-h)^10).  w init ::)
+ ]
+] putUsages
+
+/output_order {
+  /arg1 set
+  [/vars /vlist /perm /total /ans] pushVariables
+  [
+    /vlist arg1 def
+    /vars @@@.all_variables def
+    vlist { vars 2 1 roll position } map  /perm set
+    perm ==
+    /total [ 0 1 [(N)] system_variable 2 mul 1 sub { } for ] def
+    perm perm total complement join /ans set
+    [(outputOrder) ans] system_variable
+  ] pop
+  popVariables
+} def
+
+[(output_order)
+ [$ [(v1) (v2) ...] output_order $
+  (Set the order of variables to print for the current ring.)
+  (cf. system_variable)
+  (Example:  [(y) (x)] output_order)
+  $           (x*y). ::   ===> y*x $
+ ]
+] putUsages
+
+%% destraction.   SSkan/Kan/debug/des.sm1, 1998, 2/27 ,  3/1
+%% should be included in dr.sm1
+
+/factorial {
+  /arg2 set
+  /arg1 set
+  [ /f /n ] pushVariables
+  [
+    /f arg1 def
+    /n arg2 def
+    /ans (1).. def
+    n 0 lt { (f n factorial : n must be a non-negative integer) 
+              error } { } ifelse
+    0 1 n 1 sub {
+       (universalNumber) dc /i set
+         ans  << f  i sub >> mul /ans set
+    } for
+    /arg1 ans def
+   ] pop
+   popVariables
+   arg1
+} def
+
+[(factorial)
+ [(f n factorial g)
+  $integer n,  g is f (f-1) ... (f-n+1)$
+ ]
+] putUsages
+
+
+/destraction1 {
+  /arg4 set
+  /arg3 set
+  /arg2 set
+  /arg1 set
+  [/ww /f  /dx /ss /xx /coeff0 /expvec 
+   /coeffvec /expvec2 /ans /one] pushVariables
+  [
+    /f arg1 def /xx arg2 def /dx arg3 def /ss arg4 def
+    /one (1). def %% 
+    /ww [ xx toString -1 dx toString 1 ] weightv  def
+    f ww init f sub (0). eq {   } 
+    { [(destraction1 : inhomogeneous with respect to )
+        xx  ( and )  dx ] cat error } ifelse
+    f [[xx one]] replace dx coefficients  /coeff0 set
+    /expvec coeff0 0 get { (integer) dc } map def
+    /coeffvec coeff0 1 get def
+    expvec { ss 2 -1 roll factorial } map /expvec2 set
+    expvec2 coeffvec mul  /ans set
+    /arg1 ans def
+   ] pop
+   popVariables
+   arg1
+} def
+   
+
+/distraction {
+  /arg4 set
+  /arg3 set
+  /arg2 set
+  /arg1 set
+  [/f  /dx /ss /xx  /ans /n /i] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /f arg1 def /xx arg2 def /dx arg3 def /ss arg4 def
+    f (0). eq { /dist1.L goto } { f (ring) dc ring_def } ifelse
+    /n xx length  def
+    0 1 n 1 sub {
+       /i set
+       /f  f xx i get dx i get ss i get destraction1 /f set
+    } for
+    /dist1.L
+    /arg1 f def
+  ]pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(distraction)
+ [(f [ list of x-variables ] [ list of D-variables ] [ list of s-variables ])
+  (   distraction  result )
+  $Example: (x Dx Dy + Dy). [(x). (y).] [(Dx). (Dy).] [(x). (y).] distraction$
+ ]
+] putUsages
+/destraction { distraction } def
+
+
+
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% sorting
+%/N 1000 def
+%/a.shell [N -1 0 { } for ]  def
+%a.shell 0 -1000 put
+%% You need gate keeper.
+[(shell)
+ [([gate-keeper f1 f2 ... fm] shell result)
+  (Sort the list. Gate-keeper should be the smallest element)]
+] putUsages
+/shell {
+ /arg1 set
+ [/N /a.shell /h /i /v /j] pushVariables
+ [
+  /a.shell arg1 def
+  /N a.shell length  1 sub def
+
+  /h 1 def
+  {/h h 3 mul 1 add def
+   << h N ge >> break
+  } loop
+  {
+     /h << h 3 idiv >> def
+     << h 1 add >> 1 N {
+        /i set
+        /v a.shell i get def
+        /j i def
+        {
+           %% a.shell print newline
+           << a.shell << j h sub >> get >>  v  le  break
+           a.shell j << a.shell << j h sub >> get >> put
+           /j j h sub def
+           j  h le break
+         } loop
+         a.shell j v put
+     } for
+     h 1 lt break
+  } loop
+  /arg1 a.shell def
+ ] pop
+ popVariables
+ arg1
+} def
+%%%% end of shell sort macro
+
+/variableNames {
+  /arg1 set
+  [/in-variableNames /rrr /nnn /i /cp] pushVariables
+  [
+    /rrr arg1 def
+    [(CurrentRingp)] system_variable /cp set
+    [(CurrentRingp) rrr] system_variable
+    [(N)] system_variable /nnn set
+    [ 0 1 nnn 1 sub {
+         /i set [(x) (var) i] system_variable } for ]
+    [ 0 1 nnn 1 sub {
+         /i set [(D) (var) i] system_variable } for ]
+    join /arg1 set
+    [(CurrentRingp) cp] system_variable
+   ] pop
+   popVariables
+   arg1
+} def
+
+
+/makeRingMap {
+  /arg3 set /arg2 set /arg1 set
+  [/in-makeRingMap /corres /M /N /corresM /corresN 
+    /vars /vars-org /i /p /ans /cp] pushVariables
+  [
+    /corres arg1 def /M arg2 def /N arg3 def
+    /corresM corres 0 get def 
+    /corresN corres 1 get def
+    [(CurrentRingp)] system_variable /cp set
+    [(CurrentRingp) M] system_variable
+    M variableNames /vars set  vars 1 copy /vars-org set
+    0 1 corresM length 1 sub {
+      /i set
+      vars corresM i get position /p set 
+      p -1 gt {
+        vars p  $($ corresN i get $)$ 3 cat_n put
+      }  {   } ifelse
+    } for
+    /arg1 [vars M  N vars-org] def
+    [(CurrentRingp) cp] system_variable
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+
+/ringmap {
+  /arg2 set /arg1 set
+  [/in-ringmap /f /M2N /cp /f2] pushVariables
+  [
+    /f arg1 def /M2N arg2 def
+    [(CurrentRingp)] system_variable /cp set
+    f (0). eq { /f2 f def }
+    {
+       %f (ring) dc M2N 1 get eq
+       %{ } 
+       %{ (The argument polynomial does not belong to the domain ring.) message
+       %  error 
+       % } ifelse
+        [(CurrentRingp) M2N 1 get] system_variable
+        [(variableNames) M2N 0 get] system_variable
+        f toString /f2 set
+        [(variableNames) M2N 3 get] system_variable
+        f2 M2N 2 get ,, /f2 set
+    } ifelse
+    [(CurrentRingp) cp] system_variable
+    /arg1 f2 def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(makeRingMap)
+ [( rule  ring1 ring2 makeRingMap maptable   )
+  (makeRingMap is an auxiliary function for the macro ringmap. See ringmap)
+ ]
+] putUsages
+[(ringmap)
+ [(f mapTable ringmap r)
+  (f is mapped to r where the map is defined by the mapTable, which is generated)
+  (by makeRingMap as follows:)
+  ( rule  ring1 ring2 makeRingMap maptable   )
+  $Example:$
+  $[(x,y) ring_of_differential_operators ( ) elimination_order 0] define_ring$
+  $/R1 set$
+  $[(t,y,z) ring_of_differential_operators ( ) elimination_order 0] define_ring$
+  $/R2 set$
+  $[[(x) (Dx)] [((t-1) Dt) (z)]] /r0 set$
+  $r0 R1 R2 makeRingMap /maptable set$
+  $(Dx-1) R1 ,, /ff set$
+  $ ff maptable ringmap :: $
+ ]
+] putUsages
+
+
+/getVariableNames {
+  [/in-getVariableNames /ans /i /n] pushVariables
+  [
+     /n [(N)] system_variable def
+     [
+       n 1 sub -1 0 {
+         /i set
+         [(x) (var) i] system_variable
+       } for
+       n 1 sub -1 0{
+         /i set
+         [(D) (var) i] system_variable
+       } for
+      ] /arg1 set
+   ] pop
+  popVariables
+  arg1
+} def
+[(getVariableNames)
+ [(getVariableNames list-of-variables)
+  (Example: getVariableNames :: [e,x,y,E,H,Dx,Dy,h])
+ ]
+] putUsages
+  
+/tolower {
+  /arg1 set
+  [/in-tolower /s /sl] pushVariables
+  [
+    /s arg1 def
+    s (array) dc /s set
+    s { tolower.aux (string) dc } map /sl set
+    sl aload length cat_n /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/tolower.aux {
+  /arg1 set
+  arg1 64 gt  arg1 96 lt and
+  { arg1 32 add }
+  { arg1 } ifelse
+} def
+[(tolower)
+ [(string tolower string2)
+  (Capital letters in string are converted to lower case letters.)
+  $Example:  (Hello World) tolower :: (hello world)$
+ ]
+] putUsages
+
+/hilbert {
+  /arg2 set
+  /arg1 set
+  [/in-hilb /base /vlist /rrrorg /rrr /ff /strf] pushVariables
+  [
+     /base arg1 def
+     /vlist arg2 def
+     [(CurrentRingp)] system_variable /rrrorg set
+     /strf 0 def
+     vlist isString
+     {  /vlist [ vlist to_records pop ] def }
+     {  } ifelse
+     base isArray {  }
+     { (hilb : the first argument must be an array of polynomials.) 
+        error
+     } ifelse
+     vlist isArray {  }
+     { (hilb : the second argument must be an array of polynomials.)
+        error
+     } ifelse
+
+     vlist 0 get isString{ /strf 1 def } { } ifelse
+     base 0 get isPolynomial {  
+       base 0 get (ring) dc /rrr set
+     }
+     { 
+       [  vlist { (,) } map  aload length cat_n ring_of_polynomials 0 ] define_ring
+       /rrr set
+       base { . } map /base set
+     } ifelse
+     vlist { dup isPolynomial {  } { rrr ,, } ifelse } map /vlist set
+
+     [(hilbert) base vlist] extension /ff set
+     [(CurrentRingp) rrrorg] system_variable
+     /arg1 ff def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/hilbReduce {
+  /arg2 set
+  /arg1 set
+  [/hhh /f /d /vv /ans] pushVariables
+  [
+     /hhh arg1 def %% hilbert function 
+     /vv arg2 def
+     /f hhh 1 get def
+     f (0). eq { /ans [0] def /hilbReduce.label goto } { } ifelse
+     f vv << f (ring) dc >> ,,  degree /vv set
+     hhh 0 get /d set  
+     d   d  (integer) dc factorial /d set
+     d << vv (universalNumber) dc vv factorial >> idiv /d set
+     [(divByN) f d] gbext /ans set
+     ans 1 get (0). eq 
+     {  }
+     { (hilbReduce : Invalid hilbert function ) error } ifelse
+     /hilbReduce.label
+     ans 0 get /arg1 set
+  ]  pop
+  popVariables
+  arg1
+} def
+
+
+[(hilbReduce)
+ [([f,g] v hilbReduce p) 
+  (output of hilbert [f,g];  string v; poly p)
+  (p is  (g/(f!))*deg(g)!)
+  $ [(x) (y^3)] (x,y,z) hilbert (h) hilbReduce $
+ ]
+] putUsages
+[(hilbert)
+ [(base vlist hilbert [m f])
+  (array of poly base; array of poly vlist; number m; poly f;)
+  (array of string base; array of string vlist; number m; poly f;)
+  (array of string base; string vlist; number m; poly f;)
+  ([m f] represents the hilbert function (a_d x^d + ...)/m! where f=a_d x^d + ...)
+  (The << base >> should be a reduced Grobner basis.)
+  (Or, when the << base >> is an array of string,)
+  (all entries should be monomials.)
+  (Example: [(x^2) (x y )] (x,y)  hilbert ::  [2, 2 h + 4] )
+  (Example: [(x^2) (y^2)] (x,y) hilbert (h) hilbReduce ::  4)
+  (Example: [(x^2) (y^2) (x y)] [(x) (y)] hilbert (h) hilbReduce ::  3)
+  (cf. hilb,    hilbReduce)
+ ]
+] putUsages
+       
+/hilb {
+  hilbert (h) hilbReduce
+} def
+[(hilb)
+ [(base vlist hilb f)
+  (array of poly base; array of poly vlist;  poly f;)
+  (array of string base; array of string vlist; poly f;)
+  (array of string base; string vlist; number m; poly f;)
+  (f is the hilbert function (a_d x^d + ...)/m!)
+  (The << base >> should be a reduced Grobner basis.)
+  (Or, when the << base >> is an array of string,)
+  (all entries should be monomials.)
+  (Example: [(x^2) (x y )] (x,y)  hilb ::   h + 2 )
+  (Example: [(x^2) (y^2)] (x,y) hilb  4)
+  (Example: [(x^2) (y^2) (x y)] [(x) (y)] hilb ::  3)
+  (cf. hilbert,    hilbReduce)
+ ]
+] putUsages
+
+[(diff0)
+ [ (f v n diff0 fn)
+   (<poly> fn, v ; <integer>  n ; <poly> fn)
+   (fn = v^n f where v^n is the operator to take the n-th differential.)
+   (We can use diff0 only in the ring of differential operators.)
+   (Example: [(x) ring_of_differential_operators 0] define_ring )
+   (         (x^10-x). (Dx). 1 diff0 ::)
+ ]
+] putUsages  
+/diff0 {
+  /arg3 set /arg2 set /arg1 set
+  [/in-diff /f /v /n /fn /rrr] pushVariables
+  [
+    /f arg1 def /v arg2 def /n arg3 def
+    f (0). eq 
+    { /fn (0). def }
+    {
+       f (ring) dc /rrr set
+       v toString (^) n toString 3 cat_n rrr ,,
+       f mul 
+       [[v (0).] [(h) rrr ,, (1) rrr ,,]] replace /fn set
+     } ifelse
+     fn /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(action)
+ [( f g action p )
+  (<poly> f,g,p)
+  (Act f on g. The result is p. The homogenization variable h is put to 1.)
+  (We can use diff0 only in the ring of differential operators.)
+  (Example: [(x) ring_of_differential_operators 0] define_ring )
+  (         (Dx^2). (x^2). action ::)
+ ]
+] putUsages 
+/action {
+  /arg2 set /arg1 set
+  [/in-action /f /g /h /rr /rr.org /rule] pushVariables
+  [
+    /f arg1 def /g arg2 def
+    /rr.org [(CurrentRingp)] system_variable def
+    f (0). eq
+    { /h (0). def }
+    {
+        f (ring) dc /rr set
+        [(CurrentRingp) rr] system_variable 
+        f g mul /h set
+        /rule getVariableNames def
+        0 1 rule length 2 idiv { rule rest /rule set } for
+        rule { . [ 2 1 roll (0). ] } map /rule set
+        rule << rule length 1 sub >> [(h). (1).] put
+        %%ex. rule = [[(Dx1). (0).] [(Dx2). (0).] [(h). (1).]]
+        /h h rule replace def
+    } ifelse
+    [(CurrentRingp) rr.org ] system_variable
+    /arg1 h def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(ord_w)
+ [(ff [v1 w1 v2 w2 ... vm wm] ord_w d)
+  (poly ff; string v1; integer w1; ...)
+  (order of ff by the weight vector [w1 w2 ...])
+  (Example: [(x,y) ring_of_polynomials 0] define_ring )
+  (          (x^2 y^3-x). [(x) 2 (y) 1] ord_w ::)
+ ]
+] putUsages 
+/ord_w {
+  /arg2 set /arg1 set
+  [/ord_w-in /fff /www /rrr /iii /ddd] pushVariables
+  [
+    /fff arg1 def
+    /www arg2 def
+    fff (0). eq { /ddd -intInfinity def /ord_w.LLL goto} { } ifelse
+    fff (ring) dc /rrr set
+    fff init /fff set
+    /ddd 0 def
+    0 2 www length 1 sub {
+      /iii set
+      fff << www iii get rrr ,, >> degree
+      << www iii 1 add get >> mul
+      ddd add /ddd set
+    } for
+    /ord_w.LLL
+    /arg1 ddd def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(laplace0)
+ [
+ (f [v1 ... vn] laplace0 g)
+ (poly f ; string v1 ... vn ; poly g;)
+ (array of poly f ; string v1 ... vn ; array of poly g;)
+ ( g is the lapalce transform of f with respect to variables v1, ..., vn.)
+ $Example: (x Dx + y Dy + z Dz). [(x) (y) (Dx) (Dy)] laplace0$
+ $ x --> -Dx, Dx --> x,  y --> -Dy, Dy --> y. $
+ ]
+] putUsages 
+/laplace0 {
+  /arg2 set /arg1 set
+  [/in-laplace0 /ff /rule /vv /nn /ii /v0 /v1 /rr /ans1 /Dascii
+  ] pushVariables
+  [
+  /ff arg1 def /vv arg2 def
+  /Dascii @@@.Dsymbol (array) dc 0 get def %%D-clean
+  /rule [ ] def
+  ff isPolynomial { 
+   ff (0). eq { /ans1 (0). def }
+   {
+     ff (ring) dc /rr set
+     /nn vv length def
+     0 1 nn 1 sub {
+      /ii set
+      vv ii get (type?) dc 1 eq
+      {  }  % skip, may be weight [(x) 2 ] is OK.
+      {
+         /v0 vv ii get (string) dc def
+         v0 (array) dc 0 get Dascii eq  %% If the first character is D?
+         {  rule  %% Dx-->x
+            [v0 rr ,, 
+            v0 (array) dc rest { (string) dc} map aload length cat_n rr ,,]
+            append /rule set
+         }
+         { rule   %% x --> -Dx
+           [v0 rr ,,
+            (0). 
+            [Dascii] v0 (array) dc join { (string) dc } map aload length 
+            cat_n rr ,,  sub
+           ]
+           append /rule set
+         } ifelse
+      } ifelse
+     } for
+     % rule message
+     ff rule replace [[(h) rr ,, (1) rr ,,]] replace /ans1 set
+     } ifelse
+    }
+   { 
+       ff isArray { /ans1 ff {vv laplace0 } map def }
+       {
+         (laplace0 : the first argument must be a polynomial.) error 
+       }ifelse
+    } ifelse
+    /arg1 ans1 def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(ip1)
+ [( [v1 ... vn] [w1 ... wn] m ip1 [f1 ... fs])
+  (<poly> v1 ... vn ; <integer> w1 ... wn m)
+  (<poly> f1 ... fs )
+  (Example: [(x,y) ring_of_differential_operators 0] define_ring )
+  (         [(Dx). (Dy).] [2 1] 3 ip1  ::    [(2 Dx Dy). (Dy^3).])
+  (         Returns Dx^p Dy^q such that  2 p + 1 q = 3.)
+ ]
+] putUsages
+/ip1 {
+  /arg3 set /arg2 set /arg1 set
+  [/in-ip1 /vv /ww /m /ans /k /tt /rr /rr.org /ff /tmp1] pushVariables
+  [ 
+     /vv arg1 def /ww arg2 def /m arg3 def
+     vv 0 get (ring) dc /rr set
+     /rr.org [(CurrentRingp)] system_variable def
+     [(CurrentRingp) rr] system_variable
+     [(x) (var) [(N)] system_variable 1 sub ] system_variable . /tt set
+     /ans [ ] def
+     m 0 lt 
+     {  }
+     {
+       vv 
+       ww { tt 2 1 roll power } map mul /tmp1 set
+ %%      (tmp1 = ) messagen tmp1 message
+       0 1 m {
+         /k set
+         k 0 eq {
+           /ff (1). def
+         } 
+         { tmp1 k power /ff set } ifelse
+         ff [[(h). (1).]] replace /ff set
+ %%        ff message
+         {
+           ff init tt degree m eq {
+             /ans ans [ ff init [[tt (1).]] replace ] join def
+           } { } ifelse
+           ff ff init sub /ff set
+           ff (0). eq { exit } {  } ifelse
+         } loop
+        } for
+      } ifelse
+     [(CurrentRingp) rr.org] system_variable
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(findIntegralRoots)
+ [( f findIntegralRoots vlist)
+  (poly f; list of integers vlist;)
+  (string f; list of integers vlist;)
+  (f is a polynomials in one variable s. vlist the list of integral roots sorted.)
+  (Example: (s^4-1) findIntegralRoots )
+ ]
+] putUsages
+
+/findIntegralRoots { findIntegralRoots.slow } def
+
+/findIntegralRoots.slow {  %% by a stupid algorithm
+  /arg1 set
+  [/in-findIntegralRoots
+   /ff /kk /roots /rrr /nn /k0 /d.find
+  ] pushVariables
+  [
+    /ff arg1 def
+    /roots [  ] def
+    /rrr [(CurrentRingp)] system_variable def
+    ff toString /ff set
+    [(s) ring_of_polynomials ( ) elimination_order 0] define_ring
+    ff . /ff set
+
+    %%ff message  %% Cancel the common numerical factor of the polynomial ff.
+    ff (s). coeff 1 get { (universalNumber) dc } map ngcd /d.find set
+    [(divByN) ff d.find] gbext 0 get /ff set
+    %% d.find message
+    %% ff message
+
+    ff [[(s). (0).]] replace /k0 set
+    k0 (universalNumber) dc /k0 set
+    k0 (0).. eq { roots (0).. append /roots set } { } ifelse
+
+    {
+      ff [[(s). (0).]] replace /nn set
+      nn (universalNumber) dc /nn set
+      nn (0).. eq
+      { (s^(-1)). ff mul /ff set } 
+      { exit }
+      ifelse
+    } loop 
+    ff [[(s). (0).]] replace /k0 set
+    k0 (universalNumber) dc /k0 set
+    k0 (-40000).. gt k0 (40000).. lt and not {
+     [(Roots of b-function cannot be obtained by a stupid method.) nl
+      (Use ox_asir for efficient factorizations, or restall and bfm manually.)
+       nl
+      (ox_asir server will be distributed from the asir ftp cite.) nl
+      (See lib/ttt.tex for details.) nl
+      ] cat
+      error
+    } {  } ifelse
+    nn (0).. lt { (0).. nn sub /nn set } {  } ifelse
+    /kk  (0).. nn sub  def
+    /roots [ kk (1).. sub ] roots join def
+    {
+       kk nn gt { exit } {  } ifelse
+       ff [[(s). kk (poly) dc]] replace
+       (0). eq 
+       { /roots roots kk append def }
+       {  } ifelse 
+       kk (1).. add /kk set
+    }  loop
+    [(CurrentRingp) rrr] system_variable
+    roots { (integer) dc } map /roots set %% ??  OK?
+    roots shell rest /roots set
+    /arg1 roots def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ngcd {
+  /arg1 set
+  [/in-ngcd /nlist /g.ngcd /ans] pushVariables
+  [
+     /nlist arg1 def
+     nlist length 2 lt
+     { /ans nlist 0 get def /L.ngcd goto }
+     {
+        [(gcd) nlist 0 get nlist 1 get] mpzext /g.ngcd set
+        g.ngcd (1).. eq { /ans (1).. def /L.ngcd goto } { } ifelse
+        [g.ngcd] nlist rest rest join ngcd /ans set
+      } ifelse
+     /L.ngcd
+     ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(ngcd)
+ [(nlist ngcd d )
+  (list of numbers nlist; number d;)
+  (d is the gcd of the numbers in nlist.)
+  (Example: [(12345).. (67890).. (98765)..] ngcd )
+]] putUsages
+
+/dehomogenize {
+  /arg1 set
+  [/in-dehomogenize /f /rr /ans /cring] pushVariables
+  [
+     /f arg1 def
+     f isPolynomial {
+       f (0). eq 
+       { f /ans set }
+       {
+          f (ring) dc /rr set
+          [(CurrentRingp)] system_variable /cring set
+          [(CurrentRingp) rr] system_variable 
+          f [[[(D) (var) 0] system_variable . (1). ]] replace /ans set
+          [(CurrentRingp) cring] system_variable
+       } ifelse
+     } 
+     { 
+        f isArray { 
+	  f { dehomogenize } map /ans set
+        }
+        {(dehomogenize: argument should be a polynomial.) error }
+        ifelse
+     } ifelse
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(dehomogenize)
+ [(obj dehomogenize obj2)
+  (dehomogenize puts the homogenization variable to 1.)
+  (Example:  (x*h+h^2). dehomogenize ::    x+1 )
+ ]
+] putUsages
+
+
+/from_records { { (,) } map aload length cat_n } def
+[(from_records)
+ [ ([s1 s2 s3 ... sn] from_records (s1,s2,...,sn,))
+   (Example : [(x) (y)] from_records ::    (x,y,))
+   (cf. to_records)
+ ]
+] putUsages
+/popEnv {
+  { system_variable pop } map pop
+} def
+
+/pushEnv {
+   %% opt=[(CurrentRingp) (NN)] ==> [[(CurrentRingp) val] [(NN) val]]
+   { [ 2 1 roll dup [ 2 1 roll ] system_variable ] } map
+} def
+[(pushEnv)
+ [(keylist pushEnv envlist)
+  (array of string keylist, array of [string object] envlist;)
+  (Values <<envlist>> of the global system variables specified )
+  (by the <<keylist>> is push on the stack.)
+  (keylist is an array of keywords for system_variable.)
+  (cf. system_variable, popEnv)
+  (Example:  [(CurrentRingp) (KanGBmessage)] pushEnv)
+ ]
+] putUsages
+[(popEnv)
+ [(envlist popEnv)
+  (cf. pushEnv)
+ ]
+] putUsages
+
+/npower {
+  /arg2 set
+  /arg1 set
+  [/f /k /i /ans] pushVariables
+  [
+     /f arg1 def   /k arg2 ..int def
+     f tag PolyP eq {
+       /ans (1). def
+     } {
+       /ans (1).. def
+     } ifelse
+     k 0 lt {
+       1 1 << 0 k sub >> {
+         /ans f ans {mul} sendmsg2 def
+       } for
+       /ans (1).. ans {div} sendmsg2 def
+     }
+     {
+       1 1 k {
+         /ans f ans {mul} sendmsg2 def
+       } for
+     } ifelse
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(npower)
+ [(obj1 obj2 npower obj3)
+  (npower returns obj1^obj2 as obj3)
+  (The difference between power and npower occurs when we compute f^0)
+  (where f is a polynomial.)
+  $power returns number(universalNumber) 1, but npower returns 1$
+  (in the current ring.)
+ ]
+] putUsages
+
+/gensym {
+  (dollar) dc 2 cat_n
+} def
+[(gensym)
+ [(x i gensym xi)
+  (string x; integer i; string xi)
+  (It generate a string x indexed with the number i.)
+  $Example:  (Dx) 12 gensym (Dx12)$
+ ]
+] putUsages
+
+/cat {
+  { toString } map aload length cat_n
+} def
+[(cat)
+ [(a cat s)
+  (array a ; string s;)
+  (cat converts each entry of << a >> to a string and concatenates them.)
+  (Example: [ (x) 1 2] cat ==> (x12))
+ ]
+] putUsages
+
+
+%%%%%%%%%%%%%%%%%%% pmat-level
+/pmat-level {
+  /arg2 set
+  /arg1 set
+  [/n /i /m /lev /flag] pushVariables
+  [
+    /m arg1 def
+    /lev arg2 def
+    m isArray {
+       /n m length def
+       n 0 eq { /flag 0 def }
+       { m 0 get isArray { /flag 1 def } { /flag 0 def} ifelse } ifelse
+    } {  /flag 0 def } ifelse
+
+    flag {
+      0 1 lev {
+        pop ( ) messagen 
+      } for
+      ([ ) message
+      0 1 n 1 sub {
+        /i set
+        m i get lev 1 add pmat-level
+      } for
+      0 1 lev {
+        pop ( ) messagen 
+      } for
+      (]) message
+    }
+    { 
+       0 1 lev {
+         pop ( ) messagen 
+       } for
+       ( ) messagen
+       m message 
+    } ifelse
+  ] pop
+  popVariables
+} def
+
+/pmat {  0 pmat-level } def
+
+[(pmat)
+ [(f pmat)
+  (array f;)
+  (f is pretty printed.)
+ ]
+] putUsages
+
+
+/adjoint1 {
+  /arg2 set
+  /arg1 set
+  [/in-adjoint1 /f /p /q /xx /dxx /ans /g /one] pushVariables
+  [
+     /f arg1 def
+     /xx arg2 def
+     f isPolynomial {  }
+     { (adjoint1: the first argument must be a polynomial.) message
+       pop popVariables
+       (adjoint1: the first argument must be a polynomial.)  error
+     } ifelse
+     /ans (0). def
+     f (0). eq {   }
+     {
+        /xx xx (string) dc def
+        /dxx [@@@.Dsymbol xx] cat def
+        /xx xx f (ring) dc ,, def
+        /dxx dxx f (ring) dc ,, def
+        /one (1) f (ring) dc ,, def
+
+        { 
+          /g f init def
+          /f f g sub def
+          /p g xx degree def
+          /q g dxx degree def
+          g [[xx one] [dxx one]] replace /g set
+          g
+          << (0). dxx sub q npower    xx p npower mul >>
+          mul
+          ans add /ans set
+          f (0). eq { exit } { } ifelse
+        } loop
+        ans dehomogenize /ans set
+     } ifelse
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/adjoint {
+  /arg2 set
+  /arg1 set
+  [/in-adjoint /f /xx /xx0] pushVariables
+  [
+     /f arg1 def /xx arg2 def
+     xx toString /xx set
+     [xx to_records pop] /xx set
+     xx { /xx0 set f xx0 adjoint1 /f set } map
+     /arg1 f def
+  ]pop
+  popVariables
+  arg1
+} def
+
+[(adjoint)
+ [(f xlist adjoint g)
+  (poly f; string xlist; poly g;)
+  (g is the adjoint operator of f.)
+  (The variables to take adjoint are specified by xlist.)
+  (Example: [(x,y) ring_of_differential_operators 0] define_ring)
+  (          (x^2 Dx - y x Dx Dy-2). (x,y) adjoint )
+  $          ((-Dx) x^2 - (-Dx) (-Dy) x y -2). dehomogenize sub :: ==> 0$
+]] putUsages
+
+%%%%% diagonal for tensor products
+%% 1998, 12/4 (Sat)
+%% s_i = x_i, t_i = x_i - y_i,    Restrict to t_i = 0.
+%% x_i = x_i, y_i = s_i - t_i,
+%% Dx_i = Dt_i + Ds_i, Dy_i = -Dt_i.
+/diagonalx {
+  /arg2 set
+  /arg1 set
+  [/in-diagonalx /f] pushVariables
+  [
+    (Not implemented yet.) message
+  ] pop
+  popVariables
+  arg1
+} def
+  
+
+
+%%%%%%%%%%%  distraction2 for b-function
+/distraction2 {
+  /arg4 set
+  /arg3 set
+  /arg2 set
+  /arg1 set
+  [/f  /dx /ss /xx  /ans /n /i /rr] pushVariables
+  [
+    /f arg1 def /xx arg2 def /dx arg3 def /ss arg4 def
+    f (0). eq {  }
+    {
+      /rr f (ring) dc def
+      xx {toString rr ,, } map /xx set
+      dx {toString rr ,, } map /dx set
+      ss {toString rr ,, } map /ss set
+      /n xx length  def
+      0 1 n 1 sub {
+         /i set
+         /f  f xx i get dx i get ss i get destraction2.1 /f set
+      } for
+    } ifelse
+    /arg1 f def
+  ]pop
+  popVariables
+  arg1
+} def
+[(distraction2)
+ [(f [ list of x-variables ] [ list of D-variables ] [ list of s-variables ])
+  (   distraction2  result )
+  $Example 1: [(x,y) ring_of_differential_operators 0] define_ring $
+  $  (x^2 Dx Dy + x Dy). [(x). (y).] [(Dx). (Dy).] [(x). (y).] distraction2$
+  $Example 2: (x^4 Dx^2 + x^2). [(x).] [(Dx). ] [(x).] distraction2$
+ ]
+] putUsages
+/destraction2.1 {
+  /arg4 set
+  /arg3 set
+  /arg2 set
+  /arg1 set
+  [/ww /f  /dx /ss /xx /coeff0 /expvec 
+   /coeffvec /expvec2 /ans /one /rr /dd] pushVariables
+  [
+    /f arg1 def /xx arg2 def /dx arg3 def /ss arg4 def
+    f (ring) dc /rr set
+    /one (1) rr ,, def %% 
+    /ww [ xx toString -1 dx toString 1 ] weightv  def
+    f ww init f sub (0). eq {   } 
+    { [(destraction2.1 : inhomogeneous with respect to ) 
+        xx  ( and )  dx  nl
+       (Your weight vector may not be generic.)
+      ] cat error } ifelse
+    /dd << f dx degree >> << f xx degree >> sub def
+    f [[xx one]] replace dx coefficients  /coeff0 set
+    /expvec coeff0 0 get { (integer) dc } map def
+    /coeffvec coeff0 1 get def
+    expvec { ss 2 -1 roll factorial } map /expvec2 set
+    expvec2 coeffvec mul  /ans set
+    %% x^p d^q, (p > q) case.  x^2( x^2 Dx^2 + x Dx + 1)
+    dd 0 lt {
+      %% (ss+1) (ss+2) ... (ss+d)
+      one 1 1 0 dd sub { (universalNumber) dc ss add mul} for
+      ans mul /ans set
+    }
+    {  } ifelse
+    /arg1 ans def
+   ] pop
+   popVariables
+   arg1
+} def
+
+/message-quiet  {
+  @@@.quiet { pop } { message } ifelse
+} def
+[(message-quiet)
+ [(s message-quiet )
+ (string s;)
+ (It outputs the message s when @@@.quiet is not equal to 1.)
+ (@@@.quiet is set to 1 when you start sm1 with the option -q.)
+]] putUsages
+/messagen-quiet  {
+  @@@.quiet { pop } { messagen } ifelse
+} def
+[(messagen-quiet)
+ [(s messagen-quiet )
+ (string s;)
+ (It outputs the message s without the newline when @@@.quiet is not equal to 1.)
+ (@@@.quiet is set to 1 when you start sm1 with the option -q.)
+]] putUsages
+   
+/getvNames0 {
+  /arg1 set
+  [/in-getvNames0 /nlist /nn /i] pushVariables
+  [
+    /nlist arg1 def
+    [(N)] system_variable /nn set
+    nlist { /i set
+       i nn lt {
+         [(x) (var) i] system_variable
+       } {
+         [(D) (var) i nn sub] system_variable
+       } ifelse
+    } map
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getvNames {
+  [/in-getvNames /nn] pushVariables
+  [
+    [(N)] system_variable /nn set
+    [0 1 nn 2 mul 1 sub {  } for] getvNames0 /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(getvNames)
+[(getvNames vlist)
+ (list vlist)
+ (It returns of the list of the variables in the order x0, x1, ..., D0, ...)
+ (Use with [(variableNames) vlist] system_variable.)
+ (cf. nlist getvNames0 vlist is used internally. cf. getvNamesC)
+]] putUsages
+
+/getvNamesC {
+  [/in-getvNamesC /nn /i] pushVariables
+  [
+    [(N)] system_variable /nn set
+    [nn 1 sub -1 0 {  } for nn 2 mul 1 sub -1 nn { } for ] getvNames0 /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(getvNamesC)
+[(getvNamesC vlist)
+ (list vlist)
+ $It returns of the list of the variables in the order 0, 1, 2, ... $
+ $(cmo-order and output_order).$
+ (cf. getvNames)
+]] putUsages
+
+/getvNamesCR {
+  /arg1 set
+  [/in-getvNamesCR /rrr] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /rrr arg1 def
+    rrr isPolynomial {
+      rrr (0). eq { (No name field for 0 polynomial.) error }
+      { rrr (ring) dc /rrr set } ifelse
+    } { } ifelse
+    [(CurrentRingp) rrr] system_variable
+    getvNamesC /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(getvNamesCR)
+[(obj getvNamesCR vlist)
+ (obj ring | poly ; list vlist)
+ $It returns of the list of the variables in the order 0, 1, 2, ... (cmo-order)$
+ (for <<obj>>.)
+ (Example: ( (x-2)^3 ). /ff set )
+ (         [(x) ring_of_differential_operators 0] define_ring ff getvNamesCR ::)
+]] putUsages
+
+
+/reduction-noH {
+  /arg2 set
+  /arg1 set
+  [/in-reduction-noH /ff /gg] pushVariables
+  [(Homogenize)] pushEnv
+  [
+    /ff arg1 def
+    /gg arg2 def
+    [(Homogenize) 0] system_variable
+    ff gg reduction /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(reduction-noH)
+[(f g reduction-noH r)
+ (poly f; array g; array r;)
+ (Apply the normal form algorithm for f with the set g. All computations are)
+ (done with the rule Dx x = x Dx +1, i.e., no homogenization, but other)
+ (specifications are the same with reduction. cf. reduction)
+ (g should be dehomogenized.)
+]] putUsages
+
+/-intInfinity -999999999  def
+/intInfinity   999999999  def
+[(intInfinity)
+[(intInfinity = 999999999)]
+] putUsages
+[(-intInfinity)
+[(-intInfinity = -999999999)]
+] putUsages
+
+
+/maxInArray {
+  /arg1 set
+  [/in-maxInArray /v /ans /i /n] pushVariables
+  [
+    /v arg1 def
+    /n v length def
+    /maxInArray.pos 0 def
+    n 0 eq {
+      /ans null def
+    } {
+      /ans v 0 get def
+      1 1 n 1 sub {
+        /i set
+        v i get ans gt { 
+           /ans v i get def 
+           /maxInArray.pos i def
+        } { } ifelse
+      } for
+    } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(maxInArray)
+[( [v1 v2 ....] maxInArray m )
+ (m is the maximum in [v1 v2 ...].)
+ (The position of m is stored in the global variable maxInArray.pos.)
+]] putUsages
+
+/cancelCoeff {
+ /arg1 set
+ [/in-cancelCoeff /ff /gg /dd /dd2] pushVariables
+ [  /ff arg1 def
+    ff (0). eq {
+      /label.cancelCoeff2 goto
+    } {  } ifelse
+    /gg ff def
+    /dd [(lcoeff) ff init ] gbext (universalNumber) dc def
+    {
+       gg (0). eq { exit} {  } ifelse
+       [(lcoeff) gg init] gbext (universalNumber) dc  /dd2 set
+       [(gcd) dd dd2] mpzext /dd set
+       dd (1).. eq {
+         /label.cancelCoeff goto
+       } {  } ifelse
+       /gg gg gg init sub def
+     } loop
+     [(divByN)  ff dd] gbext 0 get /ff set
+    /label.cancelCoeff
+     [(lcoeff) ff init] gbext (universalNumber) dc (0).. lt
+     { ff (-1).. mul /ff set } {  } ifelse
+    /label.cancelCoeff2
+    /arg1 ff def
+ ] pop
+ popVariables
+ arg1
+} def
+[(cancelCoeff)
+ [(f cancelcoeff g)
+  (poly f,g;)
+  (Factor out the gcd of the coefficients.)
+  (Example: (6 x^2 - 10 x). cancelCoeff)
+  (See also gbext.)
+]] putUsages
+
+
+/flatten {
+  /arg1 set
+  [/in-flatten /mylist] pushVariables
+  [
+     /mylist arg1 def
+     mylist isArray {
+       mylist { dup isArray { aload pop } { } ifelse } map /mylist set
+     }{ } ifelse
+     /arg1 mylist def
+  ] pop
+  popVariables
+  arg1
+} def
+[(flatten)
+ [(list flatten list2)
+  (Flatten the list.)
+  (Example 1: [ [1 2 3] 4 [2]] flatten    ===> [1 2 3 4 2])
+]] putUsages
+
+%% Take first N elements.
+/carN {
+  /arg2 set
+  /arg1 set
+  [/in-res-getN /pp /nn /ans] pushVariables
+  [
+     /nn arg2 def
+     /pp arg1 def
+     pp isArray {
+       pp length nn lt {
+         /ans pp def
+       } {
+         [pp aload length nn sub /nn set 1 1 nn { pop pop } for ] /ans set
+       } ifelse
+     } {
+       /ans pp def
+     } ifelse
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(carN)
+[([f1 ... fm]  n carN  [f1 ... fn])
+ (carN extracts the first n elements from the list.)
+]] putUsages
+
+/getRing {
+  /arg1 set
+  [/in-getRing /aa /n /i /ans] pushVariables
+  [
+    /aa arg1 def
+    /ans null def
+    aa isPolynomial {
+      aa (0). eq { 
+      } {
+         /ans aa (ring) dc def
+      } ifelse
+    } {
+     aa isArray {
+       /n aa length 1 sub def
+       0 1 n { /i set aa i get getRing /ans set
+               ans tag 0 eq {  } { /getRing.LLL goto } ifelse
+       } for
+     }{ } ifelse
+    } ifelse
+    /getRing.LLL
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(getRing)
+[(obj getRing rr)
+ (ring rr;)
+ (getRing obtains the ring structure from obj.)
+ (If obj is a polynomial, it returns the ring structure associated to)
+ (the polynomial.)
+ (If obj is an array, it recursively looks for the ring structure.)
+]] putUsages
+/toVectors {
+  /arg1 set
+  [/in-toVectors /gg /n /ans] pushVariables
+  [
+    /gg arg1 def
+    gg isArray {
+      gg length 0 eq {
+        /ans [ ] def
+        /toVectors.LLL goto
+      } {
+        gg 0 get isInteger {
+          gg @@@.toVectors2 /ans set
+        } {
+          gg @@@.toVectors /ans set
+        } ifelse
+        /toVectors.LLL goto
+      } ifelse
+    } {
+      %% It is not array.
+      gg (array) dc /ans set
+    } ifelse
+    /toVectors.LLL
+    /arg1 ans def
+   ] pop
+   popVariables
+   arg1
+} def
+/@@@.toVectors2 {
+  /arg1 set
+  [/in-@@@.toVectors2 /gg /ans /n /tmp /notarray] pushVariables
+  [
+    /gg arg1 def
+    /ans gg 1 get @@@.toVectors def
+    /n   gg 0 get def
+    gg 1 get isArray not {
+       /ans [ans] def
+       /notarray 1 def
+    }{ /notarray 0 def} ifelse
+    ans { 
+      /tmp set
+      tmp length n lt {
+        tmp
+        [1 1 n tmp length sub { pop (0). } for ]
+        join /tmp set
+      } {  } ifelse
+      tmp
+    } map
+    /ans set
+    notarray { ans 0 get /ans set } { } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/@@@.toVectors {
+  /arg1 set
+  [/in-@@@.toVectors /gg ] pushVariables
+  [
+    /gg arg1 def
+    gg isArray {
+      gg { $array$ data_conversion } map
+    } {
+      gg (array) data_conversion
+    }ifelse
+    /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+/toVectors2 { toVectors } def
+
+/fromVectors { { fromVectors.aux } map } def
+/fromVectors.aux {
+  /arg1 set
+  [/in-fromVector.aux /vv /mm /ans /i /ee] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /vv arg1 def
+    /mm vv length def
+    /ans (0). def
+    /ee (0). def
+    0 1 mm 1 sub {
+      /i set
+      vv i get (0). eq {
+      } {
+        [(CurrentRingp) vv i get (ring) dc] system_variable
+        [(x) (var) [(N)] system_variable 1 sub] system_variable . /ee set
+        /fromVector.LLL  goto
+      } ifelse
+    } for
+    /fromVector.LLL
+    %% vv message
+    0 1 mm 1 sub {
+      /i set
+      vv i get (0). eq {
+      } {
+        /ans ans 
+            << vv i get >> << ee i npower >> mul 
+         add def
+      } ifelse
+      %% [i ans] message
+    } for
+    /arg1 ans def   
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(fromVectors)
+[
+([v1 v2 ...] fromVectors [s1 s2 ...])
+(array of poly : v1, v2, ... ; poly : s1, s2 ....)
+(cf. toVectors. <<e_>> varaible is assumed to be the last )
+(    variable in x.  @@@.esymbol)
+$Example: [(x,y) ring_of_differential_operators 0] define_ring$
+$ [(x).  (y).] /ff set  $
+$ [ff ff] fromVectors :: $ 
+]] putUsages
+
+/getOrderMatrix {
+  /arg1 set
+  [/in-getOrderMatrix /obj /rr /ans /ans2 /i] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /obj arg1 def
+    obj isArray {
+      obj { getOrderMatrix } map /ans set
+      ans length 0 {
+         /ans null def
+      } {
+         /ans2 null def
+         0 1 ans length 1 sub {
+           /i set
+           ans i get tag 0 eq 
+           {   }
+           { /ans2 ans i get def } ifelse
+         } for
+         /ans ans2 def
+      } ifelse
+      /getOrderMatrix.LLL goto
+    } {  } ifelse
+    obj tag 14 eq {
+      [(CurrentRingp) obj] system_variable
+      [(orderMatrix)] system_variable /ans set
+      /getOrderMatrix.LLL goto
+    } {  } ifelse
+    obj isPolynomial {
+      obj (0). eq
+      { /ans null def 
+      } { obj getRing /rr set
+        [(CurrentRingp) rr] system_variable
+        [(orderMatrix)] system_variable /ans set
+      } ifelse
+      /getOrderMatrix.LLL goto
+    } { (getOrderMatrix: wrong argument.)  error } ifelse
+    /getOrderMatrix.LLL
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+
+[(getOrderMatrix)
+[(obj getOrderMatrix m)
+ (array  m)
+ (getOrderMatrix obtains the order matrix from obj.)
+ (If obj is a polynomial, it returns the order matrix associated to)
+ (the polynomial.)
+ (If obj is an array, it returns an order matrix of an element.)
+]] putUsages
+
+/nl {
+   10 $string$ data_conversion 
+} def
+[(nl)
+[(nl is the newline character.)
+ $Example: [(You can break line) nl (here.)] cat message$
+]] putUsages
+
+;
+
+
+
+
+
+

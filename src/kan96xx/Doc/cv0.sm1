@@ -1,0 +1,67 @@
+
+/example1 {
+  [(x,y,a,b,c,d)   %% change here
+    ring_of_differential_operators 
+   (Dx,Dy)         %% change here
+  elimination_order 0] swap01 define_ring
+
+  [[(x*Dx-a). (-b).] [(-c). ((x-1)*Dx-d).] [(Dy). (0).] [(0). (Dy).]] %% give equations
+  /ff set
+  ff { { [[$h$. $1$.]] replace } map } map /ff set
+  /ff ff homogenize  def
+  [ff] groebner /ans set
+  ans 0 get {[[$h$. $1$.]] replace} map /gg set
+  (Now, you get the characteristic variety) message
+  (When your result is given as [I_1  I_2 ...], ) message
+  (the characteristic variety is  V(I_1) \cup V(I_2) \cup ... ) message
+  gg characteristic-v print (  ) message ( ) message
+} def
+
+
+/characteristic-v {
+  /arg1 set
+  [/gb  /lps /i /n /ans /maxp /ansp /k] pushVariables
+  [  /gb arg1 def
+     /ans [ ] def
+     /maxp 0 def
+     /lps gb {lpoint} map def
+     0 1 << lps length 1 sub >>
+     {
+       /i set
+       lps i get maxp gt
+       { /maxp lps i get def }
+       {  }
+       ifelse
+     } for
+
+     %%lps print
+     /ans [
+      0 1 maxp { pop [ ]   } for
+     ] def
+
+     gb toVectors /gb set
+
+     0 1 << lps length 1 sub >>
+     {
+       /i set  /k lps i get def
+       /ansp ans k get def
+       << gb i get >> k  get principal /f set
+       /ansp ansp [f] join def
+       ans k ansp put
+     } for
+    
+     /arg1 ans def     
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+( ) message
+(cv0.sm1 11/10, 1994. This program computes characteristic varieties.) message
+(Type in example1 ; for a demo.) message
+
+
+

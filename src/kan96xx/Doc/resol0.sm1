@@ -1,0 +1,442 @@
+%% lib/resol0.sm1,  1998, 11/8, 11/14, 1999, 05/18
+%%     cf. r-interface.sm1, tower.sm1, tower-sugar.sm1
+%%
+%% It must contain one-line command for resolution.
+/resol0.verbose 0  def
+/resol0.parse 0 def %% If 1, 
+                  %%Output of resol1 will be in a regular (non-schreyer) ring.
+%% tower or tower-sugar will be chosen by the global variable
+%% resol0.cp --- resol0 context pointer.
+/resol0.version (2.981114) def
+resol0.version [(Version)] system_variable gt
+{ (This package requires the latest version of kan/sm1) message
+  (Please get it from http://www.math.kobe-u.ac.jp/KAN) message
+  error
+} { } ifelse
+
+$resol0.sm1, package to construct schreyer resolutions -- not minimal $ message-quiet
+$                               (C) N.Takayama, 1999, 5/18. resol0, resol1 $ 
+message-quiet
+
+resol0.verbose {
+  (Loading tower.sm1 in the context Tower and) message
+  (loading tower-sugar.sm1 in the context Tower-sugar.) message
+} {  } ifelse
+
+(Tower) StandardContextp newcontext /cp.Tower set
+cp.Tower setcontext
+[(parse) (tower.sm1) pushfile] extension pop
+StandardContextp setcontext
+
+(Tower-sugar) StandardContextp newcontext /cp.Tower-sugar set
+cp.Tower-sugar setcontext
+[(parse) (tower-sugar.sm1) pushfile] extension pop
+StandardContextp setcontext
+
+/resol0.cp cp.Tower def
+/resol0.v [(x) (y) (z)] def
+/resol0 {
+  /arg1 set
+  [/in-resol0 /aa /typev /setarg /f /v 
+   /gg /wv /vec /ans /depth
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+    /aa arg1 def
+    aa isArray { } { (array gb) message (resol0) usage error } ifelse
+    aa length 0 { (resol0) usage error } {  } ifelse
+    aa 0 get isInteger {
+      aa 0 get /depth set
+      aa rest /aa set
+    } 
+    { /depth [ ] def } ifelse
+  
+    /setarg 0 def
+    /wv [ ] def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /f aa 0 get def
+       /v resol0.v def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+
+    setarg { } { (resol0 : Argument mismatch) message error } ifelse
+    
+    [(KanGBmessage) resol0.verbose ] system_variable
+    f 0 get isArray {
+       [v ring_of_differential_operators 0] define_ring
+        f { {toString .} map } map /f set
+    }{
+      f {toString} map /f set
+    } ifelse
+
+    [resol0.cp v wv ] {tower.define_sring} sendmsg
+    [resol0.cp f ] {tower.tparse-vec} sendmsg /gg set
+    [resol0.cp depth gg] {tower.sResolution} sendmsg /ans set
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(resol0)
+ [( [ ii v] resol0 r )
+  (array of poly ii; string v;)
+  (<< vv >> is a string of variables separated by ,)
+  (  )
+  ( [ ii v] resol0 r )
+  (array of poly ii; array of strings v;)
+  (<< vv >> is an array of variable names. )
+  (  )
+  ( [ ii v w] resol0 r )
+  (array of poly ii; string v; array w;)
+  (<< w >> is a weight vector.)
+  (  )
+  (You can also give a parameter << d >> to specify the truncation depth)
+  (of the resolution: [ d ii v] resol0, [d ii v w] resol0)
+  (  )
+  (resol0 constructs a resolution which is adapted (strict))
+  (to a filtration. So, it is not minimal.)
+  ( r = [starting Groebner basis g, [ s1, s2 , s3, ...], order-def].)
+  (g is the reduced Groebner basis for f, )
+  ( s1 is the syzygy of g,)
+  ( s2 is the syzygy of s1,)
+  ( s3 is the syzygy of s2 and so on.)
+  (For details, see math.AG/9805006)
+  (cf. sResolution, tparse, s_ring_..., resol0.cp)
+  (Example:  [ [( x^3-y^2 )  ( 2 x Dx + 3 y Dy + 6 )  ( 2 y Dx + 3 x^2 Dy) ] )
+  (             (x,y) ] resol0 :: )
+]] putUsages
+
+/resol1 {
+  /arg1 set
+  [/in-resol1 /aa /typev /setarg /f /v 
+   /gg /wv /vec /ans /depth /vectorInput
+   /vsize /eVector /ii /syzlist /syzlist1 /syz0 /i
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+    /aa arg1 def
+    aa isArray { } { (array gb) message (resol1) usage error } ifelse
+    aa length 0 { (resol1) usage error } {  } ifelse
+    aa 0 get isInteger {
+      aa 0 get /depth set
+      aa rest /aa set
+    } 
+    { /depth [ ] def } ifelse
+  
+    /setarg 0 def
+    /wv [ ] def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /f aa 0 get def
+       /v resol0.v def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+
+    setarg { } { (resol1 : Argument mismatch) message error } ifelse
+    
+    [(KanGBmessage) resol0.verbose ] system_variable
+    f 0 get isArray {
+       /vectorInput  1 def
+       /vsize f 0 get length def
+    } {
+       /vsize 1 def
+       /vectorInput 0 def
+    }ifelse
+  
+    vectorInput {
+       [v ring_of_differential_operators 0] define_ring
+%%      /eVector [0 1 vsize 1 sub { /ii set @@@.esymbol . ii npower } for ] def
+%%      f { {toString .} map eVector mul toString } map /f set
+%%Now,  sResolution in tower.sm1 accept vector input, 1999, 5/18.
+        f { {toString .} map } map /f set
+    }{
+      f {toString} map /f set
+    } ifelse
+
+    [resol0.cp v wv ] {tower.define_sring} sendmsg
+    [resol0.cp f ] {tower.tparse-vec} sendmsg /gg set
+    resol0.verbose { gg message } {  } ifelse
+    [resol0.cp depth gg] {tower.sResolution} sendmsg /syzlist set
+
+    /resol1.syzlist  syzlist def  %% save in the global variable.
+%% From  restall_s.sm1
+%% Reformatting the free resolution:  
+%%  [[f1,f2,..],[syz1,...]] --> [[[f1],[f2],...],[syz,...]] 
+%% (to be modified for the case with more than one unknowns.)
+      [v ring_of_differential_operators 0] define_ring
+      /degmax syzlist 1 get length def
+      /syzlist1 [
+        syzlist 0 get /syz0 set
+        %% start N.T.
+        resol0.parse {
+            [vsize syz0 { toString . } map]
+        } { [vsize syz0 ] } ifelse
+        toVectors2 
+        %% end N.T.
+        1 1 degmax {/i set
+          resol0.parse {
+             syzlist 1 get i 1 sub get {{toString .} map } map 
+          }{ syzlist 1 get i 1 sub get  } ifelse 
+        } for
+      ] def
+      syzlist1      
+      /syzlist set  
+
+    /arg1 syzlist def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(resol1)
+ [( [ ii v] resol1 r )
+  (array of poly ii; string v;)
+  (<< vv >> is a string of variables separated by ,)
+  (  )
+  ( [ ii v] resol1 r )
+  (array of poly ii; array of strings v;)
+  (<< vv >> is an array of variable names. )
+  (  )
+  ( [ ii v w] resol1 r )
+  (array of poly ii; string v; array w;)
+  (<< w >> is a weight vector.)
+  (  )
+  ( ii may be array of array of poly.)
+  (You can also give a parameter << d >> to specify the truncation depth)
+  (of the resolution: [ d ii v] resol1, [d ii v w] resol1)
+  (  )
+  (resol1 constructs a resolution which is adapted (strict))
+  (to a filtration. So, it is not minimal in general.)
+  ( r = [s0, s1, s2 , s3, ...].)
+  ( s0 is the groebner basis of ii,)
+  ( s1 is the syzygy of s0,)
+  ( s2 is the syzygy of s1,)
+  ( s3 is the syzygy of s2 and so on.)
+  ( s1 s0 mul ==> 0, s2 s1 mul ==>0, ...)
+  (For details, see math.AG/9805006)
+  (cf. sResolution, tparse, s_ring_..., resol0.cp)
+  (resol1.withZeroMap returns a resolution with zero maps of the both sides)
+  (   of the resolution.)
+  (cf. resol1.zeroMapL, resol1.zeroMapR, resol1.withZeroMap.aux)
+  (resol1.syzlist : global variable to keep the raw output of sResolution.)
+  (   )
+  (Example 1: [ [( x^3-y^2 )  ( 2 x Dx + 3 y Dy + 6 )  ( 2 y Dx + 3 x^2 Dy) ] )
+  (             (x,y) ] resol1 pmat ; )
+  (Example 2: [ [( x^3-y^2 )  ( 2 x Dx + 3 y Dy + 6 )  ( 2 y Dx + 3 x^2 Dy) ] )
+  (             (x,y) [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] resol1 pmat ; )
+  (Example 3: [ [[(2 x Dx + 3 y Dy +6) (0)] )
+  (              [(3 x^2 Dy + 2 y Dx) (0)] )
+  (              [(0) (x^2+y^2)] )
+  (              [(0) (x y )] ] )
+  (             (x,y) [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] resol1 pmat ; )
+  (Example 4:  /resol0.verbose 1 def)
+  $          [ [[(x^2+y^2+ x y) (x+y)] [(x y ) ( x^2 + x y^3)] ] (x,y) $
+  $            [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] resol1 pmat ; $
+]] putUsages
+
+/resol1.withZeroMap {
+     resol1 resol1.withZeroMap.aux
+} def
+/resol1.withZeroMap.aux {
+   /arg1 set
+   [/in-resol1.withZeroMap.aux /ss /nn /mm] pushVariables
+   [
+     /ss arg1 def
+     ss 0 get length /mm set
+     ss 0 get 0 get isArray {
+         /nn ss 0 get 0 get length def
+     } { /nn 1 def } ifelse
+     [ [nn mm] resol1.zeroMapR]
+      ss join
+     /ss set
+
+     ss ss length 1 sub get [ ] eq {
+       ss << ss length 1 sub >>
+         << ss << ss length 2 sub >> get >> length resol1.zeroMapL put
+     } { } ifelse
+     /arg1 ss def
+   ] pop
+   popVariables
+   arg1
+} def
+
+/resol1.zeroMapR {
+  %% [[0,0],
+  %%  [0,0],
+  %%  [0,0]]
+  /arg1 set
+  [/in-resol1.zeroMapR /mm /nn] pushVariables
+  [
+    /mm arg1 0 get def
+    /nn arg1 1 get def
+    [ 1 1 mm { pop [1 1 nn { pop (0).} for] } for ]
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+/resol1.zeroMapL {
+  %% [[0,0,0]]
+  /arg1 set
+  [/in-resol1.zeroMapL /mm ] pushVariables
+  [
+    /mm arg1 def
+    [ [1 1 mm { pop (0). } for ]]
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/pres1 {
+  /arg1 set
+  [/in-pres1 /rr /i /nn] pushVariables
+  [
+    /rr arg1 def
+    /nn rr length 1 sub def
+    0 1 nn {
+      /i set
+      rr i get [ ] eq { /pres1.LLL goto } { } ifelse
+      (k^) messagen rr i get 0 get length message
+      (^) message
+      (|) message
+      rr i get pmat
+      (|) message
+    } for
+    /pres1.LLL
+  ] pop
+  popVariables
+  arg1
+} def
+[(pres1)
+[(rr pres1)
+ (print resolution rr.)
+  $Example $
+  $          [ [[(x^2+y^2+ x y) (x+y)] [(x y ) ( x^2 + x y^3)] ] (x,y) $
+  $            [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] resol1.withZeroMap pres1 ; $
+]] putUsages
+
+
+
+%% It is included to work on the older version. It may removed.
+%% toVectors2 is already in dr.sm1
+(2.990500) [(Version)] system_variable gt
+{
+/toVectors2 {
+  /arg1 set
+  [/in-toVectors2 /gg /ans /n /tmp] pushVariables
+  [
+    /gg arg1 def
+    /ans gg 1 get toVectors def
+    /n   gg 0 get def
+    ans { 
+      /tmp set
+      tmp length n lt {
+        tmp
+        [1 1 n tmp length sub { pop (0). } for ]
+        join /tmp set
+      } {  } ifelse
+      tmp
+    } map
+    /ans set
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+} {  } ifelse
+
+resol0.cp setcontext
+/tower.define_sring {
+  /arg1  set
+  [/in-tower.define_sring /vv /ww /r] pushVariables
+  [
+     /vv arg1 1 get def
+     /ww arg1 2 get def
+     ww [ ] eq {
+       [vv s_ring_of_differential_operators 0 [(schreyer) 1]] define_ring
+     } {
+       [vv s_ring_of_differential_operators ww s_weight_vector 
+        0 [(schreyer) 1]] define_ring
+     } ifelse
+     /r set
+    /arg1 r def
+  ] pop
+  popVariables
+  arg1
+} def
+ 
+/tower.tparse-vec {
+  /arg1  set
+  [/in-tower.tparse-vec /ff ] pushVariables
+  [
+     arg1 1 get /ff set
+     ff 0 get isArray {
+       ff {{tparse} map} map /ff set
+     } {     
+       ff {tparse} map /ff set
+     } ifelse
+     /arg1 ff def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/tower.sResolution {
+   resol0.verbose {  
+    /tower.verbose 1 def
+  } { } ifelse
+  rest aload pop sResolution
+} def
+StandardContextp setcontext
+
+/test00 {
+  /resol0.verbose 1 def
+   [ [[(x^2+y^2+ x y) (x+y)] [(x y ) ( x^2 + x y^3)] ] (x,y) [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] resol1 /ff  set 
+} def

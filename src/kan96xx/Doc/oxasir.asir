@@ -1,0 +1,131 @@
+OxAsirDebug = 0$
+OxVlist = [x,y,z]$
+
+def ox_ptod(F) {
+  extern OxVlist;
+  extern OxAsirDebug;
+  if (OxAsirDebug != 0) { print(["ox_ptod:", F, OxVlist]); } 
+  if (type(F) == 4) return(map(ox_ptod,F));
+  else if (type(F) == 2) return(dp_ptod(F,OxVlist));
+  else return(F);
+}
+
+def ox_dtop(F) {
+  extern OxVlist;
+  extern OxAsirDebug;
+  if (OxAsirDebug != 0) { print(["ox_dtop:", F, OxVlist]); } 
+  if (type(F) == 4) return(map(ox_dtop,F));
+  else if (type(F) == 9) return(dp_dtop(F,OxVlist));
+  else return(F);
+}
+
+/***  From gbhg3/Int/solv1.asir ***/
+/* solv1.asir  1999, 1/28.
+   Finding rational number roots of systems of polynomials.
+   Make a substitution.
+*/
+
+def sm1_solv1a(F) {
+  V = var(F);
+  if (deg(F,V) != 1) return([]);
+  return([V,red(-coef(F,0)/coef(F,1))]);
+}
+
+
+def sm1_solv1(L,V) {
+  N = length(L);
+  Ans = newvect(length(V));
+  for(J=0; J<length(V); J++) {
+     Ans[J] = "?";
+  }
+  for (I=0; I<N; I++) {
+    S = sm1_solv1a(L[I]);
+    if (S == []) return([]);
+    for (J=0; J<length(V); J++) {
+      if (V[J] == S[0]) {
+        Ans[J] = S[1];
+      }
+    }
+  }
+  return(Ans);
+}
+
+def sm1_rationalRoots(F,V) {
+  F = primadec(F,V); 
+  print(F);
+  N = length(F);
+  Ans = [ ];
+  for (I=0; I<N; I++) {
+    P = F[I][1];  /* associated prime */
+    R = sm1_solv1(P,V);
+    if (R != []) {
+      Ans = append(Ans,[R]);
+    }
+  }
+  return(Ans);
+}
+
+/* sm1_rationalRoots([x^2+y-2,x^2-1/9],[x,y]); */
+
+def sm1_inner00(A,B) {
+  P = 0;
+  for (I=0; I<size(A)[0]; I++) {
+    P = P + A[I]*B[I];
+  }
+  return(red(P));
+}
+
+def sm1_rationalRoots2(F,V,W) {
+  print([F,V,W]);
+  print(type(W[0]));
+  R = sm1_rationalRoots(F,V);
+  Ans = [ ];
+  Ans2 = [ ];
+  W = newvect(length(W),W);
+  for (I=0; I<length(R); I++) {
+     T = sm1_inner00(W,R[I]);
+     if (dn(T) == 1) {
+        Ans = append(Ans,[T]);
+        Ans2 = append(Ans2,[R[I]]);
+     }
+  }
+  print([Ans,Ans2]);
+  return(Ans);
+}
+
+/* W is a weight vector */
+/* sm1_rationalRoots2([(z-3)*(z^2+z+1),x^2+y-2,x^2-1/9],[x,y,z],[9,9,1]); */
+
+def sm1_ptozp_subst(F,X,V) {
+  /*  sm1_ptozp_subst(x*y-1,x,[1,2]);  ptozp(subst(x*y,x,1/2)) ;  */
+  A=ptozp(subst(F,X,V[0]/V[1]));
+  return(A);
+}
+
+/* A =  ((1/2)*x^2+(1/4)*x+1)/((1/5)*x^4+x^8);
+   B= sm1_rat2plist( A); 
+   print(red(A-B[0]/B[1]));
+*/
+def sm1_rat2plist(T) {
+  T = red(T);
+  T1 = nm(T); T1a = ptozp(T1); 
+  T1b = red(T1a/T1);
+  T2 = dn(T); 
+  return([T1a*dn(T1b),T2*nm(T1b)]);
+}
+
+def sm1_rat2plist2(TT) {
+  T = red(TT[0]/TT[1]);
+  T1 = nm(T); T1a = ptozp(T1); 
+  T1b = red(T1a/T1);
+  T2 = dn(T); 
+  return([T1a*dn(T1b),T2*nm(T1b)]);
+}
+
+  
+  
+
+
+
+end$
+  

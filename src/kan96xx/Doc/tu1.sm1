@@ -1,0 +1,77 @@
+%%% tu1.sm1,  1998, 11/3
+%%% A sample program for authors of packages.
+
+%%% global variables for bfunction
+%%% bfunction.*
+/bfunction.v [(x) (y) (z)] def   %% default value of v (variables).
+/bfunction.s (s) def             %% default value of s.
+/bfunction.verbose 0 def         
+
+/bfunction {
+  /arg1 set
+  [/in-bfunction /aa /typev /setarg /f /s /v] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
+  [
+
+    /aa arg1 def
+    aa isArray { } { (array bfunction) message error } ifelse
+    /setarg 0 def
+    aa { tag } map /typev set
+    typev [ StringP ] eq
+    {  /f aa 0 get def
+       /v bfunction.v def
+       /s bfunction.s def
+       /setarg 1 def
+    } { } ifelse
+    typev [StringP StringP] eq
+    {  /f aa 0 get def
+       /v [ aa 1 get to_records pop ] def
+       /s bfunction.s def
+       /setarg 1 def
+    } { } ifelse
+    typev [StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /s bfunction.s def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (Argument mismatch) message error } ifelse
+
+    [(KanGBmessage) bfunction.verbose] system_variable
+
+
+    %%% PROGRAM BODY
+
+    /arg1 [f v s] def  
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+%% Auxiliary function for bfunction.
+%% bfunction.*
+/bfunction.foo1 {
+
+} def
+
+
+%% Write usages as follows.
+[(bfunction)
+ [( a bfunction b)
+  (array a; poly b;)
+  (a :  [f] ;  string f ;)
+  (a :  [f v] ; string f,v; )
+  (b is the bfunction of the polynomial f given as a string.)
+  $Example  [(x^3-y^2) (x,y)] bfunction :: $
+ ]
+] putUsages
+(bfunction ) messagen
+
+;
+
+
+
+
+
+

@@ -1,0 +1,208 @@
+
+%%%%%% global control variables
+%%  /@@@.quiet 0 def  It is defined in scanner().
+/@@@.Dsymbol (D) def
+/@@@.diffEsymbol (E) def
+/@@@.Qsymbol (Q) def
+/@@@.hsymbol (h) def
+/@@@.esymbol (e_) def
+/@@@.Esymbol (E) def
+
+%%% pointer to the StandardContext.
+/StandardContextp [(CurrentContextp)] system_variable def
+/null 0 (null) data_conversion def
+
+%%%%%%%%%%%%%%%%%%%%%%  usages %%%%%%%%%%%%%%%%%%%%
+/@.usages [[( ) [(gate keeper)]] ] def
+/putUsages {  
+   /arg1 set
+   /@.usages @.usages [ arg1 ] join def
+} def
+
+/showKeywords {
+  @.usages { 0 get } map shell @@@.printSVector
+  ( ) message
+} def
+
+/usage {
+  /arg1 set
+  [/name /flag /n /k /slist /m /i] pushVariables
+  [
+    /name arg1 def
+    /flag true def
+   @.usages length /n set  
+   0 1 << n 1 sub >> 
+   {   
+      /k set
+      name << @.usages k get 0 get >> eq
+      {
+        /slist @.usages k get 1 get def
+        /m slist length def
+        0 1 << m 1 sub >> {
+          /i set
+          slist i get message
+        } for
+        /flag false def
+      }
+      { }
+      ifelse
+   } for
+      
+   flag
+   {name Usage}
+   { }
+   ifelse
+   ] pop
+   popVariables
+} def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/; %%% prompt of the sm1 
+{  [ $PrintDollar$ [$PrintDollar$] system_variable %% save value
+     [$PrintDollar$ 0] system_variable pop
+     @@@.quiet 0 eq
+     {$sm1>$ print} { } ifelse
+   ] system_variable pop
+} def
+
+/?
+{
+   show_systemdictionary
+   (-- ?? : to see macro dictionary --)
+   message
+   $-- (keyWord) usage  to see the usages. Data type of (xxxyyy) is string.--$
+     message
+   $Main data types: 1:integer(machine integer), 2:literal, 5:string, 6:array,$
+     message
+   $ 7:poly, 13:file, 14:ring, 15:number(bignum,universalNumber), 16:rational, 17:class. $ message
+
+} def
+
+/??
+{  (------------ Macros ------------------------------------------------)
+    message
+   showKeywords 
+   $------------ Use (keyWord) usage  to see the usages. ---------------$
+     message
+} def
+
+/::
+{
+   print  newline ;
+} def
+
+/. {expand} def
+
+/, {   } def
+
+/false 0 def
+
+%% You cannot use the variable arg1 in expand.
+/expand {
+  /@@@expand.arg1 set
+  [/in-expand /f-expand /f-ans] pushVariables
+  [
+    /f-expand @@@expand.arg1 def
+    f-expand isArray {
+      f-expand { expand } map /f-ans set
+    }{
+      f-expand  $poly$ data_conversion /f-ans set
+    } ifelse
+    /@@@expand.arg1 f-ans def
+  ] pop
+  popVariables
+  @@@expand.arg1
+} def
+
+/<< {  } def
+/>> {  } def
+
+% v1 v2 join
+/join {
+ /arg2 set /arg1 set
+ [/v1 /v2] pushVariables
+ /v1 arg1 def /v2 arg2 def
+ [
+   [v1 aload pop v2 aload pop] /arg1 set
+ ] pop
+ popVariables
+ arg1
+} def
+
+/n.map 0 def  /i.map 0 def /ar.map 0 def /res.map 0 def  %% declare variables
+/map.old {  %% recursive
+ /arg1.map set %%  arg1.map = {   }
+ /arg2.map set %%  arg2.map = [   ]
+ %%%debug: /arg1.map load print arg2.map print 
+ [n.map /com.map load i.map ar.map %% local variables.  Don't push com! 
+  %%It's better to use load for all variables.
+ /com.map /arg1.map load def  
+ /ar.map arg2.map def %% set variables
+ /n.map ar.map length 1 sub def
+ [
+   0 1 n.map {
+     /i.map set
+     << ar.map i.map get >> com.map
+   } for
+ ] /res.map set
+ /ar.map set /i.map set /com.map set /n.map set ] pop %% pop local variables
+ res.map %% push the result
+} def
+
+/message {
+  [$PrintDollar$ [$PrintDollar$] system_variable
+   [$PrintDollar$ 0] system_variable pop
+   4 -1 roll
+   print newline
+  ] system_variable pop
+} def  
+
+/messagen {
+  [$PrintDollar$ [$PrintDollar$] system_variable
+   [$PrintDollar$ 0] system_variable pop
+   4 -1 roll
+   print 
+  ] system_variable pop
+} def  
+
+/newline {
+  [$PrintDollar$ [$PrintDollar$] system_variable
+   [$PrintDollar$ 0] system_variable pop
+   10 $string$ data_conversion print
+  ] system_variable pop
+   %% flush stdout
+  [(flush)] extension pop
+} def
+
+/pushVariables {
+  { dup [ 3 1 roll load ] } map
+} def
+
+/popVariables {
+  % dup print
+  { aload pop def } map pop
+} def
+
+
+
+/timer {
+  [(TimerOn)] system_variable 1 eq 
+  {  [(TimerOn) 0] system_variable pop set_timer } { } ifelse
+  set_timer
+  exec
+  set_timer
+} def
+
+/true 1 def
+
+
+
+
+%%% prompter
+;
+
+
+
+

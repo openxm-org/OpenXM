@@ -1,0 +1,185 @@
+(yacc/Doc/intro.jp.txt, 1997, 4/9)
+
+Q. まず, k0 ってどんな言語ですか?
+
+A. C と Java 風の class 宣言をとりいれたインタプリタです.  
+
+   電卓として使用するには, k0 を起動後, たとえば
+    
+    2^10+1 :
+
+   と入力すれば 2の10乗足す1の結果を表示してくれます. 
+
+   変数も使えて,
+   a =     2^10+1 ;
+   a^3 :
+
+   と入力すれば  (2^10+1)^3 を計算できます.
+
+   : をおすと評価結果を表示します.
+   ; は評価をおこなうだけで, 結果の表示はしません.
+   k0 は大文字と小文字の区別をおこないますので注意して下さい.
+
+  
+   では, 一つプログラムをお見せしましょう.
+   これは, 1!, 2!, ..., n! を表示するプログラムです.
+   afo(20); の入力で 20 までの階乗の表を出力します.
+
+   def afo(n) {
+      local tmp,i;
+      tmp = 1;
+      for (i=1; i<=n ; i++) {
+         tmp = tmp*i;
+         Println(tmp);
+      }
+      return(tmp);
+   }
+   afo(20);
+
+   ある程度のプログラムの経験がある人は上の例をみればすぐ使い方が
+   分かるでしょう.
+   クラスを用いた例については, kxx97/yacc/debug/trip3.k を見て下さい.      
+   
+   help(); と入力すると利用できる関数の一覧が表示されます.
+
+   quit(); と入力すると終了します.
+
+Q. 文法で特に注意する点.
+
+A. break は, while のみに使えます.
+
+Q. k0 のエラーメッセージはどのようにみますか?
+
+A. 
+例で説明しましょう.
+
+   [1,2]+1 :
+
+   と入力すると, 次のようなエラーがでます.
+WARNING(kanExport[0|1].c): KooAdd() has not supported yet these objects.
+ERROR(kanExport[0|1].c):  
+--- Engine error or interrupt : The error occured on the top level.
+Type in Cleards() to exit the debug mode and Where() to see the stack trace.
+
+ひとつづつ意味を見ましょう.
+>WARNING(kanExport[0|1].c): KooAdd() has not supported yet these objects.
+KooAdd() は, PrimitiveObject を足す(add)関数です.  ここでは,
+array 型の [1,2] と, integer 型の 1 はたせないといっています.
+
+>--- Engine error or interrupt : The error occured on the top level.
+エラーは, top level で生じたということを説明しています.
+
+   もうひとつ例をあげましょう.
+
+   def foo(n) {
+     local a;
+     a = n^2;
+     return(a);
+   }
+
+   foo("abc");
+と入力すると次のようなエラーがでます.
+
+WARNING(kanExport[0|1].c): KooMult() has not supported yet these objects.
+ERROR(kanExport[0|1].c):  
+--- Engine error or interrupt : In function : foo of class PrimitiveObject
+Type in Cleards() to exit the debug mode and Where() to see the stack trace.
+
+文字列のかけ算 "abc"^2 を実行しようとして, このエラーがでました.
+>--- Engine error or interrupt : In function : foo of class PrimitiveObject
+これは, エラーが, 関数 foo の中でおきたことをしめしています.
+>of class PrimitiveObject
+は, class を用いて関数の overload をするようになると意味をもちます.
+class を利用しなければ, つねに of class PrimitiveObject です.
+
+>Type in Cleards() to exit the debug mode and Where() to see the stack trace.
+これはどういった意味でしょう.
+プログラムがエラーで中断した時点で各変数は, 中断した時点の値がはいっています.
+たとえば,
+    n:
+と入力すると,
+abc
+なる値がかえってきます.
+      Cleards();
+と入力すると変数を, 関数をぬけでたもとの状態にもどします.
+Clearing DebugStack and ErrorStack... 
+Restoring variables....Done
+In[12]=n :
+%[null]
+
+%[null] は, null のことです.
+
+Q. Syntax Error にたいしてはどう対処しますか?
+
+A.
+  Syntax error のときは,  ;  を数回入力すれば,  Prompt
+  In[i]=  
+  がでます.
+  たとえば,
+  foo(10;
+  と入力すると,
+
+  Syntax Error in the line 0:parse error
+  The error occured when the system is reading the line: foo(10;
+
+  と出力されます.
+  The error occured when the system is reading the line: foo(10;
+  の意味は, foo(10 の次に ; を読み込んだ時点で, エラーとなったことを
+  意味しています.
+
+  ; と入力すれば,
+  In[6]=
+  となります.
+
+Q. (経験者の質問) k0 にはどんなデータ型がありますか?
+
+A. PrimitiveObject として,
+   null (ヌル)
+   string (文字列)
+   integer (無限多倍長整数型)
+   array (配列型またはリスト型)
+   polynomial (多項式型)
+   rational (有理型, integer や polynomial の組)
+   class (クラス型, 内部的な PrimitiveObject の拡張に使います.)
+   Object (Object 型, Object は, すべてのクラスのルートです.
+           Object は, array と最初の要素のタグで構成されます.)
+
+  k0 は, backend エンジンとして, kan/sm1 を用いています.
+  sm1 は, kan96xx/ 以下の directory にあります.
+  PrimitiveObject と sm1 のデータ型の対応は以下のとおりです.
+
+  k0           判定関数             sm1
+  ---------------------------------------------------------
+  string      IsString(x)          string (Sdollar)
+  integer     IsInteger(x)         universalNumber (SuniversalNumber)
+  polynomial  IsPolynomial(x)      poly (Spoly)
+  rational    IsRational(x)        rational (Srational)
+  array       IsArray(x)           array (Sarray)
+  Object      x.IsObject()         [class.context, .... ]
+
+
+Q. (経験者の質問) 現在の context をみるには?     
+
+A. 
+    sm1(" [(CurrentContextp)] system_variable :: ");
+  と入力して下さい.
+
+
+Q. (経験者の質問) 現在の context を変更するには?
+   現在の context の名前辞書を表示するには?
+
+A. 例で説明しましょう.
+
+   load("debug/trip3.k");  /* Complex が定義されます. */
+   sm1(Complex," 0 get setcontext ");  /* 現在の context を Complex にします.*/
+   sm1(" show_user_dictionary "); と入力すると以下のデータが表示されます.
+
+   DictionaryName=Complex, super= Object
+   new0   show   
+
+   new0 と show が定義されているのがわかります.
+
+  標準の辞書に戻すには,
+  sm1(PrimitiveObject," 0 get setcontext ");
+  と入力して下さい.
+

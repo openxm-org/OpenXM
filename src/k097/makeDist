@@ -1,0 +1,14 @@
+#!/bin/tcsh
+cd $HOME
+tar cvf - k0 | (cd $HOME/openXM/src ; tar xf - )
+cd $HOME/openXM/src
+/bin/rm -rf k097
+mv k0 k097
+pushd k097
+./cleanForDist
+popd
+tar cvzf k097.tgz k097
+
+echo "Done."
+cd $HOME/k0
+

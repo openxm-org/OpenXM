@@ -1,0 +1,867 @@
+%#!platex
+%% 数式処理に投稿する場合はこちらを使用する.
+% \documentclass{jarticle}
+% \usepackage{jssac}
+
+% \title{Open asir 入門}
+% \author{
+% 小原 功任
+% \affil{神戸大学大学院自然科学研究科}
+% \mail{ohara@math.kobe-u.ac.jp}
+% \and
+% 高山 信毅
+% \affil{神戸大学理学部数学教室}
+% \mail{taka@math.kobe-u.ac.jp}
+% \and
+% 野呂 正行
+% \affil{富士通研究所 HPC 研究センター}
+% \mail{noro@para.flab.fujitsu.co.jp}
+% }
+%\art{}
+
+%% 古い LaTeX でコンパイルする場合はこちら
+ \documentstyle{jarticle}
+ \title{Open asir 入門}
+ \author{小原功任\thanks{神戸大学大学院自然科学研究科},
+ 高山信毅\thanks{神戸大学理学部数学教室},
+ 野呂正行\thanks{富士通研究所 HPC 研究センター}}
+ \date{1998, 11月27日}
+
+%% 以下は共通
+\begin{document}
+\maketitle
+
+\section{Open asir とは}
+
+Open xxx は, 同じタイプまたは異なるタイプの数学プロセス間の
+メッセージのやりとりの規約である.
+開発の動機は, 手作り(または研究的な)数学ソフトの相互乗り入れの実現
+および分散計算の実装が第一であったが,
+もちろん数学ソフト間だけでなく, ワープロソフトや,
+インタラクティブな数学本,
+さらには数学デジタル博物館用のソフトがこの規約に従い,
+数学ソフトを呼び出すことなどにも利用できる.
+さらに, だれでもこのプロジェクトに参加できるように
+規約を拡張していくための規約も定めるものとする.
+
+設計の方針として, (1) 単純 (2) 拡張性 (3) 実装の簡便さ (4) 実用性,
+に重きをおいている.
+Open xxx はなにも考えずに簡単に接続できるシステムを作ろう,
+というまで野心的ではない.
+数学的なオブジェクトは一筋縄ではいかないし, 
+完全な統一規格をつくるというのは
+気が遠くなる仕事である.
+そのかわり, 今よりすこしだけこのようなデータ交換や分散システム構築の仕事を楽に
+したいというのがささやかな第1目標である.
+
+数学的なオブジェクトをどのように表現するのか,
+どう伝えるのかを考えることは決してつまらない問題ではない.
+このような問題は, 新しい数学記号を創造する問題と似ているかもしれない.
+我々は, 数字を $0$ を含んだ10進数で表記し,
+微分を $dx$ と書き, 写像を $\longrightarrow$ であらわす.
+これらの記号法からどれだけ多くの利益を得ているか, 思いをはせて欲しい.
+また, Mathematica や Maple といった統合ソフトを, 我々自身の
+手でつくっていくための基礎でもある.
+
+さて, Open asir は Open xxx 規約を実装した asir サーバである.
+Open xxx 規約にしたがったメッセージを Open asir サーバに送ることにより,
+asir の全機能を利用することができる.
+現在, Open xxx 規約に基づく計算サーバとしては, Linux 上で動作する
+Open asir と Open sm1 (kan/sm1) がバイナリで提供されている.
+ユーザは自分でクライアントを C, Java, Lisp (さらに asir, sm1) などの
+言語で作成して, Open asir を利用することができる.
+また, MathLink との変換ソフトを書けば, Mathematica のサーバになることも
+可能である.
+
+Open asir の基本的な計算のモデルはメッセージの交換である.
+Open asir サーバに計算させたいものをメッセージとして送り,
+次いで計算結果をメッセージとして受け取るという形で計算は進行する.
+通常, メッセージのやりとりには大きく分けて, 
+同期的なやりとりと非同期的なやりとりが考えられる.
+ここで同期的なやりとりとは, 双方のプロセスがあらかじめタイミングを決めて
+メッセージのやりとりをすることをいう.
+このとき, それぞれのプロセスは相手からのメッセージが届くまでの間は
+ブロックされる.
+非同期的なやりとりとは, それぞれのプロセスがメッセージを送った後, 
+相手の状態にかかわらず, すぐに復帰するようなやりとりのことである.
+現在のサーバは, 非同期的なメッセージのやりとりのみ実装している.
+
+このモデルを現在は, TCP/IP とソケットを用いて実装しているが,
+Open xxx 規約自身は TCP/IP に縛られているわけではないので,
+もちろん, MPI や PVM などの上にこのモデルを実装してもいいし,
+ファイルよりメッセージを読み込み結果をファイルへ書き出してもよい.
+この Open xxx 規約は文献 \cite{Openxxx-1998} で定義されている.
+\cite{Openxxx-1998}の \TeX ソースは
+\begin{center}
+{\tt http://www.math.kobe-u.ac.jp/openxxx/}
+\end{center}
+から入手することが出来る.
+
+なお, Open xxx 規約は現在研究中のプロトコルであり,
+規約, 実装の変更が随時おこなわれている.
+また, 同様の試みとして, openmath
+\begin{center}
+{\tt http://www.openmath.org/}
+\end{center}
+がある.
+こちらとの関係も考慮して行きたい.
+
+この文書は Open asir クライアントの作成を通じて,
+Open xxx 規約(プロトコル)の考え方を説明することをその目的とするため,
+必要に応じて C 言語によるプログラムのソースを例示する.
+この文書で, 引用されているクライアントの完全なソース(このソースは,
+Redhat Linux 4.2 または FreeBSD 2.2.6でコンパイル可能である)
+は,
+\cite{Openxxx-1998} と同じページより入手することが出来る.
+open sm1 サーバも同じページより入手できる.
+また,  Linux 版の Open asir サーバ実験版も同じページにおくよう
+努力したい.
+問題点などの指摘は, {\tt openxxx@math.kobe-u.ac.jp} へメールを
+おくってほしい.
+%% 小原君, 田村君: この openxxx ホーム, メールの運用も宜しくね...
+
+\section{Open asir で扱われるデータ}
+
+Open asir とやりとりするメッセージは, データあるいは命令(コマンド)である.
+これについてはあとでまた説明することにして,
+この節ではこのデータの形式(フォーマット)を説明しよう.
+Open asir で扱われるデータは Common Math Object (CMO) と呼ばれる形式の
+データである.
+CMO はデータ型を示すタグとデータ本体より構成されている.
+例えば32bit整数値 1234 は, (CMO\_INT32, 1234) なる CMO として表現される.
+この表記方法は CMO expression と呼ばれている.
+CMO expression は, CMO の実体の構造を人間が読みやすいような形式で表現し
+たものであり, マシン語(バイト列)に対応するアセンブリ言語または高級言語のよ
+うなものだと思ってもよい.
+ここで CMO\_INT32 がデータ型を表すタグである.
+おなじように, 長さが $6$ の文字列 {\tt "abcdef"} は
+(CMO\_STRING, 6, "abcdef")
+という CMO で表現する.
+
+これらのデータ型を表すタグ CMO\_INT32, CMO\_STRING などは 32bit 整数値
+であり, Open xxx 規約で
+\begin{verbatim}
+#define CMO_NULL        1
+#define CMO_INT32       2
+#define CMO_DATUM       3
+#define CMO_STRING      4
+
+#define CMO_LIST        17
+#define CMO_MONOMIAL32  19
+#define CMO_ZZ          20
+#define CMO_QQ          21
+#define CMO_ZERO        22
+#define CMO_DMS         23
+\end{verbatim}
+などと定義されている.
+現在の TCP/IP での実装では, たとえば
+(CMO\_INT32, 1234)
+は
+\[
+\mbox{\tt 00 00 00 02 00 00 04 d2}
+\]
+という16進バイト列に変換される.
+さっきのマシン語のたとえをつかうとこちらがマシン語(バイト列)に対応する.
+
+その他のデータ型としては, リスト, 多重精度整数(bignum),
+分散表現多項式などが現在用意されている.
+主要なデータ型の非形式的な定義をあげておく.
+
+\noindent
+いま述べた 32bit整数 $n$ は CMObject としては Integer32 と呼ばれ, \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt int32 CMO\_INT32}& {\tt int32 $n$}  \\
+ \hline
+\end{tabular} \\
+なる形で表現する.
+ここで, 表の各項目は,
+\begin{tabular}{|c|c|}
+\hline
+データ型 & データ\\
+\hline
+\end{tabular}
+なる形で表現している.
+
+\noindent
+長さ $n$ の 文字列 s は, CMObject としては, Cstring 型とよばれ \\
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+{\tt int32 CMO\_STRING}& {\tt int32 $n$} & {\tt byte} s[0]
+& {\tt byte} s[1] &
+$\cdots$ & {\tt byte} s[$n-1$] \\
+\hline
+\end{tabular} \\
+と表現する.  C 言語で普通用いられる, 文字列の終端の {\tt 0} は文字列
+には含めない.
+
+\noindent
+長さ $m$ のリストは \\
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+{\tt int32 CMO\_LIST}& {\tt int32 $m$} & {\tt CMObject}\, ob[0] & $\cdots$ &
+                                       {\tt CMObject}\, ob[$m-1$] \\
+\hline
+\end{tabular}\\
+で表現する.
+
+各データ型のさらに詳しい定義, および形式的記述法は,
+\cite{Openxxx-1998} を参照してほしい.
+CMO の定義を正確かつ簡単に行うには形式的記述法が不可欠であることを
+注意しておく.
+
+\section{Open asir サーバとの通信}
+
+現在のサーバの実装では, サーバ・クライアント間の通信は
+ソケットを用いて, ストリーム型で行う.
+現在実装されているサーバは, ふたつのプロセスに別れていて, 
+実際の計算を行うプロセスと制御命令を受け取るプロセスからなる.
+計算の中断, サーバの終了などの制御命令はコントロールプロセスに
+送ることになる.
+この文書では, 特に断らない場合には「サーバへの送信」は実際の計算を行う
+プロセスへの送信のことを指す.  
+
+現在実装されているサーバがふたつのプロセスに分れているのは以下の理由によ
+る.
+我々は, クライアントがサーバに任意のタイミングで計算の中断を指示できる
+機能が必要であると考える.
+この機能は, 現在の実装では, コントロールプロセスが計算プロセスにUNIXの
+シグナルを送ることで実現している.  
+Open xxx規約はネットワーク透過性を目指しているが, サーバとクライアントが
+異なるマシンで動作している場合には, クライアントが直接シグナルを送ること
+は困難である.
+しかしながら, 計算プロセスと同じマシン上にコントロールプロセスがあってク
+ライアントと別の通信路で結ばれていれば, クライアントからのメッセージをコ
+ントロールプロセスが受取り, かわりに計算プロセスへのシグナルを送ることは
+できる.
+我々は, このような構成で信頼性の高いメッセージのやりとりを実現しているの
+である.
+実際にどのような手順で計算の中断を実現しているかについては
+Section~\ref{section:reset}で詳しく説明する.
+
+さて, 最初にクライアントは両方のプロセスとの通信路を確保する必要がある.
+これは, コントロールプロセス, 計算プロセスの順に通信路を確保しなければな
+らない.
+% また単なる時間稼ぎとして, usleep を挟むことが, 現在のサーバの実装では必
+% 要である.
+% この理由がいまいちよく分かりません. 特定のサーバの実装によることなら, 
+% その旨, 理由とともに述べたほうがいいのではないでしょうか. 
+例えば以下のような関数を実行することになる.
+
+\begin{verbatim}
+#define PORT_CONTROL  1200
+#define PORT_STREAM   1300
+
+int fdControl, fdStream;
+
+int mysocketOpen(const char* hostname, int portnum)
+{
+  struct sockaddr_in serv;
+  struct hostent *host;
+  int s;
+
+  bzero(&serv, sizeof(serv));
+  serv.sin_family = AF_INET;
+  serv.sin_port = htons(portnum);
+  host = gethostbyname(hostname);
+  bcopy(host->h_addr, (char *)&serv.sin_addr, host->h_length);
+
+  s = socket(AF_INET, SOCK_STREAM, 0);
+  connect(s, (struct sockaddr *)&serv, sizeof(serv));
+  return s;
+}
+
+void ox_start(char* servername)
+{
+  fdControl = mysocketOpen(servername, PORT_CONTROL);
+  fdStream  = mysocketOpen(servername, PORT_STREAM);
+}
+
+int main()
+{
+  ...
+  ox_start("localhost");
+  ...
+}
+\end{verbatim}
+
+通信路が確保されたら, メッセージの交換が開始できるわけであるが,
+ここで, Open xxx 規約における32bit整数の扱い(CMO\_INT32ではない)について
+注意しておこう.
+一般的に注意しなければならない点は, 負数の扱いとバイトオーダであると
+思われる.
+現在実装されているサーバは負数は 2 の補数表現されているものと
+見做して動作する.
+ただしこれは旧版の\cite{Openxxx-1998} には明記されていない.
+次にサーバとの通信において, 用いるべきバイトオーダに関してであるが,
+Open xxx 規約では通信時にはネットワークバイトオーダを用いることと
+定められている.
+よって, C 言語でプログラムを作成する場合には, 適時, 変換する必要がある.
+例えば 32bit 整数を送信する場合には以下のような関数を用いればよい.
+\begin{verbatim}
+int send_int32(int fd, int integer32)
+{
+  integer32 = htonl(integer32);
+  return write(fd, &integer32, sizeof(int));
+}
+\end{verbatim}
+
+\section{メッセージ}
+
+Open asir はサーバとクライアントの間でメッセージを交換するという形で
+計算を進行させる.
+Open xxx 規約では, 数学プロセスはスタックマシンであると定義されている.
+サーバはクライアントから受け取ったメッセージがデータであれば
+スタックに積み, 命令であればスタックマシンとしてその命令を実行して
+結果をスタックに積む.
+Open asir における全てのメッセージにはメッセージの種類を表す
+情報(32bit整数値で表されるタグ)と, シリアル番号が与えられる.
+Open xxx 規約では, 以下の形式のメッセージが定義されている.
+\begin{center}
+\begin{tabular}{ll}
+(OX\_COMMAND,    {\sl serial number}, {\sl SMObject}) & \qquad 命令\\
+(OX\_DATA,       {\sl serial number}, {\sl CMObject}) & \qquad データ \\
+(OX\_SYNC\_BALL, {\sl serial number}) & \qquad 同期用メッセージ
+\end{tabular}
+\end{center}
+サーバ・クライアント間で交換されるメッセージは全て上のいずれかの形式をと
+らなければならない.
+これらのメッセージの種類を表すタグは次のように定義されている.
+\begin{verbatim}
+#define OX_COMMAND                   513
+#define OX_DATA                      514
+#define OX_SYNC_BALL                 515
+\end{verbatim}
+メッセージのシリアル番号も 32bit 整数で与えられる.
+これはクライアントまたはサーバが自由につけてよい.
+シリアル番号はエラー処理に主に利用される.
+サーバはエラーを発生したメッセージのシリアル番号をエラーメッセージに含めて
+もどす.
+上のメッセージの定義で,
+SMObject は, スタックマシンへの命令であり,
+CMObject は, CMO に属するデータである.
+スタックマシンへの命令は32bit整数値で与えられる.
+\cite{Openxxx-1998} では例えば以下のような命令を定義している.
+\begin{verbatim}
+#define SM_popCMO                     262
+#define SM_popString                  263
+#define SM_mathcap                    264
+#define SM_pops                       265
+#define SM_setName                    266
+#define SM_evalName                   267
+#define SM_executeStringByLocalParser 268
+#define SM_executeFunction            269
+
+#define SM_control_kill               1024
+#define SM_control_reset_connection   1030
+\end{verbatim}
+
+Open xxx のスタックマシンは二種類の異なる機能をもつと言える.
+これはマシン語のたとえを使うと, いくつかの異なるマシン語の
+エミュレーションモードをもつ CPU のようなものである.
+モード (1) では, ローカル言語(Open asir の場合は asir)の文法に
+したがった文字列を受け取り,
+計算した結果をローカル言語で記述された文字列でもどす.
+この計算は命令
+SM\_executeStringByLocalParser を用いて行われる.
+モード (2) では, Open xxx で定められたスタックマシンとして動作する.
+基本的に, CMO をスタックに積み, 命令を受け取ると演算を行う.
+
+この節ではモード (1) を用いた計算の例をあげる.
+ユーザが, Open asir に ``diff((x+2*y)\^{ }2,x);'' を評価させたいときは,
+サーバにメッセージ
+\begin{eqnarray*}
+&& \mbox{(OX\_DATA,    {\sl serial number}, (CMO\_STRING, 18, "diff((x+2*y)\^{ }2,x);"))} \\
+&& \mbox{(OX\_COMMAND, {\sl serial number}, SM\_executeStringByLocalParser)}
+\end{eqnarray*}
+を順に送る.
+最初のメッセージで文字列``diff((x+2*y)\^{ }2,x);''がスタックに積まれ,
+次のメッセージでスタックの最上位の``diff((x+2*y)\^{ }2,x);''が
+Open asir サーバによって実行される.
+結果は再びスタックに積まれる.
+
+これを実行するクライアントのプログラムは C 言語で表すと次のようになる.
+\begin{verbatim}
+/* (OX_tag, serial number) を送信する */
+int send_ox_tag(int fd, int tag)
+{
+  static int serial_number = 0;
+  send_int32(fd, tag);
+  return send_int32(fd, serial_number++);
+}
+
+void send_ox_cmo_string(int fd, const char* str)
+{
+  int len;
+  send_ox_tag(fd, OX_DATA);   /* OXタグとシリアル番号を送信 */
+  send_int32(fd, CMO_STRING); /* CMO_STRING 形式の文字列を送る */
+  len = strlen(str);
+  send_int32(fd, len);
+  write(fd, str, len);
+}
+
+void send_ox_command(int fd, int sm_command)
+{
+  send_ox_tag(fd, OX_COMMAND); /* OXタグとシリアル番号を送信 */
+  send_int32(fd, sm_command);
+}
+
+int executeStringByLocalParser(const char* str)
+{
+  send_ox_cmo_string(fdStream, str);
+  send_ox_command(fdStream, SM_executeStringByLocalParser);
+}
+
+int main()
+{
+  ...
+  executeStringByLocalParser("diff((x+2*y)^2,x);");
+  ...
+}
+\end{verbatim}
+
+スタックに積まれた結果を文字列として取り出すときは,
+SM\_popString 命令を用いる.
+すなわち, サーバへメッセージ
+\[
+\mbox{(OX\_COMMAND, {\sl serial number}, SM\_popString)}
+\]
+を送る.  その後, Open asir サーバから計算結果を表すメッセージ
+\[
+\mbox{(OX\_DATA, {\sl serial number}, (CMO\_STRING, 7, "2*x+4*y"))}
+\]
+が送られてくるので, それを読めばよい.
+
+\begin{verbatim}
+typedef struct cmo_t {
+  int tag;
+  union {
+    int integer;
+    char *string;
+  } u;
+} cmo_t;
+
+char *receive_cmo_string(int fd)
+{
+  int len = receive_int32(fd);
+  char* str = malloc(len+1);
+  bzero(str, len+1);
+  read(fd, str, len);
+  return str;
+}
+
+cmo_t receive_cmo(int fd)
+{
+  cmo_t m;
+  m.tag = receive_int32(fd);
+  switch(m.tag) {
+  case CMO_STRING:
+    m.u.string = receive_cmo_string(fd);
+    break;
+  case CMO_INT32:
+    m.u.integer = receive_int32(fd);
+    break;
+  default:
+  }
+  return m;
+}
+
+/* (OX_tag, serial number) を受信する */
+int receive_ox_tag(int fd)
+{
+  int tag = receive_int32(fd);
+  receive_serial_number(fd);
+  return tag;
+}
+
+char* popString()
+{
+  cmo_t m;
+
+  send_ox_command(fdStream, SM_popString);
+  receive_ox_tag(fdStream);   /* OXタグとシリアル番号を受信 */
+  m = receive_cmo(fdStream);
+
+  return m.u.str;
+}
+
+int main()
+{
+  char *result;
+  ...
+  result = popString();
+  puts(result);
+  ...
+}
+\end{verbatim}
+
+\section{計算の中断}\label{section:reset}
+計算の中断は, Open xxx の設計でいちばん苦労した部分である.
+このアイデアは asir が本来もっていた分散計算の機能に由来する.
+まず基本として全てのメッセージ (OX\_ ではじまるデータまたは命令の
+ひとかたまり)をいわゆる synchronized object として扱っている.
+したがって,メッセージを転送しているときは転送が終了するまで
+割り込みは保留される.
+
+計算の中断についてはサーバがコントロールプロセスと
+計算プロセスに別れて実装されていることが大きな意味をもつ.
+以下, このことに留意して説明を行う.
+
+まず, 計算の中断の依頼が行われる前には, クライアントおよびコントロールプ
+ロセスは待機状態, 計算プロセスは計算中の状態にある.  
+計算の中断の必要があると認められたとき, クライアントは, 
+待機状態にあるコントロールプロセスにメッセージ
+\[
+\mbox{(OX\_COMMAND, {\sl serial number}, SM\_control\_reset\_connection)}
+\]
+を送信する. 
+このメッセージの送信後, クライアントはコントロールプロセスからの
+通信路のみを監視し待機状態に入る.
+クライアントは計算プロセスからのメッセージは読まないようにする.
+
+このメッセージを受け取ったコントロールプロセスは活動を再開し, 
+クライアントに対しメッセージ
+\[
+\mbox{(OX\_DATA, {\sl serial number}, (CMO\_INT32, 0))}
+\]
+を投げ返し, さらに計算プロセスには中断処理を開始せよとのシグナルをおくる.
+この時点では, 
+クライアントはコントロールプロセスとの通信路を監視している状態, 
+コントロールプロセスはシグナルを送った後, 待機状態に入り, 
+計算プロセスは計算中にシグナルを受け取った状態である.
+計算プロセスはシグナルをうけとったときクリティカル区間にいれば
+この区間がおわるまで計算の中断をしない.
+とくに(Open xxx規約の意味での)メッセージの送受信中は, 
+クリティカル区間であると見做される.
+
+クライアントはコントロールプロセスとの通信路のみを最初監視しているが, 
+上のコントロールプロセスからのメッセージを受信した後は
+コントロールプロセスとの通信路を監視するのは止めて, 
+計算プロセスからの{\tt OX\_SYNC\_BALL}を待つ状態に遷移する.
+ある通信路において{\tt OX\_SYNC\_BALL}を待つ状態とは,
+その通信路を通してメッセージ
+\[
+\mbox{(OX\_SYNC\_BALL, {\sl serial number})}
+\]
+を受け取るまで, その通信路からの全てのメッセージを読み飛ばす
+状態のことである.
+計算プロセスは中断処理が終了した後に{\tt OX\_SYNC\_BALL}をクライアントに
+送信してクライアントからの{\tt OX\_SYNC\_BALL}を待つ状態に入る.
+計算プロセスは{\tt OX\_SYNC\_BALL}以前のメッセージをすべて読みとばす.
+
+クライアントは計算プロセスから{\tt OX\_SYNC\_BALL}を受け取ると,
+すぐさま, メッセージ
+\[
+\mbox{(OX\_SYNC\_BALL, {\sl serial number})}
+\]
+を計算プロセスに送信し, 通常の状態に復帰する.
+サーバもこのメッセージを受信後, 通常の状態に復帰する.
+これで, 手続きは全て終了する.
+
+我々の中断手続きの設計において注意すべきことは, この手順でクライアントが
+OX\_SYNC\_BALLを送った時点で, クライアント側からはサーバが待ち状態になっ
+ていて, かつ次のストリーム(クライアント, 計算プロセス間の通信路)に対する
+読み出しは, これから送るコマンドのうちサーバが最初にストリームに書き出し
+た結果であることが保証されていると思ってよい, ということである.
+これには, 
+\begin{enumerate}
+\item 
+サーバの中断処理は, クライアントからの依頼(シグナル)によって開始し, 
+クライアントからのOX\_SYNC\_BALL受領により終了する.
+\item
+サーバの中断処理が開始してから, クライアントからのOX\_SYNC\_BALLが
+送られてくる.  
+\end{enumerate}
+という順序がなりたつことが本質的に重要である.  
+例えば, サーバからのOX\_SYNC\_BALLを待たずにクライアントがOX\_SYNC\_BALL
+を送ってしまった場合, シグナルに先着することもありえる.
+
+サーバでの中断処理の読み出し中に, さらに中断依頼が来た場合などのクライア
+ントからのOX\_SYNC\_BALLが複数来る場合に対応するために, OX\_SYNC\_BALLは, 
+通常状態では無視する必要があるので, 実際, 通常状態ではOX\_SYNC\_BALLは
+サーバで無視されることには留意しなければならない.  
+サーバはクライアントにOX\_SYNC\_BALLを送るが, クライアントがもう
+OX\_SYNC\_BALLを送った気でいると, 自分が送ったOX\_SYNC\_BALLの返事をずっ
+と待ち続けることになる.
+
+なお, クライアントにおける中断処理のための関数は以下のようになる.
+\begin{verbatim}
+void ox_reset()
+{
+  send_ox_command(fdControl, SM_control_reset_connection);
+
+  receive_ox_tag(fdControl);     /* OXタグとシリアル番号を受信 */
+  receive_cmo(fdControl);    /* メッセージの本体を受信 */
+
+  while(receive_ox_tag(fdStream) != OX_SYNC_BALL) {
+    receive_cmo(fdStream);   /* メッセージを読み飛ばす. */
+  }
+  send_ox_tag(fdStream, OX_SYNC_BALL);
+}
+
+int main()
+{
+  ...
+  ox_reset();
+  ...
+}
+\end{verbatim}
+
+
+\section{クライアントの終了}
+クライアントを終了するときには, コントロールプロセスにメッセージ
+\[
+\mbox{(OX\_COMMAND, {\sl serial number}, SM\_control\_kill)}
+\]
+を送る.
+このメッセージを受け取るとただちにサーバは終了するので,
+それを待ってクライアントも終了する.
+現在実装されているサーバは
+クライアントが突然終了するなどのために通信路が閉じられると,
+サーバも自動的に終了するように設計されてはいるが,
+明示的にコントロールプロセスにメッセージを送るべきである.
+\begin{verbatim}
+void ox_close()
+{
+  send_ox_command(fdControl, SM_control_kill);
+}
+\end{verbatim}
+
+\section{サーバにローカルに定義された関数の実行}
+先にあげた計算の例では, 計算の対象を文字列として送信し,
+スタックマシンの命令\\ SM\_executeStringByLocalParser を利用していた.
+次にモード(2)を用いた計算の例をあげよう.
+モード(2)では CMO\_STRING 型のオブジェクトだけでなく,
+一般の CMO が直接スタックにプッシュされ, 計算処理の対象となる.
+
+Open xxx 規約は以下のような意味でサーバの自由な拡張を許す.
+Open xxx 規約に従う数学プロセスでは, その数学プロセス独自の関数が
+存在してもよい.
+例えば, asir における ``igcd'' などである.
+これを\cite{Openxxx-1998}では「サーバのローカル関数」と呼んでいる.
+Open asir では, asir マニュアルに説明されているすべての関数を
+モード(2)のサーバのローカル関数として実行できる.
+もちろん, asir などで用意されている「関数定義」を利用して新しく関数を
+追加してもよい.
+
+Open xxx 規約にはスタック上のCMOデータに対してサーバのローカル関数を
+実行するための命令 SM\_executeFunction が定義されている.
+この節ではこの命令の使い方について説明しよう.
+
+まず, 実行したい関数の引数となるオブジェクトを「右から」順にサーバに
+送信すると, サーバは順にそれらのオブジェクトをスタックに積む.
+次いで, 引数の個数を CMO\_INT32 型のオブジェクトでサーバに送信すると,
+サーバはスタックに積む.
+次に, 実行したいと思っている関数の名前を CMO\_STRING 型で送信すると,
+サーバは再びスタックに積む.  最後に命令 SM\_executeFunction を送信すると,
+サーバはスタックの最上位に積まれている「関数」を実行する.  関数は引数を
+スタックからポップして実行し, サーバはその実行結果をスタックに積む.
+
+例をあげよう. SM\_executeFunction を用いて, asir の文
+\[
+\mbox{print("Hello World.");}
+\]
+を実行するには次の手順をとる.
+
+まず, 次の順にメッセージを送信する.
+\begin{eqnarray*}
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_STRING, 12, "Hello World."))} \\
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_INT32, 1))} \\
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_STRING, 5, "print"))}
+\end{eqnarray*}
+これらはサーバによって順にスタックに積まれる.
+次いで命令
+\[
+\mbox{(OX\_COMMAND, {\sl serial number}, SM\_executeFunction)}
+\]
+を送信すると関数 ``print'' が実行され,
+サーバは ``Hello World.'' を画面に出力する.
+実行結果として (CMO\_NULL) がスタックに積まれる.
+
+\section{CMO ZZ}
+
+この節ではOpen xxx 規約における任意の大きさの整数(bignum)の扱いについて
+説明する.
+多重精度整数についての一般論については Knuth~\cite{Knuth-1986} に詳しい.
+Open xxx 規約における多重精度整数を表すデータ型 CMO\_ZZ は GNU MPライブ
+ラリなどを参考にして設計されていて, 符号付き絶対値表現を用いている.
+CMO\_ZZ は次の形式をとると\cite{Openxxx-1998}で定義されている.\\
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+{\tt int32 CMO\_ZZ} & {\tt int32 $f$} & {\tt byte $b_1$} & $\cdots$ &
+ {\tt byte $b_n$} \\
+\hline
+\end{tabular} \\
+$f$ は32bit整数であるが, 正数とは限らない.
+$b_1, \ldots, b_n$ は 1バイト符号なし整数である.
+このバイト列の長さ $n$ は絶対値 $|f|$ と一致しなければならない.
+この CMO の符号は $f$ の符号で定める.
+前述したように, 32bit整数の負数は 2 の補数表現で表される.
+
+Open xxx 規約では上の CMO は以下の整数を意味する.
+\[
+\mbox{sgn}(f)\times (b_1 R^{n-1}+ b_2 R^{n-2} + \cdots + b_{n-1}R + b_n).
+\]
+ここで $R = 2^8$ である.
+例えば, 整数 $14$ は CMO\_ZZ で表わすと,
+\[
+\mbox{(CMO\_ZZ, 1, e)}
+\]
+となり, これをバイト列で表すと以下のようになる.
+\[
+\mbox{\tt 00 00 00 14 00 00 00 01 0e}
+\]
+あるいはゲタをはかせて CMO\_ZZ で
+\[
+\mbox{(CMO\_ZZ, 4, 0, 0, 0, e)},
+\]
+と表してもよい.
+これはバイト列では
+\[
+\mbox{\tt 00 00 00 14 00 00 00 04 00 00 00 0e}
+\]
+となる.
+後者の表現の方が C 言語でクライアントを作成するのには, 簡単であろう.
+
+さて, 前節で説明した命令 SM\_executeFunction を利用して, 整数 $14$ と
+$22$ の最大公約数を求めることを考えよう.
+これには asir の関数 igcd が利用できる.
+
+まず, CMO\_ZZ で表した二つの整数, 引数の数(ここでは2)と関数名``igcd''を
+順にサーバに送信する.
+\begin{eqnarray*}
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_ZZ, 4, 0, 0, 0, e))}  \\
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_ZZ, 4, 0, 0, 0, 16))} \\
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_INT32, 1))} \\
+&& \mbox{(OX\_DATA, {\sl serial number}, (CMO\_STRING, 4, "igcd"))}
+\end{eqnarray*}
+最後に命令 SM\_executeFunction をサーバに送信する.
+\[
+\mbox{(OX\_COMMAND, {\sl serial number}, SM\_executeFunction)}
+\]
+スタックの最上位には計算結果が積まれるが, 命令 SM\_popString をサーバに
+送ると, それが文字列に変換されてクライアントに返される.
+なお CMO 形式でデータを受け取るには, 命令 SM\_popCMO をサーバに送る.
+
+一連の操作を C 言語で実装すれば以下のようになるだろう.
+\begin{verbatim}
+typedef struct {
+  int size;
+  unsigned char *mp_d;
+} cmo_zz_t;
+
+cmo_zz_t cmo_zz_set_si(int integer)
+{
+  cmo_zz_t zz;
+  zz.size = (integer < 0)? -sizeof(int): sizeof(int);
+  integer = htonl(integer);
+  zz.mp_d = malloc(sizeof(int));
+  bcopy(&integer, zz.mp_d, sizeof(int));
+  return zz;
+}
+
+void send_ox_cmo_zz(int fd, cmo_zz_t zz)
+{
+  int len = (zz.size < 0)? -zz.size: zz.size;
+  send_ox_tag(fd, OX_DATA); /* OXタグとシリアル番号を送信 */
+  send_int32(fd, CMO_ZZ);
+  send_int32(fd, zz.size);
+  write(fd, zz.mp_d, len);
+}
+
+int main()
+{
+
+  ...
+  send_ox_cmo_zz(fdStream, cmo_zz_set_si(14));
+  send_ox_cmo_zz(fdStream, cmo_zz_set_si(22));
+  send_ox_cmo_integer(fdStream, 2);  /* number of arguments */
+  send_ox_cmo_string(fdStream, "igcd");
+
+  send_ox_command(fdStream, SM_executeFunction);
+
+  fprintf(stderr, "igcd(%d, %d) == %s.\n", 14, 22, ox_popString(fdStream));
+  ...
+
+}
+\end{verbatim}
+
+\section{エラー処理}
+この節ではエラー処理について説明する.
+Open xxx 規約ではエラーを検出したとき,
+サーバは CMO\_ERROR2型のオブジェクトをスタックに積むと定めている.
+CMO\_ERROR2型のオブジェクトはエラーを表すために用意されたオブジェクトで
+あり, どのようなエラーであるか, どのメッセージで発生したのかの情報を含む.
+CMO\_ERROR2 という名称は歴史的な理由によるものである.
+このオブジェクトは次のように定義されている.\\
+\begin{tabular}{|c|c|}
+\hline
+{\tt int32 CMO\_ERROR2} & {\tt CMO\_LIST} error \\
+\hline
+\end{tabular}\\
+error は CMO\_LIST 型のオブジェクトで, リストの各要素がエラーについての
+情報になっている.  特にリストの先頭の要素はInteger32 型の CMObject で,
+その値はエラーが発生したメッセージのシリアル番号を Integer32 で表現した
+ものでなければならない.
+このリスト error の各要素についての詳細は \cite{Openxxx-1998} を参照して
+ほしい.
+
+さてクライアントはエラーが起こったことを知らないわけであるが,
+それは次のようにして検出できる.
+まず, 命令 SM\_popCMO をサーバに送る.
+すると, サーバはスタックの最上位をクライアントに送信する.
+そこでクライアントはその CMO のデータ型を見て, エラーが起こったことを
+確認できる.
+
+\section{補足}
+この解説を執筆中に, Mathematical Sciences Research Institute (Berkeley)
+で, Parallel Symbolic Computation なるワークショップがあった.
+関係する興味深い発表が沢山あったので, 発表に関係ある URL
+とキーワードをメモとして加えておく. 
+\def\til{$\tilde{\ }$}
+\begin{enumerate}
+\item {\tt www.openmath.org} (open math)
+\item {\tt www.w3.org}  (math web)
+\item {\tt posso.lip6.fr/\til jcf} (Faugere $F_4$, parallel GB algorithm)
+\item {\tt www.cs.berkeley.edu/\til yelick} (multipol)
+\item {\tt www.mupad.de} (parallel muPAD)
+\item {\tt www.math.ncsu.edu/\til kaltofen} (open math virtual machine)
+\item {\tt norma.nkkhef.nl/\til t68/summer} (integral)
+\item {\tt www.inf.ethz.ch/personal/mannhart} ($\Pi^{it}$)
+\item {\tt www.nag.co.uk} (useful links to computer algebra projects including Frisco project)
+\item {\tt www.can.nl} (useful links to computer algebra projects)
+\item {\tt www.cecm.sfu.ca} (useful links to computer algebra projects)
+\item {\tt www.icot.or.jp} (KLIC, Fujise-Murao's project)
+\item Parallel mathematica.
+\end{enumerate}
+
+
+\begin{thebibliography}{99}
+\bibitem{Openxxx-1998}
+野呂正行, 高山信毅.
+{Open xxx の設計と実装, xxx = asir,kan}, 1998/06/16
+\bibitem{Knuth-1986}
+D. E. Knuth.
+準数値算法/算術演算,
+サイエンス社, 1986.
+\end{thebibliography}
+
+\end{document}
+
+
+% 小原君:
+% 可能なら
+% socket 関係の余計なエラー処理をぬいてできるだけ短く簡略化した残りの
+% ソースリスト
+% (たとえば mysocket などの定義がない)
+% をいれるといいと思う.
+% それから タグの define 文もいれておくと便利と思う.
+% 長くて不可能なら, mysocket などにかんする説明を加えるべき.
+
+% カタカナ英語, そのたスタイルが変な部分はどんどん書き直して下さい.
+% 表現, 説明が変とおもったらどんどんかきなおして下さい.
+
+% あと, 関係する project としては,
+% CMO expression $\Leftrightarrow$ バイト列
+% の変換コンパイラ,
+% C や Java の open xxx 用ライブラリ.  MathLink (Mathematica).

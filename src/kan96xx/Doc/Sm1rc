@@ -1,0 +1,19 @@
+%% .sm1rc
+%% This is a sample startup script for sm1.
+%%
+(   ) message
+(This is an example of startup script.) message
+(This script loads the file cv0.sm1 and start it.) message
+(  ) message
+(Loading cv0.sm1 ... ) messagen
+[(parse) (cv0.sm1) pushfile] extension
+(done.) message
+
+(  ) message
+(Now, let's start example1. ) message
+example1 ;
+
+%% Define your aliases.
+/dir { ( ls -la ) system } def
+/ls { ( ls  ) system } def
+/help { ? } def

@@ -1,0 +1,31 @@
+/* lib/tostr.ccc :  to generate sm1-package tostr.sm1 */
+/* The contents of this file is moved to slib.ccc.
+   The name of the function is changed to ToString. */
+sm1(" 0 @@@.indexMode ");  /* C-like notation of matrix. a[0], ... */
+
+def tostr2(p) {
+  local n,ans,i;
+  ans = [ ];
+  if (IsArray(p)) {
+    n = Length(p);
+    ans = Append(ans,"[ ");
+    for (i=0; i<n; i++) {
+      ans = Append(ans,tostr2(p[i]));
+      if (i != n-1) {
+        ans = Append(ans," , ");
+      }
+    }
+    ans = Append(ans," ] ");
+  } else {
+    ans = [ sm1(p," (dollar) dc ") ];
+    /* Println(ans);   */
+  }   
+  return(AddString(ans));
+}
+
+def IsArray(p) {
+  sm1(p," isArray /FunctionValue set  ");
+}
+
+
+/* Println(tostr2([1,[2,3,4]])); */

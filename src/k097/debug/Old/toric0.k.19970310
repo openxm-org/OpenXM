@@ -1,0 +1,176 @@
+
+/* SSWork/yacc/ip-k/ex3.ccc,   1996, 8/12. This is original. ---> */
+/*             debug/toric0.k */
+
+/* load("debug/db.ccc");
+load("help.ccc"); */
+
+def ringd() {
+ R = RingD("s,t,a,b,c,d,b1,b2",
+      [["s",1,"t",1],["a",100,"b",10,"c",1,"d",150]]);  
+ /* 定義をやりなおすと別の ring になるよ。
+                                     これは要注意。 */
+ SetRingVariables();
+ myinput = [ a - s, b - s*t , c - s*t^2, d - s*t^4 ];
+}
+Println("Type in ringd(); to define the ring.");
+Println("Type in toric(myinput) to get the toric ideal.");
+
+sm1(" /mydegree {2 1 roll degree} def ");
+def expvec(f) {
+  local vars,n,i,ans;
+  vars = [a,b,c,d,Da,Db,Dc,Dd]; /* change here. */
+  if (f == Poly("0")) return([ ] );
+  sm1(f," /ff.tmp set ", vars , 
+        " { ff.tmp mydegree (universalNumber) dc } map /FunctionValue set ");
+}
+
+def in_w(f) {
+  local w,top,ans,wtop;
+  weight = [-100,-10,-1,0,100,10,1,0]; /* change here. */
+  if (f == Poly("0")) return( Poly("0") );
+  top = sm1(f, " init ");
+  w = expvec(top) * weight ;
+  wtop = w;
+  ans = top;
+  f = f-top;
+  while(true) {
+    if ( f == Poly("0")) sm1("exit");
+    top = sm1(f, " init ");
+    w = expvec(top) * weight ;
+    if (w < wtop) sm1(" exit ");
+    ans = ans + top;
+    f = f-top;
+    /* Println(ans); */
+  }
+  return(ans);
+}
+
+def toric(input) {
+  local ans ,ans2;
+  ans = Replace(Groebner(input),[[h,Poly("1")]]);
+  ans2 = sm1( ans, " [(s) (t)] eliminatev ");
+  return(ans2);
+}
+
+
+
+def ringd1() {
+ local weight,ans;
+ weight = ["a",100,"b",10,"c",1,"d",150];
+ R = RingD("s,t,a,b,c,d,b1,b2",
+      [["s",1,"t",1],weight]);
+ SetRingVariables();
+ Print("Weight="); Println(weight);
+ myinput = [ a - s, b - s*t , c - s*t^2, d - s*t^4 ];
+ ans = toric(myinput);
+ Println(ans);
+ return(ans);
+}
+
+def void ringd2() {
+ local weight;
+ weight = ["a",1,"b",15,"c",1,"d",4];
+ R = RingD("s,t,a,b,c,d,b1,b2",
+      [["s",1,"t",1],weight]);
+ SetRingVariables();
+ Print("Weight="); Println(weight);
+ myinput = [ a - s, b - s*t , c - s*t^2, d - s*t^4 ];
+ Println(toric(myinput));
+}
+
+/* This is used to find a bug */
+def void ringd3() {
+ local weight;
+ weight = ["a",1,"b",15,"c",1,"d",4];
+ R = RingD("s,t,a,b,c,d,b1,b2",
+      [["s",1,"t",1],weight]);
+ SetRingVariables();
+ /* Print("Weight="); Println(weight);
+ myinput = [ a - s, b - s*t , c - s*t^2, d - s*t^4 ]; */
+ /* Println(toric(myinput)); */
+}
+
+def MinimalBase(base) {
+  sm1( base, " minimalBase /FunctionValue set ");
+}
+HelpAdd(["MinimalBase",
+ ["MinimalBase[base] prunes redundant elements in the Grobner basis <<base>>."
+]]);
+
+
+def IndexedVariables(name,size) {
+  local result,i,result2;
+  result = [ ];
+  for (i=0; i<size-1; i++) {
+    result = Append(result,Indexed(name,i));
+    result = Append(result,",");
+  }
+  if (size-1 >= 0) {
+    result = Append(result,Indexed(name,size-1));
+  }
+  result2 = Join(["{"],result);
+  result2 = Join(result2,["}"]);
+  return(AddString(result2));
+}
+HelpAdd(["IndexedVariables",
+["IndexedVariables(name,size) returns the string ",
+ " {name[0],name[1],...,name[size-1]} which can be used as inputs to ",
+ " the function RingD  (string name, integer size).",
+ " Ex. R = RingD(IndexedVariables(\"a\",3)); ",
+ "     h = Poly(\"h\");",
+ "     a = NewArray(3);",
+ "     for (i=0; i<3; i++) {a[i] = Poly(Indexed(\"a\",i));} ;"]]);
+
+
+def IndexedRingD(vList, size, weightMatrix) {
+  local myring,tmp,k00_i,argsize,vListD;
+  /* You cannot use these local varialbes as a name of global ring 
+     variables. Change these names to names that start with k00_ */
+  argsize = Length(Arglist);
+  if (argsize == 1) {
+    Println("Error (IndexedRingD): ");
+    return(null);
+  }
+  if (argsize == 2) {
+    vListD = AddString(["D",vList]);
+    myring = RingD(IndexedVariables(vList,size));
+    SetRingVariables();
+    tmp = NewArray(size);
+    for (k00_i=0; k00_i<size; k00_i++) {tmp[k00_i]=Poly(Indexed(vList,k00_i));}
+    sm1(vList, " (literal) dc ", tmp, " def ");
+    tmp = NewArray(size);
+    for (k00_i=0; k00_i<size; k00_i++) {tmp[k00_i]=Poly(Indexed(vListD,k00_i));}
+    sm1(vListD, " (literal) dc ", tmp, " def ");
+    Print("Set the global variables ");
+    sm1("[(parse) ",vList," ] extension pop print ");
+    sm1("[(parse) ",vListD," ] extension pop print "); Ln();
+    return( myring );
+  }
+  if (argsize == 3) {
+   vListD = AddString(["D",vList]);
+    myring = RingD(IndexedVariables(vList,size),weightMatrix);
+    SetRingVariables();
+    tmp = NewArray(size);
+    for (k00_i=0;k00_i<size; k00_i++) {tmp[k00_i]=Poly(Indexed(vList,k00_i));}
+    sm1(vList, " (literal) dc ", tmp, " def ");
+    tmp = NewArray(size);
+    for (k00_i=0;k00_i<size; k00_i++) {tmp[k00_i]=Poly(Indexed(vListD,k00_i));}
+    sm1(vListD, " (literal) dc ", tmp, " def ");
+    Print("Set the global variables ");
+    sm1("[(parse) ",vList," ] extension pop print ");
+    sm1("[(parse) ",vListD," ] extension pop print "); Ln();
+    return( myring );
+  }
+  return(-1);
+}
+
+
+
+def void foo() {
+  Println("IndexedVariables:");
+  Println(IndexedVariables("xyz",5));
+}
+
+  
+

@@ -1,0 +1,33 @@
+:
+TYPE=$OSTYPE.$HOSTTYPE
+GENDIR=../open-sm1-binary.$TYPE
+GENDIR2=open-sm1-binary.$TYPE
+TRASHDIR=Trash
+WD=`pwd`
+echo "Generating the binary distribution of open sm1 for $TYPE"
+
+/bin/rm -rf $GENDIR
+mkdir $GENDIR
+
+tar cf - * | (cd $GENDIR ; tar xvf - )
+cd $GENDIR
+/bin/rm -rf $TRASHDIR
+mkdir $TRASHDIR
+make clean
+mv -f client.class client.java  ox-1.sm1 ox.a oxlog*.txt sample1.* startengines streamListener.class testclient*.c  ox_asir ox_sm1 $TRASHDIR
+mv -f Old Prog ox_asir.old xm $TRASHDIR
+mv -f cmo1.txt   memo1.txt noro.txt  ex1.txt  moushikomi.txt $TRASHDIR
+mv -f Trash afo asirstack.tex junk.c showpage.ps $TRASHDIR
+mv $TRASHDIR ../open-sm1-binary.Trash
+/bin/rm -rf ../open-sm1-binary.Trash/Trash
+
+cd $WD
+make
+cp ox $GENDIR/ox.$TYPE
+cp ox_sm1 $GENDIR/ox_sm1.$TYPE
+cp oxlog $GENDIR/oxlog.$TYPE
+cp xm $GENDIR
+
+( cd .. ; tar czvf $GENDIR2.tar.gz $GENDIR2 )
+
+

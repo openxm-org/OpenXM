@@ -1,0 +1,147 @@
+(cv0.sm1) run
+( ) message
+(cv2.sm1 11/15, 1994. This program computes characteristic varieties) message
+(                     and multiplicities.) message
+(Revised: 4/2, 1995, 11/5, 1998) message
+(Type in  charv and multi to see a demo.) message
+
+%%%%%%%%%%%%%%%%%% How to use %%%%%%%%%%%%%
+% 1. Set your differential equation in Part A
+% 2. Start sm1 and read this file.
+% 3. Type in   
+%            charv
+%    to get the characteristic variety.
+% 4. Next set the localization rule by the command
+%            /locRule locRule1 def
+% 5. And type in
+%            multi
+% 6. to get the multiplicty.
+% 7. goto 4 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  example
+%  sm1>charv ;
+%  sm1>/locRule locRule1 def multi ;
+%  sm1>/locRule locRule2 def multi ;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%Change here %%% set your data %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% [Part A] 
+%%% Define variables
+(x,y) /vars set
+(a,b,b',c) /parameters set   % Don't use t,e,H,h,E. They are reserved.
+%%% Set your equations
+[ ( Dx*(x*Dx+y*Dy+c-1)-(x*Dx+y*Dy+a)*(x*Dx+b) )    
+  ( Dy*(x*Dx+y*Dy+c-1)-(x*Dx+y*Dy+a)*(y*Dy+b') ) 
+ ]  /ff0 set 
+%%% If you can't get the result for general parameters, specialize
+%%% the parameters.
+[[$a$ $a$] [$b$ $b$]] /prule set
+%%% [Part B] localization rules
+%%% localization at the point x=2 y=3 Dx=0, Dy=0 on T^*_M M.
+[[(x) (x+2)] [(y) (y+3)]]   /locRule1 set %example 2
+%%% localization at the point x=2 Dy=3 Dx=0, y=0 on T^*_V M where V={(x,0)}.
+[[(x) (x+2)] [(Dy) (Dy+3)]] /locRule2 set %exmaple 2'
+/locRule locRule1 def
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%% You don't need read the below.
+/charv {
+  [ [vars to_records pop parameters to_records pop]  { (,) 1 cat_n } map cat
+    ring_of_differential_operators 
+    dvars  elimination_order 0] swap01 define_ring
+  ff0 { . } map /ff set
+  ff { [[$h$. $1$.]] replace } map  /ff set
+  ff { prule { {. } map } map replace } map  /ff set
+  /ff ff homogenize  def
+  [ff] groebner /ans set
+  ans 0 get {[[$h$. $1$.]] replace} map /gg set
+  (Now, you get the characteristic variety) message
+  gg characteristic-v print (  ) message ( ) message
+  gg characteristic-v 0 get {(string) data_conversion} map
+  /gg0 set
+} def
+
+
+/multi {
+   (Computing the multiplicity along T^*_Y M...) message
+
+   (t) ring_of_differential_operators3 (t) lexicographic_order3 /r1 set
+   % t must be the most expensive.
+   dvars vars 2 cat_n
+   ring_of_polynomials2 ( ) elimination_order2 /r2 set
+
+   parameters ring_of_polynomials2 ( ) elimination_order2 /r3 set
+   (H,h) ring_of_polynomials2 (H,h) lexicographic_order2 /r4 set
+   [r1 r2 add_rings r3 add_rings r4 add_rings 0]  addSwap0k define_ring
+ 
+   gg0 { . locRule {{ . } map} map replace} map    
+
+   (grade) (firstvec) switch_function
+   { homogenize [[$h$. $t$.]] replace (string) data_conversion } map /gg2 set 
+
+   [gg2 {.} map] groebner /gg2b set
+   gg2b 0 get {init} map { [[$t$. $1$.]] replace } map /gg3 set
+   gg3 {(string) data_conversion} map print
+   ( ) message
+   gg3 { parameters makeRule replace } map 
+   {(string) data_conversion} map  
+   [vars to_records pop] { (D) 2 1 roll 2 cat_n} map  
+   [vars to_records pop] join
+   hilb ::
+   (The coefficient of h^2 is the multiplicity.) message
+   (grade) (module1) switch_function
+} def
+
+
+[vars to_records pop] { (D) 2 1 roll 2 cat_n (,) 2 cat_n } map cat /dvars set  
+
+
+/makeRule {
+  /arg1 set
+  [arg1 to_records pop] { [ 2 1 roll . $1$.] } map
+} def
+
+/writeArray {
+  /arg2 set /arg1 set
+  [/fd /arr /k] pushVariables
+  [ /fd arg1 def
+    /arr arg2 def
+    fd ([ ) writestring
+    0 1 arr length 1 sub
+    {
+      /k set
+      fd ($ ) writestring
+      fd arr k get writestring
+      fd ($     ) writestring
+    } for
+    fd ( ] ) writestring
+  ] pop
+  popVariables
+} def
+
+/addSwap0k {
+  /arg1 set
+  [/rg /ch /tmp] pushVariables
+  [
+    arg1 0 get /rg set  % ring
+    arg1 1 get /ch set  % characteristics
+    [rg 0 get , rg 1 get , rg 2 get , 
+
+     << rg 3 get length >> 
+     matid 
+     << rg 3 get length >> 
+     4 1 d_ij add     %% add 1st row and 4th row
+     << rg 3 get >> mul  /tmp set 
+
+     << rg 3 get length >> 
+     0 4 e_ij
+     tmp mul %% swap 1st row and 4 th row
+    ] /rg set
+    /arg1 [ rg ch ] def
+  ] pop
+  popVariables
+  arg1
+} def
+

@@ -1,0 +1,138 @@
+1999, 6/13   Open XM (open protocol for mathematical softwares)
+This is a README file in Japanse.
+
+--------------------------------------------------------------
+このディレクトリがバイナリ版の場合, 
+ox  が    ox.OSTYPE.CPUTYPE     なる名前で,
+ox_sm1 が ox_sm1.OSTYPE.CPUTYPE なる名前で格納されています.
+oxlog が oxlog.OSTYPE.CPUTYPE なる名前で格納されています.
+これらの名前を ox, ox_sm1, oxlog に戻す.
+
+kan/sm1 のバイナリ版がインストールされていることを確認.
+ディレクトリ名は, kanbinary*** というなまえのはず.
+このディレクトリの lib が, /usr/local/lib/sm1
+よりシンボリックリンクされているかまたは,
+LOAD_SM1_PATH の設定がただしくされてる必要がある.( 最後の / をわすれぬ
+ように)
+
+ox, ox_sm1 , oxlog を /usr/local/lib/sm1 or LOAD_SM1_PATH
+(sm1 のライブラリーのパス) の下の bin におく.
+
+kan/sm1 がこれらを起動する場合, ox.sm1 のなかのライブラリ関数は
+これらを自動的に探すのでなにもする必要ありません.
+(これをおこなわない場合, kan/sm1 の lib/ の下の、 oxasir.sm1, ox.sm1 の
+パス設定の変更が必要.)
+
+asir より ox_sm1 を起動する場合は,
+このディレクトリの xm (昔の callsm1.asir) の
+Sm1_lib 変数をたとえば
+ Sm1_lib = "/u/nobuki/tmp/kanbinary.Linux.i386/lib"
+のように設定する必要がある.
+xm をロード後, start2() で ox_sm1 を起動できる.
+
+
+            以上でインストール終了.
+-------------------------------------------------------------
+
+kan/sm1 より oxasir.sm1 を使用する場合,
+ASIR_LIBDIR または /usr/local/lib/asir 
+に, ox_asir, ox_launch  が必要.
+(asir より ox_sm1 を呼び出す場合, xm および定数の設定が必要.)
+
+
+--------------------------------------------------------------
+
+このディレクトリがソース版の場合,
+このディレクトリには, open sm1 server:  ox, ox_sm1, を作成するための
+ソースコード, および, 
+sm1 より ox_asir や ox_sm1 などの open xxx server を呼ぶための
+sm1 のプログラム, ox.sm1, oxasir.sm1, oxasir.asir 
+は, kan/sm1 の配布ディレクトリの, lib の下にあります.
+コンパイルには, kan96.tgz (kan/sm1 のソースコードが必要です.
+以下コンパイルの手順を説明します.
+
+(1) kan/sm1 Version 2.981117 以上を ftp.math.kobe-u.ac.jp よりコピー.
+
+(2) kan/sm1 の directory 名を, kan96xx より SSkan に変更.
+    ディレクトリ kxx と SSkan を同じディレクトリの下へおきます.
+    [つまり]
+    ls
+    SSkan kxx
+
+(3) SSkan/Kan/Makefile を plugin (cmo, socket, file2 ) を使用するように変更.
+    Makefile のコメントを見よ.
+    [つまり]  以下のコメントをすべて外す.
+    ####  (2) cmo, file2, socket
+    #PLUGIN = ../plugin
+    #PLUGIN_PROTOTYPE  = $(PLUGIN)/file2.h $(PLUGIN)/sm1Socket.h  $(PLUGIN)/cmo.h $(PLUGIN)/ox.h
+    #PLUGIN_LIB  = $(PLUGIN)/sm1Socket.a  $(PLUGIN)/cmo.a $(PLUGIN)/file2.a $(PLUGIN)/ox.a
+    #PLUGIN_EXT = $(PLUGIN)/file2.hh $(PLUGIN)/sm1Socket.hh $(PLUGIN)/cmo.hh  $(PLUGIN)/ox.hh
+    #PLUGIN_SM1 = $(PLUGIN)/sm1Socket.sm1 $(PLUGIN)/file2.sm1 $(PLUGIN)/cmo.sm1
+    #PLUGIN_LINKFLAG = 
+
+
+    (3) kan の top directory で make all2 する.
+       (all でなく all2)
+    (4) cd SSkan/Kan してから, make kanlib.a でライブラリを作成.
+
+    (5) ディレクトリ kxx で make
+
+    これで次の二つのファイルが作成されます.
+     ox : サーバ.
+     ox_sm1 : open sm1 サーバ.
+
+-----------------------------------------------------------------
+以下の記述は古いので訂正が必要:
+     ./ox -ox ox_sm1   でサーバを起動できる.
+     IP address, port番号を指定するには, 
+     ./ox -ox ox_sm1 -host xxx.ppp.ac.jp -data 1234 -control 5678
+     などのように指定します.  指定がないとデフォールト値をとります.
+
+ 
+     ox.sm1 : このディレクトリが開発ディレクトリ.  SSkan/lib より symbolic link.
+      sm1
+      (ox.sm1) run
+      で sm1 より open sm1 サーバを呼べる.
+    oxasir.sm1 :  このディレクトリが開発ディレクトリ.  SSkan/lib より symbolic link.
+     open xxx 対応 asir および ox_asir (open asir) があれば (../asir-xx), 
+     sm1 より open asir を呼ぶ, asir より open sm1 を呼ぶことが可能.
+
+openxxx.tex   :  specifications, 日本語
+
+-------------------------------------------
+oxlog は ctrl-C を block したのちに, xterm, ox などを立ち上げるための
+短いプログラムです.
+
+---------- Note for install.  以下は古いノート.
+1998, 1/12
+(1) kan の  test version  ftp.math.kobe-u.ac.jp/pub/Papers/taka/kan97.0test.tgz
+を展開する.
+
+(2) この directory にある Makefile.kan を kan の directory Kan へ
+Makefile なる名前でコピーする.
+
+(3) kan の top directory で make all する.
+
+(3) 次に kan の plugin directory で make する.
+
+(4) 最後に, この directory の Makefile で KANHOME を正しい名前になおし,
+make sm1server00 
+をやる.
+
+[[[ テスト ]]]
+./startengines
+で sm1server00 を二つ起動.
+
+sm1 を起動し,
+(ox.sm1) run
+dist
+を実行.   gb-check を分散プロセス  sm1server00 へ分配して計算
+する.
+
+sm1 を quit すれば, sm1server00 も停止する.
+
+違うマシンで sm1server00 を起動するには,
+startengine および, ox.sm1 の enginesList 定数を変更する.
+
+
+

@@ -1,0 +1,83 @@
+cmo.txt   1997, 7/1, 1997, 12/31
+
+ (すべてのフィールドは基本的に 32 bits.)
+
+List :
+ | tag 17  | length m | obj[0] | ... | obj[m-1] |
+ (List を以下 [obj[0], ..., obj[m-1]] と書く.)
+
+DMS :
+ | tag 23  |
+
+Coefficients:
+ 32 bit coefficients :
+   | tag 21 | int |
+ ZZ (GMP integer) :
+   | tag 20 | {internal expression of GMP integer} |
+
+Monomial:
+ Monomial32 :
+   | tag 19 | number of variables n | 
+   | exponent[0] | ... | expoent[n-1] | {Coefficients} |
+ ZeroMonomial :
+   | tag 22 |
+
+
+
+Polynomial:
+ PolynomialByList :
+    {Monomial32}  
+   or
+    [{DMS}, {RingDefinition}, {Polynomial}, ... , {Polynomial}]
+
+RingDefinition:
+  | tag 24 | 
+  | tag 17 | length m |   (LIST)
+   | INT32 number of variables |                  <m=0>
+   | INT32 characteristic |or| RingDefinition |   <m=1>
+   | LIST  name of variables |   (optional)       <m=2>
+   | LIST  weight vector     |   (optional)       <m=3>
+   | LIST  output order      |   (optional)       <m=4>
+
+
+
+Example: Z/11Z [x,y]
+ 3 x^2 y + 1   ===> | 17(11) | 4(4) | {DMS}     |{RingDef}| {3 x^2 y} | {1} |
+                    | 17(11) | 4(4) | 24(18)    |{RingDef}| {3 x^2 y} | {1} |
+                               The length is four {DMS}, {RingDef}, 3x2y, 1.
+ RingDef      ====> | 25(19) | {LIST} 17(11)| 2 |
+                             | {number of variables} |{coeff field}| 
+       
+ 3 x^2 y       ===> | 19 | 2 |   | 2 |
+                    | 21 | 3 |
+ 1             ===> | 19 | 2 |   | 0 |
+                    | 21 | 1 |
+
+ 0             ===> | 22 |
+
+
+Example: Z/11Z [6 variables]
+(cmotest.sm1) run
+[(x,y) ring_of_polynomials ( ) elimination_order 11 ] define_ring ;
+(3x^2 y). cmo /ff set ;
+ff dump ;
+  dumpCmoBuf : size = 80, size/sizeof(int) = 20
+
+  0  0  0 11  0  0  0  3  0  0  0 18  0  0  0 19  0  0  0 11
+     LIST         length     DMS      RINGDEFINITION LIST
+  0  0  0  2  0  0  0  3  0  0  0  6  0  0  0  3  0  0  0  b
+     length       (INT32)     6           (INT32)     11 (characteristic)
+
+  0  0  0 13  0  0  0  6  0  0  0  0  0  0  0  2  0  0  0  0
+  MONOMIAL32      6 varis     0          2 (x^2)           0
+  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0 16  0  0  0  3
+           0     1 (y^1)           0       Z/11            3
+
+(3x^2 y). cmosave   ===> debug/cmodata1.cmo
+
+
+
+
+
+
+

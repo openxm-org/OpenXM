@@ -1,0 +1,18 @@
+%% syz.sm1
+
+[ (x,y) ring_of_differential_operators
+  [[(Dx) 1 (Dy) 1]] weight_vector
+ 0
+] define_ring
+
+[ (x Dx + y Dy).
+  (Dx^2 + Dy^2).
+] /ff set
+
+ff { [[(h). (1).]] replace homogenize} map /ff2 set
+
+[ff2 [(needBack) (needSyz)]] groebner /ans set ;
+(Syzygies are ...) message
+ans 2 get ::
+
+

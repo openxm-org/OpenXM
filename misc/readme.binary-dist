@@ -1,0 +1,55 @@
+This is a binary distribution of kan/sm1 and ox_asir.
+You can find CPU-OS-VERSION information in the file
+this-is-for-cpu-os.txt.
+
+[1.A]
+If you will install them under /usr/local,
+just type in 
+    cd openXM/src
+    make install-usr-local
+If you already have /usr/local/lib/asir and /usr/local/lib/asir,
+you need to remove these directory before typeing in make install-usr-local.
+The script will make symbolic links between
+    openXM/lib/asir /usr/local/lib/asir
+    openXM/lib/sm1 /usr/local/lib/sm1
+and linkes from openXM/bin/*  to /usr/local/bin/*
+    
+[1.B]
+If you do not like to install them under /usr/local,
+you need to set environmental variables and path properly.
+[1.B.1]
+If you put openXM under your home directory,
+just read 
+   openXM/rc/bashrc  (in case of bash)
+by the source command from .bashrc
+(i.e., add the line
+     source $HOME/openXM/rc/bashrc
+in your .bashrc).
+or read
+   openXM/rc/cshrc  (in case of csh)
+by the source command from .cshrc
+(i.e., add the line
+     source $HOME/openXM/rc/bashrc
+in your .cshrc).
+[1.B.2]
+If you did not put openXM under your home directory,
+edit openXM/rc/bashrc (for bash)
+or   openXM/rc/cshrc  (for csh)
+and include them in .bashrc and .cshrc
+
+[2]
+In order to use ox_asir,
+make the file .asirrc under your home directory
+with the contents
+
+load("gr")$ load("primdec")$ end$
+
+You can run ox_asir only under X11 environment.
+-----------------------------------------------------
+
+See openXM/src/SSkan/Doc/ttt.tex  for an introductory manual
+and
+    openXM/src/SSkan/Doc/onlinehelp.tex for a reference manual 
+    of sm1 operators.
+
+

@@ -1,0 +1,9 @@
+%% gbvec.sm1
+
+[ (x,y,z) ring_of_polynomials [[(x) 1 (y) 1 (z) 1]] weight_vector 0]
+define_ring
+
+[ [(x-1).        (y-1).         (z-1).] homogenize
+  [(x y - 1).  (y z - 2). (z x - 3).]   homogenize ] /ff set
+
+[ff] groebner {toVectors dehomogenize} map ::

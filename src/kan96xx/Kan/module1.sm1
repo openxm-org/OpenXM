@@ -1,0 +1,23 @@
+@@@.quiet {   }
+{(macro package : module1.sm1, 1994 -- Nov 8, 1998) message} ifelse
+
+/@@@.resolutionIsLoaded 0 def
+/resolution {
+  @@@.resolutionIsLoaded {
+     sResolution
+  }
+  {
+    (Efficient resolution is still under construction, cf. Kan/lib/tower-sugar.sm1, tower.sm1 ) message
+    (Loading tower.sm1 from the load path: sResolution) message
+    (tower.sm1) run
+    /@@@.resolutionIsLoaded 1 def
+  } ifelse
+} def
+
+
+/lpoint { init @@@.esymbol . degree } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+;

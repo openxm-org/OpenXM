@@ -1,0 +1,24 @@
+%% tigers.sm1
+/tmp.tigers.out (tmp.tigers.out) def
+/tigers.path [[(getenv) (OpenXM_HOME)] extension (/bin/tigers)] cat def
+(tigers.path = ) messagen tigers.path message
+/tigers {
+  /arg1 set
+  [/in-tigers /aa /n /m /inp] pushVariables
+  [
+     /aa arg1 def
+     aa length  /m set
+     aa 0 get length /n set
+     [m toString ( ) n toString ( : ) ]
+     aa { { toString ( ) } map } map flatten
+     join cat /inp set
+     [(/bin/rm -f ) tmp.tigers.out] cat system
+     [tigers.path ( ) (") inp (") ( > ) tmp.tigers.out] cat system
+     [(parse) tmp.tigers.out pushfile] extension pop
+     /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+  

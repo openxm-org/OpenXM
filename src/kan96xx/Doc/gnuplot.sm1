@@ -1,0 +1,119 @@
+%%% 1999, 6/7 Mon.
+[(parse) (ox.sm1) pushfile] extension
+%%/plot.gnuplotexec (/home/nobuki/openXM/src/gnuplot-3.5beta6.347.orig/gnuplot)
+%% def
+[(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
+
+%% [(gnuplot_forox)] getPathNameSm1 /plot.gnuplotexec set
+[OpenXM_HOME (/bin/gnuplot_forox)] cat /plot.gnuplotexec set
+
+(SSkan/lib/plot.sm1 for ox_sm1_gnuplot.  1999/09/03. ) message
+
+/plotstart {
+  sm1connectr
+  ox.ccc 1 copy /gnuplot.ccc set
+  (Your peer is set to gnuplot.ccc) message
+  gnuplot.ccc $[(parse) (gnuplot.sm1) pushfile] extension $ oxsubmit 
+  gnuplot.ccc $ plotstart.aux $ oxsubmit
+  gnuplot.ccc $ gnuplot.pid $ oxsubmit gnuplot.ccc oxpopcmo /gnuplot.pid set
+} def
+
+/plotstart.aux {
+  /peer [(oxGetPort) (localhost)] extension def
+  [(sm1.socket) (close) [peer 2 get]] extension  %% close the second.
+  /myport peer 1 get def
+  /myportStr peer 1 get toString def
+  
+  (port number = ) messagen myportStr message
+
+  [(forkExec) 
+   [ plot.gnuplotexec
+    [(r) myportStr] cat
+   ]
+   [ 3 4 << peer 0 get >> ]  %% close ox_sm1 channel, this channel.
+   0
+  ] extension /gnuplot.pid set
+  (gnuplot.pid = ) messagen gnuplot.pid message
+  
+  [(sm1.socket) (accept) [peer 0 get ]] extension /gnuplot.ff2 set
+  (Accepted ) messagen
+  gnuplot.ff2 message 
+} def
+
+
+/gnuplot {
+  /cccc set
+  /fd gnuplot.ff2 0 get def
+  [(sm1.socket) (write) [fd 
+    [cccc 10 (string) dc] cat]] extension
+} def
+
+%% (plot sin(x);) gnuplot
+
+/isAlive {
+ [/in-isAlive /ans /i /nn] pushVariables
+ [ [ gnuplot.ccc ([(getchild)] extension ) oxsubmit ] pop
+    gnuplot.ccc oxpopcmo /gnuplot.pidList set
+    gnuplot.pidList isArray {
+    } {
+      (getchild returns the following strange output.) message
+       gnuplot.pidList message
+      /gnuplot.pidList [  ] def
+    } ifelse
+    gnuplot.pidList length 0  eq {
+      /ans 0 def
+    } {
+      /nn gnuplot.pidList length def
+      0 1 nn 1 sub {
+        /i set
+        gnuplot.pidList i get gnuplot.pid eq {
+           /isAlive.LLL goto
+        } {
+          (length of gnuplot.pidList = ) messagen gnuplot.pidList length message
+          (gnuplot.pidList and gnuplot.pid are differenct) message
+           i nn 1 sub eq {
+             error
+           } { } ifelse
+        } ifelse
+      } for
+      /isAlive.LLL
+      /ans 1 def
+    } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/demo0 {
+  (/u/nobuki/Trash/gnuplot-3.5beta6.347.orig/demo/airfoil.dem) pushfile /ff set
+  ff gnuplot
+} def
+
+/rplot {
+  /rplot.arg set
+  isAlive {
+    gnuplot.ccc [ ($ ) rplot.arg ( $) ( gnuplot )] cat oxsubmit 
+  } {
+    (You peer got error. Restaring gnuplot) message
+     gnuplot.ccc ( plotstart.aux ) oxsubmit 
+     gnuplot.ccc $ gnuplot.pid $ oxsubmit gnuplot.ccc oxpopcmo /gnuplot.pid set
+    (New gnuplot.pid is ) messagen gnuplot.pid message
+    (We have started new gnuplot. Try your command again.) message
+  } ifelse
+} def
+
+
+/test0 {
+  (Type in ctrl-C and gnuplot.ccc oxreset . ) message
+  0 1 10000 {
+   /i set
+     [$plot cos(x+$ i toString $);$] cat rplot 
+  } for ;
+} def
+
+
+
+
+$plotstart ;   (plot sin(x);) rplot$ message
+

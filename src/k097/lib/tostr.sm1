@@ -1,0 +1,519 @@
+
+
+%%  incmac.sm1 ,   1996, 4/2
+%% macros for the translator.
+%%% /goto { pop } def  %% should be changed later.
+( incmac.sm1: 7/22, 1996 ) messagen 
+/mapset {
+  /arg2 set /arg1 set
+  [/k ] pushVariables
+  0 1 arg1 length 1 sub {
+    /k set
+    arg1 k get
+    arg2 k get
+    set
+  } for
+  popVariables
+} def
+
+/a [[1 2] [3 4]] def
+/@@@.indexMode {
+0 eq {  %%% C-style
+ /Get {
+ /arg1 set
+ [/k ] pushVariables
+ [
+   arg1 0 get load
+   1 1 arg1 length 1 sub {
+      /k set
+      arg1 k get ..int get
+   } for
+   /arg1 set
+  ] pop 
+  popVariables
+  arg1
+ } def
+
+ /Put {
+ /arg2 set
+ /arg1 set
+ [/k ] pushVariables
+ arg1 0 get load
+ [ 1 1 arg1 length 1 sub {
+     /k set
+     arg1 k get ..int
+   } for
+ ] arg2 put
+ popVariables
+ } def
+} { %% else
+ /Get {
+ /arg1 set
+ [/k ] pushVariables
+ [
+   arg1 0 get load
+   1 1 arg1 length 1 sub {
+      /k set
+      arg1 k get ..int 1 sub get
+   } for
+   /arg1 set
+  ] pop 
+  popVariables
+  arg1
+ } def
+
+ /Put {
+ /arg2 set
+ /arg1 set
+ [/k ] pushVariables
+ arg1 0 get load
+ [ 1 1 arg1 length 1 sub {
+     /k set
+     arg1 k get ..int 1 sub
+   } for
+ ] arg2 put
+ popVariables
+ } def
+} ifelse
+} def
+
+0 @@@.indexMode   %% Default index mode is C-style
+
+
+
+
+%%%%%%%%%%%%  1996, 4/28
+%% (2).. NewVector
+/NewVector {
+  0 get /arg1 set
+  arg1 (integer) dc /arg1 set
+  [ 1 1 arg1 { pop (0).. } for ]
+} def
+
+%% (2).. (3).. NewMatrix
+/NewMatrix {
+  dup 0 get /arg1 set  
+      1 get /arg2 set  
+  arg1 (integer) dc /arg1 set
+  arg2 (integer) dc /arg2 set
+  [1 1 arg1 { pop [arg2] NewVector } for ]
+} def
+
+/Join {
+  aload pop join
+} def
+
+
+/greaterThanOrEqual {
+  /arg2 set /arg1 set
+  arg1 arg2 gt { 1 }
+  { arg1 arg2 eq {1} {0} ifelse} ifelse
+} def
+
+/lessThanOrEqual {
+  /arg2 set /arg1 set
+  arg1 arg2 lt { 1 }
+  { arg1 arg2 eq {1} {0} ifelse} ifelse
+} def
+
+/k.mapReplace {  {[[(h). (1).]] replace} map } def
+/Dehomogenize {
+  0 get /arg1 set
+  [
+    arg1 isArray not { arg1 [[(h). (1).]] replace } 
+    { arg1 0 get isArray not { arg1 k.mapReplace }
+                             { arg1 {k.mapReplace} map } ifelse
+    } ifelse
+    /arg1 set
+  ] pop
+  arg1
+} def
+
+
+
+
+  ( slib.ccc: 5/16,1996 ) message  /Print {
+ /Arglist set /FunctionValue [ ] def
+ [/a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ a   messagen /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Println {
+ /Arglist set /FunctionValue [ ] def
+ [/a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ a   message /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Ln {
+ /Arglist set /FunctionValue [ ] def
+ [ ] /ArgNames set ArgNames pushVariables [ %%function body
+  ( ) message /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Poly {
+ /Arglist set /FunctionValue [ ] def
+ [/f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f   expand /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/PolyR {
+ /Arglist set /FunctionValue [ ] def
+ [/f /r  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f  r   ,, /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Degree {
+ /Arglist set /FunctionValue [ ] def
+ [/f /v  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f  v   degree (universalNumber) dc /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Append {
+ /Arglist set /FunctionValue [ ] def
+ [/f /g  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+[ %% function args 
+f [ g   ] ] Join
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Length {
+ /Arglist set /FunctionValue [ ] def
+ [/f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f   length (universalNumber) dc /FunctionValue set /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Indexed {
+ /Arglist set /FunctionValue [ ] def
+ [/name /i  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ name  i   s.Indexed /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Indexed2 {
+ /Arglist set /FunctionValue [ ] def
+ [/name /i /j  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ name  i  j   s.Indexed2 /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Transpose {
+ /Arglist set /FunctionValue [ ] def
+ [/mat  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ mat   transpose /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+ 
+/s.Indexed {
+  (integer) dc /arg2 set
+  /arg1 set
+  arg1 ([) arg2 (dollar) dc (]) 4 cat_n
+} def
+
+/s.Indexed2 {
+  (integer) dc /arg3 set
+  (integer) dc /arg2 set
+  /arg1 set
+  arg1 ([) arg2 (dollar) dc (,) arg3 (dollar) dc (]) 6 cat_n
+} def
+ /Groebner {
+ /Arglist set /FunctionValue [ ] def
+ [/F  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+[ %% function args 
+(Input is ) ] Print
+[ %% function args 
+F ] Println
+ F   {[[(h). (1).]] replace homogenize} map /arg1 set
+                            [arg1] groebner 0 get 
+                            /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/LiftStd {
+ /Arglist set /FunctionValue [ ] def
+ [/F  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+[ %% function args 
+(Input is ) ] Print
+[ %% function args 
+F ] Println
+ F   {[[(h). (1).]] replace homogenize} map /arg1 set
+                            [arg1 [(needBack)]] groebner 
+                            /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Reduction {
+ /Arglist set /FunctionValue [ ] def
+ [/f /G  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f  G   reduction /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/IntegerToMachineInteger {
+ /Arglist set /FunctionValue [ ] def
+ [/f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f   (integer) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/RingD {
+ /Arglist set /FunctionValue [ ] def
+ [/vList /weightMatrix  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+[ %%start of local variables
+/new /tmp /size /n /i /j /newtmp ] pushVariables [ %%local variables
+[ %% function args 
+Arglist ] Length
+(2)..  lt
+ %% if-condition
+  { %%ifbody
+ [  vList  ring_of_differential_operators ( ) elimination_order 0 ] define_ring
+         /tmp set  tmp  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+/size [ %% function args 
+weightMatrix ] Length
+ def
+/new [ %% function args 
+size ] NewVector
+ def
+/i (1)..  def
+%%for init.
+%%for
+{ i size  lessThanOrEqual
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+/tmp [/weightMatrix i  ]  Get
+ def
+/n [ %% function args 
+tmp ] Length
+ def
+/newtmp [ %% function args 
+n ] NewVector
+ def
+/j (2)..  def
+%%for init.
+%%for
+{ j n  lessThanOrEqual
+ {  } {exit} ifelse
+[ {%%increment
+/j j (2)..  add
+ def
+} %%end of increment{A}
+{%%start of B part{B}
+[/newtmp j (1)..  sub
+ ] [/tmp j (1)..  sub
+ ]  Get
+ Put
+[/newtmp j  ] [ %% function args 
+[/tmp j  ]  Get
+] IntegerToMachineInteger
+ Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+[/new i  ] newtmp  Put
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+ [  vList  ring_of_differential_operators   new   weight_vector 0 ] define_ring
+         /FunctionValue set  /ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/AddString {
+ /Arglist set /FunctionValue [ ] def
+ [/f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f    aload length cat_n /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/IntegerToString {
+ /Arglist set /FunctionValue [ ] def
+ [/f  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f   (string) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/Replace {
+ /Arglist set /FunctionValue [ ] def
+ [/f /rule  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ f  rule   replace /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/AsciiToString {
+ /Arglist set /FunctionValue [ ] def
+ [/c  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ c   (integer) dc (string) dc /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/ToString {
+ /Arglist set /FunctionValue [ ] def
+ [/p  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+[ %%start of local variables
+/n /ans /i ] pushVariables [ %%local variables
+/ans [   ]  def
+[ %% function args 
+p ] IsArray
+ %% if-condition
+  { %%ifbody
+/n [ %% function args 
+p ] Length
+ def
+/ans [ %% function args 
+ans ([ ) ] Append
+ def
+/i (0)..  def
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+/ans [ %% function args 
+ans [ %% function args 
+[/p i  ]  Get
+] ToString
+] Append
+ def
+i n (1)..  sub
+ eq not
+ %% if-condition
+  { %%ifbody
+/ans [ %% function args 
+ans ( , ) ] Append
+ def
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+/ans [ %% function args 
+ans ( ] ) ] Append
+ def
+  }%%end if if body
+  { %%if- else part
+/ans [  p   (dollar) dc    ]  def
+  } ifelse
+[ %% function args 
+ans ] AddString
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/IsArray {
+ /Arglist set /FunctionValue [ ] def
+ [/p  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ p   isArray /FunctionValue set   /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+  0 @@@.indexMode  /tostr2 {
+ /Arglist set /FunctionValue [ ] def
+ [/p  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+[ %%start of local variables
+/n /ans /i ] pushVariables [ %%local variables
+/ans [   ]  def
+[ %% function args 
+p ] IsArray
+ %% if-condition
+  { %%ifbody
+/n [ %% function args 
+p ] Length
+ def
+/ans [ %% function args 
+ans ([ ) ] Append
+ def
+/i (0)..  def
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i  i (1).. add def
+} %%end of increment{A}
+{%%start of B part{B}
+/ans [ %% function args 
+ans [ %% function args 
+[/p i  ]  Get
+] tostr2
+] Append
+ def
+i n (1)..  sub
+ eq not
+ %% if-condition
+  { %%ifbody
+/ans [ %% function args 
+ans ( , ) ] Append
+ def
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map
+} loop %%end of for
+/ans [ %% function args 
+ans ( ] ) ] Append
+ def
+  }%%end if if body
+  { %%if- else part
+/ans [  p   (dollar) dc    ]  def
+  } ifelse
+[ %% function args 
+ans ] AddString
+ /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+
+/IsArray {
+ /Arglist set /FunctionValue [ ] def
+ [/p  ] /ArgNames set ArgNames pushVariables [ %%function body
+ Arglist ArgNames mapset
+ p   isArray /FunctionValue set   /ExitPoint ]pop popVariables %%pop argValues
+FunctionValue } def
+%%end of function
+

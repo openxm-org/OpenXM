@@ -1,0 +1,37 @@
+%%  1999/sm1-prog/phc.sm1
+
+/tmp.phc.out (tmp.phc.out) def
+
+/phc {
+  /arg1 set
+  [/in-phc  /eqs /n /cstr /nl /phc.path] pushVariables
+  [
+    /eqs arg1 def
+    /n eqs length def
+    /nl 10 (string) dc def
+    %%/nl (\n) def
+    [(getenv) (OpenXM_HOME)] extension /phc.path set
+     [(/bin/rm -f ) tmp.phc.out] cat system
+     [(echo "Phc=" > ) tmp.phc.out] cat system
+    [phc.path
+     (/bin/phc6 -i )
+     (")
+     n toString   nl
+     eqs { toString ( ; ) nl } map
+     (")
+     ( >> ) tmp.phc.out
+    ] flatten cat /cstr set
+    cstr message
+    cstr system
+    [(echo "$ end$" >> ) tmp.phc.out] cat system
+    %%[(parse) (tmp.phc.out) pushfile] extension pop
+    tmp.phc.out pushfile
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+
+

@@ -1,0 +1,24 @@
+
+
+/* SSWork/yacc/debug/asir1.ccc,  1996, 7/28 */
+/* load("lib/tostr.ccc"); */
+sm1(" [(parse) (lib/tostr.sm1) pushfile] extension ");
+x = Poly("x");
+
+f = Test("(x-1)^3");
+Println(f);
+g = Test(AddString([ " fctr",AsciiToString(40), tostr2(f),AsciiToString(41)]));
+Println(g);
+
+/*   Use cpp and make them a macro or install call-asir command to sm1. 
+      gcc -x c -E ,
+     Preprocessor is not a good idea. It doesn't works good.
+#define Factor(f)  Test(AddString([ " fctr",AsciiToString(40), \
+                        tostr2(f),AsciiToString(41)]))
+
+
+#define Cancel(f)  Test(AddString([ " red",AsciiToString(40), \
+                         tostr2(f),AsciiToString(41)]))
+*/
+
+

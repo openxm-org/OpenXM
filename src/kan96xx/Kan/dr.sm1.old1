@@ -1,0 +1,1035 @@
+%% dr.sm1 (Define Ring) 1994/9/25, 26
+
+(dr.sm1  Version 10/8/1994. ) message
+%% n evenQ  bool
+/evenQ {
+  /arg1 set
+  arg1 2 idiv  2 mul arg1 sub 0 eq
+  { true }
+  { false } ifelse
+} def
+
+%% (x,y,z) polynomial_ring [x-list, d-list , paramList]
+/ring_of_polynomials {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  %dup print (-----) message
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (poly) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+
+     [arg1 to_records pop] /vars set
+     vars length evenQ
+     { }
+     { vars [(PAD)] join /vars set }
+     ifelse
+     vars length 2 idiv /n set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars i get
+          } for
+     ] /xList set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars << i n add >> get
+          } for
+     ] /dList set
+
+     [(H)] xList join [(e)] join /xList set
+     [(h)] dList join [(E)] join /dList set
+     [0 %% dummy characteristic
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+      << xList length 1 sub >> << xList length >> << xList length >> 
+                                                  << xList length >>
+     ] /param set
+
+     [xList dList param] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+%% (x,y,z) polynomial_ring [x-list, d-list , paramList]
+%% with no graduation and homogenization variables.
+/ring_of_polynomials2 {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  %dup print (-----) message
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (poly) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+
+     [arg1 to_records pop] /vars set
+     vars length evenQ
+     { }
+     { vars [(PAD)] join /vars set }
+     ifelse
+     vars length 2 idiv /n set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars i get
+          } for
+     ] /xList set
+     [ << n 1 sub >> -1 0
+          { /i set
+            vars << i n add >> get
+          } for
+     ] /dList set
+
+     [0 %% dummy characteristic
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+      << xList length >> << xList length >> << xList length >> 
+                                            << xList length >>
+     ] /param set
+
+     [xList dList param] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+/ring_of_differential_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {(D) 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     [(H)] xList join [(e)] join /xList set
+     [(h)] dList join [(E)] join /dList set
+     [0 1 1 1 << xList length >>
+        1 1 1 << xList length 1 sub >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_differential_operators3 {
+%% with no homogenization variables.
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {(D) 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     xList [(e)] join /xList set
+     dList [(E)] join /dList set
+     [0 0 0 0 << xList length >>
+        0 0 0 << xList length 1 sub >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_q_difference_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (qmatrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (qmodule1) switch_function
+     (groebner) (standard) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {(Q) 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     [(q)] xList join [(e)] join /xList set
+     [(h)] dList join [(E)] join /dList set
+     [0 1 << xList length >> << xList length >> << xList length >>
+        1 << xList length 1 sub >> << xList length >> << xList length >> ]
+     /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ring_of_q_difference_operators3 {
+%% with no homogenization and q variables.
+  /arg1 set
+  [/vars /n /i /xList /dList /param] pushVariables
+  [
+     (mmLarger) (qmatrix) switch_function
+     (mpMult)   (diff) switch_function
+     (red@)     (qmodule1) switch_function
+     (groebner) (standard) switch_function
+
+     [arg1 to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+     vars {(Q) 2 1 roll 2 cat_n} map
+     reverse /dList set              %[Dz Dy Dx]
+     xList  [(e)] join /xList set
+     dList  [(E)] join /dList set
+     [0 0 << xList length >> << xList length >> << xList length >>
+        0 << xList length 1 sub >> << xList length >> << xList length >> ]
+     /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/reverse {
+  /arg1 set
+  arg1 length 1 lt
+  { [ ] }
+  {
+    [
+     <<  arg1 length 1 sub >> -1 0 
+     {
+        arg1 2 1 roll get
+      } for
+     ]
+   } ifelse
+} def
+
+/memberQ {
+%% a set0 memberQ bool
+  /arg2 set  /arg1 set
+  [/a /set0 /flag /i ] pushVariables
+  [
+     /a arg1 def  /set0 arg2 def
+     /flag 0 def
+     0 1 << set0 length 1 sub >>
+     {
+        /i set
+        << set0 i get >> a eq
+        {
+           /flag 1 def 
+         }
+        { }
+        ifelse
+     } for
+  ] pop
+  /arg1 flag def
+  popVariables
+  arg1
+} def
+
+/transpose {
+%% mat transpose  mat2
+  /arg1 set
+  [/i /j /m /n /flat /mat] pushVariables
+  [
+    /mat arg1 def
+    /n mat length def
+    /m mat 0 get length def
+
+    [
+      0 1 << n 1 sub >>
+      {
+         /i set
+         mat i get aload pop
+      } for
+    ] /flat set
+    %% [[1 2] [3 4]] ---> flat == [1 2 3 4]
+
+    [
+       0 1 << m 1 sub >> 
+       {
+          /i set
+          [
+             0 1 << n 1 sub >> 
+             {
+                /j set
+                flat
+                << j m mul >> i add
+                get
+             } for
+           ]
+        } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+    
+/getPerm {
+%% old new getPerm perm
+  /arg2 set /arg1 set
+  [/old /new /i /j /p] pushVariables
+  [
+    /old arg1 def
+    /new arg2 def
+    [
+        /p old length def
+        0 1 << p 1 sub >> 
+        {
+           /i set
+           0 1 << p 1 sub >>
+           {
+              /j set
+              old i get
+              new j get
+              eq
+              { j }
+              {   } ifelse
+            } for
+         } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+/permuteOrderMatrix {
+%% order perm puermuteOrderMatrix newOrder
+  /arg2 set /arg1 set
+  [/order /perm /newOrder /k ] pushVariables
+  [
+    /order arg1 def
+    /perm arg2 def
+    order transpose /order set
+    order 1 copy /newOrder set pop
+
+    0 1 << perm length 1 sub >> 
+    {
+       /k set
+       newOrder << perm k get >> << order k get >> put
+    } for
+    newOrder transpose /newOrder set
+  ] pop
+  /arg1 newOrder def
+  popVariables
+  arg1
+} def
+
+
+
+/complement {
+%% set0 universe complement compl
+  /arg2 set /arg1 set
+  [/set0 /universe /compl /i] pushVariables
+   /set0 arg1 def  /universe arg2 def
+  [
+     0 1 << universe length 1 sub >>
+     {
+        /i set
+        << universe i get >> set0 memberQ
+        {   }
+        { universe i get }
+        ifelse
+      } for
+   ] /arg1 set
+   popVariables
+   arg1
+} def
+
+
+%%% from order.sm1
+
+%% size i evec [0 0 ... 0 1 0 ... 0]
+/evec {
+ /arg2 set /arg1 set
+ [/size /iii] pushVariables
+ /size arg1 def  /iii arg2 def
+ [
+   0 1 << size 1 sub >>
+   {
+      iii eq
+      {  1 }
+      {  0 }
+      ifelse
+   } for
+  ] /arg1 set
+  popVariables
+  arg1
+} def
+
+%% size i evec_neg [0 0 ... 0 -1 0 ... 0]
+/evec_neg {
+ /arg2 set /arg1 set
+ [/size /iii] pushVariables
+ /size arg1 def  /iii arg2 def
+ [
+   0 1 << size 1 sub >>
+   {
+      iii eq
+      {  -1 }
+      {  0 }
+      ifelse
+   } for
+  ] /arg1 set
+  popVariables
+  arg1
+} def
+
+
+%% size i j e_ij  << matrix e(i,j) >>
+/e_ij {
+  /arg3 set /arg2 set /arg1 set
+  [/size /k /i /j] pushVariables
+  [
+    /size arg1 def  /i arg2 def /j arg3 def
+    [ 0 1 << size 1 sub >>
+      {
+         /k set
+         k i eq
+         { size j evec }
+         {
+            k j eq
+            { size i evec }
+            { size k evec }
+            ifelse
+          } ifelse
+       } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+
+%% m1 m2 oplus
+/oplus {
+  /arg2 set /arg1 set
+  [/m1 /m2 /n /m  /k ] pushVariables
+  [
+    /m1 arg1 def  /m2 arg2 def
+    m1 length /n set
+    m2 length /m set
+    [
+      0 1 << n m add 1 sub >>
+      { 
+        /k set
+        k n lt
+        {
+            << m1 k get >> << m -1 evec >> join
+        }
+        {
+            << n -1 evec >> << m2 << k n sub >> get >> join
+        } ifelse
+      } for
+     ] /arg1 set
+   ] pop
+   popVariables
+   arg1   
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%
+
+/eliminationOrderTemplate  { %% esize >= 1
+%% if esize == 0, it returns reverse lexicographic order.
+%%  m esize eliminationOrderTemplate mat
+  /arg2 set /arg1 set
+  [/m  /esize /m1 /m2 /k ] pushVariables
+  [
+    /m arg1 def  /esize arg2 def
+    /m1 m esize sub 1 sub def
+    /m2 esize 1 sub def
+     [esize 0 gt
+      {
+       [1 1 esize
+        { pop 1 } for
+        esize 1 << m 1 sub >>
+        { pop 0 } for
+       ]  %% 1st vector
+      }
+      { } ifelse
+
+      m esize gt
+      {    
+       [1 1  esize 
+        { pop 0 } for
+        esize 1 << m 1 sub >>
+        { pop 1 } for
+       ]  %% 2nd vector
+      }
+      { } ifelse
+
+      m1 0 gt
+      {
+         m 1 sub -1 << m m1 sub >>
+         {
+              /k set
+              m  k  evec_neg
+         } for
+      }
+      { } ifelse
+
+      m2 0 gt
+      {
+         << esize 1 sub >> -1 1
+         {
+              /k set
+              m  k  evec_neg
+         } for
+      }
+      { } ifelse
+
+    ] /arg1 set
+   ] pop
+   popVariables
+   arg1
+} def
+
+
+/elimination_order {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 2 sub >>
+    << evars length >>
+    eliminationOrderTemplate /order set
+
+    [[1]] order oplus [[1]] oplus /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y,h] --> [x,y,h]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/elimination_order2 {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+%% with no graduation and homogenization variables.
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length  >>
+    << evars length >>
+    eliminationOrderTemplate /order set
+    /compl 
+      evars << evars univ complement >> join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/elimination_order3 {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 1 sub >>
+    << evars length >>
+    eliminationOrderTemplate /order set
+
+    [[1]] order oplus  /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y] --> [x,y]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/define_ring {
+%[  (x,y,z) ring_of_polynominals
+%   (x,y) elimination_order
+%   17
+%] define_ring
+   /arg1 set
+   [/rp /param /foo] pushVariables
+   [/rp arg1 def
+    [
+      rp 0 get 0 get
+      rp 0 get 1 get
+      rp 0 get 2 get /param set
+      param 0 << rp 1 get >> put
+      param
+      rp 0 get 3 get
+    ]  /foo set
+    foo aload pop set_up_ring@
+   ] pop
+   popVariables
+} def
+
+/defineTests1 {
+/test {
+   [[1 2 3]
+    [0 1 0]
+    [0 1 2]]
+   [0 2 1] permuteOrderMatrix ::
+} def
+
+/test2 { (x,y,z) ring_of_polynomials (z,y) elimination_order /ans set } def
+
+/test3 {
+ [ (x,y,z) ring_of_polynomials
+  (x,y) elimination_order
+  17
+ ] define_ring
+} def
+
+/test4 {
+ [ (x,y,z) ring_of_polynomials
+  ( ) elimination_order
+  17
+ ] define_ring
+} def
+
+} def
+
+%% misterious bug  (x,y) miss
+/miss {
+  /arg1 set
+  %[/vars /n /i /xList /dList /param] pushVariables
+  [/vars /i] pushVariables
+  [  arg1 print
+     [arg1 to_records pop] /vars set
+
+   ] pop
+   dup print
+   popVariables
+   arg1
+} def
+
+
+/lexicographicOrderTemplate {
+% size lexicographicOrderTemplate matrix
+  /arg1 set
+  [/k /size] pushVariables
+  [
+    /size arg1 def
+    [ 0 1 << size 1 sub >> 
+      { 
+         /k set 
+         size k evec
+       } for
+    ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/lexicographic_order {
+%% [x-list d-list params]  (x,y,z) lexicograhic_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 2 sub >>
+    lexicographicOrderTemplate /order set
+
+    [[1]] order oplus [[1]] oplus /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y,h] --> [x,y,h]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/lexicographic_order2 {
+%% [x-list d-list params]  (x,y,z) lexicograhic_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+%% with no graduation and homogenization variables
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length  >>
+    lexicographicOrderTemplate /order set
+
+    /compl 
+      evars << evars univ complement >> join
+    def
+    compl univ
+    getPerm /perm set
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/lexicographic_order3 {
+%% [x-list d-list params]  (x,y,z) lexicograhic_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+%% with no homogenization variable.
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 1 sub >>
+    lexicographicOrderTemplate /order set
+
+    [[1]] order oplus /order set
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y] --> [x,y]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%   add_rings %%%%%%%%%%%%%% 10/5
+
+
+/getX {
+%% param [1|2|3|4] getX [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     func 1 eq
+     { 
+       /low 0 def
+     }
+     {
+       /low << param 2 get >> << func 1 sub >> get def
+     } ifelse
+     /top << param 2 get >> << func 4 add >> get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 0 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getD {
+%% param [1|2|3|4] getD [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     func 1 eq
+     { 
+       /low 0 def
+     }
+     {
+       /low << param 2 get >> << func 1 sub >> get def
+     } ifelse
+     /top << param 2 get >> << func 4 add >> get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 1 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getXV {
+%% param [1|2|3|4] getXV [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     /low << param 2 get >> << func 4 add >> get def
+     /top << param 2 get >>  func get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 0 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/getDV {
+%% param [1|2|3|4] getDV [var-lists]  ;  1->c,2->l,3->m,4->n
+  /arg2 set /arg1 set
+  [/k /param /func /low /top] pushVariables
+  [
+     /param arg1 def  /func arg2 def
+     /low << param 2 get >> << func 4 add >> get def
+     /top << param 2 get >>  func get 1 sub def
+     [
+       low 1 top 
+       {
+           /k set
+          param 1 get k get
+        } for
+     ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/reNaming {
+  %% It also changes oldx2 and oldd2, which are globals.
+  /arg1 set
+  [/i /j /new /count /ostr /k] pushVariables
+  [
+    /new arg1 def
+    /count 0 def
+    0 1 << new length 1 sub >> {
+       /i set  
+      << i 1 add >> 1 << new length 1 sub >> {
+          /j set 
+          << new i get >> << new j get >> eq
+          {
+             new j get /ostr set
+             (The two rings have the same name :) messagen
+             new i get messagen (.) message
+             (The name ) messagen
+             new i get messagen ( is changed into ) messagen
+             new j << new i get << 48 count add $string$ data_conversion >>
+                      2 cat_n >> put
+             new j get messagen (.) message
+             /oldx2 ostr << new j get >> reNaming2
+             /oldd2 ostr << new j get >> reNaming2
+             /count count 1 add def
+           }
+           { }
+           ifelse
+      } for
+    } for
+    /arg1 new def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/reNaming2 {
+  %% array oldString newString reNaming2
+  %% /aa (x) (y) reNaming2
+  /arg3 set /arg2 set /arg1 set
+  [/array /oldString /newString /k] pushVariables
+  [
+    /array arg1 def /oldString arg2 def /newString arg3 def
+      0 1 << array load length 1 sub >>
+      {
+         /k set
+         << array load k get  >> oldString eq
+         {
+            array load k newString put
+          }
+          { } ifelse
+      } for
+   ] pop
+   popVariables
+} def
+
+/add_rings {
+  /arg2 set /arg1 set
+  [/param1 /param2 
+   /newx /newd  /newv
+   /k /const /od1 /od2 /od
+   /oldx2 /oldd2  % these will be changed in reNaming.
+   /oldv
+  ] pushVariables
+  [
+     /param1 arg1 def /param2 arg2 def
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     /newx 
+       [ ]  
+       param2 1 getX join  param1 1 getX join 
+       param2 1 getXV join param1 1 getXV join
+
+       param2 2 getX join  param1 2 getX join 
+       param2 2 getXV join param1 2 getXV join
+
+       param2 3 getX join  param1 3 getX join 
+       param2 3 getXV join param1 3 getXV join
+
+       param2 4 getX join  param1 4 getX join 
+       param2 4 getXV join param1 4 getXV join
+     def
+     /newd 
+       [ ]  
+       param2 1 getD join  param1 1 getD join 
+       param2 1 getDV join param1 1 getDV join
+
+       param2 2 getD join  param1 2 getD join 
+       param2 2 getDV join param1 2 getDV join
+
+       param2 3 getD join  param1 3 getD join 
+       param2 3 getDV join param1 3 getDV join
+
+       param2 4 getD join  param1 4 getD join 
+       param2 4 getDV join param1 4 getDV join
+     def
+
+     /newv  newx newd join def
+     /oldx2 param2 0 get def  /oldd2 param2 1 get def
+     /oldx2 oldx2 {1 copy 2 1 roll pop} map def
+     /oldd2 oldd2 {1 copy 2 1 roll pop} map def
+     /newv newv reNaming def
+
+     /newx [
+       0 1 << newv length 2 idiv 1 sub >> 
+       { 
+          /k set
+          newv k get
+       } for
+     ] def
+     /newd [
+       0 1 << newv length 2 idiv 1 sub >> 
+       { 
+          /k set
+          newv << newv length 2 idiv k add >> get
+       } for
+     ] def
+     /const [
+        << param1 2 get 0 get >>
+        << param1 2 get 1 get  param2 2 get 1 get add >>
+        << param1 2 get 2 get  param2 2 get 2 get add >>
+        << param1 2 get 3 get  param2 2 get 3 get add >>
+        << param1 2 get 4 get  param2 2 get 4 get add >>
+        << param1 2 get 5 get  param2 2 get 5 get add >>
+        << param1 2 get 6 get  param2 2 get 6 get add >>
+        << param1 2 get 7 get  param2 2 get 7 get add >>
+        << param1 2 get 8 get  param2 2 get 8 get add >>
+    ] def
+
+    /od1 param1 3 get def /od2 param2 3 get def
+    od1 od2 oplus /od set
+    
+    %%oldx2 :: oldd2 ::        
+    << param1 0 get reverse >> << param1 1 get reverse >> join
+    << oldx2 reverse >> << oldd2 reverse >> join
+    join /oldv set
+
+
+    od << oldv << newx reverse newd reverse join >> getPerm >>
+    permuteOrderMatrix /od set
+
+     /arg1 [newx newd const od] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/test5 {
+  (t) ring_of_polynomials ( ) elimination_order /r1 set
+  (x) ring_of_differential_operators (Dx) elimination_order /r2 set
+  r2 r1 add_rings 
+} def
+
+/test6 {
+  (H,h) ring_of_polynomials2 (H,h) lexicographic_order2 /r0 set
+  (x,y,z) ring_of_polynomials2 (x,y) elimination_order2 /r1 set
+  (t) ring_of_differential_operators3 (Dt) elimination_order3 /r2 set
+  [r2 r1 add_rings r0 add_rings 0] define_ring
+} def
+
+/test7 {
+  (H,h) ring_of_polynomials2 (H,h) lexicographic_order2 /r0 set
+  (a,b,c,cp) ring_of_polynomials2 ( ) elimination_order2 /r1 set
+  (x,y) ring_of_differential_operators3 (Dx,Dy) elimination_order3 /r2 set
+  [r2 r1 add_rings r0 add_rings 0] define_ring
+  [(Dx (x Dx + c-1) - (x Dx + y Dy + a) (x Dx + y Dy + b)).
+   (Dy (y Dy + cp-1) - (x Dx + y Dy + a) (x Dx + y Dy + b)).] /ff set
+  ff {[[$h$. $1$.]] replace} map homogenize /ff set
+} def
+%%%% end of add_rings
+
+;

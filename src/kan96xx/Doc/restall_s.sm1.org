@@ -1,0 +1,936 @@
+%%changed the following symbols.
+%% complement ==> oaku.complement
+%% syz ==> o.syz
+
+%%%%%%%%%%%%%%%%%%%%%%% restall.sm1 (Version 19980415) %%%%%%%%%%%%%%%%%%%%%%%
+(restall_s.sm1...compute all the cohomology groups of the restriction) message-quiet
+(                of a D-module to tt = (t_1,...,t_d) = (0,...,0).) message-quiet
+(Schreyer Version: 19980415 by N.Takayama & T.Oaku) message-quiet
+(usage: [(P1)...] [(t1)...] k0 k1 deg restall_s -> cohomologies of restriction)
+message-quiet
+(       [(P1)...] [(t1)...] k0 k1 deg intall_s --> cohomologies of integration)
+message-quiet
+% History: Nov.10, 1997, Apr.15,1998
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Global variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%/BFvarlist %% Set all the variables (except s and the parameters) here.  
+/BFs (s) def
+/BFth (s) def
+/BFu (u) def
+
+[(x) (y)] /BFvarlist set
+[ ] /BFparlist set
+
+/BFff
+  [    $x^3-y^2$ , $2*x*Dx + 3*y*Dy + 6$ , $2*y*Dx + 3*x^2*Dy$ ] 
+def
+
+0 /Schreyer set
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The cohomology groups of the restriction
+%% [(P1)...] [(t1)...] k0 k1 degmax restall 
+%% --> [0-th cohomology -1-th cohomology, ...,-degmax-th cohomology] 
+
+/restall_s {
+  /arg5 set %% degmax
+  /arg4 set %% k1
+  /arg3 set %% k0
+  /arg2 set %% [(t1) ... (td)]
+  /arg1 set %% BFequations
+  [
+     /ff /bftt /k0 /k1 /degmax /syzlist /mveclist /cohomlist
+     /ideg /gbase /o.syz /m1vec /m2vec /r1 /r2 
+     /i /syzi /j /syzij /maxtmp /max0 /ee /psi1index /zerolist
+     /psi1 /psi1ker /psi2image
+     /gbase1 /m1i /emonoi /nmono /bfDttmonoi /eei /dtp /k /psi1kervec
+     /pn /pn0 /psi1i /psi1keri /m2i /nker /nim /cohm /psiall /psisyz /cohom0 
+  ] pushVariables
+  [
+    /ff arg1 def  /bftt arg2 def  /k0 arg3 def  /k1 arg4 def  
+    /degmax arg5 def   
+    bftt length /d set    
+  
+    (Computing a free resolution ... ) message
+    Schreyer 2 eq {ff bftt degmax resolution_Sh /syzlist set}{ } ifelse
+    Schreyer 1 eq {ff bftt degmax resolution_SV /syzlist set}{ } ifelse
+    Schreyer 0 eq {ff bftt degmax resolution_nsV /syzlist set}{ } ifelse
+
+    syzlist /BFresolution set 
+    (A free resolution obtained.) message
+
+    BFvarlist /ttxx set
+    BFparlist /aa set
+    [BFs] ttxx join aa join /allvarlist set
+    ttxx length /dn set
+    ttxx {xtoDx} map /Dttxx set
+
+    /BFs_weight 
+      [ [ BFs 1 ]
+        [ 0 1 dn 1 sub 
+            { /i set Dttxx i get 1 } 
+          for 
+          0 1 dn 1 sub  
+            { /i set ttxx i get 1 }
+          for ]
+      ] def  
+
+    [ allvarlist listtostring ring_of_differential_operators
+      BFs_weight weight_vector 0 ] define_ring
+
+%% Reformatting the free resolution:  
+%%  [[f1,f2,..],[syz1,...]] --> [[[f1],[f2],...],[syz,...]] (strings)
+%% (to be modified for the case with more than one unknowns.)
+
+    Schreyer 0 gt {
+      /syzlist1 [
+        syzlist 0 get /syz0 set
+        [ 0 1 syz0 length 1 sub {/i set
+          [ syz0 i get (string) dc ]
+        } for ]
+        1 1 degmax {/i set
+          syzlist 1 get i 1 sub get {toStrings} map 
+        } for
+      ] def
+      syzlist1 /syzlist set  
+    }{
+      /syzlist1 [
+        syzlist 0 get /syz0 set
+        [ 0 1 syz0 length 1 sub {/i set
+          [ syz0 i get (string) dc ]
+        } for ]
+        1 1 degmax {/i set
+          syzlist i get {toStrings} map 
+        } for
+      ] def
+      syzlist1 /syzlist set  
+    } ifelse    
+
+    [ ] /cohomlist set
+
+%% Start the loop:
+  0 1 degmax {/ideg set    
+
+%(new loop: ) messagen ideg ::
+
+    ideg 0 eq { 
+       1 /r0 set
+       1 /r1 set
+      [ [ (0) ] ] /gbase set
+      [ 0 ] /m0vec set
+      [ 0 ] /m1vec set 
+    }{
+      syzlist  << ideg 1 sub >> get /gbase set
+      r0 /r1 set
+    } ifelse 
+    syzlist     ideg          get /o.syz   set 
+
+%%                                       o.syz       gbase 
+%%                                D^{r2} --> D^{r1} --> D^{r0} 
+%% with weight vectors:           m2vec      m1vec      m0vec
+%% which will induce a complex
+%%                                     psi2              psi1
+%%                        D_{Y->X}^{r2} --> D_{Y->X}^{r1} --> D_{Y->X}^{r0} 
+
+    gbase length /r1 set
+    o.syz length /r2 set
+
+%% (Computing the weight vector m2vec from m1vec and syz) message
+      /m2vec [
+        0 1 r2 1 sub {/i set
+          o.syz i get /syzi set
+          0 /nonzero set
+          0 1 r1 1 sub {/j set
+            syzi j get expand /syzij set
+            syzij (0). eq {  }{
+              syzij bftt fwh_order  m1vec j get  add /maxtmp set
+              nonzero 0 eq { maxtmp /max0 set }{
+                maxtmp max0 gt { maxtmp /max0 set }{ } ifelse
+              } ifelse
+            1 /nonzero set
+            } ifelse
+          } for
+        max0 } for ] def  
+
+%% ee = [u1,...,ud] corresponds to [Dt1,...,Dtd] (for graduation)
+    BFu /estr set
+    /ee
+      [ 1 1 d {/i set estr i toString 2 cat_n} for ]
+    def
+    [@@@.esymbol ] ee join /eee set
+ 
+%%(Setting up a ring that represents D_{Y->X}^{r1}) message
+    eee length /neee set
+    /eeemvec [ 1 1 neee {pop 1} for ] def 
+    eee [ ] [BFs] BFvarlist join eeemvec setupDringVshift
+    bftt {xtoDx expand} map /bfDtt set
+    [ ] /psi1 set
+    [ ] /psi1index set
+    [ ] /zerolist set
+
+%%(converting gbase to a list of polynomials) message
+    /gbase1
+      [ 0 1 r1 1 sub {/i set
+          gbase i get {expand [[BFs expand (1).]] replace} map vector_to_poly
+       } for ] def
+
+    gbase1 /gbase set
+
+%%(ideg =) messagen ideg ::
+%%(Computing psi1) message
+%%                        psi1
+%% Computes  D_{Y->X}^{r1} -->  D_{Y->X}^{r0} induced by gbase
+%% with weight  k0 - m1vec <= k <= k1 - m1vec 
+    0 1 r1 1 sub {/i set
+      m1vec i get /m1i set
+      ee {expand} map k0 m1i sub k1 m1i sub monomials /emonoi set
+      bfDtt k0 m1i sub k1 m1i sub monomials /bfDttmonoi set
+      emonoi length /nmono set
+      0 1 nmono 1 sub {/j set
+        @@@.esymbol  expand i npower /eei set           
+        emonoi j get eei mul /eei set          
+        gbase i get /dtp set
+        bfDttmonoi j get dtp mul /dtp set
+        0 1 d 1 sub {/k set 
+          dtp [[bftt k get expand (0).]] replace /dtp set
+          dtp [[bfDtt k get  ee k get expand]] replace /dtp set
+        } for
+        dtp [[(h). (1).]] replace /dtp set
+        dtp << ee {expand} map >> m0vec k0 Vtruncate_below /dtp set 
+        dtp (0). eq { 
+          zerolist [eei] join /zerolist set
+        }{
+          psi1index [eei] join /psi1index set
+          psi1 [dtp] join /psi1 set
+        } ifelse 
+      } for    
+    } for
+
+%%(ideg =) messagen ideg ::
+%%(psi1 obtained.) message
+%%(Computing psi1ker) message
+
+%% Computing psi1ker := Ker psi1 :
+    psi1 length 0 eq { 
+      [ ] /psi1ker set 
+    }{
+      psi1 {[[(h). (1).]] replace homogenize} map /psi1 set
+      [psi1 [(needSyz)]] groebner 2 get /psi1kervec set
+      psi1kervec length /pn set
+      psi1index length /pn0 set
+      [ ] /psi1ker set 
+      0 1 pn 1 sub {/i set
+        psi1kervec i get /psi1i set
+        (0). /psi1keri set
+        0 1 pn0 1 sub {/j set
+          psi1index j get psi1i j get mul psi1keri add /psi1keri set 
+        } for
+        psi1ker [ psi1keri [[(h). (1).]] replace ] join /psi1ker set  
+      } for    
+    } ifelse 
+    zerolist psi1ker join /psi1ker set 
+% Is it all right to use reducedBase here?
+%    psi1ker length 0 eq { }{
+%      psi1ker reducedBase /psi1ker set 
+%    } ifelse 
+%%(ideg =) messagen ideg ::
+%%(psi1ker obtained.) message
+%%(Computing psi2image ...) message
+
+%%                                     psi2
+%% Computes the image of  D_{Y->X}^{r2} -->  D_{Y->X}^{r1} induced by syz
+%% with weight  k0 - m2vec <= k <= k1 - m2vec 
+    /psi2image [
+      0 1 r2 1 sub {/i set
+        o.syz i get {expand [[BFs expand (1).]] replace} map /syzi set
+        syzi vector_to_poly /syzi set
+        m2vec i get /m2i set
+        bfDtt k0 m2i sub k1 m2i sub monomials /bfDttmonoi set
+        bfDttmonoi length /nmono set
+        0 1 nmono 1 sub {/j set
+          bfDttmonoi j get syzi mul /syzij set
+          0 1 d 1 sub {/k set
+            syzij [[bftt k get expand (0).]] replace /syzij set
+            syzij [[bfDtt k get ee k get expand]] replace /syzij set
+          } for
+          syzij [[(h). (1).]] replace /syzij set
+          syzij << ee {expand} map >> m1vec k0 Vtruncate_below /syzij set 
+          syzij (0). eq { }{syzij} ifelse
+        } for
+      } for 
+    ] def
+
+%(psi2image obtained.) message
+%(ideg = ) messagen ideg ::
+%(psi1ker = ) message psi1ker ::
+%(psi2image =) message psi2image ::
+
+%% Computes the quotient module  psi1ker/psi2image
+    psi1ker length /nker set
+    nker 0 eq { 
+      [0 [ ]] /cohom set
+    }{
+      psi2image length /nim set
+      psi1ker psi2image join /psiall set
+      psiall {homogenize} map /psiall set
+      [psiall [(needSyz)]] groebner 2 get /psisyz set
+      psisyz {nker proj vector_to_poly [[(h). (1).]] replace} map /cohom set
+      cohom {remove0} map /cohom set
+      cohom length 0 eq { 
+        [nker [ ]] /cohom set 
+      }{
+        cohom {homogenize} map /cohom set
+        [cohom] groebner 0 get reducedBase /cohom set
+        cohom {[[(h). (1).]] replace} map /cohom set
+        [nker cohom] trimModule /cohom set
+      } ifelse 
+    } ifelse 
+    cohomlist [cohom] join /cohomlist set 
+    0 ideg sub print (-th cohomology:  ) messagen
+    cohom ::
+    r1 /r0 set
+    r2 /r1 set
+    m1vec /m0vec set
+    m2vec /m1vec set
+  } for
+
+  cohomlist /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The cohomology groups of the restriction without truncation from below
+%% [(P1)...] [(t1)...] k1 degmax restall 
+%% --> [0-th cohomology -1-th cohomology, ...,-degmax-th cohomology] 
+
+/restall1_s {
+  /arg5 set %% degmax
+  /arg4 set %% k1
+  /arg2 set %% [(t1) ... (td)]
+  /arg1 set %% BFequations
+  [
+     /ff /bftt /k1 /degmax /syzlist /mveclist /cohomlist
+     /ideg /gbase /o.syz /m1vec /m2vec /r1 /r2 
+     /i /syzi /j /syzij /maxtmp /max0 /ee /psi1index /zerolist
+     /psi1 /psi1ker /psi2image
+     /gbase1 /m1i /emonoi /nmono /bfDttmonoi /eei /dtp /k /psi1kervec
+     /pn /pn0 /psi1i /psi1keri /m2i /nker /nim /cohm /psiall /psisyz /cohom0 
+  ] pushVariables
+  [
+    /ff arg1 def  /bftt arg2 def  /k1 arg4 def  
+    /degmax arg5 def   
+    bftt length /d set    
+  
+    (Computing a free resolution ... ) message
+    Schreyer 2 eq {ff bftt degmax resolution_Sh /syzlist set}{ } ifelse
+    Schreyer 1 eq {ff bftt degmax resolution_SV /syzlist set}{ } ifelse
+    Schreyer 0 eq {ff bftt degmax resolution_nsV /syzlist set}{ } ifelse
+
+    (A free resolution obtained.) message
+
+    BFvarlist /ttxx set
+    BFparlist /aa set
+    [BFs] ttxx join aa join /allvarlist set
+    ttxx length /dn set
+    ttxx {xtoDx} map /Dttxx set
+
+    /BFs_weight 
+      [ [ BFs 1 ]
+        [ 0 1 dn 1 sub 
+            { /i set Dttxx i get 1 } 
+          for 
+          0 1 dn 1 sub  
+            { /i set ttxx i get 1 }
+          for ]
+      ] def  
+
+    [ allvarlist listtostring ring_of_differential_operators
+      BFs_weight weight_vector 0 ] define_ring
+
+%% Reformatting the free resolution:  
+%%  [[f1,f2,..],[syz1,...]] --> [[[f1],[f2],...],[syz,...]] (strings)
+%% (to be modified for the case with more than one unknowns.)
+
+    Schreyer 0 gt {
+      /syzlist1 [
+        syzlist 0 get /syz0 set
+        [ 0 1 syz0 length 1 sub {/i set
+          [ syz0 i get (string) dc ]
+        } for ]
+        1 1 degmax {/i set
+          syzlist 1 get i 1 sub get {toStrings} map 
+        } for
+      ] def
+      syzlist1 /syzlist set  
+    }{
+      /syzlist1 [
+        syzlist 0 get /syz0 set
+        [ 0 1 syz0 length 1 sub {/i set
+          [ syz0 i get (string) dc ]
+        } for ]
+        1 1 degmax {/i set
+          syzlist i get {toStrings} map 
+        } for
+      ] def
+      syzlist1 /syzlist set  
+    } ifelse    
+
+    [ ] /cohomlist set
+
+%% Start the loop:
+  0 1 degmax {/ideg set    
+
+%(new loop: ) messagen ideg ::
+
+    ideg 0 eq { 
+       1 /r0 set
+       1 /r1 set
+      [ [ (0) ] ] /gbase set
+      [ 0 ] /m0vec set
+      [ 0 ] /m1vec set 
+    }{
+      syzlist  << ideg 1 sub >> get /gbase set
+      r0 /r1 set
+    } ifelse 
+    syzlist     ideg          get /o.syz   set 
+
+%%                                       o.syz       gbase 
+%%                                D^{r2} --> D^{r1} --> D^{r0} 
+%% with weight vectors:           m2vec      m1vec      m0vec
+%% which will induce a complex
+%%                                     psi2              psi1
+%%                        D_{Y->X}^{r2} --> D_{Y->X}^{r1} --> D_{Y->X}^{r0} 
+
+    gbase length /r1 set
+    o.syz length /r2 set
+
+%% (Computing the weight vector m2vec from m1vec and syz) message
+      /m2vec [
+        0 1 r2 1 sub {/i set
+          o.syz i get /syzi set
+          0 /nonzero set
+          0 1 r1 1 sub {/j set
+            syzi j get expand /syzij set
+            syzij (0). eq {  }{
+              syzij bftt fwh_order  m1vec j get  add /maxtmp set
+              nonzero 0 eq { maxtmp /max0 set }{
+                maxtmp max0 gt { maxtmp /max0 set }{ } ifelse
+              } ifelse
+            1 /nonzero set
+            } ifelse
+          } for
+        max0 } for ] def  
+
+%% ee = [u1,...,ud] corresponds to [Dt1,...,Dtd] (for graduation)
+    BFu /estr set
+    /ee
+      [ 1 1 d {/i set estr i toString 2 cat_n} for ]
+    def
+    [@@@.esymbol ] ee join /eee set
+ 
+%%(Setting up a ring that represents D_{Y->X}^{r1}) message
+    eee length /neee set
+    /eeemvec [ 1 1 neee {pop 1} for ] def 
+    eee [ ] [BFs] BFvarlist join eeemvec setupDringVshift
+    bftt {xtoDx expand} map /bfDtt set
+    [ ] /psi1 set
+    [ ] /psi1index set
+    [ ] /zerolist set
+
+%%(converting gbase to a list of polynomials) message
+    /gbase1
+      [ 0 1 r1 1 sub {/i set
+          gbase i get {expand [[BFs expand (1).]] replace} map vector_to_poly
+       } for ] def
+
+    gbase1 /gbase set
+
+%%(ideg =) messagen ideg ::
+%%(Computing psi1) message
+%%                        psi1
+%% Computes  D_{Y->X}^{r1} -->  D_{Y->X}^{r0} induced by gbase
+%% with weight  = k <= k1 - m1vec 
+    0 1 r1 1 sub {/i set
+      m1vec i get /m1i set
+      ee {expand} map  0  k1 m1i sub monomials /emonoi set
+      bfDtt  0  k1 m1i sub monomials /bfDttmonoi set
+      emonoi length /nmono set
+      0 1 nmono 1 sub {/j set
+        @@@.esymbol  expand i npower /eei set           
+        emonoi j get eei mul /eei set          
+        gbase i get /dtp set
+        bfDttmonoi j get dtp mul /dtp set
+        0 1 d 1 sub {/k set 
+          dtp [[bftt k get expand (0).]] replace /dtp set
+          dtp [[bfDtt k get  ee k get expand]] replace /dtp set
+        } for
+        dtp [[(h). (1).]] replace /dtp set
+        dtp (0). eq { 
+          zerolist [eei] join /zerolist set
+        }{
+          psi1index [eei] join /psi1index set
+          psi1 [dtp] join /psi1 set
+        } ifelse 
+      } for    
+    } for
+
+%%(ideg =) messagen ideg ::
+%%(psi1 obtained.) message
+%%(Computing psi1ker) message
+
+%% Computing psi1ker := Ker psi1 :
+    psi1 length 0 eq { 
+      [ ] /psi1ker set 
+    }{
+      psi1 {[[(h). (1).]] replace homogenize} map /psi1 set
+      [psi1 [(needSyz)]] groebner 2 get /psi1kervec set
+      psi1kervec length /pn set
+      psi1index length /pn0 set
+      [ ] /psi1ker set 
+      0 1 pn 1 sub {/i set
+        psi1kervec i get /psi1i set
+        (0). /psi1keri set
+        0 1 pn0 1 sub {/j set
+          psi1index j get psi1i j get mul psi1keri add /psi1keri set 
+        } for
+        psi1ker [ psi1keri [[(h). (1).]] replace ] join /psi1ker set  
+      } for    
+    } ifelse 
+    zerolist psi1ker join /psi1ker set 
+% Is it all right to use reducedBase here?
+%    psi1ker length 0 eq { }{
+%      psi1ker reducedBase /psi1ker set 
+%    } ifelse 
+%%(ideg =) messagen ideg ::
+%%(psi1ker obtained.) message
+%%(Computing psi2image ...) message
+
+%%                                     psi2
+%% Computes the image of  D_{Y->X}^{r2} -->  D_{Y->X}^{r1} induced by syz
+%% with weight  m2vec <= k <= k1 - m2vec 
+    /psi2image [
+      0 1 r2 1 sub {/i set
+        o.syz i get {expand [[BFs expand (1).]] replace} map /syzi set
+        syzi vector_to_poly /syzi set
+        m2vec i get /m2i set
+        bfDtt  0  k1 m2i sub monomials /bfDttmonoi set
+        bfDttmonoi length /nmono set
+        0 1 nmono 1 sub {/j set
+          bfDttmonoi j get syzi mul /syzij set
+          0 1 d 1 sub {/k set
+            syzij [[bftt k get expand (0).]] replace /syzij set
+            syzij [[bfDtt k get ee k get expand]] replace /syzij set
+          } for
+          syzij [[(h). (1).]] replace /syzij set
+          syzij (0). eq { }{syzij} ifelse
+        } for
+      } for 
+    ] def
+
+%(psi2image obtained.) message
+%(ideg = ) messagen ideg ::
+%(psi1ker = ) message psi1ker ::
+%(psi2image =) message psi2image ::
+
+%% Computes the quotient module  psi1ker/psi2image
+    psi1ker length /nker set
+    nker 0 eq { 
+      [0 [ ]] /cohom set
+    }{
+      psi2image length /nim set
+      psi1ker psi2image join /psiall set
+      psiall {homogenize} map /psiall set
+      [psiall [(needSyz)]] groebner 2 get /psisyz set
+      psisyz {nker proj vector_to_poly [[(h). (1).]] replace} map /cohom set
+      cohom {remove0} map /cohom set
+      cohom length 0 eq { 
+        [nker [ ]] /cohom set 
+      }{
+        cohom {homogenize} map /cohom set
+        [cohom] groebner 0 get reducedBase /cohom set
+        cohom {[[(h). (1).]] replace} map /cohom set
+        [nker cohom] trimModule /cohom set
+      } ifelse 
+    } ifelse 
+    cohomlist [cohom] join /cohomlist set 
+    0 ideg sub print (-th cohomology:  ) messagen
+    cohom ::
+    r1 /r0 set
+    r2 /r1 set
+    m1vec /m0vec set
+    m2vec /m1vec set
+  } for
+
+  cohomlist /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/intall_s {
+  /arg5 set %% degmax
+  /arg4 set %% k1
+  /arg3 set %% k0
+  /arg2 set %% [(t1) ... (td)]
+  /arg1 set %% BFequations
+  [ /ff /bftt /k0 /k1 /degmax /ffdx ] pushVariables
+  [
+    /ff arg1 def  /bftt arg2 def  /k0 arg3 def  /k1 arg4 def  
+   /degmax arg5 def   
+    BFvarlist setupDring
+    ff {bftt fourier} map /ffdx set
+    ffdx bftt k0 k1 degmax restall_s /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/intall1_s {
+  /arg5 set %% degmax
+  /arg4 set %% k1
+  /arg2 set %% [(t1) ... (td)]
+  /arg1 set %% BFequations
+  [ /ff /bftt /k1 /degmax /ffdx ] pushVariables
+  [
+    /ff arg1 def  /bftt arg2 def  /k0 arg3 def  /k1 arg4 def  
+   /degmax arg5 def   
+    BFvarlist setupDring
+    ff {bftt fourier} map /ffdx set
+    ffdx bftt k1 degmax restall1_s /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/resolution_Sh {
+  /arg3 set /arg2 set /arg1 set
+  [ /tt /ff /deg /ttxx /aa /allvarlist /d /n /m /Dtt /Dxx /xx
+    /i /V_weight /G
+  ] pushVariables
+  [
+    arg1 /ff set  arg2 /tt set  arg3 /deg set
+    BFvarlist /ttxx set
+    BFparlist /aa set
+    ttxx aa join /allvarlist set
+    tt length /d set
+    ttxx tt setminus /xx set
+    xx length /n set
+    aa length /m set
+    tt {xtoDx} map /Dtt set
+    xx {xtoDx} map /Dxx set
+
+    /V_weight [
+      [ 0 1 d 1 sub {/i set Dtt i get 1} for
+        0 1 d 1 sub {/i set tt i get -1} for ]
+      [ 0 1 n 1 sub {/i set Dxx i get 1} for
+        0 1 n 1 sub {/i set xx i get 1} for ]
+    ] def
+
+    ttxx aa join /allvarlist set
+    [ allvarlist listtostring s_ring_of_differential_operators
+      V_weight s_weight_vector 0 [(schreyer) 1]] define_ring
+
+    deg ff {tparse} map sResolution /G set
+    G /arg1 set 
+   ] pop
+   popVariables
+   arg1
+} def
+
+/resolution_SV {
+  /arg3 set /arg2 set /arg1 set
+  [ /ff /tt /deg /ttxx /aa /allvarlist /xx /dn /Dttxx /BFs_weight /i /G
+  ] pushVariables
+  [
+    arg1 /ff set  arg2 /tt set  arg3 /deg set 
+    BFvarlist /ttxx set
+    BFparlist /aa set
+    [BFs] ttxx join aa join /allvarlist set
+    ttxx tt setminus /xx set
+    ttxx length /dn set
+    ttxx {xtoDx} map /Dttxx set
+
+    /BFs_weight 
+      [ [ BFs 1 ]
+        [ 0 1 dn 1 sub 
+            { /i set Dttxx i get 1 } 
+          for 
+          0 1 dn 1 sub  
+            { /i set ttxx i get 1 }
+          for ]
+      ] def  
+
+    [ allvarlist listtostring s_ring_of_differential_operators
+      BFs_weight s_weight_vector 0 [(schreyer) 1]] define_ring
+
+    ff {tt fwm_homogenize} map /ff set
+    deg ff {tparse [[(h).(1).]] replace } map sResolution /G set
+    G /arg1 set 
+   ] pop
+   popVariables
+   arg1
+} def
+    
+%% Computing a free resolution compatible with the V-filtration
+%% w.r.t. tt
+/resolution_nsV {
+  /arg3 set  %% rdegmax
+  /arg2 set  %% tt
+  /arg1 set  %% ff
+  [ 
+    /ff /tt /rdegmax /ttxx /xx /aa /dn /d /Dttxx /i /syzlist /rdeg
+    /allvarlist /gbase /o.syz /gbase1 /syz2 /syz3 /nsyz /syz2i /syz2ij
+  ] pushVariables 
+  [
+    arg1 /ff set
+    arg2 /tt set
+    arg3 /rdegmax set
+    BFvarlist /ttxx set
+    BFparlist /aa set
+    ttxx tt setminus /xx set
+    ttxx length /dn set
+    /allvarlist 
+      [ BFs ] ttxx join aa join 
+    def 
+    ttxx {xtoDx} map /Dttxx set
+    /BFs_weight 
+      [ [ BFs 1 ]
+        [ 0 1 dn 1 sub 
+            { /i set Dttxx i get 1 } 
+          for 
+          0 1 dn 1 sub  
+            { /i set ttxx i get 1 }
+          for ]
+      ] def  
+    [ allvarlist listtostring ring_of_differential_operators
+      BFs_weight weight_vector 
+    0] define_ring 
+    BFs expand /bfs set
+    [ ] /syzlist set
+
+%% start the loop (the counter rdeg represents the degree of the resolution)
+    0 1 rdegmax {/rdeg set
+%%  From               
+%%                   ff=syz
+%%  ... <--- D_X^{r0} <--- D_X^{#ff},
+%%  computes
+%%                    gbase          syz
+%%  ... <--- D_X^{r0} <--- D_X^{r1} <--- D_X^{#syz}.
+
+      rdeg 0 eq {
+        1 /r0 set
+        ff {tt fwm_homogenize expand} map /ff set
+      }{
+        r1 /r0 set
+        o.syz {vector_to_poly} map /ff set
+      } ifelse
+
+      ff {[[(h). (1).]] replace homogenize} map /ff set
+%% Is it OK to use reducedBase here?
+      [ff] groebner 0 get {[[(h). (1).]] replace} map /gbase set
+      gbase reducedBase {homogenize} map /gbase set 
+      [gbase [(needSyz)]] groebner 2 get /o.syz set
+      gbase length /r1 set
+
+%% V-homogenize syz:
+      gbase {bfs coefficients 0 get 0 get} map /msvec set
+      o.syz length /nsyz set
+      o.syz /syz2 set
+      /syz3 [ 0 1 nsyz 1 sub {/i set
+        syz2 i get /syz2i set
+        [ 0 1 r1 1 sub {/j set
+          syz2i j get /syz2ij set
+          msvec j get /msj set
+          syz2ij << bfs msj npower >> mul
+        } for ]
+      } for ] def
+      syz3 /o.syz set
+
+%% Comment out % if you want the output to be string lists
+      gbase {[[(h). (1).]] replace} map /gbase set
+      rdeg 0 eq { 
+%       gbase toStrings /gbase1 set
+        gbase /gbase1 set
+      }{
+%       gbase r0 n_toVectors {toStrings} map /gbase1 set
+        gbase r0 n_toVectors /gbase1 set  
+      } ifelse
+      syzlist [gbase1] join /syzlist set
+      o.syz length 0 eq {
+        syzlist [o.syz] join /syzlist set
+        1 break
+      }{ } ifelse
+    } for  
+
+    syzlist /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+%%%%%%%%%%%%%%%%%%%%% Utilities %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% [u1,...] [v1,...] setminus --> [u1,...] \setminus [v1,...]
+/setminus {
+  /arg2 set /arg1 set
+  [ /Set1 /Set2 /n2 /i ] pushVariables
+  [
+    arg1 /Set1 set  arg2 /Set2 set
+    Set2 length /n2 set
+    0 1 n2 1 sub {/i set
+       Set1  Set2 i get  complement.oaku /Set1 set
+    } for
+    Set1 /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% (list arg1) \setminus {(an element arg2)} 
+/complement.oaku {
+  /arg2 set /arg1 set
+  arg1 { arg2 notidentical } map
+} def
+
+/notidentical {
+  /arg2 set
+  /arg1 set
+  arg1 arg2 eq
+  { } {arg1} ifelse
+} def
+
+%% Convert a polynomial list to a list of vectors of length r
+%% [(P1).,,,,] r n_toVectors
+/n_toVectors {
+  /arg2 set  /arg1 set
+  [   ] pushVariables
+  [
+    arg1 /Ps set
+    arg2 /r set
+    Ps length /n set
+    Ps toVectors /Vecs set
+    /Vecs1 [ 0 1 n 1 sub {/i set
+      Vecs i get /Veci set
+      Veci length /ri set
+      1 1 r ri sub {pop Veci [(0).] join /Veci set} for
+      Veci
+    } for ] def
+    Vecs1 /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/toStrings {
+  /arg1 set
+  arg1 {(string) dc} map /arg1 set
+  arg1
+} def
+
+%% (x1) --> (Dx1)
+/xtoDx {
+  /arg1 set
+  @@@.Dsymbol arg1 2 cat_n
+} def
+
+%% [(x1) (x2) (x3)] ---> (x1,x2,x3)
+/listtostring {
+  /arg1 set
+  [/n /j /ary /str] pushVariables 
+  [
+    /ary arg1 def
+    /n ary length def
+    arg1 0 get /str set
+    n 1 gt  
+      { str (,) 2 cat_n /str set }{ }
+    ifelse
+    1 1 n 1 sub {
+      /j set
+      j n 1 sub eq 
+        {str << ary j get >>  2 cat_n /str set}      
+        {str << ary j get >>  (,) 3 cat_n /str set}
+      ifelse
+    } for
+    /arg1 str def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% FW-homogenization 
+%% Op (string) [(t1) (t2) ...] fw_homogenize ---> h(Op) (string)
+/fwm_homogenize {
+  /arg2 set  %% bft (string list)
+  /arg1 set  %% an operator (string)
+  [ /bftt /bft /bfDt /bfht /bfhDt /Op /degs /m /mn /d /i ] pushVariables
+  [
+    /Op arg1 expand def
+    /bftt arg2 def               
+    bftt length /d set
+
+    0 1 d 1 sub { /i set          
+      bftt i get /bft set  
+      bft xtoDx /bfDt set                   
+      BFs (^(-1)*) bft 3 cat_n /bfht set    
+      BFs (*) bfDt 3 cat_n /bfhDt set       
+      Op [[bft expand bfht expand][bfDt expand bfhDt expand]] replace 
+        /Op set
+    } for
+    Op BFs expand coefficients 0 get 
+        {(integer) data_conversion} map /degs set 
+    degs << degs length 1 sub >> get /m set
+    0 m sub /mn set  
+    << BFs expand mn powerZ >> Op mul /Op set 
+    Op (string) data_conversion /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% var (poly) m (integer) ---> var^m (poly)
+/powerZ {
+  /arg2 set %% m
+  /arg1 set %% Var
+  [ /m /var /varstr /pow /nvar] pushVariables
+  [
+    arg1 /var set
+    arg2 /m set
+    var (string) data_conversion /varstr set
+    m -1 gt
+      { var m npower /pow set}
+      { varstr (^(-1)) 2 cat_n expand /nvar set
+        nvar << 0 m sub >> npower /pow set 
+       }
+    ifelse
+    pow /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% added on June 20, 1997 by N. Takayama for sm1 Release 2.970417 or later. 
+/npower {
+  /arg2 set
+  /arg1 set
+  [/f /k /i /ans] pushVariables
+  [
+     /f arg1 def   /k arg2 ..int def
+     f tag PolyP eq {
+       /ans (1). def
+     } {
+       /ans (1).. def
+     } ifelse
+     k 0 lt {
+       1 1 << 0 k sub >> {
+         /ans f ans {mul} sendmsg2 def
+       } for
+       /ans (1).. ans {div} sendmsg2 def
+     }
+     {
+       1 1 k {
+         /ans f ans {mul} sendmsg2 def
+       } for
+     } ifelse
+     /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def

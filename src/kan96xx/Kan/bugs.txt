@@ -1,0 +1,20 @@
+-------------- bugs -------------------------------------
+[1995, 8/17,A] :  (t^0).  returns 0.
+
+[1995, 8/17,B] :  Hbook/Mprog/apery.m
+              reduction in module.  
+   ---> fixed: isSameComponent(), grade_module1() (redm.c)
+               homogenizeObject (kanExport1.c)
+        Question: The degree of "e" was ignored before. For example,
+                  e x + x    was homogeneous. But, in the new grade(),
+                  e x + x h   is homogeneous.  Does the other program
+                  works correctly?
+        A. Doc/cv0.sm1 ---> OK.
+           resolution macros does NOT works, because of the change of
+           homogenize.----> OK.
+                  
+
+
+--------------- change ----------------------
+[1995, 8/17,a] : ? --> show_systemdictionary
+                 ?? --> old ?

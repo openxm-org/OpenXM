@@ -1,0 +1,826 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      The b-function b_f(s),                                      %
+%      generators of the annihilators of f^s,                      %
+%      and the 1st algebraic local cohomology group                %
+%      for f = f(x,y,z)                                            %
+%                                  18 Dec. 1995  by T. Oaku        %
+%                        modified  26 Feb. 1996                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+(Type in <<  f bf3 >> for the b-function for f(x,y,z).) message
+(Type in bf for the b-function for x^3-y^2 z^2.) message
+(  ) message
+/bf {(x^3 - y^2*z^2 ) bf3} def
+%%%%%%%%%%%%% Template to compute b-function for f(x,y,z) %%%%%%%%%%%%
+/bf3 {
+  /f set
+  %%% s is used both for F-homogenization and for tDt %%%%%%%
+   [(s,t,x,y,z) ring_of_differential_operators
+    [[(s) 1] ]
+    weight_vector 0 ] define_ring
+  %%% GIVE THE POLYNOMIAL f(x,y,z) HERE %%%%%%%%%%%%%%%%%%%%%
+    f .  /f set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    f fw_delta /ff set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   (Computing the b-function of) message 
+   f ::
+   (The generators are) message
+   ff ::
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing FW-groebner basis in Q[t,x,y,z]<Dt,Dx,Dy,Dz> ) message
+   [ff] groebner 0 get /ansG set 
+   (  ) message
+  %%%%% ansG is an FW-Groebner basis in Q[t,x,y,z]<Dt,Dx,Dy,Dz> %%%%%%
+   ansG {fw_symbol} map /ansG0 set 
+   ansG0 {fw_psi} map /ansH set
+  %%%%  ansH generates an ideal in Q[s,x,y,z]<Dx,Dy,Dz> %%%%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   [(s,x,y,z) ring_of_differential_operators
+    [[(Dx) 1 (Dy) 1 (Dz) 1] ] weight_vector  
+   0
+   ] define_ring
+   ansH {mymap} map /ansH set
+   ansH {[[(h). (1).]] replace} map {homogenize} map /ansH set
+   (Eliminating Dx, Dy, Dz  ) message
+   [ansH] groebner 0 get /ansH set 
+   (  ) message
+   ansH (Dx) eliminate0
+        (Dy) eliminate0
+        (Dz) eliminate0
+   /ansH0 set
+   ansH0 {[[(h). (1).]] replace} map /ansH01 set
+   ansH0 {[[(s). (-s-1).]] replace} map /ansH0 set
+   ansH0 minimal /ansH0 set
+%%%% ansH0 generates an ideal in Q[s,x,y,z] %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   [(s,x,y,z) ring_of_polynomials 
+    (x,y,z) elimination_order  0] define_ring 
+   ansH0 {mymap} map /ansH0 set
+   ansH0 {[[(x). (0).] [(y). (0).] [(z). (0).]] replace} map /ansH00 set
+ %%% ansH00 is the restriction of ansH0 to x=y=z=0 %%%
+   ansH0 {[[(h). (1).]] replace} map {homogenize} map /ansH0 set 
+   (Eliminating x,y,z ) message
+   [ansH0] groebner 0 get /ansH0 set 
+   ansH0 (x) eliminate0
+         (y) eliminate0
+         (z) eliminate0
+   /ansbff set
+   ansbff minimal /ansbff set
+   ansbff 0 get /ansbf set
+   (the global b-function b_f(s) [ansbf] is ) message 
+   ansbf ::
+ %%%%%% restriction to x=y=z=0 %%%%%%%%%%%%%%%%% 
+   ansH00 remove0 /ansH00 set
+   [(s) ring_of_polynomials 
+    ( ) elimination_order  0] define_ring 
+   ansH00 {mymap} map /ansH00 set
+   ansH00 {[[(h). (1).]] replace} map {homogenize} map /ansH00 set 
+   [ansH00] groebner 0 get /ansbff0 set
+   ansbff0 minimal /ansbff0 set
+   ansbff0  0 get /ansbf0 set
+   (a divisor of the local b-function b_f(s) [ansbf0] is ) message 
+   (  ) message
+   ansbf0 ::
+} def
+
+%%%%%%%%%%%%% finding a P s.t. Pf^{s+1} = b_f(s)f^s %%%%%%%%%%%%%%%%%%%%%%%
+
+/bf0 {
+  %%% s is used both for F-homogenization and for tDt %%%%%%%
+   [(s,t,x,y,z) ring_of_differential_operators
+    [[(s) 1] [(Dx) 1 (Dy) 1 (Dz) 1 (x) 1 (y) 1 (z) 1]]
+    weight_vector 0 ] define_ring
+  %%% Give the polynomial f(x,y,z) here %%%%%%%%%%%%%%%%%%%%%
+    ( x^5-y^2*z^2 ). /f set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    f fw_delta /ff set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   (Computing the b-function of) message 
+   f ::
+   (The generators are) message
+   ff ::
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing FW-groebner basis in Q[t,x,y,z]<Dt,Dx,Dy,Dz> ) message
+   [ff] groebner 0 get /ansG set 
+   ansG {fw_order} map /ansGford set
+   ansG {[[(h). (1).]] replace} map /ansG set
+   ansG (Dx) eliminatepsi0
+        (Dy) eliminatepsi0
+        (Dz) eliminatepsi0
+        (x) eliminatepsi0
+        (y) eliminatepsi0
+        (z) eliminatepsi0
+   /ansbft set
+   ansbft 0 get fw_rhorest /ansP set
+   (Completed: P is [ansP]) ansP :: 
+   (F) f toa
+   (P) ansP toa
+    ansbft
+ } def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 2nd algorithm for b-function
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(Type in bf2 for the b-function via saturation.) message
+(  ) message
+/bf2 {
+  %%% s is used both for F-homogenization and for t*Dt.
+  %%% u is used for the computation of saturation.
+   [(s,t,u,x,y,z) ring_of_differential_operators
+    [[(s) 1 (u) 1]] weight_vector 
+   0 ] define_ring
+  %%% Write f(x) here.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   ( y*(x^5- y^2*z^2) ). /f set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   (Computing the b-function of ) message 
+   f ::  
+   f  fw_deltasat /ff set
+   ff print
+   (  are generators.) message (   ) message
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing the saturation...) message
+   [ff] groebner 0 get /ansS set 
+   (     ) message
+   ansS {[[(h). (1). ]] replace} map /ansS set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ansS (s) eliminate0 
+       (u) eliminate0 
+  /ansS0 set
+  ansS0 {fw_psi} map /ansS1 set
+  ansS1 {[[(s). (-s-1).]] replace} map /ansS1 set
+  ansS1 [f] concat /ansS1 set
+  %%%%  ansS1 generates an ideal in Q[s,x,y,z]<Dx,Dy,Dz> %%%%%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   [(s,x,y,z) ring_of_differential_operators
+    [[(Dx) 1 (Dy) 1 (Dz) 1] [(x) 1 (y) 1 (z) 1]] weight_vector  
+   0
+   ] define_ring
+   ansS1 {mymap} map /ansS1 set
+   ansS1 {[[(h). (1).]] replace} map {homogenize} map /ansS1 set
+   (Eliminating Dx, Dy, Dz  ) message
+   [ansS1] groebner 0 get /ansS1 set 
+   (  ) message
+   ansS1 (Dx) eliminate0
+         (Dy) eliminate0
+         (Dz) eliminate0
+   /ansJ set
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   [(s,x,y,z) ring_of_polynomials 
+    (x,y,z) elimination_order  0] define_ring 
+   ansJ {mymap} map /ansJ set
+   ansJ {[[(x). (0).] [(y). (0).] [(z). (0).]] replace} map /ansJ0 set
+ %%% ansJ0 is the restriction of ansJ to x=y=z=0 %%%
+   ansJ {[[(h). (1).]] replace} map {homogenize} map /ansJ set 
+   (Eliminating x,y,z ) message
+   [ansJ] groebner 0 get /ansJ set 
+   ansJ  (x) eliminate0
+         (y) eliminate0
+         (z) eliminate0
+   /ansbffS set
+   ansbffS minimal /ansbffS set
+   ansbffS 0 get /ansbfS set
+   (the global b-function b_f(s) [ansbfS] is ) message 
+   ansbfS ::
+ %%%%%% restriction to x=y=z=0 %%%%%%%%%%%%%%%%% 
+   ansJ0 remove0 /ansJ0 set
+   [(s) ring_of_polynomials 
+    ( ) elimination_order  0] define_ring 
+   ansJ0 {mymap} map /ansJ0 set
+   ansJ0 {[[(h). (1).]] replace} map {homogenize} map /ansJ0 set 
+   [ansJ0] groebner 0 get /ansbffS0 set
+   ansbffS0 minimal /ansbffS0 set
+   ansbffS0  0 get /ansbfS0 set
+   (a divisor of the local b-function b_f(s) [ansbfS0] is ) message 
+   (  ) message
+   ansbfS0 ::
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(Type in fs for the annihilators of f^s.)  message
+(  ) message
+%%%%%%%%%%%%%% Computing the annihilators of f^s %%%%%%%%%%%%%%%%%%%%
+/fs {
+  %%% s is used both for F-homogenization and for t*Dt.
+  %%% u is used for the computation of saturation.
+   [(s,t,u,x,y,z) ring_of_differential_operators
+    [[(s) 1 (u) 1]] weight_vector 
+   0 ] define_ring
+  %%% Write f(x) here.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   ( y*(x^5-y^2*z^2) ). /f set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   (Computing involutory generators for f^s with f = ) message 
+   f ::  
+   f  fw_deltasat /ff set
+   ff print
+   (  are generators.) message (   ) message
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing groebner basis) message
+   [ff] groebner 0 get /ans set 
+   (     ) message
+   ans {[[(h). (1).]] replace} map /ans0 set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ans0 (s) eliminate0 
+       (u) eliminate0 
+  /ans1 set
+  ans1 {fw_psi} map /ans1 set
+  ans1 {[[(s). (-s-1).]] replace} map /ans1 set
+  ans1 involutory /ans2 set
+  ans2 minimal /ansfs set
+  (The answer [ansfs] is ) message
+  ansfs print (  ) message
+  (F) f toa
+  (FS) ansfs toa_l
+} def
+
+%% Computing the D-module for f^s as D-module (not as D[s]-module)
+/fs0 {
+  %%% s is used both for F-homogenization and for t*Dt.
+  %%% u is used for the computation of saturation.
+   [(s,t,u,x,y,z) ring_of_differential_operators
+    [[(s) 1 (u) 1]] weight_vector 
+   0 ] define_ring
+  %%% Write f(x) here.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   ( y*(x^5-y^2*z^2) ). /f set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   (Computing involutory generators for f^s with f = ) message 
+   f ::  
+   f  fw_deltasat /ff set
+   ff print
+   (  are generators.) message (   ) message
+   ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+   (Computing groebner basis) message
+   [ff] groebner 0 get /ans set 
+   (     ) message
+   ans {[[(h). (1).]] replace} map /ans0 set
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ans0 (s) eliminate0 
+       (u) eliminate0 
+  /ans1 set
+  ans1 {fw_psi} map /ans1 set
+  ans1 {[[(s). (-s-1).]] replace} map /ans1 set
+  
+  ans1 {[[(h). (1).]] replace} map /ans1 set
+  ans1 {homogenize} map /ans1 set 
+  [ans1] groebner 0 get /ans1 set
+  ans1 {[[(h). (1).]] replace} map /ans1 set
+  ans1 (s) eliminate0 /ans1 set
+  ans1 involutory /ans2 set
+  ans2 minimal /ansfs set
+  (The answer [ansfs] is ) message
+  ansfs print (  ) message
+  (F) f toa
+  (FS) ansfs toa_l
+} def
+
+%%%% algebraic local cohomology %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(Type in alc for the 1st algebraic local cohomology group.) message
+((Make sure for alc that b_f(s) has no integer roots other than -1.)) message
+(  ) message
+/alc {
+  %%% s is used for FW-filtration.
+   [(s,t,x,y,z) ring_of_differential_operators
+    [[(s) 1]] weight_vector  0 ] define_ring
+%%% give the polynomial f(x,y,z) here %%%%%%%%%%%%%%%%%%%%%%%%
+  ( x^3 + y^3 + z^3 ). /f set
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  f fw_delta /ff set
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  (Computing the algebraic local cohomology for) message 
+  f ::
+  ff {[[(h). (1).]] replace} map {homogenize} map /ff set
+  (Computing an FW-groebner basis) message
+  [ff] groebner 0 get /ansfw set 
+  (     ) message
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% selecting the elements of F-order 0
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  /gb ansfw def
+  gb {fw_order} map /gbford set
+  
+  /ansind0 [
+    0 1 << gb length 1 sub >> {
+      /n set 
+      gb n get /ff set
+      ff fw_order (integer) data_conversion /m set 
+      << m 2 lt >> 
+       { << m 1 1 >> {pop ff (Dt). ff mul /ff set } for 
+       }
+       {    } ifelse
+    } for
+  ] def
+  ansind0 {[[(h). (1).]] replace} map /ansind0 set
+  ansind0 {[[(s). (1).]] replace} map /ansind0 set
+  ansind0 {[[(t). (0).]] replace} map /ansind1 set
+  ansind1 remove0 /ansind1 set
+  ansind1 involutory /ansind2 set
+  ansind2 minimal /ansind set
+  (The answer [ansind] is ) message
+  ansind ::
+  (F) f toa
+  (ALC) ansind toa_l
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% involutory base in K(s)[x,y,z]<Dx,Dy,Dz> 
+/involutory  {
+   /ansff0 set
+   [/ansff1 /ansff2 /ansff3 ] pushVariables
+   [
+     [(s,t,x,y,z) ring_of_differential_operators
+      [[(Dx) 1 (Dy) 1 (Dz) 1] [ (x) 1 (y) 1 (z) 1 ]] weight_vector
+     0
+     ] define_ring
+     ansff0 {mymap} map /ansff1 set
+     ansff1 {[[(h). (1).]] replace} map {homogenize} map /ansff2 set
+     (Computing an involutory base ) message
+     [ansff2] groebner 0 get /ansff3 set
+     (  ) message
+     ansff3 {[[(h). (1).]] replace} map /ansff3 set
+     ansff3 /ansinv set
+   ] pop
+   popVariables
+   ansinv
+} def
+
+%%%%%% for FW-filtration, etc. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% F-order
+/fw_order {
+  fw_symbol /fws set
+  fws [[(s). (1).]] replace /fws set
+  fws (Dt). coefficients 0 get 0 get /m set
+  fws (Dt). coefficients 1 get 0 get /fwsDt set
+  fwsDt (t). coefficients 0 get 0 get /k set
+  m k sub
+} def
+
+% remove 0 elements from a list
+/remove0 {
+  /arg1 set
+  [/gb /ans /n] pushVariables
+  [
+  /gb arg1 def
+  /ans [
+    0 1 << gb length 1 sub >> {
+      /n set 
+      gb n get /ff set
+      ff (0). eq
+        {  }
+        { ff } ifelse
+    } for
+  ] def
+  /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+% dehomogenize and obtain a minimal base
+% in variables s,t,x,y,z,Dt,Dx,Dy,Dz 
+(Note that the current ring changes once you get a minimal base.) message
+/minimal {
+  /arg1 set
+  [/gb /inits /ans /n /syzlist /cc /nin /aa /j /cj] pushVariables
+  [
+  /gb arg1 def
+  /inits gb {init} map def
+  gb {[[(h). (1).]] replace} map /gb set
+  [(Dx,Dy,Dz,Dt,t,x,y,z,s) ring_of_polynomials  
+   (  ) elimination_order  0] define_ring
+  inits {mymap} map /inits set
+  gb    {mymap} map /gb    set
+  inits {[[(h). (1).]] replace} map /inits set
+  inits length /nin set
+  [inits [(needBack)]] groebner 1 get /syzlist set
+  syzlist length ::
+  /ans [
+    0 1 << syzlist length 1 sub >> {
+      /n set
+      syzlist n get /cc set
+      (0). /gg set
+      0 1 << nin 1 sub >> {
+        /j set
+        gb j get /aa set
+        cc j get /cj set
+        << cj aa mul >> gg add /gg set
+      } for
+      gg
+    } for
+  ] def
+  /ansmin ans def
+  ] pop
+  popVariables
+  ansmin 
+} def
+
+%%%%% The formal symbol %%%%%%%%%%%%%%%%%%%%%%
+/fw_symbol {
+  [[(h). (1).]] replace (s). coefficients 1 get 0 get
+} def
+
+%%%%% psi(P)(s) %%%%%%
+/fw_psi {
+  fw_symbol /P set
+  P fw_order (integer) data_conversion /k set
+    << 1 1 k >> 
+    {(t). P mul /P set pop}
+    for
+    << -1 -1 k >>
+    {(Dt). P mul /P set pop}
+    for 
+  (0). /Q set
+  P (Dt). coefficients 0 get length /m set
+  0 /i set
+  1 1 m  
+  {
+    P (Dt). coefficients 0 get i get /kk set 
+    P (Dt). coefficients 1 get i get /PPt set
+    PPt (t). coefficients 1 get 0 get /PPC set
+    kk (integer) data_conversion /kk set
+    (s). /Ss set
+    0 1 << kk 1 sub >> {
+      PPC Ss mul /PPC set
+      Ss (1). sub /Ss set
+      pop
+    } for
+    Q PPC add /Q set
+    i 1 add /i set
+    pop
+  } for
+  Q  
+} def
+
+/fw_psi0 {
+  fw_symbol /P set
+  P fw_order (integer) data_conversion /k set
+    << 1 1 k >> 
+    {(t). P mul /P set pop}
+    for
+  (0). /Q set
+  P (Dt). coefficients 0 get length /m set
+  0 /i set
+  1 1 m  
+  {
+    P (Dt). coefficients 0 get i get /kk set 
+    P (Dt). coefficients 1 get i get /PPt set
+    PPt (t). coefficients 1 get 0 get /PPC set
+    kk (integer) data_conversion /kk set
+    (s). /Ss set
+    0 1 << kk 1 sub >> {
+      PPC Ss mul /PPC set
+      Ss (1). sub /Ss set
+      pop
+    } for
+    Q PPC add /Q set
+    i 1 add /i set
+    pop
+  } for
+  Q  
+} def
+
+%%%%% rho(P)(s) %%%%%%
+/fw_rho {
+  /P0 set
+  P0 fw_order (integer) data_conversion /k set
+  << 1 1 k >> 
+    {(t). P0 mul /P0 set}
+  for
+  << -1 -1 k >>
+    {(Dt). P0 mul /P0 set}
+  for 
+  P0 (s). coefficients 0 get /sdegs set
+  sdegs length /n set
+  sdegs 0 get (integer) data_conversion /k0 set
+  (0). /PP set 
+  0 /jj set
+  0 1 << n 1 sub >>
+  {
+    sdegs jj get (integer) data_conversion /kkp set
+    P0 (s). coefficients 1 get jj get /Pj set
+    Pj fw_psi0 /Pj set
+    << 1 1 << k0 kkp sub >> >>    
+      {Pj f mul /Pj set pop} for
+    k0 kkp sub  /l set
+    Pj [[(s). << (-s-1). l . sub >> ]] replace /Pj set
+    PP Pj add /PP set 
+    jj 1 add /jj set
+    pop
+  } for 
+  PP [[(h). (1).]] replace /PP set 
+  pop 
+  PP
+} def 
+
+/fw_rhorest {
+  /P0 set
+  P0 fw_order (integer) data_conversion /k set
+  << 1 1 k >> 
+    {(t). P0 mul /P0 set}
+  for
+  << -1 -1 k >>
+    {(Dt). P0 mul /P0 set}
+  for 
+  P0 (s). coefficients 0 get /sdegs set
+  sdegs length /n set
+  sdegs 0 get (integer) data_conversion /k0 set
+  (0). /PP set 
+  1 /jj set
+  1 1 << n 1 sub >>
+  { 
+    sdegs jj get (integer) data_conversion /kkp set
+    P0 (s). coefficients 1 get jj get /Pj set
+    Pj fw_psi0 /Pj set
+     << 2 1 << k0 kkp sub >> >>    
+      {Pj f mul /Pj set } for
+    k0 kkp sub  /l set
+    Pj [[(s). << (-s-1). l . sub >> ]] replace /Pj set
+    PP Pj add /PP set
+    jj 1 add /jj set
+   } for 
+  PP [[(h). (1).]] replace /PP set
+  (-1). PP mul /PP set 
+  pop 
+  PP
+} def 
+
+/fw_rhotest {
+   [(s,t,x,y,z) ring_of_differential_operators
+    [[(s) 1] ]
+    weight_vector 0 ] define_ring
+    (x^2-y^3). /f set 
+    (t*Dt^2*s + t*Dt). /Pex  set
+    Pex fw_rho /PPex set
+    PPex ::
+} def 
+
+ %%%%%%%%%%%% [t - s*f, Dx + f_xDt, ...] %%%%%%%%%%%%%%%
+/fw_delta {
+  /F set
+  << (Dx). F mul >> << F (Dx). mul >> sub [[(h). (1).]] replace /Fx set
+  << (Dy). F mul >> << F (Dy). mul >> sub [[(h). (1).]] replace /Fy set
+  << (Dz). F mul >> << F (Dz). mul >> sub [[(h). (1).]] replace /Fz set
+  (t). << (s). F mul >>  sub /F0 set
+  (Dx). << (s*Dt). Fx mul >> add /Fx set 
+  (Dy). << (s*Dt). Fy mul >> add /Fy set
+  (Dz). << (s*Dt). Fz mul >> add /Fz set
+  [ F0 Fx Fy Fz ]
+} def
+
+ %%%%%%%%%%%% [1-s*u,t - s*f, Dx + f_xDt, ...] %%%%%%%%%%%%%%%
+/fw_deltasat {
+  /F set
+  << (Dx). F mul >> << F (Dx). mul >> sub [[(h). (1).]] replace /Fx set
+  << (Dy). F mul >> << F (Dy). mul >> sub [[(h). (1).]] replace /Fy set
+  << (Dz). F mul >> << F (Dz). mul >> sub [[(h). (1).]] replace /Fz set
+  (t). << (s). F mul >>  sub /F0 set
+  (Dx). << (s*Dt). Fx mul >> add /Fx set 
+  (Dy). << (s*Dt). Fy mul >> add /Fy set
+  (Dz). << (s*Dt). Fz mul >> add /Fz set
+  [ F0 Fx Fy Fz (1-s*u). ]
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   convert to a Risa/Asir input file         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% (Varriable name) expression  toa
+/toa {
+  /expr set /Varname set
+  expr (string) data_conversion /expr set
+  (toa.t) (a) file /fd set
+  fd (Dx = dx$ Dy = dy$ Dz = dz$ Dt = dt$) writestring
+  fd Varname writestring
+  fd ( = ) writestring
+  fd expr  writestring
+  fd ($) writestring
+  fd ( ) writestring
+  fd closefile
+} def
+
+% (Varriable name) expression(list)  toa_l
+/toa_l {
+  /expr set /Varname set
+  (toa.t) (a) file /fd set
+  fd (Dx = dx$ Dy = dy$ Dz = dz$ Dt = dt$) writestring
+  fd 10 (string) data_conversion writestring
+  fd Varname writestring
+  fd ( = [ ) writestring
+  fd 10 (string) data_conversion writestring
+  expr length /n set
+  0 1 << n 1 sub >> {
+    /k set
+    expr k get /expr1 set
+    expr1 (string) data_conversion /expr1 set
+    fd expr1  writestring
+    k << n 1 sub >> eq 
+      {fd (]$ )  writestring }
+      {fd ( , )  writestring } 
+    ifelse 
+    fd 10 (string) data_conversion writestring
+  } for  
+  fd closefile
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/mymap {
+  (string) data_conversion .
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% [   ] {outputans1} map ;
+/outputans1 {
+ (t.t) (a) file /fd set
+ (string) data_conversion /tmp0 set
+ fd tmp0 writestring
+ fd (  ,) writestring
+ fd 10 (string) data_conversion writestring
+ fd closefile
+} def
+
+%%%%%%%% Do not touch the below. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[(position)
+  [(set element position number)
+   (Example: [(cat) (dog) (hot chocolate)] (cat) position ===> 0.)
+  ]
+] putUsages
+/position {
+  /arg2 set /arg1 set
+  [/univ /elem /num /flag] pushVariables
+  [
+     /univ arg1 def 
+     /elem arg2 def
+     /num -1 def /flag -1 def
+     0 1 << univ length 1 sub >> 
+     {
+        /num set
+        univ num get  elem  eq
+        { /flag 0 def exit }
+        {    }
+        ifelse   
+     }  for
+     flag -1 eq
+     {/num -1 def}
+     {  }
+     ifelse
+  ] pop
+  /arg1 num def
+  popVariables
+  arg1
+} def
+
+
+[(evecw)
+  [(size position weight evecw  [0 0 ... 0 weight 0 ... 0] )
+   (Example: 3 0 113 evecw ===> [113  0  0])
+  ]
+] putUsages
+/evecw {
+ /arg3 set /arg2 set /arg1 set
+ [/size /iii /www] pushVariables
+ /size arg1 def  /iii arg2 def /www arg3 def
+ [
+   0 1 << size 1 sub >>
+   {
+      iii eq
+      {  www }
+      {  0 }
+      ifelse
+   } for
+  ] /arg1 set
+  popVariables
+  arg1
+} def
+
+[(weight_vector)
+ [ ([x-list d-list params] [[(name) weight ...] [...] ...] weight_vector)
+   ([x-list d-list params order])
+   (Example:)
+   (   [(x,y,z) ring_of_polynomials [[(x) 100 (y) 10]] weight_vector 0] )
+   (   define_ring )
+  ]
+] putUsages
+/weight_vector {
+  /arg2 set  /arg1 set
+  [/vars /univ /w-vectors /www /k /order1 /order2] pushVariables
+  /vars arg1 def /w-vectors arg2 def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+    [
+    0 1 << w-vectors length 1 sub >> 
+    {
+      /k set
+      univ w-vectors k get w_to_vec
+    } for
+    ] /order1 set
+    %% order1 ::
+    
+    vars ( ) elimination_order 3 get /order2 set
+    vars [ << order1 order2 join >> ] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% [(e) (x) (y) (h)] [(x) 100 (y) 10] w_to_vec [0 100 10 0]
+%%  univ              www
+/w_to_vec {
+  /arg2 set  /arg1 set
+  [/univ /www /k /vname /vweight /ans] pushVariables
+  /univ arg1 def /www arg2 def
+  [ 
+    /ans << univ length >> -1 0 evecw def
+    0  2  << www length 2 sub >>
+    {
+      %% ans ::
+      /k set
+      www k get /vname set
+      www << k 1 add >> get /vweight set
+      << univ length >> 
+      << univ vname position >>
+      vweight evecw
+      ans add /ans set
+    } for
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/fw_principal {
+   {[[(h). (1).]] replace} map {(s). coefficients 1 get 0 get} map
+} def
+
+
+%%%%%%%%%%%%%%%%%%%%%
+% [g1 g2 g3 ...] var eliminate0
+/eliminate0 {
+  /arg2 set /arg1 set
+  [/gb /degs /ans /n /var] pushVariables
+  [
+  /gb arg1 def
+  /var arg2 def
+  /degs gb {var . degree} map def
+  /ans [
+    0 1 << gb length 1 sub >> {
+      /n set
+      << degs n get  >>  0 eq
+      { gb n get /ff set
+        ff (0). eq
+        {  }
+        { ff } ifelse
+      }
+      {   } ifelse
+    } for
+  ] def
+  /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+% [g1 g2 g3 ...] var eliminate0
+/eliminatepsi0 {
+  /arg2 set /arg1 set
+  [/gb /degs /ans /n /var] pushVariables
+  [
+  /gb arg1 def
+  /var arg2 def
+  /degs gb {fw_symbol} map {var . degree} map def
+  /ans [
+    0 1 << gb length 1 sub >> {
+      /n set
+      << degs n get  >>  0 eq
+      { gb n get /ff set
+        ff (0). eq
+        {  }
+        { ff } ifelse
+      }
+      {   } ifelse
+    } for
+  ] def
+  /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%%%%%%%%% concatenate two lists %%%%%%% 
+/concat {
+  /listB set /listA set
+  listA length /NA set
+  listB length /NB set
+  /listAB [
+    0 1 << NA 1 sub >> {
+      /n set
+      listA n get
+    } for
+   0 1 << NB 1 sub >> {
+      /n set
+      listB n get
+    } for
+  ] def
+  listAB
+} def 
