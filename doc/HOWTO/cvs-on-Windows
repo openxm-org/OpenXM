@@ -1,6 +1,6 @@
-$OpenXM: OpenXM/doc/HOWTO/cvs-on-Windows,v 1.1 2001/03/30 07:46:52 noro Exp $
+$OpenXM: OpenXM/doc/HOWTO/cvs-on-Windows,v 1.2 2001/04/04 02:06:51 noro Exp $
 
-Windows $B>e$G(B cvs $B$r;H$&J}K!(B
+Windows $B>e$G(B ssh, cvs $B$r;H$&J}K!(B
 
 0. $B%U%!%$%k$NF~<j(B
 
@@ -10,9 +10,7 @@ http://bmrc.berkeley.edu/people/chaffee/winntutil.html
 
 http://www.imasy.or.jp/~gotoh/ssh/
 
-$B$+$i(B 
-
-openssh-2.1.1p4-w32-bin.zip $B$H(B openssh-dll.zip $B$rF~<j$9$k(B. 
+$B$+$i(B openssh-2.1.1p4-w32-bin.zip $B$H(B openssh-dll.zip $B$rF~<j$9$k(B. 
 
 1. SSH $B$N%$%s%9%H!<%k(B
 
@@ -42,7 +40,7 @@ HOME $B$K(B $B%G%#%l%/%H%j(B .ssh $B$r:n$j(B, $B$=$NCf$K(B, UNIX $B>e$G
 identity, identity.pub, random_seed $B$rCV$/(B. ($B%U%m%C%T!<$J$I$G1?$V(B)
 ssh-keygen $B$O2u$l$F$$$k(B($B$i$7$$(B)$B$N$G;H$o$J$$(B. 
 
-5. $B;HMQK!(B
+5. $B;HMQK!(B --- $B3+H/<T(B (committer) $B$N>l9g(B
 
 $B%3%^%s%I%W%m%s%W%H$r(B kterm $B$@$H;W$C$F(B, 
 
@@ -54,8 +52,6 @@ ssh-keygen $B$O2u$l$F$$$k(B($B$i$7$$(B)$B$N$G;H$o$J$$(B.
 
 $B$H$9$l$P$h$$(B. ssh-agent $B$O$J$$$N$G(B, $B$$$A$$$A(B passphrase $B$rJ9$+$l$k(B
 $B$,2fK}$9$k(B.
-
-6. ssh-agent $B$N;HMQ(B
 
 cvs $B<B9T;~$KKh2s(B passphrase $B$rJ9$+$l$J$$$h$&$K$9$k$?$a$K$O(B ssh-agent $B$r(B
 $B;H$&(B. $B$3$N>l9g(B, $B4D6-JQ?t(B
@@ -71,6 +67,23 @@ start ssh-agent -p %SSH_AGENT_AUTH_PORT%
 $B$H$$$&FbMF$N%P%C%A%U%!%$%k$rMQ0U$7$F(B, $B%9%?!<%H%"%C%W$KDI2C$7$F$*$1$P(B, 
 $B%3%^%s%I%W%m%s%W%H$G(B ssh-add $B$r<B9T$7$F(B passphrase $B$r0l2sF~$l$k$@$1$G(B, 
 $B$=$N%;%C%7%g%sCf$K$O(B passphrase $B$rJ9$+$l$J$/$J$k(B. 
+
+6. $B;HMQK!(B --- $BHs3+H/<T$N>l9g(B
+
+$BHs3+H/<T$G$b(B, $BF?L>(B cvs $B$K$h$jA4%=!<%9%D%j!<$rF~<j$G$-$k(B. $B$3$N>l9g(B
+
+CVSROOT  -> :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvs
+
+$B$H(B set $B$7(B, 
+
+> cvs login
+
+$B$r<B9T$9$k$H(B CVS password $B$rJ9$$$F$/$k$N$G(B anoncvs $B$HF~NO$9$k(B. $B$9$k$H(B
+HOME $B$K(B .cvspass $B$H$$$&%U%!%$%k$,$G$-$k(B. $B$"$H$O(B
+
+> cvs checkout OpenXM OpenXM_contrib OpenXM_contrib2
+
+$B$H$9$l$P$h$$(B. 
 
 
 
