@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.58 2000/01/16 01:35:49 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.59 2000/01/16 22:20:31 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -24,7 +24,7 @@ all-kxx: configure-kxx
 
 all-openmath:
 	@if ../misc/which.pl -s javac ; then \
-		(cd OpenMath ; make) ; \
+		(cd OpenMath ; make all) ; \
 	else \
 		echo -n "Warning: javac (java compiler) is not found " ; \
 		echo "in your search path. OpenMath will not be compiled." ; \
@@ -67,6 +67,7 @@ install-kxx: all-kxx
 	(cd kxx ; make install)
 
 install-openmath: all-openmath
+	(cd OpenMath ; make install)
 
 install-oxmath: all-oxmath
 
@@ -88,6 +89,7 @@ clean:
 	(cd k097 ; make clean)
 	(cd kan96xx ; make clean)
 	(cd kxx ; make clean)
+	(cd OpenMath ; make clean)
 #	(cd ox_math ; make clean)
 	(cd pari ; make clean)
 	(cd phc ; make clean)
@@ -99,6 +101,7 @@ distclean: clean
 	(cd asir2000 ; make distclean)
 	(cd gnuplot ; make distclean)
 	(cd kan96xx ; make distclean)
+	(cd OpenMath ; make distclean)
 	(cd pari ; make distclean)
 	(cd phc ; make distclean)
 	(cd tigers ; make distclean)

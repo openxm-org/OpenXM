@@ -1,12 +1,15 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.6 1999/12/09 00:32:36 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.7 2000/01/13 12:35:56 tam Exp $
 
 
-JAVADIR = /usr/local/jdk1.1.8
+#JAVADIR = /usr/local/jdk1.1.8
 LIBDIR = ../../lib/java-support
 
 
-all:	install
+configure:
+
+
+all:	OpenXM.jar OM2OXM.class OMproxy.class libnative.so
 
 
 clean:
@@ -22,16 +25,18 @@ distclean:	clean
 		-exec rm -f {} \;
 
 
-test:
-	$(JAVADIR)/bin/javac -d . -deprecation -g *.java
-	make libnative.so
-
-
-install:	OpenXM.jar OM2OXM.class OMproxy.class libnative.so
+install:	all
 	if ! test -d $(LIBDIR); then \
 		mkdir -p $(LIBDIR); \
 	fi
 	cp ${.ALLSRC} $(LIBDIR)
+
+install2:
+
+
+test:
+	$(JAVADIR)/bin/javac -d . -deprecation -g *.java
+	make libnative.so
 
 
 .SUFFIXES:	.java .class
