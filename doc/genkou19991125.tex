@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.76 1999/12/24 19:01:00 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.77 1999/12/24 19:59:39 tam Exp $
 
 \usepackage{jssac}
 \title{
@@ -148,6 +148,7 @@ OpenXM 規約での計算とはメッセージを交換することである。また、 OpenXM 規
 クライアントへ送出する。
 \end{enumerate}
 
+
 \section{OpenXM スタックマシン}\label{sec:oxsm}
 
 OpenXM 規約ではサーバはスタックマシンであると定義している。以下、OpenXM 
@@ -201,12 +202,12 @@ OpenXM 規約ではサーバはスタックマシンであると定義している。以下、OpenXM
 %以下、どういうときに結果をスタックに積むかエラーの場合どうするかの説明が
 %必要であろう。
 
-スタックマシンに対する命令の中には実行の結果が存在するものがある。
-結果が存在する命令を実行した場合、サーバはその結果をスタックに積む。
+スタックマシンに対する命令の中には実行によって結果が返ってくるものがある。
+結果が返ってくる命令を実行した場合、サーバはその結果をスタックに積む。
 たとえば、 SM\_executeStringByLocalParser は
 スタックに積まれているオブジェクトを
 サーバ側のローカル言語の文法に従った文字列とみなして計算を行なうが、
-行なった結果はローカル言語で記述した文字列でスタックに積まれる。
+行なった計算の結果はローカル言語で記述した文字列でスタックに積まれる。
 なお、命令の実行中にエラーが起こり、結果が得られなかった場合には、
 エラーオブジェクトがスタックに積まれる。
 
@@ -298,7 +299,7 @@ CMO\_MATHCAP, CMO\_LIST で識別されるオブジェクトは最も基本的なオブジェ
 などは 4バイトのデータで整数値としてみたときの値を意味する。CMO\_NULL は
 識別子(すなわち数字 1 と等価)である。この記法から上記のデータは 20 バイ
 トの大きさのデータであることが分かる。
-なお、このデータは cmo ではないことに注意してほしい。
+なお、このデータは CMO ではないことに注意してほしい。
 %なお、 CMO expression で表現できていても、
 %それが CMO であることとは無関係である。
 
@@ -309,10 +310,10 @@ cmo\_int32 := (CMO\_INT32,  {\sl int32} $a$)
 
 %{\Huge 同様に cmo\_string, cmo\_list などを定義}
 
-これは cmo の 32 ビット整数 $a$ を表す。
-他のオブジェクトを定義するために、
+これは CMO の 32 ビット整数 $a$ を表す。
+他のオブジェクトも定義するために、
 以後 ``{\sl string} $s$'' を文字列 $s$ 、
-``{\sl cmo} $ob$'' を cmo のオブジェクト $ob$ とする。
+``{\sl cmo} $ob$'' を CMO の $ob$ とする。
 これを用いて、 cmo\_string, cmo\_list を定義する。
 
 \begin{quote}
@@ -435,18 +436,17 @@ mathcap は CMO の一種であるので、すでに説明したように \\
 
 第一要素 $A$ はまた cmo\_list であり、リスト長は 4 以上、
 $a_1$ は 32 ビット整数でバージョンナンバーを、
-$a_2$ は文字列でシステムの名前を表すことになっている。
+$a_2$, $a_3$, $a_4$ は文字列で
+それぞれシステムの名前、、 CPU の種類を表すことになっている。
 \begin{quote}
 	(CMO\_LIST, {\sl int32} $4$,
 		{\sl cmo\_int32} $a_1$, {\sl cmo\_string} $a_2$,
-		{\sl cmo} $a_3$, {\sl cmo} $a_4$)
+		{\sl cmo\_string} $a_3$, {\sl cmo\_string} $a_4$)
 \end{quote}
-%\[	\begin{tabular}{|c|c|} \hline
-%	$a_1$ & $a_2$	\\ \hline
-%	\end{tabular}	\]
 
 2 番目の要素 $B$ の部分は次のようなリスト構造をしている。
 この $b_1$, $b_2$, $\cdots$, $b_n$ はすべて 32 ビットの整数である。
+\ref{sec:oxsm} 節でみたように、
 スタックマシンへの命令はすべて 32 ビットの整数で表しており、
 各 $b_i$ は利用可能な命令に対応する 32 ビットの整数となっている。
 \begin{quote}
@@ -454,30 +454,23 @@ $a_2$ は文字列でシステムの名前を表すことになっている。
 		{\sl cmo\_int32} $b_1$, {\sl cmo\_int32} $b_2$,
 		$\cdots$, {\sl cmo\_int32} $b_n$)
 \end{quote}
-%\[	\begin{tabular}{|c|c|c|c|} \hline
-%	$b_1$ & $b_2$ & $\cdots$ & $b_n$	\\ \hline
-%	\end{tabular}	\]
 
 3 番目の要素 $C$ は以下のようなリスト構造をしている。
 \begin{quote}
-	(CMO\_LIST, {\sl int32} $n$,
-		{\sl cmo} $c_1$, {\sl cmo} $c_2$, $\cdots$, {\sl cmo} $c_n$)
+	(CMO\_LIST, {\sl int32} $m$,
+		(CMO\_LIST, {\sl int32} $l_1$, {\sl cmo\_int32}
+		{\sl cmo} $c_1$, {\sl cmo} $c_2$, $\cdots$, {\sl cmo} $c_m$)
 \end{quote}
-%\[  \overbrace{
-%	\begin{tabular}{|c|c|c|c|} \hline
-%	$c_1$ & $c_2$ & $\cdots$ & $c_n$	\\ \hline
-%	\end{tabular}
-%   }^{C}	\]
 %%$n$ は OX\_COMMAND 以外の受け取れるメッセージのタグの種類の数に等しい。
 %%要素数は 1 でももちろん構わない。
 各 $c_i$ もまた以下のようなリスト構造となっており、
 どの $c_i$ も最初の要素が 32 ビットの整数となっている。
-\[  \overbrace{
-	\begin{tabular}{|c|c|c|c|c|} \hline
-	$c_{i1}$ (32 ビットの整数) & $c_{i2}$ & $c_{i3}$ &
-		$\cdots$ & $c_{im}$	\\ \hline
-	\end{tabular}
-   }^{c_i}	\]
+%\[  \overbrace{
+%	\begin{tabular}{|c|c|c|c|c|} \hline
+%	$c_{i1}$ (32 ビットの整数) & $c_{i2}$ & $c_{i3}$ &
+%		$\cdots$ & $c_{im}$	\\ \hline
+%	\end{tabular}
+%   }^{c_i}	\]
 このリストの最初の整数値は受け取れるメッセージのタグが入っている。
 $c_{i2}$ 以降については最初の $c_{i1}$ の値によってそれぞれ異なる。
 ここでは、最初の要素が OX\_DATA の場合についてのみ説明する。
