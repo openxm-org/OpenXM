@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.3 2000/03/16 07:34:37 noro Exp $
+# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.4 2000/03/17 02:04:08 takayama Exp $
 all : test1 test2 test3
 ##
 ## make   
@@ -36,4 +36,4 @@ test3 : test3.o
 
 
 clean :
-	rm -f test1 test2 test3 *.o *~ *.a 
+	rm -f test1 test2 test3 *.o *~ *.a  a.out
