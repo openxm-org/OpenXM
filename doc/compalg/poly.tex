@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/doc/compalg/poly.tex,v 1.2 2000/03/28 02:02:30 noro Exp $
+%$OpenXM: OpenXM/doc/compalg/poly.tex,v 1.3 2000/10/03 01:44:03 noro Exp $
 \chapter{多項式}
 
 \section{多項式の表現}
@@ -89,7 +89,7 @@ Input : $f, g \in K[x]$, $g\neq 0$\\
 Output : $f = qg+r$, $q,r \in K[x]$, $\deg(r) < \deg(g)$ なる $q,r$\\
 $q\leftarrow 0$, \quad $r\leftarrow f$\\
 while \= ( $\deg(r)\ge \deg(g)$ ) \{\\
-\> $t \leftarrow \lc(r)/\lc(q)\cdot x^{\deg(r)-\deg(g)}$\\
+\> $t \leftarrow \lc(r)/\lc(g)\cdot x^{\deg(r)-\deg(g)}$\\
 \> $r \leftarrow r-tg$,\quad $q \leftarrow q+t$\\
 \}\\
 return $(q,r)$
@@ -123,27 +123,27 @@ $f=f_1x^m+f_2,\quad g=g_1x^m+g_2 \quad (\deg(f_1),\deg(f_2),\deg(g_1),\deg(g_2)<
 \end{center}
 と書くと, 
 $$fg=(f_1g_1x^{2m}+((f_1-f_2)(g_2-g_1)+f_1g_1+f_2g_2)x^m+f_2g_2$$
-ここで $fg$ の計算コストは, 高々 $3T(m-1)+3\cdot 2^mA$, すなわち
-$T(m) \le 3T(m-1)+3\cdot 2^mA \quad (m\le 1).$
+ここで $fg$ の計算コストは $3T(m-1)+4\cdot 2^mA$, すなわち
+$T(m) = 3T(m-1)+4\cdot 2^mA \quad (m\le 1).$
 さらに, $T(0)=M$ から
-$T(m) \le (M+6A)3^m-6A\cdot 2^m.$ \qed
+$T(m) = (M+8A)3^m-8A\cdot 2^m.$ \qed
 
 この命題より, $n$ 次式どうしの積は, $O(n^{\log_23})$ の計算量で計算できる
 ことが分かる. 更に詳しく, 通常の $O(n^2)$ アルゴリズムと比較してみよう. 
 $2^m-1$ 次式どうしの通常のアルゴリズムによる計算コストを $T_0(m)$ とすれば, 
 $T_0(m)=M2^{2m}+A(2^m-1)^2$
 である. 
-$$T_0(m)-T(m) \ge M2^{2m}+A(2^m-1)^2-((M+6A)3^m-6A\cdot 2^m)$$
-で, 右辺の $m=0,\cdots,7$ に対する値は次のようになる. 
+$$T_0(m)-T(m) \ge M2^{2m}+A(2^m-1)^2-((M+8A)3^m-8A\cdot 2^m)$$
+で, 右辺の $m=0,\cdots,6$ に対する値は次のようになる. 
 
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|c|c|} \hline
 $m$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
-右辺 & 0 & M-5A & 7M-21A & 37M-65A & 175M-165A & 781M-305A & 3367M-21A \\ \hline
+右辺 & 0 & M-7A & 7M-31A & 37M-103A & 175M-195A & 781M-727A & 3367M-1351A \\ \hline
 \end{tabular} 
 \end{center}
 
-一般に, $M>A$ だから $m \ge 4$ すなわち 15 次式以上の積に対しては, Karatsuba
+一般に, $M>A$ だから $m \ge 5$ すなわち 31 次式以上の積に対しては, Karatsuba
 法は常に高速であり, $M$ が $A$ に比べて大きい場合ほど, 低い次数から Karatsuba
 法が効果的であることが分かる. 更に, 計算量のオーダの違い 
 ($O(n^2)$ と  $O(n^{\log_23})$) により, 高次程 Karatsuba 法が高速になり, 
@@ -153,11 +153,11 @@ $m$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|} \hline
 $m$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ \hline
-計算コスト比 & 1 & 1 & 0.84 & 0.67 & 0.53 & 0.41 & 0.31 & 0.24 & 0.18 & 0.13 & 0.10 \\ \hline
+計算コスト比 & 1 & 1.1 & 0.96 & 0.78 & 0.61 & 0.48 & 0.37 & 0.28 & 0.21 & 0.16 & 0.12 \\ \hline
 \end{tabular} 
 \end{center}
 
-すなわち, 100 次で 4 倍, 1000 次式で 10 倍程度の差がつくことになる. 
+すなわち, 100 次で 1.5 倍, 1000 次式で 8 倍程度の差がつくことになる. 
 Karatsuba 法における, 多項式の分割, 関数呼び出しの手間などが
 かかるため, 実際にはこの数字を達成することは難しいが, 多項式の積に
 関しては, Karatsuba 法は十分実用的であると言える. 
