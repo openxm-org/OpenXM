@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.9 2004/03/26 08:46:10 ohara Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.10 2004/03/31 01:06:10 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -32,7 +32,7 @@ patch: extract
 configure : patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd work/${GC} ; ./configure --prefix="$$prefix" ) ; \
+		(cd work/${GC} ; ./configure --disable-threads --prefix="$$prefix" ) ; \
 	fi
 	@touch work/.configure_done
 
