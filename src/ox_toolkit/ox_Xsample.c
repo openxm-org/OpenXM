@@ -1,7 +1,8 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.4 2003/01/11 11:42:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.5 2003/02/04 20:43:55 ohara Exp $ */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "ox_toolkit.h"
 
 OXFILE *fd_rw;
@@ -56,13 +57,13 @@ void pops(int n)
     }
 }
 
-#define VERSION 0x11121400
+#define OX_XSAMPLE_VERSION 0x11121400
 #define ID_STRING  "1999/12/14 15:25:00"
 
 int sm_mathcap()
 {
-	mathcap_sysinfo_set(VERSION, ID_STRING, "ox_Xsample");
-    push(mathcap_get());
+    mathcap_init(OX_XSAMPLE_VERSION, ID_STRING, "ox_Xsample", NULL, NULL);
+    push(oxf_cmo_mathcap(fd_rw));
     return 0;
 }
 
@@ -96,7 +97,7 @@ int get_i()
 
 int get_xy(int *x, int *y)
 {
-    cmo *c = pop();
+    pop();
     *x = get_i();
     *y = get_i();
 }
