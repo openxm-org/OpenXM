@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/ox_math/documents/samplelog-sm1.txt,v 1.1 1999/11/05 03:00:34 takayama Exp $
 samplelog-sm1.txt  :  sm1 から, ox_math を呼び出す例.
 例題は, Mathematica Book (S.Wolfram) A Tour of Mathematica より
 とった.
@@ -79,3 +79,202 @@ sm1>@@@.oxmath ( <<Polyhedra.m ) oxsubmit ;
 sm1>@@@.oxmath oxpopcmo ::
 Class.indeterminate $$Failed$   ファイルは読み込めない.
 
+
+---------   From mathematica to sm1
+bash$ pwd
+/home/taka/OpenXM/src/ox_math
+bash$ uname -a
+SunOS tau 5.7 Generic sun4u sparc SUNW,Ultra-5_10
+bash$ date
+Sun Nov  7 09:03:55 JST 1999
+bash$ math
+couldn't set locale correctly
+Mathematica 3.0 for Solaris
+Copyright 1988-97 Wolfram Research, Inc.
+ -- Terminal graphics initialized -- 
+
+In[1]:= Install["math2ox"]
+couldn't set locale correctly
+
+Out[1]= LinkObject['./math2ox', 1, 1]
+
+In[2]:= OxStart["../bin/ox_sm1"]
+Trying to connect port 53613, ip=ffbef06c
+connected.
+Trying to connect port 53614, ip=ffbef06c
+connected.
+Socket#18: login!.
+password = (otpasswd), 9 bytes.
+received = (otpasswd), 9 bytes.
+Socket#20: login!.
+password = (otpasswd), 9 bytes.
+received = (otpasswd), 9 bytes.
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 9/8, 1999. 
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+sm1>---------------------------------------------------
+open (localhost)
+
+Out[2]= 0
+
+In[3]:= OxExecute["1 1 add "]
+
+Out[3]= 0
+
+In[4]:= (CMO_STRING[4],[size=8],$1 1 add $),
+In[4]:= OxPopString[]
+
+Out[4]= 2
+
+In[5]:= Quit
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+oxSocketSelect0() returns 1, but there is no data. You peer may be killed.
+
+[control] control function_id is -1
+Sending the kill signal to the child.
+
+sm1 の gb (グレブナ基底計算), deRham ( de Rham コホモロジ計算)
+を呼び出す例.
+
+bash$ math
+couldn't set locale correctly
+Mathematica 3.0 for Solaris
+Copyright 1988-97 Wolfram Research, Inc.
+ -- Terminal graphics initialized -- 
+
+In[1]:= Install["math2ox"]
+couldn't set locale correctly
+
+Out[1]= LinkObject['./math2ox', 1, 1]
+
+In[2]:= OxStart["../lib/sm1/bin/ox_sm1_forAsir"]
+Trying to connect port 53620, ip=ffbef05c
+connected.
+Trying to connect port 53621, ip=ffbef05c
+connected.
+Socket#18: login!.
+password = (otpasswd), 9 bytes.
+received = (otpasswd), 9 bytes.
+Socket#20: login!.
+password = (otpasswd), 9 bytes.
+received = (otpasswd), 9 bytes.
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 9/8, 1999. 
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+sm1>cohom.sm1 is the top of an experimental package to compute restrictions
+of all degrees based on restall.sm1 and restall_s.sm1
+See, http://www.math.kobe-u.ac.jp to get these files of the latest version.
+Note that the package b-function.sm1 cannot be used with this package.
+r-interface.sm1 (C) N.Takayama,  restriction, deRham
+  
+hol.sm1, basic package for holonomic systems (C) N.Takayama, 1999, 6/05 
+rank characteristic ch rrank gb pgb syz  genericAnn  annfs  
+sm1>gkz.sm1 generates gkz systems (C) N.Takayama, 1998, 11/8, cf. rrank in hol.sm1 
+gkz  
+sm1>appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayama, 1998, 11/8, cf. rank in hol.sm1 
+appell1 appell4  
+sm1>resol0.sm1, package to construct schreyer resolutions -- not minimal 
+                               (C) N.Takayama, 1999, 5/18. resol0, resol1 
+complex.sm1 : 1999, 9/28, res-div, res-solv, res-kernel-image, res-dual 
+In this package, complex is expressed in terms of matrices.
+restall.sm1 ... compute all the cohomology groups of the restriction
+                of a D-module to tt = (t_1,...,t_d) = (0,...,0).
+non-Schreyer Version: 19980415 by T.Oaku
+usage: [(P1)...] [(t1)...] bfm --> the b-function
+       [(P1)...] [(t1)...] k0 k1 deg restall --> cohomologies of restriction
+       [(P1)...] [(t1)...] intbfm --> the b-function for integration
+       [(P1)...] [(t1)...] k0 k1 deg intall --> cohomologies of integration
+restall_s.sm1...compute all the cohomology groups of the restriction
+                of a D-module to tt = (t_1,...,t_d) = (0,...,0).
+Schreyer Version: 19990521 by N.Takayama & T.Oaku
+usage: [(P1)...] [(t1)...] k0 k1 deg restall_s -> cohomologies of restriction
+       [(P1)...] [(t1)...] k0 k1 deg intall_s --> cohomologies of integration
+No truncation from below in restall
+The variable Schreyer is set to 2.
+Loading tower.sm1 in the standard context. You cannot use Schyrer 1. It is controlled from cohom.sm1
+  
+ SSkan/lib/callsm1.sm1, 1999/6/23.  
+---------------------------------------------------
+open (localhost)
+
+Out[2]= 0
+
+  D での左イデアル <x Dx + y Dy -1, (x Dx)^2 + d Dy>
+  の GB を weight (x,y,Dx,Dy) = (0,0,1,1) で求める.
+
+In[3]:= OxExecute[" [[(x dx + y dy-2) ( x dx x dx + y dy)] (x,y) [[(dx) 1 (dy) 1]]] gb "]
+
+Out[3]= 0
+
+In[4]:= (CMO_STRING[4],[size=68],$ [[(x dx + y dy-2) ( x dx x dx + y dy)] (x,y) [[(dx) 1 (dy) 1]]] gb $),
+In[4]:= OxPopString[]
+
+Out[4]=  [  [ x*dx+y*dy-2 , -y^2*dy^2-2*x*dx ]  ,  [ x*dx+y*dy , -y^2*dy^2 ] \
+ 
+>    ] 
+             これが GB                            こちらが weight vector
+                                                  での主部 (特性多様体)
+
+       H^i( C^2 \setminus V(x^3-y^2) , C) の次元
+In[5]:= OxExecute[" [(x^3-y^2) (x,y)] deRham "]
+
+Out[5]= 0
+
+In[6]:= (CMO_STRING[4],[size=26],$ [(x^3-y^2) (x,y)] deRham $),[    [    -3*y*dx^2+2*x*dy , -2*x*dx-3*y*dy+1 ]  , [    x , y ]  ] bfm 
+sm1>sm1>b-function is -216*s^3+432*s^2-264*s+48
+[    [    -3*y*dx^2+2*x*dy , -2*x*dx-3*y*dy+1 ]  , [    x , y ]  , 1 , 2 ]  restall1_s 
+Computing a free resolution ... 
+A free resolution obtained.
+0-th cohomology:  [    0 , [   ]  ] 
+sm1>-1-th cohomology:  [    1 , [   ]  ] 
+sm1>-2-th cohomology:  [    2 , [    -1 ]  ] 
+
+In[6]:= OxPopString[]
+
+Out[6]=  [ 1 , 1 , 0 ] 
+
+In[7]:= OxClose[]
+
+[control] control function_id is 1024
+[control] control_kill
+
+I have closed the connection to an Open XM server.
+
+Out[7]= 0
+
+In[8]:= In[8]:= Sending the kill signal to the child.
+
+In[8]:= Quit
+bash$ 
+
+
+これは失敗例.
+bash$ math
+couldn't set locale correctly
+Mathematica 3.0 for Solaris
+Copyright 1988-97 Wolfram Research, Inc.
+ -- Terminal graphics initialized -- 
+
+In[1]:= Install["../bin/ox_sm1"]
+couldn't set locale correctly
+sm1 version : 2.991106
+sm1 url : http://www.math.kobe-u.ac.jp/KAN
+name = ox_sm1
+engineByteOrder=0
+
+Interrupt during LinkConnect> abort
+??
+Your options are:
+	continue (or c) to continue
+	exit (or quit) to exit Mathematica
+	back out (or b) to back out of the MathLink call--the link may die.
+
+Interrupt during LinkConnect> quit
