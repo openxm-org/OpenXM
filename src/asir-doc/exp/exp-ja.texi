@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.16 2004/07/28 11:46:23 ohara Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.17 2004/11/23 12:41:12 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -1368,13 +1368,12 @@ ChangeLog
 @end table
 
 @itemize @bullet
-@item @code{set_secure_flag}, @code{set_secure_mode} は asir を web サーバ等で公開するために
-加えられた関数. sm1 の同様な関数 RestrictedMode で採用された方法を用いて
-いる. 
-つまり, @code{set_secure_flag} で公開する関数を指定する.
+@item @code{set_secure_flag}, @code{set_secure_mode} は 
+asir を web サーバ等で公開するために加えられた関数. 
+@code{set_secure_flag} で公開する関数を指定する.
 @code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
 関数しか実行できない.
-v関数の実行途中では @code{secure_mode} が 0 となっているので,
+関数の実行途中では @code{secure_mode} が 0 となっているので,
 任意の関数を実行できる.
 またエラーの時等は, @code{secure_mode} は 1 に自動的に復帰する.
 ただし @code{def} は実行できない. 
@@ -1383,11 +1382,14 @@ security に十分注意した実装をする必要がある.
 @item
 @code{set_secure_flag} は, @var{fname} の secure flag を @var{m} 
 にする.
-通常公開する命令は flag 1 に設定する.
+公開する命令は 1 に設定する.
 @item
 @var{set_secure_mode(1)} で @code{secure_mode} が 1 となり,
 公開された関数しか実行できなくなる.
 quit 等も実行できないので注意.
+@item  @code{ timer } の引数として secure_flag を設定していない関数を
+指定して実行してもエラーが表示されない.
+このときは, @code{ ctrl("error_in_timer",1) } を実行しておく.
 @end itemize
 
 @example
@@ -1412,6 +1414,14 @@ return to toplevel
 @noindent
 ChangeLog
 @itemize @bullet
+@item @code{set_secure_flag}, @code{set_secure_mode} は asir を 
+web サーバ等で公開するために加えられた関数. 
+sm1 の同様な関数 RestrictedMode で採用された方法を用いている. 
+つまり, @code{set_secure_flag} で公開する関数を指定する.
+@code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
+関数しか実行できない.
+v関数の実行途中では @code{secure_mode} が 0 となっているので,
+任意の関数を実行できる.
 @item この関数は 2004-10-27 から 2004-11-22 にかけて開発された.
 @item cgiasir.sm1, cgi-asir.sh と組み合わせて cgi サービスを提供するために
 利用する.
