@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.2 2000/01/08 17:56:58 maekawa Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.3 2000/01/08 18:25:36 maekawa Exp $
 
 PARI = ../../../OpenXM_contrib/pari
 CURDIR = ../../OpenXM/src/pari
@@ -23,9 +23,9 @@ clean:
 	@rm -f ./.make_done ./.configure_done
 
 distclean:
-	rm -rf ../lib/libpari.* ../lib/pari
-	rm -rf ../include/pari
-	rm -rf ../bin/gp ../bin/gp-2.0
+	rm -rf ../../lib/libpari.* ../../lib/pari
+	rm -rf ../../include/pari
+	rm -rf $(BINDIR)/gp $(BINDIR)/gp-2.0
 	@rm -f ./.install_done
 
 configure:
