@@ -1,11 +1,18 @@
+/* $OpenXM$ */
 #include <stdio.h>
 
-main() {
+main(int argc,char *argv[]) {
   FILE *fp;
   int c;
   char fname[1024];
   int i;
-  printf("\\def\\at{\\catcode`@=11{@}\\catcode`@=12 } \n");
+  int Quiet = 0;
+  for (i=1; i<argc; i++) {
+	if (strcmp(argv[i],"-q") ==0) { Quiet = 1;}
+  }
+  if (!Quiet) {
+	printf("\\def\\at{\\catcode`@=11{@}\\catcode`@=12 } \n");
+  }
   while ((c=getchar()) != EOF) {
     if (c != '@') {
        putchar(c);
