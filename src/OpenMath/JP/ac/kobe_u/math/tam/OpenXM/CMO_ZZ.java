@@ -1,15 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.5 1999/12/09 00:32:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.6 2000/01/19 13:12:05 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 import java.math.BigInteger;
 
-public class CMO_ZZ extends CMO{
+final public class CMO_ZZ extends CMO{
   private BigInteger num;
-
-  public CMO_ZZ(){}
 
   public CMO_ZZ(BigInteger num){
     this.num = num;
@@ -32,10 +30,10 @@ public class CMO_ZZ extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_ZZ;
+    return CMO.ZZ;
   }
 
-  private int sign(int a){
+  static private int sign(int a){
     if(a>0){
       return 1;
     }else if(a<0){
@@ -44,7 +42,7 @@ public class CMO_ZZ extends CMO{
     return 0;
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
     int len;
     byte[] bignum;
 
@@ -54,9 +52,7 @@ public class CMO_ZZ extends CMO{
       is.readFully(bignum,i*4,4);
     }
 
-    num = new BigInteger(sign(len),bignum);
-
-    return this;
+    return new CMO_ZZ(new BigInteger(sign(len),bignum));
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{

@@ -1,15 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.3 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.4 2000/02/21 03:48:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
-  CMO ring;
-  CMO_MONOMIAL32[] monomials;
-
-  public CMO_DISTRIBUTED_POLYNOMIAL(){}
+final public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
+  private CMO ring;
+  private CMO_MONOMIAL32[] monomials;
 
   public CMO_DISTRIBUTED_POLYNOMIAL(CMO ring,CMO_MONOMIAL32[] monomials){
     this.ring = ring;
@@ -17,7 +15,7 @@ public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_DISTRIBUTED_POLYNOMIAL;
+    return CMO.DISTRIBUTED_POLYNOMIAL;
   }
 
   public void sendByObject(DataOutputStream os)
@@ -35,7 +33,9 @@ public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
     }
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
+    CMO ring;
+    CMO_MONOMIAL32[] monomials;
     CMO tmp;
     int m;
 
@@ -59,7 +59,7 @@ public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
       monomials[i] = (CMO_MONOMIAL32)receive(is);
     }
 
-    return this;
+    return new CMO_DISTRIBUTED_POLYNOMIAL(ring,monomials);
   }
 
   public String toCMOexpressionByObject(){

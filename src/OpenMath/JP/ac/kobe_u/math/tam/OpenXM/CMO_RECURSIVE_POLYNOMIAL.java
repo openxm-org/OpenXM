@@ -1,15 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.3 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.4 2000/02/21 03:48:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
-  CMO_LIST variables;
-  CMO polynomial;
-
-  public CMO_RECURSIVE_POLYNOMIAL(){}
+final public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
+  private CMO_LIST variables;
+  private CMO polynomial;
 
   public CMO_RECURSIVE_POLYNOMIAL(CMO_LIST variables,CMO polynomial){
     this.variables = variables;
@@ -25,7 +23,7 @@ public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_RECURSIVE_POLYNOMIAL;
+    return CMO.RECURSIVE_POLYNOMIAL;
   }
 
   protected void sendByObject(DataOutputStream os)
@@ -34,7 +32,9 @@ public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
     polynomial.write(os);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
+    CMO_LIST variables;
+    CMO polynomial;
     CMO tmp;
 
     tmp = CMO.receive(is);
@@ -45,7 +45,7 @@ public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
 
     polynomial = receive(is);
 
-    return this;
+    return new CMO_RECURSIVE_POLYNOMIAL(variables,polynomial);
   }
 
   protected String toCMOexpressionByObject(){

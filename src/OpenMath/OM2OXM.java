@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.20 2000/03/14 05:02:34 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.21 2000/03/14 05:10:37 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -83,7 +83,7 @@ final class OM2OXM implements Runnable{
     case CMO.INT32:
       return "<OMI>"+ ((CMO_INT32)cmo).intValue() +"</OMI>";
 
-      // case CMO.CMO_DATUM:
+      // case CMO.DATUM:
 
     case CMO.STRING:
       return "<OMSTR>"+ ((CMO_STRING)cmo).getString() +"</OMSTR>";
@@ -100,7 +100,7 @@ final class OM2OXM implements Runnable{
       ret += "</OMA>";
       return ret;
 
-    case CMO.CMO_MONOMIAL32:
+    case CMO.MONOMIAL32:
       ret += "<OMA><OMS name=\"Monom\" cd=\"poly\"/>";
       ret += CMO2OM_sub(((CMO_MONOMIAL32)cmo).getCoefficient());
       for(int i=0;i<((CMO_MONOMIAL32)cmo).getDegree().length;i++){
@@ -109,29 +109,29 @@ final class OM2OXM implements Runnable{
       ret += "</OMA>";
       return ret;
 
-    case CMO.CMO_ZZ:
+    case CMO.ZZ:
       return "<OMI>"+ ((CMO_ZZ)cmo).BigIntValue() +"</OMI>";
 
-    case CMO.CMO_QQ:
+    case CMO.QQ:
       return "<OMA><OMS name=\"over\" cd=\"basic\"/>"+
 	CMO2OM_sub(((CMO_QQ)cmo).getBunshi())+
 	CMO2OM_sub(((CMO_QQ)cmo).getBunbo())+
 	"</OMA>";
 
-    case CMO.CMO_ZERO:
+    case CMO.ZERO:
       return "<OMI> 0 </OMI>";
 
-      // case CMO.CMO_DMS:
+      // case CMO.DMS:
 
-    case CMO.CMO_DMS_GENERIC:
+    case CMO.DMS_GENERIC:
       ret += "<OMA><OMS name=\"PolyRing\" cd=\"poly\"/>";
       ret += "<OMI>2</OMI></OMA>";
       return ret;
 
-    case CMO.CMO_RECURSIVE_POLYNOMIAL:
+    case CMO.RECURSIVE_POLYNOMIAL:
       return CMO2OM_CoefficientOfRecursivePOLYNOMIAL(((CMO_RECURSIVE_POLYNOMIAL)cmo).getPolynomial(),((CMO_RECURSIVE_POLYNOMIAL)cmo).getVariables());
 
-    case CMO.CMO_DISTRIBUTED_POLYNOMIAL:
+    case CMO.DISTRIBUTED_POLYNOMIAL:
       ret += "<OMA><OMS name=\"DMP\" cd=\"poly\"/>";
       ret += CMO2OM_sub(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getRing());
       ret += "<OMA><OMS name=\"SDMP\" cd=\"poly\"/>";
@@ -144,7 +144,7 @@ final class OM2OXM implements Runnable{
 
       //case CMO.POLYNOMIAL_IN_ONE_VARIABLE:
 
-    case CMO.CMO_BIGFLOAT:
+    case CMO.BIGFLOAT:
       ret += "<OMA><OMS name=\"times\" cd=\"basic\"/>";
       ret += CMO2OM_sub(((CMO_BIGFLOAT)cmo).getSyosubu());
       ret += "<OMA><OMS name=\"power\" cd=\"basic\"/>";
@@ -153,10 +153,10 @@ final class OM2OXM implements Runnable{
       ret += "</OMA></OMA>";
       return ret;
 
-    case CMO.CMO_INDETERMINATE:
+    case CMO.INDETERMINATE:
       return "<OMV name=\""+ ((CMO_INDETERMINATE)cmo).getString() +"\"/>";
 
-    case CMO.CMO_TREE:
+    case CMO.TREE:
       ret += "<OMA><OMS name=\""+ ((CMO_TREE)cmo).getName() +"\" cd=\""+
 	((CMO_TREE)cmo).getCDName() +"\"/>";
       for(int i=0;i<((CMO_TREE)cmo).getLeaves().getElements().length;i++){

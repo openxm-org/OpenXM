@@ -1,14 +1,12 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java,v 1.4 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java,v 1.5 2000/02/21 03:48:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_INDETERMINATE extends CMO{
+final public class CMO_INDETERMINATE extends CMO{
   private CMO_STRING variable;
-
-  public CMO_INDETERMINATE(){}
 
   public CMO_INDETERMINATE(String str){
     variable = new CMO_STRING(str);
@@ -19,10 +17,11 @@ public class CMO_INDETERMINATE extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_INDETERMINATE;
+    return CMO.INDETERMINATE;
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
+    CMO_STRING variable;
     CMO tmp;
 
     tmp = CMO.receive(is);

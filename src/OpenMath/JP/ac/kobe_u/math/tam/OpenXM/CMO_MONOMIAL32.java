@@ -1,16 +1,14 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java,v 1.5 2000/01/21 12:17:50 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java,v 1.6 2000/02/21 03:48:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 import java.math.BigInteger;
 
-public class CMO_MONOMIAL32 extends CMO{
+final public class CMO_MONOMIAL32 extends CMO{
   private int[] degree;
   private CMO coefficient;
-
-  public CMO_MONOMIAL32(){}
 
   public CMO_MONOMIAL32(int[] degree,CMO coefficient){
     this.degree = degree;
@@ -18,7 +16,7 @@ public class CMO_MONOMIAL32 extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_MONOMIAL32;
+    return CMO.MONOMIAL32;
   }
 
   public void sendByObject(DataOutputStream os)
@@ -30,8 +28,10 @@ public class CMO_MONOMIAL32 extends CMO{
     coefficient.write(os);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
     int n;
+    int[] degree;
+    CMO coefficient;
 
     n = is.readInt();
     degree = new int[n];
@@ -42,7 +42,7 @@ public class CMO_MONOMIAL32 extends CMO{
 
     coefficient = receive(is);
 
-    return this;
+    return new CMO_MONOMIAL32(degree,coefficient);
   }
 
   public String toCMOexpressionByObject(){

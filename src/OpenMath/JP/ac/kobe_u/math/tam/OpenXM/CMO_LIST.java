@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.7 2000/02/21 03:48:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.8 2000/03/14 05:10:37 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -29,7 +29,7 @@ final public class CMO_LIST extends CMO{
     }
   }
 
-  static protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
     int len;
     CMO[] ob;
 

@@ -1,15 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.java,v 1.4 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.java,v 1.5 2000/02/21 03:48:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_TREE extends CMO{
+final public class CMO_TREE extends CMO{
   private String name,cdname;
   private CMO_LIST leaves;
-
-  public CMO_TREE(){}
 
   public CMO_TREE(String name,String cdname,CMO_LIST leaves){
     this.name = name;
@@ -30,7 +28,7 @@ public class CMO_TREE extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_TREE;
+    return CMO.TREE;
   }
 
   public void sendByObject(DataOutputStream os)
@@ -40,7 +38,9 @@ public class CMO_TREE extends CMO{
     leaves.write(os);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receive(DataInputStream is) throws IOException{
+    String name,cdname;
+    CMO_LIST leaves;
     CMO tmp;
 
     tmp = CMO.receive(is);
@@ -61,7 +61,7 @@ public class CMO_TREE extends CMO{
     }
     leaves = (CMO_LIST)tmp;
 
-    return this;
+    return new CMO_TREE(name,cdname,leaves);
   }
 
   public String toCMOexpressionByObject(){

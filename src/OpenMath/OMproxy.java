@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.32 2000/03/14 05:02:34 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.33 2000/03/14 05:10:37 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -138,17 +138,17 @@ class OMproxy implements Runnable{
 			 new CMO_INT32(CMO.INT32),
 			 new CMO_INT32(CMO.STRING),
 			 new CMO_INT32(CMO.LIST),
-			 new CMO_INT32(CMO.CMO_MONOMIAL32),
-			 new CMO_INT32(CMO.CMO_ZZ),
-			 new CMO_INT32(CMO.CMO_QQ),
-			 new CMO_INT32(CMO.CMO_ZERO),
-			 new CMO_INT32(CMO.CMO_DMS_GENERIC),
-			 new CMO_INT32(CMO.CMO_RECURSIVE_POLYNOMIAL),
-			 new CMO_INT32(CMO.CMO_DISTRIBUTED_POLYNOMIAL),
+			 new CMO_INT32(CMO.MONOMIAL32),
+			 new CMO_INT32(CMO.ZZ),
+			 new CMO_INT32(CMO.QQ),
+			 new CMO_INT32(CMO.ZERO),
+			 new CMO_INT32(CMO.DMS_GENERIC),
+			 new CMO_INT32(CMO.RECURSIVE_POLYNOMIAL),
+			 new CMO_INT32(CMO.DISTRIBUTED_POLYNOMIAL),
 			 new CMO_INT32(CMO.POLYNOMIAL_IN_ONE_VARIABLE),
-			 new CMO_INT32(CMO.CMO_BIGFLOAT),
-			 new CMO_INT32(CMO.CMO_INDETERMINATE),
-			 new CMO_INT32(CMO.CMO_TREE)};
+			 new CMO_INT32(CMO.BIGFLOAT),
+			 new CMO_INT32(CMO.INDETERMINATE),
+			 new CMO_INT32(CMO.TREE)};
       CMO[] DataFormat1 = {new CMO_INT32(OpenXM.OX_DATA),
 			   new CMO_LIST(CMOFormat)};
       CMO[] list = {new CMO_LIST(DataFormat1)};

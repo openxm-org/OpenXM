@@ -1,15 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.5 2000/01/19 13:25:17 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.6 2000/01/21 12:17:50 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 import java.math.BigInteger;
 
-public class CMO_QQ extends CMO{
+final public class CMO_QQ extends CMO{
   private CMO_ZZ a,b;
-
-  CMO_QQ(){}
 
   public CMO_QQ(CMO_ZZ a,CMO_ZZ b){
     this.a = a;
@@ -25,7 +23,7 @@ public class CMO_QQ extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_QQ;
+    return CMO.QQ;
   }
 
   private int sign(int a){
@@ -42,11 +40,13 @@ public class CMO_QQ extends CMO{
     b.sendByObject(os);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
-    a = (CMO_ZZ) new CMO_ZZ().receiveByObject(is);
-    b = (CMO_ZZ) new CMO_ZZ().receiveByObject(is);
+  static protected CMO receive(DataInputStream is) throws IOException{
+    CMO_ZZ a,b;
 
-    return this;
+    a = (CMO_ZZ)CMO_ZZ.receive(is);
+    b = (CMO_ZZ)CMO_ZZ.receive(is);
+
+    return new CMO_QQ(a,b);
   }
 
   protected String toCMOexpressionByObject(){

@@ -1,15 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java,v 1.3 2000/01/18 16:54:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java,v 1.4 2000/01/20 18:14:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_BIGFLOAT extends CMO{
+final public class CMO_BIGFLOAT extends CMO{
   // a * 2^e
   private CMO_ZZ a,e;
-
-  CMO_BIGFLOAT(){}
 
   CMO_BIGFLOAT(CMO_ZZ a,CMO_ZZ e){
     this.a = a;
@@ -17,7 +15,7 @@ public class CMO_BIGFLOAT extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_BIGFLOAT;
+    return CMO.BIGFLOAT;
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{
@@ -25,11 +23,13 @@ public class CMO_BIGFLOAT extends CMO{
     e.sendByObject(os);
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
-    a = (CMO_ZZ) new CMO_ZZ().receiveByObject(is);
-    e = (CMO_ZZ) new CMO_ZZ().receiveByObject(is);
+  static protected CMO receive(DataInputStream is) throws IOException{
+    CMO_ZZ a,e;
 
-    return this;
+    a = (CMO_ZZ) CMO_ZZ.receive(is);
+    e = (CMO_ZZ) CMO_ZZ.receive(is);
+
+    return new CMO_BIGFLOAT(a,e);
   }
 
   public String toCMOexpressionByObject(){
