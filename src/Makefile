@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.121 2003/08/25 14:24:45 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.122 2003/08/26 05:04:40 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -279,6 +279,7 @@ configure-gnuplot:
 	-(cd gnuplot ; make configure)
 
 configure-k097: configure-links configure-util
+	(cd k097 ; ./configure)	
 
 configure-kan96xx: configure-links configure-util
 	(cd kan96xx ; make configure)
