@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.22 2004/05/13 04:38:28 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.23 2004/07/30 11:21:55 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2483,6 +2483,12 @@ struct object KmpzExtension(struct object obj)
     if (size != 3) errorKan1("%s\n","[(gcd)  universalNumber universalNumber] mpzext.");
     obj1 = getoa(obj,1);
     obj2 = getoa(obj,2);
+    if (obj1.tag != SuniversalNumber) {
+      obj1 = KdataConversion(obj1,"universalNumber");
+	}
+    if (obj2.tag != SuniversalNumber) {
+      obj2 = KdataConversion(obj2,"universalNumber");
+	}
     if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
       errorKan1("%s\n","[(gcd)  universalNumber universalNumber] mpzext.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
@@ -2499,6 +2505,12 @@ struct object KmpzExtension(struct object obj)
     if (size != 3) errorKan1("%s\n","[(tdiv_qr)  universalNumber universalNumber] mpzext.");
     obj1 = getoa(obj,1);
     obj2 = getoa(obj,2);
+    if (obj1.tag != SuniversalNumber) {
+      obj1 = KdataConversion(obj1,"universalNumber");
+	}
+    if (obj2.tag != SuniversalNumber) {
+      obj2 = KdataConversion(obj2,"universalNumber");
+	}
     if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
       errorKan1("%s\n","[(tdiv_qr)  universalNumber universalNumber] mpzext.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
@@ -2557,6 +2569,9 @@ struct object KmpzExtension(struct object obj)
     /*  One arg functions  */
     if (size != 2) errorKan1("%s\n","[key num] mpzext");
     obj1 = getoa(obj,1);
+    if (obj1.tag != SuniversalNumber) {
+      obj1 = KdataConversion(obj1,"universalNumber");
+	}
     if (obj1.tag != SuniversalNumber)
       errorKan1("%s\n","[key num] mpzext : num must be a universalNumber.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber))
@@ -2578,6 +2593,12 @@ struct object KmpzExtension(struct object obj)
     if (size != 3) errorKan1("%s\n","[key  num1 num2] mpzext.");
     obj1 = getoa(obj,1);
     obj2 = getoa(obj,2);
+    if (obj1.tag != SuniversalNumber) {
+      obj1 = KdataConversion(obj1,"universalNumber");
+	}
+    if (obj2.tag != SuniversalNumber) {
+      obj2 = KdataConversion(obj2,"universalNumber");
+	}
     if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
       errorKan1("%s\n","[key num1 num2] mpzext.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
@@ -2609,6 +2630,15 @@ struct object KmpzExtension(struct object obj)
     /* three args */
     if (size != 4) errorKan1("%s\n","[key num1 num2 num3] mpzext");
     obj1 = getoa(obj,1); obj2 = getoa(obj,2); obj3 = getoa(obj,3);
+    if (obj1.tag != SuniversalNumber) {
+      obj1 = KdataConversion(obj1,"universalNumber");
+	}
+    if (obj2.tag != SuniversalNumber) {
+      obj2 = KdataConversion(obj2,"universalNumber");
+	}
+    if (obj3.tag != SuniversalNumber) {
+      obj3 = KdataConversion(obj3,"universalNumber");
+	}
     if (obj1.tag != SuniversalNumber ||
         obj2.tag != SuniversalNumber ||
         obj3.tag != SuniversalNumber ) {
@@ -2627,6 +2657,28 @@ struct object KmpzExtension(struct object obj)
     mpz_powm(r1,f,g,h);
     rob.tag = SuniversalNumber;
     rob.lc.universalNumber = mpintToCoeff(r1,SmallRingp);
+  } else if (strcmp(key,"lcm")==0) {
+    if (size != 3) errorKan1("%s\n","[(lcm)  universalNumber universalNumber] mpzext.");
+    obj1 = getoa(obj,1);
+    obj2 = getoa(obj,2);
+    if (obj1.tag != SuniversalNumber) {
+      obj1 = KdataConversion(obj1,"universalNumber");
+	}
+    if (obj2.tag != SuniversalNumber) {
+      obj2 = KdataConversion(obj2,"universalNumber");
+	}
+    if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
+      errorKan1("%s\n","[lcm num1 num2] mpzext.");
+    if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
+        ! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
+      errorKan1("%s\n","[(lcm)  universalNumber universalNumber] mpzext.");
+    }
+    f = coeff_to_MP_INT(obj1.lc.universalNumber);
+    g = coeff_to_MP_INT(obj2.lc.universalNumber);
+    r1 = newMP_INT();
+    mpz_lcm(r1,f,g);
+    rob.tag = SuniversalNumber;
+    rob.lc.universalNumber = mpintToCoeff(r1,SmallRingp); 
   }else {
     errorKan1("%s\n","mpzExtension(): Unknown tag.");
   }

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.38 2004/03/04 05:18:26 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.39 2004/03/08 08:24:42 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1094,6 +1094,75 @@ oxasir.verbose {
   popVariables
   arg1
 } def
+
+/polygcd {
+  /arg1 set
+  [/pp /f /g /comm /vv] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /pp arg1 def
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+
+    pp isArray {
+      /f pp 0 get def
+      /g pp 1 get def 
+      pp length 3 eq {
+        /vv pp 2 get def
+        vv isArray { /vv vv from_records  def } {  } ifelse
+        [vv ring_of_polynomials 0] define_ring
+        f . /f set
+        g . /g set
+      } { } ifelse
+    }{ (usage: [f g] polygcd) error } ifelse
+    oxasir.ccc [(gcd) f g] asir /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(polygcd)
+ [( [f g] polygcd r )
+  ( [f g v] polygcd r)
+  (Example: [(x^2-1) (x-1) [(x)]] polygcd )
+ ]
+] putUsages
+/polylcm {
+  /arg1 set
+  [/pp /f /g /comm /vv] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /pp arg1 def
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+
+    pp isArray {
+      /f pp 0 get def
+      /g pp 1 get def 
+      pp length 3 eq {
+        /vv pp 2 get def
+        vv isArray { /vv vv from_records  def } {  } ifelse
+        [vv ring_of_polynomials 0] define_ring
+        f . /f set
+        g . /g set
+      } { } ifelse
+    }{ (usage: [f g] polylcm) error } ifelse
+    oxasir.ccc [(lcm) f g] asir /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(polylcm)
+ [( [f g] polylcm r )
+  ( [f g v] polylcm r)
+  (Example: [(x^2-1) (x-1) [(x)]] polylcm )
+ ]
+] putUsages
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [(chattr) 0 /findIntegralRoots] extension pop
