@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.23 2000/08/01 08:51:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.24 2000/08/02 03:23:36 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1046,6 +1046,8 @@ def Sminimal(g,opt) {
    Print("Betti numbers of the Schreyer frame: ");
    Println(Map(ansSminimal[3],"Length"));
    Println("-----------------------------------------------");
+
+   sm1(" restoreEnvAfterResolution ");
 
    return(ansSminimal);
   /* r[4] is the redundantTable_ordinary */

@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/src/k097/lib/minimal/k0-tower.sm1,v 1.1 2000/05/03 06:42:07 takayama Exp $
+%%  $OpenXM: OpenXM/src/k097/lib/minimal/k0-tower.sm1,v 1.2 2000/05/06 07:58:37 takayama Exp $
 
 %% It is used to check the mmLarger_tower,  1997, 10/26 at Heidelberg.
 %% It is used to check the mmLarger_tower,  1997, 10/27 -- 29 at Oberwolfach.
@@ -410,7 +410,7 @@ tower.verbose
 
 
 /setupEnvForResolution {
-    getOptions /opts set
+    getOptions /setupEnvForResolution.opts set
     [(Homogenize_vec)] system_variable 1 eq
     {  [(Homogenize_vec) 0] system_variable
       (grade) (module1v) switch_function
@@ -441,7 +441,7 @@ tower.verbose
   [ [(AvoidTheSameRing) 0] system_variable 
     [(gbListTower) [[ ]] (list) dc] system_variable
   ] pop popEnv
-  opts restoreOptions
+  setupEnvForResolution.opts restoreOptions
 } def
 
 %%%%%  1998, 4/11. To get frame for homogenized resolutions.

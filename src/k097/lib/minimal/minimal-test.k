@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.13 2000/08/02 03:23:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.14 2000/08/02 04:26:36 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -337,6 +337,32 @@ def test21() {
    Println(SgetShifts(Reparse(a[4,0]),w));
    return(a);
 }          
+def test21b() {
+  local i,j,n,sss, maxR, ttt,ans,p;
+  Println("The dimensions of linear spaces -----");
+  /* sss is the SgetShifts of the Schreyer resol. */
+  sss=
+  [[    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] , 
+   [ -1, -1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 ] , 
+   [ 0, 1, -1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 3, 2, 2, 1, 4, 3, 3, 2, 0, 2, 1, 3, 2, 2, 1, 2, 2, 2, 2, 2, 1, 0, 1, 2, 2, 2, 2, 3, 2, 2, 3, 1, 3, 3, 3, 3, 4 ] , 
+   [ 1, 0, 2, 3, 2, 3, 1, 1, 1, 2, 1, 2, 2, 2, 0, 3, 1, 3, 2, 3, 4 ] , 
+   [ 1, 1 ]  ] ;
+   maxR = 2; /* Maximal root of the b-function. */
+  n = Length(sss);
+  for (i=0; i<n; i++) {
+    ttt = sss[i];
+    ans = 0;
+    for (j=0; j<Length(ttt); j++) {
+      p = ttt[j] + maxR + 3; /* degree */
+      if (p >= 0) {
+        ans = ans + CancelNumber(p*(p-1)*(p-2)/(3*2*1));
+        /* Add the number of monomials */
+      }
+    }
+    Print(ans); Print(", ");
+  }
+  Println(" ");
+}
 def test22() {
    a=Sannfs3("x^3+y^3+z^3");
    b=a[0]; w = ["x",-1,"y",-2,"z",-3,"Dx",1,"Dy",2,"Dz",3];

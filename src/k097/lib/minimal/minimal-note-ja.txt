@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.9 2000/07/30 02:26:25 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.10 2000/08/01 08:51:02 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -723,4 +723,24 @@ August 1.
 
    Sminimal は [(Homogenize_vec) 0] system_variable にするようで,
    これが cohomology の計算には邪魔.
+
+August 2, 2000.
+
+Sminimal は [(Homogenize_vec) 0] system_variable にするようで,
+これが cohomology の計算には邪魔.
+( cf. 大阿久氏のスクリプト. 現在神戸に滞在中. )
+
+/restoreEnvAfterResolution {
+  [(AvoidTheSameRing)] pushEnv 
+  [ [(AvoidTheSameRing) 0] system_variable 
+    [(gbListTower) [[ ]] (list) dc] system_variable
+  ] pop popEnv
+  setupEnvForResolution.opts restoreOptions  <=== 変更.  opts はいろんなところで使ってる.
+} def
+
+このマクロをよべばいいのか？
+   sm1(" restoreEnvAfterResolution ");
+を Sminimal のおわりに呼ぶように変えた.
+test17b(), test18() は正常動作.
+
 

@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/k097/lib/minimal/example-ja.tex,v 1.1 2000/08/02 03:23:36 takayama Exp $
 \documentclass[12pt]{jarticle}
 \newtheorem{example}{Example}
 \def\pd#1{ \partial_{#1} }
@@ -39,7 +39,7 @@ tie-breaking order にも依存する.
 \item 多項式 $f$ の $b$-関数の最小整数根を $-r$ とするとき
 ${\rm Ann}(D f^{-1})$ で
 $1/f^r$ を零化する $D$ のイデアルのある生成元の集合をあらわす.
-下の実例では関数 {\tt Sannfs(f,v)} の出力をあらわす.
+下の実例の場合では関数 {\tt Sannfs(f,v)} の出力をあらわす.
 \item $F(G)$ で $G$ の formal Laplace 変換をあらわす.
 \item $F^h(G)$ で $G$ の formal Laplace 変換を homogenize したものをあらわす.
 \item Grothendieck の比較定理によれば 
@@ -61,9 +61,9 @@ $$ -2x\pd{x}-3y\pd{y}+h^2 ,  -3y\pd{x}^2+2x\pd{y}h $$
 \begin{tabular}{|l|l|}
 \hline
 Resolution type &  Betti numbers          \\ \hline
-Schreyer &                        2, 1    \\ \hline
-$(-{\bf 1},{\bf 1})$-minimal &    4, 4, 1 \\ \hline
-minimal &                         2, 1    \\
+Schreyer &                        1, 4, 4, 1    \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &    1, 2, 1 \\ \hline
+minimal &                         1, 2, 1    \\
 \hline
 \end{tabular}
 
@@ -112,9 +112,9 @@ $I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3-y^2z^2} \right) \right]$
 \begin{tabular}{|l|l|}
 \hline
 Resolution type &  Betti numbers          \\ \hline
-Schreyer &                        4, 5, 2    \\ \hline
-$(-{\bf 1},{\bf 1})$-minimal &    8, 16, 11, 2 \\ \hline
-minimal &                         4, 5,  2    \\
+Schreyer &                        1, 8, 16, 11, 2    \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &    1, 4, 5, 2 \\ \hline
+minimal &                         1, 4, 5, 2    \\
 \hline
 \end{tabular}
 
@@ -154,16 +154,36 @@ $I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3+y^3+z^3} \right) \right]$
 \begin{tabular}{|l|l|}
 \hline
 Resolution type &  Betti numbers          \\ \hline
-Schreyer &                            \\ \hline
-$(-{\bf 1},{\bf 1})$-minimal &     \\ \hline
-minimal &                             \\
+Schreyer &    1, 12, 44, 75, 70, 39, 13, 2     \\ \hline
+$(-1,-2,-3,1,2,3)$-minimal & 1, 4, 5, 2  \\ \hline
+minimal & 1, 4, 5, 2                      \\
 \hline
 \end{tabular}
 
 \noindent
-$(-{\bf 1},{\bf 1})$-minimal resolution
+$(-1,-2,-3,1,2,3)$-minimal resolution
 {\footnotesize \begin{verbatim}
-
+ [
+  [
+    [    x*Dx+y*Dy+z*Dz-3*h^2 ]
+    [    y*Dz^2-z*Dy^2 ]
+    [    x*Dz^2-z*Dx^2 ]
+    [    x*Dy^2-y*Dx^2 ]
+  ]
+  [
+    [    0 , -x , y , -z ]
+    [    -x*Dz^2+z*Dx^2 , x*Dy , x*Dx+z*Dz-3*h^2 , z*Dy ]
+    [    -x*Dy^2+y*Dx^2 , -x*Dz , y*Dz , x*Dx+y*Dy-3*h^2 ]
+    [    -y*Dz^2+z*Dy^2 , x*Dx+y*Dy+z*Dz-2*h^2 , 0 , 0 ]
+    [    0 , Dx^2 , -Dy^2 , Dz^2 ]
+  ]
+  [
+    [    -x*Dx+3*h^2 , y , -z , -x , 0 ]
+    [    -Dz^3-Dy^3 , -Dy^2 , Dz^2 , Dx^2 , -x*Dx-y*Dy-z*Dz ]
+  ]
+ ]
+Degree shifts
+[    [    0 ]  , [    0 , 4 , 5 , 3 ]  , [    3 , 5 , 6 , 4 , 9 ]  ]
 \end{verbatim}}
 \end{example}
 
@@ -176,29 +196,33 @@ $I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3-y^2z^2+y^2+z^2} \right) \right]$
 \begin{tabular}{|l|l|}
 \hline
 Resolution type &  Betti numbers          \\ \hline
-Schreyer &                            \\ \hline
-$(-{\bf 1},{\bf 1})$-minimal &     \\ \hline
-minimal &                             \\
+Schreyer        & 1, 13, 43, 50, 21, 2                        \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &  1, 7, 10, 4   \\ \hline
+minimal &  1, 7, 10, 4                        \\
 \hline
 \end{tabular}
 
 \noindent
-$(-{\bf 1},{\bf 1})$-minimal resolution
-{\footnotesize \begin{verbatim}
-
-\end{verbatim}}
-コホモロジ群は ... となる.
-考える線形空間の複体の次元は, ...
-Schreyer resolution からスタートして,
+$f=x^3-y^2z^2+y^2+z^2$ とおいた場合,
+空間 ${\bf C}^3 \setminus V(f)$ の
+コホモロジ群の次元は 
+${\rm dim}\, H^i = 1$, $(i=0, 1)$,
+${\rm dim}\, H^i = 0$, $(i=2, 3)$,
+となる.
+この場合 $D/I$ の
+$b$-関数の最大整数根は $2$ となり,
+コホモロジを計算するために
+考える線形空間の複体の次元は, $10, 12, 9, 4$  である. %%Prog: Srestall.sm1
+一方 Schreyer resolution からスタートして,
 線形空間の複体を考えると, その次元は
-... となる.
+130, 1078, 1667, 749, 40 となる. %%Prog: test21b()
 \end{example}
 
 \begin{example} \rm
 %Prog: minimal-test.k    test20()
-$I = D\cdot\{  x_1*\pd{1}+2x_2\pd{2}+3x_3\pd{3} ,
-    \pd{1}^2-\pd{2}*h,
-    -\pd{1}\pd{2}+\pd{3}*h,
+$I = D\cdot\{  x_1\pd{1}+2x_2\pd{2}+3x_3\pd{3} ,
+    \pd{1}^2-\pd{2}h,
+    -\pd{1}\pd{2}+\pd{3}h,
     \pd{2}^2-\pd{1}\pd{3} \}
 $ の場合.
 これは $A=(1,2,3)$, $\beta=0$ に付随する GKZ 超幾何系の
@@ -207,9 +231,9 @@ homogenization.
 \begin{tabular}{|l|l|}
 \hline
 Resolution type &  Betti numbers          \\ \hline
-Schreyer &                        4, 5, 2    \\ \hline
-$(-{\bf 1},{\bf 1})$-minimal &    10, 25, 23, 8, 1   \\ \hline
-minimal &                         4, 5,  2    \\
+Schreyer &                  1, 10, 25, 23, 8, 1    \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &    1, 4, 5, 2  \\ \hline
+minimal &                         1, 4, 5,  2    \\
 \hline
 \end{tabular}
 
