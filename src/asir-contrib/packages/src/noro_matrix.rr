@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.9 2004/06/14 09:02:01 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.10 2004/06/16 03:21:26 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -24,6 +24,7 @@ localf const_term,get_alg,is_integer;
 
 localf jordan_canonical_form,compute_jordan_block_basis,jordan_decomp;
 localf partial_fraction;
+localf print_kernel,print_vect;
 
 localf next_combination,reduce_symmetric_form,generate_elementary_symmetric_form;
 
@@ -736,14 +737,20 @@ def compute_kernel(A)
 	}
 	for ( T = reverse(vars(Sol)), Ker = []; T != []; T = cdr(T) ) {
 		Sol0 = map(coef,Sol,1,car(T));
+		if ( Alg == [] )
+			Sol0 = ptozp_vect(Sol0)[0];
 		for ( I = 0; I < N && !Sol0[I]; I++ );
 		Ker = cons([Sol0,I],Ker);
 	}
 	return B ? [map(const_term,Sol)/LCM,Ker] : Ker;
+		
 }
 
 def jordan_canonical_form(A)
 {
+	Verbose = getopt(verbose);
+	Verbose = type(getopt(verbose))==-1?0:1;
+
 	N = size(A)[0];
 	M = minipoly_mat(A);
 	if ( type(Ext=getopt(ext)) != -1 ) {
@@ -754,7 +761,17 @@ def jordan_canonical_form(A)
 	/* skip const */
 	FM = cdr(FM);
 	L = length(FM);
-
+	if ( Verbose ) {
+		print("minimal polynomial = ",0);
+		for ( I = 0; I < L; I++ ) {
+			F = FM[I][0];
+			E = FM[I][1];
+			print("(",0); print(F,0); print(")",0);
+			if ( E > 1 )
+				print("^",0); print(E,0);
+		}
+		print("");
+	}
 	/* extracting roots and multiplicities */
 	Alpha = vector(L);
 	E = vector(L);
@@ -770,7 +787,13 @@ def jordan_canonical_form(A)
 	Prefix = strtoascii("a")[0];
 	DefIdeal = [];
 	for ( K = 0, J = 0; K < L; K++ ) {
-		JBK = compute_jordan_block_basis(A,Alpha[K],E[K]);
+		if ( Verbose ) {
+			print("computing jordan blocks for Alpha = ",0); print(Alpha[K]);
+		}
+		if ( Verbose )
+			JBK = compute_jordan_block_basis(A,Alpha[K],E[K]|verbose=1);
+		else
+			JBK = compute_jordan_block_basis(A,Alpha[K],E[K]);
 		if ( (DK = D[K]) == 1 ) {
 			for ( T = JBK; T != []; T = cdr(T), J++ ) {
 				V = car(T);
@@ -834,32 +857,75 @@ def reduce_vect(M,Base)
 	return [0,-1];
 }
 
+def print_kernel(Ker)
+{
+	print("{",0);
+	for ( T = Ker; T != []; T = cdr(T) ) {
+		print_vect(car(T));
+		if ( cdr(T) != [] ) print(",",0);
+	}
+	print("}");
+}
+
+def print_vect(V)
+{
+	K = V[0]; S = V[1];
+	N = size(K)[0];
+	if ( S < 0 )
+		for ( S = 0; S < N; S++ )
+			if ( K[S] ) break;
+	if ( S == N )
+		print(0,0);
+	else {
+		print("("+rtostr(K[S])+")e_{"+rtostr(S+1)+"}",0);	
+		for ( I = S+1; I < N; I++ )
+			if ( K[I] ) print("+("+rtostr(K[I])+")e_{"+rtostr(I+1)+"}",0);	
+	}
+}
+
 def compute_jordan_block_basis(A,Alpha,E)
 {
+	Verbose = getopt(verbose);
+	Verbose = type(getopt(verbose))==-1?0:1;
+
 	NI = unit_mat(size(A)[0]);
 	N = A-Alpha*NI;
+	if ( Verbose ) Ns = rtostr("A-(")+rtostr(Alpha)+")E";
 	Ker = vector(E+1);
 	for ( I = 0; I <= E; I++ ) {
+		if ( Verbose ) print("Ker("+Ns+")^"+rtostr(I)+"=",0);
 		Ker[I] = compute_kernel(NI);
 		if ( I < E ) NI *= N;
+		if ( Verbose )
+			print_kernel(Ker[I]);
 	}
 	/* PW : previous W */
 	for ( PW = AllBase = [], I = E-1; I >= 0; I-- ) {
 		/* NPW = N*PW */
 		NPW = [];
 		/* create a basis of Ker[I]+N*PW */
+		if ( Verbose ) {
+			print("Ker("+Ns+")^"+rtostr(I)+"+NW_"+rtostr(I+1)+"=",0);
+		}
 		for ( T = PW, Base = Ker[I]; T != []; T = cdr(T) ) {
 			NPW = cons(N*car(T),NPW);
 			Red = reduce_vect(car(NPW),Base);
-			Base = insert_to_base(Red,Base);
+			Base = insert_to_base([ptozp_vect(Red[0])[0],Red[1]],Base);
 		}
 		/* number of elements to be added */
 		DW = length(Ker[I+1])-length(Ker[I])-length(NPW);
+		if ( Verbose ) {
+			print_kernel(Base);
+			print("number of bases to be added=",0); print(DW);
+		}
 
 		for ( PW = NPW, T = Ker[I+1]; DW > 0; T = cdr(T) ) {
 			/* take an element of Ker[I+1] and reduce it by Base */
 			Red = reduce_vect(car(T)[0],Base);
 			if ( Red[0] ) {
+				if ( Verbose ) {
+					print("a new basis element=",0); print_vect(car(T)); print("");
+				}
 				/* we found a new basis element of height I+1 */
 				DW--;
 				/* append the new element to PW */
@@ -867,8 +933,16 @@ def compute_jordan_block_basis(A,Alpha,E)
 				/* append the new element to Base */
 				Base = insert_to_base(Red,Base);
 				/* Kry = [N^I*v,N^(I-1)*v,...,v] */
-				for ( Kry = [ptozp_vect(car(T)[0])[0]], K = 0; K < I; K++ )
+				for ( Kry = [car(T)[0]], K = 0; K < I; K++ )
 					Kry = cons(map(simpalg,N*car(Kry)),Kry);
+				if ( Verbose ) {
+					print("added basis={",0);
+					for ( Tmp = Kry; Tmp != []; Tmp = cdr(Tmp) ) {
+						print_vect([car(Tmp),-1]);
+						if ( cdr(Tmp) != [] ) print(",",0);
+					}
+					print("}");
+				}
 				AllBase = append(reverse(Kry),AllBase);
 			}
 		}
