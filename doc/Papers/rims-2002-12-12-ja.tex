@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2002-12-12-ja.tex,v 1.1 2002/12/02 02:17:50 takayama Exp $
+% $OpenXM: OpenXM/doc/Papers/rims-2002-12-12-ja.tex,v 1.2 2002/12/03 07:00:04 takayama Exp $
 % It was under misc-2002/12, 
 %Id: rims-2003-12.tex,v 1.10 2002/12/02 02:14:55 taka Exp $
 % Some .gif files are under misc-2002/12.
@@ -447,7 +447,11 @@ http://www.math.kobe-u.ac.jp/OpenXM/1.2.2/doc/asir-contrib/html-en/cman-en\_toc.
 \noindent
 {\tt ox\_asir} には次の新しい数学的機能が加わった(野呂).
 \begin{enumerate}
-\item 有限体での因数分解 ({\tt OpenXM\_contrib2/asir2000/engine/Fgfs.c}).
+\item 位数の小さい有限体上での多変数多項式の因数分解 
+
+({\tt sffctr},
+{\tt OpenXM\_contrib2/asir2000/engine/Fgfs.c}).
+
 \end{enumerate}
 
 \noindent
@@ -455,7 +459,7 @@ http://www.math.kobe-u.ac.jp/OpenXM/1.2.2/doc/asir-contrib/html-en/cman-en\_toc.
 \begin{enumerate}
 \item Granger-Oaku の Tangent Cone アルゴリズムの実装のため
 解析的微分作用素環における同次化を実装
-({ring\_of\_differential\_operators, weightHomogenization},
+({\tt ring\_of\_differential\_operators, weightHomogenization},
 {\tt OpenXM/src/kan96xx/Kan/poly3.c}).
 \item M.J.Ucha の新しい b-関数アルゴリズムの実装のため,
 ある微分差分作用素環を実装
