@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.35 2002/08/04 07:37:46 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.36 2002/08/23 00:09:13 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -78,7 +78,7 @@ base-en.texi : base.oxweave
 	$(OXWEAVE) C en  <base.oxweave >base-en.texi
 base-auto-en.texi : $(CONTRIB)/names.rr gentexi
 	rm -f base-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --en --upnode Top ${OPTGENTEXI} >base-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --en --upnode "Basic (Standard Functions)" ${OPTGENTEXI} >base-auto-en.texi
 base-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f base-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --ja --upnode Top ${OPTGENTEXI} >base-auto-ja.texi
@@ -101,7 +101,7 @@ plucker-en.texi : plucker.oxweave
 	$(OXWEAVE) C en  <plucker.oxweave >plucker-en.texi
 plucker-auto-en.texi : $(CONTRIB)/plucker.rr gentexi
 	rm -f plucker-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --en --upnode Top ${OPTGENTEXI} >plucker-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --en --upnode "Plucker relations" ${OPTGENTEXI} >plucker-auto-en.texi
 plucker-auto-ja.texi : $(CONTRIB)/plucker.rr gentexi
 	rm -f plucker-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --ja --upnode Top ${OPTGENTEXI} >plucker-auto-ja.texi
@@ -147,7 +147,7 @@ matrix-en.texi : matrix.oxweave
 	$(OXWEAVE) C en  <matrix.oxweave >matrix-en.texi
 matrix-auto-en.texi : $(CONTRIB)/names.rr gentexi
 	rm -f matrix-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --en --upnode Top ${OPTGENTEXI} >matrix-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --en --upnode "Matrix (Standard Mathematical Functions)" ${OPTGENTEXI} >matrix-auto-en.texi
 matrix-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f matrix-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --ja --upnode Top ${OPTGENTEXI} >matrix-auto-ja.texi
@@ -170,7 +170,7 @@ print-en.texi : print.oxweave
 	$(OXWEAVE) C en  <print.oxweave >print-en.texi
 print-auto-en.texi : $(CONTRIB)/names.rr gentexi
 	rm -f print-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --en --upnode Top ${OPTGENTEXI} >print-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --en --upnode "Print (Standard Mathematical Functions)" ${OPTGENTEXI} >print-auto-en.texi
 print-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f print-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --ja --upnode Top ${OPTGENTEXI} >print-auto-ja.texi
@@ -184,7 +184,7 @@ poly-en.texi : poly.oxweave
 	$(OXWEAVE) C en  <poly.oxweave >poly-en.texi
 poly-auto-en.texi : $(CONTRIB)/names.rr gentexi
 	rm -f poly-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --en --upnode Top ${OPTGENTEXI} >poly-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --en --upnode "Polynomials (Standard Mathematical Functions)" ${OPTGENTEXI} >poly-auto-en.texi
 poly-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f poly-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --ja --upnode Top ${OPTGENTEXI} >poly-auto-ja.texi
@@ -239,7 +239,7 @@ oxsm1-en.texi : sm1.oxweave Makefile sm1-auto-en.texi
 	$(OXWEAVE) C-texi eg-texi  <sm1.oxweave >oxsm1-en.texi
 sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
 	rm -f sm1-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode Top ${OPTGENTEXI} >sm1-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-en.texi
 sm1-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f sm1-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode Top ${OPTGENTEXI} >sm1-auto-ja.texi
@@ -311,7 +311,7 @@ glib-en.texi : glib.oxweave
 	$(OXWEAVE) C en  <glib.oxweave >glib-en.texi
 glib-auto-en.texi : ${ASIRLIB}/glib gentexi
 	rm -f glib-auto-en.texi
-	cat ${ASIRLIB}/glib | $(OXWEAVE) usage | ./gentexi  --category glib --en --upnode Top ${OPTGENTEXI} >glib-auto-en.texi
+	cat ${ASIRLIB}/glib | $(OXWEAVE) usage | ./gentexi  --category glib --en --upnode "Graphic Library (2 dimensional)" ${OPTGENTEXI} >glib-auto-en.texi
 glib-auto-ja.texi : ${ASIRLIB}/glib gentexi
 	rm -f glib-auto-ja.texi
 	cat ${ASIRLIB}/glib | $(OXWEAVE) usage  | ./gentexi   --category glib  --ja --upnode Top ${OPTGENTEXI} >glib-auto-ja.texi
@@ -325,7 +325,7 @@ pfp-en.texi : pfp.oxweave
 	$(OXWEAVE) C en  <pfp.oxweave >pfp-en.texi
 pfp-auto-en.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
 	rm -f pfp-auto-en.texi
-	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage | ./gentexi  --en --upnode Top ${OPTGENTEXI} >pfp-auto-en.texi
+	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage | ./gentexi  --en --upnode  Pfpcohom ${OPTGENTEXI} >pfp-auto-en.texi
 pfp-auto-ja.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
 	rm -f pfp-auto-ja.texi
 	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage  | ./gentexi  --ja --upnode Top ${OPTGENTEXI} >pfp-auto-ja.texi
