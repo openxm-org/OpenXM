@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.20 2003/08/24 05:19:42 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.21 2003/08/24 05:25:58 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3795,6 +3795,35 @@ $ [ff ff] fromVectors :: $
    (cf: init, gbext.   Obsolete: ord_w, ord_w_all)
  ] 
 ] putUsages
+
+[(newVector)
+ [( n newVector vec)
+]] putUsages
+/newVector {
+  /arg1 set
+  [/in-newVector /n] pushVariables
+  [
+    /n arg1 def
+    [(newVector) n] extension /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(newMatrix)
+ [( [m n] newMatrix mat)
+]] putUsages
+/newMatrix {
+  /arg1 set
+  [/in-newMatrix /n] pushVariables
+  [
+    /n arg1 def
+    [(newMatrix) n 0 get n 1 get] extension /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
 
 ;
 

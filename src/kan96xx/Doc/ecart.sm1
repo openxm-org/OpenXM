@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.11 2003/08/24 05:19:44 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.12 2003/08/26 05:06:00 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -220,7 +220,7 @@
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
     /aa arg1 def
-    aa isArray { } { ( << array >> gb) error } ifelse
+    aa isArray { } { ( << array >> ecarth.gb) error } ifelse
     /setarg 0 def
     /wv 0 def
     /degreeShift 0 def
@@ -293,6 +293,18 @@
     typev [ArrayP ArrayP ArrayP ArrayP StringP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       aa 4 get (no) eq {
+         /hdShift -1 def
+       } {  
+         (Unknown keyword for the 5th argument) error
+       } ifelse
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get  def
        /wv aa 2 get def
        /degreeShift aa 3 get def
        aa 4 get (no) eq {
@@ -381,10 +393,7 @@
     ecart.begin
 
     ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
-    ecart.autoHomogenize {
-      (ecarth.gb: Input polynomial or vectors are automatically h-H-homogenized.)
-      message
-    } { } ifelse
+
 
     hdShift tag 1 eq {
      ecart.autoHomogenize not hdShift -1 eq or {
@@ -392,11 +401,15 @@
        f { {. } map} map /f set   
      } {
 % Automatic h-s-homogenization without degreeShift
+    (ecarth.gb: Input polynomial or vectors are automatically h-H-homogenized without degree shift.)
+      message
        f { {. ecart.dehomogenize} map} map /f set   
        f ecart.homogenize01 /f set
      } ifelse
    } {
 % Automatic h-s-homogenization with degreeShift
+    (ecarth.gb: Input polynomial or vectors are automatically h-H-homogenized with degree shift.)
+      message
        f { {. ecart.dehomogenize} map} map /f set   
        f {/fi set [(degreeShift) hdShift fi] homogenize} map /f set
    }ifelse
@@ -541,7 +554,7 @@
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
     /aa arg1 def
-    aa isArray { } { ( << array >> gb) error } ifelse
+    aa isArray { } { ( << array >> ecartn.gb) error } ifelse
     /setarg 0 def
     /wv 0 def
     /degreeShift 0 def
@@ -734,7 +747,7 @@
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
     /aa arg1 def
-    aa isArray { } { ( << array >> gb) error } ifelse
+    aa isArray { } { ( << array >> ecartd.gb) error } ifelse
     /setarg 0 def
     /wv 0 def
     /degreeShift 0 def
@@ -806,6 +819,18 @@
     typev [ArrayP ArrayP ArrayP ArrayP StringP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       aa 4 get (no) eq {
+         /hdShift -1 def
+       } {  
+         (Unknown keyword for the 5th argument) error
+       } ifelse
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
        /wv aa 2 get def
        /degreeShift aa 3 get def
        aa 4 get (no) eq {
@@ -891,12 +916,14 @@
        f { {. } map} map /f set   
      } {
 % Automatic h-homogenization without degreeShift
+       (ecartd.gb : Input polynomial or vectors are automatically homogenized without degreeShift) message
        f { {. ecart.dehomogenize} map} map /f set   
        f ecart.homogenize01 /f set
        f { { [[(H). (1).]] replace } map } map /f set
      } ifelse
    } {
 % Automatic h-homogenization with degreeShift
+       (ecartd.gb : Input polynomial or vectors are automatically homogenized with degreeShift) message
        f { {. ecart.dehomogenize} map} map /f set   
        f {/fi set [(degreeShift) hdShift fi] homogenize} map /f set
        f { { [[(H). (1).]] replace } map } map /f set
@@ -1004,6 +1031,204 @@
   (if ecart.checkOrder complains about the order given.)
  ]
 ] putUsages 
+
+/ecart.mimimalBase.test {
+ [ 
+    [    (0) , (-2*Dx) , (2*t) , (y) , (x^2) ] 
+    [    (3*t ) , ( -3*Dy ) , ( 0 ) , ( -x ) , ( -y) ] 
+    [    (3*y ) , ( 6*Dt ) , ( 2*x ) , ( 0 ) , ( 1) ] 
+    [    (-3*x^2 ) , ( 0 ) , ( -2*y ) , ( 1 ) , ( 0 )] 
+    [    (Dx ) , ( 0 ) , ( -Dy ) , ( Dt ) , ( 0) ] 
+    [  (0 ) , ( 0 ) , ( 6*t*Dt+2*x*Dx+3*y*Dy+8*h ) , ( 0 ) , ( 3*x^2*Dt+Dx) ] 
+    [  (6*t*Dx ) , ( 0 ) , ( -6*t*Dy ) , ( -2*x*Dx-3*y*Dy-5*h ) , ( -2*y*Dx-3*x^2*Dy) ] 
+    [  (6*t*Dt+3*y*Dy+9*h ) , ( 0 ) , ( 2*x*Dy ) , ( -2*x*Dt ) , ( -2*y*Dt+Dy) ] 
+  ]
+  /ff set
+
+  /nmshift [ [1 0 1 1 1] [1 0 1 0 0] ] def
+  /shift [ [1 0 1 0 0] ] def
+  /weight [ [(t) -1 (Dt) 1] [(t) -1 (x) -1 (y) -1 (Dt) 1 (Dx) 1 (Dy) 1]] def
+
+  [ff (t,x,y) weight shift nmshift] ecart.minimalBase
+
+
+}  def
+/test {ecart.mimimalBase.test} def
+
+%(x,y) ==> [(Dx) 1 (Dy) 1 (h) 1]
+/ecart.minimalBase.D1 {
+  /arg1 set
+  [/in-ecart.minimalBase.D1  /tt /v]  pushVariables
+  [
+    /v arg1 def
+    [ v to_records pop] /v set
+    v { /tt set [@@@.Dsymbol tt] cat 1 } map /v set
+    v [(h) 1] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+% [0 1 2] 1 ecart.removeElem [0 2]
+/ecart.removeElem {
+  /arg2 set
+  /arg1 set
+  [/in-ecart.removeElem /v /q /i /ans /j] pushVariables
+  [
+    /v arg1 def
+    /q arg2 def
+    /ans v length 1 sub newVector def
+    /j 0 def
+    0 1 v length 1 sub {
+      /i set
+      i q eq not {
+        ans j  v i get put
+        /j j 1 add def
+      } {  } ifelse
+    } for
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(ecart.minimalBase)
+[([ff v weight_vector degreeShift [D_shift_n uv_shift_m]]  ecart.minimalBase mbase)
+]] putUsages
+/ecart.minimalBase {
+  /arg1 set
+  [/in-ecart.minimalBase /ai1 /ai  /aa /typev /setarg /f /v 
+   /gg /wv /vec /ans /rr /mm
+   /degreeShift  /env2 /opt /ss0
+   /hdShift
+    /degreeShiftD /degreeShiftUV 
+    /degreeShiftDnew /degreeShiftUVnew 
+    /tt
+    /ai1_gr  /ai_gr
+    /s /r /p /q /i /j /k
+     /ai1_new /ai_new /ai_new2 
+   ] pushVariables
+  [
+    /aa arg1 def
+    aa isArray { } { ( << array >> ecart.minimalBase) error } ifelse
+    /setarg 0 def
+    /wv 0 def
+    /degreeShift 0 def
+    /hdShift 0 def 
+    aa { tag } map /typev set
+    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /hdShift aa 4 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /hdShift aa 4 get def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (ecart.minimalBase : Argument mismatch) error } ifelse
+    
+    [(KanGBmessage) ecart.gb.verbose ] system_variable
+
+    f 0 get tag ArrayP eq {  }
+    {  f { /tt set [ tt ] } map /f set } ifelse
+    [f v wv degreeShift (no)] ecart.syz /ss0 set
+
+    ss0 getRing ring_def
+    /degreeShiftD  hdShift 0 get def
+    /degreeShiftUV hdShift 1 get def
+%      -- ai --> D^r -- ai1 --> D^rr  
+    /ai1  f  { { . } map } map def
+    /ai  ss0 0 get def
+   
+   {
+    /degreeShiftUVnew 
+       ai1 { [ << wv 0 get weightv >> degreeShiftUV ] ord_ws_all  } map
+    def
+    (degreeShiftUVnew=) messagen degreeShiftUVnew message
+
+    /degreeShiftDnew 
+       ai1 { [ << v ecart.minimalBase.D1 weightv >> degreeShiftD ]  ord_ws_all}
+            map
+    def
+    (degreeShiftDnew=) messagen degreeShiftDnew message
+
+    ai {[wv 0 get weightv  degreeShiftUVnew] init} map /ai_gr set   
+
+%C  Note 2003.8.26
+
+    /s ai length def
+    /r ai 0 get length def
+
+    /itIsMinimal 1 def
+    0 1 s 1 sub {
+      /i set
+      0 1 r 1 sub {
+        /j set
+
+        [(isConstantAll) ai_gr i get j get] gbext
+        ai_gr i get j get (0). eq not and
+        {
+           /itIsMinimal 0 def
+           /p i def /q j def
+        } {  } ifelse
+      } for
+    } for    
+
+
+    itIsMinimal { exit } { } ifelse
+
+%    construct new ai and ai1 (A_i and A_{i-1})
+     /ai1_new  r 1 sub newVector def
+     /j 0 def     
+     0 1 r 1 sub {
+       /i set
+       i q eq not {
+          ai1_new j ai1 i get put
+          /j  j 1 add def
+       } { } ifelse
+     } for 
+
+     /ai_new [s  r] newMatrix def
+     0 1 s 1 sub {
+       /j set
+       0 1 r 1 sub {
+         /k set
+         ai_new [j k] 
+            << ai p get q get >> << ai j get k get >> mul
+            << ai j get q get >> << ai p get k get >> mul
+            sub
+         put
+       } for
+     } for 
+    
+% remove 0 column
+     /ai_new2 [s 1 sub r 1 sub] newMatrix def
+     /j 0 def     
+     0 1 s 1 sub {
+       /i set
+       i p eq not {
+          ai_new2 j << ai_new i get q ecart.removeElem >> put
+          /j  j 1 add def
+       } { } ifelse
+     } for 
+
+%   ( ) error
+     /ai1 ai1_new def
+     /ai ai_new2 def 
+
+   } loop   
+   /arg1 ai1 def
+  ] pop 
+  popVariables
+  arg1
+} def
+
 
 ( ) message-quiet 
 

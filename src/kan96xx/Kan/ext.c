@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.14 2003/07/14 12:49:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.15 2003/07/21 13:36:41 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -342,6 +342,21 @@ struct object Kextension(struct object obj)
 	obj2 = getoa(obj,2);
     if (obj2.tag != Sarray) errorKan1("%s\n","[(regionMatches) str strArray] extension. strArray must be an array.");
     rob = KregionMatches(obj1,obj2);
+  }else if (strcmp(key,"newVector")==0) {
+    if (size != 2) errorKan1("%s\n","[(newVector) m] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","[(newVector) m] extension. m must be an integer.");
+    rob = newObjectArray(KopInteger(obj1));
+  }else if (strcmp(key,"newMatrix")==0) {
+    if (size != 3) errorKan1("%s\n","[(newMatrix) m n] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","[(newMatrix) m n] extension. m must be an integer.");
+	obj2 = getoa(obj,2);
+    if (obj2.tag != Sinteger) errorKan1("%s\n","[(newMatrix) m n] extension. n must be an integer.");
+    rob = newObjectArray(KopInteger(obj1));
+	for (i=0; i<KopInteger(obj1); i++) {
+      putoa(rob,i,newObjectArray(KopInteger(obj2)));
+	}
   }else if (strcmp(key,"ostype")==0) {
     rob = newObjectArray(1);
     /* Hard encode the OS type. */

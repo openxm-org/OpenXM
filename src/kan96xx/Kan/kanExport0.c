@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.16 2003/08/20 01:39:17 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.17 2003/08/23 02:28:38 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2322,6 +2322,13 @@ struct object KgbExtension(struct object obj)
       errorKan1("%s\n","The datatype of the argument mismatch: [(isConstant) polynomial] gbext");
     }
     return(KpoInteger(isConstant(KopPOLY(obj1))));
+  }else if (strcmp(key,"isConstantAll")==0) {
+    if (size != 2) errorKan1("%s\n","[(isConstantAll) poly ] gbext bool");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Spoly) {
+      errorKan1("%s\n","The datatype of the argument mismatch: [(isConstantAll) polynomial] gbext");
+    }
+    return(KpoInteger(isConstantAll(KopPOLY(obj1))));
   }else if (strcmp(key,"schreyerSkelton") == 0) {
     if (size != 2) errorKan1("%s\n","[(schreyerSkelton) array_of_poly ] gbext array");
     obj1 = getoa(obj,1);

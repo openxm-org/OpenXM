@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -255,6 +255,18 @@ isConstant(f)
     if (f->m->e[i].x  ||  f->m->e[i].D) return(0);
   }
   return(1);
+}
+
+int isConstantAll(POLY f)
+{
+  int i;
+  int n;
+  if (f == POLYNULL) return(1);
+  while (f != POLYNULL) {
+	if (!isConstant(f)) return 0;
+	f = f->next;
+  }
+  return 1;
 }
 
 void errorOutput(s)

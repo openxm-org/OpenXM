@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.7 2003/06/26 08:14:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.8 2003/06/26 13:00:11 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -396,7 +396,7 @@ int mmLarger_matrix(ff,gg)
         sum += degreeShiftVector[i*dssize+ (f->e[N-1].x)]
               -degreeShiftVector[i*dssize+ (g->e[N-1].x)];
       }else{
-        warningOrder("Size mismatch in the degree shift vector. It is ignored.");
+        /*warningOrder("Size mismatch in the degree shift vector. It is ignored.");*/
       }
     }
     if (sum > 0) return(1);

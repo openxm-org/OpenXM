@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.8 2003/08/21 02:30:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.9 2003/08/22 11:47:03 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -129,6 +129,7 @@ int isMinusOne(struct coeff *cp);
 int isMinusOne(struct coeff *cp);
 int isNegative(struct coeff *cp);
 int isConstant(POLY f);
+int isConstantAll(POLY f);
 void errorOutput(char *s);
 int validOutputOrder(int w[],int n);
 
