@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.31 2000/04/03 05:59:01 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.32 2000/04/10 02:29:40 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -151,37 +151,6 @@ If you use only OpenXM clients, skip (3) and (3').
 */
 
 
-//&C 
-//&jp (4) asir の利用には  key が必要です.  
-//&eg (4) You need a key to use asir.  
-//&C  
-/*&jp 
-    asir の起動時のメッセージまたは OpenXM/lib/asir/asir_key を
-    参照して, key を取得して下さい (数秒しかかかりません).
-
-    Mail の利用ができて, /var/mail の下にメールを着信できれば,
-       /xxx/yyy/OpenXM/rc/fetch_asir_key
-    を実行することにより asir_key を自動で設定できます.
-
-    FreeBSD の package, Redhat Package manager を利用している
-    場合は, /usr/local/OpenXM/lib/asir/asir_key がすでに存在して
-    いる場合, このファイルは保存されます.
-
-*/
-/*&eg
-    Please get the key by following the instruction from asir itself or
-    that in OpenXM/lib/asir/asir_key (it takes only a few seconds
-    to get the key).
-
-    If you can get your mails under /var/mail, you can automatically set
-    your key by executing
-       /xxx/yyy/OpenXM/rc/fetch_asir_key
-
-    If you install the OpenXM package by the pkg_add of FreeBSD or
-    the redhat package manager, the old key file
-    /usr/local/OpenXM/lib/asir/asir_key, if exists,  is saved.
-
-*/
 /*&C
 
           FAQ
@@ -339,6 +308,9 @@ csh を利用している場合, .cshrc で
 set path=(/usr/local/jdk1.1.8/bin $path)
 として, jdk の java, javac をサーチパスにいれます.
 
+jdk の入手先:  FreeBSD  --- package lang の下にあります.
+               Linux    --- 
+
 注意:
 なお, Kaffe 1.0.b4 の java は, class BigInteger に method
 toByteArray が含まれてないため, OpenMath モジュールでは使用できません.
@@ -354,6 +326,10 @@ set path=(/usr/local/jdk1.1.8/bin $path)
 Bash users put the following line to .bashrc
 PATH=/usr/local/jdk1.1.8/bin:$PATH
 export PATH
+
+
+Where can I get jdk? :  FreeBSD --- jdk is under the package/lang
+                        Linux   --- 
 
 Remark:
 The Java interpreter of Kaffe 1.0.b4 does not contain the method
@@ -635,29 +611,6 @@ type in R for the tex error prompt ? or
 prepare empty shell scripts ptex and nkf.
 */
 /*&C
-
-*/
-/*&jp
-  
-  OpenXM_contrib2/asir2000 の配布を受けてない場合 (ソースライセンスを
-  富士通より受ける必要があります),
-  OpenXM/src/Makefile の各モジュール名 たとえば
-   make all-kan96xx
-  などと各モジュール名を指定してコンパイルして下さい.
-
-   または
-   OpenXM/src/asir2000 の Makefile を Makefile.forSkip に置き換えて
-   下さい.
-
-*/
-/*&eg
-  
-  If you cannot get a source liscence of OpenXM_contrib2/asir2000
-  from Fujitsu labs,
-  compile each modules independently, e.g.,
-    make all-kan96xx
-
-  Or, replace Makefile by Makefile.forSkip in OpenXM/src/asir2000.
 
 */
 
