@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.11 2000/03/11 07:10:02 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.12 2000/03/11 08:58:32 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -37,18 +37,19 @@ clean :
 	-(cd Linux/RPM ; make clean)
 
 print:
+	$(PS) Makefile | $(LPR)	
 	$(PS) Generic/openxm/Makefile | $(LPR)	
 	$(PS) Linux/RPM/Makefile | $(LPR)	
 	$(PS) Linux/RPM/openxm-*spec.in | $(LPR)	
 	$(PS) FreeBSD/openxm-ports/openxm-1.1.2/Makefile | $(LPR)	
 	$(PS) FreeBSD/Makefile | $(LPR)	
-	$(PS) Makefile | $(LPR)	
 
 
 generate-tar-balls:
 	-mkdir ${TAR_WORK}
 	make clean
 	(cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
 	make update-plist
 	(cd FreeBSD   ; make TAG=${TAG} VERSION=${VERSION} make-tar-ball-for-openxm-port)
 	(cd Linux/RPM ; make make-directory)
@@ -58,7 +59,6 @@ update-plist:
 	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} update-plist )
 
 build-on-orange:
-	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} shared-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} clean-work)
