@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/ascm2001p/ohp.tex,v 1.2 2001/09/23 08:31:18 takayama Exp $
+%% $OpenXM: OpenXM/doc/ascm2001p/ohp.tex,v 1.3 2001/09/25 01:17:08 takayama Exp $
 \documentclass{slides}
 %%\documentclass[12pt]{article}
 \usepackage{color}
@@ -141,7 +141,7 @@ ox_reset(P);
 \noindent
 {\color{green} Example 1} \\
 Theorem (Cantor-Zassenhaus) \\
-Let $f_1$ and $f_2$ be degree $d$ polynomials in $F_q[x]$.
+Let $f_1$ and $f_2$ be degree $d$ irreducible polynomials in $F_q[x]$.
 For a random degree $2d-1$ polynomial $g \in F_q[x]$,
 the chance of
 $$ GCD(g^{(q^d-1)/2}-1,f_1 f_2) = f_1 \,\mbox{or}\, f_2 $$
@@ -205,21 +205,34 @@ def c_z(F,E,Level)
 \end{verbatim}
 \newpage
 
+\epsfxsize=17cm
+\epsffile{cz.ps}
+
+\noindent
+{\color{blue} Performance of parallel CZ algorithm} \\
+$d=1$, $k=200$ : product of $200$ linear forms. \\
+$d=2$, $k=50$ : product of $50$ irreducible degree $2$ polynomials. \\
+
+\newpage
 {\color{green} Example 2} \\
-Shoup's algorithm to multyply polynomials. 
+Shoup's algorithm to multiply polynomials.  \\
+{\color{green} Example 3} \\
+Competitive Gr\"obner basis computation. \\
 \newpage
 
 \noindent
-{\color{red} 5. e-Bateman project} \\
+{\color{red} 5. e-Bateman project} (Electronic mathematical formula book)\\
 First Step: \\
 Gauss Hypergeometric function:
 $$ {\color{blue} F(a,b,c;x)} = \sum_{n=1}^\infty
-  \frac{(a)_n (b)_n}{(1)_n}{(c)_n} x^n
+  \frac{(a)_n (b)_n}{(1)_n (c)_n} x^n
 $$
 where
 $$ (a)_n = a(a+1) \cdots (a+n-1). $$
+{\color{green}
 $$ \log (1+x) = x F(1,1,2;-x) $$
 $$ \arcsin x = x F(1/2,1/2,3/2;x^2) $$
+}
 
 \noindent
 Appell's $F_1$:
@@ -270,7 +283,7 @@ for GKZ hypergeometric systems.
 
 \newpage
 \noindent
-{\color{green} Competitive Gr\"obner Basis Computation}
+{\color{green} Example 3. Competitive Gr\"obner Basis Computation}
 \begin{verbatim}
 extern Proc1,Proc2$
 Proc1 = -1$ Proc2 = -1$
