@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.4 2000/11/21 07:59:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.5 2000/11/24 05:49:26 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -9,16 +9,6 @@
 
 #define MATHCAP_FLAG_DENY   0
 #define MATHCAP_FLAG_ALLOW  1
-
-typedef struct {
-    int tag;
-    int flag;
-} table;
-
-typedef struct mathcap {
-    table *cmotbl;
-    table *smtbl;
-} mathcap;
 
 static void table_init(table *m, int key);
 static table *new_table(int *src);

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.5 2000/11/18 04:49:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.6 2000/11/24 05:49:26 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -15,7 +15,18 @@
 #define __inline__
 #endif
 
-/* Open Xm File Descripter */
+/* Mathcap Local Database */
+typedef struct {
+    int tag;
+    int flag;
+} table;
+
+typedef struct mathcap {
+    table *cmotbl;
+    table *smtbl;
+} mathcap;
+
+/* OpenXM File Descripter */
 typedef struct OXFILE{
     int fd;
     int (*send_int32)(struct OXFILE *oxfp, int int32);
