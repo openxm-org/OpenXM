@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.5 2003/01/13 12:03:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.6 2003/01/17 06:49:53 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -19,6 +19,7 @@ static char*        new_string_set_cmo_null();
 static char*        new_string_set_cmo_int32(int integer);
 static char*        new_string_set_cmo_list(cmo_list *c);
 static char*        new_string_set_cmo_zz(cmo_zz *c);
+static char*        new_string_set_cmo_double(cmo_double *m);
 
 /* functions for a cmo_list */
 static cell* new_cell(cmo *ob)
@@ -324,6 +325,18 @@ static char *new_string_set_cmo_list(cmo_list *m)
     return s;
 }
 
+static char *new_string_set_cmo_double(cmo_double *m)
+{
+    char buff[1024];
+    char *s;
+
+    sprintf(buff, "%lf", m->d);
+    s = malloc(strlen(buff)+1);
+    strcpy(s, buff);
+
+    return s;
+}
+
 char *new_string_set_cmo(cmo *m)
 {
     symbol_t symp;
@@ -338,6 +351,8 @@ char *new_string_set_cmo(cmo *m)
         return new_string_set_cmo_null();
     case CMO_LIST:
         return new_string_set_cmo_list((cmo_list *)m);
+	case CMO_64BIT_MACHINE_DOUBLE:
+        return new_string_set_cmo_int32(m);
     default:
 #ifdef DEBUG
         symp = lookup_by_tag(m->tag);
@@ -347,4 +362,3 @@ char *new_string_set_cmo(cmo *m)
         return NULL;
     }
 }
-
