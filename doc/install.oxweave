@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.45 2002/03/02 01:00:23 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.46 2003/02/14 03:32:44 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -11,7 +11,7 @@ OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
 /*&jp
 
 ------------ ソースからコンパイルしてインストールする方法 ----
-(cd OpenXM/src ; make configure ; make install)
+(cd OpenXM/src ; make install)
              バイナリとライブラリとドキュメント類は
              OpenXM/bin, OpenXM/lib, OpenXM/doc
              にインストールされます.
@@ -29,7 +29,7 @@ OpenXM package : Getting started.
 
 
 ----------- An instruction for a quick installation from the source code ---
-(cd OpenXM/src ; make configure ; make install)
+(cd OpenXM/src ;  make install)
              You will get binaries, libraries, and documents under
              OpenXM/bin, OpenXM/lib, OpenXM/doc
 (cd OpenXM/rc ; make install)
@@ -62,13 +62,15 @@ OpenXM/doc ディレクトリおよび http://www.openxm.org においてあります.
 /*&eg
 
 ------- If you need only asir and kan,
-(cd OpenXM/src ; make install-kan-ox ; make install-asir-contrib)
-             You will get only asir (OpenXM version) and kan/sm1.
+(cd OpenXM/src ; make install-asir2000 ; make install-k097 )
+             You will get only asir and kan/sm1.
 (cd OpenXM/rc ; make install)
 
 -------------------------------------------
 Risa/Asir with asir-contrib is the main client system in the OpenXM project.
-You can start Risa/Asir by the command "asir".
+You can start Risa/Asir by the command "asir", which is called
+OpenXM/Risa/Asir.
+It is build by (cd OpenXM/src ; make install-asir-contrib)
 The manual of Risa/Asir and Asir-contrib can be found in the 
 OpenXM/doc directory and http://www.openxm.org
 

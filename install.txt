@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/install.txt,v 1.20 2003/03/04 23:49:10 takayama Exp $    
+%%  $OpenXM: OpenXM/install.txt,v 1.21 2003/08/03 20:27:21 takayama Exp $    
 
 The OpenXM package is a package of mathematical software systems.
 They are integrated with the OpenXM protocols.
@@ -18,21 +18,26 @@ in the source distribution.
 As to the copyright notice, see the directory Copyright.
 
 -------- An instruction for a quick installation from the source code ---
-(cd OpenXM/src ; make configure ; make install)
+(cd OpenXM/src ; make make install)
              You will get binaries, libraries, and documents under
              OpenXM/bin, OpenXM/lib, OpenXM/doc
 (cd OpenXM/rc ; make install)
              Shell scripts to start "asir", "sm1", ... will be copied to
              /usr/local/bin
+or (cd OpenXM/rc ; make )
+   and include dot.bashrc or dot.cshrc generated from your .bashrc or .cshrc
+   by the command source;  source dot.bashrc  or source dot.cshrc.
 
 ------- If you need only asir and kan,
-(cd OpenXM/src ; make install-kan-ox ; make install-asir-contrib)
-             You will get only asir (OpenXM version) and kan/sm1.
+(cd OpenXM/src ; make install-asir2000 ; make install-k097 )
+             You will get only asir and kan/sm1.
 (cd OpenXM/rc ; make install)
 
 -------------------------------------------
 Risa/Asir with asir-contrib is the main client system in the OpenXM project.
-You can start Risa/Asir by the command "asir".
+You can start Risa/Asir by the command "asir", which is called
+OpenXM/Risa/Asir.
+It is build by (cd OpenXM/src ; make install-asir-contrib)
 The manual of Risa/Asir and Asir-contrib can be found in the 
 OpenXM/doc directory and http://www.openxm.org
 
