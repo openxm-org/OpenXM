@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.9 2000/01/24 11:39:34 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.10 2000/01/25 01:01:38 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
@@ -72,6 +72,9 @@ $(OpenXM_doc)/install-eg.txt : $(OpenXM_doc)/install.oxweave
 $(OpenXM_doc)/install-jp.txt : $(OpenXM_doc)/install.oxweave
 	( cd $(OpenXM_doc) ; make )
 $(WEBKOBE1)/ERRATA.html : ERRATA.html
+	cp -f ERRATA.html $(WEBKOBE1)/ERRATA.html
+
+copy-errata : 
 	cp -f ERRATA.html $(WEBKOBE1)/ERRATA.html
 
 clean-web-kobe :
