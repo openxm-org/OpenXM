@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.22 2000/08/31 13:27:33 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.23 2000/08/31 13:35:09 takayama Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -7,26 +7,16 @@ OpenXM_ROOT=../../../OpenXM
 OpenXM_bin=$(OpenXM_ROOT)/bin
 
 GC=$(OPENXM_CONTRIB)/gc
-GMP=$(OPENXM_CONTRIB)/gmp
 
 all :   all-plugin all-sm1 all-kanlib.a
 ## .SUFFIXES:
 
-all2 :  all-gc all-gmp
+all2 :  all-gc 
 	(cd Kan; make all)
 
 all-gc: configure_symbolic_links
 	(cd $(GC) ; make all)
 
-all-gmp: configure-gmp
-	if test -f /usr/lib/libgmp.a ; \
-	then \
-	  echo "Using /usr/lib/libgmp.a" ; \
-	  /bin/rm -rf $(GMP)/libgmp.a ; \
-	  ln -s /usr/lib/libgmp.a $(GMP)/libgmp.a ; \
-	else \
-	 (cd $(GMP) ; make) ; \
-	fi
 
 all-sm1 : all-plugin
 	(cd Kan; make all)
@@ -45,13 +35,6 @@ sm1.nogc :
 
 configure: configure_symbolic_links 
 
-configure-gmp: configure_symbolic_links
-	if test -f $(GMP)/.gmp_configured ; \
-	then \
-	  echo "MESSAGE(kan96xx/Makefile): gmp is already configured. (.gmp_configured) " ;  \
-	else \
-	  (cd $(GMP) ; ./configure ; touch .gmp_configured) ; \
-	fi 
 
 configure_symbolic_links :
 	@if test ! -f ./.done_links  ; \

@@ -1,7 +1,9 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.8 2000/03/13 06:46:39 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.9 2000/03/14 07:52:36 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
+OpenXM_HOME=../../../../OpenXM
+OpenXM_include=$(OpenXM_HOME)/include
 ####  What C compiler do you use?
 CC = gcc
 #### Gargabe collector? If GC = nogc.c, then you need to define -DNOGC.
@@ -22,9 +24,8 @@ CFLAGS = -O
 #### profiler to output mon.out
 #CFLAGS = -O
 
-GMP_HOME = ../gmp
 GMP_HOME2 = ../../gmp
-LIBGMP = $(GMP_HOME)/libgmp.a
+LIBGMP = $(OpenXM_HOME)/lib/libgmp.so -Wl,--rpath -Wl,$(OpenXM_HOME)/lib
 ## This line is for buggy linux-gmp.
 ##LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 
@@ -78,7 +79,7 @@ PLUGIN_LINKFLAG =
 #HEADERS = datatype.h  stackm.h lookup.h extern.h  kclass.h Makefile
 HEADERS = datatype.h  stackm.h lookup.h extern.h  kclass.h 
 .c.o :
-	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -c  $<
+	$(CC) -I$(OpenXM_include) $(CFLAGS) $(DDD) -c  $<
 
 kanlibP = kanExport0.o kanExport1.o
 kanlibS1 = stackmachine.o 
@@ -130,9 +131,9 @@ MSG0 = msg0.o
 sm1 : sm.c  $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) $(GC) 
 	if test `uname` = "SunOS" ; \
 	then \
-	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB) ; \
+	$(CC) -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB) ; \
 	else \
-	$(CC) ${STATIC_LINK_FLAG} -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG)  ; \
+	$(CC) ${STATIC_LINK_FLAG} -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG)  ; \
 	fi
 
 
@@ -149,7 +150,7 @@ kanlib.a : $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK)
 	../gc/if_not_there ../gc/on_sparc_sunos5 ranlib kanlib.a
 
 ##sm1 : sm.c kanlib.a  $(GC)
-##	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c kanlib.a $(LIBGMP) $(GC) $(SOLARISLIB) $(PLUGIN_LINKFLAG)
+##	$(CC) -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c kanlib.a $(LIBGMP) $(GC) $(SOLARISLIB) $(PLUGIN_LINKFLAG)
 
 
 ############ smacro.h  and lookup.h
@@ -166,11 +167,11 @@ lookup.h : stackm.h mklookup
 mm : mm.c
 	$(CC) -o mm mm.c
 mklookup : mklookup.c
-	$(CC) -I$(GMP_HOME) -o mklookup mklookup.c
+	$(CC) -I$(OpenXM_include) -o mklookup mklookup.c
 
 ############# sm1 stack machine without algebraic part.
 sm00 : sm.c  $(kanlibS1) $(kanlibS2)  $(kanlibP) $(PLUGIN_LIB) $(GC) 
-	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm00 sm.c $(kanlibS1) $(kanlibS2) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB)
+	$(CC) -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm00 sm.c $(kanlibS1) $(kanlibS2) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB)
 
 ############### plugins
 plugin.hh  : Makefile $(PLUGIN_EXT)

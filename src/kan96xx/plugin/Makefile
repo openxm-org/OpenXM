@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.9 2000/01/19 06:25:47 takayama Exp $ 
+## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.10 2000/02/01 04:24:20 takayama Exp $ 
 
 OPENXM=../../../../OpenXM
 OPEMXM_CONTRIB=../../../../OpenXM_contrib
@@ -16,7 +16,7 @@ CC=gcc
 #CFLAGS+=-g -I$(GMP) -I../Kan 
 CFLAGS=-g -I$(GMP) -I../Kan 
 
-all: all-gc all-gmp asirconv.a cmo.a file2.a ox.a sample.a sm1Socket.a
+all: all-gc asirconv.a cmo.a file2.a ox.a sample.a sm1Socket.a
 
 ## .SUFFIXES:
 
@@ -26,9 +26,6 @@ clean:
 
 all-gc:
 	(cd $(KAN96XX) ; make all-gc)
-
-all-gmp:
-	(cd $(KAN96XX) ; make all-gmp)
 
 asirconv.a: asirconv.o
 	$(AR) ru $@ $?

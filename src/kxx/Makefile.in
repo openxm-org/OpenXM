@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.3 2000/03/13 06:46:39 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.4 2000/03/13 09:04:08 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -86,8 +86,8 @@ testclient : testclient.c ox.a file2.o ox_kan.h
 	$(CC) $(CFLAGS)  ${DDD} testclient.c -o testclient ox.a file2.o $(LIBS)
 
 
-#KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gmp/mpn/libmpn.a $(KANHOME)/gc/gc.a
-KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gc/gc.a
+#KANLIB = $(KANHOME)/Kan/kanlib.a $(OpenXM_lib)/libgmp.a $(KANHOME)/gmp/mpn/libmpn.a $(KANHOME)/gc/gc.a
+KANLIB = $(KANHOME)/Kan/kanlib.a $(OpenXM_lib)/libgmp.a $(KANHOME)/gc/gc.a
 
 ## file2 should be linked from kanlib.a
 

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.13 2000/04/10 05:29:24 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.14 2000/05/24 15:24:53 takayama Exp $
 # targets
 # all 
 #     compile
@@ -6,6 +6,8 @@
 #     
 # install-for-debug
 #
+OpenXM_HOME=../../../OpenXM
+OpenXM_include=$(OpenXM_HOME)/include
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
@@ -22,8 +24,7 @@ KHOME = ../kan96xx
 LOAD_K_PATH ='"/usr/local/lib/k0/"'
 LOAD_SM1_PATH2 ='"/this_directory_does_not_exists/"'
 ##
-GMP_HOME = $(KHOME)/gmp
-LIBGMP=$(GMP_HOME)/libgmp.a
+LIBGMP=$(OpenXM_HOME)/lib/libgmp.a
 ## This line is for buggy linux-gmp.
 ## LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 EXTRALIB = 
@@ -100,22 +101,22 @@ slib:   d0
 KXX = simple.tab.o d.o ki.o dic.o
 KXXASIR = simple.tab.o d.o ki-asir.o dic.o
 
-k0 :  k0.o $(KXX) $(KAN_HOME)/kanlib.a $(GC) $(GMP) $(KAN_HOME)/lookup.h
+k0 :  k0.o $(KXX) $(KAN_HOME)/kanlib.a $(GC) $(LIBGMP) $(KAN_HOME)/lookup.h
 	if test `uname` = "SunOS" ; \
 	then \
-	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
+	$(CC) $(FLAG) $(DDD) -I$(OpenXM_include) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
 	else \
-	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
+	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -I$(OpenXM_include) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
 	fi
 
 k0.o : k2.c
-	$(CC) -c $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o k0.o k2.c
+	$(CC) -c $(FLAG) $(DDD) -I$(OpenXM_include) -I$(KAN_HOME) -o k0.o k2.c
 
 ki.o : ki.c
-	$(CC) -c $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o ki.o ki.c
+	$(CC) -c $(FLAG) $(DDD) -I$(OpenXM_include) -I$(KAN_HOME) -o ki.o ki.c
 
 ki-asir.o : ki.c
-	$(CC) -c $(FLAG) $(DDD) -DCALLASIR -I$(GMP_HOME) -I$(KAN_HOME) -o ki-asir.o ki.c
+	$(CC) -c $(FLAG) $(DDD) -DCALLASIR -I$(OpenXM_include) -I$(KAN_HOME) -o ki-asir.o ki.c
 
 dic.o : dic.c d.h
 	$(CC) -c $(FLAG) $(DDD)  -o dic.o dic.c
@@ -140,8 +141,8 @@ GMP = $(LIBGMP)
 ASIRKAN = $(ASIRKAN_HOME)/ak.a
 K2INCLUDE = -I$(ASIR_INCLUDE)  -I$(ASIR_INCLUDE2) -I$(KHOME)/Kan -I$(ASIRKAN_HOME) $(SOLARIS_EXTRA_INCLUDE)
 
-k2 : k2.c $(KAN_HOME)/kanlib.a  $(KXXASIR) msg1.o $(ASIRKAN) $(ASIRKAN_HOME)/$(CALL_ASIR) $(ASIRGC) $(GMP)
-	$(CC) $(FLAG) $(DDD) -DCALLASIR $(K2INCLUDE) -o k2 k2.c $(KXXASIR) msg1.o  $(ASIRKAN_HOME)/$(CALL_ASIR) -L/usr/X11R6/lib -L$(ALIB) $(LFLAG) $(KAN_HOME)/kanlib.a $(ASIRKAN) $(GMP) $(ASIRGC)
+k2 : k2.c $(KAN_HOME)/kanlib.a  $(KXXASIR) msg1.o $(ASIRKAN) $(ASIRKAN_HOME)/$(CALL_ASIR) $(ASIRGC) 
+	$(CC) $(FLAG) $(DDD) -DCALLASIR $(K2INCLUDE) -o k2 k2.c $(KXXASIR) msg1.o  $(ASIRKAN_HOME)/$(CALL_ASIR) -L/usr/X11R6/lib -L$(ALIB) $(LFLAG) $(KAN_HOME)/kanlib.a $(ASIRKAN)  $(ASIRGC)
 
 msg1.o : msg1.c
 	$(CC) $(FLAG) $(DDD) -DCALLASIR $(K2INCLUDE) -c msg1.c
@@ -151,16 +152,14 @@ $(ASIRKAN) :
 	(cd $(ASIRKAN_HOME); make ak.a)
 
 
-$(GMP) :
-	(cd $(KHOME)/gmp ; ./configure; make )
 $(GC) :
 	(cd $(KHOME)/gc ; make )
 
 
 ##########  
 ## A sample to compilation:  source is test0.c, output is test0
-test0 :  test0.c  $(KXX) $(KAN_HOME)/kanlib.a  $(GC) $(GMP) $(KAN_HOME)/lookup.h
-	$(CC) $(FLAG) $(DDD) -I$(GMP_HOME) -I$(KAN_HOME) -o test0 test0.c $(KXX) $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC)
+test0 :  test0.c  $(KXX) $(KAN_HOME)/kanlib.a  $(GC)  $(KAN_HOME)/lookup.h
+	$(CC) $(FLAG) $(DDD) -I$(OpenXM_include) -I$(KAN_HOME) -o test0 test0.c $(KXX) $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC)
 
 
 

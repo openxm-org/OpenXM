@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.94 2000/03/25 13:35:12 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.95 2000/08/31 13:23:12 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -19,14 +19,7 @@ all-gc:
 	@touch gc/.gc_make_done
 
 all-gmp: configure-gmp
-	if test -f /usr/lib/libgmp.a ; \
-	then \
-	  echo "Using /usr/lib/libgmp.a" ; \
-	  /bin/rm -rf gmp/libgmp.a ; \
-	  ln -s /usr/lib/libgmp.a gmp/libgmp.a ; \
-	else \
-	 (if test ! -f .gmp_make_done ; then cd gmp ; make ; touch .gmp_make_done ; fi) ; \
-	fi
+	(if test ! -f .gmp_make_done ; then cd gmp ; make ; touch .gmp_make_done ; fi) ; 
 
 all-oxtoolkit: configure-oxtoolkit install-gmp install-kxx
 	(cd ox_toolkit; make)
@@ -99,10 +92,7 @@ install-gc : all-gc
 install-gmp : all-gmp
 	-@if test ! -f gmp/.gmp_installed ; \
 	then \
-		mkdir ../lib ; \
-		cp gmp/libgmp.a ../lib ; \
-		mkdir ../include ; \
-		cp gmp/gmp.h ../include ; \
+		(cd gmp; make install) ; \
 	fi 
 	@touch gmp/.gmp_installed
 
@@ -209,9 +199,9 @@ configure: configure-links configure-bin configure-asir \
 configure-gmp: configure-links
 	@if test -f gmp/.gmp_configured ; \
 	then \
-	  echo "MESSAGE(kan96xx/Makefile): gmp is already configured. (.gmp_configured) " ;  \
+	  echo "MESSAGE: gmp is already configured. (.gmp_configured) " ;  \
 	else \
-	  (cd gmp ; ./configure ; touch .gmp_configured) ; \
+	  (cd gmp ; ./configure --prefix=`pwd`/../../OpenXM; touch .gmp_configured) ; \
 	fi 
 
 configure-asir:
