@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.15 2002/07/28 06:31:01 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.16 2002/07/28 07:04:22 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -9,11 +9,14 @@ WINASIR=c:/home/asir
 
 usage:
 	@echo "Targets: all build-tgz clean clean-work link-for-debug"
+	@echo "         remove-experimental "
 
 clean:
 	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done
+clean-work:
+	-rm -rf work
 
-all: copy-binary copy-binary-asir win-correction
+all: copy-binary copy-binary-asir win-correction win-correction-clean
 
 build-binary-openxm-cygwin:
 	if [ ! -f .build-binary-openxm-cygwin-done ] ; then \
@@ -32,6 +35,7 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	   rsync -avz --delete ../${OpenXM_TOP}/rc . ; \
 	   rsync -avz --delete ../${OpenXM_TOP}/man . ; \
 	   rsync -avz --delete ../${OpenXM_TOP}/src/asir-contrib src ; \
+	   find . -name 'CVS' -print | xargs rm -rf ; \
 	  ) ; \
 	   cp readme-ja.html OpenXM-win ; \
 	   touch .copy-binary-done ; \
@@ -93,8 +97,8 @@ win-correction2: win-correction1
 	cp oxasir-win.rr OpenXM-win/lib/sm1
 
 win-correction-clean:
-	-find OpenXM-win -name '*~' -print | xargs rm
-	-rm OpenXM-win/lib/sm1/*.jpeg OpenXM-win/lib/sm1/*.jpg
+	-find OpenXM-win -name '*~' -print | xargs rm -f
+	-rm -f OpenXM-win/lib/sm1/*.jpeg OpenXM-win/lib/sm1/*.jpg
 build-tgz: win-correction-clean
 	if [ ! -f .OpenXM-win.tgz.done ]; then \
 	tar czvf OpenXM-win.tgz OpenXM-win ; touch .OpenXM-win.tgz.done ; \
@@ -118,11 +122,19 @@ oxasir-win.rr : oxapp oxpp oxpp2
 
 debug-tools/crlf :  debug-tools/crlf.c
 	(cd debug-tools; gcc -o crlf crlf.c)
-build-bat: debug-tools/crlf
+debug-tools/debug-sed : debug-tools/debug-sed.c
+	(cd debug-tools; gcc -o debug-sed debug-sed.c)
+build-bat: debug-tools/crlf debug-tools/debug-sed
 	-mkdir OpenXM-win/bin-windows
 	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirgui-cd.bat ; ./crlf ../OpenXM-win/bin-windows/asirgui-cd.bat)
 	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat ; ./crlf ../OpenXM-win/bin-windows/webasir.bat)
 	(cd debug-tools; sed -f dist.sed <websm1.bat >../OpenXM-win/bin-windows/websm1.bat ; ./crlf ../OpenXM-win/bin-windows/websm1.bat)
 	(rm -f ../OpenXM-win/bin-windows/*.BAK ../OpenXM-win/bin-windows/*.bak)
 	cp OpenXM-win/bin-windows/asirgui-cd.bat OpenXM-win/asir/bin
+	rm -f debug-tools/debug.sed ; debug-tools/debug-sed `pwd` >debug-tools/debug.sed
+	(cd debug-tools; sed -f debug.sed <asirgui-cd.bat >asirgui-debug.bat ; ./crlf asirgui-debug.bat)
+
+remove-experimental:
+	-rm -f OpenXM-win/bin-windows/*web*.bat
+
 
