@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.9 2001/08/23 00:49:00 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.10 2001/12/28 01:20:25 takayama Exp $
 %% http server by sm1
 %% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
@@ -58,7 +58,8 @@ def
      %% On windows.
       [(forkExec)
        [
-         (c:/windows/command/start)
+         %%(c:/windows/command/start)
+         (start)
          (iexplore)   %% Starting internet explorer (TM).
          [(http://localhost:) httpd.port toString] cat
        ]
