@@ -7,7 +7,7 @@
 } , 
          高山信毅\thanks{神戸大学理学部数学教室}
 }
-\date{ 1999年, 10月30日}
+\date{ 1999年, 11月2日}
 \begin{document}
 \maketitle
 
@@ -160,7 +160,7 @@ mathcap (後述) 問い合わせに対して,
 CMObject Error2 は \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_ERROR2} & {\it CMObject} ob \\ 
+{\tt int32 CMO\_ERROR2} & {\sl CMObject} {\rm ob} \\ 
 \hline
 \end{tabular} \\
 なる形で表現する.  
@@ -182,7 +182,7 @@ CMObject Null は \\
 32 bit integer n は CMObject としては Integer32 と呼ばれ, \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_INT32}& {\tt int32 n}  \\ 
+{\tt int32 CMO\_INT32}& {\tt int32} {\rm n}  \\ 
 \hline
 \end{tabular} \\
 なる形で表現する.
@@ -191,9 +191,10 @@ CMObject Null は \\
 長さ n の バイト列 data は CMObject としては, Datum 型とよばれ \\
 \begin{tabular}{|c|c|c|c|}
 \hline
-{\tt int32 CMO\_DATUM}& {\tt int32 n} & {\tt byte data[0]} & {\tt byte data[1]} \\
+{\tt int32 CMO\_DATUM}& {\tt int32} {\rm n} & {\tt byte} {\rm  data[0]} 
+& {\tt byte} {\rm  data[1]} \\
 \hline
-$\cdots$ & {\tt byte data[n-1]} \\ 
+$\cdots$ & {\tt byte} {\rm  data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
 と表現する.
@@ -202,9 +203,10 @@ data の部分に直列化 (serialized) された CMO が入ることもありうる.
 長さ n の 文字列 data は, CMObject としては, Cstring 型とよばれ \\
 \begin{tabular}{|c|c|c|c|}
 \hline
-{\tt int32 CMO\_STRING}& {\tt int32 n} & {\tt byte data[0]} & {\tt byte data[1]}  \\ 
+{\tt int32 CMO\_STRING}& {\tt int32} {\rm n} & {\tt byte} {\rm data[0]} 
+& {\tt byte} {\rm data[1]}  \\ 
 \hline
-$\cdots$ & {\tt byte data[n-1]} \\ 
+$\cdots$ & {\tt byte} {\rm data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
 と表現する.  C 言語で普通用いられる, 文字列のおわりの {\tt 0} は文字列
@@ -214,9 +216,9 @@ $\cdots$ & {\tt byte data[n-1]} \\
 長さ n の 32bit network byte order の data の array は \\
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-{\tt int32 CMO\_ARRAYOFINT32}& {\tt int32 n} & 
-{\tt data[0]} & {\tt data[1]}&$\cdots$
-& {\tt data[n-1]} \\ 
+{\tt int32 CMO\_ARRAYOFINT32}& {\tt int32} {\rm n} & 
+{\rm data[0]} & {\rm data[1]}&$\cdots$
+& {\rm data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
 と表現する. 各 {\tt data[i]} の部分は 4 byte の大きさを持つ.
@@ -226,7 +228,7 @@ $\cdots$ & {\tt byte data[n-1]} \\
 CMObject Mathcap は \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_MATHCAP} & {\it CMObject} ob \\ 
+{\tt int32 CMO\_MATHCAP} & {\it CMObject} {\rm ob} \\ 
 \hline
 \end{tabular} \\
 なる形で表現する.  
@@ -238,10 +240,10 @@ Cstring で表したシステム名, Version number, CPUtype, その他の情報
 CMO タグを, Integer32 で表現したものを集めたリストである.
 
 \noindent
-長さ $m$ のリストは \\
+長さ m のリストは \\
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-{\tt int32 CMO\_LIST}& {\tt int32 $m$} & {\tt CMObject}\, ob[0] & $\cdots$ &
+{\tt int32 CMO\_LIST}& {\tt int32} {\rm m} & {\tt CMObject}\, ob[0] & $\cdots$ &
 {\tt CMObject}\, ob[$m-1$] \\
 \hline
 \end{tabular}\\
@@ -328,7 +330,7 @@ Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/openxxx}
 \mbox{Datum} &:& ({\tt CMO\_DATUM}, {\sl int32}\, \mbox{n}, {\sl byte}\, 
 \mbox{data[0]}, 
 \ldots , {\sl byte}\, \mbox{data[n-1]}) \\
-\mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  \mbox{n}, 
+\mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  \mbox{ n}, 
 {\sl string}\, \mbox{s}) \\
 \mbox{Mathcap}&:& ({\tt CMO\_MATHCAP},{\sl CMObject}\,  \mbox{ob} ) \\
 \mbox{List} &:& 
@@ -339,7 +341,7 @@ Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/openxxx}
 
 Cstring で, {\sl string} s の部分を {\tt byte} に分解すれば,
 \begin{eqnarray*}
-\mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  n, 
+\mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  \mbox{ n}, 
 {\sl byte}\, \mbox{s[0]},
 \ldots, {\sl byte}\ \mbox{s[n-1]})
 \end{eqnarray*}
@@ -755,14 +757,17 @@ content dictionary (CD) の形で定義したい.
 {\tt int32 OX\_DATA} 
 は 32 bit network byte order の数字 {\tt OX\_DATA}
 という意味である.
-イタリックで書かれているフィールドは,
+``イタリックで書かれているフィールドは,
 定義が別のところでなされているか解釈に誤解のないような自然言語
-で説明されている object を表す.
+で説明されている object を表す.''
 たとえば,
 {\it String commandName} 
 は, String データ型の local object  {\it commandName} 
 を意味する.
-
+(サーバスタックマシン上の object は, CMO 形式の object
+とは限らないことに注意.
+CMO 形式で書いてあっても, それはサーバスタックマシンの
+local 形式でスタック上にあると解釈して下さい.)
 
 すべてのサーバスタックマシンは
 以下の関数を実装していないといけない.
@@ -790,7 +795,8 @@ CMObject/Basic0 の CMO データのうち必須のもの,
 たとえば, {\tt CMO\_String} の場合次のようになる.
 \\ Request:
 \begin{tabular}{|c|c|c|c|c|c|}  \hline
-{\tt int32 OX\_DATA} & {\tt int32 CMO\_String} &{\tt int32 size} &{\tt byte s1} & $\cdots$ &{\tt byte ssize}\\
+{\tt int32 OX\_DATA} & {\tt int32 CMO\_String} &{\tt int32} {\rm size} 
+&{\tt byte} {\rm s1} & $\cdots$ &{\tt byte} {\rm ssize}\\
 \hline
 \end{tabular}
 \\ Stack after the request:
@@ -809,11 +815,12 @@ CMO データの受け取りに失敗した時のみ  \\
 をスタックへ push する.
 現在のところ, ob には, \\
 \centerline{
-{\it List} [{\it Integer32} OX パケット番号, {\it Integer32} エラー番号, 
-{\it CMObject} optional 情報]
+[{\sl Integer32} OX パケット番号, {\sl Integer32} エラー番号, 
+{\sl CMObject} optional 情報]
 }
-を入れるが, この仕様は Common Error Object format の定義により
-変更の可能性がある.
+なるリストを入れる (CMO 形式でかいてあるが, これはサーバ独自の形式でよい.
+CMO として送出されるときこのような形式でないといけないという意味である.)
+
 
 
 \item
@@ -1000,7 +1007,7 @@ object xxx_dupErrors(void)
 \end{tabular}
 \\ Result: 
 \begin{tabular}{|c|c|c|}  \hline
-{\tt int32 OX\_DATA} & {\it CMObject} \ a list of errors\\
+{\tt int32 OX\_DATA} & {\sl CMObject} \ a list of errors\\
 \hline 
 \end{tabular}
 
@@ -1020,13 +1027,13 @@ xxx の初期化をおこなう.
 #include <stdio.h>
 
 main() {
-char tmp[1024];
-Asir_start();
-while (gets(tmp) != NULL) {
-if (Asir_executeStringByLocalParser(tmp) != 0) {
-printf("%s\n",Asir_popString());
-}
-}
+  char tmp[1024];
+  Asir_start();
+  while (gets(tmp) != NULL) {
+     if (Asir_executeStringByLocalParser(tmp) != 0) {
+        printf("%s\n",Asir_popString());
+     }
+  }
 }
 
 \end{verbatim}
@@ -1297,8 +1304,9 @@ Digital signature 付の {\tt OX\_DATA} は
 
 \noindent
 \begin{tabular}{|c|c|c|c|c|}  \hline
-{\tt int32 OX\_DATA\_WITH\_LENGTH} & {\tt int32} {\sl serial} & {\tt int32 size}
-& {\it CMObject} & {\it tail} \\
+{\tt int32 OX\_DATA\_WITH\_LENGTH} & {\tt int32} {\rm serial} 
+& {\tt int32} {\rm size}
+& {\sl CMObject} {\rm o} & {\it tail} \\
 \hline 
 \end{tabular}
 
@@ -1307,12 +1315,12 @@ Digital signature 付の {\tt OX\_DATA} は
 {\it tail } は次のように定義する.
 \\ \noindent
 \begin{tabular}{|c|c|c|}  \hline
-{\tt int32 CMO\_START\_SIGNATURE} & {\tt int32 size}
+{\tt int32 CMO\_START\_SIGNATURE} & {\tt int32} {\rm size}
 & {\it signature} \\
 \hline 
 \end{tabular}
 
-ここで, {\tt size} は {\it signature} 部の長さ.
+ここで, {\tt size} はバイト列 {\it signature} 部の長さ.
 {\it signature} は, Hash 関数を用いた, {\it CMO data}
 にたいする, デジタル署名をいれ, 不正な serialized object 
 を検出する.
@@ -1320,7 +1328,7 @@ Tail の {\tt size} フィールドが 0 の場合, デジタル署名部はない.
 
 クライアント, サーバの実装には次の3つの選択がある.
 \begin{enumerate}
-\item {\tt OX\_DATA} のみを用いて CMObject を送る.
+\item {\tt OX\_DATA} のみを用いて CMObject を送る (mathcap 付).
 \item {\tt OX\_SECURED\_DATA} のみを用いて CMObject を送る.
 \item {\tt OX\_DATA} および
 {\tt OX\_SECURED\_DATA} を混在して
@@ -1340,6 +1348,14 @@ Tail の {\tt size} フィールドが 0 の場合, デジタル署名部はない.
 おこなうため, データを送り出す側に負担がかかることである.
 
 現在のすべてのサンプルサーバは, 1, 4 のみを実装している.
+
+mathcap の交換はセッションの開始時点で必須という訳ではない
+ことに注意されたい.
+たとえば,
+モード 4 で通信して,
+それから,
+mathcap を交換して,
+モード 1 へ移行することも可能なように実装すべきである.
 
 
 \subsection{サーバスタックマシンはローカルな拡張機能をもってよい}
@@ -1411,11 +1427,11 @@ add, sub, mul, などの基本的な計算は {\tt SM\_executeFunction}
 \end{tabular}
 \\ Result:  
 \begin{tabular}{|c|c|}  \hline
-{\tt int32 OX\_DATA} & {\it CMO\_INT32 result} \\
+{\tt int32 OX\_DATA} & {\tt CMO\_INT32} {\rm result} \\
 \hline 
 \end{tabular}
 
-
+@@@
 
 \item
 サーバはこのメッセージを受信したらただちにコントロールメッセージへの
@@ -1468,9 +1484,9 @@ Reset に対する返事.
 {\tt 0} は以下の通信において {\tt int32} をおくるのに,
 network byte order を使用したい,
 {\tt 1} は以下の通信において {\tt int32} をおくるのに,
-little indian を使用したい,
+little endian を使用したい,
 {\tt FF} は以下の通信において {\tt int32} をおくるのに,
-big indian を使用したい,
+big endian を使用したい,
 という意味である.
 両者の希望が一致しない場合はつねに {\tt 0} (network byte order)
 を使用する.
@@ -1481,8 +1497,8 @@ Network byte order しか実装していないシステムでは,
 
 \begin{verbatim}
 #define OX_BYTE_NETWORK_BYTE_ORDER    0
-#define OX_BYTE_LITTLE_INDIAN         1
-#define OX_BYTE_BIG_INDIAN         0xff
+#define OX_BYTE_LITTLE_ENDIAN         1
+#define OX_BYTE_BIG_ENDIAN         0xff
 \end{verbatim}
 
 
@@ -1491,15 +1507,57 @@ Network byte order しか実装していないシステムでは,
 の機能をもっています.
 この機能を OFF にするには {\tt -insecure} option を使用して下さい.
 One Time Password は 0 で終了するバイト列であり,
-コントロール, 計算双方のプロセスは,
-上記の byte order の決定用の 1 byte を書き出す前に
-One Time Password バイト列を送出しないといけません.
+コントロール, 計算双方のプロセスをたちあげるまえに,
+{\tt ox} はコントロール, 計算双方のプロセスに対応する,
+ふたつのポートに
+One Time Password バイト列を送出しています.
 
 {\tt ox} (ソースは {\tt oxmain.c}, {\tt kan96xx/plugin/oxmisc.c})においては
 {\tt oxTellMyByteOrder()} が, サーバについての byte order 情報の
 送出, 読み込みをやっている.
 クライアントについては,
 {\tt oxSetByteOrder()} が, byte order 情報の読み込み, 送出をおこなっている.
+
+One time パスワードは安全な通信路で配送される必要があります.
+また, 現在の {\rm ox} の実装では, One time パスワードを
+サーバ, クライアントに login している人はすべて見ることが
+できますので, サーバ, クライアントには悪意のある人はいないと
+仮定しないといけません.
+One time パスワードを安全に配送し, リモートマシンの {\rm ox}
+を立ち上げるには
+たとえば 
+{\tt ssh} を {\tt -f } オプションを用いて使用します.
+
+以下は {\rm sm1} での実装, 動作例です.
+ここでは, {\tt yama} の {\tt sm1} より {\tt dc1} の {\tt ox} 
+を立ち上げています.
+{\footnotesize
+\begin{verbatim}
+yama% sm1
+sm1>(ox.sm1) run ;
+ox.sm1, --- open sm1 protocol module 10/1,1999  (C) N.Takayama. oxhelp for help
+sm1>[(dc1.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set ;
+Hello from open. serverName is yama.math.kobe-u.ac.jp and portnumber is 0
+Done the initialization. port =1024
+Hello from open. serverName is yama.math.kobe-u.ac.jp and portnumber is 0
+Done the initialization. port =1025
+[    4 , 1025 , 3 , 1024 ] 
+Executing the command : ssh -f dc1.math.kobe-u.ac.jp -l taka 
+"/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon 
+-e /home/taka/OpenXM/bin/ox -reverse -ox /home/taka/OpenXM/bin/ox_sm1 
+-host yama.math.kobe-u.ac.jp -data 1025 -control 1024 -pass 518158401   "
+[ 
+taka@dc1.math.kobe-u.ac.jp's password: 
+Trying to accept... Accepted.
+Trying to accept... Accepted.
+
+Control port 1024 : Connected.
+
+Stream port 1025 : Connected.
+Byte order for control process is network byte order.
+Byte order for engine process is network byte order.
+\end{verbatim}
+}
 
 \section{ オブジェクトの文字列表現 }
 
@@ -1546,14 +1604,14 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic1. \\
 \begin{eqnarray*}
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- ユニバーサルな ゼロを表す. } \\
-\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, f, {\sl byte}\, \mbox{a[1]}, \ldots
+\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots
 {\sl byte}\, \mbox{a[m]} ) \\
 &:& \mbox{ --- bignum をあらわす. a[i] についてはあとで説明}\\
-\mbox{QQ}        &:& ({\tt CMO\_QQ}, {\sl ZZ}\, a, {\sl ZZ}\, b) \\
+\mbox{QQ}        &:& ({\tt CMO\_QQ}, {\sl ZZ}\, {\rm a}, {\sl ZZ}\, {\rm b}) \\
 & & \mbox{ --- 有理数 $a/b$ を表す. } \\
-\mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl object}\, a, {\sl object}\, b) \\
+\mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  $a/b$ を表す. } \\
-\mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, v) \\
+\mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
 & & \mbox{ --- 変数名 $v$ . } \\
 \end{eqnarray*}
 
@@ -1571,16 +1629,18 @@ escape sequence を用いて実現するのは, 無理があるようである.
 Group CMObject/Tree requires CMObject/Basic1. \\
 Tree, Lambda $\in$ CMObject/Basic1. \\
 \begin{eqnarray*}
-\mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, name,
- {\sl Cstring}\, cdname, {\sl List}\, leaves) \\
+\mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
+ {\sl Cstring}\, {\rm cdname}, {\sl List}\, {\rm leaves}) \\
 & & \mbox{ --- 名前 name の定数または関数. 関数の評価はおこなわない. } \\
-& & \mbox{ --- cdname は空文字列でなければ name の意味が説明されている 
-               OpenMath CD (content dictionary) の名前. } \\
-\mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, args,
-                          {\sl Tree} body) \\                          
+& & \mbox{ --- cdname は空文字列でなければ name の意味が説明されている }\\
+& & \mbox{ --- OpenMath CD (content dictionary) の名前. } \\
+\mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
+                          {\sl Tree} {\rm body}) \\                          
 & & \mbox{ --- body を args を引数とする関数とする. } \\
 & & \mbox{ --- optional な引数が必要なときは, leaves の後へつづける.} \\
 \end{eqnarray*}
+
+--------------------- 修正ここまで --------------------------
 
 数式を処理するシステムでは, Tree 構造が一般にもちいられる.
 たとえば, $\sin(x+e)$ は,
