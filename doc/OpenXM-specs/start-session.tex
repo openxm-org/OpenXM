@@ -1,0 +1,96 @@
+%% $OpenXM$
+//&jp \section{TCP/IP でのセッションのスタート}
+//&eg \section{How to start a session on TCP/IP} (This section has not yet been translated.)
+
+/*&jp
+コントロールプロセス, 計算プロセス
+ともに, 起動直後に
+1 byte のデータを書き出し flush する.
+そのあと, 1 byte のデータを読み込む.
+クライアントはコントロールプロセス, 計算プロセス
+につながるファイルディスクリプタの両方から
+まず 1 byte のデータを読む.
+そのあと
+1 byte のデータを書き出し flush する.
+1 byte のデータは,
+{\tt 0}, {\tt 1}, {\tt FF} のどれかであり,
+{\tt 0} は以下の通信において {\tt int32} をおくるのに,
+network byte order を使用したい,
+{\tt 1} は以下の通信において {\tt int32} をおくるのに,
+little endian を使用したい,
+{\tt FF} は以下の通信において {\tt int32} をおくるのに,
+big endian を使用したい,
+という意味である.
+両者の希望が一致しない場合はつねに {\tt 0} (network byte order)
+を使用する.
+Network byte order しか実装していないシステムでは,
+{\tt 0} をおくればよい.
+ただし効率が問題となる通信において, network byte order への変換は
+おおきなボトルネックとなることがあることを了解しておくべきである.
+
+\begin{verbatim}
+#define OX_BYTE_NETWORK_BYTE_ORDER    0
+#define OX_BYTE_LITTLE_ENDIAN         1
+#define OX_BYTE_BIG_ENDIAN         0xff
+\end{verbatim}
+
+
+注意: {\tt OpenXM/src/kxx} に含まれる, {\tt ox} (コントロールプロセス,
+計算プロセスをたちあげるローンチャ)は, 標準で One Time Password
+の機能をもっています.
+この機能を OFF にするには {\tt -insecure} option を使用して下さい.
+One Time Password は 0 で終了するバイト列であり,
+コントロール, 計算双方のプロセスをたちあげるまえに,
+{\tt ox} はコントロール, 計算双方のプロセスに対応する,
+ふたつのポートに
+One Time Password バイト列を送出しています.
+
+{\tt ox} (ソースは {\tt oxmain.c}, {\tt kan96xx/plugin/oxmisc.c})においては
+{\tt oxTellMyByteOrder()} が, サーバについての byte order 情報の
+送出, 読み込みをやっている.
+クライアントについては,
+{\tt oxSetByteOrder()} が, byte order 情報の読み込み, 送出をおこなっている.
+
+One time パスワードは安全な通信路で配送される必要があります.
+また, 現在の {\rm ox} の実装では, One time パスワードを
+サーバ, クライアントに login している人はすべて見ることが
+できますので, サーバ, クライアントには悪意のある人はいないと
+仮定しないといけません.
+One time パスワードを安全に配送し, リモートマシンの {\rm ox}
+を立ち上げるには
+たとえば 
+{\tt ssh} を {\tt -f } オプションを用いて使用します.
+
+以下は {\rm sm1} での実装, 動作例です.
+ここでは, {\tt yama} の {\tt sm1} より {\tt dc1} の {\tt ox} 
+を立ち上げています.
+{\footnotesize
+\begin{verbatim}
+yama% sm1
+sm1>(ox.sm1) run ;
+ox.sm1, --- open sm1 protocol module 10/1,1999  (C) N.Takayama. oxhelp for help
+sm1>[(dc1.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set ;
+Hello from open. serverName is yama.math.kobe-u.ac.jp and portnumber is 0
+Done the initialization. port =1024
+Hello from open. serverName is yama.math.kobe-u.ac.jp and portnumber is 0
+Done the initialization. port =1025
+[    4 , 1025 , 3 , 1024 ] 
+Executing the command : ssh -f dc1.math.kobe-u.ac.jp -l taka 
+"/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon 
+-e /home/taka/OpenXM/bin/ox -reverse -ox /home/taka/OpenXM/bin/ox_sm1 
+-host yama.math.kobe-u.ac.jp -data 1025 -control 1024 -pass 518158401   "
+[ 
+taka@dc1.math.kobe-u.ac.jp's password: 
+Trying to accept... Accepted.
+Trying to accept... Accepted.
+
+Control port 1024 : Connected.
+
+Stream port 1025 : Connected.
+Byte order for control process is network byte order.
+Byte order for engine process is network byte order.
+\end{verbatim}
+}
+
+*/
+

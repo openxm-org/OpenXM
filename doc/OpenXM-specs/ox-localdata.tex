@@ -1,0 +1,17 @@
+%% $OpenXM$
+//&C \section{ OX Local Data }
+
+/*&jp
+システム固有の Object の内部表現は,
+\begin{verbatim}
+#define   OX_LOCAL_OBJECT       0x7fcdef30
+\end{verbatim}
+より増えていく数でタグづけする.
+0x200000 の領域をわりふることとする.
+タグはシステムごとに割り振る.
+\begin{verbatim}
+#define OX_LOCAL_OBJECT_ASIR   (OX_LOCAL_OBJECT+0)
+#define OX_LOCAL_OBJECT_SM1    (OX_LOCAL_OBJECT+1)
+\end{verbatim}
+これらは, {\tt OX\_DATA} の代わりとして使用できる.
+*/

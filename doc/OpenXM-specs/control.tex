@@ -1,0 +1,89 @@
+%% $OpenXM$
+//&jp \section{コントロールメッセージ (SMObject/TCPIP/Control)}
+//&eg \section{Control message (SMObject/TCPIP/Control)} (This section has not been translated.)
+
+/*&jp
+\begin{enumerate}
+\item
+サーバは {\tt SM\_control\_reset\_connection} 
+メッセージを受信したら, 現在の計算を中断する.
+中断操作は細心の注意をもって行なわないといけない.
+サンプルサーバ ({\tt oxmain.c})では, コントロールメッセージの
+処理は別のプロセスがおこなっており, SIGUSR1 割り込みをスタックマシンへ
+かける.
+もしサーバがメッセージの通信中であれば, このコントロールメッセージ
+をすぐには実行せず, メッセージ通信を終了するのを待つ.
+当然, メッセージを発信中に, このメッセージを送信してもいけない.
+(Java 風にいえば, すべての メッセージは synchronized object である.)
+また, たとえば file IO なども, 中断をうけてはならない, synchronized な
+操作であろう.
+クライアントがサーバに controlResetConnection コントロールメッセージを
+おくったら, サーバは, 現在の受信バッファをすべてクリアし,
+クライアントへ
+{\tt OX\_SYNC\_BALL}
+を送る.
+クライアントは, コントロールメッセージをおくったあと,
+待機モードに入り, {\tt OX\_SYNC\_BALL}
+をうけとるまですべてのメッセージを読み飛ばす.
+クライアントは {\tt OX\_SYNC\_BALL} をうけとったら,
+サーバに {\tt OX\_SYNC\_BALL} を送る.
+サーバは, 最初の {\tt OX\_SYNC\_BALL} を投げたあと,
+待機モードに入り, 
+{\tt OX\_SYNC\_BALL}
+をうけとるまですべてのメッセージを読み飛ばす.
+%% 最後に,  サーバ
+%% はすべての操作が終了したことを通知するため,
+%% クライアントに
+%% {\tt OX\_SYNC\_BALL} を投げる.
+\\ Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_reset\_connection}  \\
+\hline 
+\end{tabular}
+\\ Result:  
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_DATA} & {\tt CMO\_INT32} {\rm result} \\
+\hline 
+\end{tabular}
+
+@@@
+
+\item
+サーバはこのメッセージを受信したらただちにコントロールメッセージへの
+返答をおくり, すべてのファイルをクローズして終了する.
+\\ Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_control\_kill}  \\
+\hline 
+\end{tabular}
+\\ Result:  
+Empty \\
+
+
+\end{enumerate}
+
+\medbreak
+\noindent
+{\bf 例}: (シリアル番号は省略してある.)\ 
+\begin{verbatim}
+0  0 2 01 (OX_COMMAND) 
+0  0 4 06 (SM_control_reset_connection)
+\end{verbatim}
+
+Reset に対する返事.
+\begin{verbatim}
+0  0 2 02 (OX_DATA)
+0  0 0  2 (CMO_INT32)
+0  0 0  0 (  0   )
+\end{verbatim}
+
+
+第1のチャンネルでは次の {\tt OX\_SYNC\_BALL} が交換されて同期が
+取られる.
+\begin{verbatim}
+0   0   2   03   (OX_SYNC_BALL)
+\end{verbatim}
+
+*/
+
+

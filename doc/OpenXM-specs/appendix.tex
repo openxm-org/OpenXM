@@ -1,0 +1,184 @@
+%% $OpenXM$
+//&C \section{Appendix: English translation}
+
+/*&C
+\noindent
+(This section has not been updated.)
+
+\subsection{Common Mathematical Object format}
+
+\begin{verbatim}
+#define LARGEID  0x7f000000
+#define CMO_ERROR2 (LARGEID+2)
+#define CMO_NULL   1
+#define CMO_INT32  2
+#define CMO_DATUM  3
+#define CMO_STRING 4
+#define CMO_LIST 17
+\end{verbatim}
+
+\bigbreak
+\noindent
+Group CMObject/Basic0  requires nothing. \\
+Error2, Null, Integer32, Datum, Cstring, List $\in$ CMObject/Basic0. \\
+Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/openxxx}
+(in Japanese) \\
+\begin{eqnarray*}
+\mbox{Error2}&:& ({\tt CMO\_ERROR2}, {\sl CMObject}\, \mbox{ob}) \\
+\mbox{Null}  &:& ({\tt CMO\_NULL}) \\
+\mbox{Integer32}
+             &:& ({\tt CMO\_INT32}, {\sl int32}\ \mbox{n}) \\
+\mbox{Datum} &:& ({\tt CMO\_DATUM}, {\sl int32}\, \mbox{n}, {\sl byte}\, 
+                 \mbox{data[0]}, 
+                  \ldots , {\sl byte}\, \mbox{data[n-1]}) \\
+\mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  \mbox{n}, 
+                   {\sl string}\, \mbox{s}) \\
+\mbox{List} &:& 
+\mbox{({\tt CMO\_LIST}, {\sl int32}\, m, {\sl CMObject}\, ob[1], $\ldots$,
+                                       {\sl CMObject}\, ob[m])} \\
+             & & \mbox{---  m is the length of the list.} \\
+\end{eqnarray*}
+
+In the definition of ``Cstring'', if we decompose  ``{\sl string} s'' into 
+bytes, then  ``Cstring'' should be defined as
+\begin{eqnarray*}
+\mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  n, 
+                  {\sl byte}\, \mbox{s[0]},
+                  \ldots, {\sl byte}\ \mbox{s[n-1]})
+\end{eqnarray*}
+
+\noindent
+Example:
+\begin{center}
+({\tt CMO\_INT32}, 1234)
+\end{center}
+Example:
+\begin{center}
+({\tt CMO\_STRING}, 5, "Hello")
+\end{center}
+
+\begin{verbatim}
+#define     CMO_MONOMIAL32  19
+#define     CMO_ZZ          20 
+#define     CMO_QQ          21
+#define     CMO_ZERO        22
+#define     CMO_DMS          23   /* Distributed monomial system */
+#define     CMO_DMS_GENERIC  24
+#define     CMO_DMS_OF_N_VARIABLES  25
+#define     CMO_RING_BY_NAME   26
+\end{verbatim}
+\bigbreak
+\noindent
+Group CMObject/Basic1 requires CMObject/Basic0. \\
+ZZ, QQ, Zero $\in$ CMObject/Basic1. \\
+\begin{eqnarray*}
+\mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
+            & & \mbox{ --- universal zero } \\
+\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, f, {\sl byte}\, \mbox{a[1]}, \ldots
+                           {\sl byte}\, \mbox{a[m]} ) \\
+                 &:& \mbox{ --- bignum }\\
+\mbox{QQ}        &:& ({\tt CMO\_QQ}, {\sl ZZ}\, a, {\sl ZZ}\, b) \\
+                 & & \mbox{ --- rational number $a/b$. } \\
+\end{eqnarray*}
+
+\bigbreak
+Let us define a group for distributed polynomials.
+
+\medbreak
+\noindent
+Group CMObject/DistributedPolynomials requires CMObject/Basic0,
+CMObject/Basic1. \\
+Monomial, Monomial32, Coefficient, Dpolynomial, DringDefinition,
+Generic DMS ring, RingByName, DMS of N variables $\in$ 
+CMObject/DistributedPolynomials. \\
+\begin{eqnarray*}
+\mbox{Monomial} &:& \mbox{Monomial32}\, |\, \mbox{Zero} \\
+\mbox{Monomial32}&:& ({\tt CMO\_MONOMIAL32}, {\sl int32}\, n,
+                      {\sl int32}\, \mbox{e[1]}, \ldots,
+                      {\sl int32}\, \mbox{e[n]}, \\
+                 & & \ \mbox{Coefficient}) \\
+                 & & \mbox{ --- e[i] is the exponent $e_i$ of the monomial 
+                      $x^e = x_1^{e_1} \cdots x_n^{e_n}$. } \\
+\mbox{Coefficient}&:& \mbox{ZZ} | \mbox{Integer32} \\
+\mbox{Dpolynomial}&:& \mbox{Zero} \\
+                 & & |\ ({\tt CMO\_LIST},{\sl int32} m, \\
+                 & & \ \ {\tt CMO\_DMS}, \mbox{DringDefinition},
+                    [\mbox{Monomial32}|\mbox{Zero}], \\
+                 & &\ \ 
+                    \{\mbox{Monomial32}\})  \\
+                 & &\mbox{--- Distributed polynomial is a sum of monomials}\\
+                 & &\mbox{--- m is equal to the number of monomials $+2$.}\\
+\mbox{DringDefinition}
+                 &:& \mbox{DMS of N variables} \\
+                 & & |\ \mbox{RingByName} \\
+                 & & |\ \mbox{Generic DMS ring} \\
+                 & & \mbox{ --- definition of the ring of distributed polynomials. } \\
+\mbox{Generic DMS ring}
+                 &:& ({\tt CMO\_INT32, CMO\_DMS\_GENERIC}) \\
+\mbox{RingByName}&:& ({\tt CMO\_RING\_BY\_NAME}, {\sl Cstring} s) \\
+                 & & \mbox{ --- The ring definition refered by the name ``s''.} \\
+\mbox{DMS of N variables}
+                 &:& ({\tt CMO\_DMS\_OF\_N\_VARIABLES}, \\
+                 & & \ ({\tt CMO\_LIST}, {\sl int32}\, \mbox{m},
+                  {\sl Integer32}\,  \mbox{n}, {\sl Integer32}\,\mbox{p} \\
+                 & & \ \ [,{\sl Cstring}\,\mbox{s}, {\sl List}\, \mbox{vlist},
+                          {\sl List}\, \mbox{wvec}, {\sl List}\, \mbox{outord}]) \\
+                 & & \mbox{ --- m is the number of elements.} \\
+                 & & \mbox{ --- n is the number of variables, p is the characteristic} \\
+                 & & \mbox{ --- s is the name of the ring, vlist is the list of variables.} \\
+                 & & \mbox{ --- wvec is the weight vector.} \\
+                 & & \mbox{ --- outord is the order of variables to output.} \\
+\end{eqnarray*}
+
+
+\subsection{ Stackmachine commands}
+
+\begin{verbatim}
+#define SM_popSerializedLocalObject 258
+#define SM_popCMO 262
+#define SM_popString 263 
+
+#define SM_mathcap 264
+#define SM_pops 265
+#define SM_setName 266
+#define SM_evalName 267 
+#define SM_executeStringByLocalParser 268 
+#define SM_executeFunction 269
+#define SM_beginBlock  270
+#define SM_endBlock    271
+#define SM_shutdown    272
+
+
+#define SM_control_kill 1024
+#define SM_control_reset_connection  1030
+\end{verbatim}
+
+
+\subsection{OX messages}
+
+Top level messages are OX messages.
+These messages start with one of the following tags.
+
+\begin{verbatim}
+#define   OX_COMMAND         513        // for stackmachine commands
+#define   OX_DATA            514        // for CMO 
+#define   OX_SECURED_DATA    521
+
+#define   OX_SYNC_BALL       515
+\end{verbatim}
+
+\noindent
+Example:
+\begin{center}
+ (OX\_COMMAND, SM\_popCMO)
+\end{center}
+
+\noindent
+Example:
+\begin{center}
+ (OX\_DATA, ({\tt CMO\_STRING}, 5, "Hello"))
+\end{center}
+
+*/
+
+

@@ -1,0 +1,121 @@
+%% $OpenXM$
+/*&jp
+\section{ OX サーバに対する C ライブラリインタフェース }
+
+一部のOX サーバでは C のライブラリとしてリンクして使用するもできる.
+ライブラリとして使用するための C の関数は
+Asir の OX サーバ用クライアント関数に似たインタフェースを持つ.
+
+ライブラリ関数には, CMO を binary encoding して渡す.
+ライブラリ関数からは, CMO が binary encoded form で戻る.
+
+*/
+/*&eg
+\section{ OX servers as a C library}
+
+In some OX servers, one can use the OX server as a C library.
+The interface functions of the C library
+are similar to Asir OX client functions such as
+\verb+ ox_push_cmo() +, \verb+ ox_pop_cmo() +.
+
+CMO should be in the binary encoded form to call these functions.
+*/
+/*&C
+
+\medbreak
+\begin{verbatim}
+  int xxx_ox_byte_order(int type)
+\end{verbatim}
+*/
+/*&eg
+  Specify the byte order to send int32 to the OX server xxx.
+  When type = 0, the network byte order will be used.
+  In case of error, -1 will be returned.
+*/
+/*&jp
+  OX サーバ xxx へ int32 を送るための byte order を type で指定する.
+  ライブラリではあるが,  
+  type = 0 で, network byte order を使用できないといけない??
+  失敗した場合, -1 を戻す.
+*/
+
+/*&C
+
+\smallskip
+\begin{verbatim}
+  void xxx_ox_push_cmo(void *cmo, int size)
+\end{verbatim}
+*/
+/*&eg
+Push the binary encoded CMO {\tt cmo} of the size {\tt size}
+onto the stack of the OX server xxx.
+*/
+/*&jp
+Binary encoded された CMO (サイズは size) を, OX サーバ xxx
+の stack に push する. 
+*/
+/*&C
+
+\smallskip
+\begin{verbatim}
+  int xxx_ox_pop_cmo(void *cmo, int limit)
+\end{verbatim}
+*/
+/*&eg
+Pop a binary encoded CMO from the OX server xxx
+and write it at {\tt cmo}.
+The return value is the size of the CMO in bytes.
+In case of the stack underflow, the return value is 0.
+If the size exceeds the {\tt limit}, -1 will be returned
+and the CMO is not popped and will not be written to {\tt cmo}.
+*/
+/*&jp
+Binary encoded された CMO (サイズは size) を,  OX サーバより
+pop して, cmo に書き込む.
+戻り値は CMO のサイズを byte で戻す.
+Stack underflow の場合の戻り値は 0 である.
+ただし, limit より大きいサイズの CMO は書き込まれない.
+この場合, 戻り値は -1 となる.
+*/
+
+/*&C
+
+\smallskip
+\begin{verbatim}
+  int xxx_ox_peek_cmo_size()
+\end{verbatim}
+*/
+/*&eg
+Return the size of the CMO at the top of the stack.
+*/
+
+/*&C
+
+\smallskip
+\begin{verbatim}
+  int xxx_ox_peek_cmo_size()
+\end{verbatim}
+*/
+/*&jp
+stack の一番上にある CMO のサイズを byte で戻す.
+( ライブラリ版特有 )
+*/
+
+/*&C
+
+\smallbreak
+\begin{verbatim}
+ox_push_cmd(), ox_execute_string() 
+\end{verbatim}
+*/
+/*&eg
+These functions have the same specification with those
+in Asir client functions. See Asir document.
+Numbers should be given in int 32 and strings should be given
+by char *
+*/
+/*&jp
+については, Asir クライアントと同じインタフェース.
+数は int32 で, 文字列は char * で.
+*/
+

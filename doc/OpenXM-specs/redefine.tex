@@ -1,0 +1,18 @@
+%% $OpenXM$
+//&jp \section{メンバの再定義に関する注意}
+
+/*&jp
+われわれは,
+Coefficient を Group DistributedPolynomials の メンバとして定義した.
+これを新しい group のメンバーとして定義を拡張することができる.
+たとえば, Coefficient を, 再帰表現多項式のメンバとしても定義できる.
+この場合副作用として, DistributedPolynomials のメンバとしての Coeffients
+の意味も拡張される.
+システムがそのあたらしい DistributedPolynomials をすくなくとも CMO としては
+理解できないといけないが, それを実際にそのシステムのローカルな Object に
+変換できるかはシステム依存である.
+このような再定義をゆるすのは, 一般的な実装法がやはりこのような仕組みだから
+である.
+mathcap にデータ転送の保護機能はこのような再帰的表現もチェックできないと
+いけない.
+*/

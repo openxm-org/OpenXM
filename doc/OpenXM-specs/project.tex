@@ -1,0 +1,100 @@
+%% $OpenXM$
+//&jp \section{現在検討中の機能}
+//&eg \section{Projects in work in progress} (This part has not been translated.)
+
+/*&jp
+\subsection{ OX DATA with Length の構造 }
+
+Digital signature 付の {\tt OX\_DATA} は
+ヘッダ {\tt OX\_DATA\_WITH\_LENGTH }で, はじまり, CMO がきて,
+それから, 終りのマークおよびデジタル署名がくる.
+この形のデータを {\it secured OX DATA} と呼ぶ.
+\begin{verbatim}
+#define OX_SECURED_DATA               521
+\end{verbatim}
+
+\noindent
+\begin{tabular}{|c|c|c|c|c|}  \hline
+{\tt int32 OX\_DATA\_WITH\_LENGTH} & {\tt int32} {\rm serial} 
+& {\tt int32} {\rm size}
+& {\sl CMObject} {\rm o} & {\it tail} \\
+\hline 
+\end{tabular}
+
+{\tt size} フィールドに 値 -1 が入っている場合この情報を無視する.
+
+{\it tail } は次のように定義する.
+\\ \noindent
+\begin{tabular}{|c|c|c|}  \hline
+{\tt int32 CMO\_START\_SIGNATURE} & {\tt int32} {\rm size}
+& {\it signature} \\
+\hline 
+\end{tabular}
+
+ここで, {\tt size} はバイト列 {\it signature} 部の長さ.
+{\it signature} は, Hash 関数を用いた, {\it CMO data}
+にたいする, デジタル署名をいれ, 不正な serialized object 
+を検出する.
+Tail の {\tt size} フィールドが 0 の場合, デジタル署名部はない.
+
+クライアント, サーバの実装には次の3つの選択がある.
+\begin{enumerate}
+\item {\tt OX\_DATA} のみを用いて CMObject を送る (mathcap 付).
+\item {\tt OX\_SECURED\_DATA} のみを用いて CMObject を送る.
+\item {\tt OX\_DATA} および
+{\tt OX\_SECURED\_DATA} を混在して
+使用できるようにする.
+\item {\tt OX\_DATA} のみを用いてかつ mathcap も用いない(一番高速).
+\end{enumerate} 
+1 の短所は, mathcap の実装が不十分で,
+理解できない CMObject をうけとると,
+以後の CMObject は理解できなくなる.
+1 の長所は, 長さフィールドの計算を
+おこなわないため, データを送り出す側に負担がかからないことである.
+2 の長所は, mathcap の実装が不十分で,
+理解できない CMObject をうけとっても,
+長さフィールドを用いて, 通信回線のダウンを
+防ぐことができる.
+2 の短所は, 長さフィールドの計算を
+おこなうため, データを送り出す側に負担がかかることである.
+
+現在のすべてのサンプルサーバは, 1, 4 のみを実装している.
+
+mathcap の交換はセッションの開始時点で必須という訳ではない
+ことに注意されたい.
+たとえば,
+モード 4 で通信して,
+それから,
+mathcap を交換して,
+モード 1 へ移行することも可能なように実装すべきである.
+
+
+\subsection{サーバスタックマシンはローカルな拡張機能をもってよい}
+
+\begin{verbatim}
+#define  CMO_PRIVATE   0x7fff0000
+\end{verbatim}
+
+{\tt CMO\_PRIVATE} = {\tt OX\_PRIVATE} = {\tt SM\_PRIVATE} 
+よりはじまる, 0x10000 個の ID は, private 領域として予約されている.
+各サーバの開発者間で表現方法につきまだ合意がないような, CMObject, 
+OX Message, SMobject を表現するために使用する.
+
+\subsection{MathLink や open math などの通信規約の実装}
+
+Open asir, open sm1 と Mathematica の用いている MathLink や 
+Open Math (\cite{openmath})
+プロトコルを変換するための
+ライブラリやサーバを用意すれば, {\tt asir} や {\tt kan/sm1} の
+内部構造を理解することなしに, これらに準拠したシステムと通信できる.
+
+\subsection{共通スタックマシン言語}
+
+CMO に付随した, たとえば, Integer 32 に対する,
+add, sub, mul, などの基本的な計算は {\tt SM\_executeFunction}
+で全てのシステムで実行できるように検討している.
+スタックマシンの制御構造についても検討している.
+
+
+*/
+
