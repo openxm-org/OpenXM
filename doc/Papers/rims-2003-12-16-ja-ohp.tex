@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.1 2003/12/11 05:43:37 takayama Exp $
+% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.2 2003/12/11 06:00:41 takayama Exp $
 %% xdvi -paper a4r rims-2003-12-16-ja-ohp
 %% dvips -f -t landscape  rims-2003-12-16-ja-ohp| psnup -8 -r | lpr -Pxerox6
 \documentclass{slides}
@@ -312,10 +312,195 @@ value}{\tt )}
 
 \noindent
 \pagetitle{4. {\color{blue} OX-RFC 102 --- 本格的なサーバ間通信を用いた分散計算}}
-
+\parskip 5pt
 
 \rightline{開発: 野呂}
+
+OX-RFC-100, 101 : master-server 間通信を用いた分散計算
+
+OX-RFC-102 : server-server 間通信
+
+\underline{目標} : 本格的分散並列計算を可能にすること
+
+\underline{応用例}
+\begin{itemize}
+\item broadcast を効率化する
+
+N 個の server への broadcast が $O(\log_2 N)$ でできる
+
+\item LU 分解の分散並列計算
+
+ScaLAPACK 風に, 行列を分散保持して並列計算
+\end{itemize}
+
+\underline{仕様}
+
+MPI-2 の, 動的プロセス生成, プロセスグループ間 broadcast の仕様を
+参考にする
 \newpage
+
+\noindent
+\pagetitle{server の起動, server 間通信路の開設}
+
+server は OX RFC-100, 101 により起動する. この通信路に以下の SM
+コマンドを送る.
+
+\begin{itemize}
+\item {\tt SM\_set\_rank\_102} $nserver$ $rank$
+
+server に, グループ内の server の総数 $nserver$ と, その中での
+識別子 $rank$ ($0 \le rank \le nserver$) を通知する.
+
+\item {\tt SM\_tcp\_accept\_102} $port$ $peer$
+
+ポート番号 $port$ の TCP ポートで, bind, listen, accept を実行
+して connect を待つ. 通信が成立したら, byte order negotiation
+を行い, 相手先テーブルに登録する.
+
+\item {\tt SM\_tcp\_connect\_102} $peerhost$ $port$ $peer$
+
+ホスト $peerhost$ のポート番号 $port$ の TCP ポートに connect する. 
+通信が成立したら, byte order negotiation を行い, 相手先テーブルに登録
+する.
+
+\end{itemize}
+
+\newpage
+
+\noindent
+\pagetitle{server 間通信, broadcast, reduction}
+
+server 間通信は, 相互の信頼に基づき行う --- 送り手が送信したら, 受け手は
+ちゃんと受信動作に入ること
+
+データは OX タグ付きで --- {\tt OX\_SYNC\_BALL} による通信路リセットに必要
+
+以下の SM コマンドは collective 操作である. すなわち, 同一引数で
+グループ内の全ての server で実行されなければいけない.
+
+\begin{itemize}
+\item {\tt SM\_bcast\_102} $root$
+
+識別子 $root$ の server のスタック上のデータを pop し, グループ内に
+broadcast する. 各 server のスタックに broadcast されたデータが push
+される.
+
+\item {\tt SM\_reduce\_102} $root$ $opname$
+
+各 server のスタック上のデータが pop され, $opname$ で指定される
+二項演算(結合則が必要) を順に行い, 結果を $root$ で指定される server
+のスタックに push する. 他の server には $0$ が push 
+される.
+\end{itemize}
+
+\newpage
+
+\noindent
+\pagetitle{broadcast の手続き}
+
+{SM\_bcast\_102} の実行 : $root=0$ で, 識別子が $b2^k$ ($b$ は奇数) の server の場合
+
+\begin{enumerate}
+\item 識別子が $(b-1)2^k$ である server からデータを受信.
+\item 識別子が $b2^k+2^i$ ($i=k-1,\ldots,0$) の server に順にデータを送信.
+\end{enumerate}
+
+2 で割り切れる回数が多い識別子を持つ server が先にデータ送信
+
+$\Rightarrow$ デッドロックにならない
+
+独立なペアどうしの通信が同時に行えるなら、高々 $\lceil \log_2 N\rceil$ ステップ
+($N$ は server の総数) で broadcast 完了.
+\newpage
+
+\noindent
+\pagetitle{エラー処理}
+
+master-server 間通信路は, OX RFC-100 で規定されている.
+
+server-server 間通信路を空にするための, 識別子 $i$ の server での操作
+
+\begin{tabbing}
+for \= $j = 0$ \= to $i-1$ do\\
+    \> do\\
+    \>         \>$data$ $\leftarrow$ 識別子 $j$ の server からの OX データ\\
+    \> while $data \neq$ {\tt OX\_SYNC\_BALL}\\
+end for\\
+for $j = i+1$ to $nserver-1$ do\\
+    \> {\tt OX\_SYNC\_BALL} を 識別子 $j$ の server に送信\\
+end for
+\end{tabbing}
+
+master-server リセット後 : 各 server はコマンド待ち状態
+
+$\Rightarrow$ 次の SM コマンドを各 server に送信すればよい
+
+\begin{itemize}
+\item {\tt SM\_reset\_102} (引数なし, collective)
+\end{itemize}
+
+\newpage
+
+\noindent
+\pagetitle{Asir (master) 上での API}
+
+\begin{itemize}
+\item {\tt ox\_set\_rank\_102($Server$,$Nserver$,$Rank$)}
+
+$Server$ に {\tt SM\_set\_rank\_102} を送る.
+
+\item {\tt ox\_tcp\_accept\_102($Server$,$Port$,$Rank$)}
+
+$Server$ に {\tt SM\_tcp\_accept\_102} を送る.
+
+\item {\tt ox\_tcp\_connect\_102($Server$,$Host$,$Port$,$Rank$)}
+
+$Server$ に {\tt SM\_tcp\_connect\_102} を送る.
+
+\item {\tt ox\_reset\_102($Server$)} (collective)
+
+$Server$ に {\tt SM\_reset\_102} を送る
+
+\end{itemize}
+
+\newpage
+
+\noindent
+\pagetitle{Asir (server) 上での API}
+
+\begin{itemize}
+\item {\tt ox\_send\_102($Rank$,$Data$)}
+
+識別子 $Rank$ の server に $Data$ を OX データとして送信する.
+識別子 $Rank$ の server は対応する受信を開始しなければならない.
+
+\item {\tt ox\_recv\_102($Rank$)}
+
+識別子 $Rank$ の server から OX データを受信する.
+識別子 $Rank$ の server は対応する送信を開始しなければならない.
+
+\item {\tt ox\_bcast\_102($Root$[,$Data$])} (collective)
+
+識別子 $Root$ の server を root として, グループ内で broadcast する.
+$Data$ が指定された場合, スタックにプッシュされる.
+を指定する必要がある. 識別子が $Root$ に等しい server で, スタック
+からデータがポップされ, そのデータが, 各呼び出しの戻り値となる.
+
+\item {\tt ox\_reduce\_102($Root$,$Operation$[,$Data$])} (collective)
+
+グループ内の各 server のスタックからポップしたデータに対し
+$Operation$ で指定される二項演算を行い,
+結果を $Root$ で指定される server での関数呼び出しの戻り値として
+返す.
+$Data$ が指定された場合, スタックにプッシュしてから上記の操作を
+実行する. $Root$ 以外の server での戻り値は 0 である.
+\end{itemize}
+
+
+\newpage
+
+\noindent
+\pagetitle{パフォーマンス}
 
 \end{document}
 
