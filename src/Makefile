@@ -1,8 +1,10 @@
-## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.51 2000/01/09 18:20:14 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.52 2000/01/09 18:44:55 maekawa Exp $
 
-all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
-     all-pari all-asir all-gnuplot all-openmath all-oxmath
+LIBDIR=../lib
+BINDIR=../bin
+
+all: configure all-asir all-gnuplot all-k097 all-kan96xx all-kxx \
+     all-pari all-phc all-openmath all-oxmath all-tigers
 
 all-asir: configure-asir
 	(cd asir2000 ; make all)
@@ -45,7 +47,8 @@ all-tigers:
 	(cd tigers ; make all)
 
 install: install-asir install-gnuplot install-k097 install-kan96xx \
-	 install-kxx install-pari install-phc install-tigers
+	 install-kxx install-openmath install-oxmath install-pari \
+	 install-phc install-tigers
 
 install-asir: all-asir
 	(cd asir2000 ; make install)
@@ -61,6 +64,10 @@ install-kan96xx: all-kan96xx
 
 install-kxx: all-kxx
 	(cd kxx ; make install2)
+
+install-openmath: all-openmath
+
+install-oxmath: all-oxmath
 
 install-pari: all-pari
 	(cd pari ; make install)
@@ -81,7 +88,6 @@ clean:
 	(cd pari ; make clean)
 	(cd phc ; make clean)
 	(cd tigers ; make clean)
-	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/k0 bin/oxweave bin/fep.linux bin/lin_phcv2p
 
 distclean: clean
 	(cd asir2000 ; make distclean)
@@ -90,8 +96,12 @@ distclean: clean
 	(cd pari ; make distclean)
 	(cd phc ; make distclean)
 	(cd tigers ; make distclean)
+	rm -rf $(BINDIR)/d0 $(BINDIR)/fep.linux $(BINDIR)/k0 \
+	       $(BINDIR)/lin_phcv2p $(BINDIR)/ox $(BINDIR)/ox_sm1 \
+	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
+	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 
-configure: configure-links configure-asir configure-bin configure-gnuplot \
+configure: configure-links configure-bin configure-asir configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari
 
@@ -99,7 +109,7 @@ configure-asir:
 	(cd asir2000; make configure)
 
 configure-bin:
-	(cd ../bin ; ./configure2)
+	(cd $(BINDIR) ; ./configure2)
 
 configure-gnuplot:
 	(cd gnuplot ; make configure)
@@ -113,7 +123,13 @@ configure-kxx: install-kan96xx
 	(cd kxx ; make configure)
 
 configure-links:
-	./make-links
+	rm -f bin SSkan gmp gc $(LIBDIR)/k097 $(LIBDIR)/sm1
+	ln -f -s $(BINDIR) bin
+	ln -f -s kan96xx SSkan
+	ln -f -s $OPENXM_CONTRIB/gmp gmp
+	ln -f -s $OPENXM_CONTRIB/gc gc
+	(cd $(LIBDIR) ; ln -f -s ../src/k097 k097)
+	(cd $(LIBDIR) ; ln -f -s ../src/kan96xx/Doc sm1)
 
 configure-oxmath:
 	(cd ox_math; ./configure)
