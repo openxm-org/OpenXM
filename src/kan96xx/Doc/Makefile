@@ -1,8 +1,8 @@
-## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.6 2001/08/12 07:44:34 takayama Exp $
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.7 2002/04/07 07:18:50 takayama Exp $
 ########## Documents
-TOPDIR=../../../../OpenXM
-OpenXM_ROOT=${TOPDIR}
-OpenXM_doc=$(OpenXM_ROOT)/doc
+OpenXM_HOME=../../..
+OpenXM_doc=$(OpenXM_HOME)/doc
+OpenXM_lib=${OpenXM_HOME}/lib
 DVIPS=dvips -f
 CC=gcc
 LATEX2HTML=latex2html
@@ -19,7 +19,7 @@ ttt.tex : ex.tex ole cv0.sm1 cv2.sm1 gbelim.sm1 gblex.sm1 gbrev.sm1 gbrevsim.sm1
 	./ole <ex.tex >ttt.tex
 
 onlinehelp.tex :
-	-./printOnlineHelp
+	-./printOnlineHelp ${OpenXM_lib}
 
 onlinehelp.dvi : onlinehelp.tex
 	-latex onlinehelp 
