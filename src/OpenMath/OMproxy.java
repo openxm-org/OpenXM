@@ -1,3 +1,7 @@
+/**
+ * $OpenXM$
+ */
+
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.util.Stack;
 import java.io.*;
@@ -131,13 +135,26 @@ class OMproxy implements Runnable{
     return ret;
   }
 
+  private static String usage(){
+    String ret = "";
+
+    ret += "usage\t: java OMproxy [options]\n";
+    ret += "options\t:\n";
+    ret += "\t -h \t show this message\n";
+    ret += "\t -host hostname \t (default localhost)\n";
+    ret += "\t -data port \t (default 1300)\n";
+    ret += "\t -control port \t (default 1200)\n";
+
+    return ret;
+  }
+
   public static void main(String argv[]){
     String host = "localhost";
     int DataPort = 1300, ControlPort = 1200;
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-	System.out.println("");
+	System.out.print(usage());
 	System.exit(0);
       }else if(argv[i].equals("-host")){
 	host = argv[++i];
@@ -146,10 +163,12 @@ class OMproxy implements Runnable{
       }else if(argv[i].equals("-control")){
 	ControlPort = Integer.valueOf(argv[++i]).intValue();
       }else{
-	System.err.println("unknown option :"+ argv[i]);
+	System.err.println("unknown option : "+ argv[i]);
+	System.err.print(usage());
 	System.exit(1);
       }
     }
+
     System.out.println("host(ctrl,data): "+ host
 		       +"("+ ControlPort +","+ DataPort +")");
 
