@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.77 1999/12/24 19:59:39 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.78 1999/12/24 21:01:21 tam Exp $
 
 \usepackage{jssac}
 \title{
@@ -457,35 +457,38 @@ $a_2$, $a_3$, $a_4$ は文字列で
 
 3 番目の要素 $C$ は以下のようなリスト構造をしている。
 \begin{quote}
-	(CMO\_LIST, {\sl int32} $m$,
-		(CMO\_LIST, {\sl int32} $l_1$, {\sl cmo\_int32}
-		{\sl cmo} $c_1$, {\sl cmo} $c_2$, $\cdots$, {\sl cmo} $c_m$)
+  (CMO\_LIST, {\sl int32} $m$, \\
+  \hspace{10mm}	(CMO\_LIST, {\sl int32} $l_1$, {\sl cmo\_int32} $c_{11}$,
+		{\sl cmo} $c_{12}$, $\cdots$, {\sl cmo} $c_{1l_1}$) \\
+  \hspace{10mm}	(CMO\_LIST, {\sl int32} $l_2$, {\sl cmo\_int32} $c_{21}$,
+		{\sl cmo} $c_{22}$, $\cdots$, {\sl cmo} $c_{1l_2}$) \\
+  \hspace{10mm}	$\vdots$ \\
+  \hspace{10mm}	(CMO\_LIST, {\sl int32} $l_m$, {\sl cmo\_int32} $c_{m1}$,
+		{\sl cmo} $c_{m2}$, $\cdots$, {\sl cmo} $c_{1l_m}$))
 \end{quote}
 %%$n$ は OX\_COMMAND 以外の受け取れるメッセージのタグの種類の数に等しい。
 %%要素数は 1 でももちろん構わない。
-各 $c_i$ もまた以下のようなリスト構造となっており、
-どの $c_i$ も最初の要素が 32 ビットの整数となっている。
-%\[  \overbrace{
-%	\begin{tabular}{|c|c|c|c|c|} \hline
-%	$c_{i1}$ (32 ビットの整数) & $c_{i2}$ & $c_{i3}$ &
-%		$\cdots$ & $c_{im}$	\\ \hline
-%	\end{tabular}
-%   }^{c_i}	\]
-このリストの最初の整数値は受け取れるメッセージのタグが入っている。
+どの $c_{i1}$ にも 32 ビットの整数が入っており、
+OX\_COMMAND 以外の、受け取れるメッセージのタグが入っている。
 $c_{i2}$ 以降については最初の $c_{i1}$ の値によってそれぞれ異なる。
 ここでは、最初の要素が OX\_DATA の場合についてのみ説明する。
 この $c_{i1}$ が OX\_DATA の場合、
-リスト $c_i$ は CMO 形式についての情報を表しており、
-$m=2$ と決められている。
+$c_{i1}$, $c_{i2}$, $\cdots$, $c_{il_i}$ を要素とする cmo\_list は
+CMO 形式についての情報を表しており、 $l_i=2$ と決められている。
 $c_{i1}$ にはもちろんのこと OX\_DATA が入っており、
-$c_{i2}$ は以下の図のようなリスト構造になっている。
+$c_{i2}$ は以下の図のような cmo\_list になっている。
 各要素は 32 ビットの整数であり、
 受け取ることが可能な CMO 形式のタグが入る。
-\[  \overbrace{
-	\begin{tabular}{|c|c|c|c|c|} \hline
-	$c_{i21}$ & $c_{i22}$ & $\cdots$ & $c_{i2l}$	\\ \hline
-	\end{tabular}
-   }^{c_{i2}}	\]
+\begin{quote}
+	(CMO\_LIST, {\sl int32} $k$,
+		{\sl cmo\_int32} $c_{i21}$, {\sl cmo\_int32} $c_{i22}$,
+			$\cdots$, {\sl cmo\_int32} $c_{i2k}$)
+\end{quote}
+%\[  \overbrace{
+%	\begin{tabular}{|c|c|c|c|c|} \hline
+%	$c_{i21}$ & $c_{i22}$ & $\cdots$ & $c_{i2l}$	\\ \hline
+%	\end{tabular}
+%   }^{c_{i2}}	\]
 
 %なお、 mathcap データの中では CMO 形式で定義されている
 %32 bit 整数、文字列、リスト構造が使われており、
@@ -495,38 +498,36 @@ $c_{i2}$ は以下の図のようなリスト構造になっている。
 %説明しなければならないってことです)。
 
 具体的な mathcap の例をあげよう。
-%なお、 $a_1$, $a_2$, $\cdots$, $a_n$ を要素に
-%持つリスト構造を {\tt [$a_1$, $a_2$, $\cdots$, $a_n$]} 、
-%文字列 ``string'' を {\tt "string"} 、 32 bit 整数を
-%それに対応する 10 進数の整数で示す。
-名前が ``ox\_test''、バージョンナンバーが 199911250 のサーバであれば、
+名前が ``ox\_test''、バージョンナンバーが 199911250 のサーバで、
+PC-UNIX 上で動いていれば、
 $A$ の部分は
-\begin{tabular}{|c|c|} \hline
-199911250 & "ox\_test" \\ \hline
-\end{tabular}
+\begin{quote}
+(CMO\_LIST, 4, {\sl cmo\_int32} $199911250$, {\sl cmo\_string} "ox\_test",
+	{\sl cmo\_string} "Version=199911250",
+	{\sl cmo\_string} "HOSTTYPE=i386")
+\end{quote}
 となる。
 さらに、このサーバのスタックマシンが
 命令コード 2, 3, 5, 7, 11 番を利用可能
 (実際にはこのような命令コードは存在しない)であれば、 $B$ の部分は
-\begin{tabular}{|c|c|c|c|c|} \hline
-2 & 3 & 5 & 7 & 11 \\ \hline
-\end{tabular}
+\begin{quote}
+	(CMO\_LIST, {\sl int32} $5$,
+		{\sl cmo\_int32} $2$, {\sl cmo\_int32} $3$,
+		{\sl cmo\_int32} $5$, {\sl cmo\_int32} $7$,
+		{\sl cmo\_int32} $11$)
+\end{quote}
 となり、
 CMO 形式の 32 ビット整数、文字列、 mathcap 、リスト構造のみが
 受け取れるときには、 $C$ の部分は
-\begin{tabular}{|c|} \hline
-	\\[-5mm]
-	\begin{tabular}{|c|c|} \hline
-		& \\[-5mm]
-		OX\_DATA &
-		\begin{tabular}{|c|c|c|c|} \hline
-		CMO\_INT32 & CMO\_STRING & CMO\_MATHCAP & CMO\_LIST \\ \hline
-		\end{tabular} \\[0.8mm] \hline
-	\end{tabular} \\[1.4mm] \hline
-\end{tabular} \\
+\begin{quote}
+  (CMO\_LIST, {\sl int32} $1$, \\
+  \ \	(CMO\_LIST, {\sl int32} $4$,
+		{\sl cmo\_int32} $2$, {\sl cmo\_int32} $4$,
+		{\sl cmo\_int32} $5$, {\sl cmo\_int32} $17$))
+\end{quote}
 となる。
-CMO\_ZZ がないので、このサーバは多倍長整数が送られてこないことを期待して
-いる。
+%CMO\_ZZ がないので、このサーバは多倍長整数が送られてこないことを
+%期待している。
 
 なお、データが受け取れることと、データの論理構造が理解できることとはまっ
 たく別物であるので注意する必要がある。
