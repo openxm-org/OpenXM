@@ -1,0 +1,244 @@
+% $OpenXM$
+
+\subsection{Distributed computation with homogeneous servers}
+\label{section:homog}
+
+One of the aims of OpenXM is a parallel speedup by a distributed computation
+with homogeneous servers. As the current specification of OpenXM does
+not include communication between servers, one cannot expect
+the maximal parallel speedup. However it is possible to execute
+several types of distributed computation as follows.
+
+\subsubsection{Product of univariate polynomials}
+
+Shoup \cite{Shoup} showed that the product of univariate polynomials
+with large degrees and large coefficients can be computed efficiently
+by FFT over small finite fields and Chinese remainder theorem,
+which can be easily parallelized.
+%
+%\begin{tabbing}
+%Input :\= $f_1, f_2 \in {\bf Z}[x]$ such that $deg(f_1), deg(f_2) < 2^M$\\
+%Output : $f = f_1f_2$ \\
+%$P \leftarrow$ \= $\{m_1,\cdots,m_N\}$ where $m_i$ is an odd prime, \\
+%\> $2^{M+1}|m_i-1$ and $m=\prod m_i $ is sufficiently large. \\
+%Separate $P$ into disjoint subsets $P_1, \cdots, P_L$.\\
+%for \= $j=1$ to $L$ $M_j \leftarrow \prod_{m_i\in P_j} m_i$\\
+%Compute $F_j$ such that $F_j \equiv f_1f_2 \bmod M_j$\\
+%\> and $F_j \equiv 0 \bmod m/M_j$ in parallel.\\
+%\> (The product is computed by FFT.)\\
+%return $\phi_m(\sum F_j)$\\
+%(For $a \in {\bf Z}$, $\phi_m(a) \in (-m/2,m/2)$ and $\phi_m(a)\equiv a \bmod m$)
+%\end{tabbing}
+%
+Figure \ref{speedup}
+shows the speedup factor under the above distributed computation
+on Risa/Asir. For each $n$, two polynomials of degree $n$
+with 3000bit coefficients are generated and the product is computed.
+The machine is FUJITSU AP3000,
+a cluster of Sun workstations connected with a high speed network 
+and MPI over the network is used to implement OpenXM.
+\begin{figure}[htbp]
+\epsfxsize=10cm
+\epsffile{speedup.ps}
+\caption{Speedup factor}
+\label{speedup}
+\end{figure}
+If the number of servers is $L$ and the inputs are fixed, then the cost to
+compute the products modulo some integers in parallel is $O(1/L)$, 
+whereas the cost
+to send and receive polynomials is $O(L)$ if {\tt ox\_push\_cmo()} and
+{\tt ox\_pop\_cmo()} are repeatedly applied on the client.
+Therefore the speedup is limited and the upper bound of
+the speedup factor depends on the ratio of 
+the computational cost and the communication cost for each unit operation.
+Figure \ref{speedup} shows that 
+the speedup is satisfactory if the degree is large and $L$
+is not large, say, up to 10 under the above environment.
+If OpenXM provides collective operations for broadcast and reduction
+such as {\tt MPI\_Bcast} and {\tt MPI\_Reduce} respectively, the cost of 
+broadcasting the inputs and gathering the results on the servers
+may be reduced to $O(\log_2L)$
+and we can expect better results in such a case. In order to implement
+such operations we need new specifications for inter-sever communication
+and the session management, which will be proposed as OpenXM-RFC 102.
+We note that preliminary experiments show the collective operations
+work well on OpenXM.
+
+%\subsubsection{Competitive distributed computation by various strategies}
+%
+%SINGULAR \cite{Singular} implements {\it MP} interface for distributed
+%computation and a competitive Gr\"obner basis computation is
+%illustrated as an example of distributed computation.
+%Such a distributed computation is also possible on OpenXM as follows:
+%
+%The client creates two servers and it requests 
+%Gr\"obner basis comutations from the homogenized input and the input itself
+%to the servers.
+%The client watches the streams by {\tt ox\_select()}
+%and the result which is returned first is taken. Then the remaining
+%server is reset.
+%
+%\begin{verbatim}
+%/* G:set of polys; V:list of variables */
+%/* O:type of order; P0,P1: id's of servers */
+%def dgr(G,V,O,P0,P1)
+%{
+%  P = [P0,P1]; /* server list */
+%  map(ox_reset,P); /* reset servers */
+%  /* P0 executes non-homogenized computation */
+%  ox_cmo_rpc(P0,"dp_gr_main",G,V,0,1,O);
+%  /* P1 executes homogenized computation */
+%  ox_cmo_rpc(P1,"dp_gr_main",G,V,1,1,O);
+%  map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
+%  F = ox_select(P); /* wait for data */
+%  /* F[0] is a server's id which is ready */
+%  R = ox_get(F[0]);
+%  if ( F[0] == P0 ) {
+%    Win = "nonhomo"; Lose = P1;
+%  } else {
+%    Win = "homo"; Lose = P0;
+%  }
+%  ox_reset(Lose); /* reset the loser */
+%  return [Win,R];
+%}
+%\end{verbatim}
+
+\subsubsection{Nesting of client-server communication}
+
+Under OpenXM-RFC 100 an OpenXM server can be a client of other servers.
+Figure \ref{tree} illustrates a tree-like structure of an OpenXM
+client-server communication.
+
+\begin{figure}
+\label{tree}
+\begin{center}
+\begin{picture}(200,140)(0,0)
+\put(70,120){\framebox(40,15){client}}
+\put(20,60){\framebox(40,15){server}}
+\put(70,60){\framebox(40,15){server}}
+\put(120,60){\framebox(40,15){server}}
+\put(0,0){\framebox(40,15){server}}
+\put(50,0){\framebox(40,15){server}}
+\put(135,0){\framebox(40,15){server}}
+
+\put(90,120){\vector(-1,-1){43}}
+\put(90,120){\vector(0,-1){43}}
+\put(90,120){\vector(1,-1){43}}
+\put(40,60){\vector(-1,-2){22}}
+\put(40,60){\vector(1,-2){22}}
+\put(140,60){\vector(1,-3){14}}
+\end{picture}
+\caption{Tree-like structure of client-server communication}
+\end{center}
+\end{figure}
+
+Such a computational model is useful for parallel implementation of
+algorithms whose task can be divided into subtasks recursively.  
+
+%A typical example is {\it quicksort}, where an array to be sorted is
+%partitioned into two sub-arrays and the algorithm is applied to each
+%sub-array. In each level of recursion, two subtasks are generated
+%and one can ask other OpenXM servers to execute them. 
+%Though it makes little contribution to the efficiency in the case of
+%quicksort, we present an Asir program of this distributed quicksort
+%to demonstrate that OpenXM gives an easy way to test this algorithm.
+%In the program, a predefined constant {\tt LevelMax} determines
+%whether new servers are launched or whole subtasks are done on the server.
+%
+%\begin{verbatim}
+%#define LevelMax 2
+%extern Proc1, Proc2;
+%Proc1 = -1$ Proc2 = -1$
+%
+%/* sort [A[P],...,A[Q]] by quicksort */
+%def quickSort(A,P,Q,Level) {
+%  if (Q-P < 1) return A;
+%  Mp = idiv(P+Q,2); M = A[Mp]; B = P; E = Q;
+%  while (1) {
+%    while (A[B] < M) B++;
+%    while (A[E] > M && B <= E) E--;
+%    if (B >= E) break;
+%    else { T = A[B]; A[B] = A[E]; A[E] = T; E--; }
+%  }
+%  if (E < P) E = P;
+%  if (Level < LevelMax) {
+%   /* launch new servers if necessary */
+%   if (Proc1 == -1) Proc1 = ox_launch(0);
+%   if (Proc2 == -1) Proc2 = ox_launch(0);
+%   /* send the requests to the servers */
+%   ox_rpc(Proc1,"quickSort",A,P,E,Level+1);
+%   ox_rpc(Proc2,"quickSort",A,E+1,Q,Level+1);
+%   if (E-P < Q-E) {
+%     A1 = ox_pop_local(Proc1);
+%     A2 = ox_pop_local(Proc2);
+%   }else{
+%     A2 = ox_pop_local(Proc2);
+%     A1 = ox_pop_local(Proc1);
+%   }
+%   for (I=P; I<=E; I++) A[I] = A1[I];
+%   for (I=E+1; I<=Q; I++) A[I] = A2[I];
+%   return(A);
+%  }else{
+%   /* everything is done on this server */
+%   quickSort(A,P,E,Level+1);
+%   quickSort(A,E+1,Q,Level+1);
+%   return(A);
+%  }
+%}
+%\end{verbatim}
+
+A typical example is a parallelization of the Cantor-Zassenhaus
+algorithm for polynomial factorization over finite fields.
+which is a recursive algorithm.
+At each level of the recursion, a given polynomial can be
+divided into two non-trivial factors with some probability by using 
+a randomly generated polynomial as a {\it separator}.
+We can apply the following simple parallelization:
+When two non-trivial factors are generated on a server,
+one is sent to another server and the other factor is factorized on the server
+itself. 
+%\begin{verbatim}
+%/* factorization of F */
+%/* E = degree of irreducible factors in F */
+%def c_z(F,E,Level)
+%{
+%  V = var(F); N = deg(F,V);
+%  if ( N == E ) return [F];
+%  M = field_order_ff(); K = idiv(N,E); L = [F];
+%  while ( 1 ) {
+%    /* gererate a random polynomial */
+%    W = monic_randpoly_ff(2*E,V);
+%    /* compute a power of the random polynomial */
+%    T = generic_pwrmod_ff(W,F,idiv(M^E-1,2));
+%    if ( !(W = T-1) ) continue;
+%    /* G = GCD(F,W^((M^E-1)/2)) mod F) */
+%    G = ugcd(F,W);
+%    if ( deg(G,V) && deg(G,V) < N ) {
+%      /* G is a non-trivial factor of F */
+%      if ( Level >= LevelMax ) {
+%        /* everything is done on this server */
+%        L1 = c_z(G,E,Level+1);
+%        L2 = c_z(sdiv(F,G),E,Level+1);
+%      } else {
+%        /* launch a server if necessary */
+%        if ( Proc1 < 0 ) Proc1 = ox_launch();
+%        /* send a request with Level = Level+1 */
+%        /* ox_c_z is a wrapper of c_z on the server */
+%        ox_cmo_rpc(Proc1,"ox_c_z",lmptop(G),E,
+%            setmod_ff(),Level+1);
+%        /* the rest is done on this server */
+%        L2 = c_z(sdiv(F,G),E,Level+1);
+%        L1 = map(simp_ff,ox_pop_cmo(Proc1));
+%      }
+%      return append(L1,L2);
+%    }
+%  }
+%}
+%\end{verbatim}
+%
+%
+%
+%
+%
+%
+%

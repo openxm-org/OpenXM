@@ -1,0 +1,119 @@
+% $OpenXM$
+
+\section{Session Management}
+\label{secsession}
+%MEMO: key words:
+%Security (ssh PAM), initial negotiation of byte order,
+%mathcap, interruption, debugging window, etc.
+ 
+In this section we show our control integration in
+OpenXM, which gives a dynamical and unified
+method to start servers, to establish connections and to reset
+computations.
+%method to start servers and to establish connections.
+%We assume that various clients and servers
+%establish connections dynamically and communicate to each
+%other. Therefore it is necessary to give a dynamical and unified
+%method to start servers and to establish connections.
+%In addition to that, interruption of execution and 
+%debugging facilities
+%are necessary for interactive distributed computation.
+
+%\subsection{Interface of servers}
+%
+%A server has additional I/O streams for exchanging data between
+%a client and itself other than ones for diagnostic
+%messages. As the streams are for binary data,
+%the byte order conversion is necessary when a
+%client and a server have different byte orders. It is determined by
+%exchanging the preferable byte order of each peer. If the preference
+%does not coincide with each other,
+%then the network byte order is used.
+%This implies that all servers and clients should be able to
+%handle the network byte
+%order. Nevertheless it is necessary to negotiate the byte order to
+%skip the byte order conversion because its cost is often dominant over
+%fast networks.
+
+\subsection{Invocation of servers}
+\label{launcher}
+
+Under OpenXM-RFC 100, servers are invoked as follows.
+An application called {\it launcher} is invoked from a client.
+The launcher sets up two communication channels: the data channel 
+and the control. Then it creates a server process which can communicate
+with the client via the data channel. Finally the launcher
+acts as a control server and controls the server process.
+As to the details of the control server see Section \ref{control}.
+%As the data channel is used to exchange binary data,
+%the byte order conversion is necessary when a
+%client and a server have different byte orders. It is determined by
+%exchanging the preferable byte order of each peer. If the preference
+%does not coincide with each other,
+%then the network byte order is used.
+%This implies that all servers and clients should be able to
+%handle the network byte
+%order. Nevertheless it is necessary to negotiate the byte order to
+%skip the byte order conversion because its cost is often dominant over
+%fast networks.
+OpenXM-RFC 101 \cite{ox-rfc-101} gives more secure and
+efficient way to start servers.
+It uses ``ssh'' to launch a control server and 
+the control server can launch one or more than one
+engines.
+See \cite{ox-rfc-101} for details.
+
+\subsection{Control server}
+\label{control}
+%In OpenXM we adopted the following simple and robust method to 
+%control servers.
+%
+%An OpenXM server has logically two I/O channels: one for exchanging
+%data for computations and the other for controlling computations. The
+%control channel is used to send commands to control execution on the
+%server. The launcher introduced in Section \ref{launcher}
+%is used as a control process. We call such a process a {\it
+%control server}. In contrast, we call a server for computation an {\it
+%engine}. As the control server and the engine runs on the
+%same machine, it is easy to send a signal from the control server. 
+%A control server is also an
+%OpenXM stack machine and it accepts {\tt SM\_control\_*} commands
+%to send signals to a server or to terminate a server.
+%
+%\subsection{Resetting an engine}
+
+{\tt SM\_control\_reset\_connection} sent to the control server
+initiates a safe resetting of an engine.
+After receiving the command, the control server sends {\tt SIGUSR1} 
+to the engine and the resetting procedure starts.
+Figure \ref{reset} illustrates the flow of data under the OpenXM
+reset protocol.
+\begin{figure}[htbp]
+\begin{center}
+\epsfxsize=8cm
+\epsffile{reset.eps}
+\caption{OpenXM reset procedure}
+\label{reset}
+\end{center}
+\end{figure}
+{\tt OX\_SYNC\_BALL} is used to mark the end of data remaining in the
+I/O streams. After reading it, it is assured that each stream is empty
+and that the subsequent request from a client correctly 
+corresponds to the response from the engine.
+%We note that we don't have to associate {\tt OX\_SYNC\_BALL} with
+%any special action to be executed by the engine because it is
+%assured that the engine is in the resetting state when it has received
+%{\tt OX\_SYNC\_BALL}.
+
+%\subsection{Debugging facilities}
+%Debugging is sometimes very hard for distributed computations.
+%We provide two methods to help debugging on X window system:
+%1. the diagnostic messages from the engine are displayed in a {\tt xterm}
+%window;
+%2. the engine can pop up a window to input debug commands.
+%For example {\tt ox\_asir}, which is
+%the OpenXM server of Risa/Asir, can pop up a window to input
+%debug commands and the debugging similar to that on usual terminals is possible.
+%One can also send {\tt SIGINT} by using {\tt SM\_control\_to\_debug\_mode}
+%and it provides a similar functionality to entering the debugging
+%mode from a keyboard interruption.

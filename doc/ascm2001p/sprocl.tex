@@ -1,0 +1,425 @@
+%%UNIX --- UPDATED ON 13/8/97  
+%====================================================================%
+%                  sprocl.tex     27-Feb-1995                        %
+% This latex file rewritten from various sources for use in the      %
+% preparation of the standard proceedings Volume, latest version     %
+% by Susan Hezlet with acknowledgments to Lukas Nellen.              %
+% Some changes are due to David Cassel.                              %
+%====================================================================%
+
+\documentstyle[sprocl]{article}
+
+\font\eightrm=cmr8
+
+%\input{psfig}
+
+\bibliographystyle{unsrt} %for BibTeX - sorted numerical labels by
+                          %order of first citation.
+
+\arraycolsep1.5pt
+
+% A useful Journal macro
+\def\Journal#1#2#3#4{{#1} {\bf #2}, #3 (#4)}
+
+% Some useful journal names
+\def\NCA{\em Nuovo Cimento}
+\def\NIM{\em Nucl. Instrum. Methods}
+\def\NIMA{{\em Nucl. Instrum. Methods} A}
+\def\NPB{{\em Nucl. Phys.} B}
+\def\PLB{{\em Phys. Lett.}  B}
+\def\PRL{\em Phys. Rev. Lett.}
+\def\PRD{{\em Phys. Rev.} D}
+\def\ZPC{{\em Z. Phys.} C}
+
+% Some other macros used in the sample text
+\def\st{\scriptstyle}
+\def\sst{\scriptscriptstyle}
+\def\mco{\multicolumn}
+\def\epp{\epsilon^{\prime}}
+\def\vep{\varepsilon}
+\def\ra{\rightarrow}
+\def\ppg{\pi^+\pi^-\gamma}
+\def\vp{{\bf p}}
+\def\ko{K^0}
+\def\kb{\bar{K^0}}
+\def\al{\alpha}
+\def\ab{\bar{\alpha}}
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\bea{\begin{eqnarray}}
+\def\eea{\end{eqnarray}}
+\def\CPbar{\hbox{{\rm CP}\hskip-1.80em{/}}}%temp replacemt due to no font
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%BEGINNING OF TEXT                           
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{INSTRUCTIONS FOR PRODUCING A CAMERA-READY MANUSCRIPT 
+USING WORLD SCIENTIFIC PUBLISHING STYLE FILES}
+
+\author{A. B. AUTHOR, C. D. AUTHOR}
+
+\address{World Scientific Publishing Co, 1060 Main Street, 
+River Edge,\\ NJ 07661, USA\\E-mail: wspc@wspc.com} 
+
+\author{A. N. OTHER}
+
+\address{Department of Physics, Theoretical Physics, 1 Keble Road,\\
+Oxford OX1 3NP, England\\E-mail: other@tp.ox.uk}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% You may repeat \author \address as often as necessary      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle\abstracts{ This is where the abstract should
+be placed. It should consist of one paragraph and give a
+concise summary of the material in the article below.
+Replace the title, authors, and addresses within the
+curly brackets with your own title, authors, and
+addresses; please use capital letters for the title and
+the authors. You may have as many authors and addresses
+as you wish. It's preferable not to use footnotes in
+the abstract or the title; the acknowledgments for
+funding bodies etc. are placed in a separate section at
+the end of the text.}
+
+\section{Guidelines}
+\subsection{Producing the Hard Copy}\label{subsec:prod}
+The hard copy may be printed using the advice given in
+the file {\em splread.1st}, which is repeated in this
+section. You should have three files in
+total.\footnote{You can obtain these files from our WWW
+pages at:
+
+\noindent
+{\sf http://www.wspc.co.uk/wspc/Styles/procs/procsread1st.html}
+
+\noindent   
+{\sf http://www.wspc.com.sg/others/style\_files/procsread1st.html}
+\quad or by ftp from
+
+\noindent
+{\sf ftp.wspc.com.sg, cd /pub/style\_files/proceedings/SPROC/.}}
+
+\noindent 
+{\em splread.1st} --- the preliminary guide.
+
+\noindent 
+{\em sprocl.sty} --- the style file that provides the 
+higher level latex commands for the proceedings. Don't 
+change these parameters.
+
+\noindent 
+{\em sprocl.tex} --- the main text. You can delete our  
+sample text and replace it with your own contribution 
+to the volume, however we recommend keeping an initial 
+version of the file for reference. Strip off any mail 
+headers and then latex the tex file.  The command for 
+latexing is {\sf latex sprocl}, do this twice to sort 
+out the cross-referencing.
+
+If you wish to use some other form of word-processor, 
+some guidelines are given in Sec.~\ref{subsec:wpp} 
+below. These files will work with standard latex 
+2.09. If there is an abbreviation defined in the new
+definitions at the top of the file {\em sprocl.tex} that
+conflicts with one of your own macros, then delete the
+appropriate command and revert to longhand. Failing
+that, please consult your local texpert to check for
+other conflicting macros that may be unique to your
+computer system. Page numbers are included at the
+bottom of the page for your guidance. Do not worry about
+the final pagination of the volume which will be done
+after you submit the paper.
+
+\subsection{Using Other Word-Processing Packages}\label{subsec:wpp}
+If you want to use some other form of word-processor to
+construct your output, and are using the final hard copy version
+of these files as guidelines; then please follow the style given 
+here for headings, table and figure captions, and the footnote 
+and citation marks. For this size of volume, the final page 
+dimensions will be 8.5 by 6 inches (21.5 by 15.25 cm) however
+you should submit the copy on standard A4 paper. The text area,
+which includes the page numbers should be 7 by 4.7 inches (17.75
+by 12 cm). The text should be in 10pt roman for the title,
+section heads and the body of the text, and 9pt for the authors'
+names and addresses. Please use capitals for the title and
+authors, bold face for the title and headings, and italics for
+the subheadings. The abstract, footnotes, figure and table
+captions should be in 8pt.
+
+It's also important to reproduce the spacing of the text and headings
+as shown here.Text should be slightly more than single-spaced; use a
+baselineskip (which is the average distance from the base of one line
+of text to the base of an adjacent line) of 13 pts and 10 pts for
+footnotes. All headings should be separated from the text preceding
+it by a baselineskip of about 26 pts and use a baselineskip of about
+18 pts for the following text.
+
+Paragraphs should have a first line indented by about 0.25in (6mm)
+except where the paragraph is preceded by a heading and the abstract
+should be indented on both sides by 0.25in (6mm) from the main body of
+the text.
+
+\subsection{Headings and Text and Equations}
+Please preserve the style of the headings, text fonts and line
+spacing to provide a uniform style for the proceedings volume.
+
+Equations should be centered and numbered consecutively, as in
+Eq.~(\ref{eq:murnf}), and the {\em eqnarray} environment may be used
+to split equations into several lines, for example in
+Eq.~(\ref{eq:sp}), or to align several equations. An alternative
+method is given in Eq.~(\ref{eq:spa}) for long sets of equations where
+only one referencing equation number is wanted.
+
+In latex, it is simplest to give the equation a label, as in
+Eq.~(\ref{eq:murnf}) where we have used {\em
+$\backslash$label\{eq:murnf\}} to identify the equation.  You can then
+use the reference {\em $\backslash$ref\{eq:murnf\}} when citing the
+equation in the text which will avoid the need to manually renumber
+equations due to later changes. (Look at the source file for some
+examples of this.)  
+
+The same method can be used for referring to sections and subsections.
+
+\subsection{Tables}
+The tables are designed to have a uniform style throughout the
+proceedings volume. It doesn't matter how you choose to place the
+inner lines of the table, but we would prefer the border lines to be
+of the style shown in Table~\ref{tab:exp}.  The top and bottom
+horizontal lines should be single (using {\em $\backslash$hline}), and
+there should be single vertical lines on the perimeter, (using {\em
+$\backslash$begin\{tabular\}\{$|...|$\}}).  For the inner lines of the
+table, it looks better if they are kept to a minimum. We've chosen a
+more complicated example purely as an illustration of what is
+possible.
+
+The caption heading for a table should be placed at the top of 
+the table.
+
+\begin{table}[t]
+\caption{Experimental Data bearing on 
+$\Gamma(K \rightarrow \pi \pi \gamma)$
+for the $K^0_S$, $K^0_L$ and $K^-$ mesons.\label{tab:exp}}
+\vspace{0.2cm}
+\begin{center}
+\footnotesize
+\begin{tabular}{|c|c|c|l|}
+\hline
+{} &\raisebox{0pt}[13pt][7pt]{$\Gamma(\pi^- \pi^0)\; s^{-1}$} &
+\raisebox{0pt}[13pt][7pt]{$\Gamma(\pi^-\pi^0\gamma)\; s^{-1}$} &{}\\
+\hline
+\multicolumn{2}{|c|}{\raisebox{0pt}[12pt][6pt]{Process 
+for Decay}} & &\\
+\cline{1-2}
+$K^-$   &$1.711 \times 10^7$ 
+&\begin{minipage}{1in}
+\begin{center}
+$2.22 \times 10^4$ \\ (DE $ 1.46 \times 10^3)$
+\end{center}
+\end{minipage} 
+&\begin{minipage}{1.5in}
+\phantom{xxx}
+No (IB)-E1 interference seen but data shows excess events 
+relative to IB over
+$E^{\ast}_{\gamma} = 80$ to $100$~MeV
+\end{minipage} \\[22pt]
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Figures}
+If you wish to `embed' a postscript figure in the file,
+then remove the \% mark from the declaration of the
+postscript figure within the figure description and
+change the filename to an appropriate one. Also remove
+the comment mark from the {\em input psfig} command at
+the top of the file. You may need to play around with
+this as different computer systems appear to use
+different commands.
+
+Next adjust the scaling of the figure until it's
+correctly positioned, and remove the declarations of the
+lines and any anomalous spacing. 
+
+If you prefer to use some other method then it's very 
+important to leave the correct amount of vertical space in 
+the figure declaration to accomodate your figure 
+(remove the lines and change the vspace in the example.) 
+Send the hard copy figures on separate pages with clear
+instructions to match them to the correct space in the 
+final hard copy text. Please ensure the final hard copy 
+figure is correctly scaled to fit the space available (this 
+ensures the figure is legible.)
+
+The caption heading for a figure should be placed below
+the figure.
+
+\subsection{Limitations on the Placement of Tables, 
+Equations and Figures}\label{sec:plac} 
+Very large figures and tables should be placed on a page by
+themselves. One can use the instruction {\em
+$\backslash$begin\{figure\}$[$p$]$} or {\em
+$\backslash$begin\{table\}$[$p$]$} to position these,
+and they will appear on a separate page devoted to
+figures and tables. We would recommend making any
+necessary adjustments to the layout of the figures and
+tables only in the final draft. It is also simplest to
+sort out line and page breaks in the last stages.
+
+\subsection{Acknowledgments, Appendices, Footnotes and the Bibliography}
+If you wish to have acknowledgments to funding bodies etc., 
+these may be placed in a separate section at the end of the
+text, before the Appendices. This should not be numbered so use
+{\em $\backslash$section$\ast$\{Acknowledgments\}}.
+
+It's preferable to have no appendices in a brief
+article, but if more than one is necessary then simply
+copy the {\em $\backslash$section$\ast$\{Appendix\}}
+heading and type in Appendix A, Appendix B etc. between
+the brackets.
+
+Footnotes are denoted by a letter superscript in the
+text,\footnote{Just like this one.} and references are
+denoted by a number superscript.  We have used {\em
+$\backslash$bibitem} to produce the bibliography.
+Citations in the text use the labels defined in the
+bibitem declaration, for example, the first paper by
+Jarlskog~\cite{ja} is cited using the command {\em
+$\backslash$cite\{ja\}}.
+
+If you more commonly use the method of square brackets
+in the line of text for citation than the superscript
+method, please note that you need to adjust the
+punctuation so that the citation command appears after
+the punctuation mark.
+
+\subsection{Final Manuscript}
+The final hard copy that you send must be absolutely
+clean and unfolded.  It will be printed directly without
+any further editing. Use a printer that has a good
+resolution (300 dots per inch or higher). There should
+not be any corrections made on the printed pages, nor
+should adhesive tape cover any lettering. Photocopies
+are not acceptable.
+
+The manuscript will not be reduced or enlarged when
+filmed so please ensure that indices and other small
+pieces of text are legible.
+
+\section{Sample Text}
+The following may be (and has been) described as
+`dangerously irrelevant' physics. The Lorentz-invariant
+phase space integral for a general n-body decay from a
+particle with momentum $P$ and mass $M$ is given by:
+\begin{equation}
+I((P - k_i)^2, m^2_i, M) = \frac{1}{(2 \pi)^5}\!
+\int\!\frac{d^3 k_i}{2 \omega_i} \! \delta^4(P - k_i).
+\label{eq:murnf}
+\end{equation}
+The only experiment on $K^{\pm} \ra \pi^{\pm} \pi^0
+\gamma$ since 1976 is that of Bolotov {\it et  
+al}.~\cite{bu} There are two necessary conditions
+required for any acceptable parametrization of the quark 
+mixing matrix. The first is that the matrix must be
+unitary, and the second is that it should contain a CP
+violating phase $\delta$. In Sec.~\ref{subsec:wpp} the
+connection between invariants (of form similar to J) and
+unitarity relations will be examined further for the
+more general $ n \times n $ case. The reason is that
+such a matrix is not a faithful representation of the
+group, i.e.~it does not cover all of the parameter space
+available.
+\begin{equation}
+\begin{array}{rcl}
+\bf{K} & = &  Im[V_{j, \alpha} {V_{j,\alpha + 1}}^*
+{V_{j + 1,\alpha}}^* V_{j + 1, \alpha + 1} ] \\
+&&{}+ Im[V_{k, \alpha + 2} {V_{k,\alpha + 3}}^*
+{V_{k + 1,\alpha + 2}}^* V_{k + 1, \alpha + 3} ]  \\
+&&{}+ Im[V_{j + 2, \beta} {V_{j + 2,\beta + 1}}^*
+{V_{j + 3,\beta}}^* V_{j + 3, \beta + 1} ]  \\
+&&{}+ Im[V_{k + 2, \beta + 2} {V_{k + 2,\beta + 3}}^*
+{V_{k + 3,\beta + 2}}^* V_{k + 3, \beta + 3}] \\
+& & \\
+\bf{M} & = &  Im[{V_{j, \alpha}}^* V_{j,\alpha + 1}
+V_{j + 1,\alpha} {V_{j + 1, \alpha + 1}}^* ]  \\
+&&{}+ Im[V_{k, \alpha + 2} {V_{k,\alpha + 3}}^*
+{V_{k + 1,\alpha + 2}}^* V_{k + 1, \alpha + 3} ]  \\
+&&{}+ Im[{V_{j + 2, \beta}}^* V_{j + 2,\beta + 1}
+V_{j + 3,\beta} {V_{j + 3, \beta + 1}}^* ]  \\
+&&{}+ Im[V_{k + 2, \beta + 2} {V_{k + 2,\beta + 3}}^*
+{V_{k + 3,\beta + 2}}^* V_{k + 3, \beta + 3}],
+\\ & &
+\end{array}\label{eq:spa}
+\end{equation}
+where $ k = j$ or $j+1$ and $\beta = \alpha$ or
+$\alpha+1$, but if $k = j + 1$, then $\beta \neq \alpha
++ 1$ and similarly, if $\beta = \alpha + 1$ then $ k
+\neq j + 1$.\footnote{An example of a matrix which has
+elements containing the phase variable $e^{i \delta}$ to
+second order, i.e.~elements with a phase variable
+$e^{2i\delta}$ is given at the end of this section.}
+There are only 162 quark mixing matrices using these
+parameters which are to first order in the phase
+variable $e^{i \delta}$ as is the case for the Jarlskog
+parametrizations, and for which J is not identically
+zero. It should be noted that these are physically
+identical and form just one true parametrization.
+\eject
+
+\noindent
+\bea
+T & = & Im[V_{11} {V_{12}}^* {V_{21}}^* V_{22}]  \nonumber \\
+&&{}+ Im[V_{12} {V_{13}}^* {V_{22}}^* V_{23}]   \nonumber \\
+&&{}- Im[V_{33} {V_{31}}^* {V_{13}}^* V_{11}].
+\label{eq:sp}
+\eea
+
+\begin{figure}[t]
+\rule{5cm}{0.2mm}\hfill\rule{5cm}{0.2mm}
+\vskip 2.5cm
+\rule{5cm}{0.2mm}\hfill\rule{5cm}{0.2mm}
+%\psfig{figure=filename.ps,height=1.5in}
+\caption{A generalized cactus tree: the confluent
+transfer-matrix $S$ transforms the state function $f(x)$ and
+$f(z)$ into $f(x)$.  \label{fig:radish}}
+\end{figure}
+
+\section*{Acknowledgments}
+This is where one places acknowledgments for funding
+bodies etc.  Note that there are no section numbers for
+the Acknowledgments, Appendix or References.
+
+\section*{Appendix}
+We can insert an appendix here and place equations so that they 
+are given numbers such as Eq.~(\ref{eq:app}).
+\be
+x = y.
+\label{eq:app}
+\ee
+
+\section*{References}
+\begin{thebibliography}{99}
+\bibitem{ja}C Jarlskog in {\em CP Violation}, ed. C Jarlskog
+(World Scientific, Singapore, 1988).
+
+\bibitem{ma}L. Maiani, \Journal{\PLB}{62}{183}{1976}.
+
+\bibitem{bu}J.D. Bjorken and I. Dunietz, \Journal{\PRD}{36}{2109}{1987}.
+
+\bibitem{bd}C.D. Buchanan {\it et al}, \Journal{\PRD}{45}{4088}{1992}.
+
+\end{thebibliography}
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% End of sprocl.tex  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
