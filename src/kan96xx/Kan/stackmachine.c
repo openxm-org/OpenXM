@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.14 2003/12/05 13:51:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.15 2004/09/04 11:25:58 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -53,6 +53,8 @@ struct context *PrimitiveContextp = &StandardContext;
 
 
 static struct object ObjTmp; /* for poor compiler */
+
+int Calling_ctrlC_hook = 0;
 
 int StandardMacros = 1;
 int StartAFile = 0;
@@ -817,7 +819,11 @@ void scanner() {
       if (DebugStack >= 1) {
         fprintf(Fstack,"\nscanner> ");
       }
-      KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      if (!Calling_ctrlC_hook) { /* to avoid recursive call of ctrlC-hook. */
+        Calling_ctrlC_hook = 1;
+        KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      }
+      Calling_ctrlC_hook = 0;  
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook? */
       InSendmsg2 = 0;
       continue ;
@@ -866,9 +872,11 @@ void ctrlC(sig)
     return;
   }
   if (ErrorMessageMode != 1) {
+    (void *) traceShowStack();
     fprintf(Fstack,"User interruption by ctrl-C. We are in the top-level.\n");
     fprintf(Fstack,"Type in quit in order to exit sm1.\n");
   }
+  traceClearStack();
   if (GotoP) {
     fprintf(Fstack,"The interpreter was looking for the label <<%s>>. It is also aborted.\n",GotoLabel);
     GotoP = 0;
@@ -1061,8 +1069,9 @@ errorStackmachine(str)
       fprintf(stderr,str);
     }
     fprintf(stderr,"\n");
-    (void) traceShowStack(); traceClearStack();
+    (void) traceShowStack(); 
   }
+  traceClearStack();
   if (GotoP) {
     fprintf(Fstack,"The interpreter was looking for the label <<%s>>. It is also aborted.\n",GotoLabel);
     GotoP = 0;
@@ -1133,7 +1142,11 @@ KSexecuteString(s)
       }
       recursive--;
       if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
-      KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      if (!Calling_ctrlC_hook) {
+        Calling_ctrlC_hook = 1;
+        KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      }
+      Calling_ctrlC_hook = 0;
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook?*/
       return(-1);
     }else{ }
@@ -1151,7 +1164,12 @@ KSexecuteString(s)
         }
         recursive = 0;
         if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
-		KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+        if (!Calling_ctrlC_hook) {
+          Calling_ctrlC_hook = 1;
+          KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+        }
+        Calling_ctrlC_hook = 0;
+        Calling_ctrlC_hook = 0;
 		KSexecuteString(" (Computation is interrupted.) ");
         return(-1);
       }else { }
@@ -1548,7 +1566,8 @@ char *traceShowStack(void) {
     if (t == NULL) {
       s[p] = ';'; s[p+1] = 0;
       break;
-    }else if (strlen(t) + p -10 > TRACE_MSG_SIZE) {
+    }else if ((strlen(t) + p -10) > TRACE_MSG_SIZE) {
+	  /*	  fprintf(stderr,"p=%d, TraceNameStackp=%d, strlen(t)=%d, t=%s\n",p,TraceNameStackp,strlen(t),t); */
       strcpy(&(s[p])," ...");
       break;
     }

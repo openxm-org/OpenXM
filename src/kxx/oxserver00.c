@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.13 2003/11/20 11:41:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.14 2004/03/08 08:24:42 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -20,6 +20,7 @@ int NoExecution = 0;
 extern int SerialOX;  /* Serial number of the packets sent. */
 extern int SerialCurrent;  /* Current Serial number of the recieved packet. */
 extern int OXprintMessage; /* print oxmessages? */
+extern int Calling_ctrlC_hook;
 
 #if defined(__CYGWIN__)
 sigjmp_buf EnvOfChildServer;
@@ -139,7 +140,11 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     if (OxInterruptFlag == 0) {
       fprintf(stderr," ?! \n"); fflush(NULL);
     }
-	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    if (!Calling_ctrlC_hook) {
+      Calling_ctrlC_hook = 1;
+      KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    }
+    Calling_ctrlC_hook = 0;
 	KSexecuteString(" (Computation is interrupted.) ");
     signal(SIGUSR1,controlResetHandler); goto aaa;
   } else {  
@@ -165,7 +170,11 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     */
     Sm1_pushError2(SerialCurrent,-1,"Global jump by sm1 error");
 
-	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    if (!Calling_ctrlC_hook) {
+      Calling_ctrlC_hook = 1;
+      KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    }
+    Calling_ctrlC_hook = 0;
     signal(SIGUSR1,controlResetHandler); goto aaa ;
   } else {
     if (JmpMessage) fprintf(stderr,"Set EnvOfStackMachine.\n"); 
@@ -367,6 +376,7 @@ void controlResetHandler(sig)
   if (OxCritical) {
     return;
   }else{
+    (void) traceShowStack(); traceClearStack();
 #if defined(__CYGWIN__)
     siglongjmp(EnvOfChildServer,2); /* returns 2 for ctrl-C */
 #else

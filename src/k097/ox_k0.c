@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.4 2003/11/19 00:11:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.5 2003/12/05 14:02:23 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -18,6 +18,7 @@ int PacketMonitor = 0;
 extern int SerialOX;  /* Serial number of the packets sent. */
 extern int SerialCurrent;  /* Current Serial number of the recieved packet. */
 extern int OXprintMessage; /* print oxmessages? */
+extern int Calling_ctrlC_hook;
 
 #if defined(__CYGWIN__)
 sigjmp_buf EnvOfChildServer;
@@ -118,7 +119,11 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     if (OxInterruptFlag == 0) {
       fprintf(stderr," ?! \n"); fflush(NULL);
     }
-	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    if (!Calling_ctrlC_hook) {
+      Calling_ctrlC_hook = 1;
+      KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    }
+    Calling_ctrlC_hook = 0;
 	KSexecuteString(" (Computation is interrupted.) ");
 	InSendmsg2 = 0;
     signal(SIGUSR1,controlResetHandler); goto aaa;
@@ -345,6 +350,7 @@ void controlResetHandler(sig)
   if (OxCritical) {
     return;
   }else{
+    (void) traceShowStack(); traceClearStack();
 #if defined(__CYGWIN__)
     siglongjmp(EnvOfChildServer,2); /* returns 2 for ctrl-C */
 #else
