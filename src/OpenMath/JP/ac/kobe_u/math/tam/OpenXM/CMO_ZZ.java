@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.7 2000/03/14 05:38:51 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.8 2000/03/15 17:58:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -59,7 +59,7 @@ final public class CMO_ZZ extends CMO{
     }
   }
 
-  static protected CMO receive(DataInputStream is) throws IOException{
+  static protected CMO receive(OpenXMconnection is) throws IOException{
     int len;
     BigInteger a = new BigInteger("0");
 

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/DebugInputStream.java,v 1.1 2000/01/19 12:59:28 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -16,7 +16,7 @@ public class DebugInputStream extends InputStream{
     int a;
 
     a = is.read();
-    System.out.println("is:"+a);
+    System.out.print(" ("+a+")");
     return a;
   }
 }

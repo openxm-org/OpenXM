@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java,v 1.2 2000/02/21 03:48:22 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java,v 1.3 2000/03/15 15:02:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -36,6 +36,7 @@ public class OXmessage{
       body = null;
       break;
     }
+    System.out.println("");
   }
 
   public OXmessage(int serial,OXbody body){

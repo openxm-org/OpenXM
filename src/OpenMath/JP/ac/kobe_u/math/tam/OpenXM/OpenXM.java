@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.11 2000/03/16 04:28:25 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.12 2000/03/16 04:54:57 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -117,7 +117,11 @@ public class OpenXM implements Runnable{
   }
 
   public OXmessage receive() throws IOException{
-    return stream.receive();
+    OXmessage a = stream.receive();
+
+    System.out.println("receive:"+a);
+    //return stream.receive();
+    return (OXmessage)a;
   }
 
   public void setMathCap(CMO_MATHCAP mathcap){
