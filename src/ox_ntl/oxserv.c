@@ -1,19 +1,16 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.1 2003/11/03 03:11:21 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "oxserv.h"
+#include "oxstack.h"
 
 
 #define DPRINTF(x)	printf x; fflush(stdout)
-
-#define delete_cmo(m)
-
-#define OXSERV_INIT_STACK_SIZE 2048
-#define OXSERV_EXT_STACK_SIZE  2048
 
 #if 0
 /*===========================================================================*
@@ -39,182 +36,54 @@ dprintf(const char *fmt, ...)
 #endif
 
 /*===========================================================================*
+ * MACRO
+ *===========================================================================*/
+#define MOXSERV_GET_CMO_TAG(m)	((G_getCmoTag == NULL) ? m->tag : G_getCmoTag(m))
+
+
+#define oxserv_delete_cmo(c)         \
+do {                                 \
+        if (G_DeleteCmo != NULL)     \
+                G_DeleteCmo(c);      \
+        else                         \
+                c = NULL;            \
+} while (0)
+
+
+
+/*===========================================================================*
  * Global Variables.
  *===========================================================================*/
-/* cmo stack */
-static int G_ox_stack_size = 0;
-static int G_ox_stack_pointer = 0;
-static cmo **G_ox_stack = NULL;
-
 /* ox */
+static OXFILE *G_oxfilep = NULL;
 static cmo_mathcap *G_oxserv_mathcap = NULL;
 
 /* User Function */
-static cmo *(*G_userExecuteFunction)(const char *, cmo **, int) = NULL;
-static cmo *(*G_userExecuteStringParser)(const char *) = NULL;
+static void (*G_userExecuteFunction)(const char *, cmo **, int) = NULL;
+static void (*G_userExecuteStringParser)(const char *) = NULL;
 
 static cmo *(*G_convertCmo)(cmo *) = NULL; /* convert user object ==> cmo */
 
-/*===========================================================================*
- * CMO STACK FUNCTIONs
- *===========================================================================*/
-/*****************************************************************************
- * return the number of cmo in the stack.
- * PARAM   : NONE
- * RETURN  : the number of cmo in the stack.
- *****************************************************************************/
-#define oxserv_get_stack_pointer()  G_ox_stack_pointer
+static void (*G_DeleteCmo)(cmo *) = NULL;
 
-
-/*****************************************************************************
- * initialize stack.
- * PARAM   : NONE
- * RETURN  : if success return OXSERV_SUCCESS, else OXSERV_FAILURE.
- *****************************************************************************/
-static int
-oxserv_init_stack(void)
-{
-	free(G_ox_stack);
-
-	G_ox_stack_pointer = 0;
-	G_ox_stack_size = OXSERV_INIT_STACK_SIZE;
-	G_ox_stack = (cmo **)malloc(G_ox_stack_size * sizeof(cmo *));
-	if (G_ox_stack == NULL) {
-		DPRINTF(("server: %d: %s\n", errno, strerror(errno)));
-		return (OXSERV_FAILURE);
-	}
-	return (OXSERV_SUCCESS);
-}
-
-/*****************************************************************************
- * 
- * PARAM   : NONE
- * RETURN  : if success return OXSERV_SUCCESS, else OXSERV_FAILURE.
- *****************************************************************************/
-static int
-oxserv_extend_stack(void)
-{
-	int size2 = G_ox_stack_size + OXSERV_EXT_STACK_SIZE;
-	cmo **stack2 = (cmo **)malloc(size2 * sizeof(cmo *));
-	if (stack2 == NULL) {
-		DPRINTF(("server: %d: %s\n", errno, strerror(errno)));
-		return (OXSERV_FAILURE);
-	}
-
-	memcpy(stack2, G_ox_stack, G_ox_stack_size * sizeof(cmo *));
-	free(G_ox_stack);
-
-	G_ox_stack = stack2;
-	G_ox_stack_size = size2;
-
-	return (OXSERV_SUCCESS);
-}
-
-/*****************************************************************************
- * push a cmo onto the topof the stack.
- * PARAM   : m  : the cmo to be pushed on the stack.
- * RETURN  : if success return OXSERV_SUCCESS, else OXSERV_FAILURE.
- *****************************************************************************/
-static int
-oxserv_push(cmo *m)
-{
-	int ret;
-
-	if (G_ox_stack_pointer >= G_ox_stack_size) {
-		ret = oxserv_extend_stack();
-		if (ret != OXSERV_SUCCESS)
-			return (ret);
-	}
-
-	G_ox_stack[G_ox_stack_pointer] = m;
-	G_ox_stack_pointer++;
-
-	return (OXSERV_SUCCESS);
-}
-
-/*****************************************************************************
- * remove thd CMO at the top of this stack and
- * returns that cmo as the value of this function.
- * PARAM   : NONE
- * RETURN  : CMO at the top of the stack.
- *****************************************************************************/
-static cmo *
-oxserv_pop(void)
-{
-	cmo *c;
-	if (G_ox_stack_pointer > 0) {
-		G_ox_stack_pointer--;
-		c = G_ox_stack[G_ox_stack_pointer];
-		G_ox_stack[G_ox_stack_pointer] = NULL;
-		return (c);
-	}
-	return (NULL);
-}
-
-/*****************************************************************************
- * return the cmo at the specified position in the stack without removing it from the stack.
- * PARAM : NONE
- * RETURN: thd cmo at the specified position in the stack.
- *****************************************************************************/
-static cmo *
-oxserv_get(int i)
-{
-	if (i < G_ox_stack_pointer && i >= 0) {
-		return (G_ox_stack[i]);
-	}
-	return (NULL);
-}
-
-
-/*****************************************************************************
- * return the cmo at the top of the stack without removing it from the stack.
- * PARAM : NONE
- * RETURN: the cmo at the top of the stack.
- *****************************************************************************/
-static cmo *
-oxserv_peek(void)
-{
-	return (oxserv_get(G_ox_stack_pointer - 1));
-}
-
-/*****************************************************************************
- *
- * defined for SM_pops
- * 
- * PARAM : n : remove count
- * RETURN: NONE
- *****************************************************************************/
-static void
-oxserv_remove(int n)
-{
-	int i;
-	cmo *m;
-
-	if (n > G_ox_stack_size)
-		n = G_ox_stack_size;
-
-	for (i = 0; i < n; i++) {
-		--G_ox_stack_pointer;
-		m = G_ox_stack[G_ox_stack_pointer];
-		G_ox_stack[G_ox_stack_pointer] = NULL;
-		delete_cmo(m);
-	}
-}
-
+static int  (*G_getCmoTag)(cmo *) = NULL;
 
 /*===========================================================================*
  * OX_SERVER
  *===========================================================================*/
 
 /*****************************************************************************
- * pop n and to discard element from the stack
+ * -- SM_popCMO --
+ * pop an object from the stack, convert it into a serialized from according
+ * to the standard CMO encoding scheme, and send it to the stream
+ *
  * PARAM : fd : OXFILE
  * RETURN: NONE
  *****************************************************************************/
 static void
 oxserv_sm_popCMO(OXFILE *fd)
 {
-	cmo *m = oxserv_pop();
+	cmo *m = oxstack_pop();
 	if (m == NULL) {
 		m = new_cmo_null();
 	} else if (G_convertCmo) {
@@ -223,12 +92,14 @@ oxserv_sm_popCMO(OXFILE *fd)
 
 	send_ox_cmo(fd, m);
 
-	delete_cmo(m);
+	oxserv_delete_cmo(m);
 }
 
 /*****************************************************************************
+ * -- SM_popString --
  * pop an cmo from stack, convert it into a string according to the
  * output format of the local system, and send the string.
+ *
  * PARAM : fd : OXFILE
  * RETURN: NONE
  *****************************************************************************/
@@ -236,7 +107,7 @@ static void
 oxserv_sm_popString(OXFILE *fd)
 {
 	char *str;
-	cmo *m = oxserv_pop();
+	cmo *m = oxstack_pop();
 	cmo_string *m_str;
 
 	if (m == NULL)
@@ -248,31 +119,45 @@ oxserv_sm_popString(OXFILE *fd)
 
 	send_ox_cmo(fd, (cmo *)m_str);
 
-	delete_cmo(m);
-	delete_cmo(m_str);
+	oxserv_delete_cmo(m);
+	oxserv_delete_cmo((cmo *)m_str);
 
-/* free(str); */
+	/* free(str); */
 }
 
 /*****************************************************************************
+ * -- SM_pops --
  * pop n and to discard element from the stack
- * PARAM : fd : OXFILE
+ *
+ * PARAM : NONE
  * RETURN: NONE
  *****************************************************************************/
 static void
 oxserv_sm_pops()
 {
 	cmo_int32 *c;
+	cmo *m;
+	int n;
+	int i;
 
-	c = (cmo_int32 *)oxserv_pop(); /* suppose */
+	c = (cmo_int32 *)oxstack_pop(); /* suppose */
 
-	oxserv_remove(c->i)
+	n = oxstack_get_stack_pointer();
+	if (c->i < n)
+		n = c->i;
 
-	delete_cmo(c);
+	for (i = 0; i < n; i++) {
+		m = oxstack_pop();
+		oxserv_delete_cmo(m);
+	}
+		
+	oxserv_delete_cmo((cmo *)c);
+
 }
 
 /*****************************************************************************
- * for SM_getsp
+ * -- SM_getsp --
+ * push the current stack pointer onto the stack.
  *
  * PARAM : fd : OXFILE
  * RETURN: NONE
@@ -280,8 +165,8 @@ oxserv_sm_pops()
 static void
 oxserv_sm_getsp()
 {
-	cmo_int32 *m = new_cmo_int32(oxserv_get_stack_pointer());
-	oxserv_push((cmo *)m);
+	cmo_int32 *m = new_cmo_int32(oxstack_get_stack_pointer());
+	oxstack_push((cmo *)m);
 }
 
 /*****************************************************************************
@@ -367,11 +252,18 @@ oxserv_mathcap_init(int ver, char *vstr, char *sysname, int *cmos, int *sms)
 
 	mathcap_init(ver, vstr, sysname, cmos, sms);
 
-	delete_cmo(G_oxserv_mathcap);
+	oxserv_delete_cmo((cmo *)G_oxserv_mathcap);
 
 	G_oxserv_mathcap = mathcap_get(new_mathcap());
 }
 
+/*****************************************************************************
+ * -- SM_mathcap --
+ * push the mathcap of the server.
+ *
+ * PARAM : NONE
+ * RETURN: NONE
+ *****************************************************************************/
 static void
 oxserv_sm_mathcap()
 {
@@ -379,64 +271,88 @@ oxserv_sm_mathcap()
 		oxserv_mathcap_init(0, "", "oxserv", NULL, NULL);
 	}
 
-	oxserv_push((cmo *)G_oxserv_mathcap);
+	oxstack_push((cmo *)G_oxserv_mathcap);
 }
 
+/*****************************************************************************
+ * -- SM_executeStringByLocalParserInBatchMode --
+ * peek a character string s, parse it by the local parser of the stack machine,
+ * and interpret by the local interpreter.
+ *
+ * PARAM : NONE
+ * RETURN: NONE
+ *****************************************************************************/
 static void
 oxserv_sm_executeStringByLocalParserInBatchMode(void)
 {
-	cmo_string *str = (cmo_string *)oxserv_peek();
-	cmo *c;
-	c = G_userExecuteStringParser(str->s);
-	oxserv_push(c);
+	cmo_string *str = (cmo_string *)oxstack_peek();
+	G_userExecuteStringParser(str->s);
 }
 
+/*****************************************************************************
+ * -- SM_executeStringByLocalParser --
+ * pop a character string s, parse it by the local parser of the stack machine,
+ * and interpret by the local interpreter.
+ *
+ * PARAM : NONE
+ * RETURN: NONE
+ *****************************************************************************/
 static void
 oxserv_sm_executeStringByLocalParser(void)
 {
-	cmo_string *str = (cmo_string *)oxserv_pop();
-	cmo *c;
-	c = G_userExecuteStringParser(str->s);
-	oxserv_push(c);
+	cmo_string *str = (cmo_string *)oxstack_pop();
+	G_userExecuteStringParser(str->s);
 }
 
 
 
+/*****************************************************************************
+ * -- SM_executeFunction --
+ * pop s as a function name, pop n as the number of arguments and to execute a
+ * local function s with n arguments poped from the stack.
+ *
+ * PARAM : NONE
+ * RETURN: NONE
+ *****************************************************************************/
 static void
 oxserv_sm_executeFunction(void)
 {
 	int i;
-	cmo_string *name = (cmo_string *)oxserv_pop();
-	cmo_int32 *cnt = (cmo_int32 *)oxserv_pop();
+	cmo_string *name = (cmo_string *)oxstack_pop();
+	cmo_int32 *cnt = (cmo_int32 *)oxstack_pop();
 	cmo **arg = (cmo **)malloc(cnt->i * sizeof(cmo *));
-	cmo *ret;
 
 	for (i = 0; i < cnt->i; i++) {
-		arg[i] = oxserv_pop();
+		arg[i] = oxstack_pop();
 	}
 
 	/* user function */
-	ret = G_userExecuteFunction(name->s, arg, cnt->i);
+	G_userExecuteFunction(name->s, arg, cnt->i);
 
-	oxserv_push(ret);
 
 	for (i = 0; i < cnt->i; i++) {
-		delete_cmo(arg[i]);
+		oxserv_delete_cmo(arg[i]);
 	}
 
-	delete_cmo(name);
-	delete_cmo(cnt);
+	oxserv_delete_cmo((cmo *)name);
+	oxserv_delete_cmo((cmo *)cnt);
 
 	free(arg);
 }
 
+/*****************************************************************************
+ * -- SM_pushCMOtag --
+ * push the CMO tag of the top object on the stack.
+ *
+ * PARAM : NONE
+ * RETURN: NONE
+ *****************************************************************************/
 static void
 oxserv_sm_pushCMOtag()
 {
-	cmo *c = oxserv_peek();
-	cmo_int32 *tag = new_cmo_int32(c->tag);
-
-	oxserv_push((cmo *)tag);
+	cmo *c = oxstack_peek();
+	cmo_int32 *tag = new_cmo_int32(MOXSERV_GET_CMO_TAG(c));
+	oxstack_push((cmo *)tag);
 }
 
 
@@ -449,23 +365,42 @@ oxserv_sm_dupErrors()
 
 	list = new_cmo_list();
 
-	for (i = 0; i < oxserv_get_stack_pointer(); i++) {
-		c = oxserv_get(i);
+	for (i = 0; i < oxstack_get_stack_pointer(); i++) {
+		c = oxstack_get(i);
 		if (c->tag == CMO_ERROR2) {
 			list_append(list, c);
 		}
 	}
 
-	oxserv_push((cmo *)list);
+	oxstack_push((cmo *)list);
 }
 
+static void
+oxserv_sm_control_reset_connection(int sig)
+{
+	int tag;
+	OXFILE *fd = G_oxfilep;
+
+	DPRINTF(("reset -- start\n"));
+	send_ox_tag(fd, OX_SYNC_BALL);
+
+	oxstack_init_stack();
+
+	for (;;) {
+		tag = receive_ox_tag(fd);
+		DPRINTF(("[%d=0x%x]", tag, tag));
+		if (tag == OX_SYNC_BALL)
+			break;
+		if (tag == OX_DATA)
+			receive_cmo(fd);
+	}
+	DPRINTF(("-- end.\n"));
+}
 
 static int
 oxserv_receive_and_execute_sm_command(OXFILE *fd)
 {
 	int code = receive_int32(fd);
-
-	DPRINTF(("SM_CODE=%d=0x%x\n", code, code));
 
 	switch (code) {
 	case SM_popCMO:
@@ -493,7 +428,7 @@ oxserv_receive_and_execute_sm_command(OXFILE *fd)
 		break;
 	case SM_setMathCap:
 		/* dont support */
-		oxserv_pop();
+		oxstack_pop();
 		break;
 	case SM_executeFunction:
 		if (G_userExecuteFunction)
@@ -505,6 +440,8 @@ oxserv_receive_and_execute_sm_command(OXFILE *fd)
 	case SM_dupErrors:
 		oxserv_sm_dupErrors();
 		break;
+	case SM_control_reset_connection:
+	case SM_control_reset_connection_server:
 	default:
 		break;
 	}
@@ -512,8 +449,10 @@ oxserv_receive_and_execute_sm_command(OXFILE *fd)
 }
 
 
+
 /*****************************************************************************
  * reveice ox_data
+ *
  * PARAM : fd : OXFILE
  * RETURN: NONE
  *****************************************************************************/
@@ -526,15 +465,15 @@ oxserv_receive(OXFILE *fd)
 
 	tag = receive_ox_tag(fd);
 
-	DPRINTF(("oxserv_TAG=%d=0x%x\n", tag, tag));
 	switch (tag) {
 	case OX_DATA:
 		c = receive_cmo(fd);
-		DPRINTF(("CMO_TAG=%d=0x%x\n", c->tag, c->tag));
-		oxserv_push(c);
+		DPRINTF(("[CMO:%d]", c->tag));
+		oxstack_push(c);
 		break;
 
 	case OX_COMMAND:
+		DPRINTF(("[SM:%d=0x%x]", tag, tag));
 		ret = oxserv_receive_and_execute_sm_command(fd);
 		break;
 
@@ -551,7 +490,8 @@ oxserv_receive(OXFILE *fd)
  * initialize oxserver
  *
  * PARAM : see oxserv_mathcap_init()
- * RETURN: NONE
+ * RETURN: success : OXSERV_SUCCESS
+ *       : failure : OXSERV_FAILURE
  * SEE   : oxserv_mathcap_init()
  *       : oxserv_set();
  *****************************************************************************/
@@ -560,11 +500,15 @@ oxserv_init(OXFILE *oxfp, int ver, char *vstr, char *sysname, int *cmos, int *sm
 {
 	int ret;
 
-	ret = oxserv_init_stack();
+	ret = oxstack_init_stack();
 	if (ret != OXSERV_SUCCESS)
 		return (ret);
 
+	G_oxfilep = oxfp;
+
 	oxserv_mathcap_init(ver, vstr, sysname, cmos, sms);
+
+	signal(SIGUSR1, oxserv_sm_control_reset_connection);
 
 	oxf_determine_byteorder_server(oxfp);
 
@@ -574,11 +518,13 @@ oxserv_init(OXFILE *oxfp, int ver, char *vstr, char *sysname, int *cmos, int *sm
 
 /*****************************************************************************
  * set oxserver
+ *
  * PARAM : mode : mode
  *              :
  *       : ptr  :
  *       : rsv  : reserve space.
- * RETURN: NONE
+ * RETURN: success : OXSERV_SUCCESS
+ *       : failure : OXSERV_FAILURE
  * SEE   : 
  *****************************************************************************/
 int
@@ -586,13 +532,19 @@ oxserv_set(int mode, void *ptr, void *rsv)
 {
 	switch (mode) {
 	case OXSERV_SET_EXECUTE_FUNCTION:
-		G_userExecuteFunction = (cmo *(*)(const char *, cmo **, int))ptr;
+		G_userExecuteFunction = (void (*)(const char *, cmo **, int))ptr;
 		break;
 	case OXSERV_SET_EXECUTE_STRING_PARSER:
-		G_userExecuteStringParser = (cmo *(*)(const char *))ptr;
+		G_userExecuteStringParser = (void (*)(const char *))ptr;
 		break;
 	case OXSERV_SET_CONVERT_CMO:
 		G_convertCmo = (cmo *(*)(cmo *))ptr;
+		break;
+	case OXSERV_SET_DELETE_CMO:
+		G_DeleteCmo = (void (*)(cmo *))ptr;
+		break;
+	case OXSERV_SET_GET_CMOTAG:
+		G_getCmoTag = (int (*)(cmo *))ptr;
 		break;
 	default:
 		return (OXSERV_FAILURE);
@@ -605,21 +557,22 @@ oxserv_set(int mode, void *ptr, void *rsv)
 
 /*****************************************************************************
  * destroy
- * PARAM : mode : mode
- *              :
- *       : ptr  :
- *       : rsv  : reserve space.
+ *
+ * PARAM : NONE
  * RETURN: NONE
- * SEE   : 
  *****************************************************************************/
 void
 oxserv_dest()
 {
-	free(G_ox_stack);
+	oxstack_dest();
 }
 	
 
-#if 0
+#if __OXSERV_DEBUG
+/*===========================================================================*
+ * DEBUG
+ *===========================================================================*/
+
 
 cmo *
 oxserv_executeFunction(const char *func, cmo **arg, int argc)
@@ -635,6 +588,12 @@ oxserv_executeFunction(const char *func, cmo **arg, int argc)
 	return ((cmo *)new_cmo_int32(0));
 }
 
+/*****************************************************************************
+ * main
+ *
+ * PARAM : NONE
+ * RETURN: NONE
+ *****************************************************************************/
 int
 main(int argc, char *argv[])
 {
@@ -646,7 +605,7 @@ main(int argc, char *argv[])
 
 	ox_stderr_init(stderr);
 
-	oxserv_init(0, "$Date$", "oxserv", NULL, NULL);
+	oxserv_init(oxfp, 0, "$Date$", "oxserv", NULL, NULL);
 
 	DPRINTF(("main - start\n"));
 	for (i = 0;; i++) {
@@ -656,10 +615,12 @@ main(int argc, char *argv[])
 			break;
 	}
 
-	oxf_close(fd);
-	delete_cmo(G_oxserv_mathcap);
+	oxf_close(oxfp);
+	oxserv_delete_cmo((cmo *)G_oxserv_mathcap);
 
 	return (0);
 }
 
 #endif
+
+

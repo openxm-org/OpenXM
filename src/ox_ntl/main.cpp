@@ -1,26 +1,30 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.1 2003/11/03 03:11:21 iwane Exp $ */
 
 #include "ox_toolkit.h"
 #include "oxserv.h"
+#include "oxstack.h"
 #include "ntl.h"
 
 #define VERSION 0x00000001
 #define ID_STRING "$Revision$"
 
-#if 1
+#if 0
 extern "C" {
 void dprintf(const char *, ...);
 }
 #endif
 
-static cmo *
+static void
 ntl_executeFunction(const char *func, cmo **arg, int argc)
 {
+	cmo *ans;
 	if (strcmp(func, "fctr") == 0) {
-		return (ntl_fctr(arg, argc));
+		ans = ntl_fctr(arg, argc);
+		oxstack_push(ans);
+		return ;
 	}
 
-	return (NULL);
+	oxstack_push((cmo *)new_cmo_error2((cmo *)new_cmo_string("Unknown Function")));
 }
 
 

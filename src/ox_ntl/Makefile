@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.2 2003/11/03 22:06:09 ohara Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.3 2003/11/07 13:41:37 iwane Exp $
 #
 #
 #
@@ -14,7 +14,7 @@ CC =gcc
 RM =/bin/rm
 CP =/bin/cp
 
-CFLAGS=-I$(PREFIX)/include 
+CFLAGS=-I$(PREFIX)/include
 CPPFLAGS=$(CFLAGS)
 
 PREFIX=$(OpenXM_HOME)
@@ -33,8 +33,8 @@ GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=${OpenXM_HOME} GMP_INCDIR=${OpenXM_HOME}/includ
 
 .SUFFIXES: .cpp .o .c
 
-SRCC=oxserv.c
-SRCP=main.cpp ntl.cpp
+SRCC=oxserv.c oxstack.c
+SRCP=main.cpp ntl.cpp ntlconv.cpp
 
 OBJC=$(SRCC:.c=.o) $(SRCP:.cpp=.o)
 
@@ -45,9 +45,21 @@ all: $(PROG)
 $(PROG): $(OBJC) $(LIBDIR)/libox.a $(NTL_LIBDIR)/libntl.a
 	$(CPP) $(CPPFLAGS) -L$(LIBDIR) -L$(NTL_LIBDIR) $(OBJC) -o $@ -lntl -lgmp -lox -lgc
 
-oxserv.c: oxserv.h
 
-main.cpp: oxserv.h ntl.h
+ox_ntl_debug: ntl.cpp ntl.h oxstack.o
+	$(CPP) $(CPPFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) ntl.cpp ntlconv.o oxstack.o -o $@ -lntl -lgmp -lox -lgc
+
+oxserv_debug: oxserv.h oxserv.c
+	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
+
+cpp.exe: cpp.cpp
+	$(CPP) $(CPPFLAGS) -g -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) cpp.cpp -o $@ -lntl -lgmp -lox -lgc
+
+oxserv.c: oxserv.h oxstack.h
+
+oxstack.c: oxstack.h
+
+main.cpp: oxserv.h ntl.h oxstack.h
 
 ntl.cpp: ntl.h
 
@@ -61,7 +73,7 @@ install: all
 	$(CP) $(PROG) $(PREFIX)/bin
 
 clean:
-	-$(RM) -f $(OBJC) $(PROG)
+	-$(RM) -f $(OBJC) $(PROG) ox_ntl_debug oxserv_debug
 	-$(RM) -fr ${WORK}
 	-$(RM) -f .*-ntl-done
 
@@ -75,7 +87,7 @@ pre-fetch-ntl:
 fetch-ntl: pre-fetch-ntl
 	@if [ ! -f .fetch-ntl-done ]; then \
 		if [ ! -f ${DISTDIR}/${DISTFILE} ]; then \
-		(cd ${DISTDIR}; wget --no-directories --passive-ftp ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE)) ; \
+			(cd ${DISTDIR}; wget --no-directories --passive-ftp ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE)) ; \
 		fi ; \
 		(cd ${WORK}; tar xvzf ${DISTDIR}/${DISTFILE}); \
 		touch .fetch-ntl-done; \
