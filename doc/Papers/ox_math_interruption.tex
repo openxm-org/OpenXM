@@ -1,0 +1,176 @@
+% $Id$
+% 第二回 OpenXM committers meeting 講演原稿
+% pdfファイルの生成法
+% > platex ox_math_interruption.tex
+% > dvips  ox_math_interruption.dvi > ox_math_interruption.ps
+% > ps2pdf ox_math_interruption.ps
+% > acroread ox_math_interruption.pdf
+\documentclass[pdf,slideColor,colorBG,darkblue]{prosper}
+\usepackage{amsmath}
+\usepackage{pst-node}
+\title{ox\_mathへの計算中断機能の実装}
+\author{小原功任}
+\email{ohara@OpenXM.org}
+\institution{金沢大学理学部計算科学科}
+
+\begin{document}
+
+\maketitle
+
+\overlays{4}{
+\begin{slide}{ox\_math とは}
+\begin{itemstep}
+\item OpenXM プロトコルをサポートするための
+Mathematica Kernel の wrapper
+\item MathLink (Mathematicaの通信ライブラリ)と
+OpenXM プロトコルの両方を扱う
+\item 今回、ox\_math に計算中断機能を実装した \\
+{\yellow (MathLink の非公開機能を用いる)}
+\item Linux, Windows の Mathematica 4.x で動作する
+\end{itemstep}
+\end{slide}
+}
+
+\overlays{3}{
+\begin{slide}{OpenXM と MathLink の比較}
+\begin{itemstep}
+\item OpenXM\\
+プロトコルを公開。仕組みが明らかだが自分で実装しなければならない。
+\item MathLink\\
+ライブラリを公開。実装しなくてよいが中身が分からない。
+またソースが公開されていない。
+\item[] $\Rightarrow${\yellow 文書化されていないことをしようとすると困る。}
+\end{itemstep}
+\end{slide}
+}
+
+\begin{slide}{概念図}
+\begin{pspicture}(12,6)
+\psset{linecolor=white}
+\rput[r](2.0,1.2){\rnode{Client}{\psovalbox{client}}}
+\psframe[framearc=0.3](4.5,0)(11.5,5.4)
+\rput[B](8,5.5){同一マシン}
+\rput[l](5.0,1.2){\rnode{Engine}{\psovalbox{ox\_math}}}
+\rput[l](9.4,1.2){\rnode{Kernel}{\psovalbox{math}}}
+\rput[l](4.8,4.2){\rnode{Control}{\psovalbox{controller}}}
+\ncline[linewidth=2pt]{<->}{Client}{Engine}
+\ncline[linewidth=2pt]{<->}{Client}{Control}
+\ncline[linewidth=2pt,linecolor=yellow]{<->}{Engine}{Kernel}
+\end{pspicture}
+\end{slide}
+
+\overlays{5}{
+\begin{slide}{OpenXM の仕組み}
+\begin{itemstep}
+\item サーバ・クライアント方式
+\item ネットワーク透過性がある
+\item サーバはコントローラとエンジンの 2 プロセスからなる
+\item エンジンはスタックマシン
+\item 計算を途中で中断できる
+\end{itemstep}
+\end{slide}
+}
+
+\overlays{5}{
+\begin{slide}{OpenXM の計算中断機能}
+\begin{pspicture}(12,6)
+\psset{linecolor=white}
+\rput[r](2.0,1.2){\rnode{Client}{\psovalbox{client}}}
+\psframe[framearc=0.3](7.5,0)(11.5,5.4)
+\rput[B](9.5,5.5){同一マシン}
+\rput[l](8.0,1.2){\rnode{Engine}{\psovalbox{engine}}}
+\rput[l](7.8,4.2){\rnode{Control}{\psovalbox{controller}}}
+\ncline[linewidth=2pt]{<->}{Client}{Control}
+\onlySlide*{2}{\Aput{\yellow reset}}
+\ncline[linestyle=dotted]{->}{Control}{Engine}
+\onlySlide*{3}{\Aput{\yellow SIGUSR1}}
+\ncline[linewidth=2pt]{<->}{Client}{Engine}
+\onlySlide*{4}{\Bput{\yellow OX\_SYNC\_BALL}}
+\end{pspicture}
+\end{slide}
+}
+
+\overlays{3}{
+\begin{slide}{MathLink の仕組み}
+\begin{itemize}
+\fromSlide*{1}{\item (ほとんど)ネットワーク透過性がある。}
+\fromSlide*{2}{\item 通信路で送られるのは{\yellow Mathematicaの式}}
+\fromSlide*{3}{\item[]
+\begin{itemize}
+\item[例:] EvaluatePacket[Sin[\$VersionNumber]]
+\item[]    ReturnPacket[Sin[x]]
+\item[]    InputNamePacket["In[1]:= "]
+\item[]    MenuPacket[1,"Interrupt> "]
+\end{itemize}
+}
+\fromSlide*{4}{\item *Packet[]をMathematica Bookではパケットと呼ぶ}
+\end{itemize}
+\end{slide}
+}
+
+\begin{slide}{MathLinkプログラムの書き方(1)}
+\begin{verbatim}
+char *s = "Mathematicaの式";
+MLPutFunction(link, "EvaluatePacket", 1);
+MLPutFunction(link, "ToExpression", 1);
+MLPutString(link, string);
+MLEndPacket(link);
+\end{verbatim}
+\end{slide}
+
+\begin{slide}{MathLinkプログラムの書き方(2)}
+\begin{verbatim}
+char *s;
+while (MLNextPacket(link) != RETURNPKT)
+    MLNewPacket(link);
+switch(MLGetNext(link)) {
+MLTKSTR:
+    MLGetString(link, &s);
+    ...
+MLTKINT:
+}
+MLNewPacket(link);
+\end{verbatim}
+\end{slide}
+
+\overlays{4}{
+\begin{slide}{参考文献}
+\begin{itemstep}
+\item[{[1]}] Mathematica Book, Wolfram Research
+\item[{[2]}] MathArchive にあった Todd Gayley のメール([mg17015], 1999/Apr)
+\item[{[3]}] 昔の MathLink にあった MLSignal(\ ) の解説
+(Google のキャッシュにあった)
+\item[{[4]}] mathlink.h, nm libMLa の出力, mprep の生成するソース
+\end{itemstep}
+\end{slide}
+}
+
+\overlays{6}{
+\begin{slide}{MLPutMessage}
+\begin{itemstep}
+\item MathLink の非公開関数
+\item ネットワーク透過性はない。
+\item MLPutMessage(link, MLInterruptMessage)\\
+で link の指すプロセスに {\yellow SIGINT} を送る。\\
+(Linux の場合)
+\item シグナルを送る前に計算が終了する場合もありうるので注意が必要
+\item 割り込んだあとの後始末は?
+\item[] $\Rightarrow${\yellow 相手方のプログラムの作りに依存する}
+\end{itemstep}
+\end{slide}
+}
+
+\overlays{6}{
+\begin{slide}{割り込みの後始末(4.xの場合)}
+\begin{itemstep}
+\item MenuPacket[1,"Interrupt> "] を受け取れば計算が中断されている
+\item MLPutString("$\backslash$n")
+\item MenuPacket[0,"Interrupt> "] を受け取る
+\item MLPutString("a")
+\item TextPacket["..."] を受け取っておしまい。
+\item 計算結果(ReturnPacket[\$Aborted])は受け取れない
+\end{itemstep}
+\end{slide}
+}
+
+\end{document}
