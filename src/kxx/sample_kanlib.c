@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.1 2004/02/29 03:00:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/sample_kanlib.c,v 1.2 2004/09/05 00:51:18 takayama Exp $ */
 /*
 This is a sample program to use kanlib.a
 gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/Kan/kanlib.a -L../../lib -lgmp -lgc
@@ -22,6 +22,7 @@ gcc -g -O2 -g -D_BSD_SOURCE sample_kanlib.c -o sample_kanlib  -ldl   ../kan96xx/
 extern int Quiet;
 extern JMP_BUF EnvOfStackMachine;
 extern Calling_ctrlC_hook;
+extern int RestrictedMode, RestrictedMode_saved;
 
 void ctrlC();
 
@@ -36,8 +37,9 @@ main() {
   while( fgets(s,1023,stdin) != NULL) {
 	if (SETJMP(EnvOfStackMachine)) {
       if (!Calling_ctrlC_hook) {
-        Calling_ctrlC_hook = 1;
+        Calling_ctrlC_hook = 1; RestrictedMode = 0; 
         KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */ 
+        RestrictedMode = RestrictedMode_saved;
       }
       Calling_ctrlC_hook = 0;
       KSexecuteString(" (Computation is interrupted.) ");

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.16 2004/09/12 10:58:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.17 2004/09/16 02:22:03 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -446,11 +446,24 @@ int executePrimitive(ob)
   extern struct ring *CurrentRingp;
   extern TimerOn;
   extern SecureMode;
+  extern int RestrictedMode;
 
   infixOn = 0;
 
   if (DebugStack >= 2) {
     fprintf(Fstack,"In execute %d\n",ob.lc.ival); printOperandStack();
+  }
+
+  if (RestrictedMode) {
+    switch(ob.lc.ival) {
+    case SleftBrace:
+    case SrightBrace:
+    case Sexec:
+      break;
+    default:
+      fprintf(stderr,"primitive No = %d : ", ob.lc.ival);
+      errorStackmachine("You cannot use this primitive in the RestrictedMode.\n");
+    }
   }
 
   if (GotoP) return(0);

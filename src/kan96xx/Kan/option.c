@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.13 2003/08/21 02:30:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.14 2003/11/20 09:20:36 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -57,6 +57,7 @@ struct object KsystemVariable(ob)
   extern int DoCancel;
   extern int DebugContentReduction;
   extern int QuoteMode;
+  extern int RestrictedMode, RestrictedMode_saved;
 
   int n,i;
   struct object ob1,ob2,ob3,ob4;
@@ -184,6 +185,8 @@ struct object KsystemVariable(ob)
         rob = KpoString(RightBracket);
       }else if (strcmp(ob1.lc.str,"SecureMode")==0) {
         rob = KpoInteger(SecureMode);
+      }else if (strcmp(ob1.lc.str,"RestrictedMode")==0) {
+        rob = KpoInteger(RestrictedMode);
       }else if (strcmp(ob1.lc.str,"Ecart")==0) {
         rob = KpoInteger(Ecart);
       }else if (strcmp(ob1.lc.str,"EcartAutomaticHomogenization")==0) {
@@ -314,6 +317,14 @@ struct object KsystemVariable(ob)
           errorKan1("%s\n","You cannot weaken the security level.");
         }
         rob = KpoInteger(SecureMode);
+      }else if (strcmp(ob1.lc.str,"RestrictedMode") == 0) {
+        if (KopInteger(ob2) >= RestrictedMode) {
+          RestrictedMode = KopInteger(ob2);
+          RestrictedMode_saved = RestrictedMode;
+        }else{
+          errorKan1("%s\n","You cannot weaken the RestrictedMode level.");
+        }
+        rob = KpoInteger(RestrictedMode);
       }else if (strcmp(ob1.lc.str,"Ecart") == 0) {
         Ecart = KopInteger(ob2);
         rob = KpoInteger(Ecart);

@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.29 2004/02/25 23:14:35 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.30 2004/06/15 08:15:11 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -103,6 +103,8 @@ int CmoDMSOutputOption = 0;  /* Output with
                  (1) RING_BY_NAME or (0) DMS_OF_N_VARIABLES.
                  plugin/cmo.c */
 int SecureMode = 0;
+int RestrictedMode = 0;
+int RestrictedMode_saved = 0;
 int Ecart = 0;
 int EcartAutomaticHomogenization = 0;
 int TraceLift = 0;

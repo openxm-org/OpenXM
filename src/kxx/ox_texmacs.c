@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.18 2004/03/25 01:37:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.19 2004/09/05 00:51:18 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -48,6 +48,7 @@
 extern int Quiet;
 extern JMP_BUF EnvOfStackMachine;
 extern int Calling_ctrlC_hook;
+extern int RestrictedMode, RestrictedMode_saved;
 int Format=1;  /* 1 : latex mode */
 int OutputLimit_for_TeXmacs = (1024*10);
 
@@ -144,8 +145,9 @@ main(int argc,char *argv[]) {
     /* printp(sys);  no prompt */
     if (SETJMP(EnvOfStackMachine)) {
       if (!Calling_ctrlC_hook) {
-        Calling_ctrlC_hook = 1;
+        Calling_ctrlC_hook = 1; RestrictedMode = 0;
         KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+        RestrictedMode = RestrictedMode_saved;
       }
       Calling_ctrlC_hook = 0; 
       if (signal(SIGINT,SIG_IGN) != SIG_IGN) {

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.26 2004/09/16 02:22:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.27 2004/09/16 23:53:44 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -753,6 +753,7 @@ void scanner() {
   extern int InSendmsg2;
   int infixOn = 0;
   struct tokens infixToken;
+  extern int RestrictedMode, RestrictedMode_saved;
   getokenSM(INIT);
   initSystemDictionary();
 
@@ -836,8 +837,9 @@ void scanner() {
         fprintf(Fstack,"\nscanner> ");
       }
       if (!Calling_ctrlC_hook) { /* to avoid recursive call of ctrlC-hook. */
-        Calling_ctrlC_hook = 1;
+        Calling_ctrlC_hook = 1; RestrictedMode = 0;
         KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+        RestrictedMode = RestrictedMode_saved;
       }
       Calling_ctrlC_hook = 0;  
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook? */
@@ -868,9 +870,11 @@ void ctrlC(sig)
   extern int SGClock;
   extern int UserCtrlC;
   extern int OXlock;
+  extern int RestrictedMode, RestrictedMode_saved;
 
   signal(sig,SIG_IGN);
   /* see 133p */
+  RestrictedMode = RestrictedMode_saved;
   cancelAlarm();
   if (sig == SIGALRM) {
     fprintf(stderr,"ctrlC by SIGALRM\n");
@@ -933,7 +937,10 @@ int executeToken(token)
   extern int WarningMessageMode;
   extern int Strict;
   extern int InSendmsg2;
+  extern int RestrictedMode, RestrictedMode_saved;
+  int localRestrictedMode_saved;
 
+  localRestrictedMode_saved = 0;
   if (GotoP) { /* for goto */
     if (token.kind == ID && isLiteral(token.token)) {
       if (strcmp(&((token.token)[1]),GotoLabel) == 0) {
@@ -987,7 +994,18 @@ int executeToken(token)
       if (ob.tag >= 0) {
         /* there is a definition in the user dictionary */
         if (ob.tag == SexecutableArray) {
+          if (RestrictedMode) {
+            if (UD_attr & ATTR_EXPORT) {
+              localRestrictedMode_saved = RestrictedMode; RestrictedMode = 0;
+            }else{
+              tracePushName(token.token);
+              errorStackmachine("You cannot execute this function in restricted mode.\n");
+            }
+          }
+
           status = executeExecutableArray(ob,token.token,0);
+
+          if (localRestrictedMode_saved) RestrictedMode = localRestrictedMode_saved;
           if ((status & STATUS_BREAK) || (status < 0)) return status;
         }else {
           Kpush(ob);
@@ -1055,6 +1073,8 @@ errorStackmachine(str)
   char message0[1024];
   char *message;
   extern int ErrorMessageMode;
+  extern int RestrictedMode, RestrictedMode_saved;
+  RestrictedMode = RestrictedMode_saved;
   cancelAlarm();
   if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
     pushErrorStack(KnewErrorPacket(SerialCurrent,-1,str));
@@ -1137,6 +1157,7 @@ KSexecuteString(s)
   jmp_buf saved_EnvOfStackMachine;
   void (*sigfunc)();
   int localCatchCtrlC ;
+  extern int RestrictedMode, RestrictedMode_saved;
 
   localCatchCtrlC = CatchCtrlC;
   /* If CatchCtrlC is rewrited in this program,
@@ -1163,8 +1184,9 @@ KSexecuteString(s)
       recursive--;
       if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
       if (!Calling_ctrlC_hook) {
-        Calling_ctrlC_hook = 1;
+        Calling_ctrlC_hook = 1; RestrictedMode = 0;
         KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+        RestrictedMode_saved;
       }
       Calling_ctrlC_hook = 0;
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook?*/
@@ -1185,8 +1207,9 @@ KSexecuteString(s)
         recursive = 0;
         if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
         if (!Calling_ctrlC_hook) {
-          Calling_ctrlC_hook = 1;
+          Calling_ctrlC_hook = 1; RestrictedMode = 0;
           KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+          RestrictedMode = RestrictedMode_saved;
         }
         Calling_ctrlC_hook = 0;
         Calling_ctrlC_hook = 0;

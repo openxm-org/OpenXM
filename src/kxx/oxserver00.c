@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.14 2004/03/08 08:24:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.15 2004/09/05 00:51:18 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -21,6 +21,7 @@ extern int SerialOX;  /* Serial number of the packets sent. */
 extern int SerialCurrent;  /* Current Serial number of the recieved packet. */
 extern int OXprintMessage; /* print oxmessages? */
 extern int Calling_ctrlC_hook;
+extern int RestrictedMode, RestrictedMode_saved;
 
 #if defined(__CYGWIN__)
 sigjmp_buf EnvOfChildServer;
@@ -141,8 +142,9 @@ nullserver(int fdStreamIn,int fdStreamOut) {
       fprintf(stderr," ?! \n"); fflush(NULL);
     }
     if (!Calling_ctrlC_hook) {
-      Calling_ctrlC_hook = 1;
+      Calling_ctrlC_hook = 1; RestrictedMode = 0;
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      RestrictedMode = RestrictedMode_saved;
     }
     Calling_ctrlC_hook = 0;
 	KSexecuteString(" (Computation is interrupted.) ");
@@ -171,8 +173,9 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     Sm1_pushError2(SerialCurrent,-1,"Global jump by sm1 error");
 
     if (!Calling_ctrlC_hook) {
-      Calling_ctrlC_hook = 1;
+      Calling_ctrlC_hook = 1; RestrictedMode = 0;
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      RestrictedMode = RestrictedMode_saved;
     }
     Calling_ctrlC_hook = 0;
     signal(SIGUSR1,controlResetHandler); goto aaa ;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.35 2004/09/14 01:57:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.36 2004/09/16 23:53:44 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -512,8 +512,9 @@ void Kusage2(fp,s)
     fppp(fp,"orderMatrix, gbListTower, Schreyer, \n");
     fppp(fp,"outputOrder, multSymbol, variableNames, Version,\n");
     fppp(fp,"AvoidTheSameRing, RingStack, LeftBracket, RightBracket,\n");
-    fppp(fp,"AutoReduce, SecureMode, Ecart, EcartAutomaticHomogenization\n");
+    fppp(fp,"AutoReduce, Ecart, EcartAutomaticHomogenization\n");
     fppp(fp,"DoCancel, DebugContentReduction\n");
+    fppp(fp,"RestrictedMode (cf. or_attr 8), SecureMode(obsolete) \n");
     fppp(fp,"Example: [(N)] system_variable\n");
     fppp(fp,"                             (maximum number of variables)/2.\n");
     fppp(fp,"         [(x) (var) 3] system_variable\n");
