@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.3 1999/11/02 18:58:25 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.4 1999/11/02 21:15:02 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -59,7 +58,7 @@ static int          dump_mpz(mpz_ptr mpz);
 static int          funcs(int cmo_type);
 
 /* CMO_xxx の値順にならべること(デバッグのため) */
-static int          read_password(int fd, char* passwd);
+static int          login_with_otp(int fd, char* passwd);
 static cmo_null*    receive_cmo_null(int fd);
 static cmo_int32*   receive_cmo_int32(int fd);
 static cmo_string*  receive_cmo_string(int fd);
@@ -348,6 +347,13 @@ cmo_zz* new_cmo_zz_set_si(int i)
     return c;
 }
 
+cmo_zz *new_cmo_zz_set_string(char *s)
+{
+    cmo_zz* c = new_cmo_zz_noinit();
+    mpz_init_set_str(c->mpz, s, 10);
+    return c;
+}
+
 cmo_zz* new_cmo_zz_size(int size)
 {
     cmo_zz* c = new_cmo_zz();
@@ -503,20 +509,6 @@ int print_cmo_string(cmo_string* c)
     fprintf(stderr, "cmo_string = (%s)\n", c->s);
 }
 
-/* ox_start() から呼び出す */
-/* OneTimePassword の処理 */
-static int read_password(int fd, char* passwd)
-{
-    char buff[1024];
-    int n;
-    if ((n = read(fd, buff, 1024)) != strlen(passwd)) {
-        fprintf(stderr, "Socket#%d: Login incorrect.\n", fd);
-        fprintf(stderr, "password = (%s), received = (%s).\n", passwd, buff);
-        fprintf(stderr, "         = (%d), received = (%d).\n", strlen(passwd), n);
-    }
-    fflush(stderr);
-}
-
 void ox_close(ox_file_t sv)
 {
     send_ox_command(sv->control, SM_control_kill);
@@ -561,7 +553,29 @@ cmo* ox_pop_cmo(ox_file_t sv, int fd)
     return receive_cmo(fd);
 }
 
+/* 手抜き. (後で改善しよう...) */
+static char *create_otp()
+{
+	static char otp[] = "otpasswd";
+	return otp;
+}
+
+/* OneTimePassword の処理 */
+static int login_with_otp(int fd, char* passwd)
+{
+    char buff[1024];
+    int n = read(fd, buff, 1024);
+	int len = strlen(passwd)+1;
+    if (n != len) {
+        fprintf(stderr, "Socket#%d: Login incorrect.\n", fd);
+        fprintf(stderr, "password = (%s), length = (%d).\n", passwd, len);
+        fprintf(stderr, "received = (%d), length = (%d).\n", buff, n);
+		fflush(stderr);
+    }
+}
+
 /* 
+   (-reverse 版の ox_start)
    ox_start は クライアントが呼び出すための関数である.
    サーバでは使われない.  prog1 は コントロールサーバであり,
    -ox, -reverse, -data, -control, -pass, -host
@@ -571,7 +585,7 @@ cmo* ox_pop_cmo(ox_file_t sv, int fd)
 
 ox_file_t ox_start(char* host, char* prog1, char* prog2)
 {
-    static char pass[] = "passwd";
+	char *pass = create_otp();
     char ctl[16], dat[16];
     short portControl = 0; /* short であることに注意 */
     short portStream  = 0;
@@ -591,12 +605,35 @@ ox_file_t ox_start(char* host, char* prog1, char* prog2)
     }
 
     sv->control = mysocketAccept(sv->control);
-    decideByteOrderWithReadPasswd(sv->control, sv->control, 0, pass);
+	login_with_otp(sv->control, pass);
+    decideByteOrderClient(sv->control, 0);
+	/* 10マイクロ秒, 時間稼ぎする. */
     usleep(10);
     sv->stream  = mysocketAccept(sv->stream);
-    decideByteOrderWithReadPasswd(sv->control, sv->control, 0, pass);
+	login_with_otp(sv->stream, pass);
+    decideByteOrderClient(sv->stream, 0);
 
     return sv;
+}
+
+/* 
+   (-insecure 版の ox_start)  まだ、中身はありません。
+   ox_start_insecure_nonreverse は クライアントが呼び出すための関数である.
+   接続時には, sv->control を先にオープンする.
+   既定値:
+   portControl = 1200
+   portStream  = 1300
+*/
+
+ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short portStream)
+{
+    ox_file_t sv = malloc(sizeof(__ox_file_struct));
+
+	sv->control = mysocketOpen(host, portControl);
+	/* 10マイクロ秒, 時間稼ぎする. */
+	usleep(10);
+	sv->stream  = mysocketOpen(host, portStream);
+	return sv;
 }
 
 void ox_reset(ox_file_t sv)
@@ -1081,62 +1118,43 @@ cmo* receive_cmo2(int fd)
 
 /* ファイルディスクリプタ fd の通信路での integer の byte order を決定する */
 /* 実際には order (0,1,or 0xFF)をみてはいない */
-int decideByteOrderWithReadPasswd(int fd_read, int fd_write, int order, char* passwd)
+int decideByteOrderClient(oxfd fd, int order)
 {
     char zero = OX_BYTE_NETWORK_BYTE_ORDER;
     char dest;
-	read_password(fd_read, passwd);
-    write(fd_write, &zero, sizeof(char));
-    read(fd_read, &dest, sizeof(char));
-    return 0;
-}
-
-/* ファイルディスクリプタ fd の通信路での integer の byte order を決定する */
-/* 実際には order (0,1,or 0xFF)をみてはいない */
-int decideByteOrder(int fd_read, int fd_write, int order)
-{
-    char zero = OX_BYTE_NETWORK_BYTE_ORDER;
-    char dest;
-    write(fd_write, &zero, sizeof(char));
-    read(fd_read, &dest, sizeof(char));
+    read(fd, &dest, sizeof(char));
+    write(fd, &zero, sizeof(char));
     return 0;
 }
 
 /* Server 側ではこちらを用いる */
-int decideByteOrder2(int fd_read, int fd_write, int order)
+/* いまの実装は dup されていることが前提になっている */
+int decideByteOrderServer(oxfd fd, int order)
 {
     char zero = OX_BYTE_NETWORK_BYTE_ORDER;
     char dest;
-    read(fd_read, &dest, sizeof(char));
-    write(fd_write, &zero, sizeof(char));
+    write(fd, &zero, sizeof(char));
+    read(fd, &dest, sizeof(char));
     return 0;
 }
 
-/* cmo と string の変換関数群 */
-
-cmo_zz *new_cmo_zz_set_string(char *s)
-{
-    cmo_zz* c = new_cmo_zz_noinit();
-    mpz_init_set_str(c->mpz, s, 10);
-    return c;
-}
-
-char *convert_zz_to_cstring(cmo_zz *c)
+/* cmo と string (ここではC言語のstring) の変換関数群 */
+char *convert_zz_to_string(cmo_zz *c)
 {
     return mpz_get_str(NULL, 10, c->mpz);
 }
 
-char *convert_cmo_to_cstring(cmo *m)
+char *convert_cmo_to_string(cmo *m)
 {
     switch(m->tag) {
     case CMO_ZZ:
-        return convert_zz_to_cstring((cmo_zz *)m);
+        return convert_zz_to_string((cmo_zz *)m);
     case CMO_INT32:
-        return convert_int_to_cstring(((cmo_int32 *)m)->i);
+        return convert_int_to_string(((cmo_int32 *)m)->i);
     case CMO_STRING:
         return ((cmo_string *)m)->s;
     case CMO_NULL:
-        return convert_null_to_cstring();
+        return convert_null_to_string();
     default:
         fprintf(stderr, "sorry, not implemented CMO\n");
         /* まだ実装していません. */
@@ -1144,13 +1162,13 @@ char *convert_cmo_to_cstring(cmo *m)
     }
 }
 
-char *convert_null_to_cstring()
+char *convert_null_to_string()
 {
     static char* null_string = "";
     return null_string;
 }
 
-char *convert_int_to_cstring(int integer)
+char *convert_int_to_string(int integer)
 {
     char buff[1024];
     char *s;

@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.3 1999/11/02 18:58:25 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.4 1999/11/02 21:15:02 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -32,13 +31,25 @@ YYY_cmo_XXX 関数が処理する。cmo の内部に cmo_ZZZ へのポインタが
 あるときには、その種類によらずに YYY_cmo 関数を呼び出す 
 */
 
-
 #define DEFAULT_LOGFILE  "/tmp/result"
+
+/* Open Xm File Descripter */
+typedef int oxfd;
+
+#if 0
+/* そのうちこちらに移行したい... */
+typedef struct {
+	int fd_read;
+	int fd_write;
+	int byteorder;
+} oxfile;
+typedef oxfile *oxfd;
+#endif
 
 /* サーバーとの通信路に用いるファイルディスクリプタのペア. */
 typedef struct {
-    int stream;
-    int control;
+    oxfd stream;
+    oxfd control;
 } __ox_file_struct;
 
 typedef __ox_file_struct *ox_file_t;
@@ -194,15 +205,15 @@ int           print_cmo_list(cmo_list* li);
 int           print_cmo_mathcap(cmo_mathcap* c);
 int           print_cmo_string(cmo_string* c);
 
-int           decideByteOrder(int fd_read, int fd_write, int order);
-int           decideByteOrder2(int fd_read, int fd_write, int order);
+int           decideByteOrderClient(oxfd fd, int order);
+int           decideByteOrderServer(oxfd fd, int order);
 int           next_serial();
 void          setCmotypeDisable(int type);
 
 cmo_zz*       new_cmo_zz_set_string(char *s);
-char*         convert_zz_to_cstring(cmo_zz *c);
-char*         convert_cmo_to_cstring(cmo *m);
-char*         convert_null_to_cstring();
-char*         convert_int_to_cstring(int integer);
+char*         convert_zz_to_string(cmo_zz *c);
+char*         convert_cmo_to_string(cmo *m);
+char*         convert_null_to_string();
+char*         convert_int_to_string(int integer);
 
 #endif /* _OX_H_ */

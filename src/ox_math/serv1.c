@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,7 +114,7 @@ int main()
     signal(SIGKILL, handler_kill);
 
     /* バイトオーダの決定 */
-    decideByteOrder2(sv_read, sv_write, 0);
+    decideByteOrderServer(sv_read, 0);
 
     while(1) {
         receive_ox(sv_read, sv_write);

@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -144,7 +143,7 @@ int MATH_sendObject(cmo *m)
         break;
     default:
         MLPutFunction(lp, "ToExpression", 1);
-        s = convert_cmo_to_cstring(m);
+        s = convert_cmo_to_string(m);
         MLPutString(lp, s);
         fprintf(stderr, "put %s.", s);
         break;
@@ -196,17 +195,14 @@ int push(cmo* m)
     }
 }
 
-/* エラーのときは NULL を返す */
-/* gen_error_object(SM_popCMO); */
-/* CMO_ERROR2 */
-
+/* スタックが空のときは, (CMO_NULL) をかえす. */
 cmo* pop()
 {
     if (Stack_Pointer > 0) {
         Stack_Pointer--;
         return Operand_Stack[Stack_Pointer];
     }
-    return NULL;
+    return new_cmo_null();
 }
 
 void pops(int n)
@@ -216,7 +212,6 @@ void pops(int n)
         Stack_Pointer = 0;
     }
 }
-
 
 /* sm_XXX 関数群は、エラーのときは 0 以外の値を返し、呼び出し元で
    エラーオブジェクトをセットする */
@@ -252,7 +247,7 @@ int sm_popString(int fd_write)
     fprintf(stderr, "code: SM_popString.\n");
 #endif
 
-    if ((m = pop()) != NULL && (s = convert_cmo_to_cstring(m)) != NULL) {
+    if ((m = pop()) != NULL && (s = convert_cmo_to_string(m)) != NULL) {
         send_ox_cmo(fd_write, (cmo *)new_cmo_string(s));
         return 0;
     }

@@ -1,6 +1,6 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.3 1999/11/02 18:58:25 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.4 1999/11/02 19:51:18 ohara Exp $ */
+
 /* OX expression, CMO expression パーサ */
 
 #include <stdio.h>
@@ -18,10 +18,9 @@
    CMO_MONOMIAL32 は無視しない. (つまりおかしいときは構文エラーになる)
 */
 
-
 /* parse.c, lex.c では, Lisp 表現された CMO 文字列を読み込み,
-   バイト列を出力する.  中間表現として、cmo *を利用する.
-   parse() はトークンの列から cmo *(の指す構造体)を生成する.  
+   バイト列を出力する.  中間表現として、cmo 構造体を利用する.
+   parse() はトークンの列から cmo 構造体を生成し、そのポインタを返す.  
 */
 
 /* 重要なことはパーサ(の各サブルーチン)は
@@ -33,8 +32,8 @@ static int token = 0;
 
 /* トークンの属性値. yylval は lex() によってセットされる. */
 static union{
-    int   d;
-    char* sym;
+    int  d;
+    char *sym;
 } yylval;
 
 /* pflag_cmo_addrev がセットされていれば、厳密には CMO expression では
@@ -43,28 +42,30 @@ static union{
 static int pflag_cmo_addrev = 1;  /* CMO の省略記法を許すか否かのフラグ */
 
 /* 関数の宣言 */
-static int parse_error(char *s);
-static int parse_lf();
-static int parse_right_parenthesis();
-static int parse_left_parenthesis();
-static int parse_comma();
-static int parse_integer();
-static cmo *parse_cmo_null();
-static cmo *parse_cmo_int32();
-static cmo *parse_cmo_string();
-static cmo *parse_cmo_mathcap();
-static cmo *parse_cmo_dms_generic();
-static cmo *parse_cmo_ring_by_name();
-static cmo *parse_cmo_error2();
-static cmo *parse_cmo_zero();
-static cmo *parse_cmo_zz();
-static cmo *parse_cmo_list();
-static cmo *parse_cmo();
+static int  parse_error(char *s);
+static int  parse_lf();
+static int  parse_right_parenthesis();
+static int  parse_left_parenthesis();
+static int  parse_comma();
+static int  parse_integer();
 static char *parse_string();
-static int parse_sm();
-static ox* parse_ox();
-static ox* parse_ox_command();
-static ox* parse_ox_data();
+static cmo  *parse_cmo_null();
+static cmo  *parse_cmo_int32();
+static cmo  *parse_cmo_string();
+static cmo  *parse_cmo_mathcap();
+static cmo  *parse_cmo_list();
+static cmo  *parse_cmo_monomial32();
+static cmo  *parse_cmo_zz();
+static cmo  *parse_cmo_zero();
+static cmo  *parse_cmo_dms_generic();
+static cmo  *parse_cmo_ring_by_name();
+static cmo  *parse_cmo_distributed_polynomial();
+static cmo  *parse_cmo_error2();
+static cmo  *parse_cmo();
+static int  parse_sm();
+static ox   *parse_ox();
+static ox   *parse_ox_command();
+static ox   *parse_ox_data();
 
 static int is_token_cmo(int token)
 {
@@ -128,7 +129,7 @@ static int parse_lf()
 }
 
 
-static ox* parse_ox()
+static ox *parse_ox()
 {
     ox *m = NULL;
 
@@ -147,9 +148,9 @@ static ox* parse_ox()
     return m;
 }
 
-static ox* parse_ox_data()
+static ox *parse_ox_data()
 {
-    ox* m;
+    ox *m;
 
     parse_comma();
     parse_left_parenthesis();
@@ -158,9 +159,9 @@ static ox* parse_ox_data()
     return m;
 }
 
-static ox* parse_ox_command()
+static ox *parse_ox_command()
 {
-    ox* m;
+    ox *m;
 
     parse_comma();
     parse_left_parenthesis();
@@ -644,7 +645,7 @@ static int lex_symbol()
 	return 0;
 }
 
-/* return する前に一文字先読みしておく。 */
+/* return する前に一文字先読みしておく. */
 int lex()
 {
     int c_dash = 0;
