@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.52 1999/12/23 07:03:12 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.53 1999/12/23 08:02:12 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
@@ -86,11 +86,11 @@ OpenXM で規定されている TCP/IP 実装によるメッセージはバイトストリームと
 \begin{verbatim}
 #define	OX_COMMAND              513
 #define	OX_DATA	                514
+#define OX_SYNC_BALL            515
 #define OX_DATA_WITH_LENGTH     521
 #define OX_DATA_OPENMATH_XML    523
 #define OX_DATA_OPENMATH_BINARY 524
 #define OX_DATA_MP              525
-足りないものは追加しましょう。怠けてはダメよ。
 \end{verbatim}
 
 ボディの構造はメッセージの種類によって異なる。
@@ -193,10 +193,11 @@ CMO 形式で定義されているデータは多倍長整数以外にも
 多倍長整数は 20 となっている。
 よく使われると思われる CMO 形式のタグをあげておく。
 \begin{verbatim}
-#define CMO_INT32  2  /* 32 ビット整数 */
-#define CMO_STRING 4  /* 文字列        */
-#define CMO_LIST   17 /* リスト構造    */
-#define CMO_ZZ     20 /* 多倍長整数    */
+#define CMO_INT32    2 /* 32 ビット整数 */
+#define CMO_STRING   4 /* 文字列        */
+#define CMO_MATHCAP  5 /* mathcap(後述) */
+#define CMO_LIST    17 /* リスト構造    */
+#define CMO_ZZ      20 /* 多倍長整数    */
 \end{verbatim}
 
 ここで TCP/IP 実装における 32 bit の整数の
@@ -249,13 +250,15 @@ $4294967298 = 1 \times 2^{32} + 2$ を CMO 形式の
 
 \section{mathcap について}
 
-OpenXM 規約では、通信時に用いられるメッセージの種類を各ソフトウェアが制
-限する方法を用意している。これは各ソフトウェアの実装によってはすべてのメッ
-セージをサポートするのが困難な場合があるからである。また、各ソフトウェア
-でメッセージの種類を拡張したい場合にも有効である。
-この制限(あるいは拡張)は mathcap と呼ばれるデータ構造によって行われる。
-この節では mathcap のデータ構造と、具体的なメッセージの制限の手続きにつ
-いて説明する。
+OpenXM 規約では、通信時に用いられるメッセージの種類を
+各ソフトウェアが制限する方法を用意している。
+これは各ソフトウェアの実装によってはすべてのメッセージを
+サポートするのが困難な場合があるからである。
+また、各ソフトウェアでメッセージの種類を拡張したい場合にも有効である。
+この制限(あるいは拡張)は CMO 形式で定義されている mathcap と
+呼ばれるデータ構造によって行われる。
+この節では mathcap のデータ構造と、
+具体的なメッセージの制限の手続きについて説明する。
 
 まず、手続きについて説明しよう。
 
@@ -287,6 +290,7 @@ OpenXM 規約では、通信時に用いられるメッセージの種類を各ソフトウェアが制
 
 {\large\bf これより以降は意味不明で私にはよく分かりませんでしたので、
 たぶん読者も分からないでしょうね、というのはいいとして、}
+
 CMO 形式で定義されている mathcap データは
 受け取ることができるデータ形式を表すデータであり、
 要求されればサーバはサーバ自身の mathcap データをスタックに積む。
