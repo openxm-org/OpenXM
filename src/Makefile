@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.129 2003/09/08 13:11:41 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.130 2003/09/11 00:43:16 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -188,6 +188,9 @@ clean:
 	-(cd asir-contrib ; make clean)
 	-(cd ${OpenXM_contrib2}/fep ; make clean)
 	-(cd util ; make clean)
+	-(cd ox_toolkit ; make clean)
+	-(cd oxc ; make clean)
+
 
 distclean: clean
 	(cd uuencoded ; make distclean)
@@ -203,6 +206,7 @@ distclean: clean
 	(cd tigers ; make distclean)
 	-(cd ox_toolkit ; make distclean)
 	-(cd ox_math ; make distclean)
+	-(cd oxc ; make distclean)
 	rm -rf $(BINDIR)/d0 $(BINDIR)/k0 $(BINDIR)/ox $(BINDIR)/ox_sm1 \
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
