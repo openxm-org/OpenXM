@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.21 2003/08/26 07:42:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.22 2003/08/26 12:46:05 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -503,6 +503,7 @@ void Kusage2(fp,s)
     fppp(fp,"                          Set the global variable PrintDollar to 0\n");
     fppp(fp,"DebugReductionEcart (bit):  (2) *% (1) find_reducer,in(r) \n");
     fppp(fp,"              (any) cont   (4) #+[rat division, + ecartd] \n");
+    fppp(fp,"                           (8) check the order. \n");
     fppp(fp,"DoCancel (bit):  (2) always_reduce_content  (1) Noro_strategy \n");
     fppp(fp,"                 (4) DoCancel_in_reduction1 \n");
   }else if (strcmp(s,"tlimit")==0) {

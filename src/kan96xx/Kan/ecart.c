@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.16 2003/08/27 03:11:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.17 2003/09/10 07:41:25 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -208,7 +208,7 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
     }
   }
 
-  if (DebugReductionRed || (DebugReductionEcart&1)) {
+  if ((DebugReductionRed&1) || (DebugReductionEcart&1)) {
     printf("ecartFindReducer(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d\n",ell1,ell2,minGrade,minGseti,minGgi);
   }
   if (ell1 <= ell2) {
@@ -366,7 +366,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
 
   if (DebugReductionEcart&1) printf("--------------------------------------\n");
   do {
-    if (DebugReductionRed) printf("r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionRed&1) printf("r=%s\n",POLYToString(r,'*',1));
     if (DebugReductionEcart & 1) printf("r=%s+...\n",POLYToString(head(r),'*',1));
     ells = ecartFindReducer(r,gset,gg);
     ell = ells.ell;
@@ -413,7 +413,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
           syz = ppAdd(syz,cpMult(toSyzCoeff(cg),syz_o));
           /* Note. 2003.07.19 */
         }
-        if (DebugReductionRed) {
+        if (DebugReductionRed && needSyz) {
           POLY tp;
           tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
           if (tp != POLYNULL) {
@@ -482,6 +482,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   POLY cf_o;
   POLY syz_o;
   POLY r_0;
+  POLY r0;
   int se;
   struct coeff *cont;
 
@@ -510,7 +511,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
 
   if (DebugReductionEcart&1) printf("=======================================\n");
   do {
-    if (DebugReductionRed) printf("(ecart1(d)) r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionRed & 1) printf("(ecart1(d)) r=%s\n",POLYToString(r,'*',1));
     if (DebugReductionEcart & 1) printf("r=%s+,,,\n",POLYToString(head(r),'*',1));
 
     ells = ecartFindReducer(r,gset,gg);
@@ -531,7 +532,20 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
         pp = (gg->pa)[ells.ggi];
       }
       if (ell > 0) r = ppMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+	  r0 = r;
       r = (*reduction1)(r,pp,needSyz,&cc,&cg);
+      if (DebugReductionEcart & 8) {
+        if (ell > 0) {printf("ell+ "); fflush(NULL);
+        }else {
+		  printf("ell0 "); fflush(NULL);
+          if ((*mmLarger)(r,r0) >= 1) {
+            printf("error in reduction."); 
+            printf("   r0=%s\n",POLYToString(r0,'*',1));
+            printf("==>r=%s\n",POLYToString(r,'*',1));
+            getchar(); getchar();
+          }
+        }
+      }
 
       if (DoCancel && (r != POLYNULL)) { 
         if (shouldReduceContent(r,0)) {
@@ -559,7 +573,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
         }
       }
 
-      if (DebugReductionRed) {
+      if (DebugReductionRed && needSyz) {
         POLY tp;
         tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
         tp = goDeHomogenizeS(tp);
@@ -690,7 +704,7 @@ static struct ecartReducer ecartFindReducer_mod(POLY r,
     }
   }
 
-  if (DebugReductionRed || (DebugReductionEcart&1)) {
+  if ((DebugReductionRed & 1)|| (DebugReductionEcart&1)) {
     printf("ecartFindReducer_mod(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d, p=%d\n",ell1,ell2,minGrade,minGseti,minGgi,TraceLift_ringmod->p);
   }
   if (ell1 <= ell2) {
@@ -724,6 +738,7 @@ static POLY reduction_ecart1_mod(r,gset)
   struct ecartReducer ells;
   struct ecartPolyArray *gg;
   POLY pp;
+  POLY r0;
   int ell;
   int se;
 
@@ -751,7 +766,7 @@ static POLY reduction_ecart1_mod(r,gset)
 
   if (DebugReductionEcart&1) printf("=====================================mod\n");
   do {
-    if (DebugReductionRed) printf("(ecart1_mod(d)) r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionRed & 1) printf("(ecart1_mod(d)) r=%s\n",POLYToString(r,'*',1));
     if (DebugReductionEcart & 1) printf("r=%s+,,,\n",POLYToString(head(r),'*',1));
 
     ells = ecartFindReducer_mod(r,gset,gg);
@@ -768,7 +783,23 @@ static POLY reduction_ecart1_mod(r,gset)
         pp = (gg->pa)[ells.ggi];
       }
       if (ell > 0) r = ppMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+
+	  r0 = r;
       r = (*reduction1)(r,pp,0,&cc,&cg);
+
+      if (DebugReductionEcart & 8) {
+        if (ell > 0) {printf("ell+ "); fflush(NULL);
+        }else {
+		  printf("ell0 "); fflush(NULL);
+          if ((*mmLarger)(r,r0) >= 1) {
+            printf("error in reduction."); 
+            printf("   r0=%s\n",POLYToString(r0,'*',1));
+            printf("==>r=%s\n",POLYToString(r,'*',1));
+            getchar(); getchar();
+          }
+        }
+      }
+
       if (r ISZERO) goto ss1;
       r = ecartDivideSv(r,&se); /* r = r/s^? */
     }

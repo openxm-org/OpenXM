@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.6 2003/08/21 02:30:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.7 2003/08/21 04:45:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -152,9 +152,12 @@ POLY reduction1_gen_debug(f,g,needSyz,c,h)
     getchar();
     getchar();
   }
-  if (DebugReductionRed) {
+  if (DebugReductionRed & 1) {
     printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
+  }else if (DebugReductionRed & 2) {
+    printf("(head) %s --> %s\n",POLYToString(head(f),'*',1),POLYToString(head(f2),'*',1));
   }
+
   f = f2;
   if (needSyz) {
     *c = ppMult(sv.a,*c);
@@ -164,8 +167,10 @@ POLY reduction1_gen_debug(f,g,needSyz,c,h)
   while ((*isReducible)(f,g)) {
     sv = (*sp)(f,g);
     f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
-    if (DebugReductionRed) {
+    if (DebugReductionRed & 1) {
       printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
+	}else if (DebugReductionRed & 2) {
+      printf("(head) %s --> %s\n",POLYToString(head(f),'*',1),POLYToString(head(f2),'*',1));
     }
     if (showLength) {printf(" [%d] ",pLength(f)); fflush(stdout);}
     if (!isOrdered(f2) || !isOrdered(f)) {
@@ -194,6 +199,7 @@ POLY reduction1_gen_debug(f,g,needSyz,c,h)
       *h = ppAdd(ppMult(sv.a,*h),sv.b);
     }
   }
+  if (DebugReductionRed & 2) printf("-----------  end of reduction_gen_debug\n");
   return(f);
 }
 

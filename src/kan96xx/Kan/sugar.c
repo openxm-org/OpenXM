@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.4 2003/05/01 01:58:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.5 2003/08/21 02:30:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -10,6 +10,7 @@
 */
 extern DebugReductionRed;
 extern DebugContentReduction;
+extern Ecart;
 
 POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
                      struct syz0 *syzp,int sugarGrade)
@@ -26,7 +27,8 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
   extern struct ring *CurrentRingp;
   struct ring *rp;
   extern DoCancel;
-  
+
+  if (Ecart) return reduction_ecart(f,gset,needSyz,syzp);
   if (needSyz) {
     if (f ISZERO) { rp = CurrentRingp; } else { rp = f->m->ringp; }
     cf = cxx(1,0,0,rp);

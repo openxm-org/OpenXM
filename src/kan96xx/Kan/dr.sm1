@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.21 2003/08/24 05:25:58 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.22 2003/08/26 12:46:04 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3753,6 +3753,7 @@ $ [ff ff] fromVectors :: $
  ] 
 ] putUsages
 
+/ecart.debug_reduction1 0 def
 /beginEcart {
   (red@) (ecart) switch_function
   [(Ecart) 1] system_variable
@@ -3760,6 +3761,9 @@ $ [ff ff] fromVectors :: $
   [(ReduceLowerTerms) 0] system_variable
   [(AutoReduce) 0] system_variable
   [(EcartAutomaticHomogenization) 0] system_variable
+  ecart.debug_reduction1 {
+    (red@) (debug) switch_function
+  } {  } ifelse
 } def
 
 [(endEcart)

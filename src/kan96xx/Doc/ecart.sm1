@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.14 2003/08/27 03:11:13 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.15 2003/08/29 04:34:07 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -44,6 +44,12 @@
         /hdShift -1 def
         exit
       } {  } ifelse
+% Global:  ecart.useSugar
+      opt i get (sugar) eq {
+        /ecart.useSugar opt i 1 add get def
+        exit
+      } {  } ifelse
+
       ans [opt i get opt i 1 add get ]  append /ans set
       exit
      } loop
@@ -53,6 +59,7 @@
       (ecart.setOpt:) message
       (degreeShift=) messagen degreeShift message
       $hdShift(startingShift)=$ messagen hdShift message
+      (sugar=) messagen ecart.useSugar message
       (Other options=) messagen ans message
     } {  } ifelse
 
@@ -224,6 +231,7 @@
   (        array hsShift is the degree shift for the homogenization. cf.homogenize )
   $a : [f v w [(degreeShift) ds (noAutoHomogenize) 1]]; array f; string v; array of array w; w is the weight matirx.$
   (       No automatic homogenization.)
+  $  [(degreeShift) ds (noAutoHomogenize) 1 (sugar) 1] -->use the sugar strate $
   (  )
   $cf. ecarth.gb (homogenized),  ecartd.gb (dehomogenize) $
   ( )
@@ -752,6 +760,7 @@
    /gg /wv /vec /ans /rr /mm
    /degreeShift  /env2 /opt /ans.gb
    /hdShift
+   /ecart.useSugar
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -761,6 +770,7 @@
     /wv 0 def
     /degreeShift 0 def
     /hdShift 0 def
+    /ecart.useSugar 0 def
     /opt [(weightedHomogenization) 1] def
     aa { tag } map /typev set
     typev [ ArrayP ] eq
@@ -899,10 +909,18 @@
        f { { [[(H). (1).]] replace } map } map /f set
    }ifelse
 
-    ecart.needSyz {
-      [f [(needSyz)] gb.options join ] groebner /gg set
-    } {  
-      [f gb.options] groebner 0 get /gg set
+    ecart.useSugar {
+      ecart.needSyz {
+        [f [(needSyz)] gb.options join ] groebner_sugar /gg set
+      } {  
+        [f gb.options] groebner_sugar 0 get /gg set
+      } ifelse
+    } { 
+      ecart.needSyz {
+        [f [(needSyz)] gb.options join ] groebner /gg set
+      } {  
+        [f gb.options] groebner 0 get /gg set
+      } ifelse
     } ifelse
 
     ecart.needSyz {
