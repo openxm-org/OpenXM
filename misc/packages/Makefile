@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.17 2000/03/13 02:41:36 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.18 2000/03/13 02:54:26 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -45,6 +45,8 @@ print:
 	$(PS) FreeBSD/openxm-ports/openxm-1.1.2/Makefile | $(LPR)	
 	$(PS) FreeBSD/Makefile | $(LPR)	
 
+clean-Generic-openxm-work:
+	-(cd Generic/openxm ; make clean-work ; make fetch)
 
 generate-tar-balls:
 	-mkdir ${TAR_WORK}
@@ -62,6 +64,7 @@ prepare-build-rpm:
 	(cd Linux/RPM ; make link-for-real-openxm)
 
 # set path=(/usr/local/jdk1.1.8/bin $path) ; rehash
+# build-on-orange should depend on clean-Generic-openxm-work in a future.
 build-on-orange: prepare-build-rpm
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} shared-tar-ball)
@@ -75,8 +78,7 @@ build-on-pear:
 	(cd /usr/ports/math ; /bin/rm -rf openxm ; tar xzvf ${TAR_WORK_EXPLICIT}/openxm-port.tar.gz)
 	(PATH=/usr/local/${JDK}/bin:$(PATH) ; export PATH ; cd /usr/ports/math/openxm ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
 
-build-on-redhat: prepare-build-rpm
-	(cd Generic/openxm ; make clean-work ; make fetch)
+build-on-redhat: prepare-build-rpm clean-Generic-openxm-work
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Linux/RPM ; make build-binary-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
@@ -86,8 +88,7 @@ build-on-redhat: prepare-build-rpm
 # (Note for taka). On unkei, cd Solaris/OpenXM/misc/packages, 
 #                  setenv OpenXM_HOME $HOME/Solaris/OpenXM 
 #                  and make OpenXM_HOME=$OpenXM_HOME build-on-unkei
-build-on-unkei:
-	(cd Generic/openxm ; make clean-work ; make fetch)
+build-on-unkei: clean-Generic-openxm-work
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} OpenXM_HOME=${OpenXM_HOME} binary-tar-ball)
 
 copy-to-ftp-area:
