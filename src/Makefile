@@ -1,10 +1,10 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.145 2004/07/27 07:12:25 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.146 2004/12/07 15:26:41 ohara Exp $
 
 OpenXM_HOME=..
-OpenXM_contrib=../../OpenXM_contrib
 OpenXM_contrib2=../../OpenXM_contrib2
 LIBDIR=../lib
 BINDIR=../bin
+DOCDIR=../doc
 RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
@@ -12,206 +12,178 @@ all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep
 
 all-gc: install-util 
-	(cd gc; make all)
+	(cd gc; ${MAKE} all)
 
 all-gmp: configure-gmp
-	(cd gmp; make all)
+	(cd gmp; ${MAKE} all)
 
 all-oxtoolkit: configure-oxtoolkit install-gmp install-gc install-util install-kan96xx
-	(cd ox_toolkit; make)
+	(cd ox_toolkit; ${MAKE} all)
 
 all-oxc: configure-oxc install-oxtoolkit 
-	(cd oxc; make)
+	(cd oxc; ${MAKE} all)
 
 all-asir: configure-asir install-pari
-	(cd asir2000 ; make all)
+	(cd asir2000; ${MAKE} all)
 
 all-gnuplot: configure-gnuplot
-	-(cd gnuplot ; make all)
+	-(cd gnuplot; ${MAKE} all)
 
 all-k097: configure-k097 all-kan96xx all-kxx install-oxtags
-	(cd k097 ; make all)
+	(cd k097; ${MAKE} all)
 
 all-kan96xx: configure-kan96xx install-gc install-gmp install-util install-oxtags
-	(cd kan96xx ; make all)
+	(cd kan96xx; ${MAKE} all)
 
 all-kxx: configure-kxx all-kan96xx install-util install-oxtags
-	(cd kxx ; make all)
+	(cd kxx; ${MAKE} all)
 
 all-openmath:
-	-@if ../misc/which.pl -s javac ; then \
-		(cd OpenMath ; make all) ; \
+	-@if ../misc/which.pl -s javac; then \
+		(cd OpenMath; ${MAKE} all); \
 	else \
-		echo -n "Warning: javac (java compiler) is not found " ; \
-		echo "in your search path. OpenMath will not be compiled." ; \
+		echo -n "Warning: javac (java compiler) is not found "; \
+		echo "in your search path. OpenMath will not be compiled."; \
 	fi
 
 all-oxmath: configure-oxmath install-oxtoolkit install-gc
-	-@if test -d /usr/local/mathematica ; then \
-		(cd ox_math ; make) ; \
+	-@if test -d /usr/local/mathematica; then \
+		(cd ox_math; ${MAKE} all); \
 	else \
-		echo -n "Warning: Mathematica is not found. " ; \
-		echo "ox_math will not be compiled." ; \
+		echo -n "Warning: Mathematica is not found. "; \
+		echo "ox_math will not be compiled."; \
 	fi
 
 all-pari: configure-pari
-	(cd pari ; make all)
+	(cd pari; ${MAKE} all)
 
 all-phc:
-	(cd phc ; make all)
+	(cd phc; ${MAKE} all)
 
 all-tigers:
-	(cd tigers ; make all)
+	(cd tigers; ${MAKE} all)
 
 all-fep:
-	-(cd ${OpenXM_contrib2}/fep ; make all)
+	-(cd ${OpenXM_contrib2}/fep; ${MAKE} all)
 
 
-all-misc : install-util
-	(cd ../rc ; make repl)
-	(cd ../doc ; make all-install)
-	(cd ../doc ; make all-spec)
+all-misc: install-util
+	(cd ${RCDIR}; ${MAKE} repl)
+	(cd ../doc; ${MAKE} all-install all-spec)
 
 all-rc:
-	(cd ../rc ; make )
+	(cd ${RCDIR}; ${MAKE})
 all-util: configure-util
-	(cd util ; make all)
+	(cd util; ${MAKE} all)
 
 install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
-	 install-misc install-fep install-uuencoded  
+	 install-misc install-fep install-uuencoded
 
 install-oxtags:
-	(cd ../doc/OpenXM-web ; make install-exec)
+	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
 
 install-util: all-util
-	(cd util; make install)
+	(cd util; ${MAKE} install)
 
-install-gc : all-gc
-	(cd gc; make install)
+install-gc: all-gc
+	(cd gc; ${MAKE} install)
 
 
-install-gmp : all-gmp
-	(cd gmp; make install)
+install-gmp: all-gmp
+	(cd gmp; ${MAKE} install)
 
 install-asir: all-asir
-	(cd asir2000 ; make install) ; \
+	(cd asir2000; ${MAKE} install)
 
 install-gnuplot: all-gnuplot
-	-(cd gnuplot ; make install)
+	-(cd gnuplot; ${MAKE} install)
 
 install-k097:  install-kxx all-k097 install-oxc
-	(cd k097 ; make install)
+	(cd k097; ${MAKE} install)
 
 install-kan96xx: all-kan96xx
-	(cd kan96xx ; make install)
+	(cd kan96xx; ${MAKE} install)
 
 install-kxx: all-kxx
-	(cd kxx ; make install)
+	(cd kxx; ${MAKE} install)
 
 install-openmath: all-openmath
-	-@if ../misc/which.pl -s javac ; then \
-		(cd OpenMath ; make install) ; \
+	-@if ../misc/which.pl -s javac; then \
+		(cd OpenMath; ${MAKE} install); \
 	else \
-		echo -n "Warning: javac (java compiler) is not found " ; \
-		echo "in your search path. OpenMath will not be installed." ; \
+		echo -n "Warning: javac (java compiler) is not found "; \
+		echo "in your search path. OpenMath will not be installed."; \
 	fi
 
 install-oxtoolkit: all-oxtoolkit
-	(cd ox_toolkit; make install)
+	(cd ox_toolkit; ${MAKE} install)
 
 install-oxc: all-oxc
-	(cd oxc; make install)
+	(cd oxc; ${MAKE} install)
 
 install-oxmath: all-oxmath 
-	-@if test -d /usr/local/mathematica ; then \
-		(cd ox_math ; make install) ; \
+	-@if test -d /usr/local/mathematica; then \
+		(cd ox_math; ${MAKE} install); \
 	else \
-		echo -n "Warning: Mathematica is not found. " ; \
-		echo "ox_math will not be installed." ; \
+		echo -n "Warning: Mathematica is not found. "; \
+		echo "ox_math will not be installed."; \
 	fi
-	-(cd ox_math/documents ; make install)
-	-(cd ox_math/lib ; make install)
+	-(cd ox_math/documents; ${MAKE} install)
+	-(cd ox_math/lib; ${MAKE} install)
 
 install-pari: all-pari
-	(cd pari ; make install)
+	(cd pari; ${MAKE} install)
 
 install-phc: all-phc
-	(cd phc ; make install)
+	(cd phc; ${MAKE} install)
 
 install-tigers: all-tigers
-	(cd tigers ; make install)
+	(cd tigers; ${MAKE} install)
 
-install-asir-contrib: configure-asir-contrib install-asir-contrib-asir-progs \
+install-asir-contrib: configure-asir-contrib install-asir install-util \
                       install-asir-contrib-oxservers
+	(cd asir-contrib; ${MAKE} install)
+
 install-asir-contrib-oxservers: install-asir install-util \
                 install-k097 install-kxx install-openmath install-oxmath \
                 install-phc install-tigers install-uuencoded install-gnuplot
-install-asir-contrib-asir-progs: install-asir install-util
-	(cd asir-contrib ; make install)
 
 install-asir-doc: configure-asir-doc
-	-(cd asir-doc ; make install)
+	-(cd asir-doc; ${MAKE} install)
 
 install-misc:
-	(cd ../rc ; make install-man)
+	(cd ${RCDIR}; ${MAKE} install-man)
 
 install-fep: all-fep
-	-(cd ${OpenXM_contrib2}/fep ; make PREFIX=../../OpenXM install)
+	-(cd ${OpenXM_contrib2}/fep; ${MAKE} PREFIX=../../OpenXM install)
 
 install-rc: all-rc
-	(cd ../rc ; make install)
+	(cd ${RCDIR}; ${MAKE} install)
 
 install-uuencoded:
-	(cd uuencoded ; make install)
+	(cd uuencoded; ${MAKE} install)
 
 install-asir-port:
-	(cd asir-port ; make install)
+	(cd asir-port; ${MAKE} install)
 
 clean:
 	-rm ./.configure-links-done
-	-rm ${OpenXM_contrib}/gmp/.gmp_*
-	-rm ${OpenXM_contrib}/gc/.gc_*
-	-(cd gmp ; make clean)
-	-(cd gc ; make clean ; /bin/rm -f *.a)
-	-(cd asir2000 ; make clean)
-	-(cd gnuplot ; make clean)
-	-(cd k097 ; make clean)
-	-(cd kan96xx ; make clean)
-	-(cd kxx ; make clean)
-	-(cd OpenMath ; make clean)
-	-(cd ox_math ; make clean)
-	-(cd pari ; make clean)
-	-(cd phc ; make clean)
-	-(cd tigers ; make clean)
-	-(cd asir-doc ; make clean)
-	-(cd asir-contrib ; make clean)
-	-(cd ${OpenXM_contrib2}/fep ; make clean)
-	-(cd util ; make clean)
-	-(cd ox_toolkit ; make clean)
-	-(cd oxc ; make clean)
-
+	-@for i in OpenMath asir-contrib asir-doc asir2000 gc gmp gnuplot \
+	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc tigers \
+	           util ${OpenXM_contrib2}/fep ; do \
+		(cd $i; ${MAKE} clean); \
+	done
 
 distclean: clean
-	(cd uuencoded ; make distclean)
-	-(cd gmp ; make distclean)
-	-(cd gc ; make distclean ; /bin/rm -f *.a)
-	(cd asir2000 ; make distclean)
-	(cd gnuplot ; make distclean)
-	(cd kan96xx ; make distclean)
-	-(cd kxx ; make distclean)
-	(cd OpenMath ; make distclean)
-	(cd pari ; make distclean)
-	(cd phc ; make distclean)
-	(cd tigers ; make distclean)
-	-(cd ox_toolkit ; make distclean)
-	-(cd ox_math ; make distclean)
-	-(cd oxc ; make distclean)
-	rm -rf $(BINDIR)/d0 $(BINDIR)/k0 $(BINDIR)/ox $(BINDIR)/ox_sm1 \
-	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
-	       $(LIBDIR)/k097 $(LIBDIR)/sm1 
+	-@for i in OpenMath asir2000 gc gmp gnuplot kan96xx kxx ox_math \
+	           ox_toolkit oxc pari phc tigers uuencoded ; do \
+		(cd $i; ${MAKE} distclean); \
+	done
+	-(cd ${BINDIR} && rm -f  d0 k0 ox ox_sm1 oxlog oxweave sm1)
+	-(cd ${LIBDIR} && rm -rf k097 sm1)
 
 configure: configure-util configure-asir \
 	   configure-gnuplot \
@@ -222,28 +194,28 @@ configure-util:
 	(cd util; ./make-configure)
 
 configure-gmp: install-util
-	(cd gmp; make configure)
+	(cd gmp; ${MAKE} configure)
 
 configure-asir: 
-	(cd asir2000 ; make configure) 
+	(cd asir2000; ${MAKE} configure) 
 
 configure-asir-contrib: 
-	-(cd asir-contrib ; ./make-configure) 
+	-(cd asir-contrib; ./make-configure) 
 
 configure-asir-doc: 
-	-(cd asir-doc ; ./make-configure) 
+	-(cd asir-doc; ./make-configure) 
 
 configure-gnuplot:
-	-(cd gnuplot ; make configure)
+	-(cd gnuplot; ${MAKE} configure)
 
 configure-k097:
-	(cd k097 ; ./make-configure)	
+	(cd k097; ./make-configure)	
 
 configure-kan96xx:
-	(cd kan96xx ; ./make-configure)
+	(cd kan96xx; ./make-configure)
 
 configure-kxx: 
-	( cd kxx ; ./make-configure) 
+	(cd kxx; ./make-configure) 
 
 configure-oxtoolkit:
 	(cd ox_toolkit; ./make-configure)
@@ -252,37 +224,36 @@ configure-oxc:
 	(cd oxc; ./make-configure)
 
 configure-oxmath:
-	-@if test -d /usr/local/mathematica ; then \
-		(cd ox_math; ./make-configure) ; \
+	-@if test -d /usr/local/mathematica; then \
+		(cd ox_math; ./make-configure); \
 	else \
-		echo -n "Warning: Mathematica is not found. " ; \
-		echo "ox_math will not be compiled." ; \
+		echo -n "Warning: Mathematica is not found. "; \
+		echo "ox_math will not be compiled."; \
 	fi
 
 configure-pari: install-util
-	(cd pari ; make configure)
+	(cd pari; ${MAKE} configure)
 
+clean-rc:
+	(cd $(RCDIR); ${MAKE} clean)
 
-clean-rc :
-	(cd $(RCDIR) ; make clean )
-all-Copyright :
-	(cd $(COPYRIGHTDIR) ; make copy-copyright )
+all-Copyright:
+	(cd $(COPYRIGHTDIR); ${MAKE} all)
 
 install-all-asir-lib:
-	(cd asir2000 ; make install-lib-small)
+	(cd asir2000; ${MAKE} install-lib-small)
 
 install-document: install-document-kan96xx install-document-asir-contrib
 
 install-document-kan96xx: install-kan96xx
-	(cd kan96xx ; make install-document)
+	(cd kan96xx; ${MAKE} install-document)
+
 install-document-asir-contrib: install-asir-contrib
-	(cd asir-contrib; make install-document)
+	(cd asir-contrib; ${MAKE} install-document)
 
 ## Targets for debugging
 install-for-debug:
-	(cd kan96xx; make install-for-debug)
-	(cd kxx; make install-for-debug)
-	(cd k097 ; make install-for-debug)
-	(cd ../bin ; rm -f asir ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
-
-
+	(cd kan96xx; ${MAKE} install-for-debug)
+	(cd kxx; ${MAKE} install-for-debug)
+	(cd k097; ${MAKE} install-for-debug)
+	(cd ${BINDIR}; rm -f asir; ln -s ../../OpenXM_contrib2/asir2000/asir .)
