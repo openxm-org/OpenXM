@@ -43,35 +43,40 @@ static int          cmolen_cmo_mathcap(cmo_mathcap* c);
 static int          cmolen_cmo_null(cmo_null* c);
 static int          cmolen_cmo_string(cmo_string* c);
 static int          cmolen_cmo_zz(cmo_zz* c);
+static int          cmolen_cmo_monomial32(cmo_monomial32* c);
 
 static char*        dump_cmo_int32(char* array, cmo_int32* m);
 static char*        dump_cmo_list(char* array, cmo_list* m);
 static char*        dump_cmo_mathcap(char* array, cmo_mathcap* m);
 static char*        dump_cmo_null(char* array, cmo_null* m);
 static char*        dump_cmo_string(char* array, cmo_string* m);
+static char*        dump_cmo_monomial32(char* array, cmo_monomial32* c);
 static char*        dump_cmo_zz(char* array, cmo_zz* c);
 static char*        dump_integer(char* array, int x);
 static char*        dump_mpz(char* array, mpz_ptr mpz);
 
 static int          funcs(int cmo_type);
 
+/* CMO_xxx の値順にならべること(デバッグのため) */
 static int          read_password(int fd, char* passwd);
-static cmo_error*   receive_cmo_error(int fd);
-static cmo_int32*   receive_cmo_int32(int fd);
-static cmo_list*    receive_cmo_list(int fd);
-static cmo_mathcap* receive_cmo_mathcap(int fd);
 static cmo_null*    receive_cmo_null(int fd);
+static cmo_int32*   receive_cmo_int32(int fd);
 static cmo_string*  receive_cmo_string(int fd);
+static cmo_mathcap* receive_cmo_mathcap(int fd);
+static cmo_list*    receive_cmo_list(int fd);
 static cmo_zz*      receive_cmo_zz(int fd);
+static cmo_zero*    receive_cmo_zero(int fd);
+static cmo_dms_generic* receive_cmo_dms_generic(int fd);
+static cmo_error2*  receive_cmo_error2(int fd);
 static void         receive_mpz(int fd, mpz_ptr mpz);
 
-static int          send_cmo_error(int fd, cmo_error* c);
-static int          send_cmo_int32(int fd, cmo_int32* m);
-static int          send_cmo_list(int fd, cmo_list* c);
-static int          send_cmo_mathcap(int fd, cmo_mathcap* c);
 static int          send_cmo_null(int fd, cmo_null* c);
+static int          send_cmo_int32(int fd, cmo_int32* m);
 static int          send_cmo_string(int fd, cmo_string* m);
+static int          send_cmo_mathcap(int fd, cmo_mathcap* c);
+static int          send_cmo_list(int fd, cmo_list* c);
 static int          send_cmo_zz(int fd, cmo_zz* c);
+static int          send_cmo_error2(int fd, cmo_error2* c);
 static int          send_mpz(int fd, mpz_ptr mpz);
 
 
@@ -79,13 +84,13 @@ static int          send_mpz(int fd, mpz_ptr mpz);
 static int current_received_serial = 0;
 
 /* エラーを起こしたときはサーバは次のようにすればよい.  */
-cmo_error* gen_error_object(int err_code)
+cmo_error2* gen_error_object(int err_code)
 {
     cmo_list* li = new_cmo_list();
     append_cmo_list(li, (cmo *)new_cmo_int32(current_received_serial));
     append_cmo_list(li, (cmo *)new_cmo_int32(err_code));
     /* 他の情報を加えるならココ */
-    return new_cmo_error(li);
+    return new_cmo_error2((cmo *)li);
 }
 
 /* add at Mon Sep  7 15:51:28 JST 1998 */
@@ -140,6 +145,11 @@ cell* new_cell(cmo* newcmo)
     return h;
 }
 
+cell* next_cell(cell* this)
+{
+    return this->next;
+}
+
 static cell* *tailp(cmo_list* this) {
     cell **cp = &this->head;
     while (*cp != NULL) {
@@ -163,16 +173,32 @@ int append_cmo_list(cmo_list* this, cmo* newcmo)
 }
 
 /** receive_cmo_XXX 関数群 **/
-static cmo_error* receive_cmo_error(int fd)
+static cmo_null* receive_cmo_null(int fd)
 {
-    cmo_list* li = (cmo_list *)receive_cmo(fd);
-    return new_cmo_error(li);
+    return new_cmo_null();
 }
 
 static cmo_int32* receive_cmo_int32(int fd)
 {
     int i = receive_int32(fd);
     return new_cmo_int32(i);
+}
+
+static cmo_string* receive_cmo_string(int fd)
+{
+    int len = receive_int32(fd);
+    char* s = malloc(len+1);
+    memset(s, '\0', len+1);
+    if (len > 0) {
+        read(fd, s, len);
+    }
+    return new_cmo_string(s);
+}
+
+static cmo_mathcap* receive_cmo_mathcap(int fd)
+{
+    cmo* ob = receive_cmo(fd);
+    return new_cmo_mathcap(ob);
 }
 
 static cmo_list* receive_cmo_list(int fd)
@@ -189,33 +215,34 @@ static cmo_list* receive_cmo_list(int fd)
     return c;
 }
 
-static cmo_mathcap* receive_cmo_mathcap(int fd)
-{
-    cmo_list* li = (cmo_list *)receive_cmo(fd);
-    return new_cmo_mathcap(li);
-}
-
-static cmo_null* receive_cmo_null(int fd)
-{
-    return new_cmo_null();
-}
-
-static cmo_string* receive_cmo_string(int fd)
-{
-    int len = receive_int32(fd);
-    char* s = malloc(len+1);
-    memset(s, '\0', len+1);
-    if (len > 0) {
-        read(fd, s, len);
-    }
-    return new_cmo_string(s);
-}
-
 static cmo_zz* receive_cmo_zz(int fd)
 {
     cmo_zz* c = new_cmo_zz();
     receive_mpz(fd, c->mpz);
     return c;
+}
+
+static cmo_zero* receive_cmo_zero(int fd)
+{
+    return new_cmo_zero();
+}
+
+static cmo_dms_generic* receive_cmo_dms_generic(int fd)
+{
+    return new_cmo_dms_generic();
+}
+
+static cmo_ring_by_name* receive_cmo_ring_by_name(int fd)
+{
+    cmo* ob = receive_cmo(fd);
+	/* 意味的チェックが必要 */
+    return new_cmo_ring_by_name(ob);
+}
+
+static cmo_error2* receive_cmo_error2(int fd)
+{
+    cmo* ob = receive_cmo(fd);
+    return new_cmo_error2(ob);
 }
 
 static void receive_mpz(int fd, mpz_ptr mpz)
@@ -237,12 +264,11 @@ void resize_mpz(mpz_ptr mpz, int size)
 }
 
 /** new_cmo_XXX 関数群 **/
-cmo_error* new_cmo_error(cmo_list* li)
+cmo_null* new_cmo_null()
 {
-    cmo_error* c = malloc(sizeof(cmo_error));
-    c->tag = CMO_ERROR2;
-    c->li  = li;
-    return c;
+    cmo_null* m = malloc(sizeof(cmo_null));
+    m->tag = CMO_NULL;
+    return m;
 }
 
 cmo_int32* new_cmo_int32(int i)
@@ -251,6 +277,25 @@ cmo_int32* new_cmo_int32(int i)
     c = malloc(sizeof(cmo_int32));
     c->tag     = CMO_INT32;
     c->i = i;
+    return c;
+}
+
+cmo_string* new_cmo_string(char* s)
+{
+    cmo_string* c = malloc(sizeof(cmo_string));
+	char *s2 = malloc(strlen(s)+1);
+	strcpy(s2, s);
+
+    c->tag = CMO_STRING;
+    c->s   = s2;
+    return c;
+}
+
+cmo_mathcap* new_cmo_mathcap(cmo* ob)
+{
+    cmo_mathcap* c = malloc(sizeof(cmo_mathcap));
+    c->tag = CMO_MATHCAP;
+    c->ob  = ob;
     return c;
 }
 
@@ -263,26 +308,20 @@ cmo_list* new_cmo_list()
     return c;
 }
 
-cmo_mathcap* new_cmo_mathcap(cmo_list* li)
+cmo_monomial32* new_cmo_monomial32()
 {
-    cmo_mathcap* c = malloc(sizeof(cmo_mathcap));
-    c->tag = CMO_MATHCAP;
-    c->li  = li;
+    cmo_monomial32* c = malloc(sizeof(cmo_monomial32));
+    c->tag  = CMO_MONOMIAL32;
     return c;
 }
 
-cmo_null* new_cmo_null()
+cmo_monomial32* new_cmo_monomial32_size(int size)
 {
-    cmo* m = malloc(sizeof(cmo));
-    m->tag = CMO_NULL;
-    return m;
-}
-
-cmo_string* new_cmo_string(char* s)
-{
-    cmo_string* c = malloc(sizeof(cmo_string));
-    c->tag = CMO_STRING;
-    c->s   = s;
+    cmo_monomial32* c = new_cmo_monomial32();
+	if (size>0) {
+		c->length = size;
+		c->exps = malloc(sizeof(int)*size);
+	}
     return c;
 }
 
@@ -315,6 +354,44 @@ cmo_zz* new_cmo_zz_size(int size)
     return c;
 }
 
+cmo_zero* new_cmo_zero()
+{
+    cmo_zero* m = malloc(sizeof(cmo_zero));
+    m->tag = CMO_ZERO;
+    return m;
+}
+
+cmo_dms_generic* new_cmo_dms_generic()
+{
+    cmo_dms_generic* m = malloc(sizeof(cmo_dms_generic));
+    m->tag = CMO_DMS_GENERIC;
+    return m;
+}
+
+cmo_ring_by_name* new_cmo_ring_by_name(cmo* ob)
+{
+    cmo_ring_by_name* c = malloc(sizeof(cmo_ring_by_name));
+    c->tag = CMO_RING_BY_NAME;
+    c->ob  = ob;
+    return c;
+}
+
+cmo_indeterminate* new_cmo_indeterminate(cmo* ob)
+{
+    cmo_indeterminate* c = malloc(sizeof(cmo_indeterminate));
+    c->tag = CMO_INDETERMINATE;
+    c->ob  = ob;
+    return c;
+}
+
+cmo_error2* new_cmo_error2(cmo* ob)
+{
+    cmo_error2* c = malloc(sizeof(cmo_error2));
+    c->tag = CMO_ERROR2;
+    c->ob  = ob;
+    return c;
+}
+
 /* receive_ox_tag() == OX_DATA の後に呼び出される */
 /* 関数ポインタを使った方がきれいに書けるような気がする.  */
 /* if (foo[tag] != NULL) foo[tag](fd); とか */
@@ -335,17 +412,17 @@ cmo* receive_cmo(int fd)
     case CMO_STRING:
         m = (cmo *)receive_cmo_string(fd);
         break;
-    case CMO_ZZ:
-        m = (cmo *)receive_cmo_zz(fd);
+    case CMO_MATHCAP:
+        m = (cmo *)receive_cmo_mathcap(fd);
         break;
     case CMO_LIST:
         m = (cmo *)receive_cmo_list(fd);
         break;
-    case CMO_MATHCAP:
-        m = (cmo *)receive_cmo_mathcap(fd);
+    case CMO_ZZ:
+        m = (cmo *)receive_cmo_zz(fd);
         break;
     case CMO_ERROR2:
-        m = (cmo *)receive_cmo_error(fd);
+        m = (cmo *)receive_cmo_error2(fd);
         break;
     case CMO_DATUM:
     case CMO_QQ:
@@ -407,7 +484,7 @@ int print_cmo_list(cmo_list* li)
 int print_cmo_mathcap(cmo_mathcap* c)
 {
     fprintf(stderr, "\n");
-    print_cmo((cmo *)c->li);
+    print_cmo(c->ob);
 }
 
 int print_cmo_string(cmo_string* c)
@@ -529,13 +606,29 @@ void ox_reset(ox_file_t sv)
 #endif
 }
 
-/* 以下は parse.c で必要とする関数たち */
-/* cmolen 関数は cmo の(送信時の)バイト長を返す */
-/* cmolen_XXX 関数は tag を除いたバイト長を返す */
+/* 以下は bconv.c で必要とする関数群である. */
+
+/* cmolen 関数は cmo の(送信時の)バイト長を返す. */
+/* cmolen_XXX 関数は cmo_XXX の tag を除いたバイト長を返す. */
+
+static int cmolen_cmo_null(cmo_null* c)
+{
+    return 0;
+}
 
 static int cmolen_cmo_int32(cmo_int32* c)
 {
     return sizeof(int);
+}
+
+static int cmolen_cmo_string(cmo_string* c)
+{
+    return sizeof(int)+strlen(c->s);
+}
+
+static int cmolen_cmo_mathcap(cmo_mathcap* c)
+{
+    return cmolen_cmo(c->ob);
 }
 
 static int cmolen_cmo_list(cmo_list* c)
@@ -550,19 +643,10 @@ static int cmolen_cmo_list(cmo_list* c)
     return size;
 }
 
-static int cmolen_cmo_mathcap(cmo_mathcap* c)
+static int cmolen_cmo_monomial32(cmo_monomial32* c)
 {
-    return cmolen_cmo((cmo *)c->li);
-}
-
-static int cmolen_cmo_null(cmo_null* c)
-{
-    return 0;
-}
-
-static int cmolen_cmo_string(cmo_string* c)
-{
-    return sizeof(int)+strlen(c->s);
+	int len = (c->length + 1)*sizeof(int);
+	return len + cmolen_cmo(c->coef);
 }
 
 static int cmolen_cmo_zz(cmo_zz* c)
@@ -578,6 +662,8 @@ int cmolen_cmo(cmo* c)
 
     switch(c->tag) {
     case CMO_NULL:
+    case CMO_ZERO:
+    case CMO_DMS_GENERIC:
         size += cmolen_cmo_null(c);
         break;
     case CMO_INT32:
@@ -586,23 +672,46 @@ int cmolen_cmo(cmo* c)
     case CMO_STRING:
         size += cmolen_cmo_string((cmo_string *)c);
         break;
+    case CMO_MATHCAP:
+    case CMO_RING_BY_NAME:
+    case CMO_ERROR2:
+        size += cmolen_cmo_mathcap((cmo_mathcap *)c);
+        break;
     case CMO_LIST:
         size += cmolen_cmo_list((cmo_list *)c);
         break;
+    case CMO_MONOMIAL32:
+        size += cmolen_cmo_monomial32((cmo_monomial32 *)c);
+        break;
     case CMO_ZZ:
         size += cmolen_cmo_zz((cmo_zz *)c);
-        break;
-    case CMO_MATHCAP:
-        size += cmolen_cmo_mathcap((cmo_mathcap *)c);
         break;
     default:
     }
     return size;
 }
 
+static char* dump_cmo_null(char* array, cmo_null* m)
+{
+    return array;
+}
+
 static char* dump_cmo_int32(char* array, cmo_int32* m)
 {
     return dump_integer(array, m->i);
+}
+
+static char* dump_cmo_string(char* array, cmo_string* m)
+{
+    int len = strlen(m->s);
+    array = dump_integer(array, len);
+    memcpy(array, m->s, len);
+    return array + len;
+}
+
+static char* dump_cmo_mathcap(char* array, cmo_mathcap* c)
+{
+    return dump_cmo(array, c->ob);
 }
 
 static char* dump_cmo_list(char* array, cmo_list* m)
@@ -618,22 +727,16 @@ static char* dump_cmo_list(char* array, cmo_list* m)
     return array;
 }
 
-static char* dump_cmo_mathcap(char* array, cmo_mathcap* c)
+static char* dump_cmo_monomial32(char* array, cmo_monomial32* c)
 {
-    return dump_cmo(array, (cmo *)c->li);
-}
-
-static char* dump_cmo_null(char* array, cmo_null* m)
-{
-    return array;
-}
-
-static char* dump_cmo_string(char* array, cmo_string* m)
-{
-    int len = strlen(m->s);
-    array = dump_integer(array, len);
-    memcpy(array, m->s, len);
-    return array + len;
+	int i;
+	int length = c->length;
+	array = dump_integer(array, c->length);
+	for(i=0; i<length; i++) {
+		array = dump_integer(array, c->exps[i]);
+	}
+	array = dump_cmo(array, c->coef);
+	return array;	
 }
 
 static char* dump_cmo_zz(char* array, cmo_zz* c)
@@ -647,17 +750,23 @@ char* dump_cmo(char* array, cmo* m)
     array = dump_integer(array, m->tag);
     switch(m->tag) {
     case CMO_NULL:
+    case CMO_ZERO:
+    case CMO_DMS_GENERIC:
         return dump_cmo_null(array, m);
     case CMO_INT32:
         return dump_cmo_int32(array, (cmo_int32 *)m);
     case CMO_STRING:
         return dump_cmo_string(array, (cmo_string *)m);
+    case CMO_MATHCAP:
+    case CMO_RING_BY_NAME:
+    case CMO_ERROR2:
+        return dump_cmo_mathcap(array, (cmo_mathcap *)m);
     case CMO_LIST:
         return dump_cmo_list(array, (cmo_list *)m);
+    case CMO_MONOMIAL32:
+        return dump_cmo_monomial32(array, (cmo_monomial32 *)m);
     case CMO_ZZ:
         return dump_cmo_zz(array, (cmo_zz *)m);
-    case CMO_MATHCAP:
-        return dump_cmo_mathcap(array, (cmo_mathcap *)m);
     default:
         return NULL;
     }
@@ -708,22 +817,31 @@ int send_ox_cmo(int fd, cmo* m)
     send_cmo(fd, m);
 }
 
-int append_cell(cell* this, cell* cp);
-
-cell* next_cell(cell* this)
+/* send_cmo_xxx 関数群 */
+static int send_cmo_null(int fd, cmo_null* c)
 {
-    return this->next;
-}
-
-static int send_cmo_error(int fd, cmo_error* c)
-{
-    send_cmo(fd, (cmo *)c->li);
     return 0;
 }
 
 static int send_cmo_int32(int fd, cmo_int32* m)
 {
     send_int32(fd, m->i);
+}
+
+static int send_cmo_string(int fd, cmo_string* m)
+{
+    int len = strlen(m->s);
+    send_int32(fd, len);
+    if (len > 0) {
+        write(fd, m->s, len);
+    }
+    return 0;
+}
+
+static int send_cmo_mathcap(int fd, cmo_mathcap* c)
+{
+    send_cmo(fd, c->ob);
+    return 0;
 }
 
 static int send_cmo_list(int fd, cmo_list* c)
@@ -739,30 +857,15 @@ static int send_cmo_list(int fd, cmo_list* c)
     return 0;
 }
 
-static int send_cmo_mathcap(int fd, cmo_mathcap* c)
-{
-    send_cmo(fd, (cmo *)c->li);
-    return 0;
-}
-
-static int send_cmo_null(int fd, cmo_null* c)
-{
-    return 0;
-}
-
-static int send_cmo_string(int fd, cmo_string* m)
-{
-    int len = strlen(m->s);
-    send_int32(fd, len);
-    if (len > 0) {
-        write(fd, m->s, len);
-    }
-    return 0;
-}
-
 static int send_cmo_zz(int fd, cmo_zz* c)
 {
     send_mpz(fd, c->mpz);
+}
+
+static int send_cmo_error2(int fd, cmo_error2* c)
+{
+    send_cmo(fd, c->ob);
+    return 0;
 }
 
 /* CMOを送る.  OX_tag は送信済*/
@@ -791,13 +894,12 @@ int send_cmo(int fd, cmo* c)
         send_cmo_zz(fd, (cmo_zz *)c);
         break;
     case CMO_ERROR2:
-        send_cmo_error(fd, (cmo_error *)c);
+        send_cmo_error2(fd, (cmo_error2 *)c);
         break;
     default:
     }
 }
 
-/* CMO_ZZ の例外の実装が不十分?? */
 static int send_mpz(int fd, mpz_ptr mpz)
 {
     int i;
@@ -851,20 +953,20 @@ static int known_types[] = {
     CMO_ERROR2,
 };
 
-#define VER_STR   "(CMO_LIST, 2, (CMO_LIST, (CMO_INT32, %d), (CMO_STRING, \"%s\")), (CMO_LIST, 7, (CMO_INT32, 1), (CMO_INT32, 2), (CMO_INT32, 4), (CMO_INT32, 5), (CMO_INT32, 17), (CMO_INT32, 20), (CMO_INT32, 2130706434)))\n"
+#define ID_TEMP   "(CMO_MATHCAP, (CMO_LIST, (CMO_LIST, (CMO_INT32, %d), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\")), (CMO_LIST, (CMO_INT32, 1), (CMO_INT32, 2), (CMO_INT32, 4), (CMO_INT32, 5), (CMO_INT32, 17), (CMO_INT32, 20), (CMO_INT32, 2130706434))))\n"
 
-cmo* make_mathcap_object2(int version, char* id_string)
+cmo* make_mathcap_object2(int ver, char* ver_s, char* sysname)
 {
-    cmo_list *li;
-    char buff[4096];
+    cmo *cap;
+    char buff[8192];
 
     setgetc(mygetc);
-    sprintf(buff, VER_STR, version, id_string);
-    setmode_mygetc(buff, 4096);
-    li = parse();
+    sprintf(buff, ID_TEMP, ver, sysname, ver_s, getenv("HOSTTYPE"));
+    setmode_mygetc(buff, 8192);
+    cap = parse();
     resetgetc();
 
-    return (cmo *)new_cmo_mathcap(li);
+    return cap;
 }
 
 cmo* make_mathcap_object(int version, char* id_string)
@@ -887,7 +989,7 @@ cmo* make_mathcap_object(int version, char* id_string)
     append_cmo_list(li, (cmo *)li_ver);
     append_cmo_list(li, (cmo *)li_cmo);
     
-    return (cmo *)new_cmo_mathcap(li);
+    return (cmo *)new_cmo_mathcap((cmo *)li);
 }
 
 static int funcs(int cmo_type)
@@ -915,7 +1017,7 @@ cmo* (*received_funcs[])(int fd) = {
     receive_cmo_mathcap,
     receive_cmo_list,
     receive_cmo_zz,
-    receive_cmo_error
+    receive_cmo_error2
 };
 
 cmo* receive_cmo2(int fd)
@@ -957,22 +1059,22 @@ cmo_zz *new_cmo_zz_set_string(char *s)
     return c;
 }
 
-char *CONVERT_ZZ_TO_CSTRING(cmo_zz *c)
+char *convert_zz_to_cstring(cmo_zz *c)
 {
     return mpz_get_str(NULL, 10, c->mpz);
 }
 
-char *CONVERT_CMO_TO_CSTRING(cmo *m)
+char *convert_cmo_to_cstring(cmo *m)
 {
     switch(m->tag) {
     case CMO_ZZ:
-        return CONVERT_ZZ_TO_CSTRING((cmo_zz *)m);
+        return convert_zz_to_cstring((cmo_zz *)m);
     case CMO_INT32:
-        return CONVERT_INT_TO_CSTRING(((cmo_int32 *)m)->i);
+        return convert_int_to_cstring(((cmo_int32 *)m)->i);
     case CMO_STRING:
         return ((cmo_string *)m)->s;
     case CMO_NULL:
-        return CONVERT_NULL_TO_CSTRING();
+        return convert_null_to_cstring();
     default:
         fprintf(stderr, "sorry, not implemented CMO\n");
         /* まだ実装していません. */
@@ -980,13 +1082,13 @@ char *CONVERT_CMO_TO_CSTRING(cmo *m)
     }
 }
 
-char *CONVERT_NULL_TO_CSTRING()
+char *convert_null_to_cstring()
 {
     static char* null_string = "";
     return null_string;
 }
 
-char *CONVERT_INT_TO_CSTRING(int integer)
+char *convert_int_to_cstring(int integer)
 {
     char buff[1024];
     char *s;

@@ -64,7 +64,7 @@ int main()
     setbuf(stderr, NULL);
     setbuf(stdout, NULL);
 
-    cmo_addrev = 1;
+	setflag_parse(PFLAG_ADDREV);
     setgetc(mygetc);
 
     while(1) {

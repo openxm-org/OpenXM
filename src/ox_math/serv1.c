@@ -11,6 +11,8 @@
 #include "ox.h"
 #include "serv2.h"
 
+static int send_ox_sync_ball(int fd);
+
 extern MLINK lp;
 static int sv_read  = 3;
 static int sv_write = 4;

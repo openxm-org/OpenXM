@@ -34,7 +34,7 @@ all: libox.a bconv testclient
 
 bconv.o:  ox.h oxtag.h parse.h
 parse.o:  ox.h oxtag.h parse.h
-ox.o:     ox.h oxtag.h mysocket.h
+ox.o:     ox.h oxtag.h parse.h mysocket.h
 testclient.o: ox.h oxtag.h
 serv1.o:  ox.h oxtag.h serv2.h
 serv2.o:  ox.h oxtag.h serv2.h
@@ -43,7 +43,9 @@ libgmp.a:
 	@if [ ! -f ${GMPSRC}/libgmp.a ]; then \
 		(cd ${GMPSRC}; ./configure; make) \
 	fi
-	cp ${GMPSRC}/libgmp.a .
+	@if [ ! -f ./libgmp.a ]; then \
+		cp ${GMPSRC}/libgmp.a . ; \
+	fi
 
 libox.a: ${LIBOBJS} libgmp.a
 	-rm -f $@

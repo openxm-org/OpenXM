@@ -1,13 +1,12 @@
 ## $OpenXM$
 
 トークンの集合::
-トークンの定義は parse.h にある。
-T_ ではじまるマクロがトークンである。
-それ以外のトークンは次の4つ: "(", ")",  ",",  "\n"
+トークンは  "(", ")",  ",",  "\n" の4つか、あるいはTOKEN(...) である。
+TOKEN(...)の定義は parse.h にある。
 
 文法規則::
 省略記法を許すのはフラグが立っているときだけ。
-the start symbol は line である。
+開始記号は line である。
 
 The following BNFs define the grammer of Common Math Objects:
 
@@ -15,28 +14,43 @@ line -> ox '\n'
       | cmo '\n'
       | '\n'
 
-ox   -> '(' T_OX_COMMAND ',' T_SM_COMMAND ')'
-      | '(' T_OX_DATA ',' cmo ')'
+ox   -> '(' TOKEN(OX_COMMAND) ',' sm ')'
+      | '(' TOKEN(OX_DATA) ',' cmo ')'
+
+sm   -> '(' TOKEN(SM_COMMAND) ')'
 
 cmo  -> '(' cmo_int32 ')'
       | '(' cmo_string ')'
       | '(' cmo_list ')'
 
-cmo_list -> T_CMO_LIST ',' T_INTEGER
-          | T_CMO_LIST ',' T_INTEGER ',' list_of_cmo  /* 空リストも許す. */
+cmo_null -> TOKEN(CMO_NULL)
+
+cmo_int32 -> TOKEN(CMO_INT32 ) ',' T_INTEGER
+
+cmo_string  -> TOKEN(CMO_STRING) ',' T_INTEGER ','  T_STRING
+             | TOKEN(CMO_STRING) ',' T_STRING            /* 省略記法 */
+
+cmo_mathcap -> TOKEN(CMO_MATHCAP) ',' cmo
+
+cmo_list -> TOKEN(CMO_LIST) ',' T_INTEGER                /* 空リスト */
+          | TOKEN(CMO_LIST) ',' T_INTEGER ',' list_of_cmo
+          | list_of_cmo                             /* 省略記法 */
 
 list_of_cmo -> cmo ',' list_of_cmo
              |                         /* 空リストも許す. */
 
-cmo_null -> T_CMO_NULL
+cmo_monomial32 -> TOKEN(CMO_MONOMIAL32) ',' T_INTEGER ',' list_of_int ',' cmo
 
-cmo_int32 -> T_CMO_INT32  ',' T_INTEGER
-cmo_string  -> T_CMO_STRING ',' T_INTEGER ','  T_STRING
-             | T_CMO_STRING ',' T_STRING            /* 省略記法 */
-
-cmo_zz -> T_CMO_ZZ ',' T_INTEGER ',' list_of_int
-        | T_CMO_ZZ ',' T_INTEGER                    /* 省略記法 */
+cmo_zz -> TOKEN(CMO_ZZ) ',' T_INTEGER ',' list_of_int
+        | TOKEN(CMO_ZZ) ',' T_INTEGER                    /* 省略記法 */
 
 list_of_int -> T_INTEGER ',' list_of_int
              | T_INTEGER
 
+cmo_zero -> TOKEN(CMO_ZERO)
+
+cmo_dms_generic -> TOKEN(CMO_DMS_GENERIC)
+
+cmo_ring_by_name -> TOKEN(CMO_MATHCAP) ',' cmo  /* ただし cmo_string でなければならない */
+
+cmo_error2 -> TOKEN(CMO_ERROR2) ',' cmo

@@ -22,7 +22,7 @@ GMPINC = -I${GMPSRC}
 CDEFS  = -DDEBUG
 INCDIR = -I${ADDONSDIR} ${GMPINC}
 LIBDIR = -L${ADDONSDIR} -L.
-CFLAGS = -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
+CFLAGS = -g -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
 
 #SOLLIBS  = -lsocket -lnsl
 MATHLIBS = -lML  -lm
@@ -34,7 +34,7 @@ all: libox.a bconv testclient ox_math math2ox
 
 bconv.o:  ox.h oxtag.h parse.h
 parse.o:  ox.h oxtag.h parse.h
-ox.o:     ox.h oxtag.h mysocket.h
+ox.o:     ox.h oxtag.h parse.h mysocket.h
 testclient.o: ox.h oxtag.h
 serv1.o:  ox.h oxtag.h serv2.h
 serv2.o:  ox.h oxtag.h serv2.h

@@ -56,6 +56,8 @@ typedef struct {
 } cmo;
 
 typedef cmo cmo_null;
+typedef cmo cmo_zero;
+typedef cmo cmo_dms_generic;
 
 typedef struct {
     int tag;
@@ -64,13 +66,23 @@ typedef struct {
 
 typedef struct {
     int tag;
+	int size;
+    char *body;
+} cmo_datum;
+
+typedef struct {
+    int tag;
     char *s;
 } cmo_string;
 
 typedef struct {
     int tag;
-    mpz_t mpz;
-} cmo_zz;
+    cmo *ob;
+} cmo_mathcap;
+
+typedef cmo_mathcap cmo_error2;
+typedef cmo_mathcap cmo_ring_by_name;
+typedef cmo_mathcap cmo_indeterminate;
 
 typedef struct cell {
     struct cell *next;
@@ -84,17 +96,22 @@ typedef struct {
 } cmo_list;
 
 typedef struct {
-    int tag;
-    cmo_list *li;
-} cmo_mathcap;
+	int tag;
+	int length;
+	int *exps;
+	cmo *coef;
+} cmo_monomial32;
 
-typedef cmo_mathcap cmo_error;
-
-/*
 typedef struct {
     int tag;
-} ox;
-*/
+    mpz_t mpz;
+} cmo_zz;
+
+typedef struct {
+    int tag;
+	cmo *num;  /* 分子 (cmo_zz) */
+	cmo *den;  /* 分母 (cmo_zz) */
+} cmo_qq;
 
 typedef cmo ox;
 
@@ -109,20 +126,27 @@ typedef struct {
 } ox_data;
 
 cell*         new_cell(cmo* newcmo);
+cmo_null*     new_cmo_null();
 cmo_int32*    new_cmo_int32(int i);
-cmo_list*     new_cmo_list();
 cmo_string*   new_cmo_string(char* s);
+cmo_mathcap*  new_cmo_mathcap(cmo* ob);
+cmo_list*     new_cmo_list();
+cmo_monomial32* new_cmo_monomial32();
+cmo_monomial32* new_cmo_monomial32_size(int size);
 cmo_zz*       new_cmo_zz();
 cmo_zz*       new_cmo_zz_size(int size);
 cmo_zz*       new_cmo_zz_set_si(int integer);
 cmo_zz*       new_cmo_zz_noinit();
-cmo_null*     new_cmo_null();
-cmo_mathcap*  new_cmo_mathcap(cmo_list* li);
-cmo_error*    new_cmo_error(cmo_list* li);
+cmo_zero*     new_cmo_zero();
+cmo_dms_generic* new_cmo_dms_generic();
+cmo_ring_by_name* new_cmo_ring_by_name(cmo* ob);
+cmo_indeterminate* new_cmo_indeterminate(cmo* ob);
+cmo_error2*   new_cmo_error2(cmo* ob);
+
 ox_data*      new_ox_data(cmo* c);
 ox_command*   new_ox_command(int sm_code);
 
-cmo_error*    gen_error_object(int err_code);
+cmo_error2*   gen_error_object(int err_code);
 cmo*          make_mathcap_object(int version, char *id_string);
 
 void          resize_mpz(mpz_ptr mpz, int size);
@@ -167,9 +191,9 @@ int           next_serial();
 void          setCmotypeDisable(int type);
 
 cmo_zz*       new_cmo_zz_set_string(char *s);
-char*         CONVERT_ZZ_TO_CSTRING(cmo_zz *c);
-char*         CONVERT_CMO_TO_CSTRING(cmo *m);
-char*         CONVERT_NULL_TO_CSTRING();
-char*         CONVERT_INT_TO_CSTRING(int integer);
+char*         convert_zz_to_cstring(cmo_zz *c);
+char*         convert_cmo_to_cstring(cmo *m);
+char*         convert_null_to_cstring();
+char*         convert_int_to_cstring(int integer);
 
 #endif /* _OX_H_ */

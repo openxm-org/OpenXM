@@ -95,7 +95,7 @@ cmo *MATH_getObject2()
         break;
     case MLTKERR:
         fprintf(stderr, "type is ERROR.\n");
-        m = gen_error_object(MATH_ERROR);
+        m = (cmo *)gen_error_object(MATH_ERROR);
         break;
     case MLTKSYM:
         fprintf(stderr, "MLTKSYM.\n");
@@ -115,7 +115,7 @@ cmo *MATH_getObject2()
             fprintf(stderr, "%s ");
         }
         fprintf(stderr, "\n");
-        m = (cmo *)new_cmo_string(s[0]);
+        m = (cmo *)new_cmo_string(s);
         break;
     case MLTKREAL:
         fprintf(stderr, "MLTKREAL is not supported: we use MLTKSTR.\n");
@@ -144,7 +144,7 @@ int MATH_sendObject(cmo *m)
         break;
     default:
         MLPutFunction(lp, "ToExpression", 1);
-        s = CONVERT_CMO_TO_CSTRING(m);
+        s = convert_cmo_to_cstring(m);
         MLPutString(lp, s);
         fprintf(stderr, "put %s.", s);
         break;
@@ -252,8 +252,8 @@ int sm_popString(int fd_write)
     fprintf(stderr, "code: SM_popString.\n");
 #endif
 
-    if ((m = pop()) != NULL && (s = CONVERT_CMO_TO_CSTRING(m)) != NULL) {
-        send_ox_cmo(fd_write, new_cmo_string(s));
+    if ((m = pop()) != NULL && (s = convert_cmo_to_cstring(m)) != NULL) {
+        send_ox_cmo(fd_write, (cmo *)new_cmo_string(s));
         return 0;
     }
     return SM_popString;
@@ -343,7 +343,7 @@ int execute_sm_command(int fd_write, int code)
     case SM_executeFunction:
         err = sm_executeFunction(fd_write);
         break;
-    case SM_setMathcap:
+    case SM_setMathCap:
         pop();  /* Ìµ»ë¤¹¤ë */
         break;
     default:
@@ -352,6 +352,6 @@ int execute_sm_command(int fd_write, int code)
     }
 
     if (err != 0) {
-        push(gen_error_object(err));
+        push((cmo *)gen_error_object(err));
     }
 }
