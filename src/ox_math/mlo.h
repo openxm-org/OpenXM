@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.6 2003/01/15 05:08:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.7 2003/02/12 08:28:41 ohara Exp $ */
 #ifndef _MLO_H_
 
 #define _MLO_H_
@@ -20,7 +20,9 @@ typedef struct {
 
 typedef cmo mlo;
 typedef cmo_string mlo_string;
+#if defined(WITH_GMP)
 typedef cmo_zz mlo_zz;
+#endif
 
 mlo_function *new_mlo_function(char *function);
 

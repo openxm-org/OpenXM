@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.14 2003/02/04 14:21:17 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.15 2003/03/10 10:35:50 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -10,9 +10,10 @@ MPREP     = ${ADDONSDIR}/mprep
 
 LN        = @LN_S@
 CC        = @CC@
-DEFS      = -DDEBUG
+DEFS      = @DEFS@
 CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include
-LIBS      = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgmp -L${ADDONSDIR} -lML -lm
+GMPLIB    = @GMPLIB@
+LIBS      = @LIBS@ -L${OpenXM_HOME}/lib -lox ${GMPLIB} -L${ADDONSDIR} -lML -lm
 STATIC_LINK_FLAGS = @static_link_flags@
 TM_C      = math2.c int.c
 
