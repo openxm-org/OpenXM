@@ -1,0 +1,93 @@
+/*$OpenXM$*/
+print("Type in xsample_demo(); to see a demonstration.")$
+Xsample_proc = -1$
+
+#define Xsample_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = xsample_find_proc();\
+                          }\
+
+
+def xsample_find_proc() {
+  extern Xsample_proc;
+  if (Xsample_proc == -1) {
+     Xsample_proc = xsample_start();
+  }
+  return(Xsample_proc);
+}
+
+def xsample_start() {
+ extern Xsample_proc;
+
+ P = ox_launch(0,getenv("OpenXM_HOME")+"/src/ox_toolkit/ox_Xsample");
+/*
+ P = ox_launch_nox(0,getenv("OpenXM_HOME")+"/src/ox_toolkit/ox_Xsample");
+*/
+ Xsample_proc = P;
+ return(P);
+}
+
+def xsample_setpixel(X,Y) {
+  Xsample_FIND_PROC(P);
+  ox_cmo_rpc(P,"setpixel",X,Y);
+}
+
+def xsample_moveto(X,Y) {
+  Xsample_FIND_PROC(P);
+  ox_cmo_rpc(P,"moveto",X,Y);
+}
+
+def xsample_lineto(X,Y) {
+  Xsample_FIND_PROC(P);
+  ox_cmo_rpc(P,"lineto",X,Y);
+}
+
+def xsample_clear(X,Y) {
+  Xsample_FIND_PROC(P);
+  ox_cmo_rpc(P,"clear",X,Y);
+}
+
+def xsample_demo() {
+  xsample_moveto(10,10);
+  xsample_lineto(400,10);
+  xsample_moveto(10,10);
+  xsample_lineto(10,400);
+  for (I=0; I<300 ; I++) {
+    xsample_setpixel(I,I);
+  }
+}
+
+end$
+
+/*
+#
+# Copyright (c) 1999 Nobuki Takayama <takayama@math.sci.kobe-u.ac.jp>. Kobe.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+*/
+
+
+
+
+
