@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/testclient.java,v 1.1 2000/01/28 06:22:01 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/testclient.java,v 1.2 2000/03/15 15:02:06 tam Exp $
  *
  */
 
@@ -20,7 +20,7 @@ final class testclient{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-	System.out.print(usage());
+	System.err.print(usage());
 	System.exit(0);
       }else if(argv[i].equals("-host")){
 	host = argv[++i];
@@ -47,7 +47,7 @@ final class testclient{
       return;
     }
 
-    System.out.println("start");
+    System.err.println("start");
 
     try{ // send data to server
       asir.send(new SM(SM.SM_mathcap));
@@ -66,18 +66,18 @@ final class testclient{
 
 	switch(message.getTag()){
 	case OXmessage.OX_COMMAND:
-          System.out.println("SM> "+ message.getBody());
+          System.err.println("SM> "+ message.getBody());
           break;
 
 	case OXmessage.OX_DATA:
-	  System.out.println("CMO> "+ message.getBody());
+	  System.err.println("CMO> "+ message.getBody());
           break;
 	}
       }
     }catch(IOException e){
       e.printStackTrace();
     }finally{
-      System.out.println("breaking...");
+      System.err.println("breaking...");
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.4 2000/09/07 09:12:28 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.5 2000/09/13 06:34:47 tam Exp $
  */
 
 import ORG.openxm.tam.*;
@@ -54,7 +54,7 @@ public class OXplot extends OpenXMserver{
       e.printStackTrace();
       System.err.println("error occured, and recovering processes seems to be impossible.");
     }finally{
-      System.out.println("breaking...");
+      System.err.println("breaking...");
     }
   }
 
@@ -238,7 +238,7 @@ public class OXplot extends OpenXMserver{
       break;
 
     default:
-      System.out.println("received "+ mesg);
+      System.err.println("received "+ mesg);
     }
   }
 
@@ -296,7 +296,7 @@ public class OXplot extends OpenXMserver{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-        System.out.println("");
+        System.err.println("");
         System.exit(0);
       }else if(argv[i].equals("-host")){
         hostname = argv[++i];
@@ -328,6 +328,6 @@ public class OXplot extends OpenXMserver{
 
     ox.start();
 
-    System.out.println("breaking...");
+    System.err.println("breaking...");
   }
 }

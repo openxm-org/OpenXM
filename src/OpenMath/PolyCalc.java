@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.9 2000/03/16 12:28:42 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.10 2000/04/02 19:24:40 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -184,7 +184,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 
   private void debug(String str){
     if(debug){
-      System.out.println(str);
+      System.err.println(str);
     }
   }
 
@@ -211,7 +211,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-        System.out.print(usage());
+        System.err.print(usage());
         System.exit(0);
       }else if(argv[i].equals("-debug")){
 	//debug = true;

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.3 2000/09/08 07:29:45 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.4 2000/09/13 06:32:43 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -87,7 +87,7 @@ public class OpenXM{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-        System.out.println("");
+        System.err.println("");
         System.exit(0);
       }else if(argv[i].equals("-host")){
         hostname = argv[++i];
@@ -161,7 +161,7 @@ public class OpenXM{
       e.printStackTrace();
     }
 
-    System.out.println("breaking...");
+    System.err.println("breaking...");
 
     try{
       // close connection

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_ZZ.java,v 1.1 2000/09/12 07:05:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_ZZ.java,v 1.2 2000/09/13 06:32:43 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -59,16 +59,16 @@ final public class CMO_ZZ extends CMO{
       os.writeInt(0);
     }else{
       int len = (this.num.abs().bitLength()+31)/32;
-      //System.out.println("sing0: "+this.num.bitLength());
-      //System.out.println("sing1: "+this.num.abs().bitLength());
+      //System.err.println("sing0: "+this.num.bitLength());
+      //System.err.println("sing1: "+this.num.abs().bitLength());
 
       os.writeInt(this.num.signum()*len);
-      //System.out.println("sing: "+this.num.signum()*len);
+      //System.err.println("sing: "+this.num.signum()*len);
 
       for(BigInteger a = this.num.abs();a.compareTo(new BigInteger("0"))>0;
 	  a = a.divide(new BigInteger("4294967296"))){
 	os.writeInt(a.remainder(new BigInteger("4294967296")).intValue());
-	//System.out.println("remaind: "+a.remainder(new BigInteger("4294967296")).intValue());
+	//System.err.println("remaind: "+a.remainder(new BigInteger("4294967296")).intValue());
       }
     }
   }

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMstream.java,v 1.1 2000/09/08 07:29:45 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -75,7 +75,7 @@ public class OpenXMstream{
     os.flush();
 
     // receive byte order
-    //System.out.println("get: "+is.read());
+    //System.err.println("get: "+is.read());
     is.read();
 
     order = OX_BYTE_NETWORK_BYTE_ORDER;

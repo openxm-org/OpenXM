@@ -1,5 +1,5 @@
 /*
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.24 2000/04/17 03:18:57 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.25 2000/09/13 06:44:55 tam Exp $
  */
 
 /**
@@ -57,7 +57,7 @@ final class OM2OXM implements Runnable{
 	OXmessage message = asir.receive();
 
 	if(message.getTag() == OXmessage.OX_DATA){
-	  System.out.println("=> "+ CMO2OM((CMO)message.getBody()));
+	  System.err.println("=> "+ CMO2OM((CMO)message.getBody()));
           break;
 	}
       }
@@ -752,7 +752,7 @@ final class OM2OXM implements Runnable{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-	System.out.println("");
+	System.err.println("");
 	System.exit(0);
       }else if(argv[i].equals("-host")){
 	host = argv[++i];
@@ -786,7 +786,7 @@ final class OM2OXM implements Runnable{
 
     P.asir = asir;
     new Thread(P).start();
-    System.out.println("start");
+    System.err.println("start");
 
     try{
       //P.value = new Attribute(System.in);
@@ -807,7 +807,7 @@ final class OM2OXM implements Runnable{
     }catch(IOException e){
       e.printStackTrace();
     }finally{
-      System.out.println("breaking...");
+      System.err.println("breaking...");
     }
   }
 }

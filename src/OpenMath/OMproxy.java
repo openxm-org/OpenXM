@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.39 2000/07/03 05:57:43 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.40 2000/09/13 06:44:55 tam Exp $
  */
 
 import ORG.openxm.tam.*;
@@ -51,19 +51,19 @@ public class OMproxy extends OpenXMserver{
       e.printStackTrace();
       System.err.println("error occured, and recovering processes seems to be impossible.");
     }finally{
-      System.out.println("breaking...");
+      System.err.println("breaking...");
     }
   }
 
   /*
   public void stop(){
-    System.out.println("OMproxy Stoping...");
+    System.err.println("OMproxy Stoping...");
     synchronized(ox){
       //this.stop();
       while(!stack.empty()){
 	stack.pop();
       }
-      System.out.println("OMproxy Stopped");
+      System.err.println("OMproxy Stopped");
     }
   }
   */
@@ -199,7 +199,7 @@ public class OMproxy extends OpenXMserver{
       break;
 
     default:
-      System.out.println("received "+ mesg);
+      System.err.println("received "+ mesg);
     }
   }
 
@@ -270,7 +270,7 @@ public class OMproxy extends OpenXMserver{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-        System.out.println("");
+        System.err.println("");
         System.exit(0);
       }else if(argv[i].equals("-host")){
         hostname = argv[++i];
@@ -302,6 +302,6 @@ public class OMproxy extends OpenXMserver{
 
     ox.start();
 
-    System.out.println("breaking...");
+    System.err.println("breaking...");
   }
 }
