@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.2 2002/10/24 02:12:34 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.3 2002/10/24 02:48:59 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -66,7 +66,7 @@ oxNoX
 /httpd_action {
   [/in-httpd /ff /httpd.com /httpd.result /sss
    /sss.engine /sss.web /err
-   /oxserver.vname
+   /oxserver.vname /scheck
   ] pushVariables
   [
   {
@@ -87,6 +87,20 @@ oxNoX
 
           httpd.com metaCommand {
             httpd.textarea.valid {
+
+              %%% Security check
+              [(regionMatches) httpd.com 
+               httpd.refusedCommands] extension /scheck set
+              scheck 0 get -1 eq {
+              }{ 
+                httpd.refusedCommands scheck 2 get get message
+                (Command is refused.) message
+                [
+                 httpd.refusedCommands scheck 2 get get
+                 httpd.com
+                ]
+                 send-page-refused exit
+              } ifelse
 
               %%%  Executing command, here.
               oxasir.ccc 
@@ -229,6 +243,32 @@ oxNoX
   popVariables
 } def
 
+/send-page-refused {  
+  /arg1 set
+  [/in-send-page-refused /reason] pushVariables
+  [
+   /reason arg1 def
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+
+  (<H2> Your request is refused. </H2> <br> ) sendln
+  (Because your input contains the key word <font color="red">) sendln
+  reason 0 get sendln
+  ( </font> ) sendln
+  (<br> <br>) sendln
+  (Your input is <br> ) sendln
+  (<pre> ) sendln
+  reason 1 get sendln
+  (</pre> ) sendln
+
+   0 sendln
+   [(flush)] extension
+  ] pop
+  popVariables
+} def
+
 %% **** Overwrites the definition in httpd.sm1
 /httpd_startserver {
    (httpd server accessible outside localhost.) message
@@ -258,3 +298,8 @@ oxNoX
   popVariables
   arg1
 } def
+/httpd.refusedCommands 
+   [(shell) (eval_str) (ox_) (sm1_) (m_) 
+    (connect) (load) 
+   ]
+def
