@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.2 2000/06/14 07:44:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.3 2000/09/10 20:22:45 takayama Exp $ */
 
 /* k0 interface functions for cohom.sm1 */
 def Boundp(a) {
@@ -27,6 +27,12 @@ def sm1_deRham(a,b) {
   }
   sm1("[", aa,bb, " ]  deRham /FunctionValue set ");
 }
+HelpAdd(["sm1_deRham",
+["sm1_deRham(f,v) computes the dimension of the deRham cohomology groups",
+ "of C^n - V(f)",
+ "This function does not use (-w,w)-minimal free resolution.",
+  "Example:  sm1_deRham(\"x^3-y^2\",\"x,y\");"
+]]);
 
 
 def Weyl(v,w,p) {
@@ -45,6 +51,12 @@ def Weyl(v,w,p) {
   sm1(" define_ring_variables ");
   return(a);
 }
+HelpAdd(["Weyl",
+[ "Weyl(v,w) defines the Weyl algebra (the ring of differential operators)",
+  "with the weight vector w.",
+  "Example:  Weyl(\"x,y\",[[\"x\",-1,\"Dx\",1]]); "
+]]);
+/* (  and  ) must match  in HelpAdd. */
 
 def sm1_pmat(a) {
   sm1(a," pmat ");
@@ -213,7 +225,7 @@ def GKZ(A,B) {
 HelpAdd(["GKZ.GKZ",
   ["GKZ(a,b) returns the GKZ systems associated to the matrix a and the vector b",
    "The answer is given by strings.",
-   "Example: GKZ([[1,1,1,1],[0,1,3,4]],[0,2])"]]);
+   "Example: GKZ([[1,1,1,1],[0,1,3,4]],[0,2]);"]]);
 
 def ToricIdeal(A) {
   /* we need sm1_rat_to_p in a future. */
@@ -229,7 +241,7 @@ def ToricIdeal(A) {
 HelpAdd(["ToricIdeal",
   ["ToricIdeal(a) returns the affine toric ideal associated to the matrix a",
    "The answer is given by a list of strings.",
-   "Example: ToricIdeal([[1,1,1,1],[0,1,3,4]]"]]);
+   "Example: ToricIdeal([[1,1,1,1],[0,1,3,4]]);"]]);
 
 def Rest(a) {
   sm1(a," rest /FunctionValue set ");

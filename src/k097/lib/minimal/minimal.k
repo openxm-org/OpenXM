@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.28 2000/08/21 07:45:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.29 2000/08/22 05:34:06 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -145,6 +145,28 @@ def Max(v) {
 HelpAdd(["Max",
 ["Max(v) returns the maximal element in v."]]);
 
+def Kernel(f) {
+  sm1(" [f] syz /FunctionValue set ");
+}
+def Syz(f) {
+  sm1(" [f] syz /FunctionValue set ");
+}
+HelpAdd(["Kernel",
+["Kernel(f) returns the syzygy of f.",
+ "Return value [b, c]: b is a set of generators of the syzygies of f",
+ "                   : c=[gb, backward transformation, syzygy without",
+ "                                                   dehomogenization",
+ "Example:  Weyl(\"x,y\",[[\"x\",-1,\"Dx\",1]]); ",
+ "          s=Kernel([x*Dx+1,Dx^2+x^5]); s[0]:"]]);
+/* cf. sm1_syz in cohom.k */
+def Gb(f) {
+  sm1(" [f] gb /FunctionValue set ");
+}
+HelpAdd(["Gb",
+["Gb(f) returns the Groebner basis of f.",
+ "cf. Kernel, Weyl."]]);
+
+
 /*  End of standard functions that should be moved to standard libraries. */
 def test0() {
   local f;
@@ -165,7 +187,6 @@ def test1() {
 }
 
   
-
 def Sweyl(v,w) {
   /* extern WeightOfSweyl ; */
   local ww,i,n;
