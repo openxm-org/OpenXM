@@ -1,37 +1,33 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.34 2000/03/14 05:38:49 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.35 2000/03/15 15:02:06 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.util.Stack;
 import java.io.*;
 
-class OMproxy implements Runnable{
+class OMproxy extends OpenXMserver{
   private OpenXM ox;
   private Stack stack = new Stack();
   protected boolean debug = false;
   final int version = 200001190;
 
-  public OMproxy(String host,int ControlPort,int DataPort) throws IOException{
-    ox = new OpenXM(this,host,ControlPort,DataPort);
-  }
-
-  public void run(){
+  public void computeProcess(OpenXMconnection stream){
     OM2OXM P = new OM2OXM();
 
     debug("OMproxy started.");
     try{
       while(true){
 	try{
-	  OXmessage message = ox.receive();
+	  OXmessage message = stream.receive();
 	  int ox_tag = message.getTag();
 
 	  switch(ox_tag){
-	  case OpenXM.OX_COMMAND:
+	  case OXmessage.OX_COMMAND:
 	    StackMachine((SM)message.getBody());
 	    break;
 
-	  case OpenXM.OX_DATA:
+	  case OXmessage.OX_DATA:
 	    stack.push(message.getBody());
 	    debug("push: "+ stack.peek());
 	    break;
@@ -150,7 +146,7 @@ class OMproxy implements Runnable{
 			 new CMO_INT32(CMO.BIGFLOAT),
 			 new CMO_INT32(CMO.INDETERMINATE),
 			 new CMO_INT32(CMO.TREE)};
-      CMO[] DataFormat1 = {new CMO_INT32(OpenXM.OX_DATA),
+      CMO[] DataFormat1 = {new CMO_INT32(OXmessage.OX_DATA),
 			   new CMO_LIST(CMOFormat)};
       CMO[] list = {new CMO_LIST(DataFormat1)};
 
@@ -255,6 +251,7 @@ class OMproxy implements Runnable{
     return ret;
   }
 
+  /*
   public static void main(String argv[]){
     String host = "localhost";
     int DataPort = 1300, ControlPort = 1200;
@@ -292,4 +289,5 @@ class OMproxy implements Runnable{
       System.err.println(e.getMessage());
     }
   }
+  */
 }

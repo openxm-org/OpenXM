@@ -1,22 +1,14 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.13 2000/03/16 09:51:32 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.14 2000/03/16 14:17:12 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 import java.net.*;
 
-public class OpenXM implements Runnable{
+public class OpenXM{
   private OpenXMconnection control = null, stream = null;
-  private Runnable process = null;
-  private Thread thread = null;
   final protected boolean debug = false;
-
-  // OX message_tag
-  final public static int OX_COMMAND                  = 513;
-  final public static int OX_DATA                     = 514;
-  final public static int OX_SYNC_BALL                = 515;
-  final public static int OX_PRIVATE                  = 0x7fff0000;
 
   public OpenXM(String host,int CtrlPort,int StreamPort) throws IOException{
     control = new OpenXMconnection(host,CtrlPort);
@@ -33,83 +25,9 @@ public class OpenXM implements Runnable{
     stream.sendByteOrder();
   }
 
-  public OpenXM(Runnable process,String host,int CtrlPort,int StreamPort)
-       throws IOException{
-	 control = new OpenXMconnection(host,CtrlPort,true);
-	 new Thread(this).start();
-
-	 stream = new OpenXMconnection(host,StreamPort,true);
-	 stream.sendByteOrder();
-	 this.process = process;
-	 thread = new Thread(this.process);
-	 thread.start();
-  }
-
-  public void run(){
-    try{
-      control.sendByteOrder();
-
-      debug("control: wait OX");
-      while(true){
-	OXmessage message = control.receive();
-
-	switch(message.getTag()){
-	case OX_COMMAND:
-	  switch(((SM)message.getBody()).getCode()){
-	  case SM.SM_control_kill:
-	    return;
-
-	  case SM.SM_control_reset_connection:
-	    this.resetConnection();
-	    break;
-	  }
-	  break;
-
-	case OX_DATA:
-	case OX_SYNC_BALL:
-	default:
-	  break;
-	}
-      }
-    }catch(IOException e){
-      System.err.println(e.getMessage());
-    }finally{
-      debug("computer process interrupting...");
-      thread.stop();
-      debug("interrupted. OK! I'll shutdown.");
-      try{stream.close();}catch(IOException e){}
-      try{control.close();}catch(IOException e){}
-    }
-  }
-
   public synchronized void resetConnection(){
     debug("control: stopping computer process...");
-    try{
-      control.send(new CMO_INT32(0));
-    }catch(IOException e){
-    }catch(MathcapViolation e){}
-    synchronized(stream){
-      thread.stop();
-    }
-    debug("control: stopped.");
-
-    try{
-      debug("control: sending SYNC BALL.");
-      stream.sendOX_SYNC_BALL();
-
-      debug("control: waiting to receive SYNC BALL.");
-      while(true){
-	OXmessage message = stream.receive();
-
-	debug("control: received "+ message);
-	if(message.getTag() == OX_SYNC_BALL){
-	  break;
-	}
-      }
-      debug("control: received SYNC BALL and restart computer process");
-      thread = new Thread(this.process);
-      thread.start();
-    }catch(IOException e){}catch(MathcapViolation e){}
+    debug("control: sending SYNC BALL.");
   }
 
   public void send(OXbody object) throws IOException,MathcapViolation{
@@ -130,11 +48,34 @@ public class OpenXM implements Runnable{
     }
   }
 
-  public static void main(String[] args){
+  public static void main(String[] argv){
+    String hostname = "localhost";
+    int ControlPort = 1200, DataPort = 1300;
+    Runnable process = null;
+    Thread thread;
     OpenXM ox;
 
+    for(int i=0;i<argv.length;i++){
+      if(argv[i].equals("-h")){
+        System.out.println("");
+        System.exit(0);
+      }else if(argv[i].equals("-host")){
+        hostname = argv[++i];
+      }else if(argv[i].equals("-data")){
+        DataPort = Integer.valueOf(argv[++i]).intValue();
+      }else if(argv[i].equals("-control")){
+        ControlPort = Integer.valueOf(argv[++i]).intValue();
+      }else{
+        System.err.println("unknown option :"+ argv[i]);
+        System.exit(1);
+      }
+    }
+
     try{
-      ox = new OpenXM("localhost",1200,1300);
+      ox = new OpenXM(hostname,ControlPort,DataPort);
+
+      thread = new Thread(process);
+      thread.start();
     }catch(UnknownHostException e){
       System.err.println("host unknown.");
       System.err.println(e.getMessage());

@@ -1,12 +1,12 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.17 2000/03/16 09:51:32 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.18 2000/03/16 12:28:43 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 import java.net.*;
 
-class OpenXMconnection{
+public class OpenXMconnection{
   private int serial = 0;
   private Socket socket = null;
   private InputStream  is = null;

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.22 2000/03/14 05:38:49 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.23 2000/03/15 15:02:05 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -54,7 +54,7 @@ final class OM2OXM implements Runnable{
       while(true){
 	OXmessage message = asir.receive();
 
-	if(message.getTag() == OpenXM.OX_DATA){
+	if(message.getTag() == OXmessage.OX_DATA){
 	  System.out.println("=> "+ CMO2OM((CMO)message.getBody()));
           break;
 	}
