@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/appendix.texi,v 1.9 2002/09/03 01:50:57 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/appendix.texi,v 1.10 2002/09/10 01:40:01 noro Exp $
 \BJP
 @node 付録,,, Top
 @appendix 付録
@@ -133,7 +133,7 @@
 \E
 \BEG
 <option>:
-    Character sequence beginning with an alphabetical letter @samp{=} <expression>
+    Character sequence beginning with an alphabetical letter @samp{=} <expr>
 \E
 @end example
 
@@ -440,10 +440,12 @@ factorization @code{af()}. (@xref{asq af af_noalg}.)
 x^9-15*x^6-87*x^3-125
 0msec
 [177] af(Alg[5],[newalg(Alg[5])]);
-[[1,1],[75*x^2+(10*#0^7-175*#0^4-470*#0)*x+(3*#0^8-45*#0^5-261*#0^2),1],
-[75*x^2+(-10*#0^7+175*#0^4+395*#0)*x+(3*#0^8-45*#0^5-261*#0^2),1],
-[25*x^2+(25*#0)*x+(#0^8-15*#0^5-87*#0^2),1],[x^2+(#0)*x+(#0^2),1],
-[x+(-#0),1]]
+[[1,1],[75*x^2+(10*#0^7-175*#0^4-470*#0)*x
++(3*#0^8-45*#0^5-261*#0^2),1],
+[75*x^2+(-10*#0^7+175*#0^4+395*#0)*x
++(3*#0^8-45*#0^5-261*#0^2),1],
+[25*x^2+(25*#0)*x+(#0^8-15*#0^5-87*#0^2),1],
+[x^2+(#0)*x+(#0^2),1],[x+(-#0),1]]
 3.600sec + gc : 1.040sec
 @end example
 @item ifplot
@@ -480,7 +482,8 @@ is defined.  Its returns a rather complex result.
 [84] load("ratint")$
 [102] ratint(x^6/(x^5+x+1),x);
 [1/2*x^2,
-[[(#2)*log(-140*x+(-2737*#2^2+552*#2-131)),161*t#2^3-23*t#2^2+15*t#2-1],
+[[(#2)*log(-140*x+(-2737*#2^2+552*#2-131)),
+161*t#2^3-23*t#2^2+15*t#2-1],
 [(#1)*log(-5*x+(-21*#1-4)),21*t#1^2+3*t#1+1]]]
 @end example
 \BJP
@@ -513,12 +516,21 @@ result and then summing them up all.
 \E
 @item primdec
 \BJP
-多項式イデアルの準素イデアル分解とその根基の素イデアル分解
+有理数体上の多項式イデアルの準素イデアル分解とその根基の素イデアル分解
 (@pxref{primadec primedec}).
 \E
 \BEG
 Primary ideal decomposition of polynomial ideals and prime compotision
-of radicals (@pxref{primadec primedec}).
+of radicals over the rationals (@pxref{primadec primedec}).
+\E
+@item primdec_mod
+\BJP
+有限体上の多項式イデアルの根基の素イデアル分解
+(@pxref{primedec_mod}).
+\E
+\BEG
+Prime decomposition of radicals of polynomial ideals
+over finite fields (@pxref{primedec_mod}).
 \E
 @end table
 
@@ -594,8 +606,8 @@ available for UNIX commands, including @samp{asir}.
 [[1,1],[x-1,1],[x^4+x^3+x^2+x+1,1]]
 [1] !!                              /* !!+Return                      */
 \BJP
-fctr(x^5-1);                        /* 直前の入力が現れるて編集できる */
-...                                 /* 編集+Return                    */
+fctr(x^5-1);                        /* 直前の入力が現れて編集できる */
+...                                 /* 編集+Return                  */
 \E
 \BEG
 fctr(x^5-1);                        /* The last input appears.        */
@@ -1208,5 +1220,7 @@ J. Symb. Comp. 20 (1995), 364-397.
 Traverso, C., "Groebner trace algorithms", Proc. ISSAC '88(LNCS 358), 125-138.
 @item [Weber]
 Weber, K., "The accelerated Integer GCD Algorithm", ACM TOMS, 21, 1(1995), 111-122.
+@item [Yokoyama]
+Yokoyama, K., "Prime decomposition of polynomial ideals over finite fields", 
+Proc. ICMS, (2002), 217-227.
 @end table
-

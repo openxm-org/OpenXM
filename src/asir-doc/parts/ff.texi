@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/ff.texi,v 1.4 2003/04/19 10:36:30 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/ff.texi,v 1.5 2003/04/19 15:44:56 noro Exp $
 \BJP
 @node 有限体に関する演算,,, Top
 @chapter 有限体に関する演算
@@ -332,6 +332,7 @@ one to obtain the affine coordinate.
 * gf2ntop::
 * ptosfp sfptop::
 * defpoly_mod2::
+* sffctr::
 * fctr_ff::
 * irredcheck_ff::
 * randpoly_ff::
@@ -828,9 +829,11 @@ whose value is @var{r}.
 [2] setmod_ff(547);                 
 547
 [3] F=simp_ff((x-1)^10);
-1*x^10+537*x^9+45*x^8+427*x^7+210*x^6+295*x^5+210*x^4+427*x^3+45*x^2+537*x+1
+1*x^10+537*x^9+45*x^8+427*x^7+210*x^6+295*x^5+210*x^4+427*x^3
++45*x^2+537*x+1
 [4] lmptop(F);
-x^10+537*x^9+45*x^8+427*x^7+210*x^6+295*x^5+210*x^4+427*x^3+45*x^2+537*x+1
+x^10+537*x^9+45*x^8+427*x^7+210*x^6+295*x^5+210*x^4+427*x^3
++45*x^2+537*x+1
 [5] lmptop(coef(F,1));
 537
 [6] ntype(@@@@);
@@ -878,7 +881,7 @@ x^10+537*x^9+45*x^8+427*x^7+210*x^6+295*x^5+210*x^4+427*x^3+45*x^2+537*x+1
 Let @var{m} be a non-negative integer.
 @var{m} has the binary representation
 @var{m}=@var{m0}+@var{m1}*2+...+@var{mk}*2^k.
-This function returns an element of  GF(2^@var{n})=GF(2)[t]/(g(t)),
+This function returns an element of  GF(2^@var{n}) = GF(2)[t]/(g(t)),
 @var{m0}+@var{m1}*t+...+@var{mk}*t^k mod g(t).
 @item
 Apply @code{simp_ff()} to reduce the result.
@@ -1186,6 +1189,60 @@ Then fix @var{m3} as small as possible.
 \JP @item 参照
 \EG @item References
 @fref{setmod_ff}
+@end table
+
+\JP @node sffctr,,, 有限体に関する函数のまとめ
+\EG @node sffctr,,, Functions for Finite fields
+@subsection @code{sffctr}
+@findex sffctr
+
+@table @t
+@item sffctr(@var{poly})
+\JP :: 多項式の小標数有限体上での既約分解
+\EG :: Irreducible factorization over a small finite field.
+@end table
+
+@table @var
+@item return
+\JP リスト
+\EG list
+@item poly
+\JP 有限体上の 多項式
+\EG polynomial over a finite field
+@end table
+
+@itemize @bullet
+\BJP
+@item
+多項式を, 現在設定されている小標数有限体上で既約分解する. 
+@item
+結果は, [[@var{f1},@var{m1}],[@var{f2},@var{m2}],...] なる
+リストである. ここで, @var{fi} は monic な既約因子, @var{mi} はその
+重複度である. 
+\E
+\BEG
+@item
+Factorize @var{poly} into irreducible factors over 
+a small finite field currently set.
+@item
+The result is a list [[@var{f1},@var{m1}],[@var{f2},@var{m2}],...],
+where @var{fi} is a monic irreducible factor and @var{mi} is its
+multiplicity.
+\E
+@end itemize
+[0] setmod_ff(2,10);
+[2,x^10+x^3+1,x]
+[1] sffctr((z*y^3+z*y)*x^3+(y^5+y^3+z*y^2+z)*x^2+z^11*y*x+z^10*y^3+z^11);
+[[@@_0,1],[@@_0*z*y*x+@@_0*y^3+@@_0*z,1],[(@@_0*y+@@_0)*x+@@_0*z^5,2]]
+@example
+
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{setmod_ff},
+@fref{modfctr}
 @end table
 
 \JP @node fctr_ff,,, 有限体に関する函数のまとめ

@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.3 1999/12/24 04:38:04 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.4 2003/04/19 15:44:56 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -17,6 +17,7 @@
 * 項順序の設定::
 * 有理式を係数とするグレブナ基底計算::
 * 基底変換::
+* Weyl 代数::
 * グレブナ基底に関する函数::
 \E
 \BEG
@@ -27,6 +28,7 @@
 * Setting term orderings::
 * Groebner basis computation with rational function coefficients::
 * Change of ordering::
+* Weyl algebra::
 * Functions for Groebner basis computation::
 \E
 @end menu
@@ -228,23 +230,23 @@ the head term and the head coefficient respectively.
 @noindent
 \BJP
 グレブナ基底を計算するための基本的な函数は @code{dp_gr_main()} および
-@code{dp_gr_mod_main()} なる 2 つの組み込み函数であるが, 通常は, パラメタ
+@code{dp_gr_mod_main()}, @code{dp_gr_f_main()}
+ なる 3 つの組み込み函数であるが, 通常は, パラメタ
 設定などを行ったのちこれらを呼び出すユーザ函数を用いるのが便利である. 
 これらのユーザ函数は, ファイル @samp{gr} を @code{load()} により読
 み込むことにより使用可能となる. @samp{gr} は, @b{Asir} の標準
-ライブラリディレクトリに置かれている. よって, 環境変数 @code{ASIR_LIBDIR}
-を特に異なるパスに設定しない限り, ファイル名のみで読み込むことができる. 
+ライブラリディレクトリに置かれている. 
 \E
 \BEG
-Facilities for computing Groebner bases are provided not by built-in
-functions but by a set of user functions written in @b{Asir}.
-The set of functions is provided as a file (sometimes called package),
-named @samp{gr}.
+Facilities for computing Groebner bases are 
+@code{dp_gr_main()}, @code{dp_gr_mod_main()}and @code{dp_gr_f_main()}.
+To call these functions, 
+it is necessary to set several parameters correctly and it is convenient
+to use a set of interface functions provided in the library file
+@samp{gr}.
 The facilities will be ready to use after you load the package by
 @code{load()}.  The package @samp{gr} is placed in the standard library
-directory of @b{Asir}.  Therefore, it is loaded simply by specifying
-its file name, unless the environment variable @code{ASIR_LIBDIR}
-is set to a non-standard one.
+directory of @b{Asir}.  
 \E
 
 @example
@@ -350,8 +352,8 @@ These parameters can be set and examined by a built-in function
 
 @example
 [100] dp_gr_flags();
-[Demand,0,NoSugar,0,NoCriB,0,NoGC,0,NoMC,0,NoRA,0,NoGCD,0,Top,0,ShowMag,1,
-Print,1,Stat,0,Reverse,0,InterReduce,0,Multiple,0]
+[Demand,0,NoSugar,0,NoCriB,0,NoGC,0,NoMC,0,NoRA,0,NoGCD,0,Top,0,
+ShowMag,1,Print,1,Stat,0,Reverse,0,InterReduce,0,Multiple,0]
 [101]
 @end example
 
@@ -530,9 +532,9 @@ membercheck
 (0,0)(0,0)(0,0)(0,0)
 gbcheck total 8 pairs
 ........
-UP=(0,0)SP=(0,0)SPM=(0,0)NF=(0,0)NFM=(0.010002,0)ZNFM=(0.010002,0)PZ=(0,0)
-NP=(0,0)MP=(0,0)RA=(0,0)MC=(0,0)GC=(0,0)T=40,B=0 M=8 F=6 D=12 ZR=5 NZR=6
-Max_mag=6
+UP=(0,0)SP=(0,0)SPM=(0,0)NF=(0,0)NFM=(0.010002,0)ZNFM=(0.010002,0)
+PZ=(0,0)NP=(0,0)MP=(0,0)RA=(0,0)MC=(0,0)GC=(0,0)T=40,B=0 M=8 F=6
+D=12 ZR=5 NZR=6 Max_mag=6
 [94]
 @end example
 
@@ -992,24 +994,25 @@ time as well as the choice of types of term orderings.
 -40*t^8+70*t^7+252*t^6+30*t^5-140*t^4-168*t^3+2*t^2-12*t+16)*z^2*y
 +(-12*t^16+72*t^13-28*t^11-180*t^10+112*t^8+240*t^7+28*t^6-127*t^5
 -167*t^4-55*t^3+30*t^2+58*t-15)*z^4,
-(y+t^2*z^2)*x+y^7+(20*t^2+6*t+1)*y^2+(-t^17+6*t^14-21*t^12-15*t^11+84*t^9
-+20*t^8-35*t^7-126*t^6-15*t^5+70*t^4+84*t^3-t^2+5*t-9)*z^2*y+(6*t^16-36*t^13
-+14*t^11+90*t^10-56*t^8-120*t^7-14*t^6+64*t^5+84*t^4+27*t^3-16*t^2-30*t+7)*z^4,
-(t^3-1)*x-y^6+(-6*t^13+24*t^10-20*t^8-36*t^7+40*t^5+24*t^4-6*t^3-20*t^2-6*t-1)*y
-+(t^17-6*t^14+9*t^12+15*t^11-36*t^9-20*t^8-5*t^7+54*t^6+15*t^5+10*t^4-36*t^3
--11*t^2-5*t+9)*z^2,
+(y+t^2*z^2)*x+y^7+(20*t^2+6*t+1)*y^2+(-t^17+6*t^14-21*t^12-15*t^11
++84*t^9+20*t^8-35*t^7-126*t^6-15*t^5+70*t^4+84*t^3-t^2+5*t-9)*z^2*y
++(6*t^16-36*t^13+14*t^11+90*t^10-56*t^8-120*t^7-14*t^6+64*t^5+84*t^4
++27*t^3-16*t^2-30*t+7)*z^4,
+(t^3-1)*x-y^6+(-6*t^13+24*t^10-20*t^8-36*t^7+40*t^5+24*t^4-6*t^3-20*t^2
+-6*t-1)*y+(t^17-6*t^14+9*t^12+15*t^11-36*t^9-20*t^8-5*t^7+54*t^6+15*t^5
++10*t^4-36*t^3-11*t^2-5*t+9)*z^2,
 -y^8-8*t*y^3+16*z^2*y^2+(-8*t^16+48*t^13-56*t^11-120*t^10+224*t^8+160*t^7
--56*t^6-336*t^5-112*t^4+112*t^3+224*t^2+24*t-56)*z^4*y+(t^24-8*t^21+20*t^19
-+28*t^18-120*t^16-56*t^15+14*t^14+300*t^13+70*t^12-56*t^11-400*t^10-84*t^9
-+84*t^8+268*t^7+84*t^6-56*t^5-63*t^4-36*t^3+46*t^2-12*t+1)*z,
-2*t*y^5+z*y^2+(-2*t^11+8*t^8-20*t^6-12*t^5+40*t^3+8*t^2-10*t-20)*z^3*y+8*t^14
--32*t^11+48*t^8-t^7-32*t^5-6*t^4+9*t^2-t,
+-56*t^6-336*t^5-112*t^4+112*t^3+224*t^2+24*t-56)*z^4*y+(t^24-8*t^21
++20*t^19+28*t^18-120*t^16-56*t^15+14*t^14+300*t^13+70*t^12-56*t^11
+-400*t^10-84*t^9+84*t^8+268*t^7+84*t^6-56*t^5-63*t^4-36*t^3+46*t^2
+-12*t+1)*z,2*t*y^5+z*y^2+(-2*t^11+8*t^8-20*t^6-12*t^5+40*t^3+8*t^2
+-10*t-20)*z^3*y+8*t^14-32*t^11+48*t^8-t^7-32*t^5-6*t^4+9*t^2-t,
 -z*y^3+(t^7-2*t^4+3*t^2+t)*y+(-2*t^6+4*t^3+2*t-2)*z^2,
-2*t^2*y^3+z^2*y^2+(-2*t^5+4*t^2-6)*z^4*y+(4*t^8-t^7-8*t^5+2*t^4-4*t^3+5*t^2-t)*z,
+2*t^2*y^3+z^2*y^2+(-2*t^5+4*t^2-6)*z^4*y
++(4*t^8-t^7-8*t^5+2*t^4-4*t^3+5*t^2-t)*z,
 z^3*y^2+2*t^3*y+(-t^7+2*t^4+t^2-t)*z^2,
 -t*z*y^2-2*z^3*y+t^8-2*t^5-t^3+t^2,
--t^3*y^2-2*t^2*z^2*y+(t^6-2*t^3-t+1)*z^4,
-z^5-t^4]
+-t^3*y^2-2*t^2*z^2*y+(t^6-2*t^3-t+1)*z^4,z^5-t^4]
 [93] gr(B,[t,z,y,x],2);
 [x^10-t,x^8-z,x^31-x^6-x-y]
 @end example
@@ -1214,7 +1217,7 @@ Refer to the sections for each functions.
 * lex_hensel_gsl tolex_gsl tolex_gsl_d::
 * gr_minipoly minipoly::
 * tolexm minipolym::
-* dp_gr_main dp_gr_mod_main::
+* dp_gr_main dp_gr_mod_main dp_gr_f_main::
 * dp_f4_main dp_f4_mod_main::
 * dp_gr_flags dp_gr_print::
 * dp_ord::
@@ -1240,6 +1243,7 @@ Refer to the sections for each functions.
 * dp_vtoe dp_etov::
 * lex_hensel_gsl tolex_gsl tolex_gsl_d::
 * primadec primedec::
+* primedec_mod::
 @end menu
 
 \JP @node gr hgr gr_mod,,, グレブナ基底に関する函数
@@ -1342,8 +1346,8 @@ for communication.
 @table @t
 \JP @item 参照
 \EG @item References
-@comment @fref{dp_gr_main dp_gr_mod_main},
-@fref{dp_gr_main dp_gr_mod_main},
+@comment @fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
+@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
 @fref{dp_ord}.
 @end table
 
@@ -1560,7 +1564,7 @@ processes.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{dp_gr_main dp_gr_mod_main},
+@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
 \JP @fref{dp_ord}, @fref{分散計算}
 \EG @fref{dp_ord}, @fref{Distributed computation}
 @end table
@@ -1662,7 +1666,8 @@ processes.
 [108] GSL[1];
 [u2,10352277157007342793600000000*u0^31-...]
 [109] GSL[5];
-[u0,11771021876193064124640000000*u0^32-...,376672700038178051988480000000*u0^31-...]
+[u0,11771021876193064124640000000*u0^32-...,
+376672700038178051988480000000*u0^31-...]
 @end example
 
 @table @t
@@ -1837,15 +1842,17 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @fref{gr_minipoly minipoly}.
 @end table
 
-\JP @node dp_gr_main dp_gr_mod_main,,, グレブナ基底に関する函数
-\EG @node dp_gr_main dp_gr_mod_main,,, Functions for Groebner basis computation
-@subsection @code{dp_gr_main}, @code{dp_gr_mod_main}
+\JP @node dp_gr_main dp_gr_mod_main dp_gr_f_main,,, グレブナ基底に関する函数
+\EG @node dp_gr_main dp_gr_mod_main dp_gr_f_main,,, Functions for Groebner basis computation
+@subsection @code{dp_gr_main}, @code{dp_gr_mod_main}, @code{dp_gr_f_main}
 @findex dp_gr_main
 @findex dp_gr_mod_main
+@findex dp_gr_f_main
 
 @table @t
 @item dp_gr_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
 @itemx dp_gr_mod_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
+@itemx dp_gr_f_main(@var{plist},@var{vlist},@var{homo},@var{order})
 \JP :: グレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation (built-in functions)
 @end table
@@ -1874,6 +1881,10 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 これらの函数は, グレブナ基底計算の基本的組み込み函数であり, @code{gr()},
 @code{hgr()}, @code{gr_mod()} などはすべてこれらの函数を呼び出して計算
 を行っている. 
+@item
+@code{dp_gr_f_main()} は, 種々の有限体上のグレブナ基底を計算する
+場合に用いる. 入力は, あらかじめ, @code{simp_ff()} などで, 
+考える有限体上に射影されている必要がある. 
 @item
 フラグ @var{homo} が 0 でない時, 入力を斉次化してから Buchberger アルゴリズム
 を実行する. 
@@ -1907,6 +1918,11 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 These functions are fundamental built-in functions for Groebner basis
 computation and @code{gr()},@code{hgr()} and @code{gr_mod()}
 are all interfaces to these functions.
+@item
+@code{dp_gr_f_main()} is a function for Groebner basis computation
+over various finite fields. Coefficients of input polynomials 
+must be converted to elements of a finite field 
+currently specified by @code{setmod_ff()}.
 @item
 If @var{homo} is not equal to 0, homogenization is applied before entering
 Buchberger algorithm
@@ -1945,6 +1961,7 @@ Actual computation is controlled by various parameters set by
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
 @fref{gr hgr gr_mod},
+@fref{setmod_ff},
 \JP @fref{計算および表示の制御}.
 \EG @fref{Controlling Groebner basis computations}
 @end table
@@ -2036,7 +2053,7 @@ and showing informations.
 @itemize @bullet
 \BJP
 @item
-@code{dp_gr_main()}, @code{dp_gr_mod_main()} 実行時におけるさまざま
+@code{dp_gr_main()}, @code{dp_gr_mod_main()}, @code{dp_gr_f_main()}  実行時におけるさまざま
 なパラメタを設定, 参照する. 
 @item
 引数がない場合, 現在の設定が返される. 
@@ -2212,7 +2229,8 @@ the coefficient field.
 (1)*<<2,0,0>>+(2)*<<1,1,0>>+(1)*<<0,2,0>>+(2)*<<1,0,1>>+(2)*<<0,1,1>>
 +(1)*<<0,0,2>>
 [52] dp_ptod((x+y+z)^2,[x,y]);  
-(1)*<<2,0>>+(2)*<<1,1>>+(1)*<<0,2>>+(2*z)*<<1,0>>+(2*z)*<<0,1>>+(z^2)*<<0,0>>
+(1)*<<2,0>>+(2)*<<1,1>>+(1)*<<0,2>>+(2*z)*<<1,0>>+(2*z)*<<0,1>>
++(z^2)*<<0,0>>
 @end example
 
 @table @t
@@ -2264,7 +2282,8 @@ variables of @var{dpoly}.
 
 @example
 [53] T=dp_ptod((x+y+z)^2,[x,y]);
-(1)*<<2,0>>+(2)*<<1,1>>+(1)*<<0,2>>+(2*z)*<<1,0>>+(2*z)*<<0,1>>+(z^2)*<<0,0>>
+(1)*<<2,0>>+(2)*<<1,1>>+(1)*<<0,2>>+(2*z)*<<1,0>>+(2*z)*<<0,1>>
++(z^2)*<<0,0>>
 [54] P=dp_dtop(T,[a,b]);
 z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @end example
@@ -2617,15 +2636,18 @@ For single computation @code{p_nf} and @code{p_true_nf} are sufficient.
 [74] DP2=newvect(length(G),map(dp_ptod,G,V))$
 [75] T=dp_ptod((u0-u1+u2-u3+u4)^2,V)$
 [76] dp_dtop(dp_nf([0,1,2,3,4],T,DP1,1),V);
-u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1+1
+u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2
++(6*u1-2)*u2+9*u1^2-6*u1+1
 [77] dp_dtop(dp_nf([4,3,2,1,0],T,DP1,1),V);
 -5*u4^2+(-4*u3-4*u2-4*u1)*u4-u3^2-3*u3-u2^2+(2*u1-1)*u2-2*u1^2-3*u1+1
 [78] dp_dtop(dp_nf([0,1,2,3,4],T,DP2,1),V);
--1138087976845165778088612297273078520347097001020471455633353049221045677593
-0005716505560062087150928400876150217079820311439477560587583488*u4^15+...
+-11380879768451657780886122972730785203470970010204714556333530492210
+456775930005716505560062087150928400876150217079820311439477560587583
+488*u4^15+...
 [79] dp_dtop(dp_nf([4,3,2,1,0],T,DP2,1),V);
--1138087976845165778088612297273078520347097001020471455633353049221045677593
-0005716505560062087150928400876150217079820311439477560587583488*u4^15+...
+-11380879768451657780886122972730785203470970010204714556333530492210
+456775930005716505560062087150928400876150217079820311439477560587583
+488*u4^15+...
 [80] @@78==@@79;
 1
 @end example
@@ -3170,8 +3192,8 @@ The result is a list @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]}.
 [159] C=12*<<1,1,1,0,0>>+(1)*<<0,1,1,1,0>>+(1)*<<1,1,0,0,1>>; 
 (12)*<<1,1,1,0,0>>+(1)*<<0,1,1,1,0>>+(1)*<<1,1,0,0,1>>
 [160] dp_red(D,R,C);                                         
-[(6)*<<2,1,0,0,0>>+(6)*<<1,2,0,0,0>>+(2)*<<0,3,0,0,0>>,(-1)*<<0,1,1,1,0>>
-+(-1)*<<1,1,0,0,1>>]
+[(6)*<<2,1,0,0,0>>+(6)*<<1,2,0,0,0>>+(2)*<<0,3,0,0,0>>,
+(-1)*<<0,1,1,1,0>>+(-1)*<<1,1,0,0,1>>]
 @end example
 
 @table @t
@@ -3409,9 +3431,9 @@ exists.
 @example
 [233] G=gr(katsura(5),[u5,u4,u3,u2,u1,u0],2)$
 [234] p_terms(G[0],[u5,u4,u3,u2,u1,u0],2);
-[u5,u0^31,u0^30,u0^29,u0^28,u0^27,u0^26,u0^25,u0^24,u0^23,u0^22,u0^21,u0^20,
-u0^19,u0^18,u0^17,u0^16,u0^15,u0^14,u0^13,u0^12,u0^11,u0^10,u0^9,u0^8,u0^7,
-u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
+[u5,u0^31,u0^30,u0^29,u0^28,u0^27,u0^26,u0^25,u0^24,u0^23,u0^22,
+u0^21,u0^20,u0^19,u0^18,u0^17,u0^16,u0^15,u0^14,u0^13,u0^12,u0^11,
+u0^10,u0^9,u0^8,u0^7,u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @end example
 
 \JP @node gb_comp,,, グレブナ基底に関する函数
@@ -3519,8 +3541,8 @@ Polynomial set @code{cyclic} is sometimes called by other name:
 [79] load("cyclic")$ 
 [89] katsura(5);
 [u0+2*u4+2*u3+2*u2+2*u1+2*u5-1,2*u4*u0-u4+2*u1*u3+u2^2+2*u5*u1,
-2*u3*u0+2*u1*u4-u3+(2*u1+2*u5)*u2,2*u2*u0+2*u2*u4+(2*u1+2*u5)*u3-u2+u1^2,
-2*u1*u0+(2*u3+2*u5)*u4+2*u2*u3+2*u1*u2-u1,
+2*u3*u0+2*u1*u4-u3+(2*u1+2*u5)*u2,2*u2*u0+2*u2*u4+(2*u1+2*u5)*u3
+-u2+u1^2,2*u1*u0+(2*u3+2*u5)*u4+2*u2*u3+2*u1*u2-u1,
 u0^2-u0+2*u4^2+2*u3^2+2*u2^2+2*u1^2+2*u5^2]
 [90] hkatsura(5);
 [-t+u0+2*u4+2*u3+2*u2+2*u1+2*u5,
@@ -3642,3 +3664,204 @@ if an input ideal is not radical.
 \JP @fref{項順序の設定}.
 \EG @fref{Setting term orderings}.
 @end table
+
+\BJP
+@node Weyl 代数,,, グレブナ基底の計算
+@section Weyl 代数
+\E
+\BEG
+@node Weyl algebra,,, Groebner basis computation
+@section Weyl algebra
+\E
+
+@noindent
+
+\BJP
+これまでは, 通常の可換な多項式環におけるグレブナ基底計算について
+述べてきたが, グレブナ基底の理論は, ある条件を満たす非可換な
+環にも拡張できる. このような環の中で, 応用上も重要な, 
+Weyl 代数, すなわち多項式環上の微分作用素環の演算および
+グレブナ基底計算が Risa/Asir に実装されている. 
+
+体 @code{K} 上の @code{n} 次元 Weyl 代数 
+@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} は
+\E
+
+\BEG
+So far we have explained Groebner basis computation in
+commutative polynomial rings. However Groebner basis can be
+considered in more general non-commutative rings.
+Weyl algebra is one of such rings and 
+Risa/Asir implements fundamental operations
+in Weyl algebra and Groebner basis computation in Weyl algebra.
+
+The @code{n} dimensional Weyl algebra over a field @code{K},
+@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} is a non-commutative
+algebra which has the following fundamental relations:
+\E
+
+@code{xi*xj-xj*xi=0}, @code{Di*Dj-Dj*Di=0}, @code{Di*xj-xj*Di=0} (@code{i!=j}),
+@code{Di*xi-xi*Di=1}
+
+\BJP
+という基本関係を持つ環である. @code{D} は 多項式環 @code{K[x1,@dots{},xn]} を係数
+とする微分作用素環で,  @code{Di} は @code{xi} による微分を表す. 交換関係により, 
+@code{D} の元は, @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn} なる単項
+式の @code{K} 線形結合として書き表すことができる. 
+Risa/Asir においては, この単項式を, 可換な多項式と同様に
+@code{<<i1,@dots{},in,j1,@dots{},jn>>} で表す. すなわち, @code{D} の元も
+分散表現多項式として表される. 加減算は, 可換の場合と同様に, @code{+}, @code{-}
+により
+実行できるが, 乗算は, 非可換性を考慮して @code{dp_weyl_mul()} という関数
+により実行する.
+\E
+
+\BEG
+@code{D} is the ring of differential operators whose coefficients
+are polynomials in @code{K[x1,@dots{},xn]} and
+@code{Di} denotes the differentiation with respect to  @code{xi}.
+According to the commutation relation,
+elements of @code{D} can be represented as a @code{K}-linear combination 
+of monomials @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn}.
+In Risa/Asir, this type of monomial is represented 
+by @code{<<i1,@dots{},in,j1,@dots{},jn>>} as in the case of commutative
+polynomial.
+That is, elements of @code{D} are represented by distributed polynomials.
+Addition and subtraction can be done by @code{+}, @code{-},
+but multiplication is done by calling @code{dp_weyl_mul()} because of
+the non-commutativity of @code{D}.
+\E
+
+@example
+[0] A=<<1,2,2,1>>;
+(1)*<<1,2,2,1>>
+[1] B=<<2,1,1,2>>;
+(1)*<<2,1,1,2>>
+[2] A*B;
+(1)*<<3,3,3,3>>
+[3] dp_weyl_mul(A,B);
+(1)*<<3,3,3,3>>+(1)*<<3,2,3,2>>+(4)*<<2,3,2,3>>+(4)*<<2,2,2,2>>
++(2)*<<1,3,1,3>>+(2)*<<1,2,1,2>>
+@end example
+
+\BJP
+グレブナ基底計算についても, Weyl 代数専用の関数として, 
+次の関数が用意してある. 
+\E
+\BEG
+The following functions are avilable for Groebner basis computation
+in Weyl algebra:
+\E
+@code{dp_weyl_gr_main()},
+@code{dp_weyl_gr_mod_main()},
+@code{dp_weyl_gr_f_main()},
+@code{dp_weyl_f4_main()},
+@code{dp_weyl_f4_mod_main()}.
+\BJP
+また, 応用として, global b 関数の計算が実装されている. 
+\E
+\BEG
+Computation of the global b function is implemented as an application.
+\E
+
+\JP @node primedec_mod,,, グレブナ基底に関する函数
+\EG @node primedec_mod,,, Functions for Groebner basis computation
+@subsection @code{primedec_mod}
+@findex primedec_mod
+
+@table @t
+@item primedec_mod(@var{plist},@var{vlist},@var{ord},@var{mod},@var{strategy})
+\JP :: イデアルの分解
+\EG :: Computes decompositions of ideals over small finite fields.
+@end table
+
+@table @var
+@item return
+@itemx plist
+\JP 多項式リスト
+\EG list of polynomials
+@item vlist
+\JP 変数リスト
+\EG list of variables
+@item ord
+\JP 数, リストまたは行列
+\EG number, list or matrix
+@item mod
+\JP 正整数
+\EG positive integer
+@item strategy
+\JP 整数
+\EG integer
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@code{primedec_mod()} は @samp{primdec_mod}
+で定義されている. @code{[Yokoyama]} の素イデアル分解アルゴリズム
+を実装している. 
+@item
+@code{primedec_mod()} は有限体上でのイデアルの
+根基の素イデアル分解を行い, 素イデアルのリストを返す. 
+@item
+@code{primedec_mod()} は, GF(@var{mod}) 上での分解を与える. 
+結果の各成分の生成元は, 整数係数多項式である. 
+@item
+結果において, 多項式リストとして表示されている各イデアルは全て
+[@var{vlist},@var{ord}] で指定される項順序に関するグレブナ基底である.
+@item
+@var{strategy} が 0 でないとき, incremental に component の共通
+部分を計算することによる early termination を行う. 一般に, 
+イデアルの次元が高い場合に有効だが, 0 次元の場合など, 次元が小さい
+場合には overhead が大きい場合がある. 
+\E
+\BEG
+@item
+Function @code{primedec_mod()}
+is defined in @samp{primdec_mod} and implements the prime decomposition
+algorithm in @code{[Yokoyama]}.
+@item
+@code{primedec_mod()}
+is the function for prime ideal decomposition 
+of the radical of a polynomial ideal over small finite field,
+and they return a list of prime ideals, which are associated primes
+of the input ideal.
+@item
+@code{primedec_mod()} gives the decomposition over GF(@var{mod}).
+The generators of each resulting component consists of integral polynomials.
+@item
+Each resulting component is a Groebner basis with respect to
+a term order specified by [@var{vlist},@var{ord}].
+@item
+If @var{strategy} is non zero, then the early termination strategy
+is tried by computing the intersection of obtained components
+incrementally. In general, this strategy is useful when the krull
+dimension of the ideal is high, but it may add some overhead
+if the dimension is small.
+\E
+@end itemize
+
+@example
+[0] load("primdec_mod")$
+[246] PP444=[x^8+x^2+t,y^8+y^2+t,z^8+z^2+t]$
+[247] primedec_mod(PP444,[x,y,z,t],0,2,1);
+[[y+z,x+z,z^8+z^2+t],[x+y,y^2+y+z^2+z+1,z^8+z^2+t],
+[y+z+1,x+z+1,z^8+z^2+t],[x+z,y^2+y+z^2+z+1,z^8+z^2+t],
+[y+z,x^2+x+z^2+z+1,z^8+z^2+t],[y+z+1,x^2+x+z^2+z+1,z^8+z^2+t],
+[x+z+1,y^2+y+z^2+z+1,z^8+z^2+t],[y+z+1,x+z,z^8+z^2+t],
+[x+y+1,y^2+y+z^2+z+1,z^8+z^2+t],[y+z,x+z+1,z^8+z^2+t]]
+[248] 
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{modfctr},
+@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
+\JP @fref{項順序の設定}.
+\EG @fref{Setting term orderings}.
+@end table
+
+
+
+

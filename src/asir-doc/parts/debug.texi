@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/debug.texi,v 1.2 1999/12/21 02:47:31 noro Exp $
 \BJP
 @node デバッガ,,, Top
 @chapter デバッガ
@@ -407,11 +407,12 @@ X = 5
 [4] factorial(6);                     <-- call for factorial(6)
 stopped in factorial at line 5 in file "./fac"
 5           return X * factorial(X - 1);
-(debug) where                         <-- display the calling sequence up to
-factorial(), line 5 in "./fac"            this break point
+(debug) where                         <-- display the calling sequence
+factorial(), line 5 in "./fac"            up to this break point
 (debug) print X                       <-- Display the value of X
 X = 6 
-(debug) step                          <-- step execution (enters function)
+(debug) step                          <-- step execution
+                                          (enters function)
 stopped in factorial at line 2 in file "./fac"
 2       if ( !X )
 (debug) where
@@ -477,7 +478,7 @@ new aliases in the debug-mode during an execution.
 @example
 lex_hensel(La,[a,b,c],0,[a,b,c],0);
 stopped in gennf at line 226 in file "/home/usr3/noro/asir/gr"
-226             N = length(V); Len = length(G); dp_ord(O); PS = newvect(Len);
+226        N = length(V); Len = length(G); dp_ord(O); PS = newvect(Len);
 (debug) p V
 V = [a,b,c]
 (debug) c

@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.5 2000/09/23 07:53:24 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.6 2002/09/03 01:50:57 noro Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -890,7 +890,7 @@ infinite loop.
 
 @example
 \JP for ( 式並び-1; 式; 式並び-2 ) 文
-\EG for ( expression list-1; expression; expression list-2 ) statement
+\EG for ( expr list-1; expr; expr list-2 ) statement
 @end example
 
 \JP で, これは
@@ -905,10 +905,10 @@ while ( 式 ) @{
 @}
 \E
 \BEG
-expression list-1 (transformed into a sequence of simple statement)
-while ( expression ) @{
+expr list-1 (transformed into a sequence of simple statement)
+while ( expr ) @{
     statement
-    expression list-2 (transformed into a sequence of simple statement)
+    expr list-2 (transformed into a sequence of simple statement)
 @}    
 \E
 @end example
@@ -1137,7 +1137,7 @@ There are special assignments combined with arithmetic operations.
 
 @example
 \JP A = 2  A *= 3 (これは A = A*3 と同じ; その他の演算子も同様)
-\EG A = 2  A *= 3 (the same as A = A*3; The other combination are alike.)
+\EG A = 2  A *= 3 (the same as A = A*3; The others are alike.)
 @end example
 @item
 \JP 函数呼び出し
@@ -1163,8 +1163,8 @@ A--  値は元の A の値, A = A-1
 \BEG
 A++  the expression value is the previous value of A, and A = A+1
 A--  the expression value is the previous value of A, and A = A-1
-++A  A = A+1, and the expression value is the value after increment of A
---A  A = A-1, and the expression value is the value after decrement of A
+++A  A = A+1, and the value is the one after increment of A
+--A  A = A-1, and the value is the one after decrement of A
 \E
 @end example
 

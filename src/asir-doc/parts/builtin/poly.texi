@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.3 2002/09/03 01:50:59 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.4 2003/04/19 15:44:59 noro Exp $
 \BJP
 @node 多項式および有理式の演算,,, 組み込み函数
 @section 多項式, 有理式の演算
@@ -451,15 +451,17 @@ objects which are created under different variable ordering.
 
 @example
 [0] ord();
-[x,y,z,u,v,w,p,q,r,s,t,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,_x,_y,_z,_u,_v,_w,_p,
-_q,_r,_s,_t,_a,_b,_c,_d,_e,_f,_g,_h,_i,_j,_k,_l,_m,_n,_o,exp(_x),(_x)^(_y),
-log(_x),(_x)^(_y-1),cos(_x),sin(_x),tan(_x),(-_x^2+1)^(-1/2),cosh(_x),sinh(_x),
-tanh(_x),(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
+[x,y,z,u,v,w,p,q,r,s,t,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,_x,_y,_z,_u,_v,
+_w,_p,_q,_r,_s,_t,_a,_b,_c,_d,_e,_f,_g,_h,_i,_j,_k,_l,_m,_n,_o,
+exp(_x),(_x)^(_y),log(_x),(_x)^(_y-1),cos(_x),sin(_x),tan(_x),
+(-_x^2+1)^(-1/2),cosh(_x),sinh(_x),tanh(_x),
+(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
 [1] ord([dx,dy,dz,a,b,c]);
-[dx,dy,dz,a,b,c,x,y,z,u,v,w,p,q,r,s,t,d,e,f,g,h,i,j,k,l,m,n,o,_x,_y,_z,_u,_v,
-_w,_p,_q,_r,_s,_t,_a,_b,_c,_d,_e,_f,_g,_h,_i,_j,_k,_l,_m,_n,_o,exp(_x),
-(_x)^(_y),log(_x),(_x)^(_y-1),cos(_x),sin(_x),tan(_x),(-_x^2+1)^(-1/2),
-cosh(_x),sinh(_x),tanh(_x),(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
+[dx,dy,dz,a,b,c,x,y,z,u,v,w,p,q,r,s,t,d,e,f,g,h,i,j,k,l,m,n,o,_x,_y,
+_z,_u,_v,_w,_p,_q,_r,_s,_t,_a,_b,_c,_d,_e,_f,_g,_h,_i,_j,_k,_l,_m,_n,
+_o,exp(_x),(_x)^(_y),log(_x),(_x)^(_y-1),cos(_x),sin(_x),tan(_x),
+(-_x^2+1)^(-1/2),cosh(_x),sinh(_x),tanh(_x),
+(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
 @end example
 
 \JP @node sdiv sdivm srem sremm sqr sqrm,,, 多項式および有理式の演算
@@ -645,11 +647,13 @@ to the polynomials repeatedly yields the multiplicity.
 
 @example
 [11] Y=(x+y+z)^5*(x-y-z)^3;  
-x^8+(2*y+2*z)*x^7+(-2*y^2-4*z*y-2*z^2)*x^6+(-6*y^3-18*z*y^2-18*z^2*y-6*z^3)*x^5
-+(6*y^5+30*z*y^4+60*z^2*y^3+60*z^3*y^2+30*z^4*y+6*z^5)*x^3+(2*y^6+12*z*y^5
-+30*z^2*y^4+40*z^3*y^3+30*z^4*y^2+12*z^5*y+2*z^6)*x^2+(-2*y^7-14*z*y^6
--42*z^2*y^5-70*z^3*y^4-70*z^4*y^3-42*z^5*y^2-14*z^6*y-2*z^7)*x-y^8-8*z*y^7
--28*z^2*y^6-56*z^3*y^5-70*z^4*y^4-56*z^5*y^3-28*z^6*y^2-8*z^7*y-z^8
+x^8+(2*y+2*z)*x^7+(-2*y^2-4*z*y-2*z^2)*x^6
++(-6*y^3-18*z*y^2-18*z^2*y-6*z^3)*x^5
++(6*y^5+30*z*y^4+60*z^2*y^3+60*z^3*y^2+30*z^4*y+6*z^5)*x^3
++(2*y^6+12*z*y^5+30*z^2*y^4+40*z^3*y^3+30*z^4*y^2+12*z^5*y+2*z^6)*x^2
++(-2*y^7-14*z*y^6-42*z^2*y^5-70*z^3*y^4-70*z^4*y^3-42*z^5*y^2
+-14*z^6*y-2*z^7)*x-y^8-8*z*y^7-28*z^2*y^6-56*z^3*y^5-70*z^4*y^4
+-56*z^5*y^3-28*z^6*y^2-8*z^7*y-z^8
 [12] for(I=0,F=x+y+z,T=Y; T=tdiv(T,F); I++); 
 [13] I;
 5
@@ -789,9 +793,9 @@ if arguments are repeated.)
 Substitutes rational expressions for specified kernels in a rational
 expression.
 @item
-@t{subst}(@var{rat},@var{var1},@var{rat1},@var{var2},@var{rat2},@dots{})
+@t{subst}(@var{r},@var{v1},@var{r1},@var{v2},@var{r2},@dots{})
 has the same effect as
-@t{subst}(@t{subst}(@var{rat},@var{var1},@var{rat1}),@var{var2},@var{rat2},@dots{}).
+@t{subst}(@t{subst}(@var{r},@var{v1},@var{r1}),@var{v2},@var{r2},@dots{}).
 @item
 Note that repeated substitution is done from left to right successively.
 You may get different result by changing the specification order.
@@ -1085,9 +1089,10 @@ has a degree that is a multiple of @var{d}.
 t^9-15*t^6-87*t^3-125
 0msec
 [11] N=res(t,subst(A,t,x-2*t),A);           
--x^81+1215*x^78-567405*x^75+139519665*x^72-19360343142*x^69+1720634125410*x^66
--88249977024390*x^63-4856095669551930*x^60+1999385245240571421*x^57
--15579689952590251515*x^54+15956967531741971462865*x^51
+-x^81+1215*x^78-567405*x^75+139519665*x^72-19360343142*x^69
++1720634125410*x^66-88249977024390*x^63-4856095669551930*x^60
++1999385245240571421*x^57-15579689952590251515*x^54
++15956967531741971462865*x^51
 ...
 +140395588720353973535526123612661444550659875*x^6
 +10122324287343155430042768923500799484375*x^3
@@ -1105,14 +1110,16 @@ t^9-15*t^6-87*t^3-125
 [[-1,1],[x^9-405*x^6-63423*x^3-2460375,1],
 [x^18-486*x^15+98739*x^12-9316620*x^9+945468531*x^6-12368049246*x^3
 +296607516309,1],[x^18-8667*x^12+19842651*x^6+19683,1],
-[x^18-324*x^15+44469*x^12-1180980*x^9+427455711*x^6+2793253896*x^3+31524548679,1],
+[x^18-324*x^15+44469*x^12-1180980*x^9+427455711*x^6+2793253896*x^3
++31524548679,1],
 [x^18+10773*x^12+2784051*x^6+307546875,1]]
 167.050sec + gc : 1.890sec
 [14] ufctrhint(N,9);
 [[-1,1],[x^9-405*x^6-63423*x^3-2460375,1],
 [x^18-486*x^15+98739*x^12-9316620*x^9+945468531*x^6-12368049246*x^3
 +296607516309,1],[x^18-8667*x^12+19842651*x^6+19683,1],
-[x^18-324*x^15+44469*x^12-1180980*x^9+427455711*x^6+2793253896*x^3+31524548679,1],
+[x^18-324*x^15+44469*x^12-1180980*x^9+427455711*x^6+2793253896*x^3
++31524548679,1],
 [x^18+10773*x^12+2784051*x^6+307546875,1]]
 119.340sec + gc : 1.300sec
 @end example
@@ -1130,8 +1137,8 @@ t^9-15*t^6-87*t^3-125
 
 @table @t
 @item modfctr(@var{poly},@var{mod})
-\JP :: 有限体上での 1 変数多項式の因数分解
-\EG :: Univariate factorizer over small finite fields
+\JP :: 有限体上での多項式の因数分解
+\EG :: Factorizer over small finite fields
 @end table
 
 @table @var
@@ -1139,8 +1146,8 @@ t^9-15*t^6-87*t^3-125
 \JP リスト
 \EG list
 @item poly
-\JP 整数係数の 1 変数多項式
-\EG univariate polynomial with integer coefficients
+\JP 整数係数の多項式
+\EG Polynomial with integer coefficients
 @item mod
 \JP 自然数
 \EG non-negative integer
@@ -1149,7 +1156,7 @@ t^9-15*t^6-87*t^3-125
 @itemize @bullet
 \BJP
 @item
-2^31 未満の自然数 @var{mod} を標数とする素体上で一変数多項式
+2^29 未満の自然数 @var{mod} を標数とする素体上で多項式
 @var{poly} を既約因子に分解する. 
 @item
 結果は [[@b{数係数},1],[@b{因子},@b{重複度}],...] なるリスト. 
@@ -1161,9 +1168,9 @@ t^9-15*t^6-87*t^3-125
 \E
 \BEG
 @item
-This function factorizes a univarate polynomial @var{poly} over
+This function factorizes a polynomial @var{poly} over
 the finite prime field of characteristic @var{mod}, where
-@var{mod} must be smaller than 2^31.
+@var{mod} must be smaller than 2^29.
 @item
 The result is represented by a list, whose elements are a pair
 represented as
@@ -1183,6 +1190,8 @@ To factorize polynomials over large finite fields, use
 [[1,1],[x+1513477736,1],[x+2055628767,1],[x+91854880,1],
 [x+634005911,1],[x+1513477735,1],[x+634005912,1],
 [x^4+1759639395*x^2+2045307031,1]]
+[1] modfctr(2*x^6+(y^2+z*y)*x^4+2*z*y^3*x^2+(2*z^2*y^2+z^3*y)*x+z^4,3);
+[[2,1],[2*x^3+z*y*x+z^2,1],[2*x^3+y^2*x+2*z^2,1]]
 @end example
 
 @table @t

@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.10 2002/09/03 01:50:59 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.11 2003/04/19 15:44:58 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -781,16 +781,16 @@ as its return value.
 
 @example
 [0] shell("ls");
-alg             da              katsura         ralg            suit
-algt            defs.h          kimura          ratint          test
-alpi            edet            kimura3         robot           texput.log
-asir.o          fee             mfee            sasa            wang
-asir_symtab     gr              mksym           shira           wang_data
-base            gr.h            mp              snf1            wt
-bgk             help            msubst          solve
-chou            hom             p               sp
-const           ifplot          proot           strum
-cyclic          is              r               sugar
+alg           da            katsura       ralg          suit
+algt          defs.h        kimura        ratint        test
+alpi          edet          kimura3       robot         texput.log
+asir.o        fee           mfee          sasa          wang
+asir_symtab   gr            mksym         shira         wang_data
+base          gr.h          mp            snf1          wt
+bgk           help          msubst        solve
+chou          hom           p             sp
+const         ifplot        proot         strum
+cyclic        is            r             sugar
 0
 [1] 
 @end example
@@ -1054,7 +1054,8 @@ by using @var{options} (@pxref{option}).
 The value of a specified option is retrieved by @code{getopt}.
 @item
 If @code{getopt()} is called with no argument, then it returns a list
-@code{[[key1,value1],[key2,value2],...]}.  In the list, each @code{key}
+@code{[[key1,value1],} @code{[key2,value2],@dots{}]}.
+In the list, each @code{key}
 is an option which was specified when the function executing @code{getopt}
 was invoked, and @code{value} is the value of the option.
 @item

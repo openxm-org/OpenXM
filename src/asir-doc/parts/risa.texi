@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.9 2000/08/23 04:29:12 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.10 2001/03/16 05:18:05 noro Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -78,13 +78,13 @@ language interface of @b{Risa}.
 @*
 \BJP
 @b{Risa} では, メモリ管理部として, @code{[Boehm,Weiser]} によるフリー
-ソフトウェア (@code{gc-5.0alpha2}) を用いている. これはガーベジコレクション 
+ソフトウェア (@code{gc-6.1alpha5}) を用いている. これはガーベジコレクション 
 (以下 GC と呼ぶ) を自動的に行うメモリ割り当て機構を持ち, @b{Risa} の各
 部分はすべてこれにより必要なメモリを得ている.
 \E
 \BEG
 @b{Risa} employs, as its memory management component (the memory
-manager), a free software distributed by Boehm (@code{gc-5.0alpha2}).
+manager), a free software distributed by Boehm (@code{gc-6.1alpha5}).
 It is proposed by @code{[Boehm,Weiser]}, and developed by Boehm and
 his colleagues.
 The memory manager has a memory allocator which automatically
@@ -219,7 +219,7 @@ to the following address.
 \E
 
 @example
-risa-admin@@sec.flab.fujitsu.co.jp
+noro@@math.kobe-u.ac.jp
 @end example
 
 @noindent
@@ -314,79 +314,125 @@ Copyright (C) FUJITSU LABORATORIES LIMITED.
 @subsection UNIX source code version
 
 \BEG
-First of all you have to install PARI library. The following is
-a sample of installation of PARI on FreeBSD.
+First of all you have to determine the install directory.
+In the install directory, the following subdirectories are put:
+\E
+
+\BJP
+まず, インストール先のディレクトリを決める必要がある. 
+ここには, 以下のサブディレクトリが置かれる. 
+\E
+
+@itemize @bullet
+@item bin
+
+\EG executables of PARI and Asir
+\JP PARI および Asir の実行可能ファイル
+
+@item lib
+
+\EG library files of PARI and Asir
+\JP PARI および Asir のライブラリ
+@item include
+
+\EG header files of PARI
+\JP PARI のヘッダファイル
+@end itemize
+
+\BEG
+These subdirectories are created automatically if they does not exist.
+If you can be a root, it is recommended to set the install directory
+to @samp{/usr/local}.  In the following the directory is denoted by TARGETDIR.
 \E
 \BJP
-まず PARI ライブラリを install する必要がある. 以下は FreeBSD 上での
-PARI の installation の例である. 
+これらのサブディレクトリは無ければ自動的に作られる. 
+root 権限がある場合には, @samp{/usr/local} にインストールすることを
+お勧めする. 以下, このディレクトリを TARGETDIR と書く. 
+\E
+
+\BEG
+Then, install PARI library. After getting @samp{pari.tgz},
+unpack and install it as follows:
+\E
+\BJP
+まず PARI ライブラリをインストールする必要がある. 
+@samp{pari.tgz} を入手後, 適当なディレクトリで展開, インストールする. 
 \E
 
 @example
-% su
-# gzip -dc pari-2.0.17.beta.tgz | tar xf -
-# cd pari-2.0.17.beta
-# ./Configure
+% gzip -dc pari.tgz | tar xvf -
+% cd pari
+% ./Configure --prefix=TARGETDIR
+% make all
+% su 
 # make install
 # make install-lib-sta
 @end example
 
 \BJP
-@samp{asir2000-src.tgz} を入手後, 適当なディレクトリ
-において, @code{gzip} で展開し, 以下の手順で install する. 
+make 中にエラーで止まったら, 以下を実行する.
 \E
+
 \BEG
-After getting @samp{asir2000-src.tgz}, unpack it by @code{gzip}
+While executing 'make install', the procedure may stop due to
+some error. Then try the following:
+\E
+
+@example
+% cd Oxxx
+% make lib-sta
+% su
+# make install-lib-sta
+# make install-include
+# exit
+%
+@end example
+
+\BEG
+In the above example, xxx denotes the name of the target operating system.
+Although GP is not built, the library necessary for building asir2000
+will be generated.
+
+After getting @samp{asir2000.tgz}, unpack it
 and install necessary files as follows. 
+\E
+
+\BJP
+上の例で, xxx は現在ターゲットとなっている OS の名前を示す. 
+GP はインストールされないが, asir2000 の作成に必要なファイルはインストール
+される. 
+
+@samp{asir2000.tgz} を入手後, 適当なディレクトリで
+で展開し, 以下の手順でインストールする. 
 \E
 
 @example
 % gzip -dc asir.tgz | tar xf - 
 % cd asir2000
-% ./configure -oxhome /usr/local -pari -plot
-% xmkmf -a
+% ./configure --prefix=TARGETDIR --with-pari --enable-plot
 % make
 % su
 # make install
 # make install-lib
 # make install-doc
+# exit
 @end example
-
-\BJP
-上の例で, @samp{/usr/local} はファイルが install されるディレクトリを
-表す. 即ち, バイナリファイル @samp{asir} は @samp{/usr/local/bin} 
-に install され, ライブラリおよび文書ファイルは @samp{/usr/local/lib}
-に install される. @code{-oxhome} の引数として指定されるディレクトリ
-は, PARI の install 先もそこであることを意味する. もし @b{Asir} が
-install されるディレクトリを変更する場合, @samp{include/Risa.tmpl}
-の, 変数 @code{PARIINC} および @code{PARILIB} の値を適宜変更する
-必要がある. 
-\E
-\BEG
-In the above example, @samp{/usr/local} indicates the destination of the
-installation. That is, the binary file @samp{asir} is installed in
-@samp{/usr/local/bin} and the library and documentation files are
-installed in @samp{/usr/local/lib}. The directory name specified as an
-argument of @code{-oxhome} also indicates that PARI files are installed
-in that directory.  If you change the destination directory, you have to
-modify the values of @code{PARIINC} and @code{PARILIB} in
-@samp{include/Risa.tmpl} appropriately.
-\E
 
 @node Windows version,,, Installation
 @subsection Windows version
 
 @noindent
 \BJP
-必要なファイルは @samp{asirwin.tgz} である. 他に, @samp{gzip.exe},
-@samp{tar.exe} が必要だが, asirwin.tgz と同じディレクトリに用意して
-ある. これら 3 つのファイルを同一ディレクトリにおき, DOS プロンプト
+必要なファイルは @samp{asirwin-ja.tgz} である. 他に, @samp{gzip.exe},
+@samp{tar.exe} が必要だが, @samp{asirwin-ja.tgz} と同じディレクトリに用意して
+ある. これら 3 つのファイルを同一ディレクトリにおき, コマンドプロンプト
+(DOS プロンプト)
 から
 \E
 \BEG
-The necessary file is @samp{asirwin.tgz}. To unpack it @samp{gzip.exe}
+The necessary file is @samp{asirwin-en.tgz}. To unpack it @samp{gzip.exe}
 and @samp{tar.exe} are necessary. They are in the same
-directory as @samp{asirwin.tgz} on the ftp server.
+directory as @samp{asirwin-en.tgz} on the ftp server.
 Putting them in the same directory, execute the following:
 \E
 
@@ -398,29 +444,35 @@ Putting them in the same directory, execute the following:
 @noindent
 \BJP
 を実行すれば, @samp{Asir} というディレクトリ (Asir ルートディレクトリ) 
-ができる. 990831 版では, GUI と本体が分離され, またデバッグウィンドウも
-別プロセスとして GUI が呼び出されるため, Asir ルートディレクトリが正しく
-登録されていることが必要である.  Asir ルートディレクトリのサブディレクト
-リ @samp{bin} に @samp{asirgui.exe} (GUI), @samp{engine.exe} (本体) が
-置かれている. @samp{asirgui.exe} の初回の立ち上げは, エクスプローラから行
-う. これにより
+ができる. 
+@comment 990831 版では, GUI と本体が分離され, またデバッグウィンドウも
+@comment 別プロセスとして GUI が呼び出されるため, Asir ルートディレクトリが正しく
+@comment 登録されていることが必要である.  
+Asir ルートディレクトリのサブディレクト
+@samp{bin} に @samp{asirgui.exe} (GUI), @samp{engine.exe} (本体) が
+置かれている. 
+@samp{asirgui.exe} をダブルクリックすれば Asir が立ち上がる. 
+@comment @samp{asirgui.exe} の初回の立ち上げは, エクスプローラから行
+@comment う. これにより
 \E
 
 \BEG
 Then a directory @samp{Asir} (@b{Asir root directory}) is created,
-which has subdirectories named @samp{bin} and @samp{lib}. To set up it,
-invoke @samp{bin\asirgui.exe} from Explorer and
-click @code{OK}.  Then the name of @b{Asir root directory} is set to the
-following registries.
+which has subdirectories named @samp{bin} and @samp{lib}. 
+Asir can be invoked by double-clicking @samp{asirgui.exe}.
+@comment To set up it,
+@comment invoke @samp{bin\asirgui.exe} from Explorer and
+@comment click @code{OK}.  Then the name of @b{Asir root directory} is set to the
+@comment following registries.
 \E
 
-@example
-\JP HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
-\EG HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
-@end example
+@comment @example
+@comment \JP HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
+@comment \EG HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
+@comment @end example
 
-@noindent
-\JP というレジストリに Asir ルートディレクトリが正しく登録される. 
+@comment @noindent
+@comment \JP というレジストリに Asir ルートディレクトリが正しく登録される. 
 
 \BJP
 @node コマンドラインオプション,,, Risa/Asir
