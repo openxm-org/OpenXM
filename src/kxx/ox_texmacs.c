@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.5 2004/03/01 09:37:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.6 2004/03/01 12:55:03 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -19,7 +19,7 @@
 /*
 #define DEBUG 
 */
-#define DEBUG2
+/* #define DEBUG2 */
 
 #ifdef DEBUG
 #define DATA_BEGIN_V  "<S type=verbatim>"     /* "\002verbatim:" */
@@ -52,6 +52,7 @@ int TM_Engine  = ASIR ;
 int TM_asirStarted = 0;
 int TM_sm1Started  = 0;
 int TM_k0Started  = 0;
+int TM_do_not_print = 0;
 
 void ctrlC();
 struct object KpoString(char *s);
@@ -76,7 +77,17 @@ main() {
   struct object ob;
   int irt=0;
   int vmode=1;
+  char *openxm_home;
+  char *asir_config;
 
+  openxm_home = (char *) getenv("OpenXM_HOME");
+  asir_config = (char *) getenv("ASIR_CONFIG");
+  if (openxm_home == NULL || asir_config == NULL) {
+	printv("The environmental variables OpenXM_HOME/ASIR_CONFIG are not set.\nStart the texmacs with openxm texmacs or ox_texmacs by openxm ox_texmacs\nBye...");
+	exit(10);
+  }
+
+  
 #ifdef DEBUG2
   Dfp = fopen("/tmp/debug-texmacs.txt","w");
 #endif
@@ -116,6 +127,8 @@ main() {
 	  printf("%s",DATA_END); fflush(stdout);
 	}
 	irt = 0;
+
+    /* Reading the input. */
 	if (TM_Engine == K0) {
 	  s=readString(stdin, " ", " "); /* see test data */
 	}else if (TM_Engine == SM1) {
@@ -126,13 +139,14 @@ main() {
 
 	if (s == NULL) { irt = 1; continue; }
 	if (!irt) printf("%s",DATA_BEGIN_V);
+    /* Evaluate the input on the engine */
     KSexecuteString(" ox.engine ");
-    ob = KpoString(s);
+    ob = KpoString(s);  
 	KSpush(ob);
 	KSexecuteString(" oxsubmit ");
 	
     /* Get the result in string. */
-	if (Format == 1) {
+	if (Format == 1 && (! TM_do_not_print)) {
 	  /* translate to latex form */
 	  KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
 	  ob = KSpop();
@@ -160,10 +174,15 @@ main() {
 		if (vmode) printv(r); else printl(r);
 	  } else printv("Output is too large.\n");
 	}else{
-	  KSexecuteString(" ox.engine oxpopstring ");
-	  r = KSpopString();
-	  if (strlen(r) < OutputLimit_for_TeXmacs) printv(r);
-	  else printv("Output is too large.\n");
+	  if (!TM_do_not_print) {
+		KSexecuteString(" ox.engine oxpopstring ");
+		r = KSpopString();
+		if (strlen(r) < OutputLimit_for_TeXmacs) printv(r);
+		else printv("Output is too large.\n");
+	  }else{
+		KSexecuteString(" ox.engine 1 oxpops "); /* Discard the result. */
+		printv("");
+	  }
 	}
   }
 }
@@ -222,6 +241,8 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
 	s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
+  if (s[n-1] == '$' && TM_Engine == ASIR) TM_do_not_print = 1;
+  else TM_do_not_print = 0;
   /* Check the escape sequence */
   if (strcmp(&(s[start]),"!quit;") == 0) {
 	printv("Terminated the process ox_texmacs.\n"); 
@@ -286,7 +307,7 @@ static void printp(char *s) {
 static void printCopyright(char *s) {
   printf("%s",DATA_BEGIN_V);
   printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
-  printf(" under the BSD licence.  !asir, !sm1, !k0.");
+  printf(" under the BSD licence.  !asir; !sm1; !k0; !verbatim;");
   printf("%s",s);
   printf("%s",DATA_END);
   fflush(NULL);
@@ -310,11 +331,16 @@ static int startEngine(int type,char *msg) {
 	KSexecuteString(" /ox.engine oxasir.ccc def ");
 	TM_asirStarted = 1;
 	printf("%s\n",msg);
-	KSexecuteString(" oxasir.ccc (copyright();) oxsubmit oxasir.ccc oxpopstring ");
+	KSexecuteString(" oxasir.ccc (copyright()+asir_contrib_copyright();) oxsubmit oxasir.ccc oxpopstring ");
 	ob = KSpop();
 	if (ob.tag == Sdollar) {
 	  printf("%s",ob.lc.str);
 	}
+    /* Initialize the setting of asir. */
+    KSexecuteString(" oxasir.ccc (if(1) {  Xm_server_mode = 1; Xm_helpdir = \"help-eg\";  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
+    KSexecuteString(" oxasir.ccc (if(1) {  ctrl(\"message\",0);  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
+    /* bug; if ctrl is written with Xm_helpdir = ... without oxpopcmo, then it does
+       not work. */
   }
   printf("%s",DATA_END);
   fflush(NULL);
