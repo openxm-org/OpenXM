@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.6 2000/01/16 22:01:00 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.7 2000/01/17 06:09:32 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -97,9 +97,11 @@ install-help: help
 install-document : all clean-document
 	-ptex cman.texi
 	-ptex cman.texi
+	-cp cman.dvi $(OpenXM_doc)/asir-contrib/cman-jp.dvi
 	-$(DVIPS) cman >$(OpenXM_doc)/asir-contrib/cman-jp.ps
 	-tex cman-eg.texi
 	-tex cman-eg.texi
+	-cp cman-eg.dvi $(OpenXM_doc)/asir-contrib/cman-eg.dvi
 	-$(DVIPS) cman-eg >$(OpenXM_doc)/asir-contrib/cman-eg.ps
 
 
