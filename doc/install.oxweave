@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.10 2000/01/20 09:06:08 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.11 2000/01/20 12:55:32 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -296,27 +296,6 @@ xm Version 20000116. ox_help(0); ox_help("keyword"); for help message
 [270] 
 
 */
-/*&jp
-
----------------    例 : asir より tigers を呼び出す.
-asir
-load("xm");
-tigers_start();
-B = tigers(0,[[1,1,1,1],[0,1,2,3]]);
-length(B) は 8 です.  これは, 行列 A = [[1,1,1,1],[0,1,2,3]]
-に付随した, toric ideal I_A の Grobner fan が 8 つの maximal
-dimensional fan を持つことを意味します.
-A[i] は i 番目の GB (グレブナ基底)です.
-Binomial polynomial x^a-x^b を [[a_1, ..., a_n],[b_1, ..., b_n]] なる形式で
-表示します.
-たとえば A[0];
-[[[1,0,1,0],[0,2,0,0]],[[1,0,0,1],[0,1,1,0]],[[0,1,0,1],[0,0,2,0]]]
-ですから,
-x1 x3 - x2^2, x1 x4 - x2 x3, x2 x4 - x3^2
-が GB であり, initial ideal は
-x1 x3 , x1 x4 , x2 x4 
-で生成されています.
-*/
 
 /*&C
 --------------------------------------  call ox_asir from sm1
@@ -381,10 +360,22 @@ See OpenXM/Copyright.
 /*&jp なお, OpenXM/src/ox_math のコンパイルおよび利用には Mathematica が, 
 OpenXM/src/OpenMath のコンパイルおよび利用には
 には, jdk (java 環境) が必要です.
+
+Documents を生成するには,  tex, ptex (ascii 日本語 tex), dvips, texinfo, 
+texi2html, nkf, 
+が必要です. 詳しくは Makefiles を見て下さい.
+Document は, binary distribution の OpenXM/doc, OpenXM/lib 
+より得るのが簡単です.
 */
 /*&eg In order to use and compile OpenXM/src/ox_math, you need Mathematica. 
 In order to use and compile OpenXM/src/OpenMath, 
 you need jdk (java environment).
+
+In order to generate the full documentation including Japanese documents,
+you need tex, ptex (ASCII Inc. Japanese tex), dvips, texinfo, texi2html,
+nkf. See each Makefile.
+The generated documents are in OpenXM/doc and OpenXM/lib 
+in the binary distribution.
 */
 /*&C
 
