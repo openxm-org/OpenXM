@@ -1,1146 +1,142 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.1 2004/02/26 10:48:06 noro Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
-Taka_print_dp_vlist_vname="x"$
-Taka_print_warning=0$
-Taka_print_tex_table=[]$
-
-def taka_print_dp_vlist(N) {
-  extern Taka_print_dp_vlist_vname;
-  V = Taka_print_dp_vlist_vname+"_"+rtostr(N);
-  return strtov(V);
-}
-  /* Used in taka_tex_form_dpolynomial
-     and taka_dp_print  */
-
-extern Taka_text_buffer$
-
-def taka_wbuf(S)
-{
-	write_to_textbuffer(Taka_text_buffer,S);
-}
+Noro_print_dp_vlist_vname="x"$
+Noro_print_warning=0$
+Noro_print_tex_table=[]$
 
 def taka_tex_form_top(S,Argv) {
-  extern Taka_print_tex_table;
-  Taka_print_tex_table = [];
+  extern Noro_print_tex_table;
+  Noro_print_tex_table = [];
   for (I=0; I<length(Argv); I++) {
     if (Argv[I][0] == "table") {
-      Taka_print_tex_table = Argv[I][1];
+      Noro_print_tex_table = Argv[I][1];
     }else{
       error("Unknown option "+rtostr(Argv[I][0])+" in print_tex_form.");
     }
   }
-  Taka_text_buffer = open_textbuffer();
-  taka_tex_form(S);
-  Str = textbuffer_to_string(Taka_text_buffer);
-  close_textbuffer(Taka_text_buffer);
+  Tb = string_to_tb("");
+  noro_tex_form(S,Tb);
+  Str = tb_to_string(Tb);
   return Str;
 }
 
-def taka_tex_form(S) {
+def noro_tex_form(S,Tb) {
   if (type(S) == MATRIX) {
-     taka_tex_form_matrix(S);
+     noro_tex_form_matrix(S,Tb);
   }else if (type(S) == VECTOR) {
-     taka_tex_form_vector(S);
+     noro_tex_form_vector(S,Tb);
   }else if (type(S) == LIST) {
-     taka_tex_form_list(S);
-  }else if (taka_is_fractional(S)) {
-     ( taka_tex_form_frac(S) );
+     noro_tex_form_list(S,Tb);
+  }else if (noro_is_fractional(S)) {
+     ( noro_tex_form_frac(S,Tb) );
   }else if (type(S) == DPOLYNOMIAL) {
-     taka_tex_form_dpolynomial(S);
+     noro_tex_form_polynomial(S,Tb);
   }else if (type(S) == RPOLYNOMIAL) {
-     taka_tex_form_rpolynomial(S);
+     noro_tex_form_polynomial(S,Tb);
   }else if (type(S) == STRUCT) {
-     taka_tex_form_struct(S);
+     noro_tex_form_struct(S,Tb);
   }else if (type(S) == QUOTE) {
-     taka_tex_form_quote(S);
+     noro_tex_form_quote(S,Tb);
   }else {
    /* How to translate sin to \sin?
       Use vtype, get args, ... to print sin. 
       quote("x+2*y");  there is no way to get the left leaves and right leaves
       for now.   eval_quote.
    */
-     taka_wbuf(rtostr(S));
+	 write_to_tb(rtostr(S),Tb);
   }
 }
 
-def taka_tex_form_matrix(A) {
+def noro_tex_form_list(A,Tb) {
+  S = objtoquote(A);
+  quotetotex_tb(S,Tb);
+}
+
+def noro_tex_form_polynomial(S,Tb) {
+  S = objtoquote(S);
+  S = quotetotex_tb(S,Tb);
+}
+
+def noro_tex_form_quote(S,Tb) {
+  quotetotex_tb(S,Tb);
+}
+
+def noro_tex_form_matrix(A,Tb) {
   N = size(A)[0];
   M = size(A)[1];
-  taka_wbuf("\\pmatrix{\n");
+  write_to_tb("\\pmatrix{\n",Tb);
   for (I=0; I<N; I++) {
     for (J=0; J<M; J++) {
-      taka_tex_form(A[I][J]);
-      if (J != M-1) taka_wbuf("& ");
+      noro_tex_form(A[I][J],Tb);
+      if (J != M-1) write_to_tb("& ",Tb);
     }
-    taka_wbuf(" \\cr\n");
+    write_to_tb(" \\cr\n",Tb);
   }
-  taka_wbuf("}\n");
+  write_to_tb("}\n",Tb);
 }
 
-def taka_tex_form_vector(A) {
+def noro_tex_form_vector(A,Tb) {
   N = size(A)[0];
-  taka_wbuf("\\pmatrix{\n");
+  write_to_tb("\\pmatrix{\n",Tb);
   for (I=0; I<N; I++) {
-    taka_tex_form(A[I]);
-    if (I != N-1) taka_wbuf("& ");
+    noro_tex_form(A[I],Tb);
+    if (I != N-1) write_to_tb("& ",Tb);
   }
-  taka_wbuf("\\cr}\n");
+  write_to_tb("\\cr}\n",Tb);
 }
 
-def taka_tex_form_list(A) {
-  N = length(A);
-  taka_wbuf("[");
-  for (I=0; I<N; I++) {
-    taka_tex_form(A[I]);
-    if (I != N-1) taka_wbuf(", ");
-  }
-  taka_wbuf("]");
-}
-
-def taka_is_fractional(A) {
+def noro_is_fractional(A) {
   if (type(A) == RATIONAL) return 1;
   else if (type(A) == NUMBER && dn(A) != 1) return 1;
   else return 0;
 }
 
-def taka_tex_form_frac(A) {
+def noro_tex_form_frac(A,Tb) {
   extern Print_tex_form_fraction_format;
   if (Print_tex_form_fraction_format == "frac") {
-    taka_wbuf("\\frac{");
-    taka_tex_form(nm(A)); taka_wbuf("}{");
-    taka_tex_form(dn(A)); taka_wbuf("}");
+    write_to_tb("\\frac{",Tb);
+    noro_tex_form(nm(A),Tb); write_to_tb("}{",Tb);
+    noro_tex_form(dn(A),Tb); write_to_tb("}",Tb);
   }else if (Print_tex_form_fraction_format == "auto") {
-    N = taka_tex_form(nm(A));
-    D = taka_tex_form(dn(A));
-    if (str_len(N) > 120 || str_len(D) > 120) {
-      taka_wbuf("("); taka_tex_form(nm(A)); taka_wbuf(")/");
-      taka_wbuf("("); taka_tex_form(dn(A)); taka_wbuf(")");
+	Ntb = string_to_tb(""); noro_tex_form(nm(A),Ntb);
+	Dtb = string_to_tb(""); noro_tex_form(dn(A),Dtb);
+    if (str_len(Ntb) > 120 || str_len(Dtb) > 120) {
+      write_to_tb("(",Tb); write_to_tb(Ntb,Tb); write_to_tb(")/",Tb);
+      write_to_tb("(",Tb); write_to_tb(Dtb,Tb); write_to_tb(")",Tb);
     }else {
-      taka_wbuf("\\frac{");
-      taka_tex_form(nm(A)); taka_wbuf("}{");
-      taka_tex_form(dn(A)); taka_wbuf("}");
+      write_to_tb("\\frac{",Tb); write_to_tb(Ntb,Tb);
+	  write_to_tb("}{",Tb); write_to_tb(Dtb,Tb); write_to_tb("}",Tb);
     }
   }else {
-    taka_wbuf("("); taka_tex_form(nm(A)); taka_wbuf(")/");
-    taka_wbuf("("); taka_tex_form(dn(A)); taka_wbuf(")");
+    write_to_tb("(",Tb); noro_tex_form(nm(A),Tb); write_to_tb(")/",Tb);
+    write_to_tb("(",Tb); noro_tex_form(dn(A),Tb); write_to_tb(")",Tb);
   } 
 }
 
-def taka_tex_form_dpolynomial(F) {
-  if (F != 0) {
-    N = size(dp_etov(dp_hm(F)))[0];
-    Vlist = newvect(N);
-    for (I=0; I<N; I++) {
-      Vlist[I] = taka_print_dp_vlist(I);
-    }
-    Vlist = vtol(Vlist);
-    taka_wbuf("");
-  }else{
-    taka_wbuf("0");
-  }
-  C = 0;
-  while (F != 0) {
-     G = dp_hm(F);
-     F = dp_rest(F);
-     if (type(dp_hc(G)) == NUMBER &&
-         dn(dp_hc(G)) == 1) {
-       if (dp_hc(G)>0 && C != 0) {
-         taka_wbuf("+");
-       }
-       if (dp_hc(G) == 1) {
-       }else if (dp_hc(G) == -1) {
-         taka_wbuf("-");
-       }else{
-         taka_tex_form(dp_hc(G));
-       }
-       if (dp_dtop(dp_ht(G),Vlist) != 1) {
-         taka_wbuf(" "); taka_tex_form(dp_dtop(dp_ht(G),Vlist));
-       }
-       if (dp_hc(G) == 1 && dp_dtop(dp_ht(G),Vlist) == 1) {
-         taka_wbuf("1");
-       }
-       if (dp_hc(G) == -1 && dp_dtop(dp_ht(G),Vlist) == 1) {
-         taka_wbuf("1");
-       }
-       if (C == 0) C = 1;
-     }else{
-       if (C != 0) {
-         taka_wbuf("+");
-       }
-       taka_wbuf("("); taka_tex_form(dp_hc(G)); taka_wbuf(")");
-       if (dp_dtop(dp_ht(G),Vlist) != 1) {
-         taka_wbuf(" "); taka_tex_form(dp_dtop(dp_ht(G),Vlist));
-       }
-       if (C == 0) C = 1;
-     }
-  }
-}
-
-def taka_tex_form_rpolynomial(S) {
-  taka_tex_form_quote(quote_to_quote(S));
-}
-
 /* Tentative */
-def taka_tex_form_struct(S) {
+def noro_tex_form_struct(S,Tb) {
   if (struct_type(S) == POLY_FACTORED_POLYNOMIAL || 
       struct_type(S) == POLY_FACTORED_RATIONAL) {
-      taka_poly_tex_form_poly_factored_polynomial(S);
+      Str = noro_poly_tex_form_poly_factored_polynomial(S);
+	  write_to_tb(Str,Tb);
   }
   else if (struct_type(S) == POLY_RING) {
-      taka_poly_tex_form_poly_ring(S);
+      Str = noro_poly_tex_form_poly_ring(S);
+	  write_to_tb(Str,Tb);
   }
   else if (struct_type(S) == POLY_POLYNOMIAL) {
-      taka_poly_tex_form_poly_polynomial(S);
+      Str = noro_poly_tex_form_poly_polynomial(S);
+	  write_to_tb(Str,Tb);
   }
   else if (struct_type(S) == POLY_IDEAL) {
-      taka_poly_tex_form_poly_ideal(S);
+      Str = noro_poly_tex_form_poly_ideal(S);
+	  write_to_tb(Str,Tb);
   }else {
      print("Unknown struct object for tex_form. Return ???");
   }
 }
 
-def taka_tex_form_quote(S) {
-  S = quotetolist(S);
-  taka_tex_form_quote_list(S);
-}
-
-def taka_tex_form_quote_list(S) {
-  if (type(S) != LIST) return taka_tex_form_node_name(S);
-  taka_wbuf(" ");
-  if (S[0] == "u_op") {
-     taka_tex_form_quote_list_u_op(cdr(S));
-  }else if (S[0] == "b_op") {
-     taka_tex_form_quote_list_b_op(cdr(S));
-  }else if (S[0] == "t_op") {
-     taka_tex_form_quote_list_t_op(cdr(S));
-  }else if (S[0] == "list") {
-     taka_tex_form_quote_list_list(cdr(S));
-  }else if (S[0] == "exponent_vector") {
-     taka_tex_form_quote_list_exponent_vector(cdr(S));
-  }else if (S[0] == "internal") {
-     taka_tex_form_quote_list_internal(cdr(S));
-  }else if (S[0] == "variable") {
-     taka_tex_form_quote_list_variable(cdr(S));
-  }else if (S[0] == "function") {
-     taka_tex_form_quote_list_function(cdr(S));
-  }else {
-     error("Unknown quote format.");
-  }
-}
-
-def taka_tex_form_quote_list_u_op(S) {
-  if (S[0] == "()") {
-    taka_wbuf("(");
-    taka_tex_form_quote_list(S[1]);
-    taka_wbuf(") ");
-  }else
-  if (S[0] == "!") {
-    taka_wbuf("\neg (");
-    taka_tex_form_quote_list(S[1]);
-    taka_wbuf(") ");
-  }else
-  if (S[0] == "@!") {
-    taka_wbuf("\neg (");
-    taka_tex_form_quote_list(S[1]);
-    taka_wbuf(") ");
-  }else
-  if (S[0] == "-") {
-    taka_wbuf("-");
-    taka_tex_form_quote_list(S[1]);
-  }else{
-    error("Not implemented");
-  }
-}
-
-def taka_is_internal_zero(S) {
-  if (type(S) != LIST) return 0;
-  if (length(S) != 2) return 0;
-  if (S[0] == "internal" && S[1] == 0) return 1;
-  else return 0;
-}
-def taka_tex_form_quote_list_b_op(S) {
-   if (S[0] == "+") {
-    T = cdr(S);
-    N = length(T);
-    for (I=0; I<N; I++) {
-      taka_tex_form_quote_list(T[I]);
-      if (I != N-1) taka_wbuf(S[0]);
-    }
-  }else
-  if (S[0] == "-") {
-    T = cdr(S);
-    N = length(T);
-    for (I=0; I<N; I++) {
-      if (I == 0 && taka_is_internal_zero(T[I])) {
-         /* Do not print 0. */
-      } else {
-         taka_tex_form_quote_list(T[I]);
-      }
-      if (I != N-1) taka_wbuf(S[0]);
-    }
-  } else
-  if (S[0] == "*") {
-    T = cdr(S);
-    N = length(T);
-    for (I=0; I<N; I++) {
-      taka_tex_form_quote_list(T[I]);
-      taka_wbuf(" ");
-    }
-  } else
-  if (S[0] == "/") {
-    T = cdr(S);
-    taka_wbuf("\\frac{");
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf("} {");
-    taka_tex_form_quote_list(T[1]);
-    taka_wbuf("} ");
-  } else
-  if (S[0] == "^") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf("^{");
-    taka_tex_form_quote_list(T[1]);
-    taka_wbuf("} ");
-  } else
-  if (S[0] == "%") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" {\\rm mod}\\, ");
-    taka_tex_form_quote_list(T[1]);
-  } else
-  if (S[0] == "==" || S[0] == "@==") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" = ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == "&&") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" {\\rm \\ and\\ } ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == "||") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" {\\rm \\ or\\ } ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == "<" || S[0] == "@<") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" \\lt ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == ">" || S[0] == "@>") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" \\gt ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == "<=" || S[0] == "@<=") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" \\leq ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == ">=" || S[0] == "@>=") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" \\geq ");
-    taka_tex_form_quote_list(T[1]);
-  }else
-  if (S[0] == "!=" || S[0] == "@!=") {
-    T = cdr(S);
-    taka_tex_form_quote_list(T[0]);
-    taka_wbuf(" \\not= ");
-    taka_tex_form_quote_list(T[1]);
-  }else {
-    error("Not implemented.");
-  }
-}
-
-def taka_tex_form_list_t_op(S) {
-  NOT_YET ;
-}
-
-/*
-def taka_tex_form_quote_list_exponent_vector(S) {
-    T = S;
-    taka_wbuf(" [ ");
-    N = length(T);
-    for (I=0; I<N; I++) {
-      taka_tex_form_quote_list(T[I]);
-      if (I != N-1) {
-        taka_wbuf(", ");
-      }
-    }
-    taka_wbuf("]");
-}
-*/
-
-def taka_tex_form_quote_list_list(S) {
-    T = S;
-    taka_wbuf(" [ ");
-    N = length(T);
-    for (I=0; I<N; I++) {
-      taka_tex_form_quote_list(T[I]);
-      if (I != N-1) {
-        taka_wbuf(", ");
-      }
-    }
-    taka_wbuf("]");
-}
-
-def taka_tex_form_quote_list_exponent_vector(S) {
-    taka_wbuf("(");
-    T = cdr(S);
-    N = length(T);
-    for (I=0; I<N; I++) {
-      taka_tex_form_quote_list(T[I]);
-      if (I != N-1) {
-        taka_wbuf(", ");
-      }
-    }
-    taka_wbuf(")");
-}
-
-def taka_tex_form_quote_list_function(S) {
-    if (S[0] == "exponent_vector") {
-      taka_tex_form_quote_list_exponent_vector(cdr(S));
-    }
-    if (S[0] == "topology_circle") {
-      print_tex_form_topology_circle(S);
-    }else if (S[0] == "topology_open_segment") {
-      print_tex_form_topology_open_segment(S);
-    }else if (taka_is_infix(S[0])) {
-      /* printing general infix function */
-      taka_wbuf("(");
-      T = cdr(S);
-      N = length(T);
-      for (I=0; I<N; I++) {
-        taka_wbuf("(");
-        taka_tex_form_quote_list(T[I]);
-        taka_wbuf(")");
-        if (I != N-1) {
-          taka_tex_form_node_name(S[0]);
-        }
-      }
-      taka_wbuf(")");
-    }else {
-      /* printing general prefix functions. */
-      taka_tex_form_node_name(S[0]);
-      taka_wbuf("(");
-      T = cdr(S);
-      N = length(T);
-      for (I=0; I<N; I++) {
-        taka_tex_form_quote_list(T[I]);
-        if (I != N-1) {
-          taka_wbuf(", ");
-        }
-      }
-      taka_wbuf(")");
-   }
-}
-
-def taka_tex_form_quote_list_internal(S) {
-  X = car(S);
-  if (type(X) == RPOLYNOMIAL) {
-    taka_tex_symbol(rtostr(X));
-  }
-  taka_wbuf(rtostr(X));
-}
-def taka_tex_form_quote_list_variable(S) {
-  X = car(S);
-  if (type(X) == STRING) taka_wbuf(X);
-  else taka_wbuf(rtostr(X));
-}
-
-def taka_tex_form_node_name(S) {
-  if (type(S) != STRING) taka_wbuf(rtostr(S));
-  /* Table of Mathematical Symbols. */
-  else taka_tex_symbol(S);
-}
-
-def taka_is_prefix(S) {
-   return 1;
-}
-def taka_is_infix(S) {
-  if (S == "algebra_tensor") {
-    return 1;
-  }
-  return 0;
-}
-
-def taka_tex_symbol(S) {
-  R = taka_is_indexed(S);
-  if (R[0]) {
-    taka_tex_symbol_(R[1]); taka_wbuf("_{"); taka_wbuf(R[2]); taka_wbuf("}");
-  } else
-  	taka_tex_symbol_(R[1]);
-}
-
-def taka_tex_symbol_(S) {
-  extern Tex_symbol_table;
-  extern Tex_symbol_table;
-  extern Taka_print_tex_table;
-   
-  N = length(Taka_print_tex_table);
-  /* Linear search for now*/
-  for (I=0; I<N; I++) {
-    if (S == Taka_print_tex_table[I][0]) {
-       taka_wbuf(Taka_print_tex_table[I][1]); return;
-    }
-  }
-
-  N = size(Tex_symbol_table)[0];
-  /* Linear search for now*/
-  for (I=0; I<N; I++) {
-    if (S == Tex_symbol_table[I][0]) {
-       taka_wbuf(Tex_symbol_table[I][1]); return;
-    }
-  }
-}
-
-/*  test data
-   print_tex_form(quote(1+2));
-   print_tex_form(quote(-1));
-   print_tex_form(quote(x+1/2*y));
-   print_tex_form(quote_to_quote(-(x-1/3*y)^3));
-   print_tex_form(quote( (sin(x)+y)/(x-y) ));
-   print_tex_form(quote([[1,2],[x-10,1/y]]));
-   print_tex_form(quote(newmat(2,2,[[1,2],[1/x,exp(x)]])));
- 
-   print_tex_form(quote(algebra_tensor(x,y)));
-*/
-
-/* alpha123 --> [1,"alpha",123] 
-   alpha    --> [0,"alpha"]
-*/
-def taka_is_indexed(S) {
-  extern Print_tex_form_no_automatic_subscript;
-  if (Print_tex_form_no_automatic_subscript) {
-    return([0,S]);
-  }
-  T = sub_str(S,0,0);
-  T = strtoascii(T)[0];
-  if (T >= 48 && T <= 57) return [0,S];
-  T = strtoascii(S);
-  N = length(T);
-  P = 0; Q = 1;
-  for (I=1 ; I<N; I++) {
-    if (T[I] >= 48 && T[I] <=57) {
-       if (P == 0) P = I; 
-    }else{
-       if (P) return [0,S];
-    }
-    if (T[I] == 95)  Q = 0; /* _ : no translate */
-  }
-  if (P && Q) {
-    return [1,sub_str(S,0,P-1),sub_str(S,P,N-1)];
-  }else{
-    return [0,S];
-  }
-}
-
-
-def taka_output(S) {
-  shell("rm t.tex ");
-  output("t.tex");
-  print(S);
-  output();
-}
-
-def taka_print(S) {
-  if (type(S) == DPOLYNOMIAL) {
-    return taka_dp_print(S);
-  }else{
-    return rtostr(S);
-  }
-}
-def taka_dp_print(F) {
-  if (F != 0) {
-    N = size(dp_etov(dp_hm(F)))[0];
-    Vlist = newvect(N);
-    for (I=0; I<N; I++) {
-      Vlist[I] = taka_print_dp_vlist(I);
-    }
-    Vlist = vtol(Vlist);
-    Ans="distributed_polynomial(\"   ";
-  }else{
-    Ans="0";
-  }
-  C = 0;
-  while (F != 0) {
-     G = dp_hm(F);
-     F = dp_rest(F);
-     if (dp_hc(G)>0 && C != 0) {
-       Ans += "+";
-     }
-     Ans += rtostr(dp_dtop(G,Vlist));
-     if (C == 0) C = 1;
-  }
-  Ans += "   \")";
-  return Ans;
-}
-
-def taka_dvi_form(S,Opt) {
-  S = taka_tex_form_top(S,Opt);
-  File0 = ox_work_dir()+"/"+ox_new_file_name();
-  File = File0+".tex";
-  shell("rm -f "+File);
-  output(File);
-  S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\begin{document}\n"+
-      "$"+
-      S + "$ \n \\end{document}\n";
-  print(S);
-  output();
-  shell(" (cd "+ox_work_dir()+" ; latex "+File0+" >>/dev/null) ");
-  return [File0+".dvi",File0,File,ox_work_dir()];
-         /* (0) .dvi, (1) no extension, (2) .tex, (3) workding dir */
-}
-def taka_xdvi_form(S) {
-  F = taka_dvi_form(S,[]);
-  /* Use xdvi for a moment. */
-  shell(" xdvi -s 3 -geometry 800x300 "+F[1]+"  >>/dev/null & ");
-  return F;
-}
-/* test data 
- print_xdvi_form(quote_sort_polynomial((x-sin(x)*y)^3,[x,y],[1,1]));
-*/
-
-
-def taka_ps_form(S,Opt) {
-  F = taka_dvi_form(S,Opt);
-  File0 = F[1];
-  Work_dir = F[3];
-  shell(" (cd "+Work_dir+" ; dvips -f "+File0+" >"+File0+".ps ) ");
-  return [File0+".ps",F[1],F[2],F[3]];
-}
-
-/* memo: pstoimg should be installed from the source code of
-   latex2html on freebsd.  cf. orange:/usr/local/src/latex2*
-*/
-def taka_png_form(S) {
-  F = taka_ps_form(S,[]);
-  File0 = F[1];
-  File = F[0];
-  /* BUG: it does not work for now. We need png, too */
-  shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scale 2 "+File0+".ps ) ");
-  return [File0+".png",F[1],F[2],F[3]];
-}
-
-def taka_gif_form(S,Opt) {
-  F = taka_ps_form(S,Opt);
-  File0 = F[1];
-  Work_dir = F[3];
-  /* 
-  latex2html does not always generate image output for a simple expression.
-  shell(" (cd "+Work_dir+" ; latex2html -tmp /tmp "+File0+" >>/dev/null) ");
-  shell(" (cd "+Work_dir+" ; cp "+File0+"/*.gif "+File0+".gif"+ " ) ");
-  */
-  /* shell(" (cd "+Work_dir+" ; rm -rf "+File0+" ) "); */
-
-  shell(" (cd "+Work_dir+" ; pstoimg -type gif -crop a -scale 2 "+File0+".ps >>/dev/null) ");
-
-  return [File0+".gif",F[1],F[2],F[3]];
-}
-
-def taka_jpeg_form(S) {
-  F = taka_ps_form(S,[]);
-  File0 = F[1];
-  File = F[0];
-  /* BUG: it does not work for now. We need png, too */
-  shell(" (cd "+Work_dir+" ; pstoimg -type jpeg -crop a -scale 2 "+File0+".ps ) ");
-  return [File0+".jpeg",F[1],F[2],F[3]];
-}
-
-def taka_xv_form(S,Argv) {
-  Format = "gif";
-  Input = 0;
-  for (I=0; I<length(Argv); I++) {
-    if (Argv[I][0] == "format") {
-      Format = Argv[I][1];
-    }else if (Argv[I][0] == "input") {
-      Input = Artv[I][1];
-    }else {
-      error("Unknown option "+rtostr(Argv[I][0])+" in print_xv_form.");
-    }
-  } 
-  if (Input != 0) {
-    shell(" xv "+Input+" &");
-    return Input;
-  }
-  if (Format == "gif") {
-    F = taka_gif_form(S,[]);
-  }else if (Format == "png") {
-    F = taka_png_form(S);
-  }else {  
-    error("Unknown format " + rtostr(Format) + " in print_xv_form.");
-  }
-  shell(" xv "+F[1]+"."+Format+" &");
-  return F;
-}
-
-def taka_input_form(S) {
-  A = 0;
-  if (type(S) == QUOTE) {
-    A = quote_input_form(S);
-  }
-  else if (type(S) == STRUCT) {
-    if (struct_type(S) == POLY_FACTORED_POLYNOMIAL) {
-       A = taka_poly_input_form_poly_factored_polynomial(S);
-    }else if (struct_type(S) == POLY_FACTORED_RATIONAL) {
-       A = taka_poly_input_form_poly_factored_rational(S);
-    }else if (struct_type(S) == POLY_RING) {
-       A = taka_poly_input_form_poly_ring(S);
-    }else if (struct_type(S) == POLY_POLYNOMIAL) {
-       A = taka_poly_input_form_poly_polynomial(S);
-    }else if (struct_type(S) == POLY_IDEAL) {
-       A = taka_poly_input_form_poly_ideal(S);
-    }else {
-       taka_print_warning("input_form() for this object has not yet been implemented.");
-       A = rtostr(S);
-    }
-  }else if (type(S) == LIST || type(S) == VECTOR || type(S) == MATRIX) {
-    return rtostr(map(taka_input_form,S));
-  }else {
-    A = rtostr(S);
-  }
-  return A;
-}
-
-def taka_terminal_form(S) {
-  A = 0;
-  if (type(S) == QUOTE) {
-    A = quote_terminal_form(S);
-  }
-  else if (type(S) == STRUCT) {
-    if (struct_type(S) == POLY_FACTORED_POLYNOMIAL) {
-       A = taka_poly_terminal_form_poly_factored_polynomial(S);
-    }else if (struct_type(S) == POLY_FACTORED_RATIONAL) {
-       A = taka_poly_terminal_form_poly_factored_rational(S);
-    }else if (struct_type(S) == POLY_RING) {
-       A = taka_poly_terminal_form_poly_ring(S);
-    }else if (struct_type(S) == POLY_POLYNOMIAL) {
-       A = taka_poly_terminal_form_poly_polynomial(S);
-    }else if (struct_type(S) == POLY_IDEAL) {
-       A = taka_poly_terminal_form_poly_ideal(S);
-    }else{
-       error("terminal_form() for this object has not yet been implemented.");
-    }
-  }
-  else if (type(S) == LIST || type(S) == VECTOR || type(S) == MATRIX) {
-    return rtostr(map(taka_terminal_form,S));
-  }
-  else{
-    A = rtostr(S);
-  }
-  return A;
-}
-
-/* List of printing functions 
-   cf. def taka_tex_form_quote_list_function(S) 
-*/
-def print_tex_form_topology_open_segment(S) {
-    T = cdr(S);
-    A = " [ ";
-    N = length(T);
-    for (I=0; I<N; I++) {
-      A += taka_tex_form_quote_list(T[I]);
-      if (I != N-1) {
-        A += ", ";
-      }
-    }
-    A += "]";
-    return A;
-}
-def print_tex_form_topology_circle(S) {
-    T = cdr(S);
-    A = "S_{";
-    A += taka_tex_form_quote_list(T[1]);
-    A += "}(";
-    A += taka_tex_form_quote_list(T[0]);
-    A += ")";
-    N = length(T);
-    if (N>=3) A+= "(";
-    for (I=2; I<N; I++) {
-      A += taka_tex_form_quote_list(T[I]);
-      if (I != N-1) {
-        A += ",";
-      }
-    }
-    if (N>=3) A += ")";
-    return A;
-}
-
-/* XML/OpenMath form */
-def taka_om_xml_form(R) {
-  if (type(R) != DPOLYNOMIAL) {
-    R = quote_new(R);
-    return taka_xml_basic_form_quote(R);
-  }else{
-    return om_xml(R);
-  }
-}
-
-def taka_xml_basic_form_quote(S) {
-  if (type(S) == LIST) {
-    A = taka_oma_basic("list");
-    SS = map(taka_xml_basic_form_quote,S);
-    for (I=0; I<length(SS); I++) {
-      A += SS[I];
-    }
-    A += taka_end_oma();
-    return A;
-  }
-  S = quotetolist(S);
-  return taka_xml_basic_form_quote_list(S);
-}
-
-def taka_xml_basic_form_quote_list(S) {
-  if (type(S) != LIST) return taka_xml_basic_form_node_name(S);
-  A = " ";
-  if (S[0] == "u_op") {
-     return taka_xml_basic_form_quote_list_u_op(cdr(S));
-  }else if (S[0] == "b_op") {
-     return taka_xml_basic_form_quote_list_b_op(cdr(S));
-  }else if (S[0] == "t_op") {
-     return taka_xml_basic_form_quote_list_t_op(cdr(S));
-  }else if (S[0] == "list") {
-     return taka_xml_basic_form_quote_list_list(cdr(S));
-  }else if (S[0] == "exponent_vector") {
-     return taka_xml_basic_form_quote_list_exponent_vector(cdr(S));
-  }else if (S[0] == "internal") {
-     return taka_xml_basic_form_quote_list_internal(cdr(S));
-  }else if (S[0] == "variable") {
-     return taka_xml_basic_form_quote_list_variable(cdr(S));
-  }else if (S[0] == "function") {
-     return taka_xml_basic_form_quote_list_function(cdr(S));
-  }else {
-     error("Unknown quote format.");
-  }
-}
-
-def taka_oma(S,CD) {
-  return "<oma> "+"<oms name=\""+S+"\" cd=\""+CD+"\"/>";
-}
-def taka_oma_basic(S) {
-  return "<oma> "+"<oms name=\""+S+"\" cd=\"basic\"/>";
-}
-def taka_end_oma() {
-  return "</oma>";
-}
-def taka_omv(S) {
-  return "<omv name=\""+S+"\"/>";
-}
-
-def taka_xml_basic_form_quote_list_u_op(S) {
-  if (S[0] == "()") {
-    /* Remove ( ) */
-    A += taka_xml_basic_form_quote_list(S[1]);
-  }else
-  if (S[0] == "!") {
-    A += taka_oma_basic("not");
-    A += taka_xml_basic_form_quote_list(S[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "@!") {
-    A += taka_oma_basic("not");
-    A += taka_xml_basic_form_quote_list(S[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "-") {
-    A += taka_oma_basic("minus");
-    A += taka_xml_basic_form_quote_list(S[1]);
-    A += taka_end_oma();
-  }else{
-    error("Not implemented");
-  }
-  return A;
-}
-
-def taka_xml_basic_form_quote_list_b_op(S) {
-   if (S[0] == "+") {
-    T = cdr(S);
-    N = length(T);
-    A += taka_oma_basic("plus");
-    for (I=0; I<N; I++) {
-      A += taka_xml_basic_form_quote_list(T[I]);
-    }
-    A += taka_end_oma();
-  }else
-  if (S[0] == "-") {
-    T = cdr(S);
-    N = length(T);
-    A += taka_oma_basic("minus");
-    for (I=0; I<N; I++) {
-      if (I == 0 && taka_is_internal_zero(T[I])) {
-         /* Do not print 0. */
-      } else {
-         A += taka_xml_basic_form_quote_list(T[I]);
-      }
-    }
-    A += taka_end_oma();
-  } else
-  if (S[0] == "*") {
-    T = cdr(S);
-    N = length(T);
-    A += taka_oma_basic("times");
-    for (I=0; I<N; I++) {
-      A += taka_xml_basic_form_quote_list(T[I]);
-      A += " ";
-    }
-    A += taka_end_oma();
-  } else
-  if (S[0] == "/") {
-    T = cdr(S);
-    A += taka_oma_basic("over");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  } else
-  if (S[0] == "^") {
-    T = cdr(S);
-    A += taka_oma_basic("power");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  } else
-  if (S[0] == "%") {
-    T = cdr(S);
-    A += taka_oma_basic("% (undefined)");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  } else
-  if (S[0] == "==" || S[0] == "@==") {
-    T = cdr(S);
-    A += taka_oma_basic("equal");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "&&") {
-    T = cdr(S);
-    A += taka_oma_basic("and");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "||") {
-    T = cdr(S);
-    A += taka_oma_basic("or");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "<" || S[0] == "@<") {
-    T = cdr(S);
-    A += taka_oma_basic("less");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == ">" || S[0] == "@>") {
-    T = cdr(S);
-    A += taka_oma_basic("greater");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "<=" || S[0] == "@<=") {
-    T = cdr(S);
-    A += taka_oma_basic("lessequal");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == ">=" || S[0] == "@>=") {
-    T = cdr(S);
-    A += taka_oma_basic("greaterequal");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else
-  if (S[0] == "!=" || S[0] == "@!=") {
-    T = cdr(S);
-    A += taka_oma_basic("unequal");
-    A += taka_xml_basic_form_quote_list(T[0]);
-    A += taka_xml_basic_form_quote_list(T[1]);
-    A += taka_end_oma();
-  }else {
-    error("Not implemented.");
-  }
-  return A;
-}
-
-def taka_xml_basic_form_list_t_op(S) {
-  NOT_YET ;
-}
-
-
-def taka_xml_basic_form_quote_list_list(S) {
-    T = S;
-    A = taka_oma_basic("list");
-    N = length(T);
-    for (I=0; I<N; I++) {
-      A += taka_xml_basic_form_quote_list(T[I]);
-      if (I != N-1) {
-        A += ", ";
-      }
-    }
-    A += taka_end_oma();
-    return A;
-}
-
-def taka_xml_basic_form_quote_list_exponent_vector(S) {
-    NOT_YET;
-    A = "(";
-    T = cdr(S);
-    N = length(T);
-    for (I=0; I<N; I++) {
-      A += taka_xml_basic_form_quote_list(T[I]);
-      if (I != N-1) {
-        A += ", ";
-      }
-    }
-    A += ")";
-    return(A);
-}
-
-def taka_xml_basic_form_quote_list_function(S) {
-    if (S[0] == "exponent_vector") {
-      return taka_xml_basic_form_quote_list_exponent_vector(cdr(S));
-    }
-    if (S[0] == "topology_circle") {
-      return print_xml_basic_form_topology_circle(S);
-    }else if (S[0] == "topology_open_segment") {
-      return print_xml_basic_form_topology_open_segment(S);
-    }else if (taka_is_infix(S[0])) {
-      /* printing general infix function */
-      NOT_YET;
-      A = "(";
-      T = cdr(S);
-      N = length(T);
-      for (I=0; I<N; I++) {
-        A += "(";
-        A += taka_xml_basic_form_quote_list(T[I]);
-        A += ")";
-        if (I != N-1) {
-          A += taka_xml_basic_form_node_name(S[0]);
-        }
-      }
-      A += ")";
-      return(A);
-    }else {
-      /* printing general prefix functions. */
-      TT = taka_xml_basic_form_node_name_cd(S[0]);
-      A = taka_oma(taka_xml_basic_form_node_name(S[0]),TT);
-      T = cdr(S);
-      N = length(T);
-      for (I=0; I<N; I++) {
-        A += taka_xml_basic_form_quote_list(T[I]);
-      }
-      A += taka_end_oma();
-      return(A);
-   }
-}
-
-def taka_xml_basic_form_quote_list_internal(S) {
-  X = car(S);
-  if (type(X) == RPOLYNOMIAL) {
-    return taka_omv(taka_xml_basic_symbol(rtostr(X)));
-  }
-  if (type(X) == NUMBER && ntype(X) == 0) {
-    return "<omi>"+rtostr(X)+"</omi>";
-  }
-  return rtostr(X);
-}
-def taka_xml_basic_form_quote_list_variable(S) {
-  X = car(S);
-  if (type(X) == STRING) return X;
-  else return rtostr(X);
-}
-
-def taka_xml_basic_form_node_name(S) {
-  if (type(S) != STRING) return rtostr(S);
-  /* Table of Mathematical Symbols. */
-  return taka_xml_basic_symbol(S);
-}
-
-
-def taka_xml_basic_symbol(S) {
-  /* R = taka_is_indexed(S);
-  if (R[0]) {
-    return taka_xml_basic_symbol_(R[1])+"_{"+R[2]+"}";
-  } 
-  return taka_xml_basic_symbol_(R[1]);
-  */
-  return taka_xml_basic_symbol_(S);
-
-}
-
-def taka_xml_basic_symbol_(S) {
-  extern Xml_basic_symbol_table;
-  extern Xml_basic_symbol_table;
-  N = size(Xml_basic_symbol_table)[0];
-  /* Linear search for now*/
-  for (I=0; I<N; I++) {
-    if (S == Xml_basic_symbol_table[I][0]) {
-       return Xml_basic_symbol_table[I][1];
-    }
-  }
-  return S;
-}
-
-def taka_xml_basic_form_node_name_cd(S) {
-  extern Xml_basic_symbol_table;
-  extern Xml_basic_symbol_table;
-  N = size(Xml_basic_symbol_table)[0];
-  /* Linear search for now*/
-  for (I=0; I<N; I++) {
-    if (S == Xml_basic_symbol_table[I][0]) {
-       return Xml_basic_symbol_table[I][2];
-    }
-  }
-  return "unknown";
-}
-
-def taka_print_output(Obj,F,Mode) {
-  S = taka_terminal_form(Obj);
-  if (type(F) != 7) {
-    error("taka_print_output(Obj, Filename, Mode): Filename must be a string.");
-    return;
-  }
-  if (Mode == "w") {
-    Fd = open_file(F,"w");
-  }else {
-    Fd = open_file(F,"a");
-  }
-  if (Fd < 0) {
-    error("Failed to open the file "+rtostr(F));
-    return ;
-  }
-  S2 = strtoascii(S);
-  N = length(S2);
-  for (I=0; I<N; I++) {
-    put_byte(Fd,S2[I]);
-  }
-  close_file(Fd);
-}
-def taka_print_warning(S) {
-  extern Taka_print_warning;
-  if (Taka_print_warning) {
-    print(S);
-  }
-}
-def taka_em(S) {
-  S1 = asciitostr([0x1b])+"[31m";  /* "[1m" */
-  S2 = asciitostr([0x1b])+"[0m";
-  print(S1+rtostr(S)+S2);
-}
-Loaded_taka_print=1$
+Loaded_noro_print=1$
 end$
