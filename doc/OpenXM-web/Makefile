@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.22 2000/09/09 03:01:24 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.23 2000/09/09 16:46:37 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -29,10 +29,10 @@ copy-html :
 	mkdir $(WEBKOBE1)/html
 	mkdir $(WEBKOBE1)/html/OpenXM-en
 	mkdir $(WEBKOBE1)/html/OpenXM-ja
-	-(cd $(OpenXM_spec) ; make ; cd tmpEG ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM )
-	-(cd $(OpenXM_spec) ; cd tmpJP ; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM )
-	-(cd $(OpenXM_spec) ; cd tmpEG ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-en)
-	-(cd $(OpenXM_spec) ; cd tmpJP ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-ja)
+	-(cd $(OpenXM_spec) ; make ; cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM )
+	-(cd $(OpenXM_spec) ; cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM )
+	-(cd $(OpenXM_spec) ; cd tmpEN ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-en)
+	-(cd $(OpenXM_spec) ; cd tmpJA ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-ja)
 
 ## Under construction.
 namagize-html: copy-html
