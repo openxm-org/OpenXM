@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.5 2004/12/17 00:13:08 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.6 2004/12/18 01:56:03 takayama Exp $
 %%% 1999, 6/7 Mon.
 [(parse) (ox.sm1) pushfile] extension
 [(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
@@ -107,7 +107,8 @@
   {
     [(fp2fclose) gnuplot.fifoFp] extension pop
   } ifelse
-  [(rm) gnuplot.fifo] oxshell pop
+  % [(rm) gnuplot.fifo] oxshell pop % It  is OS dependent.
+  [(unlink) gnuplot.fifo] extension
 } def
 
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.32 2004/09/17 12:32:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.33 2004/11/23 01:37:47 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -469,7 +469,11 @@ struct object Kextension(struct object obj)
     if (size == 3) obj3 = newObjectArray(0);
     else obj3 = getoa(obj,3);
     rob = oregexec(obj1,obj2,obj3);
-
+  }else if (strcmp(key,"unlink")==0) {
+    if (size != 2) errorKan1("%s\n","[(unlink) filename] extension b");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","unlink, the first argument should be a string (filename).");
+    rob = KpoInteger(oxDeleteFile(KopString(obj1)));
   }
 #include "plugin.hh"
 #include "Kclass/tree.hh"
