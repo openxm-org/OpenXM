@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Maekawa: ox_getport.c,v 1.17 2000/11/21 13:38:51 maekawa Exp $
+ *	$OpenXM$
  */
 
 #include <sys/types.h>
