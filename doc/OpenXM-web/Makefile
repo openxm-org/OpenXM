@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.40 2003/03/26 00:55:30 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.41 2003/03/26 13:26:01 takayama Exp $
 #
 OXHOME=/home/web/OpenXM
 #OXHOME=/home/taka/afo/OpenXM    ## for test.
@@ -92,4 +92,4 @@ clean-everything: clean clean-top
 ###  (latex2html machine)%  make 
 clean-en-html:
 	-(cd ../OpenXM-specs ; make clean-en-done)
-	-(make -f Makefile-intro ; make clean)
+	-(make -f Makefile-intro clean)
