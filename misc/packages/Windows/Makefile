@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.17 2002/07/28 08:10:24 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.18 2002/07/30 00:28:00 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -29,11 +29,11 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	-mkdir OpenXM-win/src
 	if [ ! -f .copy-binary-done ] ; then \
 	  (cd OpenXM-win ; \
-	   rsync -avz --delete ../${OpenXM_TOP}/bin . ; \
-	   rsync -avz --delete ../${OpenXM_TOP}/lib . ; \
-	   rsync -avz --delete ../${OpenXM_TOP}/rc . ; \
-	   rsync -avz --delete ../${OpenXM_TOP}/man . ; \
-	   rsync -avz --delete ../${OpenXM_TOP}/src/asir-contrib src ; \
+	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/bin . ; \
+	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/lib . ; \
+	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/rc . ; \
+	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/man . ; \
+	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/src/asir-contrib src ; \
 	   find . -name 'CVS' -print | xargs rm -rf ; \
 	  ) ; \
 	   cp readme-ja.html OpenXM-win ; \
