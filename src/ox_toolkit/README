@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.12 2000/10/10 06:52:13 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.13 2000/10/11 20:34:28 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -573,38 +573,36 @@ then the parser returns NULL.
 
 7. Mathcap データベース
 
-7.1. メソッド
+7.1. 概要 
+
+Mathcap データベースは、各通信路ごとに生成される局所データベースと、通
+信路に関係なく保持される大域データベースからなる。大域データベースは、
+局所データベースの生成時に初期値としても利用される。局所データベースと
+$大域データベースの関係は次のように理解すればよい。すなわち、Mathcap ク
+ラスのインスタンスが局所データベースであり、静的メンバが大域データベー
+スである。
+
+7.2. メソッド
 
 Mathcap データベースは mathcap.c で実装されている。ユーザは次の関数を
 介して、Mathcap データベースにアクセスすることができる。
 
-void mathcap_sysinfo_set(int version, char *id, char *sysname);
+void mathcap_global_init(int version, char *id, char *sysname, int cmo[], sm_cmd[]);
 
-Mathcap データベースの(一部)を初期化する。クライアントおよびサーバは
-プログラム開始のときにこの関数を呼ばなければならない。
+大域データベースを初期化する。クライアントおよびサーバはプログラムを開
+始するときに、この関数を呼ばなければならない。cmo は CMO のタグのリス
+トであって、0 で終端しなければならない。sm_cmd も同様。
 
-cmo_mathcap *mathcap_get();
+cmo_mathcap *mathcap_get(mathcap *this);
 
-Mathcap データベースから cmo_mathcap オブジェクトを得る。
+Mathcap クラスのインスタンスを cmo_mathcap クラスのインスタンスに変換する。
 
-cmo_list *mathcap_cmo_get_allow_all();
-cmo_list *mathcap_sm_get_all();
-cmo_list *mathcap_sysinfo_get_all();
+mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc);
 
-これらは cmo_mathcap *mathcap_get() の内部で呼ばれている関数である。
+通信相手から入手したcmo_mathcap オブジェクトを用いて、Mathcap データベー
+スを更新する。
 
-int mathcap_cmo_isallow_cmo(cmo *ob);
-
-与えられた cmo が送信許可されているかを調べる。
-
-void mathcap_cmo_allow(int tag);
-void mathcap_cmo_deny(int tag);
-void mathcap_cmo_deny_all();
-void mathcap_cmo_allow_all();
-
-cmo の送信制御。
-
-7.2. ox_toolkit における実装の問題点
+7.3. ox_toolkit における実装の問題点(obsolete)
 
 現在はシステム全体で一つの Mathcap データベースしかもたないような実装
 になっている。ところが、OpenXM クライアントは複数の計算サーバと同時に
