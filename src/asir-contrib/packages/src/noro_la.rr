@@ -86,18 +86,16 @@ def compute_kernel(A)
 		Eext = append(reverse(Defpoly),map(algptorat,E));
 		VLext = append(VL,AlgV);
 		Ord = [[0,N],[0,length(Alg)]];
-#if 1
 		G = dp_f4_main(Eext,VLext,Ord);
-#else
 		G = nd_gr(Eext,VLext,0,Ord);
-#endif
 		G = map(rattoalgp,G,Alg);
 		for ( T = G, G0 = []; T != []; T = cdr(T) )
 			if ( vars(car(T)) != [] ) G0 = cons(car(T),G0);
 		G = reverse(G0);
 	} else {
 		dp_ord(0);
-		G = nd_gr(E,VL,0,0);
+		G = dp_f4_main(E,VL,0);
+		G = nd_gr(G,VL,0,0);
 	}
 	D = map(dp_ptod,G,VL);
 	for ( LCM = 1, T = D; T != []; T = cdr(T) )
@@ -148,6 +146,12 @@ def jordan_canonical_form(A)
 	return Q;
 }
 
+def is_integer(A)
+{
+	if ( !A || (type(A)==1 && ntype(A)==0 && dn(A)==1 ) ) return 1;
+	else return 0;
+}
+
 def reduce_vect(M,Base)
 {
 	N = size(M)[0];
@@ -158,6 +162,11 @@ def reduce_vect(M,Base)
 		if ( M[I] ) {
 			/* M <- M*BM[I]-M[I]*BM */
 			C1 = BM[I]; C2 = M[I];
+			if ( is_integer(C1) && is_integer(C2) ) {
+				G = igcd(C1,C2);
+				C1 = idiv(C1,G);
+				C2 = idiv(C2,G);
+			}
 			linalg.mulsub_vect(M,C1,BM,C2);
 		}
 	}
@@ -166,24 +175,20 @@ def reduce_vect(M,Base)
 	return [0,-1];
 }
 
-/* Span(Base) = Ker((A-Alpha*E)^E) */
-
 def compute_jordan_block_basis(A,Alpha,E)
 {
 	NI = linalg.unit_mat(size(A)[0]);
 	N = A-Alpha*NI;
 	Ker = vector(E+1);
-	R = vector(E+1);
 	for ( I = 0; I <= E; I++ ) {
 		Ker[I] = compute_kernel(NI);
-		R[I] = length(Ker[I]);
-		NI *= N;
+		if ( I < E ) NI *= N;
 	}
 	/* PW : previous W */
-	PW = [];
-	AllBase = [];
-	for ( I = E-1; I >= 0; I-- ) {
+	for ( PW = AllBase = [], I = E-1; I >= 0; I-- ) {
+		/* NPW = N*PW */
 		NPW = [];
+		/* create a basis of Ker[I]+N*PW */
 		for ( T = PW, Base = Ker[I]; T != []; T = cdr(T) ) {
 			NPW = cons(N*car(T),NPW);
 			Red = reduce_vect(car(NPW),Base);
@@ -191,27 +196,25 @@ def compute_jordan_block_basis(A,Alpha,E)
 		}
 		/* number of elements to be added */
 		DW = length(Ker[I+1])-length(Ker[I])-length(NPW);
-		print(DW,0); print("=>",0);
-		PW = NPW;
-		for ( T = Ker[I+1]; DW > 0; T = cdr(T) ) {
+
+		for ( PW = NPW, T = Ker[I+1]; DW > 0; T = cdr(T) ) {
+			/* take an element of Ker[I+1] and reduce it by Base */
 			Red = reduce_vect(car(T)[0],Base);
 			if ( Red[0] ) {
+				/* we found a new basis element of height I+1 */
 				DW--;
+				/* append the new element to PW */
 				PW = cons(Red[0],PW);
+				/* append the new element to Base */
 				Base = linalg.insert_to_sbase(Red,Base);
+				/* Kry = [N^I*v,N^(I-1)*v,...,v] */
 				for ( Kry = [car(T)[0]], K = 0; K < I; K++ )
 					Kry = cons(N*car(Kry),Kry);
 				AllBase = append(reverse(Kry),AllBase);
 			}
 		}
-		print(DW);
 	}
 	return reverse(AllBase);
-}
-
-def first_element(L)
-{
-	return car(L);
 }
 
 def next_combination(N,K,C)
