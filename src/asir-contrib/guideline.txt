@@ -1,22 +1,25 @@
-$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.6 2005/03/24 22:07:15 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.7 2005/03/24 23:41:16 takayama Exp $
 
 How to commit your asir program to asir-contrib? [2005, 3/24]
 
    1.  The name of your source code should be 
             yourname_xyz.rr
+       if xyz is a general name like matrix, prime, resultant, etc.
        The part "yourname" may be your nickname. 
        Example:  noro_matrix.rr
+       If xyz is not a general name, the part yourname_ is not necessary.
 
        Your asir source should be at asir-contrib/packages/src.
        Or, you may make a new directory under asir-contrib/packages/src
        to put your programs and data.
        Example: asir-contrib/packages/src/todo_parametrize
 
-       Your may use both your own directory and the top level source code.
+       Your may use both your own directory and the top level source code
+       to load sources in the own directory.
        Example:  asir-contrib/packages/src/naka_mora
                  asir-contrib/packages/src/naka_mora.rr
 
-   2.  Please encapsulate your source code with module.
+   2.  Please encapsulate your source code with modules.
        When you use the module name which represents a mathematical notion
        or a data structure,
        the module name should be 
@@ -37,7 +40,7 @@ How to commit your asir program to asir-contrib? [2005, 3/24]
           asir-contrib/packages/doc/todo_parametrize/todo_parametrize_ja.texi
 
    4. If you want to embed your manual in the source, you are welcome
-      to use "oxweave" or "gdoc" (see http://texinfo.org).
+      to use "oxweave & gentexi" or "gdoc" (see http://texinfo.org).
 
    5. Please refer to papers that explain algorithms in your package
       from your texinfo manual.
