@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.5 1999/11/07 12:12:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.6 1999/11/19 20:51:36 ohara Exp $ */
 
 /* サーバとの通信路を開く */
 int OX_start P((const char *));
@@ -20,11 +20,11 @@ int OX_start_insecure P ((const char *, int, int));
 :ReturnType: Integer
 :End:
 
-int OX_executeStringByLocalParser P((const char *));
+int OX_execute_string P((const char *));
 
 :Begin:
-:Function: OX_executeStringByLocalParser
-:Pattern: OxExecute[s_String]
+:Function: OX_execute_string
+:Pattern: OxExecuteString[s_String]
 :Arguments: {s}
 :ArgumentTypes: {String}
 :ReturnType: Integer
@@ -60,11 +60,11 @@ void OX_popCMO P(());
 :ReturnType: Manual
 :End:
 
-void OX_receive P(());
+void OX_get P(());
 
 :Begin:
-:Function: OX_receive
-:Pattern: OxReceive[]
+:Function: OX_get
+:Pattern: OxGet[]
 :Arguments: {}
 :ArgumentTypes: {}
 :ReturnType: Manual

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.1 1999/11/29 12:09:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.2 1999/12/09 22:50:56 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -21,10 +21,6 @@ int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 
 /* MLINK はポインタ型. */
 MLINK stdlink;
-
-typedef cmo mlo;
-typedef cmo_string mlo_string;
-typedef cmo_zz mlo_zz;
 
 mlo *receive_mlo_zz()
 {
@@ -71,6 +67,18 @@ cmo *receive_mlo_function()
     MLDisownString(stdlink, s);
     return m;
 }
+
+#if 0
+cmo *convert_mlo_to_cmo(mlo *m)
+{
+	if (m->tag == MLO_FUNCTION) {
+		if (strcmp(((mlo_function *)m)->function, "List") == 0) {
+			return convert_mlo_function_list_to_cmo_list(m);
+		}
+	}
+	return m;
+}
+#endif
 
 mlo_function *new_mlo_function(char *function)
 {
@@ -123,7 +131,7 @@ cmo *receive_mlo_symbol()
     return ob;
 }
 
-/* Mathematica を起動する. */
+/* Mathematica との通信を開始する. */
 int ml_init()
 {
     int argc = 2;
@@ -137,6 +145,7 @@ int ml_init()
     return 0;
 }
 
+/* Mathematica との通信を終了する. */
 int ml_exit()
 {
     /* quit Mathematica then close the link */
@@ -144,14 +153,20 @@ int ml_exit()
     MLClose(stdlink);
 }
 
-cmo *ml_get_object()
+/* receive_mlo() する前に必ず ml_select() しなければならない */
+int ml_select()
 {
     /* skip any packets before the first ReturnPacket */
     while (MLNextPacket(stdlink) != RETURNPKT) {
         usleep(10);
         MLNewPacket(stdlink);
     }
-    return receive_mlo();
+}
+
+/* send_mlo() した後で必ず ml_flush() しなければならない */
+int ml_flush()
+{
+    MLEndPacket(stdlink);
 }
 
 cmo *receive_mlo()
@@ -199,7 +214,7 @@ int send_mlo_zz(cmo *m)
 {
     char *s;
     MLPutFunction(stdlink, "ToExpression", 1);
-    s = convert_cmo_to_string(m);
+    s = new_string_set_cmo(m);
     MLPutString(stdlink, s);
 }
 
@@ -214,12 +229,6 @@ int send_mlo_list(cmo *c)
         send_mlo(cp->cmo);
         cp = cp->next;
     }
-}
-
-int ml_sendObject(cmo *m)
-{
-    send_mlo(m);
-    MLEndPacket(stdlink);
 }
 
 int send_mlo(cmo *m)
@@ -247,7 +256,7 @@ int send_mlo(cmo *m)
         break;
     default:
         MLPutFunction(stdlink, "ToExpression", 1);
-        s = convert_cmo_to_string(m);
+        s = new_string_set_cmo(m);
         MLPutString(stdlink, s);
         break;
     }

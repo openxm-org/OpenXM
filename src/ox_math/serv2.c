@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.9 1999/11/19 20:51:36 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.10 1999/11/29 12:09:58 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -16,15 +16,28 @@
 extern int flag_mlo_symbol;
 
 /* MathLink 非依存部分 */
+#define INIT_S_SIZE 2048
+#define EXT_S_SIZE  2048
 
-#define SIZE_OPERAND_STACK   2048
-
-static cmo* Operand_Stack[SIZE_OPERAND_STACK];
-static int Stack_Pointer = 0;
+static int stack_size = 0;
+static int stack_pointer = 0;
+static cmo **stack = NULL;
 
 int initialize_stack()
 {
-    Stack_Pointer = 0;
+    stack_pointer = 0;
+	stack_size = INIT_S_SIZE;
+	stack = malloc(stack_size*sizeof(cmo*));
+}
+
+static int extend_stack()
+{
+	int size2 = stack_size + EXT_S_SIZE;
+	cmo **stack2 = malloc(size2*sizeof(cmo*));
+	memcpy(stack2, stack, stack_size*sizeof(cmo *));
+	free(stack);
+	stack = stack2;
+	stack_size = size2;
 }
 
 int push(cmo* m)
@@ -39,29 +52,28 @@ int push(cmo* m)
         fprintf(stderr, "ox_math:: a %s was pushed.\n", symp->key);
     }
 #endif
-    Operand_Stack[Stack_Pointer] = m;
-    Stack_Pointer++;
-    if (Stack_Pointer >= SIZE_OPERAND_STACK) {
-        fprintf(stderr, "stack over flow.\n");
-        Stack_Pointer--;
+    stack[stack_pointer] = m;
+    stack_pointer++;
+    if (stack_pointer >= stack_size) {
+		extend_stack();
     }
 }
 
 /* スタックが空のときは, (CMO_NULL) をかえす. */
 cmo* pop()
 {
-    if (Stack_Pointer > 0) {
-        Stack_Pointer--;
-        return Operand_Stack[Stack_Pointer];
+    if (stack_pointer > 0) {
+        stack_pointer--;
+        return stack[stack_pointer];
     }
     return new_cmo_null();
 }
 
 void pops(int n)
 {
-    Stack_Pointer -= n;
-    if (Stack_Pointer < 0) {
-        Stack_Pointer = 0;
+    stack_pointer -= n;
+    if (stack_pointer < 0) {
+        stack_pointer = 0;
     }
 }
 
@@ -106,7 +118,7 @@ int sm_popString(int fd_write)
     m = pop();
     if (m->tag == CMO_STRING) {
         send_ox_cmo(fd_write, m);
-    }else if ((s = convert_cmo_to_string(m)) != NULL) {
+    }else if ((s = new_string_set_cmo(m)) != NULL) {
         send_ox_cmo(fd_write, (cmo *)new_cmo_string(s));
     }else {
         err = make_error_object(SM_popString, m);
@@ -149,7 +161,8 @@ int sm_executeStringByLocalParser(int fd_write)
             /* for mathematica */
             /* mathematica に文字列を送って評価させる */
             ml_evaluateStringByLocalParser(s);
-            push(ml_get_object());
+			ml_select();
+            push(receive_mlo());
         }
         return 0;
     }
@@ -182,13 +195,14 @@ int sm_executeFunction(int fd_write)
         argv[i] = pop();
     }
     ml_executeFunction(func, argc, argv);
-    push(ml_get_object());
+	ml_select();
+    push(receive_mlo());
     return 0;
 }
 
-/* 平成11年10月13日 */
-#define VERSION 0x11102700
-#define ID_STRING  "ox_math server 1999/10/28 17:29:25"
+/* 平成12年12月14日 */
+#define VERSION 0x11121400
+#define ID_STRING  "ox_math server 1999/12/14 15:25:00"
 
 int sm_mathcap(int fd_write)
 {

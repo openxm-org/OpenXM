@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/testclient.c,v 1.3 1999/11/06 21:39:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/testclient.c,v 1.4 1999/11/07 12:12:56 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,9 +40,16 @@ int prompt()
 int test_0()
 {
     cmo* c = NULL;
-
-	ox_mathcap(sv);
-	send_ox_cmo(sv->stream, make_mathcap_object(VERSION, ID_STRING));
+#ifdef DEBUG
+    fprintf(stderr, "testclient:: calling ox_mathcap().\n");
+    c = ox_mathcap(sv);
+    fprintf(stderr, "testclient:: cmo received.(%p)\n", c);
+#else
+    c = ox_mathcap(sv);
+#endif
+    print_cmo(c);
+    fflush(stderr);
+    send_ox_cmo(sv->stream, make_mathcap_object(VERSION, ID_STRING));
 
     ox_reset(sv);
     send_ox_cmo(sv->stream, new_cmo_string("N[ArcTan[1]]"));
@@ -52,6 +59,20 @@ int test_0()
     c = receive_cmo(sv->stream);
     fprintf(stderr, "testclient:: cmo received.\n");
     print_cmo(c);
+}
+
+int test_1()
+{
+    cmo *c = NULL;
+    cmo *m = make_mathcap_object(1000, "test!");
+    fprintf(stderr, "testclient:: test cmo_mathcap.\n");
+    send_ox_cmo(sv->stream, m);
+    send_ox_command(sv->stream, SM_popCMO);
+    receive_ox_tag(sv->stream);
+    c = receive_cmo(sv->stream);
+    fprintf(stderr, "testclient:: cmo received.(%p)\n", c);
+    print_cmo(c);
+    fputc('\n', stderr);
 }
 
 int main(int argc, char* argv[])
@@ -73,12 +94,12 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    if (strcmp(argc, "ox_math")==0) {
-		test_0();
+    if (strcmp(argv[1], "ox_math")==0) {
+        test_1();
     }
 
     while(prompt(), (m = parse()) != NULL) {
-        send_ox(sv, m);
+        send_ox(sv->stream, m);
         if (m->tag == OX_COMMAND) {
             code = ((ox_command *)m)->command;
             if (code >= 1024) {
