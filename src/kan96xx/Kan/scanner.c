@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.5 2004/09/10 13:20:23 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.6 2004/09/10 22:21:27 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -155,6 +155,7 @@ static struct tokens flushSM()
   strcpy(token,BufSM);
   r.token = token;
   r.kind = TypeSM;
+  r.tflag = 0;
   if (r.kind == ID) {
     if (isLiteral(r.token)) {
       r.object = lookupLiteralString(r.token);

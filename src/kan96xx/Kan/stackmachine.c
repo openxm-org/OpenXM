@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.19 2004/09/11 12:13:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.20 2004/09/11 23:49:34 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -762,14 +762,14 @@ void scanner() {
   }
   
   /* setup quiet mode or not */
-  token.kind = EXECUTABLE_STRING;
+  token.kind = EXECUTABLE_STRING; token.tflag = 0;
   if (Quiet) {
     token.token = " /@@@.quiet 1 def ";
   }else {
     token.token = " /@@@.quiet 0 def ";
   }
   executeToken(token); /* execute startup commands */
-  token.kind = ID;
+  token.kind = ID; token.tflag = 0;
   token.token = "exec";
   token = lookupTokens(token); /* set hashing values */
   tmp = findSystemDictionary(token.token);
@@ -785,10 +785,10 @@ void scanner() {
     StartFile = (char *)sGC_malloc(sizeof(char)*(strlen(StartFile)+
                                                  40));
     sprintf(StartFile,"$%s$ run\n",tmp2);
-    token.kind = EXECUTABLE_STRING;
+    token.kind = EXECUTABLE_STRING; token.tflag = 0;
     token.token = StartFile;
     executeToken(token);    /* execute startup commands */
-    token.kind = ID;
+    token.kind = ID; token.tflag = 0;
     token.token = "exec";
     token = lookupTokens(token); /* set hashing values */
     tmp = findSystemDictionary(token.token);
@@ -798,10 +798,10 @@ void scanner() {
   }
   
   if (StartAString) {
-    token.kind = EXECUTABLE_STRING;
+    token.kind = EXECUTABLE_STRING;  token.tflag = 0;
     token.token = StartString;
     executeToken(token);    /* execute startup commands */
-    token.kind = ID;
+    token.kind = ID; token.tflag = 0;
     token.token = "exec";
     token = lookupTokens(token); /* set hashing values */
     tmp = findSystemDictionary(token.token);
@@ -1186,9 +1186,9 @@ KSexecuteString(s)
 
   recursive++;
   token.token = s;
-  token.kind = EXECUTABLE_STRING;
+  token.kind = EXECUTABLE_STRING; token.tflag = 0;
   executeToken(token);
-  token.kind = ID;
+  token.kind = ID; token.tflag = 0;
   token.token = "exec";
   token = lookupTokens(token); /* no use */
   tmp = findSystemDictionary(token.token);
@@ -1207,10 +1207,10 @@ KSdefineMacros() {
   struct object ob;
 
   if (StandardMacros && (strlen(SMacros))) {
-    token.kind = EXECUTABLE_STRING;
+    token.kind = EXECUTABLE_STRING; token.tflag = 0;
     token.token = SMacros;
     executeToken(token);    /* execute startup commands */
-    token.kind = ID;
+    token.kind = ID; token.tflag = 0;
     token.token = "exec";
     token = lookupTokens(token); /* no use */
     tmp = findSystemDictionary(token.token);
@@ -1240,14 +1240,14 @@ void KSstart() {
     } else {  }  */
 
   /* setup quiet mode or not */
-  token.kind = EXECUTABLE_STRING;
+  token.kind = EXECUTABLE_STRING; token.tflag = 0;
   if (Quiet) {
     token.token = " /@@@.quiet 1 def ";
   }else {
     token.token = " /@@@.quiet 0 def ";
   }
   executeToken(token); /* execute startup commands */
-  token.kind = ID;
+  token.kind = ID; token.tflag = 0;
   token.token = "exec";
   token = lookupTokens(token); /* set hashing values */
   tmp = findSystemDictionary(token.token);

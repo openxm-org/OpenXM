@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.4 2004/09/11 12:13:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.5 2004/09/11 23:49:34 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -98,6 +98,7 @@ struct tokens{
   char *token;
   int kind;
   struct object object;
+  int tflag;
 };
 
 /* used in kind of tokens */ 
@@ -106,6 +107,8 @@ struct tokens{
 #define EXECUTABLE_STRING 4 /* strings enclosed by {} */
 #define EXECUTABLE_ARRAY  8
 
+/* Used in tflag of tokens, bit wise */
+#define NO_DELAY  0x2
 
 
 /********** macros to use Sarray **********************/
