@@ -1,18 +1,22 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.2 2004/03/25 13:34:19 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.3 2004/05/16 15:02:39 iwane Exp $ */
 /* RFC 3174 - SHA-1 (US Secure Hash Algorithm 1 (SHA1))*/
 
 #include <stdio.h>
 
 #include "sha1.h"
 
+#include <unistd.h>
+#include <errno.h>
+#include <sys/stat.h>
+
 /* Global Constant */
-static const unsigned int K[4] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
-static const unsigned int H[5] = {0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0};
+static const uint32_t K[4] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
+static const uint32_t H[5] = {0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0};
 
 #define BLOCK (512 / 8)
 
 
-static inline unsigned int lshift32(unsigned int x, int n)
+static inline uint32_t lshift32(uint32_t x, int n)
 {
 	return ((x << n) | (x >> (32 - n)));
 };
@@ -23,15 +27,12 @@ static inline unsigned int lshift32(unsigned int x, int n)
  * sizeof(buf) >= 512 * ((len * 8 + 1) / 64)
  * len * 8 < 2^64 ==> len < 2^61
  */
-static unsigned int
-padding(unsigned char *buf, const unsigned char *msg, int length)
+static uint32_t
+padding(unsigned char *buf, const unsigned char *msg, size_t length)
 {
 	int n;
 	int i;
-	int len = length % BLOCK;
-
-	if (len == 0)
-		len = BLOCK;
+	size_t len = length % BLOCK;
 
 	memcpy(buf, msg, len);
 
@@ -61,8 +62,8 @@ padding(unsigned char *buf, const unsigned char *msg, int length)
 
 
 
-static unsigned int
-f(unsigned int t, unsigned int b, unsigned int c, unsigned int d)
+static uint32_t
+f(uint32_t t, uint32_t b, uint32_t c, uint32_t d)
 {
 	if (t < 20) {
 		return ((b & c) | ((~b) & d));
@@ -84,12 +85,13 @@ f(unsigned int t, unsigned int b, unsigned int c, unsigned int d)
  * padding.
  */
 void
-sha1_md(unsigned int *h, const unsigned char *msg)
+sha1_md(uint32_t *h, const unsigned char *msg)
 {
 	int t;
-	unsigned int a, b, c, d, e, temp;
 	int i;
-	unsigned int w[80];
+
+	uint32_t a, b, c, d, e, temp;
+	uint32_t w[80];
 
 	/* ... */
 	for (t = 0; t < 16; t++) {
@@ -126,18 +128,19 @@ sha1_md(unsigned int *h, const unsigned char *msg)
 }
 
 int
-sha1_h(unsigned char *Ph, const unsigned char *msg, int len, const unsigned int *hp)
+sha1_h(unsigned char *Ph, const unsigned char *msg, size_t len, const uint32_t *hp)
 {
-	int i, j, cnt, l = len;
+	int i, j, cnt;
+	size_t l = len;
 	unsigned char buf[1024];
-	unsigned int h[sizeof(H) / sizeof(H[0])];
+	uint32_t h[sizeof(H) / sizeof(H[0])];
 
 	if (hp == NULL)
 		memcpy(h, H, sizeof(H));
 	else
 		memcpy(h, hp, sizeof(h));
 
-	while (l > BLOCK) {
+	while (l >= BLOCK) {
 		sha1_md(h, msg);
 		msg += BLOCK;
 		l -= BLOCK;
@@ -160,44 +163,75 @@ sha1_h(unsigned char *Ph, const unsigned char *msg, int len, const unsigned int 
 
 
 int
-sha1(unsigned char *Ph, const unsigned char *msg, int len)
+sha1(unsigned char *Ph, const unsigned char *msg, size_t len)
 {
 	return (sha1_h(Ph, msg, len, NULL));
 }
 
 
-#ifdef SHA_DEBUG
-/* debug */
-#include <stdio.h>
-
 int
-main()
+fsha1_h(unsigned char *Ph, int fd, const uint32_t *hp)
 {
-	char *a;
-	int m, i;
-	unsigned char h[32 * 5];
-	char b[10000000];
+	int i, j, cnt, ret;
+	size_t l;
+	off_t len;
+	unsigned char buf[1024], *msg, msgbuf[1024];
+	uint32_t h[sizeof(H) / sizeof(H[0])];
+	int pad = 0;
+	struct stat stbuf;
 
-	for (i = 0; i < 1000000; i++)
-		b[i] = 'a';
-	b[i] = '\0';
+	if (hp == NULL)
+		memcpy(h, H, sizeof(H));
+	else
+		memcpy(h, hp, sizeof(h));
 
-	a = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
-	a = b;
-	a = "abc";
+	ret = fstat(fd, &stbuf);
+	len = stbuf.st_size;
+	if (len == 0)
+		goto _PADDING;
 
-	m = sha1(h, a, strlen(a));
+	for (;;) {
+		l = read(fd, msgbuf, sizeof(msgbuf));
+		if (l < 0) {
+			return (errno);
+		}
+		if (l == 0)
+			break;
 
-	for (i = 0; i < 160 / 8; i++) {
-		printf("%02x", h[i] & 0xff);
-		if (i % 4 == 3)
-			printf(" ");
+		len -= l;
+		msg = msgbuf;
+
+		while (l >= BLOCK) {
+			sha1_md(h, msg);
+			msg += BLOCK;
+			l -= BLOCK;
+		}
+
+		if (len == 0) {
+_PADDING:
+			cnt = padding(buf, msg, stbuf.st_size);
+			for (i = 0; i < cnt; i++) {
+				sha1_md(h, buf + BLOCK * i);
+			}
+		}
 	}
-	printf("\n");
 
+
+	memset(Ph, 0x00, sizeof(H));
+	for (i = 0; i < sizeof(H) / sizeof(H[0]); i++) {
+		for (j = 0; j < 32; j++) {
+			Ph[4 * i + j / 8] |= ((h[i] >> (31 - j)) & 1) << (7 - j % 8);
+		}
+	}
 
 	return (0);
 }
 
-#endif
+
+
+int
+fsha1(unsigned char *Ph, int fd)
+{
+	return (fsha1_h(Ph, fd, NULL));
+}
 
