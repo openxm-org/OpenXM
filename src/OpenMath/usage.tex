@@ -23,7 +23,11 @@ Java インタプリタを動作させるために,
 
 \section{プログラムの構成}
 
-OMproxy は以下のクラスから成る.
+OMproxy サーバは以下のクラスから成る.
+OMproxy サーバは OpenXM で規定されたサーバとして働くが,
+他の OpenXM サーバと違い, コントロールプロセスも
+Java で用意している.
+このため, ox\_launch などのプログラムを使う必要はない.
 
 \begin{verbatim}
 OMproxy.java
@@ -56,59 +60,71 @@ JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java
 JP/ac/kobe_u/math/tam/OpenXM/SM.java
 \end{verbatim}
 
-JP/ac/kobe\_u/math/tam/OpenXM/OpenXMconnection.java は
-TCP/IP エンコーディングの通信路を扱う.
-CMO や SM クラス(後述)のオブジェクトを送受信するメソッドが用意されている.
-OpenXM 規約の TCP/IP エンコーディングではコントロールプロセスへの通信路と
-計算プロセスへの通信路の 2 つの通信路が作られる.
-この時, OpenXMconnection はコントロールプロセス用と
-計算プロセス用の 2 つ生成されている.
+OMproxy クラスは OMproxy サーバ本体であり,
+インスタンスとしてスタックを持っている.
+スタックマシンが組み込まれており,
+run() メソッドが OpenXM サーバの計算プロセスとして動くようになっている.
 
-OMproxy.java は OMproxy サーバ本体であり,
-OpenXMconnection のオブジェクト, 及びスタックを持っている.
-メソッドとしてスタックマシンが組み込まれており,
-計算プロセスとして動くようになっている.
-OMproxy.java は起動後, すぐに OpenXM.java (後述)を生成し,
-計算プロセス用の OpenXMconnection.java を受け取る.
-その後, OpenXM.java から OMproxy 内の計算プロセス( run メソッド)が
-起動され, 計算プロセスが開始される.
-
-JP/ac/kobe\_u/math/tam/OpenXM/OpenXM.java は OpenXM で規定されている
-プロトコルの TCP/IP エンコーディングに依存した処理を行なう.
-しかし, 現段階では切り分けがはっきりできていない.
-現在の OpenXM.java の役目は以下である.
-OMproxy からこのクラスのオブジェクトが生成されると,
-まず, OpenXMconnection を生成し, クライアントからの
-コントロールプロセスへの接続要求を待つ.
-コントロールプロセスへの接続が確立した後, もう 1 つ OpenXMconnection を生成し,
-今度は計算プロセスへの接続要求を待つ.
-2 つの通信路が接続されると,
-コントロールプロセス(OpenXM.java 内の run メソッド)を立ち上げ,
-計算プロセスに接続される OpenXMconnection を OMproxy へ渡す.
-さらに, コントロールプロセスは OMproxy の計算プロセスを立ち上げる.
-計算プロセスへの割り込みや終了などは OpenXM.java 内の
-コントロールプロセスから行なわれる.
-
-OM2OXM.java は OpenXM の CMO 形式と OpenMath の XML 形式との
+OM2OXM クラスは OpenXM の CMO 形式と OpenMath の XML 形式との
 データ変換を行なうクラスである.
 クラスとして定義しているが, 現在はサブルーチンの集合としてしか
 扱っていない.
+CMO2OM() メソッドは CMO 形式から OpenMath XML 形式へと
+変換を行なう関数である.
+サブルーチンとして CMO2OM\_sub(), CMO2OM\_CoefficientOfRecursivePOLYNOMIAL() を
+使用している.
+parse() メソッドは OpenMath XML 形式から CMO 形式へと
+変換を行なう関数である.
+この変換を行なう部分は大きく分けて字句解析と構文解析の 2 つに分けられる.
+isSpace(), skipSpace(), pushbackLex(), readNextToken() メソッドが
+字句解析器にあたる部分であり,
+parse\_*() メソッドが構文解析にあたる部分となっている.
+parse\_*() の名前の付け方は OpenMath XML 表現で定義されている
+BNF を参考にしているが, まったく同じというわけには至っていない.
+なお, main() 及び run() メソッドはデバッグのために使っているものであり,
+OMproxy サーバでは使用していない.
 
-以下の CMO.java 及び SM.java のスーパークラスは Object である.
-Object とは別の, 共通のスーパークラスを用いた方がよいと考えているが,
+JP.ac.kobe\_u.math.tam.OpenXM.OpenXM クラスは OpenXM で規定されている
+プロトコルの TCP/IP エンコーディングに依存した処理を行なう.
+しかし, 現段階では切り分けがはっきりできていない.
+現在の OpenXM クラスの役目は,
+他の OpenXM サーバの ox\_launch にあてはまるように思える.
+OpenXM クラスでは, サーバ用の接続手順を行ない,
+run() メソッドに記述されたコントロールプロセスを動かす.
+
+JP.ac.kobe\_u.math.tam.OpenXM.OpenXMconnection.java は
+TCP/IP エンコーディングの通信路をオブジェクトとする.
+CMO や SM クラス(後述)のオブジェクトを送受信するメソッドが用意されている.
+OpenXMconnection クラスのオブジェクトは
+コントロールプロセス用と計算プロセス用の 2 つ生成される.
+
+以下の CMO クラス及び SM クラスのスーパークラスは java.lang.Object である.
+java.lang.Object とは別の, 共通のスーパークラスを用いた方がよいと考えているが,
 現段階の実装ではそこまでに至っていない.
 
-JP/ac/kobe\_u/math/tam/OpenXM/CMO.java は OpenXM で規定されている
-CMO 形式のオブジェクトを扱う抽象クラスである.
+JP.ac.kobe\_u.math.tam.OpenXM.CMO は
+CMO をオブジェクトとする抽象クラスである.
 
-JP/ac/kobe\_u/math/tam/OpenXM/CMO\_*.java は CMO.java の
+JP.ac.kobe\_u.math.tam.OpenXM.CMO\_* は CMO クラスの
 サブクラスとなっており, それぞれ CMO 形式の中の 1 種類の
-形式を扱う. CMO.java で定義されているインスタンスは
+形式をオブジェクトとする. CMO クラスで定義されているメソッドは
 各サブクラスでも共通であるが, 各クラスのオブジェクトを生成する方法や,
 オブジェクトの取り出し方はまったく統一性がとれていない.
 
-JP/ac/kobe\_u/math/tam/OpenXM/SM.java はスタックマシンの
-命令コードをオブジェクトとするクラスである.
+JP/ac/kobe\_u/math/tam/OpenXM/SM クラスは SM コードを
+オブジェクトとするクラスである.
+
+OMproxy サーバのプログラムの流れは以下である.
+OMproxy クラスは起動後, すぐに OpenXM クラスのオブジェクトを生成する.
+OpenXM クラスでは OpenXMconnection を生成し, クライアントからの
+コントロールプロセスへの接続要求を待つ.
+コントロールプロセス用の接続が確立した後, もう 1 つ OpenXMconnection を生成し,
+今度は計算プロセスへの接続要求を待つ.
+2 つの通信路が接続されると,
+コントロールプロセス(OpenXM クラス内の run() メソッド)のスレッドを立ち上げる.
+さらに, コントロールプロセスは計算プロセス(OMproxy クラスの run() メソッド)の
+スレッドを立ち上げる.
+計算プロセスへの割り込みや終了などは OpenXM クラス内の
+コントロールプロセスから行なわれる.
 
 \end{document}
-
