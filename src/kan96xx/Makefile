@@ -1,15 +1,27 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.7 1999/11/07 13:24:19 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.8 1999/11/22 04:22:57 takayama Exp $
+
 ## Type in make configure and make all to build all
-all :   
-	(cd gc; make)
-	(cd gmp;  make)
+OpenXM_contrib=../../../OpenXM_contrib
+
+all :   allGC allGMP
 	(cd plugin; make all)
 	(cd Kan; make all)
 
-all2 :
-	(cd gc; make)
-	(cd gmp;  make)
+all2 :  allGC allGMP
 	(cd Kan; make all)
+
+allGC :
+	(cd gc; make)
+allGMP :   
+	if test -f /usr/lib/libgmp.a ; \
+	then \
+	  echo "Using /usr/lib/libgmp.a" ; \
+	  /bin/rm -rf gmp/libgmp.a ; \
+	  ln -s /usr/lib/libgmp.a gmp/libgmp.a ; \
+	else \
+	 (cd gmp; make) ; \
+	fi
+
 
 
 ### When you make sm1 without the garbage collector, type in make sm1.nogc
@@ -17,13 +29,13 @@ sm1.nogc :
 	(cd Kan; make sm1.nogc)
 
 configure : configure_symbolic_links 
-	(cd gmp; ./configure )	
+	(cd gmp; ./configure )
 
 configure_symbolic_links :
 	/bin/rm -f gc gmp lib Doc/var.sm1
-	ln -f -s ./gc-4.14 gc
-#	ln -f -s ./gmp-2.0.2 gmp
-	ln -f -s ./gmp-2.0.2-ssh-2 gmp
+	ln -f -s $(OpenXM_contrib)/gc gc
+	ln -f -s $(OpenXM_contrib)/gmp gmp
+#	ln -f -s gmp-2.0.2-ssh-2 gmp
 	ln -f -s ./Doc lib
 	(cd Doc; ln -f -s ../Kan/var.sm1 var.sm1)
 
@@ -70,8 +82,14 @@ install2 :
 
 ##############
 clean :
-	(cd gmp; make clean)
-	(cd gc; make clean)
+	if test -f gmp/Makefile ; \
+	then \
+	  (cd gmp; make clean) ; \
+	fi
+	if test -f gc/Makefile ; \
+	then \
+	  (cd gc; make clean) ; \
+	fi
 	(cd Kan; make clean)
 	(cd plugin; make clean)
 	/bin/rm -f sm1
@@ -81,7 +99,13 @@ clean :
 cleana:  distclean
 
 distclean :
-	(cd gmp; make distclean; /bin/rm -f *.a)
-	(cd gc; make clean; /bin/rm -f *.a)
+	if test -f gmp/Makefile ; \
+	then \
+	  (cd gmp; make distclean) ; \
+	fi
+	if test -f gc/Makefile ; \
+	then \
+	  (cd gc; make clean; /bin/rm -f *.a) ; \
+	fi
 	(cd Kan; make cleana)
 	(cd plugin; make clean; /bin/rm -f *.a)

@@ -1,4 +1,4 @@
-###  $OpenXM$
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile,v 1.2 1999/11/03 00:22:49 takayama Exp $
 all : sm1
 ########################## configuration ##############################
 ####  What C compiler do you use?
@@ -23,7 +23,7 @@ CFLAGS = -O
 
 GMP_HOME = ../gmp
 GMP_HOME2 = ../../gmp
-LIBGMP=$(GMP_HOME)/libgmp.a 
+LIBGMP = $(GMP_HOME)/libgmp.a
 ## This line is for buggy linux-gmp.
 ##LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 

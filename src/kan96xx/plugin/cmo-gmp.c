@@ -1,4 +1,4 @@
-/*$OpenXM$ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.3 1999/11/18 00:54:17 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -10,7 +10,8 @@
 #include "kclass.h"
 
 #include "gmp.h"
-#include "gmp-impl.h"
+#include "gmp-impl.h" 
+
 
 #include "file2.h"
 #include "cmo.h"
@@ -73,57 +74,8 @@ static outRawInt32(int k)
 size_t
 cmoOutGMPCoeff_old(mpz_srcptr x)
 {
-  int i;
-  mp_size_t s;
-  mp_size_t xsize = ABS (x->_mp_size);
-  mp_srcptr xp = x->_mp_d;
-  mp_size_t out_bytesize;
-  mp_limb_t hi_limb;
-  int n_bytes_in_hi_limb;
-  cmoint tmp[1];
-  tmp[0] = htonl(CMO_ZZ_OLD);
-  cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
-  
-  if (xsize == 0)
-    {
-      for (i = 4 - 1; i >= 0; i--)
-	myfputc (0);
-      return  4;
-    }
-
-  hi_limb = xp[xsize - 1];
-  for (i = BYTES_PER_MP_LIMB - 1; i > 0; i--)
-    {
-      if ((hi_limb >> i * BITS_PER_CHAR) != 0)
-	break;
-    }
-  n_bytes_in_hi_limb = i + 1;
-  out_bytesize = BYTES_PER_MP_LIMB * (xsize - 1) + n_bytes_in_hi_limb;
-  if (x->_mp_size < 0)
-    out_bytesize = -out_bytesize;
-
-  /* Make the size 4 bytes on all machines, to make the format portable.  */
-  for (i = 4 - 1; i >= 0; i--)
-    myfputc ((out_bytesize >> (i * BITS_PER_CHAR)) % (1 << BITS_PER_CHAR));
-
-  /* Output from the most significant limb to the least significant limb,
-     with each limb also output in decreasing significance order.  */
-
-  /* Output the most significant limb separately, since we will only
-     output some of its bytes.  */
-  for (i = n_bytes_in_hi_limb - 1; i >= 0; i--)
-    myfputc ((hi_limb >> (i * BITS_PER_CHAR)) % (1 << BITS_PER_CHAR));
-
-  /* Output the remaining limbs.  */
-  for (s = xsize - 2; s >= 0; s--)
-    {
-      mp_limb_t x_limb;
-
-      x_limb = xp[s];
-      for (i = BYTES_PER_MP_LIMB - 1; i >= 0; i--)
-	myfputc ((x_limb >> (i * BITS_PER_CHAR)) % (1 << BITS_PER_CHAR));
-    }
-  return ( ABS (out_bytesize) + 4);
+  fprintf(stderr,"cmoOutGMPCoeff_old is no longer supported.\n");
+  exit(10);
 }
 
 
@@ -178,67 +130,8 @@ static int getRawInt32(struct cmoBuffer *cb)
 
 cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb)
 {
-  int i;
-  mp_size_t s;
-  mp_size_t xsize;
-  mp_ptr xp;
-  unsigned int c;
-  mp_limb_t x_limb;
-  mp_size_t in_bytesize;
-  int neg_flag;
-
-  /* Read 4-byte size */
-  in_bytesize = 0;
-  for (i = 4 - 1; i >= 0; i--)
-    {
-      c = myfgetc (cb);
-      in_bytesize = (in_bytesize << BITS_PER_CHAR) | c;
-    }
-
-  /* Size is stored as a 32 bit word; sign extend in_bytesize for non-32 bit
-     machines.  */
-  if (sizeof (mp_size_t) > 4)
-    in_bytesize |= (-(in_bytesize < 0)) << 31;
-
-  neg_flag = in_bytesize < 0;
-  in_bytesize = ABS (in_bytesize);
-  xsize = (in_bytesize + BYTES_PER_MP_LIMB - 1) / BYTES_PER_MP_LIMB;
-
-  if (xsize == 0)
-    {
-      x->_mp_size = 0;
-      return 4;			/* we've read 4 bytes */
-    }
-
-  if (x->_mp_alloc < xsize)
-    _mpz_realloc (x, xsize);
-  xp = x->_mp_d;
-
-  x_limb = 0;
-  for (i = (in_bytesize - 1) % BYTES_PER_MP_LIMB; i >= 0; i--)
-    {
-      c = myfgetc (cb);
-      x_limb = (x_limb << BITS_PER_CHAR) | c;
-    }
-  xp[xsize - 1] = x_limb;
-
-  for (s = xsize - 2; s >= 0; s--)
-    {
-      x_limb = 0;
-      for (i = BYTES_PER_MP_LIMB - 1; i >= 0; i--)
-	{
-	  c = myfgetc (cb);
-	  x_limb = (x_limb << BITS_PER_CHAR) | c;
-	}
-      xp[s] = x_limb;
-    }
-
-  if (c == EOF)
-    return 0;			/* error */
-
-  MPN_NORMALIZE (xp, xsize);
-  x->_mp_size = neg_flag ? -xsize : xsize;
-  return in_bytesize + 4;
+  fprintf(stderr,"cmoGetGMPCoeff_old is no longer supported.\n");
+  exit(10);
 }
 
 /*****************************************************/
