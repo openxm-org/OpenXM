@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.8 2000/12/03 08:19:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.9 2000/12/05 11:20:26 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -915,6 +915,26 @@ struct object KoxGetPort(struct object host)
   putoa(rob,1,KpoInteger(portStream));
   putoa(rob,2,KpoInteger(fdControl));
   putoa(rob,3,KpoInteger(portControl));
+  return(rob);
+}
+struct object KoxGetPort1(struct object host)
+{
+  struct object rob;
+  int fdStream;
+  int portStream;
+  extern int OpenedSocket;
+  char *sname;
+  rob = NullObject;
+  if (host.tag != Sdollar) {
+    errorOxmisc2("KoxGetPort1: argument is not a string.");
+    return(rob);
+  }
+  sname = KopString(host);
+  fdStream = socketOpen(sname,0);
+  portStream = OpenedSocket;
+  rob = newObjectArray(2);
+  putoa(rob,0,KpoInteger(fdStream));
+  putoa(rob,1,KpoInteger(portStream));
   return(rob);
 }
 

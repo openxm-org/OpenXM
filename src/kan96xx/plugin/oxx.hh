@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.4 2000/12/03 07:29:40 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.5 2000/12/03 08:19:55 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
@@ -70,6 +70,11 @@ else if (strcmp(key,"oxGenPass") == 0) {
 }
 else if (strcmp(key,"oxGetPort") == 0) {
   if (size != 2) errorKan1("%s\n","[(oxGetPort) host] extension obj");
+  if (SecureMode) errorKan1("%s\n","Security violation for oxGetPort.");
+  rob = KoxGetPort(getoa(obj,1));
+}
+else if (strcmp(key,"oxGetPort1") == 0) {
+  if (size != 2) errorKan1("%s\n","[(oxGetPort1) host] extension obj");
   if (SecureMode) errorKan1("%s\n","Security violation for oxGetPort.");
   rob = KoxGetPort(getoa(obj,1));
 }

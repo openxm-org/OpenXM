@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.12 2000/12/03 08:19:54 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.13 2000/12/05 11:20:26 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -920,8 +920,7 @@ ox.verbose {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [
  /pass [(oxGenPass)] extension def
- /peer [(oxGetPort) (localhost)] extension def
- /peer [ peer 0 get peer 1 get ] def %% BUG, close the rest.
+ /peer [(oxGetPort1) (localhost)] extension def
  /data peer 1 get toString def
  peer message
  [(/home/nobuki/OpenXM/src/oxc/oxc)
@@ -935,6 +934,21 @@ ox.verbose {
   ox.ccc
  ] pop
  popVariables
+} def
+
+/sm1StartEngine101 {
+ [/in-sm1StartEngine101 /peer /data /control ] pushVariables
+ [
+    /peer [(oxGetPort1) (localhost)] extension def
+    /data peer 1 get def
+    ox.ccc data oxpushcmo
+    ox.ccc (/home/nobuki/OpenXM/bin/ox_sm1) oxpushcmo
+    [(oxPushCMD) ox.ccc SM_control_spawn_server] extension
+    (Implementation has not yet completed.) error
+    %% how can I get client structure?
+ ] pop
+ popVariables
+ arg1
 } def
 
 initializePathNamesForOx  %% This should be 
