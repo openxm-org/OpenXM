@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.14 1999/11/12 12:55:47 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.15 1999/11/18 21:57:56 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -56,8 +56,6 @@ static int          dump_cmo_zz(cmo_zz* c);
 static int          dump_string(char *s, int len);
 static int          dump_integer(int x);
 static int          dump_mpz(mpz_ptr mpz);
-
-static int          funcs(int cmo_type);
 
 static int          login_with_otp(int fd, char* passwd);
 static char         *create_otp();
@@ -332,7 +330,7 @@ cmo* receive_cmo(int fd)
     case CMO_DATUM:
     case CMO_QQ:
     default:
-        fprintf(stderr, "unknown cmo-type: tag = (%d)\n", m->tag);
+        fprintf(stderr, "the CMO (%d) is not implemented.\n", m->tag);
     }
     return m;
 }
@@ -555,7 +553,7 @@ int print_cmo_list(cmo_list* li)
 {
     cell* cp = li->head;
     while(cp->next != NULL) {
-		fprintf(stderr, ", ");
+        fprintf(stderr, ", ");
         print_cmo(cp->cmo);
         cp=cp->next;
     }
@@ -1193,20 +1191,14 @@ ox_command* new_ox_command(int sm_code)
     return m;
 }
 
-#define  MAX_TYPES  8
-static int known_types[] = {
-    -1,   /* gate keeper */
-    CMO_NULL,
-    CMO_INT32,
-    CMO_STRING,
-    CMO_MATHCAP,
-    CMO_LIST,
-    CMO_ZZ,
-    CMO_ERROR2,
-};
+ox_sync_ball* new_ox_sync_ball()
+{
+    ox_sync_ball *m = malloc(sizeof(ox_sync_ball));
+    m->tag = OX_SYNC_BALL;
+    return m;
+}
 
 #define ID_TEMP   "(CMO_LIST, (CMO_INT32, %d), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\"))"
-
 
 static cmo_list* make_list_of_id(int ver, char* ver_s, char* sysname)
 {
@@ -1241,13 +1233,13 @@ cmo* make_mathcap_object(int version, char *id_string)
     cmo_list *li     = new_cmo_list();
     cmo_list *li_1st = make_list_of_id(version, id_string, sysname);
     cmo_list *li_2nd = make_list_of_tag(IS_SM);
-	cmo_list *li_3rd = new_cmo_list();
+    cmo_list *li_3rd = new_cmo_list();
     cmo_list *li_cmo = make_list_of_tag(IS_CMO);
 
-    cmo_list *li_ox  = new_cmo_list();
-	append_cmo_list(li_ox,  (cmo *)new_cmo_int32(OX_DATA));
-    append_cmo_list(li_3rd, (cmo *)li_ox);
-    append_cmo_list(li_3rd, (cmo *)li_cmo);
+    cmo_list *li_ox_data  = new_cmo_list();
+    append_cmo_list(li_ox_data,  (cmo *)new_cmo_int32(OX_DATA));
+    append_cmo_list(li_ox_data,  (cmo *)li_cmo);
+    append_cmo_list(li_3rd, (cmo *)li_ox_data);
 
     append_cmo_list(li, (cmo *)li_1st);
     append_cmo_list(li, (cmo *)li_2nd);
@@ -1255,45 +1247,6 @@ cmo* make_mathcap_object(int version, char *id_string)
 
     return (cmo *)new_cmo_mathcap((cmo *)li);
 }
-
-static int funcs(int cmo_type)
-{
-    int i;
-    for(i=0; i<MAX_TYPES; i++) {
-        if (known_types[i] == cmo_type) {
-            return i;
-        }
-    }
-    return 0;
-}
-
-void setCmotypeDisable(int type)
-{
-    int i = funcs(type);
-    known_types[i] = -1;
-}
-
-#if 0
-cmo* (*received_funcs[])(int fd) = {
-    NULL,  /* gate keeper */
-    receive_cmo_null,
-    receive_cmo_int32,
-    receive_cmo_string,
-    receive_cmo_mathcap,
-    receive_cmo_list,
-    receive_cmo_zz,
-    receive_cmo_error2
-};
-
-cmo* receive_cmo2(int fd)
-{
-    int tag;
-    cmo* (*foo)() = received_funcs[funcs(tag)];
-    if (foo != NULL) {
-        return foo(fd);
-    }
-}
-#endif
 
 /* ファイルディスクリプタ fd の通信路での integer の byte order を決定する */
 /* 実際には order (0,1,or 0xFF)をみてはいない */
@@ -1343,28 +1296,28 @@ char *convert_int_to_string(int integer)
 
 char *convert_cmo_list_to_string(cmo_list *m)
 {
-	char *s;
-	int i;
-	int size = 0;
-	int len = length_cmo_list(m);
-	char **sp = malloc(len*sizeof(cmo *));
+    char *s;
+    int i;
+    int size = 0;
+    int len = length_cmo_list(m);
+    char **sp = malloc(len*sizeof(cmo *));
 
     cell *cp = m->head;
     for(i = 0; i < len; i++) {
-		sp[i] = convert_cmo_to_string(cp->cmo);
-		size += strlen(sp[i]) + 3;
+        sp[i] = convert_cmo_to_string(cp->cmo);
+        size += strlen(sp[i]) + 3;
         cp = cp->next;
     }
-	s = malloc(size+2);
-	strcpy(s, "[ ");
-	for(i = 0; i < len - 1; i++) {
-		strcat(s, sp[i]);
-		strcat(s, " , ");
-	}
-	strcat(s, sp[len-1]);
-	strcat(s, " ]");
-	free(sp);
-	return s;
+    s = malloc(size+2);
+    strcpy(s, "[ ");
+    for(i = 0; i < len - 1; i++) {
+        strcat(s, sp[i]);
+        strcat(s, " , ");
+    }
+    strcat(s, sp[len-1]);
+    strcat(s, " ]");
+    free(sp);
+    return s;
 }
 
 char *convert_cmo_to_string(cmo *m)
