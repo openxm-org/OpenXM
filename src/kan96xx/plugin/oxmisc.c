@@ -852,11 +852,15 @@ int oxRemovePortFile(void) {
 }
   
 char *oxGenPass(void) {
-  int seed;
+  static int seed = 0;
   long p;
   char *s;
-  seed = (int) time(NULL);
-  srandom((unsigned int) seed);
+  int i;
+  if (seed == 0) {
+    seed = (int) time(NULL) + (int) &p;
+    srandom((unsigned int) seed);
+  }
+  for (i=0; i < ((int) &p) % 100 ; i++) random();
   p = random();
   s = (char *)malloc(128*sizeof(char));
   sprintf(s,"%ld",p);
