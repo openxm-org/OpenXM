@@ -1,9 +1,10 @@
-%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.8 2005/02/04 11:25:45 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.9 2005/02/04 11:54:06 takayama Exp $
 %%% 1999, 6/7 Mon.
 [(parse) (ox.sm1) pushfile] extension
 [(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
 
-[OpenXM_HOME (/bin/gnuplot)] cat /plot.gnuplotexec set
+[(which) (gnuplot)] oxshell /plot.gnuplotexec set
+%[OpenXM_HOME (/bin/gnuplot)] cat /plot.gnuplotexec set
 %(gnuplot) /plot.gnuplotexec set
 
 (SSkan/lib/plot.sm1 for ox_sm1_gnuplot.  1999/09/03. ) message
@@ -21,6 +22,9 @@
 } def
 
 /plotstart.aux {
+  plot.gnuplotexec tag 0 eq {
+    (No gnuplot is installed in this system.) error
+  } { } ifelse
   {
     gnuplot.callingMethod 0 eq {
       plotstart.aux.0
