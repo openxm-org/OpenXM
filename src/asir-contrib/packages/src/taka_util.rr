@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.10 2003/01/29 13:31:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.11 2003/01/29 23:48:13 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -179,6 +179,18 @@ def taka_util_find_and_replace(Old,S,Snew) {
     Ans[I] = New[I];
   }
   return vtol(Ans);
+}
+
+def taka_util_timing(Q) {
+  if (type(Q) != 17) {
+    return "Error: the argument should be in the form quote([cmd1, cmd2, ...]) ";
+  }
+  T0=time();
+  R = eval_quote(Q);
+  T1=time();
+  R1 = ["cpu",T1[0]-T0[0],"gc",T1[1]-T0[1],"memory",T1[2]-T0[2],
+        "real",T1[3]-T0[3]];
+  return [R,R1];
 }
 
 Loaded_taka_util=1$

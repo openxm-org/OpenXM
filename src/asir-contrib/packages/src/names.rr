@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.79 2004/03/02 09:10:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.80 2004/03/11 12:36:53 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -48,7 +48,8 @@ def ox_loadfile(Tag,FileName) {
 }
 #define ox_loadfile_(A,B) load(B)
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
-ox_loadfile_(Loaded_taka_print,"noro_print.rr")$
+ox_loadfile_(Loaded_noro_print,"noro_print.rr")$
+ox_loadfile_(Loaded_noro_print_default,"noro_print_default.rr")$
 ox_loadfile_(Loaded_om,"om")$
 ox_loadfile_(Loaded_Matrix,"Matrix")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
@@ -727,6 +728,14 @@ def print_open_math_tfb_form(F) {
 }
 
 /* -----------------util---------------------- */
+/*&usage begin: util_timing(Q)
+ Show the timing data to execute {Q}.
+ example: util_timing( quote( fctr(x^50-y^50) ));
+end: */
+def util_timing(Q) { 
+  OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
+  return(taka_util_timing(Q));
+}
 /*&usage begin: util_load_file_as_a_string(F)
  It reads a file {F} as a string.
 end: */
