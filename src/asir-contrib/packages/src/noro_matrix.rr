@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.7 2004/06/08 09:30:37 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.8 2004/06/14 08:39:23 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -780,20 +780,19 @@ def jordan_canonical_form(A)
 		} else {
 			AlgV = algptorat(Alpha[K]);
 			AlphaV = vector(DK);
+			Sym = 1;
 			for ( U = 0; U < DK; U++ ) {
 				AlphaV[U] = strtov(asciitostr([Prefix])+rtostr(U));
+				Sym *= (x-AlphaV[U]);
 				for ( T = JBK; T != []; T = cdr(T), J++ ) {
 					V = car(T);
 					for ( I = 0; I < N; I++ )
 						Q[I][J] = subst(algptorat(V[I]),AlgV,AlphaV[U]);
 				}
 			}
-			Sym = generate_elementary_symmetric_form(DK|vars=AlphaV);
-			Sym = map(dp_dtop,Sym[0],Sym[1]);
-			Sym = ltov(reverse(vtol(Sym)));
-			F = FM[K][0];
+			F = Sym-FM[K][0];
 			for ( I = 0, T = []; I < DK; I++ )
-				T = cons(Sym[I]-(-1)^(DK-I)*coef(F,I),T);
+				T = cons(coef(F,I,x),T);
 			DefIdeal = cons(T,DefIdeal);
 			Prefix++;
 		}
