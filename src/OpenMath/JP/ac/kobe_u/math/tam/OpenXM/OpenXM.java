@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.9 2000/01/20 18:55:22 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.10 2000/03/15 15:02:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -122,22 +122,6 @@ public class OpenXM implements Runnable{
 
   public void setMathCap(CMO_MATHCAP mathcap){
     stream.setMathCap(mathcap);
-  }
-
-  public static String toString(int tag){
-    switch(tag){
-    case OX_COMMAND:
-      return "OX_COMMAND";
-
-    case OX_DATA:
-      return "OX_DATA";
-
-    case OX_SYNC_BALL:
-      return "OX_SYNC_BALL";
-
-    default:
-    }
-    return "unknown code("+ tag +")";
   }
 
   private final void debug(String str){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.13 2000/03/15 15:02:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.14 2000/03/15 17:58:07 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -70,14 +70,6 @@ class OpenXMconnection{
     buffer.write(b);
   }
 
-  /*
-  public void write(byte[] buf) throws IOException{
-    for(int i=0;i<buf.length;i++){
-      buffer.write(b[i]);
-    }
-  }
-  */
-
   public void writeInt(int i) throws IOException{
     new DataOutputStream(buffer).writeInt(i);
   }
@@ -97,13 +89,8 @@ class OpenXMconnection{
     os.flush();
   }
 
-
-  public void sendSM(OXbody code) throws IOException,MathcapViolation{
-    this.write(new OXmessage(serial_num,code));
-  }
-
   public void send(OXbody object) throws IOException,MathcapViolation{
-    this.sendSM(object);
+    this.write(new OXmessage(serial_num,object));
   }
 
   public void sendCMO(CMO object) throws IOException,MathcapViolation{
@@ -141,20 +128,5 @@ class OpenXMconnection{
 
   public void setMathCap(CMO_MATHCAP mathcap){
     this.mathcap = mathcap;
-  }
-
-  public static String toString(int tag){
-    switch(tag){
-    case OX_COMMAND:
-      return "OX_COMMAND";
-
-    case OX_DATA:
-      return "OX_DATA";
-
-    case OX_SYNC_BALL:
-      return "OX_SYNC_BALL";
-    }
-
-    return "";
   }
 }
