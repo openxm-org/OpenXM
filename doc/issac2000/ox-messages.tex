@@ -1,4 +1,4 @@
-%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.4 2000/01/13 10:57:10 ohara Exp $
+%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.5 2000/01/15 03:46:27 noro Exp $
 
 \section{OX messages}
 
@@ -14,14 +14,14 @@ Header	& \hspace{10mm} Body \hspace{10mm} \\
 The header consists of two signed 32 bit integers.
 The first one is an OX tag 
 and the second one is a serial number of the OX message.
-Negative numbers are expressed by the two's complement.
+%Negative numbers are expressed by the two's complement.
 Several byte orders including the network byte order
 are allowed and the byte order is determined as a part of
 the establishment of a connection. See Section \ref{secsession} for details.
 
 The OX messages are classified into three types:
 DATA, COMMAND, and SPECIAL.
-We have the following main tags for the OX messages.
+We have currently the following general tags for the OX messages.
 \begin{verbatim}
 #define	OX_COMMAND               513  // COMMAND
 #define	OX_DATA	                 514  // DATA
@@ -34,20 +34,17 @@ We have the following main tags for the OX messages.
 
 New OX tags may be added.
 The new tag should be classified into DATA or COMMAND.
-For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added a few month ago
+For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added recently
 to send internal serialized objects of asir via the OpenXM protocol.
 This is a tag classified to DATA.
-See the web page of OpenXM to add a new tag.
-The server is a stack machine (see Section~\ref{sec:ox-stackmachines}
+See the web page of OpenXM to add a new tag \cite{openxm-web}.
+Any server is a stack machine (see Section~\ref{sec:ox-stackmachines}
 for detail).
-{\it OX data} message sent by the client
-are pushed onto the stack of the server. 
-If the server gets an {\it OX command} message, then the server extracts
-a stack machine code in the OX command message and interprets the code.
-For example, in case of SM\_executeFunction, some data are popped from
-the stack and they are used as arguments of a function call.
+{\it OX data} message sent by a client
+are pushed onto the stack of a server. 
+If the server gets an {\it OX command} message, then the server 
+executes the command.
 
-We explain an implementation of handling OX messages.
 For example, the asir command {\tt ox\_push\_cmo(P,1)}
 (push integer $1$ onto the server $P$)
 sends an OX data message
