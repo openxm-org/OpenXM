@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMserver.java,v 1.1 2000/09/07 11:07:01 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -7,9 +7,8 @@ import java.io.*;
 import java.net.*;
 
 /**
- * OpenXM クライアントからの接続を行なう抽象クラス.
- * OpenXM サーバはこのクラスの派生クラスとして書く.
- * 新たな ox コマンドの実装により, 不必要になる予定.
+ * OpenXM クライアントからの接続を行なうソケットを作成する抽象クラス.
+ * 新たな ox コマンドの実装により, 廃止になる予定.
  */
 public abstract class OpenXMserver{
   private OpenXMserver server = null;

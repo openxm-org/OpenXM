@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.1 2000/09/07 10:41:34 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.2 2000/09/07 11:07:01 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -8,13 +8,19 @@ import java.net.*;
 
 
 /**
- * OpenXM サーバとの接続を行なう抽象クラス.
+ * OpenXM サーバとの接続を行なうクラス.
  * クライアント側が使用する.
+ * 接続するサーバ毎に一つの OpenXM クラスが必要.
  */
 public class OpenXM{
   private OpenXMconnection control = null, stream = null;
   final protected boolean debug = false;
 
+  /**
+   * OpenXM サーバとの接続を TCP/IP ソケットを用いて行なう.
+   * マシン名 host のポート番号 CtrlPort にコントロールを,
+   * ポート番号 StreamPort にデータ用の接続を行なう.
+   */
   public OpenXM(String host,int CtrlPort,int StreamPort) throws IOException{
     control = new OpenXMconnection(host,CtrlPort);
 
@@ -31,7 +37,7 @@ public class OpenXM{
   }
 
   /**
-   * 接続の reset を行なう. 現在は未実装.
+   * 接続の初期化を行なう. 現在は未実装.
    */
   public synchronized void resetConnection(){
     debug("control: stopping computer process...");
@@ -39,24 +45,28 @@ public class OpenXM{
   }
 
   /**
-   * OpenXM メッセージを送信する. ただし、このメソッドは
-   * ボディの部分だけでよい. ヘッダの部分は自動で付加される.
+   * OpenXM メッセージをデータストリームに送信する.
+   * このメソッドはメッセージのボディの部分だけでよい.
+   * ヘッダ部分は自動で付加される.
    */
   public void send(OXbody object) throws IOException,MathcapViolation{
     stream.send(object);
   }
 
   /**
-   * OpenXM メッセージを受け取る.
+   * データストリームから OpenXM メッセージを受け取る.
    */
   public OXmessage receive() throws IOException{
     return stream.receive();
   }
 
   /**
-   * MathCap を mathcap に設定する.
-   * 以後, mathcap に反した CMO を送ると
-   * MathcapViolation が発生する.
+   * データストリームの MathCap を mathcap に設定する.
+   * 以後, 送信するオブジェクトは mathcap に合っているかどうか
+   * チェックが入る. 実際にチェックが入るかどうかは
+   * OXbody クラスの派生クラスの実装による.
+   * mathcap に反したオブジェクトを送ろうとした時には,
+   * 以後 MathcapViolation が発生することが期待される.
    */
   public void setMathCap(CMO_MATHCAP mathcap){
     stream.setMathCap(mathcap);
