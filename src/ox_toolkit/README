@@ -1,11 +1,11 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.4 1999/12/15 08:04:50 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.5 1999/12/15 09:24:46 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
 */
-/*&en A user's guide for ox_toolkit.
+/*&en A user's guide for OpenXM C library.
 
 */
 /*&ja
@@ -14,7 +14,7 @@ libox.a を利用するには次のヘッダファイルをインクルードする必要があります。
 /*&en
 How to use OpenXM C library?
 
-The OpenXM C libraiy has header files:
+In order to use libox.a, you need to include the following header files:
 */
 /*&common
 
@@ -35,7 +35,7 @@ The OpenXM C libraiy has header files:
 1. Types
 
 1.1 CMO (Common Math Object)
-The following structures is defined in ox.h:
+The following structures are defined in ox.h:
 */
 /*&common
 
@@ -65,7 +65,7 @@ cmo_error2
 
 */
 /*&en
-The cmo above is similer to abstract base class; 
+The cmo above is abstract base class; 
 you never make an object of cmo class.
 
 */
@@ -75,7 +75,7 @@ you never make an object of cmo class.
 */
 /*&en
 1.2 OX objects
-The following structures is defined in ox.h:
+The following structures are defined in ox.h:
 */
 /*&common
 
@@ -101,7 +101,8 @@ The ox above is abstract base class.
 /*&en
 2. How to make CMObjects?
 
-You may use new functions which generate an object and return its pointer.
+Use the following functions to generate an object.
+It returns a pointer to the object.
 */
 /*&common
 
@@ -136,11 +137,12 @@ new_cmo_error2(cmo* ob);
 /*&en
 3. High-level API
 
-High-level API is prepared for implementation of your OpenXM clients.
+High-level API is prepared to help an implementation of OpenXM clients.
 
-3.1 How to make connection to OpenXM server?
+3.1 How to make connections to OpenXM servers?
 
-You may call ox_start or ox_start_insecure_nonreverse.
+In order to open a connection to an OpenXM server, 
+you need to call ox_start() or to call ox_start_insecure_nonreverse().
 */
 /*&common
 
@@ -172,9 +174,10 @@ portStream は計算サーバとの通信のためのポート番号である。
 
 */
 /*&en
-3.2 How to close connection to OpenXM server?
+3.2 How to close connections to OpenXM servers?
 
-You may call ox_close or ox_shutdown.
+In order to close a connection to an OpenXM server,
+you need to call ox_close() or to call ox_shutdown().
 
 */
 /*&common
@@ -192,7 +195,7 @@ void ox_shutdown(ox_file_t sv);
 3.3 SM コマンドの送信
 */
 /*&en
-3.3 How to command to OpenXM stack machine?
+3.3 How to command to OpenXM stack machines?
 */
 /*&common
 
@@ -204,7 +207,7 @@ void  ox_push_cmd(ox_file_t sv, int sm_code);
 */
 /*&en
 ox_push_cmd() sends an operation code to an OpenXM stack machine.
-Table of opecode is defined in oxtag.h.
+See oxtag.h.
 */
 /*&ja
 
@@ -244,7 +247,7 @@ void ox_execute_string(ox_file_t sv, char* str);
 
 3.9 
 
-int   ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
+int ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
 
 function(argv[1], ...) を計算し、結果をスタックに積む。
 
@@ -284,8 +287,9 @@ int decideByteOrderServer(int fd, int order);
 (注意) クライアント側でのバイトオーダの設定は、高水準 API で自動的に行われる。
 */
 /*&en
-You must call it when your OpenXM server is initialized.
-This function always choose the network byte order for integers.
+You need to call it when your OpenXM server is initialized.
+This function always choose the network byte order 
+as an expression for integers.
 */
 /*&common
 
@@ -330,7 +334,7 @@ int next_serial();
 シリアルナンバを生成する。
 */
 /*&en
-next_serial() generates serial number for ox message.
+next_serial() generates a serial number for ox message.
 */
 /*&common
 
@@ -346,9 +350,9 @@ fd に OX メッセージのヘッダ(tag+serial#)を書き込む。シリアル番号は
 fd から OX メッセージのヘッダ(tag+serial#)を読み込む。
 */
 /*&en
-send_ox_tag() writes a tag and automatically generated serial number 
+send_ox_tag() writes a tag and an automatically generated serial number 
 of an ox message to an OpenXM conection.
-receive_ox_tag() reads a tag and serial number of an ox message.
+receive_ox_tag() reads a tag and a serial number of an ox message.
 */
 /*&common
 
@@ -361,4 +365,48 @@ void send_ox_command(int fd, int sm_command);
 */
 /*&ja
 ox メッセージを送信する。
+*/
+
+/*&ja
+
+5. OX expression パーサ
+
+OpenXM C library には 文字列表現された 
+OX expression および CMO expression から、
+ox 構造体または cmo 構造体を生成するためのパーサが付属している。
+
+ここではこのパーサについて説明する。
+
+int setflag_parse(int flag);
+
+setflag_parse(PFLAG_ADDREV) によって、CMO の短縮表現を許す。
+
+int init_parser(char *str);
+
+パーサが処理すべき文字列をセットする。
+
+cmo *parse();
+
+Lisp 表現による OX expression, CMO expression の構文解析器。あらかじめ
+設定された文字列を解析して ox 構造体、あるいは cmo 構造体を生成する。
+*/
+/*&ja
+
+7. 付属プログラムについて
+
+testclient
+
+テスト用の小さな OpenXM クライアント。OX expression を入力して送信する
+ことのみ可能。SM_popCMO, SM_popString を含むメッセージを送信した場合に
+は、サーバから送られてくるメッセージを表示する。
+
+bconv
+
+バイトコードエンコーダ。OX expression あるいは CMO expression を入力す
+ると、対応するバイト列を表示する。
+
+ox_Xsample
+
+GUI 表示する OpenXM サーバのサンプル。
+
 */
