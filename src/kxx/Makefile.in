@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.15 2002/08/03 07:44:51 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.16 2002/10/20 13:13:35 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -71,7 +71,7 @@ ox : oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_
 	$(CC) ${STATIC_LINK_FLAG} $(CFLAGS) ${DDD} oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LIBS) 
 
 oxd : oxd.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
-	$(CC) ${STATIC_LINK_FLAG} $(CFLAGS) ${DDD} oxd.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LIBS) 
+	$(CC) ${STATIC_LINK_FLAG} $(CFLAGS) ${DDD} oxd.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o oxd  $(LIBS) 
 
 ox_null : oxserver00.c ox.a nullstackmachine.o file2.o ox_kan.h
 	$(CC)  ${STATIC_LINK_FLAG} $(CFLAGS)  ${DDD} oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LIBS) ; \
