@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.28 2001/09/20 10:19:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.29 2001/10/11 01:11:31 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -267,6 +267,10 @@ def print_input_form(F) {
 def print_open_math_xml_form(F) { 
   OX_LOADFILE(Loaded_om,"om");
   return(ox_xml(F)); 
+}
+def print_ox_rfc100_xml_form(F) { 
+  OX_LOADFILE(Loaded_taka_print_cmo100,"taka_print_cmo100.rr");
+  return(taka_cmo100_xml_form(F));
 }
 def print_png_form(F) {
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");

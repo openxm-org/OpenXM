@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_cmo100.rr,v 1.1 2001/10/11 01:11:32 takayama Exp $ */
 #include "tags.h"
 
 /* CMO defined in OpenXM-RFC 100 */
@@ -7,7 +7,9 @@ def taka_cmo100_xml_form(S) {
   extern Cmo100_add_nl;
   A = "";
   A = taka_cmo100_indent(A);
-  if (type(S) == LIST) {
+  if (type(S) == 0) {
+    A += "<cmo_null>";
+  }else if (type(S) == LIST) {
     A += taka_cmo100_start("list");
     SS = map(taka_cmo100_xml_form,S);
     A += taka_cmo100_start_int32("length",length(SS));
@@ -64,12 +66,31 @@ def taka_cmo100_xml_form(S) {
     A += taka_cmo100_start("recursive_polynomial");
     A = taka_cmo100_nl(A);
     A = taka_cmo100_indent(A);
-    V = vars(S);  VV = map(rtostr,V);
+    V = vars(S);  
+    VV = newvect(length(V));
+    for (I=0; I<length(V); I++) {
+      if (vtype(V[I]) != 2) {
+        VV[I] = rtostr(V[I]);
+      }else{
+        VV[I] = eval_str("quote("+rtostr(V[I])+")");
+      }
+    }
+    VV = vtol(VV);
     A += taka_cmo100_xml_form(VV);
     A = taka_cmo100_nl(A);
     A += taka_cmo100_xml_polynomial_in_one_variable(S,0);
     A = taka_cmo100_end_indent(A);
     A += taka_cmo100_end("recursive_polynomial");
+  }else if (type(S) == VECTOR) {
+    A += taka_cmo100_xml_form(vtol(S));
+  }else if (type(S) == MATRIX) {
+    T = newvect(size(S)[0]);
+    for (I=0; I<size(S)[0]; I++) {
+      T[I] = vtol(S[I]);
+    }
+    A += taka_cmo100_xml_form(vtol(T));
+  }else if (type(S) == QUOTE) {
+    A += taka_cmo100_basic_form_quote(S);
   }else{
     A += "(cmo100_xml_form) Not Yet Implemented";
   }
@@ -135,6 +156,324 @@ def taka_cmo100_start_int32(Reason,V) {
 def taka_cmo100_end(S) {
   return "</cmo_"+S+"> "; 
 }
+
+/* XML/OXRFC-100-CMO form for quote. */
+def taka_cmo100_basic_form_quote(S) {
+  if (type(S) == QUOTE) {  
+    S = quotetolist(S); 
+  }else{
+    return rtostr(S);
+  }
+  return taka_cmo100_basic_form_quote_list(S);
+}
+
+def taka_cmo100_basic_form_quote_list(S) {
+  if (type(S) != LIST) return taka_cmo100_basic_form_node_name(S);
+  A = " ";
+  if (S[0] == "u_op") {
+     return taka_cmo100_basic_form_quote_list_u_op(cdr(S));
+  }else if (S[0] == "b_op") {
+     return taka_cmo100_basic_form_quote_list_b_op(cdr(S));
+  }else if (S[0] == "t_op") {
+     return taka_cmo100_basic_form_quote_list_t_op(cdr(S));
+  }else if (S[0] == "list") {
+     return taka_cmo100_basic_form_quote_list_list(cdr(S));
+  }else if (S[0] == "exponent_vector") {
+     return taka_cmo100_basic_form_quote_list_exponent_vector(cdr(S));
+  }else if (S[0] == "internal") {
+     return taka_cmo100_basic_form_quote_list_internal(cdr(S));
+  }else if (S[0] == "variable") {
+     return taka_cmo100_basic_form_quote_list_variable(cdr(S));
+  }else if (S[0] == "function") {
+     return taka_cmo100_basic_form_quote_list_function(cdr(S));
+  }else {
+     error("Unknown quote format.");
+  }
+}
+
+def taka_cmo100_tree(S,CD) {
+  return "<cmo_tree> "+ taka_cmo100_xml_form(rtostr(S))+
+         taka_cmo100_xml_form([["cdname",rtostr(CD)]]);
+}
+def taka_cmo100_tree_basic(S) {
+  return taka_cmo100_tree(S,"basic");
+}
+def taka_end_cmo100_tree() {
+  return "</cmo_tree>";
+}
+def taka_cmo100_v(S) {
+  return "<cmo_indeterminate>"+taka_cmo100_xml_form(rtostr(S))+
+         "</cmo_indeterminate>";
+}
+
+def taka_cmo100_basic_form_quote_list_u_op(S) {
+  if (S[0] == "()") {
+    /* Remove ( ) */
+    A += taka_cmo100_basic_form_quote_list(S[1]);
+  }else
+  if (S[0] == "!") {
+    A += taka_cmo100_tree_basic("not");
+    A += taka_cmo100_basic_form_quote_list(S[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "@!") {
+    A += taka_cmo100_tree_basic("not");
+    A += taka_cmo100_basic_form_quote_list(S[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "-") {
+    A += taka_cmo100_tree_basic("minus");
+    A += taka_cmo100_basic_form_quote_list(S[1]);
+    A += taka_end_cmo100_tree();
+  }else{
+    error("Not implemented");
+  }
+  return A;
+}
+
+def taka_cmo100_basic_form_quote_list_b_op(S) {
+   if (S[0] == "+") {
+    T = cdr(S);
+    N = length(T);
+    A += taka_cmo100_tree_basic("plus");
+    for (I=0; I<N; I++) {
+      A += taka_cmo100_basic_form_quote_list(T[I]);
+    }
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "-") {
+    T = cdr(S);
+    N = length(T);
+    A += taka_cmo100_tree_basic("minus");
+    for (I=0; I<N; I++) {
+      if (I == 0 && taka_is_internal_zero(T[I])) {
+         /* Do not print 0. */
+      } else {
+         A += taka_cmo100_basic_form_quote_list(T[I]);
+      }
+    }
+    A += taka_end_cmo100_tree();
+  } else
+  if (S[0] == "*") {
+    T = cdr(S);
+    N = length(T);
+    A += taka_cmo100_tree_basic("times");
+    for (I=0; I<N; I++) {
+      A += taka_cmo100_basic_form_quote_list(T[I]);
+      A += " ";
+    }
+    A += taka_end_cmo100_tree();
+  } else
+  if (S[0] == "/") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("over");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  } else
+  if (S[0] == "^") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("power");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  } else
+  if (S[0] == "%") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("% (undefined)");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  } else
+  if (S[0] == "==" || S[0] == "@==") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("equal");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "&&") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("and");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "||") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("or");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "<" || S[0] == "@<") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("less");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == ">" || S[0] == "@>") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("greater");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "<=" || S[0] == "@<=") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("lessequal");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == ">=" || S[0] == "@>=") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("greaterequal");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else
+  if (S[0] == "!=" || S[0] == "@!=") {
+    T = cdr(S);
+    A += taka_cmo100_tree_basic("unequal");
+    A += taka_cmo100_basic_form_quote_list(T[0]);
+    A += taka_cmo100_basic_form_quote_list(T[1]);
+    A += taka_end_cmo100_tree();
+  }else {
+    error("Not implemented.");
+  }
+  return A;
+}
+
+def taka_cmo100_basic_form_list_t_op(S) {
+  NOT_YET ;
+}
+
+
+def taka_cmo100_basic_form_quote_list_list(S) {
+    T = S;
+    A = taka_cmo100_tree_basic("list");
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_cmo100_basic_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += taka_end_cmo100_tree();
+    return A;
+}
+
+def taka_cmo100_basic_form_quote_list_exponent_vector(S) {
+    NOT_YET;
+    A = "(";
+    T = cdr(S);
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_cmo100_basic_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += ")";
+    return(A);
+}
+
+def taka_cmo100_basic_form_quote_list_function(S) {
+    if (S[0] == "exponent_vector") {
+      return taka_cmo100_basic_form_quote_list_exponent_vector(cdr(S));
+    }else if (taka_is_infix(S[0])) {
+      /* printing general infix function */
+      NOT_YET;
+      A = "(";
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += "(";
+        A += taka_cmo100_basic_form_quote_list(T[I]);
+        A += ")";
+        if (I != N-1) {
+          A += taka_cmo100_basic_form_node_name(S[0]);
+        }
+      }
+      A += ")";
+      return(A);
+    }else {
+      /* printing general prefix functions. */
+      TT = taka_cmo100_basic_form_node_name_cd(S[0]);
+      A = taka_cmo100_tree(taka_cmo100_basic_form_node_name(S[0]),TT);
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += taka_cmo100_basic_form_quote_list(T[I]);
+      }
+      A += taka_end_cmo100_tree();
+      return(A);
+   }
+}
+
+def taka_cmo100_basic_form_quote_list_internal(S) {
+  X = car(S);
+  if (type(X) == RPOLYNOMIAL) {
+    return taka_cmo100_v(taka_cmo100_basic_symbol(rtostr(X)));
+  }
+  if (type(X) == NUMBER && ntype(X) == 0) {
+    return "<cmo_zz>"+rtostr(X)+"</cmo_zz>";
+  }
+  return rtostr(X);
+}
+def taka_cmo100_basic_form_quote_list_variable(S) {
+  X = car(S);
+  if (type(X) == STRING) return X;
+  else return rtostr(X);
+}
+
+def taka_cmo100_basic_form_node_name(S) {
+  if (type(S) != STRING) return rtostr(S);
+  /* Table of Mathematical Symbols. */
+  return taka_cmo100_basic_symbol(S);
+}
+
+
+def taka_cmo100_basic_symbol(S) {
+  /* R = taka_is_indexed(S);
+  if (R[0]) {
+    return taka_cmo100_basic_symbol_(R[1])+"_{"+R[2]+"}";
+  } 
+  return taka_cmo100_basic_symbol_(R[1]);
+  */
+  return taka_cmo100_basic_symbol_(S);
+
+}
+
+def taka_cmo100_basic_symbol_(S) {
+  extern Xml_basic_symbol_table;
+  extern Xml_basic_symbol_table;
+  N = size(Xml_basic_symbol_table)[0];
+  /* Linear search for now*/
+  for (I=0; I<N; I++) {
+    if (S == Xml_basic_symbol_table[I][0]) {
+       return Xml_basic_symbol_table[I][1];
+    }
+  }
+  return S;
+}
+
+def taka_cmo100_basic_form_node_name_cd(S) {
+  extern Xml_basic_symbol_table;
+  extern Xml_basic_symbol_table;
+  N = size(Xml_basic_symbol_table)[0];
+  /* Linear search for now*/
+  for (I=0; I<N; I++) {
+    if (S == Xml_basic_symbol_table[I][0]) {
+       return Xml_basic_symbol_table[I][2];
+    }
+  }
+  return "unknown";
+}
+
+
 
 Loaded_taka_print_cmo100=1$
 end$
