@@ -1,4 +1,6 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.10 2000/03/10 08:11:17 takayama Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.11 2000/09/04 03:17:22 takayama Exp $
+
+OPENXM_CONTRIB=../../OpenXM_contrib
 
 LIBDIR=../lib
 FEPLINUX=fep.linux
@@ -10,71 +12,56 @@ configure:
 	@if [ -f .configure_done ] ; then \
 		echo "OpenXM/bin is already configured." ; \
 	else \
-		make configure-real ; \
+		rm -f fep phc ; \
+		if [ "`uname`" = "FreeBSD" ]; then \
+			make configure-freebsd ; \
+		fi ; \
+		if [ "`uname`" = "Linux" ]; then \
+			make configure-linux ; \
+		fi ; \
+		rm -f ox_asir ; \
+		ln -f -s ./asir ox_asir ; \
+		@touch ./configure_done ; \
 	fi
 
 clean-for-install:
 	$(RM) -f *uuencoded* 
 
-configure-real: $(FEPLINUX) $(FEPFBSD) $(PHC)
-	@if [ "`uname`" = "Linux" ]; then \
-		rm -f fep phc ; \
-		ln -f -s $(FEPLINUX) fep ; \
-		ln -f -s $(PHC) phc ; \
-		rm -f $(FEPFBSD) ; \
-	    echo "Linux binary generation: fep, phc" ; \
-	else \
-		echo "Not Linux" ; \
-	fi
-	-@if [ "`uname`" = "FreeBSD" ]; then \
-		rm -f fep phc ; \
-		ln -f -s $(FEPFBSD) fep ; \
-		ln -f -s $(PHC) phc ; \
-		rm -f $(FEPLINUX) ; \
-		brandelf -t Linux ./phc ; \
-		echo "FreeBSD binary generation: fep and phc. Linux Emulation is requied to execute phc." ; \
-	else \
-	     echo "Not FreeBSD" ; \
+configure-freebsd:
+	(cd ${OPENXM_CONTRIB}/PHC/Objects/ ; make phc)
+	install /tmp/phc .
+	if [ -f ${FEPFBSD}.gz.uuencoded ]; then \
+		uudecode -p ${FEPFBSD}.gz.uuencoded | zcat - > fep ; \
+		chmod +x fep ; \
 	fi
 
-	rm -f ox_asir
-	ln -f -s ./asir ox_asir
-	@touch .configure_done
-
-$(FEPLINUX) : $(FEPLINUX).gz.uuencoded
-	@if [ -f $(FEPLINUX).gz.uuencoded ]; then \
-		uudecode $(FEPLINUX).gz.uuencoded ; \
-		gzip -d $(FEPLINUX).gz ; \
-		chmod +x $(FEPLINUX) ; \
+configure-linux:
+	if [ -f ${PHC}.gz.uuencoded ]; then \
+		uudecode -p ${PHC}.gz.uuencoded | zcat - > phc ; \
+		chmod +x phc ; \
 	fi
-
-$(FEPFBSD) : $(FEPFBSD).gz.uuencoded
-	@if [ -f $(FEPFBSD).gz.uuencoded ]; then \
-		uudecode $(FEPFBSD).gz.uuencoded ; \
-		gzip -d $(FEPFBSD).gz ; \
-		chmod +x $(FEPFBSD) ; \
-	fi
-
-$(PHC) : $(PHC).gz.uuencoded
-	@if [ -f $(PHC).gz.uuencoded ]; then \
-		uudecode $(PHC).gz.uuencoded ; \
-		gzip -d $(PHC).gz ; \
-		chmod +x $(PHC) ; \
+	if [ -f ${FEPLINUX}.gz.uuencoded ]; then \
+		uudecode -p ${FEPLINUX}.gz.uuencoded | zcat - > fep ; \
+		chmod +x fep ; \
 	fi
 
 distclean:
-	rm -f asir ox_asir fep fep.linux fep.fbsd lin_phcv2p phc .configure_done
+	if [ "`uname`" = "FreeBSD" ]; then \
+		(cd ${OPENXM_CONTRIB}/PHC/Objects/ ; make clean) \
+	fi
+	rm -f asir ox_asir fep phc
+	@rm -f .configure_done
 
 uuencode:
 	@if [ -f $(FEPLINUX) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.10 2000/03/10 08:11:17 takayama Exp $' > $(FEPLINUX).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.11 2000/09/04 03:17:22 takayama Exp $' > $(FEPLINUX).gz.uuencoded ; \
 		gzip -c $(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(FEPLINUX).gz.uuencoded ; \
 	fi
 	@if [ -f $(FEPFBSD) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.10 2000/03/10 08:11:17 takayama Exp $' > $(FEPFBSD).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.11 2000/09/04 03:17:22 takayama Exp $' > $(FEPFBSD).gz.uuencoded ; \
 		gzip -c $(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(FEPFBSD).gz.uuencoded ; \
 	fi
 	@if [ -f $(PHC) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.10 2000/03/10 08:11:17 takayama Exp $' > $(PHC).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.11 2000/09/04 03:17:22 takayama Exp $' > $(PHC).gz.uuencoded ; \
 		gzip -c $(PHC) | uuencode $(PHC).gz >> $(PHC).gz.uuencoded ; \
 	fi
