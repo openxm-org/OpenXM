@@ -1,4 +1,4 @@
-(* $OpenXM$ *)
+(* $OpenXM: OpenXM/src/ox_math/lib/primadec.m,v 1.1 1999/12/15 03:40:36 ohara Exp $ *)
 
 (*
 usage:
@@ -12,8 +12,8 @@ In[2]:= primadec[{x^2-3*x+2},{x}]
 Out[2]= {{{-1 + x}, {-1 + x}}, {{-2 + x}, {-2 + x}}}
 *)
 
-asirRtostr[x_] := Block[
-	{list = {}, i},
+asirRtostr[x_] := Module[
+	{list = {}, i, s},
 	If[ x[[0]] === List,
 	  list = Append[list, " [ " ];
 	  If[ Length[x] > 0 ,
