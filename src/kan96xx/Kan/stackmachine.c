@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.23 2004/09/12 01:53:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.24 2004/09/12 08:55:36 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -981,7 +981,7 @@ int executeToken(token)
       if (ob.tag >= 0) {
         /* there is a definition in the user dictionary */
         if (ob.tag == SexecutableArray) {
-          status = executeExecutableArray(ob,token.token);
+          status = executeExecutableArray(ob,token.token,0);
           if ((status & STATUS_BREAK) || (status < 0)) return status;
         }else {
           Kpush(ob);
@@ -1595,7 +1595,7 @@ char *traceShowStack(void) {
 /*
   if (fname != NULL) fname is pushed to the trace stack.
  */ 
-int executeExecutableArray(struct object ob,char *fname) {
+int executeExecutableArray(struct object ob,char *fname,int withGotoP) {
   struct tokens *tokenArray;
   int size,i;
   int status;
@@ -1611,7 +1611,7 @@ int executeExecutableArray(struct object ob,char *fname) {
   size = ob.rc.ival;
   for (i=0; i<size; i++) {
     status = executeToken(tokenArray[i]);
-    if ((status & STATUS_BREAK) || (status < 0) || GotoP) {
+    if ((status & STATUS_BREAK) || (status < 0) || (withGotoP && GotoP)) {
       if (fname != NULL) tracePopName();
       return(status);
     }
@@ -1624,7 +1624,7 @@ int executeExecutableArray(struct object ob,char *fname) {
     }else if (infixOn) {
       infixOn = 0;
       status = executeToken(infixToken);
-      if ((status & STATUS_BREAK) || (status < 0) || GotoP) {
+      if ((status & STATUS_BREAK) || (status < 0) || (withGotoP && GotoP)) {
         if (fname != NULL) tracePopName();
         return(status);
       }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.13 2004/09/12 02:37:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.14 2004/09/12 08:55:36 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -745,7 +745,7 @@ int executePrimitive(ob)
       break;
     }
     while (1) {
-      status = executeExecutableArray(ob1,(char *)NULL);
+      status = executeExecutableArray(ob1,(char *)NULL,1);
       if ((status & STATUS_BREAK) || GotoP) break;
       /* here, do not return 1. Do not propagate exit signal outside of the
          loop. */
@@ -784,7 +784,7 @@ int executePrimitive(ob)
         */
         for ( ; i<=lim; i += inc) {
           Kpush(KpoInteger(i));
-          status = executeExecutableArray(ob1,(char *)NULL);
+          status = executeExecutableArray(ob1,(char *)NULL,1);
           if ((status & STATUS_BREAK) || GotoP) goto xyz;
 		}
       }else{
@@ -793,7 +793,7 @@ int executePrimitive(ob)
         */
         for ( ; i>=lim; i += inc) {
           Kpush(KpoInteger(i));
-          status = executeExecutableArray(ob1,(char *)NULL);
+          status = executeExecutableArray(ob1,(char *)NULL,1);
           if ((status & STATUS_BREAK) || GotoP) goto xyz;
         }
       }
@@ -825,8 +825,8 @@ int executePrimitive(ob)
 
     for (i=0; i<osize; i++) {
       Kpush(getoa(ob1,i));
-      status = executeExecutableArray(ob2,(char *)NULL);
-      if ((status & STATUS_BREAK) || GotoP) goto foor;
+      status = executeExecutableArray(ob2,(char *)NULL,0);
+      if (status & STATUS_BREAK) goto foor;
     }
     foor: ;
     /*KSexecuteString("]");*/
@@ -875,7 +875,7 @@ int executePrimitive(ob)
       ob1 = ob2;
     }
     /* execute ob1 */
-    status = executeExecutableArray(ob1,(char *)NULL);
+    status = executeExecutableArray(ob1,(char *)NULL,0);
     if (status & STATUS_BREAK) return(status);
 
     break;
@@ -887,7 +887,7 @@ int executePrimitive(ob)
     case SexecutableArray: break;
     default: errorStackmachine("Usage:exec");
     }
-	status = executeExecutableArray(ob1,(char *)NULL);
+	status = executeExecutableArray(ob1,(char *)NULL,0);
     break;
 
     /* Postscript primitives :dictionary */    
@@ -1467,7 +1467,7 @@ int executePrimitive(ob)
     }
     /* normal exec. */ 
     Kpush(ob2);
-    status = executeExecutableArray(ob1,(char *)NULL);
+    status = executeExecutableArray(ob1,(char *)NULL,0);
 
     if (ccflag) {
       contextControl(CCPOP); ccflag = 0; /* recover the Current context. */
@@ -1579,7 +1579,7 @@ int executePrimitive(ob)
     contextControl(CCPUSH); ccflag = 1;
     CurrentContextp = PrimitiveContextp;
     /* normal exec. */ 
-    status = executeExecutableArray(ob1,(char *)NULL);
+    status = executeExecutableArray(ob1,(char *)NULL,0);
     contextControl(CCPOP); /* recover the Current context. */
     break;
 
@@ -1624,7 +1624,7 @@ int executePrimitive(ob)
     }
     /* normal exec. */ 
     Kpush(ob2); Kpush(ob4);
-    status = executeExecutableArray(ob1,(char *)NULL);
+    status = executeExecutableArray(ob1,(char *)NULL,0);
     if (ccflag) {
       contextControl(CCPOP); ccflag = 0; /* recover the Current context. */
     }
@@ -1695,12 +1695,12 @@ int executePrimitive(ob)
 	n = ob2.lc.ival;
 	if (n > 0) {
 	  signal(SIGALRM,ctrlC); alarm((unsigned int) n);
-      status = executeExecutableArray(ob1,(char *)NULL);
+      status = executeExecutableArray(ob1,(char *)NULL,0);
 	  cancelAlarm();
 	}else{
       before_real = time(&before_real);
       times(&before);
-      status = executeExecutableArray(ob1,(char *)NULL);
+      status = executeExecutableArray(ob1,(char *)NULL,0);
       times(&after);
       after_real = time(&after_real);
 	  ob1 = newObjectArray(3);
