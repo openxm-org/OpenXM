@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.16 2004/09/05 00:51:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.17 2004/09/05 01:15:47 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -965,7 +965,7 @@ int executeToken(token)
           for (i=0; i<size; i++) {
             status = executeToken(tokenArray[i]);
             if (status != 0) {
-              return(status);
+              tracePopName(); return(status);
 			}
           }
           tracePopName();
@@ -978,7 +978,7 @@ int executeToken(token)
         ob.tag = Soperator;
         ob.lc.ival = primitive;
         status = executePrimitive(ob);
-        if (status == 0) tracePopName(); 
+        tracePopName(); 
         return(status);
       } else {
         if (QuoteMode) {
