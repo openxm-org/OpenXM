@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.4 2000/01/20 01:21:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.5 2000/01/20 01:44:33 noro Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -323,8 +323,19 @@ a message as follows.
 @example
 % /usr/local/bin/asir
 asir_key not found.
-ID for this machine is XXXXXXXX.
-See the file ASIR_INSTALL to get the correct key.
+
+You need a key for each machine on which you want to run Asir.
+In order to get the key, send an e-mail consisting of the following
+single line to risa@@sec.flab.fujitsu.co.jp.
+
+ASIR XXXXXXXX
+
+After a while, an e-mail will be returned containing only one line like
+
+YYYYYYYY YYYYYYYY YYYYYYYY
+
+Create '/export/home/noro/ca/Kobe/OpenXM/lib/asir/asir_key'
+if necessary and append the returned string to the file.
 @end example
 
 @noindent
@@ -390,9 +401,9 @@ All after this, call again @samp{asir}.
 
 @example
 % /usr/local/bin/asir
-This is Asir, Version 990831.
+This is Risa/Asir, Version 991227.
 Copyright (C) FUJITSU LABORATORIES LIMITED.
-3 March 1994. All rights reserved.
+1994-1999. All rights reserved.
 [0]
 @end example
 
