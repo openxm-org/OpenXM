@@ -1,14 +1,12 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.6 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.7 2000/02/21 03:48:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_LIST extends CMO{
+final public class CMO_LIST extends CMO{
   private CMO ob[];
-
-  public CMO_LIST(){}
 
   public CMO_LIST(CMO[] src){
     ob = src;
@@ -19,7 +17,7 @@ public class CMO_LIST extends CMO{
   }
 
   public int DISCRIMINATOR(){
-    return CMO_LIST;
+    return CMO.LIST;
   }
 
   public void sendByObject(DataOutputStream os)
@@ -31,8 +29,9 @@ public class CMO_LIST extends CMO{
     }
   }
 
-  protected CMO receiveByObject(DataInputStream is) throws IOException{
+  static protected CMO receiveByObject(DataInputStream is) throws IOException{
     int len;
+    CMO[] ob;
 
     len = is.readInt();
     ob = new CMO[len];
@@ -41,7 +40,7 @@ public class CMO_LIST extends CMO{
       ob[i] = receive(is);
     }
 
-    return this;
+    return new CMO_LIST(ob);
   }
 
   public String toCMOexpressionByObject(){
