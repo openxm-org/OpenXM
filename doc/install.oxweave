@@ -1,11 +1,11 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.1 1999/12/15 03:30:13 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.2 1999/12/15 05:53:04 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&jp
-$B!z(B OpenXM $B%Q%C%1!<%8$N(B Make $BK!(B
-  FreeBSD 2.2.8, FreeBSD 3.3, Linux $B$GF0:n$9$k$b$N$H4|BT$7$F$^$9(B.
-   OpenXM, OpenXM_contrib, OpenXM_contrib2 $B$,I,MW$G$9(B.
-   cvs $B%3%_%C%?$N>l9g<!$N$h$&$K$7$F%=!<%9$r$H$j$h$;$^$9(B.
+¡ú OpenXM ¥Ñ¥Ã¥±¡¼¥¸¤Î Make Ë¡
+  FreeBSD 2.2.8, FreeBSD 3.3, Linux ¤ÇÆ°ºî¤¹¤ë¤â¤Î¤È´üÂÔ¤·¤Æ¤Þ¤¹.
+   OpenXM, OpenXM_contrib, OpenXM_contrib2 ¤¬É¬Í×¤Ç¤¹.
+   cvs ¥³¥ß¥Ã¥¿¤Î¾ì¹ç¼¡¤Î¤è¤¦¤Ë¤·¤Æ¥½¡¼¥¹¤ò¤È¤ê¤è¤»¤Þ¤¹.
 */
 /*&eg
 * How to make OpenXM package?
@@ -15,7 +15,7 @@ OpenXM/doc/install.oxweave
 */
 //&C  rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2
 //&C  
-//&jp $B$3$l$i$,$=$m$C$F$$$?$i$"$H$O<!$N$h$&$KF~NO$9$k$@$1$G$9(B.
+//&jp ¤³¤ì¤é¤¬¤½¤í¤Ã¤Æ¤¤¤¿¤é¤¢¤È¤Ï¼¡¤Î¤è¤¦¤ËÆþÎÏ¤¹¤ë¤À¤±¤Ç¤¹.
 //&eg Check that you have these directories, then just type in the following commands
 /*&C
 
@@ -24,8 +24,8 @@ OpenXM/doc/install.oxweave
    make
 
 */
-/*&jp $B$J$*(B, OpenXM/src/ox_math $B$NMxMQ$K$O(B Mathematica $B$,(B, OpenXM/src/OpenMath
-$B$K$O(B, jdk (java $B4D6-(B) $B$,I,MW$G$9(B.
+/*&jp ¤Ê¤ª, OpenXM/src/ox_math ¤ÎÍøÍÑ¤Ë¤Ï Mathematica ¤¬, OpenXM/src/OpenMath
+¤Ë¤Ï, jdk (java ´Ä¶­) ¤¬É¬Í×¤Ç¤¹.
 */
 /*&eg In order to use OpenXM/src/ox_math, you need Mathematica. 
 In order to use OpenXM/src/OpenMath, you need jdk (java environment).
@@ -34,8 +34,8 @@ In order to use OpenXM/src/OpenMath, you need jdk (java environment).
 
 */
 /*&jp
-$B!z(B OpenXM $B%Q%C%1!<%8$NMxMQJ}K!(B
-OpenXM $B$r%[!<%`$ND>2<$KE83+$7$?>l9g(B, $B<!$N$h$&$K$7$^$9(B.
+¡ú OpenXM ¥Ñ¥Ã¥±¡¼¥¸¤ÎÍøÍÑÊýË¡
+OpenXM ¤ò¥Û¡¼¥à¤ÎÄ¾²¼¤ËÅ¸³«¤·¤¿¾ì¹ç, ¼¡¤Î¤è¤¦¤Ë¤·¤Þ¤¹.
 */
 /*&eg
 * How to use the OpenXM package?
@@ -49,184 +49,184 @@ If you have OpenXM under your home directory, do as follows.
 
 */
 /*&jp
-OpenXM $B$r%[!<%`$ND>2<$KE83+$7$F$J$$>l9g$O(B OpenXM/rc/bashrc, OpenXM/rc/cshrc $B$r(B
-$BE,Ev$KJQ99$7$F;HMQ$7$F$/$@$5$$(B.
+OpenXM ¤ò¥Û¡¼¥à¤ÎÄ¾²¼¤ËÅ¸³«¤·¤Æ¤Ê¤¤¾ì¹ç¤Ï OpenXM/rc/bashrc, OpenXM/rc/cshrc ¤ò
+Å¬Åö¤ËÊÑ¹¹¤·¤Æ»ÈÍÑ¤·¤Æ¤¯¤À¤µ¤¤.
 */
 /*&eg
 If you have OpenXM in a different place, edit OpenXM/rc/bashrc or
 OpenXM/rc/cshrc properly.
 */
 //&C 
-//&jp asir $B$NMxMQ$K$O(B  key $B$,I,MW$G$9(B.  $B0J2<$N%U%!%$%k$r8fMw$/$@$5$$(B.
+//&jp asir ¤ÎÍøÍÑ¤Ë¤Ï  key ¤¬É¬Í×¤Ç¤¹.  °Ê²¼¤Î¥Õ¥¡¥¤¥ë¤ò¸æÍ÷¤¯¤À¤µ¤¤.
 //&eg You need key to use asir.  See the following file:
 //&C OpenXM/lib/asir/asir_key
 //&C  
 /*&jp
-$BCm0U(B 1.
-asir $B$GF|K\8l$N%X%k%W$rMxMQ$9$k$K$O(B, 
+Ãí°Õ 1.
+asir ¤ÇÆüËÜ¸ì¤Î¥Ø¥ë¥×¤òÍøÍÑ¤¹¤ë¤Ë¤Ï, 
 PAGER=jless
 export PAGER
-$B$J$I$G(B, $BF|K\8l$r07$($k(B PAGER $B$r;XDj$9$kI,MW$,$"$k$+$b$7$l$^$;$s(B.
-$BCm0U(B 2.
-FreeBSD 3.3 $B$J$I$K$O(B, /usr/local/bin/javac $B$,$D$$$F$$$^$9(B.
-$B$3$N(B javac $B$G$O(B, OpenXM/src/OpenMath $B0J2<$N%U%!%$%k$,%3%s%Q%$%k$G$-$^$;$s(B.
+¤Ê¤É¤Ç, ÆüËÜ¸ì¤ò°·¤¨¤ë PAGER ¤ò»ØÄê¤¹¤ëÉ¬Í×¤¬¤¢¤ë¤«¤â¤·¤ì¤Þ¤»¤ó.
+Ãí°Õ 2.
+FreeBSD 3.3 ¤Ê¤É¤Ë¤Ï, /usr/local/bin/javac ¤¬¤Ä¤¤¤Æ¤¤¤Þ¤¹.
+¤³¤Î javac ¤Ç¤Ï, OpenXM/src/OpenMath °Ê²¼¤Î¥Õ¥¡¥¤¥ë¤¬¥³¥ó¥Ñ¥¤¥ë¤Ç¤­¤Þ¤»¤ó.
 PATH=/usr/local/jdk1.1.8/bin:$PATH
 export PATH
-$B$J$I$H$7$F(B, jdk $B$N(B javac $B$r%5!<%A%Q%9$N@h$N$[$&$X$b$C$F$$$/$h$&$K$7$F(B
-$B$/$@$5$$(B.
+¤Ê¤É¤È¤·¤Æ, jdk ¤Î javac ¤ò¥µ¡¼¥Á¥Ñ¥¹¤ÎÀè¤Î¤Û¤¦¤Ø¤â¤Ã¤Æ¤¤¤¯¤è¤¦¤Ë¤·¤Æ
+¤¯¤À¤µ¤¤.
 */
 /*&jp
 
-$B0J>e(B.  $B0J2<$N;HMQNc$X?J$s$G2<$5$$(B.
+°Ê¾å.  °Ê²¼¤Î»ÈÍÑÎã¤Ø¿Ê¤ó¤Ç²¼¤µ¤¤.
 
-$B!z(B(1) asir $B$N%^%K%e%"%k$O(B,
-   OpenXM_contrib2/asir2000/doc $B$N(B README $B$r8+$F$M(B.
-  (2) asir-contrib $B$N%^%K%e%"%k$O(B,
-  OpenXM/src/asir-contrib/packages/doc $B$G(B make $B$7$?$"$H(B,
-  ptex cman.texi ($BF|K\8l(B)
-  tex cman-eg.texi ($B1Q8l(B)
-  $B$9$l$P$h$m$7$$(B.
-  Online manual : ox_help(xxx) $B$rMxMQ$9$k$K$O(B, 
+¡ú(1) asir ¤Î¥Þ¥Ë¥å¥¢¥ë¤Ï,
+   OpenXM_contrib2/asir2000/doc ¤Î README ¤ò¸«¤Æ¤Í.
+  (2) asir-contrib ¤Î¥Þ¥Ë¥å¥¢¥ë¤Ï,
+  OpenXM/src/asir-contrib/packages/doc ¤Ç make ¤·¤¿¤¢¤È,
+  ptex cman.texi (ÆüËÜ¸ì)
+  tex cman-eg.texi (±Ñ¸ì)
+  ¤¹¤ì¤Ð¤è¤í¤·¤¤.
+  Online manual : ox_help(xxx) ¤òÍøÍÑ¤¹¤ë¤Ë¤Ï, 
    (cd OpenXM/src/asir-contrib/packages/doc ; make install-help)
-  $B$H$7$^$9(B.
+  ¤È¤·¤Þ¤¹.
 
-$BCm0U(B:
-$OpenXM_HOME/bin $B$N2<$N(B, fep, phc $B$O(B, $B$$$^$N$H$3$m(B
-linux $BMQ$N%P%$%J%j$^$?$O%P%$%J%j$X$N%7%s%\%j%C%/%j%s%/$G$9(B. 
-Linux $B0J30$N>l9g$O%P%$%J%j$rF~$l49$($kI,MW$,$"$j$^$9(B.
+Ãí°Õ:
+$OpenXM_HOME/bin ¤Î²¼¤Î, fep, phc ¤Ï, ¤¤¤Þ¤Î¤È¤³¤í
+linux ÍÑ¤Î¥Ð¥¤¥Ê¥ê¤Þ¤¿¤Ï¥Ð¥¤¥Ê¥ê¤Ø¤Î¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤Ç¤¹. 
+Linux °Ê³°¤Î¾ì¹ç¤Ï¥Ð¥¤¥Ê¥ê¤òÆþ¤ì´¹¤¨¤ëÉ¬Í×¤¬¤¢¤ê¤Þ¤¹.
 
-Solaris $B$G$N(B make $B$NLdBjE@$K$D$$$F$O(B, OpenXM/doc/OpenXM-FAQ-jp.txt
-$B$r8+$F$/$@$5$$(B.
+Solaris ¤Ç¤Î make ¤ÎÌäÂêÅÀ¤Ë¤Ä¤¤¤Æ¤Ï, OpenXM/doc/OpenXM-FAQ-jp.txt
+¤ò¸«¤Æ¤¯¤À¤µ¤¤.
 
----------------  $B%$%s%9%H!<%k40N;(B ---------------------------
+---------------  ¥¤¥ó¥¹¥È¡¼¥ë´°Î» ---------------------------
 
-$B!z;HMQNc(B
+¡ú»ÈÍÑÎã
 
-OpenXM $B$O(B X Window System $B>e$G$7$+F0:n$7$^$;$s(B. 
+OpenXM ¤Ï X Window System ¾å¤Ç¤·¤«Æ°ºî¤·¤Þ¤»¤ó. 
 
-asir $B$rF0:n$5$;$k$K$O(B, key $B$,I,MW$G$9(B.
-OpenXM/lib/asir/asir_key $B$N%3%a%s%H$r$_$F(B, key $B$r(B E-mail $B$G(B
-$B$H$j$h$;$F2<$5$$(B.
+asir ¤òÆ°ºî¤µ¤»¤ë¤Ë¤Ï, key ¤¬É¬Í×¤Ç¤¹.
+OpenXM/lib/asir/asir_key ¤Î¥³¥á¥ó¥È¤ò¤ß¤Æ, key ¤ò E-mail ¤Ç
+¤È¤ê¤è¤»¤Æ²¼¤µ¤¤.
 
-----------------  Asir $B%/%i%$%"%s%H$N;H$$$+$?(B.
-----------------   $BNc(B : asir $B$K(B kan/sm1  $B$rAH$_9~$`(B.
+----------------  Asir ¥¯¥é¥¤¥¢¥ó¥È¤Î»È¤¤¤«¤¿.
+----------------   Îã : asir ¤Ë kan/sm1  ¤òÁÈ¤ß¹þ¤à.
 asir
 load("xm");
-P=sm1_start();    /* P $B$O%W%m%;%9HV9f(B */
+P=sm1_start();    /* P ¤Ï¥×¥í¥»¥¹ÈÖ¹æ */
 load("katsura");
-sm1_pgb(P,[katsura(4),[u0,u1,u2,u3,u4]]); /* sm1 $B$G%0%l%V%J4pDl$r7W;;(B */
+sm1_pgb(P,[katsura(4),[u0,u1,u2,u3,u4]]); /* sm1 ¤Ç¥°¥ì¥Ö¥Ê´ðÄì¤ò·×»» */
 
----------------    $BNc(B : asir $B$h$j(B gnuplot $B$r8F$S=P$9(B.
+---------------    Îã : asir ¤è¤ê gnuplot ¤ò¸Æ¤Ó½Ð¤¹.
 asir
 load("xm");
 P=gnuplot_start();
 gnuplot(P,"plot  tan(x); ");
 gnuplot(P,"splot sin(x)*cos(x); ");
 
----------------    $BNc(B : asir $B$h$j(B tigers $B$r8F$S=P$9(B.
+---------------    Îã : asir ¤è¤ê tigers ¤ò¸Æ¤Ó½Ð¤¹.
 asir
 load("xm");
 tigers_start();
 B = tigers(0,[[1,1,1,1],[0,1,2,3]]);
-length(B) $B$O(B 8 $B$G$9(B.  $B$3$l$O(B, $B9TNs(B A = [[1,1,1,1],[0,1,2,3]]
-$B$KIU?o$7$?(B, toric ideal I_A $B$N(B Grobner fan $B$,(B 8 $B$D$N(B maximal
-dimensional fan $B$r;}$D$3$H$r0UL#$7$^$9(B.
-A[i] $B$O(B i $BHVL\$N(B GB ($B%0%l%V%J4pDl(B)$B$G$9(B.
-Binomial polynomial x^a-x^b $B$r(B [[a_1, ..., a_n],[b_1, ..., b_n]] $B$J$k7A<0$G(B
-$BI=<($7$^$9(B.
-$B$?$H$($P(B A[0];
+length(B) ¤Ï 8 ¤Ç¤¹.  ¤³¤ì¤Ï, ¹ÔÎó A = [[1,1,1,1],[0,1,2,3]]
+¤ËÉÕ¿ï¤·¤¿, toric ideal I_A ¤Î Grobner fan ¤¬ 8 ¤Ä¤Î maximal
+dimensional fan ¤ò»ý¤Ä¤³¤È¤ò°ÕÌ£¤·¤Þ¤¹.
+A[i] ¤Ï i ÈÖÌÜ¤Î GB (¥°¥ì¥Ö¥Ê´ðÄì)¤Ç¤¹.
+Binomial polynomial x^a-x^b ¤ò [[a_1, ..., a_n],[b_1, ..., b_n]] ¤Ê¤ë·Á¼°¤Ç
+É½¼¨¤·¤Þ¤¹.
+¤¿¤È¤¨¤Ð A[0];
 [[[1,0,1,0],[0,2,0,0]],[[1,0,0,1],[0,1,1,0]],[[0,1,0,1],[0,0,2,0]]]
-$B$G$9$+$i(B,
+¤Ç¤¹¤«¤é,
 x1 x3 - x2^2, x1 x4 - x2 x3, x2 x4 - x3^2
-$B$,(B GB $B$G$"$j(B, initial ideal $B$O(B
+¤¬ GB ¤Ç¤¢¤ê, initial ideal ¤Ï
 x1 x3 , x1 x4 , x2 x4 
-$B$G@8@.$5$l$F$$$^$9(B.
+¤ÇÀ¸À®¤µ¤ì¤Æ¤¤¤Þ¤¹.
 
 ----------------------------------
 sm1
 (oxasir.sm1) run  ;
-(x^20-1). fctr pmat ;       sm1 $B$h$j(B ox_asir $B$r8F$S=P$7$F0x?tJ,2r$5$;$k(B.
+(x^20-1). fctr pmat ;       sm1 ¤è¤ê ox_asir ¤ò¸Æ¤Ó½Ð¤·¤Æ°ø¿ôÊ¬²ò¤µ¤»¤ë.
 
 
 
-[$BCx:n8"I=<((B] ($B8=:_%F%9%HHG$N$?$a>pJs$,40Hw$7$F$^$;$s(B)
-$B$3$N%=%U%H%&%(%"$OF0:n$*$h$S$=$N7k2L$K$D$-(B, $B0l@Z$NJ]>Z$r$7$^$;$s(B.
-$B%i%$%;%s%97ABV$K$D$$$F$O8=:_8!F$Cf$G$"$j$^$9(B.  $BK!L3(Bcommitter $B$r(B
-$BJg=8Cf(B.
+[Ãøºî¸¢É½¼¨] (¸½ºß¥Æ¥¹¥ÈÈÇ¤Î¤¿¤á¾ðÊó¤¬´°È÷¤·¤Æ¤Þ¤»¤ó)
+¤³¤Î¥½¥Õ¥È¥¦¥¨¥¢¤ÏÆ°ºî¤ª¤è¤Ó¤½¤Î·ë²Ì¤Ë¤Ä¤­, °ìÀÚ¤ÎÊÝ¾Ú¤ò¤·¤Þ¤»¤ó.
+¥é¥¤¥»¥ó¥¹·ÁÂÖ¤Ë¤Ä¤¤¤Æ¤Ï¸½ºß¸¡Æ¤Ãæ¤Ç¤¢¤ê¤Þ¤¹.  Ë¡Ì³committer ¤ò
+Êç½¸Ãæ.
 
 OpenXM : url http://www.math.kobe-u.ac.jp/openXM
          cvs cite : kerberos.math.kobe-u.ac.jp
-sm1 :  $B:n<T(B Nobuki Takayama, url http://www.math.kobe-u.ac.jp/KAN, 
-       $B%i%$%;%s%97ABV(B   GPL??
-asir :    $B:n<T(B  url
-         $B%i%$%;%s%97ABV(B   ??
-gnuplot : $B:n<T(B  url
-         $B%i%$%;%s%97ABV(B   GPL?
-phc : $B:n<T(B Jan Verschelde,  url
-         $B%i%$%;%s%97ABV(B   ??
-tigers : $B:n<T(B Birk Hubert,  url
-         $B%i%$%;%s%97ABV(B   ??
+sm1 :  ºî¼Ô Nobuki Takayama, url http://www.math.kobe-u.ac.jp/KAN, 
+       ¥é¥¤¥»¥ó¥¹·ÁÂÖ   GPL??
+asir :    ºî¼Ô  url
+         ¥é¥¤¥»¥ó¥¹·ÁÂÖ   ??
+gnuplot : ºî¼Ô  url
+         ¥é¥¤¥»¥ó¥¹·ÁÂÖ   GPL?
+phc : ºî¼Ô Jan Verschelde,  url
+         ¥é¥¤¥»¥ó¥¹·ÁÂÖ   ??
+tigers : ºî¼Ô Birk Hubert,  url
+         ¥é¥¤¥»¥ó¥¹·ÁÂÖ   ??
 
-[OpenXM $B$K$D$$$F$NO"Mm@h(B]
+[OpenXM ¤Ë¤Ä¤¤¤Æ¤ÎÏ¢ÍíÀè]
 takayama@math.sci.kobe-u.ac.jp
 
-[OpenXM_HOME $B2<$N%U%!%$%k$N9=@.(B]
-lib/asir $B$K$O(B, asir $B$N%i%$%V%i%j(B, ox_asir $BK\BN(B
-(ox_asir.xxyyzz.os $B$J$kL>A0$G3JG<$5$l$F$$$^$9(B)
+[OpenXM_HOME ²¼¤Î¥Õ¥¡¥¤¥ë¤Î¹½À®]
+lib/asir ¤Ë¤Ï, asir ¤Î¥é¥¤¥Ö¥é¥ê, ox_asir ËÜÂÎ
+(ox_asir.xxyyzz.os ¤Ê¤ëÌ¾Á°¤Ç³ÊÇ¼¤µ¤ì¤Æ¤¤¤Þ¤¹)
 
-lib/sm1 $B$O(B src/SSkan/Doc $B$X$N(B symbolic link
-$B$G$"$j(B, sm1 $B$N%i%$%V%i%j%U%!%$%k$,3JG<$5$l$F$$$^$9(B.
-lib/sm1/bin $B$K$O(B, binaryfiles
+lib/sm1 ¤Ï src/SSkan/Doc ¤Ø¤Î symbolic link
+¤Ç¤¢¤ê, sm1 ¤Î¥é¥¤¥Ö¥é¥ê¥Õ¥¡¥¤¥ë¤¬³ÊÇ¼¤µ¤ì¤Æ¤¤¤Þ¤¹.
+lib/sm1/bin ¤Ë¤Ï, binaryfiles
     sm1, ox_sm1, ox,  ox_log, ox_sm1_*
-$B$X$N%7%s%\%j%C%/%j%s%/$,3JG<$5$l$^$9(B.
-$B$3$N%7%s%\%j%C%/%j%s%/$O(B src/kxx $B$G(B make install $B$r<B9T$9$k$3$H$K$h$j(B
-$B:n@.$5$l$^$9(B.
+¤Ø¤Î¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤¬³ÊÇ¼¤µ¤ì¤Þ¤¹.
+¤³¤Î¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤Ï src/kxx ¤Ç make install ¤ò¼Â¹Ô¤¹¤ë¤³¤È¤Ë¤è¤ê
+ºîÀ®¤µ¤ì¤Þ¤¹.
 
-sm1 $B$,(B ox_asir $B$rMxMQ$9$k$N$KI,MW$J%U%!%$%k(B.
+sm1 ¤¬ ox_asir ¤òÍøÍÑ¤¹¤ë¤Î¤ËÉ¬Í×¤Ê¥Õ¥¡¥¤¥ë.
    lib/asir/ox_asir, 
    lib/sm1/bin/ox, lib/sm1/bin/ox_log  (src/kxx/ox, src/kxx/ox_log)
    lib/sm1/ox.sm1, lib/sm1/oxasir.sm1
 
-asir $B$,(B ox_sm1_forAsir $B$rMxMQ$9$k$N$KI,MW$J%U%!%$%k(B:
+asir ¤¬ ox_sm1_forAsir ¤òÍøÍÑ¤¹¤ë¤Î¤ËÉ¬Í×¤Ê¥Õ¥¡¥¤¥ë:
    lib/asir/ox_launch
-   lib/sm1/bin/ox_sm1_forAsir (ox_sm1 $B$X$N%j%s%/(B)
+   lib/sm1/bin/ox_sm1_forAsir (ox_sm1 ¤Ø¤Î¥ê¥ó¥¯)
    lib/asir/xm  
-   lib/sm1/ $B0J2<$N(B *.sm1 $B$J$k$9$Y$F$N(B $B%i%$%V%i%j%U%!%$%k(B.
+   lib/sm1/ °Ê²¼¤Î *.sm1 ¤Ê¤ë¤¹¤Ù¤Æ¤Î ¥é¥¤¥Ö¥é¥ê¥Õ¥¡¥¤¥ë.
      callsm1.sm1 callsm1b.sm1 
-     (ox_sm1_forAsir $B$NDj5A%U%!%$%k(B, src/kxx/oxserver00.c 
-      ox_sm1 $B$,(B ox_sm1_forAsir $B$H$$$&L>A0$G8F$P$l$k$H$3$l$i$N%U%!%$%k$r%m!<%I(B.)
+     (ox_sm1_forAsir ¤ÎÄêµÁ¥Õ¥¡¥¤¥ë, src/kxx/oxserver00.c 
+      ox_sm1 ¤¬ ox_sm1_forAsir ¤È¤¤¤¦Ì¾Á°¤Ç¸Æ¤Ð¤ì¤ë¤È¤³¤ì¤é¤Î¥Õ¥¡¥¤¥ë¤ò¥í¡¼¥É.)
 
-asir $B$,(B ox_sm1_gnuplot $B$rMxMQ$9$k$N$KI,MW$J%U%!%$%k(B:
+asir ¤¬ ox_sm1_gnuplot ¤òÍøÍÑ¤¹¤ë¤Î¤ËÉ¬Í×¤Ê¥Õ¥¡¥¤¥ë:
     lib/asir/ox_launch
-    lib/sm1/bin/ox_sm1_gnuplot (ox_sm1 $B$X$N%j%s%/(B, ox_sm1_gnuplot $B$O(B fork $B$7$F(B
-                                gnuplot_forox $B$r<B9T$7$^$9(B.)
+    lib/sm1/bin/ox_sm1_gnuplot (ox_sm1 ¤Ø¤Î¥ê¥ó¥¯, ox_sm1_gnuplot ¤Ï fork ¤·¤Æ
+                                gnuplot_forox ¤ò¼Â¹Ô¤·¤Þ¤¹.)
     lib/asir/xm  
     lib/sm1/callsm1.sm1, lib/sm1/gnuplot.sm1
-     (ox_sm1_gnuplot $B$NDj5A%U%!%$%k(B, src/kxx/oxserver00.c 
-      ox_sm1 $B$,(B ox_sm1_gnuplot $B$H$$$&L>A0$G8F$P$l$k$H$3$l$i$N%U%!%$%k$r%m!<%I(B.)
-    bin/gnuplot_forox,  bin/gnuplot_x11  (gnuplot $BK\BN(B, src/gnuplot*)
+     (ox_sm1_gnuplot ¤ÎÄêµÁ¥Õ¥¡¥¤¥ë, src/kxx/oxserver00.c 
+      ox_sm1 ¤¬ ox_sm1_gnuplot ¤È¤¤¤¦Ì¾Á°¤Ç¸Æ¤Ð¤ì¤ë¤È¤³¤ì¤é¤Î¥Õ¥¡¥¤¥ë¤ò¥í¡¼¥É.)
+    bin/gnuplot_forox,  bin/gnuplot_x11  (gnuplot ËÜÂÎ, src/gnuplot*)
 
 ----------------------------------------
-[$B3+H/<TMQ%a%b(B]
+[³«È¯¼ÔÍÑ¥á¥â]
 
-<< sm1, ox_sm1, ox, oxlog $B$N(B debug >>
-binary file $B$O3F(B directory $B$N(B make install $B$K$h$j(B
-OpenXM/bin $B$K%3%T!<$5$l$^$9$,(B,
-debug $BMQ$K$$$A$$$A%3%T!<$9$k$N$OLLE]$J$N$G(B,
-OpenXM/src/kan96xx $B$G(B make install2
-OpenXM/src/kxx $B$G(B make install2
-$B$r<B9T$9$k$H(B, 
-OpenXM/bin/sm1, ox, ox_sm1, oxlog $B$h$j(B,
+<< sm1, ox_sm1, ox, oxlog ¤Î debug >>
+binary file ¤Ï³Æ directory ¤Î make install ¤Ë¤è¤ê
+OpenXM/bin ¤Ë¥³¥Ô¡¼¤µ¤ì¤Þ¤¹¤¬,
+debug ÍÑ¤Ë¤¤¤Á¤¤¤Á¥³¥Ô¡¼¤¹¤ë¤Î¤ÏÌÌÅÝ¤Ê¤Î¤Ç,
+OpenXM/src/kan96xx ¤Ç make install2
+OpenXM/src/kxx ¤Ç make install2
+¤ò¼Â¹Ô¤¹¤ë¤È, 
+OpenXM/bin/sm1, ox, ox_sm1, oxlog ¤è¤ê,
 OpenXM/src/kan96xx/Kan/sm1
 OpenXM/src/kxx/ox, OpenXM/src/kxx/ox_sm1, OpenXM/src/kxx/oxlog
-$B$X$N%7%s%\%j%C%/%j%s%/$,:n@.$5$l$^$9(B.
+¤Ø¤Î¥·¥ó¥Ü¥ê¥Ã¥¯¥ê¥ó¥¯¤¬ºîÀ®¤µ¤ì¤Þ¤¹.
 
-[CVS$B%3%_%C%?MQ%a%b(B]
-<<  OpenXM $B%G%#%l%/%H%jG[I[HG$N:n@.J}K!(B >>
+[CVS¥³¥ß¥Ã¥¿ÍÑ¥á¥â]
+<<  OpenXM ¥Ç¥£¥ì¥¯¥È¥êÇÛÉÛÈÇ¤ÎºîÀ®ÊýË¡ >>
 rcvs export -rHEAD OpenXM
 rcvs export -rHEAD OpenXM_contrib
 rcvs export -rHEAD OpenXM_contrib2
-$B$7$F(B, OpenXM, OpenXM_contrib, OpenXM_contrib2 $BA4BN$r(B tar+gzip.
+¤·¤Æ, OpenXM, OpenXM_contrib, OpenXM_contrib2 Á´ÂÎ¤ò tar+gzip.
 */
 
 
