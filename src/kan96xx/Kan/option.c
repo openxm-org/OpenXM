@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -45,6 +46,8 @@ struct object ob; /* Sarray */
   extern int DebugReductionRed; /* hidden option */
   extern char *VersionString;
   extern int AvoidTheSameRing;
+  extern char *LeftBracket;
+  extern char *RightBracket;
 
   int n,i;
   struct object ob1,ob2,ob3,ob4;
@@ -164,6 +167,10 @@ struct object ob; /* Sarray */
 	rob = KSpop(); /* This is exceptional style */
       }else if (strcmp(ob1.lc.str,"AvoidTheSameRing")==0) {
 	rob = KpoInteger(AvoidTheSameRing);
+      }else if (strcmp(ob1.lc.str,"LeftBracket")==0) {
+	rob = KpoString(LeftBracket);
+      }else if (strcmp(ob1.lc.str,"RightBracket")==0) {
+	rob = KpoString(RightBracket);
       }else{
 	warningKan("KsystemVariable():Unknown key word.\n");
       }
@@ -277,6 +284,12 @@ struct object ob; /* Sarray */
       if (strcmp(ob1.lc.str,"ringName") == 0) {
 	CurrentRingp->name = KopString(ob2);
 	rob = KpoString(CurrentRingp->name);
+      }else if (strcmp(ob1.lc.str,"LeftBracket") == 0) {
+	LeftBracket = KopString(ob2);
+	rob = KpoString(LeftBracket);
+      }else if (strcmp(ob1.lc.str,"RightBracket") == 0) {
+	RightBracket = KopString(ob2);
+	rob = KpoString(RightBracket);
       }else{
 	warningKan("KsystemVariable():Unknown key word.\n");
       }

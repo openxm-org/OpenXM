@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.2 1999/10/30 02:20:54 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.3 1999/11/06 10:37:29 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -126,6 +126,9 @@ int TimerOn = 0;
 
 char *VersionString = "2.991106";
 
+char *LeftBracket = NULL;
+char *RightBracket = NULL;
+
 int AvoidTheSameRing = 1;
 int DebugCMO = 0;  /* plugin/cmo.c */
 int OXprintMessage = 1; /* referred only from ox_sm1  plugin/ox.hh */
@@ -137,6 +140,7 @@ stackmachine_init() {
   int i,j;
   OxSystemVersion = VersionString;
   Fstack = stdout;  /* initialize output stream */
+  LeftBracket = "["; RightBracket = "]";
   /* initialize null object */
   NullObject.tag = 0;
   NullObject.lc.op = NullObject.rc.op = (struct object *)NULL;

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -299,8 +300,9 @@ FILE *fp;
 {
   int size;
   int i;
+  extern char *LeftBracket, *RightBracket;
   size = ob.lc.ival;
-  fprintf(fp,"[  ");
+  fprintf(fp,"%s  ",LeftBracket);
   for (i=0; i<size; i++) {
     if (PrintComma && (i != 0)) {
       fprintf(fp," , ");
@@ -309,7 +311,7 @@ FILE *fp;
     }
     printObject((ob.rc.op)[i],0,fp);
   }
-  fprintf(fp," ] ");
+  fprintf(fp," %s ",RightBracket);
   if (nl) fprintf(fp,"\n");
 }
 

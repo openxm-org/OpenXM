@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -451,7 +452,7 @@ char *s;
     fppp(fp,"SigIgn, KSPushEnvMode, PrimitiveContextp, KanGBmessage\n");
     fppp(fp,"orderMatrix, gbListTower, Schreyer, \n");
     fppp(fp,"outputOrder, multSymbol, variableNames, Version\n");
-    fppp(fp,"AvoidTheSameRing, RingStack\n");
+    fppp(fp,"AvoidTheSameRing, RingStack, LeftBracket, RightBracket\n");
     fppp(fp,"Example: [(N)] system_variable\n");
     fppp(fp,"                             (maximum number of variables)/2.\n");
     fppp(fp,"         [(x) (var) 3] system_variable\n");

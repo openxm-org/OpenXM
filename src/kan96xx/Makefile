@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.5 1999/11/02 12:28:56 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.6 1999/11/07 06:45:25 takayama Exp $
 ## Type in make configure and make all to build all
 all :   
 	(cd gc; make)
@@ -20,11 +20,12 @@ configure : configure_symbolic_links
 	(cd gmp; ./configure )	
 
 configure_symbolic_links :
-	/bin/rm -f gc gmp lib
+	/bin/rm -f gc gmp lib Doc/var.sm1
 	ln -f -s ./gc-4.14 gc
 #	ln -f -s ./gmp-2.0.2 gmp
 	ln -f -s ./gmp-2.0.2-ssh-2 gmp
 	ln -f -s ./Doc lib
+	(cd Doc; ln -f -s ../Kan/var.sm1 var.sm1)
 
 ### generate a distribution.
 dist :
