@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.2 2003/12/10 08:57:25 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.3 2003/12/10 23:22:52 takayama Exp $
 %% OXWEAVE=${OpenXM_HOME}/bin/oxweave --recursive --plain
 %% ${OXWEAVE} C ja <oxshell.oxw >>oxshell-ja.tex
 //&ja \documentclass{jarticle}
@@ -7,7 +7,7 @@
 //&ja \title{OpenXM RFC 103 draft (RFC 100 追加)}
 //&en \title{OpenXM RFC 103 draft (RFC 100 supplement}
 //&C \author{OpenXM Committers}
-//&C \date{December 9, 2004}
+//&C \date{December 9, 2003, September 18, 2004}
 //&C \newtheorem{example}{Example}
 \usepackage{html}
 
@@ -104,7 +104,190 @@ which is the flag of hiding the debug window of an ox server.
 /*&ja
 バイトオーダーを決めるための情報交換 (OX-RFC 100 参照) の前に
 エンジン認証手続きをおこなう.
-認証プロトコルについては別途定める.
+
+認証プロトコルには下の図の step 1, step 2, step 3 である.
+
+\begin{verbatim}
+
+ client                                            server
+
+     ---------------- step 1 ----------------------->
+     ssh による server への login.
+     controle server, engine server との接続を確立するための
+     ポート番号および      -control= ... , -data=...
+     認証方法および        -authtype=NONE | <<oneTimePassword>>
+     認証パスワード        -passControl=... , -passData=...
+     も送信される.
+     認証パスワードの暗号  -authEncoding=<<NONE>> | file | RSA
+     化方法の指定.
+     << >> は src/kxx/ox の標準値
+
+
+    <----------------  step 2 -------------------------->
+       -reverse の場合は <--- の向きに TCP/IP 接続が確立される.
+       そうでないときは ---> の向きに TCP/IP 接続が確立される.
+
+    <----------------  step 3 -------------------------->
+       -authtype=oneTimePassword の時.
+       connect した側が accept した側へ oneTimePassword を送る.
+       末尾の 0 を送信する.
+
+    以下 launcher の仕事は終了して, engine と control に制御が移る.
+    <----------------  step 4 -------------------------->
+       engine の byte order を設定.
+
+    <---------------------------------------------------->
+       OpenXM のパケット交換
+
+\end{verbatim}
+*/
+
+/*&ja
+
+\begin{verbatim}
+
+ authtype は NONE か oneTimePassword である.
+ oneTimePassword は英数字で構成された列である.
+ oneTimePassword は常にクライアントで生成されて, なんらかの方法でサーバに
+ 配送される.  connect 側が oneTimePassword を平文で accept 側に送信して
+ 認証が終了する.
+
+ authEncoding で oneTimePassword の配送方法を規定する.
+ authEncoding は NONE か file か RSA である.
+
+ authEncoding=NONE が選択された場合 oneTimePassword の配送に特別な方法を利用
+ しない.
+ NONE を選択した場合, 現在の ox launcher の実装ではたとえば -passControl
+ のあとに oneTimePassword が生の形で現れることとなる.
+ Unix の場合これは command の引数であり client と server の通信路が
+ ssh 等で暗号化されていたとするとネットワークユーザは覗きみることはできないが,
+ 同一機のユーザは見ることが可能である.
+ したがって NONE の選択が可能であるのは client および server が十分信頼
+ できるときに限る.
+
+\end{verbatim}
+*/
+
+/*&ja
+
+authEncoding=file の場合.
+
+\begin{verbatim}
+ authEncoding=file を選択した場合は oneTimePassword は別に用意された安全な
+ 通信経路(たとえば scp) を用いて file として配送される.
+ oneTimePassword が格納された file 名を -passControl, -passData 引数で渡す.
+ file 名は $HOME/.openxm/tmp.otp/ からの相対パス名である.
+ パスの区切り文字は windows でも / を用いる.
+ クライアントは次の規則でファイル名を生成する. 
+ ファイル名には英数字と . -  _ の利用しかゆるされない. ファイル名は次の形式
+ である.
+
+    clientname-servernameUidPidSerial-time.pass
+
+ ここで time は time(2) の戻り値を数字文字列に変換した形式である.
+ oneTimePassword の生成時刻を切り上げて 10 分毎の正時に変換したものとする.
+ servernameUidPidSerial は client が oneTimePassword を生成してから
+ 10 分間, クライアントシステムで高い確率で一意的であることが保証されている
+ 文字列ならなんでもよい.
+
+ 例
+      client                                            server
+
+     oneTimePassword 1342546 を格納したファイル
+     yama.openxm.org-00001-2312123123.pass   を生成
+
+     oneTimePassword 89123888 を格納したファイル
+     yama.openxm.org-00002-2312123124.pass   を生成
+     ----------------------------------------------------->
+        上の二つのファイルを安全な通信路を用いて配送する.
+       (たとえば scp )
+
+     ----------------------------------------------------->
+          ox -authtype oneTimePassword
+             -authEncoding file
+             -passControl yama.openxm.org-00001-2312123123.pass
+             -passData yama.openxm.org-00002-2312123124.pass
+ 
+
+    <----------------  step 2 -------------------------->
+       -reverse の場合は <--- の向きに TCP/IP 接続が確立される.
+       そうでないときは ---> の向きに TCP/IP 接続が確立される.
+
+    <----------------  step 3 -------------------------->
+       connect した側が accept した側へ oneTimePassword を平文でおくる.
+     
+
+
+     oneTimePassword 1342546 を格納したファイル
+     yama.openxm.org-00001-2312123123.pass   を server に生成するために
+    たとえば sendStringAsAfile(char *servername, char *serveruser,
+                  char *filename, char *otp);
+    のような API を用意しておくとよいであろう.
+
+
+\end{verbatim}
+
+*/
+
+/*&ja
+
+authEncoding=RSA の場合.
+
+\begin{verbatim}
+RSA の秘密鍵, 公開鍵を格納するファイル名は以下のとおり.
+$HOME/.openxm/rsa/ox103-rsa0-identity       (秘密鍵をならべたもの)
+$HOME/.openxm/rsa/ox103-rsa0-identity.pub   (公開鍵: この形式では利用されず) 
+$HOME/.openxm/rsa/ox103-rsa0-authorizedkeys (公開鍵をならべたもの)
+
+鍵ファイルは次のデータを空白で区切って並べたものである.
+  user識別子    鍵(１０進数字列)    RSAフォーマット識別子(optional)
+コメント行は # で始まる.
+
+フォーマット識別子が 0 の場合は
+x --> x^65537 を用い, 128 byte (1024 bit) づつデータを区切って処理する 
+RSA を用いる.  0 は実験用である.
+
+Todo: 鍵の格納方法, データ区切りの方法など可能な限り 
+RFC3447 に準拠するように変更せよ.  準拠が完了したら -rsa0- を 
+-rsa- と変更する.
+
+例:
+
+client  側
+
+  ox103-rsa0-identity
+     # client 側が使う秘密鍵
+     takayama@client.math.kobe-u.ac.jp  1234523....
+
+
+  ox103-rsa0-authorizedkeys
+     @ server 側が使う秘密鍵に対応する公開鍵
+     takayama@server.math.kobe-u.ac.jp  8989898....
+
+server 側
+  ox103-rsa0-identity
+     # server 側が使う秘密鍵
+     takayama@server.math.kobe-u.ac.jp  8781234....
+
+  ox103-rsa0-authorizedkeys
+     @ client 側が使う秘密鍵に対応する公開鍵
+     takayama@client.math.kobe-u.ac.jp  89891....
+  
+authEncoding=RSA を利用する場合はこれらの鍵を適切に .openxm/rsa の下に
+置かないといけない.  .openxm/rsa の permission は rwx------ であること.
+
+注意: 秘密鍵を生で格納しない場合ファイル名を ox103-rsa2-* 等と変更する
+予定.  RSA encoding 方法は数字の大きいものから順番にサーチしていくものとする.
+
+authEncoding=RSA の場合 -passData および -passControl は
+oneTimePassword (文字列) を bit data とみて rsa で暗号化したものを
+URL encoding した形で送る.
+
+oneTimePassword の周期は十分大きくないといけない.
+一年は 31536000 秒である. 100 年は 3153600000 秒 (10 桁) である.
+oneTimePassword は数字の場合 10 桁以上であることが望ましい.
+
+\end{verbatim}
 */
 
 //&ja \section{貢献者}
@@ -120,6 +303,7 @@ which is the flag of hiding the debug window of an ox server.
 /*&ja
 行列, ベクトルの CMO は NTL のサーバ化をテストケースとして
 岩根が設計, 実装, 評価を行った.
+RSA のキー生成の OpenXM への実装は岩根がおこなった.
 */
 
 \end{document}

@@ -1,0 +1,232 @@
+$OpenXM$
+/*&C
+OX-RFC: 104                                    Nobuki Takayama
+                                               September 18, 2004
+
+*/
+
+//&en  OX-RFC100  over HTTP GET protocol
+//&ja  HTTP GET protocol で包むことによる OX-RFC 100 形式の通信方法
+
+/*&C 
+
+Status of this memo
+  This is an experimental specification of sending OpenXM 100 packets
+  over http-GET and https-GET.
+  Distribution of this memo is unlimited.
+
+Copyright Notice
+  OpenXM.org, 2004
+
+*/
+
+/*&ja
+
+@@要約.
+  OpenXM 100 形式の通信を HTTP GET (または POST) で wrap することにより, 
+  OpenXM 100 対応のサーバを容易に CGI サービス化できる.
+  また OpenXM のサービスを制限されたネットワーク環境でもグリッド化していく
+  ことが可能となる.
+
+  OpenXM 100 ではサーバを立ち上げるには "login" することが一般に必要であるが,
+  不特定人が一度のみの計算利用をするような場合にも, また OpenXM 100 と同様に 
+  login して session を維持することも可能なように 
+  OpenXM-100 over HTTP GET  (以下 OoHG  と略記) は設計されている.
+
+  このメモでは HTTP GET と HTTPS しか既存技術は利用していない.
+  Web 技術に関して現在研究中や実用化初期段階のさまざまなプロトコルを活用して
+  このメモと同等かそれ以上のことを実現することは可能であろう.
+  我々は単純で必要十分な仕様を与えたいと思っている.
+  その条件に合致する限り Web 技術に関して現在研究中や実用化初期段階の
+  さまざまなプロトコルを活用することを否定するものではない.
+  別のアプローチも試みよりよいプロトコルを作っていきたい.
+
+*/
+
+/*&ja
+
+@@ OX-RFC-100 (OpenXM 100) 形式の通信の復習
+
+OpenXM 100 およびその派生形式の通信は以下のような仕組みで行われる.
+
+ client                                            server
+
+     ---------------- step 1 ----------------------->
+     ssh による server への login.
+     localhost では ox100start/ox などの launcher が直接起動される.
+     controle server, engine server との接続を確立するための
+     ポート番号および      -control= ... , -data=...
+     認証方法および        -authtype=NONE | <<oneTimePassword>>
+     認証パスワード        -passControl=... , -passData=...
+     も送信される.
+     認証パスワードの暗号  -authEncoding=<<NONE>> | file | RSA
+     化方法の指定.
+     << >> は src/kxx/ox の標準値
+
+
+    <----------------  step 2 -------------------------->
+       -reverse の場合は <--- の向きに TCP/IP 接続が確立される.
+       そうでないときは ---> の向きに TCP/IP 接続が確立される.
+
+    <----------------  step 3 -------------------------->
+       -authtype=oneTimePassword の時.
+       connect した側が accept した側へ oneTimePassword を送る.
+
+    以下 launcher の仕事は終了して, engine と control に制御が移る.
+    <----------------  step 4 -------------------------->
+       engine の byte order を設定.
+
+    <---------------------------------------------------->
+       OpenXM のパケット交換
+
+    詳しくは OX-RFC-100, OX-RFC 103 (OX-RFC 100 補遺) を見よ.   
+    
+*/
+
+/*&ja
+
+@@ OoHG のデータ形式.
+
+OoHG ではデータは送信, 受信で非対称である.
+GET を利用するためデータの形式は RFC 2396 で指定されている
+いわゆる URL エンコーディング方法を用いる.
+GET の利用の代わりに POST method を利用してもよい.
+データは 
+    キーワード = 値
+を & で区切ったものである. キーワードは英数字と _ をもちいるものとする.
+キーワードと値の組は入れ子構造となってもよい.
+
+以下キーワードを列挙する.
+
+oxMessageBody:       OpenXM のパケット. 複数の OX パケットを一度に送ってよい.
+
+oxMessageEncoding:   OpenXM のパケットの encoding 方法の指定.
+                    <<text_executeString_popString>> が省略時の値.
+                     方法は以下のとおり.
+                     1. xml_ox100  (OX-RFC100 に定義された XML 表現)
+                     2. lisplike_ox100 (OX-RFC100 に定義された Lisp風表現)
+                     3. binary_ox100 (OX-RFC100 に定義された binary 表現)
+                     4. text_executeString_popString
+                          これは一度のみの実行を想定している.
+                          executeString に与える引数を text 形式で与える.
+
+dataChannelId:      data ポートの番号に相当.
+controlChannelId:   control ポートの番号に相当.
+sessionKey3Des:     64 bit x 3  3Des 用の Des Key.  サーバ側が生成し,
+                    RSA で暗号化されサーバより送信される.
+channelKey:         サーバより一つ前の HTTP トランズアクションで与えられる
+                    キー. 第３者が session に割り込むのを禁止するため.
+                    10 桁以上の数字で与える.
+                    サーバが与えるキーは nextChannelKey (Cookie に相当).
+                  (ネットワークが盗聴されているときは, この方法は無力である.
+                   https か 次の channelKeyIn3Des, nextChannelKeyIn3Des
+                   を用いるべきである.)
+
+channelKeyIn3Des:     3Des で暗号化された channelKey.
+nextChannelKeyIn3Des: 3Des で暗号化された nextChannelKey.
+
+responseEncoding:   サーバの返答の encoding 方法.
+                    省略時には oxMessageEncoding に対応した方法で
+                    本体部分は送られる.
+                    nextChannelKey 等の情報は特に指定しない場合
+                    OX100-OVER-HTTP-GET-nextChannelKey: による 
+                    header を用いた返答を行う.
+                    text_execute_popString の時は text 形式で送信される.
+                    詳細後述.
+                    その他.
+                    1. presentation_html
+
+loginRSA:           RSA 認証による login. nextSessionKey はクライアントの
+                    public key を用いて送信される.
+                    RSA については OX-RFC 103 を見よ.                    
+logout:             logout
+
+
+sessionTimeOut:
+
+controlChannelKey:
+nextControlChannelKey:
+challenge:
+challenge-response:
+
+*/
+
+/*&ja
+
+@@ 始めての例
+
+例1.
+fctr(x^2-1); を fctr.cgi へ送信する.
+
+     http://fctr.openxm.org/fctr.cgi?oxMessageBody=fctr(x%5E2-1)%3B
+
+oxMessageBody 以外の全てのキーワードが省略されているので,
+anonymous, 1 回のみの実行, executeString & popString, 返答は text 形式
+となり
+
+    [[1,1],[x-1],[x+2]]
+
+が戻る.
+
+例2.
+同じ問題を session を確立してから実行する. URL encoding 部分は " ... " で記述.
+RSA 暗号化されてる部分は ' ... 'で記述.
+
+   --->
+     http://fctr.openxm.org/fctr.cgi?loginRSA="takayama@hoge.org"
+   <---   
+     OX100-OVER-HTTP-GET-controlChannelId: 4010
+     OX100-OVER-HTTP-GET-dataChannelId: 4011
+     OX100-OVER-HTTP-GET-challenge: '.............'
+   --->
+     http://fctr.openxm.org/fctr.cgi?chanllenge-response: '..........'
+   <---
+     OX100-OVER-HTTP-GET-nextChannelKey: 143245
+     OX100-OVER-HTTP-GET-nextControlChannelKey: 534256
+   --->  
+     http://fctr.openxm.org/fctr.cgi?dataChannelId=4011&
+                                     channelKey=143245&
+                                     oxMessageEncoding="lisplike_ox100"&
+                                     responseEncoding="text"
+            oxMessageBody="(OX_DATA,(CMO_STRING,\"fctr(x^2-1);\"))
+                           (OX_COMMAND,(SM_executeString))
+                           (OX_COMMAND,(SM_popString))"
+  <---
+     Content-Type: text/plain
+     OX100-OVER-HTTP-GET-nextChannelKey: 345137
+
+     [[1,1],[x-1],[x+2]]
+  --->
+     http://fctr.openxm.org/fctr.cgi?dataChannelId=4011&
+                                     channelKey=345137&
+                                     logout&
+   
+*/
+
+
+/*&ja
+
+@@ エラーコード一覧.
+
+<< まだ検討してない >>
+
+*/
+
+/*&ja
+
+@@ コントロールプロセスとの通信
+
+<< まだ書いてない >>
+
+*/
+
+
+/*&ja
+
+@@ OpenXM grid のサービス一覧提供方法.
+
+<< まだ検討してない >>
+
+*/
+
+$Id$
