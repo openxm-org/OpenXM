@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.44 2004/09/16 23:53:44 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.45 2004/09/17 00:10:41 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -1720,8 +1720,9 @@
  [( string .. universalNumber)
   (Parse the << string >> as a universalNumber.)
   (Example:  (123431232123123).. /n set)
+  ({ commands }..  executes the commands.  << .. >> is equivalent to exec.)
 ]] putUsages
-/.. { (universalNumber) data_conversion } def
+/.. { dup tag 3 eq { exec } { (universalNumber) data_conversion} ifelse } def
 
 [(dc) 
  [(Abbreviation of data_conversion.)

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Kan/smacro.sm1,v 1.6 2004/09/10 13:20:23 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Kan/smacro.sm1,v 1.7 2004/09/16 23:53:44 takayama Exp $
 %%%%%% global control variables
 %%  /@@@.quiet 0 def  It is defined in scanner().
 /@@@.Dsymbol (D) def
@@ -100,7 +100,7 @@
    print  newline ;
 } def
 
-/. { dup tag 3 eq { exec } {expand} ifelse } def
+/. { expand } def
 
 
 /false 0 def
