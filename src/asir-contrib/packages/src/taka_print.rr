@@ -1,0 +1,129 @@
+/* $OpenXM$ */
+
+#define Number 1
+#define Rational 3
+#define List 4
+#define Vector 5
+#define Matrix 6
+#define DPolynomial   9
+
+Taka_print_dp_vlist_org = [x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9] $  
+Taka_print_dp_vlist = Taka_print_dp_vlist_org $
+  /* Used in taka_tex_form_dpolynomial
+     and taka_dp_print  */
+
+def taka_tex_form(S) {
+  if (type(S) == Matrix) {
+     return taka_tex_form_matrix(S);
+  }else if (type(S) == Vector) {
+     return taka_tex_form_vector(S);
+  }else if (type(S) == List) {
+     return taka_tex_form_list(S);
+  }else if (taka_is_fractional(S)) {
+     return( taka_tex_form_frac(S) );
+  }else if (type(S) == DPolynomial) {
+     return taka_tex_form_dpolynomial(S);
+  }else {
+   /* How to translate sin to \sin?
+      Use vtype, get args, ... to print sin. 
+      quote("x+2*y");  there is no way to get the left leaves and right leaves
+      for now.   eval_quote.
+   */
+     return rtostr(S);
+  }
+}
+
+def taka_tex_form_matrix(A) {
+  N = size(A)[0];
+  M = size(A)[1];
+  S="\\pmatrix{\n";
+  for (I=0; I<N; I++) {
+    for (J=0; J<M; J++) {
+      S += taka_tex_form(A[I][J]);
+      if (J != M-1) S += "& ";
+    }
+    S += " \\cr\n";
+  }
+  S += "}\n";
+  return S;
+}
+
+def taka_tex_form_vector(A) {
+  N = size(A)[0];
+  S="\\pmatrix{\n";
+  for (I=0; I<N; I++) {
+    S += taka_tex_form(A[I]);
+    if (I != N-1) S += "& ";
+  }
+  S += "\\cr}\n";
+  return S;
+}
+
+def taka_tex_form_list(A) {
+  N = length(A);
+  S="[";
+  for (I=0; I<N; I++) {
+    S += taka_tex_form(A[I]);
+    if (I != N-1) S += ", ";
+  }
+  S += "]";
+  return S;
+}
+
+def taka_is_fractional(A) {
+  if (type(A) == Rational) return 1;
+  else if (type(A) == Number && dn(A) != 1) return 1;
+  else return 0;
+}
+
+def taka_tex_form_frac(A) {
+  S = "\\frac{";
+  S += taka_tex_form(nm(A))+"}{";
+  S += taka_tex_form(dn(A))+"}";
+  return S;
+}
+
+def taka_tex_form_dpolynomial(F) {
+  extern Taka_print_dp_vlist;
+  if (F != 0) {
+    N = size(dp_etov(dp_hm(F)))[0];
+    Vlist = newvect(N);
+    if (length(Taka_print_dp_vlist) < N) {
+      error("Set the variable Taka_print_dp_vlist.");
+    }
+    for (I=0; I<N; I++) {
+      Vlist[I] = Taka_print_dp_vlist[I];
+    }
+    Vlist = vtol(Vlist);
+    Ans="";
+  }else{
+    Ans="0";
+  }
+  C = 0;
+  while (F != 0) {
+     G = dp_hm(F);
+     F = dp_rest(F);
+     if (dp_hc(G)>0 && C != 0) {
+       Ans += "+";
+     }
+     Ans += taka_tex_form(dp_dtop(G,Vlist));
+     if (C == 0) C = 1;
+  }
+  return Ans;
+}
+
+def taka_dp_print(S) {
+  extern Taka_print_dp_vlist;
+
+
+}
+
+def taka_output(S) {
+  shell("rm t.tex ");
+  output("t.tex");
+  print(S);
+  output();
+}
+
+Loaded_taka_print=1$
+end$
