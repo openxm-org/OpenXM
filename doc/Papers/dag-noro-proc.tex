@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.1 2001/11/19 01:02:30 noro Exp $
+% $OpenXM$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This is a sample input file for your contribution to a multi-
 % author book to be published by Springer Verlag.
@@ -335,15 +335,15 @@ Table \ref{gbq}, $C_7$ and $McKay$ can be computed by the Buchberger
 algorithm with the methods described in Section \ref{gbtech}.  It is
 obvious that $F_4$ implementation in Risa/Asir over {\bf Q} is too
 immature. Nevertheless the timing of $McKay$ is greatly reduced.
-Why is $F_4$ efficient in this case? The answer is in the right
-half of Fig. \ref{f4vsbuch}. During processing S-polynomials of degree
-16, the Buchberger algorithm produces intermediate polynomials with
-huge coefficients, but if we compute normal forms of these polynomials
-by using all subsequently generated basis elements, then their
-coefficients will be reduced after removing contents. As $F_4$
-algorithm automatically produces the reduced basis elements, the
-degree 16 computation is quite easy in $F_4$.
-
+Fig. \ref{f4vsbuch} explains why $F_4$ is efficient in this case.
+The figure shows that 
+the Buchberger algorithm produces normal forms with
+huge coefficients for S-polynomals after the 250-th one,
+which are the computations in degree 16.
+However, we know that the reduced basis elements have
+much smaller coefficients after removing contents.
+As $F_4$ algorithm automatically produces the reduced ones,
+the degree 16 computation is quite easy in $F_4$.
 
 \begin{table}[hbtp]
 \begin{center}
@@ -378,7 +378,7 @@ FGb(estimated)	& 8 &11 & 0.6 & 5 & 10 \\ \hline
 \begin{figure}[hbtp]
 \begin{center}
 \epsfxsize=12cm
-\epsffile{../compalg/ps/blenall.ps}
+\epsffile{blenall.ps}
 \end{center}
 \caption{Maximal coefficient bit length of intermediate bases}
 \label{f4vsbuch}
@@ -386,29 +386,29 @@ FGb(estimated)	& 8 &11 & 0.6 & 5 & 10 \\ \hline
 
 \subsection{Polynomial factorization}
 
-Table \ref{unifac} shows timing data for univariate factorization over
-{\bf Q}.  $N_{i,j}$ is an irreducible polynomial which are hard to
-factor by the classical algorithm. $N_{i,j}$ is a norm of a polynomial
-and $\deg(N_i) = i$ with $j$ modular factors. Risa/Asir is
-disadvantageous in factoring polynomials of this type because the
-algorithm used in Risa/Asir has exponential complexity. In contrast,
-CoCoA 4\cite{COCOA} and NTL-5.2\cite{NTL} show nice performances
-because they implement recently developed algorithms.
-
-\begin{table}[hbtp]
-\begin{center}
-\begin{tabular}{|c||c|c|c|c|} \hline
-		& $N_{105,23}$ & $N_{120,20}$ & $N_{168,24}$ & $N_{210,54}$ \\ \hline
-Asir 	& 0.86	& 59 & 840 & hard \\ \hline
-Asir NormFactor & 1.6 	& 2.2& 6.1& hard \\ \hline
-%Singular& hard?	& hard?& hard? & hard? \\ \hline
-CoCoA 4 & 0.2 	& 7.1	& 16 & 0.5 \\ \hline\hline
-NTL-5.2	& 0.16 	& 0.9 	& 1.4 & 0.4 \\ \hline
-\end{tabular}
-\end{center}
-\caption{Univariate factorization over {\bf Q}}
-\label{unifac}
-\end{table}
+%Table \ref{unifac} shows timing data for univariate factorization over
+%{\bf Q}.  $N_{i,j}$ is an irreducible polynomial which are hard to
+%factor by the classical algorithm. $N_{i,j}$ is a norm of a polynomial
+%and $\deg(N_i) = i$ with $j$ modular factors. Risa/Asir is
+%disadvantageous in factoring polynomials of this type because the
+%algorithm used in Risa/Asir has exponential complexity. In contrast,
+%CoCoA 4\cite{COCOA} and NTL-5.2\cite{NTL} show nice performances
+%because they implement recently developed algorithms.
+%
+%\begin{table}[hbtp]
+%\begin{center}
+%\begin{tabular}{|c||c|c|c|c|} \hline
+%		& $N_{105,23}$ & $N_{120,20}$ & $N_{168,24}$ & $N_{210,54}$ \\ \hline
+%Asir 	& 0.86	& 59 & 840 & hard \\ \hline
+%Asir NormFactor & 1.6 	& 2.2& 6.1& hard \\ \hline
+%%Singular& hard?	& hard?& hard? & hard? \\ \hline
+%CoCoA 4 & 0.2 	& 7.1	& 16 & 0.5 \\ \hline\hline
+%NTL-5.2	& 0.16 	& 0.9 	& 1.4 & 0.4 \\ \hline
+%\end{tabular}
+%\end{center}
+%\caption{Univariate factorization over {\bf Q}}
+%\label{unifac}
+%\end{table}
 
 Table \ref{multifac} shows timing data for multivariate
 factorization over {\bf Q}.
@@ -435,6 +435,13 @@ Maple 7& 0.5 	& 18 	& 967  & 48 & 1.3 \\ \hline
 \caption{Multivariate factorization over {\bf Q}}
 \label{multifac}
 \end{table}
+
+As to univariate factorization over {\bf Q},
+the univariate factorizer implements only classical
+algorithms and its behaviour is what one expects,
+that is, it shows average performance in cases
+where there are little eraneous factors, but
+shows poor performance for hard to factor polynomials.
 
 \section{OpenXM and Risa/Asir OpenXM interfaces}
 
@@ -547,7 +554,13 @@ def gbcheck(B,V,O,Procs) {
 Asir OpenXM library {\tt libasir.a} includes functions simulating the
 stack machine commands supported in {\tt ox\_asir}.  By linking {\tt
 libasir.a} an application can use the same functions as in {\tt
-ox\_asir} without accessing to {\tt ox\_asir} via TCP/IP.
+ox\_asir} without accessing to {\tt ox\_asir} via TCP/IP. There is
+also a stack and library functions to manipulate it. In order to make
+full use of this interface, one has to prepare conversion functions
+between CMO and the data structures proper to the application.
+A function {\tt asir\_ox\_pop\_string()} is provided to convert
+CMO to a human readable form, which may be sufficient for a simple
+use of this interface.
 
 \section{Concluding remarks}
 We have shown the current status of Risa/Asir and its OpenXM
