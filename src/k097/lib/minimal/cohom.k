@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.3 2000/09/10 20:22:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.4 2000/11/19 05:50:30 takayama Exp $ */
 
 /* k0 interface functions for cohom.sm1 */
 def Boundp(a) {
@@ -97,6 +97,7 @@ def sm1_syz(A,V,W) {
   sm1(P," syz /FunctionValue set");
 }
 /*  
+  cf.  Kernel() 
   sm1_syz([x*Dx,y*Dy],[x,y]):
   We want to syz_h, too.
   Step 1: Control by global variable ?  syz ==> syz_generic
@@ -248,3 +249,16 @@ def Rest(a) {
 }
 HelpAdd(["Rest",
 ["Rest(a), list a; "]]);
+
+def Annfs(f,v) {
+  local fs;
+  fs = ToString(f);
+  sm1(" [fs v] annfs /FunctionValue set ");
+}
+HelpAdd(["Annfs",
+["Annfs(f,v) computes the annihilating ideal of f^r and the Bernstein-Sato",
+ "  polynomial b(s) of f",
+ "Return value: [Ann(f^r), r, b(s)] where r is the minimal integral root of",
+ "              b(s) = 0.",
+ "Example:  Annfs(x^2+y^2,\"x,y\"): "
+]]);
