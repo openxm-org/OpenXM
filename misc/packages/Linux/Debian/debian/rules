@@ -55,7 +55,7 @@ install: build
 	dh_installdirs
 	mkdir -p ${INST_PREFIX}
 	tar cf - ${BINARY_FILES} ${SHARED_FILES}| (cd ${INST_PREFIX} ; tar xf -)
-	(cd ${INST_PREFIX}/OpenXM/bin ; make clean-for-install)
+#	(cd ${INST_PREFIX}/OpenXM/bin ; make clean-for-install)
 	-for i in $(EXECUTABLES); do strip ${INST_PREFIX}/OpenXM/bin/$$i ; done
 	make -C ${INST_PREFIX}/OpenXM/rc repl
 	sed 's/setenv OpenXM_HOME $$HOME/setenv OpenXM_HOME \/usr\/local/' <${INST_PREFIX}/OpenXM/rc/cshrc >${INST_PREFIX}/OpenXM/rc/dot.cshrc
