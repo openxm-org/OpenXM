@@ -1,0 +1,58 @@
+/* $OpenXM$ */
+
+/*&usage begin: util_filter(Comm,InS)
+ example: util_filter("java Http unkei:8091","Sqrt[2]");
+ end:
+*/
+def taka_util_filter(Comm,InS) {
+  Commfile = ".openxm-tmp.util.filter.commfile";
+  Infile   = ".openxm-tmp.util.filter.infile";
+  Outfile  = ".openxm-tmp.util.filter.outfile";
+  /*
+  Opt = getopt();  
+    example:
+    taka_util_filter(Comm,InS|env=[["CLASSPATH","/usr/local/java/lib"]])
+  */
+  C = "#!/bin/sh\n"+
+      Comm+" <"+Infile+" "+
+      " > "+Outfile+"\n";
+  print(C);
+
+  Fp = open_file(Commfile,"w");
+  if (Fp < 0) return 0;
+  In = strtoascii(C);
+  N = length(In);
+  for (I=0; I<N; I++) {
+    put_byte(Fp,In[I]);
+  }
+  close_file(Fp);
+  shell("chmod +x "+Commfile);
+
+  Fp = open_file(Infile,"w");
+  if (Fp < 0) return 0;
+  In = strtoascii(InS);
+  N = length(In);
+  for (I=0; I<N; I++) {
+    put_byte(Fp,In[I]);
+  }
+  close_file(Fp);
+
+  shell("./"+Commfile);
+
+  A=taka_util_load_file_as_a_string(Outfile);
+  shell("rm -f "+Commfile+" "+Infile+" "+Outfile);
+  return A;
+}
+
+def taka_util_load_file_as_a_string(Fname) {
+  Fp = open_file(Fname);
+  if (Fp < 0) return 0;
+  Str = [];
+  while ((C=get_byte(Fp)) > 0) {
+    Str=cons(C,Str);
+  }
+  Str = reverse(Str);
+  return asciitostr(Str);
+}
+
+end$
