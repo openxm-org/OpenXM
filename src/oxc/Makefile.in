@@ -1,11 +1,12 @@
-## $OpenXM: OpenXM/src/oxc/Makefile.in,v 1.4 2003/09/01 17:42:12 ohara Exp $
+## $OpenXM: OpenXM/src/oxc/Makefile.in,v 1.5 2003/09/03 07:11:20 ohara Exp $
 
 OpenXM_HOME=../..
 CC         = @CC@
 CFLAGS     = @CFLAGS@ -g -Wall -O2 -finline-functions -I${OpenXM_HOME}/src/ox_toolkit -I${OpenXM_HOME}/include
 #LIBS       = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgmp
 LIBS       = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgc
-INSTALL_PROGRAM= cp -f
+INSTALL    = @INSTALL@
+INSTALL_PROGRAM= ${INSTALL}
 
 all: oxc
 
