@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.3 2002/04/09 09:40:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.4 2002/04/10 08:55:45 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -27,6 +27,7 @@ OXFILE *oxf_control_set(OXFILE *oxfp, OXFILE *ctl)
 	return oxfp;
 }
 
+static char *OpenXM_HOME = "/usr/local/OpenXM";
 static char *concat_openxm_home_bin(char *s);
 
 OXFILE *         ox_start(char* host, char* prog1, char* prog2);
@@ -82,24 +83,26 @@ static OXFILE *mysocketAccept2(int listened, char *passwd)
 static char *concat_openxm_home_bin(char *s)
 {
     char *path;
-    char *base;
 
     /* if s includes '/' then it is not concaticated. */
     if (strchr(s, '/') != NULL) {
         return s;
     }
 
-    base = getenv("OpenXM_HOME");
-    path = malloc(strlen(base)+6+strlen(s));
-    sprintf(path, "%s/bin/%s", base, s);
+    path = malloc(strlen(OpenXM_HOME)+6+strlen(s));
+    sprintf(path, "%s/bin/%s", OpenXM_HOME, s);
     return path;
 }
 
 void set_OpenXM_HOME()
 {
-    /* Solaris does not have the setenv(). */
-    if (getenv("OpenXM_HOME") == NULL) {
-        putenv("OpenXM_HOME=/usr/local/OpenXM");
+	char *e;
+	if ((e = getenv("OpenXM_HOME")) != NULL
+#if defined(__CYGWIN__)
+		|| (e = getenv("OPENXM_HOME")) != NULL
+#endif
+		) {
+		OpenXM_HOME = e;
     }
 }
 
@@ -107,7 +110,6 @@ void ox_exec_local(char* ctl_prog, char* dat_prog, int portControl, int portStre
 {
     char  ctl[128], dat[128];
     char localhost[MAXHOSTNAMELEN];
-
 
     sprintf(ctl, "%d", portControl);
     sprintf(dat, "%d", portStream);
@@ -201,4 +203,3 @@ OXFILE *ox_start_remote_with_ssh(char *dat_prog, char* remote_host)
     ssh_ox_server(remote_host, "ox", dat_prog, 1200, 1300);
     return ox_start_insecure(remote_host, 1200, 1300);
 }
-
