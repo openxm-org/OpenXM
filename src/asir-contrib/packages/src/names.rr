@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.43 2002/07/15 08:17:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.44 2002/07/28 05:20:43 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
+/* Utilities */
 def ox_getenv(S) {
   A = getenv(S);
   if (A == 0) {
@@ -44,6 +45,7 @@ ox_loadfile_(Loaded_om,"om")$
 ox_loadfile_(Loaded_Matrix,"Matrix")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
+ox_loadfile_(Loaded_glib,"glib")$
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 
