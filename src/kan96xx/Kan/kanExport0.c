@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.2 1999/11/06 10:37:30 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.3 2000/06/08 08:35:02 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1376,7 +1376,7 @@ int c,l,m,n,cc,ll,mm,nn;
   if (!(cc<=ll && ll<=mm && mm<=nn && nn <= n)) return(1);
   if (!(cc<c || ll < l || mm < m || nn < n)) {
     if (WarningNoVectorVariable) {
-      warningKan("Ring definition: there is no variable to represent vectors.\n");
+      warningKanNoStrictMode("Ring definition: there is no variable to represent vectors.\n");
     }
   }
   if (!(cc<=c && ll <= l && mm <= m && nn <= n)) return(1);
@@ -2713,6 +2713,18 @@ char *str;
   }
   /* if (Strict) errorKan1("%s\n"," "); */
   if (Strict) errorKan1("%s\n",str);
+  return(0);
+}
+
+warningKanNoStrictMode(str)
+char *str; 
+{
+  extern int Strict;
+  int t;
+  t = Strict;
+  Strict = 0;
+  warningKan(str);
+  Strict = t;
   return(0);
 }
 

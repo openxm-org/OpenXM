@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.3 2000/02/02 03:30:48 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -208,6 +208,7 @@ struct object Keval(struct object obj);
 struct object KtoRecords(struct object ob1);
 void Kclose(void);
 int warningKan(char *s);
+int warningKanNoStrictMode(char *s);
 int errorKan1(char *s,char *m);
 struct object test(struct object ob);
 struct object Kextension(struct object ob);

@@ -1,14 +1,12 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/sample/verify-by-sm1,v 1.1 2000/07/15 07:17:58 takayama Exp $ */
 /*
 How to use?
-(1) Modify OpenXM_contrib2/asir2000/lib/gr as explained below in sm1_verify00
-    and save the modified gr by the name 
-    OpenXM/src/asir-contrib/packages/sample/gr-tmp
-(2) Add the following lines  to .asirc
-load("/home/nobuki/OpenXM/src/asir-contrib/packages/sample/gr-tmp");
+(1) Add the following lines  to .asirc
 load("/home/nobuki/OpenXM/src/asir-contrib/packages/sample/verify-by-sm1");
 /home/nobuki/ may be changed to your directory where you put OpenXM
-(3)
+"check_trace" in gr is overriden by that in verify-by-sm1, so
+verify-by-sm1 must be read after gr has been read.
+(2)
    Starting asir
      Sid = ox_launch();
      dp_gr_flags(["GenTrace",1,"OXCheck",Sid]);
@@ -25,6 +23,8 @@ RESTRICTIONS:
 
 */
 
+extern NFArray;
+
 Sm1_proc = -1$
 
 #define SM1_FIND_PROC(P)  P = getopt(proc);\
@@ -40,6 +40,7 @@ def sm1_find_proc() {
      /* Start sm1 automatically if there is not ox_sm1 */
      Sm1_proc = sm1_start();
      sm1(Sm1_proc,"[(Strict) 0] system_variable ");
+     sm1(Sm1_proc,"[(cmoLispLike) 0] extension ");
   }
   return(Sm1_proc);
 }
@@ -102,5 +103,40 @@ def check_example() {
 
    return([G,G2]);
 }
+
+/* This is a copy of check_trace of gr in the asir standard library */
+def check_trace(NF,NFIndex,HL)
+{
+	if ( !car(HL)[0] ) {
+		/* dehomogenization */
+		DH = dp_dehomo(NFArray[car(HL)[1]]);
+		if ( NF == DH ) {
+			realloc_NFArray(NFIndex);
+			NFArray[NFIndex] = NF;
+			return 0;
+		} else
+			error("check_trace(dehomo)");
+	}
+
+	for ( G = 0, T = HL; T != []; T = cdr(T) ) {
+		H = car(T);
+
+		Coeff = H[0];
+		Index = H[1];
+		Monomial = H[2];
+		Denominator = H[3];
+
+		Reducer = NFArray[Index];
+		/* G = (Coeff*G+Monomial*Reducer)/Denominator; */
+        G = sm1_verify00(Coeff,G,Monomial,Reducer,Denominator);
+	}
+	if ( NF == G ) {
+		realloc_NFArray(NFIndex);
+		NFArray[NFIndex] = NF;
+		return 0;
+	} else
+		error("check_trace");
+}
+
 
 end$
