@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/Papers/rims2001-noro.tex,v 1.1 2001/11/16 10:33:25 noro Exp $
 \documentclass{slides}
 \usepackage{color}
 \usepackage{rgb}
@@ -41,12 +41,13 @@
 
 \item 正標数準素分解に必要
 
-下山-横山アルゴリズムでは, $\sqrt{I}$ の素イデアル分解
-から $I$ の準素分解を導く
+下山-横山算法 : $\sqrt{I}$ の素イデアル分解 $\Rightarrow$ $I$ の準素分解
 
 $\sqrt{I}$ の分解には, 多変数の因数分解が必要
 
 ひょっとしたら代数幾何符号への応用があるかもしれない
+
+\item Reed-Solomon 符号の list decoding への応用あり
 
 \item それ自体おもしろい
 
@@ -54,8 +55,7 @@ $\sqrt{I}$ の分解には, 多変数の因数分解が必要
 
 無平方分解での困難
 
-特に, 変数の個数を減らす場合の evaluation point
-が足りない場合
+evaluation point が足りない場合
 \end{itemize}
 \end{slide}
 
@@ -180,10 +180,11 @@ EEZ アルゴリズムを書けていないため
 
 evaluation point の確保のため, 有限体の代数拡大が必要
 
-$F=GF(q)$ の $m$ 次拡大 $F_m$ $\cdots$ $h(x) \in F[x]$ : $m$ 次既約
-により $F_m = F[x]/(h(x))$
+$F=GF(q)$ の $m$ 次拡大 $F_m$ を
+$h(x) \in F[x]$ : $m$ 次既約 により $F_m = F[x]/(h(x))$
+で表現
 
-$\Rightarrow$ これでは計算が大変
+$\Rightarrow$ 計算が大変
 
 $q$ は小で, $\#(F_m)$ がそれなりに大きければよい
 
@@ -207,7 +208,7 @@ $(i,a_i)$ をテーブルで保持
 
 $\alpha^i+\alpha^j = \alpha^j(\alpha^{i-j}+1)$ として計算
 
-\item $F_m$ のサイズが $2^16$ 程度までなら実用的
+\item $F_m$ のサイズが $2^{16}$ 程度までなら実用的
 
 体を拡大しても, 計算速度はほとんど変わらない. 
 
@@ -311,18 +312,21 @@ $k > tdeg(f)^2/\deg_x(g_k)$ なら deterministic
 
 $F = GF(q)$ 上の既約因子が $F_m$ 上で分解する可能性あり
 
-$f \in F[x_1,\ldots,x_n]$, $f$ : $F$ 上既約で $f = \prod f_i$,
-$f_i$ : $F_m$ 上既約とする.
+$f \in F[x_1,\ldots,x_n]$, $f$ : $F$ 上既約で 
 
-$F_m/F$ は Galois 拡大で, $G=Gal(F_m/F) = \langle \sigma \rangle$ ただし 
-$\sigma : \beta \mapsto \beta^q$
+$f = \prod f_i$, $f_i$ : $F_m$ 上既約とする.
+
+$F_m/F$ は Galois 拡大で, $G=Gal(F_m/F) = \langle \sigma \rangle$ 
+
+ただし $\sigma : \beta \mapsto \beta^q$
 
 $S$ を $f_1$ の $G$-orbit とすると $\prod_{s\in S}s$ は $G$-不変だから
-$\prod_{s\in S}s \in F[x_1,\ldots,x_n]$. $f$ は $F$ 上既約だから
-$f = \prod_{s\in S}s$.
 
-よって, $F$ 上の既約因子は, $F_m$ 上の既約因子の $G$-orbit を求めれば
-よい. 
+$\prod_{s\in S}s \in F[x_1,\ldots,x_n]$. 
+
+$f$ は $F$ 上既約だから $f = \prod_{s\in S}s$.
+
+$\Rightarrow$ $F$ 上の既約因子 = $F_m$ 上の既約因子の $G$-orbit 
 
 $\sigma(h)$ は係数を $q$ 乗すればよいから容易. 
 
@@ -409,7 +413,7 @@ $f_{17,y\rightarrow y^2}$ & 0.57 & 0.78 & 0.55 & 2.3 & --- & --- & --- \\ \hline
 \fbox{\fbc \large 組み合わせ爆発を起こす場合}
 \end{center}
 
-$f(x,y) = f_{17,y\rightarrow y^2}(x,y)f_{17,y\rightarrow y^2}(x+1,y^2)$
+$f(x,y) = f_{17}(x,y^2)f_{17}(x+1,y^2)$
 
 真の因子は 4 個, $\bmod y$ での因子 32 個
 
