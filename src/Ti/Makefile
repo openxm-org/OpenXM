@@ -1,3 +1,4 @@
+#$OpenXM$
 # Main Make File For Spin 0.0
 
 # specify compiler and compiler flags
@@ -12,6 +13,7 @@ Libs = -lm
 	$(CC) -c $(CFLAGS) $*.C 
 
 all:  tigers
+install : all
 	cp -f tigers ../../bin 
 
 objA = utime.o  exsearch.o call.o gset.o binomial.o utils.o Rsimp.o tigers.o matrices.o toric.o Ihermite.o

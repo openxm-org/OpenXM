@@ -1,6 +1,6 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.9 1999/11/07 06:45:24 takayama Exp $
-all : all1 all2 all3
+## $OpenXM: OpenXM/src/Makefile,v 1.10 1999/11/20 21:33:09 maekawa Exp $
+all : all1 all2 all3  all4 pari asir all5 all6
 
 all1 :
 	(cd kan96xx ; make all )
@@ -10,41 +10,63 @@ all1 :
 all2 :
 	(cd gnuplot-diff ; make all)
 	(cd gnuplot-diff ; make install)
-	(cd Ti ; make all )
-	(cd phc ; make all )
-all3 :
-	(cd k097 ; make all ; cp k0 ../../bin)
+all3:
+	(cd Ti ; make all ; make install)
+	(cd phc ; make all ; make install )
 all4 :
-	(cd OpenMath ; make )
+	(cd k097 ; make all ; make install)
+all5 :
+	if test -d /usr/local/jdk1.1.7 ; \
+	then \
+	(cd OpenMath ; make ) ; \
+	fi 
+
+all6 :
+	if test -d /usr/local/mathematica ; \
+	then \
+	(cd ox_math ; make ) ; \
+	fi 
 	   
+pari :
+	(cd pari-2.0.17.beta ; make install ; make install-lib-sta ; ranlib ../../lib/libpari.a)
+asir :
+	(cd asir99; xmkmf -a; make; make install)
+
 
 clean :
 	/bin/rm -rf ../*~  *~
-	(cd kan96xx ; make cleana )
+	(cd kan96xx ; make clean )
 	(cd kxx ; make clean)
 	(cd Ti ; make clean)
-	/bin/rm -rf kan96.tgz kxx.tgz *~ ../*~
-	/bin/rm -rf k097.tgz
-#	(cd kan96xx ; make clean-binary )
-#	(cd kxx ; make clean-binary )
 	(cd gnuplot-diff ; make clean )
-	/bin/rm -rf ../bin/tigers
+	(cd gnuplot ; make clean)
 	(cd phc ; make clean )
-	(cd k097 ; make clean ; /bin/rm -rf ../../bin/k0)
-	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6
+	(cd k097 ; make clean )
+	(cd asir99 ; make clean )
+#	(cd ox_math ; make clean )
+	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6 bin/tigers bin/k0 bin/oxweave bin/gp-2.0 bin/gphelp bin/fep.linux bin/lin_phcv2p
+
+
+distclean :
+	(cd kan96xx ; make distclean )
+	(cd kxx ; make clean)
+	(cd Ti ; make clean)
+	(cd gnuplot-diff ; make clean )
+	(cd gnuplot ; make distclean )
+	(cd phc ; make clean )
+	(cd k097 ; make clean )
+	(cd asir99 ; make clean )
+#	(cd ox_math ; make clean )
+	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6 bin/tigers bin/k0 bin/oxweave bin/gp-2.0 bin/gphelp bin/fep.linux bin/lin_phcv2p
+
 
 configure :
-	/bin/rm -f bin SSkan gmp gc ../lib/k097 ../lib/sm1
-	ln -f -s ../bin bin
-	ln -f -s ./kan96xx SSkan
-	ln -f -s ./kan96xx/gmp gmp
-	ln -f -s ./kan96xx/gc gc
-	(cd ../lib ; ln -f -s ../src/k097 k097 ; ln -f -s ../src/kan96xx/Doc sm1)
+	./make-links
 	(cd ../bin ; ./configure2 )
+	(cd kxx ; make configure )
 	(cd kan96xx ; make configure )
-	(cd kxx ; /bin/rm -f ox_kan.h )
-	(cd kxx ; ln -f -s  ../SSkan/plugin/ox_kan.h ox_kan.h)
-	(cd ../lib/asir ; ./configure2 )
+	(cd pari-2.0.17.beta; ./Configure --prefix=../../..)
+	(cd asir99; ./configure)
 
 
 

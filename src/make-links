@@ -1,0 +1,8 @@
+#!/bin/sh
+# $OpenXM$
+/bin/rm -f bin SSkan gmp gc ../lib/k097 ../lib/sm1
+ln -f -s ../bin bin
+ln -f -s ./kan96xx SSkan
+ln -f -s ./kan96xx/gmp gmp
+ln -f -s ./kan96xx/gc gc
+(cd ../lib ; ln -f -s ../src/k097 k097 ; ln -f -s ../src/kan96xx/Doc sm1)

@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.6 1999/11/07 06:45:25 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.7 1999/11/07 13:24:19 takayama Exp $
 ## Type in make configure and make all to build all
 all :   
 	(cd gc; make)
@@ -70,7 +70,7 @@ install2 :
 
 ##############
 clean :
-	(cd gmp; make distclean)
+	(cd gmp; make clean)
 	(cd gc; make clean)
 	(cd Kan; make clean)
 	(cd plugin; make clean)
@@ -78,7 +78,9 @@ clean :
 
 
 ### clean also *.a files.
-cleana :
+cleana:  distclean
+
+distclean :
 	(cd gmp; make distclean; /bin/rm -f *.a)
 	(cd gc; make clean; /bin/rm -f *.a)
 	(cd Kan; make cleana)

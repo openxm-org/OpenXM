@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.8 1999/11/16 08:07:31 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.9 1999/11/19 01:11:46 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -136,6 +136,11 @@ install2 : install_lib_bin
 	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
 	ln -f -s  ../src/kxx/oxlog ../bin/oxlog
 	ln -f -s  ../src/kxx/oxweave ../bin/oxweave
+
+
+configure:
+	/bin/rm -f ox_kan.h 
+	ln -f -s  ../SSkan/plugin/ox_kan.h ox_kan.h
 
 
 clean-binary :
