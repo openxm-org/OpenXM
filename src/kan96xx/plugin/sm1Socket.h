@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.h,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
 struct object KsocketOpen(struct object obj);
 /* [  optional integer port default 0, optional string host default localhost]
    [ integer socketid, integer port ]
@@ -22,6 +22,10 @@ struct object KsocketSelectMulti(struct object obj);
    [ result1, result2, ....]
 */
 struct object KsocketRead(struct object obj);
+/* [ integer socketid ]
+   string data 
+*/
+struct object KsocketReadHTTP(struct object obj);
 /* [ integer socketid ]
    string data 
 */

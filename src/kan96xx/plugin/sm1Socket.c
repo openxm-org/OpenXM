@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.5 2002/10/17 13:40:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.6 2002/10/20 07:58:18 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -529,35 +529,43 @@ struct object KsocketWriteByte(struct object obj) {
   return(KpoInteger(r));
 }
 
-struct object KsocketReadBlock(struct object socketObj) {
-  /* Read until the empty line appears. */
+struct object KsocketReadHTTP(struct object socketObj) {
+  /* Read until two empty line appears. */
   struct object ob;
   char *s;
   char *sss;
   char *tmp;
   int i;
   int flag;
+  int flagmax = 1;
   int datasize;
+  int last;
   ob = KsocketRead(socketObj);
   s = KopString(ob);
+  if (strncmp(s,"POST",4) == 0) flagmax=2;
+  else flagmax=1;
   flag = 0;
   for (i=strlen(s)-1; i>=0; i--) {
 	if ((s[i] == '\n') && (i==0)) {
-	  flag = 1;
+	  ++flag;
 	}else if ((s[i] == '\n') && (s[i-1] == '\n')) {
-	  flag = 1;
+	  ++flag;
 	}else if ((s[i] == 0xd) && (s[i+1] == 0xa) && (i == 0)) {
-	  flag = 1;
+	  ++flag;
 	}else if ((s[i] == 0xa) && (s[i-1] == 0xd) && (s[i+1] == 0xd) && (s[i+2] == 0xa)) {
-	  flag = 1;
+	  ++flag;
 	}
   }
-  if (flag == 1) return ob;
+  if (flag >= flagmax) return ob;
   datasize = strlen(s);
   sss = s;
+  if ((s[strlen(s)-1] == '\n') ||
+      (s[strlen(s)-2] == 0xd) && (s[strlen(s)-1] == 0xa)) {
+	last = 1;
+  }else last = 0;
 
-  while (flag == 0) {
-	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line).\n");
+  while (flag < flagmax) {
+	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d\n",flagmax);
 	if (strlen(s) == 0) {fprintf(stderr,"but I'm not receiving data. Expecting a bug.\n");
 	}else{
 	  /* for debugging. */
@@ -569,16 +577,15 @@ struct object KsocketReadBlock(struct object socketObj) {
 	sleep(2);
 	ob = KsocketRead(socketObj);
 	s = KopString(ob);
-	flag = 0;
 	for (i=strlen(s)-1; i>=0; i--) {
-	  if ((s[i] == '\n') && (i==0)) {
-		flag = 1;
+	  if ((s[i] == '\n') && (i==0) && last) {
+		++flag;
 	  }else if ((s[i] == '\n') && (s[i-1] == '\n')) {
-		flag = 1;
-	  }else if ((s[i] == 0xd) && (s[i+1] == 0xa) && (i == 0)) {
-		flag = 1;
+		++flag;
+	  }else if ((s[i] == 0xd) && (s[i+1] == 0xa) && (i==0) && last) {
+		++flag;
 	  }else if ((s[i] == 0xa) && (s[i-1] == 0xd) && (s[i+1] == 0xd) && (s[i+2] == 0xa)) {
-		flag = 1;
+		++flag;
 	  }
 	}
 	if (datasize-1 <= strlen(sss)+strlen(s)) {
@@ -591,6 +598,12 @@ struct object KsocketReadBlock(struct object socketObj) {
 	}else{
 	  strcat(sss,s);
 	}
+
+	if ((s[strlen(s)-1] == '\n') ||
+		(s[strlen(s)-2] == 0xd) && (s[strlen(s)-1] == 0xa)) {
+	  last = 1;
+	}else last = 0;
+
   }
 
   return KpoString(sss);
@@ -611,8 +624,8 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
     robj = KsocketSelectMulti(obj);
   }else if (strcmp(key,"read") == 0) {
     robj = KsocketRead(obj);
-  }else if (strcmp(key,"readBlock") == 0) {
-    robj = KsocketReadBlock(obj);
+  }else if (strcmp(key,"readHTTP") == 0) {
+    robj = KsocketReadHTTP(obj);
   }else if (strcmp(key,"write") == 0) {
     robj = KsocketWrite(obj);
   }else if (strcmp(key,"read") == 0) {

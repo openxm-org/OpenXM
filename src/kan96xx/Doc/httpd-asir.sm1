@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.20 2002/10/01 13:00:33 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.21 2002/10/17 13:40:28 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -70,7 +70,7 @@ def
   {
        [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
        %%     wait for ever
-        [(sm1.socket) (readBlock) [httpd.server.fd 0 get ]] extension /ff set
+        [(sm1.socket) (readHTTP) [httpd.server.fd 0 get ]] extension /ff set
         ff length 0 eq {
            (connection is closed.) message
         }
