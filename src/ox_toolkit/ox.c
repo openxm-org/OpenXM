@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.29 2003/09/18 20:30:00 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.30 2003/11/09 01:48:01 iwane Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -447,12 +447,9 @@ int ox_flush(OXFILE *sv)
 
 void ox_reset(OXFILE *sv)
 {
-    int tag;
     send_ox_command(oxf_control(sv), SM_control_reset_connection);
-    while((tag = receive_ox_tag(sv)) != OX_SYNC_BALL) {
-        if (tag == OX_DATA) {
-          receive_cmo(sv); /* skipping a message. */
-        }
+    while(receive_ox_tag(sv) != OX_SYNC_BALL) {
+        receive_cmo(sv); /* skipping a message. */
     }
 
     send_ox_tag(sv, OX_SYNC_BALL);
