@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.9 2000/01/08 21:47:04 maekawa Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.10 2000/02/27 07:26:21 takayama Exp $
 
 PARI = ../../../OpenXM_contrib/pari
 OpenXM_ROOT = ../../../OpenXM
@@ -9,8 +9,18 @@ all: configure
 	fi
 	@touch ./.make_done
 
-install: all install-lib
-	(cd $(PARI) ; make install)
+install: install-lib-bin
+
+install-lib-bin: all install-lib
+	(cd $(PARI)/O*-* ; make install-lib-dyn)
+	(cd $(PARI)/O*-* ; make install-include)
+	(cd $(PARI)/O*-* ; make install-bin)
+	(cd $(PARI)/O*-* ; make install-misc)
+	(cd $(PARI)/O*-* ; make install-man)
+	(cd $(PARI)/O*-* ; make install-data)
+
+install-doc: all 
+	(cd $(PARI) ; make doc)
 	@if [ ! -d $(OpenXM_ROOT)/doc/pari ]; then \
 	   mkdir $(OpenXM_ROOT)/doc/pari ;\
 	fi
