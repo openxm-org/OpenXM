@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.3 2003/11/07 13:41:37 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.4 2003/11/08 12:35:08 iwane Exp $
 #
 #
 #
@@ -7,6 +7,8 @@
 #
 
 PROG=ox_ntl
+
+OpenXM_HOME=../..
 
 CPP=g++
 CC =gcc
@@ -75,7 +77,7 @@ install: all
 clean:
 	-$(RM) -f $(OBJC) $(PROG) ox_ntl_debug oxserv_debug
 	-$(RM) -fr ${WORK}
-	-$(RM) -f .*-ntl-done
+	@-$(RM) -f .*-ntl-done
 
 
 pre-fetch-ntl:
@@ -101,7 +103,7 @@ patch-ntl: fetch-ntl
 
 build-ntl: patch-ntl
 	@if [ ! -f .build-ntl-done ]; then \
-		(cd ${WORK}/${DISTFILEDIR}/src; ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT}; make); \
+		(cd ${WORK}/${DISTFILEDIR}/src; LD_LIBRARY_PATH=${OpenXM_HOME}/lib; export LD_LIBRARY_PATH; ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT}; make); \
 		touch .build-ntl-done; \
 	fi
 
