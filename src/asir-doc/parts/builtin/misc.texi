@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.6 2000/02/07 07:11:38 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.7 2001/03/12 05:01:18 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -15,6 +15,7 @@
 * help::
 * time::
 * cputime tstart tstop::
+* timer::
 * heap::
 * version::
 * shell::
@@ -561,6 +562,71 @@ the debug-mode and execute @code{cputime(1)}.
 \EG @item References
 @fref{time}, @fref{ctrl}.
 @end table
+
+\JP @node timer,,, その他
+\EG @node timer,,, Miscellaneouses
+@subsection @code{timer}
+@findex timer
+
+@table @t
+@item timer(@var{interval},@var{expr},@var{val})
+\JP :: 制限時間つきで計算を実行する.
+\BEG
+:: Compute an expression under the interval timer.
+\E
+@end table
+
+@table @var
+@item return 
+\JP 結果
+\EG result
+
+@item interval
+\JP 制限時間 (秒)
+\EG interval (second)
+
+@item expr
+\JP 計算する式
+\EG expression to be computed
+
+@item val
+\JP タイマによる中断時の戻り値
+\EG a value to be returned when the timer is expired
+@end table
+
+@itemize @bullet
+
+\BJP
+@item
+@code{timer()} は, 時間を指定して計算を実行する. 指定時間内に計算が完了
+した場合その値を返す. 指定時間内に計算が完了しなかった場合, 第 3 引数
+を返す. 
+
+@item
+第 3 引数の値は, 計算が完了した場合の値と区別できる必要がある. 
+\E
+
+\BEG
+@item
+@code{timer()} computes an expression under the interval timer.
+If the computation finishes within the specified interval, it
+returns the result of the computation. Otherwise it returns the third
+argument.
+
+@item
+The third argument should be distinguishable from the result on success.
+\E
+
+@end itemize
+
+@example
+[0] load("cyclic");
+1
+[10] timer(10,dp_gr_main(cyclic(7),[c0,c1,c2,c3,c4,c5,c6],1,1,0),0);
+interval timer expired (VTALRM)
+0
+[11] 
+@end example
 
 \JP @node heap,,, その他
 \EG @node heap,,, Miscellaneouses
