@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.4 2000/01/03 09:15:54 okutani Exp $ */
 
 /*----------------------*/
 /* package for D-module */
@@ -239,8 +239,8 @@ def dmodule_ch_ideal(D_ideal, V) {
 }
 
 def dmodule_ch_ideal_generic(D_ideal, Param, V) {
-  Gb = sm1_gb(dmodule_sm1_start(),
-              [D_ideal, dmodule_var_tosm1(append(V,Param)), [dmodule_order_filt(append(V,Param))]]);
+  Gb = sm1_gb([ D_ideal, dmodule_var_tosm1(append(V,Param)),
+                [dmodule_order_filt(append(V,Param))] ]);
 #if _DEBUG_Dmodule_
   print("sm1_gb: ", 0); print(Gb);
 #endif
@@ -265,6 +265,11 @@ def dmodule_ch_ideal_appell3(A1, A2, B1, B2, C, V) {
 def dmodule_ch_ideal_appell4(A, B, C1, C2, V) {
   D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
   return dmodule_ch_ideal(D_ideal_str, V);
+}
+
+def dmodule_ch_ideal_generic_appell4(A, B, C1, C2, Param, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
+  return dmodule_ch_ideal_generic(D_ideal_str, Param, V);
 }
 
 def dmodule_ch_ideal_selberg2(A, B, C, S, V) {
@@ -468,8 +473,7 @@ def dmodule_elimination_generic(D_ideal, Param, V, Elim) {
 #if _DEBUG_Dmodule_
   print("D-idal: ", 0); print(D_ideal);
 #endif
-  Gb1 = sm1_gb(dmodule_sm1_start(),
-	       [ D_ideal, dmodule_var_tosm1(append(V, Param)),
+  Gb1 = sm1_gb([ D_ideal, dmodule_var_tosm1(append(V, Param)),
 	         dmodule_elimination_order(append(V, Param), Elim[0]) ]);
 #if _DEBUG_Dmodule_
   print("Gb1: ", 0); print(Gb1);

@@ -1,10 +1,10 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.4 2000/01/03 09:15:54 okutani Exp $ */
 
 /*------------------------------------*/
 /* Package for differential equations */
 /*------------------------------------*/
 
-#define _DEBUG_Diff_ 1
+#define _DEBUG_Diff_ 0
 #define _OPTIMIZE_Diff_ 1
 
 Diff_ActList1 = [ newvect(2, [ [(1)/(x),[x]], newvect(1,[(1)/(x)]) ]) ]$
@@ -762,6 +762,7 @@ def diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V) {
             +3*K2^2-2*A*K3-2*B*K3-2*C2*K3+4*K1*K3+8*K2*K3+4*K3^2
             +2*(-A+K1+K2+2*K3)*(-B+K1+K2+2*K3)*V[0])*V[1]^2
           -(-A+K1+K2+2*K3)*(-B+K1+K2+2*K3)*V[1]^3 );
+
   return [ [ [C1Gxx,[2,0]],[C1Gxy,[1,1]],[C1Gyy,[0,2]],
              [C1Gx,[1,0]],[C1Gy,[0,1]],[C1G,[0,0]] ],
            [ [C2Gyy,[0,2]],[C2Gxy,[1,1]],[C2Gxx,[2,0]],
