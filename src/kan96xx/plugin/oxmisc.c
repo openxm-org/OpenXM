@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.10 2001/08/10 13:48:39 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.11 2001/12/28 08:18:22 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -883,10 +883,18 @@ char *oxGenPass(void) {
 
 
 static void cancelConnection() {
+#if defined(__CYGWIN__)
+  extern sigjmp_buf MyEnv_oxmisc;
+#else
   extern jmp_buf MyEnv_oxmisc;
+#endif
   signal(SIGALRM,SIG_IGN);
   fprintf(stderr,"Time out in TCP/IP connection.\n");
+#if defined(__CYGWIN__)
+  siglongjmp(MyEnv_oxmisc,1);
+#else
   longjmp(MyEnv_oxmisc,1);
+#endif
 }
 
 oxclientp oxCreateClient2(int fdstream,int portStream,
@@ -900,11 +908,19 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
 
   char *s;
   oxclientp client;
-  extern jmp_buf MyEnv_oxmisc ;
+#if defined(__CYGWIN__)
+  extern sigjmp_buf MyEnv_oxmisc;
+#else
+  extern jmp_buf MyEnv_oxmisc;
+#endif
   int controlByteOrder, engineByteOrder;
 
   v = !Quiet;
+#if defined(__CYGWIN__)
+  if (sigsetjmp(MyEnv_oxmisc,1)) {
+#else
   if (setjmp(MyEnv_oxmisc)) {
+#endif
     return(NULL);
   }else{
   }

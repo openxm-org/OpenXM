@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.7 2001/08/10 13:48:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.8 2001/08/21 14:12:46 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -35,9 +35,14 @@ static void mywait() {
 }
 
 #define SIZE_OF_ENVSTACK 5
-static jmp_buf EnvStack[SIZE_OF_ENVSTACK];
+#if defined(__CYGWIN__)
+#define JMP_BUF sigjmp_buf
+#else
+#define JMP_BUF jmp_buf
+#endif
+static JMP_BUF EnvStack[SIZE_OF_ENVSTACK];
 static int Envp = 0;
-static void pushEnv(jmp_buf jb) {
+static void pushEnv(JMP_BUF jb) {
   if (Envp < SIZE_OF_ENVSTACK) {
     *(EnvStack[Envp]) = *jb;
     Envp++;
@@ -46,7 +51,7 @@ static void pushEnv(jmp_buf jb) {
     exit(2);
   }
 }
-static void popEnv(jmp_buf jbp) {
+static void popEnv(JMP_BUF jbp) {
   if (Envp <= 0) {
     fprintf(stderr,"Underflow of EnvStack.\n");
     exit(3);
@@ -86,7 +91,11 @@ struct object Kextension(struct object obj)
   char *abc;
   char *abc2;
   extern struct context *CurrentContextp;
+#if (__CYGWIN__)
+  extern sigjmp_buf EnvOfStackMachine;
+#else
   extern jmp_buf EnvOfStackMachine;
+#endif
   extern void ctrlC();
   extern int SigIgn;
   extern errno;

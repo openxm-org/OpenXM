@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.16 2001/05/06 08:11:48 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.17 2001/08/21 14:12:46 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -116,7 +116,11 @@ FILE *Fstack = NULL; /* Initialized to standard output stream
 /* in case of Solaris, use the following: */
 int EnvOfStackMachine[2000];
 #else
+#if defined(__CYGIWN__)
+sigjmp_buf EnvOfStackMachine;
+#else
 jmp_buf EnvOfStackMachine;
+#endif
 #endif
 
 #if defined(__CYGWIN__)

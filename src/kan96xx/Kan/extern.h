@@ -1,9 +1,13 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.3 2000/02/02 03:30:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.4 2000/07/17 02:58:45 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
 extern FILE *Fstack;
+#if defined(__CYGWIN__)
+extern sigjmp_buf EnvOfStackMachine;
+#else
 extern jmp_buf EnvOfStackMachine;
+#endif
 extern struct object NullObject;
 extern struct object NoObject;
 extern int Lookup[TYPES][TYPES];

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.7 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.8 2001/12/19 23:39:53 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -736,7 +736,11 @@ void scanner() {
   getokenSM(INIT);
   initSystemDictionary();
 
+#if defined(__CYGWIN__)
+  if (sigsetjmp(EnvOfStackMachine,1)) {
+#else
   if (setjmp(EnvOfStackMachine)) {
+#endif
     /* do nothing in the case of error */
     fprintf(stderr,"An error or interrupt in reading macros, files and command strings.\n");
     exit(10);
@@ -796,7 +800,11 @@ void scanner() {
   
   
   for (;;) {
+#if defined(__CYGWIN__)
+    if (jval=sigsetjmp(EnvOfStackMachine,1)) {
+#else
     if (jval=setjmp(EnvOfStackMachine)) {
+#endif
       /* ***  The following does not work properly.  ****
          if (jval == 2) {
          if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
@@ -867,7 +875,11 @@ void ctrlC(sig)
   */
   getokenSM(INIT); /* It might fix the bug above. 1992/11/14 */
   signal(SIGINT,ctrlC);
+#if defined(__CYGWIN__)
+  siglongjmp(EnvOfStackMachine,2);
+#else
   longjmp(EnvOfStackMachine,2); /* returns 2 for ctrl-C */
+#endif
 }
 
 int executeToken(token)
@@ -1083,7 +1095,11 @@ KSexecuteString(s)
 
   if (KSPushEnvMode) {
     *saved_EnvOfStackMachine = *EnvOfStackMachine;
+#if defined(__CYGWIN__)
+    if (jval = sigsetjmp(EnvOfStackMachine,1)) {
+#else
     if (jval = setjmp(EnvOfStackMachine)) {
+#endif
       *EnvOfStackMachine = *saved_EnvOfStackMachine;
       if (jval == 2) {
         if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
@@ -1096,7 +1112,11 @@ KSexecuteString(s)
     }else{ }
   }else{
     if (recursive == 0) {
+#if defined(__CYGWIN__)
+      if (jval=sigsetjmp(EnvOfStackMachine,1)) { 
+#else
       if (jval=setjmp(EnvOfStackMachine)) { 
+#endif
         if (jval == 2) {
           if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
             pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));

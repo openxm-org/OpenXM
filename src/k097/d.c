@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.6 2000/12/10 02:21:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.7 2001/01/08 05:26:48 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -7,8 +7,17 @@
 #include "d.h"
 #include "simple.tab.h"
 
+#if defined(__CYGWIN__)
+#define JMP_BUF sigjmp_buf
+#define SETJMP(env)  sigsetjmp(env,1)
+#define LONGJMP(env,p)  siglongjmp(env,p)
+#else
+#define JMP_BUF jmp_buf
+#define SETJMP(env)  setjmp(env)
+#define LONGJMP(env,p)  longjmp(env,p)
+#endif
 
-jmp_buf KCenvOfParser;
+JMP_BUF KCenvOfParser;
 
 int DebugMode = 1;
 extern int K00_verbose;
@@ -594,7 +603,7 @@ KCerror(char *s)   /* You need this function. Otherwise, you get core. */
 	while (fsgetc(Inop) > MARK_CHAR) ;
   }
   return ;
-  longjmp(KCenvOfParser,2);
+  LONGJMP(KCenvOfParser,2);
   exit(1); 
 }
 

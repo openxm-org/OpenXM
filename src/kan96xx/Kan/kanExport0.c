@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.6 2001/04/12 06:48:25 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.7 2001/05/04 01:06:23 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2694,7 +2694,11 @@ errorKan1(str,message)
   }
   stdOperandStack(); contextControl(CCRESTORE);
   /* fprintf(stderr,"Now. Long jump!\n"); */
+#if defined(__CYGWIN__)
+  siglongjmp(EnvOfStackMachine,1);
+#else
   longjmp(EnvOfStackMachine,1);
+#endif
 }
 
 warningKan(str)

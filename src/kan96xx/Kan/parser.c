@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -22,8 +22,11 @@ union valObject {
   POLY p;
 };
   
-
+#if defined(__CYGWIN__)
+static sigjmp_buf EnvOfParser;
+#else
 static jmp_buf EnvOfParser;
+#endif
 
 static char *String;
 static int  StrPtr = 0;  /* String and StrPtr are used in getcharFromStr() */
@@ -119,8 +122,11 @@ POLY stringToPOLY(s,ringp)
   Ring0 = *ringp;
   Ring0.p = 0;
   Ring0.next = (struct ring *)NULL; 
-  
+#if defined(__CYGWIN__)
+  if (sigsetjmp(EnvOfParser,1)) {
+#else  
   if (setjmp(EnvOfParser)) {
+#endif
     fprintf(stderr,"\nERROR: You have syntax errors in the expression: %s\n",s);
     errorKan1("%s\n"," parser.c : Syntax error in the input polynomial.");
     return( POLYNULL ); /* error */
@@ -589,6 +595,10 @@ static void errorParser(s) char s[]; {
     fprintf(Fstack,"The interpreter was looking for the label <<%s>>. It is also aborted.\n",GotoLabel);
     GotoP = 0;
   }
+#if defined(__CYGWIN__)
+  siglongjmp(EnvOfParser,1);
+#else
   longjmp(EnvOfParser,1);
+#endif
 }
 

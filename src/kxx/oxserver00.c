@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.5 2001/05/06 07:53:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.6 2001/12/21 02:32:11 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -20,7 +20,11 @@ extern int SerialOX;  /* Serial number of the packets sent. */
 extern int SerialCurrent;  /* Current Serial number of the recieved packet. */
 extern int OXprintMessage; /* print oxmessages? */
 
+#if defined(__CYGWIN__)
+sigjmp_buf EnvOfChildServer;
+#else
 jmp_buf EnvOfChildServer;
+#endif
 
 int JmpMessage = 0;
 
@@ -84,7 +88,11 @@ nullserver(int fdStream) {
   ox_stream ostream;
   char sreason[1024];
   extern void controlResetHandler();
+#if defined(__CYGWIN__)
+  extern sigjmp_buf EnvOfStackMachine;
+#else
   extern jmp_buf EnvOfStackMachine;
+#endif
   int engineByteOrder;
 
   fflush(NULL);
@@ -101,7 +109,11 @@ nullserver(int fdStream) {
     if (PacketMonitor) fp2watch(ostream,stdout);
   }
   aaa : ;
+#if defined(__CYGWIN__)
+  if (sigsetjmp(EnvOfChildServer,1)) {
+#else
   if (setjmp(EnvOfChildServer)) {
+#endif
     fprintf(stderr,"childServerMain: jump here.\n");
     if (OxInterruptFlag == 0) {
       fprintf(stderr," ?! \n"); fflush(NULL);
@@ -111,8 +123,11 @@ nullserver(int fdStream) {
     if (JmpMessage) fprintf(stderr,"Set EnvOfChildServer.\n");
     signal(SIGUSR1,controlResetHandler);
   }
-  
+#if defined(__CYGWIN__)
+  if (sigsetjmp(EnvOfStackMachine,1)) {
+#else  
   if (setjmp(EnvOfStackMachine)) {
+#endif
     fprintf(stderr,"childServerMain: jump here by EnvOfStackMachine.\n");
     if (OxInterruptFlag == 0) {
       fprintf(stderr," ?! \n"); fflush(NULL);
@@ -317,7 +332,11 @@ void controlResetHandler(sig)
   if (OxCritical) {
     return;
   }else{
+#if defined(__CYGWIN__)
+    siglongjmp(EnvOfChildServer,2); /* returns 2 for ctrl-C */
+#else
     longjmp(EnvOfChildServer,2); /* returns 2 for ctrl-C */
+#endif
   }
 }
 

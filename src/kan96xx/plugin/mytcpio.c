@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.4 2000/09/08 16:08:42 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.5 2001/05/04 01:06:30 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -15,7 +15,11 @@
 #if defined(sun)
 int MyEnv_oxmisc[2000];
 #else
+#if defined(__CYGWIN__)
+sigjmp_buf MyEnv_oxmisc; /* may cause a trouble in Solaris. */
+#else
 jmp_buf MyEnv_oxmisc; /* may cause a trouble in Solaris. */
+#endif
 #endif
 
 #define READBUFSIZE 10000

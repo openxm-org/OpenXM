@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.11 2000/12/06 00:29:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.12 2001/05/04 01:06:30 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -1121,7 +1121,11 @@ oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
 
   char *s;
   oxclientp client;
-  extern jmp_buf MyEnv_oxmisc ;
+#if defined(__CYGWIN__)
+  extern sigjmp_buf MyEnv_oxmisc;
+#else
+  extern jmp_buf MyEnv_oxmisc;
+#endif
   int engineByteOrder;
   extern int Quiet;
 
@@ -1235,7 +1239,11 @@ oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
 
   char *s;
   oxclientp client;
-  extern jmp_buf MyEnv_oxmisc ;
+#if defined(__CYGWIN__)
+  extern sigjmp_buf MyEnv_oxmisc;
+#else
+  extern jmp_buf MyEnv_oxmisc;
+#endif
   int engineByteOrder;
   extern int Quiet;
 

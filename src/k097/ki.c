@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.3 2001/01/28 02:40:04 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -14,11 +14,21 @@
 
 char *getLOAD_K_PATH();  /* from d.h */
 
+#if defined(__CYGWIN__)
+#define JMP_BUF sigjmp_buf
+#define SETJMP(env)  sigsetjmp(env,1)
+#define LONGJMP(env,p)  siglongjmp(env,p)
+#else
+#define JMP_BUF jmp_buf
+#define SETJMP(env)  setjmp(env)
+#define LONGJMP(env,p)  longjmp(env,p)
+#endif
+
 #ifdef CALLASIR
 #include "ak0.h"
 #endif
 
-extern jmp_buf KCenvOfParser;
+extern JMP_BUF KCenvOfParser;
 
 char Ktmp[10240];
 int Ksize = 10240;
@@ -67,7 +77,7 @@ sendKan(int p) {
   }
 #define AFO
 #ifdef AFO
-  if (setjmp(KCenvOfParser)) {
+  if (SETJMP(KCenvOfParser)) {
     fprintf(stderr,"Error: Goto the top level.\n");
     parseAfile(stdin);
     KCparse();  
