@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.10 2003/12/06 02:35:54 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.11 2004/03/08 08:24:42 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -1436,8 +1436,9 @@ void *KSmathCapByStruct(void)
   mathcap->cmo[19]= CMO_64BIT_MACHINE_DOUBLE;
   mathcap->cmo[20]= CMO_ARRAY;
   mathcap->cmo[21]= CMO_RATIONAL;
+  mathcap->cmo[22]= CMO_QQ;
 
-  mathcap->n = 22 ;   /* This is the number of cmo object. You can use
+  mathcap->n = 23 ;   /* This is the number of cmo object. You can use
                          cmo upto 1023. see mathcap.h */
 
   mathcap->ox[0] = OX_DATA;
