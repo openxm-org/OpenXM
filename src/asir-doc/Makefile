@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.6 2000/01/20 03:26:21 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.7 2000/09/23 07:53:22 noro Exp $
 
 WHICH=../../misc/which.pl
 
@@ -121,11 +121,20 @@ html-eg: tmpEGhtml
 	-mkdir html-eg
 	-(cd html-eg; texi2html -menu -split_node ../tmpEGhtml/man.texi)
 
+html-win: html-jp gen_hh
+	-rm -rf html-win
+	-mkdir html-win
+	(cd html-jp; for i in *; do nkf -s $$i > ../html-win/$$i; done)
+	gen_hh html-win html-win
+
 extract_func: extract_func.c
 	gcc -o extract_func extract_func.c
 
 extract_man: extract_man.c
 	gcc -o extract_man extract_man.c
+
+gen_hh: html_tools/gen_hh.c
+	gcc -o gen_hh html_tools/gen_hh.c
 
 targzuu: help-eg help-jp html-eg html-jp
 	-tar cf - help-eg | gzip -9 | uuencode help-eg.tgz > help-eg.uu
@@ -135,7 +144,7 @@ targzuu: help-eg help-jp html-eg html-jp
 	
 clean:
 	(cd jtexindex/C; make clean)
-	-rm -f man*.dvi man-jp.dvi extract_man extract_func
+	-rm -f man*.dvi man-jp.dvi extract_man extract_func gen_hh
 	-rm -rf tmp*
 	-rm -rf help-*
 	-rm -rf html-*

@@ -1,40 +1,39 @@
 #include <stdio.h>
+#include <string.h>
 
 main ()
 {
-	int c,c1,i,j;
-	char buf[BUFSIZ],fname[BUFSIZ],kname[BUFSIZ];
+	char buf[BUFSIZ];
+	char *fname,*ptr,*ptr1;
+
+	printf("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n");
+	printf("<HTML>\n<HEAD>\n");
+	printf("<meta name=\"GENERATOR\" content=\"Microsoft&reg; HTML Help Workshop 4.1\">\n");
+	printf("<!-- Sitemap 1.0 -->\n</HEAD><BODY>\n");
+	printf("</HEAD><BODY>\n");
 
 	while ( 1 ) {
-		c = getchar();
-		if ( c == EOF )
-			exit(0);
-		if ( c == '<' ) {
-			c1 = getchar();
-			if ( c1 == 'A' ) {
-				fgets(buf,BUFSIZ,stdin);
-				for ( i = 0; buf[i] != '='; i++ );
-				i++; i++;
-				for ( j = 0; buf[i] != '#'; i++, j++ ) fname[j] = buf[i];
-				fname[j] = 0;
-				for ( ; buf[i] != '>'; i++ );
-				i++;
-				if ( buf[i] == '<' ) {
-					for ( ; buf[i] != '>'; i++ );
-					i++;
-				}
-				for ( j = 0; buf[i] != '<'; i++, j++ ) kname[j] = buf[i];
-				kname[j] = 0;
-				printf("<OBJECT type=\"text/sitemap\">\n");
-				printf("<param name=\"Name\" value=\"%s\">\n",kname);
-				printf("<param name=\"Local\" value=\"html\\%s\">\n",fname);
-				printf("</OBJECT>\n");
-			} else {
-				putchar(c);
-				putchar(c1);
-				do putchar(c=getchar()); while ( c != '>' );
-			}
-		} else putchar(c);
+		fgets(buf,BUFSIZ,stdin);
+		if ( !strncmp(buf,"Jump to:",strlen("Jump to:")) )
+			break;
 	}
+	while ( 1 ) {
+		fgets(buf,BUFSIZ,stdin);
+		if ( !strncmp(buf,"Jump to:",strlen("Jump to:")) )
+			break;
+		if ( fname = strstr(buf,"man_") ) {
+			ptr = strchr(buf,'#');
+			*ptr = 0;
+			ptr = strchr(ptr+1,'>');
+			ptr++;
+			ptr1 = strchr(ptr,'<');
+			*ptr1 = 0;
+			printf("<LI><OBJECT type=\"text/sitemap\">\n");
+			printf("<param name=\"Name\" value=\"%s\">\n",ptr);
+			printf("<param name=\"Local\" value=\"html\\%s\">\n",fname);
+			printf("</OBJECT>\n");
+		}
+	}
+	printf("</BODY></HTML>\n");
 }
 
