@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.5 2000/09/13 06:34:47 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.6 2000/10/11 08:32:13 ohara Exp $
  */
 
 import ORG.openxm.tam.*;
@@ -7,11 +7,13 @@ import java.util.Stack;
 import java.util.Vector;
 import java.awt.*;
 
+
+
 public class OXplot extends OpenXMserver{
   private Stack stack = new Stack();
   private Vector plotframe = new Vector();
   protected boolean debug = true;
-  final int version = 200007010;
+  final int version = 200011090;
 
   public OXplot(String hostname,int ControlPort,int DataPort){
     super(hostname,ControlPort,DataPort);
@@ -58,64 +60,6 @@ public class OXplot extends OpenXMserver{
     }
   }
 
-  class plotframe extends java.awt.Frame implements java.awt.event.MouseListener{
-    Canvas canvas;
-    int pixels[][];
-
-    plotframe(int width,int height){
-      super("plotframe");
-      add("Center", new Panel().add(canvas = new Canvas()));
-      canvas.setSize(width,height);
-      setResizable(false);
-      canvas.addMouseListener(this);
-
-      pixels = new int[height][];
-      for(int i=0;i<pixels.length;i++){
-	pixels[i] = new int[width];
-	for(int j=0;j<pixels[i].length;j++){
-	  pixels[i][j] = 255*j/width;
-	}
-      }
-
-      pack();
-      show();
-    }
-
-    public void paint(Graphics gr){
-      paint();
-    }
-
-    public void paint(){
-      Graphics g = canvas.getGraphics();
-
-      for(int y=0;y<pixels.length;y++){
-	for(int x=0;x<pixels[y].length;x++){
-	  g.setColor(new Color(pixels[y][x],pixels[y][x],pixels[y][x]));
-	  g.fillRect(x,y,1,1);
-	}
-      }
-    }
-
-    public void mouseClicked(java.awt.event.MouseEvent e){
-      paint();
-    }
-
-    public void mousePressed(java.awt.event.MouseEvent e){
-    }
-
-    public void mouseReleased(java.awt.event.MouseEvent e){
-    }
-
-    public void mouseEntered(java.awt.event.MouseEvent e){
-    }
-
-    public void mouseExited(java.awt.event.MouseEvent e){
-    }
-
-    public void pset(int x,int y,int bright){
-      pixels[y][x] = bright;
-    }
-  }
 
   private void SM_popCMO(OpenXMstream stream) throws java.io.IOException{
     try{
@@ -329,5 +273,70 @@ public class OXplot extends OpenXMserver{
     ox.start();
 
     System.err.println("breaking...");
+  }
+}
+
+class plotframe extends java.awt.Frame implements java.awt.event.MouseListener{
+  Canvas canvas;
+  int pixels[][];
+  int offset_x,offset_y;
+
+  plotframe(int width,int height){
+    super("plotframe");
+    add("Center", new Panel().add(canvas = new Canvas()));
+    canvas.setSize(width,height);
+    setResizable(false);
+    canvas.addMouseListener(this);
+
+    pixels = new int[height][width];
+    for(int i=0;i<pixels.length;i++){
+      pixels[i] = new int[width];
+    }
+    offset_x = width/2;
+    offset_y = height/2;
+
+    pack();
+    show();
+  }
+
+  public void paint(Graphics gr){
+    paint();
+  }
+
+  public void paint(){
+    Graphics g = canvas.getGraphics();
+
+    for(int y=0;y<pixels.length;y++){
+      for(int x=0;x<pixels[y].length;x++){
+	g.setColor(new Color(pixels[y][x],pixels[y][x],pixels[y][x]));
+	g.fillRect(x,y,1,1);
+      }
+    }
+  }
+
+  public void mouseClicked(java.awt.event.MouseEvent e){
+    paint();
+  }
+
+  public void mousePressed(java.awt.event.MouseEvent e){
+  }
+
+  public void mouseReleased(java.awt.event.MouseEvent e){
+  }
+
+  public void mouseEntered(java.awt.event.MouseEvent e){
+  }
+
+  public void mouseExited(java.awt.event.MouseEvent e){
+  }
+
+  public void pset(int x,int y,int bright){
+    if(offset_x + x < 0 || offset_x + x >= pixels[0].length){
+      return;
+    }
+    if(offset_y + y < 0 || offset_y + y >= pixels.length){
+      return;
+    }
+    pixels[offset_y + y][offset_x + x] = bright;
   }
 }
