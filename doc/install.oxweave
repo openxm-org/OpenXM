@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.5 2000/01/18 12:41:13 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.6 2000/01/19 12:57:39 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -118,12 +118,18 @@ QUALITY:
 
 */
 /*&eg
-***** System Requirements
+***** SYSTEM REQUIREMENTS
 
 */
 /*&C
 
-OS:  FreeBSD 3.x,  Free BSD 2.8, Most Linux systems.
+OS:  FreeBSD 3.3,  
+     Linux systems (Plamo Linux on Linux 2.0.33, glibc5,   )
+
+     X window system is required.
+
+     Most part of the OpenXM package may work on other versions of 
+     FreeBSD and Linux versions, but we have not yet tested.
 
 */
 /*&jp
@@ -143,47 +149,80 @@ OS package.
 (2) OpenXM/lib/java-support :   JDK at /usr/local/jdk??
     Asir client functions  om_*
     sm1 client functions   om_*
+(3) PHC pack (OpenXM/bin/phc)  and  asir client functions
+    phc_*  run only on linux (glib5).
+    If you install the linux emulation on Free BSD, they run on
+    FreeBSD, too. (In this case, generate OpenXM/bin/phc by hand.)
 
 */
 
 
 /*&jp
+日本語版の注意.
 注意 1.
 asir で日本語のヘルプを利用するには, 
 PAGER=jless
 export PAGER
 などで, 日本語を扱える PAGER を指定する必要があるかもしれません.
-注意 2.
-OpenMath 用の OMproxy には現在のところ, jdk が必要です.
-PATH=/usr/local/jdk1.1.8/bin:$PATH
-export PATH
-などとして, jdk の javac をサーチパスの先のほうへもっていくようにして
-ください.
+*/
+
+/*&eg
+
+The install is completed. 
+
 */
 /*&jp
 
-以上.  以下の使用例へ進んで下さい.
+以上. 
 
-★(1) asir のマニュアルは,
-   OpenXM_contrib2/asir2000/doc の README を見てね.
-  (2) asir-contrib のマニュアルは,
-  OpenXM/src/asir-contrib/packages/doc で make したあと,
-  ptex cman.texi (日本語)
-  tex cman-eg.texi (英語)
-  すればよろしい.
-  Online manual : ox_help(xxx) を利用するには, 
-   (cd OpenXM/src/asir-contrib/packages/doc ; make install-help)
-  とします.
+*/
 
+/*&jp
+★ 文書
+
+  OpenXM パッケージでもっとも充実しているクライアントは,
+  asir です.
+  asir のつかいかたは 
+        OpenXM/doc/asir2000/man-jp.dvi
+       または OpenXM/doc/asir2000/html-jp の HTML ファイルを見て下さい.
+  asir 用 OpenXM クライアントライブラリのつかい方は,
+        OpenXM/doc/asir-contrib/cman-jp.dvi
+  を見て下さい.  dvi の付くファイルは xdvi で見ることができます.
+
+  OpenXM の設計の概要については, 
+      OpenXM/doc/issac2000/issac2000.ps
+  を見て下さい.
+  ps の付くファイルは, ghostview で見ることができます.
+
+*/
+/*&eg
+***** DOCUMENTS
+
+  The best OpenXM client in the OpenXM package is now 
+  asir.
+  Documents on asir are
+    OpenXM/doc/asir2000/man-eg.dvi
+    OpenXM/doc/asir2000/html-eg (HTML)
+
+  The file
+    OpenXM/doc/asir-contrib/cman-eg.dvi
+  is a document on OpenXM client libraries for asir.
+
+  The design outline is described in
+      OpenXM/doc/issac2000/issac2000.ps
+
+  Dvi files can be previewed by xdvi and
+  ps files  can be previewed by ghostview.
+*/
+
+
+/*&jp
 注意:
 $OpenXM_HOME/bin の下の, fep, phc は, いまのところ
 linux 用のバイナリまたはバイナリへのシンボリックリンクです. 
 Linux 以外の場合はバイナリを入れ換える必要があります.
 
-Solaris での make の問題点については, OpenXM/doc/OpenXM-FAQ-jp.txt
-を見てください.
 
----------------  インストール完了 ---------------------------
 
 ★使用例
 
@@ -239,6 +278,10 @@ sm1
 OpenXM/Copyright を御覧ください.
 */
 
+/*&C
+
+
+*/
 /*&jp
 ★ OpenXM パッケージの Make 法
   FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.
@@ -344,4 +387,39 @@ rcvs export -rHEAD OpenXM
 rcvs export -rHEAD OpenXM_contrib
 rcvs export -rHEAD OpenXM_contrib2
 して, OpenXM, OpenXM_contrib, OpenXM_contrib2 全体を tar+gzip.
+*/
+
+/*&C
+
+*/
+/*&jp
+
+★ Solaris に関する注意.
+Solaris ではまだ問題が山積してます.
+Solaris での make の問題点については, OpenXM/doc/OpenXM-FAQ-jp.txt
+を見てください.
+
+*/
+
+/*&C
+
+*/
+/*&jp
+★ Java に関する注意:
+注意 1.
+OpenMath 用の OMproxy には現在のところ, jdk が必要です.
+bash を利用している場合, .bashrc で
+PATH=/usr/local/jdk1.1.8/bin:$PATH
+export PATH
+などとして, jdk の javac をサーチパスの先のほうへもっていくようにして
+ください.
+*/
+/*&eg
+***** JAVA
+In order to use OMproxy, asir client om_*,
+you need to install JDK.
+The bin dir of the JDK must be in yur search path.
+For example, you need to add the following line
+to your .chsrc
+set path=(/usr/local/jdk1.1.8/bin $path)
 */
