@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.14 2000/03/06 03:07:18 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.15 2000/03/06 03:29:21 takayama Exp $
 
 ## For debugging. 
 #TAR_WORK=$(HOME)/tmp
@@ -54,15 +54,15 @@ pre-install:
 	-/bin/rm -rf ${PREFIX}/OpenXM
 
 
-OpenXM_MANPAGES=${PREFIX}/OpenXM/man/man1/*
+OpenXM_MANPAGES=${PREFIX}/OpenXM/man/man1/sm1.1 ${PREFIX}/OpenXM/man/man1/openxm.1
 
 post-install :
 # Reguild shell files to start binaries and copy it to ${PREFIX}/bin
 #    Modify pkg/INSTALL, too.
 	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
-	-gzip $(OpenXM_MANPAGES)
 	-cp $(OpenXM_MANPAGES) ${PREFIX}/man/man1
+	-gzip ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
 	-cat pkg/MESSAGE
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.7 2000/03/05 06:11:54 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.8 2000/03/06 03:07:17 takayama Exp $
 
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
@@ -55,7 +55,8 @@ install : all
 	(cd ${prefix}/OpenXM/rc ; make ; make install PREFIX=${prefix})
 
 install.man : install
-	-cp ${prefix}/OpenXM/man/man1/* ${MAN_DIR}
+	-cp ${prefix}/OpenXM/man/man1/sm1.1 ${prefix}/OpenXM/man/man1/openxm.1 ${MAN_DIR}
+	-gzip ${MAN_DIR}/sm1.1 ${MAN_DIR}/openxm.1 
 
 clean :
 	cd $(srcdir)/OpenXM/src ; make clean
