@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.11 2003/08/21 02:30:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.12 2003/08/21 12:28:57 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -507,8 +507,8 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
     /* dehomogenize the syzygy. BUG, this may be inefficient.  */
 	cf = goDeHomogenizeS(cf);
 	syz = goDeHomogenizeS(syz);
-	printf("cf=%s\n",POLYToString(cf,'*',1));
-	printf("syz=%s\n",POLYToString(syz,'*',1));
+	/*printf("cf=%s\n",POLYToString(cf,'*',1));
+	  printf("syz=%s\n",POLYToString(syz,'*',1));*/
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
   }
