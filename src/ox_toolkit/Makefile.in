@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.9 2000/10/10 05:23:19 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.10 2000/11/18 05:48:12 ohara Exp $
 
 OpenXM_HOME = ../..
 OXWEAVE     = ${OpenXM_HOME}/bin/oxweave
@@ -7,7 +7,7 @@ CC          = @CC@
 CFLAGS      = -g -Wall -O2 -DDEBUG -I${OpenXM_HOME}/include -finline-functions
 OBJS        = ox.o cmo.o parse.o mysocket.o mathcap.o dump.o cmolen.o print.o oxf.o oxf_old.o
 BINARIES    = bconv testclient sample1 sample2 zclient
-DOCUMENTS   = readme-eg readme-jp bnf-eg bnf-jp
+DOCUMENTS   = readme-en.txt readme-ja.txt bnf-en.txt bnf-ja.txt
 X11INC      = @X_CFLAGS@
 X11LIB      = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@
 RANLIB      = @RANLIB@
@@ -49,17 +49,17 @@ ox_Xsample: ox_Xsample.o glib.c libox.a
 mctest: mctest.o libox.a
 	${CC} ${CFLAGS} -o $@ mctest.o ${LIBS}
 
-readme-jp: README
-	${OXWEAVE} ja common < README > readme-jp
+readme-ja.txt: README
+	${OXWEAVE} ja common < README > readme-ja.txt
 
-readme-eg: README
-	${OXWEAVE} en common < README > readme-eg
+readme-en.txt: README
+	${OXWEAVE} en common < README > readme-en.txt
 
-bnf-jp: bnf.oxweave
-	${OXWEAVE} ja common < bnf.oxweave > bnf-jp
+bnf-ja.txt: bnf.oxweave
+	${OXWEAVE} ja common < bnf.oxweave > bnf-ja.txt
 
-bnf-eg: bnf.oxweave
-	${OXWEAVE} en common < bnf.oxweave > bnf-eg
+bnf-en.txt: bnf.oxweave
+	${OXWEAVE} en common < bnf.oxweave > bnf-en.txt
 
 install: install-document install-binary
 
