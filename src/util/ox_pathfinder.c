@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.17 2003/12/04 10:35:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.18 2004/02/28 12:27:15 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -35,6 +35,7 @@ static void msgPathFinder(char *s);
 
 
 static int Verbose_get_home = 0;
+static int Verbose = 1;
 static int NoX = 0;
 
 
@@ -62,7 +63,7 @@ int ox_pathfinderVerbose(int f) {
   if (f < 0) return Verbose_get_home;
   Verbose_get_home = f;
   return f;
-}
+} /* cf. ox_pathfinder_quiet() */
 
 /* test main   */
 /*
@@ -117,7 +118,7 @@ static void myforkwait() {
   int i,j;
   /* signal(SIGCHLD,SIG_IGN);  It is not allowed in posix */
   pid = wait(&status);
-  fprintf(stderr,"Child process %d is exiting.\n",pid);
+  if (Verbose) fprintf(stderr,"Child process %d is exiting.\n",pid);
   if (pid < 0) {
     perror("wait");
   }
@@ -1110,10 +1111,10 @@ int oxKillAll(void) {
   int status;
   for (i=0; i<Myforkcp; i++) {
     pid = Myforkchildren[i];
-	fprintf(stderr,"Sending signal to %d ... ",pid);
+	if (Verbose) fprintf(stderr,"Sending signal to %d ... ",pid);
     kill(pid,SIGKILL);
 	waitpid(pid,&status,0);
-	fprintf(stderr,"Gone.\n");
+	if (Verbose) fprintf(stderr,"Gone.\n");
   }
   Myforkcp = 0;
   return(0);
@@ -1121,4 +1122,5 @@ int oxKillAll(void) {
 
 void ox_pathfinder_quiet(void) {
   Verbose_get_home = 0;
+  Verbose = 0;
 }

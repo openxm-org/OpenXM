@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.21 2003/12/06 02:49:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.22 2004/02/25 23:14:35 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,6 +17,7 @@
 #include <errno.h>
 #include "ox_pathfinder.h"
 
+extern int Quiet;
 extern char **environ;
 
 #define MYCP_SIZE 100
@@ -28,7 +29,7 @@ static void mywait() {
   int i,j;
   /* signal(SIGCHLD,SIG_IGN); */
   pid = wait(&status);
-  fprintf(stderr,"Child process %d is exiting.\n",pid);
+  if (!Quiet) fprintf(stderr,"Child process %d is exiting.\n",pid);
   for (i=0; i<Mycp; i++) {
     if (Mychildren[i]  == pid) {
       for (j=i; j<Mycp-1; j++) {

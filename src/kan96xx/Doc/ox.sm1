@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.33 2004/02/24 01:36:14 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.34 2004/02/28 12:27:16 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -639,7 +639,7 @@ ox.verbose { oxhelp } {  } ifelse
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
- peer message
+ peer message-quiet
  [
   oxstart100
   @@@.quiet { ( -quiet ) } {  } ifelse
@@ -680,7 +680,7 @@ ox.verbose { oxhelp } {  } ifelse
  /peer [(oxGetPort) myhostname-ssh] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
- peer message
+ peer message-quiet
  [(ssh -f ) machine ( -l ) name ( ")
   oxpath.oxlog.xterm-ssh  oxpath.ox-ssh ( -reverse -ox ) oxpath.oxsm1-ssh
   ( -host ) myhostname-ssh
@@ -734,7 +734,7 @@ ox.verbose { oxhelp } {  } ifelse
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
- peer message
+ peer message-quiet
  [
   oxstart100
   Xm_noX { ( -nox ) } {  } ifelse
@@ -1540,7 +1540,7 @@ oxasir.verbose {
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
- peer message
+ peer message-quiet
  [
   oxstart100
   @@@.quiet { ( -quiet ) } {  } ifelse
@@ -1587,7 +1587,7 @@ oxasir.verbose {
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
- peer message
+ peer message-quiet
  [
   oxstart100 
   Xm_noX { ( -nox ) } {  } ifelse

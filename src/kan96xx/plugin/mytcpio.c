@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.12 2003/09/16 02:57:39 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.13 2004/02/25 23:14:35 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -42,7 +42,7 @@ socketOpen(char *serverName,int portNumber) {
   int tt;
 
   SET_TCPIOERROR;
-  fprintf(TcpioError,"Hello from open. serverName is %s and portnumber is %d\n",
+  if (!Quiet) fprintf(TcpioError,"Hello from open. serverName is %s and portnumber is %d\n",
           serverName,portNumber);
   if ((myhost = gethostbyname(serverName)) == NULL) {
     errorMsg1s("Bad server name.");
@@ -78,7 +78,7 @@ socketOpen(char *serverName,int portNumber) {
     errorMsg1s("Listen failed");
     return(-1);
   }
-  fprintf(TcpioError,"Done the initialization. port =%d\n",ntohs(me.sin_port));
+  if (!Quiet) fprintf(TcpioError,"Done the initialization. port =%d\n",ntohs(me.sin_port));
   OpenedSocket = ntohs(me.sin_port);
   return(s_waiting);
 }
@@ -89,7 +89,7 @@ socketAccept(int snum) {
     
   SET_TCPIOERROR;
   s = snum;
-  fprintf(TcpioError,"Trying to accept... "); fflush(TcpioError);
+  if (!Quiet) fprintf(TcpioError,"Trying to accept... "); fflush(TcpioError);
   if ((news = accept(s,NULL,NULL)) < 0) {
     errorMsg1s("Error in accept. Retrying (socketAccept).");
     /* Code added for strange behavior on cygwin. */
@@ -98,7 +98,7 @@ socketAccept(int snum) {
       return (-1);
     }
   }
-  fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
+  if (!Quiet) fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
   if (close(s) < 0) {
     errorMsg1s("Error in closing the old socket.");
     return(-1);
@@ -114,7 +114,7 @@ socketAcceptLocal(int snum) {
 
   SET_TCPIOERROR;
   s = snum;
-  fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
+  if (!Quiet) fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
   len = sizeof(struct sockaddr);
   if ((news = accept(s,&peer,&len)) < 0) {
     errorMsg1s("Error in accept. Retrying");
@@ -127,14 +127,14 @@ socketAcceptLocal(int snum) {
 
   len = sizeof(struct sockaddr);
   getpeername(news,&peer,&len);
-  printf("len= %d\n",len);
+  if (!Quiet) printf("len= %d\n",len);
   for (i=0; i<len; i++) {
-    printf(" %x ",peer.sa_data[i]);
+    if (!Quiet) printf(" %x ",peer.sa_data[i]);
   }
   printf("\n");
   if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
       peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
-    fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
+    if (!Quiet) fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
   }else{
     errorMsg1s("Authentication: The connection is not from the localhost.");
     close(s);
@@ -142,7 +142,7 @@ socketAcceptLocal(int snum) {
     return(-1);
   }
 
-  fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
+  if (!Quiet) fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
   if (close(s) < 0) {
     errorMsg1s("Error in closing the old socket.");
     return(-1);
@@ -159,7 +159,7 @@ socketAcceptLocal2(int snum) {
 
   SET_TCPIOERROR;
   s = snum;
-  fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
+  if (!Quiet) fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
   len = sizeof(struct sockaddr);
   if ((news = accept(s,&peer,&len)) < 0) {
     errorMsg1s("Error in accept. Retrying (socketAcceptLocal2).");
@@ -172,21 +172,21 @@ socketAcceptLocal2(int snum) {
 
   len = sizeof(struct sockaddr);
   getpeername(news,&peer,&len);
-  printf("len= %d\n",len);
+  if (!Quiet) printf("len= %d\n",len);
   for (i=0; i<len; i++) {
-    printf(" %x ",peer.sa_data[i]);
+    if (!Quiet) printf(" %x ",peer.sa_data[i]);
   }
   printf("\n");
   if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
       peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
-    fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
+    if (!Quiet) fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
   }else{
     errorMsg1s("Authentication: The connection is not from the localhost.");
     fprintf(stderr,"The connection is refused.");
     return(-1);
   }
 
-  fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
+  if (!Quiet) fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
   return(news);
 }
 

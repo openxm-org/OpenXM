@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.19 2003/12/05 13:51:31 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.20 2003/12/06 02:49:22 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2119,7 +2119,7 @@ struct object KstringToArgv(struct object ob) {
   rob = newObjectArray(wc);
   for (i=0; i<wc; i++) {
 	putoa(rob,i,KpoString(argv[i]));
-	printf("%s\n",argv[i]);
+	/* printf("%s\n",argv[i]); */
   }
   return(rob);
 }
