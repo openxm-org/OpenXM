@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.2 1999/12/21 02:47:34 noro Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -24,6 +24,7 @@
 * setprec::
 * setmod::
 * lrandom::
+* ntoint32 int32ton::
 @end menu
 
 \JP @node idiv irem,,, 数の演算
@@ -1177,3 +1178,50 @@ return to toplevel
 \EG @fref{dp_mod dp_rat}, @fref{Types of numbers}.
 @end table
 
+\JP @node ntoint32 int32ton,,, 数の演算
+\EG @node ntoint32 int32ton,,, Numbers
+@subsection @code{ntoint32}, @code{int32ton}
+@findex ntoint32
+@findex int32ton
+
+@table @t
+@item ntoint32(@var{n})
+@itemx int32ton(@var{int32})
+\JP :: 非負整数と符号なし 32bit 整数の間の型変換. 
+\EG :: Type-conversion between a non-negative integer and an unsigned 32bit integer.
+@end table
+
+@table @var
+@item return
+\JP 符号なし 32bit 整数または非負整数
+\EG unsigned 32bit integer or non-negative integer
+@item n
+\JP 2^32 未満の非負整数
+\EG non-negative interger less than 2^32
+@item int32
+\JP 符号なし 32bit 整数
+\EG unsigned 32bit integer
+@end table
+
+@itemize @bullet
+\BJP
+@item 非負整数 (識別子 1) の符号なし 32bit 整数 (識別子 10) への変換, 
+またはその逆変換を行う. 
+@item 32bit 整数は @b{OpenXM} の基本構成要素であり, 整数をその型で送信
+する必要がある場合に用いる. 
+\E
+\BEG
+@item These functions do conversions between non-negative 
+integers (the type id 1) and unsigned 32bit integers (the type id 10).
+@item An unsigned 32bit integer is a fundamental construct of @b{OpenXM}
+and one often has to send an integer to a server as an unsigned 32bit
+integer. These functions are used in such a case.
+\E
+@end itemize
+
+@table @t
+\JP @item 参照
+\EG @item References
+\JP @fref{分散計算}, @fref{数の型}.
+\EG @fref{Distributed computation}, @fref{Types of numbers}.
+@end table

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.2 1999/12/21 02:47:29 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.3 1999/12/26 02:56:03 takayama Exp $
 
 all-eg: texindex man-eg.dvi help-eg html-eg
 all-jp: texindex man-jp.dvi help-jp html-jp
@@ -91,6 +91,12 @@ extract_func: extract_func.c
 extract_man: extract_man.c
 	gcc -o extract_man extract_man.c
 
+targzuu: help-eg help-jp html-eg html-jp
+	tar cf - help-eg | gzip -9 | uuencode help-eg.tgz > help-eg.uu
+	tar cf - help-jp | gzip -9 | uuencode help-jp.tgz > help-jp.uu
+	tar cf - html-eg | gzip -9 | uuencode html-eg.tgz > html-eg.uu
+	tar cf - html-jp | gzip -9 | uuencode html-jp.tgz > html-jp.uu
+	
 clean:
 	(cd jtexindex/C; make clean)
 	rm -f man*.dvi man-jp.dvi extract_man extract_func

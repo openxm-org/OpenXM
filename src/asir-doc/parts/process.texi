@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.2 1999/12/21 02:47:31 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.3 1999/12/24 04:38:04 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -500,7 +500,7 @@ input @code{quit}.
 * ox_push_cmd ox_sync::
 * ox_get::
 * ox_pops::
-* ox_reset register_handler::
+* ox_reset ox_intr register_handler::
 * ox_select::
 * ox_flush::
 * ox_get_serverinfo::
@@ -1179,9 +1179,9 @@ The result is pushed to the stack.
 @fref{ox_pop_cmo ox_pop_local}
 @end table
 
-\JP @node ox_reset register_handler,,, 分散計算に関する関数
-\EG @node ox_reset register_handler,,, Functions for distributed computation
-@subsection @code{ox_reset},@code{register_handler}
+\JP @node ox_reset ox_intr register_handler,,, 分散計算に関する関数
+\EG @node ox_reset ox_intr register_handler,,, Functions for distributed computation
+@subsection @code{ox_reset},@code{ox_intr},@code{register_handler}
 @findex ox_reset
 @findex register_handler
 
@@ -1189,6 +1189,9 @@ The result is pushed to the stack.
 @item ox_reset(@var{number})
 \JP :: プロセスのリセット
 \EG :: Resets an OpenXM server
+@item ox_intr(@var{number})
+\JP :: プロセスのに @code{SIGINT} 送付
+\EG :: Sends @code{SIGINT} to an OpenXM server
 @item register_handler(@var{func})
 \JP :: プロセスのリセットのための関数登録
 \EG :: Registers a function callable on a keyboard interrupt.
@@ -1223,6 +1226,13 @@ The result is pushed to the stack.
 計算途中での強制中断に用いる. 
 
 @item
+@code{ox_intr()} は, 識別子 @var{number} のプロセスをに対して 
+@code{SIGINT} を送付する. @code{SIGINT} に対するプロセスの動作は
+規定されていないが, @samp{ox_asir} の場合, ただちに debug mode に
+入る. X 上で動作している場合, デバッグコマンド入力用のウィンドウが
+ポップアップする. 
+
+@item
 @code{register_handler()} は, @kbd{C-c} などによる割り込みの際に, 
 @kbd{u} を指定することで, 無引数ユーザ定義関数 @var{func()} が呼び出される
 ように設定する. この関数に, @code{ox_reset()} を呼び出させることで, 
@@ -1247,6 +1257,12 @@ Even if a process is running, the execution is safely stopped.
 @item
 @code{ox_reset()} may be used prior to a distirbuted computation.
 It can be also used to interrupt a distributed computation.
+
+@item
+@code{ox_intr()} sends @code{SIGINT} to a process whose identifier is
+@var{number}. The action of a server against @code{SIGINT} is not
+specified in @b{OpenXM}. @samp{ox_asir} immediately enters the debug
+mode and pops up an window to input debug commands on X window system.
 
 @item
 @code{register_handler()} registers a function @var{func()}.
@@ -1483,7 +1499,7 @@ Usually @b{OX_SYNC_BALL} will be ignored by the peer.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{ox_rpc ox_cmo_rpc ox_execute_string}, @fref{ox_reset register_handler}
+@fref{ox_rpc ox_cmo_rpc ox_execute_string}, @fref{ox_reset ox_intr register_handler}
 @end table
 
 \JP @node ox_get,,, 分散計算に関する関数
@@ -2142,5 +2158,5 @@ plot*form*ydone*background:white
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_reset register_handler}
+@fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_reset ox_intr register_handler}
 @end table

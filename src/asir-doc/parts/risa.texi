@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.2 1999/12/21 02:47:32 noro Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -855,7 +855,7 @@ version.)
 @item d
 デバッグモードに入る. デバッガに関しては @xref{デバッガ}.
 @item u
-@code{register_handler()} (@pxref{ox_reset register_handler}) で登録された
+@code{register_handler()} (@pxref{ox_reset ox_intr register_handler}) で登録された
 関数を実行後トップレベルに戻る. (確認あり)
 @item w
 中断点までの函数の呼び出し列を表示する. 
@@ -878,7 +878,7 @@ algebraic engine, (e.g., arithmetic operation, factorization etc.)
 Detailed description about the debugger will be given in @ref{Debugger}.
 @item u
 After executing a function registered by @code{register_handler()}
-(@pxref{ox_reset register_handler}), returns to toplevel. A confirmation
+(@pxref{ox_reset ox_intr register_handler}), returns to toplevel. A confirmation
 is prompted.
 @item w
 Displays the calling sequence up to the interruption.
