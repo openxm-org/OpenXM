@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.2 2000/12/06 23:45:32 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.3 2000/12/10 11:07:45 takayama Exp $  */
 
 Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded");
@@ -34,8 +34,16 @@ class OXchannel extends Object {
     if (IsInteger(ob)) {
       ob = IntegerToSm1Integer(ob);
     }
-    sm1(" cc ob oxpushcmd ");
+    sm1(" [(oxPushCMD) cc ob] extension ");
   }
+
+  def popCMO() {
+    local cc,r;
+    cc = channel;
+    sm1(" cc oxpopcmo /r set ");
+    return(r);
+  }
+
 }
 
 class OXcontrol extends Object {
@@ -71,9 +79,16 @@ class OXcontrol extends Object {
   def pushCMD(a) {
     control.channel.pushCMD(a);
   }
+  def popCMO() {
+    return(control.channel.popCMO());
+  }
 
 }
 
+/* How to debug?
+   sm1(" OX { vname } sendmsg /aaa set ");
+   Get the value of vname in the context OX and set it to aaa.
+*/
 
 class OX extends OXcontrol {
   local engine;
@@ -88,6 +103,8 @@ class OX extends OXcontrol {
     control.pushCMO(name);
     control.pushCMD(SM_control_spawn_server);
     engineID = control.popCMO();
+    print("engineID=");Println(engineID);
+    HOGE = control;
     sm1(" [(oxCreateEngine_RFC_101) peer 0 (Empty) engineID] extension /c set ");
     engine = OXchannel.generate(c);
     return(this);
