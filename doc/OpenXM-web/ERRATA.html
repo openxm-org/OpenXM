@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.9 2000/02/04 07:21:47 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.10 2000/02/10 01:18:53 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -51,16 +51,16 @@ $OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.9 2000/02/04 07:21:47 takayama Ex
   <PRE>
       Wrong:  in char *toFullPath(char *s)
 
-             (I (Belse {
-           (I (B (I (B (I (Bs = which(s,getenv("PATH"));
-(I (B (I (B           }
+              else {
+                s = which(s,getenv("PATH"));
+              }
             }
 
-   ===> Correct:(I (B
+   ===> Correct: 
 
-             (I (Belse {
-           (I (B (I (B (I (Bs = which(s,getenv("PATH"));
-(I (B (I (B           }
+              else {
+                s = which(s,getenv("PATH"));
+              }
               return(s);    <==== Add this line.
             }
   </PRE>
