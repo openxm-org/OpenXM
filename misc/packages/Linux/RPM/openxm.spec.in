@@ -1,0 +1,37 @@
+# $OpenXM$
+#  openxm.spec.in
+#
+%define ver      1.1.2
+%define prefix   /usr
+
+Summary:   
+Name:      
+Version:   %ver
+Copyright: See OpenXM/Copyright
+Group:     Mathematical Software
+Source0:   %{name}-%{PACKAGE_VERSION}.tar.gz
+URL:       ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM
+BuildRoot: /var/tmp/%{name}-%{PACKAGE_VERSION}-root
+
+%description
+The OpenXM package is a package of mathematical softwares that
+support the OpenXM protocol.
+
+%prep
+%setup
+
+%build
+make configure
+make
+
+%install
+make install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-, root, root)
+%doc README
+%{prefix}/bin/*
+
