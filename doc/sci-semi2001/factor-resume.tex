@@ -1,4 +1,4 @@
-%$OpenXM$
+%$OpenXM: OpenXM/doc/sci-semi2001/factor-resume.tex,v 1.1 2001/07/26 07:55:04 noro Exp $
 \documentclass[12pt]{jarticle}
 %\oddsidemargin -0.25in
 %\evensidemargin -0.25in
@@ -252,7 +252,7 @@ $tr \equiv 2 \bmod 3$}\\
 $b_0=x^2+1$, $c_0=x^2+x+2$ とすると確かに
 $$f \equiv b_0c_0 \bmod 3$$ が成り立つ. 
 もとの式に戻ると, 
-$$gh \equiv (b_0+3b_1)(c_0+3c_1) \equiv 3^2$$ より
+$$gh \equiv (b_0+3b_1)(c_0+3c_1) \bmod 3^2$$ より
 $$f-gh \equiv a_0-b_0c_0+3(a_1-(c_0b_1+b_0c_1)) \bmod 3^2$$
 $a_0\equiv b_0c_0 \bmod 3$ より両辺を 3 で割ると
 $$(f-gh)/3 \equiv (a_0-b_0c_0)/3+(a_1-(c_0b_1+b_0c_1)) \bmod 3$$さて, 
@@ -424,8 +424,8 @@ $k > 1$ で必要となる $v_0$, $w_0$ が存在するために必要な条件である.
 
 \item 送信側は鍵で暗号化し, 受信側は鍵で復号化する. 
 
-鍵は一つで暗号化/復号化に使える. もちろん, 暗号化に使った鍵を持ってい
-なければ復号できないような暗号方式を用いているとする. このような暗号は
+鍵は一つで暗号化/復号化に使う. もちろん, 暗号化に使った鍵を持ってい
+なければ復号できないような暗号方式を用いる. このような暗号は
 共通鍵暗号と呼ばれる.
 \end{enumerate}
 ここで問題が一つある. 暗号化されていない, 筒抜けの通信路を使って
@@ -517,7 +517,7 @@ Knuth, D.E., The Art of Computer Programming, Vol. 2.
 Seminumerical Algorithms, Third ed. Addison-Wesley (1998).
 
 \bibitem{NORO}
-野呂 正行, 計算機代数. Rokko Lectures in Mathematics 9, 神戸大学理学部
+野呂, 計算機代数. Rokko Lectures in Mathematics 9, 神戸大学理学部
 数学教室 (2001).
 
 \bibitem{ASIR}
@@ -533,7 +533,43 @@ Seminumerical Algorithms, Third ed. Addison-Wesley (1998).
 も詳しく述べている. 他の文献については, これらの本の文献表を参照してほ
 しい.  \cite{ASIR} はフリーな計算機代数システム(数式処理システム)で,
 \cite{NORO} に書かれたアルゴリズムはほぼ実装されている. 実際にどの程度
-使いものになるか試してみてほしい.
+使いものになるか試してみてほしい.\\
 
+\noindent
+{\large\bf 配布 CD について}
+\begin{enumerate}
+\item
+Windows 版 Asir にはインストーラがありません. いきなり起動できます.
+Asir を起動するには, CDROM 上の フォルダ {\tt asir} を開き,さらに {\tt
+bin} フォルダを開き {\tt asirgui} アイコンをダブルクリックします.  マ
+ニュアル({\tt index.html}), 入門書({\tt index-asir-book.html})なども 
+CDROM にいれてあります.  Asir のホームページは, \\
+{\tt http://www.math.kobe-u.ac.jp/Asir/asir.html} です. {\tt asirgui} は 
+デスクトップへコピーすると動きません.  マイドキュメントへのコピーは(多
+分)大丈夫です.  ただし {\tt asir} フォルダ全体をコピーする必要がありま
+す.  ({\tt asirgui} は日本語のパス名があるとトラブルを起こす為.  デス
+クトップは日本語のパス名を利用している.)
+
+\item
+Asir はマシン名が日本語の場合, 動作がおかしくなります.
+自分のコンピュータのマシン名を調べるには, デスクトップの
+ネットワークコンピュータアイコンをクリックして下さい.
+LAN に接続されていない場合は, 1 台だけコンピュータが表示されますが,
+その名前が自分のコンピュータの名前です.
+
+\item
+CDROM 上の {\tt povwin3} をダブルクリックすると, ray tracer povray の
+インストールが始まります.  povray の日本語の説明書としては, アスキー出
+版局の「POV-Ray ではじめるレイトレーシング」 小室日出樹著 
+(ISBN4-7561-1831-3) があります. \\
+{\tt http://hp.vector.co.jp/authors/VA000449/pov/} をみると povray について
+のいろんな情報を得ることが可能です.
+
+\item 
+神戸大学数学教室の web page に置いてある, 曲面の画像集を収録してありま
+す.\\
+{\tt web-math-kobe-u} フォルダを開いたのち, {\tt index.html} をダ
+ブルクリックして,表示されたページの Mathematical Diversion を開きます。
+\end{enumerate}
 \end{document}
 
