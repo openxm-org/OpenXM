@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.14 2003/08/21 12:44:06 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.15 2003/09/15 09:31:41 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -291,6 +291,25 @@ cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo_list* ringdef, cmo* c
     c->tag     = CMO_RECURSIVE_POLYNOMIAL;
     c->ringdef = ringdef;
 	c->coef    = coef;
+    return c;
+}
+
+cmo_tree* new_cmo_tree(cmo_string* name, cmo_list* attributes, cmo_list* leaves)
+{
+    cmo_tree* c = MALLOC(sizeof(cmo_tree));
+    c->tag = CMO_TREE;
+	c->name= name;
+    c->attributes = attributes;
+    c->leaves = leaves;
+    return c;
+}
+
+cmo_lambda* new_cmo_lambda(cmo_list* args, cmo_tree* body)
+{
+    cmo_lambda* c = MALLOC(sizeof(cmo_lambda));
+    c->tag  = CMO_LAMBDA;
+    c->args = args;
+    c->body = body;
     return c;
 }
 

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.26 2003/08/21 12:44:06 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.27 2003/09/15 09:31:41 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -250,6 +250,21 @@ static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OX
     return c;
 }
 
+static cmo_tree* receive_cmo_tree(OXFILE *oxfp)
+{
+    cmo_string* name = (cmo_string *)receive_cmo(oxfp);
+    cmo_list* attrib = (cmo_list *)receive_cmo(oxfp);
+    cmo_list* leaves = (cmo_list *)receive_cmo(oxfp);
+    return new_cmo_tree(name, attrib, leaves);
+}
+
+static cmo_lambda* receive_cmo_lambda(OXFILE *oxfp)
+{
+    cmo_list* args = (cmo_list *)receive_cmo(oxfp);
+    cmo_tree* body = (cmo_tree *)receive_cmo(oxfp);
+    return new_cmo_lambda(args, body);
+}
+
 static cmo_error2* receive_cmo_error2(OXFILE *oxfp)
 {
     cmo* ob = receive_cmo(oxfp);
@@ -305,6 +320,13 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
         break;
     case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
         m = (cmo *)receive_cmo_polynomial_in_one_variable(oxfp);
+        break;
+    case CMO_TREE:
+        m = (cmo *)receive_cmo_tree(oxfp);
+        break;
+    case CMO_LAMBDA:
+        m = (cmo *)receive_cmo_lambda(oxfp);
+        break;
     case CMO_ERROR2:
         m = (cmo *)receive_cmo_error2(oxfp);
         break;
@@ -540,6 +562,21 @@ static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial*
     return 0;
 }
 
+static int send_cmo_tree(OXFILE *oxfp, cmo_tree *c)
+{
+    send_cmo(oxfp, (cmo *)c->name);
+    send_cmo(oxfp, (cmo *)c->attributes);
+    send_cmo(oxfp, (cmo *)c->leaves);
+    return 0;
+}
+
+static int send_cmo_lambda(OXFILE *oxfp, cmo_lambda *c)
+{
+    send_cmo(oxfp, (cmo *)c->args);
+    send_cmo(oxfp, (cmo *)c->body);
+    return 0;
+}
+
 static int send_cmo_error2(OXFILE *oxfp, cmo_error2* c)
 {
     send_cmo(oxfp, c->ob);
@@ -589,6 +626,12 @@ void send_cmo(OXFILE *oxfp, cmo* c)
         break;
     case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
         send_cmo_polynomial_in_one_variable(oxfp, (cmo_polynomial_in_one_variable *)c);
+        break;
+    case CMO_TREE:
+        send_cmo_tree(oxfp, (cmo_tree *)c);
+        break;
+    case CMO_LAMBDA:
+        send_cmo_lambda(oxfp, (cmo_lambda *)c);
         break;
     default:
         call_hook_after_send_cmo(oxfp, c);

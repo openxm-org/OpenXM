@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.24 2003/08/21 12:44:06 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.25 2003/09/15 09:31:41 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -150,6 +150,19 @@ typedef struct {
     cmo *coef;  /* ZZ, QQ, int32, Poly_in_1var, Tree, Zero, DPoly */
 } cmo_recursive_polynomial;
 
+typedef struct {
+    int tag;
+    cmo_string *name;
+    cmo_list *attributes;
+    cmo_list *leaves;
+} cmo_tree;
+
+typedef struct {
+    int tag;
+    cmo_list *args;
+    cmo_tree *body;
+} cmo_lambda;
+
 typedef cmo ox;
 
 typedef ox ox_sync_ball;
@@ -185,6 +198,8 @@ cmo_ring_by_name*  new_cmo_ring_by_name(cmo* ob);
 cmo_indeterminate* new_cmo_indeterminate(cmo* ob);
 cmo_polynomial_in_one_variable* new_cmo_polynomial_in_one_variable(int var);
 cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo_list* ringdef, cmo* coef);
+cmo_tree*          new_cmo_tree(cmo_string* name, cmo_list *attributes, cmo_list *leaves);
+cmo_lambda*        new_cmo_lambda(cmo_list* args, cmo_tree* body);
 cmo_error2*        new_cmo_error2(cmo* ob);
 
 ox_data*           new_ox_data(cmo* c);
