@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.1 2003/09/02 03:24:52 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.2 2003/09/08 01:22:55 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -113,10 +113,10 @@ clean-for-install:
 
 install: install-exec
 install-exec: all clean-for-install install-lib
-	install  k0  ${OpenXM_HOME}/bin
-	install  d0  ${OpenXM_HOME}/bin
-	install  ox_k0 ${OpenXM_HOME}/bin
-	install  ox_k0 ${OpenXM_HOME}/lib/sm1/bin
+	install -c -s k0  ${OpenXM_HOME}/bin
+	install -c -s d0  ${OpenXM_HOME}/bin
+	install -c -s ox_k0 ${OpenXM_HOME}/bin
+	install -c -s ox_k0 ${OpenXM_HOME}/lib/sm1/bin
 
 install-for-debug: clean-for-install all install-lib-for-debug
 	(cd ${OpenXM_HOME}/bin ; ln -s ../src/k097/k0 k0)
