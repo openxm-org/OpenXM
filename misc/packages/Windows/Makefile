@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.9 2001/12/29 02:49:25 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.10 2002/01/06 08:47:36 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -71,7 +71,7 @@ copy-to-orange: build-tgz
 
 oxapp : oxapp.c
 
-oxasir-win.rr : oxapp
+oxasir-win.rr.old : oxapp
 	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3
 	cat ${OpenXM_TOP}/src/kan96xx/Doc/oxasir.asir >>oxasir-win.tmp
 	./oxpp ${OpenXM_TOP}/rc/asirrc >>oxasir-win.tmp
@@ -80,4 +80,11 @@ oxasir-win.rr : oxapp
 	./oxpp oxasir-win.tmp3 | ./oxapp --removeSharp >oxasir-win.rr
 #	./oxpp oxasir-win.tmp3  >oxasir-win.rr
 	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3
+
+oxasir-win.rr : oxapp oxpp oxpp2
+	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3 oxpp2.tmp1 oxpp2.tmp2
+	cat ${OpenXM_TOP}/src/kan96xx/Doc/oxasir.asir >>oxasir-win.tmp
+	cat ${OpenXM_TOP}/rc/asirrc >>oxasir-win.tmp
+	./oxpp2 oxasir-win.tmp >oxasir-win.rr
+#	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3 oxpp2.tmp1 oxpp2.tmp2
 

@@ -1,13 +1,19 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/misc/packages/Windows/oxapp.c,v 1.1 2002/01/06 08:47:36 takayama Exp $ */
 #include <stdio.h>
 #define LINESIZE 4096
 
+int ThereIsLoad = 0;
 main(int argc,char *argv[]) {
   char s[LINESIZE];
+  int i;
   int removeSharp = 0;
-  if (argc > 1) {
-	if (strcmp(argv[1],"--removeSharp") == 0) {
+  int checkLoad = 0;
+  extern ThereIsLoad;
+  for (i=1; i<argc; i++) {
+	if (strcmp(argv[i],"--removeSharp") == 0) {
 	  removeSharp = 1;
+	}else if (strcmp(argv[i],"--load") == 0) {
+	  checkLoad = 1;
 	}
   }
   while (fgets(s,LINESIZE,stdin) != NULL) {
@@ -25,11 +31,17 @@ main(int argc,char *argv[]) {
   if (removeSharp == 0) {
 	printf("end$\n");
   }
+  if (checkLoad) {
+	fprintf(stderr,"checkLoad status = %d\n",ThereIsLoad);
+	if (ThereIsLoad) exit(0);
+	else exit(1);
+  }
 }
 
 edit(char s[]) {
   int k,i,j;
   char t[LINESIZE*2];
+  extern int ThereIsLoad;
   if (strlen(s) == 0) return;
   t[0] = 0;
   if ((k = find(s,"load(")) >= 0) {
@@ -54,6 +66,7 @@ edit(char s[]) {
 	  t[i] = s[i]; t[i+1] = 0;
 	}
     strcat(t,"#include ");
+	ThereIsLoad = 1;
 	j=k+5;
 	for (i=strlen(t); i<LINESIZE*2-1; ) {
 	  if (s[j] == 0) break;

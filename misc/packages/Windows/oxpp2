@@ -1,0 +1,15 @@
+#!/bin/bash
+# $OpenXM$
+rm -f oxpp2.tmp1
+cp $1 oxpp2.tmp1
+./oxpp oxpp2.tmp1 >oxpp2.tmp2
+cp oxpp2.tmp2 oxpp2.tmp1
+while ( ./oxapp --load <oxpp2.tmp1 >/dev/null ) ; \
+do \
+  rm -f oxpp2.tmp2 ; \
+  ./oxpp oxpp2.tmp1 >oxpp2.tmp2 ; \
+  cp oxpp2.tmp2 oxpp2.tmp1 ; \
+done
+./oxapp --removeSharp <oxpp2.tmp1
+
+
