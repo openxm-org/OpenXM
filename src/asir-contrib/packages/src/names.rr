@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.48 2002/08/10 11:12:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.49 2002/08/11 08:39:49 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020808), Copyright 2000-2002, OpenXM.org")$
@@ -89,8 +89,10 @@ def base_cancel(S) {
 /*&usage begin: base_choose(L,M)
  It returns the list of the order {M} subsets of L.
  example: base_choose([1,2,3],2);
- example_description: @tex It outputs all the order $2$ subsets of the set
-                      $\{ 1, 2, 3\}$ @end tex
+ example_description:
+@tex
+It outputs all the order $2$ subsets of the set $\{ 1, 2, 3\}$
+@end tex
 end: */
 def base_choose(L,M) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
@@ -155,7 +157,9 @@ def base_replace(S,Rule) {
   return taka_base_replace(S,Rule);
 }
 /*&usage begin: base_set_minus(A,B)
- @tex $A \setminus B$ @end tex
+@tex
+$A \setminus B$
+@end tex
  example: base_set_minus([1,2,3],[3,4,5]);
 end: */
 def base_set_minus(A,B) {
@@ -163,7 +167,9 @@ def base_set_minus(A,B) {
   return taka_base_set_minus(A,B);
 }
 /*&usage begin: base_set_union(A,B)
- @tex $A \cup B$ @end tex
+@tex
+$A \cup B$
+@end tex
  example: base_set_union([1,2,3],[3,4,5]);
 end: */
 def base_set_union(A,B) {
@@ -171,7 +177,9 @@ def base_set_union(A,B) {
   return taka_base_set_union(A,B);
 }
 /*&usage begin: base_subsetq(A,B)
- @tex if $A \subseteq B$, then it returns 1 else 0. @end tex
+@tex
+if $A \subseteq B$, then it returns 1 else 0.
+@end tex
  example: base_subsetq([1,2],[1,2,3,4,5]);
 end: */
 def base_subsetq(A,B) {
@@ -256,7 +264,9 @@ def poly_hilbert_polynomial(I)  {
  It returns the initial ideal of {I} with respect to the given order.
  description:
  The optional variable v is a list of variables. This function computes 
- @tex ${\rm in}_\prec (I)$ @end tex
+@tex
+${\rm in}_\prec (I)$
+@end tex
  example: poly_initial([x^2+y^2-4,x*y-1]|order=0,v=[x,y]);
 end: */
 def poly_initial(I) {
@@ -286,7 +296,10 @@ def poly_initial_coefficients(I) {
  It returns the initial ideal of {I} with respect to the given weight vector.
  description:
  The weight is given by the optional variable weight w.
- It returns @tex ${\rm in}_w (I)$ @end tex
+ It returns
+@tex
+${\rm in}_w (I)$
+@end tex
  example: poly_initial_term([x^2+y^2-4,x*y-1]|weight=[100,1],v=[x,y]);
 end: */
 def poly_initial_term(F) {
@@ -302,7 +315,10 @@ def poly_initial_term(F) {
  It returns the degree of {F} with respect to the given weight vector.
  description:
  The weight is given by the optional variable weight w.
- It returns @tex ${\rm ord}_w (F)$ @end tex
+ It returns
+@tex
+${\rm ord}_w (F)$
+@end tex
  example: poly_degree(x^2+y^2-4 |weight=[100,1],v=[x,y]);
 end: */
 def poly_degree(I) {
