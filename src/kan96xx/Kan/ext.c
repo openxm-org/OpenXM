@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.24 2004/09/04 11:25:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.25 2004/09/09 03:14:46 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -23,13 +23,14 @@ extern char **environ;
 #define MYCP_SIZE 100
 static int Mychildren[MYCP_SIZE];
 static int Mycp = 0;
+static int Verbose_mywait = 0;
 static void mywait() {
   int status;
   int pid;
   int i,j;
   /* signal(SIGCHLD,SIG_IGN); */
   pid = wait(&status);
-  if (!Quiet) fprintf(stderr,"Child process %d is exiting.\n",pid);
+  if ((!Quiet) && (Verbose_mywait)) fprintf(stderr,"Child process %d is exiting.\n",pid);
   for (i=0; i<Mycp; i++) {
     if (Mychildren[i]  == pid) {
       for (j=i; j<Mycp-1; j++) {

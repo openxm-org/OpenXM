@@ -1,4 +1,4 @@
-% $OpenXM$
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.1 2004/09/05 10:19:29 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -9,6 +9,82 @@
 } { 
  [(parse) (ox.sm1) pushfile] extension
 } ifelse
+
+%%%%<<<<  初期データの設定例  data/test13 より.  <<<<<<<<<<<<<<
+/cone.sample.test13 {
+ /cone.loaded boundp { }
+ {
+  [(parse) (cohom.sm1) pushfile] extension
+  [(parse) (cone.sm1) pushfile] extension
+  /cone.loaded 1 def
+ } ifelse
+/cone.comment [
+  (Toric ideal for 1-simplex x 2-simplex, in k[x]) nl
+] cat def
+%------------------Globals----------------------------------------
+% Global: cone.type
+% どの exponents を取り出すのか指定する.
+% cf. exponents, gbext  h や H も見るか?
+% 0 : x,y,Dx,Dy
+% 1 : x,y,Dx,Dy,h,H
+% 2 : x,y,Dx,Dy,h 
+/cone.type 2 def
+
+% Global: cone.local
+% cone.local: Local か?  1 なら local
+/cone.local 0 def	
+
+
+% Global: cone.h0
+% cone.h0:  1 なら h の weight 0 での Grobner fan を計算する.
+/cone.h0 1 def
+
+% ---------------  入力データ用大域変数の設定 --------------------------
+%
+% cone.input : 入力多項式系
+/cone.input 
+  [
+    (x11 x22 - x12 x21) (x12 x23 - x13 x22)
+    (x11 x23 - x13 x21)
+  ]
+def
+
+% cone.vlist : 全変数のリスト
+/cone.vlist [(x11) (x12) (x13) (x21) (x22) (x23)
+             (Dx11) (Dx12) (Dx13) (Dx21) (Dx22) (Dx23) (h)] def
+
+% cone.vv : define_ring 形式の変数リスト.
+/cone.vv (x11,x12,x13,x21,x22,x23) def
+
+% cone.parametrizeWeightSpace : weight 空間を parametrize する関数. 
+%   大域変数 cone.W , cone.Wpos もきまる.
+/cone.parametrizeWeightSpace {
+  6 6 parametrizeSmallFan
+} def
+
+% cone.w_start : weight空間における weight の初期値. 
+% この値で max dim cone が得られないと random weight による サーチが始まる. 
+% random にやるときは null にしておく.
+/cone.w_start
+  [9 8 5 4 5 6]
+def   
+
+% cone.gb : gb を計算する関数.
+/cone.gb {
+  cone.gb_Dh
+} def
+
+
+
+( ) message
+cone.comment message
+(cone.input = ) messagen cone.input message
+(Type in getGrobnerFan) message
+(Do clearGlobals if necessary) message
+(printGrobnerFan ; saveGrobnerFan /ff set ff output ) message
+
+} def
+%%%%%%>>>>>  初期データの設定例おわり >>>>>>>>>>>>>>>>>>>>>>
 
 % Global: cone.type
 % どの exponents を取り出すのか指定する.
@@ -720,6 +796,8 @@ def
     polydata (FACETS) getNode 2 get 0 get to_univNum 
     { nnormalize_vec} map /facets set
     [[ ] ] facets join shell rest removeFirstFromPolymake /facets set
+    facets length 0 eq 
+    {(Internal  error. Facet data is not obtained. See OpenXM_tmp.) error} { } ifelse
 % vertices は cone の上にあるので整数倍 OK. 正規かする.
     polydata (VERTICES) getNode 2 get 0 get to_univNum 
     { nnormalize_vec} map /vertices set
@@ -781,6 +859,33 @@ def
     /facets arg1 def /vertices arg2 def
     facets { vertices newCone_facetv } map
     /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: [gb weight] newConeGB
+%  gb と weight を tree 形式にして格納する.
+%>
+/newConeGB {
+  /arg1 set
+  [/gbdata  /gg /ww /rr] pushVariables
+  [
+    /gbdata arg1 def
+% gb
+    gbdata 0 get /gg set
+% weight
+    gbdata 1 get /ww set
+% 
+    [(coneGB) [ ] 
+     [
+      [(grobnerBasis) [ ] gg]  arrayToTree
+      [(weight) [ ] [ww]] arrayToTree
+      [(initial) [ ] gg { ww 2 get weightv init } map ] arrayToTree
+     ]
+    ] arrayToTree /rr set
+    /arg1 rr def
   ] pop
   popVariables
   arg1
@@ -1196,6 +1301,8 @@ def
 %<
 % Usages:  pruneZeroVector
 %    genPo, getConeInfo 等の前に使う.  0 ベクトルは意味のない制約なので除く.
+%    同じ制約条件ものぞく. polymake FACET が正しく動かない場合があるので.
+%    cf. pear/OpenXM_tmp/x3y2.poly, x^3+y^2, x^2+y^3 data/test15.sm1
 %>
 /pruneZeroVector {
   /arg1 set
@@ -1203,6 +1310,7 @@ def
   [
     /mm arg1 def
     mm to_univNum /mm set
+    [ [ ] ] mm join shell rest uniq /mm set
     [
       0 1 mm length 1 sub {
          /ii set
@@ -1711,8 +1819,10 @@ def
      wv_start pmat
 %[3] reduced GB の計算.
      cone.input wv_start cone.gb /reduced_G set
-     (Reduced GB : ) message
-     reduced_G pmat 
+     (Reduced GB is obtained: ) message
+     %reduced_G pmat 
+     /cone.cgb reduced_G def
+     [cone.w_start w_start wv_start] /cone.cgb_weight set
 
 %[4] 射影してから polytope のデータを計算.  
      wv_start reduced_G coneEq /cone.g_ineq set
@@ -1731,7 +1841,8 @@ def
      cone.cinit 0 get 0 get to_int32 cone.m eq { exit }
      {
        (Failed to get the max dim cone. Updating the weight ...) messagen
-       /w_start  cone.m cone_random_vec cone.W mul def
+       cone.m cone_random_vec /cone.w_start set
+       /w_start  cone.w_start cone.W mul def
 % cone.cinit を再度計算するために clear する.
        /cone.cinit null def
      } ifelse
@@ -1833,6 +1944,8 @@ def
 /cone.fan [  ] def
 % global: cone.incidence
 /cone.incidence [ ] def
+% global: cone.gblist   gb's standing for each cones in cone.fan.
+/cone.gblist [ ] def
 
 /updateFan {
   /arg1 set
@@ -1840,6 +1953,9 @@ def
   [
     /ncone arg1 def
     /cone.fan.n  cone.fan length def
+% -1.  cone.cgb (直前に計算された gb) と cone.cgb_weight (直前の計算の weight)
+%    を cone.gblist へ格納する.
+    cone.gblist [ [cone.cgb cone.cgb_weight] newConeGB ] join /cone.gblist set
 % 0. ncone が cone.fan にすでにあればエラー
     0 1 cone.fan.n 1 sub {
       /kk set
@@ -1922,6 +2038,7 @@ def
    (Trying new weight [w,wv] is ) messagen next_weight_w_wv message
 
    cone.input next_weight_w_wv 1 get cone.gb /cone.cgb set
+   [w] next_weight_w_wv join /cone.cgb_weight set
    next_weight_w_wv 1 get cone.cgb coneEq /cone.g_ineq set
    cone.g_ineq cone.w_ineq join cone.Wt mul cone.Lpt mul 
    pruneZeroVector /cone.gw_ineq_projectedWtLpt set
@@ -1975,5 +2092,323 @@ def
     cone.nextflip tag 0 eq { exit } { } ifelse
     cone.nextflip getNextCone /cone.ncone set
   } loop
-  (Construction  is completed. See cone.fan and cone.incidence.) message
+  (Construction  is completed. See cone.fan, cone.incidence and cone.gblist.) 
+  message
+} def
+
+%<
+% Usages: vlist generateD1_1
+%  -1,1  weight を生成する.
+%  vlist は (t,x,y) か [(t) (x) (y)]
+%  
+%>
+/generateD1_1 {
+  /arg1 set
+  [/vlist /rr /rr /ii /vv] pushVariables 
+  [
+    /vlist arg1 def
+    vlist isString {
+      [vlist to_records pop] /vlist set
+    } {  } ifelse
+    [
+      0 1 vlist length 1 sub {
+        /ii set
+        vlist ii get /vv set
+        vv -1
+        [@@@.Dsymbol vv] cat 1
+      } for
+    ] /rr set
+    /arg1 rr def    
+  ] pop
+  popVariables
+  arg1
+} def
+
+/listNodes {
+  /arg1 set
+  [/in-listNodes /ob /rr /rr /ii] pushVariables
+  [
+    /ob arg1 def
+    /rr [ ] def
+    {
+      ob isClass {
+        ob (array) dc /ob set
+      } { exit } ifelse
+      rr [ob 0 get] join /rr set
+      ob 2 get /ob set
+      0 1 ob length 1 sub {
+         /ii set
+         rr ob ii get listNodes join /rr set
+      } for 
+      exit
+    } loop 
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+[(listNodes)
+[(ob listNodes)
+ (cf. getNode)
+ (Example:)
+ (  /dog [(dog) [[(legs) 4] ] [ ]] [(class) (tree)] dc def)
+ (  /man [(man) [[(legs) 2] ] [ ]] [(class) (tree)] dc def)
+ (  /ma [(mammal) [ ] [man dog]] [(class) (tree)] dc def)
+ (  ma listNodes )
+]] putUsages 
+
+%<
+% Usages:  obj printTree
+%>
+/printTree {
+  /arg1 set
+  [/ob /rr /rr /ii /keys /tt] pushVariables
+  [
+    /ob arg1 def
+    /rr [ ] def
+    /keys ob listNodes def
+    keys 0 get /tt set
+    keys rest /keys set
+    keys { ob 2 1 roll getNode } map /rr set
+    (begin ) messagen  tt messagen 
+    ( ---------------------------------------) message
+    0 1 rr length 1 sub {
+       /ii set
+       keys ii get messagen (=) message
+       rr ii get 2 get pmat
+    } for 
+    (--------------------------------------- end ) messagen
+    tt message
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages は (inputForm) usages をみよ.
+%>
+/inputForm {
+  /arg1 set
+  [/ob /rr /i ] pushVariables
+  [
+    /ob  arg1 def
+    /rr [ ] def
+    {
+     ob isArray {
+       rr [ ([) ] join /rr set
+       0 1 ob length 1 sub {
+         /i set
+         i ob length 1 sub lt {
+           rr [ob i get inputForm $ , $] join /rr set
+         } {
+           rr [ob i get inputForm] join /rr set
+         } ifelse
+       } for
+       rr [ (]) ] join cat /rr set 
+       exit 
+     } { } ifelse
+     ob isClass {
+       ob etag 263 eq { % tree
+         /rr ob inputForm.tree def exit
+       } { /rr [( $ this etag is not implemented $ )] cat def exit  } ifelse
+     } {  } ifelse
+     ob isUniversalNumber {
+       [$($ ob toString $)..$] cat /rr set 
+       exit
+     } {  } ifelse
+     ob isPolynomial {
+       [$($ ob toString $).$] cat /rr set 
+       exit
+     } {  } ifelse
+     ob isRational {
+       [$ $ ob (numerator) dc inputForm $ $
+            ob (denominator) dc inputForm $ div $ ] cat /rr set
+       exit
+     } {  } ifelse
+     ob isString {
+       [$($ ob $)$ ] cat /rr set
+       exit
+     } {  } ifelse
+     ob toString /rr set
+     exit
+    } loop
+    rr /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(inputForm)
+ [(obj inputForm str)
+]] putUsages
+% should be moved to dr.sm1 
+
+/inputForm.tree {
+  /arg1 set
+  [/ob /key /rr /rr /ii] pushVariables
+  [
+    /ob arg1 def
+    /rr [ ] def
+    {
+      ob (array) dc /ob set
+      /rr [ $[$ ob 0 get inputForm $ , $
+            ob 1 get inputForm $ , $
+          ] def
+      rr  [ob 2 get inputForm ] join /rr set
+      rr [$ ] $] join /rr set
+      rr [ $ [(class) (tree)] dc $ ] join /rr set
+      rr cat /rr set
+      exit
+    } loop 
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: str inputForm.value str
+%>
+/inputForm.value {
+  /arg1 set
+  [/key /val /valstr /rr] pushVariables
+  [
+    arg1 /key set
+    key isString { } {(inputForm.value: argument must be a string) error } ifelse
+    key boundp {
+     [(parse) key] extension pop
+     /val set
+     val inputForm /valstr set
+     [( ) valstr ( /) key ( set )] cat /rr set
+    } {
+     /valstr [] cat /rr set
+    } ifelse
+    rr /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+% global: cone.withGblist
+/cone.withGblist 0 def
+%<
+% Usages:  saveGrobnerFan  str
+%  GrobnerFan のデータを inputForm に変更して文字列に変える.
+%  このデータを parse すると GrobnerFan を得ることが可能.
+%  BUG: 多項式の属する環のデータの保存はまだしてない.
+%>
+/saveGrobnerFan {
+  [/rr] pushVariables
+  [
+    (cone.withGblist=) messagen cone.withGblist message
+    [ 
+% ユーザの設定するパラメータ. cone.gb, cone.parametrizeWeightSpace 等の関数もあり.
+      (cone.comment)
+      (cone.type)  (cone.local) (cone.h0)
+      (cone.vlist) (cone.vv)
+      (cone.input)
+
+% プログラム中で利用する, 大事な大域変数.  weight vector の射影行列が重要.
+      (cone.n) (cone.m) (cone.d) 
+      (cone.W) (cone.Wpos) (cone.Wt)
+      (cone.L) (cone.Lp) (cone.Lpt)
+      (cone.weightBorder)
+      (cone.w_ineq)
+      (cone.w_ineq_projectedWt)
+      (cone.epsilon)
+
+% 結果の要約.
+      (cone.fan)
+      cone.withGblist { (cone.gblist) } {  } ifelse
+      (cone.incidence)
+
+    ] { inputForm.value  nl } map /rr set
+    rr cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/printGrobnerFan.1 {
+  /arg1 set
+  [/key /rr] pushVariables
+  [
+    /key arg1 def
+    key boundp {
+      [(parse) key] extension pop /rr set
+      rr isArray {
+        key messagen ( = ) message  rr pmat
+      } {
+        key messagen ( = ) messagen rr message
+      } ifelse      
+    }{  
+      key  messagen ( = ) message
+    } ifelse
+  ] pop
+  popVariables
+} def
+
+/printGrobnerFan {
+  [/i] pushVariables
+  [
+  (==========  Grobner Fan ====================) message
+   [
+      (cone.comment)
+      (cone.vlist) (cone.vv)
+      (cone.input)
+      (cone.type)  (cone.local) (cone.h0)
+      (cone.n) (cone.m) (cone.d) 
+      (cone.W) (cone.Wpos) (cone.Wt)
+      (cone.L) (cone.Lp) (cone.Lpt)
+      (cone.weightBorder)
+      (cone.incidence)
+   ] { printGrobnerFan.1 } map
+   (   ) message
+   0 1 cone.fan length 1 sub {
+     /ii set
+     ii messagen ( : ) messagen
+     cone.fan ii get printTree
+   } for
+   cone.withGblist {
+    0 1 cone.gblist length 1 sub {
+      /ii set
+      ii messagen ( : ) messagen
+      cone.gblist ii get printTree
+    } for
+  } {  } ifelse
+
+
+  (=========================================) message
+  (cone.withGblist = ) messagen cone.withGblist message
+  (  ) message
+  ] pop
+  popVariables
+} def
+
+%<
+% Usages:  m uniq
+% Remove duplicated lines.
+%> 
+/uniq  {
+  /arg1 set
+  [/mm /prev /i /rr] pushVariables
+  [
+    /mm arg1 def
+   {
+     mm length 0 eq { [ ] /rr set exit } {  } ifelse
+     /prev mm 0 get def
+     [
+       prev
+       1 1 mm length 1 sub {
+         /i set
+         mm i get prev sub isZero { } 
+         { /prev mm i get def prev } ifelse
+       } for
+      ] /rr set
+      exit
+    } loop
+    rr /arg1 set
+  ] pop
+  popVariables
+  arg1
 } def
