@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.4 2001/06/20 02:50:16 noro Exp $
+% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.5 2001/06/20 03:08:05 takayama Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -15,18 +15,10 @@ with homogeneous servers.
 SINGULAR \cite{Singular} implements {\it MP} interface for distributed
 computation and a competitive Gr\"obner basis computation is
 illustrated as an example of distributed computation.
-Such a distributed computation is also possible on OpenXM as follows:
-
-The client creates two servers and it requests 
-Gr\"obner basis comutations by the Buchberger algorithm the $F_4$ algorithm
-to the servers for the same input.
-The client watches the streams by {\tt ox\_select()}
-and the result which is returned first is taken. Then the remaining
-server is reset.
+Such a distributed computation is also possible on OpenXM.
 
 \begin{verbatim}
-extern Proc1,Proc2$
-Proc1 = -1$ Proc2 = -1$
+extern Proc1,Proc2$ Proc1 = -1$ Proc2 = -1$
 /* G:set of polys; V:list of variables */
 /* Mod: the Ground field GF(Mod); O:type of order */
 def dgr(G,V,Mod,O)
@@ -50,6 +42,12 @@ def dgr(G,V,Mod,O)
   return [Win,R];
 }
 \end{verbatim}
+In the above Asir program, the client creates two servers and it requests 
+Gr\"obner basis comutations by the Buchberger algorithm the $F_4$ algorithm
+to the servers for the same input.
+The client watches the streams by {\tt ox\_select()}
+and the result which is returned first is taken. Then the remaining
+server is reset.
 
 \subsubsection{Nesting of client-server communication}
 
