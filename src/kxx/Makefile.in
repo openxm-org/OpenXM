@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.22 2003/08/22 23:56:28 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.23 2003/09/02 03:24:51 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -118,18 +118,18 @@ distclean : clean clean-for-install
 
 ## install targets.
 install-for-debug : clean-for-install install_lib_bin-for-debug
-	${RM} -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog ../bin/ox100start
-	ln -f -s  ../src/kxx/ox ../bin/ox
-	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
-	ln -f -s  ../src/kxx/oxlog ../bin/oxlog
-	ln -f -s  ../src/kxx/ox100start ../bin/ox100start
+	${RM} -f ${OpenXM_bin}/ox ${OpenXM_bin}/ox_sm1 ${OpenXM_bin}/oxlog ${OpenXM_bin}/ox100start
+	ln -f -s  ../src/kxx/ox ${OpenXM_bin}/ox
+	ln -f -s  ../src/kxx/ox_sm1 ${OpenXM_bin}/ox_sm1
+	ln -f -s  ../src/kxx/oxlog ${OpenXM_bin}/oxlog
+	ln -f -s  ../src/kxx/ox100start ${OpenXM_bin}/ox100start
 
 install_lib_bin-for-debug :
 	ln -f -s ../src/kan96xx/Doc ${OpenXM_lib}/sm1
 	${RM} -f ${OpenXM_lib}/sm1/bin/ox*
-	ln -f -s ../../../bin/ox ${OpenXM_lib}/sm1/bin/ox
-	ln -f -s ../../../bin/oxlog ${OpenXM_lib}/sm1/bin/oxlog
-	ln -f -s ../../../bin/ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1
+	ln -f -s ../../../../bin/ox ${OpenXM_lib}/sm1/bin/ox
+	ln -f -s ../../../../bin/oxlog ${OpenXM_lib}/sm1/bin/oxlog
+	ln -f -s ../../../../bin/ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_forAsir
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_gnuplot
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_phc
