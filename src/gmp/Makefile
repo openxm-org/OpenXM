@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.4 2004/02/22 08:28:20 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.5 2004/02/23 05:56:32 takayama Exp $
 OpenXM_HOME=../..
 OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
 OpenXM_lib=${OpenXM_HOME}/lib
@@ -26,6 +26,7 @@ install-l: install-exec-l
 install-exec-l: all-l
 	if [ ! -f ./.install_done ]; then \
 		(cd ${GMP}; make install-exec) ; \
+		rm -f ${OpenXM_include}/config.h ${OpenXM_include}/gmp-impl.h ${OpenXM_include}/gmp-mparam.h ; \
 		cp ${GMP}/gmp.h ${OpenXM_include} ; \
 		touch ./.install_done ; \
 	fi
