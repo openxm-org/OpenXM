@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/k097/Doc/complex.texi,v 1.2 2001/01/05 11:14:26 takayama Exp $
+%% $OpenXM: OpenXM/src/k097/Doc/complex.texi,v 1.3 2001/01/08 05:26:50 takayama Exp $
 /*&C
 \input texinfo
 @iftex
@@ -1167,6 +1167,98 @@ In(17)= Firstn(mm,2):
 
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of GKZ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* GKZ::
+@end menu
+@node GKZ,,, 基本 函数
+@subsection @code{GKZ}
+@findex GKZ
+@table @t
+@item GKZ(@var{a},@var{b})
+::  行列 @var{a} と ベクトル @var{b} で定まる, GKZ hypergeometric system を戻す.
+@end table
+
+@table @var
+@item return
+D のイデアルの生成元
+@item a
+整数行列
+@item b
+整数ベクトル
+@end table
+
+@itemize @bullet
+@item   行列 @var{a} と ベクトル @var{b} で定まる, GKZ hypergeometric system を戻す.
+@item Gelfand, Kapranov, Zelevinski の超幾何微分方程式を戻す. 
+@end itemize
+
+@example
+In(3)= GKZ([[1,1,1,1],[0,1,2,3]],[-1,-2]):
+[    x1*Dx1+x2*Dx2+x3*Dx3+x4*Dx4+1 , x2*Dx2+2*x3*Dx3+3*x4*Dx4+2 , Dx2^2-Dx1*Dx3 , -Dx3^2+Dx2*Dx4 , Dx2*Dx3-Dx1*Dx4 ]
+@end example
+
+@table @t
+@item 参照
+@item Files
+    @code{lib/restriction/demo2.k}
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of GKZ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Slope %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Slope::
+@end menu
+@node Slope,,, 基本 函数
+@subsection @code{Slope}
+@findex Slope
+@table @t
+@item Slope(@var{i},@var{v},@var{f},@var{v})
+::  微分方程式系 @var{i} の slope の集合をもとめる.
+@end table
+
+@table @var
+@item return
+Slope の集合とそれを与える, weight vectors.
+@item i
+D のイデアルの生成元
+@item v
+空間変数
+@item f
+F-filtration を与える weight vector (0,...,0,1,...,1).
+@item v
+V-filtration を与える weight vector.
+たとえば (0,...,0,-1,0,...,0,1).
+@end table
+
+@itemize @bullet
+@item @var{i} の x_i = 0 にそった, 原点での slope の全体をもとめる.
+@item 計算には Assi, Castro, Granger のアルゴリズムを用いる.
+@item Geometric slope を計算するため, radical の計算をおこなっている.
+これには ox_asir を用いている.
+@end itemize
+
+@example
+In(13)= a=GKZ([[1,3,7]],[-30]);
+In(14)= a:
+[    x1*Dx1+3*x2*Dx2+7*x3*Dx3+30 , -Dx1^3+Dx2 , -Dx1*Dx2^2+Dx3 , -Dx2^3+Dx1^2*Dx3 ] 
+In(15)= Slope(a,[x1,x2,x3],[0,0,0,1,1,1],[0,0,-1,0,0,1]):
+[    [    (3)/(4) , [    0 , 0 , -4 , 3 , 3 , 7 ]  ]  ] 
+
+
+@end example
+
+@table @t
+@item 参照
+@item Files
+    @code{lib/restriction/demo2.k}
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Slope %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 
 /*&ja

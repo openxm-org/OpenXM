@@ -470,6 +470,13 @@ FunctionValue } def
 this [ %% function args 
 Arglist ] {Length} sendmsg2 
 /argsize  set
+this [ %% function args 
+vList ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+  vList {toString} map from_records /vList set    }%%end if if body
+  { %%if- else part
+  } ifelse
 argsize (1)..  eq
  %% if-condition
   { %%ifbody

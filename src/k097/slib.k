@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.8 2001/01/05 11:14:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.9 2001/01/08 05:26:49 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -193,6 +193,9 @@ def IntegerToSm1Integer(f) {
 def RingD(vList,weightMatrix,pp) {
   local new0,tmp,size,n,i,j,newtmp,ringpp,argsize;
   argsize = Length(Arglist);
+  if (IsArray(vList)) {
+    sm1(" vList {toString} map from_records /vList set ");
+  }
   if (argsize == 1) {
     sm1("[", vList, 
         "ring_of_differential_operators ( ) elimination_order 0 ] define_ring
