@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.11 2000/08/31 06:28:21 takayama Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.12 2001/10/03 01:47:29 noro Exp $
 
 PARI = ../../../OpenXM_contrib/pari-2.2
 OpenXM_ROOT = ../../../OpenXM
@@ -27,7 +27,7 @@ install-doc: all
 	-cp $(OpenXM_ROOT)/lib/pari/users.dvi  $(OpenXM_ROOT)/doc/pari/users.dvi
 	-cp $(OpenXM_ROOT)/lib/pari/tutorial.dvi  $(OpenXM_ROOT)/doc/pari/tutorial.dvi
 
-clean:
+clean: patch-clean
 	@if [ -f ./.make_done ]; then \
 		(cd $(PARI) ; make clean) \
 	fi
@@ -36,11 +36,23 @@ clean:
 distclean:
 	@cat BINARIES | xargs -t rm -rf
 
-configure:
+configure: patch
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(PARI) ; ./Configure --prefix=../../../OpenXM) \
 	fi
 	@touch ./.configure_done
+
+patch: 
+	@if [ ! -f ./.patch_done ]; then \
+		(cd $(PARI)/config ; patch < $(CURDIR)/Makefile.SH.diff) \
+	fi
+	@touch ./.patch_done
+
+patch-clean: 
+	@if [ -f ./.patch_done ]; then \
+		(cd $(PARI)/config ; patch -R < $(CURDIR)/Makefile.SH.diff) \
+	fi
+	@rm -f ./.patch_done
 
 install-lib: all
 	(cd $(PARI) ; make install-lib-sta)
