@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.1 2004/04/14 08:25:18 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.2 2004/05/17 07:53:12 noro Exp $ */
 
 /* functions for linear algebra over Q */
 
@@ -19,8 +19,17 @@ localf create_basis,sample_mat,jordan_decomp;
 
 def random_mat(N,Bound)
 {
-	A = newmat(N,N);
+	A = matrix(N,N);
 	for ( I = 0; I < N; I++ )
+		for ( J = 0; J < N; J++ )
+			A[I][J] = (random()%Bound)*(random()%2?-1:1);
+	return A;
+}
+
+def random_rmat(M,N,Bound)
+{
+	A = matrix(M,N);
+	for ( I = 0; I < M; I++ )
 		for ( J = 0; J < N; J++ )
 			A[I][J] = (random()%Bound)*(random()%2?-1:1);
 	return A;
@@ -430,9 +439,7 @@ def create_basis(B)
 		if ( R[0] )
 			Base = insert_to_sbase(R,Base);
 	}
-	for ( S = [], T = Base; T != []; T = cdr(T) )
-		S = cons(car(T)[0],S);
-	return reverse(S);
+	return Base;
 }
 
 def sample_mat(Data)
@@ -526,23 +533,218 @@ def jordan_decomp(A)
 				T += Alpha[K]*P[K][I][J];
 			S[I][J] = T;
 		 }
+	return [S,A-S];
+}
+
+def jordan_canonical_form(A)
+{
+	N = size(A)[0];
+	M = minipoly_mat(A);
+	FM = fctr(M);
+	/* skip const */
+	FM = cdr(FM);
+	L = length(FM);
+
+	/* extracting roots and multiplicities */
+	Alpha = vector(L);
+	E = vector(L);
+	for ( I = 0; I < L; I++ )
+		if ( deg(F=FM[I][0],x) != 1 ) 
+			error("irrational eigenvalue : not implemented yet");
+		else {
+			Alpha[I] = -coef(F,0,x)/coef(F,1,x);
+			E[I] = FM[I][1];
+		}
+	M = sdiv(M,coef(M,deg(M,x)));
+
+	/* (A-Alpha[I])^E[I] */
+	P = vector(L);
+	for ( I = 0; I < L; I++ )
+		P[I] = subst_mat((x-Alpha[I])^E[I],A);
 	/* computation of Vi */
-	B = [];
-	for ( K = L-1; K >= 0; K-- ) {
-		PK = P[K];
-		BK = mat_to_col(PK);
-		BK = create_basis(BK);
-		B = append(BK,B);
-	}
-	/* computation of transformation matrix */
 	Q = matrix(N,N);
-	for ( J = 0; J < N; J++ ) {
-		V = B[J];
-		for ( I = 0; I < N; I++ )
-			Q[I][J] = V[I];
+	for ( K = 0, J = 0; K < L; K++ ) {
+		BK = compute_kernel(P[K]);
+		JBK = compute_jordan_block_basis(A,Alpha[K],E[K],BK);
+		for ( T = JBK; T != []; T = cdr(T), J++ ) {
+			V = car(T);
+			for ( I = 0; I < N; I++ )
+				Q[I][J] = V[I];
+		}
 	}
 	QI = invmat(Q);
-	return [QI[0]*A*Q/QI[1],Q,QI[0]/QI[1]];
+	return [QI[0]*A*Q/QI[1],Q];
+}
+
+/* Span(Base) = Ker((A-Alpha*E)^E) */
+/* Base = [[V1,Pos1],[V2,Pos2],...] (Pos1 > Pos2 > ...) */
+
+def compute_jordan_block_basis(A,Alpha,E,Base)
+{
+	/* S = dim(V) */
+	S = size(A)[0];
+	/* D = dim(Span(Base)) */
+	D = length(Base);
+	N = A-Alpha*unit_mat(S);
+	/* represent N wrt Base */
+	Mat = matrix(D,D);
+	for ( J = 0; J < D; J++ ) {
+		/* N*ej = sum_i mij*ei */
+		Nej = N*Base[J][0];
+		for ( I = 0; I < D; I++ ) {
+			K = Base[I][1];
+			if ( Nej[K] ) {
+				Mat[I][J] = Nej[K]/Base[I][0][K];
+				Nej -= Mat[I][J]*Base[I][0];	
+			}
+		}
+		if ( !zero_vector(Nej) )
+			error("afo");
+	}
+	JB = compute_jordan_block_basis_main(Mat,E);
+#if 0
+	/* check */
+	P = matrix(D,D);
+	for ( J = 0; J < D; J++ ) {
+		V = JB[J];
+		for ( I = 0; I < D; I++ )
+			P[I][J] = V[I];
+	}
+	Pinv = invmat(P);
+	print(Pinv[0]*Mat*P/Pinv[1]);
+#endif
+	/* create a matrix whose columns are vectors in Base */
+	BMat = matrix(S,D);
+	for ( J = 0; J < D; J++ ) {
+		V = Base[J][0];
+		for ( I = 0; I < S; I++ )
+			BMat[I][J] = V[I];
+	}
+	JB1 = [];
+	for ( T = JB; T != []; T = cdr(T) ) {
+		JB1 = cons(BMat*car(T),JB1);
+	}
+	return reverse(JB1);
+}
+
+/* N : nilpotent; N^(E-1) neq 0, N^E = 0 */
+
+def compute_jordan_block_basis_main(N,E)
+{
+	Np = vector(E+1);
+	D = size(N)[0];
+	Np[0] = unit_mat(D);
+	for ( I = 1; I <= E; I++ )
+		Np[I] = Np[I-1]*N;
+	Ker = vector(E+1);
+	R = vector(E+1);
+	for ( I = 0; I <= E; I++ ) {
+		Ker[I] = map(first_element,compute_kernel(Np[I]));
+		R[I] = length(Ker[I]);
+	}
+
+	PW = [];
+	AllBase = [];
+	for ( I = E-1; I >= 0; I-- ) {
+		/* NPW = N*PW */
+		for ( T = PW, S = []; T != []; T = cdr(T) )
+			S = cons(N*car(T),S);
+		NPW = reverse(S);
+		/* number of elements to be added */
+		DW = R[I+1]-R[I]-length(NPW);
+		Base = create_basis(append(Ker[I],NPW));
+		W = [];
+		for ( T = Ker[I+1]; T != []; T = cdr(T), L++ ) {
+			Red = reduce_vect(car(T),0,Base);
+			if ( Red[0] ) {
+				Base = insert_to_sbase(Red,Base);
+				for ( K = I; K >= 0; K-- )
+					AllBase = cons(Np[K]*car(T),AllBase);
+			}
+		}
+		PW = map(first_element,Base);
+	}
+	return reverse(AllBase);
+}
+
+def first_element(L)
+{
+	return car(L);
+}
+
+def compute_image(A)
+{
+	B = mat_to_col(A);
+	return create_basis(B);
+}
+
+def compute_kernel(A)
+{
+	S = size(A);
+	M = S[0];
+	N = S[1];
+	B = matrix(M,N);
+	for ( I = 0; I < M; I++ )
+		for ( J = 0; J < N; J++ )
+			B[I][N-J-1] = A[I][J];
+	Index = vector(M);
+	Tl = reduced_form_mat(B,Index,M,N); L = car(Tl); D = car(cdr(Tl));
+	if ( L < 0 )
+		return [];
+
+	R = [];
+	Head = vector(N);
+	for ( I = 0; I < L; I++ ) Head[Index[I]] = 1;
+
+	for ( I = 0; I < N; I++ ) {
+		if ( Head[I] ) continue;
+		S = vector(N);
+		S[N-I-1] = 1;
+		for ( J = K = 0; J < I; J++ )
+			if ( Head[J] ) {
+				S[N-J-1] = -B[K][I]/B[K][Index[K]];
+				K++;
+			} else
+				S[N-J-1] = 0;
+		R = cons([ptozp_vect(S)[0],N-I-1],R);
+	}
+	return R;
+}
+
+/* 
+ *	Mat : matrix of size MxN
+ *	Index : vector of length M
+ *  Index[I] = head position of Mat[I]
+ */
+
+def reduced_form_mat(Mat,Index,M,N) 
+{
+	for ( J = 0, L = 0, D = 1; J < N; J++ ) {
+		for ( I = L; I < M && !Mat[I][J]; I++ );
+		if ( I == M )
+			continue;
+		Index[L] = J;
+		for ( K = 0; K < N; K++ ) {
+			T = Mat[I][K]; Mat[I][K] = Mat[L][K]; Mat[L][K] = T;
+		}
+		for ( I = L + 1, V = Mat[L][J]; I < M; I++ )
+			for ( K = J, U = Mat[I][J]; K < N; K++ )
+				Mat[I][K] = sdiv(Mat[I][K]*V-Mat[L][K]*U,D);
+		D = V; L++;
+	}
+	for ( I = L; I < M; I++ )
+		for ( J = 0; J < N; J++ )
+			if ( Mat[I][J] )
+				return [-1,0];
+	for ( I = L - 2, W = vector(N); I >= 0; I-- ) {
+		for ( J = 0; J < N; J++ ) W[J] = 0;
+		for ( G = I + 1; G < L; G++ )
+			for ( H = Index[G], U = Mat[I][H]; H < N; H++ )
+				W[H] += Mat[G][H]*U;
+		for ( J = Index[I], U = Mat[I][J]; J < N; J++ )
+			Mat[I][J] = sdiv(Mat[I][J]*D-W[J],U);
+	}
+	return [L,D];
 }
 
 def mat_to_col(A)
@@ -556,6 +758,15 @@ def mat_to_col(A)
 		R = cons(T,R);
 	}
 	return R;
+}
+
+def zero_vector(A)
+{
+	S = size(A);
+	M = S[0];
+	for ( I = 0; I < M; I++ )
+		if ( A[I] ) return 0;
+	return 1;
 }
 
 def zero_mat(A)
