@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.4 2000/01/24 02:48:24 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.5 2000/01/24 07:36:35 noro Exp $
 \section{Session Management}
 
 \subsection{Control server}
@@ -35,6 +35,56 @@ A control server is also an
 OpenXM stack machine and it accepts {\tt SM\_control\_*} commands
 to send signals to a server or to terminate a server.
 */
+
+\subsection{New specification for OpenXM control servers}
+
+/*&jp
+
+我々は新しいコントロールサーバを提案する。そのサンプル実装として oxc が
+提供される。新しいコントロールサーバは以下の点で従来のものと異なる。
+\begin{enumerate}
+\item コントロールサーバは OpenXM スタックマシンであり、
+CMObject/Primitive および CMO\_ZZ をサポートする。
+\item 計算サーバの起動はスタックマシンコマンドを介して行う。
+\item 一つのコントロールサーバから複数の計算サーバを起動できる。
+\end{enumerate}
+
+oxc の導入により、いままでのサーバの起動手順はコントロールサーバの起動と
+計算サーバの起動に分離される。コントロールサーバを起動するには次の手順を
+取る。まず、適当なオプション(後述)をつけて、コントロールサーバを起動する
+と、コントロールサーバはソケットを作成し、connect する。クライアントは、
+listen, accept する。接続後、バイトオーダを決定する。バイトオーダの決定
+については???を見よ。その後、コントロールサーバは待機状態にはいる。コン
+トロールサーバは OpenXM スタックマシンであるから、mathcap の交換などの手
+続きに入ってもよい。
+
+計算サーバの起動は、oxc のローカル関数 oxc\_open による。oxc\_open は少
+なくとも 4 個の引数を持つ。すなわち、
+\begin{verbatim}
+oxc_open(計算サーバ名, ホスト名, ポート番号, モード, ...)
+\end{verbatim}
+という形式である。ここで、「計算サーバ名」、「ホスト名」は CMO\_STRING 
+型のオブジェクト、「ポート番号」、「モード」は CMO\_INT32型 または 
+CMO\_ZZ 型のオブジェクトである。ホスト名というのはOpenXMクライアントのホ
+スト名のことである。ローカル関数の実行は SM\_executeFunction による。す
+なわち各引数を順にスタックに積み、最後にSM\_executeFunction を実行する。
+SM\_executeStringByLocalParser は利用できないので注意する。
+
+oxc\_open は、計算サーバの起動に成功したら (CMO\_INT32, サーバID) を、失
+敗したらエラーオブジェクトをスタックに積む。例えば計算サーバが発見できな
+かった場合にはエラーオブジェクトを積むことになる。コントロールサーバは 
+access(2) を用いて PATH から計算サーバを探す。もし見つからなければ、fork 
+をせずに、エラーオブジェクトをスタックに積む。
+
+コントロールサーバの実行形式は以下のオプションを許す。
+\begin{verbatim}
+     --pass
+     --host
+     --port
+\end{verbatim}
+*/
+
+
 
 \subsection{OpenXM reset protocol}
 
