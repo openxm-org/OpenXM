@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.4 2004/03/10 08:43:43 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.5 2004/03/11 01:57:39 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -33,6 +33,8 @@ def taka_tex_form(S,Tb) {
   }else if (type(S) == DPOLYNOMIAL) {
      taka_tex_form_polynomial(S,Tb);
   }else if (type(S) == RPOLYNOMIAL) {
+     taka_tex_form_polynomial(S,Tb);
+  }else if (type(S) == NUMBER) {
      taka_tex_form_polynomial(S,Tb);
   }else if (type(S) == STRUCT) {
      taka_tex_form_struct(S,Tb);
