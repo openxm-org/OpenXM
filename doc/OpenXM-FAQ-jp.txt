@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.4 2000/02/24 00:27:43 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.5 2000/04/12 08:39:57 takayama Exp $
 
 //&C  4/12, 2000.
 //&jp Q. openxm*.rpm を利用しているのですが, asir と入力すると,
@@ -21,14 +21,12 @@
 */
 
 /*&jp
-     libgd をインストールするのが本当ですが,
-     当座の問題回避には Redhat 6.1 の /usr/lib/libgd.so.1.2 を
-     /usr/local/OpenXM/lib へコピーして,
-     dc3:/home/taka# cd /usr/local/OpenXM/lib
-     dc3:/usr/local/OpenXM/lib# ln -s libgd.so.1.2 libgd.so.1
-     dc3:/usr/local/OpenXM/lib# ln -s libgd.so.1 ligbd.so
-     とすれば,  openxm gnuplot4ox とかは動いてしまいます.
-     asir から gnuplot が動かないのは, OpenXM 自体の bug なので修正する予定.
+     libgd をインストールして下さい.
+     たとえば http://www.debian.org より
+        libgd1g_1.3-1.1.deb 
+     を download して,
+     dpkg -i libgd1g_1.3-1.1.deb 
+     でインストールします.
 
 */
 
