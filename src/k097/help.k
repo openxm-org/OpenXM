@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.10 2001/05/27 12:48:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.11 2003/11/20 09:20:36 takayama Exp $ */
 if (K00_verbose)
   Println("help.k:  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -576,7 +576,9 @@ HelpAdd(["IsPolynomial",
 HelpAdd(["QuoteMode",
  ["QuoteMode(1) sets the parser in the quotemode; if unknown function symbol",
   "comes, it automatically translates the expression into a tree.",
-  "Example: class polymake extends PrimitiveObject {local ; def hogera() { return(1);} } ",
+  "Example 1: class polymake extends PrimitiveObject {local ; def hogera() { return(1);} } ",
+  "         QuoteMode(1); polymake.foo(1,2): ",
+  "Example 2: polymake=\"polymake\"; ",
   "         QuoteMode(1); polymake.foo(1,2): ",
   "QuoteMode(0) turns off the quotemode."],
  ["Tag"],
