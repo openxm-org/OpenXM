@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.38 2002/02/10 08:24:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.39 2002/02/11 00:18:13 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -320,9 +320,9 @@ def series_solve(Eq,A) { NOT_YET; }
 def series_limit(F,A) { NOT_YET; }
 
 /* Canonical function names for matrix. cf. Mathematica/LiearAlgebra */
-/*&usage begin: matrix_close(M)
- It generates the close of the matrix {M}.
- example: matrix_close(matrix_list_to_matrix([[1,1],[0,1]]));
+/*&usage begin: matrix_clone(M)
+ It generates the clone of the matrix {M}.
+ example: matrix_clone(matrix_list_to_matrix([[1,1],[0,1]]));
 end: */
 def matrix_clone(M) {
   OX_LOADFILE(Loaded_Matrix,"Matrix");
