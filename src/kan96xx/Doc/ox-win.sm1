@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.15 2002/07/29 05:02:58 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.16 2002/07/29 08:32:03 takayama Exp $
 
 (ox-win.start.noiconic) boundp {
   /ox-win.start.iconic 0 def
@@ -36,12 +36,18 @@ OpenXM_HOME_WIN tag 0 eq {
 } { } ifelse
 
 /ox.win.set.start {
-  [(stat) (c:\windows\system32.cmd.exe)] extension 0 get
-  null eq {
+  [(stat) (c:\windows\system32\cmd.exe)] extension 0 get
+  0 eq {
     /ox.win.start [(c:\windows\system32\cmd.exe) (/c) (start) 
                    ox-win.start.iconic { (/min) } { } ifelse ] def
   }{
-    /ox.win.start [ (start) ox-win.start.iconic { (/min) } { } ifelse ] def
+   [(stat) (c:\winnt\system32\cmd.exe)] extension 0 get
+   0 eq {
+      /ox.win.start [(c:\winnt\system32\cmd.exe) (/c) (start) 
+                     ox-win.start.iconic { (/min) } { } ifelse ] def
+   }{
+     /ox.win.start [ (start) ox-win.start.iconic { (/min) } { } ifelse ] def
+   } ifelse
   } ifelse
 } def
 ox.win.set.start
