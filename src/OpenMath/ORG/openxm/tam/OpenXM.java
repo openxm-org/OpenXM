@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.4 2000/09/13 06:32:43 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.5 2000/10/11 08:32:15 ohara Exp $
  */
 package ORG.openxm.tam;
 
@@ -22,6 +22,29 @@ public class OpenXM{
    * ポート番号 StreamPort にデータ用の接続を行なう.
    */
   public OpenXM(String host,int CtrlPort,int StreamPort) throws IOException{
+    control = new OpenXMstream(host,CtrlPort);
+
+    try{
+      Thread.sleep(100); // We need a few wait for starting up server.
+    }catch(InterruptedException e){
+      System.err.println(e.getMessage());
+    }
+
+    stream = new OpenXMstream(host,StreamPort);
+
+    control.sendByteOrder();
+    stream.sendByteOrder();
+  }
+
+  /**
+   * コマンド command を立ち上げ、
+   * OpenXM サーバとの接続を TCP/IP ソケットを用いて行なう.
+   * マシン名 host のポート番号 CtrlPort にコントロールを,
+   * ポート番号 StreamPort にデータ用の接続を行なう.
+   */
+  public OpenXM(String command,String host,int CtrlPort,int StreamPort)
+       throws IOException{
+    Runtime.getRuntime().exec(command);
     control = new OpenXMstream(host,CtrlPort);
 
     try{
