@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.3 2004/02/24 05:43:14 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.4 2004/02/27 00:12:22 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -81,7 +81,11 @@ if [ ! -f $HOME/.asir-tmp/$otname ]; then
 	echo -n "Downloading $ot plugin... " ; \
 	oxfetch.sh $ot $HOME/.asir-tmp ; \
 	echo "Done." ; \
-	(cd $HOME ; tar xzf $HOME/.asir-tmp/$otname) ; \
+	if [ -f $HOME/.TeXmacs/progs/my-init-texmacs.scm ]; then \
+		echo "Warning .TeXmacs/progs/my-init-texmacs.scm exists"; \
+		echo "Copy from ~/.asir-tmp/$otname by hand."; \
+    else (cd $HOME ; tar xzf $HOME/.asir-tmp/$otname) ; \
+    fi
 fi
 
 
