@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.27 2003/11/20 11:41:44 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.28 2004/02/29 03:00:37 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -36,7 +36,7 @@ RM=rm
 ### Set the server name in oxmain.c if you do not use the environmental
 ### variable LOAD_SM1_PATH.  cf. $Kan96xx/lib/ox.sm1
 
-all : configure ox ox_sm1  oxlog ox100start
+all : configure ox ox_sm1  oxlog ox100start ox_texmacs
 
 all2 : ox ox_sm1 testclient oxlog
 
@@ -114,17 +114,18 @@ ox_texmacs: ox_texmacs.o ${Kan96xx}/Kan/kanlib.a
 clean-done: 
 	-${RM} -f .configure_done
 clean: clean-done
-	-${RM} -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex ox100start .prog.ox100bin* .in.ox100bin*
+	-${RM} -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex ox100start .prog.ox100bin* .in.ox100bin* ox_texmacs
 distclean : clean clean-for-install
 	/bin/rm -f config.status config.cache config.log
 
 ## install targets.
 install-for-debug : clean-for-install install_lib_bin-for-debug
-	${RM} -f ${OpenXM_bin}/ox ${OpenXM_bin}/ox_sm1 ${OpenXM_bin}/oxlog ${OpenXM_bin}/ox100start
+	${RM} -f ${OpenXM_bin}/ox ${OpenXM_bin}/ox_sm1 ${OpenXM_bin}/oxlog ${OpenXM_bin}/ox100start ${OpenXM_bin}/ox_texmacs
 	ln -f -s  ../src/kxx/ox ${OpenXM_bin}/ox
 	ln -f -s  ../src/kxx/ox_sm1 ${OpenXM_bin}/ox_sm1
 	ln -f -s  ../src/kxx/oxlog ${OpenXM_bin}/oxlog
 	ln -f -s  ../src/kxx/ox100start ${OpenXM_bin}/ox100start
+	ln -f -s  ../src/kxx/ox_texmacs ${OpenXM_bin}/ox_texmacs
 
 install_lib_bin-for-debug :
 	ln -f -s ../src/kan96xx/Doc ${OpenXM_lib}/sm1
@@ -139,7 +140,7 @@ install_lib_bin-for-debug :
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD
 install: install-exec
 install-exec: copy-kan-lib install_lib_bin
-	install ox ox_sm1 oxlog ox100start ${OpenXM_bin}
+	install ox ox_sm1 oxlog ox100start ox_texmacs ${OpenXM_bin}
 install_lib_bin:
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  make install_lib_bin_windows ; \
@@ -199,7 +200,7 @@ copy-kan-lib : clean-for-install
 	cp ${Kan96xx}/Kan/var.sm1 ${OpenXM_lib}/sm1
 clean-for-install :
 	-/bin/rm -rf ${OpenXM_lib}/sm1
-	-/bin/rm -rf ${OpenXM_bin}/oxlog ${OpenXM_bin}/ox_sm1 ${OpenXM_bin}/ox   ${OpenXM_bin}/ox100start
+	-/bin/rm -rf ${OpenXM_bin}/oxlog ${OpenXM_bin}/ox_sm1 ${OpenXM_bin}/ox   ${OpenXM_bin}/ox100start ${OpenXM_bin}/ox_texmacs
 
 
 
