@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.11 2000/01/10 19:17:24 maekawa Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.12 2000/01/15 22:18:15 takayama Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -9,9 +9,7 @@ OpenXM_bin=$(OpenXM_ROOT)/bin
 GC=$(OPENXM_CONTRIB)/gc
 GMP=$(OPENXM_CONTRIB)/gmp
 
-all :   all-gc all-gmp
-	(cd plugin; make all)
-	(cd Kan; make all)
+all :   all-gc all-gmp all-plugin all-sm1 all-kanlib.a
 
 all2 :  all-gc all-gmp
 	(cd Kan; make all)
@@ -29,6 +27,15 @@ all-gmp: configure-gmp
 	 (cd $(GMP) ; make) ; \
 	fi
 
+all-sm1 : all-plugin
+	(cd Kan; make all)
+
+all-plugin :
+	 (cd plugin ; make all)
+
+all-kanlib.a : all-plugin
+	(cd Kan ; make kanlib.a)
+
 
 
 ### When you make sm1 without the garbage collector, type in make sm1.nogc
@@ -38,7 +45,12 @@ sm1.nogc :
 configure: configure_symbolic_links configure-gmp
 
 configure-gmp:
-	(cd $(GMP) ; ./configure)
+	if test -f $(GMP)/.gmp_configured ; \
+	then \
+	  echo "MESSAGE(kan96xx/Makefile): gmp is already configured. (.gmp_configured) " ;  \
+	else \
+	  (cd $(GMP) ; ./configure ; touch .gmp_configured) ; \
+	fi 
 
 configure_symbolic_links :
 	/bin/rm -f gc gmp lib Doc/var.sm1
@@ -119,6 +131,7 @@ distclean :
 	then \
 	  (cd $(GMP) ; make distclean) ; \
 	fi
+	-/bin/rm -f $(GMP)/.gmp_configured
 	if test -f $(GC)/Makefile ; \
 	then \
 	  (cd $(GC); make clean; /bin/rm -f *.a) ; \
