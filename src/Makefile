@@ -1,23 +1,23 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.50 2000/01/09 16:25:20 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.51 2000/01/09 18:20:14 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
 
 all-asir: configure-asir
-	(cd asir2000 ; make all ; make install)
+	(cd asir2000 ; make all)
 
 all-gnuplot: configure-gnuplot
-	(cd gnuplot ; make all ; make install)
+	(cd gnuplot ; make all)
 
 all-k097: configure-k097
-	(cd k097 ; make all ; make install)
+	(cd k097 ; make all)
 
 all-kan96xx: configure-kan96xx
 	(cd kan96xx ; make all)
 
 all-kxx: configure-kxx
-	(cd kxx ; make all ; make install2)
+	(cd kxx ; make all)
 
 all-openmath:
 	@if ../misc/which.pl -s javac ; then \
@@ -44,10 +44,23 @@ all-phc:
 all-tigers:
 	(cd tigers ; make all)
 
-install: install-kan96xx install-pari install-phc install-tigers
+install: install-asir install-gnuplot install-k097 install-kan96xx \
+	 install-kxx install-pari install-phc install-tigers
+
+install-asir: all-asir
+	(cd asir2000 ; make install)
+
+install-gnuplot: all-gnuplot
+	(cd gnuplot ; make install)
+
+install-k097: all-k097
+	(cd k097 ; make install)
 
 install-kan96xx: all-kan96xx
 	(cd kan96xx ; make install2)
+
+install-kxx: all-kxx
+	(cd kxx ; make install2)
 
 install-pari: all-pari
 	(cd pari ; make install)
@@ -59,15 +72,15 @@ install-tigers: all-tigers
 	(cd tigers ; make install)
 
 clean:
+	(cd asir2000 ; make clean)
+	(cd gnuplot ; make clean)
+	(cd k097 ; make clean)
 	(cd kan96xx ; make clean)
 	(cd kxx ; make clean)
-	(cd tigers ; make clean)
-	(cd gnuplot ; make clean)
+#	(cd ox_math ; make clean)
 	(cd pari ; make clean)
 	(cd phc ; make clean)
-	(cd k097 ; make clean)
-	(cd asir2000 ; make clean)
-#	(cd ox_math ; make clean)
+	(cd tigers ; make clean)
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/k0 bin/oxweave bin/fep.linux bin/lin_phcv2p
 
 distclean: clean
@@ -82,7 +95,7 @@ configure: configure-links configure-asir configure-bin configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari
 
-configure-asir: install-pari
+configure-asir:
 	(cd asir2000; make configure)
 
 configure-bin:
