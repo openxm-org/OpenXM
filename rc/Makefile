@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.4 2000/01/30 10:40:42 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.5 2000/01/30 23:47:40 takayama Exp $
 # make repl
 # make all
 # make install  [ INSTALL_DIR=/home/hoge/bin ]  ; Default is /usr/local/bin
@@ -25,7 +25,7 @@ openxm : dot.cshrc
 	rm -f openxm
 	echo "#!/bin/csh" >openxm
 	cat dot.cshrc >>openxm
-	echo '$$*' >>openxm
+	echo 'exec $$*' >>openxm
 	chmod +x openxm
 	cp -f openxm ../bin
 
