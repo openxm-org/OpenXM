@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.1 2000/01/18 09:38:58 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.2 2000/01/18 09:42:17 takayama Exp $
 CC=gcc
 all :  dot.bashrc  dot.cshrc  openxm 
 
@@ -13,7 +13,7 @@ dot.cshrc : cshrc repl
 	./repl <cshrc >>dot.cshrc
 
 repl : repl.c
-	${CC} -o repl repl.c
+	${CC} -static -o repl repl.c
 
 openxm : dot.cshrc
 	rm -f openxm
@@ -21,6 +21,7 @@ openxm : dot.cshrc
 	cat dot.cshrc >>openxm
 	echo '$$*' >>openxm
 	chmod +x openxm
+	cp -f openxm ../bin
 
 clean :
 	rm -f dot.bashrc dot.cshrc repl openxm
