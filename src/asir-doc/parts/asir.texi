@@ -1,0 +1,634 @@
+@node ユーザ言語 Asir,,, Top
+@chapter ユーザ言語 Asir
+
+@noindent
+@b{Asir} の組み込み函数は, 因数分解, GCD などの計算を行うもの, ファ
+イル入出力を行うもの, あるいは数式の一部を取り出すものなどさまざまなもの
+が用意されているが, ユーザが実際に行いたいことを実行させるためには一
+般にはユーザ言語によるプログラムを書く必要がある. ユーザ言語も 
+@b{Asir} と呼ばれる. 以下では, ユーザ言語の文法規則および実際のユー
+ザ言語プログラムを例としたプログラムの書き方について述べる. 
+
+@menu
+* 文法 (C 言語との違い)::
+* ユーザ定義函数の書き方::
+@end menu
+
+
+@node 文法 (C 言語との違い),,, ユーザ言語 Asir
+@section 文法 (C 言語との違い)
+
+@noindent
+@b{Asir} の文法は C 言語に準拠している. 
+おもな相違点は次の通りである. 以下で, 変数とは @b{Asir} における
+プログラム用の変数, すなわち大文字で始まる文字列を意味することとする. 
+
+@itemize @bullet
+@item
+変数の型がない. 
+
+既に説明したとおり, @b{Asir} で扱われる対象自身は全て何らかの型
+を持っている. しかし, プログラム変数自体は, どのような対象でも
+代入できるという意味で型がないのである. 
+
+@example
+[0] A = 1;
+1
+[1] type(A);
+1
+[2] A = [1,2,3];
+[1,2,3]
+[3] type(A);
+4
+@end example
+
+@item
+函数内の変数は, デフォルトでは仮引数をこめてすべて局所変数. 
+ただし, @code{extern} 宣言された変数は, トップレベルにおける大域変数となる. 
+
+すなわち, 変数のスコープは大域変数と局所変数の 2 種類に単純化されている. 
+トップレベル, すなわちプロンプトに対して入力された変数は全て大域変数
+として登録される. また函数内では次のいずれかとなる. 
+
+@enumerate
+@item
+函数が定義されるファイルにおいて, その函数定義以前に, ある
+変数が @code{extern} 宣言されている場合, 函数内のその変数も大域変数
+として扱われる.
+
+@item
+@code{extern} 宣言されていない変数はその函数に局所的となる. 
+@end enumerate
+
+@example
+% cat afo
+def afo() @{ return A;@}
+extern A$
+def bfo() @{ return A;@}
+end$
+% asir
+[0] load("afo")$
+[5] A = 1;
+1
+[6] afo();
+0
+[7] bfo();
+1
+@end example
+
+@item
+プログラム変数は大文字で始まり, 不定元, 函数は小文字で始まる. 
+
+この点は, 既存の数式処理システムのほとんどと異なる点である. @b{Asir}
+がこの仕様を採用したのは, ユーザが不定元のつもりで使用した変数に
+なんらかの値が代入されていた場合に混乱を招く, という, 既存の
+システムにありがちな状況を避けるためである. 
+
+@item
+@code{switch} 文, @code{goto} がない. 
+
+@code{goto} がないため, 多重ループを一度に抜けるのがやや複雑になる場合がある. 
+
+@item
+コンマ式は, @code{for (A;B;C)} または, @code{while(A)} の @code{A}, @code{B}, @code{C} にのみ使うことができる. 
+
+これは, リストを正式なオブジェクトとして加えたことによる. 
+
+@end itemize
+
+@noindent
+以上は制限であるが, 拡張としては次の点が挙げられる. 
+
+@itemize @bullet
+@item
+有理式に対する計算を, 通常の C における計算と同様にできる. 
+
+@item
+リストが扱える. 
+
+構造体を用いるまでもない要素の集合体を, リストで表すことができ, 
+C で直接書く場合に比較してプログラムが短く, 読みやすく書ける. 
+@end itemize
+
+@node ユーザ定義函数の書き方,,, ユーザ言語 Asir
+@section ユーザ定義函数の書き方
+
+@menu
+* ユーザ定義函数::
+* 変数および不定元::
+* 引数::
+* コメント::
+* 文::
+* return 文::
+* if 文::
+* ループ break return continue::
+* さまざまな式::
+* プリプロセッサ::
+@end menu
+
+@node ユーザ定義函数,,, ユーザ定義函数の書き方
+@subsection ユーザ定義函数
+
+@noindent
+ユーザによる函数の定義は @samp{def} 文で行う. 文法エラーは読み込み時に
+ある程度チェックされ, おおよその場所が表示される. 
+既に(引数の個数に関係なく)同名の函数が定義されている場合には, 
+その函数は再定義される. @code{ctrl()} 函数により @code{verbose} フラグ
+が on になっている場合, 
+
+@example
+afo() redefined.
+@end example
+
+@noindent
+というメッセージが表示される. ある函数の定義において, まだ未定義の函数
+を呼び出していても, 定義時にはエラーにならない. 実行時に未定義の函数
+を呼び出そうとした場合にエラーとなる. 
+
+@example
+@tex
+/* $X!$ */
+@end tex
+
+def f(X) @{ 
+    if ( !X )
+        return 1;
+    else 
+        return X * f(X-1);
+@}
+
+@tex
+/* ${_i}C_j ( 0 \le i \le N, 0 \le j \le i )$ */
+@end tex
+
+def c(N)
+@{
+    A = newvect(N+1); A[0] = B = newvect(1); B[0] = 1;
+    for ( K = 1; K <= N; K++ ) @{
+        A[K] = B = newvect(K+1); B[0] = B[K] = 1;
+        for ( P = A[K-1], J = 1; J < K; J++ ) 
+            B[J] = P[J-1]+P[J];
+        @}
+    return A;
+@}
+@end example
+
+@noindent
+2 つ目の例では, 長さ @code{N+1} のベクトル (@code{A}とする) が返される. 
+@code{A[I]} は長さ @code{I+1} の配列であり, そのそれぞれの要素が
+@iftex
+@tex
+${_I}C_J$
+@end tex
+@end iftex
+@ifinfo
+ICJ
+@end ifinfo
+を要素とする配列である. 
+
+@noindent
+以下では, C によるプログラミングの経験がない人のために, @b{Asir} 言語
+によるプログラムの書き方を解説する. 
+
+@node 変数および不定元,,, ユーザ定義函数の書き方
+@subsection 変数および不定元
+
+@noindent
+既に述べた通り, @b{Asir} においてはプログラム変数と不定元を明確に
+区別している. 
+
+@table @b
+@item 変数
+大文字で始まり, アルファベット, 数字, @samp{_} からなる文字列
+
+変数あるいはプログラム変数とは, @b{Asir} のさまざまな型の内部形式を
+格納するための箱であり, 格納された内部形式が, この変数の値である.  変
+数が式の要素として評価される時は, そこに収められた値に置き換えられる. 
+すなわち, 内部形式の中にはプログラム変数は現れない. 変数は全て 0 で
+初期化されている. 
+
+@example
+[0] X^2+X+1;
+1
+[1] X=2;
+2
+[2] X^2+X+1;
+7
+@end example
+
+@item 不定元
+小文字で始まり, アルファベット, 数字, @samp{_} からなる文字列
+
+不定元とは, 多項式環を構成する際に添加される変数をいう. @b{Asir} に
+おいては, 不定元は値をもたない超越的な元であり, 不定元への値の代入は
+許されない. 
+
+@example
+[3] X=x;
+x
+[4] X^2+X+1;
+x^2+x+1
+@end example
+@end table
+
+@node 引数,,, ユーザ定義函数の書き方
+@subsection 引数
+
+@example
+def sum(N) @{
+    for ( I = 1, S = 0; I <= N; I++ )
+        S += I;
+    return S;
+@}
+@end example
+
+@noindent
+これは, 1 から @code{N} までの自然数の和を求める函数 @code{sum()} の
+定義である. この例における @code{sum(N)} の @code{N} が引数である. 
+この例は, 1 引数函数の例であるが, 一般に引数の個数は任意であり, 
+必要なだけの個数を @samp{,} で区切って指定することができる. 引数は
+値が渡される. すなわち, 引数を受けとった側が, その引数の値を変更して
+も, 渡した側の変数は変化しない. ただし, 例外がある. それは, ベクトル, 
+行列を引数に渡した場合である. この場合も, 渡された変数そのものを書き
+替えることは, その函数に局所的な操作であるが, 要素を書き換えた場合, 
+それは, 呼び出し側のベクトル, 行列の要素を書き換えることになる. 
+
+@example
+def clear_vector(M) @{
+    /* M is expected to be a vector */
+    L = size(M)[0];
+    for ( I = 0; I < L; I++ )
+        M[I] = 0;
+@}
+@end example
+
+@noindent
+この函数は, 引数のベクトルを 0 ベクトルに初期化するための函数である. 
+また, ベクトルを引数に渡すことにより, 複数の結果を引数のベクトルに
+収納して返すことができる. 実際には, このような場合には, 結果をリスト
+にして返すこともできる. 状況に応じて使いわけすることが望ましい. 
+
+@node コメント,,, ユーザ定義函数の書き方
+@subsection コメント
+
+@noindent
+C と同様 @samp{/*} と @samp{*/} で囲まれた部分はコメントとして扱われる. 
+
+@example
+/*
+ * This is a comment.
+ */
+
+def afo(X) @{
+@end example
+
+@noindent
+コメントは複数行に渡っても構わないが, 入れ子にすることはできない. 
+@samp{/*} がいくつあっても最初のもののみが有効となり, 最初に現れた 
+@samp{*/} でコメントは終了したと見なされる. プログラムなどで, コメント
+を含む可能性がある部分をコメントアウトした場合には, @code{#if 0},
+@code{#endif}を使えばよい. (@xref{プリプロセッサ})
+
+@example
+#if 0
+def bfo(X) @{
+/* empty */
+@}
+#endif
+@end example
+
+@node 文,,, ユーザ定義函数の書き方
+@subsection 文
+
+@noindent
+@b{Asir} のユーザ函数は, 
+
+@example
+def 名前(引数,引数,...,引数) @{
+    文
+    文
+    ...
+    文
+@}
+@end example
+
+@noindent
+という形で定義される. このように, 文は函数の基本的構成要素であり, プロ
+グラムを書くためには, 文がどのようなものであるか知らなければならない. 
+最も単純な文として, 単文がある. これは, 
+
+@example
+S = sum(N);
+@end example
+
+@noindent
+のように, 式に終端記号 (@samp{;} または @samp{$}) をつけたものである. 
+この単文及び類似の @code{return} 文, @code{break} 文などが文の最小構成
+単位となる. @code{if} 文や @code{for} 文の定義 (@xref{文法の詳細}) を見れ
+ばわかる通り, それらの本体は, 単なる一つの文として定義されている. 通常
+は, 本体には複数の文が書けることが必要となる.  このような場合,
+@samp{@{} と @samp{@}} で文の並びを括って, 一つの文として扱うことがで
+きる. これを複文と呼ぶ.
+
+@example
+if ( I == 0 ) @{
+    J = 1;
+    K = 2;
+    L = 3;
+@}
+@end example
+
+@noindent
+@samp{@}} の後ろには終端記号は必要ない. なぜなら, @samp{@{} 文並び 
+@samp{@}}が既に文となっていて, @code{if} 文の要請を満たしているからで
+ある. 
+
+@node return 文,,, ユーザ定義函数の書き方
+@subsection @code{return} 文
+
+@noindent
+@code{return} 文は, 
+
+@example
+return 式;
+
+return;
+@end example
+
+@noindent
+の 2 つの形式がある. いずれも函数から抜けるための文である. 前者は
+函数の値として 式 を返す. 後者では, 函数の値として何が返されるか
+はわからない. 
+
+@node if 文,,, ユーザ定義函数の書き方
+@subsection @code{if} 文
+
+@noindent
+@code{if} 文には
+
+@example
+if ( 式 )             if ( 式 )
+    文       及び         文
+else
+    文
+@end example
+
+@noindent
+の 2 種類がある. これらの動作は明らかであるが, 文の位置に @code{if} 文
+が来た場合に注意を要する. 次の例を考えてみよう. 
+
+@example
+if ( 式 )
+    if ( 式 ) 文
+else
+    文
+@end example
+
+@noindent
+この場合, 字下げからは, @code{else} 以下は, 最初の @code{if} に対応する
+ように見えるが, パーザは, 自動的に 2 番目の @code{if} に対応すると判断する. 
+すなわち, 2 種類の @code{if} 文を許したために, 文法に曖昧性が現れ, それを
+解消するために, @code{else} 以下は, 最も近い @code{if} に対応すると
+いう規則が適用されるのである. 従って, この例は, 
+
+@example
+if ( 式 ) @{
+    if ( 式 ) 文 else 文
+@}
+@end example
+
+@noindent
+という意味となる. 字下げに対応させるためには, 
+
+@example
+if ( 式 ) @{
+    if ( 式 ) 文
+@} else
+    文
+@end example
+
+@noindent
+としなければならない. 
+
+@node ループ break return continue,,, ユーザ定義函数の書き方
+@subsection ループ, @code{break}, @code{return}, @code{continue}
+
+@noindent
+ループを構成する文は, @code{while} 文, @code{for} 文, @code{do} 文
+の 3 種類がある. 
+
+@itemize @bullet
+@item
+@code{while} 文
+
+形式は, 
+
+@example
+while ( 式 ) 文
+@end example
+
+@noindent
+で, これは, 式 を評価して, その値が 0 でない限り 文 を実行するという
+意味となる. たとえば 式 が 1 ならば, 単純な無限ループとなる. 
+
+@item
+@code{for} 文
+
+形式は, 
+
+@example
+for ( 式並び-1; 式; 式並び-2 ) 文
+@end example
+
+で, これは
+
+@example
+式並び-1 (を単文並びにしたもの)
+while ( 式 ) @{
+    文
+    式並び-2 (を単文並びにしたもの)
+@}
+@end example
+
+と等価である. 
+   
+@item
+@code{do} 文
+
+@example
+do @{
+    文
+@} while ( 式 )
+@end example
+
+は, 先に 文を実行してから条件式による判定を行う所が @code{while} 文
+と異なっている. 
+@end itemize
+
+@noindent
+ループを抜け出す手段として, 
+@code{break} 文及び @code{return} 文がある. また, ループの制御を
+ある位置に移す手段として @code{continue} 文がある. 
+
+@itemize @bullet
+
+@item
+@code{break}
+
+@code{break} 文は, それを囲むループを一つだけ抜ける. 
+
+@item
+@code{return}
+
+@code{return} 文は, 一般に函数から抜けるための文であり, 
+ループの中からでも有効である. 
+
+@item
+@code{continue}
+
+@code{continue} 文は, ループの本体の文の末端に制御を移す. 
+例えば @code{for} 文では, 最後の式並びの実行を行い, @code{while}
+文では条件式の判定に移る. 
+@end itemize
+
+@node さまざまな式,,, ユーザ定義函数の書き方
+@subsection さまざまな式
+
+@noindent
+主な式の構成要素としては, 次のようなものがある. 
+
+@itemize @bullet
+@item
+加減乗除, 冪
+
+冪は, @samp{^} により表す. 除算 @samp{/} は, 体としての演算に用いる. 
+例えば, @code{2/3} は有理数の @code{2/3} を表す. 
+整数除算, 多項式除算 (剰余を含む演算) には別途組み込み函数が用意されている. 
+
+@example
+x+1  A^2*B*afo X/3 
+@end example
+
+@item
+インデックスつきの変数
+
+ベクトル, 行列, リストの要素はインデックスを用いることにより取り出せる. 
+インデックスは 0 から始まることに注意する. 取り出した要素がベクトル, 
+行列, リストなら, さらにインデックスをつけることも有効である. 
+
+@example
+V[0] M[1][2]
+@end example
+
+@item
+比較演算
+
+等しい (@samp{==}), 等しくない (@samp{!=}), 大小 (@samp{>}, @samp{<}, 
+@samp{>=}, @samp{<=}) の 2 項演算がある. 真ならば有理数の 1, 偽ならば
+0 を値に持つ. 
+
+@item
+論理式
+
+論理積 (@samp{&&}), 論理和 (@samp{||}) の 2 項演算と, 否定 (@samp{!})
+が用意されている. 値はやはり 1, 0 である. 
+
+@item
+代入
+
+通常の代入は @samp{=} で行う. このほか, 算術演算子と組み合わせて
+特殊な代入を行うこともできる. 
+(@samp{+=}, @samp{-=}, @samp{*=}, @samp{/=}, @samp{^=})
+
+@example
+A = 2  A *= 3 (これは A = A*3 と同じ; その他の演算子も同様)
+@end example
+@item
+函数呼び出し
+
+函数呼び出しも式の一種である. 
+
+@item
+@samp{++}, @samp{--}
+
+これらは, 変数の前後について, それぞれ次のような操作, 値を表す. 
+
+@example
+A++  値は元の A の値, A = A+1
+A--  値は元の A の値, A = A-1
+++A  A = A+1, 値は変化後の値
+--A  A = A-1, 値は変化後の値
+@end example
+
+@end itemize
+
+@node プリプロセッサ,,, ユーザ定義函数の書き方
+@subsection プリプロセッサ
+
+@noindent
+@b{Asir} のユーザ言語は C 言語を模したものである. C の特徴として, 
+プリプロセッサ @code{cpp} によるマクロ展開, ファイルのインクルード
+があるが, @b{Asir} においてもユーザ言語ファイルの読み込みの際
+@code{cpp} を通してから読み込むこととした. これによりユーザ言語
+ファイル中で @code{#include}, @code{#define}, @code{#if} などが使える. 
+
+@itemize @bullet
+@item
+@code{#include}
+
+@code{cpp} に特に引数を渡さないため, インクルードファイルは, 
+@code{#include} が書かれているファイルと同じディレクトリでサーチされる. 
+
+@item
+@code{#define}
+
+これは, C におけるのと全く同様に用いることができる. 
+
+@item
+@code{#if}
+
+@code{/*}, @code{*/} によるコメントは入れ子にできないので, プログラム
+の大きな部分をコメントアウトする際に, @code{#if 0}, @code{#endif}
+を使うと便利である. 
+@end itemize
+
+@noindent
+次の例は, @samp{defs.h} にあるマクロ定義である. 
+
+@example
+#define ZERO 0
+#define NUM 1
+#define POLY 2
+#define RAT 3
+#define LIST 4 
+#define VECT 5
+#define MAT 6
+#define STR 7
+#define N_Q 0
+#define N_R 1
+#define N_A 2
+#define N_B 3
+#define N_C 4
+#define V_IND 0
+#define V_UC 1
+#define V_PF 2
+#define V_SR 3
+#define isnum(a) (type(a)==NUM)
+#define ispoly(a) (type(a)==POLY)
+#define israt(a) (type(a)==RAT)
+#define islist(a) (type(a)==LIST)
+#define isvect(a) (type(a)==VECT)
+#define ismat(a) (type(a)==MAT)
+#define isstr(a) (type(a)==STR)
+#define FIRST(L) (car(L))
+#define SECOND(L) (car(cdr(L)))
+#define THIRD(L) (car(cdr(cdr(L))))
+#define FOURTH(L) (car(cdr(cdr(cdr(L)))))
+#define DEG(a) deg(a,var(a))
+#define LCOEF(a) coef(a,deg(a,var(a)))
+#define LTERM(a) coef(a,deg(a,var(a)))*var(a)^deg(a,var(a))
+#define TT(a) car(car(a))
+#define TS(a) car(cdr(car(a)))
+#define MAX(a,b) ((a)>(b)?(a):(b))
+@end example
+

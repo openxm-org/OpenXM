@@ -1,0 +1,825 @@
+@node 代数的数に関する演算,,, Top
+@chapter 代数的数に関する演算
+
+@menu
+* 代数的数の表現::
+* 代数的数の演算::
+* 代数体上での 1 変数多項式の演算::
+* 代数的数に関する函数のまとめ::
+@end menu
+
+@node 代数的数の表現,,, 代数的数に関する演算
+@section 代数的数の表現
+
+@noindent
+@b{Asir} においては, 代数体という対象は定義されない. 
+独立した対象として定義されるのは, 代数的数である. 
+代数体は, 有理数体に, 代数的数を有限個
+順次添加した体として仮想的に定義される. 新たな代数的数は, 有理数および
+これまで定義された代数的数の多項式を係数とする 1 変数多項式
+を定義多項式として定義される. 以下, ある定義多項式の根として
+定義された代数的数を, @code{root} と呼ぶことにする. 
+
+@example
+[0] A0=newalg(x^2+1);
+(#0)
+[1] A1=newalg(x^3+A0*x+A0);
+(#1)
+[2]  [type(A0),ntype(A0)];
+[1,2]
+@end example
+
+@noindent
+この例では, @code{A0} は @code{x^2+1=0} の根, @code{A1} は, その @code{A0}
+を係数に含む @code{x^3+A0*x+A0=0} の根として定義されている. 
+
+@noindent
+@code{newalg()} の引数すなわち定義多項式には次のような制限がある. 
+
+@enumerate
+@item
+定義多項式は 1 変数多項式でなければならない. 
+
+
+@item
+@code{newalg()} の引数である定義多項式は, 代数的数を含む式の簡単化のた
+めに用いられる. この簡単化は, 組み込み函数 @code{srem()} に相当する内
+部ルーチンを用いて行われる. このため, 定義多項式の主係数は, 有理数に
+なっている必要がある.
+
+@item
+定義多項式の係数は すでに定義されている @code{root} の有理数係数多項式
+でなければならない. 
+
+@item
+定義多項式は, その係数に含まれる全ての @code{root} を有理数に添加した
+体上で既約でなければならない. 
+@end enumerate
+
+@noindent
+@code{newalg()} が行う引数チェックは, 1 および 2 のみである. 
+特に, 引数の定義多項式の既約性は全くチェックされない. これは
+既約性のチェックが多大な計算量を必要とするためで, この点に関しては, 
+ユーザの責任に任されている. 
+
+@noindent
+一旦 @code{newalg()} によって定義された代数的数は, 数としての識別子を持ち, 
+また, 数の中では代数的数としての識別子を持つ. (@code{type()}, @code{vtype()}
+参照.) さらに, 有理数と, @code{root} の有理式も同様に代数的数となる. 
+
+@example
+[87] N=(A0^2+A1)/(A1^2-A0-1);
+((#1+#0^2)/(#1^2-#0-1))
+[88] [type(N),ntype(N)];     
+[1,2]
+@end example
+
+@noindent
+例からわかるように, @code{root}は @code{#@var{n}}
+と表示される. しかし, ユーザはこの形では入力できない. @code{root} は
+変数に格納して用いるか, あるいは @code{alg(@var{n})} により取り出す. 
+また, 効率は落ちるが, 全く同じ引数 (変数は異なっていてもよい) により
+@code{newalg()} を呼べば, 新しい代数的数は定義されずに既に定義された
+ものが得られる. 
+
+@example
+[90] alg(0);
+(#0)
+[91] newalg(t^2+1);
+(#0)
+@end example
+
+@noindent
+@code{root} の定義多項式は, @code{defpoly()} により取り出せる. 
+
+@example
+[96] defpoly(A0);     
+t#0^2+1
+[97] defpoly(A1);
+t#1^3+t#0*t#1+t#0
+@end example
+
+@noindent
+ここで現れた, @code{t#0}, @code{t#1} はそれぞれ @code{#0}, @code{#1} に
+対応する不定元である. これらもユーザが入力することはできない. 
+@code{var()} で取り出すか, あるいは @code{algv(@var{n})} により取り出す. 
+
+@example
+[98] var(@@);
+t#1
+[99] algv(0);
+t#0
+[100] 
+@end example
+
+@node 代数的数の演算,,, 代数的数に関する演算
+@section 代数的数の演算
+
+@noindent
+前節で, 代数的数の表現, 定義について述べた. ここでは, 代数的数を用いた
+演算について述べる. 代数的数に関しては, 組み込み函数として提供されている
+機能はごく少数で, 大部分はユーザ定義函数により実現されている. ファイル
+は, @samp{sp} で, @samp{gr} と同様 @b{Asir} の標準ライブラリディレクトリ
+におかれている. 
+
+@example
+[0] load("gr")$
+[1] load("sp")$
+@end example
+
+@noindent
+あるいは, 常に用いるならば, @samp{$HOME/.asirrc} に書いておくのもよい. 
+
+@noindent
+@code{root} は その他の数と同様, 四則演算が可能となる. しかし, 定義多
+項式による簡単化は自動的には行われないので, ユーザの判断で適宜行わ
+なければならない. 特に, 分母が 0 になる場合に致命的なエラーとなるため, 
+実際に分母を持つ代数的数を生成する場合には細心の注意が必要となる.
+
+@noindent
+代数的数の, 定義多項式による簡単化は, @code{simpalg()} で行う. 
+
+@example
+[49] T=A0^2+1;
+(#0^2+1)
+[50] simpalg(T);
+0
+@end example
+
+@noindent
+@code{simpalg()} は有理式の形をした代数的数を, 多項式の形に簡単化する. 
+
+@example
+[39] A0=newalg(x^2+1);      
+(#0)
+[40] T=(A0^2+A0+1)/(A0+3);
+((#0^2+#0+1)/(#0+3))
+[41] simpalg(T);
+(3/10*#0+1/10)
+[42] T=1/(A0^2+1);
+((1)/(#0^2+1))
+[43] simpalg(T);
+div : division by 0
+stopped in invalgp at line 258 in file "/usr/local/lib/asir/sp"
+258                     return 1/A;
+(debug) 
+@end example
+
+@noindent
+この例では, 分母が 0 の代数的数を簡単化しようとして 0 による除算が生じ
+たため, ユーザ定義函数である @code{simpalg()} の中でデバッガが呼ばれた
+ことを示す. @code{simpalg()} は, 代数的数を係数とする多項式の
+各係数を簡単化できる. 
+
+@example
+[43] simpalg(1/A0*x+1/(A0+1));
+(-#0)*x+(-1/2*#0+1/2)
+@end example
+
+@noindent
+代数的数を係数とする多項式の基本演算は, 適宜 @code{simpalg()} を呼ぶことを
+除けば通常の場合と同様であるが, 因数分解などで頻繁に用いられるノルムの
+計算などにおいては, @code{root} を不定元に置き換える必要が出てくる. 
+この場合, @code{algptorat()} を用いる. 
+
+@example
+[83] A0=newalg(x^2+1);
+(#0)
+[84] A1=newalg(x^3+A0*x+A0);
+(#1)
+[85] T=(2*A0+A1*A0+A1^2)*x+(1+A1)/(2+A0);
+(#1^2+#0*#1+2*#0)*x+((#1+1)/(#0+2))
+[86] S=algptorat(T);
+(((t#0+2)*t#1^2+(t#0^2+2*t#0)*t#1+2*t#0^2+4*t#0)*x+t#1+1)/(t#0+2)
+[87] algptorat(coef(T,1));
+t#1^2+t#0*t#1+2*t#0
+@end example
+
+@noindent
+このように, @code{algptorat()} は, 多項式, 数に含まれる @code{root}
+を, 対応する不定元, すなわち @code{#@var{n}} に対する @code{t#@var{n}}
+に置き換える. 既に述べたように, この不定元はユーザが入力することはできない. 
+これは, ユーザの入力した不定元と, @code{root} に対応する不定元が一致
+しないようにするためである. 
+
+@noindent
+逆に, @code{root} に対応する不定元を, 対応する @code{root} に置き換える
+ためには @code{rattoalgp()} を用いる. 
+
+@example
+[88] rattoalgp(S,[alg(0)]);
+(((#0+2)/(#0+2))*t#1^2+((#0^2+2*#0)/(#0+2))*t#1+((2*#0^2+4*#0)/(#0+2)))*x
++((1)/(#0+2))*t#1+((1)/(#0+2))
+[89] rattoalgp(S,[alg(0),alg(1)]);
+(((#0^3+6*#0^2+12*#0+8)*#1^2+(#0^4+6*#0^3+12*#0^2+8*#0)*#1+2*#0^4+12*#0^3
++24*#0^2+16*#0)/(#0^3+6*#0^2+12*#0+8))*x+(((#0+2)*#1+#0+2)/(#0^2+4*#0+4))
+[90] rattoalgp(S,[alg(1),alg(0)]);
+(((#0+2)*#1^2+(#0^2+2*#0)*#1+2*#0^2+4*#0)/(#0+2))*x+((#1+1)/(#0+2))
+[91] simpalg(@@89);
+(#1^2+#0*#1+2*#0)*x+((-1/5*#0+2/5)*#1-1/5*#0+2/5)
+[92] simpalg(@@90);
+(#1^2+#0*#1+2*#0)*x+((-1/5*#0+2/5)*#1-1/5*#0+2/5)
+@end example
+
+@noindent
+@code{rattoalgp()} は, 置換の対象となる @code{root} のリストを第 2 引数
+にとり, 左から順に, 対応する不定元を置き換えて行く. この例は, 
+置換する順序を換えると簡単化を行わないことにより結果が一見異なるが, 
+簡単化により実は一致することを示している. @code{algptorat()}, 
+@code{rattoalgp()} は, ユーザが独自の簡単化を行いたい場合などにも
+用いることができる. 
+
+@node 代数体上での 1 変数多項式の演算,,, 代数的数に関する演算
+@section 代数体上での 1 変数多項式の演算
+
+@noindent
+@samp{sp} では, 1 変数多項式に限り, GCD, 因数分解およびそれらの応用として
+最小分解体を求める函数を提供している. 
+
+@menu
+* GCD::
+* 無平方分解 因数分解::
+* 最小分解体::
+@end menu
+
+@node GCD,,, 代数体上での 1 変数多項式の演算
+@subsection GCD
+
+@noindent
+代数体上での GCD は @code{gcda()} により計算される. 
+この函数はモジュラ演算および中国剰余定理により代数体上の GCD を
+計算するもので, 逐次拡大に対しても有効である. 
+
+@example
+[63] A=newalg(t^9-15*t^6-87*t^3-125);
+(#0)
+[64] B=newalg(75*s^2+(10*A^7-175*A^4-470*A)*s+3*A^8-45*A^5-261*A^2);
+(#1)
+[65] P1=75*x^2+(150*B+10*A^7-175*A^4-395*A)*x+(75*B^2+(10*A^7-175*A^4-395*A)*B
++13*A^8-220*A^5-581*A^2)$
+[66] P2=x^2+A*x+A^2$
+[67] gcda(P1,P2,[B,A]);
+27*x+((#0^6-19*#0^3-65)*#1-#0^7+19*#0^4+38*#0)
+@end example
+
+@node 無平方分解 因数分解,,, 代数体上での 1 変数多項式の演算
+@subsection 無平方分解, 因数分解
+
+@noindent
+無平方分解は, 多項式とその微分との GCD の計算から始まるもっとも一般的な
+アルゴリズムを採用している. 函数は @code{asq()} である. 
+
+@example
+[116] A=newalg(x^2+x+1);                           
+(#4)
+[117] T=simpalg((x+A+1)*(x^2-2*A-3)^2*(x^3-x-A)^2);
+x^11+(#4+1)*x^10+(-4*#4-8)*x^9+(-10*#4-4)*x^8+(16*#4+20)*x^7+(24*#4-6)*x^6
++(-29*#4-31)*x^5+(-15*#4+28)*x^4+(38*#4+29)*x^3+(#4-23)*x^2+(-21*#4-7)*x
++(3*#4+8)
+[118] asq(T);
+[[x^5+(-2*#4-4)*x^3+(-#4)*x^2+(2*#4+3)*x+(#4-2),2],[x+(#4+1),1]]
+@end example
+
+@noindent
+結果は通常と同様に, [@b{因子}, @b{重複度}] のリストとなるが, 全ての因子
+の積は, もとの多項式と定数倍の差はあり得る. これは, 因子を整数係数にし
+て見やすくするためで, 因数分解でも同様である.
+
+@noindent
+代数体上での因数分解は, Trager によるノルム法を改良したもので, 特に
+ある多項式に対し, その根を添加した体上でその多項式自身を因数分解する
+場合に特に有効である. 
+
+@example
+[119] af(T,[A]);
+[[x^3-x+(-#4),2],[x^2+(-2*#4-3),2],[x+(#4+1),1]]
+@end example
+
+@noindent
+引数は 2 つで, 第 2 引数は, @code{root} のリストである. 因数分解は
+有理数体に, それらの @code{root} を添加した体上で行われる. 
+@code{root} の順序には制限がある. すなわち, 後で定義されたものほど
+前の方にこなければ
+ならない. 並べ換えは, 自動的には行われない. ユーザの責任となる. 
+
+@noindent
+ノルムを用いた因数分解においては, ノルムの計算と整数係数 1 変数多項式の
+因数分解の効率が, 全体の効率を左右する. このうち, 特に高次の多項式
+の場合に後者において組合せ爆発により計算不能になる場合がしばしば生ずる. 
+
+@example
+[120] B=newalg(x^2-2*A-3);
+(#5)
+[121] af(T,[B,A]);
+[[x+(#5),2],[x^3-x+(-#4),2],[x+(-#5),2],[x+(#4+1),1]]
+@end example
+
+@node 最小分解体,,, 代数体上での 1 変数多項式の演算
+@subsection 最小分解体
+
+@noindent
+やや特殊な演算ではあるが, 前節の因数分解を反復適用することにより, 
+多項式の最小分解体を求めることができる. 函数は @code{sp()} である. 
+
+@example
+[103] sp(x^5-2);
+[[x+(-#1),2*x+(#0^3*#1^3+#0^4*#1^2+2*#1+2*#0),2*x+(-#0^4*#1^2),2*x
++(-#0^3*#1^3),x+(-#0)],[[(#1),t#1^4+t#0*t#1^3+t#0^2*t#1^2+t#0^3*t#1+t#0^4],
+[(#0),t#0^5-2]]]
+@end example
+
+@noindent
+@code{sp()} は 1 引数で, 結果は @code{[1 次因子のリスト, [[root,
+algptorat(定義多項式)] のリスト]} なるリストである. 
+第 2 要素の @code{[root,algptorat(定義多項式)]} のリストは, 
+右から順に, 最小分解体が得られるまで添加していった @code{root} を示す. 
+その定義多項式は, その直前までの @code{root} を添加した体上で既約であること
+が保証されている. 
+
+@noindent
+結果の第 1 要素である 1 次因子のリストは, 第 2 要素の @code{root} を全て
+添加した体上での, @code{sp()} の引数の多項式の全ての因子を表す. その体は
+最小分解体となっているので, 因子は全て 1 次となるわけである. @code{af()}
+と同様, 全ての因子の積は, もとの多項式と定数倍の差はあり得る. 
+
+
+@node 代数的数に関する函数のまとめ,,, 代数的数に関する演算
+@section 代数的数に関する函数のまとめ
+
+@menu
+* newalg::
+* defpoly::
+* alg::
+* algv::
+* simpalg::
+* algptorat::
+* rattoalgp::
+* gcda::
+* sp_norm::
+* asq af::
+* sp::
+@end menu
+
+@node newalg,,, 代数的数に関する函数のまとめ
+@subsection @code{newalg}
+@findex newalg
+
+@table @t
+@item newalg(@var{defpoly})
+:: @code{root} を生成する. 
+@end table
+
+@table @var
+@item return
+代数的数 (@code{root})
+@item defpoly
+多項式
+@end table
+
+@itemize @bullet
+@item
+@var{defpoly} を定義多項式とする代数的数 (@code{root}) を生成する. 
+@item
+@var{defpoly} に対する制限に関しては, @xref{代数的数の表現}.
+@end itemize
+
+@example
+[0] A0=newalg(x^2-2);
+(#0)
+@end example
+
+@table @t
+@item 参照
+@fref{defpoly}
+@end table
+
+@node defpoly,,, 代数的数に関する函数のまとめ
+@subsection @code{defpoly}
+@findex defpoly
+
+@table @t
+@item defpoly(@var{alg})
+:: @code{root} の定義多項式を返す. 
+@end table
+
+@table @var
+@item return
+多項式
+@item alg
+代数的数 (@code{root})
+@end table
+
+@itemize @bullet
+@item
+@code{root} @var{alg} の定義多項式を返す. 
+@item
+@code{root} を @code{#@var{n}} とすれば, 定義多項式の主変数は
+@code{t#@var{n}} となる. 
+@end itemize
+
+@example
+[1] defpoly(A0);
+t#0^2-2
+@end example
+
+@table @t
+@item 参照
+@fref{newalg}, @fref{alg}, @fref{algv}
+@end table
+
+@node alg,,, 代数的数に関する函数のまとめ
+@subsection @code{alg}
+@findex alg
+
+@table @t
+@item alg(@var{i})
+:: インデックスに対応する @code{root} を返す. 
+@end table
+
+@table @var
+@item return
+代数的数 (@code{root})
+@item i
+整数
+@end table
+
+@itemize @bullet
+@item
+@code{root} @code{#@var{i}} を返す. 
+@item
+@code{#@var{i}} はユーザが直接入力できないため, @code{alg(@var{i})} と
+いう形で入力する. 
+@end itemize
+
+@example
+[2] x+#0;
+syntax error
+0
+[3] alg(0);
+(#0)
+@end example
+
+@table @t
+@item 参照
+@fref{newalg}, @fref{algv}
+@end table
+
+@node algv,,, 代数的数に関する函数のまとめ
+@subsection @code{algv}
+@findex algv
+
+@table @t
+@item algv(@var{i})
+:: @code{alg(@var{i})} に対応する不定元を返す. 
+@end table
+
+@table @var
+@item return
+多項式
+@item i
+整数
+@end table
+
+@itemize @bullet
+@item
+多項式 @code{t#@var{i}} を返す. 
+@item
+@code{t#@var{i}} はユーザが直接入力できないため, @code{algv(@var{i})} と
+いう形で入力する. 
+@end itemize
+
+@example
+[4] var(defpoly(A0));
+t#0
+[5] t#0;
+syntax error
+0
+[6] algv(0);
+t#0
+@end example
+
+@table @t
+@item 参照
+@fref{newalg}, @fref{defpoly}, @fref{alg}
+@end table
+
+@node simpalg,,, 代数的数に関する函数のまとめ
+@subsection @code{simpalg}
+@findex simpalg
+
+@table @t
+@item simpalg(@var{rat})
+:: 有理式に含まれる代数的数を簡単化する. 
+@end table
+
+@table @var
+@item return
+有理式
+@item rat
+有理式
+@end table
+
+@itemize @bullet
+@item
+@samp{sp} で定義されている. 
+@item
+数, 多項式, 有理式に含まれる代数的数を, 含まれる @code{root} の定義
+多項式により簡単化する. 
+@item
+数の場合, 分母があれば有理化され, 結果は @code{root} の多項式となる. 
+@item
+多項式の場合, 各係数が簡単化される. 
+@item
+有理式の場合, 分母分子が多項式として簡単化される. 
+@end itemize
+
+@example
+[7] simpalg((1+A0)/(1-A0));
+simpalg undefined
+return to toplevel
+[7] load("sp")$
+[46] simpalg((1+A0)/(1-A0));
+(-2*#0-3)
+[47] simpalg((2-A0)/(2+A0)*x^2-1/(3+A0));
+(-2*#0+3)*x^2+(1/7*#0-3/7)
+[48] simpalg((x+1/(A0-1))/(x-1/(A0+1))); 
+(x+(#0+1))/(x+(-#0+1))
+@end example
+
+@node algptorat,,, 代数的数に関する函数のまとめ
+@subsection @code{algptorat}
+@findex algptorat
+
+@table @t
+@item algptorat(@var{poly})
+:: 多項式に含まれる @code{root} を, 対応する不定元に置き換える. 
+@end table
+
+@table @var
+@item return
+多項式
+@item poly
+多項式
+@end table
+
+@itemize @bullet
+@item
+@samp{sp} で定義されている. 
+@item
+多項式に含まれる @code{root} @code{#@var{n}} を全て @code{t#@var{n}} に
+置き換える. 
+@end itemize
+
+@example
+[49] algptorat((-2*alg(0)+3)*x^2+(1/7*alg(0)-3/7));
+(-2*t#0+3)*x^2+1/7*t#0-3/7
+@end example
+
+@table @t
+@item 参照
+@fref{defpoly}, @fref{algv}
+@end table
+
+@node rattoalgp,,, 代数的数に関する函数のまとめ
+@subsection @code{rattoalgp}
+@findex rattoalgp
+
+@table @t
+@item rattoalgp(@var{poly},@var{alglist})
+:: 多項式に含まれる @code{root} に対応する不定元を @code{root} に
+置き換える. 
+@end table
+
+@table @var
+@item return
+多項式
+@item poly
+多項式
+@item alglist
+リスト
+@end table
+
+@itemize @bullet
+@item
+@samp{sp} で定義されている. 
+@item
+第 2 引数は @code{root} のリストである. @code{rattoalgp()} は, この @code{root}
+に対応する不定元を, それぞれ @code{root} に置き換える. 
+@end itemize
+
+@example
+[51] rattoalgp((-2*algv(0)+3)*x^2+(1/7*algv(0)-3/7),[alg(0)]);
+(-2*#0+3)*x^2+(1/7*#0-3/7)
+@end example
+
+@table @t
+@item 参照
+@fref{alg}, @fref{algv}
+@end table
+
+@node gcda,,, 代数的数に関する函数のまとめ
+@subsection @code{gcda}
+@findex gcda
+
+@table @t
+@item gcda(@var{poly1},@var{poly2},@var{alist})
+:: 代数体上の 1 変数多項式の GCD
+@end table
+
+@table @var
+@item return
+多項式
+@item poly1, poly2
+多項式
+@item alist
+リスト
+@end table
+
+@itemize @bullet
+@item
+@samp{sp} で定義されている. 
+@item
+2 つの 1 変数多項式の GCD を求める. 
+@item
+@var{alist} は入力に現れる @code{root} および, それらの定義に含まれる
+@code{root} を再帰的に取り出して並べたリスト. @var{a} が @var{b} の
+定義に含まれている場合, @var{a} は @var{b} より後 (右) に並ばなければ
+ならない. 
+@end itemize
+
+@example
+[76] X=x^6+3*x^5+6*x^4+x^3-3*x^2+12*x+16$
+[77] Y=x^6+6*x^5+24*x^4+8*x^3-48*x^2+384*x+1024$
+[78] A=newalg(X);
+(#0)
+[79] gcda(X,subst(Y,x,x+A),[A]);
+x+(-#0)
+@end example
+
+@table @t
+@item 参照
+@fref{gr hgr gr_mod}, @fref{asq af}
+@end table
+
+@node sp_norm,,, 代数的数に関する函数のまとめ
+@subsection @code{sp_norm}
+@findex sp_norm
+
+@table @t
+@item sp_norm(@var{alg},@var{var},@var{poly},@var{alglist})
+:: 代数体上でのノルムの計算
+@end table
+
+@table @var
+@item return
+多項式
+@item var
+@var{poly} の主変数
+@item poly
+1 変数多項式
+@item alg
+@code{root}
+@item alglist
+@code{root} のリスト
+@end table
+
+@itemize @bullet
+@item
+@samp{sp} で定義されている. 
+@item
+@var{poly} の, @var{alg} に関するノルムをとる. すなわち, 
+@b{K} = @b{Q}(@var{alglist} \ @{@var{alg}@}) とするとき, 
+@var{poly} に現れる @var{alg} を, @var{alg} の @b{K} 上の共役に置き換えたもの
+全ての積を返す. 
+@item
+結果は @b{K} 上の多項式となる. 
+@item
+実際には入力により場合わけが行われ, 終結式の直接計算や中国剰余定理に
+より計算されるが, 最適な選択が行われているとは限らない. 
+大域変数 @code{USE_RES} を 1 に設定することにより, 常に終結式により計算
+させることができる. 
+@end itemize
+
+@example
+[0] load("sp")$
+[39] A0=newalg(x^2+1)$                 
+[40] A1=newalg(x^2+A0)$
+[41] sp_norm(A1,x,x^3+A0*x+A1,[A1,A0]);
+x^6+(2*#0)*x^4+(#0^2)*x^2+(#0)
+[42] sp_norm(A0,x,@@@@,[A0]);            
+x^12+2*x^8+5*x^4+1
+@end example
+
+@table @t
+@item 参照
+@fref{res}, @fref{asq af}
+@end table
+
+@node asq af,,, 代数的数に関する函数のまとめ
+@subsection @code{asq}, @code{af}
+@findex asq
+@findex af
+
+@table @t
+@item asq(@var{poly})
+:: 代数体上の 1 変数多項式の無平方分解
+@item af(@var{poly},@var{alglist})
+:: 代数体上の 1 変数多項式の因数分解
+@end table
+
+@table @var
+@item return
+リスト
+@item poly
+多項式
+@item alglist
+@code{root} のリスト
+@end table
+
+@itemize @bullet
+@item
+いずれも @samp{sp} で定義されている.
+@item
+@code{root} を含まない場合は整数上の函数が呼び出され高速であるが, 
+@code{root} を含む場合には, @code{gcda()} が起動されるためしばしば
+時間がかかる. 
+@item
+@code{af()} は, 基礎体の指定, すなわち第 2 引数の, @code{root} のリスト
+の指定が必要である. 
+@item
+@code{alglist} で指定される @code{root} は, 後で定義されたものほど前の
+方に来なければならない. 
+@item
+結果は, 通常の無平方分解, 因数分解と同様 [@b{因子}, @b{重複度}] のリストである. 
+@item
+重複度を込めた因子の全ての積は, @var{poly} と定数倍の違いがあり得る. 
+@end itemize
+
+@example
+[99] asq(-x^4+6*x^3+(2*alg(0)-9)*x^2+(-6*alg(0))*x-2);
+[[-x^2+3*x+(#0),2]]
+[100] af(-x^2+3*x+alg(0),[alg(0)]);
+[[x+(#0-1),1],[-x+(#0+2),1]]
+@end example
+
+@table @t
+@item 参照
+@fref{gcda}, @fref{fctr sqfr}
+@end table
+
+@node sp,,, 代数的数に関する函数のまとめ
+@subsection @code{sp}
+@findex sp
+
+@table @t
+@item sp(@var{poly})
+:: 最小分解体を求める. 
+@end table
+
+@table @var
+@item return
+リスト
+@item poly
+多項式
+@end table
+
+@itemize @bullet
+@item
+@samp{sp} で定義されている.
+@item
+有理数係数の 1 変数多項式 @var{poly} の最小分解体, およびその体上での
+@var{poly} の 1 次因子への分解を求める. 
+@item
+結果は, @var{poly} の因子のリストと, 最小分解体の, 逐次拡大による表現
+からなるリストである. 
+@item
+最小分解体は, @code{[root,algptorat(defpoly(root))]} のリストとして
+表現されている. すなわち, 求める最小分解体は, 有理数体に, この @code{root}
+を全て添加した体として得られる. 添加は, 右の方の @code{root} から順に
+行われる. 
+@item
+@code{sp()} は, 内部でノルムの計算のために @code{sp_norm()} をしばしば
+起動する. ノルムの計算は, 状況に応じてさまざまな方法で行われるが, 
+そこで用いられる方法が最善とは限らず, 単純な終結式の計算の方が高速
+である場合もある. 
+大域変数 @code{USE_RES} を 1 に設定することにより, 常に終結式により計算
+させることができる. 
+@end itemize
+
+@example
+[101] L=sp(x^9-54);
+[[x+(-#2),-54*x+(#1^6*#2^4),54*x+(#1^6*#2^4+54*#2),54*x+(-#1^8*#2^2),
+-54*x+(#1^5*#2^5),54*x+(#1^5*#2^5+#1^8*#2^2),-54*x+(-#1^7*#2^3-54*#1),
+54*x+(-#1^7*#2^3),x+(-#1)],[[(#2),t#2^6+t#1^3*t#2^3+t#1^6],[(#1),t#1^9-54]]]
+[102] for(I=0,M=1;I<9;I++)M*=L[0][I];
+[111] M=simpalg(M);
+-1338925209984*x^9+72301961339136
+[112] ptozp(M);
+-x^9+54
+@end example
+
+@table @t
+@item 参照
+@fref{asq af}, @fref{defpoly}, @fref{algptorat}, @fref{sp_norm}.
+@end table
+

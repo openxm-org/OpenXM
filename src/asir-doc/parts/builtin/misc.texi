@@ -1,0 +1,578 @@
+@node その他,,, 組み込み函数
+@section その他
+
+@menu
+* ctrl::
+* debug::
+* error::
+* help::
+* time::
+* cputime tstart tstop::
+* heap::
+* version::
+* shell::
+* map::
+* flist::
+* delete_history::
+* get_rootdir::
+@end menu
+
+@node ctrl,,, その他
+@subsection @code{ctrl}
+@findex ctrl
+
+@table @t
+@item ctrl("@var{switch}"[,@var{obj}])
+:: 環境設定
+@end table
+
+@table @var
+@item return
+設定されている値
+@item switch
+スイッチ名
+@item obj
+パラメタ
+@end table
+
+@itemize @bullet
+@item
+@b{Asir} の実行環境の設定変更, 参照を行う. 
+@item @var{switch} のみの場合, そのスイッチの現在の状態を返す. 
+@item @var{obj} が与えられているとき, その値を設定する.
+@item
+スイッチは文字列として入力する. すなわちダブルクォートで囲む. 
+@item
+スイッチは次の通り.
+@table @code
+@item cputime
+on の時 CPU time および GC time を表示, off の時 表示しない. @code{cputime()}
+を参照. 
+@code{ctrl("cputime",@var{onoff})} は @code{cputime(@var{onoff})} と同じである. 
+@item nez
+EZGCD のアルゴリズムの切替え. デフォルトで 1 であり, とくに切替える必要
+はない. 
+@item echo
+on の時は標準入力を繰り返して出力し, off の時は標準入力を繰り返さない.
+@code{output} コマンドを用いる際に有効である.
+@item bigfloat
+on の時, 入力された浮動小数は @b{bigfloat} に変換され, 浮動小数演算は
+@b{PARI} (@xref{pari}) により行われる. デフォルトの有効桁数は 9 桁である. 
+有効桁数を増やしたい時には @code{setprec()} を用いる. 
+off の時, 入力された浮動小数は, 倍精度浮動小数に変換される. 
+@cindex PARI
+@item adj
+ガーベッジコレクションの頻度の変更. 1 以上の有理数が指定できる. 
+デフォルト値は 3. 1 に近い程, ガーベッジコレクションせずにヒープを
+大きくとるようになる. 整数値はコマンドラインで指定できる.
+@xref{コマンドラインオプション}.
+@item verbose
+on の時, 函数の再定義時にメッセージを表示する. 
+@item hex
+1 のとき, 整数は 0x で始まる 16 進数として表示される. -1 のとき, 16 進数は, 
+間に @samp{|} をはさんで 8 桁ごとに区切って表示される. 
+@item ox_batch
+1 のとき, 送信バッファがいっぱいになった時のみ自動的に flush.
+0 のとき, データ, コマンド送信毎に flush. (デフォルト値は 0.)
+@xref{分散計算}
+@item ox_check
+1 のとき, 送信データを相手プロセスが受け取れるかどうかチェックする. 
+0 のときしない. (デフォルト値は 1.)
+@xref{分散計算}
+@end table
+@end itemize
+
+@table @t
+@item 参照
+@fref{cputime tstart tstop}, @fref{output},
+@fref{pari}, @fref{setprec}, @fref{eval}.
+@end table
+
+@node debug,,, その他
+@subsection @code{debug}
+@findex debug
+
+@table @t
+@item debug
+:: デバッグモードに入る. 
+@end table
+
+@itemize @bullet
+@item
+@code{debug} は無引数の函数であるが, @samp{()} なしで呼び出せる. 
+@item
+デバッグモードに入るとプロンプトが @code{(debug)} となり, コマンド
+受け付け状態となる. @code{quit} を入力するとデバッガから抜ける. 
+@item
+デバッグモードについての詳細は @xref{デバッガ}.
+@end itemize
+
+@example
+[1] debug;
+(debug) quit
+0
+[2] 
+@end example
+
+@node error,,, その他
+@subsection @code{error}
+@findex error
+
+@table @t
+@item error(@var{message})
+:: プログラム中で強制的にエラーを発生させる. 
+@end table
+
+@table @var
+@item message
+文字列
+@end table
+
+@itemize @bullet
+@item
+一般に, 引数の間違いなど, 続行不可能なエラーが組み込み函数において
+発生した時, トップレベルに戻る前に, 可能ならばそのエラーの時点で
+デバッグモードに入る. @code{error()} は, ユーザ函数の内部でこの
+動作と同様の動作を行わせるための函数である. 
+@item
+引数は, @code{error()} が呼び出される際に表示されるメッセージで, 
+文字列である. 
+@item
+ユーザ函数において, 変数をチェックして, あり得ない値の場合に @code{error()}
+を呼び出すようにしておけば, その時点で自動的にデバッグモードに入れる. 
+@end itemize
+
+@example
+% cat mod3
+def mod3(A) @{
+        if ( type(A) >= 2 )
+                error("invalid argument");
+        else
+                return A % 3;
+@}
+end$
+% asir
+[0] load("mod3");
+1
+[3] mod3(5);
+2
+[4] mod3(x);
+invalid argument
+stopped in mod3 at line 3 in file "./mod3"
+3                       error("invalid argument");
+(debug) print A
+A = x
+(debug) quit
+return to toplevel
+[4] 
+@end example
+
+@table @t
+@item 参照
+@fref{debug}.
+@end table
+
+@node help,,, その他
+@subsection @code{help}
+@findex help
+
+@table @t
+@item help(["@var{function}"])
+:: 函数の説明を表示する. 
+@end table
+
+@table @var
+@item return
+0
+@item function
+函数名
+@end table
+
+@itemize @bullet
+@item
+無引数の時, 最小限の説明が表示される. 函数名が引数として与えられた
+とき, 標準ライブラリディレクトリにある @samp{help} というディレクトリ
+に同名のファイルがあれば, 環境変数 @code{PAGER} に設定されているコマンド, 
+あるいは @samp{more} を呼び出してそのファイルを表示する. 
+@item
+Windows 版では, コマンドラインからのヘルプ呼び出しは未サポートだが, 
+メニューから HTML 形式のものを呼び出し用いることができる. 
+@end itemize
+
+@node time,,, その他
+@subsection @code{time}
+@findex time
+
+@table @t
+@item time()
+:: セッション開始から現在までの CPU 時間および GC 時間を表示する
+@end table
+
+@table @var
+@item return 
+リスト
+@end table
+
+@itemize @bullet
+@item
+CPU 時間および GC 時間の表示に関するコマンドである. 
+@item
+GC 時間とは, ガーベジコレクタにより消費されたと見なされる時間, 
+CPU 時間は, 全体の CPU 時間から GC 時間を引いた残りで, 単位は秒である. 
+@item
+@code{time()} は引数なしで, セッション開始から現在までの CPU 時間, 
+GC 時間, 現在までに要求されたメモリののべ容量, およびセッション開始から
+現在までの経過時間の表示をする. 
+すなわち, @code{[CPU 時間 (秒), GC 時間 (秒), メモリ量 (ワード), 経過時間 (秒)]}
+なるリストを返す. 1 ワードは通常 4 バイトである. 
+@item
+計算の実行開始時, 終了時の @code{time()} から, その計算に対する
+CPU 時間, GC 時間がわかる. 
+@item
+メモリ量は多倍長数ではないため, ある値を越えると無意味な値となるため
+あくまでも目安として用いるべきである. 
+@item
+@code{ctrl()} や @code{cputime()} により @code{cputime} スイッチが
+on になっている場合には, トップレベルの文を一つの単位として, 
+その実行時間が表示される. しかし, プログラムの内部などで, 特定の
+計算に対する計算時間を知りたい時には, @code{time()} などを使う
+必要がある. 
+@item
+@code{getrusage()} が使える UNIX 上では @code{time()} は信頼性のある値
+を返すが, Windows 95, 98 上では時刻を用いるほか方法がないため経過時間そのもの
+が表示される. よって, 待ち状態があると, それも経過時間に加算される. 
+@end itemize
+
+@example
+[72] T0=time();
+[2.390885,0.484358,46560,9.157768]
+[73] G=hgr(katsura(4),[u4,u3,u2,u1,u0],2)$
+[74] T1=time();
+[8.968048,7.705907,1514833,63.359717]
+[75] ["CPU",T1[0]-T0[0],"GC",T1[1]-T0[1]]; 
+[CPU,6.577163,GC,7.221549]
+@end example
+
+@table @t
+@item 参照
+@fref{cputime tstart tstop}.
+@end table
+
+@node cputime tstart tstop,,, その他
+@subsection @code{cputime}, @code{tstart}, @code{tstop}
+@findex cputime
+@findex tstart
+@findex tstop
+
+@table @t
+@item cputime(@var{onoff})
+:: 引数が 0 ならば @code{cputime} の表示を止める. それ以外ならば表示を行う. 
+@item tstart()
+:: CPU time 計測開始. 
+@item tstop()
+:: CPU time 計測終了および表示. 
+@end table
+
+@table @var
+@item return 
+0
+@item onoff
+フラグ (任意)
+@end table
+
+@itemize @bullet
+@item
+@code{cputime()} は, 引数が 0 ならば CPU time の表示を止める. それ以外ならば表示を行う. 
+@item
+@code{tsart} は引数なし, @samp{()} なしで, CPU time 計測を開始する. 
+@item
+@code{tstop} は引数なし, @samp{()} なしで, CPU time 計測を終了, 
+および表示する. 
+@item
+@code{cputime(@var{onoff})} は @code{ctrl("cputime",@var{onoff})} と同じである.
+@item
+@code{tstart}, @code{tstop} は, 入れ子にして使われることは想定していない
+ため, そのような可能性がある場合には, @code{time()} による計測を行う
+必要がある.  
+@item
+@code{cputime()} による on, off は, 単に表示の on, off であり, トップレベル
+の一つの文に対する計測は常に行われている. よって, 計算を始めてからでも, 
+計算終了前にデバッガに入って @code{cputime(1)} を実行させれば計算時間は
+表示される. 
+@end itemize
+
+@example
+[49] tstart$
+[50] fctr(x^10-y^10);
+[[1,1],[x+y,1],[x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],[x-y,1],
+[x^4+y*x^3+y^2*x^2+y^3*x+y^4,1]]
+[51] tstop$
+80msec + gc : 40msec
+@end example
+
+@table @t
+@item 参照
+@fref{time}, @fref{ctrl}.
+@end table
+
+@node heap,,, その他
+@subsection @code{heap}
+@findex heap
+
+@table @t
+@item heap()
+:: 現在のヒープの大きさを返す. (単位:バイト)
+@end table
+
+@table @var
+@item return 
+自然数
+@end table
+
+@itemize @bullet
+@item
+現在のヒープの大きさ(単位 : バイト) を返す. ヒープとは, @b{Asir} の
+さまざまな数式や, ユーザプログラムなどがおかれるメモリの領域で, ガーベジ
+コレクタにより管理されている. プログラムの動作中は, ヒープの大きさは
+単調非減少であり, 実メモリの量をこえて大きくなった場合には, OS による
+スワップエリアへの読み書きがほとんどの計算時間を占めることになる. 
+@item
+実メモリが少ない場合には, 起動時の @code{-adj} オプションにより, 
+GC 主体の設定を行っておく必要がある. 
+@end itemize
+
+@example
+% asir -adj 16  
+[0] load("fctrdata")$
+0
+[97] cputime(1)$
+0msec
+[98] heap();
+524288
+0msec
+[99] fctr(Wang[8])$
+3.190sec + gc : 3.420sec
+[100] heap();
+1118208
+0msec
+[101] quit;
+% asir
+[0] load("fctrdata")$   
+0
+[97] cputime(1)$   
+0msec
+[98] heap();    
+827392
+0msec
+[99] fctr(Wang[8])$
+3.000sec + gc : 1.180sec
+[100] heap();       
+1626112
+0msec
+[101] quit;
+@end example
+
+@table @t
+@item 参照
+@fref{コマンドラインオプション}.
+@end table
+
+@node version,,, その他
+@subsection @code{version}
+@findex version
+
+@table @t
+@item version()
+:: @b{Asir} のバージョンを返す. 
+@end table
+
+@table @var
+@item return 
+自然数
+@end table
+
+@itemize @bullet
+@item
+@b{Asir} のバージョンを 10 進 6 桁の自然数で返す. 最初の 2 桁が
+西暦の下 2 桁, 次の 2 桁が月, 最後の 2 桁が日を表す. 
+@end itemize
+
+@example
+[0] version();
+990831
+@end example
+
+@node shell,,, その他
+@subsection @code{shell}
+@findex shell
+
+@table @t
+@item shell(@var{command})
+:: @var{command} をシェルコマンドとして実行する. 
+@end table
+
+@table @var
+@item return 
+自然数
+@item command
+文字列
+@end table
+
+@itemize @bullet
+@item
+@var{command} を C の @code{system()} 函数によりシェルコマンドとして実行する. 
+シェルの終了ステータスを返す. 
+@end itemize
+
+@example
+[0] shell("ls");
+alg             da              katsura         ralg            suit
+algt            defs.h          kimura          ratint          test
+alpi            edet            kimura3         robot           texput.log
+asir.o          fee             mfee            sasa            wang
+asir_symtab     gr              mksym           shira           wang_data
+base            gr.h            mp              snf1            wt
+bgk             help            msubst          solve
+chou            hom             p               sp
+const           ifplot          proot           strum
+cyclic          is              r               sugar
+0
+[1] 
+@end example
+
+@node map,,, その他
+@subsection @code{map}
+@findex map
+
+@table @t
+@item map(@var{function},@var{arg0},@var{arg1},...)
+:: リスト, 配列の各要素に函数を適用する. 
+@end table
+
+@table @var
+@item return
+@var{arg0} と同じ型のオブジェクト
+@item function
+函数名
+@item arg0
+リスト, ベクトル, 行列
+@item arg1, ...
+任意 (残りの引数)
+@end table
+
+@itemize @bullet
+@item
+@var{arg0} の各要素を最初の引数, @var{arg1} 以下の残りの引数として
+函数 @var{function} を呼び出し, @var{arg0} の対応する要素の位置に
+函数呼び出しの結果が入った同じ型のオブジェクトを生成して返す. 
+@item
+@var{function} は, ダブルクォートのない函数名を用いる. 
+@item
+@var{function} にプログラム変数は使えない. 
+@item
+@var{arg0} がリスト, ベクトル, 行列以外の場合, 単に @var{arg0}, 
+@var{arg1}, ... を引数として @var{function} を呼び出しその
+結果を返す. 
+@end itemize
+
+@example
+[82] def afo(X) @{ return X^3; @}
+[83] map(afo,[1,2,3]);
+[1,8,27]
+@end example
+
+@node flist,,, その他
+@subsection @code{flist}
+@findex flist
+
+@table @t
+@item flist()
+:: 現在定義されている函数名を文字列リストとして返す. 
+@end table
+
+@table @var
+@item return
+文字列のリスト
+@end table
+
+@itemize @bullet
+@item
+現在定義されている組み込み函数, ユーザ定義函数の函数名を文字列リスト
+として返す. 
+@item
+システム函数の後にユーザ定義函数が続く. 
+@end itemize
+
+@example
+[77] flist();
+[defpoly,newalg,mainalg,algtorat,rattoalg,getalg,alg,algv,...]
+@end example
+
+@node delete_history,,, その他
+@subsection @code{delete_history}
+@findex delete_history
+
+@table @t
+@item delete_history([@var{index}])
+:: ヒストリを消去する. 
+@end table
+
+@table @var
+@item return
+0
+@item index
+消去したいヒストリの番号
+@end table
+
+@itemize @bullet
+@item
+引数がないとき, これまで計算したヒストリを全て消去する. 
+@item
+引数があるとき, その番号の結果のみ消去する. 
+@item
+ここでヒストリとは, 番号つきのプロンプトに対しての入力を評価して得られた式
+で, この式は @code{@@@var{number}} により取り出すことができる. このことは, 
+ガーベッジコレクションの際にもこの式が生き残ることを意味する. 
+@item
+大きな式がヒストリとして残った場合, 以降のメモリ管理に支障を来す場合が多い
+ため, @code{bsave()} などでファイルにセーブして, @code{delete_history()}
+によりヒストリを消去しておくのが有効である. 
+@end itemize
+
+@example
+[0] (x+y+z)^100$
+[1] @@0;
+...
+[2] delete_history(0);
+[3] @@0;
+0
+@end example
+
+@node get_rootdir,,, その他
+@subsection @code{get_rootdir}
+@findex get_rootdir
+
+@table @t
+@item get_rootdir()
+:: Asir のルートディレクトリ名を取り出す
+@end table
+
+@table @var
+@item return
+文字列
+@end table
+
+@itemize @bullet
+@item
+UNIX 版の場合, 環境変数 @code{ASIR_LIBDIR} が定義されている場合にはその値, されていない場合
+には @samp{/usr/local/lib/asir} を返す. 
+@item
+Windows 版の場合, @samp{asirgui.exe} のあるディレクトリ (@samp{bin} という名前のはずである)
+の親ディレクトリが返される. 
+@item
+この関数が返すディレクトリ名を基準とした相対パス名を指定することにより, インストール
+された場所によらないファイル読み込みプログラムを書くことができる. 
+@end itemize
+
+
+

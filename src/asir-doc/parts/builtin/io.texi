@@ -1,0 +1,329 @@
+@node 入出力,,, 組み込み函数
+@section 入出力
+
+@menu
+* end quit::
+* load::
+* which::
+* output::
+* bsave bload::
+* bload27::
+* print::
+@end menu
+
+@node end quit,,, 入出力
+@subsection @code{end}, @code{quit}
+@findex end
+@findex quit
+
+@table @t
+@item end, quit
+:: 現在読み込み中のファイルを閉じる. 
+トップレベルにおいてはセッションを終了することになる. 
+@end table
+
+@itemize @bullet
+@item
+@code{end}, @code{quit} ともに無引数の函数であるが, @samp{()} なしで
+呼び出すことができる. いずれも現在読み込み中のファイルを閉じる. 
+これは, トップレベルにおいてはセッションを終了させることになる. 
+@item
+ファイルの場合, ファイルの終端まで読めば, 自動的にファイルは閉じられる
+が, トップレベルの場合プロンプトが出ないまま, 入力待ちになるので, 
+ファイルの終端には @code{end$} を書くのが望ましい. 
+@end itemize
+
+@example
+[6] quit;
+%
+@end example
+
+@table @t
+@item 参照
+@fref{load}.
+@end table
+
+@node load,,, 入出力
+@subsection @code{load}
+@findex load
+
+@table @t
+@item load("@var{filename}")
+:: @var{filename} を読み込む. 
+@end table
+
+@table @var
+@item return
+(1|0)
+@item filename
+ファイル名 (パス名)
+@end table
+
+@itemize @bullet
+@item
+実際のプログラムの書き方は, @xref{ユーザ言語 Asir}.
+ テキストファイルを読み込む場合, @code{cpp} 
+を通すので, C のプログラム同様 @code{#include}, @code{#define} を使うことができる. 
+@item
+指定したファイルが存在した時には 1 を返し, 存在しなかった時は 0 を返す. 
+@item
+ファイル名が @samp{/} で始まる場合は絶対パス, @samp{.} で始まる場合は
+カレントディレクトリからの相対パスと見なされる. それ以外の場合, 
+環境変数 @code{ASIRLOADPATH} に設定されているディレクトリを左から順に
+サーチする. それらに該当するファイルが存在しない場合, 標準ライブラリ
+ディレクトリ (あるいは環境変数 @code{ASIR_LIBDIR} に設定されている
+ディレクトリ) もサーチする. 
+Windows 版の場合, @code{ASIR_LIBDIR} が設定されていない場合には, @code{get_rootdir()/lib}
+をサーチする. 
+@item
+読み込むファイルの最後に, @code{end$} がないと @code{load()} 
+終了後にプロンプトがでないが, 実際には入力を受け付ける. しかし, 
+混乱を招くおそれがあるのでファイルの最後に @code{end$} を書いておくこと
+が望ましい. (@code{end;} でもよいが, @code{end} が返す値 0 が表示される
+ため, @code{end$} をお勧めする. )
+@item
+Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+@end itemize
+
+@table @t
+@item 参照
+@fref{end quit}, @fref{which}, @fref{get_rootdir}.
+@end table
+
+@node which,,, 入出力
+@subsection @code{which}
+@findex which
+
+@table @t
+@item which("@var{filename}")
+:: 引数 @var{filename} に対し, @code{load()} が読み込むパス名を返す. 
+@end table
+
+@table @var
+@item return
+パス名
+@item filename
+ファイル名 (パス名) または 0
+@end table
+
+@itemize @bullet
+@item
+@code{load()} がファイルをサーチする手順に従ってサーチし, 
+ファイルが存在する場合にはパス名を文字列として, 存在しない場合
+には 0 を返す. 
+@item
+サーチの手順については @code{load()} を参照. 
+@item
+Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+@end itemize
+
+@example
+[0] which("gr");               
+./gb/gr
+[1] which("/usr/local/lib/gr");
+0
+[2] which("/usr/local/lib/asir/gr");
+/usr/local/lib/asir/gr
+@end example
+
+@table @t
+@item 参照
+@fref{load}.
+@end table
+
+@node output,,, 入出力
+@subsection @code{output}
+@findex output
+
+@table @t
+@item output(["@var{filename}"])
+:: 以降の出力先を @var{filename}または標準出力に切替える. 
+@end table
+
+@table @var
+@item return
+1
+@item filename
+ファイル名
+@end table
+
+@itemize @bullet
+@item
+@b{Asir} の出力を標準出力から, ファイルへの出力に切替える. 
+なお, ファイル出力の間は, 標準出力にはキーボードからの入力以外, 
+出力されない. 
+@item
+別のファイル出力に切替える時には, 再び @code{output("@var{filename}")} 
+を実行する. 
+又, ファイル出力を終了し標準出力に戻りたい時には, 引数なしで 
+@code{output()} を実行する. 
+@item
+指定したファイル @var{filename} が存在した時は, そのファイルの末尾に
+追書きされ, 存在しなかった時には, 新たにファイルを作成し, そこに書き込まれる. 
+@item
+ファイルネームを "" ダブルクォートなしで指定をしたり, 
+ユーザが, 書き込めないファイルを指定したりすると, 
+エラーによりトップレベルに戻る. 
+@item
+入力したものも込めてファイルに出力したい場合には, @code{ctrl("echo",1)} 
+を実行した後でファイル出力に切替えれば良い. 
+@item
+計算時間など, 標準エラー出力に書き出されるものはファイルには書き出されない. 
+@item
+函数形式, 未定係数 (@code{vtype()} 参照) を含まない数式のファイルへの読み書きは, 
+@code{bload()}, @code{bsave()} を使うのが, 時間, 空間ともに効率がよい. 
+@item
+Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+@end itemize
+
+@example
+[83] output("afo");
+fctr(x^2-y^2);
+print("afo");
+output();
+1
+[87] quit;
+% cat afo
+1
+[84] [[1,1],[x+y,1],[x-y,1]]
+[85] afo
+0
+[86]
+@end example
+
+@table @t
+@item 参照
+@fref{ctrl}, @fref{bsave bload}.
+@end table
+
+@node bsave bload,,, 入出力
+@subsection @code{bsave}, @code{bload}
+@findex bsave
+@findex bload
+
+@table @t
+@item bsave(@var{obj},"@var{filename}")
+:: @var{filename} に @var{obj} をバイナリ形式で書き込む. 
+@item bsave("@var{filename}")
+:: @var{filename} から数式をバイナリ形式で読み込む. 
+@end table
+
+@table @var
+@item return
+@code{bsave()} : 1, @code{bload()} : 読み込んだ数式
+@item obj
+函数形式, 未定係数を含まない任意の数式
+@item filename
+ファイル名
+@end table
+
+@itemize @bullet
+@item
+@code{bsave()} は内部形式をほぼそのままバイナリ形式でファイルに書き込む. 
+@code{bload()} は, @code{bsave()} で書き込んだ数式を読み込んで内部形式
+に変換する. 現在のインプリメンテーションの制限により, 函数形式, 未定係数 
+(@code{vtype()} 参照) を含まないリスト, 配列などを含む任意の数式をファ
+イルに保存することができる.
+@item
+@code{output()} などで保存した場合, 読み込み時にパーザが起動されるが, 
+@code{bsave()} で保存したものを @code{bload()} で読む場合, 直接
+内部形式が構成できるため, 時間的, 空間的に効率がよい. 
+@item
+多項式の場合, 書き込み時と読み込み時で変数順序が異なる場合があるが, 
+その場合には, 自動的に現在の変数順序における内部形式に変換される. 
+@item
+Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+@end itemize
+
+@example
+[0] A=(x+y+z+u+v+w)^20$
+[1] bsave(A,"afo");
+1
+[2] B = bload("afo")$
+[3] A == B;
+1
+[4] X=(x+y)^2; 
+x^2+2*y*x+y^2
+[5] bsave(X,"afo")$
+[6] quit;
+% asir
+[0] ord([y,x])$    
+[1] bload("afo");
+y^2+2*x*y+x^2
+@end example
+
+@table @t
+@item 参照
+@fref{output}.
+@end table
+
+@node bload27,,, 入出力
+@subsection @code{bload27}
+@findex bload27
+
+@table @t
+@item xxx(@var{filename}) 
+:: 旧版で作られた bsave file の読み込み
+@end table
+
+@table @var
+@item return
+読み込んだ数式
+@item filename
+ファイル名
+@end table
+
+@itemize @bullet
+@item
+旧版では, 多倍長整数が, 1 ワード 27 bit で表現されていたが, 新版では 1 ワード 32 bit
+に変更された. このため, 旧版で @code{bsave} されたバイナリファイルはそのままでは
+読み込めない. このようなファイルを読み込むために @code{bload27} を用いる. 
+@item
+Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+@end itemize
+
+@table @t
+@item 参照
+@fref{bsave bload}.
+@end table
+
+@node print,,, 入出力
+@subsection @code{print}
+@findex print
+
+@table @t
+@item print(@var{obj} [,@var{nl}])
+:: @var{obj} を表示する. 
+@end table
+
+@table @var
+@item return
+0
+@item obj
+任意
+@item nl
+フラグ (任意)
+@end table
+
+@itemize @bullet
+@item
+@var{obj} を評価して表示する. 
+@item
+第 2 引数がないか, または 0, 2 以外の場合, 改行する. 
+第 2 引数が 1 の場合, 改行せず, 出力はバッファに書き込まれ, 
+バッファはフラッシュされない. 
+第 2 引数が 2 の場合, 改行しないがバッファはフラッシュされる. 
+@item
+この函数の戻り値は 0 であるから, @code{print();}
+で実行すると, 出力の後に 0 が返される.
+@code{print()$} とすれば, 最後の 0 は出力されない.
+@item
+複数の @var{obj} を同時に出力したい時は @var{obj} をリストにするとよい.
+@end itemize
+
+@example
+[8] def cat(L) @{ while ( L != [] ) @{ print(car(L),0); L = cdr(L);@} print(""); @}
+[9] cat([xyz,123,"gahaha"])$
+xyz123gahaha
+@end example
+

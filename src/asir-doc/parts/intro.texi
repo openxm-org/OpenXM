@@ -1,0 +1,166 @@
+@node Introduction,,, Top
+
+@chapter Introduction
+
+@menu
+* マニュアルの構成::
+* Notation::
+* 入手方法::
+@end menu
+
+@node マニュアルの構成,,, Introduction
+@section マニュアルの構成
+
+@noindent
+このマニュアルの構成は次の通りである. 
+
+@enumerate
+@item
+@b{Introduction}
+
+マニュアルの構成, notation および入手方法
+
+@item
+@b{Risa/Asir}
+
+@b{Asir} の概要, インストレーション
+
+@item
+@b{型}
+
+@b{Asir} における型
+
+@item
+@b{ユーザ言語 Asir}
+
+@b{Asir} のユーザ言語の解説
+
+@item
+@b{デバッガ}
+
+ユーザ言語のデバッガの解説
+
+@item
+@b{組み込み函数}
+
+さまざまな組み込み函数の詳細
+
+@item
+@b{分散計算}
+
+分散計算機能に関する解説, 関数の詳細
+
+@item
+@b{グレブナ基底の計算}
+
+グレブナ基底に関する函数, 演算の解説
+
+@item
+@b{代数的数に関する演算}
+
+代数的数に関する函数, 演算の解説
+
+@item
+@b{有限体に関する演算}
+
+有限体に関する関数, 演算の解説
+
+@item
+@b{付録}
+
+文法の詳細, パソコン版 @b{Risa/Asir}, サンプルファイルの紹介, 
+入力インタフェース, 変更点, 文献
+@end enumerate
+
+@node Notation,,, Introduction
+@section Notation
+
+@noindent
+このマニュアルでは, いくつかの記法上の慣習がある. それらについて説明する. 
+
+@itemize @bullet
+@item
+函数名は, タイプライタ体で表される. 
+
+@code{gcd()}, @code{gr()}
+
+@item
+函数の説明における函数の引数は, 斜字体で表される. 
+
+@var{int}, @var{poly}
+
+@item
+ファイル名は, シングルクォートつきのタイプライタ体で表される. 
+
+@samp{dbxinit}, @samp{asir_plot}
+
+@item
+例は字下げされ, タイプライタ体で表される. 
+
+@example
+[0] 1;
+1
+[1] quit;
+@end example
+
+@item
+文献の参照は, @code{[]} つきのタイプライタ体で表される. 
+
+@code{[Boehm,Weiser]}
+
+@item
+函数の引数で, 省略可能なものは, @code{[]} で囲って示される. 
+また, 0 個以上の繰り返しは, @code{[]*} で示される. 
+
+@code{setprec([@var{n}])}, @code{diff(@var{rat}[,@var{varn}]*)}
+
+@item
+shell (csh) のプロンプトは @code{%} で表される. ただし, インストール
+時など, root として作業している場合のプロンプトは @code{#} で表される. 
+
+@example
+% cat afo
+afo
+bfo
+% su
+Password:XXXX
+# cp asir /usr/local/bin
+# exit
+%
+@end example
+
+@item
+有理整数環は @b{Z}, 有理数体は @b{Q}, 実数体は @b{R}, 複素数体は @b{C}
+有限体は @b{GF(q)} (@b{q} は素数冪) で表す. 
+@end itemize
+
+@node 入手方法,,, Introduction
+@section 入手方法
+
+@noindent
+さまざまなプラットフォーム用のバイナリおよびマニュアルなどのドキュメント, 
+サンプルファイル, utility なとが ftp で入手できる. 1999 年 3 月現在, 
+旧版 (Asir-950831) が
+
+@example
+ftp://endeavor.fujitsu.co.jp/pub/isis/asir
+@end example
+
+@noindent
+から入手できるが, 新版は愛媛大学の ftp server に置かれる予定である. 
+トップディレクトリの下に各プラットフォームの名前のサ
+ブディレクトリ (@samp{windows}, @samp{linux} etc.) と, ドキュメント 
+(@samp{doc}), サンプルおよびヘルプファイル (@samp{lib}), utility
+(@samp{util}) などのサブディレクトリがある. バイナリに関しては, それぞ
+れのサブディレクトリにある README を参照のこと.
+
+@noindent
+バイナリに組み込まれている @b{PARI} のソースは
+
+@example
+ftp://megrez.ceremab.u-bordeaux.fr/pub/pari/unix/pari-2.0.14.alpha.tar.gz
+@end example
+
+@noindent
+である. 
+

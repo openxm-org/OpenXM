@@ -1,0 +1,93 @@
+@node 文字列に関する演算,,, 組み込み函数
+@section 文字列に関する演算
+
+@menu
+* rtostr::
+* strtov::
+@end menu
+
+@node rtostr,,, 文字列に関する演算
+@subsection @code{rtostr}
+@findex rtostr
+
+@table @t
+@item rtostr(@var{obj})
+:: @var{obj} を文字列に変える. 
+@end table
+
+@table @var
+@item return
+文字列
+@item obj
+任意
+@end table
+
+@itemize @bullet
+@item
+任意のオブジェクト @var{obj} を文字列に変える. 
+@item
+整数などを文字列に変換して変数名と結合することにより, 
+添字付きの不定元を生成する場合に多く用いられる. 
+@item
+逆に, 文字列を不定元に変換する時には, @code{strtov} を用いる. 
+@end itemize
+
+@example
+[0] A=afo;
+afo
+[1] type(A);
+2
+[2] B=rtostr(A); 
+afo
+[3] type(B);
+7
+[4] B+"1";
+afo1
+@end example
+
+@table @t
+@item 参照
+@fref{strtov}, @fref{type}.
+@end table
+
+@node strtov,,, 文字列に関する演算
+@subsection @code{strtov}
+@findex strtov
+
+@table @t
+@item strtov(@var{str})
+:: @var{str} (文字列) を不定元に変える. 
+@end table
+
+@table @var
+@item return
+不定元
+@item str
+不定元として変換可能な文字列
+@end table
+
+@itemize @bullet
+@item
+不定元として変換可能な文字列を不定元に変える. 
+@item
+不定元として変換可能な文字列とは, 英小文字で始まり, 
+英字, 数字および記号 @code{_} で作られる文字列である. 
+@item
+@code{rtostr()} と組合せて, プログラム中で自動的に不定元を生成したい時に
+用いられる. 
+@end itemize
+
+@example
+[0] A="afo";
+afo
+[1] for (I=0;I<3;I++) @{B=strtov(A+rtostr(I)); print([B,type(B)]);@}
+[afo0,2]
+[afo1,2]
+[afo2,2]
+@end example
+
+@table @t
+@item 参照
+@fref{rtostr}, @fref{type}, @fref{uc}.
+@end table
+

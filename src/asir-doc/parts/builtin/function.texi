@@ -1,0 +1,57 @@
+@node 函数に対する操作,,, 組み込み函数
+@section 函数に対する操作
+
+@menu
+* functor args funargs::
+@end menu
+
+@node functor args funargs,,, 函数に対する操作
+@subsection @code{functor}, @code{args}, @code{funargs}
+@findex functor
+@findex args
+@findex funargs
+
+@table @t
+@item functor(@var{func})
+:: @var{func} の函数子を取り出す. 
+@item args(@var{func})
+:: @var{func} の引数リストを取り出す. 
+@item funargs(@var{func})
+:: @code{cons(functor(@var{func}),args(@var{func}))} を返す. 
+@end table
+
+@table @var
+@item return
+@code{functor()} : 不定元, @code{args()}, @code{funargs()} : リスト
+@item func
+函数形式を表す不定元
+@end table
+
+@itemize @bullet
+@item
+函数形式に関しては, @code{vtype()} を参照. 
+@item
+函数形式 @var{func} の函数子, 引数リストを取り出す. 
+@item
+逆に, 取り出した函数子を値に持つプログラム変数を @code{F} とすれば (@code{*F})(x) で
+x を引数とする函数呼び出しまたは函数形式が入力できる. 
+@end itemize
+
+@example
+[0] functor(sin(x));
+sin
+[0] args(sin(x));
+[x]
+[0] funargs(sin(3*cos(y)));
+[sin,3*cos(y)]
+[1] for (L=[sin,cos,tan];L!=[];L=cdr(L)) @{A=car(L); print(eval((*A)(@@pi/3)));@}
+0.86602540349122136831
+0.5000000002
+1.7320508058
+@end example
+
+@table @t
+@item 参照
+@fref{vtype}.
+@end table
+

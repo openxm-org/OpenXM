@@ -1,0 +1,245 @@
+@node デバッガ,,, Top
+@chapter デバッガ
+
+@menu
+* デバッガとは::
+* コマンドの解説::
+* デバッガの使用例::
+* デバッガの初期化ファイルの例::
+@end menu
+
+@node デバッガとは,,, デバッガ
+@section デバッガとは
+
+@noindent
+C 言語で書かれたプログラムのためのデバッガ @code{dbx} 
+は, ソースレベルでのブレークポイントの設定, ステッ
+プ実行, 変数の参照などが可能な強力なデバッガである. @b{Asir} では, 
+@code{dbx} 風のデバッガを用意している. デバッグモードに入るには, トッ
+プレベルで @code{debug;} と入力する. 
+@example
+[10] debug;
+(debug)
+@end example
+
+@noindent
+その他, 次の方法, あるいは状況でデバッグモードに入る. 
+
+@itemize @bullet
+@item
+実行中ブレークポイントに達した場合
+
+@item
+割り込みで @samp{d} を選択した場合
+
+@item
+実行中エラーを起こした場合
+
+この場合, 実行の継続は不可能であるが, 直接のエラーの原因となった
+ユーザ定義函数の文を表示してデバッグモードに入るため, エラー時
+における変数の値を参照でき, デバッグに役立たせることができる. 
+
+@item
+@code{error()} が呼び出された場合
+@end itemize
+
+@node コマンドの解説,,, デバッガ
+@section コマンドの解説
+
+@noindent
+コマンドは @code{dbx} のコマンドの内必要最小限のものを採用した. 
+更に, @code{gdb} のコマンドからもいくつか便利なものを採用した. 
+実際の機能は @code{dbx} とほぼ同様であるが, @code{step}, @code{next} は,
+ 次の行ではなく次の文を実行する. 
+従って, 1行に複数の文がある場合は, その文の数だけ @code{next} 
+を実行しなければ次の行に進めない. また, @code{dbx} と同様 
+@file{.dbxinit} を読み込むので, @code{dbx} と同じ alias を使うことがで
+きる. 
+
+@table @code
+@item step
+次の文を実行する. 次の文が函数を含むとき, その函数に入る. 
+@item next
+次の文を実行する. 
+@item finish
+現在実行中の函数の実行が終了した時点で再びデバッグモードに入る. 
+誤って @code{step} を実行した場合に有効である. 
+@item cont
+@itemx quit
+デバッグモードから抜け, 実行を継続する. 
+@item up [@var{n}]
+スタックフレームを 1 段 (引数 @var{n} がある時は @var{n} 段) 上がる. 
+これにより, そのスタックフレームに属する変数の値の参照, 変更ができる. 
+@item down [@var{n}]
+スタックフレームを 1 段 (引数 @var{n} がある時は @var{n} 段) 下がる. 
+@item frame [@var{n}]
+引数がないとき, 現在実行中の函数を表示する. 
+引数があるとき, スタックフレームを番号 @var{n} のものに設定する. ここで
+スタックフレームの番号とは
+@code{where} により表示される呼び出し列において, 先頭に表示される番号の
+ことである. 
+@item list [@var{startline}]
+@itemx list @var{function}
+現在行, または @var{startline}, または @var{function}の先頭から 10 行ソー
+スファイルを表示する. 
+@item print @var{expr}
+@var{expr} を表示する. 
+@item func @var{function}
+対象函数を @var{function} に設定する. 
+@item stop at @var{sourceline} [if @var{cond}]
+@itemx stop in @var{function}
+@var{sourceline}行目, または @var{function} の先頭にブレークポイントを
+設定する. ブレークポイントは, 函数が再定義された場合自動的に取り消され
+る. @code{if} が続く場合, @var{cond} が評価され, それが 0 でない場合に
+実行が中断し, デバッグモードに入る. 
+@item trace @var{expr} at @var{sourceline} [if @var{cond}]
+@item trace @var{expr} in @var{function}
+@code{stop} と同様であるが, @code{trace} では単に @var{expr} を表示する
+のみで, デバッグモードには入らない. 
+@item delete @var{n}
+ブレークポイント @var{n} を取り消す. 
+@item status
+ブレークポイントの一覧を表示する. 
+@item where
+現在の停止点までの呼び出し列を表示する. 
+@item alias @var{alias} @var{command}
+@var{command} に @var{alias} の別名を与える. 
+@end table
+
+@noindent
+@code{print} の引数として, トップレベルにおけるほとんどすべての式
+がとれる. 通常は, 変数の内容の表示が主であるが, 必要に応じて次の
+ような使い方ができる. 
+
+@itemize @bullet
+@item
+@b{変数の書き換え}
+
+実行中のブレークポイントにおいて, 変数の値を変更して実行を継続させたい
+場合, 次のような操作を行えばよい. 
+
+@example
+(debug) print A
+A = 2
+(debug) print A=1
+A=1 = 1
+(debug) print A
+A = 1
+@end example
+
+
+@item
+@b{函数の呼び出し}
+
+函数呼び出しも式であるから, @code{print} の引数としてとれる. 
+
+@example
+(debug) print length(List)
+length(List) = 14
+@end example
+
+この例では, 変数 @code{List} に格納されているリストの長さを @code{length()}
+により調べている. 
+
+@example
+(debug) print ctrl("cputime",1)
+ctrl("cputime",1) = 1
+@end example
+
+この例は, 計算開始時に CPU 時間の表示の指定をし忘れた場合などに, 計算
+途中でデバッグモードから指定を行えることを示している. 
+
+また, 止むを得ず計算を中断しなければならない場合, デバッグモードから
+@code{bsave()} などのコマンドにより途中結果をファイルに保存することも
+できる. 
+
+@example
+(debug) print bsave(A,"savefile")
+bsave(A,"savefile") = 1
+@end example
+
+デバッグモードからの函数呼び出しで注意すべきことは, 
+@code{print} の引数がユーザ定義函数の呼び出しを含む場合, 
+その函数呼び出しでエラーが起こった場合に元の函数の実行継続が不可能
+になる場合があるということである. 
+@end itemize
+
+@node デバッガの使用例,,, デバッガ
+@section デバッガの使用例
+
+@noindent
+ここでは, 階乗を再帰的に計算させるユーザ定義函数を例として, デバッガの
+実際の使用法を示す. 
+
+@example
+% asir
+[0] load("fac")$
+[3] debug$
+(debug) list factorial
+1   def factorial(X) @{
+2       if ( !X )
+3           return 1;
+4       else 
+5           return X * factorial(X - 1);
+6   @}
+7   end$
+(debug) stop at 5                     <-- ブレークポイントの設定
+(0) stop at "./fac":5
+(debug) quit                          <-- デバッグモードを抜ける
+[4] factorial(6);                     <-- factorial(6) の呼び出し
+stopped in factorial at line 5 in file "./fac"
+5           return X * factorial(X - 1);
+(debug) where                         <-- ブレークポイントまでの呼び出し列の表示
+factorial(), line 5 in "./fac"
+(debug) print X                       <-- X の値の表示
+X = 6
+(debug) step                          <-- ステップ実行 (函数に入る)
+stopped in factorial at line 2 in file "./fac"
+2		if ( !X )
+(debug) where
+factorial(), line 2 in "./fac"
+factorial(), line 5 in "./fac"
+(debug) print X
+X = 5
+(debug) delete 0                      <-- ブレークポイント 0 の消去
+(debug) cont                          <-- 実行継続
+720                                   <-- 結果 = 6!
+[5] quit;
+@end example
+
+@node デバッガの初期化ファイルの例,,, デバッガ
+@section デバッガの初期化ファイルの例
+
+@noindent
+前に述べた通り, @b{Asir} は, 起動時に @samp{$HOME/.dbxinit} を読み込む. 
+このファイルは, @code{dbx} のさまざまな初期設定用のコマンドを記述しておく
+ファイルであるが, @b{Asir} は, @code{alias} 行のみを認識する. 例えば, 
+
+@example
+% cat ~/.dbxinit
+alias n next
+alias c cont
+alias p print
+alias s step
+alias d delete
+alias r run
+alias l list
+alias q quit
+@end example
+
+@noindent
+なる設定により, @code{print}, @code{cont} など, デバッグモードにおいて
+頻繁に用いられるコマンドが, それぞれ @code{p}, @code{c} など, 短い
+文字列で代用できる. また, デバッグモードにおいて, @code{alias} コマンド
+により alias の追加ができる. 
+
+@example
+lex_hensel(La,[a,b,c],0,[a,b,c],0);
+stopped in gennf at line 226 in file "/home/usr3/noro/asir/gr"
+226             N = length(V); Len = length(G); dp_ord(O); PS = newvect(Len);
+(debug) p V
+V = [a,b,c]
+(debug) c
+...
+@end example
+

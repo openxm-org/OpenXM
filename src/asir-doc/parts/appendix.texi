@@ -1,0 +1,446 @@
+@node 付録,,, Top
+@appendix 付録
+
+@menu
+* 文法の詳細::
+* 添付のユーザ定義函数ファイル::
+* 入力インタフェース::
+* 変更点::
+* 文献::
+@end menu
+
+@node 文法の詳細,,, 付録
+@section 文法の詳細
+
+@example
+<式>: (@xref{さまざまな式})
+    @samp{(}<式>@samp{)}
+    <式> <二項演算子> <式>
+    @samp{+} <式>
+    @samp{-} <式>
+    <左辺値>
+    <左辺値> <代入演算子> <式>
+    <左辺値> @samp{++}
+    <左辺値> @samp{--}
+    @samp{++} <左辺値>
+    @samp{--} <左辺値>
+    @samp{!} <式>
+    <式> @samp{?} <式> @samp{:} <式>
+    <函数> @samp{(} <式並び> @samp{)}
+    <文字列>
+    <指数ベクトル>
+    <アトム>
+    <リスト>
+@end example
+
+@example
+<左辺値>:
+    <変数> [@samp{[}<式>@samp{]}]*
+@end example
+
+@example
+<二項演算子>:
+    @samp{+} @samp{-} @samp{*} @samp{/} @samp{%} @samp{^}(冪) 
+    @samp{==} @samp{!=} @samp{<} @samp{>} @samp{<=} @samp{>=} @samp{&&} @samp{||}
+@end example
+
+@example
+<代入演算子>:
+    @samp{=} @samp{+=} @samp{-=} @samp{*=} @samp{/=} @samp{%=} @samp{^=} 
+@end example
+
+@example
+<式並び>:
+    <空>
+    <式> [@samp{,} <式>]*
+@end example
+
+@example
+<リスト>:
+    @samp{[} <式並び> @samp{]}
+@end example
+
+@example
+<変数>: (@xref{変数および不定元})
+    大文字で始まる文字列 (X,Y,Japan など)
+@end example
+
+@example
+<函数>:
+   小文字で始まる文字列 (fctr,gcd など)
+@end example
+
+@example
+<アトム>:
+   <不定元>
+   <数>
+@end example
+
+@example
+<不定元>: (@xref{変数および不定元})
+   小文字で始まる文字列 (a,bCD,c1_2 など)
+@end example
+
+@example
+<数>: (@xref{数の型})
+   <有理数>
+   <浮動小数>
+   <代数的数>
+   <複素数>
+@end example
+
+@example
+<有理数>:
+   0, 1, -2, 3/4
+@end example
+
+@example
+<浮動小数>:
+   0.0, 1.2e10
+@end example
+
+@example
+<代数的数>: (@xref{代数的数に関する演算})
+   newalg(x^2+1), alg(0)^2+1
+@end example
+
+@example
+<複素数>:
+   1+@code{@@i}, 2.3*@code{@@i}
+@end example
+
+@example
+<文字列>:
+   @samp{"} で囲まれた文字列 
+@end example
+
+@example
+<指数ベクトル>: (@xref{グレブナ基底の計算})
+   @samp{<<} <式並び> @samp{>>}
+@end example
+
+@example
+<文>: (@xref{文})
+    <式> <終端>
+    <複文>
+    @samp{break} <終端>
+    @samp{continue} <終端>
+    @samp{return} <終端>
+    @samp{return} <式> <終端>
+    @samp{if} @samp{(} <式並び> @samp{)} <文>
+    @samp{if} @samp{(} <式並び> @samp{)} <文> @samp{else} <文>
+    @samp{for} @samp{(} <式並び> @samp{;} <式並び> @samp{;} <式並び> @samp{)} <文>
+    @samp{do} <文> @samp{while} @samp{(} <式並び> @samp{)} <終端> 
+    @samp{while} @samp{(} <式並び> @samp{)} <文>
+    @samp{def} <函数> @samp{(} <式並び> @samp{)} @samp{@{} <変数宣言> <文並び> @samp{@}}
+    @samp{end(quit)} <終端> 
+@end example
+
+@example
+<終端>:
+    @samp{;} @samp{$}
+@end example
+
+@example
+<変数宣言>:
+    [@samp{extern} <変数> [@samp{,} <変数>]* <終端>]*
+@end example
+
+@example
+<複文>:
+    @samp{@{} <文並び> @samp{@}}
+@end example
+
+@example
+<文並び>:
+    [<文>]*
+@end example
+
+@node 添付のユーザ定義函数ファイル,,, 付録
+@section 添付のユーザ定義函数ファイル
+
+@noindent
+標準ライブラリディレクトリ (デフォルトでは @samp{/usr/local/lib/asir}) には
+いくつかのユーザ定義函数ファイルがおかれている. これらのうちの主なものについて
+説明する. 
+
+@table @samp
+@item fff
+大標数素体および標数 2 の有限体上の一変数多項式因数分解 (@xref{有限体に関する演算})
+@item gr
+グレブナ基底計算パッケージ.  (@xref{グレブナ基底の計算})
+@item sp
+代数的数の演算および因数分解, 最小分解体. (@xref{代数的数に関する演算})
+@item alpi
+@itemx bgk
+@itemx cyclic
+@itemx katsura
+@itemx kimura
+グレブナ基底計算において, ベンチマークその他で用いられる例. 
+(@xref{katsura hkatsura cyclic hcyclic})
+@item defs.h
+いくつかのマクロ定義. (@xref{プリプロセッサ})
+@item fctrtest
+整数上の多項式の因数分解のテスト. REDUCE の @samp{factor.tst} および
+重複度の大きいいくつかの例を含む. これは, @code{load()} すると
+直ちに計算が始まる. 入手した @b{Asir} が正しく動作しているかの
+テストにも使うことができる. 
+@item fctrdata
+@samp{fctrtest} で使われている例を含む, 因数分解テスト用の例. 
+@code{Alg[]} に収められている例は, @code{af()} (@xref{asq af}) 用の例である. 
+@example
+[45] load("sp")$
+[84] load("fctrdata")$
+[175] cputime(1)$
+0msec
+[176] Alg[5];
+x^9-15*x^6-87*x^3-125
+0msec
+[177] af(Alg[5],[newalg(Alg[5])]);
+[[1,1],[75*x^2+(10*#0^7-175*#0^4-470*#0)*x+(3*#0^8-45*#0^5-261*#0^2),1],
+[75*x^2+(-10*#0^7+175*#0^4+395*#0)*x+(3*#0^8-45*#0^5-261*#0^2),1],
+[25*x^2+(25*#0)*x+(#0^8-15*#0^5-87*#0^2),1],[x^2+(#0)*x+(#0^2),1],
+[x+(-#0),1]]
+3.600sec + gc : 1.040sec
+@end example
+@item ifplot
+描画 (@xref{ifplot conplot plot plotover}) のための例. @code{IS[]} には有名な
+曲線の例, 変数 @code{H, D, C, S} にはトランプのハート, ダイヤ, クラブ, 
+スペード (らしき) 曲線の例が入っている. 
+@item num
+数に関する簡単な演算函数の例. 
+@item mat
+行列に関する簡単な演算函数の例. 
+@item ratint
+有理函数の不定積分. @samp{sp}, @samp{gr} が必要. @code{ratint()} という
+函数が定義されているが, その返す結果はやや複雑である. 例で説明する. 
+@example
+[0] load("gr")$
+[45] load("sp")$
+[84] load("ratint")$
+[102] ratint(x^6/(x^5+x+1),x);
+[1/2*x^2,
+[[(#2)*log(-140*x+(-2737*#2^2+552*#2-131)),161*t#2^3-23*t#2^2+15*t#2-1],
+[(#1)*log(-5*x+(-21*#1-4)),21*t#1^2+3*t#1+1]]]
+@end example
+この例では, @code{x^6/(x^5+x+1)} の不定積分の計算を行っている. 
+結果は 2 つの要素からなるリストで, 第 1 要素は不定積分の有理部分, 
+第 2 要素は対数部分を表す. 対数部分は更にリストとなっていて, 各要素は, 
+@code{[root*log(poly),defpoly]} という形をしている. これは, 不定積分に
+おいては, @code{defpoly} の全ての根 @code{root} に対して @code{root*log(poly)}
+を作りそれらを足し合わせるという意味である. ここで @code{poly} は
+@code{root} を含んでいて, @code{root} を入れ替える場合には @code{poly}
+に対しても同じ操作を行うものとする. この操作を, 結果の第 2 要素の
+各成分に対して行って, 全てを足し合わせたものが対数部分となる. 
+@item primdec
+多項式イデアルの準素イデアル分解とその根基の素イデアル分解
+(@code{[Shimoyama,Yokoyama]} 参照).
+準素イデアル分解は @code{primadec()}, 素イデアル分解は, @code{primedec()}
+という関数で, 用意されている. 引数は, 多項式リストと変数である. 
+有理式係数の多項式イデアルや, 0次元でないイデアルも扱える. 
+@code{primadec} は, 準素成分とその素成分のペアリストのリストを返す. 
+@code{primedec} は, 素成分のリストを返す. 
+その結果はいずれもグレブナ基底になっているが, その
+変数順序は, それぞれ大域変数 @code{PRIMAORD}, @code{PRIMEORD}
+ の値 0,1 あるいは 2 によって決まる. 
+@example
+[84] load("primdec")$
+[102] primedec([p*q*x-q^2*y^2+q^2*y,-p^2*x^2+p^2*x+p*q*y,
+(q^3*y^4-2*q^3*y^3+q^3*y^2)*x-q^3*y^4+q^3*y^3,
+-q^3*y^4+2*q^3*y^3+(-q^3+p*q^2)*y^2],[p,q,x,y]);
+[[y,x],[y,p],[x,q],[q,p],[x-1,q],[y-1,p],[(y-1)*x-y,q*y^2-2*q*y-p+q]]
+[103] primadec([x,z*y,w*y^2,w^2*y-z^3,y^3],[x,y,z,w]);
+[[[x,z*y,y^2,w^2*y-z^3],[z,y,x]],[[w,x,z*y,z^3,y^3],[w,z,y,x]]]
+@end example
+@end table
+
+@node 入力インタフェース,,, 付録
+@section 入力インタフェース
+
+既に述べたように, DOS 版, Windows 版, Macintosh 版では入力インタフェースと
+してコマンドライン編集およびヒストリ置き換えが組み込まれている. UNIX 版では
+このような機能は組み込まれていないが, 以下で述べるような入力インタフェース
+が用意されている. これらは @b{Asir} バイナリとともに ftp 可能である. 
+ftp server に関しては @xref{入手方法}.
+
+@menu
+* fep::
+* asir.el::
+@end menu
+
+@node fep,,, 入力インタフェース
+@subsection fep
+
+@noindent
+fep とは, SRA の歌代氏により開発されたコマンドライン編集, ヒストリ置き換え
+用の入力フロントエンドである. このプログラムの元で @samp{asir} を起動する
+ことにより vi あるいは emacs 風のコマンドライン編集および csh 風のヒストリ
+置き換えが可能になる. 
+
+@example
+% fep asir
+...
+[0] fctr(x^5-1);
+[[1,1],[x-1,1],[x^4+x^3+x^2+x+1,1]]
+[1] !!                              /* !!+Return                      */
+fctr(x^5-1);                        /* 直前の入力が現れるて編集できる */
+...                                 /* 編集+Return                    */
+fctr(x^5+1);
+[[1,1],[x+1,1],[x^4-x^3+x^2-x+1,1]]
+@end example
+
+@noindent
+fep はフリーソフトでソースが入手可能であるが, オリジナルのものは make できる
+機種 (OS) が限られている. いくつかの機種上で動作するように我々が改造したもの
+が, ftp で入手可能である.
+
+@node asir.el,,, 入力インタフェース
+@subsection asir.el
+
+@noindent
+@samp{asir.el} は, @b{Asir} の GNU Emacs インタフェースである (著者は
+宮嶋光治氏 (@code{YVE25250@@pcvan.or.jp}).  @samp{asir.el} においては, 
+通常の emacs で可能な編集機能の他に, ファイル名, コマンド名の completion
+が実現されている. 
+
+@noindent
+@samp{asir.el} は PC-VAN で
+既に公開されているが, 今回の改訂に伴う変更を行ったものが, やはり ftp で
+入手可能である. 
+
+@noindent
+セットアップ, 使用方法は, @samp{asir.el} の先頭に記述されている. 
+
+@node 変更点,,, 付録
+@section 変更点
+
+@menu
+* Version 990831::
+* Version 950831::
+* Version 940420::
+@end menu
+
+@node Version 990831,,, 変更点
+@subsection Version 990831
+
+4 年ぶりの大改訂. 整数の 32bit 化他, 中身はずいぶん変わっているものの, 
+見掛けはそれほど変わっているようには見えない. むしろ, Windows 版などは, 
+plot が使えないため, 退化している. 
+
+旧版のユーザがもっとも注意すべき点は, 旧版で作った bsave file を読み込む
+場合は @code{bload27} を使う必要がある, という点である. 
+
+@node Version 950831,,, 変更点
+@subsection Version 950831
+
+@menu
+* デバッガ(変更)::
+* 組み込み函数(変更)::
+* グレブナ基底(変更)::
+* その他(変更)::
+@end menu
+
+@node デバッガ(変更),,, Version 950831
+@subsubsection デバッガ
+
+@itemize @bullet
+@item
+任意の時点にデバッグモードに入れる.
+@item
+@code{finish} コマンドの追加. 
+@item
+@code{up}, @code{down}, @code{frame} コマンドによる, 任意のスタックフレーム
+の参照. 
+@item
+@code{trace} コマンドの追加. 
+@end itemize
+
+@node 組み込み函数(変更),,, Version 950831
+@subsubsection 組み込み函数
+
+@itemize @bullet
+@item
+@code{sdiv()} などにおける, 主変数の指定のサポート. 
+@item
+@code{sdivm()} など, 有限体上での多項式除算の追加. 
+@item
+@code{det()}, @code{res()} などにおける, 有限体上での計算のサポート
+@item
+@code{vtol()} (ベクトルからリストへの変換) の追加. 
+@item
+@code{map()} の追加. 
+@end itemize
+
+@node グレブナ基底(変更),,, Version 950831
+@subsubsection グレブナ基底
+
+@itemize @bullet
+@item
+グレブナ基底計算機能の組み込み函数化. 
+@item
+@code{grm()}, @code{hgrm()} が @code{gr()}, @code{hgr()} に変更. 
+@item
+@code{gr()}, @code{hgr()} において, 項順序の指定が必要になった. 
+@item
+項順序の指定方法が拡張された. 
+@item
+有限体上のグレブナ基底計算のサポート. 
+@item
+基底変換による辞書式順序グレブナ基底計算のサポート. 
+@item
+いくつかの新しい組み込み函数の提供. 
+@end itemize
+
+@node その他(変更),,, Version 950831
+@subsubsection その他
+
+@itemize @bullet
+@item
+分散計算用ツール, 函数の追加.
+@item
+代数体上の GCD 計算におけるモジュラ計算の応用.
+@item
+イデアルの準素分解のサポート. 
+@item
+Windows への移植.
+@end itemize
+
+@node Version 940420,,, 変更点
+@subsection Version 940420
+
+@noindent
+最初の公開版. 
+
+@node 文献,,, 付録
+@section 文献
+@table @code
+@item [Batut et al.]
+Batut, C., Bernardi, D., Cohen, H., Olivier, M., "User's Guide to PARI-GP",
+1993.
+@item [Becker,Weispfenning] 
+Becker, T., Weispfenning, V., "Groebner Bases", Graduate Texts in Math. 141,
+Springer-Verlag, 1993.
+@item [Boehm,Weiser] 
+Boehm, H., Weiser, M., "Garbage Collection in an Uncooperative
+Environment", Software Practice & Experience, September 1988, 807-820.
+@item [Gebauer,Moeller] 
+Gebauer, R., Moeller, H. M., "An installation of Buchberger's algorithm",
+J. of Symbolic Computation 6, 275-286.
+@item [Giovini et al.] 
+Giovini, A., Mora, T., Niesi, G., Robbiano, L., Traverso, C., 
+""One sugar cube, please" OR Selection strategies in the Buchberger algorithm",
+Proc. ISSAC'91, 49-54.
+@item [Noro,Takeshima] 
+Noro, M., Takeshima, T., "Risa/Asir -- A Computer Algebra System",
+Proc. ISSAC'92, 387-396.
+@item [Noro,Yokoyama] 
+Noro, M., Yokoyama, K., "New methods for the change-of-ordering in Groebner
+basis computation", ISIS Research Report ISIS-RR-95-8E, 1995.
+@item [Shimoyama,Yokoyama]
+Shimoyama, T., Yokoyama, K.,
+"Localization and primary decomposition of polynomial ideals",
+to appear in J. Symb. Comp.
+@item [Traverso]
+Traverso, C., "Groebner trace algorithms", Proc. ISSAC '88(LNCS 358), 125-138.
+@end table
+

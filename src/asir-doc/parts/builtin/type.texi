@@ -1,0 +1,160 @@
+@node 型を求める函数,,, 組み込み函数
+@section 型を求める函数
+
+@menu
+* type::
+* ntype::
+* vtype::
+@end menu
+
+@node type,,, 型を求める函数
+@subsection @code{type}
+@findex type
+
+@table @t
+@item type(@var{obj})
+:: @var{obj} の 型 (整数) を返す. 
+@end table
+
+@table @var 
+@item return
+自然数
+@item obj
+任意
+@end table
+
+@itemize @bullet
+@item
+@var{obj} の 型の値は次の通り. 
+@table @t
+@item 0
+0
+@item 1
+数
+@item 2
+多項式 (数でない)
+@item 3
+有理式 (多項式でない)
+@item 4
+リスト
+@item 5
+ベクトル
+@item 6
+行列
+@item 7
+文字列
+@item 8
+構造体
+@item 9
+分散表現多項式
+@end table
+@item
+数の型を求めるには, @code{ntype} を用いる. 
+不定元の型を求めるには, @code{vtype} を用いる. 
+@end itemize
+
+@table @t
+@item 参照
+@fref{ntype}, @fref{vtype}.
+@end table
+
+@node ntype,,, 型を求める函数
+@subsection @code{ntype}
+@findex ntype
+
+@table @t
+@item ntype(@var{num})
+:: @var{num} (数) の 型 (整数) を返す. 
+@end table
+
+@table @var
+@item return
+自然数
+@item obj
+数
+@end table
+
+@itemize @bullet
+@item
+数の型の値は次の通り. 
+@table @t
+@item 0
+有理数
+@item 1
+倍精度浮動小数
+@item 2
+代数的数
+@item 3
+任意精度浮動小数 (@b{bigfloat})
+@item 4
+複素数
+@item 5
+有限体の元
+@end table
+@item
+@code{newalg(x^2+1)} で生成した数と, 虚数単位 @code{@@i} は, 
+異なるものとして扱われる. 
+@item
+代数的数に関しては, @xref{代数的数に関する演算}. 
+@end itemize
+
+@example
+[0] [10/37,ntype(10/37)];
+[10/37,0]
+[1] [10.0/37.0,ntype(10.0/37.0)];
+[0.27027,1]
+[2] [newalg(x^2+1)+1,ntype(newalg(x^2+1)+1)];
+[(#0+1),2]
+[3] [eval(sin(@@pi/6)),ntype(eval(sin(@@pi/6)))];
+[0.49999999999999999991,3]
+[4] [@@i+1,ntype(@@i+1)];
+[(1+1*@@i),4]
+@end example
+
+@table @t
+@item 参照
+@fref{type}.
+@end table
+
+@node vtype,,, 型を求める函数
+@subsection @code{vtype}
+@findex vtype
+
+@table @t
+@item vtype(@var{var})
+:: @var{var} (不定元) の 型 (整数) を返す. 
+@end table
+
+@table @var
+@item return
+自然数
+@item var
+不定元
+@end table
+
+@itemize @bullet
+@item
+@var{var} (不定元) の型の値は次の通り. 詳細は @xref{不定元の型}.
+@table @t
+@item 0
+一般不定元  (a,b,x,afo,bfo,...,etc)
+@item 1
+@code{uc()} で生成された不定元 (@code{_0}, @code{_1}, @code{_2}, ... etc)
+@item 2
+函数形式 (@code{sin(x)}, @code{log(a+1)}, @code{acosh(1)}, @code{@@pi}, @code{@@e}, ... etc)
+@item 3
+函数子 (組み込み函数子, ユーザ定義函数子, 初等函数子 : @code{sin}, @code{log}, ... etc)
+@end table
+@item
+@code{a();} を実行(通常ではエラー)しただけでも @code{ntype(a)} は 3 となる. 
+すなわち @code{a} はユーザ定義函数子とみなされる.
+@item
+@code{@@pi}, @code{@@e} は不定元として扱われるが, @code{eval()}, @code{pari()}
+においては数として扱われる. 
+@end itemize
+
+@table @t
+@item 参照
+@fref{type}, @fref{ntype}, @fref{uc}.
+@end table
+

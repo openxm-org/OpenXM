@@ -1,0 +1,1239 @@
+@node 分散計算,,, Top
+@chapter 分散計算
+
+@menu
+* OpenXM::
+* Mathcap::
+* スタックマシンコマンド::
+* デバッグ::
+* 分散計算に関する関数::
+@end menu
+
+@node OpenXM,,, 分散計算
+@section OpenXM
+
+@b{Asir} は, 分散計算における通信プロトコルとして, @b{Open XM} 
+(Open message eXchange protocol for Mathematics) を採用している. 
+@b{Open XM} は, 主として数学オブジェクトをプロセス間でやりとりする
+ための規約である. @b{Open XM} においては
+
+@enumerate
+@item client が server に対して計算実行依頼のメッセージを送る. 
+@item server が計算を実行する. 
+@item client が server に結果送付依頼のメッセージを送る. 
+@item server は結果を返し, client は結果を受け取る
+@end enumerate
+
+という形で分散計算が行われる. server はスタックマシンである. すなわち,
+client から送られたデータオブジェクトは, 指定がない限り server のスタッ
+クに積まれ, コマンドが送られた時に, 必要なだけスタックからデータを取り出
+して, 関数呼び出しの引数とする. 
+
+@b{Open XM} において特徴的なことは, 計算結果は単に server のスタックに
+積まれるだけで, client からの依頼がない限り, 通信路にデータは流れない
+という点である. 
+
+プロトコルには, オブジェクトの共通フォーマットを規定
+する @b{CMO} (Common Mathematical Object format), プロセスに対する
+動作を指定する @b{SM} (Stack Machine command) が含まれる. 
+これらは, スタックマシンにデータを送る際に, データの種類を指定する
+ための @b{OX} expression としてラッピングされる. 
+
+@b{Asir} を client として @b{Open XM} による分散計算を行う場合には, 
+まず, server を立ち上げて, 通信を成立させる必要がある. このために, 
+@code{ox_launch()}, @code{ox_launch_nox()}, @code{ox_launch_generic()}
+などの関数が用意されている. さらに, 通信の成立した server に対して
+以下のような操作が関数として用意されている. 
+
+@table @code
+@item @code{ox_push_cmo()}
+
+データを server のスタックに積む
+
+@item @code{ox_pop_cmo()}
+データを server のスタックから取り出す. 
+
+@item @code{ox_cmo_rpc()}
+
+server の関数を呼び出し, 結果をスタックに積む. 
+
+@item @code{ox_execute_string()}
+
+server 固有のユーザ言語 (@b{Asir} なら Asir 言語) で書かれた文字列を
+server が実行し, 結果をスタックに積む. 
+
+@item @code{ox_push_cmd()}
+
+@b{SM} コマンドの送信. 
+
+@item @code{ox_get()}
+
+既に通信路にあるデータの取り出し. 
+@end table
+
+@node Mathcap,,, 分散計算
+@section Mathcap
+
+server, client ともに, @b{Open XM} で規定されている全ての@b{CMO} フォー
+マット, @b{SM} コマンドを実装しているとは限らない. 相手の知らないデータ, 
+コマンドを送った場合, 現状では結果は予想できない. このため, @b{Open XM} 
+では, あらかじめ互いのサポートする @b{CMO}, @b{SM} のリストを交換しあって, 
+相手の知らないデータを送らないようにする仕組みを提唱している. このための
+データが Mathcap である. Mathcap は @b{CMO} としてはリストであり, その
+要素は 32 bit 整数または文字列である. 現在の規定では, Mathcap は
+長さが 3 のリストで, 
+
+[[version 番号, server 名],@b{SM}taglist,[@b{OX}taglist,@b{CMO}taglist, @b{CMO}taglist,...]]
+
+という形をしている. @b{OX}taglist の @var{i} 番目の要素は, 
+その後に続く @b{CMO}taglist の @var{i} 番目のものに対応していて, 
+@b{OX}tag で示されるカテゴリのデータに対して, どのような @b{CMO} が使用可
+能かを示すものである. この指定を複数許すことにより, 例えば 
+@samp{ox_asir} のように, @b{CMO} データ以外に, @b{Asir} 固有のデータ形式
+により, @b{CMO}より多くの種類のデータ送受信を行えることを示せる. 
+
+データ送信の際に, 相手プロセスの Mathcap が既に登録されている場合, 
+Mathcap によるチェックを行うか否かは, 
+@code{ctrl} コマンドの @code{"ox_check"} スイッチにより決まる. 
+このスイッチの初期値は 1 で, チェックを行うことを意味する. 
+@code{ctrl("ox_check",0)} によりチェックを行わないようにできる. 
+
+@node スタックマシンコマンド,,, 分散計算
+@section スタックマシンコマンド
+
+スタックマシンコマンドは, スタックマシンである server に何らかの操作を行
+わせるために用意されている. いくつかのコマンドは, よく用いられる形で, 他
+のコマンド, データとともに, @b{Asir} の組み込み関数による送られるが, ユー
+ザが明示的にあるコマンドを送る必要がしばしば生ずる. スタックマシンコマン
+ドは 32 bit 以下の整数であり, @code{ox_push_cmd()} コマンドで送信できる. 
+以下で, 代表的なスタックマシンコマンドについて解説する. @b{SM_xxx=yyy}
+で, @b{SM_xxx} が mnemonic, @b{yyy} が値である. 
+
+以下で, スタックからデータを取り出すとは, スタックの一番上からデータを
+取り除くことを言う. 
+
+@table @b
+@item SM_popSerializedLocalObject=258
+
+server が @samp{ox_asir} の場合に, 必ずしも @b{CMO} で定義されていない
+オブジェクトをスタックから取り出し, 通信路に流す.  
+
+@item SM_popCMO=262
+
+@b{CMO} オブジェクトをスタックから取り出し, 通信路に流す. 
+
+@item SM_popString=263
+
+スタックからデータを取り出し, 可読形式の文字列に変換して通信路に流す. 
+
+@item SM_mathcap=264
+
+server の mathcap をスタックに積む. 
+
+@item SM_pops=265
+
+スタックから取り出したデータを個数として, その個数分スタックから
+データを取り除く. 
+
+@item SM_setName=266
+
+スタックからデータを変数名として取り出し, 次に取り出したデータをその
+変数に割り当てる. この割り当ては, server 固有の処理として行われる. 
+
+@item SM_evalName=267
+
+スタックから取り出したデータを変数名として, その値をスタックに載せる. 
+
+@item SM_executeStringByLocalParser=268
+
+スタックから取り出したデータを, server 固有の parser, evaluator で
+処理し, 結果をスタックに載せる. 
+
+@item SM_executeFunction=269
+
+スタックから, 関数名, 引数の個数, 個数分の引数を取り出し, 関数を呼び出し
+結果をスタックに載せる. 
+
+@item SM_beginBlock=270 
+データブロックのはじまり. 
+
+@item SM_endBlock=271
+データブロックの終り. 
+
+@item SM_shutdown=272
+
+server との交信を切断し, server を終了させる. 
+
+@item SM_setMathcap=273
+
+スタックのデータを client の mathcap として, server に登録を要求する. 
+
+@item SM_getsp=275
+
+現在スタックに積まれているデータの数をスタックに載せる. 
+
+@item SM_dupErrors=276
+
+現在スタックに積まれているオブジェクトの内, エラーオブジェクトのみ
+をリストにして, スタックに載せる. 
+
+@item SM_nop=300
+
+なにもしない. 
+@end table
+
+@node デバッグ,,, 分散計算
+@section デバッグ
+
+分散計算においては, 一般にデバッグが困難となる. @samp{ox_asir} に
+おいては, デバッグのためのいくつかの機能を提供している. 
+
+@menu
+* エラーオブジェクト::
+* リセット::
+* デバッグ用ポップアップウィンドウ::
+@end menu
+
+@node エラーオブジェクト,,, デバッグ
+@subsection エラーオブジェクト
+
+@b{Open XM} server が実行中にエラーを起こした場合, 結果のかわりに
+@b{CMO} エラーオブジェクトをスタックに積む. エラーオブジェクトは, 対応する
+@b{SM} コマンドのシリアル番号と, エラーメッセージからなり, それによって
+どの @b{SM} コマンドがどのようなエラーを起こしたがある程度判明する. 
+
+@example
+[340] ox_launch();
+0
+[341] ox_rpc(0,"fctr",1.2*x);
+0
+[342] ox_pop_cmo(0);
+error([8,fctrp : invalid argument])
+@end example
+
+@node リセット,,, デバッグ
+
+@code{ox_reset()} は現在実行中の server をリセットして, コマンド受け付け
+状態に戻す. この機能は, 通常の @b{Asir} セッションにおけるキーボード割り込み
+とほぼ同様に, @b{Open XM} server をリセットできる. また, 何らかの原因で, 
+通信路のデータが載ったままの状態で @code{ox_rpc()} などを実行すると, 
+@code{ox_pop_cmo()} など, スタックからの取り出しと, 実際に読まれるデータ
+の対応が不正になる. そのような場合にも有効である. 
+
+@subsection リセット
+
+@node デバッグ用ポップアップウィンドウ,,, デバッグ
+@subsection デバッグ用ポップアップウィンドウ
+
+server には, client におけるキーボードに相当する入力機能がないため,
+server 側で動作しているユーザ言語プログラムのデバッグが困難になる. この
+ため, server 側でのユーザ言語プログラム実行中のエラーおよび, client から
+の @code{ox_rpc(@var{id},"debug")} 実行により, server にデバッグコマンド
+を入力するための小さなウィンドウがポップアップする. このウィンドウからの
+入力に対する出力は, log 用の @samp{xterm} に表示される. このウィンドウを
+閉じるには, @code{quit} を入力すればよい. 
+
+@node 分散計算に関する関数,,, 分散計算
+@section 分散計算に関する関数
+
+@menu
+* ox_launch ox_launch_nox ox_shutdown::
+* ox_launch_generic::
+* ox_asir::
+* ox_rpc ox_cmo_rpc ox_execute_string::
+* ox_push_cmo ox_push_local::
+* ox_pop_cmo ox_pop_local::
+* ox_push_cmd ox_sync::
+* ox_get::
+* ox_pops::
+* ox_reset register_handler::
+* ox_select::
+* ox_flush::
+* ox_get_serverinfo::
+* generate_port try_bind_listen try_connect try_accept register_server::
+* ifplot conplot plot plotover::
+@end menu
+
+@node ox_launch ox_launch_nox ox_shutdown,,, 分散計算に関する関数
+@subsection @code{ox_launch}, @code{ox_launch_nox}, @code{ox_shutdown}
+@findex ox_launch
+@findex ox_launch_nox
+@findex ox_shutdown
+
+@table @t
+@item ox_launch([@var{host}[,@var{dir}],@var{command}])
+@itemx ox_launch_nox([@var{host}[,@var{dir}],@var{command}])
+:: 遠隔プロセスの起動および通信を開始する. 
+@item ox_shutdown(@var{id})
+:: 遠隔プロセスを終了させ, 通信を終了する. 
+@end table
+
+@table @var
+@item return
+整数
+@item host
+文字列または 0
+@item dir, command
+文字列
+@item id
+整数
+@end table
+
+@itemize @bullet
+@item
+@code{ox_launch()} は, ホスト @var{host} 上でコマンド @var{command} を起動し, 
+このプロセスと通信を開始する. 
+引数が 3 つの場合, @var{host} 上で, 
+@var{dir} にある @samp{ox_launch} というサーバ起動用プログラムを立ち上げる.
+@samp{ox_launch} は @var{command} を起動する. 
+@var{host} が 0 の時, @b{Asir} が動作している
+マシン上でコマンドを起動する. 
+無引数の場合, @var{host} は 0, @var{dir} は @code{get_rootdir()} 
+で返されるディレクトリ, @var{command} は同じディレクトリの @samp{ox_asir}
+を意味する. 
+@item
+@var{host} が 0, すなわちサーバを local に起動する場合には, @var{dir}
+を省略できる. この場合, @var{dir} は @code{get_rootdir()} で返される
+ディレクトリとなる. 
+@item
+@var{command} が @samp{/} で始まる文字列の場合, 絶対パスと解釈される. 
+それ以外の場合, @var{dir} からの相対パスと解釈される. 
+@item
+UNIX 版においては, @code{ox_launch()} は, @var{command} の標準出力, 標準
+エラー出力を表示するための @samp{xterm} を起動する. 
+@code{ox_launch_nox()} は, @code{X} なしの環境の場合, あるいは @samp{xterm}
+を起動せずにサーバを立ち上げる場合に用いる. この場合, 
+@var{command} の出力は @samp{/dev/null} に接続される. 
+@code{ox_launch()} の場合でも, 環境変数 @code{DISPLAY} が設定されていない
+場合には, @code{ox_launch_nox()} と同じ動作をする. 
+
+@item
+返される整数は通信のための識別子となる. 
+
+@item
+@b{Asir} と通信するプロセスは同一のマシン上で動作している必要はない. ま
+た, 通信におけるバイトオーダは server, client 間での最初の negotiation 
+で決まるため, 相手先のマシンとバイトオーダが異なっていても構わない.
+
+@item
+@var{host} にマシン名を指定する場合, 以下の準備が必要である. 
+ここで, @b{Asir} の動いているホストを @code{A}, 通信相手のプロセス
+が起動されるホストを @code{B} とする. 
+
+@enumerate
+@item
+ホスト @code{B} の @code{csh} のサーチパスに起動されるプログラム
+のあるディレクトリをいれる. プログラムは @code{rsh} で起動される. した
+がって, ホスト @code{B} のサーチパスに そのプログラムが入っていない場
+合には起動できない. この場合絶対パスを与えるか, @samp{~/.cshrc} のサー
+チパスにそのプログラムのあるディレクトリを追加する必要がある. その際, 
+相手先ホストにおけるディレクトリであることを忘れないようにすること. 
+
+@item
+ホスト @code{B} の @samp{~/.rhosts} に, ホスト @code{A} のホスト
+名を登録する. 
+
+@item
+@samp{ox_plot} など, @code{X} とのコネクションも用いられる場合, 
+@code{Xserver} に対し, 必要なホストを authorize させる. 
+@code{xhost} で必要なホスト名を追加すればよい. 
+
+@item
+@var{command} によっては, スタックを大量に使用する
+ものもあるため, @samp{.cshrc} でスタックサイズを大きめ (16MB 程度) に
+指定しておくのが安全である. スタックサイズは @code{limit stacksize 16m}
+などと指定する. 
+@end enumerate
+
+@item
+@var{command} が, X 上にウインドウを開ける場合, 
+@var{display}が指定されればその文字列を, 省略時には環境変数 
+@code{DISPLAY} の値を用いる. 
+
+@item
+@code{ox_shutdown()} は識別子 @var{id} に対応する遠隔プロセス
+を終了させる. 
+
+@item
+@b{Asir} が正常した場合には全ての入出力ストリームは自動的に閉じられ, 
+起動されているプロセスは全て終了するが, 異常終了した場合, 遠隔プロセス
+が終了しない場合もある. @b{Asir} が異常終了した場合, 遠隔プロセスを
+起動したマシン上で @code{ps} などを起動して, もし @b{Asir} から起動
+したプロセスが残っている場合, @code{kill} する必要がある. 
+
+@item
+log 表示用 @samp{xterm} は @samp{-name ox_term} オプションで起動される. 
+よって, @samp{ox_term} なるリソース名に対して @samp{xterm} のリソース設定
+を行えば, log 用 @samp{xterm} の挙動のみを変えることができる. 
+例えば, 
+@example
+ox_xterm*iconic:on
+ox_xterm*scrollBar:on
+ox_xterm*saveLines:1000
+@end example
+により, icon で起動, scrollbar つき, scrollbar で参照できる行数
+が最大 1000 行, という指定ができる. 
+@end itemize
+
+@example
+[219] ox_launch();
+0
+[220] ox_rpc(0,"fctr",x^10-y^10);      
+0
+[221] ox_pop_local(0);
+[[1,1],[x^4+y*x^3+y^2*x^2+y^3*x+y^4,1],
+[x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],[x-y,1],[x+y,1]]
+[222] ox_shutdown(0);    
+0
+@end example
+
+@table @t
+@item 参照
+@code{ox_rpc}, @code{ox_pop_local},
+@code{ifplot}, @code{conplot}, @code{plot}
+@end table
+
+@node ox_launch_generic,,, 分散計算に関する関数
+@subsection @code{ox_launch_generic}
+@findex ox_launch_generic
+
+@table @t
+@item ox_launch_generic(@var{host},@var{launch},@var{server},@var{use_unix},@var{use_ssh},@var{use_x},@var{conn_to_serv})
+:: 遠隔プロセスの起動および通信を開始する. 
+@end table
+
+@table @var
+@item return
+整数
+@item host
+文字列または 0
+@item launcher, server
+文字列
+@item use_unix, use_ssh, use_x, conn_to_serv
+整数
+@end table
+
+@itemize @bullet
+@item
+@code{ox_launch_generic()} は, 
+ホスト @var{host} 上で, コントロールプロセス @var{launch} および
+サーバプロセス @var{server} を起動する. その他の引数は, 使用する
+protocol の種類, X の使用/不使用, rsh/ssh によるプロセス起動, connect
+方法の指定などを行うスイッチである. 
+@item
+@var{host} が 0 の場合, @b{Asir} が動作しているマシン上に, @var{launch},
+@var{server} を立ち上げる. この場合, @var{use_unix} の値にかかわらず, 
+UNIX internal protocol が用いられる. 
+@item
+@var{use_unix} が 1 の場合, UNIX internal protocol を用いる. 0 の場合, 
+Internet protocol を用いる. 
+@item
+@var{use_ssh} が 1 の場合, @samp{ssh} (Secure Shell) によりコントロール, 
+サーバプロセスを立ち上げる. 必要に応じてパスワードを入力する必要がある. 
+相手先で @samp{sshd} が動いていない場合, 自動的に @samp{rsh} が用いられるが, 
+パスワードが必要となる場合には, その場で起動に失敗する. 
+@item
+@var{use_x} が 1 の場合, X 上での動作を仮定し, 設定されている DISPLAY変
+数を用いて, log 表示用 @samp{xterm} のもとで @var{server} が起動され
+る. DISPLAY 変数がセットされていない場合には, 自動的に X なしの設定とな
+る. DISPLAY が不適切にセットされている場合には, コントロール, サーバがハ
+ングするので要注意である.
+@item
+@var{conn_to_serv} が 1 の場合, @b{Asir} (client) が生成したポートに
+対し, client が bind,listen し, 起動されたプロセスが connect する. 
+@var{conn_to_serv} が 0 の場合, 起動されたプロセスが bind, listen し, 
+client が connect する. 
+@end itemize
+
+@example
+[342] LIB=get_rootdir();
+/export/home/noro/ca/Kobe/build/OpenXM/lib/asir
+[343] ox_launch_generic(0,LIB+"/ox_launch",LIB+"/ox_asir",0,0,0,0);
+1
+[344] ox_launch_generic(0,LIB+"/ox_launch",LIB+"/ox_asir",1,0,0,0);
+2
+[345] ox_launch_generic(0,LIB+"/ox_launch",LIB+"/ox_asir",1,1,0,0);
+3
+[346] ox_launch_generic(0,LIB+"/ox_launch",LIB+"/ox_asir",1,1,1,0);
+4
+[347] ox_launch_generic(0,LIB+"/ox_launch",LIB+"/ox_asir",1,1,1,1);
+5
+[348] ox_launch_generic(0,LIB+"/ox_launch",LIB+"/ox_asir",1,1,0,1);
+6
+@end example
+
+@table @t
+@item 参照
+@code{ox_launch}, @code{ox_launch_generic}
+@end table
+
+@node generate_port try_bind_listen try_connect try_accept register_server,,, 分散計算に関する関数
+@subsection @code{generate_port}, @code{try_bind_listen}, @code{try_connect}, @code{try_accept}, @code{register_server}
+@findex generate_port
+@findex try_bind_listen
+@findex try_connect
+@findex try_accept
+@findex register_server
+
+@table @t
+@item generate_port([@var{use_unix}])
+:: port の生成
+@itemx try_bind_listen(@var{port})
+:: port に対して bind, listen
+@itemx try_connect(@var{host},@var{port})
+:: port に対して connect
+@itemx try_accept(@var{socket},@var{port})
+:: connect 要求を accept
+@itemx register_server(@var{control_socket},@var{control_port},@var{server_socket},@var{server_port})
+:: connection の成立した control socket, server socket の登録
+@end table
+
+@table @var
+@item return
+@code{generate_port()} のみ整数または文字列. その他は整数. 
+@item use_unix
+0 または 1
+@item host
+文字列
+@item port,control_port,server_port
+整数または文字列
+@item socket,control_socket,server_socket
+整数
+@end table
+
+@itemize @bullet
+@item
+これらの関数は, 遠隔プロセスと通信を成立させるためのプリミティブである. 
+@item
+@code{generate_port()} は通信のための port を生成する. 無引数あるいは
+引数が 0 の場合, Internet domain の socket のための port 番号, それ
+以外の場合には, UNIX domain (host-internal protocol) のための, ファイル名
+を生成する. port 番号は random に生成されるが, その port が使用中でない
+保証はない. 
+@item
+@code{try_bind_listen()} は, 与えられた port に対し, その protocol に
+対応した socket を生成し, bind, listen する. 失敗した場合, -1 が返る. 
+@item
+@code{try_connect()} は, ホスト @var{host} の port @var{port} に対し
+connect を試みる. 失敗した場合 -1 が返る. 
+@item
+@code{try_accept()} は, @var{socket} に対する connect 要求を accept
+し, 新たに生成された socket を返す. 失敗した場合 -1 が返る. 
+いずれの場合にも, @var{socket} は自動的に close される.
+引数 @var{port} は, @var{socket} の protocol を判別するために与える. 
+@item
+@code{register_server()} は, control, server それぞれの socket を
+一組にして, server list に登録し, @code{ox_push_cmo()} などで用いる
+プロセス識別子を返す. 
+@item
+遠隔プロセスの起動は, @code{shell()} または手動で行う. 
+@end itemize
+
+@example
+[340] CPort=generate_port();
+39896
+[341] SPort=generate_port();
+37222
+[342] CSocket=try_bind_listen(CPort);
+3
+[343] SSocket=try_bind_listen(SPort);
+5
+
+/*
+ここで, ox_launch を起動 :
+%  ox_launch "127.1" 0 39716 37043 ox_asir "shio:0"
+*/
+
+[344] CSocket=try_accept(CSocket,CPort);
+6
+[345] SSocket=try_accept(SSocket,SPort);  
+3
+[346] register_server(CSocket,CPort,SSocket,SPort);
+0
+@end example
+
+@table @t
+@item 参照
+@code{ox_launch}, @code{ox_launch_generic}, @code{shell}, @code{ox_push_cmo}
+@end table
+
+@node ox_asir,,, 分散計算に関する関数
+@subsection @samp{ox_asir}
+
+この節の函数は, UNIX 上で 複数のマシン上で @code{Asir} を複数起動して
+分散計算を行うためのものである. 以下に述べる機能を用いるためには, あら
+かじめ各マシン上に @samp{ox_asir} を @code{ox_launch()} により起動しておく
+必要がある.
+
+@example
+[5] ox_launch();
+0
+@end example
+
+@example
+[5] ox_launch_nox("127.0.0.1","/usr/local/lib/asir","/usr/local/lib/asir/ox_asir");
+0
+@end example
+
+@noindent
+後者の場合および環境変数 DISPLAY が設定されていない場合, 
+@samp{xterm}は起動されず, @samp{ox_asir} により起動される @code{Asir} の
+出力は @samp{/dev/null} に接続される. デバッグが完了し, 子プロセスの表示
+するメッセージを見る必要がない場合には @code{ox_launch_nox()} を用いれば
+よい. 
+
+@example
+[7] RemoteLibDir = "/usr/local/lib/asir/"$
+[8] Machines = ["sumire","rokkaku","genkotsu","shinpuku"];
+[sumire,rokkaku,genkotsu,shinpuku]
+[9] Servers = map(ox_launch,Machines,RemoteLibDir,RemoteLibDir+"ox_asir");
+[0,1,2,3]
+@end example
+
+@table @t
+@item 参照
+@code{ox_launch}, @code{ox_launch_nox}, @code{ox_shutdown}
+@end table
+
+@node ox_rpc ox_cmo_rpc ox_execute_string,,, 分散計算に関する関数
+@subsection @code{ox_rpc}, @code{ox_cmo_rpc}, @code{ox_execute_string}
+@findex ox_rpc
+@findex ox_cmo_rpc
+@findex ox_execute_string
+
+@table @t
+@item ox_rpc(@var{number},@code{"@var{func}"},@var{arg0},...)
+@itemx ox_cmo_rpc(@var{number},@code{"@var{func}"},@var{arg0},...)
+@itemx ox_execute_string(@var{number},@code{"@var{command}"},...)
+:: プロセスの函数呼び出し
+@end table
+
+@table @var
+@item return
+0
+@item number
+数 (プロセス識別子)
+@item func
+函数名
+@item command
+文字列
+@item arg0, arg1, ...
+任意 (引数)
+@end table
+
+@itemize @bullet
+@item
+識別子 @var{number} のプロセスの函数を呼び出す. 
+@item
+函数の計算終了を待たず, 直ちに 0 を返す. 
+@item
+@code{ox_rpc()} は, サーバが @samp{ox_asir} の場合のみ用いることができる. 
+それ以外の場合は, @code{ox_cmo_rpc()} を用いる. 
+@item
+函数が返す値は @code{ox_pop_local()}, @code{ox_pop_cmo()} により取り出す. 
+@item
+サーバが @samp{ox_asir} 以外のもの (例えば Kan サーバ @samp{ox_sm1}など)
+の場合には, @b{Open_XM} プロトコルでサポートされているデータのみを
+送ることができる. 
+@item
+@code{ox_execute_string} は, 送った文字列 @var{command} をサーバが自らの
+ユーザ言語パーザで解析し, 評価した結果をサーバのスタックに置くように
+指示する. 
+@end itemize
+
+@example
+[234] ox_cmo_rpc(0,"dp_ht",dp_ptod((x+y)^10,[x,y]));
+0
+[235] ox_pop_cmo(0);
+(1)*<<10,0>>
+[236] ox_execute_string(0,"12345 % 678;");
+0
+[237] ox_pop_cmo(0);
+141
+@end example
+
+@table @t
+@item 参照
+@code{ox_pop_local}, @code{ox_pop_cmo}
+@end table
+
+@node ox_reset register_handler,,, 分散計算に関する関数
+@subsection @code{ox_reset},@code{register_handler}
+@findex ox_reset
+@findex register_handler
+
+@table @t
+@item ox_reset(@var{number})
+:: プロセスのリセット
+@item register_handler(@var{func})
+:: プロセスのリセットのための関数登録
+@end table
+
+@table @var
+@item return
+1
+@item number
+数 (プロセス識別子)
+@item func
+関数子または 0
+@end table
+
+@itemize @bullet
+@item
+@code{ox_reset()} は, 識別子 @var{number} のプロセスをリセットし, コマン
+ド受け付け状態にする.
+@item
+そのプロセスが既に書き出した, あるいは現在書き出し中のデータがある場合, 
+それを全部読み出し, 出力バッファを空にした時点で戻る. 
+@item
+子プロセスが RUN 状態の場合でも, 割り込みにより強制的に計算を終了させる. 
+@item
+分散計算を行う函数の先頭で, 使用するプロセスに対して実行する. あるいは
+計算途中での強制中断に用いる. 
+@item
+@code{register_handler()} は, @kbd{C-c} などによる割り込みの際に, 
+@kbd{u} を指定することで, 無引数ユーザ定義関数 @var{func()} が呼び出される
+ように設定する. この関数に, @code{ox_reset()} を呼び出させることで, 
+割り込みの際に自動的に @b{Open XM} server のリセットを行うことができる. 
+@item
+@var{func} に 0 を指定することで, 設定を解除できる. 
+@end itemize
+
+@example
+[10] ox_launch();
+0
+[11] ox_rpc(0,"fctr",x^100-y^100);
+0
+[12] ox_reset(0); /* xterm のウィンドウには usr1 : return to toplevel by SIGUSR1 */
+1              /* が表示される.                                              */
+@end example
+
+@example
+[340] Procs=[ox_launch(),ox_launch()];
+[0,1]
+[341] def reset() @{ extern Procs; map(ox_reset,Procs);@}
+[342] map(ox_rpc,Procs,"fctr",x^100-y^100);
+[0,0]
+[343] register_handler(reset);
+1
+[344] interrupt ?(q/t/c/d/u/w/?) u
+Abort this computation? (y or n) y
+Calling the registered exception handler...done.
+return to toplevel
+@end example
+@table @t
+@item 参照
+@code{ox_rpc}
+@end table
+
+@node ox_push_cmo ox_push_local ,,, 分散計算に関する関数
+@subsection @code{ox_push_cmo}, @code{ox_push_local}
+@findex ox_push_cmo
+@findex ox_push_local
+
+@table @t
+@item ox_push_cmo(@var{number},@var{obj}) 
+@itemx ox_push_local(@var{number},@var{obj}) 
+:: @var{obj} を識別子 @var{number} のプロセスに送信
+@end table
+
+@table @var
+@item return
+0
+@item number
+数(プロセス識別子)
+@item obj
+オブジェクト
+@end table
+
+@itemize @bullet
+@item 識別子 @var{number} のプロセスに @var{obj} を送信する. 
+@item @code{ox_push_cmo} は, Asir 以外の @b{Open_XM} サーバに送信
+する際に用いる. 
+@item @code{ox_push_local} は, @samp{ox_asir}, @samp{ox_plot} に
+データを送る場合に用いることができる. 
+@item バッファがいっぱいにならない限り, ただちに復帰する. 
+@end itemize
+
+@table @t
+@item 参照
+@code{ox_rpc}, @code{ox_cmo_rpc}, @code{ox_pop_cmo}, @code{ox_pop_local}
+@end table
+
+@node ox_pop_cmo ox_pop_local ,,, 分散計算に関する関数
+@subsection @code{ox_pop_cmo}, @code{ox_pop_local}
+@findex ox_pop_local
+@findex ox_pop_cmo
+
+@table @t
+@item ox_pop_local(@var{number}) 
+:: プロセス識別子 @var{number} からデータを受信する. 
+@end table
+
+@table @var
+@item return
+受信データ
+@item number
+数 (プロセス識別子)
+@end table
+
+@itemize @bullet
+@item
+プロセス識別子 @var{number} のプロセスからデータを受信する. 
+@item @code{ox_pop_cmo} は, Asir 以外の @b{Open_XM} サーバから受信
+する際に用いる. 
+@item @code{ox_pop_local} は, @samp{ox_asir}, @samp{ox_plot} から
+データを受け取る場合に用いることができる. 
+@item サーバが計算中の場合ブロックする. これを避けるためには, 
+@code{ox_push_cmd} で @code{SM_popCMO} (262) または @code{SM_popSerializedLocalObject} (258) を送っておき, @code{ox_select} でプロセスが ready 
+になっていることを確かめてから @code{ox_get} すればよい. 
+@item
+
+@end itemize
+
+@example
+[3] ox_rpc(0,"fctr",x^100-y^100);
+0
+[4] ox_push_cmd(0,258);
+0
+[5] ox_select([0]);
+[0]
+[6] ox_get(0);
+[[1,1],[x^2+y^2,1],[x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],...]
+@end example
+
+@table @t
+@item 参照
+@code{ox_rpc}, @code{ox_push_cmd}, @code{ox_select}, @code{ox_get}
+@end table
+
+@node ox_push_cmd ox_sync,,, 分散計算に関する関数
+@subsection @code{ox_push_cmd}, @code{ox_sync}
+@findex ox_push_cmd
+@findex ox_sync
+
+@table @t
+@item ox_push_cmd(@var{number},@var{command}) 
+:: プロセス識別子 @var{number} のプロセスにコマンド @var{command} を送信する. 
+@item ox_sync(@var{number}) 
+:: プロセス識別子 @var{number} のプロセスに @b{OX_SYNC_BALL} を送信する. 
+@end table
+
+@table @var
+@item return
+0
+@item number
+数 (プロセス識別子)
+@item command
+数 (コマンド識別子)
+@end table
+
+@itemize @bullet
+@item
+識別子 @var{number} のプロセスにコマンドまたは @b{OX_SYNC_BALL} を送信する. 
+@item
+@b{Open_XM} において送受信データは @b{OX_DATA}, @b{OX_COMMAND},
+@b{OX_SYNC_BALL}の 3 種類に分かれる. 通常, コマンドは何らかの操作に
+付随して暗黙のうちに送信されるが, これをユーザが個別に送りたい場合に
+用いられる. 
+@item
+@b{OX_SYNC_BALL} は @code{ox_reset} による計算中断, 復帰の際に送受信される
+が, これを個別に送りたい場合に用いる. なお, 通常状態では @b{OX_SYNC_BALL}
+は無視される. 
+@end itemize
+
+@table @t
+@item 参照
+@code{ox_rpc}, @code{ox_cmo_rpc}, @code{ox_reset}
+@end table
+
+@node ox_get,,, 分散計算に関する関数
+@subsection @code{ox_get}
+@findex ox_get
+
+@table @t
+@item ox_get(@var{number}) 
+:: プロセス識別子 @var{number} のプロセスからデータを受信する. 
+@end table
+
+@table @var
+@item return
+受信データ
+@item number
+数(プロセス識別子)
+@end table
+
+@itemize @bullet
+@item
+プロセス識別子 @var{number} のプロセスからデータを受信する. 既に
+ストリーム上にデータがあることを仮定している. 
+@item
+@code{ox_push_cmd} と組み合わせて用いる. 
+@item
+@code{ox_pop_cmo}, @code{ox_pop_local} は, @code{ox_push_cmd} と
+@code{ox_get} の組み合わせで実現されている. 
+@end itemize
+
+@example
+[11] ox_push_cmo(0,123);
+0
+[12] ox_push_cmd(0,262); /* 262=OX_popCMO */
+0
+[13] ox_get(0);
+123
+@end example
+
+@table @t
+@item 参照
+@code{ox_pop_cmo}, @code{ox_pop_local}, @code{ox_push_cmd}
+@end table
+
+@node ox_pops,,, 分散計算に関する関数
+@subsection @code{ox_pops}
+@findex ox_pops
+
+@table @t
+@item ox_pops(@var{number}[,@var{nitem}) 
+:: プロセス識別子 @var{number} のプロセスのスタックからデータを取り除く. 
+@end table
+
+@table @var
+@item return
+0
+@item number
+数 (プロセス識別子)
+@item nitem
+自然数
+@end table
+
+@itemize @bullet
+@item プロセス識別子 @var{number} のプロセスのスタックからデータを取り除く. 
+@var{nitem} が指定されている場合は @var{nitem} 個, 指定のない場合は
+1 個取り除く. 
+@end itemize
+
+@example
+[69] for(I=1;I<=10;I++)ox_push_cmo(0,I);
+[70] ox_pops(0,4);  
+0
+[71] ox_pop_cmo(0);
+6
+@end example
+
+@table @t
+@item 参照
+@code{ox_pop_cmo}, @code{ox_pop_local}
+@end table
+
+@node ox_select ,,, 分散計算に関する関数
+@subsection @code{ox_select}
+@findex ox_select
+
+@table @t
+@item ox_select(@var{nlist}[,@var{timeout}])
+:: 読み出し可能なプロセスの識別子を返す. 
+@end table
+
+@table @var
+@item return
+リスト
+@item nlist
+数 (子プロセス識別子) のリスト
+@item timeout
+数
+@end table
+
+@itemize @bullet
+@item
+識別子リスト @var{nlist} のプロセスのうち既に出力を返している
+プロセスの識別子リストを返す. 
+@item
+全てのプロセスが RUN 状態のとき, いずれかのプロセスの終了を待つ. 
+但し, @var{timeout} が指定されている場合, @var{timeout} 秒だけ待つ. 
+@item
+@code{ox_push_cmd()} で @code{SM_popCMO} あるいは 
+@code{SM_popSerializedLocalObject} を送っておき, @code{ox_select()} で 
+ready 状態のプロセスを調べて@code{ox_get()} することで,
+@code{ox_pop_local()}, @code{ox_pop_cmo()}で待ち状態に入るのを防ぐことが
+できる.
+@end itemize
+
+@example
+ox_launch();
+0
+[220] ox_launch();
+1
+[221] ox_launch();
+2
+[222] ox_rpc(2,"fctr",x^500-y^500);
+0
+[223] ox_rpc(1,"fctr",x^100-y^100);
+0
+[224] ox_rpc(0,"fctr",x^10-y^10);  
+0
+[225] P=[0,1,2];
+[0,1,2]
+[226] map(ox_push_cmd,P,258);
+[0,0,0]
+[227] ox_select(P);
+[0]
+[228] ox_get(0);   
+[[1,1],[x^4+y*x^3+y^2*x^2+y^3*x+y^4,1],
+[x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],[x-y,1],[x+y,1]]
+@end example
+
+@table @t
+@item 参照
+@code{ox_pop_local}, @code{ox_pop_cmo}, @code{ox_push_cmd}, @code{ox_get}
+@end table
+
+@node ox_flush ,,, 分散計算に関する関数
+@subsection @code{ox_flush}
+@findex ox_flush
+
+@table @t
+@item ox_flush(@var{id})
+:: 送信バッファの強制 flush
+@end table
+
+@table @var
+@item return
+1
+@item id
+子プロセス識別子
+@end table
+
+@itemize @bullet
+@item 通常はバッチモードは off であり, データ, コマンド送信ごとに
+送信バッファは flush される. 
+@item バッチモードは @code{"ctrl"} コマンドの @code{"ox_batch"} スイッチ
+で on/off できる. 
+@item 細かいデータを多数送る場合に, @code{ctrl("ox_batch",1)}
+でバッチモードを on にすると, バッファがいっぱいになった場合にのみ flush 
+されるため, overhead が小さくなる場合がある. ただしこの場合には, 最後に 
+@code{ox_flush(@var{id})} を実行して, バッファを強制的に flush する必要が
+ある.
+@item @code{ox_pop_cmo}, @code{ox_pop_local} のように, コマンド送信後
+ただちにデータ待ちに入る関数がハングしないよう, これらの関数の内部では
+強制 flush が実行されている. 
+@end itemize
+
+@example
+[340] ox_launch_nox();
+0
+[341] cputime(1);
+0
+7e-05sec + gc : 4.8e-05sec(0.000119sec)
+[342] for(I=0;I<10000;I++)ox_push_cmo(0,I);
+0.232sec + gc : 0.006821sec(0.6878sec)
+[343] ctrl("ox_batch",1);
+1
+4.5e-05sec(3.302e-05sec)
+[344] for(I=0;I<10000;I++)ox_push_cmo(0,I); ox_flush(0);
+0.08063sec + gc : 0.06388sec(0.4408sec)
+[345] 1
+9.6e-05sec(0.01317sec)
+@end example
+
+@table @t
+@item 参照
+@code{ox_push_cmo}, @code{ox_push_local}, @code{ox_pop_cmo}, @code{ox_pop_local}, @code{ctrl}
+@end table
+
+@node ox_get_serverinfo ,,, 分散計算に関する関数
+@subsection @code{ox_get_serverinfo}
+@findex ox_get_serverinfo
+
+@table @t
+@item ox_get_serverinfo([@var{id}])
+:: server の Mathcap, 動作中のプロセス識別子の取得
+@end table
+
+@table @var
+@item return
+リスト
+@item id
+子プロセス識別子
+@end table
+
+@itemize @bullet
+@item 引数 @var{id} があるとき, プロセス識別子 @var{id} のプロセスの
+Mathcap をリストとして返す. 
+@item 引数なしのとき, 現在動作中のプロセス識別子およびその Mathcap から
+なるペアを, リストとして返す. 
+@end itemize
+
+@example
+[343] ox_get_serverinfo(0);
+[[199909080,Ox_system=ox_sm1.plain,Version=2.991118,HOSTTYPE=FreeBSD],
+[262,263,264,265,266,268,269,272,273,275,276],
+[[514],[2130706434,1,2,4,5,17,19,20,22,23,24,25,26,30,31,60,61,27,33,40,16,34]]]
+[344] ox_get_serverinfo(); 
+[[0,[[199909080,Ox_system=ox_sm1.plain,Version=2.991118,HOSTTYPE=FreeBSD],
+[262,263,264,265,266,268,269,272,273,275,276],
+[[514],[2130706434,1,2,4,5,17,19,20,22,23,24,25,26,30,31,60,61,27,33,40,16,34]]]],
+[1,[[199901160,ox_asir],
+[276,275,258,262,263,266,267,268,274,269,272,265,264,273,300,270,271],
+[[514,2144202544],
+[1,2,3,4,5,2130706433,2130706434,17,19,20,21,22,24,25,26,31,27,33,60],[0,1]]]]]
+@end example
+
+@table @t
+@item 参照
+@ref{Mathcap}.
+@end table
+
+@node ifplot conplot plot plotover,,, 分散計算に関する関数
+@subsection @code{ifplot}, @code{conplot}, @code{plot}, @code{plotover}
+@findex ifplot
+@findex conplot
+@findex plot
+@findex plotover
+
+@table @t
+@item ifplot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{yrange}] [,@var{id}] [,@var{name}])
+:: 2 変数関数の実数上での零点を表示する. 
+@item conplot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{yrange}] [,@var{zrange}] [,@var{id}] [,@var{name}])
+:: 2 変数関数の実数上での等高線を表示する. 
+@item plot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{id}] [,@var{name}])
+:: 1 変数関数のグラフを表示する. 
+@item plotover(@var{func},@var{id},@var{number})
+:: すでに存在しているウィンドウへ描画する. 
+@end table
+
+@table @var
+@item return
+整数
+@item func
+多項式
+@item geometry, xrange, yrange, zrange
+リスト
+@item id, number
+整数
+@item name
+文字列
+@end table
+
+@itemize @bullet
+@item
+@code{ifplot()} は, 2 変数関数 @var{func} の実数上での零点の
+グラフの表示を行う. @code{conplot()} は, 同様の引数に対し, 
+等高線の表示を行う. @code{plot()} は 1 変数関数の
+グラフの表示を行う. Windows 版は現状では未サポートである. 
+@item
+UNIX 版は, 遠隔プロセスにより実現されている. コマンドは @samp{ox_plot}
+で, @code{ox_launch()} により起動しておく必要がある. @samp{ox_plot}
+は, @b{Asir} の標準ライブラリディレクトリにある. 
+@item
+引数の内, @var{func} は必須である. その他の引数はオプションである. 
+オプションの形式およびそのデフォルト値 (カッコ内) は次の通り. 
+@table @var
+@item geometry
+ウィンドウのサイズをドット単位で @var{[x,y]} で指定する. 
+(UNIX 版では @var{[}@code{300},@code{300}@var{]}. )
+@item xrange, yrange
+変数の範囲の指定で, @var{[v,vmin,vmax]} で指定する. 
+(いずれの変数も @var{[v},@code{-2},@code{2}@var{]}.)
+この指定がない場合, @var{func} に含まれる変数の内変数順序の上の変数
+が @samp{x}, 下の変数が @samp{y} として扱われる. これを避けるためには
+@var{xrange}, @var{yrange} を指定する. また, @var{func} が 1 変数の
+場合, これらの指定は必須となる. 
+@item zrange
+@code{conplot()} の場合のみ指定できる. 形式は 
+@var{[v,vmin,vmax} @code{[},@var{step} @code{]}@var{]} で, @var{step} が指定され
+た場合には, 等高線の間隔が @var{(vmax-vmin)/step} となる. 
+(@var{[z},@code{-2},@code{2},@code{16}@var{]}.)
+@item id
+遠隔プロセスの番号, すなわち @code{ox_launch()} が返した番号を指定する. 
+(一番最近に作られ, かつアクティブなプロセスに対応する番号.)
+@item name
+ウィンドウの名前. (@code{Plot}.) 
+生成されたウィンドウのタイトルは @var{name:n/m} となる.
+これは, プロセス番号 @var{n} のプロセスの, @var{m} 番のウィンドウを意味する. 
+この番号は, @code{plotover()} で用いられる. 
+@end table
+@item
+一つのプロセス上で描画できるウィンドウの数は最大 128 個である. 
+@item
+@code{plotover()} は, 指定したウィンドウ上に, 引数である 2 変数多項式の
+零点を上書きする. 
+
+@item
+描画終了後のウィンドウ上で, マウスの左ボタンを押しながらのドラッグ
+で範囲を指定しボタンを離すと新たなウィンドウが生成され, 指定した
+範囲が拡大して表示される. ドラッグは左上から右下へと行う. 
+ドラッグを始めた後キャンセルする場合は, マウスポインタを始点の上か
+左に持っていってボタンを離せばよい. 新しいウインドウの形は, 指定
+領域と相似で, 最大辺が, 元のウィンドウの最大辺と一致するように
+定められる. 以下で説明する @code{precise} が on の場合, 
+選択した領域が同一 window 上で書き直される. 
+
+@item
+ウィンドウ内で右ボタンを押すと, その点の座標がウィンドウの下部に表示される. 
+
+@item
+@code{conplot()} で生成したウィンドウにおいて, ウィンドウの右側のマーカを
+中ボタンでドラッグすると, 対応する等高線の色が変わり, 右上の
+ウィンドウに対応するレベルが表示される. 
+
+@item
+UNIX 版ではいくつかのボタン, Mac 版ではプルダウンメニューにより
+いくつかの設定変更, 操作ができる. UNIX 版では次のボタンがある. 
+
+@table @code
+@item quit
+window を破壊する. 計算を中断する場合, @code{ox_reset()} を用いる. 
+@item wide (トグル)
+現在の表示部分を縦横各 10 倍した領域を表示する. 現在表示されている範囲は
+この表示において中央部に長方形で示される. この表示で範囲指定を行うと, 
+その範囲が新しいウィンドウに描画される. 
+@item precise (トグル)
+選択領域を, 整数演算により, より正確に再描画する. これは, @var{func} が
+有理数係数の 2 変数多項式の場合にのみ有効である. このモードでは Sturm 列
+と二分法により, 区間内の零点の個数を正確に求めていくもので, デフォルトの
+計算法よりも正確な描画が期待できる. ただし, 描画時間は余計にかかる場合が
+多い. この説明から明らかなように, この機能は有理数係数の多項式の描画に対
+してのみ有効である. ((x^2+y^2-1)^2 の描画で試してみよ.)
+
+@item formula
+対応する式を表示する. 
+@item noaxis (トグル)
+座標軸を消す. 
+@end table
+
+@item
+@samp{ox_plot} が起動されるマシンによっては, スタックを大量に使用する
+ものもあるため, @samp{.cshrc} でスタックサイズを大きめ (16MB 程度) に
+指定しておくのが安全である. スタックサイズは @code{limit stacksize 16m}
+などと指定する. 
+
+@item
+@code{X} では、ウインドウの各部分について resource により
+色付けや、ボタンの形を変えることができる。
+resource の指定の仕方は以下の通り。（デフォルトを示しておく）
+@code{plot*form*shapeStyle} は、@t{rectangle, oval, ellipse, roundedRectangle}
+が、指定できる。
+@example
+plot*background:white
+plot*form*shapeStyle:rectangle
+plot*form*background:white
+plot*form*quit*background:white
+plot*form*wide*background:white
+plot*form*precise*background:white
+plot*form*formula*background:white
+plot*form*noaxis*background:white
+plot*form*xcoord*background:white
+plot*form*ycoord*background:white
+plot*form*level*background:white
+plot*form*xdone*background:white
+plot*form*ydone*background:white
+@end example
+@end itemize
+
+@example
+@end example
+
+@table @t
+@item 参照
+@code{ox_launch}, @code{ox_shutdown}, @code{ox_reset}
+@end table

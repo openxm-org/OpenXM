@@ -1,0 +1,92 @@
+@node bit 演算,,, 組み込み函数
+@section bit 演算
+
+@menu
+* iand ior ixor::
+* ishift::
+@end menu
+
+@node iand ior ixor,,, bit 演算
+@subsection @code{iand}, @code{ior}, @code{ixor}
+@findex iand
+@findex ior
+@findex ixor
+
+@table @t
+@item iand(@var{i1},@var{i2})
+:: bit ごとの and
+@item ior(@var{i1},@var{i2})
+:: bit ごとの or
+@item ixor(@var{i1},@var{i2})
+:: bit ごとの xor
+@end table
+
+@table @var
+@item return
+整数
+@item i1,i2
+整数
+@end table
+
+@itemize @bullet
+@item
+整数 @var{i1}, @var{i2} の絶対値を bit 列とみて演算する. 
+@item
+引数の符号は無視し, 非負の値を返す. 
+@end itemize
+
+@example
+[0] ctrl("hex",1);
+0x1
+[1] iand(0xeeeeeeeeeeeeeeee,0x2984723234812312312);
+0x4622224802202202
+[2] ior(0xa0a0a0a0a0a0a0a0,0xb0c0b0b0b0b0b0b);
+0xabacabababababab
+[3] ixor(0xfffffffffff,0x234234234234);
+0x2cbdcbdcbdcb
+@end example
+
+@table @t
+@item 参照
+@fref{ishift}.
+@end table
+
+@node ishift,,, bit 演算
+@subsection @code{ishift}
+@findex ishift
+
+@table @t
+@item ishift(@var{i},@var{count})
+:: bit shift
+@end table
+
+@table @var
+@item return
+整数
+@item i,count
+整数
+@end table
+
+@itemize @bullet
+@item
+整数 @var{i} の絶対値を bit 列とみて shift する. 
+@item
+@var{i} の符号は無視し, 非負の値を返す. 
+@item
+@var{count} が正ならば右 shift, 負ならば左 shift を行う. 
+@end itemize
+
+@example
+[0] ctrl("hex",1);
+0x1
+[1] ishift(0x1000000,12); 
+0x1000
+[2] ishift(0x1000,-12);   
+0x1000000
+[3] ixor(0x1248,ishift(1,-16)-1);
+@end example
+
+@table @t
+@item 参照
+@fref{iand ior ixor}.
+@end table

@@ -1,0 +1,90 @@
+@node リストの演算,,, 組み込み函数
+@section リストの演算
+
+@menu
+* car cdr cons append reverse length::
+@end menu
+
+@node car cdr cons append reverse length,,, リストの演算
+@subsection @code{car}, @code{cdr}, @code{cons}, @code{append}, @code{reverse}, @code{length}
+@findex car
+@findex cdr
+@findex cons
+@findex append
+@findex reverse
+@findex length
+
+@table @t
+@item car(@var{list})
+:: 空でない @var{list} の先頭要素. 
+@item cdr(@var{list})
+:: 空でない @var{list} から先頭要素を取り除いたリスト. 
+@item cons(@var{obj},@var{list})
+:: @var{list} の先頭に @var{obj} を付け加えたリスト. 
+@item @t{append}(@var{list1},@var{list2})
+:: @var{list1} と @var{list2} をこの順に 1 つにしたリスト. 
+@item @t{reverse}(@var{list})
+:: @var{list} を逆順にしたリスト. 
+@item length(@var{list})
+:: @var{list} の長さ. 
+@end table
+
+@table @var
+@item return
+@code{car()} : 任意, @code{cdr()}, @code{cons()}, @code{append()}, @code{reverse()} : リスト,  @code{length()} : 自然数
+@item list,list1,list2
+リスト
+@item obj
+任意
+@end table
+
+@itemize @bullet
+@item
+リストは @t{[}@var{obj1},@var{obj2},...@t{]} と表される. @var{obj1} が
+先頭要素である. 
+@item
+@code{car()} は, 空でない @var{list} の先頭要素を出力する. 空リストが入力された場合は, 空リストが出力される. 
+@item 
+@code{cdr()} は, 空でない @var{list} から先頭要素を取り除いたリストを出力する. 空リストが入力された場合は, 空リストが出力される. 
+@item 
+@code{cons()} は,  @var{list} の先頭に @var{obj} を付け加えたリストを出力する. 
+@item
+@code{append()} は, @var{list1} の要素と @var{list2} のすべての要素を結合させたリスト [@var{list1} の要素の並び,@var{list2} の要素の並び] を出力する. 
+@item
+@code{reverse()} は, @var{list} を逆順にしたリストを出力する. 
+@item
+@code{length()} は, @var{list} の長さを出力する. ベクトル及び行列の要素の個数は, @code{size()} を用いる. 
+@item
+リストは読み出し専用で, 要素の入れ替えはできない. 
+@item
+リストの @var{n} 番目の要素の取り出しは, @code{cdr()} を @var{n} 回適用
+した後 @code{car()} を適用することにより可能であるが, 便法として, 
+ベクトル, 行列などの配列と同様, インデックス @code{[@var{n}]} を後ろに
+付けることにより取り出すことができる. ただし, システム内部では, 
+実際にポインタを @var{n} 回たどるので, 後ろの要素ほど取り出しに時間がかかる. 
+@item
+@code{cdr()} は新しいセルを生成しないが, @code{append()} は, 実際には
+第 1 引数のリストの長さだけの @code{cons()} の繰り返しとなるため, 
+第 1 引数のリストが長い場合には多くのメモリを消費することになる. 
+@code{reverse()} に関しても同様である. 
+@end itemize
+
+@example
+[0] L = [[1,2,3],4,[5,6]];
+[[1,2,3],4,[5,6]]
+[1] car(L);
+[1,2,3]
+[2] cdr(L);
+[4,[5,6]]
+[3] cons(x*y,L);
+[y*x,[1,2,3],4,[5,6]]
+[4] append([a,b,c],[d]);
+[a,b,c,d]
+[5] reverse([a,b,c,d]);
+[d,c,b,a]
+[6] length(L);
+3
+[7] L[2][0];
+5
+@end example
+

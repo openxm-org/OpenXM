@@ -1,0 +1,76 @@
+\input jtexinfo
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@setfilename risaman
+@settitle Asir
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+
+@title Asir
+@subtitle Asir User's Manual
+@subtitle Edition 4.1 for Asir-991201
+@subtitle August 19
+
+@author  by Masayuki Noro and Takeshi Shimoyama
+@end titlepage
+
+@synindex vr fn
+
+@comment  node-name,  next,  previous,  up
+@node Top,, (dir), (dir)
+
+@menu
+* Introduction::
+* Risa/Asir::
+* 型::
+* ユーザ言語 Asir::
+* デバッガ::
+* 組み込み函数::
+* 分散計算::
+* グレブナ基底の計算::
+* 代数的数に関する演算::
+* 有限体に関する演算::
+* 付録::
+* 索引::
+@end menu
+
+@include parts/intro.texi
+@include parts/risa.texi
+@include parts/type.texi
+@include parts/asir.texi
+@include parts/debug.texi
+@include parts/builtin.texi
+@include parts/process.texi
+@include parts/groebner.texi
+@include parts/algnum.texi
+@include parts/ff.texi
+@include parts/appendix.texi
+
+@node 索引,,, Top
+@unnumbered 索引
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye

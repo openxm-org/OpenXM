@@ -1,0 +1,822 @@
+@node 数の演算,,, 組み込み函数
+@section 数の演算
+
+@menu
+* idiv irem::
+* fac::
+* igcd igcdcntl::
+* ilcm::
+* inv::
+* prime lprime::
+* random::
+* mt_save mt_load::
+* nm dn::
+* conj real imag::
+* eval::
+* pari::
+* setprec::
+* setmod::
+* lrandom::
+@end menu
+
+@node idiv irem,,, 数の演算
+@subsection @code{idiv}, @code{irem}
+@findex idiv
+@findex irem
+
+@table @t
+@item idiv(@var{i1},@var{i2})
+:: 整数除算による商. 
+@item irem(@var{i1},@var{i2})
+:: 整数除算による剰余. 
+@end table
+
+@table @var
+@item return
+整数
+@item i1,i2
+整数
+@end table
+
+@itemize @bullet
+@item
+@var{i1} の @var{i2} による整数除算による商, 剰余を求める. 
+@item
+@var{i2} は 0 であってはならない. 
+@item
+被除数が負の場合, 絶対値に対する値にマイナスをつけた値を返す. 
+@item
+@var{i1} @code{%} @var{i2} は, 結果が正に正規化されることを除けば
+@code{irem()} の代わりに用いることができる. 
+@item
+多項式の場合は @code{sdiv}, @code{srem} を用いる. 
+@end itemize
+
+@example
+[0] idiv(100,7);
+14
+[0] idiv(-100,7);
+-14
+[1] irem(100,7);
+2
+[1] irem(-100,7);
+-2
+@end example
+
+@table @t
+@item 参照
+@fref{sdiv sdivm srem sremm sqr sqrm}, @fref{%}.
+@end table
+
+@node fac,,, 数の演算
+@subsection @code{fac}
+@findex fac
+
+@table @t
+@item fac(@var{i})
+:: @var{i} の階乗. 
+@end table
+
+@table @var
+@item return
+整数
+@item i
+整数
+@end table
+
+@itemize @bullet
+@item
+@var{i} の階乗を計算する. 
+@item
+@var{i} が負の場合は 0 を返す. 
+@end itemize
+
+@example
+[0] fac(50);
+30414093201713378043612608166064768844377641568960512000000000000
+@end example
+
+@node igcd igcdcntl,,, 数の演算
+@subsection @code{igcd},@code{igcdcntl}
+@findex igcd
+@findex igcdcntl
+
+@table @t
+@item igcd(@var{i1},@var{i2})
+:: 整数の GCD (最大公約数)
+@item igcdcntl([@var{i}])
+:: 整数 GCDのアルゴリズム選択
+@end table
+
+@table @var
+@item return
+整数
+@item i1,i2,i
+整数
+@end table
+
+@itemize @bullet
+@item
+@code{igcd} は @var{i1} と @var{i2} の GCD を求める. 
+@item
+引数が整数でない場合は, エラーまたは無意味な結果を返す. 
+@item
+多項式の場合は, @code{gcd}, @code{gcdz} を用いる. 
+@item
+整数 GCD にはさまざまな方法があり, @code{igcdcntl} で設定できる. 
+
+@table @code
+@item 0
+Euclid 互除法 (default)
+@item 1
+binary GCD
+@item 2
+bmod GCD
+@item 3
+accelerated integer GCD
+@end table
+2, 3 は K. Weber, ACM TOMS, Vol.21, No. 1 (1995), pp. 111-122 による. 
+
+おおむね 3 が高速だが, 例外もある. 
+@end itemize
+
+@example
+[0] A=lrandom(10^4)$
+[1] B=lrandom(10^4)$
+[2] C=lrandom(10^4)$
+[3] D=A*C$
+[4] E=A*B$
+[5] cputime(1)$
+[6] igcd(D,E)$
+0.6sec + gc : 1.93sec(2.531sec)
+[7] igcdcntl(1)$
+[8] igcd(D,E)$  
+0.27sec(0.2635sec)
+[9] igcdcntl(2)$
+[10] igcd(D,E)$  
+0.19sec(0.1928sec)
+[11] igcdcntl(3)$
+[12] igcd(D,E)$  
+0.08sec(0.08023sec)
+@end example
+
+@table @t
+@item 参照
+@fref{gcd gcdz}.
+@end table
+
+@node ilcm,,, 数の演算
+@subsection @code{ilcm}
+@findex ilcm
+
+@table @t
+@item ilcm(@var{i1},@var{i2})
+:: 最小公倍数を求める. 
+@end table
+
+@table @var
+@item return
+整数
+@item i1,i2
+整数
+@end table
+
+@itemize @bullet
+@item
+整数 @var{i1}, @var{i2} の最小公倍数を求める. 
+@item
+一方が 0 の場合 0 を返す. 
+@item
+
+@end itemize
+
+@table @t
+@item 参照
+@fref{igcd igcdcntl}, @fref{mt_save mt_load}.
+@end table
+@node inv,,, 数の演算
+@subsection @code{inv}
+@findex inv
+
+@table @t
+@item inv(@var{i},@var{m})
+:: @var{m} を法とする @var{i} の逆数
+@end table
+
+@table @var
+@item return
+整数
+@item i,m
+整数
+@end table
+
+@itemize @bullet
+@item
+@var{ia} @equiv{} 1 mod (@var{m}) なる整数 @var{a} を求める. 
+@item
+@var{i} と @var{m} は互いに素でなければならないが, @code{inv()} は
+そのチェックは行わない. 
+@end itemize
+
+@example
+[71] igcd(1234,4321);  
+1
+[72] inv(1234,4321);
+3239
+[73] irem(3239*1234,4321);
+1
+@end example
+
+@table @t
+@item 参照
+@fref{igcd igcdcntl}.
+@end table
+
+@node prime lprime,,, 数の演算
+@subsection @code{prime}, @code{lprime}
+@findex prime
+@findex lprime
+
+@table @t
+@item prime(@var{index})
+@item lprime(@var{index})
+:: 素数を返す
+@end table
+
+@table @var
+@item return
+整数
+@item index
+整数
+@end table
+
+@itemize @bullet
+@item
+@code{prime()}, @code{lprime()} いずれもシステムが内部に持つ
+素数表の要素を返す. @code{index} は 0 以上の整数で, 素数表
+のインデックスに用いられる. @code{prime()} は 16381 まで
+の素数を小さい順に 1900 個, @code{lprime()} は, 10 進 8 桁で最大の
+素数から大きい順に 999 個返す. それ以外のインデックスに対しては
+0 を返す. 
+@item
+より一般的な素数生成函数としては, @code{pari(nextprime,@var{number})}
+がある. 
+@end itemize
+
+@example
+[95] prime(0);
+2
+[96] prime(1228);
+9973
+[97] lprime(0);
+99999989
+[98] lprime(999);
+0
+@end example
+
+@table @t
+@item 参照
+@fref{pari}.
+@end table
+
+@node random,,, 数の演算
+@subsection @code{random}
+@findex random
+
+@table @t
+@item radom([@var{seed}])
+:: 乱数を生成する. 
+@end table
+
+@table @var
+@item seed
+@item return
+自然数
+@end table
+
+@itemize @bullet
+@item
+最大 2^32-1 の非負整数の乱数を生成する. 
+@item
+0 でない引数がある時, その値を seed として設定してから, 乱数を生成する. 
+@item
+default の seed は固定のため, 種を設定しなければ, 生成される乱数の
+系列は起動毎に一定である. 
+@item
+松本眞-西村拓士による Mersenne Twister (http://www.math.keio.ac.jp/matsumoto/mt.html) アルゴリズムの, 彼ら自身による実装を用いている. 
+@item
+周期は 2^19937-1 と非常に長い. 
+@item
+@code{mt_save} により state をファイルに save できる. これを @code{mt_load}
+で読み込むことにより, 異る Asir セッション間で一つの乱数の系列を辿ることが
+できる. 
+@end itemize
+
+@table @t
+@item 参照
+@fref{lrandom}, @fref{mt_save mt_load}.
+@end table
+
+@node lrandom,,, 数の演算
+@subsection @code{lrandom}
+@findex lrandom
+
+@table @t
+@item lradom(@var{bit})
+:: 多倍長乱数を生成する. 
+@end table
+
+@table @var
+@item bit
+@item return
+自然数
+@end table
+
+@itemize @bullet
+@item
+高々 @var{bit} の非負整数の乱数を生成する. 
+@item
+@code{random} を複数回呼び出して結合し, 指定の bit 長にマスクしている. 
+@end itemize
+
+@table @t
+@item 参照
+@fref{random}, @fref{mt_save mt_load}.
+@end table
+
+@node mt_save mt_load,,, 数の演算
+@subsection @code{mt_save}, @code{mt_load}
+@findex mt_save
+@findex mt_load
+
+@table @t
+@item mt_save(@var{fname})
+:: 乱数生成器の現在の状態をファイルにセーブする. 
+@item mt_load(@var{fname})
+:: ファイルにセーブされた乱数生成器の状態をロードする. 
+@end table
+
+@table @var
+@item return
+0 または 1
+@item fname
+文字列
+@end table
+
+@itemize @bullet
+@item ある状態をセーブし, その状態をロードすることで, 
+一つの疑似乱数系列を, 新規の Asir セッションで続けてたどることが
+できる. 
+@end itemize
+
+@example
+[340] random();
+3510405877
+[341] mt_save("/tmp/mt_state");
+1
+[342] random();
+4290933890
+[343] quit;
+% asir
+This is Asir, Version 991108.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+3 March 1994. All rights reserved.
+[340] mt_load("/tmp/mt_state");
+1
+[341] random();
+4290933890
+@end example
+
+@table @t
+@item 参照
+@fref{random}, @fref{lrandom}.
+@end table
+
+@node nm dn,,, 数の演算
+@subsection @code{nm}, @code{dn}
+@findex nm
+@findex dn
+
+@table @t
+@item nm(@var{rat})
+:: @var{rat} の分子. 
+@item dn(@var{rat})
+:: @var{rat} の分母. 
+@end table
+
+@table @var
+@item return
+整数または多項式
+@item rat
+有理数または有理式
+@end table
+
+@itemize @bullet
+@item
+与えられた有理数また有理式の分子及び分母を返す. 
+@item
+有理数の場合, 分母は常に正で, 符号は分子が持つ. 
+@item
+有理式の場合, 単に分母, 分子を取り出すだけである. 
+有理式に対しては, 約分は自動的には行われない. @code{red()}
+を明示的に呼び出す必要がある. 
+@end itemize
+
+@example
+[2] [nm(-43/8),dn(-43/8)];
+[-43,8]
+[3] dn((x*z)/(x*y));
+y*x
+[3] dn(red((x*z)/(x*y)));
+y
+@end example
+
+@table @t
+@item 参照
+@fref{red}.
+@end table
+
+@node conj real imag,,, 数の演算
+@subsection @code{conj}, @code{real}, @code{imag}
+@findex conj
+
+@table @t
+@item real(@var{comp})
+:: @var{comp} の実数部分. 
+@item imag(@var{comp})
+:: @var{comp} の虚数部分. 
+@item conj(@var{comp})
+:: @var{comp} の共役複素数. 
+@end table
+
+@table @var
+@item return comp
+複素数
+@end table
+
+@itemize @bullet
+@item
+複素数に対し, 実部, 虚部, 共役を求める. 
+@item
+これらは, 多項式に対しても働く. 
+@end itemize
+
+@example
+[111] A=(2+@@i)^3; 
+(2+11*@@i)
+[112] [real(A),imag(A),conj(A)];
+[2,11,(2-11*@@i)]
+@end example
+
+@node eval,,, 数の演算
+@subsection @code{eval}
+@findex eval
+@cindex PARI
+
+@table @t
+@item eval(@var{obj}[,@var{prec}])
+:: @var{obj} の値の評価. 
+@end table
+
+@table @var
+@item return
+数あるいは式
+@item obj
+一般の式
+@item prec
+整数
+@end table
+
+@itemize @bullet
+@item
+@var{obj} に含まれる函数の値を可能な限り評価する. 
+@item
+計算は @b{PARI} (@xref{pari}) が行う. 
+@item
+@var{prec} を指定した場合, 計算は, 10 進 @var{prec} 桁程度で行われる. 
+@var{prec} の指定がない場合, 現在設定されている精度で行われる. 
+(@xref{setprec})
+@item
+@table @t
+@item 扱える函数は, 次の通り. 
+@code{sin}, @code{cos}, @code{tan},
+
+@code{asin}, @code{acos}, @code{atan},
+
+@code{sinh}, @code{cosh}, @code{tanh},
+
+@code{asinh}, @code{acosh}, @code{atanh},
+
+@code{exp}, @code{log}, @code{pow(a,b) (a^b)}
+@end table
+@item
+以下の記号を数として評価できる. 
+@table @t
+@item @@i
+虚数単位
+@item @@pi
+円周率
+@item @@e
+自然対数の底
+@end table
+@end itemize
+
+@example
+[118] eval(exp(@@pi*@@i));   
+-1.0000000000000000000000000000
+[119] eval(2^(1/2));
+1.414213562373095048763788073031
+[120] eval(sin(@@pi/3));
+0.86602540378443864674620506632
+[121] eval(sin(@@pi/3)-3^(1/2)/2,50);
+-2.78791084448179148471 E-58
+@end example
+
+@table @t
+@item 参照
+@fref{ctrl}, @fref{setprec}, @fref{pari}.
+@end table
+
+@node pari,,, 数の演算
+@subsection @code{pari}
+@findex pari
+@cindex PARI
+
+@table @t
+@item pari(@var{func},@var{arg},@var{prec}) 
+:: @b{PARI} の函数 @var{func} を呼び出す. 
+@end table
+
+@table @var
+@item return
+@var{func} 毎に異なる. 
+@item func
+@b{PARI} の函数名
+@item arg
+@var{func} の引数
+@item prec
+整数
+@end table
+
+@itemize @bullet
+@item
+@b{PARI} の函数を呼び出す. 
+
+@item
+@b{PARI} @code{[Batut et al.]} は Bordeaux 大学で開発されフ
+リーソフトウェアとして公開されている. @b{PARI} は数式処理的な機能を有
+してはいるが, 主なターゲットは整数論に関連した数 (@b{bignum},
+@b{bigfloat}) の演算で, 四則演算に限らず@b{bigfloat} によるさまざまな
+函数値の評価を高速に行うことができる. @b{PARI} は他のプログラムから
+サブルーチンライブラリとして用いることができ, また, @samp{gp} という 
+@b{PARI}ライブラリのインタフェースにより UNIX のアプリケーションとして
+利用することもできる. 現在のバージョンは @b{1.39} でいくつかの ftp
+site (たとえば @code{math.ucla.edu:/pub/pari})
+から anonymous ftp できる. 
+@item
+最後の引数 @var{prec} で計算精度を指定できる.
+@var{prec} を省略した場合 @code{setprec()} で指定した精度となる. 
+@item
+現時点で実行できる @b{PARI} の函数は次の通りである. いずれも
+1 引数で @b{Asir} が対応できる型の引数をとる函数である. 
+なお各々の機能については @b{PARI} のマニュアルを参照のこと.
+
+@code{abs},
+@code{adj},
+@code{arg},
+@code{bigomega},
+@code{binary},
+@code{ceil},
+@code{centerlift},
+@code{cf},
+@code{classno},
+@code{classno2},
+@code{conj},
+@code{content},
+@code{denom},
+@code{det},
+@code{det2},
+@code{detr},
+@code{dilog},
+@code{disc},
+@code{discf},
+@code{divisors},
+@code{eigen},
+@code{eintg1},
+@code{erfc},
+@code{eta},
+@code{floor},
+@code{frac},
+@code{galois},
+@code{galoisconj},
+@code{gamh},
+@code{gamma},
+@code{hclassno},
+@code{hermite},
+@code{hess},
+@code{imag},
+@code{image},
+@code{image2},
+@code{indexrank},
+@code{indsort},
+@code{initalg},
+@code{isfund},
+@code{isprime},
+@code{ispsp},
+@code{isqrt},
+@code{issqfree},
+@code{issquare},
+@code{jacobi},
+@code{jell},
+@code{ker},
+@code{keri},
+@code{kerint},
+@code{kerintg1},
+@code{kerint2},
+@code{kerr},
+@code{length},
+@code{lexsort},
+@code{lift},
+@code{lindep},
+@code{lll},
+@code{lllg1},
+@code{lllgen},
+@code{lllgram},
+@code{lllgramg1},
+@code{lllgramgen},
+@code{lllgramint},
+@code{lllgramkerim},
+@iftex
+@break
+@end iftex
+@code{lllgramkerimgen},
+@code{lllint},
+@code{lllkerim},
+@code{lllkerimgen},
+@code{lllrat},
+@code{lngamma},
+@code{logagm},
+@code{mat},
+@code{matinvr},
+@code{matrixqz2},
+@code{matrixqz3},
+@code{matsize},
+@code{modreverse},
+@code{mu},
+@code{nextprime},
+@code{norm},
+@code{norml2},
+@code{numdiv},
+@code{numer},
+@code{omega},
+@code{order},
+@code{ordred},
+@code{phi},
+@code{pnqn},
+@code{polred},
+@code{polred2},
+@code{primroot},
+@code{psi},
+@code{quadgen},
+@code{quadpoly},
+@code{real},
+@code{recip},
+@code{redcomp},
+@code{redreal},
+@code{regula},
+@code{reorder},
+@code{reverse},
+@code{rhoreal},
+@code{roots},
+@code{rootslong},
+@code{round},
+@code{sigma},
+@code{signat},
+@code{simplify},
+@code{smalldiscf},
+@code{smallfact},
+@code{smallpolred},
+@code{smallpolred2},
+@code{smith},
+@code{smith2},
+@code{sort},
+@code{sqr},
+@code{sqred},
+@code{sqrt},
+@code{supplement},
+@code{trace},
+@code{trans},
+@code{trunc},
+@code{type},
+@code{unit},
+@code{vec},
+@code{wf},
+@code{wf2},
+@code{zeta}
+
+@item
+@b{Asir} で用いているのは @b{PARI} のほんの一部の機能であるが, 今後
+より多くの機能が利用できるよう改良する予定である. 
+@end itemize
+
+@example
+/* 行列の固有ベクトルを求める. */
+[0] pari(eigen,newmat(2,2,[[1,1],[1,2]]));
+[ -1.61803398874989484819771921990 0.61803398874989484826 ]
+[ 1 1 ]
+/* 1 変数多項式の根を求める. */
+[1] pari(roots,t^2-2);
+[ -1.41421356237309504876 1.41421356237309504876 ]
+@end example
+
+@table @t
+@item 参照
+@fref{setprec}.
+@end table
+
+@node setprec,,, 数の演算
+@subsection @code{setprec}
+@findex setprec
+@cindex PARI
+
+@table @t
+@item setprec([@var{n}])
+:: @b{bigfloat} の桁数を @var{n} 桁に設定する. 
+@end table
+
+@table @var
+@item return
+整数
+@item n
+整数
+@end table
+
+@itemize @bullet
+@item
+引数がある場合, @b{bigfloat} の桁数を @var{n} 桁に設定する. 
+引数のあるなしにかかわらず, 以前に設定されていた値を返す. 
+@item
+@b{bigfloat} の計算は @b{PARI} (@xref{pari}) によって行われる. 
+@item
+@b{bigfloat} での計算に対し有効である. 
+@b{bigfloat} の flag を on にする方法は, @code{ctrl} を参照. 
+@item
+設定できる桁数に上限はないが, 指定した桁数に設定されるとは
+限らない. 大きめの値を設定するのが安全である. 
+@end itemize
+
+@example
+[1] setprec();
+9
+[2] setprec(100);
+9
+[3] setprec(100);
+96
+@end example
+
+@table @t
+@item 参照
+@fref{ctrl}, @fref{eval}, @fref{pari}.
+@end table
+
+@node setmod,,, 数の演算
+@subsection @code{setmod}
+@findex setmod
+
+@table @t
+@item setmod([@var{p}])
+:: 有限体を GF(@var{p}) に設定する. 
+@end table
+
+@table @var
+@item return
+整数
+@item n
+2^27 未満の素数
+@end table
+
+@itemize @bullet
+@item
+有限体を GF(@var{p}) に設定する. 設定値を返す. 
+@item
+有限体の元の型を持つ数は, それ自身はどの有限体に属するかの情報を持たず, 
+現在設定されている素数 @var{p} により GF(@var{p}) 上での演算が適用される. 
+@end itemize
+
+@example
+[0] A=dp_mod(dp_ptod(2*x,[x]),3,[]);
+(2)*<<1>>
+[1] A+A;
+addmi : invalid modulus
+return to toplevel
+[1] setmod(3);
+3
+[2] A+A;
+(1)*<<1>>
+@end example
+
+@table @t
+@item 参照
+@fref{dp_mod dp_rat}, @fref{数の型}.
+@end table
+

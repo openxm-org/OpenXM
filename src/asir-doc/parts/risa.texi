@@ -1,0 +1,517 @@
+@node Risa/Asir,,, Top
+@chapter Risa/Asir
+
+@menu
+* Risa および Asir::
+* Asir の特徴::
+* インストレーション::
+* コマンドラインオプション::
+* 環境変数::
+* 起動から終了まで::
+* 割り込み::
+* エラー処理::
+* 計算結果および特殊な数::
+@end menu
+
+@node Risa および Asir,,, Risa/Asir
+@section Risa および Asir
+
+@noindent
+@b{Risa} は, 富士通研で開発中の数式処理システム/ライブラリの総称である. 
+@b{Risa} の構成は次の通りである. 
+
+@itemize @bullet 
+@item
+@code{基本演算部}
+
+これは, @b{Risa} の内部形式に変換されたオブジェクト (数, 多項式など) 
+の間の演算を実行する部分であり, UNIX の @samp{libc.a} などと同様の, ライブラ
+リとして存在する. エンジンは, C および アセンブラで記述され, 後述する
+言語インタフェース @b{Asir} の基本演算部として用いられている一方, 
+数式計算を必要とするさまざまなプログラム中にリンクして用いることができる. 
+(未公開)
+@item
+@code{メモリ管理部}
+
+@b{Risa} では, メモリ管理部として, @code{[Boehm,Weiser]} によるフリー
+ソフトウェア (@code{gc-5.0alpha2}) を用いている. これはガーベジコレクション 
+(以下 GC と呼ぶ) を自動的に行うメモリ割り当て機構を持ち, @b{Risa} の各
+部分はすべてこれにより必要なメモリを得ている.
+
+@item
+@b{Asir}
+
+@b{Asir} は, @b{Risa} の計算エンジンの言語インタフェースで
+ある. @b{Risa} では, 比較的容易にユーザ用の言語インタフェースを作る
+ことができる. @b{Asir} はその一つの例として作ったもので, C 言語に近
+い文法をもつ. また, C のデバッガとして広く用いられている @code{dbx} 風
+のデバッガも備えている. 
+@end itemize
+
+@node Asir の特徴,,, Risa/Asir
+@section Asir の特徴
+
+@noindent
+@b{Asir} は, 前述の通り, 計算エンジンの言語インタフェースであ
+る. 通常 @b{Asir} という名前の実行可能ファイルとして提供される. 
+現在サポートされている機能は概ね次の通りである. 
+
+@itemize @bullet
+@item
+C 言語風のユーザ言語
+
+@item
+数, 多項式, 有理式の加減乗(除)
+
+@item
+ベクトル, 行列の演算
+
+@item
+最小限のリスト処理
+
+@item
+組み込み函数 (因数分解, GCD, グレブナ基底など)
+
+@item
+ユーザ定義函数によるツール (代数体上の因数分解など)
+
+@item
+@code{dbx} 風のデバッガ
+
+@item
+陰函数の描画 
+
+@item
+@b{PARI} (@pxref{pari}) による初等超越函数を含む式の評価
+
+@item
+UNIX 上での分散計算機能 (Open XM)
+@comment @item
+@comment ヒストリ置換機能をもつ X11 インタフェース
+@end itemize
+
+@node インストレーション,,, Risa/Asir
+@section インストレーション
+
+以下の手続きで不明な点, 不都合な点があった場合の問い合わせは
+
+@example
+noro@@para.flab.fujitsu.co.jp
+@end example
+
+@noindent
+宛に e-mail でお願いします. 
+
+@menu
+* UNIX 版::
+* Windows 版::
+@end menu
+
+@node UNIX 版,,, インストレーション
+@subsection UNIX 版
+
+@noindent
+必要なファイルは @samp{asir.tgz} である. 
+これらは全て @code{gzip} で圧縮してあるので, 入手後 @code{gzip} で
+展開する. まず, インストールするディレクトリを決める. デフォルトでは
+@samp{/usr/local/lib} に @samp{asir} というディレクトリとして
+インストールされることを仮定している. 以下このディレクトリをライブラリ
+ディレクトリと呼ぶ. 
+
+@example
+# gzip -dc asir.tgz | ( cd /usr/local/lib; tar xf - )
+@end example
+
+個人的に使用する場合には, @samp{$HOME}などに置いてもよい. 
+
+@example
+% gzip -dc asir.tgz | ( cd $HOME; tar xf - )
+@end example
+
+@noindent
+この場合, ライブラリディレクトリの名前を環境変数 
+@code{ASIR_LIBDIR} に設定する必要がある.
+
+@example
+% setenv ASIR_LIBDIR $HOME/asir
+@end example
+
+@noindent
+Asir 本体は, ライブラリディレクトリの @samp{asir} である. 
+@samp{/usr/local/bin} あるいはユーザの実行ファイルサーチパス
+のどこかにシンボリックリンクを作ると便利である. 
+
+@example
+# ln -s /usr/local/lib/asir/asir /usr/local/bin/asir
+@end example
+
+@noindent
+この状態で @samp{asir} を起動してみる. 
+
+@example
+% /usr/local/bin/asir
+asir_key not found.
+ID for this machine is XXXXXXXX.
+See the file ASIR_INSTALL to get the correct key.
+@end example
+
+@noindent
+すると, このようなメッセージが出て @samp{asir} は終了する. UNIX 版
+では, マシンごとに @code{key} と呼ばれる文字列が必要である. 
+@code{key} を入手するためには, 
+
+@example
+risa@@para.flab.fujitsu.co.jp
+@end example
+
+@noindent
+宛に, 
+
+@example
+ASIR XXXXXXXX
+@end example
+
+@noindent
+という 1 行のみからなる e-mail を送ればよい. @code{XXXXXXXX} は表示された
+@code{ID} である. 折り返し
+
+@example
+YYYYYYYY YYYYYYYY YYYYYYYY
+@end example
+
+@noindent
+という形の 1 行のみからなる e-mail が届くので, この 1 行を含む @samp{asir_key}
+なるファイルをカレントディレクトリに作って @samp{asir} を起動してみる. 
+
+@example
+% /usr/local/bin/asir
+This is Asir, Version 990831.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+3 March 1994. All rights reserved.
+[0]
+@end example
+
+@noindent
+このようなプロンプトが出れば, 入手した @code{key} はそのマシンに対して有効
+である. @code{key} を書いておくファイルに関しては, 環境変数 @code{ASIR_KEY}
+の説明の項で詳しく述べるが, ライブラリディレクトリにここで作成した
+ファイル @samp{asir_key} を置けば, そのマシン上で全てのユーザが @samp{asir}
+を使用できるようになる. @samp{asir_key} には複数のマシンに対する @code{key}
+を書けるので, ライブラリディレクトリを共有している場合でも @samp{asir_key}
+に行を追加していけばよい. 
+
+@example
+# cp asir_key /usr/local/lib/asir
+@end example
+
+@node Windows 版,,, インストレーション
+@subsection Windows 版
+
+@noindent
+必要なファイルは @samp{asirwin.tgz} である. 他に, @samp{gzip.exe},
+@samp{tar.exe} が必要だが, asirwin.tgz と同じディレクトリに用意して
+ある. これら 3 つのファイルを同一ディレクトリにおき, DOS プロンプト
+から
+
+@example
+C:\...> tar xzf asirwin.tgz
+@end example
+
+@noindent
+を実行すれば, @samp{Asir} というディレクトリ (Asir ルートディレクトリ) 
+ができる. 990831 版では, GUI と本体が分離され, またデバッグウィンドウも
+別プロセスとして GUI が呼び出されるため, Asir ルートディレクトリが正しく
+登録されていることが必要である.  Asir ルートディレクトリのサブディレクト
+リ @samp{bin} に @samp{asirgui.exe} (GUI), @samp{engine.exe} (本体) が
+置かれている. @samp{asirgui.exe} の初回の立ち上げは, エクスプローラから行
+う. これにより
+
+@example
+HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
+@end example
+
+@noindent
+というレジストリに Asir ルートディレクトリが正しく登録される. 
+
+@node コマンドラインオプション,,, Risa/Asir
+@section コマンドラインオプション
+
+@noindent
+コマンドラインオプションは次の通り. 
+
+@table @code
+
+@item -heap @var{number}
+@code{Risa/Asir} では, 4KB のブロックをメモリ割り当ての単位として用いている. 
+デフォルトでは, 初期 heap として, 16 ブロック (64KB) 割り当てるが, それ
+を変更する場合, @code{-heap} を用いる. 単位はブロックである. 
+heap の大きさは, @code{heap()} 函数で調べることができる (単位はバイト). 
+
+@item -adj @var{number}
+この値が大きいほど, 使用メモリ量は大きくなるが, GC 時間が少なくな
+る. @var{number} として 1 以上の整数が指定できる. デフォルトでは 3 であ
+る. この値が 1 以下になると GC をしない設定になるので要注意である. heap 
+をなるべく伸ばさずに, GC を主体にしてメモリ管理したい場合には, この値を
+大きく (例えば 8) 設定する.
+
+@item -norc
+初期化ファイル @samp{$HOME/.asirrc} を読まない. 
+
+@item -f @var{file}
+標準入力の代わりに, @var{file} から入力を読み込んで実行する. 
+エラーの際にはただちに終了する. 
+
+@item -paristack @var{number}
+@b{PARI} (@pxref{pari}) 専用の領域の大きさを指定する. 単位はバイト. デフォ
+ルトでは 1 MB.
+
+@item -maxheap @var{number}
+heap 領域の上限を指定する. 単位はバイト. デフォルトでは無制限. UNIX の
+場合, 実際には @code{limit} コマンドで表示される @code{datasize} の値
+に制限されているため, @code{-maxheap} の指定がなくても一定量以上に
+heap を獲得できない場合があるので注意.)
+@end table
+
+@node 環境変数,,, Risa/Asir
+@section 環境変数
+
+@noindent
+@b{Asir} の実行に関するいくつかの環境変数が存在する. UNIX 上では環境変数
+は shell のコマンドラインから直接設定するか, shell の rc ファイルで設定
+する. Windows NT では, [設定]->[システム]->[環境] で設定する. Windows 95/98
+では, @samp{c:\autoexec.bat} に書いて reboot する. 
+
+@itemize @bullet
+@item
+@code{ASIR_KEY}
+
+UNIX 版では, @b{Asir} が起動されたマシンに対する @code{key} がなけ
+ればそのマシン上で @b{Asir} は動作しない. @code{key} は 16 進 8 
+桁 3 ワードからなり, 
+
+@example
+% cat asir_key
+cf6f236c 61a35091 dddc4529 geisha
+82281685 d1929945 a8bd24ca yorktown
+34b75d30 63f8df93 3e881113 nyanchu
+@end example
+
+という形で複数台のマシンに対する @code{key} を一つのファイルにまとめて
+書くことができる. @code{key} の後ろは無視されるので, コメントを書く
+ことができる. @code{key} を含むファイルは, 以下の順でサーチされる. 
+
+@enumerate
+@item
+環境変数 @code{ASIR_KEY} に指定されたファイル
+
+@item
+カレントディレクトリの @samp{asir_key}
+
+@item
+環境変数 @code{ASIR_LIBDIR} で指定されたディレクトリ (指定がなければ
+@samp{/usr/local/lib/asir}) の @samp{asir_key}
+@end enumerate
+
+@item
+@code{ASIR_LIBDIR}
+
+@b{Asir} のライブラリディレクトリ, すなわちユーザ言語で書かれたファイル
+などがおかれるディレクトリ. 指定がない場合 UNIX 版では 
+@samp{/usr/local/lib/asir}, Windows 版では Asir メインディレクトリの下の 
+@samp{lib} ディレクトリが用いられる. 
+
+@item
+@code{ASIRLOADPATH}
+
+ロードされるファイルがあるディレクトリを UNIX の場合 ':', 
+Windowsの場合 ';' で区切って並べる. ディレ
+クトリは左から順にサーチされる. この指定がない場合, および指定された
+ファイルが @code{ASIRLOADPATH} になかった場合, ライブラリディレクトリ
+もサーチされる. 
+
+@item
+@code{HOME}
+
+@var{-norc} オプションつきで起動しない場合, @samp{$HOME/.asirrc}があれば, 
+予めこのファイルを実行する. @code{HOME} が設定されていない場合, UNIX 版
+ではなにも読まないが, Windows 版では Asir メインディレクトリ
+(@code{get_rootdir()} で返されるディレクトリ) の @samp{.asirrc} を探し, 
+あればそれを実行する.
+
+@end itemize
+
+@node 起動から終了まで,,, Risa/Asir
+@section 起動から終了まで
+
+@noindent
+@b{Asir} を起動すると, 
+@example
+[0]
+@end example
+
+@noindent
+なるプロンプトが表示され, セッションが開始する. @samp{$HOME/.asirrc}
+(Windows 版の場合, @code{HOME} 設定されていない場合には @code{get_rootdir()}
+で返されるディレクトリにある @samp{.asirrc})
+が存在している場合, このファイルを @b{Asir} ユーザ言語でかかれた
+ファイルと見なし, 解釈実行する. 
+
+@noindent
+プロンプトは入力の番号を表す. セッションは, @code{end;} または 
+@code{quit;} を入力することにより終了する. 入力は, @samp{;} または 
+@samp{$} までを一区切りとして評価される. @samp{;} のとき結果は表示され, 
+@samp{$} のとき表示されない. 
+
+@example
+% asir
+[0] A;
+0
+[1] A=(x+y)^5;
+x^5+5*y*x^4+10*y^2*x^3+10*y^3*x^2+5*y^4*x+y^5
+[2] A;
+x^5+5*y*x^4+10*y^2*x^3+10*y^3*x^2+5*y^4*x+y^5
+[3] a=(x+y)^5;
+evalpv : invalid assignment
+return to toplevel
+[3] a;
+a
+[4] fctr(A);
+[[1,1],[x+y,5]]
+[5] quit;
+%
+@end example
+
+@noindent
+この例では, @code{A}, @code{a}, @code{x}, @code{y} なる文字が使用されている. 
+@code{A} はプログラムにおける変数で, @code{a}, @code{x}, @code{y} は数学的
+な意味での不定元である. 一般にプログラム変数は大文字で始まり, 
+不定元は小文字で始まる. この例でわかるように, プログラム変数は, 
+数, 式などを格納しておくためのものであり, C 言語などにおける変数に対応する. 
+一方, 不定元はそれ自身で値を持つことはできず, 従って, 不定元に対する
+代入は許されない. 後に示すが, 不定元に対する代入は, 組み込み函数 @code{subst()}
+により明示的に行われる. 
+
+@node 割り込み,,, Risa/Asir
+@section 割り込み
+
+@noindent
+計算を実行中に割り込みをかけたい場合, 割り込みキャラクタ(通常は
+@kbd{C-c}, DOS 版では @kbd{C-x}, Mac 版では 
+@code{command+}@samp{.} ) を入力する.
+
+@example
+@@ (x+y)^1000;
+@kbd{C-c}interrupt ?(q/t/c/d/u/w/?)
+@end example
+
+@noindent
+各選択肢の意味は次の通り. 
+
+@table @code
+@item q
+@b{Asir} を終了する. (確認あり)
+@item t
+トップレベルに戻る. (確認あり)
+@item c
+実行を継続する. 
+@item d
+デバッグモードに入る. デバッガに関しては @xref{デバッガ}.
+@item u
+@code{register_handler()} (@pxref{ox_reset register_handler}) で登録された
+関数を実行後トップレベルに戻る. (確認あり)
+@item w
+中断点までの函数の呼び出し列を表示する. 
+@item ?
+各選択肢の意味を説明する. 
+@end table
+
+@node エラー処理,,, Risa/Asir
+@section エラー処理
+
+@noindent
+組み込み函数に不正な型の引数を渡した場合などには実行が中断されるが, 
+ユーザ函数の中でエラーが起きた場合にはトップレベルに戻る前に自動的にデバッグ
+モードに入る. この状態で
+エラーの場所, 直前の引数の値などを調べることができる. 
+表示されるエラーメッセージはさまざまであり, 内部の函数名に引き続いて
+メッセージが表示される. これは, 呼び出された組み込み函数
+と必ずしも対応はしない. 
+
+@noindent
+その他, さまざまな原因により内部演算函数においてエラーが生ずることが
+ある. UNIX 版の場合, これは次のいずれかの
+@code{internal error} として報告され, 通常のエラーと同様に扱って, 
+デバッグモードに入る. 
+
+@table @code
+@item SEGV
+@itemx BUS ERROR
+
+組み込み函数によっては, 引数の型を厳密にチェックせずに演算ルーチンに引
+き渡してしまうものも存在している. このような状況において, 
+不正なポインタ, あるいは NULL ポインタによるアクセス違反があった場合, これら
+のエラーとなる. 
+
+@item BROKEN PIPE
+
+プロセス間通信において, 相手先のプロセスとの間のストリーム
+が既に存在していない場合 (例えば既に相手先のプロセスが終了している場合など)
+に, そのストリームに入出力しようとした場合にこのエラーとなる. 
+@end table
+
+@noindent
+これらは実際には, 組み込み函数の入口において, 引数を完全にチェック
+することにより大部分は防げるが, 手間が多くかかることと, 場合に
+よっては効率を落すことにもなるため, あえて引数チェックはユーザ
+任せにしてある. 
+
+@node 計算結果および特殊な数,,, Risa/Asir
+@section 計算結果, 特殊な数
+
+@noindent
+@code{@@} はエスケープ文字として使用される. 現在次のような規定がある. 
+
+@table @code
+@item @@@var{n}
+@var{n} 番目の計算結果. 
+@item @@@@
+直前の計算結果. 
+@item @@i
+虚数単位. 
+@item @@pi
+円周率. 
+@item @@e
+自然対数の底. 
+@item @@
+2 元体 GF(2) 上の一変数多項式の変数 (不定元).
+@item @@>, @@<, @@>=, @@<=, @@==, @@&&, @@||
+quantifier elimination における, 一階述語論理演算子
+@end table
+
+@example
+[0] fctr(x^10-1);     
+[[1,1],[x-1,1],[x+1,1],[x^4+x^3+x^2+x+1,1],[x^4-x^3+x^2-x+1,1]]
+[1] @@@@[3];            
+[x^4+x^3+x^2+x+1,1]
+[2] eval(sin(@@pi/2)); 
+1.000000000000000000000000000000000000000000000000000000000
+[3] eval(log(@@e),20);
+0.99999999999999999999999999998
+[4] @@0[4][0];
+x^4-x^3+x^2-x+1
+[5] (1+@@i)^5;
+(-4-4*@@i)
+[6] eval(exp(@@pi*@@i));
+-1.0000000000000000000000000000
+[7] (@@+1)^9;
+(@@^9+@@^8+@@+1)
+@end example
+
+@noindent
+トップレベルで計算された値はこのようにヒストリとして取り出し可能であるが, 
+このことは, ガベージコレクタにとっては負担をもたらす可能性がある. 特に, 
+大きな式をトップレベルで計算した場合, その後の GC 時間が急速に増大する可
+能性がある. このような場合, @code{delete_history()}
+(@pxref{delete_history,,@code{delete_history}}) が有効である.
+
+
