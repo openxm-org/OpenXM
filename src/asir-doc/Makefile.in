@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.1 2004/06/30 12:13:05 takayama Exp $
 OpenXM_HOME=@prefix@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -12,7 +12,7 @@ install:
 	if [ ! -f .install_done ] ; then make install2 ; touch .install_done ; fi
 
 all2: all-eg all-jp
-install2: install-eg install-jp 
+install2: install-eg install-jp install-man-pages
 
 all-eg: texindex extract_man extract_func man-eg.dvi help-eg html-eg
 all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp html-internal-ja html-exp-ja
@@ -36,7 +36,7 @@ install-jp: all-jp
 	-tar cf - html-exp-ja | ( cd ${OpenXM_doc_asir2000}; tar xf - )
 
 install-man-pages:
-	-cp asir.1 ${OpenXM_man}
+	-install asir.1 ${OpenXM_man}
 
 configure:
 	(cd jtexindex/C; ./configure; make clean)

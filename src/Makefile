@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.140 2004/06/24 12:45:15 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.141 2004/06/30 12:13:05 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -153,8 +153,8 @@ install-asir-contrib-asir-progs: install-asir install-util
 	(cd asir-contrib ; make install)
 
 
-install-asir-doc: install-asir
-	-(cd asir-doc ; ./make-configure; make install)
+install-asir-doc: configure-asir-doc install-asir
+	-(cd asir-doc ; make install)
 
 install-misc:
 	(cd ../rc ; make install-man)
@@ -217,7 +217,7 @@ distclean: clean
 configure: configure-util configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
-	   configure-pari configure-gmp
+	   configure-pari configure-gmp configure-asir-doc
 
 configure-util:
 	(cd util; ./make-configure)
@@ -227,6 +227,9 @@ configure-gmp: install-util
 
 configure-asir: 
 	(cd asir2000 ; make configure) 
+
+configure-asir-doc: 
+	-(cd asir-doc ; ./make-configure) 
 
 configure-gnuplot:
 	-(cd gnuplot ; make configure)
