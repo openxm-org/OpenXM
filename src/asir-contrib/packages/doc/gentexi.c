@@ -1,4 +1,4 @@
- /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.4 2002/08/08 08:56:32 takayama Exp $  */
+ /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.5 2002/08/23 03:26:16 noro Exp $  */
 
 #include <stdio.h>
 int Debug = 0;
@@ -117,7 +117,7 @@ genInclude(char *name) {
   sprintf(fname,"tmp/%s-auto-%s.texi",name,Lang);
   fp = fopen(fname,"r");
   if (fp == NULL) {
-    fprintf(stderr,"No file %s\n",fname);
+    /* fprintf(stderr,"No file %s\n",fname); */
     return 0;
   }
   while ((c=fgetc(fp)) != EOF) {
@@ -382,8 +382,8 @@ struct item *getItem() {
         }
       }
     }else{
-      fprintf(stderr,"Unknown keyword << %s >> at %s\n",key, it->name);
-      exit(10);
+      fprintf(stderr,"Warning: unknown keyword << %s >> at %s. Ignored.\n",key, it->name);
+      p = nextToken(key,LIMIT);
     }
   }while (p >= 0);
 
