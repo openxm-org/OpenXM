@@ -1,0 +1,33 @@
+This is a port of OpenXM.
+It contains mathematical softwares complient to the OpenXM protocol.
+The OpenXM protocol is an infrastracture for communications between
+mathematical softwares.
+
+The directory structure of this port is not following the standard
+of the FreeBSD port system, because I did not have an enough time
+to patch the OpenXM package, (which is huge) and the OpenXM package
+is intending to be independent to any operating system.
+All binaries, documents and libraries are under the directory of OpenXM.
+Scripts to start clients are copied to ${PKG_PREFIX}/bin
+for the convinience.
+The following clients are under the bin directory:
+asir  ---- a general computer algebra system.
+sm1   ---- a computer algebra system for the ring of differential operators.
+oxmath --- A script to start mathematica with the OpenXM support.
+           To use oxmath, you need to buy Mathematica.
+
+The following servers are available:
+ox_asir --- asir server (factorization, simplification of rational functions,
+                         primary ideal decomposition, Grobner basis computation
+                         etc.)
+ox_sm1  --- sm1 server  (Grobner basis in the ring of differential operators)
+ox_phc     --- phc server  (Solving systems of algebraic equations)
+ox_tigers  --- TiGERs server (Enumerating all the Grobner basis for toric ideal)
+ox_gnuplot --- gnuplot server
+OMproxy   ---- OpenMath/XML support
+ox_math   ---- mathematica server
+
+As to details, see OpenXM/doc directory.
+
+Nobuki Takayama
+takayama@math.sci.kobe-u.ac.jp

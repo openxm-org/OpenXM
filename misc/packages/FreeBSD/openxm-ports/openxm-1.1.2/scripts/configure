@@ -1,0 +1,8 @@
+#!/bin/sh
+# $OpenXM$
+(cd $WRKSRC/OpenXM/src ; make configure )
+
+
+## It is necessary to do "make configure" by scripts/configure.
+## If we do not do this, the procedure hangs up at the stage of
+##  generating kernel.o  of pari.  (I do not know the reason.)
