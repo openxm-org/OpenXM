@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.4 1999/11/02 21:15:02 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.5 1999/11/03 10:56:40 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -283,11 +283,13 @@ cmo_int32* new_cmo_int32(int i)
 cmo_string* new_cmo_string(char* s)
 {
     cmo_string* c = malloc(sizeof(cmo_string));
-	char *s2 = malloc(strlen(s)+1);
-	strcpy(s2, s);
-
     c->tag = CMO_STRING;
-    c->s   = s2;
+	if (s != NULL) {
+		c->s = malloc(strlen(s)+1);
+		strcpy(c->s, s);
+	}else {
+		c->s = NULL;
+	}
     return c;
 }
 
@@ -930,7 +932,7 @@ static int send_cmo_int32(int fd, cmo_int32* m)
 
 static int send_cmo_string(int fd, cmo_string* m)
 {
-    int len = strlen(m->s);
+    int len = (m->s != NULL)? strlen(m->s): 0;
     send_int32(fd, len);
     if (len > 0) {
         write(fd, m->s, len);

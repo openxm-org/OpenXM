@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.3 1999/11/03 10:56:40 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -17,9 +17,44 @@
 #define UNKNOWN_SM_COMMAND 50000
 #define MATH_ERROR         50001
 
-
 /* MLINK はポインタ型. */
 MLINK lp = NULL;
+
+
+typedef cmo mlo;
+typedef cmo_string mlo_string;
+typedef cmo_zz mlo_zz;
+
+/* cmo_list の派生クラス*/
+typedef struct {
+	int tag;
+	int length;
+	cell *head;
+	char *function;
+} mlo_function;
+
+
+mlo *receive_mlo_zz()
+{
+	char *s;
+	mlo  *m;
+
+	MLGetString(lp, &s);
+ 	fprintf(stderr, "--debug: zz = %s.\n", s);
+	m = (mlo *)new_cmo_zz_set_string(s);
+	MLDisownString(lp, s);
+	return m;
+}
+
+mlo *receive_mlo_string()
+{
+	char *s;
+	mlo  *m;
+	MLGetString(lp, &s);
+	m = (cmo *)new_cmo_string(s);
+	MLDisownString(lp, s);
+	return m;
+}
 
 /* Mathematica を起動する. */
 int MATH_init()
@@ -68,62 +103,75 @@ char *MATH_getObject()
     return s;
 }
 
+
 cmo *MATH_getObject2()
 {
-    char *s;
-    cmo  *m;
-    char **sp;
-    int  i,n;
-
     /* skip any packets before the first ReturnPacket */
     while (MLNextPacket(lp) != RETURNPKT) {
         usleep(10);
         MLNewPacket(lp);
     }
     /* いまはタイプにかかわらず文字列を取得する. */
-    switch(MLGetNext(lp)) {
+	return MATH_getObject3();
+}
+
+cmo *MATH_getObject3()
+{
+    char *s;
+    cmo  *m;
+    cmo  *ob;
+    int  i,n;
+	int type;
+
+    /* いまはタイプにかかわらず文字列を取得する. */
+	type = MLGetNext(lp);
+    switch(type) {
     case MLTKINT:
-        fprintf(stderr, "type is INTEGER.\n");
-        MLGetString(lp, &s);
-        m = (cmo *)new_cmo_zz_set_string(s);
+        fprintf(stderr, "--debug: MLO == MLTKINT.\n");
+		m = receive_mlo_zz();
         break;
     case MLTKSTR:
-        fprintf(stderr, "type is STRING.\n");
-        MLGetString(lp, &s);
-        m = (cmo *)new_cmo_string(s);
+        fprintf(stderr, "--debug: MLO == MLTKSTR.\n");
+		m = receive_mlo_string();
         break;
-    case MLTKERR:
-        fprintf(stderr, "type is ERROR.\n");
-        m = (cmo *)gen_error_object(MATH_ERROR);
-        break;
-    case MLTKSYM:
-        fprintf(stderr, "MLTKSYM.\n");
-        MLGetString(lp, s);
-        m = (cmo *)new_cmo_string(s);
-        break;
-    case MLTKFUNC:
-        fprintf(stderr, "MLTKFUNC.\n");
-#if DEBUG
-        MLGetString(lp, s);
-        m = (cmo *)new_cmo_string(s);
-        break;
-#endif
-        MLGetFunction(lp, sp, &n);
-        fprintf(stderr, "n = %d\n", n);
-        for (i=0; i<=n; i++) {
-            fprintf(stderr, "%s ");
-        }
-        fprintf(stderr, "\n");
-        m = (cmo *)new_cmo_string(s);
-        break;
+#if 0
     case MLTKREAL:
         fprintf(stderr, "MLTKREAL is not supported: we use MLTKSTR.\n");
         MLGetString(lp, &s);
         m = (cmo *)new_cmo_string(s);
         break;
+    case MLTKERR:
+        fprintf(stderr, "--debug: MLO == MLTKERR.\n");
+        m = (cmo *)gen_error_object(MATH_ERROR);
+        break;
+#endif
+    case MLTKSYM:
+		fprintf(stderr, "--debug: MLO == MLTKSYM.\n");
+		/* この部分に問題がある. */
+        MLGetSymbol(lp, &s);
+		fprintf(stderr, "--debug: Symbol \"%s\".\n", s);
+        m = (cmo *)new_cmo_string(s);
+        break;
+    case MLTKFUNC:
+        fprintf(stderr, "--debug: MLO == MLTKFUNC.\n");
+        MLGetFunction(lp, &s, &n);
+        fprintf(stderr, "--debug: Function = \"%s\", # of args = %d\n", s, n);
+		m = new_cmo_list();
+		append_cmo_list(m, new_cmo_string(s));
+		fflush(stderr);
+        for (i=0; i<n; i++) {
+            fprintf(stderr, "--debug: arg[%d]\n", i);
+			fflush(stderr);
+			ob = MATH_getObject3();
+			append_cmo_list(m, ob);
+        }
+        break;
     default:
-        fprintf(stderr, "unknown type: we use STRING.\n");
+        fprintf(stderr, "--debug: MLO(%d) != MLTKINT, MLTKSTR.\n", type);
+        fprintf(stderr, "--debug: MLTKFUNC(%d), MLTKSYM(%d).\n", MLTKFUNC, MLTKSYM);
+
         MLGetString(lp, &s);
+		fprintf(stderr, "--debug: \"%s\"\n", s);
         m = (cmo *)new_cmo_string(s);
     }
     return m;
