@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.16 2000/03/17 16:55:43 tam Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.17 2001/07/16 07:33:48 takayama Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -101,7 +101,7 @@ def om_start() {
   SPort = generate_port();
  
   Outfile = " > /dev/null ";
-  Lib = getenv("OpenXM_HOME")+"/lib/java-support"$
+  Lib = ox_getenv("OpenXM_HOME")+"/lib/java-support"$
   Com = "java OMproxy -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
  /* Com = Com +" -nohup || "+ Com;	for not to stop by CTRL-C */
   Com = "cd "+ Lib +";"+ Com;

@@ -1,5 +1,23 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.42 2002/07/15 02:14:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.43 2002/07/15 08:17:42 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
+
+def ox_getenv(S) {
+  A = getenv(S);
+  if (A == 0) {
+    if (type(S) != 7) S=rtostr(S); 
+    S2 = ox_toupper(S);
+    /* 
+    print("Warning: the environmental variable "+S+" does not have a value. checking "+S2);
+    */
+    A = getenv(S2);
+  }
+  return A;
+}
+def ox_toupper(S) {
+  R = [];  A = strtoascii(S);
+  for (I=0; I<length(A); I++) R=cons((A[I]>=97 && A[I]<=122?A[I]-32:A[I]),R);
+  return asciitostr(reverse(R));
+}
 
 /* Include data type declaration. */
 load("datatype.rr")$
@@ -41,7 +59,7 @@ ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
 
 /* Function to check OSTYPE (temporary) */
 def ox_ostype() {
-  if (getenv("OPENXMHOMEWIN") != 0) {
+  if (ox_getenv("OPENXMHOMEWIN") != 0) {
     return(["windows"]);
   }else{
     return(["unix"]);

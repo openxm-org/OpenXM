@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/misc.rr,v 1.1 2001/08/22 01:52:44 takayama Exp $ */
 
 Misc_ox_work_dir_created = 0$
 Misc_ox_file_name = 0$
@@ -15,10 +15,10 @@ def get_pid() {
 */
 def ox_work_dir() {
   extern Misc_ox_work_dir_created;
-  if (getenv("OpenXM_tmp") == 0) {
-     Work_home = getenv("HOME")+"/OpenXM_tmp";
+  if (ox_getenv("OpenXM_tmp") == 0) {
+     Work_home = ox_getenv("HOME")+"/OpenXM_tmp";
   }else{
-     Work_home = getenv("OpenXM_tmp");
+     Work_home = ox_getenv("OpenXM_tmp");
   }
   Work = Work_home+"/"+rtostr(get_pid());
 
@@ -42,12 +42,12 @@ def ox_work_dir() {
 }
 
 def ox_remove_work_dir() {
-  if (getenv("OpenXM_tmp") == 0) {
-     Work_home = getenv("HOME")+"/OpenXM_tmp";
+  if (ox_getenv("OpenXM_tmp") == 0) {
+     Work_home = ox_getenv("HOME")+"/OpenXM_tmp";
   }else{
-     Work_home = getenv("OpenXM_tmp");
+     Work_home = ox_getenv("OpenXM_tmp");
      /* Safety precaution. */
-     if (Work_home == getenv("HOME") ||
+     if (Work_home == ox_getenv("HOME") ||
          Work_home == "/" ||
          Work_home == "" ||
          Work_home == "." ||

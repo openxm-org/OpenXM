@@ -1,7 +1,7 @@
 /*&jp \documentclass{jarticle}
 \begin{document}
 */
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.7 2002/05/08 02:57:22 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.8 2002/05/09 03:48:07 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -105,7 +105,7 @@ print("m Version 19991113. m_start, m_tree_to_string, m_N_Eigenvalues")$
   {\tt /usr/local/OpenXM}.
 */
 
-Ox_math_lib = getenv("OpenXM_HOME")$
+Ox_math_lib = ox_getenv("OpenXM_HOME")$
 if (Ox_math_lib == 0) {
   Ox_math_lib = "/usr/local/OpenXM/src/ox_math"$
 } else {
@@ -249,8 +249,8 @@ def m_start_windows(U) {
        OpenXM_HOME_WIN2="/home/nobuki/OpenXM";
        OpenXM_START_EXE = "c:/windows/command/start";
     */
-    OpenXM_HOME_WIN = getenv("OpenXM_HOME_WIN");
-    OpenXM_START_EXE = getenv("OpenXM_START_EXE");
+    OpenXM_HOME_WIN = ox_getenv("OpenXM_HOME_WIN");
+    OpenXM_START_EXE = ox_getenv("OpenXM_START_EXE");
     Ox_math_lib = OpenXM_HOME_WIN;
     Ox_sm1_forAsir = OpenXM_HOME_WIN+"\\bin\\ox_math.exe"; 
     F = open_file(Ox_sm1_forAsir);
