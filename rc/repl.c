@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.3 2000/01/20 02:34:49 noro Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.4 2001/08/29 11:18:58 takayama Exp $ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -49,12 +49,14 @@ main(int argc,char *argv[]) {
 	}
   }else if (!system("pstoimg -type gif /tmp/repl_test.ps -out /tmp/repl_test.gif >/dev/null")) {
 	if (type == 'b') {
-	  printf("export OpenXM_PSTOIMG_TYPE=gif\n");
+	  printf("OpenXM_PSTOIMG_TYPE=gif\n");
+      printf("export OpenXM_PSTOIMG_TYPE\n");
 	}else{
 	  printf("setenv OpenXM_PSTOIMG_TYPE=gif\n");
 	}
   }else {
-	printf("export OpenXM_PSTOIMG_TYPE=no\n");
+	printf("OpenXM_PSTOIMG_TYPE=no\n");
+	printf("export OpenXM_PSTOIMG_TYPE\n");
   }
   /* system("rm -f /tmp/repl_test.*"); */
 
