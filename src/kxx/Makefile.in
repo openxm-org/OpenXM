@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.9 2001/12/24 01:17:17 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.10 2001/12/24 01:29:45 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -131,13 +131,13 @@ install_lib_bin-for-debug :
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
 install : copy-kan-lib install_lib_bin
-	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  cp -f ox.exe ox_sm1.exe oxlog.exe oxweave.exe $(OpenXM_bin) ; \
 	else \
 	  cp -f ox ox_sm1 oxlog oxweave $(OpenXM_bin) ; \
 	fi
 install_lib_bin:
-	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  make install_lib_bin_windows ; \
 	else \
 	  make install_lib_bin_unix ; \
@@ -172,7 +172,7 @@ install_lib_bin_windows :
 copy-kan-lib : clean-for-install
 	mkdir $(OpenXM_lib)/sm1
 	touch $(OpenXM_lib)/sm1/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_COPIED_FROM_kan96xx_Doc
-	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  cp $(KANHOME)/Doc/* $(OpenXM_lib)/sm1 ; \
 	  mkdir $(OpenXM_lib)/sm1/bin ; \
 	else \
