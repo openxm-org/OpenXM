@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.4 1999/11/18 21:56:43 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.5 1999/11/18 22:07:50 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +12,6 @@
 
 static int send_ox_sync_ball(int fd);
 
-extern MLINK lp;
 static int sv_read  = 3;
 static int sv_write = 4;
 
@@ -107,15 +106,15 @@ int receive_ox(int fd_read, int fd_write)
 
 int shutdown()
 {
-	close(sv_read);
-	close(sv_write);
-	MATH_exit();
-	exit(0);
+    close(sv_read);
+    close(sv_write);
+    ml_exit();
+    exit(0);
 }
 
 int main()
 {
-    MATH_init();
+    ml_init();
     initialize_stack();
 
     signal(SIGUSR1, handler_reset1);

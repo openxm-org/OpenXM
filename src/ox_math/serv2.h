@@ -1,16 +1,22 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.3 1999/11/07 12:12:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.4 1999/11/18 21:56:44 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
 
 #include "ox.h"
 
-int  MATH_evaluateStringByLocalParser(char *str);
-int  MATH_init();
-int  MATH_exit();
-cmo  *MATH_get_object();
-int  MATH_executeFunction(char *function, int argc, cmo *argv[]);
+#define FLAG_MLTKSYM_IS_INDETERMINATE   0
+#define FLAG_MLTKSYM_IS_STRING          1
+
+#define ERROR_ID_UNKNOWN_SM 10
+#define ERROR_ID_FAILURE_MLINK         11
+
+int  ml_evaluateStringByLocalParser(char *str);
+int  ml_init();
+int  ml_exit();
+cmo  *ml_get_object();
+int  ml_executeFunction(char *function, int argc, cmo *argv[]);
 
 int  initialize_stack();
 int  push(cmo *m);

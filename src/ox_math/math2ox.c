@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.6 1999/11/07 12:12:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.7 1999/11/19 20:51:36 ohara Exp $ */
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -21,22 +21,21 @@ static char *ctlserv = "ox";
 static char *oxprog  = "ox_sm1";
 
 ox_file_t sv;
-MLINK lp;
 
 /* Mathematica から直接呼び出される関数の定義. */
 /* 呼び出しの方法は math2ox.tm で定義される.   */
 void OX_receive()
 {
-	cmo *c = NULL;
+    cmo *c = NULL;
 
-	receive_ox_tag(sv->stream);
-	c = receive_cmo(sv->stream);
+    receive_ox_tag(sv->stream);
+    c = receive_cmo(sv->stream);
 #ifdef DEBUG
-	fprintf(stderr, "received ox in OxReceive[].\n");
-	print_cmo(c);
-	fflush(stderr);
+    fprintf(stderr, "received ox in OxReceive[].\n");
+    print_cmo(c);
+    fflush(stderr);
 #endif
-	MATH_sendObject(c);
+    ml_sendObject(c);
 }
 
 int OX_executeStringByLocalParser(const char *str)
@@ -53,7 +52,7 @@ char *OX_popString()
 void OX_popCMO()
 {
     cmo *c = ox_pop_cmo(sv, sv->stream);
-	MATH_sendObject(c);
+    ml_sendObject(c);
 }
 
 int OX_close()
@@ -96,7 +95,6 @@ int OX_start(char* s)
     }
     sv = ox_start(host, ctlserv, oxprog);
     fprintf(stderr, "open (%s)\n", "localhost");
-	lp = stdlink;
     return 0;
 }
 
@@ -114,8 +112,6 @@ int OX_start_insecure(char *host, int portCtl, int portDat)
     
     sv = ox_start_insecure_nonreverse(host, portCtl, portDat);
     fprintf(stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
-
-	lp = stdlink;
 
     return 0;
 }
@@ -140,6 +136,6 @@ int main(int argc, char *argv[])
     /* 構文解析器の設定 */
     setflag_parse(PFLAG_ADDREV);
     setgetc(mygetc);
-	
+    
     MLMain(argc, argv);
 }
