@@ -1,0 +1,238 @@
+%% $OpenXM$
+%% http server by sm1. Used for RPC.  Generic example.
+
+[(parse) (httpd.sm1) pushfile] extension pop
+/httpd.textarea.name (rpc) def
+/httpd.textarea.name.aaa
+  [(GET /?) httpd.textarea.name] cat (array) dc
+def
+/httpd.port 8090 def
+/httpd.serial 0 def
+
+/httpd.image.name (kobeuniv2.jpg) def
+
+
+[(parse) (oxasir.sm1) pushfile] extension 
+oxNoX 
+(oxasir.started) boundp { 
+} {
+  %% Initialize oxasir.
+  [(x^2-1) (x)] fctr pop
+  oxasir.ccc oxmathcap
+  oxasir.ccc oxsetmathcap
+} ifelse
+
+/webrpc  {
+ [/rrr ] pushVariables
+ [
+  [(oxGenPass)] extension . (integer) dc  /rrr set
+
+  [(ostype)] extension 0 get
+   (windows) eq {
+     %% On windows.
+      [(forkExec)
+       [
+         ox.win.start.0 aload pop
+         (iexplore)   %% Starting internet explorer (TM).
+         [(http://localhost:) httpd.port toString] cat
+       ]
+       [  ]
+      3] extension
+   }{
+      %% On unix.
+      [(sleep 3 ; netscape http://localhost:) httpd.port toString ( & ) ] cat
+      system
+   } ifelse
+
+   httpd ;
+  ] pop
+  popVariables
+} def
+
+
+/httpd_action {
+  [/in-httpd /ff /httpd.com /httpd.result /sss
+   /sss.engine /sss.web /err
+   /oxserver.vname
+  ] pushVariables
+  [
+  {
+       [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
+       %%     wait for ever
+        [(sm1.socket) (readHTTP) [httpd.server.fd 0 get ]] extension /ff set
+        ff length 0 eq {
+           (connection is closed.) message
+        }
+        {
+          (------------  start ----------------------) message
+             ff message
+          (-----------------------------------------) message
+             ff removeGET webstringToAscii /httpd.com set
+             [(httpd.com=) httpd.com] cat message
+          (------------  end ----------------------) message
+          (   ) message
+          httpd.serial 0 eq {
+            /httpd.com  httpd.initialization def 
+          } { } ifelse
+          httpd.com metaCommand {
+            httpd.textarea.valid {
+
+              %%%  Executing command, here.
+              oxasir.ccc 
+              httpd.com cookedCommand 
+              oxexecutestring ;
+
+            }{
+              send-page-usage  exit
+            } ifelse
+
+            [(oxReq) oxasir.ccc SM_dupErrors ] extension pop
+
+            [(oxReq) oxasir.ccc SM_popCMO ] extension pop
+            [(oxReq) oxasir.ccc SM_popString ] extension pop
+
+            [(flush)] extension pop
+            %% Select inputs for interruption.
+            %% Wait by the spin lock.
+            {
+              [(oxMultiSelect) [oxasir.ccc] 1] extension 1 get 0 get
+              /sss.engine set
+              [(sm1.socket) (mselect)
+                [[httpd.server.fd 0 get] 1]
+              ] extension 0 get /sss.web set
+              /sss [sss.engine sss.web] def
+              sss.engine { exit } { } ifelse
+              sss.web    { exit } { } ifelse
+            } loop
+            sss message
+
+            sss 0 get {
+                [(oxGet) oxasir.ccc] extension  /err          set
+                [(oxGet) oxasir.ccc] extension  /httpd.result set
+            } {
+                oxasir.ccc oxreset
+                oxasir.ccc ("computation is interrupted.";) oxexecutestring ;
+                oxasir.ccc oxpopstring
+                /httpd.result set 
+                exit
+            } ifelse
+            (------------- result -------------) message
+            httpd.result message
+            (----------------------------------) message
+            (  ) message
+
+            err message
+            err [ ] eq  { 
+            } {
+              oxasir.ccc cleanErrors
+              [httpd.result 10 (string) dc err toString] cat
+              /httpd.result set
+            } ifelse
+
+            httpd.result send-page-result  exit  %% exit the loop LOOP-A
+          } { exit } ifelse  %% metaCommand
+        } ifelse
+  } loop  %% LOOP-A
+  ] pop
+  popVariables
+} def
+
+
+
+
+/metaCommand {
+  /arg1 set
+  [/in-metaCommand /msg /result /msg2 /nn
+   /err /fn
+  ] pushVariables
+  [
+    /msg arg1 def
+    /result 1 def
+    msg (httpdAsirMeta quit) eq {
+       oxasir.ccc oxshutdown
+       send-page-bye
+       quit
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta interrupt) eq {
+       oxasir.ccc oxreset
+       (Interrupted! <br>) send-page-3
+       /result 0 def
+    } { } ifelse
+    /arg1 result def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/send-page-usage {
+  [/in-send-page-usage ] pushVariables
+  [
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+
+  (<H1> Usage </H2> <br> ) sendln
+  [(Ask by GET /?) httpd.textarea.name (=) ( encoded_codes  HTTP/1.0)] cat 
+  sendln
+  (<br>) sendln
+  [(getenv) (OXWEB_POST)] extension tag 0 eq {
+    (<FORM NAME="myFORM">) sendln  % use get
+  }{
+    (<FORM NAME="myFORM" METHOD="POST">) sendln
+  } ifelse
+   (<INPUT TYPE=submit VALUE="submit">) sendln
+   [(<textarea name=) httpd.textarea.name 
+    ( rows=10 cols="80" wrap="soft"></textarea>)] cat sendln
+   (</FORM>) sendln
+   [$<a href="http://localhost:$ httpd.port toString
+    $/?msg=httpdAsirMeta+quit"> Shutdown the server. </a>, $
+   ] cat sendln
+
+   0 sendln
+   [(flush)] extension
+  ] pop
+  popVariables
+} def
+
+
+
+/send-page-result {
+  /arg1 set
+  [/in-send-page-result /result] pushVariables
+  [
+   /result arg1 def
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+
+   result sendln
+   0 sendln
+   [(flush)] extension
+  ] pop
+  popVariables
+} def
+
+%%******* Put initialization codes for ox_asir here. 
+/httpd.initialization
+ [
+  (XM_debug=0; ctrl("debug_window",0); Xm_noX=1;)
+  ("Asirweb version 0.80. "+
+   " Risa/Asir oxasir version "+rtostr(version());)
+ ] cat
+def
+
+%% ******* sample of cooked command
+/cookedCommand {
+  /arg1 set
+  [/in-cookedCommand /httpd.com] pushVariables
+  [
+    /httpd.com arg1 def
+    [(if (1) {)  httpd.com  (; };)] cat
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
