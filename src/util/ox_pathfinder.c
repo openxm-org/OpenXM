@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.2 2003/07/21 11:56:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.3 2003/07/21 12:41:23 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -25,7 +25,7 @@ static char *get_oxlog_path();
 
 
 
-static int Verbose_get_home = 1;
+static int Verbose_get_home = 0;
 static int NoX = 0;
 
 
@@ -35,6 +35,12 @@ static int NoX = 0;
 int ox_pathfinderNoX(int f) {
   if (f < 0) return NoX;
   NoX = f;
+  return f;
+}
+int ox_pathfinderVerbose(int f) {
+  extern Verbose_get_home;
+  if (f < 0) return Verbose_get_home;
+  Verbose_get_home = f;
   return f;
 }
 

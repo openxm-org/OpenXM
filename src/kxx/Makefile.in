@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.19 2003/07/21 07:32:01 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.20 2003/07/21 11:56:33 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -84,7 +84,7 @@ ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
 
 oxlog : oxlog.c
 	$(CC)   ${STATIC_LINK_FLAG} ${DDD} -o oxlog oxlog.c
-ox100start : ox100start.c 
+ox100start : ox100start.c  ${OpenXM_lib}/libox_pathfinder.a
 	$(CC)  -I${OpenXM_include} ${STATIC_LINK_FLAG} ${DDD} -o ox100start ox100start.c -L${OpenXM_lib} -lox_pathfinder
 
 

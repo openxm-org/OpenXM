@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.23 2003/07/21 07:31:59 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.24 2003/07/21 12:41:24 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -609,6 +609,9 @@ ox.verbose { oxhelp } {  } ifelse
 /sm1connectr {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [
+   [(getServerEnv) (bin/ox_sm1)] extension tag 0 eq {
+     (Server bin/ox_sm1 is not found.) error
+   }{ } ifelse
  /pass [(oxGenPass)] extension def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
@@ -1397,6 +1400,10 @@ oxasir.verbose {
 /asirconnectr {
  [/in-asirconnectr /pass /peer /data /control /oxasir] pushVariables
  [
+   [(getServerEnv) (bin/ox_asir)] extension tag 0 eq {
+     (Server bin/ox_sm1 is not found.) error
+   }{ } ifelse
+
  /pass [(oxGenPass)] extension def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
@@ -1439,6 +1446,10 @@ oxasir.verbose {
 /k0connectr {
  [/in-k0connectr /pass /peer /data /control ] pushVariables
  [
+   [(getServerEnv) (bin/ox_k0)] extension tag 0 eq {
+     (Server bin/ox_sm1 is not found.) error
+   }{ } ifelse
+
  /pass [(oxGenPass)] extension def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def

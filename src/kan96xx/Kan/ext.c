@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.13 2002/11/10 07:00:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.14 2003/07/14 12:49:52 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,6 +13,7 @@
 #include <signal.h>
 #include "plugin.h"
 #include <ctype.h>
+#include "ox_pathfinder.h"
 
 extern char **environ;
 
@@ -316,6 +317,24 @@ struct object Kextension(struct object obj)
       errorKan1("%s\n","The number must be 0, 1 or 2.");
     putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
                        m,CurrentContextp->userDictionary);
+  }else if (strcmp(key,"getServerEnv")==0) {
+    if (size != 2) errorKan1("%s\n","[(getServerEnv) serverName] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","[(getServerEnv) serverName] extension.");
+    {
+      char **se; int ii; int nn;
+      se = getServerEnv(KopString(obj1));
+      if (se == NULL) {
+        debugServerEnv(KopString(obj1));
+        rob = NullObject;
+      }else{
+        for (ii=0,nn=0; se[ii] != NULL; ii++) nn++;
+        rob = newObjectArray(nn);
+        for (ii=0; ii<nn; ii++) {
+          putoa(rob,ii,KpoString(se[ii]));
+        }
+      }
+    }
   }else if (strcmp(key,"regionMatches")==0) {
     if (size != 3) errorKan1("%s\n","[(regionMatches) str strArray] extension.");
     obj1 = getoa(obj,1);

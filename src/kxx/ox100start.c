@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.2 2003/07/21 11:56:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.3 2003/07/21 12:41:21 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -29,15 +29,16 @@ main(int argc,char *argv[]) {
   int i;
   char *serverName;
 
+
   /*
-  if (Verbose_get_home) { 
 	printf("ostype=%s\n",getOStypes());
 	printf("OpenXM_HOME=%s\n",getOpenXM_HOME());
 	printf("sm lib =%s\n",get_sm1_lib_path());
 	printf("k0 lib =%s\n",get_k0_lib_path());
 	printf("ox_asir =%s\n",get_ox_asir_path());
-  }
   */
+  ox_pathfinderVerbose(1);
+
 
   /* Initialize parameters */
   serverName = NULL;

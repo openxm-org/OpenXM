@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.2 2003/07/21 11:56:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.3 2003/07/21 12:41:23 takayama Exp $ */
 char **catArgv(char **argv1,char **argv2);
 char *getOStypes();
 char *getOpenXM_HOME();
@@ -9,3 +9,5 @@ char **debugServerEnv(char *oxServer);
 char *cygwinPathToWinPath(char *s);
 int   oxForkExec(char **argv);
 int ox_pathfinderNoX(int nox);
+int ox_pathfinderVerbose(int flag);
+

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.24 2003/05/14 07:29:53 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.25 2003/07/21 12:41:22 takayama Exp $
 # targets
 # all 
 #     compile
@@ -40,7 +40,7 @@ PATHFINDER = -L${OpenXM_lib} -lox_pathfinder
 all : d0 k0 ox_k0
 
 
-d0 : simple.tab.o d.o dic.o dm.c 
+d0 : simple.tab.o d.o dic.o dm.c  ${OpenXM_lib}/libox_pathfinder.a
 	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o ${PATHFINDER}
 
 d.o : d.c simple.tab.h Stable/sm1symbol.h

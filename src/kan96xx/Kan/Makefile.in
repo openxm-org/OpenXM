@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.4 2003/07/17 12:32:08 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.5 2003/07/21 12:41:24 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -33,6 +33,7 @@ LIBGMP = @@@LIBGMP@@@
 
 ## Library you need on Solaris 2.*
 SOLARISLIB = -lnsl -lsocket /usr/ucblib/libucb.a
+LIBOX_PATHFINDER = -lox_pathfinder
 
 ###################  Plugin modules
 ## Note that you need to make PLUGIN_LIB by your hand.
@@ -135,9 +136,9 @@ MSG0 = msg0.o
 sm1 : sm.c  $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) ${GC} 
 	if test `uname` = "SunOS" ; \
 	then \
-	$(CC) -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) ${GC} $(PLUGIN_LINKFLAG) $(SOLARISLIB) ; \
+	$(CC) -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) ${GC} $(PLUGIN_LINKFLAG) $(SOLARISLIB) ${LIBOX_PATHFINDER} ; \
 	else \
-	$(CC) ${STATIC_LINK_FLAG} -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) ${GC} $(PLUGIN_LINKFLAG)  ; \
+	$(CC) ${STATIC_LINK_FLAG} -I$(OpenXM_include) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) ${GC} $(PLUGIN_LINKFLAG)  ${LIBOX_PATHFINDER} ; \
 	fi
 
 
