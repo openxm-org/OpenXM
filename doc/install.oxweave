@@ -1,15 +1,31 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.44 2001/12/21 00:33:50 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.45 2002/03/02 01:00:23 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
+
 OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
               http://www.openxm.org
-Consult firstly the ERRATA section for your release on this web cite
-for troubles.
+
+*/
+
+/*&jp
+
+------------ ソースからコンパイルしてインストールする方法 ----
+(cd OpenXM/src ; make configure ; make install)
+             バイナリとライブラリとドキュメント類は
+             OpenXM/bin, OpenXM/lib, OpenXM/doc
+             にインストールされます.
+(cd OpenXM/rc ; make install)
+             "asir", "sm1", ... などのシェルスクリプトが生成されて
+             /usr/local/bin
+             にコピーされます.
+             この部分は root で実行してください.
+
+*/
+
+/*&eg
 
 OpenXM package : Getting started.
-
-This document is for OpenXM version 1.2.1. 
 
 
 ----------- An instruction for a quick installation from the source code ---
@@ -19,71 +35,54 @@ This document is for OpenXM version 1.2.1.
 (cd OpenXM/rc ; make install)
              Shell scripts to start "asir", "sm1", ... will be copied to
              /usr/local/bin
+             This part should be executed as the root.
 
-*********** If you need only asir and kan/(sm1, k0),
+
+*/
+
+
+/*&jp
+
+
+------- Asir と kan だけで十分な場合
+(cd OpenXM/src ; make install-kan-ox ; make install-asir-contrib)
+             OpenXM 版の Risa/Asir と kan/sm1 が生成インストールされます. 
+(cd OpenXM/rc ; make install)
+
+-------------------------------------------
+asir-contrib 付きの Risa/Asir は OpenXM パッケージのメインクライアントです.
+Risa/asir はコマンド asir で起動できます.
+Risa/Asir および Asir-contrib のマニュアルは
+OpenXM/doc ディレクトリおよび http://www.openxm.org においてあります.
+
+
+*/
+
+
+/*&eg
+
+------- If you need only asir and kan,
 (cd OpenXM/src ; make install-kan-ox ; make install-asir-contrib)
              You will get only asir (OpenXM version) and kan/sm1.
 (cd OpenXM/rc ; make install)
--------------------------------------------------------------------
+
+-------------------------------------------
+Risa/Asir with asir-contrib is the main client system in the OpenXM project.
+You can start Risa/Asir by the command "asir".
+The manual of Risa/Asir and Asir-contrib can be found in the 
+OpenXM/doc directory and http://www.openxm.org
+
 
 */
-/*&jp
-★ OpenXM GENERIC パッケージの利用方法
-この節では, OpenXM package binary distribution のインストール法を説明します.
-ソースからインストールする場合は 
-       ★ OpenXM パッケージの Make 法
-を御覧下さい.
-RPM, Debian などのパッケージでインストールする場合は
-       Web ページの説明どうりにパッケージをインストールするだけで
-       設定が終了します.      
-
-インストールに必要なシステムの仕様については, 動作環境を御覧ください.
-*/
-/*&eg
-***** HOW TO INSTALL OpenXM GENERIC PACKAGE?
-In this section, we will explain how to install OpenXM package binary
-distribution.
-If you build from the source, see the section
-      * How to make OpenXM package?
-If you install openxm by using RPM or Debian package,
-install the system following the instruction given on our web page.
-
-As to the required environment, see the section "System Requirement"
-*/
+             
 /*&jp
 
-(1)  Tar ボールより次のようにしてディレクトリ OpenXM を取り出します.
-     OpenXM はどこにおいてもかまいません. ルートになってインストール
-     する必要もありません.
-     できれば, /usr/local/OpenXM  においてほしいと思います.
-     
-*/
-/*&eg
 
-(1)  Extract the directory OpenXM from the tar ball.
-     You can put the directory OpenXM at any place in the file system.
-     You do not need to be a root to install it.
-     We are happy if you put OpenXM at /usr/local/OpenXM
+-----------  幾つか解説  ------------------
 
-*/
-/*&C
-
-         tar xzvf OpenXM-shared.tgz
-         tar xzvf OpenXM-binary-OPERATING_SYSTEM_CPU_TYPE.tgz
-
-*/
-/*&jp
-以下 (1) で生成されたディレクトリ OpenXM の絶対パスを /xxx/yyy/OpenXM
-と書きます.
-
-*/
-/*&eg
-In the sequel, we will denote the absolute path of the directory OpenXM 
-by /xxx/yyy/OpenXM.
-
-*/
-/*&jp
-(2) OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc,
+Q.  (cd OpenXM/rc ; make all) はなにをやるの?
+A.   
+    OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc,
     OpenXM/rc/openxm, OpenXM/rc/asir, OpenXM/rc/oxmath, 等の
     ファイルを自動生成します.  
     openxm, asir, oxmath などは OpenXM クライアントを起動するための
@@ -92,7 +91,12 @@ by /xxx/yyy/OpenXM.
 
 */
 /*&eg
-(2) Generate  OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc and 
+
+-----------  Some Tips ----------------------
+
+Q.   What is done by the command (cd OpenXM/rc ; make all) ?
+A.
+    It generates  OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc and 
     OpenXM/rc/openxm, OpenXM/rc/asir, OpenXM/rc/oxmath, ...
     The files openxm, asir, oxmath are shell scripts to invoke OpenXM clients.
     If you want to install these shell scripts to /usr/local/bin,
@@ -101,7 +105,7 @@ by /xxx/yyy/OpenXM.
 */
 /*&C
 
-     cd /xxx/yyy/OpenXM/rc
+     cd OpenXM/rc
      make install 
 
 */
@@ -119,7 +123,7 @@ by /xxx/yyy/OpenXM.
 */
 /*&C
 
-   cd /xxx/yyy/OpenXM/rc
+   cd OpenXM/rc
    make install PREFIX=$HOME/bin
 
 */
@@ -131,70 +135,55 @@ by /xxx/yyy/OpenXM.
 */
 /*&jp
 
+Q. OpenXM/bin の下のファイルを直接実行できるようにしたい.
+A.
 OpenXM/bin の下のファイルを直接実行したい場合は, 以下の設定が必要です.
-OpenXM clients を実行するだけの場合は, (3), (3') は skip してください.
 
-(3) csh を利用してる場合, 次の行を ~/.cshrc の最後に加えます.
+ # csh を利用してる場合, 次の行を ~/.cshrc の最後に加えます.
 
 */
 /*&eg
 
-If you want to execute binaries under OpenXM/bin, you need to perform
-(3) and (3').
-If you use only OpenXM clients, skip (3) and (3').
+Q. I want to execute binaries under OpenXM/bin
+A.
+If you want to execute binaries under OpenXM/bin, you need to do 
+the following.
 
-(3) Append the following line to the end of  ~/.cshrc when you are
+
+ # Append the following line to the end of  ~/.cshrc when you are
     using csh as your shell.
 
 */
 /*&C
 
-    source /xxx/yyy/OpenXM/rc/dot.cshrc
+    source OpenXM/rc/dot.cshrc
 
 */
 /*&jp
-(3') bash を利用してる場合, 次の行それぞれを ~/.bashrc および ~/.bash_profile
+ # bash を利用してる場合, 次の行それぞれを ~/.bashrc および ~/.bash_profile
 の最後に加えます.
 
 */
 /*&eg
-(3') Append the following lines to the end of  ~/.bashrc and ~/.bash_profile
+ # Append the following lines to the end of  ~/.bashrc and ~/.bash_profile
      respectively when you are using bash as your shell.
 
 */
 /*&C
 
-    source /xxx/yyy/OpenXM/rc/dot.bashrc             (.bashrc)
+    source OpenXM/rc/dot.bashrc             (.bashrc)
 
-    source ~/.bashrc                                 (.bash_profile)
+    source ~/.bashrc                        (.bash_profile)
 
 */
+
 
 /*&jp
-
- (3) または (3') を終了したら, いったん logout して login しなおすか
- または, source コマンドで, dot.bashrc または dot.csh を読み込んで下さい.
-
-*/
-/*&eg 
-   
-   After finishing the step (3) or (3'), logout and login again,
-   or read dot.bashrc or dot.cshrc file by the source command.
-
-*/
-
-
-/*&C
-
-          FAQ
-
-*/
-/*&jp
-Q. OpenXM の asir OpenXM client を icon でスタートするには?
+Q. ox_asir を icon でスタートするには?
 A. 次の行を, .Xdefaults または, xrdb で読み込むファイルに書いておきます.
 */
 /*&eg
-Q. How to start asir OpenXM clients in the iconic mode?
+Q. How to start ox_asir in the iconic mode?
 A. Add the following line to .Xdefaults or a file you read by xrdb.
 */
 /*&C
@@ -202,253 +191,24 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
        ox_xterm*iconic: on
 
 */
-/*&C
 
--------------------------------------------------------------
-
-*/
 /*&jp
 
-★ OpenXM FreeBSD binary パッケージのインストール方法
-     openxm-version.tgz 
-   を ftp サイトより copy して,
-   root になって,
-     pkg_add openxm-version.tgz
-   OpenXM は /usr/local/OpenXM にインストールされます.
-
-   ここで version は OpenXM の version 番号で, たとえば, 
-   2000, 3/20(Mon) 版は  1.1.2
-   pkg_add に失敗した場合は, /var のサイズを大きくしてやりなおして
-   みて下さい.
-
-   java および linux emulation が実行に必要です.
-   java が, サーチパスのなかにある必要がありますので,
-   たとえば,
-     set path=(/usr/local/jdk1.1.8 $path) 
-     rehash
-   してから, pkg_add して下さい.
-   インストール終了後のメッセージにしたがい, 必要な設定を
-   おこなって下さい.
-
-   jdk は /usr/ports/lang/jdk よりインストールできます.
-   Linux emulation を有効にするには,
-    /etc/rc.conf に
-    linux_enable="YES"
-   と書き, 
-   /usr/ports/emulators/linux_base を用いて, linux 用の共有ライブラリ等を
-   インストールしておきます.
-     (FreeBSD 3.x, 4.x)
-    
-
-   /usr/local にインストールしなかった場合は,
-   (2) を実行して下さい.
-
-*/
-/*&eg
-
-***** HOW TO INSTALL OpenXM FreeBSD binary package
-   Copy  
-      openxm-version.tgz 
-   from our ftp cite.
-   Become the super user and type
-      pkg_add openxm-version.tgz
-   OpenXM will be installed to /usr/local/OpenXM
-
-   Here, version is the version number of OpenXM.
-   For example, the version number of the OpenXM of May 20 (Mon), 2000 
-   is 1.1.2
-   If you fail "pkd_add", increase the size of /var
-
-   java and linux emulation are required to run OpenXM packages.
-   Java needs to be in the search path. So, for example, execute pkg_add
-   after
-     set path=(/usr/local/jdk1.1.8 $path) 
-     rehash
-   Following the message of pkg_add after the installation,
-   set path.
-
-   jdk can be installed by /usr/ports/lang/jdk.
-   Add the line
-    linux_enable="YES"
-   to /etc/rc.conf and install shared libraries for linux
-   by /usr/ports/emulators/linux_base.
-   Then, you can emulate linux.
-
-   If you do not install under /usr/local,
-   goto (2).
-
-*/
-/*&jp
-
-★ OpenXM Redhat Package manager (Linux) 
-   binary パッケージのインストール方法
-      openxm-shared-version-suffix.noarch.rpm
-      openxm-binary-version-suffix.i386.rpm
-   を ftp サイトより copy して,
-   root になって,
-     rpm -i  openxm-shared-version-suffix.noarch.rpm
-     rpm -i  openxm-binary-version-suffix.i386.rpm
-   OpenXM は /usr/local/OpenXM にインストールされます.
-
-   ここで version は OpenXM の version 番号で, たとえば, 
-   2000, 3/20(Mon) 版は  1.1.2
-   suffix は, RPM 版の minor version number.
-
-   /usr/local の下へインストールしなかった場合は, (2) を実行して下さい.
-
-   libgd のインストールが必要な場合もあります.
-   libgd がインストールしてない場合,
-   http://www.redhat.com/downloads へアクセスし, libgd をインストール
-   して下さい.
-
-*/
-/*&eg
-
-***** HOW TO INSTALL OpenXM by the redhat Package manager (Linux)
-   Copy  
-      openxm-shared-version-suffix.noarch.rpm
-      openxm-binary-version-suffix.i386.rpm
-   from our ftp cite.
-   Become the super user and type
-     rpm -i  openxm-shared-version-suffix.noarch.rpm
-     rpm -i  openxm-binary-version-suffix.i386.rpm
-   OpenXM will be installed to /usr/local/OpenXM
-
-   Here, version is the version number of OpenXM.
-   For example, the version number of the OpenXM of May 20 (Mon), 2000 
-   is 1.1.2
-   suffix is the minor version number of the package.
-
-   If you do not install under /usr/local, goto (2).       
-       
-
-   You might need to install libgd.
-   If it is not installed in your system, access to
-   http://www.redhat.com/downloads and get libgd.
-*/
-
-/*&C
-
----------------------------------------------------------
-
-*/
-
-/*&C
-
-***** OpenXM client programs under OpenXM/bin or /usr/local/bin:
-   asir           
-   oxmath
-   openxm sm1
-
-***** OpenXM server programs:
-   OpenXM/bin/ox_asir
-   OpenXM/bin/ox_sm1
-   OpenXM/bin/ox_math
-   OpenXM/lib/sm1/bin/ox_sm1_gnuplot
-   OpenXM/lib/sm1/bin/ox_sm1_phc
-   OpenXM/lib/sm1/bin/ox_sm1_tigers
-   OpenXM/lib/java-support/OMproxy.class
-
-***** QUALITY:
- Experimental:
-   OpenXM/bin/k0,  OpenXM/bin/d0
-   Asir client functions:   m_* (Mathematica)  ,  om_*  (OpenMath)
-   OpenXM/lib/java-support/ *
- 70%
-   OpenXM/bin/ox_math,  OpenXM/bin/math2ox
-   OpenXM/bin/sm1, ox_sm1 on Linux libc6.
-
-**** OpenXM server and client programs (under development)
-     included only in the source distribution
-   OpenXM/src/Macaulay2  ( M2 server and client )
-   OpenXM/src/ruby       ( Ruby client)
-
-**** Utilities
-   OpenXM/doc/oxlib    ( how to link oxservers as libraries )
-
-*/
-/*&C
-
-
-*/
-/*&jp
-★ Java に関する注意:
-注意 1.
-OpenMath 用の OMproxy には現在のところ, jdk が必要です.
-たとえば bash を利用している場合, .bashrc で
-PATH=/usr/local/jdk1.1.8/bin:$PATH
-export PATH
-などとして, jdk の java, javac をサーチパスの先のほうへもっていくようにして
-ください.
-csh を利用している場合, .cshrc で
-set path=(/usr/local/jdk1.1.8/bin $path)
-として, jdk の java, javac をサーチパスにいれます.
-
-jdk の入手先:  FreeBSD  --- /usr/ports/java/jdk を見てください.
-               Linux    --- http://java.sun.com/products/jdk/1.2/ja
-                            http://java.sun.com/j2se/1.3/ja
-
-注意:
-なお, Kaffe 1.0.b4 の java は, class BigInteger に method
-toByteArray が含まれてないため, OpenMath モジュールでは使用できません.
-*/
-/*&eg
-***** JAVA
-In order to use OMproxy, asir client om_*,
-you need to install JDK.
-The bin dir of the JDK must be in yur search path.
-For example, you need to add the following line
-to your .chsrc when your shell is csh
-set path=(/usr/local/jdk1.1.8/bin $path)
-Bash users put the following line to .bashrc
-PATH=/usr/local/jdk1.1.8/bin:$PATH
-export PATH
-
-
-Where can I get jdk? :  FreeBSD --- see /usr/ports/java/jdk
-                        Linux   --- http://java.sun.com/products/jdk/1.2/ja
-                                    http://java.sun.com/j2se/1.3/ja
-
-
-Remark:
-The Java interpreter of Kaffe 1.0.b4 does not contain the method
-toByteArray in the class BigInteger.
-So, it cannot be used for the OpenMath module.
-*/
-
-/*&C
-
---------------------------------------------------------
-
-
-*/
-/*&jp
-★ 動作環境
-
-*/
-/*&eg
-***** SYSTEM REQUIREMENTS
-
-*/
-/*&C
-
-OS:  FreeBSD 3.3, 3.4, 4.x (Intel CPU),  
-     Linux systems (Intel CPU):
-         Most Linux with libc5 and with libc6 (glibc 2.x).  
-
-     X window system is required.
-
-     Most part of the OpenXM package may work on other versions of 
-     FreeBSD 3.x and Linux, but we have not yet tested.
-
-*/
-/*&jp
+Q. Make は無事終了しますが, 途中でエラーがでます.
+A.
+OS の標準添付の環境以外が必要なコンポーネントのコンパイルエラーは
+無視されます.
 次の modules は, OS の標準 distribution 以外に, さらに下に記したソフトを
 必要とします.
 */
 /*&eg
-The following modules require the listed softwares other than the standard
-OS package.
+
+Q. Make finishes, but it outputs errors.
+A.
+Compilation errors due to missing commands other than
+standard commands are ignored.
+The following modules require the listed software systems 
+other than the standard OS package.
 */
 /*&C
 
@@ -456,42 +216,33 @@ OS package.
    (Mathematica server)         at /usr/local/Mathematica
     OpenXM/bin/math2ox          [ see http://www.wolfram.com ]
     Asir client functions  m_*
-(2) OpenXM/lib/java-support :   JDK at /usr/local/jdk??
-                                [ see the section on JAVA]
+(2) OpenXM/lib/OpenMath :   JDK
+
     Asir client functions  om_*
     sm1 client functions   om_*
-(3) PHC pack (OpenXM/bin/phc)  and  asir client functions
-    phc_*  run only on linux (glib5).
-    If you install the linux emulation^{note 1} on Free BSD, they run on
+(3) PHC pack (OpenXM/bin/phc)  and  asir client functions phc_*
+    phc_*  run only on linux.
+    If you install the linux emulation on Free BSD, they run on
     FreeBSD, too. 
     <note 1>
       Add linux_enable="YES" in /etc/rc.conf 
       You need the following packages:
       pkg_info | grep linu
-      linux_base-5.2      The base set of packages needed in Linux mode
-      linux_devtools-5.2  Packages needed for doing development in Linux mode
+      linux_base-*      The base set of packages needed in Linux mode
+      linux_devtools-*  Packages needed for doing development in Linux mode
+(4) The document generation requires
+     latex, platex, tex, ptex, dvips, latex2html, texi2html, nkf
 
 */
 
 
 /*&jp
-日本語版の注意.
-注意 1.
+Q. asir の help message が変.
+A.
 asir で日本語のヘルプを利用するには, 
 PAGER=jless
 export PAGER
 などで, 日本語を扱える PAGER を指定する必要があるかもしれません.
-*/
-
-/*&eg
-
-The installation is completed. 
-
-*/
-/*&jp
-
-以上. 
-
 */
 
 /*&C
@@ -501,8 +252,8 @@ The installation is completed.
 */
 
 /*&jp
-★ 文書
-
+Q. OpenXM パッケージの文書は？
+A.
   OpenXM パッケージでもっとも充実しているクライアントは,
   asir です.
   asir のつかいかたは 
@@ -523,14 +274,14 @@ The installation is completed.
   これについては, OpenXM/doc/oxlib を御覧ください. 
 
   OpenXM 対応の, サーバ を作成するには, OpenXM/src/ox_toolkit
-  が参考になるかもしれません. Java のクラスについては 
-  OpenXM/src/OpenMath が参考になるかもしれません.
+  を見てください. Java のクラスについては 
+  OpenXM/src/OpenMath を見てください.
 
 */
 /*&eg
-***** DOCUMENTS
-
-  The best OpenXM client in the OpenXM package is now 
+Q. Where can I find documents of the OpenXM package.
+A.
+  The main OpenXM client in the OpenXM package is now 
   asir.
   Documents on asir are
     OpenXM/doc/asir2000/man-eg.dvi
@@ -551,237 +302,21 @@ The installation is completed.
   The asir can be used as a C library for polynomial manupulation.
   See OpenXM/doc/oxlib.
 
-  If you are interested in writing a server for OpenXM, please refer to
+  If you are interested in writing a server for OpenXM in C or Java, 
+  please refer to
   OpenXM/src/ox_toolkit and OpenXM/src/OpenMath.
 
 */
 
-
 /*&eg
-
-
-***** A QUICK TOUR OF OPENXM BY ASIR
-
+Q. I want to install only Risa/Asir.
+A.  
+   If you want to generate only Risa/Asir,  type in as follows.
 */
 /*&jp
-
-
-★ ASIR による使用例  
-
-
-asir を動作させるには, key が必要です.
-OpenXM/lib/asir/asir_key のコメントまたは起動時のメッセージをみて, 
-key を E-mail でとりよせて下さい.
-
-*/
-/*&C
-----------------   Call ox_sm1 from asir.
-bash-2.03$ asir
-This is Risa/Asir, Version 20000120.
-Copyright (C) FUJITSU LABORATORIES LIMITED.
-1994-1999. All rights reserved.
-xm Version 20000116. ox_help(0); ox_help("keyword"); for help message 
-[269] sm1_genericAnn([x^3-y^2,[s,x,y]]); 
-   /* The annihilating ideal of (x^3-y^2)^s */
-[-2*y*dx-3*x^2*dy,2*x*dx+3*y*dy-6*s]
-
-
----------------    Call gnuplot from asir.
-bash-2.03$ asir
-This is Risa/Asir, Version 20000120.
-Copyright (C) FUJITSU LABORATORIES LIMITED.
-1994-1999. All rights reserved.
-xm Version 20000116. ox_help(0); ox_help("keyword"); for help message 
-[269] gnuplot("plot sin(x);");
-0
-[270] 
-
-*/
-
-/*&jp 
-
-★  sm1 クライアントの利用例
-
-*/
-/*&eg
-
-******  Example of the use of sm1 client
-
-*/
-
-/*&C
---------------------------------------  call ox_asir from sm1
-sm1
-(oxasir.sm1) run  ;
-[(x^20-y^20) (x,y)] fctr pmat ;     factorize x^20-y^20 by call ox_asir
-
-
-*/
-
-/*&jp
-[著作権表示] 
-OpenXM/Copyright を御覧ください.
-*/
-/*&eg
-[COPYRIGHT]
-See OpenXM/Copyright.
-*/
-
-//&C   
-//&C ----------------------------------------------
-//&C        
-
-/*&eg
-
-
-
-*****  TO COMPILE FROM A SOURCE *****
-
-*/
-/*&jp
-
-
-★ OpenXM パッケージの Make 法
-  FreeBSD 3.x, FreeBSD 4.x, Linux で動作するものと期待してます.
-  (Linux glib6 では, いまのところ, /usr/include/features.h
-   で #define __FAVOR_BSD 1 してコンパイルする必要がありしたが,
-  一部のソースを
-  -D_BSD_SOURCE option をつけて gcc でコンパイルするように変えてます
-  (setjmp と sigsetjmp の問題, dirty trick) 現在では問題ありません. )
-
-   OpenXM, OpenXM_contrib, OpenXM_contrib2 が必要です.
-   ftp.math.kobe-u.ac.jp/OpenXM/1.2.1 より
-        openxm-1.2.1.tar.gz 
-   を get して展開して下さい.
-        tar xzvf openxm-1.2.1.tar.gz
-
-   openxm-1.2.1/OpenXM    openxm-1.2.1/OpenXM_contrib   
-   openxm-1.2.1/OpenXM_contrib2
-   が生成されます.
-   
-   cvs コミッタの場合次のようにしてソースをとりよせます.
-*/
-/*&eg
-* How to make OpenXM package?
- We have tested the OpenXM package on FreeBSD 3.x, FreeBSD 4.x, Linux.
- (On Linux glib6, we needed to define 
-   #define  __FAVOR_BSD 1
- in /usr/include/features.h,
- but now we are compiling some sources with -D_BSD_SOURCE
- (setjmp vs sigsetjmp).  So, you do not need to make this change.)
-
- Do you have directories OpenXM, OpenXM_contrib, OpenXM_contrib2?
- get 
-        openxm-1.2.1.tar.gz 
- from ftp.math.kobe-u.ac.jp/OpenXM/1.2.1
- Expand it by
-        tar xzvf openxm-1.2.1.tar.gz
-
- Then, you will get
-   openxm-1.2.1/OpenXM    openxm-1.2.1/OpenXM_contrib   
-   openxm-1.2.1/OpenXM_contrib2
-
-
- If you are a CVS committer, then you can get all sources as follows:
-*/
-//&C  rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2
-//&C  
-//&jp これらがそろっていたらあとは次のように入力するだけです.
-//&eg Check that you have these directories, then just type in the following commands
-/*&C
-
-   cd OpenXM/src
-   make configure
-   make 
-   make install
-
-*/
-/*&jp なお, OpenXM/src/ox_math のコンパイルおよび利用には Mathematica が, 
-OpenXM/src/OpenMath のコンパイルおよび利用には
-には, jdk (java 環境) が必要です.
-
-Documents を生成するには,  tex, ptex (ascii 日本語 tex), dvips, texinfo, 
-texi2html, nkf, jlatex2html
-が必要です. 詳しくは Makefiles を見て下さい.
-Document は, binary distribution の OpenXM/doc, OpenXM/lib 
-より得るのが簡単です.
-*/
-/*&eg In order to use and compile OpenXM/src/ox_math, you need Mathematica. 
-In order to use and compile OpenXM/src/OpenMath, 
-you need jdk (java environment).
-
-In order to generate the full documentation including Japanese documents,
-you need tex, ptex (ASCII Inc. Japanese tex), dvips, texinfo, texi2html,
-nkf, jlatex2html.  See each Makefile.
-The generated documents are in OpenXM/doc and OpenXM/lib 
-in the binary distribution.
-If you do not like to install Japanese environment such as ptex, 
-type in R for the tex error prompt ? or 
-prepare empty shell scripts ptex and nkf.
-*/
-/*&C
-
-*/
-
-/*&eg
-To run the system, you need to read OpenXM/rc/dot.cshrc or 
-OpenXM/rc/dot.bashrc by the source
-command for setting proper environmental variable values.
-
-By the commands
-         cd OpenXM/rc
-         make
-you can generate dot.cshrc and dot.bashrc.
-Read these file by the source command in your .cshrc 
-or .bashrc (or .bash_profile).
-*/
-/*&jp
-システムを動かすには, OpenXM/rc/dot.cshrc または 
-OpenXM/rc/dot.bashrc を source コマンドで
-よみこみ環境変数の値を適切に設定する必要があります.
-
-コマンド
-         cd OpenXM/rc
-         make
-で dot.cshrc および dot.bashrc が生成されます.
-これらのファイルを source コマンドで,
-.cshrc または .bashrc (または .bash_profile) より読むようにして下さい.
-*/
-/*&C
-
-*/
-
-//&C ---------------------------------------------------------
-
-/*&eg
-***** How to generate a subset of the full OpenXM package 
-      from the head branch.
-   *  The souce tarball of the head branch is at
-          ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
-      Get this tarball by the ftp command. Extract the directories
-         OpenXM OpenXM_contrib OpenXM_contrib2 
-      by
-         tar xzvf openxm-head.tar.gz
-*/
-/*&jp
-★ OpenXM package の一部分のみ生成する方法 (head branch より).
-   *  Head ブランチの tarball は
-          ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
-      にあります.  これを ftp で取得してから
-          tar xzvf openxm-head.tar.gz
-      を展開してください.
-      OpenXM OpenXM_contrib OpenXM_contrib2 が作成されます.
-*/
-/*&C
-
-*/
-/*&eg
-   [Subpackage asir]  If you want to generate only Risa/Asir, 
-                      type in as follows.
-*/
-/*&jp
-   [部分パッケージ asir] Risa/Asir のみを生成したい場合は, 
-                         つぎのように入力します.
+Q. Risa/Asir のみ install したい.
+A.
+   Risa/Asir のみを生成したい場合は,  つぎのように入力します.
 */
 /*&C
 
@@ -801,43 +336,10 @@ OpenXM/rc/dot.bashrc を source コマンドで
         または OpenXM/rc/dot.bashrc か OpenXM/rc/dot.cshrc を
         source コマンドで ~/.bashrc か ~/.cshrc より読み込んでください.
 */
-/*&C
 
-*/
-/*&eg
-   [Subpackage kan-ox]  If you want to generate only kan/k0, kan/sm1 and asir
-                        type in as follows.
-*/
-/*&jp
-   [部分パッケージ kan-ox] Kan/k0, Kan/sm1, asir のみを生成したい場合は, 
-                           つぎのように入力します.
-*/
-/*&C
-
-          (cd OpenXM/src ;  make install-kan-ox)
-          (cd OpenXM/rc ; make )
-
-*/
-/*&eg
-        Copy the shell script "asir", "sm1" and "openxm" at OpenXM/rc 
-        to your search path, e.g.,
-        /usr/local/bin or ~/bin
-        Or, read OpenXM/rc/dot.bashrc or OpenXM/rc/dot.bashrc by the source
-        command from your ~/.bashrc or ~/.cshrc.
-*/
-/*&jp
-        OpenXM/rc の下のシェルスクリプト "asir", "sm1", "openxm" を
-        サーチパスにコピーして
-        ください (たとえば, /usr/local/bin or ~/bin へ).
-        または OpenXM/rc/dot.bashrc か OpenXM/rc/dot.cshrc を
-        source コマンドで ~/.bashrc か ~/.cshrc より読み込んでください.
-*/
-
-//&C   
-//&C ------------------------------------------------------
-//&C   
 /*&jp 
-
+Q. OpenXM の下のファイル構成はどうなっていますか?
+A.
 [OpenXM 下のファイルの構成メモ]
 lib/asir には, asir のライブラリ, ox_asir 本体
 
@@ -875,8 +377,11 @@ asir が ox_sm1_gnuplot を利用するのに必要なファイル:
     bin/gnuplot4ox,  bin/gnuplot_x11  (gnuplot 本体, src/gnuplot*)
 
 ----------------------------------------
-[開発者用メモ]
+*/
 
+/*&jp
+Q. debug するとき make install は面倒. (開発者向け)
+A. 
 << sm1, ox_sm1, ox, oxlog の debug >>
 binary file は各 directory の make install により
 OpenXM/bin にコピーされますが,
@@ -889,8 +394,9 @@ OpenXM/src/kan96xx/Kan/sm1
 OpenXM/src/kxx/ox, OpenXM/src/kxx/ox_sm1, OpenXM/src/kxx/oxlog
 へのシンボリックリンクが作成されます.
 
-[CVSコミッタ用メモ]
-<<  OpenXM ディレクトリ配布版の作成方法 >>
+Q. <<  OpenXM ディレクトリ配布版の作成方法 >>
+A.
+
 rcvs export -rHEAD OpenXM
 rcvs export -rHEAD OpenXM_contrib
 rcvs export -rHEAD OpenXM_contrib2
@@ -902,8 +408,8 @@ cd OpenXM/src ; make generate-source-distribution
 
 */
 /*&jp
-
-★ Solaris に関する注意.
+Q. Solaris でコンパイルがうまくいきません.
+A.
 Solaris ではまだ問題が山積してます.
 Solaris での make の問題点については, OpenXM/doc/OpenXM-FAQ-jp.txt
 を見てください.
@@ -912,27 +418,12 @@ Solaris でコンパイルするには, /usr/ccs/bin をサーチパスの最初へもっていって
 
 */
 /*&eg
-***** COMPILE ON SOLARIS
+Q. I cannot make on Solaris.
+A.
  There are a lot of troubles on Solaris for now.
  At least,
  /usr/ccs/bin must be at the top of the command search path to compile
  on Solaris.
 */
-/*&jp
 
-★ Redhat Linux 6.1 上でのコンパイル
-m4-1.4 と autoconf-2.13 が必要.
-(あらかじめはいっている,  autoconf は 2.12 でありこれは
- gnuplot の make で不具合を生じます.)
 
-*/
-/*&eg
-***** COMPILE ON Redhat Linux 6.1
-m4-1.4 and autoconf-2.13 are required.
-(Preinstalled autoconf is version 2.12. It causes a trouble when
- you build gnuplot.)
-*/
-
-/*&C
-
-*/
