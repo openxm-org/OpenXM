@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plucker.rr,v 1.3 2002/08/11 08:39:49 takayama Exp $  */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plucker.rr,v 1.4 2002/08/25 02:23:12 takayama Exp $  */
 /* Documents are written in plucker.oxweave
    ox_help("plucker_relation"|form="tex");
    ox_help("plucker_relation"|form="abstract");
@@ -7,6 +7,7 @@
 */
 
 def taka_indexed_variable(V,L) {
+  if (type(V) == 2) V = rtostr(V);
   for (I=0; I<length(L); I++) {
     V += "_"+rtostr(L[I]);
   }

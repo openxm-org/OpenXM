@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.6 2002/12/01 08:03:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.7 2002/12/01 08:07:00 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -132,6 +132,34 @@ def taka_util_find_and_replace(W,S,Snew) {
   return T[1];
 }
 
+def taka_util_v(V,L) {
+  return taka_indexed_variable(V,L);  /* taka_plucker.rr */
+}
+def taka_util_index(V) {
+  /* return taka_plucker_index(V); */
+  S = rtostr(V);
+  S = strtoascii(S);
+  Id = [];
+  I = 0;
+  Name = [];  NF=0;
+  while (I < length(S)) {
+    if ((!NF) && (S[I] != 95)) Name=cons(S[I],Name);
+    if (S[I] == 95) {  /* 95 == '_' */
+      NF = 1;
+      J = 0; I++;
+      while ( I<length(S) && S[I] != 95) {
+        J = J*10+eval_str(asciitostr([S[I]]));
+        I++;
+      }
+      Id=cons(J,Id);
+      I--;
+    }
+    I++;
+  }
+  Name = reverse(Name);
+  Name = asciitostr(Name);
+  return [Name,newvect(length(Id),reverse(Id))];
+}
 
 Loaded_taka_util=1$
 end$
