@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.7 2004/03/15 12:39:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.8 2004/03/16 03:26:40 ohara Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -140,7 +140,18 @@ def taka_tex_form_struct(S,Tb) {
   else if (struct_type(S) == POLY_IDEAL) {
       taka_poly_tex_form_poly_ideal(S,Tb);
   }else {
-     print("Unknown struct object for tex_form. Return ???");
+     Name = get_struct_name(S);
+     taka_tex_form(Name,Tb);
+     write_to_tb("[",Tb);
+     Elm = get_element_names(S);
+     for (I=0; I<length(Elm); I++) {
+       taka_tex_form(Elm[I],Tb);
+       write_to_tb(" \\rightarrow ",Tb);
+       T = get_element_at(S,Elm[I]);
+       taka_tex_form(T,Tb);
+       if (I != length(Elm)-1) write_to_tb(",",Tb);
+     }
+     write_to_tb("]",Tb);
   }
 }
 
