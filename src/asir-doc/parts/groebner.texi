@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.4 2003/04/19 15:44:56 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.5 2003/04/20 08:01:25 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1203,6 +1203,105 @@ Refer to the sections for each functions.
 \E
 
 \BJP
+@node Weyl 代数,,, グレブナ基底の計算
+@section Weyl 代数
+\E
+\BEG
+@node Weyl algebra,,, Groebner basis computation
+@section Weyl algebra
+\E
+
+@noindent
+
+\BJP
+これまでは, 通常の可換な多項式環におけるグレブナ基底計算について
+述べてきたが, グレブナ基底の理論は, ある条件を満たす非可換な
+環にも拡張できる. このような環の中で, 応用上も重要な, 
+Weyl 代数, すなわち多項式環上の微分作用素環の演算および
+グレブナ基底計算が Risa/Asir に実装されている. 
+
+体 @code{K} 上の @code{n} 次元 Weyl 代数 
+@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} は
+\E
+
+\BEG
+So far we have explained Groebner basis computation in
+commutative polynomial rings. However Groebner basis can be
+considered in more general non-commutative rings.
+Weyl algebra is one of such rings and 
+Risa/Asir implements fundamental operations
+in Weyl algebra and Groebner basis computation in Weyl algebra.
+
+The @code{n} dimensional Weyl algebra over a field @code{K},
+@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} is a non-commutative
+algebra which has the following fundamental relations:
+\E
+
+@code{xi*xj-xj*xi=0}, @code{Di*Dj-Dj*Di=0}, @code{Di*xj-xj*Di=0} (@code{i!=j}),
+@code{Di*xi-xi*Di=1}
+
+\BJP
+という基本関係を持つ環である. @code{D} は 多項式環 @code{K[x1,@dots{},xn]} を係数
+とする微分作用素環で,  @code{Di} は @code{xi} による微分を表す. 交換関係により, 
+@code{D} の元は, @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn} なる単項
+式の @code{K} 線形結合として書き表すことができる. 
+Risa/Asir においては, この単項式を, 可換な多項式と同様に
+@code{<<i1,@dots{},in,j1,@dots{},jn>>} で表す. すなわち, @code{D} の元も
+分散表現多項式として表される. 加減算は, 可換の場合と同様に, @code{+}, @code{-}
+により
+実行できるが, 乗算は, 非可換性を考慮して @code{dp_weyl_mul()} という関数
+により実行する.
+\E
+
+\BEG
+@code{D} is the ring of differential operators whose coefficients
+are polynomials in @code{K[x1,@dots{},xn]} and
+@code{Di} denotes the differentiation with respect to  @code{xi}.
+According to the commutation relation,
+elements of @code{D} can be represented as a @code{K}-linear combination 
+of monomials @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn}.
+In Risa/Asir, this type of monomial is represented 
+by @code{<<i1,@dots{},in,j1,@dots{},jn>>} as in the case of commutative
+polynomial.
+That is, elements of @code{D} are represented by distributed polynomials.
+Addition and subtraction can be done by @code{+}, @code{-},
+but multiplication is done by calling @code{dp_weyl_mul()} because of
+the non-commutativity of @code{D}.
+\E
+
+@example
+[0] A=<<1,2,2,1>>;
+(1)*<<1,2,2,1>>
+[1] B=<<2,1,1,2>>;
+(1)*<<2,1,1,2>>
+[2] A*B;
+(1)*<<3,3,3,3>>
+[3] dp_weyl_mul(A,B);
+(1)*<<3,3,3,3>>+(1)*<<3,2,3,2>>+(4)*<<2,3,2,3>>+(4)*<<2,2,2,2>>
++(2)*<<1,3,1,3>>+(2)*<<1,2,1,2>>
+@end example
+
+\BJP
+グレブナ基底計算についても, Weyl 代数専用の関数として, 
+次の関数が用意してある. 
+\E
+\BEG
+The following functions are avilable for Groebner basis computation
+in Weyl algebra:
+\E
+@code{dp_weyl_gr_main()},
+@code{dp_weyl_gr_mod_main()},
+@code{dp_weyl_gr_f_main()},
+@code{dp_weyl_f4_main()},
+@code{dp_weyl_f4_mod_main()}.
+\BJP
+また, 応用として, global b 関数の計算が実装されている. 
+\E
+\BEG
+Computation of the global b function is implemented as an application.
+\E
+
+\BJP
 @node グレブナ基底に関する函数,,, グレブナ基底の計算
 @section グレブナ基底に関する函数
 \E
@@ -1217,8 +1316,8 @@ Refer to the sections for each functions.
 * lex_hensel_gsl tolex_gsl tolex_gsl_d::
 * gr_minipoly minipoly::
 * tolexm minipolym::
-* dp_gr_main dp_gr_mod_main dp_gr_f_main::
-* dp_f4_main dp_f4_mod_main::
+* dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main::
+* dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main::
 * dp_gr_flags dp_gr_print::
 * dp_ord::
 * dp_ptod::
@@ -1244,6 +1343,7 @@ Refer to the sections for each functions.
 * lex_hensel_gsl tolex_gsl tolex_gsl_d::
 * primadec primedec::
 * primedec_mod::
+* bfunction generic_bfct::
 @end menu
 
 \JP @node gr hgr gr_mod,,, グレブナ基底に関する函数
@@ -1346,8 +1446,7 @@ for communication.
 @table @t
 \JP @item 参照
 \EG @item References
-@comment @fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
-@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
+@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
 @fref{dp_ord}.
 @end table
 
@@ -1564,7 +1663,7 @@ processes.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
+@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
 \JP @fref{dp_ord}, @fref{分散計算}
 \EG @fref{dp_ord}, @fref{Distributed computation}
 @end table
@@ -1842,17 +1941,23 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @fref{gr_minipoly minipoly}.
 @end table
 
-\JP @node dp_gr_main dp_gr_mod_main dp_gr_f_main,,, グレブナ基底に関する函数
-\EG @node dp_gr_main dp_gr_mod_main dp_gr_f_main,,, Functions for Groebner basis computation
-@subsection @code{dp_gr_main}, @code{dp_gr_mod_main}, @code{dp_gr_f_main}
+\JP @node dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main,,, グレブナ基底に関する函数
+\EG @node dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main,,, Functions for Groebner basis computation
+@subsection @code{dp_gr_main}, @code{dp_gr_mod_main}, @code{dp_gr_f_main}, @code{dp_weyl_gr_main}, @code{dp_weyl_gr_mod_main}, @code{dp_weyl_gr_f_main}
 @findex dp_gr_main
 @findex dp_gr_mod_main
 @findex dp_gr_f_main
+@findex dp_weyl_gr_main
+@findex dp_weyl_gr_mod_main
+@findex dp_weyl_gr_f_main
 
 @table @t
 @item dp_gr_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
 @itemx dp_gr_mod_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
 @itemx dp_gr_f_main(@var{plist},@var{vlist},@var{homo},@var{order})
+@itemx dp_weyl_gr_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
+@itemx dp_weyl_gr_mod_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
+@itemx dp_weyl_gr_f_main(@var{plist},@var{vlist},@var{homo},@var{order})
 \JP :: グレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation (built-in functions)
 @end table
@@ -1880,9 +1985,10 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @item
 これらの函数は, グレブナ基底計算の基本的組み込み函数であり, @code{gr()},
 @code{hgr()}, @code{gr_mod()} などはすべてこれらの函数を呼び出して計算
-を行っている. 
+を行っている. 関数名に weyl が入っているものは, Weyl 代数上の計算
+のための関数である. 
 @item
-@code{dp_gr_f_main()} は, 種々の有限体上のグレブナ基底を計算する
+@code{dp_gr_f_main()}, @code{dp_weyl_f_main()} は, 種々の有限体上のグレブナ基底を計算する
 場合に用いる. 入力は, あらかじめ, @code{simp_ff()} などで, 
 考える有限体上に射影されている必要がある. 
 @item
@@ -1917,9 +2023,11 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @item
 These functions are fundamental built-in functions for Groebner basis
 computation and @code{gr()},@code{hgr()} and @code{gr_mod()}
-are all interfaces to these functions.
+are all interfaces to these functions. Functions whose names
+contain weyl are those for computation in Weyl algebra.
 @item
-@code{dp_gr_f_main()} is a function for Groebner basis computation
+@code{dp_gr_f_main()} and @code{dp_weyl_gr_f_main()}
+are functions for Groebner basis computation
 over various finite fields. Coefficients of input polynomials 
 must be converted to elements of a finite field 
 currently specified by @code{setmod_ff()}.
@@ -1966,15 +2074,19 @@ Actual computation is controlled by various parameters set by
 \EG @fref{Controlling Groebner basis computations}
 @end table
 
-\JP @node dp_f4_main dp_f4_mod_main,,, グレブナ基底に関する函数
-\EG @node dp_f4_main dp_f4_mod_main,,, Functions for Groebner basis computation
-@subsection @code{dp_f4_main}, @code{dp_f4_mod_main}
+\JP @node dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main,,, グレブナ基底に関する函数
+\EG @node dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main,,, Functions for Groebner basis computation
+@subsection @code{dp_f4_main}, @code{dp_f4_mod_main}, @code{dp_weyl_f4_main}, @code{dp_weyl_f4_mod_main}
 @findex dp_f4_main
 @findex dp_f4_mod_main
+@findex dp_weyl_f4_main
+@findex dp_weyl_f4_mod_main
 
 @table @t
 @item dp_f4_main(@var{plist},@var{vlist},@var{order})
 @itemx dp_f4_mod_main(@var{plist},@var{vlist},@var{order})
+@itemx dp_weyl_f4_main(@var{plist},@var{vlist},@var{order})
+@itemx dp_weyl_f4_mod_main(@var{plist},@var{vlist},@var{order})
 \JP :: F4 アルゴリズムによるグレブナ基底の計算 (組み込み函数)
 \EG :: Groebner basis computation by F4 algorithm (built-in functions)
 @end table
@@ -2000,7 +2112,9 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 算法であり, 本実装は, 中国剰余定理による線形方程式求解を用いた
 試験的な実装である. 
 @item
-引数および動作はそれぞれ @code{dp_gr_main()}, @code{dp_gr_mod_main()}
+斉次化の引数がないことを除けば, 引数および動作はそれぞれ 
+@code{dp_gr_main()}, @code{dp_gr_mod_main()},
+@code{dp_weyl_gr_main()}, @code{dp_weyl_gr_mod_main()}
 と同様である. 
 \E
 \BEG
@@ -2012,7 +2126,9 @@ invented by J.C. Faugere. The current implementation of @code{dp_f4_main()}
 uses Chinese Remainder theorem and not highly optimized.
 @item
 Arguments and actions are the same as those of 
-@code{dp_gr_main()}, @code{dp_gr_mod_main()}.
+@code{dp_gr_main()}, @code{dp_gr_mod_main()},
+@code{dp_weyl_gr_main()}, @code{dp_weyl_gr_mod_main()},
+except for lack of the argument for controlling homogenization.
 \E
 @end itemize
 
@@ -3665,105 +3781,6 @@ if an input ideal is not radical.
 \EG @fref{Setting term orderings}.
 @end table
 
-\BJP
-@node Weyl 代数,,, グレブナ基底の計算
-@section Weyl 代数
-\E
-\BEG
-@node Weyl algebra,,, Groebner basis computation
-@section Weyl algebra
-\E
-
-@noindent
-
-\BJP
-これまでは, 通常の可換な多項式環におけるグレブナ基底計算について
-述べてきたが, グレブナ基底の理論は, ある条件を満たす非可換な
-環にも拡張できる. このような環の中で, 応用上も重要な, 
-Weyl 代数, すなわち多項式環上の微分作用素環の演算および
-グレブナ基底計算が Risa/Asir に実装されている. 
-
-体 @code{K} 上の @code{n} 次元 Weyl 代数 
-@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} は
-\E
-
-\BEG
-So far we have explained Groebner basis computation in
-commutative polynomial rings. However Groebner basis can be
-considered in more general non-commutative rings.
-Weyl algebra is one of such rings and 
-Risa/Asir implements fundamental operations
-in Weyl algebra and Groebner basis computation in Weyl algebra.
-
-The @code{n} dimensional Weyl algebra over a field @code{K},
-@code{D=K<x1,@dots{},xn,D1,@dots{},Dn>} is a non-commutative
-algebra which has the following fundamental relations:
-\E
-
-@code{xi*xj-xj*xi=0}, @code{Di*Dj-Dj*Di=0}, @code{Di*xj-xj*Di=0} (@code{i!=j}),
-@code{Di*xi-xi*Di=1}
-
-\BJP
-という基本関係を持つ環である. @code{D} は 多項式環 @code{K[x1,@dots{},xn]} を係数
-とする微分作用素環で,  @code{Di} は @code{xi} による微分を表す. 交換関係により, 
-@code{D} の元は, @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn} なる単項
-式の @code{K} 線形結合として書き表すことができる. 
-Risa/Asir においては, この単項式を, 可換な多項式と同様に
-@code{<<i1,@dots{},in,j1,@dots{},jn>>} で表す. すなわち, @code{D} の元も
-分散表現多項式として表される. 加減算は, 可換の場合と同様に, @code{+}, @code{-}
-により
-実行できるが, 乗算は, 非可換性を考慮して @code{dp_weyl_mul()} という関数
-により実行する.
-\E
-
-\BEG
-@code{D} is the ring of differential operators whose coefficients
-are polynomials in @code{K[x1,@dots{},xn]} and
-@code{Di} denotes the differentiation with respect to  @code{xi}.
-According to the commutation relation,
-elements of @code{D} can be represented as a @code{K}-linear combination 
-of monomials @code{x1^i1*@dots{}*xn^in*D1^j1*@dots{}*Dn^jn}.
-In Risa/Asir, this type of monomial is represented 
-by @code{<<i1,@dots{},in,j1,@dots{},jn>>} as in the case of commutative
-polynomial.
-That is, elements of @code{D} are represented by distributed polynomials.
-Addition and subtraction can be done by @code{+}, @code{-},
-but multiplication is done by calling @code{dp_weyl_mul()} because of
-the non-commutativity of @code{D}.
-\E
-
-@example
-[0] A=<<1,2,2,1>>;
-(1)*<<1,2,2,1>>
-[1] B=<<2,1,1,2>>;
-(1)*<<2,1,1,2>>
-[2] A*B;
-(1)*<<3,3,3,3>>
-[3] dp_weyl_mul(A,B);
-(1)*<<3,3,3,3>>+(1)*<<3,2,3,2>>+(4)*<<2,3,2,3>>+(4)*<<2,2,2,2>>
-+(2)*<<1,3,1,3>>+(2)*<<1,2,1,2>>
-@end example
-
-\BJP
-グレブナ基底計算についても, Weyl 代数専用の関数として, 
-次の関数が用意してある. 
-\E
-\BEG
-The following functions are avilable for Groebner basis computation
-in Weyl algebra:
-\E
-@code{dp_weyl_gr_main()},
-@code{dp_weyl_gr_mod_main()},
-@code{dp_weyl_gr_f_main()},
-@code{dp_weyl_f4_main()},
-@code{dp_weyl_f4_mod_main()}.
-\BJP
-また, 応用として, global b 関数の計算が実装されている. 
-\E
-\BEG
-Computation of the global b function is implemented as an application.
-\E
-
 \JP @node primedec_mod,,, グレブナ基底に関する函数
 \EG @node primedec_mod,,, Functions for Groebner basis computation
 @subsection @code{primedec_mod}
@@ -3857,11 +3874,83 @@ if the dimension is small.
 \JP @item 参照
 \EG @item References
 @fref{modfctr},
-@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main},
+@fref{dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main},
 \JP @fref{項順序の設定}.
 \EG @fref{Setting term orderings}.
 @end table
 
+\JP @node bfunction generic_bfct,,, グレブナ基底に関する函数
+\EG @node bfunction generic_bfct,,, Functions for Groebner basis computation
+@subsection @code{bfunction}, @code{generic_bfct}
+@findex bfunction
+@findex generic_bfct
 
+@table @t
+@item bfunction(@var{f})
+@item generic_bfct(@var{plist},@var{vlist},@var{dvlist},@var{weight})
+\JP :: b 関数の計算
+\EG :: Computes the global b function of a polynomial or an ideal
+@end table
+@table @var
+@item return
+@itemx f
+\JP 多項式
+\EG polynomial
+@item plist
+\JP 多項式リスト
+\EG list of polynomials
+@item vlist dvlist
+\JP 変数リスト
+\EG list of variables
+@end table
 
+@itemize @bullet
+\BJP
+@item @samp{bfct} で定義されている. 
+@item @code{bfunction(@var{f})} は多項式 @var{f} の global b 関数 @code{b(s)} を
+計算する. @code{b(s)} は, Weyl 代数 @code{D} 上の一変数多項式環 @code{D[s]}
+の元 @code{P(x,s)} が存在して, @code{P(x,s)f^(s+1)=b(s)f^s} を満たすような
+多項式 @code{b(s)} の中で, 次数が最も低いものである. 
+@item @code{generic_bfct(@var{f},@var{vlist},@var{dvlist},@var{weight})}
+は, @var{plist} で生成される @code{D} の左イデアル @code{I} の, 
+ウェイト @var{weight} に関する global b 関数を計算する. 
+@var{vlist} は @code{x}-変数, @var{vlist} は対応する @code{D}-変数
+を順に並べる. 
+@item 詳細については, [SST] を見よ. 
+\E
+\BEG
+@item These functions are defined in @samp{bfct}.
+@item @code{bfunction(@var{f})} computes the global b-function @code{b(s)} of
+a polynomial @var{f}.
+@code{b(s)} is a polynomial of the minimal degree 
+such that there exists @code{P(x,s)} in D[s], which is a polynomial
+ring over Weyl algebra @code{D}, and @code{P(x,s)f^(s+1)=b(s)f^s} holds.
+@item @code{generic_bfct(@var{f},@var{vlist},@var{dvlist},@var{weight})}
+computes the global b-function of a left ideal @code{I} in @code{D}
+generated by @var{plist}, with respect to @var{weight}.
+@var{vlist} is the list of @code{x}-variables, 
+@var{vlist} is the list of corresponding @code{D}-variables.
+@item See [SST] for the details.
+\E
+@end itemize
+
+@example
+[0] load("bfct")$
+[216] bfunction(x^3+y^3+z^3+x^2*y^2*z^2+x*y*z);
+-9*s^5-63*s^4-173*s^3-233*s^2-154*s-40
+[217] fctr(@@);
+[[-1,1],[s+2,1],[3*s+4,1],[3*s+5,1],[s+1,2]]
+[218] F = [4*x^3*dt+y*z*dt+dx,x*z*dt+4*y^3*dt+dy,
+x*y*dt+5*z^4*dt+dz,-x^4-z*y*x-y^4-z^5+t]$
+[219] generic_bfct(F,[t,z,y,x],[dt,dz,dy,dx],[1,0,0,0]);
+20000*s^10-70000*s^9+101750*s^8-79375*s^7+35768*s^6-9277*s^5
++1278*s^4-72*s^3
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+\JP @fref{Weyl 代数}.
+\EG @fref{Weyl algebra}.
+@end table
 
