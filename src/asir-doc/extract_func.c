@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.1.1.1 1999/12/08 05:47:43 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.2 2000/01/20 03:26:22 noro Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -49,6 +49,7 @@ char **argv;
 			if ( i >= 3 && buf1[i] == '\n' ) {
 				fputs(buf,stderr);
 				strcpy(fn,name[0]);
+				create_dir(fn);
 				fp = fopen(fn,"w");
 				for ( j = 1; name[j]; j++ )
 					symlink(fn,name[j]);
@@ -77,6 +78,20 @@ char **argv;
 			} else
 				fputs(buf,fp);
 	}
+}
+
+int create_dir(char *fname)
+{
+	char *p;
+
+	p = fname;
+	while ( *p && (p = strchr(p,'/')) ) {
+		*p = 0;
+		mkdir(fname,0755);
+		*p = '/';
+		p++;
+	}
+	
 }
 
 int fname(buf,name)
