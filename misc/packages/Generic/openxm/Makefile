@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.7 2000/03/10 03:20:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.8 2000/03/10 10:25:21 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -43,7 +43,7 @@ SHARED_FILES = OpenXM/Copyright OpenXM/doc OpenXM/include OpenXM/man \
                OpenXM/lib/asir-contrib OpenXM/lib/java-support \
                OpenXM/lib/k097 OpenXM/lib/math OpenXM/lib/pari \
                OpenXM/lib/sm1 OpenXM/lib/asir 
-BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so*
+BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so* OpenXM/lib/*.a.*
 EXECUTABLES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_math
 
 usage :
@@ -92,6 +92,9 @@ all-ideal : configure
 	@touch .all_done
 
 install : install-binary-files install-shared-files
+	make install-shell-scripts PREFIX=${prefix}
+
+install-shell-scripts:
 # Install shell scripts to ${prefix}/bin, which is typically /usr/local/bin
 	(cd ${prefix}/OpenXM/rc ; make ; make install PREFIX=${prefix})
 

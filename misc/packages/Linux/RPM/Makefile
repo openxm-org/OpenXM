@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.3 2000/03/09 09:26:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.4 2000/03/10 10:25:21 takayama Exp $
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
 # 0. Generate ~/.rpmrc and set the TopDir for the work.
@@ -36,7 +36,8 @@
 #  -qvl openxm-1.1.2-test : list.
 
 OLE=$(HOME)/OpenXM/src/kan96xx/Doc/ole -q
-RPM_BUILD_BINARY_ROOT=/var/tmp/openxm-root
+RPM_BUILD_BINARY_ROOT=/var/tmp/openxm-binary-root
+RPM_BUILD_SHARED_ROOT=/var/tmp/openxm-shared-root
 
 usage :
 	@echo "Usage:"
@@ -65,6 +66,12 @@ make-directory: clean
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr/local/bin
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr/local/man
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr/local/man/man1
+	mkdir ${RPM_BUILD_SHARED_ROOT}
+	mkdir ${RPM_BUILD_SHARED_ROOT}/usr
+	mkdir ${RPM_BUILD_SHARED_ROOT}/usr/local
+	mkdir ${RPM_BUILD_SHARED_ROOT}/usr/local/bin
+	mkdir ${RPM_BUILD_SHARED_ROOT}/usr/local/man
+	mkdir ${RPM_BUILD_SHARED_ROOT}/usr/local/man/man1
 
 
 openxm-spec:
@@ -80,7 +87,7 @@ openxm-shared-spec:
 	${OLE} <openxm-shared.spec.in >work/SPECS/openxm-shared.spec
 
 clean :
-	-/bin/rm -rf work ${RPM_BUILD_BINARY_ROOT}
+	-/bin/rm -rf work ${RPM_BUILD_BINARY_ROOT} ${RPM_BUILD_SHARED_ROOT}
 
 
 link-for-debug: make-directory clean

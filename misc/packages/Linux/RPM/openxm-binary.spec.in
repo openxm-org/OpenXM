@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/openxm-binary.spec.in,v 1.1 2000/03/10 10:25:21 takayama Exp $
 #  openxm-binary.spec.in
 #
 %define ver      1.1.2
@@ -36,6 +36,7 @@ make
 %install
 /bin/rm -rf $RPM_BUILD_ROOT%{prefix}/OpenXM
 make install-binary-files PREFIX=$RPM_BUILD_ROOT%{prefix}
+make install-shell-scripts PREFIX=$RPM_BUILD_ROOT%{prefix}
 
 %clean
 rm -rf $RPM_BUILD_ROOT%{prefix}/OpenXM
