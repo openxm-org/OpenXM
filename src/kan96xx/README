@@ -1,4 +1,5 @@
-README (Updated: 1998/11/21)
+%$OpenXM$
+README (Updated: 1999/11/08)
 
 "Kan/sm1" is a system for doing algebraic analysis by computer based on 
 computations of Groebner bases.
@@ -39,7 +40,8 @@ Installation
 
 <<1>>
 The kan/sm1-system is mainly developed and tested 
-on the Linux operating system with the elf-kernel version 1.2.13.
+on the Linux operating system with the elf-kernel version 1.2.13
+and FreeBSD 2.x and 3.x.
 The system will be run on the machines with ansi C-compilers 
 on which the Garbage collector of Boehm and Demers works.
  If you use the same environment, you need no configuration.
@@ -82,10 +84,7 @@ finally, the path specified by the environmental variable
 LOAD_SM1_PATH.
 Example:(csh)   setenv LOAD_SM1_PATH $HOME/lib/sm1/
         (bash)  LOAD_SM1_PATH=$HOME/lib/sm1/   ; export LOAD_SM1_PATH
-------------------------------------------------
-ox_asir server has not yet been available on the ftp cite.
-(Dec 17, 1998)
------------------------------------------------------
+
 January 8, 1994.
 Revised March 15, 1997, November 2, 1998.
 Nobuki Takayama,  Department of Mathematics, Kobe university,
@@ -101,13 +100,16 @@ A. On Solaris 2.x machines,  /usr/ccs/bin must be in your search path.
      rehash
      make
 
-Q. I cannot compile the source code on Solaris.
-A. Before compiling, you need to edit Kan/Makefile and Kan/global.c 
-   following comments for Solaris (grep Solaris).
+Q. I cannot generate onlinehelp.tex
+   There is a line ERROR(sm): .... 
+A. kan96xx is supposed to be in the OpenXM distribution.
+   Change directory to OpenXM/src/kxx and type in make install2.
+   It generates files in Doc/bin. These are necessary to generate
+   the file onlinehelp.tex
 
-Q. I failed the compilation on Debian GNU/Linux, 2.0.34, gcc 2.7.2.3
-A. Compile gc on the redhat linux 4.x (cd gc ; make ) and copy gc/gc.a
-   or get the latest version of gc. You may use www.altavisa.com to 
-   find a distribution cite of gc4.x.
+-----------------------------------------
+This software is compliant to GNU General Public License.
+
+
 
 
