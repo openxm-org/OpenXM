@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.7 2001/08/21 14:21:29 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.8 2001/08/23 00:16:55 takayama Exp $
 %% http server by sm1
 %% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
@@ -87,6 +87,7 @@ def
 /httpd_action {
   [/in-httpd /ff /httpd.com /httpd.result /sss
    /sss.engine /sss.web /err /httpd.sendFile
+   /oxserver.vname
   ] pushVariables
   [
   {
@@ -120,8 +121,15 @@ def
           } ifelse
           httpd.com metaCommand {
             httpd.textarea.valid {
+              /oxserver.vname
+                [Oxserver_history_variable httpd.serial toString] cat
+              def
               ox.ccc 
-               [ httpd.com  ] cat
+               [ 
+                 httpd.com  
+                 (  /) oxserver.vname (  set )
+                 oxserver.vname ( )
+               ] cat
               oxexecutestring ;
             }{
               send-page-warning  exit

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.11 2001/08/12 07:20:37 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.12 2001/08/23 00:16:55 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -46,6 +46,7 @@ def
 /httpd_action {
   [/in-httpd /ff /httpd.com /httpd.result /sss
    /sss.engine /sss.web /err
+   /oxserver.vname
   ] pushVariables
   [
   {
@@ -79,8 +80,16 @@ def
           } ifelse
           httpd.com metaCommand {
             httpd.textarea.valid {
+              /oxserver.vname 
+                 [Oxserver_history_variable httpd.serial toString] cat
+              def
               oxasir.ccc 
-               [(if (1) {)  httpd.com  (; };)] cat
+%% original     (if (1) {)  httpd.com  (; };)
+               [(if (1) {)
+                oxserver.vname (=) httpd.com
+                (; };)
+                oxserver.vname (;)
+               ] cat
               oxexecutestring ;
             }{
               send-page-warning  exit

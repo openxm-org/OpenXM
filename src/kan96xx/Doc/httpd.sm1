@@ -1,5 +1,7 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.1 2001/08/23 00:16:55 takayama Exp $
 %% common modules for httpd on sm1.
+/Oxserver_history_variable (Oxserver_history_variable_) def
+
 /httpd_startserver {
    [(sm1.socket) (open) [httpd.port (localhost)]] extension 
    /httpd.server.fdAndPort set
@@ -407,4 +409,72 @@
   ] pop
   popVariables
   arg1
+} def
+
+/executeStringAndSelectInputFromBrowsersAndOxserver {
+  /arg2 set
+  /arg1 set
+  [/in-executeStringAndSelectInputFromBrowsersAndOxserver
+    /oxserver.ccc
+    /command.to.oxserver
+    /sss.engine
+    /sss.web
+    /sss
+    /err
+    /httpd.result
+  ] pushVariables
+% Global var: httpd.server.fd
+  [
+     /oxserver.ccc arg1 def
+     /command.to.oxserver arg2 def
+            oxserver.ccc 
+            command.to.oxserver
+            oxexecutestring ;
+
+            [(oxReq) oxserver.ccc SM_dupErrors ] extension pop
+
+            [(oxReq) oxserver.ccc SM_popCMO ] extension pop
+            [(oxReq) oxserver.ccc SM_popString ] extension pop
+            [(flush)] extension pop
+            %% Select inputs for interruption.
+            %% Wait by the spin lock.
+            {
+              [(oxMultiSelect) [oxserver.ccc] 1] extension 1 get 0 get
+              /sss.engine set
+              [(sm1.socket) (mselect)
+                [[httpd.server.fd 0 get] 1]
+              ] extension 0 get /sss.web set
+              /sss [sss.engine sss.web] def
+              sss.engine { exit } { } ifelse
+              sss.web    { exit } { } ifelse
+            } loop
+            sss message
+
+            sss 0 get {
+                [(oxGet) oxserver.ccc] extension  /err          set
+                [(oxGet) oxserver.ccc] extension  /httpd.result set
+                %% oxserver.ccc oxpopstring /httpd.result set
+            } {
+                oxserver.ccc oxreset
+                oxserver.ccc ("computation is interrupted.";) oxexecutestring ;
+                oxserver.ccc oxpopstring
+                /httpd.result set 
+                exit
+            } ifelse
+            (------------- result -------------) message
+            httpd.result message
+            (----------------------------------) message
+            (  ) message
+
+            err message
+            err [ ] eq  { 
+            } {
+              oxserver.ccc cleanErrors
+              [httpd.result 10 (string) dc err toString] cat
+              /httpd.result set
+            } ifelse
+           /arg1 [err httpd.result] def
+   ] pop
+   popVariables
+   arg1
 } def
