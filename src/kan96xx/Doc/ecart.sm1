@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.15 2003/08/29 04:34:07 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.16 2003/09/12 02:52:49 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -271,6 +271,7 @@
    /gg /wv /vec /ans /rr /mm
    /degreeShift  /env2 /opt /ans.gb
    /hdShift
+   /ecart.useSugar
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -281,6 +282,7 @@
     /degreeShift 0 def
     /hdShift 0 def 
     /opt [(weightedHomogenization) 1] def
+    /ecart.useSugar 0 def
     aa { tag } map /typev set
     typev [ ArrayP ] eq
     {  /f aa 0 get def
@@ -429,10 +431,18 @@
        f {/fi set [(degreeShift) hdShift fi] homogenize} map /f set
    }ifelse
 
-    ecart.needSyz {
-      [f [(needSyz)] gb.options join ] groebner /gg set
-    } {  
-      [f gb.options] groebner 0 get /gg set
+    ecart.useSugar {
+      ecart.needSyz {
+        [f [(needSyz)] gb.options join ] groebner_sugar /gg set
+      } {  
+        [f gb.options] groebner_sugar 0 get /gg set
+      } ifelse
+    } { 
+      ecart.needSyz {
+        [f [(needSyz)] gb.options join ] groebner /gg set
+      } {  
+        [f gb.options] groebner 0 get /gg set
+      } ifelse
     } ifelse
 
     ecart.needSyz {
