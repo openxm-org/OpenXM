@@ -1,4 +1,4 @@
-###  $OpenXM$
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.1 2001/05/20 07:48:19 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
@@ -18,8 +18,8 @@ STATIC_LINK_FLAG =
 
 #### Optimization level etc.
 #CFLAGS = 
-#### option  for dbx
-CFLAGS = -O
+#### option  for gdb CFLAGS = -g 
+CFLAGS = -g
 #### optimizer which seems not to be  reliable at level 2,3 and 4.
 #CFLAGS = -O
 #### profiler to output mon.out
@@ -87,7 +87,7 @@ kanlibS1 = stackmachine.o
 kanlibS2 = scanner.o scanner2.o list.o global.o kclass.o
 kanlibS3 = usage.o option.o
 kanlibS4 = primitive.o
-kanlibK = matrix.o poly4.o replace.o poly3.o poly.o output.o coeff.o order.o switch.o poly2.o parser.o parserpass0.o rat.o ext.o
+kanlibK = matrix.o poly4.o replace.o poly3.o poly3a.o poly.o output.o coeff.o order.o switch.o poly2.o parser.o parserpass0.o rat.o ext.o
 kanlibK2 = gradedset.o red.o gb.o gbGM.o syz0.o redm.o sugar.o resol.o hilbert.o
 kanlibKclass = Kclass/sample.o Kclass/rawcmo.o Kclass/indeterminate.o
 
@@ -116,6 +116,7 @@ matrix.o : extern2.h matrix.h $(HEADERS)
 poly4.o : extern2.h matrix.h $(HEADERS)
 replace3.o : extern2.h $(HEADERS)
 poly3.o : extern2.h $(HEADERS)
+poly3a.o : extern2.h $(HEADERS)
 parserpass0.o : extern2.h $(HEADERS)
 parser.o : extern2.h $(HEADERS)
 poly2.o : extern2.h $(HEADERS)
