@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.3 1999/12/24 04:38:04 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.4 2000/01/13 08:29:56 noro Exp $
 \BJP
 @node $BJ,;67W;;(B,,, Top
 @chapter $BJ,;67W;;(B
@@ -608,6 +608,18 @@ UNIX $BHG$K$*$$$F$O(B, @code{ox_launch()} $B$O(B, @var{command} $B$NI8=`=PN
 @code{DISPLAY} $B$NCM$rMQ$$$k(B. 
 
 @item
+$B4D6-JQ?t(B @code{ASIR_RSH} $B$,%;%C%H$5$l$F$$$k>l9g(B, $B%5!<%P$NN)$A>e$2%W%m%0%i%`(B
+$B$H$7$F(B@samp{rsh} $B$NBe$o$j$K$3$NJQ?t$NCM$,MQ$$$i$l$k(B. $BNc$($P(B, 
+
+@example
+% setenv ASIR_RSH "ssh -f -X -A "
+@end example
+
+$B$K$h$j(B, $B%5!<%P$NN)$A>e$2$K(B @samp{ssh} $B$,MQ$$$i$l(B, 
+X11 $B$NDL?.$,(B forwarding $B$5$l$k(B. $B>\$7$/$O(B @samp{ssh} $B$N%^%K%e%"%k$r(B
+$B;2>H(B. 
+
+@item
 @code{ox_shutdown()} $B$O<1JL;R(B @var{id} $B$KBP1~$9$k1s3V%W%m%;%9(B
 $B$r=*N;$5$;$k(B. 
 
@@ -632,6 +644,7 @@ ox_xterm*saveLines:1000
 
 $B$K$h$j(B, icon $B$G5/F0(B, scrollbar $B$D$-(B, scrollbar $B$G;2>H$G$-$k9T?t(B
 $B$,:GBg(B 1000 $B9T(B, $B$H$$$&;XDj$,$G$-$k(B. 
+
 \E
 
 \BEG
@@ -692,6 +705,18 @@ without supplying a password.
 For cases where connection to @code{X} is also used,
 let @code{Xserver} authorize the relevant hosts.
 Adding the hosts can be done by command @code{xhost}.
+
+@item
+If an environment variable @code{ASIR_RSH} is set,
+the content of this variable is used as a promgram to invoke 
+remote servers instead of @var{rsh}. For example,
+
+@example
+% setenv ASIR_RSH "ssh -f -X -A "
+@end example
+
+implies that remote servers are invoked by @samp{ssh} and that
+X11 forwarding is enabled. See the manual of @samp{ssh} for the detail.
 
 @item
 Some @var{command}'s consume much stack space.  You are recommended
