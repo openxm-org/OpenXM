@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.3 2000/05/04 06:55:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.4 2000/05/04 11:05:20 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -337,6 +337,7 @@ def test_SinitOfArray() {
 /* f is assumed to be a monomial with toes. */
 def Sdegree(f,tower,level) {
   local i;
+  f = Init(f);
   if (level <= 1) return(StotalDegree(f));
   i = Degree(f,es);
   return(StotalDegree(f)+Sdegree(tower[level-2,i],tower,level-1));
@@ -559,7 +560,9 @@ def SnextI(reductionTable_tmp,strategy,redundantTable,
        }
      }
    }
+   Print("reductionTable_tmp=");
    Println(reductionTable_tmp);
+   Println("See also reductionTable, strategy, level,i");
    Error("SnextI: bases[i] or bases[j] is null for all combinations.");
 }
 
@@ -1021,6 +1024,9 @@ def Sannfs(f,v) {
 def Sannfs2(f) {
   local p,pp;
   p = Sannfs(f,"x,y");
+/*
+  Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1],
+               ["x",-1,"y",-1,"Dx",1,"Dy",1]]); */
   Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
   pp = Map(p[0],"Spoly");
   return(Sminimal(pp));
@@ -1042,4 +1048,185 @@ def Sannfs3(f) {
 
 */
      
- 
+
+
+/*  The below is under construction. */
+def Sschreyer(g) {
+  local rf, tower, reductionTable, skel, redundantTable, bases,
+        strategy, maxOfStrategy, height, level, n, i,
+        freeRes,place, f, reducer,pos, redundant_seq,bettiTable,freeResV,ww,
+        redundantTable_ordinary, redundant_seq_ordinary,
+        reductionTable_tmp,c2,ii,nn;
+  /* extern WeightOfSweyl; */
+  ww = WeightOfSweyl;
+  Print("WeghtOfSweyl="); Println(WeightOfSweyl);
+  rf = SresolutionFrameWithTower(g);
+  redundant_seq = 1;   redundant_seq_ordinary = 1;
+  tower = rf[1];
+  reductionTable = SgenerateTable(tower);
+  skel = rf[2];
+  redundantTable = SnewArrayOfFormat(rf[1]);
+  redundantTable_ordinary = SnewArrayOfFormat(rf[1]);
+  reducer = SnewArrayOfFormat(rf[1]);
+  freeRes = SnewArrayOfFormat(rf[1]);
+  bettiTable = SsetBettiTable(rf[1],g);
+
+  height = Length(reductionTable);
+  for (level = 0; level < height; level++) {
+      n = Length(reductionTable[level]);
+      for (i=0; i<n; i++) {
+           Println([level,i]);
+           Print("Processing "); Print([level,i]);
+           if (level == 0) {
+             if (IsNull(redundantTable[level,i])) {
+               bases = freeRes[level];
+               /* Println(["At floor : GB=",i,bases,tower[0,i]]); */
+               pos = SwhereInGB(tower[0,i],rf[3,0]);
+               bases[i] = rf[3,0,pos];
+               /* redundantTable[level,i] = 0;
+               redundantTable_ordinary[level,i] = 0; */
+               freeRes[level] = bases;
+               /* Println(["GB=",i,bases,tower[0,i]]); */
+             }
+           }else{ /* level >= 1 */
+             if (IsNull(redundantTable[level,i])) {
+               bases = freeRes[level];
+               f = SpairAndReduction2(skel,level,i,freeRes,tower,
+                                      ww,redundantTable);
+               if (f[0] != Poly("0")) {
+                  place = f[3];
+                  /* (level-1, place) is the place for f[0], 
+                     which is a newly obtained  GB. */
+#ifdef ORDINARY
+                  redundantTable[level-1,place] = redundant_seq;
+                  redundant_seq++;
+#else
+                  if (f[4] > f[5]) {
+                    /* Zero in the gr-module */
+                    Print("v-degree of [org,remainder] = ");
+                    Println([f[4],f[5]]);
+                    Print("[level,i] = "); Println([level,i]);
+                    redundantTable[level-1,place] = 0;
+                  }else{
+                    redundantTable[level-1,place] = redundant_seq;
+                    redundant_seq++;
+                  }
+#endif
+                  redundantTable_ordinary[level-1,place]
+                     =redundant_seq_ordinary;
+                  redundant_seq_ordinary++;
+                  bases[i] = SunitOfFormat(place,f[1])-f[1];  /* syzygy */
+                  /* redundantTable[level,i] = 0;
+                  redundantTable_ordinary[level,i] = 0; */
+                  /* i must be equal to f[2], I think. Double check. */
+
+                  /* Correction Of Constant */
+                  c2 = f[6];
+                  nn = Length(bases);
+                  for (ii=0; ii<nn;ii++) {
+                     if (ii != place) {
+                       bases[ii] = bases[ii]*c2;
+                     }
+                  }
+
+                  freeRes[level] = bases;
+                  /* bases = freeRes[level-1];
+                     bases[place] = f[0];
+                     freeRes[level-1] = bases;  It is already set. */
+                  reducer[level-1,place] = f[1];
+               }else{
+                  /* redundantTable[level,i] = 0; */
+                  bases = freeRes[level];
+                  bases[i] = f[1];  /* Put the syzygy. */
+                  freeRes[level] = bases;
+               }
+             }  /* end of level >= 1 */
+          }
+    } /* i loop */
+  } /* level loop */
+  n = Length(freeRes);
+  freeResV = SnewArrayOfFormat(freeRes);
+  for (i=0; i<n; i++) {
+    bases = freeRes[i];
+    bases = Sbases_to_vec(bases,bettiTable[i]);
+    freeResV[i] = bases;
+  }
+  return([freeResV, redundantTable,reducer,bettiTable,redundantTable_ordinary]);
+}
+
+def SpairAndReduction2(skel,level,ii,freeRes,tower,ww,redundantTable) {
+  local i, j, myindex, p, bases, tower2, gi, gj,
+       si, sj, tmp, t_syz, pos, ans, ssp, syzHead,pos2,
+       vdeg,vdeg_reduced,n,c2;
+  Println("SpairAndReduction2:");
+
+  if (level < 1) Error("level should be >= 1 in SpairAndReduction.");
+  p = skel[level,ii];
+  myindex = p[0];  
+  i = myindex[0]; j = myindex[1];
+  bases = freeRes[level-1];
+  Println(["p and bases ",p,bases]);
+  if (IsNull(bases[i]) || IsNull(bases[j])) {
+    Println([level,i,j,bases[i],bases[j]]);
+    Error("level, i, j : bases[i], bases[j]  must not be NULL.");
+  }
+
+  tower2 = StowerOf(tower,level-1);
+  SsetTower(tower2);  
+  /** sm1(" show_ring ");   */
+
+  gi = Stoes_vec(bases[i]);
+  gj = Stoes_vec(bases[j]);
+
+  ssp = Sspolynomial(gi,gj); 
+  si = ssp[0,0];  
+  sj = ssp[0,1];
+  syzHead = si*es^i;
+  /* This will be the head term, I think. But, double check. */
+  Println([si*es^i,sj*es^j]);
+
+  Print("[gi, gj] = "); Println([gi,gj]);
+  sm1(" [(Homogenize)] system_variable message ");
+  Print("Reduce the element "); Println(si*gi+sj*gj);
+  Print("by  "); Println(bases);
+
+  tmp = Sreduction(si*gi+sj*gj, bases);
+
+  Print("result is "); Println(tmp);
+  t_syz = tmp[2];
+  si = si*tmp[1]+t_syz[i];
+  sj = sj*tmp[1]+t_syz[j];
+  t_syz[i] = si; 
+  t_syz[j] = sj;
+
+  c2 = null;
+  /* tmp[0] must be zero */
+  n = Length(t_syz);
+  for (i=0; i<n; i++) {
+     if (IsConstant(t_syz[i])) {
+       if (IsNull(redundantTable[level-1,i])) {
+         /* i must equal to pos2 below. */
+         c2 = -t_syz[i];
+         tmp[0] = freeRes[level-1,i];
+         t_syz[i] = 0;
+         /* break; does not work. Use */
+         i = n;
+       }
+     }
+  }
+
+  /* This is essential part for V-minimal resolution. */
+  /* vdeg = SvDegree(si*gi+sj*gj,tower,level-1,ww); */
+  vdeg = SvDegree(si*gi,tower,level-1,ww); 
+  vdeg_reduced = SvDegree(tmp[0],tower,level-1,ww);  
+  Print("vdegree of the original = "); Println(vdeg);
+  Print("vdegree of the remainder = "); Println(vdeg_reduced);
+
+  pos = SwhereInTower(syzHead,tower[level]);
+  pos2 = SwhereInTower(tmp[0],tower[level-1]);
+  ans = [tmp[0],t_syz,pos,pos2,vdeg,vdeg_reduced,c2];
+  /* pos is the place to put syzygy at level. */
+  /* pos2 is the place to put a new GB at level-1. */   
+  Println(ans);
+  return(ans);
+}
