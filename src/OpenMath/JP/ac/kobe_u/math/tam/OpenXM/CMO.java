@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.8 2000/01/20 18:14:33 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.9 2000/02/21 03:48:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -85,12 +85,7 @@ abstract public class CMO extends OXbody{
     this.sendByObject(os);
   }
 
-  abstract protected CMO receiveByObject(DataInputStream is)
-       throws IOException;
-
-  //public abstract static OX read(DataInputStream is) throws IOException;
-
-  final public static CMO receive(DataInputStream is) throws IOException{
+  public static CMO receive(DataInputStream is) throws IOException{
     int a = 0;
 
     a = is.readInt();
@@ -100,10 +95,10 @@ abstract public class CMO extends OXbody{
       return new CMO_ERROR().receiveByObject(is);
 
     case CMO_ERROR2:
-      return new CMO_ERROR2().receiveByObject(is);
+      return cmoError2.receive(is);
 
     case CMO_NULL:
-      return new CMO_NULL().receiveByObject(is);
+      return cmoNull.receive(is);
 
     case CMO_INT32:
       return new CMO_INT32().receiveByObject(is);
@@ -167,12 +162,12 @@ abstract public class CMO extends OXbody{
 
   abstract protected String toCMOexpressionByObject();
 
-  final public String toOXexpression(){
-    return toCMOexpression();
-  }
-
   final public String toCMOexpression(){
     return "("+ this.toCMOexpressionByObject() +")";
+  }
+
+  final public String toOXexpression(){
+    return toCMOexpression();
   }
 
   final public String toString(){
