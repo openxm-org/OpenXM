@@ -1,0 +1,26 @@
+開発者用情報.
+texmacs  --> ox servers のセッテイング方法.
+
+texmacs 1.0.3.3 以上が必要.
+Debian の場合.
+0. OpenXM/src で make install.
+   OpenXM/rc で  make
+   openxm スクリプトをパスに.   [ くわしくは OpenXM/install.txt を ]
+1. apt-get install libguile-dev
+2. この directory で
+   make MAKE=make  install
+   [ texmacs は OpenXM/bin へインストールされます. ]
+
+3. openxm texmacs で texmacs を起動してみる.
+4. OpenXM/src/kxx/init-opnexm.scm を
+   mkdir ~/.TeXmacs/plugins/openxm/progs
+   ~/.TeXmacs/plugins/openxm/progs の下へコピー.
+
+5. openxm texmacs で texmacs が起動.
+
+注意: texmacs から asir を呼ぶだけでも, ミドルウエアとして ox_texmacs
+     (中身はほぼ sm1) その他 OpenXM の全機能を利用しているので, 
+     OpenXM/src ; make install が必要です.
+
+
+$Id$
