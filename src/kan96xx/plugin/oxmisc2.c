@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -713,11 +714,14 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
 {
   struct object mathcap;
   struct object cmolist;
+  struct object mathcapMain;
+  struct object ob0;
   int n;
   int i;
 #define CMO_CHECK_MATH_CAP_LIST_SIZE 1024
   int cmo[CMO_CHECK_MATH_CAP_LIST_SIZE];
   if (obp == NULL) return(1);
+  /* printObject(*obp,0,stderr); for debug*/
   if (obp->tag != Sarray) {
     fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
     printObject(*obp,0,stderr);
@@ -725,6 +729,15 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
     errorOxmisc2("cmoCheckMathCap: format error in the client->mathcapObjp field.\n");
   }
   mathcap = *obp;
+  /* Example of mathcap 
+    [    $mathcap-object$ ,
+       [    [    199909080 , $Ox_system=ox_sm1.plain$ , $Version=2.991106$ , 
+                 $HOSTTYPE=i386$ ]  , 
+            [    262 , 263 , 264 , 265 , 266 , 268 , 269 , 272 , 273 , 275 , 
+                 276 ]  , 
+            [    [    514 ]  , [    2130706434 , 1 , 2 , 4 , 5 , 17 , 19 , 20 , 22 , 23 , 24 , 25 , 26 , 30 , 31 , 60 , 61 , 27 , 33 , 40 , 16 , 34 ]  ]  ]  ]
+  */
+
   n = getoaSize(mathcap);
   if (n < 2) {
     fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
@@ -732,12 +745,39 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
     fprintf(stderr,"\n");
     errorOxmisc2("cmoCheckMathCap: length of mathcap is wrong in the client->mathcapObjp field.\n");
   }
+  ob0 = getoa(mathcap,0);
+  if (ob0.tag != Sdollar) {
+    fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+    printObject(*obp,0,stderr);
+    fprintf(stderr,"\n");
+    errorOxmisc2("cmoCheckMathCap: The first field must be the string mathcap-object.\n");
+  }
+  if (strcmp(KopString(ob0),"mathcap-object") != 0) {
+    fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+    printObject(*obp,0,stderr);
+    fprintf(stderr,"\n");
+    errorOxmisc2("cmoCheckMathCap: The mathcap must be of the form [(mathcap-object) [...]]\n");
+  }
+    
   /* I should check 
-         getoa(getoa(mathcap,2),0)
+         getoa(getoa(mathcap,1),2)
      contains OX_DATA.
      It has not yet implemented.
   */
-  mathcap = getoa(getoa(mathcap,1),2);
+  mathcapMain = getoa(mathcap,1);
+  if (mathcapMain.tag != Sarray) {
+    fprintf(stderr,"cmoCheckMathCap: mathcap[1] is \n");
+    printObject(mathcapMain,0,stderr);
+    fprintf(stderr,"\n");
+    errorOxmisc2("cmoCheckMathCap: format error in the (client->mathcapObjp)[1] field. It should be an array.\n");
+  }
+  if (getoaSize(mathcapMain) < 3) {
+    fprintf(stderr,"cmoCheckMathCap: mathcap[1] is \n");
+    printObject(mathcapMain,0,stderr);
+    fprintf(stderr,"\n");
+    errorOxmisc2("cmoCheckMathCap: format error in the (client->mathcapObjp)[1] field. It should be an array of which length is more than 2.\n");
+  }
+  mathcap = getoa(mathcapMain,2);
   n = getoaSize(mathcap);
   if (n < 2) {
     fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
