@@ -1,4 +1,4 @@
-%%$OpenXM: OpenXM/doc/calc2000/ox-messages.tex,v 1.1.1.1 2000/04/24 04:20:11 noro Exp $
+%%$OpenXM: OpenXM/doc/calc2000/ox-messages.tex,v 1.2 2000/04/24 05:01:29 noro Exp $
 
 \section{OX messages}
 
@@ -22,15 +22,13 @@ the establishment of a connection. See Section \ref{secsession} for details.
 The OX messages are classified into three types:
 COMMAND, DATA and SPECIAL.
 We have currently the following general tags for the OX messages.
-\begin{description}
-\item{COMMAND}
-{\tt OX\_COMMAND}
-\item{DATA}
-{\tt OX\_DATA}, {\tt OX\_DATA\_WITH\_LENGTH}, {\tt OX\_DATA\_OPENMATH\_XML},
-
-{\tt OX\_DATA\_OPENMATH\_BINARY} {\tt OX\_DATA\_MP} \item{SPECIAL} {\tt OX\_SYNC\_BALL}
-\end{description}
-
+\begin{tabbing}
+AAAAAAAAA \= \kill
+COMMAND \> {\tt OX\_COMMAND}\\
+DATA \> {\tt OX\_DATA}, {\tt OX\_DATA\_WITH\_LENGTH}, {\tt OX\_DATA\_OPENMATH\_XML},\\
+\> {\tt OX\_DATA\_OPENMATH\_BINARY} {\tt OX\_DATA\_MP} \\
+SPECIAL \> {\tt OX\_SYNC\_BALL}
+\end{tabbing}
 A new OX tag may be added.
 The new tag should be classified into DATA or COMMAND.
 For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added recently

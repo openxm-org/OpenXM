@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/calc2000/design-outline.tex,v 1.3 2000/04/24 06:38:27 takayama Exp $
+% $OpenXM: OpenXM/doc/calc2000/design-outline.tex,v 1.4 2000/04/24 07:17:13 noro Exp $
 
 \section{Integration of Mathematical Software} 
 
@@ -7,7 +7,7 @@ integration of software tools has three dimensions:
 data, control, and user interface.
 
 Data integration concerns with the exchange of data between different
-software or same software.
+programs or the same program.
 OpenMath \cite{OpenMath} and MP (Multi Protocol) \cite{GKW} are,
 for example, general purpose mathematical data protocols.
 They provide standard ways to express mathematical objects.
@@ -30,18 +30,20 @@ Although data and control are orthogonal to each other, real world
 requires both. The best way to evaluate and to improve such
 integration schemes is to implement and to use them on various
 plaftforms.  Dalmas et al. \cite{omimp} shows an implementation of
-OpenMath API, where several systems such as Maple, REDUCE and
-AXIOM/Aldor are made as servers.  MP$+$MCP \cite{iamc} shows a design
+OpenMath API, where as Maple, REDUCE and
+AXIOM/Aldor are wrapped as servers.  MP$+$MCP \cite{iamc} shows a design
 of server inferface suited for interactive use and its limited
 implementation on MAXIMA is reported.  Lakshman et al. \cite{pseware}
-proposes functionalities which a server should have and Maple has been
+proposes functionalities which a server should have and Maple is
 encapsulated as a server. These are all attempts to justify thier
 designs of protocols or architectures, but little is shown about their
 practical usefulness, especially for developing real applications of
 distributed computation.
 
 In this paper we propose a unified server interface fitting for both
-interactive use and efficient batch processing. We hope to show its
+interactive use and efficient batch processing. 
+It includes various supports for developing programs on distributed 
+environment. We will show its
 usability by implementing and using it on various platforms.
 
 %NetSolve \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
@@ -107,8 +109,44 @@ usability by implementing and using it on various platforms.
 %fundamental architecture.
 OpenXM (Open message eXchange protocol for Mathematics)
 is a project aiming to integrate data, control and user interfaces
-with the following design goals.
+with design goals motivated by the followng.
 
+\begin{enumerate}
+\item 
+An interface for interactive distributed computations was introduced
+to Risa/Asir in 1995.
+As an application,
+a parallel speed-up was achieved for a Gr\"obner basis computation
+(Noro and McKay \cite{noro-mckay}).
+However, the protocol was local in Asir and we thought that we should
+design an open protocol.
+\item 
+In order to implement algorithms in $D$-modules due to Oaku 
+(see, e.g., \cite{sst-book}),
+Kan/sm1 called Risa/Asir as a UNIX external program to 
+compute factorizations and primary ideal decompositions,
+but the interface code was not clean.
+We thought that it is necessary to provide a data and control protocol
+for Risa/Asir to work as a server.
+
+\item 
+There are increasing number of ``expert'' systems which are useful
+but which have their own interfaces and data formats.
+A unified system integrating such systems
+will be more convenient
+for users who want to explore a new area of mathematics with these
+software tools or users who need these systems only occasionally.
+
+\item  We believe that an open integrated system is a future of mathematical
+software.
+However, it might be just a dream without realizability.
+We want to build a prototype of such an open system by using
+existing standards, technologies and several mathematical software tools.
+We want to see how far we can go with this approach.
+\end{enumerate}
+
+Motivated with these, we started the OpenXM project with the following
+fundamental architecture.
 \begin{enumerate}
 \item Communication is an exchange of messages. The messages are classified into
 three types:
@@ -144,6 +182,10 @@ then the server executes the asir command \\
 \verb+ fctr(x^100-y^100); + 
 (factorize $x^{100}-y^{100}$ over ${\bf Q}$)
 and pushes the result onto the stack.
+\item Network transparent supports for controlling servers are provided.
+For example OpenXM defines a robust reset procedure to restart computations
+without any confusion in I/O buffers.
+It is necessary for debugging programs running on distributed environment.
 \end{enumerate}
 OpenXM package  is implemented on above fundamental architecture.
 Currently the following servers are available in the OpenXM package
