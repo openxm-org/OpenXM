@@ -1,4 +1,4 @@
-all :
+all :   configure_symbolic_links
 	(cd gc; make)
 	(cd gmp; ./configure; make)
 	(cd plugin; make all)
@@ -13,6 +13,12 @@ all2 :
 ### When you make sm1 without the garbage collector, type in make sm1.nogc
 sm1.nogc :
 	(cd Kan; make sm1.nogc)
+
+configure_symbolic_links :
+	ln -s ./gc-4.14 gc
+#	ln -s ./gmp-2.0.2 gmp
+	ln -s ./gmp-2.0.2-ssh-2 gmp
+	ln -s ./Doc lib
 
 ### generate a distribution.
 dist :

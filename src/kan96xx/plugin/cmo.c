@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <netinet/in.h>
+/* #include <netinet/in.h> */
 #include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
