@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.23 2002/08/10 11:12:31 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.24 2002/08/10 23:20:02 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -161,7 +161,7 @@ remove-experimental:
 
 
 gen-cd:
-	-(make all; make remove-experimental)
+	-(make ASIR_LANG=${ASIR_LANG} all; make remove-experimental)
 	-mkdir OpenXM-unix
 	cp Readme-CD/readme-unix-en.html OpenXM-unix
 	(cd OpenXM-unix; wget ${WGET_HEAD} )
