@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.12 2004/09/11 01:00:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.13 2004/09/12 02:37:57 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -744,29 +744,11 @@ int executePrimitive(ob)
       errorStackmachine("Usage:loop");
       break;
     }
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
-    i = 0;
     while (1) {
-      token = tokenArray[i];
-      /***printf("[token %d]%s\n",i,token.token);*/
-      i++;
-      if (i >= size) {
-        i=0;
-      }
-      status = executeToken(token);
+      status = executeExecutableArray(ob1,(char *)NULL);
       if ((status & STATUS_BREAK) || GotoP) break;
       /* here, do not return 1. Do not propagate exit signal outside of the
          loop. */
-	  
-      if (status & STATUS_INFIX) {
-        infixOn = 1; infixToken = token; 
-        infixToken.tflag |= NO_DELAY;  continue;
-      }else if (infixOn) {
-        infixOn = 0; status = executeToken(infixToken);
-        if ((status & STATUS_BREAK) || GotoP) break;
-      }
-
     }
     break;
 
@@ -802,22 +784,8 @@ int executePrimitive(ob)
         */
         for ( ; i<=lim; i += inc) {
           Kpush(KpoInteger(i));
-          tokenArray = ob1.lc.tokenArray;
-          size = ob1.rc.ival;
-          for (j=0; j<size; j++) {
-            status = executeToken(tokenArray[j]);
-            if ((status & STATUS_BREAK) || GotoP) goto xyz;
-
-            if (status & STATUS_INFIX) {
-              if (j == size-1) errorStackmachine("infix operator at the end.\n");
-              infixOn = 1; infixToken = tokenArray[j];
-              infixToken.tflag |= NO_DELAY; continue;
-            }else if (infixOn) {
-              infixOn = 0; status = executeToken(infixToken);
-              if ((status & STATUS_BREAK) || GotoP) goto xyz;
-            }
-
-		  }
+          status = executeExecutableArray(ob1,(char *)NULL);
+          if ((status & STATUS_BREAK) || GotoP) goto xyz;
 		}
       }else{
         /*
@@ -825,22 +793,8 @@ int executePrimitive(ob)
         */
         for ( ; i>=lim; i += inc) {
           Kpush(KpoInteger(i));
-          tokenArray = ob1.lc.tokenArray;
-          size = ob1.rc.ival;
-          for (j=0; j<size; j++) {
-            status = executeToken(tokenArray[j]);
-            if ((status & STATUS_BREAK) || GotoP) goto xyz;
-
-            if (status & STATUS_INFIX) {
-              if (j == size-1) errorStackmachine("infix operator at the end.\n");
-              infixOn = 1; infixToken = tokenArray[j];
-              infixToken.tflag |= NO_DELAY; continue;
-            }else if (infixOn) {
-              infixOn = 0; status = executeToken(infixToken);
-              if ((status & STATUS_BREAK) || GotoP) goto xyz;
-			}
-
-          }
+          status = executeExecutableArray(ob1,(char *)NULL);
+          if ((status & STATUS_BREAK) || GotoP) goto xyz;
         }
       }
     xyz:  ;
@@ -871,22 +825,8 @@ int executePrimitive(ob)
 
     for (i=0; i<osize; i++) {
       Kpush(getoa(ob1,i));
-      tokenArray = ob2.lc.tokenArray;
-      size = ob2.rc.ival;
-      for (j=0; j<size; j++) {
-        status = executeToken(tokenArray[j]);
-        if (status & STATUS_BREAK) goto foor;
-
-        if (status & STATUS_INFIX) {
-          if (j == size-1) errorStackmachine("infix operator at the end(map).\n");
-          infixOn = 1; infixToken = tokenArray[j];
-          infixToken.tflag |= NO_DELAY; continue;
-        }else if (infixOn) {
-          infixOn = 0; status = executeToken(infixToken);
-          if ((status & STATUS_BREAK) || GotoP) goto foor;
-        }
-
-      }
+      status = executeExecutableArray(ob2,(char *)NULL);
+      if ((status & STATUS_BREAK) || GotoP) goto foor;
     }
     foor: ;
     /*KSexecuteString("]");*/
@@ -935,24 +875,9 @@ int executePrimitive(ob)
       ob1 = ob2;
     }
     /* execute ob1 */
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
-    for (i=0; i<size; i++) {
-      token = tokenArray[i];
-      status = executeToken(token);
-      if (status & STATUS_BREAK) return(status);
+    status = executeExecutableArray(ob1,(char *)NULL);
+    if (status & STATUS_BREAK) return(status);
 
-      if (status & STATUS_INFIX) {
-        if (i == size-1) errorStackmachine("infix operator at the end(if).\n");
-        infixOn = 1; infixToken = tokenArray[i];
-        infixToken.tflag |= NO_DELAY; continue;
-      }else if (infixOn) {
-        infixOn = 0; status = executeToken(infixToken);
-        if (status & STATUS_BREAK) return(status);
-      }
-
-    }
-    
     break;
 
   case Sexec:
@@ -962,24 +887,7 @@ int executePrimitive(ob)
     case SexecutableArray: break;
     default: errorStackmachine("Usage:exec");
     }
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
-    for (i=0; i<size; i++) {
-      token = tokenArray[i];
-      /***printf("[token %d]%s\n",i,token.token);*/
-      status = executeToken(token);
-      if (status & STATUS_BREAK) break;
-
-      if (status & STATUS_INFIX) {
-        if (i == size-1) errorStackmachine("infix operator at the end(exec).\n");
-        infixOn = 1; infixToken = tokenArray[i];
-        infixToken.tflag |= NO_DELAY; continue;
-      }else if (infixOn) {
-        infixOn = 0; status = executeToken(infixToken);
-        if (status & STATUS_BREAK) break;
-      }
-
-    }
+	status = executeExecutableArray(ob1,(char *)NULL);
     break;
 
     /* Postscript primitives :dictionary */    
@@ -1559,27 +1467,12 @@ int executePrimitive(ob)
     }
     /* normal exec. */ 
     Kpush(ob2);
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
-    for (i=0; i<size; i++) {
-      token = tokenArray[i];
-      status = executeToken(token);
-      if (status & STATUS_BREAK) break;
+    status = executeExecutableArray(ob1,(char *)NULL);
 
-      if (status & STATUS_INFIX) {
-        if (i == size-1) errorStackmachine("infix operator at the end(sendmsg).\n");
-        infixOn = 1; infixToken = token;
-        infixToken.tflag |= NO_DELAY; continue;
-      }else if (infixOn) {
-        infixOn = 0; status = executeToken(infixToken);
-        if (status & STATUS_BREAK) break;
-      }
-
-    }
     if (ccflag) {
       contextControl(CCPOP); ccflag = 0; /* recover the Current context. */
     }
-    
+
     break;
   case Ssendmsg2:
     /* ob2 ob4 { .........} sendmsg2 */
@@ -1616,6 +1509,9 @@ int executePrimitive(ob)
     }
     /* normal exec. */ 
     Kpush(ob2); Kpush(ob4);
+
+    /* We cannot use executeExecutableArray(ob1,(char *)NULL) because of
+       the quote mode. Think about it later. */
     tokenArray = ob1.lc.tokenArray;
     size = ob1.rc.ival;
     for (i=0; i<size; i++) {
@@ -1683,24 +1579,7 @@ int executePrimitive(ob)
     contextControl(CCPUSH); ccflag = 1;
     CurrentContextp = PrimitiveContextp;
     /* normal exec. */ 
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
-    for (i=0; i<size; i++) {
-      token = tokenArray[i];
-      status = executeToken(token);
-      if (status & STATUS_BREAK) break;
-
-      if (status & STATUS_INFIX) {
-        if (i == size-1) errorStackmachine("infix operator at the end(primmsg).\n");
-        infixOn = 1; infixToken = tokenArray[i];
-        infixToken.tflag |= NO_DELAY; continue;
-      }else if (infixOn) {
-        infixOn = 0; status = executeToken(infixToken);
-        if (status & STATUS_BREAK) break;
-      }
-
-    }
-
+    status = executeExecutableArray(ob1,(char *)NULL);
     contextControl(CCPOP); /* recover the Current context. */
     break;
 
@@ -1745,23 +1624,7 @@ int executePrimitive(ob)
     }
     /* normal exec. */ 
     Kpush(ob2); Kpush(ob4);
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
-    for (i=0; i<size; i++) {
-      token = tokenArray[i];
-      status = executeToken(token);
-      if (status & STATUS_BREAK) break;
-
-      if (status & STATUS_INFIX) {
-        if (i == size-1) errorStackmachine("infix operator at the end(supmsg).\n");
-        infixOn = 1; infixToken = tokenArray[i];
-        infixToken.tflag |= NO_DELAY; continue;
-      }else if (infixOn) {
-        infixOn = 0; status = executeToken(infixToken);
-        if (status & STATUS_BREAK) break;
-      }
-
-    }
+    status = executeExecutableArray(ob1,(char *)NULL);
     if (ccflag) {
       contextControl(CCPOP); ccflag = 0; /* recover the Current context. */
     }
@@ -1829,46 +1692,15 @@ int executePrimitive(ob)
       errorStackmachine("Usage:tlimit");
       break;
     }
-    tokenArray = ob1.lc.tokenArray;
-    size = ob1.rc.ival;
 	n = ob2.lc.ival;
-    i = 0;
 	if (n > 0) {
 	  signal(SIGALRM,ctrlC); alarm((unsigned int) n);
-	  for (i=0; i<size; i++) {
-		token = tokenArray[i];
-		status = executeToken(token);
-		if (status & STATUS_BREAK) break;
-
-        if (status & STATUS_INFIX) {
-          if (i == size-1) errorStackmachine("infix operator at the end(tlimit).\n");
-          infixOn = 1; infixToken = tokenArray[i];
-          infixToken.tflag |= NO_DELAY; continue;
-        }else if (infixOn) {
-          infixOn = 0; status = executeToken(infixToken);
-          if (status & STATUS_BREAK) break;
-        }
-
-	  }
+      status = executeExecutableArray(ob1,(char *)NULL);
 	  cancelAlarm();
 	}else{
       before_real = time(&before_real);
       times(&before);
-	  for (i=0; i<size; i++) {
-		token = tokenArray[i];
-		status = executeToken(token);
-        if (status & STATUS_BREAK) break;
-
-        if (status & STATUS_INFIX) {
-          if (i == size-1) errorStackmachine("infix operator at the end(tlimit).\n");
-          infixOn = 1; infixToken = tokenArray[i];
-          infixToken.tflag |= NO_DELAY; continue;
-        }else if (infixOn) {
-          infixOn = 0; status = executeToken(infixToken);
-          if (status & STATUS_BREAK) break;
-        }
-
-	  }
+      status = executeExecutableArray(ob1,(char *)NULL);
       times(&after);
       after_real = time(&after_real);
 	  ob1 = newObjectArray(3);
