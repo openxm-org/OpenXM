@@ -1,0 +1,359 @@
+diff -ur gnuplot-3.7.orig/plot.c gnuplot-3.7/plot.c
+--- gnuplot-3.7.orig/plot.c	Thu Dec 10 00:24:14 1998
++++ gnuplot-3.7/plot.c	Mon Nov 15 06:25:57 1999
+@@ -42,6 +42,23 @@
+ #include "fnproto.h"
+ #include <setjmp.h>
+ 
++/* TAKAYAMA Nobuki */
++#include <sys/types.h>
++#include <sys/socket.h>
++#include <sys/time.h>
++#include <netinet/in.h>
++#include <netdb.h>
++
++FILE *openTCP		__P((char *));
++
++int socketConnect	__P((char *, int));
++int socketOpen		__P((char *, int));
++int socketAccept	__P((int));
++
++int oxSocketSelect0	__P((int, int));
++int oxSocketMultiSelect	__P((int *, int, int, int *));
++/* END */
++
+ #if defined(MSDOS) || defined(DOS386) || defined(__EMX__)
+ # include <io.h>
+ #endif
+@@ -271,6 +288,7 @@
+ int argc;
+ char **argv;
+ {
++    FILE *fp;
+ #ifdef LINUXVGA
+     LINUX_setup();
+ #endif
+@@ -474,8 +492,12 @@
+ 
+ 		/* interactive = FALSE; /* should this be here? */
+ 
+-	    } else
+-		load_file(fopen(*argv, "r"), *argv, FALSE);
++	    } else {
++		fp = openTCP(*argv);
++		load_file(fp, *argv, FALSE);
++		fprintf(stderr, "gnuplot : EOF or there was an error"
++				"in the input stream.\n");
++	    }
+ 	}
+ #ifdef _Windows
+ 	if (noend) {
+@@ -672,3 +694,308 @@
+     return 0;
+ }
+ #endif
++
++/*
++ * TAKAYAMA Nobuki
++ */
++FILE *
++openTCP(name)
++	char *name;
++{
++	FILE *fp;
++	int fd, port, reverse = 0;
++
++	fprintf(stderr, "openTCP port number : %s\n", name);
++
++	if (name[0] == 'r') {
++		fprintf(stderr, "openTCP : trying to reverse connetion.\n");
++		reverse = 1;
++		sscanf(&name[1], "%d", &port);
++	} else {
++		sscanf(name, "%d", &port);
++	}
++
++	if (reverse) {
++		fd = socketConnect("localhost", port);
++		fprintf(stderr, "socketConnect is succeded: fd = %d.", fd);
++	} else {
++		fprintf(stderr, "Port number is %d.\n", port);
++		fd = socketOpen("localhost", port);
++		fprintf(stderr, "socketOpen is succeded: fd = %d.", fd);
++		fd = socketAccept(fd);
++	}
++
++	fprintf(stderr, "\n Port %d : Connected.\n", port);
++	fp = fdopen(fd, "r");
++
++	return(fp);
++}
++
++#define	READBUFSIZE	10000
++
++FILE *TcpioError = stderr;
++int OpenedSocket = 0, Quiet = 0;
++
++int
++socketConnect(serverName, portNumber)
++	char *serverName;
++	int portNumber;
++{
++	struct hostent *servhost;
++	struct sockaddr_in serv;
++	int socketid, on;
++
++	if ((servhost = gethostbyname(serverName)) == NULL) {
++		fprintf(stderr, "Bad server name.\n\n");
++		return (-1);
++	}
++
++	bzero((void *)&serv, sizeof(serv));
++	serv.sin_family = AF_INET;
++	serv.sin_port = htons(portNumber);
++	bcopy(servhost->h_addr, (void *)&serv.sin_addr, servhost->h_length);
++
++	if ((socketid = socket(AF_INET, SOCK_STREAM, 0)) <0) {
++		fprintf(stderr, "Socket allocation is failed.\n\n");
++		return (-1);
++	}
++
++#if 0 /* XXX */
++	on = 1;
++	setsockopt(socketid, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
++#endif
++
++	if (!Quiet) {
++		fprintf(TcpioError, "Trying to connect port %d, ip=%x\n",
++			ntohs(serv.sin_port), serv.sin_addr);
++	}
++
++	if (connect(socketid, (struct sockaddr *)&serv, sizeof(serv)) == -1) {
++		fprintf(stderr, "cannot connect\n");
++		return (-1);
++	}
++
++	if (!Quiet)
++		fprintf(TcpioError, "connected.\n");
++
++	return(socketid);
++}
++
++int
++socketOpen(serverName, portNumber)
++	char *serverName;
++	int portNumber;
++{
++	static struct hostent *servhost;
++	static struct sockaddr_in serv;
++	static int s_wait;
++	static int on;
++	extern int errno;
++	int tt;
++
++	fprintf(TcpioError, "Hello from open. serverName is %s "
++			    "and portNumber is %d\n", serverName, portNumber);
++
++	if ((servhost = gethostbyname(serverName)) == NULL) {
++		fprintf(stderr, "Bad server name.\n");
++		return (-1);
++	}
++
++	bzero((void *)&serv, sizeof(serv));
++	serv.sin_family = AF_INET;
++	serv.sin_port = htons(portNumber);
++	bcopy(servhost->h_addr, &serv.sin_addr, servhost->h_length);
++
++	if ((s_wait = socket(AF_INET,SOCK_STREAM, 0)) < 0) {
++		fprintf(stderr, "Socket allocation is failed.\n");
++		return (-1);
++	}
++
++	on = 1;
++	setsockopt(s_wait, SOL_SOCKET,SO_REUSEADDR, &on, sizeof(on));
++
++	/* important */
++	if ((tt = bind(s_wait, (struct sockaddr *)&serv, sizeof(serv))) == -1) {
++		fprintf(TcpioError, "bind error. Error no is %d. "
++				    "See /usr/include/sys/errno.h. "
++				    "(asm/errno.h)\n", errno);
++		fprintf(stderr, "cannot bind\n");
++		return (-1);
++	}
++
++#if 0 /* XXX */
++	printf("bind returns %d\n", tt);
++#endif
++
++	tt = sizeof(serv);
++	if (getsockname(s_wait, (struct sockaddr *)&serv, &tt) < 0) {
++		fprintf(TcpioError, "getsockname error. Error no is %d. "
++				    "See /usr/include/sys/errno.h "
++				    "(asm/errno.h).\n", errno);
++		fprintf(stderr, "cannot getsockname\n");
++		return (-1);
++	}
++
++	if (listen(s_wait, 1) < 0) {
++		fprintf(stderr, "Listen failed\n");
++		return (-1);
++	}
++
++	fprintf(TcpioError, "Done the initialization. "
++			    "port =%d\n", ntohs(serv.sin_port));
++	OpenedSocket = ntohs(serv.sin_port);
++
++	return (s_wait);
++}
++
++int
++socketAccept(snum)
++	int snum;
++{
++	int s, news;
++
++	s = snum;
++
++	fprintf(TcpioError, "Trying to accept... ");
++	fflush(TcpioError);
++
++	if ((news = accept(s, NULL, NULL)) < 0) {
++		fprintf(stderr, "Error in accept.\n");
++		return (-1);
++	}
++
++	fprintf(TcpioError, "Accepted.\n");
++	fflush(TcpioError);
++
++	if (close(s) < 0) {
++		fprintf(stderr, "Error in closing the old socket.\n");
++		return (-1);
++	}
++
++	return(news);
++}
++
++int
++oxSocketSelect0(fd, t)
++	int fd, t;
++{
++	fd_set readfds;
++	struct timeval timeout;
++	int debug = 0;
++	extern int errno;
++
++	FD_ZERO(&readfds);
++	FD_SET(fd, &readfds);
++	timeout.tv_sec = 0;
++	timeout.tv_usec = (long)t;
++
++	if (t >= 0) {
++		if (debug) {
++			printf("select t >= 0 for fd = %d\n", fd);
++			fflush(NULL);
++		}
++
++		/* It must be fd + 1!, Not fd. */
++		if (select(fd + 1, &readfds, NULL, NULL, &timeout) < 0) {
++			fprintf(TcpioError, "select (non-block) error. "
++					    "Error no is %d. "
++					    "See /usr/include/sys/errno.h "
++					    "(asm/errno.h).\n", errno);
++			fprintf(stderr, "oxSocketSelect0() : select failed.\n");
++			return (0);
++		}
++
++		if (debug) {
++			printf("Return from select t >= 0 for fd = %d\n", fd);
++			fflush(NULL);
++		}
++	} else {
++		/* block */
++		if (select(fd + 1, &readfds, NULL, NULL, NULL) < 0) {
++			fprintf(TcpioError, "select (block) error. "
++					    "Error no is %d. "
++					    "See /usr/include/sys/errno.h "
++					    "(asm/errno.h).\n", errno);
++			fprintf(stderr, "socketSelect0() : select failed.\n");
++			return (0);
++		}
++	}
++
++	if (FD_ISSET(fd, &readfds)) {
++		return(1);
++	} else {
++		return(0);
++	}
++}
++
++int
++oxSocketMultiSelect(sid, size, t, result)
++	int sid[], size, t, result[];
++{
++	fd_set readfds;
++	struct timeval timeout;
++	int i, fd, p, isdata = 0;
++	extern int errno;
++
++	FD_ZERO(&readfds);
++	timeout.tv_sec = 0;
++	timeout.tv_usec = (long)t;
++
++	fd = 0;
++
++	for (i = 0 ; i < size ; i++) {
++		if (sid[i] >= 0) {
++			p = sid[i];
++			if (p > fd)
++				fd = p;
++			FD_SET(p,&readfds);
++#if 0 /* XXX */
++			printf("p = %d, fd=%d", p, fd);
++#endif
++		}
++	}
++
++#if 0 /* XXX */
++	printf("MultiSelect..\n");
++	fflush(NULL);
++#endif
++
++	if (t >= 0) {
++		/* It must be fd + 1!, Not fd. */
++		if (select(fd + 1, &readfds, NULL, NULL, &timeout) < 0) {
++			fprintf(TcpioError, "Select error. Error no is %d. "
++					    "See /usr/include/sys/errno.h "
++					    "(asm/errno.h).\n", errno);
++			fprintf(stderr, "oxSocketMultiSelect() : "
++					"select failed.\n");
++			return (0);
++		}
++	} else {
++		/* block */
++		if (select(fd + 1, &readfds, NULL, NULL, NULL) < 0) {
++			fprintf(TcpioError, "Select error. Error no is %d. "
++					    "See /usr/include/sys/errno.h "
++					    "(asm/errno.h).\n", errno);
++			fprintf(stderr, "oxSocketMultiSelect() : "
++					"(block) select failed.\n");
++			return (0);
++		}
++	}
++
++#if 0 /* XXX */
++	printf("Done. MultiSelect.\n");
++	fflush(NULL);
++#endif
++
++	for (i = 0 ; i < size ; i++) {
++		p = sid[i];
++		if ((sid[i] >= 0) && FD_ISSET(p, &readfds)) {
++			result[i] = 1;
++			isdata = 1;
++		} else {
++			result[i] = 0;
++		}
++	}
++
++	return (isdata);
++}
