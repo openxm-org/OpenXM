@@ -1,26 +1,25 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.51 1999/12/23 04:02:19 ohara Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.52 1999/12/23 07:03:12 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
 \title{
-1. いいかげんスタイルファイルをかえよう。\\
-2. 意味もない修飾過剰な語句は排除しましょう。
+意味もない修飾過剰な語句は排除しましょう。
 TCP/IP ソケットとか、TCP/IP 実装とか何のこっちゃと思いました。
 }
 
-\author{前 川 将 秀\affil{神戸大学理学部数学科}
+\author{前 川 将 秀\affil{神戸大学理学部}
 		\mail{maekawa@math.sci.kobe-u.ac.jp}
   \and	野 呂 正 行\affil{富士通研究所}
-		\mail{}
-  \and	小 原 功 任\affil{金沢大学理学部計算科学教室}
-		\mail{}
-  \and	奥 谷 行 央\affil{神戸大学大学院自然科学研究科数学専攻}
+		\mail{noro@para.flab.fujitsu.co.jp}
+  \and	小 原 功 任\affil{金沢大学理学部}
+		\mail{ohara@kappa.s.kanazawa-u.ac.jp}
+  \and	奥 谷 行 央\affil{神戸大学大学院自然科学研究科}
 		\mail{okutani@math.sci.kobe-u.ac.jp}
-  \and	高 山 信 毅\affil{神戸大学理学部数学教室}
-		\mail{taka@math.sci.kobe-u.ac.jp}
-  \and	田 村  恭 士\affil{神戸大学大学院自然科学研究科情報メディア科学専攻}
+  \and	高 山 信 毅\affil{神戸大学理学部}
+		\mail{takayama@math.sci.kobe-u.ac.jp}
+  \and	田 村  恭 士\affil{神戸大学大学院自然科学研究科}
 		\mail{tamura@math.sci.kobe-u.ac.jp}
 }
 \art{}
@@ -85,11 +84,13 @@ OpenXM で規定されている TCP/IP 実装によるメッセージはバイトストリームと
 以下のものが定義されている。
 
 \begin{verbatim}
-
-#define	OX_COMMAND	513
-#define	OX_DATA	    514
+#define	OX_COMMAND              513
+#define	OX_DATA	                514
+#define OX_DATA_WITH_LENGTH     521
+#define OX_DATA_OPENMATH_XML    523
+#define OX_DATA_OPENMATH_BINARY 524
+#define OX_DATA_MP              525
 足りないものは追加しましょう。怠けてはダメよ。
-
 \end{verbatim}
 
 ボディの構造はメッセージの種類によって異なる。
@@ -430,11 +431,11 @@ OMproxy という名前で提供されている。
 
 \begin{thebibliography}{99}
 \bibitem{OpenXM-1999}
-野呂正行, 高山信毅.
+野呂正行, 高山信毅:
 {Open XM の設計と実装 --- Open message eXchange protocol for Mathematics},
 1999/11/22
 \bibitem{Ohara-Takayama-Noro-1999}
-小原功任, 高山信毅, 野呂正行.
+小原功任, 高山信毅, 野呂正行:
 {Open asir 入門}, 1999, 数式処理, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
 \end{thebibliography}
 
