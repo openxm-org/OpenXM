@@ -1,7 +1,21 @@
-/* $OpenXM$ */
-/* functions for linear algebra; currently only works for integer matrices. */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.1 2004/04/14 08:25:18 noro Exp $ */
+
+/* functions for linear algebra over Q */
 
 /* dense matrix */
+
+#if 0
+module linalg;
+
+localf random_mat,random_smat,subst_mat,mulsub_mat;
+localf dup_mat,unit_mat,minipoly_mat,reduce_mat,insert_to_base;
+localf mat_to_smat,smat_to_mat,vect_to_svect,random_vect;
+localf mulsub_vect,muladd_vect,dup_vect,mul_smat_vect,mul_svect_vect;
+localf minipoly_cand_mat,minipoly_cand_smat;
+localf reduce_vect,insert_to_sbase,minipoly_check_mat;
+localf minipoly_check_smat,ptozp_mat;
+localf create_basis,sample_mat,jordan_decomp;
+#endif
 
 def random_mat(N,Bound)
 {
@@ -72,22 +86,28 @@ def unit_mat(N)
 
 def minipoly_mat(A)
 {
-	N = size(A)[0];
+	L = ptozp_mat(A);
+	/* A = B/DN */
+	B = L[0]; DN = L[1];
+	N = size(B)[0];
 	E = unit_mat(N);
 	Base = [[E,0,0,1]];
-	Ak = E;
+	Bk = E;
 	for ( K = 1; ; K++ ) {
-		Ak *= A;	
-		R = reduce_mat(Ak,x^K,Base);
+		Bk *= B;	
+		R = reduce_mat(Bk,x^K,Base);
 		if ( !R[0] ) {
 			P = ptozp(R[3]);
 			if ( coef(P,deg(P,x)) < 0 )
 				P = -P;
-			return P;
+			break;
 		} else
 			Base = insert_to_base(R,Base);
 	}
+	/* m_B(x)=P  => m_A(x)=m_B(DN*x) */
+	return ptozp(subst(P,x,DN*x));
 }
+
 
 def reduce_mat(M,P,Base)
 {
@@ -230,13 +250,13 @@ def minipoly_cand_mat(A)
 	AkV = V;
 	for ( K = 1; ; K++ ) {
 		AkV = A*AkV;
-		R = reduce_vect(AkV,x^K,Base);
-		if ( !R[0] ) {
-			P = ptozp(R[2]);
-			if ( coef(P,deg(P,x)) < 0 )
-				P = -P;
-			return P;
-		} else
+			R = reduce_vect(AkV,x^K,Base);
+			if ( !R[0] ) {
+				P = ptozp(R[2]);
+				if ( coef(P,deg(P,x)) < 0 )
+					P = -P;
+				return P;
+			} else
 			Base = insert_to_sbase(R,Base);
 	}
 }
@@ -260,6 +280,13 @@ def minipoly_cand_smat(A)
 			Base = insert_to_sbase(R,Base);
 	}
 }
+
+/* reduce a vector M by a sorted base Base.
+   P is a symbol representing M.
+   returns [M',Head,P'], where Head is the
+   position of the leftmost nonzero element in M',
+   M' is the reduced vector, P' represents M'.
+*/
 
 def reduce_vect(M,P,Base)
 {
@@ -354,4 +381,239 @@ def minipoly_check_smat(S,P)
 	}
 	return 1;
 }
+
+/* A = 1/D*B => return [B,D] */
+
+def ptozp_mat(A)
+{
+	Size = size(A);
+	M = Size[0]; N = Size[1];
+	D = 0; K = 0;
+	for ( I = 0; I < M; I++ )
+		for ( J = 0; J < N; J++ ) {
+			D += A[I][J]*<<K>>; K++;
+		}
+	if ( !D ) {
+		B = matrix(M,N);
+		return [B,1];
+	} else {
+		E = dp_ptozp(D);
+		C = dp_hc(E)/dp_hc(D);
+		return [C*A,C];
+	}
+}
+
+def ptozp_vect(A)
+{
+	M = size(A)[0];
+	D = 0; K = 0;
+	for ( I = 0; I < M; I++ ) {
+		D += A[I]*<<K>>; K++;
+	}
+	if ( !D ) {
+		B = vector(M);
+		return [B,1];
+	} else {
+		E = dp_ptozp(D);
+		C = dp_hc(E)/dp_hc(D);
+		return [C*A,C];
+	}
+}
+
+def create_basis(B)
+{
+	N = length(B);
+	Base = [];
+	for ( K = 0; K < N; K++ ) {
+		AkV = ptozp_vect(B[K])[0];
+		R = reduce_vect(AkV,<<K>>,Base);
+		if ( R[0] )
+			Base = insert_to_sbase(R,Base);
+	}
+	for ( S = [], T = Base; T != []; T = cdr(T) )
+		S = cons(car(T)[0],S);
+	return reverse(S);
+}
+
+def sample_mat(Data)
+{
+	Asis = getopt(asis);
+	/* Data = [[Alpha,M],...] */
+	N = 0;
+	for ( T = Data; T != []; T = cdr(T) )
+		N += car(T)[1];
+	A = matrix(N,N);
+	for ( T = Data, I = 0; T != []; T = cdr(T) ) {
+		B = car(T);
+		Alpha = B[0];
+		M = B[1];
+		for ( J = 0; J < M; J++ ) A[I+J][I+J] = Alpha;
+		for ( J = 1; J < M; J++ ) A[I+J-1][I+J] = 1;
+		I += M;
+	}
+	if ( type(Asis) != -1 )
+		return A;
+
+	P = matrix(N,N);
+	while ( 1 ) {
+		for ( I = 0; I < N; I++ )
+			for ( J = 0; J < N; J++ )
+				if ( (random()%100) > 80 )
+					P[I][J] = 1;
+				else
+					P[I][J] = 0;
+		if ( det(P) ) {
+			Z = invmat(P);
+			return (Z[0]*A*P)/Z[1];			
+		}
+	}
+}
+
+def jordan_decomp(A)
+{
+	N = size(A)[0];
+	M = minipoly_mat(A);
+	FM = fctr(M);
+	/* skip const */
+	FM = cdr(FM);
+	L = length(FM);
+
+	/* extracting roots and multiplicities */
+	Alpha = vector(L);
+	E = vector(L);
+	for ( I = 0; I < L; I++ )
+		if ( deg(F=FM[I][0],x) != 1 ) 
+			error("irrational eigenvalue : not implemented yet");
+		else {
+			Alpha[I] = -coef(F,0,x)/coef(F,1,x);
+			E[I] = FM[I][1];
+		}
+	F = vector(L);
+	M = sdiv(M,coef(M,deg(M,x)));
+	for ( I = 0; I < L; I++ )
+		F[I] = sdiv(M,(x-Alpha[I])^E[I]);
+
+	/* computation of coefficient polys */
+	T = extended_euclid(F);
+	G = T[0]; GCD = T[1];
+	G /= GCD;
+	for ( I = 0; I < L; I++ )
+		G[I] = srem(G[I],(x-Alpha[I])^E[I]);
+
+	/* projection operators */
+	P = vector(L);
+	for ( I = 0; I < L; I++ )
+		P[I] = subst_mat(G[I]*F[I],A);
+#if 0
+	/* for checking projection operators */
+	for ( T = P[0], I = 1; I < L; I++ )
+		T += P[I];
+	print(T);
+	for ( I = 0; I < L; I++ )
+		for ( J = 0; J < L; J++ ) {
+			if ( I == J ) {
+				if ( !zero_mat(P[I]^2-P[I]) )
+				error("cfo");
+			} else if ( !zero_mat(P[I]*P[J])) 
+				error("dfo");
+		}
+#endif
+	/* computation of S, N */
+	S = matrix(N,N);
+	for ( I = 0; I < N; I++ )
+		for ( J = 0; J < N; J++ ) {
+			for ( T = 0, K = 0; K < L; K++ )
+				T += Alpha[K]*P[K][I][J];
+			S[I][J] = T;
+		 }
+	/* computation of Vi */
+	B = [];
+	for ( K = L-1; K >= 0; K-- ) {
+		PK = P[K];
+		BK = mat_to_col(PK);
+		BK = create_basis(BK);
+		B = append(BK,B);
+	}
+	/* computation of transformation matrix */
+	Q = matrix(N,N);
+	for ( J = 0; J < N; J++ ) {
+		V = B[J];
+		for ( I = 0; I < N; I++ )
+			Q[I][J] = V[I];
+	}
+	QI = invmat(Q);
+	return [QI[0]*A*Q/QI[1],Q,QI[0]/QI[1]];
+}
+
+def mat_to_col(A)
+{
+	R = [];
+	N = size(A)[0];
+	for ( J = N-1; J >= 0; J-- ) {
+		T = vector(N);
+		for ( I = 0; I < N; I++ )
+			T[I] = A[I][J];
+		R = cons(T,R);
+	}
+	return R;
+}
+
+def zero_mat(A)
+{
+	S = size(A);
+	M = S[0]; N = S[1];
+	for ( I = 0; I < M; I++ )
+		for ( J = 0; J < N; J++ )
+			if ( A[I][J] ) return 0;
+	return 1;
+}
+
+def extended_euclid2(F,G)
+{
+	F1 = F; F2 = G;
+	A1 = 1; A2 = 0;
+	B1 = 0; B2 = 1;
+	while ( 1 ) {
+		Q = sdiv(F1,F2);
+		F3 = F1-Q*F2;
+		if ( !F3 ) {
+			return [A2,B2,F2];
+		}
+		A3 = A1-Q*A2;
+		B3 = B1-Q*B2;
+		F1 = F2; F2 = F3;
+		A1 = A2; A2 = A3;
+		B1 = B2; B2 = B3;
+	}
+}
+
+def extended_euclid(F)
+{
+	N = size(F)[0];
+	G = vector(N);
+	GCD = F[N-1];
+	G[N-1]=1;
+	for ( I = N-2; I >= 0; I-- ) {
+		/* G[I+1]*F[I+1]+...+G[N-1]*F[N-1]=GCD */
+		/* C[0]*F[I]+C[1]*GCD=C[2] */
+		C = extended_euclid2(F[I],GCD);
+		if ( C[0]*F[I]+C[1]*GCD-C[2] )
+			error("afo");
+		/* C[0]*F[I]+C[1]*G[I+1]*F[I+1]+...+C[1]*G[N-1]*F[N-1]=C[2] */
+		G[I] = C[0];
+		for ( J = I+1; J < N; J++ )
+			G[J] *= C[1];
+		GCD = C[2];
+
+		for ( K = I, T = 0; K < N; K++ )
+			T += G[K]*F[K];
+		if ( T != GCD )
+			error("bfo");
+	}
+	return [G,GCD];
+}
+
+#if 0
+endmodule$
+#endif
 end$
