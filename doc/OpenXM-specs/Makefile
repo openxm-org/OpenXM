@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.6 2000/01/24 07:49:58 noro Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.7 2000/01/24 12:32:49 noro Exp $
 all : doc
 
 OXWEAVE=../../src/kxx/oxweave
@@ -10,29 +10,29 @@ implementation.tex introduction.tex library.tex\
 ox-localdata.tex project.tex redefine.tex\
 stackmachine.tex start-session.tex string-expression.tex
 
-doc: OpenXM-eg.dvi OpenXM-jp.dvi
+doc: OpenXM-en.dvi OpenXM-ja.dvi
 
-OpenXM-eg.dvi: $(OXWEAVE) $(SRC)
-	-rm -rf tmpEG
-	-mkdir tmpEG
-	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C eg < $$i >tmpEG/$$i; done
-	(cd tmpEG; ln -s ../reset.eps .; latex OpenXM; latex OpenXM)
-	-mv tmpEG/OpenXM.dvi OpenXM-eg.dvi
-	touch OpenXM-eg.dvi
+OpenXM-en.dvi: $(OXWEAVE) $(SRC)
+	-rm -rf tmpEN
+	-mkdir tmpEN
+	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C eg < $$i >tmpEN/$$i; done
+	(cd tmpEN; ln -s ../reset.eps .; latex OpenXM; latex OpenXM)
+	-mv tmpEN/OpenXM.dvi OpenXM-en.dvi
+	touch OpenXM-en.dvi
 
-OpenXM-jp.dvi: $(OXWEAVE) $(SRC)
-	-rm -rf tmpJP
-	-mkdir tmpJP
-	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i >tmpJP/$$i; done
-	-(cd tmpJP; ln -s ../reset.eps .; platex OpenXM; platex OpenXM)
-	-mv tmpJP/OpenXM.dvi OpenXM-jp.dvi
-	touch OpenXM-jp.dvi
+OpenXM-ja.dvi: $(OXWEAVE) $(SRC)
+	-rm -rf tmpJA
+	-mkdir tmpJA
+	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i >tmpJA/$$i; done
+	-(cd tmpJA; ln -s ../reset.eps .; platex OpenXM; platex OpenXM)
+	-mv tmpJA/OpenXM.dvi OpenXM-ja.dvi
+	touch OpenXM-ja.dvi
 
 $(OXWEAVE) : $(OXWEAVE).c
 	(cd ../../src/kxx ; make oxweave)
 
 clean :
-	/bin/rm -rf tmpEG tmpJP
-	/bin/rm -f OpenXM-eg.dvi OpenXM-jp.dvi
+	/bin/rm -rf tmpEN tmpJA
+	/bin/rm -f OpenXM-en.dvi OpenXM-ja.dvi
 
 
