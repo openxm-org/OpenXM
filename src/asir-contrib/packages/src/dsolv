@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/dsolv,v 1.5 2000/02/10 07:13:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/dsolv,v 1.6 2000/02/26 11:42:48 takayama Exp $ */
 /* dsolv: Documents are at dsolv.texi */
 load("Diff")$
 load("Dmodule")$
@@ -9,11 +9,13 @@ Dsolv_debug_dual=0$
 Dsolv_message_starting_term=1$
 Dsolv_message_initial=0$
 
-print("Starting ox_sm1 ...",0)$
-sm1_auto_reduce(1)$
-print("Done.")$
-print("All Grobner bases to be computed will be reduced Grobner bases.")$
-
+def dsolv_start() {
+  print("Starting ox_sm1 ...",0)$
+  sm1_auto_reduce(1)$
+  print("Done.")$
+  print("All Grobner bases to be computed will be reduced Grobner bases.")$
+}
+print("Type in dsolv_start(); before using functions in this module.")$
 def dsolv_consw(V,W) {
   N = length(V);
   Ans = [ ];
@@ -390,6 +392,133 @@ def dsolv_test_starting_term_1() {
   return(0);
 }
 
+/* Functions to consruct higher order terms. */
+def dsolv_euler_diff(F,G,VD,VV) {
+  H=getopt(usage);
+  if (type(H) != -1) {
+    /* help message for debugging. */
+    print("dsolv_euler_diff(diff op in terms of euler op, poly, euler op, variables).");
+    print("Example 1: dsolv_euler_diff(s1*s2^2+y1*s1^2,y1^2*y2+y2^3,[s1,s2],[y1,y2])");
+    return 0;
+  }
+  
+  FF = dp_ptod(F,VD);
+  GG = dp_ptod(G,VV);
+  Ans = 0;
+  while (FF != 0) {
+    HT = dp_ht(FF); HC = dp_hc(FF);
+    FF = dp_rest(FF);
+    HT = dp_etov(HT);
+    TT = dsolv_euler_diff_1(HT,GG);
+    Ans += dp_dtop(HC*TT,VV);
+  }
+  return Ans;
+}
 
+def dsolv_pfac_n(HE,E) {
+  if (type(HE) == 4) {
+    N = length(HE);
+  }else{
+    N = size(HE)[0];
+  }
+  A = 1;
+  for (I=0; I<N; I++) {
+    for (J=0; J<E[I]; J++) {
+      A *= HE[I]-J;
+    }
+  }
+  return A;
+}
+
+def dsolv_euler_diff_1(E,F) {
+  /* E is a vector (degree of euler operators) */
+  /* F is a distributive polynomial. */
+  Ans = 0;
+  while (F != 0) {
+    HE = dp_etov(F);
+    Ans += dsolv_pfac_n(HE,E)*dp_hm(F);
+    F = dp_rest(F);
+  }
+  return Ans;
+}
+
+
+def dsolv_d_mult(P,Q,DV,VV) {
+  H = getopt(usage);
+  if (type(H) != -1) {
+    print("dsolv_d_mult(P,Q, d-variables, x-variables)");
+    print("Example: dsolv_d_mult(x*dx^2,x^2,[dx],[x])");
+    return 0;
+  }
+  N = length(DV);
+  Kmax = newvect(N);
+  for (I=0; I<N; I++) {
+    KK = deg(P,DV[I]);
+    KK2 = deg(Q,VV[I]);
+    if (KK > KK2) {
+      KK = KK2;
+    }
+    Kmax[I] = KK+1;
+  }
+  K = newvect(N);
+  Ans = 0;
+  while (K[0] < Kmax[0]) {
+    PP = P;
+    QQ = Q;
+    for (I=0; I<N; I++) {
+       PP = dsolv_diff(PP,DV[I],K[I]);
+       QQ = dsolv_diff(QQ,VV[I],K[I]);
+    }
+    Ans += PP*QQ*(1/dsolv_pfac_n(K,K));
+    dsolv_increase_vect(K,Kmax,N);
+  }  
+  return Ans;
+}
+
+def dsolv_diff(F,X,M) {
+  for (I=0; I<M; I++) {   
+     F = diff(F,X);
+  }
+  return F;
+}
+def dsolv_increase_vect(K,Kmax,N) {
+  for (I=N-1; I>=0; I--) {
+     K[I]++;
+     if (K[I] >= Kmax[I] && I != 0) {
+       K[I] = 0;
+       dsolv_increase_vect(K,Kmax,I);
+       return ;
+     }else{
+       return;
+     }
+  }
+}
+
+def dsolv_homogeneous_base(W,K,V,B) {
+  H = getopt(usage);
+  if (type(H) != -1) {
+    print("dsolv_homogeneous_base(weight W, degree K, variables V, bases B)");
+    print("It returns a set of exponents E such that W-degree of B^E is equal");
+    print("to K.");
+    print("Example:  dsolv_homogeneous_base([1,1,1,1,0],6,[x1,x2,x3,x4,x5],[x1*x3/(x2*x5),(x2*x4)/x2^5])");
+  }
+
+  N = length(V);
+  M = legnth(B);
+  WB = newvect(M);
+  for (I=0; I<M; I++) {
+    WB[I] = 0;
+    F = nm(B[I]);
+    for (J=0; J<N; J++) {
+      WB[I] += deg(F,V[J])*W[J];
+    }
+    F = dn(B[I]);
+    for (J=0; J<N; J++) {
+      WB[I] -= deg(F,V[J])*W[J];
+    }
+  }
+  NOT_YET ;  
+
+}
 
 end$
