@@ -1,0 +1,35 @@
+% $OpenXM$
+\documentclass{slides}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{epsfig}
+%{\color{red} Asir}
+\begin{document}
+\parskip 3pt
+\fbox{{\huge \color{blue} We Are Efficient}}
+
+\noindent
+{\color{red} OpenXM on MPI --- to achieve real speedup by parallelism}
+
+A process can communicate with any other process on MPI
+$\Rightarrow$ {\color{green} Collective operations}
+
+{\color{green} ox\_bcast} broadcasts data from the root process to all other
+processes.
+
+{\color{green} ox\_collect} reduces  data of all processes in the root process.
+
+\noindent
+{\color{red} An example} :
+the product of two dense univariate polynomials with 3000bit coefficients
+
+{\color{green} Algorithm} : FFT + Chinese Remainder
+
+{\color{green} Parallel computing time} : $O((n\log n)/L+n\log L)$
+
+($L$: number of processes, $n$: degree)
+
+\epsfxsize=17cm
+\epsffile{3k.ps}
+
+\end{document}
