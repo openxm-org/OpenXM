@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.3/Makefile,v 1.5 2000/09/25 07:12:44 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.3/Makefile,v 1.6 2000/10/28 16:05:58 maekawa Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.3
 ## For debugging. 
@@ -37,6 +37,7 @@ MASTER_SITES= ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/1.1.3/
 
 MAINTAINER= takayama@math.sci.kobe-u.ac.jp
 
+.include <bsd.port.pre.mk>
 BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 	            platex:${PORTSDIR}/japanese/platex-euc \
 				xdvi:${PORTSDIR}/japanese/xdvik-vflib \
@@ -59,6 +60,10 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 ### However, xdvi itself does not work fine: try to generate pkfonts that 
 ### already exist.
 ### Unfortunately, japanese/vfxdvik is empty (2000, 3/4).
+
+.if ${OSVERSION} >= 400000
+BUILD_DEPENDS += bison:${PORTSDIR}/devel/bison
+.endif
 
 RUN_DEPENDS=/compat/linux/usr/i486-linux-libc5/lib/libc.so.5:${PORTSDIR}/emulators/linux_base \
 		java:${PORTSDIR}/java/jdk \
@@ -83,4 +88,4 @@ post-install :
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk
 ## make -d A
-.include <bsd.port.mk>
+.include <bsd.port.post.mk>
