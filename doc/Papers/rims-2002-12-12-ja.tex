@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/Papers/rims-2002-12-12-ja.tex,v 1.1 2002/12/02 02:17:50 takayama Exp $
 % It was under misc-2002/12, 
 %Id: rims-2003-12.tex,v 1.10 2002/12/02 02:14:55 taka Exp $
 % Some .gif files are under misc-2002/12.
@@ -250,7 +250,12 @@ OpenXM のスローガンである.
 
 シャープのザウルス SL-A300 
 で Risa/Asir が不完全ながら動作している.
-SL-A300 ではEmbedix という Linux を搭載している.
+SL-A300 は Intel の Arm 系 CPU Xscale(PXA210 200MHz)を搭載し,
+Lineo の Embedix という Linux を OS に持つ.
+メモリは 64MB 搭載しているが, カーネルのコンフィグレーション
+によってプログラム側から利用可能なのは 36MB で, 
+残り 28MB はストレージ用に設定されている.
+
 GC と整数計算のためのマシン語プログラムの部分の移植が問題であったが,
 GC についてはすでに開発グループ (H-J. Boehm, A. J. Demers)
 が Xscale CPU に対応していた.
@@ -258,6 +263,32 @@ GC についてはすでに開発グループ (H-J. Boehm, A. J. Demers)
 コード \\ 
 {\tt OpenXM\_contrib2/asir2000/asm/asmalpha.c}
 を用いた.
+実際のコンパイル作業は以下のように行った.
+\begin{enumerate}
+\item PC Linux 上で Arm 用のクロスコンパイル環境を構築
+\item asir の configure がクロスコンパイル環境に対応していないので,
+PC 用の Makefile を作成後, 手動で Arm 用に修正
+\item GC は configure もクロスコンパイル環境に対応しているのでそれを利用
+\item 整数計算はアセンブラを使わずポータブルコードを利用するよう修正
+\item char が default で unsigned char なので gcc は -fsigned-char
+オプションをつけて使用
+\end{enumerate}
+
+使用してみた感想は意外に速い(Pentium 200MHzくらい?).
+入力フロントエンドの fep もコンパイルでき利用できている.
+メモリは少し大きな計算だと不足するが, これは SD カード上
+にスワップファイルを作成することで対処可能.
+デフォルトでは cpp がインストールされていないため,
+ファイルの load ができないが, 
+zgcc(ザウルスセルフコンパイル用 gcc)の配布に cpp が同梱
+されているので, それを利用すればよい.
+
+既知の問題としては, サスペンド・レジューム後にAsirが
+起動不可になるという現象が起きている.
+しかし, これについては Embedix カーネルのバグ
+(zero page をサスペンドのワークエリアにしてしまう)
+であることがわかったので, 強制的にゼロクリアする
+補助プログラムをこちらで準備する予定である.
 
 \rightline{開発: 藤本}
 
@@ -318,10 +349,12 @@ sm1 では {\tt ctrlC-hook } 関数で登録する.
 \section{OpenXM のフロントエンド}
 
 Infty Editor は九州大学の鈴木らが中心となり開発している
-手書き数式の入力機能ももつエディターである.
-このエディターから OpenXM サーバをよびだす機能が
+手書きによる数式入力機能をもつ Windows 用エディターである.
+このエディターから OpenXM サーバを呼び出す機能が
 藤本により設計実装された.
-詳しい報告は \cite{fujimoto}.
+エディター内で入力された数式の計算だけでなく,
+Asir 言語もサポートしている.
+詳しい報告は本研究集会の藤本の講演及び\cite{fujimoto}を参照.
 
 \rightline{開発: 藤本}
 
