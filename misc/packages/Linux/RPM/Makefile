@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.6 2000/03/15 14:19:56 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.7 2000/03/16 06:40:41 takayama Exp $
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
 # 0. Generate ~/.rpmrc and set the TopDir for the work.
@@ -51,7 +51,7 @@ build-binary-rpm: openxm-binary-spec
 	(cd work/SPECS ; rpm -bb openxm-binary.spec )
 
 build-shared-rpm: openxm-shared-spec
-	(cd work/SPECS ; rpm -bb openxm-shared.spec )
+	(cd work/SPECS ; rpm --buildarch noarch -bb openxm-shared.spec )
 
 ## This is obsolete
 build-rpm: openxm-spec
