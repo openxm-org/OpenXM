@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile,v 1.8 2000/01/19 06:18:51 noro Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile,v 1.9 2000/01/19 18:36:19 ohara Exp $
 
 OpenXM_HOME = ../..
 CFLAGS      = -g -O2 -DDEBUG -I${OpenXM_HOME}/src/gmp
@@ -55,7 +55,9 @@ bnf-jp: bnf.oxweave
 bnf-eg: bnf.oxweave
 	${OXWEAVE} en common < bnf.oxweave > bnf-eg
 
-install:
+install: install-document
+
+install-binary:
 	@echo "No binaries are installed."
 
 install-for-debug:
