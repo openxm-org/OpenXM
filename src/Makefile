@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.146 2004/12/07 15:26:41 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.147 2004/12/14 17:11:25 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -174,13 +174,13 @@ clean:
 	-@for i in OpenMath asir-contrib asir-doc asir2000 gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc tigers \
 	           util ${OpenXM_contrib2}/fep ; do \
-		(cd $i; ${MAKE} clean); \
+		(cd $$i; ${MAKE} clean); \
 	done
 
 distclean: clean
 	-@for i in OpenMath asir2000 gc gmp gnuplot kan96xx kxx ox_math \
 	           ox_toolkit oxc pari phc tigers uuencoded ; do \
-		(cd $i; ${MAKE} distclean); \
+		(cd $$i; ${MAKE} distclean); \
 	done
 	-(cd ${BINDIR} && rm -f  d0 k0 ox ox_sm1 oxlog oxweave sm1)
 	-(cd ${LIBDIR} && rm -rf k097 sm1)
@@ -257,3 +257,8 @@ install-for-debug:
 	(cd kxx; ${MAKE} install-for-debug)
 	(cd k097; ${MAKE} install-for-debug)
 	(cd ${BINDIR}; rm -f asir; ln -s ../../OpenXM_contrib2/asir2000/asir .)
+
+fetch:
+	-@for i in gc gmp gnuplot pari tigers; do \
+		(cd $$i && ${MAKE} fetch); \
+	done
