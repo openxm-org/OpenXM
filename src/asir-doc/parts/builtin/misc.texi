@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.7 2001/03/12 05:01:18 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.8 2001/07/23 02:28:17 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -1007,7 +1007,7 @@ of the install directory.
 @findex getopt
 
 @table @t
-@item getopt(@var{key})
+@item getopt([@var{key}])
 \JP :: オプションの値を返す. 
 \EG :: Returns the value of an option.
 @end table
@@ -1025,6 +1025,11 @@ of the install directory.
 可変個引数を実現する方法の一つとして, オプションによる引数の指定
 がある (@pxref{オプション指定}). 指定されたオプションを関数内で
 受け取るためにこの関数を用いる. 
+@item
+無引数で呼び出された場合, @code{getopt()} は 
+@code{[[key1,value1],[key2,value2],...]} なるリストを返す. 
+ここで, @code{key} は関数呼び出し時に指定されたオプション, @code{value}
+はその値である. 
 @item
 関数呼び出しの際に @var{key} がオプションとして指定されている
 場合には, その値を返す. もし指定がない場合には, VOID 型オブジェクト
@@ -1047,6 +1052,11 @@ must be equal to that in the declaration of the function.
 A function with indefinite number of arguments can be realized
 by using @var{options} (@pxref{option}).        
 The value of a specified option is retrieved by @code{getopt}.
+@item
+If @code{getopt()} is called with no argument, then it returns a list
+@code{[[key1,value1],[key2,value2],...]}.  In the list, each @code{key}
+is an option which was specified when the function executing @code{getopt}
+was invoked, and @code{value} is the value of the option.
 @item
 If an option @var{key} is specified upon a function call, @code{getopt}
 return the value of the option. If such an option is not specified,
