@@ -1,0 +1,118 @@
+.C $OpenXM$
+.TH SM1 1 "28 February 2000"
+.SH NAME
+sm1 \-  Computer algebra system for the ring of differential operators
+.SH SYNOPSIS
+.B sm1
+.RB [ -f 
+.IR filename ]
+.RB [ -standardmacros ]
+.RB [ -q ]
+.RB [ -s
+.IR command strings ]
+
+.SH DESCRIPTION
+The system kan/sm1 is a Grobner engine specialized especially
+to the ring of differential operators with a subset of
+Postscript language.
+It is designed to be a back-end engine for a 
+heterotic distributed computing system.
+However, it is not difficult to control kan/sm1 directly.
+Its basic data types are
+.TP
+integers, polynomials (differential operators)
+.PP
+and lists.
+
+
+.SH OPTIONS
+The following command line options are available:
+.TP
+.B \-f " filename"
+Execute a file. Do not start with an interactive mode.
+.TP
+.B \-standardmacros
+Do not execute startup macros.
+.TP
+.B \-q
+Quiet mode. 
+.TP
+.BI \-s " command string"
+Upon startup, sm1 executes the command string.
+
+.SH USE
+.TP
+.B ?
+to get a list of primitives.
+.TP
+.B ??
+to get a list of standard macros.
+.TP
+.B quit
+(or \\q), or
+.B EOF
+(Ctrl-D) to quit
+.TP
+.B A sample input:
+.TP
+(cohom.sm1) run
+.TP
+[[ (x Dx + y Dy + 1) (x Dx y Dy-4) ] [(x) (y)] [[(Dy) 1]]] gb ::
+.TP
+
+.SH MANUALS
+The following material is included in the standard distribution (originally
+in TeX format) in the Doc directory:
+.TP
+.I The kan/sm1 Operators reference
+(onlinehelp.dvi)
+.TP
+.I Kan/sm1, a tutorial
+(ttt.dvi):
+
+.SH FILES
+.TP
+.I sm1
+main executable
+.I lib/*.sm1
+library files
+
+.SH PRIMARY FTP SITE
+The most recent distributions can be found at
+.RS
+.I ftp://ftp.math.sci.kobe-u.ac.jpr/pub/OpenXM/*/OpenXM01.tgz
+.RE
+
+Tips, development and info are found at
+OpenXM home page,
+.RS
+.I http://www.math.sci.kobe-u.ac.jp/OpenXM or kan
+.RE
+This cite will be moved to
+.RS
+.I http://www.openxm.org/kan
+.RE
+in a future.
+
+
+.SH Mails
+Questions, comments and bug reports should be sent to
+.IR kan@math.sci.kobe-u.ac.jp
+Fixes are welcome too !
+
+.SH AUTHOR
+Kan/sm1 was originally written and is maintained by 
+Nobuki Takayama (Kobe University).
+
+.SH SEE ALSO
+.IR asir (1),
+.IR gap (1),
+.IR maple (1),
+.IR mathematica (1),
+.IR tex (1),
+.IR xdvi(1)
+
+.SH COPYING
+Kan/sm1 follows a BSD-like copyright.
+See the COPYRIGHT file in the
+distribution OpenXM/Copyright.
