@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.7 2000/03/04 04:34:22 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.8 2000/03/04 05:01:18 takayama Exp $
 
 ## For debugging. 
 #DISTDIR=$(HOME)/tmp
@@ -44,13 +44,16 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 
 RUN_DEPENDS=    
 
+pre-install:
+	-/bin/rm -rf ${PREFIX}/OpenXM
+
 post-install :
 # Reguild shell files to start binaries and copy it to ${PREFIX}/bin
 #    Modify pkg/INSTALL, too.
 	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
 	-gzip ${PREFIX}/man/man1/*
-	echo "Take asir key following the instruction appearing in the starting message of asir."
+	-cat pkg/MESSAGE
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk
 ## make -d A
