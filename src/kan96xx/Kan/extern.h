@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.21 2004/08/31 05:30:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.22 2004/09/04 11:25:58 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -231,6 +231,8 @@ struct object test(struct object ob);
 struct object Kextension(struct object ob);
 struct object KgbExtension(struct object ob);
 struct object KmpzExtension(struct object ob);
+struct object Krest(struct object ob);
+struct object Kjoin(struct object ob1, struct object ob2);
 
 /** Utilities */
 char *KremoveSpace(char *s);

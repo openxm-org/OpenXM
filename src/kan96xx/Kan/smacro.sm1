@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Kan/smacro.sm1,v 1.3 2004/05/13 05:33:10 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Kan/smacro.sm1,v 1.4 2004/09/04 11:25:58 takayama Exp $
 %%%%%% global control variables
 %%  /@@@.quiet 0 def  It is defined in scanner().
 /@@@.Dsymbol (D) def
@@ -124,13 +124,7 @@
 % v1 v2 join
 /join {
  /arg2 set /arg1 set
- [/v1 /v2] pushVariables
- /v1 arg1 def /v2 arg2 def
- [
-   [v1 aload pop v2 aload pop] /arg1 set
- ] pop
- popVariables
- arg1
+ [(Kjoin) arg1 arg2] extension
 } def
 
 /n.map 0 def  /i.map 0 def /ar.map 0 def /res.map 0 def  %% declare variables

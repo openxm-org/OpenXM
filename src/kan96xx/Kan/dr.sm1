@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.33 2004/08/31 05:30:20 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.34 2004/09/01 05:06:09 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -1929,8 +1929,8 @@ newline
 } def
 %%end of function
 
-/rest { % returns remainder of a given list
-  [ 2 1 roll  aload length -1 roll pop ]
+/rest {
+  /arg1 set [(Krest) arg1] extension 
 } def
 [(rest)
  [(array rest the-rest-of-the-array)

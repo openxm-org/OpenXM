@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.29 2004/08/31 05:30:20 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.30 2004/09/04 11:25:58 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2946,6 +2946,41 @@ struct object KdefaultPolyRing(struct object ob) {
 }
   
   
+struct object Krest(struct object ob) {
+  struct object rob;
+  struct object *op;
+  int n,i;
+  if (ob.tag == Sarray) {
+    n = getoaSize(ob);
+    if (n == 0) return ob;
+    rob = newObjectArray(n-1);
+    for (i=1; i<n; i++) {
+      putoa(rob,i-1,getoa(ob,i));
+    }
+    return rob;
+  }else if (ob.tag == Slist) {
+    errorKan1("%s\n","Krest: it has not yet been implemented.");
+  }else{
+    errorKan1("%s\n","Krest(ob): ob must be an array or a list.");
+  }
+}
+struct object Kjoin(struct object ob1, struct object ob2) {
+  struct object rob;
+  int n1,n2,i;
+  if ((ob1.tag == Sarray) &&  (ob2.tag == Sarray)) {
+    n1 = getoaSize(ob1); n2 = getoaSize(ob2);
+    rob = newObjectArray(n1+n2);
+    for (i=0; i<n1; i++) {
+      putoa(rob,i,getoa(ob1,i));
+    }
+    for (i=n1; i<n1+n2; i++) {
+      putoa(rob,i,getoa(ob2,i-n1));
+    }
+    return rob;
+  }else{
+    errorKan1("%s\n","Kjoin: arguments must be arrays.");
+  }
+}
   
   
 
