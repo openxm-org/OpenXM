@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/povray.rr,v 1.5 2001/03/11 08:11:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/povray.rr,v 1.6 2001/06/29 09:47:19 takayama Exp $ */
 
 /* This is an experimental asir program to model
    z=f(x,y) for povray.
@@ -148,15 +148,15 @@ def povray_spheres(Fp,Slist) {
 
 */
 
-def povray_plane(Fp) {
+def povray_plane(Fp,Dist) {
 NL=asciitostr([10]);
 S=
 "plane {"+NL+
-"  <0,1,0>,0"+NL+
+"  <0,1,0>,"+rtostr(Dist)+NL+
 "  pigment {"+NL+
 "    checker"+NL+
-"      color Orange"+NL+
-"      color Green"+NL+
+"      color Yellow"+NL+
+"      color Blue"+NL+
 "    scale 5"+NL+
 "  }"+NL+
 "  finish {"+NL+
@@ -254,7 +254,7 @@ def test_mesh2() {
       }
     }
     povray_prolog("t.pov",0,0);
-    povray_plane(0);
+    povray_plane(0,0);
     povray_mesh(0,Mesh);
     povray_epilog(0);
     print("See the picture by  ")$
@@ -282,15 +282,25 @@ def povray_render(F)  {
 #define YMIN (-1)
 #define ZMAX 5
 #define ZMIN (-5)
-Povray_bound_zmin = 2*ZMIN$
-Povray_bound_zmax = 2*ZMAX$
+Povray_bound_zmin = 2*ZMIN $  /* Need space before $. 
+                                 Otherwise, some preprocessors
+                                 cannot replace ZMIN by the value. */
+Povray_bound_zmax = 2*ZMAX $
 def povray_plot3d_mesh(F) {
 
     Workfile = "t.pov";
     Xmin = XMIN; Xmax = XMAX;
     Ymin = YMIN; Ymax = YMAX;
-    Need_floor = 1;
-    /* Getting options.  Not yet written */
+    P = getopt(floor);  /* type(getopt(floor)) does not work. */
+    if (type(P) == -1) {
+      Need_floor = 1;
+    }else{
+      if (type(P)==1 && P != 0)  {
+         Need_floor = 1;
+      }else{
+         Need_floor = 0;
+      }
+    }
 
     Z_bound = povray_get_z_bound(F,Xmin,Xmax,Ymin,Ymax);
     print("Z_bound=",0); print(Z_bound);
@@ -301,11 +311,25 @@ def povray_plot3d_mesh(F) {
                 y,(YMIN-YMAX)*(y-Ymax)/(Ymin-Ymax)+YMAX);
     F = (ZMIN-ZMAX)*(F-Zmax)/(Zmin-Zmax)+ZMAX;
 
+    NewOrigin = [Xmax-XMAX*(Xmin-Xmax)/(XMIN-XMAX),
+                 Ymax-YMAX*(Ymin-Ymax)/(YMIN-YMAX),
+                 (ZMIN-ZMAX)*(-Zmax)/(Zmin-Zmax)+ZMAX];
+    NewOrigin = map(deval,NewOrigin);
+    Distance = NewOrigin[2];
+
     /* Generate mesh */
     DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
     Mesh=[];  
+    Range =[map(subst,
+             [(XMIN-XMAX)*(x-Xmax)/(Xmin-Xmax)+XMAX,
+              (YMIN-YMAX)*(y-Ymax)/(Ymin-Ymax)+YMAX],x,XMIN,y,YMIN),
+            map(subst,
+             [(XMIN-XMAX)*(x-Xmax)/(Xmin-Xmax)+XMAX,
+              (YMIN-YMAX)*(y-Ymax)/(Ymin-Ymax)+YMAX],x,XMAX,y,YMAX)];
+    print(Range); 
+
     for (X=XMIN; X<XMAX; X += DX) {
-      for (Y=YMIX; Y<YMAX; Y += DY) {
+      for (Y=YMIN; Y<YMAX; Y += DY) {
          Mesh = append(Mesh,
                  [povray_triangle1(F,X,Y,DX,DY),
                   povray_triangle2(F,X+DX,Y+DY,DX,DY)
@@ -313,8 +337,10 @@ def povray_plot3d_mesh(F) {
       }
     }
     povray_prolog(Workfile,0,0);
-    if (Need_floor)  povray_plane(0);
+    if (Need_floor)  povray_plane(0,Distance);
     povray_mesh(0,Mesh);
+    povray_spheres(0,[[NewOrigin[0],NewOrigin[2],NewOrigin[1],0.3]]); 
+     /* Small sphere to show the place of the origin */
     povray_epilog(0);
 
     print("See the picture by  ")$
