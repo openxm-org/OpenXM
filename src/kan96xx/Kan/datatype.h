@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.7 2003/07/17 07:33:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.8 2003/07/30 09:00:52 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -164,6 +164,7 @@ struct polySet {
   int lim;
   POLY *gh;           /* gh[i] = homogenize(g[i]) for ecart division */
   int *gen;           /* gen[i] == 1 --> given generators */
+  POLY *gmod;         /* gmod = g mod p for TraceLift. */
 };
 
 struct pair {

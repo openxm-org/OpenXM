@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.6 2003/07/29 08:36:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.7 2003/07/30 09:00:52 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -21,6 +21,7 @@ struct ecartPolyArray {
 };
 
 static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,struct ecartPolyArray *epa);
+static struct ecartReducer ecartFindReducer_mod(POLY r,struct gradedPolySet *gset,struct ecartPolyArray *epa);
 static int ecartCheckPoly(POLY f);  /* check if it does not contain s-variables */
 static int ecartCheckEnv();         /* check if the environment is OK for ecart div*/
 static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray,POLY cf, POLY syz);
@@ -32,10 +33,13 @@ static POLY reduction_ecart0(POLY r,struct gradedPolySet *gset,
 /* Automatic homogenization and s->1 */
 static POLY reduction_ecart1(POLY r,struct gradedPolySet *gset,
                              int needSyz, struct syz0 *syzp);
+static POLY reduction_ecart1_mod(POLY r,struct gradedPolySet *gset);
 static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
                             struct gradedPolySet *gg,POLY r);
 
-extern int DebugReductionRed; 
+extern int DebugReductionRed;
+extern int TraceLift;
+struct ring *TraceLift_ringmod;
 int DebugReductionEcart = 0;
 
 /* This is used for goHomogenization */
@@ -241,10 +245,25 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
      int needSyz;
      struct syz0 *syzp; /* set */
 {
-  if (EcartAutomaticHomogenization) {
-    return reduction_ecart1(r,gset,needSyz,syzp);
+  POLY rn;
+  if (TraceLift) {
+	if (EcartAutomaticHomogenization) {
+	  if (TraceLift_ringmod == NULL) {
+		warningPoly("reduction_ecart: TraceLift_ringmod is not set.\n");
+		return reduction_ecart1(r,gset,needSyz,syzp);
+	  }
+	  rn = reduction_ecart1_mod(r,gset);
+	  if (rn == POLYNULL) return rn;
+	  else return reduction_ecart1(r,gset,needSyz,syzp);
+	}else{
+	  return reduction_ecart0(r,gset,needSyz,syzp);
+	}
   }else{
-    return reduction_ecart0(r,gset,needSyz,syzp);
+	if (EcartAutomaticHomogenization) {
+	  return reduction_ecart1(r,gset,needSyz,syzp);
+	}else{
+	  return reduction_ecart0(r,gset,needSyz,syzp);
+	}
   }
 }
 
@@ -445,6 +464,151 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
     fprintf(stderr,"It has not yet implemented.\n");
     exit(10);
   }
+
+  r = goDeHomogenizeS(r);
+
+  return(r);
+}
+
+/* Functions for trace lift  */
+static struct ecartReducer ecartFindReducer_mod(POLY r,
+                                                struct gradedPolySet *gset,
+                                                struct ecartPolyArray *epa)
+{
+  int grd;
+  struct polySet *set;
+  int minGrade = 0;
+  int minGseti = 0;
+  int minGgi   = 0;
+  int ell1 = LARGE;
+  int ell2 = LARGE;
+  int ell;
+  int i;
+  struct ecartReducer er;
+  /* Try to find a reducer in gset; */
+  grd = 0;
+  while (grd < gset->maxGrade) {
+    set = gset->polys[grd];
+    for (i=0; i<set->size; i++) {
+      if (set->gh[i] == POLYNULL) {
+        /* goHomogenize set->gh[i] */
+          if (EcartAutomaticHomogenization) {
+              set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
+          }else{
+              set->gh[i] = set->g[i];
+          }
+      }
+	  if (TraceLift && (set->gmod[i] == POLYNULL)) {
+		set->gmod[i] = modulop(set->gh[i],TraceLift_ringmod);
+	  }
+	  if (TraceLift) {
+		ell = ecartGetEll(r,set->gmod[i]);
+	  }else{
+		ell = ecartGetEll(r,set->gh[i]);
+	  }
+      if ((ell>=0) && (ell < ell1)) {
+        ell1 = ell;
+        minGrade = grd; minGseti=i;
+      }
+    }
+    grd++;
+  }
+  if (epa != NULL) {
+    /* Try to find in the second group. */
+    for (i=0; i< epa->size; i++) {
+      ell = ecartGetEll(r,(epa->pa)[i]);
+      if ((ell>=0) && (ell < ell2)) {
+        ell2 = ell;
+        minGgi = i;
+      }
+    }
+  }
+
+  if (DebugReductionRed || (DebugReductionEcart&1)) {
+    printf("ecartFindReducer_mod(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d, p=%d\n",ell1,ell2,minGrade,minGseti,minGgi,TraceLift_ringmod->p);
+  }
+  if (ell1 <= ell2) {
+    if (ell1 == LARGE) {
+      er.ell = -1;
+      return er;
+    }else{
+      er.ell = ell1;
+      er.first = 1;
+      er.grade = minGrade;
+      er.gseti = minGseti;
+      return er;
+    }
+  }else{
+      er.ell = ell2;
+      er.first = 0;
+      er.ggi = minGgi;
+      return er;
+  }
+}
+
+static POLY reduction_ecart1_mod(r,gset)
+     POLY r;
+     struct gradedPolySet *gset;
+{
+  int reduced,reduced1,reduced2;
+  int grd;
+  struct polySet *set;
+  int i;
+  POLY cc,cg;
+  struct ecartReducer ells;
+  struct ecartPolyArray *gg;
+  POLY pp;
+  int ell;
+  int se;
+
+  extern struct ring *CurrentRingp;
+  struct ring *rp;
+
+  gg = NULL;
+
+  if (r != POLYNULL) {
+    rp = r->m->ringp;
+    if (! rp->weightedHomogenization) {
+      errorKan1("%s\n","ecart.c: the given ring must be declared with [(weightedHomogenization) 1]");
+    }
+  }
+
+  r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
+  /* 1 means homogenize only s */
+  /*printf("r=%s (mod 0)\n",POLYToString(head(r),'*',1)); 
+	KshowRing(TraceLift_ringmod); **/
+
+  r = modulop(r,TraceLift_ringmod);
+  rp = r->m->ringp; /* reset rp */
+
+  /* printf("r=%s (mod p)\n",POLYToString(head(r),'*',1)); **/
+
+  if (DebugReductionEcart&1) printf("=====================================mod\n");
+  do {
+    if (DebugReductionRed) printf("(ecart1_mod(d)) r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionEcart & 1) printf("r=%s+,,,\n",POLYToString(head(r),'*',1));
+
+    ells = ecartFindReducer_mod(r,gset,gg);
+    ell = ells.ell;
+    if (ell > 0) {
+      if (DebugReductionEcart & 2) printf("%");
+      gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
+    }
+    if (ell >= 0) {
+      if (ells.first) {
+        pp = ((gset->polys[ells.grade])->gmod)[ells.gseti];
+      }else{
+        if (DebugReductionEcart & 4) printf("+");
+        pp = (gg->pa)[ells.ggi];
+      }
+      if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+      r = (*reduction1)(r,pp,0,&cc,&cg);
+      if (r ISZERO) goto ss1;
+      r = ecartDivideSv(r,&se); /* r = r/s^? */
+    }
+  }while (ell >= 0);
+
+ ss1: ;
 
   r = goDeHomogenizeS(r);
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.4 2003/07/17 09:10:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.5 2003/07/30 09:00:52 takayama Exp $ */
 /* gradedset.h */
 #define max(a,b) (a>b?a:b)
 
@@ -38,6 +38,7 @@ int countGradedPolySet(struct gradedPolySet *grD);
 struct gradedPolySet *gradedPolySetCopy(struct gradedPolySet *grG);
 int deletePairByCriterion2B(struct gradedPairs *grD,POLY gt,struct gradedPolySet *grG);
 int markGeneratorInG(struct gradedPolySet *g,int grade,int index);
+int clearGmod(struct gradedPolySet *g);
 
 /* red.c */
 struct spValue (*sp)(POLY f,POLY g);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.6 2002/02/10 08:22:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.7 2003/07/30 09:00:52 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -23,6 +23,8 @@ extern int UseCriterion2B;
 extern int Spairs;
 extern int Criterion2B, Criterion2F, Criterion2M;
 extern int AutoReduce;
+extern int TraceLift;
+extern struct ring *TraceLift_ringmod;
 static int MaxLength[DMAX];
 static int SpNumber[DMAX];
 
@@ -192,6 +194,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
   extern struct ring *CurrentRingp;
   extern char *F_mpMult;
   struct ring *rp;
+  int first;
   int statisticsPL, statisticsCount;
 
   if (Statistics) {
@@ -216,9 +219,15 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
     g->polys[i] = newPolySet(INITSIZE);
   }
 
+  first = 1;
   for (i=0; i<r; i++) {
     gt = getArrayOfPOLY(f,i);
     if (gt ISZERO) { rp = CurrentRingp; } else { rp = gt->m->ringp; }
+	if (TraceLift && (!(gt ISZERO)) && first) {
+	  TraceLift_ringmod = newRingOverFp(rp,getPrime(TraceLift)); first = 0;
+	  if (KanGBmessage) printf("Prime number for the trace lift is %d.\n",
+							   TraceLift_ringmod->p);
+	}
     grade = -1; whereInG(g,gt,&grade,&indx,Sugar);
     if (KanGBmessage == 2) {
       printf("init=%s, ",POLYToString(head(gt),'*',1));

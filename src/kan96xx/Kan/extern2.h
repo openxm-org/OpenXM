@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.4 2003/07/10 08:20:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.5 2003/07/17 07:33:03 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -75,6 +75,8 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei,int onlyS);
 POLY goHomogenize11(POLY f,int ds[],int dssize,int ei,int onlyS);
 POLY goHomogenize_dsIdx(POLY f,int u[],int v[],int dsIdx,int ei,int onlyS);
 POLY goHomogenize11_dsIdx(POLY f,int ds[],int dsIdx,int ei,int onlyS);
+struct ring *newRingOverFp(struct ring *rp, int p);
+int getPrime(int p);
 
 /* coeff.c */
 char *intToString(int i);

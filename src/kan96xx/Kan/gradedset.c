@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.4 2003/07/17 07:33:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.5 2003/07/30 09:00:52 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -15,6 +15,7 @@ struct polySet *newPolySet(n)
   g = (struct polySet *)sGC_malloc(sizeof(struct polySet));
   g->g = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
   g->gh = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
+  g->gmod = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
   g->gen = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->del = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->syz = (struct syz0 **)sGC_malloc(sizeof(struct syz0 *)*(n+1));
@@ -22,6 +23,7 @@ struct polySet *newPolySet(n)
   g->serial = (int *)sGC_malloc(sizeof(int)*(n+1));
   if (g->g == (POLY *)NULL || g->del == (int *)NULL ||
       g->gh == (POLY *)NULL || g->gen == (int *)NULL ||
+      g->gmod == (POLY *)NULL ||
       g->syz == (struct syz0 **)NULL || g->mark == (int *)NULL ||
       g->serial == (int *)NULL) {
     errorGradedSet("No more memory.");
@@ -259,6 +261,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
     for (i=0; i<g->polys[grade]->lim; i++) {
       polysNew->g[i] = g->polys[grade]->g[i];
       polysNew->gh[i] = g->polys[grade]->gh[i];
+      polysNew->gmod[i] = g->polys[grade]->gmod[i];
       polysNew->gen[i] = g->polys[grade]->gen[i];
       polysNew->del[i] = g->polys[grade]->del[i];
       polysNew->syz[i] = g->polys[grade]->syz[i];
@@ -272,6 +275,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
   g->polys[grade]->size = index+1;
   g->polys[grade]->g[index] = fi;
   g->polys[grade]->gh[index] = POLYNULL;
+  g->polys[grade]->gmod[index] = POLYNULL;
   g->polys[grade]->gen[index] = 0;
   g->polys[grade]->del[index] = 0;
   g->polys[grade]->syz[index] = syz;
@@ -525,4 +529,15 @@ int markGeneratorInG(struct gradedPolySet *g,int grade,int index)
 {
   g->polys[grade]->gen[index] = 1;
   return 1;
+}
+
+int clearGmod(struct gradedPolySet *gset) {
+  int grd,i;
+  struct polySet *set;
+  for (grd=0; grd < gset->maxGrade; grd++) {
+	set = gset->polys[grd];
+	for (i = 0; i<set->size; i++) {
+	  set->gmod[i] = POLYNULL;
+	}
+  }
 }
