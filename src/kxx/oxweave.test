@@ -1,0 +1,22 @@
+/*&jp
+ This is a test 
+ of / *
+*/
+//&jp This is a test of / / &
+/*&C
+  This is a test of
+  / * & C
+*/
+This is out of the comments 1.
+/* This is a regular comment. */
+This is out of the comments 2.
+/*&jp
+This is a  /* comment */ recuriseve.
+*/
+oxweave --plain jp <oxweave.test
+oxweave jp <oxweave.test
+oxweave C <oxweave.test
+oxweave --recursive --plain jp <oxweave.test
+oxweave --recursive C <oxweave.test
+
+

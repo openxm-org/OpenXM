@@ -1,3 +1,11 @@
+/*&eg
+\documentclass{article}
+\title{On oxweave.c}
+\author{} \date{}
+\begin{document}
+\maketitle
+\section{Introduction}
+*/
 /*&jp 
 \documentclass{jarticle}
 \title{oxweave のソースコードについての解説}
@@ -6,7 +14,7 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.3 1999/12/13 07:55:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.4 1999/12/13 14:47:41 takayama Exp $ */
 #include <stdio.h>
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
@@ -21,6 +29,14 @@ char *EndComment1="\n";
 static int Debug = 0;
 static int Plain = 0;
 /*&jp \noindent
+  再帰 option を on にした場合 ({\tt Recursive = 1},
+  {\tt LevelState1} で, 印刷すべき comment のネストのレベルを表す.
+  {\tt LevelState2} で, 削除すべき comment のネストのレベルを表す.
+*/
+static int Recursive = 0;
+static int LevelState1 = 0;
+static int LevelState2 = 0;
+/*&jp \noindent
   {\tt Buf} は標準出力よりのデータを一時格納しておく領域.
   {\tt Head} が最初の文字をさし, {\tt Tail} は最後の文字をさす.
   {\tt Buf} をリング状に使用するので, リングバッファとよぶ
@@ -33,6 +49,7 @@ char *Tag = NULL;
 /*&jp \noindent {\tt OutputNoTaggedSegment = 1}
   なら コメント記号の外は verbatim を用いて出力. 
   {\tt --source} オプションでこの変数を1にできる.
+  {\tt --plain} では,  verbatim を利用せずに生で出力.
   */
 int OutputNoTaggedSegment = 0;
 /*&jp \noindent 1 ならタグのついた場所を出力中. */
@@ -55,8 +72,8 @@ main(int argc,char *argv[]) {
   Head = Tail = 0; Buf[0] = ' ';  /* initialize */
 
   /*&jp  {\tt tagv[]} にタグのあつまりをいれる. 
-	{\tt tagv2[]} に対応するタグのおわりの記号をいれる.
-	*/
+    {\tt tagv2[]} に対応するタグのおわりの記号をいれる.
+    */
   tagc = tagc2 = 0;
   if (argc <= 1 || argc >= VSIZE) {
     usage();
@@ -64,50 +81,55 @@ main(int argc,char *argv[]) {
   }else{
     for (i=1; i< argc ; i++) {
       if (strcmp(argv[i],"--source") == 0) {
-		OutputNoTaggedSegment = 1;
-	  }else if (strcmp(argv[i],"--plain") == 0) {
-		Plain = 1; OutputNoTaggedSegment = 1;
+	OutputNoTaggedSegment = 1;
+      }else if (strcmp(argv[i],"--plain") == 0) {
+	Plain = 1; OutputNoTaggedSegment = 1;
+      }else if (strcmp(argv[i],"--recursive") == 0) {
+	Recursive = 1;
       } else{
-		tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
-		tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
-		strcpy(tagv[tagc],BeginTag0);
-		strcat(tagv[tagc],argv[i]);
-		tagv2[tagc] = EndComment0; 
-		/* コメントのおわりの記号.  */
-		tagc2++;
-		tagc++;
+	if (strcmp(argv[i]," ") == 0) {
+	  argv[i] = "";
+	}
+	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+	strcpy(tagv[tagc],BeginTag0);
+	strcat(tagv[tagc],argv[i]);
+	tagv2[tagc] = EndComment0; 
+	/* コメントのおわりの記号.  */
+	tagc2++;
+	tagc++;
 
-		tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
-		tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
-		strcpy(tagv[tagc],BeginTag1);
-		strcat(tagv[tagc],argv[i]);
-		tagv2[tagc] = EndComment1;
+	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+	strcpy(tagv[tagc],BeginTag1);
+	strcat(tagv[tagc],argv[i]);
+	tagv2[tagc] = EndComment1;
         tagc2++;
-		tagc++;
+	tagc++;
       }
     }
   }
   /*&jp プログラムは３つの状態を持つ. 状態 0 はタグ付きコメント記号の外.
-	状態 1 は指定されたタグの付いたコメントの中.
-	状態 2 は指定されていないタグの付いたコメントの中
-	(状態２にあるときは印刷されない.) */
+    状態 1 は指定されたタグの付いたコメントの中.
+    状態 2 は指定されていないタグの付いたコメントの中
+    (状態２にあるときは印刷されない.) */
   /*
-	state 0  -- / * & jp  --->  state 1  
-	if ( BeginVerbatim & OutputNoTaggedSegment ) end-verbatim
-	<---  * /    ---   state 1
-	if ( OutputNoTaggedSegment ) begin-verbatim
+    state 0  -- / * & jp  --->  state 1  
+    if ( BeginVerbatim & OutputNoTaggedSegment ) end-verbatim
+    <---  * /    ---   state 1
+    if ( OutputNoTaggedSegment ) begin-verbatim
 
-	state 0  -- / * & unknown  --->  state 2  
-	<---  * /    ---   state 2
+    state 0  -- / * & unknown  --->  state 2  
+    <---  * /    ---   state 2
 
-	state 0  & OutputNoTaggedSegment  ==> putchar()
-	state 1                           ==> putchar()
-	state 2                           ==> skip
-	*/
+    state 0  & OutputNoTaggedSegment  ==> putchar()
+    state 1                           ==> putchar()
+    state 2                           ==> skip
+    */
   while (notEOF()) {
     /* We are in the state 0. */
     pos = findNextTag(tagc,tagv,tagc2,tagv2);
-	/* printf(" ===pos=%d=== ",pos); */
+    /* printf(" ===pos=%d=== ",pos); */
     /* We are in the state 1. */
     findEndTag(tagc2,tagv2,pos);
   }
@@ -119,15 +141,12 @@ main(int argc,char *argv[]) {
 
 /*&jp \noindent 次の関数は利用法を表示する. */
 usage() {
-  fprintf(stderr,"oxweave [--plain] [--source] [key1 key2 ...]\n");
-  fprintf(stderr,"Example 1: oxweave --source jp <oxweave.c >t.tex\n");
-  fprintf(stderr,"Example 2: oxweave  jp <oxweave.c >t.tex\n");
-  fprintf(stderr,"Example 2: oxweave --plain  <oxweave.c >t.tex\n");
+#include "oxweaveUsage.h"
 }
 
 #define inc(a) ((a+1) % BSIZE)
 /*&jp \noindent {\tt wread()} は 標準入力よりのデータを読めるだけ
-リングバッファ {\tt Buf] へ読み込む.*/
+リングバッファ {\tt Buf} へ読み込む.*/
 wread() {
   int c,i;
   static int eof = 0;
@@ -165,8 +184,8 @@ int wgetc(int p) {
   return(c);
 }
 
-/*&jp  \noindent {\tt findNextTag()} は次の {\tt /\*\&} なるタグをさがす.
-   ( これは, {\tt BeginTag} の値を変えると変更できる.)
+/*&jp  \noindent {\tt findNextTag()} は次の {\tt / *\&} なるタグをさがす.
+   ( これは, {\tt BeginTag0} の値を変えると変更できる.)
   {\tt OutputNoTaggedSegment} が 1 ならデータをそのままながす.
   無視すべきタグのときは, タグ内部をスキップしたのち
   {\tt findNextTag} を再帰的に呼ぶ.
@@ -180,18 +199,20 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
     for (i=0; i<tagc; i++) {
       /* fprintf(stderr,"\nChecking %s : ",tagv[i]); */
       if (wcmp(tagv[i]) == 0) {
-		/* fprintf(stderr," : matched."); */
-		wgetc(strlen(tagv[i]));
-		if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
-		  BeginVerbatim = 0;
-		  if (!Plain) printf("\\end{verbatim\x07d}\n");
-		}
-		OutputtingTaggedSegment = 1;
-		return(i);  /* Now, state is 1. */
+	LevelState1++;
+	/* fprintf(stderr," : matched."); */
+	wgetc(strlen(tagv[i])+1);
+	if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
+	  BeginVerbatim = 0;
+	  if (!Plain) printf("\\end{verbatim\x07d}\n");
+	}
+	OutputtingTaggedSegment = 1;
+	return(i);  /* Now, state is 1. */
       }
     }
-    /*&jp {\tt /\*\&} だけどどのタグにも一致しない */
+    /*&jp {\tt / *\&} だけどどのタグにも一致しない */
     if (wcmp(BeginTag0) == 1) {
+      LevelState2++;
       wgetc(strlen(BeginTag0));
       while ((d=wgetc(1)) > ' ') ;
       /* We are in the state 2. */
@@ -199,6 +220,7 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
       /* We are in the state 0. */
       return(findNextTag(tagc,tagv,tagc2,tagv2));
     }else if (wcmp(BeginTag1) == 1) {
+      LevelState2++;
       wgetc(strlen(BeginTag1));
       while ((d=wgetc(1)) > ' ') ;
       /* We are in the state 2. */
@@ -218,8 +240,9 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
   exit(0);
 }
       
-/*&jp  \noindent {\tt findEndTag()} は次の {\tt \*\/} なるタグをさがす.
-       ( これは, EndComment[01] の値を変えると変更可能. )
+/*&jp  \noindent {\tt findEndTag()} は次の {\tt * /} なるタグをさがす.
+       ( これは, EndComment0 の値を変えると変更可能. )
+      {\tt / /} で始まる場合は, 0xa がおわり. 
 */
 findEndTag(int tagc,char *tagv[],int rule) {
   int i;
@@ -228,16 +251,28 @@ findEndTag(int tagc,char *tagv[],int rule) {
   do {
     i = rule;
     if (wcmp(tagv[i]) == 0) {
-      wgetc(strlen(tagv[i]));
-	  if (strcmp(tagv[i],"\n")==0) putchar('\n');
-      OutputtingTaggedSegment = 0;
-      if (OutputNoTaggedSegment) {
-		if (!Plain) printf("\n{\\footnotesize \\begin{verbatim}\n");
-		BeginVerbatim = 1;
+      LevelState1--;
+      /* printf("LevelState1=%d\n",LevelState1);*/
+      if (LevelState1 > 0 && Recursive) {
+	wgetc(strlen(tagv[i]));
+	printf("%s",tagv[i]);
+	return(findEndTag(tagc,tagv,rule));
+      }else{
+	wgetc(strlen(tagv[i]));
+	if (strcmp(tagv[i],"\n")==0) putchar('\n');
+	OutputtingTaggedSegment = 0;
+	if (OutputNoTaggedSegment) {
+	  if (!Plain) printf("\n{\\footnotesize \\begin{verbatim}\n");
+	  BeginVerbatim = 1;
+	}
+	return;			/* Our state is 0. */
       }
-      return;			/* Our state is 0. */
     }
     /* Our state is 1. */
+    if (wcmp("/*") >= 0 ) {
+      LevelState1++;
+      /* printf("LevelState1++=%d\n",LevelState1); */
+    }
     c = wgetc(1);
     putchar(c);
   }while( c!= EOF);
@@ -254,41 +289,43 @@ skipToEndTag(int tagc,char *tagv[],int rule) {
   do {
     if (rule == 0) {
       if (wcmp(EndComment0) == 0) {
-		wgetc(strlen(EndComment0));
-		return;  /* our state is 0. */
+	LevelState2--;
+	if (LevelState2 > 0 && Recursive) {
+	  wgetc(strlen(EndComment0));
+	  return(skipToEndTag(tagc,tagv,rule));
+	}else{
+	  wgetc(strlen(EndComment0));
+	  return;  /* our state is 0. */
+	}
       }
     }else if (rule == 1) {
       if (wcmp(EndComment1) == 0) {
-		wgetc(strlen(EndComment1));
-		return;  /* our state is 0. */
+	LevelState2--;
+	if (LevelState2 > 0 && Recursive) {
+	  wgetc(strlen(EndComment0));
+	  return(skipToEndTag(tagc,tagv,rule));
+	}else{
+	  wgetc(strlen(EndComment1));
+	  return;  /* our state is 0. */
+	}
       }
     }else{
       for (i=0; i<tagc; i++) {
-		if (wcmp(tagv[i]) == 0) {
-		  wgetc(strlen(tagv[i]));
-		  return;  /* our state is 0. */
-		}
+	if (wcmp(tagv[i]) == 0) {
+	  LevelState2--;
+	  if (LevelState2 > 0 && Recursive) {
+	    wgetc(strlen(EndComment0));
+	    return(skipToEndTag(tagc,tagv,rule));
+	  }else{
+	    wgetc(strlen(tagv[i]));
+	    return;  /* our state is 0. */
+	  }
+	}
       }
 
     }
     /* our state is 2. */
-    c = wgetc(1);
-  }while( c!= EOF);
-  fprintf(stderr,"findEndTag: unexpected EOF.\n");
-  irregularExit();
-}
-skipToEndTag_old(int tagc,char *tagv[]) {
-  int i;
-  int c;
-  /* our state is 2. */
-  do {
-    for (i=0; i<tagc; i++) {
-      if (wcmp(tagv[i]) == 0) {
-		wgetc(strlen(tagv[i]));
-		return;  /* our state is 0. */
-      }
-    }
-    /* our state is 2. */
+    if (wcmp("/*") >= 0) LevelState2++;
     c = wgetc(1);
   }while( c!= EOF);
   fprintf(stderr,"findEndTag: unexpected EOF.\n");
@@ -311,8 +348,8 @@ wcmp(char *s) {
   wread();
   if (Debug == 2) fprintf(stderr,"[Checking %s]\n",s);
   if (strcmp(s,"\n") == 0) {
-	if (s[0] == Buf[Head]) return(0);
-	else return(-1);
+    if (s[0] == Buf[Head]) return(0);
+    else return(-1);
   }
   n = strlen(s);
   j = Head;
@@ -339,7 +376,11 @@ irregularExit() {
   exit(-1);
 }
 
+
 /*&jp
+\end{document}
+*/
+/*&eg
 \end{document}
 */
 
