@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.2 1999/12/21 02:47:30 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.3 2000/03/10 07:18:40 noro Exp $
 \BJP
 @node 代数的数に関する演算,,, Top
 @chapter 代数的数に関する演算
@@ -706,8 +706,8 @@ may yield a polynomial which differs by a constant.
 * rattoalgp::
 * cr_gcda::
 * sp_norm::
-* asq af::
-* sp::
+* asq af af_noalg::
+* sp sp_noalg::
 @end menu
 
 \JP @node newalg,,, 代数的数に関する函数のまとめ
@@ -1109,7 +1109,7 @@ x+(-#0)
 @table @t
 \JP @item 参照
 \EG @item Reference
-@fref{gr hgr gr_mod}, @fref{asq af}
+@fref{gr hgr gr_mod}, @fref{asq af af_noalg}
 @end table
 
 \JP @node sp_norm,,, 代数的数に関する函数のまとめ
@@ -1192,14 +1192,15 @@ x^12+2*x^8+5*x^4+1
 @table @t
 \JP @item 参照
 \EG @item Reference
-@fref{res}, @fref{asq af}
+@fref{res}, @fref{asq af af_noalg}
 @end table
 
-\JP @node asq af,,, 代数的数に関する函数のまとめ
-\EG @node asq af,,, Summary of functions for algebraic numbers
-@subsection @code{asq}, @code{af}
+\JP @node asq af af_noalg,,, 代数的数に関する函数のまとめ
+\EG @node asq af af_noalg,,, Summary of functions for algebraic numbers
+@subsection @code{asq}, @code{af}, @code{af_noalg}
 @findex asq
 @findex af
+@findex af_noalg
 
 @table @t
 @item asq(@var{poly})
@@ -1209,6 +1210,7 @@ x^12+2*x^8+5*x^4+1
 algebraic number field.
 \E
 @item af(@var{poly},@var{alglist})
+@itemx af_noalg(@var{poly},@var{defpolylist})
 \JP :: 代数体上の 1 変数多項式の因数分解
 \BEG
 :: Factorization of polynomial @var{poly} over an
@@ -1226,6 +1228,9 @@ algebraic number field.
 @item alglist
 \JP @code{root} のリスト
 \EG @code{root} list
+@item defpolylist
+\JP @code{root} を表す不定元と定義多項式のペアのリスト
+\EG @code{root} list of pairs of an indeterminate and a polynomial
 @end table
 
 @itemize @bullet
@@ -1263,10 +1268,30 @@ In the second argument @code{alglist}, @b{root} defined last must come
 first.
 \E
 @item
-\JP 結果は, 通常の無平方分解, 因数分解と同様 [@b{因子}, @b{重複度}] のリストである. 
+\BJP
+@code{sp_noalg} では, @var{poly} に含まれる代数的数 @var{ai} を不定元 @var{vi}
+で置き換える. @code{defpolylist} は, @var{[[vn,dn(vn,...,v1)],...,[v1,d(v1)]]}
+なるリストである. ここで @var{di(vi,...,v1)} は @var{ai} の定義多項式において
+代数的数を全て @var{vj} に置き換えたものである. 
+\E
+\BEG
+To call @code{sp_noalg}, one should replace each algebraic number 
+@var{ai} in @var{poly} with an indeterminate @var{vi}. @code{defpolylist}
+is a list @var{[[vn,dn(vn,...,v1)],...,[v1,d(v1)]]}. In this expression
+@var{di(vi,...,v1)} is a defining polynomial of @var{ai} represented
+as a multivariate polynomial.
+\E
+@item
+\BJP
+結果は, 通常の無平方分解, 因数分解と同様 [@b{因子}, @b{重複度}] 
+のリストである. @code{af_noalg} の場合, @b{因子} に現れる代数的数は, 
+@var{defpolylist} に従って不定元に置き換えられる. 
+\E
 \BEG
 The result is a list, as a result of usual factorization, whose elements
-is of the form [@b{factor}, @b{multiplicity}].
+is of the form [@b{factor}, @b{multiplicity}]. 
+In the result of @code{af_noalg}, algebraic numbers in @v{factor} are 
+replaced by the indeterminates according to @var{defpolylist}.
 \E
 @item
 \JP 重複度を込めた因子の全ての積は, @var{poly} と定数倍の違いがあり得る. 
@@ -1289,13 +1314,14 @@ the input polynomial by a constant.
 @fref{cr_gcda}, @fref{fctr sqfr}
 @end table
 
-\JP @node sp,,, 代数的数に関する函数のまとめ
-\EG @node sp,,, Summary of functions for algebraic numbers
-@subsection @code{sp}
+\JP @node sp sp_noalg,,, 代数的数に関する函数のまとめ
+\EG @node sp sp_noalg,,, Summary of functions for algebraic numbers
+@subsection @code{sp}, @code{sp_noalg}
 @findex sp
 
 @table @t
 @item sp(@var{poly})
+@itemx sp_noalg(@var{poly})
 \JP :: 最小分解体を求める. 
 \EG :: Finds the splitting field of polynomial @var{poly} and splits.
 @end table
@@ -1326,12 +1352,18 @@ over the field.
 @item
 \BJP
 結果は, @var{poly} の因子のリストと, 最小分解体の, 逐次拡大による表現
-からなるリストである. 
+からなるリストである. @code{sp_noalg} では, 全ての代数的数が, 対応する
+不定元 (即ち @code{#i} に対する @code{t#i}) に置き換えられる. これに
+より, @code{sp_noalg} の出力は, 整数係数多変数多項式のリストとなる. 
 \E
 \BEG
 The result consists of a two element list: The first element is
 the list of all linear factors of @var{poly}; the second element is
 a list which represents the successive extension of the field.
+In the result of @code{sp_noalg} all the algebraic numbers are replaced
+by the special indeterminate associated with it, that is @code{t#i}
+for @code{#i}. By this operation the result of @code{sp_noalg}
+is a list containing only integral polynomials.
 \E
 @item
 \BJP
@@ -1382,6 +1414,6 @@ the builtin function @code{res()} is always used.
 @table @t
 \JP @item 参照
 \EG @item Reference
-@fref{asq af}, @fref{defpoly}, @fref{algptorat}, @fref{sp_norm}.
+@fref{asq af af_noalg}, @fref{defpoly}, @fref{algptorat}, @fref{sp_norm}.
 @end table
 
