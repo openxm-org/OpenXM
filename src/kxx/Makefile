@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.10 1999/11/22 04:22:57 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.11 1999/11/27 13:55:06 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -66,7 +66,7 @@ oxlog : oxlog.c
 	gcc -o oxlog oxlog.c
 
 oxweave : oxweave.c
-	gcc -o oxweave oxweave.c
+	gcc -o oxweave -g oxweave.c
 
 ## file2.c file2.h is in SSkan/plugin/
 file2.o : $(KANHOME)/plugin/file2.c  $(KANHOME)/plugin/file2.h

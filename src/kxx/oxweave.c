@@ -6,8 +6,16 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.1 1999/11/16 07:57:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.2 1999/11/16 11:48:12 takayama Exp $ */
 #include <stdio.h>
+
+/* Modify here to change the begin tag and EndComment. Less than 9 characters.
+*/
+char *BeginTag0="/*\x026";  /* 0x26 = & */
+char *BeginTag1="//\x026";  /* 0x26 = & */
+char *EndComment0="*/";
+char *EndComment1="\n";
+
 #define BSIZE 256
 #define VSIZE 256
 static int Debug = 0;
@@ -30,20 +38,22 @@ int OutputNoTaggedSegment = 0;
 int OutputtingTaggedSegment = 0;
 int BeginVerbatim = 0;
 
+
 /*&jp \section{プログラム本体} */
 main(int argc,char *argv[]) {
+  extern char *BeginTag;
+  extern char *EndComment0;
+  extern char *EndComment1;
   int c;
   int tagc,i;
   char *tagv[VSIZE];
   int tagc2;
   char *tagv2[VSIZE];
-  char *s = "/*\x026";  /* 0x26 = & */
+  int pos;
   Head = Tail = 0; Buf[0] = ' ';  /* initialize */
 
-  /* コメントのおわりの記号. sm1 なら 0xa である. */
-  tagc2 = 1; tagv2[0] = "*/";
   /*&jp  {\tt tagv[]} にタグのあつまりをいれる. */
-  tagc = 0;
+  tagc = tagc2 = 0;
   if (argc <= 1 || argc >= VSIZE) {
     usage();
     exit();
@@ -51,10 +61,22 @@ main(int argc,char *argv[]) {
     for (i=1; i< argc ; i++) {
       if (strcmp(argv[i],"--source") == 0) {
 	OutputNoTaggedSegment = 1;
-      }else{
-	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+4));
-	strcpy(tagv[tagc],s);
+      } else{
+	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+	strcpy(tagv[tagc],BeginTag0);
 	strcat(tagv[tagc],argv[i]);
+	tagv2[tagc] = EndComment0; 
+        /* コメントのおわりの記号. sm1 なら 0xa である. */
+        tagc2++;
+	tagc++;
+
+	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+	strcpy(tagv[tagc],BeginTag1);
+	strcat(tagv[tagc],argv[i]);
+	tagv2[tagc] = EndComment1;
+        tagc2++;
 	tagc++;
       }
     }
@@ -77,10 +99,10 @@ main(int argc,char *argv[]) {
        state 2                           ==> skip
    */
   while (notEOF()) {
-    /* We are in the state 0 */
-    findNextTag(tagc,tagv,tagc2,tagv2);
-    /* We are int the state 1 */
-    findEndTag(tagc2,tagv2);
+    /* We are in the state 0. */
+    pos = findNextTag(tagc,tagv,tagc2,tagv2);
+    /* We are in the state 1. */
+    findEndTag(tagc2,tagv2,pos);
   }
   if (BeginVerbatim) {
     printf("\n\\end{verbatim\x07d}\n");
@@ -136,6 +158,7 @@ int wgetc(int p) {
 }
 
 /*&jp  \noindent {\tt findNextTag()} は次の {\tt /\*\&} なるタグをさがす.
+   ( これは, {\tt BeginTag} の値を変えると変更できる.)
   {\tt OutputNoTaggedSegment} が 1 ならデータをそのままながす.
   無視すべきタグのときは, タグ内部をスキップしたのち
   {\tt findNextTag} を再帰的に呼ぶ.
@@ -143,27 +166,37 @@ int wgetc(int p) {
 findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
   int i;
   int c,d;
+  extern char *BeginTag0;
+  extern char *BeginTag1;
   do {
     for (i=0; i<tagc; i++) {
+      /* fprintf(stderr,"\nChecking %s : ",tagv[i]); */
       if (wcmp(tagv[i]) == 0) {
+	/* fprintf(stderr," : matched."); */
 	wgetc(strlen(tagv[i]));
 	if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
 	  BeginVerbatim = 0;
 	  printf("\\end{verbatim\x07d}\n");
 	}
 	OutputtingTaggedSegment = 1;
-	return;  /* Now, state is 1. */
+	return(i);  /* Now, state is 1. */
       }
     }
     /*&jp {\tt /\*\&} だけどどのタグにも一致しない */
-    if (wcmp("/*\x026") == 1) {
-      wgetc(3);
+    if (wcmp(BeginTag0) == 1) {
+      wgetc(strlen(BeginTag0));
       while ((d=wgetc(1)) > ' ') ;
       /* We are in the state 2. */
-      skipToEndTag(tagc2,tagv2);  
+      skipToEndTag(tagc2,tagv2,0);  
       /* We are in the state 0. */
-      findNextTag(tagc,tagv,tagc2,tagv2);
-      return;
+      return(findNextTag(tagc,tagv,tagc2,tagv2));
+    }else if (wcmp(BeginTag1) == 1) {
+      wgetc(strlen(BeginTag1));
+      while ((d=wgetc(1)) > ' ') ;
+      /* We are in the state 2. */
+      skipToEndTag(tagc2,tagv2,1);  
+      /* We are in the state 0. */
+      return(findNextTag(tagc,tagv,tagc2,tagv2));
     }
     /* We are in the state 0 */
     c = wgetc(1);
@@ -178,22 +211,22 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
 }
       
 /*&jp  \noindent {\tt findEndTag()} は次の {\tt \*\/} なるタグをさがす.
+       ( これは, EndComment[01] の値を変えると変更可能. )
 */
-findEndTag(int tagc,char *tagv[]) {
+findEndTag(int tagc,char *tagv[],int rule) {
   int i;
   int c;
   /* We are in the state 1. */
   do {
-    for (i=0; i<tagc; i++) {
-      if (wcmp(tagv[i]) == 0) {
-	wgetc(strlen(tagv[i]));
-	OutputtingTaggedSegment = 0;
-	if (OutputNoTaggedSegment) {
-	  printf("\n{\\footnotesize \\begin{verbatim}\n");
-	  BeginVerbatim = 1;
-	}
-	return;  /* Our state is 0. */
+    i = rule;
+    if (wcmp(tagv[i]) == 0) {
+      wgetc(strlen(tagv[i]));
+      OutputtingTaggedSegment = 0;
+      if (OutputNoTaggedSegment) {
+	printf("\n{\\footnotesize \\begin{verbatim}\n");
+	BeginVerbatim = 1;
       }
+      return;			/* Our state is 0. */
     }
     /* Our state is 1. */
     c = wgetc(1);
@@ -203,7 +236,39 @@ findEndTag(int tagc,char *tagv[]) {
   irregularExit();
 }
 
-skipToEndTag(int tagc,char *tagv[]) {
+skipToEndTag(int tagc,char *tagv[],int rule) {
+  int i;
+  int c;
+  extern char *EndComment0;
+  extern char *EndComment1;
+  /* our state is 2. */
+  do {
+    if (rule == 0) {
+      if (wcmp(EndComment0) == 0) {
+	wgetc(strlen(EndComment0));
+	return;  /* our state is 0. */
+      }
+    }else if (rule == 1) {
+      if (wcmp(EndComment1) == 0) {
+	wgetc(strlen(EndComment1));
+	return;  /* our state is 0. */
+      }
+    }else{
+      for (i=0; i<tagc; i++) {
+	if (wcmp(tagv[i]) == 0) {
+	  wgetc(strlen(tagv[i]));
+	  return;  /* our state is 0. */
+	}
+      }
+
+    }
+    /* our state is 2. */
+    c = wgetc(1);
+  }while( c!= EOF);
+  fprintf(stderr,"findEndTag: unexpected EOF.\n");
+  irregularExit();
+}
+skipToEndTag_old(int tagc,char *tagv[]) {
   int i;
   int c;
   /* our state is 2. */
