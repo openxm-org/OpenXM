@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.1 2001/04/20 13:38:31 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.2 2001/04/21 06:38:37 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
@@ -22,7 +22,7 @@
    [(sm1.socket) (close) server.fd ] extension message
 } def
 
-/send {
+/send_packet {
   /arg1 set
   [(sm1.socket) (write) [server.fd 0 get arg1]] extension message
 } def
@@ -42,16 +42,20 @@
 } def
 
 /httpd {
+  /httpd.serial 1 def
+  /httpd.history [ ] def
   {
     httpd_startserver ;
     httpd_action ;
     httpd_stopserver ;
     (5 sleep) system 
+    httpd.serial 1 add /httpd.serial set
   } loop    
 } def
 
 /httpd_action {
-  [/in-httpd /httpd.com.old /ff /httpd.com /httpd.result] pushVariables
+  [/in-httpd /httpd.com.old /ff /httpd.com /httpd.result
+  ] pushVariables
   [
   (httpd:sm1 is ready) message
   {
@@ -73,23 +77,27 @@
              httpd.com message
           (------------  end ----------------------) message
           (   ) message
-          oxasir.ccc 
-            [(if (1) {)  httpd.com  (};)] cat
-          oxexecutestring ;
-          oxasir.ccc oxpopstring /httpd.result set
-          /httpd.com.old httpd.com def
-          (------------- result -------------) message
-          httpd.result message
-          (----------------------------------) message
-          (  ) message
-          [(<title> asirweb </title> )
-           (<font color="blue"> Input: </font> )  
-           (<pre> ) httpd.com (</pre>) (<br>)
-           (<font color="green"> Output: </font> ) 
-           (<pre>) httpd.result (</pre>) 
-          ] cat
-          send-page-3  exit
-          %% [(SigIgn) 1] system_variable
+          httpd.com metaCommand {
+            /httpd.history httpd.history httpd.com append def
+            oxasir.ccc 
+             [(if (1) {)  httpd.com  (};)] cat
+            oxexecutestring ;
+            oxasir.ccc oxpopstring /httpd.result set
+            /httpd.com.old httpd.com def
+            (------------- result -------------) message
+            httpd.result message
+            (----------------------------------) message
+            (  ) message
+            [(<title> asirweb </title> )
+             (<font color="blue"> Input-) httpd.serial toString
+              (: </font> )  
+             (<pre> ) httpd.com (</pre>) (<br>)
+             (<font color="green"> Output-) httpd.serial toString
+             (: </font> ) 
+             (<pre>) httpd.result (</pre>) 
+            ] cat
+            send-page-3  exit
+          } { } ifelse
         } ifelse
    }
    {  } ifelse
@@ -99,7 +107,7 @@
 } def
 
 
-/send-page-1 {
+/send-page-bye {
    (HTTP/0.9 200 OK) sendln
 %%   (Date: Sun, 18 Mar 2001 02:54:50 GMT) sendln
 %%   (Server: sm1/0.1 (Unix)) sendln
@@ -108,9 +116,13 @@
 %%   (Accept-Ranges: bytes) sendln
 %%   (Content-Length: 10) sendln
    (Connection: close) sendln
-   (Content-Type: text/plain) sendln
+%   (Content-Type: text/plain) sendln
+   (Content-Type: text/html) sendln
    0 sendln
-   (HOGE HOGE!) sendln
+   (<html>) sendln
+   (Shutdown the engine. <br>) sendln
+   (See you! <a href="http://www.openxm.org"> asirweb </a>) sendln
+   (</html>) sendln
    0 sendln
    [(flush)] extension
 } def
@@ -143,12 +155,32 @@
    (<INPUT TYPE=submit VALUE="submit">) sendln
    (<textarea name=msg rows=10 cols="80" wrap="soft"></textarea>) sendln
    (</FORM>) sendln
+   send-menu-1
    0 sendln
    [(flush)] extension
   ] pop
   popVariables
 } def
 
+/httpd.asirman
+ ("http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/doc/asir2000/html-jp/man_toc.html")
+def
+/httpd.asirman.index
+  ("http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/doc/asir2000/html-jp/man_262.html#SEC262")
+def
+/send-menu-1 {
+  
+  [$<a href="http://localhost:$ httpd.port toString
+   $/?msg=httpdAsirMeta+quit"> QUIT </a>, $
+  ] cat sendln
+
+  [(<font color="red"> 
+    <a href=) httpd.asirman (> AsirManual (Ja) </a> </font>, )] cat sendln
+  [(<font color="purple"> 
+    <a href=) httpd.asirman.index (> Index (Ja) </a> </font>, )] cat sendln
+  (<font color="blue"> 
+   <a href="http://www.math.sci.kobe-u.ac.jp/~taka/asir-book-html/main"> Intro (Ja) </a> </font>, ) sendln
+} def
 
 /stopclient {
   [(sm1.socket) (close) [client.fdAndPort 0 get] ] extension message
@@ -241,6 +273,23 @@
      } loop
      s j carN /s set
      s { (string) dc } map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/metaCommand {
+  /arg1 set
+  [/in-metaCommand /msg /result] pushVariables
+  [
+    /msg arg1 def
+    /result 1 def
+    msg (httpdAsirMeta quit) eq {
+       send-page-bye
+       quit
+       /result 0 def
+    } { } ifelse
+    /arg1 result def
   ] pop
   popVariables
   arg1
