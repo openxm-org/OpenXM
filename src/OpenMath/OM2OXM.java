@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.13 1999/12/09 00:32:36 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.14 2000/01/19 15:32:50 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -88,7 +88,17 @@ final class OM2OXM implements Runnable{
     case CMO.CMO_STRING:
       return "<OMSTR>"+ ((CMO_STRING)cmo).getString() +"</OMSTR>";
 
-      // case CMO.CMO_LIST:
+    case CMO.CMO_LIST:
+      ret += "<OMA><OMS name=\"list\" cd=\"basic\"/>";
+      {
+	CMO ob[] = ((CMO_LIST)cmo).getElements();
+
+	for(int i=0;i<ob.length;i++){
+	  ret += CMO2OM_sub(ob[i]);
+	}
+      }
+      ret += "</OMA>";
+      return ret;
 
     case CMO.CMO_MONOMIAL32:
       ret += "<OMA><OMS name=\"Monom\" cd=\"poly\"/>";
@@ -149,8 +159,8 @@ final class OM2OXM implements Runnable{
     case CMO.CMO_TREE:
       ret += "<OMA><OMS name=\""+ ((CMO_TREE)cmo).getName() +"\" cd=\""+
 	((CMO_TREE)cmo).getCDName() +"\"/>";
-      for(int i=0;i<((CMO_TREE)cmo).getLeaves().getElement().length;i++){
-	ret += CMO2OM_sub(((CMO_TREE)cmo).getLeaves().getElement()[i]);
+      for(int i=0;i<((CMO_TREE)cmo).getLeaves().getElements().length;i++){
+	ret += CMO2OM_sub(((CMO_TREE)cmo).getLeaves().getElements()[i]);
       }
       ret += "</OMA>";
       return ret;
@@ -172,7 +182,7 @@ final class OM2OXM implements Runnable{
     }
 
     poly = (CMO_POLYNOMIAL_IN_ONE_VARIABLE)cmo;
-    variable = CMO2OM_sub(variables.getElement()[poly.getVariable()]);
+    variable = CMO2OM_sub(variables.getElements()[poly.getVariable()]);
  
    for(int i=0;i<poly.getDegrees().length;i++){
       String mono;
@@ -353,6 +363,8 @@ final class OM2OXM implements Runnable{
       if(name.equals("DMP")){
 	ret = parse_symb_DMP();
 	debug("poly: "+ret);
+      }else if(name.equals("list")){
+	ret = parse_objects();
       }else{
 	ret = new CMO_TREE(name,"Basic",parse_objects());
       }
