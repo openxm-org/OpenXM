@@ -1,24 +1,46 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.6 2001/12/28 08:33:20 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.7 2001/12/28 08:45:30 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
-(oxasir-win.sm1 (C) N.Takayama, 12/28, 2001) message
+(oxasir-win.sm1 (C) N.Takayama, 1/9, 2002) message
+
+[(getenv) (OPENXMHOMEWIN)] extension
+/OpenXM_HOME_WIN set
+OpenXM_HOME_WIN tag 0 eq {
+  [(getenv) (OpenXM_HOME)] extension
+  /OpenXM_HOME_WIN set
+} { } ifelse
+
 
 %% Set constants for windows.
+[(getenv) (OSTYPE)] extension (cygwin) eq {
 /oxasirpath.oxasir  
   [ [(getenv) (OpenXM_HOME)] extension
     (/bin/ox_asir) ] cat
-% (\OpenXM-win\bin\ox_asir)
 def
 /oxasirpath.asirlib
   [ [(getenv) (OpenXM_HOME)] extension
     (/lib/sm1/oxasir.asir) ] cat
-% (/OpenXM-win/lib/sm1/oxasir.asir)  %% asir understand only / notations.
 def
 /oxpath.ox
-%%  (\OpenXM-win\bin\ox.exe)
   (ox)
 def
+}{
+ /oxasirpath.oxasir  
+  [ OpenXM_HOME_WIN
+    (\bin\ox_asir) ] cat
+ def
+ /oxasirpath.asirlib
+  [ OpenXM_HOME_WIN
+    (/lib/sm1/oxasir.asir)
+  ] cat
+ def
+ /oxpath.ox
+  [ OpenXM_HOME_WIN
+    (\bin\ox.exe)
+  ] cat
+ def
+} ifelse
 %% Override asirconnectr
 /asirconnectr {
  [(getenv) (OSTYPE)] extension tag 0 eq {
@@ -64,16 +86,13 @@ def
  /control peer 3 get toString def
  peer message
 
- /oxasirpath.asirlib
-   (/OpenXM-win/lib/sm1/oxasir.asir)
- def
 
  [(forkExec) [
     (start)
-    (\OpenXM-win\bin\ox.exe)
+    oxpath.ox
     (-reverse)
     (-ox)
-    (\OpenXM-win\bin\ox_asir)
+    oxasirpath.oxasir  
     (-data)
      data
      (-control)
