@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.5 1999/11/03 10:56:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.6 1999/11/04 03:05:50 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -57,16 +57,22 @@ static int          dump_mpz(mpz_ptr mpz);
 
 static int          funcs(int cmo_type);
 
-/* CMO_xxx の値順にならべること(デバッグのため) */
 static int          login_with_otp(int fd, char* passwd);
+static char         *create_otp();
+
+/* CMO_xxx の値順にならべること(デバッグのため) */
 static cmo_null*    receive_cmo_null(int fd);
 static cmo_int32*   receive_cmo_int32(int fd);
 static cmo_string*  receive_cmo_string(int fd);
 static cmo_mathcap* receive_cmo_mathcap(int fd);
 static cmo_list*    receive_cmo_list(int fd);
+static cmo_monomial32*   receive_cmo_monomial32(int fd);
 static cmo_zz*      receive_cmo_zz(int fd);
 static cmo_zero*    receive_cmo_zero(int fd);
-static cmo_dms_generic* receive_cmo_dms_generic(int fd);
+static cmo_dms_generic*  receive_cmo_dms_generic(int fd);
+static cmo_ring_by_name* receive_cmo_ring_by_name(int fd);
+static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(int fd);
+
 static cmo_error2*  receive_cmo_error2(int fd);
 static void         receive_mpz(int fd, mpz_ptr mpz);
 
@@ -75,9 +81,11 @@ static int          send_cmo_int32(int fd, cmo_int32* m);
 static int          send_cmo_string(int fd, cmo_string* m);
 static int          send_cmo_mathcap(int fd, cmo_mathcap* c);
 static int          send_cmo_list(int fd, cmo_list* c);
+static int          send_cmo_monomial32(int fd, cmo_monomial32* c);
 static int          send_cmo_zz(int fd, cmo_zz* c);
 static int          send_cmo_error2(int fd, cmo_error2* c);
 static int          send_mpz(int fd, mpz_ptr mpz);
+static int          send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c);
 
 
 /* エラーハンドリングのため */
@@ -203,15 +211,28 @@ static cmo_mathcap* receive_cmo_mathcap(int fd)
 
 static cmo_list* receive_cmo_list(int fd)
 {
-    cmo* newcmo;
+    cmo* ob;
     cmo_list* c = new_cmo_list();
     int len = receive_int32(fd);
 
     while (len>0) {
-        newcmo = receive_cmo(fd);
-        append_cmo_list(c, newcmo);
+        ob = receive_cmo(fd);
+        append_cmo_list(c, ob);
         len--;
     }
+    return c;
+}
+
+static cmo_monomial32* receive_cmo_monomial32(int fd)
+{
+	int i;
+	int len = receive_int32(fd);
+    cmo_monomial32* c = new_cmo_monomial32(len);
+
+	for(i=0; i<len; i++) {
+		c->exps[i] = receive_int32(fd);
+	}
+	c->coef = receive_cmo(fd);
     return c;
 }
 
@@ -239,10 +260,80 @@ static cmo_ring_by_name* receive_cmo_ring_by_name(int fd)
     return new_cmo_ring_by_name(ob);
 }
 
+static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(int fd)
+{
+    cmo* ob;
+    cmo_distributed_polynomial* c = new_cmo_distributed_polynomial();
+    int len = receive_int32(fd);
+	c->ringdef = receive_cmo(fd);
+
+    while (len>0) {
+        ob = receive_cmo(fd);
+        append_cmo_list(c, ob);
+        len--;
+    }
+    return c;
+}
+
 static cmo_error2* receive_cmo_error2(int fd)
 {
     cmo* ob = receive_cmo(fd);
     return new_cmo_error2(ob);
+}
+
+/* receive_ox_tag() == OX_DATA の後に呼び出される */
+/* 関数ポインタを使った方がきれいに書けるような気がする.  */
+/* if (foo[tag] != NULL) foo[tag](fd); とか */
+
+cmo* receive_cmo(int fd)
+{
+    cmo* m;
+    int tag;
+    tag = receive_int32(fd);
+
+    switch(tag) {
+    case CMO_NULL:
+        m = receive_cmo_null(fd);
+        break;
+    case CMO_INT32:
+        m = (cmo *)receive_cmo_int32(fd);
+        break;
+    case CMO_STRING:
+        m = (cmo *)receive_cmo_string(fd);
+        break;
+    case CMO_MATHCAP:
+        m = (cmo *)receive_cmo_mathcap(fd);
+        break;
+    case CMO_LIST:
+        m = (cmo *)receive_cmo_list(fd);
+        break;
+    case CMO_MONOMIAL32:
+        m = (cmo *)receive_cmo_monomial32(fd);
+        break;
+    case CMO_ZZ:
+        m = (cmo *)receive_cmo_zz(fd);
+        break;
+    case CMO_ZERO:
+        m = (cmo *)receive_cmo_zero(fd);
+        break;
+    case CMO_DMS_GENERIC:
+		m = (cmo *)receive_cmo_dms_generic(fd);
+		break;
+	case CMO_RING_BY_NAME:
+		m = (cmo *)receive_cmo_ring_by_name(fd);
+		break;
+	case CMO_DISTRIBUTED_POLYNOMIAL:
+		m = (cmo *)receive_cmo_distributed_polynomial(fd);
+		break;
+    case CMO_ERROR2:
+        m = (cmo *)receive_cmo_error2(fd);
+        break;
+    case CMO_DATUM:
+    case CMO_QQ:
+    default:
+        fprintf(stderr, "unknown cmo-type: tag = (%d)\n", m->tag);
+    }
+    return m;
 }
 
 static void receive_mpz(int fd, mpz_ptr mpz)
@@ -409,48 +500,6 @@ cmo_error2* new_cmo_error2(cmo* ob)
     c->tag = CMO_ERROR2;
     c->ob  = ob;
     return c;
-}
-
-/* receive_ox_tag() == OX_DATA の後に呼び出される */
-/* 関数ポインタを使った方がきれいに書けるような気がする.  */
-/* if (foo[tag] != NULL) foo[tag](fd); とか */
-
-cmo* receive_cmo(int fd)
-{
-    cmo* m;
-    int tag;
-    tag = receive_int32(fd);
-
-    switch(tag) {
-    case CMO_NULL:
-        m = receive_cmo_null(fd);
-        break;
-    case CMO_INT32:
-        m = (cmo *)receive_cmo_int32(fd);
-        break;
-    case CMO_STRING:
-        m = (cmo *)receive_cmo_string(fd);
-        break;
-    case CMO_MATHCAP:
-        m = (cmo *)receive_cmo_mathcap(fd);
-        break;
-    case CMO_LIST:
-        m = (cmo *)receive_cmo_list(fd);
-        break;
-    case CMO_ZZ:
-        m = (cmo *)receive_cmo_zz(fd);
-        break;
-    case CMO_ERROR2:
-        m = (cmo *)receive_cmo_error2(fd);
-        break;
-    case CMO_DATUM:
-    case CMO_QQ:
-    case CMO_ZERO:
-    case CMO_DMS:
-    default:
-        fprintf(stderr, "unknown cmo-type: tag = (%d)\n", m->tag);
-    }
-    return m;
 }
 
 void send_ox_command(int fd, int sm_command)
@@ -959,9 +1008,36 @@ static int send_cmo_list(int fd, cmo_list* c)
     return 0;
 }
 
+static int send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c)
+{
+    cell* cp = c->head;
+    int len = length_cmo_list((cmo_list *)c);
+    send_int32(fd, len);
+	send_cmo(fd, c->ringdef);
+
+    while(cp != NULL) {
+        send_cmo(fd, cp->cmo);
+        cp = cp->next;
+    }
+    return 0;
+}
+
+static int send_cmo_monomial32(int fd, cmo_monomial32* c)
+{
+	int i;
+	int len = c->length;
+	send_int32(fd, len);
+	for(i=0; i<len; i++) {
+		send_int32(fd, c->exps[i]);
+	}
+	send_cmo(fd, c->coef);
+	return 0;
+}
+
 static int send_cmo_zz(int fd, cmo_zz* c)
 {
     send_mpz(fd, c->mpz);
+	return 0;
 }
 
 static int send_cmo_error2(int fd, cmo_error2* c)
@@ -978,6 +1054,8 @@ int send_cmo(int fd, cmo* c)
     send_int32(fd, tag);
     switch(tag) {
     case CMO_NULL:
+    case CMO_ZERO:
+    case CMO_DMS_GENERIC:
         send_cmo_null(fd, c);  /* 空の関数 */
         break;
     case CMO_INT32:
@@ -987,16 +1065,22 @@ int send_cmo(int fd, cmo* c)
         send_cmo_string(fd, (cmo_string *)c);
         break;
     case CMO_MATHCAP:
+    case CMO_ERROR2:
+    case CMO_RING_BY_NAME:
+    case CMO_INDETERMINATE:
         send_cmo_mathcap(fd, (cmo_mathcap *)c);
         break;
     case CMO_LIST:
         send_cmo_list(fd, (cmo_list *)c);
         break;
+    case CMO_MONOMIAL32:
+        send_cmo_monomial32(fd, (cmo_monomial32 *)c);
+        break;
     case CMO_ZZ:
         send_cmo_zz(fd, (cmo_zz *)c);
         break;
-    case CMO_ERROR2:
-        send_cmo_error2(fd, (cmo_error2 *)c);
+    case CMO_DISTRIBUTED_POLYNOMIAL:
+        send_cmo_distributed_polynomial(fd, (cmo_distributed_polynomial *)c);
         break;
     default:
     }
