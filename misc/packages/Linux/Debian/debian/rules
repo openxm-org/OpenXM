@@ -24,7 +24,7 @@ SHARED_FILES = OpenXM/Copyright OpenXM/doc OpenXM/include OpenXM/man \
 BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so* OpenXM/lib/*.a.* \
                OpenXM/rc
 MAN_PAGES    = openxm.1 sm1.1
-EXECUTABLES = gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_texmacs
+EXECUTABLES = gnuplot4ox gnuplot_x11 k0 ox ox_sm1 ox_k0 oxlog oxweave sm1 tigers ox_texmacs
 
 SHELL_SCRIPTS=asir sm1 oxmath oxMathematica ox openxm
 
@@ -68,8 +68,8 @@ install: build
 	cp ${INST_PREFIX}/OpenXM/rc/kde/openxm-binary-knoppix ${INST_PREFIX}/../../usr/lib/menu/openxm-binary
 	cp ${INST_PREFIX}/OpenXM/doc/OpenXM-web/hopo_std_color.xpm ${INST_PREFIX}/OpenXM/doc/OpenXM-web/logo-openxm2-color.xpm  ${INST_PREFIX}/../../usr/share/pixmaps
 # Do the final cleaning of /usr/local/OpenXM for knoppix package.
-	cp delete-files-knoppix.sh ${INST_PREFIX}/../../
-	(cd ${INST_PREFIX} ; ./delete-files-knoppix.sh )
+	cp `pwd`/debian/delete-files-knoppix.sh ${INST_PREFIX}/../../
+	(cd ${INST_PREFIX}/../../ ; ./delete-files-knoppix.sh )
 	rm -f ${INST_PREFIX}/../../delete-files-knoppix.sh
 	#dh_movefiles
 
