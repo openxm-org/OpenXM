@@ -1,6 +1,7 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.17 2003/12/20 13:38:44 ohara Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.18 2004/06/20 10:00:19 takayama Exp $
 
 WHICH=../../misc/which.pl
+DVIPDF=dvipdfmx
 
 all:
 	if [ ! -f .make_done ]; then make all2 ; touch .make_done ; fi
@@ -137,6 +138,12 @@ man-eg.dvi: tmpEG
 	-mv tmpEG/man.dvi man-eg.dvi
 	-touch man-eg.dvi
 
+man-jp.pdf: man-jp.dvi
+	${DVIPDF} man-jp.dvi
+
+man-eg.pdf: man-eg.dvi
+	${DVIPDF} man-eg.dvi
+
 help-jp: tmpJPeuc man-jp.dvi
 	-rm -rf help-jp
 	-mkdir help-jp
@@ -203,7 +210,7 @@ targzuu: help-eg help-jp html-eg html-jp
 
 clean:
 	(cd jtexindex/C; make clean)
-	-rm -f man*.dvi man-jp.dvi extract_man extract_func gen_hh .*done
+	-rm -f man*.dvi man*.pdf extract_man extract_func gen_hh .*done
 	-rm -f internal-jp.dvi
 	-rm -rf tmp*
 	-rm -rf help-*
