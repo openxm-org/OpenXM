@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.11 2000/02/04 07:21:47 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.12 2000/02/10 01:18:53 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
@@ -16,7 +16,7 @@ all-spec : $(WEBKOBE1)/openxm-eg.ps $(WEBKOBE1)/openxm-jp.ps
 copy-doc :
 	/bin/rm -rf $(WEBKOBE1)/doc
 	mkdir $(WEBKOBE1)/doc
-	-(cd ../../doc ; cp -r Papers asir-contrib asir2000 kan96xx ox_math $(WEBKOBE1)/doc)
+	-(cd ../../doc ; cp -r Papers asir-contrib asir2000 kan96xx ox_math pari $(WEBKOBE1)/doc)
 
 copy-html :
 	/bin/rm -rf $(WEBKOBE1)/html
