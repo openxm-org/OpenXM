@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.99 2000/12/16 05:58:34 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.100 2000/12/20 11:12:52 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -162,6 +162,7 @@ install-misc:
 	(cd ../rc ; make install.man)
 
 clean:
+	-rm ./.configure-links-done
 	-rm $(OPENXM_CONTRIB)/gmp/.gmp_*
 	-rm $(OPENXM_CONTRIB)/gc/.gc_*
 	-(cd $(OPENXM_CONTRIB)/gmp ; make clean)
@@ -202,7 +203,9 @@ configure: configure-links configure-include configure-bin configure-asir \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp
 
-configure-include:
+configure-include: configure-include-make-dir ../include/ox/cmotag.h ../include/ox/oxMessageTag.h ../include/ox/smCommand.h
+
+configure-include-make-dir:
 	@if test ! -d ../include ; \
 	then \
 	mkdir  ../include ; \
@@ -211,12 +214,12 @@ configure-include:
 	then \
 	mkdir  ../include/ox ; \
 	fi
-	@if test -d ../include/ox ; \
-	then \
-	cp ../doc/OpenXM-web/cmotag.h ../include/ox ; \
-	cp ../doc/OpenXM-web/oxMessageTag.h ../include/ox ; \
-	cp ../doc/OpenXM-web/smCommand.h ../include/ox ; \
-	fi
+../include/ox/cmotag.h : ../doc/OpenXM-web/cmotag.h 
+	cp ../doc/OpenXM-web/cmotag.h ../include/ox 
+../include/ox/oxMessageTag.h : ../doc/OpenXM-web/oxMessageTag.h
+	cp ../doc/OpenXM-web/oxMessageTag.h ../include/ox 
+../include/ox/smCommand.h : ../doc/OpenXM-web/smCommand.h
+	cp ../doc/OpenXM-web/smCommand.h ../include/ox 
 
 configure-gmp: configure-links
 	@if test -f gmp/.gmp_configured ; \
@@ -240,31 +243,34 @@ configure-bin:
 configure-gnuplot:
 	-(cd gnuplot ; make configure)
 
-configure-k097: 
+configure-k097: configure-links
 
-configure-kan96xx:
+configure-kan96xx: configure-links
 	(cd kan96xx ; make configure)
 
 configure-kxx: 
 	( cd kxx ; ./make-configure) 
 
 configure-links:
-	rm -f -r $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
-	(cd $(LIBDIR) ; ln -f -s ../src/k097 k097)
-	(cd $(LIBDIR) ; ln -f -s ../src/kan96xx/Doc sm1)
-	ln -f -s kan96xx SSkan
-	ln -f -s $(BINDIR) bin
-	ln -f -s $(OPENXM_CONTRIB)/gc gc
-	ln -f -s $(OPENXM_CONTRIB)/gmp gmp
-	-mkdir ${OpenXM_HOME}/libexec 
+	-@if [ ! -f ./.configure-links-done ] ; then \
+	rm -f -r $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp ; \
+	(cd $(LIBDIR) ; ln -f -s ../src/k097 k097) ; \
+	(cd $(LIBDIR) ; ln -f -s ../src/kan96xx/Doc sm1) ; \
+	ln -f -s kan96xx SSkan ; \
+	ln -f -s $(BINDIR) bin ; \
+	ln -f -s $(OPENXM_CONTRIB)/gc gc ; \
+	ln -f -s $(OPENXM_CONTRIB)/gmp gmp ; \
+	mkdir ${OpenXM_HOME}/libexec ; \
+	touch ./.configure-links-done ;\
+	fi
 
-configure-oxtoolkit:
+configure-oxtoolkit: configure-include
 	(cd ox_toolkit; ./make-configure)
 
-configure-oxc:
+configure-oxc: configure-include
 	(cd oxc; ./make-configure)
 
-configure-oxmath:
+configure-oxmath: configure-include
 	(cd ox_math; ./make-configure)
 
 configure-pari:
