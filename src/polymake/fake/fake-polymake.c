@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/polymake/fake/fake-polymake.c,v 1.1 2004/07/15 05:39:08 takayama Exp $ */
 /* This is a fake polymake which works as follows
    (1) By using oxhttpd (OpenXM http service), it calls the real polymake
        and gets an answer.
@@ -33,6 +33,11 @@ main(int argc,char *argv[]) {
 	sprintf(cube,"%s/src/polymake/fake/tmp/facet.poly",home);
   }else if (strcmp(argv[2],"FACE_LATTICE")==0) {
 	sprintf(cube,"%s/src/polymake/fake/tmp/facelat.poly",home);
+	printf("FACE_LATTICE\n\n");
+	printf("[ -1 : 3 ]\n");
+	printf("{{0 1} {0 2} {1 2}}\n\n");
+	printf("[ -2 : 3 ]\n");
+	printf("{{0} {1} {2}}\n");
   }else{
 	fprintf(stderr,"fake-polymake: ERROR: Unknown method, property, or label\n");
 	fprintf(stderr,"facet1.poly  FACET\n");
