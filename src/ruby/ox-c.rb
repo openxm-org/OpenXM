@@ -1,7 +1,7 @@
-# ox-taka.rb OpenXM client written by Ruby  
+# ox-c.rb OpenXM client written by Ruby  
 #   (takayama's version based on ogino's ox.rb)
 #
-# $OpenXM: OpenXM/src/ruby/ox-taka.rb,v 1.3 2000/07/28 07:45:28 takayama Exp $
+# $OpenXM$
 # 
 require 'socket'
 include Socket::Constants
@@ -181,44 +181,50 @@ class OXSession
  	  @dataport = @controlport+1
       printf("Starting the server %s\n",oxserver)
       $stdout.flush
+      controlThread =
       Thread.start {
         printf("Connection from %s, \n", host)
         printf("Waiting a connection to controlport %d, \n", @controlport)
         $stdout.flush
-#        @controlp = TCPserver.open(@controlport)
-        $ccccontrolp = TCPserver.open(@controlport)
+        @controlp = TCPserver.open(@controlport)
+        @controlp = controlp.accept
       }
       printf("Waiting a connection to dataport %d, \n", @dataport)
       $stdout.flush
       @datap = TCPserver.open(@dataport)
 
-      sleep 3 # Heuristic wait that TPCserver switches to accept mode.
+      sleep 3 # Heuristic wait that TCPserver switches to accept mode.
       printf(oxhome+"\n")
       ox = oxhome+"bin/ox"
-      system("oxlog  /usr/X11R6/bin/xterm -e "+ox+" -ox "+oxserver+" -control "+@controlport.to_s()+" -data "+@dataport.to_s()+" -reverse -pass a &");
+      system("oxlog  /usr/X11R6/bin/xterm -geometry 80x24-0-0 -e "+ox+" -ox "+oxserver+" -control "+@controlport.to_s()+" -data "+@dataport.to_s()+" -reverse -pass a &");
       if $? == nil
          printf("failed to start the ox server.\n")
          exit()
       end
-      sleep 2
-      @controlp = $ccccontrolp
+
 #    rescue
 
-    
+    @datap = datap.accept
+    Thread#join controlThread
+
     # byte oder negotiation
     @byteorder = decide_byte_order(byteorder)
+
+    datap.read(2);  ## I do not understand the reason why I need to read
+                    ## these extra two bytes.
+
   end
 
   attr_accessor :controlp, :datap
 
   def decide_byte_order(b_or_l)
     if b_or_l == 0
-      @controlp.read(1)
-      @datap.read(1)
-      @controlp.flush
-      @datap.flush
-      @controlp.write(0)
-      @datap.write(0)
+      controlp.read(1)  # do not use @controlp.read(1)
+      datap.read(1)
+      controlp.putc("\000");
+      datap.putc("\000");
+      controlp.flush
+      datap.flush
       return 0
     end
   end
@@ -278,17 +284,18 @@ class OXSession
     
   def receive
     oxtag = receive_int32
-#    printf("oxtag = %d ",oxtag)
-#    $stdout.flush
+    printf("oxtag = %d \n",oxtag)
     seqNum = receive_int32
-    if oxtag = OX_DATA then
+    printf("seqNum = %d \n", seqNum)
+    $stdout.flush
+    if oxtag == OX_DATA then
        tag = receive_int32
     else
        printf("Cannot handle this OX tag %d\n",oxtag)
        $stdout.flush
     end
-#    printf("cmotag = %d ",tag)
-#    $stdout.flush
+    printf("cmotag = %d \n",tag)
+    $stdout.flush
     case tag  
     when CMO_NULL
       m = receive_cmo_null
@@ -327,7 +334,12 @@ class OXSession
   end
   
   def receive_int32
-    return datap.read(4).unpack("N").pop
+     hoge = datap.read(4)
+     printf("[ ");  
+     hoge.each_byte { |c|  printf("%2x ",c) }
+     printf(" ]\n");
+     return hoge.unpack("N").pop
+#    return datap.read(4).unpack("N").pop
   end
   
   def receive_cmo_null
@@ -369,7 +381,10 @@ s = OXSession.new()
 s.submit(" [(oxWatch) 1] extension ");
 ## sample
 a = s.rpc(" 1 1 add ")
-printf("%s\n",a)
+printf("The result of  <<  1  1  add >> is  ====> %s\n",a)
+## define some useful macros for ruby-sm1
+s.submit(" /run {/@@@.run.filename set [(parse) @@@.run.filename pushfile] extension} def");
+s.submit(" /quit (Type in ctrl-C to quit.) def ");
 $stdout.flush
 
 ## sample
