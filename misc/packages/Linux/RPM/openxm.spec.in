@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/openxm.spec.in,v 1.2 2000/03/09 08:35:43 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/openxm.spec.in,v 1.3 2000/03/09 09:26:26 takayama Exp $
 #  openxm.spec.in
 #
 %define ver      1.1.2
@@ -22,7 +22,11 @@ The OpenXM package is a collection of mathematical softwares that
 support the OpenXM protocol.
 Main clients are asir and mathematica (math).
 Servers are ox_asir, ox_sm1, ox_gnuplot, ox_math, ox_phc, ox_tigers.
-
+[Note on installation]
+This package is not relocatable as it is. But if you change directory
+to OpenXM/rc after the installation and type in
+make clean ; make install PREFIX=(Your favorite directory to put shell scripts to start OpenXM clients)
+then everything works fine.
 %prep
 %setup
 
