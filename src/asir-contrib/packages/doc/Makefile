@@ -1,16 +1,18 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.34 2002/08/03 13:14:18 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.35 2002/08/04 07:37:46 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
 # install : install-document install-help
 # install-help : all
 #        Installing online help to OpenXM/lib/asir/help-*
-# install-document :  all
-#        Copy the documents to OpenXM/doc/asir-contrib
+# install-document :  all  gen-dvi-ps
+#        Copy the documents in dvi and ps to OpenXM/doc/asir-contrib
 # install-html-help
 #        Copy html help to OpenXM/doc/asir-contrib
 # gen-html-en  gen-html-ja
 #        Generate HTML documents under html-en and html-ja
+# gen-dvi-ps
+#        Generate dvi and ps files.
 #
 # NOTE: install-help should be executed after installing asir2000.
 ########################################################################
@@ -373,14 +375,16 @@ install-html-help: gen-html-en gen-html-ja
 	-( tar cf - html-en | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 	-( tar cf - html-ja | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 
-install-document : all clean-document
-	-ptex cman-ja.texi
-	-ptex cman-ja.texi
+install-document :  gen-dvi-ps
+	-cp cman-ja.dvi $(OpenXM_doc)/asir-contrib/cman-ja.dvi
 	-$(DVIPS) cman-ja >$(OpenXM_doc)/asir-contrib/cman-ja.ps
-	-tex cman-en.texi
-	-tex cman-en.texi
 	-cp cman-en.dvi $(OpenXM_doc)/asir-contrib/cman-en.dvi
 	-$(DVIPS) cman-en >$(OpenXM_doc)/asir-contrib/cman-en.ps
+gen-dvi-ps: all clean-document
+	-ptex cman-ja.texi
+	-ptex cman-ja.texi
+	-tex cman-en.texi
+	-tex cman-en.texi
 
 
 clean-document :
