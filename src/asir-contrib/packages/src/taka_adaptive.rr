@@ -1,4 +1,4 @@
-/* $OpenXM$  */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_adaptive.rr,v 1.1 2003/01/16 06:07:56 takayama Exp $  */
 
 /* adaptive_int(P,Q,Eps)
    adaptive_barns(A,B,Z)
@@ -282,6 +282,8 @@ def barnsPFQ(A,B,Z) {
   if ((number_abs(kf(A_P)) > Eps) || (number_abs(kf(A_Q)) > Eps)) {
     print("Warning: integrant does not decay to zero at the boundary of ",0);
     print([A_P,A_Q]);
+    print("kf(P)="+rtostr(kf(A_P)));
+    print("kf(Q)="+rtostr(kf(A_Q)));
   }
   return A_C1*adaptive_int(A_P,A_Q,Eps);
 
