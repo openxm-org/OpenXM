@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.14 2004/12/17 00:13:08 takayama Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.15 2004/12/17 07:47:03 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
@@ -26,7 +26,7 @@ extract: fetch
 
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
-		for i in ${PATCH_FILES}; do if [ -f "$$i" ]; then cat $$i | (cd ${WRKSRC}; patch -p1); fi done;\
+		for i in ${PATCH_FILES} "" ; do if [ -f "$$i" ]; then cat $$i | (cd ${WRKSRC}; patch -p1); fi done;\
 	fi
 	@touch work/.patch_done
 
