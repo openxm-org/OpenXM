@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.2 2000/01/23 05:28:33 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.3 2000/01/24 02:48:24 noro Exp $
 //&jp \section{ CMO の形式的表現方法 }
 //&eg \section{ A formal expression of CMO }
 
@@ -227,18 +227,29 @@ CMOexpression と, CMObject の区別を理解しておくのは重要である.
 これは, 文法的には正しいプログラムだが, なにをやるのかは全く不明な
 プログラムと似ている.
 
-さて, Open math 風 (\cite{openmath}) 
-の SGML 表現法も可能であり, その場合は, 上の二つの例は次のように
-書く.
-\begin{verbatim}
-<CMO_INT32>
-1234
-</CMO_INT32>
+*/
 
-<CMO_STRING>
+/*&jp
+さて, Open math 風 (\cite{openmath}) 
+の XML 表現法も可能であり, その場合は, 上の二つの例は次のように
+書く.
+*/
+/*&eg
+It is possible to express CMO by XML like Open math (\cite{openmath}).
+See example below.
+*/
+
+/*&C
+
+\begin{verbatim}
+<cmo_int32>
+1234
+</cmo_int32>
+
+<cmo_string>
 5
 "Hello"
-</CMO_STRING>
+</cmo_string>
 \end{verbatim}
 */
 
@@ -323,4 +334,50 @@ is the encoding of the CMOexpression
 の 標準 encoding 法による表現である.
 */
 
+/*&C
+
+\bigbreak
+
+*/
+
+/*&jp
+(実験的)
+CMO は XML 規格に準拠している.
+XML 規格の Attribute を binary encode するために
+特別なタグ \\
+*/
+/*&eg
+(Experimental)
+CMO is complient to XML specification.
+In order to encode ``Attribute'' in XML in a binary format,
+we have a tag: \\
+*/
+//&C \verb! #define CMO_ATTRIBUTE_LIST  (LARGEID+3) !  \\
+/*&jp
+を用意してある.
+*/
+/*&jp
+たとえば Attribute {\tt font="Times-Roman" }  は \\
+*/
+/*&eg
+For example, the attibute {\tt font="Times-Roman" } is encoded as \\
+*/
+/*&C
+\begin{verbatim}
+ (CMO_ATTRIBUTE (CMO_LIST 
+                  (CMO_LIST (CMO_STRING,"font") (CMO_STRING, "Times-Roman"))))
+\end{verbatim}
+*/
+/*&jp
+と encoding される.
+*/
+//*C  
+/*&jp
+この特別な CMO tag {\tt CMO\_ATTRIBUTE\_LIST} 以外は,
+XML 表現では XML のタグとして理解される.
+*/
+/*&eg
+All tags except this special CMO tag {\tt CMO\_ATTRIBUTE\_LIST}
+are XML tags in the CMO/XML expression.
+*/
 

@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.1 2000/01/18 07:30:12 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.2 2000/02/02 02:03:41 takayama Exp $ */
 /*  cmotag.h */
+/*  This file is the primary database of CMO tags. */
 /* Never Use 0 as a CMO tag. */
 #define LARGEID   0x7f000000       /* 2130706432 */
 #define CMO_PRIVATE 0x7fff0000     /* 2147418112 */
@@ -11,6 +12,8 @@
 #define CMO_STRING  4
 #define CMO_MATHCAP 5
 #define CMO_LIST    17
+
+#define CMO_ATTRIBUTE_LIST  (LARGEID+3)
 
 
 #define     CMO_MONOMIAL32  19
