@@ -1,0 +1,167 @@
+%$OpenXM$
+%% You need acmconf.cls and flushend.sty to compile this file.
+%% They may be obtained from 
+%%  http://riksun.riken.go.jp/archives/tex-archive/macros/latex/contrib/supported/acmconf/
+\documentclass[submit]{acmconf}
+%\documentclass{article}
+%% \CopyrightText{\copyright 2000, }
+\IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
+\ConferenceName{1. ISSAC 2000, St. Andrews, UK, 2000}
+\ConferenceShortName{ISSAC2000}
+\def\OpenXM{{\tt OpenXM\ }}
+
+\begin{document}
+\date{January 16, 2000}
+\title{OpenXM 
+      --- an Open System \\ to Integrate Mathematical Softwares}
+\author{\Author{Masahide Maekawa}\\
+         \Address{Kobe University}\\
+         \Email{maekawa@math.kobe-u.ac.jp}\\
+         \and
+         \Author{Masayuki Noro}\\
+         \Address{Fujitsu Labs}\\
+         \Email{noryo@flab.fujitsu.co.jp}
+         \and
+         \Author{Katsuyoshi Ohara}\\
+         \Address{Kanazawa University}\\
+         \Email{ohara@air.s.kanazawa-u.ac.jp}
+         \and
+         \Author{Yukio Okutani}\\
+         \Address{Kobe University}\\
+         \Email{okutani@math.kobe-u.ac.jp}
+         \and
+         \Author{Nobuki Takayama}\\
+         \Address{Kobe University}\\
+         \Email{takayama@math.kobe-u.ac.jp}
+         \and
+         \Author{Yasushi Tamura}\\
+         \Address{Kobe University}\\
+         \Email{tamura@math.kobe-u.ac.jp}
+       }
+\maketitle
+
+\begin{abstract}
+  This is an abstract.
+\end{abstract}
+
+\begin{keywords}
+OpenMath, MP, OpenXM. 
+\end{keywords}
+
+\section{Introduction}
+\OpenXM is a free, or Open Source, infrastructure for mathematical
+softwares.
+It provides methods and protocols 
+to integrate various mathematical softwares.
+\OpenXM package is a set of softwares that supports \OpenXM protocols.
+It is currently a collection of softwares
+{\tt Risa/Asir} \cite{asir}, {\tt Kan/sm1} \cite{kan}, {\tt PHC} pack \cite{phc}, {\tt GNUPLOT},
+{\tt Mathematica} interface, and
+{\tt OpenMath}/XML \cite{OpenMath}interface. 
+More and more softwares are wrapped with the \OpenXM stackmachine;
+they are getting a member of \OpenXM package.
+
+
+\section{Design Outline} (Takayama)
+\include{design-outline}
+
+\section{Data Format} (Ohara)
+\include{data-format}
+
+\section{OpenXM Stackmachines}   (Tamura)
+\include{openxm-stackmacines}
+
+\section{Session Management}  (Noryo)
+\include{session-management}
+
+\section{OpenXM Clients}    
+\include{openxm-clients}
+
+\section{OpenXM Development Environment}  (Maekawa)
+\include{openxm-development-environment}
+
+\section{Applications}
+\subsection{Homogeneous Network}  (Noro)
+\include{homogeneous-network}
+\subsection{Heterotic Network}   (Takayama)
+\include{heterotic-network}
+
+\begin{thebibliography}{X}
+\bibitem{OpenMath}
+The OpenMath Esprit Consortium 
+(Caprotti, O. and Cohen, A.M. Editors),
+The OpenMath Standard. D1.3.2a (Public) \\
+{\footnotesize \tt http://www.nag.co.uk/projects/OpenMath},
+February, 1999.
+\bibitem{GKW}
+Gray, S., Kajler, N. and Wang, P. S.,
+Design and Implementation of MP, a Protocol for Efficient
+  Exchange of Mathematical Expressions,
+{\sl Journal of Symbolic Computation}, 19??.
+\bibitem{gap}
+Linton, S. and Solomon, A.,
+OpenMath, IAMC and {\tt GAP},
+preprint, 1999.
+\bibitem{asir} 
+Noro, T. et al., 
+A Computer Algebra System {\tt Risa/Asir},  1993, 1995\\
+{\rm ftp://endeavor.fujitsu.co.jp/pub/isis/asir}
+\bibitem{NT} 
+Noro, M and Takayama, N., Design and Implementation
+of OpenXM, (in Japanese) 1996, 1997, 1998, 1999.
+\bibitem{kan}
+	Takayama, N.,
+	{\em Kan: A system for computation in
+	algebraic analysis,} 1991 version 1,
+        1994 version 2, the latest version is 2.991106.
+	Source code available for Unix computers. 
+         Contact the author, or download from \\
+	{\tt \small ftp.math.kobe-u.ac.jp} via anonymous ftp.
+        See also \\ {\tt \small www.math.kobe-u.ac.jp/KAN/}
+\bibitem{phc}
+Verschelde, J.,
+PHCpack: A general-purpose solver for polynomial systems by
+homotopy continuation.  ACM Transaction on Mathematical Softwares, 25(2) 
+251-276, 1999.
+\bibitem{iamc}
+Wang, P.,
+Design and Protocol for Internet Accessible Mathematical Computation.
+Technical Report ICM-199901-001, ICM/Kent State University, 1999.
+\end{thebibliography}
+\end{document}
+\endinput
+%%
+
+
+%%Text may be set as \emph{emph}.\\
+%%Text may be set as \texttt{texttt}.\\
+%%Text may be set as \underline{unterline}.\\
+%%Text may be set as \textbf{textbf}.\\
+%%Text may be set as \textrm{textrm}.\\
+%%Text may be set as {\tiny tiny}.\\
+
+%%\begin{figure}
+%%\hrule
+%%Nice Postscript, isn't it?
+%%\begin{center}
+%%\IfFileExists{graphicx.sty}{
+%%  \includegraphics{body.eps}
+%%}{
+%%  Sorry, package \texttt{graphicx} not present.
+%%}
+%%\end{center}
+%%Same, a little bit smaller:
+%%\begin{center}
+%%\IfFileExists{graphicx.sty}{
+%%  \includegraphics[scale=.5]{body.eps}
+%%  }{
+%%  Sorry, package \texttt{graphicx} not present.
+%%}
+%%\end{center}
+%%\caption{\label{fig-1}This is a nice floating figure}
+%%\hrule
+%%\end{figure}
+
+
+
+
