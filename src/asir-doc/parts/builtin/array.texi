@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.8 2003/10/19 07:21:57 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.9 2003/12/18 10:26:20 ohara Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -15,7 +15,8 @@
 * newbytearray::
 * newmat::
 * size::
-* det invmat::
+* det nd_det invmat::
+
 * qsort::
 @end menu
 
@@ -384,7 +385,7 @@ return to toplevel
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newvect}, @fref{size}, @fref{det invmat}.
+@fref{newvect}, @fref{size}, @fref{det nd_det invmat}.
 @end table
 
 \JP @node size,,, 配列
@@ -456,14 +457,15 @@ in a rational expression.
 @fref{car cdr cons append reverse length}, @fref{nmono}.
 @end table
 
-\JP @node det invmat,,, 配列
-\EG @node det invmat,,, Arrays
+\JP @node det nd_det invmat,,, 配列
+\EG @node det nd_det invmat,,, Arrays
 @subsection @code{det},@code{invmat}
 @findex det
 @findex invmat
 
 @table @t
 @item det(@var{mat}[,@var{mod}])
+@itemx nd_det(@var{mat}[,@var{mod}])
 \JP :: @var{mat} の行列式を求める. 
 \EG :: Determinant of @var{mat}.
 @item invmat(@var{mat})
@@ -486,7 +488,7 @@ in a rational expression.
 @itemize @bullet
 \BJP
 @item
-@code{det} は行列 @var{mat} の行列式を求める. 
+@code{det} および @code{nd_det} は行列 @var{mat} の行列式を求める. 
 @code{invmat} は行列 @var{mat} の逆行列を求める. 逆行列は @code{[分母, 分子]}
 の形で返され, @code{分母}が行列, @code{分母/分子} が逆行列となる. 
 @item
@@ -494,10 +496,15 @@ in a rational expression.
 @item
 分数なしのガウス消去法によっているため, 多変数多項式を成分とする
 行列に対しては小行列式展開による方法のほうが効率がよい場合もある. 
+@item
+@code{nd_det} は有理数または有限体上の多項式行列の行列式
+計算専用である. アルゴリズムはやはり分数なしのガウス消去法だが,
+データ構造および乗除算の工夫により, 一般に @code{det} より高速に
+計算できる.
 \E
 \BEG
 @item 
-@code{det} computes the determinant of matrix @var{mat}.
+@code{det} and @code{nd_det} compute the determinant of matrix @var{mat}.
 @code{invmat} computes the inverse matrix of matrix @var{mat}.
 @code{invmat} returns a list @code{[num,den]}, where @code{num}
 is a matrix and @code{num/den} represents the inverse matrix.
@@ -507,6 +514,11 @@ The computation is done over GF(@var{mod}) if @var{mod} is specitied.
 The fraction free Gaussian algorithm is employed.  For matrices with
 multi-variate polynomial entries, minor expansion algorithm sometimes
 is more efficient than the fraction free Gaussian algorithm.
+@item
+@code{nd_det} can be used for computing the determinant of a matrix with
+polynomial entries over the rationals or finite fields. The algorithm
+is an improved vesion of the fraction free Gaussian algorithm
+and it computes the determinant faster than @code{det}.
 \E
 @end itemize
 
