@@ -1,0 +1,328 @@
+/* $OpenXM$ */
+ 
+def parametrize(F){
+    D=tdeg(F);
+    if(D==2)
+	return(parametrize_conic(F));
+
+    N=pre(F);
+    for(S=[],L=length(N); I<L; I++)
+	S=cons(N[I][1],S);	/* S=sing(F) */
+
+    NN=lcopy(N);
+
+    G=general_curve(D-2);
+    A=ad(G,NN);		/* A=adjoint2(F) */
+
+    NP=0;
+    if(D==3){
+	Ad=A;
+	NP=2;
+    }
+
+    if(D==4){
+	Ad=A;
+	NP=3;
+    }
+
+    if(D>=5){
+	Ad=heuristic(F,D,S,N,A,D-3);
+	if(Ad != "failed"){
+	    print("heuristic2 succeed.");
+	    NP=2;
+	}else{
+	    print("heuristic2 failed...");
+
+	    Ad=heuristic(F,D,S,N,A,D-4);
+	    if(Ad != "failed"){
+		print("heuristic3 succeed.");
+		NP=3;
+	    }else{
+		print("heuristic3 failed...");
+
+		G=general_curve(D-1);
+		NN=lcopy(N);
+
+		B=ad(G,NN);	/* (n-1)adjoint curve */
+		Ad=heuristic(F,D,S,N,B,2*D-3);
+		if(Ad != "failed"){
+		    print("heuristic2_adjoint1 succeed.");
+		    NP=2;
+		}else{
+		    print("heuristic2_adjoint1 failed...");
+
+		    Ad=heuristic(F,D,S,N,B,2*D-4);
+		    if(Ad != "failed"){
+			print("heuristic3_adjoint1 succeed.");
+			NP=3;
+		    }else{
+			print("All heuristic methods failed");
+			Ad=adjoint1_3parameter(F,A,B,S);
+			NP=3;
+		    }
+		}
+	    }
+	}
+    }
+
+    if(NP==3){
+	G=birat(F,Ad); G=subst(G,u,x,v,y,w,z);
+	Pt=intpt(G);
+	if(Pt != "no integer solution"){
+	    Vars=exclude_xyz(vars(Ad));
+	    L=Vars[0]*x+Vars[1]*y+Vars[2]*z;
+	    L_=subst(L,x,Pt[0],y,Pt[1],z,Pt[2]);
+
+	    Vars=exclude_xyz(vars(L_));
+	    Ad=subst(Ad,Vars[0],lzero(L_,Vars[0]));
+	    Ad=ptozp(Ad);
+
+	    Vars=exclude_xyz(vars(Ad));
+	    Ad=subst(Ad,Vars[0],1,Vars[1],t);
+	}else{
+	    Vars=exclude_xyz(vars(Ad));
+
+	    T=birat3(F,Ad);
+	    C=parametrize_conic(G);
+
+	    X=subst(T[0],x,C[0],y,C[1],z,C[2]);
+	    Y=subst(T[1],x,C[0],y,C[1],z,C[2]);
+	    Z=subst(T[2],x,C[0],y,C[1],z,C[2]);
+	    H=red(subst_(C[3],coef(Ad,1,Vars[0]),
+			      coef(Ad,1,Vars[1]),
+			      coef(Ad,1,Vars[2])));
+
+	    return([X,Y,Z,H]);
+	}
+    }
+
+    if(NP==2){
+        Vars=exclude_xyz(vars(Ad));
+        Ad=subst(Ad,Vars[0],1,Vars[1],t);
+	Ad=ptozp(Ad);
+    }
+
+    Para=append(birat2(F,Ad),[lzero(Ad,t)]);
+    return(Para);
+}
+
+/*
+ Input: 曲線の定義多項式F=F(x,y,z),
+	D=tdeg(F),
+	S=sing(F),
+	N=pre(F)
+	A=adjoint2(F) or adjoint1(F).
+
+ heuristic2
+ =heuristic(F,D,S,N,adjoint2(F),D-3);
+ Output: 2つのパラメーターをふくむn-2次随伴曲線。
+ Remark: 重複度3 の有理点があれば曲線をパラメトライズすることが
+	 容易になる。あるいは、さらに一般に、曲線の次数をn と
+	 するとき,n-r|n-3 となるような重複度r の有理点があれば
+	 よい。
+
+ heuristic3
+ =heuristic(F,D,S,N,adjoint2(F),D-4);
+ Output: 3つのパラメーターをふくむn-2次随伴曲線。
+ Remark: 重複度4 の有理点があれば曲線をパラメトライズすることが
+	 容易になる。あるいは、さらに一般に、曲線の次数をn と
+	 するとき,n-r|n-4 となるような重複度r の有理点があれば
+	 よい。
+
+ heuristic2_adjoint1
+ =heuristic(F,D,S,N,adjoint1(F),2*D-3);
+ Output: 2つのパラメーターをふくむn-1次随伴曲線。
+ Remark: 曲線の次数をn とするとき,n-r|2n-3 となるような重複度r
+	 の有理点があれば曲線をパラメトライズするのが容易になる。
+
+ heuristic3_adjoint1
+ =heuristic(F,D,S,N,adjoint1(F),2*D-4);
+ Remark: 曲線の次数をn とするとき,n-r|2n-4 となるような重複度r
+	 の有理点があれば曲線をパラメトライズするのが容易になる。
+*/
+
+def heuristic(F,D,S,N,A,Num){
+    L=length(N);
+    for(Q="no point",I=0; I<L; I++){
+        P=N[I];
+	QR=iqr(Num,D-P[3][0]);
+        if(P[0]==1 && QR[1]==0){
+	    Q=P[1];
+	    break;
+	}
+    }
+
+    CP=[];
+    if(Q!="no point"){
+	for(T=QR[0],Seed=1; T>0; Seed++){
+	    L=random_line(Q,10|seed=Seed);
+	    Ps=exclude(intersect(F,L),[Q]);
+	    if(pt_intersect(Ps,S)=="empty"){
+		S=append(Ps,S);
+		CP=append(Ps,CP);
+		T--;
+	    }
+	}
+	Ad=restriction(A,CP);
+	return(Ad);
+    }else{
+	return("failed");
+    }
+}
+
+def adjoint1_3parameter(F,A,B,S){
+    Vars=exclude_xyz(vars(A)); L=length(Vars);
+
+    CP=[];
+    Seed=1;
+    while(1){
+	A_=A;
+	C=random_numbers(L,5|seed=Seed);
+
+	for(I=0; I<L; I++)
+	    A_=subst(A_,Vars[I],C[I]);
+
+	Ps=intersect(F,A_);
+	Ps=exclude(Ps,S); K=length(Ps);
+
+	for(M=0,I=0; I<K; I++)
+	    M=M+number(Ps[I]);
+
+	if(M==L-1)
+	    if(length(CP)==0)
+		CP=Ps;
+	    else
+		if(pt_intersect(Ps,CP)=="empty"){
+		    CP=append(Ps,CP);	/* CP に2n-4 個の点が入る */
+		    break;
+		}
+	Seed++;
+    }
+
+    return(restriction(B,CP));
+}
+
+def factor_search(R,V1,V2){
+    L=length(R);
+    for(I=0; I<L; I++){
+	D=R[I][0];
+	if(vars(D)==[V1,V2,t] && deg(D,V1)==1 && deg(D,V2)==1)
+	    return(D);
+    }
+
+    return("no factor");
+}
+
+def vcopy(V1){
+    L=length(V1);
+    V2=newvect(L);
+    for(I=0; I<L; I++)
+	V2[I]=V1[I];
+    return(V2);
+}
+
+def lcopy(L1){
+    L2=[];
+    L=length(L1);
+    for(I=L-1; I>=0; I--){
+	V=L1[I];
+	L2=cons(vcopy(V),L2);
+    }
+    return(L2);
+}
+
+/*
+ Input: 有理数体上の既約三元二次形式F:=F(x,y,z).
+ Output: 代数曲線C:F(x,y,z)=0 パラメーター表示
+	    x=P(t),y=Q(t),z=R(t),t=H(x,y,z)
+	 を表すリスト[P,Q,R,H].
+ Remark: P,Q,R はt の多項式,H はx,y,z の有理式であるが
+	 係数は代数的数を含む場合がある。曲線C のパラメ
+	 ーター表示が、有理数体上の多項式によって可能な
+	 場合は常にそのような表現を返す。したがって係数に
+	 代数的数が含まれるということは、Input された多項
+	 式の定義するする曲線を有理数体上の多項式でパラメ
+	 トライズすることが不可能であることを意味している
+	 (これは曲線上に有理点がないということと同値である)。
+*/
+
+def parametrize_conic(F){
+    S=sing(F);
+    if(S!=[] || length(vars(F))!=3)
+	return("***Input must be irreducible cubic quartic form***");
+
+    P=intpt(F);
+    if(P=="no integer solution"){
+	Q=intersect(F,y)[0];	/* Q はxy-affine 平面上にある。 */
+	L=simpalg(subst(lines(Q),s,1));	/* y の係数は1 */
+	LA=subst(L,z,1);
+
+	F_=simpalg(subst(F,x,x+Q[0],z,1));
+	L_=simpalg(subst(LA,x,x+Q[0]));
+
+	R=simpalg(res(y,F_,L_));
+
+	XX=-coef(R,1,x)/coef(R,2,x)+Q[0];
+	X=simpalg(XX);
+
+	YYY=-coef(LA,0,y);
+	YY=coef(YYY,1,x)*x+dn(X)*coef(YYY,0,x);
+	Y=simpalg(subst(YY,x,nm(X)));
+
+	H=lzero(L,t);
+	return([nm(X),Y,dn(X),H]);
+    }else{
+	L=subst(lines(P),s,1);
+
+	R=res(y,F,L);
+	XX=factor_search(fctr(R),x,z);
+	X=red(lzero(subst(XX,z,1),x));
+
+	YY=lzero(subst(L,z,1),y);
+	Y=red(dn(X)*subst(YY,x,X));
+
+	H=lzero(L,t);
+	return([nm(X),Y,dn(X),H]);
+    }
+}
+
+def check_parametrize(F){
+    Para=parametrize(F);
+    print(Para);
+    F_=simpalg(subst(F,x,Para[0],y,Para[1],z,Para[2]));
+
+    H=Para[3];
+    H_=simpalg(subst(dn(H)*t-nm(H),x,Para[0],y,Para[1],z,Para[2]));
+
+    if(F_==0 && H_==0)
+	return("parametrize correct");
+    else
+	return("parametrize incorrect");
+}
+
+def check_parametrize_conic(F){
+    P=parametrize_conic(F);
+    print(P);
+
+    F_=simpalg(subst(F,x,P[0],y,P[1],z,P[2]));
+
+    D=nm(P[3])-dn(P[3])*t;
+    D_=simpalg(subst(D,x,P[0],y,P[1],z,P[2]));
+
+    if(F_==0 && D_==0)
+	return("parametrize_conic correct");
+    else
+	return("parametrize_conic incorrect");
+}
+end$
+
+
+
+
+
+
+
+
+
+
+

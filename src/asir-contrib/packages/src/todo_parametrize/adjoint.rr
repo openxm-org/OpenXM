@@ -1,0 +1,492 @@
+/* $OpenXM$ */
+
+def birat(F,A){
+    Vars=exclude_xyz(vars(A));
+    X=coef(A,1,Vars[0]);
+    Y=coef(A,1,Vars[1]);
+    Z=coef(A,1,Vars[2]);
+
+    G=general_curve(2);
+    G_=subst_(G,X,Y,Z);
+
+    for(Equ=[],Seed=1; length(exclude_xyz(vars(G)))>1; Seed++){
+	C=random_numbers(3,10|seed=Seed);
+	L=subst(a*x+b*y+c*z,a,C[0],b,C[1],c,C[2]);
+
+	Ps=intersect(F,L);
+
+	K=length(Ps);
+	for(I=0; I<K; I++){
+	    P=Ps[I]; Al=algs(P);
+	    Equ=append(condition_m(G_,P,1,Al),Equ);
+	}
+
+	Vars=vars_(Equ);
+
+	Gr=gr(Equ,Vars,2); L=length(Gr);
+
+	for(I=L-1; I>=0; I--){
+	    E=Gr[I]; V=var(E);
+	    G=ptozp(subst(G,V,lzero(E,V)));
+	}
+    }
+
+    V=exclude_xyz(vars(G));
+    if(length(V)==1)
+	G=tdiv(G,V[0]);
+
+    return(subst(G,x,u,y,v,z,w));
+}
+
+def id(P1,P2){
+    if(simpalg(P1[0]-P2[0])==0 && simpalg(P1[1]-P2[1])==0 && P1[2]-P2[2]==0)
+	return("equal");
+    else
+	return("unequal");
+}
+
+/*
+ Input: 点(斉次座標)からなるリストPs1,Ps2.
+ Output: Ps1 の点であるがPs2 の点ではないもの全体をリストにして返す。
+*/
+
+def exclude(Ps1,Ps2){
+    Ps=[];
+    L1=length(Ps1); L2=length(Ps2);
+    for(I=0; I<L1; I++){
+	K=-1;
+	for(J=0; J<L2; J++)
+	    if(id(Ps1[I],Ps2[J])=="equal"){
+		K=1;
+		break;
+	    }
+
+	if(K==-1)
+	    Ps=cons(Ps1[I],Ps);
+    }
+    return(Ps);
+}
+
+def pt_intersect(Ps1,Ps2){
+    L1=length(Ps1); L2=length(Ps2);
+    for(I=0; I<L1; I++)
+	for(J=0; J<L2; J++)
+	    if(id(Ps1[I],Ps2[J])=="equal")
+		return("exist");
+
+    return("empty");
+}
+
+def search_rps(Ps){
+    RP=[]; L=length(Ps);
+    for(I=0; I<L; I++){
+	P=Ps[I];
+	if(ntype(P[0])==0 && ntype(P[1])==0 && ntype(P[2])==0)
+	    RP=cons(P,RP);
+    }
+    return(RP);
+}
+
+def qps(F,Q){
+    S=[];
+    N=pre(F); L=length(N);
+    for(I=0; I<L; I++)
+	S=cons(N[I][1],S);	/* S:singularity */
+
+    D=tdeg(F); G=general_curve(D-2);
+    A=ad(G,N);
+    Vars=exclude_xyz(vars(A)); L=length(Vars);
+
+    CP=[];
+    Seed=1;
+    while(1){
+	A_=A;
+	C=random_numbers(L,5|seed=Seed);
+
+	for(I=0; I<L; I++)
+	    A_=subst(A_,Vars[I],C[I]);
+
+	Ps=intersect(F,A_);
+	Ps=exclude(Ps,S); K=length(Ps);
+
+	for(M=0,I=0; I<K; I++)
+	    M=M+number(Ps[I]);
+
+	if(M==L-1)
+	    if(length(CP)==0)
+		CP=Ps;
+	    else
+		if(pt_intersect(Ps,CP)=="empty"){
+		    CP=append(Ps,CP);	/* CP に2n-4 個の点が入る */
+		    break;
+		}
+	Seed++;
+    }
+
+    G=general_curve(D-1); B=ad(G,N);
+    B=restriction(B,CP);
+    Vars=exclude_xyz(vars(B));
+
+    QP=[]; Ex=append(CP,S); Seed=1;
+    while(Q!=0){
+	B_=B;
+	C=random_numbers(3,5|seed=Seed);
+	for(I=0; I<3; I++)
+	    B_=subst(B_,Vars[I],C[I]);
+
+	Ps=intersect(F,B_);
+	Ps=exclude(Ps,Ex); K=length(Ps);
+
+	for(M=0,I=0; I<K; I++)
+	    M=M+number(Ps[I]);
+
+	if(M==2){
+	    QP=append(Ps,QP);
+	    Ex=append(Ps,Ex);
+	    Q--;
+	}
+	Seed++;
+    }
+    return(QP);
+}
+
+def rps_odd(F,R){
+    S=[];
+    N=pre(F); L=length(N);
+    for(I=0; I<L; I++)
+	S=cons(N[I][1],S);
+
+    D=tdeg(F); G=general_curve(D-2);
+    A=ad(G,N);
+    Vars=exclude_xyz(vars(A)); L=length(Vars);
+
+    CP=[]; Seed=1;
+    while(1){
+	A_=A; C=random_numbers(L,10|seed=Seed);
+	for(I=0; I<L; I++)
+	    A_=subst(A_,Vars[I],C[I]);
+
+	Ps=intersect(F,A_);
+	Ps=exclude(Ps,S); K=length(Ps);
+
+	for(M=0,I=0; I<K; I++)
+	    M=M+number(Ps[I]);
+
+	if(M==L-1)
+	    if(length(CP)==0)
+		CP=Ps;
+	    else
+		if(int(Ps,CP)=="empty"){
+		    CP=append(Ps,CP);
+		    break;
+		}
+	Seed++;
+    }
+
+    G=general_curve(D-1); B=ad(G,N);
+    B1=restriction(B,CP);
+    Vars=exclude_xyz(vars(B1));
+    Ex=append(CP,S);
+
+    for(RP=[],K=0; K<R; K=length(RP)){
+	for(QP=[],Q=(D-3)/2,Seed=1; Q>0; ){
+	    B2=B1; C=random_numbers(3,10|seed=Seed);
+	    for(I=0; I<3; I++)
+		B2=subst(B2,Vars[I],C[I]);
+
+	    Ps=intersect(F,B2);
+	    Ps=exclude(Ps,Ex); K=length(Ps);
+
+	    for(M=0,I=0; I<K; I++)
+		M=M+number(Ps[I]);
+
+	    if(M==2)
+		if(pt_intersect(Ps,QP)=="empty"){
+		    QP=append(Ps,QP);
+		    Ex=append(Ps,Ex);
+		    Q--;
+		}
+
+	    Seed++;
+	}	/* QP には(D-3)個の点が入っている。 */
+
+	A1=restriction(A,QP); Vars_=exclude_xyz(vars(A1));
+	A2=subst(A1,Vars_[0],1,Vars_[1],1);
+	Ex_=append(Ex,QP);
+	Ps=exclude(intersect(F,A2),Ex_);
+
+	if(length(RP)==0){
+	    RP=Ps;
+	}else{
+	    Ps=exclude(Ps,RP);
+	    RP=append(Ps,RP);
+	}
+    }
+    return(RP);
+}
+
+def restriction(A,Ps){
+    Equ=[]; L=length(Ps);
+    for(I=0; I<L; I++){
+	P=Ps[I]; Al=algs(P);
+	Equ=append(condition_m(A,P,1,Al),Equ);
+    }
+
+    Vars=vars_(Equ);
+    Gr=gr(Equ,Vars,2); L=length(Gr);
+    for(I=L-1; I>=0; I--){
+	E=Gr[I]; V=var(E);
+	A=ptozp(subst(A,V,lzero(E,V)));
+    }
+}
+
+def restriction_ad(AN){
+    Equ=[];
+    A=AN[0]; N=AN[1]; L=length(N);
+    for(I=0; I<L; I++){
+	P=N[I];
+	Equ=append(condition_m(A,P[1],P[3][0]-1,P[2]),Equ);
+    }
+
+    Vars=vars_(Equ);
+    Gr=gr(Equ,Vars,2); L=length(Gr);
+    for(I=L-1; I>=0; I--){
+	E=Gr[I]; V=var(E);
+	A=ptozp(subst(A,V,lzero(E,V)));
+    }
+
+    A_N=[[A,N],Equ];
+    return(A_N);
+}
+
+def condition_m(F,P,M,Al){
+    Equ=[];
+    T=ctype(P);
+
+    if(T==0){
+	for(I=1; I<=(M-1)+1; I++)
+	    for(J=I+1; J<=(M-1)+2; J++){
+		DF=pdiff(F,(M-1)+2-J,J-1-I,I-1);
+		DF_=ptozp(subst(DF,x,P[0],y,P[1],z,P[2]));
+		Equ=cons(DF_,Equ);
+	    }
+	return(Equ);
+    }
+
+    if(T=="x"){
+	X=algptorat(P[0]);
+
+	E=[]; V=[]; L=length(Al);
+	for(I=0; I<L; I++){
+	    E=cons(defpoly(Al[I]),E);
+	    V=cons(algptorat(Al[I]),V);
+	}
+	Gr=gr(E,V,2); H=Gr[0];
+
+	for(I=1; I<=(M-1)+1; I++)
+	    for(J=I+1; J<=(M-1)+2; J++){
+		DF=pdiff(F,(M-1)+2-J,J-1-I,I-1);
+		DF1=subst(DF,x,X,y,P[1],z,P[2]);
+		DF2=ptozp(srem(DF1,H));
+		Equ=append(coefs(DF2,[X]),Equ);
+	    }
+	return(Equ);
+    }
+
+    if(T=="xx"){
+	X=algptorat(P[0]); Y=algptorat(P[1]);
+	H=defpoly(P[0]);
+	for(I=1; I<=(M-1)+1; I++)
+	    for(J=I+1; J<=(M-1)+2; J++){
+		DF=pdiff(F,(M-1)+2-J,J-1-I,I-1);
+		DF1=subst(DF,x,X,y,Y,z,P[2]);
+		DF2=ptozp(srem(DF1,H,X));
+		Equ=append(coefs(DF2,[X]),Equ);
+	    }
+	return(Equ);
+    }
+
+    if(T=="y"){
+	Y=algptorat(P[1]); H=defpoly(P[1]);
+	for(I=1; I<=(M-1)+1; I++)
+	    for(J=I+1; J<=(M-1)+2; J++){
+		DF=pdiff(F,(M-1)+2-J,J-1-I,I-1);
+		DF1=ptozp(subst(DF,x,P[0],y,Y,z,P[2]));
+		DF2=ptozp(srem(DF1,H,Y));
+		Equ=append(coefs(DF2,[Y]),Equ);
+	    }
+	return(Equ);
+    }
+
+    if(T=="xy"){
+	X=algptorat(P[0]); Y=algptorat(P[1]);
+	HX=defpoly(P[0]); HXY=defpoly(P[1]);
+	for(I=1; I<=(M-1)+1; I++)
+	    for(J=I+1; J<=(M-1)+2; J++){
+		DF=pdiff(F,(M-1)+2-J,J-1-I,I-1);
+		DF1=subst(DF,x,X,y,Y,z,P[2]);
+		DF2=ptozp(srem(DF1,HXY,Y));
+		DF3=ptozp(srem(DF2,HX,X));
+		Equ=append(coefs(DF3,[X,Y]),Equ);
+	    }
+	return(Equ);
+    }
+}
+
+def adjoint2(F){
+    if(multi_div(F)=="multiple divisor")
+	return("***Argument has multiple divisor***");
+
+    G=general_curve(tdeg(F)-2);
+    N=pre(F);
+
+    A=ad(G,N); Vars=exclude_xyz(vars(A));
+    print(Vars,2); print(" ",2); print(length(Vars));
+    return(A);
+}
+
+def adjoint1(F){
+    if(multi_div(F)=="multiple divisor")
+	return("***Argument has multiple divisor***");
+
+    G=general_curve(tdeg(F)-1);
+    N=pre(F);
+
+    B=ad(G,N); Vars=exclude_xyz(vars(B));
+    print(Vars,2); print(" ",2); print(length(Vars));
+    return(B);
+}
+
+def ad(A,N){
+    AN=[A,N];
+    Equ=wnbh_ad(AN);
+
+    Vars=vars_(Equ);
+    Gr=gr(Equ,Vars,2); L=length(Gr);
+
+    for(I=L-1; I>=0; I--){
+	E=Gr[I]; V=var(E);
+	A=ptozp(subst(A,V,lzero(E,V)));
+    }
+    return(A);
+}
+
+def wnbh_ad(AN){
+    Equ=[];
+    A_N=restriction_ad(AN); Equ=append(A_N[1],Equ);
+    A=A_N[0][0]; N=A_N[0][1]; L=length(N);
+    for(I=0; I<L; I++){
+	P=N[I];
+	if(P[3][1]==-1){
+	    AN=dnbh_ad(P,A);
+	    Equ=append(wnbh_ad(AN),Equ);
+	}
+    }
+    return(Equ);
+}
+
+def dnbh_ad(P,A){
+    if(P[3][1]==-1){
+	N=[]; Al=P[2];
+	A=center(A,P[1],Al);
+	T=prep_ad(P[4][0],P[4][1],A,Al);
+	MP=monic(subst(T[1],x,1),y);
+	F=af(MP,Al); L=length(F);
+	T_=cremona(T[0]); A=cremona(T[2]);
+	for(I=0; I<L; I++){
+	    F_=F[I];
+	    if(F_[1]>=2){
+		if((M=deg(F_[0],y))==1){
+		    X=lzeroa(F_[0],y);
+		}else{
+		    X=newalg(F_[0]); Al=cons(X,Al);
+		}
+
+		P_=[X,1,0];
+		Ch=char_n(T_,P_,Al);
+		N=cons(newvect(5,[M,P_,Al,[Ch[0],Ch[1]],Ch[2]]),N);
+	    }
+	}
+	return([A,N]);
+    }
+}
+
+def prep_ad(F,Fm,Ad,Al){
+    K=0;
+    if(tdiv(Fm,x)!=0 || tdiv(Fm,y)!=0){
+	K=1;
+	F=simpalg(subst_(F,1/2*(x+y),1/2*(-x+y),z));
+	F=ptozpa(F,Al);
+	Fm=mhp(subst(F,z,1))[0];
+    }
+
+    while(tdiv(Fm,x)!=0 || tdiv(Fm,y)!=0){
+	K=2;
+	A=(1-S^2)/(1+S^2); B=(2*S)/(1+S^2);
+	F=simpalg(subst_(F,A*x+B*y,-B*x+A*y,z));
+	F=ptozpa(F,Al);
+	Fm=mhp(subst(F,z,1))[0];
+	S++;
+    }
+
+    if(K==2){
+	Ad_=simpalg(subst_(Ad,A*x+B*y,-B*x+A*y,z));
+	Ad_=ptozpa(Ad_,Al);	
+    }else{
+	if(K==1){
+	    Ad_=simpalg(subst_(Ad,1/2*(x+y),1/2*(-x+y),z));
+	    Ad_=ptozpa(Ad_,Al);
+	}else{
+	    Ad_=Ad;
+	}
+    }
+
+    return([F,Fm,Ad_]);
+}
+
+def general_curve(N){
+    F=0; Index=0;
+    for(I=1; I<=N+1; I++)
+	for(J=I+1; J<=N+2; J++){
+	    F=F+strtov("c"+rtostr(Index))*x^(N+2-J)*y^(J-1-I)*z^(I-1);
+	    Index++;
+	}
+    return(F);
+}
+
+def vars_(Equ){
+    Vars=[]; L=length(Equ);
+    for(I=0; I<L; I++)
+	Vars=append(vars(Equ[I]),Vars);
+
+    Sum=0; L=length(Vars);
+    for(I=0; I<L; I++)
+	Sum=Sum+Vars[I];
+
+    return(vars(Sum));
+}
+
+def coefs(F,Vars){
+    C=[]; L=length(Vars);
+
+    if(L==1){
+	V=Vars[0]; N=deg(F,V);
+	for(I=N; I>=0; I--){
+	    A=coef(F,I,V);
+	    if(A!=0 && length(vars(A))!=0)
+	        C=cons(ptozp(A),C);
+	}
+    }
+
+    if(L>=2){
+	V=car(Vars); Vars=cdr(Vars);
+	N=deg(F,V);
+	for(I=N; I>=0; I--){
+	    A=coef(F,I,V);
+	    if(A!=0 && length(vars(A))!=0)
+		C=append(coefs(A,Vars),C);
+	}
+    }
+    return(C);
+}
+end$

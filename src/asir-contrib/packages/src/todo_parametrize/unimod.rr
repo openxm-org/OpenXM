@@ -1,0 +1,410 @@
+/*
+いり先生の本の I に単因子への変形の解説がありますね
+(Z の場合).
+II ではそれを 一変数多項式環でやって, Jordan 標準形に
+もっていってます.
+
+結局 単因子への変形が jordan 標準形アルゴリズムの主要部のようです.
+整数環での単因子形への変形に近いをことをやってるプログラムを
+数か月前に書いたので参考までにおくります
+(いり, 線形代数 I 準拠).
+不明点は聞いて下さい.   
+t_test1() : t_unimod1(A) が戻す値を [P,Q,R,S] とすると
+P = QRS で, R = A で, Q,R は unimodular 行列 (det = 1 or -1)
+だったと思います.
+P は十分, 単因子形に近い行列です. (もうすこし変形すると
+単因子形)
+
+t_test1() から先は関係ない部分だったと思います.
+
+高山
+
+(asir-contrib を ロードした, OpenXM 版で実行)
+*/
+
+/* $Id$ */
+
+/*
+#define t_  taka_unimod_
+#define TV_  Taka_unimod_
+*/
+#define DEBUG
+#define TEST_UNIMOD
+
+TV_M = 3$
+TV_N = 4$
+TV_P = 0$ 
+TV_Q = 0$ 
+TV_A = 0$
+
+def matrix_identity_matrix(N)
+{
+A = newmat(N, N);
+for (I = 0; I < N; I++)
+A[I][I] = 1;
+return A;
+}
+
+def number_floor(A)
+{
+Nm = nm(A);
+Dn = dn(A);
+return idiv(Nm, Dn);
+}
+
+def t_init(A) {
+  extern TV_A,TV_M, TV_N, TV_P, TV_Q;
+  M = size(A)[0];
+  N = size(A)[1];
+  TV_M = M;  TV_N=N;
+  TV_P = matrix_identity_matrix(M); 
+  TV_Q = matrix_identity_matrix(N); 
+  TV_A = A;
+  return 0;
+}
+
+/* For the transformation e,  [j] --> [j] + c*[i] (i.e.W(I,J;C))*/
+def t_eee(I,J,C,N) {
+  D = newmat(N,N);
+  D[I][J] = C;
+  for (K=0; K<N; K++) {
+     D[K][K] = 1;
+  }
+  return D;
+}
+
+/* T(I;C) */
+def t_mmm(I,C,N) {
+  D = newmat(N,N);
+  for (K=0; K<N; K++) {
+     D[K][K] = 1;
+  }
+  D[I][I] = C;
+  return D;
+}
+
+/* P(I,J) */ 
+def t_sss(I,J,N) {
+  D = newmat(N,N);
+  for (K=0; K<N; K++) {
+     D[K][K] = 1;
+  }
+  D[I][I] = 0;
+  D[J][J] = 0;
+  D[I][J] = 1;
+  D[J][I] = 1;
+  return D;
+}
+
+/* row elementary translations */
+def t_re(I,J,C) {
+  extern TV_A,TV_M, TV_P;
+  M = t_eee(J,I,C,TV_M);
+  TV_P = M*TV_P;
+  TV_A = M*TV_A;
+#ifdef DEBUG
+  t_showr([I,J,C]);
+#endif
+  return 0;
+}
+
+def t_rm(I,C) {
+  extern TV_A,TV_M, TV_P;
+  M = t_mmm(I,C,TV_M);
+  TV_P = M*TV_P;
+  TV_A = M*TV_A;
+#ifdef DEBUG
+  t_showr([I]|const=C);
+#endif
+  return 0;
+}
+
+def t_rs(I,J) {
+  extern TV_A,TV_M, TV_P;
+  M = t_sss(I,J,TV_M);
+  TV_P = M*TV_P;
+  TV_A = M*TV_A;
+#ifdef DEBUG
+  t_showr([I,J]);
+#endif
+  return 0;
+}
+
+/* column elementary translations */
+def t_le(I,J,C) {
+  extern TV_A,TV_N, TV_Q;
+  M = t_eee(I,J,C,TV_N);
+  TV_Q = TV_Q*M;
+  TV_A = TV_A*M;
+#ifdef DEBUG
+  t_showl([I,J,C]);
+#endif
+  return 0;
+}
+
+def t_lm(I,C) {
+  extern TV_A,TV_N, TV_Q;
+  M = t_mmm(I,C,TV_N);
+  TV_Q = TV_Q*M;
+  TV_A = TV_A*M;
+#ifdef DEBUG
+  t_showl([I]|const=C);
+#endif
+  return 0;
+}
+
+def t_ls(I,J) {
+  extern TV_A,TV_N, TV_Q;
+  M = t_sss(I,J,TV_N);
+  TV_Q = TV_Q*M;
+  TV_A = TV_A*M;
+#ifdef DEBUG
+  t_showl([I,J]);
+#endif
+  return 0;
+}
+
+/* debugging functions */
+def t_showr(L) {
+  extern TV_A;
+  if (length(L) == 1) {
+    print("multipling "+rtostr(L[0])+"th row");
+    print(TV_A); print(" ");
+  }else if (length(L) == 2) {
+    print("interchanging "+rtostr(L[0])+"th row and "+rtostr(L[1])+"th row");
+    print(TV_A); print(" ");
+  }else if (length(L) == 3) {
+    print("("+rtostr(L[0])+"th row)*"+rtostr(L[2])+" + ("+rtostr(L[1])+"th row)");
+    print(TV_A); print(" ");
+  }else error("t_showr");
+}
+def t_showl(L) {
+  extern TV_A;
+  if (length(L) == 1) {
+    print("multipling "+rtostr(L[0])+"th column");
+    print(TV_A); print(" ");
+  }else if (length(L) == 2) {
+    print("interchanging "+rtostr(L[0])+"th column and "+rtostr(L[1])+"th column");
+    print(TV_A); print(" ");
+  }else if (length(L) == 3) {
+    print("("+rtostr(L[0])+"th column)*"+rtostr(L[2])+" + ("+rtostr(L[1])+"th column)");
+    print(TV_A); print(" ");
+  }else error("t_showl");
+}
+
+
+
+
+
+/* main functions */
+
+
+def t_is_zero_region(K) {
+  extern TV_A, TV_M, TV_N;
+  for (I=K; I<TV_M; I++) {
+    for (J=K; J<TV_N; J++) {
+       if (TV_A[I][J] != 0) return [I,J];
+    }
+  }
+  return 0;
+}
+
+def t_set_pivot(K) {
+  P = t_is_zero_region(K);
+  if (P == 0) return K;
+  if (P[0] != K) t_rs(P[0],K);
+  if (P[1] != K) t_ls(P[1],K);
+  return -1;
+}
+
+def t_is_zero_row(K) {
+  extern TV_A, TV_M, TV_N;
+  for (J=K+1; J< TV_N; J++) {
+     if (TV_A[K][J] != 0) return 0;
+  }
+  return 1;
+}
+def t_is_zero_column(K) {
+  extern TV_A, TV_M, TV_N;
+  for (I=K+1; I< TV_M; I++) {
+     if (TV_A[I][K] != 0) return 0;
+  }
+  return 1;
+}
+
+def t_reuclid(K) {
+  extern TV_A, TV_M, TV_N;
+  /* make positive */
+  for (I=K; I<TV_M; I++) {
+    if (TV_A[I][K] < 0) t_rm(I,-1);
+  }
+  C = TV_A[K][K];
+  while (!t_is_zero_column(K)) {
+    C = TV_A[K][K]; MI = K; /* MI : Minimal I */
+    /* find the minimal in the column */
+    for (I=K+1; I<TV_M; I++) {
+      if ((TV_A[I][K] < C) && (TV_A[I][K] != 0)) {
+         C = TV_A[I][K]; MI = I;
+      }
+    }
+#ifdef DEBUG
+    print([I, K, MI]);
+#endif
+    /* swap K-th row and MI-th row */
+    if (K != MI) t_rs(K,MI); /* t_rs(K,I) => t_rs(K,MI) */
+    /* Try to make each column element smaller than C. */
+    for (I=K+1; I<TV_M; I++) {
+      if (TV_A[I][K] > 0) {
+         t_re(K,I,-number_floor(TV_A[I][K]/C));
+      }
+    }
+  }
+  
+  for (I=0; I<K; I++) {
+    if (TV_A[I][K] < 0) {
+      P = -TV_A[I][K];
+      Q = number_floor(P/C);
+      if (-P+Q*C < 0) Q++;
+      t_re(K,I,Q);
+    }else if (TV_A[I][K] > 0) {
+      t_re(K,I,-number_floor(TV_A[I][K]/C));
+    }
+  }
+}
+
+def t_leuclid(K) {
+  extern TV_A, TV_M, TV_N;
+  /* make positive */
+  for (J=K; J<TV_N; J++) {
+    if (TV_A[K][J] < 0) t_lm(J,-1);
+  }
+  C = TV_A[K][K];
+  while (!t_is_zero_row(K)) {
+    C = TV_A[K][K]; MJ = K;  /* MJ : Minimal J */
+    /* find the minimal in the row */
+    for (J=K+1; J<TV_N; J++) {
+      if ((TV_A[K][J] < C) && (TV_A[K][J] != 0)) {
+         C = TV_A[K][J]; MJ = J;
+      }
+    }
+    /* swap K-th column and MI-th column */
+    if (K != MJ) t_ls(K,MJ); /* t_ls(K,J) => t_ls(K,MJ) */
+    /* Try to make each row element smaller than C. */
+    for (J=K+1; J<TV_N; J++) {
+      if (TV_A[K][J] > 0) {
+         t_le(K,J,-number_floor(TV_A[K][J]/C));
+      }
+    }
+  }
+}
+
+def t_zero_rc(K) {
+  extern TV_A, TV_M, TV_N;
+  for (I=0 ; I< TV_M; I++) {
+    if ((TV_A[I][K] != 0) && (I != K)) return 0;
+  }
+  for (J=0; J< TV_N; J++) {
+    if ((TV_A[K][J] != 0) && (J != K)) return 0;
+  }
+  return 1;
+}
+
+
+def t_unimod1(A) {
+  extern TV_A, TV_P, TV_Q;
+  t_init(A);
+
+  K = 0;
+  while (t_set_pivot(K) < 0) {
+    while (!t_zero_rc(K)) {
+      t_reuclid(K);
+      t_leuclid(K);
+    }
+    print(rtostr(K)+" Done");
+    K++;
+  }
+  P = TV_P; Q= TV_Q ; NA = TV_A;
+  return [NA,P,A,Q];
+}
+
+
+def t_test1() {
+
+  A = newmat(3,5,[[1,1,1,1,1],[0,1,1,0,-1],[0,0,1,1,-1]]);
+  B = t_unimod1(A);   
+  print(B); print(B[1]*B[2]*B[3]);
+
+  A = newmat(5,9,[[1,1,1,1,1,1,1,1,1],
+                  [0,0,0,1,1,1,0,0,0],
+                  [0,0,0,0,0,0,1,1,1],
+                  [0,1,0,0,1,0,0,1,0],
+                  [0,0,1,0,0,1,0,0,1]]);
+  B = t_unimod1(A);   
+  print(B); print(B[1]*B[2]*B[3]);
+
+}
+
+
+TV_RM=0$
+TV_RM_N=0$
+TV_RM_B=0$
+TV_RM_Period=0$
+def t_random_init(N,B,Seed) {
+  extern TV_RM, TV_RM_N, TV_RM_B;
+  random(Seed);
+  TV_RM_N = N;
+  TV_RM_B = B;
+  TV_RM = matrix_identity_matrix(N);
+  Pmax = random() % B;
+  for (P = 0; P<Pmax; P++) {
+    E = t_random_elementary();
+    TV_RM = TV_RM*E;
+  }
+  TV_RM = t_matrix_mod(TV_RM,B);
+  return TV_RM;
+}
+def t_random_elementary() {
+  extern TV_RM_B, TV_RM_N;
+  N = TV_RM_N;
+  T = random() % 3;
+  C = random() ;
+  if (random() % 2 == 0) S = 1; else S = -1;
+  while (1) {
+    I = random() % N;
+    J = random() % N;
+    if (I != J) break;
+  }
+  if (T == 0) {
+    Mat = t_eee(I,J,C,N);
+  }else if (T == 1) {
+    Mat = t_mmm(I,S,N);
+  }else if (T == 2) {
+    Mat = t_sss(I,J,N);
+  }
+  return Mat;
+}
+def t_matrix_mod(M,P) {
+  N = size(M)[0];
+  A = newmat(N,N);
+  for (I=0; I<N; I++) {
+    for (J=0; J<N; J++) {
+      A[I][J] = M[I][J] % P;
+      if (M[I][J] < 0) A[I][J] = A[I][J]-P;
+    }
+  }
+  return A;
+}
+def t_random_unimodular_matrix() {
+  extern TV_RM, TV_RM_B;
+  TV_RM = t_matrix_mod(TV_RM*t_random_elementary()*t_random_elementary(),
+                       TV_RM_B);
+  return TV_RM;  
+}
+
+#ifdef TEST_UNIMOD
+/* 単因子 (1,2,20) */
+TestA=newmat(3,3,[[1,-3,2],[6,-8,-2],[-3,9,-2]]);
+/* 単因子 (1,1,1,3) */
+TestB=newmat(4,4,[[5,2,3,4],[1,1,0,2],[2,-1,8,-3],[3,2,0,4]]);
+#endif
+end$
