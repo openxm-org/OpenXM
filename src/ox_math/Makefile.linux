@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.9 1999/12/09 22:52:49 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.10 1999/12/15 05:40:21 ohara Exp $ 
 
 PREFIX=/usr/local
 
@@ -42,13 +42,16 @@ math2.c: math2.tm
 	-rm -f $@
 	${MPREP} $? > $@
 
-install-bin: ${BINARIES}
+install: ${BINARIES}
 	install -c -m 755  ${BINARIES} ${OpenXM_HOME}/bin/
 
-install: ${BINARIES}
+install-for-debug: ${BINARIES}
 	-for i in ${BINARIES}; do \
-		ln -s -f ../src/ox_math/$$i ${OpenXM_HOME}/bin ; \
+		ln -s -f ${OpenXM_HOME}/src/ox_math/$$i ${OpenXM_HOME}/bin ; \
 	done
+
+clean-for-debug:
+	(cd ${OpenXM_HOME}/bin; rm -f ${BINARIES})
 
 clean:
 	-rm -f *.o *~ libox.a libgmp.a math2.c ox_math math2ox
