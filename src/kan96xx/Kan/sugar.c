@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.5 2003/08/21 02:30:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.6 2003/09/12 02:52:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -11,6 +11,8 @@
 extern DebugReductionRed;
 extern DebugContentReduction;
 extern Ecart;
+extern int Ecart_sugarGrade;
+static int ecart_grade_sugar(POLY f);
 
 POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
                      struct syz0 *syzp,int sugarGrade)
@@ -28,7 +30,10 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
   struct ring *rp;
   extern DoCancel;
 
-  if (Ecart) return reduction_ecart(f,gset,needSyz,syzp);
+  if (Ecart) {
+	Ecart_sugarGrade = sugarGrade;
+	return reduction_ecart(f,gset,needSyz,syzp);
+  }
   if (needSyz) {
     if (f ISZERO) { rp = CurrentRingp; } else { rp = f->m->ringp; }
     cf = cxx(1,0,0,rp);
@@ -167,6 +172,7 @@ int grade_sugar(f)
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
 
+  /* if (Ecart) return ecart_grade_sugar(f); */
   if (f ISZERO) return(-1);
   tf = f->m;
   if (tf->ringp != cr) {
@@ -201,6 +207,72 @@ int grade_sugar(f)
       r += tf->e[i].x;
       r += tf->e[i].D;
     }
+    f = f->next;
+    ans = (ans>r?ans:r);
+  }
+  return(ans);
+}
+
+static int ecart_grade_sugar(POLY f)  /* experimental */
+{
+  int r;
+  int i,ans;
+  MONOMIAL tf;
+  static int nn,mm,ll,cc,n,m,l,c;
+  static struct ring *cr = (struct ring *)NULL;
+  int soffset;
+  int sdegree;
+
+  if (f ISZERO) return(-1);
+  tf = f->m;
+  if (tf->ringp != cr) {
+    n = tf->ringp->n;
+    m = tf->ringp->m;
+    l = tf->ringp->l;
+    c = tf->ringp->c;
+    nn = tf->ringp->nn;
+    mm = tf->ringp->mm;
+    ll = tf->ringp->ll;
+    cc = tf->ringp->cc;
+    cr = tf->ringp;
+  }
+
+  soffset = 0x7fffffff; /* large number */
+  while (f != NULL) {
+    r = 0;
+    tf = f->m;
+    for (i=m; i<nn; i++) {
+      r -= tf->e[i].x;
+      r += tf->e[i].D;
+    }
+    f = f->next;
+    soffset = (r < soffset? r: soffset);
+  }
+
+  ans = 0;
+  while (f != NULL) {
+    r = 0;  sdegree = 0;
+    tf = f->m;
+    for (i=0; i<cc; i++) {
+      r += tf->e[i].x;
+      r += tf->e[i].D;
+    }
+    for (i=c; i<ll; i++) {
+      r += tf->e[i].x;
+      r += tf->e[i].D;
+    }
+    for (i=l; i<mm; i++) {
+      r += tf->e[i].x;
+      r += tf->e[i].D;
+    }
+    for (i=m; i<nn; i++) {
+      r += tf->e[i].x;
+      r += tf->e[i].D;
+      sdegree -= tf->e[i].x;
+      sdegree += tf->e[i].D;
+
+    }
+	r += sdegree-soffset;
     f = f->next;
     ans = (ans>r?ans:r);
   }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.17 2003/09/10 07:41:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.18 2003/09/12 02:52:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -45,10 +45,12 @@ struct ring *TraceLift_ringmod;
 extern DoCancel;
 int DebugReductionEcart = 0;
 extern DebugContentReduction;
+extern int Sugar;
 
 /* This is used for goHomogenization */
 extern int DegreeShifto_size;
 extern int *DegreeShifto_vec;
+int Ecart_sugarGrade;
 
 /* It is used reduction_ecart() and ecartFindReducer()
    to determine if we homogenize in this function */
@@ -211,6 +213,36 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
   if ((DebugReductionRed&1) || (DebugReductionEcart&1)) {
     printf("ecartFindReducer(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d\n",ell1,ell2,minGrade,minGseti,minGgi);
   }
+  if (Sugar) {  /* experimental */
+	if (ell1 <= ell2) {
+	  if (ell1 == LARGE) {
+		er.ell = -1;
+		return er;
+	  }else{
+		int new_s;
+		er.ell = ell1;
+		er.first = 1;
+		er.grade = minGrade;
+		er.gseti = minGseti;
+		/* reduce if and only if Ecart_sugarGrade does not increase. */
+		new_s = grade_gen(r)-grade_gen(gset->polys[minGrade]->gh[minGseti]);
+		if (new_s + minGrade <= Ecart_sugarGrade) {
+		  return er;
+		}else{
+		  printf("new_s=%d, minGrade=%d, sugarGrade=%d\n",new_s,minGrade,
+				 Ecart_sugarGrade);
+		  er.ell = -1;
+		  return er;
+		}
+	  }
+	}else{
+      er.ell = ell2;
+      er.first = 0;
+      er.ggi = minGgi;
+	  return er;
+	}
+  }
+
   if (ell1 <= ell2) {
     if (ell1 == LARGE) {
       er.ell = -1;
