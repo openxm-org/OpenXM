@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.16 2000/03/16 04:54:57 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.17 2000/03/16 09:51:32 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -32,8 +32,8 @@ class OpenXMconnection{
       socket = new ServerSocket(Port,50,InetAddress.getByName(host)).accept();
     }
 
-    //is = new BufferedInputStream(socket.getInputStream());
-    is =new DebugInputStream(new BufferedInputStream(socket.getInputStream()));
+    //is =new DebugInputStream(new BufferedInputStream(socket.getInputStream()));
+    is = new BufferedInputStream(socket.getInputStream());
     os = socket.getOutputStream();
   }
 

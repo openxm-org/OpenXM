@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.7 1999/11/19 08:49:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.8 2000/01/28 06:22:01 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -146,9 +146,9 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
     }else if(arg.equals("grobner base")){
       try{
 	debug("poly A: "+ poly1.getText());
-	oxm.sendCMO(new CMO_STRING("[[("+ poly1.getText() +") ("+ poly2.getText() +")] (x,y)] gb"));
-	oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
-	oxm.sendSM(new SM(SM.SM_popString));
+	oxm.send(new CMO_STRING("[[("+ poly1.getText() +") ("+ poly2.getText() +")] (x,y)] gb"));
+	oxm.send(new SM(SM.SM_executeStringByLocalParser));
+	oxm.send(new SM(SM.SM_popString));
       }catch(java.io.IOException e){
       }catch(MathcapViolation e){
       }
@@ -180,8 +180,8 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 	*/
       oxm = new OpenXM(host,ControlPort,DataPort);
       textarea.append("Connected.\n");
-      oxm.sendCMO(new CMO_STRING("(cohom.sm1) run ;\n"));
-      oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
+      oxm.send(new CMO_STRING("(cohom.sm1) run ;\n"));
+      oxm.send(new SM(SM.SM_executeStringByLocalParser));
 
       thread = new Thread(this);
       thread.start();
