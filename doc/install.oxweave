@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.38 2000/09/25 07:12:41 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.39 2000/11/30 12:45:13 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -18,6 +18,10 @@ This document is for OpenXM version 1.1.3.  (Draft)
 ソースからインストールする場合は 
        ★ OpenXM パッケージの Make 法
 を御覧下さい.
+RPM, Debian などのパッケージでインストールする場合は
+       Web ページの説明どうりにパッケージをインストールするだけで
+       設定が終了します.      
+
 インストールに必要なシステムの仕様については, 動作環境を御覧ください.
 */
 /*&eg
@@ -26,6 +30,9 @@ In this section, we will explain how to install OpenXM package binary
 distribution.
 If you build from the source, see the section
       * How to make OpenXM package?
+If you install openxm by using RPM or Debian package,
+install the system following the instruction given on our web page.
+
 As to the required environment, see the section "System Requirement"
 */
 /*&jp
@@ -188,7 +195,7 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
    root になって,
      pkg_add openxm-version.tgz
    OpenXM は /usr/local/OpenXM にインストールされます.
-   あとは, 上の (4) へ.
+
    ここで version は OpenXM の version 番号で, たとえば, 
    2000, 3/20(Mon) 版は  1.1.2
    pkg_add に失敗した場合は, /var のサイズを大きくしてやりなおして
@@ -226,7 +233,7 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
    Become the super user and type
       pkg_add openxm-version.tgz
    OpenXM will be installed to /usr/local/OpenXM
-   Go to (4) above.
+
    Here, version is the version number of OpenXM.
    For example, the version number of the OpenXM of May 20 (Mon), 2000 
    is 1.1.2
@@ -262,7 +269,7 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
      rpm -i  openxm-shared-version-suffix.noarch.rpm
      rpm -i  openxm-binary-version-suffix.i386.rpm
    OpenXM は /usr/local/OpenXM にインストールされます.
-   あとは, 上の (4) へ.
+
    ここで version は OpenXM の version 番号で, たとえば, 
    2000, 3/20(Mon) 版は  1.1.2
    suffix は, RPM 版の minor version number.
@@ -286,7 +293,7 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
      rpm -i  openxm-shared-version-suffix.noarch.rpm
      rpm -i  openxm-binary-version-suffix.i386.rpm
    OpenXM will be installed to /usr/local/OpenXM
-   Go to (4) above.
+
    Here, version is the version number of OpenXM.
    For example, the version number of the OpenXM of May 20 (Mon), 2000 
    is 1.1.2
