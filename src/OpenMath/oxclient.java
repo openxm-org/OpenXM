@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/oxclient.java,v 1.1 2000/11/15 05:51:57 tam Exp $
  *
  */
 
@@ -69,15 +69,7 @@ final class oxclient extends java.awt.Frame implements Runnable{
       while(true){
 	OXmessage message = server.receive();
 
-	switch(message.getTag()){
-	case OXmessage.OX_COMMAND:
-	  con.appendText("SM> "+ message.getBody() +"\n");
-          break;
-
-	case OXmessage.OX_DATA:
-	  con.appendText("CMO> "+ message.getBody() +"\n");
-          break;
-	}
+	con.appendText("> "+ message.getBody() +"\n");
       }
     }catch(IOException e){
       e.printStackTrace();
