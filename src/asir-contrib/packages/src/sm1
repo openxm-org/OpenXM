@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.12 2000/02/02 09:07:58 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.13 2000/02/02 12:37:10 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -41,6 +41,12 @@ def sm1_find_proc() {
 計算代数幾何のいろいろな不変量の計算が微分作用素の計算に帰着する.
 @code{sm1} についての文書は @code{OpenXM/doc/kan96xx} にある.
 
+注意:
+asir の @code{rtostr} 出力できる文字列の長さには上限がある.
+この制限は将来解消される予定である.
+sm1 サーバとの通信には, この関数が利用されているので,
+この節の関数の引数のオブジェクトの大きさには現在制限がある.
+
 
 @tex
 空間
@@ -70,6 +76,14 @@ to constructions in the ring of differential operators.
 Documents on @code{sm1} are in
 the directory @code{OpenXM/doc/kan96xx}.
 
+Remark:
+The length of the output string of the asir function @code{rtostr} 
+has an upper bound.
+This restriction will be removed in a near future.
+Because of this limitation, the arguments of the functions
+of this section must not be huge.
+
+
 @tex
 Let us evaluate the dimensions of the de Rham cohomology groups
 of 
@@ -83,12 +97,15 @@ cohomology groups.
 */
 /*&C-texi
 @example
-[155] load("xm");
-1
-xm Version 19991118. ox_help(0); ox_help("keyword"); for help message 
-[255] sm1_start();
-0
-[256] sm1_deRham([x*(x-1),[x]]);
+
+This is Risa/Asir, Version 20000126.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+1994-1999. All rights reserved.
+xm version 20000202. Copyright (C) OpenXM Developing Team. 2000.
+ox_help(0); ox_help("keyword"); ox_grep("keyword"); for help message 
+Loading ~/.asirrc
+
+[283] sm1_deRham([x*(x-1),[x]]);
 [1,2]
 @end example
 */
