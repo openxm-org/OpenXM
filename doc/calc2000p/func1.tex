@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/calc2000p/func1.tex,v 1.1 2000/07/21 07:11:52 noro Exp $
+% $OpenXM: OpenXM/doc/calc2000p/func1.tex,v 1.2 2000/07/22 08:11:09 noro Exp $
 \documentclass[twocolumn]{article}
 \pagestyle{empty}
 %\markright{ {\tt http://www.openxm.org} }
@@ -21,7 +21,7 @@ on our servers and libraries}
 the accelerated GCD algorithm),
 {\color{red} fac} (factorial),
 {\color{red} inv} (inverse modulo an integer),
-{\color{red} random} (random number generator by the Mersenne twister algorithm),
+{\color{red} random} (random number generator by the Mersenne twister algorithm).
 
 
 
@@ -94,6 +94,19 @@ for a zero-dimensional ideal),
 quadratic first-order formula),
 {\color{red} simpl} (heuristic simplification of a first-order formula).
 
+{\scriptsize
+\begin{verbatim}
+[0] MTP2 = ex([x11,x12,x13,x21,x22,x23,x31,x32,x33],
+x11+x12+x13 @== a1 @&& x21+x22+x23 @== a2 @&& x31+x32+x33 @== a3 
+@&& x11+x21+x31 @== b1 @&& x12+x22+x32 @== b2 @&& x13+x23+x33 @== b3
+@&& 0 @<= x11 @&& 0 @<= x12 @&& 0 @<= x13 @&& 0 @<= x21
+@&& 0 @<= x22 @&& 0 @<= x23 @&& 0 @<= x31 @&& 0 @<= x32 @&& 0 @<= x33)$
+[1] TSOL= a1+a2+a3@=b1+b2+b3 @&& a1@>=0 @&& a2@>=0 @&& a3@>=0
+@&& b1@>=0 @&& b2@>=0 @&& b3@>=0$
+[2] QE_MTP2 = qe(MTP2)$
+[3] qe(all([a1,a2,a3,b1,b2,b3],QE_MTP2 @equiv TSOL));
+@true
+\end{verbatim}}
 \medbreak
 
 \noindent
