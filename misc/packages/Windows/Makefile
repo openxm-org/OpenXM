@@ -1,26 +1,55 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.13 2002/01/16 09:11:58 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.14 2002/01/25 02:56:15 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
+ASIR_LANG=ja
+#ASIR_LANG=en
+WGET_ARG=--pasive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
+
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
+
 usage:
-	@echo "Targets: binary-tgz build-tgz clean"
+	@echo "Targets: all build-tgz clean clean-work link-for-debug"
 
 clean:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done
 
-binary-tgz: copy-binary copy-binary-asir win-correction
+all: copy-binary copy-binary-asir win-correction
 
-copy-binary:
+build-binary-openxm-cygwin:
+	if [ ! -f .build-binary-openxm-cygwin-done ] ; then \
+		(cd ${OpenXM_TOP}/src ; make install-kan-ox ) ; \
+		touch .build-binary-openxm-cygwin-done ; \
+	fi
+
+copy-binary: copy-binary-openxm-cygwin
+copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	-mkdir OpenXM-win
+	-mkdir OpenXM-win/src
 	if [ ! -f .copy-binary-done ] ; then \
 	  (cd OpenXM-win ; \
-	   (cd ../${OpenXM_TOP}; tar czf - bin lib rc man src/asir-contrib) | tar xzvf -  ; \
+	   rsync -avz --delete ../${OpenXM_TOP}/bin . ; \
+	   rsync -avz --delete ../${OpenXM_TOP}/lib . ; \
+	   rsync -avz --delete ../${OpenXM_TOP}/rc . ; \
+	   rsync -avz --delete ../${OpenXM_TOP}/man . ; \
+	   rsync -avz --delete ../${OpenXM_TOP}/src/asir-contrib src ; \
 	  ) ; \
 	   cp readme-ja.html OpenXM-win ; \
 	   touch .copy-binary-done ; \
 	fi 
 
-copy-binary-asir:
+copy-binary-asir: copy-binary-asir-from-internet
+
+copy-binary-asir-from-internet:
+	-mkdir OpenXM-win
+	if [ ! -d work ] ; then mkdir work ; fi
+	if [ ! -f work/asirwin-${ASIR_LANG}.tgz ] ; then \
+		(cd work ; wget ${WGET_ARG} ) ; \
+		(cd work ; mv ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz .) ; \
+	fi
+	(cd OpenXM-win ; tar xzvf ../../work/asirwin-${ASIR_LANG}.tgz)
+	touch .copy-binary-asir-done
+
+copy-binary-asir-from-local-disk:
 	-mkdir OpenXM-win
 	-mkdir OpenXM-win/asir
 	if [ ! -f .copy-binary-asir-done ] ; then \
@@ -30,20 +59,25 @@ copy-binary-asir:
 	  touch .copy-binary-asir-done ; \
 	fi
 
+copy-cygwin-dlls:
+	if [ ! -f .copy-cygwin-dlls-done ] ; then \
+	 cp /bin/cygwin1.dll OpenXM-win/bin-windows ; \
+	 cp /bin/cygwin1.dll OpenXM-win/bin ; \
+	 cp /bin/cygwin1.dll OpenXM-win/lib/sm1/bin ; \
+	 cp /usr/X11R6/bin/*.dll OpenXM-win/asir/bin ; \
+	 cp /usr/X11R6/bin/*.dll OpenXM-win/bin ; \
+	 touch .copy-cygwin-dlls-done ; \
+	fi
+
 win-correction: copy-binary oxasir-win.rr
 	make win-correction2 
-win-correction1: build-bat
+win-correction1: build-bat copy-cygwin-dlls
 	-mkdir OpenXM-win/bin-windows
-	cp ${STARTEXE} OpenXM-win/bin-windows
-	cp /bin/cygwin1.dll OpenXM-win/bin-windows
-	cp /bin/cygwin1.dll OpenXM-win/bin
-	cp /bin/cygwin1.dll OpenXM-win/lib/sm1/bin
+	-cp ${STARTEXE} OpenXM-win/bin-windows
 #	(cd OpenXM-win/rc ; make clean ; make)
 win-correction2: win-correction1
-	cp ${STARTEXE} OpenXM-win/bin
-	cp ${STARTEXE} OpenXM-win/asir/bin
-	cp /usr/X11R6/bin/*.dll OpenXM-win/asir/bin
-	cp /usr/X11R6/bin/*.dll OpenXM-win/bin
+	-cp ${STARTEXE} OpenXM-win/bin
+	-cp ${STARTEXE} OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/asir/bin
@@ -55,6 +89,7 @@ win-correction2: win-correction1
 	cp oxasir-win.rr OpenXM-win/asir/bin
 	cp oxasir-win.rr OpenXM-win/lib/asir
 	cp oxasir-win.rr OpenXM-win/lib/sm1
+
 win-correction-clean:
 	-find OpenXM-win -name '*~' -print | xargs rm
 	-rm OpenXM-win/lib/sm1/*.jpeg OpenXM-win/lib/sm1/*.jpg
@@ -66,6 +101,9 @@ build-tgz: win-correction-clean
 copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
 
+link-for-debug:
+	(cd ${OpenXM_TOP} ; cd bin ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
+	(cd ${OpenXM_TOP} ; cd src/kxx ; make install-for-debug)
 
 oxapp : oxapp.c
 
