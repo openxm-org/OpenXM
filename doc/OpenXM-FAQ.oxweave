@@ -1,4 +1,40 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.4 2000/11/30 12:45:13 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.5 2000/12/05 23:14:40 takayama Exp $
+
+//&C Dec 17, 2000
+//&ja Q. Debian potato で OpenXM server 用の xterm がひらかず, OpenXM server が起動できません.
+//&en Q. I cannot start xterm for some OpenXM servers on Debian potato.
+
+/*&ja  
+A (by Ohara).
+(原因) Debian 2.2 で xterm -e a.out でプロセスを起動した場合、
+a.out には環境変数 LD_LIBRARY_PATH が伝達されません!!
+
+(結果) oxc は $OpenXM_HOME/lib/libgmp.so とリンクしているので、リンカ
+がダイナミックリンクを解決できずに、起動すらできなかったわけです。
+
+(解決) /lib に libgmp.so にシンボリックリンクをつくる。
+例:  root になって
+     cd /lib
+     ln -s $OpenXM_HOME/lib/libgmp.so .
+     ln -s $OpenXM_HOME/lib/libpari.so .
+   などを実行.
+
+*/
+/*&en  
+A (by Ohara).
+Reason: If you start a.out by "xterm -e a.out" on Debian 2.2,
+the value of the environmental variable is not given to a.out.
+
+Troubles:  "oxc" is dynamically linked with$OpenXM_HOME/lib/libgmp.so,
+so oxc could not be started with "xterm -e oxc".
+
+A solution: Generate a symbolic link from libgmp.so  to /lib
+ For example, become the super user and input the follows:
+     cd /lib
+     ln -s $OpenXM_HOME/lib/libgmp.so .
+     ln -s $OpenXM_HOME/lib/libpari.so .
+
+*/
 
 //&C Nov 30, 2000
 //&ja Q. Redhat Linux を利用しています. libgd がないので RPM パッケージのインストールが失敗します.
