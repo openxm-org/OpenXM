@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.16 2000/01/20 18:14:32 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.17 2000/01/21 12:17:49 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -373,7 +373,7 @@ final class OM2OXM implements Runnable{
 		 && leaves[1] instanceof CMO_ZZ){
 	  ret = new CMO_QQ((CMO_ZZ)leaves[0],(CMO_ZZ)leaves[1]);
 	}else{
-	  ret = new CMO_TREE(name,"Basic",new CMO_LIST(leaves));
+	  ret = new CMO_TREE(name,"basic",new CMO_LIST(leaves));
 	}
       }
 

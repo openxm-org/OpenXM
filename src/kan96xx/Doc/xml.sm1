@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.6 1999/12/15 09:17:15 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.7 2000/02/28 13:22:27 takayama Exp $
 %% xml.sm1  XML support for sm1.
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
@@ -152,7 +152,7 @@ tag 0 eq {
 
 [(cmoTreeToPostfix)
 [(tree-obj cmoTreeToPostfix postfix-str)
- $Example 1: [(plus) (Basic) [(123).. (345)..]] [(class) (tree)] dc /ff set$
+ $Example 1: [(plus) (basic) [(123).. (345)..]] [(class) (tree)] dc /ff set$
  $         ff cmoTreeToPostfix /gg set $
  $         [(parse) gg] extension pop :: $
  $Example 2: ( (x-T-2)^5). /p set $
@@ -186,9 +186,9 @@ tag 0 eq {
   arg1
 } def
 
-/plus_Basic {
+/basic_plus {
   /arg1 set
-  [/in-plus_Basic /s /a /n /i] pushVariables
+  [/in-basic_plus /s /a /n /i] pushVariables
   [
     /a arg1 def
     /s a 0 get def
@@ -202,9 +202,9 @@ tag 0 eq {
   popVariables
   arg1
 } def
-/times_Basic {
+/basic_times {
   /arg1 set
-  [/in-times_Basic /s /a /n /i] pushVariables
+  [/in-basic_times /s /a /n /i] pushVariables
   [
     /a arg1 def
     /s a 0 get def
@@ -218,9 +218,9 @@ tag 0 eq {
   popVariables
   arg1
 } def
-/power_Basic {
+/basic_power {
   /arg1 set
-  [/in-power_Basic /a ] pushVariables
+  [/in-basic_power /a ] pushVariables
   [
     /a arg1 def
     a 0 get a 1 get power /arg1 set
@@ -240,9 +240,10 @@ tag 0 eq {
     { 
       in (array) dc /in set
       /dic in 1 get def
+      /dic dic tolower def
       %% concatenate the dictionary name to the function name.
       /ans in 2 get { cmoTreeToPrefix } map bracketForm def
-      [in 0 get (_) dic ans ] cat /ans set
+      [dic (_) in 0 get ans ] cat /ans set
     } ifelse
     /arg1 ans def
   ] pop
@@ -252,7 +253,8 @@ tag 0 eq {
 
 [(cmoTreeToPrefix)
 [(tree-obj cmoTreeToPrefix prefix-str)
- $Example 1: [(plus) (Basic) [(123).. (345)..]] [(class) (tree)] dc /ff set$
+ (Dictionary names are translated to lower characters.)
+ $Example 1: [(plus) (basic) [(123).. (345)..]] [(class) (tree)] dc /ff set$
  $         ff cmoTreeToPrefix /gg set $
  $Example 2: ( (x-T-2)^5). /p set $
  $          p [(class) (recursivePolynomial)] dc xml /ff set $

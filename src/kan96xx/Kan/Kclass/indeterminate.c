@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.2 2000/01/16 07:55:45 takayama Exp $ */
 /* Kclass/indeterminate.c    */
 /* This file handles   indeterminate, tree, recursivePolynomial,
     polynomialInOneVariable
@@ -139,7 +139,7 @@ struct object addTree(struct object ob1, struct object ob2)
   }
   rob = newObjectArray(3);
   putoa(rob,0,KpoString("add"));
-  putoa(rob,1,KpoString("Basic"));
+  putoa(rob,1,KpoString("basic"));
   putoa(rob,2,aob);
   return(KpoTree(rob));
 }
