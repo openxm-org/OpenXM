@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.6 1999/11/16 07:57:37 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.7 1999/11/16 08:05:54 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -90,7 +90,7 @@ testclient2 : testclient2.c  ox_kan.h $(KANHOME)/Kan/kanlib.a ox.a
 
 
 clean :
-	/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ 
+	/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ oxweave
 
 BACKUPDIR = Old/19980112
 backup :
