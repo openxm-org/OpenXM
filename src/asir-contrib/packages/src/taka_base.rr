@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.16 2001/12/13 09:27:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.17 2002/10/04 03:04:50 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -248,6 +248,25 @@ def taka_base_subsets_of_size(K,S) {
     }
     return R;
   }
+}
+
+def taka_base_real_part(T) {
+  if (type(T) <= 1) {
+    if (ntype(T) == 4) return real(T);
+    else return T;
+  }
+  if (type(T) == 4 || type(T) == 5) {
+    return map(taka_base_real_part,T);
+  }  else  return T;
+}
+def taka_base_imaginary_part(T) {
+  if (type(T) <= 1) {
+    if (ntype(T) == 4) return imag(T);
+    else return T;
+  }
+  if (type(T) == 4 || type(T) == 5) {
+    return map(taka_base_imaginary_part,T);
+  }  else  return T;
 }
 
 Taka_base_loaded = 1$

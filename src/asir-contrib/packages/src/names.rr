@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.59 2002/11/16 02:17:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.60 2002/11/16 07:44:31 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -201,17 +201,19 @@ def base_subsets_of_size(K,S) {
 
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
-def number_base_form(X,B) { NOT_YET; }
-def number_chop(Exp,Dx) {  NOT_YET; }
-def number_round(X) { NOT_YET; }
-def number_floor(X) { return(pari(floor,X)); }
-def number_ceiling(X) { return(pari(ceil,X)); }
-def number_sign(X) { NOT_YET; }
 def number_abs(X)  { return(pari(abs,X)); }
+def number_base_form(X,B) { NOT_YET; }
+def number_binomial(P,Q) { NOT_YET; }
+def number_ceiling(X) { return(pari(ceil,X)); }
+def number_chop(Exp,Dx) {  NOT_YET; }
+def number_floor(X) { return(pari(floor,X)); }
+def number_imaginary_part(X) { return(taka_base_imaginary_part(X)); }
 def number_max(X)  { NOT_YET; }
 def number_min(X)  { NOT_YET; }
 def number_n(Exp)  { NOT_YET; }  /* N [ ], numerical evaluator. */
-def number_binomial(P,Q) { NOT_YET; }
+def number_round(X) { NOT_YET; }
+def number_real_part(X) { return(taka_base_real_part(X)); }
+def number_sign(X) { NOT_YET; }
 
 /* See longname for basic_ and poly_. Here are some added functions */
 /*&usage begin: poly_factor(F)
