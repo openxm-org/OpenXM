@@ -1,0 +1,788 @@
+@comment $OpenXM$
+@comment    Copyright (c)  2005, Shuhei Todo,
+@comment    Permission is granted to copy, distribute and/or modify this document
+@comment    under the terms of the GNU Free Documentation License, Version 1.1
+@comment    or any later version published by the Free Software Foundation;
+@comment    with the Invariant Sections being LIST THEIR TITLES, with the
+@comment    Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+@comment    A copy of the license is included in the section entitled "GNU
+@comment    Free Documentation License".
+@comment
+\input texinfo
+@comment \input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename todo_parametrize_ja
+
+@comment --- タイトル ---
+@settitle Risa/Asir 代数曲線論用パッケージ
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title Risa/Asir 代数曲線論用パッケージ説明書
+@subtitle 利用説明書
+@subtitle 1.0 版
+@subtitle 2004 年 8 月
+
+@author  by Shuhei Todo
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2001. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@menu
+* 関数簡易マニュアル::
+* Index::
+@end menu
+
+@node 関数簡易マニュアル,,, Top
+@chapter 関数簡易マニュアル
+
+@menu
+* 概要::
+* Notation::
+* 主な関数::
+* その他の関数::
+@end menu
+
+@node 概要,,, 関数簡易マニュアル
+@section 概要
+
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+このパッケージには、代数曲線の諸性質を調べるための関数が
+集められている。主な機能は、代数曲線に対して定義される以下
+の対象を計算できることである：
+@itemize @bullet
+@item 2曲線の交点の座標
+@item 特異点の座標
+@item neighborhood graph（二次変換によって特異点がどのように
+分解されるかを表すtree）
+@item 既約曲線の種数
+@item 随伴曲線(adjoint curves)
+@item 二次曲線上の有理点
+@item 有理曲線（種数０の曲線）をパラメトライズする有理関数
+@end itemize
+その他、多項式の全次数を計算するといったような予備的な関数群
+が用意されている。ユーザーの入力する代数曲線の定義多項式は必ず
+有理数体上の変数@var{x,y,z} の@b{斉次}多項式でなければならない。
+
+@node Notation,,,関数簡易マニュアル
+@section Notation
+
+本書で用いられる記号について、次のような約束をしておく。
+@itemize @bullet
+@item 点@code{[x,y,z]} とは射影平面の点の斉次座標
+@var{(x:y:z)}を意味し、特に断りがなければ、@var{z=0}でない
+ときは必ず@var{z=1}となるように正規化されている。
+@item Q は有理数体、
+@tex $\overline{Q}$ @end tex
+は代数的数全体のなす体を意味する。
+@end itemize
+
+@node 主な関数,,, 関数簡易マニュアル
+@section 主な関数
+
+@menu
+* intersect::
+* sing::
+* nbh::
+* genus::
+* adjoint1,adjoint2::
+* intpt::
+* parametrize::
+@end menu
+
+@node intersect,,, 主な関数
+@subsection @code{intersect}
+@comment --- 索引用キーワード---
+@findex intersect
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item intersect(@var{F},@var{G}) 
+:: 2曲線@var{F=0},@var{G=0} の交点の座標からなるリストを返す.
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+リスト
+@item F G
+変数x,y,z の斉次多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 2曲線@var{F=0},@var{G=0} の交点@code{[x,y,z]}からなる
+リストを返す。
+@item @var{F},@var{G}は共通因子を持っていてはいけない。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] intersect(y^2-x*z,(x^2+y^2)^3-4*x^2*y^2*z^2);
+[[0,0,1],[(#4),(#5),1]]
+[2] defpoly(alg(4));
+t#4^3+3*t#4^2+3*t#4-3
+[3] defpoly(alg(5));
+t#5^2-t#4
+[4] intersect(x^2-y^2,x^3+y*x^2+(y^2-z^2)*x+y^3-z^2*y);
+***two curve have common components***
+@end example
+
+
+@node sing,,, 主な関数
+@subsection @code{sing}
+@comment --- 索引用キーワード---
+@findex sing
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item sing(@var{F}) 
+:: 曲線@var{F=0} の特異点の座標からなるリストを返す.
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+リスト
+@item F
+変数x,y,z の斉次多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 曲線@var{F=0} の特異点@code{[x,y,z]}（
+@tex
+$F_x(x,y,z)=F_y(x,y,z)=F_z(x,y,z)=0$
+@end tex
+を満たす点）からなるリスト
+を返す。
+@item @var{F}は重複因子を持っていてはいけない（定義より
+重複因子の零点はすべて特異点である）。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] sing(16*x^6-24*z^2*x^4+9*z^4*x^2+4*z^2*y^4-4*z^4*y^2);
+[[0,0,1],[(#4),0,1],[1/2,(#3),1],[-1/2,(#3),1],[0,1,0]]
+[2] defpoly(alg(3));
+2*t#3^2-1
+[3] defpoly(alg(4));
+4*t#4^2-3
+[4] sing((x-y)*(y^2-x*z));
+[[1,1,1],[0,0,1]]
+[5] sing((x-y)^2*(y^2-x*z));
+***Argument has multiple divisor***
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{nbh}
+@ref{multia}
+@end table
+
+
+@node nbh,,, 主な関数
+@subsection @code{nbh}
+@findex nbh
+
+@comment --- 関数の簡単な説明 ---
+
+@table @t
+@item nbh(@var{F}) 
+:: 曲線@var{F}=0 のneighborhood graph を返す。
+@end table
+
+@table @var
+@item return
+リスト
+@item F
+変数x,y,z の斉次多項式
+@end table
+
+@itemize @bullet
+@item 曲線@var{F=0} のneigborhood graph を表すリストを返す。
+neighborhood graph とは二次変換によって特異点がどのように
+分解されるかを表すtreeである。分解によって現れる点のことを
+隣接点と呼ぶ。特異点、隣接点の情報は、それぞれ次のような
+@b{ベクトル}によって表される。
+
+@table @code
+@item 特異点
+[  点の個数, 点の座標, [重複度, 通常特異点(=1)かそうでない(=-1)か], [この（これらの）特異点から出てくる隣接点の情報(これ以上隣接点が現れない場合は''terminal'')]  ]
+@item 隣接点
+[  点の個数, [重複度, 通常特異点(=1)かそうでないか(=-1)か], [この（これらの）隣接点から出てくる隣接点の情報(これ以上隣接点が現れない場合は''terminal'')]  ]
+@item 一般に、特異点の座標は代数的数になる。この場合、代数的数を共役な代数的数で置き換えて得られる点もまた、特異点になる。この性質を利用して複数の特異点を一度に表示するのであるが、特異点ベクトルの最初の引数「点の個数」はこのような表示によって、いくつの特異点が表されているかを示している。したがって、特異点が有理点ならば、点の個数=1 である。隣接点ベクトルの最初の引数である「点の個数」は親ベクトルの表す各点から、この数だけ同じタイプの隣接点が出てくることを意味する。
+@end table
+
+@item neighborhood graph はこれらのベクトルを入れ子にしたリストによって表現されている。
+
+@example
+[1] F=x^6+3*y^2*x^4+(3*y^4-4*z^2*y^2)*x^2+y^6;
+x^6+3*y^2*x^4+(3*y^4-4*z^2*y^2)*x^2+y^6
+[2] sing(F);
+[[0,0,1],[(#0),1,0]]
+[3] nbh(F);
+[ 1 [0,0,1] [4,-1] [[ 1 [2,1] [terminal] ],[ 1 [2,1] [terminal] ]] ]
+[ 2 [(#0),1,0] [2,-1] [[ 1 [1,1] [terminal] ]] ]
+@end example
+特異点@code{[0,0,1]} は重複度4 の通常でない特異点であり、
+2つの隣接点をもつ。それらはどちらとも重複度2 の通常特異点
+である。特異点@code{[(#0),1,0]}の隣接点は単純点である。
+@item @var{F}は重複因子を持っていてはいけない。
+@end itemize
+
+@table @t
+@item 参照
+@ref{sing}
+@end table
+
+
+@node genus,,, 主な関数
+@subsection @code{genus}
+@findex genus
+
+@table @t
+@item genus(@var{F}) 
+:: 曲線@var{F=0} の特異点の座標からなるリストを返す.
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+0以上の整数
+@item F
+変数x,y,z の斉次多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 曲線@var{F=0} の種数を返す。
+@item @var{F} は@tex $\overline{Q}[x,y,z]$ @end tex
+において既約でなければならない。この条件の下でしか正確な値が返される保証がない。Q[x,y,z] において既約であったとしても、
+@tex $\overline{Q}[x,y,z]$ @end tex
+で既約とは限らないので注意を要する。入力がこの条件を満たして
+いるかどうかはチェックされない。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] genus(x^6+3*y^2*x^4+(3*y^4-4*z^2*y^2)*x^2+y^6);
+0
+[2] genus(y^2*z-x^3-z^3);
+1
+[3] genus(x^2+y^2+z^2-x*y-y*z-z*x);
+-1
+[4] fctr(x^2+y^2+z^2-x*y-y*z-z*x);
+[[1,1],[x^2+(-y-z)*x+y^2-z*y+z^2,1]]
+[5] irr_conic(x^2+y^2+z^2-x*y-y*z-z*x);
+reducible
+@end example
+
+@table @t
+@item 参照
+@ref{irr_conic}
+@end table
+
+@node adjoint1 adjoint2,,, 主な関数
+@subsection @code{adjoint1},@code{adjoint2}
+@findex adjoint1
+@findex adjoint2
+
+@table @t
+@item adjoint1(@var{F})
+@itemx adjoint2(@var{F})
+:: それぞれ曲線@var{F=0}のn-1次,n-2次の随伴曲線(adjoint
+ curve)を返す(n=deg(F))。
+@end table
+
+@table @var
+@item return
+線形のパラメーターを含む変数x,y,z の斉次多項式
+@item F
+変数x,y,z の斉次多項式
+@end table
+
+@itemize @bullet
+@item n-2 次の曲線@var{G=0}が曲線@var{F=0} の重複度r の点を少なくとも重複度r-1 にもつとき、曲線@var{G=0}を曲線@var{F=0} のn-2 次の随伴曲線(adjoint curve)と呼ぶ。n-1 個の随伴曲線
+@tex
+$G_0=0,G_1=0, \ldots ,G_{n-2}=0$
+@end tex
+が存在して、n-2 次の随伴曲線の定義多項式全体は
+@tex
+$c_0G_0+c_1G_1+ \ldots +c_{n-2}G_{n-2}$ ($c_{i}$ は係数体の元)
+@end tex
+と表される。@code{adjoint2}(@var{F}) は、このn-1 個の線形のパラメーターを含んだ斉次多項式を返す。n-1 次の随伴曲線も同様に定義される。n-1 次の随伴曲線の定義多項式全体も上と同様に、2n-1 個の線形パラメーターを含んだn-1 次の斉次多項式で表される。@code{adjoint1}(@var{F}) はこの多項式を返す。
+@item 最初にパラメーターのリストと、その長さが表示される。
+@item @var{F}は重複因子を持っていてはいけない。
+@end itemize
+
+@example
+[1] adjoint2(x^6+3*y^2*x^4+(3*y^4-4*z^2*y^2)*x^2+y^6);
+[c2,c3,c4,c6,c7] 5
+(c2-c4)*x^4+c3*y*x^3+(c2*y^2+c6*z*y)*x^2+(c3*y^3+c7*z*y^2)*x+c4*y^4
+[2] adjoint1(F);
+[c1,c7,c11,c12,c13,c15,c16,c17,c18,c19,c20] 11
+(c1*y+(c11-c15+c18-c20)*z)*x^4+(c13*y^2+c7*z*y+c11*z^2)*x^3+(c17*z*y^2+c12*z^2*y
++c15*z^3)*x^2+(c13*z^2*y^2+c16*z^3*y+c18*z^4)*x+c17*z^3*y^2+c19*z^4*y+c20*z^5
+@end example
+
+@table @t
+@item 参照
+@ref{restriction}
+@end table
+
+
+@node intpt,,, 主な関数
+@subsection @code{intpt}
+@comment --- 索引用キーワード---
+@findex intpt
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item intpt(@var{F}) 
+:: 二次曲線@var{F=0} 上の整数点@code{[x,y,z]} をひとつ見つけて返す。整数点が存在しなければ、文字列@code{no integer solution}を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+リスト、あるいは文字列@code{no integer solution}.
+@item F
+変数x,y,z の二次の斉次多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 二次曲線@var{F=0} 上に整数点(affineでいう有理点)が
+あれば、その座標@code{[x,y,z]}を返す。@code{x},@code{y},
+@code{z} はすべて整数である。整数点が存在しないときは
+文字列@code{no integer solution} を返す。 
+@item 三元二次形式の整数解を求める古典的なLegendreの方法を用いている。サブルーチンで二次の合同方程式を解く際、単に総当り法を用いているだけので、@var{F} の係数が大きくなると非常に時間がかかる。
+@end itemize
+
+@example
+[1] intpt(22*x^2-10*y^2+z^2+5*x*y+13*y*x-z*x);
+[71,-121,473]
+[2] intpt(22*x^2-10*y^2+z^2+5*x*y+12*y*x-z*x);
+no integer solution
+@end example
+
+
+@node parametrize,,, 主な関数
+@subsection @code{parametrize}
+@comment --- 索引用キーワード---
+@findex parametrize
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item parametrize(@var{F}) 
+:: 有理曲線@var{F=0} をパラメトライズする多項式の組を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+リスト
+@item F
+有理曲線の定義多項式（変数x,y,z の斉次多項式）
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 有理曲線@var{F=0}（種数が0の曲線）は、変数t の多項式P(t),Q(t),R(t) およびx,y,zの斉次多項式S(x,y,z),T(x,y,z)を用いて(x:y:z)=(P(t):Q(t):R(t)), t=T(x,y,z)/S(x,y,z) とパラメーター表示される。@code{parametrize}(@var{F}) はこれらの多項式からなるリスト@code{[P(t),Q(t),R(t),T(x,y,z)/S(x,y,z)]} を返す（GCD(@code{P(t)},@code{Q(t)},@code{R(t)})=1 である）。一般にはP(t),Q(t),R(t) は係数に有理数の平方根を含む多項式となるが、有理数係数の多項式で曲線をパラメトライズできる場合は、@b{常に}有理数係数の多項式の組を返す（例えば曲線の次数が奇数の場合）。
+@item @var{F} は@tex $\overline{Q}[x,y,z]$ @end tex
+において既約で、かつ種数が0でなければならないが、これらの条件が満たされているかどうかのチェックはなされない。
+@end itemize
+
+@example
+[1] parametrize(x^4+(2*y^2-z^2)*x^2+y^4+z^2*y^2);
+[-t^3-t,t^3-t,t^4+1,(-x^2-y^2)/(z*x+z*y)]
+[2] parametrize((x^2+y^2)^3-4*x^2*y^2*z^2);
+heuristic2 failed...
+heuristic3 succeed
+[32256*t^6-133120*t^5-129024*t^4+1064960*t^3-516096*t^2
+-2129920*t+2064384,-127008*t^6+1048320*t^5-2671232*t^4
++10684928*t^2-16773120*t+8128512,274625*t^6-3194100*t^5
++15678780*t^4-41555808*t^3+62715120*t^2-51105600*t+17576000,
+(-126*x^4+1040*y*x^3-382*y^2*x^2+1040*y^3*x-256*y^4)
+/(-65*x^4+520*y*x^3+(-65*y^2-32*z*y)*x^2+(520*y^3+256*z*y^2)*x)]
+[3] parametrize(22*x^2-10*y^2+z^2+5*x*y+12*y*x-z*x);
+[(220*#6-10)*t^2+(-22*#6+1),(374*#6-17)*t^2+(-22*#6-43)*t,
+(220*#6+210)*t^2+(-374*#6+17)*t+22,(-y)/((22*#6-1)*x+z)]
+@end example
+
+@table @t
+@item 参照
+@ref{genus}
+@end table
+
+
+@node その他の関数,,, 関数簡易マニュアル
+@section その他の関数
+
+@menu
+* tdeg::
+* homzation::
+* random_line::
+* multia::
+* irr_conic::
+* lissajou::
+* restriction::
+@end menu
+
+@node tdeg,,, その他の関数
+@subsection @code{tdeg}
+@comment --- 索引用キーワード---
+@findex tdeg
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item tdeg(Poly) 
+:: 多項式@var{Poly}の全次数を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+0以上の整数
+@item Poly
+多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 多項式@var{Poly}の全次数を返す。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] tdeg(u^3+v^3-x*y*z*w);
+4
+[956] tdeg((x^3+y^2+z)*(a^2+b+1));
+5
+@end example
+
+
+@node homzation,,, その他の関数
+@subsection @code{homzation}
+@comment --- 索引用キーワード---
+@findex homzation
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item homzation(AF) 
+:: 変数x,yの多項式を斉次化してx,y,zの斉次多項式にする。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+変数x,y,zの斉次多項式
+@item F
+変数x,yの多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 変数x,yの多項式を斉次化してx,y,zの斉次多項式にする。入力する多項式の変数はx,yでなければならない。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] homzation((x^2+4*x^3+6*x^4)-4*x^4*y
++(-2*x-4*x^2-2*x^3)*y^2+y^4);
+(-4*y+6*z)*x^4+(-2*y^2+4*z^2)*x^3
++(-4*z*y^2+z^3)*x^2-2*z^2*y^2*x+z*y^4
+[958] homzation(u*v+1);
+Input must be polynomial of variable x,y
+@end example
+
+
+@node random_line,,, その他の関数
+@subsection @code{random_line}
+@comment --- 索引用キーワード---
+@findex random_line
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item random_line(@var{Pt},B[,@var{Seed}]) 
+:: 点@var{Pt}(=@code{[x,y,z]})を通る直線をひとつランダムに
+返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+変数x,y,zの一次式
+@item Pt
+点を表すリスト
+@item B
+自然数
+@item Seed
+自然数
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 点@var{Pt}(=@code{[x,y,z]})を通る直線の方程式で
+各係数の値が-B以上B未満のものを、ひとつランダムに返す。
+@item Seedはサブルーチンでrandom([Seed])を用いる際に使用
+される。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] random_line([0,0,1],1);
+x-8*y
+@end example
+
+
+@node multia,,, その他の関数
+@subsection @code{multia}
+@comment --- 索引用キーワード---
+@findex multia
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item multia(F,Pt) 
+:: 曲線@var{F=0} の点@var{Pt}(=@code{[x,y,z]})における
+重複度を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+0以上の自然数
+@item F
+変数x,y,z の斉次多項式
+@item Pt
+点を表すリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 曲線@var{F=0} の点@var{Pt}(=@code{[x,y,z]})における
+重複度を返す。FをN 階偏微分して得られる多項式が初めて点Ptで
+0にならないとき、整数Nを曲線@var{F=0}の点Ptにおける重複度
+という。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] multia((4*y^2+4*z^2)*x^4+8*z^3*x^3+8*z^2*y^2*x^2-8*z^5*x+
+4*z^4*y^2-4*z^6,[0,0,1]);
+0
+[2] multia((4*y^2+4*z^2)*x^4+8*z^3*x^3+8*z^2*y^2*x^2-8*z^5*x+
+4*z^4*y^2-4*z^6,[0,1,0]);
+4
+[3] multia((4*y^2+4*z^2)*x^4+8*z^3*x^3+8*z^2*y^2*x^2-8*z^5*x+
+4*z^4*y^2-4*z^6,[1,0,0]);
+2
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{sing}
+@ref{nbh}
+@end table
+
+
+@node irr_conic,,, その他の関数
+@subsection @code{irr_conic}
+@comment --- 索引用キーワード---
+@findex irr_conic
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item irr_conic(@var{F}) 
+:: 三元二次形式@var{F}が
+@tex
+$\overline{Q}[x,y,z]$
+@end tex
+で既約かどうかを判定する。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+文字列
+@item F
+変数x,y,z の二次の斉次多項式
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item 三元二次形式@var{F}が
+@tex
+$\overline{Q}[x,y,z]$
+@end tex
+で既約ならば@code{irreducible}を、可約ならば@code{reducible}
+を返す。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[1] irr_conic(x^2+y^2+z^2-x*y-y*z-z*x);
+reducible
+[2] fctr(x^2+y^2+z^2-x*y-y*z-z*x);
+[[1,1],[x^2+(-y-z)*x+y^2-z*y+z^2,1]]
+@end example
+
+
+@node lissajou,,, その他の関数
+@subsection @code{lissajou}
+@comment --- 索引用キーワード---
+@findex lissajou
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item lissajou(M,N) 
+:: @tex
+$x=\sin(M\theta),y=\cos(N\theta)$
+@end tex
+によって定義されるリサージュ曲線の陰関数表示
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+変数x,y,zの斉次多項式
+@item M N
+互いに素な自然数
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item @tex
+$x=\sin(M\theta),y=\cos(N\theta)$
+@end tex
+によって定義されるリサージュ曲線の陰関数表示（変数x,y,zの
+斉次多項式）を返す。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[984] lissajou(3,4);
+64*x^8-128*z^2*x^6+80*z^4*x^4-16*z^6*x^2+16*z^2*y^6
+-24*z^4*y^4+9*z^6*y^2
+[985] lissajou(2,7);
+4096*x^14-14336*z^2*x^12+19712*z^4*x^10-13440*z^6*x^8
++4704*z^8*x^6-784*z^10*x^4+49*z^12*x^2+4*z^10*y^4-4*z^12*y^2
+@end example
+
+
+@node restriction,,, その他の関数
+@subsection @code{restriction}
+@comment --- 索引用キーワード---
+@findex restriction
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item restriction(@var{A},@var{List}) 
+:: 特定の点を通る随伴曲線の定義多項式を計算したいときに用いる。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+線形のパラメーターを含むx,y,zの斉次多項式
+@item A
+@code{adjoint1,adjoint2}から返される形と同様の、線形パラメーター
+つきの変数x,y,zの斉次多項式
+@item List
+点@code{[x,y,z]}からなるリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@itemize @bullet
+@item @code{adjoint1,adjoint2}から返される線形パラメーター付の
+斉次多項式が、@var{List}に含まれる各点を零点にもつためには、
+線形パラメーターの間にいくつかの（Q上の）一次関係式が成り立て
+ばよい。この条件を加味して、新たな線形パラメーター付の斉次
+多項式を作る。
+@item @var{List}に含まれる点は、@code{intersect}や@code{sing}
+から返される点を使うことを想定している。
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{adjoint1,adjoint2}
+@end table
+
+
+@comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.3 2005/02/09 03:25:50 noro Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.4 2005/03/24 05:51:51 takayama Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -61,8 +61,7 @@ ENAUTO=  base-auto.en glib-auto.en matrix-auto.en number-auto.en pfp-auto.en \
          oxshell-auto.en
 JAAUTO=${ENAUTO:.en=.ja}
 
-TOP_EN = cman-en 
-TOP_JA = cman-ja todo_parametrize_ja
+SUBDIRS=todo_parametrize
 
 .SUFFIXES: .en .ja .oxweave .dvi .pdf
 
@@ -202,6 +201,7 @@ gen-help-en: ${ENSRCS} ${ASIRDOC}/extract_func ${ENAUTO}
 	cp cman-en.texi ${ENSRCS} ${ENAUTO} tmp-en
 	-(cd tmp-en; makeinfo --force cman-en.texi)
 	(cd help-en; for i in ../tmp-en/asir-contrib*; do ../${ASIRDOC}/extract_func $$i; done)
+	-for i in ${SUBDIRS}; do (cd $$i; make gen-help-en); done
 
 gen-help-ja: ${JASRCS} ${ASIRDOC}/extract_func ${JAAUTO}
 	-${RM} -rf tmp-ja help-ja
@@ -209,18 +209,21 @@ gen-help-ja: ${JASRCS} ${ASIRDOC}/extract_func ${JAAUTO}
 	for i in cman-ja.texi ${JASRCS} ${JAAUTO}; do nkf -e $$i > tmp-ja/$$i; done
 	-(cd tmp-ja; makeinfo --force cman-ja.texi)
 	(cd help-ja; for i in ../tmp-ja/asir-contrib*; do ../${ASIRDOC}/extract_func -j $$i; done)
+	-for i in ${SUBDIRS}; do (cd $$i; make gen-help-ja); done
 
 gen-html-en: gen-help-en
 	-${RM} -rf html-en
 	-mkdir html-en
 	-cp tmp-en/*.texi tmp-en/*.en html-en
 	-(cd html-en; ${TEXI2HTML} cman-en.texi)
+	-for i in ${SUBDIRS}; do (cd $$i; make TEXI2HTML='${TEXI2HTML}' OXWEAVE='${OXWEAVE}' DVIPS='${DVIPS}' RM='${RM}'  INSTALL_lib='${INSTALL_lib}' INSTALL_doc='${INSTALL_doc}' gen-html-en); done
 
 gen-html-ja: gen-help-ja
 	-mkdir html-ja
 	-cp tmp-ja/*.texi tmp-ja/*.ja html-ja
 	-cp tmp-ja/cman-ja.texi html-ja/cman-ja.texi
 	-(cd html-ja; ${TEXI2HTML} cman-ja.texi)
+	-for i in ${SUBDIRS}; do (cd $$i; make TEXI2HTML='${TEXI2HTML}' OXWEAVE='${OXWEAVE}' DVIPS='${DVIPS}' RM='${RM}'  INSTALL_lib='${INSTALL_lib}' INSTALL_doc='${INSTALL_doc}' gen-html-ja); done
 
 install-help: 
 	-make install-help-en
@@ -230,15 +233,18 @@ install-help-ja: gen-help-ja
 	${RM} -rf ${INSTALL_lib}/asir/help-jp/xm.help
 	mkdir ${INSTALL_lib}/asir/help-jp/xm.help
 	-cp -r -f help-ja/* ${INSTALL_lib}/asir/help-jp/xm.help
+	-for i in ${SUBDIRS}; do (cd $$i; make TEXI2HTML='${TEXI2HTML}' OXWEAVE='${OXWEAVE}' DVIPS='${DVIPS}' RM='${RM}'  INSTALL_lib='${INSTALL_lib}' INSTALL_doc='${INSTALL_doc}' install-help-ja); done
 install-help-en: gen-help-en
 	${RM} -rf ${INSTALL_lib}/asir/help-eg/xm.help
 	mkdir ${INSTALL_lib}/asir/help-eg/xm.help
 	-cp -r -f help-en/* ${INSTALL_lib}/asir/help-eg/xm.help
+	-for i in ${SUBDIRS}; do (cd $$i; make TEXI2HTML='${TEXI2HTML}' OXWEAVE='${OXWEAVE}' DVIPS='${DVIPS}' RM='${RM}'  INSTALL_lib='${INSTALL_lib}' INSTALL_doc='${INSTALL_doc}' install-help-en); done
 
 install-html-help: gen-html-en gen-html-ja
 	-mkdir ${INSTALL_doc}/asir-contrib
 	-( tar cf - html-en | (cd ${INSTALL_doc}/asir-contrib ; tar xf -))
 	-( tar cf - html-ja | (cd ${INSTALL_doc}/asir-contrib ; tar xf -))
+	-for i in ${SUBDIRS}; do (cd $$i; make TEXI2HTML='${TEXI2HTML}' OXWEAVE='${OXWEAVE}' DVIPS='${DVIPS}' RM='${RM}'  INSTALL_lib='${INSTALL_lib}' INSTALL_doc='${INSTALL_doc}' install-html-help); done
 
 install-document2 :  gen-dvi-ps
 	-mkdir ${INSTALL_lib}/asir-contrib
@@ -246,6 +252,8 @@ install-document2 :  gen-dvi-ps
 	-$(DVIPS) cman-ja >${INSTALL_doc}/asir-contrib/cman-ja.ps
 	-cp cman-en.dvi ${INSTALL_doc}/asir-contrib/cman-en.dvi
 	-$(DVIPS) cman-en >${INSTALL_doc}/asir-contrib/cman-en.ps
+	-for i in ${SUBDIRS}; do (cd $$i; make TEXI2HTML='${TEXI2HTML}' OXWEAVE='${OXWEAVE}' DVIPS='${DVIPS}' RM='${RM}'  INSTALL_lib='${INSTALL_lib}' INSTALL_doc='${INSTALL_doc}' install-document2); done
+
 gen-dvi-ps: all clean-mk-openxm-asir-contrib-document-dir cman-ja.dvi cman-en.dvi
 cman-ja.dvi: ${JASRCS} ${JAAUTO}
 	-ptex cman-ja.texi
@@ -269,3 +277,4 @@ clean:
 	${RM} -f *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr *~
 	${RM} -f  *.en *.ja
 	${RM} -rf help-ja help-en tmp-en tmp-ja html-en html-ja
+	for i in ${SUBDIRS}; do (cd $$i; make clean); done
