@@ -1,9 +1,14 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.21 2003/07/21 13:36:42 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.22 2003/08/22 23:56:28 takayama Exp $
+#
+#  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
+#              install-gmp, install-gc, install-util
+#
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 
-##   install : copy the binaries to $(OpenXM_bin),
-##             remove symbolic link from $(OpenXM_lib)/sm1 to $(KANHOME)/Doc/*
-##             copy $(KANHOME)/Doc/* to $(OpenXM_lib)/sm1
+##   install: install-exec install-document
+##   install-exec: copy the binaries to ${OpenXM_bin},
+##             remove symbolic link from $(OpenXM_lib)/sm1 to $(Kan96xx)/Doc/*
+##             copy $(Kan96xx)/Doc/* to $(OpenXM_lib)/sm1
 ##             Create symbolic links in $(OpenXM_lib)/sm1/bin
 ##   install-for-debug :
 ##             Create symbolic links instead of copying.
@@ -11,28 +16,29 @@
 ##             Nothing to do for now.
 ## If you change this file, do not forget to run autoconf and remove .configure_done
 ######### configurations.    
-OpenXM_contrib=../../../OpenXM_contrib
-OpenXM_ROOT=../../../OpenXM
-OpenXM_bin=$(OpenXM_ROOT)/bin
-OpenXM_lib=$(OpenXM_ROOT)/lib
-OpenXM_include=$(OpenXM_ROOT)/include
-KANHOME=$(OpenXM_ROOT)/src/kan96xx
+OpenXM_HOME=../..
+Kan96xx=../kan96xx
+OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
+OpenXM_bin=${OpenXM_HOME}/bin
+OpenXM_lib=${OpenXM_HOME}/lib
+OpenXM_include=${OpenXM_HOME}/include
+OXWEAVE=${OpenXM_bin}/oxweave
+KANLIB = ${Kan96xx}/Kan/kanlib.a ${OpenXM_lib}/libgmp.a ${OpenXM_lib}/libgc.a
+########## end of configurations
 CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@ 
-CFLAGS = -g
-DDD=-D_BSD_SOURCE
+CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
-OXWEAVE=$(OpenXM_bin)/oxweave
-########## end of configurations
+RM=rm
 
 ### Set the server name in oxmain.c if you do not use the environmental
-### variable LOAD_SM1_PATH.  cf. $KANHOME/lib/ox.sm1
+### variable LOAD_SM1_PATH.  cf. $Kan96xx/lib/ox.sm1
 
-all : configure all-plugin kanlib.a ox ox_sm1  oxlog ox100start
+all : configure ox ox_sm1  oxlog ox100start
 
-all2 : all-plugin kanlib.a ox ox_sm1 testclient oxlog
+all2 : ox ox_sm1 testclient oxlog
 
 configure: Makefile
 
@@ -47,101 +53,94 @@ configure-old : Makefile.in configure.in
 #	autoconf
 #	.error  "Run ./make-configure"
 
-dist : 
-	./makeDist
-
-## ox_null can no longer be compiled.
-
-## This is the Makefile at kxx.
-## 1998, 2/7  , Old version is at S/kan.backup/kxx.tar.gz.19980206
-##
-.c.o :
-	$(CC)  $(CFLAGS) ${DDD} -c  $<
-
-all-plugin :
-	(cd $(KANHOME)/plugin ; make )
-kanlib.a :
-	(cd $(KANHOME)/Kan ; make kanlib.a)
-ox.a : 
+.c.o:
+	${CC}  ${CFLAGS} -I${OpenXM_include} -c  $<
+ox.a: ${Kan96xx}/plugin/ox.a
 	/bin/rm -f ox.a
-	ln -s $(KANHOME)/plugin/ox.a ox.a
-ox_kan.h : $(KANHOME)/plugin/ox_kan.h
+	ln -s ${Kan96xx}/plugin/ox.a ox.a
+ox_kan.h: ${Kan96xx}/plugin/ox_kan.h
 	/bin/rm -f ox_kan.h
-	ln -s $(KANHOME)/plugin/ox_kan.h ox_kan.h
+	ln -s ${Kan96xx}/plugin/ox_kan.h ox_kan.h
 
-ox : oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
-	$(CC) ${STATIC_LINK_FLAG} $(CFLAGS) ${DDD} oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LIBS) 
+ox: oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o
+	${CC} ${STATIC_LINK_FLAG} ${CFLAGS} oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o ox  ${LIBS}
+oxmain.o: oxmain.c ox_kan.h serversm.h
 
-oxd : oxd.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
-	$(CC)  ${STATIC_LINK_FLAG} $(CFLAGS) ${DDD} oxd.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o oxd  $(LIBS) 
-oxd-thread : oxd-thread.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
-	$(CC) -pthread ${STATIC_LINK_FLAG} $(CFLAGS) ${DDD} oxd-thread.c xtag.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o oxd-thread  $(LIBS) 
+oxd: oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o 
+	${CC}  ${STATIC_LINK_FLAG} ${CFLAGS} oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o oxd  ${LIBS} 
+oxd.o: oxd.c ox_kan.h serversm.h
+xtag.o: xtag.c 
+oxd-thread: oxd-thread.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o
+	${CC} -pthread ${STATIC_LINK_FLAG} $(CFLAGS) oxd-thread.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o oxd-thread  ${LIBS}
+oxd-thread.o: oxd-thread.c ox_kan.h serversm.h
 
-ox_null : oxserver00.c ox.a nullstackmachine.o file2.o ox_kan.h
-	$(CC)  ${STATIC_LINK_FLAG} $(CFLAGS)  ${DDD} oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LIBS) ; \
+ox_null: oxserver00.o ox.a nullstackmachine.o file2.o 
+	${CC}  ${STATIC_LINK_FLAG} ${CFLAGS} oxserver00.o ox.a nullstackmachine.o file2.o -o ox_null  ${LIBS}
+oxserver00.o: oxserver00.c ox_kan.h serversm.h
 
-ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
-	$(CC)  ${STATIC_LINK_FLAG} $(CFLAGS)  ${DDD} oxserver00.c sm1stackmachine.o -o ox_sm1  $(LIBS) $(KANLIB)
+ox_sm1: oxserver00.o sm1stackmachine.o ox.a ${Kan96xx}/Kan/kanlib.a
+	${CC}  ${STATIC_LINK_FLAG} ${CFLAGS} oxserver00.o sm1stackmachine.o -o ox_sm1  ${LIBS} ${KANLIB}
 
-oxlog : oxlog.c
-	$(CC)   ${STATIC_LINK_FLAG} ${DDD} -o oxlog oxlog.c
-ox100start : ox100start.c  ${OpenXM_lib}/libox_pathfinder.a
-	$(CC)  -I${OpenXM_include} ${STATIC_LINK_FLAG} ${DDD} -o ox100start ox100start.c -L${OpenXM_lib} -lox_pathfinder
+oxlog: oxlog.o
+	${CC}   ${STATIC_LINK_FLAG} -o oxlog oxlog.o
+oxlog.o: oxlog.c
 
+ox100start : ox100start.o  ${OpenXM_lib}/libox_pathfinder.a
+	${CC}  -I${OpenXM_include} ${STATIC_LINK_FLAG} -o ox100start ox100start.c -L${OpenXM_lib} -lox_pathfinder
+ox100start.o: ox100start.c
 
-## file2.c file2.h is in SSkan/plugin/
-file2.o : $(KANHOME)/plugin/file2.c  $(KANHOME)/plugin/file2.h
-	$(CC) $(CFLAGS)  ${DDD} -DKXX=1 -I$(KANHOME)/plugin -c $(KANHOME)/plugin/file2.c 
+file2.o: ${Kan96xx}/plugin/file2.c  ${Kan96xx}/plugin/file2.h
+	${CC} $(CFLAGS) -DKXX=1 -I${Kan96xx}/plugin -c ${Kan96xx}/plugin/file2.c 
 
-nullstackmachine.o : nullstackmachine.c ox_kan.h
-sm1stackmachine.o : sm1stackmachine.c  ox_kan.h
+nullstackmachine.o: nullstackmachine.c ox_kan.h
+sm1stackmachine.o: sm1stackmachine.c  ox_kan.h
 
-testclient : testclient.c ox.a file2.o ox_kan.h
-	$(CC) $(CFLAGS)  ${DDD} testclient.c -o testclient ox.a file2.o $(LIBS)
-
-
-#KANLIB = $(KANHOME)/Kan/kanlib.a $(OpenXM_lib)/libgmp.a $(KANHOME)/gmp/mpn/libmpn.a $(KANHOME)/gc/gc.a
-KANLIB = $(KANHOME)/Kan/kanlib.a $(OpenXM_lib)/libgmp.a $(KANHOME)/gc/gc.a
-
-## file2 should be linked from kanlib.a
-
-testclient2a : testclient2.c ox.a  ox_kan.h $(KANHOME)/Kan/kanlib.a
-	$(CC) $(CFLAGS)  ${DDD} -I$(KANHOME)/Kan testclient2.c ox.a  -o testclient2a  $(LIBS) $(KANLIB)
-
-testclient2 : testclient2.c  ox_kan.h $(KANHOME)/Kan/kanlib.a ox.a
-	$(CC) $(CFLAGS)  ${DDD} -I$(KANHOME)/Kan testclient2.c -o testclient2  $(LIBS) $(KANLIB)
+testclient: testclient.o ox.a file2.o
+	${CC} ${CFLAGS} testclient.c -o testclient ox.a file2.o ${LIBS}
+testclient.o: testclient.c ox_kan.h
 
 
-clean : 
-	-/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex .configure_done ox100start
+testclient2a : testclient2.o ox.a ${Kan96xx}/Kan/kanlib.a
+	${CC} ${CFLAGS}  -I${Kan96xx}/Kan testclient2.o ox.a  -o testclient2a  ${LIBS} ${KANLIB}
+testclient2.o: testclient2.c ox_kan.h
 
+testclient2 : testclient2.o ${Kan96xx}/Kan/kanlib.a ox.a
+	${CC} ${CFLAGS} -I${Kan96xx}/Kan testclient2.c -o testclient2  ${LIBS} ${KANLIB}
+testclient2.o: testclient.c ox_kan.h
+
+
+clean-done: 
+	-${RM} -f .configure_done
+clean: clean-done
+	-${RM} -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex ox100start
 distclean : clean clean-for-install
 	/bin/rm -f config.status config.cache config.log
 
 ## install targets.
 install-for-debug : clean-for-install install_lib_bin-for-debug
-	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog ../bin/ox100start
+	${RM} -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog ../bin/ox100start
 	ln -f -s  ../src/kxx/ox ../bin/ox
 	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
 	ln -f -s  ../src/kxx/oxlog ../bin/oxlog
 	ln -f -s  ../src/kxx/ox100start ../bin/ox100start
 
 install_lib_bin-for-debug :
-	ln -f -s ../src/kan96xx/Doc $(OpenXM_lib)/sm1
-	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
-	ln -f -s ../../../bin/ox $(OpenXM_lib)/sm1/bin/ox
-	ln -f -s ../../../bin/oxlog $(OpenXM_lib)/sm1/bin/oxlog
-	ln -f -s ../../../bin/ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_forAsir
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_gnuplot
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_phc
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
-install : copy-kan-lib install_lib_bin
+	ln -f -s ../src/kan96xx/Doc ${OpenXM_lib}/sm1
+	${RM} -f ${OpenXM_lib}/sm1/bin/ox*
+	ln -f -s ../../../bin/ox ${OpenXM_lib}/sm1/bin/ox
+	ln -f -s ../../../bin/oxlog ${OpenXM_lib}/sm1/bin/oxlog
+	ln -f -s ../../../bin/ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_forAsir
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_gnuplot
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_phc
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_tigers
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD
+install: install-exec
+install-exec: copy-kan-lib install_lib_bin
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-	  cp -f ox.exe ox_sm1.exe oxlog.exe ox100start.exe $(OpenXM_bin) ; \
+	  cp -f ox.exe ox_sm1.exe oxlog.exe ox100start.exe ${OpenXM_bin} ; \
 	else \
-	  cp -f ox ox_sm1 oxlog ox100start $(OpenXM_bin) ; \
+	  cp -f ox ox_sm1 oxlog ox100start ${OpenXM_bin} ; \
 	fi
 install_lib_bin:
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
@@ -149,48 +148,48 @@ install_lib_bin:
 	else \
 	  make install_lib_bin_unix ; \
 	fi
-install_lib_bin_unix : 
-	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
-	ln -f -s ../../../bin/ox $(OpenXM_lib)/sm1/bin/ox
-	ln -f -s ../../../bin/oxlog $(OpenXM_lib)/sm1/bin/oxlog
-	ln -f -s ../../../bin/ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_forAsir
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_gnuplot
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_phc
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
-	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
+install_lib_bin_unix: 
+	${RM} -f ${OpenXM_lib}/sm1/bin/ox*
+	ln -f -s ../../../bin/ox ${OpenXM_lib}/sm1/bin/ox
+	ln -f -s ../../../bin/oxlog ${OpenXM_lib}/sm1/bin/oxlog
+	ln -f -s ../../../bin/ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_forAsir
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_gnuplot
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_phc
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_tigers
+	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD
 install_lib_bin_windows : 
-	-mkdir $(OpenXM_lib)/sm1/bin
-	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
-	cp ox.exe $(OpenXM_lib)/sm1/bin/ox.exe
-	cp oxlog.exe $(OpenXM_lib)/sm1/bin/oxlog.exe
-	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1.exe
-	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_forAsir.exe
-	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_gnuplot.exe
-	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_phc.exe
-	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_tigers.exe
-	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD.exe
+	-mkdir ${OpenXM_lib}/sm1/bin
+	${RM} -f ${OpenXM_lib}/sm1/bin/ox*
+	cp ox.exe ${OpenXM_lib}/sm1/bin/ox.exe
+	cp oxlog.exe ${OpenXM_lib}/sm1/bin/oxlog.exe
+	cp ox_sm1.exe ${OpenXM_lib}/sm1/bin/ox_sm1.exe
+	cp ox_sm1.exe ${OpenXM_lib}/sm1/bin/ox_sm1_forAsir.exe
+	cp ox_sm1.exe ${OpenXM_lib}/sm1/bin/ox_sm1_gnuplot.exe
+	cp ox_sm1.exe ${OpenXM_lib}/sm1/bin/ox_sm1_phc.exe
+	cp ox_sm1.exe ${OpenXM_lib}/sm1/bin/ox_sm1_tigers.exe
+	cp ox_sm1.exe ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD.exe
 
 
 # This target overrides the symbolic link 
-# from $(OpenXM_ROOT)/src/kan96xx/lib to $(OpenXM_lib)/sm1
+# from $(OpenXM_HOME)/src/kan96xx/lib to $(OpenXM_lib)/sm1
 # generated in the top level Makefile
 # Don't do it: cp $(OpenXM_lib)/sm1/ox-win.sm1 $(OpenXM_lib)/sm1/ox.sm1 ; 
 copy-kan-lib : clean-for-install
-	mkdir $(OpenXM_lib)/sm1
-	touch $(OpenXM_lib)/sm1/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_COPIED_FROM_kan96xx_Doc
+	mkdir ${OpenXM_lib}/sm1
+	touch ${OpenXM_lib}/sm1/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_COPIED_FROM_kan96xx_Doc
 	-if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-	  cp $(KANHOME)/Doc/* $(OpenXM_lib)/sm1 ; \
-	  mkdir $(OpenXM_lib)/sm1/bin ; \
+	  cp ${Kan96xx}/Doc/* ${OpenXM_lib}/sm1 ; \
+	  mkdir ${OpenXM_lib}/sm1/bin ; \
 	else \
-	  cp -r $(KANHOME)/Doc/* $(OpenXM_lib)/sm1 ; \
+	  cp -r ${Kan96xx}/Doc/* ${OpenXM_lib}/sm1 ; \
 	fi
-	-/bin/rm -rf $(OpenXM_lib)/sm1/CVS
-	-/bin/rm -f $(OpenXM_lib)/sm1/var.sm1
-	cp $(KANHOME)/Kan/var.sm1 $(OpenXM_lib)/sm1
+	-/bin/rm -rf ${OpenXM_lib}/sm1/CVS
+	-/bin/rm -f ${OpenXM_lib}/sm1/var.sm1
+	cp ${Kan96xx}/Kan/var.sm1 ${OpenXM_lib}/sm1
 clean-for-install :
-	-/bin/rm -rf $(OpenXM_lib)/sm1
-	-/bin/rm -rf $(OpenXM_bin)/oxlog $(OpenXM_bin)/ox_sm1 $(OpenXM_bin)/ox   $(OpenXM_bin)/ox100start
+	-/bin/rm -rf ${OpenXM_lib}/sm1
+	-/bin/rm -rf ${OpenXM_bin}/oxlog ${OpenXM_bin}/ox_sm1 ${OpenXM_bin}/ox   ${OpenXM_bin}/ox100start
 
 
 
@@ -203,12 +202,6 @@ doc:  openxxx.tex
 	-/bin/rm openxm-eg.tex openxm-jp.tex
 	echo "% DO NOT EDIT THIS FILE. This is automatically generated from openxxx.tex" >openxm-eg.tex
 	echo "% DO NOT EDIT THIS FILE. This is automatically generated from openxxx.tex" >openxm-jp.tex
-	$(OXWEAVE) $(OXWEAVEFLAG) C eg <openxxx.tex >>openxm-eg.tex
-	$(OXWEAVE) $(OXWEAVEFLAG) C jp <openxxx.tex >>openxm-jp.tex
-
-clean-binary :
-	echo " ../open-sm1-binary*  will be removed"
-	echo "after 10 seconds. To cancel type in ctrl-C."
-	( sleep 10 ; /bin/rm -rf ../open-sm1-binary* )
-
+	${OXWEAVE} ${OXWEAVEFLAG} C eg <openxxx.tex >>openxm-eg.tex
+	${OXWEAVE} ${OXWEAVEFLAG} C jp <openxxx.tex >>openxm-jp.tex
 

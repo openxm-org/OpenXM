@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.6 2001/05/04 01:06:29 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.7 2003/08/26 05:04:41 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -11,7 +11,7 @@
 #include "kclass.h"
 
 #include "gmp.h"
-#include "gmp-impl.h" 
+#include "gmp-impl.h"
 
 
 #include "file2.h"
