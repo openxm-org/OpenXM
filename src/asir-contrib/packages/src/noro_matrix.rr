@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.13 2004/06/26 01:03:00 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.14 2004/06/27 11:58:48 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -839,7 +839,10 @@ def compute_kernel(A)
 		for ( I = 0; !EV[I]; I++ );
 		Sol[N-I-1] = dp_dtop((-LCM/dp_hc(P))*dp_rest(P),VL);
 	}
-	for ( T = reverse(vars(Sol)), Ker = []; T != []; T = cdr(T) ) {
+	VSol = vars(Sol);
+	for ( T = [], I = 0; I < N; I++ )
+		if ( member(V[I],VSol) ) T = cons(V[I],T);
+	for ( Ker = []; T != []; T = cdr(T) ) {
 		Sol0 = map(coef,Sol,1,car(T));
 		if ( Alg == [] )
 			Sol0 = ptozp_vect(Sol0)[0];
