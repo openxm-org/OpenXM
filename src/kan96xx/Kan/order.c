@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.10 2004/05/13 04:38:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.11 2004/05/13 06:30:51 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -698,7 +698,7 @@ static struct object auxPruneZeroRow(struct object ob) {
   }
   return rob;
 }  
-struct object oRingToOXringStructure(struct ring *ringp)
+static struct object oRingToOXringStructure_long(struct ring *ringp)
 {
   struct object rob,ob2;
   struct object obMat;
@@ -782,6 +782,119 @@ struct object oRingToOXringStructure(struct ring *ringp)
   putoa(obt,1,obMat);
   putoa(rob,p, obt); p++;
 
+  return(rob);
+}
+static int auxEffectiveVar(int idx,int n) {
+  int x;
+  if (idx < n) x=1; else x=0;
+  if (x) {
+	if ((idx >= 1) && (idx < n-1)) return 1;
+	else return 0;
+  }else{
+	if ( 1 <= idx-n )  return 1;
+	else return 0;
+  }
+}
+/*test: 
+   [(x,y) ring_of_differential_operators [[(Dx) 1 (Dy)  1]]
+    weight_vector 0] define_ring
+    (x). getRing (oxRingStructure) dc ::
+ */
+static struct object oRingToOXringStructure_short(struct ring *ringp)
+{
+  struct object rob,ob2;
+  struct object obMat;
+  struct object obV;
+  struct object obShift;
+  struct object obt;
+  char **TransX; char **TransD;
+  int n,i,j,m,p,nonzero;
+  int *om;
+  n = ringp->n;
+  m = ringp->orderMatrixSize;
+  om = ringp->order;
+  TransX = ringp->x; TransD = ringp->D;
+  if (m<=0) m = 1;
+  /*test: (1). getRing /rr set rr (oxRingStructure) dc  */
+  obMat = newObjectArray(m);
+  for (i=0; i<m; i++) {
+    nonzero = 0;
+    for (j=0; j<2*n; j++) {
+      if ((om[2*n*i+j] != 0) && auxEffectiveVar(j,n)) nonzero++;
+    }
+    ob2 = newObjectArray(nonzero*2);
+    nonzero=0;
+    for (j=0; j<2*n; j++) {
+      /* fprintf(stderr,"%d, ",nonzero); */
+      if ((om[2*n*i+j] != 0) && auxEffectiveVar(j,n)) {
+        if (j < n) {
+          putoa(ob2,nonzero,KpoString(TransX[n-1-j])); nonzero++;
+        }else{
+          putoa(ob2,nonzero,KpoString(TransD[n-1-(j-n)])); nonzero++;
+        }
+        putoa(ob2,nonzero,KpoUniversalNumber(newUniversalNumber(om[2*n*i+j]))); nonzero++;
+      }
+    }
+    /* printObject(ob2,0,stderr); fprintf(stderr,".\n"); */
+    putoa(obMat,i,ob2);
+  }
+  obMat = auxPruneZeroRow(obMat);
+  /* printObject(obMat,0,stderr); */
+
+  obV = newObjectArray(2*n-3);
+  for (i=0; i<n-2; i++) putoa(obV,i,KpoString(TransX[n-1-i-1]));
+  for (i=0; i<n-1; i++) putoa(obV,i+n-2,KpoString(TransD[n-1-i-1]));
+  /* printObject(obV,0,stderr); */
+
+  if (ringp->degreeShiftSize) {
+    /*test:
+    [(x) ring_of_differential_operators [[(x)]] weight_vector 0
+      [(weightedHomogenization) 1 (degreeShift) [[1 2 1]]] ] define_ring ;
+     (1). getRing /rr set rr (oxRingStructure) dc message
+    */
+    obShift = newObjectArray(ringp->degreeShiftN);
+    for (i=0; i<ringp->degreeShiftN; i++) {
+      obt = newObjectArray(ringp->degreeShiftSize);
+      for (j=0; j< ringp->degreeShiftSize; j++) {
+        putoa(obt,j,KpoUniversalNumber(newUniversalNumber(ringp->degreeShift[i*(ringp->degreeShiftSize)+j])));
+      }
+      putoa(obShift,i,obt);
+    }
+    /* printObject(obShift,0,stderr); */
+  }
+
+  p = 0;
+  if (ringp->degreeShiftSize) {
+    rob = newObjectArray(3);
+    obt = newObjectArray(2);
+    putoa(obt,0,KpoString("degreeShift"));
+    putoa(obt,1,obShift);
+    putoa(rob,p, obt); p++;
+  }else {
+    rob = newObjectArray(2);
+  }
+
+  obt = newObjectArray(2);
+  putoa(obt,0,KpoString("v"));
+  putoa(obt,1,obV);
+  putoa(rob,p, obt); p++;
+
+  obt = newObjectArray(2);
+  putoa(obt,0,KpoString("order"));
+  putoa(obt,1,obMat);
+  putoa(rob,p, obt); p++;
+
+  return(rob);
+}
+struct object oRingToOXringStructure(struct ring *ringp)
+{
+  struct object rob;
+  struct object tob;
+  rob = newObjectArray(2);
+  tob = oRingToOXringStructure_short(ringp);
+  putoa(rob,0,tob);
+  tob = oRingToOXringStructure_long(ringp);
+  putoa(rob,1,tob);
   return(rob);
 }
 
