@@ -1,0 +1,2097 @@
+/* $OpenXM$ */
+/* Implemented by Hidenao Iwane. ks_ */
+/* $Id$ */
+/*
+ * Knapsack Factorizing Algorithm
+ *   Mark van Hoeij
+ *   http://www.math.fsu.edu/~hoeij/papers.html
+ *
+ *  (USE_PARI_LLL == 1) の場合
+ *   pari の lll を使用していて allocatemem が十分大きくないと止まることがある。
+ *
+ *   [99] pari(allocatemem, 10000000);
+ */
+
+#define HOEIJ_LIFT		6	/* step5 のやり直しを実行する上限 */
+#define HOEIJ_LIFT5		1	/* step5 で失敗したときに持ち上げる量 */
+#define RM_PADIC		3	/* 取り除く p-adic factor の組合せ (0 - 3) */
+#define KNAPSACK_START_NO	0	/* Zassenhausとの境界
+					 * 0 の場合は Zassenhaus には移らない*/
+
+#define PRINT_REPORT		0
+#define PRINT_STEP		0	/* 今なにやってるか表示 */
+
+#define DEBUG_HOEIJ		0
+
+#if DEBUG_HOEIJ
+#define HOEIJ_REPEAT		8	/* 行列のトリナオシを行う回数 Debug-Mode
+					 * 負の場合は無制限 */
+#else
+#define HOEIJ_REPEAT		-1
+#endif
+
+#define DONT_STOP_ERROR		0	/* errorの場合[既約デス]を出力 */
+
+
+/* Zassenhaus Algorithm */
+#define MAKE_FCTR_CNT		0	/* 試し割の回数を数える */
+#define PRINT_MAKE_FCTR		0	/* 試し割の状態表示 */
+
+
+/* LLL Algorithm */
+/* USE_PARI_LLL = 0 のときのみ有効 */
+#define PRINT_REPORT_LLL	0
+#define DEBUG_LLL		0
+
+
+/* 使用する関数の選択 */
+#define USE_PARI_LLL		1	/* pari の LLL を利用する */
+#define	USE_LPRIME		1	/* lukcy な p を見付けるのに lprime() を利用
+					 * Hensel Lifting がまともなら
+					   prime() を利用したほうが良いと思う */
+
+#define USE_UDIV		0	/* udiv まともになったら使った方が早いポイ*/
+#define USE_GRAM		0	/* ks_gram(), ks_is_gram() が必要なら true */
+
+#define umul_zp(A, B, P)	(umul(A, B) % P)	/* 一変数多項式の Z/pZ での積 */
+#define umul_num_zp(A, B, P)	((A * B) % P)		/* 一変数多項式 A と整数 B の Z/pZ 上での積 */
+#define umul_num(A, B)		(A * B)			/* 一変数多項式 A と整数 B の積 */
+
+
+/**
+ * ks_factor(POLY)
+ *      :: Factorize uni-variate polynomial POLY over the rational number field.
+ *
+ * Input : F in Q[x]
+ * Output: fctr(F) と同じ
+ *       : list   [[num, 1], [factor, multiplicity],...].
+ */
+def
+ks_factor(F)
+{
+	K = sqfr(F);
+	CONT = car(K);
+	K = cdr(K);
+	RET = [];
+	SQRT = car(K);
+	while (length(SQRT) != 0) {
+		DEG = SQRT[1];
+		FCTR = ks_factor_sqfr(SQRT[0]);
+		while (length(FCTR) != 0) {
+			A = car(FCTR);
+			FCTR = cdr(FCTR);
+			RET = cons([A, DEG], RET);
+		}
+		K = cdr(K);
+		SQRT = car(K);
+	}
+
+	RET = cons(CONT, RET);
+	return (RET);
+}
+
+
+/*
+ * Input : F    ; squarefree, primitive, lc(F) > 0.
+ * Output: list ; list of factor
+ */
+def ks_factor_sqfr(F)
+{
+	X = var(F);
+	LC = coef(F, deg(F, X));
+
+	C = 0;
+	/* Search Lucky p */
+#if USE_LPRIME
+	for (I = 0; I < 1900 && C < 1; I++) {
+		Q = lprime(I);
+		if (LC % Q == 0)
+			continue;
+		TMP = modfctr(F, Q);
+		LEN = length(TMP);
+		for (J = 1; J < LEN; J++) {
+			if (TMP[J][1] != 1)
+				break;
+		}
+		if (J != LEN)
+			continue;
+		LEN2 = length(TMP);
+		if (C == 0 || LEN2 > LEN) {
+			ROOT = TMP;
+			P = Q;
+			LEN = LEN2;
+		}
+		C++;
+	}
+#else
+	for (I = 1; I < 1900 && C < 1; I++) {
+		Q = prime(I);
+		if (LC % Q == 0)
+			continue;
+		TMP = modfctr(F, Q);
+		LEN = length(TMP);
+		for (J = 1; J < LEN; J++) {
+			if (TMP[J][1] != 1)
+				break;
+		}
+		if (J != LEN)
+			continue;
+		LEN2 = length(ROOT);
+		if (C == 0 || LEN2 > LEN) {
+			ROOT = TMP;
+			P = Q;
+			LEN = LEN2;
+		}
+		C++;
+	}
+	if (I == 1900 && C == 0) {
+		print ([I, C]);
+
+#if DONT_STOP_ERROR
+		return ([F]);
+#else
+		error ("cannot find lucky p");
+#endif
+	}
+#endif
+
+	/* already irreducible */
+	if (LEN == 2)
+		return ([F]);
+
+	/* Make factor list */
+	N = LEN - 1;
+	FVEC = ks_make_factor_list(ROOT, N);
+
+	PKN = ks_bound_for_coef_pk(F, P, X);
+	K = size(PKN)[0] - 1;
+	PK = PKN[K];
+
+	/* Hensel Lifting */
+	if (LC != 1) {
+		TMP = (LC * FVEC[0]) % P;
+		FVEC = cdr(FVEC);
+		FVEC = cons(TMP, FVEC);
+	}
+
+	FV = uhensel(F, FVEC, P, K);
+	FV = newvect(N, FV);
+	if (LC != 1) {
+		INV = inv(LC, PK);
+		FV[0] = umul_num_zp(FV[0], INV, PK);
+	}
+
+#if PRINT_REPORT
+	print ("Start make fctr, var(F) = ", 0); print (X);
+#endif
+
+	RET = ks_make_fctr(F, FV, PK, 0, RM_PADIC, X);
+
+
+#if PRINT_REPORT || 0
+	print ([RET, "      <== RET"]);
+#endif
+
+	ST = car(RET);
+	RET = cdr(RET);
+	if (ST >= 0)
+		return (RET);
+	F = car(RET);
+	RET = cdr(RET);
+	FV = car(RET);
+	RET = cdr(RET);
+
+
+#if KNAPSACK_START_NO
+	if (size(FV)[0] < KNAPSACK_START_NO) {
+
+#if PRINT_STEP
+		print("Zassenhaus Algorithm");
+#endif
+
+		RTMP = fctr(F);
+		R = [];
+		RTMP = cdr(RTMP);
+
+		while (length(RTMP) != 0) {
+			RTMP2 = car(RTMP);
+			R = cons(car(RTMP2), R);
+			RTMP = cdr(RTMP);
+		}
+		return (append(R, RET));
+	}
+#endif
+
+
+	if (ST < 0) {
+
+#if PRINT_REPORT || 0
+		print ("Through .... length(RET) != 0");
+		print (["RET = ", RET]);
+		print (["F   = ", F  ]);
+		print (["FV  = ", FV ]);
+#endif
+
+		N = -ST;
+		FTMP = newvect(N);
+		for (I = 0; I < N; I++)
+			FTMP[I] = FV[I];
+		FV = FTMP;
+	}
+
+#if PRINT_STEP
+	print ("Knapsack START, [P, F, FV]");
+#endif
+#if PRINT_REPORT
+	print (FV);
+	print ([P,K,PKN]);
+	print ([P, F, FV]);
+#endif
+	R = ks_fctr_knapsack(F, FV, P, K, PKN, X);
+
+	return (append(R, RET));
+}
+
+
+/*
+ * Input : F in Z[X] ; squarefree, primitive
+ *       : F mod p   ; squarefree
+ *	 : FV        ; vector 
+ *       : F = lc(F) * FV[0] ... FV[N] mod P^PK
+ * Output:
+ *
+ * Trace を必要とする関係で FV は monic にする必要がある.
+ */
+def
+ks_fctr_knapsack(F, FV, P, PK, PN, X)
+{
+	K = PK;
+	N = size(FV)[0];
+	DEG = deg(F, X);
+	DEG2 = idiv(DEG + 1, 2);
+
+	if (DEG2 < 4)	/* make_matrix() */
+		DEG2 = 4;
+
+	LC = coef(F, DEG);
+	BOUND_ROOT = LC * ks_bound_for_root(F, X);
+
+#if PRINT_REPORT
+print (["Bound for root = ", BOUND_ROOT]);
+#endif
+
+	TRACES = newvect(N);  /* [[Tr1(f1), ..., Trm(f1)], ..., [Tr1(fn), ..., Trm(fn)]] */
+	if (LC != 1)
+		TRSCN = newvect(N);
+	else
+		TRSCN = TRACES;
+
+	BOUND_TR = newvect(1, [2 * BOUND_ROOT * DEG]);
+	Ai = newvect(DEG2);
+	Bi = newvect(DEG2);
+
+	BL = ks_iden_mat(N);	/* Base of (L) */
+	R = N;			/* dim(L) */
+
+	for (COUNT = 0; COUNT != HOEIJ_REPEAT; COUNT++) {
+#if PRINT_STEP
+		print (["Count = ", COUNT]);
+#endif
+		A = ks_make_matrix_hoeij(DEG2, DEG2, COUNT);
+
+		S = size(A)[0];
+		D = size(A)[1];
+		BOUND_TR = ks_bound_for_tr(BOUND_TR, D, DEG, BOUND_ROOT);
+
+#if PRINT_REPORT 
+		print ("A = ");print(A);
+		print (["Bound for Trace() = ", BOUND_TR]);
+#endif
+		TEMP = ks_set_mc(N, S);
+		M = TEMP[0];
+		C = TEMP[1];
+
+#if PRINT_REPORT
+		print (["FV        = ", FV    ]);
+#endif
+		for (Z = 0; Z < N; Z++)
+			TRACES[Z] = ks_trace_zp(FV[Z], D, TRACES[Z], X, PN[K]);
+#if PRINT_REPORT
+		print (["TRACES    = ", TRACES]);
+#endif
+		if (LC != 1)
+			TRSCN = ks_mul_trace_cn(TRSCN, TRACES, LC, D, PN[K]);
+
+#if PRINT_REPORT || 0
+		print (["TRSCN     = ", TRSCN  ]);
+#endif
+
+		BOUND_TA = ks_bound_for_ta(BOUND_TR, A);
+
+#if PRINT_REPORT
+		print (["BOUND_TA  = ", BOUND_TA]);
+		print (["BOUND_TR  = ", BOUND_TR]);
+#endif
+
+		TA = ks_mulm_a_tr(A, TRSCN, PN[K]);
+		for (Y = 0; Y < HOEIJ_LIFT; Y++) {
+
+#if PRINT_REPORT
+		print (["Y = ", Y, "   C = ", COUNT]);
+		print (["M,C,S,D,R,N",M,C,S,D,R,N,K]);
+#endif
+
+			for (I = 0; I < S; I++) {
+				TEMP = ks_pkn_geq(PN, BOUND_TA[I], P, K);
+				Bi[I] = TEMP[0];
+				PN = TEMP[1];
+
+				/* K が小さすぎるので持ち上げが必要 */
+				if (Bi[I] >= K) {
+					RE = Bi[I] - K + HOEIJ_LIFT5;
+#if PRINT_STEP
+					print (["@@@ step 5 @@@", K, Bi[I] + HOEIJ_LIFT5, RE]);
+#endif
+					PN = ks_make_pn(PN, P, K, RE);
+					MOD = PN[K + RE];
+					if (LC != 1)
+						FV[0] = (LC * FV[0]) % PN[K];
+					FV = uhensel_incremental(F, vtol(FV), P, K, K + RE);
+					FV = newvect(N, FV);
+					if (LC != 1) {
+						INV = inv(LC, MOD);
+						FV[0] = umul_num_zp(FV[0], INV, MOD);
+					}
+
+					K = Bi[I] + HOEIJ_LIFT5;
+					for (Z = 0; Z < N; Z++) {
+						TRACES[Z] = 0;
+						TRSCN[Z] = 0;
+					}
+					for (Z = 0; Z < N; Z++)
+						TRACES[Z] = ks_trace_zp(FV[Z], D, TRACES[Z], X, PN[K]);
+					if (LC != 1)
+						TRSCN = ks_mul_trace_cn(TRSCN, TRACES, LC, D, PN[K]);
+					BOUND_TA = ks_bound_for_ta(BOUND_TR, A);
+					TA = ks_mulm_a_tr(A, TRSCN, PN[K]);
+				}
+				Ai[I] = K;
+#if PRINT_REPORT
+				print (["Ai Bi = ", I, Ai[I], Bi[I], BOUND_TA[I], P^Bi[I]]);
+#endif
+			}
+
+			CIJ = ks_symmetric_rem_mat_(TA, Ai, Bi, P);
+#if PRINT_REPORT || 0
+			print (["Cij= ", CIJ]);
+#endif
+
+			CIJ = BL * CIJ;
+#if PRINT_REPORT
+			print (["B_L= ", BL ]);
+			print (["TA = ", TA]);
+			print (["Ai = ", Ai]);
+			print (["Bi = ", Bi]);
+			print (["P  = ", P ]);
+			print (["CIJ= ", CIJ]);
+#endif
+
+			if (!ks_chk_cij_hoeij(CIJ, C)) {
+				CIJ = 0;
+				break;
+			}
+			LAM = ks_make_knapsack_lattice(BL, CIJ, N, S, R, C, Ai, Bi, PN);
+#if PRINT_REPORT || 0
+			print (["LAM = "]);
+			print (LAM);
+#endif
+
+#if USE_PARI_LLL
+			V = ks_lllpari(LAM);
+			DI = ks_comp_di(V);
+#else
+			DI = ks_lllasir(LAM);
+			V = DI[0];
+			DI = DI[1];
+#endif
+
+
+#if PRINT_REPORT || 0
+			print (["V = ", V]);
+			print (["Di= ", DI]);
+#endif
+
+			BL = ks_make_newbl(V, DI, M, C, N);
+
+#if DEBUG_HOEIJ
+			if (BL == 0)
+				return ([]);
+			for (Z = 0; Z < size(BL)[1]; Z++) {
+				for (ZZ = 0; ZZ < size(BL)[0]; ZZ++) {
+					if (BL[ZZ][Z] != 0)
+						break;
+				}
+				if (ZZ == size(BL)[0]) {
+					print ("Base (L') = ");
+					print (BL);
+					print (F);
+#if DONT_STOP_ERROR
+					return ([F]);
+#else
+					error("BL ga kowaretyoru");
+#endif
+				}
+			}
+#endif
+
+			BL = ks_make_base(BL);
+
+#if PRINT_REPORT
+			print ("base new BL");
+			print (BL);
+#endif
+
+			if (size(BL)[0] < R)
+				break;
+
+#if PRINT_STEP
+			print (["@@@ step 7 @@@", size(BL), R]);
+#endif
+
+			/* R が小さくならなかったので Hensel Lifting */
+			PN = ks_make_pn(PN, P, K, 2);
+			MOD = PN[K + 2];
+
+			if (LC != 1)
+				FV[0] = (LC * FV[0]) % PN[K];
+			FV = uhensel_incremental(F, vtol(FV), P, K, K + 2);
+			FV = newvect(N, FV);
+			if (LC != 1) {
+				INV = inv(LC, MOD);
+				FV[0] = umul_num_zp(FV[0], INV, MOD);
+			}
+
+			K = K + 2;
+			for (Z = 0; Z < N; Z++) {
+				TRACES[Z] = 0;
+				TRSCN[Z] = 0;
+			}
+			for (Z = 0; Z < N; Z++)
+				TRACES[Z] = ks_trace_zp(FV[Z], D, TRACES[Z], X, PN[K]);
+			if (LC != 1)
+				TRSCN = ks_mul_trace_cn(TRSCN, TRACES, LC, D, PN[K]);
+			BOUND_TA = ks_bound_for_ta(BOUND_TR, A);
+			TA = ks_mulm_a_tr(A, TRSCN, PN[K]);
+
+		}
+		if (CIJ == 0) {
+
+#if PRINT_STEP
+		/* C_ij がすでに小さく役にたたない行列だった */
+		print ("@@@ step 6 @@@  --- ");
+#endif
+
+			continue;
+		}
+
+		R = size(BL)[0];
+
+		if (Y == HOEIJ_LIFT) {
+			/* R が小さくならなかったので行列のとりなおし */
+			continue;
+		}
+
+		if (R == 1) { /* already irreducible */
+
+#if DEBUG_HOEIJ
+			for (O = 1; O < size(BL)[1]; O++)
+				if (BL[0][O] != BL[0][0])
+#if DONT_STOP_ERROR
+					return ([F]);
+#else
+					error("BL ga kowareteru in R == 1");
+#endif
+					
+#endif
+
+			return ([F]);
+		}
+
+		if (R * (RM_PADIC + 1) > N) {
+
+#if PRINT_STEP
+			/* 解の次元に対して十分次元がおちていない */
+			print (["@@@ step 8 @@@,  div(w) <= n / (3?)", R, N,RM_PADIC + 1]);
+#endif
+
+			continue;
+		}
+
+		RREF = ks_rref(BL);
+
+		 /* not satisfy conditin A */
+		if (RREF == 0) { 
+
+#if PRINT_STEP
+			print ("@@@ step 9 @@@ dont satisfy condition A");
+#endif
+
+			continue;
+		}
+
+#if PRINT_REPORT
+		print (BL);
+		print ("RREF = ");
+		print (RREF);
+#endif
+
+		ROOT = ks_condition_b_hoeij(F, LC, RREF, FV, X, PN[PK]);
+		/* 条件 b (試し割) をみたした */
+		if (ROOT != 0)
+			break;
+
+#if PRINT_STEP
+		print ("@@@ step 10@@@ dont satisfy condition A");
+#endif
+
+	}	
+
+#if PRINT_REPORT
+	print (["return", COUNT]);
+	print (RREF);
+#endif
+
+	if (ROOT == 0) {
+		print("HOEIJ_REPEAT is Too Small");
+
+#if DONT_STOP_ERROR
+		return ([F]);
+#else
+		error("HOEIJ_REPEAT is Too Small");
+#endif
+
+	}
+
+
+	return (ROOT);
+}
+
+
+/*
+ * Input : TRSCN ; 2 次元ベクトル
+ *       : TRACES; 2 次元ベクトル
+ *       : C     ; Integer : lc(F)
+ *       : D     ; Integer
+ * Output: [[cTr1(f1),...,c^dTrd(f1)],...,[cTr1(fn),...,c^dTrd(fn)]]
+ *
+ * 入力の多項式 F が non-Monic でない場合の Trace の修正.
+ */
+def
+ks_mul_trace_cn(TRSCN, TRACES, C, D, Mod)
+{
+	N = size(TRSCN)[0];
+	TMP = TRSCN[0];
+	if (TMP == 0)
+		M = 0;
+	else
+		M = size(TMP)[0];
+
+	if (M >= D)
+		return (TRSCN);
+	TMP = TRSCN;
+	for (I = 0; I < N; I++) {
+		TRSCN[I] = newvect(D);
+		for (J = 0; J < M; J++)
+			TRSCN[I][J] = TMP[I][J];
+		for (; J < D; J++)
+			TRSCN[I][J] = (TRACES[I][J] * C^(J + 1)) % Mod;
+	}
+
+	return (TRSCN);
+}
+
+
+/*
+ * Input :  A  ; Matrix
+ *       :  TRS  ; 2 次元 Vector [[Tr1(f1),...Trm(f1)],...,[Tr1(fn),...Trm(fn)]]
+ * Output:  Matrix ; [TA(f1), ..., TA(fn)]
+ *       :         ; TA(fi) = A * (Tr1(fi), ..., Trm(fi)) mod Mod
+ */
+def
+ks_mulm_a_tr(A, TRS, Mod)
+{
+#if PRINT_REPORT
+	print (["TRS = ", TRS, "      in ks_mulm_a_tr()"]);
+#endif
+	N = size(TRS)[0];
+	C = newmat(N, size(A)[0]);
+        for (I = 0; I < size(A)[0]; I++) {
+                for (J = 0; J < N; J++) {
+                        T = 0;
+                        for (K = 0; K < size(A)[1]; K++) {
+                                T = (T + TRS[J][K] * A[I][K]) % Mod;
+                        }
+                        C[J][I] = T;
+                }
+        }
+        return (C);
+}
+
+def
+ks_make_pn(PN, P, K, C)
+{
+	N = size(PN)[0];
+	Q = newvect(N + C);
+
+
+	for (I = 0; I < N; I++)
+		Q[I] = PN[I];
+
+	for (; I < N + C; I++) {
+		Q[I] = P * Q[I - 1]; 
+	}
+
+	return (Q);
+}
+
+
+
+/*
+ * Input : BOUND ; Vector   : [bound(Tr1), ..., bound(TrN)]
+ *       : D     ; Integer
+ *       : DEG   ; deg(F)
+ *       : ROOT  ; bound for root of polynomial F
+ *       :
+ * Output: [bound(Tr1), ..., bound(TrD)]
+ *
+ */
+def
+ks_bound_for_tr(BOUND, D, DEG, ROOT)
+{
+	N = size(BOUND)[0];
+
+	if (N >= D)
+		return (BOUND);
+
+	RET = newvect(D);
+	if (N == 0) {
+		RET[0] = 2 * ROOT * DEG;
+		I = 1;
+	} else {
+		for (I = 0; I < N; I++)
+			RET[I] = BOUND[I];
+	}
+	for (; I < D; I++) {
+		RET[I] = RET[I - 1] * ROOT;
+	}
+	return (RET);
+}
+
+
+/*
+ * Input : TRACE ; Vector, bound for [Tr1, ..., Trn] (n は十分大きい)
+ *       : A     ; Matrix
+ * Output: bound for  A(Tr1, ..., Trd), d = row(A)
+ */
+def
+ks_bound_for_ta(TRACE, A)
+{
+	B = newvect(size(A)[0]);
+
+        for (I = 0; I < size(A)[0]; I++) {
+		T = 0;
+                for (J = 0; J < size(A)[1]; J++) {
+                        if (A[I][J] != 0) {
+				if (A[I][J] >= 0)
+					M = A[I][J];
+				else
+                                	M = -A[I][J];
+				T = T + TRACE[J] * M;
+
+                        }
+                }
+                B[I] = T;
+        }
+	return (B);
+}
+
+
+/*
+ * STEP5 における行列の生成。
+ * かなり考察の余地あり
+ */
+def
+ks_make_matrix_hoeij(RMAX, CMAX, C)
+{
+	M = 4;
+	N = 3;
+
+	if (C == 0) {
+		A = newmat(1, 1, [[1]]);
+		return (A);
+	} else if (C == 1) {
+		A = newmat(2, 3, [[0, 1, 0],[0, 0, 1]]);
+		return (A);
+	}
+
+
+	if (RMAX < N)
+		N = RMAX;
+#if PRINT_REPORT
+print (["C = ", C]);
+#endif
+	if (C < M && (C + 1) * N <= CMAX) {
+		A = newmat(N, (C + 1) * N);
+		for (I = 0; I < N; I++)
+			A[I][I + N * C] = 1;
+		return (A);
+	}
+	R = idiv(C + 9 - M, 3);
+	C = (C + 1) * N;
+	if (R > RMAX)
+		R = RMAX;
+	if (C > CMAX)
+		C = CMAX;
+
+	A = newmat(R, C);
+	AR = random(1);
+	for (I = 0; I < C; I++) {
+		RR = random(AR);
+		CR = random(RR);
+		AR = random(CR);
+		A[RR % R][CR % C] = AR % 2 + 1;
+	}
+	return (A);
+}
+
+
+
+
+
+/*
+ * 行列の各成分を symmetric remainder にする
+ */
+def
+ks_symmetric_rem_mat_(Mat, AI, BI, P)
+{
+        for (J = 0; J < size(Mat)[1]; J++) {
+                for (I = 0; I < size(Mat)[0]; I++)
+                        Mat[I][J] = ks_sym2(Mat[I][J], AI[J], BI[J], P);
+        }
+        return (Mat);
+}
+
+
+
+/*
+ * Input : N, S ; Integer
+ * Output: List [M, C]
+ *       : M = C^2 * N + S * (N / 2)^2
+ *       : C は 2 項の一方が他方よりも大きくなりすぎないようにとる
+ */
+def
+ks_set_mc(N, S)
+{
+	C = idiv(pari(floor, pari(sqrt, S * N)), 2);
+	if (C < 1)
+		C = 1;
+	X = S * N * N;
+	M = C * C * N + idiv(X, 4);
+	if (X % 4 != 0)
+		M++;
+	return ([M, C]);
+}
+
+
+/*
+ * Input : V  ; Matrix   : LLL-reduced bases of Knapsack Lattice
+ *       : DI ; Vector   : V に Gram-Schmidt を適用し得られるベクトルの長さの2乗
+ *       : M  ; Integer  : ks_set_mc により得られる M
+ *       : C  ; Integer  : ks_set_mc により得られる C
+ *       : N  ; Integer  : # of factor 
+ * Output: Matrix 
+ *       : 任意の k < i で DI[i] > M になる最小の k 
+ *       : V の [k, N] 行列 の 1/C 倍して得られる行列 
+ */
+def
+ks_make_newbl(V, DI, M, C, N)
+{
+        for (R = size(DI)[0] - 1; R > 0; R--) {
+                if (DI[R-1] * M >= DI[R])
+                        break;
+        }
+
+        if (R == 0) {  /* 理論的にありえない */
+                error ("r == 0");
+        }
+
+	RET = newmat(R, N);
+	for (I = 0; I < R; I++) {
+		for (J = 0; J < N; J++)
+			RET[I][J] = idiv(V[I][J], C);
+	}
+	return (RET);
+}
+
+
+
+
+
+
+/*
+ * INPUT : ROOT = fctr(F), F in Z[x]
+ *       : # of factor = N
+ * Output: vector of factor
+ */
+def ks_make_factor_list(ROOT, N)
+{
+	RET = [];
+	ROOT = cdr(ROOT);
+	for (I = 0; I < N; I++) {
+		RET = cons(car(car(ROOT)), RET);
+		ROOT = cdr(ROOT);
+	}
+	return (RET);
+}
+
+
+/*
+ * Input : F in Z[x].
+ * Output: 任意の F の解の絶対値よりも大きな正の整数
+ */
+def
+ks_bound_for_root(F, X)
+{
+	DEG = deg(F, X);
+	LC = coef(F, DEG);
+	MAX = 0;
+
+	for (I = DEG - 1; I >= 0; I--) {
+		C = coef(F, I);
+		if (C == 0)
+			continue;
+		D = DEG - I;
+
+		if (LC != 1)
+			A = idiv(C, LC);
+		else
+			A = C;
+		if (A < 0)
+			A = -A;
+
+		/* bit size */
+		for (B = 1;; B++) {
+			if (2^B > A)
+				break;
+		}
+#if 0
+print ([B, idiv(B + 1, D) + 1, D, MAX, A, "<==============", C, LC]);
+#endif
+		B = idiv(B + 1, D) + 1;
+		if (B > MAX)
+			MAX = B;
+	}
+	return (2^(MAX + 1));
+}
+
+
+
+
+def ks_find_fctr(F, I, N)
+{
+	K = 0;
+	C = 0;
+	for (C = 0; K < N && C < 1000; C++) {
+		P = prime(I++);
+
+		FMOD = F % P;
+		if (gcd(FMOD, diff(FMOD, x)) != 1)
+			continue;
+
+		ROOT = modfctr(FMOD, P);
+
+		K = length(ROOT) - 1;
+	}
+	return (P);
+}
+
+
+
+def
+ks_clone_vect(V)
+{
+	RET = newvect(size(V)[0]);
+	for (I = 0; I < size(V)[0]; I++)
+		RET[I] = V[I];
+	return (RET);
+}
+
+def
+ks_clone_mat(V)
+{
+	RET = newmat(size(V)[0], size(V)[1]);
+	for (I = 0; I < size(V)[0]; I++)
+		for (J = 0; J < size(V)[1]; J++)
+			RET[I][J] = V[I][J];
+	return (RET);
+}
+
+
+/*
+ * Input : B1 ; Matrix
+ * Output: Matrix.
+ *       : B1 の各行により張られる Z 自由加群の基底を返す
+ *
+ * Algo  : 各列の最大公約数を求め、それで他の行けしちゃう
+ */
+def
+ks_make_base(B1)
+{
+	N = size(B1)[0];
+	M = size(B1)[1];
+	V = newvect(N);
+	for (I = 0; I < N; I++)
+		V[I] = B1[I];
+	W = newmat(N, M);
+	U = newvect(N);
+
+	MAX = N - 1;
+	P = newvect(N);
+
+	K = 0;
+        for (I = 0; I < M; I++) {
+#if 0
+print (["I = ", I, ", V = "], 0);
+print (V);
+print (W);
+#endif
+                C = 0;
+                D = -1;
+                for (J = MAX; J >= 0; J--) {
+                        if (V[J][I] != 0) {
+                                P[C] = J;
+                                U[C] = V[J][I];
+                                if (V[J][I] == 1 || V[J][I] == -1)
+                                        D = C;
+                                C++;
+                        }
+                }
+                if (C == 0)
+                        continue;
+                if (C == 1) {
+                        if (V[P[0]][I] > 0) {
+				for (X = 0; X < M; X++)
+					W[K][X] = V[P[0]][X];
+                        } else {
+                                for (J = 0; J < I; J++)
+                                        W[K][J] = 0;
+                                for (; J < M; J++)
+                                        W[K][J] = -V[P[0]][J];
+                        }
+                        for (J = P[0]; J < MAX; J++)
+                                V[J] = V[J + 1];
+                        MAX--;
+                } else {
+                        if (D >= 0) { /* すでに 1 or -1 である行が存在した */
+                                if (V[P[D]][I] > 0) {
+					for (X = 0; X < M; X++)
+						W[K][X] = V[P[D]][X];
+                                } else {
+                                        for (J = 0; J < I; J++)
+                                                W[K][J] = 0;
+                                        for (; J < M; J++)
+                                                W[K][J] = -V[P[D]][J];
+
+                                }
+                                for (J = 0; J < C; J++) {
+                                        if (J == D)
+                                                continue;
+                                        GCD = V[P[J]][I];
+                                        if (GCD != 0) {
+                                                V[P[J]][I] = 0;
+                                                for (L = I + 1; L < M; L++) 
+                                                        V[P[J]][L] = V[P[J]][L] - GCD * W[K][L];
+                                        }
+                                }
+#if 1
+                                for (J = P[D]; J < MAX; J++)
+                                        V[J] = V[J + 1];
+#else
+				V[P[D]] = V[MAX];
+#endif
+V[MAX]=0;
+                                MAX--;
+                        } else {
+                                T = ks_extends_euclid_vecbi_hoeij(U, C);
+                                GCD = T[C];
+                                for (J = 0; J < M; J++)
+                                        W[K][J] = 0;
+
+                                for (L = I; L < M; L++) {
+                                        for (J = C - 1; J >= 0; J--) {
+                                                W[K][L] = W[K][L] + T[J] * V[P[J]][L];
+                                        }
+                                }
+
+                                for (J = 0; J < C; J++) {
+                                        Q = idiv(V[P[J]][I], GCD);
+                                        V[P[J]][I] = 0;
+                                        for (L = I + 1; L < M; L++) {
+						
+                                                V[P[J]][L] = V[P[J]][L] - Q * W[K][L];
+					}
+                                }
+                        }
+                }
+
+                if (++K == N)
+                        break;
+
+        }
+
+	BASE = newmat(K, M);
+	for (I = 0; I < K; I++) {
+		for (J = 0; J < M; J++)
+			BASE[I][J] = W[I][J];
+	}
+
+        return (BASE);
+}
+
+
+
+
+/*
+ * Input : U ; Vector  : [u1, ..., un]
+ *       : N ; Integer : <= size(U)[0] 
+ * Output: W ; Vector(N)
+ *       : gcd(u1, ..., un) = w_n+1 = w1u1 + ... + wnun > 0 なるベクトル
+ */
+def
+ks_extends_euclid_vecbi_hoeij(U, N)
+{
+        RET = newvect(N + 1);
+
+        RET[0] = 1;
+        GCD = U[0];
+        T = GCD;
+
+        for (I = 1; I < N; I++) {
+		/* gcd(U[0], ..., U[I-1]) と U[I] の GCD */
+                TMP = ks_extends_euclid_bi2(GCD, U[I]);  /* [GCD, A, B] : TMP = A* GCD + B * U[I] */
+                T = T * U[I];
+
+                if (TMP[0] < 0) {
+			GCD = -TMP[0];
+			A = -TMP[1];
+			B = -TMP[2];
+                } else {
+			GCD = TMP[0];
+			A = TMP[1];
+			B = TMP[2];
+		}
+
+                RET[I] = B;
+                for (J = 0; J < I; J++) {
+                        S = A * RET[J];
+                        RET[J] = S;
+                }
+                        
+        }
+        RET[N] = GCD;
+        return (RET);
+}
+
+
+/*
+ * 拡張 Euclid 互除法
+ * Input : F1, F2 : Integer
+ * Output: List [F3, A, B]
+ *       : igcd(F1, F2) = A * F1 + B * F2
+ */
+def
+ks_extends_euclid_bi2(F1, F2)
+{
+        if (F1 == 0 || F2 == 0) {
+		return ([0, 0, 0]);
+	}
+        A2 = B1 = 0;
+        A1 = B2 = 1;
+
+        for (;;) {
+                Q = idiv(F1, F2);
+                TMP = Q * F2;
+                F3 = F1 - TMP;
+                if (F3 == 0)
+                        break;
+
+                A3 = A1 - Q * A2;
+		B3 = B1 - Q * B2;
+
+                F1 = F2;
+                F2 = F3;
+                A1 = A2;
+                A2 = A3;
+                B1 = B2;
+                B2 = B3;
+        }
+	return ([F2, A2, B2]);
+}
+
+
+
+/*
+ * Input:ks_make_base(B)
+ * Output: if satisfy condition A) return row reductino echeron form.
+ *
+ * Condition A)
+ * Each column contains precsely one 1,
+ * and all other entries are 0.
+ *
+ * 入力の各行の一番左の 0 でない成分は, 各列の gcd になっている.
+ * その成分の下には 0 しかない.
+ */
+def
+ks_rref(B0)
+{
+	B = ks_clone_mat(B0);
+	N = size(B)[0];
+	M = size(B)[1];
+
+        for (I = 0; I < N; I++) {
+                for (; K < M; K++) {
+                        /* |1| 以外の項がある */
+                        if (B[I][K] != 0) {
+				if (B[I][K] != 1 && B[I][K] != -1)
+					return (0);
+				break;
+			}
+			C = 0;
+                        for (J = 0; J < I; J++) {
+                                if (B[J][K] != 0) {
+                                        /* |1| 以外の項がある */
+                                        if (B[J][K] != 1 && B[J][K] != -1)
+                                                return (0);
+                                        if (C != 0) /*  ある列に |1| が二つある */
+                                                return (0);
+                                        C = 1;
+                                }
+                        }
+                        /* |1| が 1 個もなかった.
+			   理論的にはありえない */
+                        if (c == 0) {
+				error ("B_L ga kowareteru YO!");
+			}
+		}
+
+                for (J = 0; J < I; J++) {
+                        E = idiv(B[J][K], B[I][K]);
+                        if (E == 0)
+                                continue;
+                        B[J][K] = 0;
+                        for (T = K + 1; T < M; T++) {
+                                D = B[I][T] * E;
+                                B[J][T] = B[J][T] - D;
+                        }
+                }
+                K++;
+	}
+        for (I = 0; I < N; I++) {
+                for (J = 0; J < M; J++)
+                        if (B[I][J] != 0)
+                                break;
+
+                C = B[I][J];
+
+                for (J++; J < M; J++)
+                        if (B[I][J] * C < 0)
+                                return (0);
+        }
+        return (B);
+}
+
+/*
+ * Input : F ; polynomial
+ *       : LC; Integer : lc(F)
+ *       : B ; Matrix  : 条件 A) を通った行列 (ks_rref() で 0 ではなかった)
+ *       : FV; Vector  : F = lc(F) * FV[0] * ... * FV[n] mod MOD
+ * Output: 試し割を実行し成功すれば因子の List を返す
+ */
+def
+ks_condition_b_hoeij(F, LC, B, FV, X, MOD)
+{
+        ROOT = [];
+	Q = idiv(MOD, 2);
+        FVEC = newvect(7);
+	ROW = size(B)[0];
+	COL = size(B)[1];
+        if (LC == 1)
+                AF = F;
+        else
+                AF = umul_num(F, LC);
+        M = 0;
+        for (I = 0; I < ROW; I++) {
+                G = 1;
+                for (J = 0; J < COL; J++) {
+                        if (B[I][J] != 0) {
+				G = umul_zp(G, FV[J], MOD);
+                        }
+                }
+                FVEC[M] = G;
+                ST = ks_fctr_test(F, AF, G, LC, MOD, Q, X, ROOT);
+                if (ST[0] != 0) {
+                        if (ROW - I > 7) {
+                                return (0);
+                        } else {
+                                M++;
+                                break;
+                        }
+                }
+		F = ST[1];
+		AF = ST[2];
+		ROOT = ST[3];
+		LC = coef(F, deg(F, X));
+        }
+        if (M == 0) {   /* Success */
+                return (ROOT);
+        }
+
+	/*
+         * 残りの行が 7 行以下クライの場合には Knapsack するより総当のほうがはやい
+         */
+        for (I++; I < ROW; I++) {
+                G = 1;
+                for (J = 0; J < COL; J++) {
+                        if (B[I][J] != 0)
+				G = umul_zp(G, FV[J], MOD);
+                }
+                ST = ks_fctr_test(F, AF, G, LC, MOD, Q, X, ROOT);
+
+                if (ST[0] != 0)
+                        FVEC[M++] = G;
+                else {
+			F = ST[1];
+			AF = ST[2];
+			ROOT = ST[3];
+			LC = coef(F, deg(F, X));
+		}
+        }
+
+        for (I = 0; I < M - 1 && M >= 4; I++) {
+                for (J = I + 1; J < M; J++) {
+                        G = umul_zp(FVEC[I], FVEC[J], MOD);
+                        G = umul_num_zp(G, LC, MOD);
+                        ST = ks_fctr_test(F, AF, G, LC, MOD, Q, X, ROOT);
+                        if (ST[0] != 0)
+                                continue;
+			F = ST[1];
+			AF = ST[2];
+			ROOT = ST[3];
+			LC = coef(F, deg(F, X));
+                        M -= 2;
+                        FVEC[J] = FVEC[M + 1];
+                        FVEC[I] = FVEC[M];
+                        I--;
+                        break;
+                }
+        }
+
+        for (I = 0; I < M - 2 && M >= 6; I++) {
+                for (J = I + 1; J < M - 1; J++) {
+                        for (K = J + 1; K < M; K++) {
+                                G = umul(FVEC[I], FVEC[J]);
+                                G = umul(FVEC[K], G);
+                                G = umul_num_zp(G, LC, MOD);
+
+                                ST = ks_fctr_test(F, AF, G, LC, MOD, Q, X, ROOT);
+
+                                if (ST[0] != 0)
+                                        continue;
+                                M -= 3;
+				F = ST[1];
+				AF = ST[2];
+				ROOT = ST[3];
+				LC = coef(F, deg(F, X));
+                                FVEC[K] = FVEC[M + 2];
+                                FVEC[J] = FVEC[M + 1];
+                                FVEC[I] = FVEC[M];
+                                I--;
+                                J = M;
+                                break;
+                        }
+                }
+        }
+
+	G = prim(F);
+	ROOT = cons(G, ROOT);
+        return (ROOT);
+}
+
+
+/*
+ * Knapsack Lattice の形成
+ *
+ *
+ */
+def
+ks_make_knapsack_lattice(BL, VCIJ, N, S, R, C, AI, BI, PN)
+{
+        LAM = newmat(R + S, N + S);
+        for (I = 0; I < S; I++) {
+                LAM[R + I][N + I] = PN[AI[I] - BI[I]];
+        }
+
+        for (I = 0; I < S; I++) {
+                for (J = 0; J < size(VCIJ)[0]; J++)
+                        LAM[J][I + N] = VCIJ[J][I];
+        }
+
+        for (I = 0; I < R; I++) {
+                for (J = 0; J < N; J++)
+                        LAM[I][J] = BL[I][J] * C;
+	}
+        return (LAM);
+}
+
+
+
+/*
+ * Input : monic f in Z[x] 0 <= coef < mod
+ * Output: [Tr_1(f) Tr_2(f) ... Tr_n(f)]
+ *       : Tr_m(f) = lc(f)^m * (the sum of m'th powers of the roots)
+ */
+def
+ks_trace_zp(F, N, TRACE, X, MOD)
+{
+	if (TRACE == 0)
+		S = 0;
+	else
+		S = size(TRACE)[0];
+
+	if (S >= N)
+		return (TRACE);
+
+	DEG = deg(F, X);
+	START = 1;
+	RET = newvect(N);
+
+	if (S != 0) {
+		for (I = 0; I < START; I++)
+			RET[I] = TRACE[I];
+	}
+	if (START == 1) {
+		RET[0] = (-coef(F, DEG - 1)) % MOD;
+		START = 2;
+	}
+	for (I = START; I <= N && I <= DEG; I++) {
+		T = (-coef(F, DEG - I)) % MOD;
+		T = (T * I) % MOD;
+
+		for (J = 1; J < I; J++) {
+			S = (coef(F, DEG - J) * RET[I - J - 1]) % MOD;
+			T = (T - S) % MOD; 
+		}
+		RET[I - 1] = T;
+	}
+	for (; I <= N; I++) {
+		T = 0;
+		for (J = 0; J < DEG; J++) {
+			S = coef(F, J) * RET[I - DEG + J - 1] % MOD;
+			T = (T - S) % MOD;
+		}
+		RET[I - 1] = T;
+	}
+	return (RET);
+}
+
+
+
+/*
+ * Input : A ; Matrix
+ *       : C ; Integer
+ * Output: boolean
+ *       : 行列 A が既に小さいかどうかを調べ, そうであれば true を返す.
+ *       : (小さいの定義がよくわかっていない.
+ *       :  多くの場合は すべての成分が 0 で,
+ *       :  そうでなければいくら (a_i-b_i) を大きくしても変化しない
+ *       :  という意味だと思っている.
+ *       :  二つ目の方法は調べるのが面倒なので, 
+ *       :  何回か Hensel Lifting 実行しても変化しなければ
+ *       :  次の行列選ぶことにしている.
+ *       :  c.f. #define HOEIJ_LIFT
+ */
+def
+ks_chk_cij_hoeij(A, C) {
+	for (I = 0; I < size(A)[0]; I++)
+		for (J = 0; J < size(A)[1]; J++)
+			if (A[I][J] != 0)
+				return (1);
+	return (0);
+}
+
+
+
+
+
+
+/*
+ * Input : PN    ; Vector [P, P^2, ... ]
+ *         BOUND ; Integer
+ *         P     ; Integer
+ *         K     ; Integer
+ * Output: [ PK, RET ]
+ *         PK    ; P^K > BOUND を満たすような最小の PK = P^K
+ *         RET   ; [P, P^2, ..., P^K] or PN のうちリストの長い方
+ */
+def
+ks_pkn_geq(PN, BOUND, P, K)
+{
+	Q = PN[K];
+	if (Q > BOUND) {
+		L = 2;
+		R = K;
+		while (R >= L) {
+			K = idiv(L + R, 2);
+			Q = PN[K];
+			if (Q > BOUND)
+				R = K - 1;
+			else
+				L = K + 1;
+		}
+		return ([L, PN]);
+	}
+	I = K + 1;
+	LIST = [Q];
+	for (J = 1;; J++) {
+		S = P * car(LIST);
+		LIST = cons(S, LIST);
+		if (S > BOUND)
+			break;
+        }
+	RET = newvect(K + J + 1);
+	M = size(PN)[0];
+	for (I = 0; I < K; I++)
+		RET[I] = PN[I];
+	for (I = K + J; I >= K; I--) {
+		RET[I] = car(LIST);
+		LIST = cdr(LIST);
+	}
+	return ([K + J, RET]);
+}
+
+
+
+/* ... symmetric remainder ... */
+
+def ks_mod(C, P)
+{
+	if (C >= 0)
+		C %= P;
+	else
+		C = P - (-C) % P;
+	return (C);
+}
+
+
+def ks_sym(C, A, P)
+{
+	C = ks_mod(C, P^A);
+	if (C > idiv(P^A, 2))
+		C -= P^A;
+
+	return (C);
+}
+
+/*
+ * Input : C, A, B, P: Integer
+ */
+def ks_sym2(C, A, B, P)
+{
+	return (ks_sym(idiv(C - ks_sym(C, B, P), P^B), A - B, P));
+}
+
+
+
+
+/* Identity matrix */
+/*
+ * Input : N ; Integer
+ * Output:     Identity Matrix of dimension N
+ */
+def ks_iden_mat(N)
+{
+	L = newmat(N, N);
+	for (I = 0; I < N; I++)
+		for (J = 0; J < N; J++)
+			L[I][J] = 0;
+	for (I = 0; I < N; I++)
+		L[I][I] = 1;
+	return (L);
+}
+
+/*
+ * Input : A, B ; Vector, size(A) == size(B)
+ * Output: inner product A, B
+ */
+def ks_inner_product(A, B)
+{
+	RET = 0;
+	for (I = 0; I < size(A)[0]; I++)
+		RET += A[I] * B[I];
+	return (RET);
+}
+
+
+#if USE_GRAM
+def ks_gram(A)
+{
+	B = A;
+	N = size(B)[0];
+	M = size(B)[1];
+
+	B2 = newvect(N);
+	V = newmat(N, M);
+
+	for (I = 0; I < N; I++) {
+
+		for (K = 0; K < M; K++)
+			V[I][K] = B[I][K];
+
+		for (J = 0; J < I; J++) {
+			MU = ks_inner_product(B[I], V[J]) / ks_inner_product(V[J], V[J]);
+			if (MU != 0) {
+				L = MU * V[J];
+				for (K = 0; K < M; K++)
+					V[I][K] -= L[K];
+			}
+		}
+	}
+
+	return (V);
+}
+
+def ks_is_gram(A)
+{
+	for (I = 0; I < size(A)[0]; I++)
+		for (J = 0; J < I; J++)
+			if (ks_inner_product(A[I], A[J]) != 0)
+				return (0);
+	return (1);
+}
+#endif
+
+
+/* 以下は pari の lll() を用いない場合に必要 */
+#if USE_PARI_LLL
+def ks_trans(M) { 
+	RET = newmat(size(M)[1], size(M)[0]);
+	for (I = 0; I < size(M)[0]; I++)
+		for (J = 0; J < size(M)[1]; J++)
+			RET[J][I] = M[I][J];
+	return (RET);
+}
+
+def ks_lllpari(A) {
+	return (ks_trans(ks_trans(A) * pari(lllint, ks_trans(A))));
+}
+
+
+/* pari の lll は di を計算してくれない */
+/*
+ * Input : B; Vector
+ * Output: B_i に gram-schmidt を適用して得られる
+ *         ベクトルの長さの 2 乗 を G_i としたとき、 
+ *         D_i = \prod G_i
+ */
+def
+ks_comp_di(B)
+{
+	N = size(B)[0];
+	D = newvect(N + 1);
+	D[0] = 1;
+	D[1] = ks_inner_product(B[0], B[0]);
+	L = newmat(N, N);
+	for (K = 1; K < N; K++) {
+		for (J = 0; J <= K; J++) {
+			U = ks_inner_product(B[K], B[J]);
+			for (I = 0; I < J; I++) {
+				U = idiv(D[I + 1] * U - L[K][I] * L[J][I], D[I]);
+			}
+			if (J < K)
+				L[K][J] = U;
+			else
+				D[K + 1] = U;
+		}
+	}
+	return (D);
+}
+
+#else
+
+
+/**
+ * LLL Algorithm
+ */
+def
+ks_lllasir(A0) {
+	N = size(A0)[0];
+	M = size(A0)[1];
+	A = newvect(N);
+	for (I = 0; I < N; I++)
+		A[I] = A0[I];
+	LAM = newmat(N, N);
+	D = newvect(N + 1);
+	D[0] = 1;
+	D[1] = ks_inner_product(A[0], A[0]);
+
+	/* Gram-Schmidt */
+	for (K = 1; K < N; K++) {
+		for (J = 0; J <= K; J++) {
+			U = ks_inner_product(A[K], A[J]);
+			for (I = 0; I < J; I++) {
+				B = D[I + 1] * U - LAM[K][I] * LAM[J][I];
+				U = idiv(B, D[I]);
+			}
+			if (J < K)
+				LAM[K][J] = U;
+			else
+				D[K + 1] = U;
+		}
+		if (D[K + 1] == 0)
+			return (0);
+	}
+#if PRINT_REPORT_LLL
+	print ("end Gram");
+	print (A);
+	print (["Di = ", D]);
+	print (LAM);
+#endif
+	K = 1;
+	do {
+		for (;;) {
+			ks_red_lll(K, K - 1, N, M, A, LAM, D);
+#if PRINT_REPORT_LLL
+			print (["red(", K, K-1, ")"]);
+			print (LAM);
+			print (D);
+			print (A);
+#endif
+
+			B = LAM[K][K-1] * LAM[K][K-1] + D[K - 1] * D[K + 1];
+			C = D[K] * D[K];
+			if (3 * C > 4 * B) {
+				ks_swap_lll(K, N, A, LAM, D);
+#if PRINT_REPORT_LLL
+				print (["swap(", K, ")"]);
+				print (A);
+				print (D);
+				print (LAM);
+#endif
+				if (K < 2)
+					K = 1;
+				else
+					K--;
+			} else {
+				for (I = K - 2; I >= 0; I--)
+					ks_red_lll(K, I, N, M, A, LAM, D);
+#if PRINT_REPORT_LLL
+				print (["red(", K, K-2, ") ==> red(", K, 0, ")"]);
+#endif
+				K++;
+				break;
+			}
+		}
+	} while (K < N);
+
+#if DEBUG_LLL
+	G = ks_vtom(A);
+	if (ks_isLLL(A) == 0) {
+		print ("error");
+		return (A);
+		error("LLL error");
+	}
+#endif
+
+
+	return ([ks_vtom(A), D]);
+}
+
+
+/**
+ * LLL Algorithm 用関数
+ */
+def
+ks_red_lll(K, L, N, M, A, LAM, D)
+{
+	B = 2 * LAM[K][L];
+	if (LAM[K][L] >= 0) {
+		if (B <= D[L + 1])
+			return;
+	} else {
+		if (-B <= D[L + 1])
+			return ;
+	}
+
+	Q = idiv(B + D[L + 1], 2 * D[L + 1]);
+	if (LAM[K][L] < 0)
+		Q--;
+	for (I = 0; I < M; I++)
+		A[K][I] = A[K][I] - Q * A[L][I];
+
+	LAM[K][L] = LAM[K][L] - Q * D[L + 1];
+
+	for (I = 0; I < L; I++)
+		LAM[K][I] = LAM[K][I] - Q * LAM[L][I];
+
+	return ;
+}
+
+
+/**
+ * LLL Algorithm 用関数
+ */
+def
+ks_swap_lll(K, N, A, LAM, D)
+{
+	T = A[K];
+	A[K] = A[K - 1];
+	A[K - 1] = T;
+
+	for (I = 0; I < K - 1; I++) {
+		T = LAM[K][I];
+		LAM[K][I] = LAM[K - 1][I];
+		LAM[K - 1][I] = T;
+	}
+
+	L = LAM[K][K - 1];
+	T = D[K - 1] * D[K + 1];
+	B = L * L + T;
+	B = idiv(B, D[K]);
+
+	for (I = K + 1; I < N; I++) {
+		T = LAM[I][K];
+		LAM[I][K] = idiv(D[K + 1] * LAM[I][K - 1] - L * T, D[K]);
+		LAM[I][K - 1] = T + idiv(L * LAM[I][K], B);
+		LAM[I][K - 1] = idiv(L * LAM[I][K] + B * T, D[K + 1]);
+	}
+	D[K] = B;
+	return ;
+}
+
+
+
+/*
+ * Input : A: 2-dim vector  [ [ a_00 a_01 ... a_0m ] ... [ a_n0 a_n1 ... a_nm ]] 
+ * Output: Matrix
+ */
+def
+ks_vtom(A)
+{
+	T = A[0];
+	M = size(T)[0];
+	N = size(A)[0];
+	B = newmat(N, M);
+
+	for (I = 0; I < N; I++)
+		for (J = 0; J < M; J++)
+			B[I][J] = A[I][J];
+
+	return (B);
+}
+#endif
+
+
+
+
+
+/*
+ * Input : A: 2-dim vector  [ [ a_00 a_01 ... a_0m ] ... [ a_n0 a_n1 ... a_nm ]] 
+ * Output: if (A is LLL-reduced basis) then return (1)
+ *         else                             return (0)
+ *
+ */
+def
+ks_isLLL(A) {
+	B = A;
+	N = size(B)[0];
+	Mu = newmat(N, N);
+	B2 = newvect(N);
+
+	/* Gram-Schimidt procedure */
+	/* B2 : orthogonal basis */
+	for (I=0; I<N; I++) {
+		B2[I] = B[I];
+		for (J=0; J<I; J++) {
+			Mu[I][J] = ks_inner_product(B[I],B2[J])/
+				ks_inner_product(B2[J],B2[J]);
+			if (Mu[I][J] > 1/2 || Mu[I][J] < -1/2) {
+				print("Mu size is wrong.");
+				print("B2=",0);print(B2); print("Mu=",0);print(Mu); print([I,J]);
+				return(0);
+			}
+			B2[I] -= Mu[I][J] * B2[J];
+		}
+		if (I > 0) {
+			if (ks_inner_product(B2[I],B2[I]) >= 
+				(3/4-Mu[I][I-1]^2)*ks_inner_product(B2[I-1],B2[I-1])) {
+				/* OK */
+			}else{
+				print("The second condition is wrong.");
+				print("B2=",0);print(B2); print("Mu=",0);print(Mu); print([I,J]);
+				return(0);
+			}
+		}
+	}
+	return(1);
+}
+
+
+
+
+
+/*
+ * Input : F in Z[x]
+ * Output: 任意の因子の係数の絶対よりもおっきな数 p^k
+ */
+def
+ks_bound_for_coef_pk(F, P, X)
+{
+	NORM = ks_norm2(F, X) * 2^(deg(F, X) + 1);
+	PN = [P, 1];
+
+	for (I = 2; car(PN) <= NORM; I++) {
+		PN = cons(car(PN) * P, PN);
+	}
+	PK = newvect(I);
+	for (J = 0; J < I; J++) {
+		PK[I - J - 1] = car(PN);
+		PN = cdr(PN);
+	}
+	return (PK);
+}
+
+
+/*
+ * Input : F in Z[X]
+ * Output: || f ||_2 = \sqrt(\sum |a_i|^2).
+ */
+def
+ks_norm2(F, X)
+{
+	DEG = deg(F, X);
+	for (I = 0; I < DEG; I++) {
+		C = coef(F, I);
+		RET = RET + C^2;
+	}
+
+	TEN = 10;
+	for (I = 3; RET > TEN; I++)
+		TEN *= 10;
+
+	return (pari(ceil, pari(sqrt, RET, idiv(I, 2))));
+}
+
+
+/**
+ * Input : F     ; poly      in Z[X]
+ *       : FK    ; vector    F = (LC(F)) * (FK[0]*...*FK[N]) mod PK
+ *       : PK    ; integer   P^K,  P; prime number
+ *       : START ; integer   因子の組合せ MIN 
+ *       : END   ; integer   因子の組合せ MAX
+ *       : X     ; poly      var(F)
+ * Output:         list
+ *
+ * 
+ * すべての既約な因子が見付かった場合 
+ *   return ([ST, RET])
+ *     ST : integer 非負
+ * そうでない場合                     -(FK[I]の使ってない因子数)
+ *   return ([ST, F, FV, RET])
+ *     ST : integer 負
+ *     F  : poly    見付かった因子を取り除いて得られる新たな F
+ *     AF : poly    F * lc(F)
+ *     RET: list    見付かった因子のリスト
+ *
+ *
+ */
+def
+ks_make_fctr(F, FK, PK, START, END, X)
+{
+	LC = coef(F, deg(F, X));
+	AF = F * LC;
+	M = size(FK)[0];
+	Q = idiv(PK, 2);
+	ROOT = [];
+	RET = 0;
+
+	if (START <= 1 && END >= 1) {
+#if PRINT_MAKE_FCTR
+		print ("Case l = 1 in make_fctr");
+#endif
+
+		for (I = 0; I < M && 2 <= M; I++) {
+#if MAKE_FCTR_CNT
+			COUNT++;
+#endif
+			ST = ks_fctr_test(F, AF, FK[I], LC, PK, Q, X, ROOT);
+			if (ST[0] != 0)
+		 		continue;
+			F = ST[1];
+			AF = ST[2];
+			ROOT = ST[3];
+			LC = coef(F, deg(F, X));
+			FK[I] = FK[--M];
+			I--;
+			RET++;
+		}
+	}
+
+	if (START <= 2 && END >= 2) {
+#if PRINT_MAKE_FCTR
+		print ("Case l = 2 in make_fctr");
+#endif
+		for (I = 0; I < M - 1 && 4 <= M; I++) {
+			for (J = I + 1; J < M; J++) {
+#if MAKE_FCTR_CNT
+				COUNT++;
+#endif
+				G = umul(FK[I], FK[J]);
+				ST = ks_fctr_test(F, AF, G, LC, PK, Q, X, ROOT);
+				if (ST[0] != 0)
+					continue;
+				F = ST[1];
+				AF = ST[2];
+				ROOT = ST[3];
+				LC = coef(F, deg(F, X));
+				FK[J] = FK[--M];
+				FK[I] = FK[--M];
+				I--;
+				RET++;
+				break;
+			}
+		}
+	}
+	if (START <= 3 && END >= 3) {
+
+#if PRINT_MAKE_FCTR
+		print ("Case l = 3 in make_fctr");
+#endif
+
+		for (I = 0; I < M - 2 && 6 <= M; I++) {
+			for (J = I + 1; J < M - 1; J++) {
+				for (K = J + 1; K < M; K++) {
+#if MAKE_FCTR_CNT
+					COUNT++;
+#endif
+					G = umul(FK[I], FK[J]);
+					G = umul(FK[K], G);
+					ST = ks_fctr_test(F, AF, G, LC, PK, Q, X, ROOT);
+					if (ST[0] != 0)
+						continue;
+					F = ST[1];
+					AF = ST[2];
+					ROOT = ST[3];
+					LC = coef(F, deg(F, X));
+					FK[K] = FK[--M];
+					FK[J] = FK[--M];
+					FK[I] = FK[--M];
+					J = M;
+					I--;
+					RET++;
+					break;
+				}
+			}
+		}
+	}
+
+	if (END >= M) {
+		G = prim(F);
+		ROOT = cons(G, ROOT);
+	} else {
+		ROOT = cons(FK, ROOT);
+		ROOT = cons(F, ROOT);
+		M = -M;
+	}
+	ROOT = cons(M, ROOT);
+
+#if MAKE_FCTR_CNT
+	print (["Count = ", COUNT]);
+#endif
+	return (ROOT);
+}
+
+
+
+/**
+ * 入力された V を正規化したものが割り切れるかどうか
+ *
+ * Input : F    ; poly     in Z[x], monic
+ *       : AF   ; poly     F * LC
+ *       : V    ; poly     in Z[x], わりきれるかどうかを調べたい多項式
+ *       : LC   ; integer  因数分解しようとしている多項式の主係数
+ *       : PK   ; integer  P^K
+ *       : Q    ; integer  P^K / 2
+ *       : X    ; poly     var(F)
+ *       : ROOT ; list     現在までに見付かってる因子のリスト
+ * Output: list ; [srem(AF, G), F, AF, ROOT]
+ *              ; srem(AF, G) == 0 なら F, AF, ROOT が更新される
+ *
+ */
+def
+ks_fctr_test(F, AF, V, LC, PK, Q, X, ROOT)
+{
+
+	if (LC != 1)
+		G = umul_num(V, LC);
+	else
+		G = V;
+
+	GV = ks_normalize_hoeij(G, PK, Q, X);
+
+	QR = sqr(AF, GV);
+
+	if (QR[1] == 0) {
+
+		GD = prim(GV);
+
+		ROOT = cons(GD, ROOT);
+
+		C = coef(GD, deg(GD, X)); 
+
+		F = QR[0] / C;
+		AF = F * coef(F, deg(F, X));
+	} else {
+		F = QR[0];
+	}
+	return ([QR[1], F, AF, ROOT]);
+}
+
+
+
+/**
+ * Input : F   ; uni-variate polynomial over the rational number field
+ *       : P   ; integer
+ *       : P2  ; P2 = idiv(P, 2)
+ *       : X   ; var(F)
+ * Output: POLY; POLY % P = F % P,  |coef(POLY)| < P2 
+ */
+
+def
+ks_normalize_hoeij(F, P, P2, X)
+{
+	DEG = deg(F, X);
+
+ 
+	for (I = 0; I <= DEG; I++) {
+		C = coef(F, I);
+		C %= P;
+		if (C > P2)
+			C -= P;
+		G += C * X^I;
+	}
+	return (G);
+}
+
+
+end$
+
