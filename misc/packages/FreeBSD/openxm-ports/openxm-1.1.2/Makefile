@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.6 2000/03/04 04:32:27 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.7 2000/03/04 04:34:22 takayama Exp $
 
 ## For debugging. 
 #DISTDIR=$(HOME)/tmp
@@ -28,6 +28,7 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 				/usr/local/bin/perl:${PORTSDIR}/japanese/perl5 \
                 jlatex2html:${PORTSDIR}/japanese/latex2html \
                 makeinfo:${PORTSDIR}/japanese/texinfo \
+				texi2html:${PORTSDIR}/textproc/texi2html \
                 javac:${PORTSDIR}/java/jdk \
 				bash:${PORTSDIR}/shells/bash2 \
 #				xdvi:${PORTSDIR}/japanese/xdvik-vflib \
