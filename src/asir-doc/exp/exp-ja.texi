@@ -1,0 +1,234 @@
+%% $OpenXM$
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename xyzman
+
+@comment --- タイトル ---
+@settitle 実験的仕様の関数
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title 実験的仕様の関数
+@subtitle Risa/Asir 実験的仕様関数説明書
+@subtitle 1.0 版
+@subtitle 2004 年 3 月
+
+@author  by Risa/Asir comitters
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2004. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@comment --- この文書では chapter XYZ, Chapter Index がある.
+@comment ---  Chapter XYZ には section XYZについて, section XYZに関する関数がある.
+@menu
+* Experimental Functions::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に. 親がない場合は Top ---
+@node 実験的仕様の関数,,, Top
+@chapter 実験的仕様の関数
+
+@comment --- section 名を正確に並べる.  ---
+@menu
+* 実験的仕様の関数説明書について::
+* 実験的仕様の関数::
+@end menu
+
+@comment --- section ``XYZについて'' の開始 ---  section XYZについての親は chapter XYZ
+@node 実験的仕様の関数説明書について,,, XYZ
+@section 実験的仕様の関数説明書について
+
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+この説明書では
+@b{Asir} に導入された実験的仕様の関数について説明する.
+正式な関数として導入されたものの記述は Risa/Asir マニュアル
+に移動される.
+ChangeLog の項目は www.openxm.org の cvsweb で
+ソースコードを読む時の助けになる情報が書かれている.
+
+@comment --- section ``実験的関数'' の開始 --- 
+@node 実験的仕様の関数,,, 実験的仕様の関数
+@section 実験的仕様の関数
+
+@comment --- section ``実験的関数'' の subsection xyz_abc 
+@comment --- subsection xyz_pqr xyz_stu がある.
+@menu
+* xyz_abc::
+* xyz_pqr xyz_stu::
+@end menu
+
+@comment --- ◯◯◯◯  関数 syz_abc の説明 ◯◯◯◯ 
+@comment --- 個々の関数の説明の開始 ---
+@comment --- section 名を正確に ---
+@node xyz_abc,,, 実験的仕様の関数
+@subsection @code{xyz_abc}
+@comment --- 索引用キーワード
+@findex xyz_abc
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item xyz_abc(@var{number}) 
+:: @var{number} の xyz を abc する.
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item return
+整数
+@item number
+整数
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+@var{number} の xyz を abc する.
+@item
+@var{number} は整数でなければならない.
+@end itemize
+
+@comment --- @example〜@end example は実行例の表示 ---
+@example
+[3] xyz_abc(123);
+456
+[4] xyz_abc(1.2);
+xyz_abc : input must be an integer
+@end example
+
+@comment --- 参照(リンク)を書く ---
+@table @t
+@item 参照
+@ref{xyz_pqr xyz_stu}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-3-1 から 2004-3-14 にかけて アルゴリズム xyz (論文
+ http://www.afo.org/xyz.pdf ) を用いて書き直された.
+ 変更をうけたソースコードは xxxyy.rr 1.12--1.25, ppp.c 1.1--1.4である.
+@item この関数は 2000 頃にはじめてのバージョンが書かれた.
+@end itemize
+
+@comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
+@comment --- 複数の関数をまとめて説明する例 ---
+@node xyz_pqr xyz_stu,,, 実験的仕様の関数
+@subsection @code{xyz_pqr}, @code{xyz_stu}
+@findex xyz_pqr
+@findex xyz_stu
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item xyz_pqr(@var{arg1},@var{arg2}[,@var{flag}])
+@itemx xyz_stu(@var{arg1},@var{arg2})
+:: xyz に関する操作.
+@end table
+
+@table @var
+@item return
+整数
+@item arg1, arg2
+整数
+@item flag
+0 または 1
+@end table
+
+@itemize @bullet
+@item
+@code{xyz_pqr()} は, @var{arg1}, @var{arg2} を pqr する.
+@item
+@var{flag} が 0 でないとき, モジュラ計算を行う.
+@item
+@code{xyz_stu()} は stu アルゴリズムを用いる.
+@end itemize
+
+@example
+[219] xyz_pqr(1,2);
+3
+[220] xyz_pqr(1,2,1);
+3
+0
+[221] xyz_stu(1,2);
+3
+@end example
+
+@table @t
+@item 参照
+@ref{xyz_abc}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-3-1 から 2004-3-14 にかけて アルゴリズム xyz (論文
+ http://www.afo.org/xyz.pdf ) を用いて書き直された.
+ 変更をうけたソースコードは xxxyy.rr, ppp.c である.
+@item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
+@end itemize
+
+@comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
