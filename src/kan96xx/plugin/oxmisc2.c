@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.14 2002/11/07 13:32:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.15 2002/11/07 23:52:20 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -382,6 +382,7 @@ int oxClientToObject(oxclientp client,struct object rob)
   }
   putoa(rob,11,KpoInteger(client->engineByteOrder));
   putoa(rob,12,KpoInteger(client->controlByteOrder));
+  putoa(rob,13,KpoInteger(client->engineID));
   return(0);
 }
 
@@ -438,6 +439,9 @@ int oxObjectToClient(struct object ob,oxclientp cp)
   cp->engineByteOrder = KopInteger(ob1);
   ob1 = getoa(ob,12);
   cp->controlByteOrder = KopInteger(ob1);
+
+  ob1 = getoa(ob,13);
+  cp->engineID = KopInteger(ob1);
   
 
   return(0);
@@ -1296,7 +1300,8 @@ oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
   client->dataport = portStream;
   client->controlport = -1;
   client->controlfd = -1;
-  client->id = engineID;
+  client->id = oxGetClientID();
+  client->engineID = engineID;
   client->type = CLIENT_SOCKET; /* socket */
   client->engineByteOrder = engineByteOrder;
   client->controlByteOrder = -1;

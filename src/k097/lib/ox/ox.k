@@ -1,10 +1,16 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.10 2001/01/13 12:40:57 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.11 2001/01/26 12:24:57 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
 Load_sm1(["oxasir.sm1",AddString([GetEnv("OpenXM_HOME"),
           "/lib/sm1/oxasir.sm1"])],
          "oxasir.sm1.loaded");
+
+def oxGetClientList() {
+  local clist;
+  sm1(" [(oxGetClientList)] extension /clist set ");
+  return( clist );
+}
 
 class OXchannel extends Object {
   local channel;
@@ -219,7 +225,6 @@ class OX extends OXcontrol {
      this.pushCMO(s);
      this.pushCMD(SM_executeStringByLocalParser);
   }
-
 }
 
 /*

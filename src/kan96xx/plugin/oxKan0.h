@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.3 2000/12/03 07:29:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.4 2002/11/07 23:52:20 takayama Exp $ */
 /* ox_kan0.h */
 
 #define mymalloc(n) malloc(n)
@@ -66,8 +66,9 @@ typedef  struct oxclient {
 			 NULL means no restriction.*/
   int engineByteOrder;
   int controlByteOrder;
+  int engineID;
 } oxclient;
-#define N_OF_CLIENT_FIELDS  13    /* If you add new field to struct oxclient
+#define N_OF_CLIENT_FIELDS  14    /* If you add new field to struct oxclient
 				     do not forget to increase the number.*/
 /* Change also, oxInitClient, oxCreateClient(2), oxCreateClientFile    oxmisc.c
    oxClientToObject, oxObjectToClient oxmisc2.c

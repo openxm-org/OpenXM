@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.13 2002/11/07 13:32:06 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.14 2002/11/07 23:52:20 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -598,6 +598,7 @@ int oxInitClient(oxclientp client)
   client->mathcapObjp = NULL;
   client->controlByteOrder = OX_BYTE_NETWORK_BYTE_ORDER;
   client->engineByteOrder = OX_BYTE_NETWORK_BYTE_ORDER;
+  client->engineID = -1;
   return(0);
 }
 
