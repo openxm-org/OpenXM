@@ -1,4 +1,3 @@
-%% $OpenXM$
 //&jp \section{ OX スタックマシン }
 //&eg \section{ OX stackmachine }  (This section has not yet been translated.)
 
@@ -17,109 +16,156 @@ open XM ライブラリとしてリンクして使用する場合の
 この原則に基づいて分散計算のプログラミングをおこなう.
 イベントドリブンなプログラム法とはちがうことに
 注意しよう.
+*/
 
+/*&eg 
+In this section we describe the OX stack machine operators.  In
+the descriptions OX messages are represented by th standard encoding
+scheme on TCP/IP sockets.  In principle, an OX stack machine never
+sends data to the output stream unless it receives {\tt SM\_pop*}
+commands.  Note that the programming style should be different from
+that for event-driven programming.
+*/
 
-\subsection{サーバスタックマシン }
+//&jp \subsection{サーバスタックマシン }
+//&eg \subsection{Server stack machine}
 
+/*&jp
 サンプルサーバである {\tt oxserver00.c}
 は以下の仕様の C の関数を用意して, 
 {\tt nullstackmachine.c } を置き換えれば一応動作するはずである.
+*/
+/*&eg
+{\tt oxserver00.c} is implemented as a sample server.
+If you want to implement you own server,
+write the following functions and use them instead of
+those in {\tt nullstackmachine.c }.
+*/
 
+//&jp \subsubsection{サーバスタックマシンのグループ SMobject/Basic0 に属するオペレータ}
+//&eg \subsubsection{Operators in the group SMobject/Basic0}
 
-\noindent
-\subsubsection{サーバスタックマシンのグループ SMobject/Basic0 
-に属するオペレータ}
-
-
+/*&jp
 \noindent
 サーバスタックマシンは最低で1本のスタック
 \begin{verbatim}
 Object xxx_OperandStack[SIZE];
 \end{verbatim}
-をもつ.
-ここで, {\tt Object}  はそのシステム固有の Object 型で構わない.
-CMObject は各サーバ固有のローカルオブジェクトに変換して
-スタックへプッシュしてよい.
-ただし変換, 逆変換を合成したものは恒等写像であることがのぞましい.
-CMObject をどのように (local) Object  に変換するか,
-Object が受け付けるメッセージの定義は,
-各システムが独自にきめて文書化しておくものとする.
-つまりすべてのメッセージは, private である.
-たとえば, {\tt add } のような基本的な メッセージにたいしても,
-OX スタックマシンはなにもきめていない.
-将来的には open math \cite{openmath} のように
-CMObject に対する最大公約数的なメッセージの仕様を
-content dictionary (CD) の形で定義したい.
-
+をもつ.  ここで, {\tt Object} はそのシステム固有の Object 型で構わない.
+CMObject は各サーバ固有のローカルオブジェクトに変換してスタックへプッ
+シュしてよい.  ただし変換, 逆変換を合成したものは恒等写像であることが
+のぞましい.  CMObject をどのように (local) Object に変換するか, Object 
+が受け付けるメッセージの定義は,各システムが独自にきめて文書化しておく
+ものとする.  つまりすべてのメッセージは, private である.  たとえば,
+{\tt add } のような基本的な メッセージにたいしても, OX スタックマシン
+はなにもきめていない.  将来的には open math \cite{openmath} のように
+CMObject に対する最大公約数的なメッセージの仕様をcontent dictionary
+(CD) の形で定義したい.
 
 以下, \verb+ xxx_ + は誤解の恐れがないときは省略する.
 \verb+ xxx_ + は local サーバシステムに固有の識別子である.
-{\tt Asir} の場合は \verb+ Asir_ + を用いる.
-{\tt kan/sm1} の場合は  \verb+ Sm1_ + を用いる.
-関数名, タグ名は長いので省略形を用いてもよい.
+{\tt Asir} の場合は \verb+ Asir_ + を用いる.  {\tt kan/sm1} の場合は 
+\verb+ Sm1_ + を用いる.  関数名, タグ名は長いので省略形を用いてもよい.
 
-以下では次のようにパケットを記述する.
-各フィールドは, 
-\fbox{データ型 \quad  データ} なる形式で書く.
-たとえば,
-{\tt int32 OX\_DATA} 
-は 32 bit network byte order の数字 {\tt OX\_DATA}
-という意味である.
-``イタリックで書かれているフィールドは,
-定義が別のところでなされているか解釈に誤解のないような自然言語
-で説明されている object を表す.''
-たとえば,
-{\it String commandName} 
-は, String データ型の local object  {\it commandName} 
-を意味する.
-(サーバスタックマシン上の object は, CMO 形式の object
-とは限らないことに注意.
-CMO 形式で書いてあっても, それはサーバスタックマシンの
-local 形式でスタック上にあると解釈して下さい.)
+以下では次のようにパケットを記述する.  各フィールドは,
+\fbox{データ型 \quad  データ} なる形式
+で書く.  たとえば, {\tt int32 OX\_DATA} は 32 bit network byte order 
+の数字 {\tt OX\_DATA}という意味である.  ``イタリックで書かれているフィー
+ルドは,定義が別のところでなされているか解釈に誤解のないような自然言語
+で説明されている object を表す.''  たとえば, {\it String commandName} 
+は, String データ型の local object {\it commandName} を意味する.  (サー
+バスタックマシン上の object は, CMO 形式の objectとは限らないことに注
+意.  CMO 形式で書いてあっても, それはサーバスタックマシンのlocal 形式
+でスタック上にあると解釈して下さい.)
 
-すべてのサーバスタックマシンは
-以下の関数を実装していないといけない.
+すべてのサーバスタックマシンは以下の関数を実装していないといけない.
+*/
+
+/*&eg
+\noindent
+Any OX stack machine has at least one stack.
+\begin{verbatim}
+Object xxx_OperandStack[SIZE];
+\end{verbatim}
+Here {\tt Object} may be local to the system {\tt xxx} wrapped by the stack
+machine. 
+That is, the server may translate CMObjects into local its
+objects and push them onto the stack.  However, it is preferable that
+the composition of such a translation and its inverse is equal to the
+identity map. The translation scheme is called the phrase book of the
+server and it should be documented for each stack machine.  In OpenXM,
+any message is private.  In future we will provide a content
+dictionary (CD; see OpenMath \cite{openmath}) for basic specifications
+of CMObjects.
+
+In the following, \verb+ xxx_ + may be omitted if no confusion occurs.
+As the names of functions and tags are long, one may use abbreviated
+names.  Message packets are represented as follows.  Each field is
+shown as \fbox{data type \quad data}.  For example {\tt int32
+OX\_DATA} denotes a number {\tt OX\_DATA} which is represented by a 32
+bit network byte order.  If a field is displayed by italic characters,
+it should be defined elsewhere or its meaning should be clear.  For
+example {\it String commandName} denotes a local object {\it
+commandName} whose data type is String.  Note that an object on the
+stack may have a local data type even if it is represented as CMO.
+
+Any server stack machine has to implement the following operations.
+*/
+
 \begin{enumerate}
-
 \item
-CMObject/Basic0 の CMO データのうち必須のもの,
-{\tt CMO\_ERROR2}, {\tt CMO\_NULL}, {\tt CMO\_INT32},
-{\tt CMO\_STRING}, {\tt CMO\_LIST}
-がおくられて来た場合
-それをスタックに push する.
-たとえば, {\tt CMO\_NULL} の場合次のようになる.
-\\ Request:
+/*&jp
+CMObject/Basic0 の CMO データのうち必須のもの, {\tt CMO\_ERROR2}, {\tt
+CMO\_NULL}, {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_LIST}がおく
+られて来た場合それをスタックに push する.  たとえば, {\tt CMO\_NULL} 
+あるいは {\tt CMO\_String} の場合次のようになる.
+*/
+/*&eg
+Any server should accept CMObjects in the group CMObject/Basic0.
+The server pushes such data onto the stack.
+The following examples show the states of the stack after receiving
+{\tt CMO\_NULL} or {\tt CMO\_String} respectively.
+*/
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_NULL} \\
 \hline
 \end{tabular}
-\\ Stack after the request:
+
+Stack after the request:
 \begin{tabular}{|c|}  \hline
 {\it NULL} \\
 \hline
 \end{tabular}
-\\ Result:  なし.
 
-たとえば, {\tt CMO\_String} の場合次のようになる.
-\\ Request:
+//&jp Result:  なし.
+//&eg Result:  none.
+
+Request:
 \begin{tabular}{|c|c|c|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_String} &{\tt int32} {\rm size} 
 &{\tt byte} {\rm s1} & $\cdots$ &{\tt byte} {\rm ssize}\\
 \hline
 \end{tabular}
-\\ Stack after the request:
+
+Stack after the request:
 \begin{tabular}{|c|}  \hline
 {\it String s} \\
 \hline
 \end{tabular}
-\\ Result:  なし.
 
-CMO データの受け取りに失敗した時のみ  \\
+//&jp Result:  なし.
+//&eg Result:  none.
+
+//&jp CMO データの受け取りに失敗した時のみ  \\
+//&eg If the server fails to receive a CMO data,
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_ERROR2} & {\it CMObject} ob\\
 \hline 
 \end{tabular}
 \\
+/*&jp
 をスタックへ push する.
 現在のところ, ob には, \\
 \centerline{
@@ -128,25 +174,40 @@ CMO データの受け取りに失敗した時のみ  \\
 }
 なるリストを入れる (CMO 形式でかいてあるが, これはサーバ独自の形式でよい.
 CMO として送出されるときこのような形式でないといけないという意味である.)
-
-
+*/
+/*&eg
+is pushed onto the stack.
+Currently ob is a list\\
+\centerline{
+[{\sl Integer32} OX serial number, {\sl Integer32} error code, 
+{\sl CMObject} optional information]
+}
+*/
 
 \item
 \begin{verbatim}
-void *xxx_mathCap()
+SM_mathcap
 \end{verbatim}
-このサーバの mathcap をもどす (termcap のまね).
-サーバのタイプ, サーバスタックマシンの能力を知ることができる.
-C 言語で実装する場合は, mathCap の構造体をシステム毎にきめるものとし,
-この関数はその構造体へのポインタを戻す.
-(open sm1 では {\tt struct mathCap} を用いている.
+/*&jp
+このサーバの mathcap をもどす (termcap のまね).  サーバのタイプ, サー
+バスタックマシンの能力を知ることができる.  C 言語で実装する場合は,
+mathCap の構造体をシステム毎にきめるものとし,この関数はその構造体への
+ポインタを戻す.  (open sm1 では {\tt struct mathCap} を用いている.
+*/
+/*&eg
+It request to push the mathcap of the server. 
+The mathcap is similar to the termcap. One can know the server type
+and the capability of the server from the mathcap. 
+*/
 @plugin/mathcap.h)
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_mathcap}  \\
 \hline
 \end{tabular}
-\\ Result:  
+
+Result:  
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl Mathcap}  mathCapOb \\
 \hline
@@ -154,22 +215,31 @@ C 言語で実装する場合は, mathCap の構造体をシステム毎にきめるものとし,
 
 \item
 \begin{verbatim}
-xxx_setMathCap(void *m)
+SM_setMathCap
 \end{verbatim}
-受け取った Mathcap {\tt m} を
-自分のシステムに設定して, 相手側が理解不能な CMO をおくらないように
-する.
-C 言語で実装する場合は, mathCap の構造体をシステム毎にきめるものとし,
-この関数はその構造体へのポインタを引数とする.
-(open sm1 では {\tt struct mathCap} を用いている.
+/*&jp
+受け取った Mathcap {\tt m} を自分のシステムに設定して, 相手側が理解不
+能な CMO をおくらないようにする.  C 言語で実装する場合は, mathCap の構
+造体をシステム毎にきめるものとし,この関数はその構造体へのポインタを引
+数とする.  (open sm1 では {\tt struct mathCap} を用いている.
+*/
+/*&eg
+It requests to register the peer's mathcap {\tt m} in the server.
+The server can avoid to send OX messages unknown to its peer.
+*/
 @plugin/mathcap.h)
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl Mathcap} m  \\ \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_setMathCap}  \\
 \hline
 \end{tabular}
-\\ Result:  なし. \\
+
+//&jp Result:  なし. \\
+//&eg Result:  none. \\
+/*&jp
+\noindent
 注意: mathcap は一般にクライアント主体で設定する.
 クライアントがサーバに {\tt SM\_mathcap} をおくり,
 サーバ側の mathcap を得る.
@@ -177,56 +247,79 @@ C 言語で実装する場合は, mathCap の構造体をシステム毎にきめるものとし,
 設定する.
 次に, クライアントはサーバに自分の mathcap を
 {\tt SM\_setMathCap} でおくり, 自分の mathcap を設定させる.
-
+*/
+/*&eg
+\noindent
+Remark: In general the exchange of mathcaps is triggered by a client.
+A client sends {\tt SM\_mathcap} to a server and obtains the server's
+mathcap. Then the client registers the mathcap. Finally the client
+sends its own mathcap by {\tt SM\_setMathCap} and the server
+registers it.
+*/
 
 \item
 \begin{verbatim}
-int xxx_executeStringByLocalParser(char *s)
+SM_executeStringByLocalParser
 \end{verbatim}
-文字列 $s$ をシステム xxx の文法(サーバスタックマシンの組み込みローカル
-言語)にしたがったコマンドとして実行する.
-ただし, コマンドの実行の結果の最後に戻り値があるときは,
-{\tt OperandStack} に戻り値を push する.
-正常終了なら 0 を, 異常終了なら -1 をもどす.
-debug モードにはいった場合, -2 を戻す. 
-エラーの時  Error2 Object
-を stack へ push する.\\
-{\tt kan/sm1} の場合, サーバスタックマシンの組み込みローカル言語は
-{\tt sm1} ポストスクリプト言語である.
-サーバスタックマシンと, {\tt sm1} ポストスクリプト言語はスタックを
-共有するように実装されている.
-実際の計算は
-{\tt executeStringByLocalParser} により実行される.
-open XM では, 現在のところ関数名の標準化はおこなっていない.
-したがって, 実際の計算コマンドの送出は mathcap をみてクライアントが
-正しいコマンドを選択する必要がある. 
-(しかしながら, 共通関数名がないために, 共通仕様のサーバスタックマシンの
-実装はきわめて簡単である. 関数名の共通化は将来の課題.) \\
-割込みに関しては, -1 を戻すように ハンドラを書く.
-executeStringByLocalParser() を再帰的に呼んだときも 割り込みのハンドラが
-正しく動作するようにこの関数は書かれるべきである.
-この関数を呼び出したのち, signal, setjmp の再設定を呼び出し側でやらないと
-いけない. \\
-この関数および {\tt popString} の機能を実現すれば, 最低限の 
-open XM のサーバになれる.   実装では, まずこの二つの関数の機能を
-実現すべきである.
-\\ Stack before the request: 
+/*&jp
+文字列 $s$ をシステム xxx の文法(サーバスタックマシンの組み込みローカ
+ル言語)にしたがったコマンドとして実行する.  ただし, コマンドの実行の結
+果の最後に戻り値があるときは, {\tt OperandStack} に戻り値を push する.
+正常終了なら 0 を, 異常終了なら -1 をもどす.  debug モードにはいった場
+合, -2 を戻す. エラーの時 Error2 Objectを stack へ push する.\\ {\tt
+kan/sm1} の場合, サーバスタックマシンの組み込みローカル言語は{\tt sm1} 
+ポストスクリプト言語である.  サーバスタックマシンと, {\tt sm1} ポスト
+スクリプト言語はスタックを共有するように実装されている.  実際の計算は
+{\tt executeStringByLocalParser} により実行される.  open XM では, 現在
+のところ関数名の標準化はおこなっていない.  したがって, 実際の計算コマ
+ンドの送出は mathcap をみてクライアントが正しいコマンドを選択する必要
+がある. (しかしながら, 共通関数名がないために, 共通仕様のサーバスタッ
+クマシンの実装はきわめて簡単である. 関数名の共通化は将来の課題.) \\割
+込みに関しては, -1 を戻すように ハンドラを書く.
+executeStringByLocalParser() を再帰的に呼んだときも 割り込みのハンドラ
+が正しく動作するようにこの関数は書かれるべきである.  この関数を呼び出
+したのち, signal, setjmp の再設定を呼び出し側でやらないといけない. \\
+この関数および {\tt popString} の機能を実現すれば, 最低限の open XM の
+サーバになれる.  実装では, まずこの二つの関数の機能を実現すべきである.
+*/
+/*&eg
+A character string $s$ is parsed by the local parser of the stack
+machine and interpreted by the local interpreter.
+If the exececution produces a result, it is pushed onto 
+{\tt OperandStack}.
+If an error has occured,  Error2 Object is pushed onto the stack.
+OpenXM does not provide standard function names.
+If this operation and {\tt SM\_popString} is implemented, the stack machine
+can be used as an OX server.
+*/
+
+Stack before the request: 
 \\
 \begin{tabular}{|c|}  \hline
 {\it String commandString} \\
 \hline 
 \end{tabular} 
-\\Request: 
+
+Request: 
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND}& {\tt int32 SM\_executeStringByLocalParser} \\
 \hline 
 \end{tabular}
-\\ Result:  なし.
-\\ 参考: \  実行前のスタックのデータは,
-{\it String commandString} なる local stackmachine の object として
-スタック上にあるが, TCP/IP の通信路では, 次のようなデータがまずながれて
+
+//&jp Result:  なし.
+//&eg Result:  none.
+/*&jp
+\noindent
+参考: \  実行前のスタックのデータは,
+{\it String commandString} なる local stackmachine の object としてス
+タック上にあるが, TCP/IP の通信路では, 次のようなデータがまずながれて
 {\it commandName} がスタックに push される:
-\\
+*/
+/*&eg
+\noindent
+Remark: Before this request, one has to push {\it String commandString}
+onto the stack. It is done by sending the following OX data message.
+*/
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_string} & {\it size and the string commandString} \\
 \hline 
@@ -234,41 +327,50 @@ open XM のサーバになれる.   実装では, まずこの二つの関数の機能を
 
 \item
 \begin{verbatim}
-int xxx_executeStringByLocalParserInBatchMode(char *s)
+SM_executeStringByLocalParserInBatchMode
 \end{verbatim}
-スタックに副作用がない(スタックにたいしてなんの操作もしない)
-ことを除き上とまったく同じ関数である.
-エラーの時のみ, Error2 Object をスタックへプッシュする.
-
+/*&jp
+スタックに副作用がない(スタックにたいしてなんの操作もしない)ことを除き
+上とまったく同じ関数である.  エラーの時のみ, Error2 Object をスタック
+へプッシュする.
+*/
+/*&eg
+This is the same request as {\tt SM\_executeStringByLocalParser}
+except that it does not modify the stack. It pushes an Error2 Object
+if an error has occured.
+*/
 \item
 \begin{verbatim}
-char *xxx_popString(void)
-void xxx_popString(ox_stream  out)
+SM_popString
 \end{verbatim}
-最初の関数はライブラリとしてリンクして使用する場合の関数である.
-{\tt OperandStack} より Object を pop し, それを xxx の出力
-規則にしたがい文字列型に変換して戻す.
-スタックが空のときは, {\tt (char *)NULL} を戻す.
-呼出側の関数は, 戻り値のメモリー領域を操作してはいけない.
-また, 再度 サーバスタックマシンが呼ばれたときは, 戻り値のメモリ領域
-は変更されているかもしれない.
+/*&jp
+{\tt OperandStack} より Object を pop し, それを xxx の出力規則にしたがい文
+字列型に変換して送信する.  スタックが空のときは, {\tt (char *)NULL} を戻す.
+文字列は {\tt ox\_stream out}へ CMO のデー
+タとして送信する.  エラーの場合は {\tt CMO\_ERROR2} を戻すべきである.
+*/
+/*&eg
+It requests for a server to pop an object from {\tt OperandStack},
+to convert it into a character string according to the output format
+of the local system, and to send the character string via TCP/IP stream.
+{\tt (char *)NULL} is returned when the stack is empty.
+The returned strings is sent as a CMO string data.
+{\tt CMO\_ERROR2} should be returned if an error has occured.
+*/
 
-2 番目の関数は, TCP/IP を用いて通信する場合の関数である.
-変換されてでてきた文字列を値として返すのではなく, 
-{\tt ox\_stream out}
-へ CMO のデータとして送信する.
-エラーの場合は {\tt CMO\_ERROR2} を戻すべきである.
-\\ Stack before the request:
+Stack before the request:
 \begin{tabular}{|c|}  \hline
 {\it Object} \\
 \hline 
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_popString} \\
 \hline 
 \end{tabular}
-\\ Result: 
+
+Result: 
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_STRING} & {\it size and the string s} \\
 \hline 
@@ -276,22 +378,32 @@ void xxx_popString(ox_stream  out)
 
 \item
 \begin{verbatim}
-int xxx_getsp(void)
+SM_getsp
 \end{verbatim}
-現在のスタックポインタの位置をもどす.
-スタート時点での位置は 0 であり, object が push されたばあい,
-1 づつ増えるものとする.
-\\ Stack before the request:
+/*&jp
+現在のスタックポインタの位置をもどす.  スタート時点での位置は 0 であり,
+object が push されたばあい, 1 づつ増えるものとする.
+*/
+/*&eg
+It request to push the current stack pointer onto the stack.
+The stack pointer is represented by a non-negative integer.
+Its initial value is 0 and a push operation increments the
+stack pointer by 1.
+*/
+
+Stack before the request:
 \begin{tabular}{|c|}  \hline
 {\it Object} \\
 \hline 
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_getsp} \\
 \hline 
 \end{tabular}
-\\ Result: 
+
+Result: 
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_INT32} & {\it stack pointer value} \\
 \hline 
@@ -299,57 +411,45 @@ int xxx_getsp(void)
 
 \item
 \begin{verbatim}
-object xxx_dupErrors(void)
+SM_dupErrors
 \end{verbatim}
-スタック上のエラーオブジェクトをリストにして戻す.
-スタック自体は変化させない.
-\\ Stack before the request:
+/*&jp
+スタック上のエラーオブジェクトをリストにして戻す.  スタック自体は変化
+させない.
+*/
+/*&eg
+It requests to push a list object containing all error objects on the stack.
+*/
+
+Stack before the request:
 \begin{tabular}{|c|}  \hline
 {\it Object} \\
 \hline 
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_dupErrors} \\
 \hline 
 \end{tabular}
-\\ Result: 
+
+Result: 
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl CMObject} \ a list of errors\\
 \hline 
 \end{tabular}
-
-\item
-\begin{verbatim}
-int xxx_start()
-\end{verbatim}
-xxx の初期化をおこなう.
-
 \end{enumerate}
-
-\noindent
-{\bf 例}: \ 
-次は, 標準入力よりの入力を asir に送り評価した結果を表示するプログラム
-である.
-\begin{verbatim}
-#include <stdio.h>
-
-main() {
-  char tmp[1024];
-  Asir_start();
-  while (gets(tmp) != NULL) {
-     if (Asir_executeStringByLocalParser(tmp) != 0) {
-        printf("%s\n",Asir_popString());
-     }
-  }
-}
-
-\end{verbatim}
 
 \medbreak
 \noindent
+/*&jp
 {\bf 例}: \ 
 mathcap の問い合わせに対して, {\tt ox\_sm1} は次のように答える.
+*/
+/*&eg
+{\bf Example}: \ 
+{\tt ox\_sm1} returns the following data as its mathcap.
+*/
 %%Prog: [(cmoMathCap)] extension ::
 \begin{verbatim}
 Class.mathcap 
@@ -360,38 +460,57 @@ Class.mathcap
              25 , 26 , 30 , 31 , 60 , 61 , 27 , 33 , 40 , 34 ]]]
 \end{verbatim}
 
-mathcap は 3つの要素をもつリストである.
-まづ, 最初の要素を見よう.
-Ox\_system は open xxx システム名である.
-読み込むライブラリがちがっていて, 関数名(または シンボル)の意味がちがうときは
-この名前もかえる. 
-たとえば, open math の basic content dictionary 対応の関数定義マクロを
-読みこんだ sm1 は,
-ox\_sm1\_basicCD なる名前にする.
-HOSTTYPE値は, CPU の種類をあらわし
-unix では環境変数\verb+$HOSTTYPE+ の値である.
-2 番目の要素は 利用可能な SM コマンドをあつめたリストである.
-3 番目のリストは, 処理可能な数学データの形式, およびCMOの場合なら
-処理可能なCMOのタグのリストが続く.
-上の例では, 514 は {\tt OX\_DATA} をあらわし, 数学データのフォマットは
-(サイズ情報なしの) CMO であることを示す.
-
+/*&jp
+mathcap は 3つの要素をもつリストである.  まづ, 最初の要素を見よう.
+Ox\_system は open xxx システム名である.  読み込むライブラリがちがって
+いて, 関数名(または シンボル)の意味がちがうときはこの名前もかえる. た
+とえば, open math の basic content dictionary 対応の関数定義マクロを読
+みこんだ sm1 は, ox\_sm1\_basicCD なる名前にする.  HOSTTYPE値は, CPU 
+の種類をあらわしunix では環境変数\verb+$HOSTTYPE+ の値である.  2 番目
+の要素は 利用可能な SM コマンドをあつめたリストである.  3 番目のリスト
+は, 処理可能な数学データの形式, およびCMOの場合なら処理可能なCMOのタグ
+のリストが続く.  上の例では, 514 は {\tt OX\_DATA} をあらわし, 数学デー
+タのフォマットは(サイズ情報なしの) CMO であることを示す.
+*/
+/*&eg
+A mathcap has three components. The first one contains informations
+to identify the system and hosts on which the application runs.
+In the above example, Ox\_system denotes the system name.
+HOSTTYPE represents the OS type and taken from \verb+$HOSTTYPE+
+enviroment variable.
+The second component consists of avaiable SM commands.
+The third component is a list of pairs. Each pair consists
+of an OX message tag and the available message tags.
+Again in the above example, 514 is the value of {\tt OX\_DATA}
+and it indicates that the server accepts CMO (without size information)
+as mathematical data messages. In this case the subsequent
+list represents available CMO tags.
+*/
 
 \medbreak
 \noindent
-{\bf 例}: \ 
+//&jp {\bf 例}: \ 
+//&eg {\bf Example}: \ 
 %%Prog: (ox.sm1) run  sm1connectr  [(oxWatch) ox.ccc] extension
 %%Prog: ox.ccc (122345; ) oxsubmit ;
-{\tt message\_body} の実例をあげる.   シリアル番号部は除いてある.
+//&jp {\tt message\_body} の実例をあげる.   シリアル番号部は除いてある.
+//&eg {\tt message\_body} の実例をあげる.   シリアル番号部は除いてある.
 \begin{enumerate}
 \item  {\tt executeStringByLocalParser("12345 ;");} 
+/*&jp
 は次のようなパケットに変換される. 各数字は 16進1バイトをあらわす.
 {\tt xx(yy)} のなかの {\tt (yy)} は対応するアスキーコードをあわらす.
+*/
+/*&eg
+は次のようなパケットに変換される. 各数字は 16進1バイトをあらわす.
+{\tt xx(yy)} のなかの {\tt (yy)} は対応するアスキーコードをあわらす.
+*/
 \begin{verbatim}
 0   0   2   2   0   0   0   4   0   0   0   7  
 31(1)  32(2)  33(3)  34(4)  35(5)  20  3b(;)   
 0   0   2   1   0   0   1   c 
 \end{verbatim}
+/*&jp
 ここで,
 \verb+ 0 0 2 2 0 0 0 4 + は, network byte order で,
 順番に {\tt OX\_DATA} それから,
@@ -400,8 +519,20 @@ CMO のタグの, {\tt CMO\_STRING} を表す.
 最後に 文字列 {\tt 12345 ;} が来る.
 ここで, \verb+ 0 0 1 c + は, network byte order で,
 {\tt OX\_executeString} を表す.
+*/
+/*&eg
+ここで,
+\verb+ 0 0 2 2 0 0 0 4 + は, network byte order で,
+順番に {\tt OX\_DATA} それから,
+CMO のタグの, {\tt CMO\_STRING} を表す.
+\verb+ 0  0  0  7 + は文字数,
+最後に 文字列 {\tt 12345 ;} が来る.
+ここで, \verb+ 0 0 1 c + は, network byte order で,
+{\tt OX\_executeString} を表す.
+*/
 
-まとめると次のようになる.
+//&jp まとめると次のようになる.
+//&eg まとめると次のようになる.
 \begin{verbatim}
 0   0   2   2  (OX_DATA) 0   0   0   4  (CMO_STRING)
 0   0   0   7  (size)
@@ -409,7 +540,8 @@ CMO のタグの, {\tt CMO\_STRING} を表す.
 0   0   2   1  (OX_COMMAND) 
 0   0   1   c  (SM_executeStringByLocalParser)
 \end{verbatim}
-これを OXexpression で表記すると次のようになる.
+//&jp これを OXexpression で表記すると次のようになる.
+//&eg これを OXexpression で表記すると次のようになる.
 \begin{center}
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;"))
 \end{center}
@@ -417,7 +549,8 @@ CMO のタグの, {\tt CMO\_STRING} を表す.
 (OX\_COMMAND, (SM\_executeStringByLocalParser))
 \end{center}
 
-\item  {\tt popString()}  を要請するメッセージ:
+//&jp \item  {\tt popString()}  を要請するメッセージ:
+//&eg \item  {\tt popString()}  を要請するメッセージ:
 \begin{verbatim}
 0   0   2   1  (OX_COMMAND) 
 0   0   1   7  (SM_popString)
@@ -426,142 +559,194 @@ OXexpression では
 (OX\_COMMAND, (SM\_popString)).
 
 \noindent
-これにたいして次の返答メッセージがくる.
+//&jp これにたいして次の返答メッセージがくる.
+//&eg これにたいして次の返答メッセージがくる.
 \begin{verbatim}
 0   0   2   2   (OX_DATA) 
 0   0   0   4   (CMO_STRING) 0   0   0   5  (size)
 31(1)  32(2)  33(3)  34(4)  35(5) 
 \end{verbatim}
-OXexpression でかくと,
+//&jp OXexpression でかくと,
+//&eg OXexpression でかくと,
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;")).
-
-
-
 \end{enumerate}
 
-\subsubsection{グループ SMobject/Basic1 に属するオペレータ}
-
+//&jp \subsubsection{グループ SMobject/Basic1 に属するオペレータ}
+//&eg \subsubsection{グループ SMobject/Basic1 に属するオペレータ}
 
 \begin{enumerate}
-
 \item
 \begin{verbatim}
 void xxx_pops(int n)
 \end{verbatim}
-operand stack より, {\it n} 個の元 
-({\it obj1, obj2, $\ldots$, objn}) を pop して捨てる.
-\\ Stack before the request: (右が stack のトップである.) \\
+/*&jp
+operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn}) 
+を pop して捨てる.
+*/
+/*&eg
+operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn}) 
+を pop して捨てる.
+*/
+
+//&jp Stack before the request: (右が stack のトップである.) \\
+//&eg Stack before the request: (右が stack のトップである.) \\
 \begin{tabular}{|c|c|c|c|c|}  \hline
 {\it obj1} & {\it  obj2}  & $\cdots$ & {\it objn}  &{\it INT32 n} \\
 \hline
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_pops } \\
 \hline
 \end{tabular}
-\\ Result:  なし.
+
+//&jp Result:  なし.
+//&eg Result:  none.
 
 
 \item
 \begin{verbatim}
 int xxx_setName(char *name)
 \end{verbatim}
-(これは本当に必要な関数??)
-{\tt OperandStack} より {\it name} を pop し, つぎに
-{\tt OperandStack} より {\it obj} を pop し, それを
-現在の名前空間で変数 {\it name} に bind する.
-正常終了なら 0 を, 異常終了なら -1 をもどす.
-TCP/IP による通信では, 異常終了の時のみ, {\tt CMO\_ERROR2} を
-stack へ push する.
-\\ Stack before the request: (右が stack の top.)
+/*&jp
+{\tt OperandStack} より {\it name} を pop し, つぎに{\tt OperandStack} 
+より {\it obj} を pop し, それを現在の名前空間で変数 {\it name} に 
+bind する.  正常終了なら 0 を, 異常終了なら -1 をもどす.  TCP/IP によ
+る通信では, 異常終了の時のみ, {\tt CMO\_ERROR2} をstack へ push する.
+*/
+/*&eg
+{\tt OperandStack} より {\it name} を pop し, つぎに{\tt OperandStack} 
+より {\it obj} を pop し, それを現在の名前空間で変数 {\it name} に 
+bind する.  正常終了なら 0 を, 異常終了なら -1 をもどす.  TCP/IP によ
+る通信では, 異常終了の時のみ, {\tt CMO\_ERROR2} をstack へ push する.
+*/
+//&jp Stack before the request: (右が stack の top.)
+//&eg Stack before the request: (右が stack の top.)
 \begin{tabular}{|c|c|}  \hline
 {\it obj} & {\it String name}  \\
 \hline
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_setName} \\
 \hline
 \end{tabular}
-\\ Result: なし.
+
+//&jp Result: なし.
+//&eg Result: none.
 
 \item
 \begin{verbatim}
 int xxx_evalName(char *name)
 \end{verbatim}
-(これは本当に必要な関数??)
-現在の名前空間で変数 {\it name} を評価する.
-評価の結果 {\it resultObj} をスタックへ戻す.
-関数自体は正常終了なら 0 を, 異常終了なら -1 をもどす.
-TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} を stack へ push する.
-\\ Stack before the request: (右が stack の top.)
+/*&jp
+現在の名前空間で変数 {\it name} を評価する.  評価の結果 {\it
+resultObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
+ら -1 をもどす.  TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} 
+を stack へ push する.
+*/
+/*&eg
+現在の名前空間で変数 {\it name} を評価する.  評価の結果 {\it
+resultObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
+ら -1 をもどす.  TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} 
+を stack へ push する.
+*/
+
+//&jp Stack before the request: (右が stack の top.)
+//&eg Stack before the request: (右が stack の top.)
 \begin{tabular}{|c|}  \hline
 {\it String name}  \\
 \hline
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_evalName} \\
 \hline
 \end{tabular}
-\\ Stack after the request: (右が stack の top.)
+
+//&jp Stack after the request: (右が stack の top.)
+//&eg Stack after the request: (右が stack の top.)
 \begin{tabular}{|c|}  \hline
 {\it resultObj} \\
 \hline
 \end{tabular}
-\\ Result:  なし.
+
+//&jp Result:  なし.
+//&eg Result:  none.
 
 \item
 \begin{verbatim}
 int xxx_executeFunction(char *s, int n)
 \end{verbatim}
-スタックより {\it n} 個のデータを pop して, サーバのローカル関数
-{\it s} を実行する.
-エラーのときのみ {\tt CMO\_ERROR2} を stack へ push する.
-\\ Stack before the request: (右が stack の top.) \\
+/*&jp
+スタックより {\it n} 個のデータを pop して, サーバのローカル関数{\it
+s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
+る.
+*/
+/*&eg
+スタックより {\it n} 個のデータを pop して, サーバのローカル関数{\it
+s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
+る.
+*/
+
+//&jp Stack before the request: (右が stack の top.) \\
+//&eg Stack before the request: (右が stack の top.) \\
 \begin{tabular}{|c|c|c|c|c|}  \hline
 {\it objn} & $\cdots$ & {\it obj1} & {\it INT32 n} & {\it String s} \\
 \hline 
 \end{tabular}
-\\ Request:
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_executeFunction}  \\
 \hline
 \end{tabular}
-\\ Stack after the request:
-関数実行の結果.
-\\ Result: なし.
 
+//&jp Stack after the request: 関数実行の結果.
+//&eg Stack after the request: 関数実行の結果.
 
-
-
+//&jp Result: なし.
+//&eg Result: none.
 
 \item
 \begin{verbatim}
 bytes *xxx_popSerializedLocalObject(void)
 void popSerializedLocalObject(ox_stream out)
 \end{verbatim}
-最初の関数はライブラリとしてリンクして使用するための関数である.
-スタックより pop した object を local 形式の serialization して
-byte 列で戻す.
+/*&jp
+最初の関数はライブラリとしてリンクして使用するための関数である.  スタッ
+クより pop した object を local 形式の serialization してbyte 列で戻す.
 2 番目の関数は Socket で通信するための同機能の関数であり,
-serialization された byte 列を
-{\tt ox\_stream out} へ出力する.
-この場合,
-header 
-{\tt int32 OX\_DATA}, {\tt int32 CMO\_LOCAL\_OBJECT} 
-をつけてから, byte 列を送る. 
-この関数はおもに, homogeneous な分散システムで用いる.
-次に, サーバスタックマシンの関数が実行されるまでは,
-戻り object の内容は保証されないといけない.
-
+serialization された byte 列を{\tt ox\_stream out} へ出力する.  この場
+合, header {\tt int32 OX\_DATA}, {\tt int32 CMO\_LOCAL\_OBJECT} をつけ
+てから, byte 列を送る. この関数はおもに, homogeneous な分散システムで
+用いる.  次に, サーバスタックマシンの関数が実行されるまでは,戻り 
+object の内容は保証されないといけない.
+*/
+/*&eg
+最初の関数はライブラリとしてリンクして使用するための関数である.  スタッ
+クより pop した object を local 形式の serialization してbyte 列で戻す.
+2 番目の関数は Socket で通信するための同機能の関数であり,
+serialization された byte 列を{\tt ox\_stream out} へ出力する.  この場
+合, header {\tt int32 OX\_DATA}, {\tt int32 CMO\_LOCAL\_OBJECT} をつけ
+てから, byte 列を送る. この関数はおもに, homogeneous な分散システムで
+用いる.  次に, サーバスタックマシンの関数が実行されるまでは,戻り 
+object の内容は保証されないといけない.
+*/
 \item 
-local serialized object, および サポートする CMO object を
-{\tt OX\_DATA} として受信した場合, {\tt OperandStack} へ
-push する.
-受信エラーを起こしたときのみ, {\tt CMO\_ERROR2} を stack へ push する.
-
+/*&jp
+local serialized object, および サポートする CMO object を{\tt
+OX\_DATA} として受信した場合, {\tt OperandStack} へpush する.  受信エ
+ラーを起こしたときのみ, {\tt CMO\_ERROR2} を stack へ push する.
+*/
+/*&eg
+local serialized object, および サポートする CMO object を{\tt
+OX\_DATA} として受信した場合, {\tt OperandStack} へpush する.  受信エ
+ラーを起こしたときのみ, {\tt CMO\_ERROR2} を stack へ push する.
+*/
 
 \item
 \begin{verbatim}
@@ -569,34 +754,46 @@ bytes *xxx_popCMO(void)
 void xxx_popCMO(ox_stream out)
 \end{verbatim}
 
-最初の関数はライブラリとしてリンクして使用するための関数である.
-{\tt OperandStack} より object を pop し CMO 形式の 
-serialized object を byte 列として戻す.
-2 番目の関数は Socket で通信するための同機能の関数であり,
-{\tt ox\_stream out } へ, そのデータを header
-{\tt OX\_DATA}  をつけてながす.
-この関数はおもに, heterotic な分散システムで用いる.
-次に, サーバスタックマシンの関数が実行されるまでは,
-戻り object の内容は保証されないといけない.
-\\ Request:
+/*&jp
+最初の関数はライブラリとしてリンクして使用するための関数である.  {\tt
+OperandStack} より object を pop し CMO 形式の serialized object を 
+byte 列として戻す.  2 番目の関数は Socket で通信するための同機能の関数
+であり, {\tt ox\_stream out } へ, そのデータを header {\tt OX\_DATA} 
+をつけてながす.  この関数はおもに, heterotic な分散システムで用いる.
+次に, サーバスタックマシンの関数が実行されるまでは,戻り object の内容
+は保証されないといけない.
+*/
+/*&eg
+最初の関数はライブラリとしてリンクして使用するための関数である.  {\tt
+OperandStack} より object を pop し CMO 形式の serialized object を 
+byte 列として戻す.  2 番目の関数は Socket で通信するための同機能の関数
+であり, {\tt ox\_stream out } へ, そのデータを header {\tt OX\_DATA} 
+をつけてながす.  この関数はおもに, heterotic な分散システムで用いる.
+次に, サーバスタックマシンの関数が実行されるまでは,戻り object の内容
+は保証されないといけない.
+*/
+
+Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 OX\_popCMO}  \\
 \hline 
 \end{tabular}
-\\ Result:  
+
+Result:  
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} &   {\it Serialized CMO} \\
 \hline 
 \end{tabular}
 
-以下で, {\tt ox\_stream} はサンプルサーバの場合, 
+//&jp 以下で, {\tt ox\_stream} はサンプルサーバの場合, 
+//&eg 以下で, {\tt ox\_stream} はサンプルサーバの場合, 
 \begin{verbatim}
 typedef FILE2 * ox_stream;
 \end{verbatim}
-である (cf. {\tt file2.h}). これは処理系によりちがってよい.
-{\tt ox\_asir} では, {\tt FILE *} を用いている.
+//&jp である (cf. {\tt file2.h}). これは処理系によりちがってよい.
+//&jp {\tt ox\_asir} では, {\tt FILE *} を用いている.
+//&eg である (cf. {\tt file2.h}). これは処理系によりちがってよい.
+//&eg {\tt ox\_asir} では, {\tt FILE *} を用いている.
 
 \end{enumerate}
-
-*/
 

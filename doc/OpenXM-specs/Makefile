@@ -1,8 +1,8 @@
-#$OpenXM$
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
 all : doc
 
 OXWEAVE=../../src/kxx/oxweave
-OXWEAVEFLAG=--recursive
+OXWEAVEFLAG=--recursive --plain
 doc:  $(OXWEAVE) OpenXM.tex
 	-rm -rf tmpEG
 	-mkdir tmpEG
