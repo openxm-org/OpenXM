@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.16 2000/01/19 02:43:12 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.17 2000/02/01 04:24:19 takayama Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -54,7 +54,7 @@ configure-gmp: configure_symbolic_links
 	fi 
 
 configure_symbolic_links :
-	@if  ! test -f ./.done_links  ; \
+	@if test ! -f ./.done_links  ; \
 	then \
 	 /bin/rm -f gc gmp lib Doc/var.sm1 ; \
 	 ln -f -s $(OpenXM_contrib)/gc gc ; \
