@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.9 2001/05/04 01:06:30 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.10 2001/08/10 13:48:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -908,7 +908,7 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
     return(NULL);
   }else{
   }
-  alarm((unsigned int) 10);  /* setup timeout. */
+  alarm((unsigned int) 20);  /* setup timeout. */
   signal(SIGALRM,cancelConnection);
   
   switch(ipmask) {
