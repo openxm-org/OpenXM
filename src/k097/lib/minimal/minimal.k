@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.18 2000/07/30 02:26:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.19 2000/07/31 01:21:41 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -358,6 +358,9 @@ def StotalDegree(f) {
   return(d0);
 }
 
+HelpAdd(["Sord_w",
+["Sord_w(f,w) returns the w-order of f",
+ "Example: Sord_w(x^2*Dx*Dy,[x,-1,Dx,1]):"]]);
 /* Sord_w(x^2*Dx*Dy,[x,-1,Dx,1]); */
 def Sord_w(f,w) {
   local neww,i,n;
