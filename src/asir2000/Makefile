@@ -1,8 +1,6 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.1 2000/01/08 19:11:10 maekawa Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.2 2000/01/09 15:57:25 maekawa Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
-BINDIR = ../../bin
-LIBDIR = ../../lib
 
 all: configure
 	@if [ ! -f ./.make_done ]; then \
