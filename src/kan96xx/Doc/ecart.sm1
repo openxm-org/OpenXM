@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.26 2004/05/14 02:35:03 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.27 2004/05/15 12:00:48 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -1628,7 +1628,16 @@
       (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set
    (Dx) ggg ecartd.reduction /gg4 set
    gg4 message
-  [gg2  gg3 gg4]
+
+  (----------- reduction by h=1 ---------------) message
+    [[( 2*(1-x-y) Dx + 1 ) ( 2*(1-x-y) Dy + 1 )]
+      (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set
+   [(Homogenize) 0]  system_variable
+   (Dx) ggg ecartd.reduction /gg5 set
+   [(Homogenize) 1]  system_variable
+   gg5 message
+
+  [gg2  gg3 gg4 gg5]
 } def
 
 /ecarth.reduction {
