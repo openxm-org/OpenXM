@@ -1,10 +1,10 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/make-links,v 1.1 1999/11/22 04:22:53 takayama Exp $
+# $OpenXM: OpenXM/src/make-links,v 1.2 1999/11/27 13:24:40 takayama Exp $
 OpenXM_contrib=../../OpenXM_contrib
 /bin/rm -f bin SSkan gmp gc gnuplot ../lib/k097 ../lib/sm1
 ln -f -s ../bin bin
 ln -f -s ./kan96xx SSkan
-ln -f -s $(OpenXM_contrib)/gmp gmp
-ln -f -s $(OpenXM_contrib)/gc gc
-ln -f -s $(OpenXM_contrib)/gnuplot gnuplot
+ln -f -s $OpenXM_contrib/gmp gmp
+ln -f -s $OpenXM_contrib/gc gc
+ln -f -s $OpenXM_contrib/gnuplot gnuplot
 (cd ../lib ; ln -f -s ../src/k097 k097 ; ln -f -s ../src/kan96xx/Doc sm1)
