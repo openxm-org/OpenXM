@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.3 2004/08/31 04:45:41 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.4 2004/08/31 05:30:20 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -67,12 +67,15 @@
 %%Mail/openxm-cvs.inbox ??
 \end{enumerate}
 
-\section{2004-08-22, lcm, polylcm, gcd, polygcd}
+\section{2004-08-22, lcm, polylcm, gcd, polygcd, その他}
 \begin{enumerate}
 \item polylcm, polygcd は ox を用いる.
-\item mpzext (lcm, gcd).  int32 は universalNumber (mpz_int) へ自動変換.
+\item mpzext (lcm, gcd).  int32 は universalNumber (mpz\_int) へ自動変換.
 \item ox.sm1 は起動の時から load すべきだがまだやってない.
 %%Mail/openxm-cvs.inbox ??
+\item \verb@[(exponents) ...] gbext @ で exponents を取り出せる. 始めの版は 8 月頃.
+\item {\tt exponents} のformat を変えた. (9/5. cf.gfan.sm1, cone.sm1) \\
+{\tt OpenXM/src/kan96xx/Kan/kanExport1.c} 1.16.
 \end{enumerate}
 
 \section{2004-08-31, weight ベクトルで univNum を受け取る}
@@ -84,6 +87,43 @@
 {\tt w\_to\_vec}, {\tt ecart.weight\_vector}, {\tt ord\_ws\_all}
 \item  テスト方法.  cvs-eventail/aux-cone.sm1 の test7 を用いる.
 %%Mail/openxm-cvs.inbox ??
+\end{enumerate}
+
+\section{2004-09-5, error および ctrl-C でマクロの呼び出し履歴を表示(trace)}
+\begin{enumerate}
+\item {\tt traceShowStack()} を呼び出すと呼び出し履歴が表示される.
+履歴を文字列で戻す.
+\item \verb@ ctrlC_hook @ の実行中にエラーをおこすと, ox103\_reset が
+よばれ, これが無限ループを生む. これを防止.
+\item {\tt executeToken} する前に関数の名前を trace 用のスタック
+{\tt TraceNameStack} へ push.
+実行がおわれば pop することにより, 履歴表示をコントロール.
+\item extension で履歴のクリア, 強制表示ができる.
+\item ctrl-C で履歴の表示, クリアをする. これは各 ox server で対処の必要あり.
+\item 
+{\tt OpenXM/src/kan96xx/Kan/ext.c} 1.24 \\
+{\tt OpenXM/src/kan96xx/Kan/kanExport0.c} 1.30 \\
+{\tt OpenXM/src/kan96xx/Kan/stackmachine.c} 1.15--1.18  \\
+{\tt OpenXM/src/kan96xx/Kan/usage.c} 1.30 \\
+{\tt OpenXM/src/k097/ox\_k0.c} 1.6 \\
+{\tt OpenXM/src/kxx/ox\_texmacs.c} 1.19 \\
+{\tt OpenXM/src/kxx/oxserver00.c} 1.15 \\
+{\tt OpenXM/src/kxx/sample\_kanlib.c} 1.2
+\end{enumerate}
+
+\section{2004-09-05, EUC等 8-bit の名前を受け付ける}
+\begin{enumerate}
+\item hash 値の計算方法にバグがあった. hash の値は負ではいけない.
+\item {\tt OpenXM/src/kan96xx/Kan/stackmachine.c} 1.17
+\end{enumerate}
+
+
+\section{2004-09-05, グレブナfanの計算}
+\begin{enumerate}
+\item polymake が必要.  9/1, 9/2, 9/3, 9/4 のノートも参照.
+\item OpenXM の cvs への commit は大きい区切りで. 
+      細かい変更は {\tt eventail/cone.sm1} で.
+\item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.1
 \end{enumerate}
 
 \end{document}
