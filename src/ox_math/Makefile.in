@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.13 2003/01/15 05:13:10 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.14 2003/02/04 14:21:17 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -27,6 +27,9 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 	${MPREP} $? > $@
 
 all: ${BINARIES}
+
+math2.o: math2.c
+int.o: int.c
 
 test1: test1.o mlo.o
 	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ test1.o mlo.o ${LIBS}
