@@ -58,7 +58,7 @@ char *phc_which(char *s);   /* search a path for the file s */
 struct phc_object phc_complexTo(long double r, long double i);
 
 
-int phc_scan_for_string(FILE *fp, char str[], int lenstr);
+int phc_scan_for_string(FILE *fp, char str[]);
 struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim );
 struct phc_object phc_scan_output_of_phc(char *fname);
 struct phc_object phc_call_phc(char *sys); 
@@ -77,7 +77,7 @@ main(int argc, char *argv[]) {
   int message = 0;
   for (i=1; i<argc; i++) {
     if (strcmp(argv[i],"-v") == 0) {
-      phc_verbose = 1;
+      phc_verbose = 1; message=1;
     }else if (strcmp(argv[i],"-g") == 0) {
       phc_overwrite = 0;
     }else if (strcmp(argv[i],"-i") == 0) {
@@ -98,7 +98,8 @@ main(int argc, char *argv[]) {
   }
   while (1) {
     if (message) printf("dim= ");
-    if (scanf("%d",&dim)<0) break;
+	if (fgets(input,INPUTSIZE,stdin) <= 0) break;
+    sscanf(input,"%d",&dim);
     sprintf(input,"%d\n",dim);
     if (message) printf("Input %d equations please.\n",dim);
     for (i=0; i<dim; i++) {
@@ -128,52 +129,59 @@ main(int argc, char *argv[]) {
   }
 }
 
-int phc_scan_for_string(FILE *fp, char str[], int lenstr)
+int phc_scan_for_string(FILE *fp, char str[])
      /*
   **  Scans the file fp for a certain string str of length lenstr+1.
   **  Reading stops when the string has been found, then the variable
   **  on return equals 1, otherwise 0 is returned.
   */
 {
-  char buf[lenstr+1];
+#define BUF_SIZE 1024
+  char buf[BUF_SIZE];
   char ch;
   int index,i,compare,npaths,dim,found;
+  int lenstr;
+  lenstr = strlen(str);
+  if (lenstr >= BUF_SIZE-1) {
+	fprintf(stderr,"Too long string in phc_scan_for_string\n");
+	exit(-1);
+  }
   index = -1;
   found = 0;
-  while ((fscanf(fp,"%c",&ch)!=EOF) && found == 0)
-    {
-      if (index == -1 && ch == str[0])
+  while (((ch = fgetc(fp))!=EOF) && found == 0)
 	{
-	  index = 0;
-	  buf[index] = ch;
-	}
-      else
-	{
-	  if (index == lenstr)
-	    {
-	      compare = 0;
-	      for (i=0; i<lenstr+1; i++)
+	  if (index == -1 && ch == str[0])
 		{
-		  if (buf[i]!=str[i])
-		    {
-		      compare = compare+1;
-		    }
+		  index = 0;
+		  buf[index] = ch;
 		}
-	      if (compare == 0)
-		{
-		  found = 1;
-		}
-	      index = -1;
-	    }
 	  else
-	    if (index > -1 && index < lenstr)
-	      {
-		index = index+1;
-		buf[index] = ch;
-	      }
+		{
+		  if (index == lenstr)
+			{
+			  compare = 0;
+			  for (i=0; str[i] != '\0'; i++)
+				{
+				  if (buf[i]!=str[i])
+					{
+					  compare = compare+1;
+					}
+				}
+			  if (compare == 0)
+				{
+				  found = 1;
+				}
+			  index = -1;
+			}
+		  else
+			if (index > -1 && index < lenstr)
+			  {
+				index = index+1;
+				buf[index] = ch;
+			  }
+		}
+	  if (found == 1) break;
 	}
-      if (found == 1) break;
-    }
   return found;
 }
 struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
@@ -187,24 +195,31 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
   struct phc_object rob,sob;
   char ch;
   int fnd,i,j,nsols;
-  float res;
+  double res;
   long double realpart;
   long double imagpart;
   long double realparts[npaths][dim];
   long double imagparts[npaths][dim];
   nsols = 0;
-  while (fscanf(fp,"%c",&ch)!=EOF) 
+  while ((ch = fgetc(fp)) != EOF) 
     {
-      fnd = phc_scan_for_string(fp,"start residual :",15);
+      fnd = phc_scan_for_string(fp,"start residual :");
       if (fnd==1)
 	{
 	  fscanf(fp,"%E",&res);
-	  /* printf(" residual = "); printf("%E\n",res); */
-	  if (res < 1.0E-12) nsols = nsols+1;
-	  fnd = phc_scan_for_string(fp,"the solution for t :",19);
+	  /* printf(" residual = "); printf("%E\n",res);  */
+	  if (res < 1.0E-12) {
+		nsols = nsols+1;
+		if (nsols > npaths) {
+		  fprintf(stderr,"Something is wrong in phc_scan_solutions\n");
+		  fprintf(stderr,"npaths=%d, nsols=%d \n",npaths,nsols);
+		  exit(-1);
+		}
+	  }
+	  fnd = phc_scan_for_string(fp,"the solution for t :");
 	  for (i=0;i<dim;i++)
 	    {
-	      fnd = phc_scan_for_string(fp,":",0);
+	      fnd = phc_scan_for_string(fp,":");
 	      fscanf(fp,"%LE",&realpart);
 	      fscanf(fp,"%LE",&imagpart);
 	      if (res < 1.0E-12)
@@ -245,7 +260,7 @@ struct phc_object phc_scan_output_of_phc(char *fname)
   int fnd,npaths,dim,i,nsols;
   otp = fopen(fname,"r");
   if (phc_verbose) fprintf(stderr,"Scanning the %s of phc.\n",fname);
-  fnd = phc_scan_for_string(otp,"THE SOLUTIONS :",14);
+  fnd = phc_scan_for_string(otp,"THE SOLUTIONS :");
   fscanf(otp,"%i",&npaths);
   if (phc_verbose) fprintf(stderr,"  number of paths traced = %i\n",npaths);
   fscanf(otp,"%i",&dim);
