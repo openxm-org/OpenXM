@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/bashrc,v 1.10 2000/02/04 05:29:29 ohara Exp $
+# $OpenXM: OpenXM/rc/bashrc,v 1.11 2000/09/25 07:12:44 takayama Exp $
 OpenXM_HOME=$HOME/OpenXM
 export OpenXM_HOME
 PATH=$OpenXM_HOME/bin:$PATH
@@ -15,7 +15,7 @@ export LOAD_SM1_PATH
 LOAD_K_PATH=$OpenXM_HOME/lib/k097
 export LOAD_K_PATH
 if test $LD_LIBRARY_PATH ; then
-  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OpenXM_HOME/lib  ;
+  LD_LIBRARY_PATH=$OpenXM_HOME/lib:$LD_LIBRARY_PATH  ;
 else
   LD_LIBRARY_PATH=$OpenXM_HOME/lib ;
 fi
