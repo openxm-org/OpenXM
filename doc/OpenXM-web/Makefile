@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.42 2003/03/27 11:16:45 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.43 2003/09/02 14:34:17 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -14,7 +14,7 @@ OpenXM_calc=../calc2000p
 OpenXM_ascm=../ascm2001
 DVIPS=dvips -f
 LATEX2HTML=latex2html -tmp /tmp
-OXWEAVE=../../bin/oxweave
+OXWEAVE=${OpenXM_HOME}/bin/oxweave
 OW_FLAG=--recursive
 RSYNC=rsync -Cavz 
 RM=rm
