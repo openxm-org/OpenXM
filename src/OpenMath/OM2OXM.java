@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.10 1999/11/17 07:04:25 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.11 1999/11/17 08:37:29 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -118,6 +118,9 @@ final class OM2OXM implements Runnable{
       ret += "<OMI>2</OMI></OMA>";
       return ret;
 
+    case CMO.CMO_RECURSIVE_POLYNOMIAL:
+      return CMO2OM_CoefficientOfRecursivePOLYNOMIAL(((CMO_RECURSIVE_POLYNOMIAL)cmo).getPolynomial(),((CMO_RECURSIVE_POLYNOMIAL)cmo).getVariables());
+
     case CMO.CMO_DISTRIBUTED_POLYNOMIAL:
       ret += "<OMA><OMS name=\"DMP\" cd=\"poly\"/>";
       ret += CMO2OM_sub(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getRing());
@@ -128,6 +131,8 @@ final class OM2OXM implements Runnable{
       }
       ret += "</OMA></OMA>";
       return ret;
+
+      //case CMO.CMO_POLYNOMIAL_IN_ONE_VARIABLE:
 
     case CMO.CMO_BIGFLOAT:
       ret += "<OMA><OMS name=\"times\" cd=\"basic\"/>";
@@ -156,6 +161,36 @@ final class OM2OXM implements Runnable{
 
     throw new NumberFormatException("unknown convert way:"+
 				    cmo.toCMOexpression());
+  }
+
+  private static String CMO2OM_CoefficientOfRecursivePOLYNOMIAL(CMO cmo,CMO_LIST variables){
+    CMO_POLYNOMIAL_IN_ONE_VARIABLE poly;
+    String ret = "",variable;
+
+    if(!(cmo instanceof CMO_POLYNOMIAL_IN_ONE_VARIABLE)){
+      return CMO2OM_sub(cmo);
+    }
+
+    poly = (CMO_POLYNOMIAL_IN_ONE_VARIABLE)cmo;
+    variable = CMO2OM_sub(variables.getElement()[poly.getVariable()]);
+ 
+   for(int i=0;i<poly.getDegrees().length;i++){
+      String mono;
+
+      mono = "<OMA><OMS name=\"times\" cd=\"basic\"/>"+
+	"<OMA><OMS name=\"power\" cd=\"basic\"/>"+
+	variable +"<OMI>"+ poly.getDegrees()[i] +"</OMI></OMA>"+
+	CMO2OM_CoefficientOfRecursivePOLYNOMIAL(poly.getCoefficients()[i],
+						variables)
+	+"</OMA>";
+      if(i==0){
+	ret = mono;
+      }else{
+	ret = "<OMA><OMS name=\"plus\" cd=\"basic\"/>"+ ret + mono +"</OMA>";
+      }
+    }
+
+   return ret;
   }
 
   private boolean isSpace(int ch){ // use from lex

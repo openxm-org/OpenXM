@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.2 1999/11/16 00:45:24 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.3 1999/11/18 06:48:16 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -7,27 +7,27 @@ import java.io.*;
 
 public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
   private int variable;
-  private int[] degree;
-  private CMO[] coefficient;
+  private int[] degrees;
+  private CMO[] coefficients;
 
   public CMO_POLYNOMIAL_IN_ONE_VARIABLE(){}
 
-  public CMO_POLYNOMIAL_IN_ONE_VARIABLE(int variable,int[] degree,CMO[] coefficient){
+  public CMO_POLYNOMIAL_IN_ONE_VARIABLE(int variable,int[] degrees,CMO[] coefficients){
     this.variable = variable;
-    this.degree = degree;
-    this.coefficient = coefficient;
+    this.degrees = degrees;
+    this.coefficients = coefficients;
   }
 
   public int getVariable(){
     return variable;
   }
 
-  public int[] getDegree(){
-    return degree;
+  public int[] getDegrees(){
+    return degrees;
   }
 
-  public CMO[] getCoefficient(){
-    return coefficient;
+  public CMO[] getCoefficients(){
+    return coefficients;
   }
 
   public int DISCRIMINATOR(){
@@ -40,34 +40,34 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
     m = is.readInt();
     variable = is.readInt();
 
-    degree = new int[m];
-    coefficient = new CMO[m];
+    degrees = new int[m];
+    coefficients = new CMO[m];
     for(int i=0;i<m;i++){
-      degree[i] = is.readInt();
-      coefficient[i] = CMO.receive(is);
+      degrees[i] = is.readInt();
+      coefficients[i] = CMO.receive(is);
     }
  
-    return new CMO_POLYNOMIAL_IN_ONE_VARIABLE(variable,degree,coefficient);
+    return new CMO_POLYNOMIAL_IN_ONE_VARIABLE(variable,degrees,coefficients);
   }
 
   protected void sendByObject(DataOutputStream os) throws IOException{
-    int m = degree.length;
+    int m = degrees.length;
 
     new CMO_INT32(m).send(os);
     new CMO_INT32(variable).send(os);
     for(int i=0;i<m;i++){
-      new CMO_INT32(degree[i]).send(os);
-      coefficient[i].send(os);
+      new CMO_INT32(degrees[i]).send(os);
+      coefficients[i].send(os);
     }
   }
 
   protected String toCMOexpressionByObject(){
     String ret;
 
-    ret = "CMO_POLYNOMIAL_IN_ONE_VARIABLE,"+ degree.length +","+ variable;
-    for(int i=0;i<degree.length;i++){
-      ret += ","+ degree[i];
-      ret += ","+ coefficient[i].toCMOexpression();
+    ret = "CMO_POLYNOMIAL_IN_ONE_VARIABLE,"+ degrees.length +","+ variable;
+    for(int i=0;i<degrees.length;i++){
+      ret += ","+ degrees[i];
+      ret += ","+ coefficients[i].toCMOexpression();
     }
     return ret;
   }
