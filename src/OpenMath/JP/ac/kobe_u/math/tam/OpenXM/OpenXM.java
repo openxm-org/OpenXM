@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.2 1999/11/07 21:22:03 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.3 1999/11/10 21:25:48 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -8,6 +8,7 @@ import java.net.*;
 
 public class OpenXM implements Runnable{
   private OpenXMconnection control = null, stream = null;
+  private Runnable process = null;
   private Thread thread = null;
   final boolean debug = true;
 
@@ -39,7 +40,8 @@ public class OpenXM implements Runnable{
 
 	 stream = new OpenXMconnection(host,StreamPort,true);
 	 stream.sendByteOrder();
-	 thread = new Thread(process);
+	 this.process = process;
+	 thread = new Thread(this.process);
 	 thread.start();
   }
 
@@ -48,7 +50,12 @@ public class OpenXM implements Runnable{
       control.sendByteOrder();
 
       while(true){
+	debug("control: wait OX");
 	switch(control.receiveOXtag()){
+	case OX_DATA:
+	  control.receiveCMO();
+	  break;
+
 	case OX_COMMAND:
 	  switch(control.receiveSM().getCode()){
 	  case SM.SM_control_reset_connection:
@@ -57,9 +64,6 @@ public class OpenXM implements Runnable{
 
 	  default:
 	  }
-
-	case OX_DATA:
-	  control.receiveCMO();
 	  break;
 
 	case OX_SYNC_BALL:
@@ -75,6 +79,9 @@ public class OpenXM implements Runnable{
 
   public synchronized void resetConnection(){
     debug("control: stopping computer process...");
+    try{
+      control.sendCMO(new CMO_INT32(0));
+    }catch(IOException e){}
     synchronized(stream){
       thread.stop();
     }
@@ -88,6 +95,7 @@ public class OpenXM implements Runnable{
       while(true){
 	int ox_tag = stream.receiveOXtag();
 
+	debug("control: received "+ toString(ox_tag));
 	if(ox_tag == OX_SYNC_BALL){
 	  break;
 	}
@@ -102,6 +110,9 @@ public class OpenXM implements Runnable{
 	  break;
 	}
       }
+      debug("control: received SYNC BALL and restart computer process");
+      thread = new Thread(this.process);
+      thread.start();
     }catch(IOException e){}
   }
 
@@ -158,9 +169,10 @@ public class OpenXM implements Runnable{
 
     case OX_SYNC_BALL:
       return "OX_SYNC_BALL";
-    }
 
-    return "";
+    default:
+    }
+    return "unknown code("+ tag +")";
   }
 
   private final void debug(String str){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.7 1999/11/07 21:14:38 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.8 1999/11/09 09:43:48 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -10,6 +10,7 @@ class OMproxy implements Runnable{
   private OpenXM ox;
   private Stack stack = new Stack();
   private boolean debug = true;
+  final int version = 199911110;
 
   public OMproxy(String host,int ControlPort,int DataPort) throws IOException{
     ox = new OpenXM(this,host,ControlPort,DataPort);
@@ -18,21 +19,20 @@ class OMproxy implements Runnable{
   public void run(){
     OM2OXM P = new OM2OXM();
 
+    debug("OMproxy started.");
     try{
       while(true){
-	synchronized(ox){
-	  int ox_tag = ox.receiveOXtag();
+	int ox_tag = ox.receiveOXtag();
 
-	  switch(ox_tag){
-	  case OpenXM.OX_COMMAND:
-	    StackMachine(ox.receiveSM());
-	    break;
+	switch(ox_tag){
+	case OpenXM.OX_COMMAND:
+	  StackMachine(ox.receiveSM());
+	  break;
 
-	  case OpenXM.OX_DATA:
-	    stack.push(ox.receiveCMO());
-	    debug("push: "+ stack.peek());
-	    break;
-	  }
+	case OpenXM.OX_DATA:
+	  stack.push(ox.receiveCMO());
+	  debug("push: "+ stack.peek());
+	  break;
 	}
       }
     }catch(java.io.IOException e){
@@ -43,6 +43,7 @@ class OMproxy implements Runnable{
     System.out.println("breaking...");
   }
 
+  /*
   public void stop(){
     System.out.println("OMproxy Stoping...");
     synchronized(ox){
@@ -53,6 +54,7 @@ class OMproxy implements Runnable{
       System.out.println("OMproxy Stopped");
     }
   }
+  */
 
   private void SM_popCMO() throws java.io.IOException{
     if(stack.empty()){
@@ -100,9 +102,9 @@ class OMproxy implements Runnable{
     CMO[] mathcap = new CMO[3];
 
     {
-      CMO[] list = {new CMO_INT32(199911090),
+      CMO[] list = {new CMO_INT32(version),
 		  new CMO_STRING("Ox_system=OMproxy.class"),
-		  new CMO_STRING("Version=0.199911090"),
+		  new CMO_STRING("Version=0."+ version),
 		  new CMO_STRING("HOSTTYPE=JAVA")};
       mathcap[0] = new CMO_LIST(list);
     }
@@ -119,10 +121,12 @@ class OMproxy implements Runnable{
       CMO[] CMOFormat = {new CMO_INT32(CMO.CMO_NULL),
 			 new CMO_INT32(CMO.CMO_INT32),
 			 new CMO_INT32(CMO.CMO_STRING),
+			 new CMO_INT32(CMO.CMO_LIST),
 			 new CMO_INT32(CMO.CMO_MONOMIAL32),
 			 new CMO_INT32(CMO.CMO_ZZ),
 			 new CMO_INT32(CMO.CMO_QQ),
 			 new CMO_INT32(CMO.CMO_ZERO),
+			 new CMO_INT32(CMO.CMO_DISTRIBUTED_POLYNOMIAL),
 			 new CMO_INT32(CMO.CMO_DMS_GENERIC)};
       CMO[] list = {new CMO_LIST(DataFormat),
 		    new CMO_LIST(CMOFormat)};
