@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.7 2001/04/22 01:02:27 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.8 2001/04/22 04:35:46 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
@@ -170,11 +170,11 @@ def
                 (<title> asirweb </title> )
                 (<font color="blue"> Input-) httpd.serial toString
                  (: </font> )  
-                (<pre> ) httpd.com (</pre>) (<br>)
+                 httpd.com preformatHTML (<br>)
               } ifelse
              (<font color="green"> Output-) httpd.serial toString
              (: </font> ) 
-             (<pre>) httpd.result (</pre>) 
+              httpd.result preformatHTML
             ] cat
             send-page-3  exit
           } { exit } ifelse  %% metaCommand
@@ -462,6 +462,33 @@ def
      } loop
      s j carN /s set
      s { (string) dc } map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/preformatHTML {
+  /arg1 set
+  [/in-preformatHTML /sss /c] pushVariables
+  [
+     /sss arg1 def
+     sss (array) dc /sss set
+     sss {
+       /c set
+       [
+          c 60 eq {
+            /c (&lt) def
+          } {  } ifelse
+          c 62 eq {
+            /c (&gt) def
+          } {  } ifelse
+          c 38 eq {
+            /c (&amp) def
+          } {  } ifelse
+        ] pop
+        c (string) dc
+     } map cat /sss set
+     [(<pre> ) sss ( </pre> )] cat /arg1 set
   ] pop
   popVariables
   arg1
