@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.4 2000/02/24 12:33:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.5 2001/05/04 01:06:24 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -50,6 +50,7 @@ struct object KsystemVariable(ob)
   extern char *LeftBracket;
   extern char *RightBracket;
   extern int SecureMode;
+  extern int TangentCone;
 
   int n,i;
   struct object ob1,ob2,ob3,ob4;
@@ -177,6 +178,8 @@ struct object KsystemVariable(ob)
         rob = KpoString(RightBracket);
       }else if (strcmp(ob1.lc.str,"SecureMode")==0) {
         rob = KpoInteger(SecureMode);
+      }else if (strcmp(ob1.lc.str,"TangentCone")==0) {
+        rob = KpoInteger(TangentCone);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
       }
@@ -292,6 +295,9 @@ struct object KsystemVariable(ob)
           errorKan1("%s\n","You cannot weaken the security level.");
         }
         rob = KpoInteger(SecureMode);
+      }else if (strcmp(ob1.lc.str,"TangentCone") == 0) {
+        TangentCone = KopInteger(ob2);
+        rob = KpoInteger(TangentCone);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
       }
