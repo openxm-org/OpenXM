@@ -1,14 +1,14 @@
 %!PS-Adobe-2.0
-%%Creator: gnuplot 3.5 (pre 3.6) patchlevel beta 347
-%%CreationDate: Fri Jul 21 17:04:14 2000
+%%Creator: gnuplot 3.7 patchlevel 1
+%%CreationDate: Sat Jul 22 16:46:12 2000
 %%DocumentFonts: (atend)
 %%BoundingBox: 50 50 554 266
 %%Orientation: Portrait
 %%Pages: (atend)
 %%EndComments
-/gnudict 120 dict def
+/gnudict 256 dict def
 gnudict begin
-/Color false def
+/Color true def
 /Solid false def
 /gnulinewidth 5.000 def
 /userlinewidth gnulinewidth def
@@ -34,12 +34,13 @@ gnudict begin
   /hpt2 hpt 2 mul def /vpt2 vpt 2 mul def } def
 /DL { Color {setrgbcolor Solid {pop []} if 0 setdash }
  {pop pop pop Solid {pop []} if 0 setdash} ifelse } def
-/BL { stroke gnulinewidth 2 mul setlinewidth } def
-/AL { stroke gnulinewidth 2 div setlinewidth } def
-/UL { gnulinewidth mul /userlinewidth exch def } def
+/BL { stroke userlinewidth 2 mul setlinewidth } def
+/AL { stroke userlinewidth 2 div setlinewidth } def
+/UL { dup gnulinewidth mul /userlinewidth exch def
+      10 mul /udl exch def } def
 /PL { stroke userlinewidth setlinewidth } def
 /LTb { BL [] 0 0 0 DL } def
-/LTa { AL [1 dl 2 dl] 0 setdash 0 0 0 setrgbcolor } def
+/LTa { AL [1 udl mul 2 udl mul] 0 setdash 0 0 0 setrgbcolor } def
 /LT0 { PL [] 1 0 0 DL } def
 /LT1 { PL [4 dl 2 dl] 0 1 0 DL } def
 /LT2 { PL [2 dl 3 dl] 0 0 1 DL } def
@@ -247,79 +248,79 @@ newpath
 (Helvetica) findfont 140 scalefont setfont
 1.000 UL
 LTb
-476 420 M
+546 420 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
-392 420 M
+462 420 M
 (0) Rshow
-476 617 M
+546 617 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
-392 617 M
+462 617 M
 (2) Rshow
-476 813 M
+546 813 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
-392 813 M
+462 813 M
 (4) Rshow
-476 1010 M
+546 1010 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
--4417 0 R
+-4277 0 R
 (6) Rshow
-476 1206 M
+546 1206 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
--4417 0 R
+-4277 0 R
 (8) Rshow
-476 1403 M
+546 1403 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
--4417 0 R
+-4277 0 R
 (10) Rshow
-476 1599 M
+546 1599 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
--4417 0 R
+-4277 0 R
 (12) Rshow
-476 1796 M
+546 1796 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
--4417 0 R
+-4277 0 R
 (14) Rshow
-476 1992 M
+546 1992 M
 63 0 V
-4333 0 R
+4193 0 R
 -63 0 V
--4417 0 R
+-4277 0 R
 (16) Rshow
-476 420 M
+546 420 M
 0 63 V
 0 1509 R
 0 -63 V
-476 280 M
+546 280 M
 (0) Cshow
-1026 420 M
+1078 420 M
 0 63 V
 0 1509 R
 0 -63 V
 0 -1649 R
 (2) Cshow
-1575 420 M
+1610 420 M
 0 63 V
 0 1509 R
 0 -63 V
 0 -1649 R
 (4) Cshow
-2125 420 M
+2142 420 M
 0 63 V
 0 1509 R
 0 -63 V
@@ -331,25 +332,25 @@ LTb
 0 -63 V
 0 -1649 R
 (8) Cshow
-3224 420 M
+3206 420 M
 0 63 V
 0 1509 R
 0 -63 V
 0 -1649 R
 (10) Cshow
-3773 420 M
+3738 420 M
 0 63 V
 0 1509 R
 0 -63 V
 0 -1649 R
 (12) Cshow
-4323 420 M
+4270 420 M
 0 63 V
 0 1509 R
 0 -63 V
 0 -1649 R
 (14) Cshow
-4872 420 M
+4802 420 M
 0 63 V
 0 1509 R
 0 -63 V
@@ -357,103 +358,95 @@ LTb
 (16) Cshow
 1.000 UL
 LTb
-476 420 M
-4396 0 V
+546 420 M
+4256 0 V
 0 1572 V
--4396 0 V
-476 420 L
-0 1206 M
+-4256 0 V
+546 420 L
+140 1206 M
 currentpoint gsave translate 90 rotate 0 0 M
 (speedup factor) Cshow
 grestore
-2674 140 M
+2674 70 M
 (number of processes) Cshow
 1.000 UL
 LT0
-4221 1859 M
+2562 1859 M
 (ideal) Rshow
-4305 1859 M
+2646 1859 M
 399 0 V
-751 518 M
-4872 1992 L
+812 518 M
+4802 1992 L
 1.000 UL
 LT1
-4221 1719 M
-(N=1000) Rshow
-4305 1719 M
+2562 1719 M
+(n=1000\(collective\)) Rshow
+2646 1719 M
 399 0 V
-751 518 M
-275 57 V
-549 181 V
-550 166 V
-549 170 V
-1099 199 V
-1099 181 V
+812 518 M
+266 57 V
+532 181 V
+532 166 V
+532 170 V
+1064 199 V
+1064 181 V
 1.000 UL
 LT2
-4221 1579 M
-(N=3000) Rshow
-4305 1579 M
+2562 1579 M
+(n=5000\(collective\)) Rshow
+2646 1579 M
 399 0 V
-751 518 M
-275 58 V
-549 202 V
-550 169 V
-549 158 V
-1099 207 V
-1099 240 V
+812 518 M
+266 64 V
+532 206 V
+532 170 V
+532 165 V
+1064 239 V
+1064 251 V
 1.000 UL
 LT3
-4221 1439 M
-(N=5000) Rshow
-4305 1439 M
+2562 1439 M
+(n=1000 \(non-collective\)) Rshow
+2646 1439 M
 399 0 V
-751 518 M
-275 64 V
-549 206 V
-550 170 V
-549 165 V
-1099 239 V
-1099 251 V
+812 518 M
+266 57 V
+266 102 V
+266 95 V
+266 93 V
+266 81 V
+266 57 V
+266 59 V
+266 26 V
+266 36 V
+266 25 V
+266 -3 V
+266 -22 V
+266 16 V
+266 44 V
+266 -87 V
 1.000 UL
 LT4
-4221 1299 M
-(N=7000) Rshow
-4305 1299 M
+2562 1299 M
+(n=5000 \(non-collective\)) Rshow
+2646 1299 M
 399 0 V
-751 518 M
-275 61 V
-549 205 V
-550 169 V
-549 165 V
-1099 247 V
-1099 257 V
-1.000 UL
-LT5
-4221 1159 M
-(N=10000) Rshow
-4305 1159 M
-399 0 V
-751 518 M
-275 62 V
-549 203 V
-550 180 V
-549 147 V
-1099 275 V
-1099 237 V
-1.000 UL
-LT6
-4221 1019 M
-(N=15000) Rshow
-4305 1019 M
-399 0 V
-751 518 M
-275 61 V
-549 202 V
-550 179 V
-549 149 V
-1099 265 V
-1099 230 V
+812 518 M
+266 63 V
+266 98 V
+266 105 V
+266 87 V
+266 83 V
+266 75 V
+266 39 V
+266 52 V
+266 51 V
+266 22 V
+266 14 V
+266 14 V
+266 28 V
+266 8 V
+266 -129 V
 stroke
 grestore
 end

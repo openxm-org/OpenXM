@@ -1,35 +1,35 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/calc2000p/efficient.tex,v 1.1 2000/07/21 08:27:11 noro Exp $
 \documentclass{slides}
 \usepackage{color}
+\usepackage{rgb}
 \usepackage{graphicx}
 \usepackage{epsfig}
-%{\color{red} Asir}
 \begin{document}
 \parskip 3pt
 \fbox{{\huge \color{blue} We Are Efficient}}
 
-\noindent
-{\color{red} OpenXM on MPI --- to achieve real speedup by parallelism}
+{\color {red} Real speedup by parallelism}
 
-A process can communicate with any other process on MPI
-$\Rightarrow$ {\color{green} Collective operations}
+Each process can communicate with any other process on {\color{green} MPI}
 
-{\color{green} ox\_bcast} broadcasts data from the root process to all other
-processes.
+$\Rightarrow$ {\color{green} Collective operations} similar to \\
+{\color{SeaGreen} MPI\_Bcast} and {\color{SeaGreen} MPI\_Reduce}
 
-{\color{green} ox\_collect} reduces  data of all processes in the root process.
+\vskip 8pt
 
-\noindent
 {\color{red} An example} :
-the product of two dense univariate polynomials with 3000bit coefficients
+the product of dense univariate polynomials with 3000bit coefficients
 
-{\color{green} Algorithm} : FFT + Chinese Remainder
-
-{\color{green} Parallel computing time} : $O((n\log n)/L+n\log L)$
-
+\vskip 8pt
+{\color{green} Algorithm}(Shoup) : FFT+Chinese Remainder
+\vskip 5pt
+{\color{green} Parallel computing time} : $O((n\log n)/L+n{\color{red}\log L})$\\
+No collective operations : $O((n\log n)/L+n{\color{red}L})$\\
 ($L$: number of processes, $n$: degree)
+
+\vskip 8pt
 
 \epsfxsize=17cm
 \epsffile{3k.ps}
-
+\rightline{ {\color{red} {\tt http://www.openxm.org} }}
 \end{document}
