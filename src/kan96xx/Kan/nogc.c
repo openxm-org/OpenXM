@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/nogc.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/nogc.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
 #include <stdio.h>
 static long Total = 0;
+unsigned int GC_version=0;
 
 void *GC_malloc(n)
      int n;
