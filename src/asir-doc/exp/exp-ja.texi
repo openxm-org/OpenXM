@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.2 2004/03/17 09:25:02 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.3 2004/03/18 05:45:08 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -107,6 +107,12 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * tb_to_string::
 * write_to_tb::
 * dp_gr_main::
+* asir-port.sh::
+* asir-install.sh::
+* get_struct_name::
+* get_element_names::
+* get_element_at::
+* put_element_at::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -545,7 +551,85 @@ ChangeLog
   Makefile 1.1--1.8, asir-install.sh 1.1--1.2, asir-port.sh 1.1--1.6.
 @end itemize
 
+
+@node get_struct_name,,, 実験的仕様の関数
+@subsection @code{get_struct_name}, @code{get_element_names}, @code{get_element_at}, @code{put_element_at}
+@findex get_struct_name
+@findex get_element_names
+@findex get_element_at
+@findex put_element_at
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item get_struct_name(@var{s})
+@itemx get_element_names(@var{s})
+@itemx get_element_at(@var{s},@var{key})
+@itemx put_element_at(@var{s},@var{key},@var{obj})
+:: 構造体 @var{s} に対する操作
+@end table
+
+@table @var
+@item return
+文字列 (get_struct_name),
+文字列のリスト (get_element_names),
+オブジェクト (get_element_at),
+オブジェクト (put_element_at)
+@item s
+構造体
+@item key
+文字列
+@item obj
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+ @code{get_struct_name(s)} は, 構造体 @var{s} の名前を戻す.
+@item
+ @code{get_element_names(s)} は, 構造体のメンバーの名前のリストを戻す. 
+@item
+ @code{get_element_at(s,key)} は構造体 s のメンバー key の値を戻す.
+@item
+ @code{put_element_at(s,key,obj)} は構造体 s のメンバー key の値を obj に設定する.
+@end itemize
+
+@example
+[219]  struct point { x, y, color};
+[220]  P = newstruct(point);
+{0,0,0}
+[221]  P->x = 10$ P->y=5$ P->color="red"$
+[222]  get_element_names(P);
+[x,y,color]
+[223] put_element_at(P,"color","blue");
+blue
+[224] P->color;
+bule
+@end example
+
+@table @t
+@item 参照
+@ref{newstruct}, @ref{struct}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item  構造体の定義を知らずに構造体を扱うユーザ関数を書くときに便利.
+       asir-contrib の noro_print.rr を見よ.
+@item  OpenXM_contrib2/asir2000/builtin/compobj.c 1.8.
+@end itemize
+
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
+@comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
+@comment --- 複数の関数をまとめて説明する例 ---
+@node xyz_pqr,,, 実験的仕様の関数
+@subsection @code{xyz_pqr}, @code{syz_stu}
+@findex xyz_pqr
+@findex xyz_stu
+
 @comment --- 関数の簡単な説明 ---
 @comment --- @itemx は複数に対して説明を一つつける場合に使う ---
 @table @t
