@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.18 2002/01/13 06:57:43 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.19 2002/01/16 09:20:00 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -43,7 +43,7 @@ def
       [(forkExec)
        [
          %%(c:\windows\command\start)
-         (start)
+         ox.win.start.0 aload pop
          (iexplore)   %% Starting internet explorer (TM).
          [(http://localhost:) httpd.port toString] cat
        ]

@@ -1,14 +1,14 @@
-rem $OpenXM$
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/websm1.bat,v 1.1 2002/01/13 07:10:16 takayama Exp $
 rem Moved from OpenXM/src/kan96xx/win/websm1.bat,v 
 rem            1.2 2001/08/10 08:33:02 takayama Exp 
 rem
 rem Set the following values
 rem
 set HOME=c:\cygwin\home\nobuki
-set OpenXM_WIN_ROOT=c:\cygwin\home\nobuki\OpenXM
+set OpenXM_WIN_ROOT=c:\cygwin\home\nobuki\OpenXM\misc\packages\Windows\OpenXM-win
 set OPENXMHOMEWIN=%OpenXM_WIN_ROOT%
 set OpenXM_HOME=%OPENXMHOMEWIN%
-set WIN_ASIR_ROOT=c:\home\asir
+set WIN_ASIR_ROOT=%OpenXM_WIN_ROOT%\asir
 rem 
 rem Do not touch below
 rem 
@@ -19,7 +19,7 @@ set ASIR_CONFIG=%OpenXM_HOME%\rc\asirrc
 set ASIR_RSH='ssh -f -X -A '
 set LOAD_SM1_PATH=%OpenXM_HOME%\lib\sm1
 set LOAD_K_PATH=%OpenXM_HOME%\lib\k097
-cd %OpenXM_HOME%\src\kan96xx\Kan
+cd %OpenXM_HOME_WIN%\bin
 sm1 -s "[(parse) (httpd-sm1.sm1) pushfile] extension ; websm1 ; "
 
 
