@@ -1,4 +1,4 @@
-@exec echo " $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/pkg/PLIST,v 1.11 2000/03/13 07:23:14 takayama Exp $ --- "
+@exec echo " $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/pkg/PLIST,v 1.12 2000/03/16 11:33:08 takayama Exp $ --- "
 bin/asir
 bin/sm1
 bin/oxMathematica
@@ -398,7 +398,6 @@ OpenXM/lib/asir/help-jp/defpoly_mod2
 OpenXM/lib/asir/help-jp/fctr_ff
 OpenXM/lib/asir/help-jp/irredcheck_ff
 OpenXM/lib/asir/help-jp/randpoly_ff
-OpenXM/lib/asir/help-jp/ecm_add_ff
 OpenXM/lib/asir/help-jp/xm.help/dsolv_dual
 OpenXM/lib/asir/help-jp/xm.help/sm1_xml_tree_to_prefix_string
 OpenXM/lib/asir/help-jp/xm.help/sm1_wTensor0
@@ -435,6 +434,7 @@ OpenXM/lib/asir/help-jp/xm.help/gnuplot_output
 OpenXM/lib/asir/help-jp/xm.help/gnuplot
 OpenXM/lib/asir/help-jp/xm.help/dsolv_starting_term
 OpenXM/lib/asir/help-jp/xm.help/tigers
+OpenXM/lib/asir/help-jp/ecm_add_ff
 OpenXM/lib/k097/var.sm1
 OpenXM/lib/k097/debug/a24.k
 OpenXM/lib/k097/debug/ahg.k
@@ -575,6 +575,7 @@ OpenXM/lib/math/primadec.m
 OpenXM/lib/math/beta.m
 OpenXM/lib/math/oxclient.m
 OpenXM/lib/asir-contrib/Matrix
+OpenXM/lib/asir-contrib/longname
 OpenXM/lib/asir-contrib/tigers
 OpenXM/lib/asir-contrib/phc
 OpenXM/lib/asir-contrib/igraph
@@ -588,7 +589,7 @@ OpenXM/lib/asir-contrib/Diff
 OpenXM/lib/asir-contrib/sets
 OpenXM/lib/asir-contrib/m
 OpenXM/lib/asir-contrib/fourier-0
-OpenXM/lib/asir-contrib/longname
+OpenXM/lib/asir-contrib/dsolv
 OpenXM/lib/libasir.a
 OpenXM/Copyright/Copyright.asir2000
 OpenXM/Copyright/Copyright.generic
@@ -660,7 +661,7 @@ OpenXM/doc/OpenXM-specs/OpenXM-jp.dvi
 OpenXM/doc/OpenXM-FAQ-jp.txt
 OpenXM/doc/plathome-jp.txt
 OpenXM/doc/oxlib/Makefile
-OpenXM/doc/oxlib/oxasir.h
+OpenXM/doc/oxlib/README
 OpenXM/doc/oxlib/test1.c
 OpenXM/doc/oxlib/test2.c
 OpenXM/doc/oxlib/test3.c
@@ -936,6 +937,7 @@ OpenXM/doc/asir2000/html-eg/man_251.html
 OpenXM/doc/asir2000/html-eg/man_252.html
 OpenXM/doc/asir2000/html-eg/man_253.html
 OpenXM/doc/asir2000/html-eg/man_254.html
+OpenXM/doc/asir2000/html-eg/man_255.html
 OpenXM/doc/asir2000/man-eg.dvi
 OpenXM/doc/asir2000/html-jp/man_toc.html
 OpenXM/doc/asir2000/html-jp/man_1.html
@@ -1192,6 +1194,7 @@ OpenXM/doc/asir2000/html-jp/man_251.html
 OpenXM/doc/asir2000/html-jp/man_252.html
 OpenXM/doc/asir2000/html-jp/man_253.html
 OpenXM/doc/asir2000/html-jp/man_254.html
+OpenXM/doc/asir2000/html-jp/man_255.html
 OpenXM/doc/asir2000/man-jp.dvi
 OpenXM/doc/asir-contrib/cman-jp.dvi
 OpenXM/doc/asir-contrib/cman-jp.ps
@@ -1364,6 +1367,8 @@ OpenXM/rc/repl.c
 @exec ln -fs katsura %D/OpenXM/lib/asir/help-eg/hcyclic
 @exec ln -fs primadec %D/OpenXM/lib/asir/help-eg/primedec
 @exec ln -fs asq %D/OpenXM/lib/asir/help-eg/af
+@exec ln -fs asq %D/OpenXM/lib/asir/help-eg/af_noalg
+@exec ln -fs sp %D/OpenXM/lib/asir/help-eg/sp_noalg
 @exec ln -fs ecm_add_ff %D/OpenXM/lib/asir/help-eg/ecm_sub_ff
 @exec ln -fs ecm_add_ff %D/OpenXM/lib/asir/help-eg/ecm_chsgn_ff
 @exec ln -fs idiv %D/OpenXM/lib/asir/help-jp/irem
@@ -1469,6 +1474,8 @@ OpenXM/rc/repl.c
 @exec ln -fs katsura %D/OpenXM/lib/asir/help-jp/hcyclic
 @exec ln -fs primadec %D/OpenXM/lib/asir/help-jp/primedec
 @exec ln -fs asq %D/OpenXM/lib/asir/help-jp/af
+@exec ln -fs asq %D/OpenXM/lib/asir/help-jp/af_noalg
+@exec ln -fs sp %D/OpenXM/lib/asir/help-jp/sp_noalg
 @exec ln -fs ecm_add_ff %D/OpenXM/lib/asir/help-jp/ecm_sub_ff
 @exec ln -fs ecm_add_ff %D/OpenXM/lib/asir/help-jp/ecm_chsgn_ff
 @exec ln -fs ../../../bin/ox %D/OpenXM/lib/sm1/bin/ox
