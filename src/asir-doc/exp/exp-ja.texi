@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.7 2004/04/16 02:28:40 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.8 2004/06/23 08:52:18 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2004 年 4 月
+@subtitle 2004 年 6 月
 
 @author  by Risa/Asir comitters
 @page
@@ -118,6 +118,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * dp_weyl_gr_main::
 * list::
 * mapat::
+* set_print_function::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -981,6 +982,52 @@ ChangeLog
  変更をうけたソースコードは builtin/list.c である.
 @end itemize
 
+
+@node set_print_function,,, 実験的仕様の関数
+@subsection @code{set_print_function}
+@findex set_print_function
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item set_print_function([@var{fname}])
+:: 画面表示用の関数を登録
+@end table
+
+@table @var
+@item return
+整数
+@item fname
+文字列
+@end table
+
+@itemize @bullet
+@item
+@code{set_print_function} は @code{fname(F)} を通常の画面表示関数の代わりによぶ.
+@code 引数がない場合は画面表示関数をデフォールトへ戻す.
+@code Asir-contrib はこの関数を用いて出力関数を Asir-contrib 用に変更している.
+@end itemize
+
+@example
+[219] def my_output(F) {  
+           print("Out: ",0); print(rtostr(F));
+      }
+[220] set_print_function("my_output");
+Out: 0
+[221]  1+2;
+Out: 3
+@end example
+
+@table @t
+@item 参照
+@ref{rtostr}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2001-9-4 に asir-contrib のために導入された.
+ 変更をうけたソースコードは builtin/print.c 1.11 である.
+@end itemize
 
 
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 

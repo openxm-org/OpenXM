@@ -1,11 +1,45 @@
 <html>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/anonymous.html,v 1.1 2001/10/27 11:22:35 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/anonymous.html,v 1.2 2003/10/15 01:19:22 takayama Exp $
 -->
 <title>Getting the latest version (HEAD branch) 
-       from anonymous CVS server</title>
-<body>
-<H2>Getting the latest version (HEAD branch) from anonymous CVS server</H2>
+       by cvsup </title>
+<body bgcolor=#ffffff text=#000000>
+<h1>Getting the latest version (HEAD branch) by cvsup </h1>
+<ol>
+<li>
+Generate the following file with the name 
+<font color="red"> openxm-supfile </font> <br>
+<table border=2>
+<tr> <td>
+<font color="blue">
+<pre>
+*default host=cvsup.math.sci.kobe-u.ac.jp
+*default base=.
+*default prefix=.
+# The following line is for the head branch of OpenXM source tree.
+*default release=cvs tag=.
+*default delete use-rel-suffix
+# If your network link is a T1 or faster, comment out the following line.
+*default compress
+# OpenXM main source tree.
+openxm
+# OpenXM depends on some other softwares.
+# We also provide their sources by the CVSup service.
+openxm-contrib
+# Risa/Asir source tree.
+openxm-contrib2
+</pre>
+</font>
+</td> </tr> </table>
+<li> Then, type in <br>
+<font color="red"> <pre> cvsup  -g   openxm-supfile </pre> </font> <br>
+You will get directories OpenXM, OpenXM_contrib, OpenXM_contrib2.
+</ol>
+
+
+<H3>Getting the latest version (HEAD branch) from anonymous CVS server
+<font color="red"> (This service is stopped.) </font> </H3>
 
 <OL>
 <LI> Password registration (necessary only for the first connection) <BR>
