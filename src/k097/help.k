@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.3 2000/12/10 09:34:27 takayama Exp $ */
 if (K00_verbose)
   Println("help.k (help.ccc).  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -757,18 +757,21 @@ def Tag(f) {
   if (IsArray(f)) {
     return(Map(f,"Tag"));
   }else {
-    ans = sm1(f," tag (universalNumber) dc ");
+    ans = sm1(f," etag (universalNumber) dc ");
     return(ans);
   }
 }
 HelpAdd(["Tag",
 ["Tag(f) returns the datatype tags of f where",
  "5: string,  9: polynomial, 15: integer(big-num), 16: rational, ",
- "17: object, 18:double.",
+ "18:double, 257: Error ",
  "Ex. Tag([Poly(\"0\"), 0]):"
 ]]);
 
-
-
+def Error(s) {
+  sm1(" s error ");
+}
+HelpAdd(["Error",
+["Error(s) causes an error and outputs a message s."]]);
 
 OutputPrompt ;
