@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.18 2000/01/18 12:47:03 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.19 2000/01/19 09:35:06 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -10,7 +10,7 @@ class OMproxy implements Runnable{
   private OpenXM ox;
   private Stack stack = new Stack();
   private boolean debug = true;
-  final int version = 199911110;
+  final int version = 200001190;
 
   public OMproxy(String host,int ControlPort,int DataPort) throws IOException{
     ox = new OpenXM(this,host,ControlPort,DataPort);
@@ -20,8 +20,8 @@ class OMproxy implements Runnable{
     OM2OXM P = new OM2OXM();
 
     debug("OMproxy started.");
-    try{
-      while(true){
+    while(true){
+      try{
 	int ox_tag = ox.receiveOXtag();
 
 	switch(ox_tag){
@@ -34,10 +34,11 @@ class OMproxy implements Runnable{
 	  debug("push: "+ stack.peek());
 	  break;
 	}
+      }catch(Exception e){
+	System.err.println(e.getMessage());
+	e.printStackTrace();
+	debug("error occured. stack was cleared.");
       }
-    }catch(java.io.IOException e){
-      System.err.println(e.getMessage());
-      e.printStackTrace();
     }
 
     System.out.println("breaking...");
