@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.3/Makefile,v 1.2 2000/09/23 07:41:25 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.3
 ## For debugging. 
@@ -30,7 +30,8 @@
 ###     [Try also make package , make deinstall, pkg_delete openxm-1.1.3 , 
 ###      pkg_add openxm-1.1.3.tgz]
 
-DISTNAME=openxm-1.1.3
+PORTNAME=openxm
+PORTVERSION=1.1.3
 CATEGORIES= math
 ### Note
 ### We do not have openxm-1.1.3.tar.gz at the master site, because
