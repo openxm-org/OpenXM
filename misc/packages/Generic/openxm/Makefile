@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.8 2000/03/10 10:25:21 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.9 2000/03/10 14:21:45 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -39,11 +39,12 @@ WORK=work/openxm-${VERSION}
 
 ### Common
 SHARED_FILES = OpenXM/Copyright OpenXM/doc OpenXM/include OpenXM/man \
-               OpenXM/rc \
                OpenXM/lib/asir-contrib OpenXM/lib/java-support \
                OpenXM/lib/k097 OpenXM/lib/math OpenXM/lib/pari \
                OpenXM/lib/sm1 OpenXM/lib/asir 
-BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so* OpenXM/lib/*.a.*
+BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so* OpenXM/lib/*.a.* \
+               OpenXM/rc
+
 EXECUTABLES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_math
 
 usage :
