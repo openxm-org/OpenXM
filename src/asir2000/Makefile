@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.19 2003/03/07 07:40:33 ohara Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.20 2003/03/07 15:55:05 ohara Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 ASIR_PARI = ../../../OpenXM_contrib2/asir2000-pari
@@ -49,8 +49,7 @@ distclean: clean
 configure: install-pari
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; \
-            CFLAGS="-O -g" ./configure --enable-plot --with-pari \
-                               --prefix="`cd ../../OpenXM; pwd`") \
+            ./configure --enable-plot --with-pari --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_done
 
@@ -58,8 +57,8 @@ configure-with-pari: configure
 	-@if [ ! -f ./.configure_with_pari_done ]; then \
 		mkdir $(ASIR_PARI) ; \
 		(cd $(ASIR_PARI) ; ../../OpenXM/bin/lndir.sh ../asir2000 ; \
-            CFLAGS="-O -g" ./configure --with-pari \
-                               --prefix="`cd ../../OpenXM; pwd`") \
+			rm -f config.status config.log ; \
+            ./configure --with-pari --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_with_pari_done
 
@@ -67,8 +66,8 @@ configure-small: configure
 	-@if [ ! -f ./.configure_small_done ]; then \
 		mkdir $(ASIR_SMALL) ; \
 		(cd $(ASIR_SMALL) ; ../../OpenXM/bin/lndir.sh ../asir2000 ; \
-            CFLAGS="-O -g" ./configure \
-                               --prefix="`cd ../../OpenXM; pwd`") \
+			rm -f config.status config.log ; \
+            ./configure --prefix="`cd ../../OpenXM; pwd`") \
 	fi
 	@touch ./.configure_small_done
 
