@@ -1,3 +1,4 @@
+## Type in make configure and make all to build all
 all : all1 all2 all3
 
 all1 :
@@ -27,6 +28,14 @@ clean :
 	(cd k097 ; make clean ; /bin/rm -rf ../../bin/k0)
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6
 
+configure :
+	ln -fs ../bin bin
+	ln -fs ./kan96xx SSkan
+	(cd ../lib ; ln -fs ../src/k097 k097 ; ln -fs ../src/kan96xx/Doc sm1)
+	(cd ../bin ; ./configure2 )
+	(cd kan96xx ; make configure )
+	(cd kxx ; ln -fs  ../SSkan/plugin/ox_kan.h ox_kan.h)
+	(cd ../lib/asir ; ./configure2 )
 
 install-usr-local : 
 	ln -sf `pwd`/SSkan/Doc    /usr/local/lib/sm1

@@ -1,12 +1,13 @@
-all :   configure_symbolic_links
+## Type in make configure and make all to build all
+all :   
 	(cd gc; make)
-	(cd gmp; ./configure; make)
+	(cd gmp;  make)
 	(cd plugin; make all)
 	(cd Kan; make all)
 
 all2 :
 	(cd gc; make)
-	(cd gmp; ./configure; make)
+	(cd gmp;  make)
 	(cd Kan; make all)
 
 
@@ -14,11 +15,14 @@ all2 :
 sm1.nogc :
 	(cd Kan; make sm1.nogc)
 
+configure : configure_symbolic_links 
+	(cd gmp; ./configure )	
+
 configure_symbolic_links :
-	ln -s ./gc-4.14 gc
-#	ln -s ./gmp-2.0.2 gmp
-	ln -s ./gmp-2.0.2-ssh-2 gmp
-	ln -s ./Doc lib
+	ln -fs ./gc-4.14 gc
+#	ln -fs ./gmp-2.0.2 gmp
+	ln -fs ./gmp-2.0.2-ssh-2 gmp
+	ln -fs ./Doc lib
 
 ### generate a distribution.
 dist :
