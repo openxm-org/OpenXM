@@ -1,6 +1,10 @@
+
 module noro_simplify;
 
 localf remove_paren;
+localf remove_paren0;
+localf is_monomial;
+localf is_paren;
 
 #define O_QUOTE 17
 
@@ -11,24 +15,46 @@ localf remove_paren;
 
 def remove_paren(Q)
 {
+	return noro_simplify.remove_paren0(Q,1);
+}
+
+def is_monomial(Q)
+{
+	F = quote_to_funargs(Q);
+	if ( F[0] == I_FORMULA && nmono(F[1]) == 1 )
+		return 1;
+	else
+		return 0;
+}
+
+def is_paren(Q)
+{
+	F = quote_to_funargs(Q);
+	if ( F[0] == I_PAREN )
+		return 1;
+	else
+		return 0;
+}
+
+def remove_paren0(Q,Top)
+{
 	FA = quote_to_funargs(Q);
 	if ( FA[0] == I_PAREN ) {
-		Arg = remove_paren(FA[1]);
-		FB = quote_to_funargs(Arg);
-		if ( FB[0] == I_FORMULA && nmono(FB[1]) == 1 )
+		Arg = remove_paren0(FA[1],1);
+		if ( Top || is_monomial(Arg) )
 			return Arg;
 		else
 			return funargs_to_quote([FA[0],Arg]);
 	} else if ( FA[0] == I_MINUS ) {
-		Arg = remove_paren(FA[1]);
+		Arg = remove_paren0(FA[1],1);
 		FB = quote_to_funargs(Arg);
-		if ( FB[0] != I_FORMULA || nmono(FB[1]) != 1 )
+		if ( !is_monomial(Arg) )
 			Arg = funargs_to_quote([I_PAREN,Arg]);
 		return funargs_to_quote([FA[0],Arg]);
 	} else if ( FA[0] == I_LIST ) {
 		R = [];
 		for ( T = FA[1]; T != []; T = cdr(T) ) {
-			Arg = remove_paren(car(T));
+			Arg = remove_paren0(car(T),1);
 			R = cons(Arg,R);	
 		}
 		return funargs_to_quote([FA[0],reverse(R)]);
@@ -37,12 +63,11 @@ def remove_paren(Q)
 		for ( T = FA; T != []; T = cdr(T) ) {
 			Arg = car(T);
 			if ( type(Arg) == O_QUOTE )
-				Arg = remove_paren(Arg);
+				Arg = remove_paren0(Arg,0);
 			R = cons(Arg,R);
 		}
 		return funargs_to_quote(reverse(R));
 	}
 }
-
 endmodule;
 end$
