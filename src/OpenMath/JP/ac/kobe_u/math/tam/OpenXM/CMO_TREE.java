@@ -1,5 +1,5 @@
 /**
- * CMO_TREE.java
+ * $OpenXM$
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 

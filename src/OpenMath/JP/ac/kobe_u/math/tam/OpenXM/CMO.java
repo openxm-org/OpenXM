@@ -1,5 +1,5 @@
 /**
- * CMO.java
+ * $OpenXM$
  *
  * abstract protected int DISCRIMINATOR(); - 各 CMO の cmo_tag を返す.
  * abstract protected void sendByObject(DataOutputStream os)

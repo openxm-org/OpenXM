@@ -1,5 +1,5 @@
 /*
- * SM.java
+ * $OpenXM$
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
