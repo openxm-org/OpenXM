@@ -1,7 +1,18 @@
+/*
+$OpenXM$
+*/
+/*&ja
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_math/documents/readme.jp,v 1.3 1999/11/06 21:33:42 ohara Exp $
 
+*/
+/*&en
+Author: Katsuyoshi OHARA, Department of Computational Science, 
+        Kanazawa University.
+WWW:    http://omega.s.kanazawa-u.ac.jp/ohara/
+
+*/
+/*&ja
 ☆ Open Mathematica マニュアル
 
 1)  Open Mathematica って何?
@@ -26,6 +37,27 @@
     math2ox        Mathematica の外部プログラム. 
                    Mathematica を OX client にするのに必要。
 
+*/
+/*&en
+1. What is this?
+
+This is a set of wrappers for Mathematica with OpenXM.  These are
+tested on Linux kernel 2.2.12 with libc6 by Mathematica 3.0.
+Mathematica is a commertial system of Wolfram Research Inc.
+In order to use these binaries, you need to buy a licence 
+from Wolfram Research Inc.
+
+
+If you want to make binaries, then you need newer version of MathLink
+for Linux.  Newer MathLink libraries are available from
+URL:<http://support.wolfram.com/MathLink/Updates/MLDK.html>.
+
+This package include the following binaries:
+ox_math: an OX server for Mathematica, 
+math2ox: an OX client and an external smodule for Mathematica.
+
+*/
+/*&ja
 ☆ Mathematica を OX のクライアントとして使おう。
 
 In[1]:= Install["math2ox"]
@@ -43,6 +75,13 @@ In[3] := OxParse["(CMO_DISTRIBUTED_POLYNOMIAL, (CMO_DMS_GENERIC), (CMO_ZERO))\n"
 In[4] := OxClose[]
 とすると、接続が終了する。
 
+*/
+/*&en
+2. How to use?
+
+See math2ox.tex for detail.
+*/
+/*&ja
 ☆ Mathematica を OX のサーバとして使おう。
 
 1)  ox_math の制限事項。
@@ -52,6 +91,8 @@ In[4] := OxClose[]
 2)  OpenMathematica は以下の CMO, SM をサポートする。
 
 
+*/
+/*&ja
 ☆ これから実装するべき機能
 (1) SM_popString が来たときに、CMO_ERROR2 を返すようにする。
     (注) ox_sm1 は、長さ0の文字列を返す。
@@ -60,3 +101,4 @@ In[4] := OxClose[]
 (4) ox_math スタックマシンの挙動を制御できるようにする。
     例 executeStringByLocalParser(":indeterminate2string")
 (5) CMO_ERROR2 の実装に問題あり。
+*/
