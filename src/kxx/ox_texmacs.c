@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.12 2004/03/03 12:27:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.13 2004/03/04 06:29:16 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -102,6 +102,9 @@ main(int argc,char *argv[]) {
 	  TM_Engine = ASIR;
 	}else if (strcmp(argv[i],"--k0") == 0) {
 	  TM_Engine = K0;
+    }else if (strcmp(argv[i],"--outputLimit") == 0) {
+      i++;
+      sscanf(argv[i],"%d",&OutputLimit_for_TeXmacs);
 	}else{
 	  /* printv("Unknown option\n"); */
 	}
