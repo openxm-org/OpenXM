@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
