@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.8 2000/03/16 07:55:56 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.9 2000/03/16 09:17:44 takayama Exp $
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
 # 0. Generate ~/.rpmrc and set the TopDir for the work.
@@ -34,6 +34,9 @@
 #
 #  -ivh : Install,  -e openxm-1.1.2-test : remove, 
 #  -qvl openxm-1.1.2-test : list.
+#
+#  The maximum rpm at http://rpm.redhat.com is the most comprehensive source
+#  to use rpm to build redhat packages.
 
 OLE_DIR=../../../../../OpenXM/src/kan96xx/Doc
 OLE=${OLE_DIR}/ole -q
