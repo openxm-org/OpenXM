@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.2 2000/01/21 03:01:26 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -321,3 +321,8 @@ def NewArray(n) {
 HelpAdd(["NewArray",
 ["NewArray(n) returns an array of size n (integer n)."]]);
 
+def GetEnv(s) {
+ sm1(" [(getenv) s] extension /FunctionValue set ");
+}
+HelpAdd(["GetEnv",
+["GetEnv(s) returns the value of the environmental variable s (string s)."]]);

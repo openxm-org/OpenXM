@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.4 2000/05/01 07:26:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.5 2000/05/04 11:05:19 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -961,19 +961,22 @@ void parseAstring(char *s)
 
 }
 
-void loadFile(objectp op)
-{
+objectp checkIfTheFileExists(objectp op) {
   FILE *fp;
   char fname[1024];
+  char *s;
+  objectp nullObj;
+  nullObj = NULL;
   if (op->tag != Sstring) {
     fprintf(stderr,"File name must be given as an argment of load.\n");
-    return;
+    return nullObj;
   }
-  if (strlen(op->lc.str) > 1000) {
+  if (strlen(op->lc.str) > 800) {
     fprintf(stderr,"Too long file name.\n");
-    return;
+    return nullObj;
   }
-  fp = fopen(op->lc.str,"r");
+  strcpy(fname,op->lc.str);
+  fp = fopen(fname,"r");
   if (fp == (FILE *)NULL) {
     strcpy(fname,getLOAD_K_PATH());
     strcat(fname,op->lc.str);
@@ -983,11 +986,36 @@ void loadFile(objectp op)
       strcat(fname,op->lc.str);
       fp = fopen(fname,"r");
       if (fp == (FILE *)NULL) {
-	fprintf(stderr,"Cannot open the file <<%s>> for loading in the current directory nor the library directories %s and %s.\n",op->lc.str,getLOAD_K_PATH(),LOAD_K_PATH);
-	return;
+		fprintf(stderr,"Cannot open the file <<%s>> for loading in the current directory nor the library directories %s and %s.\n",op->lc.str,getLOAD_K_PATH(),LOAD_K_PATH);
+		return nullObj;
       }
     }
   }
+  close(fp);
+  op = newObject_d();
+  op->tag = Sstring;
+  s = (char *)GC_malloc(sizeof(char)*(strlen(fname)+1));
+  if (s == NULL) fprintf(stderr,"No more memory.\n");
+  strcpy(s,fname);
+  op->lc.str = s;
+  return(op);
+}
+
+void loadFile(objectp op)
+{
+  FILE *fp;
+  char fname[1024];
+  if (op->tag != Sstring) {
+    fprintf(stderr,"File name must be given as an argment of load.\n");
+    return;
+  }
+  op = checkIfTheFileExists(op);
+  if (op == NULL) return;
+  if (strlen(op->lc.str) > 1000) {
+    fprintf(stderr,"Too long file name.\n");
+    return;
+  }
+  fp = fopen(op->lc.str,"r");
   if (K00_verbose) fprintf(stderr,"Reading the file <<%s>>...  ",op->lc.str);
   parseAfile(fp);
   if (K00_verbose) fprintf(stderr,"\nClosed the file <<%s>>.\n",op->lc.str);
@@ -997,16 +1025,21 @@ void loadFileWithCpp(objectp op)
 {
   FILE *fp;
   char fname[1024];
+  char tmpName[1024];
+  int pid;
   objectp ob;
   if (op->tag != Sstring) {
     fprintf(stderr,"File name must be given as an argment of load.\n");
     return;
   }
+  op = checkIfTheFileExists(op);
+  if (op == NULL) return;
   if (strlen(op->lc.str) > 900) {
     fprintf(stderr,"Too long file name.\n");
     return;
   }
   system("/bin/rm -f k00.cppload.tmp");
+  /* Use gcc -v to know what symbols are defined. */
 #if defined(linux) || defined(__linux__)
   strcpy(fname,"/lib/cpp -P -lang-c++ <");
 #else
@@ -1019,6 +1052,7 @@ void loadFileWithCpp(objectp op)
   ob->tag = Sstring;
   ob->lc.str = "k00.cppload.tmp";
   loadFile(ob);
+  system("/bin/rm -f k00.cppload.tmp");
 }
 
 void showStringBuff(objectp op)

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/d.h,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
 /* d.h;*/
 /*  from stackm.h */
 
@@ -131,6 +131,7 @@ int fsungetc(int c,objectp op);
 void readLineFromFile(FILE *fp,struct stringBuf *obuf);
 struct stringBuf *newStringBuf(char *initstr);
 void doublingStringBuf(struct stringBuf *sbuf);
+objectp checkIfTheFileExists(objectp name);
 void loadFile(objectp op);
 void loadFileWithCpp(objectp op);
 void showStringBuff(objectp op);
