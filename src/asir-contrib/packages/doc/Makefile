@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.23 2002/01/27 08:18:52 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.24 2002/02/09 08:50:48 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -26,8 +26,8 @@ TEXI2HTML=texi2html -menu -split_node
 JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro.texi Diff.texi Dmodule.texi Matrix.texi base-ja.texi misc-ja.texi
 EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-eg.texi cman-eg.texi base-en.texi misc-en.texi
 
-JAAUTO=base-auto-ja.texi pfp-auto-ja.texi
-ENAUTO=base-auto-en.texi pfp-auto-en.texi
+JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi
+ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi
 
 all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
 install : install-document install-help install-html-help
@@ -213,6 +213,15 @@ base-auto-en.texi : $(CONTRIB)/names.rr gentexi
 base-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	rm -f base-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --ja --upnode Top ${OPTGENTEXI} >base-auto-ja.texi
+
+## poly
+poly-auto-en.texi : $(CONTRIB)/names.rr gentexi
+	rm -f poly-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --en --upnode Top ${OPTGENTEXI} >poly-auto-en.texi
+
+poly-auto-ja.texi : $(CONTRIB)/names.rr gentexi
+	rm -f poly-auto-ja.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --ja --upnode Top ${OPTGENTEXI} >poly-auto-ja.texi
 
 # pfp
 pfp-auto-en.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
