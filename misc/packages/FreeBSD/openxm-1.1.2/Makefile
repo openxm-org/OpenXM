@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.8 2000/03/06 03:07:17 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.9 2000/03/06 04:29:01 takayama Exp $
 
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
@@ -41,6 +41,7 @@ usage:
 	@echo "For committers: make-tar-ball, make-tar-ball-from-local-OpenXM"
 	@echo "                generate-symbolic-links, clean-this-directory"
 	@echo " make-tar-ball : create openxm-1.1.2.tar.gz under $(TAR_WORK)"
+	@echo " fake-openxm : create a fake OpenXM for a test."
 
 configure :
 	(cd $(srcdir)/OpenXM/src ;	make configure )
@@ -50,6 +51,8 @@ all : configure
 	(cd $(srcdir)/OpenXM/src ;	make binary-dist)
 
 install : all
+	@echo "Installation phase with PREFIX= "
+	@echo ${prefix}
 	tar cf - OpenXM/bin OpenXM/doc OpenXM/lib OpenXM/rc OpenXM/Copyright OpenXM/include OpenXM/man  OpenXM/misc | (cd ${prefix} ; tar xf - )
 	-for i in $(OpenXM_BINARIES); do strip ${prefix}/OpenXM/bin/$$i ; done
 	(cd ${prefix}/OpenXM/rc ; make ; make install PREFIX=${prefix})
@@ -64,6 +67,8 @@ clean :
 distclean :
 	cd $(srcdir)/OpenXM/src ; make distclean
 
+clean-installed-openxm:
+	/bin/rm -rf ${prefix}/OpenXM
 
 #### The rests are for committers.
 make-tar-ball :
@@ -90,13 +95,28 @@ make-tar-ball-from-local-OpenXM :
 	rm -f *~
 	echo "It is ready to tar this directory."
 
-# This is used for the test.
+# These are used for the test.
 generate-symbolic-links :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2
 	ln -s $(OpenXM_TOP)/OpenXM OpenXM
 	ln -s $(OpenXM_TOP)/OpenXM OpenXM_Contrib
 	ln -s $(OpenXM_TOP)/OpenXM OpenXM_Contrib2
 
+# Make a fake distribution for a test of RPM etc.
+fake-openxm: clean-this-directory
+	mkdir OpenXM
+	mkdir OpenXM/bin OpenXM/lib OpenXM/doc OpenXM/man OpenXM/include OpenXM/rc
+	mkdir OpenXM/Copyright OpenXM/misc
+	touch OpenXM/bin/hoge-bin OpenXM/lib/hoge-lib OpenXM/doc/hoge-doc
+	(cd OpenXM/bin ; ln -s ../lib/hoge-lib hoge-lib-link)
+	mkdir OpenXM/src
+	echo "configure:" >OpenXM/src/Makefile
+	echo "	echo configure" >>OpenXM/src/Makefile
+	echo "binary-dist:" >>OpenXM/src/Makefile
+	echo "	echo binary-dist" >>OpenXM/src/Makefile
+	echo "install:" >OpenXM/rc/Makefile 
+	echo "Creating a fake tar ball at ${TAR_WORK}"
+	(cd .. ; tar czf ${TAR_WORK}/openxm-fake.tar.gz openxm-1.1.2)
 
 
 clean-this-directory:
