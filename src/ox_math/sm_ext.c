@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.4 2003/01/13 12:04:53 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.5 2003/01/15 05:08:10 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <gmp.h>
-#include <mathlink.h>
 #include <ox_toolkit.h>
 #include "sm.h"
 
@@ -97,7 +96,7 @@ void sm_executeStringByLocalParser()
             /* for mathematica */
             /* Sending the string `s' to mathematica for its evaluation. */
             ml_evaluateStringByLocalParser(s);
-            push(ml_returnvalue());
+            push(ml_return());
         }
     }else {
 #ifdef DEBUG
@@ -130,7 +129,7 @@ void sm_executeFunction()
         argv[i] = pop();
     }
     ml_executeFunction(func, argc, argv);
-    push(ml_returnvalue());
+    push(ml_return());
 }
 
 void sm_mathcap()
