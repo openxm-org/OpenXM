@@ -1,5 +1,5 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM$ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.solaris,v 1.2 1999/11/02 06:11:57 ohara Exp $ 
 
 #
 PREFIX=/usr/local
@@ -13,16 +13,15 @@ MPREP = ${ADDONSDIR}/mprep
 # ADDONSDIR =
 
 CC = gcc
-GMPSRC = ../kan96xx/gmp-2.0.2
-#GMPSRC = ${PREFIX}/lib
-GMPINC = -I${GMPSRC}
-#GMPINC = -I${PREFIX}/include
+#GMPSRC = ${OpenXM_HOME}/src/gmp
+GMPSRC = ${PREFIX}/lib
+#GMPINC = -I${GMPSRC}
+GMPINC = -I${PREFIX}/include
 
-# CDEFS = -DDEBUG -DSTREAM_PIPE
 CDEFS  = -DDEBUG
 INCDIR = -I${ADDONSDIR} ${GMPINC}
 LIBDIR = -L${ADDONSDIR} -L.
-CFLAGS = -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
+CFLAGS = -g -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
 
 SOLLIBS  = -lsocket -lnsl
 MATHLIBS = -lML  -lm
@@ -31,6 +30,10 @@ LIBS = -lox -lgmp ${MATHLIBS} ${SOLLIBS}
 LIBOBJS = ox.o parse.o mysocket.o
 
 all: libox.a bconv testclient ox_math math2ox
+
+configure:
+	@(cd ${OpenXM_HOME}/src; ${MAKE} configure)
+	@(cd ${OpenXM_HOME}/src/gmp; ./configure; make)
 
 bconv.o:  ox.h oxtag.h parse.h
 parse.o:  ox.h oxtag.h parse.h
@@ -41,9 +44,9 @@ serv2.o:  ox.h oxtag.h serv2.h
 
 libgmp.a:
 	@if [ ! -f ${GMPSRC}/libgmp.a ]; then \
-		(cd ${GMPSRC}; ./configure; make) \
+		${MAKE} configure; \
 	fi
-	cp ${GMPSRC}/libgmp.a .
+	cp -f ${GMPSRC}/libgmp.a .
 
 libox.a: ${LIBOBJS} libgmp.a
 	-rm -f $@
@@ -69,8 +72,8 @@ math2.c: math2.tm
 	-rm -f $@
 	${MPREP} $? > $@
 
-install-openXM-bin: ox_math math2ox
-	install -c -m 755 ox_math math2ox ${OpenXM_HOME}/bin/
+install-openXM-bin: ox_math math2ox testclient bconv
+	install -c -m 755 ox_math math2ox testclient bconv ${OpenXM_HOME}/bin/
 
 clean:
 	-rm -f *.o *~ libox.a libgmp.a math2.c

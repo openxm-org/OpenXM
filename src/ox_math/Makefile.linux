@@ -1,5 +1,5 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.2 1999/11/02 06:11:57 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.3 1999/11/03 10:56:40 ohara Exp $ 
 
 #
 PREFIX=/usr/local
@@ -18,7 +18,6 @@ GMPSRC = ${PREFIX}/lib
 #GMPINC = -I${GMPSRC}
 GMPINC = -I${PREFIX}/include
 
-# CDEFS = -DDEBUG -DSTREAM_PIPE
 CDEFS  = -DDEBUG
 INCDIR = -I${ADDONSDIR} ${GMPINC}
 LIBDIR = -L${ADDONSDIR} -L.
@@ -73,7 +72,7 @@ math2.c: math2.tm
 	-rm -f $@
 	${MPREP} $? > $@
 
-install-openXM-bin: ox_math math2ox
+install-openXM-bin: ox_math math2ox testclient bconv
 	install -c -m 755 ox_math math2ox testclient bconv ${OpenXM_HOME}/bin/
 
 clean:
