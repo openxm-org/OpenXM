@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.3 1999/12/14 09:29:13 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.4 1999/12/15 05:57:35 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -30,9 +30,8 @@ YYY_cmo_XXX 関数が処理する.  cmo の内部に cmo_ZZZ へのポインタが
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <gmp.h>
-#include <unistd.h>
 #include <sys/file.h>
+#include <gmp.h>
 
 #include "mysocket.h"
 #include "ox.h"
@@ -741,34 +740,39 @@ static int login_with_otp(int fd, char* passwd)
     return ret;
 }
 
-static int exists_ox(char *dir, char *prog)
+static int chdir_openxm_home_bin()
 {
-    char *path = alloca(strlen(dir)+strlen(prog)+6);
-    sprintf(path, "%s/%s", dir, prog);
-    return access(path, X_OK|R_OK);
+    char *dir;
+    char *base = getenv("OpenXM_HOME");
+
+	if (base != NULL) {
+		dir = alloca(strlen(base)+5);
+		sprintf(dir, "%s/bin", base);
+	}else {
+		dir = "/usr/local/OpenXM/bin";
+	}
+	return chdir(dir);
 }
 
-static char *search_ox(char *prog)
+/* example: which("xterm", getenv("PATH")); */
+static char *which(char *prog, char *path_env)
 {
-    char *env = getenv("OpenXM_HOME");
-    char *dir;
-    if (env != NULL) {
-        dir = malloc(strlen(env)+5);
-        sprintf(dir, "%s/bin", env);
-        if (exists_ox(dir, prog) == 0) {
-            return dir;
-        }
-        free(dir);
-    }
-    dir = "/usr/local/OpenXM/bin";
-    if (exists_ox(dir, prog) == 0) {
-        return dir;
-    }
-    dir = ".";
-    if (exists_ox(dir, prog) == 0) {
-        return dir;
-    }
-    return NULL;
+	char *tok;
+	char *path;
+	char delim[] = ":";
+	char *e = alloca(strlen(path_env)+1);
+	strcpy(e, path_env);
+	tok = strtok(e, delim);
+	while (tok != NULL) {
+		char *path = malloc(strlen(tok)+strlen(prog)+2);
+		sprintf(path, "%s/%s", tok, prog);
+		if (access(path, X_OK&R_OK) == 0) {
+			return path;
+		}
+		free(path);
+		tok = strtok(NULL, delim);
+	}
+	return NULL;
 }
 
 static int mysocketAccept2(int fd, char *pass)
@@ -782,6 +786,9 @@ static int mysocketAccept2(int fd, char *pass)
     return -1;
 }
 
+/* 0 でなければ、oxlog を介して ox を起動する。*/
+static int flag_ox_start_with_oxlog = 1;
+
 /*
    (-reverse 版の ox_start)
    ox_start は クライアントが呼び出すための関数である.
@@ -793,18 +800,13 @@ static int mysocketAccept2(int fd, char *pass)
 
 ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 {
+    ox_file_t sv = NULL;
     char *pass;
-    char ctl[16], dat[16];
+    char ctl[128], dat[128];
     short portControl = 0; /* short であることに注意 */
     short portStream  = 0;
-    ox_file_t sv = NULL;
     char *dir;
 	char *oxlog = "oxlog";
-
-    if ((dir = search_ox(ctl_prog)) == NULL) {
-        fprintf(stderr, "client:: %s not found.\n", ctl_prog);
-        return NULL;
-    }
 
     sv = malloc(sizeof(__ox_file_struct));
     sv->control = mysocketListen(host, &portControl);
@@ -815,13 +817,20 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
     pass = create_otp();
 
     if (fork() == 0) {
-        dup2(2, 1);
-        dup2(open(DEFAULT_LOGFILE, O_RDWR|O_CREAT|O_TRUNC, 0644), 2);
-        chdir(dir);
-        execl(oxlog, oxlog, "/usr/X11R6/bin/xterm", "-icon", "-e", 
-			  ctl_prog, "-reverse", "-ox", dat_prog,
-              "-data", dat, "-control", ctl, "-pass", pass,
-              "-host", host, NULL);
+		chdir_openxm_home_bin();
+		if (flag_ox_start_with_oxlog) {
+			execl(oxlog, oxlog, "xterm", "-icon", "-e", ctl_prog, 
+				  "-reverse", "-ox", dat_prog,
+				  "-data", dat, "-control", ctl, "-pass", pass,
+				  "-host", host, NULL);
+		}else {
+			dup2(2, 1);
+			dup2(open(mkstemp(LOGFILE), O_RDWR|O_CREAT|O_TRUNC, 0644),  2);
+			execl(ctl_prog, ctl_prog, "-reverse", "-ox", dat_prog,
+				  "-data", dat, "-control", ctl, "-pass", pass,
+				  "-host", host, NULL);
+		}
+		exit(1);
     }
 
     if ((sv->control = mysocketAccept2(sv->control, pass)) == -1) {
@@ -834,6 +843,17 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
         return NULL;
     }
     return sv;
+}
+
+/* ssh -f host oxlog xterm -e ox -ox ox_asir ... */
+int ssh_ox_server(char *host, char *ctl_prog, char *dat_prog, short portControl, short portStream)
+{
+	if (fork() == 0) {
+		execl("ssh", "ssh", "-f", host, "oxlog", "xterm", "-icon",
+			  "-e", ctl_prog, "-insecure", "-ox", dat_prog, 
+			  "-data", portStream, "-control", portControl, "-host", host, NULL);
+		exit(1);
+	}
 }
 
 /*
@@ -859,6 +879,15 @@ ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short port
     sv->stream  = mysocketOpen(host, portStream);
     decideByteOrderClient(sv->stream, 0);
     return sv;
+}
+
+ox_file_t ox_start_insecure_nonreverse2(char* host, char *ctl_prog, char *dat_prog)
+{
+	short portControl= 1200; /* 自動生成させよう... */
+	short portStream = 1300;
+
+	ssh_ox_server(host, ctl_prog, dat_prog, portControl, portStream);
+	return ox_start_insecure_nonreverse(host, portControl, portStream);
 }
 
 void ox_reset(ox_file_t sv)

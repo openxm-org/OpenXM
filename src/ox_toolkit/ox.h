@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.3 1999/12/14 09:29:13 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.4 1999/12/15 01:58:13 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -31,7 +31,7 @@ YYY_cmo_XXX 関数が処理する。cmo の内部に cmo_ZZZ へのポインタが
 あるときには、その種類によらずに YYY_cmo 関数を呼び出す 
 */
 
-#define DEFAULT_LOGFILE  "/tmp/result"
+#define LOGFILE  "/tmp/oxtk.XXXXXX"
 
 /* Open Xm File Descripter */
 typedef int oxfd;
