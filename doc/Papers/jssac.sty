@@ -1,0 +1,273 @@
+% LateX2e Style File for "数式処理 (Sushiki-shori)"
+%    published by Japan Society for Symbolic and Algebraic Computation
+%
+% jssac.sty
+%      version 1.0: Aug. 1998
+%      version 1.1: Nov. 1999
+%      by Tomokatsu Saito saito@@mm.sophia.ac.jp
+%
+% Usage::
+%
+%
+%   \documentclass[b5paper,tombow]{jarticle}
+%   \usepackage{jssac}
+%   \art{種目}  論文、ノート、記録、...
+%   \begin{document}
+%   \title{原稿のタイトル}
+%   \author{著者1\affil{所属}\mail{E-mail address} \and
+%           著者2\affil{所属}\mail{E-mail address} ...}
+%   \maketitle
+%
+%% Option setting
+%
+%
+\newif\ifLang
+\newif\ifEditor
+\newif\ifNoPage
+\newif\iffancybox
+\newif\ifgraphics
+\newif\iftheorem
+\DeclareOption{English}{\Langtrue}
+\DeclareOption{Editor}{\Editortrue}
+\DeclareOption{NoPage}{\NoPagetrue}
+\DeclareOption{FVerb}{\fancyboxtrue}
+\DeclareOption{useeps}{\graphicstrue}
+\DeclareOption{theorem}{\theoremtrue}
+\ProcessOptions\relax
+\iffancybox\RequirePackage{fancybox}\fi
+\ifgraphics\RequirePackage[dvips]{graphics}\fi
+\iftheorem\RequirePackage{theorem}\fi
+%
+%%  Page dimensions
+%
+\setcounter{@paper}{1}%
+\setlength\paperheight{257mm}
+\setlength\paperwidth{182mm}
+\tombowtrue \tombowdatetrue
+\setlength{\@tombowwidth}{.1\p@}%
+\@bannertoken{%
+  \jobname\space:\space\number\year/\number\month/\number\day
+   (\number\hour:\number\minute)}
+\maketombowbox
+\textheight=205mm
+\textwidth=138mm
+\topmargin=-7mm
+\oddsidemargin=-5mm
+\setlength{\hoffset}{-0.5in}
+\setlength{\evensidemargin}{\oddsidemargin}
+\footnotesep=9pt
+%
+\ifLang% English mode
+\typeout{English Mode}
+  \global\parindent=1.5em \global\leftmargini=1.5em
+  \global\leftmarginii=1.25em \global\leftmarginiii=1.0em
+  \global\leftmarginiv=1.0em \global\leftmarginv=1.0em
+  \global\baselineskip=12pt
+  \gdef\the@ck{Acknowledgements}
+  \gdef\the@ref{References}
+  \iftheorem
+  \theoremstyle{break} \newtheorem{Th}{Theorem}
+  \theoremstyle{break} \newtheorem{Pro}[Th]{Proposition}
+  \theoremstyle{break} \newtheorem{Lem}[Th]{Lemma}
+  \theoremstyle{break} \newtheorem{Cor}[Th]{Corollary}
+  \theoremstyle{break} \newtheorem{Def}[Th]{Definition}
+  \theoremstyle{break} \newtheorem{Hyp}[Th]{Hypothesis}
+  \theoremstyle{break} \newtheorem{Nte}{Notation}
+  \theoremstyle{break} \newtheorem{Exp}{Example}
+  \theoremstyle{break} \newtheorem{Rem}{Remark}
+  \theoremstyle{break} \newtheorem{Prob}{Problem}
+  \theoremstyle{break} \newtheorem{Alg}{Algorithm}
+  \newenvironment{Proof}%
+  {\par{\bf Proof }}{\hfill\hbox{\rule[-2pt]{3pt}{6pt}}\par}
+  \fi
+\else% Japanese mode
+\typeout{Japanese Mode}
+  \global\parindent=1zw
+  \global\baselineskip=15.65pt
+  \gdef\the@ck{謝　　辞}
+  \gdef\the@ref{参　考　文　献}
+  \iftheorem
+  \theoremstyle{break} \newtheorem{Th}{定理}
+  \theoremstyle{break} \newtheorem{Pro}[Th]{命題}
+  \theoremstyle{break} \newtheorem{Lem}[Th]{補題}
+  \theoremstyle{break} \newtheorem{Cor}[Th]{系}
+  \theoremstyle{break} \newtheorem{Def}[Th]{定義}
+  \theoremstyle{break} \newtheorem{Hyp}[Th]{仮定}
+  \theoremstyle{break} \newtheorem{Nte}{記法}
+  \theoremstyle{break} \newtheorem{Exp}{例}
+  \theoremstyle{break} \newtheorem{Rem}{注意}
+  \theoremstyle{break} \newtheorem{Prob}{問題}
+  \theoremstyle{break} \newtheorem{Alg}{アルゴリズム}
+  \newenvironment{Proof}%
+  {\par{\bf 証明 }}{\hfill\hbox{\rule[-2pt]{3pt}{6pt}}\par}
+  \fi
+\fi
+%
+%% Define some macros
+%
+\ifgraphics%
+  \def\Eps#1{\includegraphics{#1}}
+\fi
+\iffancybox%
+  \newenvironment{FVerb}[1]%
+{\VerbatimEnvironment%
+  \begin{Sbox}\begin{minipage}{#1}\begin{Verbatim}}%
+      {\end{Verbatim}\end{minipage}\end{Sbox}%
+  \setlength{\fboxsep}{3mm}\vspace*{4mm}\fbox{\TheSbox}}
+\fi
+\long\def\ifundefined#1#2#3{%
+ \expandafter\ifx\csname #1\endcsname\relax #2\else #3\fi}
+\def\affil#1{\\\small #1}
+\def\mail#1{\\\small \texttt{#1}}
+\def\author#1{\gdef\@author{#1}}
+\def\thefootnote{\arabic{footnote})}
+\def\art#1{\edef\@art{#1}}
+\def\year#1{\edef\@year{#1}}
+\def\StartPage#1{\edef\@spage{#1}}
+\def\EndPage#1{\edef\@epage{#1}}
+\def\vol#1{\edef\@vol{#1}}
+\def\num#1{\edef\@num{#1}}
+\def\dg{\textbf}
+\def\abstractname{Abstract}
+%
+% Define some fonts
+%
+% AMSFonts and AMSSymbols
+\font\msbmbbs=msbm10
+\font\msbmbb=msbm10 scaled \magstep1
+\def\Bbb#1{\mbox{\msbmbb\relax#1}}
+\def\Bbbs#1{\mbox{\msbmbbs\relax#1}}
+%
+\newcommand{\C}{\Bbb C}
+\newcommand{\R}{\Bbb R}
+\newcommand{\Q}{\Bbb Q}
+\newcommand{\Z}{\Bbb Z}
+\newcommand{\N}{\Bbb N}
+\newcommand{\SC}{\hbox{\footnotesize \Bbb C}}
+\newcommand{\SR}{\hbox{\footnotesize \Bbb R}}
+\newcommand{\SQ}{\hbox{\footnotesize \Bbb Q}}
+\newcommand{\SZ}{\hbox{\footnotesize \Bbb Z}}
+\newcommand{\SN}{\hbox{\footnotesize \Bbb N}}
+\newcommand{\qed}{\hbox{\rule[-2pt]{3pt}{6pt}}}
+%
+\def\thebibliography#1{
+  \section*{\hbox to\hsize{\hss\the@ref\hss}}
+  \list {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}
+    \leftmargin\labelwidth
+    \advance\leftmargin\labelsep\parsep=0pt
+    \usecounter{enumi}}
+  \def\newblock{\hskip .11em plus .33em minus .07em}
+  \sloppy\clubpenalty4000\widowpenalty4000\sfcode`\.=1000
+  \relax}
+\def\endthebibliography{\global\advance\@listdepth\m@ne\endtrivlist}
+%
+\def\acknowledgements#1{\section*{\hbox to\hsize{\hss\the@ck\hss}}#1}
+\def\endacknowledgements{\par}
+%
+\def\ps@jssac{%
+  \let\@oddfoot\@empty\let\@evenfoot\@empty
+  \def\@evenhead{\footnotesize\textit{\thepage}\hfil%
+    数式処理 第 \textit{\@vol} 巻 第 \textit{\@num} 号 \textit{\@year}}%
+  \def\@oddhead{\footnotesize\textit{J.JSSAC Vol. \@vol, No. %
+    \@num, \@year\hfil\thepage}}}%
+\def\maketitle{%
+  \ifundefined{@year}{\edef\@year{199X}}{}
+  \ifundefined{@vol}{\edef\@vol{XX}}{}
+  \ifundefined{@num}{\edef\@num{XX}}{}
+  \ifundefined{@spage}{\edef\@spage{1}}{}
+  \ifundefined{@epage}{\edef\@epage{XXX}}{}
+  \par
+  \begingroup
+  \def\thefootnote{\fnsymbol{footnote}}%
+  \def\@makefnmark{\hbox to 3pt{$^{\@thefnmark}$\hss}}%
+  \thispagestyle{plain}%
+  \@maketitle%
+  \@thanks%
+  \endgroup
+  \setcounter{footnote}{0}
+  \let\maketitle=\relax
+  \let\@maketitle=\relax
+%  \gdef\@thanks{}\gdef\@author{}\gdef\@title{}%
+  \let\thanks=\relax
+  }
+\def\@maketitle{%
+  \newpage
+  \let\mail\thanks
+  \null
+  \vbox{
+    \hbox{\footnotesize \textgt{数式処理} \textit{J.JSSAC (\@year)}%
+      }\vskip -1.5ex
+    \hbox{\footnotesize \textit{Vol.\ \@vol ,\ No.\ \@num ,%
+      \ pp.\ \@spage\ -\ \@epage}}\vskip 1ex
+    \ifundefined{@art}{\relax}{\hbox{\fbox{\textgt{\@art}}}}
+    }
+  \vskip 2em
+  \begin{center}
+    {\LARGE \@title \par}\vskip 1.5em%
+    {\Large \lineskip .5em \begin{tabular}[t]{c}\@author\end{tabular}\par}
+    \ifundefined{received}{}%
+    {\vskip 1.5em \footnotesize\sc (Received \received %
+      \ifundefined{revised}{)}{\ \ \footnotesize\sc Revised \revised)}
+      }
+  \end{center}
+  \par
+  \vskip 1.5em}
+\@twosidetrue
+%
+%% Editors Session
+%
+\newif\ifPage%
+\IfFileExists{\jobname.pag}{\Pagetrue}{}
+\ifPage
+  \input \jobname.pag
+  \setcounter{page}{\@spage}
+\fi
+%
+\IfFileExists{../vol.tex}{\Editortrue}{\Editorfalse}
+\ifEditor%
+  \typeout{Editor Mode}%
+  \input ../vol.tex
+  \newwrite\OutPut
+  \immediate\openout\OutPut=\jobname.pag
+  \def\spageout#1{%
+    \immediate\write\OutPut{\string
+      \StartPage{#1}}}
+  \def\epageout#1{%
+    \immediate\write\OutPut{\string
+      \EndPage{#1}}}
+%
+  \let\ndocument\document
+  \let\nenddocument\enddocument
+  \def\document{%
+    \ndocument%
+    \spageout{\thepage}}
+  \def\enddocument{%
+    \newcount\PP
+    \def\affil##1{\empty}
+    \def\mail##1{\empty}
+    \def\and{,}
+    \def\\{\empty}
+    \epageout{\thepage}
+    \closeout\OutPut
+    \newwrite\Plist
+    \immediate\openout\Plist=\jobname.ttl
+    \ifNoPage
+       \immediate\write\Plist{%
+       NoPage}
+       \closeout\Plist
+    \else
+       \immediate\write\Plist{%
+         \string\jpage{\@art}{\@title}{\@author}{\@spage}}
+       \closeout\Plist
+    \fi
+    \PP=\thepage
+    \advance \PP 1
+    \immediate\openout\Plist=Next.pp
+    \immediate\write\Plist{%
+      \number\PP}
+    \closeout\Plist
+    \nenddocument}
+\fi
+\pagestyle{jssac}
+\makeatother
+
