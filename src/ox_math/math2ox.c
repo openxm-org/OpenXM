@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.17 2000/10/10 19:58:29 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.18 2000/11/28 20:16:03 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -21,7 +21,7 @@
 #include <signal.h>
 #include <mathlink.h>
 #include <ox_toolkit.h>
-#include "serv2.h"
+#include "sm.h"
 
 static char *host    = "localhost";
 static char *ctlserv = "ox";
