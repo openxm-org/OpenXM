@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.9 2004/03/25 04:54:36 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.10 2004/03/26 08:54:07 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -27,7 +27,8 @@ patch: extract
 
 configure: patch
 	@if [ ! -f work/.configure_done ]; then \
-		(cd work/${GMP} ; ./configure --prefix `cd ../..; cd ${OpenXM_HOME}; pwd`) ; \
+		prefix=`cd ${OpenXM_HOME}; pwd` ; \
+		(cd work/${GMP} ; ./configure --prefix="$$prefix" ) ; \
 	fi
 	@touch work/.configure_done
 

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.9 2004/02/22 14:11:02 takayama Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.10 2004/03/30 10:27:30 ohara Exp $
 
 OpenXM_HOME = ../..
 DISTNAME    = gnuplot-3.7.3
@@ -29,8 +29,9 @@ patch: extract
 	@touch work/.patch_done
 
 configure: patch
-	@if [ ! -f work/.configure_done ]; then \
-		(cd ${WRKSRC} ; ./configure --with-x --prefix=`cd ../..; cd ${OpenXM_HOME}; pwd` ) ; \
+	if [ ! -f work/.configure_done ]; then \
+		prefix=`cd ${OpenXM_HOME}; pwd` ; \
+		(cd ${WRKSRC} ; ./configure --with-x --prefix="$$prefix" ) ; \
 	fi
 	@touch work/.configure_done
 
