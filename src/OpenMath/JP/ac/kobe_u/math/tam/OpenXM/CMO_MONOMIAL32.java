@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java,v 1.2 1999/11/07 21:22:03 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -13,8 +13,8 @@ public class CMO_MONOMIAL32 extends CMO{
   public CMO_MONOMIAL32(){}
 
   public CMO_MONOMIAL32(int[] degree,CMO_ZZ coefficient){
-	this.degree = degree;
-	this.coefficient = coefficient;
+    this.degree = degree;
+    this.coefficient = coefficient;
   }
 
   public int DISCRIMINATOR(){
@@ -22,22 +22,22 @@ public class CMO_MONOMIAL32 extends CMO{
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{
-	os.writeInt(degree.length);
-	for(int i=0;i<degree.length;i++){
-	  os.writeInt(degree[i]);
-	}
+    os.writeInt(degree.length);
+    for(int i=0;i<degree.length;i++){
+      os.writeInt(degree[i]);
+    }
     coefficient.send(os);
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
-	int n;
+    int n;
 
-	n = is.readInt();
-	degree = new int[n];
+    n = is.readInt();
+    degree = new int[n];
 
-	for(int i=0;i<n;i++){
-	  degree[i] = is.readInt();
-	}
+    for(int i=0;i<n;i++){
+      degree[i] = is.readInt();
+    }
 
     coefficient = receive(is);
 
@@ -45,13 +45,13 @@ public class CMO_MONOMIAL32 extends CMO{
   }
 
   public String toCMOexpressionByObject(){
-	String ret;
+    String ret;
 
-	ret = "CMO_MONOMIAL32,"+ degree.length;
+    ret = "CMO_MONOMIAL32,"+ degree.length;
 
-	for(int i=0;i<degree.length;i++){
-	  ret += ","+ degree[i] ;
-	}
+    for(int i=0;i<degree.length;i++){
+      ret += ","+ degree[i] ;
+    }
 
     return ret +","+ coefficient.toCMOexpression();
   }

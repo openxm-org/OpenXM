@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.4 1999/11/12 08:07:56 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.5 1999/11/12 11:36:09 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -304,6 +304,7 @@ final class OM2OXM implements Runnable{
 
       if(name.equals("DMP")){
 	ret = parse_symb_DMP();
+	debug("poly: "+ret);
       }else{
 	ret = new CMO_TREE(name,"Basic",parse_objects());
       }
@@ -423,6 +424,7 @@ final class OM2OXM implements Runnable{
       array[i] = ((CMO_ZZ)degree.elementAt(i+1)).intValue();
     }
 
+    //debug("monom: "+ new CMO_MONOMIAL32(array,(CMO_ZZ)degree.elementAt(0)));
     return new CMO_MONOMIAL32(array,(CMO_ZZ)degree.elementAt(0));
   }
 
