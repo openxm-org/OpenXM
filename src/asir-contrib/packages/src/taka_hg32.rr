@@ -1,0 +1,52 @@
+/* $OpenXM$ */
+/*  experimental module for hypergeometric function identities. 
+    cf.  nach/3f2hom.rr
+*/
+
+def taka_hg21(A1,A2,B2,Z) {
+  F = "quote(hypergeometric_2F1("+rtostr(A1)+","+
+                                  rtostr(A2)+","+
+                                  rtostr(B2)+","+
+                                  rtostr(Z)+"))";
+  return eval_str(F);
+}
+
+/* z^(-B2+1) * cycle * ds/ds */
+def taka_hg21_cycle(A1,A2,B2,Z,S) {
+  U=S^(A2)*(Z-S)^(B2-1-A2)*(1-S)^(-A1);
+  S1 = "topology_open_segment("+rtostr(Z)+",1)";
+  C1 = "algebra_tensor("+S1+","+rtostr(U)+")";
+  S2 = "topology_open_segment(0,"+rtostr(Z)+")";
+  C2 = "algebra_tensor("+S2+","+rtostr(U)+")";
+
+  C1 = eval_str("quote("+C1+")");
+  C2 = eval_str("quote("+C2+")");
+  
+  return([C1,C2]);
+}
+
+def taka_hg21_reg_cycle(A1,A2,B2,Z,S) {
+  U=S^(A2)*(Z-S)^(B2-1-A2)*(1-S)^(-A1);
+  S1 = "topology_open_segment("+rtostr(Z+epsilon)+",1-epsilon)";
+  C1 = "algebra_tensor("+S1+","+rtostr(U)+")";
+
+  S1a = "topology_circle("+rtostr(Z)+",epsilon)";
+  C1a = 1/(exp(2*c_pi*(B2-1-A2))-1);
+  Sa = "algebra_tensor("+S1a+","+rtostr(C1a*U)+")";
+
+  S1b = "topology_circle(1,epsilon)";
+  C1b = 1/(exp(2*c_pi*(-A1))-1);
+  Sb = "algebra_tensor("+S1b+","+rtostr(C1b*U)+")";
+
+  Sa = eval_str("quote("+Sa+")");
+  Sb = eval_str("quote("+Sb+")");
+  C1 = eval_str("quote("+C1+")");
+
+  C1 = Sa+Sb+C1;
+  
+  return([C1,C2]);
+}
+
+
+
+end$
