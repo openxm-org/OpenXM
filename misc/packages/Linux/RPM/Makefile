@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.17 2000/09/05 07:28:02 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.18 2000/09/05 08:45:06 takayama Exp $
 
 #Edit this.  VERSION number must be compatible between Generic/openxm/Makefile
 # and *.spec.in
@@ -73,17 +73,27 @@ build-binary-rpm: openxm-binary-spec
 	(cd work/SPECS ; rpm -bb openxm-binary.spec )
 
 build-shared-rpm: openxm-shared-spec
-# For rpm 2.*
-#	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -bb openxm-shared.spec )
-# For rpm 3.* or later
-	(cd work/SPECS ; rpm --target noarch-OpenXM-Linux -bb openxm-shared.spec )
+	rm -f /tmp/tmp-rpm-version.t
+	rpm --version | awk '{print $$3}' >/tmp/tmp-rpm-version.t
+	if test "2.5.5" = `cat /tmp/tmp-rpm-version.t` ; then \
+	echo "for rpm 2.x on FreeBSD 3.x" ; \
+	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -bb openxm-shared.spec ) ; \
+	else \
+	echo "for  rpm 3.x" ; \
+	(cd work/SPECS ; rpm --target noarch-OpenXM-Linux -bb openxm-shared.spec ) ; \
+	fi
 
 build-source-rpm:  openxm-binary-spec openxm-shared-spec
 	(cd work/SPECS ; rpm -ba openxm-binary.spec )
-# for rpm 2.*
-#	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -ba openxm-shared.spec )
-# for rpm 3.* or later
-	(cd work/SPECS ; rpm --target noarch-OpenXM-Linux -ba openxm-shared.spec )
+	rm -f /tmp/tmp-rpm-version.t
+	rpm --version | awk '{print $$3}' >/tmp/tmp-rpm-version.t
+	if test "2.5.5" = `cat /tmp/tmp-rpm-version.t` ; then \
+	echo " for rpm 2.x on FreeBSD 3.x" ; \
+	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -ba openxm-shared.spec ) ; \
+	else \
+	echo " for rpm 3.x " ; \
+	(cd work/SPECS ; rpm --target noarch-OpenXM-Linux -ba openxm-shared.spec ) ; \
+	fi
 
 ## This is obsolete
 build-rpm: openxm-spec
