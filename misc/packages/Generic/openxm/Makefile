@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.5 2000/03/06 08:22:37 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.6 2000/03/06 09:01:09 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -11,8 +11,7 @@ RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 ## export CVS_RSH
 ## cvs $*
 
-TYPE=`uname -s`-`uname -m`
-
+## Configurations.
 ## OpenXM Version Number.
 VERSION=1.1.2
 
@@ -21,55 +20,123 @@ RELEASE=
 ## the next line.
 ##RELEASE=`uname -a`
 
-BINARY_TAR_BALL_FOR_FREE_BSD=./work/OpenXM-binary-FreeBSD-i386.tgz
+TYPE=`uname -s`-`uname -m`
+
+### Common
+SHARED_FILES = OpenXM/Copyright OpenXM/doc OpenXM/include OpenXM/man \
+               OpenXM/rc \
+               OpenXM/lib/asir-contrib OpenXM/lib/java-support \
+               OpenXM/lib/k097 OpenXM/lib/math OpenXM/lib/pari \
+               OpenXM/lib/sm1 OpenXM/lib/asir 
+BINARY_FILES = OpenXM/bin OpenXM/lib/*.a OpenXM/lib/*.so*
+OpenXM_BINARIES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers
 
 usage :
 	@echo "Targets are "
 	@echo "  fetch  :   get the sources from the cvs server under work"
-	@echo "  make-tar-ball : generate OpenXM-source.tgz under work"
-	@echo "  make-tar-ball-01 : generate OpenXM-source-01.tgz under work"
-	@echo "  make-binary-tar-ball : generate OpenXM-binary-OS-CPU.tgz under work"
-	@echo "  make-binary-tar-ball-using-binary-FreeBSD : generate OpenXM-binary-OS-CPU.tgz under work"
-	@echo "   by using binary for FreeBSD because document generation might fails on other operating systems."
+	@echo "  tar-ball : generate OpenXM-source.tgz under work"
+	@echo "  tar-ball-01 : generate OpenXM-source-01.tgz under work"
+	@echo "  binary-tar-ball : generate OpenXM-binary-OS-CPU.tgz under work"
 	@echo -n "Type is "
 	@echo $(TYPE)
 
+### Start of Makefile  to work in the directory work/openxm-$(VERSION)
+### It does not work here.
+### Original version is in misc/packages/FreeBSD/openxm-1.1.2
+### Absolute path should be used for TAR_WORK
+TAR_WORK=$(HOME)/tmp
+#TAR_WORK=`pwd`/work
+INSTALL_WORK=`pwd`/work/openxm-install-dir
+srcdir = .
+prefix=${PREFIX}
+MAN_DIR=${prefix}/man/man1
+
+usage-of-real-make:
+	@echo "Targets are all, install, clean, distclean"
+	@echo "You need to specify the PREFIX to install,"
+	@echo "e.g., make install PREFIX=/usr/local"
+
+configure :
+	@if [ ! -f .configure_done ] ; then 
+		(cd $(srcdir)/OpenXM/src ;	make configure ) \
+	fi
+	@touch .configure_done
+
+all : configure
+	@if [ ! -f .all_done ] ; then \
+#	(cd $(srcdir)/OpenXM/src ;	make ;	make install) ; \
+	(cd $(srcdir)/OpenXM/src ;	make binary-dist) ; \
+	fi
+	@touch .all_done
+
+install : install-binary-files install-shared-files
+# Install shell scripts to ${prefix}/bin, which is typically /usr/local/bin
+	(cd ${prefix}/OpenXM/rc ; make ; make install PREFIX=${prefix})
+
+install-binary-files:  all
+	@echo "install-binary-files with PREFIX= "
+	@echo ${prefix}
+	tar cf - ${BINARY_FILES} | (cd ${prefix} ; tar xf -)
+	-for i in $(OpenXM_BINARIES); do strip ${prefix}/OpenXM/bin/$$i ; done
+
+install-shared-files:  all
+	@echo "install-binary-files with PREFIX= "
+	@echo ${prefix}
+	tar cf - ${SHARED_FILES} | (cd ${prefix} ; tar xf -)
+
+install.man : install
+	-cp ${prefix}/OpenXM/man/man1/sm1.1 ${prefix}/OpenXM/man/man1/openxm.1 ${MAN_DIR}
+	-gzip ${MAN_DIR}/sm1.1 ${MAN_DIR}/openxm.1 
+
+clean :
+	cd $(srcdir)/OpenXM/src ; make clean
+	rm -f .*_done*
+
+distclean :
+	cd $(srcdir)/OpenXM/src ; make distclean
+	rm -f .*_done*
+
+clean-installed-openxm:
+	/bin/rm -rf ${prefix}/OpenXM
+
+########### end of the real Makefile
+
+
+
+WORK=work/openxm-${VERSION}
 fetch :
 	@if [ ! -f ./.fetch_done ]; then \
-		/bin/rm -rf work ; mkdir work ; \
-		( cd work ; $(RCVS) export -rHEAD OpenXM OpenXM_contrib OpenXM_contrib2) \
+		/bin/rm -rf work ; mkdir work ; mkdir $(WORK)\
+		( cd $(WORK) ; $(RCVS) export -rHEAD OpenXM OpenXM_contrib OpenXM_contrib2) ; \
+		cp Makefile $(WORK)/Makefile ; \
 	fi
 	@touch ./.fetch_done
 
-make-tar-ball: fetch
-	(cd work/OpenXM/src ; make generate-source-distribution)
-	(cd work ; tar czvf OpenXM-source.tgz OpenXM OpenXM_contrib OpenXM_contrib2 )
+tar-ball: fetch
+	(cd $(WORK)/OpenXM/src ; make generate-source-distribution)
+	(cd work ; tar czvf $(TAR_WORK)/openxm-${VERSION}.tar.gz openxm-${VERSION})
 
-make-tar-ball-01: fetch
-	@if [ ! -f ./.make-tar-ball-01_done ]; then \
-		(cd work/OpenXM/src ; make generate-source-distribution) ; \
-		(cd work ; tar czvf OpenXM-source-01.tgz OpenXM OpenXM_contrib ) ; \
+tar-ball-01: fetch
+	@if [ ! -f ./.tar-ball-01_done ]; then \
+		(cd $(WORK)/OpenXM/src ; make generate-source-distribution) ; \
+		(cd work ; tar czvf $(TAR_WORK)/openxm01-${VERSION}.tar.gz openxm-${VERSION}/OpenXM openxm-${VERSION}/OpenXM_contrib ) ; \
 	fi
-	@touch ./.make-tar-ball-01_done
+	@touch ./.tar-ball-01_done
 
-make-binary-tar-ball : make-tar-ball-01
-	(cd work/OpenXM/src ; make configure; make install ; make binary-dist )
-	(cd work ; tar czf OpenXM-binary-$(TYPE)$(RELEASE).tgz OpenXM/Copyright OpenXM/bin OpenXM/doc OpenXM/include OpenXM/lib OpenXM/man OpenXM/rc OpenXM/install.txt)
-	(cd work/OpenXM/src ; make distclean )
+binary-tar-ball : tar-ball-01
+	rm -rf $(INSTALL_WORK)
+	mkdir $(INSTALL_WORK) $(INSTALL_WORK)/bin $(INSTALL_WORK)/man 
+	mkdir $(INSTALL_WORK)/man/man1
+	(cd $(WORK) ; make install-binary-files PREFIX=$(INSTALL_WORK))
+	(cd $(WORK) ; tar czf $(TAR_WORK)/OpenXM-binary-$(TYPE)$(RELEASE).tgz ${BINARY_FILES})
 
-make-binary-tar-ball-using-binary-FreeBSD :
-	@if [ ! -f $(BINARY_TAR_BALL_FOR_FREE_BSD) ]; then \
-		echo "Generate $BINARY_TAR_BALL_FOR_FREE_BSD first" ; \
-		exit \
-	fi
-	/bin/rm -rf work/binary-$(TYPE)
-	mkdir work/binary-$(TYPE)
-	tar xzf - $(BINARY_TAR_BALL_FOR_FREE_BSD) | (cd work/binary-$(TYPE) ; tar xzf - )
-	(cd work/binary-$(TYPE) ; /bin/rm -rf OpenXM/bin )
-	(cd work/OpenXM/src ; make configure; make install; make binary-dist )
-	(cd work ; tar czf - OpenXM/bin OpenXM/lib OpenXM/rc ) | (cd work/binary-$(TYPE) ; tar xzf - )
-	(cd work/binary-$(TYPE) ; tar czf ../OpenXM-binary-$(TYPE)$(RELEASE).tgz OpenXM/Copyright OpenXM/bin OpenXM/doc OpenXM/include OpenXM/lib OpenXM/man OpenXM/rc OpenXM/install.txt)
-	(cd work/OpenXM/src ; make distclean )
+share-tar-ball : tar-ball-01
+	rm -rf $(INSTALL_WORK)
+	mkdir $(INSTALL_WORK) $(INSTALL_WORK)/bin $(INSTALL_WORK)/man 
+	mkdir $(INSTALL_WORK)/man/man1
+	(cd $(WORK) ; make install-shared-files PREFIX=$(INSTALL_WORK))
+	(cd $(WORK) ; tar czf $(TAR_WORK)/OpenXM-common-$(TYPE)$(RELEASE).tgz ${SHARED_FILES})
+
 
 clean :
 	/bin/rm -rf .*_done *~
