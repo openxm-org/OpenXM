@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.28 2005/03/03 04:40:51 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.29 2005/03/03 06:21:23 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -188,6 +188,9 @@ cmo_zz*            new_cmo_zz_set_si(int integer);
 cmo_zz*            new_cmo_zz_set_mpz(mpz_ptr z);
 cmo_zz*            new_cmo_zz_noinit();
 cmo_zz*            new_cmo_zz_set_string(char* s);
+cmo_qq*            new_cmo_qq_noinit();
+cmo_qq*            new_cmo_qq_set_mpq(mpq_ptr q);
+cmo_qq*            new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den);
 cmo_zero*          new_cmo_zero();
 cmo_double*        new_cmo_double(double d);
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();

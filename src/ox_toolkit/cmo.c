@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.16 2003/09/18 12:46:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.17 2003/11/02 03:09:16 iwane Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -225,6 +225,30 @@ cmo_zz* new_cmo_zz_size(int size)
     return c;
 }
 
+cmo_qq* new_cmo_qq_noinit()
+{
+    cmo_qq* c = MALLOC(sizeof(cmo_qq));
+    c->tag  = CMO_QQ;
+    c->num  = c->den = NULL;
+    return c;
+}
+
+cmo_qq* new_cmo_qq_set_mpq(mpq_ptr q)
+{
+    cmo_qq* c = new_cmo_qq_noinit();
+    c->num = new_cmo_zz_set_mpz(mpq_numref(q));
+    c->den = new_cmo_zz_set_mpz(mpq_denref(q));
+    return c;
+}
+
+cmo_qq* new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den)
+{
+    cmo_qq* c = new_cmo_qq_noinit();
+    c->num = new_cmo_zz_set_mpz(num);
+    c->den = new_cmo_zz_set_mpz(den);
+    return c;
+}
+
 cmo_zero* new_cmo_zero()
 {
     cmo_zero* m = MALLOC_ATOMIC(sizeof(cmo_zero));
@@ -235,7 +259,7 @@ cmo_zero* new_cmo_zero()
 cmo_double *new_cmo_double(double d)
 {
     cmo_double* m = MALLOC_ATOMIC(sizeof(cmo_double));
-    m->tag = CMO_64BIT_MACHINE_DOUBLE;
+    m->tag = CMO_IEEE_DOUBLE_FLOAT;
     m->d = d;
     return m;
 }
@@ -397,7 +421,8 @@ char *new_string_set_cmo(cmo *m)
         return new_string_set_cmo_null();
     case CMO_LIST:
         return new_string_set_cmo_list((cmo_list *)m);
-	case CMO_64BIT_MACHINE_DOUBLE:
+    case CMO_64BIT_MACHINE_DOUBLE:
+    case CMO_IEEE_DOUBLE_FLOAT:
         return new_string_set_cmo_double((cmo_double *)m);
     default:
         ox_printf("unconvertible <%s>\n", get_symbol_by_tag(m->tag));

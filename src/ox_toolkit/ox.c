@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.31 2003/11/12 15:24:06 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.32 2005/03/03 06:38:15 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -208,6 +208,14 @@ static cmo_zz* receive_cmo_zz(OXFILE *oxfp)
     return c;
 }
 
+static cmo_qq* receive_cmo_qq(OXFILE *oxfp)
+{
+    cmo_qq* c = new_cmo_qq_noinit();
+    c->num = receive_cmo(oxfp);
+    c->den = receive_cmo(oxfp);
+    return c;
+}
+
 static cmo_zero* receive_cmo_zero(OXFILE *oxfp)
 {
     return new_cmo_zero();
@@ -329,6 +337,9 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
     case CMO_ZZ:
         m = (cmo *)receive_cmo_zz(oxfp);
         break;
+    case CMO_QQ:
+        m = (cmo *)receive_cmo_qq(oxfp);
+        break;
     case CMO_ZERO:
         m = (cmo *)receive_cmo_zero(oxfp);
         break;
@@ -364,7 +375,6 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
         m = (cmo *)receive_cmo_error2(oxfp);
         break;
     case CMO_DATUM:
-    case CMO_QQ:
     default:
         m = NULL;
         ox_printf("the CMO (%d) is not implemented.\n", tag);
@@ -593,6 +603,13 @@ static int send_cmo_zz(OXFILE *oxfp, cmo_zz* c)
     return 0;
 }
 
+static int send_cmo_qq(OXFILE *oxfp, cmo_qq* c)
+{
+    send_cmo(oxfp, c->num);
+    send_cmo(oxfp, c->den);
+    return 0;
+}
+
 static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial* c)
 {
 	send_cmo(oxfp, (cmo *)c->ringdef);
@@ -655,6 +672,9 @@ void send_cmo(OXFILE *oxfp, cmo* c)
         break;
     case CMO_ZZ:
         send_cmo_zz(oxfp, (cmo_zz *)c);
+        break;
+    case CMO_QQ:
+        send_cmo_qq(oxfp, (cmo_qq *)c);
         break;
     case CMO_DISTRIBUTED_POLYNOMIAL:
         send_cmo_distributed_polynomial(oxfp, (cmo_distributed_polynomial *)c);
