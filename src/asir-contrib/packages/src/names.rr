@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.23 2001/09/01 02:01:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.24 2001/09/01 07:12:37 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -286,6 +286,11 @@ def print_xv_form(F) {
   return(taka_xv_form(F));
 }
 
+
+def print_terminal_form_(F) {
+  print(print_terminal_form(F),0);
+}
+set_print_function("print_terminal_form_")$
 end$
 
 
