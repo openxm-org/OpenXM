@@ -1,8 +1,14 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotag.h,v 1.3 2000/01/18 06:17:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotag.h,v 1.4 2000/01/18 06:18:12 takayama Exp $ */
 /*  cmotag.h */
 /* Never Use 0 as a CMO tag. */
-#define LARGEID   0x7f000000
-#define CMO_PRIVATE 0x7fff0000
+/* If you add new CMO_*,
+   you need to make changes following the comment of cmo.c 
+   and modify the two files:
+   OpenXM/doc/OpenXM-web/cmotag.h
+   OpenXM/doc/OpenXM-specs/*.tex
+*/
+#define LARGEID   0x7f000000    /* 2130706432 */
+#define CMO_PRIVATE 0x7fff0000  /* 2147418112 */
 #define CMO_ERROR  (LARGEID+1)
 #define CMO_ERROR2 (LARGEID+2)
 #define CMO_NULL   1

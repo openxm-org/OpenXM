@@ -1,8 +1,8 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/cmotag.h,v 1.1 2000/01/18 07:30:12 takayama Exp $ */
 /*  cmotag.h */
 /* Never Use 0 as a CMO tag. */
-#define LARGEID   0x7f000000
-#define CMO_PRIVATE 0x7fff0000
+#define LARGEID   0x7f000000       /* 2130706432 */
+#define CMO_PRIVATE 0x7fff0000     /* 2147418112 */
 
 #define CMO_ERROR2 (LARGEID+2)
 #define CMO_NULL    1

@@ -435,6 +435,38 @@ Stack after the request:
 \end{tabular}
 
 Output: none.
+
+\item
+\begin{verbatim}
+SM_pushCMOtag
+\end{verbatim}
+/*&jp
+スタックの先頭オブジェクトが CMO に変換された場合の CMO tag を
+{\tt CMO\_INT32} としてスタックへ push する.
+先頭オブジェクトはスタックに留まる.
+先頭オブジェクトをCMO へ変換する方法が無い場合は, エラー object を積む.
+*/
+/*&eg
+It requests a server to push the CMO tag of the top object on the server
+stack. The tag is pushed as {\tt CMO\_INT32}.
+The top object remains on the stack.
+If there is no way to translate the object into CMO,
+push an error object.
+*/
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_pushCMOtag} \\
+\hline 
+\end{tabular}
+
+Stack after the request:
+\begin{tabular}{|c|c|c|}  \hline
+{\tt int32 OX\_DATA} & {\sl CMO\_INT32} \ tag\\
+\hline 
+\end{tabular}
+
+Output: none.
 \end{enumerate}
 
 \medbreak

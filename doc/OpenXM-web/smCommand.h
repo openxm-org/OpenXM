@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.1 2000/01/18 07:30:13 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.2 2000/01/19 00:31:38 takayama Exp $ */
 /* smCommand.h */
 
 #define SM_popSerializedLocalObject 258
@@ -18,10 +18,11 @@
 #define SM_executeStringByLocalParserInBatchMode 274
 #define SM_getsp   275
 #define SM_dupErrors 276
+#define SM_pushCMOtag 277
 
 #define SM_control_kill 1024
 #define SM_control_reset_connection  1030
 #define SM_control_to_debug_mode 1025
 #define SM_control_exit_debug_mode 1026
 
-#define  SM_PRIVATE         0x7fff0000
+#define  SM_PRIVATE         0x7fff0000    /*  2147418112  */

@@ -1,9 +1,11 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxFunctionId.h,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxFunctionId.h,v 1.3 2000/01/19 00:34:53 takayama Exp $ */
 /* ox_function_id.h */
-/* If you add new add new SM_*,
-   you also need to modify, KSmathcapByStruct()
+/* If you add new SM_*,
+   you also need to modify, KSmathcapByStruct(),
+   OpenXM/doc/OpenXM-web/smCommand.h
+and OpenXM/doc/OpenXM-specs/communication-model.tex.
 */
-#define SM_PRIVATE            0x7fff0000
+#define SM_PRIVATE            0x7fff0000      /*  2147418112  */
 
 #define SM_popSerializedLocalObject 258
 #define SM_popCMO 262
@@ -22,9 +24,11 @@
 #define SM_executeStringByLocalParserInBatchMode 274
 #define SM_getsp   275
 #define SM_dupErrors 276
+#define SM_pushCMOtag 277
 
-#define SM_DUMMY_sendcmo  280
 #define SM_sync_ball 281
+
+#define SM_DUMMY_sendcmo  (SM_PRIVATE+1)
 
 #define SM_control_kill 1024
 #define SM_control_reset_connection  1030
