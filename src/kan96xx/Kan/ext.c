@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.9 2002/02/24 10:27:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.10 2002/07/28 02:48:16 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -164,7 +164,7 @@ struct object Kextension(struct object obj)
     abc = getenv(KopString(obj1));
 #if defined(__CYGWIN__)
     if (abc == NULL) {
-	  abc2 = (char *)sGC_malloc(sizeof(char)*(strlen(KopString(obj1)+2)));
+	  abc2 = (char *)sGC_malloc(sizeof(char)*(strlen(KopString(obj1))+2));
       strcpy(abc2,KopString(obj1));
 	  for (i=0; i<strlen(abc2); i++) {
 		abc2[i] = toupper(abc2[i]);
