@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.36 2002/02/09 08:50:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.37 2002/02/10 03:00:08 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -386,15 +386,32 @@ def graphic_parametric_plot_3d(F,R) { NOT_YET; }
 
 /* Canonical function names for printing. cf. Mathematica/Output */
 def print_cmo_xml_form(F) { NOT_YET; }
+
+/*&usage begin: print_dvi_form(S)
+ It outputs {S} to a dvi file.
+ example: print_dvi_form(x^2-1);
+ ref: print_xdvi_form, print_tex_form 
+end: */
 def print_dvi_form(F) {
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_dvi_form(F);
 }
+
+/*&usage begin: print_gif_form(S)
+ It outputs {S} to a file of the gif format.
+ example: print_gif_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
+ ref: print_tex_form
+end: */
 def print_gif_form(F) {
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_gif_form(F);
 }
 def print_html_form(F) { NOT_YET; }
+
+/*&usage begin: print_input_form(S)
+ It transforms {S} to a string which can be parsed by asir.
+ example: print_input_form(quote(x^3-1));
+end: */
 def print_input_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   /* Bug */
@@ -402,30 +419,69 @@ def print_input_form(F) {
     return taka_input_form(F);
   else return rtostr(F);
 }
+
+/*&usage begin: print_open_math_xml_form(S)
+ It transforms {S} to a string which is compliant to OpenMath.
+ example: print_open_math_xml_form(x^3-1);
+ ref: www.openmath.org
+end: */
 def print_open_math_xml_form(F) { 
   OX_LOADFILE(Loaded_om,"om");
   return(ox_xml(F)); 
 }
+
+/*&usage begin: print_ox_rfc100_xml_form(S)
+ It transforms {S} to a string which is compliant to OpenXM RFC 100. 
+ example: print_open_math_xml_form(x^3-1);
+ ref: www.openxm.org
+end: */
 def print_ox_rfc100_xml_form(F) { 
   OX_LOADFILE(Loaded_taka_print_cmo100,"taka_print_cmo100.rr");
   return(taka_cmo100_xml_form(F));
 }
+
+/*&usage begin: print_png_form(S)
+ It transforms {S} to a file of the format png.
+ example: print_png_form(x^3-1);
+ ref: print_tex_form
+end: */
 def print_png_form(F) {
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_png_form(F);
 }
+
+/*&usage begin: print_terminal_form(S)
+ It transforms {S} to the terminal form???
+end: */
 def print_terminal_form(F) {  
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_terminal_form(F);
 }
+
+/*&usage begin: print_tex_form(S)
+ It transforms {S} to a string of the LaTeX format.
+ ref: print_xdvi_form
+end: */
 def print_tex_form(F) {  
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_tex_form(F);
 }
+
+/*&usage begin: print_xdvi_form(S)
+ It transforms {S} to a xdvi file and previews the file by xdvi.
+ example: print_xdvi_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
+ ref: print_tex_form, print_dvi_form
+end: */
 def print_xdvi_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return(taka_xdvi_form(F));
 }
+
+/*&usage begin: print_xv_form(S)
+ It transforms {S} to a gif file and previews the file by xv.
+ example: print_xv_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
+ ref: print_tex_form, print_gif_form
+end: */
 def print_xv_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return(taka_xv_form(F));
