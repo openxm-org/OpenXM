@@ -1,4 +1,4 @@
-/*  $OpenXM$  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.2 1999/10/30 02:24:27 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -177,7 +177,7 @@ oxmainUsage() {
   fprintf(stderr,"-insecure : \n");
   fprintf(stderr,"          If you access to the server from a localhost, you do not need one time password. However, if you access outside of the localhost, a one time password is required. To turn off this restriction, -insecure option is used.\n");
   fprintf(stderr,"Example 1:\n");
-  fprintf(stderr,"(Start the ox server): dc1%% ox -ox ~/OpenXM/bin/ox_sm1 -host dc1.math.kobe-u.ac.jp -insecure -control 1300 -data 1200\n");
+  fprintf(stderr,"(Start the ox server): dc1%% ox -ox ~/OpenXM/bin/ox_sm1 -host dc1.math.kobe-u.ac.jp -insecure -control 1200 -data 1300\n");
   fprintf(stderr,"(client):  sm1\n ");
   fprintf(stderr,"           (ox.sm1) run ; \n");
   fprintf(stderr,"           sm1>[(dc1.math.kobe-u.ac.jp) 1300 1200] oxconnect /ox.ccc set\n");
