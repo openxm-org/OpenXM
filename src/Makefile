@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.93 2000/03/13 06:51:04 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.94 2000/03/25 13:35:12 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -259,7 +259,8 @@ generate-source-distribution : generate-source-distribution-kxx \
                                generate-source-distribution-ox_toolkit
 
 generate-source-distribution-kxx :
-	(cd kxx ; rm -f .configure_done Makefile ; autoconf)
+	(cd kxx ; rm -f .configure_done Makefile )
+
 generate-source-distribution-ox_toolkit :
 	(cd ox_toolkit ; rm -f Makefile ; autoconf)
 
