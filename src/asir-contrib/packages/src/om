@@ -1,4 +1,21 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.1.1.1 1999/11/27 11:25:18 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.2 1999/12/10 01:58:04 takayama Exp $*/
+
+Om_proc = -1$
+#define OM_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = om_find_proc();\
+                          }
+
+def om_find_proc() {
+  extern Om_proc;
+  if (Om_proc == -1) {
+     A = ox_get_serverinfo();
+     /* Look for OMproxy. Not yet written */
+     /* Start java OMproxy automatically if there is not ox_sm1 */
+     Om_proc = om_start();
+  }
+  return(Om_proc);
+}
 
 /*&jp-texi
 @node OpenMath 函数,,, Top
@@ -53,7 +70,7 @@ Number
 control: wait OX
 Trying to connect to the server... Done.
 0
-[161] om_xml(0,<<1,0>>+2*<<0,1>>);
+[161] om_xml(<<1,0>>+2*<<0,1>>);
 <OMOBJ><OMA><OMS name="DMP" cd="poly"/>
 <OMA><OMS name="PolyRing" cd="poly"/>
  <OMI>2</OMI></OMA><OMA>
@@ -61,12 +78,13 @@ Trying to connect to the server... Done.
  <OMA><OMS name="Monom" cd="poly"/><OMI>1</OMI><OMI>1</OMI><OMI>0</OMI></OMA>
  <OMA><OMS name="Monom" cd="poly"/><OMI>2</OMI><OMI>0</OMI><OMI>1</OMI></OMA>
 </OMA></OMA></OMOBJ>
-[162] om_xml_to_cmo(0,@@);
+[162] om_xml_to_cmo(@@);
 (1)*<<1,0>>+(2)*<<0,1>>
 @end example
 */
 
 def om_start() {
+  extern Om_proc;
   ctrl("ox_check",0);  /* for buggy mathcap of OMproxy */
   CPort = generate_port();
   SPort = generate_port();
@@ -83,6 +101,7 @@ def om_start() {
   SSocket = try_connect("localhost",SPort);
   A = register_server(CSocket,CPort,SSocket,SPort);
   print(" Done.");
+  Om_proc = A;
   return(A);
 }
 
@@ -94,7 +113,7 @@ def om_start() {
 @subsection @code{om_xml}
 @findex om_xml
 @table @t
-@item om_xml(@var{p},@var{s})
+@item om_xml(@var{s}|proc=@var{p})
 ::  Translate CMO expression of  @var{s} to a XML expression of OpenMath.
 @end table
 
@@ -120,7 +139,7 @@ Translate CMO @var{s} to a XML expression of OpenMath.
 @subsection @code{om_xml}
 @findex om_xml
 @table @t
-@item om_xml(@var{p},@var{s})
+@item om_xml(@var{s}|proc=@var{p})
 ::  @var{s} の CMO 表現を OpenMath の XML expression 表現になおす.
 @end table
 
@@ -138,21 +157,78 @@ Translate CMO @var{s} to a XML expression of OpenMath.
 @end itemize
 */
 /*&C-texi
+@example
 For (I=0; I<10; I++) {
    A = 2^I;
-   B = om_xml(0,A);
-   C = om_xml_to_cmo(0,B);
+   B = om_xml(A);
+   C = om_xml_to_cmo(B);
    print(A == C);
 }
+@end example
 */
 
-def om_xml(P,F) {
+def om_xml(F) {
+  OM_FIND_PROC(P);
   ox_push_cmo(P,F);
   ox_push_cmo(P,"CMO2OMXML");
   ox_push_cmd(P,269);  /* SM_executeFunction */
   return(ox_pop_cmo(P));
 }
-def om_xml_to_cmo(P,F) {
+
+/*&eg-texi
+@menu
+* om_xml_to_cmo::
+@end menu
+@node om_xml_to_cmo,,, OpenMath Functions
+@subsection @code{om_xml_to_cmo}
+@findex om_xml_to_cmo
+@table @t
+@item om_xml_to_cmo(@var{s}|proc=@var{p})
+::  Translate XML expression @var{s} of OpenMath to a CMO.
+@end table
+
+@table @var
+@item return
+Object
+@item p
+Number
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  
+Translate XML expression @var{s} of OpenMath to a CMO.
+@end itemize
+*/
+/*&jp-texi
+@menu
+* om_xml_to_cmo::
+@end menu
+@node om_xml_to_cmo,,, OpenMath 函数
+@subsection @code{om_xml_to_cmo}
+@findex om_xml_to_cmo
+@table @t
+@item om_xml_to_cmo(@var{s}|proc=@var{p})
+::  OpenMath の XML 表現 @var{s} を CMO になおす.
+@end table
+
+@table @var
+@item return
+オブジェクト
+@item p
+数
+@item s
+文字列
+@end table
+
+@itemize @bullet
+@item   OpenMath の XML 表現 @var{s} を CMO に変換する.
+@end itemize
+*/
+
+def om_xml_to_cmo(F) {
+  OM_FIND_PROC(P);
   ox_push_cmo(P,F);
   ox_push_cmo(P,"OMXML2CMO");
   ox_push_cmd(P,269);  /* SM_executeFunction */

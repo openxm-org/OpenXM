@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.2 1999/12/10 01:58:04 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.3 1999/12/10 09:17:49 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
 Sm1_proc = -1$
@@ -6,8 +6,18 @@ Sm1_proc = -1$
 #define SM1_FIND_PROC(P)  P = getopt(proc);\
                           if (type(P) == -1) {\
                              P = sm1_find_proc();\
-                          }\
+                          }
 
+def sm1_find_proc() {
+  extern Sm1_proc;
+  if (Sm1_proc == -1) {
+     A = ox_get_serverinfo();
+     /* Look for ox_sm1. Not yet written */
+     /* Start sm1 automatically if there is not ox_sm1 */
+     Sm1_proc = sm1_start();
+  }
+  return(Sm1_proc);
+}
 /* Search : oxPrintMessage, see cmoDebugCMO, too. */
 /************** end of configure *******************************/
 /*&C-texi
@@ -72,7 +82,7 @@ cohomology groups.
 xm Version 19991118. ox_help(0); ox_help("keyword"); for help message 
 [255] sm1_start();
 0
-[256] sm1_deRham(0,[x*(x-1),[x]]);
+[256] sm1_deRham([x*(x-1),[x]]);
 [1,2]
 @end example
 */
@@ -185,6 +195,7 @@ def sm1_check_server(P) {
 */ 
 
 /*&eg-texi
+@c sort-sm1_start
 @menu
 * sm1_start::
 @end menu
@@ -219,9 +230,11 @@ the variable @code{dx} is collected to the right and the variable
 @code{x} is collected to the left in the printed expression.
 In the example below, you  must not use the variable @code{c}
 for computation in @code{sm1}.
+@item The descriptor is stored in @code{Sm1_proc}.
 @end itemize
 */
 /*&jp-texi
+@c sort-sm1_start
 @menu
 * sm1_start::
 @end menu
@@ -256,6 +269,7 @@ for computation in @code{sm1}.
 変数 @code{dx} は右側に集めれ変数
 @code{x} は左側にあつめられていると仮定している.
 次の例では, 変数 @code{c} を @code{sm1} での計算のために用いてはいけない.
+@item 識別番号は @code{Sm1_proc} に格納される.
 @end itemize
 */
 /*&C-texi
@@ -268,9 +282,9 @@ for computation in @code{sm1}.
 a*da
 [262] c*dc;
 dc*c
-[263] sm1_mul(0,da,a,[a]);     
+[263] sm1_mul(da,a,[a]);     
 a*da+1                  
-[264] sm1_mul(0,a,da,[a]);
+[264] sm1_mul(a,da,[a]);
 a*da
 @end example
 */
@@ -320,6 +334,7 @@ def sm1push(P,F) {
 }
 
 /*&eg-texi
+@c sort-sm1
 @menu
 * sm1::
 @end menu
@@ -482,6 +497,7 @@ def sm1_push_int0_R(A,P) {
 }
 
 /*&eg-texi
+@c sort-sm1_push_int0
 @menu
 * sm1_push_int0::
 @end menu
@@ -522,6 +538,7 @@ Note that @code{ox_push_cmo(@var{p},1234)} send the bignum 1234 to the
 @end itemize
 */
 /*&jp-texi
+@c sort-sm1_push_int0
 @menu
 * sm1_push_int0::
 @end menu
@@ -709,6 +726,7 @@ def sm1_isListOfVar(A) {
 }
 
 /*&eg-texi
+@c sort-sm1_gb
 @menu
 * sm1_gb::
 @end menu
@@ -718,10 +736,10 @@ def sm1_isListOfVar(A) {
 @findex sm1_gb
 @findex sm1_gb_d
 @table @t
-@item sm1_gb(@var{p},[@var{f},@var{v},@var{w}])
+@item sm1_gb([@var{f},@var{v},@var{w}]|proc=@var{p})
 ::  computes the Grobner basis of @var{f} in the ring of differential
 operators with the variable @var{v}.
-@item sm1_gb_d(@var{p},[@var{f},@var{v},@var{w}])
+@item sm1_gb_d([@var{f},@var{v},@var{w}]|proc=@var{p})
 ::  computes the Grobner basis of @var{f} in the ring of differential
 operators with the variable @var{v}. 
 The result will be returned as a list of distributed polynomials.
@@ -761,6 +779,7 @@ List
 @end itemize
 */
 /*&jp-texi
+@c sort-sm1_gb
 @menu
 * sm1_gb::
 @end menu
@@ -770,9 +789,9 @@ List
 @findex sm1_gb
 @findex sm1_gb_d
 @table @t
-@item sm1_gb(@var{p},[@var{f},@var{v},@var{w}])
+@item sm1_gb([@var{f},@var{v},@var{w}]|proc=@var{p})
 ::  @var{v} 上の微分作用素環において @var{f} のグレブナ基底を計算する.
-@item sm1_gb_d(@var{p},[@var{f},@var{v},@var{w}])
+@item sm1_gb_d([@var{f},@var{v},@var{w}]|proc=@var{p})
 ::  @var{v} 上の微分作用素環において @var{f} のグレブナ基底を計算する. 結果を分散多項式のリストで戻す.
 @end table
 
@@ -809,7 +828,7 @@ List
 */
 /*&C-texi
 @example
-[293] sm1_gb(0,[[x*dx+y*dy-1,x*y*dx*dy-2],[x,y]]);
+[293] sm1_gb([[x*dx+y*dy-1,x*y*dx*dy-2],[x,y]]);
 [[x*dx+y*dy-1,y^2*dy^2+2],[x*dx,y^2*dy^2]]
 @end example
 */
@@ -838,7 +857,7 @@ graded reverse lexicographic order に関するグレブナ基底である.
 */
 /*&C-texi
 @example
-[294] sm1_gb(0,[[dx^2+dy^2-4,dx*dy-1],[x,y],[[dx,50,dy,2,x,1]]]);
+[294] sm1_gb([[dx^2+dy^2-4,dx*dy-1],[x,y],[[dx,50,dy,2,x,1]]]);
 [[dx+dy^3-4*dy,-dy^4+4*dy^2-1],[dx,-dy^4+4*dy^2-1]]
 @end example
 */
@@ -872,14 +891,14 @@ $m' = x^{a'} y^{b'} \partial_x^{c'} \partial_y^{d'}$
 /*&C-texi
 @example
 [595]
-   sm1_gb(0,[["dx*(x*dx +y*dy-2)-1","dy*(x*dx + y*dy -2)-1"],
+   sm1_gb([["dx*(x*dx +y*dy-2)-1","dy*(x*dx + y*dy -2)-1"],
              [x,y],[[dx,1,x,-1],[dy,1]]]);
 
 [[x*dx^2+(y*dy-h^2)*dx-h^3,x*dy*dx+y*dy^2-h^2*dy-h^3,h^3*dx-h^3*dy],
  [x*dx^2+(y*dy-h^2)*dx,x*dy*dx+y*dy^2-h^2*dy-h^3,h^3*dx]]
 
 [596]
-   sm1_gb_d(0,[["dx (x dx +y dy-2)-1","dy (x dx + y dy -2)-1"],
+   sm1_gb_d([["dx (x dx +y dy-2)-1","dy (x dx + y dy -2)-1"],
              "x,y",[[dx,1,x,-1],[dy,1]]]);
 [[[e0,x,y,H,E,dx,dy,h],
  [[0,-1,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],[1,0,0,0,0,0,0,0],
@@ -896,14 +915,16 @@ $m' = x^{a'} y^{b'} \partial_x^{c'} \partial_y^{d'}$
 @end example
 */
 
-def sm1_gb(P,A) {
+def sm1_gb(A) {
+  SM1_FIND_PROC(P);
   P = sm1_check_server(P);
   sm1_check_arg_gb(A,"Error in sm1_gb");
   sm1_push_int0(P,A);
   sm1(P," gb ");
   return(sm1_pop(P));
 }
-def sm1_gb_d(P,A) {
+def sm1_gb_d(A) {
+  SM1_FIND_PROC(P);
   P = sm1_check_server(P);
   sm1_check_arg_gb(A,"Error in sm1_gb_d");
   sm1_push_int0(P,A);
@@ -914,7 +935,9 @@ def sm1_gb_d(P,A) {
   sm1(P,"[[ gb.tmp3 gb.tmp2] gb.tmp1] ");
   return(ox_pop_cmo(P));
 }
-def sm1_pgb(P,A) {
+
+def sm1_pgb(A) {
+  SM1_FIND_PROC(P);
   P = sm1_check_server(P);
   sm1_check_arg_gb(A,"Error in sm1_pgb");
   sm1(P," set_timer ");
@@ -926,6 +949,7 @@ def sm1_pgb(P,A) {
 }
 
 /*&eg-texi
+@c sort-sm1_deRham
 @menu
 * sm1_deRham::
 @end menu
@@ -933,7 +957,7 @@ def sm1_pgb(P,A) {
 @subsection @code{sm1_deRham}
 @findex sm1_deRham
 @table @t
-@item sm1_deRham(@var{p},[@var{f},@var{v}])
+@item sm1_deRham([@var{f},@var{v}]|proc=@var{p})
 ::  ask the server to evaluate the dimensions of the de Rham cohomology  groups
 of C^n - (the zero set of @var{f}=0).
 @end table
@@ -968,7 +992,7 @@ List
 @end itemize
 */
 /*&jp-texi
-@c template1.texi
+@c sort-sm1_deRham
 @menu
 * sm1_deRham::
 @end menu
@@ -976,7 +1000,7 @@ List
 @subsection @code{sm1_deRham}
 @findex sm1_deRham
 @table @t
-@item sm1_deRham(@var{p},[@var{f},@var{v}])
+@item sm1_deRham([@var{f},@var{v}]|proc=@var{p})
 ::  空間 C^n - (the zero set of @var{f}=0) のドラームコホモロジ群の次元を計算してくれるようにサーバに頼む.
 @end table
 
@@ -1010,9 +1034,9 @@ List
 */
 /*&C-texi
 @example
-[332] sm1_deRham(0,[x^3-y^2,[x,y]]);
+[332] sm1_deRham([x^3-y^2,[x,y]]);
 [1,1,0]
-[333] sm1_deRham(0,[x*(x-1),[x]]);
+[333] sm1_deRham([x*(x-1),[x]]);
 [1,2]
 @end example
 */
@@ -1038,7 +1062,8 @@ List
 */
 
 
-def sm1_deRham(P,A) {
+def sm1_deRham(A) {
+  SM1_FIND_PROC(P);
   P = sm1_check_server(P);
   sm1(P," set_timer ");
   sm1_push_int0(P,A);
@@ -1062,14 +1087,9 @@ def sm1_vlist(P) {
    sm1_pop_poly0(Vlist[2]);
 */
 
-def sm1_demo1() {
- print("sm1_ringD(P,V,W), sm1_gb0(P,L), sm1_expand(P,F), sm1_mul(P,F,G), ")$
- print("sm1_dehomogenize(P,A), sm1_homogenize(P,A), sm1_groebner(P,A), ")$
- print("sm1_reduction(P,F,G), sm1_reduction_noH(P,F,G), ")$
- print("sm1_wbf(P,[F,V,W], sm1_wbfRoots(P,[F,V,W], ")$
-}
 /* ring of Differential operators */
-def sm1_ringD(P,V,W) {
+def sm1_ringD(V,W) {
+  SM1_FIND_PROC(P);
   sm1(P," [ ");
   if (type(V) == 7) { /* string */
     ox_push_cmo(P,V);
@@ -1089,45 +1109,52 @@ def sm1_ringD(P,V,W) {
   return([sm1_vlist(P)[2],M]);
 }    
 
-def sm1_expand_d(P,F) {
+def sm1_expand_d(F) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,F);
   sm1(P, " expand ");
   return(ox_pop_cmo(P));
 }  
 
-def sm1_mul_d(P,A,B) {
+def sm1_mul_d(A,B) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,A);
   ox_push_cmo(P,B);
   sm1(P," mul ");
   return(ox_pop_cmo(P));
 }
 
-def sm1_dehomogenize_d(P,A) {
+def sm1_dehomogenize_d(A) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,A);
   sm1(P," dehomogenize ");
   return(ox_pop_cmo(P));
 }
 
-def sm1_homogenize_d(P,A) {
+def sm1_homogenize_d(A) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,A);
   sm1(P," homogenize ");
   return(ox_pop_cmo(P));
 }
 
-def sm1_groebner_d(P,A) {
+def sm1_groebner_d(A) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,A);
   sm1(P," groebner ");
   return(ox_pop_cmo(P));
 }
 
-def sm1_reduction_d(P,F,G) {
+def sm1_reduction_d(F,G) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,F);
   ox_push_cmo(P,G);
   sm1(P," reduction ");
   return(ox_pop_cmo(P));
 }
 
-def sm1_reduction_noH_d(P,F,G) {
+def sm1_reduction_noH_d(F,G) {
+  SM1_FIND_PROC(P);
   ox_push_cmo(P,F);
   ox_push_cmo(P,G);
   sm1(P," reduction-noH ");
@@ -1136,7 +1163,7 @@ def sm1_reduction_noH_d(P,F,G) {
 
 
 /*&eg-texi
-@c template1.texi
+@c sort-sm1_hilbert
 @menu
 * sm1_hilbert::
 @end menu
@@ -1144,7 +1171,7 @@ def sm1_reduction_noH_d(P,F,G) {
 @subsection @code{sm1_hilbert}
 @findex sm1_hilbert
 @table @t
-@item sm1_hilbert(@var{p},[@var{f},@var{v}])
+@item sm1_hilbert([@var{f},@var{v}]|proc=@var{p})
 ::  ask the server to compute the Hilbert polynomial for the set of polynomials @var{f}.
 @end table
 
@@ -1177,7 +1204,7 @@ List
 @end itemize
 */
 /*&jp-texi
-@c template1.texi
+@c sort-sm1_hilbert
 @menu
 * sm1_hilbert::
 @end menu
@@ -1185,7 +1212,7 @@ List
 @subsection @code{sm1_hilbert}
 @findex sm1_hilbert
 @table @t
-@item sm1_hilbert(@var{p},[@var{f},@var{v}])
+@item sm1_hilbert([@var{f},@var{v}]|proc=@var{p})
 :: 多項式の集合 @var{f} のヒルベルト多項式を計算する.
 @end table
 
@@ -1231,9 +1258,7 @@ List
 [u0,u3^2,u3*u2,u2^2,u2*u1,u1^2,u5*u4*u3,u4^2*u3,u4^2*u2,u4^2*u1,u4*u3*u1,
  u5^2*u4^2,u5^2*u4*u2,u5^2*u4*u1,u5^2*u3*u1,u5*u4^3,u4^4,u5^4*u4,u5^4*u3,
  u5^4*u2,u5^4*u1,u5^6]
-[284] sm1_start();
-0
-[285] sm1_hilbert(0,[C,[u0,u1,u2,u3,u4,u5]]);
+[284] sm1_hilbert([C,[u0,u1,u2,u3,u4,u5]]);
 32
 @end example
 */
@@ -1251,7 +1276,8 @@ List
 @end table
 */
 
-def sm1_hilbert(P,A) {
+def sm1_hilbert(A) {
+  SM1_FIND_PROC(P);
   P = sm1_check_server(P);
   sm1(P,"[ ");
   sm1_push_int0(P,A[0]);
@@ -1265,6 +1291,7 @@ def sm1_hilbert(P,A) {
 }
 
 /*&eg-texi
+@c sort-sm1_genericAnn
 @menu
 * sm1_genericAnn::
 @end menu
@@ -1272,7 +1299,7 @@ def sm1_hilbert(P,A) {
 @subsection @code{sm1_genericAnn}
 @findex sm1_genericAnn
 @table @t
-@item sm1_genericAnn(@var{p},[@var{f},@var{v}])
+@item sm1_genericAnn([@var{f},@var{v}]|proc=@var{p})
 ::  It computes  the annihilating ideal for @var{f}^s.
     @var{v} is the list of variables.  Here, s is @var{v}[0] and
     @var{f} is a polynomial in the variables @code{rest}(@var{v}).
@@ -1296,6 +1323,7 @@ List
 @end itemize
 */
 /*&jp-texi
+@c sort-sm1_genericAnn
 @menu
 * sm1_genericAnn::
 @end menu
@@ -1303,7 +1331,7 @@ List
 @subsection @code{sm1_genericAnn}
 @findex sm1_genericAnn
 @table @t
-@item sm1_genericAnn(@var{p},[@var{f},@var{v}])
+@item sm1_genericAnn([@var{f},@var{v}]|proc=@var{p})
 ::  @var{f}^s のみたす微分方程式全体をもとめる.
     @var{v} は変数のリストである.  ここで, s は @var{v}[0] であり,
     @var{f} は変数 @code{rest}(@var{v}) 上の多項式である.
@@ -1329,7 +1357,7 @@ List
 */
 /*&C-texi
 @example
-[595] sm1_genericAnn(0,[x^3+y^3+z^3,[s,x,y,z]]);
+[595] sm1_genericAnn([x^3+y^3+z^3,[s,x,y,z]]);
 [-x*dx-y*dy-z*dz+3*s,z^2*dy-y^2*dz,z^2*dx-x^2*dz,y^2*dx-x^2*dy]
 @end example
 */
@@ -1347,7 +1375,8 @@ List
 */
 
 
-def sm1_genericAnn(P,F) {
+def sm1_genericAnn(F) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,F[0]);
   sm1_push_int0(P,F[1]);
   sm1(P, " genericAnn ");
@@ -1355,7 +1384,8 @@ def sm1_genericAnn(P,F) {
   return(B);
 }
 
-def sm1_tensor0(P,F) {
+def sm1_tensor0(F) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,F);
   sm1(P, " tensor0 ");
   B = sm1_pop(P);
@@ -1363,6 +1393,7 @@ def sm1_tensor0(P,F) {
 }
 
 /*&eg-texi
+@c sort-sm1_wTensor0
 @menu
 * sm1_wTensor0::
 @end menu
@@ -1370,7 +1401,7 @@ def sm1_tensor0(P,F) {
 @subsection @code{sm1_wTensor0}
 @findex sm1_wTensor0
 @table @t
-@item sm1_wTensor0(@var{p},[@var{f},@var{g},@var{v},@var{w}])
+@item sm1_wTensor0([@var{f},@var{g},@var{v},@var{w}]|proc=@var{p})
 ::   It computes the D-module theoretic 0-th tensor product
     of @var{f} and @var{g}.
 @end table
@@ -1406,6 +1437,7 @@ the inputs @var{f} and @var{g} are left ideals of D.
 */
 
 /*&jp-texi
+@c sort-sm1_wTensor0
 @menu
 * sm1_wTensor0::
 @end menu
@@ -1413,7 +1445,7 @@ the inputs @var{f} and @var{g} are left ideals of D.
 @subsection @code{sm1_wTensor0}
 @findex sm1_wTensor0
 @table @t
-@item sm1_wTensor0(@var{p},[@var{f},@var{g},@var{v},@var{w}])
+@item sm1_wTensor0([@var{f},@var{g},@var{v},@var{w}]|proc=@var{p})
 ::   @var{f} と @var{g} の D-module としての 0 次テンソル積を
 計算する.
 @end table
@@ -1449,7 +1481,7 @@ the inputs @var{f} and @var{g} are left ideals of D.
 */
 /*&C-texi
 @example
-[258]  sm1_wTensor0(0,[[x*dx -1, y*dy -4],[dx+dy,dx-dy^2],[x,y],[1,2]]);
+[258]  sm1_wTensor0([[x*dx -1, y*dy -4],[dx+dy,dx-dy^2],[x,y],[1,2]]);
 [[-y*x*dx-y*x*dy+4*x+y],[5*x*dx^2+5*x*dx+2*y*dy^2+(-2*y-6)*dy+3],
  [-25*x*dx+(-5*y*x-2*y^2)*dy^2+((5*y+15)*x+2*y^2+16*y)*dy-20*x-8*y-15],
  [y^2*dy^2+(-y^2-8*y)*dy+4*y+20]]
@@ -1457,7 +1489,8 @@ the inputs @var{f} and @var{g} are left ideals of D.
 */
 
 
-def sm1_wTensor0(P,F) {
+def sm1_wTensor0(F) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,F);
   sm1(P, " wTensor0 ");
   B = sm1_pop(P);
@@ -1465,18 +1498,8 @@ def sm1_wTensor0(P,F) {
 }
 
 
-def sm1_find_proc() {
-  extern Sm1_proc;
-  if (Sm1_proc == -1) {
-     A = ox_get_serverinfo();
-     /* Look for ox_sm1. Not yet written */
-     /* Start sm1 automatically if there is not ox_sm1 */
-     Sm1_proc = sm1_start();
-  }
-  return(Sm1_proc);
-}
-
 /*&eg-texi
+@c sort-sm1_reduction
 @menu
 * sm1_reduction::
 @end menu
@@ -1593,38 +1616,40 @@ def sm1_reduction(A) {
 
 
 
-def sm1_wbf(P,A) {
+def sm1_wbf(A) {
+  SM1_FIND_PROC(P);
   /* check the arguments */
   if (type(A) != 4) {
-   error("sm1_wbf(P,A): A must be a list.");
+   error("sm1_wbf(A): A must be a list.");
   }
   if (length(A) != 3) {
-   error("sm1_wbf(P,A): A must be a list of the length 3.");
+   error("sm1_wbf(A): A must be a list of the length 3.");
   }
   if (type(A[0]) != 4 || type(A[1]) != 4 || type(A[2]) != 4) {
-   error("sm1_wbf(P,[A,B,C]): A, B, C must be a list.");
+   error("sm1_wbf([A,B,C]): A, B, C must be a list.");
   }
   if (! (type(A[2][0]) == 7 || type(A[2][0]) == 2)) {
-   error("sm1_wbf(P,[A,B,C]): C must be of a form [v-name, v-weight, ...]");
+   error("sm1_wbf([A,B,C]): C must be of a form [v-name, v-weight, ...]");
   }
   sm1_push_int0(P,A);
   sm1(P," wbf ");
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
-def sm1_wbfRoots(P,A) {
+def sm1_wbfRoots(A) {
+  SM1_FIND_PROC(P);
   /* check the arguments */
   if (type(A) != 4) {
-   error("sm1_wbfRoots(P,A): A must be a list.");
+   error("sm1_wbfRoots(A): A must be a list.");
   }
   if (length(A) != 3) {
-   error("sm1_wbfRoots(P,A): A must be a list of the length 3.");
+   error("sm1_wbfRoots(A): A must be a list of the length 3.");
   }
   if (type(A[0]) != 4 || type(A[1]) != 4 || type(A[2]) != 4) {
-   error("sm1_wbfRoots(P,[A,B,C]): A, B, C must be a list.");
+   error("sm1_wbfRoots([A,B,C]): A, B, C must be a list.");
   }
   if (! (type(A[2][0]) == 7 || type(A[2][0]) == 2)) {
-   error("sm1_wbfRoots(P,[A,B,C]): C must be of a form [v-name, v-weight, ...]");
+   error("sm1_wbfRoots([A,B,C]): C must be of a form [v-name, v-weight, ...]");
   }
   sm1_push_int0(P,A);
   sm1(P," wbfRoots ");
@@ -1633,28 +1658,32 @@ def sm1_wbfRoots(P,A) {
 }
 
 
-def sm1_res_div(P,A) {
+def sm1_res_div(A) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,[[A[0],A[1]],A[2]]);
   sm1(P," res*div ");
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
 
-def sm1_syz(P,A) {
+def sm1_syz(A) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,A);
   sm1(P," syz ");
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
 
-def sm1_res_solv(P,A) {
+def sm1_res_solv(A) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,[[A[0],A[1]],A[2]]);
   sm1(P," res*solv ");
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
 
-def sm1_res_solv_h(P,A) {
+def sm1_res_solv_h(A) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,[[A[0],A[1]],A[2]]);
   sm1(P," res*solv*h ");
   ox_check_errors2(P);
@@ -1662,21 +1691,24 @@ def sm1_res_solv_h(P,A) {
 }
 
 
-def sm1_mul(P,A,B,V) {
+def sm1_mul(A,B,V) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,[[A,B],V]);
   sm1(P," res*mul ");
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
  
-def sm1_mul_h(P,A,B,V) {
+def sm1_mul_h(A,B,V) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,[[A,B],V]);
   sm1(P," res*mul*h ");
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
 
-def sm1_adjoint(P,A,V) {
+def sm1_adjoint(A,V) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,[A,V]);
   sm1(P," res*adjoint ");
   ox_check_errors2(P);
@@ -1704,7 +1736,8 @@ def transpose(A) {
   }
 }
 
-def sm1_resol1(P,A) {
+def sm1_resol1(A) {
+  SM1_FIND_PROC(P);
   sm1_push_int0(P,A);
   sm1(P," res*resol1 ");
   ox_check_errors2(P);
