@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.9 2004/03/16 11:41:15 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.10 2004/03/17 13:28:38 ohara Exp $
 
 (define (openxm-eval t)
   (import-from (texmacs plugin plugin-cmd))
@@ -20,6 +20,7 @@
   (cond 
    ((url-exists-in-path? "w3m")
     (cond ((url-exists-in-path? "rxvt")  "rxvt  -g 100x50 -e w3m")
+          ((url-exists-in-path? "kterm") "kterm -g 100x50 -e w3m")
           ((url-exists-in-path? "xterm") "xterm -g 100x50 -e w3m")
           (else #f)))
    ((url-exists-in-path? "mozilla" ) "mozilla" )
@@ -50,8 +51,14 @@
           ("LaTeX"     (openxm-eval "!latex;"))
           ("verbatim"  (openxm-eval "!verbatim;")))
         (-> "Load Modules (Asir)"
-          ("dsolv"     (openxm-eval "load(\"dsolv\");"))
           ("ccurve"    (openxm-eval "load(\"ccurve.rr\");"))
+          ("dsolv"     (openxm-eval "load(\"dsolv\");"))
+          ("ratint"    (openxm-eval "load(\"ratint\");"))
+          ("solv"      (openxm-eval "load(\"solv\");"))
+          ("sp"        (openxm-eval "load(\"sp\");"))
+          ("sturm"     (openxm-eval "load(\"sturm\");"))
+          ("sym"       (openxm-eval "load(\"sym\");"))
+          ("weight"    (openxm-eval "load(\"weight\");"))
           ("yang"      (openxm-eval "load(\"yang.rr\");"))
           )
         (-> "Display Configuration (Asir)"
