@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.4 2001/12/24 01:17:18 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.5 2001/12/24 01:58:59 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -6,7 +6,7 @@ usage:
 	@echo "Targets: binary-tgz clean"
 
 clean:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done
 
 binary-tgz: copy-binary copy-binary-asir win-correction
 
@@ -32,15 +32,17 @@ copy-binary-asir:
 win-correction: copy-binary
 	-mkdir OpenXM-win/bin-windows
 	cp ${STARTEXE} OpenXM-win/bin-windows
-	cp OpenXM-win/src/asir-contrib/win/asirgui.bat OpenXM-win/bin-windows
-	cp OpenXM-win/src/asir-contrib/win/asirgui2.bat OpenXM-win/bin-windows
+	cp OpenXM-win/src/asir-contrib/win/asirgui*.bat OpenXM-win/bin-windows
+	cp OpenXM-win/src/asir-contrib/win/asirgui*.bat OpenXM-win/asir/bin
 	cp /bin/cygwin1.dll OpenXM-win/bin-windows
 	cp /bin/cygwin1.dll OpenXM-win/bin
 	cp /bin/cygwin1.dll OpenXM-win/lib/sm1/bin
 	(cd OpenXM-win/rc ; make clean ; make)
 build-tgz:
-	tar czvf OpenXM-win.tgz OpenXM-win
+	if [ ! -f .OpenXM-win.tgz.done ]; then \
+	tar czvf OpenXM-win.tgz OpenXM-win ; touch .OpenXM-win.tgz.done ; \
+	fi
 
-copy-to-orange: 
+copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
 
