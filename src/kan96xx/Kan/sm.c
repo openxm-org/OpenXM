@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.5 1999/11/27 01:41:10 takayama Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.6 2000/01/16 07:55:41 takayama Exp $ */
 #define DATE "2000/01/16"
 #define RELEASE "3.000116"    /* This "string" must be an increasing seq.*/
                               /* You should write the same string in global.c
@@ -77,11 +77,11 @@ char *argv[];
   if (!Quiet) {
     fprintf(Fstack,"\n");
     fprintf(Fstack,"Kan/StackMachine1");
-    fprintf(Fstack,"                         1991 April --- 1998.\n");
+    fprintf(Fstack,"                         1991 April --- 2000.\n");
     fprintf(Fstack,"                              Release %s (C) N. Takayama\n",
 	    RELEASE);
     fprintf(Fstack,"gc 4.14 (C) Boehm, Demers, GNU MP 2.0.2 (C) Free Software Foundation,\n");
-    fprintf(Fstack,"Open XM. \n");
+    fprintf(Fstack,"OpenXM (C) OpenXM developing team. \n");
     fprintf(Fstack,"This software may be freely distributed as is ");
     fprintf(Fstack,"with no warranty expressed.\n");
     fprintf(Fstack,"Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp. ? for help.\n");
