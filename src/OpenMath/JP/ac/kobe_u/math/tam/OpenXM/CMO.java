@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.5 1999/11/16 00:18:30 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.6 1999/11/16 00:45:24 tam Exp $
  *
  * abstract protected int DISCRIMINATOR(); - 各 CMO の cmo_tag を返す.
  * abstract protected void sendByObject(DataOutputStream os)
@@ -43,6 +43,8 @@ abstract public class CMO{
   final public static int CMO_DISTRIBUTED_POLYNOMIAL     = 31;
   final public static int CMO_POLYNOMIAL_IN_ONE_VARIABLE = 33;
 
+  final public static int CMO_RATIONAL                   = 34;
+
   final public static int CMO_64BIT_MACHINE_DOUBLE           = 40;
   final public static int CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  = 41;
   final public static int CMO_128BIT_MACHINE_DOUBLE          = 42;
@@ -60,17 +62,17 @@ abstract public class CMO{
   public CMO(){}
 
   public CMO(InputStream is){
-	//DataInputStream is;
+    //DataInputStream is;
   }
 
   abstract protected int DISCRIMINATOR();
 
   public int getDISCRIMINATOR(){
-	return this.DISCRIMINATOR();
+    return this.DISCRIMINATOR();
   }
 
   abstract protected void sendByObject(DataOutputStream os)
-	   throws IOException;
+       throws IOException;
 
   public void send(DataOutputStream os) throws IOException{
     os.writeInt(this.DISCRIMINATOR());
@@ -78,7 +80,7 @@ abstract public class CMO{
   }
 
   abstract protected CMO receiveByObject(DataInputStream is)
-	   throws IOException;
+       throws IOException;
 
   public static CMO receive(DataInputStream is) throws IOException{
     int a = 0;
@@ -136,6 +138,9 @@ abstract public class CMO{
 
     case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
       return new CMO_POLYNOMIAL_IN_ONE_VARIABLE().receiveByObject(is);
+
+    case CMO_RATIONAL:
+      return new CMO_RATIONAL().receiveByObject(is);
 
     case CMO_BIGFLOAT:
       return new CMO_BIGFLOAT().receiveByObject(is);

@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.1 1999/11/10 21:25:48 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -208,6 +208,12 @@ class elimi extends Applet implements ActionListener,Runnable{
 		       +"("+ ControlPort +","+ DataPort +")");
 
     try{
+      Runtime runtime = Runtime.getRuntime();
+
+      runtime.exec("/home/tam/OpenXM/lib/sm1/bin/oxlog /usr/X11R6/bin/xterm -icon -e /home/tam/OpenXM/lib/sm1/bin/ox -ox /home/tam/OpenXM/lib/sm1/bin/ox_sm1_forAsir -data "+ DataPort +" -control "+ ControlPort);
+
+      Thread.sleep(3000);
+
       oxm = new OpenXM(host,ControlPort,DataPort);
       System.out.println("Connected.");
       oxm.sendCMO(new CMO_STRING("(cohom.sm1) run ;\n"));
@@ -215,7 +221,7 @@ class elimi extends Applet implements ActionListener,Runnable{
 
       thread = new Thread(this);
       thread.start();
-    }catch(java.io.IOException e){
+    }catch(Exception e){
       System.out.println("failed.");
       stop();
     }

@@ -1,30 +1,30 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.2 1999/11/07 21:22:03 tam Exp $
+ * $OpenXM$
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-public class CMO_QQ extends CMO{
-  private CMO_ZZ a,b;
+public class CMO_RATIONAL extends CMO{
+  private CMO a,b;
 
-  CMO_QQ(){}
+  CMO_RATIONAL(){}
 
-  CMO_QQ(CMO_ZZ src_a,CMO_ZZ src_b){
+  CMO_RATIONAL(CMO src_a,CMO src_b){
     a = src_a;
     b = src_b;
   }
 
-  public CMO_ZZ getBunshi(){
+  public CMO getBunshi(){
     return a;
   }
 
-  public CMO_ZZ getBunbo(){
+  public CMO getBunbo(){
     return b;
   }
 
   public int DISCRIMINATOR(){
-    return CMO_QQ;
+    return CMO_RATIONAL;
   }
 
   protected void sendByObject(DataOutputStream os) throws IOException{
@@ -40,6 +40,6 @@ public class CMO_QQ extends CMO{
   }
 
   protected String toCMOexpressionByObject(){
-    return "CMO_QQ,"+ a.toCMOexpression() +","+ b.toCMOexpression();
+    return "CMO_RATIONAL,"+ a.toCMOexpression() +","+ b.toCMOexpression();
   }
 }
