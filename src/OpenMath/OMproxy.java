@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.6 1999/11/04 18:38:59 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.7 1999/11/07 21:14:38 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -58,6 +58,7 @@ class OMproxy implements Runnable{
     if(stack.empty()){
       ox.send(new CMO_NULL());
     }else{
+      debug("pushing CMO: "+ stack.peek());
       ox.send(stack.pop());
     }
   }
@@ -99,9 +100,9 @@ class OMproxy implements Runnable{
     CMO[] mathcap = new CMO[3];
 
     {
-      CMO[] list = {new CMO_INT32(199911070),
+      CMO[] list = {new CMO_INT32(199911090),
 		  new CMO_STRING("Ox_system=OMproxy.class"),
-		  new CMO_STRING("Version=0.199911070"),
+		  new CMO_STRING("Version=0.199911090"),
 		  new CMO_STRING("HOSTTYPE=JAVA")};
       mathcap[0] = new CMO_LIST(list);
     }
@@ -128,7 +129,8 @@ class OMproxy implements Runnable{
       mathcap[2] = new CMO_LIST(list);
     }
 
-    ox.send(new CMO_LIST(mathcap));
+    stack.push(new CMO_MATHCAP(new CMO_LIST(mathcap)));
+    debug("push: "+ stack.peek());
   }
 
   private void StackMachine(SM mesg) throws java.io.IOException{
@@ -196,6 +198,7 @@ class OMproxy implements Runnable{
     ret += "\t -host hostname \t (default localhost)\n";
     ret += "\t -data port \t (default 1300)\n";
     ret += "\t -control port \t (default 1200)\n";
+    ret += "\t -insecure \t this version ignore this option\n";
 
     return ret;
   }
@@ -214,6 +217,7 @@ class OMproxy implements Runnable{
 	DataPort = Integer.valueOf(argv[++i]).intValue();
       }else if(argv[i].equals("-control")){
 	ControlPort = Integer.valueOf(argv[++i]).intValue();
+      }else if(argv[i].equals("-insecure")){
       }else{
 	System.err.println("unknown option : "+ argv[i]);
 	System.err.print(usage());

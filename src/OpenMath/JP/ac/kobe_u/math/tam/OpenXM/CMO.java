@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.3 1999/11/07 21:22:02 tam Exp $
  *
  * abstract protected int DISCRIMINATOR(); - 各 CMO の cmo_tag を返す.
  * abstract protected void sendByObject(DataOutputStream os)
@@ -103,6 +103,9 @@ abstract public class CMO{
 
     case CMO_STRING:
       return new CMO_STRING().receiveByObject(is);
+
+    case CMO_MATHCAP:
+      return new CMO_MATHCAP().receiveByObject(is);
 
     case CMO_LIST:
       return new CMO_LIST().receiveByObject(is);

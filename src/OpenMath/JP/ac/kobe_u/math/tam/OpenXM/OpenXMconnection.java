@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.3 1999/11/07 21:22:04 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -76,6 +76,7 @@ class OpenXMconnection{
     dos.writeInt(OX_DATA);
     dos.writeInt(serial_num);
     object.send(dos);
+    dos.flush();
   }
 
   public void send(Object object) throws IOException{
