@@ -1,35 +1,59 @@
-$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.2 2000/02/05 07:25:36 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.3 2000/03/23 11:54:07 takayama Exp $
 
-How to commit your asir program to asir-contrib?  [1999, 12/23]
+How to commit your asir program to asir-contrib? [2005, 3/24]
 
-   1.  The function names and global variables 
-       should start with  xyz_  or Xyz_ where xyz is
-       the name of your package.
-       For example, all functions in the package "sm1" start with
-       sm1_, e.g., there are functions sm1_gb, sm1_hilbert, and so on
-       in the package "sm1".
+   1.  The name of your source code should be 
+            yourname_xyz.rr
+       The part "yourname" may be your nickname. 
+       Example:  noro_matrix.rr
+
        Your asir source should be at asir-contrib/packages/src.
+       You may make a new directory under asir-contrib/packages/src
+       to put your programs and data,
+       but the top level file must be under asir-contrib/packages/src.
+
+   2.  Please encapsulate your source code
+       If you want to use the module name which represents a mathematical notion
+       or a data structure,
+       the module name should be 
+           pxxxx
+       where "p" is your identifying prefix and xxxx is a name of mathematical
+       notion or data structure name related to your module.
+       Example: nmatrix  where "p" is "n" and "xxxx" is "matrix".
+       Example: fres  where "p" is "f" and "xxxx" is "res" (or "resultant").
+
     
-   2.  Manuals should be written by the texinfo in English.
-       They are put in asir-contrib/packagers/doc
-       and are included from asir-contrib/packagers/doc/cman-eg.texi.
-       Japanese committers are expected to write Japanese manuals, too.
-       Japanese manuals are included from 
-       asir-contrib/packagers/doc/cman.texi.
-       As to styles of manuals, see files in asir-contrib/packages/doc. 
+   3.  Manuals should be written by the texinfo in English and/or Japanese.
+       They are put in asir-contrib/packagers/doc/'yourname_xyz'
+       The Makefile asir-contrib/packagers/doc/'yourname_xyz'/Makefile
+       is also necessary.
+       Example: asir-contrib/packages/doc/todo_parametrize/Makefile
 
-    3. If you want to embed your manual in the source, you are welcome
-       to use "oxweave".
+   4. If you want to embed your manual in the source, you are welcome
+      to use "oxweave" or "gdoc" (see http://texinfo.org).
 
-    4. Please refer to papers that explain algorithms in your package
-       from your texinfo manual.
-       Papers are welcome to be included in this asir-contrib package.
-       Put them under asir-contrib/packages/doc directory.
-       
+   5. Please refer to papers that explain algorithms in your package
+      from your texinfo manual.
 
-    5. Please compare your implementation with other implementations.       
+   6. Please include test data that you used to check the correctness
+      of your implementation.
 
-    6. Please include test data that you used to check the correctness
-       of your implementation.
 
-   
+ Directory structure
+ Windows:   
+     bin/
+     lib/
+     lib-asir-contrib/
+
+ Unix:
+    lib/asir
+    lib/asir-contrib
+
+ Documents (unix):
+   Online manual (ja)
+    lib/asir/help-jp/
+    lib/asir/help-jp/'modulename.functionname'
+
+   HTML manual (ja)
+    doc/asir-contrib/help-ja/cman-ja_toc.html
+    doc/asir-contrib/help-ja/'yourname_xyz'/'yourname_xyz'_ja_toc.html
