@@ -1,0 +1,164 @@
+% $OpenXM$
+
+\documentclass[12pt]{jarticle}
+\title{新コントロールサーバについて}
+\def\To{$\Longrightarrow$}
+
+\begin{document}
+\maketitle
+
+\section{新コントロールサーバの目的}
+
+\begin{itemize}
+\item コントロールサーバのスタックマシン化
+\item サーバ起動方法を統一する。\\
+      \To OMproxy からコントロールサーバ部分を取り除く。
+\item (ssh を使った)リモートでの起動方法を規約化する
+\item コントロールサーバの起動と計算サーバの起動の分離
+\end{itemize}
+
+\section{スタックマシン化}
+
+いままで意味不明だったSM\_control\_* の位置づけがはっきりする。
+
+\newpage 
+
+\section{計算サーバの起動の分離}
+
+メリット
+
+\begin{itemize}
+\item 起動手続きが単純になる。
+\item 一つのコントロールサーバから複数の計算サーバを起動可能に。\\
+      \To コントロールサーバの乱立を防ぐ。
+\end{itemize}
+
+デメリット
+
+\begin{itemize}
+\item SM\_control\_* のセマンティックスが変わる。
+\end{itemize}
+
+例: SM\_control\_reset\_connection を考えてみると、新コントロールサーバ
+は複数の計算子プロセスを持つので、どのプロセスをリセットするか指定する必
+要がある。
+
+\section{Java への対応}
+
+Java による計算サーバは次の問題がある。
+すなわち、Pure Java では、OpenXM 規約で定められた
+ファイルディスクリプタ 3,4 を読み書きできないので対策が必要。\\
+\To
+標準入出力を利用するようにプログラミングし、
+次のスクリプトで wrap する。エラーメッセージは、標準出力か、あるいは独自
+にウィンドウを開いて表示する。
+
+\begin{verbatim}
+#!/bin/sh
+java OMproxy 3>&0 4>&1
+\end{verbatim}
+
+\newpage 
+
+\section{ssh による、コントロールサーバのリモート起動}
+
+ローカルでの実行形式の探索は次であった。
+
+\begin{enumerate}
+\item 環境変数 OpenXM\_HOME から探す。
+\item /usr/local/OpenXM/bin から探す。
+\item 環境変数 PATH から探す。
+\end{enumerate}
+
+ssh を介して起動する場合、利用可能な環境変数は\\
+remotehost:\$HOME/.ssh/environment にあらかじめ登録する必要がある。
+したがって、.ssh/environment における PATH の設定を
+\$OpemXM\_HOME/bin を含むものにしておくのが一番単純であると思われる。
+計算サーバの起動はいままでどおりでよい。
+
+\bigskip
+
+\noindent
+注意: 次は不可能です。
+\begin{verbatim}
+$ ssh remotehost 'PATH=\$PATH:\$OpenXM_HOME/bin' oxc
+PATH=$PATH:$OpenXM_HOME/bin: Command not found.
+\end{verbatim}
+
+\section{oxc の許すコマンドラインオプション}
+
+\begin{tabular}{|l|l|}
+\hline
+-h hostname & hostname はクライアントマシンのホスト名 \\
+\hline
+-p port     & ポート番号 \\
+\hline
+-c password & パスワード文字列 \\
+\hline
+-x          & xterm を用いて出力を表示する \\
+\hline
+\end{tabular}
+
+\bigskip 
+
+ただしパスワードは以下の文字からなる任意長の文字列とする
+\begin{verbatim}
+%.,^_+-=/@0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+\end{verbatim}
+
+\newpage 
+
+\section{コントロールサーバの起動手続き}
+
+クライアントからは、まず
+\begin{verbatim}
+execlp("ssh", remote_host, "-f", "oxc", "-h", host, 
+       "-p", port, "-c", password, NULL);
+\end{verbatim}
+によって oxc を起動する。
+oxc は起動後ただちに host:port に接続しようとするので、
+クライアントはそれを listen, accept する。
+サーバは1バイト書いてから読む、クライアントは1バイト読んでから書く
+という形でバイトオーダの交換を行う。
+
+以後はただの OX スタックマシン。
+
+\section{計算サーバの起動}
+
+\noindent
+(その1)
+
+関数 oxc\_open を用いる。(SM\_executeFunction) \\
+形式は oxc\_open(cmd, port) で cmd は計算サーバのファイル名である。
+成功するとスタックに計算プロセスの pid を int32 で積む。
+
+\bigskip
+
+\noindent
+(その2)(ただし未実装)
+
+スタックマシン命令 SM\_control\_launch を用いる。
+スタックの状態は
+
+\begin{verbatim}
+(cmo_string, cmd)  <-- top 
+(cmo_int32, port)
+\end{verbatim}
+
+でなければならない。成功するとスタックに計算プロセスの pid を int32 で積む。
+
+\newpage
+
+
+\section{現在の実装の問題点}
+
+\begin{itemize}
+\item 計算プロセスの管理。
+\item スタックマシン命令をどこまで実装するべきか。
+\item Mathcap 実装が不完全。\\
+      \To ox\_toolkit の問題。
+\item libgmp が必要。\\
+      \To ox\_toolkit の問題。
+\end{itemize}
+
+\end{document}
