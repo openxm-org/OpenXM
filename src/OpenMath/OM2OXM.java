@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.5 1999/11/12 11:36:09 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.6 1999/11/14 22:57:44 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -39,7 +39,7 @@ final class OM2OXM implements Runnable{
   private int token = TT_NULL;
   private boolean lexPushbackFlag = false;
   private OpenXM asir; // for debug
-  private boolean debug = true;
+  private boolean debug = false;
 
   // Token Type for lexical analyzer
   final static int TT_NULL      = 0;
@@ -128,6 +128,15 @@ final class OM2OXM implements Runnable{
 	  i++){
 	ret += CMO2OM_sub(((CMO_DISTRIBUTED_POLYNOMIAL)cmo).getMonomials()[i]);
       }
+      ret += "</OMA></OMA>";
+      return ret;
+
+    case CMO.CMO_BIGFLOAT:
+      ret += "<OMA><OMS name=\"times\" cd=\"basic\"/>";
+      ret += CMO2OM_sub(((CMO_BIGFLOAT)cmo).getSyosubu());
+      ret += "<OMA><OMS name=\"power\" cd=\"basic\"/>";
+      ret += "<OMI>2</OMI>";
+      ret += CMO2OM_sub(((CMO_BIGFLOAT)cmo).getShisubu());
       ret += "</OMA></OMA>";
       return ret;
 
@@ -443,7 +452,7 @@ final class OM2OXM implements Runnable{
     array = new CMO[objects.size()];
     objects.copyInto((Object[])array);
 
-    System.out.println("debug :"+ new CMO_LIST(array));
+    debug("debug :"+ new CMO_LIST(array));
     return new CMO_LIST(array);
   }
 

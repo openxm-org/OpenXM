@@ -1,11 +1,12 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java,v 1.1 1999/11/04 19:57:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
 public class CMO_BIGFLOAT extends CMO{
+  // a * 2^e
   private CMO_ZZ a,e;
 
   CMO_BIGFLOAT(){}
