@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.4 2004/08/31 05:30:20 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.5 2004/09/06 01:52:27 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -124,6 +124,44 @@
 \item OpenXM の cvs への commit は大きい区切りで. 
       細かい変更は {\tt eventail/cone.sm1} で.
 \item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.1
+\end{enumerate}
+
+\section{2004-09-05, グレブナfanの計算}
+\begin{enumerate}
+\item polymake が必要.  9/1, 9/2, 9/3, 9/4 のノートも参照.
+\item OpenXM の cvs への commit は大きい区切りで. 
+      細かい変更は {\tt eventail/cone.sm1} で.
+\item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.1
+\end{enumerate}
+
+\section{2004-09-09, 11, list の強化}
+\begin{enumerate}
+\item array の {\tt join} を行うとメモリの無だ使いがはげしい.
+list の {\tt cons} を導入.  rest も導入. join は使えるが危険.
+\item 
+{\tt arrayToList}, {\tt listToArray} : 変換関数を準備.
+\item {\tt get} がリストでも動くように.
+\item {\tt Kan/dr.sm1} 1.35--1.36, 1.38 \\
+{\tt Kan/extern.h} 1.24--1.25 \\
+{\tt Kan/ext.c} 1.25 \\
+{\tt Kan/kanExport0.c} 1.31--1.33 \\
+{\tt Kan/list.c} 1.3--1.5 \\
+{\tt Kan/primitive.c} 1.12 \\
+{\tt Kan/smacro.sm1} 1.5 \\
+{\tt Kan/usage.c} 1.32 \\
+{\tt Kan/usage.sm1} 1.9
+\end{enumerate}
+
+\section{2004-09-10, コンマ {\tt ,} の扱いの変更}
+\begin{enumerate}
+\item  コンマ {\tt ,} はいままでマクロであったが, 空白として扱うように変更する.
+\item  システムの変更は以下の通り. \\
+{\tt Kan/scanner.c} 1.5--1.6 \\
+{\tt Kan/scanner2.c} 1.4--1.5 \\
+{\tt Kan/dr.sm1} 1.37 \\
+{\tt Kan/smacro.sm1} 1.6 
+\item その他はライブラリ内部で {\tt ,,} を {\tt \_\_} へ,
+{\tt ,,,} を {\tt \_\_\_} へ変更した.
 \end{enumerate}
 
 \end{document}
