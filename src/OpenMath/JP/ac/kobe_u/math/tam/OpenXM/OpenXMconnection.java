@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.4 1999/11/09 09:43:49 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.5 1999/11/10 21:25:48 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -98,7 +98,7 @@ class OpenXMconnection{
   }
 
   public CMO receiveCMO() throws IOException{
-    return CMO.receive(new DataInputStream(is));
+    return CMO.receive(new DataInputStream(new DebugInputStream(is)));
   }
 
   public SM receiveSM() throws IOException{
