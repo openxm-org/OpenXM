@@ -1,0 +1,63 @@
+$OpenXM$   
+
+SpairAndReduction() :
+   与えられた pair を reduction する.
+   V-minimal に必要かどうかの判定もする.
+
+SpairAndReduction2():
+  tower2 = StowerOf(tower,level-1);
+  SsetTower(tower2);  
+  /** sm1(" show_ring ");   */
+
+  与えられた pair を reduction するための schreyer order
+  を設定する.  Resolution の深さに応じて, tower も深くする必要がある.
+
+
+  if (IsConstant(t_syz[i])){
+
+  Syzygy をみて, 定数成分がないか check.
+  t_syz[i] が定数成分であれば, 一つ前の GB の構成要素である
+  g_i が余分な GB である可能性がたかい.
+  SpairAndReduction() ( LaScala-Stillman の方法) との整合性をとるため 
+  g_i を tmp[0] に代入し ( reduction できなかったふりをする )
+  g_i の V-degree をしらべる.
+
+
+Sannfs2_laScala2()
+Sannfs3_laScala2()  を作る.
+
+二つのアルゴリズムの比較.
+In(11)=sm1_pmat(a1[1]); の順番をかえる.
+ [ 
+   [    3*Dx^2*h , 0 , Dy , -Dz ] 
+   [    6*x*Dy*Dz^2-9*y*Dx^2*h , -2*x*Dy*Dz^2+3*y*Dx^2*h , -2*x*Dx-3*y*Dy , 0]
+   [    2*x*Dx+3*z*Dz-h^2 , y*Dy-z*Dz , 0 , 0 ] 
+   [    2*x*Dy*Dz , 0 , z , -y ] 
+
+   [    0 , 2*x*Dy^2*Dz-3*z*Dx^2*h , 0 , 2*x*Dx+3*z*Dz ] 
+ ]
+In(12)=sm1_pmat(a2[1]);
+ [ 
+   [    3*Dx^2*h , 0 , Dy , -Dz ] 
+   [    6*x*Dy*Dz^2-9*y*Dx^2*h , -2*x*Dy*Dz^2+3*y*Dx^2*h , -2*x*Dx-3*y*Dy, 0 ] 
+   [    2*x*Dx+3*z*Dz-h^2 , y*Dy-z*Dz , 0 , 0 ] 
+   [    2*x*Dy*Dz , 0 , z , -y ] 
+
+   [    9*z*Dx^2*h , 2*x*Dy^2*Dz-3*z*Dx^2*h , 3*z*Dy , 2*x*Dx ] 
+   [    2*x*Dx*Dz^2+3*z*Dz^3+5*Dz^2*h^2 , y*Dy*Dz^2-z*Dz^3-2*Dz^2*h^2 , 0 , 0 ] 
+ ]
+In(13)=
+
+----------------------
+In(16)=sm1_pmat(a1[2]);
+ [ 
+   [    -2*x*Dx-3*y*Dy-3*z*Dz-6*h^2 , -Dy , -Dz , 3*Dx^2*h , 3*Dy^2 , 3*Dy*Dz , -2*x*Dy , 2*x*Dz , 0 ] 
+   [    3*y*z , z , y , -2*x*Dy*Dz , -3*z*Dy , 2*x*Dx , 2*x*z , -2*x*y , 0 ] 
+ ]
+In(17)=sm1_pmat(a2[2]);
+ [ 
+   [    -y , 2*x*Dy*Dz , z , 0 , 2*x*Dx , 0 ] 
+   [    -Dz , 3*Dx^2*h , Dy , -2*x*Dx-3*y*Dy-3*h^2 , -3*Dy*Dz , 0 ] 
+ ]
+In(18)=  
+

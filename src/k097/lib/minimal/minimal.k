@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.9 2000/05/06 13:41:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.10 2000/05/07 02:10:44 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -6,7 +6,7 @@
    ln -s /usr/bin/cpp /lib/cpp
 */
 #define OFFSET 0 
-#define TOTAL_STRATEGY
+/* #define TOTAL_STRATEGY */
 /* #define OFFSET 20*/
 /* Test sequences. 
    Use load["minimal.k"];;
@@ -1076,6 +1076,17 @@ def Sannfs2_laScala(f) {
   return(Sminimal(pp));
 }
 
+def Sannfs2_laScala2(f) {
+  local p,pp;
+  p = Sannfs(f,"x,y");
+  sm1(" p 0 get { [(x) (y) (Dx) (Dy)] laplace0 } map /p set ");
+  p = [p];
+  Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1],
+               ["x",-1,"y",-1,"Dx",1,"Dy",1]]); 
+  pp = Map(p[0],"Spoly");
+  return(Sminimal(pp));
+}
+
 def Sannfs3(f) {
   local p,pp;
   p = Sannfs(f,"x,y,z");
@@ -1101,6 +1112,15 @@ HelpAdd(["Sannfs3",
 
 */
      
+def Sannfs3_laScala2(f) {
+  local p,pp;
+  p = Sannfs(f,"x,y,z");
+  sm1(" p 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /p set ");
+  Sweyl("x,y,z",[["x",1,"y",1,"z",1,"Dx",1,"Dy",1,"Dz",1,"h",1],
+                 ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
+  pp = Map(p,"Spoly");
+  return(Sminimal(pp));
+}
 
 
 /*  The below does not use LaScala-Stillman's algorithm. */
@@ -1352,6 +1372,16 @@ def SpairAndReduction2(skel,level,ii,freeRes,tower,ww,redundantTable) {
   Print("vdegree of the original = "); Println(vdeg);
   Print("vdegree of the remainder = "); Println(vdeg_reduced);
 
+  if (!IsNull(vdeg_reduced)) {
+    if (vdeg_reduced < vdeg) {
+      Println("--- Special in V-minimal!");
+      Println(tmp[0]);
+      Println("syzygy="); sm1_pmat(t_syz);
+      Print("[vdeg, vdeg_reduced] = "); Println([vdeg,vdeg_reduced]);
+    }
+  }
+
+
   pos = SwhereInTower(syzHead,tower[level]);
   pos2 = SwhereInTower(tmp[0],tower[level-1]);
   ans = [tmp[0],t_syz,pos,pos2,vdeg,vdeg_reduced,c2];
@@ -1547,5 +1577,112 @@ def testAnnfs3(f) {
   for (i=0; i<n-1; i++) {
     Println(b[i+1]*b[i]);
   }
+  return(a);
+}
+
+def ToString_array(p) {
+  local ans;
+  if (IsArray(p)) {
+    ans = Map(p,"ToString_array");
+  }else{
+    ans = ToString(p);
+  }
+  return(ans);
+}
+
+/* sm1_res_div([[x],[y]],[[x^2],[x*y],[y^2]],[x,y]): */
+
+def sm1_res_div(I,J,V) {
+  I = ToString_array(I);
+  J = ToString_array(J);
+  V = ToString_array(V);
+  sm1(" [[ I J]  V ] res*div /FunctionValue set ");
+}
+
+/* It has not yet been working */
+def sm1_res_kernel_image(m,n,v) {
+  m = ToString_array(m);
+  n = ToString_array(n);
+  v = ToString_array(v);
+  sm1(" [m n v] res-kernel-image /FunctionValue set ");
+}
+def Skernel(m,v) {
+  m = ToString_array(m);
+  v = ToString_array(v);
+  sm1(" [ m v ] syz /FunctionValue set ");
+}
+
+def test3() {
+  local a1,a2,b1,b2;
+  a1 = Sannfs3("x^3-y^2*z^2");
+  a1 = a1[0];
+  a2 = Sannfs3_laScala2("x^3-y^2*z^2");
+  a2 = a2[0];
+  b1 = a1[1];
+  b2 = a2[1];
+  sm1_pmat(b2);
+  Println("  OVER ");
+  sm1_pmat(b1);
+  return([sm1_res_div(b2,b1,["x","y","z"]),b2,b1,a2,a1]);
+}
+
+def test4() {
+  local a,b;
+  a = Sannfs3_laScala2("x^3-y^2*z^2");
+  b = a[0];
+  sm1_pmat( sm1_res_kernel_image(b[0],b[1],[x,y,z]));
+  sm1_pmat( sm1_res_kernel_image(b[1],b[2],[x,y,z]));
+  return(a);
+}
+
+def sm1_gb(f,v) {
+  f =ToString_array(f);
+  v = ToString_array(v);
+  sm1(" [f v] gb /FunctionValue set ");
+}
+
+def test5() {
+  local a,b,c,cc,v;
+  a = Sannfs3_laScala2("x^3-y^2*z^2");
+  b = a[0];
+  v = [x,y,z];
+  c = Skernel(b[0],v);
+  c = c[0];
+  sm1_pmat([c,b[1],v]);
+  Println("-----------------------------------");
+  cc = sm1_res_div(c,b[1],v);
+  sm1_pmat(sm1_gb(cc,v));
+  c = Skernel(b[1],v);
+  c = c[0];
+  cc = sm1_res_div(c,b[2],v);
+  sm1_pmat(sm1_gb(cc,v));
+  return(a);
+}
+def test6() {
+  local a,b,c,cc,v;
+  a = Sannfs3("x^3-y^2*z^2");
+  b = a[0];
+  v = [x,y,z];
+  c = Skernel(b[0],v);
+  c = c[0];
+  sm1_pmat([c,b[1],v]);
+  Println("-------ker = im for minimal ?---------------------");
+  cc = sm1_res_div(c,b[1],v);
+  sm1_pmat(sm1_gb(cc,v));
+  c = Skernel(b[1],v);
+  c = c[0];
+  cc = sm1_res_div(c,b[2],v);
+  sm1_pmat(sm1_gb(cc,v));
+  Println("------ ker=im for Schreyer ?------------------");
+  b = a[3];
+  c = Skernel(b[0],v);
+  c = c[0];
+  sm1_pmat([c,b[1],v]);
+  cc = sm1_res_div(c,b[1],v);
+  sm1_pmat(sm1_gb(cc,v));
+  c = Skernel(b[1],v);
+  c = c[0];
+  cc = sm1_res_div(c,b[2],v);
+  sm1_pmat(sm1_gb(cc,v));
   return(a);
 }
