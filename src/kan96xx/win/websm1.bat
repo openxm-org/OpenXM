@@ -1,9 +1,10 @@
-rem $OpenXM$
+rem $OpenXM: OpenXM/src/kan96xx/win/websm1.bat,v 1.1 2001/08/09 13:05:49 takayama Exp $
 rem
 rem Set the following values
 rem
 set HOME=c:\cygwin\home\nobuki
 set OpenXM_HOME=c:\cygwin\home\nobuki\OpenXM
+set OPENXMHOMEWIN=c:\cygwin\home\nobuki\OpenXM
 rem 
 rem Do not touch below
 rem 

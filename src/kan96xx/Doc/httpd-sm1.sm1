@@ -1,9 +1,12 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.1 2001/08/09 13:05:49 takayama Exp $
 %% http server by sm1
-%% You need to set IE (internet explorer) as follows:
-%% (1) Visit the menu  
-%%   tool / internet option / connection / LAN configuration
-%% (2) Add localhost to the list of not using the proxy server.
+%% (A) You need to set IE (internet explorer) as follows:
+%%   (1) Visit the menu  
+%%     tool / internet option / connection / LAN configuration
+%%   (2) Add localhost to the list of not using the proxy server.
+%% (B) You need to have the "start.exe" at  c:\windows\command\start.exe
+%% (C) cygwin1.dll should be by sm1.exe and ox.exe
+
 
 
 /httpd.port 1200 def
@@ -21,7 +24,7 @@ def
 (ox_sm1.started) boundp { 
 } {
   %% Initialize oxasir.
-  sm1connectr
+  sm1connectr_win
   ox.ccc oxmathcap
   ox.ccc oxsetmathcap
 } ifelse
@@ -35,9 +38,17 @@ def
   /httpd.port 1200 rrr add def
   httpd.port message 
 
-  [(sleep 3; start iexplore http://localhost:)
-    httpd.port toString
-   ( &)] cat system
+%  [(sleep 3; start iexplore http://localhost:)
+%    httpd.port toString
+%   ( &)] cat system
+   [(forkExec)
+    [
+      (c:/windows/command/start)
+      (iexplore)   %% Starting internet explorer (TM).
+      [(http://localhost:) httpd.port toString] cat
+    ]
+    [  ]
+   3] extension
    httpd ;
   ] pop
   popVariables
