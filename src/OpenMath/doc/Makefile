@@ -1,5 +1,19 @@
-
+# $OpenXM$
 SRC = man.texi omproxy.texi
+
+all : OpenXM_javadoc  OpenXM_javadoc_ja
+OpenXM_javadoc:
+	-rm -rf tmp-doc-openxm-tam
+	-(mkdir tmp-doc-openxm-tam ) 
+	-(cd ../ORG/openxm/tam ; javadoc -d ../../../doc/tmp-doc-openxm-tam *.java)
+
+
+OpenXM_javadoc_ja:
+	-rm -rf tmp-doc-openxm-tam-ja
+	-(mkdir tmp-doc-openxm-tam-ja)
+	-(cd tmp-doc-openxm-tam-ja; cp -r ../../ORG . ; rm -rf ORG/CVS)
+	-(cd tmp-doc-openxm-tam-ja/ORG/openxm/tam ; ln ../../../../to-ja . ; ls *.java | xargs ./to-ja)
+	-(cd tmp-doc-openxm-tam-ja/ORG/openxm/tam ; javadoc -d ../../.. OpenXM.java)
 
 JP:
 	-rm -rf tmp
@@ -36,3 +50,7 @@ EG:
 		    {print;}' $$i > tmp/$$i;\
 	done
 	(cd tmp; tex man.texi; cp man.dvi ../man-eg.dvi)
+
+
+clean:
+	-(rm -rf tmp-doc-openxm-tam tmp-doc-openxm-tam-ja)

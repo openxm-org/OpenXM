@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.6 2001/01/28 19:17:24 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.7 2001/11/01 08:54:50 takayama Exp $
  */
 package ORG.openxm.tam;
 
@@ -13,8 +13,8 @@ import java.net.*;
     接続するサーバ毎に一つの OpenXM クラスが必要. 
 */
 /**
- * OpenXM is a class to connect to OpenXM RFC100 compliant 
- * servers.
+ * OpenXM is a class to connect to OpenXM servers,
+ * which are compliant to OpenXM RFC 100.
  * There is one-to-one correspondence between the instances
  * of the class OpenXM and the OpenXM servers.
  */
@@ -29,14 +29,14 @@ public class OpenXM{
    */
   /**
    * Connect to an OpenXM server via TCP/IP socket.
-   * host : machine name of the OpenXM server.
-   * CtrlPort : control port number of the OpenXM server.
-   * StreamPort : data port number of the OpenXM server.
+   * @param host  a machine name of the OpenXM server.
+   * @param CtrlPort  the control port number of the OpenXM server.
+   * @param StreamPort  the data port number of the OpenXM server.
    * As to details on the notion of control port and data port, see 
    *    Design and Implementation of OpenXM client server model and
    *        common mathematical object format (OpenXM-RFC 100,
    *                                            proposed standard) 
-   *   at http://www.openxm.org
+   *   @see <a href="http://www.openxm.org">OpenXM</a>
    */
   public OpenXM(String host,int CtrlPort,int StreamPort) throws IOException{
     control = new OpenXMstream(host,CtrlPort);
@@ -53,11 +53,19 @@ public class OpenXM{
     stream.sendByteOrder();
   }
 
-  /**
+  /*&ja
    * コマンド command を立ち上げ、
    * OpenXM サーバとの接続を TCP/IP ソケットを用いて行なう.
    * マシン名 host のポート番号 CtrlPort にコントロールを,
    * ポート番号 StreamPort にデータ用の接続を行なう.
+   */
+  /**
+   * First, execute a command, which is usually an OpenXM server,
+   * and next try to connect to the OpenXM server via TCP/IP.
+   * @param command  a command.
+   * @param host  a machine name of the OpenXM server.
+   * @param CtrlPort  the control port number of the OpenXM server.
+   * @param StreamPort  the data port number of the OpenXM server.
    */
   public OpenXM(String command,String host,int CtrlPort,int StreamPort)
        throws IOException{
@@ -76,37 +84,54 @@ public class OpenXM{
     stream.sendByteOrder();
   }
 
-  /**
+  /*&ja
    * 接続の初期化を行なう. 現在は未実装.
+   */
+  /**
+   * Resetting the engine process.  It has not yet been implemented.
    */
   public synchronized void resetConnection(){
     debug("control: stopping computer process...");
     debug("control: sending SYNC BALL.");
   }
 
-  /**
+  /*&ja
    * OpenXM メッセージをデータストリームに送信する.
    * このメソッドはメッセージのボディの部分だけでよい.
    * ヘッダ部分は自動で付加される.
+   */
+  /**
+   * Send an OpenXM message object. 
+   * @param object a message. For example, oxm.send(new CMO_STRING("Hello"))
+   * sends a string "Hello" to the OpenXM server oxm in the CMO_STRING data
+   * encoding.
    */
   public void send(OXbody object) throws IOException,MathcapViolation{
     stream.send(object);
   }
 
-  /**
+  /*&ja
    * データストリームから OpenXM メッセージを受け取る.
+   */
+  /**
+   * Receive an OpenXM message.
    */
   public OXmessage receive() throws IOException{
     return stream.receive();
   }
 
-  /**
+  /*&ja
    * データストリームの MathCap を mathcap に設定する.
    * 以後, 送信するオブジェクトは mathcap に合っているかどうか
    * チェックが入る. 実際にチェックが入るかどうかは
    * OXbody クラスの派生クラスの実装による.
    * mathcap に反したオブジェクトを送ろうとした時には,
    * 以後 MathcapViolation が発生することが期待される.
+   */
+  /**
+   * Set the mathcap.
+   * If one tries to send an object which is prohibited to send by the mathcap,
+   * the mathcapViolation exception is thrown.
    */
   public void setMathCap(CMO_MATHCAP mathcap){
     stream.setMathCap(mathcap);
