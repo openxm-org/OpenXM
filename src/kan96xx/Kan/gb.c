@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.3 2000/02/24 00:27:12 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -281,30 +281,30 @@ int forceReduction;
 
     if (!(rd ISZERO)) {
       if (needBack || needSyz) {
-	syzp = newSyz0();
-	syzp->cf = syzCf; /* no meaning */
-	syzp->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
-	syzp->syz = cpMult(toSyzCoeff(syzCf),syzp->syz);
-	syzp->syz = ppAdd(syzp->syz,syzPoly);
+		syzp = newSyz0();
+		syzp->cf = syzCf; /* no meaning */
+		syzp->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
+		syzp->syz = cpMult(toSyzCoeff(syzCf),syzp->syz);
+		syzp->syz = ppAdd(syzp->syz,syzPoly);
       }
       
       if (ReduceLowerTerms && !(Sugar)) {
-	rd = (*reductionCdr)(rd,g,needBack,&syz);
-	if (needBack || needSyz) {
-	  /* syzp->cf = ppMult(syz.cf,syzp->cf); no meaning */
-	  syzp->syz = ppAdd(syz.syz,
-			    cpMult(toSyzCoeff(syz.cf),syzp->syz)); 
-	}
+		rd = (*reductionCdr)(rd,g,needBack,&syz);
+		if (needBack || needSyz) {
+		  /* syzp->cf = ppMult(syz.cf,syzp->cf); no meaning */
+		  syzp->syz = ppAdd(syz.syz,
+							cpMult(toSyzCoeff(syz.cf),syzp->syz)); 
+		}
       }
 
       if(Sugar && (!forceReduction)){grade=top->grade;}else{grade=-1;}whereInG(g,rd,&grade,&indx,Sugar);
       if (KanGBmessage == 2) {
-	printf("(gr,indx)=(%d,%d).\n",grade,indx);
-	/*
-	printf("sp(%s,%s)-->%s\n",POLYToString(gi,' ',1),
-	                          POLYToString(gj,' ',1),
-	                          POLYToString(rd,' ',1));
-	*/
+		printf("(gr,indx)=(%d,%d).\n",grade,indx);
+		/*
+		  printf("sp(%s,%s)-->%s\n",POLYToString(gi,' ',1),
+		  POLYToString(gj,' ',1),
+		  POLYToString(rd,' ',1));
+		  */
       }
 	
       d = updatePairs(d,rd,grade,indx,g);
@@ -312,33 +312,36 @@ int forceReduction;
       if (Sugar) { markRedundant0(g,grade,indx);}
       else {markRedundant(g,rd,grade,indx,Sugar);}
 
-      if (KanGBmessage && (StopDegree < pgrade)) {
-	printf("Computation of the Groebner basis is suspended bacause of StopDegree < computing grade.\n");
-	printf("Note that the result is NOT groebner basis.\n");
-	break;
-      }
       if (countDown) {
-	if (eliminated(rd) == 1) {
-	  --countDown;
-	  printf("x"); fflush(stdout);
-	  if (countDown == 0) {
-	    printf("\nThe computation of the Groebner basis is suspended because of countDown==0.\n");
-	    printf("Note that the result is NOT groebner basis.\n");
-	    break;
-	  }
-	}
+		if (eliminated(rd) == 1) {
+		  --countDown;
+		  printf("x"); fflush(stdout);
+		  if (countDown == 0) {
+			printf("\nThe computation of the Groebner basis is suspended because of countDown==0.\n");
+			printf("Note that the result is NOT groebner basis.\n");
+			break;
+		  }
+		}
       }
       if (Debug) {
-	outputGradedPairs(d); outputGradedPolySet(g,needSyz);
+		outputGradedPairs(d); outputGradedPolySet(g,needSyz);
       }
     }else{
       if (needSyz) {
-	top->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
-	top->syz = cpMult(toSyzCoeff(syzCf),top->syz);
-	top->syz = ppAdd(top->syz,syzPoly);
-	listP->next = top; top->prev = listP; listP = listP->next;
+		top->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
+		top->syz = cpMult(toSyzCoeff(syzCf),top->syz);
+		top->syz = ppAdd(top->syz,syzPoly);
+		listP->next = top; top->prev = listP; listP = listP->next;
       }
     }
+	if (StopDegree < pgrade) {
+	  fprintf(stderr,"Obtained a partial GB (StopDegree=%d)\n",StopDegree);
+	  if (KanGBmessage) {
+		printf("Computation of the Groebner basis is suspended bacause of StopDegree < computing grade.\n");
+		printf("Note that the result is NOT groebner basis.\n");
+	  }
+	  break;
+	}
   }
 
   if (KanGBmessage == 2) {
