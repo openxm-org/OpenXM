@@ -1,10 +1,9 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.16 2002/07/28 07:04:22 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.17 2002/07/28 08:10:24 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
 WGET_ARG=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
 
-STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
 
 usage:
@@ -79,11 +78,8 @@ win-correction: copy-binary oxasir-win.rr
 	make win-correction2 
 win-correction1: build-bat copy-cygwin-dlls
 	-mkdir OpenXM-win/bin-windows
-	-cp ${STARTEXE} OpenXM-win/bin-windows
 #	(cd OpenXM-win/rc ; make clean ; make)
 win-correction2: win-correction1
-	-cp ${STARTEXE} OpenXM-win/bin
-	-cp ${STARTEXE} OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/asir/bin
