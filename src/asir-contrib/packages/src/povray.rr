@@ -1,0 +1,145 @@
+/* $OpenXM$ */
+
+/* This is an experimental asir program to model
+   implicit algebraic surfaces for povray
+   by using phc.
+*/
+
+/* 
+References:
+  povray implicit algebraic surface
+  Polyray system   (this is an excellent cite).
+  http://wims.unice.fr/~wims/en_tool~geometry~polyray.en.html
+  ftp.povray.org/pub/polyray
+
+  All constrains is expressed by F(x1,x2,...,xn)>=0
+  http://www.hyperfun.org
+     (http://wwwcis.k.hosei.ac.jp/~F-rep/HF_proj.html)
+
+  http://www.povray.org/links/
+    regular 3D polygon generator.
+    (3D polygon) http://www.swin.edu.au/astronomy/pbourke/geometry/polyhedra/
+    
+  http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/surface/basic.html
+
+  Introduction in Japanese.
+    http://www.jks.is.tsukuba.ac.jp/~akaho/cg/3d/povray.html
+*/
+
+/* File IO functions. These should be implemented as an asir
+   native functions.
+*/
+File_file_name = 0$
+def open_file_for_write(FileName) {
+  extern File_file_name, Sm1_proc;
+  File_file_name = FileName;
+  S = " ("+FileName+") (w) file /asir_file_tmp set ";
+  if (Sm1_proc < 0) sm1_start();
+  print(S);
+  sm1(Sm1_proc,S);
+  return(FileName);
+}
+
+def put_bytes(Fp,S) {
+  extern Sm1_proc;
+  if (type(S) == 0 || type(S) == 1) {
+    S = rtostr(S);
+    S = " asir_file_tmp "+S+" (string) dc "+" writestring ";
+    sm1(Sm1_proc,S);
+  }else if (type(S) == 7) {
+    sm1(Sm1_proc," asir_file_tmp ");
+    ox_push_cmo(Sm1_proc,S);
+    sm1(Sm1_proc," writestring ");
+  }else error("cannot write this object.");
+}
+
+def close_file_for_write(Fp) {
+  extern Sm1_proc;
+  sm1(Sm1_proc," asir_file_tmp closefile ");
+}
+
+
+/* Generating a shade file */
+def povray_prolog(FileName,Camera, Light) {
+  /* Introduction to povray:
+     See for example, http://www.jks.is.tsukuba.ac.jp/~akaho/cg/3d   
+     The next prolog is taken from this cite.
+  */
+  NL = asciitostr([10]);
+  Fp = open_file_for_write(FileName);
+  S = "#version 3.0 "+NL+
+      "global_settings { assumed_gamma 2.2 } "+NL+
+      "#include \"colors.inc\" "+NL+
+      "background { color Blue } "+NL+
+      "camera { "+NL+
+      "location <0, 5, -30> "+NL+
+      "right <4/3, 0, 0> "+NL+
+      "up <0, 1, 0> "+NL+
+      "sky <0, 1, 0> "+NL+
+      "direction <0, 0, 1.21> "+NL+
+      "look_at <0, 0, 0> "+NL+
+      "} "+NL+
+      "light_source { <5, 20, -10> colour White } "+NL$
+
+  put_bytes(Fp,S);
+  return(Fp);
+}
+
+def povray_epilog(Fp) {
+  close_file_for_write(Fp);
+}
+
+def povray_spheres(Fp,Slist) {
+  NL = asciitostr([10]);
+  S = " union { "+NL;
+  put_bytes(Fp,S);
+  S = " ";
+  Param = 
+   "pigment { "+NL+
+   "color Silver "+NL+
+   "filter 0.0 "+NL+
+   "} "+NL+
+   "finish { "+NL+
+   "ambient 0.2 "+NL+
+   "diffuse 0.5 "+NL+
+   "phong 0.6 "+NL+
+   "phong_size 7 "+NL+
+   "reflection 0.8 "+NL+
+   "} "+NL$
+
+  N = length(Slist);
+  for (I=0; I<N; I++) {
+    Sphere = Slist[I];
+    S = " sphere { <"+rtostr(Sphere[0])+","+rtostr(Sphere[1])+","+
+                      rtostr(Sphere[2])+">,"+rtostr(Sphere[3])+NL;
+    put_bytes(Fp,S);
+    put_bytes(Fp,Param);
+    put_bytes(Fp," } "+NL+NL);
+    put_bytes(Fp,10);
+  }
+  put_bytes(Fp,"} "+NL);
+}
+
+/* Example input
+
+    povray_prolog("t.pov",0,0);
+    povray_spheres(0,[ [0,3,0,3],[1,1,0,2] ]);
+    povray_epilog(0);
+
+*/
+
+/*  Generate square objects */
+/*  Not yet written. */
+
+
+/* The next function patches f(x,y,z)=0 by small squares
+   by using phc pack and normal vectors.
+*/
+
+/* Not yet written */
+
+
+
+end$
+
+
