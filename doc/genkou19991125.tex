@@ -1,9 +1,9 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.89 1999/12/25 13:58:52 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.90 1999/12/25 14:59:50 ohara Exp $
 
 \usepackage{jssac}
-\title{
+\title{OpenXM の現状について
 1. 意味もない修飾過剰な語句は排除しましょう. \\
 2. せっかく fill しているのをいじらないでくれ. \\
 3. 田村が遊んでばかりでおればかり仕事をしているのはどう考えても不公平だ.
@@ -402,32 +402,25 @@ $c_{i2}$ は以下の図のような cmo\_list になっている.
 \end{quote}
 
 具体的な mathcap の例をあげよう.  名前が ``ox\_test'', バージョンナンバー
-が 199911250 のサーバで, PC-UNIX 上で動いていれば, $a$ の部分は
-\begin{quote}
-(CMO\_LIST, 4, (CMO\_INT32, $199911250$), (CMO\_STRING, 7, "ox\_test"), \\
-\ \ 	(CMO\_STRING, 9, "199911250"), (CMO\_STRING, 4, "i386"))
-\end{quote}
-となる.
-
+が 199911250 のサーバで, PC-UNIX 上で動いており,
 さらに, このサーバのスタックマシンが命令 SM\_popCMO, SM\_popString,
-SM\_mathcap, SM\_executeStringByLocalParser を利用可能であれば, $b$ の部
-分を
+SM\_mathcap, SM\_executeStringByLocalParser を利用可能,
+かつ, cmo\_int32, cmo\_string, cmo\_mathcap, cmo\_list のみに制限したい
+ときの mathcap は
 \begin{quote}
-(CMO\_LIST, $5$,
-	(CMO\_INT32, SM\_popCMO), \\
-\ \ 	(CMO\_INT32, SM\_popString), (CMO\_INT32, SM\_mathcap), \\
-\ \ 	(CMO\_INT32, SM\_executeStringByLocalParser))
+(CMO\_LIST, 3, \\
+\ \ (CMO\_LIST, 4, (CMO\_INT32, $199911250$), (CMO\_STRING, 7, "ox\_test"), \\
+\ \ \ \ 	(CMO\_STRING, 9, "199911250"), (CMO\_STRING, 4, "i386")) \\
+\ \ (CMO\_LIST, $5$, (CMO\_INT32, SM\_popCMO), \\
+\ \ \ \ 	(CMO\_INT32, SM\_popString), (CMO\_INT32, SM\_mathcap), \\
+\ \ \ \ 	(CMO\_INT32, SM\_executeStringByLocalParser)) \\
+\ \ (CMO\_LIST, $1$, \\
+\ \ \ \ (CMO\_LIST, $2$, (CMO\_INT32, OX\_DATA), \\
+\ \ \ \ \ \ (CMO\_LIST, $4$, (CMO\_INT32, CMO\_INT32), \\
+\ \ \ \ \ \ \ \ (CMO\_INT32, CMO\_STRING), (CMO\_INT32, CMO\_MATHCAP), \\
+\ \ \ \ \ \ \ \ (CMO\_INT32, CMO\_LIST)))))
 \end{quote}
-にし, cmo\_int32, cmo\_string, cmo\_mathcap, cmo\_list のみに制限したい
-ときは$c$ の部分を
-\begin{quote}
-  (CMO\_LIST, $1$, \\
-  \ \ (CMO\_LIST, $2$, (CMO\_INT32, OX\_DATA), \\
-  \ \ \ \ (CMO\_LIST, $4$, (CMO\_INT32, CMO\_INT32), \\
-  \ \ \ \ \ \ (CMO\_INT32, CMO\_STRING), (CMO\_INT32, CMO\_MATHCAP), \\
-  \ \ \ \ \ \ (CMO\_INT32, CMO\_LIST))))
-\end{quote}
-にする.
+になる.
 
 
 \section{セキュリティ対策}
@@ -484,8 +477,11 @@ NetSolve はクライアント・サーバ型の分散システムであり, 単なる計算システ
 
 http://symbolicNet.mcs.kent.edu/SN/areas/protocols/mp.html
 
-数学的なデータの効率的な交換のためのプロトコル.
-交換するデータの木構造について詳しい.
+科学技術計算を行なうソフトウェア間で数学的なデータを効率的に交換
+させることを目的としたプロトコルを作成している. 木構造を用いて
+簡単, かつ柔軟なものを目指しており, データの表現方法や交換方法に
+負わずにソフトウェアを作ることができるようにしようとしている.
+現在すでに, C 言語で利用可能なライブラリが提供されている.
 
 \item MCP
 
