@@ -1,0 +1,427 @@
+%  $OpenXM$ 
+
+\documentclass{slides}
+\usepackage{epsfig}
+
+\begin{document}
+http://www.openxm.org \\
+takayama@openxm.org, takayama@math.kobe-u.ac.jp \\
+
+Open message eXchange protocol for Mathematics.
+
+\fbox{Aim of the project}
+\begin{enumerate}
+\item An experiment to connect mathematical software each other
+\begin{enumerate}
+\item Efficient and easy distributed computation
+\item Use other system as a subroutine or a remote object
+\item New generation of mathematical software
+(old regime = maple, mathematica, ...)
+\end{enumerate}
+\item Provide a package of high level of mathematics and
+documentation on the OpenXM protocol infrastructure.
+\item Attractive to mathematicians.
+\item Presentation on web.
+\end{enumerate}
+
+\fbox{Release schedule}
+
+\fbox{Other projects}
+
+\newpage
+
+\fbox{Design outline}
+\begin{enumerate}
+\item Communication is an exchange of messages. The messages are classified into
+three types:
+DATA, COMMAND, and SPECIAL.
+They are called OX (OpenXM) messages.
+Among the three types,
+{\it OX data messages} wrap mathematical data.
+We use standards of mathematical data formats such as OpenMath and MP
+as well as our own data format {\it CMO}
+({\it Common Mathematical Object format}).
+\item Servers, which provide services to other processes, are stack machines.
+The stack machine is called the
+{\it OX stack machine}.
+Existing mathematical software are wrapped with this stack machine.
+Minimal requirements for a target wrapped with the OX stack machine
+are as follows:
+\begin{enumerate}
+\item The target must have a serialized interface such as a character based
+interface.
+\item An output of the target must be understandable for computer programs;
+it should follow a grammar that can be parsed with other software tools.
+\end{enumerate}
+\item Any server may have a hybrid interface;
+it may accept and execute not only stack machine commands, 
+but also its original command sequences.
+For example,
+if we send the following string to the {\tt ox\_asir} server  \\
+\verb+        " fctr(x^100-y^100); "      + \\
+and call the stack machine command  \\
+\verb+        SM_executeStringByLocalParser    + \\ 
+then the server executes the asir command \\
+\verb+ fctr(x^100-y^100); + 
+(factorize $x^{100}-y^{100}$ over ${\bf Q}$)
+and pushes the result onto the stack.
+\item Network transparent supports for controlling servers are provided.
+For example OpenXM defines a robust reset procedure to restart computations
+without any confusion in I/O buffers.
+It is very useful for debugging programs running on distributed environment.
+\end{enumerate}
+
+\newpage
+
+\fbox{Components of version 1.1.2}
+\begin{description}
+\item{\tt ox\_asir}
+A server for Risa/Asir, a general-purpose computer algebra
+system. It provides almost
+all functionalities of Risa/Asir such as polynomial factorization over algebraic numbers,
+Gr\"obner basis computation, primary ideal decomposition,
+and efficient computation over finite fields.
+(Noro, Yokoyama, Shimoyama, Takeshima)
+\item{\tt ox\_pari}  {\footnotesize ftp://megrez.math.u-bordeaux.fr/pub/pari}\\
+pari is contained in {\tt ox\_asir}.
+(C. Batut, K. Belabas, D. Bernardi, H. Cohen and M. Olivier)
+\item{\tt ox\_sm1}  
+A server for Kan/sm1, a system for computation in 
+the ring of differential operators including computation of Gr\"obner bases
+and cohomology groups.
+(Oaku, Takayama)
+\item {\tt ox\_phc}  {\footnotesize http://www.math.msu.edu/~jan/download.html} \\
+A server for PHC pack, a general-purpose solver for
+polynomial systems by homotopy continuation. 
+(Verschelde)
+\item {\tt ox\_tigers} {\footnotesize         http://www.math.tamu.edu/~rekha/programs.html } \\
+A server for TiGERS, a system to enumerate
+all Gr\"obner bases of affine toric ideals.
+It can be used to determine the state polytope
+of a given affine toric ideal.
+(Hubert, Rekha)
+\item {\tt ox\_gnuplot}  {\footnotesize ftp://ftp.gnuplot.vt.edu/pub/gnuplot/}\\
+\item {\tt ox\_math}
+A server for Mathematica.
+(Ohara)
+\item {\tt OMproxy}  {\footnotesize cf. http://www.openmath.org} \\
+A server for translation between CMO and OpenMath/XML expressions.
+It is written in Java.
+This module provides Java classes OXmessage, CMO, and SM
+for the OpenXM protocol, too.
+(Tamura)
+\end{description}
+In addition to these servers, Risa/Asir, Kan/sm1 and Mathematica
+can act as clients. 
+\newpage
+\fbox{OX}
+{\footnotesize
+\begin{verbatim}
+#define	OX_COMMAND               513  // COMMAND
+#define	OX_DATA	                 514  // DATA
+#define OX_SYNC_BALL             515  // SPECIAL
+#define OX_DATA_WITH_LENGTH      521  // DATA
+#define OX_DATA_OPENMATH_XML     523  // DATA
+#define OX_DATA_OPENMATH_BINARY  524  // DATA
+#define OX_DATA_MP               525  // DATA
+\end{verbatim} }
+\newpage
+
+\fbox{CMO}
+{\footnotesize
+\begin{verbatim}
+#define CMO_ERROR2                         0x7f000002
+#define CMO_NULL                           1
+#define CMO_INT32                          2
+#define CMO_DATUM                          3
+#define CMO_STRING                         4
+#define CMO_MATHCAP                        5
+#define CMO_LIST                           17
+
+#define CMO_MONOMIAL32                     19
+#define CMO_ZZ                             20
+#define CMO_QQ                             21
+#define CMO_ZERO                           22
+#define CMO_DMS_GENERIC                    24
+#define CMO_DMS_OF_N_VARIABLES             25
+#define CMO_RING_BY_NAME                   26
+#define CMO_RECURSIVE_POLYNOMIAL           27
+#define CMO_LIST_R                         28
+#define CMO_INT32COEFF                     30
+#define CMO_DISTRIBUTED_POLYNOMIAL         31
+#define CMO_POLYNOMIAL_IN_ONE_VARIABLE     33
+#define CMO_RATIONAL                       34
+#define CMO_64BIT_MACHINE_DOUBLE           40
+#define CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  41
+#define CMO_BIGFLOAT                       50
+#define CMO_IEEE_DOUBLE_FLOAT              51
+#define CMO_INDETERMINATE                  60
+#define CMO_TREE                           61
+#define CMO_LAMBDA                         62
+\end{verbatim} }
+
+\fbox{SM COMMAND}
+{\footnotesize
+\begin{verbatim}
+#define SM_popSerializedLocalObject               258
+#define SM_popCMO                                 262
+#define SM_popString                              263
+#define SM_mathcap                                264
+#define SM_pops                                   265
+#define SM_setName                                266
+#define SM_evalName                               267
+#define SM_executeStringByLocalParser             268
+#define SM_executeFunction                        269
+#define SM_beginBlock                             270
+#define SM_endBlock                               271
+#define SM_shutdown                               272
+#define SM_setMathCap                             273
+#define SM_executeStringByLocalParserInBatchMode  274
+#define SM_getsp                                  275
+#define SM_dupErrors                              276
+#define SM_control_kill                          1024
+#define SM_control_to_debug_mode                 1025
+#define SM_control_exit_debug_mode               1026
+#define SM_control_reset_connection              1030
+\end{verbatim} }
+\newpage
+
+\fbox{Programming in asir client}	
+
+
+\begin{verbatim}
+#define SM_executeFunction  269
+def ex1() {
+  P = ox_launch();
+  ox_push_cmo(P,13);
+  ox_push_cmo(P,8);
+  ox_push_cmo(P,ntoint32(2));
+  ox_push_cmo(P,"igcd");
+  ox_push_cmd(P,SM_executeFunction);
+  return(ox_pop_cmo(P));
+}
+\end{verbatim}
+{\footnotesize
+\begin{verbatim}
+igcd(I1,I2)
+     :: The integer greatest common divisor of I1 and I2.
+\end{verbatim}
+}
+
+\begin{verbatim}
+  ox_rpc(P,"igcd",13,8);
+  ox_pop_cmo(P);
+\end{verbatim}
+
+A simple interface to servers by using strings:
+\begin{verbatim}
+ox_execute_string(P,"igcd(13,8);");
+\end{verbatim}
+\newpage
+
+Error packet of ox\_asir server:
+\begin{verbatim}
+[340] ox_launch();
+0
+[341] ox_rpc(0,"hoge",0);
+0
+[342] ox_pop_cmo(0);
+error([8,executeFunction : the function hoge not found])
+\end{verbatim}
+
+Error packet of ox\_sm1 server:
+\begin{verbatim}
+[340] ox_launch(0,getenv("OpenXM_HOME")+"/bin/ox_sm1");
+0
+[341] ox_cmo_rpc(0,"hoge",0);
+0
+[342] ox_pop_cmo(0);
+error([7,4294967295,executeString: 
+ Warning: identifier is not in the dictionaries])
+\end{verbatim}
+
+\newpage
+Generate a table of dilog by calling pari (server).
+\begin{verbatim}
+def ex2() {
+  P = ox_launch();
+  Ans = [ ];
+  for (I=0; I<1.0; I=I+0.1) {
+    /* ox_execute_string(P,"pari(dilog,0.3);"); */
+    ox_execute_string(P,"pari(dilog,"+rtostr(I)+");");
+    Ans = append(Ans,[ox_pop_local(P)]);
+  }
+  return(Ans);
+}
+\end{verbatim}
+\begin{verbatim}
+[345] ex2();
+[0, 0.102617791099391136905, 0.21100377543970478482,
+ 0.32612951007547605591,0.44928297447128169231,0.58224052646501250462,0.72758630771633335369,0.88937762428603865937,1.074794600008248448403,1.29971472300495878170,1.64493406684822643609]
+[346] 
+\end{verbatim}
+\newpage
+
+Computing the dimensions of de Rham cohomology groups
+of ${\bf C}^n \setminus V(f)$ by calling kan/sm1.
+{\footnotesize
+ Oaku, Takayama, An algorithm for de Rham cohomology groups of the
+  complement of an affine variety via D-module computation,
+  Journal of pure and applied algebra 139 (1999), 201-233.}
+\begin{verbatim}
+[344] P = sm1_start();
+[345] sm1_deRham([x^3-y^2*z^2,[x,y,z]]|proc=P);
+[1,1,0,0]
+[346] 
+\end{verbatim}
+{\footnotesize
+\begin{verbatim}
+def sm1_deRham(A) {
+  SM1_FIND_PROC(P);
+  P = sm1_check_server(P);
+  sm1_push_int0(P,A);
+  sm1(P," deRham ");
+  B = sm1_pop(P);
+  ox_check_errors2(P);
+  return(B);
+}
+\end{verbatim}
+}
+
+\begin{enumerate}
+\item Free resolution in $D$ (ox\_sm1).
+\item Annihilating ideal of $f^{-1}$ (ox\_sm1).
+\item Factorization  (ox\_asir).
+\end{enumerate}
+
+\newpage
+
+\fbox{ Distributed computation by a job pool}
+{\footnotesize \begin{verbatim}
+#define SM_popCMO 262
+def pool() {
+  P = [ox_launch(), ox_launch(), ox_launch()];
+  map(ox_push_cmo,P,0);
+  map(ox_push_cmd,P,SM_popCMO);
+  /* map(ox_get,P); mistake */
+
+  I = 50;
+  Jobs = [x^(I)-y^(I), x^(I+1)-y^(I+1),
+          x^(I+2)-y^(I+2), x^(I+3)-y^(I+3),
+          x^(I+4)-y^(I+4), x^(I+5)-y^(I+5)];
+  N = length(Jobs);
+  Ans = [ ];
+  print("------  started -----");
+  /* while (length(Jobs) != 0) { mistake */
+  while (length(Ans) != N) {
+    Q = ox_select(P)[0];
+    F = ox_get(Q);
+    /* print([Q,F]); */
+    if (F != 0) {
+        Ans = append(Ans,[F]); 
+        print(Q);
+    }
+    if (length(Jobs) > 0) {
+      Job = car(Jobs); Jobs=cdr(Jobs);
+      ox_rpc(Q,"fctr",Job); ox_push_cmd(Q,SM_popCMO);
+    }
+  }
+  return(Ans);
+}
+
+
+[345] pool();
+------  started -----
+1 2 1 0 1 2
+
+[[[-1,1],[y^16+x*y^15+x^2*y^14+x^3*y^13 ---- snip ----
+
+\end{verbatim}}
+\newpage
+
+\fbox{Finding series solution} \\
+\fbox{of holonomic system to the direction $w$}
+
+{\footnotesize
+\begin{verbatim}
+def dsolv_initial(F1,V1,W1) {
+  extern Dsolv_message_initial;
+  S=[F1,V1,W1];
+  F=S[0];
+  V=S[1];  
+  DV=map(sm1_d,V);
+  W=S[2];
+  N = length(V);
+  G = sm1_gb([F,V,dsolv_consw(V,W)]);
+  In = G[1]; 
+  In = map(subst,In,h,1);
+  In = sm1_gb([In,V])[0];  /* Computing the reduced basis. */
+  Ans = [ ];
+  for (I=0; I<length(In); I++) {
+    D = sm1_distraction([In[I],V,V,DV,V]);
+    Ans = append(Ans,[D]);
+  }
+  return(Ans);
+}
+\end{verbatim}
+
+--- SNIP ---
+
+}
+
+\begin{enumerate}
+\item Clean code
+\item Two days for our implementation.
+\end{enumerate}
+\begin{enumerate}
+\item Argument check.
+\item Debug window for servers.
+\item We have to write $n$-help messages.
+\end{enumerate}
+
+\newpage
+\fbox{ Product of univariate polynomials (Shoup)}
+
+\begin{tabbing}
+Input :\= $f_1, f_2 \in {\bf Z}[x]$ such that $deg(f_1), deg(f_2) < 2^M$\\
+Output : $f = f_1f_2$ \\
+$P \leftarrow$ \= $\{m_1,\cdots,m_N\}$ where $m_i$ is an odd prime, \\
+\> $2^{M+1}|m_i-1$ and $m=\prod m_i $ is sufficiently large. \\
+Separate $P$ into disjoint subsets $P_1, \cdots, P_L$.\\
+for \= $j=1$ to $L$ $M_j \leftarrow \prod_{m_i\in P_j} m_i$\\
+Compute $F_j$ such that $F_j \equiv f_1f_2 \bmod M_j$\\
+\> and $F_j \equiv 0 \bmod m/M_j$ in parallel.\\
+\> (The product is computed by FFT.)\\
+return $\phi_m(\sum F_j)$\\
+(For $a \in {\bf Z}$, $\phi_m(a) \in (-m/2,m/2)$ \\
+and $\phi_m(a)\equiv a \bmod m$)
+\end{tabbing}
+
+
+\epsfxsize=17cm
+\begin{center}
+\epsffile{../calc2000/speedup.ps}
+\end{center}
+
+\newpage
+
+\fbox{Solving algebraic equations}
+
+\begin{verbatim}
+[287] phc(katsura(7));
+The detailed output is in the file tmp.output.*
+The answer is in the variable Phc.
+0
+[290] B=map(first,Phc)$
+[291] gnuplot_plotDots([],0)$
+[292] gnuplot_plotDots(B,0)$
+\end{verbatim}
+
+\epsfxsize=17cm
+\begin{center}
+\epsffile{../calc2000/katsura7.ps}
+\end{center}
+The first components of the solutions to the system of algebraic equations Katsura 7.
+\newpage
+
+\end{document}
