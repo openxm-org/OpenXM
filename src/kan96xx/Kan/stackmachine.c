@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.21 2004/09/12 00:26:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.22 2004/09/12 01:32:08 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -925,10 +925,13 @@ int executeToken(token)
   int status;
   struct tokens *tokenArray;
   int i,h0,h1;
+  int infixOn;
+  struct tokens infixToken;
   extern int WarningMessageMode;
   extern int Strict;
   extern int InSendmsg2;
 
+  infixOn = 0;
   if (GotoP) { /* for goto */
     if (token.kind == ID && isLiteral(token.token)) {
       if (strcmp(&((token.token)[1]),GotoLabel) == 0) {
@@ -987,9 +990,22 @@ int executeToken(token)
           size = ob.rc.ival;
           for (i=0; i<size; i++) {
             status = executeToken(tokenArray[i]);
-            if (status != 0) {
+            if ((status & STATUS_BREAK) || (status < 0)) {
               tracePopName(); return(status);
 			}
+
+            if (status & STATUS_INFIX) {
+              if (i == size-1) errorStackmachine("Infix operator at the end of an executable array.");
+              infixOn = 1; infixToken = tokenArray[i]; 
+              infixToken.tflag |= NO_DELAY;
+              continue;
+            }else if (infixOn) {
+              infixOn = 0;
+              status = executeToken(infixToken);
+              if ((status & STATUS_BREAK) || (status < 0)) {
+                tracePopName(); return(status);
+              }
+            }
           }
           tracePopName();
         }else {
