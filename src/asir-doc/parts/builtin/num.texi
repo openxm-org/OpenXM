@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.2 1999/12/21 02:47:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.3 2000/01/13 08:29:57 noro Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -19,7 +19,7 @@
 * mt_save mt_load::
 * nm dn::
 * conj real imag::
-* eval::
+* eval deval::
 * pari::
 * setprec::
 * setmod::
@@ -693,14 +693,16 @@ These functions works also for polynomials with complex coefficients.
 [2,11,(2-11*@@i)]
 @end example
 
-\JP @node eval,,, 数の演算
-\EG @node eval,,, Numbers
-@subsection @code{eval}
+\JP @node eval deval ,,, 数の演算
+\EG @node eval deval,,, Numbers
+@subsection @code{eval}, @code{deval}
 @findex eval
+@findex deval
 @cindex PARI
 
 @table @t
 @item eval(@var{obj}[,@var{prec}])
+@item deval(@var{obj})
 \JP :: @var{obj} の値の評価. 
 \EG :: Evaluate @var{obj} numerically.
 @end table
@@ -722,8 +724,15 @@ These functions works also for polynomials with complex coefficients.
 @item
 @var{obj} に含まれる函数の値を可能な限り評価する. 
 @item
-計算は @b{PARI} (@xref{pari}) が行う. 
+@code{deval} は倍精度浮動小数を結果として 
+@code{eval} の場合, 有理数はそのまま残る. 
 @item
+@code{eval} においては, 計算は @b{PARI} (@xref{pari}) が行う. 
+@code{deval} においては, 計算は C 数学ライブラリの関数を用いて行う. 
+@item
+@code{deval} は複素数は扱えない. 
+@item
+@code{eval} においては, 
 @var{prec} を指定した場合, 計算は, 10 進 @var{prec} 桁程度で行われる. 
 @var{prec} の指定がない場合, 現在設定されている精度で行われる. 
 (@xref{setprec})
@@ -741,7 +750,8 @@ These functions works also for polynomials with complex coefficients.
 @code{exp}, @code{log}, @code{pow(a,b) (a^b)}
 @end table
 @item
-以下の記号を数として評価できる. 
+以下の記号を数として評価できる. ただし @code{@@i} を扱えるのは
+@code{eval}, @code{deval} のみである.
 @table @t
 @item @@i
 虚数単位
@@ -756,7 +766,14 @@ These functions works also for polynomials with complex coefficients.
 Evaluates the value of the functions contained in @var{obj} as far as
 possible.
 @item
-The computation is done by @b{PARI} (@xref{pari}).
+@code{deval} returns
+double float. Rational numbers remain unchanged in results from @code{eval}.
+@item
+In @code{eval} the computation is done 
+by @b{PARI} (@xref{pari}). In @code{deval} the computation is
+done by the C math library.
+@item
+@code{deval} cannot handle complex numbers.
 @item
 When @var{prec} is specified, computation will be performed with a
 precision of about @var{prec}-digits.
@@ -777,7 +794,8 @@ Note they are only a small part of whole @b{PARI} functions.
 @code{exp}, @code{log}, @code{pow(a,b) (a^b)}
 @end table
 @item
-Symbols for special values are as the followings.
+Symbols for special values are as the followings. Note that
+@code{@@i} cannot be handled by @code{deval}.
 @table @t
 @item @@i
 unit of imaginary number
@@ -799,6 +817,10 @@ Napier's number (@t{exp}(1))
 0.86602540378443864674620506632
 [121] eval(sin(@@pi/3)-3^(1/2)/2,50);
 -2.78791084448179148471 E-58
+[122] eval(1/2);
+1/2
+[123] deval(sin(1)^2+cos(1)^2);
+1
 @end example
 
 @table @t
@@ -1114,7 +1136,7 @@ Therefore, it is safe to specify a larger value.
 
 @table @t
 \JP @item 参照
-@fref{ctrl}, @fref{eval}, @fref{pari}.
+@fref{ctrl}, @fref{eval deval}, @fref{pari}.
 @end table
 
 \JP @node setmod,,, 数の演算
