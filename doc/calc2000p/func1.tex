@@ -1,0 +1,124 @@
+% $OpenXM$
+\documentclass[twocolumn]{article}
+\pagestyle{empty}
+%\markright{ {\tt http://www.openxm.org} }
+\usepackage{color}
+\usepackage{epsfig}
+\title{\huge \color{blue} 4252 functions are available
+on our servers and libraries}
+\author{} \date{}
+\begin{document}
+\maketitle
+
+\noindent
+\fbox{\huge {\color{green}Operations on Integers}}
+
+\noindent
+{\color{red} idiv},{\color{red} irem} (division with remainder),
+{\color{red} ishift} (bit shifting),
+{\color{red} iand},{\color{red} ior},{\color{red} ixor} (logical operations),
+{\color{red} igcd},(GCD by various methods such as Euclid's algorithm and
+the accelerated GCD algorithm),
+{\color{red} fac} (factorial),
+{\color{red} inv} (inverse modulo an integer),
+{\color{red} random} (random number generator by the Mersenne twister algorithm),
+
+
+
+\medbreak
+
+\noindent
+\fbox{\huge {\color{green}Ground Fields}}
+
+\noindent
+Arithmetics on various fields: the rationals, 
+$Q(\alpha_1,\alpha_2,\ldots,\alpha_n)$
+($\alpha_i$ is algebraic over $Q(\alpha_1,\ldots,\alpha_{i-1})$),
+$GF(p)$ ($p$ is a prime of arbitrary size), $GF(2^n)$.
+
+\medbreak
+
+\noindent
+\fbox{\huge {\color{green}Operations on Polynomials}}
+
+\noindent
+{\color{red} sdiv }, {\color{red} srem } (division with remainder),
+{\color{red} ptozp } (removal of the integer content),
+{\color{red} diff } (differentiation),
+{\color{red} gcd } (GCD over the rationals),
+{\color{red} res } (resultant),
+{\color{red} subst } (substitution),
+{\color{red} umul} (fast multiplication of dense univariate polynomials 
+by a hybrid method with Karatsuba and FFT+Chinese remainder),
+{\color{red} urembymul\_precomp} (fast dense univariate polynomial 
+division with remainder by the fast multiplication and 
+the precomputed inverse of a divisor),
+
+\noindent
+\fbox{\huge {\color{green}Polynomial Factorization}}
+{\color{red} fctr } (factorization over the rationals),
+{\color{red} fctr\_ff } (univariate factorization over finite fields),
+{\color{red} af } (univariate factorization over algebraic number fields),
+{\color{red} sp} (splitting field computation).
+
+\medbreak
+
+\noindent
+\fbox{\huge {\color{green} Groebner basis}} 
+
+\noindent
+{\color{red} dp\_gr\_main } (Groebner basis computation of a polynomial ideal 
+over the rationals by the trace lifting),
+{\color{red} dp\_gr\_mod\_main } (Groebner basis over small finite fields),
+{\color{red} tolex } (Modular change of ordering for a zero-dimensional ideal),
+{\color{red} tolex\_gsl } (Modular rational univariate representation 
+for a zero-dimensional ideal),
+{\color{red} dp\_f4\_main } ($F_4$ over the rationals),
+{\color{red} dp\_f4\_mod\_main } ($F_4$ over small finite fields).
+
+\medbreak
+\noindent
+\fbox{\huge {\color{green} Ideal Decomposition}} 
+
+\noindent
+{\color{red} primedec} (Prime decomposition of the radical),
+{\color{red} primadec} (Primary decomposition of ideals by Shimoyama/Yokoyama algorithm).
+
+\medbreak
+
+\noindent
+\fbox{\huge {\color{green} Quantifier Elimination}} 
+
+\noindent
+{\color{red} qe} (real quantifier elimination in a linear and 
+quadratic first-order formula),
+{\color{red} simpl} (heuristic simplification of a first-order formula).
+
+\medbreak
+
+\noindent
+\fbox{\huge {\color{green} Visualization of curves}} 
+
+\noindent
+{\color{red} plot} (plotting of a univariate function),
+{\color{red} ifplot} (plotting zeros of a bivariate polynomial),
+{\color{red} conplot} (contour plotting of a bivariate polynomial function).
+
+\medbreak
+
+\noindent
+\fbox{\huge {\color{green} Miscellaneous functions}} 
+
+\noindent
+{\color{red} det} (determinant),
+{\color{red} qsort} (sorting of an array by the quick sort algorithm),
+{\color{red} eval} (evaluation of a formula containing transcendental functions),
+{\color{red} roots} (finding all roots of a univariate polynomial),
+{\color{red} lll} (computation of an LLL-reduced basis of a lattice).
+
+\medbreak
+\vfill
+\noindent
+\rightline{ {\color{red} {\tt http://www.openxm.org} }}
+
+\end{document}
