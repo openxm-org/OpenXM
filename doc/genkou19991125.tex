@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.83 1999/12/25 08:03:16 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.84 1999/12/25 09:05:48 tam Exp $
 
 \usepackage{jssac}
 \title{
@@ -54,7 +54,7 @@ OpenXM 規約では共通表現形式の中の文字列として,
 
 OpenXM 規約では通信の方法に幾らかの自由度があるが,
 現在のところは TCP/IP を用いた通信しか実装されていない.
-\footnote{asir で MPI を用いた実装もある}
+\footnote{asir では MPI を用いた実装もある.}
 そこで, この論文では具体的な実装は TCP/IP を用いていると仮定する.
 
 \section{OpenXM のメッセージの構造}
@@ -513,25 +513,26 @@ $A$ の部分は
 %({\Large 修正をみて, ただしく直すこと})
 
 さらに, このサーバのスタックマシンが
-命令コード 2, 3, 5, 7, 11 番を利用可能
-(実際にはこのような命令コードは存在しない)
-{\Large じゃあ書くな}
+命令 SM\_popCMO, SM\_popString, SM\_mathcap,
+SM\_executeStringByLocalParser を利用可能
+%(実際にはこのような命令コードは存在しない)
+%{\Large じゃあ書くな}
 であれば, $B$ の部分は
 \begin{quote}
-	(CMO\_LIST, {\sl int32} $5$,
-		(CMO\_INT32, $2$), (CMO\_INT32, $3$),
-		(CMO\_INT32, $5$), (CMO\_INT32, $7$),
-		(CMO\_INT32, $11$))
+(CMO\_LIST, {\sl int32} $5$,
+	(CMO\_INT32, SM\_popCMO), (CMO\_INT32, SM\_popString),
+		(CMO\_INT32, SM\_mathcap),
+		(CMO\_INT32, SM\_executeStringByLocalParser))
 \end{quote}
 となり,
 CMO 形式の 32 ビット整数, 文字列, mathcap , リスト構造のみが
 受け取れるときには, $C$ の部分は
 \begin{quote}
   (CMO\_LIST, {\sl int32} $1$, \\
-  \ \ (CMO\_LIST, {\sl int32} $2$, (CMO\_INT32, 514), \\
+  \ \ (CMO\_LIST, {\sl int32} $2$, (CMO\_INT32, OX\_DATA), \\
   \ \ \ \ (CMO\_LIST, {\sl int32} $4$,
-            (CMO\_INT32, $2$), (CMO\_INT32, $4$),
-            (CMO\_INT32, $5$), (CMO\_INT32, $17$))))
+            (CMO\_INT32, CMO\_INT32), (CMO\_INT32, CMO\_STRING),
+            (CMO\_INT32, CMO\_MATHCAP), (CMO\_INT32, CMO\_LIST))))
 \end{quote}
 となる.
 
@@ -578,17 +579,24 @@ OpenXM では侵入者に攻撃の機会をできるだけ与えないようにするため,
 他のプロジェクトについても触れておこう.
 
 \begin{itemize}
-\item OpenMath\\
-OpenMath プロジェクトは数学的なオブジェクトをコンピュータ上で表現する方
-法を規定している. 各ソフトウェア間でオブジェクトを交換する際のオブジェク
-トの変換手順につても定められている. 表現方法は幾つかの段階で定められて
-いて, XML 表現やバイナリ表現などが用意されている. 詳細は
+\item OpenMath
 
 http://www.openmath.org/omsoc/   A.M.Cohen
+
+このプロジェクトは数学的なオブジェクトをコンピュータ上で表現する方
+法を規定している.
+%各ソフトウェア間でオブジェクトを交換する際のオブジェクトの変換手順に
+%ついても定められている.
+表現方法は幾つかの段階で定められていて,
+XML 表現やバイナリ表現などが用意されている.
+
 
 \item NetSolve
 
 http://www.cs.utk.edu/netsolve/
+
+ネットワークを使い, 計算機の資源を
+
 
 \item MP
 
