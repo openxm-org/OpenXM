@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.19 2000/03/11 02:01:41 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.20 2000/03/17 15:05:39 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.2
 ## For debugging. 
@@ -83,7 +83,7 @@ post-install :
 	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
 	-cp $(OpenXM_MANPAGES) ${PREFIX}/man/man1
-	-gzip ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
+	-gzip -f ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
 	-cat pkg/MESSAGE
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk
