@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/main.cpp,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
 
 #include "ox_toolkit.h"
 #include "oxserv.h"
@@ -48,10 +48,10 @@ main(int argc, char *argv[])
 
 	ox_stderr_init(stderr);
 
-	oxserv_set(OXSERV_SET_EXECUTE_FUNCTION, ntl_executeFunction, NULL);
-	oxserv_set(OXSERV_SET_DELETE_CMO, delete_cmon, NULL);
-	oxserv_set(OXSERV_SET_GET_CMOTAG, get_cmon_tag, NULL);
-	oxserv_set(OXSERV_SET_CONVERT_CMO, convert_cmon, NULL);
+	oxserv_set(OXSERV_SET_EXECUTE_FUNCTION, (void (*)())ntl_executeFunction, NULL);
+	oxserv_set(OXSERV_SET_DELETE_CMO, (void (*)())delete_cmon, NULL);
+	oxserv_set(OXSERV_SET_GET_CMOTAG, (void (*)())get_cmon_tag, NULL);
+	oxserv_set(OXSERV_SET_CONVERT_CMO, (void (*)())convert_cmon, NULL);
 	oxserv_init(oxfp, VERSION, ID_STRING, "ox_ntl", NULL, NULL);
 
 	ret = oxserv_receive(oxfp);
