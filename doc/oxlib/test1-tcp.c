@@ -1,8 +1,26 @@
-/* $OpenXM: OpenXM/doc/oxlib/test1-tcp.c,v 1.1 2000/09/07 21:34:06 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/oxlib/test1-tcp.c,v 1.2 2000/09/07 21:55:48 takayama Exp $ */
 /* A sample code to explain how to use ox_asir by TCP/IP and
    OpenXM control protocol.
    It computes the gcd of 12 and 8 by calling ox_asir server.
    */
+
+/*
+   Asir code that does the same computation on ox_asir server.
+   Try the following lines on asir.
+
+   P = ox_launch();
+   ox_push_cmo(P,12);
+   ox_push_cmo(P,8);
+   ox_push_cmo(P,ntoint32(2));
+   ox_push_cmo(P,"igcd");
+   ox_push_cmd(P,269);
+   ox_pop_string(P);
+   
+   Then, you get 
+     4
+
+   */
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
