@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/util/Makefile,v 1.11 2003/11/16 07:14:11 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile,v 1.12 2003/11/17 03:00:59 takayama Exp $
 OpenXM_ROOT=../../../OpenXM
 OpenXM_bin=$(OpenXM_ROOT)/bin
 OpenXM_lib=$(OpenXM_ROOT)/lib
@@ -9,10 +9,13 @@ all : oxweave oxreplace libox_pathfinder.a
 
 oxweave : oxweave.c
 	gcc    -D_BSD_SOURCE -o oxweave -g oxweave.c
+	rm -f .install_done
 oxreplace : oxreplace.c
 	gcc    -D_BSD_SOURCE -o oxreplace -g oxreplace.c
+	rm -f .install_done
 libox_pathfinder.a : ox_pathfinder.o
 	ar ru libox_pathfinder.a ox_pathfinder.o
+	rm -f .install_done
 ox_pathfinder.o : ox_pathfinder.c ox_pathfinder.h
 	$(CC) -D_BSD_SOURCE -D_POSIX_C_SOURCE -c ox_pathfinder.c
 
