@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.8 2004/09/13 11:24:10 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.9 2004/09/19 00:47:47 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -270,6 +270,41 @@ executableArray が変数 {\tt arg1} に代入され, その変数を scann
 [(RestrictedMode) 1] system_variable ;
 [ (x^2-1) (x,y) ] fctr pmat ;
 \end{verbatim}
+
+\section{2004-11-23, POST ベースの cgiPolymake 等}
+
+\begin{enumerate}
+\item 
+{\tt Kan/plugin/mytcpio.c} 1.15 \\
+{\tt Kan/plugin/oxcgi.c} 1.7 \\
+{\tt Kan/ext.c} 1.33 \\
+{\tt Kan/Doc/cgi.sm1} 1.8--1.11 \\
+{\tt polymake/cgi/cgi-polymake.sh} 1.3 
+\end{enumerate}
+
+GET では受渡しできるデータの量に制限があるため,
+POST ベースに変更した.
+\begin{verbatim}
+POST http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir.sh HTTP/0.9
+Content-length: 20
+
+oxMessageBody=2-1%0A
+\end{verbatim}
+
+POST のデータをうけとるため,
+\verb@ [(read) fd size] extension @
+システムコールを加えた.
+
+システムコール {\tt perror} を用いて,
+tcpip のエラー等を表示するようにした.
+{\tt eventail/data/test32.sm1} の途中のエラーは,
+GET では受渡しできるデータの量に制限があるため
+起きたようであるが, 適切なエラーメッセージがなくて
+原因の究明に時間がかかった反省.
+
+{\tt misc-2004/11/cgi} も参照のこと.
+Risa/Asir の \verb@ set_secure_mode @ , \verb@ set_secure_flag @
+にも対応中.
 
 \end{document}
 
