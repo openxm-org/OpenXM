@@ -1,19 +1,20 @@
-.C $OpenXM$
-.TH OPENXM 1 "5 March 2000"
+.C $OpenXM: OpenXM/rc/openxm.1,v 1.1 2000/03/05 06:54:00 takayama Exp $
+.TH OPENXM 1 "15 March 2000"
 .SH NAME
-openxm \-  A shell script to start binaries under OpenXM/bin
+openxm \-  A shell script to start OpenXM clients in OpenXM/bin
 .SH SYNOPSIS
 .B openxm
 .RB [ args ] 
 
 .SH DESCRIPTION
-The shell script openxm starts binaries under OpenXM/bin
+The shell script openxm starts OpenXM clients,
+such as asir and sm1, in OpenXM/bin
 with an appropriate setting of environmental variables.
 OpenXM is a project to build a free, or open source infrastracture
 for mathematical softwares.
 The OpenXM package is a collection of mathematical softwares that
 support the OpenXM protocol for mathematics.
-It includes servers that support the OpenXM protocol.
+It also includes servers that support the OpenXM protocol.
 
 
 .SH USE
@@ -24,17 +25,21 @@ to start OpenXM/bin/asir (Risa/asir with OpenXM support).
 .B openxm sm1
 to start OpenXM/bin/sm1.
 .TP
-.B openxm oxmath
-to start OpenXM/bin/oxmath  (Mathematica with OpenXM support).
+.B openxm math
+to start Mathematica (math) with suitable setting of environmental variables.
 
 .TP
 .B REMARK
 For each main client under OpenXM/bin like asir, a shell script
 for that client is installed under /usr/local/bin.
-For instance, "openxm fep asir" is equivalent to "/usr/local/bin/asir".
+For instance, "openxm asir" is equivalent to "/usr/local/bin/asir".
 
 .SH MANUALS
-See /usr/local/OpenXM/doc/
+See /usr/local/OpenXM/doc/install-*.txt for general information.
+See
+    /usr/local/OpenXM/doc/asir2000 for asir,
+    /usr/local/OpenXM/doc/kan96xx for sm1,
+    /usr/local/OpenXM/doc/oxmath for the OpenXM support of Mathematica.
 
 .SH FILES
 .TP
