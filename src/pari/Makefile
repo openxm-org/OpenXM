@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.5 2000/01/08 18:41:19 maekawa Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.6 2000/01/08 19:10:25 maekawa Exp $
 
 PARI = ../../../OpenXM_contrib/pari
 CURDIR = ../../OpenXM/src/pari
@@ -20,9 +20,7 @@ clean:
 	@rm -f ./.make_done ./.configure_done
 
 distclean:
-	rm -rf ../../lib/libpari.* ../../lib/pari
-	rm -rf ../../include/pari
-	rm -rf $(BINDIR)/gp $(BINDIR)/gp-2.0
+	@cat BINARIES | xargs -t rm -rf
 
 configure:
 	@if [ ! -f ./.configure_done ]; then \
