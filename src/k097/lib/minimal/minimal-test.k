@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.7 2000/07/30 02:26:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.8 2000/07/31 01:21:41 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -79,7 +79,7 @@ def test_ann3(f) {
   ans2 = ReParse(ans2);
   r= IsExact_h(ans2,[x,y,z]);
   Println(r);
-  return([r,ans2]);
+  return([r,ans2,a]);
 }
 def test11a() {
   local a,v,ww2,ans2;
@@ -240,6 +240,50 @@ def test16b() {
   return(Sminimal(ans3));
 }
 
-          
+
+def test17() {
+   a=Sannfs3("x^3-y^2*z^2");
+   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
+   Sweyl("x,y,z",[w]); b = Reparse(b);
+   c=Sinit_w(b,w); 
+   Println("Resolution (b)----");
+   sm1_pmat(b);
+   Println("Initial (c)----");
+   sm1_pmat(c);
+   Println(IsExact_h(c,"x,y,z"));
+}          
+def test17b() {
+   a=Sannfs3("x^3-y^2*z^2");
+   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
+   Sweyl("x,y,z",[w]); b = Reparse(b);
+   c=Sinit_w(b,w); 
+   Println("Resolution (b)----");
+   sm1_pmat(b);
+   Println("Initial (c)----");
+   sm1_pmat(c);
+   Println(IsExact_h(c,"x,y,z"));
+   g = Sinvolutive(b[0],w);
+   Println("Involutive basis ---");
+   sm1_pmat(g);
+   Println("Is same ideal?");
+   Println(IsSameIdeal_h(g,c[0],"x,y"));
+}          
+
+def test18() {
+   a=Sannfs2("x^3-y^2");
+   b=a[0]; w = ["x",-1,"y",-1,"Dx",1,"Dy",1];
+   Sweyl("x,y",[w]); b = Reparse(b);
+   c=Sinit_w(b,w); 
+   Println("Resolution (b)----");
+   sm1_pmat(b);
+   Println("Initial (c)----");
+   sm1_pmat(c);
+   g = Sinvolutive(b[0],w);
+   Println("Involutive basis ---");
+   sm1_pmat(g);
+   Println("Is same ideal?");
+   Println(IsSameIdeal_h(g,c[0],"x,y"));
+   
+}          
 
 

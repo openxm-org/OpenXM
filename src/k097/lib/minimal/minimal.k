@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.19 2000/07/31 01:21:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.20 2000/07/31 02:25:34 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -34,6 +34,7 @@ def load_tower() {
   if (Boundp("k0-tower.sm1.loaded")) {
   }else{
     sm1(" [(parse) (k0-tower.sm1) pushfile ] extension ");
+    sm1(" [(parse) (new.sm1) pushfile ] extension ");
     sm1(" /k0-tower.sm1.loaded 1 def ");
   }
   sm1(" oxNoX ");
@@ -49,6 +50,19 @@ def Reverse(f) {
 def Sgroebner(f) {
    sm1(" [f] groebner /FunctionValue set");
 }
+
+def Sinvolutive(f,w) {
+  local g,m;
+  if (IsArray(f[0])) {
+    m = NewArray(Length(f[0]));
+  }else{
+    m = [0];
+  }
+  g = Sgroebner(f);
+  /* This is a temporary code. */
+  sm1(" g 0 get { w m init_w<m>} map /FunctionValue set ");
+}
+
 
 
 def Error(s) {
@@ -82,6 +96,38 @@ def RingOf(f) {
   }
   return(r);
 }
+
+def Ord_w_m(f,w,m) {
+  sm1(" f  w  m ord_w<m> { (universalNumber) dc } map /FunctionValue set ");
+}
+HelpAdd(["Ord_w_m",
+["Ord_w_m(f,w,m) returns the order of f with respect to w with the shift m.",
+ "Note that the order of the ring and the weight w must be the same.",
+ "When f is zero, it returns -intInfinity = -999999999.",
+ "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"Dx\",1]]); ",
+ "          Ord_w_m([x*Dx+1,Dx^2+x^5],[\"x\",-1,\"Dx\",1],[2,0]):"]]);
+
+def Init_w_m(f,w,m) {
+  sm1(" f w m init_w<m> /FunctionValue set ");
+}
+HelpAdd(["Init_w_m",
+["Init_w_m(f,w,m) returns the initial of f with respect to w with the shift m.",
+ "Note that the order of the ring and the weight w must be the same.",
+ "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"Dx\",1]]); ",
+ "          Init_w_m([x*Dx+1,Dx^2+x^5],[\"x\",-1,\"Dx\",1],[2,0]):"]]);
+
+def Max(v) {
+  local i,t,n;
+  n = Length(v);
+  if (n == 0) return(null);
+  t = v[0];
+  for (i=0; i<n; i++) {
+    if (v[i] > t) { t = v[i];}
+  }
+  return(t);
+}
+HelpAdd(["Max",
+["Max(v) returns the maximal element in v."]]);
 
 /*  End of standard functions that should be moved to standard libraries. */
 def test0() {
@@ -1345,6 +1391,18 @@ HelpAdd(["IsExact_h",
  "cf. ReParse"
 ]]);
 
+def IsSameIdeal_h(ii,jj,v) {
+  local a;
+  v = ToString_array(v);
+  a = [ii,jj,v];
+  sm1(a," isSameIdeal_h /FunctionValue set ");
+}
+HelpAdd(["IsSameIdeal_h",
+["IsSameIdeal_h(ii,jj,var): bool",
+ "It checks the given ideals are the same or not in D<h> (homogenized Weyl algebra)",
+ "cf. ReParse"
+]]);
+
 def ReParse(a) {
   local c;
   if (IsArray(a)) {
@@ -1385,3 +1443,60 @@ def ScheckIfSchreyer(s) {
   /* More check will be necessary. */
   return(true);
 }
+
+def SgetShift(mat,w,m) {
+  local omat;
+  sm1(" mat { w m ord_w<m> {(universalNumber) dc}map } map /omat set");
+  return(Map(omat,"Max")); 
+}
+HelpAdd(["SgetShift",
+["SgetShift(mat,w,m) returns the shift vector of mat with respect to w with the shift m.",
+ "Note that the order of the ring and the weight w must be the same.",
+ "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"Dx\",1]]); ",
+ "          SgetShift([[x*Dx+1,Dx^2+x^5],[Poly(\"0\"),x],[x,x]],[\"x\",-1,\"Dx\",1],[2,0]):"]]);
+
+def SgetShifts(resmat,w) {
+  local i,n,ans,m0;
+  n = Length(resmat);
+  ans = NewArray(n);
+  m0 = NewArray(Length(resmat[0,0]));
+  ans[0] = m0;
+  for (i=0; i<n-1; i++) {
+    ans[i+1] = SgetShift(resmat[i],w,m0);
+    m0 = ans[i+1];
+  }
+  return(ans);
+}
+HelpAdd(["SgetShifts",
+["SgetShifts(resmat,w) returns the shift vectors of the resolution resmat",
+ " with respect to w with the shift m.",
+ "Note that the order of the ring and the weight w must be the same.",
+ "Zero row is not allowed.",
+ "Example:   a=Sannfs2(\"x^3-y^2\");",
+ "           b=a[0]; w = [\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1];",
+ "           Sweyl(\"x,y\",[w]); b = Reparse(b);",
+ "           SgetShifts(b,w):"]]);
+
+def Sinit_w(resmat,w) {
+  local shifts,ans,n,i,m,mat,j;
+  shifts = SgetShifts(resmat,w);
+  n = Length(resmat);
+  ans = NewArray(n);
+  for (i=0; i<n; i++) {
+    m = shifts[i];
+    mat = ScopyArray(resmat[i]);
+    for (j=0; j<Length(mat); j++) {
+      mat[j] = Init_w_m(mat[j],w,m);
+    }
+    ans[i] = mat;
+  }
+  return(ans);
+}
+HelpAdd(["Sinit_w",
+["Sinit_w(resmat,w) returns the initial of the complex resmat with respect to the weight w.",
+ "Example:   a=Sannfs2(\"x^3-y^2\");",
+ "           b=a[0]; w = [\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1];",
+ "           Sweyl(\"x,y\",[w]); b = Reparse(b);",
+ "           c=Sinit_w(b,w); c:"
+]]);
+
