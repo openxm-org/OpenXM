@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.9 2000/01/20 08:46:44 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.10 2000/01/20 15:38:12 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -81,6 +81,8 @@ static char*        new_string_set_cmo_null();
 static char*        new_string_set_cmo_int32(int integer);
 static char*        new_string_set_cmo_list(cmo_list *c);
 static char*        new_string_set_cmo_zz(cmo_zz *c);
+
+int ssh_ox_server(char *, char *, char *, short, short);
 
 int current_fd = 0;
 int set_current_fd(int fd)
@@ -801,7 +803,12 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 	char *oxlog;
 
 	/* not overwrite */
+#if 0
 	setenv("OpenXM_HOME", "/usr/local/OpenXM", 0);
+#endif
+	if (getenv("OpenXM_HOME") == NULL) {
+		putenv("OpenXM_HOME=/usr/local/OpenXM");
+	}
 
 	oxlog    = concat_openxm_home_bin("oxlog");
 	ctl_prog = concat_openxm_home_bin(ctl_prog);
