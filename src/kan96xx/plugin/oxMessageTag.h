@@ -1,8 +1,10 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxMessageTag.h,v 1.2 1999/11/02 09:09:09 takayama Exp $ */
 /* ox_message_tag.h */
 /* If you add new OX_DATA_your_new_format,
    you need to change KSmathCapByStruct() in cmo.c
 */
+
+#define OX_PRIVATE               0x7fff0000
 
 #define OX_COMMAND                   513	
 #define OX_DATA                      514

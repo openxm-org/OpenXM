@@ -1,8 +1,10 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxFunctionId.h,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
 /* ox_function_id.h */
 /* If you add new add new SM_*,
    you also need to modify, KSmathcapByStruct()
 */
+#define SM_PRIVATE            0x7fff0000
+
 #define SM_popSerializedLocalObject 258
 #define SM_popCMO 262
 #define SM_popString 263    /* result ==> string and send the string by CMO */
@@ -31,4 +33,5 @@
 #define SM_control_ping  1027
 #define SM_control_start_watch_thread 1028
 #define SM_control_stop_watch_thread 1029
+
 
