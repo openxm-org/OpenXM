@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.8 2001/08/23 00:16:55 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.9 2001/08/23 00:49:00 takayama Exp $
 %% http server by sm1
 %% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
@@ -36,16 +36,7 @@ def
 } {
   %% Initialize ox_sm1
   [(ostype)] extension 0 get
-  (windows) eq {
-    [(getenv) (OSTYPE)] extension
-    (cygwin) eq {
-      sm1connectr      %% Cygwin
-    }{
-      sm1connectr_win  %% Native Windows.
-    } ifelse
-  }{
-     sm1connectr      %% Unix
-  } ifelse
+  sm1connectr
   ox.ccc oxmathcap
   ox.ccc oxsetmathcap
 } ifelse

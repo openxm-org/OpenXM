@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.2 1999/11/11 01:35:07 takayama Exp $
 %% kxx/oxasir.sm1   1998, 2/12 (this version is at Old/oxasir.sm1.19980212
 %%   3/1, 1995, 11/5, 11/21
 %% This file is error clean.
@@ -579,4 +579,8 @@ oxasir.verbose {
 ]] putUsages
 
 /oxasir.sm1.loaded 1 def
-initializePathNamesForOxAsir   %% This should be the last.
+[(ostype)] extension  0 get (windows) eq {
+  [(parse) (oxasir-win.sm1) pushfile ] extension 
+}{
+  initializePathNamesForOxAsir   %% This should be the last.
+} ifelse

@@ -1,6 +1,10 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.7 2001/08/22 02:36:34 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.8 2001/08/22 03:23:25 takayama Exp $
 
-[(parse) (ox.sm1) pushfile] extension pop
+/ox-win.sm1.loaded 1 def
+/ox.sm1.loaded boundp {
+}{
+  [(parse) (ox.sm1) pushfile] extension pop
+} ifelse
 
 $ox-win.sm1, ---OpenXM protocol module for Microsoft Windows 08/22, 2001  (C) N.Takayama.$ message-quiet
 
@@ -30,6 +34,16 @@ OpenXM_HOME_WIN tag 0 eq {
 /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
 
 /sm1connectr {
+   [(getenv) (OSTYPE)] extension (cygwin) eq
+   {
+     sm1connectr_cygwin
+   }{
+     sm1connectr_win
+   }ifelse
+} def
+
+%% For cygwin
+/sm1connectr_cygwin {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [
  /pass [(oxGenPass)] extension def
@@ -39,6 +53,7 @@ OpenXM_HOME_WIN tag 0 eq {
  peer message
  [(start ox ) ( -reverse -ox ) (/home/nobuki/OpenXM/src/kxx/ox_sm1.exe)
   ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -wait 2 )
   oxpath.null
   ( )] cat system 
  [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
@@ -49,6 +64,7 @@ OpenXM_HOME_WIN tag 0 eq {
  popVariables
 } def
 
+%% For Native windows system
 /sm1connectr_win {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [
@@ -80,6 +96,7 @@ OpenXM_HOME_WIN tag 0 eq {
  popVariables
 } def
 
+%% Test
 /asirconnectr_win {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
  [

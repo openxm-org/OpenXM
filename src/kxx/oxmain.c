@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.7 2001/05/06 07:53:01 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.8 2001/05/06 08:11:48 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -51,6 +51,7 @@ main(int argc, char *argv[]) {
   char portfile[1024];
   char *pass;
   int result;
+  int sleepingTime = 0;
 
   strcpy(sname,"localhost");
   strcpy(ServerName,SERVERNAME);
@@ -91,6 +92,11 @@ main(int argc, char *argv[]) {
       if (i<argc) {
         pass = argv[i];
       }
+    }else if (strcmp(argv[i],"-wait") == 0) {
+      i++;
+      if (i<argc) {
+        sscanf(argv[i],"%d",&sleepingTime);
+      }
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
       oxmainUsage(); exit(10);
@@ -104,6 +110,12 @@ main(int argc, char *argv[]) {
       sleep(5);
       exit(-1);
     }
+  }
+
+  if (sleepingTime) {
+    fprintf(stderr,"Waiting to connect for %d seconds...\n",sleepingTime);
+    sleep(sleepingTime);
+    fprintf(stderr,"\nTrying to connect\n");
   }
 
   if (reverse) {

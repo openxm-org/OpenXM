@@ -1,5 +1,46 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.1 2001/12/21 03:00:41 takayama Exp $
 % It is empty for now.
 %
-/oxasir.sm1.loaded 10 def
-(oxasir-win.sm1 is loaded.  It is an empty module for now.) message
+/oxasir.sm1.loaded 1 def
+(oxasir-win.sm1 (C) N.Takayama, 12/17, 2001) message
+
+%% Set constants for windows.
+/oxasirpath.oxasir  
+  [ [(getenv) (OpenXM_HOME)] extension
+    (/bin/ox_asir) ] cat
+% (\OpenXM-win\bin\ox_asir)
+def
+/oxasirpath.asirlib
+  [ [(getenv) (OpenXM_HOME)] extension
+    (/lib/sm1/oxasir.asir) ] cat
+% (\OpenXM-win\lib\sm1\oxasir.asir)
+def
+/oxpath.ox
+%%  (\OpenXM-win\bin\ox.exe)
+  (ox)
+def
+%% Override asirconnectr
+/asirconnectr {
+ [/in-asirconnectr /pass /peer /data /control /oxasir] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(start ) oxpath.ox ( -reverse -ox ) oxasirpath.oxasir
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -wait 5 )
+  oxpath.null
+ ] cat system
+ [(oxCreateClient2) peer 0 pass] extension /oxasir set
+                     %% 0 means connect from only localhost. 
+ oxasir asirinit
+ /arg1 oxasir def
+ ] pop
+ popVariables
+ arg1
+} def
+
+%% 
+
