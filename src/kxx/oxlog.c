@@ -59,6 +59,12 @@ main(int argc, char *argv[]) {
   }else if (argc == 15) {
     execl(argv[1],argv[1],argv[2],argv[3],argv[4],argv[5],argv[6],
 	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],NULL);
+  }else if (argc == 16) {
+    execl(argv[1],argv[1],argv[2],argv[3],argv[4],argv[5],argv[6],
+	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],NULL);
+  }else if (argc == 17) {
+    execl(argv[1],argv[1],argv[2],argv[3],argv[4],argv[5],argv[6],
+	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],NULL);
   }else {
     fprintf(stderr,"Error in oxlog: cannot handle argc=%d\n",argc);
     for (i=0; i<argc; i++) {
