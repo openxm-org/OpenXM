@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.9 2000/08/01 03:42:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.10 2000/08/01 05:16:02 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -254,26 +254,30 @@ def test17() {
 }          
 
 def test_if_v_strict(resmat,w,v) {
-   local b,c;
+   local b,c,g,cc;
    Sweyl(v,[w]); b = Reparse(resmat);
    c=Sinit_w(b,w); 
    Println("Resolution (b)----");
    sm1_pmat(b);
    Println("Initial (c)----");
-   sm1_pmat(c);
+   sm1_pmat(c); cc=c;
    Println("Exactness of the resolution ---");
-   Println(IsExact_h(b,v));
+   Println(IsExact_h(b,v));  /* IsExact_h breaks the variable c.
+                                THIS BUG SHOULD BE FIXED. */
+   Println("Why is the initial c rewritten by b? (buggy) ");sm1_pmat(c[0]);
    Println("Exactness of the initial complex.---");
-   Println(IsExact_h(c,v));
+   Println(IsExact_h(cc,v));
    g = Sinvolutive(b[0],w);
    /* Println("Involutive basis ---");
-     sm1_pmat(g); */
+      sm1_pmat(g); 
+      Println(Sinvolutive(cc[0],w));
+      sm1(" /gb.verbose 1 def "); */
    Println("Is same ideal?");
-   Println(IsSameIdeal_h(g,c[0],"x,y"));
+   Println(IsSameIdeal_h(g,cc[0],v));
 }
 def test17b() {
    a=Sannfs3("x^3-y^2*z^2");
-   b=a[0]; w = ["x",-1,"y",-1,"z",-5,"Dx",1,"Dy",1,"Dz",5];
+   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
    test_if_v_strict(b,w,"x,y,z");
    return(a);
 }          

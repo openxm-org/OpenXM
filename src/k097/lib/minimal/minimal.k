@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.20 2000/07/31 02:25:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.21 2000/08/01 03:42:35 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -239,8 +239,11 @@ def SresolutionFrameWithTower(g,opt) {
           }
         }
       }
-    }else{
+    } else if (IsNull(opt)){
+    } else {
       Println("Warning: option should be given by an array.");
+      Println(opt);
+      Println("--------------------------------------------");
     }
   }
 
