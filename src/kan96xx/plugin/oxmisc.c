@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.5 2000/03/20 01:53:47 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.6 2000/09/08 16:08:42 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -48,7 +48,7 @@ int readOneByte(int fd)   /* blocking */
   if (oxSocketSelect0(fd,-1)) { /* block */
     size = read(fd,data,1);
     if (size == 0) {
-      fprintf(MyErrorOut,"oxSocketSelect0() returns 1, but there is no data. You peer may be killed.\n");
+      fprintf(MyErrorOut,"oxSocketSelect0() returns 1, but there is no data. Your peer may be killed.\n");
       return(-1);
     }
     return(data[0]);
@@ -94,7 +94,7 @@ int readOneByte_org(int fd)   /* blocking */
     if (oxSocketSelect0(fd,-1)) { /* block */
       size = read(fd,data,READBUFSIZE-1);
       if (size == 0) {
-	fprintf(MyErrorOut,"oxSocketSelect0() returns 1, but there is no data. You peer may be killed.\n");
+	fprintf(MyErrorOut,"oxSocketSelect0() returns 1, but there is no data. Your peer may be killed.\n");
 	return(-1);
       }
       from = 0;
