@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.hh,v 1.3 2000/02/24 12:33:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.hh,v 1.4 2001/08/12 03:13:36 takayama Exp $ */
 else if (strcmp(key,"fp2fdopen") == 0) {
   if (size != 2) errorKan1("%s\n","[(fp2fdopen)  obj] extension obj-fp2.");
   if (SecureMode) errorKan1("%s\n","Security violation for fp2fdopen.");
@@ -108,6 +108,20 @@ else if (strcmp(key,"fp2clearReadBuf") == 0) {
   }
   rob = KpoInteger(fp2dumpBuffer((FILE2 *) obj1.rc.voidp));
   rob = KpoInteger(fp2clearReadBuf((FILE2 *)obj1.rc.voidp));
+}
+else if (strcmp(key,"fp2fcloseInString") == 0) {
+  if (size != 2) errorKan1("%s\n","[(fp2closeInString) obj-fp2] extension s.");
+  obj1= getoa(obj,1);
+  if (obj1.tag != Sfile) {
+    errorKan1("%s\n","[(fp2fcloseInString)  obj-fp2] extension s.");
+  }
+  if (strcmp(obj1.lc.str,MAGIC2) != 0) {
+    errorKan1("%s\n","[(fp2fcloseInString)  obj-fp2] extension s. obj-fp2 is not Sfile (FILE2).");
+  }
+  {
+    int mysize;
+    rob = KpoString(fp2fcloseInString((FILE2 *) obj1.rc.voidp,&mysize));
+  }
 }
 else if (strcmp(key,"fp2pushfile") == 0) {
   if (size != 2) errorKan1("%s\n","[(fp2pushfile) name] extension array-of-int.");

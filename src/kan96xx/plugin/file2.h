@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.3 2003/11/17 05:45:47 takayama Exp $ */
 /* file2.h */
 
 #define MAGIC2 "Buffered IO by FILE2"
@@ -8,8 +8,8 @@
 typedef struct FILE2 {
   int fd;
   int initialized;
-  unsigned char readBuf[FILE2BSIZE];
-  unsigned char writeBuf[FILE2BSIZE];
+  unsigned char *readBuf;
+  unsigned char *writeBuf;
   int readpos;
   int readsize;
   int writepos;
@@ -24,6 +24,7 @@ typedef struct FILE2 {
 FILE2 *fp2open(int fd);
 int fp2fflush(FILE2 *fp);
 int fp2fclose(FILE2 *fp);
+char *fp2fcloseInString(FILE2 *fp2, int *sizep);
 int fp2fputc(int c,FILE2 *fp);
 int fp2fgetc(FILE2 *fp);
 int fp2select(FILE2 *fp2, int t);

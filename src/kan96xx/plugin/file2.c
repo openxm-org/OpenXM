@@ -1,9 +1,20 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.5 2003/11/17 05:45:47 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.6 2003/11/18 11:08:27 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include "file2.h"
+
+/* If you use file2 standalone to output string,  
+    make the following dummy definition;
+int KsocketSelect0(int a,int b) { return(0); }
+int oxSocketSelect0(int a,int b) { return(0); }
+or define FORSTRING
+*/
+#ifdef  FORSTRING
+#define KsocketSelect0(a,b) 0
+#define oxSocketSelect0(a,b) 0
+#endif
 
 #ifdef KXX
 #define GC_malloc(n) malloc(n)
@@ -19,6 +30,7 @@ int WatchStream = 0;
 
 static int debug1 = 0;
 static int checkfp2(FILE2 *fp2,char *s);
+static int fp2fputcString(int c,FILE2 *fp2);
 static int checkfp2(FILE2 *fp2,char *s)
 {
   if (fp2 == NULL) {
@@ -38,10 +50,11 @@ FILE2 *fp2open(int fd) {
     printf("fp2open is called. \n");
   }
   fp2 = (FILE2 *) GC_malloc(sizeof(FILE2));
-  if (fd < 0) {
+  if (fd < -1) {
     fprintf(stderr,"fp2open  Invalid file descriptor %d\n",fd);
     return(NULL);
   }
+  /* fd == -1 ==> store in string. */
   if (fp2 == NULL) {
     fprintf(stderr,"fp2open.  No memory.\n");
     return(NULL);
@@ -53,6 +66,12 @@ FILE2 *fp2open(int fd) {
   fp2->readsize = 0;
   fp2->writepos = 0;
   fp2->limit = FILE2BSIZE;
+  fp2->readBuf = (char *) GC_malloc(FILE2BSIZE);
+  fp2->writeBuf = (char *) GC_malloc(FILE2BSIZE);
+  if ((fp2->readBuf == NULL) || (fp2->writeBuf == NULL)) {
+	fprintf(stderr,"fp2open. No more memory.\n");
+	return(NULL);
+  }
   fp2->watch = 0;
   fp2->watchFile = NULL;
   fp2->mathcapList = NULL;
@@ -70,6 +89,7 @@ int fp2fflush(FILE2 *fp2) {
     printf("--------------------------\n");
   }
   if (checkfp2(fp2,"fp2fflush ") == -1) return(-1);
+  if (fp2->fd == -1) return(0);
   if (fp2->writepos > 0) {
     r = write(fp2->fd,fp2->writeBuf,fp2->writepos);
     fp2->writepos = 0;
@@ -85,6 +105,7 @@ int fp2fflush(FILE2 *fp2) {
 int fp2fclose(FILE2 *fp2) {
   int r;
   if (checkfp2(fp2," fp2fclose ") == -1) return(-1);
+  if (fp2->fd == -1) return(0);
   r = fp2fflush(fp2);
   if (r < 0) {
     fprintf(stderr,"fp2fclose: flush error.\n");
@@ -114,6 +135,7 @@ int fp2fputc(int c,FILE2 *fp2) {
   if (checkfp2(fp2," fp2fputc ") == -1) return(-1);
   (fp2->writeBuf)[fp2->writepos] = c;
   (fp2->writepos)++;
+  if (fp2->fd == -1) return(fp2fputcString(c,fp2));
   if (fp2->writepos < fp2->limit) {
     return(c);
   }else{
@@ -144,6 +166,7 @@ int fp2fgetc(FILE2 *fp2) {
     if (fp2->log_incomming != NULL) fputc(c,fp2->log_incomming);
     return(c); 
   }else{
+	if (fp2->fd == -1) return(-1);
     fp2->readpos = 0;
     fp2 ->readsize =
       read(fp2->fd, fp2->readBuf, fp2->limit);
@@ -154,7 +177,6 @@ int fp2fgetc(FILE2 *fp2) {
         fprintf(fp," <%2x ",c);
         fflush(NULL);
       }
-      if (fp2->log_incomming != NULL) fputc(c,fp2->log_incomming);
       return(-1);
     }
     else {
@@ -164,6 +186,10 @@ int fp2fgetc(FILE2 *fp2) {
 }
 
 int fp2select(FILE2 *fp2, int t) {
+  if (fp2->fd == -1) {
+	if (fp2->readpos < fp2->readsize) return(1);
+	else return(0);
+  }
   if (fp2->readpos < fp2->readsize) return(1);
   else {
 #ifdef KXX
@@ -207,6 +233,7 @@ int fp2clearReadBuf(FILE2 *fp2) {
   if (checkfp2(fp2," fp2clearReadBuf ") == -1) {
     return(-1);
   }
+  if (fp2->fd == -1) return(0);  
 
   fp2->readsize=0; fp2->readpos = 0;  /* Clear the buffer. */
   
@@ -289,3 +316,62 @@ int fp2stopLog(FILE2 *fp) {
   fp->log_incomming = fp->log_outgoing = NULL;
   return 0;
 }
+
+static int fp2fputcString(int c,FILE2 *fp2) {
+  unsigned char *newwrite,*newread;
+  int newsize;
+  int i;
+  (fp2->readBuf)[fp2->readsize] = c;
+  (fp2->readsize)++;
+  if ((fp2->writepos < fp2->limit) && (fp2->readsize < fp2->limit)) return(c);
+  if ((fp2->limit)*2 >=0x3000000) {
+	fprintf(stderr,"Too big output string.\n");
+	return(-1);
+  }
+  newsize = (fp2->limit)*2;
+  newwrite = (char *)GC_malloc(newsize);
+  newread = (char *)GC_malloc(newsize);
+  if ((newwrite == NULL) || (newread == NULL)) {
+	fprintf(stderr,"fp2fputcString: No more memory.\n");
+	return(-1);
+  }
+  for (i=0; i<fp2->writepos; i++) {
+	newwrite[i] = fp2->writeBuf[i];
+  }
+  for (i=0; i<fp2->readsize; i++) {
+	newread[i] = fp2->readBuf[i];
+  }
+  fp2->writeBuf = newwrite;
+  fp2->readBuf = newread;
+  fp2->limit = newsize;
+  return(c);
+}
+
+char *fp2fcloseInString(FILE2 *fp2, int *sizep)
+{
+  if (fp2->fd == -1) {
+	fp2fputc(0,fp2);
+	*sizep = fp2->writepos-1;
+	return(fp2->writeBuf);
+  }else{
+	fprintf(stderr,"fp2fcloseInString is called for a file stream that is not associated to a string.\n");
+  }
+}
+
+/* Sample program  FORSTRING
+ FILE2 *fp2;
+ int c;
+ char *s;
+ int size;
+ fp2 = fp2fopen(-1);
+ while ((c = getchar()) != EOF) {
+   fp2fputc(c,fp2);
+ }
+ s = fp2fcloseInString(fp2,&size);
+
+ or
+
+ while ((c = fp2fgetc(fp2)) != EOF) {
+    ....
+ }
+*/
