@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.8 2000/02/28 14:10:27 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.9 2000/09/12 23:09:18 noro Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -223,6 +223,8 @@ It is the same as the Lambda expression in Lisp.
     )
 )
 \end{verbatim}
+//&jp  Leave の成分には, 多項式を含む任意のオブジェクトがきてよい.
+//&eg  Elements of the leave may be any objects including polynomials.
 
 \noindent
 Example:
@@ -555,7 +557,7 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient}   \\
 \mbox{RringDefinition} 
 & : &  \mbox{ {\sl List} v } \\
-& & \quad \mbox{ --- v は, 変数名(indeterminate) のリスト. } \\
+& & \quad \mbox{ --- v は, 変数名(indeterminate) または Tree のリスト. } \\
 & & \quad \mbox{ --- 順序の高い順. } \\
 \end{eqnarray*}
 */
@@ -585,7 +587,7 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient}   \\
 \mbox{RringDefinition} 
 & : &  \mbox{ {\sl List} v } \\
-& & \quad \mbox{ --- v is a list of names of indeterminates. } \\
+& & \quad \mbox{ --- v is a list of names of indeterminates or trees. } \\
 & & \quad \mbox{ --- It is sorted in the decreasing order. } \\
 \end{eqnarray*}
 */
