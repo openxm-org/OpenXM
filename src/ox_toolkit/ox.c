@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.30 2003/11/09 01:48:01 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.31 2003/11/12 15:24:06 iwane Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -35,6 +35,7 @@ static cmo_ring_by_name* receive_cmo_ring_by_name(OXFILE *oxfp);
 static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(OXFILE *oxfp);
 static cmo_recursive_polynomial* receive_cmo_recursive_polynomial(OXFILE *oxfp);
 static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OXFILE *oxfp);
+static cmo_double*       receive_cmo_double(OXFILE *oxfp);
 static cmo_error2*       receive_cmo_error2(OXFILE *oxfp);
 
 static int          send_cmo_null(OXFILE *oxfp, cmo_null* c);
@@ -43,6 +44,7 @@ static int          send_cmo_string(OXFILE *oxfp, cmo_string* m);
 static int          send_cmo_mathcap(OXFILE *oxfp, cmo_mathcap* c);
 static int          send_cmo_list(OXFILE *oxfp, cmo_list* c);
 static int          send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c);
+static int          send_cmo_double(OXFILE *oxfp, cmo_double* c);
 static int          send_cmo_error2(OXFILE *oxfp, cmo_error2* c);
 static int          send_cmo_distributed_polynomial(OXFILE *oxfp, cmo_distributed_polynomial* c);
 static int send_cmo_polynomial_in_one_variable(OXFILE *oxfp, cmo_polynomial_in_one_variable* c);
@@ -114,6 +116,18 @@ int send_int32(OXFILE *oxfp, int int32)
 int receive_int32(OXFILE *oxfp)
 {
     return oxfp->receive_int32(oxfp);
+}
+
+/* sending an object of int32 type. (not equal to cmo_int32 type)  */
+int send_double(OXFILE *oxfp, double d)
+{
+    return oxfp->send_double(oxfp, d);
+}
+
+/* receiving an object of int32 type. (not equal to cmo_int32 type)  */
+double receive_double(OXFILE *oxfp)
+{
+    return oxfp->receive_double(oxfp);
 }
 
 /* receiving an (OX_tag, serial number)  */
@@ -250,6 +264,12 @@ static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OX
     return c;
 }
 
+static cmo_double* receive_cmo_double(OXFILE *oxfp)
+{
+	double d = receive_double(oxfp);
+	return new_cmo_double(d);
+}
+
 static cmo_indeterminate* receive_cmo_indeterminate(OXFILE *oxfp)
 {
     cmo* ob = receive_cmo(oxfp);
@@ -326,6 +346,10 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
         break;
     case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
         m = (cmo *)receive_cmo_polynomial_in_one_variable(oxfp);
+        break;
+	case CMO_64BIT_MACHINE_DOUBLE:
+	case CMO_IEEE_DOUBLE_FLOAT:
+        m = (cmo *)receive_cmo_double(oxfp);
         break;
     case CMO_INDETERMINATE:
         m = (cmo *)receive_cmo_indeterminate(oxfp);
@@ -546,6 +570,11 @@ static int send_cmo_polynomial_in_one_variable(OXFILE *oxfp, cmo_polynomial_in_o
     return 0;
 }
 
+static int send_cmo_double(OXFILE *oxfp, cmo_double* c)
+{
+    return send_double(oxfp, c->d);
+}
+
 static int send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c)
 {
     int i;
@@ -636,6 +665,10 @@ void send_cmo(OXFILE *oxfp, cmo* c)
     case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
         send_cmo_polynomial_in_one_variable(oxfp, (cmo_polynomial_in_one_variable *)c);
         break;
+	case CMO_64BIT_MACHINE_DOUBLE:
+	case CMO_IEEE_DOUBLE_FLOAT:
+		send_cmo_double(oxfp, (cmo_double *)c);
+		break;
     case CMO_TREE:
         send_cmo_tree(oxfp, (cmo_tree *)c);
         break;
