@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.1 2004/03/19 05:20:03 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.2 2004/08/22 02:00:24 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -72,6 +72,16 @@
 \item polylcm, polygcd は ox を用いる.
 \item mpzext (lcm, gcd).  int32 は universalNumber (mpz_int) へ自動変換.
 \item ox.sm1 は起動の時から load すべきだがまだやってない.
+%%Mail/openxm-cvs.inbox ??
+\end{enumerate}
+
+\section{2004-08-31, weight ベクトルで univNum を受け取る}
+\begin{enumerate}
+\item {\tt to\_int}, {\tt Kto\_int} で univNum を int32 へ.
+\item 内部関数の変更: {\tt KordWsAll()}, {\tt KsetUpRing()}, {\tt oInitW()}
+\item マクロ: {\tt ord\_w}, {\tt weight\_vector}, {\tt s\_weight\_vector},
+{\tt w\_to\_vec}, {\tt ecart.weight\_vector}, {\tt ord\_ws\_all}
+\item  テスト方法.  cvs-eventail/aux-cone.sm1 の test7 を用いる.
 %%Mail/openxm-cvs.inbox ??
 \end{enumerate}
 

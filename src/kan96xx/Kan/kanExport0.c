@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.26 2004/08/23 08:33:55 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.27 2004/08/28 07:28:54 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1211,7 +1211,24 @@ struct object KdataConversion(obj,key)
   }
   return(NullObject);
 }
-    
+
+/* cf. macro to_int */
+struct object Kto_int(struct object ob) {
+  int n,i;
+  struct object otmp;
+  struct object rob;
+  if (ob.tag == SuniversalNumber) return KdataConversion(ob,"integer");
+  if (ob.tag == Sarray) {
+	n = getoaSize(ob);
+	rob = newObjectArray(n);
+	for (i=0; i<n; i++) {
+	  otmp = Kto_int(getoa(ob,i));
+	  putoa(rob,i,otmp);
+	}
+	return rob;
+  }
+  return ob;
+}    
 /* conversion functions between primitive data and objects.
    If it's not time critical, it is recommended to use these functions */
 struct object KpoInteger(k)
@@ -1579,7 +1596,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
       outputVars[i] = i;
     }
   }
-  
+
+  ob4 = Kto_int(ob4); /* order matrix */
   oasize = getoaSize(ob4);
   order = (int *)sGC_malloc(sizeof(int)*((2*n)*oasize+1));
   if (order == (int *)NULL) errorKan1("%s\n","No memory.");

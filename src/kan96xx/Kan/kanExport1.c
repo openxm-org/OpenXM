@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.12 2004/07/30 11:21:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.13 2004/07/31 02:23:02 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -997,6 +997,7 @@ struct object oInitW(ob,oWeight)
   if (oWeight.tag != Sarray) {
     errorKan1("%s\n","oInitW(): the second argument must be array.");
   }
+  oWeight = Kto_int(oWeight);
   n = getoaSize(oWeight);
   if (n == 0) {
 	m = getoaSize(ob);
@@ -1151,6 +1152,7 @@ struct object KordWsAll(ob,oWeight)
   if (oWeight.tag != Sarray) {
     errorKan1("%s\n","ordWsAll(): the second argument must be array.");
   }
+  oWeight = Kto_int(oWeight);
   n = getoaSize(oWeight);
   if (n == 0) {
 	m = getoaSize(ob);
