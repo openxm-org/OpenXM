@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.52 2000/01/09 18:44:55 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.53 2000/01/09 19:32:13 maekawa Exp $
 
 LIBDIR=../lib
 BINDIR=../bin
@@ -123,13 +123,13 @@ configure-kxx: install-kan96xx
 	(cd kxx ; make configure)
 
 configure-links:
-	rm -f bin SSkan gmp gc $(LIBDIR)/k097 $(LIBDIR)/sm1
-	ln -f -s $(BINDIR) bin
-	ln -f -s kan96xx SSkan
-	ln -f -s $OPENXM_CONTRIB/gmp gmp
-	ln -f -s $OPENXM_CONTRIB/gc gc
+	rm -f $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 	(cd $(LIBDIR) ; ln -f -s ../src/k097 k097)
 	(cd $(LIBDIR) ; ln -f -s ../src/kan96xx/Doc sm1)
+	ln -f -s kan96xx SSkan
+	ln -f -s $(BINDIR) bin
+	ln -f -s $OPENXM_CONTRIB/gc gc
+	ln -f -s $OPENXM_CONTRIB/gmp gmp
 
 configure-oxmath:
 	(cd ox_math; ./configure)
