@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.8 2003/01/16 07:50:57 maekawa Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.9 2003/01/16 07:57:42 maekawa Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,10 @@ main(int argc,char *argv[]) {
 	fprintf(stderr, "getcwd: %s\n", strerror(errno));
 	exit(1);
   }
-  slash = strrchr(cwd,'/');
+  if ((slash = strrchr(cwd, '/')) == cwd) {
+	fprintf(stderr, "The current working directory is /.\n");
+	exit(1);
+  }
   *slash = 0;
   while (fgets(s,BUFSIZE,stdin) != NULL) {
 	if (strcmp(s,"OpenXM_HOME=$HOME/OpenXM\n") == 0) {
