@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.16 2003/08/22 23:56:27 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.17 2003/09/15 08:53:34 ohara Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -20,6 +20,7 @@ ox-localdata.tex project.tex redefine.tex\
 stackmachine.tex start-session.tex string-expression.tex
 
 SRC101=OX-RFC-101.tex
+SRC103=OX-RFC-103.oxw
 
 doc: OpenXM-en.dvi OpenXM-ja.dvi OX-RFC-101-en.dvi OX-RFC-101-ja.dvi
 
@@ -54,6 +55,23 @@ OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 	-(cd tmp101JA;  platex OX-RFC-101; platex OX-RFC-101)
 	-mv tmp101JA/OX-RFC-101.dvi OX-RFC-101-ja.dvi
 	touch OX-RFC-101-ja.dvi
+
+OX-RFC-103-en.dvi: $(OXWEAVE) $(SRC103)
+	-rm -rf tmp103EN
+	-mkdir tmp103EN
+	-for i in $(SRC103); do $(OXWEAVE) $(OXWEAVEFLAG) C en < $$i | ${NKF} >tmp103EN/$$i; done
+	-(cd tmp103EN; mv OX-RFC-103.oxw OX-RFC-103.tex)
+	-(cd tmp103EN; latex OX-RFC-103; latex OX-RFC-103)
+	-mv tmp103EN/OX-RFC-103.dvi OX-RFC-103-en.dvi
+	touch OX-RFC-103-en.dvi
+OX-RFC-103-ja.dvi: $(OXWEAVE) $(SRC103)
+	-rm -rf tmp103JA
+	-mkdir tmp103JA
+	-for i in $(SRC103); do $(OXWEAVE) $(OXWEAVEFLAG) C ja < $$i | ${NKF} >tmp103JA/$$i; done
+	-(cd tmp103JA; mv OX-RFC-103.oxw OX-RFC-103.tex)
+	-(cd tmp103JA;  platex OX-RFC-103; platex OX-RFC-103)
+	-mv tmp103JA/OX-RFC-103.dvi OX-RFC-103-ja.dvi
+	touch OX-RFC-103-ja.dvi
 
 $(OXWEAVE) : $(OXWEAVE_C)
 	(cd ../../src/util ; make oxweave)
@@ -106,8 +124,8 @@ install-web-all: all-html
 
 
 clean : clean-done
-	/bin/rm -rf tmpEN tmpJA tmp101EN tmp101JA
-	/bin/rm -f OpenXM-en.dvi OpenXM-ja.dvi OX-RFC-101-en.dvi OX-RFC-101-ja.dvi
+	/bin/rm -rf tmpEN tmpJA tmp101EN tmp101JA tmp103EN tmp103JA
+	/bin/rm -f OpenXM-en.dvi OpenXM-ja.dvi OX-RFC-101-en.dvi OX-RFC-101-ja.dvi OX-RFC-103-ja.dvi OX-RFC-103-en.dvi
 clean-done:
 	/bin/rm -f .[a-z]*done
 clean-en-done:

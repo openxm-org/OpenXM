@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.1 2003/12/08 23:26:03 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.2 2003/12/10 08:57:25 takayama Exp $
 %% OXWEAVE=${OpenXM_HOME}/bin/oxweave --recursive --plain
 %% ${OXWEAVE} C ja <oxshell.oxw >>oxshell-ja.tex
 //&ja \documentclass{jarticle}
@@ -19,8 +19,11 @@
  RFC 100 プロトコルへの幾つかの追加を提案する.
 */
 
-//&ja \section{中断の伝播}
-//&en \section{Propagation of an interruption}
+//&ja \section{中断および変数の伝播}
+//&en \section{Propagation of an interruption and a value of a variable}
+
+//&ja \subsection{中断}
+//&en \subsection{Interruption}
 
 /*&ja
 OX RFC 103 では,
@@ -46,6 +49,49 @@ defined by OX RFC 100.
 \end{enumerate}
 */
 
+//&ja \subsection{サーバ木の大域変数}
+//&en \subsection{Global variable of the tree of the servers}
+
+//&ja OX RFC 103 対応のエンジンはエンジン関数 
+/*&en
+The engines complient to OX RFC 103 implement the engine function
+*/
+/*&C
+\begin{center}
+{\tt ox103\_set\_shared\_variable(} CMO string {\tt Name}, CMO object {\tt
+value}{\tt )}
+\end{center}
+*/
+/*&ja
+を実装している.
+この関数が呼ばれると, エンジンスタックマシンの変数 {\tt Name} に値
+{\tt value} が設定され,
+さらに子どものプロセスすべてのエンジン関数
+ {\tt ox103\_set\_shared\_variable}
+をよぶ.
+*/
+/*&en
+When this function is called, 
+the value {\tt value} is assigned to
+the variable {\tt Name} of the engine stackmachine
+and the engine calls the function 
+ {\tt ox103\_set\_shared\_variable}
+of all the child processes with the same arguments.
+*/
+
+/*&ja
+たとえば,
+この機能は asir-contrib において変数 {\tt Xm\_noX} (ox server 用の debug
+window を表示するかしないかのフラグ) の値を同報するのに用いている.
+*/
+/*&en
+For example,
+this protocol is used in the asir-contrib
+to broad cast the value of the variable {\tt Xm\_noX},
+which is the flag of hiding the debug window of an ox server.
+*/
+
+
 //&ja \section{新しい CMO}
 //&en \section{New CMO}
 
@@ -65,10 +111,15 @@ defined by OX RFC 100.
 //&en \section{Contributors}
 
 /*&ja
-中断の伝播については高山が設計, asir および kan/sm1 への実装, 評価をおこなった.
+中断および変数の伝播については高山が設計, asir および kan/sm1 への実装, 評価をおこなった.
 ({\tt OpenXM/src/asir-contrib/packages/src/oxrfc103.rr},
  {\tt OpenXM/src/kan96xx/Doc/oxrfc103.sm1}
  をみよ).
+*/
+
+/*&ja
+行列, ベクトルの CMO は NTL のサーバ化をテストケースとして
+岩根が設計, 実装, 評価を行った.
 */
 
 \end{document}
