@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java,v 1.2 1999/11/07 21:22:03 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -16,8 +16,12 @@ public class CMO_STRING extends CMO{
     str = a;
   }
 
+  public String getString(){
+    return str;
+  }
+
   public int DISCRIMINATOR(){
-	return CMO_STRING;
+    return CMO_STRING;
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
@@ -30,21 +34,17 @@ public class CMO_STRING extends CMO{
     }
 
     buf = new byte[len];
-    is.read(buf,0,len);
+    is.readFully(buf,0,len);
 
     return new CMO_STRING(new String(buf));
   }
 
-  public void sendByObject(DataOutputStream os) throws IOException{
+  protected void sendByObject(DataOutputStream os) throws IOException{
     os.writeInt(str.getBytes().length);
     os.write(str.getBytes());
   }
 
-  public String toCMOexpressionByObject(){
+  protected String toCMOexpressionByObject(){
     return "CMO_STRING,"+ str.length() +","+ str;
-  }
-
-  public String getString(){
-    return str;
   }
 }

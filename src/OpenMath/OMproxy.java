@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.11 1999/11/16 13:16:22 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.12 1999/11/17 08:47:55 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -60,7 +60,7 @@ class OMproxy implements Runnable{
     if(stack.empty()){
       ox.send(new CMO_NULL());
     }else{
-      debug("pushing CMO: "+ stack.peek());
+      debug("sending CMO: "+ stack.peek());
       ox.send(stack.pop());
     }
   }
