@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.4 2000/03/14 13:01:28 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.5 2000/06/08 08:35:01 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -1299,6 +1299,7 @@ message-quiet
   [
 
     /aa arg1 def
+    gb.verbose { (Getting in gb_h) message } {  } ifelse
     aa isArray { } { ( << array >> gb_h) error } ifelse
     /setarg 0 def
     /wv 0 def
@@ -1334,7 +1335,6 @@ message-quiet
     setarg { } { (gb_h : Argument mismatch) error } ifelse
     
     [(KanGBmessage) gb.verbose ] system_variable
-    [(Homogenize_vec) 0] system_variable
 
     %%% Start of the preprocess
     f getRing /rr set
@@ -1368,6 +1368,7 @@ message-quiet
     } ifelse
     getOptions /gb_h.opt set
     (grade) (module1v) switch_function
+    [(Homogenize_vec) 0] system_variable
     %%% End of the preprocess
 
     gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
@@ -1392,6 +1393,7 @@ message-quiet
     }{ }
     ifelse
     gb_h.opt restoreOptions 
+    gb.verbose { (Getting out of gb_h) message } {  } ifelse
     %% 
 
     /arg1 ans def
@@ -1591,7 +1593,7 @@ message-quiet
     %% comparison of hilbert series has not yet been implemented.
     aa length 3 eq {    }
     { ([ii jj vv] isSameIdeal) error } ifelse
-    gb.verbose { (isSameIdeal) message } { } ifelse
+    gb.verbose { (Getting in isSameIdeal) message } { } ifelse
     /ii aa 0 get def
     /jj aa 1 get def
     /vv aa 2 get def
@@ -1648,14 +1650,16 @@ message-quiet
 
 /isSameIdeal_h {
   /arg1 set
-  [/in-isSameIdeal_h /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f] pushVariables
-  [(CurrentRingp)] pushEnv
+  [/in-isSameIdeal_h /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f
+   /isSameIdeal_h.opt
+   ] pushVariables
+  [(CurrentRingp) (Homogenize_vec)] pushEnv
   [
     /aa arg1 def
+    gb.verbose { (Getting in isSameIdeal_h) message } { } ifelse
     %% comparison of hilbert series has not yet been implemented.
     aa length 3 eq {    }
     { ([ii jj vv] isSameIdeal_h) error } ifelse
-    gb.verbose { (isSameIdeal_h) message } { } ifelse
     /ii aa 0 get def
     /jj aa 1 get def
     /vv aa 2 get def
@@ -1667,6 +1671,9 @@ message-quiet
 
     iigg getRing ring_def
 
+    getOptions /isSameIdeal_h.opt set
+    (grade) (module1v) switch_function
+    [(Homogenize_vec) 0] system_variable
     /ans 1 def
     iigg 0 get { [ (toe_) 3 -1 roll ] gbext } map
     /iigg set
@@ -1693,6 +1700,7 @@ message-quiet
     } for
     /LLL.isSame_h
     gb.verbose { ( Done) message } {  } ifelse
+    isSameIdeal_h.opt restoreOptions 
     /arg1 ans def
   ] pop
   popEnv

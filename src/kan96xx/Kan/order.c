@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -627,6 +627,7 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
     warningOrder("mmLarger_tower3(): incompatible input and gbList.\n");
     printf("Length of gb is %d, f is %s, g is %s\n",t,KPOLYToString(f),
 	   KPOLYToString(g));
+    KSexecuteString(" show_ring ");
     return(1);
   }
   /* mpMult_poly is too expensive to call. @@@*/
