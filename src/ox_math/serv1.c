@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.15 2000/12/07 10:04:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.16 2000/12/22 04:06:37 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -23,10 +23,13 @@ extern OXFILE *stack_oxfp;
 /* SM_control_reset_connection */
 static void handler()
 {
-    int mask = sigsetmask(sigmask(SIGUSR1));
+	sigset_t newmask, oldmask;
+	sigemptyset(&newmask);
+	sigaddset(&newmask, SIGUSR1);
+	sigprocmask(SIG_SETMASK, &newmask, &oldmask);
     fprintf(stderr, "signal received.\n");
     exchange_ox_sync_ball(stack_oxfp);
-    sigsetmask(mask); /* unmasked. */
+	sigprocmask(SIG_SETMASK, &oldmask, NULL); /* unmasked. */
 }
 
 static int exchange_ox_sync_ball(OXFILE *oxfp)
@@ -92,7 +95,6 @@ int sm_receive_ox()
 
 int sm(OXFILE *oxfp)
 {
-    int mask = siggetmask();
     fd_set fdmask;
     stack_oxfp = oxfp;
     stack_extend();
@@ -103,10 +105,13 @@ int sm(OXFILE *oxfp)
 
     while(1) {
         if (select(2, &fdmask, NULL, NULL, NULL) > 0) {
-            sigsetmask(sigmask(SIGUSR1));
+			sigset_t newmask, oldmask;
+			sigemptyset(&newmask);
+			sigaddset(&newmask, SIGUSR1);
+			sigprocmask(SIG_SETMASK, &newmask, &oldmask);
             sm_receive_ox();
+			sigprocmask(SIG_SETMASK, &oldmask, NULL); /* unmasked. */
         }
-        sigsetmask(mask); /* unmasked. */
     }
     fprintf(stderr, "SM: socket(%d) is closed.\n", stack_oxfp->fd);
 }
