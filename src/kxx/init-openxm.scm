@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.2 2004/03/07 22:55:12 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.3 2004/03/10 17:31:13 ohara Exp $
 
 (define (my-openxm-plugin-eval t)
   (import-from (texmacs plugin plugin-cmd))
@@ -44,5 +44,5 @@
 (plugin-configure openxm
   (:require (and (url-exists-in-path? "openxm") (url-exists-in-path? "ox_texmacs")))
   (:initialize (openxm-initialize))
-  (:launch "openxm ox_texmacs")
+  (:launch "exec openxm ox_texmacs")
   (:session "OpenXM"))
