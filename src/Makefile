@@ -1,11 +1,11 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.34 2000/01/07 22:53:41 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.35 2000/01/08 16:38:32 maekawa Exp $
 
-all: all-kan96xx all-kxx all-tigers all-phc all-k097 \
+all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
 
 all-asir:
-	(cd asir2000 ; xmkmf -a ; make ; make install ; make install2)
+	(cd asir2000 ; make ; make install ; make install2)
 
 all-gnuplot:
 	(cd gnuplot ; make all ; make install)
@@ -36,8 +36,8 @@ all-oxmath:
 	fi
 
 all-pari:
-	(cd pari ; make install ; make install-lib-sta)
-	(cd pari ; ranlib ../../OpenXM/lib/libpari.a)
+	(cd pari ; make install)
+	(cd pari ; ranlib ../../../OpenXM/lib/libpari.a)
 
 all-phc:
 	(cd phc ; make all ; make install)
@@ -46,34 +46,33 @@ all-tigers:
 	(cd tigers ; make all ; make install)
 
 clean:
-	/bin/rm -rf ../*~  *~
-	(cd kan96xx ; make clean )
+	(cd kan96xx ; make clean)
 	(cd kxx ; make clean)
 	(cd tigers ; make clean)
 	(cd gnuplot ; make clean)
-	(cd phc ; make clean )
-	(cd k097 ; make clean )
-	(cd asir2000 ; make clean )
-#	(cd ox_math ; make clean )
+	(cd phc ; make clean)
+	(cd k097 ; make clean)
+	(cd asir2000 ; make clean)
+#	(cd ox_math ; make clean)
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6 bin/tigers bin/k0 bin/oxweave bin/gp-2.0 bin/gphelp bin/fep.linux bin/lin_phcv2p
 
 distclean:
-	(cd kan96xx ; make distclean )
+	(cd kan96xx ; make distclean)
 	(cd kxx ; make clean)
 	(cd tigers ; make clean)
 	(cd gnuplot ; make distclean)
 	(cd phc ; make clean )
 	(cd k097 ; make clean )
-	(cd asir2000 ; make clean )
-#	(cd ox_math ; make clean )
+	(cd asir2000 ; make clean)
+#	(cd ox_math ; make clean)
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6 bin/tigers bin/k0 bin/oxweave bin/gp-2.0 bin/gphelp bin/fep.linux bin/lin_phcv2p
 
 configure:
 	./make-links
-	(cd ../bin ; ./configure2 )
-	(cd kxx ; make configure )
-	(cd kan96xx ; make configure )
+	(cd ../bin ; ./configure2)
+	(cd kxx ; make configure)
+	(cd kan96xx ; make configure)
 	(cd gnuplot ; make configure)
-	(cd pari ; ./Configure --prefix=../../../OpenXM)
-	(cd asir2000; ./configure)
+	(cd pari ; make configure)
+	(cd asir2000; ./configure ; xmkmf -a ; make depend)
 	(cd ox_math; ./configure)
