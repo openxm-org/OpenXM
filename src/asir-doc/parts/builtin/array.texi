@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.2 1999/12/21 02:47:33 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.3 2000/02/05 12:01:09 takayama Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -10,6 +10,7 @@
 
 @menu
 * newvect::
+* newbytearray::
 * vtol::
 * newmat::
 * size::
@@ -188,6 +189,62 @@ A conversion from a list to a vector is done by @code{newvect()}.
 [ 1 2 3 ]
 [4] vtol(A);
 [1,2,3]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newvect}.
+@end table
+
+\JP @node newbytearray,,, 配列
+\EG @node newbytearray,,, Arrays
+@subsection @code{newbytearray}
+@findex newbytearray
+
+@table @t
+@item newbytearray(@var{len},[@var{listorstring}])
+\JP :: 長さ @var{len} の byte array を生成する.
+\EG :: Creates a new byte array.
+@end table
+
+@table @var
+@item return
+byte array
+@item len
+\JP 自然数
+\EG non-negative integer
+@item listorstring
+\JP リストまたは文字列
+\EG list or string
+@end table
+
+@itemize @bullet
+@item
+\JP @code{newvect} と同様にして byte array を生成する.
+\EG This function generates a byte array. The specification is
+similar to that of @code{newvect}.
+@item
+\JP 文字列で初期値を指定することも可能である.
+\EG The initial value can be specified by a character string.
+@item
+\JP byte array の要素のアクセスは配列と同様である.
+\EG One can access elements of a byte array just as an array.
+@end itemize
+
+@example
+[182] A=newbytearray(3);
+|00 00 00|
+[183] A=newbytearray(3,[1,2,3]);
+|01 02 03|
+[184] A=newbytearray(3,"abc");  
+|61 62 63|
+[185] A[0];
+97
+[186] A[1]=123;
+123
+[187] A;
+|61 7b 63|
 @end example
 
 @table @t

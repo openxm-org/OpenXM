@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.3 2000/03/02 07:46:14 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.4 2000/04/28 08:12:01 noro Exp $
 \BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
@@ -16,7 +16,7 @@
 * bsave bload::
 * bload27::
 * print::
-* open_file close_file get_line::
+* open_file close_file get_line get_byte purge_stdin::
 @end menu
 
 \JP @node end quit,,, 入出力
@@ -532,12 +532,14 @@ convenient to minimize programming efforts.
 xyz123gahaha
 @end example
 
-\JP @node open_file close_file get_line,,, 入出力
-\EG @node open_file close_file get_line,,, Inputs and Outputs
-@subsection @code{open_file}, @code{close_file}, @code{get_line}
+\JP @node open_file close_file get_line get_byte purge_stdin,,, 入出力
+\EG @node open_file close_file get_line get_byte purge_stdin,,, Inputs and Outputs
+@subsection @code{open_file}, @code{close_file}, @code{get_line}, @code{get_byte}, @code{purge_stdin}
 @findex open_file
 @findex close_file
 @findex get_line
+@findex get_byte
+@findex purge_stdin
 
 @table @t
 @item open_file("@var{filename}")
@@ -546,15 +548,21 @@ xyz123gahaha
 @item close_file(@var{num})
 \JP :: 識別子 @var{num} のファイルをクローズする. 
 \EG :: Closes the file indicated by a descriptor @var{num}.
-@item get_line(@var{num})
+@item get_line([@var{num}])
 \JP :: 識別子 @var{num} のファイルから 1 行読む. 
 \EG :: Reads a line from the file indicated by a descriptor @var{num}.
+@item get_byte(@var{num})
+\JP :: 識別子 @var{num} のファイルから 1 バイト読む. 
+\EG :: Reads a byte from the file indicated by a descriptor @var{num}.
+@item purge_stdin()
+\JP :: 標準入力のバッファをクリアする.
+\EG :: Clears the buffer for the standard input.
 @end table
 
 @table @var
 @item return
-\JP @code{open_file()} : 整数 (識別子); @code{close_file()} : 1; @code{get_line()} : 文字列
-\EG @code{open_file()} : integer (fild id); @code{close_file()} : 1; @code{get_line()} : string
+\JP @code{open_file()} : 整数 (識別子); @code{close_file()} : 1; @code{get_line()} : 文字列, @code{get_byte()} : 整数
+\EG @code{open_file()} : integer (fild id); @code{close_file()} : 1; @code{get_line()} : string, @code{get_byte()} : integer
 @item filename
 \JP ファイル名 (パス名)
 \EG file (path) name
@@ -569,11 +577,17 @@ xyz123gahaha
 場合, ファイル識別子として非負整数を返す. 失敗の場合エラーとなる. 
 不要になったファイルは @code{close_file()} でクローズする. 
 @item @code{get_line()} は現在オープンしているファイルから 1 行読み, 
-文字列として返す. 
+文字列として返す. 引数がない場合, 標準入力から 1 行読む.
+@item @code{get_byte()} は現在オープンしているファイルから 1 バイト読み
+整数として返す.
 @item ファイルの終りまで読んだ後に @code{get_line()} が呼ばれた場合, 
 整数の 0 を返す. 
 @item 読み出した文字列は, 必要があれば @code{sub_str()} などの文字列処理
 関数で加工したのち @code{eval_str()} により内部形式に変換できる. 
+@item @code{purge_stdin()} は, 標準入力バッファを空にする. 
+関数内で @code{get_line()} により標準入力から文字列を受け取る場合,
+既にバッファ内に存在する文字列による誤動作を防ぐためにあらかじめ
+呼び出す.
 \E
 \BEG
 @item @code{open_file()} opens a file for reading. 
@@ -581,11 +595,19 @@ If successful, it returns a non-negative integer as the file descriptor.
 Otherwise the system error function is called.
 Unnecessary files should be closed by @code{close_file()}.
 @item @code{get_line()} reads a line from an opened file and returns the
-line as a string.
+line as a string. If no argument is supplied, it reads a line from the
+standard input.
+@item @code{get_byte()} reads a byte from an opened file and returns the
+it as an integer.
 @item A @code{get_line()} call after reading the end of file returns
 an integer 0.
 @item Strings can be converted into internal forms with string manipulation
 functions such as @code{sub_str()}, @code{eval_str()}.
+@item @code{purge_stdin()} clears the buffer for the standard input.
+When a function receives a character string from @code{get_line()},
+this functions should be called in advance in order to avoid 
+an incorrect behavior which is caused by the characters already
+exists in the buffer.
 \E
 @end itemize
 
@@ -602,6 +624,28 @@ functions such as @code{sub_str()}, @code{eval_str()}.
 0
 [189] type(@@@@);
 0
+[190] close_file(Id);
+1
+[191] open_file("test");
+1
+[192] get_line(1);   
+12345
+
+[193] get_byte(1);
+54                   /* the ASCII code of '6' */
+[194] get_line(1);
+7890                 /* the rest of the last line */
+[195] def test() @{ return get_line(); @}
+[196] def test1() @{ purge_stdin(); return get_line(); @}
+[197] test();
+                     /* a remaining newline character has been read */
+                     /* returns immediately */
+[198] test1();
+123;                 /* input from a keyboard */
+123;                 /* returned value */
+
+[199] 
+
 @end example
 
 @table @t

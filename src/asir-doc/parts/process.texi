@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.4 2000/01/13 08:29:56 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.5 2000/09/25 05:12:51 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -506,6 +506,7 @@ input @code{quit}.
 * ox_get_serverinfo::
 * generate_port try_bind_listen try_connect try_accept register_server::
 * ifplot conplot plot plotover::
+* open_canvas clear_canvas draw_obj::
 @end menu
 
 \JP @node ox_launch ox_launch_nox ox_shutdown,,, 分散計算に関する関数
@@ -1913,12 +1914,14 @@ identifier @var{id} is returned.
 @code{ifplot()} は, 2 変数関数 @var{func} の実数上での零点の
 グラフの表示を行う. @code{conplot()} は, 同様の引数に対し, 
 等高線の表示を行う. @code{plot()} は 1 変数関数の
-グラフの表示を行う. Windows 版は現状では未サポートである. 
+グラフの表示を行う.
 
 @item
-UNIX 版は, 遠隔プロセスにより実現されている. コマンドは @samp{ox_plot}
-で, @code{ox_launch()} により起動しておく必要がある. @samp{ox_plot}
-は, @b{Asir} の標準ライブラリディレクトリにある. 
+これらは OpenXM サーバとして実現されている. UNIX 上では
+@samp{ox_plot} が, Windows 上では @samp{engine} がこれらの機能
+を提供しており, これらは @b{Asir} の標準ライブラリディレクトリにある. 
+これらは @code{ox_launch()} または @code{ox_launch_nox()}
+ により起動しておく必要がある. 
 
 @item
 引数の内, @var{func} は必須である. その他の引数はオプションである. 
@@ -1927,7 +1930,7 @@ UNIX 版は, 遠隔プロセスにより実現されている. コマンドは @samp{
 @table @var
 @item geometry
 ウィンドウのサイズをドット単位で @var{[x,y]} で指定する. 
-(UNIX 版では @var{[}@code{300},@code{300}@var{]}. )
+(@var{[}@code{300},@code{300}@var{]}. )
 
 @item xrange, yrange
 変数の範囲の指定で, @var{[v,vmin,vmax]} で指定する. 
@@ -2026,13 +2029,12 @@ Function @code{ifplot()} draws a graph of real zeros of a bi-variate
 function.
 Function @code{conplot()} plots the contour lines for a same argument. 
 Function @code{plot()} draws the graph of a uninivariate function.
-These functions are available on UNIX version (on @code{X11}).
 
 @item
-The plotting functions for UNIX version are realized on remote process 
-facilities described previously. 
-The command for this is  @samp{ox_plot} in @b{Asir} root directory.
-Of course, it must be activated by @code{ox_launch()}. 
+The plotting functions are realized by an OpenXM server.
+On UNIX it is @samp{ox_plot} in @b{Asir} root directory.
+On Windows @samp{engine} acts as @samp{ox_plot}.
+Of course, it must be activated by @code{ox_launch()} @code{ox_launch_nox()}. 
 
 @item 
 Argument @var{func} is indispensable. Other arguments are optional. 
@@ -2184,4 +2186,119 @@ plot*form*ydone*background:white
 \JP @item 参照
 \EG @item References
 @fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_reset ox_intr register_handler}
+@end table
+
+\JP @node open_canvas clear_canvas draw_obj,,, 分散計算に関する関数
+\EG @node open_canvas clear_canvas draw_obj,,, Functions for distributed computation
+@subsection @code{open_canvas}, @code{clear_canvas}, @code{draw_obj}
+@findex open_canvas
+@findex clear_canvas
+@findex draw_obj
+
+@table @t
+@item open_canvas(@var{id}[,@var{geometry}])
+\JP :: 描画用ウィンドウ (キャンバス) を生成する.
+\EG :: Opens a canvas, which is a window for drawing objects.
+@item clear_canvas(@var{id},@var{index})
+\JP :: キャンバスをクリアする.
+\EG :: Clears a canvas.
+@item draw_obj(@var{id},@var{index},@var{pointorsegment} [,@var{color}])
+\JP :: キャンバス上に点または線分を描画する.
+\EG :: Draws a point or a line segment on a canvas.
+@end table
+
+@table @var
+@item return
+0
+@item id, index, color
+\JP 整数
+\EG integer
+@item pointorsegment
+\JP リスト
+\EG list
+@end table
+
+@itemize @bullet
+@item
+\BJP
+これらは OpenXM サーバ @samp{ox_plot} (Windows 上では @samp{engine})
+により提供される.
+\E
+\BEG
+These functions are supplied by the OpenXM server @samp{ox_plot}
+(@samp{engine} on Windows).
+\E
+@item 
+\BJP
+@code{open_canvas} は, 描画用のウィンドウ(キャンバス)を生成する.
+@var{geometry} によりウィンドウのサイズを pixel 単位で @var{[x,y]} で指定する. 
+default size は @var{[}@code{300},@code{300}@var{]}.
+キャンバスの識別子として, 整数値を OpenXM サーバのスタックに push する.
+この識別子は @code{draw_obj} の呼び出しに必要であり, @code{ox_pop_cmo} に
+より取り出して保持する必要がある.
+\E
+\BEG
+@code{open_canvas} opens a canvas, which is a window for drawing objecgts.
+One can specifies the size of a canvas in pixel by 
+supplying @var{geometry} option @var{[x,y]}. The default size is
+@var{[}@code{300},@code{300}@var{]}.
+This function pushes an integer value onto the stack of the OpenXM server.
+The value is used to distiguish the opened canvas and one has to pop
+and maintain the value by @code{ox_pop_cmo} for subsequent calls of
+@code{draw_obj}.
+\E
+@item
+\BJP
+@code{clear_canvas} は, サーバ id @var{id}, キャンバス id @var{index}
+で指定されるキャンバスをクリアする.
+\E
+\BEG
+@code{clear_canvas} clears a canvas specified by a server id @var{id}
+and a canvas id @var{index}.
+\E
+@item
+\BJP
+@code{draw_obj} は, サーバ id @var{id}, キャンバス id @var{index}
+で指定されるキャンバスに点または線分を描画する. @var{pointorsegment}
+が @var{[x,y]} の場合点の座標, @var{[x,y,u,v]} の場合 @var{[x,y]},
+@var{[u,v]} を結ぶ線分を表すと見なされる.
+キャンバスの座標は, 左上隅を原点として横方向に
+第一座標, 縦方向に第二座標をとる. 値は pixel 単位で指定する.
+@var{color} の指定がある場合, @var{color/65536} mod 256,
+@var{color/256} mod 256, @var{color} mod 256 をそれぞれ Red, Green, Blue
+の値 (最大 255) とみなす.
+\E
+\BEG
+@code{draw_obj_canvas} draws a point or a line segment on 
+a canvas specified by a server id @var{id} and a canvas id @var{index}.
+If @var{pointorsegment} is @var{[x,y]}, it is regarded as a point.
+If @var{pointorsegment} is @var{[x,y,u,v]}, it is regarded
+as a line segment which connects @var{[x,y]} and @var{[u,v]}.
+If @var{color} is specified, @var{color/65536} mod 256,
+@var{color/256} mod 256, @var{color} mod 256 are regarded as the vaules
+of Red, Green, Blue (Max. 255) respectively.
+\E
+@end itemize
+
+@example
+[182] Id=ox_launch_nox(0,"ox_plot");
+0
+[183] open_canvas(Id);
+0
+[184] Ind=ox_pop_cmo(Id);
+0
+[185] draw_obj(Id,Ind,[100,100]);
+0
+[186] draw_obj(Id,Ind,[200,200],0xffff);
+0
+[187] draw_obj(Id,Ind,[10,10,50,50],0xff00ff);
+0
+[188] clear_canvas(Id,Ind);
+0
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_reset ox_intr register_handler}, @fref{ox_pop_cmo ox_pop_local}.
 @end table
