@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/sample/contiguity,v 1.1 2000/01/21 10:39:44 takayama Exp $ */
 
 /* contiguity */
 
@@ -23,8 +23,8 @@ def contiguity_eliminated(G) {
 def contiguity_f4_a_bf() {
    V = [x,y,a,b,c,cp];
    W = [[dx,1,dy,1,x,1,y,1]];
-   G = sm1_gb([[dx*(x*dx+c)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
-                dy*(y*dy+cp)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
+   G = sm1_gb([[dx*(x*dx+c-1)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
+                dy*(y*dy+cp-1)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
                 x*dx+y*dy+a],V,W]);
 
    G = G[0];
@@ -38,8 +38,8 @@ def contiguity_f4_a() {
    V = [x,y,a,b,c,cp];
    W = [[dx,1,dy,1,x,1,y,1]];
    F = [x*dx+y*dy+a, 
-        dx*(x*dx+c)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
-        dy*(y*dy+cp)-(x*dx+y*dy+a)*(x*dx+y*dy+b)];
+        dx*(x*dx+c-1)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
+        dy*(y*dy+cp-1)-(x*dx+y*dy+a)*(x*dx+y*dy+b)];
    G = sm1_syz([F,V,W]);
 
    Gb = map(first,G[1][0]);
@@ -48,6 +48,7 @@ def contiguity_f4_a() {
    for (I=0; I<length(Gb); I++) {
      if (contiguity_param_only(Gb[I]) != 0) {
         Ans = append(Ans,[ [Gb[I],C[I][0]] ]);
+        print(sm1_mul(C[I],F,[x,y,a,b,c,cp])); /* check ! */
      }
    }
    return(Ans);

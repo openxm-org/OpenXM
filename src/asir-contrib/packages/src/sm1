@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.8 2000/01/20 12:37:14 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.9 2000/01/21 13:39:57 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
 Sm1_proc = -1$
@@ -1927,6 +1927,81 @@ def sm1_mul(A,B,V) {
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
+
+/*&eg-texi
+@menu
+* sm1_mul::
+@end menu
+@node sm1_mul,,, SM1 Functions
+@subsection @code{sm1_mul}
+@findex sm1_mul
+@table @t
+@item sm1_mul(@var{f},@var{g},@var{v}|proc=@var{p})
+::  ask the sm1 server to multiply @var{f} and @var{g} in the ring of differential operators over @var{v}.
+@end table
+
+@table @var
+@item return
+Polynomial or List
+@item p
+Number
+@item f, g
+Polynomial or List
+@item v
+List
+@end table
+
+@itemize @bullet
+@item Ask the sm1 server to multiply @var{f} and @var{g} in the ring of differential operators over @var{v}.
+@item @code{sm1_mul_h} is for homogenized Weyl algebra.
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_mul::
+@end menu
+@node sm1_mul,,, SM1 函数
+@subsection @code{sm1_mul}
+@findex sm1_mul
+@table @t
+@item sm1_mul(@var{f},@var{g},@var{v}|proc=@var{p})
+::  sm1サーバ に @var{f} かける @var{g} を @var{v}
+上の微分作用素環でやってくれるように頼む.
+@end table
+
+@table @var
+@item return
+多項式またはリスト
+@item p
+数
+@item f, g
+多項式またはリスト
+@item v
+リスト
+@end table
+
+@itemize @bullet
+@item   sm1サーバ に @var{f} かける @var{g} を @var{v}
+上の微分作用素環でやってくれるように頼む.
+@item @code{sm1_mul_h} は homogenized Weyl 代数用.
+@end itemize
+*/
+
+/*&C-texi
+
+@example
+[277] sm1_mul(dx,x,[x]);
+x*dx+1
+[278] sm1_mul([x,y],[1,2],[x,y]);
+x+2*y
+[279] sm1_mul([[1,2],[3,4]],[[x,y],[1,2]],[x,y]);
+[[x+2,y+4],[3*x+4,3*y+8]]
+@end example
+
+*/
+
+	
  
 def sm1_mul_h(A,B,V) {
   SM1_FIND_PROC(P);
