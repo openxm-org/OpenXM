@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/install.txt,v 1.9 1999/12/04 06:15:35 takayama Exp $    
+%%  $OpenXM: OpenXM/install.txt,v 1.10 1999/12/12 10:36:45 takayama Exp $    
 OpenXM/install.txt    in Japanese
 As to English version see install.eg.txt (which has not been written).
 
@@ -22,15 +22,23 @@ csh  の場合なら,  source OpenXM/rccshrc
 OpenXM をホームの直下に展開してない場合は OpenXM/rc/bashrc, cshrc を
 適当に変更して使用してください.
 
+注意 1.
 asir で日本語のヘルプを利用するには, 
 PAGER=jless
 export PAGER
 などで, 日本語を扱える PAGER を指定する必要があるかもしれません.
+注意 2.
+FreeBSD 3.3 などには, /usr/local/bin/javac がついています.
+この javac では, OpenXM/src/OpenMath 以下のファイルがコンパイルできません.
+PATH=/usr/local/jdk1.1.8/bin:$PATH
+export PATH
+などとして, jdk の javac をサーチパスの先のほうへもっていくようにして
+ください.
 
 以上.  以下の使用例へ進んで下さい.
 
 ★(1) asir のマニュアルは,
-   OpenXM/src/asir99/doc の README を見てね.
+   OpenXM_contrib2/asir2000/doc の README を見てね.
   (2) asir-contrib のマニュアルは,
   OpenXM/src/asir-contrib/packages/doc で make したあと,
   ptex cman.texi (日本語)
@@ -103,7 +111,7 @@ sm1
 募集中.
 
 OpenXM : url http://www.math.kobe-u.ac.jp/openXM
-         cvs cite : kerberos.kobe-u.ac.jp
+         cvs cite : kerberos.math.kobe-u.ac.jp
 sm1 :  作者 Nobuki Takayama, url http://www.math.kobe-u.ac.jp/KAN, 
        ライセンス形態   GPL??
 asir :    作者  url
