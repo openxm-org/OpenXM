@@ -23,16 +23,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$OpenXM$
+ *	$OpenXM: OpenXM/src/ox_socket/ox_socket.h,v 1.1 2000/12/01 07:50:25 maekawa Exp $
  */
 
 #ifndef _OX_SOCKET_H_
 #define	_OX_SOCKET_H_
 
-#define	OX_MAX_LISTEN_SOCKS	32
+#define	OX_MAXSOCKS	32
 
 struct ox_sockarray {
-	int	sock[OX_MAX_LISTEN_SOCKS];
+	int	sock[OX_MAXSOCKS];
 	int	nsocks;
 };
 

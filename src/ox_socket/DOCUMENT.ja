@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/ox_socket/DOCUMENT.ja,v 1.4 2000/12/01 07:42:42 maekawa Exp $
+$OpenXM: OpenXM/src/ox_socket/DOCUMENT.ja,v 1.5 2000/12/01 07:47:17 maekawa Exp $
 
 Drafts of the specification of the OpenXM standard socket APIs.
 
@@ -43,10 +43,10 @@ Drafts of the specification of the OpenXM standard socket APIs.
 	backlog	 - listen(2) の第二引数
 	opt	 - setsockopt(2) へ渡したいオプション群 (ox_connect と同様)
 
-	#define	OX_MAX_LISTEN_SOCKS	32
+	#define	OX_MAXSOCKS	32
 
 	struct ox_sockarray {
-		int	sock[OX_MAX_LISTEN_SOCKS];
+		int	sock[OX_MAXSOCKS];
 		int	nsocks;
 	};
 
