@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.14 2000/01/17 12:58:16 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.15 2000/01/18 09:46:52 takayama Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -10,7 +10,7 @@ GC=$(OPENXM_CONTRIB)/gc
 GMP=$(OPENXM_CONTRIB)/gmp
 
 all :   all-gc all-gmp all-plugin all-sm1 all-kanlib.a
-.SUFFIXES:
+## .SUFFIXES:
 
 all2 :  all-gc all-gmp
 	(cd Kan; make all)
