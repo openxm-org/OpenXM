@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.9 2002/10/29 10:54:17 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.10 2002/11/03 12:43:03 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -21,6 +21,9 @@ def
 /httpd.oxasir.timer 1 def  %% 1 to use timer, but it accepts only one command
                            %% 0 not to use timer. It accepts programs.
 
+/httpd.title  
+  (<H1><font color="green">OpenXM/Risa/Asir Online</font></H2><br>) 
+def
 %%******* Put initialization codes for ox_asir here. 
 /httpd.initialization
  [(if(1){)
@@ -211,6 +214,24 @@ oxNoX
   arg1
 } def
 
+ [
+  (Input example---factorization:<font color="blue"> fctr(x^3-1)</font>) 
+  (<br>) 
+  [(<font color="blue"> 
+    <a href=) httpd.asirman ( > AsirManual (En) </a> </font>, )] cat 
+  [(<font color="blue"> 
+    <a href=) httpd.asirman.ja ( > AsirManual (Ja) </a> </font>)] cat 
+   httpd.oxasir.timer {
+    (<br> It accepts only one command. The limit of CPU time is 30 seconds.
+          <font color="red"> Do not put <font color="blue"> ; </font> 
+                             (semi-colon) after the command. 
+          </font>) 
+   }{ } ifelse  
+   (<br>) 
+  [(You can also retrieve the result by GET /?) httpd.textarea.name (=) ( encoded_codes  HTTP/1.0)] 
+   (<br>) 
+ ] cat /httpd.msg1 set
+
 /send-page-usage {
   [/in-send-page-usage ] pushVariables
   [
@@ -219,7 +240,7 @@ oxNoX
    (Content-Type: text/html) sendln
    0 sendln
 
-  (<H1><font color="green">OpenXM/Risa/Asir Online</font></H2><br>) sendln
+  httpd.title sendln
   [(getenv) (OXWEB_POST)] extension tag 0 eq {
     (<FORM NAME="myFORM">) sendln  % use get
   }{
@@ -230,22 +251,8 @@ oxNoX
     ( rows=7 cols="80" wrap="soft"></textarea>)] cat sendln
    (</FORM>) sendln
 
-  (Input example---factorization:<font color="blue"> fctr(x^3-1)</font>) sendln
-  (<br>) sendln
-  [(<font color="blue"> 
-    <a href=) httpd.asirman ( > AsirManual (En) </a> </font>, )] cat sendln
-  [(<font color="blue"> 
-    <a href=) httpd.asirman.ja ( > AsirManual (Ja) </a> </font>)] cat sendln
-   httpd.oxasir.timer {
-    (<br> It accepts only one command. The limit of CPU time is 30 seconds.
-          <font color="red"> Do not put <font color="blue"> ; </font> 
-                             (semi-colon) after the command. 
-          </font>) sendln
-   }{ } ifelse  
-   (<br>) sendln
-  [(You can also retrieve the result by GET /?) httpd.textarea.name (=) ( encoded_codes  HTTP/1.0)] cat 
-  sendln
-   (<br>) sendln
+   httpd.msg1 sendln
+
    [$<a href="http://$ [(sm1.socket) (gethostname) []] extension 
     $:$ httpd.port toString
     $/?msg=httpdAsirMeta+quit"> Shutdown the oxserver (and restart it). </a>$
@@ -267,10 +274,13 @@ oxNoX
    (HTTP/0.9 200 OK) sendln
    (Connection: close) sendln
    [(Content-length: ) result length toString ] cat sendln
-   (Content-Type: text/plain) sendln
+   (Content-Type: text/html) sendln
+   %(Content-Type: text/plain) sendln  % It does not work on some browsers.
    0 sendln
 
+   (<html> <body> <pre>) sendln
    result sendln
+   (</pre> </body> </html>) sendln
    0 sendln
    [(flush)] extension
   ] pop

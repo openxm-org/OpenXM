@@ -1,5 +1,5 @@
 #! /bin/sh
-# $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sh,v 1.4 2002/10/30 13:23:06 takayama Exp $
+# $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sh,v 1.5 2002/11/03 12:43:02 takayama Exp $
 # OpenXM/rc/dot.bashrc must be read before execution of this script.
 # source ${OpenXM_HOME}/rc/dot.bashrc
 #
@@ -12,10 +12,13 @@ OXWEB_PORT=8090
 export OXWEB_PORT
 #
 # asirrc is executed when risa/asir starts. Override it if necessary.
+# You can also define your own command in this file.
+#ASIR_CONFIG=httpd-rpc-asirrc.rr
 #ASIR_CONFIG=${OpenXM_HOME}/rc/asirrc
 #export ASIR_CONFIG
 #
 # Set your own httpd-rpc file if necessary.
+# OXWEB_HTTPD_RPC=httpd-rpc-${OXWEB_PORT}.sm1  
 OXWEB_HTTPD_RPC=httpd-rpc.sm1
 export OXWEB_HTTPD_RPC
 #
