@@ -1,8 +1,12 @@
-# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.2 2000/02/09 06:08:58 takayama Exp $
+# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.3 2000/03/16 07:34:37 noro Exp $
 all : test1 test2 test3
+##
+## make   
+## make OpenXM_HOME=/usr/local/OpenXM
 CC=gcc
-LIBDIR=../../lib
-INCDIR=../../include
+OpenXM_HOME=../../../OpenXM
+LIBDIR=${OpenXM_HOME}/lib
+INCDIR=${OpenXM_HOME}/include
 
 ASIR_LIB=$(LIBDIR)/libasir.a
 ASIR_LIB_PARI_X=$(LIBDIR)/libasir_pari_X.a
