@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_hg32.rr,v 1.1 2001/09/02 01:31:33 takayama Exp $ */
 /*  experimental module for hypergeometric function identities. 
     cf.  nach/3f2hom.rr
 */
@@ -31,11 +31,11 @@ def taka_hg21_reg_cycle(A1,A2,B2,Z,S) {
   C1 = "algebra_tensor("+S1+","+rtostr(U)+")";
 
   S1a = "topology_circle("+rtostr(Z)+",epsilon)";
-  C1a = 1/(exp(2*c_pi*(B2-1-A2))-1);
+  C1a = 1/(exp(2*c_pi*c_i*(B2-1-A2))-1);
   Sa = "algebra_tensor("+S1a+","+rtostr(C1a*U)+")";
 
   S1b = "topology_circle(1,epsilon)";
-  C1b = 1/(exp(2*c_pi*(-A1))-1);
+  C1b = 1/(exp(2*c_pi*c_i*(-A1))-1);
   Sb = "algebra_tensor("+S1b+","+rtostr(C1b*U)+")";
 
   Sa = eval_str("quote("+Sa+")");
@@ -43,10 +43,35 @@ def taka_hg21_reg_cycle(A1,A2,B2,Z,S) {
   C1 = eval_str("quote("+C1+")");
 
   C1 = Sa+Sb+C1;
-  
+
+  /* C2 has not yet been set. */
   return([C1,C2]);
 }
 
+def taka_hg21_exp(A1,A2,B2) {
+  C = [ c2-exp(2*c_pi*c_i*(-A1)),
+        c4-exp(2*c_pi*c_i*A2),
+        c5-exp(2*c_pi*c_i*(B2-1-A2))];
+  return C;  
+}
 
+def taka_hg21_monodromy(A1,A2,B2) {
+  M0 = newmat(2,2,
+        [[1,0],
+         [c5*(1-c4),c4*c5]]);
+  M1 = newmat(2,2,
+        [[c2*c5,1-c2],
+         [0,1]]);
+  C = taka_hg21_exp(A1,A2,B2);
+  return( [M0,M1,C] );
+}
+
+
+def taka_hg21_intersection_matrix_for_cycles(A1,A2,B2) {
+  Ih = newmat(2,2,
+      [[quote(1/(c5^(-1)-1) + 1 + 1/(c2^(-1)-1)), quote(-1/(c5^(-1)-1))],
+       [quote(-c5^(-1)/(c5^(-1)-1)), quote(1/(c4^(-1)-1) + 1 + 1/(c5^(-1)-1))]]);
+  return [Ih,taka_hg21_exp(A1,A2,B2)];
+}
 
 end$

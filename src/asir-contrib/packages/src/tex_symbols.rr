@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tex_symbols.rr,v 1.1 2001/09/01 07:12:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tex_symbols.rr,v 1.2 2001/09/02 01:31:33 takayama Exp $ */
 Tex_symbol_table_ = [
  /* Built-in high school level special functions */
  ["sin","\\sin"],
@@ -52,7 +52,12 @@ Tex_symbol_table_ = [
  ["ppsi","\\Psi"],
  ["oomega","\\Omega"],
 
- ["algebra_tensor","\\otimes"]
+ ["algebra_tensor","\\otimes"],
+ /* Mathematical constants */
+ ["c_pi","\\pi"],
+ ["c_i","\\sqrt{-1}"]
+
+
 ]$
 Tex_symbol_table = newmat(length(Tex_symbol_table_),2,
                            Tex_symbol_table_)$
