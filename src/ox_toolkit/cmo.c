@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.10 2003/03/30 08:05:22 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.11 2003/06/02 10:25:56 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -14,7 +14,7 @@
 #include "ox_toolkit.h"
 #include "parse.h"
 
-static cell*        new_cell();
+static cell*        new_cell(cmo *ob, int e);
 static char*        new_string_set_cmo_null();
 static char*        new_string_set_cmo_int32(int integer);
 static char*        new_string_set_cmo_list(cmo_list *c);
@@ -22,12 +22,13 @@ static char*        new_string_set_cmo_zz(cmo_zz *c);
 static char*        new_string_set_cmo_double(cmo_double *m);
 
 /* functions for a cmo_list */
-static cell* new_cell(cmo *ob)
+static cell* new_cell(cmo *ob, int e)
 {
     cell* h = MALLOC(sizeof(cell));
     h->next = NULL;
     h->prev = NULL;
     h->cmo  = ob;
+    h->exp  = e;
     return h;
 }
 
@@ -63,7 +64,14 @@ static void list_cons(cell *head, cell *new)
 
 cmo_list *list_append(cmo_list* this, cmo* ob)
 {
-    list_cons(this->head, new_cell(ob));
+    list_cons(this->head, new_cell(ob, 0));
+    this->length++;
+    return this;
+}
+
+cmo_list *list_append_monomial(cmo_list* this, cmo* coef, int exp)
+{
+    list_cons(this->head, new_cell(coef, exp));
     this->length++;
     return this;
 }
