@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.3 2000/01/03 04:27:52 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.4 2000/01/07 07:52:26 ohara Exp $
 
 \section{Design Outline} 
 
@@ -47,10 +47,10 @@ and it had its own serialization method for objects.
 A robust interruption method was provided by having two communication channels
 like ftp, which implements the simple network management protocol.
 As an application of this robust and interactive distributed computation
-system, 
-a huge Gr\"obner basis was computed
-to determine all replicable functions by Noro and McKay \cite{noro-mckay}.
-However, the protocol was closed in asir and we thought that we should
+system, speed-up was achieved for a huge Gr\"obner basis computation
+to determine all odd order replicable functions 
+by Noro and McKay \cite{noro-mckay}.
+However, the protocol was closed in Asir and we thought that we should
 design an open protocol.
 \item Takayama, who is also one of the authors of OpenXM, has developed
 a special purpose computer algebra system Kan/sm1 \cite{kan},
@@ -60,12 +60,12 @@ In order to implement algorithms in D-modules due to Oaku
 (see, e.g., \cite{sst-book}),
 factorizations and primary ideal decompositions were necessary.
 Kan/sm1 does not have an implementation for these and called
-Risa/asir as a C library or a unix external program.
+Risa/Asir as a C library or a UNIX external program.
 This approach was not satisfactory.
 Especially, we could not write a clean interface code between these
 two systems.
 We thought that it is necessary to provide a data and control protocol
-for Risa/asir to work as a server of factorization and primary ideal
+for Risa/Asir to work as a server of factorization and primary ideal
 decomposition.
 \item The number of mathematical softwares is increasing rapidly in the last
 decade of the 20th century.
@@ -82,14 +82,14 @@ softwares or users who need these systems only occasionally,
 a unified system will be more convenient.
 For example, if we can call and use mathematical softwares
 like CoCoa, GAP, Macaulay2, Porta, Singular, Snapea, $\ldots$
-from Asir, Axion, Maple, muPAD, Mathematica, and so on,
+from Asir, Axiom, Maple, muPAD, Mathematica, and so on,
 it will be wonderful in research and education
 of mathematics. This is an unification of user interfaces of mathematical
 softwares.
-\item  We believe that open integrated systems is a future of mathematical
+\item  We believe that an open integrated system is a future of mathematical
 softwares.
 However, it might be just a dream without realizability.
-We wanted to build a prototype system of such an open system by using
+We want to build a prototype system of such an open system by using
 existing standards, technologies and several mathematical softwares.
 We want to see how far we can go with this approach.
 \end{enumerate}
@@ -122,7 +122,7 @@ We are implementing a package, OpenXM package,
 which aims to realize our wishes stated as motivations.
 It is based on above fundamental architecture.
 For example, the following is a command sequence to ask $1+1$ from
-the asir client to the OX sm1 server:
+the Asir client to the OX sm1 server:
 \begin{verbatim}
   P = sm1_start();
   ox_push_cmo(P,1); ox_push_cmo(P,1);
@@ -131,7 +131,7 @@ the asir client to the OX sm1 server:
 The current system, OpenXM on TCP/IP, 
 uses client-server model and the TCP/IP is used for interprocess
 communications.
-A prototype OpenXM system on MPI \cite{MPI} already exists for Risa/asir and
+A prototype OpenXM system on MPI \cite{MPI} already exists for Risa/Asir and
 a general OpenXM on MPI is a work in progress.
 However, we focus only on the system based on TCP/IP in this paper.
 

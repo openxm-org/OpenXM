@@ -1,4 +1,4 @@
-%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.1 2000/01/02 07:32:12 takayama Exp $
+%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.2 2000/01/03 04:27:53 takayama Exp $
 
 \section{OX messages}  (Ohara)
 
@@ -17,7 +17,7 @@ and the second one is a serial number of the OX message.
 Negative numbers are expressed by the two's complement.
 Several byte orders including the network byte order
 are allowed and the byte order is determined as a part of
-the establishment of a connection.
+the establishment of a connection. See Section \ref{secsession}.
 
 The OX messages are classifed into three types:
 DATA, COMMAND, and others.
@@ -42,7 +42,7 @@ See the home page of OpenXM to add a new tag.
 In OpenXM, a distributed computation is done as follows:
 \begin{enumerate}
 \item A client requests something to a server.
-\item The server does works according to the request.
+\item The server does some work according to the request.
 \item The client requests to send data to the server.
 \item The server sends the data to the client and the client gets the data.
 \end{enumerate}

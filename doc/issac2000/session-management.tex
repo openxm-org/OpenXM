@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.3 2000/01/04 09:14:14 noro Exp $
+% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.4 2000/01/07 06:27:55 noro Exp $
 
 \section{Session Management}
 \label{secsession}
@@ -31,8 +31,8 @@ A server reads data from the stream {\bf 3} and writes results to the
 stream {\bf 4}. The streams {\bf 1} and {\bf 2} are provided for
 diagnostic messages from the server.  As {\bf 3} and {\bf 4} are
 streams for binary data, the byte order conversion is necessary when a
-client and a server have different byte orders. There are several
-methods to treat it and we adopted the following scheme.
+client and a server have different byte orders. Various
+methods are possible to treat it and we adopted the following scheme.
 
 \begin{itemize}
 \item A server writes 1 byte representing the preferable byte order.
@@ -42,7 +42,8 @@ preferable byte order.
 the byte order is used. Otherwise the network byte order is used.
 \end{itemize}
 
-This implies that all servers and clients can handle the network byte
+This implies that all servers and clients should be able to
+handle the network byte
 order. Nevertheless it is necessary to negotiate the byte order to
 skip the byte order conversion because its cost is often dominant over
 fast networks.
@@ -192,7 +193,7 @@ then it is possible that the engine receives it before the arrival of
 the signal. We note that we really encountered serious bugs caused
 by such an inappropriate protocol before reaching the final specification.
 
-\subsection{Debugging}
+\subsection{Debugging supports}
 An OpenXM server may allow definition and execution of functions
 written in the user language proper to the server.  To help debugging
 such functions on the server, various supports are possible. If
