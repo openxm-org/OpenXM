@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
 /* list.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -180,6 +180,65 @@ static warningList(str)
   fprintf(stderr,"Warning. list.c: %s\n",str);
 }
 
+struct object KvJoin(struct object listo1,struct object listo2) {
+  struct object rob;
+  struct object *op1,*op2;
+  if (listo1.tag == Snull) return listo2;
+  if (listo2.tag == Snull) return listo1;
+  if ((listo1.tag == Slist) && (listo2.tag == Slist)) {
+    op1 = (struct object *)sGC_malloc(sizeof(struct object));
+    op2 = (struct object *)sGC_malloc(sizeof(struct object));
+    if ((op1 == NULL) || (op2 == NULL)) errorKan1("%s\n","KvJoin, No more memory.");
+    *op1 = listo1; *op2 = listo2;
+    rob = *(vJoin(op1,op2));
+    return rob;
+  }else{
+    errorKan1("%s\n","KvJoin(Slist,Slist)");
+  }
+}
+struct object Kcar(struct object listo) {
+  if (listo.tag == Snull) return listo;
+  if (listo.tag == Slist) {
+    return car(&listo);
+  }else{
+    errorKan1("%s\n","Kcar(Slist)");
+  }
+}
+struct object Kcdr(struct object listo) {
+  struct object *op;
+  struct object rob;
+  if (listo.tag == Snull) return listo;
+  if (listo.tag == Slist) {
+    op = cdr(&listo);
+    if (isNullList(op)) {
+      rob = NullObject;
+    }else{
+      rob = *op;
+    }
+    return rob;
+  }else{
+    errorKan1("%s\n","Kcar(Slist)");
+  }
+}
+struct object KlistToArray(struct object listo) {
+  if (listo.tag == Snull) {
+    return newObjectArray(0);
+  }
+  if (listo.tag == Slist) {
+    return listToArray(&listo);
+  }else{
+    errorKan1("%s\n","KlistToArray(Slist)");
+  }
+}
+struct object KarrayToList(struct object ob) {
+  struct object *op;
+  if (ob.tag != Sarray) {
+    errorKan1("%s\n","KarrayToList(Sarray)");
+  }
+  op = arrayToList(ob);
+  if (isNullList(op)) return NullObject;
+  return *op;
+}
 
 /********************** test codes for Stest: ********************/
 /* test of objectArrayToObjectList. in Stest: stackmachine.c 

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.34 2004/09/01 05:06:09 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.35 2004/09/09 03:14:46 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4189,6 +4189,19 @@ $ [ff ff] fromVectors :: $
  (  ma (dog) getNode )
 ]] putUsages 
 
+/cons {
+  /arg2 set /arg1 set
+  [/aa /bb] pushVariables
+  [
+    /aa arg1 def /bb arg2 def
+    [aa] (list) dc bb join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(cons)
+[(obj list cons list)
+]] putUsages
 
 /usages {
   /arg1 set

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.22 2004/09/04 11:25:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.23 2004/09/09 03:14:46 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -127,6 +127,12 @@ struct object car(struct object *list);
 struct object *cdr(struct object *list);
 void printObjectList(struct object *op);
 int memberQ(struct object *list1,struct object list2);
+
+struct object KvJoin(struct object listo1,struct object listo2);
+struct object Kcar(struct object listo);
+struct object Kcdr(struct object listo);
+struct object KlistToArray(struct object listo);
+struct object KarrayToList(struct object ob);
 
 /* list:conversion */
 struct object listToArray(struct object *op);

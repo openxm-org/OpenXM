@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.30 2004/09/04 11:25:58 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.31 2004/09/09 03:14:46 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -919,6 +919,10 @@ struct object KdataConversion(obj,key)
       return(rob);
     }else if (strcmp(key,"poly") == 0) {
       rob = KpoPOLY(ZERO);
+      return rob;
+    }else if (strcmp(key,"array") == 0) {
+      rob = newObjectArray(0);
+      return rob;
     }else{
       warningKan("Sorry. The data conversion from null to this data type has not supported yet.\n");
     }
@@ -1015,7 +1019,7 @@ struct object KdataConversion(obj,key)
     if (strcmp(key,"array") == 0) {
       return(rob);
     }else if (strcmp(key,"list") == 0) {
-      rob = *( arrayToList(obj) );
+      rob = KarrayToList(obj);
       return(rob);
     }else if (strcmp(key,"arrayOfPOLY")==0) {
       rob = KpoArrayOfPOLY(arrayToArrayOfPOLY(obj));
@@ -1108,7 +1112,7 @@ struct object KdataConversion(obj,key)
     break;
   case Slist:
     if (strcmp(key,"array") == 0) {
-      rob = listToArray(&obj);
+      rob = KlistToArray(obj);
       return(rob);
     }
     break;
@@ -2958,8 +2962,8 @@ struct object Krest(struct object ob) {
       putoa(rob,i-1,getoa(ob,i));
     }
     return rob;
-  }else if (ob.tag == Slist) {
-    errorKan1("%s\n","Krest: it has not yet been implemented.");
+  }else if ((ob.tag == Slist) || (ob.tag == Snull)) {
+    return Kcdr(ob);
   }else{
     errorKan1("%s\n","Krest(ob): ob must be an array or a list.");
   }
@@ -2977,6 +2981,12 @@ struct object Kjoin(struct object ob1, struct object ob2) {
       putoa(rob,i,getoa(ob2,i-n1));
     }
     return rob;
+  }else if ((ob1.tag == Slist) || (ob1.tag == Snull)) {
+	if ((ob2.tag == Slist) || (ob2.tag == Snull)) {
+	  return KvJoin(ob1,ob2);
+	}else{
+	  errorKan1("%s\n","Kjoin: both argument must be a list.");
+	}
   }else{
     errorKan1("%s\n","Kjoin: arguments must be arrays.");
   }
