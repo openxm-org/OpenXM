@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.71 2000/01/24 11:01:13 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.72 2000/01/24 11:20:29 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -177,4 +177,5 @@ all-Copyright :
 	(cd $(COPYRIGHTDIR) ; make copy-copyright )
 
 binary-dist : all-Copyright clean-rc all install all-misc
+	(cd ../bin ; rm -f asir ; ln -s ./ox_asir asir)
 
