@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.20 2004/02/26 09:54:27 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.21 2004/03/01 03:10:26 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -24,7 +24,7 @@ dot.cshrc : cshrc repl
 
 repl : repl.c 
 	rm -f repl
-	${CC} -static -o ../bin/rc.repl repl.c
+	${CC} -o ../bin/rc.repl repl.c
 	ln -s ../bin/rc.repl repl
 
 openxm : dot.bashrc
