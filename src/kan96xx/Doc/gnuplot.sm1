@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.7 2004/12/21 03:25:04 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.8 2005/02/04 11:25:45 takayama Exp $
 %%% 1999, 6/7 Mon.
 [(parse) (ox.sm1) pushfile] extension
 [(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
@@ -140,6 +140,7 @@
   [(fp2fputs) [cccc nl] cat gnuplot.pfp] extension pop
   [(fp2fflush) gnuplot.pfp] extension pop
   gnuplot.read.1
+  gnuplot.sync.1
 } def
 
 %% (plot sin(x);) gnuplot
@@ -156,6 +157,15 @@
    } loop
   } ifelse
  ] { (string) dc } map cat
+} def
+
+% It uses "@" to wait for the gnuplot.
+/gnuplot.sync.1 {
+  [(fp2fputs) [(print "@";) nl] cat gnuplot.pfp] extension pop
+  [(fp2fflush) gnuplot.pfp] extension pop
+  {
+    [(fp2fgetc) gnuplot.fifoFp] extension 64 eq { exit} { } ifelse
+  } loop
 } def
 
 /isAlive {
