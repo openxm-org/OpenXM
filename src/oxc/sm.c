@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.4 2000/11/30 10:27:02 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.5 2000/12/03 14:32:40 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -88,7 +88,7 @@ void sm_run(int code)
     if (func != NULL) {
         func(stack_oxfp);
     }else {
-        fprintf(stderr, "oxc: unknown SM code(%d).\n", code);
+        ox_printf("oxc: unknown SM code(%d).\n", code);
     }
 }
 
@@ -107,11 +107,11 @@ int sm_receive_ox()
         break;
     case OX_COMMAND:
         code = receive_sm_command(stack_oxfp);
-        fprintf(stderr, "oxc: code = %d.\n", code);
+        ox_printf("oxc: code = %d.\n", code);
         sm_run(code);
         break;
     default:
-        fprintf(stderr, "illeagal message? ox_tag = (%d)\n", tag);
+        ox_printf("illeagal message? ox_tag = (%d)\n", tag);
         return 0;
         break;
     }
@@ -133,5 +133,5 @@ int sm(OXFILE *oxfp)
     stack_extend();
     while (sm_receive_ox()) {
     }
-    fprintf(stderr, "oxc: socket(%d) is closed.\n", stack_oxfp->fd);
+    ox_printf("oxc: socket(%d) is closed.\n", stack_oxfp->fd);
 }

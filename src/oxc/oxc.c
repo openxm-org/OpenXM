@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.10 2000/12/16 01:52:32 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.11 2001/01/10 06:54:36 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@ int lf_oxc_open_main(char *cmd, short port)
     pid_t pid;
     if ((pid = fork()) == 0) {
         oxf_connect_dup(remote_host, port);
-        fprintf(stderr, "oxc: oxc_open(%s, %d)\n", cmd, port);
+        ox_printf("oxc: oxc_open(%s, %d)\n", cmd, port);
         execlp(cmd, cmd, NULL);
     }
     return pid; /* if error, pid == 0 */
@@ -45,7 +45,7 @@ OXFILE *connection()
         if (--counter > 0) {
             usleep(100); /* spends 100 micro seconds */
         }else {
-            fprintf(stderr, "oxc: cannot connect.\n");
+            ox_printf("oxc: cannot connect.\n");
             return NULL;
         }
     }
@@ -155,19 +155,22 @@ int main(int argc, char *argv[])
     int c;
     int delay = 0;
     char *delay_s = "0";
+	int quiet = 0;
 
-    while ((c = getopt(argc, argv, "d:c:p:h:x")) != -1) {
+    while ((c = getopt(argc, argv, "c:d:h:p:qx")) != -1) {
         switch(c) {
         case 'h':
             remote_host = optarg;
             break;
         case 'c':
             password = optarg;
-            
             break;
         case 'p':
             port = atoi(optarg);
             port_s = optarg;
+            break;
+        case 'q':
+            quiet = 1;
             break;
         case 'x':
             if (getenv("DISPLAY") != NULL) {
@@ -184,6 +187,10 @@ int main(int argc, char *argv[])
     argc -= optind;
     argv += optind;
 
+    if (!quiet) {
+        ox_stderr_init(stderr);
+	}
+
     if (strlen(remote_host) == 0) {
         pipe_read_info(&remote_host, &port, &password);
         port_s = malloc(32);
@@ -197,10 +204,10 @@ int main(int argc, char *argv[])
         execvp(args[0], args);
     }
 
-    fprintf(stderr, "start connection!\n");
+    ox_printf("start connection!\n");
     usleep(delay);
     if ((oxfp = connection()) != NULL) {
-        fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
+        ox_printf("oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
         mathcap_init(20001006, "v2000.10.06", "oxc", basic0, NULL);
         sm(oxfp);
     }

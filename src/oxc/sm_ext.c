@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.8 2000/12/03 14:32:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.9 2000/12/14 01:35:58 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,7 +98,7 @@ static int getargs(cmo ***args)
     cmo_int32 *m = (cmo_int32 *)pop();
 
     if (m->tag != CMO_INT32 || (argc = m->i) < 0) {
-        fprintf(stderr, "oxc: invalid arguments\n");
+        ox_printf("oxc: invalid arguments\n");
     }else {
         argv = (cmo **)malloc(sizeof(cmo *)*argc);
         for(i=0; i<argc; i++) {
@@ -233,7 +233,7 @@ static int sm_control_spawn()
 		if (pid > 0) {
 			push(new_cmo_int32(pid));
 			pid_regist(pid);
-			fprintf(stderr, "oxc: spawns %s\n", sname->s);
+			ox_printf("oxc: spawns %s\n", sname->s);
 			return pid;
 		}
 	}
