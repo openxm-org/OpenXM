@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.23 2000/02/28 14:10:29 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.24 2000/03/03 11:59:47 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -2480,7 +2480,7 @@ List
 @end table
 
 @itemize @bullet
-@item Returns the Appell hypergeometric system for the Lauricella function
+@item Returns the hypergeometric system for the Lauricella function
 F_D(a,b1,b2,...,bn,c;x1,...,xn)
 where @var{a} =(a,c,b1,...,bn).
 When n=2, the Lauricella function is called the Appell function F_1.
@@ -2497,7 +2497,7 @@ The parameters a, c, b1, ..., bn may be rational numbers.
 @findex sm1_appell1
 @table @t
 @item sm1_appell1(@var{a}|proc=@var{p})
-:: F_1 または F_D に対応すう, 方程式系を戻す. 
+:: F_1 または F_D に対応する方程式系を戻す. 
 @end table
 
 @table @var
@@ -2547,6 +2547,109 @@ F_D(a,b1,b2,...,bn,c;x1,...,xn)
 @end example
 
 */
+
+def sm1_appell4(S) {
+  N = length(S)-2;
+  B = cdr(cdr(S));
+  A = S[0];
+  C = S[1];
+  V = [ ];
+  for (I=0; I<N; I++) {
+    V = append(V,[sm1aux_x(I+1)]); 
+  }
+  Ans = [ ];
+  Euler = 0;
+  for (I=0; I<N; I++) {
+    Euler = sm1aux_x(I+1)*sm1aux_dx(I+1) + Euler;
+  }
+  for (I=0; I<N; I++) {
+    T = sm1_mul(sm1aux_dx(I+1), sm1aux_x(I+1)*sm1aux_dx(I+1)+B[I]-1,V)-
+        sm1_mul(Euler+A,Euler+C,V);
+    /* Tmp=sm1_rat_to_p(T);
+    print(Tmp[0]/Tmp[1]-T)$ */
+    T = sm1_rat_to_p(T)[0];
+    Ans = append(Ans,[T]);
+  }
+  return([Ans,V]);
+}
+
+/*&eg-texi
+@menu
+* sm1_appell4::
+@end menu
+@node sm1_appell4,,, SM1 Functions
+@subsection @code{sm1_appell4}
+@findex sm1_appell4
+@table @t
+@item sm1_appell4(@var{a}|proc=@var{p})
+::  Returns the Appell hypergeometric system F_4 or F_C. 
+@end table
+
+@table @var
+@item return
+List
+@item p
+Number
+@item a
+List
+@end table
+
+@itemize @bullet
+@item Returns the hypergeometric system for the Lauricella function
+F_4(a,b,c1,c2,...,cn;x1,...,xn)
+where @var{a} =(a,b,c1,...,cn).
+When n=2, the Lauricella function is called the Appell function F_4.
+The parameters a, b, c1, ..., cn may be rational numbers.
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_appell4::
+@end menu
+@node sm1_appell4,,, SM1 函数
+@subsection @code{sm1_appell4}
+@findex sm1_appell4
+@table @t
+@item sm1_appell4(@var{a}|proc=@var{p})
+:: F_4 または F_C に対応する方程式系を戻す. 
+@end table
+
+@table @var
+@item return
+リスト
+@item p
+数
+@item a
+リスト
+@end table
+
+@itemize @bullet
+@item Appell の関数 F_4 および その n 変数化である Lauricella の関数
+F_C(a,b,c1,c2,...,cn;x1,...,xn)
+のみたす微分方程式系を戻す. ここで,
+@var{a} =(a,b,c1,...,cn).
+パラメータは有理数でもよい.
+@end itemize
+*/
+
+/*&C-texi
+
+@example
+
+[281] sm1_appell4([1,2,3,4]);
+  [[-x2^2*dx2^2+(-2*x1*x2*dx1-4*x2)*dx2+(-x1^2+x1)*dx1^2+(-4*x1+3)*dx1-2,
+  (-x2^2+x2)*dx2^2+(-2*x1*x2*dx1-4*x2+4)*dx2-x1^2*dx1^2-4*x1*dx1-2],
+                                                              equations
+    [x1,x2]]                                      the list of variables
+
+[282] sm1_rank(@@);
+4
+
+@end example
+
+*/
+
 
 def sm1_rank(A) {
   SM1_FIND_PROC(P);
