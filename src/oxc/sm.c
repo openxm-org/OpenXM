@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.2 2000/10/13 08:05:49 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,25 +13,25 @@
 
 static cmo **stack = NULL;
 static int stack_ptr = 0;
-static int sizeof_stack = 0;
+static int stack_size = 0;
 #define DIFFERENCE_OF_STACK  1024
 
-void extend_stack()
+void stack_extend()
 {
-    int newsize = sizeof_stack + DIFFERENCE_OF_STACK;
+    int newsize = stack_size + DIFFERENCE_OF_STACK;
     cmo **newstack = (cmo **)malloc(sizeof(cmo *)*newsize);
     if (stack != NULL) {
-        memcpy(newstack, stack, sizeof(cmo *)*sizeof_stack);
+        memcpy(newstack, stack, sizeof(cmo *)*stack_size);
         free(stack);
     }
-    sizeof_stack = newsize;
+    stack_size = newsize;
     stack = newstack;
 }
 
 void push(cmo *ob)
 {
-    if (stack_ptr >= sizeof_stack) {
-        extend_stack();
+    if (stack_ptr >= stack_size) {
+        stack_extend();
     }
     stack[stack_ptr] = ob;
     stack_ptr++;
@@ -130,7 +130,7 @@ int oxf_error(OXFILE *oxfp)
 
 int sm(OXFILE *oxfp)
 {
-    extend_stack();
+    stack_extend();
     while (receive_ox(oxfp)) {
     }
     fprintf(stderr, "oxc: socket(%d) is closed.\n", oxfp->fd);

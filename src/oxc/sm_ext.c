@@ -1,10 +1,11 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.3 2000/11/28 04:02:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.4 2000/11/28 04:52:05 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
 #include <signal.h>
 #include <ox_toolkit.h>
 #include "sm.h"
@@ -21,6 +22,9 @@ static db db_sm[] = {
     {sm_set_mathcap,     SM_setMathCap},
     {sm_popCMO,          SM_popCMO},
     {sm_pops,            SM_pops},
+	{sm_control_reset_pid, SM_control_reset_connection_pid},
+	{sm_control_kill_pid, SM_control_kill_pid},
+	{sm_control_kill, SM_control_kill},
     {NULL, NULL}
 };
 
@@ -82,10 +86,25 @@ static int getargs(cmo ***args)
     return argc;
 }
 
-static int pids[1024] = {0};
-static int pid_ptr = 0;
+#define MAX_PROCESS 1024
 
-int pid_lookup(int pid)
+static pid_t *pids = NULL;
+static int pid_ptr = 0;
+static int pid_size = 0;
+
+void pids_extend()
+{
+    int size2 = pid_size + MAX_PROCESS;
+    pid_t *pids2 = (pid_t *)malloc(sizeof(pid_t)*size2);
+    if (pids != NULL) {
+        memcpy(pids2, pids, sizeof(pid_t)*pid_size);
+        free(pids);
+    }
+    pid_size = size2;
+    pids = pids2;
+}
+
+int pid_lookup(pid_t pid)
 {
     int i;
     for(i=0; i<pid_ptr; i++) {
@@ -96,21 +115,20 @@ int pid_lookup(int pid)
     return -1;
 }
 
-int pid_registed(int pid)
+int pid_registed(pid_t pid)
 {
     return pid_lookup(pid)+1;
 }
 
-int pid_regist(int pid)
+void pid_regist(pid_t pid)
 {
-    if (pid_ptr < 1024) {
-        pids[pid_ptr++] = pid;
-        return pid;
+    if (pid_ptr >= pid_size) {
+		pids_extend();
     }
-    return 0;
+	pids[pid_ptr++] = pid;
 }
 
-void pid_delete(int pid)
+void pid_delete(pid_t pid)
 {
     int i = pid_lookup(pid);
     if (i >= 0 && i != --pid_ptr) {
@@ -118,12 +136,39 @@ void pid_delete(int pid)
     }
 }
 
+int pid_reset(pid_t pid)
+{
+	if (pid_registed(pid)) {
+		kill(pid, SIGUSR1);
+		return 1;
+	}
+	return 0;
+}
+
+int pid_kill(pid_t pid)
+{
+	if (pid_registed(pid)) {
+		kill(pid, SIGKILL);
+		pid_delete(pid);
+		return 1;
+	}
+	return 0;
+}
+
+/* Killing all child processes */
+void pid_kill_all()
+{
+	while(pid_ptr > 0) {
+        kill(pids[--pid_ptr], SIGKILL);
+	}
+}
+
 int lf_oxc_open()
 {
     cmo **argv;
     char *cmd;
     int port;
-    int pid;
+    pid_t pid;
 
     if (getargs(&argv) != 2 || argv[0]->tag != CMO_STRING
         || argv[1]->tag != CMO_INT32) {
@@ -159,25 +204,27 @@ void sm_set_mathcap(OXFILE *oxfp)
 
 void sm_control_kill(OXFILE *oxfp)
 {
+	pid_kill_all();
+}
+
+void sm_control_kill_pid(OXFILE *oxfp)
+{
     cmo_int32 *m = (cmo_int32 *)pop();
-    int pid = m->i;
-    if (m->tag != CMO_INT32 || !pid_registed(pid)) {
+    pid_t pid = m->i;
+    if (m->tag != CMO_INT32 || !pid_kill(pid)) {
         push_error(-1, m);
-    }else {
-        kill(pid, SIGKILL);
-        pid_delete(pid);
     }
 }
 
-void sm_control_reset(OXFILE *oxfp)
+void sm_control_reset_pid(OXFILE *oxfp)
 {
     cmo_int32 *m = (cmo_int32 *)pop();
-    int pid = m->i;
-    if (m->tag != CMO_INT32 || !pid_registed(pid)) {
+    pid_t pid = m->i;
+    if (m->tag != CMO_INT32 || !pid_reset(pid)) {
         push_error(-1, m);
-    }else {
-        kill(pid, SIGUSR1);
+		return;
     }
+	/* ... */
 }
 
 void sm_control_spawn_server(OXFILE *oxfp);
