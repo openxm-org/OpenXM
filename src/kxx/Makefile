@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.3 1999/11/02 13:11:11 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.4 1999/11/03 00:22:50 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -112,9 +112,8 @@ print :
 	a2ps $(KANHOME)/plugin/file2.c | lpr -P$(PR)
 	a2ps $(KANHOME)/plugin/file2.h | lpr -P$(PR)
 
-install :
-	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog
-	cp  ox ox_sm1 oxlog ../bin
+install_lib_bin :
+	/bin/rm -f $(KANHOME)/lib/bin/ox*
 	ln -f -s ../../../bin/ox $(KANHOME)/lib/bin/ox
 	ln -f -s ../../../bin/oxlog $(KANHOME)/lib/bin/oxlog
 	ln -f -s ../../../bin/ox_sm1 $(KANHOME)/lib/bin/ox_sm1
@@ -124,7 +123,12 @@ install :
 	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_tigers
 	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_basicCD
 
-install2 :
+install : install_lib_bin
+	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog
+	cp  ox ox_sm1 oxlog ../bin
+
+install2 : install_lib_bin
+	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog
 	ln -f -s  ../src/kxx/ox ../bin/ox
 	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
 	ln -f -s  ../src/kxx/oxlog ../bin/oxlog

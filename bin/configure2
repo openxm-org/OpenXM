@@ -1,5 +1,5 @@
 #!/bin/sh
-#  $OpenXM$
+#  $OpenXM: OpenXM/bin/configure2,v 1.5 1999/11/02 12:34:37 takayama Exp $
 if test -f lin_phcv2p.gz.uuencoded
 then
    uudecode lin_phcv2p.gz.uuencoded
@@ -14,12 +14,14 @@ then
 fi
 if test `uname` = "Linux"
 then
+  /bin/rm -f fep phc
   ln -f -s ./fep.linux fep
   ln -f -s ./lin_phcv2p phc
 else
   echo "We have the binary of phc only for linux."
 fi
 
+/bin/rm -f asir
 ln -f -s ../lib/asir/ox_asir asir
 
 
