@@ -1,6 +1,7 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.79 2000/02/08 12:03:39 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.80 2000/02/08 21:16:15 ohara Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
+OPENXM_CONTRIB2=../../OpenXM_contrib2
 LIBDIR=../lib
 BINDIR=../bin
 RCDIR=../rc
@@ -10,7 +11,12 @@ all: configure all-asir all-gnuplot all-k097 all-kan96xx all-kxx \
      all-pari all-phc all-openmath all-oxmath all-tigers
 
 all-asir: configure-asir
-	(cd asir2000 ; make all)
+	@if test -d $(OPENXM_CONTRIB2) ; then \
+		(cd asir2000 ; make all) ; \
+	else \
+		echo -n "Warning: Asir source is not found. " ; \
+		echo "asir will not be compiled." ; \
+	fi
 
 all-gnuplot: configure-gnuplot
 	(cd gnuplot ; make all)
@@ -59,7 +65,12 @@ install: install-asir install-gnuplot install-k097 install-kan96xx \
 	 install-phc install-tigers install-asir-doc install-asir-contrib
 
 install-asir: all-asir
-	(cd asir2000 ; make install)
+	@if test -d $(OPENXM_CONTRIB2) ; then \
+		(cd asir2000 ; make install) ; \
+	else \
+		echo -n "Warning: Asir source is not found. " ; \
+		echo "asir will not be installed." ; \
+	fi
 
 install-gnuplot: all-gnuplot
 	(cd gnuplot ; make install)
@@ -141,7 +152,12 @@ configure: configure-links configure-bin configure-asir \
 	   configure-pari
 
 configure-asir:
-	(cd asir2000; make configure)
+	@if test -d $(OPENXM_CONTRIB2) ; then \
+		(cd asir2000 ; make configure) ; \
+	else \
+		echo -n "Warning: Asir source is not found. " ; \
+		echo "asir will not be compiled." ; \
+	fi
 
 configure-bin:
 	(cd $(BINDIR) ; make configure)
