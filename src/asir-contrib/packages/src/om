@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.12 2000/03/16 14:12:22 tam Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.13 2000/03/17 07:46:07 tam Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -255,6 +255,25 @@ def om_xml_to_cmo(F) {
 def om_test(A){
 	B = om_xml(A);
 	C = om_xml_to_cmo(B);
+
+	if(A!=C){
+		print(A);
+		print(B);
+		print(C);
+		print("difference found.\n");
+		debug;
+	}else{
+		print(C);
+		print("OK!");
+	}
+	return 0;
+}
+
+def om_test_with_tree(A){
+	B = om_xml(A);
+	/* C = om_xml_to_cmo(B); */
+	C = eval_str(sm1_xml_tree_to_prefix_string(B));
+
 	if(A!=C){
 		print(A);
 		print(B);
@@ -290,12 +309,13 @@ def om_test_auto(){
 
 	/* load("taylor"); */
 	/* om_test(taylor(exp(z),z,0,10));
-	om_test(taylor(sin(z),z,0,10));
-	om_test(taylor(cos(z),z,0,10));
-        om_test(taylor(cos(z),z,1,10)); */
-        om_test(taylor(1/(1-z),z,0,10));
-        om_test(taylor((1-z)^(1/2),z,0,10));
-        om_test(taylor((1-z)^(1/2),z,2,10));
+	om_test_with_tree(taylor(sin(z),z,0,10));
+	om_test_with_tree(taylor(cos(z),z,0,10));
+        om_test_with_tree(taylor(cos(z),z,1,10)); */
+
+        om_test_with_tree(taylor(1/(1-z),z,0,10));
+        om_test_with_tree(taylor((1-z)^(1/2),z,0,10));
+        om_test_with_tree(taylor((1-z)^(1/2),z,2,10));
 }
 
 end$
