@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.2 1999/11/02 13:09:19 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.3 1999/11/03 07:19:16 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -9,6 +9,7 @@ import java.io.*;
 class OMproxy implements Runnable{
   private OpenXM ox;
   private Stack stack = new Stack();
+  private boolean debug = true;
 
   public OMproxy(String host,int ControlPort,int DataPort) throws IOException{
     ox = new OpenXM(this,host,ControlPort,DataPort);
@@ -29,7 +30,7 @@ class OMproxy implements Runnable{
 
 	  case OpenXM.OX_DATA:
 	    stack.push(ox.receiveCMO());
-	    System.out.println("push: "+ stack.peek());
+	    debug("push: "+ stack.peek());
 	    break;
 	  }
 	}
@@ -95,6 +96,8 @@ class OMproxy implements Runnable{
   }
 
   private void StackMachine(SM mesg) throws java.io.IOException{
+    debug("receive: "+mesg);
+
     switch(mesg.getCode()){
     case SM.SM_popCMO:
       SM_popCMO();
@@ -121,6 +124,8 @@ class OMproxy implements Runnable{
     ByteArrayInputStream stream;
     CMO ret;
 
+    debug("OMXML2CMO called: "+ret);
+
     if(obj instanceof CMO_STRING){
       return new CMO_ERROR2();
     }
@@ -132,7 +137,14 @@ class OMproxy implements Runnable{
       return new CMO_ERROR2(new CMO_STRING(e.toString()));
     }
 
+    debug("push: "+ret);
     return ret;
+  }
+
+  private void debug(String str){
+    if(debug){
+      System.out.println(str);
+    }
   }
 
   private static String usage(){
