@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.8 2000/07/26 02:21:31 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.9 2000/07/30 02:26:25 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -699,3 +699,28 @@ July 30.  Removed unnecessary code.
      test15()   GKZ 1,2,3 with a check.
      test15b()   toric
      test15c()   (u,v) = (-1,1)
+
+August 1.
+    (u,v)-minimal のテストコードをいれた.
+    IsExact_h で 変数 c の値がかわる. 原因不明.
+   c=Sinit_w(b,w); 
+   Println("Resolution (b)----");
+   sm1_pmat(b);
+   Println("Initial (c)----");
+   sm1_pmat(c); cc=c;
+   Println("Exactness of the resolution ---");
+   Println(IsExact_h(b,v));  /* IsExact_h breaks the variable c.
+                                THIS BUG SHOULD BE FIXED. */
+   このあとなぜか, c が b の値にかわってしまう.
+   なお def IsExact(c,...) と定義されており, この c を別の変数名に
+   変えればこの問題はおきない.
+   Println("Why is the initial c rewritten by b? (buggy) ");sm1_pmat(c[0]);
+
+   ===>  complex.sm1 の isExact_h (isExact) で popVariables を忘れてただけ.
+
+   betti 数は, 行列の消去をやるまでわからないの?
+   SbettiTable().
+
+   Sminimal は [(Homogenize_vec) 0] system_variable にするようで,
+   これが cohomology の計算には邪魔.
+

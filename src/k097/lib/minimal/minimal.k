@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.21 2000/08/01 03:42:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.22 2000/08/01 06:26:11 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -965,7 +965,7 @@ HelpAdd(["Sminimal",
 def Sminimal(g,opt) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
-        betti_levelplus, newbases, i, j,qq, tminRes;
+        betti_levelplus, newbases, i, j,qq, tminRes,bettiTable;
   if (Length(Arglist) < 2) {
      opt = null;
   }
@@ -978,6 +978,9 @@ def Sminimal(g,opt) {
   freeRes = r[0];
   redundantTable = r[1];
   reducer = r[2];
+  bettiTable = SbettiTable(redundantTable);
+  Println("Betti numbers are ------");
+  sm1_pmat(bettiTable);
   minRes = SnewArrayOfFormat(freeRes);
   seq = 0;
   maxSeq = SgetMaxSeq(redundantTable);
@@ -1503,3 +1506,17 @@ HelpAdd(["Sinit_w",
  "           c=Sinit_w(b,w); c:"
 ]]);
 
+/* This method does not work, because we have zero rows. 
+   Think about it later. */
+def SbettiTable(rtable) {
+  local ans,i,j,pp;
+  ans = SnewArrayOfFormat(rtable);
+  for (i=0; i<Length(rtable); i++) {
+    pp = 0;
+    for (j=0; j<Length(rtable[i]); j++) {
+       if (rtable[i,j] != 0) {pp = pp+1;}
+    }
+    ans[i] = pp;
+  }
+  return(ans);
+}
