@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.23 2003/09/02 03:24:51 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.24 2003/09/03 00:41:07 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -137,11 +137,7 @@ install_lib_bin-for-debug :
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD
 install: install-exec
 install-exec: copy-kan-lib install_lib_bin
-	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-	  cp -f ox.exe ox_sm1.exe oxlog.exe ox100start.exe ${OpenXM_bin} ; \
-	else \
-	  cp -f ox ox_sm1 oxlog ox100start ${OpenXM_bin} ; \
-	fi
+	install ox ox_sm1 oxlog ox100start ${OpenXM_bin}
 install_lib_bin:
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  make install_lib_bin_windows ; \
@@ -159,6 +155,18 @@ install_lib_bin_unix:
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_tigers
 	ln -f -s ./ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD
 install_lib_bin_windows : 
+	-mkdir ${OpenXM_lib}/sm1/bin
+	${RM} -f ${OpenXM_lib}/sm1/bin/ox*
+	install ox ${OpenXM_lib}/sm1/bin/ox
+	install oxlog ${OpenXM_lib}/sm1/bin/oxlog
+	install ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1
+	install ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_forAsir
+	install ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_gnuplot
+	install ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_phc
+	install ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_tigers
+	install ox_sm1 ${OpenXM_lib}/sm1/bin/ox_sm1_basicCD
+#obsolete, it should be removed later
+install_lib_bin_windows_old : 
 	-mkdir ${OpenXM_lib}/sm1/bin
 	${RM} -f ${OpenXM_lib}/sm1/bin/ox*
 	cp ox.exe ${OpenXM_lib}/sm1/bin/ox.exe

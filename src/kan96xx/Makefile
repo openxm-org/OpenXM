@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.29 2003/09/02 03:24:47 takayama Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.30 2003/09/02 03:31:12 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -40,14 +40,8 @@ configure_symbolic_links :
 	@touch ./.configure_symbolic_links_done 
 ###############
 install: install-exec install-man install-document
-install-exec: install-OpenXM-bin 
-install-OpenXM-bin: clean-for-install all-sm1
-	if [ "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-	  rm -f ${OpenXM_bin}/sm1.exe ; \
-	  cp Kan/sm1.exe ${OpenXM_bin} ; \
-	else \
-	  cp Kan/sm1 ${OpenXM_bin} ; \
-	fi
+install-exec: clean-for-install all-sm1
+	install Kan/sm1 ${OpenXM_bin}
 install-man :  
 	-cp Doc/sm1.1 ${OpenXM_HOME}/man/man1
 install-document:  
