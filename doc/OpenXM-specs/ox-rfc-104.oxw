@@ -1,18 +1,19 @@
-$OpenXM$
+$OpenXM: OpenXM/doc/OpenXM-specs/ox-rfc-104.oxw,v 1.1 2004/09/18 11:40:16 takayama Exp $
 /*&C
+
 OX-RFC: 104                                    Nobuki Takayama
                                                September 18, 2004
 
 */
 
-//&en  OX-RFC100  over HTTP GET protocol
-//&ja  HTTP GET protocol で包むことによる OX-RFC 100 形式の通信方法
+//&en  OX-RFC100  over HTTP protocol
+//&ja  HTTP protocol で包むことによる OX-RFC 100 形式の通信方法
 
 /*&C 
 
 Status of this memo
   This is an experimental specification of sending OpenXM 100 packets
-  over http-GET and https-GET.
+  over http (GET) and https.
   Distribution of this memo is unlimited.
 
 Copyright Notice
@@ -20,20 +21,22 @@ Copyright Notice
 
 */
 
+//&ja @@要約
+//&en @@Abstract
 /*&ja
 
-@@要約.
-  OpenXM 100 形式の通信を HTTP GET (または POST) で wrap することにより, 
-  OpenXM 100 対応のサーバを容易に CGI サービス化できる.
-  また OpenXM のサービスを制限されたネットワーク環境でもグリッド化していく
-  ことが可能となる.
+  OpenXM 100 形式の通信を HTTP GET (または POST) で wrap する方法を定義
+  する.  この wrapping により, 次のことを実現することを目標とする.
+  1. OpenXM 100 対応のサーバを容易に CGI サービス化する.
+  2. OpenXM のサービスを http を基本にグリッド化する.
 
-  OpenXM 100 ではサーバを立ち上げるには "login" することが一般に必要であるが,
-  不特定人が一度のみの計算利用をするような場合にも, また OpenXM 100 と同様に 
-  login して session を維持することも可能なように 
-  OpenXM-100 over HTTP GET  (以下 OoHG  と略記) は設計されている.
+  OpenXM 100 ではサーバを立ち上げるには "login" することが一般に必要である.
+  OpenXM-100 over HTTP GET  (以下 OoHG  と略記) は次のように login不要,
+  login必要の二つの動作モードをもつ.
+  1. 不特定人が一度のみの計算利用をするような場合に login 不要で動作する.
+  2. OpenXM 100 と同様に login して session を維持することも可能である.
 
-  このメモでは HTTP GET と HTTPS しか既存技術は利用していない.
+  このメモでは HTTP GET (POST) と HTTPS しか既存技術は利用していない.
   Web 技術に関して現在研究中や実用化初期段階のさまざまなプロトコルを活用して
   このメモと同等かそれ以上のことを実現することは可能であろう.
   我々は単純で必要十分な仕様を与えたいと思っている.
@@ -43,9 +46,10 @@ Copyright Notice
 
 */
 
-/*&ja
 
-@@ OX-RFC-100 (OpenXM 100) 形式の通信の復習
+//&ja @@OX-RFC-100 (OpenXM 100) 形式の通信の復習
+//&en @@Review of OX-RFC-100 for this memo.
+/*&ja
 
 OpenXM 100 およびその派生形式の通信は以下のような仕組みで行われる.
 
@@ -83,18 +87,23 @@ OpenXM 100 およびその派生形式の通信は以下のような仕組みで行われる.
     
 */
 
+//&en @@Data structure of OoHG
+//&ja @@OoHG のデータ形式.
+
 /*&ja
 
-@@ OoHG のデータ形式.
-
-OoHG ではデータは送信, 受信で非対称である.
+OoHG での通信は送信, 受信で非対称である.
 GET を利用するためデータの形式は RFC 2396 で指定されている
 いわゆる URL エンコーディング方法を用いる.
 GET の利用の代わりに POST method を利用してもよい.
-データは 
+送信データは 
     キーワード = 値
 を & で区切ったものである. キーワードは英数字と _ をもちいるものとする.
 キーワードと値の組は入れ子構造となってもよい.
+
+受信データは次の形式で送信する.
+
+ OX100-OVER-HTTP-GET0-に下のキーワードをつないだもの : URL エンコードされた値
 
 以下キーワードを列挙する.
 
@@ -109,10 +118,18 @@ oxMessageEncoding:   OpenXM のパケットの encoding 方法の指定.
                      4. text_executeString_popString
                           これは一度のみの実行を想定している.
                           executeString に与える引数を text 形式で与える.
+                     補助的な値として次のものがある.
+                     a. 3DES   Body を 3DES で暗号化する.
+                     b. RSA    Body を RSA で暗号化する.
+                     なお oxMessageEncoding キーワードの値は二つ以上存在して
+                     よい.  この場合 and として扱われる. たとえば
+                     oxMessageEncoding=xml_ox100,3DES
+                     の場合 xml_ox100 形式の情報が 3DES で暗号化されて
+                     送られる. ("," は URL encoding される.)
 
 dataChannelId:      data ポートの番号に相当.
 controlChannelId:   control ポートの番号に相当.
-sessionKey3Des:     64 bit x 3  3Des 用の Des Key.  サーバ側が生成し,
+sessionKeyFor3Des:  64 bit x 3  3Des 用の Des Key.  サーバ側が生成し,
                     RSA で暗号化されサーバより送信される.
 channelKey:         サーバより一つ前の HTTP トランズアクションで与えられる
                     キー. 第３者が session に割り込むのを禁止するため.
@@ -136,9 +153,9 @@ responseEncoding:   サーバの返答の encoding 方法.
                     その他.
                     1. presentation_html
 
-loginRSA:           RSA 認証による login. nextSessionKey はクライアントの
-                    public key を用いて送信される.
-                    RSA については OX-RFC 103 を見よ.                    
+loginRSA:           RSA 認証による login. challenge , challenge-response は
+                    お互いの public key を用いて送信される. 下の例参照.
+                    RSA については OX-RFC-103 を見よ.                    
 logout:             logout
 
 
@@ -149,29 +166,41 @@ nextControlChannelKey:
 challenge:
 challenge-response:
 
+以下のキーワードについては後述.
+doSignature:
+response-doSignature:
+getMathCap2:
+grepDirectoryInfo:
+sendPublicKey:
+
 */
 
+//&ja @@始めての例
+//&en @@The first example
 /*&ja
-
-@@ 始めての例
 
 例1.
 fctr(x^2-1); を fctr.cgi へ送信する.
+*/
 
-     http://fctr.openxm.org/fctr.cgi?oxMessageBody=fctr(x%5E2-1)%3B
+//&C     http://fctr.openxm.org/fctr.cgi?oxMessageBody=fctr(x%5E2-1)%3B
 
+/*&ja
 oxMessageBody 以外の全てのキーワードが省略されているので,
 anonymous, 1 回のみの実行, executeString & popString, 返答は text 形式
 となり
-
-    [[1,1],[x-1],[x+2]]
-
+*/
+//&C    [[1,1],[x-1],[x+2]]
+/*&ja
 が戻る.
+*/
 
+/*&ja
 例2.
 同じ問題を session を確立してから実行する. URL encoding 部分は " ... " で記述.
 RSA 暗号化されてる部分は ' ... 'で記述.
-
+*/
+/*&C
    --->
      http://fctr.openxm.org/fctr.cgi?loginRSA="takayama@hoge.org"
    <---   
@@ -179,7 +208,7 @@ RSA 暗号化されてる部分は ' ... 'で記述.
      OX100-OVER-HTTP-GET-dataChannelId: 4011
      OX100-OVER-HTTP-GET-challenge: '.............'
    --->
-     http://fctr.openxm.org/fctr.cgi?chanllenge-response: '..........'
+     http://fctr.openxm.org/fctr.cgi?chanllenge-response='..........'
    <---
      OX100-OVER-HTTP-GET-nextChannelKey: 143245
      OX100-OVER-HTTP-GET-nextControlChannelKey: 534256
@@ -200,33 +229,197 @@ RSA 暗号化されてる部分は ' ... 'で記述.
      http://fctr.openxm.org/fctr.cgi?dataChannelId=4011&
                                      channelKey=345137&
                                      logout&
-   
 */
 
+
+//&ja @@エラーコード一覧.
+
+/*&ja 
+
+HTTP 準拠のエラーの他, CMO エラー object を responseEncoding に従い
+送る.
+
+<< 以下まだ検討してない >>
+
+*/
+
+//&ja @@コントロールプロセスとの通信
 
 /*&ja
 
-@@ エラーコード一覧.
+接続中の connection が切断された場合, エンジン, コントロールサーバともに
+終了する.
+コントロールサーバに中断メッセージを送った場合, OX-RFC-103 の中断動作
+をおこなう.
+<< 以下まだ書いてない >>
 
-<< まだ検討してない >>
+*/
 
+//&ja @@ホストのなりすましの防止
+
+/*&ja
+ https を利用する場合はサーバが偽物でないことの証明は https の機能を用いて
+ 実現される.  http の場合には RSA public キーを用いてサーバが偽物でない
+ ことを証明することが可能である.  このためのキーワードが doSignature
+ である.
+*/
+//&C doSignature=anonymous@fctr.openxm.org,'challenge words encrypted'
+
+/*&ja
+ 'challenge words encrypted' は anonymous@fctr.openxm.org の public key
+ を用いて RSA  暗号化される. サーバは response-DoSignature 
+ キーワードを用いて送られた words をクライアントに戻す.
+
+*/
+
+//&ja @@OpenXM grid のサービス一覧提供方法.
+//&en @@Directory service for OpenXM grid.
+
+//&C @@@mathCap2
+
+/*&ja
+  mathCap2 は 
+      キーワード = 値 
+  形式で表現された mathCap である.  キーワードは以下のとおり.
+
+  systemName
+  systemVersion
+  acceptOXtags
+  acceptSMtags
+  acceptCMOtags
+
+  exportedCommands
+     実行可能な関数名
+     [名前,引数の数] のリストである. 引数の数が -1 の場合引数は不定.
+
+  resourceLimit
+     [time,値], [memory,値] 等の リスト
+
+*/
+
+//&C @@@SM_getMathCap2
+/*&ja
+SM_printMathCap2 はそのサーバの mathCap2 を CMO データとして戻す
+新しいスタックマシンコマンドである.
+何らかのサービスを提供するサーバは 
+*/
+//&C (OX_COMMAND,(SM_getMathCap2)) (OX_COMMAND,(SM_popCMO))
+/*&ja
+が実行可能であるべきである.   このコマンドは anonymous に実行を許す場合
+もあるので,  (OX_COMMAND,(SM_getMathCap2)) (OX_COMMAND,(SM_popCMO))
+の省略形式が OoHG のキーワード   
+             getMathCap2=1  
+として用意されている.
+*/
+
+//&C Example: http://fctr.openxm.org/fctr.cgi?getMathCap2=1
+
+//&C @@@ディレクトリサービス
+/*&ja
+OpenXM grid のディレクトリサービスは各サーバの mathCap2 の情報をもとに
+している.  信用のおけるディレクトリサービスを実現するためには 
+サーバの RSA public key が必須である.  このキーがあると doSignature
+をもとにディジタル署名された mathCap2 情報を得ることが可能となる.
+
+OpenXM grid のディレクトリ情報は
+     キーワード=値  
+の集合体である.  
+この情報は次のいずれかの方法を用いて表現する.
+1. キーワードを要素とする XML として表現. 
+   XML の根要素は OpenXMnode.  OpenXMnode の集まりは OpenXMnodes.
+2. CMO のリストとして キーワード, 値 のペアとして表現する.
+
+必須のキーワード
+   OpenXMnodeURL,  mathCap2,  listOfAnonymousPublicKeys 
+
+OpenXM directory サーバはこれらの情報を検索して返答する. 
+Directory サーバもまた OpenXM エンジンである.
+grep 検索は以下のとおり.
+   (OX_DATA,(CMO_STRING,"key words")) 
+   (OX_DATA,(CMO_INT32,1))
+   (OX_DATA,(CMO_STRING,"ox104_grepDirectoryInfo"))
+   (OX_COMMAND,(SM_execute))
+   (XO_COMMAND,(SM_popCMO))
+同等な機能を実現する OoHG 用のキーワードとして
+
+     grepDirectoryInfo="key words"
+
+がある.
+
+*/
+
+//&ja @@@anonymous@host の RSA public key の入手方法
+
+/*&ja
+  anonymous@host の RSA public key は別の信頼できる情報源から入手するか,
+  "host" にたいして  
+      sendPublicKey="anonymous@host"
+  要求を出すことにより入手する.
 */
 
 /*&ja
 
-@@ コントロールプロセスとの通信
-
-<< まだ書いてない >>
+<< 以下, まだ検討してない >>
 
 */
 
+//&ja @@共通関数名
+//&en @@Common name of functions
 
 /*&ja
 
-@@ OpenXM grid のサービス一覧提供方法.
-
-<< まだ検討してない >>
+名前                引数の数
+ox104_equal          2
+ox104_add            2
+ox104_sub            2
+ox104_times          2
+ox104_divide         2
+ox104_power          2
+ox104_inverse        1
+ox104_translate      2
 
 */
+
+
+//&ja @@関連する技術
+//&en @@Related technologies
+
+/*&ja
+
+  IAMC  (symbolicnet.org)
+  
+*/
+
+//&ja @@貢献者および試験実装
+//&en @@Contributors and sample implementations
+
+
+/*&ja
+まだサンプル実装はない.
+*/
+
+//&ja @@参考文献
+//&en @@Bibliography
+
+/*&C
+
+[OpenXM-RFC-100]  Design and Implementation of OpenXM Client-Server Model 
+                 and Common Mathematical Object Format.  M.Noro, N.Takayama 
+
+[OpenXM-RFC-101] Protocol to Start Engines.  K.Ohara
+
+[OpenXM-RFC-103] Supplement to OX-RFC-100 
+     --- Broadcasting in process trees and engine authentication.
+                                              OpenXM committers.
+
+[RFC1945] Hypertext Transfer Protocol -- HTTP/1.0. T. Berners-Lee, R.
+     Fielding, H. Frystyk. May 1996. (Format: TXT=137582 bytes) (Status:
+     INFORMATIONAL)
+
+[RFC2660] The Secure HyperText Transfer Protocol. E. Rescorla, A.
+     Schiffman. August 1999. (Format: TXT=95645 bytes) (Status:
+     EXPERIMENTAL)
+*/
+
 
 $Id$
