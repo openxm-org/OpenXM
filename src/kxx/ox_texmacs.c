@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.2 2004/02/29 08:19:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.3 2004/02/29 13:02:44 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -64,6 +64,7 @@ main() {
   char *sys;
   struct object ob;
   int irt=0;
+  int vmode=1;
 
 #ifdef DEBUG2
   Dfp = fopen("/tmp/debug-texmacs.txt","w");
@@ -105,7 +106,7 @@ main() {
 	  printf("%s",DATA_END); fflush(stdout);
 	}
 	irt = 0;
-	s=readString(stdin, "if (1) { ", " ; }else{ };"); /* see test data */
+	s=readString(stdin, "if (1) { ", " ; }else{ }"); /* see test data */
 	if (s == NULL) break;
 	printf("%s",DATA_BEGIN_V);
     KSexecuteString(" ox.engine ");
@@ -116,11 +117,28 @@ main() {
     /* Get the result in string. */
 	if (Format == 1) {
 	  /* translate to latex form */
-      KSexecuteString(" ox.engine 1 oxpushcmo ox.engine (print_tex_form) oxexec  ");
-	  KSexecuteString(" ox.engine oxpopstring ");
-	  r = KSpopString();
-	  if (strlen(r) < OutputLimit_for_TeXmacs) printl(r);
-	  else printv("Output is too large.\n");
+	  KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
+	  ob = KSpop();
+	  vmode = 0;
+	  /* printf("id=%d\n",ob.tag); bug: matrix return 17 instead of Sinteger
+	   or error. */
+	  if (ob.tag == Sinteger) {
+		/* printf("cmotag=%d\n",ob.lc.ival);*/
+		if (ob.lc.ival == CMO_ERROR2) {
+		  vmode = 1;
+		}
+	  }
+	  if (vmode) {
+		KSexecuteString(" ox.engine oxpopstring ");
+		r = KSpopString();
+	  }else{
+		KSexecuteString(" ox.engine 1 oxpushcmo ox.engine (print_tex_form) oxexec  ");
+		KSexecuteString(" ox.engine oxpopstring ");
+		r = KSpopString();
+	  }
+	  if (strlen(r) < OutputLimit_for_TeXmacs) {
+		if (vmode) printv(r); else printl(r);
+	  } else printv("Output is too large.\n");
 	}else{
 	  KSexecuteString(" ox.engine oxpopstring ");
 	  r = KSpopString();
@@ -207,7 +225,7 @@ static void printv(char *s) {
 }
 static void printl(char *s) {
   printf("%s",DATA_BEGIN_L);
-  printf("%s",s);
+  printf(" $ %s $ ",s);
   printf("%s",DATA_END);
   fflush(NULL);
 }
