@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.6 1999/11/16 00:45:24 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.7 1999/11/21 20:38:41 tam Exp $
  *
  * abstract protected int DISCRIMINATOR(); - 各 CMO の cmo_tag を返す.
  * abstract protected void sendByObject(DataOutputStream os)
@@ -20,6 +20,8 @@ package JP.ac.kobe_u.math.tam.OpenXM;
 import java.io.*;
 
 abstract public class CMO{
+  public static int[] mathcap = null;
+
   final public static int LARGEID     = 0x7f000000;
   final public static int CMO_ERROR   = ( LARGEID +1 );
   final public static int CMO_ERROR2  = ( LARGEID +2 );
@@ -72,9 +74,21 @@ abstract public class CMO{
   }
 
   abstract protected void sendByObject(DataOutputStream os)
-       throws IOException;
+       throws IOException,MathcapViolation;
 
-  public void send(DataOutputStream os) throws IOException{
+  public void send(DataOutputStream os) throws IOException,MathcapViolation{
+    if(mathcap != null){ // check mathcap
+      int i=0;
+
+      for(;i<mathcap.length;i++){
+	if(mathcap[i] == this.DISCRIMINATOR()){
+	  break;
+	}
+      }
+      if(i>=mathcap.length){
+	throw new MathcapViolation(this.toCMOexpression());
+      }
+    }
     os.writeInt(this.DISCRIMINATOR());
     this.sendByObject(os);
   }

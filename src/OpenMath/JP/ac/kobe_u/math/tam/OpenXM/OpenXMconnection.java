@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.7 2000/01/19 13:25:17 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.8 2000/01/19 15:21:58 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -12,6 +12,7 @@ class OpenXMconnection{
   InputStream  is = null;
   OutputStream os = null;
   int order = OX_BYTE_NETWORK_BYTE_ORDER;
+  CMO_MATHCAP mathcap = null;
 
   // OX message_tag
   final public static int OX_COMMAND                  = 513;
@@ -73,16 +74,36 @@ class OpenXMconnection{
     os.flush();
   }
 
-  public void sendCMO(CMO object) throws IOException{
-    DataOutputStream dos = new DataOutputStream(os);
+  public void sendCMO(CMO object) throws IOException,MathcapViolation{
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    DataOutputStream dos = new DataOutputStream(bos);
+
+    if(mathcap != null){
+      CMO[] list =((CMO_LIST)mathcap.getList().getElements()[2]).getElements();
+
+      for(int i=0;i<list.length;i++){
+	CMO[] datacap = ((CMO_LIST)list[i]).getElements();
+
+	if(((CMO_INT32)datacap[0]).intValue() == OX_DATA){
+	  CMO[] tagcap = ((CMO_LIST)datacap[1]).getElements();
+
+	  CMO.mathcap = new int[tagcap.length];
+	  for(int j=0;j<tagcap.length;j++){
+	    CMO.mathcap[j] = ((CMO_INT32)tagcap[j]).intValue();
+	  }
+	  break;
+	}
+      }
+    }
 
     dos.writeInt(OX_DATA);
     dos.writeInt(serial_num);
     object.send(dos);
     dos.flush();
+    bos.writeTo(os);
   }
 
-  public void send(Object object) throws IOException{
+  public void send(Object object) throws IOException,MathcapViolation{
     if(object instanceof CMO){
       sendCMO((CMO)object);
     }else if(object instanceof SM){
@@ -112,6 +133,10 @@ class OpenXMconnection{
     dis.readInt(); // read serial
 
     return tag;
+  }
+
+  public void setMathcap(CMO_MATHCAP mathcap){
+    this.mathcap = mathcap;
   }
 
   public void receive() throws IOException{

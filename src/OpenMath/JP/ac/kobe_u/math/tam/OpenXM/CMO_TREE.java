@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.java,v 1.2 1999/11/07 21:22:03 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.java,v 1.3 1999/11/15 23:13:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -33,7 +33,8 @@ public class CMO_TREE extends CMO{
     return CMO_TREE;
   }
 
-  public void sendByObject(DataOutputStream os) throws IOException{
+  public void sendByObject(DataOutputStream os)
+       throws IOException,MathcapViolation{
     new CMO_STRING(name).send(os);
     new CMO_STRING(cdname).send(os);
     leaves.send(os);

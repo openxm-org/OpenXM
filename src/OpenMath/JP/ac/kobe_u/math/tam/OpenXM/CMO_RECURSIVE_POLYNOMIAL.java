@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.1 1999/11/16 00:45:24 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.2 1999/11/18 06:48:16 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -28,7 +28,8 @@ public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
     return CMO_RECURSIVE_POLYNOMIAL;
   }
 
-  protected void sendByObject(DataOutputStream os) throws IOException{
+  protected void sendByObject(DataOutputStream os)
+       throws IOException,MathcapViolation{
     variables.send(os);
     polynomial.send(os);
   }

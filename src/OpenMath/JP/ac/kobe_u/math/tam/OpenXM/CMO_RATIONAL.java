@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.java,v 1.1 1999/11/21 20:38:41 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.java,v 1.2 2000/01/18 16:54:21 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -27,7 +27,8 @@ public class CMO_RATIONAL extends CMO{
     return CMO_RATIONAL;
   }
 
-  protected void sendByObject(DataOutputStream os) throws IOException{
+  protected void sendByObject(DataOutputStream os)
+       throws IOException,MathcapViolation{
     a.send(os);
     b.send(os);
   }

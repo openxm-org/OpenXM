@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.14 2000/01/19 15:32:50 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.15 2000/01/20 13:58:48 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -783,6 +783,8 @@ final class OM2OXM implements Runnable{
 	  asir.send(obj);
 	  asir.sendSM(new SM(SM.SM_popCMO));
 	}catch(NumberFormatException e){
+	  System.err.println(e.getMessage());
+	}catch(MathcapViolation e){
 	  System.err.println(e.getMessage());
 	}
       }

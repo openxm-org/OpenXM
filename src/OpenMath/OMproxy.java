@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.22 2000/01/19 15:32:50 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.23 2000/01/20 16:40:13 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -57,11 +57,15 @@ class OMproxy implements Runnable{
   */
 
   private void SM_popCMO() throws java.io.IOException{
-    if(stack.empty()){
-      ox.send(new CMO_NULL());
-    }else{
-      debug("sending CMO: "+ stack.peek());
-      ox.send(stack.pop());
+    try{
+      if(stack.empty()){
+	ox.send(new CMO_NULL());
+      }else{
+	debug("sending CMO: "+ stack.peek());
+	ox.send(stack.pop());
+      }
+    }catch(MathcapViolation e){
+      stack.push(new CMO_STRING(e.getMessage()));
     }
   }
 

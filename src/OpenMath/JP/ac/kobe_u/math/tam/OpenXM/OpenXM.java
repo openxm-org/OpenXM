@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.6 1999/11/12 07:46:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.7 2000/01/19 15:32:51 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -89,7 +89,8 @@ public class OpenXM implements Runnable{
     debug("control: stopping computer process...");
     try{
       control.sendCMO(new CMO_INT32(0));
-    }catch(IOException e){}
+    }catch(IOException e){
+    }catch(MathcapViolation e){}
     synchronized(stream){
       thread.stop();
     }
@@ -128,11 +129,11 @@ public class OpenXM implements Runnable{
     stream.sendSM(code);
   }
 
-  public void sendCMO(CMO object) throws IOException{
+  public void sendCMO(CMO object) throws IOException,MathcapViolation{
     stream.sendCMO(object);
   }
 
-  public void send(Object object) throws IOException{
+  public void send(Object object) throws IOException,MathcapViolation{
     stream.send(object);
   }
 
@@ -245,7 +246,7 @@ public class OpenXM implements Runnable{
 	ox.receive();
       }
 
-    }catch(IOException e){
+    }catch(Exception e){
       e.printStackTrace();
     }
 

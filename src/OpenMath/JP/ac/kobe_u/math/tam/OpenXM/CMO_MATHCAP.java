@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java,v 1.1 1999/11/09 09:43:49 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -14,11 +14,16 @@ public class CMO_MATHCAP extends CMO{
     list = src;
   }
 
+  public CMO_LIST getList(){
+    return list;
+  }
+
   public int DISCRIMINATOR(){
     return CMO_MATHCAP;
   }
 
-  public void sendByObject(DataOutputStream os) throws IOException{
+  public void sendByObject(DataOutputStream os)
+       throws IOException,MathcapViolation{
     list.send(os);
   }
 
