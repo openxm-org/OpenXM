@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.14 2003/01/17 11:31:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.15 2003/02/12 08:28:40 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -519,11 +519,15 @@ mlo *ml_return()
     mlo *ob;
     if (ml_state(INTERRUPTED)) { 
         if (ml_next_packet() == RETURNPKT) {
+            /* a computation has done before the interruption */
             ob = ml_return0();
+            ml_clear_interruption();
         }else {
-            ob = (mlo *)new_cmo_indeterminate((cmo *)new_cmo_string("$Aborted"));
+            ml_clear_interruption();
+            ml_evaluateStringByLocalParser("0"); /* need for 4.x */
+            ob = ml_return0();                   /* ReturnPacket[$Aborted] */
+            ml_return0();                        /* need for 4.x */
         }
-        ml_clear_interruption();
     }else {
         ob = ml_return0();
     }
