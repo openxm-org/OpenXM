@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.4 2001/08/20 07:12:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.5 2001/08/21 02:07:18 takayama Exp $ */
 #define RPOLYNOMIAL 2
 #define RATIONAL 3
 #define LIST 4
@@ -84,7 +84,7 @@ def taka_poly_solve_linear(Z,X) {
 
 def taka_poly_factor(S) {
   if (type(S) == LIST || type(S) == MATRIX || type(S) == VECTOR) {
-    return( recmap(taka_poly_factor,S) );
+    return( map(taka_poly_factor,S) );
   }
   if (type(S) == RPOLYNOMIAL) {
      S1 = new_poly_factored_polynomial();

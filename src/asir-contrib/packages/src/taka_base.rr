@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.8 2001/08/20 06:40:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.9 2001/08/21 02:07:18 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -11,7 +11,7 @@ def taka_base_rule_name(I) {
 
 def taka_base_cancel(S) {
   if (type(S) == LIST || type(S) == MATRIX || type(S) == VECTOR) {
-    return(recmap(taka_base_cancel,S));
+    return(map(taka_base_cancel,S));
   }
   if (type(S) == 3) {
     return red(S);
@@ -60,7 +60,7 @@ def taka_base_flatten(S) {
 
 def taka_base_replace(S,Rule) {
   if (type(S) == LIST || type(S) == MATRIX || type(S) == VECTOR) {
-     return(recmap(taka_base_replace,S,Rule));
+     return(map(taka_base_replace,S,Rule));
   }
   if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
     Rule = Rule->Rule;
