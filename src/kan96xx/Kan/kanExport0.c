@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.13 2003/07/05 01:53:33 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.14 2003/07/14 12:49:52 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -984,7 +984,7 @@ struct object KdataConversion(obj,key)
     }
     break;
   case Spoly:
-    if (strcmp(key,"poly")==0) {
+    if ((strcmp(key,"poly")==0) || (strcmp(key,"numerator")==0)) {
       rob = obj;
       return(rob);
     }else if (strcmp(key,"integer")==0) {
@@ -1055,7 +1055,7 @@ struct object KdataConversion(obj,key)
     }
     break;
   case SuniversalNumber:
-    if (strcmp(key,"universalNumber")==0) {
+    if ((strcmp(key,"universalNumber")==0) || (strcmp(key,"numerator")==0)) {
       return(rob);
     }else if (strcmp(key,"integer")==0) {
       rob = KpoInteger(coeffToInt(obj.lc.universalNumber));

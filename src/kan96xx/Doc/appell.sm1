@@ -1,5 +1,5 @@
 %% appell.sm1, 1998,  11/8
-% $OpenXM: OpenXM/src/kan96xx/Doc/appell.sm1,v 1.4 2003/08/18 06:36:49 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/appell.sm1,v 1.5 2003/08/18 11:28:15 takayama Exp $
 /appell.version (2.981108) def
 appell.version [(Version)] system_variable gt
 { (This package requires the latest version of kan/sm1) message
@@ -171,7 +171,7 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
   [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
   [
     /aa arg1 def
-    aa isArray { } { (array appell) message (appell4) usage error } ifelse
+    aa isArray { } { (array appell) message (appell4r) usage error } ifelse
     /setarg 0 def
     aa { tag } map /typev set
     /rr 0 def
@@ -189,7 +189,7 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
        /b appell.b def
        /setarg 1 def
     } { } ifelse
-    setarg { } { (Argument mismatch) message (appell4) usage error } ifelse
+    setarg { } { (Argument mismatch) message (appell4r) usage error } ifelse
     
     [(KanGBmessage) appell.verbose] system_variable
 
@@ -351,7 +351,7 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
   [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
   [
     /aa arg1 def
-    aa isArray { } { (array appell) message (appell2) usage error } ifelse
+    aa isArray { } { (array appell) message (appell2r) usage error } ifelse
     /setarg 0 def
     aa { tag } map /typev set
     /r 0 def
@@ -369,7 +369,7 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
        /b [1 [2 3] [4 5]] def
        /setarg 1 def
     } { } ifelse
-    setarg { } { (Argument mismatch) message (appell2) usage error } ifelse
+    setarg { } { (Argument mismatch) message (appell2r) usage error } ifelse
 
     [(KanGBmessage) appell.verbose] system_variable
 
