@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.1 2004/03/01 01:21:23 takayama Exp $
+# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.2 2004/03/01 03:10:27 takayama Exp $
 OpenXM_HOME=../../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -34,7 +34,7 @@ patch : fetch
 build : patch
 	@if test ! -f .build_done ; \
 	then \
-		(cd work/${SRCDIR} ; ./configure --prefix `pwd`/../../../../../../OpenXM ; ${MAKE} ) ; \
+		(cd work/${SRCDIR} ; ./configure --prefix `cd ../../../../../../OpenXM; pwd` --with-iconv`i=/usr/local; if [ -f $$i/include/iconv.h ]; then echo =$$i; fi` ; ${MAKE} ) ; \
 	fi
 	@touch .build_done
 
