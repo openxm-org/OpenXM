@@ -1,0 +1,107 @@
+diff -urN TeXmacs-1.0.4.5-src.orig/plugins/lisp/bin/tm_lisp TeXmacs-1.0.4.5-src/plugins/lisp/bin/tm_lisp
+--- TeXmacs-1.0.4.5-src.orig/plugins/lisp/bin/tm_lisp	Mon Dec  6 02:12:14 2004
++++ TeXmacs-1.0.4.5-src/plugins/lisp/bin/tm_lisp	Wed Dec 15 09:47:03 2004
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+ export TEXMACS_LISP_PATH=$TEXMACS_PATH/plugins/lisp
+ cd $TEXMACS_LISP_PATH
+diff -urN TeXmacs-1.0.4.5-src.orig/plugins/lush/bin/tm_lush TeXmacs-1.0.4.5-src/plugins/lush/bin/tm_lush
+--- TeXmacs-1.0.4.5-src.orig/plugins/lush/bin/tm_lush	Mon Dec  6 02:12:14 2004
++++ TeXmacs-1.0.4.5-src/plugins/lush/bin/tm_lush	Wed Dec 15 09:47:03 2004
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ cd $TEXMACS_PATH/plugins/lush
+ echo -ne "\002verbatim:"
+ cat << EOF
+diff -urN TeXmacs-1.0.4.5-src.orig/plugins/matlab/bin/tm_matlab TeXmacs-1.0.4.5-src/plugins/matlab/bin/tm_matlab
+--- TeXmacs-1.0.4.5-src.orig/plugins/matlab/bin/tm_matlab	Mon Dec  6 02:12:14 2004
++++ TeXmacs-1.0.4.5-src/plugins/matlab/bin/tm_matlab	Wed Dec 15 09:47:03 2004
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ echo -ne "\002verbatim:"
+ cd $TEXMACS_PATH/plugins/matlab/code
+ matlab -nojvm -r tmrepl
+diff -urN TeXmacs-1.0.4.5-src.orig/plugins/maxima/bin/maxima_detect TeXmacs-1.0.4.5-src/plugins/maxima/bin/maxima_detect
+--- TeXmacs-1.0.4.5-src.orig/plugins/maxima/bin/maxima_detect	Mon Dec  6 02:12:14 2004
++++ TeXmacs-1.0.4.5-src/plugins/maxima/bin/maxima_detect	Wed Dec 15 09:47:03 2004
+@@ -1,5 +1,5 @@
+-#!/bin/bash
+-MAXIMA=`type -p maxima 2>/dev/null`
++#!/bin/sh
++MAXIMA=`which maxima 2>/dev/null`
+ if [ $? -eq 0 ]
+ then
+   if grep -F list-avail $MAXIMA >/dev/null
+diff -urN TeXmacs-1.0.4.5-src.orig/plugins/octave/bin/tm_octave TeXmacs-1.0.4.5-src/plugins/octave/bin/tm_octave
+--- TeXmacs-1.0.4.5-src.orig/plugins/octave/bin/tm_octave	Mon Dec  6 02:12:14 2004
++++ TeXmacs-1.0.4.5-src/plugins/octave/bin/tm_octave	Wed Dec 15 09:47:03 2004
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ echo -ne "\002verbatim:"
+ octave -v
+ cd $TEXMACS_PATH/plugins/octave/octave; exec octave -qi tm-start.oct
+diff -urN TeXmacs-1.0.4.5-src.orig/plugins/octave/doc/README TeXmacs-1.0.4.5-src/plugins/octave/doc/README
+--- TeXmacs-1.0.4.5-src.orig/plugins/octave/doc/README	Mon Dec  6 02:12:14 2004
++++ TeXmacs-1.0.4.5-src/plugins/octave/doc/README	Wed Dec 15 09:47:03 2004
+@@ -26,7 +26,7 @@
+ have TeXmacs call a script like the following (this script is included as 
+ "tm_octave"):
+ 
+-#!/bin/bash
++#!/bin/sh
+ echo -ne "\002verbatim:"
+ octave -v
+ exec octave -qi
+diff -urN TeXmacs-1.0.4.5-src.orig/src/System/Link/pipe_link.cpp TeXmacs-1.0.4.5-src/src/System/Link/pipe_link.cpp
+--- TeXmacs-1.0.4.5-src.orig/src/System/Link/pipe_link.cpp	Mon Dec  6 02:12:23 2004
++++ TeXmacs-1.0.4.5-src/src/System/Link/pipe_link.cpp	Wed Dec 15 09:43:55 2004
+@@ -23,8 +23,11 @@
+ #ifdef OS_WIN32
+ #include <sys/pipe.h>
+ #endif
+-#ifndef __APPLE__
++
++#if defined(linux) || defined(__linux__) || defined(OS_WIN32)
+ #include <malloc.h>
++#else /* __APPLE__ */
++#include <stdlib.h>
+ #endif
+ 
+ hashset<pointer> pipe_link_set;
+diff -urN TeXmacs-1.0.4.5-src.orig/src/Window/display.hpp TeXmacs-1.0.4.5-src/src/Window/display.hpp
+--- TeXmacs-1.0.4.5-src.orig/src/Window/display.hpp	Mon Dec  6 02:12:23 2004
++++ TeXmacs-1.0.4.5-src/src/Window/display.hpp	Wed Dec 15 09:40:33 2004
+@@ -14,11 +14,7 @@
+ #define DISPLAY_H
+ #include "tree.hpp"
+ #include "bitmap_font.hpp"
+-
+-#ifndef _TIME_T
+-#define _TIME_T
+-typedef long time_t;
+-#endif
++#include <time.h>
+ 
+ struct font;
+ class widget;
+diff -urN TeXmacs-1.0.4.5-src.orig/src/Window/event.hpp TeXmacs-1.0.4.5-src/src/Window/event.hpp
+--- TeXmacs-1.0.4.5-src.orig/src/Window/event.hpp	Mon Dec  6 02:12:23 2004
++++ TeXmacs-1.0.4.5-src/src/Window/event.hpp	Wed Dec 15 09:40:33 2004
+@@ -14,11 +14,7 @@
+ #define EVENT_H
+ #include "tree.hpp"
+ #include "command.hpp"
+-
+-#ifndef _TIME_T
+-#define _TIME_T
+-typedef long time_t;
+-#endif
++#include <time.h>
+ 
+ class window_rep;
+ typedef window_rep* window;

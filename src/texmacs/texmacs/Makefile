@@ -1,69 +1,74 @@
-# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.2 2004/03/01 03:10:27 takayama Exp $
+# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.3 2004/03/02 14:58:23 ohara Exp $
 OpenXM_HOME=../../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
-RM = /bin/rm -rf
+RM = /bin/rm
 MASTER_CITES=ftp.math.kobe-u.ac.jp
 # MASTER_CITES2 = 
-DISTFILES=TeXmacs-1.0.3.3-src.tar.gz
-SRCDIR=TeXmacs-1.0.3.3-src
+DISTNAME=TeXmacs-1.0.4.5-src
+DISTFILES=${DISTNAME}.tar.gz
+WRKSRC=work/${DISTNAME}
+PATCH_FILES=TeXmacs.diff
 # Use gnu make on freebsd.  On Debian type in   make  MAKE=make
 MAKE=gmake
-guile=`which guile-config`
+guile=$$(which guile-config)
 
-all : build 
-install : post-install
+all: build 
 
 fetch:  check-guile
-	@if test ! -f .fetch_done ; \
-	then \
+	-mkdir work
+	@if [ ! -f work/.fetch_done ]; then \
 		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/${DISTFILES} ${DISTDIR}; \
 	fi 
-	@touch .fetch_done
+	@touch work/.fetch_done
 
-patch : fetch
-	@if test ! -f .patch_done ; \
-	then \
-	  $(RM) work ; \
-	  mkdir work ; \
-	  (cd work ; tar xzvf ../${DISTDIR}/${DISTFILES} ) ; \
+extract: fetch
+	@if [ ! -f work/.extract_done ]; then \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work; tar xzvf -) ; \
 	fi 
-	@touch .patch_done
-#	  (cd work; patch -c -p0 <../patch-aa ; patch -c -p0 <../patch-bb ; patch -c -p0 <../patch-cc) ; \
+	@touch work/.extract_done
 
-build : patch
-	@if test ! -f .build_done ; \
-	then \
-		(cd work/${SRCDIR} ; ./configure --prefix `cd ../../../../../../OpenXM; pwd` --with-iconv`i=/usr/local; if [ -f $$i/include/iconv.h ]; then echo =$$i; fi` ; ${MAKE} ) ; \
+patch: extract
+	@if [ ! -f work/.patch_done ]; then \
+		for i in ${PATCH_FILES} ; do \
+			cat $$i | (cd ${WRKSRC}; patch -p1) ; \
+		done ; \
+	fi 
+	@touch work/.patch_done
+
+configure: patch
+	@if [ ! -f work/.configure_done ]; then \
+		prefix=$$(cd ../../../../OpenXM; pwd) ;\
+		with_iconv=--with-iconv$$(i=/usr/local; if [ -f $$i/include/iconv.h ]; then echo =$$i; fi) ;\
+		(cd ${WRKSRC}; ./configure --prefix=$${prefix} $${with_iconv}) ; \
 	fi
-	@touch .build_done
+	@touch work/.configure_done
 
-post-install: build
-	@if test ! -f .post-install_done ; \
-	then \
-		(cd work/${SRCDIR} ; ${MAKE} install) ; \
+build: configure
+	@if [ ! -f work/.build_done ]; then \
+		(cd ${WRKSRC}; ${MAKE}) ; \
 	fi
-	@touch .post-install_done
+	@touch work/.build_done
 
-clean: clean-usr-local
-	$(RM)  .*_done
-	-(cd work/${SRCDIR} ; ${MAKE} clean)
-distclean:
-	$(RM)  .*_done ./.use_ports
-	-(cd work/${SRCDIR} ; ${MAKE} distclean)
-clean-usr-local:
-	-$(RM) ${OpenXM_HOME}/share/TeXmacs*
-	-$(RM) ${OpenXM_HOME}/bin/texmacs
+install: build
+	@if [ ! -f work/.install_done ]; then \
+		(cd ${WRKSRC}; ${MAKE} install) ; \
+	fi
+	@touch work/.post-install_done
+
+clean:
+	-${RM} -rf work
+
+distclean: clean
+	-${RM} -rf ${OpenXM_HOME}/share/TeXmacs* ${OpenXM_HOME}/bin/texmacs
 
 check-guile:
-	@if [ -z ${guile} ] ; \
-	then \
-		echo "Error ---------------------------------------------------------- " ; \
+	@if [ ! -x "${guile}" ]; then \
+		echo "Error ----------------------------------------------------------" ; \
 		echo "    Please install guile/scheme before installing texmacs." ; \
 		echo "    cf. ftp://ftp.gnu.org/pub/gnu/guile " ; \
-		echo "Hint: guile-config, portinstall , whereis , apt-get ,lib/libguile, ldconfig, ... " ; \
+		echo "Hint: guile-config, portinstall, whereis, apt-get, lib/libguile, ldconfig, ..." ; \
 		echo "      http://www.texmacs.org/tmweb/download/requirements.en.html" ; \
-		exit ; \
 	fi
 
 ## Note on debian.
