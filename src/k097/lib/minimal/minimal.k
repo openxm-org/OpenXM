@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.27 2000/08/16 22:38:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.28 2000/08/21 07:45:22 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1565,3 +1565,31 @@ def SbettiTable(rtable) {
   }
   return(ans);
 }
+
+def BfRoots1(G,V) {
+   local bb,ans;
+   sm1(" /BFparlist [ ] def ");
+   if (IsString(V)) {
+      sm1(" [ V to_records pop ] /V set ");
+   }else {
+     sm1(" V { toString } map /V set ");  
+   }
+   sm1(" /BFvarlist V def ");
+  
+   sm1(" G flatten { toString } map  /G set ");
+   sm1(" G V bfm /bb set ");
+   if (IsSm1Integer(bb)) {
+     return([ ]);
+   }
+   sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
+   return([ans, bb]);
+}
+
+HelpAdd(["BfRoots1",
+["BfRoots1(g,v) returns the integral roots of g with respect to the weight",
+ "vector (1,1,...,1) and the b-function itself",
+ "Example:  BfRoots1([x*Dx-2, y*Dy-3],[x,y]);"
+]]);
+
+
+

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.18 2000/08/21 07:45:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.19 2000/08/22 02:13:51 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -342,7 +342,7 @@ def test21b() {
   Println("The dimensions of linear spaces -----");
   /* sss is the SgetShifts of the Schreyer resol. */
   sss=[    [    0 ]  , [    2 , 2 , 2 , 2 , 2 , 2 , 2 , 3 , 3 , 2 , 1 , 3 , 2 ]  , [    1 , 1 , 1 , 2 , 3 , 2 , 2 , 2 , 2 , 2 , 2 , 3 , 2 , 2 , 2 , 3 , 2 , 3 , 3 , 3 , 4 , 3 , 3 , 4 , 3 , 3 , 4 , 3 , 3 , 4 , 4 , 4 , 4 , 4 , 5 , 4 , 4 , 3 , 5 , 5 , 5 , 5 , 4 ]  , [    1 , 3 , 1 , 3 , 3 , 1 , 2 , 2 , 3 , 2 , 3 , 2 , 3 , 5 , 4 , 4 , 3 , 6 , 5 , 4 , 3 , 2 , 3 , 3 , 5 , 4 , 3 , 2 , 4 , 4 , 4 , 4 , 5 , 3 , 2 , 3 , 3 , 4 , 4 , 4 , 5 , 4 , 4 , 5 , 3 , 5 , 4 , 5 , 5 , 6 ]  , [    3 , 1 , 4 , 5 , 4 , 5 , 2 , 3 , 2 , 4 , 3 , 4 , 3 , 3 , 2 , 4 , 3 , 5 , 4 , 5 , 6 ]  , [    2 , 3 ]  ] ;
-  maxR = 2; /* Maximal root of the b-function. */
+  maxR = 3; /* Maximal root of the b-function. */
   n = Length(sss);
   euler = 0;
   for (i=0; i<n; i++) {
@@ -366,7 +366,7 @@ def test21c() {
   Println("The dimensions of linear spaces -----");
   /* sss is the SgetShifts of the minimal resol. */
   sss= [    [    0 ]  , [    2 , 2 , 2 , 2 , 2 , 2 , 2 ]  , [    1 , 2 , 2 , 2 , 2 , 3 , 4 , 4 , 4 , 4 ]  , [    1 , 3 , 4 , 6 ]  ];
-  maxR = 2; /* Maximal root of the b-function. */
+  maxR = 3; /* Maximal root of the b-function. */
   n = Length(sss);
   euler = 0;
   for (i=0; i<n; i++) {
