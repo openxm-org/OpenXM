@@ -1,0 +1,23 @@
+# $OpenXM$
+
+ASIR = ../../../OpenXM_contrib2/asir2000
+PARI = ../pari
+
+all: configure
+	@echo "Skipping the compilation of asir2000."
+
+install: all
+	@echo "Skipping the installation of asir2000."
+
+clean:
+
+distclean: clean
+
+configure: install-pari
+	@echo "Skipping the configuration of asir2000."
+
+install-pari:
+	@if [ ! -f ./.install-pari_done ]; then \
+		(cd $(PARI) ; make install) \
+	fi
+	@touch ./.install-pari_done
