@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.6 2000/11/13 00:16:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.7 2001/03/16 05:18:04 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -506,7 +506,7 @@ input @code{quit}.
 * ox_get_serverinfo::
 * generate_port try_bind_listen try_connect try_accept register_server::
 * ifplot conplot plot plotover::
-* open_canvas clear_canvas draw_obj::
+* open_canvas clear_canvas draw_obj draw_string::
 @end menu
 
 \JP @node ox_launch ox_launch_nox ox_shutdown,,, 分散計算に関する関数
@@ -2188,12 +2188,13 @@ plot*form*ydone*background:white
 @fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_reset ox_intr register_handler}
 @end table
 
-\JP @node open_canvas clear_canvas draw_obj,,, 分散計算に関する関数
-\EG @node open_canvas clear_canvas draw_obj,,, Functions for distributed computation
-@subsection @code{open_canvas}, @code{clear_canvas}, @code{draw_obj}
+\JP @node open_canvas clear_canvas draw_obj draw_string,,, 分散計算に関する関数
+\EG @node open_canvas clear_canvas draw_obj draw_string,,, Functions for distributed computation
+@subsection @code{open_canvas}, @code{clear_canvas}, @code{draw_obj}, @code{draw_string}
 @findex open_canvas
 @findex clear_canvas
 @findex draw_obj
+@findex draw_string
 
 @table @t
 @item open_canvas(@var{id}[,@var{geometry}])
@@ -2205,17 +2206,23 @@ plot*form*ydone*background:white
 @item draw_obj(@var{id},@var{index},@var{pointorsegment} [,@var{color}])
 \JP :: キャンバス上に点または線分を描画する.
 \EG :: Draws a point or a line segment on a canvas.
+@item draw_string(@var{id},@var{index},@var{[x,y]},@var{string} [,@var{color}])
+\JP :: キャンバス上に文字列を描画する.
+\EG :: Draws a character string on a canvas.
 @end table
 
 @table @var
 @item return
 0
-@item id, index, color
+@item id, index, color, x, y
 \JP 整数
 \EG integer
 @item pointorsegment
 \JP リスト
 \EG list
+@item string
+\JP 文字列
+\EG character string
 @end table
 
 @itemize @bullet
@@ -2269,7 +2276,7 @@ and a canvas id @var{index}.
 の値 (最大 255) とみなす.
 \E
 \BEG
-@code{draw_obj_canvas} draws a point or a line segment on 
+@code{draw_obj} draws a point or a line segment on 
 a canvas specified by a server id @var{id} and a canvas id @var{index}.
 If @var{pointorsegment} is @var{[x,y]}, it is regarded as a point.
 If @var{pointorsegment} is @var{[x,y,u,v]}, it is regarded
@@ -2277,6 +2284,16 @@ as a line segment which connects @var{[x,y]} and @var{[u,v]}.
 If @var{color} is specified, @var{color/65536} mod 256,
 @var{color/256} mod 256, @var{color} mod 256 are regarded as the vaules
 of Red, Green, Blue (Max. 255) respectively.
+\E
+@item 
+\BJP
+@code{draw_string} は, サーバ id @var{id}, キャンバス id @var{index}
+で指定されるキャンバスに文字列を描画する. 位置は @var{[x,y]} により指定する. 
+\E
+\BEG
+@code{draw_string} draws a character string @var{string} on 
+a canvas specified by a server id @var{id} and a canvas id @var{index}.
+The position of the string is specified by @var{[x,y]}.
 \E
 @end itemize
 
@@ -2293,7 +2310,9 @@ of Red, Green, Blue (Max. 255) respectively.
 0
 [187] draw_obj(Id,Ind,[10,10,50,50],0xff00ff);
 0
-[188] clear_canvas(Id,Ind);
+[187] draw_string(Id,Ind,[100,50],"hello",0xffff00);
+0
+[189] clear_canvas(Id,Ind);
 0
 @end example
 
