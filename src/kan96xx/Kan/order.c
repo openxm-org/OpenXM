@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.9 2003/08/26 12:46:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.10 2004/05/13 04:38:28 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -677,7 +677,27 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
   else if (fv > gv) return(0); /* modifiable */
   else if (fv < gv) return(1); /* modifiable */
 }
-  
+
+static struct object auxPruneZeroRow(struct object ob) {
+  int i,m,size;
+  struct object obt;
+  struct object rob;
+  m = getoaSize(ob);
+  size=0;
+  for (i=0; i<m; i++) {
+	obt = getoa(ob,i);
+	if (getoaSize(obt) != 0) size++;
+  }
+  if (size == m) return ob;
+  rob = newObjectArray(size);
+  for (i=0, size=0; i<m; i++) {
+	obt = getoa(ob,i);
+	if (getoaSize(obt) != 0) {
+	  putoa(rob,size,obt); size++;
+	}
+  }
+  return rob;
+}  
 struct object oRingToOXringStructure(struct ring *ringp)
 {
   struct object rob,ob2;
@@ -716,6 +736,7 @@ struct object oRingToOXringStructure(struct ring *ringp)
     /* printObject(ob2,0,stderr); fprintf(stderr,".\n"); */
     putoa(obMat,i,ob2);
   }
+  obMat = auxPruneZeroRow(obMat);
   /* printObject(obMat,0,stderr); */
 
   obV = newObjectArray(2*n);
