@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.15 2003/07/21 13:36:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.16 2003/08/26 12:46:05 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +12,7 @@
 #include "extern2.h"
 #include <signal.h>
 #include "plugin.h"
+#include "kclass.h"
 #include <ctype.h>
 #include "ox_pathfinder.h"
 
@@ -367,6 +368,7 @@ struct object Kextension(struct object obj)
 #endif
   }
 #include "plugin.hh"
+#include "Kclass/tree.hh"
   else{
     errorKan1("%s\n","Unknown tag for extension.");
   }

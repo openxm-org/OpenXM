@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.10 2003/11/20 06:04:04 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.11 2003/11/21 02:10:37 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -91,7 +91,7 @@ coeff.o : extern2.h $(HEADERS)
 output.o : extern2.h $(HEADERS)
 poly.o : extern2.h $(HEADERS)
 rat.o : extern2.h $(HEADERS)
-ext.o : extern2.h $(HEADERS) plugin.h plugin.hh
+ext.o : extern2.h $(HEADERS) plugin.h plugin.hh Kclass/tree.hh 
 sm.o : sm.c $(HEADERS)
 
 sm1 : sm.o  $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB)

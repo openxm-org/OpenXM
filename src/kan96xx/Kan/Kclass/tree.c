@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.1 2003/11/21 02:10:37 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -19,16 +19,16 @@ struct object KpoTree(struct object ob) {
   newobp = (struct object *) sGC_malloc(sizeof(struct object));
   if (newobp == NULL) errorKan1("%s\n","Kclass/indeterminate.c, no more memory.");
   if (ob.tag != Sarray) {
-    errorKan1("%s\n","Kclass/indeterminate.c, only properly formatted list object can be transformed into tree. [name, cdname, arglist].");
+    errorKan1("%s\n","Kclass/indeterminate.c, only properly formatted list object can be transformed into tree. [name, attr-list, arglist].");
   }
   if (getoaSize(ob) < 3) {
-    errorKan1("%s\n","Kclass/indeterminate.c, the length must 3 or more than 3. [name, cdname, arglist].");
+    errorKan1("%s\n","Kclass/indeterminate.c, the length must 3 or more than 3. [name, attr-list, arglist].");
   }
   ob1 = getoa(ob,0); ob2 = getoa(ob,1); ob3 = getoa(ob,2);
   if (ob1.tag != Sdollar || ob2.tag != Sarray || ob3.tag != Sarray) {
     errorKan1("%s\n","Kclass/indeterminate.c, [string name, list attributes, list arglist].");
   }
-  *newobp = ob;
+  *newobp = ob;   /* Add class-tag to the array */
   rob.rc.voidp = newobp;
   return(rob);
 }
@@ -108,5 +108,45 @@ struct object addTree(struct object ob1, struct object ob2)
   return(KpoTree(rob));
 }
 
+/* XML DOM-like interfaces */
+struct object KtreeGetDocumentElement(struct object to) {
+  struct object rob;
+  struct object ob;
+  rob = NullObject;
+  if (to.tag != Sclass) return rob;
+  if (ectag(to) != CLASSNAME_tree) return rob;
+  ob = KopTree(to);
+  return getoa(ob,0);
+}
 
-/*------------------------------------------*/
+struct object KtreeGetAttributes(struct object to) {
+  struct object rob;
+  struct object ob;
+  rob = NullObject;
+  if (to.tag != Sclass) return rob;
+  if (ectag(to) != CLASSNAME_tree) return rob;
+  ob = KopTree(to);
+  return getoa(ob,1);
+}
+
+struct object KtreeGetChildNodes(struct object to) {
+  struct object rob;
+  struct object ob;
+  rob = NullObject;
+  if (to.tag != Sclass) return rob;
+  if (ectag(to) != CLASSNAME_tree) return rob;
+  ob = KopTree(to);
+  return getoa(ob,2);
+}
+
+struct object KtreeCreateElement(struct object ostr) {
+  struct object ob;
+  ob = NullObject;
+  if (ostr.tag != Sdollar) return NullObject;
+  ob = newObjectArray(3);
+  getoa(ob,0)=ostr;
+  getoa(ob,1) = newObjectArray(0);
+  getoa(ob,2) = newObjectArray(0);
+  return KpoTree(ob);
+}
+
