@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.1 2003/12/08 23:26:03 takayama Exp $
 %% OXWEAVE=${OpenXM_HOME}/bin/oxweave --recursive --plain
 %% ${OXWEAVE} C ja <oxshell.oxw >>oxshell-ja.tex
 //&ja \documentclass{jarticle}
@@ -22,6 +22,29 @@
 //&ja \section{中断の伝播}
 //&en \section{Propagation of an interruption}
 
+/*&ja
+OX RFC 103 では,
+エンジンは OX RFC 100 に定義された中断処理を完了したのち,
+さらに次の処理をおこなわないといけない. \\
+上意下達の中断処理:
+\begin{enumerate}
+\item 自分の子供プロセスをすべてリストする
+  (たとえば asir の場合は {\tt ox\_get\_serverinfo() }).
+\item 子供プロセスに順番に OpenXM-RFC 100 の中断メッセージを送る.
+\end{enumerate}
+*/
+
+/*&en
+Engines complient to OX RFC 103 must execute the following
+procedures after finishing the interruption exception
+defined by OX RFC 100. 
+\begin{enumerate}
+\item List all the child processes.
+  (For example, use the function {\tt ox\_get\_serverinfo() } in case of asir).
+\item Send all the child processes the interruption message defined
+   OX RFC 100.
+\end{enumerate}
+*/
 
 //&ja \section{新しい CMO}
 //&en \section{New CMO}
@@ -32,7 +55,20 @@
 //&ja \section{エンジン認証手続き}
 //&en \section{Engine authentication}
 
+/*&ja
+バイトオーダーを決めるための情報交換 (OX-RFC 100 参照) の前に
+エンジン認証手続きをおこなう.
+認証プロトコルについては別途定める.
+*/
+
 //&ja \section{貢献者}
 //&en \section{Contributors}
+
+/*&ja
+中断の伝播については高山が設計, asir および kan/sm1 への実装, 評価をおこなった.
+({\tt OpenXM/src/asir-contrib/packages/src/oxrfc103.rr},
+ {\tt OpenXM/src/kan96xx/Doc/oxrfc103.sm1}
+ をみよ).
+*/
 
 \end{document}
