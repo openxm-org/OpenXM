@@ -1,3 +1,4 @@
+/*$OpenXM$*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -393,7 +394,20 @@ char *getLOAD_SM1_PATH() {
   char *getenv(char *s);
   p = getenv("LOAD_SM1_PATH");
   if (p == NULL) {
-    return("/usr/local/lib/sm1/");
+    p = getenv("OpenXM_HOME");
+    if (p == NULL) {
+      return("/usr/local/lib/sm1/");
+    }else{
+      if (strlen(p) == 0) return(p);
+      p2 = (char *) sGC_malloc(sizeof(char)*(strlen(p)+strlen("/lib/sm1/")+3));
+      if (p2 == NULL) { fprintf(stderr,"No more memory.\n"); exit(10); }
+      if (p[strlen(p)-1] != '/') {
+	strcpy(p2,p); strcat(p2,"/lib/sm1/");
+      }else{
+	strcpy(p2,p); strcat(p2,"lib/sm1/");
+      }
+      return(p2);
+    }
   }else{
     if (strlen(p) == 0) return(p);
     if (p[strlen(p)-1] == '/') return(p);

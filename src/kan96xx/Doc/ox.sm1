@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.4 1999/11/04 12:08:43 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.5 1999/11/11 01:35:07 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -696,6 +696,19 @@ ox.verbose {
        } { } ifelse
      } {  } ifelse
 
+     %% Else first try to find it in OpenXM_HOME
+     [(getenv) (OpenXM_HOME)] extension /tname set
+     tname isString 
+     { 
+       tname addSlash /tname set
+       [tname (lib/sm1/)] cat /tname set
+       [(stat) [tname fname] cat] extension
+       0 get isInteger  %% The file was found.
+       {  /fullname [tname fname] cat def
+          /getPathNameSm1.LLL goto
+       } { } ifelse
+     } {  } ifelse
+
      %% Else try to find it in /usr/local/lib/sm1
      [(stat) [(/usr/local/lib/sm1/) fname] cat] extension
      0 get isInteger  %% The file was found.
@@ -708,6 +721,9 @@ ox.verbose {
         ( could not be found ) 
         (neigher in LOAD_SM1_PATH=)
         [(getenv) (LOAD_SM1_PATH)] extension
+        ( nor in OpenXM_HOME/lib/sm1=)
+        [(getenv) (OpenXM_HOME)] extension
+        (/lib/sm1)
         ( nor in /usr/local/lib/sm1)
        ] cat /getPathNameSm1.errorMessage set
        getPathNameSm1.errorMessage message
@@ -722,8 +738,9 @@ ox.verbose {
 [(getPathNameSm1)
 [([fname] getPathNameSm1 fullname)
  (string fname, fullname)
- (This command searches the fname in /usr/local/lib/sm1 and LOAD_SM1_PATH)
- (and returns the fullname.)
+ (This command searches the fname in LOAD_SM1_PATH, )
+ (OpenXM_HOME/lib/sm1, and /usr/local/lib/sm1)
+ (It returns the fullname.)
 ]] putUsages
 
 /getPathNameAsir {
@@ -855,7 +872,7 @@ ox.verbose {
     /com arg1 def
     [(/bin/csh -c ") com (")] cat
     /com2 set
-    %% com2 message
+    %%com2 message
     com2 system
   ] pop
   popVariables
