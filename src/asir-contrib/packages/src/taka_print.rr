@@ -1,14 +1,19 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.1 2001/07/16 07:21:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.2 2001/07/17 02:32:11 takayama Exp $ */
 
 #define Number 1
+#define RPolynomial 2
 #define Rational 3
 #define List 4
 #define Vector 5
 #define Matrix 6
 #define DPolynomial   9
 
-Taka_print_dp_vlist_org = [x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9] $  
-Taka_print_dp_vlist = Taka_print_dp_vlist_org $
+Taka_print_dp_vlist_vname="x"$
+def taka_print_dp_vlist(N) {
+  extern Taka_print_dp_vlist_vname;
+  V = Taka_print_dp_vlist_vname+"_"+rtostr(N);
+  return strtov(V);
+}
   /* Used in taka_tex_form_dpolynomial
      and taka_dp_print  */
 
@@ -23,6 +28,8 @@ def taka_tex_form(S) {
      return( taka_tex_form_frac(S) );
   }else if (type(S) == DPolynomial) {
      return taka_tex_form_dpolynomial(S);
+  }else if (type(S) == RPolynomial) {
+     return taka_tex_form_rpolynomial(S);
   }else {
    /* How to translate sin to \sin?
       Use vtype, get args, ... to print sin. 
@@ -84,15 +91,11 @@ def taka_tex_form_frac(A) {
 }
 
 def taka_tex_form_dpolynomial(F) {
-  extern Taka_print_dp_vlist;
   if (F != 0) {
     N = size(dp_etov(dp_hm(F)))[0];
     Vlist = newvect(N);
-    if (length(Taka_print_dp_vlist) < N) {
-      error("Set the variable Taka_print_dp_vlist.");
-    }
     for (I=0; I<N; I++) {
-      Vlist[I] = Taka_print_dp_vlist[I];
+      Vlist[I] = taka_print_dp_vlist(I);
     }
     Vlist = vtol(Vlist);
     Ans="";
@@ -112,6 +115,11 @@ def taka_tex_form_dpolynomial(F) {
   return Ans;
 }
 
+def taka_tex_form_rpolynomial(S) {
+  return rtostr(S);
+  /* Should use quote to remove * and properly treat ^ */
+}
+
 def taka_output(S) {
   shell("rm t.tex ");
   output("t.tex");
@@ -127,15 +135,11 @@ def taka_print(S) {
   }
 }
 def taka_dp_print(F) {
-  extern Taka_print_dp_vlist;
   if (F != 0) {
     N = size(dp_etov(dp_hm(F)))[0];
     Vlist = newvect(N);
-    if (length(Taka_print_dp_vlist) < N) {
-      error("Set the variable Taka_print_dp_vlist properly.");
-    }
     for (I=0; I<N; I++) {
-      Vlist[I] = Taka_print_dp_vlist[I];
+      Vlist[I] = taka_print_dp_vlist(I);
     }
     Vlist = vtol(Vlist);
     Ans="distributed_polynomial(\"   ";
@@ -154,6 +158,22 @@ def taka_dp_print(F) {
   }
   Ans += "   \")";
   return Ans;
+}
+
+def taka_xdvi_form(S) {
+  S = taka_tex_form(S);
+  File0 = "/tmp/asir_"+"print_tmp";
+  File = File0+".tex";
+  shell("rm -f "+File);
+  output(File);
+  S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\begin{document}\n"+
+      "$"+
+      S + "$ \n \\end{document}\n";
+  print(S);
+  output();
+  shell(" (cd /tmp ; latex "+File0+" )");
+  /* Use xdvi for a moment. */
+  shell(" (cd /tmp ; xdvi -s 3 -geometry 800x300 "+File0+" ) & ");
 }
 
 
