@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.6 2001/08/21 08:03:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.7 2001/08/21 11:27:16 takayama Exp $ */
 
 #define Number 1
 #define NUMBER 1
@@ -311,7 +311,7 @@ def taka_dp_print(F) {
 
 def taka_xdvi_form(S) {
   S = taka_tex_form(S);
-  File0 = "/tmp/asir_"+"print_tmp";
+  File0 = ox_work_dir()+"/"+ox_new_file_name();
   File = File0+".tex";
   shell("rm -f "+File);
   output(File);
@@ -320,9 +320,9 @@ def taka_xdvi_form(S) {
       S + "$ \n \\end{document}\n";
   print(S);
   output();
-  shell(" (cd /tmp ; latex "+File0+" >>/dev/null) ");
+  shell(" (cd "+ox_work_dir()+" ; latex "+File0+" >>/dev/null) ");
   /* Use xdvi for a moment. */
-  shell(" (cd /tmp ; xdvi -s 3 -geometry 800x300 "+File0+" ) >>/dev/null & ");
+  shell(" xdvi -s 3 -geometry 800x300 "+File0+"  >>/dev/null & ");
   return [File,File0+".dvi"];
 }
 
