@@ -1,0 +1,34 @@
+Source: openxm
+Section: unknown
+Priority: optional
+Maintainer: TadayoshiOhkuma <tad@omoikane.co.jp>
+Standards-Version: 3.0.1
+
+Package: openxm-binary
+Architecture: any
+Depends: openxm-shared
+Description: The OpenXM package is a collection of mathematical softwares integrated by the OpenXM protocol. This package contains the binary files of it.
+ The OpenXM package is a collection of mathematical softwares that
+ support the OpenXM protocol.
+ Main clients are asir and mathematica (math).
+ Servers are ox_asir, ox_sm1, ox_gnuplot, ox_math, ox_phc, ox_tigers.
+ .
+ [Note on installation]
+ This package is not relocatable as it is. But if you change directory
+ to OpenXM/rc after the installation and type in
+ make clean ; make install PREFIX=(Your favorite directory to put shell scripts to start OpenXM clients)
+ then everything works fine.
+
+Package: openxm-shared
+Architecture: all
+Description:   The OpenXM package is a collection of mathematical softwares integrated by the OpenXM protocol. This package contains architecture independent part of it.
+ The OpenXM package is a collection of mathematical softwares that
+ support the OpenXM protocol.
+ Main clients are asir and mathematica (math).
+ Servers are ox_asir, ox_sm1, ox_gnuplot, ox_math, ox_phc, ox_tigers.
+ .
+ [Note on installation]
+ This package is not relocatable as it is. But if you change directory
+ to OpenXM/rc after the installation and type in
+ make clean ; make install PREFIX=(Your favorite directory to put shell scripts to start OpenXM clients)
+ then everything works fine.
