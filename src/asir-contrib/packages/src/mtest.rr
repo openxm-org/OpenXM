@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mtest.rr,v 1.1 2003/05/14 08:12:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mtest.rr,v 1.2 2003/05/14 11:38:29 takayama Exp $ */
 
 /* A reasonable size program to test the new module structure. */
-
+ctrl("show_crossref",1)$
 /*
   if (!Loaded_taka_print) load(FileName); else ;
 */
@@ -9,10 +9,21 @@
 extern Loaded_taka_print$ 
 */
 /* The next two lines cannot be in a module */
+/*
 ox_loadfile(Loaded_taka_print,"taka_print.rr")$ 
 ox_loadfile(Loaded_Matrix,"Matrix")$ 
+*/
 
 module lasg;
+
+localf matrix_to_dp, v, dp_to_matrix,
+       lasg_1, lasg_2, lt, gen_1, should_zero,
+       gen_1b, gen_rank_prob, print_matrix_list,
+       gen_eq_prob, gen_eq_nosol_prob,
+       make_dense, copy_matrix, reduced_form,
+       reduced_form_old, build_solution,
+       zero_row, kernel, gen_lineq_quiz,
+       test, gen_ans, gen_reduced_matrix;
 
 #define min(a,b) (a>b? b: a)
 #define MaxN 3
@@ -128,7 +139,7 @@ def should_zero(A,I0,J) {
 }
 
 def gen_1b(M,N,Rank,Seed) {
-   extern Dense;
+   /* static Dense; */
    A = gen_1(M,N,Rank,Seed);
    for (I=0; I<Rank; I++) {
      J=0;
@@ -160,7 +171,7 @@ def gen_1b(M,N,Rank,Seed) {
  example: lasg.gen_rank_prob(3,4,2,2);
 end: */
 def gen_rank_prob(M,N,Rank,P) {
-  extern Seed0; 
+  /* static Seed0;  */
   print(Seed0);
   Ans = [ ];
   for (K=0; K<P; K++) {
@@ -216,7 +227,7 @@ def print_matrix_list(B) {
  ref: lasg.gen_lineq_quiz.
 end: */
 def gen_eq_prob(M,Rank,P) {
-  extern Seed0;
+  /* extern Seed0; */
   Ans = [ ];
   N = M+1;
   for (K=0; K<P; K++) {
@@ -262,7 +273,7 @@ def gen_eq_prob(M,Rank,P) {
 }
 
 def gen_eq_nosol_prob(M,Rank,P) {
-  extern Seed0;
+  /* extern Seed0; */
   Ans = [ ];
   if (Rank >= M) error();
   N = M+1;
