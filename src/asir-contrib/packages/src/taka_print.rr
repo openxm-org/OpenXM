@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.10 2001/08/22 05:24:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.11 2001/08/22 06:33:07 takayama Exp $ */
 
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -480,17 +480,56 @@ def taka_xdvi_form(S) {
  print_xdvi_form(quote_sort_polynomial((x-sin(x)*y)^3,[x,y],[1,1]));
 */
 
-def taka_gif_form(S) {
+
+def taka_ps_form(S) {
   F = taka_dvi_form(S);
   File0 = F[1];
   Work_dir = F[3];
+  shell(" (cd "+Work_dir+" ; dvips -f "+File0+" >"+File0+".ps ) ");
+  return [File0+".ps",F[1],F[2],F[3]];
+}
+
+/* memo: pstoimg should be installed from the source code of
+   latex2html on freebsd.  cf. orange:/usr/local/src/latex2*
+*/
+def taka_png_form(S) {
+  F = taka_ps_form(S);
+  File0 = F[1];
+  File = F[0];
+  /* BUG: it does not work for now. We need png, too */
+  shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scape 2 "+File0+".ps ) ");
+  return [File0+".png",F[1],F[2],F[3]];
+}
+
+def taka_gif_form(S) {
+  F = taka_ps_form(S);
+  File0 = F[1];
+  Work_dir = F[3];
+  /* 
+  latex2html does not always generate image output for a simple expression.
   shell(" (cd "+Work_dir+" ; latex2html -tmp /tmp "+File0+" >>/dev/null) ");
   shell(" (cd "+Work_dir+" ; cp "+File0+"/*.gif "+File0+".gif"+ " ) ");
-  /* shell(" (cd "+Work_dir+" ; rm -rf "+File0+" ) "); */
-  /* BUG: we should use pstoimg in a future.
-     latex2html does not always generate image output for a simple expression.
   */
-  return [File0+".gif",File0,File,ox_work_dir()];
+  /* shell(" (cd "+Work_dir+" ; rm -rf "+File0+" ) "); */
+
+  shell(" (cd "+Work_dir+" ; pstoimg -type gif -crop a -scale 2 "+File0+".ps >>/dev/null) ");
+
+  return [File0+".gif",F[1],F[2],F[3]];
+}
+
+def taka_jpeg_form(S) {
+  F = taka_ps_form(S);
+  File0 = F[1];
+  File = F[0];
+  /* BUG: it does not work for now. We need png, too */
+  shell(" (cd "+Work_dir+" ; pstoimg -type jpeg -crop a -scape 2 "+File0+".ps ) ");
+  return [File0+".jpeg",F[1],F[2],F[3]];
+}
+
+def taka_xv_form(S) {
+  F = taka_gif_form(S);
+  shell(" xv "+F[1]+".gif &");
+  return F;
 }
 
 Loaded_taka_print=1$

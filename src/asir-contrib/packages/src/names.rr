@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.16 2001/08/22 01:52:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.17 2001/08/22 06:33:07 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -207,7 +207,8 @@ def print_open_math_xml_form(F) {
   return(ox_xml(F)); 
 }
 def print_png_form(F) {
-  NOT_YET ;
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return taka_png_form(F);
 }
 def print_tex_form(F) {  
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
@@ -216,6 +217,10 @@ def print_tex_form(F) {
 def print_xdvi_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return(taka_xdvi_form(F));
+}
+def print_xv_form(F) { 
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return(taka_xv_form(F));
 }
 
 end$
