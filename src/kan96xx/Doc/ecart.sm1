@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.35 2004/09/14 03:12:17 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.36 2004/09/14 05:49:36 takayama Exp $ 
 (hol_loaded) boundp { }
 { [(parse) (hol.sm1) pushfile] extension } ifelse
 %[(parse) (appell.sm1) pushfile] extension
@@ -1889,12 +1889,16 @@
     gb.verbose { (Comparing) message iigg message (and) message jjgg message }
     {  } ifelse
     gb.verbose { ( ii < jj ?) messagen } {  } ifelse
+    /ecartd.isSameIdeal_h.failed [ ] def
     iigg length /n set
     0 1 n 1 sub {
       /k set
       iigg  k get 
       [jjgg] ecartd.reduction 0 get
-      (0). eq not { /ans 0 def /LLL.ecartd.isSame_h goto} {  } ifelse
+      (0). eq not { 
+        /ecartd.isSameIdeal_h.failed [ iigg k get jjgg] def
+        /ans 0 def /LLL.ecartd.isSame_h goto
+      } {  } ifelse
       gb.verbose { (o) messagen } {  } ifelse
     } for
     gb.verbose { ( jj < ii ?) messagen } {  } ifelse
@@ -1903,7 +1907,10 @@
       /k set
       jjgg k get 
       [iigg] ecartd.reduction 0 get
-      (0). eq not { /ans 0 def /LLL.ecartd.isSame_h goto} {  } ifelse
+      (0). eq not { 
+         /ecartd.isSameIdeal_h.failed [ iigg jjgg k get] def
+         /ans 0 def /LLL.ecartd.isSame_h goto
+      } {  } ifelse
       gb.verbose { (o) messagen } {  } ifelse
     } for
     /LLL.ecartd.isSame_h
@@ -1985,12 +1992,16 @@
     gb.verbose { (Comparing) message iigg message (and) message jjgg message }
     {  } ifelse
     gb.verbose { ( ii < jj ?) messagen } {  } ifelse
+    /ecartd.isSameIdeal_noh.failed [ ] def
     iigg length /n set
     0 1 n 1 sub {
       /k set
       iigg  k get 
       [jjgg] ecartd.reduction_noh 0 get
-      (0). eq not { /ans 0 def /LLL.ecartd.isSame_noh goto} {  } ifelse
+      (0). eq not { 
+         /ecartd.isSameIdeal_noh.failed [ iigg k get jjgg] def
+         /ans 0 def /LLL.ecartd.isSame_noh goto
+      } {  } ifelse
       gb.verbose { (o) messagen } {  } ifelse
     } for
     gb.verbose { ( jj < ii ?) messagen } {  } ifelse
@@ -1999,7 +2010,10 @@
       /k set
       jjgg k get 
       [iigg] ecartd.reduction_noh 0 get
-      (0). eq not { /ans 0 def /LLL.ecartd.isSame_noh goto} {  } ifelse
+      (0). eq not { 
+        /ecartd.isSameIdeal_noh.failed [ iigg jjgg k get] def
+        /ans 0 def /LLL.ecartd.isSame_noh goto
+      } {  } ifelse
       gb.verbose { (o) messagen } {  } ifelse
     } for
     /LLL.ecartd.isSame_noh

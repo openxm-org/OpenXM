@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.1 2004/09/05 10:19:29 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.2 2004/09/09 08:50:12 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -9,6 +9,10 @@
 } { 
  [(parse) (ox.sm1) pushfile] extension
 } ifelse
+
+%
+% cone.fan, cone.gblist に fan のデータがはいる.
+%
 
 %%%%<<<<  初期データの設定例  data/test13 より.  <<<<<<<<<<<<<<
 /cone.sample.test13 {
@@ -164,7 +168,7 @@ cone.comment message
     ww to_int32 /ww set % univNum があれば int32 に直しておく.
     /ww2 ww weightv def  % v-w 形式を 数字のベクトルに. (init 用)
 
-    /eqs [ ] def % 不等式系の係数
+    /eqs null def % 不等式系の係数
     /gsize g length def
     0 1 gsize 1 sub {
       /i set
@@ -177,20 +181,21 @@ cone.comment message
         % in_ww(f) > f_j となる項の処理.
         iterms 1 exps length 1 sub {
            /j set
-           eqs [expsTop exps j get  sub] join /eqs set 
+           expsTop exps j get sub    eqs cons /eqs set 
            % exps[0]-exps[j] を eqs へ格納していく.
         } for
         % in_ww(f) = f_j となる項の処理.
         [(exponents) f ww2 init cone.type] gbext /exps set % exps は in(f)
         1 1 iterms 1 sub {
           /j set
-          eqs [exps j get expsTop sub] join /eqs set 
-          eqs [expsTop exps j get sub] join /eqs set 
+          exps j get expsTop sub   eqs cons /eqs set 
+          expsTop exps j get sub   eqs cons /eqs set 
           % exps[j]-exps[0], exps[0]-exps[j] を格納. 
           % 結果的に (exps[j]-exps[0]).w = 0 となる.  
         }  for
       } { } ifelse
     } for
+    eqs listToArray reverse /eqs set
     /arg1 eqs def   
   ] pop
   popVariables 
@@ -2323,7 +2328,10 @@ def
       (cone.incidence)
 
     ] { inputForm.value  nl } map /rr set
-    rr cat /arg1 set
+    rr cat /rr set
+% ring を save してないので当座の対処.
+    [ ([) cone.vv inputForm ( ring_of_differential_operators 0 ] define_ring )
+      nl nl rr] cat /arg1 set
   ] pop
   popVariables
   arg1
@@ -2412,3 +2420,194 @@ def
   popVariables
   arg1
 } def
+
+%<
+% Usages: [vlist vw_vector] getGrRing [vlist vGlobal sublist]
+%      example:  [(x,y,z) [(x) -1 (Dx) 1 (y) 1 (Dy) 2]] getGrRing 
+%                [(x,y,z,y') [(x)] [[(Dy) (y')]]]
+%  h[0,1](D_0) 専用の getGrRing.
+%     u_i + v_i > 0 なら  Dx_i ==> x_i' (可換な変数). sublist へ.
+%     u_i < 0 なら x_i は vGlobal へ.
+%  ii [vlist vGlobal sublist] toGrRing /ii set
+%  [ii jj vlist [(partialEcartGlobalVarX) vGlobal]] ecart.isSameIdeal と使う.
+%>
+/getGrRing {
+  /arg1 set
+  [/vlist /vw_vector /ans /vGlobal /sublist /newvlist
+   /dlist /tt /i /u /v /k
+   ] pushVariables
+  [
+    /vlist arg1 0 get def
+    /vw_vector arg1 1 get def
+
+    vlist isString { [vlist to_records pop] /vlist set } { } ifelse
+    vlist { toString } map /vlist set
+% dlist は [(Dx) (Dy) (Dz)] のリスト.
+    vlist { /tt set [@@@.Dsymbol tt] cat } map /dlist set  
+
+    /newvlist [ ] def /sublist [ ] def /vGlobal [ ] def
+% 可換な新しい変数を newvlist へ. 置換表を sublist へ.
+    0 1 vlist length 1 sub {
+      /i set
+%  (u,v) は (x_i, Dx_i) に対する weight vector 
+      /u vlist i get , vw_vector getGrRing.find  def
+      u -1 gt {
+        vw_vector , u 1 add , get /u set
+      }  { /u 0 def } ifelse
+
+      /v dlist i get , vw_vector getGrRing.find  def
+      v -1 gt {
+        vw_vector , v 1 add , get /v set
+      }  { /v 0 def } ifelse
+      u to_int32 /u set , v to_int32 /v set
+
+      u v add , 0  gt {
+        newvlist [vlist i get]  join /newvlist set
+      } {  } ifelse
+      u 0 lt {
+        vGlobal [vlist i get] join /vGlobal set
+      } {  } ifelse
+    } for
+
+    newvlist { /tt set [ [@@@.Dsymbol tt] cat [tt (')] cat ] } map
+    /sublist set
+
+    /ans [ vlist , newvlist { /tt set [tt (')] cat } map , join  from_records
+           vGlobal sublist] def
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: a uset getGrRing.find index
+%>
+/getGrRing.find {
+   /arg2 set /arg1 set
+   [/a /uset /ans /i]  pushVariables
+   [
+     /a arg1 def /uset arg2 def
+     /ans -1 def
+     { /ans -1 def
+       0 1 , uset length 1 sub {
+         /i set
+         a tag , uset i get tag eq {
+           a , uset i get eq {
+             /ans i def  exit
+           } { } ifelse 
+         } { } ifelse
+       } for
+       exit
+     } loop
+     /arg1 ans def
+   ] pop
+   popVariables
+   arg1
+} def
+
+%<
+% Usages: g1 g2 isSameGrRing bool
+%  g1, g2 は getGrRing の戻り値.
+%>
+/isSameGrRing {
+  /arg2 set /arg1 set
+  [/g1 /g2 /ans] pushVariables
+  [
+    /g1 arg1 def /g2 arg2 def
+    {
+       /ans 1 def
+       g1 0 get , g2 0 get eq { } { /ans 0 def exit } ifelse
+       exit
+       g1 1 get , g2 1 get eq { } { /ans 0 def exit } ifelse
+    } loop
+    /arg1 ans def
+  ] pop 
+  popVariables
+  arg1
+} def
+
+%<
+% Usages:  [[ii i_vw_vector] [jj j_vw_vector] vlist] isSameInGrRing_h
+%>
+/isSameInGrRing_h {
+  /arg1 set
+  [/ii /i_vw_vector /jj /j_vw_vector /vlist 
+   /i_gr /j_gr /rrule /ans] pushVariables
+  [
+    /ii arg1 [0 0] get def
+    /i_vw_vector arg1 [0 1] get def
+    /jj arg1 [1 0] get def
+    /j_vw_vector arg1 [1 1] get def
+    /vlist arg1 2 get def
+    {
+      [vlist i_vw_vector] getGrRing /i_gr set
+      [vlist j_vw_vector] getGrRing /j_gr set
+      i_gr j_gr isSameGrRing {  } { /ans [0 [i_gr j_gr]] def exit} ifelse
+
+% bug: in case of module
+      [i_gr 0 get , ring_of_differential_operators 0] define_ring
+
+% H を 1 に.
+      /rrule [ [@@@.Hsymbol . (1).] ] def
+
+      i_gr 2 get length 0 eq { 
+      } {   
+        rrule i_gr 2 get  { { . } map } map join /rrule set
+      } ifelse
+      ii { toString . rrule replace toString } map /ii set
+      jj { toString . rrule replace toString } map /jj set
+
+      [ii jj i_gr 0 get , i_gr 1 get] ecartd.isSameIdeal_h /ans set
+      [ans [i_gr] rrule ecartd.isSameIdeal_h.failed]  /ans set
+
+      exit
+    } loop
+    /arg1 ans def
+  ] pop 
+  popVariables
+  arg1 
+} def
+
+/test1.isSameInGrRing_h {
+  [(parse) (data/test8-data.sm1) pushfile] extension
+
+  cone.gblist 0 get (initial) getNode 2 get /ii set
+  cone.gblist 0 get (weight) getNode [2 0 2] get    /iiw set
+
+  cone.gblist 1 get (initial) getNode 2 get /jj set
+  cone.gblist 1 get (weight) getNode [2 0 2] get    /jjw set
+
+  (Doing   [ [ii iiw] [jj jjw] cone.vv ] isSameInGrRing_h /ff set) message  
+  [ [ii iiw] [jj jjw] cone.vv ] isSameInGrRing_h /ff set
+
+  ff pmat
+
+} def
+
+
+%<
+% Usages: i j IsSameCone_h  [bool, ...]
+% テスト方法.  (data/test8.sm1) run  (data/test8-data.sm1) run 0 1 IsSameCone_h
+%>
+/IsSameCone_h {
+  /arg2 set /arg1 set
+  [/i /j /ans /ii /iiw /jj /jjw] pushVariables
+  [ 
+    /i arg1 def /j arg2 def
+    cone.debug { (Comparing ) messagen [i j]  message } { } ifelse
+
+    cone.gblist i get (initial) getNode 2 get /ii set
+    cone.gblist i get (weight) getNode [2 0 2] get    /iiw set
+ 
+    cone.gblist j get (initial) getNode 2 get /jj set
+    cone.gblist j get (weight) getNode [2 0 2] get    /jjw set
+
+    [ [ii iiw] [jj jjw] cone.vv ] isSameInGrRing_h /ans set
+
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
