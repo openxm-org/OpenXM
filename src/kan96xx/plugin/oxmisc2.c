@@ -1,8 +1,9 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.6 2000/03/20 01:53:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.7 2000/12/03 07:29:39 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
 #include "cmo.h"
+
 extern FILE *MyErrorOut;
 #define SET_MYERROROUT { if (MyErrorOut == NULL) MyErrorOut=stdout; }
 /* It is also defined in oxmisc.c */
@@ -1042,4 +1043,117 @@ struct object KoxPushCMO(struct object client,struct object ob) {
   /* synchronize cc1 and client. */
   oxClientToObject(cc1,client);
   return(ob);
+}
+
+/* ------------- TODO ----------------- */
+oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
+			                      int ipmask,char *pass);
+struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,struct object pass) 
+{
+  struct object rob;
+  oxclientp client;
+  int fdStream, portStream;
+  int i;
+  struct object ob1;
+  rob.tag = Snull;
+  if (peer.tag != Sarray) {
+    errorOxmisc2("KoxCreateControl_RFC_101(): The first argument must be an array [fdStream, portStream]");
+    return(rob);
+  }
+  if (getoaSize(peer) != 2 ) {
+    errorOxmisc2("KoxCreateControl_RFC_101(): The first argument must be an array [fdStream, portStream] of size 2.");
+    return(rob);
+  }
+  for (i=0; i<getoaSize(peer); i++) {
+    ob1 = getoa(peer,i);
+    if (ob1.tag != Sinteger) {
+      errorOxmisc2("KoxCreateControl_RFC_101(): The element of the first argument must be an integer.");
+    }
+  }
+  fdStream = KopInteger(getoa(peer,0));
+  portStream = KopInteger(getoa(peer,1));
+
+  if (ipmask.tag != Sinteger) {
+    errorOxmisc2("KoxCreateControl_RFC_101(): ipmask must be an integer.");
+  }
+  if (pass.tag != Sdollar) {
+    errorOxmisc2("KoxCreateControl_RFC_101(): pass must be a string.");
+  }
+
+  client = oxCreateControl_RFC_101(fdStream, portStream,
+			   KopInteger(ipmask), KopString(pass));
+  if (client == NULL) {
+    errorOxmisc2("KoxCreateControl_RFC_101(): Open error.");
+    return(rob);
+  }
+  rob = newObjectArray(N_OF_CLIENT_FIELDS);
+  oxClientToObject(client,rob);
+  return(rob);
+}
+
+oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
+			                      int ipmask,char *pass)
+{
+  static int clnum = 0;
+  int v = 0;
+  int fdControl = -1;
+  int fdStream = -1;
+  int m;
+
+  char *s;
+  oxclientp client;
+  extern jmp_buf MyEnv_oxmisc ;
+  int engineByteOrder;
+  extern int Quiet;
+
+  v = !Quiet;
+  
+  switch(ipmask) {
+  case 0:/* only local */
+    fdStream  = socketAcceptLocal(fdstream);
+    break;
+  default:/* any */
+    fdStream  = socketAccept(fdstream);
+    break;
+  }
+  if (v) fprintf(stderr,"\nControl port %d : Connected.\n",portStream);
+
+  if (fdStream == -1 ) {
+    fprintf(stderr,"\nOpen error in oxCreateControl_RFC_101.\n");
+    return(NULL);
+  }
+
+  /* Authentication by password. */
+  m = strlen(pass);
+  s = (char *)mymalloc(sizeof(char)*(m+1));
+  read(fdStream,s,m+1); s[m] = '\0';
+  if (strcmp(s,pass) != 0) {
+    fprintf(stderr,"oxCreateControl_RFC_101(): password authentication failed for control channel.\n");
+    close(fdStream);
+    return(NULL);
+  }
+
+
+  engineByteOrder = oxSetByteOrder(fdStream);
+  if (v) fprintf(stderr,"Byte order for control stackmacine is %s.\n",
+		 (engineByteOrder == 0? "network byte order":
+		  (engineByteOrder == 1? "little indican":
+		   "big indian")));
+  
+
+  client = (oxclientp) mymalloc(sizeof(oxclient));
+  oxInitClient(client);
+  client->datafp2 = fp2open(fdStream);
+  if (client->datafp2 == NULL) {
+    fprintf(stderr,"oxCreateControl_RFC_101(): fp2open(fd) failed.\n");
+    return(NULL);
+  }
+  client->dataport = portStream;
+  client->controlport = -1;
+  client->controlfd = -1;
+  client->id = clnum; clnum++;
+  client->type = CLIENT_SOCKET; /* socket */
+  client->engineByteOrder = engineByteOrder;
+  client->controlByteOrder = -1;
+  return(client);
 }
