@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.2 2003/12/03 01:21:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.3 2003/12/03 09:00:46 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -352,6 +352,7 @@ static char **oxsBuildArgv(struct object ob) {
   char *ext, *v;
   int usetmp=1;
   int win=0;
+  struct object ocmd;
 
   /* bug: win variable must be properly set on windows native. */
 
@@ -367,7 +368,12 @@ static char **oxsBuildArgv(struct object ob) {
 
   s = KopString(getoa(ob,0));
   s = oxEvalEnvVar(s);
-  argv[0] = oxWhich(s,(char *)getenv("PATH"));
+  ocmd = KoxWhich(KpoString(s),KpoInteger(0));
+  if (ocmd.tag != Sdollar) {
+	argv[0] = NULL;
+  }else{
+	argv[0] = KopString(ocmd);
+  }
   argv[1] = (char *)NULL;
   if (argv[0] == NULL) {
 	fprintf(stderr,"cmdname=%s\n",s);
