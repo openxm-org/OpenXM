@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.25 2000/12/25 06:19:10 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.26 2001/05/20 07:48:17 takayama Exp $
 
 ## Type in make configure and make all to build all
 TOPDIR=../../../OpenXM
@@ -101,6 +101,7 @@ install-openXM-bin: install-bin-OpenXM  #alias
 
 install-bin-OpenXM: clean-for-debug
 	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	  rm -f $(OpenXM_bin)/sm1.exe ; \
 	  cp Kan/sm1.exe $(OpenXM_bin) ; \
 	else \
 	  cp Kan/sm1 $(OpenXM_bin) ; \
