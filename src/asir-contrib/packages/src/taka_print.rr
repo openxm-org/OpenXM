@@ -1,4 +1,6 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.7 2001/08/21 11:27:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.8 2001/08/22 01:52:44 takayama Exp $ */
+
+#define NOT_YET   print("It has not yet been implemented.")
 
 #define Number 1
 #define NUMBER 1
@@ -177,9 +179,41 @@ def taka_tex_form_quote(S) {
 def taka_tex_form_quote_list(S) {
   if (type(S) != List) return taka_tex_form_node_name(S);
   A = " ";
-  if (length(S) < 2) return taka_tex_form_node_name(S[0]);
-  if (S[0] == "+") {
-    T = S[1];
+  if (S[0] == "u_op") {
+     return taka_tex_form_quote_list_u_op(cdr(S));
+  }else if (S[0] == "b_op") {
+     return taka_tex_form_quote_list_b_op(cdr(S));
+  }else if (S[0] == "list") {
+     return taka_tex_form_quote_list_list(cdr(S));
+  }else if (S[0] == "internal") {
+     return taka_tex_form_quote_list_internal(cdr(S));
+  }else if (S[0] == "function") {
+     return taka_tex_form_quote_list_function(cdr(S));
+  }else {
+     error("Unknown quote format.");
+  }
+}
+
+def taka_tex_form_quote_list_u_op(S) {
+  if (S[0] == "()") {
+    A += "(";
+    A += taka_tex_form_quote_list(S[1]);
+    A += ") ";
+  }else{
+    error("Not implemented");
+  }
+  return A;
+}
+
+def taka_is_internal_zero(S) {
+  if (type(S) != LIST) return 0;
+  if (length(S) != 2) return 0;
+  if (S[0] == "internal" && S[1] == 0) return 1;
+  else return 0;
+}
+def taka_tex_form_quote_list_b_op(S) {
+   if (S[0] == "+") {
+    T = cdr(S);
     N = length(T);
     for (I=0; I<N; I++) {
       A += taka_tex_form_quote_list(T[I]);
@@ -187,10 +221,10 @@ def taka_tex_form_quote_list(S) {
     }
   }else
   if (S[0] == "-") {
-    T = S[1];
+    T = cdr(S);
     N = length(T);
     for (I=0; I<N; I++) {
-      if (I == 0 && T[I] == 0) {
+      if (I == 0 && taka_is_internal_zero(T[I])) {
          /* Do not print 0. */
       } else {
          A += taka_tex_form_quote_list(T[I]);
@@ -199,7 +233,7 @@ def taka_tex_form_quote_list(S) {
     }
   } else
   if (S[0] == "*") {
-    T = S[1];
+    T = cdr(S);
     N = length(T);
     for (I=0; I<N; I++) {
       A += taka_tex_form_quote_list(T[I]);
@@ -207,7 +241,7 @@ def taka_tex_form_quote_list(S) {
     }
   } else
   if (S[0] == "/") {
-    T = S[1];
+    T = cdr(S);
     A += "\\frac{";
     A += taka_tex_form_quote_list(T[0]);
     A += "} {";
@@ -215,22 +249,35 @@ def taka_tex_form_quote_list(S) {
     A += "} ";
   } else
   if (S[0] == "^") {
-    T = S[1];
+    T = cdr(S);
     A += taka_tex_form_quote_list(T[0]);
     A += "^{";
     A += taka_tex_form_quote_list(T[1]);
     A += "} ";
-  } else
-  if (S[0] == "()") {
-    A += "(";
-    A += taka_tex_form_quote_list(S[1]);
-    A += ") ";
-  }else
-  {   
-    /* Node is assumed to be a function name */
+  }else {
+    error("Not implemented.");
+  }
+  return A;
+}
+
+def taka_tex_form_quote_list_list(S) {
+    T = S;
+    A = " [ ";
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_tex_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += "]";
+    return A;
+}
+
+def taka_tex_form_quote_list_function(S) {
     A += taka_tex_form_node_name(S[0]);
     A += "(";
-    T = S[1];
+    T = cdr(S);
     N = length(T);
     for (I=0; I<N; I++) {
       A += taka_tex_form_quote_list(T[I]);
@@ -239,8 +286,11 @@ def taka_tex_form_quote_list(S) {
       }
     }
     A += ")";
-  }
-  return(A);
+    return(A);
+}
+
+def taka_tex_form_quote_list_internal(S) {
+  return rtostr(car(S));
 }
 
 def taka_tex_form_node_name(S) {
@@ -269,6 +319,15 @@ def taka_tex_form_node_name(S) {
   }
 }
 
+/*  test data
+   print_tex_form(quote(1+2));
+   print_tex_form(quote(-1));
+   print_tex_form(quote(x+1/2*y));
+   print_tex_form(quote_to_quote(-(x-1/3*y)^3));
+   print_tex_form(quote( (sin(x)+y)/(x-y) ));
+   print_tex_form(quote([[1,2],[x-10,1/y]]));
+   print_tex_form(quote(newmat(2,2,[[1,2],[1/x,exp(x)]])));
+*/
 def taka_output(S) {
   shell("rm t.tex ");
   output("t.tex");
@@ -325,7 +384,9 @@ def taka_xdvi_form(S) {
   shell(" xdvi -s 3 -geometry 800x300 "+File0+"  >>/dev/null & ");
   return [File,File0+".dvi"];
 }
-
+/* test data 
+ print_xdvi_form(quote_sort_polynomial((x-sin(x)*y)^3,[x,y],[1,1]));
+*/
 
 Loaded_taka_print=1$
 end$
