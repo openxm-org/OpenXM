@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.2 2000/10/13 07:39:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.3 2000/11/18 06:03:42 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,6 +52,16 @@ static char *xterminal()
 	return (e != NULL)? e: "xterm";
 }
 
+static int basic0[] =  {
+	CMO_ERROR2,
+	CMO_NULL,
+	CMO_INT32,
+	CMO_DATUM,
+	CMO_STRING,
+	CMO_MATHCAP,
+	CMO_LIST,
+	0}; 
+
 int main(int argc, char *argv[])
 {
     OXFILE *oxfp;
@@ -96,7 +106,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "oxc: cannot connect.\n");
     }else {
 		fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
-	    sysinfo_set(20001006, "v2000.10.06", "oxc");
+	    mathcap_init(20001006, "v2000.10.06", "oxc", basic0, NULL);
 		sm(oxfp);
 	}
     return 0;

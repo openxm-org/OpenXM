@@ -1,11 +1,11 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.2 2000/11/18 06:03:42 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/signal.h>
+#include <signal.h>
 #include <ox_toolkit.h>
 #include "sm.h"
 
@@ -144,7 +144,7 @@ void sm_mathcap(OXFILE *oxfp)
 {
 	cmo_mathcap *m = pop();
 	if (m->tag == CMO_MATHCAP) {
-		mathcap_update(m);
+		oxf_mathcap_update(oxfp, m);
 	}else {
 		push_error(-1, m);
 		/* an error object must be pushed */
