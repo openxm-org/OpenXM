@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.4 2004/02/24 00:37:28 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.5 2004/02/24 06:15:22 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix. 
 KNOPPIX_HOME=/home/knoppix
@@ -62,6 +62,6 @@ clean:
 
 clean-for-knoppix:
 	if [ -f ./for_knoppix ]; then \
-		rm -f ../../lib/*.a ../../lib/libpari*.a* ; \
+		rm -f ../../lib/*.a ../../lib/libpari* ; \
 		rm -rf ../../lib/NTL  ; \
 	fi
