@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.48 2000/01/09 16:15:05 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.49 2000/01/09 16:16:20 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
@@ -73,7 +73,8 @@ distclean: clean
 	(cd tigers ; make distclean)
 
 configure: configure-links configure-asir configure-bin configure-gnuplot \
-	   configure-kan96xx configure-kxx configure-oxmath configure-pari
+	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
+	   configure-pari
 
 configure-asir: install-pari
 	(cd asir2000; make configure)
