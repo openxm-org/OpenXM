@@ -1,10 +1,11 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.5 2002/02/05 07:24:28 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.6 2002/03/16 00:53:55 takayama Exp $
 %% kxx/oxasir.sm1   1998, 2/12 (this version is at Old/oxasir.sm1.19980212
 %%   3/1, 1995, 11/5, 11/21
 %% This file is error clean.
 %%%%%%% How to install.
 %%%  Set ASIR_LIBDIR if necessary. Ex. /u/nobuki/lib/asir
-%%%  write  ~/.asirrc  :    load("gr")$ load("primdec")$ end$
+%%%  write  ~/.asirrc  :    load("gr")$ load("primdec")$ load("bfct")$ end$
+%%%  or it is written in OpenXM/rc/asirrc in OpenXM env, it's fine. 
 %%%  oxasir.asir  must be in 
 %%%  LOAD_SM1_PATH or oxasirpath.asirlib
 %%%  Edit below
@@ -610,6 +611,51 @@ oxasir.verbose {
     oxsubmit
   ] pop
   popVariables
+} def
+
+[(bfct)
+ [(You need to install ox_asir server to use this function. (ox_asir function))
+  ( f bfct b )
+  ( poly f; poly b)
+  ([f v] bfct b)
+  ( string f )
+  ( b is the global b-function of the polynomial f.)
+  (Example: (x^3-y^2) bfct fctr :: )
+  (Algorithm: M.Noro, Mathematical Software, icms 2002, pp.???-???)
+  (  )
+  (If you interrupted the computation by typing ctrl-C, type in )
+  (   oxasir.ccc oxreset  ; )
+  (to interrupt the ox_asir server.)
+  (  )
+  (This function requires plugins cmo, socket and ox_asir server. cf.oxasir)
+]] putUsages
+
+/bfct {
+  /arg1 set
+  [/in-bfct /f /comm /vv] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /f arg1 def
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+
+    f isPolynomial not {
+      /vv f 1 get def
+      vv isArray { /vv vv from_records  def } {  } ifelse
+      /f f 0 get def
+      [vv ring_of_polynomials 0] define_ring
+      f . /f set
+    }{ } ifelse
+    oxasir.ccc [(oxasir_bfct) f] asir /f set
+    [(s) ring_of_polynomials 0] define_ring
+    f . /f set
+    [f f fctr] /arg1 set 
+  ] pop
+  popEnv
+  popVariables
+  arg1
 } def
 
 
