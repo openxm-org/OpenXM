@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.5 2000/12/25 06:19:10 takayama Exp $
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.6 2001/08/12 07:44:34 takayama Exp $
 ########## Documents
 TOPDIR=../../../../OpenXM
 OpenXM_ROOT=${TOPDIR}
@@ -33,7 +33,16 @@ make-html-document : onlinehelp.tex ttt.tex
 	-${LATEX2HTML} ttt
 
 ###
-install-document : onlinehelp.dvi ttt.dvi clean-OpenXM-doc make-html-document
+install-document :
+	@if [ ! -f ./.done_install-document ] ; \
+	then \
+		make install-document2 ; \
+		touch ./.done_install-document ; \
+	else \
+		echo "NOTE: Install-document is already done. Remove .done_install-document for a new install-document." ; \
+	fi
+
+install-document2 : onlinehelp.dvi ttt.dvi clean-OpenXM-doc make-html-document
 	mkdir $(OpenXM_doc)/kan96xx
 	touch $(OpenXM_doc)/kan96xx/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_AUTOMATICDALLY_GENERATED.
 	-cp ttt.tex $(OpenXM_doc)/kan96xx/intro.tex
@@ -48,10 +57,10 @@ clean-OpenXM-doc :
 
 ########## cleaning
 clean:
-	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out bin/ox bin/oxlog bin/ox_sm1 onlinehelp ttt
+	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out bin/ox bin/oxlog bin/ox_sm1 onlinehelp ttt ./.done_install-document
 
 clean-document:
-	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out onlinehelp ttt
+	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out onlinehelp ttt ./.done_install-document
 
 ########### kan/library
 CC=gcc

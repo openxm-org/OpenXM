@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.26 2002/02/10 08:24:01 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.27 2002/02/11 00:18:13 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -32,7 +32,16 @@ ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi \
        print-auto-en.texi matrix-auto-en.texi
 
 all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
-install : install-document install-help install-html-help
+install :
+	@if [ ! -f ./.done_install ] ; \
+	then \
+		make install2 ; \
+		touch ./.done_install ; \
+	else \
+		echo "NOTE: Installation is already done. Remove .done_install for a new installation." ; \
+	fi
+
+install2 : install-document install-help install-html-help
 
 gentexi : gentexi.c
 	gcc -o gentexi gentexi.c
@@ -310,11 +319,13 @@ install-document : all clean-document
 
 clean-document :
 	/bin/rm -rf $(OpenXM_doc)/asir-contrib
+	rm -f ./.done_install
 	mkdir $(OpenXM_doc)/asir-contrib
 	touch $(OpenXM_doc)/asir-contrib/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_AUTOMATICDALLY_GENERATED.
 
 
 clean :
+	rm -f ./.done_install
 	rm -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
 	rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi
 	/bin/rm -rf help-jp help-eg tmp tmp-ja html-en html-ja
