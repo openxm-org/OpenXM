@@ -1,11 +1,10 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.FreeBSD,v 1.2 1999/11/02 06:11:57 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.FreeBSD,v 1.3 1999/11/07 12:12:54 ohara Exp $ 
 
 #
 PREFIX=/usr/local
 
 MLINKDIR = ${PREFIX}/mathematica/AddOns/MathLink/DevelopersKits
-#SYS = Solaris
 SYS = Linux
 ADDONSDIR = ${MLINKDIR}/${SYS}/CompilerAdditions
 MPREP = ${ADDONSDIR}/mprep
@@ -13,9 +12,8 @@ MPREP = ${ADDONSDIR}/mprep
 # ADDONSDIR =
 
 CC = gcc
-#GMPSRC = ${OpenXM_HOME}/src/gmp
 GMPSRC = /usr/lib
-#GMPINC = -I${GMPSRC}
+GMPINC = -I${PREFIX}/include
 
 CDEFS  = -DDEBUG
 INCDIR = -I${ADDONSDIR} ${GMPINC}
@@ -64,8 +62,8 @@ testclient: testclient.o libox.a
 ox_math: serv1.o serv2.o libox.a
 	${CC} ${CFLAGS} -o $@ serv2.o serv1.o ${LIBS}
 
-math2ox: math2ox.o math2.o libox.a
-	${CC} ${CFLAGS} -o $@ math2ox.o math2.o ${LIBS}
+math2ox: math2ox.o math2.o serv2.o libox.a
+	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o ${LIBS}
 
 sample : sample.o libox.a
 	${CC} ${CFLAGS} -o $@ sample.o ${LIBS}

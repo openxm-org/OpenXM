@@ -1,11 +1,10 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.5 1999/11/07 12:12:55 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.6 1999/11/19 20:51:36 ohara Exp $ 
 
 #
 PREFIX=/usr/local
 
 MLINKDIR = ${PREFIX}/mathematica/AddOns/MathLink/DevelopersKits
-#SYS = Solaris
 SYS = Linux
 ADDONSDIR = ${MLINKDIR}/${SYS}/CompilerAdditions
 MPREP = ${ADDONSDIR}/mprep
@@ -13,10 +12,8 @@ MPREP = ${ADDONSDIR}/mprep
 # ADDONSDIR =
 
 CC = gcc
-#GMPSRC = ${OpenXM_HOME}/src/gmp
-GMPSRC = ${PREFIX}/lib
-#GMPINC = -I${GMPSRC}
-GMPINC = -I${PREFIX}/include
+GMPSRC = ${OpenXM_HOME}/src/gmp
+GMPINC = -I${GMPSRC}
 
 CDEFS  = -DDEBUG
 INCDIR = -I${ADDONSDIR} ${GMPINC}
