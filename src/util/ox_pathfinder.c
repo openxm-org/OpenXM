@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.11 2003/12/03 03:21:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.12 2003/12/03 08:58:35 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -111,9 +111,12 @@ static void myforkwait() {
   int status;
   int pid;
   int i,j;
-  signal(SIGCHLD,SIG_IGN);
+  /* signal(SIGCHLD,SIG_IGN);  It is not allowed in posix */
   pid = wait(&status);
   fprintf(stderr,"Child process %d is exiting.\n",pid);
+  if (pid < 0) {
+	perror("wait");
+  }
   for (i=0; i<Myforkcp; i++) {
     if (Myforkchildren[i]  == pid) {
       for (j=i; j<Myforkcp-1; j++) {
