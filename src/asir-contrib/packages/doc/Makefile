@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.5 2000/01/16 08:19:58 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.6 2000/01/16 22:01:00 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -89,10 +89,10 @@ help: help-eg help-jp
 install-help: help
 	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
-	cp -f help-jp/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+	-cp -f help-jp/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
-	cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+	-cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 
 install-document : all clean-document
 	-ptex cman.texi
