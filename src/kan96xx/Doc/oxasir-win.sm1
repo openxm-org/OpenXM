@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.4 2001/12/28 03:34:24 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.5 2001/12/28 08:18:23 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
@@ -22,7 +22,7 @@ def
 %% Override asirconnectr
 /asirconnectr {
  [(getenv) (OSTYPE)] extension tag 0 eq {
-     sm1connectr_win
+     asirconnectr_win
  }{
    [(getenv) (OSTYPE)] extension (cygwin) eq
    {
