@@ -1,11 +1,9 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/make-links,v 1.7 2000/01/07 18:21:49 maekawa Exp $
+# $OpenXM: OpenXM/src/make-links,v 1.8 2000/01/08 17:17:49 maekawa Exp $
 OpenXM_contrib=../../OpenXM_contrib
-OpenXM_contrib2=../../OpenXM_contrib2
-/bin/rm -f bin SSkan gmp gc ../lib/k097 ../lib/sm1 asir2000
+/bin/rm -f bin SSkan gmp gc ../lib/k097 ../lib/sm1
 ln -f -s ../bin bin
 ln -f -s ./kan96xx SSkan
 ln -f -s $OpenXM_contrib/gmp gmp
 ln -f -s $OpenXM_contrib/gc gc
-ln -f -s $OpenXM_contrib2/asir2000 asir2000
 (cd ../lib ; ln -f -s ../src/k097 k097 ; ln -f -s ../src/kan96xx/Doc sm1)
