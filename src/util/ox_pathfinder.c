@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.21 2004/03/03 02:31:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.22 2004/03/03 08:21:30 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -636,11 +636,11 @@ char **getServerEnv(char *oxServer) {
     if (!NoX) {
       argv[i] = oxterm ; i++; argv[i] = NULL;
       argv[i] = oxtermOpt; i++; argv[i] = NULL;
-      argv[i] = "-e"; i++; argv[i] = NULL;
 	  if (((char *)getenv("OX_XTERM_SCROLL")) != NULL) {
 		argv[i] = "-sl"; i++; argv[i] = NULL;
 		argv[i] = (char *) getenv("OX_XTERM_SCROLL"); i++; argv[i] = NULL;
 	  }
+      argv[i] = "-e"; i++; argv[i] = NULL;
     }
     argv[i] = get_ox_path(); i++; argv[i] = NULL;
     argv[i] = "-ox"; i++; argv[i] = NULL;
