@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.8 2003/11/16 07:14:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.9 2003/11/24 11:47:35 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -956,5 +956,48 @@ char *oxWhich_unix(char *cmdname,char *path) {
 	}
   }
   return NULL;
+}
+
+char *oxEvalEnvVar(char *s) {
+  int n, i,j;
+  char *es;
+  char *news;
+  int flag,flag2;
+  flag=-1;
+  n = strlen(s);
+  es = (char *)mymalloc(n+1); es[0] = 0;
+  if (es == NULL) nomemory(1); 
+  for (i=0; i<n; i++) {
+    if ((s[i] == '$') && (s[i+1] == '{')) {
+      for (j=0; ; j++) {
+        if ((s[i+2+j] == 0) || (s[i+2+j] == '}')) {
+          flag2 = i+2+j+1;
+          break;
+        }
+        es[j] = s[i+2+j]; es[j+1]=0;
+      }
+      if (es[0] != 0) { flag=i; break; }
+    }
+  }
+  if (flag >= 0) {
+    es = (char *)getenv(es);
+    if (es == NULL) es="";
+    news = (char *) mymalloc(n+5+strlen(es));
+    if (news == NULL) nomemory(1);
+    j = 0;
+    for (i=0; i<flag; i++) {
+      news[j] = s[i]; j++;
+    }
+    for (i=0; i<strlen(es); i++) {
+      news[j] = es[i]; j++;
+    }
+    for (i=flag2; i<strlen(s); i++) {
+      news[j] = s[i]; j++;
+    }
+    news[j] = 0;
+    return(oxEvalEnvVar(news));
+  }else{
+    return(s);
+  }
 }
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.6 2003/11/16 07:14:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.7 2003/11/24 11:47:35 takayama Exp $ */
 char **catArgv(char **argv1,char **argv2);
 char *getOStypes();
 char *getOpenXM_HOME();
@@ -19,3 +19,7 @@ char *oxWhich(char *cmdname,char *path);
 char *oxWhich_unix(char *cmdname,char *path);
 char *oxWhich_win(char *cmdname,char *path);
 int oxGetPidList(int *pids,int limit);
+char *oxEvalEnvVar(char *s);
+int oxKillAll(void);
+int oxKillPid(int pid);
+
