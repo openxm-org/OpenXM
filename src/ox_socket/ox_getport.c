@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.6 2000/12/01 17:34:14 maekawa Exp $
+ *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.7 2000/12/01 17:37:53 maekawa Exp $
  */
 
 #include <sys/types.h>
@@ -38,7 +38,7 @@
 
 #include "ox_socket.h"
 
-#ifndef INET6
+#ifndef HAVE_SOCKADDR_STORAGE
 /* Derived from RFC2553 */
 #define	_SS_MAXSIZE	128
 #define	_SS_ALIGNSIZE	(sizeof(int64_t))
@@ -63,7 +63,7 @@ struct sockaddr_storage {
 	int64_t		__ss_align;
 	char		__ss_pad2[_SS_PAD2SIZE];
 };
-#endif /* INET6 */
+#endif /* HAVE_SOCKADDR_STORAGE */
 
 int
 ox_getport(int sock)
