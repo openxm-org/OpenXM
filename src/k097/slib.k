@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.6 2000/12/28 00:08:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.7 2001/01/04 12:29:31 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -37,13 +37,6 @@ def Append(f,g) { return(Join(f,[g])); }
 
 def Length(f) { sm1(f," length (universalNumber) dc /FunctionValue set"); }
 
-def Indexed(name,i) {
-  sm1(name,i," s.Indexed /FunctionValue set ");
-}
-/* Indexed2("a",2,3) ---> "a[2,3]" */
-def Indexed2(name,i,j) {
-  sm1(name,i,j," s.Indexed2 /FunctionValue set ");
-}
 def Transpose(mat) {
   sm1(mat," transpose /FunctionValue set ");
 }
@@ -438,3 +431,25 @@ def GetRing(f) {
 def SetRing(r) {
   sm1(" r ring_def ");
 }
+
+def ReParse(a) {
+  local c;
+  if (IsArray(a)) {
+    c = Map(a,"ReParse");
+  }else{
+    sm1(a," toString . /c set");
+  }
+  return(c);
+}
+HelpAdd(["ReParse",
+["Reparse(obj): ",
+ "It parses the given object in the current ring."
+]]);
+
+def void Pmat(a) {
+   sm1(" a pmat ");
+}
+HelpAdd(["Pmat",
+["Pmat(m): ",
+ "Print the array m in a pretty way."
+]]);

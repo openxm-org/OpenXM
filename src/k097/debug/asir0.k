@@ -56,12 +56,12 @@ HelpAdd(["Cancel",["Cancel the greatest common multiple of the denominators and 
 
 
 
-/* BUG: It has not yet been rewritten. */
+/* BUG: It has not yet been rewritten. 
 def Primadec(f,g)  {
   sm1(f,g," primadec /FunctionValue set");
   sm1(" clean-workfiles ");
 }
 HelpAdd(["Primadec",[" Not Yet. <<need asir, start k0 with -f option.>>"]]);
-
+*/
 
 

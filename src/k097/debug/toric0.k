@@ -6,6 +6,7 @@
     A-hypergeometric の Fourier 変換の indicial を求める関数.
 */
 
+load("indexed.k");
 
 def toric0_toMonom(aa,i,offset, ring)
 {

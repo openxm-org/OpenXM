@@ -4,6 +4,8 @@
 /*  toric の generator を求める関数.
     A-hypergeometric の indicial ideal を求める関数.
 */
+load("indexed.k");
+
 ShimomuraSpecial = true ; OnePath= true;
 Vvv = false;
 SetRingVariables_Verbose = false;

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/object.kk,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
 /* object.kk , 1997, 4/11. */
 Protect("showln",0);
 
@@ -60,8 +60,8 @@ HelpAdd(["Gmp.",
  ["Gmp is a class which supports the following methods:",
   "BitAnd, BitOr, ModuloPower, ProbabilisticPrimeP, Sqrt,",
   "Gcd, Div, Mod.",
-  "Ex.  r = Gmp.Gcd(5,8); ",
-  "These methods call functions of Gnu-MP package.",
-  "The Copyright notice is in kan96xx/gmp.",
-  "Note that there is no method to create an instance."]]);
+  "These methods call functions of GNU MP package.",
+  "Note that there is no method to create an instance.",
+  "Ex.  r = Gmp.Gcd(5,8); "
+  ]]);
 

@@ -100,26 +100,6 @@ FunctionValue } def
 FunctionValue } def
 %%end of function
 
-/Indexed {
- db.DebugStack setstack $In function : Indexed of class PrimitiveObject$  stdstack 
- /Arglist set /Argthis set /FunctionValue [ ] def
- [/this /name /i  ] /ArgNames set ArgNames pushVariables [ %%function body
- [Argthis] Arglist join ArgNames mapset
- name  i   s.Indexed /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
- db.DebugStack setstack pop stdstack 
-FunctionValue } def
-%%end of function
-
-/Indexed2 {
- db.DebugStack setstack $In function : Indexed2 of class PrimitiveObject$  stdstack 
- /Arglist set /Argthis set /FunctionValue [ ] def
- [/this /name /i /j  ] /ArgNames set ArgNames pushVariables [ %%function body
- [Argthis] Arglist join ArgNames mapset
- name  i  j   s.Indexed2 /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
- db.DebugStack setstack pop stdstack 
-FunctionValue } def
-%%end of function
-
 /Transpose {
  db.DebugStack setstack $In function : Transpose of class PrimitiveObject$  stdstack 
  /Arglist set /Argthis set /FunctionValue [ ] def
@@ -1019,3 +999,41 @@ FunctionValue } def
 FunctionValue } def
 %%end of function
 
+/ReParse {
+ db.DebugStack setstack $In function : ReParse of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/c ] pushVariables [ %%local variables
+this [ %% function args 
+a ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+a (ReParse) ] {Map} sendmsg2 
+/c  set
+  }%%end if if body
+  { %%if- else part
+ a   toString . /c set   } ifelse
+c  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (ReParse) [ (Reparse(obj): ) (It parses the given object in the current ring.)   ]   ] ] {HelpAdd} sendmsg2 
+/Pmat {
+ db.DebugStack setstack $In function : Pmat of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+  a pmat  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+} def
+%%end of function
+
+this [ %% function args 
+[ (Pmat) [ (Pmat(m): ) (Print the array m in a pretty way.)   ]   ] ] {HelpAdd} sendmsg2 

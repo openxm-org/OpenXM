@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.32 2000/12/10 09:34:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.33 2000/12/29 07:19:40 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1476,23 +1476,10 @@ HelpAdd(["IsSameIdeal_h",
  "cf. ReParse"
 ]]);
 
-def ReParse(a) {
-  local c;
-  if (IsArray(a)) {
-    c = Map(a,"ReParse");
-  }else{
-    sm1(a," toString . /c set");
-  }
-  return(c);
-}
-HelpAdd(["ReParse",
-["Reparse(obj): obj",
- "It parses the given object in the current ring.",
- "Outputs from SlaScala, Sschreyer may cause a trouble in other functions,",
- "because it uses the Schreyer order.",
- "In this case, ReParse the outputs from these functions.",
- "cf. IsExaxt_h"
-]]);
+/*
+  Output of S* functions may cause a trouble because it uses Schreyer orders.
+  In this case, use ReParse().
+*/
 
 def ScheckIfSchreyer(s) {
   local ss;

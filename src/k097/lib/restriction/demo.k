@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.4 2000/12/27 10:16:13 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.5 2000/12/28 00:08:14 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -43,7 +43,7 @@ def asir_generic_bfct(a,ii,vv,dd,ww) {
    asir_generic_bfct(a,[Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]): */
 
 /* usage: misc/tmp/complex-ja.texi */
-def changeRing(f) {
+def ChangeRing(f) {
   local r;
   r = GetRing(f);
   if (Tag(r) == 14) {
@@ -57,7 +57,7 @@ def changeRing(f) {
 def asir_BfRoots2(G) {
    local bb,ans,ss;
    sm1(" G flatten {dehomogenize} map /G set ");
-   changeRing(G);
+   ChangeRing(G);
    ss = asir_generic_bfct(asssssir,G,[x,y],[Dx,Dy],[1,1]);
    bb = [ss];
    sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
@@ -66,7 +66,7 @@ def asir_BfRoots2(G) {
 def asir_BfRoots3(G) {
    local bb,ans,ss;
    sm1(" G flatten {dehomogenize} map /G set ");
-   changeRing(G);
+   ChangeRing(G);
    ss = asir_generic_bfct(asssssir,G,[x,y,z],[Dx,Dy,Dz],[1,1,1]);
    bb = [ss];
    sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");

@@ -1,25 +1,7 @@
-/* $OpenXM$ */
-/* Document is at k097/Doc/complex.k */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/complex.k,v 1.1 2001/01/04 12:29:33 takayama Exp $ */
+/* Document of this module is at k097/Doc/complex.texi */
 
 load["lib/restriction/restriction.k"];;
-def man(a) {
-  local lang,n;
-  n = Length(Arglist);
-  lang = GetEnv("LANG");
-  if (lang == "C" || Length(lang) == 0) {
-    if (n < 1) {
-      sm1(" (ls $OpenXM_HOME/lib/k097/help/help-en ) system ");
-    }else {
-      sm1(" [(more $OpenXM_HOME/lib/k097/help/help-en/) a] cat system ");
-    }
-  }else{
-    if (n < 1) {
-      sm1(" (ls $OpenXM_HOME/lib/k097/help/help-ja ) system ");
-    }else {
-      sm1(" [(jless $OpenXM_HOME/lib/k097/help/help-ja/) a] cat system ");
-    }
-  }
-}
 
 def Res_solv(m,d,rng) {
   local r,rr,ans,ac;
@@ -350,22 +332,17 @@ def Res_shiftMatrix(m,v,rng) {
   return(ans);
 }
 
-
-/* -------- manuals have been written in complex.k ---------------- */
-/* From lib/minimal/minimal.k */
-def ReParse(a) {
-  local c;
-  if (IsArray(a)) {
-    c = Map(a,"ReParse");
+def ChangeRing(f) {
+  local r;
+  r = GetRing(f);
+  if (Tag(r) == 14) {
+    SetRing(r);
+    return(true);
   }else{
-    sm1(a," toString . /c set");
+    return(false);
   }
-  return(c);
 }
 
-def void Pmat(a) {
-   sm1(" a pmat ");
-}
 
 def test2() {
   RingD("x,y,z");
