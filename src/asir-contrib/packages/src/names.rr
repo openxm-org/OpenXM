@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.52 2002/09/22 12:43:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.53 2002/10/04 03:04:50 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -535,14 +535,15 @@ def print_dvi_form(F) {
   return taka_dvi_form(F);
 }
 
-/*&usage begin: print_gif_form(S)
+/*&usage begin: print_gif_form(S|table)
  It outputs {S} to a file of the gif format.
  example: print_gif_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
  ref: print_tex_form
 end: */
 def print_gif_form(F) {
+  Opt = getopt();
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
-  return taka_gif_form(F);
+  return taka_gif_form(F,Opt);
 }
 def print_html_form(F) { NOT_YET; }
 
@@ -639,6 +640,15 @@ def print_xv_form(F) {
   Argv = getopt();
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return(taka_xv_form(F,Argv));
+}
+
+/*&usage begin: print_tfb_form(S)
+ It transforms {S} to the tfb format.
+ example: print_tfb_form(x+1);
+end: */
+def print_tfb_form(F) { 
+  OX_LOADFILE(Loaded_taka_print_tfb,"taka_print_tfb.rr");
+  return(taka_tfb_form(F));
 }
 
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.26 2002/07/15 02:14:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.27 2002/09/22 12:41:08 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -590,8 +590,8 @@ def taka_dp_print(F) {
   return Ans;
 }
 
-def taka_dvi_form(S) {
-  S = taka_tex_form(S);
+def taka_dvi_form(S,Opt) {
+  S = taka_tex_form_top(S,Opt);
   File0 = ox_work_dir()+"/"+ox_new_file_name();
   File = File0+".tex";
   shell("rm -f "+File);
@@ -606,7 +606,7 @@ def taka_dvi_form(S) {
          /* (0) .dvi, (1) no extension, (2) .tex, (3) workding dir */
 }
 def taka_xdvi_form(S) {
-  F = taka_dvi_form(S);
+  F = taka_dvi_form(S,[]);
   /* Use xdvi for a moment. */
   shell(" xdvi -s 3 -geometry 800x300 "+F[1]+"  >>/dev/null & ");
   return F;
@@ -616,8 +616,8 @@ def taka_xdvi_form(S) {
 */
 
 
-def taka_ps_form(S) {
-  F = taka_dvi_form(S);
+def taka_ps_form(S,Opt) {
+  F = taka_dvi_form(S,Opt);
   File0 = F[1];
   Work_dir = F[3];
   shell(" (cd "+Work_dir+" ; dvips -f "+File0+" >"+File0+".ps ) ");
@@ -628,7 +628,7 @@ def taka_ps_form(S) {
    latex2html on freebsd.  cf. orange:/usr/local/src/latex2*
 */
 def taka_png_form(S) {
-  F = taka_ps_form(S);
+  F = taka_ps_form(S,[]);
   File0 = F[1];
   File = F[0];
   /* BUG: it does not work for now. We need png, too */
@@ -636,8 +636,8 @@ def taka_png_form(S) {
   return [File0+".png",F[1],F[2],F[3]];
 }
 
-def taka_gif_form(S) {
-  F = taka_ps_form(S);
+def taka_gif_form(S,Opt) {
+  F = taka_ps_form(S,Opt);
   File0 = F[1];
   Work_dir = F[3];
   /* 
@@ -653,7 +653,7 @@ def taka_gif_form(S) {
 }
 
 def taka_jpeg_form(S) {
-  F = taka_ps_form(S);
+  F = taka_ps_form(S,[]);
   File0 = F[1];
   File = F[0];
   /* BUG: it does not work for now. We need png, too */
@@ -678,7 +678,7 @@ def taka_xv_form(S,Argv) {
     return Input;
   }
   if (Format == "gif") {
-    F = taka_gif_form(S);
+    F = taka_gif_form(S,[]);
   }else if (Format == "png") {
     F = taka_png_form(S);
   }else {  
