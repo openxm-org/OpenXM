@@ -1,26 +1,38 @@
 #!/bin/sh
-# $OpenXM$
-# Downloading Risa/Asir for FLA-free systems.
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.1 2004/02/21 12:57:32 takayama Exp $
+# Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
-# in the distribution of FLA-free 
+# in the distribution of FLL-free distribution.
 # Starting script of Risa/Asir may call this shell script.
 os=`uname -s`
-md=`cat $OpenXM_HOME/lib/asir/distinfo`
+md=`cat $OpenXM_HOME/lib/asir/distinfo-asir`
+libmd=`cat $OpenXM_HOME/lib/asir/distinfo-lib`
 # For testing
-asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/gzip.exe"
-asirname="gzip.exe"
+#asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/gzip.exe"
+#asirname="gzip.exe"
+#asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/tar.exe"
+#asirlibname="tar.exe"
 # 
-#asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/binaries/asir-$os-$md"
-#asirname="asir-$os-$md"
+asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix/asir-$os-$md.gz"
+asirnamegunzip="asir-$os-$md"
+asirname="asir-$os-$md.gz"
+asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix/asirlib-$os-$libmd.tar.gz"
+asirlibname="asirlib-$os-$libmd.tar.gz"
 
-#echo $asir
+if [ $# = 1 ]; then
+if [ $1 = "--install" ]; then
+ rm -rf $HOME/.asir-tmp
+fi
+fi
+
 _agree() {
 	echo "------------------------------------------------------------------"
 	echo "Risa/Asir is distributed with no warranty for non-commercial use."
-	echo "Do you agree with the license agreement at $OpenXM_HOME/Copyright/Copyright.asir?"
+	echo "OpenXM subcomponents are distributed with no warranty under BSD license or GPL."
+	echo "Do you agree with the licenses under $OpenXM_HOME/Copyright?"
 	echo "------------------------------------------------------------------"
-	echo "y: agree, n: do not agree, v: read the detail of the agreement."
+	echo "y: agree, n: do not agree, v: read the detail of the asir license."
 	read -e -p "(y/n/v)" ans
 	if [ $ans = "y" ]; then
 		return
@@ -37,13 +49,24 @@ _agree() {
 	_agree
 }
 
-if [ ! -f $HOME/.asir-tmp/$asirname ]; then
+if [ ! -f $HOME/.asir-tmp/$asirnamegunzip ]; then
 	_agree ; \
+	echo -n "Downloading the binary of asir (1.5M) $asir ... " ; \
 	oxfetch.sh $asir $HOME/.asir-tmp ; \
-	ln -s $HOME/.asir-tmp/$asirname $HOME/.asir-tmp/asir ; \
+	echo "Done." ; \
+	gunzip $HOME/.asir-tmp/$asirname ; \
+	chmod +x $HOME/.asir-tmp/$asirnamegunzip ; \
+	rm -f $HOME/.asir-tmp/asir ; \
+	ln -s $HOME/.asir-tmp/$asirnamegunzip $HOME/.asir-tmp/asir ; \
+fi
+if [ ! -f $HOME/.asir-tmp/$asirlibname ]; then
+	echo -n "Downloading the asir library  $asirlib... " ; \
+	oxfetch.sh $asirlib $HOME/.asir-tmp ; \
+	echo "Done." ; \
+	(cd $HOME/.asir-tmp ; tar xzf $asirlibname) ; \
 fi
 
-#fep asir
 
+$OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $*
 
 

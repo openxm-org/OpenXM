@@ -1,13 +1,13 @@
-# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile,v 1.3 2003/02/22 07:14:44 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile,v 1.4 2003/02/28 09:06:19 takayama Exp $
 
 ## You need the following packages to build *.deb
 ## apt-get install fakeroot
 ## apt-get install debhelper
 
-VERSION=1.2.1
+VERSION=head
 ## configuration only for committers
-WHO=taka@orange
-FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
+WHO=$(USER)@orange2
+FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
 TAR_WORK=$(HOME)/tmp
 
 RM=rm
