@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.34 2000/09/05 11:57:04 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.35 2000/09/20 06:05:46 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -15,12 +15,17 @@ This document is for OpenXM version 1.1.3.  (Draft)
 /*&jp
 ★ OpenXM GENERIC パッケージの利用方法
 この節では, OpenXM package binary distribution のインストール法を説明します.
+ソースからインストールする場合は 
+       ★ OpenXM パッケージの Make 法
+を御覧下さい.
 インストールに必要なシステムの仕様については, 動作環境を御覧ください.
 */
 /*&eg
 ***** HOW TO INSTALL OpenXM GENERIC PACKAGE?
 In this section, we will explain how to install OpenXM package binary
 distribution.
+If you build from the source, see the section
+      * How to make OpenXM package?
 As to the required environment, see the section "System Requirement"
 */
 /*&jp
@@ -577,26 +582,46 @@ See OpenXM/Copyright.
 
 
 ★ OpenXM パッケージの Make 法
-  FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.
-  Linux glib6 では, いまのところ, /usr/include/features.h
-  で #define __FAVOR_BSD 1 してコンパイルする必要がありしたが,
+  FreeBSD 3.x, FreeBSD 4.x, Linux で動作するものと期待してます.
+  (Linux glib6 では, いまのところ, /usr/include/features.h
+   で #define __FAVOR_BSD 1 してコンパイルする必要がありしたが,
   一部のソースを
   -D_BSD_SOURCE option をつけて gcc でコンパイルするように変えてます
-  (setjmp と sigsetjmp の問題, dirty trick).
+  (setjmp と sigsetjmp の問題, dirty trick) 現在では問題ありません. )
 
    OpenXM, OpenXM_contrib, OpenXM_contrib2 が必要です.
+   ftp.math.kobe-u.ac.jp/OpenXM/1.1.3 より
+        openxm-1.1.3.tar.gz 
+   を get して展開して下さい.
+        tar xzvf openxm-1.1.3.tar.gz
+
+   openxm-1.1.3/OpenXM    openxm-1.1.3/OpenXM_contrib   
+   openxm-1.1.3/OpenXM_contrib2
+   が生成されます.
+   
    cvs コミッタの場合次のようにしてソースをとりよせます.
 */
 /*&eg
 * How to make OpenXM package?
- We have tested the OpenXM package on FreeBSD 2.2.8, FreeBSD 3.3, Linux.
- On Linux glib6, we needed to define 
+ We have tested the OpenXM package on FreeBSD 3.x, FreeBSD 4.x, Linux.
+ (On Linux glib6, we needed to define 
    #define  __FAVOR_BSD 1
  in /usr/include/features.h,
  but now we are compiling some sources with -D_BSD_SOURCE
- (setjmp vs sigsetjmp).
+ (setjmp vs sigsetjmp).  So, you do not need to make this change.)
 
  Do you have directories OpenXM, OpenXM_contrib, OpenXM_contrib2?
+ get 
+        openxm-1.1.3.tar.gz 
+ from ftp.math.kobe-u.ac.jp/OpenXM/1.1.3
+ Expand it by
+        tar xzvf openxm-1.1.3.tar.gz
+
+ Then, you will get
+   openxm-1.1.3/OpenXM    openxm-1.1.3/OpenXM_contrib   
+   openxm-1.1.3/OpenXM_contrib2
+
+
  If you are a CVS committer, then you can get all sources as follows:
 */
 //&C  rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2
@@ -616,7 +641,7 @@ OpenXM/src/OpenMath のコンパイルおよび利用には
 には, jdk (java 環境) が必要です.
 
 Documents を生成するには,  tex, ptex (ascii 日本語 tex), dvips, texinfo, 
-texi2html, nkf, 
+texi2html, nkf, jlatex2html
 が必要です. 詳しくは Makefiles を見て下さい.
 Document は, binary distribution の OpenXM/doc, OpenXM/lib 
 より得るのが簡単です.
@@ -627,12 +652,40 @@ you need jdk (java environment).
 
 In order to generate the full documentation including Japanese documents,
 you need tex, ptex (ASCII Inc. Japanese tex), dvips, texinfo, texi2html,
-nkf. See each Makefile.
+nkf, jlatex2html.  See each Makefile.
 The generated documents are in OpenXM/doc and OpenXM/lib 
 in the binary distribution.
 If you do not like to install Japanese environment such as ptex, 
 type in R for the tex error prompt ? or 
 prepare empty shell scripts ptex and nkf.
+*/
+/*&C
+
+*/
+
+/*&eg
+To run the system, you need to read OpenXM/rc/dot.cshrc or 
+OpenXM/rc/dot.bashrc by the source
+command for setting proper environmental variable values.
+
+By the commands
+         cd OpenXM/rc
+         make
+you can generate dot.cshrc and dot.bashrc.
+Read these file by the source command in your .cshrc 
+or .bashrc (or .bash_profile).
+*/
+/*&jp
+システムを動かすには, OpenXM/rc/dot.cshrc または 
+OpenXM/rc/dot.bashrc を source コマンドで
+よみこみ環境変数の値を適切に設定する必要があります.
+
+コマンド
+         cd OpenXM/rc
+         make
+で dot.cshrc および dot.bashrc が生成されます.
+これらのファイルを source コマンドで,
+.cshrc または .bashrc (または .bash_profile) より読むようにして下さい.
 */
 /*&C
 

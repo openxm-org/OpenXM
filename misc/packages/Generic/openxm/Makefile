@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.17 2000/08/29 04:08:52 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.18 2000/09/02 01:27:12 takayama Exp $
 # The FIRST part is a Makefile FOR COMMITTERS: it is used 
 # to generate source and binary distributions of
 # the OpenXM package on various operating systems.
@@ -19,6 +19,7 @@ RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 
 ## Configurations.
 ## OpenXM Version Number.
+PREFIX=/usr/local
 VERSION=1.1.3
 TAG=HEAD
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
