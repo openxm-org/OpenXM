@@ -1,5 +1,6 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.53 2000/01/09 19:32:13 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.54 2000/01/09 19:34:55 maekawa Exp $
 
+OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
 BINDIR=../bin
 
@@ -128,8 +129,8 @@ configure-links:
 	(cd $(LIBDIR) ; ln -f -s ../src/kan96xx/Doc sm1)
 	ln -f -s kan96xx SSkan
 	ln -f -s $(BINDIR) bin
-	ln -f -s $OPENXM_CONTRIB/gc gc
-	ln -f -s $OPENXM_CONTRIB/gmp gmp
+	ln -f -s $(OPENXM_CONTRIB)/gc gc
+	ln -f -s $(OPENXM_CONTRIB)/gmp gmp
 
 configure-oxmath:
 	(cd ox_math; ./configure)
