@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.30 2004/06/23 22:49:17 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.31 2004/06/23 23:04:10 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -48,7 +48,7 @@ all2 : ox ox_sm1 testclient oxlog
 configure: Makefile
 
 Makefile: Makefile.in
-	./configure
+	(rm -f .configure_done ; ./make-configure)
 
 # configure is added to repo for a while.
 configure-old : Makefile.in configure.in

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.3 2004/02/28 17:07:12 ohara Exp $
+# $OpenXM: OpenXM/src/k097/Makefile.in,v 1.4 2004/03/03 03:07:42 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -8,9 +8,14 @@
 #  install-exec: all install-lib 
 #  install-for-debug
 #
-OpenXM_HOME=../..
+OpenXM_HOME=@prefix@
 OpenXM_include=${OpenXM_HOME}/include
 OpenXM_lib=${OpenXM_HOME}/lib
+#
+OpenXM_HOME_debug=../..
+OpenXM_include_debug=${OpenXM_HOME_debug}/include
+OpenXM_lib_debug=${OpenXM_HOME_debug}/lib
+#
 BDATE =19970416
 LOAD_K_PATH ='"/usr/local/lib/k0/"'
 LOAD_SM1_PATH2 ='"/this_directory_does_not_exists/"'
@@ -18,7 +23,7 @@ CFLAGS= @CFLAGS@ -D_BSD_SOURCE -g -DLOAD_K_PATH=${LOAD_K_PATH} -DLOAD_SM1_PATH2=
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
 ## Kan source.  kan sources must be built up by hand.
-Kan96xx=${OpenXM_HOME}/src/kan96xx
+Kan96xx=${OpenXM_HOME_debug}/src/kan96xx
 MYYACC = bison
 YACCPREFIX = -p KC
 RM=rm
@@ -33,7 +38,7 @@ all : configure d0 k0 ox_k0
 configure: Makefile
 
 Makefile: Makefile.in
-	./configure
+	(rm -f .configure_done ; ./make-configure)
 
 .c.o:
 	${CC}  ${CFLAGS} -I${OpenXM_include} -c  $<
@@ -110,6 +115,7 @@ test0:  test0.c  $(KXX) ${Kan96xx_Kan}/kanlib.a ${Kan96xx_Kan}/lookup.h
 
 clean-for-install:
 	${RM} -f ${OpenXM_HOME}/bin/k0 ${OpenXM_HOME}/bin/k0.exe ${OpenXM_HOME}/bin/d0 ${OpenXM_HOME}/bin/d0.exe ${OpenXM_HOME}/bin/ox_k0 ${OpenXM_HOME}/bin/ox_k0.exe ${OpenXM_HOME}/lib/sm1/bin/ox_k0 ${OpenXM_HOME}/lib/sm1/bin/ox_k0.exe
+	${RM} -f ${OpenXM_HOME_debug}/bin/k0 ${OpenXM_HOME_debug}/bin/k0.exe ${OpenXM_HOME_debug}/bin/d0 ${OpenXM_HOME_debug}/bin/d0.exe ${OpenXM_HOME_debug}/bin/ox_k0 ${OpenXM_HOME_debug}/bin/ox_k0.exe ${OpenXM_HOME_debug}/lib/sm1/bin/ox_k0 ${OpenXM_HOME_debug}/lib/sm1/bin/ox_k0.exe
 
 install: install-exec
 install-exec: all clean-for-install install-lib
@@ -121,10 +127,10 @@ install-exec: all clean-for-install install-lib
  
 
 install-for-debug: clean-for-install all install-lib-for-debug
-	(cd ${OpenXM_HOME}/bin ; ln -s ../src/k097/k0 k0)
-	(cd ${OpenXM_HOME}/bin ; ln -s ../src/k097/d0 d0)
-	(cd ${OpenXM_HOME}/bin ; ln -s ../src/k097/ox_k0 ox_k0)
-	(cd ${OpenXM_HOME}/lib/sm1/bin ; ln -s ../../../../src/k097/ox_k0 ox_k0)
+	(cd ${OpenXM_HOME_debug}/bin ; ln -s ../src/k097/k0 k0)
+	(cd ${OpenXM_HOME_debug}/bin ; ln -s ../src/k097/d0 d0)
+	(cd ${OpenXM_HOME_debug}/bin ; ln -s ../src/k097/ox_k0 ox_k0)
+	(cd ${OpenXM_HOME_debug}/lib/sm1/bin ; ln -s ../../../../src/k097/ox_k0 ox_k0)
 
 install-lib:
 	${RM} -rf ${OpenXM_lib}/k097
@@ -133,5 +139,5 @@ install-lib:
 	cp -rf *.sm1 *.k *.kk debug lib ${OpenXM_lib}/k097
 
 install-lib-for-debug :
-	${RM} -rf ${OpenXM_lib}/k097
-	ln -s ../src/k097 ${OpenXM_lib}/k097
+	${RM} -rf ${OpenXM_lib_debug}/k097
+	ln -s ../src/k097 ${OpenXM_lib_debug}/k097
