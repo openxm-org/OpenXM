@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.21 2002/08/10 11:12:30 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.22 2002/08/11 08:39:49 takayama Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -16,16 +16,16 @@ def om_find_proc() {
   }
   return(Om_proc);
 }
-
+/*&C-texi
+@node OpenMath Functions,,, Top
+*/
 /*&jp-texi
-@node OpenMath 函数,,, Top
 @chapter OpenMath 函数(1999版)
 
 @file{om} にこの節の関数は定義されている.
 JAVA の実行環境が適切に設定されている必要がある.
 */
 /*&eg-texi
-@node OpenMath Functions,,, Top
 @chapter OpenMath Functions(Version 1999)
 
 The functions in this section is defined in the file@file{om}.
@@ -38,10 +38,14 @@ Author of OMproxy : Yasushi Tamura , @code{tamura@@math.kobe-u.ac.jp}
 
 */
 
-/*&eg-texi
+/*&C-texi
 @menu
 * om_start::
+* om_xml::
+* om_xml_to_cmo::
 @end menu
+*/
+/*&eg-texi
 @node om_start,,, OpenMath Functions
 @subsection @code{om_start}
 @findex om_start
@@ -56,10 +60,7 @@ Number
 @end table
 */
 /*&jp-texi
-@menu
-* om_start::
-@end menu
-@node om_start,,, OpenMath 函数
+@node om_start,,, OpenMath Functions
 @subsection @code{om_start}
 @findex om_start
 @table @t
@@ -134,9 +135,6 @@ def om_start_windows(S) {
   }
 }
 /*&eg-texi
-@menu
-* om_xml::
-@end menu
 @node om_xml,,, OpenMath Functions
 @subsection @code{om_xml}
 @findex om_xml
@@ -160,10 +158,7 @@ Translate CMO @var{s} to a XML expression of OpenMath(CD's in 1999).
 @end itemize
 */
 /*&jp-texi
-@menu
-* om_xml::
-@end menu
-@node om_xml,,, OpenMath 函数
+@node om_xml,,, OpenMath Functions
 @subsection @code{om_xml}
 @findex om_xml
 @table @t
@@ -205,9 +200,6 @@ def om_xml(F) {
 }
 
 /*&eg-texi
-@menu
-* om_xml_to_cmo::
-@end menu
 @node om_xml_to_cmo,,, OpenMath Functions
 @subsection @code{om_xml_to_cmo}
 @findex om_xml_to_cmo
@@ -231,10 +223,7 @@ Translate XML expression (CD's in 1999) @var{s} of OpenMath to a CMO.
 @end itemize
 */
 /*&jp-texi
-@menu
-* om_xml_to_cmo::
-@end menu
-@node om_xml_to_cmo,,, OpenMath 函数
+@node om_xml_to_cmo,,, OpenMath Functions
 @subsection @code{om_xml_to_cmo}
 @findex om_xml_to_cmo
 @table @t
