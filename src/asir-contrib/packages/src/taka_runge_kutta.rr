@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.2 2002/11/16 08:10:12 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -7,7 +7,7 @@
 Taka_Runge_kutta_adapted0 = 0$
 Taka_Runge_kutta_epsilon = 0.1$
 Taka_Runge_kutta_H_Upper_Bound = 0.2$
-Taka_Runge_kutta_Make_Larger = 0$ /* Default 1,  H = 2*H */
+Taka_Runge_kutta_Make_Larger = 1$ /* Default 1 */
 
 Taka_Runge_kutta_graphic0 = 0$  /* load("glib"); */
 Taka_Runge_kutta_yrange = 10$
@@ -122,8 +122,8 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
 
   while (Xk < X1) {
     taka_runge_kutta_replace(K1,F,Y,N,X,Xk,Yk);
-    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H*0.5,Yk+K1*0.5*H);
-    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H*0.5,Yk+K2*0.5*H);
+    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H*(1/2),Yk+K1*(1/2)*H);
+    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H);
     taka_runge_kutta_replace(K4,F,Y,N,X,Xk+H,Yk+K3*H);
     Yk1 = Yk+H*(K1/6+K2/3+K3/3+K4/6);
     print([Xk,Yk[0]]);
@@ -133,7 +133,7 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
     if (Taka_Runge_kutta_graphic0) glib_line(Xk,Yk[0],Xk+H,Yk1[0]);
     if (Taka_Runge_kutta_adapted0 && 
         (taka_runge_kutta_abs(Yk1-Yk) > Taka_Runge_kutta_epsilon)) {
-      H = H*0.5;
+      H = H*(1/2);
     }else{
       if (Taka_Runge_kutta_adapted0) H = H*2;
       Xk += H;
@@ -171,6 +171,8 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
   K3 = newvect(N);
   K4 = newvect(N);
   Yk1 = newvect(N);
+  Yk2 = newvect(N);
+  Yk3 = newvect(N);
   Xk = X0;
 
   while (true) {
@@ -181,32 +183,46 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
     }
     /* Regular step */
     taka_runge_kutta_replace(K1,F,Y,N,X,Xk,Yk);
-    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H*0.5,Yk+K1*0.5*H);
-    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H*0.5,Yk+K2*0.5*H);
+    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H*(1/2),Yk+K1*(1/2)*H);
+    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H);
     taka_runge_kutta_replace(K4,F,Y,N,X,Xk+H,Yk+K3*H);
     Yk1 = Yk+H*(K1/6+K2/3+K3/3+K4/6);
     /* half step */
     H2 = H/2;
     taka_runge_kutta_replace(K1,F,Y,N,X,Xk,Yk);
-    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H2*0.5,Yk+K1*0.5*H2);
-    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H2*0.5,Yk+K2*0.5*H2);
-    taka_runge_kutta_replace(K4,F,Y,N,X,Xk+H,Yk+K3*H2);
+    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H2*(1/2),Yk+K1*(1/2)*H2);
+    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H2*(1/2),Yk+K2*(1/2)*H2);
+    taka_runge_kutta_replace(K4,F,Y,N,X,Xk+H2,Yk+K3*H2);
     Yk2 = Yk+H2*(K1/6+K2/3+K3/3+K4/6);
 
-    Delta1 = DEVAL(taka_runge_kutta_abs(Yk2-Yk1))^(1/2);
-    Habs = DEVAL(taka_runge_kutta_abs(H)^(1/2));
-    HHabs = DEVAL(Habs*exp(0.2*log(Taka_Runge_kutta_epsilon/Delta1)));
-    /* print(HH); */
-    if (HHabs < Habs) { /* Compute again. */
-      H = H/2;
+    taka_runge_kutta_replace(K1,F,Y,N,X,Xk+H2,Yk2);
+    taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H2+H2*(1/2),Yk2+K1*(1/2)*H2);
+    taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H2+H2*(1/2),Yk2+K2*(1/2)*H2);
+    taka_runge_kutta_replace(K4,F,Y,N,X,Xk+H2+H2,Yk2+K3*H2);
+    Yk3 = Yk2+H2*(K1/6+K2/3+K3/3+K4/6);
+
+    /* This is a strategy which you may change. */
+    WantedPrec = Taka_Runge_kutta_epsilon*taka_runge_kutta_abs(Yk);
+
+    Delta1 = DEVAL(taka_runge_kutta_abs(Yk3-Yk1));
+    if (Delta1 != 0) {
+      Habs = DEVAL((WantedPrec/Delta1)^(1/5));
+      Habs = (4/5)*Habs; /* 0.8 = (4/5) is the safety factor */
+    }else{
+      Habs = 2; /* Any large number */
+    }
+    /* print(Habs); */
+    if (Habs < 1) { /* Compute again.  */
+      H = H*Habs;
       print("Changing to Smaller step size: "+rtostr(H));
       print([Xk,Yk[0]]);
     }else{  /* Go ahead */
       Xk += H;
       Yk = Yk1;
-      if ((HHabs > 2*Habs) && (H<Taka_Runge_kutta_H_Upper_Bound)
-          && Taka_Runge_kutta_Make_Larger) {
-        H = 2*H;
+      if ((H<Taka_Runge_kutta_H_Upper_Bound) && Taka_Runge_kutta_Make_Larger) {
+        H = (Habs*H > Taka_Runge_kutta_H_Upper_Bound? 
+             Taka_Runge_kutta_H_Upper_Bound :
+             Habs*H);  /* Habs*H2*2 */
         print("Changing to a larger step size: "+rtostr(H));
       }
       print([Xk,Yk[0]]);
@@ -221,16 +237,21 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
 
 /* load("glib"); load("taka_plot.rr"); to execute the functions below. */
 def taka_runge_kutta_4_a_test() {
-   /* Equation of oscilations */
-   /* F = newvect(2,[y2,-y1]);
-   Y = [y1,y2];
-   T = taka_runge_kutta_4_adaptive(F,x,Y,0,[1,0],0.1,15); */
    /* exponential function */
    F = newvect(1,[y1]);
    Y = [y1];
-   T = taka_runge_kutta_4_adaptive(F,x,Y,0,[1],0.1,2);
+   T = taka_runge_kutta_4_adaptive(F,x,Y,0,[1],0.1,5);
    taka_plot_auto(T);
-   print([T[0][0],eval(exp(T[0][0]))]);
+   print("Eval by eval(exp(??)) : ",0); print([T[0][0],eval(exp(T[0][0]))]);
+}
+
+def taka_runge_kutta_4_a2_test() {
+   /* Equation of oscilations */
+   F = newvect(2,[y2,-y1]);
+   Y = [y1,y2];
+   T = taka_runge_kutta_4_adaptive(F,x,Y,0,[1,0],0.1,15);
+   taka_plot_auto(T);
+   print("Eval by eval((??)) : ",0); print([T[0][0],eval(cos(T[0][0]))]);
 }
 
 def taka_runge_kutta_4_test() {
