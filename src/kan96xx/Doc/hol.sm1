@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.12 2003/07/05 01:53:32 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.13 2003/07/29 08:36:39 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -273,6 +273,8 @@ message-quiet
 /gb.verbose 0 def
 /gb.options [ ] def
 /gb.characteristic 0 def
+/gb.homogenized 0 def
+/gb.autoHomogenize 1 def
 /gb {
   /arg1 set
   [/in-gb /aa /typev /setarg /f /v 
@@ -351,7 +353,9 @@ message-quiet
     f gb.toMatrixOfString /f set
     /mm gb.itWasMatrix def
 
-    rr tag 0 eq {
+    rr tag 0 eq 
+    v isInteger not 
+    or {
       %% Define our own ring
       v isInteger {
         (Error in gb: Specify variables) error
@@ -377,24 +381,26 @@ message-quiet
       } ifelse
     } {
       %% Use the ring structre given by the input.
-      v isInteger not {
-        gb.warning {
-         (Warning : the given ring definition is not used.) message
-        } { } ifelse
-      } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
       wv gb.isTermOrder /termorder set
     } ifelse
     %%% Enf of the preprocess
 
+    termorder {
+      /gb.homogenized 0 def
+    }{
+     /gb.homogenized 1 def
+    } ifelse
     gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
     termorder {
-      f { {. dehomogenize} map } map /f set
+      f { {,,, dehomogenize} map } map /f set
       [f gb.options] groebner_sugar 0 get /gg set
     }{
-      f { {. dehomogenize} map} map /f set
-      f fromVectors { homogenize } map /f set
+      f { {,,, dehomogenize} map} map /f set
+      gb.autoHomogenize {
+        f fromVectors { homogenize } map /f set
+      } {  } ifelse
       [f gb.options] groebner 0 get /gg set
     }ifelse
     wv isInteger {
@@ -755,6 +761,8 @@ message-quiet
   (a : [f v w ds]; array f; string v; array of array w; w is the weight matirx.)
   (                array ds; ds is the degree shift )
   (  )
+  (gb.authoHomogenize 1 [default])
+  ( )
   $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) ( x y Dx Dy -1)] (x,y) $
   $             [ [ (Dx) 1 ] ] ] gb pmat ; $
   (Example 2: )
