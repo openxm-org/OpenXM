@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.27 2000/01/21 06:55:45 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.28 2000/01/21 07:04:55 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -20,27 +20,34 @@ class OMproxy implements Runnable{
     OM2OXM P = new OM2OXM();
 
     debug("OMproxy started.");
-    while(true){
-      try{
-	int ox_tag = ox.receiveOXtag();
+    try{
+      while(true){
+	try{
+	  int ox_tag = ox.receiveOXtag();
 
-	switch(ox_tag){
-	case OpenXM.OX_COMMAND:
-	  StackMachine(ox.receiveSM());
-	  break;
+	  switch(ox_tag){
+	  case OpenXM.OX_COMMAND:
+	    StackMachine(ox.receiveSM());
+	    break;
 
-	case OpenXM.OX_DATA:
-	  stack.push(ox.receiveCMO());
-	  debug("push: "+ stack.peek());
-	  break;
+	  case OpenXM.OX_DATA:
+	    stack.push(ox.receiveCMO());
+	    debug("push: "+ stack.peek());
+	    break;
+	  }
+	}catch(RuntimeException e){
+	  System.err.println(e.getMessage());
+	  e.printStackTrace();
+	  debug("error occured. stack was cleared.");
 	}
-      }catch(Throwable e){
-	System.err.println(e.getMessage());
-	e.printStackTrace();
-	debug("error occured. stack was cleared.");
       }
+    }catch(IOException e){
+      System.err.println(e.getMessage());
+      e.printStackTrace();
+      System.err.println("error occured, and recovering processes seems to be impossible.");
+    }finally{
+      System.out.println("breaking...");
     }
-    //System.out.println("breaking...");
   }
 
   /*
