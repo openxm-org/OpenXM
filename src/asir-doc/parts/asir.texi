@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.15 2004/07/03 15:50:34 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.16 2004/07/04 00:16:43 takayama Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -1682,6 +1682,38 @@ def demo() @{
 module stack;
   /* The body of the module stack */
 endmodule;
+@end example
+
+\BJP
+モジュールの中からトップレベルで定義されている関数を呼ぶには,
+下の例のように @code{::} を用いる. 
+\E
+\BEG
+In order to call functions defined in the top level from the inside
+of a module, we use @code{::} as in the example below.
+\E
+@example
+def afo() @{
+  S = "afo, afo";
+  return S;
+@}
+module abc;
+localf foo,afo $
+
+def foo() @{
+  G = ::afo();
+  return G;
+@}
+def afo() @{
+  return "afo, afo in abc";
+@}
+endmodule;
+end$
+
+[1200] abc.foo();
+afo, afo
+[1201] abc.afo();
+afo, afo in abc
 @end example
 
 @table @t

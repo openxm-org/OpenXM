@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.12 2004/07/07 02:58:45 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.13 2004/07/09 02:17:45 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -1134,6 +1134,62 @@ ChangeLog
 @item
  変更をうけたソースコードは 
  builtin/strobj.c 1.47,
+ parse/eval.c 1.35,
+ parse/parse.h 1.31,
+ parse/quote.c 1.14--1.16.
+@end itemize
+
+@node assoc,,, 実験的仕様の関数
+@subsection @code{assoc}
+@findex assoc
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item assoc(@var{a},@var{b})
+:: 連想リストをつくる
+@end table
+
+@table @var
+@item return
+List
+@item a
+List
+@item b
+List
+@end table
+
+@itemize @bullet
+@item リスト @var{a}, @var{b} より
+[[@var{a}[0],@var{b}[0]], [@var{a}[1],@var{b}[1]], ...]
+なる新しいリストを生成する.
+@end itemize
+
+下の例では @code{A} に動物の名前が,
+@code{B} に足の本数が入っている.
+@code{assoc(A,B)} で動物と足の本数をペアにしたリストを生成する.
+
+@example
+[1192]  A=["dog","cat","snake"];
+[dog,cat,snake]
+[1193] B=[4,4,0];
+[4,4,0]
+[1194] assoc(A,B);
+[[dog,4],[cat,4],[snake,0]]
+@end example
+
+@table @t
+@item 参照
+@ref{cons}, @ref{append}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+ この関数は 2004-6-28 に書かれた.
+ 変更をうけたソースコードは 
+ builtin/list.c 1.9
  parse/eval.c 1.35,
  parse/parse.h 1.31,
  parse/quote.c 1.14--1.16.
