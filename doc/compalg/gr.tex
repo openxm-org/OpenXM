@@ -1,0 +1,605 @@
+\chapter{グレブナ基底}
+\label{chapgr}
+\section{代数方程式の解とイデアル}
+
+体 $K$ 上の $n$ 変数多項式環 $R = K[x_1,\cdots,x_n]$ を考える. 以下, 
+$(x_1,\cdots,x_n)$ を $X$ と略記する. $R$ の元 $f_1,\cdots,f_m$ に対し, 
+\begin{equation}
+\label{system}
+ f_1 = 0, \cdots, f_m =0
+\end{equation}
+を代数方程式系, あるいは単に方程式と呼ぶ. (\ref{system}) を満たす 
+$K^n$ の元を $(1)$ の解と呼ぶ. このような方程式を解いて解を求めようと
+する場合に最も基本的な方法は, 中学以来おなじみの消去法である. 
+
+\begin{ex}
+$f_1(x,y) = x^2+y^2 - 2 = 0, f_2(x,y) = xy - 1 = 0$
+を解け
+\end{ex}
+{\bf 解} $y^2f_1 - (xy+1)f_2 = y^4-2y^2+1 = 0$
+より $y=x=1$ または $y=x=-1.$ これらは実際に解である. \qed\\
+ここで行った計算は, $f_1$, $f_2$ に適当な多項式を掛けたものの和を作って
+より変数の少ない多項式を作り出すものである. 
+
+\begin{df}
+$f_1, \cdots, f_m \in R$ に対し, 
+$$Id(f_1,\cdots,f_m) = \{\sum_{i=1}^n g_if_i \mid i \in R\}$$
+を $f_1,\cdots,f_m$ で生成されるイデアルと呼ぶ. $f_1, \cdots, f_m$ を 
+$I$ の生成系あるいは{\bf 基底}と呼ぶ.
+\end{df}
+一般に, 方程式 (\ref{system}) が与えられた場合, $I=Id(f_1,\cdots,f_m)$
+を考えれば, 消去法とは $I$ の中から, 含まれる変数の個数が少ないものを選び出
+す方法と言える. 
+$I$ の元全ての共通零点は $(\ref{system})$ の解に一致する. イデアルの基
+底は一組とは限らないが, 同一のイデアルを生成する基底の共通零点は一致す
+るから, イデアルを考える方が, 方程式の解を考える上でより自然であると言え
+る.
+
+\begin{ex}
+$Id(x^2+y^2 - 2,xy - 1) = Id(-y^4+2y^2-1,x+y^3-2y)$
+\end{ex}
+
+\begin{ex} (線形方程式)
+$Id(2a+3b-4c+d-1,3a-2c-5d-4,a-b+4d-5,3a+2b+2c-2d)$
+$=Id(-185d+78,-185c-94,-185b-299,-185a+314)$
+\end{ex}
+これらの例では, 右辺の基底は確かに解を容易に求められる形になっている. 
+ここで大事な点は, 両辺が等しいイデアルを与えているかどうか, という点
+である. 
+
+\begin{df}
+イデアル $I$ に対し $I$ の $K^n$ における variety $V_K(I)$ を
+\begin{center}
+$V_K(I) = \{a \in K^n \mid$ すべての $f \in I$ に対し $f(a)=0 \}$
+\end{center}
+で定義する. 混乱のない場合には $V(I)$ と書く. 
+\end{df}
+
+\begin{co}
+$I \subset J \Rightarrow V(J) \subset V(I)$
+\end{co}
+すなわち, 消去法により得られた多項式は, イデアルの元であることは保証
+されるが, それらはあくまで解の満たすべき必要条件であり, 実際にもとの
+方程式の解を表すか否かは別のチェックが必要となる. もし新たに得られた
+多項式集合がもとのイデアルを生成していれば, 解が等しいことは保証され
+ている. 
+
+\section{項順序, モノイデアル, グレブナ基底}
+
+前節で, 代数方程式の解を考える上で, 多項式イデアルを考え, その基底を取
+り換えて方程式を解きやすい基底に取り換えることが有効であることを示した. 
+しかし, イデアルの概念は, 方程式を解くためだけに用いられるものではない. 
+特に, 解が無限個になる場合は, その解全体は代数的集合として扱われるべき
+ものであり, 方程式の解として表現することは一般には難しい. むしろ, イデ
+アル $I$ あるいは環 $R/I$ の性質からその代数的集合の成分, 次元などを知
+ることが重要となる. そのためにイデアルの基底が満たすべき条件として次の
+ようなものを挙げることができる.
+
+\begin{itemize}
+\item
+ある多項式が, イデアルに属するか否か (メンバシップ) がアルゴリズムに
+より判定できる.
+
+$I$ に属する多項式を具体的に把握するために必要である. 
+
+\item
+イデアルを, 連立方程式系とみたとき, 解を求めやすい形をしている. 
+
+消去法と同様の結果を与えることができる. 
+
+\item
+イデアルの性質 (次元, 因子など) を表している. 
+\end{itemize}
+これらの性質のうち, 第一のものに着目する. 
+
+\begin{ex}
+$n=1$ の場合\\
+$R=K[x]$ は PID (単項イデアル整域) である. すなわち任意のイデアル $I$ は
+ある $f \in R$ により $I = Id(f)$ と書ける. これは, $f$ を基底とすること
+により, $I$ に対するメンバシップが, 
+$$ g \in I \Leftrightarrow f \mid g $$
+で判定できることを意味する. $I$ の生成元が幾つか与えられている場合, 
+$f$ は, それらの生成元の GCD を求めることで得られる. 
+\end{ex}
+
+一変数の場合, イデアルの生成元
+は, そのイデアルに属する元のうち, 最も次数の小さいものをとればよかった. 
+これは, 次のようにいいかえられる. 
+
+\begin{itemize}
+\item
+多項式の各項を降冪の順に並べたとき, 先頭の項を {\bf 頭項} と呼ぶ. 
+この時, 頭項が, イデアルのすべての元の頭項を割り切るような元が生成元となる. 
+\end{itemize}
+これを多変数に拡張するために, 一変数の場合と同様に, 多変数多項式の項
+の間に「自然な」全順序を入れる. 以下, 体 $K$ 上の $n$ 変数多項式環
+$R = K[x_1,\cdots,x_n]$ を固定して考える. 自然数 $\N$ は, 0 以上の整数
+を表す. 
+
+\begin{df}
+$T = \{x_1^{i_1}\cdots x_n^{i_n}\mid i_1,\cdots,i_n \in \N \}$ とし, $T$ の元を
+term {\bf (項)} と呼ぶ. この時, T における全順序 $\le$ が {\bf term order}
+であるとは, 
+\begin{enumerate}
+\item すべての $t \in T$ に対し $1 \le t$
+\item すべての $t_1, t_2, s \in T$ に対し $(t_1 \le t_2 \Rightarrow t_1 \cdot s \le t_2 \cdot s)$
+\end{enumerate}
+を満たすことを言う. 
+\end{df}
+
+\begin{df}
+指数を $\N^n$ の元と考えて, $\N^n$ における term order $<$ を
+
+\begin{enumerate}
+\item すべての $\alpha \in \N^n$ に対し $0 = (0,\cdots,0) \le \alpha$
+\item すべての $\alpha_1, \alpha_2, s \in \N$ に対し
+$(\alpha_1 \le \alpha_2 \Rightarrow \alpha_1 + s \le \alpha_2 + s)$
+\end{enumerate}
+を満たすものとして定義できる. 
+\end{df}
+
+\begin{df}
+$L \subset \N^n$ がモノイデアルとは, 
+任意の $\alpha \in L, \beta \in \N^n$ に対し $\alpha+\beta \in L$
+が成り立つことをいう. また, $S \subset \N^n$ に対し, 
+$$mono(S) = \{\alpha+\beta \mid \alpha \in S, \beta \in \N^n\}$$
+を $S$ で生成されるモノイデアルと呼ぶ. 
+\end{df}
+
+\begin{df}
+term 間の全順序を多項式の半順序に自然に拡張する. \\
+$f, g \in R$ で, $f = \sum_{i\ge 0}c_i f_i$, $g = \sum_{i\ge 0}d_i g_i$
+( $c_i, d_i \in K, f_i, g_i \in T, i > j \Rightarrow f_i > f_j, g_i > g_j$)
+とする時, $f > g$ を
+\begin{center}
+$f > g \Leftrightarrow$ ある $i_0$ が存在して $(i<i_0 \Rightarrow f_i = g_i, f_{i_0} > g_{i_0})$
+\end{center}
+で定義する. 
+\end{df}
+
+\begin{df}
+$M = \{c\cdot t\mid c \in K, t \in T\}$ とし, $M$ の元を {\bf monomial} と呼ぶ. 
+\end{df}
+
+\begin{df}
+term order を一つ固定した時, 多項式 $f$ に表れる term の中で, そ
+の order において最大のものを {\bf 頭項 (head term)} と呼び, $HT(f)$ と
+書く. \\
+$HT(f)$ の係数を, $HC(f)$ と書く. \\
+$HC(f)\cdot HT(f)$ を $HM(f)$ と書く. \\
+$HT(f)$ の指数を $HE(f)$ と書く. $HE(f) \in \N^n$ である. \\
+さらに, $f-HM(f)$ を $red(f)$ ({\bf reductum} of $f$) と書く.
+\end{df}
+
+\begin{lm}
+$\N^n$ の任意のモノイデアル $L$ は有限生成. 
+\end{lm}
+\proof $n$ に関する帰納法により示す. $n=1$ のとき, $L$ の $\N$ 中での
+最小元 $\alpha$ をとれば $L$ は $\alpha$ で生成される. $n-1$ まで言えた
+とする. 各 $j \in \N$ に対し, 
+$$L_j=\{ (\alpha_1,\cdots,\alpha_{n-1} \in
+N^{n-1}\mid (\alpha_1,\cdots,\alpha_{n-1},j)\in L \}$$とおくと $\{L_j\}$ 
+はモノイデアルの増大列. $L_\infty = \cup L_j$ とおくと$L_\infty$ もモ
+ノイデアルで, 帰納法の仮定により $L_\infty$ は有限生成. よってある 
+$j_0$ が存在して $L_\infty=L_{j_0}$. このとき, $L$ は,
+$j=1,\cdots,j_0$ に対する $L_j$ の生成元 (これは帰納法の仮定によりそれ
+ぞれ有限集合) の和集合で生成される. \qed
+
+\begin{co}
+\label{noether}
+$\{L_i\} (i=1,2,\cdots)$ をモノイデアルの増大列とすれば, ある $i_0$ が
+存在して, $i \ge i_0 \Rightarrow L_i=L_{i_0}$.
+\end{co}
+
+\begin{co}
+$\N^n$ の任意の部分集合は term order $<$ に関して最小元を持つ. 
+\end{co}
+
+\begin{co}
+$\le$ を $T$ の term order とすれば, $T$ の真の降下列は有限で切れる.
+$\le$ の $R$ への自然な拡張についても同様である. 以下, この性質を, term
+order の Noether 性として引用する. 
+\end{co}
+\proof $T$ については降下列が最小元を持つことから成り立つ. $R$ に
+ついては, もし $R$ の真の降下列である無限列があれば, 頭項が $T$ の真の
+降下列である無限列を作り出せるから矛盾. \qed
+
+\begin{df}
+$S \subset R$ および term order $<$ に対し, 
+$$E_<(S) = \{HE(f) \mid f \in S\} \subset \N^n$$
+と定義する. 以下混乱のない場合には $<$ を省略して $E(S)$ と書く. 
+\end{df}
+
+\begin{lm}
+イデアル $I$ に対し, $E(I)$ はモノイデアル.
+\end{lm}
+
+一変数多項式環におけるイデアル $I$ の生成系 $G = \{f\}$ の性質は, 
+$$E(I) = mono(E(G))$$
+と書くことができる. 一般の場合にもこのような性質を満たす $G$ を考えること
+は有用である. 
+
+\begin{df}
+イデアル $I$ に対し, その有限部分集合 $G$ で, 
+$$E(I) = mono(E(G))$$
+を満たすものを $I$ の $<$ に関するグレブナ基底と呼ぶ. 
+\end{df}
+この定義は, イデアルのすべての元の頭項が, 
+$G$ のいずれかの元の頭項で割り切れることを意味する. 
+
+\begin{pr}
+任意の term order $<$ に関し, イデアル $I$ のグレブナ基底は存在する. 
+\end{pr}
+\proof モノイデアルの有限生成性より明らか. \qed
+
+\begin{pr}
+イデアル $I$ の グレブナ基底 $G$ は $I$ を生成する. 
+\end{pr}
+\proof
+$f \in I$ とする. 仮定により, ある $g \in G$ が存在して, $HT(g)|HT(f)$. 
+よって, ある $s \in M$ が存在して, $HT(f-s\cdot g) < f$. $f-s\cdot g
+\in I$だから, この操作を繰り返すことができる. term order の Noether
+性より, この操作は有限回で終了する. すなわち, 有限回の操作の後, 0 となる. 
+これは, $G$ が $I$ を生成することを意味する.  \qed\\
+この命題において, $f -s\cdot g$ ($f, g \in R; s \in M$) なる演算が現れた. 
+命題においては, $f$ の頭項を消去するために行なわれたが, 一般に, $f$ の
+項を, このように消去する演算が, グレブナ基底計算において基本的な演算となる. 
+
+\begin{df}
+$f, g \in R$ とし, $f$ に現れるある monomial $m$ が $HT(g)$ で割り切れ
+るとする. このとき $f$ は $g$ で {\bf 簡約可能 (reducible)} であるとい
+う. このとき $h = f-m/HT(g)\cdot g$ に対し, $ f \mred{g} h$ と書く. \\
+$G \subset R$ についても, $G$ のある元により $f$ が $h$ に簡約されるとき
+$f \mred{G} h$ と書く. さらに, $G$ による簡約を 0 回以上繰り返して $h$ が
+得られるとき, $f\tmred{G} h$ と書く. \\
+$f$ のどの項も, $G$ で簡約できないとき, $f$ は $G$ に関して {\bf 正規
+形 (normal form)} であるという. 
+\end{df}
+
+
+\begin{pr}
+イデアル $I$ の グレブナ基底 $G$ について, 以下のことが成り立つ. 
+\begin{enumerate}
+\item
+$f \in I \Leftrightarrow f \tmred{G} 0$
+\item
+$f \tmred{G} f_1, f \tmred{G} f_2$ かつ $f_1, f_2$ が正規形 $\Rightarrow f_1 = f_2$
+\item
+$f \in G$ で, ある $h \in G$ が存在して $HT(h) | HT(f)$
+$\Rightarrow G \setminus \{f\}$ は $I$ のグレブナ基底
+\end{enumerate}
+\end{pr}
+\proof
+1. は, 前命題の証明より明らか. 3. も定義より明らか. 2. を示す. $f -
+f_1, f - f_2 \in I$ より $f_1 - f_2 \in I$. よって $f_1 - f_2 \tmred{G} 0$. 
+ところが, $f_1$, $f_2$ とも, $G$ について正規形より $f_1 - f_2$ も正規形. 
+よって, $f_1 - f_2 = 0$. \qed
+
+\begin{co}
+$G = \{g_1, \cdots, g_l\}$ をイデアル $I$ の グレブナ基底とする. このとき, 
+ある $H \subset G$ が存在して $H$ は $I$ の グレブナ基底かつ $HT(g_i) (g_i \in H)$ 
+のどの二つも互いに他を割らない. 
+\end{co}
+この系により, 冗長な元をすべて除去した グレブナ基底に対し, 各元を, 基
+底の他の元に対して正規形となるよう簡約を行ない, 頭項の係数を 1 となる
+ようにした基底を{\bf 被約 (reduced) グレブナ基底} と呼ぶ. これが実際に
+元のイデアルの グレブナ基底になっていることは, 頭項が変わっていないこ
+とよりわかる. さらに次の命題は, 定義よりただちに得られる.
+
+\begin{pr}
+被約グレブナ基底は集合として一意的に定まる. 
+\end{pr}
+以上が グレブナ基底の定義からただちに導かれる基本的な性質であるが, 実際に グレブナ基底を
+構成するアルゴリズムを得るためには, グレブナ基底の定義の言いかえをいくつか行なう
+必要がある.
+
+\begin{df}
+$G = \{g_1,\cdots,g_l\}$ を (グレブナ基底とは限らない) R の有限部分集合とする.
+これに対し, 写像 $d_1$ を次で定義する. 
+
+\begin{tabbing}
+aaaa \= aaaaaaaaaa        \= aaa       \= aaaa\kill
+$d_1 :$\> $R^l$              \> $\longrightarrow$ \> $R$\\
+       \> $(f_1,\cdots,f_l)$ \> $\longmapsto$     \> $\sum f_i\cdot HT(g_i)$
+\end{tabbing}
+\end{df}
+
+\begin{df}
+$f = (f_1,\cdots,f_l) \in R^l$ が {\bf $T$-斉次} とは, ある term $t$ 
+が存在して, すべての $i$ に対し, $f_i = 0$ または $t = f_i\cdot
+HT(g_i)$ と書けるときを言う.
+\end{df}
+
+\begin{df}
+$e_i \in R^l$ を $e_i = (0,\cdots,1,\cdots,0)$ (第 $i$ 成分のみ 1) と定義
+する. \\
+$i_1,\cdots,i_k$ に対し, $T_{i_1,\cdots, i_k}$ を
+$$T_{i_1,\cdots, i_k} = \LCM(HT(g_{i_1}),\cdots,HT(g_{i_k}))$$
+と定義する.
+特に, $T_i = HT(g_i)$ である.
+\end{df}
+
+\begin{pr}
+\label{'thomo'}
+イデアル $I$ について, 次は同値.
+\begin{enumerate}
+\item
+$G = \{g_1,\cdots,g_l\}$ は $I$ のグレブナ基底
+\item
+$f \in I \Leftrightarrow f \tmred{G} 0$
+\item
+$f \in I \Leftrightarrow$ ある $f_i (i = 1, \cdots, l)$ が存在して
+$f = \sum_i f_i g_i$ かつ $HT(f_i g_i) \le HT(f)$
+\item
+L を $T$-斉次 な $\Ker(d_1)$ の基底とするとき, 任意の $h =
+(h_1,\cdots,h_l) \in L$ に対し, $\sum h_i\cdot g_i \tmred{G} 0$
+\end{enumerate}
+\end{pr}
+\proof\\
+1. $\Leftrightarrow$ 2.)
+明らか. \\
+2. $\Rightarrow$ 3.) 
+$G$ の元による簡約操作を一つにまとめると得られる. \\
+3. $\Rightarrow$ 2.)
+ある $i$ が存在して $HT(f_i g_i) = HT(f)$ となり, 
+$HT(f)$ が $HT(f_i)$ で割り切れることからわかる. \\
+4. $\Rightarrow$ 1.)
+$f = \sum f_i\cdot g_i \in I$ とし, $HT(f)$ が $HT(g_i)$ のいずれかで
+割り切れることを言えばよい. 簡単のため, すべての $i$ に対し, $HC(g_i)
+= 1$ とする. $L = \{b_1,\cdots,b_l\}$とする.
+$m = \max_i(HT(f_i g_i))$ とおく. \\
+\underline{$HT(f) = m$ の場合}
+\quad $HT(f)$ は, $HT(g_i)$ のいずれかで割り切れる.\\
+\underline{$HT(f) < m$ の場合}
+\quad $A = \{i \mid HT(f_i g_i) = m\}$ とおくと, 仮定より, 
+$$\sum_{i\in A}HM(f_i)\cdot HT(g_i) = 0.$$ 
+よって, $h = (h_1,\cdots,h_l) \in R^l$ を, 
+$h_i = HM(f_i) (i \in A), h_i = 0 (i \notin A)$
+と定義すれば, $h \in \Ker(d_1)$. よって仮定より, 
+\begin{center}
+ある $c_i \in M$ が存在して $h = \sum_i c_i b_i.$
+\end{center}
+これより
+$$\sum_k h_k g_k = \sum_i c_i \sum_k g_k b_{ik}.$$
+$\displaystyle{G_i = \sum_k g_k b_{ik}}$ とおくと, $G_i \tmred{G} 0$ より, 
+2. $\Rightarrow$ 3. と同様に, 
+ある $b'_{ik}$ が存在して $G_i = \sum_k g_k b'_{ik}$ かつ $HT(g_k b'_{ik}) \le HT(G_i).$
+一方, $b_i \in \Ker(d_1)$ より, $HT(G_i) < \max_k(HT(g_k b_{ik}))$.\\
+さて, $\displaystyle{f'_k = \sum_i c_i b'_{ik}}$ とおくと, $\displaystyle{\sum_k h_k g_k = \sum_k f'_k g_k}$ で, 
+$$f = \sum_{i \notin A} f_k g_k + \sum_{i \in A} (red(f)+f'_k)g_k$$
+ と書け, 
+$$HT(f'_k g_k) \le \max_i(HT(c_i b'_{ik} g_k)) \le \max_i(HT(c_i G_i))$$
+$$< \max_i(\max_k(HT(c_i g_k b_{ik}))) = \max_k(HT(h_k g_k)) = m$$
+より, $m$ がより低い順序の場合に帰着できる. よって, order の Noether 性により
+有限回の操作ののち, $m = HT(f)$ の場合に帰着できる. \qed
+\begin{pr}
+$G = \{g_1,\cdots,g_l\}$ を $HC(g_i)=1$ なる R の有限部分集合とする.
+$i,j \in \{1,\cdots,l\}$ に対し, $S_{ij} \in R^l$ を
+$S_{ij} = T_{ij}/T_i e_i - T_{ij}/T_j e_j$ で定義する. この時, 
+$L = \{S_{ij}\mid i < j\}$ は $\Ker(d_1)$ の $T$-斉次 な基底となる. この
+基底を {\bf Taylor 基底} と呼ぶ. 
+\end{pr}
+\proof
+$f \in \Ker(d_1)$ とする. $f$ を $T$-斉次成分に分解することにより, 
+$f$ 自身 $T$-斉次 としてよい. $f = \sum_i f_i e_i$ とすると, 
+$f \in \Ker(d_1)$ より, $f \neq 0$ ならば, 少なくとも 2 つの成分が 0
+でない. それらを $f_k, f_l (k < l)$ とすると, $HT(f_k g_k) = HT(f_l g_l)$
+より, $T_{kl} | HT(f_k g_k)$. これより $f' = f - (HM(f_k g_k)/T_{kl}) S_{kl}$
+とおくと, $f'$ は第 $k$ 成分が 0 となり, 0 でない成分が一つ減る. この
+操作を繰り返して, $f$ を $\{S_{ij}\}$ で生成できる. \qed
+
+\begin{df}
+$f, g \in R$ に対し, {\bf S 多項式} $Sp(f,g)$ を,
+$$Sp(f,g) = {HC(g)T_{fg}\over HT(f)}\cdot f - {HC(f)T_{fg}\over HT(g)}\cdot g$$\\
+($T_{fg} = \LCM(HT(f),HT(g))$) と定義する. 
+\end{df}
+以上により, 新たな グレブナ基底の判定条件が得られる. 
+\begin{pr}
+イデアル $I$ について, 次は同値.
+\begin{enumerate}
+\item
+$G = \{g_1,\cdots,g_l\}$ は $I$ のグレブナ基底
+\item
+任意の対 $\{f,g\} (f, g \in G; f \neq g)$ に対し, $Sp(f,g) \tmred{G} 0$
+\end{enumerate}
+\end{pr}
+
+\section{Buchberger アルゴリズム}
+前節の最後の命題により, 次のアルゴリズムが導かれる. 
+
+\begin{al}(Buchberger{\rm\cite{BUCH}})
+\label{buch}
+\begin{tabbing}
+Input : $R$ の有限部分集合 $F = {f_1,\cdots,f_l}$\\
+Output : $F$ で生成されるイデアルの グレブナ基底$G$\\
+
+$D \leftarrow \{\{f,g\} \mid f, g \in F; f \neq g\}$\\
+$G \leftarrow F$\\
+while \=( $D \neq \emptyset$ ) do \{\\
+\>$\{f,g\} \leftarrow D$ の元\\
+\>$D \leftarrow D \setminus \{C\}$\\
+\>$h \leftarrow Sp(f,g)$ の正規形の一つ\\
+\>if \=$h \neq 0$ then \{\\
+\>\>$D \leftarrow D \cup \{\{f,h\} \mid f \in G\}$\\
+\>\>$G \leftarrow G \cup \{h\}$\\
+\>\}\\
+\}\\
+return $G$
+\end{tabbing}
+\end{al}
+
+以下で, $D$ の元を{\bf 対} (pair) と呼ぶことにする. 
+
+\begin{th}
+アルゴリズム \ref{buch} は停止し, グレブナ基底を出力する. 
+\end{th}
+\proof\\
+\underline{停止性}\quad 生成される正規形の頭項が, それまでに生成された正規形
+の頭項で割り切れないことより, 系 \ref{noether} から言える. \\
+\underline{出力がグレブナ基底となること}\quad 前命題により OK. \qed\\
+このアルゴリズムが Buchberger アルゴリズムの最も原始的な形であるが, 
+\begin{itemize}
+\item
+正規形が 0 でない場合, $D$ の要素が $G$ の要素の個数だけ増加する. 
+\item
+$D$ から一つ元を選ぶ方法が明示されていない. 
+\end{itemize}
+などの点で実用的でない. 実際に計算機上にインプリメントする
+場合, 上記二点に関して工夫をする必要がある. これらに関しては, 後に
+詳しく述べる. 
+
+\section{Term order の例}
+
+様々な term order が定義できる. これらの order はそれぞれ異った
+性質をもち, その性質に応じてさまざまな用途に用いられる. 
+
+\begin{df}
+{\bf 辞書式順序 (lexicographical order; LEX)}\\
+$x_1^{i_1}\cdots x_n^{i_n} > x_1^{j_1}\cdots x_n^{j_n} \Leftrightarrow$\\
+ある $m$ が存在して $i_1 = j_1, \cdots, i_{m-1} = j_{m-1}, i_m > j_m$
+\end{df}
+
+この順序は消去法による方程式求解に最も適した形のグレブナ基底を与える.
+しかし, その直接計算は, 時間, 空間計算量がしばしば極めて大きくなる
+ということから不利である. 
+
+\begin{df}
+{\bf 全次数辞書式順序 (total degree lexicographical order; DLEX)}\\
+$x_1^{i_1}\cdots x_n^{i_n} > x_1^{j_1}\cdots x_n^{j_n} \Leftrightarrow$\\
+$\sum_k i_k > \sum_k j_k$ または\\
+($\sum_k i_k = \sum_k j_k$ かつ
+ ある $m$ が存在して $i_1 = j_1, \cdots, i_{m-1} = j_{m-1}, i_m > j_m)$
+\end{df}
+
+入力が斉次の場合, この順序のもとでのグレブナ基底と辞書式順序による
+グレブナ基底は一致する. degree compatible order による計算は, そうでない
+order による計算に比べて効率がよいことが経験的に知られており, 斉次
+な場合にこの順序で辞書式順序グレブナ基底を計算する, あるいは非斉次
+な入力を斉次化して, この順序でグレブナ基底を計算し, 非斉次化する
+ことでもとの入力の辞書式順序グレブナ基底を求めるということが行われる. 
+
+\begin{df}
+{\bf 全次数逆辞書式順序 (total degree reverse lexicographical order; DRL)}\\
+$x_1^{i_1}\cdots x_n^{i_n} > x_1^{j_1}\cdots x_n^{j_n} \Leftrightarrow$\\
+$\sum_k i_k > \sum_k j_k$ または\\
+($\sum_k i_k = \sum_k j_k$ かつ 
+ある $m$ が存在して $i_n = j_n, \cdots, i_{m+1} = j_{m+1}, i_m < j_m)$
+\end{df}
+
+一般に, 最も高速にグレブナ基底を計算できるが, グレブナ基底の個々の
+元の持つ性質は掴みにくく, 連立方程式を直接解くことは困難である. 
+しかし, 次元, Hilbert function その他の不変量を計算する場合など, 
+グレブナ基底という性質のみが必要とされる場合に, 高速に計算できる
+という特性を生かして用いられる場合が多い. また, 後に述べる
+基底変換の入力として用いられることも多い. 
+
+\begin{df}
+{\bf block order}\\
+$\{x_1,\cdots,x_n\} = S_1 \cup \cdots \cup S_l$ (disjoint sum) とし, 
+$<_i$ を $T_i = K[y_1,\cdots]$ ($y_k \in S_l$) 上の term
+order とする. このとき, $T$ 上の order を, $<_i$ の order を順に適用して
+決める. 
+\end{df}
+
+辞書式順序は $\{x_1,\cdots,x_n\} = \{x_1\} \cup \cdots \cup \{x_n\}$
+ なる分割による block order であるが, 単に, 幾つかの変数を消去した結果
+を求めたい場合には, 効率を考えれば問題がある. このような場合に, 
+$S_1$ に消去したい変数, $S_2$ に残りの変数, と分割し, それぞれに
+対し, 例えば DRL order を設定することで $S_1$ に属する変数を消去できる. 
+これについては後で述べる. 
+
+\begin{df}
+{\bf matrix order}\\
+$M$ を 次を満たす実 $m\times n$ 行列とする. 
+\begin{enumerate}
+\item 長さ $n$ の整数ベクトル $v$ に対し, $Mv=0 \Leftrightarrow v=0$
+\item 非負成分を持つ長さ $n$ の整数ベクトル $v$ に対し, $Mv$ の 0 でない最初
+の成分は正. 
+\end{enumerate}
+
+この時, $\N^n$ のベクトル $u,v$ に対し, 
+\begin{center}
+$u>v \Leftrightarrow M(u-v)$ の 0 でない最初の成分が正
+\end{center}
+で定義すれば, この order は term order となる. これを, $M$ によ
+り定義される matrix order と呼ぶ.
+\end{df}
+
+\begin{pr} (Robbiano [\cite{ROBBIANO}])
+任意の term order は, matrix order により定義できる. 
+\end{pr}
+
+\newfont{\bigfont}{cmr10 scaled\magstep4}
+\newcommand{\bigzl}{\smash{\hbox{\bigfont 0}}}
+\newcommand{\bigzu}{\smash{\lower1.0ex \hbox{\bigfont 0}}}
+\def\udots{\mathinner{\mkern1mu\raise1pt\vbox{\kern7pt\hbox{.}}\mkern2mu
+    \raise4pt\hbox{.}\mkern2mu\raise7pt\hbox{.}\mkern1mu}}
+
+\begin{ex} よく知られた order を定義する matrix の例
+\vskip\baselineskip
+
+$M_{DLEX}=\left(
+\begin{array}{ccc}
+1 & \cdots & 1 \\
+1 & & \bigzu \\
+  & \ \ddots & \\
+\bigzl & & 1 \\
+\end{array}
+\right)$
+$M_{DRL}=\left(
+\begin{array}{ccc}
+1 & \cdots & 1 \\
+\bigzu & & -1 \\
+  & \udots & \\
+-1 & & \bigzl \\
+\end{array}
+\right)$
+$M_{LEX}=\left(
+\begin{array}{ccc}
+1 & & \bigzu \\
+  & \ \ddots & \\
+\bigzl & & 1 \\
+\end{array}
+\right)$
+
+\vskip\baselineskip
+$M_{DLEX}$, $M_{DRL}$, $M_{LEX}$ はそれぞれ全次数辞書式, 全次数逆辞書式, 
+辞書式順序を定義する. 
+\end{ex}
+
+
+\begin{ex}
+weighted order
+
+\vskip\baselineskip
+$M_{wDRL}=\left(
+\begin{array}{ccc}
+w_1 & \cdots & w_n \\
+\bigzu & & -1 \\
+  & \udots & \\
+-1 & & \bigzl \\
+\end{array}
+\right)$
+
+\vskip\baselineskip
+第一行は, 指数ベクトル $(d_1,\cdots,d_n)$ に対して, 
+$\displaystyle{\sum_{i=1}^n w_id_i}$ すなわち weight 付きの
+全次数で最初に比較を行うことを意味する. 
+\end{ex}
+
+\begin{ex}
+block order
+
+\vskip\baselineskip
+$M_{block}$={\Large $\left(
+\begin{array}{ccc}
+M_1 & & \bigzl \\
+  & \ddots & \\
+\bigzu & & M_l \\
+\end{array}
+\right)$}
+
+\vskip\baselineskip
+各 $M_k$ は, 各ブロックに対する term order を定義する matrix
+である. 
+\end{ex}

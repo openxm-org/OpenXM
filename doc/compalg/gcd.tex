@@ -1,0 +1,454 @@
+\chapter{多項式の GCD}
+\section{Euclid の互除法}
+$R$ を UFD (Unique Factorization Domain; 一意分解整域) とし, $R$ にお
+ける GCD の計算が可能であるとする. このとき, 多項式環 $R[x]$ において
+も GCD の計算が可能となる. $R$ の商体を $Q(R)$ と書く.
+\begin{df}
+$$f = \sum_{i=0}^n (a_i/b_i) x^i\in Q(R)[x]\quad (a_i, b_i \in R; \GCD(a_i,b_i) = 1)$$ に対し $f$ の{\bf 容量} $\cont(f)$ を $$\cont(f) = \GCD(a_0,\cdots,a_n)/\LCM(b_0,\cdots,b_n),$$ $f$ の {\bf primitive part} $\pp(f)$ を $$\pp(f) = f/\cont(f)$$ で定義する. $\cont(f)$ が $R$ の単元となるような $f$ を原始多項式と呼ぶ. 
+\end{df}
+
+\begin{pr}
+$\pp(f)$ は原始的. 
+\end{pr}
+\proof
+$G=\GCD(a_0,\cdots,a_n),L=\LCM(b_0,\cdots,b_n)$
+と書く.
+$\pp(f)=\sum_i L/b_i\cdot a_i/G\cdot x^i$ より,
+$\cont(\pp(f)) = \GCD(L/b_0\cdot a_0/G, \cdots) \in R.$
+ 素元 $p$ が右辺を割るとする. も
+し, ある $j$ に対し $p | (a_j/G)$ ならば, $i\neq j$ なる任意の $i$ に
+対し$p {\not|} (a_i/G)$ より $i \neq j$ のとき $p|(L/b_i)$. 一方, 任意の 
+$p$に対し $p{\not|}(L/b_k)$ なる $k$ は存在するから $k=j$. この時,
+$p|b_j$となり $\GCD(a_j,b_j)=1$ に反する. よって全ての $i$ に対し, 
+$p|(L/b_i)$ これは不可能. よって $\cont(\pp(f)) = 1$. \qed
+
+\begin{lm}[Gauss]
+$f,g \in Q(R)[x]$ に対し, $\cont(fg) = \cont(f)\cont(g).$
+\end{lm}
+
+\begin{pr}
+$f, g \in R[x]$ に対し,
+$\GCD(f,g) = \GCD(\cont(f),\cont(g))\GCD(\pp(f),\pp(g))$
+また, $f, g \in R[x]$ を原始多項式とすると, 
+$\GCD(f,g) = \pp(\GCD_{Q(R)}(f,g))$
+ここで, $\GCD_{Q(R)}(f,g)$ は, 体 $Q(R)$ 上の一変数多項式環における
+GCD を意味する. 
+\end{pr}
+
+以上により, 多項式の GCD は, 係数環の GCD および, 係数環の商体での
+GCD により計算できることがわかった. しかし, 実際に商体での演算を
+用いることは, 無駄な GCD 計算を増やすだけとなる. 従って, まず, 
+多項式の除算で, 商体の除算が現れないものを考える. 
+
+\begin{df}
+$f,g \in R[x]$, $\deg(f) \ge \deg(g)$ に対し $f$ の $g$ による擬剰余
+(pseudo-remainder) $\prem(f,g)$ を
+$$\prem(f,g) = {\rm remainder}(\lc(g)^{\deg(f)-\deg(g)+1}f,g)$$
+と定義する. ここで, ${\rm remainder}(f,g)$ は, 通常の多項式除算である. 
+\end{df}
+
+容易にわかるように, $\prem(f,g)$ の計算の途中に現れる除算は, 
+全て $R$ 上の整除である. これを用いて, Euclid の互除法を記述すると
+次のようになる. 
+
+\begin{al}
+\label{euclid}
+\begin{tabbing}
+\\
+Input : 原始的多項式 $f_1, f_2 \in R[x]$, $\deg(f_1) \ge \deg(f_2)$\\
+Output : $\GCD(f_1,f_2)$\\
+$i \leftarrow 1$\\
+do \= \{\\
+\> $f_{i+2} \leftarrow \prem(f_i,f_{i+1})$\\
+\> if \= ( $f_{i+2} = 0$ ) then return $\pp(f_{i+1})$\\
+\> $i \leftarrow i+1$\\
+\}
+\end{tabbing}
+\end{al}
+
+\begin{df}
+$f_1, f_2$ に対し, $\beta_i f_{i+1} = {\rm remainder}(\alpha_i f_{i-1},f_i)$ なる除
+算により生成される列 $\{f_i\}$ を多項式剰余列と呼ぶ.
+\end{df}
+
+\section{拡張 Euclid 互除法}
+体 $K$ 上の一変数多項式環 $K[x]$ は PID (Principal Ideal Domain; 単項
+イデアル整域) である. この場合, $f, g \in K[x]$ に対し, イデアル 
+$(f,g)$の生成元が, $\GCD(f,g)$ となる. すなわち$a, b \in K[x]$ が存在
+して,
+$$af+bg=\GCD(f,g)$$ と書ける. この係数 $a, b$
+は, Euclid の互除法の変形により求めることができる. 
+
+\begin{al}
+\begin{tabbing}
+\\
+Input : 原始的多項式 $f_1, f_2 \in K[x]$, $\deg(f_1) \ge \deg(f_2)$\\
+Output : $\GCD(f_1,f_2)$ および $af_1+bf_2=\GCD(f_1,f_2)$ なる $a, b \in K[x]$\\
+$a_1 \leftarrow 1$, $a_2 \leftarrow 0$, $b_1 \leftarrow 0$, $b_2 \leftarrow 1$\\
+$i \leftarrow 1$\\
+do \= \{\\
+\> $\deg(f_i - q_i f_{i+1}) < \deg(f_{i+1})$ なる $q_i$ を求める\\
+\> $f_{i+2} \leftarrow f_i - q f_{i+1}$;
+\quad $a_{i+2} \leftarrow a_i - q a_{i+1}$;
+\quad $b_{i+2} \leftarrow b_i - q b_{i+1}$\\
+\> if \= ( $f_{i+2} = 0$ ) then return $\{f_{i+1},a_{i+1},b_{i+1}\}$\\
+\> $i \leftarrow i+1$\\
+\}
+\end{tabbing}
+\end{al}
+ここで現れた $a_i, b_i$ に対し, 
+$$\deg(a_i) \le \deg(f_2)-\deg(f_{i-1}),\quad \deg(b_i) \le \deg(f_1)-\deg(f_{i-1})$$
+であることわかる. 
+特に, $f = f_i = \GCD(f_1,f_2)$ ならば 
+$$\deg(a_i) < \deg(f_2)-\deg(f), \quad \deg(b_i) < \deg(f_1)-\deg(f).$$
+
+\begin{pr}
+$f, g \in K[x]$ に対し, $h = \GCD(f,g)$ とすると, 
+$af+bg=\GCD(f,g)$ かつ $\deg(a) < \deg(g) - \deg(h),\quad \deg(b) < \deg(f) - \deg(h)$
+なる $a, b \in K[x]$ は存在して一意的. 
+\end{pr}
+\proof
+一意性のみ示せばよい. $h$ で両辺を割って, $h=1$ としてよい. 
+$$af+bh=1, \quad a_1f+b_1g=1,$$
+$$\deg(a)<\deg(g),\quad \deg(b)<\deg(f),\quad \deg(a_1)<\deg(g),\quad \deg(b_1)<\deg(f)$$
+とすると, $(a-a_1)f+(b-b_1)g=0$ かつ $\GCD(f,g)=1$ より
+$g|(a-a_1).$
+$\deg(a-a_1)<\deg(g)$ より $a-a_1=b-b_1=0.$\qed\\
+$af+bg=1$ ならば $af \equiv 1 \bmod g$
+すなわち, 剰余環 $K[x]/(g)$ において
+$a \bmod g = (f \bmod g)^{-1}$
+である. 
+剰余環における逆元計算は, 計算機代数において頻繁に必要となり, 
+特に後で述べる modular アルゴリズムにおいて極めて重要な役割を演ずる.
+
+この命題は, 次のように一般化できる.
+
+\begin{pr}
+$f=\prod_{i=1}^n f_i \in K[x]$ に対し, $f_i$ が互いに素であるとする. 
+このとき, 
+$$\sum_{i=1}^n e_i (f/f_i) =1, \quad \deg(e_i)<\deg(f_i)$$
+なる $e_i \in K[x]$ が一意的に存在する. 
+\end{pr}
+\proof 帰納法により, 
+$\sum_{i=1}^n E_i (f/f_i) =1$
+なる $E_i$ が存在することが分かる. $E_i = q_if_i+e_i$ 
+($\deg(e_i)<\deg(f_i)$) と除算を行うと, 
+$$f\sum_{i=1}^n{q_i}+\sum_{i=1}^n e_i(f/f_i)=1.$$
+ここで, $\deg(\sum_{i=1}^n e_i(f/f_i))<\deg(f)$ より $\sum_{i=1}^n{q_i}=0$
+が成り立つから, 
+$$\sum_{i=1}^n e_i (f/f_i) =1, \quad \deg(e_i)<\deg(f_i).$$
+このような $e_i$ は $\bmod f_i$ で一意的だから, $\deg(e_i)<\deg(f_i)$
+では一意に決まる. 
+\qed
+
+\begin{pr}
+\label{exteuc}
+$f=\prod_{i=1}^n f_i \in K[x]$ に対し, $f_i$ が互いに素であるとする. 
+$\deg(g)\le \deg(f)$ ならば,
+$$\sum_{i=1}^n e_i (f/f_i) =g \quad \deg(e_i)\le \deg(f_i)$$
+なる $e_i \in K[x]$ が存在する. 特に, $\deg(g)<\deg(f)$ ならば, 
+$\deg(e_i)< \deg(f_i)$ とできて, $e_i$ は一意的.
+\end{pr}
+\proof
+前命題と同様に, $\sum_{i=1}^n E_i (f/f_i) =g$ なる $E_i$ が存在する. 
+$E_i = q_if_i+e_i$ ($\deg(e_i)<\deg(f_i)$) と除算を行うと, 
+$$cf+\sum_{i=1}^n e_i(f/f_i)=(e_1+cf_1)(f/f_1)+\sum_{i=2}^n e_i(f/f_i)=g,
+ \quad c = \sum_{i=1}^n q_i$$
+ここで, $\deg(\sum_{i=1}^n e_i(f/f_i))<\deg(f)$, $\deg(g)\le \deg(f)$ より
+$\deg(cf)\le \deg(f)$ すなわち
+$\deg(c)\le 0.$ よって
+$\deg(e_1+cf_1) \le \deg(f_1).$
+特に, $\deg(g)<\deg(f)$ ならば $c=0$ より
+$\deg(e_1+cf_1) = \deg(e_1) < \deg(f_1).$
+一意性も前命題と同様. 
+\qed
+
+\begin{co}
+({\bf 部分分数分解})
+\label{parfrac}
+
+$d, n \in K[x]$ ($\deg(n)<\deg(d)$)とし, $d=\prod_{i=1}^n d_i^i$ を $d$ の無平方分解とすれば, 
+$r_{ij} \in K[x]$ ($1\le j \le i, \deg(r_{ij}) < \deg(d_i)$) が存在して, 
+$$n/d = \sum_{i=1}^n \sum_{j=1}^i r_{ij}/d_i^j.$$
+\end{co}
+\proof
+$D_i=d_i^i$ とおけば, 前命題により $\deg(E_i)<\deg(D_i)$ なる $E_i$ が
+存在して
+$n = \sum_{i=1}^n E_i(d/D_i).$
+これから
+$n/d=\sum_{i=1}^n E_i/d_i^i.$
+$E_i$ を $d_i$ の冪で展開すれば, $\deg(E_i)<\deg(d_i^i)$ より
+$E_i=\sum_{j=1}^i r_{ij}d_i^{(i-j)},$ $\deg(r_{ij})<\deg(d_i)$
+と書ける. よって
+$E_i/d_i^i = \sum_{j=1}^i r_{ij}/d_i^j.$
+\qed
+
+\section{終結式}
+$R$ を可換環とする. 
+\begin{df}
+$$a(x)=\sum_{i=0}^n a_i x^i, \quad b(x)=\sum_{i=0}^m b_i x^i \quad (a_i, b_i \in R)$$
+に対し, $a,b$ の Sylvester 行列 $Syl(a,b)$ を次で定義する. 
+
+\[ Syl(a,b) = \left[
+\begin{array}{cccccc}
+a_n & a_{n-1} & \cdots & a_0 & & \\
+    & \cdots  & \cdots & \cdots & \cdots &  \\
+    &         & a_n    & a_{n-1} & \cdots & a_0   \\
+b_m & b_{m-1} & \cdots & b_0 & & \\
+    & \cdots  & \cdots & \cdots & \cdots &  \\
+    &         & b_m    & b_{m-1} & \cdots & b_0   \\
+\end{array}
+\right]
+\]
+
+$a,b$ の終結式 $\res_x(a,b)$ を $\res_x(a,b)=\det(Syl(a,b))$
+で定義する. 
+\end{df}
+
+\begin{lm}
+$\deg(s)<\deg(b), \deg(t)<\deg(a)$ なる $s,t \in R[x]$ が存在して $sa+tb=0$
+
+$\Leftrightarrow s(x)=\sum_{i=0}^{m-1} s_i x^i, \quad t(x)=\sum_{i=0}^{n-1} t_i x^i$ と書くとき
+\begin{equation}
+\label{syleq}
+[s_{m-1},\cdots, s_1, s_0, t_{n-1}\,\cdots,t_1, t_0] Syl(a,b) = [0,\cdots,0]
+\end{equation}
+\end{lm}
+
+\begin{co}
+$R$ が整域とする. 
+$\deg(s)<\deg(b), \deg(t)<\deg(a)$ なる $s,t \in R[x]\setminus \{0\}$
+が存在して $sa+tb=0 \Leftrightarrow \res_x(a,b)=0$
+\end{co}
+
+\begin{pr}
+$R$ が UFD とする. ($R[x]$ において GCD が well defined.) $a,b \in R[x]$ に
+対し, 
+$$\deg(\GCD(a,b))>0 \Leftrightarrow \res_x(a,b) = 0.$$
+\end{pr}
+\underline{$\Rightarrow$}\\
+$g=\GCD(a,b)$, $\deg(g)>0$ とすると, $(b/g)\cdot a + (a/g)\cdot b=0.$
+$b/g$, $a/g$ は (\ref{syleq}) の 0 でない解を構成するから, 系より
+$\res_x(a,b)=0$. \\
+\underline{$\Leftarrow$}\\
+$\res_x(a,b)=0$ とすると, 系より (\ref{syleq}) の 0 でない解が存在する. 
+すなわち, $\deg(s)<\deg(b), \deg(t)<\deg(a)$ なる $s,t$ が存在して $sa+tb=0.$
+$\GCD(a,b)$が定数なら $a|t$ となるが, $\deg(t)<\deg(a)$ より不可能. よって
+$\GCD(a,b)$ は定数でない.\qed
+
+\section{部分終結式}
+アルゴリズム \ref{euclid} は, 確かに商体上の演算を必要としないが, 係数の膨張が著しい.
+次の例を考えてみる. 
+
+\begin{ex}
+$$R = \Z,\quad f = x^8+x^5+1,\quad g = 3x^6+1$$
+この場合, 途中で生成される擬剰余は,
+\begin{center}
+$27x^5-9x^2+27$\\
+$729x^3-2187x+729$\\
+$-13947137604x^2+94143178827x-20920706406$\\
+$5822950344611693220025353x-1293988965469265160005634$\\
+$-23353191009282740851191794693386216142000386817007672113424$
+\end{center}
+となり, 結果は $\GCD(f,g)=1$ だが係数の長さがステップ毎に約 2 倍ずづ
+増えていることが分かる. 
+\end{ex}
+実際には, 上の例では, 途中で生成される擬剰余は原始的でなく, 
+容量を除くと次のようになる. 
+\begin{center}
+$3x^5-x^2+3$\\
+$x^3-3x+1$\\
+$-4x^2+27x-6$\\
+$9x-2$\\
+$-1$
+\end{center}
+
+この場合, 擬剰余の容量を実際に GCD を用いて計算したが, 実はある程度の
+部分は, 自動的に取り除くことができる. このため, 部分終結式  (subresultant)
+を導入する. 
+
+\begin{df}
+$\displaystyle f = \sum_{i=0}^n a_i x^i, g = \sum_{i=0}^m b_i x^i$ とするとき, 
+$f,g$ の $j$ 次の部分終結式 $S_j(f,g)$ を次の行列式で定義する. 
+
+\[ S_j(f,g) = \left|
+\begin{array}{cccccc}
+a_n & a_{n-1} & \cdots & \cdots & \cdots & x^{m-j-1}f \\
+    & \cdots  & \cdots & \cdots & \cdots & \cdots \\
+    &         & a_n    & \cdots & a_{j+1}& f   \\
+b_m & b_{m-1} & \cdots & \cdots & \cdots & x^{n-j-1}g \\
+    & \cdots  & \cdots & \cdots & \cdots & \cdots \\
+    &         & b_m    & \cdots & b_{j+1}& g   \\
+\end{array}
+\right|
+\]
+特に, $S_0(f,g) = \res_x(f,g)$ (終結式) となる. 
+\end{df}
+
+\begin{df}
+$f \sim g$ とは $\pp(f) = \pp(g)$ なること. 
+\end{df}
+
+\begin{pr}
+{\rm \cite{SUB}}
+$\deg(f_1) \ge \deg(f_2)$ とする. $f_1, f_2$ から生成される多項式剰余列
+$\{f_1, f_2, \cdots\}$ に対し, 
+$i \ge 3$ ならば $f_i \sim S_{\deg(f_i)}$ かつ $f_i \sim S_{\deg(f_{i-1})-1}.$
+\end{pr}
+
+部分終結式は, 定義により $R[x]$ に属する. よって, 多項式剰余列の定義に
+現れる $\alpha_i, \beta_i$ をうまく取って, $f_i$ が適当な $S_j$ と等し
+くなるようにできれば, 現れる除算は全て $R$ における整除となる. これは
+実際に可能である.
+
+\begin{pr}
+多項式剰余列を, 
+$$d_i = \deg(f_i)-\deg(f_{i+1}),\quad \alpha_i = 1,$$
+$$\beta_2 = 1,\quad \beta_i = \lc(f_{i-1})\zeta_i^{d_{i-1}},$$
+$$\zeta_2 = 1,\quad \zeta_i = \lc(f_{i-1})^{d_{i-2}}\zeta_{i-1}^{(1-d_{i-2})},$$
+$$f_{i+1} = \prem(f_{i-1},f_i)/\beta_i$$
+で定めれば, 
+$$f_i = \pm S_{\deg(f_{i-1})-1}(f_1,f_2).$$
+\end{pr}
+
+ここで, 係数を不定元としたとき, 終結式が, これら係数の既約多項式である
+ことが知られている. よって, GCD が 1 になる場合を考えれば, この命題で
+定められる多項式剰余列は, 一般の多項式に対して最大の係数除去を行なって
+いると考えられる. 実際に, 前の例に適用してみると, \\
+\begin{center}
+$27x^5-9x^2+27$\\
+$27x^3-81x+27$\\
+$-36x^2+243x-54$\\
+$1971x-438$\\
+$-5329$
+\end{center}
+となり, 原始的多項式としたものには及ばないものの, かなりの係数を除去している
+ことがわかる. 
+
+\section{Modular アルゴリズム}
+前節で述べた互除法による GCD の計算は, GCD の次数が比較的高い場合に
+は良好に動作するが, GCD の次数が低い場合, 特に GCD が 1 の場合など
+では, 部分終結式法によっても係数の増大は避けられない. このような理由
+から, GCD は, {\bf modular アルゴリズム}により計算されることが多い. 
+modular アルゴリズムとは, 係数環の剰余環における演算結果からもとの
+環上の結果を得るタイプのアルゴリズムの総称である. modular アルゴリズム
+には, 中国剰余定理を用いるものと, Hensel 構成を用いるものがある. 
+後者については因数分解の節で詳しく述べることとし, ここでは, 前者に
+ついて述べる. 
+
+\begin{pr}(中国剰余定理)
+可換環 $A$ のイデアル $A_1,\cdots,A_r$ の任意の対 $(A_i,A_j) (i \neq j)$ に
+対し,$A_i+A_j=A$ ならば,
+$$\quad  A/\prod A_i \simeq \bigoplus A/A_i.$$
+\end{pr}
+\proof
+ $r=2$ のときを示す. $A_1+A_2=A$ より $a_1+a_2=1$ なる 
+$a_i\in A_i$ が存在する. 任意の $x, y \in A$ に対し, $z = x a_2 + y
+a_1$ と置くと, $z \equiv x \pmod {A_1}$ かつ $z \equiv y \pmod {A_2}$ より, 
+標準的写像 
+$$\phi : A \rightarrow A/A_1 \oplus A/A_2$$
+は全射かつ
+$\Ker(\phi) = A_1\cap A_2$ より 
+$A/A_1\cap A_2 \simeq A/A_1 \oplus A/A_2.$
+ここで, 
+$A_1 A_2 \subset A_1\cap A_2 = (A_1\cap A_2)\cdot(A_1+A_2) \subset A_1 A_2$
+より, $A_1 A_2 = A_1\cap A_2.$
+よって 
+$$A/A_1 A_2 \simeq A/A_1 \oplus A/A_2.$$
+一般の場合は, $A_1+A_2\cdots A_r \supset \prod_{i\ge 2}(A_1+A_i) \ni 1$
+より帰納法が使える. \qed
+
+\begin{co}
+$A$ を Euclid 環とする. $m_i \in A$ が互いに素ならば, 
+$A/(\prod m_i) \simeq \bigoplus A/(m_i)$.
+\end{co}
+
+\begin{ex}
+$K$ を体とする. $f_i \in K[x]$ が互いに素ならば, 
+$K[x]/(\prod f_i) \simeq \bigoplus K[x]/(f_i)$.
+\end{ex}
+
+これは, 有限体上の因数分解に用いられる. また, $f_i$ として
+$x-a_i$ なる形のものをとれば, 補間法をあらわすと考えられる. 
+
+\begin{ex}
+$m_i \in \Z$ が互いに素ならば, 
+$\Z/(\prod m_i) \simeq \bigoplus \Z/(m_i)$.
+\end{ex}
+
+次の補題は, modular 演算によるイメージをもとの空間に引き戻す際に
+常に用いられる. 
+
+\begin{lm}
+$a \equiv a' \bmod A$, $|a| \le B$, $|a'| \le A/2$, $A > 2B$ ならば, 
+$a = a'$.
+\end{lm}
+\proof
+$a-a' = kA$ とする. $|a-a'| \le |a|+|a'| \le B+A/2 < A$ より $k = 0$. \qed
+
+\vskip \baselineskip
+中国剰余定理の応用として, $\Z[x]$ における GCD 計算を例にとる. 
+$$f, g \in \Z[x],\quad h = \GCD(f,g) \in \Z[x]$$
+とする. この時, 
+$$\GCD(f \bmod p_i,g \bmod p_i) = h \bmod p_i$$
+なる素数 $p_i$ が与えられれば, 係数に対して中国剰余定理
+を適用して, 
+$$m=\prod p_i | (h - h_1)$$
+なる $h_1$ を構成できる. ここで,
+$m$ が十分大きければ, $h_1$ の法 $m$ での一意性により, $h_1$ の係数に 
+$m$ を加減して係数の絶対値を $m/2$ 以下としたものは, $h$ と一致する. 
+問題は, あらかじめ, 法 $p_i$ での GCD が, 真の GCD の像となっている, 
+すなわち妥当であるかどうか不明であるという点であるが, 妥当でない $p$ 
+は有限個しかないことがわかる (互いに素な場合の終結式を考えればよい). 
+$p$ の妥当性は法 $p$ での GCD の次数が最低という条件で特徴づけられるた
+め, さまざまな $p$ での GCD 計算を繰り返すことにより判定できる.
+
+このほか, 整数に対する中国剰余定理は, 拡張 Euclid 互除法, 行列式, 終結
+式の計算に用いられる. この方法が効力を発揮するのは, 結果の大きさに比較
+して, 途中の計算において大きな式が現れる場合 (中間式膨張)である.  現在
+主要なシステムにおいては, GCD は, 後で述べる Hensel 構成により計算され
+る場合が多いが, 前処理として, いくつかの数あるいは式を法として GCD を
+計算してみることは, GCD が 1 である場合のチェックとして有効である. 
+
+最後に, 剰余環での像から, 逆像を求める方法を 2 つ紹介する. 
+環 $R$ は, 整数環または, 体上の一変数多項式環とし, 
+$m_1, \cdots , m_r \in R$ は互いに素であるとする. この時, 
+与えられた $u_1, \cdots, u_r \in R$ に対し
+$$u \equiv u_i \pmod {m_i}$$
+なる  $u \in R$ を求めることが目標である. 
+$m = \prod m_i$ とおく. 
+
+\begin{mt}(Lagrange 補間)
+$\GCD(m_i,m/m_i)=1$ より, 
+ある $v_i, w_i \in R$ が存在して $v_i m/m_i + w_i m_i = 1.$
+この時 
+$L_i = v_i m/m_i$ とおけば $L_i \equiv \delta_{ij} \pmod {m_j}$.
+これにより, 
+$u = \sum u_i L_i$ とおけば $u \equiv u_i \pmod {m_i}$.
+\end{mt}
+これは, 法の数が固定の時, 一度, 基底 $L_i$ を計算してしまえば, 任意の
+$u_i$ に対して線形結合を作るだけで解が得られるが, 法の数が増えた時に
+基底を計算し直す必要がある.
+
+\begin{mt} (Newton 補間)
+$i < j$ のとき $\GCD(m_i,m_j)=1$ より, 
+ある $v_{ij}, N_{ij} \in R$ が存在して $v_{ij} m_j + N_{ij} m_i = 1.$
+この時 
+$N_{ij} m_i \equiv 1 \pmod{m_j}, i < j.$
+これにより
+$u = v_r m_{r-1}m_{r-2}+\cdots+v_2 m_1+v_1$
+なる形で $u$ を求めると 
+\begin{tabbing}
+$v_1$ \= $=u_1$\\
+$v_j$ \>$= (\cdots((u_j-v_1)N_{1j}-v_2)N_{2j}-\cdots-v_{j-1})N_{j-1,j} \pmod{m_j})$\\
+$\cdots$
+\end{tabbing}
+\end{mt}
+これは, $m_1,\cdots,m_r$ に対して構成された解を用いて 
+$m_1,\cdots,m_{r+1}$ での解を計算している. その際, 新たに付け加えた
+$m_{r+1}$ を法とする, $m_1,\cdots,m_r$ の逆元の計算を行なっている. 
+$v_j$ の計算が複雑に見えるが, 実際には, $j-1$ に対する解 $u'$ を用いて,
+$$(u_j-u')(m_1\cdots m_{j-1})^{-1} \bmod m_{j}$$を計算しているに過ぎな
+い. 構成法からわかるように, これは, 法の数を増やして精度を上げていくタ
+イプのアルゴリズムに向く.
+
