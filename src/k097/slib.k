@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.10 2001/01/13 01:17:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.11 2003/11/20 09:20:36 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -78,7 +78,7 @@ def Poly(f) {
   sm1(f," (poly) data_conversion /FunctionValue set");
 }
 def PolyR(f,r) {                     /* parse the polynomial in R */
-  sm1(f,r," ,, /FunctionValue set");
+  sm1(f,r," __ /FunctionValue set");
 }
 def Degree(f,v) {
   sm1(f,v," degree (universalNumber) dc /FunctionValue set");

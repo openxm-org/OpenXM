@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.3 2000/03/20 01:53:46 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.4 2001/05/04 01:06:25 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -159,7 +159,11 @@ static struct tokens flushSM()
 static isSpaceSM(c)
      int c;
 {
-  if ((c <= ' ') && (c!= EOF)) return(1);
+  static int prev=0;
+  if ((c == ',') && (prev == ',')) fprintf(stderr,"Warning! ,, is found.\n");
+  prev = c;
+
+  if (((c <= ' ') || c == ',') && (c!= EOF)) return(1);
   else return(0);
 }
 

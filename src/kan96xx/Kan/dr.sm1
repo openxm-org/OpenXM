@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.35 2004/09/09 03:14:46 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.36 2004/09/09 11:42:22 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -791,7 +791,7 @@
    (    Pointer to the ring. )
    (Example: [$x,y$ ring_of_q_difference_operators $Qx,Qy$ elimination_order)
    (          0] define_qring )
-   (cf. define_ring, set_up_ring@ <coefficient ring>, ring_def, << ,, >>)
+   (cf. define_ring, set_up_ring@ <coefficient ring>, ring_def, << __ >>)
   ]
 ] putUsages
 /define_qring {
@@ -843,7 +843,7 @@
   (one may use the command )
   (          f (ring) data_conversion /R set)
   (cf. define_ring, define_qring, system_variable, poly (ring) data_conversion)
-  (cf. << ,, >>)
+  (cf. << __ >>)
  ]
 ] putUsages
 
@@ -1411,7 +1411,7 @@
        gg (0). eq 
        { 0 }
        { gg (ring) data_conversion /rr set 
-         gg  << var rr ,, >> degree
+         gg  << var rr __ >> degree
        } ifelse
     } map def
   %%degs message
@@ -1687,17 +1687,17 @@
 [(ClassP) @.datatypeConstant.usage ] putUsages
 [(DoubleP) @.datatypeConstant.usage ] putUsages
 
-[(,,)
- [( string ring ,, polynomial)
+[(__)
+ [( string ring __ polynomial)
   (Parse the <<string>> as an element in the <<ring>> and returns)
   (the polynomial.)
   (cf. define_ring, define_qring, ring_def)
   (Example: [(x,y) ring_of_polynomials [[(x) 1]] weight_vector 7]define_ring)
   (         /myring set)
-  (         ((x+y)^4) myring ,, /f set)
+  (         ((x+y)^4) myring __ /f set)
 ]] putUsages
  
-/,, {
+/__ {
   /arg2 set /arg1 set
   [/rrr] pushVariables
   [ arg1 tag StringP eq
@@ -1707,7 +1707,7 @@
       /arg1 arg1 expand def
       [(CurrentRingp) rrr] system_variable
     }
-    {(Argument Error for ,, ) error }
+    {(Argument Error for __ ) error }
     ifelse
   ] pop
   popVariables
@@ -1953,7 +1953,7 @@ newline
         error
      } ifelse
      /myring  base 0 get (ring) dc def
-     /zero (0) myring ,, def
+     /zero (0) myring __ def
      base length 1 sub /n set
      /minbase [ 0 1 n { /i set base i get } for ] def
      0 1 n {
@@ -2262,7 +2262,7 @@ newline
         [(variableNames) M2N 0 get] system_variable
         f toString /f2 set
         [(variableNames) M2N 3 get] system_variable
-        f2 M2N 2 get ,, /f2 set
+        f2 M2N 2 get __ /f2 set
     } ifelse
     [(CurrentRingp) cp] system_variable
     /arg1 f2 def
@@ -2288,7 +2288,7 @@ newline
   $/R2 set$
   $[[(x) (Dx)] [((t-1) Dt) (z)]] /r0 set$
   $r0 R1 R2 makeRingMap /maptable set$
-  $(Dx-1) R1 ,, /ff set$
+  $(Dx-1) R1 __ /ff set$
   $ ff maptable ringmap :: $
  ]
 ] putUsages
@@ -2374,7 +2374,7 @@ newline
        /rrr set
        base { . } map /base set
      } ifelse
-     vlist { dup isPolynomial {  } { rrr ,, } ifelse } map /vlist set
+     vlist { dup isPolynomial {  } { rrr __ } ifelse } map /vlist set
 
      [(hilbert) base vlist] extension /ff set
      [(CurrentRingp) rrrorg] system_variable
@@ -2393,7 +2393,7 @@ newline
      /vv arg2 def
      /f hhh 1 get def
      f (0). eq { /ans [0] def /hilbReduce.label goto } { } ifelse
-     f vv << f (ring) dc >> ,,  degree /vv set
+     f vv << f (ring) dc >> __  degree /vv set
      hhh 0 get /d set  
      d   d  (integer) dc factorial /d set
      d << vv (universalNumber) dc vv factorial >> idiv /d set
@@ -2469,9 +2469,9 @@ newline
     { /fn (0). def }
     {
        f (ring) dc /rrr set
-       v toString (^) n toString 3 cat_n rrr ,,
+       v toString (^) n toString 3 cat_n rrr __
        f mul 
-       [[v (0).] [(h) rrr ,, (1) rrr ,,]] replace /fn set
+       [[v (0).] [(h) rrr __ (1) rrr __]] replace /fn set
      } ifelse
      fn /arg1 set
   ] pop
@@ -2535,7 +2535,7 @@ newline
     /ddd 0 def
     0 2 www length 1 sub {
       /iii set
-      fff << www iii get rrr ,, >> degree
+      fff << www iii get rrr __ >> degree
       << www iii 1 add get >> mul
       ddd add /ddd set
     } for
@@ -2564,14 +2564,14 @@ newline
     fff (0). eq { /ddd -intInfinity def /ord_w_all.LLL goto} { } ifelse
     /ddd -intInfinity def
     fff (ring) dc /rrr set
-    /zzz (0) rrr ,, def
+    /zzz (0) rrr __ def
     fff init /fff-in set
     fff fff-in sub /fff set
     {
      /ddd-tmp 0 def
      0 2 www length 1 sub {
        /iii set
-       fff-in << www iii get rrr ,, >> degree
+       fff-in << www iii get rrr __ >> degree
        << www iii 1 add get >> mul
        ddd-tmp add /ddd-tmp set
      } for
@@ -2618,22 +2618,22 @@ newline
          /v0 vv ii get (string) dc def
          v0 (array) dc 0 get Dascii eq  %% If the first character is D?
          {  rule  %% Dx-->x
-            [v0 rr ,, 
-            v0 (array) dc rest { (string) dc} map aload length cat_n rr ,,]
+            [v0 rr __ 
+            v0 (array) dc rest { (string) dc} map aload length cat_n rr __]
             append /rule set
          }
          { rule   %% x --> -Dx
-           [v0 rr ,,
+           [v0 rr __
             (0). 
             [Dascii] v0 (array) dc join { (string) dc } map aload length 
-            cat_n rr ,,  sub
+            cat_n rr __  sub
            ]
            append /rule set
          } ifelse
       } ifelse
      } for
      % rule message
-     ff rule replace [[(h) rr ,, (1) rr ,,]] replace /ans1 set
+     ff rule replace [[(h) rr __ (1) rr __]] replace /ans1 set
      } ifelse
     }
    { 
@@ -2991,9 +2991,9 @@ newline
      {
         /xx xx (string) dc def
         /dxx [@@@.Dsymbol xx] cat def
-        /xx xx f (ring) dc ,, def
-        /dxx dxx f (ring) dc ,, def
-        /one (1) f (ring) dc ,, def
+        /xx xx f (ring) dc __ def
+        /dxx dxx f (ring) dc __ def
+        /one (1) f (ring) dc __ def
 
         { 
           /g f init def
@@ -3070,9 +3070,9 @@ newline
     f (0). eq {  }
     {
       /rr f (ring) dc def
-      xx {toString rr ,, } map /xx set
-      dx {toString rr ,, } map /dx set
-      ss {toString rr ,, } map /ss set
+      xx {toString rr __ } map /xx set
+      dx {toString rr __ } map /dx set
+      ss {toString rr __ } map /ss set
       /n xx length  def
       0 1 n 1 sub {
          /i set
@@ -3102,7 +3102,7 @@ newline
   [
     /f arg1 def /xx arg2 def /dx arg3 def /ss arg4 def
     f (ring) dc /rr set
-    /one (1) rr ,, def %% 
+    /one (1) rr __ def %% 
     /ww [ xx toString -1 dx toString 1 ] weightv  def
     f ww init f sub (0). eq {   } 
     { [(destraction2.1 : inhomogeneous with respect to ) 
@@ -3874,16 +3874,16 @@ $ [ff ff] fromVectors :: $
   [(>) (stringOut://@@@stdout) (2>) (stringOut://@@@stderr)] join
 } def
 
-[(,,,)
+[(___)
 [(reparse a polynomial or polynomials)]
 ] putUsages
-/,,, {
+/___ {
   /arg1 set
   [/in-reparse /ff] pushVariables
   [
     /ff arg1 def
     ff tag 6 eq {
-      ff { ,,, } map /arg1 set
+      ff { ___ } map /arg1 set
     } {
       ff toString . /arg1 set
     } ifelse

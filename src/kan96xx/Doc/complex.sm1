@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/complex.sm1,v 1.7 2001/11/26 01:25:44 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/complex.sm1,v 1.8 2002/08/11 08:39:50 takayama Exp $
 %% lib/complex.sm1  [ functions for complex ], 1999, 9/9
 %% cf.  yama:1999/Int/uli.sm1
 %%%%%%%%%%%%%%%%%%%   commands %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -305,7 +305,7 @@
      d G 0 get reduction-noH  /rr set
      rr 0 get (0). eq {
        [rr 2 get] B mul 0 get /ans set
-       /ans [ ans { toString rng ,, (-1) rng ,, mul} map  
+       /ans [ ans { toString rng __ (-1) rng __ mul} map  
               rr 1 get toString .. ] def
      } {
        /ans null def
@@ -411,7 +411,7 @@
      d G 0 get reduction  /rr set
      rr 0 get (0). eq {
        [rr 2 get] B mul 0 get /ans set
-       /ans [ ans { toString rng ,, (-1) rng ,, mul} map  
+       /ans [ ans { toString rng __ (-1) rng __ mul} map  
               rr 1 get toString .. ] def
      } {
        /ans null def

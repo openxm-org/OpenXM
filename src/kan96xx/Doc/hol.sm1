@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.20 2004/06/10 06:01:50 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.21 2004/07/29 08:13:42 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -395,10 +395,10 @@ message-quiet
     } ifelse
     gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
     termorder {
-      f { {,,, dehomogenize} map } map /f set
+      f { {___ dehomogenize} map } map /f set
       [f gb.options] groebner_sugar 0 get /gg set
     }{
-      f { {,,, dehomogenize} map} map /f set
+      f { {___ dehomogenize} map} map /f set
       gb.autoHomogenize {
         f fromVectors { homogenize } map /f set
       } {  } ifelse
@@ -1846,11 +1846,11 @@ message-quiet
        /gbasis2 gbasis 0 get def
      } {
        [ [(1)] ] gbasis rest join gb 0 get getRing ring_def
-       /gbasis2 gbasis 0 get ,,, def
+       /gbasis2 gbasis 0 get ___ def
      } ifelse
 
 
-     flist ,,, /flist set
+     flist ___ /flist set
      flist tag 6 eq {
        flist { gbasis2 reduction } map /ans set
      }{
@@ -1882,11 +1882,11 @@ message-quiet
        /gbasis2 gbasis 0 get def
      } {
        [ [(1)] ] gbasis rest join gb 0 get getRing ring_def
-       /gbasis2 gbasis 0 get ,,, def
+       /gbasis2 gbasis 0 get ___ def
      } ifelse
 
 
-     flist ,,, /flist set
+     flist ___ /flist set
      [(Homogenize) 0] system_variable
      flist tag 6 eq {
        flist { gbasis2 reduction } map /ans set

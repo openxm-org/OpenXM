@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.31 2004/08/31 04:45:42 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.32 2004/08/31 05:30:20 takayama Exp $ 
 (hol_loaded) boundp { }
 { [(parse) (hol.sm1) pushfile] extension } ifelse
 %[(parse) (appell.sm1) pushfile] extension
@@ -90,8 +90,8 @@
      ll (0). eq {
      } {
        ll getRing /rr set
-       ll [ [ @@@.Hsymbol rr ,, (1) rr ,, ] 
-            [ (h) rr ,, (1) rr ,, ]] replace
+       ll [ [ @@@.Hsymbol rr __ (1) rr __ ] 
+            [ (h) rr __ (1) rr __ ]] replace
        /ll set
      } ifelse
    } ifelse
@@ -116,7 +116,7 @@
      ll (0). eq {
      } {
        ll getRing /rr set
-       ll [ [ @@@.Hsymbol rr ,, (1) rr ,, ] ] replace
+       ll [ [ @@@.Hsymbol rr __ (1) rr __ ] ] replace
        /ll set
      } ifelse
    } ifelse
@@ -1593,11 +1593,11 @@
        /gbasis2 gbasis 0 get def
      } {
        [ [(1)] ] gbasis rest join ecartd.gb 0 get getRing ring_def
-       /gbasis2 gbasis 0 get ,,, def
+       /gbasis2 gbasis 0 get ___ def
      } ifelse
      ecartd.begin
 
-     flist ,,, /flist set
+     flist ___ /flist set
      flist tag 6 eq {
        flist { gbasis2 reduction } map /ans set
      }{
@@ -1659,11 +1659,11 @@
        /gbasis2 gbasis 0 get def
      } {
        [ [(1)] ] gbasis rest join ecarth.gb 0 get getRing ring_def
-       /gbasis2 gbasis 0 get ,,, def
+       /gbasis2 gbasis 0 get ___ def
      } ifelse
      ecarth.begin
 
-     flist ,,, /flist set
+     flist ___ /flist set
      flist tag 6 eq {
        flist { gbasis2 reduction } map /ans set
      }{
@@ -1849,14 +1849,14 @@
    vv isArray { vv from_records /vv set } {  } ifelse
    vv ecart.01Order /wv set
    [vv ring_of_differential_operators 0] define_ring
-   ll ,,, /ll set ll dehomogenize /ll set
+   ll ___ /ll set ll dehomogenize /ll set
    [ll vv wv] gb 0 get /ll set
 
    ecart.begin
    [vv ring_of_differential_operators
     vv ecart.stdOrder weight_vector 0
     [(weightedHomogenization) 1]] define_ring
-   ll ,,, {ecart.homogenize01 ecart.dehomogenizeH} map /ans set
+   ll ___ {ecart.homogenize01 ecart.dehomogenizeH} map /ans set
    ecart.end
    /arg1 ans def
  ] pop

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
 /*  scanner2.c (SM StackMachine) */
 /* export: struct tokens decompostToTokens(char *str,int *sizep);
    scanner2.c is for getting tokens from a string.
@@ -151,7 +151,11 @@ static struct tokens flushSM()
 static isSpaceSM(c)
      int c;
 {
-  if ((c <= ' ') && (c!= EOF)) return(1);
+  static int prev=0;
+  if ((c == ',') && (prev == ',')) fprintf(stderr,"Warning! ,, is found.\n");
+  prev = c;
+
+  if (((c <= ' ') || c == ',') && (c!= EOF)) return(1);
   else return(0);
 }
 
