@@ -1,0 +1,20 @@
+% $OpenXM$ 
+
+%%% debugging for new OpenXM-RFC 100.  indeterminate or tree.
+[(parse) (../plugin/cmo.sm1) pushfile] extension
+/f (x+1 + x*h). def
+f [(class) (recursivePolynomial)] dc /g set
+(x) [(class) (indeterminate)] dc /x set
+(x) [(class) (indeterminate)] dc /xx set 
+[(sin) (hoge) [(x).]] [(class) (tree)] dc /t set
+g message 
+x message
+t message
+g [[x t]] replace /gg set 
+gg message
+
+[(cmoObjectToCmo) gg] extension /ggg set 
+ggg message
+[(cmoCmoToObject) ggg] extension message
+
+

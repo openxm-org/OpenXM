@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 
 /* kclass.h  1997, 3/1
    This module handles class data base.
@@ -89,7 +89,8 @@ struct object recursivePolyToPoly(struct object rp);
 struct object coeffToObject(struct coeff *cp);
 int isRecursivePolynomial2(struct object ob);
 
-
+struct object KrvtReplace(struct object rp_o,struct object v_o, struct object t_o);
+struct object KreplaceRecursivePolynomial(struct object of,struct object rule);
 
 
 

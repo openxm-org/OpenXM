@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.2 2000/01/16 07:55:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.3 2000/02/28 14:10:30 takayama Exp $ */
 /* Kclass/indeterminate.c    */
 /* This file handles   indeterminate, tree, recursivePolynomial,
     polynomialInOneVariable
@@ -182,7 +182,13 @@ static void  printBodyOfRecursivePolynomial(struct object body,
   for (j=1; j<getoaSize(body); j = j+2) {
     k = KopInteger(getoa(body,j));
     if (k != 0) {
-      fprintf(fp,"%s",KopString(getoa(vlist,i)));
+	  if (getoa(vlist,i).tag == Sdollar) {
+		fprintf(fp,"%s",KopString(getoa(vlist,i)));
+	  }else if (ectag(getoa(vlist,i)) == CLASSNAME_tree) {
+		fprintClass(fp,getoa(vlist,i));
+	  }else{
+		errorKan1("%s\n","printBodyOfRecursivePolynomial: format error.");
+	  }
       if (k > 1) {
 	fprintf(fp,"^%d ",k);
       }else if (k == 1) {
@@ -435,8 +441,10 @@ int isRecursivePolynomial2(struct object ob) {
   n = getoaSize(ob1);
   for (i=0; i<n; i++) {
     tmp = getoa(ob1,i);
-    if (tmp.tag != Sdollar) {
-      fprintf(stderr,"%s [list vlist, body]. Element of the vlist must be a string.\n",s); printObject(ob,1,stderr);
+    if (tmp.tag == Sdollar) {
+	}else if (ectag(tmp) == CLASSNAME_tree) {
+	}else{
+      fprintf(stderr,"%s [list vlist, body]. Element of the vlist must be a string or a tree.\n",s); printObject(ob,1,stderr);
       return(0);
     }
   }
@@ -478,8 +486,92 @@ struct object recursivePolyToPoly(struct object rp) {
 }
 
 
+struct object KrvtReplace(struct object rp_o,struct object v_o, struct object t_o) {
+  /* rp_o : recursive polynomial.
+	 v_o  : variable name (indeterminate).
+     t_o  : tree.
+  */
+  struct object rp, vlist, newvlist, newrp;
+  int i,m;
+  /* Check the data types. */
+  if (ectag(rp_o) != CLASSNAME_recursivePolynomial) {
+	errorKan1("%s\n","KrvtReplace() type mismatch in the first argument.");
+  }
+  if (ectag(v_o) != CLASSNAME_indeterminate) {
+	errorKan1("%s\n","KrvtReplace() type mismatch in the second argument.");
+  }
+  if (ectag(t_o) != CLASSNAME_tree) {
+	errorKan1("%s\n","KrvtReplace() type mismatch in the third argument.");
+  }
+  
+  rp = KopRecursivePolynomial(rp_o);
+  vlist = getoa(rp,0);
+  m = getoaSize(vlist);
+  newvlist = newObjectArray(m);
+  for (i=0; i<m; i++) {
+	if (KooEqualQ(getoa(vlist,i),KopIndeterminate(v_o))) {
+	  /* should be KooEqualQ(getoa(vlist,i),v_o). It's not a bug.
+	     Internal expression of vlist is an array of string
+		 (not indetermiante). */
+	  putoa(newvlist,i,t_o);
+	}else{
+	  putoa(newvlist,i,getoa(vlist,i));
+	}
+  }
+  newrp = newObjectArray(getoaSize(rp));
+  m = getoaSize(rp);
+  putoa(newrp,0,newvlist);
+  for (i=1; i<m; i++) {
+	putoa(newrp,i,getoa(rp,i));
+  }
+  return(KpoRecursivePolynomial(newrp));
+}
 
 
+struct object KreplaceRecursivePolynomial(struct object of,struct object rule) {
+  struct object rob,f;
+  int i;
+  int n;
+  struct object trule;
+  
 
+  if (rule.tag != Sarray) {
+    errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be array.");
+  }
+  n = getoaSize(rule);
 
+  if (of.tag ==Sclass && ectag(of) == CLASSNAME_recursivePolynomial) {
+  }else{
+    errorKan1("%s\n"," KreplaceRecursivePolynomial(): The first argument must be a recursive polynomial.");
+  }
+  f = of;
+
+  for (i=0; i<n; i++) {
+    trule = getoa(rule,i);
+    if (trule.tag != Sarray) {
+      errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be of the form [[a b] [c d] ....].");
+    }
+    if (getoaSize(trule) != 2) {
+      errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be of the form [[a b] [c d] ....].");
+    }
+
+    if (ectag(getoa(trule,0)) != CLASSNAME_indeterminate) {
+      errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be of the form [[a b] [c d] ....] where a,b,c,d,... are polynomials.");
+    }
+	/* Do not check the second argument. */
+	/*
+    if (getoa(trule,1).tag != Spoly) {
+      errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be of the form [[a b] [c d] ....] where a,b,c,d,... are polynomials.");
+    }
+	*/
+
+  }
+
+  rob = f;
+  for (i=0; i<n; i++) {
+    trule = getoa(rule,i);
+	rob = KrvtReplace(rob,getoa(trule,0),getoa(trule,1));
+  }
+  return(rob);
+}
 

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 /* kclass.c,  1997, 3/1
    This module handles class data base.
    This is a top level and provides an interface for sm1 for Sclass objects.
@@ -140,6 +140,9 @@ int KclassEqualQ(struct object ob1,struct object ob2) {
   case CLASSNAME_sampleClass:
     return(eqSampleClass(KopSampleClass(ob1),KopSampleClass(ob2)));
     break;
+  case CLASSNAME_indeterminate:
+	return(KooEqualQ(KopIndeterminate(ob1),KopIndeterminate(ob2)));
+	break;
   default:
     errorKan1("%s\n","kclass.c (KclassEqualQ cannot compare these objects.)");
     break;
@@ -232,7 +235,7 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
       */
       rob = KpoMathCap(&ob1);
     }else if (strcmp(ccc,"tree") == 0) {
-      if (ob1.tag != Sarray) errorKan1("%s\n","kclass.c : KclassDataConversion , !array --> indeterminate is not supported.");
+      if (ob1.tag != Sarray) errorKan1("%s\n","kclass.c : KclassDataConversion , !array --> tree is not supported.");
       rob = KpoTree(ob1);
     }else if (strcmp(ccc,"recursivePolynomial") == 0) {
       if (ob1.tag != Spoly) errorKan1("%s\n","kclass.c : KclassDataConversion , !poly --> recursivePoly is not supported.");

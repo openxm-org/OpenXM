@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.4 2000/07/17 02:58:45 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.5 2000/12/28 00:07:14 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1738,7 +1738,10 @@ struct object rule;
   }
   n = getoaSize(rule);
 
-  if (of.tag != Spoly) {
+  if (of.tag == Spoly) {
+  }else if (of.tag ==Sclass && ectag(of) == CLASSNAME_recursivePolynomial) {
+	return(KreplaceRecursivePolynomial(of,rule));
+  }else{
     errorKan1("%s\n"," KoReplace(): The first argument must be a polynomial.");
   }
   f = KopPOLY(of);
