@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.18 2000/03/19 10:54:55 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.19 2000/04/12 08:39:57 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.2
@@ -7,6 +7,7 @@ OpenXM_spec=../OpenXM-specs
 DVIPS=dvips -f
 LATEX2HTML=jlatex2html -tmp /tmp
 
+### For full copy :  make copy-html; make ALL
 # Only for print target.
 PS=a2ps-j
 LPR=lpr -Pdousan
@@ -31,6 +32,11 @@ copy-html :
 	-(cd $(OpenXM_spec) ; cd tmpJP ; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM )
 	-(cd $(OpenXM_spec) ; cd tmpEG ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-eg)
 	-(cd $(OpenXM_spec) ; cd tmpJP ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-jp)
+
+## Under construction.
+namagize-html: copy-html
+	-(cd $(WEBKOBE1)/html/OpenXM-jp ; rm -rf OpenXM-jp.index ; mkdir OpenXM-jp.index )
+	-(cd $(WEBKOBE1)/html/OpenXM-jp/OpenXM-jp.index ; mknmz ../OpenXM-jp/OpenXM)
 
 
 
