@@ -1,4 +1,5 @@
-%%  $OpenXM: OpenXM/src/kxx/openxxx.tex,v 1.3 1999/11/02 09:07:33 takayama Exp $
+%%  $OpenXM: OpenXM/src/kxx/openxxx.tex,v 1.4 1999/11/22 08:52:55 takayama Exp $
+/*&jp
 %\documentclass{jarticle}
 \documentstyle{jarticle}
 \title{{\bf Open XM の設計と実装} \\
@@ -7,19 +8,38 @@
 } , 
          高山信毅\thanks{神戸大学理学部数学教室}
 }
-\date{ 1999年, 11月22日}
+\date{ 1999年, 12月31日}
+*/
+/*&eg
+%\documentclass{article}
+\documentstyle{article}
+\title{{\bf Design and Implementation of OpenXM} \\
+ --- Open message eXchange protocol for Mathematics \\
+ (English Abstract of Japanese Original Document)}
+\author{ Masayuki Noro\thanks{Fujitsu Laboratory
+} , 
+         Nobuki Takayama\thanks{Department of Mathematics, Kobe University}
+}
+\date{ December 31, 1999}
+*/
+/*&C
 \begin{document}
 \maketitle
 
 \def\noroa#1{  }
 \def\remove#1{ }
+*/
 
+/*&jp
 {\tt kxx/openxxx.tex}. {\bf Draft} 1997, 11/20 --- .
 この文書は open XM の設計用のメモとしての役目もあるので,
 一部のファイル名は開発者のみが参照できる.
+*/
 
-\section{はじめに}
+//&jp \section{はじめに}
+//&eg \section{Introduction} (This part has not been translated)
 
+/*&jp
 Open XM は, おなじタイプまたは異なるタイプの数学プロセス間の
 メッセージのやりとりの規約である.
 開発の動機は, 手作り(または研究的な)数学ソフトの相互乗り入れの実現
@@ -104,24 +124,48 @@ SM 層は (スタックマシン)サーバを制御するための命令の
 あつまりであり, サーバは非同期的に動作させることが可能である.
 柔軟性が高いので, IMC などのリモートプロシージャコール系の
 プロトコルもエミュレートできる.
+*/
 
 
 
-
-
-\section{CMO Basic0 の object}
+//&jp \section{CMO Basic0 の object}
+//&eg \section{CMO Basic0 object}
+/*&jp
 CMO (Common Mathematical Object format) グループ Basic0 の Object は, 
-多くの計算機言語が標準としてもつ
 ローレベルのデータ型, {\tt int} , {\tt string}
-などに タグ付けした object である.
-この CMO はすべての open xxx が実装していると仮定される.
+などに対応する object である.
+この CMO はすべての OpenXM が実装していると仮定される.
 この節では, イントロダクションとして, グループ Basic0 に属する CMObject
 (Common Mathematical Object) を形式的な方法をつかわず導入しよう.
+*/
+/*&eg
+Objects in CMO (Common Mathematical Object format) Group Basic0 
+are primitive data such as {\tt int}, {\tt string}.
+All OpenXM compliant systems should implement all data types
+in Group Basic0.
+In this section, as an introduction, we will introduce
+CMObject (Common Mathematical Object) of group Basic0 without formal
+method.
+*/
+/*&jp
 このグループの正式な名前は,
 CMObject/Basic0  である.
 以下, {\tt int32} で2の補数表現された
-network byte order の 32 bit integer をあらわす.
+32 bit integer をあらわす
+(これはよく使われる計算機での C 言語の int の内部表現).
 {\tt byte} で 8 bit データをあらわす.
+*/
+/*&eg
+The canonical name of this group is
+CMObject/Basic0.
+In the sequel,
+{\tt int32} means the signed 32 bit integer expressed by two's complement
+(Most internal expressions of {\tt int} of the language C take this expression).
+{\tt byte} means 8 bit data.
+*/
+
+//&C  
+/*&jp
 CMO の object は \\
 \begin{tabular}{|c|c|}
 \hline
@@ -131,9 +175,27 @@ CMO の object は \\
 なる形をしている.
 ここで, {\tt cmo\_tag} は, 正の
 {\tt int32} で表現するものと規約する.
+*/
+/*&eg
+CMO consists of a tag and a body: \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt cmo\_tag}& {\tt cmo\_body} \\ 
+\hline
+\end{tabular} \\
+{\tt cmo\_tag} should be given a positive
+{\tt int32}.
+*/
 
+/*&C  
+
+*/
+/*&jp
 {\tt cmo\_tag} は object のタイプをあらわすタグであり,
 以下のように決めている.
+*/
+//&eg The following is a list of tags of CMObject/Basic0.
+/*&C
 @../SSkan/plugin/cmotag.h
 \begin{verbatim}
 #define LARGEID  0x7f000000
@@ -145,50 +207,99 @@ CMO の object は \\
 #define CMO_MATHCAP 5
 #define CMO_LIST 17
 \end{verbatim}
+*/
 
+/*&jp
 以下, 各 object の フォーマットを説明する.
-サーバはすべての object の CMO 形式をサポートする必要はないが,
-mathcap (後述) 問い合わせに対して,
-サポートしている CMO 形式データをクライアントに知らせる必要が
-ある.
+サーバ, クライアントはすべての object の CMO 形式をサポートする必要はないが,
 {\tt CMO\_ERROR2}, {\tt CMO\_NULL},
 {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_MATHCAP}, {\tt CMO\_LIST}
 は最も基本的なデータであり,
 また全てのサーバ, クライアントが実装すべき CMO データである.
+*/
+/*&eg
+We will explain each object format.
+Servers and clients do not need to implement all CMO's.
+However, 
+{\tt CMO\_ERROR2}, {\tt CMO\_NULL},
+{\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_MATHCAP}, {\tt CMO\_LIST}
+are primitive data and
+all servers and clients should implement them.
+*/
 
+/*&C
 
-CMObject Error2 は \\
+\noindent
+*/
+//&jp CMObject Error2 は \\
+//&eg CMObject Error2 is of the form \\
+/*&C
 \begin{tabular}{|c|c|}
 \hline
 {\tt int32 CMO\_ERROR2} & {\sl CMObject} {\rm ob} \\ 
 \hline
 \end{tabular} \\
+*/
+/*&jp
 なる形で表現する.  
-エラーの時に投げる object であり, {\it CMObject} ob の
+エラーの時に push する object であり, {\it CMObject} ob の
 部分に詳細なエラー情報がはいる.
-ob はリストであり, 最初の成分はエラーを起こした OX メッセージ(後述)
+ob はリストであり,  TCP/IP によるストリーム型接続の場合,
+最初の成分はエラーを起こした OX メッセージ(後述)
 のシリアル番号でないといけない.
 シリアル番号は Integer32 で表現する.
+*/
+/*&eg
+It is an object when a server makes an error.
+{\it CMObject} ob carries error informations.
+ob is a list and in case of the stream connection like TCP/IP 
+the first element must be the serial number of the OX message causes the error.
+The serial number is Integer32.
+*/
 
+/*&C
 
-CMObject Null は \\
+\noindent
+*/
+
+//&jp CMObject Null は \\
+//&eg CMObject Null has the format \\
+/*&C
 \begin{tabular}{|c|c|}
 \hline
 {\tt int32 CMO\_NULL}  \\ 
 \hline
 \end{tabular} \\
+*/
+/*&jp
 なる形で表現する.
+*/
 
-32 bit integer n は CMObject としては Integer32 と呼ばれ, \\
+/*&C
+
+\noindent
+*/
+
+//&jp 32 bit integer n は CMObject としては Integer32 と呼ばれ, \\
+//&eg 32 bit integer n is called Integer32 as CMObject and has the format \\
+/*&C
 \begin{tabular}{|c|c|}
 \hline
 {\tt int32 CMO\_INT32}& {\tt int32} {\rm n}  \\ 
 \hline
 \end{tabular} \\
-なる形で表現する.
+*/
+//&jp なる形で表現する.
+
+/*&C
+
+\noindent
+*/
 
 
-長さ n の バイト列 data は CMObject としては, Datum 型とよばれ \\
+//&jp 長さ n の バイト列 data は CMObject としては, Datum 型とよばれ \\
+//&eg A byte array of the length n is called Datum as CMObject and has the format \\
+/*&C
 \begin{tabular}{|c|c|c|c|}
 \hline
 {\tt int32 CMO\_DATUM}& {\tt int32} {\rm n} & {\tt byte} {\rm  data[0]} 
@@ -197,10 +308,17 @@ CMObject Null は \\
 $\cdots$ & {\tt byte} {\rm  data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
-と表現する.
-data の部分に直列化 (serialized) された CMO が入ることもありうる. 
+*/
+//&jp と表現する.
 
-長さ n の 文字列 data は, CMObject としては, Cstring 型とよばれ \\
+/*&C
+
+\noindent
+*/
+
+//&jp 長さ n の 文字列 data は, CMObject としては, Cstring 型とよばれ \\
+//&eg String of n bytes is called Cstring as CMObject and has the format \\
+/*&C
 \begin{tabular}{|c|c|c|c|}
 \hline
 {\tt int32 CMO\_STRING}& {\tt int32} {\rm n} & {\tt byte} {\rm data[0]} 
@@ -209,64 +327,103 @@ data の部分に直列化 (serialized) された CMO が入ることもありうる.
 $\cdots$ & {\tt byte} {\rm data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
+*/
+/*&jp
 と表現する.  C 言語で普通用いられる, 文字列のおわりの {\tt 0} は文字列
 に含めない. 
+*/
 
-\remove{
-長さ n の 32bit network byte order の data の array は \\
-\begin{tabular}{|c|c|c|c|c|c|}
-\hline
-{\tt int32 CMO\_ARRAYOFINT32}& {\tt int32} {\rm n} & 
-{\rm data[0]} & {\rm data[1]}&$\cdots$
-& {\rm data[n-1]} \\ 
-\cline{1-2}
-\end{tabular} \\
-と表現する. 各 {\tt data[i]} の部分は 4 byte の大きさを持つ.
-}
+/*&C	
 
 \noindent
-CMObject Mathcap は \\
+*/
+//&jp CMObject Mathcap は \\
+//*eg CMObject Mathcap  has the format \\
+/*&C
 \begin{tabular}{|c|c|}
 \hline
 {\tt int32 CMO\_MATHCAP} & {\it CMObject} {\rm ob} \\ 
 \hline
 \end{tabular} \\
+*/
+/*&jp
 なる形で表現する.  
 {\tt ob} はリストであり少なくとも2つの要素をもつ.
-0 番目の要素は, Integer32 で表した Version number と,
-Cstring で表したシステム名, Version number, CPUtype, その他の情報
+0 番目の要素は, Integer32 で表した OpenXM protocol version number と,
+Cstring で表したシステム名, Server version, CPU type, その他の情報
 のリストである.
 1 番目の要素は, システム xxx が扱うことの可能な
-CMO タグを, Integer32 で表現したものを集めたリストである.
+SM タグ, OX DATA タイプとその付加情報 (CMO タグなど)
+を, Integer32 で表現したものを集めたリストである.
+*/
+/*&eg
+ob is a list of which length is more than or equal to two.
+The first element is a list of
+OpenXM protocol version number in Integer32,
+the server name in Cstring,
+the server version and CPU type in Cstring,
+and extra informations.
+The second element is a list of SM tags and OX data type tags with
+suplementary informations (e.g., a list of available CMO tags)
+in Integer 32.
+*/
+
+/*&C
 
 \noindent
-長さ m のリストは \\
+*/
+//&jp 長さ m のリストは \\
+//&eg A list of the length m has the form \\
+/*&C
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 {\tt int32 CMO\_LIST}& {\tt int32} {\rm m} & {\tt CMObject}\, ob[0] & $\cdots$ &
 {\tt CMObject}\, ob[$m-1$] \\
 \hline
 \end{tabular}\\
-で表現する.
+*/
+//&jp で表現する.
 
 
-\section{ CMO の表現方法 }
+//&jp \section{ CMO の形式的表現方法 }
+//&eg \section{ A formal expression of CMO }
 
+/*&jp
 前の節で CMO の表現方法を形式的に定義せず, 
 CMO のBasic0 の表現法を説明したが,
 ここでは, CMO の Lisp 風表現 (Lisp-like expression)
 である
 CMOexpression
 および CMO の標準 encoding 法を説明する.
-(タグの省略記法がほしい.)
-前の節ではこの 標準 encoding 法を用いて CMO の表現方法を説明した.
+% (タグの省略記法がほしい.)
+*/
+/*&eg
+In the previous setion, we have explained the format of CMO's in the
+Basic0 group.
+In this section, we will introduce CMOexpression which is like the 
+bracket expression of Lisp and a standard encoding method of CMO.
+*/
+
+/*&jp
 
 まず, CMOexpression を形式的に 拡張 BNF 記法を用いて定義しよう.
 タイプライタフォントでかかれた記号は終端記号を意味する.
 ``:'' は定義を意味する. ``$|$'' は''または''を意味する.
 \{ X \} は X の 0 回以上の繰り返しを表す.
 [ x ] は X が 0 回または 1 回出現することを表す.
+*/
+/*&eg
 
+Let us define CMOexpression by the extended BNF expression.
+Symbols in the type writer fonts mean terminals.
+``:'' means a definition.
+``$|$'' means ''or''.
+\{ X \} is a repetition of X of more than or equal to 0 times.
+[ x ] stands for X or nothing.
+
+*/
+
+/*&C
 \begin{eqnarray*}
 \mbox{CMOexpression}  
 &:& \quad
@@ -278,21 +435,48 @@ CMOexpression
 &   &|\   \mbox{\tt string} \\
 &   &|\   \mbox{\tt byte} \\
 \end{eqnarray*}
+*/
+/*&jp
 終端記号 {\tt int32} は, 32 bit integer を表す, 10 進または 16 進の数字の
 列である.
 終端記号 {\tt string} は''文字''の列である.
 終端記号 {\tt byte} は 8 bit データを表す, 10 進または 16 進の数字の列である.
 
+*/
+/*&jp
+Terminal {\tt int32} is signed 32 bit integer. 
+Terminal {\tt string} is a byte array which usually expresses a string.
+Terminal {\tt byte} is 8 bit data.
+
+*/
+
+/*&jp
 CMOexpression にあらわれる各要素を区切るために {\tt ,} (コンマ) を用いてもよい.
 {\tt cmo\_tag} は {\tt CMO\_} で始まる定数である.
 CMOexpression で表現される object を CMObject と呼ぶ.
 
+*/
+/*&eg
+The comma ({\tt ,}) may be used to separate each element in CMOexpressions.
+{\tt cmo\_tag} is a constant that starts with {\tt CMO\_}.
+
+*/
+
+/*&jp
 この表記法 CMOexpression を利用して, CMO Basic0 の object を記述
 してみよう.
 Object 自体の構造を説明するため,
 BNF をもうすこし拡張して, 非終端記号, 終端記号名のみならず, 変数の
 名前も書くことにする. こうすることにより, object の意味の説明も容易になる
 からである. また ``---'' でコメントのはじまりを表すものとする. 
+*/
+/*&eg
+Let us describe CMO's in the Basic0 group.
+In order to explain the meaning of objects,
+we may also put variable names to CMOexpressions.
+The start of comments are denoted by ``---''.
+*/
+/*&jp
 たとえば, (CMObject の) 32 bit integer である integer32 を
 BNFで定義すれば,
 \begin{center}
@@ -313,15 +497,27 @@ CMObject の
 ({\tt CMO\_INT32}, {\sl int32}\ n)
 は, 
 32 bit integer $n$ を表現しているんだということが, 1 行でわかる.
+*/
+/*&eg
+(Example part has not yet been translated.)
+*/
+/*&jp
 この記法を用いて, 前節で導入した, Basic0 の CMObject を
 形式的に定義しよう.
+*/
+/*&eg
+By using this notation, let us define formally CMObjects in the group
+Basic0.
+*/
+
+/*&C
 
 \bigbreak
 \noindent
 Group CMObject/Basic0  requires nothing. \\
 Error2, Null, Integer32, Datum, Cstring, Mathcap, List $\in$ CMObject/Basic0. \\
-Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/openxxx}
-(in Japanese) \\
+Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/OpenXM}
+(in English and Japanese) \\
 \begin{eqnarray*}
 \mbox{Error2}&:& ({\tt CMO\_ERROR2}, {\sl CMObject}\, \mbox{ob}) \\
 \mbox{Null}  &:& ({\tt CMO\_NULL}) \\
@@ -339,13 +535,20 @@ Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/openxxx}
 & & \mbox{---  m is the length of the list.} 
 \end{eqnarray*}
 
-Cstring で, {\sl string} s の部分を {\tt byte} に分解すれば,
+*/
+
+
+//&jp Cstring で, {\sl string} s の部分を {\tt byte} に分解すれば,
+//&eg In the definition of ``Cstring'', if we decompose  ``{\sl string} s'' into bytes, then  ``Cstring'' should be defined as
+/*&C
 \begin{eqnarray*}
 \mbox{Cstring}&:& ({\tt CMO\_STRING},{\sl int32}\,  \mbox{ n}, 
 {\sl byte}\, \mbox{s[0]},
 \ldots, {\sl byte}\ \mbox{s[n-1]})
 \end{eqnarray*}
-となる.
+*/
+//&jp となる.
+/*&jp
 また, 
 ``Group CMObject/Basic0  requires nothing''
 は, 以下は, グループ CMObject/Basic0 の定義であり,
@@ -355,20 +558,53 @@ Cstring で, {\sl string} s の部分を {\tt byte} に分解すれば,
 $\in$ CMObject/Basic0''
 は, グループ CMObject/Basic0 には,  Error2, Null, Integer32,
 Datum, Cstring なるクラスの object が属することを示す.
+*/
+/*&eg
+また, 
+``Group CMObject/Basic0  requires nothing''
+means that there is no super group to define CMO's in the group Basic0.
+``Error2, Null, Integer32, Datum, Cstring, Mathcap, List
+$\in$ CMObject/Basic0''
+means that
+Error2, Null, Integer32, Datum, Cstring
+are members of the group CMObject/Basic0.
+*/
 
+/*&C
 
+*/
+
+/*&jp 
 では, 実際のデータの表現の例をみてみよう.
 たとえば, 32 bit integer の 1234 は,
+*/
+/*&eg
+Let us see examples.
+32 bit integer 1234 is expressed as
+*/
+/*&C
 \begin{center}
 ({\tt CMO\_INT32}, 1234)
 \end{center}
+*/
+/*&jp
 とかく.
 文字列 ``Hello''  は
+*/
+/*&eg
+The string ``Hello'' is expressed as
+*/
+/*&C
 \begin{center}
 ({\tt CMO\_STRING}, 5, "Hello")
 \end{center}
-と書く.
+*/
+//&jp と書く.
 
+/*&C
+
+*/
+/*&jp
 CMOexpression と, CMObject の区別を理解しておくのは重要である.
 たとえば
 \begin{center}
@@ -426,10 +662,15 @@ byte データ {\tt byte} かまたは
 \end{center}
 の 標準 encoding 法による表現である.
 
+*/
+/*&eg
+(This part has not yet been translated.)
+*/
 
+//&jp \section{ Open XM の通信モデル}
+//&eg \section{ Communication model of Open XM}  (This part has not yet been translated)
 
-\section{ Open XM の通信モデル}
-
+/*&jp
 われわれは, 数学プロセスがメッセージを
 交換しながら計算が進行していくというモデルを想定して設計をすすめている.
 各プロセスはスタックマシンであり, これを OX スタックマシンとよぶ.
@@ -691,10 +932,12 @@ debug モードを抜けたい, などの用途に利用する.
 operator の詳細は次の節で説明する.
 これらの定数の名前はインプリメントのとき短縮形で表現してもよい.
 
+*/
 
+//&jp \section{ OX スタックマシン }
+//&eg \section{ OX stackmachine }  (This section has not yet been translated.)
 
-\section{ OX サーバスタックマシン }
-
+/*&jp
 この節では, OX スタックマシン operator の説明
 (TCP/IP ソケット上での標準 encoding 法 を用いる),
 および, サンプルサーバとリンクする場合または
@@ -1290,8 +1533,12 @@ typedef FILE2 * ox_stream;
 
 \end{enumerate}
 
-\section{現在検討中の機能}
+*/
 
+//&jp \section{現在検討中の機能}
+//&eg \section{Projects in work in progress} (This part has not been translated.)
+
+/*&jp
 \subsection{ OX DATA with Length の構造 }
 
 Digital signature 付の {\tt OX\_DATA} は
@@ -1385,9 +1632,12 @@ add, sub, mul, などの基本的な計算は {\tt SM\_executeFunction}
 スタックマシンの制御構造についても検討している.
 
 
+*/
 
-\section{コントロールメッセージ (SMObject/TCPIP/Control)}
+//&jp \section{コントロールメッセージ (SMObject/TCPIP/Control)}
+//&eg \section{Control message (SMObject/TCPIP/Control)} (This section has not been translated.)
 
+/*&jp
 \begin{enumerate}
 \item
 サーバは {\tt SM\_control\_reset\_connection} 
@@ -1469,7 +1719,13 @@ Reset に対する返事.
 0   0   2   03   (OX_SYNC_BALL)
 \end{verbatim}
 
-\section{TCP/IP でのセッションのスタート}
+*/
+
+
+//&jp \section{TCP/IP でのセッションのスタート}
+//&eg \section{How to start a session on TCP/IP} (This section has not yet been translated.)
+
+/*&jp
 コントロールプロセス, 計算プロセス
 ともに, 起動直後に
 1 byte のデータを書き出し flush する.
@@ -1559,24 +1815,33 @@ Byte order for engine process is network byte order.
 \end{verbatim}
 }
 
-\section{ オブジェクトの文字列表現 }
+*/
 
+//&jp \section{ オブジェクトの文字列表現 }
+//&eg \section{ String expression of objects}
+
+/*&jp
 文字列表現は, システム xxx のマニュアルに記述されている一次元的入出力形式に
 したがう.
 
+*/
+/*&eg
+The string expression of objects of the system xxx is also used
+for a string expression for the OX xxx server.
 
-\section{ 数, 多項式 の  CMO 表現 }
+*/
 
 
-タグの種類.
+//&jp \section{ 数, 多項式 の  CMO 表現 }
+//&eg \section{ CMOexpressions for numbers and polynomials }
+
+/*&C
 @../SSkan/plugin/cmotag.h
 \begin{verbatim}
 #define     CMO_MONOMIAL32  19
 #define     CMO_ZZ          20 
-/* #define     CMO_ZZ          32 */
 #define     CMO_QQ          21
 #define     CMO_ZERO        22
-/* #define     CMO_DMS          23    Distributed monomial system */
 #define     CMO_DMS_GENERIC  24
 #define     CMO_DMS_OF_N_VARIABLES  25
 #define     CMO_RING_BY_NAME   26
@@ -1589,13 +1854,22 @@ Byte order for engine process is network byte order.
 #define     CMO_LAMBDA         62    /* for function definition */
 \end{verbatim}
 
+*/
+
+/*&jp
 以下, グループ CMObject/Basic1, CMObject/Tree 
 および CMObject/DistributedPolynomial
 に属する CMObject の形式を説明する.
 \noroa{ tagged list を導入すべきか?  cf. SSkan/plugin/cmo.txt }
 
-拡張 BNF 記法と CMOexpression をまぜた記法で定義する.
---- ではじまる文はコメントである.
+*/
+/*&eg
+In the sequel, we will explain on the groups
+CMObject/Basic1, CMObject/Tree 
+and CMObject/DistributedPolynomial.
+*/
+
+/*&jp
 
 \bigbreak
 \noindent
@@ -1614,7 +1888,32 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic1. \\
 \mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
 & & \mbox{ --- 変数名 $v$ . } \\
 \end{eqnarray*}
+*/
+/*&eg
 
+\bigbreak
+\noindent
+Group CMObject/Basic1 requires CMObject/Basic0. \\
+ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic1. \\
+\begin{eqnarray*}
+\mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
+& & \mbox{ --- Universal zero } \\
+\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots
+{\sl byte}\, \mbox{a[m]} ) \\
+&:& \mbox{ --- bignum. The meaning of a[i] will be explained later.}\\
+\mbox{QQ}        &:& ({\tt CMO\_QQ}, {\sl ZZ}\, {\rm a}, {\sl ZZ}\, {\rm b}) \\
+& & \mbox{ --- Rational number $a/b$. } \\
+\mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
+& & \mbox{ ---  Rational expression $a/b$. } \\
+\mbox{Indeterminate}        &:& ({\tt CMO\_INDETERMINATE}, {\sl Cstring}\, {\rm v}) \\
+& & \mbox{ --- Variable name $v$ . } \\
+\end{eqnarray*}
+*/
+/*&C
+
+*/
+
+/*&jp
 Indeterminate は変数名をあらわす.
 v はバイト列であればなにを用いてもよいが,
 システム毎に変数名として用いられるバイト列は制限がある.
@@ -1624,6 +1923,16 @@ v はバイト列であればなにを用いてもよいが,
 {\tt Dx} は {\tt \#dx} と変換するなどの
 escape sequence を用いて実現するのは, 無理があるようである.
 テーブルを作成する必要があるであろう.)
+*/
+/*&eg
+Indeterminate is a name of a variable.
+v may be any sequence of bytes, but each system has its own
+restrictions on the names of variables.
+Indeterminates of CMO and internal variable names must be translated
+in one to one correspondence.
+*/
+
+/*&jp 
 
 \noindent
 Group CMObject/Tree requires CMObject/Basic1. \\
@@ -1639,7 +1948,26 @@ Tree, Lambda $\in$ CMObject/Basic1. \\
 & & \mbox{ --- body を args を引数とする関数とする. } \\
 & & \mbox{ --- optional な引数が必要なときは, leaves の後へつづける.} \\
 \end{eqnarray*}
+*/
+/*&eg 
 
+\noindent
+Group CMObject/Tree requires CMObject/Basic1. \\
+Tree, Lambda $\in$ CMObject/Basic1. \\
+\begin{eqnarray*}
+\mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
+ {\sl Cstring}\, {\rm cdname}, {\sl List}\, {\rm leaves}) \\
+& & \mbox{ --- A function or a constant of name. Functions are not evaluated. } \\
+& & \mbox{ --- cdname may be a null. If it is not null, it is the name of}\\
+& & \mbox{ --- the OpenMath CD (content dictionary). } \\
+\mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
+                          {\sl Tree} {\rm body}) \\                          
+& & \mbox{ --- a function with the arguments body. } \\
+& & \mbox{ --- optional arguments come after leaves.} \\
+\end{eqnarray*}
+*/
+
+/*&jp
 
 数式を処理するシステムでは, Tree 構造が一般にもちいられる.
 たとえば, $\sin(x+e)$ は,
@@ -1675,6 +2003,14 @@ Lisp の Lambda 表現と同じ.
     )
 )
 \end{verbatim}
+
+\noindent
+Example:
+\begin{verbatim}
+sm1> [(plus) (Basic) [(123).. (345)..]] [(class) (tree)] dc ::
+Class.tree [    $plus$ , $Basic$ , [    123 , 345 ]  ] 
+\end{verbatim}
+
 
 
 \bigbreak
@@ -1858,7 +2194,7 @@ $ 3 x^2 y$ は 6 変数の多項式環の元としてみなされている.
 
 
 
-\section{再帰表現多項式の定義}  %% From this/noro/rp.tex
+\subsection{再帰表現多項式の定義} 
 
 \begin{verbatim}
 #define CMO_RECURSIVE_POLYNOMIAL        27
@@ -1917,13 +2253,23 @@ $$   x^3 (1234 y^5 + 17 ) +  x^1 (y^10 + 31 y^5)  $$
 非可換多項式もこの形式であらわしたいので, 積の順序を上のように
 すること. つまり, 主変数かける係数の順番.
 
+\noindent
+\begin{verbatim}
+sm1
+sm1>(x^2-h). [(class) (recursivePolynomial)] dc /ff set ;
+sm1>ff ::
+Class.recursivePolynomial h * ((-1)) + (x^2  * (1))
+\end{verbatim}
+
+
+
 int32 と Integer32 の違い.
 次にくるデータがかならず int32 とわかっておれば,
 int32 を用いる.
 次のデータ型がわからないとき Integer32 を用いる.
 
 
-\section{CPU依存の double } 
+\subsection{CPU依存の double } 
 
 \begin{verbatim}
 #define CMO_64BIT_MACHINE_DOUBLE   40
@@ -2064,9 +2410,10 @@ CMO の stream への転送, stream よりの転送は,
 \end{enumerate}
 
 
+\subsection{歴史}
 kan -- asir 間でも以上のように開発がすすんだ.
 
-Risa/Asir の開発が沼津の富士フォーラムでおこなわれていた
+Risa/Asir の開p発が沼津の富士フォーラムでおこなわれていた
 ころ, 私が沼津を, 1996年, 1月19日に訪問し,
 {\tt Asir\_executeString()}
 の機能を野呂さんに書いてもらって, kan より asir を文字列で呼び出す
@@ -2118,6 +2465,8 @@ open XM スタックマシンを実現している.
 {\tt ox\_lauch} なる名前であるが, 機能は同じである.
 {\tt ox} のソースは {\tt oxmain.c} である.
 
+\subsubsection{OpenXM/src/ox\_toolkit にあるサンプル実装}
+このディレクトリの解説文書を見よ.
 
 \subsubsection{ ox\_null }
 
@@ -2305,6 +2654,11 @@ CMObject と kan/sm1 の object は次の規則にしたがい変換される.
 
 {\tt OxVersion} 変数で openXM のプロトコルの version を表す.
 
+\subsubsection{ {\tt ox\_sm1} を用いたクライアントのテスト方法 }
+まだかいてない.
+
+\subsubsection{ {\tt Asir} を用いたサーバのテスト方法 }
+
 \subsection{ 最小の TCP/IP クライアントの例 }
 
 Java または M2 によるソースコードを掲載の予定.
@@ -2384,6 +2738,8 @@ Free Mathematical Software Initiative を作るべきだろう.
 
 \subsection{ Change log }
 \begin{enumerate}
+\item 1997/11/20 : この document の最初の version が生まれた.
+  kxx/openxxx.tex なる名前であった.
 \item 1999/07 : {\tt CMO\_ZZ} の形式を変えた.
 \item 1999/09/7, 9/8 : 分散表現多項式, Mathcap, RecursivePolynomial,
 の形式を変えた. asir, sm1 に実装した. エラー処理のために,
@@ -2635,7 +2991,9 @@ Example:
 数式処理, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo). \\
 {\tt http://www.math.kobe-u.ac.jp/openxxx/}
 \end{thebibliography}
+*/
 
+/*&C
 \bigbreak
 \bigbreak
 \bigbreak
@@ -2656,3 +3014,4 @@ Example:
 }
 
 \end{document}
+*/
