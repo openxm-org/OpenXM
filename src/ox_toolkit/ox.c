@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.19 2003/01/11 11:42:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.20 2003/01/13 12:03:12 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -301,11 +301,9 @@ void send_ox_command(OXFILE *oxfp, int sm_command)
 void ox_close(OXFILE *sv)
 {
     send_ox_command(oxf_control(sv), SM_control_kill);
-#ifdef DEBUG
     sleep(2);
     /* We wait thar an OpenXM server terminates. */
     ox_printf("I have closed the connection to an Open XM server.\n");
-#endif
 }
 
 void ox_shutdown(OXFILE *sv)
@@ -386,9 +384,7 @@ void ox_reset(OXFILE *sv)
     }
 
     send_ox_tag(sv, OX_SYNC_BALL);
-#ifdef DEBUG
     ox_printf("I have reset an Open XM server.\n");
-#endif
 }
 
 void send_ox(OXFILE *oxfp, ox *m)
@@ -569,13 +565,17 @@ ox_sync_ball* new_ox_sync_ball()
 
 int ox_stderr_init(FILE *fp)
 {
-    ox_stderr = (fp != NULL)? fp: (stderr);
-    setbuf(ox_stderr, NULL);
+    ox_stderr = fp;
+    if (ox_stderr != NULL) {
+        setbuf(ox_stderr, NULL);
+    }
 }
 
 int ox_printf(char *format, ...)
 {
-	va_list ap;
-	va_start(ap, format);
-	vfprintf(ox_stderr, format, ap);
+    if (ox_stderr != NULL) {
+        va_list ap;
+        va_start(ap, format);
+        vfprintf(ox_stderr, format, ap);
+    }
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.9 2003/01/11 11:42:32 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.10 2003/01/13 12:03:12 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
     int code;
     char *server = "ox_sm1";
 
-    ox_stderr_init(NULL);
+    ox_stderr_init(stderr);
 
     if (argc>1) {
         server = argv[1];

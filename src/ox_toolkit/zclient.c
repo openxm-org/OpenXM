@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/zclient.c,v 1.3 2003/01/11 11:42:32 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/zclient.c,v 1.4 2003/01/13 12:03:13 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     OXFILE *oxfp;
 	char *remote, *cmd;
 
-    ox_stderr_init(NULL);
+    ox_stderr_init(stderr);
 	if (argc < 3) {
         ox_printf("we have a few argument.\n");
         ox_printf("Usage:\n  %s [remotehost] [command]\n", argv[0]);
