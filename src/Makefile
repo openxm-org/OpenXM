@@ -1,11 +1,11 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.41 2000/01/08 18:48:46 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.42 2000/01/08 19:11:10 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
 
 all-asir: configure-asir
-	(cd asir2000 ; make all ; make install ; make install2)
+	(cd asir2000 ; make all ; make install)
 
 all-gnuplot: configure-gnuplot
 	(cd gnuplot ; make all ; make install)
