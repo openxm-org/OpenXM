@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.5 2001/12/28 08:18:23 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.6 2001/12/28 08:33:20 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
@@ -13,7 +13,7 @@ def
 /oxasirpath.asirlib
   [ [(getenv) (OpenXM_HOME)] extension
     (/lib/sm1/oxasir.asir) ] cat
-% (\OpenXM-win\lib\sm1\oxasir.asir)
+% (/OpenXM-win/lib/sm1/oxasir.asir)  %% asir understand only / notations.
 def
 /oxpath.ox
 %%  (\OpenXM-win\bin\ox.exe)
@@ -65,7 +65,7 @@ def
  peer message
 
  /oxasirpath.asirlib
-   (\OpenXM-win\lib\sm1\oxasir.asir)
+   (/OpenXM-win/lib/sm1/oxasir.asir)
  def
 
  [(forkExec) [
