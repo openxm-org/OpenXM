@@ -1,14 +1,15 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.33 2004/09/10 13:20:22 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.34 2004/09/13 11:24:10 takayama Exp $ 
 (hol_loaded) boundp { }
 { [(parse) (hol.sm1) pushfile] extension } ifelse
 %[(parse) (appell.sm1) pushfile] extension
 
-(ecart.sm1 : ecart division for D, 2003/07/25 ) message-quiet
+(ecart.sm1 : ecart division for D, 2003/07/25, 2004/09/14 ) message-quiet
 /ecart.begin { beginEcart } def
 /ecart.end   { endEcart } def
 /ecart.autoHomogenize 1 def
 /ecart.needSyz 0 def
 /ecartd.gb.oxRingStructure [[ ] [ ] ] def
+/ecart.partialEcartGlobalVarX [ ] def
 
 /ecartd.begin { 
   ecart.begin
@@ -26,6 +27,10 @@
 /ecart.messagen {
   ecart.message.quiet { pop } { messagen } ifelse
 } def
+/ecart.setOpt.init {
+% Initialize
+    /ecart.partialEcartGlobalVarX [ ] def
+} def
 /ecart.setOpt {
   /arg1 set
   [/in-ecart.setOpt /opt /i /n /ans] pushVariables
@@ -33,6 +38,9 @@
     /opt arg1 def
     /ans [ ] def
     /n opt length def
+
+    ecart.setOpt.init 
+
     0 2 n 1 sub {
       /i set
       opt i get tag StringP eq not {
@@ -58,6 +66,12 @@
       opt i get (sugar) eq {
         /ecart.useSugar opt i 1 add get def
         exit
+      } {  } ifelse
+
+% Global:  ecart.partialEcartGlobalVarX
+      opt i get (partialEcartGlobalVarX) eq {
+        /ecart.partialEcartGlobalVarX opt , i 1 add , get def
+        % do not exit.
       } {  } ifelse
 
       ans [opt i get opt i 1 add get ]  join /ans set
@@ -269,6 +283,12 @@
   $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  $
   $             [(degreeShift) [[0 1] [-3 1]]] ] ecart.gb pmat ; $
   (  )
+  $Example 6:  [ [(1-z) (-x+1-y-z)] (x,y,z)  $
+  $              [[(y) -1 (z) -1 (Dy) 1 (Dz) 1] [(x) 1 (Dx) 1]] $
+  $              [(partialEcartGlobalVarX) [(x)]] ] /std set $
+  $             std ecart.gb pmat ; $
+  $             std ecart.gb getRing :: $
+  (  )
   (cf. gb, groebner, ecarth.gb, ecartd.gb, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
   (    ecart.dehomogenize, ecart.dehomogenizeH)
   ( [(weightedHomogenization) 1 (degreeShift) [[1 2 1]]] : options for )
@@ -297,6 +317,7 @@
     /hdShift 0 def 
     /opt [(weightedHomogenization) 1] def
     /ecart.useSugar 0 def
+    ecart.setOpt.init
     aa { tag } map /typev set
     typev [ ArrayP ] eq
     {  /f aa 0 get def
@@ -419,7 +440,7 @@
     } { } ifelse
 
     %%BUG: case of v is integer
-    v ecart.checkOrder
+    [v ecart.partialEcartGlobalVarX] ecart.checkOrder
 
     ecart.begin
 
@@ -599,6 +620,7 @@
     /wv 0 def
     /degreeShift 0 def
     /opt [(weightedHomogenization) 1] def
+    ecart.setOpt.init
     aa { tag } map /typev set
     typev [ ArrayP ] eq
     {  /f aa 0 get def
@@ -718,7 +740,7 @@
     } { } ifelse
 
     %%BUG: case of v is integer
-    v ecart.checkOrder
+    [v ecart.partialEcartGlobalVarX] ecart.checkOrder
 
     ecartn.begin
 
@@ -796,6 +818,7 @@
     /hdShift 0 def
     /ecart.useSugar 0 def
     /opt [(weightedHomogenization) 1] def
+    ecart.setOpt.init
     aa { tag } map /typev set
     typev [ ArrayP ] eq
     {  /f aa 0 get def
@@ -908,7 +931,8 @@
     } { } ifelse
 
     %%BUG: case of v is integer
-    v ecart.checkOrder
+    [v ecart.partialEcartGlobalVarX] ecart.checkOrder
+
 
     ecartd.begin
 
@@ -989,7 +1013,21 @@
 
 /ecart.checkOrder {
   /arg1 set
-  [/in-ecart.checkOrder /vv /tt /dd /n /i] pushVariables
+  [/vv] pushVariables
+  [
+    /vv arg1 def
+    vv length 1 eq {
+      vv 0 get ecart.checkOrder.noGlobal /arg1 set
+    }{
+      vv ecart.checkOrder.global /arg1 set
+    } ifelse
+  ] pop
+  popVariables
+  /arg1
+} def
+/ecart.checkOrder.noglobal {
+  /arg1 set
+  [/vv /tt /dd /n /i] pushVariables
   [
     /vv arg1 def
     vv isArray
@@ -1015,8 +1053,54 @@
   popVariables
   arg1
 } def
+
+/ecart.checkOrder.global {
+  /arg1 set
+  [/vv /vvGlobal /tt /dd /n /i] pushVariables
+  [
+    /vv arg1 def
+    /vvGlobal vv 1 get def
+    vv 0 get /vv set
+    vv isArray
+    { } { [vv to_records pop] /vv set } ifelse
+    vv {toString} map /vv set
+    vvGlobal isArray
+    { } { [vvGlobal to_records pop] /vvGlobal set } ifelse
+    vvGlobal {toString} map /vv set
+
+    vv vvGlobal setMinus /vv set
+    vv { /tt set [@@@.Dsymbol tt] cat } map /dd set
+    % Starting the checks.  Check for local variables.
+    0 1 vv length 1 sub {
+       /i set
+       vv i get . dd i get . mul /tt set
+       tt @@@.hsymbol . add init tt eq { }
+       { [@@@.hsymbol ( is larger than ) vv i get ( ) dd i get] cat error} ifelse
+    } for
+
+    0 1 vv length 1 sub {
+       /i set
+       vv i get . /tt set
+       tt (1). add init (1). eq { }
+       { [vv i get ( is larger than 1 ) ] cat error} ifelse
+    } for
+
+    % check for global variables. 
+    0 1 vvGlobal length 1 sub {
+       /i set
+       vvGlobal i get . /tt set
+       tt (1). add init (1). eq { [vvGlobal i get ( is smaller than 1 ) ] cat error }
+       { } ifelse
+    } for
+
+
+    /arg1 1 def
+  ] pop
+  popVariables
+  arg1
+} def
 [(ecart.checkOrder)
- [(v ecart.checkOrder bool checks if the given order is relevant)
+ [([v vGlobal] ecart.checkOrder bool checks if the given order is relevant)
   (for the ecart division.)
   (cf. ecartd.gb, ecart.gb, ecartn.gb)
  ]
