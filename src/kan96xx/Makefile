@@ -1,8 +1,11 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.10 2000/01/10 19:11:59 maekawa Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.11 2000/01/10 19:17:24 maekawa Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
 OPENXM_CONTRIB=../../../OpenXM_contrib
+OpenXM_ROOT=../../../OpenXM
+OpenXM_bin=$(OpenXM_ROOT)/bin
+
 GC=$(OPENXM_CONTRIB)/gc
 GMP=$(OPENXM_CONTRIB)/gmp
 
@@ -49,7 +52,9 @@ configure_symbolic_links :
 dist :
 	./makeDist
 ###############
-install : 
+install : install-openXM-bin
+
+install-usr-local : 
 	mkdir /usr/local/lib/sm1
 	cp lib/* /usr/local/lib/sm1
 	cp Kan/sm1 /usr/local/bin
@@ -79,14 +84,19 @@ clean-binary :
 	echo " ../kanbinary*  will be removed"
 	echo "after 10 seconds. To cancel type in ctrl-C."
 	( sleep 10 ; /bin/rm -rf ../kanbinary* )
-install-openXM-bin :
-	/bin/rm -f ../bin/sm1
-	cp Kan/sm1 ../bin
-install2 :
-	/bin/rm -f ../bin/sm1
-	ln -f -s ../src/kan96xx/Kan/sm1 ../bin/sm1
+
+install-openXM-bin : clean-for-debug
+	cp Kan/sm1 $(OpenXM_bin)
+install-for-debug :
+	ln -f -s ../src/kan96xx/Kan/sm1 $(OpenXM_bin)/sm1
+
+install-document : 
+	(cd Doc ; make install-document)
 
 ##############
+clean-for-debug :
+	/bin/rm -f $(OpenXM_bin)/sm1
+
 clean :
 	if test -f $(GMP)/Makefile ; \
 	then \
