@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.5 2000/01/19 03:13:40 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.6 2000/02/09 12:02:56 takayama Exp $*/
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -36,6 +36,7 @@ main(int argc, char *argv[]) {
   if (argc >= 2) {
     oxname = argv[1];
     oxname = toFullPath(oxname);
+	if (oxname == NULL) oxname="NULL";
   }
   if (argc == 2) {
     execl(oxname,oxname,NULL);
@@ -93,7 +94,7 @@ main(int argc, char *argv[]) {
 	  argv[7],argv[8],argv[9],argv[10],argv[11], argv[12],argv[13],argv[14],argv[15],argv[16],argv[17],argv[18],argv[19],argv[20],NULL);
   }else {
     fprintf(stderr,"Error in oxlog: cannot handle argc=%d\n",argc);
-    fprintf(stderr,"oxname=%s\n",oxname);
+	fprintf(stderr,"oxname=%s\n",oxname);
     for (i=0; i<argc; i++) {
       fprintf(stderr,"argv[%d]=%s ",i,argv[i]);
     }
@@ -131,20 +132,21 @@ mainold1() {
 char *toFullPath(char *s) {
   extern int Debug_which;
   char *path ="/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/usr/openwin/bin:/usr/X/bin";
+  char *s2;
   if (strlen(s) == 0) {
     return(s);
   }
   if (strchr(s,'/') != NULL) return(s);
   else {
-    s = which(s,getenv("PATH"));
+    s2 = which(s,getenv("PATH"));
   }
-  if (s == NULL) {
-	if (Debug_which) fprintf(stderr,"Could not find %s in your search path.\n",s);
+  if (s2 == NULL) {
+	if (Debug_which) fprintf(stderr,"Could not find arg[1] in your search path.\n");
 	if (Debug_which) fprintf(stderr,"You path is %s.\n",getenv("PATH"));
 	if (Debug_which) fprintf(stderr,"Trying to find in the path: %s\n",path);
-	s = which(s,path);
+	s2 = which(s,path);
   }
-  return(s);
+  return(s2);
 }
 
 /*which("xterm", getenv("PATH"));*/
