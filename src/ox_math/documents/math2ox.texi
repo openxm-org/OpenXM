@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.2 2000/03/11 09:17:42 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.3 2000/03/14 02:21:40 ohara Exp $
 
 \input texinfo
 @iftex
@@ -66,7 +66,7 @@ String
 
 @itemize @bullet
 @item  It starts the OX server @code{s}. 
-@item Servers are looked for in the directory $OenXM_HOME/bin, hoge hoge.
+@item Servers are looked for in the directory $OpenXM_HOME/bin, hoge hoge.
 @end itemize
 
 @example
@@ -82,17 +82,17 @@ In this example, @code{ox_sm1} is started on the local machine.
 @node Starting OX servers on a remote machine,,, Top
 @section Starting OX servers on a remote machine
 
-The OpenXM ptotocol says that, if we need to run an OX server on a
-remote machine, then an OX client connect to the OX server on the remote
-machine by insecure mode.
-
-We note that insecure mode has a risk.
-For example, we are afraid our packets are listened in.
-However we know a simple method to plug such a security hole.
-That is, a connection by ssh (Secure SHell).
-Of course OpenXM protocol does not request ssh formally, but our
-mathematica client (math2ox) in current implementation
-needs ssh to connect a remote server.
+In order to connect to remote OX servers, it is convenient, secure and
+recommended to use @code{ssh} (Secure SHell).
+The function @code{OxStartRemoteSSH} starts remote OX servers
+by ssh.  Of course, you are supposed to be able to login the remote
+machine by @code{ssh} and @code{$Remote_OpenXM_HOME/rc/cshrc} or
+@code{$Remote_OpenXM_HOME/rc/bashrc} are executed from the login shell
+of your remote machine.
+The function @code{OxStartRemoteSSH[]} does not request your password,
+that is, you need to be using @code{ssh-agent} before calling
+@code{OxStartRemoteSSH[]}.
+Then there will be no check of password.
 
 @c  Description of OxStartRemoteSSH
 @menu
@@ -103,7 +103,7 @@ needs ssh to connect a remote server.
 @findex OxStartRemoteSSH
 @table @t
 @item OxStartRemoteSSH[@var{s}, @var{host}]
-::  start the OX server @code{s} on the remote machine @code{host} via ssh. 
+::  start the OX server @code{s} on the remote machine @code{host} by ssh. 
 @end table
 
 @table @var
@@ -115,11 +115,11 @@ String
 String
 @end table
 
-We note that the inplementation of function is incomplete!
+We note that the @code{OxStartRemoteSSH[]} is an experimental implementation.
 
 @itemize @bullet
 @item  It starts the OX server @code{s}. 
-@item Servers are looked for in the directory $OenXM_HOME/bin, hoge hoge.
+@item Servers are looked for in the directory $OpenXM_HOME/bin, hoge hoge.
 @end itemize
 
 @example
@@ -158,7 +158,7 @@ String
 
 @itemize @bullet
 @item  It starts the OX server @code{s}. 
-@item Servers are looked for in the directory $OenXM_HOME/bin, hoge hoge.
+@item Servers are looked for in the directory $OpenXM_HOME/bin, hoge hoge.
 @end itemize
 
 @example
@@ -218,11 +218,13 @@ Manual
 Integer
 @end table
 
-The @code{OxPopCMO[]} function pop an object on the top of the stack of
+The @code{OxPopCMO[]} function pops an object on the top of the stack of
 the OX stack machine @code{pid} and returns the object.
+The return type of the function @code{OxPopCMO[]} is @code{Manual} in
+terms of MathLink, that is, an object of suitable type is returned.
 
 @example
-In[5] := cmo = OxPopCMO[]
+In[5] := cmo = OxPopCMO[pid]
 @end example
 
 @c  Description of OxPopString
@@ -244,12 +246,12 @@ String
 Integer
 @end table
 
-The @code{OxPopString[]} function pop an object on the top of the stack
+The @code{OxPopString[]} function pops an object on the top of the stack
 of the OX stack machine @code{pid} and returns a string which is
-translate from the object by the OX stack machine.
+translated from the object by the OX stack machine.
 
 @example
-In[5] := string = OxPopString[]
+In[5] := string = OxPopString[pid]
 @end example
 
 @c  Description of OxClose
@@ -271,11 +273,11 @@ none
 Integer
 @end table
 
-The @code{OxClose[]} function close the connection to the OX server 
+The @code{OxClose[]} function closes the connection to the OX server 
 @code{pid}.
 
 @example
-In[5] := OxClose[]
+In[5] := OxClose[pid]
 @end example
 
 @c  Description of OxExecuteString
@@ -301,7 +303,7 @@ String
 
 The @code{OxExecuteString[]} function executes @code{command} on the OX server 
 @code{pid}.
-@code{command} is interpreted in local language of the OX server.
+The string @code{command} is interpreted in local language of the OX server.
 
 @example
 In[5] := OxExecuteString["print(1+2);"]
@@ -326,11 +328,11 @@ Manual
 Integer
 @end table
 
-The @code{OxGet[]} function get an object from the connection to the OX server 
+The @code{OxGet[]} function gets an object from the connection to the OX server 
 @code{pid}.
 
 @example
-In[5] := cmo = OxGet[]
+In[5] := cmo = OxGet[pid]
 @end example
 
 @c  Put descriptions of a next function.
