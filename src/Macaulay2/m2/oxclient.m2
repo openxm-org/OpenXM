@@ -1,4 +1,4 @@
-ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.1 2000/09/21 09:20:53 takayama Exp $ "
+ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.2 2000/12/14 05:09:29 takayama Exp $ "
 
 load "oxcommon.m2"
 
@@ -241,7 +241,9 @@ oxPrimDecomp(OXSESSION, Ideal) := (F, I) -> (
 
 makeLaunchCommand=(UseSSH,MyHostName,RemoteLoginName,RemoteHostName,OxServerName,dPort,cPort,PASS)->(
      commXterm := toString " xterm -geometry 80x25-0-0 " ;
-     commOX :=toString " -e ox -ox " | OxServerName | 
+     commOX :=toString " -e ox -ox " | 
+               getenv("OpenXM_HOME") | "/bin/" |
+               OxServerName | 
                        " -data " | dPort |
     		       " -control " | cPort |
 		       " -reverse " |
@@ -252,7 +254,7 @@ makeLaunchCommand=(UseSSH,MyHostName,RemoteLoginName,RemoteHostName,OxServerName
 	                   RemoteHostName |
 	                   " '" | commXterm |
   		           --uncomment when X11 forwarding is not allowed.
-			   " -display " | MyHostName | ":0 " | 
+			   -- " -display " | MyHostName | ":0 " | 
 			   commOX | "'  >/dev/null ";
 	  )
      else  (
