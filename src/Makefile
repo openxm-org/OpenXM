@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.77 2000/02/01 09:59:42 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.78 2000/02/01 10:12:47 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -172,10 +172,13 @@ configure-oxmath:
 configure-pari:
 	(cd pari ; make configure)
 
-generate-source-distribution : generate-source-distribution-kxx
+generate-source-distribution : generate-source-distribution-kxx \
+                               generate-source-distribution-ox_toolkit
 
 generate-source-distribution-kxx :
 	(cd kxx ; rm -f .configure_done Makefile ; autoconf)
+generate-source-distribution-ox_toolkit :
+	(cd ox_toolkit ; rm -f Makefile ; autoconf)
 
 clean-rc :
 	(cd $(RCDIR) ; make clean )
