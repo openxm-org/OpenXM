@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.15 2003/02/12 08:28:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.16 2003/03/16 16:58:48 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -524,9 +524,8 @@ mlo *ml_return()
             ml_clear_interruption();
         }else {
             ml_clear_interruption();
-            ml_evaluateStringByLocalParser("0"); /* need for 4.x */
+            MLFlush(stdlink);                    /* need for 4.x */
             ob = ml_return0();                   /* ReturnPacket[$Aborted] */
-            ml_return0();                        /* need for 4.x */
         }
     }else {
         ob = ml_return0();
