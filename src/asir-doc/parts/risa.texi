@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.11 2003/04/20 08:01:26 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.12 2003/10/19 04:57:00 ohara Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -597,62 +597,6 @@ Note that the setting takes effect after rebooting the machine on Windows
 \E
 @itemize @bullet
 @item
-@code{ASIR_KEY}
-@*
-\BJP
-UNIX 版では, @b{Asir} が起動されたマシンに対する @code{key} がなけ
-ればそのマシン上で @b{Asir} は動作しない. @code{key} は 16 進 8 
-桁 3 ワードからなり, 
-\E
-\BEG
-@b{Asir} shall not work unless a @code{key} for the machine
-on which @b{Asir} is invoked is given.
-The @code{key} consists of a string which denotes 3 word hexadecimal
-number, each of which has 8 hexadecimal digits.
-In order to run @b{Asir} for several machines,
-several @code{key}'s can be written together on a same file as follows.
-\E
-@example
-% cat asir_key
-cf6f236c 61a35091 dddc4529 geisha
-82281685 d1929945 a8bd24ca yorktown
-34b75d30 63f8df93 3e881113 nyanchu
-@end example
-
-\BJP
-という形で複数台のマシンに対する @code{key} を一つのファイルにまとめて
-書くことができる. @code{key} の後ろは無視されるので, コメントを書く
-ことができる. @code{key} を含むファイルは, 以下の順でサーチされる. 
-\E
-\BEG
-The text after each @code{key} is neglected to the end-of-line.
-This is convenient to comment on the respective @code{key}.
-Files containing @code{key}'s are searched by the following order.
-\E
-
-@enumerate
-@item
-\JP 環境変数 @code{ASIR_KEY} に指定されたファイル
-\EG File set to environment @code{ASIR_KEY}
-
-@item
-\JP カレントディレクトリの @samp{asir_key}
-\EG File @samp{asir_key} on the current directory.
-
-@item
-\BJP
-環境変数 @code{ASIR_LIBDIR} で指定されたディレクトリ (指定がなければ
-@samp{/usr/local/lib/asir}) の @samp{asir_key}
-\E
-\BEG
-Files on the directory specified by environment @code{ASIR_LIBDIR}.
-(File @samp{asir_key} on @samp{/usr/local/lib/asir/},
-if environment @code{ASIR_LIBDIR} is not set.)
-\E
-
-@end enumerate
-
-@item
 @code{ASIR_LIBDIR}
 @*
 \BJP
@@ -666,6 +610,27 @@ The library directory of @b{Asir}, i.e., the directory where
 , for example, files containing programs written in @b{Asir}.
 If not specified, on UNIX, @samp{/usr/local/lib/asir} is used by default.
 On Windows, @samp{lib} in @b{Asir root directory} is used by default.
+This environment will be useful in a case where @b{Asir} binaries
+are installed on a private directory of the user.
+\E
+@item
+@code{ASIR_CONTRIB_DIR}
+@*
+\BJP
+@b{Asir} の asir-contrib ディレクトリ, すなわち OpenXM/asir-contrib 
+プロジェクトで書かれたパッケージやデータなどがおかれるディレクトリ. 
+指定がない場合 UNIX 版では 
+@samp{/usr/local/lib/asir-contrib}, 
+Windows 版では Asir メインディレクトリの下の @samp{lib-asir-contrib} 
+ディレクトリが用いられる. 
+\E
+\BEG
+The asir-contrib library directory of @b{Asir}, i.e., the directory where
+packages and data developed by the OpenXM/asir-contrib project files are put.
+If not specified, on UNIX, @samp{/usr/local/lib/asir-contrib} 
+is used by default.
+On Windows, @samp{lib-asir-contrib} in @b{Asir root directory} 
+is used by default.
 This environment will be useful in a case where @b{Asir} binaries
 are installed on a private directory of the user.
 \E
