@@ -1,9 +1,9 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.2 1999/11/08 00:16:05 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
 @@@.quiet {   }
-{ (macro package : dr.sm1,   9/26,1995 --- Version 11/8, 1999. ) message } ifelse
+{ (macro package : dr.sm1,   9/26,1995 --- Version 2/2, 2000. ) message } ifelse
 
 /ctrlC-hook {
 %%% define your own routing in case of error.
@@ -3026,6 +3026,50 @@ newline
    ] pop
    popVariables
    arg1
+} def
+
+/distraction2* {
+  /arg1 set
+  [/in-distraction2* /aa /f /vlist /xlist /dlist /slist ] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+     /aa arg1 def
+     /f aa 0 get def
+     /vlist aa 1 get def
+     /xlist aa 2 get def
+     /dlist aa 3 get def
+     /slist aa 4 get def
+     vlist isArray 
+     {
+        vlist { toString } map   /vlist set
+     }
+     {
+        vlist toString to_records  /vlist set
+      } ifelse
+     xlist isArray 
+     {
+        xlist { toString } map   /xlist set
+     }
+     {
+        xlist toString to_records  /xlist set
+      } ifelse
+     slist isArray 
+     {
+        slist { toString } map   /slist set
+     }
+     {
+        slist toString to_records  /slist set
+      } ifelse
+     [vlist from_records ring_of_differential_operators 0] define_ring pop
+     f toString .
+     xlist { . } map
+     dlist { toString . } map
+     slist { toString . } map
+     distraction2 /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
 } def
 
 /message-quiet  {

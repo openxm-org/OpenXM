@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.10 2000/01/22 11:20:00 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.11 2000/01/31 13:48:20 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -928,6 +928,20 @@ $m' = x^{a'} y^{b'} \partial_x^{c'} \partial_y^{d'}$
 ,0,0,0,0,3>>,(1)*<<0,0,0,0,0,1,0,3>>]]]
 @end example
 */
+
+/*&eg-texi
+@table @t
+@item Reference
+    @code{sm1_reduction}, @code{sm1_rat_to_p}
+@end table
+*/
+/*&jp-texi
+@table @t
+@item 参照
+    @code{sm1_reduction}, @code{sm1_rat_to_p}
+@end table
+*/
+
 
 def sm1_gb(A) {
   SM1_FIND_PROC(P);
@@ -2126,6 +2140,214 @@ def sm1_rat_to_p(T) {
      return(sm1_rat_to_p_aux(T));
   }
 }
+
+
+
+/* ---------------------------------------------- */
+def sm1_distraction(A) {
+  SM1_FIND_PROC(P);
+  sm1_push_int0(P,A);
+  sm1(P," distraction2* ");
+  ox_check_errors2(P);
+  return(sm1_pop(P));
+}
+
+/*&eg-texi
+@menu
+* sm1_distraction::
+@end menu
+@node sm1_distraction,,, SM1 Functions
+@subsection @code{sm1_distraction}
+@findex sm1_distraction
+@table @t
+@item sm1_distraction([@var{f},@var{v},@var{x},@var{d},@var{s}]|proc=@var{p})
+::  ask the @code{sm1} server to compute the distraction of @var{f}.
+@end table
+
+@table @var
+@item return
+List
+@item p
+Number
+@item f
+Polynomial
+@item v,x,d,s
+List
+@end table
+
+@itemize @bullet
+@item  It asks the @code{sm1} server of the descriptor number @var{p}
+to compute the distraction of  @var{f} in the ring of differential
+operators with variables @var{v}.
+@item @var{x} is a list of x-variables and @var{d} is that of d-variables
+to be distracted. @var{s} is a list of variables to express the distracted @var{f}.
+@item Distraction is roughly speaking to replace x*dx by a single variable x.
+See Saito, Sturmfels, Takayama : Grobner Deformations of Hypergeometric Differential Equations at page 68 for details.
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_distraction::
+@end menu
+@node sm1_distraction,,, SM1 函数
+
+@subsection @code{sm1_distraction}
+@findex sm1_distraction
+@table @t
+@item sm1_distraction([@var{f},@var{v},@var{x},@var{d},@var{s}]|proc=@var{p})
+::  @code{sm1} に @var{f} の distraction を計算してもらう.
+@end table
+
+@table @var
+@item return
+リスト
+@item p
+数
+@item f
+多項式
+@item v,x,d,s
+リスト
+@end table
+
+@itemize @bullet
+@item  識別子 @var{p}  の @code{sm1}  サーバに,
+@var{f} の distraction を @var{v} 上の微分作用素環で計算してもらう.
+@item @var{x} , @var{d} は, それぞれ, distract すべき x 変数, d 変数の
+リスト.  Distraction したら, @var{s} を変数として結果を表す.
+@item Distraction というのは x*dx を x で置き換えることである.
+詳しくは Saito, Sturmfels, Takayama : Grobner Deformations of Hypergeometric Differential Equations の page 68 を見よ.
+@end itemize
+*/
+
+/*&C-texi
+
+@example
+[280] sm1_distraction([x*dx,[x],[x],[dx],[x]]);
+x
+[281] sm1_distraction([dx^2,[x],[x],[dx],[x]]);
+x^2-x
+[282] sm1_distraction([x^2,[x],[x],[dx],[x]]);
+x^2+3*x+2
+[283] fctr(@@);
+[[1,1],[x+1,1],[x+2,1]]
+[284] sm1_distraction([x*dx*y+x^2*dx^2*dy,[x,y],[x],[dx],[x]]);
+(x^2-x)*dy+x*y
+@end example
+*/
+
+/*&eg-texi
+@table @t
+@item Reference
+    @code{distraction2(sm1)}, 
+@end table
+*/
+
+/*&jp-texi
+@table @t
+@item 参照
+    @code{distraction2(sm1)}, 
+@end table
+*/
+
+def sm1_gkz(S) {
+  SM1_FIND_PROC(P);
+  A = S[0];
+  B = S[1];
+  AA = [ ];
+  BB = [ ];
+  for (I=0; I<length(A); I++) {
+    AA = append(AA,[map(ntoint32,A[I])]);
+    BB = append(BB,[ntoint32(0)]);
+  }
+  sm1(P,"[ ");
+  sm1_push_int0(P,AA);
+  sm1_push_int0(P,BB);
+  sm1(P," ] gkz ");
+  ox_check_errors2(P);
+  R = sm1_pop(P);
+  RR0 = map(eval_str,R[0]);
+  RR1 = map(eval_str,R[1]);
+  RR3 = [ ];
+  for (I=0; I<length(B); I++) {
+    RR3 = append(RR3,[ sm1_rat_to_p(RR0[I]-B[I])[0] ]);
+  }
+  for (I=length(B); I<length(RR0); I++) {
+    RR3 = append(RR3,[RR0[I]]);
+  }
+  return([RR3,RR1]);
+}
+
+
+/*&eg-texi
+@menu
+* sm1_gkz::
+@end menu
+@node sm1_gkz,,, SM1 Functions
+@subsection @code{sm1_gkz}
+@findex sm1_gkz
+@table @t
+@item sm1_gkz([@var{A},@var{B}]|proc=@var{p})
+::  Returns the GKZ system (A-hypergeometric system) associated to the matrix 
+@var{A} with the parameter vector @var{B}.
+@end table
+
+@table @var
+@item return
+List
+@item p
+Number
+@item A, B
+List
+@end table
+
+@itemize @bullet
+@item Returns the GKZ hypergeometric system 
+(A-hypergeometric system) associated to the matrix 
+@end itemize
+*/
+
+/*&jp-texi
+@menu
+* sm1_gkz::
+@end menu
+@node sm1_gkz,,, SM1 函数
+@subsection @code{sm1_gkz}
+@findex sm1_gkz
+@table @t
+@item sm1_gkz([@var{A},@var{B}]|proc=@var{p})
+::  行列 @var{A} とパラメータ @var{B} に付随した GKZ 系 (A-hypergeometric system) をもどす.
+@end table
+
+@table @var
+@item return
+リスト
+@item p
+数
+@item A, B
+リスト
+@end table
+
+@itemize @bullet
+@item  行列 @var{A} とパラメータ @var{B} に付随した GKZ 系 (A-hypergeometric system) をもどす.
+@end itemize
+*/
+
+/*&C-texi
+
+@example
+
+[280] sm1_gkz([  [[1,1,1,1],[0,1,3,4]],  [0,2] ]);
+[[x4*dx4+x3*dx3+x2*dx2+x1*dx1,4*x4*dx4+3*x3*dx3+x2*dx2-2,
+ -dx1*dx4+dx2*dx3,-dx2^2*dx4+dx1*dx3^2,dx1^2*dx3-dx2^3,-dx2*dx4^2+dx3^3],
+ [x1,x2,x3,x4]]
+
+@end example
+
+*/
+
+
+
 
 
 end$
