@@ -1,2 +1,139 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.1 1999/12/23 10:25:08 takayama Exp $
+
+\section{Design Outline} 
+
+As Schefstr\"om clarified in \cite{schefstrom},
+integration of tools and softwares has three dimensions:
+data, control, and user interface.
+
+Data integration concerns with the exchange of data between different
+softwares or same softwares.
+OpenMath \cite{OpenMath} and MP (Multi Protocol) \cite{GKW} are,
+for example, general purpose mathematical data protocols.
+They provides a standard way to express mathematical objects.
+For example,
+\begin{verbatim}
+ <OMOBJ>  <OMI> 123 </OMI> </OMOBJ>
+\end{verbatim}
+means the (OpenMath) integer $123$ in OpenMath, XML expression.
+
+Control integration concerns with the establishment and management of
+inter software communications.
+Control involves, for example, a way to ask computation to other processes
+and a method to interrupt computations on servers.
+RPC, HTTP, MPI, PVM are regarded as a general purpose control protocols or
+infrastructure.
+MCP (Mathematical Communication Protocol)
+by Wang \cite{iamc} is such a protocol specialized to mathematics.
+
+Although, data and control are orthogonal to each other,
+real world requires both.
+NetSolv \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
+and MathLink of Mathematica provide both data and control integration.
+These are currently studied ways of data and control integration.
+Each integration method has their own special features due to their
+own design goals and design motivations.
+OpenXM is a project aiming to integrate data, control and user interfaces
+from a different emphasis of a set of design goals with other projects.
+To explain our design outline, we start with a list of
+our motivations.
+\begin{enumerate}
+\item Noro,  who is one of the authors of OpenXM, has developed a general
+purpose computer algebra system Risa/Asir \cite{asir}.
+A set of functions for interative distributed computations were introduced
+in Risa/Asir version 95xxxx release in 1995.
+The model of computation was RPC (remote procedure call)
+and it had its own serialization method for objects.
+One special feature of this system was that computations of remote servers can
+be interrupted.
+A robust interruption method was provided by having two communication channels
+like ftp, which implements the simple network management protocol.
+As an application of this robust and interractive system, 
+a huge Gr\"obner basis was computed
+to determine all replicable functions by Noro and McKay \cite{noro-mckay}.
+However, the protocol was closed in asir and we thought that we should
+design an open protocol.
+\item Takayama, who is also one of the authors of OpenXM, has developed
+a special purpose computer algebra system Kan/sm1 \cite{kan},
+which is a Gr\"obner engine for ring of differential operators $D$ and
+a package for computational algebraic geometry via D-module computations.
+In order to implement algorithms in D-modules due to Oaku 
+(see, e.g., \cite{sst-book}),
+factorizations and primary ideal decompositions were necessary.
+Kan/sm1 does not have an implementation for these and had invoked
+Risa/asir as a C library or a unix external program.
+This approach was not satisfactory.
+Especially, we could not write a clean interface code between these
+two systems.
+We thought that it is necessary to provide a data and control protocol
+for Risa/asir to work as a server of factorization and primary ideal
+decomposition.
+\item The number of mathematical softwares is increasing rapidly in the last
+decades of 20th century.
+These are usually ``expert'' systems for one area of mathematics
+such as ideals, groups, numbers, polytopes, and so on.
+They has their own interfaces and data format.
+Interfaces are usually specialied to specific field of mathematics
+or poor because developers do not have time for designing user interface
+languages.
+It is fine for intensive and serious users of these systems.
+%% x2 stands for x^2, specialized for polynomial ring.
+However, for users who want to explore a new area of mathematics with these
+softwares or users who needs these systems only occasionally,
+a unified system will be more convinient.
+For example, if we can call and use mathematical softwares
+like CoCoa, GAP, Macaulay2, Porta, Singular, Snapea, $\ldots$
+from Asir, Axion, Maple, muPAD, Mathematica, and so on,
+it will be wonderful in research and education
+of mathematics. This is an unification of user interfaces of mathematical
+softwares.
+\item  We believe that open integrated systems is a future of mathematical
+softwares.
+However, it might be just a dream without relizability.
+We wanted to build a prototype system of such an open system by using
+existing standards, technologies and several mathematical softwares.
+We want to see how far we can go with this approach.
+\end{enumerate}
+
+Motivated with these, we started the OpenXM project with the following
+fundamental architecture.
+\begin{enumerate}
+\item Communication is an exchange of messages. The messages are classifed into
+three types:
+DATA, COMMAND, and others.
+The messages are called OX (OpenXM) messages.
+Mathematical data are wrapped with OX messages.
+We uses standards of mathematical data formats such as OpenMath and MP
+and our own data format (CMO --- Common Mathematical Object format)
+as data expressions.
+\item Servers, which provide services to other processes, are stackmachines.
+The stackmachine is called the
+OX stackmachine.
+Existing mathematical softwares are wrapped with this stackmachine.
+Minimal requirements for a target software wrapped with OX stackmachine
+are as follows:
+\begin{enumerate}
+\item The target must have a seriealized interface such as a character based
+interface.
+\item An output of the target must be machine understandable.
+It should follow a grammer that can be parsed with other softwares.
+\end{enumerate}
+\end{enumerate}
+We are implementing a package which is realizing our wishes stated as motivations.
+It is based on above fundamental architecture.
+For example, the following is a command sequence to ask $1+1$ from
+the asir client to the OX sm1 server:
+\begin{verbatim}
+  P = sm1_start();
+  ox_push_cmo(P,1); ox_push_cmo(P,1);
+  ox_execute_string(P,"add"); ox_pop_cmo(P);
+\end{verbatim}
+The current system, OpenXM on TCP/IP, 
+uses client-server model and the TCP/IP for interprocess
+communications.
+A design and implementation on MPI already exist for Risa/asir and
+a OpenXM on MPI is a work in progress.
+We focus only on the system based on TCP/IP in this paper.
+
+
 

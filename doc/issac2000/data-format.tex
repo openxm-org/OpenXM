@@ -1,2 +1,127 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.1 1999/12/23 10:25:08 takayama Exp $
+
+\section{Data Format}   (Ohara)
+
+OpenXM admits multiple math encodings such as OpenMath, MP, CMO
+(Common Mathematical Object format).
+OpenXM itself does not exhibit a bias towards a particular encodings 
+as a main math data carrier and OpenXM compliant system do not need to
+implement all possible data formats.
+A server or a client does not necessarily implement full specifications
+of OpenXM. 
+However, if a program sends an OX data or an OX command unknown to its peer, 
+an unrecoverable error may occur. 
+To avoid such a case OpenXM provides a scheme not
+to send an OX message unknown to peers. 
+It is realized by exchanging the list of
+supported CMO's, OpenXM stack machine codes, and necessary extra informations. 
+The list is called mathcap.
+Mathcap is also defined as a CMO and the elements are 32bit integers
+or strings.
+
+Math encoding types of OX data are distinguished with tags
+of OX messages.
+For example,
+an OX message with the tag 
+OX\_DATA is followed by CMO packet.
+An OX message with the tag 
+OX\_DATA\_OPENMATH\_XML is followed by 
+OpenMath XML string and its length.
+All OpenXM compliant systems should implement 7 primitive data types
+of CMO.
+These are used not only to express mathematical objects, but also
+indespensable to carry control informations such as mathcap.
+CMO is an original methematical data encoding system of the OpenXM project.
+Let us explain the data format of CMO.
+Any CMO packet consists of a header and a body.
+The size of the header is 4 bytes that tags the data type of the body.
+Data type tags are signed 32 bit integers which is called {\sl int32} in this
+paper.
+Following tags are registered in the OpenXM for now.
+\begin{verbatim}
+#define CMO_ERROR2                         0x7f000002
+#define CMO_NULL                           1
+#define CMO_INT32                          2
+#define CMO_DATUM                          3
+#define CMO_STRING                         4
+#define CMO_MATHCAP                        5
+#define CMO_LIST                           17
+#define CMO_MONOMIAL32                     19
+#define CMO_ZZ                             20
+#define CMO_QQ                             21
+#define CMO_ZERO                           22
+#define CMO_DMS_GENERIC                    24
+#define CMO_DMS_OF_N_VARIABLES             25
+#define CMO_RING_BY_NAME                   26
+#define CMO_RECURSIVE_POLYNOMIAL           27
+#define CMO_LIST_R                         28
+#define CMO_INT32COEFF                     30
+#define CMO_DISTRIBUTED_POLYNOMIAL         31
+#define CMO_POLYNOMIAL_IN_ONE_VARIABLE     33
+#define CMO_RATIONAL                       34
+#define CMO_64BIT_MACHINE_DOUBLE           40
+#define CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  41
+#define CMO_128BIT_MACHINE_DOUBLE          42
+#define CMO_ARRAY_OF_128BIT_MACHINE_DOUBLE 43
+#define CMO_BIGFLOAT                       50
+#define CMO_IEEE_DOUBLE_FLOAT              51
+#define CMO_INDETERMINATE                  60
+#define CMO_TREE                           61
+#define CMO_LAMBDA                         62
+\end{verbatim}
+The first seven types should be implemented on all OpenXM compliant systems.
+The format of the first severn CMO's are as follows. \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt int32 CMO\_ERROR2} & {\sl CMObject} {\rm ob} \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt int32 CMO\_NULL}  \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt int32 CMO\_INT32}& {\tt int32} {\rm n}  \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|c|}
+\hline
+{\tt int32 CMO\_DATUM}& {\tt int32} {\rm n} & {\tt byte} {\rm  data[0]} \\
+\hline
+$\cdots$ & {\tt byte} {\rm  data[n-1]} \\ 
+\cline{1-2}
+\end{tabular} \\
+\begin{tabular}{|c|c|c|}
+\hline
+{\tt int32 CMO\_STRING}& {\tt int32} {\rm n} & {\tt byte} {\rm data[0]} \\
+\hline
+$\cdots$ & {\tt byte} {\rm data[n-1]} \\ 
+\cline{1-2}
+\end{tabular} \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt int32 CMO\_MATHCAP} & {\it CMObject} {\rm ob} \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|c|}
+\hline
+{\tt int32 CMO\_LIST}& {\tt int32} {\rm n} & {\tt CMObject} {\rm ob[0]} \\
+\hline
+$\cdots$ & {\tt CMObject} {\rm ob[n-1]} \\ 
+\cline{1-2}
+\end{tabular} \\
+
+
+A mathematical programmer who wants to implement CMO on a server proceed 
+as follows.
+\begin{enumerate}
+\item Look for the CMO list at the web cite \cite{openxm-web}.
+If there is a CMO tht fits to her or his requirement, then use this CMO.     
+\item If there is no suitable CMO, design a new CMO and register 
+the new CMO to \cite{openxm-web} with a description and examples.
+\end{enumerate}
+
+
 

@@ -1,1 +1,79 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.1 1999/12/23 10:25:09 takayama Exp $
+
+\section{OpenXM Stackmachines}   (Tamura)
+
+In OpenXM specification, all servers are stackmachines.
+These are called OpenXM stachmachines.
+When a server ox\_xyz gets a OX data message,
+it translates the data into its own object and push the object
+on the stack.
+The translation scheme together with mathematical operation definitions
+of the system ox\_xyz is called the {\it phrase dictionary} of
+ox\_xyz following the idea of OpenMath.
+
+OX command message starts with the int32 tag OX\_COMMAND.
+The body is OpenXM stackmachine operation code expressed by int32.
+The codes are listed below.
+\begin{verbatim}
+#define SM_popSerializedLocalObject               258
+#define SM_popCMO                                 262
+#define SM_popString                              263
+#define SM_mathcap                                264
+#define SM_pops                                   265
+#define SM_setName                                266
+#define SM_evalName                               267
+#define SM_executeStringByLocalParser             268
+#define SM_executeFunction                        269
+#define SM_beginBlock                             270
+#define SM_endBlock                               271
+#define SM_shutdown                               272
+#define SM_setMathCap                             273
+#define SM_executeStringByLocalParserInBatchMode  274
+#define SM_getsp                                  275
+#define SM_dupErrors                              276
+#define SM_DUMMY_sendcmo                          280
+#define SM_sync_ball                              281
+#define SM_control_kill                          1024
+#define SM_control_to_debug_mode                 1025
+#define SM_control_exit_debug_mode               1026
+#define SM_control_reset_connection              1030
+\end{verbatim}
+
+OpenXM does not have a standard for mathematical operation sets
+while it is one of the main future projects of \cite{gap}.
+Each OpenXM server has its own mathematical operation set.
+Mathematical operator name, such as fctr (asir factorization command),
+is pushed as a string,
+SM\_executeFunction pops the operator name, the number of arguments
+and arguments,
+evaluates the operator, and pushes the result on the stack.
+For example, the following code factorizes $x^{100}-1$ by calling
+ox\_asir.
+\begin{verbatim}
+P = ox_launch(); 
+ox_push_cmo(P,x^100-1); ox_push_cmo(P,ox_int32(1));
+ox_push_cmd(P,269); 
+Ans = ox_pop_cmo(P);
+\end{verbatim}
+
+When an error has occurred on an OpenXM server,
+an error object is pushed to the stack instead of a result of the computation.
+The error object consists of the serial number of the OX message
+which caused the error, and an error message.
+\begin{verbatim}
+[341] ox_rpc(0,"fctr",1.2*x)$
+[342] ox_pop_cmo(0);
+error([8,fctr : invalid argument])
+\end{verbatim}
+
+Errors are not sent to the client except a SM\_pop* command is received.
+Open XM stackmachines works in the asynchoronous mode which is similar 
+to X servers.
+For servers of graphic applications, it is an advantageous feature.
+It is also easy to emulate RPC and a web server for MCP \cite{iamc} 
+on our OpenXM stackmachines.
+
+
+
+
+

@@ -1,0 +1,65 @@
+%%$OpenXM$
+
+\section{OX messages}  (Ohara)
+
+An OX message for TCP/IP is a byte stream consisting of
+a header and a body.
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Header	& \hspace{10mm} Body \hspace{10mm} \\
+\hline
+\end{tabular}
+\end{center}
+The header consists of two signed 32 bit integers.
+The first one is an OX tag 
+and the second one is a serial number of the OX message.
+Negative numbers are expressed by the two's complement.
+Several byte orders including the network byte order
+are allowed and the byte order is determined as a part of
+the establishment of a connection.
+
+The OX messages are classifed into three types:
+DATA, COMMAND, and others.
+We have the following main tags for the OX messages.
+\begin{verbatim}
+#define	OX_COMMAND               513  // COMMAND
+#define	OX_DATA	                 514  // DATA
+#define OX_SYNC_BALL             515  // others
+#define OX_DATA_WITH_LENGTH      521  // DATA
+#define OX_DATA_OPENMATH_XML     523  // DATA
+#define OX_DATA_OPENMATH_BINARY  524  // DATA
+#define OX_DATA_MP               525  // DATA
+\end{verbatim}
+
+New OX tags may be added.
+The new tag should be classified into DATA or COMMAND.
+For example, \verb+ OX_DATA_ASIR_BINARY +  was added a few month ago
+to send internal serialized objects of asir via OpenXM protocol.
+This is a tag classifed to DATA.
+See the home page of OpenXM to add a new tag.
+
+In OpenXM, a distributed computation is done as follows:
+\begin{enumerate}
+\item A client requests something to a server.
+\item The server does works according to the request.
+\item The client requests to send data to the server.
+\item The server sends the data to the client and the client gets the data.
+\end{enumerate}
+The server is a stack machine. 
+That is OX data message sent by the client
+are pushed to the stack of the server. 
+If the server gets a OX command message, then the data are
+popped form the stack and they are used as arguments of a function call.
+For example, the asir command
+\verb+ ox_push_cmo(P,1) +
+sends an OX data message
+(OX\_DATA,(CMO\_ZZ,1)) to the server $P$.
+Here,
+OX\_DATA stands for OX\_DATA header and 
+(CMO\_ZZ,1) is a body standing for $1$ expressed in CMO data encoding format.
+
+
+
+
+
