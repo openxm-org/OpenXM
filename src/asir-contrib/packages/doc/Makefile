@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.48 2003/07/28 01:17:38 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.49 2003/07/28 01:36:36 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -41,7 +41,7 @@ OPTGENTEXI= --include
 ## PS documents are installed under $(OpenXM_doc)/asir-contrib
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
-OXWEAVE= ../../../kxx/oxweave
+OXWEAVE=$(OpenXM_ROOT)/bin/oxweave
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
 

@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.14 2003/03/27 11:09:12 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.15 2003/05/31 06:38:55 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -8,7 +8,7 @@ RSYNC=rsync -Cavz
 CURRENT=/home/web/OpenXM/Current
 NKF=nkf -e
 
-OXWEAVE=../../src/kxx/oxweave
+OXWEAVE=../../bin/oxweave
 OXWEAVEFLAG=--recursive --plain
 OXREPLACE=../../src/util/oxreplace
 SRC= OpenXM.tex cmo-basic0.tex cmo-basic1.tex\

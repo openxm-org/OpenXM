@@ -1,5 +1,5 @@
-#$OpenXM: OpenXM/doc/Makefile,v 1.5 2000/09/09 03:01:23 takayama Exp $
-OXWEAVE=../src/kxx/oxweave
+#$OpenXM: OpenXM/doc/Makefile,v 1.6 2003/03/25 23:55:25 takayama Exp $
+OXWEAVE=../bin/oxweave
 OW_FLAG=--recursive
 all : install-doc-intro install-doc-spec install-doc-FAQ
 
