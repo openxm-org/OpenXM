@@ -1,7 +1,8 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.2 2003/11/16 17:17:02 ohara Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.3 2003/11/16 17:20:54 ohara Exp $
 
-fetch="wget --no-directories --passive-ftp --quiet --timestamping"
+MASTER_SITES="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/"
+fetch="wget --no-directories --passive-ftp --timestamping"
 url=$1
 distdir=${2:-.}
 distinfo=$3
@@ -32,6 +33,10 @@ _md5 () {
 }
 
 _check () {
+    if [ ! -f "$distdir/$distfile" ]; then
+        echo "Not found."
+        exit 1
+    fi
     if [ -f "$distinfo" ]; then
         key1=`(cd $distdir; md5 "$distfile" ) | _md5 $distfile`
         key2=`cat $distinfo | _md5 "$distfile"`
