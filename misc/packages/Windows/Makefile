@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.7 2001/12/28 03:24:35 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.8 2001/12/28 09:54:47 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -16,6 +16,7 @@ copy-binary:
 	  (cd OpenXM-win ; \
 	   (cd ../${OpenXM_TOP}; tar czf - bin lib rc man src/asir-contrib) | tar xzvf -  ; \
 	  ) ; \
+	   cp readme-ja.html OpenXM-win ; \
 	   touch .copy-binary-done ; \
 	fi 
 

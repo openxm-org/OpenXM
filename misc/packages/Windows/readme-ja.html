@@ -1,0 +1,94 @@
+<html>
+<title> Windows 版 OpenXM (開発中版) CD の利用法 </title>
+<body>
+
+<font color="red">
+<h2> 動作環境 </h2>
+</font>
+
+Windows 版 <a href="http://www.openxm.org"> OpenXM パッケージ </a> 
+は Windows 2000/XP で動作します.
+Windows 95/98/ME でも動作はしますが, コンポーネント間の通信速度が
+Windows 95/98/ME の制約により極端に遅いので, 動作が非常に緩慢となります.
+
+<font color="red">
+<h2> CDROM での OpenXM 版 
+ <a href="http://www.math.kobe-u.ac.jp/Asir/asir.html"> asir 
+ </a> の起動方法. </h2>
+</font>
+
+Windows 版 OpenXM は ハードディスクにインストールすることなく
+CD のみでも利用できます.
+
+<ol>
+<li> デスクトップのマイコンピュータアイコンをダブルクリックして
+     開き, その中の CDROM を開く.
+<li>  OpenXM-win フォルダ, 次に  asir フォルダ,
+     その次に  bin フォルダ を開き,
+      asirgui-cd をダブルクリックします.
+     すると asir が起動します.
+</ol>
+
+<p>
+Asir のプログラムは メモ帳 (notepad) などのテキストエディタで書きます.
+CD の中のフォルダ  asir-book には  micro-emacs フォルダがあり,
+この中には  mewin (Windows 版 microEmacs エディタ) が入っています.
+このテキストエディタを利用することも可能です.
+</p>
+
+<font color="red">
+<h2> Windows 95/98/ME で "環境変数領域が足りない" といわれたとき </h2>
+</font>
+<ol>
+<li> スタートメニュー/プログラム/アクセサリ より,
+     "MSDOS プロンプト" を実行
+<li> CDROM が D ドライブなら,  <br>
+     <font color="blue">
+      command /e:6000 <br>
+      d: <br>
+      cd \OpenXM-win\asir\bin  <br>
+     </font>
+      を MSDOS プロンプトへ入力してから, <br>
+     <font color="blue">
+      asirgui-cd <br>
+     </font>
+      を入力すると asir が起動します.
+</ol>
+
+<font color="red">
+<h2> ハードディスクへのインストール方法 </h2>
+</font>
+
+<ol>
+<li> デスクトップのマイコンピュータアイコンをダブルクリックして
+     開き, その中の CDROM を開く.
+<li> デスクトップのマイコンピュータアイコンをダブルクリックして
+     二つ目の ウインドウを開く.
+<li> CDROM の OpenXM-win フォルダを, もう一つのウインドウの
+    ローカルディスク (c:) へドラッグアンドドロップして, コピーします.
+<li>  ローカルディスク (c:) を開くと, OpenXM-win フォルダが出来ているので,
+    その中の asir フォルダ, bin フォルダを順番に開き,
+    asirgui アイコンをダブルクリックして asirgui を一度起動する.
+    (これで registry に必要な情報が書き込まれてインストール終了.
+     失敗したら, regedit で 
+     HKEY_LOCAL_MACHINE->SOFTWARE->FUJITSU のなかの ASIR を全て消す.)
+</ol>
+<font color="red">
+開発中版のため, デスクトップなどにはコピーしても動きません.
+</font>
+
+<font color="red">
+<h2> CDROM での OpenXM 版 kan/sm1 の起動方法. </h2>
+</font>
+<ol>
+<li> デスクトップのマイコンピュータアイコンをダブルクリックして
+     開き, その中の CDROM を開く.
+<li>  OpenXM-win フォルダ, 
+     次に  bin フォルダ を開き,
+      sm1 をダブルクリックします.
+     すると kan/sm1 が起動します.
+</ol>
+
+$OpenXM$
+</body>
+</html>
