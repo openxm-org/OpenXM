@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/povray.rr,v 1.1 2001/02/21 12:27:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/povray.rr,v 1.2 2001/02/21 23:03:25 takayama Exp $ */
 
 /* This is an experimental asir program to model
    implicit algebraic surfaces for povray
@@ -80,7 +80,16 @@ def povray_prolog(FileName,Camera, Light) {
       "direction <0, 0, 1.21> "+NL+
       "look_at <0, 0, 0> "+NL+
       "} "+NL+
-      "light_source { <5, 20, -10> colour White } "+NL$
+      "light_source { <5, 20, -10> colour White } "+NL+
+      "#declare RED = texture {"+NL+
+      "   pigment {color rgb<0.8, 0.2,0.2>}"+NL+
+      "   finish { ambient 0.2 diffuse 0.5}"+NL+
+      "}"+NL+
+      "#declare GREEN = texture {"+NL+
+      "   pigment {color rgb<0.8, 0.8, 0.2>}"+NL+
+      "   finish { ambient 0.2 diffuse 0.5}"+NL+
+      "}"+NL$
+ 
 
   put_bytes(Fp,S);
   return(Fp);
@@ -129,8 +138,100 @@ def povray_spheres(Fp,Slist) {
 
 */
 
-/*  Generate square objects */
-/*  Not yet written. */
+/*  Generate mesh objects */
+
+def povray_mesh(Fp,Slist) {
+  /* Slist is a union of triangles.
+     Example:
+     [ [[0,0,0],[1,0,0],[0,1,0]],  
+       [[1,0,0],[0,1,0],[1,1,0.5]]
+     ]
+  */
+  NL = asciitostr([10]);
+  S = "mesh { "+NL;
+  put_bytes(Fp,S);
+  S = " ";
+  Param = 
+   " pigment { "+NL+
+   "   color Silver "+NL+
+   "   filter 0.0 "+NL+
+   " } "+NL+
+   " finish { "+NL+
+   "   ambient 0.2 "+NL+
+   "   diffuse 0.5 "+NL+
+   "   phong 0.6 "+NL+
+   "   phong_size 7 "+NL+
+   "   reflection 0.8 "+NL+
+   " } "+NL$
+
+  N = length(Slist);
+  for (I=0; I<N; I++) {
+    Mesh = Slist[I];
+    S = " triangle { <"+rtostr(Mesh[0][0])+","+rtostr(Mesh[0][1])+","+
+                        rtostr(Mesh[0][2])+">,"+
+                    "<"+rtostr(Mesh[1][0])+","+rtostr(Mesh[1][1])+","+
+                        rtostr(Mesh[1][2])+">,"+
+                    "<"+rtostr(Mesh[2][0])+","+rtostr(Mesh[2][1])+","+
+                        rtostr(Mesh[2][2])+"> "+NL$
+    if (P==0) {
+      S = S+ "  texture { RED } "+NL$
+      P = 1;
+    }else{
+      S = S+ "  texture { GREEN } "+NL$
+      P = 0;
+    }
+    S = S+ " } "+NL;
+    put_bytes(Fp,S);
+  }
+  put_bytes(Fp,Param);
+  put_bytes(Fp,"} "+NL);
+}
+
+def test_mesh() {
+    povray_prolog("t.pov",0,0);
+    povray_mesh(0,[ [[0,0,0],[1,0,0],[0,1,0]],    /* triangle 1 */
+                    [[1,0,0],[0,1,0],[1,1,0.5]]   /* triangle 2 */
+                  ]);
+    povray_epilog(0);
+}
+
+/* test mesh */
+DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
+def test_f(X,Y) {
+  return(deval((X^2-(Y-3)^2)/4));
+}
+def test_triangle1(X,Y) {
+  extern DX,DY;
+  return([
+          [X,test_f(X,Y),Y],
+          [X+DX,test_f(X+DX,Y),Y],
+          [X,test_f(X,Y+DY),Y+DY]]);
+}
+def test_triangle2(X,Y) {
+  extern DX,DY;
+  return([
+          [X,test_f(X,Y),Y],
+          [X-DX,test_f(X-DX,Y),Y],
+          [X,test_f(X,Y-DY),Y-DY]]);
+}
+def test_mesh2() {
+    extern DX,DY;
+    Mesh=[];  
+    for (X=-5; X<5; X += DX) {
+      for (Y=0; Y<5; Y += DY) {
+         Mesh = append(Mesh,[test_triangle1(X,Y),test_triangle2(X+DX,Y+DY)]);
+      }
+    }
+    povray_prolog("t.pov",0,0);
+    povray_mesh(0,Mesh);
+    povray_epilog(0);
+    print("See the picture by  ")$
+    print("   povray +it.pov +D0 ")$
+}
+
+/* A general function to generate meshes for z=f(x,y). */
+
+/* Not yet written */
 
 
 /* The next function patches f(x,y,z)=0 by small squares
