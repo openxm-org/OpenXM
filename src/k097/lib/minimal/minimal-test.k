@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.17 2000/08/10 02:59:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.18 2000/08/21 07:45:22 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -349,8 +349,8 @@ def test21b() {
     ttt = sss[i];
     ans = 0;
     for (j=0; j<Length(ttt); j++) {
-      p = ttt[j] + maxR + 3; /* degree */
-      if (p >= 0) {
+      p = -ttt[j] + maxR + 3; /* degree */
+      if (p-maxR >= 0) {
         ans = ans + CancelNumber(p*(p-1)*(p-2)/(3*2*1));
         /* Add the number of monomials */
       }
@@ -373,8 +373,8 @@ def test21c() {
     ttt = sss[i];
     ans = 0;
     for (j=0; j<Length(ttt); j++) {
-      p = ttt[j] + maxR + 3; /* degree */
-      if (p >= 0) {
+      p = -ttt[j] + maxR + 3; /* degree */
+      if (p-maxR >= 0) {
         ans = ans + CancelNumber(p*(p-1)*(p-2)/(3*2*1));
         /* Add the number of monomials */
       }
