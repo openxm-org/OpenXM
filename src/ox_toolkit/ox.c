@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.8 2000/01/19 19:46:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.9 2000/01/20 08:46:44 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -742,7 +742,7 @@ static char *concat_openxm_home_bin(char *s)
 	}
 
 	base = getenv("OpenXM_HOME");
-	path = malloc(strlen(base)+5+strlen(s));
+	path = malloc(strlen(base)+6+strlen(s));
 	sprintf(path, "%s/bin/%s", base, s);
 	return path;
 }
@@ -843,11 +843,18 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
     return sv;
 }
 
+ox_file_t ox_start_remote_with_ssh(char *dat_prog, char* host)
+{
+	ssh_ox_server(host, "ox", dat_prog, 1200, 1300);
+	return ox_start_insecure_nonreverse(host, 1200, 1300);
+}
+
 /* ssh -f host oxlog xterm -e ox -ox ox_asir ... */
 int ssh_ox_server(char *host, char *ctl_prog, char *dat_prog, short portControl, short portStream)
 {
 	char *oxlog;
 	char *ssh;
+
 	oxlog    = concat_openxm_home_bin("oxlog");
 	ctl_prog = concat_openxm_home_bin(ctl_prog);
 	dat_prog = concat_openxm_home_bin(dat_prog);
@@ -857,7 +864,8 @@ int ssh_ox_server(char *host, char *ctl_prog, char *dat_prog, short portControl,
 	if (fork() == 0) {
 		execl(ssh, ssh, "-f", host, oxlog, "xterm", "-icon",
 			  "-e", ctl_prog, "-insecure", "-ox", dat_prog, 
-			  "-data", portStream, "-control", portControl, "-host", host, NULL);
+			  "-data", portStream, "-control", portControl, 
+			  "-host", host, NULL);
 		exit(1);
 	}
 }
@@ -885,15 +893,6 @@ ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short port
     sv->stream  = mysocketOpen(host, portStream);
     decideByteOrderClient(sv->stream, 0);
     return sv;
-}
-
-ox_file_t ox_start_insecure_nonreverse2(char* host, char *ctl_prog, char *dat_prog)
-{
-	short portControl= 1200;  /* 自動生成させよう... */
-	short portStream = 1300;
-
-	ssh_ox_server(host, ctl_prog, dat_prog, portControl, portStream);
-	return ox_start_insecure_nonreverse(host, portControl, portStream);
 }
 
 void ox_reset(ox_file_t sv)
