@@ -1,0 +1,39 @@
+/* $OpenXM$ */
+/*&C-texi
+
+*/
+/*&eg-texi 
+   Asir/OpenXM supports 
+   function names in the long function name format partly following OpenMath
+   Content Dictionaries. 
+ */
+/*&jp-texi 
+   Asir/OpenXM (OpenXM 対応の asir) は
+    OpenMath の Content Dictionaries に部分的に対応した,
+   以下の函数名をサポートする.
+ */
+
+/*&C-texi
+basic_add, basic_sub, basic_mul, basic_div
+*/
+
+/* Double check the names */
+def basic_add(A,B) { return(A+B); }
+def basic_sub(A,B) { return(A-B); }
+def basic_mul(A,B) { return(A*B); }
+def basic_div(A,B) { return(A/B); }
+
+/*&C-texi
+factorize, cancel, numerator, denominator
+*/
+
+def factorize(F) { return(fctr(F)); }
+def cancel(F)  { return(red(F)); }
+def numerator(F) { return(nm(F)); }
+def denominator(F) { return(dn(F)); }
+
+
+/*&C-texi
+
+*/
+end$

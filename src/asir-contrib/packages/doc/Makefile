@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.10 2000/01/31 05:52:04 noro Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.11 2000/02/06 06:39:48 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -17,8 +17,8 @@ OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 OXWEAVE= ../../../kxx/oxweave
 
-JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi
-EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi
+JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi
+EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi
 
 all : $(JPSRCS) $(EGSRCS)
 install : install-document install-help
@@ -79,6 +79,14 @@ dsolv-eg.texi : dsolv.oxweave Makefile
 	/bin/rm -f dsolv-eg.texi
 	$(OXWEAVE) C-texi eg-texi  <dsolv.oxweave >dsolv-eg.texi
 
+longname-jp.texi : $(CONTRIB)/longname Makefile
+	/bin/rm -f longname-jp.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/longname >longname-jp.texi
+
+longname-eg.texi : $(CONTRIB)/longname Makefile
+	/bin/rm -f longname-eg.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/longname >longname-eg.texi
+
 help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
 	-rm -rf tmp help-eg
 	mkdir help-eg tmp
@@ -121,5 +129,5 @@ clean-document :
 
 
 clean :
-	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi
+	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi
 	/bin/rm -rf help-jp help-eg tmp
