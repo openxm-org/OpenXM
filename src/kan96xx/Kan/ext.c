@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.8 2001/08/21 14:12:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.9 2002/02/24 10:27:18 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +12,7 @@
 #include "extern2.h"
 #include <signal.h>
 #include "plugin.h"
+#include <ctype.h>
 
 #define MYCP_SIZE 100
 static int Mychildren[MYCP_SIZE];
@@ -161,6 +162,16 @@ struct object Kextension(struct object obj)
     obj1 = getoa(obj,1);
     if (obj1.tag != Sdollar) errorKan1("%s\n","[(getenv) envstr] extension");
     abc = getenv(KopString(obj1));
+#if defined(__CYGWIN__)
+    if (abc == NULL) {
+	  abc2 = (char *)sGC_malloc(sizeof(char)*(strlen(KopString(obj1)+2)));
+      strcpy(abc2,KopString(obj1));
+	  for (i=0; i<strlen(abc2); i++) {
+		abc2[i] = toupper(abc2[i]);
+	  }
+      abc = getenv(abc2);
+    }
+#endif
     if (abc == NULL) {
       rob = NullObject;
     }else{
