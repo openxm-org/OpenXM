@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.4 2001/07/16 07:21:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.5 2001/08/10 08:37:07 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -13,10 +13,14 @@ def omatrix_ltom(L) {
   if (type(L) != 4) {
     error("parameter type error.");
   }
+  if (type(L[0]) != 4) return omatrix_ltov(L);
   return newmat(length(L), length(L[0]), L);
 }
 
 def omatrix_mtol(M) {
+  if (type(M) == 5) { /* vector case */
+    return vtol(M);
+  }
   if (type(M) != 6) {
     error("parameter type error.");
   }

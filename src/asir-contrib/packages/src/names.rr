@@ -1,5 +1,8 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.5 2001/07/17 02:32:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.6 2001/08/10 08:37:07 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
+
+/* Include data type declaration. */
+load("datatype.rr")$
 
 def ox_loadfile(Tag,FileName) {
   if (!Tag) Result=load(FileName); else return(1);
@@ -10,6 +13,7 @@ ox_loadfile(Loaded_taka_base,"taka_base.rr") $
 ox_loadfile(Loaded_taka_print,"taka_print.rr") $
 ox_loadfile(Loaded_om,"om") $
 ox_loadfile(Loaded_Matrix,"Matrix") $
+ox_loadfile(Loaded_taka_base,"taka_base.rr") $
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 
@@ -20,6 +24,12 @@ ox_loadfile(Loaded_Matrix,"Matrix") $
      you should write here as
      def number_chop(Exp,Dx) {  return(hoge_chop(Exp,Dx)); }
 */
+
+/* Base module */
+def base_replace(S,Rule) {
+  ox_loadfile(Loaded_taka_base,"taka_base.rr");
+  return taka_base_replace(S,Rule);
+}
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
 def number_base_form(X,B) { NOT_YET; }
@@ -65,6 +75,14 @@ def series_solve(Eq,A) { NOT_YET; }
 def series_limit(F,A) { NOT_YET; }
 
 /* Canonical function names for matrix. cf. Mathematica/LiearAlgebra */
+def matrix_matrix_to_list(M) {
+  ox_loadfile(Loaded_Matrix,"Matrix");
+  return omatrix_mtol(M);
+}
+def matrix_list_to_matrix(M) {
+  ox_loadfile(Loaded_Matrix,"Matrix");
+  return omatrix_ltom(M);
+}
 def matrix_diagonal_matrix(L) { NOT_YET; }
 def matrix_identity_matrix(N) { NOT_YET; }
 def matrix_transpose(M) {

@@ -1,4 +1,9 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.1 2001/08/10 08:37:08 takayama Exp $ */
+#define LIST 4
+#define VECTOR 5
+#define MATRIX 6
+#define STRUCT 8
+
 def taka_base_solve_poly1(F,V) {
   if (type(F) == 3) { /* Rational */
     G = dn(F); 
@@ -28,6 +33,34 @@ def taka_base_solve_poly1(F,V) {
   return Ans;
 }
 
+def taka_base_rule_name(I) {
+  return strtov("taka_base_v"+rtostr(I));
+}
+
+def taka_base_replace(S,Rule) {
+  if (type(S) == LIST) {
+    return map(taka_base_replace,S,Rule);
+  }
+  if (type(S) == MATRIX || type(S) == VECTOR) {
+    Sl = matrix_matrix_to_list(S);  print(S1);
+    S1 = map(taka_base_replace,S1,Rule);  print(S1);
+    return matrix_list_to_matrix(S1);
+  }
+  if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
+    Rule = Rule->Rule;
+  }
+  N = length(Rule);
+  for (I=0; I<N; I++) {
+    S = subst(S,Rule[I][0],taka_base_rule_name(I));
+  }
+  for (I=0; I<N; I++) {
+    S = subst(S,taka_base_rule_name(I),Rule[I][1]);
+  }
+  return S;
+}
+
 
 Taka_base_loaded = 1$
 end$
+
+
