@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.16 2003/09/12 02:52:49 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.17 2003/09/20 22:10:04 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -146,7 +146,7 @@
   (    [(h) 1 (Dx1) 1 (Dx2) 1] )
   (    [(Dx1) 1 (Dx2) 1]   )
   (    [(x1) -1 (x2) -1])
-  (   ] weight_vector )
+  (   ] ecart.weight_vector )
   (   0  )
   (   [(weightedHomogenization) 1 (degreeShift) [[0 0 0]]])
   (  ] define_ring)
@@ -356,23 +356,23 @@
       } {  } ifelse
       wv isInteger {        
         [v ring_of_differential_operators 
-%         [ v ecart.wv1 v ecart.wv2 ] weight_vector
+%         [ v ecart.wv1 v ecart.wv2 ] ecart.weight_vector
          gb.characteristic
          opt
         ] define_ring
       }{
        degreeShift isInteger {
          [v ring_of_differential_operators 
-%          [v ecart.wv1 v ecart.wv2] wv join weight_vector
-          wv weight_vector
+%          [v ecart.wv1 v ecart.wv2] wv join ecart.weight_vector
+          wv ecart.weight_vector
           gb.characteristic
           opt
          ] define_ring
 
        }{
          [v ring_of_differential_operators 
-%          [v ecart.wv1 v ecart.wv2] wv join weight_vector
-          wv  weight_vector
+%          [v ecart.wv1 v ecart.wv2] wv join ecart.weight_vector
+          wv  ecart.weight_vector
           gb.characteristic
           [(degreeShift) degreeShift] opt join 
           ] define_ring
@@ -657,21 +657,21 @@
       } {  } ifelse
       wv isInteger {        
         [v ring_of_differential_operators 
-         [ v ecart.wv1 v ecart.wv2 ] weight_vector
+         [ v ecart.wv1 v ecart.wv2 ] ecart.weight_vector
          gb.characteristic
          opt
         ] define_ring
       }{
        degreeShift isInteger {
          [v ring_of_differential_operators 
-          [v ecart.wv1 v ecart.wv2] wv join weight_vector
+          [v ecart.wv1 v ecart.wv2] wv join ecart.weight_vector
           gb.characteristic
           opt
          ] define_ring
 
        }{
          [v ring_of_differential_operators 
-          [v ecart.wv1 v ecart.wv2] wv join weight_vector
+          [v ecart.wv1 v ecart.wv2] wv join ecart.weight_vector
           gb.characteristic
           [(degreeShift) degreeShift] opt join 
           ] define_ring
@@ -858,14 +858,14 @@
       }{
        degreeShift isInteger {
          [v ring_of_differential_operators 
-           wv weight_vector
+           wv ecart.weight_vector
           gb.characteristic
           opt
          ] define_ring
 
        }{
          [v ring_of_differential_operators 
-           wv weight_vector
+           wv ecart.weight_vector
           gb.characteristic
           [(degreeShift) degreeShift] opt join 
           ] define_ring
@@ -1180,8 +1180,8 @@
   arg1
 } def
 [(ecart.gen_input)
-[$[ff v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]] ]  ecart.gen_input $
- $               [gg_h v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]] $
+[$[ff v ecart.weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]] ]  ecart.gen_input $
+ $               [gg_h v ecart.weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]] $
  (It generates the input for the minimal filtered free resolution.)
  (Current ring is changed to the ring of gg_h.)
  (cf. ecart.minimalBase)
@@ -1193,9 +1193,9 @@
 
   
 [(ecart.minimalBase)
-[$[ff v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]]  ecart.minimalBase $
+[$[ff v ecart.weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]]  ecart.minimalBase $
  (  [mbase gr_of_mbase )
- $     [syz v weight_vector [(degreeShift) new_uv_shift_m (startingShift) [new_D_shift_n new_uv_shift_m]]]$
+ $     [syz v ecart.weight_vector [(degreeShift) new_uv_shift_m (startingShift) [new_D_shift_n new_uv_shift_m]]]$
  (     gr_of_syz ])
  (mbase is the minimal generators of ff in D^h in the sense of filtered minimal)
  (generators.)
@@ -1397,13 +1397,169 @@
 [(ecart.minimalResol)
 [
 
- $[ff v weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]]  ecart.minimalResol $
+ $[ff v ecart.weight_vector [(degreeShift) uv_shift_m (startingShift) [D_shift_n uv_shift_m]]]  ecart.minimalResol $
  (  [resol degree_shifts gr_of_resol_by_uv_shift_m] )
   $Example1: [ [(t-x^3+y^2) (Dx+ 3 x^2 Dt) (Dy - 2 y Dt)] (t,x,y) $
   $           [ [(t) -1 (Dt) 1] [(t) -1 (x) -1 (y) -1 (Dt) 1 (Dx) 1 (Dy) 1]] $
   $           [(degreeShift) [ [0] ] $
   $            (startingShift) [ [0] [0] ] ] ] ecart.minimalResol /gg set gg pmat $
 ]] putUsages
+
+%% for ecart.weight_vector
+/ecart.eliminationOrderTemplate  { %% esize >= 1
+%% if esize == 0, it returns reverse lexicographic order.
+%%  m esize eliminationOrderTemplate mat
+  /arg2 set /arg1 set
+  [/m  /esize /m1 /m2 /k /om /omtmp] pushVariables
+  [
+    /m arg1 def  /esize arg2 def
+    /m1 m esize sub 1 sub def
+    /m2 esize 1 sub def
+     [esize 0 gt
+      {
+       [1 1 esize
+        { pop 1 } for
+        esize 1 << m 1 sub >>
+        { pop 0 } for
+       ]  %% 1st vector
+      }
+      { } ifelse
+
+      m esize gt
+      {    
+       [1 1  esize 
+        { pop 0 } for
+        esize 1 << m 1 sub >>
+        { pop 1 } for
+       ]  %% 2nd vector
+      }
+      { } ifelse
+
+      m1 0 gt
+      {
+         m 1 sub -1 << m m1 sub >>
+         {
+              /k set
+              m  k  evec_neg
+         } for
+      }
+      { } ifelse
+
+      m2 0 gt
+      {
+         << esize 1 sub >> -1 1
+         {
+              /k set
+              m  k  evec_neg
+         } for
+      }
+      { } ifelse
+
+    ] /om set
+     om [ 0 << m 2 idiv >> 1 sub] 0 put
+     om [ << m 2 idiv >> 1 add  << m 2 idiv >> 1 sub] 0 put
+    /arg1 om def
+   ] pop
+   popVariables
+   arg1
+} def
+
+%note  2003.09.29
+/ecart.elimination_order {
+%% [x-list d-list params]  (x,y,z) elimination_order 
+%%  vars                    evars
+%% [x-list d-list params order]
+  /arg2 set  /arg1 set
+  [/vars /evars /univ /order /perm /univ0 /compl /m /omtmp] pushVariables
+  /vars arg1 def /evars [arg2 to_records pop] def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+
+    << univ length 2 sub >>
+    << evars length >>
+    ecart.eliminationOrderTemplate /order set
+
+    [[1]] order oplus [[1]] oplus /order set
+
+    /m order length 2 sub def
+    /omtmp [1 1 m 2 add { pop 0 } for ] def
+    omtmp << m 2 idiv >> 1 put
+    order  omtmp append /order set
+    % order pmat    
+
+    /univ0 [univ reverse aload pop pop] reverse def %% [e,x,y,h] --> [x,y,h]
+
+    /compl 
+      [univ 0 get] evars join evars univ0 complement join
+    def
+    compl univ
+    getPerm /perm set
+    %%perm :: univ :: compl ::
+
+    order perm permuteOrderMatrix /order set
+
+    
+    vars [order] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ecart.define_ring {
+   /arg1 set
+   [/rp /param /foo] pushVariables
+   [/rp arg1 def
+
+     rp 0 get length 3 eq {
+       rp 0  [rp 0 get 0 get rp 0 get 1 get rp 0 get 2 get ]
+             ( ) ecart.elimination_order put
+     } { } ifelse
+
+    [
+      rp 0 get 0 get             %% x-list
+      rp 0 get 1 get             %% d-list
+      rp 0 get 2 get /param set
+      param 0 << rp 1 get >> put %% << rp 1 get >> is 17 in the example.
+      param                      %% parameters.
+      rp 0 get 3 get             %% order matrix.
+      rp length 2 eq
+      { [  ] }                   %% null optional argument.
+      { rp 2 get }
+      ifelse  
+    ]  /foo set
+    foo aload pop set_up_ring@
+   ] pop
+   popVariables
+   [(CurrentRingp)] system_variable
+} def
+/ecart.weight_vector {
+  /arg2 set  /arg1 set
+  [/vars /univ /w-vectors /www /k /order1 /order2] pushVariables
+  /vars arg1 def /w-vectors arg2 def
+  [
+    /univ vars 0 get reverse
+          vars 1 get reverse join
+    def
+    [
+    0 1 << w-vectors length 1 sub >> 
+    {
+      /k set
+      univ w-vectors k get w_to_vec
+    } for
+    ] /order1 set
+    %% order1 ::
+    
+    vars ( ) ecart.elimination_order 3 get /order2 set
+    vars [ << order1 order2 join >> ] join /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%% end of for ecart.define_ring
+
 
 ( ) message-quiet 
 
