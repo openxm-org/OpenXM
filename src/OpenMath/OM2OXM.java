@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.7 1999/11/15 06:19:26 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.8 1999/11/15 23:13:21 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -54,8 +54,6 @@ final class OM2OXM implements Runnable{
       while(true){
 	CMO tmp;
 
-	Thread.yield();
-
 	switch(asir.receiveOXtag()){
 	case OpenXM.OX_COMMAND:
           asir.receiveSM();
@@ -75,7 +73,7 @@ final class OM2OXM implements Runnable{
     return "<OMOBJ>"+ CMO2OM_sub(cmo) +"</OMOBJ>";
   }
 
-  private static String CMO2OM_sub(CMO cmo){
+  private static String CMO2OM_sub(CMO cmo) throws NumberFormatException{
     String ret = "";
 
     switch(cmo.getDISCRIMINATOR()){
@@ -150,8 +148,10 @@ final class OM2OXM implements Runnable{
 	*/
 
     default:
-      return "<OMSTR>"+ cmo.toCMOexpression() +"</OMSTR>";
+      //return "<OMSTR>"+ cmo.toCMOexpression() +"</OMSTR>";
     }
+
+    throw new NumberFormatException(""+ cmo.toCMOexpression());
   }
 
   private boolean isSpace(int ch){ // use from lex
@@ -660,16 +660,19 @@ final class OM2OXM implements Runnable{
     return str;
   }
 
-  private void parse_error(String mesg){
-    System.err.println(mesg);
-    System.err.print("error occuered near :");
+  private void parse_error(String mesg) throws NumberFormatException{
+    String ret;
+
+    ret = mesg +"\n";
+    ret += "error occuered near :";
     try{
       for(int i=0;i<10;i++){
-	System.err.print((char)is.read());
+	ret += (char)is.read();
       }
-      System.err.println((char)is.read());
     }catch(IOException e){}
-    System.exit(1);
+    ret += "\n";
+
+    throw new NumberFormatException(ret);
   }
 
   private void debug(String str){
@@ -723,15 +726,19 @@ final class OM2OXM implements Runnable{
 
       //サーバ側から送信された文字列を受信します。
       while(true){
-	CMO obj = P.parse(System.in);
-	asir.send(obj);
-	asir.sendSM(new SM(SM.SM_popCMO));
+	try{
+	  CMO obj = P.parse(System.in);
+	  asir.send(obj);
+	  asir.sendSM(new SM(SM.SM_popCMO));
+	}catch(NumberFormatException e){
+	  System.err.println(e.getMessage());
+	}
       }
-
-      //System.out.println("breaking...");
 
     }catch(IOException e){
       e.printStackTrace();
+    }finally{
+      System.out.println("breaking...");
     }
   }
 }
