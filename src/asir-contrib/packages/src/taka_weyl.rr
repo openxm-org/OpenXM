@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_weyl.rr,v 1.1 2002/11/15 07:19:09 takayama Exp $ */
 
 /*&usage begin:
   taka_weyl_act(L,VDlist,F) 
@@ -47,4 +47,20 @@ def taka_weyl_assert() {
 
 }
 
+/*&usage  begin:
+  taka_partial_diff((x-y)^5,[[x,2],[y,1]]);
+*/
+def taka_partial_diff(F,Dlist) {
+  N = length(Dlist);
+  for (I=0; I<N; I++) {
+    D = Dlist[I][0];
+    M = Dlist[I][1];
+    for (J=0; J<M; J++) {
+      F = diff(F,D);
+    }
+  }
+  return F;
+}
+
+Load_taka_weyl=1$
 end$
