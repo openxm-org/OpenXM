@@ -1,4 +1,5 @@
 /*  phc6.c ,  yama:1999/sm1-prog/phc6.c */
+/* $OpenXM$ */
 /* This is a simple C interface to the black-box solver of phc.
 ** Requirements:
 **  1) executable version of phc will be searched in the following order:
