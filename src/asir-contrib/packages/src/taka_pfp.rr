@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.6 2003/01/01 20:22:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.7 2003/01/17 01:13:10 takayama Exp $ */
 
 /* Table. It should be moved to ??? in a fugure. Experimental */
 #define Xm_eval_in_quote  0
@@ -268,6 +268,80 @@ def taka_pfp_2() {
    taka_plot_auto(T);
 }
 
+def taka_pfp_aa_cc_rule(A,B) {
+  Rule = [ ];
+  P = length(A);
+  Q = length(B);
+  for (I=0; I<P; I++) {
+    Rule = cons([taka_pfp_iv(aa,I+1),A[I]],Rule);
+  }
+  for (I=0; I<Q; I++) {
+    Rule = cons([taka_pfp_iv(cc,I+1),B[I]],Rule);
+  }
+  return Rule;
+}
+
+/*&usage  pfp_runge_kutta(A,B,Z)
+ example: taka_pfp_runge_kutta([1/12,5/12],[1/2],1323/1331);
+*/
+#define SERIES_N  30
+#define SERIES_LIMIT 0.5
+#define INITIAL_STEP 100
+def taka_pfp_runge_kutta(A,B,Z) {
+  P = length(A); Q = length(B);
+  if (P-1 != Q) {
+    print([A,B,Z]);
+    error("pfp_runge_kutta() does not work for these parameters.");
+  }
+  if (Z == 1) error("pfp_runge_kutta() cannot evaluate the value at z=1.");
+  for (I=0; I<Q; I++) {
+    if (type(B[I]) <= 1) {
+      if ((ntype(B[I]) == 0) && (dn(B[I]) == 1) && (B[I] < 0)) {
+        error("p F q is not defined for parameters in negative integers.");
+      }
+    }
+  }
+
+  /* cf. taka_pfp_1() */
+  Omega = taka_pfp_omega(P);
+  Ylist1 = [ ];  Ylist0 = [ ];
+  for (I=1; I<=P; I++) {
+    Ylist1 = cons([taka_pfp_iv("y",I)],Ylist1);
+    Ylist0 = cons(taka_pfp_iv("y",I),Ylist0);
+  }
+  Ylist1 = reverse(Ylist1); Ylist0 = reverse(Ylist0);
+
+  F0 = Omega*newmat(P,1,Ylist1);
+  Ylist2 = [ ];
+  for (I=0; I<P; I++) {
+    Ylist2 = cons(F0[I][0], Ylist2);
+  }
+  Ylist2 = reverse(Ylist2);
+
+  F = newvect(P,Ylist2);
+  F = base_cancel(F);
+
+  Y = Ylist0;
+
+  if (number_abs(Z) < SERIES_LIMIT) {
+    return eval(taka_pfp(A,B,eval(exp(0)*Z),SERIES_N));
+  }
+
+  if (imag(Z) == 0 && Z > 1) {
+     error("pfp_runge_kutta() cannot evalute the value on [1,infty]");
+  }
+  /* Set the staring point X0 */
+  X0 = eval(Z*0.3/number_abs(Z));
+  /* Set the initial step */
+  H = eval((Z-X0)/INITIAL_STEP);
+  
+  InitialValue = taka_pfp_euler_derivatives(A,B,X0,SERIES_N,P-1);
+  Rule = taka_pfp_aa_cc_rule(A,B);
+  F = base_replace(F,Rule);
+
+  T = taka_runge_kutta_4_adaptive(F,x,Y,X0,InitialValue,H,Z);
+  return T;  
+}
 
 Loaded_taka_pfp=1$
 end$
