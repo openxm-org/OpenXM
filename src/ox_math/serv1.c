@@ -1,5 +1,14 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.6 1999/11/29 12:09:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.7 2000/01/05 06:09:11 ohara Exp $ */
+
+/* 
+   Copyright (C) Katsuyoshi OHARA, 2000.
+   Portions copyright 1999 Wolfram Research, Inc. 
+
+   You must see OpenXM/Copyright/Copyright.generic.
+   The MathLink Library is licensed from Wolfram Research Inc..
+   See OpenXM/Copyright/Copyright.mathlink for detail.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,9 +1,13 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.10 1999/12/22 11:27:59 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.11 2000/01/20 15:32:21 ohara Exp $ */
 
 /* 
-   Some commnets is written in Japanese by the EUC-JP coded 
-   character set.
+   Copyright (C) Katsuyoshi OHARA, 2000.
+   Portions copyright 1999 Wolfram Research, Inc. 
+
+   You must see OpenXM/Copyright/Copyright.generic.
+   The MathLink Library is licensed from Wolfram Research Inc..
+   See OpenXM/Copyright/Copyright.mathlink for detail.
 */
 
 #include <sys/types.h>
@@ -30,8 +34,8 @@ static ox_file_t *svs = NULL;
 static int len_svs = 0;
 static int max_process = 0;
 
-/* Mathematica から直接呼び出される関数の定義. */
-/* 呼び出しの方法は math2ox.tm で定義される.   */
+/* The following functions are called from Mathematica.
+   See math2.tm for detail. */
 void OX_get()
 {
     cmo *c = NULL;
@@ -77,7 +81,7 @@ int OX_reset()
     return 0;
 }
 
-/* 文字列 s を parse() にかけて生成された cmo を サーバに送る. */
+/* Parsing s and sending its cmo to an OX server. */
 int OX_parse(char *s)
 {
     cmo *m;
@@ -95,7 +99,7 @@ int OX_parse(char *s)
         }
         return 0;
     }
-    return -1; /* 失敗した場合 */
+    return -1; /* if we failed. */
 }
 
 int OX_start(char* s)
@@ -164,7 +168,7 @@ int OX_setClientParam(char *h, char* c, char* p)
 
 int main(int argc, char *argv[])
 {
-    /* 構文解析器の設定 */
+    /* setting the OX parser */
     setflag_parse(PFLAG_ADDREV);
 	len_svs = 20;
 	svs = (ox_file_t *)malloc(sizeof(ox_file_t)*len_svs);

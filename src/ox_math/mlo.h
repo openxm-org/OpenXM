@@ -4,7 +4,7 @@
 
 #include "ox.h"
 
-/* Mathematica でのみ使用される Local Object の定義 */
+/* definitions of Mathlink Local Objects. */
 typedef struct {
     int tag;
     int length;

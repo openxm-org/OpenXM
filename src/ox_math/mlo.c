@@ -1,5 +1,14 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.3 1999/12/14 09:31:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.4 2000/01/05 06:09:11 ohara Exp $ */
+
+/* 
+   Copyright (C) Katsuyoshi OHARA, 2000.
+   Portions copyright 1999 Wolfram Research, Inc. 
+
+   You must see OpenXM/Copyright/Copyright.generic.
+   The MathLink Library is licensed from Wolfram Research Inc..
+   See OpenXM/Copyright/Copyright.mathlink for detail.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>

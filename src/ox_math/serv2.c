@@ -1,8 +1,19 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.11 1999/12/14 09:31:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.12 2000/01/05 06:09:11 ohara Exp $ */
 
-/* Open Mathematica サーバ */
-/* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
+/* 
+   Copyright (C) Katsuyoshi OHARA, 2000.
+   Portions copyright 1999 Wolfram Research, Inc. 
+
+   You must see OpenXM/Copyright/Copyright.generic.
+   The MathLink Library is licensed from Wolfram Research Inc..
+   See OpenXM/Copyright/Copyright.mathlink for detail.
+*/
+
+/* 
+   Remarks: 
+   file descripter 3 and 4 are already opened by the parent process.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +26,7 @@
 
 extern int flag_mlo_symbol;
 
-/* MathLink 非依存部分 */
+/* MathLink independent */
 #define INIT_S_SIZE 2048
 #define EXT_S_SIZE  2048
 
@@ -59,7 +70,7 @@ int push(cmo* m)
     }
 }
 
-/* スタックが空のときは, (CMO_NULL) をかえす. */
+/* if the stack is empty, then pop() returns (CMO_NULL). */
 cmo* pop()
 {
     if (stack_pointer > 0) {
@@ -77,8 +88,10 @@ void pops(int n)
     }
 }
 
-/* sm_XXX 関数群は、エラーのときは 0 以外の値を返し、呼び出し元で
-   エラーオブジェクトをセットする */
+/* 
+   if error occurs, then a sm_*() function returns non-zero and 
+   an error obect is set by a function which calls sm_*().
+*/
 int sm_popCMO(int fd_write)
 {
     cmo* m = pop();
@@ -104,7 +117,7 @@ int sm_pops(int fd_write)
     return ERROR_ID_UNKNOWN_SM;
 }
 
-/* MathLink 依存部分 */
+/* MathLink dependent */
 int sm_popString(int fd_write)
 {
     char *s;
@@ -143,7 +156,7 @@ int local_execute(char *s)
     return 0;
 }
 
-/* この関数はサーバに依存する. */
+/* The following function is depend on an implementation of a server. */
 int sm_executeStringByLocalParser(int fd_write)
 {
     symbol *symp;
@@ -159,7 +172,7 @@ int sm_executeStringByLocalParser(int fd_write)
             local_execute(++s);
         }else {
             /* for mathematica */
-            /* mathematica に文字列を送って評価させる */
+            /* Sending the string `s' to mathematica for its evaluation. */
             ml_evaluateStringByLocalParser(s);
 			ml_select();
             push(receive_mlo());
@@ -246,7 +259,7 @@ int execute_sm_command(int fd_write, int code)
         shutdown();
         break;
     case SM_setMathCap:
-        pop();  /* 無視する */
+        pop();  /* ignore */
         break;
     default:
         fprintf(stderr, "unknown command: %d.\n", code);
