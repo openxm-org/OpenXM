@@ -1,4 +1,4 @@
-dnl  $OpenXM$
+dnl  $OpenXM: OpenXM/src/ox_math/configure.in,v 1.1 2000/02/08 21:14:01 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT(math2ox.c)
@@ -21,16 +21,21 @@ AC_CANONICAL_HOST
 case "$host_os" in
 linux*|freebsd*)
 	ml_system=Linux
+	static_link_flags=-static
 	;;
 osf)
 	ml_system=DEC-AXP
+	static_link_flags=
 	;;
 solaris2*)
 	ml_system=Solaris
+	static_link_flags=
 	;;
 *)
+	static_link_flags=
 	;;
 esac
 AC_SUBST(ml_system)
+AC_SUBST(static_link_flags)
 
 AC_OUTPUT(Makefile)
