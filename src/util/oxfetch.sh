@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.1 2003/11/14 02:58:20 ohara Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.2 2003/11/16 17:17:02 ohara Exp $
 
 fetch="wget --no-directories --passive-ftp --quiet --timestamping"
 url=$1
@@ -39,6 +39,7 @@ _check () {
             echo "Checksum OK for $distfile".
         else
             echo "Checksum mismatch for $distfile".
+            exit 1
         fi
     fi
 }
@@ -50,3 +51,4 @@ fi
 _mkdir $distdir
 _fetch
 _check
+exit 0
