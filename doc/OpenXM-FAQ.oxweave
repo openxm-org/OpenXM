@@ -1,4 +1,47 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.9 2001/08/10 09:28:05 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.10 2001/12/24 02:30:46 takayama Exp $
+
+//&C December 27, 2001 (Windows)
+//&ja Q. asirgui で engine.exe の位置が registry に登録されています. これを消すには?
+//&en Q.  The path for engine.exe is written in the registry. How to remove the data from the registry?
+
+/*&ja
+   MSDOS コマンドプロンプトより regedit を立ち上げて,
+   HKEY_LOCAL_MACHINE->SOFTWARE->FUJITSU 
+   のなかの ASIR を全て消す.
+*/
+
+/*&en
+   start "regedit" from MSDOS command prompt and
+   remove  HKEY_LOCAL_MACHINE->SOFTWARE->FUJITSU->ASIR
+*/
+
+//&C December 24, 2001  (Windows)
+//&ja Q. OpenXM/misc/packages/Windows/asirgui2.bat を起動しようとすると, "環境変数領域がたりませんとエラーがでます.
+//&en Q. OpenXM/misc/packages/Windows/asirgui2.bat stops with an error "Not enough area for environmental variables".
+
+/*&ja
+ Windows 95/98/ME でこの問題がおきます.
+ 環境変数領域を増やします.
+ command /e:5000
+ で command.com を立ち上げるのは一番簡単な方法.
+ msconfig (win98/ME)  または sysedit (win95) を用いて, 
+   環境変数  shell
+   値        c:\windows\command.com /p /e:5000
+ とする.
+*/
+
+/*&en
+ This trouble happens on Windows 95/98/ME. 
+ Increase the area for environmental variables.
+ (1) Staring the command prompt with
+   command /e:5000
+ is the simplest way.
+ (2) By msconfig (win98/ME) or sysedit (win95),
+   set the value of the environmental variable
+      shell
+   to the value 
+   c:\windows\command.com /p /e:5000
+*/
 
 //&C August 10, 2001
 //&ja Q. cygwin 環境で : から始まる sh ファイルが動かないことがあります.(開発者向け)
@@ -15,23 +58,6 @@
  Please replace :'s in
  OpenXM/src/kan96xx/Kan/cat0,  OpenXM/src/kan96xx/Kan/ar-decomp
  by #!/bin/sh
-*/
-
-//&C December 24, 2001
-//&ja Q. OpenXM/misc/packages/Windows/asirgui2.bat を起動しようとすると, "環境変数領域がたりませんとエラーがでます.
-//&en Q. OpenXM/misc/packages/Windows/asirgui2.bat stops with an error "Not enough area for environmental variables".
-
-/*&ja
- 環境変数領域を増やします.
- command /e:1024
- で command.com を立ち上げるのは一番簡単な方法.
-*/
-
-/*&en
- Increase the area for environmental variables.
- Staring the command prompt with
-   command /e:1024 
- is the simplest way.
 */
 
 //&C May 6, 2001
