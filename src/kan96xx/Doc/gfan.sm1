@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.2 2004/09/09 08:50:12 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.3 2004/09/14 08:30:47 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -520,6 +520,15 @@ cone.comment message
  $It translates null to (0)..$
 ]] putUsages
 
+%<
+% Usages: newVector.with-1  
+% (-1).. で埋めたベクトルを作る.
+%>
+/newVector.with-1 {
+  newVector { pop (-1).. } map
+} def
+
+
 % [2 0] lcm は 0 をもどすがいいか? --> OK.
 
 %<
@@ -812,11 +821,16 @@ def
     { nnormalize_vec } map /ineq set
     [[ ] ] ineq join shell rest removeFirstFromPolymake /ineq set
 
+% nextcid, nextfid を加える.  nextcid は nextConeId の略. となりの cone 番号.
+%                           nextfid は nextFacetId の略. となりの cone の facet
+%                            番号. 
     [(cone) [ ] 
      [
       [(facets) [ ] facets]  arrayToTree
       [(flipped) [ ] facets length newVector null_to_zero] arrayToTree
       [(facetsv) [ ] facets vertices newCone_facetsv] arrayToTree
+      [(nextcid) [ ] facets length newVector.with-1 ] arrayToTree
+      [(nextfid) [ ] facets length newVector.with-1 ] arrayToTree
       [(vertices) [ ] vertices]  arrayToTree
       [(inequalities) [ ] ineq] arrayToTree
      ]
@@ -1480,6 +1494,28 @@ def
   popVariables
 } def
 
+%<
+% Usages: cone i [cid fid] markNext
+% cone の i 番目の facet のとなりの cone id (cid) と face id (fid) を設定する.
+%   cone の nextcid[i] = cid; nextfid[i] = fid となる.
+% cone 自体が変更される.
+% cone は class-tree.
+%> 
+/markNext {
+  /arg3 set /arg2 set /arg1 set
+  [/cone /facet_i /vv /nextid] pushVariables
+  [
+    /cone arg1 def /facet_i arg2 def /nextid arg3 def
+    facet_i to_int32 /facet_i set
+    cone (nextcid) getNode 2 get /vv set
+    vv facet_i , nextid 0 get to_univNum , put
+
+    cone (nextfid) getNode 2 get /vv set
+    vv facet_i , nextid 1 get to_univNum , put
+  ] pop 
+  popVariables
+} def
+
 
 
 %<
@@ -1919,17 +1955,22 @@ def
 %>
 /markBorder {
   /arg1 set
-  [/cone /facets_t /flipped_t /kk] pushVariables
+  [/cone /facets_t /flipped_t /kk /nextcid_t /nextfid_t] pushVariables
   [
     /cone arg1 def
     cone (facets) getNode 2 get /facets_t set
     cone (flipped) getNode 2 get /flipped_t set
+    cone (nextcid) getNode 2 get /nextcid_t set
+    cone (nextfid) getNode 2 get /nextfid_t set
     0 1 flipped_t length 1 sub {
       /kk set
       flipped_t kk get (0).. eq {
          cone kk isOnWeightBorder {
 % Border の上にあるので flip 済のマークをつける.
            flipped_t kk (2).. put
+% となりの cone の id (nextcid, nextfid) は -2 とする.
+           nextcid_t kk (-2).. put
+           nextfid_t kk (-2).. put
          } {  } ifelse
       } {  } ifelse
     } for
@@ -1986,6 +2027,9 @@ def
          ncone ii markFlipped
          cone.fan kk get /tcone set
          tcone jj markFlipped
+% nextcid, nextfid を設定する.
+         ncone ii [kk jj] markNext
+         tcone jj [cone.fan.n ii] markNext
       } {  } ifelse
     } for
 % 3. ncone を加える.
@@ -2529,6 +2573,7 @@ def
 
 %<
 % Usages:  [[ii i_vw_vector] [jj j_vw_vector] vlist] isSameInGrRing_h
+% It computes gb.
 %>
 /isSameInGrRing_h {
   /arg1 set
@@ -2587,14 +2632,16 @@ def
 
 
 %<
-% Usages: i j IsSameCone_h  [bool, ...]
-% テスト方法.  (data/test8.sm1) run  (data/test8-data.sm1) run 0 1 IsSameCone_h
+% Usages: i j isSameCone_h.0  [bool, ...]
+% テスト方法.  (data/test8.sm1) run  (data/test8-data.sm1) run 0 1 isSameCone_h.0
+% gb を再度計算する stand alone 版.  gr(Local ring) で比較.
 %>
-/IsSameCone_h {
+/isSameCone_h.0 {
   /arg2 set /arg1 set
   [/i /j /ans /ii /iiw /jj /jjw] pushVariables
   [ 
     /i arg1 def /j arg2 def
+    i to_int32 /i set , j to_int32 /j set
     cone.debug { (Comparing ) messagen [i j]  message } { } ifelse
 
     cone.gblist i get (initial) getNode 2 get /ii set
@@ -2611,3 +2658,316 @@ def
   arg1
 } def
 
+%<
+% Usages: [ii vv i_vw_vector] getGbInGrRing_h [ii_gr  i_gr]
+% Get Grobner Basis of ii in the graded ring.
+% The graded ring is obtained automatically from vv and i_vw_vector.
+% ii_gr is the Grobner basis. i_gr is the output of getGrRing.
+% cf. isSameInGrRing_h,   ecart.isSameIdeal_h with [(noRecomputation) 1]
+%>
+/getGbInGrRing_h {
+  /arg1 set
+  [/ii /i_vw_vector /vlist  /rng /vv /vvGlobal /wv /iigg
+   /i_gr  /rrule /ans] pushVariables
+  [
+    /ii arg1 0 get def
+    /vlist arg1 1 get def
+    /i_vw_vector arg1 2 get def
+    [vlist i_vw_vector] getGrRing /i_gr set
+
+% bug: in case of module
+    [i_gr 0 get , ring_of_differential_operators 0] define_ring
+
+% H を 1 に.
+    /rrule [ [@@@.Hsymbol . (1).] ] def
+
+    i_gr 2 get length 0 eq { 
+    } {   
+      rrule i_gr 2 get  { { . } map } map join /rrule set
+    } ifelse
+    /vvGlobal i_gr 1 get def
+    /vv i_gr 0 get def
+
+    ii { toString . rrule replace toString } map /ii set
+
+    [vv vvGlobal] ecart.stdBlockOrder /wv set
+      vvGlobal length 0 eq {
+      /rng [vv wv ] def
+    }{
+      /rng [vv wv [(partialEcartGlobalVarX) vvGlobal]] def
+    } ifelse
+    /save-cone.autoHomogenize ecart.autoHomogenize def
+    /ecart.autoHomogenize 0 def
+    [ii] rng join  ecartd.gb  /iigg set
+    save-cone.autoHomogenize /ecart.autoHomogenize set
+    /ans [iigg 0 get i_gr] def
+    /arg1 ans def
+  ] pop 
+  popVariables
+  arg1 
+} def
+
+/test1.getGbInGrRing_h {
+  [(parse) (data/test8-data.sm1) pushfile] extension
+
+  cone.gblist 0 get (initial) getNode 2 get /ii set
+  cone.gblist 0 get (weight) getNode [2 0 2] get    /iiw set
+  [ii cone.vv iiw] getGbInGrRing_h /ff1 set
+
+  cone.gblist 1 get (initial) getNode 2 get /jj set
+  cone.gblist 1 get (weight) getNode [2 0 2] get    /jjw set
+  [jj cone.vv jjw] getGbInGrRing_h /ff2 set
+
+  (ff1 and ff2) message
+
+} def
+
+
+%<
+% setGrGblist
+%  cone.grGblist を設定する.
+%>
+/setGrGblist {
+  [/ii /ww /gg] pushVariables
+  [
+    cone.gblist { 
+      /gg set
+      gg (initial) getNode 2 get /ii set
+      gg (weight) getNode [2 0 2] get /ww set
+      [ii cone.vv ww] getGbInGrRing_h 
+    } map /cone.grGblist set
+  ] pop
+  popVariables 
+} def
+
+%<
+% Usages: i j isSameCone_h.2  [bool, ...]
+% gb を再度計算しない.
+%>
+/isSameCone_h.2 {
+  /arg2 set /arg1 set
+  [/i /j /ans /ii /iiw /jj /jjw] pushVariables
+  [ 
+    /i arg1 def /j arg2 def
+     i to_int32 /i set , j to_int32 /j set
+    (cone.grGblist) boundp { } { setGrGblist } ifelse
+    cone.debug { (Comparing ) messagen [i j]  message } { } ifelse
+
+    cone.grGblist i get /ii set
+    cone.grGblist j get /jj set
+
+    ii 1 get ,  jj 1 get isSameGrRing {  } 
+    { /ans [0 [ii 1 get jj 1 get]] def exit} ifelse
+
+    [ii 0 get , jj 0 get cone.vv [[(noRecomputation) 1]] ] 
+    ecartd.isSameIdeal_h /ans set
+    [ans [ii 1 get] ii 1 get , ecartd.isSameIdeal_h.failed]  /ans set
+
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+%  test1.isSameCone_h.2 は cone.grGblist に initial の gb を graded ring
+%  でまず計算し, それから ideal の比較をおこなう. isSameCone_h.1 に比べて
+%  gb の再度の計算がないので経済的. 
+%> 
+/test1.isSameCone_h.2 {
+  /cone.loaded boundp { }
+  {
+    [(parse) (cohom.sm1) pushfile] extension
+    [(parse) (dhecart.sm1) pushfile] extension
+    /cone.loaded 1 def
+  } ifelse
+  %[(parse) (cone.sm1) pushfile] extension
+  [(parse) (data/test8-data.sm1) pushfile] extension
+  setGrGblist  
+  (cone.grGblist is set.) message
+  0 1 isSameCone_h.2 pmat
+} def
+
+%<
+% dhcone は  DeHomogenized Cone の略.  H->1 として cone を merge していく関数
+% や大域変数に使う.
+% cone.gblist, cone.fan が正しく設定されていること.
+% (setGrGblist を実行済であること. 自動実行されるが... )
+%
+%>
+
+/isSameCone_h {  isSameCone_h.2 } def
+
+%<
+% Usages: genDhcone.init
+%   dhcone.checked (dehomogenized 済の cone番号),  dhcone.unchecked の初期化.  
+%>
+/genDhcone.init {
+  /dhcone.checked [ ] def
+  /dhcone.unchecked [
+     0 1 cone.fan length 1 sub {
+        to_univNum
+     } for
+  ] def
+} def
+
+%<
+% Usages: k genDhcone dhcone
+% cone.fan[k] を出発点として cone を dehomogenize する (merge する).
+%
+% テスト1.  (data/test14.sm1) run (data/test14-data.sm1) run
+%          genDhcone.init
+%          0 genDhcone /ff set
+%>
+
+/genDhcone {
+  /arg1 set
+  [/k /facets /merged /nextcid /nextfid /coneid
+      /newfacets /newmerged /newnextcid /newnextfid /newconeid /vv
+   /i /j /p /q /rr /cones /differentC
+  ] pushVariables
+  [
+    /k arg1 def
+    /facets [ ] def /merged [ ] def /nextcid [ ] def 
+    /nextfid [ ] def /coneid [ ] def
+    /cones [ ] def
+    /differentC [ ] def
+
+    k to_univNum /k set
+    
+    {
+% Step1. cone.fan[k] を 加える.  new... へ初期データを書き込む.
+     cone.debug {(Step 1. Adding ) messagen k messagen (-th cone.) message} { } ifelse
+      cones [k to_univNum] join /cones set
+      cone.fan k get , (facets) getNode 2 get /vv set
+      /newfacets [ ] vv join def
+
+      cone.fan k get , (nextcid) getNode 2 get /vv set
+      /newnextcid [ ] vv join def
+  
+      cone.fan k get , (nextfid) getNode 2 get /vv set
+      /newnextfid [ ] vv join def
+
+% newmerged はまず 0 でうめる.  0 : まだ調べてない.
+% 1 : merged で消えた. 2 : boundary. 3 : となりは異なる. 
+% [ ] join をやって ベクトルの clone を作る.
+      cone.fan k get , (flipped) getNode 2 get /vv set
+      /newmerged [ ] vv join def
+      0 1 , newmerged length 1 sub {
+         /i set
+         newmerged i get , (2).. eq { }
+         { newmerged i (0).. put } ifelse
+      } for
+% newconeid は k でうめる.
+      /newconeid newfacets length newVector { pop k to_univNum } map def
+
+% merged と newmerged を cone の隣接関係のみで更新する.
+% 同じ init を持つことはわかっているので  facet vector のみの check で十分.
+% merged の i 番目 と newmerged の j 番目で比較.
+      0 1 , merged length 1 sub {
+        /i set
+        0 1 , newmerged length 1 sub {
+          /j set
+          merged i get , (0).. eq , 
+          newmerged j get , (0).. eq , and
+          nextcid i get , k to_univNum eq , and
+          {
+             facets i get , newfacets j get , add isZero {
+% merged[i], newmerged[j] に 1 を入れて消す.
+% 上の判定は nextfid, newnextfid を用いてもよいのでは? 
+               merged i (1).. put
+               newmerged j (1).. put
+             } {  } ifelse
+          } { } ifelse
+        } for
+      } for
+
+% Step2. 結合してから, まだ調べてない facet を探す.
+      cone.debug { (Step 2. Joining *** and new***) message } { } ifelse
+      /facets facets newfacets join def 
+      /merged merged newmerged join def 
+      /nextcid nextcid newnextcid join def 
+      /nextfid nextfid newnextfid join 
+      /coneid  coneid newconeid join def
+
+      cone.debug{ (   Checking facets.) message } { } ifelse
+      /k null def
+      0 1 , merged length 1 sub {
+        /i set
+        % i message
+        merged i get (0).. eq {
+% i 番目をまだ調べていない.
+          coneid i get ,  /p set  
+          nextcid i get , /q set
+          cone.debug { [p q] message } {  } ifelse
+          q (0).. ge {
+% cone.fan [p] と cone.fan [q] の initial を比較する.
+% 同じなら k を設定. exit for. 違えば merged[i] = 3 (違う) を代入.
+% differentC はすでに 現在の dhcone と違うと check された cone 番号.
+% dhcone.checked は dhcone がすでに生成されている cone 番号のリスト.
+% これにはいっていても違う.
+            q differentC memberQ , q dhcone.checked memberQ , or 
+            { /rr [0 ] def }
+            { p q isSameCone_h /rr set } ifelse
+
+            rr 0 get 1 eq {
+              cone.debug { (Found next cone. ) message } { } ifelse
+              /k q to_univNum def exit
+            } {
+              cone.debug { ( It is a different cone. ) message } { } ifelse
+              differentC [ q ]  join /differentC set
+              merged i (3).. put
+            } ifelse
+          } {  } ifelse
+        } {  } ifelse
+      } for
+
+      k tag 0 eq { exit } {  } ifelse
+   } loop
+
+   [(-1)..] cones join shell rest /cones set
+%     dhcone.checked, dhcone.unchecked を更新. 
+   dhcone.checked cones join /dhcone.checked set
+   dhcone.unchecked cones setMinus /dhcone.unchecked set
+
+   [(dhcone) [ ]
+     [
+       [(cones) [ ] cones] arrayToTree
+       [(facets) [ ] facets] arrayToTree
+       [(merged) [ ] merged] arrayToTree
+       [(nextcid) [ ] merged] arrayToTree
+       [(nextfid) [ ] merged] arrayToTree
+       [(coneid) [ ] merged] arrayToTree
+     ] 
+   ] arrayToTree /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+%<
+% Usages: dhCones_h
+% cone.fan は doubly homogenized (local) で生成された Grobner fan. 
+% cone.fan を dehomogenize (H->1) して init を比べて dhcone.fan を生成する.
+%
+% テスト1.  (data/test14.sm1) run (data/test14-data.sm1) run
+%          dhCones_h
+%          test22
+%>
+/dhCones_h {
+  (cone.grGblist) boundp { } {setGrGblist} ifelse
+  genDhcone.init
+  /dhcone.fan [ ] def
+  {
+     (-----------------------------------------) message
+     (#dhcone.unchecked = ) messagen dhcone.unchecked length message
+     dhcone.unchecked length 0 eq { exit } { } ifelse
+     dhcone.fan 
+     [ dhcone.unchecked 0 get , genDhcone ] join /dhcone.fan set
+     (#dhcone.fan = ) messagen dhcone.fan length message
+  } loop
+  dhcone.fan
+} def
+
+% Todo: print, save functions.  Representative of weight & init.
