@@ -1,6 +1,13 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2002-noro-ja.tex,v 1.1 2002/12/04 08:57:21 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/rims-2002-noro-ja.tex,v 1.2 2002/12/06 09:23:42 noro Exp $
 \documentclass[theorem]{jarticle}
-\usepackage{jssac}
+%\usepackage{jssac}
+%\topmargin -0.5in
+%\oddsidemargin -0.25in
+%\evensidemargin -0.25in
+%
+%\textwidth 7in
+%\textheight 9in
+%\columnsep 0.33in
 
 \def\HT{{\rm HT}}
 \def\HC{{\rm HC}}
@@ -20,8 +27,8 @@
 \section{はじめに}
 
 本稿では, \cite{funny01} で述べた, 有限体上での 2 変数多項式の因数分解
-を基礎として, 一般の多変数多項式の GCD, 無平方分解, 因数分解アルゴリズム
-およびその実装について述べる. 
+を基礎として, 一般の多変数多項式の GCD, 無平方分解, 因数分解アルゴリズ
+ムおよびその実装について述べる.
 
 \section{多変数多項式の無平方分解と GCD}
 
@@ -75,12 +82,12 @@ do \= \\
    \> $a \leftarrow $ 未使用の $K$ の元\\
    \> $g_a \leftarrow \GCD(f_1|_{y=a},\ldots,f_m|_{y=a})$\\
    \> if \= $g \neq 0$ かつ $\HT_<(g) = \HT_<(g_a)$ then \\
-   \>    \> $adj \leftarrow \cdot h_g(a)/\HC_<(g_a)\cdot g_a - g(a))$\\
-   \>    \> if \= $adj = 0$ かつ, すべての $f_i$ に対し $g | hg\cdot f_i$  then \\
+   \>    \> $adj \leftarrow h_g(a)/\HC_<(g_a)\cdot g_a - g(a)$\\
+   \>    \> if \= $adj = 0$ かつ, すべての $f_i$ に対し $g | h_g\cdot f_i$  then \\
    \>    \>    \> return $\pp(g)$\\
    \>    \> endif\\
    \>    \> $g \leftarrow g+adj \cdot M(a)^{-1} \cdot M$; $M \leftarrow M\cdot (y-a)$\\
-   \> else if $\tdeg(\HT_<(g)) > \tdeg(\HT_<(g_a)$ then \\
+   \> else if $\tdeg(\HT_<(g)) > \tdeg(\HT_<(g_a))$ then \\
    \>    \> $g \leftarrow g_a$; $M \leftarrow  y-a$\\
    \> else if $\tdeg(\HT_<(g)) = \tdeg(\HT_<(g_a))$ then \\
    \>    \> $g \leftarrow 0$; $M \leftarrow 1$\\
@@ -147,23 +154,28 @@ $x$ は, $x$ に関する微分が消えないように選ぶ必要がある.
 
 \subsection{2 変数の因数分解}
 
-$x$, $y$ が決まったら, $f_a(x,y) = f(x,y,a)$ が, 
+$x$, $y$ が決まったら, $f_a(x,y) = f(x,y,a)$ が 
 無平方になるように $Z$ に代入する値のベクトル
 $a = (a_1,\ldots,a_{n-2}) \in K^{n-2}$ を選び, $f_a$ を因数分解する. 
 ここで, $f_a$ の $x$ に関する主係数 
 (これは $y$ の多項式) の定数項が 0 でなく, かつ
 $f_a|_{y=0}$ が無平方であるよう, 
 必要があれば $y\rightarrow y+c$ という平行移動を行う. 
+実際には, この操作は 2 変数の因数分解で, $y$ への代入値を探す
+仮定で行われているため, その結果をそのまま返すような内部
+サブルーチンを呼び出している. 
 
 \subsection{$K[y]$ 上での Hensel 構成 (前処理)}
 
 $f_a(x,y)$ の因数分解の結果より, 因子を 2 組にわけ
 $f_a(x,y) = g_0(x,y)h_0(x,y)$ とした上で, $K[y]$ 上で Hensel 構成を
 行う. この際, 問題となるのが $g_0$, $h_0$ の $x$ に関する主係数の
-決め方である. いわゆる主係数問題を回避するために, 真の因子の主係数
+決め方である. 単に, 双方の係数を $f$ の $x$ に関する主係数
+$\lc_x(f)$ に合わせるという方法
+では, Hensel 構成の段数が不必要に増える, いわゆる主係数問題
+を起こす. これを回避するために, 真の因子の主係数
 となるべく近いものをあらかじめ固定しておくのがよい. 少なくとも, 
-それは, $f$ の, $x$ に関する主係数 $\lc_x(f)$ の因子ではあるが, 
-$\lc_x(f)$ そのものをとることは一般に overestimate である. 
+それは $\lc_x(f)$ の因子ではある. 
 有理数体上の場合, P. S. Wang により主係数の決定方法が提案されて
 いるが, ここでは次のように見積もる:
 
@@ -201,9 +213,9 @@ $f \leftarrow \lc_g\cdot \lc_h/\lc_x(f) \cdot f$
 $g_0$ が正しい因子の射影ならば, $\lc_x(g_0)$ は
 既に真の因子の主係数に等しい. ここでは, $g_0$, $h_0$ から $K[y]$ 上の
 Hensel 構成により, $f=g_kh_k \bmod I^{k+1}$, ただし 
-$I = <z_1-a_1,\ldots,z_{n-2}-a_{n-2}>$, となる $g_k$, $h_k$ を EZ 法に
+$I = \langle z_1-a_1,\ldots,z_{n-2}-a_{n-2} \rangle$, となる $g_k$, $h_k$ を EZ 法に
 より計算する. まず, $z_i \rightarrow z_i+a_i$ なる平行移動により, 
-$I=<z_1,\ldots,z_{n-2}>$ としておく. 通常の EZ 法では, 係数に分数が
+$I=\langle z_1,\ldots,z_{n-2} \rangle$ としておく. 通常の EZ 法では, 係数に分数が
 現れるのを避けるため, 因子の係数の大きさの評価から定められる, 
 ある大きな素数巾 $p^l$ を法として $\Z/(p^l)$ 上で計算する. 
 ここでは, $f$ の $y$ に関する次数を越える整数 $d$ に対し, 
@@ -275,11 +287,15 @@ Hensel 構成においては, $K[y]/(y^d)$ を, 多項式の係数環として
 今後の予定として, 次のようなことを考えている. 
 
 \begin{itemize}
-\item 正標数の準素分解
+\item 正標数の準素分解の実装. 
 
-\item 体の位数が足りない場合に, 自動的に基礎体を拡大する
+\item 体の位数が足りない場合に, 自動的に基礎体を拡大する. 
 
-\item 各部分の効率化
+\item 体の標数が十分大きい場合に, 無平方分解を標数 0 と
+同様の Hensel 構成で行うようにする. 
+
+\item 2 変数の因数分解において, \cite{funny01} で述べた, 多項式
+時間アルゴリズムを自動的に選択して実行する. 
 \end{itemize}
 
 \begin{thebibliography}{99}
