@@ -1,7 +1,6 @@
-# -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.solaris,v 1.5 1999/11/23 02:03:14 ohara Exp $ 
+# -*- mode: Makefile -*-
+# $OpenXM: OpenXM/src/ox_math/Makefile.solaris,v 1.6 1999/12/09 22:52:49 ohara Exp $ 
 
-#
 PREFIX=/usr/local
 
 MLINKDIR = ${PREFIX}/mathematica/AddOns/MathLink/DevelopersKits
@@ -11,20 +10,17 @@ MPREP = ${ADDONSDIR}/mprep
 
 CC = gcc
 GMPSRC = ${OpenXM_HOME}/src/gmp
-GMPINC = -I${GMPSRC}
 
 CDEFS  = -DDEBUG
-INCDIR = -I${ADDONSDIR} ${GMPINC} -I${OpenXM_HOME}/src/ox_toolkit
+INCDIR = -I${ADDONSDIR} -I${GMPSRC} -I${OpenXM_HOME}/src/ox_toolkit
 LIBDIR = -L${ADDONSDIR} -L.
 CFLAGS = -g -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
 
-SOLLIBS  = -lsocket -lnsl
-MATHLIBS = -lML  -lm
-LIBS = -lox -lgmp ${MATHLIBS} ${SOLLIBS}
+LIBS = -lox -lgmp -lML -lm -lsocket -lnsl
 
-BINARIES = bconv testclient ox_math math2ox
+BINARIES = ox_math math2ox
 
-all: libgmp.a libox.a $(BINARIES)
+all: libgmp.a libox.a ${BINARIES}
 
 serv1.o serv2.o mlo.o: serv2.h
 
@@ -35,14 +31,8 @@ libgmp.a:
 
 libox.a:
 	-rm -f libox.a
-	(cd ../ox_toolkit; ${MAKE} libox.a)
+	(cd ${OpenXM_HOME}/src/ox_toolkit; ${MAKE} libox.a)
 	ln -s ${OpenXM_HOME}/src/ox_toolkit/libox.a .
-
-bconv: bconv.o libox.a libgmp.a
-	${CC} ${CFLAGS} -o $@ bconv.o ${LIBS}
-
-testclient: testclient.o libox.a libgmp.a
-	${CC} ${CFLAGS} -o $@ testclient.o ${LIBS}
 
 ox_math: serv1.o serv2.o mlo.o libox.a libgmp.a
 	${CC} ${CFLAGS} -o $@ serv2.o serv1.o mlo.o ${LIBS}
@@ -54,13 +44,13 @@ math2.c: math2.tm
 	-rm -f $@
 	${MPREP} $? > $@
 
-install-bin:  $(BINARIES)
-	install -c -m 755  $(BINARIES) ${OpenXM_HOME}/bin/
+install-bin: ${BINARIES}
+	install -c -m 755  ${BINARIES} ${OpenXM_HOME}/bin/
 
-install:  $(BINARIES)
-	-ln -s $(BINARIES) ${OpenXM_HOME}/bin
+install: ${BINARIES}
+	-for i in ${BINARIES}; do \
+		ln -s -f ../src/ox_math/$$i ${OpenXM_HOME}/bin ; \
+	done
 
 clean:
-	-rm -f *.o *~ libox.a libgmp.a math2.c
-	-rm -f bconv testclient ox_math math2ox
-	-rm -f sample
+	-rm -f *.o *~ libox.a libgmp.a math2.c ox_math math2ox
