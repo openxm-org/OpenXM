@@ -1,10 +1,11 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.1 2000/07/03 05:57:43 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.util.Stack;
-//import java.io.*;
+import java.util.Vector;
+import java.awt.*;
 
 public class OXplot extends OpenXMserver{
   private Stack stack = new Stack();
@@ -18,6 +19,8 @@ public class OXplot extends OpenXMserver{
 
   public void computeProcess(OpenXMconnection stream){
     debug("OXplot started.");
+    stack = new Stack();
+    plotframe = new Vector();
     try{
       while(true){
 	try{
@@ -55,17 +58,41 @@ public class OXplot extends OpenXMserver{
   }
 
   class plotframe extends java.awt.Frame{
+    Canvas canvas;
     int pixels[][];
 
     plotframe(int width,int height){
       super("plotframe");
-      setSize(width,height);
+      add("Center", new Panel().add(canvas = new Canvas()));
+      canvas.setSize(width,height);
       setResizable(false);
 
       pixels = new int[width][];
       for(int i=0;i<pixels.length;i++){
 	pixels[i] = new int[height];
       }
+
+      pack();
+      show();
+    }
+
+    public void paint(Graphics gr){
+      Graphics g = canvas.getGraphics();
+
+      for(int x=0;x<pixels.length;x++){
+	for(int y=0;y<pixels[x].length;y++){
+	  if(pixels[x][y] == 1){
+	    g.setColor(Color.black);
+	  }else{
+	    g.setColor(Color.white);
+	  }
+	  g.fillRect(x,y,1,1);
+	}
+      }
+    }
+
+    public void pset(int x,int y){
+      pixels[x][y] = 1;
     }
   }
 
@@ -194,18 +221,21 @@ public class OXplot extends OpenXMserver{
     }
   }
 
-  private CREATE(CMO[] argv){
-    plotframe tmp = new plotframe(argv[0],argv[1]);
+  private CMO CREATE(CMO[] argv){
+    plotframe tmp = new plotframe(((CMO_INT32)argv[0]).intValue()
+				  ,((CMO_INT32)argv[1]).intValue());
     int i;
 
     for(i=0;i<plotframe.size();i++){
       if(plotframe.elementAt(i) == null){
 	plotframe.setElementAt(tmp,i);
-	return i;
+	return new CMO_INT32(i);
       }
     }
 
     plotframe.addElement(tmp);
+
+    return new CMO_INT32(plotframe.size());
   }
 
   private void debug(String str){
@@ -251,7 +281,7 @@ public class OXplot extends OpenXMserver{
     }
 
     //ox = new OpenXMserver(hostname,ControlPort,DataPort);
-    ox = new OMproxy(hostname,ControlPort,DataPort);
+    ox = new OXplot(hostname,ControlPort,DataPort);
     /*
     try{
     }catch(java.net.UnknownHostException e){
