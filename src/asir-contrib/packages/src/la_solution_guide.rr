@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.1 2001/07/16 07:21:58 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 /* Suffix should be  lasg_ */
 
@@ -9,11 +9,6 @@
 Lasg_Seed0 = 1$
 Lasg_Dense = 1$
 
-def ox_loadfile(Tag,FileName) {
-  if (!Tag) Result=load(FileName); else return(1);
-  if (Result == 0) error("File "+FileName+" was not found.");
-  return(1);
-}
 
 /*
   if (!Loaded_taka_print) load(FileName); else ;
