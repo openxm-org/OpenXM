@@ -1,0 +1,234 @@
+%% $OpenXM$
+%% http server by sm1
+[(parse) (oxasir.sm1) pushfile] extension 
+(oxasir.started) boundp { 
+} {
+  [(x^2-1) (x)] fctr pop
+} ifelse
+
+/startserver {
+   [(sm1.socket) (open) [1200 (localhost)]] extension /server.fdAndPort set
+   (sm1.socket.open returns  ) messagen server.fdAndPort message
+   [(sm1.socket) (accept) [server.fdAndPort 0 get]] extension
+   /server.fd set
+   (connected.) message
+   (sm1.socket.accept returns  ) messagen server.fd message
+} def
+
+/stopserver {
+   [(sm1.socket) (close) server.fd ] extension message
+} def
+
+/send {
+  /arg1 set
+  [(sm1.socket) (write) [server.fd 0 get arg1]] extension message
+} def
+
+/sendln {
+  /mmm set
+  mmm tag 5 eq {
+    [mmm 10 (string) dc] cat /mmm set
+  }{
+    10 (string) dc /mmm set
+  } ifelse
+  [(sm1.socket) (write) [server.fd 0 get mmm]] extension message
+} def
+
+/httpd {
+  {
+    startserver ;
+    action ;
+    stopserver ;
+    (5 sleep) system 
+  } loop    
+} def
+
+/action {
+  {
+   /httpd.com.old ( ) def
+   [(sm1.socket) (select) [server.fd 0 get -1]] extension 
+%%                                          wait for ever
+   {
+        [(sm1.socket) (read) [server.fd 0 get ]] extension /ff set
+        ff length 0 eq {
+           (connection is closed.) message
+        }
+        ff (quit) eq
+        { (We exit the function httpd) message exit }
+        { %% [(SigIgn) 0] system_variable
+          (------------  start ----------------------) message
+             ff message
+          (-----------------------------------------) message
+             ff removeGET webstringToAscii /httpd.com set 
+             httpd.com message
+          (------------  end ----------------------) message
+          (   ) message
+          oxasir.ccc 
+            [(if (1) {)  httpd.com  (};)] cat
+          oxexecutestring ;
+          oxasir.ccc oxpopstring /httpd.result set
+          /httpd.com.old httpd.com def
+          (------------- result -------------) message
+          httpd.result message
+          (----------------------------------) message
+          (  ) message
+          [(Input:)  (<pre> ) httpd.com (</pre>) (<br>)
+           (Output:) (<pre>)
+            httpd.result 
+            (</pre>) 
+          ] cat
+          send-page-3  exit
+          %% [(SigIgn) 1] system_variable
+        } ifelse
+   }
+   {  } ifelse
+  } loop
+} def
+
+
+/send-page-1 {
+   (HTTP/0.9 200 OK) sendln
+%%   (Date: Sun, 18 Mar 2001 02:54:50 GMT) sendln
+%%   (Server: sm1/0.1 (Unix)) sendln
+%%   (Last-Modified: Wed, 23 Aug 2000 11:19:27 GMT) sendln
+%%   (ETag: "1f8f-5df-39a3b33f") sendln
+%%   (Accept-Ranges: bytes) sendln
+%%   (Content-Length: 10) sendln
+   (Connection: close) sendln
+   (Content-Type: text/plain) sendln
+   0 sendln
+   (HOGE HOGE!) sendln
+   0 sendln
+   [(flush)] extension
+} def
+
+/send-page-2 {
+   (HTTP/0.9 200 OK) sendln
+%%   (Content-Length: 10) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+   (<FORM NAME="myFORM">) sendln
+   (<INPUT TYPE="TEXT" NAME="Num">) sendln
+   (</FORM>) sendln
+   0 sendln
+   [(flush)] extension
+} def
+
+/send-page-3 {
+  /arg1 set
+  [/in-send-page-3 /result] pushVariables
+  [
+   /result arg1 def
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+%%   (<FORM NAME="myFORM" METHOD="POST">) sendln
+   result sendln
+   (<FORM NAME="myFORM">) sendln
+   (<INPUT TYPE=submit VALUE="submit">) sendln
+   (<textarea name=msg rows=10 cols="62" wrap="soft"></textarea>) sendln
+   (</FORM>) sendln
+   0 sendln
+   [(flush)] extension
+  ] pop
+  popVariables
+} def
+
+
+/stopclient {
+  [(sm1.socket) (close) [client.fdAndPort 0 get] ] extension message
+} def
+
+
+/fromHex {
+  /arg1 set
+  [/in-fromHex /s1 /s2 /c /c2] pushVariables
+  [
+    arg1 0 get /s1 set
+    arg1 1 get /s2 set
+
+    48 s1 le  s1 57 le and {  % 0, ..., 9
+      s1 48 sub /c set
+    }{ } ifelse
+    65 s1 le  s1 70 le and {  % A, ..., F
+      s1 65 sub 10 add /c set
+    }{ } ifelse
+    97 s1 le  s1 102 le and {  % a, ..., f
+      s1 97 sub 10 add /c set
+    }{ } ifelse
+    c 16 mul /c set
+    
+    48 s2 le  s2 57 le and {  % 0, ..., 9
+      s2 48 sub /c2 set
+    }{ } ifelse
+    65 s2 le  s2 70 le and {  % A, ..., F
+      s2 65 sub 10 add /c2 set
+    }{ } ifelse
+    97 s2 le  s2 102 le and {  % a, ..., f
+      s2 97 sub 10 add /c2 set
+    }{ } ifelse
+    c c2 add /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/removeGET {
+  /arg1 set
+  [/in-removeGET /s /s2 /i /j] pushVariables
+  [
+     /s arg1 def
+     s 1 copy /s2 set
+     s (array) dc /s set
+     /j 0 def
+     10 1 s length 1 sub {
+       /i set
+       s2 j << s i get (string) dc >> put
+       j 1 add /j set
+     } for
+     /arg1 s2 def
+  ] pop
+  arg1
+} def
+
+/webstringToAscii {
+  /arg1 set
+  [/in-webstringToAscii /s /i /j /c /n] pushVariables
+  [
+     /s arg1 def
+     s (array) dc /s set
+     /j 0 def /n s length def
+     /i 0 def
+     {
+       s i get /c set
+       c 32 eq { exit } { } ifelse
+       c 37 eq {  % c == %
+         [s i 1 add get s i 2 add get] fromHex /c set
+         s j c put 
+         j 1 add /j set
+         i 3 add /i set
+       } { 
+         c 43 eq { % c == +
+           s j 32 put
+           j 1 add /j set
+           i 1 add /i set
+          } {
+            c 13 eq { % c == 0xd
+              i 1 add /i set
+            } {
+              s j c put
+              j 1 add /j set
+              i 1 add /i set
+            } ifelse
+         } ifelse
+       } ifelse
+       i n ge { exit } {  } ifelse
+     } loop
+     s j carN /s set
+     s { (string) dc } map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
