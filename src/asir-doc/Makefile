@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.4 2000/01/13 08:29:55 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.5 2000/01/19 01:15:46 noro Exp $
 
 WHICH=../../misc/which.pl
 
@@ -95,19 +95,19 @@ man-jp.dvi: tmpJP
 man-eg.dvi: tmpEG
 	-rm man-eg.dvi
 	-(cd tmpEG; tex man.texi; ../jtexindex/C/texindex man.??; tex man.texi)
+	-(cd tmpEG; makeinfo man.texi)
 	-mv tmpEG/man.dvi man-eg.dvi
 	-touch man-eg.dvi
 
-help-jp: tmpJPeuc
+help-jp: tmpJPeuc man-jp.dvi
 	-rm -rf help-jp
 	-mkdir help-jp
 	-(cd tmpJPeuc; makeinfo man.texi)
-	-(cd help-jp; for i in ../tmpJPeuc/risaman*; do ../extract_func $$i; done)
+	-(cd help-jp; for i in ../tmpJPeuc/risaman*; do ../extract_func -j $$i; done)
 
-help-eg: tmpEG
+help-eg: tmpEG man-eg.dvi
 	-rm -rf help-eg
 	-mkdir help-eg
-	-(cd tmpEG; makeinfo man.texi)
 	-(cd help-eg; for i in ../tmpEG/risaman*; do ../extract_func $$i; done)
 
 html-jp: tmpJPhtml

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir99/doc/extract_func.c,v 1.1 1999/11/12 09:21:36 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.1.1.1 1999/12/08 05:47:43 noro Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -14,15 +14,24 @@ char **argv;
 	char *name[BUFSIZ];
 	char cmd[BUFSIZ];
 	char fn[BUFSIZ];
+	char *file;
+	int jis;
 	int i,j;
 
-	if ( argc != 2 ) {
-		fprintf(stderr,"usage : extract_func infofile\n");
+	if ( (argc != 2) && (argc != 3) ) {
+		fprintf(stderr,"usage : extract_func [-j] infofile\n");
 		exit(0);
 	}
-	in = fopen(argv[1],"rb");
+	if ( argc == 3 ) {
+		jis = 1;	
+		file = argv[2];
+	} else {
+		jis = 0;
+		file = argv[1];
+	}
+	in = fopen(file,"rb");
 	if ( !in ) {
-		fprintf(stderr,"%s : not found",argv[1]);
+		fprintf(stderr,"%s : not found",file);
 		exit(0);
 	}
 	fp = 0;
@@ -49,18 +58,22 @@ char **argv;
 				fputs(buf,fp);
 				if ( buf1[0] == 0x1f ) {
 					fclose(fp); fp = 0;
-					sprintf(cmd,"nkf %s > %s.tmp; rm -f %s; mv %s.tmp %s",
-						name[0],name[0],name[0]);
-					system(cmd);
+					if ( jis ) {
+						sprintf(cmd,"nkf %s > %s.tmp; rm -f %s; mv %s.tmp %s",
+							name[0],name[0],name[0]);
+						system(cmd);
+					}
 				} else
 					fputs(buf1,fp);
 			}
 		} else if ( fp )
 			if ( buf[0] == 0x1f ) {
 				fclose(fp); fp = 0;
-				sprintf(cmd,"nkf %s > %s.tmp; rm -f %s; mv %s.tmp %s",
-					fn,fn,fn,fn,fn);
-				system(cmd);
+				if ( jis ) {
+					sprintf(cmd,"nkf %s > %s.tmp; rm -f %s; mv %s.tmp %s",
+						fn,fn,fn,fn,fn);
+					system(cmd);
+				}
 			} else
 				fputs(buf,fp);
 	}
