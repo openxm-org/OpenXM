@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.16 2003/12/04 06:29:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.17 2003/12/04 10:35:24 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -1117,4 +1117,8 @@ int oxKillAll(void) {
   }
   Myforkcp = 0;
   return(0);
+}
+
+void ox_pathfinder_quiet(void) {
+  Verbose_get_home = 0;
 }

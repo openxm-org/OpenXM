@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.4 2003/07/21 13:36:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.5 2003/11/20 07:18:41 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -17,6 +17,7 @@ void *sGC_malloc(int size) {
   return ((void *)malloc(size));
 }
 
+int Quiet = 0;
 extern char **environ;
 
 main(int argc,char *argv[]) {
@@ -58,6 +59,8 @@ main(int argc,char *argv[]) {
 	  aaa = getServerEnv(serverName);
 	}else if (strcmp(argv[i],"-nox")==0) {
 	  ox_pathfinderNoX(1);
+	}else if (strcmp(argv[i],"-quiet")==0) {
+	  Quiet = 1;  ox_pathfinder_quiet();
 	}else{
 	  fprintf(stderr,"Unknown option.\n");
 	  usage();

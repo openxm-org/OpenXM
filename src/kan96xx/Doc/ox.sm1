@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.32 2004/02/24 00:45:33 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.33 2004/02/24 01:36:14 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -15,7 +15,7 @@
 [(getenv) (OXSTART100)] extension tag 0 eq not {
   /oxstart100 [(getenv) (OXSTART100)] extension def
 } {  } ifelse 
-oxstart100  message
+oxstart100  message-quiet
 
 /ox.sm1.loaded 1 def
 /oxasir.sm1.loaded 1 def
@@ -487,7 +487,7 @@ ox.verbose { oxhelp } {  } ifelse
  [(oxCreateControl_RFC_101) peer 0 pass] extension /oxsm1.ccc set
                      %% 0 means connect from only localhost. 
  /ox.ccc oxsm1.ccc def
- (The server is binded to the variable oxsm1.ccc) message
+ (The server is binded to the variable oxsm1.ccc) message-quiet
   oxsm1.ccc
  ] pop
  popVariables
@@ -505,7 +505,7 @@ ox.verbose { oxhelp } {  } ifelse
     oxsm1.ccc oxpopcmo /engineID set
     [(oxCreateEngine_RFC_101) peer 0 (Empty) engineID] extension
     /ox.ddd set
-    (The engine is binded to the variables ox.ddd) message
+    (The engine is binded to the variables ox.ddd) message-quiet
  ] pop
  popVariables
  arg1
@@ -642,13 +642,14 @@ ox.verbose { oxhelp } {  } ifelse
  peer message
  [
   oxstart100
+  @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
   ( -oxserver bin/ox_sm1 -e ) ( -reverse )
   ( -data ) data ( -control ) control  ( -pass ) pass 
   ( )] cat execve
  [(oxCreateClient2) peer 0 pass] extension /oxsm1.ccc set
                      %% 0 means connect from only localhost. 
- (The server is binded to the variable oxsm1.ccc) message
+ (The server is binded to the variable oxsm1.ccc) message-quiet
   /ox.ccc oxsm1.ccc def
   oxsm1.ccc.init 
   oxsm1.ccc
@@ -742,7 +743,7 @@ ox.verbose { oxhelp } {  } ifelse
   ( )] cat execve
  [(oxCreateClient2) peer 0 pass] extension /oxntl.ccc set
                      %% 0 means connect from only localhost. 
- (The server is binded to the variable oxntl.ccc) message
+ (The server is binded to the variable oxntl.ccc) message-quiet
 %  oxntl.ccc.init 
    oxntl.ccc
  ] pop
@@ -1542,6 +1543,7 @@ oxasir.verbose {
  peer message
  [
   oxstart100
+  @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
   ( -oxserver bin/ox_asir -e ) ( -reverse )
   ( -data ) data ( -control ) control  ( -pass ) pass 
@@ -1594,7 +1596,7 @@ oxasir.verbose {
   ( )] cat execve
  [(oxCreateClient2) peer 0 pass] extension /oxk0.ccc set
                      %% 0 means connect from only localhost. 
- (The server is binded to the variable oxk0.ccc) message
+ (The server is binded to the variable oxk0.ccc) message-quiet
   ox.k0.init 
   /arg1 oxk0.ccc def
  ] pop
