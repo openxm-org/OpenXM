@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.25 2000/08/02 05:14:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.26 2000/08/10 02:59:08 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -7,6 +7,22 @@ Sordinary = false;
 */
 #define OFFSET 0 
 /* #define OFFSET 20*/
+Sverbose = false; /* Be extreamly verbose     */
+Sverbose2 = true; /* Don't be quiet and show minimal information */
+def Sprintln(s) {
+  if (Sverbose) Println(s);
+}
+def Sprint(s) {
+  if (Sverbose) Print(s);
+}
+def Sprintln2(s) {
+  if (Sverbose2) Println(s);
+}
+def Sprint2(s) {
+  if (Sverbose2) Print(s);
+  sm1(" [(flush)] extension ");
+}
+
 /* Test sequences. 
    Use load["minimal.k"];;
 
@@ -278,7 +294,7 @@ def SresolutionFrameWithTower(g,opt) {
   /* -sugar is fine? */
   sm1(" setupEnvForResolution "); 
 
-  Println(g);
+  Sprintln(g);
   startingGB = g;
   /* ans = [ SzeroMap(g) ];  It has not been implemented. see resol1.withZeroMap */
   ans = [ ];
@@ -322,16 +338,22 @@ def NewPolynomialVector(size) {
 def  SturnOffHomogenization() {
   sm1("
     [(Homogenize)] system_variable 1 eq
-    { (Warning: Homogenization and ReduceLowerTerms options are automatically turned off.) message
+    { Sverbose {
+      (Warning: Homogenization and ReduceLowerTerms options are automatically turned off.) message } { } ifelse
       [(Homogenize) 0] system_variable
       [(ReduceLowerTerms) 0] system_variable
     } {  } ifelse
   ");
 }
+/* NOTE!!!  Be careful these changes of global environmental variables.
+   We should make a standard set of values and restore these values
+   after computation and interruption.  August 15, 2000.
+*/
 def  SturnOnHomogenization() {
   sm1("
     [(Homogenize)] system_variable 0 eq
-    { (Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.) message
+    { Sverbose {
+        (Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.) message } {  } ifelse
       [(Homogenize) 1] system_variable
       [(ReduceLowerTerms) 1] system_variable
     } {  } ifelse
@@ -379,7 +401,7 @@ def Sres0FrameWithSkelton(g) {
     si = pair[1,0];
     sj = pair[1,1];
     /* si g[i] + sj g[j] + \sum tmp[2][k] g[k] = 0 in res0 */
-    Print(".");
+    Sprint(".");
 
     t_syz = NewPolynomialVector(gLength);
     t_syz[i] = si;
@@ -387,7 +409,7 @@ def Sres0FrameWithSkelton(g) {
     syzAll[k] = t_syz;
   }
   t_syz = syzAll;
-  Print("Done. betti="); Println(betti);
+  Sprint("Done. betti="); Sprintln(betti);
   /* Println(g);  g is in a format such as 
     [e_*x^2 , e_*x*y , 2*x*Dx*h , ...]
     [e_*x^2 , e_*x*y , 2*x*Dx*h , ...]
@@ -443,8 +465,10 @@ def test_SinitOfArray() {
   f = [x^2+y^2+z^2, x*y+x*z+y*z, x*z^2+y*z^2, y^3-x^2*z - x*y*z+y*z^2,
        -y^2*z^2 + x*z^3 + y*z^3, -z^4];
   p=SresolutionFrameWithTower(f);
-  sm1_pmat(p); 
-  sm1_pmat(SgenerateTable(p[1]));
+  if (Sverbose) {
+    sm1_pmat(p); 
+    sm1_pmat(SgenerateTable(p[1]));
+  }
   return(p);
   frame = p[0];
   sm1_pmat(p[1]);
@@ -470,7 +494,7 @@ def SgenerateTable(tower) {
   local height, n,i,j, ans, ans_at_each_floor;
 
   /*
-  Print("SgenerateTable: tower=");Println(tower);  
+  Sprint("SgenerateTable: tower=");Sprintln(tower);  
   sm1(" print_switch_status "); */
   height = Length(tower);
   ans = NewArray(height);
@@ -555,17 +579,18 @@ def SlaScala(g,opt) {
         reductionTable_tmp;
   /* extern WeightOfSweyl; */
   ww = WeightOfSweyl;
-  Print("WeightOfSweyl="); Println(WeightOfSweyl);
-  rf = SresolutionFrameWithTower(g,opt);
-  Print("rf="); sm1_pmat(rf);
+  Sprint("WeightOfSweyl="); Sprintln(WeightOfSweyl);
+  rf = SresolutionFrameWithTower(g,opt);  
+  Sprint("rf="); if (Sverbose) {sm1_pmat(rf);}
   redundant_seq = 1;   redundant_seq_ordinary = 1;
   tower = rf[1];
 
-  Println("Generating reduction table which gives an order of reduction.");
-  Print("WeghtOfSweyl="); Println(WeightOfSweyl);
-  Print("tower"); Println(tower);
+  Sprintln("Generating reduction table which gives an order of reduction.");
+  Sprint("WeghtOfSweyl="); Sprintln(WeightOfSweyl);
+  Sprint2("tower="); Sprintln2(tower);
   reductionTable = SgenerateTable(tower);
-  Print("reductionTable="); sm1_pmat(reductionTable);
+  Sprint2("reductionTable="); 
+  if (Sverbose || Sverbose2) {sm1_pmat(reductionTable);}
 
   skel = rf[2];
   redundantTable = SnewArrayOfFormat(rf[1]);
@@ -584,11 +609,12 @@ def SlaScala(g,opt) {
       while (SthereIs(reductionTable_tmp,strategy)) {
         i = SnextI(reductionTable_tmp,strategy,redundantTable,
                    skel,level,freeRes);
-        Println([level,i]);
+        Sprintln([level,i]);
         reductionTable_tmp[i] = -200000;
         if (reductionTable[level,i] == strategy) {
-           Print("Processing [level,i]= "); Print([level,i]);
-           Print("   Strategy = "); Println(strategy);
+           Sprint("Processing [level,i]= "); Sprint([level,i]);
+           Sprint("   Strategy = "); Sprintln(strategy);
+           Sprint2(strategy);
            if (level == 0) {
              if (IsNull(redundantTable[level,i])) {
                bases = freeRes[level];
@@ -614,9 +640,9 @@ if (Sordinary) {
 }else{
                   if (f[4] > f[5]) {
                     /* Zero in the gr-module */
-                    Print("v-degree of [org,remainder] = ");
-                    Println([f[4],f[5]]);
-                    Print("[level,i] = "); Println([level,i]);
+                    Sprint("v-degree of [org,remainder] = ");
+                    Sprintln([f[4],f[5]]);
+                    Sprint("[level,i] = "); Sprintln([level,i]);
                     redundantTable[level-1,place] = 0;
                   }else{
                     redundantTable[level-1,place] = redundant_seq;
@@ -648,6 +674,7 @@ if (Sordinary) {
     }
     strategy++;
   }
+  Sprintln2(" ");
   n = Length(freeRes);
   freeResV = SnewArrayOfFormat(freeRes);
   for (i=0; i<n; i++) {
@@ -695,9 +722,9 @@ def SnextI(reductionTable_tmp,strategy,redundantTable,
        }
      }
    }
-   Print("reductionTable_tmp=");
-   Println(reductionTable_tmp);
-   Println("See also reductionTable, strategy, level,i");
+   Sprint("reductionTable_tmp=");
+   Sprintln(reductionTable_tmp);
+   Sprintln("See also reductionTable, strategy, level,i");
    Error("SnextI: bases[i] or bases[j] is null for all combinations.");
 }
 
@@ -731,7 +758,7 @@ def SwhereInGB(f,tower) {
     q = MonomialPart(f);
     if (p == q) return(i);
   }
-  Println([f,tower]);
+  Sprintln([f,tower]);
   Error("whereInGB : [f,myset]: f could not be found in the myset.");      
 }
 def SunitOfFormat(pos,forms) {
@@ -785,7 +812,7 @@ def SwhereInTower(f,tower) {
     q = MonomialPart(f);
     if (p == q) return(i);
   }
-  Println([f,tower]);
+  Sprintln([f,tower]);
   Error("[f,tower]: f could not be found in the tower.");      
 }
 
@@ -797,23 +824,23 @@ def SpairAndReduction(skel,level,ii,freeRes,tower,ww) {
   local i, j, myindex, p, bases, tower2, gi, gj,
        si, sj, tmp, t_syz, pos, ans, ssp, syzHead,pos2,
        vdeg,vdeg_reduced;
-  Println("SpairAndReduction:");
+  Sprintln("SpairAndReduction:");
 
   if (level < 1) Error("level should be >= 1 in SpairAndReduction.");
   p = skel[level,ii];
   myindex = p[0];  
   i = myindex[0]; j = myindex[1];
   bases = freeRes[level-1];
-  Println(["p and bases ",p,bases]);
+  Sprintln(["p and bases ",p,bases]);
   if (IsNull(bases[i]) || IsNull(bases[j])) {
-    Println([level,i,j,bases[i],bases[j]]);
+    Sprintln([level,i,j,bases[i],bases[j]]);
     Error("level, i, j : bases[i], bases[j]  must not be NULL.");
   }
 
   tower2 = StowerOf(tower,level-1);
   SsetTower(tower2);  
-  Println(["level=",level]);
-  Println(["tower2=",tower2]);
+  Sprintln(["level=",level]);
+  Sprintln(["tower2=",tower2]);
   /** sm1(" show_ring ");   */
 
   gi = Stoes_vec(bases[i]);
@@ -824,23 +851,23 @@ def SpairAndReduction(skel,level,ii,freeRes,tower,ww) {
   sj = ssp[0,1];
   syzHead = si*es^i;
   /* This will be the head term, I think. But, double check. */
-  Println([si*es^i,sj*es^j]);
+  Sprintln([si*es^i,sj*es^j]);
 
-  Print("[gi, gj] = "); Println([gi,gj]);
-  sm1(" [(Homogenize)] system_variable message ");
-  Print("Reduce the element "); Println(si*gi+sj*gj);
-  Print("by  "); Println(bases);
+  Sprint("[gi, gj] = "); Sprintln([gi,gj]);
+  sm1(" [(Homogenize)] system_variable  ");
+  Sprint("Reduce the element "); Sprintln(si*gi+sj*gj);
+  Sprint("by  "); Sprintln(bases);
 
   tmp = Sreduction(si*gi+sj*gj, bases);
 
-  Print("result is "); Println(tmp);
+  Sprint("result is "); Sprintln(tmp);
 
   /* This is essential part for V-minimal resolution. */
   /* vdeg = SvDegree(si*gi+sj*gj,tower,level-1,ww); */
   vdeg = SvDegree(si*gi,tower,level-1,ww); 
   vdeg_reduced = SvDegree(tmp[0],tower,level-1,ww);  
-  Print("vdegree of the original = "); Println(vdeg);
-  Print("vdegree of the remainder = "); Println(vdeg_reduced);
+  Sprint("vdegree of the original = "); Sprintln(vdeg);
+  Sprint("vdegree of the remainder = "); Sprintln(vdeg_reduced);
 
   t_syz = tmp[2];
   si = si*tmp[1]+t_syz[i];
@@ -856,7 +883,7 @@ def SpairAndReduction(skel,level,ii,freeRes,tower,ww) {
   ans = [tmp[0],t_syz,pos,pos2,vdeg,vdeg_reduced];
   /* pos is the place to put syzygy at level. */
   /* pos2 is the place to put a new GB at level-1. */   
-  Println(ans);
+  Sprintln(ans);
   return(ans);
 }
 
@@ -948,7 +975,7 @@ def Sbases_to_vec(bases,size) {
 
 HelpAdd(["Sminimal",
 ["It constructs the V-minimal free resolution by LaScala's algorithm",
- "option: \"homogenized\" (no automatic homogenization ",
+ "option: \"homogenized\" (no automatic homogenization)",
  "      : \"Sordinary\"   (no (u,v)-minimal resolution)",
  "Options should be given as an array.",
  "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
@@ -979,8 +1006,8 @@ def Sminimal(g,opt) {
   redundantTable = r[1];
   reducer = r[2];
   bettiTable = SbettiTable(redundantTable);
-  Println("Betti numbers are ------");
-  sm1_pmat(bettiTable);
+  Sprintln2("Betti numbers are ------");
+  if (Sverbose || Sverbose2) {sm1_pmat(bettiTable);}
   minRes = SnewArrayOfFormat(freeRes);
   seq = 0;
   maxSeq = SgetMaxSeq(redundantTable);
@@ -990,12 +1017,12 @@ def Sminimal(g,opt) {
   }
   seq=maxSeq+1;
   while (seq > 1) {
-    seq--;
+    seq--;  Sprint2(seq);
     for (level = 0; level < maxLevel; level++) {
       betti = Length(freeRes[level]);
       for (q = 0; q<betti; q++) {
         if (redundantTable[level,q] == seq) {
-          Print("[seq,level,q]="); Println([seq,level,q]);
+          Sprint("[seq,level,q]="); Sprintln([seq,level,q]);
           if (level < maxLevel-1) {
             bases = freeRes[level+1];
             dr = reducer[level,q];
@@ -1008,10 +1035,10 @@ def Sminimal(g,opt) {
             for (i=0; i<betti_levelplus; i++) {
               newbases[i] = bases[i] + bases[i,q]*dr;
             }
-            Println(["level, q =", level,q]);
-            Println("bases="); sm1_pmat(bases); 
-            Println("dr="); sm1_pmat(dr);
-            Println("newbases="); sm1_pmat(newbases);
+            Sprintln(["level, q =", level,q]);
+            Sprintln("bases="); if (Sverbose) {sm1_pmat(bases); }
+            Sprintln("dr="); if (Sverbose) {sm1_pmat(dr);}
+            Sprintln("newbases="); if (Sverbose) {sm1_pmat(newbases);}
             minRes[level+1] = newbases;
             freeRes = minRes;
 #ifdef DEBUG
@@ -1021,7 +1048,7 @@ def Sminimal(g,opt) {
                 for (i=0; i<betti_levelplus; i++) {
                   if (!IsZero(newbases[i,qq])) {
                     Println(["[i,qq]=",[i,qq]," is not zero in newbases."]);
-                    Print("redundantTable ="); sm1_pmat(redundantTable[level]);
+                    Sprint("redundantTable ="); sm1_pmat(redundantTable[level]);
                     Error("Stop in Sminimal for debugging.");
                   }
                 }
@@ -1036,6 +1063,7 @@ def Sminimal(g,opt) {
    tminRes = Stetris(minRes,redundantTable);
    ansSminimal = [SpruneZeroRow(tminRes), tminRes,
                   [ minRes, redundantTable, reducer,r[3],r[4]],r[0],r[5]];
+   Sprintln2(" ");
    Println("------------ Note -----------------------------");
    Println("To get shift vectors, use Reparse and SgetShifts(resmat,w)");
    Println("To get initial of the complex, use Reparse and Sinit_w(resmat,w)");
@@ -1122,9 +1150,11 @@ def Stetris(freeRes,redundantTable) {
     }else{
       newbases = bases;
     }
-    Println(["level=", level]);
-    sm1_pmat(bases);
-    sm1_pmat(newbases);
+    Sprintln(["level=", level]);
+    if (Sverbose){
+      sm1_pmat(bases);
+      sm1_pmat(newbases);
+    }
 
     minRes[level] = newbases;
   }
@@ -1458,7 +1488,7 @@ def ScheckIfSchreyer(s) {
   */
   sm1(" [(Schreyer)] system_variable (universalNumber) dc /ss set ");
   if (ss != 1) {
-     Print("ScheckIfSchreyer: from "); Println(s);
+     Print("ScheckIfSchreyer: from "); Printl(s);
      Error("Schreyer order is not set.");
   }
   /* More check will be necessary. */
