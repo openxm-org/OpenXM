@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.22 2004/05/05 06:57:09 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.23 2004/05/05 07:32:54 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -7,6 +7,8 @@
 /ecart.end   { endEcart } def
 /ecart.autoHomogenize 1 def
 /ecart.needSyz 0 def
+/ecartd.gb.oxRingStructure [ ] def
+
 /ecartd.begin { 
   ecart.begin
   [(EcartAutomaticHomogenization) 1] system_variable
@@ -87,7 +89,7 @@
      ll (0). eq {
      } {
        ll getRing /rr set
-       ll [ [ (H) rr ,, (1) rr ,, ] 
+       ll [ [ @@@.Hsymbol rr ,, (1) rr ,, ] 
             [ (h) rr ,, (1) rr ,, ]] replace
        /ll set
      } ifelse
@@ -113,7 +115,7 @@
      ll (0). eq {
      } {
        ll getRing /rr set
-       ll [ [ (H) rr ,, (1) rr ,, ] ] replace
+       ll [ [ @@@.Hsymbol rr ,, (1) rr ,, ] ] replace
        /ll set
      } ifelse
    } ifelse
@@ -195,7 +197,7 @@
   [/in.ecart.wv1 /v] pushVariables
   [
     /v arg1 def
-    [(H) (h) v to_records pop] /v set
+    [@@@.Hsymbol (h) v to_records pop] /v set
     v { 1 } map /v set
     /arg1 v def
   ] pop
@@ -919,14 +921,14 @@
        (ecartd.gb : Input polynomial or vectors are automatically homogenized without degreeShift) ecart.message
        f { {. ecart.dehomogenize} map} map /f set   
        f ecart.homogenize01 /f set
-       f { { [[(H). (1).]] replace } map } map /f set
+       f { { [[@@@.Hsymbol . (1).]] replace } map } map /f set
      } ifelse
    } {
 % Automatic h-homogenization with degreeShift
        (ecartd.gb : Input polynomial or vectors are automatically homogenized with degreeShift) message
        f { {. ecart.dehomogenize} map} map /f set   
        f {/fi set [(degreeShift) hdShift fi] homogenize} map /f set
-       f { { [[(H). (1).]] replace } map } map /f set
+       f { { [[@@@.Hsymbol . (1).]] replace } map } map /f set
    }ifelse
 
     ecart.useSugar {
@@ -971,6 +973,7 @@
 
     ecartd.end
 
+    ans getRing (oxRingStructure) dc /ecartd.gb.oxRingStructure set
     %% 
     env1 restoreOptions  %% degreeShift changes "grade"
 

@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/tower-sugar.sm1,v 1.2 2000/04/19 08:01:32 takayama Exp $
 %% tower-sugar.sm1, 1988, 1/21.  1/22. 1/27, 1/29
 %% based on tower.sm1  ,  Doc/tower-sugar.sm1
 %%
@@ -452,7 +452,7 @@ tower-sugar.verbose {
      vars reverse /xList set         %[z y x]
      vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
      reverse /dList set              %[Dz Dy Dx]
-     [(H)] xList join [(es) @@@.esymbol ] join /xList set
+     [@@@.Hsymbol] xList join [(es) @@@.esymbol ] join /xList set
     %% You cannot change the order of es and e, because
     %% mmLarger_tower automatically assumes es is at the bottom
     %% of [nn,n-1] variables.
@@ -680,7 +680,7 @@ tower-sugar.verbose {
           } for
      ] /dList set
 
-     [(H)] xList join [(es) @@@.esymbol ] join /xList set
+     [@@@.Hsymbol] xList join [(es) @@@.esymbol ] join /xList set
      %% You cannot change the order of es and e, because
      %% mmLarger_tower automatically assumes es is at the bottom
      %% of [nn,n-1] variables.

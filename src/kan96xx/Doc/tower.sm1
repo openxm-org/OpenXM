@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/tower.sm1,v 1.2 2000/04/19 08:01:32 takayama Exp $
 %% It is used to check the mmLarger_tower,  1997, 10/26 at Heidelberg.
 %% It is used to check the mmLarger_tower,  1997, 10/27 -- 29 at Oberwolfach.
 %% 1997, 11/7   s_ring_of_differential_operators  at Kobe
@@ -328,7 +328,7 @@ tower.verbose
      vars reverse /xList set         %[z y x]
      vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
      reverse /dList set              %[Dz Dy Dx]
-     [(H)] xList join [(es) @@@.esymbol ] join /xList set
+     [@@@.Hsymbol] xList join [(es) @@@.esymbol ] join /xList set
     %% You cannot change the order of es and e, because
     %% mmLarger_tower automatically assumes es is at the bottom
     %% of [nn,n-1] variables.
@@ -587,7 +587,7 @@ tower.verbose
           } for
      ] /dList set
 
-     [(H)] xList join [(es) @@@.esymbol ] join /xList set
+     [@@@.Hsymbol] xList join [(es) @@@.esymbol ] join /xList set
      %% You cannot change the order of es and e, because
      %% mmLarger_tower automatically assumes es is at the bottom
      %% of [nn,n-1] variables.

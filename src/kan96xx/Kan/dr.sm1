@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.26 2003/12/06 02:49:22 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.27 2004/04/29 11:20:37 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -50,7 +50,7 @@
           } for
      ] /dList set
 
-     [(H)] xList join [@@@.esymbol] join /xList set
+     [@@@.Hsymbol] xList join [@@@.esymbol] join /xList set
      [(h)] dList join [@@@.Esymbol] join /dList set
      [0 %% dummy characteristic
       << xList length >> << xList length >> << xList length >> 
@@ -167,7 +167,7 @@
      vars reverse /xList set         %[z y x]
      vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
      reverse /dList set              %[Dz Dy Dx]
-     [(H)] xList join [@@@.esymbol] join /xList set
+     [@@@.Hsymbol] xList join [@@@.esymbol] join /xList set
      [(h)] dList join [@@@.Esymbol] join /dList set
      [0 1 1 1 << xList length >>
         1 1 1 << xList length 1 sub >> ] /param set
@@ -269,7 +269,7 @@
      vars reverse /xList set         %[z y x]
      vars {@@@.diffEsymbol 2 1 roll 2 cat_n} map
      reverse /dList set              %[Dz Dy Dx]
-     [(H)] xList join [@@@.esymbol] join /xList set
+     [@@@.Hsymbol] xList join [@@@.esymbol] join /xList set
      [(h)] dList join [@@@.Esymbol] join /dList set
      [0 1 1 << xList length >> << xList length >>
         1 1 << xList length 1 sub >> << xList length >> ] /param set
@@ -308,7 +308,7 @@
      vars2 reverse
      vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
      reverse join /dList set              %[s2 s1 Dz Dy Dx]
-     [(H)] xList join [@@@.esymbol] join /xList set
+     [@@@.Hsymbol] xList join [@@@.esymbol] join /xList set
      [(h)] dList join [@@@.Esymbol] join /dList set
      [0 1 1 << vars2 length 1 add >>  << xList length >>
         1 1 << vars2 length 1 add >> << xList length 1 sub >> ] /param set
