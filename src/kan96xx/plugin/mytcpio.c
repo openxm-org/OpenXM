@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.7 2002/10/20 07:58:18 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.8 2002/10/20 08:26:00 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -299,6 +299,8 @@ socketConnectWithPass(char *servername,int port,char *pass)
   int m;
   SET_TCPIOERROR;
   fd = socketConnect(servername,port);
+  if ((pass == NULL) && (fd >= 0)) return fd;
+  if ((pass == NULL) && (fd < 0)) return -1;
   if (fd >= 0) {
     m = write(fd,pass,strlen(pass)+1);
     if (m != strlen(pass)+1) {
