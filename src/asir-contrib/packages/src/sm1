@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.7 1999/12/23 03:45:48 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.8 2000/01/20 12:37:14 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
 Sm1_proc = -1$
@@ -33,8 +33,8 @@ def sm1_find_proc() {
 @file{sm1} は @file{$(OpenXM_HOME)/lib/asir-contrib} にある.
 システム @code{sm1} は微分作用素環で計算するためのシステムである.
 計算代数幾何のいろいろな不変量の計算が微分作用素の計算に帰着する.
-@code{sm1} についての文書は @code{src/kan96xx/Doc} で make することにより
-得られる.
+@code{sm1} についての文書は @code{OpenXM/doc/kan96xx} にある.
+
 
 @tex
 空間
@@ -61,8 +61,8 @@ operators.
 Many constructions of invariants 
 in the computational algebraic geometry reduce
 to constructions in the ring of differential operators.
-Documents on @code{sm1} can be obtained by @code{make} in the
-directory @code{src/kan96xx/Doc}.
+Documents on @code{sm1} are in
+the directory @code{OpenXM/doc/kan96xx}.
 
 @tex
 Let us evaluate the dimensions of the de Rham cohomology groups
@@ -989,6 +989,11 @@ List
     It is recommended to load the communication module for @code{ox_asir}
     by the command @*
    @code{sm1(0,"[(parse) (oxasir.sm1) pushfile] extension");}
+ This command is automatically executed when @code{ox_sm1_forAsir} is started.
+@item If you make an interruption to the function @code{sm1_deRham}
+by @code{ox_reset(Sm1_proc);}, the server might get out of the standard
+mode. So, it is strongly recommended to execute the command
+@code{ox_shutdown(Sm1_proc);} to interrupt and restart the server.
 @end itemize
 */
 /*&jp-texi
@@ -1029,7 +1034,13 @@ List
   b-関数の根を効率よく解析するには, @code{ox_asir} が @code{ox_sm1_forAsir}
   より使用されるべきである.  コマンド @*
    @code{sm1(0,"[(parse) (oxasir.sm1) pushfile] extension");}
-   を用いて, @code{ox_asir} との通信モジュールをあらかじめロードしておくことをおすすめする.
+   を用いて, @code{ox_asir} との通信モジュールをあらかじめロードしておくとよい.
+   このコマンドは @code{ox_asir_forAsir} のスタート時に自動的に実行されている.
+@item
+  @code{sm1_deRham} を @code{ox_reset(Sm1_proc);} で中断すると, 
+  以後 sm1 サーバが非標準モードに入り予期しない動作をする場合
+  があるので, コマンド @code{ox_shutdown(Sm1_proc);} で, @code{ox_sm1_forAsir}
+  を一時 shutdown してリスタートした方が安全である.
 @end itemize
 */
 /*&C-texi
@@ -1640,7 +1651,9 @@ String
 @item This function should be moved to om_* in a future.
 @item @code{om_xml_to_cmo(OpenMath Tree Expression)} returns CMO_TREE.
 asir has not yet understood this CMO.
-@item @code{java} is required.
+@item @code{java} execution environment is required.
+(For example, @code{/usr/local/jdk1.1.8/bin} should be in the 
+command search path.)
 @end itemize
 */
 /*&jp-texi
@@ -1669,7 +1682,8 @@ String
 @item この函数は om_* に将来移すべきである.
 @item @code{om_xml_to_cmo(OpenMath Tree Expression)} は CMO_TREE
 を戻す. @code{asir} はこの CMO をまだサポートしていない.
-@item @code{java} が必要.
+@item @code{java} の実行環境が必要.
+(たとえば, /usr/local/jdk1.1.8/bin をコマンドサーチパスに入れるなど.)
 @end itemize
 */
 /*&C-texi
@@ -1765,6 +1779,121 @@ def sm1_res_div(A) {
   ox_check_errors2(P);
   return(sm1_pop(P));
 }
+
+
+/*&eg-texi
+@c sort-sm1_syz
+@menu
+* sm1_syz::
+@end menu
+@node sm1_syz,,, SM1 Functions
+@node sm1_syz_d,,, SM1 Functions
+@subsection @code{sm1_syz}
+@findex sm1_syz
+@findex sm1_syz_d
+@table @t
+@item sm1_syz([@var{f},@var{v},@var{w}]|proc=@var{p})
+::  computes the syzygy of @var{f} in the ring of differential
+operators with the variable @var{v}.
+@end table
+
+@table @var
+@item return
+List
+@item p
+Number
+@item f, v, w
+List
+@end table
+
+@itemize @bullet
+@item
+The return values is of the form
+[@var{s},[@var{g}, @var{m}, @var{t}]].
+Here @var{s} is the syzygy of @var{f} in the ring of differential
+operators with the variable @var{v}. 
+@var{g} is a Groebner basis of @var{f} with the weight vector @var{w},
+and @var{m} is a matrix that translates the input matrix @var{f} to the Gr\"obner
+basis @var {g}.
+@var{t} is the syzygy of the Gr\"obner basis @var{g}.
+In summary, @var{g} = @var{m} @var{f} and
+@var{s} @var{f} = 0 hold as matrices.
+@item
+   The weight vectors are given by @var{w}, which can be omitted.
+    If @var{w} is not given, 
+    the graded reverse lexicographic order will be used to compute Grobner basis.   
+@item
+   When a non-term order is given, the Grobner basis is computed in 
+   the homogenized Weyl algebra  (See Section 1.2 of the book of SST).
+   The homogenization variable h is automatically added.
+@end itemize
+*/
+/*&jp-texi
+@c sort-sm1_syz
+@menu
+* sm1_syz::
+@end menu
+@node sm1_syz,,, SM1 函数
+@node sm1_syz_d,,, SM1 函数
+@subsection @code{sm1_syz}
+@findex sm1_syz
+@findex sm1_syz_d
+@table @t
+@item sm1_syz([@var{f},@var{v},@var{w}]|proc=@var{p})
+::  @var{v} 上の微分作用素環において @var{f} の syzygy を計算する.
+@end table
+
+@table @var
+@item return
+リスト
+@item p
+数
+@item f, v, w
+リスト
+@end table
+
+@itemize @bullet
+@item
+戻り値は次の形をしている:
+[@var{s},[@var{g}, @var{m}, @var{t}]].
+ここで @var{s} は @var{f} の @var{v} を変数とする微分作用素環における
+syzygy である.
+@var{g} は @var{f} の weight vector @var{w} に関するグレブナ基底である.
+@var{m} は入力行列 @var{f} をグレブナ基底
+@var{g} へ変換する行列である.
+@var{t} はグレブナ基底 @var{g} の syzygy である.
+まとめると, 次の等式がなりたつ:
+@var{g} = @var{m} @var{f} ,
+@var{s} @var{f} = 0.
+@item
+   Weight ベクトル @var{w} は省略してよい.
+   省略した場合, graded reverse lexicographic order をつかって
+   ブレブナ基底を計算する.
+@item
+   Term order でない順序が与えられた場合は, 同次化ワイル代数でグレブナ基底が計算される (SST の本の Section 1.2 を見よ).
+同次化変数 @code{h} が結果に加わる.
+@end itemize
+*/
+/*&C-texi
+@example
+[293] sm1_syz([[x*dx+y*dy-1,x*y*dx*dy-2],[x,y]]);
+[[[y*x*dy*dx-2,-x*dx-y*dy+1]],    generators of the syzygy
+ [[[x*dx+y*dy-1],[y^2*dy^2+2]],   grobner basis
+  [[1,0],[y*dy,-1]],              transformation matrix
+ [[y*x*dy*dx-2,-x*dx-y*dy+1]]]]
+@end example
+*/
+/*&C-texi
+@example
+[294]sm1_syz([[x^2*dx^2+x*dx+y^2*dy^2+y*dy-4,x*y*dx*dy-1],[x,y],[[dx,-1,x,1]]]);
+[[[y*x*dy*dx-1,-x^2*dx^2-x*dx-y^2*dy^2-y*dy+4]], generators of the syzygy
+ [[[x^2*dx^2+h^2*x*dx+y^2*dy^2+h^2*y*dy-4*h^4],[y*x*dy*dx-h^4], GB
+  [h^4*x*dx+y^3*dy^3+3*h^2*y^2*dy^2-3*h^4*y*dy]],
+ [[1,0],[0,1],[y*dy,-x*dx]],     transformation matrix
+ [[y*x*dy*dx-h^4,-x^2*dx^2-h^2*x*dx-y^2*dy^2-h^2*y*dy+4*h^4]]]]
+@end example
+*/
+
 
 def sm1_syz(A) {
   SM1_FIND_PROC(P);
