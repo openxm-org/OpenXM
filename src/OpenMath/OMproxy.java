@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.5 1999/11/04 18:24:16 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.6 1999/11/04 18:38:59 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -95,6 +95,42 @@ class OMproxy implements Runnable{
     return;
   }
 
+  private void SM_mathcap() throws java.io.IOException{
+    CMO[] mathcap = new CMO[3];
+
+    {
+      CMO[] list = {new CMO_INT32(199911070),
+		  new CMO_STRING("Ox_system=OMproxy.class"),
+		  new CMO_STRING("Version=0.199911070"),
+		  new CMO_STRING("HOSTTYPE=JAVA")};
+      mathcap[0] = new CMO_LIST(list);
+    }
+
+    {
+      CMO[] list = {new CMO_INT32(SM.SM_popCMO),
+		    new CMO_INT32(SM.SM_executeFunction),
+		    new CMO_INT32(SM.SM_mathcap)};
+      mathcap[1] = new CMO_LIST(list);
+    }
+
+    {
+      CMO[] DataFormat = {new CMO_INT32(OpenXM.OX_DATA)};
+      CMO[] CMOFormat = {new CMO_INT32(CMO.CMO_NULL),
+			 new CMO_INT32(CMO.CMO_INT32),
+			 new CMO_INT32(CMO.CMO_STRING),
+			 new CMO_INT32(CMO.CMO_MONOMIAL32),
+			 new CMO_INT32(CMO.CMO_ZZ),
+			 new CMO_INT32(CMO.CMO_QQ),
+			 new CMO_INT32(CMO.CMO_ZERO),
+			 new CMO_INT32(CMO.CMO_DMS_GENERIC)};
+      CMO[] list = {new CMO_LIST(DataFormat),
+		    new CMO_LIST(CMOFormat)};
+      mathcap[2] = new CMO_LIST(list);
+    }
+
+    ox.send(new CMO_LIST(mathcap));
+  }
+
   private void StackMachine(SM mesg) throws java.io.IOException{
     debug("receive: "+mesg);
 
@@ -105,6 +141,10 @@ class OMproxy implements Runnable{
 
     case SM.SM_executeFunction:
       SM_executeFunction();
+      break;
+
+    case SM.SM_mathcap:
+      SM_mathcap();
       break;
 
     default:
