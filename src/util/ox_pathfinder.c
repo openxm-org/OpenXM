@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.1 2003/07/21 11:36:10 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -22,13 +22,23 @@ static char *get_ox_sm1_path();
 static char *get_ox_path();
 static char *get_oxc_path();
 static char *get_oxlog_path();
-static char **setOXenv();
-static int forkExec(char **argv);
-static void usage();
+
 
 
 static int Verbose_get_home = 1;
 static int NoX = 0;
+
+
+#define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
+#define mymalloc(a)  malloc(a)
+
+int ox_pathfinderNoX(int f) {
+  if (f < 0) return NoX;
+  NoX = f;
+  return f;
+}
+
+/* See kxx/ox100start.c for main */
 
 #define MYFORKCP_SIZE 100
 static int Myforkchildren[MYFORKCP_SIZE];
@@ -51,12 +61,7 @@ static void myforkwait() {
   signal(SIGCHLD,myforkwait);
 }
 
-#define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
-#define mymalloc(a)  malloc(a)
-
-/* See kxx/ox100start.c for main. */
-
-static int forkExec(char **argv) {
+int oxForkExec(char **argv) {
   int pid;
   char **eee;
   int m;
@@ -83,7 +88,6 @@ static int forkExec(char **argv) {
        sigaddset(&sss,SIGINT);
        sigprocmask(SIG_BLOCK,&sss,NULL);
 	}
-	eee = setOXenv();
 	if (NoX) {
 	  FILE *null;
 	  null = fopen("/dev/null","wb");
@@ -92,7 +96,7 @@ static int forkExec(char **argv) {
 	}
     execve(argv[0],argv,environ);
     /* This place will never be reached unless execv fails. */
-    fprintf(stderr,"forkExec fails: ");
+    fprintf(stderr,"oxForkExec fails: ");
   }
 }
 
@@ -181,7 +185,7 @@ static void msg_get_home(int t,char *s) {
   }else if (t == 2) {
     fprintf(stderr,"getServerEnv(): ");
   }else if (t == 3) {
-    fprintf(stderr,"setOXenv(): ");
+    fprintf(stderr,"?? ");
   }else if (t == 4) {
     fprintf(stderr,"cygwinPathToWinPath(): ");
   }else if (t == 5) {
@@ -546,10 +550,6 @@ char **getServerEnv(char *oxServer) {
   return aaa;
 }
 
-char **setOXenv() {
-  /* Do nothing. */
-  return NULL;
-}
 char **setOXenv_old() {
   char *openXM_HOME;
   char *load_sm1_path;
