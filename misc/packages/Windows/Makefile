@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.30 2002/09/30 23:32:13 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.31 2002/10/01 00:05:54 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -102,6 +102,8 @@ win-correction1: build-bat copy-cygwin-dlls
 	-mkdir OpenXM-win/bin-windows
 #	(cd OpenXM-win/rc ; make clean ; make)
 win-correction2: win-correction1
+	cp oxasir-win.rr OpenXM-win/lib/sm1
+win-correction2_old:
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/bin
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/asir/bin
