@@ -1,0 +1,112 @@
+%% $OpenXM$
+
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@setfilename Math2ox
+@settitle Math2ox
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+
+@title Math2ox
+@subtitle Math2ox User's Manual (English Edition)
+@subtitle Edition 1.1.2 for OpenXM/oxmath
+@subtitle March 2000
+
+@author  by Katsuyoshi Ohara
+@end titlepage
+
+@synindex vr fn
+
+@comment  node-name,  next,  previous,  up
+@node Top,, (dir), (dir)
+
+@menu
+* Mathematica Client Functions::
+* Sample Programs::
+@end menu
+
+@node Mathematica Client Functions,,, Top
+
+@chapter Mathematica Client Functions
+
+The program @code{math2ox} is an external module for Mathematica
+to call OpenXM servers.
+The @code{math2ox} communicates with OpenXM servers by the OpenXM protocol
+and communicates with Mathematica by MathLink.
+
+@c  Description of OxStart
+@menu
+* OxStart::
+@end menu
+@node OxStart,,, Mathematica Client Functions
+@section @code{OxStart}
+@findex OxStart
+@table @t
+@item OxStart(@var{s})
+::  Start the OX server @code{s}. 
+@end table
+
+@table @var
+@item return
+Integer
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  It starts the OX server @code{s}. 
+@item Servers are looked for in the directory $OenXM_HOME/bin , hoge hoge.
+@end itemize
+
+@example
+In[1]:= Install["math2ox"]
+In[2] := Pid = OxStart["ox_sm1"]
+@end example
+
+In this example, @code{ox_sm1} is started on the local machine.
+
+@c  Put descriptions of a next function.
+
+
+@node Sample Programs,,, Top
+@chapter Sample Programs
+
+@tex
+\noindent
+1.
+{\tt OpenXM/lib/math/primadec.m} is a Mathematica program
+to make primary ideal decompositions by calling
+{\tt ox\_asir}.
+As to usages, see comments in this file.
+
+\noindent 2.
+{\tt OpenXM/lib/math/beta.m} is a Mathematica program
+to get beta-nbc bases by calling {\tt ox\_asir}.
+@end tex
+
+
+
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+
