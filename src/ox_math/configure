@@ -1,5 +1,5 @@
 #!/bin/sh
-## $OpenXM: OpenXM/src/ox_math/configure,v 1.1 1999/11/23 02:15:05 ohara Exp $
+## $OpenXM: OpenXM/src/ox_math/configure,v 1.2 1999/12/15 05:40:21 ohara Exp $
 
 lnx () {
 	if [ -h Makefile ]; then
@@ -11,6 +11,9 @@ lnx () {
 case `uname` in
 Linux)
 	lnx linux
+	;;
+OSF1)
+	lnx OSF1
 	;;
 SunOS)
 	if [ -d /kernel ]; then
