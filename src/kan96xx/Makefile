@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.28 2001/12/28 02:33:56 noro Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.29 2003/09/02 03:24:47 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -26,8 +26,8 @@ sm1-nogc : all-plugin
 configure: configure_symbolic_links 
 	if test ! -f ./.configure_done  ; \
 	then \
-	(cd Kan; ./configure) ; \
-	(cd plugin; ./configure) ; \
+	(cd Kan; sh ./configure) ; \
+	(cd plugin; sh ./configure) ; \
 	fi
 	@touch ./.configure_done
 configure_symbolic_links :
