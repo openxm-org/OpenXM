@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.1 2000/10/10 05:23:20 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -11,17 +11,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/file.h>
-
-#include "mysocket.h"
 #include "ox_toolkit.h"
 #include "parse.h"
 
 static cell*        new_cell();
-
 static char*        new_string_set_cmo_null();
 static char*        new_string_set_cmo_int32(int integer);
 static char*        new_string_set_cmo_list(cmo_list *c);
@@ -269,7 +262,8 @@ cmo_error2* new_cmo_error2(cmo* ob)
     return c;
 }
 
-/* cmo と string (ここではC言語のstring) の変換関数群 */
+
+/* Following functions translate cmo's to (asciiz) strings. */
 static char *new_string_set_cmo_zz(cmo_zz *c)
 {
     return mpz_get_str(NULL, 10, c->mpz);
