@@ -79,6 +79,7 @@ CMObject に対する最大公約数的なメッセージの仕様をcontent dictionary
 でスタック上にあると解釈して下さい.)
 
 すべてのサーバスタックマシンは以下の関数を実装していないといけない.
+
 */
 
 /*&eg
@@ -139,8 +140,7 @@ Stack after the request:
 \hline
 \end{tabular}
 
-//&jp Result:  なし.
-//&eg Result:  none.
+Result:  none.
 
 Request:
 \begin{tabular}{|c|c|c|c|c|c|}  \hline
@@ -155,8 +155,7 @@ Stack after the request:
 \hline
 \end{tabular}
 
-//&jp Result:  なし.
-//&eg Result:  none.
+Result:  none.
 
 //&jp CMO データの受け取りに失敗した時のみ  \\
 //&eg If the server fails to receive a CMO data,
@@ -195,7 +194,7 @@ mathCap の構造体をシステム毎にきめるものとし,この関数はその構造体への
 ポインタを戻す.  (open sm1 では {\tt struct mathCap} を用いている.
 */
 /*&eg
-It request to push the mathcap of the server. 
+It requests a server to push the mathcap of the server. 
 The mathcap is similar to the termcap. One can know the server type
 and the capability of the server from the mathcap. 
 */
@@ -207,11 +206,13 @@ Request:
 \hline
 \end{tabular}
 
-Result:  
+Stack after the request: 
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl Mathcap}  mathCapOb \\
 \hline
 \end{tabular}
+
+Result: none.
 
 \item
 \begin{verbatim}
@@ -224,7 +225,7 @@ SM_setMathCap
 数とする.  (open sm1 では {\tt struct mathCap} を用いている.
 */
 /*&eg
-It requests to register the peer's mathcap {\tt m} in the server.
+It requests a server to register the peer's mathcap {\tt m} in the server.
 The server can avoid to send OX messages unknown to its peer.
 */
 @plugin/mathcap.h)
@@ -236,8 +237,7 @@ Request:
 \hline
 \end{tabular}
 
-//&jp Result:  なし. \\
-//&eg Result:  none. \\
+Result:  none.
 /*&jp
 \noindent
 注意: mathcap は一般にクライアント主体で設定する.
@@ -262,29 +262,18 @@ registers it.
 SM_executeStringByLocalParser
 \end{verbatim}
 /*&jp
-文字列 $s$ をシステム xxx の文法(サーバスタックマシンの組み込みローカ
-ル言語)にしたがったコマンドとして実行する.  ただし, コマンドの実行の結
+文字列 {\tt s} を stack から pop し, 
+その文字列をシステム固有の文法(サーバスタックマシンの組み込みローカ
+ル言語)にしたがったコマンドとして実行する.  コマンドの実行の結
 果の最後に戻り値があるときは, {\tt OperandStack} に戻り値を push する.
-正常終了なら 0 を, 異常終了なら -1 をもどす.  debug モードにはいった場
-合, -2 を戻す. エラーの時 Error2 Objectを stack へ push する.\\ {\tt
-kan/sm1} の場合, サーバスタックマシンの組み込みローカル言語は{\tt sm1} 
-ポストスクリプト言語である.  サーバスタックマシンと, {\tt sm1} ポスト
-スクリプト言語はスタックを共有するように実装されている.  実際の計算は
-{\tt executeStringByLocalParser} により実行される.  open XM では, 現在
-のところ関数名の標準化はおこなっていない.  したがって, 実際の計算コマ
-ンドの送出は mathcap をみてクライアントが正しいコマンドを選択する必要
-がある. (しかしながら, 共通関数名がないために, 共通仕様のサーバスタッ
-クマシンの実装はきわめて簡単である. 関数名の共通化は将来の課題.) \\割
-込みに関しては, -1 を戻すように ハンドラを書く.
-executeStringByLocalParser() を再帰的に呼んだときも 割り込みのハンドラ
-が正しく動作するようにこの関数は書かれるべきである.  この関数を呼び出
-したのち, signal, setjmp の再設定を呼び出し側でやらないといけない. \\
+OpenXM では, 現在のところ関数名の標準化はおこなっていない.  
 この関数および {\tt popString} の機能を実現すれば, 最低限の open XM の
 サーバになれる.  実装では, まずこの二つの関数の機能を実現すべきである.
 */
 /*&eg
-A character string $s$ is parsed by the local parser of the stack
-machine and interpreted by the local interpreter.
+It requests a server to pop a character string {\tt s}, to
+parse it by the local parser of the stack machine,  and
+to interprete by the local interpreter.
 If the exececution produces a result, it is pushed onto 
 {\tt OperandStack}.
 If an error has occured,  Error2 Object is pushed onto the stack.
@@ -306,8 +295,7 @@ Request:
 \hline 
 \end{tabular}
 
-//&jp Result:  なし.
-//&eg Result:  none.
+Result:  none.
 /*&jp
 \noindent
 参考: \  実行前のスタックのデータは,
@@ -346,11 +334,11 @@ SM_popString
 /*&jp
 {\tt OperandStack} より Object を pop し, それを xxx の出力規則にしたがい文
 字列型に変換して送信する.  スタックが空のときは, {\tt (char *)NULL} を戻す.
-文字列は {\tt ox\_stream out}へ CMO のデー
+文字列は TCP/IP stream へ CMO のデー
 タとして送信する.  エラーの場合は {\tt CMO\_ERROR2} を戻すべきである.
 */
 /*&eg
-It requests for a server to pop an object from {\tt OperandStack},
+It requests a server to pop an object from {\tt OperandStack},
 to convert it into a character string according to the output format
 of the local system, and to send the character string via TCP/IP stream.
 {\tt (char *)NULL} is returned when the stack is empty.
@@ -385,7 +373,7 @@ SM_getsp
 object が push されたばあい, 1 づつ増えるものとする.
 */
 /*&eg
-It request to push the current stack pointer onto the stack.
+It requests a server to push the current stack pointer onto the stack.
 The stack pointer is represented by a non-negative integer.
 Its initial value is 0 and a push operation increments the
 stack pointer by 1.
@@ -403,11 +391,13 @@ Request:
 \hline 
 \end{tabular}
 
-Result: 
+Stack after the request:
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_INT32} & {\it stack pointer value} \\
 \hline 
 \end{tabular}
+
+Result:  none.
 
 \item
 \begin{verbatim}
@@ -418,7 +408,7 @@ SM_dupErrors
 させない.
 */
 /*&eg
-It requests to push a list object containing all error objects on the stack.
+It requests a server to push a list object containing all error objects on the stack.
 */
 
 Stack before the request:
@@ -433,11 +423,13 @@ Request:
 \hline 
 \end{tabular}
 
-Result: 
+Stack after the request:
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl CMObject} \ a list of errors\\
 \hline 
 \end{tabular}
+
+Result: none.
 \end{enumerate}
 
 \medbreak
@@ -494,7 +486,7 @@ list represents available CMO tags.
 %%Prog: (ox.sm1) run  sm1connectr  [(oxWatch) ox.ccc] extension
 %%Prog: ox.ccc (122345; ) oxsubmit ;
 //&jp {\tt message\_body} の実例をあげる.   シリアル番号部は除いてある.
-//&eg {\tt message\_body} の実例をあげる.   シリアル番号部は除いてある.
+//&eg We show examples of {\tt message\_body}. Serial numbers are omitted.
 \begin{enumerate}
 \item  {\tt executeStringByLocalParser("12345 ;");} 
 /*&jp
@@ -502,8 +494,9 @@ list represents available CMO tags.
 {\tt xx(yy)} のなかの {\tt (yy)} は対応するアスキーコードをあわらす.
 */
 /*&eg
-は次のようなパケットに変換される. 各数字は 16進1バイトをあらわす.
-{\tt xx(yy)} のなかの {\tt (yy)} は対応するアスキーコードをあわらす.
+is converted into the following packet. Each number denotes
+one byte in hexadecimal representation.
+{\tt (yy)} in {\tt xx(yy)} represents the corresponding ASCII code.
 */
 \begin{verbatim}
 0   0   2   2   0   0   0   4   0   0   0   7  
@@ -511,28 +504,12 @@ list represents available CMO tags.
 0   0   2   1   0   0   1   c 
 \end{verbatim}
 /*&jp
-ここで,
-\verb+ 0 0 2 2 0 0 0 4 + は, network byte order で,
-順番に {\tt OX\_DATA} それから,
-CMO のタグの, {\tt CMO\_STRING} を表す.
-\verb+ 0  0  0  7 + は文字数,
-最後に 文字列 {\tt 12345 ;} が来る.
-ここで, \verb+ 0 0 1 c + は, network byte order で,
-{\tt OX\_executeString} を表す.
+それぞれのデータの意味は次のとおりである.
 */
 /*&eg
-ここで,
-\verb+ 0 0 2 2 0 0 0 4 + は, network byte order で,
-順番に {\tt OX\_DATA} それから,
-CMO のタグの, {\tt CMO\_STRING} を表す.
-\verb+ 0  0  0  7 + は文字数,
-最後に 文字列 {\tt 12345 ;} が来る.
-ここで, \verb+ 0 0 1 c + は, network byte order で,
-{\tt OX\_executeString} を表す.
+Each data has the following meaning.
 */
 
-//&jp まとめると次のようになる.
-//&eg まとめると次のようになる.
 \begin{verbatim}
 0   0   2   2  (OX_DATA) 0   0   0   4  (CMO_STRING)
 0   0   0   7  (size)
@@ -541,7 +518,7 @@ CMO のタグの, {\tt CMO\_STRING} を表す.
 0   0   1   c  (SM_executeStringByLocalParser)
 \end{verbatim}
 //&jp これを OXexpression で表記すると次のようになる.
-//&eg これを OXexpression で表記すると次のようになる.
+//&eg This is expressed by OXexpression as follows.
 \begin{center}
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;"))
 \end{center}
@@ -550,46 +527,47 @@ CMO のタグの, {\tt CMO\_STRING} を表す.
 \end{center}
 
 //&jp \item  {\tt popString()}  を要請するメッセージ:
-//&eg \item  {\tt popString()}  を要請するメッセージ:
+//&eg \item  A message which requests {\tt SM\_popString}:
 \begin{verbatim}
 0   0   2   1  (OX_COMMAND) 
 0   0   1   7  (SM_popString)
 \end{verbatim}
-OXexpression では
+//&jp OXexpression では
+//&eg In OXexpression it is represented as 
 (OX\_COMMAND, (SM\_popString)).
 
 \noindent
 //&jp これにたいして次の返答メッセージがくる.
-//&eg これにたいして次の返答メッセージがくる.
+//&eg The server returns the following reply message:
 \begin{verbatim}
 0   0   2   2   (OX_DATA) 
 0   0   0   4   (CMO_STRING) 0   0   0   5  (size)
 31(1)  32(2)  33(3)  34(4)  35(5) 
 \end{verbatim}
 //&jp OXexpression でかくと,
-//&eg OXexpression でかくと,
+//&eg In OXexpression it is represented as
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;")).
 \end{enumerate}
 
 //&jp \subsubsection{グループ SMobject/Basic1 に属するオペレータ}
-//&eg \subsubsection{グループ SMobject/Basic1 に属するオペレータ}
+//&eg \subsubsection{Operators in the group SMobject/Basic1}
 
 \begin{enumerate}
 \item
 \begin{verbatim}
-void xxx_pops(int n)
+SM_pops
 \end{verbatim}
 /*&jp
 operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn}) 
 を pop して捨てる.
 */
 /*&eg
-operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn}) 
-を pop して捨てる.
+It requests a server to pop {\it n} and to discard elements {\it obj1, obj2,
+$\ldots$, objn}) from the stack.
 */
 
 //&jp Stack before the request: (右が stack のトップである.) \\
-//&eg Stack before the request: (右が stack のトップである.) \\
+//&eg Stack before the request: (The rightmost one is the top of the stack.) \\
 \begin{tabular}{|c|c|c|c|c|}  \hline
 {\it obj1} & {\it  obj2}  & $\cdots$ & {\it objn}  &{\it INT32 n} \\
 \hline
@@ -601,13 +579,12 @@ Request:
 \hline
 \end{tabular}
 
-//&jp Result:  なし.
-//&eg Result:  none.
+Result:  none.
 
 
 \item
 \begin{verbatim}
-int xxx_setName(char *name)
+int SM_setName
 \end{verbatim}
 /*&jp
 {\tt OperandStack} より {\it name} を pop し, つぎに{\tt OperandStack} 
@@ -616,13 +593,12 @@ bind する.  正常終了なら 0 を, 異常終了なら -1 をもどす.  TCP/IP によ
 る通信では, 異常終了の時のみ, {\tt CMO\_ERROR2} をstack へ push する.
 */
 /*&eg
-{\tt OperandStack} より {\it name} を pop し, つぎに{\tt OperandStack} 
-より {\it obj} を pop し, それを現在の名前空間で変数 {\it name} に 
-bind する.  正常終了なら 0 を, 異常終了なら -1 をもどす.  TCP/IP によ
-る通信では, 異常終了の時のみ, {\tt CMO\_ERROR2} をstack へ push する.
+It requests a server to pop {\it name}, to pop {\it obj}, and to
+bind {\it obj} to a variable {\it name} in the current name space.
+If an error has occured {\tt CMO\_ERROR2} is pushed to the stack.
 */
 //&jp Stack before the request: (右が stack の top.)
-//&eg Stack before the request: (右が stack の top.)
+//&eg Stack before the request: (The rightmost one is the top of the stack.)
 \begin{tabular}{|c|c|}  \hline
 {\it obj} & {\it String name}  \\
 \hline
@@ -634,28 +610,29 @@ Request:
 \hline
 \end{tabular}
 
-//&jp Result: なし.
-//&eg Result: none.
+Result: none.
 
 \item
 \begin{verbatim}
-int xxx_evalName(char *name)
+SM_evalName
 \end{verbatim}
+
 /*&jp
 現在の名前空間で変数 {\it name} を評価する.  評価の結果 {\it
 resultObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
 ら -1 をもどす.  TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} 
 を stack へ push する.
 */
+
 /*&eg
-現在の名前空間で変数 {\it name} を評価する.  評価の結果 {\it
-resultObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
-ら -1 をもどす.  TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} 
-を stack へ push する.
+It requests a server to pop {\it name} and to evaluate a variable
+{\it name} in the current name space. The result of the evaluation
+{\it resultObj} is pushed to the stack.
+If an error has occured {\tt CMO\_ERROR2} is pushed to the stack.
 */
 
 //&jp Stack before the request: (右が stack の top.)
-//&eg Stack before the request: (右が stack の top.)
+//&eg Stack before the request: (The rightmost one is the top of the stack.)
 \begin{tabular}{|c|}  \hline
 {\it String name}  \\
 \hline
@@ -668,18 +645,17 @@ Request:
 \end{tabular}
 
 //&jp Stack after the request: (右が stack の top.)
-//&eg Stack after the request: (右が stack の top.)
+//&eg Stack after the request: (The rightmost one is the top of the stack.)
 \begin{tabular}{|c|}  \hline
 {\it resultObj} \\
 \hline
 \end{tabular}
 
-//&jp Result:  なし.
-//&eg Result:  none.
+Result:  none.
 
 \item
 \begin{verbatim}
-int xxx_executeFunction(char *s, int n)
+SM_executeFunction
 \end{verbatim}
 /*&jp
 スタックより {\it n} 個のデータを pop して, サーバのローカル関数{\it
@@ -687,9 +663,11 @@ s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
 る.
 */
 /*&eg
-スタックより {\it n} 個のデータを pop して, サーバのローカル関数{\it
-s} を実行する.  エラーのときのみ {\tt CMO\_ERROR2} を stack へ push す
-る.
+It requests a server to pop {\it s} as a function name, 
+to pop {\it n} as the number of arguments and to execute
+a local function {\it s} with {\it n} arguments popped from
+the stack.
+If an error has occured {\tt CMO\_ERROR2} is pushed to the stack.
 */
 
 //&jp Stack before the request: (右が stack の top.) \\
@@ -706,71 +684,44 @@ Request:
 \end{tabular}
 
 //&jp Stack after the request: 関数実行の結果.
-//&eg Stack after the request: 関数実行の結果.
+//&eg Stack after the request: The result of the execution.
 
-//&jp Result: なし.
-//&eg Result: none.
+Result: none.
 
 \item
 \begin{verbatim}
-bytes *xxx_popSerializedLocalObject(void)
-void popSerializedLocalObject(ox_stream out)
+SM_popSerializedLocalObject
 \end{verbatim}
+
 /*&jp
-最初の関数はライブラリとしてリンクして使用するための関数である.  スタッ
-クより pop した object を local 形式の serialization してbyte 列で戻す.
-2 番目の関数は Socket で通信するための同機能の関数であり,
-serialization された byte 列を{\tt ox\_stream out} へ出力する.  この場
-合, header {\tt int32 OX\_DATA}, {\tt int32 CMO\_LOCAL\_OBJECT} をつけ
-てから, byte 列を送る. この関数はおもに, homogeneous な分散システムで
-用いる.  次に, サーバスタックマシンの関数が実行されるまでは,戻り 
-object の内容は保証されないといけない.
+スタックより pop した object を local 形式で serialization して
+OX message として stream へ出力する. OX message tag としては, 
+local 形式に対応したものが定義されていることが必要である. 
+この関数はおもに, homogeneous な分散システムで用いる.
 */
 /*&eg
-最初の関数はライブラリとしてリンクして使用するための関数である.  スタッ
-クより pop した object を local 形式の serialization してbyte 列で戻す.
-2 番目の関数は Socket で通信するための同機能の関数であり,
-serialization された byte 列を{\tt ox\_stream out} へ出力する.  この場
-合, header {\tt int32 OX\_DATA}, {\tt int32 CMO\_LOCAL\_OBJECT} をつけ
-てから, byte 列を送る. この関数はおもに, homogeneous な分散システムで
-用いる.  次に, サーバスタックマシンの関数が実行されるまでは,戻り 
-object の内容は保証されないといけない.
-*/
-\item 
-/*&jp
-local serialized object, および サポートする CMO object を{\tt
-OX\_DATA} として受信した場合, {\tt OperandStack} へpush する.  受信エ
-ラーを起こしたときのみ, {\tt CMO\_ERROR2} を stack へ push する.
-*/
-/*&eg
-local serialized object, および サポートする CMO object を{\tt
-OX\_DATA} として受信した場合, {\tt OperandStack} へpush する.  受信エ
-ラーを起こしたときのみ, {\tt CMO\_ERROR2} を stack へ push する.
+It requests a sever to pop an object, to convert it into a
+serialized form according to a local serialization scheme, and
+to send it to the stream as an OX message. 
+An OX message tag corresponding to
+the local data format must be sent prior to the serialized data
+itself.
+This operation is used mainly on homogeneous distributed systems.
 */
 
 \item
 \begin{verbatim}
-bytes *xxx_popCMO(void)
-void xxx_popCMO(ox_stream out)
+SM_popCMO
 \end{verbatim}
 
 /*&jp
-最初の関数はライブラリとしてリンクして使用するための関数である.  {\tt
-OperandStack} より object を pop し CMO 形式の serialized object を 
-byte 列として戻す.  2 番目の関数は Socket で通信するための同機能の関数
-であり, {\tt ox\_stream out } へ, そのデータを header {\tt OX\_DATA} 
-をつけてながす.  この関数はおもに, heterotic な分散システムで用いる.
-次に, サーバスタックマシンの関数が実行されるまでは,戻り object の内容
-は保証されないといけない.
+{\tt OperandStack} より object を pop し CMO 形式の serialized object を 
+stream へ header {\tt OX\_DATA} をつけてながす. 
 */
 /*&eg
-最初の関数はライブラリとしてリンクして使用するための関数である.  {\tt
-OperandStack} より object を pop し CMO 形式の serialized object を 
-byte 列として戻す.  2 番目の関数は Socket で通信するための同機能の関数
-であり, {\tt ox\_stream out } へ, そのデータを header {\tt OX\_DATA} 
-をつけてながす.  この関数はおもに, heterotic な分散システムで用いる.
-次に, サーバスタックマシンの関数が実行されるまでは,戻り object の内容
-は保証されないといけない.
+It requests a server to pop an object from the stack, to convert
+it into a serialized form according to the standard CMO encoding scheme,
+and to send it to the stream with the {\tt OX\_DATA} header.
 */
 
 Request:
@@ -784,16 +735,6 @@ Result:
 {\tt int32 OX\_DATA} &   {\it Serialized CMO} \\
 \hline 
 \end{tabular}
-
-//&jp 以下で, {\tt ox\_stream} はサンプルサーバの場合, 
-//&eg 以下で, {\tt ox\_stream} はサンプルサーバの場合, 
-\begin{verbatim}
-typedef FILE2 * ox_stream;
-\end{verbatim}
-//&jp である (cf. {\tt file2.h}). これは処理系によりちがってよい.
-//&jp {\tt ox\_asir} では, {\tt FILE *} を用いている.
-//&eg である (cf. {\tt file2.h}). これは処理系によりちがってよい.
-//&eg {\tt ox\_asir} では, {\tt FILE *} を用いている.
 
 \end{enumerate}
 
