@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.2 1999/11/09 09:57:32 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -585,7 +585,16 @@ struct object KoxWatch(struct object client,struct object f)
   int ans,k;
   static oxclientp cc1 = NULL;
   struct object rob;
+  extern int WatchStream;
   rob.tag = Snull;
+  if (client.tag == Sinteger) {
+	if (KopInteger(client)) {
+	  WatchStream = 1;
+	}else{
+	  WatchStream = 0;
+	}
+	return;
+  }
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
     if (cc1 == NULL) {

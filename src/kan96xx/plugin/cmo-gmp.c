@@ -1,3 +1,4 @@
+/*$OpenXM$ */
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -161,17 +162,18 @@ static int myfgetc(struct cmoBuffer *cb)
       cb->rpos--;
       errorCmo(" cmo-gmp.c : myfgetc(): no data in the buffer.");
     }
-    return(k);
   }
+  return(k);
 }
 static int getRawInt32(struct cmoBuffer *cb)
 {
   char d[4];
   int i;
+  int r;
   for (i=0; i<4; i++) {
     d[i] = myfgetc(cb);
   }
-  return(ntohl(* ( (int *)d)));
+  return( ntohl(* ( (int *)d)));
 }
 
 cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb)

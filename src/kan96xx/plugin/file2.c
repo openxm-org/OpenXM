@@ -1,3 +1,4 @@
+/*$OpenXM$ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -9,7 +10,7 @@
 #else
 void *GC_malloc(int size);
 #endif
-
+int WatchStream = 0;
 /*  Note:  1997, 12/6   cf. SS475/kxx/openxxx.tex, SS475/memo1.txt
     The functions in file2.c should not accept interruptions
     during its critical operations.  The synchronization mechanism
@@ -91,15 +92,18 @@ int fp2fclose(FILE2 *fp2) {
 }
 
 int fp2fputc(int c,FILE2 *fp2) {
+  FILE *fp;
   if (debug1) {
     printf("fp2fputc is called with %2x, fp2->writepos=%d, ",c,fp2->writepos);
     printf("fp2 = %x.\n",(int) fp2);
   }
-  if (fp2->watch) {
+  if (fp2->watch || WatchStream) {
+	if (fp2->watch) fp = fp2->watchFile;
+	else fp = stderr;
     if (c >= ' ' && c <='z') {
-      fprintf(fp2->watchFile," %2x(%c)-> ",c,c);
+      fprintf(fp," %2x(%c)-> ",c,c);
     }else{
-      fprintf(fp2->watchFile," %2x( )-> ",c);
+      fprintf(fp," %2x( )-> ",c);
     }
     fflush(NULL);
   }
@@ -116,16 +120,19 @@ int fp2fputc(int c,FILE2 *fp2) {
 
 int fp2fgetc(FILE2 *fp2) {
   int c;
+  FILE *fp;
   /* printf("fp2fgetc is called. "); fflush(NULL); */
   if (checkfp2(fp2," fp2fgetc ") == -1) return(-1);
   if (fp2->readpos < fp2->readsize) {
     fp2->readpos++;
     c = fp2->readBuf[fp2->readpos -1];
-    if (fp2->watch) {
+    if (fp2->watch || WatchStream) {
+	  if (fp2->watch) fp = fp2->watchFile;
+	  else fp = stderr;
       if (c >= ' ' && c <= 'z') {
-	fprintf(fp2->watchFile," %2x(%c) ",c,c);
+		fprintf(fp," %2x(%c) ",c,c);
       }else{
-	fprintf(fp2->watchFile," %2x( ) ",c);
+		fprintf(fp," %2x( ) ",c);
       }
       fflush(NULL);
     }
@@ -135,9 +142,11 @@ int fp2fgetc(FILE2 *fp2) {
     fp2 ->readsize =
       read(fp2->fd, fp2->readBuf, fp2->limit);
     if (fp2->readsize == 0) {
-      if (fp2->watch) {
-	fprintf(fp2->watchFile," <%2x ",c);
-	fflush(NULL);
+      if (fp2->watch || WatchStream) {
+		if (fp2->watch) fp = fp2->watchFile;
+		else fp = stderr;
+		fprintf(fp," <%2x ",c);
+		fflush(NULL);
       }
       return(-1);
     }

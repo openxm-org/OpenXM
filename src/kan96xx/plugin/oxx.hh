@@ -1,3 +1,4 @@
+/*$OpenXM$*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
   rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3));
@@ -38,8 +39,12 @@ else if (strcmp(key,"oxMultiSelect") == 0) {
   rob = KoxMultiSelect(getoa(obj,1),getoa(obj,2));
 }
 else if (strcmp(key,"oxWatch") == 0) {
-  if (size != 2) errorKan1("%s\n","[(oxWatch) client] extension obj");
-  rob = KoxWatch(getoa(obj,1),rob); /* rob is dummy for now. */
+  if (size > 2) errorKan1("%s\n","[(oxWatch) client] extension obj");
+  if (size == 2) {
+	rob = KoxWatch(getoa(obj,1),rob); /* rob is dummy for now. */
+  }else {
+	rob = KoxWatch(KpoInteger(1),rob);
+  }
 }
 else if (strcmp(key,"oxCloseClient") == 0) {
   if (size != 2) errorKan1("%s\n","[(oxCloseClient) client] extension obj");
