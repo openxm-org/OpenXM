@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.9 2004/03/03 02:31:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.10 2004/03/03 06:09:29 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -252,17 +252,12 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
-  if (s[n-1] == '$' && TM_Engine == ASIR) {
-	TM_do_not_print = 1; s[n-1] = ' ';
-  } else if (s[n-1] == ';' && TM_Engine == SM1) {
-	TM_do_not_print = 1; s[n-1] = ' ';
-  } else TM_do_not_print = 0;
   /* Check the escape sequence */
   if (strcmp(&(s[start]),"!quit;") == 0) {
     printv("Terminated the process ox_texmacs.\n"); 
     exit(0);
   }
-  /* Check the escape sequence to change the globa env. */
+  /* Check the escape sequence to change the global env. */
   if (strcmp(&(s[start]),"!verbatim;") == 0) {
     printv("Output mode is changed to verbatim mode.");
     Format=0;
@@ -288,6 +283,13 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     TM_Engine=K0; startEngine(TM_Engine,"k0");
     return NULL;
   }
+
+  /* Set TM_do_no_print */
+  if (s[n-1] == '$' && TM_Engine == ASIR) {
+	TM_do_not_print = 1; s[n-1] = ' ';
+  } else if (s[n-1] == ';' && TM_Engine == SM1) {
+	TM_do_not_print = 1; s[n-1] = ' ';
+  } else TM_do_not_print = 0;
 
   for (i=0; i < strlen(epilog); i++) {
     s[n++] = epilog[i];  s[n] = 0;
