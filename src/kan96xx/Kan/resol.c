@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.3 2000/05/24 15:31:29 takayama Exp $ */
 /* resol.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -69,6 +69,12 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
       s->deleted = 0;
       sv = (*sp)((g.array)[i],(g.array)[j]);
       s->a = sv.a; s->b = sv.b;
+	  /* If isConstant(sv.a) is added, (x^3 - y^2 z^2) deRham stops
+         with an error. I've not yet understood the reason.
+         At Posthouse at Heathrow. June 24, 2000 */
+	  if (isConstant(sv.b)) { 
+		s->deleted = 1;
+	  }
     }else{
       s->deleted = 1;
     }
