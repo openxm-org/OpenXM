@@ -1,11 +1,11 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.31 2000/04/02 19:24:40 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.32 2000/04/17 03:18:57 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
 
-JAVADIR = /usr/local/jdk1.1.8/
-JAVABINDIR = $(JAVADIR)bin/
+#JAVADIR = /usr/local/jdk1.1.8/
+#JAVABINDIR = $(JAVADIR)bin/
 #JAVAINCLUDEDIR = $(JAVADIR)include
 #JAVAINCLUDEDIR = /usr/local/include/kaffe
 
