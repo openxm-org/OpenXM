@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.16 2000/01/13 12:35:56 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.17 2000/01/18 07:59:19 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -113,6 +113,7 @@ class OMproxy implements Runnable{
       CMO[] list = {new CMO_INT32(SM.SM_popCMO),
 		    new CMO_INT32(SM.SM_executeFunction),
 		    new CMO_INT32(SM.SM_mathcap),
+		    new CMO_INT32(SM.SM_setMathCap),
 		    new CMO_INT32(SM.SM_control_kill),
 		    new CMO_INT32(SM.SM_control_reset_connection)};
       mathcap[1] = new CMO_LIST(list);
