@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/ascm2001p/ohp.tex,v 1.1 2001/09/20 09:27:56 takayama Exp $
+%% $OpenXM: OpenXM/doc/ascm2001p/ohp.tex,v 1.2 2001/09/23 08:31:18 takayama Exp $
 \documentclass{slides}
 %%\documentclass[12pt]{article}
 \usepackage{color}
@@ -9,8 +9,11 @@
 {\color{green} Design and Implementation of OpenXM-RFC 100 and 101}
 
 \noindent
-M.Maekawa, M.Noro, K.Ohara, N.Takayama, Y.Tamura \\
-\htmladdnormallink{http://www.openxm.org}{http://www.openxm.org}
+M.Maekawa (前 川 　 将 秀), \\ M.Noro (野 呂 　 正 行), \\
+K.Ohara (小 原 　 功 任), \\ N.Takayama (高 山 　 信 毅), \\
+Y.Tamura (田 村 　 恭 士)\\
+\htmladdnormallink{{\color{red}http://www.openxm.org}}{{\color{red}http://www.openxm.org}}
+
 
 \newpage
 \noindent
@@ -21,6 +24,11 @@ Two main applications of the project \\
 \begin{enumerate}
 \item Providing an environment for interactive distributed computation.
 {\color{blue} Risa/Asir}
+(computer algebra system for general purpose, 
+ open source (c) Fujitsu, \\
+ http://www.openxm.org, \\
+ http://risa.cs.ehime-u.ac.jp, \\
+ http://www.math.kobe-u.ac.jp/Asir/asir.html)
 \item e-Bateman project 
 (Electronic version of higher transcendental functions of the 21st century)\\
 1st step: Generate and verify hypergeometric function identities.
@@ -131,6 +139,7 @@ ox_reset(P);
 \noindent{\color{red} 4. Easy to try and evaluate distributed algorithms} \\
 
 \noindent
+{\color{green} Example 1} \\
 Theorem (Cantor-Zassenhaus) \\
 Let $f_1$ and $f_2$ be degree $d$ polynomials in $F_q[x]$.
 For a random degree $2d-1$ polynomial $g \in F_q[x]$,
@@ -195,6 +204,11 @@ def c_z(F,E,Level)
 }
 \end{verbatim}
 \newpage
+
+{\color{green} Example 2} \\
+Shoup's algorithm to multyply polynomials. 
+\newpage
+
 \noindent
 {\color{red} 5. e-Bateman project} \\
 First Step: \\
@@ -219,7 +233,9 @@ Erdelyi: {\color{green} Higher Transcendental Functions} \\
 The solution space of the ordinary differential equation
 $$ x(1-x) \frac{d^2f}{dx^2} -\left( c-(a+b+1)x \right) \frac{df}{dx} - a b f = 0$$
 is spanned by
-$$ F(a,b,c;x) , \  x^{1-c} F(a,b,c;x) $$
+$$ F(a,b,c;x) = {\color{red}1} + O(x), \  
+   x^{1-c} F(a,b,c;x) = {\color{red}x^{1-c}}+O(x^{2-c}))$$
+
 when $c \not\in {\bf Z}$. \\
 {\color{blue} Formula (type B)}\\
 \begin{eqnarray*}
