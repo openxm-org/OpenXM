@@ -1,12 +1,24 @@
-*** Makefile.SH.sav	Tue Oct  2 04:16:55 2001
---- Makefile.SH	Thu Dec 27 15:38:46 2001
+*** Makefile.SH.sav	Wed Sep 11 09:51:16 2002
+--- Makefile.SH	Wed Sep 11 09:53:03 2002
 ***************
-*** 499,515 ****
-    plot-dyn)
-      source="$src/graph/\$(PLOTFILE)"
+*** 572,578 ****
+      ;;
+    plot*-dyn)
       cflags="\$(DYNFLAGS) \$(PLOTCFLAGS)"
 !     depend="$src/graph/rect.h \$(LIBPARI).dll libpari_dll.h libpari_globals.h \$(LIBPARI).dll"
       ;;
+    plot*)
+      cflags="\$(PLOTCFLAGS)"
+--- 572,578 ----
+      ;;
+    plot*-dyn)
+      cflags="\$(DYNFLAGS) \$(PLOTCFLAGS)"
+!     depend="$src/graph/rect.h \$(LIBPARI).dll libpari_dll.h \$(LIBPARI).dll"
+      ;;
+    plot*)
+      cflags="\$(PLOTCFLAGS)"
+***************
+*** 581,592 ****
     gp-dyn|gp_rl-dyn)
       source=$src\/`echo $dir | sed -e "s/dyn//"`\/`echo $f | cut -f1 -d-`.c
       cflags="\$(DYNFLAGS) -I$src/language \$(RLINCLUDE)"
@@ -19,12 +31,7 @@
       ;;
     init|es|sumiter)
       depend="$src/language/anal.h"
---- 499,515 ----
-    plot-dyn)
-      source="$src/graph/\$(PLOTFILE)"
-      cflags="\$(DYNFLAGS) \$(PLOTCFLAGS)"
-!     depend="$src/graph/rect.h \$(LIBPARI).dll libpari_dll.h \$(LIBPARI).dll"
-      ;;
+--- 581,592 ----
     gp-dyn|gp_rl-dyn)
       source=$src\/`echo $dir | sed -e "s/dyn//"`\/`echo $f | cut -f1 -d-`.c
       cflags="\$(DYNFLAGS) -I$src/language \$(RLINCLUDE)"
