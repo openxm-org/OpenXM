@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/ascm2001/design-outline.tex,v 1.1 2001/03/07 02:42:10 noro Exp $
+% $OpenXM: OpenXM/doc/ascm2001/design-outline.tex,v 1.2 2001/03/07 06:54:40 takayama Exp $
 
 \section{Design Outline and OpenXM Request for Comments (OpenXM-RFC)} 
 
@@ -126,9 +126,12 @@ then the server executes the asir command \\
 (factorize $x^{100}-y^{100}$ over ${\bf Q}$)
 and pushes the result onto the stack.
 \end{enumerate}
-OpenXM package  is implemented on above fundamental architecture.
+OpenXM package  implements the OpenXM-RFC 100 and 101 based on
+the above fundamental architecture.
+In this paper, we discuss mainly on systems implementing
+OpenXM-RFC 100 and 101 on TCP/IP.
 For example, the following is a command sequence to ask $1+1$ from
-the Asir client to the {\tt ox\_sm1} server:
+the Asir client to the {\tt ox\_sm1} server through TCP/IP:
 \begin{verbatim}
   P = sm1_start();
   ox_push_cmo(P,1); ox_push_cmo(P,1);
@@ -136,16 +139,12 @@ the Asir client to the {\tt ox\_sm1} server:
 \end{verbatim}
 Here, {\tt ox\_sm1} is an OpenXM server based on Kan/sm1.
 
-The OpenXM package is implemented on the OpenXM RFC 100 for TCP/IP, 
-which uses the client-server model.
-In this paper, we discuss mainly on systems implementing
-OpenXM RFC 100 on TCP/IP.
-
-Our project is taking the ``RFC'' approach, which has been
-used to develop internet protocols, to integrate mathematical software
-systems.
-We hope that other groups, who are working on standard protocols,
-take the ``RFC'' approach.
+Our project of integrating mathematical software
+systems is taking the ``RFC'' approach, which has been
+used to develop internet protocols.
+We think that ``RFC'' approach is an excellent way and
+we hope that other groups, who are working on standard protocols,
+take this ``RFC'' approach.
 
 The OpenXM on MPI \cite{MPI} is currently running on Risa/Asir
 as we will see in Section \ref{section:homog}.
