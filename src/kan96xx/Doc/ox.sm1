@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.31 2004/02/05 03:04:40 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.32 2004/02/24 00:45:33 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1407,7 +1407,7 @@ oxasir.verbose {
       f { toString . } map /f set
       vvv { . } map /vvv set
       ddd { . } map /ddd set
-      /wt wt generic_bfct.aux1 def  
+      /wt [vvv ddd wt] generic_bfct.aux1 def  
     } ifelse
     [f vvv ddd wt] message
 
@@ -1428,16 +1428,24 @@ oxasir.verbose {
 
 /generic_bfct.aux1 {
   /arg1 set
-  [/in-generic_bfct.aux1 /wt /wtx /wtd /n]  pushVariables
+  [/in-generic_bfct.aux1 /ii /jj /wt /wtx /wtd /vv /dd /n]  pushVariables
   [
-    arg1 /wt set
-    /n [(N)] system_variable def
-    wt { dup tag PolyP eq { toString } {    } ifelse } map /wt set
-    wt weightv /wt set
-    /wtx wt n carN rest reverse rest reverse def
-    /wtd wt reverse n carN reverse 
-                   rest reverse rest reverse def
-    wtx wtd join /wt set
+    arg1 2 get /wt set
+    arg1 0 get /vv set
+    arg1 1 get /dd set
+    /wtx [ 0 1 vv length 1 sub { pop (0).. } for ] def
+    /n wt length def
+    0 2 n 1 sub {
+      /ii set
+      0 1 vv length 1 sub {
+        /jj set
+        wt ii get toString dd jj get toString eq {
+          wtx jj << wt ii 1 add get >> put
+        } {  } ifelse
+      } for 
+    } for
+
+    wtx /wt set
     wt { dup tag IntegerP eq { (universalNumber) dc } {    } ifelse } map /wt set
     wt /arg1 set
   ] pop
