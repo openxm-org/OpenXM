@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.43 2004/09/14 10:50:49 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.44 2004/09/16 23:53:44 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4359,6 +4359,18 @@ $ [ff ff] fromVectors :: $
 [(setMinus)
 [(a b setMinus c)
 ]] putUsages
+
+% Define  some infix operators
+/~add~ { add } def /~add~ makeInfix
+/~sub~ { sub } def /~sub~ makeInfix
+/~mul~ { mul } def /~mul~ makeInfix
+/~div~ { div } def /~div~ makeInfix
+/~power~ { power } def /~power~ makeInfix
+/~put~ {
+  dup tag 3 eq { exec } {  } ifelse  put
+} def
+/~put~ makeInfix
+
 
 ;
 
