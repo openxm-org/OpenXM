@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.4 2000/01/22 06:30:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.5 2000/03/10 12:38:47 ohara Exp $ */
 #ifndef _MLO_H_
 
 #define _MLO_H_
@@ -26,18 +26,22 @@ cmo *receive_mlo_function();
 cmo *convert_mlo_to_cmo(mlo *m);
 cmo *receive_mlo_function_newer();
 cmo *receive_mlo_symbol();
+mlo *receive_mlo_error();
+mlo *receive_mlo_real();
 
 int send_mlo(cmo *m);
-int send_mlo_int32(cmo *m);
-int send_mlo_string(cmo *m);
-int send_mlo_zz(cmo *m);
-int send_mlo_list(cmo *c);
 
+int ml_abort();
+int ml_interrupt();
+int ml_next_packet();
+int ml_new_packet();
+int ml_read_packet();
 int ml_init();
 int ml_exit();
 int ml_flush();
 int ml_select();
 int ml_evaluateStringByLocalParser(char *str);
 int ml_executeFunction(char *function, int argc, cmo *argv[]);
+mlo *ml_return();
 
 #endif
