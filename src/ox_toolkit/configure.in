@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/ox_toolkit/configure.in,v 1.5 2003/03/23 21:50:56 ohara Exp $
+dnl  $OpenXM: OpenXM/src/ox_toolkit/configure.in,v 1.6 2003/03/30 08:05:22 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
@@ -24,5 +24,7 @@ AC_SUBST([USE_GMP])
 dnl for Solaris 2.x
 AC_CHECK_FUNC(socket, , [AC_CHECK_LIB(socket,socket)])
 AC_CHECK_FUNC(gethostbyname, , [AC_CHECK_LIB(nsl,gethostbyname)])
+dnl for Redhat 8.0
+AC_CHECK_FUNC(dlopen, , [AC_CHECK_LIB(dl,dlopen)])
 
 AC_OUTPUT(Makefile)
