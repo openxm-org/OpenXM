@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.4 2003/07/17 23:47:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.5 2003/07/19 06:03:57 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -36,6 +36,7 @@ static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
                             struct gradedPolySet *gg,POLY r);
 
 extern int DebugReductionRed; 
+int DebugReductionEcart = 0;
 
 /* This is used for goHomogenization */
 extern int DegreeShifto_size;
@@ -186,7 +187,7 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
     }
   }
 
-  if (DebugReductionRed) {
+  if (DebugReductionRed || (DebugReductionEcart&1)) {
     printf("ecartFindReducer(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d\n",ell1,ell2,minGrade,minGseti,minGgi);
   }
   if (ell1 <= ell2) {
@@ -290,11 +291,14 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
     }
   }
 
+  if (DebugReductionEcart&1) printf("--------------------------------------\n");
   do {
     if (DebugReductionRed) printf("r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionEcart & 1) printf("r=%s+...\n",POLYToString(head(r),'*',1));
     ells = ecartFindReducer(r,gset,gg);
     ell = ells.ell;
     if (ell > 0) {
+      if (DebugReductionEcart & 2) printf("*");
       if (needSyz) {
         gg = ecartPutPolyInG(r,gg,cf,syz);
       }else{
@@ -305,6 +309,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
       if (ells.first) {
         pp = ((gset->polys[ells.grade])->gh)[ells.gseti];
       }else{
+        if (DebugReductionEcart & 4) printf("#");
         pp = (gg->pa)[ells.ggi];
       }
       if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
@@ -323,18 +328,18 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
           cf = ppAdd(cf,ppMult(cg,cf_o));
           syz = cpMult(toSyzCoeff(cc),syz);
           syz = ppAdd(syz,cpMult(toSyzCoeff(cg),syz_o));
-		  /* Note. 2003.07.19 */
+          /* Note. 2003.07.19 */
         }
         if (DebugReductionRed) {
-		  POLY tp;
-		  tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
-		  if (tp != POLYNULL) {
-			fprintf(stderr,"reduction_ecart0(): sygyzy is broken. Return the Current values.\n");
-			fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
-			syzp->cf = cf;
-			syzp->syz = syz;
-			return r;
-		  }
+          POLY tp;
+          tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
+          if (tp != POLYNULL) {
+            fprintf(stderr,"reduction_ecart0(): sygyzy is broken. Return the Current values.\n");
+            fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
+            syzp->cf = cf;
+            syzp->syz = syz;
+            return r;
+          }
         }
       }
       if (r ISZERO) goto ss;
@@ -417,8 +422,8 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
           syz = cpMult(toSyzCoeff(cc),syz);
           syz = ppAddv(syz,toSyzPoly(cg,ells.grade,ells.gseti));
         }else{
-		  fprintf(stderr,"It has not yet implemented.\n");
-		  exit(10);
+          fprintf(stderr,"It has not yet implemented.\n");
+          exit(10);
           /* BUG: not yet */
         }
       }
@@ -432,8 +437,8 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
     /* BUG: dehomogenize the syzygy */
-	fprintf(stderr,"It has not yet implemented.\n");
-	exit(10);
+    fprintf(stderr,"It has not yet implemented.\n");
+    exit(10);
   }
 
   r = goDeHomogenizeS(r);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.7 2003/07/17 07:33:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.8 2003/07/17 23:37:02 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -45,6 +45,7 @@ struct object KsystemVariable(ob)
   extern int Homogenize_vec;
   extern int CmoDMSOutputOption;
   extern int DebugReductionRed; /* hidden option */
+  extern int DebugReductionEcart; 
   extern char *VersionString;
   extern int AvoidTheSameRing;
   extern char *LeftBracket;
@@ -288,6 +289,9 @@ struct object KsystemVariable(ob)
       }else if (strcmp(ob1.lc.str,"DebugReductionRed") == 0) {
         DebugReductionRed = KopInteger(ob2);
         rob = KpoInteger(DebugReductionRed);
+      }else if (strcmp(ob1.lc.str,"DebugReductionEcart") == 0) {
+        DebugReductionEcart = KopInteger(ob2);
+        rob = KpoInteger(DebugReductionEcart);
       }else if (strcmp(ob1.lc.str,"AvoidTheSameRing") == 0) {
         AvoidTheSameRing = KopInteger(ob2);
         rob = KpoInteger(AvoidTheSameRing);

@@ -177,5 +177,68 @@ $appell.sm1 generates Appell hypergeometric differential equations (C) N.Takayam
   arg1
 } def
 
+/appell2 {
+  /arg1 set
+  [/in-appell2 /typev /setarg /b /n /vv /i /a /c /bb /ans
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
+  [
+    /aa arg1 def
+    aa isArray { } { (array appell) message (appell2) usage error } ifelse
+    /setarg 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /b aa 0 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ ] eq
+    {
+       /b [1 [2 3] [4 5]] def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (Argument mismatch) message (appell2) usage error } ifelse
+
+    [(KanGBmessage) appell.verbose] system_variable
+
+    /n b 1 get length def   %% Lauricella F_A^n
+    
+    %% vv = [(x1) (x2)]
+    [
+      1 1 n {
+        /i set
+        (x) i gensym
+      } for
+    ] /vv set
+
+    %% b = [a  [b_1 ... b_n]  [c_1 ... c_n] ]
+    /a b 0 get def
+    /c b 2 get def
+    /bb b 1 get def    
+
+    [ 1 1 n { 
+        /i set
+        [  [@@@.Dsymbol (x)] cat i gensym 
+           $ ($  i i appell.euler c i 1 sub get 1 sub $) - ( $
+           1 n appell.euler a $) ($ i i appell.euler bb i 1 sub get $ ) $] cat
+      } for
+    ] /ans set
+    /arg1 [ans vv] def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(appell2 ) messagen-quiet
+[(appell2)
+ [(param appell2 c)
+  (array param; array c;)
+  (appell2 returns the Lauricella function F_A(a,b_1, ..., b_n, c_1, ..., c_n; x_1,...,x_n))
+  (for the parameter << param >> = [a, [b_1, ..., b_n],[c_1, ..., c_n]].)
+  (In case of n=2, the function is called the Appell function F_2.)
+  (c = [ generators,  variables ])
+  (Example: [ [1 [-4 -2] [5 6]] ] appell2 rank ::)
+ ]
+] putUsages
+
 
 ( ) message-quiet ;
