@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.9 2000/12/03 16:15:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.10 2000/12/14 01:41:03 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -81,6 +81,7 @@ static int receive_int32_lbo(OXFILE *oxfp)
 OXFILE *oxf_open(int fd)
 {
     OXFILE *oxfp = (OXFILE *)malloc(sizeof(OXFILE));
+    oxfp = (OXFILE *)malloc(sizeof(OXFILE));
     oxfp->fd = fd;
     oxfp->send_int32    = send_int32_nbo;
     oxfp->receive_int32 = receive_int32_nbo;
@@ -170,13 +171,13 @@ int oxf_listen(short *portp)
 OXFILE *oxf_connect_active(char *hostname, short port)
 {
     int fd = mysocketOpen(hostname, port);
-    return oxf_open(fd);
+    return (fd < 0)? NULL: oxf_open(fd);
 }
 
 OXFILE *oxf_connect_passive(int listened)
 {
     int fd = mysocketAccept(listened);
-    return oxf_open(fd);
+    return (fd < 0)? NULL: oxf_open(fd);
 }
 
 #define LENGTH_OF_ONETIME_PASSWORD 64
