@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.15 2000/08/02 05:14:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.16 2000/08/09 03:45:27 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -431,6 +431,35 @@ def test23() {
 }
 
 
+def test24() {
+  local Res, Eqs, ww,a;
+  ww = ["x",-1,"y",-1,"Dx",1,"Dy",1];
+  Println("Example of V-minimal <> minimal ");
+  Sweyl("x,y", [ww]);
+  Eqs = [Dx-(x*Dx+y*Dy), 
+         Dy-(x*Dx+y*Dy)]; 
+  sm1(" Eqs dehomogenize /Eqs set");
+  Res = Sminimal(Eqs);
+  Sweyl("x,y", [ww]);
+  a = Reparse(Res[0]);
+  sm1_pmat(a);
+  Println("Initial of the complex is ");
+  sm1_pmat( Sinit_w(a,ww) );
+  return(Res);
+}
+
+def test24b() {
+  local Res, Eqs, ww ;
+  ww = ["x",-1,"y",-1,"Dx",1,"Dy",1];
+  Println("Construction of minimal ");
+  Sweyl("x,y", [ww]);
+  Eqs = [Dx-(x*Dx+y*Dy), 
+         Dy-(x*Dx+y*Dy)]; 
+  sm1(" Eqs dehomogenize /Eqs set");
+  Res = Sminimal(Eqs,["Sordinary"]);
+  sm1_pmat(Res[0]);
+  return(Res);
+}
 
 
 

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/k097/lib/minimal/example-ja.tex,v 1.2 2000/08/02 05:14:30 takayama Exp $
+% $OpenXM: OpenXM/src/k097/lib/minimal/example-ja.tex,v 1.3 2000/08/09 03:45:27 takayama Exp $
 \documentclass[12pt]{jarticle}
 \newtheorem{example}{Example}
 \def\pd#1{ \partial_{#1} }
@@ -206,16 +206,88 @@ minimal &  1, 7, 10, 4                        \\
 $f=x^3-y^2z^2+y^2+z^2$ $B$H$*$$$?>l9g(B,
 $B6u4V(B ${\bf C}^3 \setminus V(f)$ $B$N(B
 $B%3%[%b%m%872$N<!85$O(B 
-${\rm dim}\, H^i = 1$, $(i=0, 1)$,
-${\rm dim}\, H^i = 0$, $(i=2, 3)$,
+${\rm dim}\, H^0 = 8$, ${\rm dim}\, H^1 = 0$,
+${\rm dim}\, H^2 = 1$, ${\rm dim}\, H^3 = 1$
 $B$H$J$k(B.
 $B$3$N>l9g(B $D/I$ $B$N(B
 $b$-$B4X?t$N:GBg@0?t:,$O(B $2$ $B$H$J$j(B,
 $B%3%[%b%m%8$r7W;;$9$k$?$a$K(B
-$B9M$($k@~7A6u4V$NJ#BN$N<!85$O(B, $10, 12, 9, 4$  $B$G$"$k(B. %%Prog: Srestall.sm1
+$B9M$($k@~7A6u4V$NJ#BN$N<!85$O(B, $20, 28, 27, 11$  $B$G$"$k(B. %%Prog: Srestall_s.sm1
 $B0lJ}(B Schreyer resolution $B$+$i%9%?!<%H$7$F(B,
 $B@~7A6u4V$NJ#BN$r9M$($k$H(B, $B$=$N<!85$O(B
 130, 1078, 1667, 749, 40 $B$H$J$k(B. %%Prog: test21b()
+\end{example}
+
+$B<!$K(B $(u,v)$-$B6K>.<+M3J,2r$H6K>.<+M3J,2r$,0[$J$kNc$r<($=$&(B.
+\begin{example} \rm
+%%Prog: minimal-test.k test24()
+$BF1<!2=%o%$%kBe?t$N:8%$%G%"%k(B
+$$I  = D^{(h)}\cdot \{ h \pd{x} - x \pd{x} - y \pd{y},
+                       h \pd{y} - x \pd{x} - y \pd{y} \} $$
+$B$r9M$($k(B.
+
+\begin{tabular}{|l|l|}
+\hline
+Resolution type &  Betti numbers          \\ \hline
+Schreyer &                         1, 3, 3, 1   \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &     1, 3, 2 \\ \hline
+minimal &                          1, 2, 1 \\
+\hline
+\end{tabular}
+
+\noindent
+$(-{\bf 1},{\bf 1})$-minimal resolution
+{\footnotesize \begin{verbatim}
+ [ 
+  [ 
+    [    Dx*h-x*Dx-y*Dy ] 
+    [    Dy*h-x*Dx-y*Dy ] 
+    [    x*Dx^2-x*Dx*Dy+y*Dx*Dy-y*Dy^2 ] 
+  ]
+  [ 
+    [    x*Dx-x*Dy+y*Dy+x*h , -y*Dy-x*h , -h+x ] 
+    [    -Dy+h , Dx-h , 1 ] 
+  ]
+ ]
+\end{verbatim}
+}  \noindent
+$B$G$"$j(B,  1 $BHVL\$N(B syzygy $B$K(B 
+\verb# [-Dy+h, Dx-h, 1 ] # 
+$B$H(B $1$ $B$,=P8=$7$F$$$k(B.
+$B<+M3J,2r$N<gIt(B (initial) $B$O0J2<$N$H$&$j(B.
+{\footnotesize 
+\begin{verbatim}
+ [ 
+  [ 
+    [    Dx*h ] 
+    [    Dy*h ] 
+    [    x*Dx^2-x*Dx*Dy+y*Dx*Dy-y*Dy^2 ] 
+  ]
+  [ 
+    [    x*Dx-x*Dy+y*Dy , -y*Dy , -h ] 
+    [    -Dy , Dx , 0 ] 
+  ]
+ ]
+\end{verbatim}
+}
+
+\noindent
+$B0lJ}(B
+minimal resolution  %%Prog: test24b()  minimal-test.k
+$B$O(B
+{\footnotesize \begin{verbatim}
+ [ 
+  [ 
+    [    Dx*h-x*Dx-y*Dy ] 
+    [    Dy*h-x*Dx-y*Dy ] 
+  ]
+  [ 
+    [    -Dy*h+x*Dx+y*Dy+h^2 , Dx*h-x*Dx-y*Dy-h^2 ] 
+  ]
+ ]
+\end{verbatim}
+}  \noindent
+
 \end{example}
 
 \begin{example} \rm
@@ -421,13 +493,10 @@ reduction $B$7$?$H$-$K(B modulo $(u,v)$-$B%U%#%k%?!<$G(B $0$ $B$K$J$i$J$+$C
 \end{minipage}
 \end{center}
 
-$B$A$J$_$K(B,
-$(-w,w)$-$B6K>.<+M3J,2r$H(B $B6K>.<+M3J,2r$,$3$H$J$kNc$r$5$,$7$F$$$k$,(B
-$B$3$l$O$^$@8+$D$+$C$F$$$J$$(B.
-$B$A$g$C$HIT;W5D$G$"$k(B.
 
 \bigbreak
 
+\noindent
 {\tt minimal.k} $B$N%=!<%9%3!<%I$G$O$3$NItJ,$O<!$N$h$&$K$J$C$F$$$k(B.
 {\footnotesize
 \begin{verbatim}
