@@ -1,7 +1,9 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.9 2001/04/22 04:55:07 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.10 2001/04/23 13:34:00 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
+/httpd.image.name (kobeuniv2.jpg) def
+/httpd.image.type (jpeg) def
 
 /httpd.initialization
 %% Put initialization codes here.
@@ -74,9 +76,33 @@ def
  popVariables
 } def
 
+/sendBinaryFile {
+ /arg1 set
+ [/in-sendln /fname /fd /c /cdata] pushVariables
+ [ arg1 /fname set
+   [(sendBinaryFile: sending data) ] cat message
+   [(fp2openForRead) fname] extension /fd set  fd message
+   fd 0 lt {
+      [(Error: sendBinaryFile: file ) fname ( is not found.)] cat message
+      /aaaa goto
+   } {  } ifelse
+   [(fp2pushfile) fname] extension /cdata set
+   [(sm1.socket) (select) [httpd.server.fd 0 get 0]] extension {
+       (Warning (sendBinaryFile): your peer closed the connection. Do not send the data.) 
+       message
+       exit
+   } {
+       [(sm1.socket) (writeByte) [httpd.server.fd 0 get cdata]] extension pop
+   } ifelse
+   /aaaa 
+ ] pop
+ popVariables
+} def
+
 /httpd {
   /httpd.serial 0 def
   /httpd.history [ ] def
+  /httpd.result.history [ 0 ] def
   {
     httpd_startserver ;
     httpd_action ;
@@ -102,13 +128,24 @@ def
           (------------  start ----------------------) message
              ff message
           (-----------------------------------------) message
-             ff removeGET webstringToAscii /httpd.com set 
-             httpd.com message
+             ff 1 copy askToSendFile /httpd.sendFile set
+             httpd.sendFile tag 0 eq {
+               ff removeGET webstringToAscii /httpd.com set 
+             } {
+               /httpd.com (NONE) def
+             } ifelse
+             [(httpd.com=) httpd.com] cat message
+             (httpd.sendFile=) messagen httpd.sendFile message
           (------------  end ----------------------) message
           (   ) message
           httpd.serial 0 eq {
             /httpd.com  httpd.initialization def 
           } { } ifelse
+          httpd.sendFile tag 0 eq { }
+          {
+            httpd.sendFile httpd.image.type send-image
+            exit  %% exit the loop LOOP-A
+          } ifelse
           httpd.com metaCommand {
             httpd.textarea.valid {
               oxasir.ccc 
@@ -178,12 +215,17 @@ def
               } ifelse
              (<font color="green"> Output-) httpd.serial toString
              (: </font> ) 
+             (<a href="http://localhost:)  httpd.port toString
+             (/?msg=httpdAsirMeta+Pretty+) httpd.serial toString 
+             ("> (in pretty format) </a>) 
+             %%(<a href=") httpd.image.name ("> (in pretty format) </a>) %%test
               httpd.result preformatHTML
+              httpd.result.history httpd.result append /httpd.result.history set
             ] cat
-            send-page-3  exit
+            send-page-3  exit  %% exit the loop LOOP-A
           } { exit } ifelse  %% metaCommand
         } ifelse
-  } loop
+  } loop  %% LOOP-A
   ] pop
   popVariables
 } def
@@ -241,6 +283,35 @@ def
    send-menu-1
    0 sendln
    [(flush)] extension
+  ] pop
+  popVariables
+} def
+
+/send-image {
+  /arg2 set
+  /arg1 set
+  [/in-send-jpeg /fname /imagetype /ff /fsize] pushVariables
+  [
+     /fname arg1 def % set the jpeg file name.
+     /imagetype arg2 def %  jpeg or gif
+    [(stat) fname] extension 0 get tag 0 eq {
+       (Warning (send-image): the file ) messagen fname messagen ( is not found.) message
+       /notFound goto
+    }{  }ifelse
+    [(stat) fname] extension 1 get 0 get toString /fsize set
+    (HTTP/1.1 200 OK) dup message sendln
+    (Server: httpd_sm1) dup message sendln
+    %% (ETag: "2197-bf6c-3b2d6541") sendln ???
+    (Accept-Ranges: bytes) dup message sendln
+    [(Content-Length: ) fsize] cat dup message sendln
+    (Connection: close) dup message sendln
+    [(Content-Type: image/) imagetype] cat dup message sendln
+    [(flush)] extension 
+    0 sendln
+    fname sendBinaryFile
+    0 sendln
+    [(flush)] extension
+    /notFound
   ] pop
   popVariables
 } def
@@ -390,6 +461,56 @@ def
     def
  } ifelse
 
+%% Decompose into tokens separated by a space.
+%% (GET /hoge.jpeg ???) ---> [(GET) (/hoge.jpeg) (???)]
+/toTokensBySpace {
+  /arg1 set
+  [/in-toTokesBySpace /ss /ss2 /i] pushVariables
+  [
+    /ss arg1 def
+    ss 1 copy /ss set
+    ss (array) dc /ss2 set
+    0 1 ss2 length 1 sub {
+      /i set
+      ss2 i get 32 eq { %% equal to space
+        ss i (,) put
+      } {  } ifelse
+    } for
+    ss message
+    [ ss to_records pop] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/askToSendFile {
+  /arg1 set
+  [/in-askToSendFile /ss /fname] pushVariables
+  [
+    /ss arg1 def
+    /fname null def
+    ss toTokensBySpace /ss set
+    ss 0 get (GET) eq {
+      ss 1 get length 1 gt {
+        ss 1 get (array) dc 1 get 63 eq { %% See if /?
+          /fname null def
+        }{
+          /fname ss 1 get def % set the file name.
+          fname (array) dc rest /fname set % remove /
+          fname { (string) dc } map cat /fname set
+        } ifelse
+      }{ /fname null def } ifelse
+    }{ 
+      /fname null def
+    } ifelse
+    (::::) messagen  ss message fname message
+    /arg1 fname def
+  ] pop
+  popVariables
+  arg1
+} def
+
+
 %% remove GET /?msg=
 /removeGET {
   /arg1 set
@@ -500,10 +621,26 @@ def
 
 /metaCommand {
   /arg1 set
-  [/in-metaCommand /msg /result] pushVariables
+  [/in-metaCommand /msg /result /msg2 /nn] pushVariables
   [
     /msg arg1 def
     /result 1 def
+    msg 1 copy toTokensBySpace /msg2 set
+    msg2 length 3 eq {
+      msg2 0 get (httpdAsirMeta) eq 
+      msg2 1 get (Pretty) eq and
+      {
+        msg2 2 get . (integer) dc /nn set 
+
+        %%BUG: This part should be rewritten.
+        %% Reformat the "nn"-th result by tex and send it.
+        httpd.result.history nn get message
+        httpd.image.name httpd.image.type send-image
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        /result 0 def
+      } { } ifelse    
+    }{ } ifelse
     msg (httpdAsirMeta quit) eq {
        oxasir.ccc oxshutdown
        send-page-bye
