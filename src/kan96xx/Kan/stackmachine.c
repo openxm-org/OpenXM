@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.24 2004/09/12 08:55:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.25 2004/09/12 10:22:50 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -1580,8 +1580,8 @@ char *traceShowStack(void) {
     if (t == NULL) {
       s[p] = ';'; s[p+1] = 0;
       break;
-    }else if ((strlen(t) + p -10) > TRACE_MSG_SIZE) {
-	  /*	  fprintf(stderr,"p=%d, TraceNameStackp=%d, strlen(t)=%d, t=%s\n",p,TraceNameStackp,strlen(t),t); */
+    }else if ((strlen(t) + p) > (TRACE_MSG_SIZE-10)) {
+	  /* fprintf(stderr,"p=%d, TraceNameStackp=%d, strlen(t)=%d, t=%s\n",p,TraceNameStackp,strlen(t),t); */
       strcpy(&(s[p])," ...");
       break;
     }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.15 2004/09/12 10:22:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.16 2004/09/12 10:58:28 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -617,6 +617,8 @@ int executePrimitive(ob)
     /* Or;  [[a_00 ....] [a_10 ....] ....] [1 0] any put. MultiIndex. */
     ob1 = Kpop(); ob2 = Kpop(); ob3 = Kpop();
     switch(ob2.tag) {
+    case SuniversalNumber:
+      ob2 = Kto_int32(ob2); /* do not break and go to Sinteger */ 
     case Sinteger: 
       switch(ob3.tag) {
       case Sarray:
@@ -651,6 +653,7 @@ int executePrimitive(ob)
         if (ob5.tag != Sarray)
           errorStackmachine("Object pointed by the multi-index is not array (put)\n");
         ob4 = getoa(ob2,i);
+        if (ob4.tag == SuniversalNumber) ob4 = Kto_int32(ob4);
         if (ob4.tag != Sinteger)
           errorStackmachine("Index has to be an integer. (put)\n");
         k = ob4.lc.ival;
