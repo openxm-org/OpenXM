@@ -1,10 +1,11 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.6 2000/01/21 10:00:21 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.7 2000/01/24 07:21:07 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 DVIPS=dvips -f
+LATEX2HTML=jlatex2html
 
 all : install-web-kobe
 
@@ -16,6 +17,16 @@ copy-doc :
 	/bin/rm -rf $(WEBKOBE1)/doc
 	mkdir $(WEBKOBE1)/doc
 	-(cd ../../doc ; cp -r Papers asir-contrib asir2000 kan96xx ox_math $(WEBKOBE1)/doc)
+
+copy-html :
+	/bin/rm -rf $(WEBKOBE1)/html
+	mkdir $(WEBKOBE1)/html
+	mkdir $(WEBKOBE1)/html/OpenXM-eg
+	mkdir $(WEBKOBE1)/html/OpenXM-jp
+	-(cd $(OpenXM_spec) ; make ; cd tmpEG ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM )
+	-(cd $(OpenXM_spec) ; cd tmpJP ; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM )
+	-(cd $(OpenXM_spec) ; cd tmpEG ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-eg)
+	-(cd $(OpenXM_spec) ; cd tmpJP ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-jp)
 
 
 
