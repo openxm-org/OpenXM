@@ -1,4 +1,32 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.13 2002/03/16 01:00:49 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.14 2002/04/17 08:32:41 ohara Exp $
+
+//&C October 23, 2002 (for developer)
+//&ja Q.  commit メッセージのみ加えたい.
+//&en Q. I want to add only a commit message to the CVS repository.
+
+/*&ja 
+
+A.
+正しいログを書いてファイルに保存しておき、
+
+cvs commit -f -F <log file> <target file>
+
+とすれば、内容を変更せずにログだけを更新することができますが、
+revision はひとつ進みます。害はないです。
+（そのログには (null commit) とかいれておくとそれらしくなります） (by まえかわ)
+
+
+*/
+/*&en
+
+A. 
+Write a log in the file <log file> and 
+    cvs commit -f -F <log file> <target file>
+The revision number will be increased by 1.
+
+*/
+
+
 
 //&C March 16, 2002 (for developer)
 //&ja Q. asir を cygwin で make したい.
