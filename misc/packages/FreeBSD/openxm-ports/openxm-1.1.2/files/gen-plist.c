@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.1.1.1 2000/03/02 10:32:39 takayama Exp $ */
+/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.2 2000/03/04 04:00:48 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,7 +26,8 @@ main() {
   printf("bin/oxMathematica\n");
   printf("bin/oxmath\n");
   printf("bin/ox\n");
-  printf("bin/gp\n");
+  printf("bin/oxgp\n");
+  printf("bin/openxm\n");
   
   while (fgets(s0,512,stdin) != NULL) {
 	n = strlen(s0);

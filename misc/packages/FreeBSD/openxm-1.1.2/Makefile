@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.4 2000/03/04 04:13:00 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.5 2000/03/04 04:32:26 takayama Exp $
 
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
@@ -6,14 +6,14 @@
 ###     make make-tar-ball
 ### Then, the two tar balls are generated under $HOME/tmp
 ###
-### How to test the port system?
+### How to test the port for openxm
 ###     cd /usr/ports/math ; tar xzvf $HOME/tmp/openxm-port.tar.gz
 ###     cp $HOME/tmp/openxm-1.1.2.tar.gz /usr/ports/distfiles
 ###     cd /usr/ports/math/openxm ; make install
 ###     [Try also make package , pkg_delete openxm-1.1.2 , 
 ###      pkg_add openxm-1.1.2.tgz]
 
-# Modify this.
+# Modify this. It's for committers.
 OpenXM_TOP=$(HOME)
 # Modify this.  It's for committters.
 RCVS=mycvs -d kerberos.math.kobe-u.ac.jp:/usr/cvs

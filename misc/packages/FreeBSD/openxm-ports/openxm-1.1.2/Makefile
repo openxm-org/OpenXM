@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.8 2000/03/04 05:01:18 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.9 2000/03/04 08:04:58 takayama Exp $
 
 ## For debugging. 
 #DISTDIR=$(HOME)/tmp
@@ -29,7 +29,7 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
                 jlatex2html:${PORTSDIR}/japanese/latex2html \
                 makeinfo:${PORTSDIR}/japanese/texinfo \
 				texi2html:${PORTSDIR}/textproc/texi2html \
-                javac:${PORTSDIR}/java/jdk \
+                /usr/local/jdk1.1.8/bin/javac:${PORTSDIR}/java/jdk \
 				bash:${PORTSDIR}/shells/bash2 \
 #				xdvi:${PORTSDIR}/japanese/xdvik-vflib \
 ### Note:
@@ -47,12 +47,16 @@ RUN_DEPENDS=
 pre-install:
 	-/bin/rm -rf ${PREFIX}/OpenXM
 
+
+OpenXM_MANPAGES=${PREFIX}/OpenXM/man/man1/*
+
 post-install :
 # Reguild shell files to start binaries and copy it to ${PREFIX}/bin
 #    Modify pkg/INSTALL, too.
 	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
-	-gzip ${PREFIX}/man/man1/*
+	-gzip $(OpenXM_MANPAGES)
+	-cp $(OpenXM_MANPAGES) ${PREFIX}/man/man1
 	-cat pkg/MESSAGE
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk

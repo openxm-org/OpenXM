@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.8 2000/03/01 00:15:45 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.9 2000/03/02 02:05:13 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
 CC=gcc
-# SHELL_SCRIPTS=asir sm1 gp k0 oxmath oxMathematica ox
-SHELL_SCRIPTS=asir sm1 gp oxmath oxMathematica ox
+# SHELL_SCRIPTS=asir sm1 oxgp k0 oxmath oxMathematica ox
+SHELL_SCRIPTS=asir sm1 oxgp oxmath oxMathematica ox openxm
 PREFIX=/usr/local
 INSTALL_DIR=${PREFIX}/bin
 
