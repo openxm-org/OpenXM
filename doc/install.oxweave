@@ -1,19 +1,20 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.1 1999/12/15 03:30:13 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&jp
 ★ OpenXM パッケージの Make 法
-  (FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.)
+  FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.
    OpenXM, OpenXM_contrib, OpenXM_contrib2 が必要です.
    cvs コミッタの場合次のようにしてソースをとりよせます.
 */
 /*&eg
-How to make OpenXM package?
- (We have tested the OpenXM package on FreeBSD 2.2.8, FreeBSD 3.3, Linux.)
+* How to make OpenXM package?
+ We have tested the OpenXM package on FreeBSD 2.2.8, FreeBSD 3.3, Linux.
  Do you have directories OpenXM, OpenXM_contrib, OpenXM_contrib2?
  If you are a CVS committer, then you can get all sources as follows:
 */
 //&C  rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2
+//&C  
 //&jp これらがそろっていたらあとは次のように入力するだけです.
 //&eg Check that you have these directories, then just type in the following commands
 /*&C
@@ -21,6 +22,13 @@ How to make OpenXM package?
    cd OpenXM/src
    make configure
    make
+
+*/
+/*&jp なお, OpenXM/src/ox_math の利用には Mathematica が, OpenXM/src/OpenMath
+には, jdk (java 環境) が必要です.
+*/
+/*&eg In order to use OpenXM/src/ox_math, you need Mathematica. 
+In order to use OpenXM/src/OpenMath, you need jdk (java environment).
 */
 /*&C
 
@@ -30,13 +38,15 @@ How to make OpenXM package?
 OpenXM をホームの直下に展開した場合, 次のようにします.
 */
 /*&eg
-How to use the OpenXM package?
+* How to use the OpenXM package?
 If you have OpenXM under your home directory, do as follows.
 */
 /*&C
+
     cp OpenXM/rc/asirrc ~/.asirrc 
     source OpenXM/rc/bashrc (in case of bash)
     source OpenXM/rc/cshrc  (in case of csh)
+
 */
 /*&jp
 OpenXM をホームの直下に展開してない場合は OpenXM/rc/bashrc, OpenXM/rc/cshrc を
@@ -46,6 +56,11 @@ OpenXM をホームの直下に展開してない場合は OpenXM/rc/bashrc, OpenXM/rc/cshr
 If you have OpenXM in a different place, edit OpenXM/rc/bashrc or
 OpenXM/rc/cshrc properly.
 */
+//&C 
+//&jp asir の利用には  key が必要です.  以下のファイルを御覧ください.
+//&eg You need key to use asir.  See the following file:
+//&C OpenXM/lib/asir/asir_key
+//&C  
 /*&jp
 注意 1.
 asir で日本語のヘルプを利用するには, 
@@ -71,7 +86,9 @@ export PATH
   ptex cman.texi (日本語)
   tex cman-eg.texi (英語)
   すればよろしい.
-  Online manual : ox_help(xxx) は現在一時的につかえません.
+  Online manual : ox_help(xxx) を利用するには, 
+   (cd OpenXM/src/asir-contrib/packages/doc ; make install-help)
+  とします.
 
 注意:
 $OpenXM_HOME/bin の下の, fep, phc は, いまのところ
