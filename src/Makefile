@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.114 2003/01/13 14:10:59 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.115 2003/02/02 01:36:31 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -247,7 +247,7 @@ configure-gmp: configure-links
 	  (cd gmp ; ./configure --prefix=`pwd`/../../OpenXM; touch .gmp_configured) ; \
 	fi 
 
-configure-asir: configure-directory
+configure-asir: configure-directory configure-util
 	@if test -d $(OPENXM_CONTRIB2) ; then \
 		(cd asir2000 ; make configure) ; \
 	else \
