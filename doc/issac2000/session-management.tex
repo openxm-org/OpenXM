@@ -1,7 +1,7 @@
-% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.3 2000/01/04 09:14:14 noro Exp $
 
 \section{Session Management}
-
+\label{secsession}
 %MEMO: key words:
 %Security (ssh PAM), initial negotiation of byte order,
 %mathcap, interruption, debugging window, etc.
@@ -38,7 +38,7 @@ methods to treat it and we adopted the following scheme.
 \item A server writes 1 byte representing the preferable byte order.
 \item After reading the byte, a client writes 1 byte representing the
 preferable byte order.
-\item On each side, if the preference coicides with each other then
+\item On each side, if the preference coincides with each other then
 the byte order is used. Otherwise the network byte order is used.
 \end{itemize}
 
@@ -60,7 +60,7 @@ the launcher as follows.
 \item A launcher is invoked from a client or by hand.
 When the launcher is invoked, a port number for TCP/IP connection
 and the name of a server should be informed.
-\item The launcher and the client establish a conection with the
+\item The launcher and the client establish a connection with the
 specified port number.
 \item The launcher create a process and execute the server after
 setting the streams {\bf 3} and {\bf 4} appropriately.
@@ -78,7 +78,7 @@ When we use a mathematical software, an execution time or necessary
 storage is often unknown in advance. Therefore it is desirable
 to be able to abort an execution and to start another execution.
 On a usual session on UNIX it is done by an interruption from a keyboard.
-Internally it is realized by an exeption processing initiated by
+Internally it is realized by an exception processing initiated by
 a {\bf signal}, but it is not easy to send a signal to a server.
 Especially if a server and a client run on different machines,
 the client cannot send a signal to the server directly.
@@ -88,14 +88,14 @@ system dependent and lack robustness.
 On OpenXM we adopted the following simple and robust method.
 
 An OpenXM server has logically two I/O channels: one for exchanging
-data for computations and the other for controling computations. The
+data for computations and the other for controlling computations. The
 control channel is used to send commands to control execution on the
 server. There are several ways of implementing the control channel.
 Among them it is common to use the launcher introduced in Section
 \ref{launcher} as a control process. We call such a process a {\bf
 control server}. In contrast, we call a server for computation an {\bf
 engine}. In this case the control server and the engine runs on the
-same machine and it is easy to maniputalate the engine, especially to
+same machine and it is easy to manipulate the engine, especially to
 send a signal from the control server. A control server is also an
 OpenXM stackmachine and the following {\tt SM} commands are provided.
 
@@ -144,7 +144,7 @@ a resetting.
 \item The client sends {\tt SM\_control\_reset\_connection} to the
 control server.
 \item The client enters the resetting state. it skips all {\tt
-OX} messages from the engine until it recieves {\tt OX\_SYNC\_BALL}.
+OX} messages from the engine until it receives {\tt OX\_SYNC\_BALL}.
 \item After receiving {\tt OX\_SYNC\_BALL} the client sends 
 {\tt OX\_SYNC\_BALL} to the engine and returns to the usual state.
 \end{enumerate}
@@ -161,7 +161,7 @@ the client reads and skips {\tt OX} messages soon after sending
 {\tt SM\_control\_reset\_connection}.
 \item The engine sends {\tt OX\_SYNC\_BALL} to the client.
 \item The engine skips all {\tt OX} messages from the engine until it
-recieves {\tt OX\_SYNC\_BALL}.
+receives {\tt OX\_SYNC\_BALL}.
 \item After receiving {\tt OX\_SYNC\_BALL} the engine returns to the
 usual state.
 \end{enumerate}
@@ -188,9 +188,9 @@ OX\_SYNC\_BALL} must initiate an engine into entering the resetting
 state, and it makes the resetting scheme complicated and it may
 introduce unexpected bugs. For example, if a client sends {\tt
 OX\_SYNC\_BALL} without waiting {\tt OX\_SYNC\_BALL} from the engine,
-then it is possible that the engine recieves it before the arrival of
+then it is possible that the engine receives it before the arrival of
 the signal. We note that we really encountered serious bugs caused
-by such an inappropriate protocol before reaching the final specicication.
+by such an inappropriate protocol before reaching the final specification.
 
 \subsection{Debugging}
 An OpenXM server may allow definition and execution of functions
@@ -199,7 +199,7 @@ such functions on the server, various supports are possible. If
 servers are executed on X window system, then the control server can
 attach an {\tt xterm} to the standard outputs of the engine, which
 makes it possible to display messages from the engine. Furthermore, if
-the engine provides an inteface to input commands which directly
+the engine provides an interface to input commands which directly
 controls the engine, then debugging of user define programs will be
 possible. For example {\tt Risa/Asir} provides a function {\tt
 debug()} to debug user defined functions. {\tt ox\_asir}, which is
@@ -208,5 +208,5 @@ debug commands when {\tt debug()} is executed on the server.
 As the responses to the commands are displayed on the {\tt xterm},
 the debugging similar to that on usual terminals is possible.
 Moreover one can send {\tt SIGINT} by using {\tt SM\_control\_intr}
-and it provides a similar functinality to entering the debugging
+and it provides a similar functionality to entering the debugging
 mode from a keyboard interruption.
