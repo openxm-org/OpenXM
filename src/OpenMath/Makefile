@@ -1,8 +1,8 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.7 2000/01/13 12:35:56 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.8 2000/01/17 10:41:51 tam Exp $
 
 
-#JAVADIR = /usr/local/jdk1.1.8
+JAVADIR = /usr/local/jdk1.1.8
 LIBDIR = ../../lib/java-support
 
 
