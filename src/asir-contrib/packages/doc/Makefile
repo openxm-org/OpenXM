@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.16 2001/05/27 11:00:05 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.17 2001/06/18 01:40:03 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -21,11 +21,11 @@ DVIPS=dvips -f
 OXWEAVE= ../../../kxx/oxweave
 TEXI2HTML=texi2html -menu -split_node
 
-JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi
-EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi
+JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro.texi Diff.texi Dmodule.texi Matrix.texi
+EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-eg.texi cman-eg.texi
 
 all : $(JPSRCS) $(EGSRCS)
-install : install-document install-help
+install : install-document install-help install-html-help
 
 names-ja.texi : names.oxweave
 	/bin/rm -f names-ja.texi
@@ -180,7 +180,7 @@ oxtigers-eg.texi : $(CONTRIB)/tigers Makefile
 	/bin/rm -f oxtigers-eg.texi
 	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/tigers >oxtigers-eg.texi
 
-help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
+gen-help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
 	-rm -rf tmp help-eg
 	mkdir help-eg tmp
 	cp cman-eg.texi $(EGSRCS) tmp
@@ -189,28 +189,28 @@ help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
 ## duplicate some help files
 	-(cd help-eg; cp sm1_hilbert hilbert_polynomial)
 
-help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
-	-rm -rf tmp help-jp
-	mkdir help-jp tmp
-	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp/$$i; done
-	-(cd tmp; makeinfo --force cman.texi)
-	(cd help-jp; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
+gen-help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
+	-rm -rf tmp-ja help-jp
+	mkdir help-jp tmp-ja
+	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp-ja/$$i; done
+	-(cd tmp-ja; makeinfo --force cman.texi)
+	(cd help-jp; for i in ../tmp-ja/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
 ## duplicate some help files
 	-(cd help-jp; cp sm1_hilbert hilbert_polynomial)
 
-html-en: help-eg
+gen-html-en: gen-help-eg
 	-rm -rf html-en
 	-mkdir html-en
 	-cp tmp/*.texi html-en
 	-(cd html-en; ${TEXI2HTML} cman-eg.texi)
 
-html-ja: help-jp
+gen-html-ja: gen-help-jp
 	-mkdir html-ja
-	-cp tmp/*.texi html-ja
-	-cp tmp/cman.texi html-ja/cman-ja.texi
+	-cp tmp-ja/*.texi html-ja
+	-cp tmp-ja/cman.texi html-ja/cman-ja.texi
 	-(cd html-ja; ${TEXI2HTML} cman-ja.texi)
 
-help: help-eg help-jp
+help: gen-help-eg gen-help-jp
 
 install-help: help
 	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
@@ -220,7 +220,7 @@ install-help: help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	-cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 
-install-html-help: html-en html-ja
+install-html-help: gen-html-en gen-html-ja
 	-( tar cf - html-en | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 	-( tar cf - html-ja | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 
@@ -243,4 +243,4 @@ clean-document :
 
 clean :
 	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi
-	/bin/rm -rf help-jp help-eg tmp html-en html-ja
+	/bin/rm -rf help-jp help-eg tmp tmp-ja html-en html-ja
