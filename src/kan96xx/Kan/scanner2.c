@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.5 2004/09/10 22:21:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.6 2004/09/12 00:26:21 takayama Exp $ */
 /*  scanner2.c (SM StackMachine) */
 /* export: struct tokens decompostToTokens(char *str,int *sizep);
    scanner2.c is for getting tokens from a string.
@@ -106,7 +106,7 @@ static int getSM()
 	fprintf(stderr,"\n");
   }
 
-  c = StringSM[StrpSM++];
+  c = (unsigned char) StringSM[StrpSM++];
   if (c == '\0') {
     StrpSM--;return(EOF);
   } else return(c);
