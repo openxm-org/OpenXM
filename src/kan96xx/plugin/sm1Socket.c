@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.16 2004/02/23 09:03:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.17 2004/02/25 23:14:35 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -61,7 +61,7 @@ struct object KsocketOpen(struct object obj) {
 
   /* fprintf(stderr,"Hello from open.\n"); */
   if ((myhost = gethostbyname(serverName)) == NULL) {
-    errorMsg1s("Bad server name.");
+    perror("gethostbyname"); errorMsg1s("Bad server name.");
   }
   bzero((char *)&me,sizeof(me));
   me.sin_family = AF_INET;
@@ -70,25 +70,25 @@ struct object KsocketOpen(struct object obj) {
         &me.sin_addr,myhost->h_length);
 
   if ((s_waiting = socket(AF_INET,SOCK_STREAM,0)) < 0) {
-    errorMsg1s("Socket allocation is failed.");
+    perror("socket"); errorMsg1s("Socket allocation is failed.");
   }
 
   on=1; setsockopt(s_waiting,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on)); 
   /* important */
   if (bind(s_waiting,(struct sockaddr *) &me,sizeof(me)) == -1) {
     fprintf(stderr,"Bind error. Error no is %d. See /usr/include/sys/errno.h.\n",errno);
-    errorMsg1s("cannot bind");
+    perror("bind"); errorMsg1s("cannot bind");
   }
 
   tt = sizeof(me);
   if (getsockname(s_waiting,(struct sockaddr *)&me,&tt) < 0) {
     fprintf(stderr,"getsockname error. Error no is %d. See /usr/include/sys/errno.h.\n",errno);
-    errorMsg1s("cannot getsockname");
+    perror("getsockname"); errorMsg1s("cannot getsockname");
   }
 
   
   if (listen(s_waiting,MAX_LISTEN_QUEUE) < 0) {
-    errorMsg1s("Listen failed");
+    perror("listen"); errorMsg1s("Listen failed");
   }
   /*  
       fprintf(stderr,"Done the initialization. port =%d\n",ntohs(me.sin_port));
@@ -135,7 +135,7 @@ struct object KsocketConnect(struct object obj) {
 
 
   if ((servhost = gethostbyname(serverName)) == NULL) {
-    errorMsg1s("bad server name.\n");
+    perror("gethostbyname"); errorMsg1s("bad server name.\n");
   }
   bzero((char *)&server,sizeof(server));
   server.sin_family = AF_INET;
@@ -144,13 +144,13 @@ struct object KsocketConnect(struct object obj) {
         (char *)&server.sin_addr,servhost->h_length);
 
   if ((socketid = socket(AF_INET,SOCK_STREAM,0)) <0) {
-    errorMsg1s("socket allocation is failed.\n");
+    perror("socket"); errorMsg1s("socket allocation is failed.\n");
   }
   if (!Quiet) {
     fprintf(stderr,"Trying to connect port %d, ip=%x\n",ntohs(server.sin_port),server.sin_addr);
   }
   if (connect(socketid,(struct sockaddr *)&server,sizeof(server)) == -1) {
-    errorMsg1s("cannot connect");
+    perror("connect"); errorMsg1s("cannot connect");
   }
   /* fprintf(stderr,"connected.\n"); */
   robj = newObjectArray(2);
@@ -182,11 +182,11 @@ struct object KsocketAccept(struct object obj) {
     fprintf(stderr,"Error in accept. Retrying (KsocketAccept).\n");
     /* Code added for strange behavior on cygwin. */
     if ((news = accept(s,NULL,NULL)) < 0) {
-      errorMsg1s("Error in accept. Retry failed.");
+      perror("accept"); errorMsg1s("Error in accept. Retry failed.");
     }
   }
   if (close(s) < 0) {
-    errorMsg1s("Error in closing the old socket.");
+    perror("close"); errorMsg1s("Error in closing the old socket.");
   }
   robj = newObjectArray(1);
   putoa(robj,0,KpoInteger(news));
@@ -222,11 +222,11 @@ struct object KsocketAccept2(struct object obj) {
     fprintf(stderr,"Error in accept. Retrying (KsocketAccept2).\n");
     /* Code added for strange behavior on cygwin. */
     if ((news = accept(s,NULL,NULL)) < 0) {
-      errorMsg1s("Error in accept. Retry failed.");
+      perror("accept"); errorMsg1s("Error in accept. Retry failed.");
     }
   }
   if (close(s) < 0) {
-    errorMsg1s("Error in closing the old socket.");
+    perror("close"); errorMsg1s("Error in closing the old socket.");
   }
   robj = newObjectArray(1);
   putoa(robj,0,KpoInteger(news));
@@ -244,12 +244,12 @@ int KsocketSelect0(int fd,int t) {
     if (select(fd+1,&readfds,(fd_set *)NULL,(fd_set *)NULL,&timeout)<0) {
       /* It must be fd+1 !,  Not fd. */
       fprintf(stderr,"Select error. Error no is %d. See /usr/include/sys/errno.h.\n",errno);
-      errorMsg1s("KsocketSelect0() : select failed.");
+      perror("select"); errorMsg1s("KsocketSelect0() : select failed.");
       return(0);
     }
   }else{ /* block */
     if (select(fd+1,&readfds,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL)<0) {
-      errorMsg1s("KsocketSelect0() : select failed.");
+      perror("select"); errorMsg1s("KsocketSelect0() : select failed.");
       fprintf(stderr,"Select error. Error no is %d. See /usr/include/sys/errno.h.\n",errno);
       return(0);
     }
@@ -345,12 +345,12 @@ struct object KsocketSelectMulti(struct object obj)
     if (select(fd+1,&readfds,(fd_set *)NULL,(fd_set *)NULL,&timeout)<0) {
       /* It must be fd+1 !,  Not fd. */
       fprintf(stderr,"Select error. Error no is %d. See /usr/include/sys/errno.h.\n",errno);
-      errorMsg1s("KsocketSelectMulti() : select failed.");
+      perror("select"); errorMsg1s("KsocketSelectMulti() : select failed.");
     }
   }else{ /* block */
     if (select(fd+1,&readfds,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL)<0) {
       fprintf(stderr,"Select error. Error no is %d. See /usr/include/sys/errno.h.\n",errno);
-      errorMsg1s("KsocketSelectMulti() : (block) select failed.");
+      perror("select"); errorMsg1s("KsocketSelectMulti() : (block) select failed.");
     }
   }
   robj = newObjectArray(size);
@@ -401,6 +401,7 @@ struct object KsocketRead(struct object obj) {
     if (datasize - totalsize > 0) {
       n = read(socketid,data+totalsize,datasize-totalsize);
       if (n < 0) {
+		perror("read");
         errorMsg1s("Read error.");
       }
       if (n < datasize-totalsize) {
@@ -438,6 +439,8 @@ struct object KsocketWrite(struct object obj) {
   struct object ob2;
   int socketid;
   int r;
+  int k,k0;
+  char *s;
   if (obj.tag != Sarray) {
     errorMsg1s("KsocketWrite([integer socketid, string data])");
   }
@@ -453,8 +456,18 @@ struct object KsocketWrite(struct object obj) {
   if (ob2.tag != Sdollar) {
     errorMsg1s("KsocketWrite([integer socketid, string data]) : the second argument must be a string.");
   }
-  r = write(socketid,KopString(ob2), strlen(KopString(ob2)));
-  return(KpoInteger(r));
+  s = KopString(ob2);
+  k0 = k = strlen(s);
+  while (1) {
+    r = write(socketid,s,k);
+    if (r < 0) {
+      perror("write"); errorMsg1s("KsocketWrite: write failed.");
+    }
+    if (r >= k) break;
+    k -= r;
+    s = &(s[r]);
+  }
+  return(KpoInteger(k0));
 
 }
 struct object KsocketClose(struct object obj) {
@@ -510,6 +523,7 @@ struct object KsocketReadByte(struct object obj) {
   
   n = read(socketid,data,1);
   if (n < 0) {
+	perror("read");
     errorMsg1s("Read error.");
     robj = KpoInteger(-1);
     return(robj);
@@ -550,28 +564,33 @@ struct object KsocketWriteByte(struct object obj) {
   if (ob2.tag == Sinteger) {
     data[0] = KopInteger(ob2);
     r = write(socketid,data, 1);
+    if (r < 0) {
+	  perror("write"); errorMsg1s("KsocketWriteByte: write error");
+    }
   }else{
     n = getoaSize(ob2); kk = 0; r = 0;
     for (i=0; i<n; i++) {
       if (getoa(ob2,i).tag != Sinteger)
-	    errorMsg1s("KsocketWriteByte([integer socketid, int | array of int]) : elements of the second argument must be integers.");
+        errorMsg1s("KsocketWriteByte([integer socketid, int | array of int]) : elements of the second argument must be integers.");
       data[kk] = KopInteger(getoa(ob2,i));
       kk++;
       if (kk >= DATA_SIZE) {
-	r0 = write(socketid,data,kk);
-	if (r0 != kk) {
-	  fprintf(stderr,"Warning: Could not write to the socket.\n");
-	  return(KpoInteger(r+r0));
-	}
+        r0 = write(socketid,data,kk);
+        if (r0 < 0) { perror("write"); errorMsg1s("write failed."); }
+        if (r0 != kk) {
+          fprintf(stderr,"Warning: Could not write to the socket.\n");
+          return(KpoInteger(r+r0));  /* bug: we should retry. */
+        }
         r += r0;
-	kk = 0;
+        kk = 0;
       }
     }
     if (kk > 0) {
       r0 = write(socketid,data,kk);
+      if (r0 < 0) { perror("write"); errorMsg1s("write failed."); }
       if (r0 != kk) {
-	fprintf(stderr,"Warning: Could not write to the socket.\n");
-	return(KpoInteger(r+r0));
+        fprintf(stderr,"Warning: Could not write to the socket.\n");
+        return(KpoInteger(r+r0));
       }
       r += r0;
     }
