@@ -1,8 +1,8 @@
-$OpenXM: OpenXM/doc/OpenXM-specs/ox-rfc-104.oxw,v 1.1 2004/09/18 11:40:16 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-specs/ox-rfc-104.oxw,v 1.2 2004/09/19 12:17:40 takayama Exp $
 /*&C
 
 OX-RFC: 104                                    Nobuki Takayama
-                                               September 18, 2004
+                                               October 14, 2004
 
 */
 
@@ -290,10 +290,31 @@ HTTP 準拠のエラーの他, CMO エラー object を responseEncoding 
 
   exportedCommands
      実行可能な関数名
-     [名前,引数の数] のリストである. 引数の数が -1 の場合引数は不定.
+
+     値は
+     [名前,引数の数,引数1のデータ型, 引数2のデータ型, ...] 形式のリストである. 
+     引数の数が -1 の場合引数は不定.
+     引数のデータ型は省略してもよい.
+
+     データ型の表現方法は XML name space の表記方法を用い, 文字列型で戻す.
+     なおPolymorphic な関数の場合は同じ関数名で表記してかまわない.
+     例:
+      ["gcd", 2, 
+       "<cmo:cmo_int32 xmlns:cmo="http://www.openxm.org/ox-rfc-100.xml">",
+       "<cmo:cmo_int32 xmlns:cmo="http://www.openxm.org/ox-rfc-100.xml">" ]
+     
 
   resourceLimit
      [time,値], [memory,値] 等の リスト
+
+  注意: systemName, systemVersion,   acceptOXtags, acceptSMtags, acceptCMOtags
+   は現在の MathCap の戻す情報にほかならない.
+
+  注意:   ある一定のサーバでは変数に格納されたデータも関数として取り出す
+
+  systemName は Java の package の命名方法の真似をする.
+   例:  org.openxm.ox_sm1
+        org.openxm.ox_polymake_2
 
 */
 
@@ -334,18 +355,74 @@ OpenXM grid のディレクトリ情報は
 
 OpenXM directory サーバはこれらの情報を検索して返答する. 
 Directory サーバもまた OpenXM エンジンである.
+たとえば factor をキーワードとする
 grep 検索は以下のとおり.
-   (OX_DATA,(CMO_STRING,"key words")) 
+   (OX_DATA,(CMO_STRING,"factor")) 
    (OX_DATA,(CMO_INT32,1))
    (OX_DATA,(CMO_STRING,"ox104_grepDirectoryInfo"))
    (OX_COMMAND,(SM_execute))
    (XO_COMMAND,(SM_popCMO))
 同等な機能を実現する OoHG 用のキーワードとして
-
-     grepDirectoryInfo="key words"
-
+     grepDirectoryInfo
 がある.
+例:     grepDirectoryInfo="factor"
 
+*/
+
+//&en @@@OX-104 Directory service
+//&ja @@@OX-104 Directory サービス
+/*&ja
+
+Directory サーバはいわゆる agent の一種である.
+Directory サーバは個人のローカルマシンで動作させてよいが,
+ox-rfc-104 では anonymous な計算サービスの検索のため,
+いわゆる根となるべき directory server を以下のように定義する.
+URLは以下のとおり.
+   http://ox104_directory.openxm.org/cgi-bin/ox104_directory.sh
+   http://ox104_directory.math.kobe-u.ac.jp/cgi-bin/ox104_directory.sh
+   http://ox104_directory.math.kyushu-u.ac.jp/cgi-bin/ox104_directory.sh
+   http://ox104_directory.s.kanazawa-u.ac.jp/cgi-bin/ox104_directory.sh
+
+OX-server ox104_directory は次の関数をもつ.
+  1. ox104_findSystem(String systemName)
+
+      ox サーバを検索して戻す. 見付けたものを (cmo) リストとする.
+      例:
+        ox104_findSystem("org.openxm.ox_polymake_2");
+       [server=
+        [url="http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-polymake.sh",
+         protocol="org.openxm.ox-rfc-104",
+         description="CGI 版の polymake サーバ. Version 2 ベース",
+         version="??",
+         loadAverage=0,
+         cpuType=, memory=, anonymous=]]
+
+      なお directoryServer=[...] として情報が戻る場合は,
+      あらためてそのサーバに聞く必要がある.
+
+      例:
+        ox104_findSystem("org.openxm.ox_sm1");
+       [localServer=
+        [path="/usr/local/OpenXM/bin/ox_sm1",
+         protocol="org.openxm.ox-rfc-100"
+        ]]
+        
+  2. ox104_grepDirectoryInfo(String key)
+       情報を grep して該当するサーバを戻す.
+
+OX-server ox104_directory は cash 機能を持つべきである.
+サーバは機能の制限をしている場合がある.
+その場合サーバに mathcap2 を問い合わせる必要がある.
+*/
+
+//&en @@@list of system names
+//&ja @@@システム名のリスト
+
+/*&C
+    org.openxm.ox_polymake_2
+    org.openxm.ox_asir
+    org.openxm.ox_sm1
+    << It has not yet been completed. >>
 */
 
 //&ja @@@anonymous@host の RSA public key の入手方法
