@@ -1,4 +1,4 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/kxx/oxlog.c,v 1.3 1999/12/15 11:31:57 takayama Exp $*/
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -133,7 +133,7 @@ char *which(char *prog, char *path_env)
   while (tok != NULL) {
     char *path = malloc(strlen(tok)+strlen(prog)+2);
     sprintf(path, "%s/%s", tok, prog);
-    if (access(path, X_OK|R_OK) == 0) {
+    if (access(path, X_OK&R_OK) == 0) {
       return path;
     }
     free(path);
