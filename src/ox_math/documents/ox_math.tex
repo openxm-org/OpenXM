@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.2 1999/11/02 06:12:00 ohara Exp $
 
 \documentclass{jarticle}
 \title{Mathematica の Open XM 化について
@@ -131,23 +131,67 @@ SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap(受け取るだけ
 で何もしない)である。
 
 \section{Mathematica を OX のクライアントに}
+OpenXM クライアントは Mathematica の外部プログラム(math2ox)の形で
+実現されている。
+すなわち、Mathematica -- math2ox の間は MathLink プロトコルで、
+math2ox -- OpenXM サーバの間は OpenXM プロトコルで通信し、
+math2ox が適切に情報を変換しながらやりとりする。
+その意味で wrapper の一種であるとも言える。
 
+利用するには、最初に
 \begin{verbatim}
 In[1]:= Install["math2ox"]
 \end{verbatim}
-とすると、外部プログラムをロードし、
+として、math2ox をロードしなければならない。
+Mathematica に新たに定義されるコマンドは、
+{\tt OxStart[s\_String], OxStartInsecure[s\_String],
+OxExecute[s\_String], OxParse[s\_String], OxReceive[],
+OxPopCMO[], OxPopString[], OxClose[], OxReset[]}
+の9つである。
 
+math2ox をロードしたら、
 \begin{verbatim}
 In[2] := OxStart["ox_sm1"]
 \end{verbatim}
-によって OpenXM サーバに接続する。接続先は ox\_sm1 である。
-
-接続が成功したら適当にデータを送ってみよう。
-利用できるコマンドは
-{\tt OxStart[s\_String], OxExecute[s\_String], OxPopString[], OxClose[], OxReset[]}
-の五つである。計算が終わったら、
+によって OpenXM サーバに接続する。この場合の接続先は ox\_sm1 である。
+もちろん 
 \begin{verbatim}
-In[3] := OxClose[]
+In[2] := OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
+\end{verbatim}
+のようにして、insecure モードで接続してもよい。ただしこの場合は、
+あらかじめ {\tt Run[]} 等で、OpenXM サーバを起動しておかなければならない。
+
+接続が成功したらデータを送ってみよう。
+\begin{verbatim}
+In[3] := OxParse["(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
+\end{verbatim}
+のように CMO expression を指定することによって、
+任意の CMO を送信できる。
+正しくない CMO の場合には、何も送信されない。
+また、CMO ではなく、
+\begin{verbatim}
+In[4] := OxParse["(OX_COMMAND, (SM_popCMO))"]
+\end{verbatim}
+などとして、OX メッセージの形で記述することもできる。
+注意しなければならないのは、SM コマンドの場合、OX スタックマシンから
+OX メッセージが送られてくる場合があるが、OxParse[] を用いた場合、
+このメッセージは自動的には受信しない(現在の仕様では)。したがって明示的に
+受信する必要がある。そのためには
+\begin{verbatim}
+In[5] := OxReceive[]
+\end{verbatim}
+とするだけでよい。返ってくるオブジェクトは CMO に対応するものである。
+\begin{verbatim}
+In[6] := OxPopCMO[]
+\end{verbatim}
+を用いる場合にはもちろん {\tt OxReceive[]} を呼び出す必要はない。
+
+計算を実行するには {\tt OxExecute[]}
+(SM\_executeStringByLocalParser) か、適切な OX メッセージを送信すること。
+
+計算が終わったら、
+\begin{verbatim}
+In[7] := OxClose[]
 \end{verbatim}
 とすると、接続が終了する。
 
