@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.10 2000/03/15 15:02:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.11 2000/03/16 04:28:25 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -85,7 +85,7 @@ public class OpenXM implements Runnable{
   public synchronized void resetConnection(){
     debug("control: stopping computer process...");
     try{
-      control.sendCMO(new CMO_INT32(0));
+      control.send(new CMO_INT32(0));
     }catch(IOException e){
     }catch(MathcapViolation e){}
     synchronized(stream){

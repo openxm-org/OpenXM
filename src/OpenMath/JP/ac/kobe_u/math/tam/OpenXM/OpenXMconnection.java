@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.14 2000/03/15 17:58:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.15 2000/03/16 04:28:25 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -7,23 +7,13 @@ import java.io.*;
 import java.net.*;
 
 class OpenXMconnection{
-  protected int serial_num = 0x12345678;
+  private int serial = 0;
   private Socket socket = null;
   private InputStream  is = null;
   private OutputStream os = null;
   private int order = OX_BYTE_NETWORK_BYTE_ORDER;
   private CMO_MATHCAP mathcap = null;
   private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-  // OX message_tag
-  final public static int OX_COMMAND                  = 513;
-  final public static int OX_DATA                     = 514;
-  final public static int OX_SYNC_BALL                = 515;
-  final public static int OX_DATA_WITH_LENGTH         = 521;
-  final public static int OX_DATA_OPENMATH_XML        = 523;
-  final public static int OX_DATA_OPENMATH_BINARY     = 524;
-  final public static int OX_DATA_MP                  = 525;
-  final public static int OX_PRIVATE                  = 0x7fff0000;
 
   // byte order (support network byte order only)
   final public static int OX_BYTE_NETWORK_BYTE_ORDER = 0;
@@ -90,32 +80,23 @@ class OpenXMconnection{
   }
 
   public void send(OXbody object) throws IOException,MathcapViolation{
-    this.write(new OXmessage(serial_num,object));
+    this.write(new OXmessage(serial++,object));
   }
 
-  public void sendCMO(CMO object) throws IOException,MathcapViolation{
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(bos);
-
+  public CMO[] getMathcap(int OXtag) throws IOException,MathcapViolation{
     if(mathcap != null){
       CMO[] list =((CMO_LIST)mathcap.getList().getElements()[2]).getElements();
 
       for(int i=0;i<list.length;i++){
 	CMO[] datacap = ((CMO_LIST)list[i]).getElements();
 
-	if(((CMO_INT32)datacap[0]).intValue() == OX_DATA){
-	  CMO[] tagcap = ((CMO_LIST)datacap[1]).getElements();
-
-	  CMO.mathcap = new int[tagcap.length];
-	  for(int j=0;j<tagcap.length;j++){
-	    CMO.mathcap[j] = ((CMO_INT32)tagcap[j]).intValue();
-	  }
-	  break;
+	if(((CMO_INT32)datacap[0]).intValue() == OXtag){
+	  return datacap;
 	}
       }
     }
 
-    this.write(new OXmessage(serial_num,object));
+    return null;
   }
 
   public void sendOX_SYNC_BALL() throws IOException,MathcapViolation{

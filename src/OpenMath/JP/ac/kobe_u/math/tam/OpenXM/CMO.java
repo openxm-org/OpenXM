@@ -1,13 +1,11 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.19 2000/03/15 15:02:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.20 2000/03/15 17:58:06 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
 abstract public class CMO extends OXbody{
-  public static int[] mathcap = null;
-
   final public static int LARGEID     = 0x7f000000;
   final public static int ERROR   = ( LARGEID +1 );
   final public static int ERROR2  = ( LARGEID +2 );
@@ -33,9 +31,9 @@ abstract public class CMO extends OXbody{
 
   final public static int RATIONAL                   = 34;
 
-  final public static int CMO_64BIT_MACHINE_DOUBLE           = 40;
+  final public static int CMO_64BIT_MACHINE_DOUBLE       = 40;
   final public static int ARRAY_OF_64BIT_MACHINE_DOUBLE  = 41;
-  final public static int CMO_128BIT_MACHINE_DOUBLE          = 42;
+  final public static int CMO_128BIT_MACHINE_DOUBLE      = 42;
   final public static int ARRAY_OF_128BIT_MACHINE_DOUBLE = 43;
 
   final public static int BIGFLOAT          = 50;
@@ -46,14 +44,6 @@ abstract public class CMO extends OXbody{
   final public static int LAMBDA             = 62;
 
   final public static int PRIVATE = 0x7fff0000;
-
-  /*
-  public CMO(){}
-
-  public CMO(InputStream is) throws IOException{
-    //DataInputStream is;
-  }
-  */
 
   abstract protected int DISCRIMINATOR();
 
@@ -66,11 +56,14 @@ abstract public class CMO extends OXbody{
 
   final public void write(OpenXMconnection os)
        throws IOException,MathcapViolation{
+    CMO[] mathcap
+      = ((CMO_LIST)(os.getMathcap(OXmessage.OX_DATA))[1]).getElements();
+
     if(mathcap != null){ // check mathcap
       int i=0;
 
       for(;i<mathcap.length;i++){
-	if(mathcap[i] == this.DISCRIMINATOR()){
+	if(((CMO_INT32)mathcap[i]).intValue() == this.DISCRIMINATOR()){
 	  break;
 	}
       }
