@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.26 2004/09/09 08:50:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.27 2004/09/11 12:13:41 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -148,8 +148,8 @@ struct object Kextension(struct object obj)
     obj1 = getoa(obj,1);
     if (obj1.tag != Sinteger) errorKan1("%s\n","[(chattrs)  num] extension.");
     m = KopInteger(obj1);
-    if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT))
-      errorKan1("%s\n","The number must be 0, 1 or 2.");
+	/* if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT || m == ATTR_INFIX))
+	   errorKan1("%s\n","The number must be 0, 1 or 2.");*/
     putUserDictionary2((char *)NULL,0,0,m | SET_ATTR_FOR_ALL_WORDS,
                        CurrentContextp->userDictionary);
   }else if (strcmp(key,"keywords")==0) {
@@ -318,8 +318,8 @@ struct object Kextension(struct object obj)
     if (obj1.tag != Sinteger) errorKan1("%s\n","[(chattr)  num symbol] extension.");
     if (obj2.tag != Sstring)  errorKan1("%s\n","[(chattr)  num symbol] extension.");
     m = KopInteger(obj1);
-    if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT))
-      errorKan1("%s\n","The number must be 0, 1 or 2.");
+	/* if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT || m == ATTR_INFIX))
+	   errorKan1("%s\n","The number must be 0, 1 or 2.");*/
     putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
                        m,CurrentContextp->userDictionary);
   }else if (strcmp(key,"getattr")==0) {

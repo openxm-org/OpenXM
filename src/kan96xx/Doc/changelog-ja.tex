@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.5 2004/09/06 01:52:27 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.6 2004/09/11 03:18:02 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -162,6 +162,27 @@ list $B$N(B {\tt cons} $B$rF3F~(B.  rest $B$bF3F~(B. join $B$O;H$($k$,4m8
 {\tt Kan/smacro.sm1} 1.6 
 \item $B$=$NB>$O%i%$%V%i%jFbIt$G(B {\tt ,,} $B$r(B {\tt \_\_} $B$X(B,
 {\tt ,,,} $B$r(B {\tt \_\_\_} $B$XJQ99$7$?(B.
+\end{enumerate}
+
+\section{2004-09-11,12, infix operator $B$rF3F~(B}
+\begin{enumerate}
+\item {\tt getattr} $B$r2C$($?(B (step 1). 
+\item {\tt attr} $B$K(B {\tt ATTR\_INFIX} $BB0@-(B bit $B$rN)$F$F(B,
+infix operator $B$H$9$k(B.
+\item {\tt attr} $B$N(B PROTECT $BB0@-$r(B bit $B$G=hM}$9$k$h$&$KJQ99(B (step 2).
+$B%F%9%H$O(B {\tt k0} $B$G(B
+\begin{verbatim}
+sm1(" [(getattr) /cons] extension :: ");
+cons = 1;
+\end{verbatim}
+Warning $B$,I=<($5$l$k$+(B?
+\item infix $BB0@-$,$"$k$H$-(B, {\tt getokenSM(GET)} $B$G<!$N(B token $B$rFI$_9~$_(B
+$B$=$l$r(B {\tt executeToken} $B$7$F$+$i(B, infix $BB0@-$N$"$k%^%/%m$r<B9T$9$l$P(B
+$B$$$$$+$H$$$&$H(B, $B$=$l$G$O(B top level  $B$N=hM}$7$+$G$-$J$$(B.
+$B$?$H$($P(B, tokenArray $B$r=gHV$K=hM}$7$F$$$k$h$&$J>l9g$O$@$a(B.
+$B$h$C$F(B, {\tt executeToken} $B$NLa$jCM$N(B status $B$NCM$r(B
+$BMQ$$$k(B.  status $B$O(B {\tt loop} $B$+$i(B {\tt exit} $B$9$k$H$-$K$b;H$o$l$F$$$k(B
+$B$N$G(B, status $B$NH=DjJ}K!$r8+D>$9I,MW$,$"$k(B.
 \end{enumerate}
 
 \end{document}

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.3 2003/11/20 09:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.4 2004/09/11 12:13:41 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -130,13 +130,14 @@ if ((ob).tag != Sarray) {fprintf(stderr,"Warning: PUTOA is for an array of objec
 #define isNullList(list) ((struct object *)NULL == list)
 #define NULLLIST (struct object *)NULL
 
-/* for dictionary */
+/* For dictionary, flag bit */
 #define SET_ATTR_FOR_ALL_WORDS 0x10
 #define PROTECT 0x1
 #define ABSOLUTE_PROTECT 0x2
 #define ATTR_INFIX       0x4
+#define ATTR_EXPORT      0x8
 
-/* For status */
+/* For status, flag bit */
 #define STATUS_EOF   -1
 #define STATUS_BREAK 0x1
 #define STATUS_INFIX 0x2

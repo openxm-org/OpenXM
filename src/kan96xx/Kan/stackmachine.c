@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.18 2004/09/05 08:08:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.19 2004/09/11 12:13:41 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -221,7 +221,7 @@ int putUserDictionary(str,h0,h1,ob,dic)
   }
   r = x;
   if (Strict2) {
-    switch((dic[x]).attr) {
+    switch(((dic[x]).attr) & (PROTECT | ABSOLUTE_PROTECT)) {
     case PROTECT:
       r = -PROTECT;   /* Protected, but we rewrite it. */
       break;
@@ -229,7 +229,7 @@ int putUserDictionary(str,h0,h1,ob,dic)
       r = -ABSOLUTE_PROTECT;  /* Protected and we do not rewrite it. */
       return(r);
     default:
-      (dic[x]).attr = 0;
+      /* (dic[x]).attr = 0; */ /* It is not necesarry, I think. */
       break;
     }
   }
