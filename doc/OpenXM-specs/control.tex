@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.5 2000/01/24 07:36:35 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.6 2000/07/27 09:51:04 ohara Exp $
 \section{Session Management}
 
 \subsection{Control server}
@@ -26,7 +26,7 @@ control servers.
 An OpenXM server has logically two I/O channels: one for exchanging
 data for computations and the other for controlling computations. The
 control channel is used to send commands to control execution on the
-server. The sample server ({\tt oxmain.c}) processes such control
+nserver. The sample server ({\tt oxmain.c}) processes such control
 messages on another process. We call such a process a {\it
 control server}. In contrast, we call a server for computation an {\it
 engine}. As the control server and the engine runs on the
@@ -44,7 +44,7 @@ to send signals to a server or to terminate a server.
 提供される。新しいコントロールサーバは以下の点で従来のものと異なる。
 \begin{enumerate}
 \item コントロールサーバは OpenXM スタックマシンであり、
-CMObject/Primitive および CMO\_ZZ をサポートする。
+CMObject/Primitive をサポートする。
 \item 計算サーバの起動はスタックマシンコマンドを介して行う。
 \item 一つのコントロールサーバから複数の計算サーバを起動できる。
 \end{enumerate}
@@ -64,8 +64,8 @@ listen, accept する。接続後、バイトオーダを決定する。バイトオーダの決定
 oxc_open(計算サーバ名, ホスト名, ポート番号, モード, ...)
 \end{verbatim}
 という形式である。ここで、「計算サーバ名」、「ホスト名」は CMO\_STRING 
-型のオブジェクト、「ポート番号」、「モード」は CMO\_INT32型 または 
-CMO\_ZZ 型のオブジェクトである。ホスト名というのはOpenXMクライアントのホ
+型のオブジェクト、「ポート番号」、「モード」は CMO\_INT32型
+のオブジェクトである。ホスト名というのはOpenXMクライアントのホ
 スト名のことである。ローカル関数の実行は SM\_executeFunction による。す
 なわち各引数を順にスタックに積み、最後にSM\_executeFunction を実行する。
 SM\_executeStringByLocalParser は利用できないので注意する。
@@ -276,4 +276,79 @@ Result: none.
 0   0   2   03   (OX_SYNC_BALL)
 \end{verbatim}
 
+\subsection{Notification from servers}
 
+/*&jp
+OpenXM サーバは, 可能であるかぎり寡黙である.
+たとえばエラーをおこしても, エラーはサーバのエンジンスタックにつまれる
+だけであり, サーバはクライアントが {\tt pop\_cmo} メッセージをおくらない
+かぎり何も送信しない.
+*/
+/*&eg
+OpenXM servers try to be quiet as far as possible.
+For example, engine errors of a server are only put on the engine stack and
+the engine does not send error packets unless the client sends the message
+{\tt pop\_cmo}.
+*/
+
+/*&jp
+OpenXM はこの原則をやぶる例外的な方法を一つ用意している.
+コントロールサーバは,
+{\tt OX\_NOTIFY} ヘッダおよびそれにつづく {\tt OX\_DATA} パケットを送る
+ことができる.
+この機能は mathcap で禁止することも可能である.
+*/
+/*&eg
+OpenXM provides a method to break this principle.
+Control server may send {\tt OX\_NOTIFY} header and an {\tt OX\_DATA} packet.
+This transmission can be prohibited by mathcap.
+*/
+
+/*&jp
+この機能をどのように使うか例をあげて説明しよう.
+{\tt Asir} の {\tt ox\_plot} サーバは, quit ボタンをもっている.
+quit ボタンがおされると canvas が消滅するが, エンジン自体は存在を
+つづける.  この状態で描画命令がくると,
+エンジンスタックに, ``canvas does not exist'' というエラーがつまれる.
+エンジンがこのエラーが生じたことを緊急に知らせたいときに
+{\tt OX\_NOTIFY} を用いる.
+*/
+/*&eg
+Let us explain how to use {\tt OX\_NOTIFY}.
+The {\tt ox\_plot} server of {\tt asir} has a quit button.
+If the quit button is pressed, the canvas dissappears, but the engine
+does not terminate.
+If the client sends drawing messages without the canvas, 
+then the engine pushes
+error packets ``canvas does not exist'' on the engine stack.
+If the engine wants to notify the error to the client immediately,
+the {\tt OX\_NOTIFY} message should be used.
+*/
+
+/*&jp
+ここで, {\tt OX\_NOTIFY} をおくるのは, コントロールプロセスで
+あることに注意しよう.
+したがってエンジンはなんらかの方法で, コントロールサーバに
+{\tt OX\_NOTIFY} をおくることを依頼しないといけない.
+OpenXM の規格では,
+ファイル {\tt /tmp/.ox\_notify.pid} に touch することでこれの
+一つの実現方法を与えている.
+ここで {\tt pid} はエンジンのプロセス番号である.
+コントロールサーバはファイル {\tt /tmp/.ox\_notify.pid} が
+touch されたことを検出したら, クライアントに
+{\tt OX\_NOTIFY} パケットおよび {\tt OX\_DATA} で {\tt cmo\_null} を送る.
+エンジンはファイルを用いてコントロールサーバに急を知らせる以外に,
+共有メモリやシグナルを用いてしらせてもよい.
+*/
+/*&eg
+Let us note that it is the control process that sends {\tt OX\_NOTIFY}.
+Therefore, the engine must ask the control server to send
+{\tt OX\_NOTIFY}.
+In the OpenXM, if the engine touches the file
+{\tt /tmp/.ox\_notify.pid}, then the control server sends
+the {\tt OX\_NOTIFY} header and the {\tt OX\_DATA} packet 
+of {\tt cmo\_null}.
+Here, {\tt pid} is the process id of the engine.
+Engines and control processes may use a shared memory or a signal
+instead of the file {\tt /tmp.ox\_notify.pid}.
+*/
