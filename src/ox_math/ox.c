@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.12 1999/11/07 12:12:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.13 1999/11/11 09:08:52 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -270,7 +270,7 @@ static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(int fd)
 
     while (len>0) {
         ob = receive_cmo(fd);
-        append_cmo_list(c, ob);
+        append_cmo_list((cmo_list *)c, ob);
         len--;
     }
     return c;
@@ -513,14 +513,12 @@ int print_cmo(cmo* c)
 {
     int tag = c->tag;
 
-#ifdef DEBUG
     symbol* symp = lookup_by_tag(tag);
     if (symp != NULL) {
-        fprintf(stderr, "local::tag = %s: ", symp->key);
+        fprintf(stderr, "(%s", symp->key);
     }else {     
-        fprintf(stderr, "local::tag = %d: ", tag);
+        fprintf(stderr, "(%d", tag);
     }
-#endif
 
     switch(tag) {
     case CMO_LIST:
@@ -530,13 +528,18 @@ int print_cmo(cmo* c)
         print_cmo_int32((cmo_int32 *)c);
         break;
     case CMO_MATHCAP:
+    case CMO_INDETERMINATE:
+    case CMO_RING_BY_NAME:
+    case CMO_ERROR2:
         print_cmo_mathcap((cmo_mathcap *)c);
         break;
     case CMO_STRING:
         print_cmo_string((cmo_string *)c);
         break;
     case CMO_NULL:
-        fprintf(stderr, "\n");
+    case CMO_ZERO:
+    case CMO_DMS_GENERIC:
+        fprintf(stderr, ")");
         break;
     default:
         fprintf(stderr, "print_cmo() does not know how to print.\n");
@@ -545,29 +548,30 @@ int print_cmo(cmo* c)
 
 int print_cmo_int32(cmo_int32* c)
 {
-    fprintf(stderr, "cmo_int32 = (%d)\n", c->i);
+    fprintf(stderr, ", %d)", c->i);
 }
 
 int print_cmo_list(cmo_list* li)
 {
     cell* cp = li->head;
-    fprintf(stderr, "length = (%d)\nlist:\n", li->length);
-    while(cp != NULL) {
+    while(cp->next != NULL) {
+		fprintf(stderr, ", ");
         print_cmo(cp->cmo);
         cp=cp->next;
     }
-    fprintf(stderr, "end of list\n");
+    fprintf(stderr, ")");
 }
 
 int print_cmo_mathcap(cmo_mathcap* c)
 {
-    fprintf(stderr, "\n");
+    fprintf(stderr, ", ");
     print_cmo(c->ob);
+    fprintf(stderr, ")");
 }
 
 int print_cmo_string(cmo_string* c)
 {
-    fprintf(stderr, "cmo_string = (%s)\n", c->s);
+    fprintf(stderr, ", \"%s\")", c->s);
 }
 
 void ox_close(ox_file_t sv)
@@ -1233,7 +1237,7 @@ static cmo_list *make_list_of_tag(int type)
 
 cmo* make_mathcap_object(int version, char *id_string)
 {
-    char sysname[]   = "ox_math";
+    char *sysname    = "ox_math";
     cmo_list *li     = new_cmo_list();
     cmo_list *li_1st = make_list_of_id(version, id_string, sysname);
     cmo_list *li_2nd = make_list_of_tag(IS_SM);
