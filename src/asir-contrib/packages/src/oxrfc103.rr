@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.1 2002/12/08 10:59:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.2 2002/12/09 02:20:48 takayama Exp $ */
 
 /* BUG: If you load glib, then you have to reset "register_handler"
 */
@@ -12,12 +12,14 @@ def ox103_get_server_type(L) {
 }
 def ox103_is_supported(L) {
   Name = ox103_get_server_type(L);
-  if ((Name == "ox_asir") || (Name == "ox_sm1")) return 1;
+  if ((Name == "ox_asir") || (Name == "ox_sm1") ||
+      (Name == "Ox_system=ox_sm1_ox_sm1_forAsir")) return 1;
   else return 0;
 }
 def ox103_reset_is_supported(L) {
   Name = ox103_get_server_type(L);
-  if ((Name == "ox_asir") || (Name == "ox_sm1") || (Name == "ox_plot")) return 1;
+  if ((Name == "ox_asir") || (Name == "ox_sm1") || (Name == "ox_plot") ||
+      (Name == "Ox_system=ox_sm1_ox_sm1_forAsir")) return 1;
   else return 0;
 }
 
