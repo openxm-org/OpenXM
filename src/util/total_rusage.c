@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/util/total_rusage.c,v 1.1 2002/10/22 08:59:42 noro Exp $ */
 
 /* outputs total virtual memory size and total cputime consumed by
    whole processes which have the specified process as their ancestor */
@@ -23,6 +23,8 @@ struct proc_info {
 	double time;  /* second */
 };
 
+void total_resource(struct proc_info *pi,int n,int rootid,int *vsize,double *time);
+
 int compare_pi(struct proc_info *a, struct proc_info *b)
 {
 	 if ( a->pid < b->pid ) return 1;
@@ -34,7 +36,8 @@ main(int argc, char **argv)
 {
 	char *nlistf,*memf;
 	char errbuf[BUFSIZ];
-	int rootid,n,i,j,pid,ppid;
+	int rootid,n,i,j,pid,ppid,total_vsize;
+	double total_time;
 	kvm_t *kd;
 	struct kinfo_proc *kp;
 	struct proc_info *pi;
@@ -59,21 +62,29 @@ main(int argc, char **argv)
 	}
 	qsort(pi,n,sizeof(struct proc_info),
 		(int (*)(const void *,const void *))compare_pi);
+	total_resource(pi,n,rootid,&total_vsize,&total_time);
+	printf("%d %f\n",total_vsize,total_time);
+}
+
+void total_resource(struct proc_info *pi,int n,int rootid,int *vsize,double *time)
+{
+	int vsize0,vsize1,i;
+	double time0,time1;
+
+	vsize0 = 0;
+	time0 = 0;
 	for ( i = 0; i < n; i++ ) {
-		pid = pi[i].pid;	
-		if ( pid == rootid ) {
-			printf("%d %f\n",pi[i].vsize,pi[i].time);
-			exit(0);
-		} else {
-			/* find the parent */
-			ppid = pi[i].ppid;	
-			for ( j = i+1; j < n; j++ )
-				if ( pi[j].pid == ppid )
-					break;
-			if ( j < n ) {
-				pi[j].vsize += pi[i].vsize;
-				pi[j].time += pi[i].time;
+		if ( pi[i].ppid == rootid ) {
+			if ( pi[i].pid ) {
+				total_resource(pi,n,pi[i].pid,&vsize1,&time1);
+				vsize0 += vsize1;
+				time0 += time1;
 			}
+		} else if ( pi[i].pid == rootid ) {
+			vsize0 += pi[i].vsize;
+			time0 += pi[i].time;
 		}
 	}
+	*vsize = vsize0;
+	*time = time0;
 }
