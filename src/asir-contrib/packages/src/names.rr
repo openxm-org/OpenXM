@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.15 2001/08/21 11:27:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.16 2001/08/22 01:52:44 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -191,16 +191,28 @@ def graphic_plot_3d(F,R) { NOT_YET; }
 def graphic_parametric_plot_3d(F,R) { NOT_YET; }
 
 /* Canonical function names for printing. cf. Mathematica/Output */
-def print_tex_form(F) {  
+def print_cmo_xml_form(F) { NOT_YET; }
+def print_dvi_form(F) {
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
-  return taka_tex_form(F);
+  return taka_dvi_form(F);
+}
+def print_gif_form(F) {
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return taka_gif_form(F);
 }
 def print_html_form(F) { NOT_YET; }
+def print_input_form(F) { NOT_YET;}
 def print_open_math_xml_form(F) { 
   OX_LOADFILE(Loaded_om,"om");
   return(ox_xml(F)); 
 }
-def print_cmo_xml_form(F) { NOT_YET; }
+def print_png_form(F) {
+  NOT_YET ;
+}
+def print_tex_form(F) {  
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  return taka_tex_form(F);
+}
 def print_xdvi_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return(taka_xdvi_form(F));
