@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 struct object KoxCreateClient(struct object ip,struct object portStream,
 			      struct object portControl);
 struct object KoxCloseClient(struct object client);
@@ -14,4 +15,6 @@ void KoxRemovePortFile(void);
 struct object KoxGetPort(struct object host);
 struct object KoxCreateClient2(struct object peer,struct object ipmask,struct object pass);
 struct object KoxGenPass(void);
+int KgetCmoTagOfObject(struct object obj);
+
 

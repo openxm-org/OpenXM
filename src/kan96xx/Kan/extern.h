@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -75,6 +75,7 @@ void KSpush(struct object ob);
 char * KSstringPop(void);
 int KSstackPointer(void);
 struct object KSdupErrors(void);
+struct object KSpeek(int k);
 
 /* stackmachine.c context */
 struct context *newContext0(struct context *super,char *name);

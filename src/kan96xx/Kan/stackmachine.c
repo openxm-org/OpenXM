@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.3 2000/01/21 01:08:12 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -1195,6 +1195,10 @@ void KSpush(ob)
 struct object ob;
 {
   Kpush(ob);
+}
+
+struct object KSpeek(k) {
+  return(peek(k));
 }
 
 char *KSstringPop() {

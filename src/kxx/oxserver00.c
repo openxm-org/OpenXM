@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.2 1999/11/09 11:43:35 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -224,6 +224,10 @@ nullserverCommand(ox_stream ostream) {
     if (message) fprintf(stderr," dupErrors \n");
     Sm1_dupErrors();
     break;
+  case SM_pushCMOtag:
+    if (message) fprintf(stderr," pushCMOtag \n");
+    Sm1_pushCMOtag(SerialCurrent);
+	break;
   case SM_setName:
     if (message) fprintf(stderr," setName \n");
     iresult = Sm1_setName();
@@ -273,6 +277,9 @@ nullserverCommand(ox_stream ostream) {
     if (message) fprintf(stderr,"Done.\n");
     break;
   case SM_shutdown:
+	fprintf(stderr,"Shutting down the engine.\n");
+	exit(0);
+	break;
   case SM_beginBlock:
   case SM_endBlock:
     fprintf(stderr,"This command has not yet been implemented.\n");

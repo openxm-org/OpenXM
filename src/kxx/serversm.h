@@ -13,6 +13,7 @@ int Sm1_pushError2(int serial,int no,char *message);
 char *Sm1_popErrorMessage(char *s);
 void Sm1_getsp(void);
 void Sm1_dupErrors(void);
+void Sm1_pushCMOtag(int serial);
 
 
 /********************  Object from Kan/stackm.h *************************/
@@ -62,4 +63,5 @@ void *KSmathCapByStruct(void);  /* defined plugin/cmo.c */
 char *popErrorStackByString(void);
 struct object KSdupErrors(void);
 struct object KpoInteger(int i);
+struct object KSpeek(int k);
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.3 1999/11/18 00:54:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.4 1999/11/27 01:41:11 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -677,7 +677,9 @@ static int cmoCheck00(struct object obj,int cmo[], int n) {
 #define CHECK00_N  4098      /* look up stackm.h and kclass.h */
   static int typeTrans[CHECK00_N]; 
   static int init = 0;
-  if (n == 0) return(1);  /* For null cmolist, OK. */
+  /* if n == 0, report the cmo tag of the object obj.
+	 If it cannot be translated to cmo, then return -1. */
+
   if (!init) {
     for (i=0; i<CHECK00_N; i++) {
       typeTrans[i] = 0;  /* unknown cmo number */
@@ -705,6 +707,11 @@ static int cmoCheck00(struct object obj,int cmo[], int n) {
   ttt = typeTrans[obj.tag];
   if (obj.tag == Sclass) {
     ttt = typeTrans[ectag(obj)];
+  }
+  /* Only report the cmo tag. */
+  if (n == 0) {
+	if (ttt == 0) return(-1);
+	else return(ttt);
   }
 
   for (i=0; i<n; i++) {
@@ -949,6 +956,12 @@ struct object KoxCreateClient2(struct object peer,
   rob = newObjectArray(N_OF_CLIENT_FIELDS);
   oxClientToObject(client,rob);
   return(rob);
+}
+
+int KgetCmoTagOfObject(struct object obj) {
+  int k;
+  k=cmoCheck00(obj,(int *)NULL,0);
+  return(k);
 }
 
 errorOxmisc2(char *s) {

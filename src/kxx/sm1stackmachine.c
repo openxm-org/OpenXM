@@ -176,5 +176,16 @@ void Sm1_dupErrors(void) {
   KSpush(KSdupErrors());
 }
 
+void Sm1_pushCMOtag(int serial) {
+  struct object obj;
+  int t;
+  obj = KSpeek(0);
+  t = KgetCmoTagOfObject(obj);
+  if (t != -1) {
+	KSpush(KpoInteger(t));
+  }else{
+	Sm1_pushError2(serial,-1,"The top object on the server stack cannot be translated to cmo.");
+  }
+}
 
 
