@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.11 2000/01/20 12:55:32 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.12 2000/01/21 03:19:17 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -21,13 +21,17 @@ As to the required environment, see the section "System Requirement"
 /*&jp
 
 (1)  Tar ボールより次のようにしてディレクトリ OpenXM を取り出します.
-     OpenXM はどこにおいてもかまいません.
+     OpenXM はどこにおいてもかまいません. ルートになってインストール
+     する必要もありません.
+     できれば, /usr/local/OpenXM  においてほしいと思います.
      
 */
 /*&eg
 
 (1)  Extract the directory OpenXM from the tar ball.
      You can put the directory OpenXM at any place in the file system.
+     You do not need to be a root to install it.
+     We are happy if you put OpenXM at /usr/local/OpenXM
 
 */
 /*&C
@@ -94,10 +98,20 @@ by /xxx/yyy/OpenXM.
 */
 
 //&C 
-//&jp (4) asir の利用には  key が必要です.  以下のファイルを御覧ください.
-//&eg (4) You need key to use asir.  See the following file:
-//&C OpenXM/lib/asir/asir_key
+//&jp (4) asir の利用には  key が必要です.  
+//&eg (4) You need a key to use asir.  
 //&C  
+/*&jp 
+    asir の起動時のメッセージまたは OpenXM/lib/asir/asir_key を
+    参照して, key を取得して下さい (数秒しかかかりません).
+
+*/
+/*&eg
+    Please get the key by following the instruction from asir itself or
+    that in OpenXM/lib/asir/asir_key (it takes only a few seconds
+    to get the key).
+
+*/
 
 /*&C
 
@@ -294,6 +308,17 @@ xm Version 20000116. ox_help(0); ox_help("keyword"); for help message
 [269] gnuplot("plot sin(x);");
 0
 [270] 
+
+*/
+
+/*&jp 
+
+★  sm1 クライアントの利用例
+
+*/
+/*&eg
+
+******  Example of the use of sm1 client
 
 */
 
