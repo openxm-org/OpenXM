@@ -1,10 +1,14 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.66 1999/12/24 00:01:21 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.67 1999/12/24 08:08:48 tam Exp $
 
 \usepackage{jssac}
-\title{タイのトル}
-\title{意味もない修飾過剰な語句は排除しましょう。}
+\title{
+1. 意味もない修飾過剰な語句は排除しましょう。\\
+2. 姓と名の間の2バイトの空白は何か理由があるの?
+(jssac の規約だっけ)\\
+3. せっかく fill しているのをいじらないでくれ。
+}
 
 \author{奥 谷 　 行 央\affil{神戸大学大学院自然科学研究科}
 		\mail{okutani@math.sci.kobe-u.ac.jp}
@@ -129,7 +133,11 @@ OX\_COMMAND となっているメッセージはスタックマシンへの命令であり、このメッ
 自らメッセージを送らない。
 %(例外? ox\_asir の mathcap)。
 
-サーバがクライアントから受け取ったオブジェクトはすべてスタックに積まれている。
+
+この辺はスタックマシンのところに書こう。
+
+
+サーバがクライアントから受け取ったオブジェクトはすべてスタックに積まれる。
 次いでサーバにスタックマシンへの命令を送ると、
 初めてサーバはデータをスタックに積む以外のなんらかの動作を行なう。
 このとき、必要があればサーバはスタックから必要なだけデータを取り出す。
@@ -159,14 +167,81 @@ OX\_COMMAND となっているメッセージはスタックマシンへの命令であり、このメッ
 	データを取り出し、クライアントへ送出する。
 \end{enumerate}
 
+\section{OpenXM スタックマシン}
+
+OpenXM 規約ではサーバはスタックマシンであると定義している。以下、OpenXM 
+スタックマシンと呼ぶ。この節ではOpenXM スタックマシンの構造について説明
+しよう。
+
+さて、OpenXM 規約はスタックに積まれるオブジェクトの構造までは規定しない。
+つまり、オブジェクトの構造は各数学システムごとに異なっているということで
+ある。OpenXM 規約は通信時にやりとりされる共通のデータ形式については規定
+するが、OpenXM 規約に対応した各数学システムは、通信路からデータを受け取っ
+た際に、各数学システムの固有のデータ構造に変換してからスタックに積むこと
+を意味する。この変換は1対1対応である必要はない。
+
+次に OpenXM スタックマシンの命令コードについて説明する。OpenXM スタック
+マシンにおけるすべての命令は4バイトの長さを持つ。OpenXM 規約の他の規定と
+同様に、4バイトのデータは32ビット整数と見なされるので、この論文でもその
+表記にしたがう。OpenXM スタックマシンに対する命令はスタックに積まれるこ
+とはない。現在のところ、OpenXM 規約では以下の命令が定義されている。
+
+\begin{verbatim}
+#define SM_popSerializedLocalObject 258
+#define SM_popCMO 262
+#define SM_popString 263
+
+#define SM_mathcap 264
+#define SM_pops 265
+#define SM_setName 266
+#define SM_evalName 267 
+#define SM_executeStringByLocalParser 268 
+#define SM_executeFunction 269
+#define SM_beginBlock  270
+#define SM_endBlock    271
+#define SM_shutdown    272
+#define SM_setMathCap  273
+#define SM_executeStringByLocalParserInBatchMode 274
+#define SM_getsp   275
+#define SM_dupErrors 276
+
+#define SM_DUMMY_sendcmo  280
+#define SM_sync_ball 281
+
+#define SM_control_kill 1024
+#define SM_control_reset_connection  1030
+#define SM_control_to_debug_mode 1025
+#define SM_control_exit_debug_mode 1026
+#define SM_control_ping  1027
+#define SM_control_start_watch_thread 1028
+#define SM_control_stop_watch_thread 1029
+\end{verbatim}
+
+以下、どういうときに結果をスタックに積むかエラーの場合どうするかの説明が
+必要であろう。
 
 \section{CMO のデータ構造}
 
-OpenXM 規約では、数学的オブジェクトを表現する方法として
-CMO 形式(Common Mathematical Object format)を定義している。
-この CMO 形式を使ってメッセージを送るには、
-タグを OX\_DATA にすればよい。
-CMO 形式におけるデータ構造について以下で説明するが、
+OpenXM 規約では、数学的オブジェクトを表現する方法として CMO 形式(Common
+Mathematical Object format)を定義している。この CMO 形式にしたがったデー
+タは、識別子が OX\_DATA であるようなメッセージのボディになることを想定し
+ている。
+
+CMO 形式におけるデータ構造は次のような構造をもつ。
+\begin{verbatim}
+ヘッダ     ボディ		
+\end{verbatim}
+ヘッダは4バイトである。
+ボディの長さはそれぞれのデータによって異なるが、0でもよい。
+
+\begin{verbatim}
+説明。説明。説明。説明。説明。
+説明。説明。説明。説明。説明。
+説明。説明。説明。説明。説明。
+説明。説明。説明。説明。説明。
+\end{verbatim}
+
+
 %OpenXM 規約で定義されているメッセージを実際に作成する場合、
 CMO 形式で定義されている多倍長整数を理解しておくと、
 CMO 形式の他のデータ構造だけでなく、
@@ -238,15 +313,12 @@ $4294967298 = 1 \times 2^{32} + 2$ を CMO 形式の
 
 \section{mathcap について}
 
-OpenXM 規約では、通信時に用いられるメッセージの種類を
-各ソフトウェアが制限する方法を用意している。
-これは各ソフトウェアの実装によってはすべてのメッセージを
-サポートするのが困難な場合があるからである。
-また、各ソフトウェアでメッセージの種類を拡張したい場合にも有効である。
-この制限(あるいは拡張)は CMO 形式で定義されている mathcap と
-呼ばれるデータ構造によって行われる。
-この節では mathcap のデータ構造と、
-具体的なメッセージの制限の手続きについて説明する。
+OpenXM 規約では、通信時に用いられるメッセージの種類を各ソフトウェアが制
+限する方法を用意している。これは各ソフトウェアの実装によってはすべてのメッ
+セージをサポートするのが困難な場合があるからである。また、各ソフトウェア
+でメッセージの種類を拡張したい場合にも有効である。この制限(あるいは拡張) 
+は mathcap と呼ばれるデータ構造によって行われる。この節では mathcap のデー
+タ構造と、具体的なメッセージの制限の手続きについて説明する。
 
 まず、手続きについて説明しよう。
 クライアント側の mathcap をサーバへ送ると、
