@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.17 2004/05/13 05:52:53 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.18 2004/05/15 12:00:48 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -922,7 +922,10 @@ message-quiet
        [vsize gtmp] toVectors /gtmp set
        ggall 0 gtmp put
     }{  } ifelse
-      /arg1 [gg dehomogenize ggall] def
+
+    gg getRing (oxRingStructure) dc /gb.oxRingStructure set
+
+    /arg1 [gg dehomogenize ggall] def
   ] pop
   popEnv
   popVariables
