@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.47 2003/05/25 00:00:20 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.48 2003/07/28 01:17:38 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -356,8 +356,6 @@ gen-help-en: $(EGSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
 	cp cman-en.texi $(EGSRCS) $(ENAUTO) tmp
 	-(cd tmp; makeinfo --force cman-en.texi)
 	(cd help-en; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
-## duplicate some help files
-	-(cd help-en; cp sm1_hilbert hilbert_polynomial)
 
 gen-help-ja: $(JPSRCS) $(ASIRDOC)/extract_func $(JAAUTO)
 	-$(RM) -rf tmp-ja help-ja
@@ -365,8 +363,6 @@ gen-help-ja: $(JPSRCS) $(ASIRDOC)/extract_func $(JAAUTO)
 	for i in cman-ja.texi $(JPSRCS) $(JAAUTO); do nkf -e $$i > tmp-ja/$$i; done
 	-(cd tmp-ja; makeinfo --force cman-ja.texi)
 	(cd help-ja; for i in ../tmp-ja/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
-## duplicate some help files
-	-(cd help-ja; cp sm1_hilbert hilbert_polynomial)
 
 gen-html-en: gen-help-en
 	-$(RM) -rf html-en
