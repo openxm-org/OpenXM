@@ -1,4 +1,4 @@
-rem $OpenXM$
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/asirgui-cd.bat,v 1.1 2002/01/13 07:10:16 takayama Exp $
 rem Moved from OpenXM/src/asir-contrib/win/asirgui-cd.bat,v 1.1 
 rem  2001/12/28 03:23:25 takayama Exp $
 rem
@@ -13,6 +13,7 @@ set HOME=c:\cygwin\home\nobuki
 set OpenXM_WIN_ROOT=c:\cygwin\home\nobuki\OpenXM\misc\packages\Windows\OpenXM-win
 rem set OpenXM_WIN_ROOT=\OpenXM-win
 set OpenXM_HOME=%OpenXM_WIN_ROOT%
+rem set OpenXM_HOME=/cygdrive/c/home/nobuki/OpenXM/misc/packages/Windows/OpenXM-win
 set OpenXM_HOME_WIN=%OpenXM_WIN_ROOT%
 set OPENXMHOMEWIN=%OpenXM_HOME_WIN%
 rem set OpenXM_START_EXE=%OpenXM_WIN_ROOT%\bin-windows\start.exe

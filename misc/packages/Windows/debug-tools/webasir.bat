@@ -1,4 +1,4 @@
-rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/webasir.bat,v 1.1 2002/01/13 07:10:16 takayama Exp $
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/webasir.bat,v 1.2 2002/10/22 00:56:01 takayama Exp $
 rem
 rem Set the following values
 rem
@@ -6,6 +6,7 @@ set OXWEB_POST=1
 set HOME=c:\cygwin\home\nobuki
 set OpenXM_WIN_ROOT=c:\cygwin\home\nobuki\OpenXM\misc\packages\Windows\OpenXM-win
 set OpenXM_HOME=%OpenXM_WIN_ROOT%
+rem set OpenXM_HOME=/cygdrive/c/home/nobuki/OpenXM/misc/packages/Windows/OpenXM-win
 set OpenXM_HOME_WIN=%OpenXM_WIN_ROOT%
 set OPENXMHOMEWIN=%OpenXM_HOME_WIN%
 set OpenXM_START_EXE=start

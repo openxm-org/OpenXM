@@ -1,4 +1,4 @@
-rem $OpenXM$
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/setenv1.bat,v 1.1 2002/01/13 07:10:16 takayama Exp $
 rem Batch file to set environmental variables properly on my laptop.
 rem copy this file by the command
 rem    cp setenv1.bat c:/
@@ -12,6 +12,7 @@ rem
 set HOME=c:\home
 set OpenXM_WIN_ROOT=c:\cygwin\home\nobuki\OpenXM\misc\packages\Windows\OpenXM-win
 set OpenXM_HOME=%OpenXM_WIN_ROOT%
+rem set OpenXM_HOME=/cygdrive/c/home/nobuki/OpenXM/misc/packages/Windows/OpenXM-win
 set OpenXM_HOME_WIN=%OpenXM_WIN_ROOT%
 set OPENXMHOMEWIN=%OpenXM_HOME_WIN%
 set OpenXM_START_EXE=start
