@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.4 2000/10/12 15:53:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.5 2000/11/18 04:49:55 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -15,19 +15,15 @@
 #define __inline__
 #endif
 
-/* functions related to ox.c */
-
-#define MATHCAP_FLAG_DENY   0
-#define MATHCAP_FLAG_ALLOW  1
-
 /* Open Xm File Descripter */
 typedef struct OXFILE{
-	int fd;
-	int (*send_int32)(struct OXFILE *oxfp, int int32);
-	int (*receive_int32)(struct OXFILE *oxfp);
-	int serial_number;
-	struct OXFILE *control;  /* pointer to his control server. */
-	int error;
+    int fd;
+    int (*send_int32)(struct OXFILE *oxfp, int int32);
+    int (*receive_int32)(struct OXFILE *oxfp);
+    int serial_number;
+    struct OXFILE *control;  /* pointer to his control server. */
+    struct mathcap *mathcap;
+    int error;
 } OXFILE;
 
 typedef struct {
@@ -213,9 +209,11 @@ symbol_t lookup(int i);
 char *symbol_get_key(symbol_t sp);
 
 /* for mathcap database */
-cmo_mathcap *mathcap_get();
-int  mathcap_cmo_isallow_cmo(cmo *ob);
-void mathcap_sysinfo_set(int version, char *id, char *sysname);
+mathcap *new_mathcap();
+void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[]);
+cmo_mathcap* mathcap_get(mathcap *this);
+mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc);
+int mathcap_allowQ_cmo(mathcap *this, cmo *ob);
 
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
@@ -235,6 +233,7 @@ void oxf_setopt(OXFILE *oxfp, int mode);
 void oxf_determine_byteorder_client(OXFILE *oxfp);
 void oxf_determine_byteorder_server(OXFILE *oxfp);
 OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd);
+void oxf_mathcap_update(OXFILE *oxfp, cmo_mathcap *ob);
 
 /* example: which("xterm", getenv("PATH")); */
 char *which(char *exe, const char *env);

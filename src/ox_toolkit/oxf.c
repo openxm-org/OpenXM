@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.3 2000/10/11 08:22:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.4 2000/10/12 15:53:25 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -26,10 +26,10 @@ static int receive_int32_nbo(OXFILE *oxfp);
 
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
-	int n = read(oxfp->fd, buffer, size*num);
-	if (n <= 0) {
-		oxfp->error = 1;
-	}
+    int n = read(oxfp->fd, buffer, size*num);
+    if (n <= 0) {
+        oxfp->error = 1;
+    }
     return n;
 }
 
@@ -82,8 +82,9 @@ OXFILE *oxf_open(int fd)
     oxfp->fd = fd;
     oxfp->send_int32    = send_int32_nbo;
     oxfp->receive_int32 = receive_int32_nbo;
-	oxfp->control = NULL;
-	oxfp->error = 0;
+    oxfp->control = NULL;
+    oxfp->error = 0;
+    oxfp->mathcap = NULL;
     return oxfp;
     /* oxfp->fp = fdopen(fd, "a+"); */
     /* return (oxfp->fp != NULL)? oxfp: NULL; */
@@ -91,7 +92,7 @@ OXFILE *oxf_open(int fd)
 
 OXFILE *oxf_control(OXFILE *oxfp)
 {
-	return oxfp->control;
+    return oxfp->control;
 }
 
 /* The function determines a byte order of integer on the OpenXM 
@@ -154,9 +155,9 @@ int oxf_listen(short *portp)
 {
     char localhost[MAXHOSTNAMELEN];
     if (gethostname(localhost, MAXHOSTNAMELEN)==0) {
-		return mysocketListen(localhost, portp);
-	}
-	return -1;
+        return mysocketListen(localhost, portp);
+    }
+    return -1;
 }
 
 OXFILE *oxf_connect_active(char *hostname, short port)
@@ -176,7 +177,7 @@ OXFILE *oxf_connect_passive(int listened)
 /* a password generator. */
 char *generate_otp()
 {
-	static char crypto[] = "%.,^_+-=/@0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static char crypto[] = "%.,^_+-=/@0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     static char otp[LENGTH_OF_ONETIME_PASSWORD+1] = {0};
     int i;
 
@@ -202,6 +203,14 @@ int oxf_confirm_client(OXFILE *oxfp, char *passwd)
 int oxf_confirm_server(OXFILE *oxfp, char *passwd)
 {
     return oxf_write(passwd, 1, strlen(passwd)+1, oxfp);
+}
+
+void oxf_mathcap_update(OXFILE *oxfp, cmo_mathcap *ob)
+{
+    if (oxfp->mathcap == NULL) {
+        oxfp->mathcap = new_mathcap();
+    }
+    mathcap_update(oxfp->mathcap, ob);
 }
 
 /* example: which("xterm", getenv("PATH")); */
@@ -249,16 +258,16 @@ int oxc_start(char *remote_host, short port, char *passwd)
 /*  Example: oxf_execute_cmd(oxfp, "ox_sm1"); */
 OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd)
 {
-	short port = 0;
-	int listened;
+    short port = 0;
+    int listened;
 
-	if ((listened = oxf_listen(&port)) != -1) {
-		send_ox_cmo(oxfp, (cmo *)new_cmo_int32(port));
-		send_ox_cmo(oxfp, (cmo *)new_cmo_string(cmd));
-		send_ox_cmo(oxfp, (cmo *)new_cmo_int32(2));  /* number of arguments */
-		send_ox_cmo(oxfp, (cmo *)new_cmo_string("oxc_open"));
-		send_ox_command(oxfp, SM_executeFunction);
-		return oxf_connect_passive(listened);
-	}
-	return NULL;
+    if ((listened = oxf_listen(&port)) != -1) {
+        send_ox_cmo(oxfp, (cmo *)new_cmo_int32(port));
+        send_ox_cmo(oxfp, (cmo *)new_cmo_string(cmd));
+        send_ox_cmo(oxfp, (cmo *)new_cmo_int32(2));  /* number of arguments */
+        send_ox_cmo(oxfp, (cmo *)new_cmo_string("oxc_open"));
+        send_ox_command(oxfp, SM_executeFunction);
+        return oxf_connect_passive(listened);
+    }
+    return NULL;
 }

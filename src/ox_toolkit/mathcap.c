@@ -1,50 +1,46 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.3 2000/11/18 05:49:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.4 2000/11/21 07:59:08 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
 #include <stdlib.h>
+#include <string.h>
 #include "ox_toolkit.h"
 
-/* 送信許可されている cmo, sm のリストを得る */
-#define smdb_get_allow_all(x)   mcdb_get_allow_all((x))
-#define cmodb_get_allow_all(x)  mcdb_get_allow_all((x))
-
-/* 全ての種類の cmo の送信を許可/不許可にする */
-#define cmodb_deny_all(x)   mcdb_ctl_all((x), MATHCAP_FLAG_DENY)
-#define cmodb_allow_all(x)  mcdb_ctl_all((x), MATHCAP_FLAG_ALLOW)
+#define MATHCAP_FLAG_DENY   0
+#define MATHCAP_FLAG_ALLOW  1
 
 typedef struct {
     int tag;
     int flag;
-} mcdb;
+} table;
 
-typedef struct {
-    mcdb *cmodb;
-    mcdb *smdb;
+typedef struct mathcap {
+    table *cmotbl;
+    table *smtbl;
 } mathcap;
 
+static void table_init(table *m, int key);
+static table *new_table(int *src);
+static table *table_lookup(table *tbl, int tag);
+static void table_ctl(table *tbl, int tag, int flag);
+static void table_ctl_all(table *tbl, int flag);
+static cmo_list *table_get_all(table *tbl);
+static void table_allow(table *tbl, int tag);
+static void table_deny(table *tbl, int tag);
+static void table_update(table *cmotbl, cmo_list* types);
+static int table_allowQ_tag(table *tbl, int tag);
+static int table_allowQ_cmo_list(table *cmotbl, cmo_list *ob);
+static int table_allowQ_cmo_monomial32(table *cmotbl, cmo_monomial32 *ob);
+static int table_allowQ_cmo_mathcap(table *cmotbl, cmo_mathcap *ob);
+static int table_allowQ_cmo(table *cmotbl, cmo *ob);
+static cmo_list *sysinfo_get();
 static char *new_string(char *s);
-static cmo_list *cmo_mathcap_get_cmotypes(cmo_mathcap *mc);
+static int *new_int_array(int *array);
 static cmo_list *get_messagetypes(cmo_list *ob, int type);
-static cmo_list *mcdb_get_allow_all(mcdb *db);
-static cmo_list *sysinfo_get_all();
-static int cmodb_isallow_cmo(mcdb *cmodb, cmo *ob);
-static int cmodb_isallow_cmo_list(mcdb *cmodb, cmo_list *ob);
-static int cmodb_isallow_cmo_mathcap(mcdb *cmodb, cmo_mathcap *ob);
-static int cmodb_isallow_cmo_monomial32(mcdb *cmodb, cmo_monomial32 *ob);
-static int cmodb_isallow_tag(mcdb *cmodb, int tag);
-static mcdb *mcdb_lookup(mcdb *db, int tag);
-static mcdb *new_mcdb(int *src);
-static void cmodb_allow(mcdb *cmodb, int tag);
-static void cmodb_deny(mcdb *cmodb, int tag);
-static void cmodb_update(mcdb *cmodb, cmo_list* types);
-static void mcdb_ctl(mcdb *db, int tag, int flag);
-static void mcdb_ctl_all(mcdb *db, int flag);
-static void mcdb_init(mcdb *m, int key);
-static void sysinfo_set(int version, char *version_string, char *sysname);
+static cmo_list *cmo_mathcap_get_cmotypes(cmo_mathcap *mc);
 
-static int cmodb_d[] = {
+static int cmotbl_a[] = {
     CMO_NULL,
     CMO_INT32,
     CMO_DATUM,
@@ -62,7 +58,7 @@ static int cmodb_d[] = {
     0,
 };
 
-static int smdb_d[] = {
+static int smtbl_a[] = {
     SM_popCMO,
     SM_popString,
     SM_mathcap,
@@ -73,106 +69,127 @@ static int smdb_d[] = {
     SM_shutdown,
     SM_control_kill,
     SM_control_reset_connection,
+    SM_control_spawn_server,
+    SM_control_terminate_server,
     0,
 };
-
-__inline__
-static void mcdb_init(mcdb *m, int key)
-{
-    m->tag  = key;
-    m->flag = MATHCAP_FLAG_ALLOW;
-}
-
-static mcdb *new_mcdb(int *src)
-{
-    mcdb *new;
-    int len=0;
-    int i;
-    while (src[len++] != 0) {
-    }
-    new = malloc(sizeof(mcdb)*len);
-    for(i=0; i<len; i++) {
-        mcdb_init(new+i, src[i]);
-    }
-    return new;
-}
-
-mathcap *new_mathcap_d()
-{
-    mathcap *new = malloc(sizeof(mathcap));
-    new->cmodb = new_mcdb(cmodb_d);
-    new->smdb  = new_mcdb(smdb_d);
-    return new;
-}
-
-/* 次の tag についてのキーを探す */
-static mcdb *mcdb_lookup(mcdb *db, int tag)
-{
-    while (db->tag != 0) {
-        if (db->tag == tag) {
-            return db;
-        }
-        db++;
-    }
-    return NULL;
-}
-
-/* tag に対する送信制御 */
-static void mcdb_ctl(mcdb *db, int tag, int flag)
-{
-    mcdb *e = mcdb_lookup(db, tag);
-    if (e != NULL) {
-        e->flag = flag;
-    }
-}
-
-/* 全データに対する送信制御 */
-static void mcdb_ctl_all(mcdb *db, int flag)
-{
-    while (db->tag != 0) {
-        db->flag = flag;
-        db++;
-    }
-}
-
-/* 送信許可されている tag のリストを得る */
-static cmo_list *mcdb_get_allow_all(mcdb *db)
-{
-    cmo_list *list = new_cmo_list();
-    while (db->tag != 0) {
-        if (db->flag == MATHCAP_FLAG_ALLOW) {
-            list_append(list, (cmo *)new_cmo_int32(db->tag));
-        }
-        db++;
-    }
-    return list;
-}
 
 static struct {
     int  version;
     char *version_string;
     char *sysname;
     char *hosttype;
-	int  *cmo_tags;
-	int  *sm_cmds;
-} sysinfo = {0, "NO VERSION", "NONAME", "UNKNOWN", cmodb_d, smdb_d};
+    int  *cmo_tags;
+    int  *sm_cmds;
+} sysinfo = {0, "NO VERSION", "NONAME", "UNKNOWN", cmotbl_a, smtbl_a};
 
-/* 次の tag をもつ cmo の送信が許可されているかを調べる */
-static int cmodb_isallow_tag(mcdb *cmodb, int tag)
+__inline__
+static void table_init(table *m, int key)
 {
-    while (cmodb->tag != 0 && cmodb->tag != tag) {
-        cmodb++;
-    }
-    return cmodb->flag;
+    m->tag  = key;
+    m->flag = MATHCAP_FLAG_ALLOW;
 }
 
-static int cmodb_isallow_cmo_list(mcdb *cmodb, cmo_list *ob)
+static table *new_table(int *src)
+{
+    table *new;
+    int len=0;
+    int i;
+    while (src[len++] != 0) {
+    }
+    new = malloc(sizeof(table)*len);
+    for(i=0; i<len; i++) {
+        table_init(new+i, src[i]);
+    }
+    return new;
+}
+
+/* 次の tag についてのキーを探す */
+static table *table_lookup(table *tbl, int tag)
+{
+    while (tbl->tag != 0) {
+        if (tbl->tag == tag) {
+            return tbl;
+        }
+        tbl++;
+    }
+    return NULL;
+}
+
+/* tag に対する送信制御 */
+static void table_ctl(table *tbl, int tag, int flag)
+{
+    table *e = table_lookup(tbl, tag);
+    if (e != NULL) {
+        e->flag = flag;
+    }
+}
+
+/* 全データに対する送信制御 */
+static void table_ctl_all(table *tbl, int flag)
+{
+    while (tbl->tag != 0) {
+        tbl->flag = flag;
+        tbl++;
+    }
+}
+
+/* 送信許可されている tag のリストを得る */
+static cmo_list *table_get_all(table *tbl)
+{
+    cmo_list *list = new_cmo_list();
+    while (tbl->tag != 0) {
+        if (tbl->flag == MATHCAP_FLAG_ALLOW) {
+            list_append(list, (cmo *)new_cmo_int32(tbl->tag));
+        }
+        tbl++;
+    }
+    return list;
+}
+
+/* 次の tag をもつ cmo or sm_cmd の送信を許可する */
+__inline__
+static void table_allow(table *tbl, int tag)
+{
+    table_ctl(tbl, tag, MATHCAP_FLAG_ALLOW);
+}
+
+/* 次の tag をもつ cmo or sm_cmd の送信を不許可にする */
+__inline__
+static void table_deny(table *tbl, int tag)
+{
+    table_ctl(tbl, tag, MATHCAP_FLAG_DENY);
+}
+
+static void table_update(table *cmotbl, cmo_list* types)
+{
+    cell *el = list_first(types);
+    cmo_int32 *ob;
+    while(!list_endof(types, el)) {
+        ob = (cmo_int32 *)el->cmo;
+        if (ob->tag == CMO_INT32) {
+            table_allow(cmotbl, ob->i);
+        }
+        el = list_next(el);
+    }
+}
+
+/* 次の tag をもつ cmo or sm_cmd の送信が許可されているかを調べる */
+static int table_allowQ_tag(table *tbl, int tag)
+{
+    while (tbl->tag != 0 && tbl->tag != tag) {
+        tbl++;
+    }
+    return tbl->flag;
+}
+
+static int table_allowQ_cmo_list(table *cmotbl, cmo_list *ob)
 {
     cell *el;
-    if (cmodb_isallow_tag(cmodb, ob->tag)) {
+    if (table_allowQ_tag(cmotbl, ob->tag)) {
         el = list_first(ob);
         while (!list_endof(ob, el)) {
-            if (!cmodb_isallow_cmo(cmodb, el->cmo)) {
+            if (!table_allowQ_cmo(cmotbl, el->cmo)) {
                 return MATHCAP_FLAG_DENY;
             }
             el = list_next(el);
@@ -183,55 +200,41 @@ static int cmodb_isallow_cmo_list(mcdb *cmodb, cmo_list *ob)
 }
 
 __inline__
-static int cmodb_isallow_cmo_monomial32(mcdb *cmodb, cmo_monomial32 *ob)
+static int table_allowQ_cmo_monomial32(table *cmotbl, cmo_monomial32 *ob)
 {
-    return cmodb_isallow_tag(cmodb, ob->tag)
-        && cmodb_isallow_cmo(cmodb, ob->coef);
+    return table_allowQ_tag(cmotbl, ob->tag)
+        && table_allowQ_cmo(cmotbl, ob->coef);
 }
 
 __inline__
-static int cmodb_isallow_cmo_mathcap(mcdb *cmodb, cmo_mathcap *ob)
+static int table_allowQ_cmo_mathcap(table *cmotbl, cmo_mathcap *ob)
 {
-    return cmodb_isallow_tag(cmodb, ob->tag)
-        && cmodb_isallow_cmo(cmodb, ob->ob);
+    return table_allowQ_tag(cmotbl, ob->tag)
+        && table_allowQ_cmo(cmotbl, ob->ob);
 }
 
 /* 次の cmo の送信が許可されているかを調べる */
-static int cmodb_isallow_cmo(mcdb *cmodb, cmo *ob)
+static int table_allowQ_cmo(table *cmotbl, cmo *ob)
 {
     int tag = ob->tag;
     switch(tag) {
     case CMO_LIST:
     case CMO_DISTRIBUTED_POLYNOMIAL:
-        return cmodb_isallow_cmo_list(cmodb, (cmo_list *)ob);
+        return table_allowQ_cmo_list(cmotbl, (cmo_list *)ob);
     case CMO_MATHCAP:
     case CMO_ERROR2:
     case CMO_RING_BY_NAME:
     case CMO_INDETERMINATE:
-        return cmodb_isallow_cmo_mathcap(cmodb, (cmo_mathcap *)ob);
+        return table_allowQ_cmo_mathcap(cmotbl, (cmo_mathcap *)ob);
     case CMO_MONOMIAL32:
-        return cmodb_isallow_cmo_monomial32(cmodb, (cmo_monomial32 *)ob);
+        return table_allowQ_cmo_monomial32(cmotbl, (cmo_monomial32 *)ob);
     default:
-        return cmodb_isallow_tag(cmodb, tag);
+        return table_allowQ_tag(cmotbl, tag);
     }
 }
 
-/* 次の tag をもつ cmo の送信を許可する */
-__inline__
-static void cmodb_allow(mcdb *cmodb, int tag)
-{
-    mcdb_ctl(cmodb, tag, MATHCAP_FLAG_ALLOW);
-}
-
-/* 次の tag をもつ cmo の送信を不許可にする */
-__inline__
-static void cmodb_deny(mcdb *cmodb, int tag)
-{
-    mcdb_ctl(cmodb, tag, MATHCAP_FLAG_DENY);
-}
-
 /* システム情報を得る */
-static cmo_list *sysinfo_get_all()
+static cmo_list *sysinfo_get()
 {
     cmo_list *syslist = new_cmo_list();
     cmo_int32 *ver    = new_cmo_int32(sysinfo.version);
@@ -241,7 +244,6 @@ static cmo_list *sysinfo_get_all()
     return list_appendl(syslist, ver, sname, vers, host, NULL);
 }
 
-__inline__
 static char *new_string(char *s)
 {
     char *t = malloc(sizeof(s)+1);
@@ -249,25 +251,37 @@ static char *new_string(char *s)
     return t;
 }
 
-void sysinfo_set(int version, char *vstr, char *sysname)
+static int *new_int_array(int *array)
+{
+    int *new_array;
+    int length = 0;
+    while(array[length++] != 0)
+        ;
+    new_array = malloc(sizeof(int)*length);
+    return memcpy(new_array, array, sizeof(int)*length);
+}
+
+void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[])
 {
     char *host = getenv("HOSTTYPE");
     sysinfo.hosttype = (host != NULL)? new_string(host): "UNKNOWN";
     sysinfo.sysname  = new_string(sysname);
     sysinfo.version_string = new_string(vstr);
-    sysinfo.version  = version;
+    sysinfo.version  = ver;
+    if (cmos != NULL) {
+        sysinfo.cmo_tags = new_int_array(cmos);
+    }
+    if (sms != NULL) {
+        sysinfo.sm_cmds = new_int_array(sms);
+    }
 }
 
-void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[])
+mathcap *new_mathcap()
 {
-	sysinfo_set(ver, vstr, sysname); /* global! */
-	if (cmos == NULL) {
-		cmos = cmodb_d;
-	}
-	if (sms == NULL) {
-		sms = smdb_d;
-	}
-	/* ... */
+    mathcap *new = malloc(sizeof(mathcap));
+    new->cmotbl = new_table(sysinfo.cmo_tags);
+    new->smtbl  = new_table(sysinfo.sm_cmds);
+    return new;
 }
 
 /* データベースから cmo_mathcap を生成する */
@@ -277,30 +291,10 @@ cmo_mathcap* mathcap_get(mathcap *this)
     cmo_list *l3 = new_cmo_list();
     list_append(l3, list_appendl(new_cmo_list(),
                                  new_cmo_int32(OX_DATA),
-                                 cmodb_get_allow_all(this->cmodb), NULL));
-    list_appendl(mc, (cmo *)sysinfo_get_all(),
-                 (cmo *)smdb_get_allow_all(this->smdb), (cmo *)l3, NULL);
+                                 table_get_all(this->cmotbl), NULL));
+    list_appendl(mc, (cmo *)sysinfo_get(),
+                 (cmo *)table_get_all(this->smtbl), (cmo *)l3, NULL);
     return new_cmo_mathcap((cmo *)mc);
-}
-
-static void cmodb_update(mcdb *cmodb, cmo_list* types)
-{
-    cell *el = list_first(types);
-    cmo_int32 *ob;
-    while(!list_endof(types, el)) {
-        ob = (cmo_int32 *)el->cmo;
-        if (ob->tag == CMO_INT32) {
-            cmodb_allow(cmodb, ob->i);
-        }
-        el = list_next(el);
-    }
-}
-
-/* cmo_mathcap が妥当な構造を持つかを調べる.  (未実装) */
-int cmo_mathcap_isvalid(cmo_mathcap *mc)
-{
-	/* print_cmo(mc); */
-    return 1;
 }
 
 /* ( ..., ( type, (...) ), (cmo_int32, (...) ), ... )  */
@@ -333,12 +327,17 @@ static cmo_list *cmo_mathcap_get_cmotypes(cmo_mathcap *mc)
 mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc)
 {
     cmo_list *types;
-    if (cmo_mathcap_isvalid(mc)) {
-        types = cmo_mathcap_get_cmotypes(mc);
-        if (types != NULL) {
-            cmodb_deny_all(this->cmodb); /* すべての cmo の送信を禁止 */
-            cmodb_update(this->cmodb, types);
-        }
+    types = cmo_mathcap_get_cmotypes(mc);
+    if (types != NULL) {
+        /* すべての cmo の送信を禁止 */
+        table_ctl_all(this->cmotbl, MATHCAP_FLAG_DENY);
+        table_update(this->cmotbl, types);
     }
-	return this;
+
+    return this;
+}
+
+int mathcap_allowQ_cmo(mathcap *this, cmo *ob)
+{
+    return table_allowQ_cmo(this->cmotbl, ob);
 }
