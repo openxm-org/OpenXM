@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM$
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.2 1999/11/01 03:49:47 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -627,7 +627,27 @@ ox.verbose {
 [(sm1connectr-ssh)
 [([hostname login-name] sm1connectr-ssh client)
  (Starting oxpath.oxsm1-ssh by the launcher oxpath.ox-ssh on the "hostname".)
- $Example: [(dc1.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set  $
+ (cf. oxNoX )
+ (Set the following varialbes to appropriate values:)
+ (oxpath.oxlog.xterm-ssh  oxpath.oxsm1-ssh  oxpath.ox-ssh myhostname-ssh )
+ $Example 1: $
+ $  *** Path names on the remote machine dc1.math.kobe-u.ac.jp $
+ $    /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def $
+ $    /oxpath.oxsm1-ssh (/home/taka/OpenXM/bin/ox_sm1) def $
+ $    /oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def $
+ $  *** The machine name on which you are running sm1. $
+ $    /myhostname-ssh   (yama.math.kobe-u.ac.jp) def $
+ $         [(dc1.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set  $
+ $Example 2: $
+ $  *** Path names on the remote machine dc2.math.kobe-u.ac.jp $
+ $  *** We will not use X11 debug windows. $
+ $    oxNoX $
+ $    /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog ) def $
+ $    /oxpath.oxsm1-ssh (/home/taka/OpenXM/bin/ox_sm1) def $
+ $    /oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def $
+ $  *** the machine name on which you are running sm1. $
+ $    /myhostname-ssh   (dc1.math.kobe-u.ac.jp) def $
+ $         [(dc2.math.kobe-u.ac.jp) (taka)] sm1connectr-ssh /ox.ccc set  $
 ]] putUsages
 
 /addSlash {
