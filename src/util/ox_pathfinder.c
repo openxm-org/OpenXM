@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.6 2003/07/22 07:39:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.7 2003/09/08 02:43:47 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -26,7 +26,8 @@ static char *get_ox_path();
 static char *get_oxc_path();
 static char *get_oxlog_path();
 static int getFileSize(char *fn);
-
+static void errorPathFinder(char *s);
+static void msgPathFinder(char *s);
 
 
 static int Verbose_get_home = 0;
@@ -35,6 +36,17 @@ static int NoX = 0;
 
 #define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
 #define mymalloc(a)  sGC_malloc(a)
+
+static void errorPathFinder(char *s) {
+  /* Todo; we need to return the error message to the client if it is used
+     in ox_shell */
+  fprintf(stderr,"Error: %s",s);
+}
+static void msgPathFinder(char *s) {
+  /* Todo; we need to return the error message to the client if it is used
+     in ox_shell */
+  fprintf(stderr,"Log(ox_pathfinder): %s",s);
+}
 
 int ox_pathfinderNoX(int f) {
   if (f < 0) return NoX;
@@ -877,3 +889,62 @@ char *getCppPath(void) {
     else return NULL;
   }
 }
+
+char *getCommandPath(char *cmdname)
+{
+  char *path;
+  int ostype;
+  char *msg;
+  char *path2;
+  int i,j;
+  ostype = getOStypei(); /* Todo: getCommandPath_win */
+  if (cmdname == NULL) return NULL;
+  if (strlen(cmdname) < 1) {
+	errorPathFinder("getCommandPath: cmdname is an empty string.\n");
+	return NULL;
+  }
+  if (cmdname[0] == '/') {
+	if (getFileSize(cmdname) >= 0) { /* Todo: isExecutableFile() */
+	}else{
+	  msg = (char *)mymalloc(strlen(cmdname)+30);
+	  sprintf(msg,"getCommandPath: %s is not found.");
+	  errorPathFinder(msg);
+	  return NULL;
+	}
+	return cmdname;
+  }
+
+  path = getOpenXM_HOME();
+  if (path != NULL) {
+	path2 = (char *)mymalloc(strlen(path)+strlen(cmdname)+5);
+	strcpy(path2,path);
+	strcat(path2,"bin/");
+	strcat(path2,cmdname);
+	if (getFileSize(path2) >= 0) { /* Todo: isExecutableFile() */
+	  return path2;
+	}
+  }
+
+  path = (char *)getenv("PATH");
+  if (path == NULL) {
+	return NULL;
+  }
+
+  path2 = (char *)mymalloc(strlen(path)+strlen(cmdname)+1);
+  for (i=0, j=0; i < strlen(path); i++) {
+	path2[j] = 0;
+	if (path[i] == ':') {
+	  strcat(path2,"/"); strcat(path2,cmdname);
+	  
+	  if (getFileSize(path2) >= 0) { /* Todo: isExecutableFile() */
+		return path2;
+	  }
+	  j = 0; path2[j] = 0;
+	}else{
+	  path2[j] = path[i]; j++; path2[j] = 0;
+	}
+  }
+  errorPathFinder("getCommandPath: could not find it in the PATH\n");
+  return NULL;
+}
+
