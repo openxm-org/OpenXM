@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/upoly.texi,v 1.2 1999/12/21 02:47:34 noro Exp $
 \BJP
 @node 一変数多項式の演算,,, 組み込み函数
 @section 一変数多項式の演算
@@ -112,7 +112,7 @@ cannot take polynomials over GF(2^n) as their inputs.
 @item
 @code{umul()}, @code{umul_ff()} produce @var{p1*p2}.
 @code{usquare()}, @code{usquare_ff()} produce @var{p1^2}.
-@code{utmul()}, @code{utmul_ff()} produce @var{p1*p2 mod v^(d+1)},
+@code{utmul()}, @code{utmul_ff()} produce @var{p1*p2 mod} @var{v}^(@var{d}+1),
 where @var{v} is the variable of @var{p1}, @var{p2}.
 @item
 If the degrees of the inputs are less than or equal to the
@@ -315,24 +315,24 @@ See the description of each function for details.
 @itemize @bullet
 \BJP
 @item
-@var{p} の変数を x とする. このとき @var{p} = @var{p1}+x^(d+1)@var{p2}
+@var{p} の変数を x とする. このとき @var{p} = @var{p1}+x^(@var{d}+1)@var{p2}
 (@var{p1} の次数は @var{d} 以下) と分解できる. @code{utrunc()} は
 @var{p1} を返し, @code{udecomp()} は [@var{p1},@var{p2}] を返す. 
 @item
-@var{p} の次数を @var{e} とし, @var{i} 次の係数を @var{p[i]} とすれば, 
-@code{ureverse()} は @var{p[e]}+@var{p[e-1]}x+... を返す. 
+@var{p} の次数を @var{e} とし, @var{i} 次の係数を @var{p}[@var{i}] とすれば, 
+@code{ureverse()} は @var{p}[@var{e}]+@var{p}[@var{e}-1]x+... を返す. 
 \E
 \BEG
 @item
 Let @var{x} be the variable of @var{p}. Then @var{p} can be decomposed
-as @var{p} = @var{p1}+x^(d+1)@var{p2}, where the degree of @var{p1} 
+as @var{p} = @var{p1}+x^(@var{d}+1)@var{p2}, where the degree of @var{p1} 
 is less than or equal to @var{d}.
 Under the decomposition, @code{utrunc()} returns 
 @var{p1} and  @code{udecomp()} returns [@var{p1},@var{p2}].
 @item
-Let @var{e} be the degree of @var{p} and @var{p[i]} the coefficient
+Let @var{e} be the degree of @var{p} and @var{p}[@var{i}] the coefficient
 of @var{p} at degree @var{i}. Then 
-@code{ureverse()} returns @var{p[e]}+@var{p[e-1]}x+....
+@code{ureverse()} returns @var{p}[@var{e}]+@var{p}[@var{e}-1]x+....
 \E
 @end itemize
 
@@ -394,7 +394,7 @@ of @var{p} at degree @var{i}. Then
 For a polynomial @var{p} with a non zero constant term,
 @code{uinv_as_power_series(@var{p},@var{d})} computes
 a polynomial @var{r} whose degree is at most @var{d}
-such that @var{p*r = 1 mod x^(d+1)}, where @var{x} is the variable
+such that @var{p*r = 1 mod} x^(@var{d}+1), where @var{x} is the variable
 of @var{p}.
 @item
 Let @var{e} be the degree of @var{p}.
@@ -452,7 +452,7 @@ x^10+x^9
 @item return
 \JP 一変数多項式
 \EG univariate polynomial
-@item p1,p2,inv
+@item p1 p2 inv
 \JP 一変数多項式
 \EG univariate polynomial
 @end table

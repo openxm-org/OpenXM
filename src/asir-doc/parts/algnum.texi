@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.4 2000/03/17 02:17:03 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.5 2000/09/23 07:53:24 noro Exp $
 \BJP
 @node 代数的数に関する演算,,, Top
 @chapter 代数的数に関する演算
@@ -1083,7 +1083,7 @@ substitutes a @b{root} for the associated indeterminate of the @b{root}.
 @item return
 \JP 多項式
 \EG polynomial
-@item poly1, poly2
+@item poly1  poly2
 \JP 多項式
 \EG polynomial
 @end table
@@ -1291,15 +1291,15 @@ whose coefficients are in @code{Q(A(k+1),...,An)}.
 
 \BJP
 @code{af_noalg} では, @var{poly} に含まれる代数的数 @var{ai} を不定元 @var{vi}
-で置き換える. @code{defpolylist} は, @var{[[vn,dn(vn,...,v1)],...,[v1,d(v1)]]}
-なるリストである. ここで @var{di(vi,...,v1)} は @var{ai} の定義多項式において
+で置き換える. @code{defpolylist} は, [[vn,dn(vn,...,v1)],...,[v1,d(v1)]]
+なるリストである. ここで @var{di}(vi,...,v1) は @var{ai} の定義多項式において
 代数的数を全て @var{vj} に置き換えたものである. 
 \E
 \BEG
 To call @code{sp_noalg}, one should replace each algebraic number 
 @var{ai} in @var{poly} with an indeterminate @var{vi}. @code{defpolylist}
-is a list @var{[[vn,dn(vn,...,v1)],...,[v1,d(v1)]]}. In this expression
-@var{di(vi,...,v1)} is a defining polynomial of @var{ai} represented
+is a list [[vn,dn(vn,...,v1)],...,[v1,d(v1)]]. In this expression
+@var{di}(vi,...,v1) is a defining polynomial of @var{ai} represented
 as a multivariate polynomial.
 \E
 

@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.4 2000/11/13 00:16:36 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.5 2002/08/08 05:24:37 noro Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -259,7 +259,7 @@ similar to that of @code{newvect}.
 @findex newmat
 
 @table @t
-@item newmat(@var{row},@var{col} [,@var{[[a,b,}...@var{],[c,d,}...@var{],}...@var{]}])
+@item newmat(@var{row},@var{col} [,[[@var{a},@var{b},...],[@var{c},@var{d},...],...]])
 \JP :: @var{row} 行 @var{col} 列の行列を生成する. 
 \EG :: Creates a new matrix with @var{row} rows and @var{col} columns.
 @end table
@@ -268,10 +268,10 @@ similar to that of @code{newvect}.
 @item return
 \JP 行列
 \EG matrix
-@item row,col
+@item row col
 \JP 自然数
 \EG non-negative integer
-@item a,b,c,d
+@item a b c d
 \JP 任意
 \EG arbitrary
 @end table

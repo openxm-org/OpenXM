@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.11 2002/09/03 02:15:35 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.12 2002/09/10 01:40:02 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -553,7 +553,7 @@ input @code{quit}.
 @item host
 \JP 文字列または 0
 \EG string or 0
-@item dir, command
+@item dir command
 \JP 文字列
 \EG string
 @item id
@@ -820,10 +820,10 @@ ox_xterm*saveLines:1000
 @item host
 \JP 文字列または 0
 \EG string or 0
-@item launcher, server
+@item launcher server
 \JP 文字列
 \EG string
-@item use_unix, use_ssh, use_x, conn_to_serv
+@item use_unix use_ssh use_x conn_to_serv
 \JP 整数
 \EG integer
 @end table
@@ -968,10 +968,10 @@ the client executes @code{connect}.
 @item host
 \JP 文字列
 \EG string
-@item port,control_port,server_port
+@item port control_port server_port
 \JP 整数または文字列
 \EG integer or string
-@item socket,control_socket,server_socket
+@item socket control_socket server_socket
 \JP 整数
 \EG integer
 @end table
@@ -1150,7 +1150,7 @@ If X environment is not available or is not necessary, one can use
 @item command
 \JP 文字列
 \EG string
-@item arg0, arg1, ...
+@item arg0 ...
 \JP 任意 (引数)
 \EG arbitrary (arguments)
 @end table
@@ -1280,7 +1280,7 @@ The result is pushed to the stack.
 
 @item
 @code{register_handler()} は, @kbd{C-c} などによる割り込みの際に, 
-@kbd{u} を指定することで, 無引数ユーザ定義関数 @var{func()} が呼び出される
+@kbd{u} を指定することで, 無引数ユーザ定義関数 @var{func}() が呼び出される
 ように設定する. この関数に, @code{ox_reset()} を呼び出させることで, 
 割り込みの際に自動的に @b{OpenXM} server のリセットを行うことができる. 
 
@@ -1311,10 +1311,10 @@ specified in @b{OpenXM}. @samp{ox_asir} immediately enters the debug
 mode and pops up an window to input debug commands on X window system.
 
 @item
-@code{register_handler()} registers a function @var{func()}.
-If @kbd{u} is specified on a keybord interrupt, @var{func()}
+@code{register_handler()} registers a function @var{func}().
+If @kbd{u} is specified on a keybord interrupt, @var{func}()
 is executed before returning the toplevel.
-If @code{ox_reset()} calls are included in @var{func()},
+If @code{ox_reset()} calls are included in @var{func}(),
 one can automatically reset @b{OpenXM} servers on a keyboard interrupt.
 
 @item
@@ -1614,7 +1614,7 @@ is realized as combinations of @code{ox_push_cmd} and @code{ox_get}.
 @findex ox_pops
 
 @table @t
-@item ox_pops(@var{number}[,@var{nitem}) 
+@item ox_pops(@var{number}[,@var{nitem}]) 
 \JP :: プロセス識別子 @var{number} のプロセスのスタックからデータを取り除く. 
 \EG :: Removes data form the stack of a process whose identifier is @var{number}.
 @end table
@@ -1859,7 +1859,7 @@ Mathcap をリストとして返す.
 \BEG
 @item If @var{id} is specified, the mathcap of the process whose
 identifier is @var{id} is returned.
-@item If @var{id} is not specified, the list of @var{[id,Mathcap]}
+@item If @var{id} is not specified, the list of [@var{id},@var{Mathcap}]
 is returned, where @var{id} is the identifier of a currently active process,
 and @var{Mathcap} is the mathcap of the process.
 identifier @var{id} is returned.
@@ -1921,10 +1921,10 @@ identifier @var{id} is returned.
 @item func
 \JP 多項式
 \EG polynomial
-@item geometry, xrange, yrange, zrange
+@item geometry  xrange  yrange  zrange
 \JP リスト
 \EG list
-@item id, number
+@item id  number
 \JP 整数
 \EG integer
 @item name
@@ -1939,7 +1939,7 @@ identifier @var{id} is returned.
 グラフの表示を行う. @code{conplot()} は, 同様の引数に対し, 
 等高線の表示を行う. 
 @code{plot()} は 1 変数関数のグラフの表示を行う.
-@code{polarplot()} は 極形式 @var{r=f(theta)} で表された曲線のグラフの表示を行う.
+@code{polarplot()} は 極形式 @var{r}=@var{f}(@var{theta}) で表された曲線のグラフの表示を行う.
 
 @item
 これらは OpenXM サーバとして実現されている. UNIX 上では
@@ -1958,12 +1958,12 @@ identifier @var{id} is returned.
 
 @table @var
 @item geometry
-ウィンドウのサイズをドット単位で @var{[x,y]} で指定する. 
-(@var{[}@code{300},@code{300}@var{]}. )
+ウィンドウのサイズをドット単位で [@var{x},@var{y}] で指定する. 
+([@code{300},@code{300}]. )
 
-@item xrange, yrange
-変数の範囲の指定で, @var{[v,vmin,vmax]} で指定する. 
-(いずれの変数も @var{[v},@code{-2},@code{2}@var{]}.)
+@item xrange  yrange
+変数の範囲の指定で, [@var{v},@var{vmin},@var{vmax}] で指定する. 
+(いずれの変数も [@var{v},@code{-2},@code{2}].)
 この指定がない場合, @var{func} に含まれる変数の内変数順序の上の変数
 が @samp{x}, 下の変数が @samp{y} として扱われる. これを避けるためには
 @var{xrange}, @var{yrange} を指定する. また, @var{func} が 1 変数の
@@ -1971,9 +1971,9 @@ identifier @var{id} is returned.
 
 @item zrange
 @code{conplot()} の場合のみ指定できる. 形式は 
-@var{[v,vmin,vmax} @code{[},@var{step} @code{]}@var{]} で, @var{step} が指定され
-た場合には, 等高線の間隔が @var{(vmax-vmin)/step} となる. 
-(@var{[z},@code{-2},@code{2},@code{16}@var{]}.)
+[@var{v},@var{vmin},@var{vmax} @code{[},@var{step} @code{]}] で, @var{step} が指定され
+た場合には, 等高線の間隔が (@var{vmax}-@var{vmin})/@var{step} となる. 
+([@var{z},@code{-2},@code{2},@code{16}].)
 
 @item id
 遠隔プロセスの番号, すなわち @code{ox_launch()} が返した番号を指定する. 
@@ -2059,7 +2059,7 @@ function.
 Function @code{conplot()} plots the contour lines for a same argument. 
 Function @code{plot()} draws the graph of a uninivariate function.
 Function @code{polarplot()} draws the graph of a curve given in polar form
-@var{r=f(theta)}.
+@var{r}=@var{f}(@var{theta}).
 
 @item
 The plotting functions are realized by an OpenXM server.
@@ -2080,12 +2080,12 @@ are listed below.
 
 @table @var
 @item geometry
-Window size is specified by @var{[x,y]} in unit `dot.' 
-(@var{[}@code{300},@code{300}@var{]} for UNIX version; 
+Window size is specified by [@var{x},@var{y}] in unit `dot.' 
+[@code{300},@code{300}] for UNIX version; 
 
-@item xrange, yrange 
-Value ranges of the variables are specified by @var{[v,vmin,vmax]}. 
-(@var{[v},@code{-2},@code{2}@var{]} for each variable.)
+@item xrange  yrange 
+Value ranges of the variables are specified by [@var{v},@var{vmin},@var{vmax}]. 
+([@var{v},@code{-2},@code{2}] for each variable.)
 If this specification is omitted, the indeterminate having the higher
 order in @var{func} is taken for @samp{x} and the one with lower order 
 is taken for @samp{y}.  To change this selection, specify explicitly 
@@ -2094,10 +2094,10 @@ For an uni-variate function, the specification is mandatory.
 
 @item zrange
 This specification applies only to @code{conplot()}.  The format is 
-@var{[v,vmin,vmax} @code{[},@var{step} @code{]}@var{]}.  
+[@var{v},@var{vmin},@var{vmax} @code{[},@var{step} @code{]}].  
 If @var{step} is specified, the height difference of contours is set to 
-@var{(vmax-vmin)/step}. 
-(@var{[z},@code{-2},@code{2},@code{16}@var{]}.)
+(@var{vmax}-@var{vmin})/@var{step}. 
+([@var{z},@code{-2},@code{2},@code{16}].)
 
 @item id
 This specifies the number of the remote process by which you wish 
@@ -2243,7 +2243,7 @@ plot*form*ydone*background:white
 @item draw_obj(@var{id},@var{index},@var{pointorsegment} [,@var{color}])
 \JP :: キャンバス上に点または線分を描画する.
 \EG :: Draws a point or a line segment on a canvas.
-@item draw_string(@var{id},@var{index},@var{[x,y]},@var{string} [,@var{color}])
+@item draw_string(@var{id},@var{index},[@var{x},@var{y}],@var{string} [,@var{color}])
 \JP :: キャンバス上に文字列を描画する.
 \EG :: Draws a character string on a canvas.
 @end table
@@ -2251,7 +2251,7 @@ plot*form*ydone*background:white
 @table @var
 @item return
 0
-@item id, index, color, x, y
+@item id  index  color  x  y
 \JP 整数
 \EG integer
 @item pointorsegment
@@ -2275,8 +2275,8 @@ These functions are supplied by the OpenXM server @samp{ox_plot}
 @item 
 \BJP
 @code{open_canvas} は, 描画用のウィンドウ(キャンバス)を生成する.
-@var{geometry} によりウィンドウのサイズを pixel 単位で @var{[x,y]} で指定する. 
-default size は @var{[}@code{300},@code{300}@var{]}.
+@var{geometry} によりウィンドウのサイズを pixel 単位で [@var{x},@var{y}] で指定する. 
+default size は [@code{300},@code{300}].
 キャンバスの識別子として, 整数値を OpenXM サーバのスタックに push する.
 この識別子は @code{draw_obj} の呼び出しに必要であり, @code{ox_pop_cmo} に
 より取り出して保持する必要がある.
@@ -2284,8 +2284,8 @@ default size は @var{[}@code{300},@code{300}@var{]}.
 \BEG
 @code{open_canvas} opens a canvas, which is a window for drawing objecgts.
 One can specifies the size of a canvas in pixel by 
-supplying @var{geometry} option @var{[x,y]}. The default size is
-@var{[}@code{300},@code{300}@var{]}.
+supplying @var{geometry} option [@var{x},@var{y}]. The default size is
+[@code{300},@code{300}].
 This function pushes an integer value onto the stack of the OpenXM server.
 The value is used to distiguish the opened canvas and one has to pop
 and maintain the value by @code{ox_pop_cmo} for subsequent calls of
@@ -2304,8 +2304,8 @@ and a canvas id @var{index}.
 \BJP
 @code{draw_obj} は, サーバ id @var{id}, キャンバス id @var{index}
 で指定されるキャンバスに点または線分を描画する. @var{pointorsegment}
-が @var{[x,y]} の場合点の座標, @var{[x,y,u,v]} の場合 @var{[x,y]},
-@var{[u,v]} を結ぶ線分を表すと見なされる.
+が [@var{x},@var{y}] の場合点の座標, [@var{x},@var{y},@var{u},@var{v}] の場合 [@var{x},@var{y}],
+[@var{u},@var{v}] を結ぶ線分を表すと見なされる.
 キャンバスの座標は, 左上隅を原点として横方向に
 第一座標, 縦方向に第二座標をとる. 値は pixel 単位で指定する.
 @var{color} の指定がある場合, @var{color/65536} mod 256,
@@ -2315,9 +2315,9 @@ and a canvas id @var{index}.
 \BEG
 @code{draw_obj} draws a point or a line segment on 
 a canvas specified by a server id @var{id} and a canvas id @var{index}.
-If @var{pointorsegment} is @var{[x,y]}, it is regarded as a point.
-If @var{pointorsegment} is @var{[x,y,u,v]}, it is regarded
-as a line segment which connects @var{[x,y]} and @var{[u,v]}.
+If @var{pointorsegment} is [@var{x},@var{y}], it is regarded as a point.
+If @var{pointorsegment} is [@var{x},@var{y},@var{u},@var{v}], it is regarded
+as a line segment which connects [@var{x},@var{y}] and [@var{u},@var{v}].
 If @var{color} is specified, @var{color/65536} mod 256,
 @var{color/256} mod 256, @var{color} mod 256 are regarded as the vaules
 of Red, Green, Blue (Max. 255) respectively.
@@ -2325,12 +2325,12 @@ of Red, Green, Blue (Max. 255) respectively.
 @item 
 \BJP
 @code{draw_string} は, サーバ id @var{id}, キャンバス id @var{index}
-で指定されるキャンバスに文字列を描画する. 位置は @var{[x,y]} により指定する. 
+で指定されるキャンバスに文字列を描画する. 位置は [@var{x},@var{y}] により指定する. 
 \E
 \BEG
 @code{draw_string} draws a character string @var{string} on 
 a canvas specified by a server id @var{id} and a canvas id @var{index}.
-The position of the string is specified by @var{[x,y]}.
+The position of the string is specified by [@var{x},@var{y}].
 \E
 @end itemize
 

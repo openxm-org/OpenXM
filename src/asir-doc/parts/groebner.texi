@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.2 1999/12/21 02:47:31 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.3 1999/12/24 04:38:04 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1263,7 +1263,7 @@ Refer to the sections for each functions.
 @item return
 \JP リスト
 \EG list
-@item plist, vlist, procs
+@item plist  vlist  procs
 \JP リスト
 \EG list
 @item order
@@ -1372,7 +1372,7 @@ for communication.
 @item return
 \JP リスト
 \EG list
-@item plist, vlist1, vlist2, procs
+@item plist  vlist1  vlist2  procs
 \JP リスト
 \EG list
 @item order
@@ -1586,7 +1586,7 @@ processes.
 @item return
 \JP リスト
 \EG list
-@item plist, vlist1, vlist2, procs
+@item plist  vlist1  vlist2  procs
 \JP リスト
 \EG list
 @item order
@@ -1692,7 +1692,7 @@ processes.
 @item return
 \JP 多項式
 \EG polynomial
-@item plist, vlist
+@item plist  vlist
 \JP リスト
 \EG list
 @item order
@@ -1789,7 +1789,7 @@ for @code{gr_minipoly()}.
 @item return
 \JP @code{tolexm()} : リスト, @code{minipolym()} : 多項式
 \EG @code{tolexm()} : list, @code{minipolym()} : polynomial
-@item plist, vlist1, vlist2
+@item plist  vlist1  vlist2
 \JP リスト
 \EG list
 @item order
@@ -1854,7 +1854,7 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @item return
 \JP リスト
 \EG list
-@item plist, vlist
+@item plist  vlist
 \JP リスト
 \EG list
 @item order
@@ -1966,7 +1966,7 @@ Actual computation is controlled by various parameters set by
 @item return
 \JP リスト
 \EG list
-@item plist, vlist
+@item plist  vlist
 \JP リスト
 \EG list
 @item order
@@ -2791,7 +2791,7 @@ selection strategy of critical pairs in Groebner basis computation.
 @item return
 \JP 分散表現多項式
 \EG distributed polynomial
-@item dpoly1, dpoly2
+@item dpoly1  dpoly2
 \JP 分散表現多項式
 \EG distributed polynomial
 @end table
@@ -2834,7 +2834,7 @@ two polynomials, where coefficient is always set to 1.
 @item return
 \JP 整数
 \EG integer
-@item dpoly1, dpoly2
+@item dpoly1  dpoly2
 \JP 分散表現多項式
 \EG distributed polynomial
 @end table
@@ -2889,7 +2889,7 @@ Used for finding candidate terms at reduction of polynomials.
 @item return
 \JP 分散表現多項式
 \EG distributed polynomial
-@item dpoly1, dpoly2
+@item dpoly1  dpoly2
 \JP 分散表現多項式
 \EG distributed polynomial
 @end table
@@ -3113,7 +3113,7 @@ values of @code{dp_mag()} for intermediate basis elements are shown.
 @item return
 \JP リスト
 \EG list
-@item dpoly1, dpoly2, dpoly3
+@item dpoly1  dpoly2  dpoly3
 \JP 分散表現多項式
 \EG distributed polynomial
 @item vlist
@@ -3137,7 +3137,7 @@ values of @code{dp_mag()} for intermediate basis elements are shown.
 ならない. 
 @item
 引数が整数係数の時, 簡約は, 分数が現れないよう, 整数 @var{a}, @var{b}, 
-項 @var{t} により @var{a(dpoly1 + dpoly2)-bt dpoly3} として計算される. 
+項 @var{t} により @var{a}(@var{dpoly1} + @var{dpoly2})-@var{bt} @var{dpoly3} として計算される. 
 @item
 結果は, @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]} なるリストである.
 \E
@@ -3156,7 +3156,7 @@ the divisibility of the head term of @var{dpoly2} by the head term of
 When integral coefficients, computation is so carefully performed that
 no rational operations appear in the reduction procedure.
 It is computed for integers @var{a} and @var{b}, and a term @var{t} as:
-@var{a(dpoly1 + dpoly2)-bt dpoly3}.
+@var{a}(@var{dpoly1} + @var{dpoly2})-@var{bt} @var{dpoly3}.
 @item
 The result is a list @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]}.
 \E
@@ -3197,7 +3197,7 @@ The result is a list @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]}.
 @item return
 \JP 分散表現多項式
 \EG distributed polynomial
-@item dpoly1, dpoly2
+@item dpoly1  dpoly2
 \JP 分散表現多項式
 \EG distributed polynomial
 @item mod
@@ -3273,7 +3273,7 @@ as a form of @code{[numerator, denominator]})
 @item poly
 \JP 多項式
 \EG polynomial
-@item plist,vlist
+@item plist vlist
 \JP リスト
 \EG list
 @item order
@@ -3428,7 +3428,7 @@ u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @table @var
 \JP @item return 0 または 1
 \EG @item return 0 or 1
-@item plist1, plist2
+@item plist1  plist2
 @end table
 
 @itemize @bullet

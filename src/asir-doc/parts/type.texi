@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.9 2002/09/03 01:50:58 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.10 2003/04/19 10:36:30 noro Exp $
 \BJP
 @node $B7?(B,,, Top
 @chapter $B7?(B
@@ -355,7 +355,7 @@ This is used for basis conversion in finite fields of characteristic 2.
 \JP quantifier elimination $B$GMQ$$$i$l$k0l3,=R8lO@M}<0(B. 
 \EG This expresses a first order formula used in quantifier elimination.
 
-@item 15 @b{matrix over GF(p)}
+@item 15 @b{matrix over GF(@var{p})}
 @*
 \JP $B>.I8?tM-8BBN>e$N9TNs(B.
 \EG A matrix over a small finite field.
@@ -563,11 +563,11 @@ g mod f $B$O(B, g, f  $B$r$"$i$o$9(B 2 $B$D$N%S%C%HNs$GI=8=$9$k$3$H$,$G$-$k
 \E
 \BEG
 This type expresses an element of a finite field of characteristic 2.
-Let @var{F} be a finite field of characteristic 2. If @var{[F:GF(2)]}
-is equal to @var{n}, then @var{F} is expressed as @var{F=GF(2)[t]/(f(t))},
-where @var{f(t)} is an irreducible polynomial over @var{GF(2)} 
+Let @var{F} be a finite field of characteristic 2. If [F:GF(2)]
+is equal to @var{n}, then @var{F} is expressed as F=GF(2)[t]/(f(t)),
+where f(t) is an irreducible polynomial over GF(2) 
 of degree @var{n}.
-As an element @var{g} of @var{GF(2)[t]} can be expressed by a bit string,
+As an element @var{g} of GF(2)[t] can be expressed by a bit string,
 An element @var{g mod f} in @var{F} can be expressed by two bit strings
 representing @var{g} and @var{f} respectively.
 \E
@@ -585,7 +585,7 @@ representing @var{g} and @var{f} respectively.
 $B$h$C$F(B, @@ $B$NB?9`<0$H$7$F(B F $B$N85$rF~NO$G$-$k(B. (@@^10+@@+1 $B$J$I(B)
 \E
 \BEG
-@code{@@} represents @var{t mod f} in @var{F=GF(2)[t](f(t))}.
+@code{@@} represents @var{t mod f} in F=GF(2)[t](f(t)).
 By using @code{@@} one can input an element of @var{F}. For example
 @code{@@^10+@@+1} represents an element of @var{F}.
 \E
@@ -633,17 +633,17 @@ coefficients of a polynomial.
 
 \BJP
 $B0L?t$,(B @var{p^n} (@var{p} $B$OG$0U$NAG?t(B, @var{n} $B$O@5@0?t(B) $B$O(B, 
-$BI8?t(B @var{p} $B$*$h$S(B @var{GF(p)} $B>e4{Ls$J(B @var{n} $B<!B?9`<0(B @var{m(x)}
+$BI8?t(B @var{p} $B$*$h$S(B GF(@var{p}) $B>e4{Ls$J(B @var{n} $B<!B?9`<0(B m(x)
 $B$r(B @code{setmod_ff} $B$K$h$j;XDj$9$k$3$H$K$h$j@_Dj$9$k(B. 
-$B$3$NBN$N85$O(B @var{m(x)} $B$rK!$H$9$k(B @var{GF(p)} $B>e$NB?9`<0$H$7$F(B
+$B$3$NBN$N85$O(B m(x) $B$rK!$H$9$k(B GF(@var{p}) $B>e$NB?9`<0$H$7$F(B
 $BI=8=$5$l$k(B. 
 \E
 \BEG
 A finite field of order @var{p^n}, where @var{p} is an arbitrary prime
 and @var{n} is a positive integer, is set by @code{setmod_ff}
 by specifying its characteristic @var{p} and an irreducible polynomial
-of degree @var{n} over @var{GF(p)}. An element of this field
-is represented by a polynomial over @var{GF(p)} modulo @var{m(x)}.
+of degree @var{n} over GF(@var{p}). An element of this field
+is represented by a polynomial over GF(@var{p}) modulo m(x).
 \E
 
 @item 9
@@ -656,7 +656,7 @@ is represented by a polynomial over @var{GF(p)} modulo @var{m(x)}.
 $BI8?t(B @var{p} $B$*$h$S3HBg<!?t(B @var{n} 
 $B$r(B @code{setmod_ff} $B$K$h$j;XDj$9$k$3$H$K$h$j@_Dj$9$k(B. 
 $B$3$NBN$N(B 0 $B$G$J$$85$O(B, @var{p} $B$,(B @var{2^14} $BL$K~$N>l9g(B, 
-@var{GF(p^n)} $B$N>hK!72$N@8@.85$r8GDj$9$k$3$H(B
+GF(@var{p^n}) $B$N>hK!72$N@8@.85$r8GDj$9$k$3$H(B
 $B$K$h$j(B, $B$3$N85$N$Y$-$H$7$FI=$5$l$k(B. $B$3$l$K$h$j(B, $B$3$NBN$N(B 0 $B$G$J$$85(B
 $B$O(B, $B$3$N$Y$-;X?t$H$7$FI=8=$5$l$k(B. @var{p} $B$,(B @var{2^14} $B0J>e(B
 $B$N>l9g$ODL>o$N>jM>$K$h$kI=8=$H$J$k$,(B, $B6&DL$N%W%m%0%i%`$G(B
@@ -808,13 +808,13 @@ sin(x)
 \EG @b{functor}
 @*
 \BJP
-$BH!?t8F$S=P$7$O(B, @var{fname(args)} $B$H$$$&7A$G9T$J$o$l$k$,(B, @var{fname} $B$N(B
+$BH!?t8F$S=P$7$O(B, @var{fname}(@var{args}) $B$H$$$&7A$G9T$J$o$l$k$,(B, @var{fname} $B$N(B
 $BItJ,$rH!?t;R$H8F$V(B. $BH!?t;R$K$O(B, $BH!?t$N<oN`$K$h$jAH$_9~$_H!?t;R(B,
 $B%f!<%6Dj5AH!?t;R(B, $B=iEyH!?t;R$J$I$,$"$k$,(B, $BH!?t;R$OC1FH$GITDj85$H$7$F(B
 $B5!G=$9$k(B. 
 \E
 \BEG
-A function call (or a function form) has a form @var{fname(args)}.
+A function call (or a function form) has a form @var{fname}(@var{args}).
 Here, @var{fname} alone is called a @b{functor}.
 There are several kinds of @b{functor}s: built-in functor, user defined
 functor and functor for the elementary functions.  A functor alone is

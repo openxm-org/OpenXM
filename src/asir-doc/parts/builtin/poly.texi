@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.2 1999/12/21 02:47:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.3 2002/09/03 01:50:59 noro Exp $
 \BJP
 @node 多項式および有理式の演算,,, 組み込み函数
 @section 多項式, 有理式の演算
@@ -740,11 +740,11 @@ x^5+2*x^4+x^3+x^2+2*x+1
 @item psubst(@var{rat}[,@var{var},@var{rat}]*)
 \BJP
 :: @var{rat} の @var{varn} に @var{ratn} を代入
-(@var{n=1,2},... で左から右に順次代入する). 
+(@var{n}=1,2,... で左から右に順次代入する). 
 \E
 \BEG
 :: Substitute @var{ratn} for @var{varn} in expression @var{rat}.
-(@var{n=1,2},@dots{}.
+(@var{n}=1,2,@dots{}.
 Substitution will be done successively from left to right
 if arguments are repeated.)
 \E
@@ -754,7 +754,7 @@ if arguments are repeated.)
 @item return
 \JP 有理式
 \EG rational expression
-@item rat,ratn
+@item rat ratn
 \JP 有理式
 \EG rational expression
 @item varn
@@ -913,7 +913,7 @@ sin(x)
 @item var
 \JP 不定元
 \EG indeterminate
-@item poly1,poly2
+@item poly1 poly2
 \JP 多項式
 \EG polynomial
 @item mod
@@ -1329,7 +1329,7 @@ y-z
 @item return
 \JP 多項式
 \EG polynomial
-@item poly1,poly2
+@item poly1 poly2
 \JP 多項式
 \EG polynomial
 @item mod
