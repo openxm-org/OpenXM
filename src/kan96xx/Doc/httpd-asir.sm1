@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.8 2001/04/22 04:35:46 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.9 2001/04/22 04:55:07 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
@@ -65,7 +65,11 @@ def
   }{
     10 (string) dc /mmm set
   } ifelse
-  [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension message
+  [(sm1.socket) (select) [httpd.server.fd 0 get 0]] extension {
+    (Warning: your peer closed the connection. Do not send the data.) message
+  } {
+    [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension message
+  } ifelse
  ] pop
  popVariables
 } def
