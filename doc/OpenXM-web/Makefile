@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.8 2000/01/24 07:49:22 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.9 2000/01/24 11:39:34 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
@@ -50,12 +50,12 @@ $(WEBKOBE1)/smCommand.h : smCommand.h
 $(WEBKOBE1)/openxm-eg.ps : $(OpenXM_spec)/tmpEG/OpenXM.tex
 	-rm -f $(WEBKOBE1)/openxm-eg.ps
 	-(cd $(OpenXM_spec) ; make doc ; cd tmpEG ; latex OpenXM ; latex OpenXM)
-	-$(DVIPS) $(OpenXM_spec)/tmpEG/OpenXM >$(WEBKOBE1)/openxm-eg.ps
+	-( cd $(OpenXM_spec)/tmpEG ; $(DVIPS) OpenXM >$(WEBKOBE1)/openxm-eg.ps)
 
 $(WEBKOBE1)/openxm-jp.ps : $(OpenXM_spec)/tmpJP/OpenXM.tex
 	-rm -f $(WEBKOBE1)/openxm-jp.ps
 	-(cd $(OpenXM_spec) ; make doc ; cd tmpJP ; platex OpenXM ; platex OpenXM)
-	-$(DVIPS) $(OpenXM_spec)/tmpJP/OpenXM >$(WEBKOBE1)/openxm-jp.ps
+	-(cd $(OpenXM_spec)/tmpJP ; $(DVIPS) OpenXM >$(WEBKOBE1)/openxm-jp.ps)
 
 $(WEBKOBE1)/install-eg.txt : $(OpenXM_doc)/install-eg.txt
 	-cp $(OpenXM_doc)/install-eg.txt $(WEBKOBE1)
