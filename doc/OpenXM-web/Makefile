@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.21 2000/04/13 00:43:27 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.22 2000/09/09 03:01:24 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -18,12 +18,6 @@ ALL : all all-spec copy-doc
 
 all-spec : $(WEBKOBE1)/openxm-en.ps $(WEBKOBE1)/openxm-ja.ps
 
-
-checkDir :
-	if test ! -d ${WEBKOBE1} ; \
-	then \
-	  mkdir ${WEBKOBE1} ;  \
-	fi
 
 copy-doc :
 	/bin/rm -rf $(WEBKOBE1)/doc
@@ -45,6 +39,19 @@ namagize-html: copy-html
 	-(cd $(WEBKOBE1)/html/OpenXM-ja ; rm -rf OpenXM-ja.index ; mkdir OpenXM-ja.index )
 	-(cd $(WEBKOBE1)/html/OpenXM-ja/OpenXM-ja.index ; mknmz ../OpenXM-ja/OpenXM)
 
+usage:
+	@echo "Targets are "
+	@echo "    install-web-kobe all-spec copy-doc copy-html"
+
+checkDir :
+	if test ! -d ${WEBKOBE1} ; \
+	then \
+	  mkdir ${WEBKOBE1} ;  \
+	fi 
+	if test ! -d ${WEBKOBE1}/doc ; \
+	then \
+	  mkdir ${WEBKOBE1}/doc ;  \
+	fi \
 
 
 install-web-kobe :  checkDir $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-en.txt $(WEBKOBE1)/install-ja.txt  $(WEBKOBE1)/ERRATA.html $(WEBKOBE1)/index-binary.html $(WEBKOBE1)/index-packages.html $(WEBKOBE1)/install-faq.txt $(WEBKOBE1)/OpenXM-FAQ.txt $(WEBKOBE1)/doc/index.html
