@@ -1,4 +1,4 @@
-%%$OpenXM$
+%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.1 2000/01/02 07:32:12 takayama Exp $
 
 \section{OX messages}  (Ohara)
 
@@ -34,8 +34,8 @@ We have the following main tags for the OX messages.
 
 New OX tags may be added.
 The new tag should be classified into DATA or COMMAND.
-For example, \verb+ OX_DATA_ASIR_BINARY +  was added a few month ago
-to send internal serialized objects of asir via OpenXM protocol.
+For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added a few month ago
+to send internal serialized objects of asir via the OpenXM protocol.
 This is a tag classifed to DATA.
 See the home page of OpenXM to add a new tag.
 
@@ -46,18 +46,19 @@ In OpenXM, a distributed computation is done as follows:
 \item The client requests to send data to the server.
 \item The server sends the data to the client and the client gets the data.
 \end{enumerate}
-The server is a stack machine. 
-That is OX data message sent by the client
+The server is a stackmachine. 
+That is {\it OX data} message sent by the client
 are pushed to the stack of the server. 
-If the server gets a OX command message, then the data are
+If the server gets an {\it OX command} message, then the data are
 popped form the stack and they are used as arguments of a function call.
 For example, the asir command
-\verb+ ox_push_cmo(P,1) +
+\verb+ ox_push_cmo(P,1) + (push integer $1$ to the server P)
 sends an OX data message
 (OX\_DATA,(CMO\_ZZ,1)) to the server $P$.
 Here,
 OX\_DATA stands for OX\_DATA header and 
-(CMO\_ZZ,1) is a body standing for $1$ expressed in CMO data encoding format.
+(CMO\_ZZ,1) is a body standing for $1$ expressed 
+in the CMO data encoding format.
 
 
 

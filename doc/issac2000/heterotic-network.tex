@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.1 1999/12/23 10:25:08 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.2 2000/01/02 07:32:11 takayama Exp $
 
 \subsection{Heterotic Network}   (Takayama)
 
@@ -17,14 +17,14 @@ Here, $\bullet$ denotes the action of $D$ to functions.
 The annihilating ideal can be regarded as the maximal differential
 equations for the function $f^{-1}$.
 An algorithm to determine generators of the annihilating ideal
-was given by Oaku in 1995 (see, e.g., \cite[page ??]{sst-book}).
+was given by Oaku in 1995 (see, e.g., \cite[5.3]{sst-book}).
 His algorithm reduces the problem to computations of Gr\"obner bases
 in $D$ and to find the maximal integral root of a polynomial.
 An implementation of this algorithm (the function {\tt annfs})
-on kan/sm1 \cite{kan}, which is a Gr\"obner engine for $D$,
+on kan/sm1 \cite{kan}
 calls ox\_asir to factorize polynomials to find the integral
 roots.
-For example, the following is the sm1 session to find the annihilating
+For example, the following is a sm1 session to find the annihilating
 ideal for $f = x^3 - y^2 z^2$.
 \begin{verbatim}
 sm1>[(x^3-y^2 z^2) (x,y,z)] annfs ::
@@ -37,7 +37,7 @@ Byte order for engine process is network byte order.
      -7898796*s^3-5220720*s^2-1900500*s-294000]] 
 \end{verbatim}
 The last polynomial is factored as
-$-12(s+1)(3s+5)(3s+4)(6*s+5)(6*s+7)$
+$-12(s+1)(3s+5)(3s+4)(6s+5)(6s+7)$
 and the minimal integral root is $-1$
 as shown in the output.
 
@@ -77,12 +77,14 @@ We used Risa/asir with ox\_sm1\_phc (based on PHC pack by Verschelde \cite{phc}
 for the polyhedral homotopy method) and
 ox\_sm1\_gnuplot (GNUPLOT) servers
 to teach a course on solving algebraic equations.
-This course used the text book \cite{CLO} which focuses
+This course was presented with the text book \cite{CLO} which discusses
 on the Gr\"obner basis method and the polyhedral homotopy method
 to solve systems of algebraic equations.
 Risa/asir has a user language like C and we could teach a course
 with a unified environment
 controlled by asir user language.
+The following is an asir session to solve algebraic equations by calling
+the PHC pack.
 \begin{verbatim}
 [257] phc([x^2+y^2-4,x*y-1]);
 The detailed output is in the file tmp.output.*

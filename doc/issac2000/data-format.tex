@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.1 1999/12/23 10:25:08 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.2 2000/01/02 07:32:11 takayama Exp $
 
 \section{Data Format}   (Ohara)
 
@@ -13,9 +13,9 @@ However, if a program sends an OX data or an OX command unknown to its peer,
 an unrecoverable error may occur. 
 To avoid such a case OpenXM provides a scheme not
 to send an OX message unknown to peers. 
-It is realized by exchanging the list of
-supported CMO's, OpenXM stack machine codes, and necessary extra informations. 
-The list is called mathcap.
+It is realized by exchanging a list of
+supported CMO's, OpenXM stackmachine codes, and necessary extra informations. 
+The list is called {\it mathcap}.
 Mathcap is also defined as a CMO and the elements are 32bit integers
 or strings.
 
@@ -23,14 +23,15 @@ Math encoding types of OX data are distinguished with tags
 of OX messages.
 For example,
 an OX message with the tag 
-OX\_DATA is followed by CMO packet.
+OX\_DATA is followed by a CMO packet.
 An OX message with the tag 
 OX\_DATA\_OPENMATH\_XML is followed by 
-OpenMath XML string and its length.
+an OpenMath XML string and its length.
+
 All OpenXM compliant systems should implement 7 primitive data types
-of CMO.
+of the CMO.
 These are used not only to express mathematical objects, but also
-indespensable to carry control informations such as mathcap.
+indispensable to carry control informations such as mathcap.
 CMO is an original methematical data encoding system of the OpenXM project.
 Let us explain the data format of CMO.
 Any CMO packet consists of a header and a body.
@@ -70,7 +71,7 @@ Following tags are registered in the OpenXM for now.
 #define CMO_LAMBDA                         62
 \end{verbatim}
 The first seven types should be implemented on all OpenXM compliant systems.
-The format of the first severn CMO's are as follows. \\
+The format of the first seven CMO's are as follows. \\
 \begin{tabular}{|c|c|}
 \hline
 {\tt int32 CMO\_ERROR2} & {\sl CMObject} {\rm ob} \\ 
@@ -114,7 +115,7 @@ $\cdots$ & {\tt CMObject} {\rm ob[n-1]} \\
 \end{tabular} \\
 
 
-A mathematical programmer who wants to implement CMO on a server proceed 
+A mathematical programmer who wants to implement CMO on a server proceeds 
 as follows.
 \begin{enumerate}
 \item Look for the CMO list at the web cite \cite{openxm-web}.

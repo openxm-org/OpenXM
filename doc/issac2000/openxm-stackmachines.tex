@@ -1,18 +1,19 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.1 1999/12/23 10:25:09 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
 
 \section{OpenXM Stackmachines}   (Tamura)
 
 In OpenXM specification, all servers are stackmachines.
-These are called OpenXM stachmachines.
-When a server ox\_xyz gets a OX data message,
+These are called OX stachmachines.
+When a server ox\_xyz gets an OX data message,
 it translates the data into its own object and push the object
 on the stack.
-The translation scheme together with mathematical operation definitions
+The translation scheme together with definitions of 
+mathematical operations
 of the system ox\_xyz is called the {\it phrase dictionary} of
-ox\_xyz following the idea of OpenMath.
+ox\_xyz following the OpenMath specification.
 
-OX command message starts with the int32 tag OX\_COMMAND.
-The body is OpenXM stackmachine operation code expressed by int32.
+Any OX command message starts with the int32 tag OX\_COMMAND.
+The body is OX stackmachine operation code expressed by int32.
 The codes are listed below.
 \begin{verbatim}
 #define SM_popSerializedLocalObject               258
@@ -40,15 +41,17 @@ The codes are listed below.
 \end{verbatim}
 
 OpenXM does not have a standard for mathematical operation sets
-while it is one of the main future projects of \cite{gap}.
+while it is a work in progress in \cite{gap}.
 Each OpenXM server has its own mathematical operation set.
+Mathematical operations are performed as follows.
 Mathematical operator name, such as fctr (asir factorization command),
 is pushed as a string,
-SM\_executeFunction pops the operator name, the number of arguments
-and arguments,
-evaluates the operator, and pushes the result on the stack.
+the stackmachine command
+SM\_executeFunction (269) pops the operator name, the number of arguments
+and arguments, and
+the OX stackmachine evaluates the operator, and pushes the result on the stack.
 For example, the following code factorizes $x^{100}-1$ by calling
-ox\_asir.
+ox\_asir from asir.
 \begin{verbatim}
 P = ox_launch(); 
 ox_push_cmo(P,x^100-1); ox_push_cmo(P,ox_int32(1));
@@ -67,11 +70,11 @@ error([8,fctr : invalid argument])
 \end{verbatim}
 
 Errors are not sent to the client except a SM\_pop* command is received.
-Open XM stackmachines works in the asynchoronous mode which is similar 
+OX stackmachines works in the asynchronous mode which is similar 
 to X servers.
-For servers of graphic applications, it is an advantageous feature.
+For servers for graphic applications, it is an advantageous feature.
 It is also easy to emulate RPC and a web server for MCP \cite{iamc} 
-on our OpenXM stackmachines.
+on our asynchronous OX stackmachines.
 
 
 
