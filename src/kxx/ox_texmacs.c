@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.4 2004/03/01 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.5 2004/03/01 09:37:05 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -105,7 +105,6 @@ main() {
   while(1) {
 	/* printp(sys);  no prompt */
 	if (SETJMP(EnvOfStackMachine)) {
-	  printv("Syntax error or an interruption\n");
 	  KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
 	  if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
 		signal(SIGINT,ctrlC);
@@ -126,7 +125,7 @@ main() {
 	}
 
 	if (s == NULL) { irt = 1; continue; }
-	printf("%s",DATA_BEGIN_V);
+	if (!irt) printf("%s",DATA_BEGIN_V);
     KSexecuteString(" ox.engine ");
     ob = KpoString(s);
 	KSpush(ob);
