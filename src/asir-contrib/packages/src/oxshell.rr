@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.3 2003/12/08 05:35:32 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.4 2004/04/07 01:06:54 takayama Exp $ */
 
 module oxshell;
 
@@ -19,6 +19,7 @@ localf sm1flush$
 localf sm1push$
 localf sm1$
 localf sm1pop$
+localf keep_tmp$
 
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
@@ -64,6 +65,11 @@ def set_value(V,A) {
   SM1L_FIND_PROC(P);
   ox_push_cmo(P,rtostr(A));
   sm1(P,"  /"+rtostr(V)+"  set ");
+}
+
+def keep_tmp() {
+  SM1L_FIND_PROC(P);
+  sm1(P," [(keep_tmp_files) (1)] oxshell ");
 }
 
 /*&usage begin: oxshell.get_value(NAME,V)
