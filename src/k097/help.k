@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.5 2000/12/28 00:08:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.6 2000/12/29 07:19:39 takayama Exp $ */
 if (K00_verbose)
   Println("help.k (help.ccc).  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -168,9 +168,9 @@ HelpAdd(["Poly",
  "Poly(name) returns the polynomial name in the current ring 
   (string name)."]);
 HelpAdd(["PolyR",
- "PolyR(name,r) returns the polynomial name in the ring r 
- (string name, ring r).
- Ex. r = RingD(\"x,y\"); y = PolyR(\"y\",r); "]);
+ ["PolyR(name,r) returns the polynomial name in the ring r 
+ (string name, ring r).",
+ "Ex. r = RingD(\"x,y\"); y = PolyR(\"y\",r); "]]);
 HelpAdd(["RingD",
  ["RingD(names) defines a new ring (string names).", 
   "RingD(names,weight_vector) defines a new ring with the weight vector",
@@ -185,8 +185,9 @@ ascii code is ascii_code (integer ascii_code)."]);
 HelpAdd(["ToString","ToString(obj) transforms the <<obj>> to a string."]);
 HelpAdd(["Numerator","Numerator(f) returns the numerator of <<f>> (rational f)."]);
 HelpAdd(["Denominator","Denominator(f) returns the denominator of <<f>> (rational f)."]);
-HelpAdd(["Replace","Replace(f,rule) (polynomial f, array rule).  
-           Ex. Replace( (x+y)^3, [[x,Poly(\"1\")]])"]);
+HelpAdd(["Replace",
+  ["Replace(f,rule) (polynomial f, array rule).  ",
+   "Ex. Replace( (x+y)^3, [[x,Poly(\"1\")]])"]]);
 HelpAdd(["SetRingVariables",
  "SetRingVariables()
   Set the generators of the current ring as global variables.
@@ -742,8 +743,16 @@ HelpAdd(["IsConstant",
 Println("Default ring is Z[x,h]."); x = Poly("x"); h = Poly("h");
 
 def Substitute(f,xx,g) {
-  local tmp, coeff0,ex,i,n,newex;
+  local tmp, coeff0,ex,i,n,newex,ans;
   if (IsInteger(f)) return(f);
+  if (IsArray(f)) {
+     n = Length(f);
+     ans = NewVector(n);
+     for (i=0; i<n; i++) {
+       ans[i] = Substitute(f[i],xx,g);
+     }
+     return(ans);
+  }
   if (! IsPolynomial(f)) {
     k00_error("Substitute","The first argument must be polynomial.");
   }

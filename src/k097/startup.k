@@ -1,6 +1,6 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/startup.k,v 1.2 2000/01/21 03:01:26 takayama Exp $ */
 /*  startup.k */
-Println("Loading startup files (startup.k)   1997, 3/11.");
+Println("Loading startup files (startup.k)   2000, 1/3.");
 sm1("(sm1 version = ) messagen"); sm1("[(Version)] system_variable message ");
 load("help.k");  if (K00_verbose)   Println(".... Help module.");
 load("debug/db.k"); if (K00_verbose) Println(".... Debugger module.");

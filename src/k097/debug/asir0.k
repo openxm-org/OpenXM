@@ -2,7 +2,13 @@
 
 /* SSWork/yacc/debug/asir0.k,  1997, 3/5 cf. debug/asir1.ccc */
 if (K00_verbose) {
- Println("debug/asir0.k    you need to start k0 with -f option. ");
+ Println("debug/asir0.k    you need ox_asir module. ");
+}
+
+def loadOXasir() {
+Load_sm1(["oxasir.sm1",AddString([GetEnv("OpenXM_HOME"),
+          "/lib/sm1/oxasir.sm1"])],
+         "oxasir.sm1.loaded");
 }
 
 /* x = Poly("x");
@@ -10,13 +16,14 @@ if (K00_verbose) {
 Println(f); */
 
 def Factor(f)  {
-  sm1(f, " factor /FunctionValue set");
-  sm1(" clean-workfiles ");
+  loadOXasir();
+  sm1(f, " f fctr /FunctionValue set");
 }
-HelpAdd(["Factor",[" Not Yet. <<need asir, start k0 with -f option.>>"]]);
+HelpAdd(["Factor",["Factor a given polynomial."]]);
 
 def Cancel(f)  {
-  local tmp,den,num;
+  local tmp,den,num,r;
+  loadOXasir();
   if (IsRational(f)) {
    den = Cancel(Denominator(f));
    num = Cancel(Numerator(f));
@@ -39,13 +46,17 @@ def Cancel(f)  {
     if (IsConstant(f)) return(DC(f,"integer"));
     return(f);
   }
-  sm1(f," cancel /FunctionValue set");
-  sm1(" clean-workfiles ");
+  sm1("[[num den]] reduceByAsir /r set ");
+  if (IsInteger(r[1])) {
+    if (r[1] == 1) return(r[0]);
+  }
+  return(r[0]/r[1]);
 }
-HelpAdd(["Cancel",[" Not Yet. <<need asir, start k0 with -f option>>"]]);
+HelpAdd(["Cancel",["Cancel the greatest common multiple of the denominators and the numerator. "]]);
 
 
 
+/* BUG: It has not yet been rewritten. */
 def Primadec(f,g)  {
   sm1(f,g," primadec /FunctionValue set");
   sm1(" clean-workfiles ");

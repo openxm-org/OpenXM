@@ -182,9 +182,170 @@ FunctionValue } def
 /Reduction {
  db.DebugStack setstack $In function : Reduction of class PrimitiveObject$  stdstack 
  /Arglist set /Argthis set /FunctionValue [ ] def
- [/this /f /G  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [/this /f /myset  ] /ArgNames set ArgNames pushVariables [ %%function body
  [Argthis] Arglist join ArgNames mapset
- f  G   reduction /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+[ %%start of local variables
+/n /indexTable /set2 /i /j /tmp /t_syz /r /rng /vsize /tt ] pushVariables [ %%local variables
+null /vsize  set
+this [ %% function args 
+this [ %% function args 
+(1) ] {Poly} sendmsg2 
+] {GetRing} sendmsg2 
+/r  set
+this [ %% function args 
+f ] {GetRing} sendmsg2 
+/rng  set
+this [ %% function args 
+rng ] {Tag} sendmsg2 
+(0)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+myset ] {GetRing} sendmsg2 
+/rng  set
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+rng ] {Tag} sendmsg2 
+(0)..  eq not
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+rng ] {SetRing} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+f ] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+f ] {Length} sendmsg2 
+/vsize  set
+  [f] fromVectors 0 get /f set    }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+myset ] {Length} sendmsg2 
+/n  set
+n (0)..  gt
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+myset [(0)..  ]  Get
+] {IsArray} sendmsg2 
+ %% if-condition
+  { %%ifbody
+vsize this [ %% function args 
+myset [(0)..  ]  Get
+] {Length} sendmsg2 
+ eq not
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+(Reduction: size mismatch.) ] {Error} sendmsg2 
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+  myset fromVectors /myset set    }%%end if if body
+  { %%if- else part
+  } ifelse
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+n ] {NewArray} sendmsg2 
+/indexTable  set
+[   ] /set2  set
+(0).. /j  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. {add} sendmsg2 def
+} %%end of increment{A}
+{%%start of B part{B}
+this [ %% function args 
+myset [i  ]  Get
+] {Tag} sendmsg2 
+(0)..  eq
+ %% if-condition
+  { %%ifbody
+indexTable [i  ] (1)..  (0)..  2 1 roll {sub} sendmsg 
+ Put
+  }%%end if if body
+  { %%if- else part
+myset [i  ]  Get
+this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ eq
+ %% if-condition
+  { %%ifbody
+indexTable [i  ] (1)..  (0)..  2 1 roll {sub} sendmsg 
+ Put
+  }%%end if if body
+  { %%if- else part
+this [ %% function args 
+set2 myset [i  ]  Get
+] {Append} sendmsg2 
+/set2  set
+indexTable [i  ] j  Put
+/j j (1).. {add} sendmsg2 def
+  } ifelse
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+  f set2 (gradedPolySet) dc reduction /tmp set  this [ %% function args 
+n ] {NewArray} sendmsg2 
+/t_syz  set
+(0).. /i  set
+%%for init.
+%%for
+{ i n  lt
+ {  } {exit} ifelse
+[ {%%increment
+/i i (1).. {add} sendmsg2 def
+} %%end of increment{A}
+{%%start of B part{B}
+indexTable [i  ]  Get
+(1)..  (0)..  2 1 roll {sub} sendmsg 
+ eq not
+ %% if-condition
+  { %%ifbody
+t_syz [i  ] tmp [(2).. indexTable [i  ]  Get
+ ]  Get
+ Put
+  }%%end if if body
+  { %%if- else part
+t_syz [i  ] this [ %% function args 
+(0) ] {Poly} sendmsg2 
+ Put
+  } ifelse
+} %% end of B part. {B}
+ 2 1 roll] {exec} map pop
+} loop %%end of for
+this [ %% function args 
+vsize ] {Tag} sendmsg2 
+(0)..  eq not
+ %% if-condition
+  { %%ifbody
+tmp [(0)..  ]  Get
+/tt  set
+  [vsize (integer) dc tt] toVectors /tt set  tmp [(0)..  ] tt  Put
+  }%%end if if body
+  { %%if- else part
+  } ifelse
+this [ %% function args 
+r ] {SetRing} sendmsg2 
+[ tmp [(0)..  ]  Get
+tmp [(1)..  ]  Get
+t_syz   ]  /FunctionValue set  {/ExitPoint goto} exec %%return
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
  db.DebugStack setstack pop stdstack 
 FunctionValue } def
 %%end of function

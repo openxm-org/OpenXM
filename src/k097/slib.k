@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.5 2000/12/10 09:34:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.6 2000/12/28 00:08:13 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -78,8 +78,67 @@ def LiftStd(F) { /* Print("Input is "); Println(F); */
                             [arg1 [(needBack)]] groebner 
                             /FunctionValue set "); }
 
+/*
 def Reduction(f,G) { 
   sm1(f,G," reduction /FunctionValue set ");
+}
+*/
+def Reduction(f,myset) {
+  local n, indexTable, set2, i, j, tmp, t_syz,r,rng,
+        vsize,tt;
+  vsize = null;
+  r = GetRing(Poly("1"));  /* Save the current ring */
+  rng = GetRing(f);
+  if (Tag(rng) == 0) {
+    rng = GetRing(myset);
+  }
+  if (Tag(rng) != 0) {SetRing(rng);}
+
+  if (IsArray(f)) {
+     vsize = Length(f);
+     sm1(" [f] fromVectors 0 get /f set ");
+  }
+
+  n = Length(myset);
+  if (n > 0) {
+    if (IsArray(myset[0])) {
+      if (vsize != Length(myset[0])) {
+         Error("Reduction: size mismatch.");
+      }
+      sm1(" myset fromVectors /myset set ");
+    }
+  }
+
+  indexTable = NewArray(n);
+  set2 = [ ];
+  j = 0;
+  for (i=0; i<n; i++) {
+    if (Tag(myset[i]) == 0) {
+      indexTable[i] = -1;
+    }else if (myset[i] == Poly("0")) {
+      indexTable[i] = -1; 
+    }else{
+      set2 = Append(set2,myset[i]);
+      indexTable[i] = j;
+      j++;
+    }
+  }
+  sm1(" f set2 (gradedPolySet) dc reduction /tmp set ");
+  t_syz = NewArray(n);
+  for (i=0; i<n; i++) {
+    if (indexTable[i] != -1) {
+      t_syz[i] = tmp[2, indexTable[i]];
+    }else{
+      t_syz[i] = Poly("0");
+    }
+  }
+  if (Tag(vsize) != 0) {
+    tt = tmp[0];
+    sm1(" [vsize (integer) dc tt] toVectors /tt set ");
+    tmp[0] = tt;
+  }
+  SetRing(r);
+  return([tmp[0],tmp[1],t_syz]);
 }
 
 

@@ -1,0 +1,1230 @@
+%% $OpenXM$
+/*&C
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@setfilename complex
+@settitle complex
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+
+*/
+
+//&C @title  Kan/k0   complex
+//&ja @subtitle Kan/k0 complex パッケージ User's Manual (日本語版)
+//&en @subtitle Kan/k0 complex Package User's Manual
+/*&C
+@subtitle Edition 1.1.3 for OpenXM/kan/k0
+@subtitle December 31, 2000
+
+@author  by Nobuki Takayama
+@end titlepage
+
+@synindex vr fn
+
+@comment  node-name,  next,  previous,  up
+@node Top,, (dir), (dir)
+
+*/
+
+/*&ja
+
+@menu
+* COMPLEX 函数::
+* 基本 函数::
+* 索引::
+@end menu
+
+*/
+/*&en
+
+@menu
+* COMPLEX function::
+* Primitive function::
+* index::
+@end menu
+
+*/
+/*&ja
+
+@node COMPLEX 函数,,, Top
+@chapter COMPLEX 函数
+@section 函数一覧
+*/
+/*&en
+
+@node COMPLEX function,,, Top
+@chapter COMPLEX function
+@section A list of functions
+*/
+/*&C
+@menu
+* Res_solv::
+* Res_solv2::
+* Kernel::
+* Kernel2::
+* Gb::
+* Gb_h::
+* Res_shiftMatrix::
+@end menu
+
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Res_solv %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Res_solv::
+@end menu
+@node Res_solv,,, COMPLEX 函数
+@subsection @code{Res_solv}
+@findex Res_solv
+@table @t
+@item Res_solv(@var{m},@var{d})
+::  一次不定方程式 u @var{m} =@var{d} の解をもとめる.
+@item Res_solv(@var{m},@var{d},@var{r})
+::  一次不定方程式 u @var{m} =@var{d} の解をもとめる. @var{r} は ring.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Res_solv %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Res_solv::
+@end menu
+@node Res_solv,,, COMPLEX function
+@subsection @code{Res_solv}
+@findex Res_solv
+@table @t
+@item Res_solv(@var{m},@var{d})
+::  Find a solution u of the linear indefinite equation u @var{m} =@var{d}.
+@item Res_solv(@var{m},@var{d},@var{r})
+::  Find a solution u of the linear indefinite equation u @var{m} =@var{d}.
+@var{r} is a ring object.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+[c,r] が戻り値のとき c/r が解 u (横ベクトル).
+@item m
+行列またはベクトル
+@item d
+ベクトル またはスカラー
+@end table
+
+@itemize @bullet
+@item  一次不定方程式 u @var{m} =@var{d} の解をもとめる.
+@item  @var{m}, @var{d} の順に環の定義を検索し, その環と同じ変数集合を
+もつ微分作用素環(graded reverse lexicographic order)で不定方程式を解く.
+環 @var{r} があたえられているときは, @var{r} と同じ変数集合をもつ
+微分作用素環(graded reverse lexicographic order)で不定方程式を解く.
+@item @var{m}, @var{d} が定数成分のときは, 環 @var{r} を与える必要がある.
+(@var{m}, @var{d} より環の情報をとりだせないため).
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+When [c,r] is the return value,  c/r is the solution u.
+@item m
+Matrix or vector
+@item d
+Vector or scalar
+@end table
+
+@itemize @bullet
+@item  Find a solution u of the linear indefinite equation u @var{m} =@var{d}.
+@item It solves the linear indefinite equation in the ring of differential
+operators (with graded reverse lexicographic order) of the same set 
+of variables of the ring to which @var{m} or @var{d} belongs.
+When the ring @var{r} is given, 
+it solves the linear indefinite equation in the ring of differential
+operators (with graded reverse lexicographic order) of the same set 
+of variables of the ring @var{r}.
+@item When @var{m} and @var{d} consist of constants, a ring @var{r}
+should be given.
+@end itemize
+
+*/
+
+/*&C
+@example
+In(16)= RingD("x,y");
+In(17)= mm=[Dx,Dy,x];
+In(18)= Res_solv(mm,1):
+[    [    x , 0 , -Dx ]  , -1 ] 
+@end example
+*/
+/*&ja
+これは -x*Dx + 0*Dy+Dx*x = 1 であることを示す.
+*/
+/*&en
+The output means that  -x*Dx + 0*Dy+Dx*x = 1.
+*/
+
+/*&C
+@example
+In(4)=RingD("x");
+     m=[ [x*Dx+2, 0],[Dx+3,x^3],[3,x],[Dx*(x*Dx+3)-(x*Dx+2)*(x*Dx-4),0]];
+     d=[1,0];
+     Res_solv(m,d):
+
+[    [    x^2*Dx-x*Dx-4*x-1 , 0 , 0 , x ]  , -2 ] 
+@end example
+*/
+/*&ja
+これは
+-(1/2)*(x^2*Dx-x*Dx-4*x-1)*[x*Dx+2, 0]-(1/2)*[Dx*(x*Dx+3)-(x*Dx+2)*(x*Dx-4),0]
+= [1,0]
+であることを示す.
+*/
+/*&en
+The output implies that
+-(1/2)*(x^2*Dx-x*Dx-4*x-1)*[x*Dx+2, 0]-(1/2)*[Dx*(x*Dx+3)-(x*Dx+2)*(x*Dx-4),0]
+= [1,0]
+*/
+
+/*&C
+
+@example
+
+In(4)= r=RingD("x,y");
+In(5)= Res_solv([[1,2],[3,4]],[5,0],r):
+[    [    10 , -5 ]  , -1 ] 
+
+@end example
+
+
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+    @code{Res_solv_h}, @code{Kernel},  @code{GetRing}, @code{SetRing}.  
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+    @code{Res_solv_h}, @code{Kernel},  @code{GetRing}, @code{SetRing}.  
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Res_solv2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Res_solv2::
+@end menu
+@node Res_solv2,,, COMPLEX 函数
+@subsection @code{Res_solv2}
+@findex Res_solv2
+@table @t
+@item Res_solv2(@var{m},@var{v},@var{j})
+::  一次不定方程式 u @var{m} =@var{v} mod @var{j} の解をもとめる.
+@item Res_solv2(@var{m},@var{v},@var{j},@var{r})
+::  一次不定方程式 u @var{m} =@var{v} mod @var{j} の解をもとめる. 
+@var{r} は ring.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Res_solv2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Res_solv2::
+@end menu
+@node Res_solv2,,, COMPLEX function
+@subsection @code{Res_solv2}
+@findex Res_solv2
+@table @t
+@item Res_solv2(@var{m},@var{v},@var{j})
+::  Find a solution u of the linear indefinite equation u @var{m} =@var{v}
+    mod @var{j}.
+@item Res_solv2(@var{m},@var{v},@var{j},@var{r})
+::  Find a solution u of the linear indefinite equation u @var{m} =@var{v}
+mod @var{j}.
+@var{r} is a ring object.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+[c,r] が戻り値のとき c/r が解 u (横ベクトル).
+@item m
+行列またはベクトル
+@item v  j
+ベクトル またはスカラー
+@end table
+
+@itemize @bullet
+@item  一次不定方程式 u @var{m} =@var{v} mod @var{j} の解をもとめる.
+@item これは, @var{m} を
+ @var{m} :  D^p ---> D^q/@var{j} 
+なる左 D homomorphism とみなすとき,
+@var{m}^(-1)(@var{v}) を求めることに相当する.
+@item  @var{m}, @var{v} の順に環の定義を検索し, その環と同じ変数集合を
+もつ微分作用素環(graded reverse lexicographic order)で不定方程式を解く.
+環 @var{r} があたえられているときは, @var{r} と同じ変数集合をもつ
+微分作用素環(graded reverse lexicographic order)で不定方程式を解く.
+@item @var{m}, @var{v} が定数成分のときは, 環 @var{r} を与える必要がある.
+(@var{m}, @var{v} より環の情報をとりだせないため).
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+When [c,r] is the return value,  c/r is the solution u.
+@item m
+Matrix or vector
+@item v j
+Vector or scalar
+@end table
+
+@itemize @bullet
+@item  Find a solution u of the linear indefinite equation u @var{m} =@var{v}
+mod @var{j}.
+@item Let  @var{m} be the left D-homomorphism
+ @var{m} :  D^p ---> D^q/@var{j}.
+The function returns an element in 
+@var{m}^(-1)(@var{v}).
+@item It solves the linear indefinite equation in the ring of differential
+operators (with graded reverse lexicographic order) of the same set 
+of variables of the ring to which @var{m} or @var{v} belongs.
+When the ring @var{r} is given, 
+it solves the linear indefinite equation in the ring of differential
+operators (with graded reverse lexicographic order) of the same set 
+of variables of the ring @var{r}.
+@item When @var{m} and @var{v} consist of constants, a ring @var{r}
+should be given.
+@end itemize
+
+*/
+
+/*&C
+@example
+In(28)= r=RingD("x,y");
+In(29)= Res_solv2([x,y],[x^2+y^2],[x]):
+[    [    0 , y ]  , 1 ] 
+
+@end example
+*/
+/*&ja
+これは 0*x + y*y = x^2+y^2 mod x であることを示す.
+*/
+/*&en
+The output means that  0*x + y*y = x^2+y^2 mod x
+*/
+
+/*&C
+@example
+
+In(32)= Res_solv2([x,y],[x^2+y^2],[],r):
+[    [    x , y ]  , 1 ] 
+
+
+@end example
+*/
+/*&ja
+これは
+  x*x + y*y = x^2+y^2
+であることを示す.
+*/
+/*&en
+The output implies that
+  x*x + y*y = x^2+y^2.
+*/
+
+
+
+/*&ja
+
+@table @t
+@item 参照
+    @code{Res_solv2_h}, @code{Kernel2},  @code{GetRing}, @code{SetRing}.  
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+    @code{Res_solv2_h}, @code{Kernel2},  @code{GetRing}, @code{SetRing}.  
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Kernel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@c Kernel は minimal.k にあるが complex.k などに移動すべき.
+@menu
+* Kernel::
+@end menu
+@node Kernel,,, COMPLEX 函数
+@subsection @code{Kernel}
+@findex Kernel
+@table @t
+@item Kernel(@var{m})
+::  一次不定方程式 u @var{m} =0 の解空間の基底を求める.
+@item Kernel(@var{m},@var{r})
+::  一次不定方程式 u @var{m} =0 の解空間の基底を求める. @var{r} は ring.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Kernel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Kernel::
+@end menu
+@node Kernel,,, COMPLEX function
+@subsection @code{Kernel}
+@findex Kernel
+@table @t
+@item Kernel(@var{m})
+::  Find solution basis of the linear indefinite equation u @var{m} =0.
+@item Kernel(@var{m},@var{r})
+::  Find solution basis of the linear indefinite equation u @var{m} =0.
+@var{r} is a ring object.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+リスト
+@item m
+行列またはベクトル
+@end table
+
+@itemize @bullet
+@item  一次不定方程式 u @var{m} =0 の解空間の基底を求める.
+@item 戻り値を k とするとき k[0] が 解空間の基底の集合.
+k[1] は [gb, backward transformation, syzygy without dehomogenization].
+@item  @var{m} より環の定義を検索し, その環でカーネルを計算する.
+環 @var{r} があたえられているときは, @var{r} でカーネルを計算する.
+@item @var{m} が定数成分のときは, 環 @var{r} を与える必要がある.
+(@var{m} より環の情報をとりだせないため).
+@item BUG:  Kernel および Res_solv (syz, res-solv) のみが, 環引数に
+対応してる. (2000, 12/29 現在).
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+List
+@item m
+Matrix or vector
+@end table
+
+@itemize @bullet
+@item  Find solution basis of the linear indefinite equation u @var{m} =0.
+@item When the return value is  k, k[0] is a set of generators of the kernel.
+k[1] is [gb, backward transformation, syzygy without dehomogenization].
+@item It finds the kernel in the ring 
+to which @var{m} belongs.
+When the ring @var{r} is given, 
+it finds the kernel in the ring @var{r}.
+@item When @var{m} consists of constants, a ring @var{r}
+should be given.
+@end itemize
+
+*/
+
+/*&C
+@example
+In(16)= RingD("x,y");
+In(17)= mm=[[Dx],[Dy],[x]];
+In(18)= Pmat(Kernel(mm));
+ [ 
+  [ 
+    [    -x*Dx-2 , 0 , Dx^2 ] 
+    [    -x*Dy , -1 , Dx*Dy ] 
+    [    -x^2 , 0 , x*Dx-1 ] 
+  ]
+  [ 
+   [ 
+     [    -1 ] 
+   ]
+   [ 
+     [    x , 0 , -Dx ] 
+   ]
+   [ 
+     [    -x*Dx-2 , 0 , Dx^2 ] 
+     [    -x*Dy , -1 , Dx*Dy ] 
+     [    -x^2 , 0 , x*Dx-1 ] 
+   ]
+  ]
+ ]
+
+@end example
+*/
+
+
+/*&C
+
+@example
+
+In(4)= r=RingD("x,y");
+In(5)= k=Kernel([[1,2],[2,4]],r); k[0]:
+[    [    2 , -1 ]  ] 
+@end example
+
+
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+    @code{Kernel_h}, @code{Res_solv}, @code{GetRing}, @code{SetRing}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Kernel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+    @code{Kernel_h}, @code{Res_solv},  @code{GetRing}, @code{SetRing}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Kernel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Kernel2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Kernel2::
+@end menu
+@node Kernel2,,, COMPLEX 函数
+@subsection @code{Kernel2}
+@findex Kernel2
+@table @t
+@item Kernel2(@var{m},@var{j})
+::  @var{m} : D^p ---> D^q/@var{j} の Kernel を求める. 
+@item Kernel2(@var{m},@var{j},@var{r})
+::  @var{m} : D^p ---> D^q/@var{j} の Kernel を求める. @var{r} は ring.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Kernel2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Kernel2::
+@end menu
+@node Kernel2,,, COMPLEX function
+@subsection @code{Kernel2}
+@findex Kernel2
+@table @t
+@item Kernel2(@var{m})
+::  Get the kernel of @var{m} : D^p ---> D^q/@var{j}.
+@item Kernel2(@var{m},@var{r})
+::   Get the kernel of @var{m} : D^p ---> D^q/@var{j}.
+@var{r} is a ring object.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+リスト
+@item m  j
+行列またはベクトル
+@end table
+
+@itemize @bullet
+@item @var{m} : D^p ---> D^q/@var{j} の Kernel を求める. 
+@item D^p は横ベクトルであり, u が D^p の元のとき,
+    u @var{m} で写像を定義する.
+@item  @var{m} より環の定義を検索し, その環でカーネルを計算する.
+環 @var{r} があたえられているときは, @var{r} でカーネルを計算する.
+@item @var{m} が定数成分のときは, 環 @var{r} を与える必要がある.
+(@var{m} より環の情報をとりだせないため).
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+List
+@item m  j
+Matrix or vector
+@end table
+
+@itemize @bullet
+@item Get a set of generators of the the kernel 
+of @var{m} : D^p ---> D^q/@var{j}.
+@item D^p is a set of row vectors. When u is an element of D^p,
+define the map from D^p to D^q/@var{j} by u @var{m}.
+@item It finds the kernel in the ring 
+to which @var{m} belongs.
+When the ring @var{r} is given, 
+it finds the kernel in the ring @var{r}.
+@item When @var{m} consists of constants, a ring @var{r}
+should be given.
+@end itemize
+
+*/
+
+/*&C
+@example
+In(27)= r=RingD("x,y");
+In(28)= Kernel2([[x,y],[x^2,x*y]],[]):
+[    [    -x , 1 ]  ] 
+In(29)=Kernel2([[x,y],[x^2,x*y]],[[x,y]]):
+[    [    1 , 0 ]  , [    0 , 1 ]  ] 
+
+In(41)=Kernel2([0],[0],r):
+[    [    1 ]  , [    0 ]  ] 
+In(42)=Kernel2([[0,0],[0,0]],[[0,0]],r):
+[    [    1 , 0 ]  , [    0 , 1 ]  , [    0 , 0 ]  ] 
+In(43)=Kernel2([[0,0,0],[0,0,0]],[],r):
+[    [    1 , 0 ]  , [    0 , 1 ]  ] 
+
+@end example
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+    @code{Kernel2_h}, @code{Res_solv2}, @code{GetRing}, @code{SetRing},
+    @code{Kernel}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Kernel2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+    @code{Kernel2_h}, @code{Res_solv2},  @code{GetRing}, @code{SetRing},
+    @code{Kernel} 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Kernel2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Gb %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Gb::
+@end menu
+@node Gb,,, COMPLEX 函数
+@node Gb_h,,, COMPLEX 函数
+@subsection @code{Gb}
+@findex Gb
+@findex Gb_h
+@table @t
+@item Gb(@var{f})
+::  @var{f} のグレブナ基底をもとめる.
+@item Gb(@var{f},@var{r})
+::  @var{f} のグレブナ基底をもとめる. @var{r} は ring.
+@item Gb_h(@var{f})
+::  @var{f} のグレブナ基底をもとめる.
+@item Gb_h(@var{f},@var{r})
+::  @var{f} のグレブナ基底をもとめる. @var{r} は ring.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Gb %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Gb::
+@end menu
+@node Gb,,, COMPLEX function
+@node Gb_h,,, COMPLEX function
+@subsection @code{Gb}
+@findex Gb
+@table @t
+@item Gb(@var{f})
+::  It computes the Grobner basis of @var{f}.
+@item Gb(@var{m},@var{r})
+::  It computes the Grobner basis of @var{f}.
+@var{r} is a ring object.
+@item Gb_h(@var{f})
+::  It computes the Grobner basis of @var{f}.
+@item Gb_h(@var{m},@var{r})
+::  It computes the Grobner basis of @var{f}.
+@var{r} is a ring object.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+リスト
+@item f
+行列またはベクトル
+@end table
+
+@itemize @bullet
+@item  @var{f} のグレブナ基底をもとめる.
+@item _h 付きの場合は, 同次ワイル代数で計算をおこなう.
+@item 戻り値を k とするとき k[0] が グレブナ基底.
+環が weight vector 付きで定義されたときは,
+k[1] は initial ideal または initial module.
+@item  @var{m} より環の定義を検索し, その環でグレブナ基底を計算する.
+環 @var{r} があたえられているときは, @var{r} でグレブナ基底を計算する.
+@item @var{m} が定数成分のときは, 環 @var{r} を与える必要がある.
+(@var{m} より環の情報をとりだせないため).
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+List
+@item f
+Matrix or vector
+@end table
+
+@itemize @bullet
+@item  Compute the Grobner basis of @var{f}.
+@item Functions with _h  computes Grobner bases in the homogenized Weyl
+algebra.
+@item When the return value is  k, k[0] is the Grobner basis.
+k[1] is the initial ideal or the initial module of @var{f},
+when the ring is defined with a weight vector.
+@item It computes the Grobner basis in the ring 
+to which @var{f} belongs.
+When the ring @var{r} is given, 
+it computes the Grobner basis in the ring @var{r}.
+@item When @var{f} consists of constants, a ring @var{r}
+should be given.
+@end itemize
+
+*/
+
+/*&C
+@example
+In(5)= r=RingD("x,y");
+In(6)= m=[[x^2+y^2-1],[x*y-1]];
+In(7)= Gb(m):
+[    [    [    x^2+y^2-1 ]  , [    x*y-1 ]  , [    y^3+x-y ]  ]  , 
+[    [    x^2+y^2-1 ]  , [    x*y-1 ]  , [    y^3+x-y ]  ]  ] 
+
+In(11)= RingD("x,y",[["x",1]]);
+In(12)= r=RingD("x,y",[["x",1]]);
+In(13)= Gb(m,r):
+[    [    [    x+y^3-y ]  , [    -y^4+y^2-1 ]  ]  , 
+[    [    x ]  , [    -y^4+y^2-1 ]  ]  ] 
+
+@end example
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+    @code{Gb_h}, @code{Kernel}, @code{Res_solv}, @code{RingD}, 
+    @code{GetRing}, @code{SetRing}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Gb %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+    @code{Gb_h}, @code{Kernel}, @code{Res_solv}, @code{RingD}, 
+    @code{GetRing}, @code{SetRing}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Gb %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Res_shiftMatrix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Res_shiftMatrix::
+@end menu
+@node Res_shiftMatrix,,, COMPLEX 函数
+@subsection @code{Res_shiftMatrix}
+@findex Res_shiftMatrix
+@table @t
+@item Res_shiftMatrix(@var{m},@var{v})
+::  Degree shift ベクトル @var{m} に対応する行列を作る.
+@item Res_shiftMatrix(@var{f},@var{v},@var{r})
+::  Degree shift ベクトル @var{m} に対応する行列を作る. @var{r} は ring.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Res_shiftMatrix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Res_shiftMatrix::
+@end menu
+@node Res_shiftMatrix,,, COMPLEX function
+@subsection @code{Res_shiftMatrix}
+@findex Res_shiftMatrix
+@table @t
+@item Res_shiftMatrix(@var{m},@var{v})
+::  Generate a matrix associated to a degree shift vector @var{m}
+@item Res_shiftMatrix(@var{m},@var{v},@var{r})
+::  Generate a matrix associated to a degree shift vector @var{m}
+@var{r} is a ring object.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+行列.
+@item m
+ベクトル
+@item v
+多項式変数または文字列
+@end table
+
+@itemize @bullet
+@item diag(@var{v}^(@var{m}1), ..., @var{v}^(@var{m}n))
+なる n × n 行列を戻す.
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+Matrix
+@item m
+Vector
+@item v
+多項式変数または文字列
+@end table
+
+@itemize @bullet
+@item Returns n by n matrix
+diag(@var{v}^(@var{m}1), ..., @var{v}^(@var{m}n))
+@end itemize
+
+*/
+
+/*&C
+@example
+In(5)= r=RingD("x,y");
+In(6)= Res_shiftMatrix([-1,0,3],x):
+[    [    x^(-1) , 0 , 0 ]  , [    0 , 1 , 0 ]  , [    0 , 0 , x^3 ]  ] 
+
+@end example
+*/
+
+/*&C
+@example
+In(9)=  rrr = RingD("t,x,y",[["t",1,"x",-1,"y",-1,"Dx",1,"Dy",1]]);
+In(10)=  m=[Dx-(x*Dx+y*Dy+2),Dy-(x*Dx+y*Dy+2)];
+In(12)=  m=Gb(m);
+In(13)=  k = Kernel_h(m[0]);
+In(14)=  Pmat(k[0]);
+ [ 
+   [    -Dy+3*h , Dx-3*h , 1 ] 
+   [    -x*Dx+x*Dy-y*Dy-3*x*h , y*Dy+3*x*h , h-x ] 
+ ]
+
+In(15)=Pmat(m[0]);
+  [    Dx*h-x*Dx-y*Dy-2*h^2 , Dy*h-x*Dx-y*Dy-2*h^2 , 
+       x*Dx^2-x*Dx*Dy+y*Dx*Dy-y*Dy^2 ] 
+
+In(18)=k2 = Gb_h(k[0]*Res_shiftMatrix([1,1,1],t));
+In(19)=Pmat(Substitute(k2[0],t,1));
+ [ 
+   [    -Dy+3*h , Dx-3*h , 1 ] 
+   [    -x*Dx+x*Dy-y*Dy-3*x*h , y*Dy+3*x*h , h-x ] 
+ ]
+
+
+@end example
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+    @code{Gb}, (m,(u,v))-グレブナ基底
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Res_shiftMatrix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+   @code{Gb}, (m,(u,v))-Grobner basis
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Res_shiftMatrix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+
+@c --------------  Primitive 基本 ----------------------
+
+/*&ja
+
+@node 基本 函数,,, Top
+@chapter 基本 函数
+@section 函数一覧
+*/
+/*&en
+
+@node Primitive function,,, Top
+@chapter Primitive function
+@section A list of functions
+*/
+/*&C
+@menu
+* changeRing::
+* GetRing::
+* SetRing::
+* Intersection::
+* Getxvars::
+* Firstn::
+@end menu
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start changeRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@node changeRing,,, 基本 函数
+@subsection @code{changeRing}
+@findex changeRing
+@table @t
+@item changeRing(@var{f})
+::  changeRing は @var{f} の要素が属する環を current ring にする.
+@end table
+ 
+@table @var
+@item return
+true か false
+@item f  リスト
+@end table
+
+@example
+   RingD("x,y");
+   f=[x+y,0];
+   RingD("p,q,r");
+   changeRing(f);
+@end example
+@c  %%%%%%%%%%%%%%%%%%%%  end of changeRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of GetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* GetRing::
+@end menu
+@node GetRing,,, 基本 函数
+@subsection @code{GetRing}
+@findex GetRing
+@table @t
+@item GetRing(@var{f})
+::  @var{f} の要素の属する環を戻す.
+@end table
+
+@table @var
+@item return
+環
+@item f
+オブジェクト
+@end table
+
+@itemize @bullet
+@item  @var{f} の要素または @var{f} 自身の属する環を戻す.
+環がないときは null を戻す.
+@end itemize
+
+@example
+In(16)= RingD("x,y");
+In(17)= r = GetRing([x^2,0,1]);
+@end example
+
+@table @t
+@item 参照
+    @code{SetRing},   @code{ChangeRing}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of GetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of SetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* SetRing::
+@end menu
+@node SetRing,,, 基本 函数
+@subsection @code{SetRing}
+@findex SetRing
+@table @t
+@item SetRing(@var{r})
+::  Current ring を @var{r} に変更する.
+@end table
+
+@table @var
+@item return
+なし
+@item r
+環
+@end table
+
+@itemize @bullet
+@item  Current ring を @var{r} に変更する.
+@end itemize
+
+@example
+In(16)= RingD("x,y");
+In(17)= f=[x^2,0,1]; r = GetRing(f);
+In(19)= RingD("p,q");
+In(20)= SetRing(r);
+In(21)= f = DC(f,"polynomial");
+@end example
+
+@table @t
+@item 参照
+    @code{GetRing},   @code{ChangeRing}, @code{DC}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of SetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Intersection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Intersection::
+@end menu
+@node Intersection,,, 基本 函数
+@subsection @code{Intersection}
+@findex Intersection
+@table @t
+@item Intersection(@var{i},@var{j})
+::  イデアル @var{i} と @var{j} の交わりを求める.
+@item Intersection(@var{i},@var{j},@var{r})
+::  イデアル @var{i} と @var{j} の交わりを求める. 計算を環 @var{r} 
+でおこなう.
+@end table
+
+@table @var
+@item return
+リストであたえられたイデアルまたは自由加群の部分加群
+@item i  j
+イデアルまたは自由加群の部分加群
+@item r
+環
+@end table
+
+@itemize @bullet
+@item  ::  イデアル @var{i} と @var{j} の交わりを求める.
+@end itemize
+
+@example
+In(16)= RingD("x,y");
+In(17)= mm=[ [x,0],[0,y] ]; nn = [ [x^2,0],[0,y^3]];
+In(19)= Intersection(mm,nn):
+In(33)=Intersection(mm,nn):
+[    [    -x^2 , 0 ]  , [    0 , -y^3 ]  ] 
+@end example
+
+@table @t
+@item 参照
+
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Intersection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Getxvars %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Getxvars::
+@end menu
+@node Getxvars,,, 基本 函数
+@subsection @code{Getxvars}
+@findex Getxvars
+@table @t
+@item Getxvars()
+::  x 変数を戻す
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Getxvars %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Getxvars::
+@end menu
+@node Getxvars,,, Primitive function
+@subsection @code{Getxvars}
+@findex Getxvars
+@table @t
+@item Getxvars()
+::  Return x variables
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+[x_list, x_str]  x_list は x 変数のリスト, x_str は x 変数を , で区切った文字列.
+@end table
+
+*/
+/*&en
+@table @var
+@item return
+[x_list, x_str] x_list is a list of x variables, x_str is a string consisting
+of x variables separated by commas.
+@end table
+
+
+*/
+
+/*&C
+@example
+In(4)=RingD("x,y");
+In(5)=Getxvars():
+[    [    y , x ]  , y,x, ] 
+@end example
+
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Getxvars %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Getxvars %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Firstn::
+@end menu
+@node Firstn,,, 基本 函数
+@subsection @code{Firstn}
+@findex Firstn
+@table @t
+@item Firstn(@var{m},@var{n})
+::  @var{m} の最初の @var{n} 個をとりだす.
+@end table
+
+*/
+/*&en
+@c %%%%%%%%%%%%%%%%%%%%  start of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* Firstn::
+@end menu
+@node Firstn,,, Primitive function
+@subsection @code{Firstn}
+@findex Firstn
+@table @t
+@item Firstn(@var{m},@var{n})
+::  Return the first @var{n} elements of @var{m}.
+@end table
+
+*/
+
+/*&ja
+@table @var
+@item return
+行列またはベクトル
+@item m
+行列またはベクトル
+@item n
+数
+@end table
+
+@itemize @bullet
+@item  m の最初の n 個.  とくに m が行列のときは, 各行より最初の n 個をとりだした
+もので作れらた行列を戻す.
+@end itemize
+
+*/
+/*&en
+@table @var
+@item return
+Matrix or vector
+@item m
+Matrix or vector
+@item n
+Number
+@end table
+
+@itemize @bullet
+@item  The first n elements of m.  When m is a matrix, it returns the matrix
+consisting of first n elements of rows of m.
+@end itemize
+
+*/
+
+/*&C
+@example
+In(16)= mm = [[1,2,3],[4,5,6]];
+In(17)= Firstn(mm,2):
+    [[1,2], 
+     [4,5]]
+@end example
+*/
+
+
+/*&ja
+
+@table @t
+@item 参照
+
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+/*&en
+
+@table @t
+@item Reference
+
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@node 索引,,, Top
+@unnumbered 索引
+*/
+/*&en
+@node index,,, Top
+@unnumbered index
+*/
+/*&C
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+*/
