@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.5 2003/07/22 03:25:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.6 2003/07/22 07:39:57 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -836,18 +836,9 @@ char *generateTMPfileName(char *seed) {
             struct stat buf;
             int m;
             m = stat(fname,&buf);
-#if defined(__CYGWIN__)
-#define _POSIX_SOURCE
-#endif
-#ifndef _POSIX_SOURCE
-            if ((m >= 0) && (buf.st_mtimespec.tv_sec+120 < time(NULL))) {
-              unlink(fname);
-            }
-#else
             if ((m >= 0) && (buf.st_mtime+120 < time(NULL))) {
               unlink(fname);
             }
-#endif
           }
         }
         num = 0; clean=1; prevnum=0;
