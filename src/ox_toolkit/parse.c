@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.10 2003/02/03 23:13:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.11 2003/03/23 20:17:35 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -333,7 +333,25 @@ static int parse_integer()
 #if defined(WITH_GMP)
     return mpz_get_si(parse_mpz_integer());
 #else
-    abort(); /* not implemented */
+    int sign = 1;
+    int val;
+
+    if (token == '+') {
+        token = lex();
+    }else if (token == '-') {
+        sign = -1;
+        token = lex();
+    }
+
+    if (token != T_DIGIT) {
+        parse_error("no integer.");
+    }
+    val = sign*atoi(yylval.sym);
+#ifdef DEBUG
+    free(yylval.sym);
+#endif
+    token = lex();
+    return val;
 #endif
 }
 
