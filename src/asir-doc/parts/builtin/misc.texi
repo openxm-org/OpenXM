@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.15 2003/10/21 05:16:35 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.16 2003/11/27 03:43:37 ohara Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -16,6 +16,8 @@
 * time::
 * cputime tstart tstop::
 * timer::
+* currenttime::
+* sleep::
 * heap::
 * version::
 * shell::
@@ -488,7 +490,7 @@ for a reply to interruption prompting are added to the elapsed time.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{cputime tstart tstop}.
+@fref{cputime tstart tstop}, @fref{currenttime}.
 @end table
 
 \JP @node cputime tstart tstop,,, その他
@@ -585,7 +587,7 @@ the debug-mode and execute @code{cputime(1)}.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{time}, @fref{ctrl}.
+@fref{time}, @fref{currenttime}, @fref{ctrl}.
 @end table
 
 \JP @node timer,,, その他
@@ -596,9 +598,7 @@ the debug-mode and execute @code{cputime(1)}.
 @table @t
 @item timer(@var{interval},@var{expr},@var{val})
 \JP :: 制限時間つきで計算を実行する.
-\BEG
-:: Compute an expression under the interval timer.
-\E
+\EG :: Compute an expression under the interval timer.
 @end table
 
 @table @var
@@ -651,6 +651,71 @@ The third argument should be distinguishable from the result on success.
 interval timer expired (VTALRM)
 0
 [11] 
+@end example
+
+\JP @node currenttime,,, その他
+\EG @node currenttime,,, Miscellaneouses
+@subsection @code{currenttime}
+@findex currenttime
+
+@table @t
+@item currenttime()
+\JP :: 現在時刻を取得
+\EG :: Get current time.
+@end table
+
+@table @var
+@item return 
+\JP 1970年1月1日0時0分0秒からの経過秒数.
+\EG UNIX time.
+@end table
+
+@itemize @bullet
+
+@item
+\JP @code{currenttime()} は現在時刻を返す.  UNIX の場合, time(3) を呼んでいるだけである.
+\EG See also time(3) in UNIX manuals.
+
+@end itemize
+
+@example
+[0] currenttime();
+1071639228
+[1] 
+@end example
+
+\JP @node sleep,,, その他
+\EG @node sleep,,, Miscellaneouses
+@subsection @code{sleep}
+@findex sleep
+
+@table @t
+@item sleep(@var{interval})
+\JP :: プロセスの実行を停止
+\EG :: Suspend computation for an interval.
+@end table
+
+@table @var
+@item return 
+1
+
+@item interval
+\JP 停止時間 (マイクロ秒)
+\EG interval (micro second)
+@end table
+
+@itemize @bullet
+
+@item
+\JP @code{sleep()} は, プロセスの実行を停止する.  UNIX の場合, usleep を呼んでいるだけである.
+\EG See also usleep(3) in UNIX manuals.
+
+@end itemize
+
+@example
+[0] sleep(1000);
+1
+[1] 
 @end example
 
 \JP @node heap,,, その他
@@ -761,8 +826,9 @@ at the activation of @b{Asir}. (@xref{Command line options}.)
 @b{Asir} のバージョンを自然数で返す.
 \E
 \BEG
-Command @code{version()} returns the version identification number
-, an integer of @b{Asir} in use.
+@item
+Command @code{version()} returns the version identification number, 
+an integer of @b{Asir} in use.
 \E
 @end itemize
 
@@ -860,6 +926,12 @@ cyclic        is            r             sugar
 @var{arg0} がリスト, ベクトル, 行列以外の場合, 単に @var{arg0}, 
 @var{arg1}, ... を引数として @var{function} を呼び出しその
 結果を返す. 
+@item
+@code{map} の引数 @var{function} で与えられる函数は, 内部的にも函数と
+して実装されていなければならない.  そうでなければ parse error になる. 
+例えば @code{map} 自身や @code{car}, @code{cdr} などは内部的には函数と
+して実装されていない.  したがって @code{map} の引数に @code{map} をと
+ることはできない.
 \E
 \BEG
 @item 

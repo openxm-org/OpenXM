@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.14 2003/04/20 05:51:22 saito Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.15 2003/09/03 02:17:39 takayama Exp $
 
 WHICH=../../misc/which.pl
 
@@ -49,7 +49,7 @@ BUILTINS=\
 	parts/builtin/num.texi parts/builtin/poly.texi\
 	parts/builtin/string.texi\
 	parts/builtin/type.texi parts/builtin/upoly.texi\
-	parts/builtin/structure.texi
+	parts/builtin/structure.texi parts/builtin/module.texi 
 
 PARTS=\
 	parts/algnum.texi parts/appendix.texi parts/asir.texi\

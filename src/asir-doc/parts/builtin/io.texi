@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.12 2003/11/01 23:58:44 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.13 2003/11/27 15:56:08 ohara Exp $
 \BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
@@ -17,6 +17,7 @@
 * bload27::
 * print::
 * access::
+* remove_file::
 * open_file close_file get_line get_byte put_byte purge_stdin::
 @end menu
 
@@ -535,7 +536,7 @@ xyz123gahaha
 @end example
 
 \JP @node access,,, 入出力
-\EG @node aceess,,, Inputs and Outputs
+\EG @node access,,, Inputs and Outputs
 @subsection @code{access}
 @findex access
 
@@ -547,7 +548,7 @@ xyz123gahaha
 
 @table @var
 @item return
-0 or 1
+(1|0)
 @item file
 \JP ファイル名
 \EG filename
@@ -559,6 +560,25 @@ xyz123gahaha
 @var{file} が存在すれば 1, 存在しなければ 0 を返す. 
 \E
 @end itemize
+
+\JP @node remove_file,,, 入出力
+\EG @node remove_file,,, Inputs and Outputs
+@subsection @code{remove_file}
+@findex remove_file
+
+@table @t
+@item remove_file(@var{file})
+\JP :: @var{file} を消去する. 
+\EG :: Delete an file @var{file}.
+@end table
+
+@table @var
+@item return
+1
+@item file
+\JP ファイル名
+\EG filename
+@end table
 
 \JP @node open_file close_file get_line get_byte put_byte purge_stdin,,, 入出力
 \EG @node open_file close_file get_line get_byte put_byte purge_stdin,,, Inputs and Outputs

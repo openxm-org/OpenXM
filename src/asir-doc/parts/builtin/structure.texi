@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/structure.texi,v 1.2 2003/04/19 15:44:59 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/structure.texi,v 1.3 2003/11/27 15:56:08 ohara Exp $
 \BJP
 @node 構造体,,, 組み込み函数
 @section 構造体
@@ -11,6 +11,7 @@
 @menu
 * newstruct::
 * arfreg::
+* struct_type::
 @end menu
 
 \JP @node newstruct,,, 構造体
@@ -208,6 +209,58 @@ Copyright (C) FUJITSU LABORATORIES LIMITED.
 4
 [15] A*B;
 @{0,12@}
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newstruct},
+\JP @fref{構造体定義}
+\EG @fref{structure definition}
+@end table
+
+\JP @node struct_type,,, 構造体
+\EG @node struct_type,,, Structures
+@subsection @code{struct_type}
+@findex struct_type
+
+@table @t
+@item struct_type(@var{name}|@var{object})
+\JP :: 構造体の識別番号を取得する. 
+\EG :: Get an identity number of the structure of @var{object} and @var{name}.
+@end table
+
+@table @var
+@item return
+\JP 整数
+\EG an integer
+@item name
+\JP 文字列
+\EG string
+@item object
+\JP 構造体
+\EG a structure
+@end table
+
+@itemize @bullet
+@item
+\BJP
+名前が @var{name} である構造体, または @var{object} の指す構造体の識別番号を取得する. エラーのときは -1 を返す.
+\E
+\BEG
+@code{struct_type()} returns an identity number of the structure or -1 (if an error occurs).
+\E
+@end itemize
+
+@example
+[10] struct list @{h,t@};    
+0
+[11] A=newstruct(list);
+@{0,0@}
+[12] struct_type(A);
+3
+[13] struct_type("list");
+3
 @end example
 
 @table @t

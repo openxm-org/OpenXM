@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.10 2003/11/27 12:23:58 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.11 2003/12/01 02:13:38 takayama Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -460,7 +460,8 @@ All the program variables are initialized to the value 0.
 
 \BJP
 @item 不定元
-小文字で始まり, アルファベット, 数字, @samp{_} からなる文字列
+小文字で始まり, アルファベット, 数字, @samp{_} からなる文字列,
+またはシングルクオートで囲まれた文字列.
 
 不定元とは, 多項式環を構成する際に添加される変数をいう. @b{Asir} に
 おいては, 不定元は値をもたない超越的な元であり, 不定元への値の代入は
@@ -481,6 +482,8 @@ An indeterminate cannot have any value.  No assignment is allowed to it.
 x
 [4] X^2+X+1;
 x^2+x+1
+[5] A='Dx'*(x-1)+x*y-y;
+(y+Dx)*x-y-Dx
 @end example
 @end table
 
@@ -1040,6 +1043,9 @@ statement, and the termination condition will be evaluated in a
 \BJP
 構造体とは, 各成分の要素が名前でアクセスできる固定長配列と思ってよい. 
 各構造体は名前で区別される. 構造体は, @code{struct} 文により宣言される. 
+構造体が宣言されるとき, asir は内部で構造体のそれぞれの型に固有の識別
+番号をつける.  この番号は, 組み込み関数 @code{struct_type} により取得
+できる.
 ある型の構造体は, 組み込み関数 @code{newstruct} により生成される. 
 構造体の各メンバは, 演算子 @code{->} によりアクセスする. 
 メンバが構造体の場合, @code{->} による指定は入れ子にできる. 
@@ -1066,7 +1072,15 @@ by @code{->} can be nested.
 2
 [5] A;
 @{1,2@}
+[6] struct_type(A);
+1
 @end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newstruct}, @fref{struct_type}
+@end table
 
 \BJP
 @node さまざまな式,,, ユーザ定義函数の書き方
@@ -1463,6 +1477,7 @@ def demo() @{
 
 \BJP
 モジュールは @code{module} モジュール名  〜 @code{endmodule}で囲む.
+モジュールは入れ子にはできない.
 モジュールの中だけで使う大域変数は @code{static} で宣言する.
 この変数はモジュールの外からは参照もできないし変更もできない.
 モジュールの外の大域変数は @code{extern} で宣言する.
@@ -1592,3 +1607,9 @@ module stack;
   /* The body of the module stack */
 endmodule;
 @end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{module_list}, @fref{module_definedp}, @fref{remove_module}.
+@end table

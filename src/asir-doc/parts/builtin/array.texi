@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.7 2003/04/20 08:01:28 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.8 2003/10/19 07:21:57 takayama Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -10,8 +10,9 @@
 
 @menu
 * newvect::
-* newbytearray::
+* ltov::
 * vtol::
+* newbytearray::
 * newmat::
 * size::
 * det invmat::
@@ -144,7 +145,53 @@ separated simply by a `blank space', while those of a list by a `comma.'
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newmat}, @fref{size}, @fref{vtol}.
+@fref{newmat}, @fref{size}, @fref{ltov}, @fref{vtol}.
+@end table
+
+\JP @node ltov,,, 配列
+\EG @node ltov,,, Arrays
+@subsection @code{ltov}
+@findex ltov
+
+@table @t
+@item ltov(@var{list})
+\JP :: リストをベクトルに変換する. 
+\EG :: Converts a list into a vector.
+@end table
+
+@table @var
+@item return
+\JP ベクトル
+\EG vector
+@item list
+\JP リスト
+\EG list
+@end table
+
+@itemize @bullet
+\BJP
+@item
+リスト @var{list} を同じ長さのベクトルに変換する. 
+@item
+この関数は @code{newvect(length(@var{list}), @var{list})} に等しい.
+\E
+\BEG
+@item 
+Converts a list @var{list} into a vector of same length.
+See also @code{newvect()}.
+\E
+@end itemize
+
+@example
+[3] A=[1,2,3];
+[4] ltov(A);
+[ 1 2 3 ]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newvect}, @fref{vtol}.
 @end table
 
 \JP @node vtol,,, 配列
@@ -194,7 +241,7 @@ A conversion from a list to a vector is done by @code{newvect()}.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newvect}.
+@fref{newvect}, @fref{ltov}.
 @end table
 
 \JP @node newbytearray,,, 配列
@@ -371,9 +418,11 @@ or a list containing row size and column size of the given matrix,
 @itemize @bullet
 \BJP
 @item
-@var{vect} 又は, @var{mat} のサイズをリストで出力する. 
+@var{vect} の長さ, または @var{mat} の大きさをリストで出力する. 
 @item
-@var{list} のサイズは @code{length()}を, 有理式に現れる単項式の数は @code{nmono()} を用いる. 
+@var{vect} の長さは @code{length()} で求めることもできる.
+@item
+@var{list} の長さは @code{length()}を, 有理式に現れる単項式の数は @code{nmono()} を用いる. 
 \E
 \BEG
 @item 
@@ -392,10 +441,12 @@ in a rational expression.
 [ 0 0 0 0 ]
 [1] size(A);
 [4]
-[2] B = newmat(2,3,[[1,2,3],[4,5,6]]);
+[2] length(A);
+4
+[3] B = newmat(2,3,[[1,2,3],[4,5,6]]);
 [ 1 2 3 ]
 [ 4 5 6 ]
-[3] size(B);
+[4] size(B);
 [2,3]
 @end example
 

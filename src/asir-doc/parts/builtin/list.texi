@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/list.texi,v 1.2 1999/12/21 02:47:33 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/list.texi,v 1.3 2003/04/19 15:44:58 noro Exp $
 \BJP
 @node リストの演算,,, 組み込み函数
 @section リストの演算
@@ -38,9 +38,9 @@
 @item @t{reverse}(@var{list})
 \JP :: @var{list} を逆順にしたリスト. 
 \EG :: reversed list of @var{list}.
-@item length(@var{list})
-\JP :: @var{list} の長さ. 
-\EG :: Number of elements in a list @var{list}.
+@item length(@var{list}|@var{vect})
+\JP :: @var{list} の長さ, または @var{vect} の長さ. 
+\EG :: Number of elements in a list @var{list} and a vector @var{vect}.
 @end table
 
 @table @var
@@ -71,7 +71,7 @@
 @item
 @code{reverse()} は, @var{list} を逆順にしたリストを出力する. 
 @item
-@code{length()} は, @var{list} の長さを出力する. ベクトル及び行列の要素の個数は, @code{size()} を用いる. 
+@code{length()} は, @var{list} または @var{vect} の長さを出力する. 行列の要素の個数は, @code{size()} を用いる. 
 @item
 リストは読み出し専用で, 要素の入れ替えはできない. 
 @item
@@ -115,9 +115,9 @@ in the same ordering.
 Function @code{reverse()} returns a reversed list of @var{list}.
 @item
 Function @code{length()} returns a non-negative integer which is the
-number of elements in the input list @var{list}.
+number of elements in the input list @var{list} and the input vector @var{vect}.
 Note that function @code{size} should be used for counting elements
-of @var{vector} and @var{matrix}.
+of @var{matrix}.
 @item
 Lists are read-only objects in @b{Asir}.  There elements cannot be
 modified.
@@ -154,7 +154,9 @@ Similar argument applies to function @code{reverse()}.
 [d,c,b,a]
 [6] length(L);
 3
-[7] L[2][0];
+[7] length(ltov(L));
+3
+[8] L[2][0];
 5
 @end example
 
