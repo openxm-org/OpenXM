@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -807,6 +807,7 @@ void scanner() {
 	fprintf(Fstack,"\nscanner> ");
       }
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+	  continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
     token = getokenSM(GET);
