@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.5 2004/04/07 07:07:48 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.6 2004/04/25 06:49:12 takayama Exp $ */
 
 module oxshell;
 
@@ -249,7 +249,7 @@ def facets(A) {
     ox_check_errors(P);
     error("oxshell.facets");
   }
-  if (length(R) != 3) {
+  if (length(R) != 3 || type(R[1]) != 4) {
     print(R);
     ox_check_errors(P);
     error("oxshell.facets");

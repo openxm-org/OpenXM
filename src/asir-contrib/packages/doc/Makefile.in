@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.1 2004/07/02 07:48:47 takayama Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -52,12 +52,13 @@ SRC = base.oxweave calculus.oxweave complex.oxweave dsolv.oxweave \
       intro.oxweave m.oxweave matrix.oxweave misc.oxweave names.oxweave \
       number.oxweave oxrfc100.oxweave pfp.oxweave phc.oxweave \
       plucker.oxweave poly.oxweave print.oxweave series.oxweave sm1.oxweave \
-      tigers.oxweave util.oxweave windows.oxweave 
+      tigers.oxweave util.oxweave windows.oxweave oxshell.oxweave
 
 ENSRCS = ${SRC:.oxweave=.en} opening.texi oxom.en
 JASRCS = ${SRC:.oxweave=.ja} opening.texi oxom.ja Diff-ja.texi Dmodule-ja.texi
 ENAUTO=  base-auto.en glib-auto.en matrix-auto.en number-auto.en pfp-auto.en \
-         plucker-auto.en poly-auto.en print-auto.en sm1-auto.en util-auto.en 
+         plucker-auto.en poly-auto.en print-auto.en sm1-auto.en util-auto.en \
+         oxshell-auto.en
 JAAUTO=${ENAUTO:.en=.ja}
 
 .SUFFIXES: .en .ja .oxweave .dvi .pdf
@@ -183,6 +184,13 @@ util-auto.en :  ${CONTRIB}/names.rr gentexi
 util-auto.ja : ${CONTRIB}/names.rr gentexi
 	${RM} -f util-auto.ja
 	cat ${CONTRIB}/names.rr | ${OXWEAVE} usage  | ./gentexi   --category util  --ja --upnode "Utility Functions" ${OPTGENTEXI} >util-auto.ja
+### oxshell
+oxshell-auto.en :  ${CONTRIB}/oxshell.rr gentexi
+	${RM} -f oxshell-auto.en
+	cat ${CONTRIB}/oxshell.rr | ${OXWEAVE} usage | ./gentexi  --category oxshell --en --upnode "Oxshell Functions" ${OPTGENTEXI} >oxshell-auto.en
+oxshell-auto.ja : ${CONTRIB}/oxshell.rr gentexi
+	${RM} -f oxshell-auto.ja
+	cat ${CONTRIB}/oxshell.rr | ${OXWEAVE} usage  | ./gentexi   --category oxshell  --ja --upnode "Oxshell Functions" ${OPTGENTEXI} >oxshell-auto.ja
 
 ### Generating online manual
 gen-help-en: ${ENSRCS} ${ASIRDOC}/extract_func ${ENAUTO}
