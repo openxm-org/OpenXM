@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.11 2000/03/13 06:46:38 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.12 2000/03/14 09:39:20 takayama Exp $
 # targets
 # all 
 #     compile
@@ -20,7 +20,7 @@ KHOME = ../kan96xx
 
 ## 
 LOAD_K_PATH ='"/usr/local/lib/k0/"'
-LOAD_SM1_PATH2 ='"/home/nobuki/SSkan/Kan/"'
+LOAD_SM1_PATH2 ='"/this_directory_does_not_exists/"'
 ##
 GMP_HOME = $(KHOME)/gmp
 LIBGMP=$(GMP_HOME)/libgmp.a
