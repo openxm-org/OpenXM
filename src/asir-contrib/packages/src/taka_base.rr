@@ -1,37 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.3 2001/08/14 13:13:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.4 2001/08/15 04:20:04 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
 #define STRUCT 8
 
-def taka_base_solve_poly1(F,V) {
-  if (type(F) == 3) { /* Rational */
-    G = dn(F); 
-    if (deg(G,V) != 0) {
-      return quote(root_of(F));
-    }
-  }
-  Ans = [ ] ;
-  G = nm(F);
-  F = fctr(G);
-  N = length(F);
-  for (I=0; I<N; I++) {
-    if (deg(F[I][0],V) == 0) {
-    }else if (deg(F[I][0],V) == 1) {
-       Sol = red( -coef(F[I][0],0,V)/coef(F[I][0],1,V) );
-       for (J=0; J<F[I][1]; J++) {
-         Ans = append(Ans,[ Sol ]);
-       }
-    }else {
-       /* Sol = quote(root_of( F[I][0] )); */
-       Sol = F[I][0];
-       for (J=0; J<F[I][1]; J++) {
-         Ans = append(Ans,[ Sol ]);
-       }
-    }
-  }
-  return Ans;
-}
 
 def taka_base_rule_name(I) {
   return strtov("taka_base_v"+rtostr(I));
@@ -80,6 +52,26 @@ def taka_base_replace(S,Rule) {
   return S;
 }
 
+def taka_base_set_minus(A,B) {
+  Ans = [ ];
+  N = length(A);
+  for (I=0; I<N; I++) {
+    if (!taka_base_memberq(A[I],B)) {
+      Ans = append(Ans,[A[I]]);
+    }
+  }
+  return Ans;
+}
+
+def taka_base_memberq(A,S) {
+  N = length(S);
+  for (I=0; I<N; I++) {
+    if (type(A) == type(S[I])) {
+      if (A == S[I]) return 1;
+    }
+  }
+  return 0;
+}
 
 Taka_base_loaded = 1$
 end$

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.7 2001/08/11 02:59:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.8 2001/08/14 13:13:45 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -14,6 +14,7 @@ ox_loadfile(Loaded_taka_print,"taka_print.rr") $
 ox_loadfile(Loaded_om,"om") $
 ox_loadfile(Loaded_Matrix,"Matrix") $
 ox_loadfile(Loaded_taka_base,"taka_base.rr") $
+ox_loadfile(Loaded_taka_poly,"taka_poly.rr") $
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 
@@ -31,6 +32,10 @@ def base_replace(S,Rule) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_replace(S,Rule);
 }
+def base_set_minus(A,B) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_set_minus(A,B);
+}
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
 def number_base_form(X,B) { NOT_YET; }
@@ -47,6 +52,9 @@ def number_binomial(P,Q) { NOT_YET; }
 
 /* See longname for basic_ and poly_. Here are some added functions */
 def poly_solve(Eqs,V) { NOT_YET; }
+def poly_weight_vector(W) { NOT_YET; }
+def poly_elimination_ideal(I,V,V2) { NOT_YET; }
+
 
 /* Canonical function names for hypergeometric functions of
    one variables. 
@@ -88,8 +96,14 @@ def matrix_list_to_matrix(M) {
   OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_ltom(M);
 }
-def matrix_diagonal_matrix(L) { NOT_YET; }
-def matrix_identity_matrix(N) { NOT_YET; }
+def matrix_diagonal_matrix(L) { 
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_diag(L);
+}
+def matrix_identity_matrix(N) {
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_1(N);
+}
 def matrix_transpose(M) {
   OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_trans(M);
@@ -107,10 +121,19 @@ def matrix_det(M) {
 def matrix_minors(M,K) { NOT_YET; }
 def matrix_trace(M) { NOT_YET; }
 def matrix_solve_linear(M,B) { NOT_YET; }  /* LinearSolve[ ] */
-def matrix_kernel(M) { NOT_YET; }          /* NullSpace[ ] */
-def matrix_eigenvalues(M) { NOT_YET; }
+def matrix_kernel(M) {  
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_kernel(M);
+}          /* NullSpace[ ] */
+def matrix_eigenvalues(M) { 
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_eigenvalues(M);
+}
 def matrix_eigenvectors(M) { NOT_YET; }
-def matrix_rank(M) { NOT_YET; }
+def matrix_rank(M) { 
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_rank(M);
+}
 
 
 /* Canonical function names for graphic. cf. Mathematica/Graphic */
