@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.17 2003/06/02 10:25:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.18 2003/09/15 09:31:42 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -15,11 +15,18 @@
 #include <sys/file.h>
 #include <sys/param.h>
 #include <time.h>
+#include <limits.h>
 
 #if defined(__sun__)
 #include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#endif
+
+#if defined(__sun__)
+#include <synch.h>
+#else
+#include <inttypes.h>
 #endif
 
 #include "mysocket.h"
@@ -32,7 +39,24 @@ static int send_int32_nbo(OXFILE *oxfp, int int32);
 static int receive_int32_lbo(OXFILE *oxfp);
 static int receive_int32_nbo(OXFILE *oxfp);
 
+static int send_int64_nbo_le(OXFILE *oxfp, double int64);
+static int send_int64_lbo(OXFILE *oxfp, double int64);
+static int receive_int64_nbo_le(OXFILE *oxfp);
+static int receive_int64_lbo(OXFILE *oxfp);
+
 static void pipe_send_info(int fd, char *hostname, int port, char *password);
+
+/* translating double of little endian byte order to one of big endian. */
+double htonll_le(double n)
+{
+    int i;
+    double r;
+	char *sp = (char *)&n, *dp = (char *)&r + sizeof(double)-1;
+    for(i=0; i<sizeof(double); i++) {
+		*dp-- = *sp++;
+    }
+    return r;
+}
 
 /* enable write buffering */
 int oxf_setbuffer(OXFILE *oxfp, char *buf, int size)
@@ -71,6 +95,35 @@ int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp)
     memcpy(oxfp->wbuf + oxfp->wbuf_count, buffer, sz);
     oxfp->wbuf_count += sz;
     return sz;
+}
+
+/* sending an object of int64 type with Network Byte Order. */
+static int send_int64_nbo_le(OXFILE *oxfp, double int64)
+{
+    int64 = htonll_le(int64);
+    return oxf_write(&int64, sizeof(double), 1, oxfp);
+}
+
+/* sending an object of int64 type with Local Byte Order. */
+static int send_int64_lbo(OXFILE *oxfp, double int64)
+{
+    return oxf_write(&int64, sizeof(double), 1, oxfp);
+}
+
+/* receiving an object of int64 type with Network Byte Order. */
+static int receive_int64_nbo_le(OXFILE *oxfp)
+{
+    int tag;
+    oxf_read(&tag, sizeof(double), 1, oxfp);
+    return htonll_le(tag);
+}
+
+/* receiving an object of int64 type with Local Byte Order. */
+static int receive_int64_lbo(OXFILE *oxfp)
+{
+    int tag;
+    oxf_read(&tag, sizeof(double), 1, oxfp);
+    return tag;
 }
 
 /* sending an object of int32 type with Network Byte Order. 
@@ -125,6 +178,8 @@ OXFILE *oxf_open(int fd)
     oxfp->wbuf = NULL;
     oxfp->wbuf_size = 0;
     oxfp->wbuf_count = 0;
+    oxfp->send_double    = send_int64_lbo;
+    oxfp->receive_double = receive_int64_lbo;
     return oxfp;
     /* oxfp->fp = fdopen(fd, "a+"); */
     /* return (oxfp->fp != NULL)? oxfp: NULL; */
@@ -189,12 +244,18 @@ void oxf_close(OXFILE *oxfp)
 
 void oxf_setopt(OXFILE *oxfp, int mode)
 {
-    if (mode == OXF_SETOPT_LBO) {
-        oxfp->send_int32    = send_int32_lbo;
-        oxfp->receive_int32 = receive_int32_lbo;
-    }else if (mode == OXF_SETOPT_NBO) {
-        oxfp->send_int32    = send_int32_nbo;
-        oxfp->receive_int32 = receive_int32_nbo;
+    int m = 1;
+    if (mode == OXF_SETOPT_NBO && *(char *)&m) {
+		/* Little endian architecture. */
+		oxfp->send_int32     = send_int32_nbo;
+		oxfp->receive_int32  = receive_int32_nbo;
+		oxfp->send_double    = send_int64_nbo_le;
+		oxfp->receive_double = receive_int64_nbo_le;
+	}else {
+		oxfp->send_int32     = send_int32_lbo;
+		oxfp->receive_int32  = receive_int32_lbo;
+		oxfp->send_double    = send_int64_lbo;
+		oxfp->receive_double = receive_int64_lbo;
     }
 }
 

@@ -1,21 +1,16 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.26 2003/09/18 12:46:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.27 2003/11/12 15:20:18 iwane Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
 #define _OX_TOOLKIT_H_
 
-#include <stdio.h>
-#if defined(WITH_GMP)
-#include <gmp.h>
-#else
-#include "gmp_fake.h"
-#endif /* WITH_GMP */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <stdio.h>
+#include <gmp.h>
 #include <ox/cmotag.h>
 #include <ox/oxMessageTag.h>
 #include <ox/smCommand.h>
@@ -55,6 +50,8 @@ typedef struct OXFILE{
     char *wbuf;
     int wbuf_size;
     int wbuf_count;
+    int (*send_double)(struct OXFILE *oxfp, double int64);
+    int (*receive_double)(struct OXFILE *oxfp);
 } OXFILE;
 
 typedef struct cmo {

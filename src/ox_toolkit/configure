@@ -813,7 +813,6 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-gnu-ld           assume the C compiler uses GNU ld default=no
   --with-x                use the X Window System
-  --with-gmp              with the GNU MP library [no]
 
 Some influential environment variables:
   CC          C compiler command
@@ -2876,7 +2875,7 @@ test x"$silent" = xyes && libtool_flags="$libtool_flags --silent"
 case "$lt_target" in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 2879 "configure"' > conftest.$ac_ext
+  echo '#line 2878 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -4429,31 +4428,6 @@ if test "${ac_test_CFLAGS}" != set -a "${GCC}" = yes ; then
     CFLAGS="${CFLAGS} -finline-functions"
 fi
 
-
-# Check whether --with-gmp or --without-gmp was given.
-if test "${with_gmp+set}" = set; then
-  withval="$with_gmp"
-  with_gmp=yes
-else
-  with_gmp=no
-fi;
-
-if test ${with_gmp:=no} != no ; then
-    cat >>confdefs.h <<\_ACEOF
-#define WITH_GMP 1
-_ACEOF
-
-fi
-
-
-if test "$with_gmp" = yes; then
-  USE_GMP_TRUE=
-  USE_GMP_FALSE='#'
-else
-  USE_GMP_TRUE='#'
-  USE_GMP_FALSE=
-fi
-
 case "${host}" in
 i[3-6]86-*-interix*)
     cat >>confdefs.h <<\_ACEOF
@@ -5513,8 +5487,6 @@ s,@X_CFLAGS@,$X_CFLAGS,;t t
 s,@X_PRE_LIBS@,$X_PRE_LIBS,;t t
 s,@X_LIBS@,$X_LIBS,;t t
 s,@X_EXTRA_LIBS@,$X_EXTRA_LIBS,;t t
-s,@USE_GMP_TRUE@,$USE_GMP_TRUE,;t t
-s,@USE_GMP_FALSE@,$USE_GMP_FALSE,;t t
 CEOF
 
 _ACEOF
