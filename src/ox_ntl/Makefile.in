@@ -1,34 +1,37 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.8 2003/11/15 09:06:20 iwane Exp $
+# $OpenXM$
 #
+### @configure_input@ ###
 #
-#
-#
-# wget should be installed for install `NTL'
-#
+###
 
 PROG=ox_ntl
 
 OpenXM_HOME=${PWD}/../..
 
-CPP=g++
-CC =gcc
+CPP=@CXX@
+CC =@CC@
+
+LINT=lint
 
 RM =/bin/rm
 CP =/bin/cp
 
-CFLAGS=-I$(PREFIX)/include -g
-CPPFLAGS=$(CFLAGS)
+CFLAGS=-I${PREFIX}/include @OPTFLAG@ @CFLAGS@ @CPPFLAGS@
+CPPFLAGS=-I${PREFIX}/include @OPTFLAG@ @CXXFLAGS@
 
 # WITH_GMP        <== for ox_toolkit --      include "gmp.h"
 # __GMP_FALE_H__  <==                -- dont include "gmp_fake.h"
-DEFS=-DWITH_GMP=1 -D__GMP_FAKE_H__
+DEFS=-DWITH_GMP=1 -D__GMP_FAKE_H__ @DEFS@
 
-PREFIX=$(OpenXM_HOME)
+PREFIX=${OpenXM_HOME}
 
 MASTER_CITES=ftp.math.sci.kobe-u.ac.jp
 
-NTL_LIBDIR=$(PREFIX)/lib/NTL
-LIBDIR=$(PREFIX)/lib 
+NTL_LIBDIR=${PREFIX}/lib/NTL
+LIBDIR=${PREFIX}/lib 
+
+LIBS=-L$(LIBDIR) -L$(NTL_LIBDIR) @LIBS@
+LDFLAGS=@LDFLAGS@
 
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 DISTFILEDIR=ntl-5.3.1
@@ -36,6 +39,12 @@ DISTFILE=ntl-5.3.1.tar.gz
 WORK=$(PWD)/work
 
 GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=${OpenXM_HOME} GMP_INCDIR=${OpenXM_HOME}/include GMP_LIBDIR=${OpenXM_HOME}/lib
+
+
+# lint
+LINT=lint
+LINTFLAGS=-I${PREFIX}/include
+
 
 .SUFFIXES: .cpp .o .c
 
@@ -49,7 +58,7 @@ all: $(PROG)
 
 
 $(PROG): $(OBJC) $(LIBDIR)/libox.a $(NTL_LIBDIR)/libntl.a
-	$(CPP) $(CPPFLAGS) -L$(LIBDIR) -L$(NTL_LIBDIR) $(OBJC) -o $@ -lntl -lgmp -lox -lgc ${LIBS}
+	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(OBJC) -o $@ -lntl -lgmp -lox -lgc ${LIBS}
 
 
 oxserv.c: oxserv.h oxstack.h
@@ -76,10 +85,10 @@ install: all
 clean:
 	-$(RM) -f $(OBJC) $(PROG) ox_ntl_debug oxserv_debug
 	-$(RM) -fr ${WORK}
+	@-$(RM) -f .*-ntl-done
 
-distclean:
-	-$(RM) -f .*-ntl-done
-
+lint:
+	$(LINT) $(LINTFLAGS) $(SRCC)
 
 fetch-ntl:
 	@if [ ! -f .fetch-ntl-done ]; then \
@@ -105,7 +114,7 @@ build-ntl: patch-ntl
 		(cd ${WORK}/${DISTFILEDIR}/src; \
 		 LD_LIBRARY_PATH=${OpenXM_HOME}/lib; \
 		 export LD_LIBRARY_PATH; \
-		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT};	\
+		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT};
 		 make); \
 		touch .build-ntl-done; \
 	fi
@@ -119,10 +128,10 @@ install-ntl: build-ntl
 #########################################
 # DEBUG
 #########################################
-ox_ntl_debug: ntl.cpp ntl.h ntlconv.cpp oxserv.h
-	$(CPP) $(CPPFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) $(DEFS) ntl.cpp ntlconv.o cmon.o oxserv.o oxstack.o -o $@ -lntl -lgmp -lox -lgc
+ox_ntl_debug: ntl.cpp ntl.h ntlconv.cpp
+	$(CPP) $(CPPFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) ntl.cpp ntlconv.o -o $@ -lntl -lgmp -lox -lgc
 
 oxserv_debug: oxserv.h oxserv.c
-	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) $(DEFS) oxserv.c oxstack.o -o $@ -lgmp -lox -lgc
+	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
 
 
