@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.6 2000/09/09 21:59:13 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.7 2002/01/20 09:26:22 takayama Exp $
 //&jp \section{TCP/IP でのセッションのスタート}
 //&eg \section{How to start a session on TCP/IP}
 
@@ -96,6 +96,13 @@ Network byte order しか実装していないシステムでは,
 {\tt 0} をおくればよい.
 ただし効率が問題となる通信において, network byte order への変換は
 おおきなボトルネックとなることがあることを了解しておくべきである.
+
+64 bit machine double および 128 bit machine double (浮動小数点数)
+のやりとりに際しても,
+上と同様な方法をもちいるものとする.
+すなわち {\tt double64 *} を {\tt int32 *} にキャストしてから,
+中身を {\tt int32} と同様の処理方法で送受信する.
+例については {\tt CMO\_64BIT\_MACHINE\_DOUBLE}  を見よ.
 */
 /*&eg
 A client and a server exchange one byte data soon after
@@ -121,6 +128,13 @@ If a system implements only the network byte order, then
 it is sufficient to send always {\tt 0}.
 However unnecessary byte order conversion may add large overhead
 and it is often a bottle-neck on fast networks.
+
+In order to send and receive 64 bit machine double (floating point number)
+and 128 bit machine double,
+we use the same byte order.
+In other words, we cast {\tt double64 *} to {\tt int32 *} and
+send the array of 4 bytes by the same method with sending {\tt int32}.
+As to examples, see the section on {\tt CMO\_64BIT\_MACHINE\_DOUBLE}. 
 */
 
 \begin{verbatim}

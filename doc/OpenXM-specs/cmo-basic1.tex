@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.11 2001/08/27 05:39:15 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.12 2002/01/20 09:26:21 takayama Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -681,25 +681,25 @@ $\in$ CMObject/MachineDouble \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s8})\\
 & & \mbox{ --- s1, $\ldots$, s8 は {\tt double} (64bit). } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
-&&  \mbox{\quad\quad mathcap に CPU 情報を付加しておく.} \\
+&&  \mbox{\quad\quad byte order negotiation を用いる.} \\
 \mbox{Array of 64bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_64BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte}}\, s8[1], \ldots , {\sl byte}\, s8[m])\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] は m 個の double (64bit) である. } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
-& & \mbox{ \quad\quad mathcap に CPU 情報を付加しておく.} \\
+& & \mbox{ \quad\quad byte order negotiation を用いる.} \\
 \mbox{128bit machine double} &:& 
 \mbox{({\tt CMO\_128BIT\_MACHINE\_DOUBLE}, } \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s16})\\
 & & \mbox{ --- s1, $\ldots$, s16 は {\tt long double} (128bit). } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
-&&  \mbox{\quad\quad mathcap に CPU 情報を付加しておく.} \\
+&&  \mbox{\quad\quad byte order negotiation を用いる.} \\
 \mbox{Array of 128bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_128BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte} s16[1], \ldots , {\sl byte} s16[m]})\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] は m 個の long double (128bit) である. } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
-& & \mbox{ \quad\quad mathcap に CPU 情報を付加しておく.} 
+& & \mbox{ \quad\quad byte order negotiation を用いる.} 
 \end{eqnarray*}
 */
 /*&eg
@@ -709,25 +709,25 @@ $\in$ CMObject/MachineDouble \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s8})\\
 & & \mbox{ --- s1, $\ldots$, s8 は {\tt double} (64bit). } \\
 & & \mbox{ --- Encoding depends on CPU.}\\
-&&  \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
+&&  \mbox{\quad\quad Need the byte order negotiation.} \\
 \mbox{Array of 64bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_64BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte}}\, s8[1], \ldots , {\sl byte}\, s8[m])\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] are 64bit double's. } \\
 & & \mbox{ --- Encoding depends on CPU.}\\
-& & \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
+& & \mbox{\quad\quad Need the byte order negotiation.} \\
 \mbox{128bit machine double} &:& 
 \mbox{({\tt CMO\_128BIT\_MACHINE\_DOUBLE}, } \\
 & & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s16})\\
 & & \mbox{ --- s1, $\ldots$, s16 は {\tt long double} (128bit). } \\
 & & \mbox{ --- Encoding depends on CPU.}\\
-& & \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
+& & \mbox{\quad\quad Need the byte order negotiation.} \\
 \mbox{Array of 128bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_128BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte} s16[1], \ldots , {\sl byte} s16[m]})\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] are 128bit long double's. } \\
 & & \mbox{ --- Encoding depends on CPU.}\\
-& & \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
+& & \mbox{\quad\quad Need the byte order negotiation.} \\
 \end{eqnarray*}
 */
 
@@ -741,10 +741,29 @@ $\in$ CMObject/MachineDouble \\
 /*&jp
 IEEE 準拠の float については, IEEE 754 double precision floating-point
 format (64 bit) の定義を見よ.
+
+256.100006 の Intel Pentium の double64 での内部表現は
+{\tt cd 0c 80 43 } \\
+256.100006 の PowerPC (Mac) の double64 での内部表現は
+{\tt 43 80 0c cd }.
+この例でみるように byte の順序が逆である.
+エンジンスタートの時の byte order negotiation で byte の順序を指定する.
+
+
 */
 /*&eg
 See IEEE 754 double precision floating-point (64 bit) for the details of 
 float compliant to the IEEE standard.
+
+The internal expression of 256.100006 in the Intel Pentium  is
+{\tt cd 0c 80 43 } \\
+The internal expression of 256.100006 in the PowerPC (Mac) is
+{\tt 43 80 0c cd }.
+As you have seen in this example,
+the orders of the bytes are opposite each other.
+The byte order is specified by the byte order negotiation protocol
+when the engine starts.
+
 */
 
 \noindent
