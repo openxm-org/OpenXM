@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des.c,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
 /*
  * FIPS PUB 46-3
  *   DATA ENCRYPTION STANDARD
@@ -8,9 +8,12 @@
 #include "des.h"
 #include "block.h"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define BLOCK 8
 
-#define inline inline
 
 /*===========================================================*
  * KEY STRUCT

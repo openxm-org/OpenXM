@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/Makefile,v 1.2 2004/07/04 02:31:51 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/Makefile,v 1.3 2004/08/16 03:59:58 iwane Exp $
 
 VPATH=.:../sha1
 
@@ -8,7 +8,7 @@ PREFIX=$(OpenXM_HOME)
 CXX ?= g++
 CC  ?= gcc
 
-RM  ?= /bin/rm
+RM  ?= /bin/rm -f
 CP  ?= /bin/cp
 
 
@@ -24,7 +24,7 @@ LDFLAGS=-L$(LIBDIR) -L$(NTL_LIBDIR)
 
 .SUFFIXES: .cpp .o .c
 
-SRCCG=gmprsa.c sha1.c gmprsatest.c
+SRCCG=gmprsa.c ../sha1/sha1.c gmprsatest.c
 SRCPN=ntlrsa.cpp ntlrsatest.cpp
 
 NTL=ntlrsatest
@@ -53,7 +53,7 @@ $(NTL): $(OBJCN)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) -f $(OBJCG) $(OBJCN) $(PROGS)
+	-$(RM) $(OBJCG) $(OBJCN) $(PROGS)
 
 
 

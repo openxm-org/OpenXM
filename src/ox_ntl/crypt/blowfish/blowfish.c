@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/blowfish/blowfish.c,v 1.1 2004/07/22 12:12:05 iwane Exp $ */
 
 /*
  * BLOWFISH: Bruce Schneier
@@ -12,6 +12,7 @@
 #include "config.h"
 #endif
 
+#include <unistd.h>
 
 
 static uint32_t

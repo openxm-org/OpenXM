@@ -1,9 +1,9 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/blowfish/bf_tbl.h,v 1.1 2004/07/22 12:12:05 iwane Exp $ */
 
 #ifndef __BF_TBL_H__
 #define __BF_TBL_H__
 
-#include <unistd.h>
+#include <inttypes.h>
 
 static const uint32_t __blowfish_tbl_p[] = {
 	0x243f6a88U, 0x85a308d3U, 0x13198a2eU, 0x03707344U,

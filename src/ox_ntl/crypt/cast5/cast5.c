@@ -1,10 +1,8 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/cast5/cast5.c,v 1.1 2004/07/15 14:51:42 iwane Exp $ */
 /*
  * rfc 2144
  *  The CAST-128 Encryption Algorithm
  */
-
-#include <unistd.h>
 
 #include "cast5.h"
 #include "cast5tbl.h"

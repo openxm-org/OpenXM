@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/gmprsa.c,v 1.1 2004/08/16 03:59:58 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,9 +12,6 @@
 #define STR_PRT(STR, N)   do { int _xxx; printf(#STR "[%d]=", N); for (_xxx = 0; _xxx < (N); _xxx++) printf("%02x", STR[_xxx]); printf("\n"); fflush(stdout); } while (0)
 
 
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
- * ALLOC
- *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #define RSA_KEY_PRINT 0
 
 
@@ -113,12 +110,13 @@ rsa_genprime(mpz_ptr prime, int len, const mpz_ptr seed, int rep)
 	unsigned char sha[32];
 	char *str;
 
+	if (len < 2) {
+		mpz_set_ui(prime, 3);
+		return ;
+	}
+
 	n = (len - 1) / BLOCK;
 	b = (len - 1) % BLOCK;
-
-	if (len < 2) {
-		mpz_set_ui(prime, 2);
-	}
 
 	mpz_init(s);
 	mpz_init(s1);
@@ -153,8 +151,6 @@ __RETRY:
 		for (i = (n + 1) * BLOCK; i >= len; i--)
 			mpz_clrbit(prime, i);
 
-		mpz_set_ui(sp, 0);
-		mpz_setbit(sp, len);
 
 #if RSA_KEY_PRINT
 		fprintf(stderr, "*"); fflush(stderr);

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des.h,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
 /*
  * FIPS PUB 46-3
  *   DATA ENCRYPTION STANDARD
@@ -8,7 +8,7 @@
 #ifndef __DES_H__
 #define __DES_H__
 
-#include <sys/types.h>
+#include <inttypes.h>
 
 typedef struct {
 	union {

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/cast5/cast5tbl.h,v 1.1 2004/07/15 14:51:42 iwane Exp $ */
 /*
  * rfc 2144
  *  The CAST-128 Encryption Algorithm
@@ -6,6 +6,7 @@
 #ifndef __CAST5_TBL_H__
 #define __CAST5_TBL_H__
 
+#include <inttypes.h>
 
 static const uint32_t __cast128_tbl_s1[] = {
 0x30fb40d4, 0x9fa0ff0b, 0x6beccd2f, 0x3f258c7a, 0x1e213f2f, 0x9c004dd3, 0x6003e540, 0xcf9fc949,

@@ -1,9 +1,9 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_ntl/crypt/cast5/Makefile,v 1.1 2004/07/15 14:51:42 iwane Exp $
 
 CXX ?= g++
 CC  ?= gcc
 
-RM ?= /bin/rm
+RM ?= /bin/rm -f
 CP ?= /bin/cp
 
 OpenXM_HOME ?= ${PWD}/../../../..
@@ -35,6 +35,6 @@ $(PROGS): $(OBJC)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) -f $(OBJC) $(PROGS)
+	-$(RM) $(OBJC) $(PROGS)
 
 

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/cast5/cast5.h,v 1.1 2004/07/15 14:51:42 iwane Exp $ */
 /*
  * rfc 2144
  *  The CAST-128 Encryption Algorithm
@@ -7,7 +7,7 @@
 #ifndef __CAST_128_H__
 #define __CAST_128_H__
 
-#include <unistd.h>
+#include <inttypes.h>
 
 
 typedef struct __cast128_key_t {

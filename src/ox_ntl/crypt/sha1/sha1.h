@@ -1,9 +1,9 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.h,v 1.4 2004/06/20 10:59:01 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.h,v 1.5 2004/07/15 14:51:42 iwane Exp $ */
 
 #ifndef __SHA1_H__
 #define __SHA1_H__
 
-#include <sys/types.h>
+#include <inttypes.h>
 
 #ifdef __cplusplus
 extern "C" {

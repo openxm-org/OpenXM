@@ -1,9 +1,9 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_ntl/crypt/blowfish/Makefile,v 1.1 2004/07/22 12:12:05 iwane Exp $
 
 CXX ?= g++
 CC  ?= gcc
 
-RM ?= /bin/rm
+RM ?= /bin/rm -f
 CP ?= /bin/cp
 
 OpenXM_HOME ?= ${PWD}/../../../..
@@ -35,6 +35,9 @@ $(PROGS): $(OBJC)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) -f $(OBJC) $(PROGS)
+	-$(RM) $(OBJC) $(PROGS)
 
+
+blowfish.o: blowfish.h bf_tbl.h
+bftest.o: blowfish.h
 

@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/Makefile,v 1.3 2004/05/16 15:02:39 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/Makefile,v 1.4 2004/07/04 02:31:51 iwane Exp $
 
 CXX ?= g++
 CC  ?= gcc
 
-RM ?= /bin/rm
+RM ?= /bin/rm -f
 CP ?= /bin/cp
 
 OpenXM_HOME ?= ${PWD}/../../../..
@@ -36,7 +36,7 @@ $(PROGS): $(OBJC)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) -f $(OBJC) $(PROGS)
+	-$(RM) $(OBJC) $(PROGS)
 
 ntlsha.cpp: sha1.h
 

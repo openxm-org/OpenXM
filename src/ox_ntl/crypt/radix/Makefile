@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/radix/Makefile,v 1.1 2004/01/12 14:52:18 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/radix/Makefile,v 1.2 2004/07/04 02:31:51 iwane Exp $
 
 CXX ?= g++
 CC  ?= gcc
 
-RM  ?= /bin/rm
+RM  ?= /bin/rm -f
 CP  ?= /bin/cp
 
 OpenXM_HOME ?= ${PWD}/../../../..
@@ -23,10 +23,11 @@ OBJC=$(SRCC:.c=.o) $(SRCP:.cpp=.o)
 
 PROGS=radix64
 
-all: $(PROGS)
+#all: $(PROGS)
+all: $(OBJC)
 
 radix64: $(OBJC)
-#	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJC) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJC) -o $@
 
 
 .cpp.o:
@@ -36,7 +37,7 @@ radix64: $(OBJC)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) -f $(OBJC) $(PROGS)
+	-$(RM) $(OBJC) $(PROGS)
 
 
 
