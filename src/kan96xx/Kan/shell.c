@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.6 2003/12/04 05:29:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.7 2003/12/04 06:29:21 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -41,7 +41,7 @@ static int AfterPt=0;
 static char *AfterDeleteFile[MAXFILES];
 static int AfterD=0;
 
-static int KeepTmpFiles = 1;
+static int KeepTmpFiles = 0;
 
 extern int OX_P_stdin;
 extern int OX_P_stdout;
