@@ -1,0 +1,319 @@
+%% $OpenXM$
+\documentclass{slides}
+%%\documentclass[12pt]{article}
+\usepackage{color}
+\usepackage{epsfig}
+\newcommand{\htmladdnormallink}[2]{#1}
+\begin{document}
+\noindent
+{\color{green} OpenXM-RFC 100 and 101 の設計と実装}
+
+\noindent
+M.Maekawa (前 川 　 将 秀), \\ M.Noro (野 呂 　 正 行), \\
+K.Ohara (小 原 　 功 任), \\ N.Takayama (高 山 　 信 毅), \\
+Y.Tamura (田 村 　 恭 士)\\
+\htmladdnormallink{{\color{red}http://www.openxm.org}}{{\color{red}http://www.openxm.org}}
+
+
+\newpage
+\noindent
+{\color{red} 1. Architecture} \\
+(現在ある)数学ソフトウエアシステムの統合化.
+
+このプロジェクトの二つの主たる応用 \\
+\begin{enumerate}
+\item 対話的に利用可能な分散並列計算環境の構築
+{\color{blue} Risa/Asir}
+(computer algebra system for general purpose, 
+ open source (c) Fujitsu, \\
+ http://www.openxm.org, \\
+ http://risa.cs.ehime-u.ac.jp, \\
+ http://www.math.kobe-u.ac.jp/Asir/asir.html)
+\item e-Bateman 計画
+(21 世紀の電子媒体による超越関数論集)\\
+第一段階: 超幾何関数の公式の生成と検証.
+\end{enumerate}
+\newpage
+
+\noindent
+OpenXM-RFC 100 \\
+{\color{green} Control}: \\
+\begin{enumerate}
+\item クライアントサーバモデル.  木構造のプロセス.
+\item 現在ある数学ソフトウエアを OpenXM {\color{red} スタックマシン}
+で包む.
+\item execute\_string
+\begin{verbatim}
+  Pid = ox_launch(0,"ox_asir");
+  ox_execute_string(Pid," poly_factor(x^10-1);");
+\end{verbatim}
+\end{enumerate}
+\newpage
+
+\noindent
+{\color{green} Data}: \\
+\begin{tabular}{|c|c|}
+\hline
+{\color{red} TAG}& {\color{blue} BODY} \\ 
+\hline
+\end{tabular} \\
+二つの層: {\color{green} OX message} 層.
+コマンド, CMO, その他の形式によるデータの層.
+
+\noindent
+{\color{blue} 例 1}: \\
+\begin{verbatim}
+P = ox_launch(0,"ox_sm1");
+ox_push_cmo(P,1);
+ox_push_cmo(P,1);
+ox_execute_string(P,"add");
+ox_pop_cmo(P);
+\end{verbatim}
+
+{\color{green} CMO} は OpenMath とおなじように XML を用いた
+数学データのエンコーディング法.
+
+\begin{tabular}{|c|c|c|}
+\hline
+{\tt OX\_DATA} & {\it CMO\_ZZ} & 1 \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|c|}
+\hline
+{\tt OX\_DATA} & {\it CMO\_ZZ} & 1 \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|c|}
+\hline
+{\tt OX\_DATA} & {\it CMO\_STRING} & add \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt OX\_COMMAND} & {\it SM\_executeString} \\ 
+\hline
+\end{tabular} \\
+\begin{tabular}{|c|c|}
+\hline
+{\tt OX\_COMMAND} & {\it SM\_popCMO} \\ 
+\hline
+\end{tabular} \\
+\htmladdnormallink{http://www.openxm.org}{http://www.openxm.org}
+\newpage
+
+\noindent
+{\color{red} 2. エラーの扱いと計算の中断} \\
+\begin{verbatim}
+P = ox_launch(0,"ox_asir");
+ox_rpc(P,"fctr",1.2*x^2-1.21);
+ox_dup_errors(P);
+ox_pop_cmo(P);
+\end{verbatim}
+{\color{green}
+\verb# [error([8,fctr: invalid argument])] #
+}\\
+{\color{blue}
+サーバは聞かれないかぎり何も言わない.
+}
+\newpage
+
+\begin{verbatim}
+P=ox_launch(0,"ox_asir");
+ox_rpc(P,"fctr",x^1000-y^1000);
+ox_reset(P);
+\end{verbatim}
+
+\setlength{\unitlength}{1cm}
+\begin{picture}(20,7)(0,0)
+\thicklines
+\put(5,1.7){\line(1,0){7}}
+\put(5,4.7){\line(3,-1){7}}
+\put(12,1){\framebox(5,2.5){client}}
+\put(1,4){\framebox(4,1.5){\color{blue} controller}}
+\put(1,1){\framebox(4,1.5){\color{red} engine}}
+\thinlines
+\put(0,0.3){\framebox(6,6){}}
+\put(1.5,-0.7){server}
+\end{picture}
+\newpage
+
+\noindent
+{\color{red} 4. e-Bateman 計画} (電子的な数学公式集)\\
+第一段階: \\
+ガウスの超幾何級数
+$$ {\color{blue} F(a,b,c;x)} = \sum_{n=1}^\infty
+  \frac{(a)_n (b)_n}{(1)_n (c)_n} x^n
+$$
+ここで
+$$ (a)_n = a(a+1) \cdots (a+n-1). $$
+{\color{green}
+$$ \log (1+x) = x F(1,1,2;-x) $$
+$$ \arcsin x = x F(1/2,1/2,3/2;x^2) $$
+}
+
+\noindent
+Appell's $F_1$:
+$$ {\color{blue} F_1(a,b,b',c;x,y)} = \sum_{m,n=1}^\infty
+  \frac{(a)_{m+n} (b)_m (b')_n}{(c)_{m+n}(1)_m (1)_n} x^m y^n.
+$$
+\newpage
+数学公式集, たとえば
+Erdelyi: {\color{green} Higher Transcendental Functions} \\
+{\color{blue} 公式 (type A)}\\
+次の常微分方程式の解空間は
+$$ x(1-x) \frac{d^2f}{dx^2} -\left( c-(a+b+1)x \right) \frac{df}{dx} - a b f = 0$$
+次の関数で張られる
+$$ F(a,b,c;x) = {\color{red}1} + O(x), \  
+   x^{1-c} F(a,b,c;x) = {\color{red}x^{1-c}}+O(x^{2-c}))$$
+
+ここで $c \not\in {\bf Z}$. \\
+{\color{blue} 公式 (type B)}\\
+\begin{eqnarray*}
+&\ & F(a_1, a_2, b_2;z) \, F(-a_1,-a_2,2-b_2;z)  \\
+&+& \frac{z}{e_2}\, F'(a_1, a_2, b_2;z) \, F(-a_1,-a_2,2-b_2;z)  \\
+&-& \frac{z}{e_2}\, F(a_1, a_2, b_2;z) \, F'(-a_1,-a_2,2-b_2;z)  \\
+&-& \frac{a_1+a_2-e_2}{a_1 a_2 e_2}z^2\,
+  F'(a_1, a_2, b_2;z)\,F'(-a_1,-a_2,2-b_2;z) \\
+&=& 1
+\end{eqnarray*}
+ここで $e_2 = b_2-1$,  $a_1, a_2, e_2, e_2-a_2 \not\in {\bf Z}$.  \\
+(この公式は $\sin^2 x + \cos^2 x =1$ の一般化.)
+
+\noindent
+現在やってるプロジェクト: \\
+type A および type B の公式を
+{\color{blue} GKZ hypergeometric systems}
+に対して生成, 検証しようとしている.
+
+\begin{tabular}{|c|c|c|}
+\hline
+  & type A & type B \\ \hline
+アルゴリズム &  {\color{red} OK} (SST book) &  やってる \\ \hline
+実装 & 部分的にできた & まだ \\ \hline
+\end{tabular}
+
+\noindent
+現在ある ox サーバ
+{\tt ox\_asir}, {\tt ox\_sm1}, {\tt ox\_tigers}, {\tt ox\_gnuplot},
+{\tt ox\_mathematica}, {\tt OpenMathproxy} (JavaClasses), {\tt ox\_m2}
+は, GKZ 超幾何系に対して type A の公式を生成, 検証, プレゼンするために
+集めてある.
+
+\newpage
+
+\noindent{\color{red} 5. 分散アルゴリズムを簡単にためしたり評価したりする.} \\
+
+\noindent
+{\color{green} 例 1} \\
+定理 (Cantor-Zassenhaus) \\
+$f_1$ と $f_2$ を次数が $d$ であるような $F_q[x]$ の既約多項式とする.
+次数 $2d-1$ のランダムな係数をもつ多項式 $g \in F_q[x]$
+に対して
+$$ GCD(g^{(q^d-1)/2}-1,f_1 f_2) = f_1 \,\mbox{or}\, f_2 $$
+となる確率は 
+$$ \frac{1}{2}-\frac{1}{(2q)^d}. $$
+
+\begin{picture}(20,14)(0,0)
+\put(7,12){\framebox(4,1.5){client}}
+\put(2,6){\framebox(4,1.5){server}}
+%%\put(7,6){\framebox(4,1.5){server}}
+\put(12,6){\framebox(4,1.5){server}}
+\put(0,0){\framebox(4,1.5){server}}
+\put(5,0){\framebox(4,1.5){server}}
+\put(13.5,0){\framebox(4,1.5){server}}
+
+\put(9,12){\vector(-1,-1){4.3}}
+%%\put(9,12){\vector(0,-1){4.3}}
+\put(9,12){\vector(1,-1){4.3}}
+\put(4,6){\vector(-1,-2){2.2}}
+\put(4,6){\vector(1,-2){2.2}}
+\put(14,6){\vector(1,-3){1.4}}
+\end{picture}
+
+\begin{verbatim}
+/* F の因数分解をする. */
+/* E =  F の既約因子の次数 */
+def c_z(F,E,Level)
+{
+  V = var(F); N = deg(F,V);
+  if ( N == E ) return [F];
+  M = field_order_ff(); K = idiv(N,E); L = [F];
+  while ( 1 ) {
+    /* ランダムな係数の多項式を作る */
+    W = monic_randpoly_ff(2*E,V);
+    /* ランダムな係数の多項式の巾を計算 */
+    T = generic_pwrmod_ff(W,F,idiv(M^E-1,2));
+    if ( !(W = T-1) ) continue;
+    /* G = GCD(F,W^((M^E-1)/2)) mod F) */
+    G = ugcd(F,W);
+    if ( deg(G,V) && deg(G,V) < N ) {
+      /* G は F の因子 */
+      if ( Level >= LevelMax ) {
+        /* ここで全てやる場合 */
+        L1 = c_z(G,E,Level+1);
+        L2 = c_z(sdiv(F,G),E,Level+1);
+      } else {
+        /* まだ立ち上げいなかったらサーバを立ち上げる. */
+        if ( Proc1 < 0 ) Proc1 = ox_launch();
+        /* サーバに頼む. Level = Level+1 */
+        /* ox_c_z is a wrapper of c_z on the server */
+        ox_cmo_rpc(Proc1,"ox_c_z",lmptop(G),E,
+            setmod_ff(),Level+1);
+        /* のこりの仕事は自分でやる. */
+        L2 = c_z(sdiv(F,G),E,Level+1);
+        /* サーバからの結果をもらう. */
+        L1 = map(simp_ff,ox_pop_cmo(Proc1));
+      }
+      return append(L1,L2);
+    }
+  }
+}
+\end{verbatim}
+\newpage
+
+\epsfxsize=17cm
+\epsffile{cz.ps}
+
+\noindent
+{\color{blue} 並列 CZ アルゴリズムの評価} \\
+$d=1$, $k=200$ : $200$ 個の 1 次式の積. \\
+$d=2$, $k=50$ : $50$ 個の既約な $2$ 次式の積. \\
+
+\newpage
+{\color{green} 例 2} \\
+多項式を掛けるための Shoup のアルゴリズム.  \\
+{\color{green} 例 3} \\
+競争的環境におけるグレブナ基底計算. \\
+\newpage
+
+\noindent
+{\color{green} 例 3. 競争的環境におけるグレブナ基底計算}
+\begin{verbatim}
+extern Proc1,Proc2$
+Proc1 = -1$ Proc2 = -1$
+/* G:set of polys; V:list of variables */
+/* Mod: the Ground field GF(Mod); O:type of order */
+def dgr(G,V,Mod,O)
+{
+  /* invoke servers if necessary */
+  if ( Proc1 == -1 ) Proc1 = ox_launch();
+  if ( Proc2 == -1 ) Proc2 = ox_launch();
+  P = [Proc1,Proc2];
+  map(ox_reset,P); /* reset servers */
+  /* P0 は Buchberger algorithm over GF(Mod) で計算. */
+  ox_cmo_rpc(P[0],"dp_gr_mod_main",G,V,0,Mod,O);
+  /* P1 は F4 algorithm over GF(Mod) で計算 */
+  ox_cmo_rpc(P[1],"dp_f4_mod_main",G,V,Mod,O);
+  map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
+  F = ox_select(P); /* wait for data */
+  /* F[0] is a server's id which is ready */
+  R = ox_get(F[0]);
+  if ( F[0] == P[0] ) { Win = "Buchberger"; Lose = P[1]; }
+  else { Win = "F4"; Lose = P[0]; }
+  ox_reset(Lose); /* 遅い方のサーバは止める. */
+  return [Win,R];
+} 
+\end{verbatim}
+\newpage
+
+\end{document}
