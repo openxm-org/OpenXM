@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -218,5 +218,10 @@ char*         convert_zz_to_string(cmo_zz *c);
 char*         convert_cmo_to_string(cmo *m);
 char*         convert_null_to_string();
 char*         convert_int_to_string(int integer);
+
+typedef cmo *(*hook_t)(int, cmo *);
+
+int add_hook_before_send_cmo(hook_t func);
+int add_hook_after_send_cmo(hook_t func);
 
 #endif /* _OX_H_ */

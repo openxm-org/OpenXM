@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -89,6 +89,41 @@ static int          send_cmo_distributed_polynomial(int fd, cmo_distributed_poly
 
 static void         resize_mpz(mpz_ptr mpz, int size);
 
+int current_fd = 0;
+int set_current_fd(int fd)
+{
+	current_fd = fd;
+}
+
+/* hook 関数 */
+static hook_t hook_before_send_cmo = NULL;
+static hook_t hook_after_send_cmo  = NULL;
+
+int add_hook_before_send_cmo(hook_t func)
+{
+	hook_before_send_cmo = func;
+}
+
+int add_hook_after_send_cmo(hook_t func)
+{
+	hook_after_send_cmo = func;
+}
+
+static cmo *call_hook_before_send_cmo(int fd, cmo *c)
+{
+	if (hook_before_send_cmo != NULL) {
+		return hook_before_send_cmo(fd, c);
+	}
+	return c;
+}
+
+static cmo *call_hook_after_send_cmo(int fd, cmo *c)
+{
+	if (hook_after_send_cmo != NULL) {
+		return hook_after_send_cmo(fd, c);
+	}
+	return c;
+}
 
 /* エラーハンドリングのため */
 static int current_received_serial = 0;
@@ -1132,6 +1167,8 @@ int send_cmo(int fd, cmo* c)
 {
     int tag = c->tag;
 
+	c = call_hook_before_send_cmo(fd, c);
+
     send_int32(fd, tag);
     switch(tag) {
     case CMO_NULL:
@@ -1164,6 +1201,7 @@ int send_cmo(int fd, cmo* c)
         send_cmo_distributed_polynomial(fd, (cmo_distributed_polynomial *)c);
         break;
     default:
+		call_hook_after_send_cmo(fd, c);
     }
 }
 
