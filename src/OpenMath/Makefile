@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.18 2000/01/20 18:14:32 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.19 2000/01/21 14:50:04 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -90,7 +90,7 @@ distclean:	clean
 
 
 install:	all
-	if ! test -d $(INSTALLDIR); then \
+	if [ ! -d $(INSTALLDIR) ]; then \
 		mkdir -p $(INSTALLDIR); \
 	fi
 	$(TAR) cf - $(PKGTARGETS) $(TARGETS) | \
