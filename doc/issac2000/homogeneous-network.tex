@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.6 2000/01/15 02:24:18 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.7 2000/01/15 06:11:17 takayama Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -17,24 +17,22 @@ by FFT over small finite fields and Chinese remainder theorem.
 It can be easily parallelized:
 
 \begin{tabbing}
-Input :\= $f_1, f_2 \in Z[x]$\\
-\> such that $deg(f_1), deg(f_2) < 2^M$\\
-Output : $f = f_1f_2 \bmod p$\\
-$P \leftarrow$ \= $\{m_1,\cdots,m_N\}$ where $m_i$ is a prime, \\
+Input :\= $f_1, f_2 \in {\bf Z}[x]$ such that $deg(f_1), deg(f_2) < 2^M$\\
+Output : $f = f_1f_2$ \\
+$P \leftarrow$ \= $\{m_1,\cdots,m_N\}$ where $m_i$ is an odd prime, \\
 \> $2^{M+1}|m_i-1$ and $m=\prod m_i $ is sufficiently large. \\
 Separate $P$ into disjoint subsets $P_1, \cdots, P_L$.\\
 for \= $j=1$ to $L$ $M_j \leftarrow \prod_{m_i\in P_j} m_i$\\
 Compute $F_j$ such that $F_j \equiv f_1f_2 \bmod M_j$\\
 \> and $F_j \equiv 0 \bmod m/M_j$ in parallel.\\
-\> ($f_1, f_2$ are regarded as integral.\\
-\> The product is computed by FFT.)\\
+\> (The product is computed by FFT.)\\
 return $\phi_m(\sum F_j)$\\
-(For $a \in Z$, $\phi_m(a) \in (-m/2,m/2)$ and $\phi_m(a)\equiv a \bmod m$)
+(For $a \in {\bf Z}$, $\phi_m(a) \in (-m/2,m/2)$ and $\phi_m(a)\equiv a \bmod m$)
 \end{tabbing}
 
 Figure \ref{speedup}
 shows the speedup factor under the above distributed computation
-on {\tt Risa/Asir}. For each $n$, two polynomials of degree $n$
+on Risa/Asir. For each $n$, two polynomials of degree $n$
 with 3000bit coefficients are generated and the product is computed.
 The machine is Fujitsu AP3000,
 a cluster of Sun connected with a high speed network and MPI over the
@@ -46,21 +44,19 @@ network is used to implement OpenXM.
 \label{speedup}
 \end{figure}
 
-The task of a client is the generation and partition of $P$, sending
-and receiving of polynomials and the synthesis of the result. If the
-number of servers is $L$ and the inputs are fixed, then the cost to
+If the number of servers is $L$ and the inputs are fixed, then the cost to
 compute $F_j$ in parallel is $O(1/L)$, whereas the cost
-to send and receive polynomials is $O(L)$
-because we don't have the broadcast and the reduce
-operations. Therefore the speedup is limited and the upper bound of
+to send and receive polynomials is $O(L)$ if {\tt ox\_push\_cmo()} and
+{\tt ox\_pop\_cmo()} are repeatedly applied on the client.
+Therefore the speedup is limited and the upper bound of
 the speedup factor depends on the ratio of 
-the computational cost and the communication cost.
+the computational cost and the communication cost for each unit operation.
 Figure \ref{speedup} shows that 
 the speedup is satisfactory if the degree is large and $L$
 is not large, say, up to 10 under the above envionment.
 If OpenXM provides the broadcast and the reduce operations, the cost of 
 sending $f_1$, $f_2$ and gathering $F_j$ may be reduced to $O(log_2L)$
-and we will obtain better results in such a case.
+and we can expect better results in such a case.
 
 \subsubsection{Competitive distributed computation by various strategies}
 
@@ -68,7 +64,7 @@ Singular \cite{Singular} implements {\tt MP} interface for distributed
 computation and a competitive Gr\"obner basis computation is
 illustrated as an example of distributed computation.
 Such a distributed computation is also possible on OpenXM.
-The following {\tt Risa/Asir} function computes a Gr\"obner basis by
+The following Risa/Asir function computes a Gr\"obner basis by
 starting the computations simultaneously from the homogenized input and
 the input itself.  The client watches the streams by {\tt ox\_select()}
 and The result which is returned first is taken. Then the remaining

@@ -1,16 +1,16 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.4 2000/01/13 09:21:34 ohara Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.5 2000/01/15 06:26:06 takayama Exp $
 
 \section{OpenXM Clients}    
 
 \subsection{Risa/Asir}
 
 Risa/Asir provides a launcher to invoke an OpenXM server and to set up the
-communication between the server and itself. It also provides primitives
-for communication as built-in functions.
+communication between the server and itself. As a client, 
+it provides many built-in functions for communication.
 
-\subsubsection{{\tt ox\_launch}}
+\subsubsection{Setting up servers}
 {\tt ox\_launch} is a general purpose launcher.  This application
-invokes a server and initiates the server-client communication
+invokes a server and sets up the server-client communication
 according to the protocol stated in Section \ref{launcher}, then
 itself becomes a control server.
 Several facilities related to {{\tt ox\_launch}} are provided
@@ -20,9 +20,9 @@ of functions to execute the port generation, {\tt bind}, {\tt listen},
 {\tt connect} and {\tt accept} operations on sockets individually.
 
 \subsubsection{Manipulating servers}
-
-Fundamental operations on OpenXM servers are sending and receiving
-of {\tt OX} data and sending of {\tt OX} commands. The following functions
+Fundamental operations on OpenXM servers are 
+exchange of {\tt OX} data and sending of {\tt SM} commands.
+The following functions
 are provided to execute these primitive operations:
 {\tt ox\_push\_cmo()} for pushing data to a server, 
 {\tt ox\_push\_cmd()} for sending an {\tt SM} command to a server
@@ -41,7 +41,7 @@ it receives the data from the stream.
 \item {\tt ox\_cmo\_rpc()}
 
 After pushing the name of a function, arguments and the number of the
-arguments to the stack of a server, it request the server to execute
+arguments to the stack of a server, it requests the server to execute
 the function. It does not wait the termination of the function call.
 
 \item {\tt ox\_reset()}
@@ -56,8 +56,8 @@ to avoid blocking on read operations.
 \subsection{Mathematica}
 
 We provide an OpenXM client {\tt math2ox} written as an external module
-for Mathematica.  Our client communicates to Mathematica by MathLink and
-to an OpenXM server by OpenXM protocols.  
+for Mathematica.  Our client communicates with Mathematica by MathLink and
+with an OpenXM server by OpenXM protocols.  
 By using the module {\tt math2ox},
 we can call OpenXM servers from Mathematica;
 here is an example of a computation of the de Rham cohomology groups
@@ -74,8 +74,7 @@ Out[4]=  [ 1 , 1 , 0 ]
 
 \subsubsection{Functions}
 
-The {\tt math2ox} has the following functions 
-which respectively correspond those in Risa/Asir.
+The {\tt math2ox} has the following functions.
 \begin{quote}
 {\tt OxStart[s\_String]} \\
 {\tt OxStartInsecure[s\_String]} \\
@@ -87,14 +86,11 @@ which respectively correspond those in Risa/Asir.
 {\tt OxClose[]} \\
 {\tt OxReset[]}
 \end{quote}
-For example, the {\tt OxPopCMO[]} function above requests a server to
-send data on the stack to the stream, then it receives the data from the
-stream.
-
-By using the {\tt OxParse[]} function, we can send suitable OX messages,
-written by the OX expression, to a server.  OX expressions are
+For example, {\tt OxPopCMO[]} executes the same operation
+as {\tt ox\_pop\_cmo()} in Risa/Asir.
+By using the {\tt OxParse[]} function, one can send suitable OX messages,
+written by the OX expression, to a server. OX expressions are
 Lisp-like expressions for OX messages and are defined
 in~\cite{noro-takayama}.  
 The {\tt OxGet[]} receives an OX data message
 and returns its translation to an local object.
-
