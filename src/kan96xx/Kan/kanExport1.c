@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.14 2004/08/31 04:45:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.15 2004/08/31 05:30:20 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1405,7 +1405,7 @@ struct object KgetExponents(struct object obPoly,struct object otype) {
   }
 
   /* type == 0    x,y,Dx,Dy     (no commutative, no vector)
-     type == 1    x,y,h,Dx,Dy,H (commutative & no vector)
+     type == 1    x,y,Dx,Dy,h,H (commutative & no vector)
      type == 2    x,y,Dx,Dy,h   (commutative & no vector)
   */
   if (f ISZERO) {
@@ -1444,7 +1444,11 @@ struct object KgetExponents(struct object obPoly,struct object otype) {
   }else{
     errorKan1("%s\n","KgetExponent, unknown type.");
   }
-  hsize = size/2;
+  if (type == 1 || type == 2) {
+    hsize = (size-cc)/2;
+  }else{
+    hsize = size/2;
+  } 
   if (f ISZERO) {
     tob = newObjectArray(size);
     for (i=0; i<size; i++) {
@@ -1485,8 +1489,9 @@ struct object KgetExponents(struct object obPoly,struct object otype) {
     }
     if (type == 1) {
       for (i=cc-1; i>=0; i--) {
+        putoa(tob,hsize+r,KpoInteger(tf->e[i].D));
+        r++;
         putoa(tob,hsize+r,KpoInteger(tf->e[i].x)); 
-        putoa(tob,r,KpoInteger(tf->e[i].D));
         r++;
       }
     }else if (type == 2) {

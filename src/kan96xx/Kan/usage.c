@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.29 2004/07/30 11:21:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.30 2004/09/04 11:25:58 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -187,7 +187,7 @@ void Kusage2(fp,s)
     fppp(fp,"     (see also cancelCoeff) \n");
     fppp(fp,"  [(exponents) poly type ] gbext array \n");
     fppp(fp,"    example: type == 0    x,y,Dx,Dy\n");
-    fppp(fp,"             type == 1    x,y,h,Dx,Dy,H\n");
+    fppp(fp,"             type == 1    x,y,Dx,Dy,h,H\n");
     fppp(fp,"             type == 2    x,y,Dx,Dy,h  --- default.\n");
     fppp(fp,"  [(grade) poly1 ] gbext integer \n");
     fppp(fp,"  [(isConstant) poly] gbext bool \n");
