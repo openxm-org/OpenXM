@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.7 1999/11/06 21:39:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.8 1999/11/07 12:12:55 ohara Exp $ */
 
 /* OX expression, CMO expression ¥Ñ¡¼¥µ */
 
@@ -588,6 +588,7 @@ static symbol symbol_list[] = {
     MK_KEY_SM(SM_executeStringByLocalParser), 
     MK_KEY_SM(SM_executeFunction), 
     MK_KEY_SM(SM_setMathCap),
+    MK_KEY_SM(SM_shutdown),
     MK_KEY_SM(SM_control_kill), 
     MK_KEY_SM(SM_control_reset_connection),
     MK_KEY_OX(OX_COMMAND),

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.3 1999/11/03 10:56:40 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,6 +105,13 @@ int receive_ox(int fd_read, int fd_write)
     return 0;
 }
 
+int shutdown()
+{
+	close(sv_read);
+	MATH_exit();
+	exit(0);
+}
+
 int main()
 {
     MATH_init();
@@ -128,5 +135,5 @@ int main()
             already_send_ox_sync_ball = 0;
         }
     }
-    MATH_exit();
+    shutdown();
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.3 1999/11/07 12:12:56 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
@@ -24,4 +24,6 @@ int  sm_executeFunction(int fd_write);
 
 int  receive_sm_command(int fd_read);
 int  execute_sm_command(int fd_write, int code);
+
+int shutdown();
 #endif

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.6 1999/11/06 21:39:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.7 1999/11/07 12:12:56 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -14,6 +14,11 @@
 #include "ox.h"
 #include "parse.h"
 #include "serv2.h"
+
+#define FLAG_MLTKSYM_IS_INDETERMINATE   0
+#define FLAG_MLTKSYM_IS_STRING          1
+
+int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 
 #define ERROR_ID_UNKNOWN_SM 10
 #define ERROR_ID_FAILURE_MLINK         11
@@ -88,12 +93,15 @@ cmo *receive_mlo_symbol()
     cmo *ob;
     char *s;
 
-    fprintf(stderr, "--debug: MLO == MLTKSYM.\n");
+    fprintf(stderr, "--debug: MLO == MLTKSYM");
     MLGetSymbol(lp, &s);
-    fprintf(stderr, "--debug: Symbol \"%s\".\n", s);
+    fprintf(stderr, ": Symbol = \"%s\".\n", s);
 
-    ob = new_cmo_indeterminate(new_cmo_string(s)); 
-
+	if(flag_mlo_symbol == FLAG_MLTKSYM_IS_INDETERMINATE) {
+		ob = new_cmo_indeterminate(new_cmo_string(s)); 
+	}else {
+		ob = new_cmo_string(s);
+	}
     MLDisownString(lp, s);
     return ob;
 }
@@ -341,6 +349,17 @@ int sm_popString(int fd_write)
 
 int local_execute(char *s)
 {
+	if(*s == 'i') {
+		switch(s[1]) {
+		case '+':
+			flag_mlo_symbol = FLAG_MLTKSYM_IS_STRING;
+			break;
+		case '-':
+		case '=':
+		default:
+			flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
+		}
+	}
     return 0;
 }
 
@@ -357,7 +376,7 @@ int sm_executeStringByLocalParser(int fd_write)
     if (m->tag == CMO_STRING
         && strlen(s = ((cmo_string *)m)->s) != 0) {
         if (s[0] == ':') {
-            local_execute(s);
+            local_execute(++s);
         }else {
             /* for mathematica */
             /* mathematica に文字列を送って評価させる */
@@ -420,6 +439,10 @@ int receive_sm_command(int fd_read)
 int execute_sm_command(int fd_write, int code)
 {
     int err = 0;
+#ifdef DEBUG	
+	symbol *sp = lookup_by_tag(code);
+	fprintf(stderr, "ox_math:: %s received.\n", sp->key);
+#endif
 
     switch(code) {
     case SM_popCMO:
@@ -442,6 +465,9 @@ int execute_sm_command(int fd_write, int code)
         break;
     case SM_setMathCap:
         pop();  /* 無視する */
+        break;
+    case SM_shutdown:
+        shutdown();
         break;
     default:
         fprintf(stderr, "unknown command: %d.\n", code);
