@@ -1,4 +1,4 @@
-## $OpenXM$
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.2 2000/01/15 22:45:32 takayama Exp $
 ########## Documents
 OpenXM_ROOT=../../../../OpenXM
 OpenXM_doc=$(OpenXM_ROOT)/doc
@@ -33,7 +33,7 @@ install-document : onlinehelp.dvi ttt.dvi clean-OpenXM-doc
 	-$(DVIPS)  ttt >$(OpenXM_doc)/kan96xx/intro.ps
 	-$(DVIPS) onlinehelp >$(OpenXM_doc)/kan96xx/onlinehelp.ps
 
-clean-OpenXM-doc : clean-document
+clean-OpenXM-doc : 
 	-/bin/rm -rf $(OpenXM_doc)/kan96xx
 
 ########## cleaning
