@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.17 2004/05/13 04:38:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.18 2004/07/30 11:21:55 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -165,6 +165,7 @@ struct object KpoMatrixOfPOLY(struct matrixOfPOLY *mp);
 struct object KpoRingp(struct ring *ringp);
 struct object KpoDouble(double a);
 struct object KpoUniversalNumber(struct coeff *u);
+struct object KintToUniversalNumber(int n);
 #define KopInteger(o) ( (o).lc.ival )
 #define KopString(o)  ( (o).lc.str )
 #define KopPOLY(o)    ( (o).lc.poly )

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.27 2004/04/29 11:20:37 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.28 2004/05/13 05:33:10 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -2767,6 +2767,7 @@ newline
   [/in-ngcd /nlist /g.ngcd /ans] pushVariables
   [
      /nlist arg1 def
+     nlist to_univNum /nlist set
      nlist length 2 lt
      { /ans nlist 0 get def /L.ngcd goto }
      {
@@ -3850,6 +3851,234 @@ $ [ff ff] fromVectors :: $
     } {
       ff toString . /arg1 set
     } ifelse
+  ] pop
+  popVariables
+  arg1
+} def
+
+/to_univNum {
+  /arg1 set
+  [/rr  ] pushVariables
+  [
+    /rr arg1 def
+    rr isArray {
+      rr { to_univNum } map /rr set
+    } {  
+    } ifelse 
+    rr isInteger {
+      rr (universalNumber) dc /rr set
+    } {
+    } ifelse
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1 
+} def
+[(to_univNum) 
+[(obj to_univNum obj2)
+ (Example. [ 2 (3).. ] to_univNum)
+ (cf. to_int)
+]] putUsages
+
+[(lcm)
+ [ ([a b c ...] lcm r)
+   (cf. polylcm, mpzext)
+ ]
+] putUsages
+/lcm {
+  /arg1 set
+  [/aa /bb /rr /pp /i] pushVariables
+  [
+    /aa arg1 def
+    /rr (1).. def
+    /pp 0 def % isPolynomial array?
+    0 1 aa length 1 sub {
+      /i set
+      aa i get  isPolynomial {
+        /pp 1 def
+        exit
+      } {  } ifelse
+    } for
+
+    0 1 aa length 1 sub {
+      /i set
+      pp {
+        [rr aa i get] polylcm /rr set
+      } {  
+        [(lcm) rr aa i get ] mpzext /rr set
+      } ifelse
+    } for
+    
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+[(gcd)
+ [ ([a b c ...] gcd r)
+   (cf. polygcd, mpzext)
+ ]
+] putUsages
+/gcd {
+  /arg1 set
+  [/aa /bb /rr /pp /i] pushVariables
+  [
+    /aa arg1 def
+    /rr (1).. def
+    /pp 0 def % isPolynomial array?
+    0 1 aa length 1 sub {
+      /i set
+      aa i get  isPolynomial {
+        /pp 1 def
+        /rr aa i get def
+        exit
+      } {  } ifelse
+    } for
+
+    pp {
+     0 1 aa length 1 sub {
+       /i set
+       [rr aa i get] polygcd /rr set
+     } for
+    } {
+      aa ngcd /rr set
+    } ifelse
+    
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(denominator)
+ [ ([a b c ...] denominator r)
+   ( a denominator r )
+   (cf. dc, numerator)
+ ]
+] putUsages
+% test data.
+%  [(1).. (2).. div (1).. (3).. div ] denominator
+%  [(2).. (3).. (4).. ] denominator
+/denominator {
+  /arg1 set
+  [/pp /dd /ii /rr] pushVariables
+  [
+    /pp arg1 def
+    {
+      pp isArray {
+        pp { denominator } map /dd set        
+        /rr dd lcm def % rr = lcm(dd[0], dd[1], ... )
+        rr /dd set 
+        exit
+      } {  } ifelse
+
+      pp (denominator) dc /dd set
+      exit
+
+    } loop
+    /arg1 dd def
+  ] pop
+  popVariables
+  arg1
+} def 
+
+[(numerator)
+ [ ([a b c ...] numerator r)
+   ( a numerator r )
+   (cf. dc, denominator)
+ ]
+] putUsages
+% test data.
+/numerator {
+  /arg1 set
+  [/pp /dd /ii /rr] pushVariables
+  [
+    /pp arg1 def
+    {
+      pp isArray {
+        pp denominator /dd set        
+        pp dd mul /rr set
+        rr reduce /rr set
+        exit
+      } {  } ifelse
+
+      pp (numerator) dc /rr set
+      exit
+
+    } loop
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def 
+
+/reduce.Q {
+  /arg1 set
+  [/aa /rr /nn /dd /gg]  pushVariables
+  [
+    /aa arg1 def
+    {
+      aa isRational {
+         [(cancel) aa] mpzext /rr set 
+         rr (denominator) dc (1).. eq {
+            /rr rr (numerator) dc def
+            exit
+         } { } ifelse
+         rr (denominator) dc (-1).. eq {
+            /rr rr (numerator) dc (-1).. mul def
+         } { } ifelse
+         exit
+      } { } ifelse
+
+      /rr aa def
+      exit 
+    } loop
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def 
+
+/reduce.one {
+  /arg1 set
+  [/aa /rr /nn /dd /gg]  pushVariables
+  [
+    /aa arg1 def
+    {
+      aa isRational {
+        aa (numerator) dc /nn set
+        aa (denominator) dc /dd set
+        nn isUniversalNumber dd isUniversalNumber and {
+          /rr aa reduce.Q def
+          exit
+        } { (reduce: not implemented) error } ifelse
+      } { } ifelse
+
+      /rr aa def
+      exit 
+    } loop
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def 
+
+[(reduce)
+ [ (obj reduce r)
+   (Cancel numerators and denominators)
+   (The implementation has not yet been completed. It works only for Q.) 
+]] putUsages
+/reduce {
+  /arg1 set
+  [/aa /rr] pushVariables
+  [ 
+    /aa arg1 def
+    aa isArray {
+      aa {reduce} map /rr set
+    } { 
+      aa reduce.one /rr set
+    } ifelse
+    /arg1 rr def
   ] pop
   popVariables
   arg1

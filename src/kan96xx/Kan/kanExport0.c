@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.23 2004/07/30 11:21:55 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.24 2004/08/22 02:00:24 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -914,8 +914,7 @@ struct object KdataConversion(obj,key)
       strcpy(rob.lc.str,intstr);
       return(rob);
     }else if (strcmp(key,"universalNumber")==0) {
-      rob.tag = SuniversalNumber;
-      rob.lc.universalNumber = intToCoeff(obj.lc.ival,&SmallRing);
+      rob = KintToUniversalNumber(obj.lc.ival);
       return(rob);
     }else if (strcmp(key,"double") == 0) {
       rob = KpoDouble((double) (obj.lc.ival));
@@ -1102,6 +1101,9 @@ struct object KdataConversion(obj,key)
     }else if (strcmp(key,"double") == 0) {
       rob = KpoDouble( toDouble0(obj) );
       return(rob);
+    }else if (strcmp(key,"denominator") == 0) {
+      rob = KintToUniversalNumber(1);
+      return(rob);
     }else{
       warningKan("Sorry. This type of data conversion of universalNumber has not supported yet.\n");
     }
@@ -1240,6 +1242,16 @@ struct object KpoUniversalNumber(u)
   obj.lc.universalNumber = u;
   return(obj);
 }
+struct object KintToUniversalNumber(n)
+	 int n;
+{
+  struct object rob;
+  extern struct ring SmallRing;
+  rob.tag = SuniversalNumber;
+  rob.lc.universalNumber = intToCoeff(n,&SmallRing);
+  return(rob);
+}
+
 /*** conversion 2. Data conversions on arrays and matrices. ****/
 struct object arrayOfPOLYToArray(aa)
      struct arrayOfPOLY *aa;
