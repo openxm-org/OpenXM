@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_maple/simple.ml,v 1.1 2004/06/21 12:46:04 takayama Exp $
 ox_start_sm1:=define_external(
    'ml_start_asir',
    'RETURN'::integer[4],
@@ -21,4 +21,15 @@ ox_pop_string:=define_external(
    'RETURN'::string[],
    'LIB'="libsimple.so");
 
+
+asir_gr:=proc(f,v,ord) 
+   local sf,sv,sord;
+   sf := sprintf("%a",f);
+   sv := sprintf("%a",v);
+   sord := sprintf("%a",ord);
+   ox_execute_string(cat("gr(",sf,",",sv,",",sord,");"));
+   RETURN(parse(ox_pop_string()));
+end :
+
+# asir_gr([x^2+y^2-4,x*y-1],[x,y],2);
 
