@@ -1,13 +1,24 @@
-######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.13 1999/12/14 06:41:03 takayama Exp $
-KANHOME = ../SSkan
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.14 2000/01/02 07:35:15 takayama Exp $
+## Targets :  
+##   all  : generates ox oxlog ox_sm1 oxweave
+##   install : copy the binaries to $(OpenXM_bin),
+##             remove symbolic link from $(OpenXM_lib)/sm1 to $(KANHOME)/Doc/*
+##             copy $(KANHOME)/Doc/* to $(OpenXM_lib)/sm1
+##             Create symbolic links in $(OpenXM_lib)/sm1/bin
+##   install-for-debug :
+##             Create symbolic links instead of copying.
 
+######### configurations.    
+OpenXM_contrib=../../../OpenXM_contrib
+OpenXM_ROOT=../../../OpenXM
+OpenXM_bin=$(OpenXM_ROOT)/bin
+OpenXM_lib=$(OpenXM_ROOT)/lib
+KANHOME = ../SSkan
 LFLAG =
 SOLARISLFLAG = -lnsl -lsocket /usr/ucblib/libucb.a
-
 CFLAGS = -g
-
 ########## end of configurations
+
 ### Set the server name in oxmain.c if you do not use the environmental
 ### variable LOAD_SM1_PATH.  cf. $KANHOME/lib/ox.sm1
 
@@ -91,37 +102,62 @@ testclient2 : testclient2.c  ox_kan.h $(KANHOME)/Kan/kanlib.a ox.a
 	gcc $(CFLAGS) -I$(KANHOME)/Kan testclient2.c -o testclient2  $(LFLAG) $(KANLIB)
 
 
-clean :
-	/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ oxweave openxm-eg.tex openxm-jp.tex
+clean : 
+	-/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ oxweave openxm-eg.tex openxm-jp.tex
 
+distclean : clean clean-for-install
 
-install_lib_bin :
-	/bin/rm -f $(KANHOME)/lib/bin/ox*
-	ln -f -s ../../../bin/ox $(KANHOME)/lib/bin/ox
-	ln -f -s ../../../bin/oxlog $(KANHOME)/lib/bin/oxlog
-	ln -f -s ../../../bin/ox_sm1 $(KANHOME)/lib/bin/ox_sm1
-	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_forAsir
-	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_gnuplot
-	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_phc
-	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_tigers
-	ln -f -s ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_basicCD
-
-install : install_lib_bin
-	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog ../bin/oxweave
-	cp  ox ox_sm1 oxlog oxweave ../bin
-
-install2 : install_lib_bin
+## install targets.
+install-for-debug : clean-for-install install_lib_bin-for-debug
 	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog ../bin/oxweave
 	ln -f -s  ../src/kxx/ox ../bin/ox
 	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
 	ln -f -s  ../src/kxx/oxlog ../bin/oxlog
 	ln -f -s  ../src/kxx/oxweave ../bin/oxweave
 
+install_lib_bin-for-debug :
+	ln -f -s ../src/kan96xx/Doc $(OpenXM_lib)/sm1
+	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
+	ln -f -s ../../../bin/ox $(OpenXM_lib)/sm1/bin/ox
+	ln -f -s ../../../bin/oxlog $(OpenXM_lib)/sm1/bin/oxlog
+	ln -f -s ../../../bin/ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_forAsir
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_gnuplot
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_phc
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
+
+install : copy-kan-lib install_lib_bin
+	cp -f ox ox_sm1 oxlog oxweave $(OpenXM_bin)
+
+install_lib_bin : 
+	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
+	ln -f -s ../../../bin/ox $(OpenXM_lib)/sm1/bin/ox
+	ln -f -s ../../../bin/oxlog $(OpenXM_lib)/sm1/bin/oxlog
+	ln -f -s ../../../bin/ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_forAsir
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_gnuplot
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_phc
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
+	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
+
+# This target overrides the symbolic link 
+# from $(OpenXM_ROOT)/src/kan96xx/lib to $(OpenXM_lib)/sm1
+# generated in the top level Makefile
+copy-kan-lib : clean-for-install
+	mkdir $(OpenXM_lib)/sm1
+	cp -r $(KANHOME)/Doc/* $(OpenXM_lib)/sm1
+	-/bin/rm -rf $(OpenXM_lib)/sm1/CVS
+	cp $(KANHOME)/Kan/var.sm1 $(OpenXM_lib)/sm1
+clean-for-install :
+	-/bin/rm -rf $(OpenXM_lib)/sm1
+	-/bin/rm -rf $(OpenXM_bin)/oxlog $(OpenXM_bin)/oxweave $(OpenXM_bin)/ox_sm1 $(OpenXM_bin)/ox   
 
 configure:
 	/bin/rm -f ox_kan.h 
 	ln -f -s  ../SSkan/plugin/ox_kan.h ox_kan.h
 
+## openxm document generation.
 OXWEAVEFLAG=--recursive
 doc:  openxxx.tex
 	-/bin/rm openxm-eg.tex openxm-jp.tex
