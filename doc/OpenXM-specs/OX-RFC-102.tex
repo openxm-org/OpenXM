@@ -138,7 +138,7 @@ $0$ $B$r%9%?%C%/$KCV$/(B. $peer$ $B$O(B, $BAj<j$N(B server $B$N%0%k!<%WFb
 
 \end{enumerate}
 
-\section{server $B4V$NDL?.(B}
+\section{server $B4V$NDL?.(B, broadcast $B$*$h$S(B reduction}
 
 RFC-102 $B2<$G$N%W%m%0%i%_%s%0%9%?%$%k$O(B, $B4pK\E*$K$O(B RFC-100,101 $B$HJQ$o$i$J$$(B.
 $B$9$J$o$A(B, master $B$G$"$k%W%m%0%i%`$,<B9T$5$l(B, $BI,MW$K1~$8$F(B server $B$K(B
@@ -147,8 +147,6 @@ RFC-102 $B2<$G$N%W%m%0%i%_%s%0%9%?%$%k$O(B, $B4pK\E*$K$O(B RFC-100,101 $B$H
 $B$r9T$&$3$H$,$G$-$k(B. $B$3$N$?$a(B, server $B$O(B, server $B4VDL?.O)$K(B OX $B%G!<%?$r(B
 $BAw?.$9$k5!G=(B, $B$^$?!"(Bserver $B4VDL?.O)$+$i(B OX $B%G!<%?$r<u?.$9$k5!G=$r(B
 $BDs6!$7$J$1$l$P$J$i$J$$(B. 
-
-\subsection{broadcast $B$*$h$S(B reduction}
 
 server $B4VDL?.$rMxMQ$9$k:G$bE57?E*$JNc$H$7$F(B broadcast $B$,$"$k(B.
 
@@ -190,13 +188,14 @@ server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nser
 $B0J2<$K(B, {\tt ox\_asir} $B$K$*$1$k<BAu$r<($9(B.
 
 \begin{verbatim}
-void ox_bcast_102(int root,Obj *rp)
+void ox_bcast_102(int root)
 {
     Obj data;
     int r,mask,id,src,dst;
 
-    data = *rp;
     r = myrank_102-root;
+    if ( r == 0 )
+        data = (Obj)asir_pop_one();
     if ( r < 0 ) r += nserver_102;
     for ( mask = 1; mask < nserver_102; mask <<= 1 )
         if ( r&mask ) {
@@ -211,7 +210,7 @@ void ox_bcast_102(int root,Obj *rp)
             if ( dst >= nserver_102 ) dst -= nserver_102;
             ox_send_data_102(dst,data);
         }
-    *rp = data;
+    asir_push_one(data);
 }
 \end{verbatim}
 
@@ -233,13 +232,14 @@ server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nser
 $B%9%F%C%W8e$K$O<jB3$-$,=*N;$9$k(B.
 
 \begin{verbatim}
-void ox_reduce_102(int root,void (*func)(),Obj data,Obj *rp)
+void ox_reduce_102(int root,void (*func)())
 {
-    Obj data0,t;
+    Obj data,data0,t;
     int r,mask,id,src,dst;
 
     r = myrank_102-root;
     if ( r < 0 ) r += nserver_102;
+    data = (Obj)asir_pop_one();
     for ( mask = 1; mask < nserver_102; mask <<= 1 )
         if ( r&mask ) {
             dst = (r-mask)+root;
@@ -255,13 +255,48 @@ void ox_reduce_102(int root,void (*func)(),Obj data,Obj *rp)
                 (*func)(CO,data,data0,&t); data = t;
             }
         }
-    if ( !r )
-        *rp = data;
-    else
-        *rp = 0;
+    asir_push_one(r?0:data);
 }
 \end{verbatim}
 
+$BBP1~$9$k(B SM $B%3%^%s%I$O0J2<$NDL$j$G$"$k(B.
+
+\begin{enumerate}
+\item
+\begin{verbatim}
+SM_bcast_102
+\end{verbatim}
+
+Request:
+\begin{tabular}{|c|c|c|} \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_bcast\_102} & {\tt int32 $root$} \\ \hline
+\end{tabular}
+
+Output: none.
+
+Stack after the request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_DATA} & {\tt $CMObject$} \\ \hline
+\end{tabular}
+
+\item
+\begin{verbatim}
+SM_reduce_102
+\end{verbatim}
+
+Request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_reduce\_102} \\ \hline
+{\tt int32 $root$} & {\tt int32 CMO\_String} {$opname$} \\ \hline
+\end{tabular}
+
+Stack after the request:
+\begin{tabular}{|c|c|}  \hline
+{\tt int32 OX\_DATA} & {\tt $CMObject$} \\ \hline
+\end{tabular}
+
+Output: none.
+\end{enumerate}
 
 \section{$B%(%i!<=hM}(B}
 
@@ -346,11 +381,22 @@ $Server$ $B$KBP$7DL?.O)%j%;%C%HF0:n$r;X<($9$k(B. $B$3$NA`:n$O(B, $B%0%k!<%W
 $B<1JL;R(B $Rank$ $B$N(B server $B$+$i(B OX $B%G!<%?$r<u?.$9$k(B.
 $B<1JL;R(B $Rank$ $B$N(B server $B$OBP1~$9$kAw?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
 
-\item {\tt ox\_bcast\_102($Rank$[,$Data$])}
+\item {\tt ox\_bcast\_102($Root$[,$Data$])}
 
-$B<1JL;R(B $Rank$ $B$N(B server $B$r(B root $B$H$7$F(B, $B%0%k!<%WFb$G(B broadcast $B$9$k(B.
-$Root$ $B$N$_(B $Data$ $B$r;XDj$9$kI,MW$,$"$k(B. $B3F(B server $B$G$NLa$jCM$O(B 
-$Data$ $B$G$"$k(B.
+$B<1JL;R(B $Root$ $B$N(B server $B$r(B root $B$H$7$F(B, $B%0%k!<%WFb$G(B broadcast $B$9$k(B.
+$Data$ $B$,;XDj$5$l$?>l9g(B, $B%9%?%C%/$K%W%C%7%e$5$l$k(B.
+$B$r;XDj$9$kI,MW$,$"$k(B. $B<1JL;R$,(B $Root$ $B$KEy$7$$(B server $B$G(B, $B%9%?%C%/(B
+$B$+$i%G!<%?$,%]%C%W$5$l(B, $B$=$N%G!<%?$,(B, $B3F8F$S=P$7$NLa$jCM$H$J$k(B.
+
+\item {\tt ox\_reduce\_102($Root$,$Operation$[,$Data$])}
+
+$B%0%k!<%WFb$N3F(B server $B$N%9%?%C%/$+$i%]%C%W$7$?%G!<%?$KBP$7(B
+$Operation$ $B$G;XDj$5$l$kFs9`1i;;$r9T$$(B,
+$B7k2L$r(B $Root$ $B$G;XDj$5$l$k(B server $B$G$N4X?t8F$S=P$7$NLa$jCM$H$7$F(B
+$BJV$9(B.
+$Data$ $B$,;XDj$5$l$?>l9g(B, $B%9%?%C%/$K%W%C%7%e$7$F$+$i>e5-$NA`:n$r(B
+$B<B9T$9$k(B. $Root$ $B0J30$N(B server $B$G$NLa$jCM$O(B 0 $B$G$"$k(B.
+
 \end{itemize}
 
 \begin{thebibliography}{99}
