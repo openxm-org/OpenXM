@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.6 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.7 2003/03/30 08:05:23 ohara Exp $ */
 
 /*
   This program explains how to get
@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "ox_toolkit.h"
+
+OXFILE* ox_start(char* host, char* prog1, char* prog2);
 
 void explain_cmo(cmo *);
 

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.6 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.7 2003/03/30 08:05:23 ohara Exp $ */
 
 /*
    This sample program explains how to construct
@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "ox_toolkit.h"
+
+OXFILE* ox_start(char* host, char* prog1, char* prog2);
 
 /* This program uses High-level functions of OpenXM C library. */
 int main()
@@ -33,9 +35,9 @@ int main()
        the elements are a bignum. */
     c = new_cmo_list();
 
-    list_append(c, new_cmo_zz_set_si(10000));
-    list_append(c, new_cmo_zz_set_si(-2342));
-    list_append(c, new_cmo_zz_set_string("3141592653289793238462643383279"));
+    list_append(c, (cmo *)new_cmo_zz_set_si(10000));
+    list_append(c, (cmo *)new_cmo_zz_set_si(-2342));
+    list_append(c, (cmo *)new_cmo_zz_set_string("3141592653289793238462643383279"));
 
     /* sending the list above. */
     ox_push_cmo(s, (cmo *)c);

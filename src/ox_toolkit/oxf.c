@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.16 2003/05/29 15:50:49 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.17 2003/06/02 10:25:57 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -32,6 +32,8 @@ static int send_int32_nbo(OXFILE *oxfp, int int32);
 static int receive_int32_lbo(OXFILE *oxfp);
 static int receive_int32_nbo(OXFILE *oxfp);
 
+static void pipe_send_info(int fd, char *hostname, int port, char *password);
+
 /* enable write buffering */
 int oxf_setbuffer(OXFILE *oxfp, char *buf, int size)
 {
@@ -44,6 +46,7 @@ int oxf_setbuffer(OXFILE *oxfp, char *buf, int size)
     oxfp->wbuf = buf; 
     oxfp->wbuf_size  = size;
     oxfp->wbuf_count = 0;
+    return 0;
 }
 
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
@@ -195,7 +198,7 @@ void oxf_setopt(OXFILE *oxfp, int mode)
     }
 }
 
-int oxf_listen(short *portp)
+int oxf_listen(int *portp)
 {
     char localhost[MAXHOSTNAMELEN];
     if (gethostname(localhost, MAXHOSTNAMELEN)==0) {
@@ -290,7 +293,7 @@ char *which(char *exe, const char *env)
 }
 
 /* Remarks: ssh determines remote host by his name, i.e. by arg[0]. */
-int oxc_start(char *remote_host, short port, char *passwd)
+int oxc_start(char *remote_host, int port, char *passwd)
 {
     char localhost[MAXHOSTNAMELEN];
     char ports[128];
@@ -312,7 +315,6 @@ int oxc_start(char *remote_host, short port, char *passwd)
 int oxc_start_with_pipe(char *remote_host, int port, char *passwd)
 {
     char localhost[MAXHOSTNAMELEN];
-    char ports[128];
     int  pid = 0;
     char *cmd = "oxc";
 	int  pipefd[2];
@@ -362,7 +364,7 @@ void pipe_send_info(int fd, char *hostname, int port, char *password)
 	pipe_send_string(fd, password);
 }
 
-void pipe_read_info(char **hostname, int *port, char **password)
+int pipe_read_info(char **hostname, int *port, char **password)
 {
 	if (read(0, port, sizeof(int)) > 0) {
 		*port = ntohl(*port);
@@ -376,11 +378,11 @@ void pipe_read_info(char **hostname, int *port, char **password)
 /*  Example: oxf_execute_cmd(oxfp, "ox_sm1"); */
 OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd)
 {
-    short port = 0;
+    int port = 0;
     int listened;
 
     if ((listened = oxf_listen(&port)) != -1) {
-		cmo_list *args =  list_appendl(NULL, list_append(new_cmo_list(), new_cmo_int32(port)), new_cmo_string(cmd), NULL);
+		cmo_list *args =  list_appendl(NULL, list_append(new_cmo_list(), (cmo *)new_cmo_int32(port)), new_cmo_string(cmd), NULL);
 		send_ox_cmo(oxfp, (cmo *)args);
         send_ox_command(oxfp, SM_control_spawn_server);
         return oxf_connect_passive(listened);

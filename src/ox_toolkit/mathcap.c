@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.8 2003/05/19 06:57:38 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.9 2003/06/02 10:25:56 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -279,7 +279,7 @@ cmo_mathcap* mathcap_get(mathcap *this)
 {
     cmo_list *mc = new_cmo_list();
     cmo_list *l3 = new_cmo_list();
-    list_append(l3, list_appendl(new_cmo_list(),
+    list_append(l3, (cmo *)list_appendl(new_cmo_list(),
                                  new_cmo_int32(OX_DATA),
                                  table_get_all(this->cmotbl), NULL));
     list_appendl(mc, (cmo *)sysinfo_get(),

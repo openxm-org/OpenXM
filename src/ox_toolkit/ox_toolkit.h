@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.23 2003/06/05 21:12:07 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.24 2003/08/21 12:44:06 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -183,6 +183,8 @@ cmo_distributed_polynomial* new_cmo_distributed_polynomial();
 cmo_dms_generic*   new_cmo_dms_generic();
 cmo_ring_by_name*  new_cmo_ring_by_name(cmo* ob);
 cmo_indeterminate* new_cmo_indeterminate(cmo* ob);
+cmo_polynomial_in_one_variable* new_cmo_polynomial_in_one_variable(int var);
+cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo_list* ringdef, cmo* coef);
 cmo_error2*        new_cmo_error2(cmo* ob);
 
 ox_data*           new_ox_data(cmo* c);
@@ -273,7 +275,7 @@ int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 
 /* for OXFILE */
-int oxf_listen(short *portp);
+int oxf_listen(int *portp);
 OXFILE *oxf_connect_active(char *hostname, short port);
 OXFILE *oxf_connect_passive(int listened);
 OXFILE *oxf_open(int fd);

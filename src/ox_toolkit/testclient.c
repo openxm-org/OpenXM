@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.11 2003/02/04 20:43:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.12 2003/03/23 20:17:35 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -37,7 +37,7 @@ int dumpx(OXFILE *oxfp, int n)
 static int  size = SIZE_CMDLINE;
 static char cmdline[SIZE_CMDLINE];
 
-static int prompt()
+static void prompt()
 {
     fprintf(stdout, "> ");
     fgets(cmdline, size, stdin);
@@ -47,16 +47,16 @@ static int prompt()
 #define VERSION 0x11121500
 #define ID_STRING  "v0.11121500"
 
-int test_0()
+void test_0()
 {
     cmo* c = NULL;
     ox_printf("testclient:: calling ox_mathcap().\n");
-    c = ox_mathcap(sv);
+    c = (cmo *)ox_mathcap(sv);
     ox_printf("testclient:: cmo received.(%p)\n", c);
     print_cmo(c);
 
     mathcap_init(VERSION, ID_STRING, "testclient", NULL, NULL);
-    send_ox_cmo(sv, oxf_cmo_mathcap(sv));
+    send_ox_cmo(sv, (cmo *)oxf_cmo_mathcap(sv));
 
     ox_reset(sv);
     send_ox_cmo(sv, (cmo *)new_cmo_string("N[ArcTan[1]]"));
@@ -68,12 +68,12 @@ int test_0()
     print_cmo(c);
 }
 
-int test_1()
+void test_1()
 {
     cmo *c, *m;
 
 	mathcap_init(1000, "test!", "testclient", NULL, NULL);
-	m = oxf_cmo_mathcap(sv);
+	m = (cmo *)oxf_cmo_mathcap(sv);
     ox_printf("testclient:: test cmo_mathcap.\n");
     send_ox_cmo(sv, m);
     send_ox_command(sv, SM_popCMO);

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.25 2003/06/02 10:25:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.26 2003/08/21 12:44:06 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -213,8 +213,8 @@ static cmo_ring_by_name* receive_cmo_ring_by_name(OXFILE *oxfp)
 
 static cmo_recursive_polynomial* receive_cmo_recursive_polynomial(OXFILE *oxfp)
 {
-	cmo* ringdef = receive_cmo(oxfp);
-	cmo* coef    = receive_cmo(oxfp);
+	cmo_list* ringdef = (cmo_list *)receive_cmo(oxfp);
+	cmo* coef         = receive_cmo(oxfp);
     return new_cmo_recursive_polynomial(ringdef, coef);
 }
 
@@ -244,7 +244,7 @@ static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OX
     while (len>0) {
         exp  = receive_int32(oxfp);
         coef = receive_cmo(oxfp);
-        list_append_monomial(c, coef, exp);
+        list_append_monomial((cmo_list *)c, coef, exp);
         len--;
     }
     return c;
@@ -502,13 +502,13 @@ static int send_cmo_distributed_polynomial(OXFILE *oxfp, cmo_distributed_polynom
 
 static int send_cmo_polynomial_in_one_variable(OXFILE *oxfp, cmo_polynomial_in_one_variable* c)
 {
-    cell* el = list_first(c);
-    int len = list_length(c);
+    cell* el = list_first((cmo_list *)c);
+    int len = list_length((cmo_list *)c);
     send_int32(oxfp, len);
 	send_int32(oxfp, c->var);
 
-    while(!list_endof(c, el)) {
-        send_cmo(oxfp, el->exp);
+    while(!list_endof((cmo_list *)c, el)) {
+        send_int32(oxfp, el->exp);
         send_cmo(oxfp, el->cmo);
         el = list_next(el);
     }
@@ -535,7 +535,7 @@ static int send_cmo_zz(OXFILE *oxfp, cmo_zz* c)
 
 static int send_cmo_recursive_polynomial(OXFILE *oxfp, cmo_recursive_polynomial* c)
 {
-	send_cmo(oxfp, c->ringdef);
+	send_cmo(oxfp, (cmo *)c->ringdef);
     send_cmo(oxfp, c->coef);
     return 0;
 }
@@ -635,6 +635,7 @@ int ox_stderr_init(FILE *fp)
     if (ox_stderr != NULL) {
         setbuf(ox_stderr, NULL);
     }
+    return 0;
 }
 
 int ox_printf(char *format, ...)
@@ -644,4 +645,5 @@ int ox_printf(char *format, ...)
         va_start(ap, format);
         vfprintf(ox_stderr, format, ap);
     }
+    return 0;
 }

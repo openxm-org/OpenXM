@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/zclient.c,v 1.4 2003/01/13 12:03:13 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/zclient.c,v 1.5 2003/02/04 20:43:55 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <string.h>
 #include "ox_toolkit.h"
+
+int oxc_start(char *remote_host, int port, char *passwd);
 
 static OXFILE *connection(int listened, char *passwd)
 {
@@ -22,7 +24,7 @@ static OXFILE *connection(int listened, char *passwd)
 
 OXFILE *open_server(char *remote_host)
 {
-    short port;
+    int port;
     int listen;
     char *passwd = generate_otp();
 

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.13 2003/06/05 21:12:07 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.14 2003/08/21 12:44:06 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -285,7 +285,7 @@ cmo_polynomial_in_one_variable* new_cmo_polynomial_in_one_variable(int var)
     return c;
 }
 
-cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo* ringdef, cmo* coef)
+cmo_recursive_polynomial* new_cmo_recursive_polynomial(cmo_list* ringdef, cmo* coef)
 {
     cmo_recursive_polynomial* c = MALLOC(sizeof(cmo_recursive_polynomial));
     c->tag     = CMO_RECURSIVE_POLYNOMIAL;
@@ -378,7 +378,7 @@ char *new_string_set_cmo(cmo *m)
     case CMO_LIST:
         return new_string_set_cmo_list((cmo_list *)m);
 	case CMO_64BIT_MACHINE_DOUBLE:
-        return new_string_set_cmo_int32(m);
+        return new_string_set_cmo_double((cmo_double *)m);
     default:
         ox_printf("unconvertible <%s>\n", get_symbol_by_tag(m->tag));
         /* yet not implemented. */
