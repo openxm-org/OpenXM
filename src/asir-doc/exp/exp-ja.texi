@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.4 2004/03/20 01:09:47 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.5 2004/03/27 05:58:50 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2004 年 3 月
+@subtitle 2004 年 4 月
 
 @author  by Risa/Asir comitters
 @page
@@ -113,6 +113,9 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * get_element_names::
 * get_element_at::
 * put_element_at::
+* dp_initial_term::
+* dp_order::
+* dp_weyl_gr_main::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -666,6 +669,227 @@ ChangeLog
 @item  OpenXM_contrib2/asir2000/builtin/compobj.c 1.8.
 @end itemize
 
+@comment --- ◯◯◯◯  関数 dp_gr_main の説明 ◯◯◯◯ 
+@node dp_weyl_gr_main,,, 実験的仕様の関数
+@subsection @code{dp_weyl_gr_main}
+@findex dp_weyl_gr_main
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item dp_weyl_gr_main(@var{f} | v=@var{vv}, order=@var{oo}, homo=@var{n}, matrix=@var{m}, block=@var{b}, sugarweight=@var{sw})
+:: dp_weyl_gr_main の新しいインタフェース.  dp_gr_main と同じ形式である.
+@end table
+
+@table @var
+@item return
+リスト (グレブナ基底. 再帰表現多項式か分散表現多項式のリスト)
+@item f
+リスト  (入力多項式系. 再帰表現多項式か分散表現多項式のリスト)
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@item n
+0 か1 (homogenization をするか). [テストまだ]
+@item m
+順序を matrix で表現する場合 (cf. dp_ord). [テストまだ]
+@item b
+???
+@item sw
+Sugar strategy を適用するときの weight vector. 全ての要素は非負. [テストまだ]
+@end table
+
+@itemize @bullet
+@item
+ @code{dp_weyl_gr_main(@var{f})} は, @var{f} のグレブナ基底を計算する.
+ グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
+ 系統だっていなかった. 
+ dp_weyl_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
+ 指定方法については dp_gr_main のマニュアルを参照.
+@item 
+ 分散表現多項式の各モノミアルの長さが偶数のときはワイル代数
+ K[x_1, ..., x_n, d_1, ..., d_n]
+で計算がおこなわれる. ワイル代数では x_i と d_i は非可換な掛け算規則 
+ d_i x_i = x_i d_i +1 をみたし, x_i と x_j や d_i と d_j は可換である.
+ また i と j が異なる場合は x_i と d_j も可換である.
+@item 
+ 分散表現多項式の各モノミアルの長さが奇数のときは同次化ワイル代数
+ K[x_1, ..., x_n, d_1, ..., d_n, h]
+で計算がおこなわれる. 同次化ワイル代数では x_i と d_i は非可換な掛け算規則 
+ d_i x_i = x_i d_i + h^2 
+をみたし, h は任意の元と可換, その他の変数もワイル代数と同様な可換性の規則をみたす.
+ 詳しくは dp_gr_main で参照した Saito, Sturmfels, Takayama の教科書をみよ.
+@end itemize
+
+@example
+[1220] F=sm1.gkz([ [[1,1,1,1],[0,1,3,4]], [0,0]]);  /* Command in asir-contrib*/
+[[x4*dx4+x3*dx3+x2*dx2+x1*dx1,4*x4*dx4+3*x3*dx3+x2*dx2,-dx1*dx4+dx2*dx3,-dx2^2*dx4+dx1*dx3^2,dx1^2*dx3-dx2^3,-dx2*dx4^2+dx3^3],[x1,x2,x3,x4]]
+[1221] V=[x1,x2,x3,x4,dx1,dx2,dx3,dx4]$
+[1222] dp_weyl_gr_main(F | v=V, order=[[dx1,1,dx2,1,dx3,1,dx4,1]]);
+
+[ 0 0 0 0 1 1 1 1 ]
+[ R R R R R R R R ]
+internal error (SEGV)
+return to toplevel
+
+[1238] FF=map(dp_ptod,F[0],V);
+[(1)*<<1,0,0,0,1,0,0,0>>+(1)*<<0,1,0,0,0,1,0,0>>+(1)*<<0,0,1,0,0,0,1,0>>+(1)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,1,0,0,0,1,0,0>>+(3)*<<0,0,1,0,0,0,1,0>>+(4)*<<0,0,0,1,0,0,0,1>>,0,0,0,0]
+
+[1244] FF=map(dp_ptod,F[0],V);
+[(1)*<<1,0,0,0,1,0,0,0>>+(1)*<<0,1,0,0,0,1,0,0>>+(1)*<<0,0,1,0,0,0,1,0>>+(1)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,1,0,0,0,1,0,0>>+(3)*<<0,0,1,0,0,0,1,0>>+(4)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,0,0,0,0,1,1,0>>+(-1)*<<0,0,0,0,1,0,0,1>>,(1)*<<0,0,0,0,1,0,2,0>>+(-1)*<<0,0,0,0,0,2,0,1>>,(-1)*<<0,0,0,0,0,3,0,0>>+(1)*<<0,0,0,0,2,0,1,0>>,(1)*<<0,0,0,0,0,0,3,0>>+(-1)*<<0,0,0,0,0,1,0,2>>]
+
+dp_weyl_gr_main(FF | v=V, order=[[0,0,0,0,1,1,1,1]]);
+
+[1246] dp_weyl_gr_main(F | v=V, order=[[dx1,1,dx2,1,dx3,1,dx4,1]]);
+[ 0 0 0 0 1 1 1 1 ]
+[ R R R R R R R R ]
+internal error (SEGV)
+return to toplevel
+
+@end example
+
+@table @t
+@item 参照
+@ref{dp_gr_main}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item dp_gr_main のインタフェースが dp_weyl_gr_main へも導入された.
+@item 
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/dp-supp.c 1.32--1.33
+builtin/dp.c 1.49--1.50
+@end itemize
+
+@comment --- ◯◯◯◯  関数 dp_initial_term の説明 ◯◯◯◯ 
+@node dp_initial_term,,, 実験的仕様の関数
+@subsection @code{dp_initial_term}
+@findex dp_initial_term
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item dp_initial_term(@var{f} | v=@var{vv}, order=@var{oo})
+:: dp_initial_term は与えられた weight に対する先頭項の和を戻す.
+@end table
+
+@table @var
+@item return
+分散表現多項式または分散表現多項式のリスト.
+@item f
+分散表現多項式か分散表現多項式のリスト.
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@end table
+
+@itemize @bullet
+@item
+ dp_initial_term は与えられた weight w に対する先頭項の和を戻す.
+ これは多くの教科書で @tex ${\rm in}_w(f)$ @end tex 
+ と書かれている.
+@item
+ 順序を表すリストは dp_gr_main で定義した文法に従う.
+ このリストの先頭が weight vector で無い場合はエラーとなる.
+ たとえば order=[[@@lex,...]] はエラーとなる.
+@item 
+ 結果は与えられた順序に関してソートされてるわけではない.
+@end itemize
+
+@example
+[1220] F=<<2,0,0>>+<<1,1,0>>+<<0,0,1>>;
+(1)*<<2,0,0>>+(1)*<<1,1,0>>+(1)*<<0,0,1>>
+[1220] dp_initial_term(F | order=[[1,1,1]]);
+[ 1 1 1 ]
+[ R R R ]
+(1)*<<2,0,0>>+(1)*<<1,1,0>>
+[1221] dp_initial_term(F | v=[x,y,z], order=[[x,1]]);
+[ 1 0 0 ]
+[ R R R ]
+(1)*<<2,0,0>>
+@end example
+
+@table @t
+@item 参照
+@ref{dp_gr_main}, @ref{dp_weyl_gr_main}, @ref{dp_order}, @ref{dp_hm}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/dp-supp.c 1.32
+builtin/dp.c 1.49
+@end itemize
+
+@comment --- ◯◯◯◯  関数 dp_order の説明 ◯◯◯◯ 
+@node dp_order,,, 実験的仕様の関数
+@subsection @code{dp_order}
+@findex dp_order
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item dp_order(@var{f} | v=@var{vv}, order=@var{oo})
+:: dp_order は与えられた weight に対する次数の最大値を戻す.
+@end table
+
+@table @var
+@item return
+数か数のリスト
+@item f
+分散表現多項式か分散表現多項式のリスト.
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@end table
+
+@itemize @bullet
+@item
+ 順序を表すリストは dp_gr_main で定義した文法に従う.
+ このリストの先頭が weight vector で無い場合はエラーとなる.
+ たとえば order=[[@@lex,...]] はエラーとなる.
+@item
+ dp_order は与えられた weight w に対する次数の最大値を戻す.
+ これを @tex ${\rm ord}_w(f)$ @end tex 
+ と書く論文や教科書もある.
+@item 
+ 引数がリストの場合各要素の次数が計算される.
+@end itemize
+
+@example
+[1220] F=<<2,0,0>>+<<1,1,0>>+<<0,0,1>>;
+(1)*<<2,0,0>>+(1)*<<1,1,0>>+(1)*<<0,0,1>>
+[1222] dp_order(F | order=[[1,1,1]]);
+[ 1 1 1 ]
+[ R R R ]
+2
+[1223] dp_order(F | v=[x,y,z], order=[[x,1]]);
+[ 1 0 0 ]
+[ R R R ]
+@end example
+
+@table @t
+@item 参照
+@ref{dp_gr_main}, @ref{dp_weyl_gr_main}, @ref{dp_initial_term}, @ref{dp_hm}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/dp-supp.c 1.32
+builtin/dp.c 1.49
+@end itemize
+
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
 @comment --- 複数の関数をまとめて説明する例 ---
@@ -726,6 +950,8 @@ ChangeLog
  変更をうけたソースコードは xxxyy.rr, ppp.c である.
 @item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
 @end itemize
+
+
 
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
 
