@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.6 2004/03/11 07:41:27 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.7 2004/03/15 12:39:51 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -739,6 +739,18 @@ def taka_em(S) {
   S1 = asciitostr([0x1b])+"[31m";  /* "[1m" */
   S2 = asciitostr([0x1b])+"[0m";
   print(S1+rtostr(S)+S2);
+}
+def noro_print_env(Mode) {
+    if (Mode==0 || Mode=="default" || Mode=="clear") {
+        quotetotex_env(0);
+        load("noro_print_default.rr");
+    }else if (Mode=="weyl") {
+        quotetotex_env("conv_rule",7);
+        quotetotex_env("dp_vars_prefix", "\\partial");
+    }else if (Mode=="yang") {
+        quotetotex_env("conv_rule",7);
+        quotetotex_env("dp_vars_prefix", "theta");
+    }
 }
 Loaded_noro_print=1$
 end$

@@ -1,19 +1,19 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.5 2004/03/11 18:25:57 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.6 2004/03/12 02:22:27 ohara Exp $
 
-(define (openxm-plugin-eval t)
+(define (openxm-eval t)
   (import-from (texmacs plugin plugin-cmd))
   (import-from (texmacs plugin plugin-convert))
   (plugin-eval "openxm" "default" (object->tree t)))
 
-(define (openxm-plugin-eval-paste t)
-  (insert-tree (object->tree (openxm-plugin-eval t))))
+(define (openxm-eval-paste t)
+  (insert-tree (object->tree (openxm-eval t))))
 
 (define (openxm-path t)
   (if (string? t)
     (let* ((openxm-home (or (getenv "OpenXM_HOME") "/usr/local/OpenXM"))
-		   (local-path (string-append openxm-home "/" t))
-		   (web-prefix "http://www.math.kobe-u.ac.jp/OpenXM/Current/")
-		   (web-path   (string-append web-prefix t)))
+           (local-path (string-append openxm-home "/" t))
+           (web-prefix "http://www.math.kobe-u.ac.jp/OpenXM/Current/")
+           (web-path   (string-append web-prefix t)))
       (if (url-exists? local-path) local-path web-path))))
 
 (define (w3m t)
@@ -35,9 +35,19 @@
         (-> "Select engines"
           ("Risa/Asir" (insert-string "!asir;"))
           ("Kan/sm1"   (insert-string "!sm1;")))
-        (-> "Output format"
-          ("LaTeX"     (openxm-plugin-eval "!latex;"))
-          ("verbatim"  (openxm-plugin-eval "!verbatim;")))
+        (-> "Select display style"
+          ("LaTeX"     (openxm-eval "!latex;"))
+          ("verbatim"  (openxm-eval "!verbatim;")))
+        (-> "Load Modules (Asir)"
+          ("dsolv"     (openxm-eval "load(\"dsolv\");"))
+          ("ccurve"    (openxm-eval "load(\"ccurve.rr\");"))
+          ("yang"      (openxm-eval "load(\"yang.rr\");"))
+          )
+        (-> "Display Configuration (Asir)"
+          ("Load default"   (openxm-eval "noro_print_env(0);"))
+          ("Weyl algebra"   (openxm-eval "noro_print_env(\"weyl\");"))
+          ("Euler OPs"      (openxm-eval "noro_print_env(\"yang\");"))
+          )
         ---
         (-> "Manuals"
           ("Risa/Asir manual"
