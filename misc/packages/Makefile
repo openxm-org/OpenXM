@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.27 2000/12/21 12:41:52 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.28 2001/03/23 12:16:15 takayama Exp $
 
 VERSION=1.1.3
 TAG=HEAD
@@ -40,6 +40,7 @@ usage :
 	@echo "7.  copy-head-tar-ball-to-ftp-area "
 	@echo "8.  copy-asir-head-tar-ball-to-ftp-area "
 	@echo "9.  copy-asir-stable-tar-ball-to-ftp-area "
+	@echo "10.  copy-asir-misc-tar-ball-to-ftp-area "
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
@@ -148,3 +149,15 @@ copy-asir-stable-tar-ball-to-ftp-area:
 	(cd work/OpenXM_contrib2 ; tar czvf ${TAR_WORK}/asir-stable.tar.gz asir2000)
 	/bin/rm -rf work
 	-scp ${TAR_WORK}/asir-stable.tar.gz ${WHO}:${FTP_AREA_ASIR}
+
+copy-asir-misc-tar-ball-to-ftp-area:
+	-mkdir ${TAR_WORK}
+	-mkdir work
+	(cd work ; /bin/rm -rf *)
+	(cd work ; ${RCVS} export -rHEAD OpenXM_contrib2/windows)
+	(cd work/OpenXM_contrib2 ; tar czvf ${TAR_WORK}/asir-head-windows.tar.gz windows)
+	(cd work ; ${RCVS} export -rHEAD OpenXM/src/asir-doc)
+	(cd work/OpenXM/src ; tar czvf ${TAR_WORK}/asir-doc.tar.gz asir-doc)
+	/bin/rm -rf work
+	-scp ${TAR_WORK}/asir-head-windows.tar.gz ${WHO}:${FTP_AREA_ASIR}
+	-scp ${TAR_WORK}/asir-doc.tar.gz ${WHO}:${FTP_AREA_ASIR}
