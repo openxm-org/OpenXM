@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.22 2004/06/14 11:03:52 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.23 2004/06/20 04:55:32 takayama Exp $
 # make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
 prefix=/usr/local
 CC=gcc
@@ -8,7 +8,7 @@ INSTALL_DIR=${prefix}/bin
 MAN_DIR=../man/man1
 KDE_MENU_DIR=/usr/lib/menu
 
-all-trad :  dot.bashrc  dot.cshrc .done_gen-shell-scripts
+all-scripts :  dot.bashrc  dot.cshrc .done_gen-shell-scripts
 
 dot.bashrc : bashrc repl 
 	rm -f dot.bashrc 
@@ -31,8 +31,9 @@ repl : repl.c
 	touch .done_gen-shell-scripts
 
 #For the backword compatibility.
-install: install-trad
-install-trad : all-trad  install-man
+install: install-scripts
+install-scripts : all-scripts  install-man
+	-install -d ${INSTALL_DIR}
 	-install $(SHELL_SCRIPTS) ${INSTALL_DIR}
 install-man :
 	-install openxm.1 ${MAN_DIR}
@@ -47,7 +48,7 @@ clean :
 all:
 	(cd ../src ; make all)
 all-non-free:
-	(cd ../src ; make all-asir2000)
+	(cd ../src ; make all-asir)
 all-global-shell-scripts: repl
 	@if [ ! -f .done_global ] ; then \
 	echo "Generating shell scripts in global" ; \
@@ -57,14 +58,25 @@ all-global-shell-scripts: repl
 	(cd global ; ../gen-shell-scripts) ; \
 	touch .done_global ; \
 	fi
-install-under-prefix: all-global-shell-scripts  
+install-non-free:
+	(cd ../src ; make install-asir)
+install-free:
 	(cd ../src ; make install)
+install-under-prefix: all-global-shell-scripts   install-free
 	make copy-free
 	make copy-non-free
+install-global-scripts: all-global-shell-scripts
+	(cd global ; install ${SHELL_SCRIPTS} ${INSTALL_DIR})
 
 clean-under-prefix:
 	-(cd ${prefix} ; rm -rf ${prefix}/OpenXM )
-
+# Relocate only asir
+#    make install-non-free ;  make clean-under-prefix ; 
+#    make install-global-scripts ; make copy-non-free
+# Relocate only free
+#    make install-free ; make clean-under-prefix ;
+#    make install-global-scripts ; make copy-free
+#
 # junk-list is not a collection of real junk files. 
 # Files in it are not necessary for the binary package. They are important.
 copy-free: all-global-shell-scripts
@@ -73,7 +85,7 @@ copy-free: all-global-shell-scripts
 # During installation OpenXM/bin/openxm must be overridden by global/openxm
 	install global/openxm ${prefix}/OpenXM/bin
 
-copy-non-free:
+copy-non-free: all-global-shell-scripts
 	-mkdir ${prefix}
 	-(cd ../.. ; tar czf - --exclude-from OpenXM/rc/junk-list `cat OpenXM/rc/non-free-list`) | (cd ${prefix} ; tar xvzf -)
 
