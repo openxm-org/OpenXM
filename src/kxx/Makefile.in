@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.5 2000/09/17 03:12:12 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.6 2000/09/20 01:43:34 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -32,8 +32,14 @@ all : configure all-plugin kanlib.a ox ox_sm1  oxlog oxweave
 
 all2 : all-plugin kanlib.a ox ox_sm1 testclient oxlog
 
-configure : Makefile.in configure.in
-	echo "You configure is older than Makefine.in and configure.in"
+configure: Makefile
+
+Makefile: Makefile.in
+	./configure
+
+# configure is added to repo for a while.
+configure-old : Makefile.in configure.in
+	echo "Your configure is older than Makefine.in and configure.in"
 	/bin/rm -f .configure_done
 	./make-configure
 #	autoconf
