@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.37 2003/08/29 07:26:51 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.38 2003/09/03 05:19:08 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -77,7 +77,7 @@ copy-binary-asir-from-local-disk:
 	fi
 
 copy-binary-phc:
-	if [ ! -f .copy-binary-phc-done ] ; then \
+	-if [ ! -f .copy-binary-phc-done ] ; then \
 		make copy-binary-phc-from-internet ; \
 	fi
 
