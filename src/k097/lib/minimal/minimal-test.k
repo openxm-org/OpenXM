@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.12 2000/08/01 08:51:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.13 2000/08/02 03:23:36 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -339,7 +339,7 @@ def test21() {
 }          
 def test22() {
    a=Sannfs3("x^3+y^3+z^3");
-   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
+   b=a[0]; w = ["x",-1,"y",-2,"z",-3,"Dx",1,"Dy",2,"Dz",3];
    test_if_v_strict(b,w,"x,y,z");
    return(a);
 }          
