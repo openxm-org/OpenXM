@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.4 2003/11/17 09:55:52 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +50,7 @@ dprintf(const char *fmt, ...)
 do {                                 \
         if (c != NULL) {             \
             if (G_DeleteCmo != NULL) \
-                G_DeleteCmo(c);      \
+                G_DeleteCmo((cmo *)c);      \
             else                     \
                 c = NULL;            \
         }                            \
@@ -188,7 +188,7 @@ oxserv_sm_popString(OXFILE *fd)
 	send_ox_cmo(fd, (cmo *)m_str);
 
 	oxserv_delete_cmo(m);
-	oxserv_delete_cmo((cmo *)m_str);
+	oxserv_delete_cmo(m_str);
 
 	/* free(str); */
 }
@@ -223,7 +223,7 @@ oxserv_sm_pops()
 		oxserv_delete_cmo(m);
 	}
 		
-	oxserv_delete_cmo((cmo *)c);
+	oxserv_delete_cmo(c);
 
 }
 
@@ -324,7 +324,7 @@ oxserv_mathcap_init(int ver, char *vstr, char *sysname, int *cmos, int *sms)
 
 	mathcap_init(ver, vstr, sysname, cmos, sms);
 
-	oxserv_delete_cmo((cmo *)G_oxserv_mathcap);
+	oxserv_delete_cmo(G_oxserv_mathcap);
 
 	G_oxserv_mathcap = mathcap_get(new_mathcap());
 }
@@ -431,8 +431,8 @@ oxserv_sm_executeFunction(void)
 		oxserv_delete_cmo(arg[i]);
 	}
 
-	oxserv_delete_cmo((cmo *)name);
-	oxserv_delete_cmo((cmo *)cnt);
+	oxserv_delete_cmo(name);
+	oxserv_delete_cmo(cnt);
 
 	free(arg);
 }
@@ -736,7 +736,7 @@ oxserv_set(int mode, void *ptr, void *rsv)
 void
 oxserv_dest()
 {
-	oxserv_delete_cmo((cmo *)G_oxserv_mathcap);
+	oxserv_delete_cmo(G_oxserv_mathcap);
 
 	oxstack_dest();
 }
