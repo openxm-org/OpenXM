@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.16 2000/12/22 04:06:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.17 2002/04/11 14:13:37 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -104,7 +104,7 @@ int sm(OXFILE *oxfp)
     FD_SET(oxf_fileno(oxfp), &fdmask);
 
     while(1) {
-        if (select(2, &fdmask, NULL, NULL, NULL) > 0) {
+        if (select(5, &fdmask, NULL, NULL, NULL) > 0) {
 			sigset_t newmask, oldmask;
 			sigemptyset(&newmask);
 			sigaddset(&newmask, SIGUSR1);
