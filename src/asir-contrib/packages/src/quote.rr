@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.5 2001/08/22 05:38:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.6 2001/08/25 04:39:03 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -85,7 +85,11 @@ def quote_sort_polynomial(F,V,W) {
      HC = "("+rtostr(dp_hc(G))+")"; 
      HT = rtostr(dp_dtop(dp_ht(G),V));
      if (HT != 1) {
-       HC = quote_to_quote(HC+"*"+HT);
+       if (HC == "(1)") {
+         HC = quote_to_quote(HT);
+       }else{
+         HC = quote_to_quote(HC+"*"+HT);
+       }
      }else{
        HC = quote_to_quote(HC);
      }
@@ -99,6 +103,12 @@ def quote_sort_polynomial(F,V,W) {
   return Ans;
 }
 
+
+def quote_terminal_form(S) {
+  if (type(S) != QUOTE) return rtostr(S);
+  S = quotetolist(S);
+  return quote_input_form_quote_list(S);
+}
 
 def quote_input_form(S) {
   if (type(S) != QUOTE) return rtostr(S);
@@ -131,7 +141,7 @@ def quote_input_form_quote_list_u_op(S) {
   if (S[0] == "()") {
     A += "(";
     A += quote_input_form_quote_list(S[1]);
-    A += ") ";
+    A += ")";
   }else{
     A += S[0];
     A += quote_input_form_quote_list(S[1]);

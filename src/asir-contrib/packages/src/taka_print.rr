@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.13 2001/08/23 02:29:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.14 2001/08/25 04:39:04 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -162,15 +162,25 @@ def taka_tex_form_rpolynomial(S) {
   return taka_tex_form_quote(quote_to_quote(S));
 }
 
-/* Tentative code */
+/* Tentative */
 def taka_tex_form_struct(S) {
   if (S->Tag == POLY_FACTORED_POLYNOMIAL || 
       S->Tag == POLY_FACTORED_RATIONAL) {
-     return taka_poly_tex_form_poly_factored_polynomial(S);
+      A= taka_poly_tex_form_poly_factored_polynomial(S);
+  }
+  else if (S->Tag == POLY_RING) {
+       A = taka_poly_tex_form_poly_ring(S);
+  }
+  else if (S->Tag == POLY_POLYNOMIAL) {
+       A = taka_poly_tex_form_poly_polynomial(S);
+  }
+  else if (S->Tag == POLY_IDEAL) {
+       A = taka_poly_tex_form_poly_ideal(S);
   }else {
      print("Unknown struct object for tex_form. Return ???");
      return "???";
   }
+  return A;
 }
 
 def taka_tex_form_quote(S) {
@@ -544,6 +554,12 @@ def taka_input_form(S) {
        A = taka_poly_input_form_poly_factored_polynomial(S);
     }else if (S->Tag == POLY_FACTORED_RATIONAL) {
        A = taka_poly_input_form_poly_factored_rational(S);
+    }else if (S->Tag == POLY_RING) {
+       A = taka_poly_input_form_poly_ring(S);
+    }else if (S->Tag == POLY_POLYNOMIAL) {
+       A = taka_poly_input_form_poly_polynomial(S);
+    }else if (S->Tag == POLY_IDEAL) {
+       A = taka_poly_input_form_poly_ideal(S);
     }else {
       error("input_form() for this object has not yet been implemented.");
     }
@@ -556,17 +572,27 @@ def taka_input_form(S) {
 def taka_terminal_form(S) {
   A = 0;
   if (type(S) == QUOTE) {
-    A = quote_input_form(S);
+    A = quote_terminal_form(S);
   }
   else if (type(S) == STRUCT) {
     if (S->Tag == POLY_FACTORED_POLYNOMIAL) {
        A = taka_poly_terminal_form_poly_factored_polynomial(S);
     }else if (S->Tag == POLY_FACTORED_RATIONAL) {
        A = taka_poly_terminal_form_poly_factored_rational(S);
+    }else if (S->Tag == POLY_RING) {
+       A = taka_poly_terminal_form_poly_ring(S);
+    }else if (S->Tag == POLY_POLYNOMIAL) {
+       A = taka_poly_terminal_form_poly_polynomial(S);
+    }else if (S->Tag == POLY_IDEAL) {
+       A = taka_poly_terminal_form_poly_ideal(S);
     }else{
        error("terminal_form() for this object has not yet been implemented.");
     }
-  }else {
+  }
+  else if (type(S) == LIST || type(S) == VECTOR || type(S) == MATRIX) {
+    return rtostr(map(taka_terminal_form,S));
+  }
+  else{
     A = rtostr(S);
   }
   return A;

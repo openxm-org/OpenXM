@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.6 2001/05/27 08:48:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.7 2001/08/21 02:07:18 takayama Exp $ */
 /*&C-texi
 
 */
@@ -78,7 +78,7 @@ def poly_factor(A) @{ return(taka_poly_factor(A)); @}
 def poly_gcd(A,B)  @{ return(gcd(A,B)); @}
 def poly_resultant(A,B,V) @{ return(res(V,A,B)); @}
 def poly_groebner(O,P,V)  @{ return(gr(P,V,O)); @}
-def poly_hilbert_polynomial(I,V,S)  @{ return(subst(hilbert_polynomial(I,V),h,S)); @}
+def poly_hilbert_polynomial(I)  @{ return(taka_poly_hilbert_polynomial(I)); @}
 
 @end example
 */
@@ -124,7 +124,6 @@ def poly_gcd(A,B)  { return(gcd(A,B)); }
 /* poly_lcm(A,B) */
 def poly_resultant(A,B,V) { return(res(V,A,B)); }
 def poly_groebner(O,P,V)  { return(gr(P,V,O)); }
-def poly_hilbert_polynomial(I,V,S)  { return(subst(hilbert_polynomial(I,V),h,S)); }
 
 /*&eg-texi
 

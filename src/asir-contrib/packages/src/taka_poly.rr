@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.7 2001/08/21 11:27:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.8 2001/08/25 04:39:03 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -102,9 +102,21 @@ def taka_poly_factor(S) {
 /* 
   printing method for POLY_FACTORED_FORM 
 */
-def taka_poly_tex_form_poly_factored_polynomial(S) {
-  return taka_tex_form_quote( quote_factored_form_to_quote(S));
+def taka_poly_input_form_poly_factored_polynomial(S) {
+  A="new__poly_factored_polynomial(";
+  A += print_input_form(S->F);
+  A += ")";
+  return A;
 }
+def taka_poly_input_form_poly_factored_rational(S) {
+  A="new__poly_factored_rational(";
+  A += print_input_form(S->Numerator);
+  A += ",";
+  A += print_input_form(S->Denominator);
+  A += ")";
+  return A;
+}
+
 def taka_poly_terminal_form_poly_factored_polynomial(S) {
   A="{";
   A += "F->";
@@ -121,41 +133,154 @@ def taka_poly_terminal_form_poly_factored_rational(S) {
   A += "}";
   return A;
 }
-def taka_poly_input_form_poly_factored_polynomial(S) {
-  A="new__poly_factored_polynomial(";
-  A += print_input_form(S->F);
+
+def taka_poly_tex_form_poly_factored_polynomial(S) {
+  return taka_tex_form_quote( quote_factored_form_to_quote(S));
+}
+
+/* Printing and input method
+   for POLY_RING
+*/
+def taka_poly_input_form_poly_ring(S) {
+  A  = "new__poly_ring(";
+  A += taka_input_form(S->Variables)+",";
+  A += taka_input_form(S->Order)+",";
+  A += taka_input_form(S->K)+",";
+  A += taka_input_form(S->Weyl);
   A += ")";
   return A;
 }
-def taka_poly_input_form_poly_factored_rational(S) {
-  A="new__poly_factored_rational(";
-  A += print_input_form(S->Numerator);
-  A += ",";
-  A += print_input_form(S->Denominator);
-  A += ")";
+def taka_poly_terminal_form_poly_ring(S) {
+  A  = "{";
+  A += "Variables->"+taka_terminal_form(S->Variables)+",";
+  A += "Order->"+taka_terminal_form(S->Order)+",";
+  A += "K->"+taka_terminal_form(S->K)+",";
+  A += "Weyl->"+taka_terminal_form(S->Weyl)+"}";
+  return A;
+}
+def taka_poly_tex_form_poly_ring(S) {
+  A  = taka_tex_form(S->K);
+  A += taka_tex_form(S->Variables);
+  A += " \\mbox{\ where the order is defined by \ } ";
+  A += taka_tex_form(S->Order);
   return A;
 }
 
+/* Printing and input method
+   for POLY_POLYNOMIAL
+*/
+def taka_poly_input_form_poly_polynomial(S) {
+  A  = "new__poly_polynomial(";
+  A += taka_input_form(S->Ring)+",";
+  A += taka_input_form(S->F)+")";
+  return A;
+}
+def taka_poly_terminal_form_poly_polynomial(S) {
+  A  = "{";
+  /* A += "Ring->"+taka_terminal_form(S->Ring)+","; */
+  R = S->Ring;
+  P = quote_sort_polynomial(S->F,R->Variables,R->Order);
+  A += "F->"+taka_terminal_form(P)+"}";
+  return A;
+}
+def taka_poly_tex_form_poly_polynomial(S) {
+  R = S->Ring;
+  P = quote_sort_polynomial(S->F,R->Variables,R->Order);
+  return taka_tex_form(P);
+}
+
+/* Printing and input method 
+   for POLY_IDEAL
+*/
+def taka_poly_input_form_poly_ideal(S) {
+  A  = "new__poly_ideal(";
+  A += taka_input_form(S->Generators)+",";
+  A += taka_input_form(S->Ring)+",";
+  A += taka_input_form(S->Grobner);
+  A += ")";
+  return A;
+}
+def taka_poly_terminal_form_poly_ideal(S) {
+  R = S->Ring;
+  P = map(quote_sort_polynomial,S->Generators,R->Variables,R->Order);
+  A  = "{";
+  A += "Generators->";
+  A += taka_terminal_form(P);
+  A += "}";
+  return A;
+}
+def taka_poly_tex_form_poly_ideal(S) {
+  R = S->Ring;
+  P = map(quote_sort_polynomial,S->Generators,R->Variables,R->Order);
+  A = taka_tex_form(P);
+  return A;
+}
+
+/* Utility function to get variables. */
+def taka_poly_get_variables(L) {
+  if (type(L) == LIST) {
+    N = length(L);
+    V = [ ];
+    for (I=0; I<N; I++) {
+      V = base_set_union(V,vars(L[I]));
+    }
+    return V;
+  }else if (type(L) == STRUCT) {
+    if (L->Tag == POLY_IDEAL) {
+      return L->Ring->Variables;
+    }
+  }
+  return "???";
+}
 
 /*
   taka_poly_elimination_ideal(I,V,VV|grobner_basis=yes);
+ --> new interface
+  taka_poly_elimination_ideal(I,VV | v=V, grobner_basis=yes);
 */
-def taka_poly_elimination_ideal(I,V,VV) {
+def taka_poly_elimination_ideal(I,VV) {
+  II = I;
+  /* option grobner */
   Gb = getopt(grobner_basis);
   if (type(Gb) == -1) {
     Gb = 0;
   }else{
     Gb = 1;
   } 
+  /* option v */
+  V = getopt(v);
+  if (type(V) == -1) {
+    V = taka_poly_get_variables(I);
+  }
+
+  if (type(I) == STRUCT) {
+    if (I->Tag == POLY_IDEAL) {
+      I = II->Generators;
+      V = II->Ring->Variables;
+      if (II->Grobner) {
+         Gb = 1;
+      }else {
+         Gb = 0;
+      }
+    }else{
+      error("Argument should be ideal.");
+    }
+  }
   if (!Gb) {
      V2 = base_set_minus(V,VV);
      V2 = append(V2,VV);
      /* Computing a lexicographic GB. */
      I = gr(I,V2,2);
   }
+
   S = map(taka_poly_elimination_poly,I,V,VV);
   S = base_prune(0,S);
-  return S;
+  if (type(II) == STRUCT) {
+    SS = new__poly_ideal(new__poly_ring(VV,2,II->Ring->K,II->Weyl),S,0);
+    return SS;
+  }else{
+    return S;
+  }
 }
 
 def taka_poly_elimination_poly(F,V,VV) {
@@ -166,6 +291,183 @@ def taka_poly_elimination_poly(F,V,VV) {
   }else{
      return 0;
   }
+}
+
+def taka_poly_grobner_basis(I) {
+  II = I;
+  /* option order */
+  Or = getopt(order);
+  if (type(Or) == -1) {
+    Or = 0;
+  }
+  /* option v */
+  V = getopt(v);
+  if (type(V) == -1) {
+    V = taka_poly_get_variables(I);
+  }
+  Gb = 0;
+  if (type(I) == STRUCT) {
+    if (I->Tag == POLY_IDEAL) {
+      I = II->Generators;
+      V = II->Ring->Variables;
+      Or = II->Ring->Order;
+      if (II->Grobner) {
+         Gb = 1;
+      }else {
+         Gb = 0;
+      }
+      R = II->Ring;
+    }else{
+      error("Argument should be ideal.");
+    }
+  }else{
+    R = new__poly_ring(V,Or,base_Q,0);
+  }
+  if (!Gb) {
+    G = gr(I,V,Or);
+  }else{
+    G = II->Generators;
+  }
+
+  SS = new__poly_ideal(R,G,1);
+  return SS;
+}
+
+def taka_poly_hilbert_polynomial(I) {
+  /* option grobner */
+  S = getopt(s);
+  if (type(S) == -1) {
+    S = h;
+  }
+  /* option v */
+  V = getopt(v);
+  if (type(V) == -1) {
+    V = taka_poly_get_variables(I);
+  }
+  Gb = 0;
+  if (type(I) == STRUCT) {
+   if (I->Tag == POLY_IDEAL) {
+     if (I->Grobner) {
+       Gb = 1;
+     }
+     G = I->Generators;
+   }
+  }else {
+     G = I;
+  }
+  if (!Gb) {
+    A=gr(G,V,0); 
+    B=map(dp_ht,map(dp_ptod,A,V));
+  }else{
+    if (I->Order != 0) {
+     /*
+      Use poly_initial instead. 
+      print("Warning. It computes the hilbert polynomial for initial.");
+      print("         If the order is not graded order, it DOES NOT return");
+      print("         the hilbert polynomial for the original ideal.");
+     */
+      A = gr(G,V,0);
+    }else{
+      dp_ord(I->Order);
+      A = G;
+    }
+    B=map(dp_ht,map(dp_ptod,A,V));
+  }
+  C=map(dp_dtop,B,V);
+  H = sm1_hilbert([C,V]);
+  return subst(H,h,S);
+}
+
+def taka_poly_initial(I) {
+  II = I;
+  /* option order */
+  Or = getopt(order);
+  if (type(Or) == -1) {
+    Or = 0;
+  }
+  /* option v */
+  V = getopt(v);
+  if (type(V) == -1) {
+    V = taka_poly_get_variables(I);
+  }
+  Gb = 0;
+  if (type(I) == STRUCT) {
+    if (I->Tag == POLY_IDEAL) {
+      I = II->Generators;
+      V = II->Ring->Variables;
+      Or = II->Ring->Order;
+      if (II->Grobner) {
+         Gb = 1;
+      }else {
+         Gb = 0;
+      }
+      R = II->Ring;
+    }else{
+      error("Argument should be ideal.");
+    }
+  }else{
+    R = new__poly_ring(V,Or,base_Q,0);
+  }
+  if (!Gb) {
+    G = gr(I,V,Or);
+  }else{
+    G = II->Generators;
+  }
+
+  dp_ord(Or);
+  G2 = map(dp_ptod,G,V);
+  /* G3 = map(dp_hm,G2); */
+  G3 = map(dp_ht,G2); 
+  G4 = map(dp_dtop,G3,V);
+
+  if (R->Weyl) {
+    R = new__poly_ring(R->Variables,R->Order,R->K,0);
+    /* New ring is commutative. */
+  }
+  SS = new__poly_ideal(R,G4,1);
+  return SS;
+}
+
+def taka_poly_initial_coefficients(I) {
+  II = I;
+  /* option order */
+  Or = getopt(order);
+  if (type(Or) == -1) {
+    Or = 0;
+  }
+  /* option v */
+  V = getopt(v);
+  if (type(V) == -1) {
+    V = taka_poly_get_variables(I);
+  }
+  Gb = 0;
+  if (type(I) == STRUCT) {
+    if (I->Tag == POLY_IDEAL) {
+      I = II->Generators;
+      V = II->Ring->Variables;
+      Or = II->Ring->Order;
+      if (II->Grobner) {
+         Gb = 1;
+      }else {
+         Gb = 0;
+      }
+      R = II->Ring;
+    }else{
+      error("Argument should be ideal.");
+    }
+  }else{
+    R = new__poly_ring(V,Or,base_Q,0);
+  }
+  if (!Gb) {
+    G = gr(I,V,Or);
+  }else{
+    G = II->Generators;
+  }
+
+  dp_ord(Or);
+  G2 = map(dp_ptod,G,V);
+  G3 = map(dp_hc,G2); 
+  return G3;
 }
 
 /*
