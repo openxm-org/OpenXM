@@ -46,7 +46,7 @@ $G$ $B$K$h$j(B 0 $B$K4JLs$5$l$k$3$H$r<($;$P$h$$!#8D!9$N4JLsA`:n$OFHN)$J$N$G(
 
 $B$3$l$i$O$4$/8B$i$l$?Nc$G$"$k$,(B, $B=EMW$J$3$H$O(B, 
 $B$h$j9bEY$JJ,;6JBNs7W;;$,<B83$G$-$k$h$&$J5!G=$rDs0F$7(B, $B<BAu$9$k$3$H$G$"$k(B.
-$B0J2<$G$O(B MPI-2 $B$GDj5A$5$l$?F0E*%W%m%;%9@8@.(B, $B%W%m%;%9%0%k!<%W4V$G$N(B
+$B0J2<$G$O(B MPI-2 \cite{MPI2} $B$GDj5A$5$l$?F0E*%W%m%;%9@8@.(B, $B%W%m%;%9%0%k!<%W4V$G$N(B
 broadcast $B$N;EMM$r;29M$K(B, OpenXM $B$K$*$1$k(B server $B4VDL?.$K$D$$$F(B
 $B=R$Y$k(B.
 
@@ -148,7 +148,7 @@ RFC-102 $B2<$G$N%W%m%0%i%_%s%0%9%?%$%k$O(B, $B4pK\E*$K$O(B RFC-100,101 $B$H
 $BAw?.$9$k5!G=(B, $B$^$?!"(Bserver $B4VDL?.O)$+$i(B OX $B%G!<%?$r<u?.$9$k5!G=$r(B
 $BDs6!$7$J$1$l$P$J$i$J$$(B. 
 
-\subsection{broadcast}
+\subsection{broadcast $B$*$h$S(B reduction}
 
 server $B4VDL?.$rMxMQ$9$k:G$bE57?E*$JNc$H$7$F(B broadcast $B$,$"$k(B.
 
@@ -187,12 +187,89 @@ broadcast $B$r<B9T$5$;$k$?$a$N%3%^%s%I$rC`<!Aw?.$9$k(B.
 server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nserver\rceil$
 $B%9%F%C%W8e$K$OA4$F$N(B server $B$K%G!<%?$,9T$-EO$k(B.
 
+$B0J2<$K(B, {\tt ox\_asir} $B$K$*$1$k<BAu$r<($9(B.
+
+\begin{verbatim}
+void ox_bcast_102(int root,Obj *rp)
+{
+    Obj data;
+    int r,mask,id,src,dst;
+
+    data = *rp;
+    r = myrank_102-root;
+    if ( r < 0 ) r += nserver_102;
+    for ( mask = 1; mask < nserver_102; mask <<= 1 )
+        if ( r&mask ) {
+            src = myrank_102-mask;
+            if ( src < 0 ) src += nserver_102;
+            ox_recv_102(src,&id,&data);
+            break;
+        }
+    for ( mask >>= 1; mask > 0; mask >>= 1 )
+        if ( (r+mask) < nserver_102 ) {
+            dst = myrank_102+mask;
+            if ( dst >= nserver_102 ) dst -= nserver_102;
+            ox_send_data_102(dst,data);
+        }
+    *rp = data;
+}
+\end{verbatim}
+
+$BF1MM$N<jB3$-$K(B reduction $B$,$"$k(B. $B$3$l$O(B, $B3F(B server $B$K$"$k%G!<%?$r(B, 2 
+$B9`1i;;$K$h$j=hM}$7$F$$$-(B, $B:G8e$K(B $root$ $B$K1i;;7k2L$,=8$a$i$l$k<jB3$-$G(B
+$B$"$k(B.  $B$3$N>l9g$b(B, $B4JC1$N$?$a(B $root$ $B$,(B $0$ $B$G$"$k$H$7$F(B, $B<1JL;R$,(B 
+$B<1JL;R$,(B $b$ $B$N(B server $B$G$O(B, $b$ $B$r2<0L%S%C%H$+$i=g$K8+$F(B,
+
+\begin{enumerate}
+\item $B$=$N%S%C%H$,(B 1 $B$J$i(B, $B$=$N%S%C%H$r(B 0 $B$K$7$?<1JL;R$r$b$D(B server 
+($B$=$l$OI,$:B8:_$9$k(B) $B$K%G!<%?$rAw?.$7$F=*N;(B.
+\item $B$=$N%S%C%H$,(B 0 $B$G(B, $B$=$N%S%C%H$r(B 1 $B$K$7$?CM$,(B $nserver-1$ $B0J2<(B
+$B$J$i(B, $B$=$3$+$i%G!<%?$r<u?.$9$k(B. $B$=$N%G!<%?$H<j;}$A$N%G!<%?(B
+$B$N(B 2 $B9`1i;;7k2L$G<j;}$A%G!<%?$r99?7$9$k(B.
+\end{enumerate}
+
+$B$3$NJ}K!$K$h$l$P(B, $B:G=*7k2L$O(B $root$ $B$K%G!<%?$,=8$a$i$l$k(B. $B$3$N>l9g$K$b(B,
+server $B$NAm?t$r(B $nserver$ $B$H$9$k$H$-(B, $B9b!9(B $\lceil \log_2 nserver\rceil$
+$B%9%F%C%W8e$K$O<jB3$-$,=*N;$9$k(B.
+
+\begin{verbatim}
+void ox_reduce_102(int root,void (*func)(),Obj data,Obj *rp)
+{
+    Obj data0,t;
+    int r,mask,id,src,dst;
+
+    r = myrank_102-root;
+    if ( r < 0 ) r += nserver_102;
+    for ( mask = 1; mask < nserver_102; mask <<= 1 )
+        if ( r&mask ) {
+            dst = (r-mask)+root;
+            if ( dst >= nserver_102 ) dst -= nserver_102;
+            ox_send_data_102(dst,data);
+            break;
+        } else {
+            src = r+mask;
+            if ( src < nserver_102 ) {
+                src += root;
+                if ( src >= nserver_102 ) src -= nserver_102;
+                ox_recv_102(src,&id,&data0);
+                (*func)(CO,data,data0,&t); data = t;
+            }
+        }
+    if ( !r )
+        *rp = data;
+    else
+        *rp = 0;
+}
+\end{verbatim}
+
+
 \section{$B%(%i!<=hM}(B}
 
 server $B$O(B RFC-100,101 $B$N(B $B%j%;%C%H%W%m%H%3%k$r<BAu$7$F$$$l$P(B,
 master $B$+$i(B server $B$r%j%;%C%H$7(B, master-server $B4V$NDL?.O)$r(B
 $B%j%;%C%H$9$k$3$H$O$G$-$k(B. $B$3$l$K2C$($F(B,$B%0%k!<%WFb$N(B server $B4VDL?.O)(B
-$B$r%j%;%C%H$9$kI,MW$,$"$k$,(B, $B$3$l$r<!$N<j=g$G9T$&(B.
+$B$r%j%;%C%H$9$kI,MW$,$"$k(B. $B<1JL;R$,(B $i$ ($0\le i \le nserver$) 
+$B$N(B server $B$NF0:n$O<!$N$h$&$K$J$k(B.
 
 \begin{tabbing}
 \underline{$B<1JL;R$,(B $i$ ($0\le i \le nserver$) $B$N(B server $B$NF0:n(B}\\
@@ -227,24 +304,33 @@ Output: none.
 
 \subsection{server $B4VDL?.O)3+@_(B}
 
+$B0J2<$N4X?t$O(B, master $BMQ$KMQ0U$5$l$?$b$N$G(B, SM $B%3%^%s%IAw?.MQ$N(B
+wrapper $B$G$"$k(B.
+
 \begin{itemize}
 \item {\tt ox\_set\_rank\_102($Server$,$Nserver$,$Rank$)}
 
 $Server$ $B$,B0$9$k%0%k!<%W$KB0$9$k(B server $B$NAm?t(B $Nserver$ $B$H(B,
-$B$=$N(B server $B$N%0%k!<%WFb<1JL;R(B $Rank$ $B$rDLCN$9$k(B. $B$3$N4X?t$O(B,
-master $BMQ$G$"$k(B.
+$B$=$N(B server $B$N%0%k!<%WFb<1JL;R(B $Rank$ $B$rDLCN$9$k(B. 
 
-\item {\tt ox\_tcp\_accept\_102($Port$,$Rank$)}
+\item {\tt ox\_tcp\_accept\_102($Server$,$Port$,$Rank$)}
 
-$B%]!<%HHV9f(B $Port$ $B$G(B, $B<1JL;R(B $Rank$ $B$N(B server $B$+$i$N(B connect $BBT$A>uBV(B
-$B$KF~$j(B, $BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, 
+$Server$ $B$KBP$7(B, $B%]!<%HHV9f(B $Port$ $B$G(B, 
+$B<1JL;R(B $Rank$ $B$N(B server $B$+$i$N(B connect $BBT$A>uBV$KF~$k$h$&;X<($9$k(B.
+$BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, 
 $BAj<j@h%F!<%V%k$X$NEPO?$J$I$r9T$&(B.
 
-\item {\tt ox\_tcp\_connect\_102($Host$,$Port$,$Rank$)}
+\item {\tt ox\_tcp\_connect\_102($Server$,$Host$,$Port$,$Rank$)}
 
-$B%[%9%HL>(B $Host$ $B$N%]!<%HHV9f(B $Port$ $B$N(B TCP $B%]!<%H$KBP$7$F(B connect $B$9$k(B.
+$Server$ $B$KBP$7(B, $B%[%9%HL>(B $Host$ $B$N%]!<%HHV9f(B $Port$ $B$N(B TCP $B%]!<%H$KBP$7$F(B 
+connect $B$9$k$h$&;X<($9$k(B.
 $BDL?.$,@.N)$7$?$i(B, $BAw<u?.%P%C%U%!$N%;%C%H%"%C%W(B, $BAj<j$r(B $Rank$ $B$H$7$F(B
 $BAj<j@h%F!<%V%k$X$NEPO?$J$I$r9T$&(B.
+
+\item {\tt ox\_reset\_102($Server$)}
+
+$Server$ $B$KBP$7DL?.O)%j%;%C%HF0:n$r;X<($9$k(B. $B$3$NA`:n$O(B, $B%0%k!<%WFbA4$F$N(B server 
+$B$G9T$o$l$J$1$l$P$J$i$J$$(B.
 \end{itemize}
 
 \subsection{server $B4VDL?.(B}
@@ -253,18 +339,26 @@ master $BMQ$G$"$k(B.
 \item {\tt ox\_send\_102($Rank$,$Data$)}
 
 $B<1JL;R(B $Rank$ $B$N(B server $B$K(B $Data$ $B$r(B OX $B%G!<%?$H$7$FAw?.$9$k(B.
-$B<1JL;R(B $Rank$ $B$N%5!<%P$OBP1~$9$k<u?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
+$B<1JL;R(B $Rank$ $B$N(B server $B$OBP1~$9$k<u?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
 
 \item {\tt ox\_recv\_102($Rank$)}
 
 $B<1JL;R(B $Rank$ $B$N(B server $B$+$i(B OX $B%G!<%?$r<u?.$9$k(B.
-$B<1JL;R(B $Rank$ $B$N%5!<%P$OBP1~$9$kAw?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
+$B<1JL;R(B $Rank$ $B$N(B server $B$OBP1~$9$kAw?.$r3+;O$7$J$1$l$P$J$i$J$$(B.
 
-\item {\tt ox\_reset\_102()}
+\item {\tt ox\_bcast\_102($Rank$[,$Data$])}
 
-$BDL?.O)%j%;%C%HF0:n$r9T$&(B. $B$3$NA`:n$O(B, $B%0%k!<%WFbA4$F$N(B server 
-$B$G9T$o$l$J$1$l$P$J$i$J$$(B.
+$B<1JL;R(B $Rank$ $B$N(B server $B$r(B root $B$H$7$F(B, $B%0%k!<%WFb$G(B broadcast $B$9$k(B.
+$Root$ $B$N$_(B $Data$ $B$r;XDj$9$kI,MW$,$"$k(B. $B3F(B server $B$G$NLa$jCM$O(B 
+$Data$ $B$G$"$k(B.
 \end{itemize}
 
-
+\begin{thebibliography}{99}
+\bibitem{OpenXM}
+Maekawa, M. et al, The Design and Implementation of OpenXM-RFC 100 and 101.
+Proceedings of ASCM2001, World Scientific, 102-111 (2001).
+\bibitem{MPI2}
+Gropp, W., et al, Using MPI-2 Advanced Features of the Message-Passing 
+Interface. The MIT Press (1999).
+\end{thebibliography}
 \end{document}
