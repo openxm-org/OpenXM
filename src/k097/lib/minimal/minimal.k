@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.7 2000/05/06 10:35:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.8 2000/05/06 10:45:43 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1153,6 +1153,7 @@ def Sschreyer(g) {
                   /* i must be equal to f[2], I think. Double check. */
 
                   /* Correction Of Constant */
+                  /* Correction of syzygy */
                   c2 = f[6];  /* or -f[6]?  Double check. */
                   Print("c2="); Println(c2);
                   nn = Length(bases);
@@ -1178,7 +1179,23 @@ def Sschreyer(g) {
                   freeRes[level-1] = bases; 
                   Print("New freeRes[level-1] = "); sm1_pmat(freeRes[level-1]);
 
-                  reducer[level-1,place] = f[1];
+                  reducer[level-1,place] = f[1]-SunitOfFormat(place,f[1]);
+                   /* This reducer is different from that of SlaScala(). */
+
+                  reducerBasis = reducer[level-1];
+                  nn = Length(reducerBasis);
+                  for (ii=0; ii<nn;ii++) {
+                     if ((ii != place) && (! IsNull(reducerBasis[ii]))) {
+                       m = Length(reducerBasis[ii]);
+                       for (jj=0; jj<m; jj++) {
+                         if (jj != place) {
+                           reducerBasis[ii,jj] = reducerBasis[ii,jj]*c2;
+                         }
+                       } 
+                     }
+                  }
+                  reducer[level-1] = reducerBasis;
+
                }else{
                   /* redundantTable[level,i] = 0; */
                   bases = freeRes[level];
@@ -1193,15 +1210,18 @@ def Sschreyer(g) {
     if (level >= 1) {
       Println(" ");
       Print("Triangulating reducer at level "); Println(level-1);
+      Println("freeRes[level]="); sm1_pmat(freeRes[level]);
       reducerBase = reducer[level-1];
       Print("reducerBase=");  Println(reducerBase);
+      Println("Compare freeRes[level] and reducerBase (put -1)");
       m = Length(reducerBase);
       for (ii=m-1; ii>=0; ii--) {
         if (!IsNull(reducerBase[ii])) {
            for (jj=ii-1; jj>=0; jj--) {
              if (!IsNull(reducerBase[jj])) {
               if (!IsZero(reducerBase[jj,ii])) {
-                reducerBase[jj] = reducerBase[jj]-reducerBase[jj,ii]*reducerBase[ii];
+                /* reducerBase[ii,ii] should be always constant. */  
+                reducerBase[jj] = reducerBase[ii,ii]*reducerBase[jj]-reducerBase[jj,ii]*reducerBase[ii];
               }
              }
            }
@@ -1348,14 +1368,15 @@ def Sminimal_v(g) {
           if (level < maxLevel-1) {
             bases = freeRes[level+1];
             dr = reducer[level,q];
-            dr[q] = -1;
+            /* dr[q] = -1;  We do not need this in our reducer format. */
+            /* dr[q] should be a non-zero constant. */
             newbases = SnewArrayOfFormat(bases);
             betti_levelplus = Length(bases);
             /*
                bases[i,j] ---> bases[i,j]+bases[i,q]*dr[j]
             */
             for (i=0; i<betti_levelplus; i++) {
-              newbases[i] = bases[i] + bases[i,q]*dr;
+              newbases[i] = dr[q]*bases[i] - bases[i,q]*dr;
             }
             Println(["level, q =", level,q]);
             Println("bases="); sm1_pmat(bases); 
@@ -1364,17 +1385,15 @@ def Sminimal_v(g) {
             minRes[level+1] = newbases;
             freeRes = minRes;
 #ifdef DEBUG
-/*  Do it later. 
-            for (qq=0; qq<betti; qq++) {
+            for (qq=q; qq<betti; qq++) {
                 for (i=0; i<betti_levelplus; i++) {
-                  if (!IsZero(newbases[i,qq])) {
+                  if ((!IsZero(newbases[i,qq])) && (redundantTable[level,qq] >0)) {
                     Println(["[i,qq]=",[i,qq]," is not zero in newbases."]);
                     Print("redundantTable ="); sm1_pmat(redundantTable[level]);
                     Error("Stop in Sminimal for debugging.");
                   }
                 }
             }
-*/
 #endif
           }
         }
