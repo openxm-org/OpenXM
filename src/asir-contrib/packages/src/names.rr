@@ -1,26 +1,30 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.31 2001/12/13 09:27:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.32 2001/12/23 11:10:51 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
 load("datatype.rr")$
 /* Include a standard library. It should be included
    in a different place in a future. */
-load("quote.rr")$  load("misc.rr")$ load("tex_symbols.rr")$
+load("quote.rr")$  
+load("misc.rr")$ 
+load("tex_symbols.rr")$
 load("xml_basic_symbols.rr")$
 load("taka_print_cmo100.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
-  if (!Tag) Result=load(FileName); else return(1);
+/*  if (!Tag) Result=load(FileName); else return(1); */
+  if (!Tag) Result=load_exec(FileName); else return(1);
   if (Result == 0) error("File "+FileName+" was not found.");
   return(1);
 }
-ox_loadfile(Loaded_taka_base,"taka_base.rr") $
-ox_loadfile(Loaded_taka_print,"taka_print.rr") $
-ox_loadfile(Loaded_om,"om") $
-ox_loadfile(Loaded_Matrix,"Matrix") $
-ox_loadfile(Loaded_taka_base,"taka_base.rr") $
-ox_loadfile(Loaded_taka_poly,"taka_poly.rr") $
+#define ox_loadfile_(A,B) load(B)
+ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
+ox_loadfile_(Loaded_taka_print,"taka_print.rr")$
+ox_loadfile_(Loaded_om,"om")$
+ox_loadfile_(Loaded_Matrix,"Matrix")$
+ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
+ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 

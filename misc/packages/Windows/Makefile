@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.8 2001/12/28 09:54:47 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.9 2001/12/29 02:49:25 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -6,7 +6,7 @@ usage:
 	@echo "Targets: binary-tgz build-tgz clean"
 
 clean:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr
 
 binary-tgz: copy-binary copy-binary-asir win-correction
 
@@ -30,7 +30,7 @@ copy-binary-asir:
 	  touch .copy-binary-asir-done ; \
 	fi
 
-win-correction: copy-binary 
+win-correction: copy-binary oxasir-win.rr
 	make win-correction2 
 win-correction1:
 	-mkdir OpenXM-win/bin-windows
@@ -53,6 +53,10 @@ win-correction2: win-correction1
 	cp OpenXM-win/lib/sm1/oxasir.asir OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/oxasir.asir OpenXM-win/bin
 	cp OpenXM-win/bin/ox_asir OpenXM-win/bin/ox_asir.exe
+	cp oxasir-win.rr OpenXM-win/bin
+	cp oxasir-win.rr OpenXM-win/asir/bin
+	cp oxasir-win.rr OpenXM-win/lib/asir
+	cp oxasir-win.rr OpenXM-win/lib/sm1
 win-correction-clean:
 	-find OpenXM-win -name '*~' -print | xargs rm
 	-rm OpenXM-win/lib/sm1/*.jpeg OpenXM-win/lib/sm1/*.jpg
@@ -63,4 +67,17 @@ build-tgz: win-correction-clean
 
 copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
+
+
+oxapp : oxapp.c
+
+oxasir-win.rr : oxapp
+	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3
+	cat ${OpenXM_TOP}/src/kan96xx/Doc/oxasir.asir >>oxasir-win.tmp
+	./oxpp ${OpenXM_TOP}/rc/asirrc >>oxasir-win.tmp
+	./oxpp oxasir-win.tmp >oxasir-win.tmp2
+	./oxpp oxasir-win.tmp2 >oxasir-win.tmp3
+	./oxpp oxasir-win.tmp3 | ./oxapp --removeSharp >oxasir-win.rr
+#	./oxpp oxasir-win.tmp3  >oxasir-win.rr
+	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3
 
