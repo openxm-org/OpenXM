@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.9 1999/11/27 13:24:40 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.10 2000/01/10 19:11:59 maekawa Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -16,7 +16,7 @@ all2 :  all-gc all-gmp
 all-gc:
 	(cd $(GC) ; make all)
 
-all-gmp:   
+all-gmp: configure-gmp
 	if test -f /usr/lib/libgmp.a ; \
 	then \
 	  echo "Using /usr/lib/libgmp.a" ; \
@@ -32,8 +32,10 @@ all-gmp:
 sm1.nogc :
 	(cd Kan; make sm1.nogc)
 
-configure : configure_symbolic_links 
-	(cd $(GMP) ; ./configure )
+configure: configure_symbolic_links configure-gmp
+
+configure-gmp:
+	(cd $(GMP) ; ./configure)
 
 configure_symbolic_links :
 	/bin/rm -f gc gmp lib Doc/var.sm1
