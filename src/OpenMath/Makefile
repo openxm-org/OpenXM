@@ -1,15 +1,18 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.9 2000/01/17 11:07:12 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.10 2000/01/17 13:43:50 takayama Exp $
 
 
-JAVADIR = /usr/local/jdk1.1.8
+JAVADIR = /usr/local/jdk1.1.8/
+JAVABINDIR = $(JAVADIR)bin/
 LIBDIR = ../../lib/java-support
+
+TARGETS = OpenXM.jar OM2OXM.class OMproxy.class libnative.so
 
 
 configure:
 
 
-all:	OpenXM.jar OM2OXM.class OMproxy.class libnative.so
+all:	$(TARGETS)
 
 
 clean:
@@ -29,7 +32,8 @@ install:	all
 	if ! test -d $(LIBDIR); then \
 		mkdir -p $(LIBDIR); \
 	fi
-	-cp ${.ALLSRC} $(LIBDIR)
+	cp `find . -name '*.class'` $(TARGETS) $(LIBDIR)
+
 
 install2:
 
@@ -43,17 +47,17 @@ test:
 
 
 .java.class :
-	$(JAVADIR)/bin/javac -d . -O ${.IMPSRC}
+	$(JAVABINDIR)javac -d . -O ${.IMPSRC}
 
 
 OpenXM.jar:	JP/ac/kobe_u/math/tam/OpenXM/{OpenXM,*}.class
-	@$(JAVADIR)/bin/javac -d . -O JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java
+	@$(JAVABINDIR)javac -d . -O JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java
 	@#$(JAVADIR)/bin/javac -d . -O ${.OODATE}
-	$(JAVADIR)/bin/jar cf OpenXM.jar `find JP/ -name '*.class'`
+	-$(JAVABINDIR)jar cf OpenXM.jar `find JP/ -name '*.class'`
 
 
 OMproxy.h:	OMproxy.class
-	$(JAVADIR)/bin/javah -jni ${.PREFIX}
+	-$(JAVABINDIR)javah -jni ${.PREFIX}
 
 
 libnative.so:	native.c OMproxy.h
