@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.15 2001/08/26 09:50:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.16 2001/08/29 11:18:56 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -344,6 +344,7 @@ def taka_tex_form_list_t_op(S) {
   NOT_YET ;
 }
 
+/*
 def taka_tex_form_quote_list_exponent_vector(S) {
     T = S;
     A = " [ ";
@@ -357,6 +358,7 @@ def taka_tex_form_quote_list_exponent_vector(S) {
     A += "]";
     return A;
 }
+*/
 
 def taka_tex_form_quote_list_list(S) {
     T = S;
@@ -372,10 +374,8 @@ def taka_tex_form_quote_list_list(S) {
     return A;
 }
 
-
-def taka_tex_form_quote_list_function(S) {
-    A += taka_tex_form_node_name(S[0]);
-    A += "(";
+def taka_tex_form_quote_list_exponent_vector(S) {
+    A = "(";
     T = cdr(S);
     N = length(T);
     for (I=0; I<N; I++) {
@@ -388,34 +388,89 @@ def taka_tex_form_quote_list_function(S) {
     return(A);
 }
 
+def taka_tex_form_quote_list_function(S) {
+    if (S[0] == "exponent_vector") {
+      return taka_tex_form_quote_list_exponent_vector(cdr(S));
+    }
+    if (S[0] == "topology_circle") {
+      return print_tex_form_topology_circle(S);
+    }else if (S[0] == "topology_open_segment") {
+      return print_tex_form_topology_open_segment(S);
+    }else if (taka_is_infix(S[0])) {
+      /* printing general infix function */
+      A = "(";
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += "(";
+        A += taka_tex_form_quote_list(T[I]);
+        A += ")";
+        if (I != N-1) {
+          A += taka_tex_form_node_name(S[0]);
+        }
+      }
+      A += ")";
+      return(A);
+    }else {
+      /* printing general prefix functions. */
+      A = taka_tex_form_node_name(S[0]);
+      A += "(";
+      T = cdr(S);
+      N = length(T);
+      for (I=0; I<N; I++) {
+        A += taka_tex_form_quote_list(T[I]);
+        if (I != N-1) {
+          A += ", ";
+        }
+      }
+      A += ")";
+      return(A);
+   }
+}
+
 def taka_tex_form_quote_list_internal(S) {
-  return rtostr(car(S));
+  X = car(S);
+  if (type(X) == RPOLYNOMIAL) {
+    return taka_tex_symbol(rtostr(X));
+  }
+  return rtostr(X);
 }
 
 def taka_tex_form_node_name(S) {
   if (type(S) != STRING) return rtostr(S);
   /* Table of Mathematical Symbols. */
-  if (S == "sin") {
-     return "\\sin ";
-  }else if (S == "cos") {
-     return "\\cos ";
-  }else if (S == "tan") {
-     return "\\tan ";
-  }else if (S == "exp") {
-     return "\\exp ";
-  }else if (S == "log") {
-     return "\\log ";
-  }else if (S == "alpha") {
-     return "\\alpha";
-  }else if (S == "beta") {
-     return "\beta";
-  }else if (S == "gamma") {
-     return "\\gamma";
-  }else if (S == "ggamma") {
-     return "\\Gamma";
-  }else {
-     return S;
+  return taka_tex_symbol(S);
+}
+
+def taka_is_prefix(S) {
+   return 1;
+}
+def taka_is_infix(S) {
+  if (S == "algebra_tensor") {
+    return 1;
   }
+  return 0;
+}
+
+def taka_tex_symbol(S) {
+  R = taka_is_indexed(S);
+  if (R[0]) {
+    return taka_tex_symbol_(R[1])+"_{"+R[2]+"}";
+  }
+  return taka_tex_symbol_(R[1]);
+}
+
+def taka_tex_symbol_(S) {
+  extern Tex_symbol_table;
+  extern Tex_symbol_table;
+  N = size(Tex_symbol_table)[0];
+  /* Linear search for now*/
+  for (I=0; I<N; I++) {
+    if (S == Tex_symbol_table[I][0]) {
+       return Tex_symbol_table[I][1];
+    }
+  }
+  return S;
 }
 
 /*  test data
@@ -426,7 +481,40 @@ def taka_tex_form_node_name(S) {
    print_tex_form(quote( (sin(x)+y)/(x-y) ));
    print_tex_form(quote([[1,2],[x-10,1/y]]));
    print_tex_form(quote(newmat(2,2,[[1,2],[1/x,exp(x)]])));
+ 
+   print_tex_form(quote(algebra_tensor(x,y)));
 */
+
+/* alpha123 --> [1,"alpha",123] 
+   alpha    --> [0,"alpha"]
+*/
+def taka_is_indexed(S) {
+  extern Print_tex_form_no_automatic_subscript;
+  if (Print_tex_form_no_automatic_subscript) {
+    return([0,S]);
+  }
+  T = sub_str(S,0,0);
+  T = strtoascii(T)[0];
+  if (T >= 48 && T <= 57) return [0,S];
+  T = strtoascii(S);
+  N = length(T);
+  P = 0; Q = 1;
+  for (I=1 ; I<N; I++) {
+    if (T[I] >= 48 && T[I] <=57) {
+       if (P == 0) P = I; 
+    }else{
+       if (P) return [0,S];
+    }
+    if (T[I] == 95)  Q = 0; /* _ : no translate */
+  }
+  if (P && Q) {
+    return [1,sub_str(S,0,P-1),sub_str(S,P,N-1)];
+  }else{
+    return [0,S];
+  }
+}
+
+
 def taka_output(S) {
   shell("rm t.tex ");
   output("t.tex");
@@ -596,6 +684,41 @@ def taka_terminal_form(S) {
     A = rtostr(S);
   }
   return A;
+}
+
+/* List of printing functions 
+   cf. def taka_tex_form_quote_list_function(S) 
+*/
+def print_tex_form_topology_open_segment(S) {
+    T = cdr(S);
+    A = " [ ";
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_tex_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += "]";
+    return A;
+}
+def print_tex_form_topology_circle(S) {
+    T = cdr(S);
+    A = "S_{";
+    A += taka_tex_form_quote_list(T[1]);
+    A += "}(";
+    A += taka_tex_form_quote_list(T[0]);
+    A += ")";
+    N = length(T);
+    if (N>=3) A+= "(";
+    for (I=2; I<N; I++) {
+      A += taka_tex_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ",";
+      }
+    }
+    if (N>=3) A += ")";
+    return A;
 }
 
 Loaded_taka_print=1$
