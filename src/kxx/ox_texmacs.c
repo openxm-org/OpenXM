@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.6 2004/03/01 12:55:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.7 2004/03/02 09:10:04 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -83,8 +83,8 @@ main() {
   openxm_home = (char *) getenv("OpenXM_HOME");
   asir_config = (char *) getenv("ASIR_CONFIG");
   if (openxm_home == NULL || asir_config == NULL) {
-	printv("The environmental variables OpenXM_HOME/ASIR_CONFIG are not set.\nStart the texmacs with openxm texmacs or ox_texmacs by openxm ox_texmacs\nBye...");
-	exit(10);
+    printv("The environmental variables OpenXM_HOME/ASIR_CONFIG are not set.\nStart the texmacs with openxm texmacs or ox_texmacs by openxm ox_texmacs\nBye...");
+    exit(10);
   }
 
   
@@ -109,95 +109,95 @@ main() {
   startEngine(TM_Engine," ");
 
   if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
-	signal(SIGINT,ctrlC);
+    signal(SIGINT,ctrlC);
   }
 
   irt = 0;
   while(1) {
-	/* printp(sys);  no prompt */
-	if (SETJMP(EnvOfStackMachine)) {
-	  KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
-	  if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
-		signal(SIGINT,ctrlC);
-	  }
-	  irt = 1;
-	  continue;
-	} else {  }
-	if (!irt) {
-	  printf("%s",DATA_END); fflush(stdout);
-	}
-	irt = 0;
+    /* printp(sys);  no prompt */
+    if (SETJMP(EnvOfStackMachine)) {
+      KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
+        signal(SIGINT,ctrlC);
+      }
+      irt = 1;
+      continue;
+    } else {  }
+    if (!irt) {
+      printf("%s",DATA_END); fflush(stdout);
+    }
+    irt = 0;
 
     /* Reading the input. */
-	if (TM_Engine == K0) {
-	  s=readString(stdin, " ", " "); /* see test data */
-	}else if (TM_Engine == SM1) {
-	  s=readString(stdin, " ", " "); /* see test data */
-	}else{
-	  s=readString(stdin, "if (1) { ", " ; }else{ }"); /* see test data */
-	}
+    if (TM_Engine == K0) {
+      s=readString(stdin, " ", " "); /* see test data */
+    }else if (TM_Engine == SM1) {
+      s=readString(stdin, " ", " "); /* see test data */
+    }else{
+      s=readString(stdin, "if (1) { ", " ; }else{ }"); /* see test data */
+    }
 
-	if (s == NULL) { irt = 1; continue; }
-	if (!irt) printf("%s",DATA_BEGIN_V);
+    if (s == NULL) { irt = 1; continue; }
+    if (!irt) printf("%s",DATA_BEGIN_V);
     /* Evaluate the input on the engine */
     KSexecuteString(" ox.engine ");
     ob = KpoString(s);  
-	KSpush(ob);
-	KSexecuteString(" oxsubmit ");
-	
+    KSpush(ob);
+    KSexecuteString(" oxsubmit ");
+    
     /* Get the result in string. */
-	if (Format == 1 && (! TM_do_not_print)) {
-	  /* translate to latex form */
-	  KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
-	  ob = KSpop();
-	  vmode = 0;
-	  /* printf("id=%d\n",ob.tag); bug: matrix return 17 instead of Sinteger
-	   or error. */
-	  if (ob.tag == Sinteger) {
-		/* printf("cmotag=%d\n",ob.lc.ival);*/
-		if (ob.lc.ival == CMO_ERROR2) {
-		  vmode = 1;
-		}
-		if (ob.lc.ival == CMO_STRING) {
-		  vmode = 1;
-		}
-	  }
-	  if (vmode) {
-		KSexecuteString(" ox.engine oxpopstring ");
-		r = KSpopString();
-	  }else{
-		KSexecuteString(" ox.engine 1 oxpushcmo ox.engine (print_tex_form) oxexec  ");
-		KSexecuteString(" ox.engine oxpopstring ");
-		r = KSpopString();
-	  }
-	  if (strlen(r) < OutputLimit_for_TeXmacs) {
-		if (vmode) printv(r); else printl(r);
-	  } else printv("Output is too large.\n");
-	}else{
-	  if (!TM_do_not_print) {
-		KSexecuteString(" ox.engine oxpopstring ");
-		r = KSpopString();
-		if (strlen(r) < OutputLimit_for_TeXmacs) printv(r);
-		else printv("Output is too large.\n");
-	  }else{
-		KSexecuteString(" ox.engine 1 oxpops "); /* Discard the result. */
-		printv("");
-	  }
-	}
+    if (Format == 1 && (! TM_do_not_print)) {
+      /* translate to latex form */
+      KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
+      ob = KSpop();
+      vmode = 0;
+      /* printf("id=%d\n",ob.tag); bug: matrix return 17 instead of Sinteger
+       or error. */
+      if (ob.tag == Sinteger) {
+        /* printf("cmotag=%d\n",ob.lc.ival);*/
+        if (ob.lc.ival == CMO_ERROR2) {
+          vmode = 1;
+        }
+        if (ob.lc.ival == CMO_STRING) {
+          vmode = 1;
+        }
+      }
+      if (vmode) {
+        KSexecuteString(" ox.engine oxpopstring ");
+        r = KSpopString();
+      }else{
+        KSexecuteString(" ox.engine 1 oxpushcmo ox.engine (print_tex_form) oxexec  ");
+        KSexecuteString(" ox.engine oxpopstring ");
+        r = KSpopString();
+      }
+      if (strlen(r) < OutputLimit_for_TeXmacs) {
+        if (vmode) printv(r); else printl(r);
+      } else printv("Output is too large.\n");
+    }else{
+      if (!TM_do_not_print) {
+        KSexecuteString(" ox.engine oxpopstring ");
+        r = KSpopString();
+        if (strlen(r) < OutputLimit_for_TeXmacs) printv(r);
+        else printv("Output is too large.\n");
+      }else{
+        KSexecuteString(" ox.engine 1 oxpops "); /* Discard the result. */
+        printv("");
+      }
+    }
   }
 }
 
 #define SB_SIZE 1024
-#define INC_BUF 	if (n >= limit-3) { \
-	  tmp = s; \
-	  limit *= 2;  \
-	  s = (char *) sGC_malloc(limit); \
-	  if (s == NULL) { \
-		fprintf(stderr,"No more memory.\n"); \
-		exit(10); \
-	  } \
-	  strcpy(s,tmp); \
-	} 
+#define INC_BUF     if (n >= limit-3) { \
+      tmp = s; \
+      limit *= 2;  \
+      s = (char *) sGC_malloc(limit); \
+      if (s == NULL) { \
+        fprintf(stderr,"No more memory.\n"); \
+        exit(10); \
+      } \
+      strcpy(s,tmp); \
+    } 
 /*   */
 static char *readString(FILE *fp, char *prolog, char *epilog) {
   int n = 0;
@@ -209,74 +209,74 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   int m;
   int start;
   if (limit == 0) {
-	limit = 1024;
-	s = (char *)sGC_malloc(limit);
-	if (s == NULL) {
-	  fprintf(stderr,"No more memory.\n");
-	  exit(10);
-	}
+    limit = 1024;
+    s = (char *)sGC_malloc(limit);
+    if (s == NULL) {
+      fprintf(stderr,"No more memory.\n");
+      exit(10);
+    }
   }
   s[0] = 0; n = 0; m = 0;
   for (i=0; i < strlen(prolog); i++) {
-	s[n++] = prolog[i];  s[n] = 0;
+    s[n++] = prolog[i];  s[n] = 0;
     INC_BUF ;
   }
   start = n;
   while ((c = fgetc(fp)) != EOF) {
 #ifdef DEBUG2
-	fprintf(Dfp,"[%x] ",c); fflush(Dfp); 
+    fprintf(Dfp,"[%x] ",c); fflush(Dfp); 
 #endif
-	if (c == END_OF_INPUT) {
-	  if (oxSocketSelect0(0,1)) {
-		/* If there remains data in the stream,
-		   read the remaining data. */
-		if (c == '\n') c=' ';
-		s[n++] = c; s[n] = 0;  m++;
-		INC_BUF ;
-		continue;
-	  }
-	  break;
-	}
-	if (c == '\n') c=' ';
-	s[n++] = c; s[n] = 0;  m++;
+    if (c == END_OF_INPUT) {
+      if (oxSocketSelect0(0,1)) {
+        /* If there remains data in the stream,
+           read the remaining data. */
+        if (c == '\n') c=' ';
+        s[n++] = c; s[n] = 0;  m++;
+        INC_BUF ;
+        continue;
+      }
+      break;
+    }
+    if (c == '\n') c=' ';
+    s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
   if (s[n-1] == '$' && TM_Engine == ASIR) TM_do_not_print = 1;
   else TM_do_not_print = 0;
   /* Check the escape sequence */
   if (strcmp(&(s[start]),"!quit;") == 0) {
-	printv("Terminated the process ox_texmacs.\n"); 
-	exit(0);
+    printv("Terminated the process ox_texmacs.\n"); 
+    exit(0);
   }
   /* Check the escape sequence to change the globa env. */
   if (strcmp(&(s[start]),"!verbatim;") == 0) {
-	printv("Output mode is changed to verbatim mode.");
-	Format=0;
-	return NULL;
+    printv("Output mode is changed to verbatim mode.");
+    Format=0;
+    return NULL;
   }
   if (strcmp(&(s[start]),"!latex;") == 0) {
-	printv("Output mode is changed to latex/verbose.");
-	Format = 1;
-	return NULL;
+    printv("Output mode is changed to latex/verbose.");
+    Format = 1;
+    return NULL;
   }
   if (strcmp(&(s[start]),"!asir;") == 0) {
-	Format=1;
-	TM_Engine=ASIR; startEngine(TM_Engine,"Asir");
-	return NULL;
+    Format=1;
+    TM_Engine=ASIR; startEngine(TM_Engine,"Asir");
+    return NULL;
   }
   if (strcmp(&(s[start]),"!sm1;") == 0) {
-	Format=0;
-	TM_Engine=SM1; startEngine(TM_Engine,"sm1");
-	return NULL;
+    Format=0;
+    TM_Engine=SM1; startEngine(TM_Engine,"sm1");
+    return NULL;
   }
   if (strcmp(&(s[start]),"!k0;") == 0) {
-	Format=0;
-	TM_Engine=K0; startEngine(TM_Engine,"k0");
-	return NULL;
+    Format=0;
+    TM_Engine=K0; startEngine(TM_Engine,"k0");
+    return NULL;
   }
 
   for (i=0; i < strlen(epilog); i++) {
-	s[n++] = epilog[i];  s[n] = 0;
+    s[n++] = epilog[i];  s[n] = 0;
     INC_BUF ;
   }
   return s;
@@ -318,24 +318,24 @@ static int startEngine(int type,char *msg) {
   printf("%s",DATA_BEGIN_V);
   if (type == SM1) {
     if (!TM_sm1Started) KSexecuteString(" sm1connectr ");
-	KSexecuteString(" /ox.engine oxsm1.ccc def ");
-	TM_sm1Started = 1;
-	printf("%s\n",msg);
+    KSexecuteString(" /ox.engine oxsm1.ccc def ");
+    TM_sm1Started = 1;
+    printf("%s\n",msg);
   }else if (type == K0) {
     if (!TM_k0Started) KSexecuteString(" k0connectr ");
-	KSexecuteString(" /ox.engine oxk0.ccc def ");
-	TM_k0Started = 1;
-	printf("%s\n",msg);
+    KSexecuteString(" /ox.engine oxk0.ccc def ");
+    TM_k0Started = 1;
+    printf("%s\n",msg);
   }else{
     if (!TM_asirStarted) KSexecuteString(" asirconnectr ");
-	KSexecuteString(" /ox.engine oxasir.ccc def ");
-	TM_asirStarted = 1;
-	printf("%s\n",msg);
-	KSexecuteString(" oxasir.ccc (copyright()+asir_contrib_copyright();) oxsubmit oxasir.ccc oxpopstring ");
-	ob = KSpop();
-	if (ob.tag == Sdollar) {
-	  printf("%s",ob.lc.str);
-	}
+    KSexecuteString(" /ox.engine oxasir.ccc def ");
+    TM_asirStarted = 1;
+    printf("%s\n",msg);
+    KSexecuteString(" oxasir.ccc (copyright()+asir_contrib_copyright();) oxsubmit oxasir.ccc oxpopstring ");
+    ob = KSpop();
+    if (ob.tag == Sdollar) {
+      printf("%s",ob.lc.str);
+    }
     /* Initialize the setting of asir. */
     KSexecuteString(" oxasir.ccc (if(1) {  Xm_server_mode = 1; Xm_helpdir = \"help-eg\";  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
     KSexecuteString(" oxasir.ccc (if(1) {  ctrl(\"message\",0);  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
