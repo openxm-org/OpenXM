@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.3 2002/11/11 13:11:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.4 2002/11/16 08:39:15 takayama Exp $ */
 
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
@@ -10,15 +10,26 @@ Tfb_symbol_table_ = [
  ["log", "transc1.log"],
  ["exp", "transc1.exp"],
  ["hypergeometric_gamma","hypergeo0.gamma"],
+ ["hypergeo0_gamma","hypergeo0.gamma"],
  ["hypergeometric_pochhammer","hypergeo0.pochhammer"],
+ ["hypergeo0_pochhammer","hypergeo0.pochhammer"],
  ["hypergeometric_beta","hypergeo0.beta"],
+ ["hypergeo0_beta","hypergeo0.beta"],
  ["hypergeometric_2f1","hypergeo1.hypergeometric2F1"],
+ ["hypergeo1_hypergeometric2F1","hypergeo1.hypergeometric2F1"],
  ["hypergeometric_pfp1","hypergeo1.hypergeometric_pFq"],
- ["logic_imply","logic1.imply"],
+ ["hypergeo1_hypergeometric_pFq","hypergeo1.hypergeometric_pFq"],
+ ["logic1_imply","logic1.imply"],
+ ["nums1_pi","nums1.pi"],
+ ["arith1_root","arith1.root"],
  ["dmodule_partial_diff","weylalgebra1.partialdiff"],
+ ["weylalgebra1_partialdiff","weylalgebra1.partialdiff"],
  ["dmodule_act","weylalgebra1.act"],
+ ["weylalgebra1_act","weylalgebra1.act"],
  ["dmodule_act_of_poly","weylalgebra1.act_of_poly"],
- ["dmodule_diffop","weylalgebra1.diffop"]
+ ["weylalgebra1_act_of_poly","weylalgebra1.act_of_poly"],
+ ["dmodule_diffop","weylalgebra1.diffop"],
+ ["weylalgebra1_diffop","weylalgebra1.diffop"]
 ]$
 Tfb_symbol_table = newmat(length(Tfb_symbol_table_),2,
                            Tfb_symbol_table_)$
