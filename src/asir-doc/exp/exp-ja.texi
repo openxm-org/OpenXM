@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.1 2004/03/17 07:48:31 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -99,30 +99,45 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 @comment --- section ``実験的関数'' の subsection xyz_abc 
 @comment --- subsection xyz_pqr xyz_stu がある.
 @menu
-* xyz_abc::
-* xyz_pqr xyz_stu::
+* quotetotex::
+* quotetotex_env::
+* objtoquote::
+* string_to_tb::
+* tb_to_string::
+* write_to_tb::
 @end menu
 
 @comment --- ◯◯◯◯  関数 syz_abc の説明 ◯◯◯◯ 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node xyz_abc,,, 実験的仕様の関数
-@subsection @code{xyz_abc}
+@node quotetotex quotetotex_env,,, 実験的仕様の関数
+@subsection @code{quotetotex}, @code{quotetotex_env}
 @comment --- 索引用キーワード
-@findex xyz_abc
+@findex quotetotex
+@findex quotetotex_env
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item xyz_abc(@var{number}) 
-:: @var{number} の xyz を abc する.
+@item quotetotex(@var{q}) 
+:: @var{q} を latex 形式で表現した文字列に変換する.
+@item quotetotex_env(@var{key},@var{value})
+:: quotetotex の動作を制御するパラメータを変更する.
+@item quotetotex_env()
+:: quotetotex の動作を制御するパラメータの現在値を戻す.
+@item quotetotex_env(0)
+:: quotetotex の動作を制御するパラメータをデフォールト値に戻す.
 @end table
 
 @comment --- 引数の簡単な説明 ---
 @table @var
 @item return
-整数
-@item number
-整数
+文字列(quotetotex) または リストまたはオブジェクト(quotetotex_env)
+@item q
+quote
+@item key
+文字列
+@item value
+オブジェクト
 @end table
 
 @comment --- ここで関数の詳しい説明 ---
@@ -130,33 +145,74 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 @comment --- @bullet は黒点付き ---
 @itemize @bullet
 @item
-@var{number} の xyz を abc する.
+quotetotex は @var{q} を latex 形式で表現した文字列に変換する.
+@item 
+以下 quotetotex_env のパラメータの意味を説明する.
+@item 
+conv_rule: 3 ビットを用いて変換ルールを指定する.
+0ビット目は symbol_table による変換を行うか,
+1ビット目は添字変換を行うか,
+2ビット目は d から始まる変数名を微分作用素と見なして処理するか,
+を意味する.
+たとえば conv_rule として 3 を指定すると,
+0ビット目, 1 ビット目が 1 となるので
+symbol_table による変換を行い, 添字変換をおこなう.
+添字変換は数字と英字の境目および _ 記号を区切りとする.
+symbol_table による変換が最初に適用される.
+alpha, beta, 等は自動的をギリシャ文字に変換するテーブルは
+内蔵ずみ.
+@item 
+dp_vars_prefix: 分散表現多項式は
+@tex 
+$x_0, x_1, \cdots$
+@end tex 
+の多項式として表現されるがこの
+x の部分を変更する.
 @item
-@var{number} は整数でなければならない.
+dp_vars_hweyl: 分散表現多項式をワイル代数の元とみなして
+tex に変換する.
+偶数個変数があるときは 最初の半分を 
+@tex 
+$x_0, x_1, \cdots$
+@end tex 
+に
+後半の半分を
+@tex 
+$\partial_0, \partial_1, \cdots$
+@end tex 
+に変換する.
+奇数個の場合は最後の変数が同時化変数として h で表示される.
+@item 
+conv_func: ユーザ定義の変換関数をよぶ.
+@item 
+
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
 @example
-[3] xyz_abc(123);
-456
-[4] xyz_abc(1.2);
-xyz_abc : input must be an integer
+[3] quotetotex(quote(1/(x+1)));
+\frac@{ 1@} @{ (  @{x@}+ 1)@}
+[4]  quotetotex(objtoquote(diff(x^x,x)));
+   @{x@}^@{  @{x@}- 1@}   @{x@}+  \log( @{x@})   @{x@}^@{ @{x@}@}
+[5] quotetotex_env("conv_rule",3);
+[6] quotetotex(objtoquote( (alpha2beta+x_i_j)^2));
+  @{\alpha@}_@{2,\beta@}^@{ 2@} +   2  @{x@}_@{i,j@}  @{\alpha@}_@{2,\beta@}+  @{x@}_@{i,j@}^@{ 2@}
 @end example
 
 @comment --- 参照(リンク)を書く ---
 @table @t
 @item 参照
-@ref{xyz_pqr xyz_stu}
+@ref{objtoquote}
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
 @noindent
 ChangeLog
 @itemize @bullet
-@item この関数は 2004-3-1 から 2004-3-14 にかけて アルゴリズム xyz (論文
- http://www.afo.org/xyz.pdf ) を用いて書き直された.
- 変更をうけたソースコードは xxxyy.rr 1.12--1.25, ppp.c 1.1--1.4である.
-@item この関数は 2000 頃にはじめてのバージョンが書かれた.
+@item この関数は 2004年2月末から3月にかけて asir を texmacs に対応させるために
+書かれた. Asir-contrib の print_tex_form がその原型であり, それを効率化しまた
+出力形式を改善した.
+@item 関連するソース.
 @end itemize
 
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
