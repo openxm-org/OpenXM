@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/rewriting.rr,v 1.1 2005/03/30 05:10:40 takayama Exp $ */
 
 /*  
   OpenXM版の Risa/Asir で実行のこと. OpenXM 版の関数を用いるため.
@@ -147,7 +147,7 @@ def makeBind(F,P) {
    Tree の中を幅優先探索で検索して 置き換える.
    幅優先探索なので, 同じ rule にマッチするものが入れ子になった場合, 
    内側は置き換えられない.
-   Todo: 深さ優先探索.
+   深さ優先探索 --> とりあえずは action 関数の中で再帰的に呼べば深さ優先となる.
    Todo: 書き換えがおこったかのフラグ.
 */
 def rp(F,P,Q) {
@@ -292,13 +292,40 @@ def test1()  {
   return R;
 }
 
-/* 幅優先探索の場合, これは simplify できず. */
+extern Rule_test2$
+Rule_test2=[quote(sin(pn("x")*@pi)),["r_sin_int2","x"]]$
+
 def test2() {
+  /* 幅優先探索の場合, これは simplify できず. */
   Rule1=[quote(sin(pn("x")*@pi)),["r_sin_int","x"]];
   R0 = quote(1+sin(sin(2*@pi)*@pi)*sin(@pi/2));
   print(print_input_form(R0));
   R=apply_rule1(R0,Rule1[0],Rule1[1]);
-  return R;
+  print(print_input_form(R));
+  print("-----------------------");
+  /* しかし次のように書くと深さ優先で書ける */
+  R0 = quote(1+sin(sin(2*@pi)*@pi)*sin(@pi/2));
+  print(print_input_form(R0));
+  R=apply_rule1(R0,Rule_test2[0],Rule_test2[1]);
+  print(print_input_form(R));
+}
+
+/* 右規則関数.  sin(整数*@pi) を 0 に. 深さ優先用 */
+def r_sin_int2(X) {
+  /* apply_rule1 を再帰的によぶ. この方法で構文解析もかける. */
+  X = apply_rule1(X,Rule_test2[0],Rule_test2[1]);
+  Y = quotetolist(X);
+  R = "quote(sin("+quote_input_form_quote_list(Y)+"*@pi))";
+  print(R);
+  R = eval_str(R);
+  if (Y[0] == "internal") {
+     Z = eval_str(rtostr(Y[1]));
+  }else{ 
+    return quotetolist(R);
+  }
+  if (type(Z) == 0) return quotetolist(quote(0));
+  if ((type(Z) == 1) &&   (ntype(Z) == 0)) return quotetolist(quote(0));
+  return quotetolist(R);
 }
 
 
