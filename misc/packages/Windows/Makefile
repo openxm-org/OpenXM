@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.10 2002/01/06 08:47:36 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.11 2002/01/10 03:55:10 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -32,11 +32,9 @@ copy-binary-asir:
 
 win-correction: copy-binary oxasir-win.rr
 	make win-correction2 
-win-correction1:
+win-correction1: build-bat
 	-mkdir OpenXM-win/bin-windows
 	cp ${STARTEXE} OpenXM-win/bin-windows
-	cp OpenXM-win/src/asir-contrib/win/asirgui*.bat OpenXM-win/bin-windows
-	cp OpenXM-win/src/asir-contrib/win/asirgui*.bat OpenXM-win/asir/bin
 	cp /bin/cygwin1.dll OpenXM-win/bin-windows
 	cp /bin/cygwin1.dll OpenXM-win/bin
 	cp /bin/cygwin1.dll OpenXM-win/lib/sm1/bin
@@ -71,20 +69,17 @@ copy-to-orange: build-tgz
 
 oxapp : oxapp.c
 
-oxasir-win.rr.old : oxapp
-	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3
-	cat ${OpenXM_TOP}/src/kan96xx/Doc/oxasir.asir >>oxasir-win.tmp
-	./oxpp ${OpenXM_TOP}/rc/asirrc >>oxasir-win.tmp
-	./oxpp oxasir-win.tmp >oxasir-win.tmp2
-	./oxpp oxasir-win.tmp2 >oxasir-win.tmp3
-	./oxpp oxasir-win.tmp3 | ./oxapp --removeSharp >oxasir-win.rr
-#	./oxpp oxasir-win.tmp3  >oxasir-win.rr
-	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3
-
 oxasir-win.rr : oxapp oxpp oxpp2
 	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3 oxpp2.tmp1 oxpp2.tmp2
 	cat ${OpenXM_TOP}/src/kan96xx/Doc/oxasir.asir >>oxasir-win.tmp
 	cat ${OpenXM_TOP}/rc/asirrc >>oxasir-win.tmp
 	./oxpp2 oxasir-win.tmp >oxasir-win.rr
 #	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3 oxpp2.tmp1 oxpp2.tmp2
+
+build-bat:
+	-mkdir OpenXM-win/bin-windows
+	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirguid-cd.bat)
+	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat)
+	(cd debug-tools; sed -f dist.sed <websm1.bat >../OpenXM-win/bin-windows/websm1.bat)
+	cp OpenXM-win/bin-windows/asirgui-cd.bat OpenXM-win/asir/bin
 
