@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.28 2002/09/30 02:30:38 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.29 2002/09/30 13:10:05 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -18,7 +18,7 @@ usage:
 
 clean: clean-OpenXM-win clean-asir-book
 clean-OpenXM-win:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc 
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc .OpenXM-win.tgz.copy.done
 
 clean-work:
 	-rm -rf work
@@ -132,7 +132,12 @@ build-tgz: win-correction-clean
 copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
 copy-to-ftp-area: build-tgz
-	scp OpenXM-win.tgz taka@orange:/export/home01/ftp/pub/OpenXM/Head
+	if [ ! -f .OpenXM-win.tgz.copy.done ]; then \
+	  scp OpenXM-win.tgz taka@orange:/export/home01/ftp/pub/OpenXM/Head/OpenXM-win-${ASIR_LANG}.tgz ; \
+	fi
+	touch .OpenXM-win.tgz.copy.done
+copy-to-ftp-area-stable: build-tgz
+	  scp OpenXM-win.tgz taka@orange:/export/home01/ftp/pub/OpenXM/${VERSION}/OpenXM-win-${ASIR_LANG}.tgz 
 
 link-for-debug:
 	(cd ${OpenXM_TOP} ; cd bin ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
@@ -216,5 +221,5 @@ copy-to-asir-book-meadow:
 	fi
 	touch .copy-to-asir-book-meadow
 
-asir-book/index.html: Readme-CD/asir-book-index.html
-	cp Readme-CD/asir-book-index.html asir-book/index.html
+asir-book/readme.html: Readme-CD/asir-book-index.html
+	cp Readme-CD/asir-book-index.html asir-book/readme.html
