@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.2 1999/11/04 19:36:41 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.3 1999/11/12 07:46:37 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -117,7 +117,7 @@ final class OM2OXM implements Runnable{
 
     case CMO.CMO_DMS_GENERIC:
       ret += "<OMA><OMS name=\"PolyRing\" cd=\"poly\"/>";
-      ret += "<OMI>2</OMI>";
+      ret += "<OMI>2</OMI></OMA>";
       return ret;
 
     case CMO.CMO_DISTRIBUTED_POLYNOMIAL:
