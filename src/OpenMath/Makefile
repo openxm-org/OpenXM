@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.17 2000/01/19 12:59:28 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.18 2000/01/20 18:14:32 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -70,10 +70,10 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.class \
 	JP/ac/kobe_u/math/tam/OpenXM/SM.class
 
-TARGETS = OpenXM.jar OM2OXM.class OMproxy.class
+TARGETS = OM2OXM.class OMproxy.class
 
 
-all:	configure $(TARGETS)
+all:	configure OpenXM.jar $(TARGETS)
 
 
 configure:
@@ -113,5 +113,5 @@ test:
 
 OpenXM.jar:	$(PKGSRCS)
 	$(JAVAC) -d . -O $?
-	@touch $@
+	@#touch $@
 	-@#$(JAR) cf $@ $(PKGTARGETS)
