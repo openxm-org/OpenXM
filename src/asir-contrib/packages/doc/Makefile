@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.12 2000/02/11 04:31:34 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.13 2000/02/27 05:24:26 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -101,6 +101,8 @@ help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
 	cp cman-eg.texi $(EGSRCS) tmp
 	-(cd tmp; makeinfo --force cman-eg.texi)
 	(cd help-eg; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
+## duplicate some help files
+	-(cd help-eg; cp sm1_hilbert hilbert_polynomial)
 
 help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 	-rm -rf tmp help-jp
@@ -108,6 +110,8 @@ help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp/$$i; done
 	-(cd tmp; makeinfo --force cman.texi)
 	(cd help-jp; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
+## duplicate some help files
+	-(cd help-jp; cp sm1_hilbert hilbert_polynomial)
 
 help: help-eg help-jp
 
