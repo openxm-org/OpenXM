@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.40 2004/09/14 01:57:15 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.41 2004/09/14 02:02:02 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -342,12 +342,14 @@
      0 1 << set0 length 1 sub >>
      {
         /i set
-        << set0 i get >> a eq
-        {
-           /flag 1 def 
-         }
-        { }
-        ifelse
+        set0 i get tag , a tag , eq {
+          << set0 i get >> a eq
+          {
+             /flag 1 def  exit
+           }
+          { }
+          ifelse
+        } {  } ifelse
      } for
   ] pop
   /arg1 flag def
@@ -4321,6 +4323,26 @@ $ [ff ff] fromVectors :: $
  [(key usages usages-as-a-string)
   (num usages list-of-key-words)
   ([key1 key2 ... ] usages list-of-key-words  : it accepts regular expressions.)
+]] putUsages
+
+/setMinus {
+  /arg2 set /arg1 set
+  [/aa /bb /i ] pushVariables
+  [
+    /aa arg1 def /bb arg2 def
+    [
+      0 1 aa length 1 sub {
+        /i set
+        aa i get bb memberQ {
+        } { aa i get } ifelse
+      } for 
+    ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(setMinus)
+[(a b setMinus c)
 ]] putUsages
 
 ;
