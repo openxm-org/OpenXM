@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.4 1999/11/09 09:43:49 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.5 1999/11/16 00:18:30 tam Exp $
  *
  * abstract protected int DISCRIMINATOR(); - 各 CMO の cmo_tag を返す.
  * abstract protected void sendByObject(DataOutputStream os)
@@ -127,6 +127,9 @@ abstract public class CMO{
 
     case CMO_DMS_GENERIC:
       return new CMO_DMS_GENERIC().receiveByObject(is);
+
+    case CMO_RECURSIVE_POLYNOMIAL:
+      return new CMO_RECURSIVE_POLYNOMIAL().receiveByObject(is);
 
     case CMO_DISTRIBUTED_POLYNOMIAL:
       return new CMO_DISTRIBUTED_POLYNOMIAL().receiveByObject(is);

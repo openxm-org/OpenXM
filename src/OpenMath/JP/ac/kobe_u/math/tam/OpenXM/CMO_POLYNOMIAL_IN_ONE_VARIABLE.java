@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.1 1999/11/16 00:18:30 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -23,29 +23,15 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
-    CMO tmp;
     int m;
 
-    tmp = CMO.receive(is);
-    if(!(tmp instanceof CMO_INT32)){
-      System.err.println("not CMOobject");
-    }
-    m = ((CMO_INT32)tmp).intValue();
-
-    tmp = CMO.receive(is);
-    if(!(tmp instanceof CMO_INT32)){
-      System.err.println("not CMOobject");
-    }
-    variable = ((CMO_INT32)tmp).intValue();
+    m = is.readInt();
+    variable = is.readInt();
 
     degree = new int[m];
     coefficient = new CMO[m];
     for(int i=0;i<m;i++){
-      tmp = CMO.receive(is);
-      if(!(tmp instanceof CMO_INT32)){
-	System.err.println("not CMOobject");
-      }
-      degree[i] = ((CMO_INT32)tmp).intValue();
+      degree[i] = is.readInt();
       coefficient[i] = CMO.receive(is);
     }
  
