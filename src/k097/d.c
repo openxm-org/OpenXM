@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -13,7 +13,7 @@ jmp_buf KCenvOfParser;
 int DebugMode = 1;
 extern int K00_verbose;
 
-static FILE *outfile = stdout;
+static FILE *outfile;
 int Linenumber = 0;
 objectp Inop = (objectp) NULL;  /* Input stream */
 int Saki = 0;   /* Look a head */
