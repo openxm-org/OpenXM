@@ -1,9 +1,12 @@
-/*$OpenXM: OpenXM/rc/asirrc,v 1.4 2000/01/16 06:08:53 takayama Exp $*/
+/*$OpenXM: OpenXM/rc/asirrc,v 1.5 2000/01/21 00:47:09 takayama Exp $*/
 load("gr")$
 load("primdec")$
 load("katsura")$
 load("xm")$
 User_asirrc=which(getenv("HOME")+"/.asirrc")$
-if (type(User_asirrc)!=0) load(User_asirrc)$
+if (type(User_asirrc)!=0) {
+   print("Loading ~/.asirrc")$
+   load(User_asirrc)$
+}
 end$
 
