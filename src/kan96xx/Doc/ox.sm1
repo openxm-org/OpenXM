@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.7 2000/01/19 06:41:02 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.8 2000/01/19 08:33:27 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -755,13 +755,6 @@ ox.verbose {
         /getPathNameAsir.LLL goto
      } { } ifelse
 
-     %% Else first try to find it in /usr/local/lib/asir
-     [(stat) [(/usr/local/lib/asir/) fname] cat] extension
-     0 get isInteger  %% The file was found.
-     {  /fullname [(/usr/local/lib/asir/) fname] cat def
-        /getPathNameAsir.LLL goto
-     } { } ifelse
-
      %% Else try to find it in ASIR_LIBDIR
      [(getenv) (ASIR_LIBDIR)] extension /tname set
      tname isString 
@@ -774,6 +767,13 @@ ox.verbose {
  
      } {  } ifelse
      
+     %% Else try to find it in /usr/local/lib/asir
+     [(stat) [(/usr/local/lib/asir/) fname] cat] extension
+     0 get isInteger  %% The file was found.
+     {  /fullname [(/usr/local/lib/asir/) fname] cat def
+        /getPathNameAsir.LLL goto
+     } { } ifelse
+
      %% Otherwise error.
        [ (getPathNameAsir: The file )  
           fname  (ox_asir) eq
