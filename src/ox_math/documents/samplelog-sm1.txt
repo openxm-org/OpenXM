@@ -1,0 +1,81 @@
+%% $OpenXM$
+samplelog-sm1.txt  :  sm1 から, ox_math を呼び出す例.
+例題は, Mathematica Book (S.Wolfram) A Tour of Mathematica より
+とった.
+
+1999, 11/5 Fri, 11:20:
+
+[nobuki@yama nobuki]$ sm1
+
+Kan/StackMachine1                         1991 April --- 1998.
+                              Release 2.991030 (C) N. Takayama
+gc 4.14 (C) Boehm, Demers, GNU MP 2.0.2 (C) Free Software Foundation,
+Open XM. 
+This software may be freely distributed as is with no warranty expressed.
+Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp. ? for help.
+
+Ready
+
+sm1>macro package : dr.sm1,   9/26,1995 --- Version 9/8, 1999. 
+sm1>macro package : module1.sm1, 1994 -- Nov 8, 1998
+
+sm1>(ox.sm1) run ;
+ox.sm1, --- open sm1 protocol module 10/1,1999  (C) N.Takayama. oxhelp for help
+sm1>(ox_launch) usage ;
+ [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] 
+  ox_launch  client 
+Example 1: 
+ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) 
+  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) 
+ ] ox_launch /@@@.oxmath set 
+sm1> [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) 
+  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (yama.math.kobe-u.ac.jp)
+] ox_launch /@@@.oxmath set ;
+Hello from open. serverName is yama.math.kobe-u.ac.jp and portnumber is 0
+Done the initialization. port =1026
+[    4 , 1026 , 3 , 1024 ] 
+Executing the command : ssh -f tau.math.kobe-u.ac.jp -l taka "/home/taka/OpenXM/bin/oxlog  /usr/X11R6/bin/xterm -icon -e  /home/taka/OpenXM/bin/ox  -reverse -ox /home/taka/OpenXM/src/ox_math/ox_math -host yama.math.kobe-u.ac.jp -data 1026 -control 1024 -pass 269770415   "
+[ 
+taka@tau.math.kobe-u.ac.jp's password: 
+Trying to accept... Accepted.
+Trying to accept... Accepted.
+
+Control port 1024 : Connected.
+
+Stream port 1026 : Connected.
+Byte order for control process is network byte order.
+Byte order for engine process is network byte order.
+sm1>@@@.oxmath (N[Sqrt[10],40]) oxsubmit ;
+sm1>@@@.oxmath oxpopcmo ::
+$3.16227766016837933199889354443271853372$
+sm1>@@@.oxmath (FindRoot[BesselJ[0,x],{x,10.5}) oxsubmit ;
+sm1>@@@.oxmath ::
+[    $client$ , Name=Buffered IO by FILE2, FILE *=82d2000  , 1026 , 5 , 1024 , 0 , 0 , 0 , 0 , 0 , %[null] , 0 , 0 ] 
+sm1>@@@.oxmath oxpopcmo ::
+Class.indeterminate $$Failed$
+sm1>@@@.oxmath (FindRoot[BesselJ[0,x],{x,10.5}]) oxsubmit ;
+sm1>@@@.oxmath oxpopcmo ::
+[    $List$ , [    $Rule$ , Class.indeterminate $x$ , $18.071063872589566$ ]  ] 
+sm1>@@@.oxmath (NIntegrate[Sin[Sin[x]], {x,0,Pi}]) oxsubmit ;
+sm1>@@@.oxmath oxpopcmo ::
+$1.7864874819500596$
+sm1>@@@.oxmath (FactorInteger[ 20654065386]) oxsubmit ;
+sm1>@@@.oxmath oxpopcmo ::
+[    $List$ , [    $List$ , 2 , 1 ]  , [    $List$ , 3 , 2 ]  , [    $List$ , 43 , 1 ]  , [    $List$ , 26684839 , 1 ]  ] 
+
+sm1>@@@.oxmath (Plot[Sin[x^3],{x,-2,2}]) oxsubmit ;
+Plot を頼むと Mathematica は以下のような巨大なデータをおくりかえしてきて
+くれる.
+..........
+$0.058848715846176042$ , $0.00020380318568878926$ ]  , [    $List$ , $0.063925582957708782$ , $0.00026123062327715319$ ]  , [    $List$ , $0.075483797260236019$ , $0.00043009184219683475$ ]  , [    $List$ , $0.085389058362520226$ , $0.00062259645710993009$ ]  , [    $List$ , $0.094800203092095747$ , $0.00085197676453212636$ ]  , [    $List$ , $0.1124643743927272$ , $0.001422475413813041$ ]  , [    $List$ , $0.13147941741224145$ , $0.0022728613274591624$ ]  , [    $List$ , $0.15222475922816323$ , $0.0035274022435660929$ ]  , [    $List$ , $0.17456638178891035$ , $0.0053196098687267566$ ]  , [    $List$ , $0.19560281767103044$ , $0.0074837843683483452$ ]  , [    $List$ , $0.2349136621617281$ , $0.012963213138804636$ ]  , [    $List$ , $0.27724798215631957$ , $0.021309453311807332$ ]  , [    $List$ , $0.32301927231130739$ , $0.033697918471413596$ ]  , [    $List$ , $0.36298144245228797$ , $0.047806582612823653$ ]  , [    $List$ , $0.40682416150617157$ , $0.06728093428390626$ ]  , [    $List$ , $0.49531661779027614$ , $0.12122139733321755$ ]  , [    $List$ , $0.577319191041195$ , $0.19123382135485076$ ]  , [    $List$ , $0.66518232937340627$ , $0.29009067257088256$ ]  , [    $List$ , $0.83898250724819956$ , $0.55682026463112355$ ]  , [    $List$ , $0.92597335379970913$ , $0.71313087969680655$ ]  , [    $List$ , $1.0064165849354911$ , $0.85177998519206055$ ]  , [    $List$ , $1.0467183689036557$ , $0.91145412211964616$ ]  , [    $List$ , $1.0845351444477094$ , $0.95675903914962124$ ]  , [    $List$ , $1.1035191959241926$ , $0.97435028116126077$ ]  , [    $List$ , $1.1239738197801938$ , $0.98864205621250267$ ]  , [    $List$ , $1.1350366272041006$ , $0.99411754672915609$ ]  , [    $List$ , $1.14059782862615$ , $0.99622480932896185$ ]  , [    $List$ , $1.1466780326819648$ , $0.99801217555180666$ ]  , [    $List$ , $1.1518918871031776$ , $0.9991011313229109$ ]  , [    $List$ , $1.1548094669240425$ , $0.99952695300130912$ ]  , [    $List$ , $1.1574591361017637$ , $0.99979730104303988$ ]  , [    $List$ , $1.1626173398883621$ , $0.99999976249588263$ ]  , [    $List$ , $1.167484562435281$ , $0.99978970359145969$ ]  , [    $List$ , $1.1723357744205902$ , $0.99918289320997544$ ]  , [    $List$ , $1.1775447829536554$ , $0.99807854960111486$ ]  , [    $List$ , $1.1824617391562282$ , $0.99659548150788801$ ]  , [    $List$ , $1.1869521986730704$ , $0.99485858038227182$ ]  , [    $List$ , $1.1979348243966028$ , $0.98902406922202202$ ]  , [    $List$ , $1.2083558624748583$ , $0.98132703485916639$ ]  , [    $List$ , $1.2190984883554299$ , 
+......
+
+sm1>
+@@@.oxmath (Integrate[x/(1-x^3),x]) oxsubmit ;
+sm1>@@@.oxmath oxpopcmo ::
+[    $Plus$ , [    $Times$ , -1 , [    $Power$ , 3 , [    $Rational$ , -1 , 2 ]  ]  , [    $ArcTan$ , [    $Times$ , [    $Power$ , 3 , [    $Rational$ , -1 , 2 ]  ]  , [    $Plus$ , 1 , [    $Times$ , 2 , Class.indeterminate $x$ ]  ]  ]  ]  ]  , [    $Times$ , [    $Rational$ , -1 , 3 ]  , [    $Log$ , [    $Plus$ , -1 , Class.indeterminate $x$ ]  ]  ]  , [    $Times$ , [    $Rational$ , 1 , 6 ]  , [    $Log$ , [    $Plus$ , 1 , Class.indeterminate $x$ , [    $Power$ , Class.indeterminate $x$ , 2 ]  ]  ]  ]  ] 
+
+sm1>@@@.oxmath ( <<Polyhedra.m ) oxsubmit ;
+sm1>@@@.oxmath oxpopcmo ::
+Class.indeterminate $$Failed$   ファイルは読み込めない.
+
