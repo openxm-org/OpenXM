@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/util/Makefile,v 1.12 2003/11/17 03:00:59 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile,v 1.13 2003/12/01 11:21:09 takayama Exp $
 OpenXM_ROOT=../../../OpenXM
 OpenXM_bin=$(OpenXM_ROOT)/bin
 OpenXM_lib=$(OpenXM_ROOT)/lib
@@ -25,12 +25,12 @@ test: ox_pathfinder.o test.c
 install: all
 	@if [ ! -f ./.install_done ] ; then \
 	echo "Installing oxweave, oxreplace, libox_pathfinder.a, ox_pathfinder.h oxfetch.sh" ; \
-	install oxweave oxreplace ${OpenXM_bin} ; \
-	install oxweave ${OpenXM_ROOT}/src/kxx ; \
+	install -c -s oxweave oxreplace ${OpenXM_bin} ; \
+	install -c -s oxweave ${OpenXM_ROOT}/src/kxx ; \
 	cp -f libox_pathfinder.a ${OpenXM_lib}  ; \
 	cp -f ox_pathfinder.h ${OpenXM_include} ; \
-	install lndir.sh ${OpenXM_bin} ; \
-	install oxfetch.sh ${OpenXM_bin} ; \
+	install -c lndir.sh ${OpenXM_bin} ; \
+	install -c oxfetch.sh ${OpenXM_bin} ; \
 	touch ./.install_done ; \
 	fi
 
