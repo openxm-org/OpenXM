@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.c,v 1.2 2003/11/20 03:25:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.c,v 1.3 2003/11/20 06:04:04 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -32,6 +32,7 @@ static int PMdebug = 0;
 */
 static char *putstr(int c);
 static char *putstr2(int c);
+static char *putstr2s(char *s);
 
 char *pmPutstr(int c) {
   return putstr(c);
@@ -127,7 +128,7 @@ static char *putstr2(int c) {
 	pt = 0; s[pt] = 0;
 	return s;
   }
-  if (s == NULL) putstr(-1);
+  if (s == NULL) putstr2(-1);
   if (pt < limit-1) {
 	s[pt++]=c; s[pt]=0;
 	return s;
@@ -139,8 +140,16 @@ static char *putstr2(int c) {
 	for (i=0; i<=pt; i++) {
 	  s[i] = old[i];
 	}
-	return putstr(c);
+	return putstr2(c);
   }
+}
+static char *putstr2s(char *s) {
+  int i;
+  char *ss;
+  for (i=0; i<strlen(s); i++) {
+	ss = putstr2(s[i]);
+  }
+  return ss;
 }
 
 pmPreprocess() {
@@ -201,6 +210,7 @@ pmPreprocess() {
   }
 }	  
 
+/* --------------- pmObjects --------------------- */
 pmObjectp pmNewStrObject(char *s) {
   pmObjectp ob;
   ob = (pmObjectp) mymalloc(sizeof(struct pmObject));
@@ -323,36 +333,48 @@ pmObjectp pmAddChild(pmObjectp c,pmObjectp a) {
 warning_yylex_polymake(char *s) {
   fprintf(stderr,"Warning: %s",s);
 }
+
 void pmPrintObject(FILE *fp,pmObjectp p) {
+  fprintf(fp,"%s",pmObjectToStr(p));
+}
+char *pmObjectToStr(pmObjectp p) {
+  char *s;
+  s=putstr2(-1);
+  s=pmObjectToStr_aux(p);
+  return putstr2(0);
+}
+char *pmObjectToStr_aux(pmObjectp p) {
   int n,i;
   struct pmList *list;
   struct pmList *t;
   struct pmTree *tree;
+  char *ans;
   if (p == NULL) {
 	/* fprintf(stderr,"NULL "); */
-	return;
+	return putstr2s("[]");
   }
   /* fprintf(stderr,"tag=%d ",p->tag); */
   switch (p->tag) {
   case PMobject_str:
-	fprintf(fp,"%s",(char *)(p->body));
+    ans=putstr2s((char *)(p->body));
 	break;
   case PMobject_list:
 	list = (struct pmList *)(p->body);
 	if (list == NULL) break;
 	n = pmListLength(list);
 	t = list;
-	fprintf(fp,"[");
+	ans=putstr2s("[");
 	for (i=0; i<n; i++) {
-	  pmPrintObject(fp,t->left);
-	  if (i != n-1) fprintf(fp,",");
+	  ans=pmObjectToStr_aux(t->left);
+	  if (i != n-1) ans=putstr2s(",");
 	  if (t == NULL) break; else t = t->right;
 	}
-	fprintf(fp,"]");
+	ans=putstr2s("]");
 	break;
   case PMobject_tree:
 	tree = p->body;
-	fprintf(fp,"polymake.%s(",tree->nodeName);
+	ans=putstr2s("polymake."); ans=putstr2s(tree->nodeName);
+    ans=putstr2s("(");
 	/* Ignore attribute list */
 	if (tree->childs == NULL) {n = 0; t = NULL; }
 	else {
@@ -360,18 +382,17 @@ void pmPrintObject(FILE *fp,pmObjectp p) {
 	  n = pmListLength(t);
 	}
 	for (i=0; i<n; i++) {
-	  pmPrintObject(fp,t->left);
+	  ans=pmObjectToStr_aux(t->left);
 	  t = t->right;
-	  if (i != n-1) fprintf(fp,",");
+	  if (i != n-1) ans=putstr2(',');
 	}
-	fprintf(fp,")");
+	ans = putstr2s(")");
 	break;
   default:
 	fprintf(stderr,"Unknown object tag %d.\n",p->tag);
 	/* sleep(100);  to call debugger. */
 	break;
   }
+  return ans;
 }
 
-PMerror() {
-}

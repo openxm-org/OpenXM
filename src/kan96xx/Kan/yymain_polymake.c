@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yymain_polymake.c,v 1.2 2003/11/20 06:04:40 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
@@ -45,4 +45,7 @@ main() {
 
 sGC_malloc(int n) {
   return GC_malloc(n);
+}
+
+PMerror() {
 }
