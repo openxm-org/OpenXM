@@ -1,0 +1,101 @@
+/* $OpenXM$  */
+/* Documents are written in plucker.oxweave
+   ox_help("plucker_relation"|form="tex");
+   ox_help("plucker_relation"|form="abstract");
+   ox_help("plucker_relation"|form="xml");
+   plucker_relation(2,4|help="abstract");
+*/
+
+def taka_indexed_variable(V,L) {
+  for (I=0; I<length(L); I++) {
+    V += "_"+rtostr(L[I]);
+  }
+  return strtov(V);
+}
+
+def taka_plucker_y(L) {
+  S = 1;
+  N = length(L);
+  L = newvect(N,L);
+  /* Do the buble sort to get the sign. */
+  for (I=0; I<N; I++) {
+    for (J=N-1; J>I; J--) {
+       if (L[J-1] > L[J]) {
+         S = S*(-1);
+         T = L[J-1];
+         L[J-1]=L[J];
+         L[J] = T;
+       }
+    }
+  }
+  L = vtol(L);
+  return S*taka_indexed_variable("y",L); 
+}
+def taka_plucker_y_s(L) {
+  S = 1;
+  N = length(L);
+  L = newvect(N,L);
+  /* Do the buble sort to get the sign. */
+  for (I=0; I<N; I++) {
+    for (J=N-1; J>I; J--) {
+       if (L[J-1] > L[J]) {
+         S = S*(-1);
+         T = L[J-1];
+         L[J-1]=L[J];
+         L[J] = T;
+       }
+    }
+  }
+  L = vtol(L);
+  return [S,taka_indexed_variable("y",L)]; 
+}
+
+def taka_plucker_relation(II,JJ) {
+  M = length(II);
+  M2 = length(JJ);
+  if (M2-M != 2) {
+    error("II and JJ are not properly given for plucker_relation.");
+    return("error");
+  }
+  F = 0;
+  for (K=0; K<=M+1;K++) {
+    S = (-1)^K;
+    V = taka_plucker_y_s(append(II,[JJ[K]]));
+    T = quote_to_quote(V[1]); S *= V[0];
+
+    JJ2 = newvect(M+1);
+    for (I=0,J=0; I<=M+1; I++) {
+      if (I != K) {
+        JJ2[J] = JJ[I]; J++;
+      }
+    }
+
+    V = taka_plucker_y_s(vtol(JJ2));
+    T = T*quote_to_quote(V[1]); S *= V[0];
+    if ( S > 0) {
+      F += T;
+    }else{
+      F -= T;
+    }
+  }
+  return F;
+}
+
+
+def taka_plucker_test1() {
+  /* (3,6) */
+  L = [ ];  L2 = [ ]; V = [ ];
+  U = [1,2,3,4,5,6];
+  for (I=1; I<6; I++) {
+    for (J=I+1; J<=6; J++) {
+      S = [I,J];
+      F = taka_plucker_relation(S,base_set_minus(U,S));  L = append(L,[F]);
+      F2 = eval_str(print_terminal_form(F));             L2 = append(L2,[F2]);
+      V  = base_set_union(V,vars(F2));
+    }
+  }
+  return [L,L2,V];
+}
+
+
+end$

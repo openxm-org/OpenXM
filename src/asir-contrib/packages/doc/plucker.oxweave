@@ -1,0 +1,73 @@
+@c $OpenXM$
+
+/*&ja
+@node Plucker relations,,, Top
+@chapter Plucker 関係式(標準数学函数)
+
+*/
+
+/*&en
+@node Plucker relations,,, Top
+@chapter Plucker Relations (Standard Mathematical Functions)
+
+*/
+
+/*&C
+@menu
+* plucker::
+* plucker_y::
+@end menu
+*/
+
+/*&ja
+@node plucker,,, Plucker relations 
+@subsection plucker
+@findex plucker
+@tex
+$(m+1) \times n$ 行列を考える.
+$i_1, \ldots, i_m, j_k$ 列をならべてつくった正方行列式を
+$p_{i_1 \cdots i_m j_k}$ と書くとき, 
+Pl\"ucker の関係式は
+$$ \sum_{k=0}^{m+1} (-1)^k
+  p_{i_1 \cdots i_m j_k}
+  p_{j_0 \cdots {\hat j}_k \cdots j_{m+1}} = 0$$
+と書ける.
+このパッケージでは, この Pl\"ucker の関係式を扱うための
+関数を提供する.
+@end tex
+*/
+
+
+/*&en
+
+Not yet written
+
+*/
+
+/*&ja
+@node plucker_y,,, Plucker relation
+@subsection @code{plucker_y}
+@findex plucker_y
+@table @t
+@item plucker_y(@var{L})
+::  Index 集合 @var{L} に対応する変数を戻す.
+@end table
+@table @var
+@item return
+変数
+@item L
+リスト
+@end table
+@itemize @bullet
+@item  Index 集合 @var{L} は小さい順にソートされる.
+このとき符号もともに計算される.
+@end itemize
+@example
+[297] plucker_y([1,2,3]);
+y_1_2_3
+
+[298] plucker_y([2,1,3]);
+-y_1_2_3
+
+@end example
+*/

@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.18 2001/06/24 10:26:43 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.19 2001/07/11 01:00:22 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -34,6 +34,14 @@ names-ja.texi : names.oxweave
 names-en.texi : names.oxweave
 	/bin/rm -f names-en.texi
 	$(OXWEAVE) C en  <names.oxweave >names-en.texi
+
+plucker-ja.texi : plucker.oxweave
+	/bin/rm -f plucker-ja.texi
+	$(OXWEAVE) C ja  <plucker.oxweave >plucker-ja.texi
+
+plucker-en.texi : plucker.oxweave
+	/bin/rm -f plucker-en.texi
+	$(OXWEAVE) C en  <plucker.oxweave >plucker-en.texi
 
 hypergeometric-ja.texi : hypergeometric.oxweave
 	/bin/rm -f hypergeometric-ja.texi
@@ -242,5 +250,5 @@ clean-document :
 
 
 clean :
-	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi
+	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi
 	/bin/rm -rf help-jp help-eg tmp tmp-ja html-en html-ja
