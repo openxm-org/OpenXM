@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.7 2004/03/16 03:26:40 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.8 2004/03/16 04:53:29 ohara Exp $
 
 (define (openxm-eval t)
   (import-from (texmacs plugin plugin-cmd))
@@ -19,9 +19,9 @@
 (define w3m-cmd
   (cond 
    ((url-exists-in-path? "w3m")
-	(cond ((url-exists-in-path? "rxvt")  "rxvt  -g 100x50 -e w3m")
-		  ((url-exists-in-path? "xterm") "xterm -g 100x50 -e w3m")
-		  (else #f)))
+    (cond ((url-exists-in-path? "rxvt")  "rxvt  -g 100x50 -e w3m")
+          ((url-exists-in-path? "xterm") "xterm -g 100x50 -e w3m")
+          (else #f)))
    ((url-exists-in-path? "mozilla" ) "mozilla" )
    ((url-exists-in-path? "netscape") "netscape")
    ((url-exists-in-path? "iexplore") "iexplore")
