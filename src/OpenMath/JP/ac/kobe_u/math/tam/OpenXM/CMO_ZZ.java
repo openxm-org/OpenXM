@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.2 1999/11/07 21:22:03 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -20,11 +20,11 @@ public class CMO_ZZ extends CMO{
   }
 
   public int intValue(){
-	return num.intValue();
+    return num.intValue();
   }
 
   public BigInteger BigIntValue(){
-	return num;
+    return num;
   }
 
   public int DISCRIMINATOR(){
@@ -41,31 +41,36 @@ public class CMO_ZZ extends CMO{
   }
 
   protected CMO receiveByObject(DataInputStream is) throws IOException{
-	int len;
-	byte[] bignum;
+    int len;
+    byte[] bignum;
 
-	len = 4 * is.readInt();
-	bignum = new byte[Math.abs(len)];
-	is.readFully(bignum,0,Math.abs(len));
+    len = is.readInt();
+    bignum = new byte[4 * Math.abs(len)];
+    for(int i=Math.abs(len);--i>=0;){
+      is.readFully(bignum,i*4,4);
+    }
 
-	num = new BigInteger(sign(len),bignum);
+    num = new BigInteger(sign(len),bignum);
 
-	return this;
+    return this;
   }
 
   public void sendByObject(DataOutputStream os) throws IOException{
-	int len = (this.num.bitLength()+7)/8;
-	byte[] bignum = this.num.abs().toByteArray();
+    int len = (this.num.bitLength()+7)/8;
+    byte[] bignum = this.num.abs().toByteArray();
 
     //System.out.println(""+ len +":"+ bignum.length +":"+ bignum[0]);
     if(len==0){
       os.writeInt(0);
     }else{
-      os.writeInt((Math.abs(len)+3)/4*sign(len));
-	  for(int i=0;i<(4-Math.abs(len)%4)%4;i++){
-		os.write(0);
-	  }
-      os.write(bignum);
+      os.writeInt((len+3)/4*(this.num.signum()));
+      for(int i=len;(i-=4)>=0;){
+	os.write(bignum,i,4);
+      }
+      for(int i=0;i<(4-len%4)%4;i++){
+	os.write(0);
+      }
+      os.write(bignum,0,len%4);
     }
   }
 
