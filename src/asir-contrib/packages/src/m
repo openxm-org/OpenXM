@@ -1,7 +1,7 @@
 /*&jp \documentclass{jarticle}
 \begin{document}
 */
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.2 1999/12/10 01:58:03 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.3 1999/12/11 06:49:14 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -35,11 +35,10 @@ def m_find_proc() {
 この節では Mathematica の ox サーバ @code{ox_math}
 とのインタフェース関数を解説する.
 これらの関数はファイル  @file{m} で定義されているのでこのファイルを
-ロードしてから使用する必要がある.
-@file{m} は @file{$(OpenXM_HOME)/lib/asir/contrib/packages/src} にある.
-たとえば @code{$(OpenXM_HOME)/rc/bashrc} などで環境変数の設定をしてあれば
-このディレクトリが @code{ASIRLOADPATH} にはいっているので,
-@code{load("m")$} でこのファイルをロードできる.
+@code{load("m")$} でこのファイルをロードしてから使用しないといけない.
+@file{m} は @file{$(OpenXM_HOME)/lib/asir-contrib} にある.
+
+注意: @code{ox_reset} は動かない.
 */
 /*&eg-texi
 @node Mathematica Functions,,, Top
@@ -49,12 +48,10 @@ This chapter describes  interface functions for
 Mathematica ox server @code{ox_math}.
 These interface functions are defined in the file @file{m}.
 You need to load the file before using the interface functions.
-The file @file{m} is at @file{$(OpenXM_HOME)/lib/asir/contrib/packages/src}.
-If you set environmental varialbes by the shell script
-@code{$(OpenXM_HOME)/rc/bashrc},
-this directory will be in the
-@code{ASIRLOADPATH} and you can load the file by the command
-@code{load("m")$}.
+by the command @code{load("m")$}.
+The file @file{m} is at @file{$(OpenXM_HOME)/lib/asir-contrib}.
+
+Note: @code{ox_reset} does not work.
 */
 /*&C-texi
 @example

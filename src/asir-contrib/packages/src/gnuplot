@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.3 1999/12/11 06:49:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.4 2000/01/20 09:34:38 takayama Exp $ */
 
 Gnuplot_proc = -1$
 #define GNUPLOT_FIND_PROC(P)  P = getopt(proc);\
@@ -303,13 +303,11 @@ String
 [234] gnuplot("plot [-pi:pi] [-2:2] cos(x);");
 0
 *Output a graph as a postscript figure.
-[235] gnuplot("set terminal postscript eps color");
+[235] gnuplot_output(|file="hoge.eps");
 0
-[236] gnuplot("set output \"hoge.eps\"");
+[236] gnuplot("plot sin(x)*cos(x);");
 0
-[237] gnuplot("plot sin(x)*cos(x);");
-0
-[238] gnuplot(" set terminal x11");
+[237] gnuplot(|file="x11");
 0
 
 *Plot 3 dimensional graph hiding unvisible lines.
@@ -638,6 +636,107 @@ def heat(K,M) {
     A = B;
   }
 }
+
+def gnuplot_output() {
+  GNUPLOT_FIND_PROC(P) ;
+  T = getopt(file); 
+  if (type(T) == -1 || type(T) != 7) {
+       print("Usage of gnuplot_output: gnuplot_output(|file=\"string\")")$
+       print("                         gnuplot_output(|file=\"x11\")")$
+       print("Output device is set to X11")$
+	   gnuplot("set terminal x11" | proc=P);
+       return(0);
+  }
+  if (T == "x11") {
+       print("Output device is set to X11")$
+	   gnuplot("set terminal x11" | proc=P);
+	   return(0);
+  }
+  gnuplot("set terminal postscript eps color"| prec=P);
+  gnuplot("set output \""+T+"\"" | prec=P);
+  print("Graphic output of GNUPLOT will be written to "+T+" as a Poscript file.");
+  return(0);
+}
+
+
+/*&eg-texi
+@menu
+* gnuplot_output::
+@end menu
+@node gnuplot_output,,, GNUPLOT Functions
+@subsection @code{gnuplot_output}
+@findex gnuplot_output
+@table @t
+@item gnuplot_output(|@var{file=s})
+::  ask @code{GNUPLOT} to output graphic to the file @var{s} in the Postscript format.
+@end table
+
+@table @var
+@item return
+Void
+@item s
+String
+@end table
+
+@itemize @bullet
+@item ask @code{GNUPLOT} to output graphic to the file @var{s} in the Postscript format.
+@item When @code{s} is "x11" or this function is called without the argument, 
+the output will be written to X11 display.
+@end itemize
+*/
+/*&jp-texi
+@menu
+* gnuplot_output::
+@end menu
+@node gnuplot_output,,, GNUPLOT 関数
+@subsection @code{gnuplot_output}
+@findex gnuplot_output
+@table @t
+@item gnuplot_output(|@var{file=s})
+::  @code{GNUPLOT} にファイル @var{s} へポストスクリプトで出力するように頼む.
+@end table
+
+@table @var
+@item return
+Void
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  @code{GNUPLOT} にファイル @var{s} へポストスクリプトで出力するように頼む.
+@item @code{s} が "x11" または, この関数を引数無しでよぶと,
+以後, X11 の display に graphics が出力される.
+@end itemize
+*/
+
+/*&C-texi
+@example
+[273] gnuplot_output(|file="hoge.eps");
+Graphic output of GNUPLOT will be written to hoge.eps as a Poscript file.
+0
+[274] gnuplot("plot tan(x)+sin(x);");
+0
+[275] gnuplot_output();
+Usage of gnuplot_output: gnuplot_output(|file="string")
+                         gnuplot_output(|file="x11")
+Output device is set to X11
+@end example
+*/
+
+/*&eg-texi
+@table @t
+@item Reference
+    @code{gnuplot}
+@end table
+*/
+/*&jp-texi
+@table @t
+@item 参照 
+    @code{gnuplot}
+@end table
+*/
+
 
 
 end$
