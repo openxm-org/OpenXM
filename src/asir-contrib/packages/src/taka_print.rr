@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.14 2001/08/25 04:39:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.15 2001/08/26 09:50:28 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -509,7 +509,7 @@ def taka_png_form(S) {
   File0 = F[1];
   File = F[0];
   /* BUG: it does not work for now. We need png, too */
-  shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scape 2 "+File0+".ps ) ");
+  shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scale 2 "+File0+".ps ) ");
   return [File0+".png",F[1],F[2],F[3]];
 }
 

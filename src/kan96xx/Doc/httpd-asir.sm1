@@ -1,11 +1,10 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.13 2001/08/23 00:49:00 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.14 2001/08/23 02:08:41 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
 
 /httpd.port 1200 def
 /httpd.image.name (kobeuniv2.jpg) def
-/httpd.image.type (jpeg) def
 
 /httpd.initialization
 %% Put initialization codes here.
@@ -247,7 +246,7 @@ def
         %% BUG: index is out of bound. httpd.result.history nn get message
 
         oxasir.ccc
-        [$print_gif_form(Oxserver_history_variable_$
+        [$print_$ httpd.image.type $_form(Oxserver_history_variable_$
          nn toString
          $);$
         ] cat
@@ -256,7 +255,7 @@ def
         dup 0 get /err set
             1 get /fn set
         err [ ] eq {
-           fn 0 get (gif) send-image          
+           fn 0 get httpd.image.type send-image          
         } {
            [err preformatHTML] cat
            send-page-3

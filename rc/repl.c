@@ -1,13 +1,21 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.2 2000/01/19 06:10:33 noro Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.3 2000/01/20 02:34:49 noro Exp $ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 
 #define BUFSIZE 10000
-main() {
+main(int argc,char *argv[]) {
   char s[BUFSIZE];
   char cwd[BUFSIZE];
   char *slash;
+  char type = 'b';
+  FILE *fp;
+
+  if (argc >= 2) {
+	if (strcmp(argv[1],"csh")==0) {
+	  type = 'c';
+	}
+  }
 
   getcwd(cwd,BUFSIZE);
   slash = strrchr(cwd,'/');
@@ -21,6 +29,36 @@ main() {
 	  printf("%s",s);
 	}
   }
+
+  /* Configuring environmental variables. */
+  /* Check if pstoimg (src/asir-contrib) supports png format. */
+  fp = fopen("/tmp/repl_test.ps","w");
+  if (fp == NULL) {
+	fprintf(stderr,"Open error of /tmp/repl_test.ps\n");
+	exit(10);
+  }
+  fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
+  fprintf(fp," 390 290 moveto  (F) show \n");
+  fprintf(fp,"showpage \n");
+  fclose(fp);
+  if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.png >/dev/null")) {
+	if (type == 'b') {
+	  printf("export OpenXM_PSTOIMG_TYPE=png\n");
+	}else{
+	  printf("setenv OpenXM_PSTOIMG_TYPE png\n");
+	}
+  }else if (!system("pstoimg -type gif /tmp/repl_test.ps -out /tmp/repl_test.gif >/dev/null")) {
+	if (type == 'b') {
+	  printf("export OpenXM_PSTOIMG_TYPE=gif\n");
+	}else{
+	  printf("setenv OpenXM_PSTOIMG_TYPE=gif\n");
+	}
+  }else {
+	printf("export OpenXM_PSTOIMG_TYPE=no\n");
+  }
+  /* system("rm -f /tmp/repl_test.*"); */
+
+  
   exit(0);
 }
 
