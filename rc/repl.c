@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.4 2001/08/29 11:18:58 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.5 2001/09/18 08:29:26 takayama Exp $ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -58,7 +58,7 @@ main(int argc,char *argv[]) {
 	printf("OpenXM_PSTOIMG_TYPE=no\n");
 	printf("export OpenXM_PSTOIMG_TYPE\n");
   }
-  /* system("rm -f /tmp/repl_test.*"); */
+  system("rm -f /tmp/repl_test.*");
 
   
   exit(0);
