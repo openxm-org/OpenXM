@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.29 2002/09/30 13:10:05 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.30 2002/09/30 23:32:13 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -14,7 +14,7 @@ usage:
 	@echo "         remove-experimental gen-cd"
 	@echo "  The target all, gen-cd builds the directory OpenXM-win" 
 	@echo "Other targets: win-correction3, build-bat"  
-	@echo "               asir-book "
+	@echo "               asir-book, copy-asir-book-to-ftp-area "
 
 clean: clean-OpenXM-win clean-asir-book
 clean-OpenXM-win:
@@ -179,7 +179,7 @@ gen-cd:
 
 asir-book: mkdir-asir-book copy-to-asir-book
 clean-asir-book:
-	-rm -rf asir-book .copy-to-asir-book-asir-bin .copy-to-asir-book-prog .copy-to-asir-book-meadow
+	-rm -rf asir-book .copy-to-asir-book-asir-bin .copy-to-asir-book-prog .copy-to-asir-book-meadow asir-book-en.tgz asir-book-ja.tgz
 
 mkdir-asir-book: 
 	-(mkdir asir-book)
@@ -187,7 +187,7 @@ mkdir-asir-book:
 	-(mkdir asir-book/Meadow)
 	-(mkdir asir-book/Prog)
 
-copy-to-asir-book:  copy-to-asir-book-asir-bin copy-to-asir-book-prog copy-to-asir-book-meadow asir-book/index.html
+copy-to-asir-book:  copy-to-asir-book-asir-bin copy-to-asir-book-prog copy-to-asir-book-meadow asir-book/readme-ja.html
 
 copy-to-asir-book-asir-bin:  copy-binary-asir
 	-if [ ! -f .copy-to-asir-book-asir-bin ]; then  \
@@ -221,5 +221,12 @@ copy-to-asir-book-meadow:
 	fi
 	touch .copy-to-asir-book-meadow
 
-asir-book/readme.html: Readme-CD/asir-book-index.html
-	cp Readme-CD/asir-book-index.html asir-book/readme.html
+asir-book/readme-ja.html: Readme-CD/asir-book-index.html
+	cp Readme-CD/asir-book-index.html asir-book/readme-ja.html
+
+copy-asir-book-to-ftp-area: asir-book-${ASIR_LANG}.tgz
+	scp asir-book-${ASIR_LANG}.tgz taka@orange:/export/home01/ftp/pub/OpenXM/asir-book
+asir-book-${ASIR_LANG}.tgz: asir-book 
+	tar czvf asir-book-${ASIR_LANG}.tgz --exclude Meadow asir-book
+
+

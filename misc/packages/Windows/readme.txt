@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.2 2002/07/28 08:10:24 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.3 2002/08/10 07:05:48 takayama Exp $
 
 
 THIS IS A NOTE FOR DEVELOPPERS.
@@ -14,11 +14,26 @@ In order to build asir on cygwin, set the following path.
    Copy OpenXM-win to the root of your CD.
 
 
-   NOTE: make ASIR_LANG=en    (generating English version of CD)
+   NOTE: make ASIR_LANG=en  all (generating English version of CD)
          asirbinary for windows will be downloaded from ftp.math.kobe-u.ac.jp
 <2>
    make build-tgz
    make binary-tgz
    You will get OpenXM-win.tgz
 
+<3>  pub/OpenXM/Head/OpenXM-win-en.tgz
+ [make clean-work]  ## To remove windows binary at the work area.
+  make clean
+  make ASIR_LANG=en all ; make ASIR_LANG=en copy-to-ftp-area
+
+<3'>  pub/OpenXM/Head/OpenXM-win-ja.tgz
+ [make clean-work]  ## To remove windows binary at the work area.
+  make clean
+  make all ; make copy-to-ftp-area
+
+<4>  pub/OpenXM/asir-book/asir-book-ja.tgz
+ [make clean-work]  ## To remove windows binary at the work area.
+  make clean
+  make all
+  make copy-asir-book-to-ftp-area
 
