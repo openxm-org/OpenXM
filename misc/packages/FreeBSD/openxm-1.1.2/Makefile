@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.6 2000/03/04 11:03:35 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.7 2000/03/05 06:11:54 takayama Exp $
 
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
@@ -16,9 +16,16 @@
 
 # Modify this. It's for committers.
 OpenXM_TOP=$(HOME)
-# Modify this.  It's for committters.
-RCVS=mycvs -d kerberos.math.kobe-u.ac.jp:/usr/cvs
+## For committers: prepare cvs-OpenXM under your search path 
+## to access to CVS servers.
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
+### cvs-OpenXM is the following shell script
+## #!/bin/sh
+## CVS_RSH=ssh
+## export CVS_RSH
+## cvs $*
 #
+
 TAR_WORK=$(HOME)/tmp
 
 srcdir = .
@@ -33,7 +40,7 @@ usage:
 	@echo "e.g., make install PREFIX=/usr/local"
 	@echo "For committers: make-tar-ball, make-tar-ball-from-local-OpenXM"
 	@echo "                generate-symbolic-links, clean-this-directory"
-	@echo " make-tar-ball : create openxm-1.1.2.tar.gz under $TAR_WORK"
+	@echo " make-tar-ball : create openxm-1.1.2.tar.gz under $(TAR_WORK)"
 
 configure :
 	(cd $(srcdir)/OpenXM/src ;	make configure )
@@ -62,7 +69,7 @@ make-tar-ball :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2
 	$(RCVS) export -rHEAD OpenXM OpenXM_contrib OpenXM_contrib2
 	rm -f *~
-	echo "Creating a tar ball under $TAR_WORK"
+	echo "Creating a tar ball under $(TAR_WORK)"
 	(cd .. ; tar czf ${TAR_WORK}/openxm-1.1.2.tar.gz openxm-1.1.2)
 	rm -rf openxm
 	mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm

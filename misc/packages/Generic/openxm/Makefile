@@ -1,10 +1,16 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.2 2000/03/05 02:29:51 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.3 2000/03/05 06:11:56 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
-## For committers: prepare mycvs under your search path 
+## For committers: prepare cvs-OpenXM under your search path 
 ## to access to CVS servers.
-RCVS=mycvs -d kerberos.math.kobe-u.ac.jp:/usr/cvs
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
+### cvs-OpenXM is the following shell script
+## #!/bin/sh
+## CVS_RSH=ssh
+## export CVS_RSH
+## cvs $*
+
 TYPE=`uname -s`-`uname -m`
 
 ## OpenXM Version Number.

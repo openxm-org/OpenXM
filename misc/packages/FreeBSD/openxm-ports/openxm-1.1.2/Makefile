@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.12 2000/03/05 06:11:55 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.13 2000/03/05 08:10:49 takayama Exp $
 
 ## For debugging. 
 #TAR_WORK=$(HOME)/tmp
@@ -32,6 +32,7 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 				texi2html:${PORTSDIR}/textproc/texi2html \
                 /usr/local/jdk1.1.8/bin/javac:${PORTSDIR}/java/jdk \
 				bash:${PORTSDIR}/shells/bash2 \
+			    autoconf:${PORTSDIR}/devel/autoconf \
 #				xdvi:${PORTSDIR}/japanese/xdvik-vflib \
 ### Note:
 ### In order to make dvips work, you need to modify 
