@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.1.1.1 2000/03/02 10:32:39 takayama Exp $
 
 ## For debugging.  Put openxm-1.1.2.tar.gz at DISTDIR
 DISTDIR=$(HOME)/tmp
@@ -25,7 +25,7 @@ RUN_DEPENDS=
 post-install :
 # Reguild shell files to start binaries and copy it to ${PREFIX}/bin
 #    Modify pkg/INSTALL, too.
-	(cd $(PREFIX)/OpenXM/rc ; make clean ; make install PREFIX=$(PREFIX))
+	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
 	-gzip ${PREFIX}/man/man1/*
 	echo "Take asir key following the instruction appearing in the starting message of asir."

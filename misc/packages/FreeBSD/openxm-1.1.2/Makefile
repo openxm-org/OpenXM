@@ -1,11 +1,10 @@
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.1.1.1 2000/03/02 10:32:39 takayama Exp $
 
 # Modify this.
 OpenXM_TOP=$(HOME)
 # Modify this.  It's for committters.
 RCVS=mycvs -d kerberos.math.kobe-u.ac.jp:/usr/cvs
 
-PREFIX=/usr/local
 srcdir = .
 prefix=${PREFIX}
 MAN_DIR=${prefix}/man/man1
@@ -14,6 +13,8 @@ OpenXM_BINARIES=gnuplot4ox gnuplot_x11 k0 ox ../lib/asir/asir ox_sm1 oxlog oxwea
 
 usage:
 	@echo "Targets are all, install, clean, distclean"
+	@echo "You need to specify the PREFIX to install,"
+	@echo "e.g., make install PREFIX=/usr/local"
 	@echo "For committers: make-tar-ball, make-tar-ball-from-local-OpenXM"
 	@echo "                generate-symbolic-links, clean-this-directory"
 	@echo " make-tar-ball : create openxm-1.1.2.tar.gz under ~/tmp"
@@ -46,9 +47,7 @@ make-tar-ball :
 	$(RCVS) export -rHEAD OpenXM OpenXM_contrib OpenXM_contrib2
 	rm -f *~
 	echo "Creating a tar ball under ~/tmp/"
-	cd ..
-	tar czf $(HOME)/tmp/openxm-1.1.2.tar.gz openxm-1.1.2
-	cd openxm-1.1.2
+	(cd .. ; tar czf $(HOME)/tmp/openxm-1.1.2.tar.gz openxm-1.1.2)
 
 make-tar-ball-from-local-OpenXM :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2
