@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.3 1999/12/10 09:17:49 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.4 1999/12/11 06:49:15 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
 Sm1_proc = -1$
@@ -1614,6 +1614,100 @@ def sm1_reduction(A) {
   return(sm1_pop(P));
 }
 
+/*&eg-texi
+@menu
+* sm1_xml_tree_to_prefix_string::
+@end menu
+@node sm1_xml_tree_to_prefix_string,,, SM1 Functions
+@subsection @code{sm1_xml_tree_to_prefix_string}
+@findex sm1_xml_tree_to_prefix_string
+@table @t
+@item sm1_xml_tree_to_prefix_string(@var{s}|proc=@var{p})
+:: Translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
+@end table
+
+@table @var
+@item return
+String
+@item p
+Number
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  It translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
+@item This function should be moved to om_* in a future.
+@end itemize
+*/
+/*&jp-texi
+@menu
+* sm1_xml_tree_to_prefix_string::
+@end menu
+@node sm1_xml_tree_to_prefix_string,,, SM1 函数
+@subsection @code{sm1_xml_tree_to_prefix_string}
+@findex sm1_xml_tree_to_prefix_string
+@table @t
+@item sm1_xml_tree_to_prefix_string(@var{s}|proc=@var{p})
+:: Translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
+@end table
+
+@table @var
+@item return
+String
+@item p
+Number
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  It translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
+@item This function should be moved to om_* in a future.
+@end itemize
+*/
+/*&C-texi
+@example
+[263] load("om");
+1
+[270] F=om_xml(x^4-1);
+control: wait OX
+Trying to connect to the server... Done.
+<OMOBJ><OMA><OMS name="plus" cd="basic"/><OMA>
+<OMS name="times" cd="basic"/><OMA>
+<OMS name="power" cd="basic"/><OMV name="x"/><OMI>4</OMI></OMA>
+<OMI>1</OMI></OMA><OMA><OMS name="times" cd="basic"/><OMA>
+<OMS name="power" cd="basic"/><OMV name="x"/><OMI>0</OMI></OMA>
+<OMI>-1</OMI></OMA></OMA></OMOBJ>
+[271] sm1_xml_tree_to_prefix_string(F);
+plus_Basic(times_Basic(power_Basic(x,4),1),times_Basic(power_Basic(x,0),-1))
+@end example
+*/
+/*&eg-texi
+@table @t
+@item Reference
+    @code{hoge_start}, @xref{hogehoge}
+@end table
+*/
+/*&jp-texi
+@table @t
+@item Reference
+    @code{hoge_start}, @xref{hogehoge}
+@end table
+*/
+
+
+def sm1_xml_tree_to_prefix_string(A) {
+  SM1_FIND_PROC(P);
+  /* check the arguments */
+  if (type(A) != 7) {
+   error("sm1_xml_tree_to_prefix_string(A|proc=p): A must be a string.");
+  }
+  ox_push_cmo(P,A);
+  sm1(P," xml_tree_to_prefix_string ");
+  ox_check_errors2(P);
+  return(ox_pop_cmo(P));
+}
 
 
 def sm1_wbf(A) {

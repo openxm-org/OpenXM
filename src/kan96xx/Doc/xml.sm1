@@ -1,10 +1,11 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.4 1999/11/20 05:17:31 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.5 1999/12/14 10:00:45 takayama Exp $
 %% xml.sm1  XML support for sm1.
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
 (xml.sm1 :  1999, 11/20 Sat) message
 %%%%% These should be under /usr/local/OpenXM or OpenXM_HOME
 /oxpath.java-support (lib/java-support) def
+/@@@.xml null def
 
 [(getenv) (OpenXM_HOME)] extension 
 tag 0 eq {
@@ -49,6 +50,9 @@ tag 0 eq {
   [/in-cmo2xml /ob] pushVariables
   [
      /ob arg1 def
+     @@@.xml tag 0 eq {
+        xmlconnect
+     }{ } ifelse
      @@@.xml ob oxpushcmo
      @@@.xml (CMO2OMXML) oxexec
      @@@.xml oxpopcmo /arg1 set
@@ -69,6 +73,9 @@ tag 0 eq {
   [/in-xml_to_cmo /ob] pushVariables
   [
      /ob arg1 def
+     @@@.xml tag 0 eq {
+        xmlconnect
+     }{ } ifelse
      @@@.xml ob oxpushcmo
      @@@.xml (OMXML2CMO) oxexec
      @@@.xml oxpopcmo /arg1 set
@@ -288,6 +295,22 @@ tag 0 eq {
   arg1
 } def
 
+/xml_tree_to_prefix_string {
+   /arg1 set
+   [/in-xml_tree_to_prefix_string /sss] pushVariables
+   [
+     /sss arg1 def
+     sss isString {
+     }{
+       (string xml_tree_to_prefix_string) error
+     }ifelse
+     sss xml_to_cmo cmoTreeToPrefix /ans set
+     /arg1 ans def
+   ] pop
+   arg1
+} def
+  
+
 /OMproxy-testsuits2 {
   xmlconnect
   1 1 30 {
@@ -306,4 +329,7 @@ tag 0 eq {
   } for
   (Done.) message
 } def
+
+
+
 
