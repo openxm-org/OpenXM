@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
