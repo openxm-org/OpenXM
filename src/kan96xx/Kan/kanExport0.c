@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.21 2004/02/28 13:39:42 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.22 2004/05/13 04:38:28 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1001,7 +1001,15 @@ struct object KdataConversion(obj,key)
       rob = NullObject;
       return(rob);
     }else {
-      warningKan("Sorry. This type of data conversion has not supported yet.\n");
+	  { /* Automatically maps the elements. */
+		int n,i;
+		n = getoaSize(obj);
+		rob = newObjectArray(n);
+		for (i=0; i<n; i++) {
+		  putoa(rob,i,KdataConversion(getoa(obj,i),key));
+		}
+		return(rob);
+	  }
     }
     break;
   case Spoly:
@@ -2428,6 +2436,18 @@ struct object KgbExtension(struct object obj)
     obj1 = getoa(obj,1);
     obj2 = getoa(obj,2);
     rob  = KordWsAll(obj1,obj2);
+  }else if (strcmp(key,"exponents")==0) {
+    if (size == 3) {
+      obj1 = getoa(obj,1);
+      obj2 = getoa(obj,2);
+      rob  = KgetExponents(obj1,obj2);
+    }else if (size == 2) {
+      obj1 = getoa(obj,1);
+      obj2 = KpoInteger(2);
+      rob  = KgetExponents(obj1,obj2);
+    }else{
+      errorKan1("%s\n","[(exponents) f type] gbext");
+    }
   }else {
     errorKan1("%s\n","gbext : unknown tag.");
   }

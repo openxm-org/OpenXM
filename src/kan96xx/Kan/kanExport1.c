@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.10 2003/08/27 03:11:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.11 2004/02/23 09:03:42 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1366,4 +1366,136 @@ int objToInteger(struct object ob) {
   }else {
     errorKan1("%s\n","objToInteger(): invalid argument.");
   }
+}
+
+struct object KgetExponents(struct object obPoly,struct object otype) {
+  int type,asize,i;
+  POLY f;
+  POLY ff;
+  MONOMIAL tf;
+  struct object rob;
+  struct object tob;
+  static int nn,mm,ll,cc,n,m,l,c;
+  static struct ring *cr = (struct ring *)NULL;
+  extern struct ring *CurrentRingp;
+  int size,hsize,fsize,p,r;
+
+  if (otype.tag == Sinteger) {
+    type = KopInteger(otype);
+  }else if (otype.tag == SuniversalNumber) {
+    type = coeffToInt(KopUniversalNumber(otype));
+  }else {
+    errorKan1("%s\n","KgetExponents(): invalid translation type.");
+  }
+
+  if (obPoly.tag == Spoly) {
+    f = KopPOLY(obPoly);
+  }else if (obPoly.tag == Sarray) {
+    asize = getoaSize(obPoly);
+    rob = newObjectArray(asize);
+    for (i=0; i<asize; i++) {
+      tob = KgetExponents(getoa(obPoly,i),otype);
+      putoa(rob,i,tob);
+    }
+  }else{
+    errorKan1("%s\n","KgetExponents(): argument must be a polynomial.");
+  }
+
+  /* type == 0    x,y,Dx,Dy     (no commutative, no vector)
+     type == 1    x,y,h,Dx,Dy,H (commutative & no vector)
+     type == 2    x,y,Dx,Dy,h   (commutative & no vector)
+  */
+  if (f ISZERO) {
+    cr = CurrentRingp;
+  }else{
+    tf = f->m;
+  }
+  if (tf->ringp != cr) {
+    n = tf->ringp->n;
+    m = tf->ringp->m;
+    l = tf->ringp->l;
+    c = tf->ringp->c;
+    nn = tf->ringp->nn;
+    mm = tf->ringp->mm;
+    ll = tf->ringp->ll;
+    cc = tf->ringp->cc;
+    cr = tf->ringp;
+  }
+  if (type == 0) {
+    size = 0;
+    for (i=c; i<ll; i++) size += 2;
+    for (i=l; i<mm; i++) size += 2;
+    for (i=m; i<nn; i++) size += 2;
+  }else if (type == 1) {
+    size = 0;
+    for (i=0; i<cc; i++) size += 2;
+    for (i=c; i<ll; i++) size += 2;
+    for (i=l; i<mm; i++) size += 2;
+    for (i=m; i<nn; i++) size += 2;
+  }else if (type == 2) {
+    size = 0;
+    for (i=0; i<cc; i++) size += 1;
+    for (i=c; i<ll; i++) size += 2;
+    for (i=l; i<mm; i++) size += 2;
+    for (i=m; i<nn; i++) size += 2;
+  }else{
+    errorKan1("%s\n","KgetExponent, unknown type.");
+  }
+  hsize = size/2;
+  if (f ISZERO) {
+    tob = newObjectArray(size);
+    for (i=0; i<size; i++) {
+      putoa(tob,i,KpoInteger(0));
+    }
+    rob = newObjectArray(1);
+    putoa(rob,0,tob);
+    return rob;
+  }
+  fsize = 0;
+  ff = f;
+  while (ff != POLYNULL) {
+    fsize++;
+    ff = ff->next;
+  }
+  rob = newObjectArray(fsize);
+
+  ff = f;
+  p = 0;
+  while (ff != POLYNULL) {
+    r = 0;
+    tob = newObjectArray(size);
+	tf = ff->m;
+    for (i=ll-1; i>=c; i--) {
+      putoa(tob,r,KpoInteger(tf->e[i].x));
+      putoa(tob,hsize+r,KpoInteger(tf->e[i].D));
+      r++;
+    }
+    for (i=mm-1; i>=l; i--) {
+      putoa(tob,r,KpoInteger(tf->e[i].x));
+      putoa(tob,hsize+r,KpoInteger(tf->e[i].D));
+      r++;
+    }
+    for (i=nn-1; i>=m; i--) {
+      putoa(tob,r,KpoInteger(tf->e[i].x));
+      putoa(tob,hsize+r,KpoInteger(tf->e[i].D));
+      r++;
+    }
+    if (type == 1) {
+      for (i=cc-1; i>=0; i--) {
+        putoa(tob,hsize+r,KpoInteger(tf->e[i].x)); 
+        putoa(tob,r,KpoInteger(tf->e[i].D));
+        r++;
+      }
+    }else if (type == 2) {
+      for (i=cc-1; i>=0; i--) {
+        putoa(tob,hsize+r,KpoInteger(tf->e[i].D)); 
+        r++;
+      }
+	}
+
+    putoa(rob,p,tob);
+    p++;
+    ff = ff->next;
+  }
+  return rob;
 }

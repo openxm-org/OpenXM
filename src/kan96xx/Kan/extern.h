@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.16 2003/12/06 02:49:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.17 2004/05/13 04:38:28 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -259,6 +259,7 @@ struct object KisOrdered(struct object of);
 struct object KvectorToSchreyer_es(struct object obarray);
 POLY objArrayToPOLY(struct object ob);
 struct object POLYtoObjArray(POLY f,int size);
+struct object KgetExponents(struct object obPoly,struct object type);
 
 /* hilbert.c */
 struct object hilberto(struct object obgb,struct object obvlist);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.27 2003/12/03 09:00:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.28 2004/05/13 04:38:28 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -180,29 +180,33 @@ void Kusage2(fp,s)
     fppp(fp,"array of objects obj1;");
     fppp(fp,"The first element of the obj1 should be the key word tag.\n");
     fppp(fp,"<< gbext >> is used to call auxiliary functions for g-basis computation. \n");
-    fppp(fp,"  [(isReducible) poly1 poly2 ] gbext integer \n");
-    fppp(fp,"  [(lcm) poly1 poly2] gbext poly \n");
-    fppp(fp,"  [(grade) poly1 ] gbext integer \n");
-    fppp(fp,"  [(ord_ws_all) fv wv] gbext integer \n");
-    fppp(fp,"  [(mod) poly1 universalNumber] gbext poly \n");
-    fppp(fp,"          poly = poly1 mod universalNumber where char=0 and \n"); 
-    fppp(fp,"          poly and poly2 belong to a same ring.\n");
-    fppp(fp,"  [(tomodp) poly1 ring] gbext poly, char(ring)>0. \n");
-    fppp(fp,"          poly = poly1 mod char(ring) where poly belongs to ring.\n");
-    fppp(fp,"  [(tomod0) poly1 ring] gbext poly, char(ring)=0. \n");
     fppp(fp,"  [(divByN) poly1 n(universalNumber)] gbext [qpoly rpoly] \n");
     fppp(fp,"     where poly1 = n*qpoly+rpoly.\n");
     fppp(fp,"     (see also cancelCoeff) \n");
+    fppp(fp,"  [(exponents) poly type ] gbext array \n");
+    fppp(fp,"    example: type == 0    x,y,Dx,Dy\n");
+    fppp(fp,"             type == 1    x,y,h,Dx,Dy,H\n");
+    fppp(fp,"             type == 2    x,y,Dx,Dy,h  --- default.\n");
+    fppp(fp,"  [(grade) poly1 ] gbext integer \n");
     fppp(fp,"  [(isConstant) poly] gbext bool \n");
     fppp(fp,"  [(isConstantAll) poly] gbext bool \n");
+    fppp(fp,"  [(isOrdered) poly] gbext poly \n");
+    fppp(fp,"  [(isReducible) poly1 poly2 ] gbext integer \n");
+    fppp(fp,"  [(lcm) poly1 poly2] gbext poly \n");
     fppp(fp,"  [(lcoeff) poly] gbext poly \n");
     fppp(fp,"  [(lmonom) poly] gbext poly \n");
+    fppp(fp,"  [(mod) poly1 universalNumber] gbext poly \n");
+    fppp(fp,"          poly = poly1 mod universalNumber where char=0 and \n"); 
+    fppp(fp,"          poly and poly2 belong to a same ring.\n");
+    fppp(fp,"  [(ord_ws_all) fv wv] gbext integer \n");
+    fppp(fp,"  [(reduceContent) poly] gbext [poly c] \n");
+    fppp(fp,"  [(tomodp) poly1 ring] gbext poly, char(ring)>0. \n");
+    fppp(fp,"          poly = poly1 mod char(ring) where poly belongs to ring.\n");
+    fppp(fp,"  [(tomod0) poly1 ring] gbext poly, char(ring)=0. \n");
     fppp(fp,"  [(schreyerSkelton) array_of_poly] gbext array \n");
     fppp(fp,"  [(toes) array_of_poly] gbext poly \n");
     fppp(fp,"  [(toe_) poly] gbext poly   \n");
     fppp(fp,"  [(toe_) array_of_poly] gbext poly   cf. toVectors \n");
-    fppp(fp,"  [(isOrdered) poly] gbext poly \n");
-    fppp(fp,"  [(reduceContent) poly] gbext [poly c] \n");
   }else if (strcmp(s,"get")==0) {
     fppp(fp,"<< [f0 f1 ... fn] k get fk >>\n");
     fppp(fp,"integer k;");
