@@ -1,4 +1,4 @@
-(* $OpenXM$ *)
+(* $OpenXM: OpenXM/src/ox_math/lib/beta.m,v 1.1 1999/12/17 04:01:35 ohara Exp $ *)
 
 (*
 This program reuires asir programs beta, igraph, sets;
@@ -12,32 +12,17 @@ Copyright 1988-97 Wolfram Research, Inc.
  -- Motif graphics initialized -- 
 
 In[1]:= <<beta.m
-In[2]:= betaNbcBasis[ {z-t, t, t-s, s, 1-s}, {t,s} ];
-Out[2]= {{{t, -s + t}, {s}}, {{t}, {1 - s}}, {{-s + t}, {1 - s}}}
+In[2]:= OxStart["ox_asir"]
+In[3]:= betaNbcBasis[ {z-t, t, t-s, s, 1-s}, {t,s} ];
+Out[3]= {{{t, -s + t}, {s}}, {{t}, {1 - s}}, {{-s + t}, {1 - s}}}
 
 ---
 We explains output above.
 the elements of ``Out[2]'' are a differntial form.
 For example, {{t, -s + t}, {s}} means the following form:
-( dlog(t) + dlog(-s+t) ) \wedge ( dlog(s) ).
+( a_1 dlog(t) + a_2 dlog(-s+t) ) \wedge ( a_3 dlog(s) ),
+where a_1, a_2, a_3 are exponents.
 *)
-
-asirRtostr[x_] := Module[
-	{list = {}, i, s},
-	If[ x[[0]] === List,
-	  list = Append[list, " [ " ];
-	  If[ Length[x] > 0 ,
-		list = Append[list, asirRtostr[ x[[1] ] ] ];
-		For[i=2, i<= Length[x], i++, 
-		   list = Append[list, " , "];
-		   list = Append[list, asirRtostr[ x[[i]] ] ]
-			]
-		  ];
-	  list = Append[list, " ] "];
-	  s = StringJoin[list],
-	  s = ToString[x, InputForm]
-		]
-	]
 
 toForm[polys_List, bnbc_List] := Module[
 	{list1, list2, list3, i,j,k},
@@ -71,5 +56,4 @@ betaNbcBasis[polys_List, vars_List] := Module[
 	toForm[polys, bnbc]
 	]
 
-Install[Environment["OpenXM_HOME"] <> "/bin/math2ox"]
-OxStart["ox_asir"]
+Get[Environment["OpenXM_HOME"] <> "/lib/math/oxclient.m"]
