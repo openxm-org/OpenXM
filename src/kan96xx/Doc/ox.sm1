@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.8 2000/01/19 08:33:27 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.9 2000/01/19 10:02:11 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -811,13 +811,21 @@ ox.verbose {
  /arg1 set
  [/in-launch_nox /pass /peer /data /control /name /machine
   /your-peer /comm /remoteOpenXMbin /remoteServer /myhost
+  /argNumber /aaa 
  ] pushVariables
  [
-   /machine arg1 0 get def
-   /remoteOpenXMbin arg1 1 get def
-   /remoteServer arg1 2 get def
-   /name arg1 3 get def
-   /myhost arg1 4 get def
+   /aaa arg1 def
+   /argNumber aaa length def 
+   /machine aaa 0 get def
+   machine (localhost) eq argNumber 5 lt and {
+     aaa 1 get ox_launch_localhost /your-peer set
+     /LLL.end goto
+   } {
+     /remoteOpenXMbin aaa 1 get def
+     /remoteServer aaa 2 get def
+     /name aaa 3 get def
+     /myhost aaa 4 get def
+   } ifelse
 
    /pass [(oxGenPass)] extension def
    /peer [(oxGetPort) myhost] extension def
@@ -843,6 +851,7 @@ ox.verbose {
   comm system
  (sleep 5) system-csh
  [(oxCreateClient2) peer 1 pass] extension /your-peer set
+ /LLL.end
  /arg1 your-peer def
  ] pop
  popVariables
@@ -852,6 +861,8 @@ ox.verbose {
 [(ox_launch)
 [( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
  (  ox_launch  client )
+ $or $
+ $ [(localhost) ox-server-name] ox_launch client$
  (Example 1: )
  $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
  $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
@@ -878,6 +889,30 @@ ox.verbose {
     com2 system
   ] pop
   popVariables
+} def
+
+/ox_launch_localhost {
+ /arg1 set
+ [/in-ox_launch_localhost /pass /peer /data /control /oxserver
+  /my-peer] pushVariables
+ [
+    /oxserver arg1 def
+    /pass [(oxGenPass)] extension def
+    /peer [(oxGetPort) (localhost)] extension def
+    /data peer 1 get toString def
+    /control peer 3 get toString def
+    peer message
+    [oxpath.oxlog.xterm  oxpath.ox ( -reverse -ox ) oxserver
+     ( -data ) data ( -control ) control  ( -pass ) pass 
+      oxpath.null
+     ( &)] cat system-csh
+    [(oxCreateClient2) peer 0 pass] extension /my-peer set
+                         %% 0 means connect from only localhost. 
+    (The server is binded to the variable ox.ccc) message
+    /arg1 my-peer def
+ ] pop
+ popVariables
+ arg1
 } def
 
 
