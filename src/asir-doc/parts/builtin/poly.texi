@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.5 2003/04/20 08:01:29 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.6 2003/11/27 15:56:08 ohara Exp $
 \BJP
 @node 多項式および有理式の演算,,, 組み込み函数
 @section 多項式, 有理式の演算
@@ -21,6 +21,7 @@
 * %::
 * subst psubst::
 * diff::
+* ediff::
 * res::
 * fctr sqfr::
 * modfctr::
@@ -901,6 +902,58 @@ from left to right.
 (sin(log(x)+1)-cos(log(x)+1))/(sin(log(x)+1)^2)
 [3] diff(sin(x),[x,x,x,x]);
 sin(x)
+@end example
+
+\JP @node ediff,,, 多項式および有理式の演算
+\EG @node ediff,,, Polynomials and rational expressions
+@subsection @code{ediff}
+@findex ediff
+
+@table @t
+@item ediff(@var{poly}[,@var{varn}]*)
+@item ediff(@var{poly},@var{varlist})
+\JP :: @var{poly} を @var{varn} あるいは @var{varlist} の中の変数で順次オイラー微分する.
+\BEG
+:: Differentiate @var{poly} successively by Euler operators of @var{var}'s for the first
+form, or by Euler operators of variables in @var{varlist} for the second form.
+\E
+@end table
+
+@table @var
+@item return
+\JP 多項式
+\EG polynomial
+@item poly
+\JP 多項式
+\EG polynomial
+@item varn
+\JP 不定元
+\EG indeterminate
+@item varlist
+\JP 不定元のリスト
+\EG list of indeterminates
+@end table
+
+@itemize @bullet
+\BJP
+@item
+左側の不定元より, 順にオイラー微分していく. つまり, @t{ediff}(@var{poly},@t{x,y}) は, 
+@t{ediff}(@t{ediff}(@var{poly},@t{x}),@t{y}) と同じである. 
+\E
+\BEG
+@item
+differentiation is performed by the specified indeterminates (variables)
+from left to right.
+@t{ediff}(@var{poly},@t{x,y}) is the same as
+@t{ediff}(@t{ediff}(@var{poly},@t{x}),@t{y}).
+\E
+@end itemize
+
+@example
+[0] ediff((x+2*y)^2,x);  
+2*x^2+4*y*x
+[1] ediff((x+2*y)^2,x,y);
+4*y*x
 @end example
 
 \JP @node res,,, 多項式および有理式の演算
