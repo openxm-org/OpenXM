@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/k2.c,v 1.2 2000/01/17 13:57:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/k2.c,v 1.3 2001/01/08 05:26:48 takayama Exp $ */
 /* k2.c main program of k. */
 
 #define DATE "1998,12/15"
@@ -72,7 +72,7 @@ main(int argc,char *argv[]) {
   execFile("incmac.sm1");
   execFile("slib.sm1");
 
-  printf("\n\nIn(1)=");
+  printf("\n\nIn(1)= ");
   s = "startup.k";
   if (Startupk2) {
     strcpy(tname,s);
