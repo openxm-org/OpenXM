@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.1 2000/02/08 21:14:01 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.2 2000/02/14 09:35:00 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -8,41 +8,24 @@ SYS       = @ml_system@
 ADDONSDIR = ${PREFIX}/mathematica/AddOns/MathLink/DevelopersKits/${SYS}/CompilerAdditions
 MPREP     = ${ADDONSDIR}/mprep
 
-GMPSRC    = ${OpenXM_HOME}/src/gmp
-OXTK      = ${OpenXM_HOME}/src/ox_toolkit
 LN        = @LN_S@
 CC        = @CC@
 DEFS      = -DDEBUG
-CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${GMPSRC} -I${OXTK}
-LIBS      = @LIBS@ -L. -lox -lgmp -L${ADDONSDIR} -lML -lm
+CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include
+LIBS      = @LIBS@ -L${OpenXM_HOME} -lox -lgmp -L${ADDONSDIR} -lML -lm
 
 BINARIES  = ox_math math2ox
 INSTALL   = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 
-all: libgmp.a libox.a ${BINARIES}
+all: ${BINARIES}
 
 serv1.o serv2.o mlo.o: serv2.h
 
-libgmp.a:
-	if [ ! -d ${GMPSRC} ]; then \
-		(cd ${OpenXM_HOME}/src; ${MAKE} configure-links) \
-	fi
-	if [ ! -f ${GMPSRC}/libgmp.a ]; then \
-		(cd ${GMPSRC}; ./configure; ${MAKE} libgmp.a) \
-	fi
-	${LN} ${GMPSRC}/libgmp.a .
-
-libox.a:
-	if [ ! -f ${OXTK}/libox.a ]; then \
-		(cd ${OXTK}; ./make-configure; ${MAKE} libox.a) \
-	fi
-	${LN} ${OXTK}/libox.a .
-
-ox_math: serv1.o serv2.o mlo.o libox.a libgmp.a
+ox_math: serv1.o serv2.o mlo.o
 	${CC} ${CFLAGS} -o $@ serv2.o serv1.o mlo.o ${LIBS}
 
-math2ox: math2ox.o math2.o mlo.o serv2.o libox.a libgmp.a
+math2ox: math2ox.o math2.o mlo.o serv2.o
 	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o mlo.o ${LIBS}
 
 math2.c: math2.tm
@@ -74,4 +57,7 @@ clean-for-debug:
 clean-binary: clean-for-debug
 
 clean:
-	-rm -f *.o *~ libox.a libgmp.a math2.c ox_math math2ox
+	-rm -f *.o *~ math2.c ox_math math2ox
+
+distclean: clean
+	-rm -f .configure_done configure config.cache config.log config.status Makefile
