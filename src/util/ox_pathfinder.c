@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.10 2003/12/01 03:15:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.11 2003/12/03 03:21:16 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -869,6 +869,15 @@ char *generateTMPfileName2(char *seed,char *ext,int usetmp,int win){
   static int prevnum=0; 
   int i;
   int clean = 0;
+  char *extold;
+  if (ext == NULL) ext="";
+  else {
+	extold = ext;
+	ext = (char *) mymalloc(strlen(ext)+3);
+	if (ext == NULL) {fprintf(stderr,"No more memory.\n"); return NULL;}
+	strcpy(ext,".");
+	strcat(ext,extold);
+  }
   if (usetmp) {
 	tmp = getenv("TMP");
 	if (tmp == NULL) {
@@ -890,9 +899,9 @@ char *generateTMPfileName2(char *seed,char *ext,int usetmp,int win){
   }
   for (num=prevnum+1; num <MAXTMP2; num++) {
     if (tmp != NULL) {
-      sprintf(fname,"%s/%s-tmp-%d.%s",tmp,seed,num,ext);
+      sprintf(fname,"%s/%s-tmp-%d%s",tmp,seed,num,ext);
     }else{
-      sprintf(fname,"%s-tmp-%d.%s",seed,num,ext);
+      sprintf(fname,"%s-tmp-%d%s",seed,num,ext);
     }
     if (getFileSize(fname) < 0) {
       prevnum = num;
@@ -903,9 +912,9 @@ char *generateTMPfileName2(char *seed,char *ext,int usetmp,int win){
         /* Clean the old garbages. */
         for (i=0; i<MAXTMP2; i++) {
           if (tmp != NULL) {
-            sprintf(fname,"%s/%s-tmp-%d.%s",tmp,seed,i,ext);
+            sprintf(fname,"%s/%s-tmp-%d%s",tmp,seed,i,ext);
           }else{
-            sprintf(fname,"%s-tmp-%d.%s",seed,i,ext);
+            sprintf(fname,"%s-tmp-%d%s",seed,i,ext);
           }
           {
             struct stat buf;
