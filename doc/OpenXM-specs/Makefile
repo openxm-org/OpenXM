@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.2 2000/01/21 06:24:49 noro Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.4 2000/01/23 05:28:33 noro Exp $
 all : doc
 
 OXWEAVE=../../src/kxx/oxweave
@@ -8,7 +8,7 @@ doc-eg: $(OXWEAVE) OpenXM.tex
 	-rm -rf tmpEG
 	-mkdir tmpEG
 	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C eg < $$i >tmpEG/$$i; done
-	(cd tmpEG; ln -s ../reset.eps .; platex OpenXM)
+	(cd tmpEG; ln -s ../reset.eps .; latex OpenXM)
 doc-jp: $(OXWEAVE) OpenXM.tex
 	-rm -rf tmpJP
 	-mkdir tmpJP

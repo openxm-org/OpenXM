@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/OpenXM.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/OpenXM.tex,v 1.3 2000/01/23 05:28:33 noro Exp $
 \documentclass{article}
 \IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \begin{document}
@@ -15,7 +15,7 @@
 \title{{\bf Design and Implementation of OpenXM} \\
  --- Open message eXchange protocol for Mathematics \\
  (English Abstract of Japanese Original Document)}
-\author{ Masayuki Noro\thanks{Fujitsu Laboratory
+\author{ Masayuki Noro\thanks{FUJITSU LABORATORIES LTD.
 } , 
          Nobuki Takayama\thanks{Department of Mathematics, Kobe University}
 }
@@ -56,12 +56,40 @@
 /*&C
 
 \begin{thebibliography}{99}
+\bibitem{GKW}
+Gray, S., Kajler, N. and Wang, P. S.,
+Design and Implementation of MP, a Protocol for Efficient
+  Exchange of Mathematical Expressions,
+  {\sl Journal of Symbolic Computation}, 1996.
+\bibitem{gap}
+Linton, S. and Solomon, A.,
+OpenMath, IAMC and {\tt GAP},
+preprint, 1999.
+\bibitem{asir}
+Noro, M. et al.,
+A Computer Algebra System {\tt Risa/Asir},  1993, 1995, 2000\\
+{\tt ftp://archives.cs.ehime-u.ac.jp/pub/asir2000/}
 \bibitem{openmath}  {\tt http://www.openmath.org}
 \bibitem{openxxx}   {\tt http://www.math.kobe-u.ac.jp/OpenXM/ (under construction)}
 \bibitem{openasir-intro}  Ohara, Takayama, Noro: Introduction to Open Asir , 
 1999, (in Japanese),
 Suushiki-Shyori, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG , Tokyo). \\
 {\tt http://www.math.kobe-u.ac.jp/OpenXM/}
+\bibitem{kan}
+Takayama, N.,
+{\em Kan: A system for computation in
+algebraic analysis,} 1991 version 1,
+1994 version 2, the latest version is 2.991106.
+{\tt \small ftp.math.kobe-u.ac.jp/pub/kan}
+\bibitem{phc}
+Verschelde, J.,
+PHCpack: A general-purpose solver for polynomial systems by
+homotopy continuation.  ACM Transaction on Mathematical Softwares, 25(2)
+251-276, 1999.
+\bibitem{iamc}
+Wang, P.,
+Design and Protocol for Internet Accessible Mathematical Computation.
+Technical Report ICM-199901-001, ICM/Kent State University, 1999.
 \end{thebibliography}
 */
 
@@ -73,8 +101,8 @@ Suushiki-Shyori, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG , Tokyo). \\
 \small{
 \noindent
     \rightline{ Masayuki Noro,}
-    \rightline{ Fujitsu Laboratory, Kawasaki, Japan;}
- \rightline{{\tt noro@para.flab.fujitsu.co.jp}}
+    \rightline{ FUJITSU LABORATORIES LTD., Kawasaki, Japan;}
+ \rightline{{\tt noryo@flab.fujitsu.co.jp}}
 
 \vskip .5cm
 

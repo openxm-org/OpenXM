@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic0.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic0.tex,v 1.2 2000/01/24 02:48:24 noro Exp $
 //&jp \section{CMO Primitive の object}
 //&eg \section{CMO Primitive object}
 \label{sec:basic0}
@@ -123,6 +123,11 @@ ob はリストであり,  TCP/IP によるストリーム型接続の場合,
 最初の成分はエラーを起こした OX メッセージ(後述)
 のシリアル番号でないといけない.
 シリアル番号は Integer32 で表現する.
+
+\noindent
+Remark: 歴史的な理由により, エラーオブジェクトの CMO タグは {\it
+CMO\_ERROR2} と名付けられている. 次の版の仕様書では {\tt CMO\_ERROR}
+に変更する予定である. 
 */
 /*&eg
 It is an object used when a server makes an error.
@@ -131,6 +136,11 @@ The instance ob is a list and in case of a stream connection like TCP/IP
 the first element must be the serial number of the OX message 
 that caused the error.
 The serial number is given by the data type Integer32.
+
+\noindent
+Remark: For a historical reason the CMO tag of the error object is 
+named {\tt CMO\_ERROR2}. In the next vesion of OpenXM specification
+we wll rename it {\tt CMO\_ERROR}.
 */
 
 /*&C
