@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.3 1999/11/22 04:22:56 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.4 1999/11/29 13:31:31 takayama Exp $
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
@@ -154,12 +154,12 @@ test0 :  test0.c  $(KXX) $(KAN_HOME)/kanlib.a  $(GC) $(GMP) $(KAN_HOME)/lookup.h
 
 
 install0 : all
-	cp --f k0 d0 $(HOME)/.Hbin
+	cp -f k0 d0 $(HOME)/.Hbin
 	cp lib/mklib $(HOME)/.Hbin
 	echo "Set the environment variable in $(HOME)/bin/mklib"
 
 install : all
-	cp --f k0 d0 ../../bin
+	cp -f k0 d0 ../../bin
 
 dist :
 	./makeDist
