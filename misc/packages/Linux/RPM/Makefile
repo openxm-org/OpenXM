@@ -1,4 +1,9 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.13 2000/04/17 04:30:59 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.14 2000/08/29 06:48:48 takayama Exp $
+
+#Edit this.  VERSION number must be compatible between Generic/openxm/Makefile
+# and *.spec.in
+VERSION=1.1.3
+
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
 # 0. If your rpm version is less than 3,
@@ -19,8 +24,8 @@
 # 1. Make ole by make ole at  $(OpenXM_HOME)/src/kan96xx/Doc.
 #    [ ole.c will be moved to somewhere else in a future. ]
 # 2. Make a directory ~/tmp if you do not have.
-# 3. Generate a source tar ball openxm-1.1.2.tar.gz by
-#     cd $(OpenXM_HOME)/misc/packages/FreeBSD/openxm-1.1.2 ; make make-tar-ball
+# 3. Generate a source tar ball openxm-$(VERSION).tar.gz by
+#     cd $(OpenXM_HOME)/misc/packages/Generic/openxm ; make tar-ball
 # 4. Type in make link-for-real-openxm
 # 5. Type in make build-binary-rpm  (for test)
 # REAL 5. Edit openxm.spec.in and remove the line BuildRoot.
@@ -29,17 +34,17 @@
 # The binary package will be generated at  work/RPMS/i386.
 #
 # Example 1 :  debug this Makefile and openxm.spec.in
-#  cd $(OpenXM_HOME)/misc/packages/FreeBSD/openxm-1.1.2 ; make fake-openxm
+#  cd $(OpenXM_HOME)/misc/packages/FreeBSD/openxm-$(VERSION) ; make fake-openxm
 #  make link-for-debug
 #  make build-binary-rpm
 #
 # *To check the file names in the package
-#  rpm2cpio openxm-1.1.2-test.i386.rpm | cpio -tv | more
+#  rpm2cpio openxm-$(VERSION)-test.i386.rpm | cpio -tv | more
 # or
-#  rpm -qvlp openxm-1.1.2-test.i386.rpm
+#  rpm -qvlp openxm-$(VERSION)-test.i386.rpm
 #
-#  -ivh : Install,  -e openxm-1.1.2-test : remove, 
-#  -qvl openxm-1.1.2-test : list.
+#  -ivh : Install,  -e openxm-$(VERSION)-test : remove, 
+#  -qvl openxm-$(VERSION)-test : list.
 #
 #  The maximum rpm at http://rpm.redhat.com is the most comprehensive source
 #  to use rpm to build redhat packages.
@@ -112,7 +117,7 @@ clean :
 
 
 link-for-debug: make-directory clean
-	(cd work/SOURCES ; rm -rf openxm-1.1.2.tar.gz ; ln -s $(HOME)/tmp/openxm-fake.tar.gz ./openxm-1.1.2.tar.gz)
+	(cd work/SOURCES ; rm -rf openxm-$(VERSION).tar.gz ; ln -s $(HOME)/tmp/openxm-fake.tar.gz ./openxm-$(VERSION).tar.gz)
 
 link-for-real-openxm: make-directory clean
-	(cd work/SOURCES ; rm -rf openxm-1.1.2.tar.gz ; ln -s $(HOME)/tmp/openxm-1.1.2.tar.gz ./openxm-1.1.2.tar.gz)
+	(cd work/SOURCES ; rm -rf openxm-$(VERSION).tar.gz ; ln -s $(HOME)/tmp/openxm-$(VERSION).tar.gz ./openxm-$(VERSION).tar.gz)
