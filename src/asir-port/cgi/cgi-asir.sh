@@ -1,6 +1,6 @@
 #!/bin/bash
 # $Id$
-# $OpenXM: OpenXM/src/asir-port/cgi/cgi-asir.sh,v 1.1 2005/02/24 06:13:30 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/cgi/cgi-asir.sh,v 1.2 2005/02/25 11:30:58 takayama Exp $
 ## Replace $OpenXM_HOME by an absolute path of your cite.
 #source $(OpenXM_HOME)/rc/dot.bashrc
 source /home/taka/OpenXM/rc/dot.bashrc

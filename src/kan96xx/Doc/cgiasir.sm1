@@ -1,5 +1,5 @@
 %$Id$
-%$OpenXM: OpenXM/src/kan96xx/Doc/cgiasir.sm1,v 1.1 2005/02/24 06:13:30 takayama Exp $
+%$OpenXM: OpenXM/src/kan96xx/Doc/cgiasir.sm1,v 1.2 2005/02/25 11:30:58 takayama Exp $
 [(parse) (ox.sm1) pushfile] extension
 [(parse) (cgi.sm1) pushfile] extension
 
@@ -137,6 +137,11 @@ def
 def
 
 /cgiAsir.0 {
+  cgiAsir.0a 
+  cgiAsir.0b
+} def
+
+/cgiAsir.0a {
   /arg1 set
   [/sss /kv /comm /i /acti0 /pError] pushVariables
   [ 
@@ -162,12 +167,16 @@ def
 % Step 3. Calling asir
     oxasir.ccc [ ] eq { ox_cgiAsirConnectMethod } { } ifelse 
     oxasir.ccc cgi.body oxsubmit
+  ] pop
+  popVariables
+} def
+
+/cgiAsir.0b {
+% Step 4. Request the result
     oxasir.ccc oxpopstring /cgi_body set
     % set for cgiReplyInHttp0
     /@@@stdout (NONE) def  /@@@stderr (NONE) def
     /cgi.body cgi_body def    
-  ] pop
-  popVariables
 } def
 
 /cgi.test2 {
