@@ -1,85 +1,8 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.5 2000/06/15 07:38:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.6 2000/07/26 02:21:31 takayama Exp $ */
 load["minimal.k"];
-def test5() {
-  local a,b,c,cc,v;
-  a = Sannfs3_laScala2("x^3-y^2*z^2");
-  b = a[0];
-  v = [x,y,z];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  Println("-----------------------------------");
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  return(a);
-}
-def test6() {
-  local a,b,c,cc,v;
-  a = Sannfs3("x^3-y^2*z^2");
-  b = a[0];
-  v = [x,y,z];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  Println("-------ker = im for minimal ?---------------------");
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  Println("------ ker=im for Schreyer ?------------------");
-  b = a[3];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  return(a);
-}
-
-/* May 23, Tue */
-def test7() {
-  local a,b,c,cc,v;
-  a = Sannfs3_laScala2("x^3-y^2*z^2");
-  b = a[0];
-  v = [x,y,z];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  Println("-------ker = im for minimal ?---------------------");
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  Println("------ ker=im for Schreyer ?------------------");
-  b = a[3];
-  c = Skernel(b[0],v);
-  c = c[0];
-  sm1_pmat([c,b[1],v]);
-  cc = sm1_res_div(c,b[1],v);
-  sm1_pmat(sm1_gb(cc,v));
-  c = Skernel(b[1],v);
-  c = c[0];
-  cc = sm1_res_div(c,b[2],v);
-  sm1_pmat(sm1_gb(cc,v));
-  return(a);
-}
-
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
 }
-
 
 def test8() {
   local p,pp,ans,b,c,cc,ww,ww2;
@@ -238,7 +161,7 @@ It returns the following resolution in 1.5 hours.  June 14, 2000.
 */
 def test_ann3(f) {
   local a,v,ww2,ans2;
-  a = Sannfs3_laScala2(f);
+  a = Sannfs3(f);
   ans2 = a[0];
   v = [x,y,z];
   ww2 = [["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]];
@@ -305,7 +228,6 @@ def test12() {
   ans2 = ReParse(ans2); /* DO NOT FORGET! */
   r= IsExact_h(ans2,[x,y,z]);
   Println(r);
-  Println("It may stop by non-exact statement. The code of Sminimal_v (non-LaScala-Stillman contains bugs.");
   return([r,ans2]);
 }
 
@@ -348,10 +270,16 @@ def test15() {
   Println("test15 try to construct a minimal free resolution");
   Println("of a GKZ system [[1,2,3]] by the order filt. 6/12, 2000.");
   ww2 = [["Dx1",1,"Dx2",1,"Dx3",1]];
-  Sweyl("x1,x2,x3",ww2);
   ans2 = GKZ([[1,2,3]],[0]);  
+  Sweyl("x1,x2,x3",ww2);
   ans2 = ReParse(ans2[0]);
-  return(Sminimal(ans2));
+  a = Sminimal(ans2);
+  Println("Minimal Resolution is "); sm1_pmat(a[0]);
+  Sweyl("x1,x2,x3");
+  ans3 = ReParse(a[0]);
+  r= IsExact_h(ans3,[x1,x2,x3]);
+  Println(r);
+  return(a);
 }
 
 def test15b() {
@@ -364,6 +292,21 @@ def test15b() {
   return(Sminimal(ans2,"homogenized"));
 }
 
+def test15c() {
+  Println("test15c try to construct a minimal free resolution ");
+  Println("of a GKZ system [[1,2,3]] by -1,1");
+  ww2 = [["Dx1",1,"Dx2",1,"Dx3",1,"x1",-1,"x2",-1,"x3",-1]];
+  ans2 = GKZ([[1,2,3]],[0]);  
+  Sweyl("x1,x2,x3",ww2);
+  ans2 = ReParse(ans2[0]);
+  a = Sminimal(ans2);
+  Println("Minimal Resolution is "); sm1_pmat(a[0]);
+  Sweyl("x1,x2,x3");
+  ans3 = ReParse(a[0]);
+  r= IsExact_h(ans3,[x1,x2,x3]);
+  Println(r);
+  return(a);
+}
 def test16() {
   Println("test16 try to construct a minimal free resolution");
   Println("of a GKZ system [[1,2,3,5]] by the order filt. 6/12, 2000.");

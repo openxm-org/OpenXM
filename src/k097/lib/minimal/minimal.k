@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.16 2000/06/15 07:38:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.17 2000/07/26 12:56:36 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -6,7 +6,6 @@
    ln -s /usr/bin/cpp /lib/cpp
 */
 #define OFFSET 0 
-#define TOTAL_STRATEGY 1
 /* #define OFFSET 20*/
 /* Test sequences. 
    Use load["minimal.k"];;
@@ -367,14 +366,7 @@ def Sdegree(f,tower,level) {
   f = Init(f);
   if (level <= 1) return(StotalDegree(f));
   i = Degree(f,es);
-#ifdef TOTAL_STRATEGY
   return(StotalDegree(f)+Sdegree(tower[level-2,i],tower,level-1)); 
-#endif
-  /* Strategy must be compatible with ordering.  */
-  /* Weight vector must be non-negative, too.  */
-  /* See Sdegree, SgenerateTable, reductionTable. */
-  wd = Sord_w(f,ww);
-  return(wd+Sdegree(tower[level-2,i],tower,level-1));
     
 }
 
@@ -888,7 +880,7 @@ def Sbases_to_vec(bases,size) {
 }
 
 HelpAdd(["Sminimal",
-["It constructs the V-minimal free resolution by LaScala-Stillman's algorithm",
+["It constructs the V-minimal free resolution by LaScala's algorithm",
  "option: \"homogenized\" (no automatic homogenization ",
  "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
  "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
@@ -1105,21 +1097,15 @@ def Sannfs2(f) {
   local p,pp;
   p = Sannfs(f,"x,y");
   sm1(" p 0 get { [(x) (y) (Dx) (Dy)] laplace0 } map /p set ");
-/*
-  Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1],
-               ["x",-1,"y",-1,"Dx",1,"Dy",1]]); */
-  /* Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1]]); */
-
   Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]); 
   pp = Map(p,"Spoly");
-  return(Sminimal_v(pp));
-  /* return(Sminimal(pp)); */
+  return(Sminimal(pp)); 
 }
 
 HelpAdd(["Sannfs2",
 ["Sannfs2(f) constructs the V-minimal free resolution for the weight (-1,1)",
  "of the Laplace transform of the annihilating ideal of the polynomial f in x,y.",
- "See also Sminimal_v, Sannfs3.",
+ "See also Sminimal, Sannfs3.",
  "Example: a=Sannfs2(\"x^3-y^2\");",
  "         b=a[0]; sm1_pmat(b);",
  "         b[1]*b[0]:",
@@ -1127,30 +1113,13 @@ HelpAdd(["Sannfs2",
  "         b=a[0]; sm1_pmat(b);",
  "         b[1]*b[0]:"
 ]]);
+/* Some samples.
+  The betti numbers of most examples are 2,1. (0-th and 1-th).
+  a=Sannfs2("x*y*(x+y-1)"); ==> The betti numbers are 3, 2. 
+  a=Sannfs2("x^3-y^2-x");    
+  a=Sannfs2("x*y*(x-y)");    
+*/
 
-/* Do not forget to turn on TOTAL_STRATEGY */ 
-def Sannfs2_laScala(f) {
-  local p,pp;
-  p = Sannfs(f,"x,y");
-  /*   Do not make laplace transform. 
-    sm1(" p 0 get { [(x) (y) (Dx) (Dy)] laplace0 } map /p set ");
-    p = [p];
-  */
-  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]); 
-  pp = Map(p[0],"Spoly");
-  return(Sminimal(pp));
-}
-
-def Sannfs2_laScala2(f) {
-  local p,pp;
-  p = Sannfs(f,"x,y");
-  sm1(" p 0 get { [(x) (y) (Dx) (Dy)] laplace0 } map /p set ");
-  p = [p];
-  Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1],
-               ["x",-1,"y",-1,"Dx",1,"Dy",1]]); 
-  pp = Map(p[0],"Spoly");
-  return(Sminimal(pp));
-}
 
 def Sannfs3(f) {
   local p,pp;
@@ -1158,393 +1127,18 @@ def Sannfs3(f) {
   sm1(" p 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /p set ");
   Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
   pp = Map(p,"Spoly");
-  return(Sminimal_v(pp));
+  return(Sminimal(pp));
 }
 
 HelpAdd(["Sannfs3",
 ["Sannfs3(f) constructs the V-minimal free resolution for the weight (-1,1)",
  "of the Laplace transform of the annihilating ideal of the polynomial f in x,y,z.",
- "See also Sminimal_v, Sannfs2.",
+ "See also Sminimal, Sannfs2.",
  "Example: a=Sannfs3(\"x^3-y^2*z^2\");",
  "         b=a[0]; sm1_pmat(b);",
  "         b[1]*b[0]: b[2]*b[1]:"]]);
 
-/*
-  The betti numbers of most examples are 2,1. (0-th and 1-th).
-  a=Sannfs2("x*y*(x+y-1)"); ==> The betti numbers are 3, 2. 
-  a=Sannfs2("x^3-y^2-x");    : it causes an error. It should be fixed.
-  a=Sannfs2("x*y*(x-y)");    : it causes an error. It should be fixed.
-
-*/
      
-def Sannfs3_laScala2(f) {
-  local p,pp;
-  p = Sannfs(f,"x,y,z");
-  sm1(" p 0 get { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /p set ");
-  Sweyl("x,y,z",[["x",1,"y",1,"z",1,"Dx",1,"Dy",1,"Dz",1,"h",1],
-                 ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
-  pp = Map(p,"Spoly");
-  return(Sminimal(pp));
-}
-
-
-/*  The below does not use LaScala-Stillman's algorithm. */
-def Sschreyer(g) {
-  local rf, tower, reductionTable, skel, redundantTable, bases,
-        strategy, maxOfStrategy, height, level, n, i,
-        freeRes,place, f, reducer,pos, redundant_seq,bettiTable,freeResV,ww,
-        redundantTable_ordinary, redundant_seq_ordinary,
-        reductionTable_tmp,c2,ii,nn, m,ii, jj, reducerBase;
-  /* extern WeightOfSweyl; */
-  ww = WeightOfSweyl;
-  Print("WeghtOfSweyl="); Println(WeightOfSweyl);
-  rf = SresolutionFrameWithTower(g);
-  redundant_seq = 1;   redundant_seq_ordinary = 1;
-  tower = rf[1];
-  Println("Generating reduction table which gives an order of reduction.");
-  Println("But, you are in Sschreyer...., you may not use LaScala-Stillman");
-  Print("WeghtOfSweyl="); Println(WeightOfSweyl);
-  Print("tower"); Println(tower);
-  reductionTable = SgenerateTable(tower);
-  skel = rf[2];
-  redundantTable = SnewArrayOfFormat(rf[1]);
-  redundantTable_ordinary = SnewArrayOfFormat(rf[1]);
-  reducer = SnewArrayOfFormat(rf[1]);
-  freeRes = SnewArrayOfFormat(rf[1]);
-  bettiTable = SsetBettiTable(rf[1],g);
-
-  height = Length(reductionTable);
-  for (level = 0; level < height; level++) {
-      n = Length(reductionTable[level]);
-      for (i=0; i<n; i++) {
-           Println([level,i]);
-           Print("Processing "); Print([level,i]);
-           if (level == 0) {
-             if (IsNull(redundantTable[level,i])) {
-               bases = freeRes[level];
-               /* Println(["At floor : GB=",i,bases,tower[0,i]]); */
-               pos = SwhereInGB(tower[0,i],rf[3,0]);
-               bases[i] = rf[3,0,pos];
-               /* redundantTable[level,i] = 0;
-               redundantTable_ordinary[level,i] = 0; */
-               freeRes[level] = bases;
-               /* Println(["GB=",i,bases,tower[0,i]]); */
-             }
-           }else{ /* level >= 1 */
-             if (IsNull(redundantTable[level,i])) {
-               bases = freeRes[level];
-               f = SpairAndReduction2(skel,level,i,freeRes,tower,
-                                      ww,redundantTable);
-               if (f[0] != Poly("0")) {
-                  place = f[3];
-                  /* (level-1, place) is the place for f[0], 
-                     which is a newly obtained  GB. */
-#ifdef ORDINARY
-                  redundantTable[level-1,place] = redundant_seq;
-                  redundant_seq++;
-#else
-                  if (f[4] > f[5]) {
-                    /* Zero in the gr-module */
-                    Print("v-degree of [org,remainder] = ");
-                    Println([f[4],f[5]]);
-                    Print("[level,i] = "); Println([level,i]);
-                    redundantTable[level-1,place] = 0;
-                  }else{
-                    redundantTable[level-1,place] = redundant_seq;
-                    redundant_seq++;
-                  }
-#endif
-                  redundantTable_ordinary[level-1,place]
-                     =redundant_seq_ordinary;
-                  redundant_seq_ordinary++;
-                  bases[i] = SunitOfFormat(place,f[1])-f[1];  /* syzygy */
-                  /* redundantTable[level,i] = 0;
-                  redundantTable_ordinary[level,i] = 0; */
-                  /* i must be equal to f[2], I think. Double check. */
-
-                  /* Correction Of Constant */
-                  /* Correction of syzygy */
-                  c2 = f[6];  /* or -f[6]?  Double check. */
-                  Print("c2="); Println(c2);
-                  nn = Length(bases);
-                  for (ii=0; ii<nn;ii++) {
-                     if ((ii != i) && (! IsNull(bases[ii]))) {
-                       m = Length(bases[ii]);
-                       for (jj=0; jj<m; jj++) {
-                         if (jj != place) {
-                           bases[ii,jj] = bases[ii,jj]*c2;
-                         }
-                       } 
-                     }
-                  }
-
-                  Print("Old freeRes[level] = "); sm1_pmat(freeRes[level]);
-                  freeRes[level] = bases;
-                  Print("New freeRes[level] = "); sm1_pmat(freeRes[level]);
-
-                 /* Update the freeRes[level-1] */
-                  Print("Old freeRes[level-1] = "); sm1_pmat(freeRes[level-1]);
-                  bases = freeRes[level-1];
-                  bases[place] = f[0];
-                  freeRes[level-1] = bases; 
-                  Print("New freeRes[level-1] = "); sm1_pmat(freeRes[level-1]);
-
-                  reducer[level-1,place] = f[1]-SunitOfFormat(place,f[1]);
-                   /* This reducer is different from that of SlaScala(). */
-
-                  reducerBasis = reducer[level-1];
-                  nn = Length(reducerBasis);
-                  for (ii=0; ii<nn;ii++) {
-                     if ((ii != place) && (! IsNull(reducerBasis[ii]))) {
-                       m = Length(reducerBasis[ii]);
-                       for (jj=0; jj<m; jj++) {
-                         if (jj != place) {
-                           reducerBasis[ii,jj] = reducerBasis[ii,jj]*c2;
-                         }
-                       } 
-                     }
-                  }
-                  reducer[level-1] = reducerBasis;
-
-               }else{
-                  /* redundantTable[level,i] = 0; */
-                  bases = freeRes[level];
-                  bases[i] = f[1];  /* Put the syzygy. */
-                  freeRes[level] = bases;
-               }
-             }  /* end of level >= 1 */
-          }
-    } /* i loop */
-
-    /* Triangulate reducer */
-    if (level >= 1) {
-      Println(" ");
-      Print("Triangulating reducer at level "); Println(level-1);
-      Println("freeRes[level]="); sm1_pmat(freeRes[level]);
-      reducerBase = reducer[level-1];
-      Print("reducerBase=");  Println(reducerBase);
-      Println("Compare freeRes[level] and reducerBase (put -1)");
-      m = Length(reducerBase);
-      for (ii=m-1; ii>=0; ii--) {
-        if (!IsNull(reducerBase[ii])) {
-           for (jj=ii-1; jj>=0; jj--) {
-             if (!IsNull(reducerBase[jj])) {
-              if (!IsZero(reducerBase[jj,ii])) {
-                /* reducerBase[ii,ii] should be always constant. */  
-                reducerBase[jj] = reducerBase[ii,ii]*reducerBase[jj]-reducerBase[jj,ii]*reducerBase[ii];
-              }
-             }
-           }
-         }
-       }
-       Println("New reducer");
-       sm1_pmat(reducerBase);
-       reducer[level-1] = reducerBase;
-    }
-
-  } /* level loop */
-  n = Length(freeRes);
-  freeResV = SnewArrayOfFormat(freeRes);
-  for (i=0; i<n; i++) {
-    bases = freeRes[i];
-    bases = Sbases_to_vec(bases,bettiTable[i]);
-    freeResV[i] = bases;
-  }
-
-  /* Mark the non-redundant elements. */
-  for (i=0; i<n; i++) {
-    m = Length(redundantTable[i]);
-    for (jj=0; jj<m; jj++) {
-      if (IsNull(redundantTable[i,jj])) {
-        redundantTable[i,jj] = 0;
-      }
-    }
-  }
-
-
-  return([freeResV, redundantTable,reducer,bettiTable,redundantTable_ordinary]);
-}
-
-def SpairAndReduction2(skel,level,ii,freeRes,tower,ww,redundantTable) {
-  local i, j, myindex, p, bases, tower2, gi, gj,
-       si, sj, tmp, t_syz, pos, ans, ssp, syzHead,pos2,
-       vdeg,vdeg_reduced,n,c2;
-  Println("SpairAndReduction2 : -------------------------");
-
-  if (level < 1) Error("level should be >= 1 in SpairAndReduction.");
-  p = skel[level,ii];
-  myindex = p[0];  
-  i = myindex[0]; j = myindex[1];
-  bases = freeRes[level-1];
-  Println(["p and bases ",p,bases]);
-  if (IsNull(bases[i]) || IsNull(bases[j])) {
-    Println([level,i,j,bases[i],bases[j]]);
-    Error("level, i, j : bases[i], bases[j]  must not be NULL.");
-  }
-
-  tower2 = StowerOf(tower,level-1);
-  SsetTower(tower2);  
-  Println(["level=",level]);
-  Println(["tower2=",tower2]);
-  /** sm1(" show_ring ");   */
-
-  gi = Stoes_vec(bases[i]);
-  gj = Stoes_vec(bases[j]);
-
-  ssp = Sspolynomial(gi,gj); 
-  si = ssp[0,0];  
-  sj = ssp[0,1];
-  syzHead = si*es^i;
-  /* This will be the head term, I think. But, double check. */
-  Println([si*es^i,sj*es^j]);
-
-  Print("[gi, gj] = "); Println([gi,gj]);
-  sm1(" [(Homogenize)] system_variable message ");
-  Print("Reduce the element "); Println(si*gi+sj*gj);
-  Print("by  "); Println(bases);
-
-  tmp = Sreduction(si*gi+sj*gj, bases);
-
-  Print("result is "); Println(tmp);
-  if (!IsZero(tmp[0])) {
-    Print("Error: base = ");
-    Println(Map(bases,"Stoes_vec"));
-    Error("SpairAndReduction2: the remainder should be zero. See tmp. tower2. show_ring.");
-  }
-  t_syz = tmp[2];
-  si = si*tmp[1]+t_syz[i];
-  sj = sj*tmp[1]+t_syz[j];
-  t_syz[i] = si; 
-  t_syz[j] = sj;
-
-  c2 = null;
-  /* tmp[0] must be zero */
-  n = Length(t_syz);
-  for (i=0; i<n; i++) {
-     if (IsConstant(t_syz[i])){
-      if (!IsZero(t_syz[i])) {
-       if (IsNull(redundantTable[level-1,i])) {
-         /* i must equal to pos2 below. */
-         c2 = -t_syz[i];
-         tmp[0] = c2*Stoes_vec(freeRes[level-1,i]);
-         t_syz[i] = 0;
-         /* tmp[0] = t_syz . g */
-         /* break; does not work. Use */
-         i = n;
-       }
-      }
-     }
-  }
-
-  /* This is essential part for V-minimal resolution. */
-  /* vdeg = SvDegree(si*gi+sj*gj,tower,level-1,ww); */
-  vdeg = SvDegree(si*gi,tower,level-1,ww); 
-  vdeg_reduced = SvDegree(tmp[0],tower,level-1,ww);  
-  Print("vdegree of the original = "); Println(vdeg);
-  Print("vdegree of the remainder = "); Println(vdeg_reduced);
-
-  if (!IsNull(vdeg_reduced)) {
-    if (vdeg_reduced < vdeg) {
-      Println("--- Special in V-minimal!");
-      Println(tmp[0]);
-      Println("syzygy="); sm1_pmat(t_syz);
-      Print("[vdeg, vdeg_reduced] = "); Println([vdeg,vdeg_reduced]);
-    }
-  }
-
-  SsetTower(StowerOf(tower,level));
-  pos = SwhereInTower(syzHead,tower[level]);
-
-  SsetTower(StowerOf(tower,level-1));
-  pos2 = SwhereInTower(tmp[0],tower[level-1]);
-  ans = [tmp[0],t_syz,pos,pos2,vdeg,vdeg_reduced,c2];
-  /* pos is the place to put syzygy at level. */
-  /* pos2 is the place to put a new GB at level-1. */   
-  Println(ans);
-  Println("--- end of SpairAndReduction2  ");
-  return(ans);
-}
-
-HelpAdd(["Sminimal_v",
-["It constructs the V-minimal free resolution from the Schreyer resolution",
- "step by step.",
- "This code still contains bugs. It sometimes outputs wrong answer.",
- "Example:   Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
- "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
- "             [3*x^2*Dy + 2*y*Dx, 0],",
- "             [0,  x^2+y^2],",
- "             [0,  x*y]];",
- "         a=Sminimal_v(v);",
- "         sm1_pmat(a[0]); b=a[0]; b[1]*b[0]:",
- "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution."]]);
-
-/* This code still contains bugs. It sometimes outputs wrong answer. */
-/* See test12() in minimal-test.k.  */
-/* There may be remaining 1, too */
-def Sminimal_v(g) {
-  local r, freeRes, redundantTable, reducer, maxLevel,
-        minRes, seq, maxSeq, level, betti, q, bases, dr,
-        betti_levelplus, newbases, i, j,qq,tminRes;
-  r = Sschreyer(g);
-  sm1_pmat(r);
-  Debug_Sminimal_v = r;
-  Println(" Return value of Schreyer(g) is set to Debug_Sminimal_v");
-  /* Should I turn off the tower?? */
-  freeRes = r[0];
-  redundantTable = r[1];
-  reducer = r[2];
-  minRes = SnewArrayOfFormat(freeRes);
-  seq = 0;
-  maxSeq = SgetMaxSeq(redundantTable);
-  maxLevel = Length(freeRes);
-  for (level = 0; level < maxLevel; level++) {
-    minRes[level] = freeRes[level];
-  }
-  for (level = 0; level < maxLevel; level++) {
-      betti = Length(freeRes[level]);
-      for (q = betti-1; q>=0; q--) {
-        if (redundantTable[level,q] > 0) {
-          Print("[seq,level,q]="); Println([seq,level,q]);
-          if (level < maxLevel-1) {
-            bases = freeRes[level+1];
-            dr = reducer[level,q];
-            /* dr[q] = -1;  We do not need this in our reducer format. */
-            /* dr[q] should be a non-zero constant. */
-            newbases = SnewArrayOfFormat(bases);
-            betti_levelplus = Length(bases);
-            /*
-               bases[i,j] ---> bases[i,j]+bases[i,q]*dr[j]
-            */
-            for (i=0; i<betti_levelplus; i++) {
-              newbases[i] = dr[q]*bases[i] - bases[i,q]*dr;
-            }
-            Println(["level, q =", level,q]);
-            Println("bases="); sm1_pmat(bases); 
-            Println("dr="); sm1_pmat(dr);
-            Println("newbases="); sm1_pmat(newbases);
-            minRes[level+1] = newbases;
-            freeRes = minRes;
-#ifdef DEBUG
-            for (qq=q; qq<betti; qq++) {
-                for (i=0; i<betti_levelplus; i++) {
-                  if ((!IsZero(newbases[i,qq])) && (redundantTable[level,qq] >0)) {
-                    Println(["[i,qq]=",[i,qq]," is not zero in newbases."]);
-                    Print("redundantTable ="); sm1_pmat(redundantTable[level]);
-                    Error("Stop in Sminimal for debugging.");
-                  }
-                }
-            }
-#endif
-          }
-        }
-      }
-   }
-   tminRes = Stetris(minRes,redundantTable);
-   return([SpruneZeroRow(tminRes), tminRes,
-          [ minRes, redundantTable, reducer,r[3],r[4]],r[0]]);
-  /* r[4] is the redundantTable_ordinary */
-  /* r[0] is the freeResolution */
-}  
 
 /* Sannfs2("x*y*(x-y)*(x+y)"); is a test problem */
 /* x y (x+y-1)(x-2),  x^3-y^2, x^3 - y^2 z^2,
@@ -1688,28 +1282,6 @@ def Skernel(m,v) {
   sm1(" [ m v ] syz /FunctionValue set ");
 }
 
-def test3() {
-  local a1,a2,b1,b2;
-  a1 = Sannfs3("x^3-y^2*z^2");
-  a1 = a1[0];
-  a2 = Sannfs3_laScala2("x^3-y^2*z^2");
-  a2 = a2[0];
-  b1 = a1[1];
-  b2 = a2[1];
-  sm1_pmat(b2);
-  Println("  OVER ");
-  sm1_pmat(b1);
-  return([sm1_res_div(b2,b1,["x","y","z"]),b2,b1,a2,a1]);
-}
-
-def test4() {
-  local a,b;
-  a = Sannfs3_laScala2("x^3-y^2*z^2");
-  b = a[0];
-  sm1_pmat( sm1_res_kernel_image(b[0],b[1],[x,y,z]));
-  sm1_pmat( sm1_res_kernel_image(b[1],b[2],[x,y,z]));
-  return(a);
-}
 
 def sm1_gb(f,v) {
   f =ToString_array(f);
