@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.26 2004/03/05 06:26:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.27 2004/08/12 12:11:41 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -37,15 +37,24 @@ static void msgPathFinder(char *s);
 static int Verbose_get_home = 0;
 static int Verbose = 1;
 static int NoX = 0;
-
+static int ErrorVerbose = 1;
 
 #define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
 #define mymalloc(a)  sGC_malloc(a)
 
+void pathFinderErrorVerbose(int k) {
+  static int prev;
+  if (k >= 0) {
+	prev = ErrorVerbose;
+	ErrorVerbose = k;
+  }else{
+	ErrorVerbose = prev;
+  }
+}
 static void errorPathFinder(char *s) {
   /* Todo; we need to return the error message to the client if it is used
      in ox_shell */
-  fprintf(stderr,"Error: %s",s);
+  if (ErrorVerbose) fprintf(stderr,"Error: %s",s);
 }
 static void msgPathFinder(char *s) {
   /* Todo; we need to return the error message to the client if it is used

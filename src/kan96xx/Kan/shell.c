@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.10 2004/02/05 10:35:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.11 2004/02/23 09:03:42 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -125,9 +125,13 @@ static struct object KoxShell_test1(struct object ob) {
     rob = testmain(ob);
   }else if (strcmp(cmd,"which")==0) {
     if (n == 2) {
+      pathFinderErrorVerbose(0); 
       rob = KoxWhich(getoa(ob,1),KpoInteger(0));
+      pathFinderErrorVerbose(-1); 
     }else if (n==3) {
+      pathFinderErrorVerbose(0); 
       rob = KoxWhich(getoa(ob,1),getoa(ob,2));
+      pathFinderErrorVerbose(-1); 
     }else{
       errorKan1("%s\n","shell: << which command-name >> or << which command-name path >>");
     }
