@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.12 2000/05/24 15:24:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.13 2000/06/08 08:37:53 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -6,7 +6,7 @@
    ln -s /usr/bin/cpp /lib/cpp
 */
 #define OFFSET 0 
-/* #define TOTAL_STRATEGY */
+#define TOTAL_STRATEGY 1
 /* #define OFFSET 20*/
 /* Test sequences. 
    Use load["minimal.k"];;
@@ -132,6 +132,7 @@ sm1(" [(AvoidTheSameRing)] pushEnv
       [ [(AvoidTheSameRing) 0] system_variable 
         [(gbListTower) tower (list) dc] system_variable
       ] pop popEnv ");
+      /* sm1("(hoge) message show_ring "); */
 }
 
 def SresolutionFrameWithTower(g,opt) {
@@ -291,7 +292,10 @@ def Sres0FrameWithSkelton(g) {
 
 
 def StotalDegree(f) {
-  sm1(" [(grade) f] gbext (universalNumber) dc /FunctionValue set ");
+  local d0;
+  sm1(" [(grade) f] gbext (universalNumber) dc /d0 set ");
+  /* Print("degree of "); Print(f); Print(" is "); Println(d0); */
+  return(d0);
 }
 
 /* Sord_w(x^2*Dx*Dy,[x,-1,Dx,1]); */
@@ -444,6 +448,7 @@ def SlaScala(g) {
   ww = WeightOfSweyl;
   Print("WeightOfSweyl="); Println(WeightOfSweyl);
   rf = SresolutionFrameWithTower(g);
+  Print("rf="); sm1_pmat(rf);
   redundant_seq = 1;   redundant_seq_ordinary = 1;
   tower = rf[1];
   reductionTable = SgenerateTable(tower);
@@ -661,6 +666,12 @@ def MonomialPart(f) {
   sm1(" [(lmonom) f] gbext /FunctionValue set ");
 }
 
+/* WARNING:
+  When you use SwhereInTower, you have to change gbList
+  as below. Ofcourse, you should restrore the gbList
+  SsetTower(StowerOf(tower,level));
+  pos = SwhereInTower(syzHead,tower[level]);
+*/
 def SwhereInTower(f,tower) {
   local i,n,p,q;
   if (f == Poly("0")) return(-1);
@@ -697,6 +708,8 @@ def SpairAndReduction(skel,level,ii,freeRes,tower,ww) {
 
   tower2 = StowerOf(tower,level-1);
   SsetTower(tower2);  
+  Println(["level=",level]);
+  Println(["tower2=",tower2]);
   /** sm1(" show_ring ");   */
 
   gi = Stoes_vec(bases[i]);
@@ -730,7 +743,11 @@ def SpairAndReduction(skel,level,ii,freeRes,tower,ww) {
   sj = sj*tmp[1]+t_syz[j];
   t_syz[i] = si; 
   t_syz[j] = sj;
+
+  SsetTower(StowerOf(tower,level));
   pos = SwhereInTower(syzHead,tower[level]);
+
+  SsetTower(StowerOf(tower,level-1));
   pos2 = SwhereInTower(tmp[0],tower[level-1]);
   ans = [tmp[0],t_syz,pos,pos2,vdeg,vdeg_reduced];
   /* pos is the place to put syzygy at level. */
@@ -843,10 +860,23 @@ def Sbases_to_vec(bases,size) {
   return(newbases);
 }
 
+HelpAdd(["Sminimal",
+["It constructs the V-minimal free resolution by LaScala-Stillman's algorithm",
+ "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
+ "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
+ "             [3*x^2*Dy + 2*y*Dx, 0],",
+ "             [0,  x^2+y^2],",
+ "             [0,  x*y]];",
+ "         a=Sminimal(v);",
+ "         Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
+ "         b = ReParse(a[0]); sm1_pmat(b); ",
+ "         IsExact_h(b,[x,y]):",
+ "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution."]]);
+
 def Sminimal(g) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
-        betti_levelplus, newbases, i, j,qq;
+        betti_levelplus, newbases, i, j,qq, tminRes;
   r = SlaScala(g);
   /* Should I turn off the tower?? */
   freeRes = r[0];
@@ -904,7 +934,8 @@ def Sminimal(g) {
       }
     }
    }
-   return([Stetris(minRes,redundantTable),
+   tminRes = Stetris(minRes,redundantTable);
+   return([SpruneZeroRow(tminRes), tminRes,
           [ minRes, redundantTable, reducer,r[3],r[4]],r[0]]);
   /* r[4] is the redundantTable_ordinary */
   /* r[0] is the freeResolution */
@@ -1315,6 +1346,8 @@ def SpairAndReduction2(skel,level,ii,freeRes,tower,ww,redundantTable) {
 
   tower2 = StowerOf(tower,level-1);
   SsetTower(tower2);  
+  Println(["level=",level]);
+  Println(["tower2=",tower2]);
   /** sm1(" show_ring ");   */
 
   gi = Stoes_vec(bases[i]);
@@ -1381,20 +1414,23 @@ def SpairAndReduction2(skel,level,ii,freeRes,tower,ww,redundantTable) {
     }
   }
 
-
+  SsetTower(StowerOf(tower,level));
   pos = SwhereInTower(syzHead,tower[level]);
+
+  SsetTower(StowerOf(tower,level-1));
   pos2 = SwhereInTower(tmp[0],tower[level-1]);
   ans = [tmp[0],t_syz,pos,pos2,vdeg,vdeg_reduced,c2];
   /* pos is the place to put syzygy at level. */
   /* pos2 is the place to put a new GB at level-1. */   
   Println(ans);
-  Println("  ");
+  Println("--- end of SpairAndReduction2  ");
   return(ans);
 }
 
 HelpAdd(["Sminimal_v",
 ["It constructs the V-minimal free resolution from the Schreyer resolution",
  "step by step.",
+ "This code still contains bugs. It sometimes outputs wrong answer.",
  "Example:   Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
  "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
  "             [3*x^2*Dy + 2*y*Dx, 0],",
@@ -1404,7 +1440,9 @@ HelpAdd(["Sminimal_v",
  "         sm1_pmat(a[0]); b=a[0]; b[1]*b[0]:",
  "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution."]]);
 
-
+/* This code still contains bugs. It sometimes outputs wrong answer. */
+/* See test12() in minimal-test.k.  */
+/* There may be remaining 1, too */
 def Sminimal_v(g) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
@@ -1641,12 +1679,6 @@ def sm1_gb(f,v) {
   sm1(" [f v] gb /FunctionValue set ");
 }
 
-def SisExact_h(c,v) {
-  local a;
-  v = ToString_array(v);
-  a = [c,v];
-  sm1(a," isExact /FunctionValue set ");
-}
 
 def SisComplex(a) {
   local n,i,j,k,b,p,q;
@@ -1668,3 +1700,33 @@ def SisComplex(a) {
   }
   return(true);
 }
+
+def IsExact_h(c,v) {
+  local a;
+  v = ToString_array(v);
+  a = [c,v];
+  sm1(a," isExact_h /FunctionValue set ");
+}
+HelpAdd(["IsExact_h",
+["IsExact_h(complex,var): bool",
+ "It checks the given complex is exact or not in D<h> (homogenized Weyl algebra)",
+ "cf. ReParse"
+]]);
+
+def ReParse(a) {
+  local c;
+  if (IsArray(a)) {
+    c = Map(a,"ReParse");
+  }else{
+    sm1(a," toString . /c set");
+  }
+  return(c);
+}
+HelpAdd(["ReParse",
+["Reparse(obj): obj",
+ "It parses the given object in the current ring.",
+ "Outputs from SlaScala, Sschreyer may cause a trouble in other functions,",
+ "because it uses the Schreyer order.",
+ "In this case, ReParse the outputs from these functions.",
+ "cf. IsExaxt_h"
+]]);
