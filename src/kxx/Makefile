@@ -1,4 +1,5 @@
-######### configurations.
+######### configurations.    
+##  $OpenXM$
 KANHOME = ../SSkan
 
 LFLAG =
@@ -99,7 +100,8 @@ print :
 	a2ps $(KANHOME)/plugin/file2.h | lpr -P$(PR)
 
 install :
-	cp ox ox_sm1 oxlog ../bin
+	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog
+	cp  ox ox_sm1 oxlog ../bin
 	ln -sf ../../../bin/ox $(KANHOME)/lib/bin/ox
 	ln -sf ../../../bin/oxlog $(KANHOME)/lib/bin/oxlog
 	ln -sf ../../../bin/ox_sm1 $(KANHOME)/lib/bin/ox_sm1
@@ -109,21 +111,11 @@ install :
 	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_tigers
 	ln -sf ./ox_sm1 $(KANHOME)/lib/bin/ox_sm1_basicCD
 
+install2 :
+	ln -sf  ../src/kxx/ox ../bin/ox
+	ln -sf  ../src/kxx/ox_sm1 ../bin/ox_sm1
+	ln -sf  ../src/kxx/oxlog ../bin/oxlog
 
-noro :
-	cp $(KANHOME)/Kan/sm1 .
-	cp $(KANHOME)/Kan/debug/tower-sugar.sm1 .
-	cp $(KANHOME)/Kan/debug/tower.sm1 .
-	cp $(KANHOME)/Doc/factor-a.sm1 .
-	echo "sm1 ox ox_sm1 oxasir.sm1 oxasir.asir tower-sugar.sm1 tower.sm1 factor-a.sm1 are generated in yama:kxx/make noro on " > note.sm1binary.txt
-	date >> note.sm1binary.txt
-	tar czvf sm1binary.linux.tgz  sm1  ox.sm1  oxasir.sm1  ox ox_sm1  oxlog2.txt oxasir.asir tower-sugar.sm1 tower.sm1 factor-a.sm1 note.sm1binary.txt
-	/bin/rm sm1 tower-sugar.sm1 tower.sm1 factor-a.sm1 note.sm1binary.txt
-	/bin/rm -f /fuji/taka/S/sm1binary.linux.tgz
-	mv sm1binary.linux.tgz /fuji/taka/S
-
-backup2 :
-	cp openxxx.tex $(HOME)/berkeley/gbhg3/Bak
 
 clean-binary :
 	echo " ../open-sm1-binary*  will be removed"

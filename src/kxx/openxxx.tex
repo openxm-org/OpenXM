@@ -1,4 +1,4 @@
-
+%%  $OpenXM$
 %\documentclass{jarticle}
 \documentstyle{jarticle}
 \title{{\bf Open XM の設計と実装} \\
@@ -7,7 +7,7 @@
 } , 
          高山信毅\thanks{神戸大学理学部数学教室}
 }
-\date{ 1999年, 9月13日}
+\date{ 1999年, 10月30日}
 \begin{document}
 \maketitle
 
@@ -1459,7 +1459,9 @@ Reset に対する返事.
 1 byte のデータを書き出し flush する.
 そのあと, 1 byte のデータを読み込む.
 クライアントはコントロールプロセス, 計算プロセス
-につながるファイルディスクリプタの両方へ
+につながるファイルディスクリプタの両方から
+まず 1 byte のデータを読む.
+そのあと
 1 byte のデータを書き出し flush する.
 1 byte のデータは,
 {\tt 0}, {\tt 1}, {\tt FF} のどれかであり,
@@ -1473,7 +1475,7 @@ big indian を使用したい,
 両者の希望が一致しない場合はつねに {\tt 0} (network byte order)
 を使用する.
 Network byte order しか実装していないシステムでは,
-セッションのスタート直後に {\tt 0} をおくればよい.
+{\tt 0} をおくればよい.
 ただし効率が問題となる通信において, network byte order への変換は
 おおきなボトルネックとなることがあることを了解しておくべきである.
 
@@ -1483,6 +1485,21 @@ Network byte order しか実装していないシステムでは,
 #define OX_BYTE_BIG_INDIAN         0xff
 \end{verbatim}
 
+
+注意: {\tt OpenXM/src/kxx} に含まれる, {\tt ox} (コントロールプロセス,
+計算プロセスをたちあげるローンチャ)は, 標準で One Time Password
+の機能をもっています.
+この機能を OFF にするには {\tt -insecure} option を使用して下さい.
+One Time Password は 0 で終了するバイト列であり,
+コントロール, 計算双方のプロセスは,
+上記の byte order の決定用の 1 byte を書き出す前に
+One Time Password バイト列を送出しないといけません.
+
+{\tt ox} (ソースは {\tt oxmain.c}, {\tt kan96xx/plugin/oxmisc.c})においては
+{\tt oxTellMyByteOrder()} が, サーバについての byte order 情報の
+送出, 読み込みをやっている.
+クライアントについては,
+{\tt oxSetByteOrder()} が, byte order 情報の読み込み, 送出をおこなっている.
 
 \section{ オブジェクトの文字列表現 }
 

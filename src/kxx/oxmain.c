@@ -1,3 +1,4 @@
+/*  $OpenXM$  */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -11,11 +12,7 @@
 #include "ox_kan.h"
 #include "serversm.h"
 
-#define SERVERNAME "/home/nobuki/kxx/ox_sm1"
-/*
-#define SERVERNAME "/home/nobuki/kxx/stdserver00"
-#define SERVERNAME "/home/ftp/pub/OHP/ox_asir"
-*/
+#define SERVERNAME "/usr/local/OpenXM/bin/ox_sm1"
 
 int OxCritical = 0;
 int OxInterruptFlag = 0;
@@ -48,6 +45,10 @@ main(int argc, char *argv[]) {
   strcpy(sname,"localhost");
   strcpy(ServerName,SERVERNAME);
   i = 1;
+  if (argc == 1) {
+    oxmainUsage();
+    exit();
+  }
   while (i<argc) {
     if (strcmp(argv[i],"-host") == 0) {
       i++;
@@ -167,8 +168,24 @@ oxmainUsage() {
   fprintf(stderr,"  ox [-ox serverprogram -host name -data portnum -control portnum -monitor]\n");
   fprintf(stderr," [-insecure -portfile fname -reverse -pass xxxyyyzzz]");
   fprintf(stderr,"\n");
-  fprintf(stderr,"Example 1: dc1% ./ox -ox ox_sm1 -host dc1.math.kobe-u.ac.jp -insecure -control 1300 -data 1200\n");
+  fprintf(stderr,"-reverse: ox server connects to the client.\n");
+  fprintf(stderr,"          The client must give a one time password to ox server to connect to the client with -pass option.\n");
+  fprintf(stderr,"          The one time password can be seen by ps command, so you must not use this one time password system on an untrustful host.\n");
+  fprintf(stderr,"          The one time password should be sent by a safe communication line like ssh and the ox server should be started by ssh. Do not use rsh\n");
+  fprintf(stderr,"          If -reverse is not given, the client connect to the ox server\n");
+  fprintf(stderr,"          See OpenXM/src/SSkan/Doc/ox.sm1, /sm1connectr\n");
+  fprintf(stderr,"-insecure : \n");
+  fprintf(stderr,"          If you access to the server from a localhost, you do not need one time password. However, if you access outside of the localhost, a one time password is required. To turn off this restriction, -insecure option is used.\n");
+  fprintf(stderr,"Example 1:\n");
+  fprintf(stderr,"(Start the ox server): dc1%% ox -ox ~/OpenXM/bin/ox_sm1 -host dc1.math.kobe-u.ac.jp -insecure -control 1300 -data 1200\n");
+  fprintf(stderr,"(client):  sm1\n ");
+  fprintf(stderr,"           (ox.sm1) run ; \n");
   fprintf(stderr,"           sm1>[(dc1.math.kobe-u.ac.jp) 1300 1200] oxconnect /ox.ccc set\n");
+  fprintf(stderr,"Example 2:\n");
+  fprintf(stderr,"(Start the ox server): dc1%% ox -ox ~/OpenXM/bin/ox_sm1\n");
+  fprintf(stderr,"(client): dc1%% sm1\n ");
+  fprintf(stderr,"           (ox.sm1) run ; \n");
+  fprintf(stderr,"           sm1>[(localhost) 1300 1200] oxconnect /ox.ccc set\n");
   fprintf(stderr,"\n");
 }
 
