@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.14 2000/01/02 07:35:15 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.15 2000/01/16 01:35:50 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -7,7 +7,8 @@
 ##             Create symbolic links in $(OpenXM_lib)/sm1/bin
 ##   install-for-debug :
 ##             Create symbolic links instead of copying.
-
+##   install-document :
+##             Nothing to do for now.
 ######### configurations.    
 OpenXM_contrib=../../../OpenXM_contrib
 OpenXM_ROOT=../../../OpenXM
@@ -146,6 +147,7 @@ install_lib_bin :
 # generated in the top level Makefile
 copy-kan-lib : clean-for-install
 	mkdir $(OpenXM_lib)/sm1
+	touch $(OpenXM_lib)/sm1/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_COPIED_FROM_kan96xx_Doc
 	cp -r $(KANHOME)/Doc/* $(OpenXM_lib)/sm1
 	-/bin/rm -rf $(OpenXM_lib)/sm1/CVS
 	cp $(KANHOME)/Kan/var.sm1 $(OpenXM_lib)/sm1
@@ -158,6 +160,9 @@ configure:
 	ln -f -s  ../SSkan/plugin/ox_kan.h ox_kan.h
 
 ## openxm document generation.
+install-document :
+	echo "Do nothing for now"
+
 OXWEAVEFLAG=--recursive
 doc:  openxxx.tex
 	-/bin/rm openxm-eg.tex openxm-jp.tex
