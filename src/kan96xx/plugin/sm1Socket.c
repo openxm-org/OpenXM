@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.9 2002/10/21 01:59:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.10 2002/10/22 00:53:51 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -642,6 +642,9 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
   }else if (strcmp(key,"readHTTP") == 0) {
     robj = KsocketReadHTTP(obj);
   }else if (strcmp(key,"write") == 0) {
+  }else if (strcmp(key,"gethostname") == 0) {
+    robj = KsocketGetHostName();
+  }else if (strcmp(key,"write") == 0) {
     robj = KsocketWrite(obj);
   }else if (strcmp(key,"read") == 0) {
     robj = KsocketRead(obj);
@@ -697,6 +700,18 @@ static int getReceivedContentLength(char *s) {
 }
 
 
+struct object KsocketGetHostName(void) {
+  char name[1024];
+  char *s;
+  struct object rob = NullObject;
+  if (gethostname(name,1023) != 0) {
+    return rob;	
+  }
+  s = (char *)GC_malloc(sizeof(char)*(strlen(name)+2));
+  if (s == (char *)NULL) errorMsg1s("Out of Memory.");
+  strcpy(s,name);
+  return(KpoString(s));
+}
 
 
 
