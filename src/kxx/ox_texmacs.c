@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.10 2004/03/03 06:09:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.11 2004/03/03 09:44:39 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -103,7 +103,7 @@ main(int argc,char *argv[]) {
 	}else if (strcmp(argv[i],"--k0") == 0) {
 	  TM_Engine = K0;
 	}else{
-	  printv("Unknown option\n");
+	  /* printv("Unknown option\n"); */
 	}
   }
 
@@ -192,6 +192,9 @@ main(int argc,char *argv[]) {
         else printv("Output is too large.\n");
       }else{
         KSexecuteString(" ox.engine 1 oxpops "); /* Discard the result. */
+        /* Push and pop dummy data to wait until the computation finishes. */
+        KSexecuteString(" ox.engine 0 oxpushcmo ox.engine oxpopcmo ");
+        ob = KSpop();
         printv("");
       }
     }
