@@ -1,6 +1,5 @@
-/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.1 2000/02/08 13:25:41 takayama Exp $ */
-#include <stdio.h>
-#include "oxasir.h"
+/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.2 2000/02/09 06:08:58 takayama Exp $ */
+#include <asir/ox.h>
 
 main() {
   hoge();
@@ -28,7 +27,7 @@ hoge() {
   unsigned char cmo[1024];
   int i,size;
 
-  asir_ox_init(0);
+  asir_ox_init(1);
   asir_ox_push_cmo(cmo0);
   asir_ox_push_cmo(cmo1);
   asir_ox_push_cmo(cmo2);

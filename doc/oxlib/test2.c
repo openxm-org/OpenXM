@@ -1,13 +1,11 @@
-/* $OpenXM$ */
-#include <stdio.h>
-#include <sys/param.h>
-#include "oxasir.h"
+/* $OpenXM: OpenXM/doc/oxlib/test2.c,v 1.1 2000/02/08 13:25:41 takayama Exp $ */
+#include <asir/ox.h>
 
 char *asir_ox_pop_string();
 
 main() {
   char *s;
-  asir_ox_init(0);  /* Use the network byte order */
+  asir_ox_init(1);  /* Use the network byte order */
 
   /* Loading the file xm */
   /* This part generates a core dump. I'm trying to find a reason. */
