@@ -1,6 +1,10 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.2 2000/05/03 07:50:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.3 2000/05/04 06:55:28 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
+/* If you run this program on openxm version 1.1.2 (FreeBSD),
+   make a symbolic link by the command
+   ln -s /usr/bin/cpp /lib/cpp
+*/
 /* Test sequences. 
    Use load["minimal.k"];;
 
@@ -367,6 +371,15 @@ def SnewArrayOfFormat(p) {
      return(null);
   }
 }
+def ScopyArray(a) {
+  local n, i,ans;
+  n = Length(a);
+  ans = NewArray(n);
+  for (i=0; i<n; i++) {
+    ans[i] = a[i];
+  }
+  return(ans);
+}
 def SminOfStrategy(a) {
   local n,i,ans,tt;
   ans = 100000; /* very big number */
@@ -409,7 +422,8 @@ def SlaScala(g) {
   local rf, tower, reductionTable, skel, redundantTable, bases,
         strategy, maxOfStrategy, height, level, n, i,
         freeRes,place, f, reducer,pos, redundant_seq,bettiTable,freeResV,ww,
-        redundantTable_ordinary, redundant_seq_ordinary;
+        redundantTable_ordinary, redundant_seq_ordinary,
+        reductionTable_tmp;
   /* extern WeightOfSweyl; */
   ww = WeightOfSweyl;
   Print("WeghtOfSweyl="); Println(WeightOfSweyl);
@@ -430,7 +444,12 @@ def SlaScala(g) {
   while (strategy <= maxOfStrategy) {
     for (level = 0; level < height; level++) {
       n = Length(reductionTable[level]);
-      for (i=0; i<n; i++) {
+      reductionTable_tmp = ScopyArray(reductionTable[level]); 
+      while (SthereIs(reductionTable_tmp,strategy)) {
+        i = SnextI(reductionTable_tmp,strategy,redundantTable,
+                   skel,level,freeRes);
+        Println([level,i]);
+        reductionTable_tmp[i] = -200000;
         if (reductionTable[level,i] == strategy) {
            Print("Processing "); Print([level,i]);
            Print("   Strategy = "); Println(strategy);
@@ -502,6 +521,49 @@ def SlaScala(g) {
   }
   return([freeResV, redundantTable,reducer,bettiTable,redundantTable_ordinary]);
 }
+
+def SthereIs(reductionTable_tmp,strategy) {
+  local n,i;
+  n = Length(reductionTable_tmp);
+  for (i=0; i<n; i++) {
+    if (reductionTable_tmp[i] == strategy) {
+      return(true);
+    }
+  }
+  return(false);
+}
+
+def SnextI(reductionTable_tmp,strategy,redundantTable,
+                                  skel,level,freeRes)
+{
+   local ii,n,p,myindex,i,j,bases;
+   n = Length(reductionTable_tmp);
+   if (level == 0) {
+     for (ii=0; ii<n; ii++) {
+       if (reductionTable_tmp[ii] == strategy) {
+          return(ii);
+        }
+      }
+   }else{
+     for (ii=0; ii<n; ii++) {
+       if (reductionTable_tmp[ii] == strategy) {
+         p = skel[level,ii];
+         myindex = p[0];
+         i = myindex[0]; j = myindex[1];
+         bases = freeRes[level-1];
+         if (IsNull(bases[i]) || IsNull(bases[j])) {
+            
+         }else{
+           return(ii);
+         }
+       }
+     }
+   }
+   Println(reductionTable_tmp);
+   Error("SnextI: bases[i] or bases[j] is null for all combinations.");
+}
+
+
 
 def SsetBettiTable(freeRes,g) {
   local level,i, n,bases,ans;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.3 2000/03/23 07:59:55 noro Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.4 2000/05/01 07:26:58 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1007,7 +1007,11 @@ void loadFileWithCpp(objectp op)
     return;
   }
   system("/bin/rm -f k00.cppload.tmp");
+#if defined(linux) || defined(__linux__)
+  strcpy(fname,"/lib/cpp -P -lang-c++ <");
+#else
   strcpy(fname,"cpp -P -lang-c++ <");
+#endif
   strcat(fname,op->lc.str);
   strcat(fname,"  >k00.cppload.tmp");
   system(fname);
