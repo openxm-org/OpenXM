@@ -1,5 +1,7 @@
-/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.2 2000/02/09 06:08:58 takayama Exp $ */
-#include <asir/ox.h>
+/* $OpenXM: OpenXM/doc/oxlib/test1.c,v 1.3 2000/03/16 07:34:37 noro Exp $ */
+#include <ox/cmotag.h>
+#include <ox/smCommand.h>
+
 
 main() {
   hoge();

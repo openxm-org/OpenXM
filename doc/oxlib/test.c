@@ -1,5 +1,5 @@
-/* $OpenXM: OpenXM/doc/oxlib/test.c,v 1.2 2002/02/25 07:14:44 noro Exp $ */
-#include <asir/ox.h>
+/* $OpenXM: OpenXM/doc/oxlib/test.c,v 1.3 2002/02/25 07:24:33 noro Exp $ */
+#include <stdio.h>
 
 main() {
 	char ibuf[BUFSIZ];

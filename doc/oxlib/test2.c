@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/doc/oxlib/test2.c,v 1.2 2000/03/16 07:34:37 noro Exp $ */
-#include <asir/ox.h>
+/* $OpenXM: OpenXM/doc/oxlib/test2.c,v 1.3 2002/02/25 07:09:02 noro Exp $ */
+#include <ox/smCommand.h>
+
 
 char *test2_ox_pop_string();
 

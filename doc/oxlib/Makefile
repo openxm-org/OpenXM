@@ -1,5 +1,8 @@
-# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.5 2000/09/07 21:34:06 takayama Exp $
-all : test test1 test2 test3
+# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.6 2002/02/25 07:09:01 noro Exp $
+all : install-lib
+	make all-samples
+all-samples : test test1 test2 test3
+install-lib:
 ##
 ## make   
 ## make OpenXM_HOME=/usr/local/OpenXM
