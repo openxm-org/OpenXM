@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.5 2004/09/28 12:20:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.6 2004/09/28 12:27:17 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -317,8 +317,7 @@ int cgiKeyValuePairToUrlEncodingFile2(struct object ob,FILE2 *fp) {
     eob = getoa(ob,i);
     eob0 = getoa(eob,0); eob1 = getoa(eob,1);
     key = KopString(eob0);
-    if (i == 0) {
-      if (strcmp(key,"URL") != 0) warningKan("Key word should be URL.\n");
+    if ((i == 0) && (strcmp(key,"URL")==0)) {
       if (eob1.tag != Sdollar) errorKan1("%s\n","URL value must be a string.");
       fp2fputs(KopString(eob1),fp);
       if ( n > 1 ) fp2fputc('?',fp);

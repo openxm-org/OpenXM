@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.31 2004/09/16 23:53:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.32 2004/09/17 12:32:11 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -382,6 +382,29 @@ struct object Kextension(struct object obj)
         }
       }
     }
+  }else if (strcmp(key,"read")==0) {
+    if (size != 3) errorKan1("%s\n","[(read) fd size] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","[(read) fd size] extension. fd must be an integer.");
+    obj2 = getoa(obj,2);
+    if (obj2.tag != Sinteger) errorKan1("%s\n","[(read) fd size] extension. size must be an integer.");
+    {
+      int total, n, fd;
+      char *s; char *s0;
+      fd = KopInteger(obj1);
+      total = KopInteger(obj2);
+      if (total <= 0) errorKan1("%s\n","[(read) ...]; negative size has not yet been implemented.");
+      /* Return a string. todo: implement SbyteArray case. */
+      s0 = s = (char *) sGC_malloc(total+1);
+      if (s0 == NULL) errorKan1("%s\n","[(read) ...]; no more memory."); 
+      while (total >0) {
+        n = read(fd, s, total);
+        if (n < 0) { perror("read"); errorKan1("%s\n","[(read) ...]; read error.");}
+        s[n] = 0;
+        total -= n;  s = &(s[n]);
+      }
+      rob = KpoString(s0);
+    }
   }else if (strcmp(key,"regionMatches")==0) {
     if (size != 3) errorKan1("%s\n","[(regionMatches) str strArray] extension.");
     obj1 = getoa(obj,1);
@@ -451,7 +474,8 @@ struct object Kextension(struct object obj)
 #include "plugin.hh"
 #include "Kclass/tree.hh"
   else{
-    errorKan1("%s\n","Unknown tag for extension.");
+	fprintf(stderr,"key=%s; ",key);
+    errorKan1("%s\n","Unknown key for extension.");
   }
 
 

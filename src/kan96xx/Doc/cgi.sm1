@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.7 2004/10/13 12:11:31 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.8 2004/11/22 12:30:32 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -93,11 +93,14 @@
 ]] putUsages
 % Server-side-script
 % oxMessageBody=action input-data-for-polymake
-% sm1 -q -s "[(parse) (cgi.sm1) pushfile] extension cgiPolymake quit "
-% env QUERY_STRING="t?oxMessageBody=FACETS+POINTS+1+0+0%0A" sm1 -q -s "[(parse) (cgi.sm1) pushfile] extension cgiPolymake quit "
+% t.t : oxMessageBody=FACETS++POINTS%0A1+0+0+%0A1+1+0+%0A1+0+1%0A
+%   t?oxMe...
+% env CONTENT_LENGTH=57 sm1 -q -s "[(parse) (cgi.sm1) pushfile] extension cgiPolymake quit " <t.t
 /cgiPolymake {
   {
-   [(getenv) (QUERY_STRING)] extension /cgi.query_string set
+   [(getenv) (CONTENT_LENGTH)] extension /cgi.content_length set
+   cgi.content_length .. (integer) dc /cgi.content_length set
+   [(read) 0 cgi.content_length] extension /cgi.query_string set
    cgi.query_string isString { 
      cgi.query_string length 0 eq  {
        cgiPolymake.errorMessage message  exit
@@ -125,7 +128,7 @@
     (1 1 0 ) nl
     (1 0 1 ) nl
     (</pre>) nl
-    (<form>) nl
+    (<form method="POST">) nl
     (<input type=submit>) nl
     (<textarea name="oxMessageBody") nl
     ( rows=10 cols="80" wrap="soft"></textarea>) nl
@@ -220,14 +223,19 @@ def
   [
     /saction arg1 def /sfile arg2 def
 % step1. Generate query in URL encoding.
-    [[(URL) [(http://) cgiQueryPolymake.hostname cgiQueryPolymake.cginame] cat]
+     [(http://) cgiQueryPolymake.hostname cgiQueryPolymake.cginame] cat
+     /ff1 set
 % full URL necessary for virtual host of apache.
-     [(oxMessageBody)
-     [saction ( )
-      sfile nl ] cat
-     ]] /ff set
-     [(cgiKeyValuePairToUrlEncodingString) ff] extension /ff1 set
-     [(GET ) , ff1 , ( HTTP/0.9) , nl , nl ] cat /sss2 set
+     [[(oxMessageBody)
+       [saction ( )
+        sfile nl ] cat
+       ]
+     ] /ff set
+     [(cgiKeyValuePairToUrlEncodingString) ff] extension /ff set
+     [(POST ) , ff1 , ( HTTP/0.9) , nl , 
+      (Connection: Keep-Alive) , nl ,
+      (Content-length: ) , ff length (string) dc , nl ,
+      ff ] cat /sss2 set
 % step 2. Call the server and get the response in pp  
      [(sm1.socket) (connect) 
         [80 cgiQueryPolymake.hostname]] extension 0 get /goo set
