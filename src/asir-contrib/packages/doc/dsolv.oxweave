@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/dsolv.oxweave,v 1.1 2000/02/06 06:39:48 takayama Exp $ */
 /* dsolv.oxweave */
 /*&eg-texi
 @node DSOLV Functions,,, Top
@@ -34,7 +34,7 @@ is as same as those you can use in the package @code{sm1}.
 このパッケージは @code{ox_sm1} を利用している.
 したがって使用できる変数は @code{sm1} パッケージと同様の変数しかつかえない.
 
-@section Functions
+@section 函数一覧
 
 */
 
@@ -67,7 +67,7 @@ an infinite loop.
 @item This is an implementation of Algorithm 2.3.14 of the book [SST].
 If we replace variables x, y, ... in the output by log(x), log(y), ...,
 then these polynomials in log are solutions of the system of differential
-equations @code{map(subst,@var{f},x,x*dx, y,y*dy, ...)}.
+equations @var{f}@code{_(x->x*dx, y->y*dy, ...)}.
 @end itemize
 */
 
@@ -99,7 +99,8 @@ primary でない場合, この函数は無限ループにおちいる.
 @item この函数は本 [SST] の Algorithm 2.3.14  の実装である.
 出力中の変数 x, y, ... をそれぞれ log(x), log(y), ..., でおきかえると,
 これらの log 多項式は, 
-@code{map(subst,@var{f},x,x*dx, y,y*dy, ...)} で生成される微分方程式系
+@var{f}@code{_(x->x*dx, y->y*dy, ...)}
+で生成される微分方程式系
 の解となっている.
 @end itemize
 */

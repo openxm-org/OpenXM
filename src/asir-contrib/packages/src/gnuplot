@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.6 2000/02/02 13:06:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.7 2000/02/06 07:42:59 takayama Exp $ */
 
 Gnuplot_proc = -1$
 #define GNUPLOT_FIND_PROC(P)  P = getopt(proc);\
@@ -743,7 +743,7 @@ Output device is set to X11
 */
 
 /* Replacing ^ by **  */
-def gnuplot_to_gnuplot_format(F) {
+def gnuplot_to_gnuplot_format_old(F) {
     G = rtostr(F);
     GS=sm1_to_ascii_array(G);
     N = length(GS);
@@ -763,6 +763,14 @@ def gnuplot_to_gnuplot_format(F) {
     }
     /* print(GS2); */
     return(sm1_from_ascii_array(vtol(GS2)));
+}
+/* Replacing ^ by **  */
+def gnuplot_to_gnuplot_format(F) {
+  A = ctrl("fortran_output");
+  ctrl("fortran_output",1);
+  S = rtostr(F);
+  ctrl("fortran_output",A);
+  return(S);
 }
 
 def gnuplot_plot_function(F) {
