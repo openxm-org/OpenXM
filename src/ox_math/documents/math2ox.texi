@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.3 2000/03/14 02:21:40 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.4 2000/03/14 05:46:09 ohara Exp $
 
 \input texinfo
 @iftex
@@ -340,20 +340,109 @@ In[5] := cmo = OxGet[pid]
 @node Sample Programs,,, Top
 @chapter Sample Programs
 
-@tex
-\noindent
-1.
-{\tt OpenXM/lib/math/primadec.m} is a Mathematica program
+@enumerate
+@item
+@code{OpenXM/lib/math/primadec.m} is a Mathematica program
 to make primary ideal decompositions by calling
-{\tt ox\_asir}.
+@code{ox_asir}.
 As to usages, see comments in this file.
 
-\noindent 2.
-{\tt OpenXM/lib/math/beta.m} is a Mathematica program
-to get beta-nbc bases by calling {\tt ox\_asir}.
-@end tex
+@item
+@code{OpenXM/lib/math/beta.m} is a Mathematica program
+to get beta-nbc bases by calling @code{ox_asir}.
+@end enumerate
 
+@node Example,,, Top
+@chapter Example
 
+The @code{math2ox} has the following commands:
+
+@code{OxStart[s_String], 
+OxStartInsecure[s_String, p_Integer, q_Integer],
+OxStartRemoteSSH[s_String, t_String], 
+OxExecuteString[s_String], OxSendMessage[s_String], OxGet[], OxPopCMO[],
+OxPopString[], OxClose[], OxReset[]}.
+
+First, let us load the math2ox.
+@example
+In[1]:= <<oxclient.m
+@end example
+
+Second, let us open a connection with an OX server.
+For example, if we want to call the @code{ox_sm1} (the kan/sm1 server), then
+@example
+In[2] := pid = OxStart[pid, "ox_sm1"]
+@end example
+where we have the connection of reverse mode.  The OxStart function
+automatically invoke @code{ox_sm1} on the local machine.  If you need to
+connect an OX server on a remote machine, then you can use reverse mode.
+@example
+In[2] := pid = OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
+@end example
+The mode is not secured but you can crypt data stream by using ssh
+(Secure SHell).
+@example
+In[3] := Run["ssh -f water ox -insecure -ox ox_sm1 -host water"]
+@end example
+
+Third, let us send an OX message to the OX server.
+We can send an OX message written in OX/CMO expressions.
+@example
+In[4] := OxSendMessage[pid, "(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
+In[5] := OxSendMessage[pid, "(OX_COMMAND, (SM_popCMO))"]
+@end example
+If the expression conains syntax errors, then nothing is sent.
+
+Remarks: if @code{SM_popCMO} is sent by the @code{OxSendMessage[]} function, then the
+OX stack machine returns the top of the stack to the @code{math2ox}.
+Then, in order to receive the message, we need to call the @code{OxGet[]}
+function always after executing @code{OxSendMessage[]}
+@example
+In[6] := OxGet[pid]
+@end example
+
+If we do not use the @code{OxSendMessage} function and use the @code{OxPopCMO[]}
+function, then we do not need to call the @code{OxGet[]}.
+@example
+In[5] := OxPopCMO[pid]
+@end example
+
+Fourth, if we send a command expressed in the local language of the OX
+server, then we need to call the @code{OxExecuteString[]} function.
+
+Last, let us close the connection.
+@example
+In[7] := OxClose[pid]
+@end example
+
+@c @node Bibliography,,, Top
+@c @unnumbered Bibliography
+@node References,,, Top
+@unnumbered References
+
+@enumerate
+@item
+M. Noro, N. Takayama:
+Design and Implementation of OpenXM, 1996, 1997, 1998, 1999, 2000.
+
+@item
+@code{http://www.math.kobe-u.ac.jp/OpenXM/}
+
+@item
+M. Noro, K. Ohara, N. Takayama:
+{Introduction to Open Asir}, 1999, Suusiki Shori, Vol 7, No 2,
+2--17. (ISBN4-87243-086-7, SEG Publishing, Tokyo). (in Japanese)
+
+@item
+Stephen Wolfram:
+{The Mathematica Book}, Third edition,
+Wolfram Media/Cambridge University Press, 1996.
+
+@item
+T. Miyachi:
+{Mathematica Network Programming},
+Iwanami Shoten Publishers, 1998. (in Japanese)
+@end enumerate
 
 @node Index,,, Top
 @unnumbered Index
