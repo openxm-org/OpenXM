@@ -1,11 +1,12 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/ox_toolkit/make-configure,v 1.1 2000/02/08 20:34:14 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/make-configure,v 1.2 2004/06/28 12:39:11 ohara Exp $
 
+prefix=`cd ../..; pwd`
 case "$1" in
 "-f"|"--force")
    automake
    autoconf
-   ./configure --prefix="$(cd ../..; pwd)"
+   ./configure --prefix=${prefix} --with-gmp
    ;;
 *)
 if [ ! -f ./.configure_done ]; then 
@@ -15,7 +16,7 @@ if [ ! -f ./.configure_done ]; then
     if [ ! -x ./configure ]; then 
 		autoconf 
   	fi
-    ./configure --prefix="$(cd ../..; pwd)"
+    ./configure --prefix=${prefix} --with-gmp
 fi
     ;;
 esac
