@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.15 2004/03/09 02:53:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.16 2004/03/09 07:10:46 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -25,11 +25,13 @@
 #define DATA_BEGIN_V  "<S type=verbatim>"     /* "\002verbatim:" */
 #define DATA_BEGIN_L  "<S type=latex>"        /* "\002latex:" */
 #define DATA_BEGIN_P  "<S type=prompt>"        /* "\002channel:prompt " */
+#define DATA_BEGIN_PS  "<S type=postscript>"        /* "\002ps: " */
 #define DATA_END      "</S>"    /* "\005" */
 #else
 #define DATA_BEGIN_V  "\002verbatim:"
 #define DATA_BEGIN_L  "\002latex:"
 #define DATA_BEGIN_P  "\002prompt:"
+#define DATA_BEGIN_PS  "\002ps:"
 #define DATA_END      "\005" 
 #endif
 
@@ -65,8 +67,10 @@ static char *readString(FILE *fp,char *prolog, char *eplog);
 static void printv(char *s);
 static void printl(char *s);
 static void printp(char *s);
+static void printps(char *s);
 static void printCopyright(char *s);
 static int startEngine(int type,char *msg);
+static int isPS(char *s);
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -192,15 +196,21 @@ main(int argc,char *argv[]) {
         KSexecuteString(" ox.engine oxpopstring ");
         r = KSpopString();
       }
-      if (strlen(r) < OutputLimit_for_TeXmacs) {
-        if (vmode) printv(r); else printl(r);
-      } else printv("Output is too large.\n");
+      if (isPS(r)) {
+        printps(r);
+      }else{
+        if (vmode) printv(r);
+        else{
+          if (strlen(r) < OutputLimit_for_TeXmacs) {
+            printl(r);
+          } else printv("Output is too large.\n");
+        }
+      }
     }else{
       if (!TM_do_not_print) {
         KSexecuteString(" ox.engine oxpopstring ");
         r = KSpopString();
-        if (strlen(r) < OutputLimit_for_TeXmacs) printv(r);
-        else printv("Output is too large.\n");
+        printv(r);
       }else{
         KSexecuteString(" ox.engine 1 oxpops "); /* Discard the result. */
         /* Push and pop dummy data to wait until the computation finishes. */
@@ -333,6 +343,20 @@ static void printv(char *s) {
 static void printl(char *s) {
   printf("%s",DATA_BEGIN_L);
   printf(" $ %s $ ",s);
+  printf("%s",DATA_END);
+  fflush(NULL);
+}
+static int isPS(char *s) {
+  if (s[0] != '%') return 0;
+  if (s[1] != '%') return 0;
+  if (s[2] != '!') return 0;
+  if (s[3] != 'P') return 0;
+  if (s[4] != 'S') return 0;
+  return 1;
+}
+static void printps(char *s) {
+  printf("%s",DATA_BEGIN_PS);
+  printf("%s",s);
   printf("%s",DATA_END);
   fflush(NULL);
 }
