@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.7 2004/07/09 07:13:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.8 2004/07/12 07:23:59 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -65,7 +65,7 @@ localf ispoly_of_vars, matrix_column_nth, matrix_row_nth;
 localf gkz_ring, define_gkz_ring, gkz, gkz_D, gkz_E;
 localf compute_toric_kernel, gkz_toric_partial, gkz_toric;
 localf gkz_toric_partial_sm1, gkz_toric_sm1;
-localf initial_term_weight, gkz_distraction;
+localf initial_term_weight, check_gkz_generic_weight, gkz_distraction;
 localf action_monomial_DE, action_DE, action;
 localf dp_dtol;
 localf partial_to_euler_i, partial_to_euler_term_i;
@@ -1182,6 +1182,16 @@ def gkz_toric_sm1(GKZ)
 def initial_term_weight(F,O) {
     F = dp_gr_main(F | order=[O]);
     return dp_initial_term(F | order=[O]);
+}
+
+def check_gkz_generic_weight(GKZ, W) {
+    IN = initial_term_weight(gkz_toric_partial(GKZ), W);
+    for( ; IN != []; IN = cdr(IN)) {
+        if (dp_rest(car(IN)) != 0) {
+            return 0; /* W is a non-generic weight ! */
+        }
+    }
+    return 1;
 }
 
 def gkz_distraction(GKZ)
