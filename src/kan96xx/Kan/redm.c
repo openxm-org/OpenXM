@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -320,5 +320,130 @@ int eliminated(ff)
     if (tf->e[i].x) return 0;
   }
   return(1);
+}
+
+/* Grading by the weight vector (0,1). Note 2003.07.10 
+   dGrade1 is the grade of the in(f).
+*/
+int dGrade1(f)
+     POLY f;
+{
+  int r;
+  int i;
+  MONOMIAL tf;
+  static int nn,mm,ll,cc,n,m,l,c;
+  static struct ring *cr = (struct ring *)NULL;
+
+  if (f ISZERO) return(-1);
+  tf = f->m;
+  if (tf->ringp != cr) {
+    n = tf->ringp->n;
+    m = tf->ringp->m;
+    l = tf->ringp->l;
+    c = tf->ringp->c;
+    nn = tf->ringp->nn;
+    mm = tf->ringp->mm;
+    ll = tf->ringp->ll;
+    cc = tf->ringp->cc;
+    cr = tf->ringp;
+  }
+
+  r = 0;
+  for (i=m; i<nn; i++) {
+    r += tf->e[i].D;
+  }
+  return(r);
+}
+
+/* Grading by the weight vector (0,1). Note 2003.07.10 
+*/
+int dGrade(f)
+     POLY f;
+{
+  int r, first, t;
+  if (f ISZERO) return(-1);
+  first = 1;
+  while (f != POLYNULL) {
+    if (first) {
+	  r = dGrade1(f);
+	  first = 0;
+	}else{
+	  t = dGrade1(f);
+	  if (t > r) r = t;
+	}
+  }
+  return r;
+}
+
+/* Grading by the weight vector (u,v)
+   and degree shift ds.  Note 2003.07.10 
+   uvGrade1 is the grade of the in(f).
+   ei ( element index ). If it is < 0, then e[n-1]->x will be used,
+                         else ei is used.
+*/
+int uvGrade1(POLY f,int u[],int v[],int ds[],int dssize,int ei)
+{
+  int r;
+  int i,t;
+  MONOMIAL tf;
+  static int nn,mm,ll,cc,n,m,l,c;
+  static struct ring *cr = (struct ring *)NULL;
+
+  if (f ISZERO) return(-1);
+  tf = f->m;
+  if (tf->ringp != cr) {
+    n = tf->ringp->n;
+    m = tf->ringp->m;
+    l = tf->ringp->l;
+    c = tf->ringp->c;
+    nn = tf->ringp->nn;
+    mm = tf->ringp->mm;
+    ll = tf->ringp->ll;
+    cc = tf->ringp->cc;
+    cr = tf->ringp;
+  }
+
+  r = 0;
+  for (i=0; i<n; i++) {
+    r += (tf->e[i].x)*u[i];
+    r += (tf->e[i].D)*v[i];
+  }
+  /* Degree shift */
+  if (ei <0) {
+	t = tf->e[n-1].x;
+	if ((t <dssize) && (t >= 0)) {
+	  r += ds[t];
+	}else{
+	  /* Warning! */
+	}
+  }else{
+	t = ei;
+	if ((t <dssize) && (t >= 0)) {
+	  r += ds[t];
+	}else{
+	  /* Warning! */
+	}
+  }
+  return(r);
+}
+
+/* Grading by the weight vector (u,v)
+   and degree shift ds.  Note 2003.07.10 
+*/
+int uvGrade(POLY f,int u[],int v[],int ds[],int dssize,int ei)
+{
+  int r, first, t;
+  if (f ISZERO) return(LARGE_NEGATIVE_NUMBER);
+  first = 1;
+  while (f != POLYNULL) {
+    if (first) {
+	  r = uvGrade1(f,u,v,ds,dssize,ei);
+	  first = 0;
+	}else{
+	  t = uvGrade1(f,u,v,ds,dssize,ei);
+	  if (t > r) r = t;
+	}
+  }
+  return r;
 }
 

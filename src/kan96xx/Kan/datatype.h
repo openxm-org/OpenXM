@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.4 2003/06/26 08:14:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.5 2003/06/26 13:00:10 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -29,6 +29,7 @@ void KSstop();
 			must be larger than AGLIMIT. They are automatically
 			determined by the value of AGLIMIT. */
 
+#define LARGE_NEGATIVE_NUMBER (-0x7fffffff)  /* for 32 bit */
 
 typedef struct listPoly *   POLY;
 typedef struct monomial *   MONOMIAL;

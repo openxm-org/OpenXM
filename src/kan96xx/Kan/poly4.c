@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.4 2002/09/08 10:49:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -522,4 +522,114 @@ int isTheSameRing(struct ring *rstack[],int rp, struct ring *newRingp)
   return(-1);
 }
   
-  
+/* Granger-Oaku's homogenization for the ecart tangent cone.
+   Note: 2003.07.10.
+   ds[] is the degree shift.
+   ei ( element index ). If it is < 0, then e[n-1]->x will be used,
+                         else ei is used.
+*/
+POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei)
+{
+  POLY node;
+  POLY lastf;
+  struct listPoly nod;
+  POLY h;
+  POLY tf;
+  int gt,first,m,mp,t,tp,dsIdx,message;
+
+  message = 1;
+  if (f == POLYNULL) return(POLYNULL);
+  node = &nod;
+  node->next = POLYNULL;
+  lastf = POLYNULL;
+  first = 1;
+  while (f != POLYNULL) {
+    if (first) {
+      t = m = dGrade1(f);
+      tp = mp = uvGrade1(f,u,v,ds,dssize,ei);
+    }else{
+      t =  dGrade1(f);
+      tp = uvGrade1(f,u,v,ds,dssize,ei);
+      if (t > m) m = t;
+      if (tp < mp) mp = tp;
+    }
+
+    tf = newCell(f->coeffp,monomialCopy(f->m));
+	/* Automatic dehomogenize. Not +=  */
+	if (message && ((tf->m->e[0].D != 0) || (tf->m->e[0].x != 0))) {
+      /*go-debug fprintf(stderr,"Automatic dehomogenize and homogenize.\n"); */
+	  message = 0;
+	}
+    tf->m->e[0].D = -t;  /* h */
+    tf->m->e[0].x = tp;  /* H, s variable in the G-O paper. */
+	/*go-debug printf("t(h)=%d, tp(uv+ds)=%d\n",t,tp); */
+    if (first) {
+      node->next = tf;
+      lastf = tf;
+      first = 0;
+    }else{
+      gt = (*mmLarger)(lastf,tf);
+      if (gt == 1) {
+        lastf->next = tf;
+        lastf = tf;
+      }else{
+        /*go-debug printf("?\n"); */
+        h = node->next;
+        h = ppAddv(h,tf);
+        node->next = h;
+        lastf = h;
+        while (lastf->next != POLYNULL) {
+          lastf = lastf->next;
+        }
+      }
+	}
+	f = f->next;
+  }
+  h = node->next;
+  /*go-debug printf("m=%d, mp=%d\n",m,mp); */
+  while (h != POLYNULL) {
+    /*go-debug printf("Old: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x); */
+    h->m->e[0].D += m;   /* h */
+    h->m->e[0].x += -mp; /* H, s*/
+    /*go-debug printf("New: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x); */
+    h = h->next;
+  }
+  return (node->next);
+}  
+
+/* u[] = -1, v[] = 1 */
+POLY goHomogenize11(POLY f,int ds[],int dssize,int ei)
+{
+  int r;
+  int i,t,n,m,nn;
+  MONOMIAL tf;
+  static int *u;
+  static int *v;
+  static struct ring *cr = (struct ring *)NULL;
+
+  if (f == POLYNULL) return POLYNULL;
+
+  tf = f->m;
+  if (tf->ringp != cr) {
+    n = tf->ringp->n;
+    m = tf->ringp->m;
+    nn = tf->ringp->nn;
+    cr = tf->ringp;
+	u = (int *)sGC_malloc(sizeof(int)*n);
+	v = (int *)sGC_malloc(sizeof(int)*n);
+	for (i=0; i<n; i++) u[i]=v[i]=0;
+	for (i=m; i<nn; i++) {
+	  u[i] = -1; v[i] = 1;
+	}
+  }
+  return(goHomogenize(f,u,v,ds,dssize,ei));
+}
+
+POLY goHomogenize_dsIdx(POLY f,int u[],int v[],int dsIdx,int ei)
+{
+  if (f == POLYNULL) return POLYNULL;
+}
+POLY goHomogenize11_dsIdx(POLY f,int ds[],int dsIdx,int ei)
+{
+  if (f == POLYNULL) return POLYNULL;
+}

@@ -683,6 +683,7 @@ struct object homogenizeObject(ob,gradep)
     rob = newObjectArray(size);
     flag = 0;
     ob1 = getoa(ob,0);
+	if (ob1.tag == Sdollar) return(homogenizeObject_go(ob,gradep));
     ob1 = homogenizeObject(ob1,&gr);
     maxg = gr;
     getoa(rob,0) = ob1;
@@ -744,6 +745,7 @@ struct object homogenizeObject_vec(ob,gradep)
     if (size == 0) {
       errorKan1("%s\n","homogenizeObject_vec() is called for the empty array.");
     }
+	if (getoa(ob,0).tag == Sdollar) return(homogenizeObject_go(ob,gradep));
     rob = newObjectArray(size);
     for (i=0; i<size; i++) {
       ob1 = getoa(ob,i);
@@ -762,6 +764,63 @@ struct object homogenizeObject_vec(ob,gradep)
     break;
   }
 }
+
+struct object homogenizeObject_go(struct object ob,int *gradep) {
+  int size,i,dssize,j;
+  struct object ob0;
+  struct object ob1;
+  struct object ob2;
+  struct object rob;
+  struct object tob;
+  struct object ob1t;
+  int *ds;
+  POLY f;
+  rob = NullObject;
+  if (ob.tag != Sarray) errorKan1("%s\n","homogenizeObject_go(): Invalid argument data type.");
+
+  size = getoaSize(ob);
+  if (size == 0) errorKan1("%s\n","homogenizeObject_go(): the first argument must be a string.");
+  ob0 = getoa(ob,0);
+  if (ob0.tag != Sdollar) {
+    errorKan1("%s\n","homogenizeObject_go(): the first argument must be a string.");
+  }
+  if (strcmp(KopString(ob0),"degreeShift") == 0) {
+	if (size != 3)
+	  errorKan1("%s\n","homogenizeObject_go(): [(degreeShift) shift-vector obj]");
+	ob1 = getoa(ob,1); ob2 = getoa(ob,2);
+	dssize = getoaSize(ob1);
+	ds = (int *)sGC_malloc(sizeof(int)*(dssize>0?dssize:1));
+	for (i=0; i<dssize; i++) {
+	  ds[i] = objToInteger(getoa(ob1,i));
+	}
+	if (ob2.tag == Spoly) {
+	  f = goHomogenize11(KopPOLY(ob2),ds,dssize,-1);
+	  rob = KpoPOLY(f);
+	}else if (ob2.tag == SuniversalNumber) {
+	  rob = ob2;
+	}else if (ob2.tag == Sarray) {
+	  rob = newObjectArray(getoaSize(ob2));
+	  for (i=0; i<getoaSize(ob2); i++) {
+		tob = newObjectArray(3);
+		ob1t = newObjectArray(dssize);
+		if (getoa(ob2,i).tag == Spoly) {
+		  for (j=0; j<dssize; j++) getoa(ob1t,j) = KpoInteger(0);
+		  for (j=0; j<dssize-i; j++) getoa(ob1t,j) = getoa(ob1,j+i);
+		}else{
+		  ob1t = ob1;
+		}
+		getoa(tob,0) = ob0; getoa(tob,1) = ob1t; getoa(tob,2) = getoa(ob2,i);
+		getoa(rob,i) = homogenizeObject_go(tob,gradep);
+	  }
+	}else{
+	  errorKan1("%s\n","homogenizeObject_go(): invalid object for the third element.");
+	}
+  }else{
+	  errorKan1("%s\n","homogenizeObject_go(): unknown key word.");
+  }
+  return( rob );	
+}
+
 
 struct ring *oRingp(ob)
      struct object ob;
@@ -999,4 +1058,14 @@ struct object KvectorToSchreyer_es(struct object obarray)
     }
   }
   return(KpoPOLY(f));
+}
+
+int objToInteger(struct object ob) {
+  if (ob.tag == Sinteger) {
+	return KopInteger(ob);
+  }else if (ob.tag == SuniversalNumber) {
+	return(coeffToInt(KopUniversalNumber(ob)));
+  }else {
+	errorKan1("%s\n","objToInteger(): invalid argument.");
+  }
 }

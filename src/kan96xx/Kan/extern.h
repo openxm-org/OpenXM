@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.6 2002/10/24 05:19:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.7 2002/11/04 10:53:55 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -246,6 +246,7 @@ struct object oInitW(struct object ob,struct object oWeight);
 /* :misc  */
 struct object homogenizeObject(struct object ob,int *gradep);
 struct object homogenizeObject_vec(struct object ob,int *gradep);
+struct object homogenizeObject_go(struct object ob,int *gradep);
 int oGrade(struct object ob);
 struct ring *oRingp(struct object ob);
 struct object KisOrdered(struct object of);
@@ -267,3 +268,4 @@ struct object KschreyerSkelton(struct object g);
 
 /* misc */
 struct object KregionMatches(struct object sobj, struct object keyArray);
+int objToInteger(struct object ob);

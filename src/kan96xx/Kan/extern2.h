@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.3 2003/04/09 01:06:57 ohara Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -70,6 +70,10 @@ POLY POLYToInitW(POLY f,int w[]);
 
 POLY polyGCD(POLY f,POLY g);
 int isTheSameRing(struct ring *rstack[], int rp, struct ring *newRingp);
+POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei);
+POLY goHomogenize11(POLY f,int ds[],int dssize,int ei);
+POLY goHomogenize_dsIdx(POLY f,int u[],int v[],int dsIdx,int ei);
+POLY goHomogenize11_dsIdx(POLY f,int ds[],int dsIdx,int ei);
 
 /* coeff.c */
 char *intToString(int i);
@@ -166,6 +170,10 @@ int grade_firstvec(POLY f);
 int grade_sugar(POLY f);
 int eliminated(POLY f);
 int isOrdered(POLY f);
+int dGrade(POLY f);
+int dGrade1(POLY f);
+int uvGrade(POLY f, int u[],int v[],int ds[],int dssize,int ei);
+int uvGrade1(POLY f, int u[],int v[],int ds[],int dssize,int ei);
 
 /* resol.c */
 struct arrayOfMonomialSyz schreyerSkelton(struct arrayOfPOLY g);
