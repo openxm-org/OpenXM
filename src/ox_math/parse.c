@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.4 1999/11/02 19:51:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.5 1999/11/03 10:56:40 ohara Exp $ */
 
 /* OX expression, CMO expression パーサ */
 
@@ -60,6 +60,7 @@ static cmo  *parse_cmo_zero();
 static cmo  *parse_cmo_dms_generic();
 static cmo  *parse_cmo_ring_by_name();
 static cmo  *parse_cmo_distributed_polynomial();
+static cmo  *parse_cmo_indeterminate();
 static cmo  *parse_cmo_error2();
 static cmo  *parse_cmo();
 static int  parse_sm();
@@ -233,6 +234,10 @@ static cmo *parse_cmo()
     case TOKEN(CMO_DISTRIBUTED_POLYNOMIAL):
         token = lex();
         m = parse_cmo_distributed_polynomial();
+        break;
+    case TOKEN(CMO_INDETERMINATE):
+        token = lex();
+        m = parse_cmo_indeterminate();
         break;
     case TOKEN(CMO_ERROR2):
         token = lex();
@@ -490,7 +495,7 @@ static cmo *parse_cmo_distributed_polynomial()
 			if (ob->tag != CMO_MONOMIAL32 && ob->tag != CMO_ZERO) {
 				parse_error("invalid cmo.");
 			}
-			append_cmo_list(m, ob);
+			append_cmo_list((cmo_list *)m, ob);
 			if (token != ',') {
 				break;
 			}
@@ -503,6 +508,16 @@ static cmo *parse_cmo_distributed_polynomial()
     return (cmo *)m;
 }
 
+static cmo *parse_cmo_indeterminate()
+{
+	cmo *ob;
+
+    parse_comma();
+	parse_left_parenthesis();
+	ob = parse_cmo();
+    parse_right_parenthesis();
+    return (cmo *)new_cmo_indeterminate(ob);
+}
 
 static cmo *parse_cmo_error2()
 {
@@ -578,13 +593,13 @@ static char *lex_quoted_string()
 
 typedef struct {
 	char *key;
+	int  tag;
 	int  token;
-	int  op;
 } symbol; 
 
-#define MK_KEY_CMO(x)  { #x  , TOKEN(x) , 0}
-#define MK_KEY_SM(x)  { #x  , TOKEN(SM) , x}
-#define MK_KEY(x)  { #x  , TOKEN(x) , 0}
+#define MK_KEY_CMO(x)  { #x , x  , TOKEN(x)  }
+#define MK_KEY_SM(x)   { #x , x  , TOKEN(SM) }
+#define MK_KEY(x)      { #x , x  , TOKEN(x)  }
 
 static symbol symbol_list[] = {
 	MK_KEY_CMO(CMO_NULL),
@@ -612,7 +627,7 @@ static symbol symbol_list[] = {
 	MK_KEY_SM(SM_control_reset_connection),
     MK_KEY(OX_COMMAND),
 	MK_KEY(OX_DATA),
-	{NULL, 0}        /* a gate keeper */
+	{NULL, 0, 0}        /* a gate keeper */
 }; 
 
 static int token_of_symbol(char *key)
@@ -620,7 +635,7 @@ static int token_of_symbol(char *key)
 	symbol *kp;
 	for(kp = symbol_list; kp->key != NULL; kp++) {
 		if (strcmp(key, kp->key)==0) {
-			yylval.d = kp->op;
+			yylval.d = kp->tag;
 			return kp->token;
 		}
 	}
@@ -697,20 +712,29 @@ int lex()
     return 0;
 }
 
+/* 一文字読み込む関数 */
 static char *mygetc_line;
 static int  mygetc_counter;
 static int  mygetc_counter_max;
+static int  mygetc_nonlf_flag;
 
 int mygetc()
 {
-    if (mygetc_counter <= mygetc_counter_max) {
-        return mygetc_line[mygetc_counter++];
+	int c = '\0';
+
+	if (mygetc_nonlf_flag && mygetc_counter <= mygetc_counter_max) {
+		c = mygetc_line[mygetc_counter++];
+		if (c == '\0') {
+			c = '\n';
+			mygetc_nonlf_flag = 0;
+		}
     }
-    return 0;
+    return c;
 }
 
 int setmode_mygetc(char *s, int len)
 {
+	mygetc_nonlf_flag=1;
     mygetc_counter=0;
     mygetc_counter_max=len;
     mygetc_line=s;
