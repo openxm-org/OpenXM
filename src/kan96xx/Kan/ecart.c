@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.12 2003/08/21 12:28:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.13 2003/08/22 01:02:45 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -297,6 +297,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
   POLY cf_o;
   POLY syz_o;
   POLY r_0;
+  struct coeff *cont;
 
   extern struct ring *CurrentRingp;
   struct ring *rp;
@@ -315,6 +316,8 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
       errorKan1("%s\n","ecart.c: the given ring must be declared with [(weightedHomogenization) 1]");
     }
   }
+
+  if (DoCancel && (r != POLYNULL)) shouldReduceContent(r,1);
 
   if (DebugReductionEcart&1) printf("--------------------------------------\n");
   do {
@@ -339,6 +342,16 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
       }
       if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
       r = (*reduction1)(r,pp,needSyz,&cc,&cg);
+
+      if (DoCancel && (r != POLYNULL)) { 
+        if (shouldReduceContent(r,0)) {
+          r = reduceContentOfPoly(r,&cont);
+          shouldReduceContent(r,1);
+          if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("CONT=%s ",coeffToString(cont));   
+        }
+      }
+
+
       if (needSyz) {
         if (ells.first) {
           if (ell >0) cc = ppMult(cc,cxx(1,0,ell,rp));
@@ -376,6 +389,13 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
   if (needSyz) {
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
+  }
+
+  if (DoCancel && (r != POLYNULL)) { 
+    if (r->m->ringp->p == 0) {
+	  r = reduceContentOfPoly(r,&cont);
+	  if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("cont=%s ",coeffToString(cont));     
+    }
   }
 
   return(r);

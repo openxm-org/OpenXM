@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.10 2003/08/23 02:28:40 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.11 2003/08/24 05:19:44 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -80,7 +80,7 @@
      } ifelse
    } {
        [(degreeShift) [ ] ll ] homogenize   /arg1 set
-   }
+   } ifelse
  ] pop
  popVariables
  arg1
@@ -119,7 +119,7 @@
      } ifelse
    } {
        [(degreeShift) sv ll ] homogenize   /arg1 set
-   }
+   } ifelse
  ] pop
  popVariables
  arg1
@@ -209,11 +209,13 @@
 ]] putUsages
 
 /ecart.gb.verbose 1 def
+%ecarth.gb  s(H)-homogenized outputs.  GG's original version of ecart gb.
 /ecarth.gb {
   /arg1 set
   [/in-ecarth.gb /aa /typev /setarg /f /v 
    /gg /wv /vec /ans /rr /mm
    /degreeShift  /env2 /opt /ans.gb
+   /hdShift
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -222,6 +224,7 @@
     /setarg 0 def
     /wv 0 def
     /degreeShift 0 def
+    /hdShift 0 def 
     /opt [(weightedHomogenization) 1] def
     aa { tag } map /typev set
     typev [ ArrayP ] eq
@@ -263,6 +266,15 @@
        /degreeShift aa 3 get def
        /setarg 1 def
     } { } ifelse
+
+    typev [ArrayP StringP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /hdShift aa 4 get def
+       /setarg 1 def
+    } { } ifelse
     typev [ArrayP ArrayP ArrayP ArrayP] eq
     {  /f aa 0 get def
        /v aa 1 get from_records def
@@ -270,10 +282,31 @@
        /degreeShift aa 3 get def
        /setarg 1 def
     } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /hdShift aa 4 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       aa 4 get (no) eq {
+         /hdShift -1 def
+       } {  
+         (Unknown keyword for the 5th argument) error
+       } ifelse
+       /setarg 1 def
+    } { } ifelse
 
     /env1 getOptions def
 
-    setarg { } { (ecart.gb : Argument mismatch) error } ifelse
+    ecart.gb.verbose { $ecarth.gb computes std basis with h-s(H)-homogenized buchberger algorithm.$ message } {  } ifelse
+    setarg { } { (ecarth.gb : Argument mismatch) error } ifelse
     
     [(KanGBmessage) ecart.gb.verbose ] system_variable
 
@@ -349,15 +382,25 @@
 
     ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
     ecart.autoHomogenize {
-      (ecart.gb: Input polynomial or vectors are automatically h-H-homogenized.)
+      (ecarth.gb: Input polynomial or vectors are automatically h-H-homogenized.)
       message
     } { } ifelse
-    ecart.autoHomogenize {
-      f { {. ecart.dehomogenize} map} map /f set   
-      f ecart.homogenize01 /f set
-    }{
-      f { {. } map } map /f set
-    } ifelse
+
+    hdShift tag 1 eq {
+     ecart.autoHomogenize not hdShift -1 eq or {
+% No automatic h-s-homogenization.
+       f { {. } map} map /f set   
+     } {
+% Automatic h-s-homogenization without degreeShift
+       f { {. ecart.dehomogenize} map} map /f set   
+       f ecart.homogenize01 /f set
+     } ifelse
+   } {
+% Automatic h-s-homogenization with degreeShift
+       f { {. ecart.dehomogenize} map} map /f set   
+       f {/fi set [(degreeShift) hdShift fi] homogenize} map /f set
+   }ifelse
+
     ecart.needSyz {
       [f [(needSyz)] gb.options join ] groebner /gg set
     } {  
@@ -407,8 +450,9 @@
   (array a; array b;)
   $b : [g ii];  array g; array in; g is a standard (Grobner) basis of f$
   (             in the ring of differential operators.)
-  (The computation is done by using Ecart division algorithm and )
-  (the double homogenization.)
+  (The computation is done by using Ecart division algorithm.)
+  $Buchberger algorithm is applied for double h-H(s)-homogenized elements and$
+  (they are not dehomogenized.)
   (cf. M.Granger and T.Oaku: Minimal filtered free resolutions ... 2003)
    $            ii is the initial ideal in case of w is given or <<a>> belongs$
    $            to a ring. In the other cases, it returns the initial monominal.$
@@ -443,7 +487,6 @@
   (                                                          define_ring )
 ]] putUsages
 
-%% BUG:  " f weight init " works well in case of vectors with degree shift ?
 
 /ecart.syz {
   /arg1 set
@@ -843,7 +886,7 @@
     ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
 
     hdShift tag 1 eq {
-     hdShift -1 eq {
+     ecart.autoHomogenize not hdShift -1 eq  or {
 % No automatic h-homogenization.
        f { {. } map} map /f set   
      } {
