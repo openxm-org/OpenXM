@@ -1,0 +1,106 @@
+/* $OpenXM$ */
+/*
+How to use?
+(1) Modify OpenXM_contrib2/asir2000/lib/gr as explained below in sm1_verify00
+    and save the modified gr by the name 
+    OpenXM/src/asir-contrib/packages/sample/gr-tmp
+(2) Add the following lines  to .asirc
+load("/home/nobuki/OpenXM/src/asir-contrib/packages/sample/gr-tmp");
+load("/home/nobuki/OpenXM/src/asir-contrib/packages/sample/verify-by-sm1");
+/home/nobuki/ may be changed to your directory where you put OpenXM
+(3)
+   Starting asir
+     Sid = ox_launch();
+     dp_gr_flags(["GenTrace",1,"OXCheck",Sid]);
+     ox_cmo_rpc(Sid,"dp_ord",Ord);
+     ox_execute_string(Sid,"sm1_init_verify(1);");
+     gr([x^2+y^2-1,x*y-1],[x,y],0);
+
+     gr(katsura(5),[u0,u1,u2,u3,u4,u5],0);
+RESTRICTIONS:
+     Only graded reverse lexicographic order can be used.
+     The number of variables must be even.
+     The number of variables 2*n should be specified by the command
+     ox_execute_string(Sid,"sm1_init_verify(n);");
+
+*/
+
+Sm1_proc = -1$
+
+#define SM1_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = sm1_find_proc();\
+                          }
+
+def sm1_find_proc() {
+  extern Sm1_proc;
+  if (Sm1_proc == -1) {
+     A = ox_get_serverinfo();
+     /* Look for ox_sm1. Not yet written */
+     /* Start sm1 automatically if there is not ox_sm1 */
+     Sm1_proc = sm1_start();
+     sm1(Sm1_proc,"[(Strict) 0] system_variable ");
+  }
+  return(Sm1_proc);
+}
+
+def sm1_init_verify(N) {
+  SM1_FIND_PROC(P);
+  sm1(P,"[(Strict) 0] system_variable ");
+  ox_push_cmo(P,ntoint32(N));
+  sm1(P," /nn set ");
+  sm1(P,"[(defaultPolyRing) nn] extension ");
+  print("sm1_init_verify: the number of variables must be ",0);
+  print(N*2);
+}
+
+/* Computation of G 
+      G = (Coeff*G-Monomial*Reducer)/Divisor;  
+   by sm1 */
+/*
+    NOTE:
+    No rational coefficient is allowed.
+    Coeff, Monomial, Reducer must not be zero.
+*/
+/* 
+   Replace
+     G = (Coeff*G+Monomial*Reducer)/Denominator; 
+   by
+    sm1_verify00(Coeff,G,Monomial,Reducer,Denominator);
+   in check_trace(NF,NFIndex,HL) in gr
+*/
+def sm1_verify00(Coeff,G,Monomial,Reducer,Denominator) {
+   SM1_FIND_PROC(P);
+   ox_push_cmo(P,Coeff);
+   if (G != 0) {
+     ox_push_cmo(P,G);
+   }else{
+     sm1(P," (0). ");
+   }
+   sm1(P," mul ");
+   ox_push_cmo(P,Monomial);
+   ox_push_cmo(P,Reducer);
+   sm1(P," mul add /ff set ");
+   sm1(P," ff message ");
+   ox_push_cmo(P,Denominator);
+   sm1(P," /gg set ");
+   sm1(P,"[(divByN) ff gg] gbext 0 get");
+   G = ox_pop_cmo(P);
+   return(G);
+}
+
+def check_example() {
+   Coeff = 123;
+   G = 10*<<0,0,0,0,0,0,0,0>> ;
+   Monomial = 6*<<1,2,3,4,0,1,1,1>>;
+   Reducer = 4*<<1,0,0,0,1,1,1,1>>+2*<<1,3,0,5,1,1,1,1>>;
+   Denominator = 2;
+
+   G2 = (Coeff*G+Monomial*Reducer)/Denominator; 
+   /* Computing G2 by sm1 */
+   G = sm1_verify00(Coeff,G,Monomial,Reducer,Denominator);
+
+   return([G,G2]);
+}
+
+end$
