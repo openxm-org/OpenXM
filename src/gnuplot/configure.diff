@@ -1,0 +1,275 @@
+$OpenXM$
+
+diff -ubBr Makefile.in.orig Makefile.in
+--- Makefile.in.orig	Mon Sep 15 16:09:21 2003
++++ Makefile.in	Sat Mar 27 15:52:55 2004
+@@ -361,9 +361,9 @@
+ install: all $(LASERGNU)
+ 	$(srcdir)/mkinstalldirs $(DESTDIR)$(bindir)
+ 	$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)
+-	$(INSTALL_PROGRAM) gnuplot $(DESTDIR)$(bindir)/gnuplot
++	$(INSTALL_PROGRAM) gnuplot $(DESTDIR)$(bindir)/gnuplot4ox
+ 	test ! -f gnuplot_x11 || $(INSTALL_PROGRAM) gnuplot_x11 $(DESTDIR)$(bindir)/gnuplot_x11
+-	-cd docs && $(MAKE) $(MFLAGS) install
++	-cd docs && echo $(MAKE) $(MFLAGS) install
+ 	@LINUXSUID@
+ 
+ lasergnu_install: lasergnu docs/lasergnu.1
+diff -ubBr configure.orig configure
+--- configure.orig	Mon Sep 15 16:09:22 2003
++++ configure	Sat Mar 27 15:56:17 2004
+@@ -65,6 +65,7 @@
+ program_transform_name=s,x,x,
+ silent=
+ site=
++sitefile=
+ srcdir=
+ target=NONE
+ verbose=
+@@ -179,6 +180,7 @@
+   --help                  print this message
+   --no-create             do not create output files
+   --quiet, --silent       do not print \`checking...' messages
++  --site-file=FILE        use FILE as the site file
+   --version               print the version of autoconf that created configure
+ Directory and file names:
+   --prefix=PREFIX         install architecture-independent files in PREFIX
+@@ -349,6 +351,11 @@
+   -site=* | --site=* | --sit=*)
+     site="$ac_optarg" ;;
+ 
++  -site-file | --site-file | --site-fil | --site-fi | --site-f)
++    ac_prev=sitefile ;;
++  -site-file=* | --site-file=* | --site-fil=* | --site-fi=* | --site-f=*)
++    sitefile="$ac_optarg" ;;
++
+   -srcdir | --srcdir | --srcdi | --srcd | --src | --sr)
+     ac_prev=srcdir ;;
+   -srcdir=* | --srcdir=* | --srcdi=* | --srcd=* | --src=* | --sr=*)
+@@ -514,12 +521,16 @@
+ srcdir=`echo "${srcdir}" | sed 's%\([^/]\)/*$%\1%'`
+ 
+ # Prefer explicitly selected file to automatically selected ones.
+-if test -z "$CONFIG_SITE"; then
++if test -z "$sitefile"; then
++  if test -z "$CONFIG_SITE"; then
+   if test "x$prefix" != xNONE; then
+     CONFIG_SITE="$prefix/share/config.site $prefix/etc/config.site"
+   else
+     CONFIG_SITE="$ac_default_prefix/share/config.site $ac_default_prefix/etc/config.site"
+   fi
++  fi
++else
++  CONFIG_SITE="$sitefile"
+ fi
+ for ac_site_file in $CONFIG_SITE; do
+   if test -r "$ac_site_file"; then
+@@ -5314,5 +5325,196 @@
+ chmod +x $CONFIG_STATUS
+ rm -fr confdefs* $ac_clean_files
+ test "$no_create" = yes || ${CONFIG_SHELL-/bin/sh} $CONFIG_STATUS || exit 1
++
++
++echo $ac_n "checking for socket""... $ac_c" 1>&6
++echo "configure:5332: checking for socket" >&5
++if eval "test \"`echo '$''{'ac_cv_func_socket'+set}'`\" = set"; then
++  echo $ac_n "(cached) $ac_c" 1>&6
++else
++  cat > conftest.$ac_ext <<EOF
++#line 5337 "configure"
++#include "confdefs.h"
++/* System header to define __stub macros and hopefully few prototypes,
++    which can conflict with char socket(); below.  */
++#include <assert.h>
++/* Override any gcc2 internal prototype to avoid an error.  */
++/* We use char because int might match the return type of a gcc2
++    builtin and then its argument prototype would still apply.  */
++char socket();
++
++int main() {
++
++/* The GNU C library defines this for functions which it implements
++    to always fail with ENOSYS.  Some functions are actually named
++    something starting with __ and the normal name is an alias.  */
++#if defined (__stub_socket) || defined (__stub___socket)
++choke me
++#else
++socket();
++#endif
++
++; return 0; }
++EOF
++if { (eval echo configure:5360: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++  rm -rf conftest*
++  eval "ac_cv_func_socket=yes"
++else
++  echo "configure: failed program was:" >&5
++  cat conftest.$ac_ext >&5
++  rm -rf conftest*
++  eval "ac_cv_func_socket=no"
++fi
++rm -f conftest*
++fi
++
++if eval "test \"`echo '$ac_cv_func_'socket`\" = yes"; then
++  echo "$ac_t""yes" 1>&6
++  :
++else
++  echo "$ac_t""no" 1>&6
++echo $ac_n "checking for socket in -lsocket""... $ac_c" 1>&6
++echo "configure:5378: checking for socket in -lsocket" >&5
++ac_lib_var=`echo socket'_'socket | sed 'y%./+-%__p_%'`
++if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
++  echo $ac_n "(cached) $ac_c" 1>&6
++else
++  ac_save_LIBS="$LIBS"
++LIBS="-lsocket  $LIBS"
++cat > conftest.$ac_ext <<EOF
++#line 5386 "configure"
++#include "confdefs.h"
++/* Override any gcc2 internal prototype to avoid an error.  */
++/* We use char because int might match the return type of a gcc2
++    builtin and then its argument prototype would still apply.  */
++char socket();
++
++int main() {
++socket()
++; return 0; }
++EOF
++if { (eval echo configure:5397: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++  rm -rf conftest*
++  eval "ac_cv_lib_$ac_lib_var=yes"
++else
++  echo "configure: failed program was:" >&5
++  cat conftest.$ac_ext >&5
++  rm -rf conftest*
++  eval "ac_cv_lib_$ac_lib_var=no"
++fi
++rm -f conftest*
++LIBS="$ac_save_LIBS"
++
++fi
++if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
++  echo "$ac_t""yes" 1>&6
++    ac_tr_lib=HAVE_LIB`echo socket | sed -e 's/[^a-zA-Z0-9_]/_/g' \
++    -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
++  cat >> confdefs.h <<EOF
++#define $ac_tr_lib 1
++EOF
++
++  LIBS="-lsocket $LIBS"
++
++else
++  echo "$ac_t""no" 1>&6
++fi
++
++fi
++
++echo $ac_n "checking for gethostbyname""... $ac_c" 1>&6
++echo "configure:5427: checking for gethostbyname" >&5
++if eval "test \"`echo '$''{'ac_cv_func_gethostbyname'+set}'`\" = set"; then
++  echo $ac_n "(cached) $ac_c" 1>&6
++else
++  cat > conftest.$ac_ext <<EOF
++#line 5432 "configure"
++#include "confdefs.h"
++/* System header to define __stub macros and hopefully few prototypes,
++    which can conflict with char gethostbyname(); below.  */
++#include <assert.h>
++/* Override any gcc2 internal prototype to avoid an error.  */
++/* We use char because int might match the return type of a gcc2
++    builtin and then its argument prototype would still apply.  */
++char gethostbyname();
++
++int main() {
++
++/* The GNU C library defines this for functions which it implements
++    to always fail with ENOSYS.  Some functions are actually named
++    something starting with __ and the normal name is an alias.  */
++#if defined (__stub_gethostbyname) || defined (__stub___gethostbyname)
++choke me
++#else
++gethostbyname();
++#endif
++
++; return 0; }
++EOF
++if { (eval echo configure:5455: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++  rm -rf conftest*
++  eval "ac_cv_func_gethostbyname=yes"
++else
++  echo "configure: failed program was:" >&5
++  cat conftest.$ac_ext >&5
++  rm -rf conftest*
++  eval "ac_cv_func_gethostbyname=no"
++fi
++rm -f conftest*
++fi
++
++if eval "test \"`echo '$ac_cv_func_'gethostbyname`\" = yes"; then
++  echo "$ac_t""yes" 1>&6
++  :
++else
++  echo "$ac_t""no" 1>&6
++echo $ac_n "checking for gethostbyname in -lnsl""... $ac_c" 1>&6
++echo "configure:5473: checking for gethostbyname in -lnsl" >&5
++ac_lib_var=`echo nsl'_'gethostbyname | sed 'y%./+-%__p_%'`
++if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
++  echo $ac_n "(cached) $ac_c" 1>&6
++else
++  ac_save_LIBS="$LIBS"
++LIBS="-lnsl  $LIBS"
++cat > conftest.$ac_ext <<EOF
++#line 5481 "configure"
++#include "confdefs.h"
++/* Override any gcc2 internal prototype to avoid an error.  */
++/* We use char because int might match the return type of a gcc2
++    builtin and then its argument prototype would still apply.  */
++char gethostbyname();
++
++int main() {
++gethostbyname()
++; return 0; }
++EOF
++if { (eval echo configure:5492: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++  rm -rf conftest*
++  eval "ac_cv_lib_$ac_lib_var=yes"
++else
++  echo "configure: failed program was:" >&5
++  cat conftest.$ac_ext >&5
++  rm -rf conftest*
++  eval "ac_cv_lib_$ac_lib_var=no"
++fi
++rm -f conftest*
++LIBS="$ac_save_LIBS"
++
++fi
++if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
++  echo "$ac_t""yes" 1>&6
++    ac_tr_lib=HAVE_LIB`echo nsl | sed -e 's/[^a-zA-Z0-9_]/_/g' \
++    -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
++  cat >> confdefs.h <<EOF
++#define $ac_tr_lib 1
++EOF
++
++  LIBS="-lnsl $LIBS"
++
++else
++  echo "$ac_t""no" 1>&6
++fi
++
++fi
+ 
+ 
+diff -ubBr configure.in.orig configure.in
+--- configure.in.orig	Mon Sep 15 16:09:22 2003
++++ configure.in	Sat Mar 27 15:53:52 2004
+@@ -533,4 +533,8 @@
+ AC_OUTPUT([Makefile docs/Makefile docs/latextut/Makefile], \
+ [test -z "$CONFIG_HEADERS" || echo timestamp >stamp-h])
+ 
++dnl for Solaris 2.x
++AC_CHECK_FUNC(socket, , [AC_CHECK_LIB(socket,socket)])
++AC_CHECK_FUNC(gethostbyname, , [AC_CHECK_LIB(nsl,gethostbyname)])
++
+ dnl end configure.in

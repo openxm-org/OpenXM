@@ -1,51 +1,53 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.8 2004/02/22 13:58:58 takayama Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.9 2004/02/22 14:11:02 takayama Exp $
 
-GNUPLOT = ../../../OpenXM_contrib/gnuplot
-CURDIR = ../../OpenXM/src/gnuplot
-BINDIR = ../../bin
+OpenXM_HOME = ../..
+DISTNAME    = gnuplot-3.7.3
+DISTFILES   = ${DISTNAME}.tar.gz
+DISTDIR     = ${OpenXM_HOME}/../OpenXM_dist
+WRKSRC      = work/${DISTNAME}
+PATCHES     = configure.diff plot.c.diff
 
-all: configure
-	@if [ ! -f $(GNUPLOT)/.make_done ]; then \
-		if [ `uname` = "SunOS" ]; then \
-			(cd $(GNUPLOT) ; make all LDFLAGS="-lsocket -lnsl" ) ; \
-		else \
-			(cd $(GNUPLOT) ; make all) ; \
-		fi ; \
+all: build
+
+fetch:
+	-mkdir work
+	@if [ ! -f work/.fetch_done ]; then \
+		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
 	fi
-	@touch $(GNUPLOT)/.make_done
+	@touch work/.fetch_done
 
-install: all
-	if [ `uname` = "OSF1" ]; then \
-		installbsd -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox ; \
-		installbsd -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11 ; \
-	else \
-		install -c -s $(GNUPLOT)/gnuplot $(BINDIR)/gnuplot4ox ; \
-		install -c -s $(GNUPLOT)/gnuplot_x11 $(BINDIR)/gnuplot_x11; \
+extract: fetch
+	@if [ ! -f work/.extract_done ]; then \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
 	fi
+	@touch work/.extract_done
 
-clean: patch-clean
-	@if [ -f $(GNUPLOT)/.make_done ]; then \
-		(cd $(GNUPLOT) ; make distclean) \
+patch: extract
+	@if [ ! -f work/.patch_done ]; then \
+		for i in ${PATCHES}; do cat $$i | (cd ${WRKSRC}; patch -p0); done ; \
 	fi
-	@rm -f $(GNUPLOT)/.make_done $(GNUPLOT)/.configure_done
-
-distclean:
-	rm -f $(BINDIR)/gnuplot4ox $(BINDIR)/gnuplot_x11
+	@touch work/.patch_done
 
 configure: patch
-	@if [ ! -f $(GNUPLOT)/.configure_done ]; then \
-		(cd $(GNUPLOT) ; ./configure --with-x) ; \
+	@if [ ! -f work/.configure_done ]; then \
+		(cd ${WRKSRC} ; ./configure --with-x --prefix=`cd ../..; cd ${OpenXM_HOME}; pwd` ) ; \
 	fi
-	@touch $(GNUPLOT)/.configure_done
+	@touch work/.configure_done
 
-patch:
-	-@if [ ! -f $(GNUPLOT)/.patch_done ]; then \
-		(cd $(GNUPLOT) ; patch < $(CURDIR)/plot.c.diff) \
+build: configure
+	@if [ ! -f work/.build_done ]; then \
+	    (cd ${WRKSRC} ; ${MAKE} ) ; \
 	fi
-	@touch $(GNUPLOT)/.patch_done
+	@touch work/.build_done
 
-patch-clean:
-	@if [ -f $(GNUPLOT)/.patch_done ]; then \
-		(cd $(GNUPLOT) ; patch -R < $(CURDIR)/plot.c.diff) \
+install: build
+	@if [ ! -f work/.install_done ]; then \
+		(cd ${WRKSRC} ; ${MAKE} install) ; \
 	fi
-	@rm -f $(GNUPLOT)/.patch_done
+	@touch work/.install_done
+
+clean:
+	-rm -rf work
+
+distclean: clean
+	-rm -f ${OpenXM_HOME}/bin/gnuplot4ox ${OpenXM_HOME}/bin/gnuplot_x11
