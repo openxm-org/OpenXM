@@ -1,0 +1,98 @@
+% $OpenXM$
+[(parse) (oxasir.sm1) pushfile] extension
+% It has not yet been finished. 
+/asirconnectr {
+ [/in-asirconnectr /pass /peer /data /control
+  /comm /oxd /ff /fname /nl
+  /oxasir] pushVariables
+ [
+  /nl 10 (string) dc def
+  [(sm1.socket) (connect) [8089]] extension /oxd set
+  [(sm1.socket) (select) [oxd 0 get -1]] extension
+  [(sm1.socket) (read)  [oxd 0 get]] extension /ff set
+  /gg [(<login method="file"/>) nl ] cat def
+  ff message gg message
+  [(sm1.socket) (write) [oxd 0 get gg]] extension 
+  [(flush)] extension
+
+  [(sm1.socket) (select) [oxd 0 get -1]] extension
+  [(sm1.socket) (read)  [oxd 0 get]] extension /ff set
+  ff getFname /fname set
+  fname message
+  [(touch ) fname ] cat system
+ 
+  /peer [(oxGetPort) (localhost)] extension def
+  /data peer 1 get toString def
+  /control peer 3 get toString def
+%  /pass 0 (string) dc def  % empty password
+  /pass (hoge) def
+  peer message
+  [(ox -ox ox_asir ) ( -reverse )  ( -data ) data ( -control ) control  
+   ( -pass ) pass 
+  ] cat /comm set
+
+  /gg [ (<done/>) nl ] cat def
+  ff message gg message
+  [(sm1.socket) (write) [oxd 0 get gg]] extension 
+
+  [(sm1.socket) (select) [oxd 0 get -1]] extension
+  [(sm1.socket) (read)  [oxd 0 get]] extension /ff set
+  % read ?
+
+  /gg [(<launch> ) comm ( </launch> ) nl ] cat def
+  ff message gg message
+  [(sm1.socket) (write) [oxd 0 get gg]] extension 
+  
+
+  [(oxCreateClient2) peer 0 pass] extension /oxasir set
+                     %% 0 means connect from only localhost. 
+  oxasir asirinit
+  /arg1 oxasir def
+ ] pop
+ popVariables
+ arg1
+} def
+
+
+/getFname {
+ /arg1 set
+ [/in-getFname /comm /i /comm2
+  /j 
+ ] pushVariables
+ [
+   /comm arg1 def
+   comm (array) dc /comm set
+%   comm message
+   % 34 = " 
+   /comm2 [ ] def
+   0 1 comm length 1 sub {
+     /i set
+     comm i get 34 eq {
+      [
+        i 1 add 1 comm length 1 sub {
+         /j set
+         comm j get  
+        } for
+       ] /comm2 set
+       exit
+     } { } ifelse
+   } for
+   comm2 /comm set
+%   comm message
+
+   [
+   0 1 comm length 1 sub {
+     /i set
+     comm i get 34 eq {
+       exit
+     } {
+       comm i get
+     } ifelse
+   } for
+   ] /comm2 set
+ 
+   comm2 {(string) dc} map cat /arg1 set
+ ] pop
+ popVariables
+ arg1
+} def
