@@ -1,4 +1,5 @@
 ## Type in make configure and make all to build all
+## $OpenXM$
 all : all1 all2 all3
 
 all1 :
