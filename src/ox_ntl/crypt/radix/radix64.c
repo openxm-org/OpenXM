@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/radix/radix64.c,v 1.1 2004/01/12 14:52:18 iwane Exp $ */
 /* RFC 2440 */
 
 #include "radix64.h"
@@ -49,7 +49,7 @@ do { \
 int
 radix64_enc(const unsigned char *data, int datalen, unsigned char *buf, int buflen)
 {
-	int i, j, n = 0, m;
+	int i, j, n = 0;
 	int s[4];
 	char x[3] = {'\0'};
 
@@ -74,7 +74,6 @@ radix64_enc(const unsigned char *data, int datalen, unsigned char *buf, int bufl
 	}
 
 	radix64_conv(x, s);
-	m = 3 - datalen % 3;
 	for (j = 0; j < datalen % 3 + 1; j++)
 		buf[n++] = RADIX_STR[s[j]];
 	if (n % 76 == 0)

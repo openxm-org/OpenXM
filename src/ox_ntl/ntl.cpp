@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
 
 #include <NTL/ZZXFactoring.h>
 #include <NTL/LLL.h>
@@ -74,8 +74,6 @@ ntl_fctr(cmo **arg, int argc)
 cmo *
 ntl_lll(cmo **arg, int argc)
 {
-	cmo *poly = arg[0];
-	cmo_indeterminate *x;
 	ZZX f;
 	int ret;
 	cmon_mat_zz_t *mat;
@@ -97,10 +95,12 @@ ntl_lll(cmo **arg, int argc)
 #endif
 
 	ZZ det2;
-	long rd = LLL(det2, *mat->mat);
+	mat_ZZ U;
+	long rd = LLL(det2, *mat->mat, U);
 
 #if __NTL_PRINT
 	cout << "output: " << (*mat->mat) << endl;
+	cout << U << endl;
 #endif
 
 	return ((cmo *)mat);

@@ -1,13 +1,19 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.3 2004/05/16 15:02:39 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.4 2004/06/20 10:59:01 iwane Exp $ */
 /* RFC 3174 - SHA-1 (US Secure Hash Algorithm 1 (SHA1))*/
 
 #include <stdio.h>
+#include <string.h>
 
 #include "sha1.h"
 
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
+
+#ifdef lint
+#define inline
+#endif
+
 
 /* Global Constant */
 static const uint32_t K[4] = {0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
@@ -19,7 +25,7 @@ static const uint32_t H[5] = {0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0x
 static inline uint32_t lshift32(uint32_t x, int n)
 {
 	return ((x << n) | (x >> (32 - n)));
-};
+}
 
 
 
@@ -173,11 +179,10 @@ int
 fsha1_h(unsigned char *Ph, int fd, const uint32_t *hp)
 {
 	int i, j, cnt, ret;
-	size_t l;
+	int l;
 	off_t len;
 	unsigned char buf[1024], *msg, msgbuf[1024];
 	uint32_t h[sizeof(H) / sizeof(H[0])];
-	int pad = 0;
 	struct stat stbuf;
 
 	if (hp == NULL)
@@ -186,6 +191,12 @@ fsha1_h(unsigned char *Ph, int fd, const uint32_t *hp)
 		memcpy(h, hp, sizeof(h));
 
 	ret = fstat(fd, &stbuf);
+	if (ret != 0) {
+		return (errno);
+	}
+
+
+	msg = msgbuf;
 	len = stbuf.st_size;
 	if (len == 0)
 		goto _PADDING;
@@ -209,7 +220,7 @@ fsha1_h(unsigned char *Ph, int fd, const uint32_t *hp)
 
 		if (len == 0) {
 _PADDING:
-			cnt = padding(buf, msg, stbuf.st_size);
+			cnt = padding(buf, msg, (size_t)(stbuf.st_size % BLOCK));
 			for (i = 0; i < cnt; i++) {
 				sha1_md(h, buf + BLOCK * i);
 			}

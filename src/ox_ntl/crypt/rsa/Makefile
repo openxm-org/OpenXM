@@ -1,17 +1,19 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/Makefile,v 1.1 2004/05/16 15:04:54 iwane Exp $
 
-# OpenXM_HOME=${PWD}/../../..
-
-CPP=g++
-CC =gcc
-
-RM =/bin/rm
-CP =/bin/cp
-
-CFLAGS=-I$(PREFIX)/include -g -Wall
-CPPFLAGS=$(CFLAGS)
-
+OpenXM_HOME ?= ${PWD}/../../../..
 PREFIX=$(OpenXM_HOME)
+
+CXX ?= g++
+CC  ?= gcc
+
+RM  ?= /bin/rm
+CP  ?= /bin/cp
+
+
+CFLAGS   += -g -Wall
+CXXFLAGS += -g -Wall
+CPPFLAGS  = -I$(PREFIX)/include 
+
 
 NTL_LIBDIR=$(PREFIX)/lib/NTL
 LIBDIR=$(PREFIX)/lib 
@@ -30,14 +32,14 @@ all: rsa
 
 
 $(PROG): $(OBJC)
-	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(OBJC) -o $@ -lntl -lgmp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJC) -o $@ -lntl -lgmp
 
 
 .cpp.o:
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
 	-$(RM) -f $(OBJC) $(PROG)

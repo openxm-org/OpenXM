@@ -1,49 +1,48 @@
-# $OpenXM$
-#
-### @configure_input@ ###
-#
-###
+# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.1 2003/11/27 14:24:32 iwane Exp $
+# @configure_input@ ###
 
 PROG=ox_ntl
 
-OpenXM_HOME=${PWD}/../..
+OpenXM_HOME=$(PWD)/../..
+PREFIX=$(OpenXM_HOME)
 
-CPP=@CXX@
+CXX=@CXX@
 CC =@CC@
 
-LINT=lint
+RM ?= /bin/rm
+CP ?= /bin/cp
+MAKE ?= make
+LINT ?= lint
 
-RM =/bin/rm
-CP =/bin/cp
 
-CFLAGS=-I${PREFIX}/include @OPTFLAG@ @CFLAGS@ @CPPFLAGS@
-CPPFLAGS=-I${PREFIX}/include @OPTFLAG@ @CXXFLAGS@
+CFLAGS=@OPTFLAG@ @CFLAGS@ @CPPFLAGS@
+CXXFLAGS=@OPTFLAG@ @CXXFLAGS@
+CPPFLAGS=-I$(PREFIX)/include
 
 # WITH_GMP        <== for ox_toolkit --      include "gmp.h"
 # __GMP_FALE_H__  <==                -- dont include "gmp_fake.h"
 DEFS=-DWITH_GMP=1 -D__GMP_FAKE_H__ @DEFS@
 
-PREFIX=${OpenXM_HOME}
 
 MASTER_CITES=ftp.math.sci.kobe-u.ac.jp
 
-NTL_LIBDIR=${PREFIX}/lib/NTL
-LIBDIR=${PREFIX}/lib 
+NTL_LIBDIR=$(PREFIX)/lib/NTL
+LIBDIR=$(PREFIX)/lib 
 
-LIBS=-L$(LIBDIR) -L$(NTL_LIBDIR) @LIBS@
+LIBS=-L$(LIBDIR) -L$(NTL_LIBDIR) -lntl -lgmp -lox -lgc @LIBS@
 LDFLAGS=@LDFLAGS@
 
-DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+DISTDIR=$(OpenXM_HOME)/../OpenXM_dist
 DISTFILEDIR=ntl-5.3.1
 DISTFILE=ntl-5.3.1.tar.gz
 WORK=$(PWD)/work
 
-GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=${OpenXM_HOME} GMP_INCDIR=${OpenXM_HOME}/include GMP_LIBDIR=${OpenXM_HOME}/lib
+GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=$(OpenXM_HOME) GMP_INCDIR=$(OpenXM_HOME)/include GMP_LIBDIR=$(OpenXM_HOME)/lib
 
 
 # lint
 LINT=lint
-LINTFLAGS=-I${PREFIX}/include
+LINTFLAGS=-I$(PREFIX)/include
 
 
 .SUFFIXES: .cpp .o .c
@@ -58,7 +57,7 @@ all: $(PROG)
 
 
 $(PROG): $(OBJC) $(LIBDIR)/libox.a $(NTL_LIBDIR)/libntl.a
-	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(OBJC) -o $@ -lntl -lgmp -lox -lgc ${LIBS}
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJC) -o $@ $(LIBS)
 
 
 oxserv.c: oxserv.h oxstack.h
@@ -74,17 +73,17 @@ ntl.cpp: ntl.h
 ntlconv.cpp: ntl.h
 
 .cpp.o:
-	$(CPP) $(CPPFLAGS) $(DEFS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 install: all
 	$(CP) $(PROG) $(PREFIX)/bin
 
 clean:
 	-$(RM) -f $(OBJC) $(PROG) ox_ntl_debug oxserv_debug
-	-$(RM) -fr ${WORK}
+	-$(RM) -fr $(WORK)
 	@-$(RM) -f .*-ntl-done
 
 lint:
@@ -92,14 +91,14 @@ lint:
 
 fetch-ntl:
 	@if [ ! -f .fetch-ntl-done ]; then \
-		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/1.2.2/${DISTFILE} ${DISTDIR}; \
+		$(OpenXM_HOME)/bin/oxfetch.sh ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE) $(DISTDIR); \
 		touch .fetch-ntl-done; \
 	fi
 
 extract-ntl: fetch-ntl
-	-mkdir ${WORK}
+	-@mkdir -p $(WORK)
 	@if [ ! -f .extract-ntl-done ]; then \
-		(cd ${WORK}; tar xvzf ${DISTDIR}/${DISTFILE}); \
+		(cd $(WORK); tar xvzf $(DISTDIR)/$(DISTFILE)); \
 		touch .extract-ntl-done; \
 	fi
 
@@ -111,17 +110,16 @@ patch-ntl: extract-ntl
 
 build-ntl: patch-ntl
 	@if [ ! -f .build-ntl-done ]; then \
-		(cd ${WORK}/${DISTFILEDIR}/src; \
-		 LD_LIBRARY_PATH=${OpenXM_HOME}/lib; \
-		 export LD_LIBRARY_PATH; \
-		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT};
-		 make); \
+		(cd $(WORK)/$(DISTFILEDIR)/src; \
+		export LD_LIBRARY_PATH=$(OpenXM_HOME)/lib; \
+		./configure LIBDIR=$(NTL_LIBDIR) PREFIX=$(PREFIX) $(GMPOPT); \
+		$(MAKE)); \
 		touch .build-ntl-done; \
 	fi
 
 install-ntl: build-ntl
 	@if [ ! -f .install-ntl-done ]; then \
-		(cd ${WORK}/${DISTFILEDIR}/src; make install); \
+		(cd $(WORK)/$(DISTFILEDIR)/src; $(MAKE) install); \
 		touch .install-ntl-done; \
 	fi
 
@@ -129,9 +127,9 @@ install-ntl: build-ntl
 # DEBUG
 #########################################
 ox_ntl_debug: ntl.cpp ntl.h ntlconv.cpp
-	$(CPP) $(CPPFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) ntl.cpp ntlconv.o -o $@ -lntl -lgmp -lox -lgc
+	$(CXX) $(CXXFLAGS) -g -D__NTL_DEBUG=1 -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) ntl.cpp ntlconv.o -o $@ -lntl -lgmp -lox -lgc
 
 oxserv_debug: oxserv.h oxserv.c
-	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
 
 

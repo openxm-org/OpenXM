@@ -1,19 +1,16 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_ntl/crypt/Makefile,v 1.2 2004/05/17 14:53:39 iwane Exp $
 
 
-all:
+SUBDIRS = radix sha1 rsa
+OpenXM_HOME ?= ${PWD}/../../..
+
+echo:
 	@echo "'make compile': compile"
 	@echo "'make clean'  : delete object file"
 
-xxx:
-	(cd radix; make $(OPT))
-	(cd sha1; make $(OPT))
-	(cd rsa; make $(OPT))
-
-
 compile:
-	make xxx OPT= OpenXM_HOME=${PWD}/../../..
+	@for _sub in ${SUBDIRS}; do (echo "(cd $${_sub}; make)"; cd $${_sub} && ${MAKE} OpenXM_HOME=${OpenXM_HOME}) || exit 1; done
 
 clean:
-	make xxx OPT=clean
+	@for _sub in ${SUBDIRS}; do (echo "(cd $${_sub}; make $@)"; cd $${_sub} && ${MAKE} OpenXM_HOME=${OpenXM_HOME} $@) || exit 1; done
 	
