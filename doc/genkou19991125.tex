@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.84 1999/12/25 09:05:48 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.85 1999/12/25 10:00:48 tam Exp $
 
 \usepackage{jssac}
 \title{
@@ -143,7 +143,8 @@ OpenXM 規約での計算とはメッセージを交換することである. また, OpenXM 規
 ジェクトをスタックに積む.
 \item
 クライアントがサーバに計算の命令を送ると, サーバはあらかじめ定めれらた
-動作を行う. 一部の命令はスタックの状態を変更する. 例えば SM\_executeFunction,
+動作を行う. 一部の命令はスタックの状態を変更する.
+例えば SM\_executeFunction, \\
 SM\_executeStringByLocalParser などの命令は, スタック上のオブジェクトから
 計算を行う. SM\_popCMO もしくは SM\_popString は, スタックの最上位のオブ
 ジェクトを取りだし, クライアントに送り返す.
@@ -424,8 +425,8 @@ OpenXM 規約では, 通信時に用いられるメッセージの種類を各ソフトウェアが制
 に積まれている mathcap オブジェクトを取り出し, mathcap で設定されていな
 いメッセージをクライアントへ送らないように制限を行う.
 
-第二にクライアントを制限するには次のようにする. クライアントがサーバに命
-令 SM\_mathcap を送ると, サーバは mathcap オブジェクトをスタックに積む.
+第二にクライアントを制限するには次のようにする. クライアントがサーバに命令 \\
+SM\_mathcap を送ると, サーバは mathcap オブジェクトをスタックに積む.
 さらに命令 SM\_popCMO を送ると, サーバはスタックの最上位のオブジェクト
 (すなわち mathcap オブジェクト)をボディとするメッセージをクライアントに
 送付する. クライアントはそのオブジェクトを解析して, 制限をかける.
@@ -506,8 +507,8 @@ $c_{i2}$ は以下の図のような cmo\_list になっている.
 PC-UNIX 上で動いていれば,
 $A$ の部分は
 \begin{quote}
-(CMO\_LIST, 4, (CMO\_INT32, $199911250$), (CMO\_STRING, 7, "ox\_test"),
-	(CMO\_STRING, 9, "199911250"), (CMO\_STRING, 4, "i386"))
+(CMO\_LIST, 4, (CMO\_INT32, $199911250$), (CMO\_STRING, 7, "ox\_test"), \\
+\ \ 	(CMO\_STRING, 9, "199911250"), (CMO\_STRING, 4, "i386"))
 \end{quote}
 となる.
 %({\Large 修正をみて, ただしく直すこと})
@@ -520,9 +521,9 @@ SM\_executeStringByLocalParser を利用可能
 であれば, $B$ の部分は
 \begin{quote}
 (CMO\_LIST, {\sl int32} $5$,
-	(CMO\_INT32, SM\_popCMO), (CMO\_INT32, SM\_popString),
-		(CMO\_INT32, SM\_mathcap),
-		(CMO\_INT32, SM\_executeStringByLocalParser))
+	(CMO\_INT32, SM\_popCMO), \\
+\ \ 	(CMO\_INT32, SM\_popString), (CMO\_INT32, SM\_mathcap), \\
+\ \ 	(CMO\_INT32, SM\_executeStringByLocalParser))
 \end{quote}
 となり,
 CMO 形式の 32 ビット整数, 文字列, mathcap , リスト構造のみが
@@ -530,9 +531,9 @@ CMO 形式の 32 ビット整数, 文字列, mathcap , リスト構造のみが
 \begin{quote}
   (CMO\_LIST, {\sl int32} $1$, \\
   \ \ (CMO\_LIST, {\sl int32} $2$, (CMO\_INT32, OX\_DATA), \\
-  \ \ \ \ (CMO\_LIST, {\sl int32} $4$,
-            (CMO\_INT32, CMO\_INT32), (CMO\_INT32, CMO\_STRING),
-            (CMO\_INT32, CMO\_MATHCAP), (CMO\_INT32, CMO\_LIST))))
+  \ \ \ \ (CMO\_LIST, {\sl int32} $4$, (CMO\_INT32, CMO\_INT32), \\
+  \ \ \ \ \ (CMO\_INT32, CMO\_STRING), (CMO\_INT32, CMO\_MATHCAP), \\
+  \ \ \ \ \ (CMO\_INT32, CMO\_LIST))))
 \end{quote}
 となる.
 
@@ -595,16 +596,23 @@ XML 表現やバイナリ表現などが用意されている.
 
 http://www.cs.utk.edu/netsolve/
 
-ネットワークを使い, 計算機の資源を
+ネットワークを使い, 複素科学計算を分散して行なう.
 
 
 \item MP
 
 http://symbolicNet.mcs.kent.edu/SN/areas/protocols/mp.html
 
+数学的なデータの効率的な交換のためのプロトコル.
+交換するデータの木構造について詳しい.
+
+
 \item MCP
 
 http://horse.mcs.kent.edu/~pwang/
+
+HTTP プロトコルを用いて、リモートの計算機で計算を行なう.
+
 \end{itemize}
 
 
@@ -623,11 +631,14 @@ sm1, gnuplot, Mathematica, PHC pack などがあり,
 \begin{thebibliography}{99}
 \bibitem{Ohara-Takayama-Noro-1999}
 小原功任, 高山信毅, 野呂正行:
-{Open asir 入門}, 1999, 数式処理, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
+	{Open asir 入門}, 1999, 数式処理,
+	Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
+
 \bibitem{OpenXM-1999}
 野呂正行, 高山信毅:
-{Open XM の設計と実装 --- Open message eXchange protocol for Mathematics},
-1999/11/22
+	{Open XM の設計と実装
+		--- Open message eXchange protocol for Mathematics},
+	1999/11/22
 \end{thebibliography}
 
 \end{document}
