@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.7 2003/11/24 11:47:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.8 2003/12/01 03:15:37 takayama Exp $ */
 char **catArgv(char **argv1,char **argv2);
 char *getOStypes();
 char *getOpenXM_HOME();
@@ -13,6 +13,7 @@ int   oxForkExecBlocked(char **argv);
 int ox_pathfinderNoX(int nox);
 int ox_pathfinderVerbose(int flag);
 char *generateTMPfileName(char *seed);
+char *generateTMPfileName2(char *seed,char *ext,int tmp,int win);
 char *getCppPath(void);
 char *getCommandPath(char *cmdname);
 char *oxWhich(char *cmdname,char *path);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.9 2003/11/24 11:47:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.10 2003/12/01 03:15:37 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -860,6 +860,68 @@ char *generateTMPfileName(char *seed) {
   return NULL;
 }
 
+#define MAXTMP2  0xffffff
+char *generateTMPfileName2(char *seed,char *ext,int usetmp,int win){
+  char *tmp;
+  char *fname;
+  char *tt;
+  int num;
+  static int prevnum=0; 
+  int i;
+  int clean = 0;
+  if (usetmp) {
+	tmp = getenv("TMP");
+	if (tmp == NULL) {
+	  tmp = getenv("TEMP");
+	}
+	if ((tmp == NULL) && (strcmp(getOStypes(),"Windows-native") != 0)) {
+	  tmp = "/tmp";
+	}
+	tmp = winPathToCygwinPath(tmp);
+  }else{
+	tmp = NULL;
+  }
+  if (tmp != NULL) {
+    fname = (char *)mymalloc(strlen(tmp)+strlen(seed)+40);
+    if (fname == NULL) nomemory(fname);
+  }else{
+    fname = (char *)mymalloc(strlen(seed)+40);
+    if (fname == NULL) nomemory(fname);
+  }
+  for (num=prevnum+1; num <MAXTMP2; num++) {
+    if (tmp != NULL) {
+      sprintf(fname,"%s/%s-tmp-%d.%s",tmp,seed,num,ext);
+    }else{
+      sprintf(fname,"%s-tmp-%d.%s",seed,num,ext);
+    }
+    if (getFileSize(fname) < 0) {
+      prevnum = num;
+	  if (win) fname= cygwinPathToWinPath(fname);
+      return fname;
+    } else {
+      if ((num > MAXTMP2-10) && (!clean)) {
+        /* Clean the old garbages. */
+        for (i=0; i<MAXTMP2; i++) {
+          if (tmp != NULL) {
+            sprintf(fname,"%s/%s-tmp-%d.%s",tmp,seed,i,ext);
+          }else{
+            sprintf(fname,"%s-tmp-%d.%s",seed,i,ext);
+          }
+          {
+            struct stat buf;
+            int m;
+            m = stat(fname,&buf);
+            if ((m >= 0) && (buf.st_mtime+120 < time(NULL))) {
+              unlink(fname);
+            }
+          }
+        }
+        num = 0; clean=1; prevnum=0;
+      }
+    }
+  }
+  return NULL;
+}
 
 char *getCppPath(void) {
   static char *cpp = "/usr/local/bin/cpp"; 
