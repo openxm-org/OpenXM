@@ -1,51 +1,55 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.5 2004/02/23 05:56:32 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.6 2004/02/24 00:02:10 takayama Exp $
 OpenXM_HOME=../..
-OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
-OpenXM_lib=${OpenXM_HOME}/lib
-OpenXM_include=${OpenXM_HOME}/include
-GMP=${OpenXM_contrib}/gmp
-RM=rm
-all:
-	@if [ ! -f ./.use_ports ]; then \
-		make all-l ; \
-	else \
-		make -f Makefile-ports all ; \
+PREFIX=${OpenXM_HOME}
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+RM = /bin/rm -rf
+MASTER_CITES=ftp.math.kobe-u.ac.jp
+# MASTER_CITES2 = 
+#DISTFILES=gmp-3.1.tar.gz
+#GMP=gmp-3.1
+DISTFILES=gmp-4.1.2.tar.gz
+GMP=gmp-4.1.2
+
+all : build 
+install : post-install
+
+fetch:
+	@if test ! -f .fetch_done ; \
+	then \
+		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/${DISTFILES} ${DISTDIR}; \
+	fi 
+	@touch .fetch_done
+
+patch : fetch
+	@if test ! -f .patch_done ; \
+	then \
+	  $(RM) work ; \
+	  mkdir work ; \
+	  (cd work ; tar xzvf ../${DISTDIR}/${DISTFILES} ) ; \
+	fi 
+	@touch .patch_done
+#	  (cd work; patch -c -p0 <../patch-aa ; patch -c -p0 <../patch-bb ; patch -c -p0 <../patch-cc) ; \
+
+build : patch
+	@if test ! -f .build_done ; \
+	then \
+		(cd work/${GMP} ; ./configure --prefix `pwd`/../../../../../OpenXM ; make ) ; \
 	fi
-install:
-	@if [ ! -f ./.use_ports ]; then \
-		make install-l ; \
-	else \
-		make -f Makefile-ports install ; \
+	@touch .build_done
+
+post-install: build
+	@if test ! -f .post-install_done ; \
+	then \
+		if [ ! -d ${PREFIX}/lib ]; then mkdir ${PREFIX}/lib ; fi ; \
+		if [ ! -d ${PREFIX}/bin ]; then mkdir ${PREFIX}/bin ; fi ; \
+		(cd work/${GMP} ; make install) ; \
+		(cd work/${GMP} ; cp gmp-impl.h config.h gmp-mparam.h ../../${OpenXM_HOME}/include) ; \
 	fi
-all-l: configure-l
-	-@if [ ! -f ./.make_done ]; then \
-		(cd ${GMP} ; make) ; \
-		touch ./.make_done ; \
-	fi
-install-l: install-exec-l
-install-exec-l: all-l
-	if [ ! -f ./.install_done ]; then \
-		(cd ${GMP}; make install-exec) ; \
-		rm -f ${OpenXM_include}/config.h ${OpenXM_include}/gmp-impl.h ${OpenXM_include}/gmp-mparam.h ; \
-		cp ${GMP}/gmp.h ${OpenXM_include} ; \
-		touch ./.install_done ; \
-	fi
-configure:
-	@if [ ! -f ./.use_ports ]; then \
-		make configure-l ; \
-	fi
-configure-l:
-	if [ ! -f ./.configure_done ]; then \
-		(cd ${GMP} ; ./configure --prefix=`pwd`/../../OpenXM ) ; \
-		touch ./.configure_done ; \
-	fi
-clean: 
-	@if [ -f ./.make_done ]; then \
-		(cd ${GMP} ; make clean) \
-	fi
-	${RM} -f ./.*done
-distclean: 
-	-@if [ -f ./.make_done ]; then \
-		(cd ${GMP} ; make distclean) \
-	fi
-	${RM} -f ./.*done
+	@touch .post-install_done
+
+clean:
+	$(RM)  .*_done
+	-(cd work/${GMP} ; make clean)
+distclean:
+	$(RM)  .*_done ./.use_ports
+	-(cd work/${GMP} ; make distclean)

@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.135 2004/02/23 11:38:36 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.136 2004/02/26 23:29:46 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -219,7 +219,7 @@ configure: configure-asir \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp
 
-configure-gmp: 
+configure-gmp: install-util
 	(cd gmp; make configure)
 
 configure-asir: 

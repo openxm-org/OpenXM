@@ -1,53 +1,49 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.5 2004/02/13 00:47:12 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.6 2004/02/28 15:35:45 ohara Exp $
 OpenXM_HOME=../..
-OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
-OpenXM_lib=${OpenXM_HOME}/lib
-OpenXM_include=${OpenXM_HOME}/include
-GC=${OpenXM_contrib}/gc
-RM=rm
+PREFIX=${OpenXM_HOME}
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+RM = /bin/rm -rf
+MASTER_CITES=ftp.math.kobe-u.ac.jp
+# MASTER_CITES2 = 
+DISTFILES=gc6.2.tar.gz
 
-all:
-	@if [ ! -f ./.use_ports ]; then \
-		make all-l ; \
-	else \
-		make -f Makefile-ports all ;  \
-	fi
-install:
-	@if [ ! -f ./.use_ports ]; then \
-		make install-l ; \
-	else \
-		make -f Makefile-ports install ; \
-	fi
+all : build 
+install : post-install
 
-all-l: configure-l
-	@if [ ! -f ./.make_done ]; then \
-		(cd ${GC} ; make) ; \
-		touch ./.make_done ; \
-	fi
+fetch:
+	@if test ! -f .fetch_done ; \
+	then \
+		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/${DISTFILES} ${DISTDIR}; \
+	fi 
+	@touch .fetch_done
 
-install-l: all-l
-	if [ ! -f ./.install_done ]; then \
-		cp ${GC}/gc.a ${OpenXM_lib}/libgc.a ; \
-		if test ! -d ${OpenXM_include}/gc ; then mkdir -p ${OpenXM_include}/gc ; fi ; \
-		cp ${GC}/include/gc.h ${GC}/include/gc_cpp.h ${OpenXM_include}/gc ; \
-		touch ./.install_done ; \
-	fi
+patch : fetch
+	@if test ! -f .patch_done ; \
+	then \
+	  $(RM) work ; \
+	  mkdir work ; \
+	  (cd work ; tar xzvf ../${DISTDIR}/${DISTFILES} ) ; \
+	fi 
+	@touch .patch_done
+#	  (cd work; patch -c -p0 <../patch-aa ; patch -c -p0 <../patch-bb ; patch -c -p0 <../patch-cc) ; \
 
-configure-l:
-	@if [ ! -f ./.configure_done ]; then \
-	    if [ `uname` = "Interix" ]; then \
-	        cat ./gc5_interix.diff | ( cd ${OpenXM_contrib}/gc; patch ); \
-	    fi ; \
-	    touch ./.configure_done ; \
+build : patch
+	@if test ! -f .build_done ; \
+	then \
+		(cd work/gc6.2 ; ./configure --prefix `pwd`/../../../../../OpenXM ; make ) ; \
 	fi
+	@touch .build_done
 
-clean: 
-	@if [ -f ./.make_done ]; then \
-		(cd ${GC} ; make clean) \
+post-install: build
+	@if test ! -f .post-install_done ; \
+	then \
+		(cd work/gc6.2 ; make install) ; \
 	fi
-	${RM} -f ./.*done
-distclean: 
-	-@if [ -f ./.make_done ]; then \
-		(cd ${GC} ; make distclean) \
-	fi
-	${RM} -f ./.*done ./.use_ports
+	@touch .post-install_done
+
+clean:
+	$(RM)  .*_done
+	-(cd work/gc6.2 ; make clean)
+distclean:
+	$(RM)  .*_done ./.use_ports
+	-(cd work/gc6.2 ; make distclean)
