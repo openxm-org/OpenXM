@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.10 2003/03/25 11:22:17 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.11 2003/03/26 04:56:14 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -60,7 +60,7 @@ all-html: doc .all-html-100-en.done .all-html-101-en.done
 	if test ! -f .all-html-100-ja.done ; \
 	then \
 		(cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM) ; \
-		(cd tmpJA/OpenXM; ../../${OXREPLACE} --old iso-8859-1 --new iso-2022-jp *.html) ; \
+		(cd tmpJA/OpenXM; ../../${OXREPLACE} --old iso-8859-1 --new euc-jp *.html) ; \
 		touch .all-html-100-ja.done ; \
 	fi
 	if test ! -f .all-html-100-en.done ; \
@@ -71,7 +71,7 @@ all-html: doc .all-html-100-en.done .all-html-101-en.done
 	if test ! -f .all-html-101-ja.done ; \
 	then \
 		(cd tmp101JA; platex OX-RFC-101; platex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
-		(cd tmp101JA/OX-RFC-101; ../../${OXREPLACE} --old iso-8859-1 --new iso-2022-jp *.html) ; \
+		(cd tmp101JA/OX-RFC-101; ../../${OXREPLACE} --old iso-8859-1 --new euc-jp *.html) ; \
 		touch .all-html-101-ja.done ; \
 	fi
 	if test ! -f .all-html-101-en.done ; \
