@@ -1,9 +1,13 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.h,v 1.4 2003/11/20 06:04:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.h,v 1.5 2003/11/20 07:56:00 takayama Exp $ */
 struct pmObject {
   int tag;
   void *body;
 };
 typedef struct pmObject *pmObjectp ;
+extern pmObjectp PMlval;  /* Yacc on FreeBSD 4.8 does not generate this declaration in yy_polymake.tab.h
+                             Yacc on Debian potato generates this declaration in yy_poymake.tab.h
+                             No problem with makeing two extern declarations. */
+
 #define YYSTYPE pmObjectp
 #define PM_unknown -2
 #define PM_noToken -1
