@@ -1,0 +1,89 @@
+% $OpenXM$
+\documentclass{article}
+%%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
+\usepackage{html}
+/*&jp
+\title{{\bf エンジン起動プロトコル, OpenXM RFC 101 Draft}}
+\author{ 小原功任\thanks{{金沢大学理学部計算科学教室, \htmladdnormallink{http://www.s.kanazawa.ac.jp}{http://www.s.kanazawa.ac.jp}}}}
+\date{ 2000年, 11月30日}
+*/
+/*&eg
+\title{{\bf Protocol to Start Engines, OpenXM RFC 101 Draft}}
+\author{ Katsuyoshi Ohara\thanks{Department of Computational Science, Kanazawa University, \htmladdnormallink{http://www.s.kanazawa.ac.jp}{http://www.s.kanazawa.ac.jp}}}
+\date{ November 30, 2000 }
+*/
+
+\begin{document}
+\maketitle
+\section{Session Management}
+
+/*&jp
+この文書では ``OpenXM RFC 100, OpenXM の設計と実装''\ 
+\htmladdnormallink{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}
+で定義されたコントロールサーバを置き換える新しいコントロールサーバの
+仕様を説明する.
+*/
+
+/*&eg
+This document describes a new control server specification
+which is intended to be
+a replacement of the control server defined in 
+``Design and implementation of OpenXM, OpenXM RFC 100''\ 
+\htmladdnormallink{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}{http://www.math.kobe-u.ac.jp/OpenXM/OpenXM-RFC.html}.
+*/
+
+\subsection{New OpenXM control servers}
+
+/*&jp
+
+我々は新しいコントロールサーバを提案する。そのサンプル実装として oxc が
+提供される。新しいコントロールサーバは以下の点で従来のものと異なる。
+\begin{enumerate}
+\item コントロールサーバは OpenXM スタックマシンであり、
+CMObject/Primitive をサポートする。
+\item 計算サーバの起動はスタックマシンコマンドを介して行う。
+\item 一つのコントロールサーバから複数の計算サーバを起動できる。
+\end{enumerate}
+
+oxc の導入により、いままでのサーバの起動手順はコントロールサーバの起動と
+計算サーバの起動に分離される。コントロールサーバを起動するには次の手順を
+取る。まず、適当なオプション(後述)をつけて、コントロールサーバを起動する
+と、コントロールサーバはソケットを作成し、connect する。クライアントは、
+listen, accept する。接続後、バイトオーダを決定する。バイトオーダの決定
+については???を見よ。その後、コントロールサーバは待機状態にはいる。コン
+トロールサーバは OpenXM スタックマシンであるから、mathcap の交換などの手
+続きに入ってもよい。
+
+計算サーバの起動は、oxc のローカル関数 oxc\_open による。oxc\_open は少
+なくとも 4 個の引数を持つ。すなわち、
+\begin{verbatim}
+oxc_open(計算サーバ名, ホスト名, ポート番号, モード, ...)
+\end{verbatim}
+という形式である。ここで、「計算サーバ名」、「ホスト名」は CMO\_STRING 
+型のオブジェクト、「ポート番号」、「モード」は CMO\_INT32型
+のオブジェクトである。ホスト名というのはOpenXMクライアントのホ
+スト名のことである。ローカル関数の実行は SM\_executeFunction による。す
+なわち各引数を順にスタックに積み、最後にSM\_executeFunction を実行する。
+SM\_executeStringByLocalParser は利用できないので注意する。
+
+oxc\_open は、計算サーバの起動に成功したら (CMO\_INT32, サーバID) を、失
+敗したらエラーオブジェクトをスタックに積む。例えば計算サーバが発見できな
+かった場合にはエラーオブジェクトを積むことになる。コントロールサーバは 
+access(2) を用いて PATH から計算サーバを探す。もし見つからなければ、fork 
+をせずに、エラーオブジェクトをスタックに積む。
+
+コントロールサーバの実行形式は以下のオプションを許す。
+\begin{verbatim}
+     --pass
+     --host
+     --port
+\end{verbatim}
+*/
+
+/*&eg
+
+This document has not yet been translated into English from Japanese.
+
+*/
+
+\end{document}
