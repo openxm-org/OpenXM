@@ -1,0 +1,114 @@
+\documentclass{jarticle}
+
+\begin{document}
+\section{使用方}
+
+Java インタプリタを動作させるために,
+環境変数 CLASSPATH を設定する.
+設定方法や値については, OS や Java インタプリタにより異なるので,
+各インタプリタのマニュアルを参照.
+なお, OMproxy を動作させるためには, カレントディレクトリの
+クラスファイルも Java インタプリタが見つけられるように
+しておかなければならない.
+
+\begin{verbatim}
+% cd ${OpenXM_HOME}/lib/java-support
+% java OMproxy
+\end{verbatim}
+
+%以下, オプションの設定について.
+
+
+
+
+\section{プログラムの構成}
+
+OMproxy は以下のクラスから成る.
+
+\begin{verbatim}
+OMproxy.java
+OM2OXM.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_DATUM.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_ZERO.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java
+JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ_OLD.java
+JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java
+JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java
+JP/ac/kobe_u/math/tam/OpenXM/SM.java
+\end{verbatim}
+
+JP/ac/kobe\_u/math/tam/OpenXM/OpenXMconnection.java は
+TCP/IP エンコーディングの通信路を扱う.
+CMO や SM クラス(後述)のオブジェクトを送受信するメソッドが用意されている.
+OpenXM 規約の TCP/IP エンコーディングではコントロールプロセスへの通信路と
+計算プロセスへの通信路の 2 つの通信路が作られる.
+この時, OpenXMconnection はコントロールプロセス用と
+計算プロセス用の 2 つ生成されている.
+
+OMproxy.java は OMproxy サーバ本体であり,
+OpenXMconnection のオブジェクト, 及びスタックを持っている.
+メソッドとしてスタックマシンが組み込まれており,
+計算プロセスとして動くようになっている.
+OMproxy.java は起動後, すぐに OpenXM.java (後述)を生成し,
+計算プロセス用の OpenXMconnection.java を受け取る.
+その後, OpenXM.java から OMproxy 内の計算プロセス( run メソッド)が
+起動され, 計算プロセスが開始される.
+
+JP/ac/kobe\_u/math/tam/OpenXM/OpenXM.java は OpenXM で規定されている
+プロトコルの TCP/IP エンコーディングに依存した処理を行なう.
+しかし, 現段階では切り分けがはっきりできていない.
+現在の OpenXM.java の役目は以下である.
+OMproxy からこのクラスのオブジェクトが生成されると,
+まず, OpenXMconnection を生成し, クライアントからの
+コントロールプロセスへの接続要求を待つ.
+コントロールプロセスへの接続が確立した後, もう 1 つ OpenXMconnection を生成し,
+今度は計算プロセスへの接続要求を待つ.
+2 つの通信路が接続されると,
+コントロールプロセス(OpenXM.java 内の run メソッド)を立ち上げ,
+計算プロセスに接続される OpenXMconnection を OMproxy へ渡す.
+さらに, コントロールプロセスは OMproxy の計算プロセスを立ち上げる.
+計算プロセスへの割り込みや終了などは OpenXM.java 内の
+コントロールプロセスから行なわれる.
+
+OM2OXM.java は OpenXM の CMO 形式と OpenMath の XML 形式との
+データ変換を行なうクラスである.
+クラスとして定義しているが, 現在はサブルーチンの集合としてしか
+扱っていない.
+
+以下の CMO.java 及び SM.java のスーパークラスは Object である.
+Object とは別の, 共通のスーパークラスを用いた方がよいと考えているが,
+現段階の実装ではそこまでに至っていない.
+
+JP/ac/kobe\_u/math/tam/OpenXM/CMO.java は OpenXM で規定されている
+CMO 形式のオブジェクトを扱う抽象クラスである.
+
+JP/ac/kobe\_u/math/tam/OpenXM/CMO\_*.java は CMO.java の
+サブクラスとなっており, それぞれ CMO 形式の中の 1 種類の
+形式を扱う. CMO.java で定義されているインスタンスは
+各サブクラスでも共通であるが, 各クラスのオブジェクトを生成する方法や,
+オブジェクトの取り出し方はまったく統一性がとれていない.
+
+JP/ac/kobe\_u/math/tam/OpenXM/SM.java はスタックマシンの
+命令コードをオブジェクトとするクラスである.
+
+\end{document}
+
