@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.11 2003/08/19 08:02:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.12 2003/08/20 01:39:17 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -55,6 +55,7 @@ struct object KsystemVariable(ob)
   extern int EcartAutomaticHomogenization;
   extern int TraceLift;
   extern int DoCancel;
+  extern int DebugContentReduction;
 
   int n,i;
   struct object ob1,ob2,ob3,ob4;
@@ -190,6 +191,8 @@ struct object KsystemVariable(ob)
         rob = KpoInteger(TraceLift);
       }else if (strcmp(ob1.lc.str,"DoCancel")==0) {
         rob = KpoInteger(DoCancel);
+      }else if (strcmp(ob1.lc.str,"DebugContentReduction")==0) {
+        rob = KpoInteger(DebugContentReduction);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
       }
@@ -320,6 +323,9 @@ struct object KsystemVariable(ob)
       }else if (strcmp(ob1.lc.str,"DoCancel") == 0) {
         DoCancel = KopInteger(ob2);
         rob = KpoInteger(DoCancel);
+      }else if (strcmp(ob1.lc.str,"DebugContentReduction") == 0) {
+        DebugContentReduction = KopInteger(ob2);
+        rob = KpoInteger(DebugContentReduction);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
       }

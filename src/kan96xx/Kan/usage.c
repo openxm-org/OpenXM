@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.14 2003/07/17 23:37:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.15 2003/08/20 01:39:17 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -460,6 +460,7 @@ void Kusage2(fp,s)
     fppp(fp,"outputOrder, multSymbol, variableNames, Version,\n");
     fppp(fp,"AvoidTheSameRing, RingStack, LeftBracket, RightBracket,\n");
     fppp(fp,"AutoReduce, SecureMode, Ecart, EcartAutomaticHomogenization\n");
+    fppp(fp,"DoCancel, DebugContentReduction\n");
     fppp(fp,"Example: [(N)] system_variable\n");
     fppp(fp,"                             (maximum number of variables)/2.\n");
     fppp(fp,"         [(x) (var) 3] system_variable\n");
@@ -468,6 +469,9 @@ void Kusage2(fp,s)
     fppp(fp,"                              The 4th differential operator.\n");
     fppp(fp,"         [(PrintDollar) 0] system_variable\n");
     fppp(fp,"                          Set the global variable PrintDollar to 0\n");
+    fppp(fp,"DebugReductionEcart (bit):  (2) *% (1) find_reducer,in(r) \n");
+    fppp(fp,"              (any) cont   (4) #+[rat division, + ecartd] \n");
+    fppp(fp,"DoCancel (bit):  (2) always_reduce_content  (1) Noro_strategy \n");
   }else if (strcmp(s,"tlimit")==0) {
     fppp(fp,"<< { ... } t tlimit results >>\n");
     fppp(fp,"Limit the execution time to t seconds.\n");

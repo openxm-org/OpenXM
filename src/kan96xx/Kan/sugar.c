@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.4 2003/05/01 01:58:05 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -9,6 +9,7 @@
 /* static int DebugReduction = 0; 
 */
 extern DebugReductionRed;
+extern DebugContentReduction;
 
 POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
                      struct syz0 *syzp,int sugarGrade)
@@ -24,12 +25,19 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
 
   extern struct ring *CurrentRingp;
   struct ring *rp;
+  extern DoCancel;
   
   if (needSyz) {
     if (f ISZERO) { rp = CurrentRingp; } else { rp = f->m->ringp; }
     cf = cxx(1,0,0,rp);
     syz = ZERO;
   }
+
+  if (needSyz && DoCancel) {
+	warningGradedSet("needSyz is not supported when DoCancel is turned on. DoCancel is set to 0.\n");
+	DoCancel = 0;
+  }
+  if (DoCancel && (f != POLYNULL)) shouldReduceContent(f,1);
 
   reduced = 0; /* no */
   /* Take minimum */
@@ -48,6 +56,16 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
             /* Reduce if and only if sugarGrade does not increase. */
             if (tdegm+grd <= sugarGrade) {
               f = reduction1_sugar(f,set->g[i],needSyz,&cc,&cg,sugarGrade);
+
+              if (DoCancel && (f != POLYNULL)) {
+                if (shouldReduceContent(f,0)) {
+                  struct coeff *cont;
+                  f = reduceContentOfPoly(f,&cont);
+                  shouldReduceContent(f,1);
+                  if (DebugContentReduction) printf("CONT=%s ",coeffToString(cont));
+                }
+              }
+
               if (needSyz) {
                 cf = ppMult(cc,cf);
                 syz = cpMult(toSyzCoeff(cc),syz);
@@ -67,6 +85,15 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
   }
+
+  if (DoCancel && (f != POLYNULL)) {
+    if (f->m->ringp->p == 0) {
+	  struct coeff *cont;
+	  f = reduceContentOfPoly(f,&cont);
+	  if (DebugContentReduction) printf("cont=%s ",coeffToString(cont));     
+    }
+  }
+
   return(f);
 }
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.4 2003/08/20 01:39:17 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -953,6 +953,7 @@ POLY reduceContentOfPoly(POLY f,struct coeff **contp) {
   struct coeff *cOne = NULL;
   extern struct ring *SmallRingp;
   if (cOne == NULL) cOne = intToCoeff(1,SmallRingp);
+  *contp = cOne;
   
   if (f == POLYNULL) return f;
   if (f->m->ringp->p != 0) return f;
@@ -990,7 +991,7 @@ struct coeff *gcdOfCoeff(POLY f) {
 	cOne = newMP_INT();
 	mpz_set_si(cOne,(long) 1);
   }
-  if (f == POLYNULL) return 0;
+  if (f == POLYNULL) return intToCoeff(0,SmallRingp);
   if (f->m->ringp->p != 0) return intToCoeff(0,SmallRingp);
   if (f->coeffp->tag != MP_INTEGER) return intToCoeff(0,SmallRingp);
   tmp = f->coeffp->val.bigp;
@@ -1003,4 +1004,25 @@ struct coeff *gcdOfCoeff(POLY f) {
   }
   return mpintToCoeff(tmp,SmallRingp);
   
+}
+
+int shouldReduceContent(POLY f,int ss) {
+  extern DoCancel;
+  static int prevSize = 1;
+  int size;
+  if (f == POLYNULL) return 0;
+  if (f->m->ringp->p != 0) return 0;
+  if (f->coeffp->tag != MP_INTEGER) return 0;
+  if (DoCancel & 2) return 1;
+  /* Apply the Noro strategy to reduce content. */
+  size = mpz_size(f->coeffp->val.bigp);
+  if (ss > 0) {
+	prevSize = size;
+	return 0;
+  }
+  if (size > 2*prevSize) {
+	return 1;
+  }else{
+	return 0;
+  }
 }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.6 2003/08/19 08:02:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.7 2003/08/20 01:39:17 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -47,6 +47,8 @@ int pLength(POLY f);
 struct coeff *gcdOfCoeff(POLY f);
 int coeffSizeMin(POLY f);
 POLY reduceContentOfPoly(POLY f,struct coeff **contp);
+int shouldReduceContent(POLY f,int ss);
+
 
 /* poly3.c */
 void initT(void);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.9 2003/08/20 01:39:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.10 2003/08/20 05:18:35 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -36,13 +36,13 @@ static POLY reduction_ecart1(POLY r,struct gradedPolySet *gset,
 static POLY reduction_ecart1_mod(POLY r,struct gradedPolySet *gset);
 static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
                             struct gradedPolySet *gg,POLY r);
-static int shouldReduceContent(POLY f,int ss);
 
 extern int DebugReductionRed;
 extern int TraceLift;
 struct ring *TraceLift_ringmod;
 extern DoCancel;
 int DebugReductionEcart = 0;
+extern DebugContentReduction;
 
 /* This is used for goHomogenization */
 extern int DegreeShifto_size;
@@ -450,7 +450,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
         if (shouldReduceContent(r,0)) {
           r = reduceContentOfPoly(r,&cont);
           shouldReduceContent(r,1);
-          if (DebugReductionEcart || DebugReductionRed) printf("CONT=%d ",coeffToString(cont));   
+          if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("CONT=%s ",coeffToString(cont));   
         }
       }
 
@@ -482,10 +482,8 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   r = goDeHomogenizeS(r);
   if (DoCancel && (r != POLYNULL)) { /* BUG: syzygy should be corrected. */
     if (r->m->ringp->p == 0) {
-      if (coeffSizeMin(r) >= DoCancel) {
-        r = reduceContentOfPoly(r,&cont);
-        if (DebugReductionEcart || DebugReductionRed) printf("cont=%d ",coeffToString(cont));     
-      }
+	  r = reduceContentOfPoly(r,&cont);
+	  if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("cont=%s ",coeffToString(cont));     
     }
   }
 
@@ -637,20 +635,3 @@ static POLY reduction_ecart1_mod(r,gset)
   return(r);
 }
 
-static int shouldReduceContent(POLY f,int ss) {
-  static int prevSize = 1;
-  int size;
-  if (f == POLYNULL) return 0;
-  if (f->m->ringp->p != 0) return 0;
-  if (f->coeffp->tag != MP_INTEGER) return 0;
-  size = mpz_size(f->coeffp->val.bigp);
-  if (ss > 0) {
-	prevSize = size;
-	return 0;
-  }
-  if (size > 2*prevSize) {
-	return 1;
-  }else{
-	return 0;
-  }
-}

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.4 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.5 2003/07/30 09:00:52 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -7,6 +7,7 @@
 #define mymax(p,q) (p>q?p:q)
 
 int DebugReductionRed = 0;
+int DebugContentReduction = 0;
 extern int Sugar;
 
 struct spValue sp_gen(f,g)
@@ -325,12 +326,18 @@ POLY reduction_gen(f,gset,needSyz,syzp)
 
   extern struct ring *CurrentRingp;
   struct ring *rp;
+  extern DoCancel;
   
   if (needSyz) {
     if (f ISZERO) { rp = CurrentRingp; } else { rp = f->m->ringp; }
     cf = cxx(1,0,0,rp);
     syz = ZERO;
   }
+  if (needSyz && DoCancel) {
+	warningGradedSet("needSyz is not supported when DoCancel is turned on. DoCancel is set to 0.\n");
+	DoCancel = 0;
+  }
+  if (DoCancel && (f != POLYNULL)) shouldReduceContent(f,1);
 
   reduced = 0; /* no */
   do {
@@ -347,6 +354,16 @@ POLY reduction_gen(f,gset,needSyz,syzp)
           if (f ISZERO) goto ss;
           if ((*isReducible)(f,set->g[i])) {
             f = (*reduction1)(f,set->g[i],needSyz,&cc,&cg);
+
+            if (DoCancel && (f != POLYNULL)) {
+              if (shouldReduceContent(f,0)) {
+				struct coeff *cont;
+                f = reduceContentOfPoly(f,&cont);
+                shouldReduceContent(f,1);
+                if (DebugContentReduction) printf("CONT=%s ",coeffToString(cont));
+			  }
+			}
+
             if (needSyz) {
               cf = ppMult(cc,cf);
               syz = cpMult(toSyzCoeff(cc),syz);
@@ -365,6 +382,15 @@ POLY reduction_gen(f,gset,needSyz,syzp)
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
   }
+
+  if (DoCancel && (f != POLYNULL)) {
+    if (f->m->ringp->p == 0) {
+	  struct coeff *cont;
+	  f = reduceContentOfPoly(f,&cont);
+	  if (DebugContentReduction) printf("cont=%s ",coeffToString(cont));     
+    }
+  }
+
   return(f);
 }
 
