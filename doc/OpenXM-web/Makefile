@@ -1,7 +1,7 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.14 2000/03/01 09:58:14 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.15 2000/03/10 10:34:47 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
-WEBKOBE1=/home/web/OpenXM/20000124
+WEBKOBE1=/home/web/OpenXM/1.1.2
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 DVIPS=dvips -f
@@ -34,10 +34,17 @@ copy-html :
 
 
 
-install-web-kobe :  $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-eg.txt $(WEBKOBE1)/install-jp.txt  $(WEBKOBE1)/ERRATA.html
+install-web-kobe :  $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-eg.txt $(WEBKOBE1)/install-jp.txt  $(WEBKOBE1)/ERRATA.html $(WEBKOBE1)/index-binary.html $(WEBKOBE1)/index-packages.html
 
 $(WEBKOBE)/index.html : index.html
 	cp -f index.html $(WEBKOBE)
+	cp -f index.html $(WEBKOBE1)
+
+$(WEBKOBE1)/index-binary.html : index-binary.html
+	cp -f index-binary.html $(WEBKOBE)
+
+$(WEBKOBE1)/index-packages.html : index-packages.html
+	cp -f index-packages.html $(WEBKOBE)
 
 $(WEBKOBE)/issac2000.ps : $(OpenXM_doc)/issac2000/issac2000.ps
 	cp -f $(OpenXM_doc)/issac2000/issac2000.ps $(WEBKOBE)
