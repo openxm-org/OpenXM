@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile,v 1.3 2000/02/28 10:47:47 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile,v 1.4 2000/03/17 01:21:35 takayama Exp $
 # targets
 # all : 
 #     do nothing
@@ -10,6 +10,10 @@ OpenXM_ROOT=../../../../../OpenXM
 OpenXM_lib=$(OpenXM_ROOT)/lib
 ## If you add a new source to be installed, add in the list below.
 SOURCE=Matrix    fourier-0 m   sets Diff   bench-1   gnuplot   om     sm1  Dmodule   beta   igraph    phc    tigers longname dsolv
+SOURCE2=povray.rr names.rr
+## SOURCE: documents are embedded.
+## SOURCE2: documents are NOT embedded.
+
 
 
 all :
@@ -18,6 +22,7 @@ clean :
 
 install : clean-for-install
 	cp $(SOURCE)  $(OpenXM_lib)/asir-contrib		
+	cp $(SOURCE2)  $(OpenXM_lib)/asir-contrib		
 
 clean-for-install :
 	/bin/rm -rf $(OpenXM_lib)/asir-contrib
