@@ -1,14 +1,14 @@
-%%$OpenXM: OpenXM/doc/ascm2001p/ox-messages.tex,v 1.1 2001/06/19 07:32:58 noro Exp $
+%%$OpenXM: OpenXM/doc/ascm2001p/ox-messages.tex,v 1.2 2001/06/20 03:08:05 takayama Exp $
 
 \section{OX messages}
 
 An OX message for TCP/IP is a byte stream consisting of
-a header and a body: 
-\begin{tabular}{|c|c|}
-\hline
-Header	& \hspace{10mm} Body \hspace{10mm} \\
-\hline
-\end{tabular}.
+a header and a body.
+%\begin{tabular}{|c|c|}
+%\hline
+%Header	& \hspace{10mm} Body \hspace{10mm} \\
+%\hline
+%\end{tabular}.
 The header consists of two signed 32 bit integers.
 The first one is an OX tag 
 and the second one is a serial number of the OX message.
@@ -20,7 +20,8 @@ The OX messages are classified into three types:
 DATA, COMMAND, and SPECIAL.
 %We have currently the following general tags for the OX messages:
 Typical OX tags are 
-\verb+OX_COMMAND+ (COMMAND), \verb+OX_DATA+ (DATA) and \verb+OX_SYNC_BALL+ (SPECIAL).
+\verb+OX_COMMAND+, \verb+OX_DATA+, \verb+OX_DATA_DATA_OPENMATH_XML+
+and \verb+OX_SYNC_BALL+. The last one belongs to the SPECIAL category.
 
 %\begin{verbatim}
 %#define	OX_COMMAND               513  // COMMAND

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.6 2001/06/20 03:18:21 noro Exp $
+% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.7 2001/06/20 05:42:47 takayama Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -12,13 +12,14 @@ with homogeneous servers.  Let us see some examples.
 
 \subsubsection{Competitive distributed computation by various strategies}
 
-SINGULAR \cite{Singular} implements {\it MP} interface for distributed
+SINGULAR \cite{Singular} implements MP interface for distributed
 computation and a competitive Gr\"obner basis computation is
-illustrated as an example of distributed computation by the MP interface.
+illustrated as an example of distributed computation by the interface.
 Such a distributed computation is also possible on OpenXM.
 
 \begin{verbatim}
-extern Proc1,Proc2$ Proc1 = -1$ Proc2 = -1$
+extern Proc1,Proc2$
+Proc1 = -1$ Proc2 = -1$
 /* G:set of polys; V:list of variables */
 /* Mod: the Ground field GF(Mod); O:type of order */
 def dgr(G,V,Mod,O)
@@ -51,10 +52,6 @@ server is reset.
 
 \subsubsection{Nesting of client-server communication}
 
-%%Prog:  load ("dfff"); df_demo();  enter 100.
-Under OpenXM-RFC 100 an OpenXM server can be a client of other servers.
-Figure \ref{tree} illustrates a tree-like structure of an OpenXM
-client-server communication.
 \begin{figure}
 \label{tree}
 \begin{center}
@@ -77,6 +74,12 @@ client-server communication.
 \caption{Tree-like structure of client-server communication}
 \end{center}
 \end{figure}
+%%Prog:  load ("dfff"); df_demo();  enter 100.
+Under OpenXM-RFC 100 an OpenXM server can be a client of other servers.
+%Figure \ref{tree}
+Figure 2
+illustrates a tree-like structure of an OpenXM
+client-server communication.
 Such a computational model is useful for parallel implementation of
 algorithms whose task can be divided into subtasks recursively.  
 
@@ -139,7 +142,7 @@ At each level of the recursion, a given polynomial can be
 divided into two non-trivial factors with some probability by using 
 a randomly generated polynomial as a {\it separator}.
 We can apply the following simple parallelization:
-When two non-trivial factors are generated on a server,
+when two non-trivial factors are generated on a server,
 one is sent to another server and the other factor is factorized on the server
 itself. 
 %\begin{verbatim}
