@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.1 2002/12/08 10:59:59 takayama Exp $ */
 
 /* BUG: If you load glib, then you have to reset "register_handler"
 */
@@ -6,6 +6,20 @@
 Xm_rfc103_reset=1$
 Xm_rfc103_shared=0$
 /* format [ [name,value], [name,value], .... ] */
+
+def ox103_get_server_type(L) {
+  return L[1][0][1];
+}
+def ox103_is_supported(L) {
+  Name = ox103_get_server_type(L);
+  if ((Name == "ox_asir") || (Name == "ox_sm1")) return 1;
+  else return 0;
+}
+def ox103_reset_is_supported(L) {
+  Name = ox103_get_server_type(L);
+  if ((Name == "ox_asir") || (Name == "ox_sm1") || (Name == "ox_plot")) return 1;
+  else return 0;
+}
 
 /*&usage:
   ox103_reset()
@@ -15,21 +29,22 @@ def ox103_reset() {
   if (Xm_rfc103_reset) {
     L = ox_get_serverinfo();
     for (I=0; I<length(L); I++) {
-      ox_reset(L[I][0]);
+      if (ox103_reset_is_supported(L[I])) {
+        ox_reset(L[I][0]);
+      }
     }
     for (I=0; I<length(L); I++) {
-      Name = L[I][1][0][1];
+      Name = ox103_get_server_type(L[I]);
       if (Name == "ox_plot") {
          /*  glib specific */
       }else if (Name == "ox_sm1") {
          /* sm1 specific */
-      } 
+      }
     }
   }
 }
 /*  ******   register_handler ******** */
 register_handler(ox103_reset)$
-/* BUG: ox103_reset is not called when SIGUSR1 */
 
 /*&usage:
   ox103_set_shared_variable(Name,Value)
@@ -40,7 +55,8 @@ def ox103_set_shared_variable(Name,Value) {
   extern Xm_rfc103_shared;
   X = Xm_rfc103_shared;
   Found = 0;
-  eval_str(Name+"="+rtostr(Value)); /* BUG: it does not work */
+  eval_str(Name+"="+rtostr(Value)); /* BUG: it does not work.
+                                    Because Name is not declared as a extern*/
   if (X == 0) {
     Xm_rfc103_shared =[[Name,Value]];
   }else{
@@ -59,11 +75,15 @@ def ox103_set_shared_variable(Name,Value) {
   }
   L = ox_get_serverinfo();
   for (I=0; I<length(L); I++) {
-    ox_rpc(L[I][0],ox103_set_shared_variable,Name,Value);
+    if (ox103_is_supported(L[I])) {
+      ox_cmo_rpc(L[I][0],"ox103_set_shared_variable",Name,Value);
+    }
   }
   for (I=0; I<length(L); I++) {
-    print(ox_pop_cmo(L[I][0]));
-    /* ox_pop_cmo(L[I][0]); check if it is error or not. */
+    if (ox103_is_supported(L[I])) {
+      print(ox_pop_cmo(L[I][0]));
+      /* ox_pop_cmo(L[I][0]); check if it is error or not. */
+    }
   }
   return [Name,Value];
 }
@@ -82,16 +102,22 @@ def ox103_set_all_shared_variable() {
     }
     L = ox_get_serverinfo();
     for (I=0; I<length(L); I++) {
-      ox_push_cmo(L[I][0],Xm_rfc103_shared);
-      ox_push_cmo(L[I][0],"Xm_rfc103_shared");
-      xm_push_cmd(L[I][0],266); /* SM_setName 266 */
+      if (ox103_is_supported(L[I])) {
+        ox_push_cmo(L[I][0],Xm_rfc103_shared);
+        ox_push_cmo(L[I][0],"Xm_rfc103_shared");
+        ox_push_cmd(L[I][0],266); /* SM_setName 266 */
+      }
     }
     for (I=0; I<length(L); I++) {
-      ox_rpc(I,ox103_set_all_shared_variable);
+      if (ox103_is_supported(L[I])) {
+        ox_cmo_rpc(I,"ox103_set_all_shared_variable");
+      }
     }
     for (I=0; I<length(L); I++) {
-      print(ox_pop_cmo(I));
-      /* ox_pop_cmo(I); check if it is error or not. */
+      if (ox103_is_supported(L[I])) {
+        print(ox_pop_cmo(I));
+        /* ox_pop_cmo(I); check if it is error or not. */
+      }
     }
   }
   return 1;
