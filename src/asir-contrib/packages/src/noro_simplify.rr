@@ -6,14 +6,70 @@ localf remove_paren;
 localf remove_paren0;
 localf is_monomial;
 
+/* XXX should be put in some header file */
+
+#define O_N 1
+#define O_P 2
+#define O_R 3
+#define O_LIST 4
+#define O_VECT 5
+#define O_MAT 6
+#define O_STR 7
+#define O_COMP 8
+#define O_DP 9
+#define O_USINT 10
+#define O_ERR 11
+#define O_GF2MAT 12
+#define O_MATHCAP 13
+#define O_F 14
+#define O_GFMMAT 15
+#define O_BYTEARRAY 16
 #define O_QUOTE 17
+#define O_OPTLIST 18
+#define O_SYMBOL 19
+#define O_RANGE 20
+#define O_TB 21
+#define O_DPV 22
+#define O_QUOTEARG 23
+#define O_VOID -1
 
 #define I_BOP 0
-#define I_FUNC 8
-#define I_LIST 18
-#define I_PAREN 34
+#define I_COP 1 
+#define I_AND 2 
+#define I_OR 3 
+#define I_NOT 4 
+#define I_CE 5
+#define I_PRESELF 6 
+#define I_POSTSELF 7
+#define I_FUNC 8 
+#define I_FUNC_OPT 9 
+#define I_IFUNC 10
+#define I_MAP 11 
+#define I_RECMAP 12
+#define I_PFDERIV 13
+#define I_ANS 14
+#define I_PVAR 15
+#define I_ASSPVAR 16
+#define I_FORMULA 17 
+#define I_LIST 18 
+#define I_STR 19 
+#define I_NEWCOMP 20 
+#define I_CAR 21 
+#define I_CDR 22 
+#define I_CAST 23
+#define I_INDEX 24 
+#define I_EV 25 
+#define I_TIMER 26 
+#define I_GF2NGEN 27 
+#define I_GFPNGEN 28 
+#define I_GFSNGEN 29
+#define I_LOP 30 
+#define I_OPT 31 
+#define I_GETOPT 32 
+#define I_POINT 33 
+#define I_PAREN 34 
 #define I_MINUS 35
-#define I_FORMULA 17
+#define I_NARYOP 36
 
 def remove_paren(Q)
 {
