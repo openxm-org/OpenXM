@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.1 2003/07/17 09:10:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.2 2003/07/17 12:11:09 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -30,6 +30,10 @@ extern int DebugReductionRed;
 /* This is used for goHomogenization */
 extern int DegreeShifto_size;
 extern int *DegreeShifto_vec;
+
+/* It is used reduction_ecart() and ecartFindReducer()
+   to determine if we homogenize in this function */
+extern int EcartAutomaticHomogenization;
 
 #define LARGE 0x7fffffff
 
@@ -133,7 +137,11 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
     for (i=0; i<set->size; i++) {
       if (set->gh[i] == POLYNULL) {
         /* goHomogenize set->gh[i] */
-        set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
+		  if (EcartAutomaticHomogenization) {
+			  set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
+		  }else{
+			  set->gh[i] = set->g[i];
+		  }
       }
       ell = ecartGetEll(r,set->gh[i]);
       if ((ell>=0) && (ell < ell1)) {
@@ -178,6 +186,8 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
 
 /*
   r and gset are assumed to be (0,1)-homogenized (h-homogenized)
+  If EcartAutomaticHomogenization == 0, then r and gset are assumed
+  to be double homogenized (h-homogenized and s(H)-homogenized)
  */  
 POLY reduction_ecart(r,gset,needSyz,syzp)
      POLY r;
@@ -213,7 +223,9 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
 	}
   }
 
-  r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
+  if (EcartAutomaticHomogenization) {
+	  r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
+  }
   /* 1 means homogenize only s */
 
   do {
