@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/kan96xx/plugin/Makefile.in,v 1.1 2003/09/02 03:24:50 takayama Exp $
 #
 #  depends on install-gmp  
 #  The source directory of gmp must exist.
@@ -100,4 +100,5 @@ sm1Socket.o: sm1Socket.h sm1Socket.hh sm1Socket.c
 clean:
 	${RM} -f *.a *.o a.out cmo.h cmotag.hh cmotagToName cmptag.htmp \
 		 ox.h ox.hh ox_kan.h
-
+distclean: clean
+	${RM} -f Makefile

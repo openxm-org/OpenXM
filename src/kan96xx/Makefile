@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.30 2003/09/02 03:31:12 takayama Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.31 2003/09/08 01:22:56 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -65,6 +65,10 @@ clean : clean-done
 	(cd plugin; make clean)
 	(cd Doc; make clean)
 	${RM} -f sm1 gmp gc Doc/var.sm1 lib
+distclean: clean
+	-(cd Kan ; make distclean)
+	-(cd plugin ; make distclean)
+	-(cd Doc ; make distclean)
 
 
 

@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.7 2002/04/07 07:18:50 takayama Exp $
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.8 2003/09/07 08:58:03 takayama Exp $
 ########## Documents
 OpenXM_HOME=../../..
 OpenXM_doc=$(OpenXM_HOME)/doc
@@ -62,6 +62,7 @@ clean:
 clean-document:
 	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out onlinehelp ttt ./.done_install-document
 
+distclean: clean clean-document
 ########### kan/library
 CC=gcc
 KAN_HOME=../Kan
