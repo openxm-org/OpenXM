@@ -1,6 +1,6 @@
 # New Ports Collection Makefile for:	OpenXM
 #
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm/Makefile,v 1.1 2000/10/28 16:57:56 maekawa Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm/Makefile,v 1.2 2000/10/28 20:21:22 maekawa Exp $
 #
 
 PORTNAME=	openxm
@@ -14,6 +14,7 @@ MAINTAINER=	maekawa@math.sci.kobe-u.ac.jp
 BUILD_DEPENDS=	${PREFIX}/jdk1.1.8/bin/javac:${PORTSDIR}/java/jdk \
 		jlatex2html:${PORTSDIR}/japanese/latex2html \
 		jmakeinfo:${PORTSDIR}/japanese/texinfo \
+		adagcc:${PORTSDIR}/lang/gnat/ \
 		texi2html:${PORTSDIR}/textproc/texi2html \
 
 MAN1=		sm1.1 openxm.1
