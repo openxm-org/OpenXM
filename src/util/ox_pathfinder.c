@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.25 2004/03/04 12:22:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.26 2004/03/05 06:26:52 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -1159,4 +1159,39 @@ char *oxTermWhich_unix(int *typep) {
   if (s != NULL) return s;
 
   return NULL;
+}
+
+int oxpSendStringAsFile(char *user,char *hostname, char *filename, char *str)
+{
+  FILE *fp;
+  int i;
+  char *comm;
+  char *argv[10];
+  mode_t oumask;
+  oumask = umask((mode_t) (64-1));
+  /* 077=111 111 */
+  fp = fopen(filename,"w");
+  umask(oumask);
+  if (fp == NULL) {
+	return -1;
+  }
+  for (i=0; i <strlen(str); i++) {
+	fputc(str[i],fp);
+  }
+  fclose(fp);
+  if (strcmp(hostname,"localhost") == 0) return 0;
+  comm = (char *)malloc(strlen(user)+strlen(hostname)+strlen(filename)*2+1024);
+  if (comm == NULL) return -2;
+
+  argv[0] = getCommandPath("scp");
+  if (argv[0] == NULL) return -3;
+  argv[1] = filename;
+  comm = (char *)malloc(strlen(user)+strlen(hostname)+strlen(filename)+256);
+  sprintf(comm,"%s@%s:%s",user,hostname,filename);
+  argv[2] = comm;
+  argv[3] = NULL;
+  return oxForkExec(argv);
+}
+
+char *oxpReadOneTimePasswordFromFile(char *filename) {
 }

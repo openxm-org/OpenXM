@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/test.c,v 1.5 2003/12/03 03:21:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/test.c,v 1.6 2004/03/02 06:23:34 takayama Exp $ */
 #include <stdio.h>
 #include "ox_pathfinder.h"
 
@@ -6,8 +6,18 @@ sGC_malloc(int a) {
   return GC_malloc(a);
 }
 
+main() {
+  int n;
+  /*
+  n = oxpSendStringAsFile((char *)getenv("USER"),
+						  "localhost", "t.t", "test\n");
+  */
+  n = oxpSendStringAsFile("taka",
+						  "lemon2.math.kobe-u.ac.jp", "t.t", "test\n");
+  printf("%d\n",n);
+}
 /* which command */
-main(int argc,char *argv[]) {
+main_1(int argc,char *argv[]) {
   char *s;
   char **a;
   int i;
