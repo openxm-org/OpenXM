@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.10 2004/06/27 17:44:55 ohara Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.11 2004/06/30 09:30:44 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -119,6 +119,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * list::
 * mapat::
 * set_print_function::
+* small_jacobi::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -1025,6 +1026,56 @@ ChangeLog
 @end itemize
 
 
+@node small_jacobi,,, 実験的仕様の関数
+@subsection @code{small_jacobi}
+@findex small_jacobi
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item small_jacobi(@var{a},@var{m})
+:: Jacobi 記号の計算
+@end table
+
+@table @var
+@item return
+整数
+@item arg1, arg2
+整数
+@end table
+
+@itemize @bullet
+@item 
+ @var{m} が素数のときは Legendre 記号とよばれ,
+ x^2 = @var{a} mod @var{m} に解があるとき 1, 解がないとき -1 をもどす.
+@item
+Jacobi 記号は Legendre 記号の積で定義される (初等整数論の本参照).
+@item
+ この関数は machine int の範囲で jacobi 記号を計算する.
+@end itemize
+
+@example
+[1286] small_jacobi(2,3);
+-1
+[1287] small_jacobi(2,7);
+1
+@end example
+
+@table @t
+@item 参照
+http://members.jcom.home.ne.jp/yokolabo/asirlib/  
+も見てね.
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-3-1 から 2004-3-14 にかけて アルゴリズム xyz (論文
+ http://www.afo.org/xyz.pdf ) を用いて書き直された.
+ 変更をうけたソースコードは xxxyy.rr, ppp.c である.
+@item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
+@end itemize
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
 
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.

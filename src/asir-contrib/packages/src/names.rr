@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.81 2004/03/11 22:15:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.82 2004/04/07 01:06:54 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -203,6 +203,9 @@ def number_binomial(P,Q) { NOT_YET; }
 /*&usage begin: number_ceiling(X) example: number_abs(1.5); end: */
 def number_ceiling(X) { return(pari(ceil,X)); }
 def number_chop(Exp,Dx) {  NOT_YET; }
+/*&usage begin: number_factor(X)  It factors the given integer {X}.
+  example: number_factor(20); end: */
+def number_factor(X) { return(pari(factorint,X)); }
 /*&usage begin: number_floor(X) example: number_floor(1.5); end: */
 def number_floor(X) { return(pari(floor,X)); }
 /*&usage begin: number_imaginary_part(X) example: number_imaginary_part(1+2*@@i); end: */
