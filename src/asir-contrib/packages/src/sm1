@@ -1,7 +1,12 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.1.1.1 1999/11/27 11:25:19 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.2 1999/12/10 01:58:04 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
 Sm1_proc = -1$
+
+#define SM1_FIND_PROC(P)  P = getopt(proc);\
+                          if (type(P) == -1) {\
+                             P = sm1_find_proc();\
+                          }\
 
 /* Search : oxPrintMessage, see cmoDebugCMO, too. */
 /************** end of configure *******************************/
@@ -1459,8 +1464,8 @@ def sm1_wTensor0(P,F) {
   return(B);
 }
 
-/* @@@ */
-def sm1_check_proc() {
+
+def sm1_find_proc() {
   extern Sm1_proc;
   if (Sm1_proc == -1) {
      A = ox_get_serverinfo();
@@ -1470,16 +1475,111 @@ def sm1_check_proc() {
   }
   return(Sm1_proc);
 }
-/*  cf.
-sm1_reduction_d(P,F,G)
-sm1_reduction_noH_d(P,F,G)
+
+/*&eg-texi
+@menu
+* sm1_reduction::
+@end menu
+@node sm1_reduction,,, SM1 Functions
+@subsection @code{sm1_reduction}
+@findex sm1_reduction
+@table @t
+@item sm1_reduction([@var{f},@var{g},@var{v},@var{w}]|proc=@var{p})
+::  
+@end table
+
+@table @var
+@item return
+List
+@item f
+Polynomial
+@item g, v, w
+List
+@item p
+Number  (the process number of ox_sm1)
+@end table
+
+@itemize @bullet
+@item  It reduces @var{f} by the set of polynomial @var{g}
+in the homogenized Weyl algebra; it applies the
+division algorithm to @var{f}. The set of variables is @var{v} and
+@var{w} is weight vectors to determine the order, which can be ommited.
+@item The return value is of the form
+[r,c0,[c1,...,cm],[g1,...gm]] where @var{g}=[g1, ..., gm] and
+r/c0 + c1 g1 + ... + cm gm = 0.
+r/c0 is the normal form.
+@item The function reduction reduces reducible terms that appear
+in lower order terms.
+@item  The functions 
+sm1_reduction_d(P,F,G) and sm1_reduction_noH_d(P,F,G)
+are for distributed polynomials.
+@end itemize
 */
+/*&jp-texi
+@menu
+* sm1_reduction::
+@end menu
+@node sm1_reduction,,, SM1 函数
+@subsection @code{sm1_reduction}
+@findex sm1_reduction
+@table @t
+@item sm1_reduction([@var{f},@var{g},@var{v},@var{w}]|proc=@var{p})
+::  
+@end table
+
+@table @var
+@item return
+リスト
+@item f
+多項式
+@item g, v, w
+リスト
+@item p
+数  (ox_sm1 のプロセス番号)
+@end table
+
+@itemize @bullet
+@item  この函数は @var{f} を homogenized ワイル代数において,
+多項式集合 @var{g} で簡単化 (reduce) する; つまり,
+この函数は, @var{f} に割算アルゴリズムを適用する.
+変数集合は @var{v} で指定する.
+@var{w} は順序を指定するための ウエイトベクトルであり,
+省略してもよい.
+@item 戻り値は次の形をしている:
+[r,c0,[c1,...,cm],[g1,...gm]] ここで @var{g}=[g1, ..., gm] であり,
+r/c0 + c1 g1 + ... + cm gm = 0
+がなりたつ.
+r/c0 が normal form である.
+@item この函数は, 低次項にあらわれる reducible な項も簡単化する.
+@item  函数
+sm1_reduction_d(P,F,G) および sm1_reduction_noH_d(P,F,G)
+は, 分散多項式用である.
+@end itemize
+*/
+/*&C-texi
+@example
+[259] sm1_reduction([x^2+y^2-4,[y^4-4*y^2+1,x+y^3-4*y],[x,y]]);
+[x^2+y^2-4,1,[0,0],[x+y^3-4*y,y^4-4*y^2+1]]
+[260] sm1_reduction([x^2+y^2-4,[y^4-4*y^2+1,x+y^3-4*y],[x,y],[[x,1]]]);
+[0,1,[-y^2+4,-x+y^3-4*y],[x+y^3-4*y,y^4-4*y^2+1]]
+@end example
+*/
+/*&eg-texi
+@table @t
+@item Reference
+    @code{sm1_start}, @code{sm1_find_proc}, @code{d_true_nf}
+@end table
+*/
+/*&jp-texi
+@table @t
+@item 参照
+    @code{sm1_start}, @code{sm1_find_proc}, @code{d_true_nf}
+@end table
+*/
+
 def sm1_reduction(A) {
   /* Example: sm1_reduction(A|proc=10) */
-  P = getopt(proc);
-  if (type(P) == -1) {
-    P = sm1_check_proc();  /* Set Sm1_proc */
-  }
+  SM1_FIND_PROC(P);
   /* check the arguments */
   if (type(A) != 4) {
    error("sm1_reduction(A|proc=p): A must be a list.");
