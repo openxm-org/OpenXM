@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.9 2000/04/15 11:52:03 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.10 2000/09/09 03:01:25 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -13,86 +13,84 @@ $OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.9 2000/04/15 11:52:03 tak
 
 <H2>General Installation Guide  </H2>
 <LI>
-<A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-en.txt">in English</A>,
+<A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/install-en.txt">in English</A>,
 <LI>
-<A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-ja.txt">in Japanese</A>,
+<A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/install-ja.txt">in Japanese</A>,
 <LI>
-<A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-faq.txt">Installation FAQ</A>,
+<A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/install-faq.txt">Installation FAQ</A>,
 
 
 
 
-<H2>FreeBSD 3 (RELEASE_1_1_2) INSTALLATION  </H2>
+<H2>FreeBSD 3 (RELEASE_1_1_3) INSTALLATION  </H2>
 
 <LI> Become the super user and input as follows if your shell is csh:
 <FONT COLOR="#008080">
 <PRE> 
   set path=(/usr/local/jdk1.1.8/bin $path)
   rehash
-  pkg_add -r ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-1.1.2.tgz
+  pkg_add -r ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-1.1.3.tgz
 </PRE>
 </FONT>
 The package will be installed under /usr/local/OpenXM.
 You need to set /usr/local/OpenXM/lib/asir/asir_key following the opening message
 of the command asir.
 
-<H2>Linux RPM (redhat package manager) (RELEASE_1_1_2, i386) INSTALLATION </H2>
+<H2>Linux RPM (redhat package manager) (RELEASE_1_1_3, i386) INSTALLATION </H2>
 
 <LI>
 Become the super user and type in
 <FONT COLOR="#008080">
 <PRE>
-  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-shared-1.1.2-test.noarch.rpm
-  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-test.i386.rpm
+  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-shared-1.1.3-test.noarch.rpm
+  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary-1.1.3-test.i386.rpm
 </PRE>
 </FONT>
-The package will be installed under /usr/local/OpenXM.
-You need to set /usr/local/OpenXM/lib/asir/asir_key following the opening message
-of the command asir. <BR>
+The package will be installed under /usr/local/OpenXM. <BR>
 NOTE: if you are using slackware 7.0, Redhat Linux 6.2, Wine Linux 2.0 or
 other linux distributions that can handle more than 2GBytes RAM,
 you may have a segmentation fault to run asir and sm1.
 Install the binary package by the command
 <FONT COLOR="#008080">
 <PRE>
-  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-for-2G.i386.rpm
+  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary-1.1.3-for-2G.i386.rpm
 </PRE>
 </FONT>
 
 
 
-<H2>FreeBSD 3 (RELEASE_1_1_2)  Download the package  </H2>
-<LI> openxm-1.1.2.tgz
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-1.1.2.tgz"> the OpenXM package (Shift-Click)</A>].
+<H2>FreeBSD 4 (RELEASE_1_1_3)  Download the package  </H2>
+<LI> openxm-1.1.3.tgz
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-1.1.3.tgz"> the OpenXM package (Shift-Click)</A>].
 
 
-<H2>Linux RPM (redhat package manager) (RELEASE_1_1_2) Download the packages</H2>
+<H2>Linux RPM (redhat package manager) (RELEASE_1_1_3) Download the packages</H2>
 <LI>Architecture Independent Files (Library Files, Java Executables, Documents)
-openxm-1.1.2-test.noarch.rpm
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-shared-1.1.2-test.noarch.rpm"> openxm-shared for Linux (Shift-Click)</A>].
+openxm-1.1.3-test.noarch.rpm
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-shared-1.1.3-test.noarch.rpm"> openxm-shared for Linux (Shift-Click)</A>].
 
 <LI> Binaries for i386 (Intel Pentium etc) (for libc 6 = glibc2)
-openxm-1.1.2-test.i386.rpm
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-test.i386.rpm"> Intel CPU  (Shift-Click) </A>].
+openxm-1.1.3-test.i386.rpm
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary-1.1.3-test.i386.rpm"> Intel CPU  (Shift-Click) </A>].
 This distribution contains the support for Mathematica.
 
 <LI> Binaries for ppc (Power PC) (for libc 6 = glibc2)
-openxm-1.1.2-test.ppc.rpm
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-test.ppc.rpm"> Power PC (Shift-Click) </A>].
+openxm-1.1.3-test.ppc.rpm
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary-1.1.3-test.ppc.rpm"> Power PC (Shift-Click) </A>].
 This distribution does not contain the support for Mathematica.
 
 <H2> How to delete packages </H2>
 <LI> FreeBSD
 <FONT COLOR="#008080">
 <PRE>
-   pkg_delete openxm-1.1.2
+   pkg_delete openxm-1.1.3
 </PRE>
 </FONT>
 <LI> Linux RPM
 <FONT COLOR="#008080">
 <PRE>
-   rpm -e openxm-binary-1.1.2-test
-   rpm -e openxm-shared-1.1.2-test
+   rpm -e openxm-binary-1.1.3-test
+   rpm -e openxm-shared-1.1.3-test
 </PRE>
 </FONT>
 
