@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/doc/OpenXM-specs/communication-model.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
 //&jp \section{ Open XM の通信モデル}
 //&eg \section{ Communication model of Open XM}  (This part has not yet been translated)
 
@@ -135,6 +135,15 @@ OX Message を スタックマシンコマンド,
 SMobject を スタックマシンオペレータともよぶ.
 */
 
+/*&eg
+In Open XM, each process may have a hybrid interface; 
+it may accept and execute not only stack machine commands,
+but also its original command sequences.
+We call such a process an OX stack machine.
+Here we introduce OXexpression and SMexpression 
+to express OX messages and SM objects respectively.
+*/
+
 /*&C
 \begin{eqnarray*}
 \mbox{OXexpression}  
@@ -160,6 +169,17 @@ From AAA, To BBB, を OXexpression の前に書く.
 たとえば, あとで説明する, CMO string ``Hello'' を スタックにプッシュする
 表現は次のように書く:
 */
+
+/*&eg
+A comman `{\tt ,}' may be used to separate elements in an expression.
+{\tt OX\_tag} is a constant which denotes an OX message tag.
+{\tt SM\_tag} is a constant which denotes an SM command tag.
+If a sender AAA or a receiver BBB has to be specified,
+'From AAA' or 'To BBB' is written before the OXexpression.
+
+For example the following expression means a request to
+push a CMO string ``Hello''.
+*/
 /*&C
 \begin{center}
 (OX\_DATA, (CMO\_STRING, 5, "Hello"))
@@ -168,8 +188,8 @@ From AAA, To BBB, を OXexpression の前に書く.
 
 
 /*&jp
-あとで説明するように, local 関数 ``hoge'' を実行する スタックマシンコマンドは
-次のように表現する:
+The following expression means a request to execute
+a local function ``hoge''.
 */
 
 /*&C
@@ -182,13 +202,41 @@ From AAA, To BBB, を OXexpression の前に書く.
 */
 
 /*&jp
-標準 encoding 法では, 各 タグを ネットワークバイトオーダーの
-32 bit integer で表現する.
+In our standard encoding method, each tag is expressed as
+a 32 bit (4 byte) integer with the network byte order.
 */
 
 //&jp \subsection{OXexpression の 標準 encoding と TCP/IP ソケットによる実装法}
 //*eg \subsection{Standard enconding of OXexpressions and an implementation by TCP/IP sockets}
 /*&jp
+通信の実現方法は通信路のとりかたによりかわるが,
+論理構造は統一的にあつかわないといけない.
+OXexpression はその論理構造を記述している.
+
+ここでは OXexpression の標準 encoding の概略を説明する.
+この encoding 法はTCP/IP ソケット用の encoding 法として
+現在存在しているサーバに使用されている.
+さらにOX スタックマシンの計算状態を制御するための, コントロールメッセージに
+ついても説明する.
+
+
+{\tt destination}, {\tt origin} の部分は, ソケットによる
+peer to peer の接続なので省略する.
+{\tt extension} フィールドは
+{\tt message\_tag} フィールドの次にくる.
+{\tt extension} フィールドは OX パケットのシリアル番号がはいる.
+シリアル番号は {\tt int32} である.
+この番号は, サーバがエラーを起こした場合, エラーをおこした,
+OX パケットの番号を戻すのに主に利用される.
+以下 {\tt extension} フィールドは, {\tt message\_tag} の
+に含まれると理解し {\tt extension} フィールドは省略する.
+したがってパケットは
+次のように記述する
+*/
+
+/*&eg
+The logical structure of OX messages are independent of implementations
+of communication.
 通信の実現方法は通信路のとりかたによりかわるが,
 論理構造は統一的にあつかわないといけない.
 OXexpression はその論理構造を記述している.
