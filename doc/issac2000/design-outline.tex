@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.2 2000/01/02 07:32:11 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.3 2000/01/03 04:27:52 takayama Exp $
 
 \section{Design Outline} 
 
@@ -28,7 +28,7 @@ by Wang \cite{iamc} is such a protocol specialized to mathematics.
 
 Although, data and control are orthogonal to each other,
 real world requires both.
-NetSolv \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
+NetSolve \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
 and MathLink of Mathematica provide both data and control integration.
 These are currently studied ways of data and control integration.
 Each integration method has their own special features due to their
@@ -40,13 +40,13 @@ our motivations.
 \begin{enumerate}
 \item Noro,  who is one of the authors of OpenXM, has developed a general
 purpose computer algebra system Risa/Asir \cite{asir}.
-A set of functions for interative distributed computations were introduced
+A set of functions for interactive distributed computations were introduced
 in Risa/Asir version 950831 released in 1995.
 The model of computation was RPC (remote procedure call)
 and it had its own serialization method for objects.
 A robust interruption method was provided by having two communication channels
 like ftp, which implements the simple network management protocol.
-As an application of this robust and interractive distributed computation
+As an application of this robust and interactive distributed computation
 system, 
 a huge Gr\"obner basis was computed
 to determine all replicable functions by Noro and McKay \cite{noro-mckay}.
@@ -72,14 +72,14 @@ decade of the 20th century.
 These are usually ``expert'' systems for one area of mathematics
 such as ideals, groups, numbers, polytopes, and so on.
 They have their own interfaces and data formats.
-Interfaces are usually specialied to a specific field of mathematics
+Interfaces are usually specialized to a specific field of mathematics
 or poor because developers do not have time for designing user interface
 languages.
 It is fine for intensive and serious users of these systems.
 %% x2 stands for x^2, specialized for polynomial ring.
 However, for users who want to explore a new area of mathematics with these
 softwares or users who need these systems only occasionally,
-a unified system will be more convinient.
+a unified system will be more convenient.
 For example, if we can call and use mathematical softwares
 like CoCoa, GAP, Macaulay2, Porta, Singular, Snapea, $\ldots$
 from Asir, Axion, Maple, muPAD, Mathematica, and so on,
@@ -97,7 +97,7 @@ We want to see how far we can go with this approach.
 Motivated with these, we started the OpenXM project with the following
 fundamental architecture.
 \begin{enumerate}
-\item Communication is an exchange of messages. The messages are classifed into
+\item Communication is an exchange of messages. The messages are classified into
 three types:
 DATA, COMMAND, and others.
 The messages are called OX (OpenXM) messages.
@@ -105,17 +105,17 @@ Mathematical data are wrapped with {\it OX messages}.
 We use standards of mathematical data formats such as OpenMath and MP
 and our own data format ({\it CMO --- Common Mathematical Object format})
 as data expressions.
-\item Servers, which provide services to other processes, are stackmachines.
-The stackmachine is called the
-{\it OX stackmachine}.
-Existing mathematical softwares are wrapped with this stackmachine.
-Minimal requirements for a target software wrapped with the OX stackmachine
+\item Servers, which provide services to other processes, are stack machines.
+The stack machine is called the
+{\it OX stack machine}.
+Existing mathematical softwares are wrapped with this stack machine.
+Minimal requirements for a target software wrapped with the OX stack machine
 are as follows:
 \begin{enumerate}
-\item The target must have a seriealized interface such as a character based
+\item The target must have a serialized interface such as a character based
 interface.
 \item An output of the target must be understandable for computer programs;
-it should follow a grammer that can be parsed with other softwares.
+it should follow a grammar that can be parsed with other softwares.
 \end{enumerate}
 \end{enumerate}
 We are implementing a package, OpenXM package,  
