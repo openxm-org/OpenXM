@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/algnum.texi,v 1.2 1999/12/21 02:47:30 noro Exp $
 \BJP
 @node 代数的数に関する演算,,, Top
 @chapter 代数的数に関する演算
@@ -502,7 +502,7 @@ where the ground field is a multiple extension.
 [65] P1=75*x^2+(150*B+10*A^7-175*A^4-395*A)*x+(75*B^2+(10*A^7-175*A^4-395*A)*B
 +13*A^8-220*A^5-581*A^2)$
 [66] P2=x^2+A*x+A^2$
-[67] cr_gcda(P1,P2,[B,A]);
+[67] cr_gcda(P1,P2);
 27*x+((#0^6-19*#0^3-65)*#1-#0^7+19*#0^4+38*#0)
 @end example
 
@@ -1074,7 +1074,7 @@ substitutes a @b{root} for the associated indeterminate of the @b{root}.
 @findex cr_gcda
 
 @table @t
-@item cr_gcda(@var{poly1},@var{poly2},@var{alist})
+@item cr_gcda(@var{poly1},@var{poly2})
 \JP :: 代数体上の 1 変数多項式の GCD
 \EG :: GCD of two uni-variate polynomials over an algebraic number field.
 @end table
@@ -1086,9 +1086,6 @@ substitutes a @b{root} for the associated indeterminate of the @b{root}.
 @item poly1, poly2
 \JP 多項式
 \EG polynomial
-@item alist
-\JP リスト
-\EG list
 @end table
 
 @itemize @bullet
@@ -1098,20 +1095,6 @@ substitutes a @b{root} for the associated indeterminate of the @b{root}.
 @item
 \JP 2 つの 1 変数多項式の GCD を求める. 
 \EG Finds the GCD of two uni-variate polynomials.
-@item
-\BJP
-@var{alist} は入力に現れる @code{root} および, それらの定義に含まれる
-@code{root} を再帰的に取り出して並べたリスト. @var{a} が @var{b} の
-定義に含まれている場合, @var{a} は @var{b} より後 (右) に並ばなければ
-ならない. 
-\E
-\BEG
-@var{alist} is a list of @b{root}'s.
-All the @b{root}'s appearing in the input and those required to define
-the @b{root}'s in the list  must appear in the list. In the list
-,if the defining polynomial of @var{a} contains @var{b}
-then @var{a} must come first.
-\E
 @end itemize
 
 @example
@@ -1119,7 +1102,7 @@ then @var{a} must come first.
 [77] Y=x^6+6*x^5+24*x^4+8*x^3-48*x^2+384*x+1024$
 [78] A=newalg(X);
 (#0)
-[79] cr_gcda(X,subst(Y,x,x+A),[A]);
+[79] cr_gcda(X,subst(Y,x,x+A));
 x+(-#0)
 @end example
 
