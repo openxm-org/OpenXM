@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.4 2000/06/09 08:04:54 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.5 2000/06/14 07:44:04 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -544,7 +544,12 @@ In(10)=reductionTable :
 In(11)=bases:
 [    %[null] , [    0 , y^2 , -x ]  , [    -y , x , 1 ]  ] 
 In(12)=  これは, [3, 2, 1]  の元のうち, 2,1 がもとまっている.
-[ 2 ] の計算に 0 番目が必要でこれがまだない.
+最後の [ 2 ] の計算に 0 番目が必要でこれがまだない.
+要するに 1 番目と 3 番目を消す operator [1, 0, -y^2]
+     [    y^3 , 0 , -x^2 ] 
+     [    0 , y^2 , -x ] 
+     [    y , -x , 0 ] 
+の reduction が必要.
 
 -----------------------------------------
 June 11, 2000 (Tue),  20:05
@@ -591,11 +596,12 @@ mmLarger_tower は
 
 ring_def は正しく動く?
 
-関数の仕様:
+TODO:
+関数の仕様:   ( new.sm1 または complex.sm1 においとく )
   mmLarger は tower に変えてしまう.
   変数名, weight vector, シフトベクトル m を与えると ring (with schreyer order)
   を作る.   ==> weyl<m>,  weyl
-  parser はとくに作る必要がないように見えるが... ==> name
+  parser はとくに作る必要がないように見えるが...(tparse) ==> name
   ベクトル <---> es 表現  cf. toVectors, [(toe_)  f] gbext ==> name
   適切な homogenization 関数 ==> homogenize<m>
   ord_w の schreyer 版       ==> ord_w<m> 
@@ -603,8 +609,41 @@ ring_def は正しく動く?
   gb_h, syz_h の対応版       ==> [ ii vv ww m] syz_h
   resolution から shift vector を計算する関数.
 
+  結果の check をする assert 関数も必要.  
+
 上の シフトベクトル対応版の関数は当分 new.sm1 へ. そのあと complex.sm1 へ.
 
 cohom.sm1 の interface 関数は cohom.k へ.
 Help key word は (Cohom.deRham) みたいに, . でくぎって書く.
-test13()  GKZ の minimal free resolution.
+
+----------------------
+エラーの原因がようやくわかる:  June 14, 19:00
+Schreyer frame の段階で syz に 1 があると strategy が
+はたらかない.
+
+test13()  GKZ の minimal free resolution.  2 度実行すると変.
+grade が変更されると, 変なことがおきるので,
+ScheckIfSchreyer() 関数で, これを scheck することにした.
+  sm1(" (report) (mmLarger) switch_function /ss set ");
+はまだやめとく. matrix になってるので.
+
+------------------------------------------
+June 15, 2000
+TODO:  
+1.if (IdenfityIntegerAndUniversalNumber)  のとき --- default
+  lt, gt, eq で integer と universalNumber の比較ができるようにする.
+  rational との比較も可能にする.
+  
+2. sm1_push_int0 に対応することを, sm1 の側でやる.
+     マクロ名  obj to_int --> Done.
+     weight_vector の universalNumber ==> まだ. エラーをださないのがこわい.
+     s_weight_vector
+     weightv
+     ord_w
+     toVectors
+     define_ring
+     init
+     gkz
+
+-------------
+Schreyer skelton がどうして 1 を要素にもつかしらべる.

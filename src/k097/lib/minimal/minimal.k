@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.14 2000/06/09 08:04:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.15 2000/06/14 07:44:05 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -380,6 +380,10 @@ def Sdegree(f,tower,level) {
 
 def SgenerateTable(tower) {
   local height, n,i,j, ans, ans_at_each_floor;
+
+  /*
+  Print("SgenerateTable: tower=");Println(tower);  
+  sm1(" print_switch_status "); */
   height = Length(tower);
   ans = NewArray(height);
   for (i=0; i<height; i++) {
@@ -468,7 +472,13 @@ def SlaScala(g,opt) {
   Print("rf="); sm1_pmat(rf);
   redundant_seq = 1;   redundant_seq_ordinary = 1;
   tower = rf[1];
+
+  Println("Generating reduction table which gives an order of reduction.");
+  Print("WeghtOfSweyl="); Println(WeightOfSweyl);
+  Print("tower"); Println(tower);
   reductionTable = SgenerateTable(tower);
+  Print("reductionTable="); sm1_pmat(reductionTable);
+
   skel = rf[2];
   redundantTable = SnewArrayOfFormat(rf[1]);
   redundantTable_ordinary = SnewArrayOfFormat(rf[1]);
@@ -489,7 +499,7 @@ def SlaScala(g,opt) {
         Println([level,i]);
         reductionTable_tmp[i] = -200000;
         if (reductionTable[level,i] == strategy) {
-           Print("Processing "); Print([level,i]);
+           Print("Processing [level,i]= "); Print([level,i]);
            Print("   Strategy = "); Println(strategy);
            if (level == 0) {
              if (IsNull(redundantTable[level,i])) {
@@ -895,8 +905,13 @@ def Sminimal(g,opt) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
         betti_levelplus, newbases, i, j,qq, tminRes;
+  if (Length(Arglist) < 2) {
+     opt = null;
+  }
+  ScheckIfSchreyer("Sminimal:0");
   r = SlaScala(g,opt);
   /* Should I turn off the tower?? */
+  ScheckIfSchreyer("Sminimal:1");
   freeRes = r[0];
   redundantTable = r[1];
   reducer = r[2];
@@ -1185,6 +1200,10 @@ def Sschreyer(g) {
   rf = SresolutionFrameWithTower(g);
   redundant_seq = 1;   redundant_seq_ordinary = 1;
   tower = rf[1];
+  Println("Generating reduction table which gives an order of reduction.");
+  Println("But, you are in Sschreyer...., you may not use LaScala-Stillman");
+  Print("WeghtOfSweyl="); Println(WeightOfSweyl);
+  Print("tower"); Println(tower);
   reductionTable = SgenerateTable(tower);
   skel = rf[2];
   redundantTable = SnewArrayOfFormat(rf[1]);
@@ -1748,3 +1767,26 @@ HelpAdd(["ReParse",
  "In this case, ReParse the outputs from these functions.",
  "cf. IsExaxt_h"
 ]]);
+
+def ScheckIfSchreyer(s) {
+  local ss;
+  sm1(" (report) (grade) switch_function /ss set ");
+  if (ss != "module1v") {
+     Print("ScheckIfSchreyer: from "); Println(s);
+     Error("grade is not module1v");
+  }
+  /*
+  sm1(" (report) (mmLarger) switch_function /ss set ");
+  if (ss != "tower") {
+     Print("ScheckIfSchreyer: from "); Println(s);
+     Error("mmLarger is not tower");
+  }
+  */
+  sm1(" [(Schreyer)] system_variable (universalNumber) dc /ss set ");
+  if (ss != 1) {
+     Print("ScheckIfSchreyer: from "); Println(s);
+     Error("Schreyer order is not set.");
+  }
+  /* More check will be necessary. */
+  return(true);
+}

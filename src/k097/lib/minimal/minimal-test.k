@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.3 2000/06/09 08:04:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.4 2000/06/14 07:44:05 takayama Exp $ */
 load["minimal.k"];
 def test5() {
   local a,b,c,cc,v;
@@ -214,6 +214,28 @@ def test11() {
   return(a);
 }
 /* f should be a string. */
+/* a=test_ann3("x^3+y^3+z^3");
+It returns the following resolution in 1.5 hours.  June 14, 2000.
+ [ 
+  [ 
+    [    x*Dx+y*Dy+z*Dz-3*h^2 ] 
+    [    -z*Dy^2+y*Dz^2 ] 
+    [    -z*Dx^2+x*Dz^2 ] 
+    [    -y*Dx^2+x*Dy^2 ] 
+  ]
+  [ 
+    [    0 , -x , y , -z ] 
+    [    z*Dx^2-x*Dz^2 , x*Dy , x*Dx+z*Dz-3*h^2 , z*Dy ] 
+    [    y*Dx^2-x*Dy^2 , -x*Dz , y*Dz , x*Dx+y*Dy-3*h^2 ] 
+    [    0 , Dx^2 , -Dy^2 , Dz^2 ] 
+    [    z*Dy^2-y*Dz^2 , x*Dx+y*Dy+z*Dz-2*h^2 , 0 , 0 ] 
+  ]
+  [ 
+    [    -x*Dx+3*h^2 , y , -z , 0 , -x ] 
+    [    Dy^3+Dz^3 , Dy^2 , -Dz^2 , x*Dx+y*Dy+z*Dz , -Dx^2 ] 
+  ]
+ ]
+*/
 def test_ann3(f) {
   local a,v,ww2,ans2;
   a = Sannfs3_laScala2(f);
@@ -290,19 +312,21 @@ def test12() {
 def test13() {
   Println("test13 try to construct a minimal free resolution");
   Println("of a GKZ system [[1,2]]. 6/12, 2000.");
+  ans2 = GKZ([[1,2]],[0]); 
+   /* Be careful!! It resets the grade to module1, not module1v */
   ww2 = [["x1",-1,"x2",-1,"Dx1",1,"Dx2",1]];
   Sweyl("x1,x2",ww2);
-  ans2 = GKZ([[1,2]],[0]);
   ans2 = ReParse(ans2[0]);
+  Println(ans2);
   return(Sminimal(ans2));
 }
 
 def test14() {
   Println("test14 try to construct a minimal free resolution");
   Println("of a GKZ system [[1,2,3]]. 6/12, 2000.");
+  ans2 = GKZ([[1,2,3]],[0]);  /* It stops by the strategy error. */
   ww2 = [["x1",-1,"x2",-1,"x3",-1,"Dx1",1,"Dx2",1,"Dx3",1]];
   Sweyl("x1,x2,x3",ww2);
-  ans2 = GKZ([[1,2,3]],[0]);  /* It stops by the strategy error. */
   ans2 = ReParse(ans2[0]);
   return(Sminimal(ans2));
 }
