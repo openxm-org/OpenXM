@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.5 2000/01/21 08:23:44 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.6 2000/01/21 10:00:21 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
@@ -19,7 +19,7 @@ copy-doc :
 
 
 
-install-web-kobe :  $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-eg.txt $(WEBKOBE1)/install-jp.txt 
+install-web-kobe :  $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h  $(WEBKOBE1)/install-eg.txt $(WEBKOBE1)/install-jp.txt  $(WEBKOBE1)/ERRATA.html
 
 $(WEBKOBE)/index.html : index.html
 	cp -f index.html $(WEBKOBE)
@@ -60,6 +60,8 @@ $(OpenXM_doc)/install-eg.txt : $(OpenXM_doc)/install.oxweave
 	( cd $(OpenXM_doc) ; make )
 $(OpenXM_doc)/install-jp.txt : $(OpenXM_doc)/install.oxweave
 	( cd $(OpenXM_doc) ; make )
+$(WEBKOBE1)/ERRATA.html : ERRATA.html
+	cp -f ERRATA.html $(WEBKOBE1)/ERRATA.html
 
 clean-web-kobe :
 	-rm $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h $(WEBKOBE1)/openxm-eg.ps $(WEBKOBE1)/openxm-jp.ps
