@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.5 2003/01/15 05:08:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.6 2003/01/15 10:16:10 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -48,10 +48,7 @@ void sm_popString()
 {
     char *s;
     cmo *err;
-    cmo *m;
-
-    ox_printf("ox_math:: opecode = SM_popString.\n");
-    m = pop();
+    cmo *m = pop();
     if (m->tag == CMO_STRING) {
         send_ox_cmo(stack_oxfp, m);
     }else if ((s = new_string_set_cmo(m)) != NULL) {
@@ -83,11 +80,8 @@ int local_execute(char *s)
 /* The following function is depend on an implementation of a server. */
 void sm_executeStringByLocalParser()
 {
-    symbol_t symp;
     cmo* m = pop();
     char *s = NULL;
-
-    ox_printf("ox_math:: opecode = SM_executeStringByLocalParser.\n");
     if (m->tag == CMO_STRING
         && strlen(s = ((cmo_string *)m)->s) != 0) {
         if (s[0] == ':') {
@@ -96,13 +90,11 @@ void sm_executeStringByLocalParser()
             /* for mathematica */
             /* Sending the string `s' to mathematica for its evaluation. */
             ml_evaluateStringByLocalParser(s);
-            push(ml_return());
+            m = ml_return();
+            push(m);
         }
     }else {
-#ifdef DEBUG
-		symp = lookup_by_tag(m->tag);
-		ox_printf("ox_math:: error. the top of stack is %s.\n", symbol_get_key(symp));
-#endif
+		ox_printf(" <%s>", get_symbol_by_tag(m->tag));
 		push_error(SM_executeStringByLocalParser, m);
 	}
 }
@@ -129,7 +121,8 @@ void sm_executeFunction()
         argv[i] = pop();
     }
     ml_executeFunction(func, argc, argv);
-    push(ml_return());
+    m = ml_return();
+    push(m);
 }
 
 void sm_mathcap()
@@ -147,4 +140,3 @@ void sm_set_mathcap()
         /* an error object must be pushed */
     }
 }
-

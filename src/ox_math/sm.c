@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm.c,v 1.2 2003/01/11 12:38:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm.c,v 1.3 2003/01/13 12:04:53 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,16 +33,7 @@ void stack_extend()
 
 void push(cmo *ob)
 {
-#if DEBUG
-    symbol_t symp;
-
-    if (ob->tag == CMO_STRING) {
-        ox_printf("ox_math:: a CMO_STRING(%s) was pushed.\n", ((cmo_string *)ob)->s);
-    }else {
-        symp = lookup_by_tag(ob->tag);
-        ox_printf("ox_math:: a %s was pushed.\n", symbol_get_key(symp));
-    }
-#endif
+    ox_printf("push<%s>.\n", get_symbol_by_tag(ob->tag));
     if (stack_ptr >= stack_size) {
         stack_extend();
     }
@@ -79,10 +70,7 @@ an sm_* function, called by sm_run, pushes an error obect.
 void sm_popCMO()
 {
     cmo* m = pop();
-#ifdef DEBUG
-    symbol_t symp = lookup_by_tag(m->tag);
-    ox_printf("ox_math:: opecode = SM_popCMO. (%s)\n", symbol_get_key(symp));
-#endif
+    ox_printf(" <%s>", get_symbol_by_tag(m->tag));
     send_ox_cmo(stack_oxfp, m);
 }
 
@@ -99,16 +87,13 @@ void sm_pops()
 void sm_run(int code)
 {
     int (*func)(OXFILE *) = sm_search_f(code);
-#ifdef DEBUG    
-    symbol_t sp = lookup_by_tag(code);
-    ox_printf("ox_math:: %s received.\n", symbol_get_key(sp));
-#endif
+    ox_printf("ox_math:: opecode=<%s>[%d]", get_symbol_by_tag(code), code);
     if (func != NULL) {
         func(stack_oxfp);
     }else {
-        ox_printf("unknown command: %d.\n", code);
         push_error(ERROR_ID_UNKNOWN_SM, new_cmo_null());
     }
+    ox_printf("\n");
 }
 
 int oxf_error(OXFILE *oxfp)
@@ -119,4 +104,3 @@ int oxf_error(OXFILE *oxfp)
     }
     return e;
 }
-
