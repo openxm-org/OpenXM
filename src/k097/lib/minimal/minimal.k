@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.8 2000/05/06 10:45:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.9 2000/05/06 13:41:12 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1044,11 +1044,24 @@ def Sannfs2(f) {
   Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1],
                ["x",-1,"y",-1,"Dx",1,"Dy",1]]); */
   /* Sweyl("x,y",[["x",1,"y",1,"Dx",1,"Dy",1,"h",1]]); */
+
   Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]); 
   pp = Map(p,"Spoly");
   return(Sminimal_v(pp));
   /* return(Sminimal(pp)); */
 }
+
+HelpAdd(["Sannfs2",
+["Sannfs2(f) constructs the V-minimal free resolution for the weight (-1,1)",
+ "of the Laplace transform of the annihilating ideal of the polynomial f in x,y.",
+ "See also Sminimal_v, Sannfs3.",
+ "Example: a=Sannfs2(\"x^3-y^2\");",
+ "         b=a[0]; sm1_pmat(b);",
+ "         b[1]*b[0]:",
+ "Example: a=Sannfs2(\"x*y*(x-y)*(x+y)\");",
+ "         b=a[0]; sm1_pmat(b);",
+ "         b[1]*b[0]:"
+]]);
 
 /* Do not forget to turn on TOTAL_STRATEGY */ 
 def Sannfs2_laScala(f) {
@@ -1071,6 +1084,14 @@ def Sannfs3(f) {
   pp = Map(p,"Spoly");
   return(Sminimal_v(pp));
 }
+
+HelpAdd(["Sannfs3",
+["Sannfs3(f) constructs the V-minimal free resolution for the weight (-1,1)",
+ "of the Laplace transform of the annihilating ideal of the polynomial f in x,y,z.",
+ "See also Sminimal_v, Sannfs2.",
+ "Example: a=Sannfs3(\"x^3-y^2*z^2\");",
+ "         b=a[0]; sm1_pmat(b);",
+ "         b[1]*b[0]: b[2]*b[1]:"]]);
 
 /*
   The betti numbers of most examples are 2,1. (0-th and 1-th).
@@ -1341,10 +1362,23 @@ def SpairAndReduction2(skel,level,ii,freeRes,tower,ww,redundantTable) {
   return(ans);
 }
 
+HelpAdd(["Sminimal_v",
+["It constructs the V-minimal free resolution from the Schreyer resolution",
+ "step by step.",
+ "Example:   Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
+ "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
+ "             [3*x^2*Dy + 2*y*Dx, 0],",
+ "             [0,  x^2+y^2],",
+ "             [0,  x*y]];",
+ "         a=Sminimal_v(v);",
+ "         sm1_pmat(a[0]); b=a[0]; b[1]*b[0]:",
+ "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution."]]);
+
+
 def Sminimal_v(g) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
-        betti_levelplus, newbases, i, j,qq;
+        betti_levelplus, newbases, i, j,qq,tminRes;
   r = Sschreyer(g);
   sm1_pmat(r);
   Debug_Sminimal_v = r;
@@ -1399,10 +1433,119 @@ def Sminimal_v(g) {
         }
       }
    }
-   return([Stetris(minRes,redundantTable),
+   tminRes = Stetris(minRes,redundantTable);
+   return([SpruneZeroRow(tminRes), tminRes,
           [ minRes, redundantTable, reducer,r[3],r[4]],r[0]]);
   /* r[4] is the redundantTable_ordinary */
   /* r[0] is the freeResolution */
 }  
 
 /* Sannfs2("x*y*(x-y)*(x+y)"); is a test problem */
+/* x y (x+y-1)(x-2),  x^3-y^2, x^3 - y^2 z^2,
+   x y z (x+y+z-1) seems to be interesting, because the first syzygy
+  contains 1.
+*/
+
+def CopyArray(m) {
+  local ans,i,n;
+  if (IsArray(m)) {
+     n = Length(m);
+     ans = NewArray(n);
+     for (i=0; i<n; i++) {
+       ans[i] = CopyArray(m[i]);
+     }
+     return(ans);
+  }else{
+     return(m);
+  }
+}
+HelpAdd(["CopyArray",
+["It duplicates the argument array recursively.",
+ "Example: m=[1,[2,3]];",
+ "         a=CopyArray(m); a[1] = \"Hello\";",
+ "         Println(m); Println(a);"]]);
+
+def IsZeroVector(m) {
+  local n,i;
+  n = Length(m);
+  for (i=0; i<n; i++) {
+    if (!IsZero(m[i])) { 
+      return(false);
+    }
+  }
+  return(true);
+}
+
+def SpruneZeroRow(res) {
+  local minRes, n,i,j,m, base,base2,newbase,newbase2, newMinRes;
+
+  minRes = CopyArray(res);
+  n = Length(minRes);
+  for (i=0; i<n; i++) {
+    base = minRes[i];
+    m = Length(base);
+    if (i != n-1) {
+      base2 = minRes[i+1];
+      base2 = Transpose(base2);
+    }
+    newbase = [ ];
+    newbase2 = [ ];
+    for (j=0; j<m; j++) {
+      if (!IsZeroVector(base[j])) {
+        newbase = Append(newbase,base[j]);
+        if (i != n-1) {
+          newbase2 = Append(newbase2,base2[j]);
+        }
+      }
+    }
+    minRes[i] = newbase;
+    if (i != n-1) {
+      if (newbase2 == [ ]) {
+        minRes[i+1] = [ ];
+      }else{
+        minRes[i+1] = Transpose(newbase2);
+      }
+    }
+  }
+  
+  newMinRes = [ ];
+  n = Length(minRes);
+  i = 0;
+  while (i < n ) {
+    base = minRes[i];
+    if (base == [ ]) {
+      i = n; /* break; */
+    }else{
+      newMinRes = Append(newMinRes,base);
+    }
+    i++;
+  }
+  return(newMinRes);
+}
+
+def testAnnfs2(f) {
+  local a,i,n;
+  a = Sannfs2(f);
+  b=a[0];
+  n = Length(b);
+  Println("------ V-minimal free resolution -----");
+  sm1_pmat(b);
+  Println("----- Is it complex?  ---------------");
+  for (i=0; i<n-1; i++) {
+    Println(b[i+1]*b[i]);
+  }
+  return(a);
+}
+def testAnnfs3(f) {
+  local a,i,n;
+  a = Sannfs3(f);
+  b=a[0];
+  n = Length(b);
+  Println("------ V-minimal free resolution -----");
+  sm1_pmat(b);
+  Println("----- Is it complex?  ---------------");
+  for (i=0; i<n-1; i++) {
+    Println(b[i+1]*b[i]);
+  }
+  return(a);
+}

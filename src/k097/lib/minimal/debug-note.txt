@@ -1,20 +1,66 @@
-$OpenXM$
+$OpenXM: OpenXM/src/k097/lib/minimal/debug-note.txt,v 1.1 2000/05/06 07:58:37 takayama Exp $
+
+minimal.k は V-minimal free resolution を構成する
+プログラムで openxm version 1.1.2 以上で動作.
+( 必要な component は  k0, ox_asir )
+openxm については, http://www.openxm.org を参照.
+
+現在, いちおう error なくとまり, V-minimal free resolution
+らしきものを構成するというだけで, 数学的な正しさのチェックは
+まだ.
+
+使い方
+
+   k0    (  k0 インタプリタをスタート )
+  load["minimal.k"];;    (minimal.k をロード)
+
+例 1: Sminimal_v は, V-minimal free resolution を, Schreyer resolution
+      を変形していって求める. (Sminimal は LaScala-Stillman's algorithm
+      を使う: まだ negative weight vector できちんとうごかない.)
+
+  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+          v=[[2*x*Dx + 3*y*Dy+6, 0],
+             [3*x^2*Dy + 2*y*Dx, 0],
+             [0,  x^2+y^2],
+             [0,  x*y]];
+         a=Sminimal_v(v);
+         sm1_pmat(a[0]); b=a[0]; b[1]*b[0]:
+
+ノート:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution.
+
+例 2:
+         a=Sannfs3("x^3-y^2*z^2");
+         b=a[0]; sm1_pmat(b);
+         b[1]*b[0]: b[2]*b[1]:    ===> complex であることのたしかめ.
+
+x^3-y^2*z^2 の annihilating ideal の laplace 変換の V-minimal free resolution.
+Weight は (-1,-1,-1,1,1,1).
+
+ちなみに,
+Map(a[3],"Length"): は  8, 17, 13, 3  (Schreyer resolution の betti 数).
+Map(a[0],"Length"): は  4, 6, 2  (V-minimal resolution の betti 数).
+
+
+
+-------  テストデータ集
+
 a=Sannfs2("x*y*(x-y)*(x+y)");
 
-Correct answer by check.sm1  foo3;
- es^2*x^2*Dx*Dy+es^3*y*Dx^2-es*y^3*Dy^2+4*x^2*y*Dy^4-es^3*y*Dy^2+8*x*y*Dx*Dy^2*h^2+2*es*y^2*Dy*h^2+4*x^2*Dy^3*h^2-24*y^2*Dy^3*h^2-2*es*y*h^4-8*y*Dy^2*h^4
-by g=[    es^2*x^2*Dy+es^3*y*Dx-es^2*y^2*Dy+es^3*x*Dy+8*x*y*Dy^2*h^2+2*es^2*y*h^2 , es*y*Dy-es^2*Dx-4*y*Dy^3-es*h^2 , -4*y^2*Dy^2-es^2*x-es^3 , -es*x^2*Dy^2-es^3*Dx^2+es*y^2*Dy^2+es^3*Dy^2-8*x*Dx*Dy^2*h^2-2*es*y*Dy*h^2+24*y*Dy^3*h^2+2*es*h^4+8*Dy^2*h^4 , 4*y*Dx*Dy+es*x+es^2 , 4*x*y*Dy^3-es^3*Dx+es^2*y*Dy-2*es^2*h^2 ] 
+a=testAnnfs3("x*y*z*(x+y+z-1)");  
+  V-minimal にも 1 が成分としてのこるものあり.
 
-Two bases are wrong.
-In(15)=g2[4]:
--4*y*Dx*Dy-es*x+es^2
-In(16)=g3[4]:
-4*y*Dx*Dy+es*x+es^2
-In(17)=g2[5]:
-4*x*y*Dy^3-es^3*Dx-es^2*y*Dy+2*es^2*h^2
-In(18)=g3[5]:
-4*x*y*Dy^3-es^3*Dx+es^2*y*Dy-2*es^2*h^2
-In(19)=
+a=testAnnfs2("x^3-y^2-x-1");
+
+a=testAnnfs3("x^3+y^3+z^3");  
+  Schreyer の betti は max 100 程度.
+  incompatible ... なる error がでるけどいいか？
+     Warning in order.c: mmLarger_tower3(): incompatible input and gbList.
+
+     Length of gb is 6, f is es, g is -es^6*Dy^2
+     Warning in order.c: mmLarger_tower3(): incompatible input and gbList.
+  20 分後 segmentation fault で終了.
+
+
 
 
 -------- successful construction  x^3-y^2-x
