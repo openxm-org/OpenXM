@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.5 2001/11/28 08:46:54 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.6 2001/11/28 09:05:57 noro Exp $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This is a sample input file for your contribution to a multi-
 % author book to be published by Springer Verlag.
@@ -76,7 +76,7 @@
 % allows abbreviation of title, if the full title is too long
 % to fit in the running head
 %
-\author{Masayuki Noro\inst{1}}
+\author{Masayuki Noro}
 %
 %\authorrunning{Masayuki Noro}
 % if there are more than two authors,
@@ -88,15 +88,15 @@
 \maketitle              % typesets the title of the contribution
 
 \begin{abstract}
-OpenXM \cite{OPENXM} is an infrastructure for exchanging mathematical
+Risa/Asir is software for polynomial computation. It has been
+developed for testing experimental polynomial algorithms, and now it
+acts also as a main component in the OpenXM package \cite{OPENXM}.
+OpenXM is an infrastructure for exchanging mathematical
 data.  It defines a client-server architecture for parallel and
-distributed computation.  Risa/Asir is software for polynomial
-computation. It has been developed for testing new algorithms, and now
-it acts as both a client and a server in the OpenXM package. In this
-article we present an overview of Risa/Asir and review several
-techniques for improving performances of Groebner basis computation.
-We also show Risa/Asir's OpenXM interfaces and their usages by
-examples.
+distributed computation. In this article we present an overview of
+Risa/Asir and review several techniques for improving performances of
+Groebner basis computation over {\bf Q}. We also show Risa/Asir's
+OpenXM interfaces and their usages.
 \end{abstract}
 
 \section{A computer algebra system Risa/Asir}
@@ -111,31 +111,31 @@ decomposition or Galois group computation are built on them by the
 user language called Asir language. Asir language can be regarded as C
 language without type declaration of variables, with list processing,
 and with automatic garbage collection. A built-in {\tt gdb}-like user
-language debugger is available. It is open source and the source code
-and binaries are available via {\tt ftp} or {\tt CVS}.  Risa/Asir is
-not only a standalone computer algebra system but also a main
-component in OpenXM package \cite{OPENXM}, which is a collection of
-various software compliant to OpenXM protocol specification.  OpenXM
-is an infrastructure for exchanging mathematical data and Risa/Asir
-has three kind of OpenXM interfaces : client interfaces, an OpenXM
-server, and a subroutine library. Our goals of developing Risa/Asir
+language debugger is available. Risa/Asir is open source and the
+source code and binaries are available via {\tt ftp} or {\tt CVS}.
+Risa/Asir is not only a standalone computer algebra system but also a
+main component in OpenXM package \cite{OPENXM}, which is a collection
+of various software compliant to OpenXM protocol specification.
+OpenXM is an infrastructure for exchanging mathematical data and
+Risa/Asir has three kinds of OpenXM interfaces : as a client, as a
+server, and as a subroutine library. Our goals of developing Risa/Asir
 are as follows:
 
 \begin{enumerate}
 \item Providing a platform for testing new algorithms
 
 Risa/Asir has been a platform for testing experimental algorithms in
-polynomial factorization, computation related to Groebner basis,
+polynomial factorization, Groebner basis computation,
 cryptography and quantifier elimination. As to Groebner basis, we have
 been mainly interested in problems over {\bf Q} and we tried applying
 various modular techniques to overcome difficulties caused by huge
 intermediate coefficients. We have had several results and they have
-been implemented in Risa/Asir.
+been implemented in Risa/Asir with other known methods.
 
 \item General purpose open system
 
 We need a lot of functions to make Risa/Asir a general purpose
-computer algebra system.  In recent years we can obtain various high
+computer algebra system.  In recent years we can make use of various high
 performance applications or libraries as free software. We wrapped
 such software as OpenXM servers and we started to release a collection
 of such servers and clients as the OpenXM package in 1997. Risa/Asir
@@ -143,13 +143,14 @@ is now a main client in the package.
 
 \item Environment for parallel and distributed computation
 
-The origin of OpenXM is a protocol for doing parallel distributed
-computations by connecting multiple Risa/Asir's over TCP/IP. OpenXM is
-also designed to provide an environment efficient parallel distributed
-computation. Currently only client-server communication is available,
-but we are preparing a specification OpenXM-RFC 102 allowing
-client-client communication, which will enable us to execute wider
-range of parallel algorithms efficiently.
+The ancestor of OpenXM is a protocol designed for doing parallel
+distributed computations by connecting multiple Risa/Asir's over
+TCP/IP. OpenXM is also designed to provide an environment for
+efficient parallel distributed computation. Currently only
+client-server communication is available, but we are preparing a
+specification OpenXM-RFC 102 allowing client-client communication,
+which will enable us to execute wider range of parallel algorithms
+requiring collective operations efficiently.
 \end{enumerate}
 
 \subsection{Groebner basis and the related computation}
@@ -157,40 +158,42 @@ range of parallel algorithms efficiently.
 Currently Risa/Asir can only deal with polynomial ring. Operations on
 modules over polynomial rings have not yet supported.  However, both
 commutative polynomial rings and Weyl algebra are supported and one
-can compute Groebner basis in both rings over the rationals, fields of
+can compute Groebner basis in both rings over {\bf Q}, fields of
 rational functions and finite fields. In the early stage of our
 development, our effort was mainly devoted to improve the efficiency
-of computation over the rationals. Our main tool is modular
+of computation over {\bf Q}. Our main tool is modular
 computation. For Buchberger algorithm we adopted the trace lifting
 algorithm by Traverso \cite{TRAV} and elaborated it by applying our
 theory on a correspondence between Groebner basis and its modular
 image \cite{NOYO}. We also combine the trace lifting with
 homogenization to stabilize selection strategies, which enables us to
-compute several examples efficiently which is hard to compute without
+compute several examples efficiently which are hard to compute without
 such a combination.  Our modular method can be applied to the change
-of ordering algorithm and rational univariate representation.  We also
-made a test implementation of $F_4$ algorithm \cite{F4}. Later we will
-show timing data on Groebner basis computation.
+of ordering algorithm\cite{FGLM} and rational univariate
+representation \cite{RUR}.  We also made a test implementation of
+$F_4$ algorithm \cite{F4}. In the later section we will show timing
+data on Groebner basis computation.
 
 \subsection{Polynomial factorization}
 
 Here we briefly review functions on polynomial factorization.  For
 univariate factorization over {\bf Q}, the classical
 Berlekamp-Zassenhaus algorithm is implemented.  Efficient algorithms
-recently proposed have not yet implemented.  For Univariate factorizer
-over algebraic number fields, Trager's algorithm \cite{TRAGER} is
-implemented with some modifications.  Its major applications are
-splitting field and Galois group computation of polynomials over the
-rationals \cite{ANY}. For such purpose a tower of simple extensions
-are suitable because factors represented over a simple extension often
-have huge coefficients.  For univariate factorization over finite
-fields, equal degree factorization and Cantor-Zassenhaus algorithm are
-implemented. We can use various representation of finite fields:
-$GF(p)$ with a machine integer prime $p$, $GF(p)$ and $GF(p^n)$ with
-any odd prime $p$, $GF(2^n)$ with a bit-array representation of
-polynomials over $GF(2)$ and $GF(p^n)$ with small $p^n$ represented by
-a primitive root.  For multivariate factorization over the rationals,
-the classical EZ(Extended Zassenhaus) type algorithm is implemented.
+recently proposed have not yet implemented.  For univariate
+factorization over algebraic number fields, Trager's algorithm
+\cite{TRAGER} is implemented with some modifications.  Its major
+applications are splitting field and Galois group computation of
+polynomials over {\bf Q} \cite{ANY}. For such purpose a tower of
+simple extensions are suitable because factors represented over a
+simple extension often have huge coefficients.  For univariate
+factorization over finite fields, equal degree factorization and
+Cantor-Zassenhaus algorithm are implemented. We can use various
+representation of finite fields: $GF(p)$ with a machine integer prime
+$p$, $GF(p)$ and $GF(p^n)$ with any odd prime $p$, $GF(2^n)$ with a
+bit-array representation of polynomials over $GF(2)$ and $GF(p^n)$
+with small $p^n$ represented by a primitive root.  For multivariate
+factorization over {\bf Q}, the classical EZ(Extended
+Zassenhaus) type algorithm is implemented.
 
 \subsection{Other functions}
 By applying Groebner basis computation and polynomial factorization,
@@ -210,16 +213,17 @@ Groebner basis computation over {\bf Q}, which are easily
 implemented but may not be well known.
 We use the following notations.
 \begin{description}
-\item $Id(F)$ : a polynomial ideal generated by $F$
+\item $Id(F)$ : a polynomial ideal generated by a polynomial set $F$
 \item $\phi_p$ : the canonical projection from ${\bf Z}$ onto $GF(p)$
 \item $HT(f)$ : the head term of a polynomial with respect to a term order
 \item $HC(f)$ : the head coefficient of a polynomial with respect to a term order
 \end{description}
 
 \subsection{Combination of homogenization and trace lifting}
+\label{gbhomo}
 
 Traverso's trace lifting algorithm can be
-formulated in an abstract form as follows \cite{FPARA}.
+formulated in an abstract form as follows (c.f. \cite{FPARA}).
 \begin{tabbing}
 Input : a finite subset $F \subset {\bf Z}[X]$\\
 Output : a Groebner basis $G$ of $Id(F)$ with respect to a term order $<$\\
@@ -252,10 +256,10 @@ The input is homogenized to suppress intermediate coefficient swells
 of intermediate basis elements.  The number of zero normal forms may
 increase by the homogenization, but they are detected over
 $GF(p)$. Finally, by dehomogenizing the candidate we can expect that
-lots of redundant elements can be removed.  We will show later that this is
-surely efficient for some input polynomial sets.
+lots of redundant elements can be removed.
 
 \subsection{Minimal polynomial computation by modular method}
+
 Let $I$ be a zero-dimensional ideal in $R={\bf Q}[x_1,\ldots,x_n]$.
 Then the minimal polynomial $m(x_i)$ of a variable $x_i$ in $R/I$ can
 be computed by a partial FGLM \cite{FGLM}, but it often takes long
@@ -276,11 +280,13 @@ In this algorithm, $m_p$ can be obtained by a partial FGLM over
 $GF(p)$ because $\phi_p(G)$ is a Groebner basis. Once we know the
 candidate of $\deg(m(x_i))$, $m(x_i)$ can be determined by solving a
 system of linear equations via the method of indeterminate
-coefficient. Arguments on \cite{NOYO} ensures that $m(x_i)$ is what we
-want if it exists. Note that the full FGLM can also be computed by the
-same method.
+coefficient, and it can be solved efficiently by $p$-adic method.
+Arguments on \cite{NOYO} ensures that $m(x_i)$ is what we want if it
+exists. Note that the full FGLM can also be computed by the same
+method.
 
 \subsection{Integer contents reduction}
+\label{gbcont}
 
 In some cases the cost to remove integer contents during normal form
 computations is dominant. We can remove the content of an integral
@@ -289,12 +295,12 @@ polynomial $f$ efficiently by the following method \cite{REPL}.
 Input : an integral polynomial $f$\\
 Output : a pair $(\cont(f),f/\cont(f))$\\
 $g_0 \leftarrow$ an estimate of $\cont(f)$ such that $\cont(f)|g_0$\\
-Write $f$ as $f = g_0q+r$ by division with remainder for each coefficient\\
+Write $f$ as $f = g_0q+r$ by division with remainder by $g_0$ for each coefficient\\
 If $r = 0$ then return $(g_0,q)$\\
 else return $(g,g_0/g \cdot q + r/g)$, where $g = \GCD(g_0,\cont(r))$
 \end{tabbing}
 By separating the set of coefficients of $f$ into two subsets and by
-computing GCD of sums in the elements in the subsets we can estimate
+computing GCD of sums of the elements in each subset we can estimate
 $g_0$ with high accuracy. Then other components are easily computed.
 
 %\subsection{Demand loading of reducers}
@@ -328,17 +334,18 @@ algorithm over $GF(32003)$, Singular\cite{SINGULAR} shows the best
 performance among the three systems. $F_4$ implementation in Risa/Asir
 is faster than the Buchberger algorithm implementation in Singular,
 but it is still several times slower than $F_4$ implementation in FGb
-\cite{FGB}.  In Table \ref{gbq}, $C_7$ and $McKay$ can be computed by
-the Buchberger algorithm with the methods described in Section
-\ref{gbtech}.  It is obvious that $F_4$ implementation in Risa/Asir
-over {\bf Q} is too immature. Nevertheless the timing of $McKay$ is
-greatly reduced.  Fig. \ref{f4vsbuch} explains why $F_4$ is efficient
-in this case.  The figure shows that the Buchberger algorithm produces
-normal forms with huge coefficients for S-polynomials after the 250-th
-one, which are the computations in degree 16.  However, we know that
-the reduced basis elements have much smaller coefficients after
-removing contents.  As $F_4$ algorithm automatically produces the
-reduced ones, the degree 16 computation is quite easy in $F_4$.
+\cite{FGB}.  In Table \ref{gbq}, Risa/Asir computed $C_7$ and $McKay$
+by the Buchberger algorithm with the methods described in Section
+\ref{gbhomo} and \ref{gbcont}.  It is obvious that $F_4$
+implementation in Risa/Asir over {\bf Q} is too immature. Nevertheless
+the timing of $McKay$ is greatly reduced.  Fig. \ref{f4vsbuch}
+explains why $F_4$ is efficient in this case.  The figure shows that
+the Buchberger algorithm produces normal forms with huge coefficients
+for S-polynomials after the 250-th one, which are the computations in
+degree 16.  However, we know that the reduced basis elements have much
+smaller coefficients after removing contents.  As $F_4$ algorithm
+automatically produces the reduced ones, the degree 16 computation is
+quite easy in $F_4$.
 
 \begin{table}[hbtp]
 \begin{center}
@@ -454,7 +461,8 @@ the univariate factorizer implements only classical
 algorithms and its behavior is what one expects,
 that is, it shows average performance in cases
 where there are little extraneous factors, but
-shows poor performance for hard to factor polynomials.
+shows poor performance for hard to factor polynomials with
+many extraneous factors.
 
 \section{OpenXM and Risa/Asir OpenXM interfaces}
 
@@ -504,7 +512,7 @@ We show a typical OpenXM session.
 [[1,1],[x^4+y*x^3+y^2*x^2+y^3*x+y^4,1],
 [x^4-y*x^3+y^2*x^2-y^3*x+y^4,1],[x-y,1],[x+y,1]]
 [5] ox_cmo_rpc(P,"fctr,",x^10000-2^10000*y^10000); 
-/* call factorizer; an utility function */
+/* call factorizer; a utility function */
 0
 [6] ox_reset(P); /* reset the computation in the server */
 1
@@ -516,12 +524,12 @@ We show a typical OpenXM session.
 
 An application {\tt ox\_asir} is a wrapper of {\tt asir} and provides
 all the functions of {\tt asir} to OpenXM clients. It completely
-implements the OpenXM reset protocol and also provides remote
+implements the OpenXM reset protocol and also allows remote
 debugging of user programs running on the server. As an example we
 show a program for checking whether a polynomial set is a Groebner
 basis or not. A client executes {\tt gbcheck()} and servers execute
 {\tt sp\_nf\_for\_gbcheck()} which is a simple normal form computation
-of a S-polynomial. First of all the client collects all critical pairs
+of an S-polynomial. First of all the client collects all critical pairs
 necessary for the check. Then the client requests normal form
 computations to idling servers. If there are no idling servers the
 clients waits for some servers to return results by {\tt
@@ -565,16 +573,16 @@ def gbcheck(B,V,O,Procs) {
 
 \subsection{Asir OpenXM library {\tt libasir.a}}
 
-Asir OpenXM library {\tt libasir.a} includes functions simulating the
+Asir OpenXM library {\tt libasir.a} contains functions simulating the
 stack machine commands supported in {\tt ox\_asir}.  By linking {\tt
 libasir.a} an application can use the same functions as in {\tt
 ox\_asir} without accessing to {\tt ox\_asir} via TCP/IP. There is
-also a stack, which can be manipulated by library functions. In
+also a stack, which can be manipulated by the library functions. In
 order to make full use of this interface, one has to prepare
 conversion functions between CMO and the data structures proper to the
-application.  A function {\tt asir\_ox\_pop\_string()} is provided to
-convert CMO to a human readable form, which may be sufficient for a
-simple use of this interface.
+application itself.  A function {\tt asir\_ox\_pop\_string()} is
+provided to convert CMO to a human readable form, which may be
+sufficient for a simple use of this interface.
 
 \section{Concluding remarks}
 We have shown the current status of Risa/Asir and its OpenXM
@@ -585,10 +593,10 @@ Groebner basis computation over {\bf Q}, many techniques for improving
 practical performances have been implemented. As the OpenXM interface
 specification is completely documented, we can easily add another
 function to Risa/Asir by wrapping an existing software system as an OX
-server, and vice versa. User program debugger can be used both for
-local and remote debugging. By combining the debugger and the function
-to reset servers, one will be able to enjoy parallel and distributed
-computation with OpenXM facilities.
+server, and other clients can call functions in Risa/Asir by
+implementing the OpenXM client interface.  With the remote debugging
+and the function to reset servers, one will be able to enjoy parallel
+and distributed computation with OpenXM facilities.
 %
 \begin{thebibliography}{7}
 %
@@ -640,6 +648,11 @@ Journal of Symbolic Computation, 28, 1, 243--263.
 OpenXM committers (2000-2001)
 OpenXM package.
 {\tt http://www.openxm.org}.
+
+\bibitem{RUR}
+Rouillier, R. (1996)
+R\'esolution des syst\`emes z\'ero-dimensionnels. 
+Doctoral Thesis(1996), University of Rennes I, France.
 
 \bibitem{SY}
 Shimoyama, T., Yokoyama, K. (1996)
