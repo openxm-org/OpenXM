@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.4 1999/12/11 06:49:15 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.5 1999/12/15 09:17:14 takayama Exp $ */
 
 ord([dx,dy,dz,dt,ds,x,y,z,t,s])$ 
 Sm1_proc = -1$
@@ -1638,6 +1638,9 @@ String
 @itemize @bullet
 @item  It translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
 @item This function should be moved to om_* in a future.
+@item @code{om_xml_to_cmo(OpenMath Tree Expression)} returns CMO_TREE.
+asir has not yet understood this CMO.
+@item @code{java} is required.
 @end itemize
 */
 /*&jp-texi
@@ -1649,7 +1652,7 @@ String
 @findex sm1_xml_tree_to_prefix_string
 @table @t
 @item sm1_xml_tree_to_prefix_string(@var{s}|proc=@var{p})
-:: Translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
+:: XML で書かれた OpenMath の木表現 @var{s} を前置記法になおす.
 @end table
 
 @table @var
@@ -1662,8 +1665,11 @@ String
 @end table
 
 @itemize @bullet
-@item  It translate OpenMath Tree Expression @var{s} in XML to a prefix notation.
-@item This function should be moved to om_* in a future.
+@item XML で書かれた OpenMath の木表現 @var{s} を前置記法になおす.
+@item この函数は om_* に将来移すべきである.
+@item @code{om_xml_to_cmo(OpenMath Tree Expression)} は CMO_TREE
+を戻す. @code{asir} はこの CMO をまだサポートしていない.
+@item @code{java} が必要.
 @end itemize
 */
 /*&C-texi
@@ -1686,13 +1692,13 @@ plus_Basic(times_Basic(power_Basic(x,4),1),times_Basic(power_Basic(x,0),-1))
 /*&eg-texi
 @table @t
 @item Reference
-    @code{hoge_start}, @xref{hogehoge}
+    @code{om_*}, @code{OpenXM/src/OpenMath}, @code{eval_str}
 @end table
 */
 /*&jp-texi
 @table @t
-@item Reference
-    @code{hoge_start}, @xref{hogehoge}
+@item 参照
+    @code{om_*}, @code{OpenXM/src/OpenMath},  @code{eval_str}
 @end table
 */
 
