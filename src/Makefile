@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.126 2003/09/03 00:21:14 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.127 2003/09/03 02:03:23 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -242,37 +242,15 @@ configure-oxmath:
 configure-pari:
 	(cd pari ; make configure)
 
-generate-source-distribution : generate-source-distribution-kxx \
-                               generate-source-distribution-ox_toolkit
-
-generate-source-distribution-kxx :
-	(cd kxx ; rm -f .configure_done Makefile )
-
-generate-source-distribution-ox_toolkit :
-	(cd ox_toolkit ; rm -f Makefile ; autoconf)
 
 clean-rc :
 	(cd $(RCDIR) ; make clean )
 all-Copyright :
 	(cd $(COPYRIGHTDIR) ; make copy-copyright )
 
-post-install-correction: install
-# I think that we no longer need post-install-correction-for-asir
-# post-install-corrections-other
-	(cd ../rc ; make install.man)
-
-post-install-correction-for-asir:
-	(cd ../bin ; rm -f asir ox_asir ) 
-	cp ../lib/asir/asir ../bin/asir
-	(cd ../bin ; ln -s ./asir ox_asir)
-	(cd ../lib/asir ; rm -f asir ; ln -s ../../bin/asir asir)
-	(cd ../lib/asir ; rm -f ox_asir ox_launch ox_plot help ; ln -s ./asir ox_asir ; ln -s ./asir ox_launch ; ln -s ./asir ox_plot ; ln -s ./help-eg help)
-	-(cd asir-doc ; make install-man-pages)
-
 install-all-asir-lib:
 	(cd asir2000 ; make install-lib-small)
 
-binary-dist : all-Copyright clean-rc all all-misc post-install-correction install-all-asir-lib
 
 ## Targets for debugging
 install-for-debug:
@@ -281,18 +259,4 @@ install-for-debug:
 	(cd k097 ; make install-for-debug)
 	(cd ../bin ; rm -f asir ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
 
-
-##  Sub binary packages
-##  1: asir: asir only.   target:  all-asir install-asir install-asir-doc
-
-##  2: kan-ox: k0 and sm1 with ox_asir.  target: all-kan-ox install-kan-ox
-configure-all-kan-ox :  configure-links configure-include  configure-asir \
-                       configure-kan96xx configure-kxx configure-k097 \
-                       configure-oxc
-all-kan-ox:  configure-all-kan-ox all-asir all-kan96xx all-kxx all-k097 all-oxc
-install-kan-ox: all-kan-ox  install-asir install-kan96xx install-kxx \
-               install-k097 install-oxc install-asir-doc \
-               post-install-kan-ox
-post-install-kan-ox:
-	(cd ../bin ; /bin/rm -f ox_asir; ln -s ./asir ox_asir)
 
