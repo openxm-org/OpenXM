@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.12 2003/01/16 22:02:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.13 2003/05/18 02:20:23 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -94,6 +94,11 @@ def taka_poly_factor(S) {
      S->Numerator = NN;
      S->Denominator = DD;
      return S;
+  }
+  if (type(S) == QUOTE) {
+    A = quote_to_obj(S);
+    B = taka_poly_factor(A);
+    return B; /* object is not translated to a quote. */
   }
   /* It has not yet been implemented. */
   return S;
@@ -307,7 +312,12 @@ def taka_poly_grobner_basis(I) {
   /* option v */
   V = getopt(v);
   if (type(V) == -1) {
-    V = taka_poly_get_variables(I);
+    if (type(I) == LIST && length(I) > 0 && type(I[0]) == QUOTE) {
+       I = quote_to_obj(I); QuoteIn = 1;
+       V = taka_poly_get_variables(I);
+    }else{
+       V = taka_poly_get_variables(I);
+    }
   }
   Gb = 0;
   if (type(I) == STRUCT) {
@@ -328,13 +338,24 @@ def taka_poly_grobner_basis(I) {
     R = new__poly_ring(V,Or,base_Q,0);
   }
   if (!Gb) {
-    G = gr(I,V,Or);
+    Or = taka_poly_legacy_order(Or,V);
+    /* print(V); print(Or); */
+    G = dp_gr_main(I | v=V, order=Or);
+    if (QuoteIn) G = quote_to_quote(G);
   }else{
     G = II->Generators;
   }
 
   SS = new__poly_ideal(R,G,1);
   return SS;
+}
+
+def taka_poly_legacy_order(Ord,V) {
+  if (type(Ord) > 1) return Ord;
+  if (Ord == 0) return [append([@grlex],V)];
+  else if (Ord == 1) return [append([@glex],V)];
+  else if (Ord == 2) return [append([@lex],V)];
+  error("Unknown order.");
 }
 
 def taka_poly_hilbert_polynomial(I) {
