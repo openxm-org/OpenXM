@@ -1,0 +1,534 @@
+%% $OpenXM$
+%% http server by sm1
+%% You need to set IE (internet explorer) as follows:
+%% (1) Visit the menu  
+%%   tool / internet option / connection / LAN configuration
+%% (2) Add localhost to the list of not using the proxy server.
+
+
+/httpd.port 1200 def
+
+/httpd.initialization
+%% Put initialization codes here.
+ [
+  ([$parse$ $cohom.sm1$ pushfile] extension 
+   [$Web/sm1 version 0.80. $
+    $Kan/sm1 ox_sm1 version $ [$Version$] system_variable] cat)
+ ] cat
+def
+
+[(parse) (ox-win.sm1) pushfile] extension 
+(ox_sm1.started) boundp { 
+} {
+  %% Initialize oxasir.
+  sm1connectr
+  ox.ccc oxmathcap
+  ox.ccc oxsetmathcap
+} ifelse
+
+/websm1 {
+ [/rrr ] pushVariables
+ [
+  %% This procedure to generate port number might fail.
+  [(oxGenPass)] extension . (integer) dc  /rrr set
+  rrr << rrr 20000 idiv 20000 mul >> sub /rrr set
+  /httpd.port 1200 rrr add def
+  httpd.port message 
+
+  [(sleep 3; start iexplore http://localhost:)
+    httpd.port toString
+   ( &)] cat system
+   httpd ;
+  ] pop
+  popVariables
+} def
+
+/httpd_startserver {
+   [(sm1.socket) (open) [httpd.port (localhost)]] extension 
+   /httpd.server.fdAndPort set
+   (sm1.socket.open returns  ) messagen httpd.server.fdAndPort message
+   [(sm1.socket) (accept) [httpd.server.fdAndPort 0 get]] extension
+   /httpd.server.fd set
+   (connected.) message
+   (sm1.socket.accept returns  ) messagen httpd.server.fd message
+} def
+
+/httpd_stopserver {
+   [(sm1.socket) (close) httpd.server.fd ] extension message
+} def
+
+/send_packet {
+  /arg1 set
+  [(sm1.socket) (write) [httpd.server.fd 0 get arg1]] extension message
+} def
+
+/sendln {
+ /arg1 set
+ [/in-sendln /mmm] pushVariables
+ [ arg1 /mmm set
+  mmm tag 5 eq {
+    [mmm 10 (string) dc] cat /mmm set
+  }{
+    10 (string) dc /mmm set
+  } ifelse
+  [(sm1.socket) (select) [httpd.server.fd 0 get 0]] extension {
+    (Warning: your peer closed the connection. Do not send the data.) message
+  } {
+    [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension message
+  } ifelse
+ ] pop
+ popVariables
+} def
+
+/httpd {
+  /httpd.serial 0 def
+  /httpd.history [ ] def
+  {
+    httpd_startserver ;
+    httpd_action ;
+    httpd_stopserver ;
+    (5 sleep) system 
+    httpd.serial 1 add /httpd.serial set
+  } loop    
+} def
+
+/httpd_action {
+  [/in-httpd /ff /httpd.com /httpd.result /sss
+   /sss.engine /sss.web /err
+  ] pushVariables
+  [
+  {
+       [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
+       %%     wait for ever
+        [(sm1.socket) (read) [httpd.server.fd 0 get ]] extension /ff set
+        ff length 0 eq {
+           (connection is closed.) message
+        }
+        {
+          (------------  start ----------------------) message
+             ff message
+          (-----------------------------------------) message
+             ff removeGET webstringToAscii /httpd.com set 
+             httpd.com message
+          (------------  end ----------------------) message
+          (   ) message
+          httpd.serial 0 eq {
+            /httpd.com  httpd.initialization def 
+          } { } ifelse
+          httpd.com metaCommand {
+            httpd.textarea.valid {
+              ox.ccc 
+               [ httpd.com  ] cat
+              oxexecutestring ;
+            }{
+              send-page-warning  exit
+            } ifelse
+            [(oxReq) ox.ccc SM_dupErrors ] extension pop
+
+            [(oxReq) ox.ccc SM_popCMO ] extension pop
+            [(oxReq) ox.ccc SM_popString ] extension pop
+            [(flush)] extension pop
+            %% Select inputs for interruption.
+            %% Wait by the spin lock.
+            {
+              [(oxMultiSelect) [ox.ccc] 1] extension 1 get 0 get
+              /sss.engine set
+              [(sm1.socket) (mselect)
+                [[httpd.server.fd 0 get] 1]
+              ] extension 0 get /sss.web set
+              /sss [sss.engine sss.web] def
+              sss.engine { exit } { } ifelse
+              sss.web    { exit } { } ifelse
+            } loop
+            sss message
+
+            sss 0 get {
+                [(oxGet) ox.ccc] extension  /err          set
+                [(oxGet) ox.ccc] extension  /httpd.result set
+                %% ox.ccc oxpopstring /httpd.result set
+            } {
+                ox.ccc oxreset
+                ox.ccc ("computation is interrupted.";) oxexecutestring ;
+                ox.ccc oxpopstring
+                /httpd.result set 
+                exit
+            } ifelse
+            (------------- result -------------) message
+            httpd.result message
+            (----------------------------------) message
+            (  ) message
+
+            err message
+            err [ ] eq  { 
+              /httpd.history 
+                httpd.history 
+                [10 (string) dc 
+                 37 (string) dc httpd.serial toString 
+                 10 (string) dc
+                  httpd.com 
+                 ( )  %% add extra ;
+                 ] cat
+                append 
+              def
+            } {
+              ox.ccc cleanErrors
+              [httpd.result 10 (string) dc err toString] cat
+              /httpd.result set
+            } ifelse
+
+            [httpd.serial 0 eq { } {
+                (<title> Web/sm1 </title> )
+                (<font color="blue"> Input-) httpd.serial toString
+                 (: </font> )  
+                 httpd.com preformatHTML (<br>)
+              } ifelse
+             (<font color="green"> Output-) httpd.serial toString
+             (: </font> ) 
+              httpd.result preformatHTML
+            ] cat
+            send-page-3  exit
+          } { exit } ifelse  %% metaCommand
+        } ifelse
+  } loop
+  ] pop
+  popVariables
+} def
+
+
+/send-page-bye {
+   (HTTP/0.9 200 OK) sendln
+%%   (Date: Sun, 18 Mar 2001 02:54:50 GMT) sendln
+%%   (Server: sm1/0.1 (Unix)) sendln
+%%   (Last-Modified: Wed, 23 Aug 2000 11:19:27 GMT) sendln
+%%   (ETag: "1f8f-5df-39a3b33f") sendln
+%%   (Accept-Ranges: bytes) sendln
+%%   (Content-Length: 10) sendln
+   (Connection: close) sendln
+%   (Content-Type: text/plain) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+   (<html>) sendln
+   (Shutdown the engine. <br>) sendln
+   (See you! <a href="http://www.openxm.org"> Web/sm1 </a>) sendln
+   (</html>) sendln
+   0 sendln
+   [(flush)] extension
+} def
+
+/send-page-2 {
+   (HTTP/0.9 200 OK) sendln
+%%   (Content-Length: 10) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+   (<FORM NAME="myFORM">) sendln
+   (<INPUT TYPE="TEXT" NAME="Num">) sendln
+   (</FORM>) sendln
+   0 sendln
+   [(flush)] extension
+} def
+
+/send-page-3 {
+  /arg1 set
+  [/in-send-page-3 /result] pushVariables
+  [
+   /result arg1 def
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+%%   (<FORM NAME="myFORM" METHOD="POST">) sendln
+   result sendln
+   (<FORM NAME="myFORM">) sendln
+   (<INPUT TYPE=submit VALUE="submit">) sendln
+   [(<textarea name=) httpd.textarea.name 
+    ( rows=10 cols="80" wrap="soft"></textarea>)] cat sendln
+   (</FORM>) sendln
+   send-menu-1
+   0 sendln
+   [(flush)] extension
+  ] pop
+  popVariables
+} def
+
+/httpd.sm1man
+ ("http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/doc/asir2000/html-jp/man_toc.html")
+def
+/httpd.sm1man.index
+  ("http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.3/doc/asir2000/html-jp/man_262.html#SEC262")
+def
+/httpd.asir.intro
+   ("http://www.math.sci.kobe-u.ac.jp/~taka/asir-book-html/main")
+def
+/send-menu-1 {
+  
+  (FILE:) sendln
+  [$<a href="http://localhost:$ httpd.port toString
+   $/?msg=httpdAsirMeta+quit"> Shutdown the sm1 server. </a>, $
+  ] cat sendln
+%%  [$<a href="http://localhost:$ httpd.port toString
+%%   $/?msg=httpdAsirMeta+interrupt"> interrupt </a>, $
+%%  ] cat sendln
+  [$<a href="http://localhost:$ httpd.port toString
+   $/?msg=httpdAsirMeta+save"> save. </a>, $
+  ] cat sendln
+  ( <spacer type=horizontal size=80> ) sendln
+
+  (HELP:) sendln
+  [(<font color="red"> 
+    <a href=) httpd.sm1man ( > Sm1manual (Ja) </a> </font>, )] cat sendln
+  [(<font color="purple"> 
+    <a href=) httpd.sm1man.index ( > Index (Ja) </a> </font>, )] cat sendln
+  [(<font color="blue"> 
+    <a href=) httpd.asir.intro ( > Intro (Ja) </a> </font>, )] cat sendln
+} def
+
+/send-page-save {
+ [/in-send-page-save /i] pushVariables
+ [
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/plain) sendln
+   0 sendln
+   [37 (string) dc ( Saved the following to sm1out.txt )] cat sendln
+   [37 (string) dc ( Save the following by your browser as a text file. )] 
+   cat sendln
+   
+   0 1 httpd.history length 1 sub {
+     /i set
+     httpd.history i get sendln
+   } for
+   (  ) sendln
+   0 sendln
+   [(flush)] extension
+   [(PrintDollar) 1] system_variable
+   httpd.history output
+   [(PrintDollar) 0] system_variable
+ ] pop
+ popVariables
+} def
+
+/send-page-warning {
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+   (You cannot execute ox_sm1 without a session key! <br>) sendln
+   0 sendln
+   [(flush)] extension
+} def
+
+/stopclient {
+  [(sm1.socket) (close) [client.fdAndPort 0 get] ] extension message
+} def
+
+
+/cleanErrors {
+  /arg1 set
+  [/in-cleanErrors /clientt /spp] pushVariables
+  [
+    /clientt arg1 def
+    clientt oxgetsp (integer) dc /spp set
+    clientt spp oxpops
+  ] pop
+  popVariables
+} def
+
+
+/fromHex {
+  /arg1 set
+  [/in-fromHex /s1 /s2 /c /c2] pushVariables
+  [
+    arg1 0 get /s1 set
+    arg1 1 get /s2 set
+
+    48 s1 le  s1 57 le and {  % 0, ..., 9
+      s1 48 sub /c set
+    }{ } ifelse
+    65 s1 le  s1 70 le and {  % A, ..., F
+      s1 65 sub 10 add /c set
+    }{ } ifelse
+    97 s1 le  s1 102 le and {  % a, ..., f
+      s1 97 sub 10 add /c set
+    }{ } ifelse
+    c 16 mul /c set
+    
+    48 s2 le  s2 57 le and {  % 0, ..., 9
+      s2 48 sub /c2 set
+    }{ } ifelse
+    65 s2 le  s2 70 le and {  % A, ..., F
+      s2 65 sub 10 add /c2 set
+    }{ } ifelse
+    97 s2 le  s2 102 le and {  % a, ..., f
+      s2 97 sub 10 add /c2 set
+    }{ } ifelse
+    c c2 add /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/randomName {
+  [/in-randomName /sss /rrr ] pushVariables
+  [
+    %% Seed name
+    /sss [ 97 97 97 97 97 97 97 97 97 97 ] def  %% 97 == 'a'
+    %% This procedure to generate port number might fail.
+    sss {
+      [
+        [(oxGenPass)] extension .. /rrr set
+        [(tdiv_qr) rrr (26)..] mpzext 1 get /rrr set
+      ] pop
+      rrr (integer) dc add 
+    } map
+    /sss set
+    sss {(string) dc} map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+(httpd.textarea.name) boundp { }
+ {
+    /httpd.textarea.name  randomName def
+    /httpd.textarea.name.aaa
+       [(GET /?) httpd.textarea.name] cat
+       (array) dc
+    def
+ } ifelse
+
+%% remove GET /?msg=
+/removeGET {
+  /arg1 set
+  [/in-removeGET /s /s2 /i /j /i0
+   /tname
+  ] pushVariables
+  [
+     /s arg1 def
+     /httpd.textarea.valid 1 def
+     s 1 copy /s2 set
+     s (array) dc /s set
+
+     /tname  [  ] def
+     0 1 s length 1 sub {
+       /i0 set
+       s i0 get 61 eq {  %% 61 is = 
+         i0 1 add /i0 set
+         tname message
+         httpd.textarea.name.aaa message
+         tname httpd.textarea.name.aaa eq {
+           /httpd.textarea.valid 1 def
+         } {
+           /httpd.textarea.valid 0 def
+           (Warning: got an invalid name for the text field.) message
+         } ifelse
+         exit
+       } { } ifelse
+       tname s i0 get append /tname set
+     } for 
+
+     /j 0 def
+     i0 1 s length 1 sub {
+       /i set
+       s2 j << s i get (string) dc >> put
+       j 1 add /j set
+     } for
+     /arg1 s2 def
+  ] pop
+  arg1
+} def
+
+/webstringToAscii {
+  /arg1 set
+  [/in-webstringToAscii /s /i /j /c /n] pushVariables
+  [
+     /s arg1 def
+     s (array) dc /s set
+     /j 0 def /n s length def
+     /i 0 def
+     {
+       s i get /c set
+       c 32 eq { exit } { } ifelse
+       c 37 eq {  % c == %
+         [s i 1 add get s i 2 add get] fromHex /c set
+         s j c put 
+         j 1 add /j set
+         i 3 add /i set
+       } { 
+         c 43 eq { % c == +
+           s j 32 put
+           j 1 add /j set
+           i 1 add /i set
+          } {
+            c 13 eq { % c == 0xd
+              i 1 add /i set
+            } {
+              s j c put
+              j 1 add /j set
+              i 1 add /i set
+            } ifelse
+         } ifelse
+       } ifelse
+       i n ge { exit } {  } ifelse
+     } loop
+     s j carN /s set
+     s { (string) dc } map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/preformatHTML {
+  /arg1 set
+  [/in-preformatHTML /sss /c] pushVariables
+  [
+     /sss arg1 def
+     sss (array) dc /sss set
+     sss {
+       /c set
+       [
+          c 60 eq {
+            /c (&lt) def
+          } {  } ifelse
+          c 62 eq {
+            /c (&gt) def
+          } {  } ifelse
+          c 38 eq {
+            /c (&amp) def
+          } {  } ifelse
+        ] pop
+        c (string) dc
+     } map cat /sss set
+     [(<pre> ) sss ( </pre> )] cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/metaCommand {
+  /arg1 set
+  [/in-metaCommand /msg /result] pushVariables
+  [
+    /msg arg1 def
+    /result 1 def
+    msg (httpdAsirMeta quit) eq {
+       ox.ccc ( quit ) oxsubmit
+       ox.ccc oxshutdown
+       send-page-bye
+       quit
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta save) eq {
+       send-page-save
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta interrupt) eq {
+       ox.ccc oxreset
+       (Interrupted! <br>) send-page-3
+       /result 0 def
+    } { } ifelse
+    /arg1 result def
+  ] pop
+  popVariables
+  arg1
+} def
