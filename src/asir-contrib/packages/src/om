@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.7 2000/01/20 12:37:14 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.8 2000/01/21 06:29:54 tam Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -185,6 +185,7 @@ For (I=0; I<10; I++) {
 def om_xml(F) {
   OM_FIND_PROC(P);
   ox_push_cmo(P,F);
+  ox_push_cmo(P,ntoint32(1));
   ox_push_cmo(P,"CMO2OMXML");
   ox_push_cmd(P,269);  /* SM_executeFunction */
   return(ox_pop_cmo(P));
