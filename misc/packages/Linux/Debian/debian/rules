@@ -63,7 +63,9 @@ install: build
 	mkdir ${INST_PREFIX}/bin
 	(cd ${INST_PREFIX}/OpenXM/rc ; make openxm ; ./gen-shell-scripts ; cp ${SHELL_SCRIPTS} ../../bin )
 	mkdir -p ${INST_PREFIX}/../../usr/lib/menu
-	cp ${INST_PREFIX}/OpenXM/rc/kde/asir-knoppix ${INST_PREFIX}/OpenXM/rc/kde/asir-openxm-knoppix ${INST_PREFIX}/OpenXM/rc/kde/sm1 ${INST_PREFIX}/../../usr/lib/menu
+	mkdir -p ${INST_PREFIX}/../../usr/share/pixmaps
+	cp ${INST_PREFIX}/OpenXM/rc/kde/openxm-binary-knoppix ${INST_PREFIX}/../../usr/lib/menu/openxm-binary
+	cp ${INST_PREFIX}/OpenXM/doc/OpenXM-web/hopo_std_gray.xpm ${INST_PREFIX}/OpenXM/doc/OpenXM-web/logo-openxm2.xpm  ${INST_PREFIX}/../../usr/share/pixmaps
 	#dh_movefiles
 
 # Build architecture-independent files here.

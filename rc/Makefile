@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.19 2004/02/26 09:24:25 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.20 2004/02/26 09:54:27 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -42,11 +42,8 @@ openxm : dot.bashrc
 install : install-usr-bin install-kde-menu
 install-usr-bin: all
 	-cp -f $(SHELL_SCRIPTS) ${INSTALL_DIR}
-install-kde-menu:
-	-cp kde/asir-knoppix ${KDE_MENU_DIR}
-	-cp kde/asir-openxm-knoppix ${KDE_MENU_DIR}
-	-cp kde/asir-openxm  ${KDE_MENU_DIR}
-	-cp kde/sm1 ${KDE_MENU_DIR}
+install-kde-menu-knoppix:
+	install kde/openxm-binary-knoppix ${KDE_MENU_DIR}/openxm-binary
 install.man :
 	-cp openxm.1 ${MAN_DIR}
 

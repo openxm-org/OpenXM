@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/texmacs/texmacs/Makefile,v 1.1 2004/03/01 01:21:23 takayama Exp $
 OpenXM_HOME=../../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -7,7 +7,7 @@ MASTER_CITES=ftp.math.kobe-u.ac.jp
 # MASTER_CITES2 = 
 DISTFILES=TeXmacs-1.0.3.3-src.tar.gz
 SRCDIR=TeXmacs-1.0.3.3-src
-# Use gnu make
+# Use gnu make on freebsd.  On Debian type in   make  MAKE=make
 MAKE=gmake
 guile=`which guile-config`
 
@@ -65,3 +65,6 @@ check-guile:
 		echo "      http://www.texmacs.org/tmweb/download/requirements.en.html" ; \
 		exit ; \
 	fi
+
+## Note on debian.
+##  apt-get install libguile-dev (buile-1.6 ...?)
