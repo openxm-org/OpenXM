@@ -1,14 +1,15 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.6 2000/01/17 01:08:34 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.7 2000/01/17 21:12:22 takayama Exp $
 # targets
 # all 
 #     compile
-# intall : all
+# intall : all install-lib
 #     
-# todo : install-lib, install-for-debug, install-lib-for-debug
+# todo : install-lib-for-debug
 #
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
+OpenXM_lib=../../lib
 
 ## Kan source.  kan sources must be built up by hand.
 KHOME = ../kan96xx
@@ -165,8 +166,18 @@ install0 : all
 	cp lib/mklib $(HOME)/.Hbin
 	echo "Set the environment variable in $(HOME)/bin/mklib"
 
-install : all
+install : all install-lib
 	cp -f k0 d0 ../../bin
+
+install-lib :
+	/bin/rm -rf $(OpenXM_lib)/k097
+	mkdir $(OpenXM_lib)/k097
+	cp -f $(KHOME)/Doc/var.sm1 $(OpenXM_lib)/k097
+	cp -rf *.sm1 *.k *.kk debug $(OpenXM_lib)/k097
+
+install-for-debug :
+	/bin/rm -rf $(OpenXM_lib)/k097
+	ln -s ../src/k097 $(OpenXM_lib)/k097
 
 dist :
 	./makeDist
