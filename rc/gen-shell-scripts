@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.2 2000/01/30 23:47:40 takayama Exp $
+# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.3 2000/01/31 12:34:50 takayama Exp $
 
 #asir
 	rm -f asir
@@ -35,3 +35,10 @@
 	cat dot.cshrc >>oxMathematica
 	echo 'exec Mathematica  $*' >>oxMathematica
 	chmod +x oxMathematica
+
+#ox  (launcher of kxx)
+	rm -f ox
+	echo "#!/bin/csh" >ox
+	cat dot.cshrc >>ox
+	echo 'exec $OpenXM_HOME/bin/ox $*' >>ox
+	chmod +x ox

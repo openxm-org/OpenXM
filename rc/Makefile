@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.5 2000/01/30 23:47:40 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.6 2000/01/31 07:46:14 noro Exp $
 # make repl
 # make all
 # make install  [ INSTALL_DIR=/home/hoge/bin ]  ; Default is /usr/local/bin
 CC=gcc
-SHELL_SCRIPTS=asir sm1 gp k0 oxmath oxMathematica
+SHELL_SCRIPTS=asir sm1 gp k0 oxmath oxMathematica ox
 INSTALL_DIR=/usr/local/bin
 
 all :  dot.bashrc  dot.cshrc  openxm  .done_gen-shell-scripts
