@@ -1,4 +1,4 @@
-/* $OpenXM$  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.1 2000/12/14 13:18:41 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -6,6 +6,7 @@ load("../ox/ox.k");;
 def demoSendAsirCommand(a) {
   a.executeString("load(\"bfct\");");
   a.executeString(" def myann(F) { B=ann(eval_str(F)); print(B); return(map(dp_ptod,B,[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
+  a.executeString(" def myann0(F) { B=ann0(eval_str(F)); print(B); return(map(dp_ptod,B[1],[hoge,x,y,z,s,hh,ee,dx,dy,dz,ds,dhh])); }; ");
   a.executeString(" def mybfct(F) { return(rtostr(bfct(eval_str(F)))); }; ");
 }
 
@@ -49,6 +50,7 @@ def asirAnnXYZ(a,f) {
   return(b);
 }
 
+
 def nonquasi2(p,q) {
   local s,ans,f;
   f = x^p+y^q+x*y^(q-1);
@@ -71,5 +73,53 @@ def nonquasi2(p,q) {
   R0 = R[0];
   Ans=Srestall(Res0, ["x", "y"],  ["x", "y"], R0[Length(R0)-1]);
   Print("Answer is "); Println(Ans[0]);
+  return(Ans);
+}
+
+def asirAnn0XYZ(a,f) {
+  local p,b,b0;
+  RingD("x,y,z,s");  /* Fix!! See the definition of myann() */
+  p = ToString(f);
+  b = a.rpc("myann0",[p]);
+  Print("Annhilating ideal of f^r is "); Println(b);
+  return(b);
+}
+
+def DeRham2WithAsir(f) {
+  local s;
+  s = ToString(f);
+  II = asirAnn0XYZ(asssssir,f);
+  Print("Step 1: Annhilating ideal (II)"); Println(II);
+  sm1(" II  { [(x) (y) (Dx) (Dy) ] laplace0 } map /II set ");
+  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+  pp = Map(II,"Spoly");
+  Res = Sminimal(pp);
+  Res0 = Res[0];
+  Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
+  R = BfRoots1(Res0[0],"x,y");
+  Println("Step3: computing the cohomology of the truncated complex.");
+  Print("Roots and b-function are "); Println(R);
+  R0 = R[0];
+  Ans=Srestall(Res0, ["x", "y"],  ["x", "y"],R0[Length(R0)-1] );
+  Print("Answer is ");Println(Ans[0]);
+  return(Ans);
+}
+def DeRham3WithAsir(f) {
+  local s;
+  s = ToString(f);
+  II = asirAnn0XYZ(asssssir,f);
+  Print("Step 1: Annhilating ideal (II)"); Println(II);
+  sm1(" II  { [(x) (y) (z) (Dx) (Dy) (Dz)] laplace0 } map /II set ");
+  Sweyl("x,y,z",[["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]]);
+  pp = Map(II,"Spoly");
+  Res = Sminimal(pp);
+  Res0 = Res[0];
+  Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
+  R = BfRoots1(Res0[0],"x,y,z");
+  Println("Step3: computing the cohomology of the truncated complex.");
+  Print("Roots and b-function are "); Println(R);
+  R0 = R[0];
+  Ans=Srestall(Res0, ["x", "y", "z"],  ["x", "y", "z"],R0[Length(R0)-1] );
+  Print("Answer is ");Println(Ans[0]);
   return(Ans);
 }
