@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.4 2001/07/16 07:33:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.5 2001/07/17 02:32:11 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 def ox_loadfile(Tag,FileName) {
@@ -6,8 +6,10 @@ def ox_loadfile(Tag,FileName) {
   if (Result == 0) error("File "+FileName+" was not found.");
   return(1);
 }
+ox_loadfile(Loaded_taka_base,"taka_base.rr") $
 ox_loadfile(Loaded_taka_print,"taka_print.rr") $
 ox_loadfile(Loaded_om,"om") $
+ox_loadfile(Loaded_Matrix,"Matrix") $
 /* This file and logname give a list of canonical names of functions.
    Names are classified in categories such as number, matrix, and so on.
    If you implement one of the functions listed below, 
@@ -65,11 +67,20 @@ def series_limit(F,A) { NOT_YET; }
 /* Canonical function names for matrix. cf. Mathematica/LiearAlgebra */
 def matrix_diagonal_matrix(L) { NOT_YET; }
 def matrix_identity_matrix(N) { NOT_YET; }
-def matrix_transpose(M) {NOT_YET; }
+def matrix_transpose(M) {
+  ox_loadfile(Loaded_Matrix,"Matrix");
+  return omatrix_trans(M);
+}
 def matrix_submatrix(M,R,C) { NOT_YET; } 
 def matrix_dimensions(M) { NOT_YET; }
-def matrix_inverse(M) { NOT_YET; }
-def matrix_det(M) { NOT_YET; }
+def matrix_inverse(M) {  
+  ox_loadfile(Loaded_Matrix,"Matrix");
+  return omatrix_inverse(M);
+}
+def matrix_det(M) { 
+  ox_loadfile(Loaded_Matrix,"Matrix");
+  return omatrix_det(M);
+}
 def matrix_minors(M,K) { NOT_YET; }
 def matrix_trace(M) { NOT_YET; }
 def matrix_solve_linear(M,B) { NOT_YET; }  /* LinearSolve[ ] */
