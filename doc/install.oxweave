@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.28 2000/03/15 13:18:28 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.29 2000/03/16 11:37:19 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -194,6 +194,18 @@ If you use only OpenXM clients, skip (3) and (3').
    ここで version は OpenXM の version 番号で, たとえば, 
    2000, 3/20(Mon) 版は  1.1.2
 
+   java および linux emulation が実行に必要です.
+   java が, サーチパスのなかにある必要がありますので,
+   たとえば,
+     set path=(/usr/local/jdk1.1.8 $path) 
+     rehash
+   してから, pkg_add して下さい.
+   インストール終了後のメッセージにしたがい, 必要な設定を
+   おこなって下さい.
+
+   /usr/local にインストールしなかった場合は,
+   (2) を実行して下さい.
+
 */
 /*&eg
 
@@ -208,6 +220,16 @@ If you use only OpenXM clients, skip (3) and (3').
    Here, version is the version number of OpenXM.
    For example, the version number of the OpenXM of May 20 (Mon), 2000 
    is 1.1.2
+
+   java and linux emulation are required to run OpenXM packages.
+   Java needs to be in the search path. So, for example, execute pkg_add
+   after
+     set path=(/usr/local/jdk1.1.8 $path) 
+     rehash
+   Following the message of pkg_add after the installation,
+   set asir_key and path.
+   If you do not install under /usr/local,
+   goto (2).
 
 */
 /*&jp
@@ -229,6 +251,8 @@ If you use only OpenXM clients, skip (3) and (3').
    Debian を利用している場合, コマンド alien で, rpm 形式を deb 形式に
    変換できます.
 
+   /usr/local の下へインストールしなかった場合は, (2) を実行して下さい.
+
 */
 /*&eg
 
@@ -249,6 +273,9 @@ If you use only OpenXM clients, skip (3) and (3').
 
    If you are using debian, please use the command alien to translate
    rpm to deb.
+
+   If you do not install under /usr/local, goto (2).       
+       
 
 */
 
