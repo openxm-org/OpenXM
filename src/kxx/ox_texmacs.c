@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.1 2004/02/29 03:00:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.2 2004/02/29 08:19:54 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -16,7 +16,11 @@
 #define LONGJMP(env,p)  longjmp(env,p)
 #endif
 
-/* #define DEBUG */
+/*
+#define DEBUG 
+*/
+#define DEBUG2
+
 #ifdef DEBUG
 #define DATA_BEGIN_V  "<S type=verbatim>"     /* "\002verbatim:" */
 #define DATA_BEGIN_L  "<S type=latex>"        /* "\002latex:" */
@@ -36,7 +40,8 @@
 
 extern int Quiet;
 extern JMP_BUF EnvOfStackMachine;
-int Format=0;
+int Format=1;  /* 1 : latex mode */
+int OutputLimit_for_TeXmacs = (1024*10);
 
 void ctrlC();
 struct object KpoString(char *s);
@@ -51,15 +56,18 @@ static void printCopyright(char *s);
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
 */
-FILE *dfp;
+FILE *Dfp;
 
 main() {
   char *s;
   char *r;
   char *sys;
   struct object ob;
+  int irt=0;
 
-  dfp = fopen("/tmp/debug-texmacs.txt","w");
+#ifdef DEBUG2
+  Dfp = fopen("/tmp/debug-texmacs.txt","w");
+#endif
   
   /* Set consts */
   sys = "asir> ";
@@ -67,6 +75,10 @@ main() {
 
   /* Initialize kanlib (gc is also initialized) */
   KSstart();
+
+  /* Main loop */
+  printf("%s",DATA_BEGIN_V);
+  printCopyright("");
 
   /* Load ox engine here */
   /* engine id should be set to ox.engine */
@@ -76,8 +88,8 @@ main() {
   if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
 	signal(SIGINT,ctrlC);
   }
-  /* Main loop */
-  printCopyright("");
+
+  irt = 0;
   while(1) {
 	/* printp(sys);  no prompt */
 	if (SETJMP(EnvOfStackMachine)) {
@@ -86,10 +98,16 @@ main() {
 	  if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
 		signal(SIGINT,ctrlC);
 	  }
+	  irt = 1;
 	  continue;
 	} else {  }
+	if (!irt) {
+	  printf("%s",DATA_END); fflush(stdout);
+	}
+	irt = 0;
 	s=readString(stdin, "if (1) { ", " ; }else{ };"); /* see test data */
 	if (s == NULL) break;
+	printf("%s",DATA_BEGIN_V);
     KSexecuteString(" ox.engine ");
     ob = KpoString(s);
 	KSpush(ob);
@@ -98,10 +116,16 @@ main() {
     /* Get the result in string. */
 	if (Format == 1) {
 	  /* translate to latex form */
+      KSexecuteString(" ox.engine 1 oxpushcmo ox.engine (print_tex_form) oxexec  ");
+	  KSexecuteString(" ox.engine oxpopstring ");
+	  r = KSpopString();
+	  if (strlen(r) < OutputLimit_for_TeXmacs) printl(r);
+	  else printv("Output is too large.\n");
 	}else{
 	  KSexecuteString(" ox.engine oxpopstring ");
 	  r = KSpopString();
-	  printv(r);
+	  if (strlen(r) < OutputLimit_for_TeXmacs) printv(r);
+	  else printv("Output is too large.\n");
 	}
   }
 }
@@ -125,7 +149,8 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   int c;
   char *tmp;
   int i;
-  int m; 
+  int m;
+  int start;
   if (limit == 0) {
 	limit = 1024;
 	s = (char *)sGC_malloc(limit);
@@ -139,16 +164,30 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
 	s[n++] = prolog[i];  s[n] = 0;
     INC_BUF ;
   }
+  start = n;
   while ((c = fgetc(fp)) != EOF) {
-	fprintf(dfp,"[%x] ",c); fflush(dfp); 
+#ifdef DEBUG2
+	fprintf(Dfp,"[%x] ",c); fflush(Dfp); 
+#endif
 	if (c == END_OF_INPUT) {
+	  if (oxSocketSelect0(0,1)) {
+		/* If there remains data in the stream,
+		   read the remaining data. */
+		if (c == '\n') c=' ';
+		s[n++] = c; s[n] = 0;  m++;
+		INC_BUF ;
+		continue;
+	  }
 	  break;
 	}
 	if (c == '\n') c=' ';
 	s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
-  if (m == 0) return (char *) NULL;
+  if (strcmp(&(s[start]),"quit;") == 0) {
+	printv("Terminated the process ox_texmacs.\n"); 
+	exit(0);
+  }
   for (i=0; i < strlen(epilog); i++) {
 	s[n++] = epilog[i];  s[n] = 0;
     INC_BUF ;
@@ -161,14 +200,9 @@ static void printv(char *s) {
   printf("%s",DATA_BEGIN_V);
   printf("%s",s);
   printf("%s",DATA_END);
-  fprintf(dfp,"<%s>",s); fflush(dfp);
-  /* for debug "hello;
-  for (i=0; i<strlen(s); i++) {
-	printf("%x ",s[i]);
-  }
-  printf("\n");
-  */
-
+#ifdef DEBUG2
+  fprintf(Dfp,"<%s>",s); fflush(Dfp);
+#endif
   fflush(NULL);
 }
 static void printl(char *s) {
@@ -184,7 +218,7 @@ static void printp(char *s) {
   fflush(NULL);
 }
 static void printCopyright(char *s) {
-  printf("%s",DATA_BEGIN_P);
+  printf("%s",DATA_BEGIN_V);
   printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org\n");
   printf("%s",s);
   printf("%s",DATA_END);
