@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.24 2002/01/22 00:36:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.25 2002/01/22 06:18:44 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -1069,6 +1069,28 @@ def taka_xml_basic_form_node_name_cd(S) {
   return "unknown";
 }
 
+def taka_print_output(Obj,F,Mode) {
+  S = taka_terminal_form(Obj);
+  if (type(F) != 7) {
+    error("taka_print_output(Obj, Filename, Mode): Filename must be a string.");
+    return;
+  }
+  if (Mode == "w") {
+    Fd = open_file(F,"w");
+  }else {
+    Fd = open_file(F,"a");
+  }
+  if (Fd < 0) {
+    error("Failed to open the file "+rtostr(F));
+    return ;
+  }
+  S2 = strtoascii(S);
+  N = length(S2);
+  for (I=0; I<N; I++) {
+    put_byte(Fd,S2[I]);
+  }
+  close_file(Fd);
+}
 def taka_print_warning(S) {
   extern Taka_print_warning;
   if (Taka_print_warning) {

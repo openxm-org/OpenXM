@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.40 2002/03/21 01:08:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.41 2002/06/04 09:02:27 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -561,6 +561,25 @@ def print_terminal_form_(F) {
 def print_input_form_(F) {
   print(print_input_form(F),0);
 }
+/*&usage begin: print_output(Obj|file, mode)
+ It outputs the object {Obj} to a file. 
+ If the optional variable {file} is set, then it outputs the {Obj} to the
+ specified file, else it outputs it to "asir_output_tmp.txt".
+ If the optional variable {mode} is set to "w", 
+ then the file is newly created.
+ If the optional variable is not set, the {Obj} is appended to the file.
+ example: print_output("Hello"|file="test.txt");
+ ref: glib_tops()
+end: */
+def print_output(Obj) { 
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  M = getopt(mode);
+  if (type(M) == -1) { M = "a"; }
+  F = getopt(file);
+  if (type(F) == -1) { F = "asir_output_tmp.txt"; }
+  return taka_print_output(Obj,F,M);
+}
+
 set_print_function("print_input_form_")$
 end$
 
