@@ -1,13 +1,14 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile-suppl,v 1.1 2000/03/11 02:01:42 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile-suppl,v 1.2 2000/09/05 05:52:59 takayama Exp $
 # Make a fake distribution for a test of RPM etc.
 TAR_WORK=$(HOME)/tmp
 VERSION=1.1.3
 
 usage:
+	@echo " fake-openxm clean "
 
 fake-openxm: clean
 	mkdir work-fake
-	mkdir work/fake/openxm-${VERSION}
+	mkdir work-fake/openxm-${VERSION}
 	mkdir work-fake/openxm-${VERSION}/OpenXM
 	mkdir work-fake/openxm-${VERSION}/OpenXM/bin work-fake/openxm-${VERSION}/OpenXM/lib work-fake/openxm-${VERSION}/OpenXM/doc work-fake/openxm-${VERSION}/OpenXM/man work-fake/openxm-${VERSION}/OpenXM/include work-fake/openxm-${VERSION}/OpenXM/rc
 	mkdir work-fake/openxm-${VERSION}/OpenXM/Copyright work-fake/openxm-${VERSION}/OpenXM/misc
@@ -16,7 +17,7 @@ fake-openxm: clean
 	touch work-fake/openxm-${VERSION}/OpenXM/include/hoge
 	touch work-fake/openxm-${VERSION}/OpenXM/Copyright/hoge
 	touch work-fake/openxm-${VERSION}/OpenXM/man/hoge-man
-	touch work-fake/openxm-${VERSION}/OpenXM/rc/work-fake/openxm-${VERSION}/OpenXM 	work-fake/openxm-${VERSION}/OpenXM/rc/oxgp work-fake/openxm-${VERSION}/OpenXM/rc/asir work-fake/openxm-${VERSION}/OpenXM/rc/sm1
+	touch work-fake/openxm-${VERSION}/OpenXM/rc/ work-fake/openxm-${VERSION}/OpenXM 	work-fake/openxm-${VERSION}/OpenXM/rc/oxgp work-fake/openxm-${VERSION}/OpenXM/rc/asir work-fake/openxm-${VERSION}/OpenXM/rc/sm1
 	touch work-fake/openxm-${VERSION}/OpenXM/rc/oxmath work-fake/openxm-${VERSION}/OpenXM/rc/oxMathematica
 	mkdir work-fake/openxm-${VERSION}/OpenXM/src
 	echo "configure:" >work-fake/openxm-${VERSION}/OpenXM/src/Makefile
@@ -25,6 +26,10 @@ fake-openxm: clean
 	echo "	echo binary-dist" >>work-fake/openxm-${VERSION}/OpenXM/src/Makefile
 	echo "install:" >work-fake/openxm-${VERSION}/OpenXM/rc/Makefile 
 	echo '	cp * $${PREFIX}/bin' >>work-fake/openxm-${VERSION}/OpenXM/rc/Makefile 
+	cp work-fake/openxm-${VERSION}/OpenXM/src/Makefile work-fake/openxm-${VERSION}
+	cat Makefile-fake >>work-fake/openxm-${VERSION}/Makefile
+	echo "install-shell-scripts:" >>work-fake/openxm-${VERSION}/Makefile
+	echo "	echo install-shell-scripts" >>work-fake/openxm-${VERSION}/Makefile
 	echo "Creating a fake tar ball at ${TAR_WORK}"
 	(cd work-fake ; tar czf ${TAR_WORK}/openxm-fake.tar.gz openxm-${VERSION})
 
