@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.33 2002/07/29 02:56:27 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.34 2002/08/03 13:14:18 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -283,6 +283,15 @@ windows-en.texi : windows.oxweave Makefile
 	/bin/rm -f windows-en.texi
 	$(OXWEAVE) C-texi en  <windows.oxweave >windows-en.texi
 
+### intro
+intro-ja.texi : intro.oxweave Makefile
+	/bin/rm -f intro-ja.texi
+	$(OXWEAVE) C-texi ja  <intro.oxweave >intro-ja.texi
+
+intro-en.texi : intro.oxweave Makefile
+	/bin/rm -f intro-en.texi
+	$(OXWEAVE) C-texi en  <intro.oxweave >intro-en.texi
+
 ###misc
 misc-ja.texi : misc.oxweave
 	/bin/rm -f misc-ja.texi
@@ -384,5 +393,5 @@ clean-document :
 clean :
 	rm -f ./.done_install
 	rm -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
-	rm -f oxxm-ja.texi oxxm-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi windows-ja.texi windows-en.texi
+	rm -f oxxm-ja.texi oxxm-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi windows-ja.texi windows-en.texi intro-ja.texi intro-en.texi
 	/bin/rm -rf help-ja help-en tmp tmp-ja html-en html-ja

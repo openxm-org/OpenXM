@@ -1,5 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.44 2002/07/28 05:20:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.45 2002/08/03 23:59:16 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
+
+print("OpenXM/Risa/Asir: Asir-Contrib(20020804), Copyright 2000-2002, OpenXM")$
+print("help(\"keyword\"); ox_help(0); ox_help(\"keyword\"); ox_grep(\"keyword\");")$
+print("     for help messages (unix version only). ")$
 
 /* Utilities */
 def ox_getenv(S) {
@@ -508,13 +512,13 @@ def print_input_form(F) {
 }
 
 /*&usage begin: print_open_math_xml_form(S)
- It transforms {S} to a string which is compliant to OpenMath.
+ It transforms {S} to a string which is compliant to OpenMath(1999).
  example: print_open_math_xml_form(x^3-1);
  ref: www.openmath.org
 end: */
 def print_open_math_xml_form(F) { 
   OX_LOADFILE(Loaded_om,"om");
-  return(ox_xml(F)); 
+  return(om_xml(F)); 
 }
 
 /*&usage begin: print_ox_rfc100_xml_form(S)
