@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.4 2000/03/06 03:07:19 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.5 2000/03/06 08:22:37 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -48,13 +48,13 @@ make-tar-ball: fetch
 make-tar-ball-01: fetch
 	@if [ ! -f ./.make-tar-ball-01_done ]; then \
 		(cd work/OpenXM/src ; make generate-source-distribution) ; \
-		(cd work ; tar czvf OpenXM-source-01.tgz OpenXM OpenXM_Contrib ) ; \
+		(cd work ; tar czvf OpenXM-source-01.tgz OpenXM OpenXM_contrib ) ; \
 	fi
 	@touch ./.make-tar-ball-01_done
 
 make-binary-tar-ball : make-tar-ball-01
-	(cd work/OpenXM/src ; make binary-dist )
-	(cd work ; tar czf work/OpenXM-binary-$(TYPE)$(RELEASE).tgz OpenXM/Copyright OpenXM/bin OpenXM/doc OpenXM/include OpenXM/lib OpenXM/man OpenXM/rc OpenXM/install.txt)
+	(cd work/OpenXM/src ; make configure; make install ; make binary-dist )
+	(cd work ; tar czf OpenXM-binary-$(TYPE)$(RELEASE).tgz OpenXM/Copyright OpenXM/bin OpenXM/doc OpenXM/include OpenXM/lib OpenXM/man OpenXM/rc OpenXM/install.txt)
 	(cd work/OpenXM/src ; make distclean )
 
 make-binary-tar-ball-using-binary-FreeBSD :
@@ -66,9 +66,9 @@ make-binary-tar-ball-using-binary-FreeBSD :
 	mkdir work/binary-$(TYPE)
 	tar xzf - $(BINARY_TAR_BALL_FOR_FREE_BSD) | (cd work/binary-$(TYPE) ; tar xzf - )
 	(cd work/binary-$(TYPE) ; /bin/rm -rf OpenXM/bin )
-	(cd work/OpenXM/src ; make binary-dist )
+	(cd work/OpenXM/src ; make configure; make install; make binary-dist )
 	(cd work ; tar czf - OpenXM/bin OpenXM/lib OpenXM/rc ) | (cd work/binary-$(TYPE) ; tar xzf - )
-	(cd work ; tar czf work/OpenXM-binary-$(TYPE)$(RELEASE).tgz OpenXM/Copyright OpenXM/bin OpenXM/doc OpenXM/include OpenXM/lib OpenXM/man OpenXM/rc OpenXM/install.txt)
+	(cd work/binary-$(TYPE) ; tar czf ../OpenXM-binary-$(TYPE)$(RELEASE).tgz OpenXM/Copyright OpenXM/bin OpenXM/doc OpenXM/include OpenXM/lib OpenXM/man OpenXM/rc OpenXM/install.txt)
 	(cd work/OpenXM/src ; make distclean )
 
 clean :
