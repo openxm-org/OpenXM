@@ -1,4 +1,36 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.3 1999/11/12 01:40:32 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.4 2000/02/24 00:27:43 takayama Exp $
+
+//&C  4/12, 2000.
+//&jp Q. openxm*.rpm を利用しているのですが, asir と入力すると,
+//&C   /var/tmp/openxm-root/OpenXM/bin/asir  is not found
+//&jp とエラーがでて起動できません.
+/*&C A.
+     cd /usr/local/OpenXM/rc
+     make clean; make install
+*/
+
+
+//&C  4/12, 2000.
+/*&jp  
+ Q. Omoikane Debian GNU/Linux 1.0 (http://www.omoikane.co.jp)
+    上で openxm*.rpm の ox_gnuplot module を利用すると次のエラーがでます.
+*/
+/*&C
+    error in loading shared libraries: 
+    libgd.so.1: cannot open shared object file: No such file or directory
+*/
+
+/*&jp
+     libgd をインストールするのが本当ですが,
+     当座の問題回避には Redhat 6.1 の /usr/lib/libgd.so.1.2 を
+     /usr/local/OpenXM/lib へコピーして,
+     dc3:/home/taka# cd /usr/local/OpenXM/lib
+     dc3:/usr/local/OpenXM/lib# ln -s libgd.so.1.2 libgd.so.1
+     dc3:/usr/local/OpenXM/lib# ln -s libgd.so.1 ligbd.so
+     とすれば,  openxm gnuplot4ox とかは動いてしまいます.
+     asir から gnuplot が動かないのは, OpenXM 自体の bug なので修正する予定.
+
+*/
 
 Q.  1999, 11/10: 
     " (file) run  " を ox_sm1 に送って executeStringByLocalParser しても
@@ -77,4 +109,5 @@ A. asir
    pari(lll,X);
 
 */
+
 
