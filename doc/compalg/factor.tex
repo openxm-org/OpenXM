@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/doc/compalg/factor.tex,v 1.3 2000/03/28 02:02:29 noro Exp $
+%$OpenXM: OpenXM/doc/compalg/factor.tex,v 1.4 2000/10/03 01:23:58 noro Exp $
 \chapter{$BB?9`<0$N0x?tJ,2r(B}
 
 \section{$BM-8BBN(B}
@@ -423,16 +423,22 @@ $Q \leftarrow \pi$ $B$N9TNsI=8=(B\\
 $\{e_1 = 1, e_2, \cdots, e_r\} \leftarrow \Ker(Q-I)$ $B$N(B $K$-$B4pDl(B\\
 if ($r = 1$) then return $F$\\
 while\= ($|F| < r$) do \{\\
-\> $g \leftarrow F$ $B$N85(B, \quad $F \leftarrow F \backslash \{g\}$\\
 \> $(c_1,\cdots,c_r) \leftarrow$ $BMp?t%Y%/%H%k(B ($c_i \in GF(q)$)\\
 \> $e \leftarrow \sum c_ie_i$ \\
 \> if \= $p=2$\\
-\>\> $E \leftarrow \Tr(e)$\\
+\>\> $E \leftarrow \Tr(e) \bmod f$\\
 \>else\\
-\>\> $E \leftarrow e^{(q-1)/2}-1$\\
-\> $h \leftarrow \GCD(g,E)$\\
-\> if $h \neq 1,g$\\
-\>\> $F \leftarrow F \cup \{h,g/h\}$\\
+\>\> $E \leftarrow e^{(q-1)/2}-1 \bmod f$\\
+\> $F_1 \leftarrow \emptyset$\\
+\> while \= ($F \neq \emptyset$) do \{\\
+\>        \> $g \leftarrow F$ $B$N85(B, \quad $F \leftarrow F \backslash \{g\}$\\
+\>        \> $h \leftarrow \GCD(g,E)$\\
+\>        \> if \= $h \neq 1,g$\\
+\>        \> \> $F_1 \leftarrow F_1 \cup \{h,g/h\}$\\
+\>        \> else \\
+\>        \> \> $F_1 \leftarrow F_1 \cup \{g\}$\\
+\> \}\\
+\>   $F \leftarrow F_1$ \\
 \}\\
 return F
 \end{tabbing}
@@ -554,15 +560,21 @@ Input : $f(x) \in GF(q)[x]$, $q=p^n$, $f$ $B$OL5J?J}$G(B $d$ $B<!4{Ls0x;R$N@Q
 Output : $f(x) = \prod f_i$, $f$ $B$N(B $B4{Ls0x;RJ,2r(B\\
 $r \leftarrow \deg(f)/d,\quad F \leftarrow \{f\}$\\
 while\= ($|F| < r$) do \{\\
-\> $h \leftarrow F$ $B$N(B $\deg(h)>d$ $B$J$k85(B,\quad $F \leftarrow F \backslash \{h\}$\\
 \> $g \leftarrow 2d-1$ $B<!$N%i%s%@%`$JB?9`<0(B\\
 \> if \= $p=2$\\
-\>\>$G \leftarrow \sum_{j=0}^{rd-1}g^{2^i}$\\
+\>\>$G \leftarrow \sum_{j=0}^{rd-1}g^{2^i} \bmod f$\\
 \> else\\
-\>\> $G \leftarrow g^{(q^d-1)/2}-1$\\
-\> $z \leftarrow \GCD(h,G)$\\
-\> if $z \neq 1,h$ \\
-\>\> $F \leftarrow F \cup \{z,h/z\}$\\
+\>\> $G \leftarrow g^{(q^d-1)/2}-1 \bmod f$\\
+\> $F_1 \leftarrow \emptyset$\\
+\> while \= ($F \neq \emptyset$) do \{\\
+\> 	  \> $h \leftarrow F$ $B$N(B $\deg(h)>d$ $B$J$k85(B,\quad $F \leftarrow F \backslash \{h\}$\\
+\>        \> $z \leftarrow \GCD(h,G)$\\
+\>        \> if \= $z \neq 1,h$\\
+\>        \> \> $F_1 \leftarrow F_1 \cup \{z,h/z\}$\\
+\>        \> else \\
+\>        \> \> $F_1 \leftarrow F_1 \cup \{h\}$\\
+\> \}\\
+\>   $F \leftarrow F_1$ \\
 \}\\
 return $F$\\
 \end{tabbing}
