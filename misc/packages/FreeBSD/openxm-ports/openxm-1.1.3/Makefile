@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.3/Makefile,v 1.3 2000/09/23 07:51:13 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.3/Makefile,v 1.4 2000/09/23 12:46:49 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.3
 ## For debugging. 
@@ -33,7 +33,7 @@
 PORTNAME=openxm
 PORTVERSION=1.1.3
 CATEGORIES= math
-
+MASTER_SITES= ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/1.1.3/
 
 MAINTAINER= takayama@math.sci.kobe-u.ac.jp
 

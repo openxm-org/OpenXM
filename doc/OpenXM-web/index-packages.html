@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.10 2000/09/09 03:01:25 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.11 2000/09/23 12:46:50 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -10,6 +10,9 @@ $OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.10 2000/09/09 03:01:25 ta
 </HEAD>
 <BODY>
 <H1>OpenXM Distribution by Packages</H1>
+
+ALL THE PACKAGES HAVE NOT BEEN READY FOR 1.1.3.  
+IF IT'S NOT READY, USE THE SOURCE DISTRIBUTION.
 
 <H2>General Installation Guide  </H2>
 <LI>
@@ -33,8 +36,6 @@ $OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.10 2000/09/09 03:01:25 ta
 </PRE>
 </FONT>
 The package will be installed under /usr/local/OpenXM.
-You need to set /usr/local/OpenXM/lib/asir/asir_key following the opening message
-of the command asir.
 
 <H2>Linux RPM (redhat package manager) (RELEASE_1_1_3, i386) INSTALLATION </H2>
 
@@ -79,6 +80,25 @@ openxm-1.1.3-test.ppc.rpm
 [<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary-1.1.3-test.ppc.rpm"> Power PC (Shift-Click) </A>].
 This distribution does not contain the support for Mathematica.
 
+<H2>Debian GNU Linux(Debian package manager) (RELEASE_1_1_3) Download the packages</H2>
+<LI>
+Become the super user and type in
+<FONT COLOR="#008080">
+<PRE>
+  dpkg --install ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-shared_1.1.3-1_all.deb
+  dpkg --install ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary_1.1.3-1_i386.deb  
+</PRE>
+</FONT>
+
+<LI>Architecture Independent Files (Library Files, Java Executables, Documents)
+
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-shared_1.1.3-1_all.deb"> openxm-shared for Debian/GNU Linux (Shift-Click)</A>].
+
+<LI> Binaries for i386 (Intel Pentium etc) (for libc 6 = glibc2)
+openxm-binary_1.1.3-1_i386.deb  
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.3/openxm-binary_1.1.3-1_i386.deb"> Intel CPU  (Shift-Click) </A>].
+
+
 <H2> How to delete packages </H2>
 <LI> FreeBSD
 <FONT COLOR="#008080">
@@ -91,6 +111,13 @@ This distribution does not contain the support for Mathematica.
 <PRE>
    rpm -e openxm-binary-1.1.3-test
    rpm -e openxm-shared-1.1.3-test
+</PRE>
+</FONT>
+<LI> Debian GNU Linux
+<FONT COLOR="#008080">
+<PRE>
+   dpkg --remove openxm-shared_1.1.3-1_all.deb
+   dpkg --remove openxm-binary_1.1.3-1_i386.deb  
 </PRE>
 </FONT>
 

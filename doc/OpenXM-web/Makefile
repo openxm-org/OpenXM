@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.25 2000/09/10 18:21:51 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.26 2000/09/10 18:43:17 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -98,22 +98,22 @@ $(WEBKOBE1)/oxMessageTag.h : oxMessageTag.h
 $(WEBKOBE1)/smCommand.h : smCommand.h
 	cp -f smCommand.h $(WEBKOBE1)
 
-$(WEBKOBE1)/openxm-en.ps : $(OpenXM_spec)/tmpEG/OpenXM.tex
+$(WEBKOBE1)/openxm-en.ps : $(OpenXM_spec)/tmpEN/OpenXM.tex
 	-rm -f $(WEBKOBE1)/openxm-en.ps
-	-(cd $(OpenXM_spec) ; make doc ; cd tmpEG ; latex OpenXM ; latex OpenXM)
-	-( cd $(OpenXM_spec)/tmpEG ; $(DVIPS) OpenXM >$(WEBKOBE1)/openxm-en.ps)
+	-(cd $(OpenXM_spec) ; make doc ; cd tmpEN ; latex OpenXM ; latex OpenXM)
+	-( cd $(OpenXM_spec)/tmpEN ; $(DVIPS) OpenXM >$(WEBKOBE1)/openxm-en.ps)
 
-$(WEBKOBE1)/openxm-ja.ps : $(OpenXM_spec)/tmpJP/OpenXM.tex
+$(WEBKOBE1)/openxm-ja.ps : $(OpenXM_spec)/tmpJA/OpenXM.tex
 	-rm -f $(WEBKOBE1)/openxm-ja.ps
-	-(cd $(OpenXM_spec) ; make doc ; cd tmpJP ; platex OpenXM ; platex OpenXM)
-	-(cd $(OpenXM_spec)/tmpJP ; $(DVIPS) OpenXM >$(WEBKOBE1)/openxm-ja.ps)
+	-(cd $(OpenXM_spec) ; make doc ; cd tmpJA ; platex OpenXM ; platex OpenXM)
+	-(cd $(OpenXM_spec)/tmpJA ; $(DVIPS) OpenXM >$(WEBKOBE1)/openxm-ja.ps)
 
 $(WEBKOBE1)/install-en.txt : $(OpenXM_doc)/install-en.txt
 	-cp $(OpenXM_doc)/install-en.txt $(WEBKOBE1)
 
-$(OpenXM_spec)/tmpEG/OpenXM.tex :
+$(OpenXM_spec)/tmpEN/OpenXM.tex :
 	-(cd $(OpenXM_spec) ; make )
-$(OpenXM_spec)/tmpJP/OpenXM.tex :
+$(OpenXM_spec)/tmpJA/OpenXM.tex :
 	-(cd $(OpenXM_spec) ; make )
 
 $(WEBKOBE1)/install-ja.txt : $(OpenXM_doc)/install-ja.txt

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.23 2000/03/18 08:06:14 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.24 2000/09/19 08:42:16 takayama Exp $
 
 VERSION=1.1.3
 TAG=HEAD
@@ -6,7 +6,7 @@ TAG=HEAD
 
 TAR_WORK=$(HOME)/tmp
 NAME=taka
-# It must be equal to TAR_WORK. To work as a super user. Used in build-on-pear.
+# It must be equal to TAR_WORK. To work as a super user. Used in build-on-pear-root.
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
@@ -27,8 +27,8 @@ usage :
 	@echo "1.  generate-tar-balls"
 	@echo "  (update-plist)"
 	@echo "  (or  generate-tar-balls-without-update-plist) "
-	@echo "2.  build-on-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
-	@echo "3.  build-on-pear (do it as a super user)"
+	@echo "2.  build-on-new-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
+	@echo "3.  build-on-pear-root (do it as a super user)"
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
@@ -73,8 +73,8 @@ prepare-build-rpm:
 	(cd Linux/RPM ; make link-for-real-openxm)
 
 # set path=(/usr/local/jdk1.1.8/bin $path) ; rehash
-# build-on-orange should depend on clean-Generic-openxm-work in a future.
-build-on-orange: prepare-build-rpm
+# build-on-new-orange should depend on clean-Generic-openxm-work in a future.
+build-on-new-orange: prepare-build-rpm
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} shared-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} clean-work)
@@ -83,7 +83,7 @@ build-on-orange: prepare-build-rpm
 	-(cp Linux/RPM/work/RPMS/noarch/*.rpm ${TAR_WORK})
 
 # You should be a super user.
-build-on-pear:
+build-on-pear-root:
 	cp ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tar.gz /usr/ports/distfiles
 	(cd /usr/ports/math ; /bin/rm -rf openxm ; tar xzvf ${TAR_WORK_EXPLICIT}/openxm-port.tar.gz)
 	(PATH=/usr/local/${JDK}/bin:$(PATH) ; export PATH ; cd /usr/ports/math/openxm ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
@@ -104,8 +104,9 @@ build-on-unkei: clean-Generic-openxm-work
 
 copy-to-ftp-area:
 	-mkdir ${FTP_AREA}
-	cp ${TAR_WORK}/openxm*rpm ${FTP_AREA}
-	cp ${TAR_WORK}/openxm01-${VERSION}.tar.gz ${FTP_AREA}
-	cp ${TAR_WORK}/OpenXM-*.tgz ${FTP_AREA}
-	cp ${TAR_WORK}/openxm-${VERSION}.tgz ${FTP_AREA}
+	-cp ${TAR_WORK}/openxm*rpm ${FTP_AREA}
+	-cp ${TAR_WORK}/openxm-${VERSION}.tar.gz ${FTP_AREA}
+	-cp ${TAR_WORK}/OpenXM-*.tgz ${FTP_AREA}
+	-cp ${TAR_WORK}/openxm-${VERSION}.tgz ${FTP_AREA}
+	-cp ${TAR_WORK}/openxm-port.tar.gz ${FTP_AREA}
 	ls -l ${FTP_AREA}
