@@ -1,18 +1,30 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.2 2003/02/23 07:41:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.3 2003/02/24 05:36:59 takayama Exp $ */
 #define ANK_SIZE 20
-/*
-#define ANK              Taka_diffop1_ANK
-#define diff2(F,G,K)     taka_diffop1_diff2(F,G,K)
-#define dr1_mult(F,G)     taka_diffop1_dr1_mult(F,G)
-#define dr1_exp(F)        taka_diffop1_dr1_exp(F)
-#define dr1_in(F)         taka_diffop1_dr1_in(F)
-#define dr1_division(F,G) taka_diffop1_dr1_division(F,G)
-#define dr1_gcd(F,G)      taka_diffop1_dr1_gcd(F,G)
-#define dr1_act(L,F)      taka_diffop1_dr1_act(L,F)
-#define initANK()        taka_diffop_initANK()
-#define thetapower2diff(J,X,D) taka_diffop_thetapower2diff(J,X,D)
-#define euler2diff(F,Xlist,Tlist,Dlist) taka_diffop_euler2diff(F,Xlist,Tlist,Dlist) 
-*/
+
+#define XX   x
+#define LOG  log(x)
+/* #define LOG  log(-x) */
+
+module taka_dr1;
+
+localf diff2 $
+localf mult$
+localf in$
+localf division$
+localf gcd$
+localf act$
+localf initANK$
+localf ank$
+localf thetapower2diff$
+localf euler2diff$
+localf diff2euler$
+localf dp_poch $
+localf int_roots $
+localf root_multiplicity $
+localf indicial $
+localf kcoef0 $
+
+localf test1 $
 
 extern ANK $
 ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
@@ -25,7 +37,7 @@ ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
 */
 
 /* cf. d_gcd.rr */
-def dr1_mult(F,G){
+def mult(F,G){
 	N=deg(nm(F),dx);
 	A=0;
 	for(K=0;K<=N;K++){
@@ -41,25 +53,25 @@ def diff2(F,G,K){
 }
 
 
-def dr1_in(F) {
+def in(F) {
   Dn = dn(F); F=nm(F);
   D = deg(F,dx);
   C = coef(F,D,dx);
   return( red(C*dx^D/Dn) );
 }
 
-def dr1_division(F,G) {
+def division(F,G) {
    Q = 0; R = F;
    while ((R != 0) && (deg(nm(R),dx) >= deg(nm(G),dx))) {
-      D = red(dr1_in(R)/dr1_in(G));
+      D = red(in(R)/in(G));
       Q = red(Q+D);
-      R = red(R-dr1_mult(D,G));
+      R = red(R-mult(D,G));
    }
    return([Q,R]);
 }
 
 
-def dr1_gcd(F,G) {
+def gcd(F,G) {
    S = 1; T = 0; SS=0; TT=1;
    if (deg(nm(F),dx) > deg(nm(G),dx)) {
      Changed = 0;
@@ -67,7 +79,7 @@ def dr1_gcd(F,G) {
      T=F; F=G; G=T; Changed = 1;
    }
    do {
-     D=dr1_division(F,G);
+     D=division(F,G);
      Q = D[0]; R = D[1];
      SSS = S-Q*SS; TTT = T-Q*TT;
      F = G; G = R;
@@ -80,7 +92,7 @@ def dr1_gcd(F,G) {
    }
 }
 
-def dr1_act(L,F) {
+def act(L,F) {
   D = dn(L);
   L = nm(L);
   N = deg(L,dx);
@@ -147,5 +159,162 @@ def euler2diff(F,Xlist,Tlist,Dlist) {
   }
   return red(F/DN);
 }
+
+/* -----------------------------------
+   diff2euler(x*dx+c,t) ==> [t+c,1]
+   diff2euler(dx+c,t) ==> [t+cx,1/x]
+   ----------------------------------
+*/
+def diff2euler(F,T) {
+  DN = dn(F);
+  F = nm(F);
+  F = dp_ptod(F,[x,dx]);
+  R = 0;
+  while (F != 0) {
+    P=dp_hm(F);
+    F=dp_rest(F);
+    E = dp_etov(P);
+    R += dp_hc(P)*dp_vtoe(newvect(2,[E[0]-E[1],0]))*dp_poch(E[1]);
+  }
+  R = dp_dtop(R,[x,T]);
+  R = eval_str(rtostr(R));
+  DN2= dn(R);
+  R = nm(R);
+  /* factor out x */
+  M = root_multiplicity(R,x,0);
+  return [red(R/x^M),x^M/(DN*DN2)];
+}
+
+def dp_poch(K) {
+  One = <<0,0>>;
+  T = <<0,1>>;
+  R = One;
+  for (I=0; I<K; I++) {
+    R = R*(T-I*One);
+  }
+  return R;
+}
+
+/* int_roots(x^2*(x-1)^3*(x^2+1),x);   --> [[1,3], [0,2]]
+   non-negative integral roots.
+*/
+def int_roots(F,S) {
+  Root = [];
+  F = fctr(F);
+  F = cdr(F);
+  N = length(F);
+  for (I=0; I<N; I++) {
+    P  = F[I][0];  /* factor */
+    Pm = F[I][1];  /* Multiplicity */
+    if (deg(P,S) == 1) {
+      P = -subst(P,S,0); /* Find root. */
+      if (type(P) <=1) {
+        if (P >= 0) Root = cons([P,Pm],Root);
+      }
+    }
+  }
+  return Root;
+}
+
+/*  root_multiplicity(x^2*(x-1),x,0); --> 2
+    multiplicity at x = 0.
+*/
+def root_multiplicity(F,S,P) {
+  F = fctr(F);
+  F = cdr(F);
+  N = length(F);
+  for (I=0; I<N; I++) {
+    Pf  = F[I][0];  /* factor */
+    Pm = F[I][1];  /* Multiplicity */
+    if (deg(Pf,S) == 1) {
+      Pf = -subst(Pf,S,P); /* Find root. */
+      if (Pf == 0) {
+        return Pm;
+      }
+    }
+  }
+  return 0;
+}
+
+/* L is a differential operator in x and dx */
+def indicial(L) {
+  /* indicial polynomial is a polynomial in x and s */
+  L = diff2euler(L,s)[0];
+  L0 = subst(L,x,0);
+  return [L0,-(L-L0)];  /* inidicial and the rest */
+}
+
+
+/* ---------------------------------------------------
+  Determine a_{k,i}
+  a_{k,i} x^k (log(x))^i,  i=0, 1,..., m
+  L = [L0,LR] (euler op in s, output of indicial).  L0-LR
+  Prev : series solution in x upto degree k-1 
+  0 ==> slow version.
+----------------------------------------------------- */
+def kcoef0(K,M,L,Prev) {
+  L0 = L[0];  D_L0 = euler2diff(L0,[x],[s],[dx]);
+  LR = L[1];  D_LR = euler2diff(LR,[x],[s],[dx]);
+  V = [ ];
+  F = 0;
+  M0 = root_multiplicity(L0,s,K);  /* exclude starting terms */
+  for (I=M0; I<=M; I++) {
+    V = cons(util_v("a",[I]),V);
+    F = F + util_v("a",[I])*(XX)^K*(LOG)^I;
+  }
+  V = reverse(V);
+  /* print([M0,M,V,F]); */
+  P0 = act(D_L0,F);
+  P1 = act(D_LR,Prev);
+  P0=red(subst(P0,LOG,y)/x^K);
+  P1=coef(subst(P1,LOG,y),K,x);
+  print([P0,P1]);
+
+  /* compare coefficients of y=LOG */
+  Eq = [ ];
+  for (I=0; I<=M; I++) {
+    G = coef(P0,I,y)-coef(P1,I,y);
+    if (G != 0) {
+       Eq = cons(G,Eq); 
+    }
+  }
+  EqAns = poly_solve_linear(Eq,V);
+  return base_replace(F,EqAns);  
+}
+
+/* testing  kcoef0 */
+def test1() {
+  L = euler2diff(s^2-x*(s+1/2)^2,[x],[s],[dx]);
+  LL = indicial(L);
+  F0 = 1;
+  print(sprintf("Indicial = %a",LL));
+  for (I=1; I<4; I++) {
+    Fnew = kcoef0(I,1,LL,F0);
+    print(sprintf("I=%a, %a",I,Fnew));
+    F0 = F0 + Fnew;
+  }
+  print("------------------------------");
+  F1 = LOG;
+  for (I=1; I<4; I++) {
+    Fnew = kcoef0(I,1,LL,F1);
+    print(sprintf("I=%a, %a",I,Fnew));
+    F1 = F1 + Fnew;
+  }
+  print("------------------------------");
+
+  return [F0,F1];
+  /*  cf. SST, p.23
+    [1+(1/4)*x+(9/64)*x,
+     log(x)+(-2*(1/2)^2+1 + 1/4*log(x))*x]
+  */
+}
+
+/* Todo
+def pfp_infty(A,B,N) {
+  
+} 
+*/
+
+endmodule;
 
 end$
