@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.2 1999/12/13 02:27:15 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.3 1999/12/14 09:29:13 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -799,12 +799,13 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
     short portStream  = 0;
     ox_file_t sv = NULL;
     char *dir;
-	char *oxlog = "/home/ohara/OpenXM/bin/oxlog";
+	char *oxlog = "oxlog";
 
     if ((dir = search_ox(ctl_prog)) == NULL) {
         fprintf(stderr, "client:: %s not found.\n", ctl_prog);
         return NULL;
     }
+
     sv = malloc(sizeof(__ox_file_struct));
     sv->control = mysocketListen(host, &portControl);
     sv->stream  = mysocketListen(host, &portStream);
