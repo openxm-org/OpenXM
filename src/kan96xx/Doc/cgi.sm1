@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.4 2004/09/27 08:32:05 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.5 2004/09/27 11:18:23 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -143,7 +143,7 @@ def
   [ 
     /sss arg1 def
 % Step 1.  analyze the query string in URL encoding.
-    [(cgiUrlEncodingToKeyValuePair) [(?) sss] cat] extension /kv set
+    [(cgiUrlEncodingToKeyValuePair) sss] extension /kv set
     kv (oxMessageBody) getNode /comm set
 %   [nl nl] cat message sss message kv message  % for debug.
 % Step 2. Extract action part and file part for polymake. 
