@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.6 2000/06/15 07:38:35 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.7 2000/06/26 11:14:00 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -657,12 +657,38 @@ resol1.c に次の line を加えた.
 	  if (isConstant(sv.b)) { 
 		s->deleted = 1;
 	  }
+  ===> おかしいので削除.
 
 isConstant(sv.a) がないと, こんどは,
 Sminimal([x^2+y^2,x*y]); がエラーでとまる.
 (x,y の weight は -1).
 LaScala-Stillman の論文をもう一度ながめよう.
 
-commit すべき:  misc/mega2000 (cvs-misc add)
-                OpenXM/src/kan96xx
-                OpenXM/src/k097/lib/minimal
+commit すべき:  misc/mega2000 (cvs-misc add) Done.
+                OpenXM/src/kan96xx           Done.
+                OpenXM/src/k097/lib/minimal  Done.
+
+July 26.
+   resol.c の schreyerSkelton0 で, skelton が minimal になるように
+   コードを挿入.
+   テストは  
+     cd src/k097/lib/minimal
+     k0
+     load["minimal.k"];;
+     Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+     Sminimal([x^2+y^2,x*y]); 
+   で.
+
+   LaScala-Stillman の論文逆で  i<j なら e_i > e_j となる.
+   (order.c   mmLarger_tower())
+
+   テスト 2.
+     cd src/k097/lib/minimal
+     k0
+     load["minimal-test.k"];;
+     v:
+     Sminimal(v);
+
+     test11();    /* a = test_ann3("x^3-y^2*z^2"); */
+     test14();    /* gkz (1,2,3) */
+

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.3 2000/05/24 15:31:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.4 2000/06/26 11:15:04 takayama Exp $ */
 /* resol.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -46,7 +46,7 @@ struct arrayOfMonomialSyz enlargeArrayOfMonomialSyz(struct arrayOfMonomialSyz pp
 static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
 /* return value will be changed by the next call of this function. */
 {
-  int m,j,k;
+  int m,j,k,flag;
   static int s_ij_size = 0;
   static struct monomialSyz **s_ij = NULL;
   struct monomialSyz *s;
@@ -69,28 +69,27 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
       s->deleted = 0;
       sv = (*sp)((g.array)[i],(g.array)[j]);
       s->a = sv.a; s->b = sv.b;
-	  /* If isConstant(sv.a) is added, (x^3 - y^2 z^2) deRham stops
-         with an error. I've not yet understood the reason.
-         At Posthouse at Heathrow. June 24, 2000 */
-	  if (isConstant(sv.b)) { 
-		s->deleted = 1;
-	  }
     }else{
       s->deleted = 1;
     }
   }
   shellForMonomialSyz(s_ij,m-i-1);
   if (RemoveRedundantInSchreyerSkelton) {
-   for (j=0; j<m-i-1;j++) {
-    s = s_ij[j];
-    if (s->deleted != 1) {
-      for (k=j+1; k<m-i-1; k++) {
-        if (s_ij[k]->deleted != 1) {
-          if ((*isReducible)(s_ij[k]->a,s->a)) s_ij[k]->deleted = 1;
-        }
-      }
-    }
-   }
+	do {
+	  flag = 0;
+      for (j=0; j<m-i-1;j++) {
+		if (s_ij[j]->deleted != 1) {
+		  for (k=0; k<m-i-1;k++) {
+			if ((j != k) && (s_ij[k]->deleted != 1)) {
+			  if ((*isReducible)(s_ij[k]->a,s_ij[j]->a)) {
+				s_ij[k]->deleted = 1;
+				flag = 1;
+			  }
+			}
+		  }
+		}
+	  }
+	}while (flag);
   }
   ans.size = m-i-1;
   ans.limit = s_ij_size;

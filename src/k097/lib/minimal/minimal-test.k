@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.4 2000/06/14 07:44:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.5 2000/06/15 07:38:35 takayama Exp $ */
 load["minimal.k"];
 def test5() {
   local a,b,c,cc,v;
@@ -324,7 +324,9 @@ def test13() {
 def test14() {
   Println("test14 try to construct a minimal free resolution");
   Println("of a GKZ system [[1,2,3]]. 6/12, 2000.");
-  ans2 = GKZ([[1,2,3]],[0]);  /* It stops by the strategy error. */
+  ans2 = GKZ([[1,2,3]],[0]);
+     /* It stops by the strategy error.
+        July 26, 2000. It works fine after fixing a bug in resol.c */
   ww2 = [["x1",-1,"x2",-1,"x3",-1,"Dx1",1,"Dx2",1,"Dx3",1]];
   Sweyl("x1,x2,x3",ww2);
   ans2 = ReParse(ans2[0]);
