@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.13 2003/05/18 02:20:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.14 2004/03/09 07:01:59 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -139,8 +139,8 @@ def taka_poly_terminal_form_poly_factored_rational(S) {
   return A;
 }
 
-def taka_poly_tex_form_poly_factored_polynomial(S) {
-  return taka_tex_form_quote( quote_factored_form_to_quote(S));
+def taka_poly_tex_form_poly_factored_polynomial(S,Tb) {
+  return taka_tex_form_quote( quote_factored_form_to_quote(S,Tb));
 }
 
 /* Printing and input method
@@ -163,12 +163,12 @@ def taka_poly_terminal_form_poly_ring(S) {
   A += "Weyl->"+taka_terminal_form(S->Weyl)+"}";
   return A;
 }
-def taka_poly_tex_form_poly_ring(S) {
-  A  = taka_tex_form(S->K);
-  A += taka_tex_form(S->Variables);
-  A += " \\mbox{\ where the order is defined by \ } ";
-  A += taka_tex_form(S->Order);
-  return A;
+
+def taka_poly_tex_form_poly_ring(S,Tb) {
+  taka_tex_form(S->K,Tb);
+  taka_tex_form(S->Variables,Tb);
+  write_to_tb(" \\mbox{\ where the order is defined by \ } ",Tb);
+  taka_tex_form(S->Order,Tb);
 }
 
 /* Printing and input method
@@ -188,10 +188,11 @@ def taka_poly_terminal_form_poly_polynomial(S) {
   A += "F->"+taka_terminal_form(P)+"}";
   return A;
 }
-def taka_poly_tex_form_poly_polynomial(S) {
+
+def taka_poly_tex_form_poly_polynomial(S,Tb) {
   R = S->Ring;
   P = quote_sort_polynomial(S->F,R->Variables,R->Order);
-  return taka_tex_form(P);
+  taka_tex_form(P,Tb);
 }
 
 /* Printing and input method 
@@ -214,11 +215,11 @@ def taka_poly_terminal_form_poly_ideal(S) {
   A += "}";
   return A;
 }
-def taka_poly_tex_form_poly_ideal(S) {
+
+def taka_poly_tex_form_poly_ideal(S,Tb) {
   R = S->Ring;
   P = map(quote_sort_polynomial,S->Generators,R->Variables,R->Order);
-  A = taka_tex_form(P);
-  return A;
+  taka_tex_form(P,Tb);
 }
 
 /* Utility function to get variables. */
