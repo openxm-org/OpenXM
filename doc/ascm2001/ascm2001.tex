@@ -1,14 +1,20 @@
-%$OpenXM: OpenXM/doc/ascm2001/ascm2001.tex,v 1.4 2001/03/07 07:34:49 takayama Exp $
+%$OpenXM: OpenXM/doc/ascm2001/ascm2001.tex,v 1.5 2001/03/08 00:49:29 takayama Exp $
 %% You need acmconf.cls and flushend.sty to compile this file.
 %% They may be obtained from 
 %%  http://riksun.riken.go.jp/archives/tex-archive/macros/latex/contrib/supported/acmconf/
-\documentclass[submit]{acmconf}
-%\documentclass{article}
+%\documentclass[submit]{acmconf}
+\documentclass{article}
 %% \CopyrightText{\copyright 2000, }
-\IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
-\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
-\ConferenceName{ASCM 2001, Ehime, Japan, 2001}
-\ConferenceShortName{ASCM 2001}
+%\IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
+%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
+\usepackage{epsfig}
+%\ConferenceName{ASCM 2001, Ehime, Japan, 2001}
+%\ConferenceShortName{ASCM 2001}
+
+\def\Author#1{ #1 }
+\def\Address#1{ (#1) }
+\def\Email#1{ {\tt  #1 }}
+
 \def\OpenXM{{\rm OpenXM\ }}
 
 \begin{document}
@@ -61,12 +67,14 @@ have been obtainable at \cite{openxm-web}
 from January 24, 2000.
 \end{abstract}
 
-\begin{keywords}
+%\begin{keywords}
+\noindent
+Keywords: 
 Asir,
 IAMC, Interactive Distributed Computation, 
 Integration of Mathematical Software,
 MP, OpenMath, OpenXM, OpenXM-RFC, XML. 
-\end{keywords}
+%\end{keywords}
 
 %\section{Introduction}
 
