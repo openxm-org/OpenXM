@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.1 1999/11/07 06:45:23 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.2 1999/11/10 06:50:49 takayama Exp $
 
 Q.  1999, 11/10: 
     " (file) run  " を ox_sm1 に送って executeStringByLocalParser しても
@@ -21,4 +21,40 @@ Q. 1999, 11/10:
    sm1 は * をつかえないのですか？  
 
 A. *もつかえます.  x*y も x y も同じいみです.
+
+
+Q. 1999, 11/12:
+   sm1 は 有理数を係数とする多項式を扱えないのですか？
+
+A. いまのところ扱えません.
+   OpenXM/lib/asir/xm の 関数 sm1_rat_to_p() は有理数係数の多項式を
+   sm1 が扱いやすいような 整数係数の多項式に変換してくれます.
+
+Q. 1999, 11/12:
+   Solaris 2.5.1 で pari のコンパイルがうまくできません.
+
+A.
+| Solaris 2.5.1 ですが, いきなり pari の make でこけますね.
+| 
+| /usr/local/bin/as  -o kernel.o kernel1.s
+| kernel1.s: Assembler messages:
+| kernel1.s:1: Error: Rest of line ignored. First ignored character is `/'.
+| make[2]: *** [kernel.o] Error 1
+| make[2]: Leaving directory `/home/taka/OpenXM/src/pari-2.0.17.beta/Osolaris-spar
+| cv9'
+| make[1]: *** [install] Error 2
+
+これは私も以前はまりました. Osolaris-sparcv?/Makefile で
+
+AS=/usr/local/bin/as
+
+となっているせいです. これは
+
+AS=/usr/ccs/bin/as
+
+でなければ make に失敗します. Solaris の場合には /usr/ccs/bin が 
+/usr/local/binより先にサーチされるように path を設定する必要があります.
+
+このように設定しておくと configure の時自動的にAS=/usr/ccs/bin/as
+としてくれる.
 
