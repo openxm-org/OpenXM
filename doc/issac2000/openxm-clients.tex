@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.3 2000/01/11 05:17:11 noro Exp $
 
 \section{OpenXM Clients}    
 (noryo and Ohara)
@@ -44,7 +44,7 @@ it receives the data from the stream.
 \item {\tt ox\_cmo\_rpc()}
 
 After pushing the name of a function, arguments and the number of the
-arguments to the stack of a server , it request the server to execute
+arguments to the stack of a server, it request the server to execute
 the function. It does not wait the termination of the function call.
 
 \item {\tt ox\_reset()}
@@ -55,3 +55,36 @@ it completes the operations stated in Section \ref{control}.
 Furthermore {\tt ox\_select()} is provided to detect streams ready for
 reading. It is realized by the {\tt select()} system call and is used
 to avoid blocking on read operations.
+
+\subsection{Mathematica}
+
+We provide an OpenXM client {\tt math2ox} written as an external module
+for Mathematica.  Our client communicates to Mathematica by MathLink and
+to an OpenXM server by OpenXM protocols.  The {\tt math2ox} needs 
+{\tt ox} command attached to kan/sm1 to connect an OpenXM server.
+
+\subsubsection{Functions}
+
+The {\tt math2ox} has the following functions functions named 
+like Risa/Asir;
+\begin{quote}
+{\tt OxStart[s\_String]} \\
+{\tt OxStartInsecure[s\_String]} \\
+{\tt OxExecuteString[s\_String]}  \\
+{\tt OxParse[s\_String]} \\
+{\tt OxGet[]} \\
+{\tt OxPopCMO[]} \\
+{\tt OxPopString[]} \\
+{\tt OxClose[]} \\
+{\tt OxReset[]}
+\end{quote}
+For example, the {\tt OxPopCMO[]} function above requests a server to
+send data on the stack to the stream, then it receives the data from the
+stream.
+
+The {\tt OxParse[]} and the {\tt OxGet[]} above are low level functions.
+By using the {\tt OxParse[]} function, we can send suitable OX messages,
+which are written as an OX expression, to a server.  OX expressions are
+Lisp-like expressions for OX messages and are defined
+in~\cite{noro-takayama}.  The {\tt OxGet[]} receives an OX data message
+and returns its object.
