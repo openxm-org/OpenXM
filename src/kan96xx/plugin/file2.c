@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.9 2004/02/23 09:03:43 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.10 2004/02/25 23:14:35 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -78,9 +78,15 @@ FILE2 *fp2open(int fd) {
   fp2->mathcapList = NULL;
   fp2->log_incomming = NULL;
   fp2->log_outgoing = NULL;
+  fp2->popened = 0;
+  fp2->pfp = NULL;
   return(fp2);
 }
 
+void fp2setfp(FILE2 *fp2,FILE *fp,int popened) {
+  fp2->pfp = fp;
+  fp2->popened = popened;
+}
     
 int fp2fflush(FILE2 *fp2) {
   int r;
@@ -112,7 +118,12 @@ int fp2fclose(FILE2 *fp2) {
     fprintf(stderr,"fp2fclose: flush error.\n");
     return(-1);
   }
-  return(close(fp2->fd));
+  if (fp2->pfp != NULL) {
+	if (fp2->popened) {
+      return pclose(fp2->pfp);
+	} else return fclose(fp2->pfp);
+  }
+  else return(close(fp2->fd));
 }
 
 int fp2fputc(int c,FILE2 *fp2) {

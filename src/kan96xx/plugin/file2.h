@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.4 2003/11/23 13:16:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.5 2003/11/24 08:16:13 takayama Exp $ */
 /* file2.h */
 
 #define MAGIC2 "Buffered IO by FILE2"
@@ -19,6 +19,8 @@ typedef struct FILE2 {
   void *mathcapList; /* pointer to struct object */
   FILE *log_incomming;
   FILE *log_outgoing;
+  int popened; /* 1 => popen, 0 => fopen etc ... */
+  FILE *pfp; /* used for pclose */
 } FILE2 ;
 
 FILE2 *fp2open(int fd);
@@ -36,7 +38,7 @@ int fp2watch(FILE2 *fp,FILE *log);
 int fp2stopWatch(FILE2 *fp);
 int fp2log(FILE2 *fp,FILE *incomming,FILE *outgoing);
 int fp2stopLog(FILE2 *fp);
-
+void fp2setfp(FILE2 *fp2, FILE *fp,int popened);
 
 
  

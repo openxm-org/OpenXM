@@ -1,4 +1,4 @@
-%$OpenXM$
+%$OpenXM: OpenXM/src/kan96xx/Doc/gnuplot.sm1,v 1.2 1999/11/17 00:28:54 takayama Exp $
 %%% 1999, 6/7 Mon.
 [(parse) (ox.sm1) pushfile] extension
 [(getenv) (OpenXM_HOME)] extension /OpenXM_HOME set
@@ -6,6 +6,8 @@
 [OpenXM_HOME (/bin/gnuplot4ox)] cat /plot.gnuplotexec set
 
 (SSkan/lib/plot.sm1 for ox_sm1_gnuplot.  1999/09/03. ) message
+
+/gnuplot.callingMethod 0 def  % 0 : old, 1 : pipe, 2: file 
 
 /plotstart {
   sm1connectr
@@ -17,6 +19,20 @@
 } def
 
 /plotstart.aux {
+  {
+    gnuplot.callingMethod 0 eq {
+      plotstart.aux.0
+    } { } ifelse
+    gnuplot.callingMethod 1 eq {
+      plotstart.aux.1
+    } { } ifelse
+    gnuplot.callingMethod 2 eq {
+      (Not yet implemented.) error
+    } { } ifelse
+    exit
+  } loop
+} def
+/plotstart.aux.0 {
   /peer [(oxGetPort) (localhost)] extension def
   [(sm1.socket) (close) [peer 2 get]] extension  %% close the second.
   /myport peer 1 get def
@@ -38,17 +54,100 @@
   gnuplot.ff2 message 
 } def
 
+/plotstart.aux.1 {
+    [(getUniqueFileName) (/tmp/gnuplot.fifo.tmp)] extension /gnuplot.fifo set
+    [(fp2mkfifo) gnuplot.fifo]  extension message
+    gnuplot.fifo message
+    [(fp2popen) plot.gnuplotexec (w)] extension /gnuplot.pfp set
+    [(fp2fopen) gnuplot.fifo (r)] extension /gnuplot.fifoFp set
+    % BUG! It does not return.
+    
+    [(fp2fputs) [(set mouse; set print ") gnuplot.fifo (" ; ) nl ] cat
+     gnuplot.pfp ] extension message
+    [(fp2fflush) gnuplot.pfp] extension message
+} def
+
+/plotstop.aux {
+  {
+    gnuplot.callingMethod 0 eq {
+      plotstop.aux.0
+    } { } ifelse
+    gnuplot.callingMethod 1 eq {
+      plotstop.aux.1
+    } { } ifelse
+    gnuplot.callingMethod 2 eq {
+      (Not yet implemented.) error
+    } { } ifelse
+    exit
+  } loop
+} def
+
+/plotstop.aux.0 { } def
+/plotstop.aux.1 {
+  [(fp2fclose) gnuplot.pfp] extension pop
+  [(fp2fclose) gnuplot.fifo] extension pop
+  [(rm) gnuplot.fifo] oxshell pop
+} def
+
 
 /gnuplot {
+  {
+    gnuplot.callingMethod 0 eq {
+      gnuplot.0
+    } { } ifelse
+    gnuplot.callingMethod 1 eq {
+      gnuplot.1
+    } { } ifelse
+    gnuplot.callingMethod 2 eq {
+      (Not yet implemented.) error
+    } { } ifelse
+    exit
+  } loop
+} def
+
+/gnuplot.0 {
   /cccc set
   /fd gnuplot.ff2 0 get def
   [(sm1.socket) (write) [fd 
     [cccc 10 (string) dc] cat]] extension
 } def
 
+/gnuplot.1 {
+  /cccc set
+  [(fp2fputs) [cccc nl] cat gnuplot.pfp] extension pop
+  [(fp2fflush) gnuplot.pfp] extension pop
+  gnuplot.read.1
+} def
+
 %% (plot sin(x);) gnuplot
 
+
+/gnuplot.read.1 {
+  [
+   { 
+    [(fp2select) gnuplot.fifoFp 0] extension 1 eq {
+      [(fp2fgetc) gnuplot.fifoFp] extension 
+    } {  exit } ifelse
+   } loop
+  ] { (string) dc } map cat
+} def
+
 /isAlive {
+  {
+    gnuplot.callingMethod 0 eq {
+      isAlive.0
+    } { } ifelse
+    gnuplot.callingMethod 1 eq {
+      isAlive.1
+    } { } ifelse
+    gnuplot.callingMethod 2 eq {
+      (Not yet implemented.) error
+    } { } ifelse
+    exit
+  } loop
+} def
+
+/isAlive.0 {
  [/in-isAlive /ans /i /nn] pushVariables
  [ [ gnuplot.ccc ([(getchild)] extension ) oxsubmit ] pop
     gnuplot.ccc oxpopcmo /gnuplot.pidList set
@@ -81,6 +180,10 @@
   ] pop
   popVariables
   arg1
+} def
+
+/isAlive.1 {
+  1
 } def
 
 /demo0 {
