@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.21 2003/01/15 00:11:08 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.22 2003/05/14 07:09:47 takayama Exp $
 # targets
 # all 
 #     compile
@@ -36,7 +36,7 @@ YACCPREFIX = -p KC
 FLAG = -g  -DLOAD_K_PATH=$(LOAD_K_PATH) -DLOAD_SM1_PATH2=$(LOAD_SM1_PATH2)
 KAN_HOME = $(KHOME)/Kan
 
-all : d0 k0 
+all : d0 k0 ox_k0
 
 
 d0 : simple.tab.o d.o dic.o dm.c 
@@ -126,11 +126,15 @@ install0 : all
 install : all install-lib
 	/bin/rm -f ../../bin/k0 ../../bin/d0
 	cp -f k0 d0 ../../bin
+	cp -f ox_k0 ../../bin
+	cp -f ox_k0 ../../lib/sm1/bin
 
 install-for-debug : all install-lib-for-debug
-	rm -f ../../bin/k0 ../../bin/d0
+	rm -f ../../bin/k0 ../../bin/d0 ../../bin/ox_k0 ../../lib/sm1/bin/ox_k0
 	(cd ../../bin ; ln -s ../src/k097/k0 k0)
 	(cd ../../bin ; ln -s ../src/k097/d0 d0)
+	(cd ../../bin ; ln -s ../src/k097/ox_k0 ox_k0)
+	(cd ../../lib/sm1/bin ; ln -s ../../../src/k097/ox_k0 ox_k0)
 
 install-lib :
 	/bin/rm -rf $(OpenXM_lib)/k097
