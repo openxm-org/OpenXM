@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_math/documents/Makefile,v 1.5 2000/03/14 14:25:27 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/documents/Makefile,v 1.6 2000/03/15 10:02:00 takayama Exp $
 
 ## platex is a localized tex compiler for Japanese language.
 ## ox_math.tex is written in Japanese by the EUC-JP coded character set.
@@ -6,17 +6,23 @@
 
 OpenXM_HOME = ../../..
 OXWEAVE     = ${OpenXM_HOME}/bin/oxweave
-# TEXI2DVI    = texi2dvi
-TEXI2DVI    = ${OpenXM_HOME}/misc/texi2dvi
+TEXI2DVI    = texi2dvi
+TEXI2DVI_OX    = ${OpenXM_HOME}/misc/texi2dvi
+#TEXI2DVI_OX    = ptex
 LATEX       = latex
 PLATEX      = platex
 DOCUMENTS   = math2ox.texi math2ox.dvi readme-eg
 JDOCUMENTS  = ox_math.tex ox_math.dvi readme-jp samplelog-sm1.txt
+WHICH       = ${OpenXM_HOME}/misc/which.pl
 
 all: ${DOCUMENTS} ${JDOCUMENTS}
 
 math2ox.dvi: math2ox.texi
-	${TEXI2DVI} math2ox.texi
+	@if ${WHICH} -s texi2dvi ; then \
+	   ${TEXI2DVI} math2ox.texi ; \
+	else \
+	   ${TEXI2DVI_OX} math2ox.texi ; \
+	fi
 
 ox_math.dvi: ox_math.tex
 	${PLATEX} ox_math.tex
