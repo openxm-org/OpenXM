@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.16 2003/12/18 10:26:20 ohara Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.17 2003/12/20 13:38:44 ohara Exp $
 
 WHICH=../../misc/which.pl
 
@@ -11,7 +11,7 @@ all2: all-eg all-jp
 install2: install-eg install-jp 
 
 all-eg: texindex extract_man extract_func man-eg.dvi help-eg html-eg
-all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp html-internal-ja
+all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp html-internal-ja html-exp-ja
 
 install-eg: all-eg
 	-rm -r -f ../../lib/asir/help-eg
@@ -29,6 +29,7 @@ install-jp: all-jp
 	-tar cf - html-jp | ( cd ../../doc/asir2000; tar xf - )
 	-cp man-jp.dvi ../../doc/asir2000
 	-tar cf - html-internal-ja | ( cd ../../doc/asir2000; tar xf - )
+	-tar cf - html-exp-ja | ( cd ../../doc/asir2000; tar xf - )
 
 install-man-pages:
 	-cp asir.1 ../../man/man1
@@ -173,6 +174,12 @@ html-internal-ja: tmp-internal-JAhtml
 	-rm -rf html-internal-ja
 	-mkdir html-internal-ja
 	-(cd html-internal-ja; texi2html ../tmp-internal-JAhtml/internal.texi)
+
+html-exp-ja: exp/exp-ja.texi
+	-rm -rf html-exp-ja
+	-mkdir html-exp-ja
+	-nkf -e <exp/exp-ja.texi >html-exp-ja/exp-ja.texi
+	-(cd html-exp-ja; texi2html -menu -split_node exp-ja.texi)
 
 internal-jp.dvi: tmp-internal-JAhtml
 	-rm internal-jp.dvi
