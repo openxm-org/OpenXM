@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.4 2003/11/17 09:55:52 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.5 2004/07/05 10:08:35 ohara Exp $ */
 
 #ifndef __OX_SERVE_H__
 #define __OX_SERVE_H__
@@ -42,7 +42,7 @@ int	 oxserv_receive	(OXFILE *);
 
 void	 oxserv_sm_control_reset_connection(int);
 
-int	 oxserv_set	(int mode, void (*)(), void *);
+int	 oxserv_set	(int mode, void *, void *);
 
 #define OXSERV_SET_EXECUTE_STRING_PARSER        (0x01)
 #define OXSERV_SET_EXECUTE_FUNCTION             (0x02)

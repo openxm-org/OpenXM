@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.2 2004/07/04 02:31:51 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.3 2004/07/04 11:38:42 iwane Exp $
 # @configure_input@ ###
 
 #
@@ -64,7 +64,7 @@ OBJC=$(SRCC:.c=.o) $(SRCP:.cpp=.o)
 all: $(PROG)
 
 
-$(PROG): $(OBJC) $(LIBDIR)/libox.a $(NTL_LIBDIR)/libntl.a
+$(PROG): $(OBJC)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJC) -o $@ $(LIBS)
 
 

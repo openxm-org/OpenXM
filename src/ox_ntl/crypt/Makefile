@@ -1,7 +1,7 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/Makefile,v 1.2 2004/05/17 14:53:39 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/Makefile,v 1.3 2004/07/04 02:31:51 iwane Exp $
 
 
-SUBDIRS = radix sha1 rsa
+SUBDIRS = radix sha1 rsa des
 OpenXM_HOME ?= ${PWD}/../../..
 
 echo:

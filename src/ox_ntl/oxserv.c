@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.5 2003/11/27 14:18:43 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.6 2004/07/04 11:38:42 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,12 +10,13 @@
 #include "oxserv.h"
 #include "oxstack.h"
 
+#include "gmp.h"
 #include "gc/gc.h"
 
-#define DPRINTF(x)	printf x; fflush(stdout)
+#define DPRINTF(x)	printf x; (void)fflush(stdout)
 
 #define FP	stdout
-#define EPRINTF(x)	fprintf x; fflush(FP)
+#define EPRINTF(x)	fprintf x; (void)fflush(FP)
 
 
 /*===========================================================================*
