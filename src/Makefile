@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.16 1999/12/04 02:20:08 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.17 1999/12/11 12:57:03 takayama Exp $
 all : all1 all3  all4 all-pari all-asir all2 all5 all6
 
 all1 :
@@ -42,7 +42,6 @@ clean :
 	(cd kxx ; make clean)
 	(cd Ti ; make clean)
 	(cd gnuplot-diff ; make clean )
-	(cd gnuplot ; make clean)
 	(cd phc ; make clean )
 	(cd k097 ; make clean )
 	(cd asir2000 ; make clean )
@@ -55,7 +54,6 @@ distclean :
 	(cd kxx ; make clean)
 	(cd Ti ; make clean)
 	(cd gnuplot-diff ; make clean )
-	(cd gnuplot ; make distclean )
 	(cd phc ; make clean )
 	(cd k097 ; make clean )
 	(cd asir2000 ; make clean )
