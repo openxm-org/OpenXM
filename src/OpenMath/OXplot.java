@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.2 2000/07/07 03:02:36 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.3 2000/07/10 06:48:06 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -150,9 +150,9 @@ public class OXplot extends OpenXMserver{
       argv[i] = (CMO)stack.pop();
     }
 
-    if(function_name.equals("CREATE") && argc==2){
+    if(function_name.equals("create") && argc==2){
       stack.push(CREATE(argv));
-    }else if(function_name.equals("PSET") && argc==4){
+    }else if(function_name.equals("pset") && argc==4){
       PSET(argv);
     }else{
       stack.push(new CMO_ERROR2(new CMO_NULL()));
