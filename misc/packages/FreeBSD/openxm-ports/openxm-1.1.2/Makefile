@@ -1,7 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.10 2000/03/04 11:03:35 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.11 2000/03/05 02:25:23 takayama Exp $
 
 ## For debugging. 
-#DISTDIR=$(HOME)/tmp
+#TAR_WORK=$(HOME)/tmp
+#DISTDIR=${TAR_WORK}
 
 ## OpenXM is put under  ${PREFIX}/OpenXM and ${PREFIX}/bin, man
 ## The default value of PREFIX is /usr/local

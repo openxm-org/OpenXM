@@ -1,14 +1,15 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.5 2000/03/04 04:32:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.6 2000/03/04 11:03:35 takayama Exp $
 
 ### NOTE for committers.
 ### How to generate openxm-1.1.2.tar.gz (the tar ball of source code)?
 ### How to generate openxm-port.tar.gz  (the tar ball of the port for openxm)?
 ###     make make-tar-ball
-### Then, the two tar balls are generated under $HOME/tmp
+### Then, the two tar balls are generated under ${TAR_WORK}.
+### The default is ${HOME}/tmp
 ###
-### How to test the port for openxm
-###     cd /usr/ports/math ; tar xzvf $HOME/tmp/openxm-port.tar.gz
-###     cp $HOME/tmp/openxm-1.1.2.tar.gz /usr/ports/distfiles
+### How to test the port for openxm  
+###     cd /usr/ports/math ; tar xzvf ${TAR_WORK}/openxm-port.tar.gz 
+###     cp ${TAR_WORK}/openxm-1.1.2.tar.gz /usr/ports/distfiles
 ###     cd /usr/ports/math/openxm ; make install
 ###     [Try also make package , pkg_delete openxm-1.1.2 , 
 ###      pkg_add openxm-1.1.2.tgz]
@@ -17,6 +18,8 @@
 OpenXM_TOP=$(HOME)
 # Modify this.  It's for committters.
 RCVS=mycvs -d kerberos.math.kobe-u.ac.jp:/usr/cvs
+#
+TAR_WORK=$(HOME)/tmp
 
 srcdir = .
 prefix=${PREFIX}
@@ -30,7 +33,7 @@ usage:
 	@echo "e.g., make install PREFIX=/usr/local"
 	@echo "For committers: make-tar-ball, make-tar-ball-from-local-OpenXM"
 	@echo "                generate-symbolic-links, clean-this-directory"
-	@echo " make-tar-ball : create openxm-1.1.2.tar.gz under ~/tmp"
+	@echo " make-tar-ball : create openxm-1.1.2.tar.gz under $TAR_WORK"
 
 configure :
 	(cd $(srcdir)/OpenXM/src ;	make configure )
@@ -59,18 +62,18 @@ make-tar-ball :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2
 	$(RCVS) export -rHEAD OpenXM OpenXM_contrib OpenXM_contrib2
 	rm -f *~
-	echo "Creating a tar ball under ~/tmp/"
-	(cd .. ; tar czf $(HOME)/tmp/openxm-1.1.2.tar.gz openxm-1.1.2)
+	echo "Creating a tar ball under $TAR_WORK"
+	(cd .. ; tar czf ${TAR_WORK}/openxm-1.1.2.tar.gz openxm-1.1.2)
 	rm -rf openxm
 	mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm
-	tar czf $(HOME)/tmp/openxm-port.tar.gz openxm
+	tar czf ${TAR_WORK}/openxm-port.tar.gz openxm
 
 make-tar-ball-for-openxm-port:
 	rm -rf openxm 
 	rm -rf OpenXM/misc/packages/FreeBSD
 	$(RCVS) export -rHEAD OpenXM/misc/packages/FreeBSD
 	mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm
-	tar czf $(HOME)/tmp/openxm-port.tar.gz openxm
+	tar czf ${TAR_WORK}/openxm-port.tar.gz openxm
 
 make-tar-ball-from-local-OpenXM :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2

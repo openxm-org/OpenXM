@@ -1,11 +1,14 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.1 2000/03/05 02:26:31 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.2 2000/03/05 02:29:51 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
-# the OpenXM package on various plathome.
+# the OpenXM package on various plathomes.
 
 ## For committers: prepare mycvs under your search path 
 ## to access to CVS servers.
 RCVS=mycvs -d kerberos.math.kobe-u.ac.jp:/usr/cvs
 TYPE=`uname -s`-`uname -m`
+
+## OpenXM Version Number.
+VERSION=1.1.2
 
 RELEASE=
 ## If you like to have a release name as a part of tar ball, then uncomment
@@ -63,5 +66,5 @@ make-binary-tar-ball-using-binary-FreeBSD :
 	(cd work/OpenXM/src ; make distclean )
 
 clean :
-	/bin/rm -rf .*_done
+	/bin/rm -rf .*_done *~
 	/bin/rm -rf work
