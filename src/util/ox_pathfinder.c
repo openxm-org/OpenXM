@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.7 2003/09/08 02:43:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.8 2003/11/16 07:14:11 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -893,11 +893,11 @@ char *getCppPath(void) {
 char *getCommandPath(char *cmdname)
 {
   char *path;
-  int ostype;
   char *msg;
   char *path2;
+  char *ss;
   int i,j;
-  ostype = getOStypei(); /* Todo: getCommandPath_win */
+  /* Use /cygdrive format always. */
   if (cmdname == NULL) return NULL;
   if (strlen(cmdname) < 1) {
 	errorPathFinder("getCommandPath: cmdname is an empty string.\n");
@@ -914,28 +914,39 @@ char *getCommandPath(char *cmdname)
 	return cmdname;
   }
 
-  path = getOpenXM_HOME();
+  path = getOpenXM_HOME();  /* It will return /cygdrive for windows. */
   if (path != NULL) {
-	path2 = (char *)mymalloc(strlen(path)+strlen(cmdname)+5);
+	path2 = (char *)mymalloc(strlen(path)+5);
 	strcpy(path2,path);
-	strcat(path2,"bin/");
-	strcat(path2,cmdname);
-	if (getFileSize(path2) >= 0) { /* Todo: isExecutableFile() */
-	  return path2;
-	}
+	strcat(path2,"bin");
+	ss = oxWhich(cmdname,path2);
+    if (ss != NULL) return ss;
   }
 
-  path = (char *)getenv("PATH");
+  path = (char *)getenv("PATH");  /* Todo: it will not give /cygdrive format*/
+  ss = oxWhich(cmdname,path);
+  if (ss == NULL) {
+	errorPathFinder("oxWhich_unix: could not find it in the path string.\n");
+  }
+  return ss;
+}
+
+char *oxWhich(char *cmdname,char *path) {
+  return(oxWhich_unix(cmdname,path));
+}
+
+char *oxWhich_unix(char *cmdname,char *path) {
+  char *path2;
+  int i,j;
   if (path == NULL) {
 	return NULL;
   }
 
-  path2 = (char *)mymalloc(strlen(path)+strlen(cmdname)+1);
-  for (i=0, j=0; i < strlen(path); i++) {
+  path2 = (char *)mymalloc(strlen(path)+strlen(cmdname)+2);
+  for (i=0, j=0; i <= strlen(path); i++) {
 	path2[j] = 0;
-	if (path[i] == ':') {
+	if ((path[i] == ':') || (path[i] == 0)) {
 	  strcat(path2,"/"); strcat(path2,cmdname);
-	  
 	  if (getFileSize(path2) >= 0) { /* Todo: isExecutableFile() */
 		return path2;
 	  }
@@ -944,7 +955,6 @@ char *getCommandPath(char *cmdname)
 	  path2[j] = path[i]; j++; path2[j] = 0;
 	}
   }
-  errorPathFinder("getCommandPath: could not find it in the PATH\n");
   return NULL;
 }
 

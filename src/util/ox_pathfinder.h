@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.5 2003/07/22 03:25:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.6 2003/11/16 07:14:11 takayama Exp $ */
 char **catArgv(char **argv1,char **argv2);
 char *getOStypes();
 char *getOpenXM_HOME();
@@ -15,3 +15,7 @@ int ox_pathfinderVerbose(int flag);
 char *generateTMPfileName(char *seed);
 char *getCppPath(void);
 char *getCommandPath(char *cmdname);
+char *oxWhich(char *cmdname,char *path);
+char *oxWhich_unix(char *cmdname,char *path);
+char *oxWhich_win(char *cmdname,char *path);
+int oxGetPidList(int *pids,int limit);
