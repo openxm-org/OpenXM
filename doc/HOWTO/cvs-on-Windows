@@ -1,18 +1,24 @@
-$OpenXM$
+$OpenXM: OpenXM/doc/HOWTO/cvs-on-Windows,v 1.1 2001/03/30 07:46:52 noro Exp $
 
 Windows 上で cvs を使う方法
 
 0. ファイルの入手
 
-http://bmrc.berkeley.edu/people/chaffee/winntutil.html から
+http://bmrc.berkeley.edu/people/chaffee/winntutil.html 
 
-ssh-1.2.14-win32bin.zip と cvs.exe を入手する.
+から cvs.exe を 入手する. また, 
+
+http://www.imasy.or.jp/~gotoh/ssh/
+
+から 
+
+openssh-2.1.1p4-w32-bin.zip と openssh-dll.zip を入手する. 
 
 1. SSH のインストール
 
-1.1 適当なディレクトリ(例えば c:\Program Files\cvs) で展開する.
+1.1 適当なディレクトリ(例えば c:\Program Files\ssh) で展開する.
     
-C:\Program Files\cvs> unzip ssh-1.2.14-win32bin.zip
+C:\Program Files\ssh> unzip ssh-1.2.14-win32bin.zip
 ...
 
 1.2 cvs.exe も 1.2 と同じディレクトリにいれておく. 
@@ -34,7 +40,7 @@ Windows9X 上の場合, autoexec.bat に書いて再起動
 
 HOME に ディレクトリ .ssh を作り, その中に, UNIX 上で使っている
 identity, identity.pub, random_seed を置く. (フロッピーなどで運ぶ)
-ssh-1.2.14-win32bin.zip 中の ssh-keygen は壊れているので使わない. 
+ssh-keygen は壊れている(らしい)ので使わない. 
 
 5. 使用法
 
@@ -48,4 +54,23 @@ ssh-1.2.14-win32bin.zip 中の ssh-keygen は壊れているので使わない.
 
 とすればよい. ssh-agent はないので, いちいち passphrase を聞かれる
 が我慢する.
+
+6. ssh-agent の使用
+
+cvs 実行時に毎回 passphrase を聞かれないようにするためには ssh-agent を
+使う. この場合, 環境変数
+
+SSH_AGENT_AUTH_PORT -> 22
+
+を set する. ssh-agent は手動で起動してもよいが, 例えば, start-ssh-agent.bat
+という名前で
+
+@echo off
+start ssh-agent -p %SSH_AGENT_AUTH_PORT%
+
+という内容のバッチファイルを用意して, スタートアップに追加しておけば, 
+コマンドプロンプトで ssh-add を実行して passphrase を一回入れるだけで, 
+そのセッション中には passphrase を聞かれなくなる. 
+
+
 
