@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.6 2001/01/05 11:14:29 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.7 2001/01/26 12:24:57 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -73,6 +73,16 @@ def asir_BfRoots3(G) {
    sm1(" G flatten {dehomogenize} map /G set ");
    ChangeRing(G);
    ss = asir_generic_bfct(asssssir,G,[x,y,z],[Dx,Dy,Dz],[1,1,1]);
+   bb = [ss];
+   sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
+   return([ans, bb]);
+}
+
+def asir_BfRoots4(G) {
+   local bb,ans,ss;
+   sm1(" G flatten {dehomogenize} map /G set ");
+   ChangeRing(G);
+   ss = asir_generic_bfct(asssssir,G,[x,y,z,vv],[Dx,Dy,Dz,Dvv],[0,0,0,1]);
    bb = [ss];
    sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
    return([ans, bb]);
@@ -231,4 +241,66 @@ def DeRham3WithAsir(f) {
    ];
 
 
+def diff_tmp(ff,xx) {
+  local g;
+  g = xx*ff;
+  return( Replace(g,[[xx,Poly("0")],[h,Poly("1")]]));
+}
 
+def Localize3WithAsir(I,f) {
+  local s;
+
+  sm1("0 set_timer "); sm1(" oxNoX ");
+  asssssir.OnTimer();
+  
+  RingD("x,y,z,vv");  
+  /* BUG: use of RingD("x,y,z,v") causes an expected error.
+    [x2,x3,x4,x4] in mygeneric_bfct.  (should be [x2,x3,x4,x5]).
+  */
+  f = ReParse(f);
+  I = ReParse(I);
+  /* Test data. */
+  /*
+  f = x^3-y^2*z^2;
+  I = [f^2*Dx-3*x^2, f^2*Dy-2*y*z^2, f^2*Dz-2*y^2*z];
+
+  f = x^3-y^2;
+  I = [f^2*Dx-diff_tmp(f,Dx), f^2*Dy-diff_tmp(f,Dy), Dz];
+  */
+
+  r1 = Dx-vv^2*diff_tmp(f,Dx)*Dvv;
+  r2 = Dy-vv^2*diff_tmp(f,Dy)*Dvv;
+  r3 = Dz-vv^2*diff_tmp(f,Dz)*Dvv;
+  II = ReParse(I);
+  sm1(" II { [[(Dx). r1] [(Dy). r2] [(Dz). r3]] replace } map dehomogenize /II set ");
+
+  Print("Step 1: phi(J)"); Println(II);
+  II = Join(II,[vv*f-1]);
+  Print("Step 2: <phi(J),vf-1>"); Println(II);
+
+  Println("Step3: computing the integral.");
+  sm1(" II  { [(x) (y) (z) (vv) (Dx) (Dy) (Dz) (Dvv)] laplace0 } map /JJ set ");
+  Sweyl("x,y,z,vv",[["vv",-1,"Dvv",1]]);
+  pp = Map(JJ,"Spoly");
+  R = asir_BfRoots4(pp);
+  Print("Roots and b-function are "); Println(R);
+
+  R0 = R[0];
+  k1 = R0[Length(R0)-1];
+  sm1(" [(parse) (intw.sm1) pushfile] extension /intw.verbose 1 def ");
+  sm1(" [II [(vv) (x) (y) (z)] [(vv) -1 (Dvv) 1] k1 (integer) dc] integral-k1 /Ans set ");
+
+  Println("Timing data: sm1 "); sm1(" 1 set_timer ");
+  Print("     ox_asir [CPU,GC]:  ");Println(asssssir.OffTimer());
+
+  Print("Answer is ");Println(Ans);
+  return(Ans);
+}
+
+
+def Ltest2() {
+  RingD("x,y,z");
+  f = x^3-y^2;
+  I = [f^2*Dx-diff_tmp(f,Dx), f^2*Dy-diff_tmp(f,Dy), Dz];
+  return( Localize3WithAsir(I,f) );
+}
