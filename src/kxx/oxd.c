@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.1 2002/10/20 13:13:35 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.2 2002/10/20 23:38:12 takayama Exp $
 */
 
 #include <stdio.h>
@@ -34,6 +34,7 @@ static void couldNotFind(char *s);
 #if defined(__CYGWIN__)
 int errno;
 #endif
+#define NOBODY 65534
 
 main(int argc, char *argv[]) {
   char sname[1024];
@@ -43,6 +44,7 @@ main(int argc, char *argv[]) {
   extern int Serial;
   int result;
   int fd;
+  int uid;
 
   strcpy(sname,"localhost");
   i = 1;
@@ -59,6 +61,14 @@ main(int argc, char *argv[]) {
     i++;
   }
 
+  uid = getuid();
+  if (uid == 0) {
+	/* If I'm a super user, then change uid to nobody. */
+	if (setuid(NOBODY) != 0) {
+	  oxdError("Failed to change uid to nobody (%d)\n",NOBODY);
+	}
+	fprintf(stderr,"uid is changed to nobody (%d).\n",NOBODY);
+  }
   
   if (LocalMode) {
     if (portControl != -1) {
