@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/src/kxx/openxxx.tex,v 1.4 1999/11/22 08:52:55 takayama Exp $
+%%  $OpenXM: OpenXM/src/kxx/openxxx.tex,v 1.5 2000/01/02 07:35:15 takayama Exp $
 /*&jp
 %\documentclass{jarticle}
 \documentstyle{jarticle}
@@ -139,13 +139,13 @@ CMO (Common Mathematical Object format) グループ Basic0 の Object は,
 (Common Mathematical Object) を形式的な方法をつかわず導入しよう.
 */
 /*&eg
-Objects in CMO (Common Mathematical Object format) Group Basic0 
+Objects in CMO (Common Mathematical Object format) group Basic0 
 are primitive data such as {\tt int}, {\tt string}.
 All OpenXM compliant systems should implement all data types
-in Group Basic0.
+in the group Basic0.
 In this section, as an introduction, we will introduce
-CMObject (Common Mathematical Object) of group Basic0 without formal
-method.
+CMObject (Common Mathematical Object) of the group Basic0 without 
+using the Backus-Nauer form.
 */
 /*&jp
 このグループの正式な名前は,
@@ -160,12 +160,14 @@ The canonical name of this group is
 CMObject/Basic0.
 In the sequel,
 {\tt int32} means the signed 32 bit integer expressed by two's complement
-(Most internal expressions of {\tt int} of the language C take this expression).
+(internal expressions of {\tt int} of the language C usually use 
+this expression).
 {\tt byte} means 8 bit data.
 */
 
 //&C  
 /*&jp
+CMObject の TCP/IP 用の実装では,
 CMO の object は \\
 \begin{tabular}{|c|c|}
 \hline
@@ -177,13 +179,14 @@ CMO の object は \\
 {\tt int32} で表現するものと規約する.
 */
 /*&eg
-CMO consists of a tag and a body: \\
+In our encoding of the CMO's for TCP/IP,
+any CMObject consists of a tag and a body: \\
 \begin{tabular}{|c|c|}
 \hline
 {\tt cmo\_tag}& {\tt cmo\_body} \\ 
 \hline
 \end{tabular} \\
-{\tt cmo\_tag} should be given a positive
+{\tt cmo\_tag} should be given by a positive
 {\tt int32}.
 */
 
@@ -224,12 +227,12 @@ However,
 {\tt CMO\_ERROR2}, {\tt CMO\_NULL},
 {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_MATHCAP}, {\tt CMO\_LIST}
 are primitive data and
-all servers and clients should implement them.
+all servers and clients have to implement them.
 */
 
 /*&C
 
-\noindent
+\medbreak \noindent
 */
 //&jp CMObject Error2 は \\
 //&eg CMObject Error2 is of the form \\
@@ -250,16 +253,17 @@ ob はリストであり,  TCP/IP によるストリーム型接続の場合,
 シリアル番号は Integer32 で表現する.
 */
 /*&eg
-It is an object when a server makes an error.
+It is an object used when a server makes an error.
 {\it CMObject} ob carries error informations.
-ob is a list and in case of the stream connection like TCP/IP 
-the first element must be the serial number of the OX message causes the error.
-The serial number is Integer32.
+The instance ob is a list and in case of a stream connection like TCP/IP 
+the first element must be the serial number of the OX message 
+that caused the error.
+The serial number is given by the data type Integer32.
 */
 
 /*&C
 
-\noindent
+\medbreak \noindent
 */
 
 //&jp CMObject Null は \\
@@ -281,7 +285,7 @@ The serial number is Integer32.
 */
 
 //&jp 32 bit integer n は CMObject としては Integer32 と呼ばれ, \\
-//&eg 32 bit integer n is called Integer32 as CMObject and has the format \\
+//&eg 32 bit integer n is called Integer32 as a CMObject and has the format \\
 /*&C
 \begin{tabular}{|c|c|}
 \hline
@@ -293,12 +297,12 @@ The serial number is Integer32.
 
 /*&C
 
-\noindent
+\medbreak \noindent
 */
 
 
 //&jp 長さ n の バイト列 data は CMObject としては, Datum 型とよばれ \\
-//&eg A byte array of the length n is called Datum as CMObject and has the format \\
+//&eg A byte array of the length n is called Datum as a CMObject and has the format \\
 /*&C
 \begin{tabular}{|c|c|c|c|}
 \hline
@@ -338,7 +342,7 @@ $\cdots$ & {\tt byte} {\rm data[n-1]} \\
 \noindent
 */
 //&jp CMObject Mathcap は \\
-//*eg CMObject Mathcap  has the format \\
+//&eg CMObject Mathcap  has the format \\
 /*&C
 \begin{tabular}{|c|c|}
 \hline
@@ -348,29 +352,32 @@ $\cdots$ & {\tt byte} {\rm data[n-1]} \\
 */
 /*&jp
 なる形で表現する.  
-{\tt ob} はリストであり少なくとも2つの要素をもつ.
+{\tt ob} はリストであり少なくとも3つの要素をもつ.
 0 番目の要素は, Integer32 で表した OpenXM protocol version number と,
 Cstring で表したシステム名, Server version, CPU type, その他の情報
 のリストである.
 1 番目の要素は, システム xxx が扱うことの可能な
-SM タグ, OX DATA タイプとその付加情報 (CMO タグなど)
-を, Integer32 で表現したものを集めたリストである.
+SM タグを, Integer32 で表現したものを集めたリストである.
+3 番目の要素は, システム xxx があつかうことの可能な
+データ形式をあつめたリストである.
+詳細は mathcap の節で説明する.
 */
 /*&eg
-ob is a list of which length is more than or equal to two.
+ob is a list of which length is more than or equal to three.
 The first element is a list of
 OpenXM protocol version number in Integer32,
 the server name in Cstring,
 the server version and CPU type in Cstring,
 and extra informations.
-The second element is a list of SM tags and OX data type tags with
-suplementary informations (e.g., a list of available CMO tags)
-in Integer 32.
+The second element is a list of SM tags in Integer 32.
+The third element is a list of data type tags which the server or the client
+can understand.
+The details will be explained in the section on mathcap.
 */
 
 /*&C
 
-\noindent
+\medbreak \noindent
 */
 //&jp 長さ m のリストは \\
 //&eg A list of the length m has the form \\
@@ -394,14 +401,16 @@ CMO のBasic0 の表現法を説明したが,
 ここでは, CMO の Lisp 風表現 (Lisp-like expression)
 である
 CMOexpression
-および CMO の標準 encoding 法を説明する.
+および前節で説明した CMO の標準 encoding 法をもう一度説明する.
 % (タグの省略記法がほしい.)
 */
 /*&eg
 In the previous setion, we have explained the format of CMO's in the
 Basic0 group.
 In this section, we will introduce CMOexpression which is like the 
-bracket expression of Lisp and a standard encoding method of CMO.
+bracket expression of Lisp. 
+We again explain a standard encoding method of CMO,
+which we have already explained in the previous section.
 */
 
 /*&jp
@@ -411,6 +420,8 @@ bracket expression of Lisp and a standard encoding method of CMO.
 ``:'' は定義を意味する. ``$|$'' は''または''を意味する.
 \{ X \} は X の 0 回以上の繰り返しを表す.
 [ x ] は X が 0 回または 1 回出現することを表す.
+この記法を用いると CMOexpression は次のように定義できる.
+
 */
 /*&eg
 
@@ -420,6 +431,7 @@ Symbols in the type writer fonts mean terminals.
 ``$|$'' means ''or''.
 \{ X \} is a repetition of X of more than or equal to 0 times.
 [ x ] stands for X or nothing.
+By using this notation, CMOexpression is defined as follows.
 
 */
 
@@ -499,7 +511,7 @@ CMObject の
 32 bit integer $n$ を表現しているんだということが, 1 行でわかる.
 */
 /*&eg
-(Example part has not yet been translated.)
+(This part has not yet been translated.)
 */
 /*&jp
 この記法を用いて, 前節で導入した, Basic0 の CMObject を
@@ -627,14 +639,31 @@ CMOexpression と, CMObject の区別を理解しておくのは重要である.
 "Hello"
 </CMO_STRING>
 \end{verbatim}
+*/
 
+/*&C
+
+*/
+
+/*&jp
 次に, 標準 encoding 法を説明しよう.
 標準 encoding 法では, cmo\_tag を ネットワークバイトオーダーの
 32 bit integer {\tt int32} に,
 その他のフィールドは, 定義に記述されているデータ型に従い,
 byte データ {\tt byte} かまたは 
 ネットワークバイトオーダーの 32 bit integer {\tt int32} に, 変換する.
+*/
+/*&eg
+Let us explain the standard encoding method.
+All {\tt int32} data are encoded into network byte order 32 bit integers
+and byte data are encoded as it is.
+*/
 
+/*&C
+
+*/
+
+/*&jp
 高速の通信方法を用いて
 効率を重視する接続の場合には, {\tt int32} を network byte order
 に変換する操作がおおきなオーバヘッドとなることが
@@ -643,12 +672,33 @@ byte データ {\tt byte} かまたは
 約 90\% の時間が network byte order への変換についやされているという
 実験データもある.
 効率を重視した encoding 法については後述する.
+*/
+/*&eg
+When we are using a high speed network,
+the translation from the internal expression of 32 bit integers to
+network byte order may become a bottle neck.
+There are experimental data which presents that 90 percents of the transmission
+time are
+for the translation to the network byte order to send {\tt CMO\_ZZ} of size
+12M bytes on a 100Mbps network.
+In a later section, we will discuss a protocol to avoid the translation.
+*/
 
+/*&C
 
-標準 encoding 法は全てのシステムが基礎として備えるべき変換法である.
+*/
+
+/*&jp
 標準 encoding と CMOexpression の間の変換は容易である.
 前節で用いたデータの表記法,
 たとえば, 
+*/
+/*&eg
+The translation between the standard encoding and CMOexpression
+is easy.
+For example,
+*/
+/*&C
 \begin{center}
 \begin{tabular}{|c|c|}
 \hline
@@ -656,16 +706,22 @@ byte データ {\tt byte} かまたは
 \hline
 \end{tabular} 
 \end{center}
+*/
+/*&jp
 は, CMOexpression 
+*/
+/*&eg
+is the encoding of the CMOexpression
+*/
+/*&C
 \begin{center}
 ({\tt CMO\_INT32}, 1234)
 \end{center}
+*/
+/*&jp
 の 標準 encoding 法による表現である.
+*/
 
-*/
-/*&eg
-(This part has not yet been translated.)
-*/
 
 //&jp \section{ Open XM の通信モデル}
 //&eg \section{ Communication model of Open XM}  (This part has not yet been translated)
@@ -1967,8 +2023,11 @@ Tree, Lambda $\in$ CMObject/Basic1. \\
 \end{eqnarray*}
 */
 
-/*&jp
+/*&C
 
+*/
+
+/*&jp
 数式を処理するシステムでは, Tree 構造が一般にもちいられる.
 たとえば, $\sin(x+e)$ は,
 {\tt (sin, (plus, x, e))}
@@ -1986,7 +2045,22 @@ Tree 構造は Open Math 風の表現をもちいた CMO を導入することにした.
 またこのほうが, われわれの想定するシステム xxx において, Open XM 対応が
 はるかに容易である.
 なお, Tree は, Open Math では, Symbol, Application のメカニズムに相当する.
+*/
+/*&eg
+In many computer algebra systems, mathematical expressions are usually
+expressed in terms of a tree structure.
+For example,
+$\sin(x+e)$ is expressed as
+{\tt (sin, (plus, x, e))}
+as a tree.
+We can   @@@
+*/
 
+
+/*&C
+
+*/
+/*&jp
 Lambda は関数を定義するための関数である.
 Lisp の Lambda 表現と同じ.
 
