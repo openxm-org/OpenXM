@@ -1,0 +1,213 @@
+/* -*- mode: C -*- */
+/* $OpenXM$ */
+/* beta-nbc-asir/sets */
+
+/* This program is a module treating a SET for Asir.  This module
+   identify a SET with a list.  Namely, it ignores the order of
+   elements in a list.
+ */
+
+load("gr")$
+
+/* compute (SupSet - Subset) */
+def sets_setMinus(SupSet, SubSet) {
+	LenSup = length(SupSet);
+	X = [];
+	for (I = 0; I < LenSup; I++) {
+		if (!sets_elementOfSet_p(SupSet[I], SubSet))
+			X = cons(SupSet[I], X);
+	}
+	return reverse(X);
+}
+
+/* Is given list sorted? */
+def sets_static_sortedList_p(List) {
+	Len = length(List);
+	for (I = 1; I < Len; I++) {
+		if (List[I-1] > List[I]) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+/* deleting unsorted sets */
+def sets_chooseSortedLists(Lists) {
+	Len = length(Lists);
+	SortedLists = [];
+	for (I = 0; I < Len; I++) {
+		if (sets_static_sortedList_p(Lists[I])) {
+			SortedLists = cons(Lists[I], SortedLists);
+		}
+	}
+	return SortedLists;
+}  
+
+def sets_getAllSortedLists(HSize) {
+	ASLists = [];
+	SLists = [ [] ];
+	for (I = 0; I < HSize; I++) {
+		SLists = sets_getSubOrders(SLists, HSize);
+		SLists = sets_chooseSortedLists(SLists);
+		ASLists = cons(SLists, ASLists);
+	}
+	return ASLists;
+}
+
+def sets_getSortedListsWithDepth(HSize, Depth) {
+	ASLists = [];
+	SLists = [ [] ];
+	for (I = 0; I < Depth; I++) {
+		SLists = sets_getSubOrders(SLists, HSize);
+		SLists = sets_chooseSortedLists(SLists);
+		ASLists = cons(SLists, ASLists);
+	}
+	return ASLists;
+}
+
+/* non-used */
+def sets_getIntersectables2(Rank, IGraph) {
+	Indep = getIndependentSets(IGraph);
+	return igRank(Indep, Rank);
+}
+
+def sets_getSortedLists(Rank, HSize) {
+	Lists = [ [] ];
+	for (I = 0; I < Rank; I++) {
+		Lists = sets_getSubOrders(Lists, HSize);
+		Lists = sets_chooseSortedLists(Lists);
+	}
+	return Lists;
+}  
+
+def sets_getSubOrders(SubOrders, HSize) {
+	Len = length(SubOrders);
+	X = [];
+	for (I=0; I<Len; I++) {
+		for (J=1; J<=HSize; J++) {
+			if (sets_elementOfSet_p(J, SubOrders[I]))
+				continue;
+			X = cons(cons(J, SubOrders[I]), X);
+		}
+	}
+	return X;
+}
+
+def sets_getOrders(HSize) {
+	Orders = [ [] ];
+	for (I=0; I<HSize; I++) {
+		Orders = sets_getSubOrders(Orders, HSize);
+	}
+	return sets_sort(Orders);
+}
+
+/* set ``Object'' to N-th element of given list. */
+def sets_listSetObject(List, Object, N) {
+	X = [];
+	Len = length(List);
+	for (I = 0; I < Len && I < N; I++) {
+		X = cons(List[I], X);
+	}
+	X = cons(Object, X);
+	for (I=N+1; I < Len; I++) {
+		X = cons(List[I], X);
+	}
+	return reverse(X);
+}
+
+/* delete N-th element of given list. */
+def sets_listDeleteNth(List, N) {
+	Len = length(List);
+	X = [];
+	for (I = 0; I < N; I++) {
+		X = cons(List[I], X);
+	}
+	for (I=N+1; I < Len; I++) {
+		X = cons(List[I], X);
+	}
+	return reverse(X);
+}
+
+/* Is ``Element'' included in ``Set''? */
+def sets_elementOfSet_p(Element, Set) {
+	Len = length(Set);
+	for (I = 0; I < Len; I++) {
+		if (Element == Set[I])
+			return 1;
+	}
+	return 0;
+}
+
+/* Is ``Set'' a proper subset of ``SupSet''? */
+def sets_properSubSet_p(Set, SupSet) {
+	return (sets_subset_p(Set, SupSet) && length(Set) < length(SupSet));
+}
+
+/* Is ``Set'' a subset of ``SupSet''? */
+def sets_subset_p(Set, SupSet) {
+	Len = length(Set);
+	for (I = 0; I < Len; I++) {
+		if (!sets_elementOfSet_p(Set[I], SupSet)) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+/* Is ``Set'' a subset of subset of ``SupSupSet''? */
+def sets_subset_of_subset_p(Set, SupSupSet) {
+	Len = length(SupSupSet);
+	for (I = 0; I < Len; I++) {
+		if (sets_subset_p(Set, SupSupSet[I])) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+/* This is a subfunction of ``sets_sort()''. */
+def sets_sortSub(SortedList, Object) {
+	X = [];
+	while ((L = car(SortedList)) != [] && L < Object) {
+		X = cons(L, X);
+		SortedList = cdr(SortedList);
+	}
+	X = cons(Object, X);
+	return append(reverse(X), SortedList);
+}
+
+/* This simple sorting function spends an O(n^2) time. */
+def sets_sort(List) {
+	Sorted = [];
+	while ((L = car(List)) != []) {
+		Sorted = sets_sortSub(Sorted, L);
+		List = cdr(List);
+	}
+	return Sorted;
+}
+
+/* compute the sign of a permutation ``append(SortedList, [Object])''. */
+def sets_static_signSub(SortedList, Object) {
+	X = [];
+	while ((L = car(SortedList)) != [] && L < Object) {
+		X = cons(L, X);
+		SortedList = cdr(SortedList);
+	}
+	X = cons(Object, X);
+	return [append(reverse(X), SortedList), length(SortedList)];
+}
+
+/* compute the sign of a permutation ``List'' */
+def sets_sign(List) {
+	Sorted = [];
+	Sign = 0;
+	while ((L = car(List)) != []) {
+		X = sets_static_signSub(Sorted, L);
+		Sorted = X[0];
+		Sign += X[1];
+		List = cdr(List);
+	}
+	return (Sign % 2) ? -1 : 1;
+}
+
+end$

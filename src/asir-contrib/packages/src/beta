@@ -1,0 +1,271 @@
+/* -*- mode: C -*- */
+/* $OpenXM$ */
+/* beta-nbc-asir/beta */
+
+/* This program compute beta nbc bases for twisted cohomology groups
+   with given arrangements.
+
+   First, you give an arrangement of hyperplanes as follows:
+
+   [1] Arr = [ [z-t, t, t-s, s, 1-s], [t,s] ];
+
+   The data structure of arrangements as follows:
+   [ (A list of linear forms), (A list of indeterminates) ].
+
+   Second, you can get its incidence graph as follows:
+
+   [2] IG = igraph_getIGraph(Arr);
+
+   Third, give a total order on the hyperplanes and you can get the
+   beta nbc for the incidence graph IG.
+
+   [3] Order = [1,2,3,4,5];
+   [4] B = beta_getBetaNbcSet(IG, Order);
+
+   Finally, you can get a basis of its twisted cohomology group.
+
+   [5] BF = beta_betaNbcSet2forms(B, IG, Order);
+ */
+
+/* These are samples of arrangemnts. */
+Arr1 = [ [z-t, t, t-s, s, 1-s], [t,s] ]$
+Arr2 = [ [z-u, u-t, t-s, 1-s, u, t, s], [u, t,s] ]$
+Arr3 = [ [z-t, z-s, 1-t, 1-s, t-s, t, s], [t,s] ]$
+Arr4 = [ [z-u, z-t, z-s, 1-u, 1-t, 1-s, u-t, t-s, u, t, s], [u, t,s] ]$
+Arr5 = [ [s, t, s+t-z], [t,s] ]$
+
+load("sets")$
+load("igraph")$
+
+#define hpPart(X) ((X)[0])
+
+/* extract the family of intersectable sets with rank=Rank from an
+incidence graph */
+def beta_igRank(IGraph, Rank) {
+  return (--Rank < 0) ? ([]) : reverse(IGraph)[Rank];
+}
+
+def beta_intersectable_p(Set, IGraph) {
+  Len = length(IGraph);
+  for (I = 0; I < Len; I++) {
+    if (sets_subset_of_subset_p(Set, IGraph[I])) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+def beta_getDepSets(IGraph) {
+  IGraph = reverse(IGraph);
+  ASL = cdr(reverse(sets_getAllSortedLists(length(car(IGraph)))));
+  DepSets = [];
+  while ((List = car(IGraph)) != [] && (SL = car(ASL)) != []) {
+    while ((L = car(SL)) != []) {
+      if (sets_subset_of_subset_p(L, List)) {
+        DepSets = cons(L, DepSets);
+      }
+      SL = cdr(SL);
+    }
+    IGraph = cdr(IGraph);
+    ASL = cdr(ASL);
+  }
+  return DepSets;
+}
+
+def beta_circuit1_p(Set, DepSets) {
+  Len = length(DepSets);
+  for (I = 0; I < Len; I++) {
+    if (sets_properSubSet_p(DepSets[I], Set)) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+def beta_getCircuits(IGraph) {
+  DepSets = beta_getDepSets(IGraph);
+  Len = length(DepSets);
+  Circuits = [];
+  for (I = 0; I < Len; I++) {
+    if (beta_circuit1_p(DepSets[I], DepSets)) {
+      Circuits = cons(DepSets[I], Circuits);
+    }
+  }
+  return Circuits;
+}
+
+/* non-used */
+def beta_getIntersectables(Dimension, IGraph) {
+  HSize = length(car(reverse(IGraph)));
+  X = sets_getSortedLists(Dimension, HSize);
+  Len = length(X);
+  Intersections = [];
+  for (I = 0; I < Len; I++) {
+    if (beta_intersectable_p(X[I], IGraph)) {
+      Intersections = cons(X[I], Intersections);
+    }
+  }
+  return Intersections;
+}  
+
+/* The following functions are used in computations of beta-nbc. */
+def beta_howSmallThisInOrder(This, Order) {
+  Len = length(Order);
+  for (I = 0; I < Len && Order[I] != This; I++)
+    ;
+  return I;
+}
+
+def beta_minimalCounterWithOrder(List, Order) {
+  Len = length(List);
+  PrevNum = length(Order) + 1; Prev = -1;
+  for (I = 0; I < Len; I++) {
+    if ((Tmp = beta_howSmallThisInOrder(List[I], Order)) < PrevNum) {
+      Prev = I;
+      PrevNum = Tmp;
+    }
+  }
+  return Prev;
+}
+
+def beta_listDeleteMinimalWithOrder(List, Order) {
+  N = beta_minimalCounterWithOrder(List, Order);
+  return sets_listDeleteNth(List, N);
+}
+
+/* the value is 1 when any elements of List are not contained in SupSet. */
+def beta_uncontained_p(List, SupSet) {
+  while ((Set = car(List)) != []) {
+    if (sets_subset_p(Set, SupSet)) {
+      return 0;
+    }
+    List = cdr(List);
+  }
+  return 1;
+}  
+
+def beta_number_of_planes(IGraph) {
+  return length(car(reverse(IGraph)));
+}
+
+def beta_rank_of_igraph(IGraph) {
+  return length(IGraph);
+}
+
+def beta_getNbcSet(IGraph, Order) {
+  Circuits = beta_getCircuits(IGraph);
+  /* Len = length(Circuits); */
+  BcSet = [];
+  while ((Cir = car(Circuits)) != []) {
+    BcSet = cons(beta_listDeleteMinimalWithOrder(Cir, Order), BcSet);
+    Circuits = cdr(Circuits);
+  }
+
+  /* BcSet = getBcSet(IGraph, Order); */
+  Family_of_maxrank = car(IGraph);
+  SL = sets_getSortedLists(beta_rank_of_igraph(IGraph), beta_number_of_planes(IGraph));
+  NbcSet = [];
+  while ((L = car(SL)) != []) {
+    if (sets_subset_of_subset_p(L, Family_of_maxrank) && beta_uncontained_p(BcSet, L)) {
+      NbcSet = cons(L, NbcSet);
+    }
+    SL = cdr(SL);
+  }
+  return NbcSet;
+}
+
+def beta_existLowerSetInListAtNth_p(Set, List, Order, N) {
+  Ind = Set[N];
+  while((Ind2 = car(Order)) != Ind) {
+    Set2 = sets_listSetObject(Set, Ind2, N);
+    if (sets_elementOfSet_p(sets_sort(Set2), List)) {
+      return 1;
+    }
+    Order = cdr(Order);
+  }
+  return 0;
+}
+
+def betaNbc_p(Nbc, NbcSet, Order) {
+  Len = length(Nbc);
+  for (I = 0; I < Len; I++) {
+    if (!beta_existLowerSetInListAtNth_p(Nbc, NbcSet, Order, I)) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+/* This is main module!! */
+def beta_getBetaNbcSet(IGraph, Order) {
+  NbcSet = beta_getNbcSet(IGraph, Order);
+  Len = length(NbcSet);
+  BetaNbcSet = [];
+  for (I = 0; I < Len; I++) {
+    if (betaNbc_p(NbcSet[I], NbcSet, Order)) {
+      BetaNbcSet = cons(NbcSet[I], BetaNbcSet);
+    }
+  }
+  return sets_sort(BetaNbcSet);
+}
+
+/* get the support for indepence set in the fixed arrangement. */
+def beta_getSupport(Independence, IGraph) {
+  IG2 = beta_igRank(IGraph, length(Independence));
+  Len = length(IG2);
+  for (I=0; I<Len; I++) {
+    if (sets_subset_p(Independence, IG2[I])) {
+      return IG2[I];
+    }
+  }
+  return [];
+}
+
+/* We construct the list which represent a log-form for given beta-nbc. */
+/* A ``list'' [[i,j],[k],[l]] means a 3-form (tau_i+tau_j)*tau_l*tau_l. */
+
+def beta_nbc2form(Nbc, IGraph, Order) {
+  /* translate a nbc to its log-form */
+  PrevSupport = [];
+  Snbc = [];
+  Form = [];
+  Order = reverse(Order);
+  Len = length(Order);
+  for (I=0; I<Len; I++) {
+    if (sets_elementOfSet_p(Order[I], Nbc)) {
+      Snbc = cons(Order[I], Snbc);
+      /* reduce the log-form */
+      Support = beta_getSupport(Snbc, IGraph);
+      Form = cons(sets_setMinus(Support, PrevSupport), Form);
+      PrevSupport = Support;
+    }
+  }
+  return Form;
+}
+
+def beta_betaNbcSet2forms(BetaNbcSet, IGraph, Order) {
+  Forms = [];
+  Len = length(BetaNbcSet);
+  for (I=0; I<Len; I++) {
+    Forms = cons(beta_nbc2form(BetaNbcSet[I], IGraph, Order), Forms);
+  }
+  return reverse(Forms);
+}
+
+def beta_listupBetaNbcs(Arrangement) {
+  IGraph = igraph_getIGraph(Arrangement);
+  HSize = length(hpPart(Arrangement));
+  Orders = sets_getOrders(HSize);
+  MaxNumOrders = length(Orders);
+  output("x")$
+  print(["Incidence Graph:", IGraph, "--- Circuits", beta_getCircuits(IGraph)]);
+  for (I = 0; I < MaxNumOrders; I++) {
+    Order = Orders[I];
+    BetaNbcSet = beta_getBetaNbcSet(IGraph, Order);
+
+    print(["Order:", Order, "---  Beta NBC:", BetaNbcSet]);
+  }
+  output()$
+}
+
+end$
