@@ -1,5 +1,5 @@
 /*  phc6.c ,  yama:1999/sm1-prog/phc6.c */
-/* $OpenXM: OpenXM/src/phc/phc6.c,v 1.3 2000/10/31 12:22:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/phc/phc6.c,v 1.4 2002/05/02 02:51:37 takayama Exp $ */
 /* This is a simple C interface to the black-box solver of phc.
 ** Requirements:
 **  1) executable version of phc will be searched in the following order:
@@ -251,15 +251,19 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
   double *imagparts;
   char buf[BUFSIZE];
   nsols = 0;
-  realparts = (double *)sGC_malloc(sizeof(double)*npaths*dim+1);
-  imagparts = (double *)sGC_malloc(sizeof(double)*npaths*dim+1);
+  realparts = (double *)sGC_malloc(sizeof(double)*(npaths*dim+1));
+  imagparts = (double *)sGC_malloc(sizeof(double)*(npaths*dim+1));
   while ((ch = fgetc(fp)) != EOF) 
     {
       fnd = phc_scan_for_string(fp,"start residual :");
       if (fnd==1)
         {
-          fscanf(fp,"%le",&res);
-          /* printf(" residual = "); printf("%E\n",res);  */
+		  fgets(buf,BUFSIZE-1,fp);
+          sscanf(buf,"%le",&res);
+		  if (phc_verbose) {
+             fprintf(stderr,"res in string: %s\n",buf);
+             fprintf(stderr," residual = "); fprintf(stderr,"%le\n",res);
+		  }
           if (res < 1.0E-12) {
             nsols = nsols+1;
             if (nsols > npaths) {
@@ -281,8 +285,8 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
                 {
                   /*realparts[nsols-1][i] = realpart;
                   imagparts[nsols-1][i] = imagpart;*/
-                  realparts[(nsols-1)*npaths+i] = realpart;
-                  imagparts[(nsols-1)*npaths+i] = imagpart;
+                  realparts[(nsols-1)*dim+i] = realpart;
+                  imagparts[(nsols-1)*dim+i] = imagpart;
                 }
             }
         }
@@ -291,7 +295,7 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
   rob = phc_newObjectArray(nsols);
   for (i=0;i<nsols;i++)
     {
-      /* fprintf(stderr,"Solution %i :\n",i+1); */
+      if (phc_verbose) fprintf(stderr,"Solution %i :\n",i+1);
       sob = phc_newObjectArray(dim);
       for (j=0;j<dim;j++)
         {
@@ -299,13 +303,14 @@ struct phc_object phc_scan_solutions(FILE *fp, int npaths, int dim )
             printf("%20.14le",realparts[i][j]); printf("  ");
             printf("%20.14le",imagparts[i][j]); printf("\n");
             */
-
-            printf("%20.14le",realparts[i*npaths+j]); printf("  ");
-            printf("%20.14le",imagparts[i*npaths+j]); printf("\n");
+		  if (phc_verbose) {
+            printf("%20.14le",realparts[i*dim+j]); printf("  ");
+            printf("%20.14le",imagparts[i*dim+j]); printf("\n");
+          }
 
           /*phc_putoa(sob,j,phc_complexTo(realparts[i][j],imagparts[i][j]));*/
-          phc_putoa(sob,j,phc_complexTo(realparts[i*npaths+j],
-                                        imagparts[i*npaths+j]));
+          phc_putoa(sob,j,phc_complexTo(realparts[i*dim+j],
+                                        imagparts[i*dim+j]));
         }
       phc_putoa(rob,i,sob);
     }
