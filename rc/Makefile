@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.24 2004/06/20 05:29:43 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.25 2004/06/20 07:55:28 takayama Exp $
 # make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
 prefix=/usr/local
 CC=gcc
@@ -86,7 +86,7 @@ clean-under-prefix:
 # Files in it are not necessary for the binary package. They are important.
 copy-free: all-global-shell-scripts
 	-mkdir ${prefix}
-	-(cd ../.. ; tar czf - --exclude-from OpenXM/rc/non-free-list --exclude OpenXM/misc --exclude OpenXM/rc --exclude OpenXM/src --exclude-from OpenXM/rc/junk-list OpenXM) | (cd ${prefix} ; tar xvzf -)
+	-(cd ../.. ; tar czf - --exclude-from OpenXM/rc/non-free-list --exclude OpenXM/misc --exclude OpenXM/src --exclude-from OpenXM/rc/junk-list OpenXM) | (cd ${prefix} ; tar xvzf -)
 # During installation OpenXM/bin/openxm must be overridden by global/openxm
 	install global/openxm ${prefix}/OpenXM/bin
 
