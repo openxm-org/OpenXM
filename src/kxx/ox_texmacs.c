@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.11 2004/03/03 09:44:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.12 2004/03/03 12:27:31 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -222,6 +222,7 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   int i;
   int m;
   int start;
+  struct object ob;
   if (limit == 0) {
     limit = 1024;
     s = (char *)sGC_malloc(limit);
@@ -286,6 +287,13 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     TM_Engine=K0; startEngine(TM_Engine,"k0");
     return NULL;
   }
+  if (strcmp(&(s[start]),"!reset;") == 0) {
+	printf("%s",DATA_BEGIN_V);
+    KSexecuteString(" ox.engine oxreset ox.engine oxpopcmo ");
+	ob = KSpop();
+	printf("%s",DATA_END); fflush(stdout);
+    return NULL;
+  }
 
   /* Set TM_do_no_print */
   if (s[n-1] == '$' && TM_Engine == ASIR) {
@@ -326,7 +334,8 @@ static void printp(char *s) {
 static void printCopyright(char *s) {
   printf("%s",DATA_BEGIN_V);
   printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
-  printf(" under the BSD licence.  !asir; !sm1; !k0; !verbatim;");
+  printf(" under the BSD licence.  !asir; !sm1; !k0; !verbatim;\n");
+  printf("Type in      !reset;     when the engine gets confused. ");
   printf("%s",s);
   printf("%s",DATA_END);
   fflush(NULL);
