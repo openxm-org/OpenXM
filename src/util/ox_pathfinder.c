@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.23 2004/03/03 08:39:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.24 2004/03/04 05:13:39 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -635,7 +635,13 @@ char **getServerEnv(char *oxServer) {
     argv[i] = oxlog; i++; argv[i] = NULL;
     if (!NoX) {
       argv[i] = oxterm ; i++; argv[i] = NULL;
-      argv[i] = oxtermOpt; i++; argv[i] = NULL;
+      if (((char *)getenv("OX_XTERM_GEOMETRY")) != NULL) {
+        /* ex. OX_XTERM_GEOMETRY=80x20+0+0 */
+    	argv[i] = "-geometry"; i++; argv[i] = NULL;
+		argv[i] = (char *) getenv("OX_XTERM_GEOMETRY"); i++; argv[i] = NULL;
+      }else{
+        argv[i] = oxtermOpt; i++; argv[i] = NULL;
+      }
 	  if (((char *)getenv("OX_XTERM_SCROLL")) != NULL) {
 		argv[i] = "-sb"; i++; argv[i] = NULL;
 		argv[i] = "-sl"; i++; argv[i] = NULL;
