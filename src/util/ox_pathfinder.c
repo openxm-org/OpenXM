@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.19 2004/02/28 13:39:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.20 2004/03/02 06:23:34 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -1135,8 +1135,10 @@ char *oxTermWhich_unix(int *typep) {
   s = oxWhich("oxterm",p); *typep = T_OXTERM;
   if (s != NULL) return s;
 
+/*  skip the search of rxvt  (temporary)
   s = oxWhich("rxvt",p); *typep = T_RXVT;
   if (s != NULL) return s;
+*/
 
   s = oxWhich("xterm",p); *typep = T_XTERM;
   if (s != NULL) return s;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.7 2004/03/02 09:10:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.8 2004/03/02 09:30:48 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -341,6 +341,7 @@ static int startEngine(int type,char *msg) {
     KSexecuteString(" oxasir.ccc (if(1) {  ctrl(\"message\",0);  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
     /* bug; if ctrl is written with Xm_helpdir = ... without oxpopcmo, then it does
        not work. */
+    KSexecuteString(" oxasir.ccc (print(\"----------- Messages from asir ------------------------------\")$ ) oxsubmit oxasir.ccc oxpopcmo ");
   }
   printf("%s",DATA_END);
   fflush(NULL);

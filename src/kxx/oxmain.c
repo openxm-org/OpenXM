@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.15 2004/02/23 09:03:43 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.16 2004/02/25 23:14:36 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -59,6 +59,7 @@ main(int argc, char *argv[]) {
   int sleepingTime = 0;
   extern int OxTerminateMode;
 
+  signal(SIGHUP,SIG_IGN);  /* ignore x of xterm */
   strcpy(sname,"localhost");
   strcpy(ServerName,SERVERNAME);
   i = 1;
