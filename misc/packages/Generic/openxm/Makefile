@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.11 2000/03/11 02:01:42 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.12 2000/03/11 05:44:15 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -134,7 +134,7 @@ clean-installed-openxm:
 fetch :
 	@if [ ! -f ./.fetch_done ]; then \
 		/bin/rm -rf work ; mkdir work ; mkdir ${WORK} ; \
-		( cd ${WORK} ; $(RCVS) export -r${TAG} OpenXM OpenXM_contrib OpenXM_contrib2) ; \
+		( cd ${WORK} ; ${RCVS} export -r${TAG} OpenXM OpenXM_contrib OpenXM_contrib2) ; \
 		cp Makefile ${WORK}/Makefile ; \
 	fi
 	@touch ./.fetch_done
@@ -166,7 +166,7 @@ shared-tar-ball : tar-ball-01
 	mkdir ${INSTALL_WORK} ${INSTALL_WORK}/bin ${INSTALL_WORK}/man 
 	mkdir ${INSTALL_WORK}/man/man1
 	(cd ${WORK} ; make install-shared-files PREFIX=${INSTALL_WORK})
-	(cd ${INSTALL_WORK} ; tar czf ${TAR_WORK}/OpenXM-shared-$(TYPE)$(RELEASE).tgz ${SHARED_FILES})
+	(cd ${INSTALL_WORK} ; tar czf ${TAR_WORK}/OpenXM-shared.tgz ${SHARED_FILES})
 
 
 clean-work :

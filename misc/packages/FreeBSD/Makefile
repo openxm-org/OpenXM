@@ -1,6 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.5 2000/03/11 02:45:53 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.6 2000/03/11 05:44:15 takayama Exp $
 VERSION=1.1.2
 TAG=HEAD
+
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 
 usage:
 	@echo "Targets:  "
@@ -22,7 +24,7 @@ update-plist :
 	(cd openxm-ports/openxm-${VERSION} ; make TAR_WORK=$(HOME)/tmp DISTDIR=$(HOME)/tmp PREFIX=$(HOME)/tmp2)
 	(cd openxm-ports/openxm-${VERSION}/files ; make ; ./gen-plist.shell)
 	(cd openxm-ports/openxm-${VERSION}/files ; cp plist-tmp2 ../pkg/PLIST)
-	(cd openxm-ports/openxm-${VERSION}/pkg ; rcvs commit -m 'Automatic update by update-plist' PLIST)
+	(cd openxm-ports/openxm-${VERSION}/pkg ; ${RCVS} commit -m 'Automatic update by update-plist' PLIST)
 
 
 make-tar-ball-for-openxm-port:

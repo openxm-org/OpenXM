@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.8 2000/03/11 02:52:37 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.9 2000/03/11 05:44:14 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -8,9 +8,10 @@ TAR_WORK=$(HOME)/tmp
 NAME=taka
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
-FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
+FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
 ## TAG for the CVS server.
 
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 
 # Modify below for priting.
 PS=a2ps-j
@@ -21,13 +22,16 @@ usage :
 	@echo "  clean "
 	@echo "  print "
 	@echo "Do not forget to put java and javac in your search path." 
+	@echo "Put your rcvs script by the name cvs-OpenXM under your search path."
+	@echo "   (See Generic/openxm/Makefile for details) "
 	@echo "1.  generate-tar-balls"
 	@echo "  (update-plist)"
 	@echo "2.  build-on-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
-	@echo "3.  build-on-pear"
+	@echo "3.  build-on-pear (do it as a super user)"
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
+	cvs-OpenXM hoge
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
@@ -53,7 +57,7 @@ generate-tar-balls:
 	(cd Linux/RPM ; make link-for-real-openxm)
 
 update-plist:
-	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} VERSION=${VERSION} update-plist )
+	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} RCVS=${RCVS} update-plist )
 
 build-on-orange:
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
