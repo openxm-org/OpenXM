@@ -1,333 +1,38 @@
-% $OpenXM: OpenXM/doc/Papers/dagb-noro.tex,v 1.3 2001/10/04 08:16:26 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dagb-noro.tex,v 1.4 2001/10/04 08:22:20 noro Exp $
 \setlength{\parskip}{10pt}
 
 \begin{slide}{}
 \begin{center}
-\fbox{\large Part I : Overview and history of Risa/Asir}
+\fbox{\large Part I : OpenXM and Risa/Asir --- overview and history}
 \end{center}
 \end{slide}
 
 \begin{slide}{}
-\fbox{A computer algebra system Risa/Asir}
-
-\begin{itemize}
-\item Old style software for polynomial computation
-
-\begin{itemize}
-\item Domain specification is not necessary prior to computation
-\item automatic conversion of inputs into internal canonical forms
-\end{itemize}
-
-\item User language with C-like syntax
-
-\begin{itemize}
-\item No type declaration of variables
-\item Builtin debugger for user programs
-\end{itemize}
-
-\item Open source
-
-\begin{itemize}
-\item Whole source tree is available via CVS
-\end{itemize}
-
-\item OpenXM ((Open message eXchange protocol for Mathematics) interface
-
-\begin{itemize}
-\item As a client : can call procedures on other OpenXM servers
-\item As a server : offers all its functionalities to OpenXM clients
-\item As a library : OpenXM functionality is available via subroutine calls
-\end{itemize}
-\end{itemize}
-\end{slide}
-
-\begin{slide}{}
-\fbox{Major functionalities}
-
-\begin{itemize}
-\item Fundamental polynomial arithmetics
-
-\begin{itemize}
-\item Internal form of a polynomial : recursive representaion or distributed
-representation
-\end{itemize}
-
-\item Polynomial factorization
-
-\begin{itemize}
-\item Univariate factorization over the rationals, algebraic number fields and various finite fields
-
-\item Multivariate factorization over the rationals
-\end{itemize}
-
-\item Groebner basis computation
-
-\begin{itemize}
-\item Buchberger and $F_4$ [Faug\'ere] algorithm
-
-\item Change of ordering/RUR [Rouillier] of 0-dimensional ideals
-
-\item Primary ideal decomposition
-
-\item Computation of $b$-function
-\end{itemize}
-
-\item PARI [PARI] library interface 
-
-\item Paralell distributed computation under OpenXM 
-\end{itemize}
-\end{slide}
-
-\begin{slide}{}
-\fbox{History of development : ---1994}
-
-\begin{itemize}
-\item --1989
-
-Several subroutines were developed for a Prolog program.
-
-\item 1989--1992
-
-\begin{itemize}
-\item Reconfigured as Risa/Asir with a parser and Boehm's conservative GC [Boehm]
-
-\item Developed univariate and multivariate factorizers over the rationals.
-\end{itemize}
-
-\item 1992--1994
-
-\begin{itemize}
-\item Started implementation of Buchberger algorithm
-
-Written in user language $\Rightarrow$ rewritten in C (by Murao)
-
-$\Rightarrow$ trace lifting [Traverso]
-
-\item Univariate factorization over algebraic number fields
-
-Intensive use of successive extension, non-squarefree norms
-\end{itemize}
-\end{itemize}
-
-\end{slide}
-
-\begin{slide}{}
-\fbox{History of development : 1994-1996}
-
-\begin{itemize}
-\item Free distribution of binary versions from Fujitsu
-
-\item Primary ideal decomposition
-
-\begin{itemize}
-\item Shimoyama-Yokoyama algorithm [SY]
-\end{itemize}
-
-\item Improvement of Buchberger algorithm
-
-\begin{itemize}
-\item Trace lifting+homogenization
-
-\item Omitting check by compatible prime
-
-\item Modular change of ordering, Modular RUR
-
-These are joint works with Yokoyama [NY]
-\end{itemize}
-\end{itemize}
-
-\end{slide}
-
-\begin{slide}{}
-\fbox{History of development : 1996-1998}
-
-\begin{itemize}
-\item Distributed compuatation
-
-\begin{itemize}
-\item A prototype of OpenXM
-\end{itemize}
-
-\item Improvement of Buchberger algorithm
-
-\begin{itemize}
-\item Content reduction during nomal form computation
-
-\item Its parallelization by the above facility
-
-\item Computation of odd order replicable functions [Noro]
-
-Risa/Asir : it took 5days to compute a DRL basis ({\it McKay})
-
-Faug\`ere FGb : computation of the DRL basis 53sec
-\end{itemize}
-
-
-\item Univariate factorization over large finite fields
-
-\begin{itemize}
-\item To implement Schoof-Elkies-Atkin algorithm 
-
-Counting rational points on elliptic curves
-
---- not free But related functions are freely available
-\end{itemize}
-\end{itemize}
-
-\end{slide}
-
-\begin{slide}{}
-\fbox{History of development : 1998-2000}
-\begin{itemize}
-\item OpenXM
-
-\begin{itemize}
-\item OpenXM specification was written by Noro and Takayama
-
-Borrowed idea on encoding, phrase book from OpenMath [OpenMath]
-
-\item Functions for distributed computation were rewritten
-\end{itemize}
-
-\item Risa/Asir on Windows
-
-\begin{itemize}
-\item Requirement from a company for which Noro worked
-
-Written in Visual C++
-\end{itemize}
-
-\item Test implementation of $F_4$
-
-\begin{itemize}
-\item Implemented according to [Faug\`ere]
-
-\item Over $GF(p)$ : pretty good
-
-\item Over the rationals : not so good except for {\it McKay}
-\end{itemize}
-\end{itemize}
-\end{slide}
-
-\begin{slide}{}
-\fbox{History of development : 2000-current}
-\begin{itemize}
-\item The source code is freely available
-
-\begin{itemize}
-\item Noro moved from Fujitsu to Kobe university
-
-Started Kobe branch [Risa/Asir]
-\end{itemize}
-
-\item OpenXM [OpenXM]
-
-\begin{itemize}
-\item Revising the specification : OX-RFC100, 101, (102)
-
-\item OX-RFC102 : communications between servers via MPI
-\end{itemize}
-
-\item Weyl algebra
-
-\begin{itemize}
-\item Buchberger algorithm [Takayama]
-
-\item $b$-function computation [Oaku]
-
-Minimal polynomial computation by modular method
-\end{itemize}
-\end{itemize}
-
-\end{slide}
-
-\begin{slide}{}
-\fbox{Status of each component --- Factorizer}
-
-\begin{itemize}
-\item 10 years ago
-
-its performace was fine compared with existing software
-like REDUCE, Mathematica.
-
-\item 4 years ago
-
-Univarate factorization over algebraic number fields was
-still fine because of some tricks on factoring polynomials
-derived from norms.
-
-\item Current
-
-Multivariate : not so bad
-
-Univariate : completely obsolete by M. van Hoeij's new algorithm
-[Hoeij]
-\end{itemize}
-
-\end{slide}
-
-\begin{slide}{}
-\fbox{Status of each component --- Groebner basis related functions}
-
-\begin{itemize}
-\item 8 years ago
-
-The performace was poor with only the sugar strategy.
-
-\item 7 years ago
-
-Rather fine with trace lifting but Faug\`ere's (old)Gb was more
-efficient.  
-
-Homogenization+trace lifting made it possible to compute
-wider range of Groebner bases.
-
-\item 4 years ago
-
-Modular RUR was comparable with Rouillier's implementation.
-
-\item Current
-
-FGb seems much more efficient than our $F_4$ implementation.
-
-Singular [Singular] is also several times
-faster than Risa/Asir, because Singular seems to have efficient
-monomial and polynomial representation.
-
-\end{itemize}
-\end{slide}
-
-\begin{slide}{}
-\fbox{OpenXM}
+\fbox{OpenXM (Open message eXchange protocol for Mathematics) }
 
 \begin{itemize}
 \item An environment for parallel distributed computation
 
 Both for interactive, non-interactive environment
 
-\item Message passing
+\item Client-server architecture
+
+Client $\Leftarrow$ OX (OpenXM) message $\Rightarrow$ Server
 
 OX (OpenXM) message : command and data
 
-\item Hybrid command execution
+\item Data
 
-\begin{itemize}
-\item Stack machine command
+Encoding : CMO (Common Mathematical Object format)
 
-push, pop, function execution, $\ldots$
+Serialized representation of mathematical object
 
-\item accepts its own command sequences
+--- Main idea was borrowed from OpenMath [OpenMath]
+\item Command
 
-{\tt execute\_string} --- easy to use
-\end{itemize}
+stack machine command --- server is a stackmachine
 
-\item Data is represented as CMO
-
-CMO (Common Mathematical Object format)
-
---- Serialized representation of mathematical object
-
-{\sl Integer32}, {\sl Cstring}, {\sl List}, {\sl ZZ}, $\ldots$
++ server's own command sequences --- hybrid server
 \end{itemize}
 \end{slide}
 
@@ -358,6 +63,222 @@ CMO (Common Mathematical Object format)
 
 \end{itemize}
 \end{slide}
+\begin{slide}{}
+\fbox{A computer algebra system Risa/Asir}
+
+\begin{itemize}
+\item Old style software for polynomial computation
+
+No domain specification, automatic expansion
+
+\item User language with C-like syntax
+
+C language without type declaration, with list processing
+
+\item Builtin {\tt gdb}-like debugger for user programs
+
+\item Open source
+
+Whole source tree is available via CVS
+
+\item OpenXM interface
+
+\begin{itemize}
+\item Risa/Asir is a main client in OpenXM package.
+\item An OpenXM server {\tt ox\_asir}
+\item An library with OpemXM library inteface {\tt libasir.a}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{Aim of developing Risa/Asir}
+
+\begin{itemize}
+\item Efficient implementation in specific area
+
+Polynomial factorization, Groebner basis related computation
+
+$\Rightarrow$ serves as an OpenXM server/library
+
+\item Front-end of a general purpose math software
+
+Risa/Asir contains PARI library [PARI] from the very beginning
+
+It also acts as a main client of OpenXM package
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{Capability for polynomial computation}
+
+\begin{itemize}
+\item Fundamental polynomial arithmetics
+
+recursive representaion and distributed representation
+
+\item Polynomial factorization
+
+\begin{itemize}
+\item Univariate : over {\bf Q}, algebraic number fields and finite fields
+
+\item Multivariate : over {\bf Q}
+\end{itemize}
+
+\item Groebner basis computation
+
+\begin{itemize}
+\item Buchberger and $F_4$ [Faug\'ere] algorithm
+
+\item Change of ordering/RUR [Rouillier] of 0-dimensional ideals
+
+\item Primary ideal decomposition
+
+\item Computation of $b$-function (in Weyl Algebra)
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{History of development : Polynomial factorization}
+
+\begin{itemize}
+\item 1989
+
+Start of Risa/Asir with Boehm's conservative GC [Boehm]
+
+\item 1989-1992
+
+Univariate and multivariate factorizers over {\bf Q}
+
+\item 1992-1994
+
+Univariate factorization over algebraic number fields
+
+Intensive use of successive extension, non-squarefree norms
+
+\item 1996-1998
+
+Univariate factorization over large finite fields
+
+\item 2000-current 
+
+Multivariate factorization over small finite fields (in progress)
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{History of development : Groebner basis}
+
+\begin{itemize}
+\item 1992-1994
+
+User language $\Rightarrow$ C version; trace lifting [Traverso]
+
+\item 1994-1996
+
+Trace lifting with homogenization
+
+Omitting GB check by compatible prime [NY]
+
+Modular change of ordering/RUR [NY]
+
+Primary ideal decompositon [SY]
+
+\item 1996-1998
+
+Effifcient content reduction during NF computation and its parallelization
+[Noro] (Solved {\it McKay} system for the first time)
+
+\item 1998-2000
+
+Test implementation of $F_4$
+
+\item 2000-current
+
+Buchberger algorithm in Weyl algebra [Takayama]
+
+Efficient $b$-function computation by a modular method
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{Performance --- Factorizer}
+
+\begin{itemize}
+\item 4 years ago
+
+Over {\bf Q} : fine compared with existing software
+like REDUCE, Mathematica, maple
+
+Univarate, over algebraic number fields :
+fine because of some tricks for polynomials
+derived from norms.
+
+\item Current
+
+Multivariate : not so bad
+
+Univariate : completely obsolete by M. van Hoeij's new algorithm
+[Hoeij]
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{Performance --- Groebner basis related computation}
+
+\begin{itemize}
+\item 7 years ago
+
+Trace lifting : rather fine but coefficient swells often occur
+
+Homogenization+trace lifting : robust and fast in the above cases
+
+\item 4 years ago
+
+Modular RUR was comparable with Rouillier's implementation.
+
+DRL basis of {\it McKay}: 
+
+5 days on Risa/Asir, 53 seconds on Faugere FGb
+\item Current
+
+$F_4$ in FGb : much more efficient than $F_4$ in Risa/Asir
+
+Buchberger in Singular [Singular] : faster than Risa/Asir
+
+$\Leftarrow$ efficient monomial and polynomial representation
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{How do we proceed?}
+
+\begin{itemize}
+\item Developing new OpenXM servers
+
+{ox\_NTL} for univariate factorization, 
+
+{ox\_FGb} for Groebner basis computation (is it possible?) etc.
+
+$\Rightarrow$ Risa/Asir can be a front-end of efficient servers
+
+\item Trying to improve our implementation
+
+Computation of $b$-function : still faster than any other system
+(Kan/sm1, Macaulay2) but not satisfactory
+
+$\Rightarrow$ Groebner basis computation in Weyl
+algebra should be improved
+\end{itemize}
+
+\begin{center}
+\underline{In both cases, OpenXM interface is important}
+\end{center}
+\end{slide}
 
 \begin{slide}{}
 \fbox{OpenXM server interface in Risa/Asir}
@@ -374,14 +295,19 @@ The launcher launches a server on the same host.
 
 \item Server
 
-A server reads from the descriptor 3, write to the descriptor 4.
+Reads from the descriptor 3
+
+Writes to the descriptor 4
 
 \end{itemize}
 
 \item Subroutine call
 
-Risa/Asir subroutine library provides interfaces corresponding to
-pushing and popping data and executing stack commands.
+In Risa/Asir subroutine library {\tt libasir.a}:
+
+OpenXM functionalities are implemented as functon calls
+
+pushing and popping data, executing stack commands etc.
 \end{itemize}
 \end{slide}
 
@@ -395,14 +321,17 @@ Pushing and popping data, sending commands etc.
 
 \item Convenient functions
 
-Launching servers, calling remote functions,
- interrupting remote executions etc.
+Launching servers,
 
-\item Parallel distributed computation is easy
+Calling remote functions,
+
+Resetting remote executions etc.
+
+\item Parallel distributed computation
 
 Simple parallelization is practically important
 
-Competitive computation is easily realized 
+Competitive computation is easily realized ($\Rightarrow$ demo)
 \end{itemize}
 \end{slide}
 
@@ -459,39 +388,6 @@ Competitive computation is easily realized
 %\end{itemize}
 %\end{itemize}
 %\end{slide}
-
-\begin{slide}{}
-\fbox{Executing functions on a server (I) --- {\tt SM\_executeFunction}}
-
-\begin{enumerate}
-\item (C $\rightarrow$ S) Arguments are sent in binary encoded form.
-\item (C $\rightarrow$ S) The number of aruments is sent as {\sl Integer32}.
-\item (C $\rightarrow$ S) A function name is sent as {\sl Cstring}.
-\item (C $\rightarrow$ S) A command {\tt SM\_executeFunction} is sent.
-\item The result is pushed to the stack.
-\item (C $\rightarrow$ S) A command {\tt SM\_popCMO} is sent.
-\item (S $\rightarrow$ C) The result is sent in binary encoded form.
-\end{enumerate}
-
-$\Rightarrow$ Communication is fast, but functions for binary data
-conversion are necessary.
-\end{slide}
-
-\begin{slide}{}
-\fbox{Executing functions on a server (II) --- {\tt SM\_executeString}}
-
-\begin{enumerate}
-\item (C $\rightarrow$ S) A character string represeting a request in a server's
-user language is sent as {\sl Cstring}.
-\item (C $\rightarrow$ S) A command {\tt SM\_executeString} is sent.
-\item The result is pushed to the stack.
-\item (C $\rightarrow$ S) A command {\tt SM\_popString} is sent.
-\item (S $\rightarrow$ C) The result is sent in readable form.
-\end{enumerate}
-
-$\Rightarrow$ Communication may be slow, but the client parser may be
-enough to read the result.
-\end{slide}
 
 \begin{slide}{}
 \fbox{Example of distributed computation --- $F_4$ vs. $Buchberger$ }
@@ -792,6 +688,201 @@ The knapsack factorization is available via {\tt pari(factor,{\it poly})}
 \end{itemize}
 \end{slide}
 
+\begin{slide}{}
+\fbox{Executing functions on a server (I) --- {\tt SM\_executeFunction}}
+
+\begin{enumerate}
+\item (C $\rightarrow$ S) Arguments are sent in binary encoded form.
+\item (C $\rightarrow$ S) The number of aruments is sent as {\sl Integer32}.
+\item (C $\rightarrow$ S) A function name is sent as {\sl Cstring}.
+\item (C $\rightarrow$ S) A command {\tt SM\_executeFunction} is sent.
+\item The result is pushed to the stack.
+\item (C $\rightarrow$ S) A command {\tt SM\_popCMO} is sent.
+\item (S $\rightarrow$ C) The result is sent in binary encoded form.
+\end{enumerate}
+
+$\Rightarrow$ Communication is fast, but functions for binary data
+conversion are necessary.
+\end{slide}
+
+\begin{slide}{}
+\fbox{Executing functions on a server (II) --- {\tt SM\_executeString}}
+
+\begin{enumerate}
+\item (C $\rightarrow$ S) A character string represeting a request in a server's
+user language is sent as {\sl Cstring}.
+\item (C $\rightarrow$ S) A command {\tt SM\_executeString} is sent.
+\item The result is pushed to the stack.
+\item (C $\rightarrow$ S) A command {\tt SM\_popString} is sent.
+\item (S $\rightarrow$ C) The result is sent in readable form.
+\end{enumerate}
+
+$\Rightarrow$ Communication may be slow, but the client parser may be
+enough to read the result.
+\end{slide}
+
+%\begin{slide}{}
+%\fbox{History of development : ---1994}
+%
+%\begin{itemize}
+%\item --1989
+%
+%Several subroutines were developed for a Prolog program.
+%
+%\item 1989--1992
+%
+%\begin{itemize}
+%\item Reconfigured as Risa/Asir with a parser and Boehm's conservative GC [Boehm]
+%
+%\item Developed univariate and multivariate factorizers over the rationals.
+%\end{itemize}
+%
+%\item 1992--1994
+%
+%\begin{itemize}
+%\item Started implementation of Buchberger algorithm
+%
+%Written in user language $\Rightarrow$ rewritten in C (by Murao)
+%
+%$\Rightarrow$ trace lifting [Traverso]
+%
+%\item Univariate factorization over algebraic number fields
+%
+%Intensive use of successive extension, non-squarefree norms
+%\end{itemize}
+%\end{itemize}
+%
+%\end{slide}
+%
+%\begin{slide}{}
+%\fbox{History of development : 1994-1996}
+%
+%\begin{itemize}
+%\item Free distribution of binary versions from Fujitsu
+%
+%\item Primary ideal decomposition
+%
+%\begin{itemize}
+%\item Shimoyama-Yokoyama algorithm [SY]
+%\end{itemize}
+%
+%\item Improvement of Buchberger algorithm
+%
+%\begin{itemize}
+%\item Trace lifting+homogenization
+%
+%\item Omitting check by compatible prime
+%
+%\item Modular change of ordering, Modular RUR
+%
+%These are joint works with Yokoyama [NY]
+%\end{itemize}
+%\end{itemize}
+%
+%\end{slide}
+%
+%\begin{slide}{}
+%\fbox{History of development : 1996-1998}
+%
+%\begin{itemize}
+%\item Distributed compuatation
+%
+%\begin{itemize}
+%\item A prototype of OpenXM
+%\end{itemize}
+%
+%\item Improvement of Buchberger algorithm
+%
+%\begin{itemize}
+%\item Content reduction during nomal form computation
+%
+%\item Its parallelization by the above facility
+%
+%\item Computation of odd order replicable functions [Noro]
+%
+%Risa/Asir : it took 5days to compute a DRL basis ({\it McKay})
+%
+%Faug\`ere FGb : computation of the DRL basis 53sec
+%\end{itemize}
+%
+%
+%\item Univariate factorization over large finite fields
+%
+%\begin{itemize}
+%\item To implement Schoof-Elkies-Atkin algorithm 
+%
+%Counting rational points on elliptic curves
+%
+%--- not free But related functions are freely available
+%\end{itemize}
+%\end{itemize}
+%
+%\end{slide}
+%
+%\begin{slide}{}
+%\fbox{History of development : 1998-2000}
+%\begin{itemize}
+%\item OpenXM
+%
+%\begin{itemize}
+%\item OpenXM specification was written by Noro and Takayama
+%
+%Borrowed idea on encoding, phrase book from OpenMath [OpenMath]
+%
+%\item Functions for distributed computation were rewritten
+%\end{itemize}
+%
+%\item Risa/Asir on Windows
+%
+%\begin{itemize}
+%\item Requirement from a company for which Noro worked
+%
+%Written in Visual C++
+%\end{itemize}
+%
+%\item Test implementation of $F_4$
+%
+%\begin{itemize}
+%\item Implemented according to [Faug\`ere]
+%
+%\item Over $GF(p)$ : pretty good
+%
+%\item Over the rationals : not so good except for {\it McKay}
+%\end{itemize}
+%\end{itemize}
+%\end{slide}
+%
+%\begin{slide}{}
+%\fbox{History of development : 2000-current}
+%\begin{itemize}
+%\item The source code is freely available
+%
+%\begin{itemize}
+%\item Noro moved from Fujitsu to Kobe university
+%
+%Started Kobe branch [Risa/Asir]
+%\end{itemize}
+%
+%\item OpenXM [OpenXM]
+%
+%\begin{itemize}
+%\item Revising the specification : OX-RFC100, 101, (102)
+%
+%\item OX-RFC102 : communications between servers via MPI
+%\end{itemize}
+%
+%\item Weyl algebra
+%
+%\begin{itemize}
+%\item Buchberger algorithm [Takayama]
+%
+%\item $b$-function computation [Oaku]
+%
+%Minimal polynomial computation by modular method
+%\end{itemize}
+%\end{itemize}
+%
+%\end{slide}
 \begin{slide}{}
 \end{slide}
 
