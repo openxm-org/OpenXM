@@ -1,7 +1,9 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.1.1.1 1999/11/27 11:25:18 takayama Exp $
-all : oxxm.texi oxxm-eg.texi oxmath.texi oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom.texi oxom-eg.texi
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.2 1999/12/10 01:58:02 takayama Exp $
+JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi
+EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi
+all : $(JPSRCS) $(EGSRCS)
 
-ASIRDOC=$(OpenXM_HOME)/src/asir-doc/doc
+ASIRDOC=$(OpenXM_HOME)/src/asir-doc
 ASIRLIB=$(OpenXM_HOME)/src/asir2000/lib
 CONTRIB=$(OpenXM_HOME)/src/asir-contrib/packages/src
 
@@ -53,5 +55,22 @@ oxom-eg.texi : $(CONTRIB)/om Makefile
 	/bin/rm -f oxom-eg.texi
 	oxweave C-texi eg-texi  <$(CONTRIB)/om >oxom-eg.texi
 
+help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
+	-rm -rf tmp help-eg
+	mkdir help-eg tmp
+	cp cman-eg.texi $(EGSRCS) tmp
+	-(cd tmp; makeinfo --force cman-eg.texi)
+	(cd help-eg; for i in ../tmp/asir-contrib*; do $(ASIRDOC)/extract_func $$i; done)
+
+help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
+	-rm -rf tmp help-jp
+	mkdir help-jp tmp
+	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp/$$i; done
+	-(cd tmp; makeinfo --force cman.texi)
+	(cd help-jp; for i in ../tmp/asir-contrib*; do $(ASIRDOC)/extract_func $$i; done)
+
+help: help-eg help-jp
+
 clean :
 	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi
+	/bin/rm -rf help-jp help-eg tmp
