@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.1 1999/11/29 12:09:58 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -11,8 +11,10 @@
 #include <unistd.h>
 #include <gmp.h>
 #include <mathlink.h>
+#include "oxtag.h"
 #include "ox.h"
 #include "parse.h"
+#include "mlo.h"
 #include "serv2.h"
 
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
