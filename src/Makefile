@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.115 2003/02/02 01:36:31 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.116 2003/03/06 10:36:03 ohara Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -38,7 +38,7 @@ all-asir: configure-asir
 all-gnuplot: configure-gnuplot
 	-(cd gnuplot ; make all)
 
-all-k097: configure-k097 all-kan96xx
+all-k097: configure-k097 all-kan96xx all-kxx
 	(cd k097 ; make all)
 
 all-kan96xx: configure-kan96xx install-gc install-gmp
