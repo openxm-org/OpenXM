@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.10 2003/04/19 15:44:58 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.11 2003/04/20 08:01:28 noro Exp $
 \BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
@@ -588,6 +588,9 @@ xyz123gahaha
 用の場合 @code{"w"}, 末尾追加の場合 @code{"a"} など.
 成功した場合, ファイル識別子として非負整数を返す. 失敗の場合エラーとなる. 
 不要になったファイルは @code{close_file()} でクローズする. 
+特別なファイル名 unix://stdin, unix://stdout, unix://stderr を与えると
+それぞれ標準入力, 標準出力, 標準エラー出力をオープンする.
+この場合モード指定は無視される.
 @item @code{get_line()} は現在オープンしているファイルから 1 行読み, 
 文字列として返す. 引数がない場合, 標準入力から 1 行読む.
 @item @code{get_byte()} は現在オープンしているファイルから 1 バイト読み
@@ -615,6 +618,10 @@ The stream pointer is set at the end of the file.
 If successful, it returns a non-negative integer as the file descriptor.
 Otherwise the system error function is called.
 Unnecessary files should be closed by @code{close_file()}.
+If the special file name unix://stdin or unix://stdout or unix://stderr
+is given, it returns the file descriptor for the standard input or
+the standard output or the standard error stream respectively.
+The mode argument is ignored in this case.
 @item @code{get_line()} reads a line from an opened file and returns the
 line as a string. If no argument is supplied, it reads a line from the
 standard input.
