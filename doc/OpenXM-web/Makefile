@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.24 2000/09/09 18:24:02 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.25 2000/09/10 18:21:51 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -43,7 +43,7 @@ copy-html-poster:
 	mkdir $(WEBKOBE1)/html/OpenXM-poster
 	/bin/rm -rf tmp-poster
 	mkdir tmp-poster
-	-ln -s ../calc2000 .
+	cp ../calc2000/katsura7.ps tmp-poster
 	cp $(OpenXM_calc)/rgb.sty tmp-poster
 	cp $(OpenXM_calc)/3k.ps tmp-poster
 	cp $(OpenXM_calc)/func1.tex tmp-poster
