@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.20 2000/03/04 11:03:37 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.21 2000/03/06 14:58:01 takayama Exp $
 
 ## Type in make configure and make all to build all
 OpenXM_contrib=../../../OpenXM_contrib
@@ -68,9 +68,11 @@ configure_symbolic_links :
 dist :
 	./makeDist
 ###############
-install : install-openXM-bin install-document install.man
+install : install-openXM-bin install-doc install-man
 
-install.man :
+install.man: install-man  #aliases
+
+install-man :  
 	@if [ ! -d $(OpenXM_ROOT)/man ]; then  \
 	   mkdir $(OpenXM_ROOT)/man ; \
 	fi
@@ -115,8 +117,10 @@ install-openXM-bin : clean-for-debug
 install-for-debug :
 	ln -f -s ../src/kan96xx/Kan/sm1 $(OpenXM_bin)/sm1
 
-install-document : 
-	(cd Doc ; make install-document)
+install-doc:  install-document
+
+install-document :   #alias
+	-(cd Doc ; make install-document)
 
 ##############
 clean-for-debug :
