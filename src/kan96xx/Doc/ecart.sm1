@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.17 2003/09/20 22:10:04 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.18 2003/09/30 00:06:56 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -233,7 +233,7 @@
   (       No automatic homogenization.)
   $  [(degreeShift) ds (noAutoHomogenize) 1 (sugar) 1] -->use the sugar strate $
   (  )
-  $cf. ecarth.gb (homogenized),  ecartd.gb (dehomogenize) $
+  $cf. ecarth.gb (homogenized),  ecartd.gb (dehomogenize), ecartd.reduction $
   ( )
   $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) ( x y Dx Dy -1)] (x,y) $
   $             [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
@@ -1559,6 +1559,112 @@
 } def
 
 %% end of for ecart.define_ring
+
+/ecartd.reduction {
+  /arg2 set
+  /arg1 set
+  [/in-ecartd.reduction /gbasis /flist /ans /gbasis2] pushVariables
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+     /gbasis arg2  def
+     /flist  arg1  def
+     gbasis 0 get tag 6 eq { }
+     { (ecartd.reduction: the second argument must be a list of lists) error }
+     ifelse
+
+     gbasis length 1 eq {
+       gbasis getRing ring_def
+       /gbasis2 gbasis 0 get def
+     } {
+       [ [(1)] ] gbasis rest join ecartd.gb 0 get getRing ring_def
+       /gbasis2 gbasis 0 get ,,, def
+     } ifelse
+     ecartd.begin
+
+     flist ,,, /flist set
+     flist tag 6 eq {
+       flist { gbasis2 reduction } map /ans set
+     }{
+       flist gbasis2 reduction /ans set
+     } ifelse
+     /arg1 ans def
+
+     ecartd.end
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+/ecartd.reduction.test {
+  [
+    [( 2*(1-x-y) Dx + 1 ) ( 2*(1-x-y) Dy + 1 )]
+    (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]]
+  ecartd.gb /gg set
+
+  (Dx) [gg 0 get] ecartd.reduction /gg2 set
+  gg2 message
+  (-----------------------------) message
+
+  [(Dx) (Dy) (Dx+x*Dy)] [gg 0 get] ecartd.reduction /gg3 set
+  gg3 message
+
+  (-----------------------------) message
+    [[( 2*(1-x-y) Dx + h ) ( 2*(1-x-y) Dy + h )]
+      (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set
+   (Dx) ggg ecartd.reduction /gg4 set
+   gg4 message
+  [gg2  gg3 gg4]
+} def
+
+/ecarth.reduction {
+  /arg2 set
+  /arg1 set
+  [/in-ecarth.reduction /gbasis /flist /ans /gbasis2] pushVariables
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+     /gbasis arg2  def
+     /flist  arg1  def
+     gbasis 0 get tag 6 eq { }
+     { (ecarth.reduction: the second argument must be a list of lists) error }
+     ifelse
+
+     gbasis length 1 eq {
+       gbasis getRing ring_def
+       /gbasis2 gbasis 0 get def
+     } {
+       [ [(1)] ] gbasis rest join ecarth.gb 0 get getRing ring_def
+       /gbasis2 gbasis 0 get ,,, def
+     } ifelse
+     ecarth.begin
+
+     flist ,,, /flist set
+     flist tag 6 eq {
+       flist { gbasis2 reduction } map /ans set
+     }{
+       flist gbasis2 reduction /ans set
+     } ifelse
+     /arg1 ans def
+
+     ecarth.end
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+[(ecartd.reduction)
+[ (f basis ecartd.reduction r)
+  (f is reduced by basis by the tangent cone algorithm.)
+  (r is the return value format of reduction.)
+  (basis is the argument format of ecartd.gb.)
+  (The first element of basis must be a standard basis.)
+  (cf. reduction, ecartd.gb, ecartd.reduction.test )
+  $Example:$
+  $ [[( 2*(1-x-y) Dx + h ) ( 2*(1-x-y) Dy + h )] $
+  $   (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set $
+  $ (Dx+Dy) ggg ecartd.reduction :: $
+]] putUsages
 
 
 ( ) message-quiet 
