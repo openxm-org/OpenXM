@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.26 2003/09/08 01:34:27 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.27 2003/11/20 11:41:44 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -108,6 +108,8 @@ testclient2 : testclient2.o ${Kan96xx}/Kan/kanlib.a ox.a
 	${CC} ${CFLAGS} -I${Kan96xx}/Kan testclient2.c -o testclient2  ${LIBS} ${KANLIB}
 testclient2.o: testclient.c ox_kan.h
 
+ox_texmacs: ox_texmacs.o ${Kan96xx}/Kan/kanlib.a
+	${CC}  ${STATIC_LINK_FLAG} ${CFLAGS} ox_texmacs.o -o ox_texmacs  ${LIBS} ${KANLIB}
 
 clean-done: 
 	-${RM} -f .configure_done
