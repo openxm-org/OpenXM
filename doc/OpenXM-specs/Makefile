@@ -1,13 +1,15 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.9 2000/11/30 02:41:36 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.10 2003/03/25 11:22:17 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
 DVIPS=dvips -f
 RSYNC=rsync -Cavz
 CURRENT=/home/web/OpenXM/Current
+NKF=nkf -e
 
 OXWEAVE=../../src/kxx/oxweave
 OXWEAVEFLAG=--recursive --plain
+OXREPLACE=../../src/util/oxreplace
 SRC= OpenXM.tex cmo-basic0.tex cmo-basic1.tex\
 cmo-register.tex communication-model.tex control.tex\
 error.tex formal-expression.tex howtowrite.tex\
@@ -30,7 +32,7 @@ OpenXM-en.dvi: $(OXWEAVE) $(SRC)
 OpenXM-ja.dvi: $(OXWEAVE) $(SRC)
 	-rm -rf tmpJA
 	-mkdir tmpJA
-	-for i in $(SRC); do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i >tmpJA/$$i; done
+	-for i in $(SRC); do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i | ${NKF} >tmpJA/$$i; done
 	-(cd tmpJA; ln -s ../reset.eps .; platex OpenXM; platex OpenXM)
 	-mv tmpJA/OpenXM.dvi OpenXM-ja.dvi
 	touch OpenXM-ja.dvi
@@ -46,7 +48,7 @@ OX-RFC-101-en.dvi: $(OXWEAVE) $(SRC101)
 OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 	-rm -rf tmp101JA
 	-mkdir tmp101JA
-	-for i in $(SRC101); do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i | nkf -e >tmp101JA/$$i; done
+	-for i in $(SRC101); do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i | ${NKF} >tmp101JA/$$i; done
 	-(cd tmp101JA;  platex OX-RFC-101; platex OX-RFC-101)
 	-mv tmp101JA/OX-RFC-101.dvi OX-RFC-101-ja.dvi
 	touch OX-RFC-101-ja.dvi
@@ -58,6 +60,7 @@ all-html: doc .all-html-100-en.done .all-html-101-en.done
 	if test ! -f .all-html-100-ja.done ; \
 	then \
 		(cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM) ; \
+		(cd tmpJA/OpenXM; ../../${OXREPLACE} --old iso-8859-1 --new iso-2022-jp *.html) ; \
 		touch .all-html-100-ja.done ; \
 	fi
 	if test ! -f .all-html-100-en.done ; \
@@ -68,6 +71,7 @@ all-html: doc .all-html-100-en.done .all-html-101-en.done
 	if test ! -f .all-html-101-ja.done ; \
 	then \
 		(cd tmp101JA; platex OX-RFC-101; platex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
+		(cd tmp101JA/OX-RFC-101; ../../${OXREPLACE} --old iso-8859-1 --new iso-2022-jp *.html) ; \
 		touch .all-html-101-ja.done ; \
 	fi
 	if test ! -f .all-html-101-en.done ; \
