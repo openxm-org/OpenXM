@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/dsolv,v 1.1 2000/02/03 13:47:27 takayama Exp $ */
 /* dsolv */
 
 def dsolv_consw(V,W) {
@@ -37,9 +37,72 @@ def dsolv_initial(S) {
 }
 
 def test() {
-  F = sm1_appell1([1/2,1,1,1/3]);
+  Mu = 2; Beta=1/2;
+  F = sm1_appell1([Mu+Beta,Mu+1,Beta,Beta]);
   A = dsolv_initial(append(F, [ [1,3] ]));
   return(A);
 }
+
+def dsolv_normal_vec(F,G,Std,V) {
+  Dp_f = dp_ptod(F,V);
+  Dp_g =map(dp_ptod,G,V);
+  Dp_std = map(dp_ptod,Std,V);
+  return(dsolv_dp_normal_vec(Dp_f,Dp_g,Dp_std));
+}
+
+def dsolv_dp_normal_vec(F,G,Std) {
+  Index = [ ];
+  for (I=0; I<length(G); I++) {
+    Index = append(Index,[I]);
+  }
+  Vec_g = newvect(length(G),G);
+  FF = dp_true_nf(Index,F,Vec_g,1);
+  FN = FF[0]; FD = FF[1]; 
+  A = newvect(length(Std));
+  print(FN);
+  while (FN != 0) {
+    H = dp_hm(FN);
+    FN = FN - H;
+    I = dsolv_where(dp_ht(H),Std);
+    if (I < 0) error("dsolv_dp_normal_vec: index is out of bound for Std");
+    A[I] = dp_hc(H)/FD;
+  }
+  return(A);
+}
+
+def dsolv_where(M,Std) {
+  M2 = dp_ht(M);
+  for (I=0; I<length(Std); I++) {
+    if (M2 == Std[I]) return(I);
+  }
+  return(-1);
+}
+
+def dsolv_companion_matrix(F,V,K) {
+  G = gr(F,V,0);
+  Dp_g = map(dp_ptod,G,V);
+  Dp_std = dp_mbase(Dp_g);
+  Std = map(dp_dtop,Dp_std,V);
+  Ans = [ ];
+  for (I=0; I<length(Std); I++) {
+    Vec = dsolv_normal_vec(Std[I]*V[K],G,Std,V);
+    print(Vec);
+    Ans = append(Ans, [ vtol(Vec) ]);
+  }
+  return(newmat(length(Ans),length(Ans),Ans));
+}
+/* dsolv_companion_matrix([x^2+y^2-4,x*y-1],[x,y],0);
+*/
+
+def dsolv_dual_d(F,V,D) {
+  G = gr(F,V,0);
+  Dp_g = map(dp_ptod,G,V);
+  Dp_std = dp_mbase(Dp_g);
+  Std = map(dp_dtop,Dp_std,V);
+
+  
+
+}
+
 
 end$
