@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.1 1999/12/15 05:21:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.2 1999/12/15 07:51:20 takayama Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include "ox.h"
+#include "parse.h"
 
 ox_file_t sv;
 
@@ -30,13 +31,20 @@ int dumpx(int fd, int n)
     return len;
 }
 
+#define SIZE_CMDLINE  8192
+
+static int  size = SIZE_CMDLINE;
+static char cmdline[SIZE_CMDLINE];
+
+static int prompt()
+{
+    fprintf(stdout, "> ");
+    fgets(cmdline, size, stdin);
+    init_parser(cmdline);
+}
+
 #define VERSION 0x11121500
 #define ID_STRING  "testclient version 0.11121500"
-
-int prompt()
-{
-    printf("> ");
-}
 
 int test_0()
 {
@@ -80,7 +88,7 @@ int test_1()
   testclient
   >(OX_DATA,(CMO_INT32,123))
   >(OX_COMMAND,(SM_popCMO))
-  */
+ */
 
 int main(int argc, char* argv[])
 {
@@ -104,6 +112,8 @@ int main(int argc, char* argv[])
     if (strcmp(server, "ox_math")==0) {
         test_1();
     }
+
+    setflag_parse(PFLAG_ADDREV);
 
     while(prompt(), (m = parse()) != NULL) {
         send_ox(sv->stream, m);

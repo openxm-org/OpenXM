@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
 
 /* OX expression, CMO expression パーサ */
 
@@ -92,6 +92,17 @@ static int parse_error(char *s)
     longjmp(env_parse, 1);
 }
 
+int setflag_parse(int flag)
+{
+    pflag_cmo_addrev = flag;
+}
+
+int init_parser(char *s)
+{
+	setflag_parse(PFLAG_ADDREV);
+	setmode_mygetc(s);
+}
+
 /* この部分は書き換え予定. */
 cmo *parse()
 {
@@ -114,7 +125,7 @@ cmo *parse()
         }else {
             parse_error("invalid symbol.");
         }
-        parse_lf();
+/*      parse_lf(); */
         return m;
     }
     return NULL;
@@ -536,16 +547,27 @@ static cmo *parse_cmo_error2()
 static int c = ' ';    
 
 /* 一文字読み込む関数 */
-static int (*GETC)() = getchar;
-
-int setgetc(int (*foo)())
+static char *mygetc_ptr;
+static int mygetc()
 {
-    GETC = foo;
+	return *mygetc_ptr++;
 }
 
-int resetgetc()
+int setmode_mygetc(char *s)
 {
-    GETC = getchar;
+    mygetc_ptr=s;
+}
+
+static int (*GETC)() = mygetc;
+
+/* 一文字読み込む関数の選択 (ex. setgetc(getchar); ) */
+int setgetc(int (*foo)())
+{
+	if (foo == NULL) {
+		GETC = mygetc;
+	}else {	
+		GETC = foo;
+	}
 }
 
 #define SIZE_BUFFER  8192
@@ -741,37 +763,4 @@ int lex()
 
     c = GETC();
     return 0;
-}
-
-/* 一文字読み込む関数 */
-static char *mygetc_line;
-static int  mygetc_counter;
-static int  mygetc_counter_max;
-static int  mygetc_nonlf_flag;
-
-int mygetc()
-{
-    int c = '\0';
-
-    if (mygetc_nonlf_flag && mygetc_counter <= mygetc_counter_max) {
-        c = mygetc_line[mygetc_counter++];
-        if (c == '\0') {
-            c = '\n';
-            mygetc_nonlf_flag = 0;
-        }
-    }
-    return c;
-}
-
-int setmode_mygetc(char *s, int len)
-{
-    mygetc_nonlf_flag=1;
-    mygetc_counter=0;
-    mygetc_counter_max=len;
-    mygetc_line=s;
-}
-
-int setflag_parse(int flag)
-{
-    pflag_cmo_addrev = flag;
 }

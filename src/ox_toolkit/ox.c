@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.4 1999/12/15 05:57:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.5 1999/12/16 06:58:01 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -825,7 +825,7 @@ ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 				  "-host", host, NULL);
 		}else {
 			dup2(2, 1);
-			dup2(open(mkstemp(LOGFILE), O_RDWR|O_CREAT|O_TRUNC, 0644),  2);
+			dup2(open(tempnam("/tmp", "ox."), O_RDWR|O_CREAT|O_TRUNC, 0644),  2);
 			execl(ctl_prog, ctl_prog, "-reverse", "-ox", dat_prog,
 				  "-data", dat, "-control", ctl, "-pass", pass,
 				  "-host", host, NULL);
@@ -1333,11 +1333,9 @@ static cmo_list* make_list_of_id(int ver, char* ver_s, char* sysname)
     cmo_list *cap;
     char buff[512];
 
-    setgetc(mygetc);
     sprintf(buff, ID_TEMP, ver, sysname, ver_s, getenv("HOSTTYPE"));
-    setmode_mygetc(buff, 512);
+    init_parser(buff);
     cap = (cmo_list *)parse();
-    resetgetc();
 
     return cap;
 }

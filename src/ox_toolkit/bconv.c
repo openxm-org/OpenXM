@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.1 1999/12/15 05:21:25 ohara Exp $ */
 
 /* bconv can convert an OX expression or a CMO expression to a byte stream. */
 /* Any expressions, as a string, must have shorter length than 8192.*/
@@ -49,14 +49,13 @@ static int display(ox *m)
 
 #define SIZE_CMDLINE  8192
 
-static int  size = SIZE_CMDLINE;
 static char cmdline[SIZE_CMDLINE];
 
 static int prompt()
 {
     fprintf(stdout, "> ");
-    fgets(cmdline, size, stdin);
-    setmode_mygetc(cmdline, size);
+    fgets(cmdline, SIZE_CMDLINE, stdin);
+    init_parser(cmdline);
 }
 
 int main()
@@ -66,8 +65,6 @@ int main()
     setbuf(stdout, NULL);
 
     setflag_parse(PFLAG_ADDREV);
-    setgetc(mygetc);
-
     for(prompt(); (m = parse()) != NULL; prompt()) {
         display(m);
     }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.h,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
 
 #ifndef _PARSE_H_
 
@@ -32,9 +32,8 @@ int setflag_parse(int flag);
 cmo *parse();
 
 int setgetc(int (*foo)());
-int resetgetc();
-int mygetc();
-int setmode_mygetc(char *s, int len);
+int setmode_mygetc(char *s);
+int init_parser(char *s);
 
 typedef struct {
     char *key;
