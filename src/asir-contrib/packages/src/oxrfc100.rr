@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.5 2003/07/21 05:46:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.6 2003/08/13 04:45:01 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -21,9 +21,19 @@ def ox_toupper(S) {
   return asciitostr(reverse(R));
 }
 
-
-Xm_noX = 0$  
-/* 1 : using X-window system. 0 : not using X-window system. */
+/* If you are developper of asir-contrib and need to see logs, add your
+   use name below. */
+if ((getenv("USER") == "taka") || 
+    (getenv("USER") == "TakayamaNobuki") ||
+    (getenv("USER") == "takayama") ||
+    (getenv("USER") == "nobuki")
+   ) {
+  Xm_noX = 0 $  
+} else {
+  Xm_noX = 1 $
+  print("Debug windows of ox servers will not be opened. Set Xm_noX=0 to open it.")$
+} $
+/* 0 : using X-window system. 1 : not using X-window system. */
 /* TODO: db.restore should be called after sm1 error and interruption.
          cf. var.sm1,  debugMode
 */
