@@ -1,12 +1,13 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.2 1999/11/02 06:12:00 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.3 1999/11/23 03:08:26 ohara Exp $
 
 \documentclass{jarticle}
 \title{Mathematica の Open XM 化について
 % \\ {\small --- Open Mathematica サーバの内部構成 ---}
 }
 %\date{January 19, 1999}
-\date{July 12, 1999}
+%\date{July 12, 1999}
+\date{November 25, 1999}
 \author{小原功任}
 
 \begin{document}
@@ -47,6 +48,7 @@ CMO は 次のように変換されてから, MathLink を通して送られる.
 \begin{enumerate}
 \item CMO\_INT32 は MLTKINT (多倍長整数型).
 \item CMO\_STRING は MLTKSTR (文字列型).
+\item CMO\_LIST は MLTKFUNC (関数型).
 \item その他のタイプの CMO は ToExpression[文字列] として送る.
 \end{enumerate}
 
@@ -81,13 +83,12 @@ int main()
 \]
 という評価が行われ, 文字列データから整数が復元される.
 
-逆に, Mathematica から送られた整数データは,
-マシン整数の範囲内であれば, int として
-取得可能(MLGetInteger を使う)であるが,
-受け取る前に int に収まるか否かを知ることはできない.
-また, 直接 CMO\_ZZ として取得することも不可能である. 
-(MathLink 上でどのような形式でデータ交換されているのかの
-情報は手元にある資料からは得られなかった)
+逆に, Mathematica から送られた整数データは, マシン整数の範囲内であれば,
+int として取得可能(MLGetInteger を使う)であるが, 受け取る前に int に収ま
+るか否かを知ることはできない. int に収まらない場合、データが切り捨てられ
+てしまうので注意が必要である.  また, 直接 CMO\_ZZ として取得することも不
+可能である.  (MathLink 上でどのような形式でデータ交換されているのかの情
+報は手元にある資料からは得られなかった)
 
 しかしながら, たとえ Mathematica 側から整数データが送られていたとしても,
 そのデータを文字列に変換して受け取ることは MathLink の機構上可能である.
@@ -110,8 +111,8 @@ int main()
 }		
 \end{verbatim}
 
-つまり、Mathematica から整数データを文字列として受け取り、
-その文字列を OX サーバ側で CMO\_ZZ に直している。
+つまり、Mathematica から整数データを文字列として受け取り、その文字列を 
+OX サーバ側で CMO\_ZZ に直している。
 
 基本的に MathLink では全てのデータを文字列で受け取るしか方法はない。どの
 ような種類のデータであるかは受け取る前に知ることはできる。データの型は、
@@ -221,10 +222,11 @@ typedef unsigned long int mp_limb_t;
 \begin{thebibliography}{99}
 \bibitem{Openxxx-1998}
 野呂正行, 高山信毅.
-{Open xxx の設計と実装, xxx = asir,kan}, 1998/10/11
+{Open XM の設計と実装 --- Open message eXchange protocol for Mathematics},
+1999/11/22
 \bibitem{Ohara-Takayama-Noro-1999}
 小原功任, 高山信毅, 野呂正行.
-{Open asir 入門}.
+{Open asir 入門}, 1999, 数式処理, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
 \bibitem{Wolfram-1992}
 ウルフラム.
 {Mathematica (日本語版)},
