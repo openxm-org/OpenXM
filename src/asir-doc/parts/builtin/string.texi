@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/string.texi,v 1.3 1999/12/21 02:47:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/string.texi,v 1.4 2000/02/07 07:11:38 noro Exp $
 \BJP
 @node 文字列に関する演算,,, 組み込み函数
 @section 文字列に関する演算
@@ -13,6 +13,7 @@
 * strtov::
 * eval_str::
 * strtoascii asciitostr::
+* str_len str_chr sub_str::
 @end menu
 
 \JP @node rtostr,,, 文字列に関する演算
@@ -240,4 +241,70 @@ abcxyz
 [2] asciitostr([256]);
 asciitostr : argument out of range
 return to toplevel
+@end example
+
+\JP @node str_len str_chr sub_str,,, 文字列に関する演算
+\EG @node str_len str_chr sub_str,,, Strings
+@subsection @code{str_len}, @code{str_chr}, @code{sub_str}
+@findex str_len
+@findex str_chr
+@findex sub_str
+
+@table @t
+@item str_len(@var{str})
+\JP :: 文字列の長さを返す. 
+\EG :: Returns the length of a string.
+@item str_chr(@var{str},@var{start},@var{c})
+\JP :: 文字が最初に現れる位置を返す. 
+\EG :: Returns the position of the first occurrence of a character in a string.
+@item sub_str(@var{str},@var{start},@var{end})
+\JP :: 部分文字列を返す. 
+\EG :: Returns a substring of a string.
+@end table
+
+@table @var
+@item return
+\JP @code{str_len()}, @code{str_chr()}:整数; @code{sub_str()}:文字列
+\EG @code{str_len()}, @code{str_chr()}:integer; @code{sub_str()}:string
+@item str,c
+\JP 文字列
+\EG string
+@item start,end
+\JP 非負整数
+\EG non-negative integer
+@end table
+
+@itemize @bullet
+\BJP
+@item @code{str_len()} は文字列の長さを返す. 
+@item @code{str_chr()} は @var{str} の @var{start} 番目の文字からスキャンして
+最初に @var{c} の最初の文字が現れた位置を返す. 文字列の先頭は 0 番目とする. 
+指定された文字が現れない場合には -1 を返す.   
+@item @code{sub_str()} は, @var{str} の @var{start} 番目から @var{end} 番目
+までの部分文字列を生成し返す. 
+\E
+\BEG
+@item @code{str_len()} returns the length of a string.
+@item @code{str_chr()} scans a string @var{str} from the @var{start}-th
+character and returns the position of the first occurrence 
+of the first character of a string @var{c}. Note that the top of a string
+is the 0-th charater. It returns -1 if the character does not appear.
+@item @code{sub_str()} generates a substring of @var{str} containing
+characters from the @var{start}-th one to the @var{end}-th one.
+\E
+@end itemize
+
+@example
+[185] Line="123 456 (x+y)^3";
+123 456 (x+y)^3
+[186] Sp1 = str_chr(Line,0," ");
+3
+[187] D0 = eval_str(sub_str(Line,0,Sp1-1));
+123
+[188] Sp2 = str_chr(Line,Sp1+1," ");
+7
+[189] D1 = eval_str(sub_str(Line,Sp1+1,Sp2-1));
+456
+[190] C = eval_str(sub_str(Line,Sp2+1,str_len(Line)-1));
+x^3+3*y*x^2+3*y^2*x+y^3
 @end example

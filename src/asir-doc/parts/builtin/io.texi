@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.2 1999/12/21 02:47:33 noro Exp $
 \BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
@@ -16,6 +16,7 @@
 * bsave bload::
 * bload27::
 * print::
+* open_file close_file get_line::
 @end menu
 
 \JP @node end quit,,, 入出力
@@ -81,7 +82,7 @@ line of the input file is strongly recommended.
 @table @t
 @item load("@var{filename}")
 \JP :: @var{filename} を読み込む. 
-\EG :: Read a program file @var{filename}.
+\EG :: Reads a program file @var{filename}.
 @end table
 
 @table @var
@@ -531,3 +532,80 @@ convenient to minimize programming efforts.
 xyz123gahaha
 @end example
 
+\JP @node open_file close_file get_line,,, 入出力
+\EG @node open_file close_file get_line,,, Inputs and Outputs
+@subsection @code{open_file}, @code{close_file}, @code{get_line}
+@findex open_file
+@findex close_file
+@findex get_line
+
+@table @t
+@item open_file("@var{filename}")
+\JP :: @var{filename} を読み出し用にオープンする. 
+\EG :: Opens @var{filename} for reading.
+@item close_file(@var{num})
+\JP :: 識別子 @var{num} のファイルをクローズする. 
+\EG :: Closes the file indicated by a descriptor @var{num}.
+@item get_line(@var{num})
+\JP :: 識別子 @var{num} のファイルから 1 行読む. 
+\EG :: Reads a line from the file indicated by a descriptor @var{num}.
+@end table
+
+@table @var
+@item return
+\JP @code{open_file()} : 整数 (識別子); @code{close_file()} : 1; @code{get_line()} : 文字列
+\EG @code{open_file()} : integer (fild id); @code{close_file()} : 1; @code{get_line()} : string
+@item filename
+\JP ファイル名 (パス名)
+\EG file (path) name
+@item num
+\JP 非負整数 (ファイル識別子)
+\EG non-negative integer (file descriptor)
+@end table
+
+@itemize @bullet
+\BJP
+@item @code{open_file()} は読み出し用にファイルをオープンする. 成功した
+場合, ファイル識別子として非負整数を返す. 失敗の場合エラーとなる. 
+不要になったファイルは @code{close_file()} でクローズする. 
+@item @code{get_line()} は現在オープンしているファイルから 1 行読み, 
+文字列として返す. 
+@item ファイルの終りまで読んだ後に @code{get_line()} が呼ばれた場合, 
+整数の 0 を返す. 
+@item 読み出した文字列は, 必要があれば @code{sub_str()} などの文字列処理
+関数で加工したのち @code{eval_str()} により内部形式に変換できる. 
+\E
+\BEG
+@item @code{open_file()} opens a file for reading. 
+If successful, it returns a non-negative integer as the file descriptor.
+Otherwise the system error function is called.
+Unnecessary files should be closed by @code{close_file()}.
+@item @code{get_line()} reads a line from an opened file and returns the
+line as a string.
+@item A @code{get_line()} call after reading the end of file returns
+an integer 0.
+@item Strings can be converted into internal forms with string manipulation
+functions such as @code{sub_str()}, @code{eval_str()}.
+\E
+@end itemize
+
+@example
+[185] Id = open_file("test");
+0
+[186] get_line(Id);
+12345
+
+[187] get_line(Id);
+67890
+
+[188] get_line(Id);
+0
+[189] type(@@@@);
+0
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{eval_str}, @fref{str_len str_chr sub_str}.
+@end table 
