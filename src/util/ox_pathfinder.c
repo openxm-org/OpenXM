@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.1 2003/07/21 11:36:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.2 2003/07/21 11:56:34 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -30,7 +30,7 @@ static int NoX = 0;
 
 
 #define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
-#define mymalloc(a)  malloc(a)
+#define mymalloc(a)  sGC_malloc(a)
 
 int ox_pathfinderNoX(int f) {
   if (f < 0) return NoX;
@@ -652,6 +652,16 @@ char *getLOAD_SM1_PATH2() {
   p = get_sm1_lib_path();
   if (p == NULL) {
     return("/usr/local/lib/sm1/");
+  }else{
+	return p;
+  }
+}
+
+char *getLOAD_K_PATH2(void) {
+  char *p;
+  p = get_k0_lib_path();
+  if (p == NULL) {
+    return("/usr/local/lib/kxx97/yacc/");
   }else{
 	return p;
   }

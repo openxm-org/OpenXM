@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.22 2003/01/01 02:03:41 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.23 2003/07/21 07:31:59 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -492,10 +492,12 @@ ox.verbose { oxhelp } {  } ifelse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Functions for OX-RFC 103
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[(chattr) 0 /ctrlC-hook] extension
 /ctrlC-hook {
   ox103_reset
 } def
 /ox103_disable {
+  [(chattr) 0 /ctrlC-hook] extension
   /ctrlC-hook {  } def
 } def
 

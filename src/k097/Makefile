@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.23 2003/05/14 07:24:53 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.24 2003/05/14 07:29:53 takayama Exp $
 # targets
 # all 
 #     compile
@@ -35,15 +35,16 @@ MYYACC = bison
 YACCPREFIX = -p KC
 FLAG = -g  -DLOAD_K_PATH=$(LOAD_K_PATH) -DLOAD_SM1_PATH2=$(LOAD_SM1_PATH2)
 KAN_HOME = $(KHOME)/Kan
+PATHFINDER = -L${OpenXM_lib} -lox_pathfinder
 
 all : d0 k0 ox_k0
 
 
 d0 : simple.tab.o d.o dic.o dm.c 
-	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o
+	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o ${PATHFINDER}
 
 d.o : d.c simple.tab.h Stable/sm1symbol.h
-	$(CC) $(FLAG) $(DDD) -o d.o -c d.c
+	$(CC) -I${OpenXM_include} $(FLAG) $(DDD) -o d.o -c d.c
 
 simple.tab.o : simple.tab.c 
 	$(CC) $(FLAG) $(DDD) -o simple.tab.o -c simple.tab.c

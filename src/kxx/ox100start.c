@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.1 2003/07/21 07:32:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.2 2003/07/21 11:56:33 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -13,6 +13,9 @@
 
 static void usage(void);
 static int forkExec(char **argv);
+void *sGC_malloc(int size) {
+  return ((void *)malloc(size));
+}
 
 extern char **environ;
 

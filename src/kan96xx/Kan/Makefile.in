@@ -1,10 +1,11 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.3 2002/02/09 06:21:02 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.4 2003/07/17 12:32:08 takayama Exp $
 all : sm1
 # .SUFFIXES:
 ########################## configuration ##############################
 TOPDIR=../../../../OpenXM
 OpenXM_HOME=${TOPDIR}
 OpenXM_include=$(OpenXM_HOME)/include
+OpenXM_lib=$(OpenXM_HOME)/lib
 ####  What C compiler do you use?
 CC = gcc
 #### Gargabe collector? If GC = nogc.c, then you need to define -DNOGC.
@@ -147,8 +148,9 @@ $(kanlibS3) : $(HEADERS) gradedset.h extern2.h
 $(kanlibS4) : $(HEADERS) gradedset.h
 
 
-kanlib.a : $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) kanlib.o
+kanlib.a : $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) kanlib.o ${OpenXM_lib}/libox_pathfinder.a
 	(cd plugin-tmp; /bin/rm -f *.o; ../ar-decomp $(PLUGIN_LIB) ; cp ../kanlib.o .)
+	(cd plugin-tmp; ../ar-decomp ${OpenXM_lib}/libox_pathfinder.a)
 	ar ru kanlib.a $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) plugin-tmp/*.o
 	../gc/if_not_there ../gc/on_sparc_sunos5 ranlib kanlib.a
 

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/dm.c,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
 #include <stdio.h>
 #include "d.h"
 
@@ -38,6 +38,9 @@ void *mymalloc(int size) {
 
 void *GC_malloc(int size) {
   return((void *)malloc(size));
+}
+void *sGC_malloc(int size) {
+  return ((void *) GC_malloc(size));
 }
 
 sendKan(int p) { /* do nothing */ }
