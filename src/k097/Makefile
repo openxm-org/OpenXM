@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.4 1999/11/29 13:31:31 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.5 1999/12/04 06:18:39 takayama Exp $
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
 
 ## Kan source.  kan sources must be built up by hand.
-KHOME = ../SSkan
+KHOME = ../kan96xx
 
 
 ## 
