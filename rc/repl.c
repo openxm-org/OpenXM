@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.14 2003/02/02 01:52:50 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.15 2004/02/13 03:10:19 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,8 +83,12 @@ main(int argc,char *argv[]) {
 	  printf("setenv OpenXM_PSTOIMG_TYPE=gif\n");
 	}
   }else {
-	printf("OpenXM_PSTOIMG_TYPE=no\n");
-	printf("export OpenXM_PSTOIMG_TYPE\n");
+    if (type == 'b') {
+      printf("OpenXM_PSTOIMG_TYPE=no\n");
+      printf("export OpenXM_PSTOIMG_TYPE\n");
+    }else{
+      printf("setenv OpenXM_PSTOIMG_TYPE no\n");
+    }
   }
 
   while (unlink(REPL_IMGFILE) != 0) {
