@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.4 2004/09/09 11:42:22 takayama Exp $ */
 /* list.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -136,18 +136,26 @@ struct object *cdr(list)
 }
 
 
-void printObjectList(op)
-     struct object *op;
+static void printObjectList0(op,br)
+     struct object *op; int br;
 {
   if (op == NULL) return;
   if (isNullList(op)) return;
   if (op->tag == Slist) {
-    printObjectList(op->lc.op);
+	if (br) printf("<");
+    printObjectList0(op->lc.op,1);
     printf(", ");
-    printObjectList(op->rc.op);
+    printObjectList0(op->rc.op,0);
+	if (br) printf(">");
   }else {
     printObject(*op,0,stdout);
   }
+}
+
+void printObjectList(op)
+     struct object *op;
+{
+  printObjectList0(op,1);
 }
 
 memberQ(list1,obj2)

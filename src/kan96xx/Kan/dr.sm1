@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.36 2004/09/09 11:42:22 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.37 2004/09/10 13:20:23 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4202,6 +4202,56 @@ $ [ff ff] fromVectors :: $
 [(cons)
 [(obj list cons list)
 ]] putUsages
+/arrayToList {
+  /arg1 set
+  [/a /r] pushVariables
+  [
+    /a arg1 def
+    {
+      a isArray {
+       a { arrayToList } map /a set
+       a (list) dc  /r set
+       exit
+      } {  } ifelse
+      /r a def
+      exit
+    } loop
+    /arg1 r def
+  ] pop
+  popVariables
+  arg1
+} def 
+[(arrayToList)
+[(a arrayToList list)
+]] putUsages
+
+/listToArray {
+  /arg1 set
+  [/a /r] pushVariables
+  [
+    /a arg1 def
+    {
+      a tag 12 eq {
+       a (array) dc  /a set
+       a { listToArray } map /r set
+       exit
+      } {  } ifelse
+      a tag 0 eq {
+       /r [ ] def
+       exit
+      } {  } ifelse
+      /r a def
+      exit
+    } loop
+    /arg1 r def
+  ] pop
+  popVariables
+  arg1
+} def 
+[(listToArray)
+[(list listToArray a)
+]] putUsages
+
 
 /usages {
   /arg1 set

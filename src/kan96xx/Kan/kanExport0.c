@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.31 2004/09/09 03:14:46 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.32 2004/09/09 11:42:22 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2992,7 +2992,43 @@ struct object Kjoin(struct object ob1, struct object ob2) {
   }
 }
   
-  
+struct object Kget(struct object ob1, struct object ob2) {
+  struct object rob;
+  struct object tob;
+  int i,j,size,n;
+  if (ob2.tag == Sinteger) {
+    i =ob2.lc.ival;
+  }else if (ob2.tag == SuniversalNumber) {
+    i = KopInteger(KdataConversion(ob2,"integer"));
+  }else if (ob2.tag == Sarray) {
+    n = getoaSize(ob2);
+    if (n == 0) return ob1;
+    rob = ob1;
+    for (i=0; i<n; i++) {
+      rob=Kget(rob,getoa(ob2,i));
+    }
+    return rob;
+  }
+  if (ob1.tag == Sarray) {
+    size = getoaSize(ob1);
+    if ((0 <= i) && (i<size)) {
+      return(getoa(ob1,i));
+    }else{
+      errorKan1("%s\n","Kget: Index is out of bound. (get)\n");
+    }
+  }else if (ob1.tag == Slist) {
+    rob = NullObject;
+    if (i < 0) errorKan1("%s\n","Kget: Index is negative. (get)"); 
+    for (j=0; j<i; j++) {
+      rob = Kcdr(ob1);
+      if ((ob1.tag == Snull) && (rob.tag == Snull)) {
+        errorKan1("%s\n","Kget: Index is out of bound. (get) cdr of null list.\n");
+      }
+      ob1 = rob;
+    }
+    return Kcar(ob1);
+  }else errorKan1("%s\n","Kget: argument must be an array or a list.");
+}
 
 /******************************************************************
      error handler

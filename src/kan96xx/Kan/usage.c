@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.30 2004/09/04 11:25:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.31 2004/09/05 07:42:43 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -214,6 +214,9 @@ void Kusage2(fp,s)
     fppp(fp,"integer k;");
     fppp(fp,"The primitive gets the k-th element of a given array.\n");
     fppp(fp,"Example: [1 4 3] 1 get :: ---> 4\n");
+    fppp(fp,"<< ob [k0 k1 ... ] get f >>\n");
+    fppp(fp,"It is equivalent to << ob k0 get k1 get ... >>\n");
+    fppp(fp,"The primitive get works for array or list.\n");
   }else if (strcmp(s,"goto")==0) {
     fppp(fp,"<< label goto >>\n");
     fppp(fp,"literal label;\n");

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Kan/usage.sm1,v 1.7 2003/06/26 13:00:11 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Kan/usage.sm1,v 1.8 2004/09/10 22:21:27 takayama Exp $
 %% usage.sm1
 %%  [(key word)
 %%    [(   )
@@ -273,6 +273,9 @@ def
 [(join) 
  [(list1 list2 join list3)
   (Ex.  [1 2] [3 [4 (ab)]] join  [1 2 3 [4 (ab)]])
+  (Note: Join should use for arrays. It works for list too,)
+  (      but it does not copy cells. cf. cons)
+  (      So, it might generate looped lists or destroy other lists.)
  ]
 ] putUsages
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.10 2003/12/05 13:51:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.11 2003/12/05 23:14:14 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -596,21 +596,7 @@ int executePrimitive(ob)
     /* ob2               ob1 get     */
     ob1 = Kpop();
     ob2 = Kpop();
-    switch(ob2.tag) {
-    case Sarray: break;
-    default: errorStackmachine("Usage:get");
-    }
-    switch(ob1.tag) {
-    case Sinteger: break;
-    default: errorStackmachine("Usage:get");
-    }
-    i =ob1.lc.ival;
-    size = getoaSize(ob2);
-    if ((0 <= i) && (i<size)) {
-      Kpush(getoa(ob2,i));
-    }else{
-      errorStackmachine("Index is out of bound. (get)\n");
-    }
+    Kpush(Kget(ob2,ob1));
     break;
 
   case Sput:
