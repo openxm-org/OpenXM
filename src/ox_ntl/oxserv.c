@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.4 2003/11/17 09:55:52 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.5 2003/11/27 14:18:43 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,28 +17,6 @@
 #define FP	stdout
 #define EPRINTF(x)	fprintf x; fflush(FP)
 
-#if 1
-/*===========================================================================*
- * for DEBUG
- *===========================================================================*/
-#include <stdarg.h>
-void
-dprintf(const char *fmt, ...)
-{
-	FILE *fp;
-	va_list ap;
-	va_start(ap, fmt);
-	
-	fp = fopen("error.txt", "a");
-
-	vfprintf(fp, fmt, ap);
-
-	fflush(fp);
-	fclose(fp);
-
-	va_end(ap);
-}
-#endif
 
 /*===========================================================================*
  * MACRO
