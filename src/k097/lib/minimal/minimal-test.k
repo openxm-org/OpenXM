@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.16 2000/08/09 03:45:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.17 2000/08/10 02:59:08 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -334,21 +334,17 @@ def test21() {
    b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
    test_if_v_strict(b,w,"x,y,z");
    Println("Degree shifts of Schreyer resolution ----");
-   Println(SgetShifts(Reparse(a[4,0]),w));
+   Println(SgetShifts(Reparse(a[3]),w));
    return(a);
 }          
 def test21b() {
-  local i,j,n,sss, maxR, ttt,ans,p;
+  local i,j,n,sss, maxR, ttt,ans,p, euler;
   Println("The dimensions of linear spaces -----");
   /* sss is the SgetShifts of the Schreyer resol. */
-  sss=
-  [[    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] , 
-   [ -1, -1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 ] , 
-   [ 0, 1, -1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 3, 2, 2, 1, 4, 3, 3, 2, 0, 2, 1, 3, 2, 2, 1, 2, 2, 2, 2, 2, 1, 0, 1, 2, 2, 2, 2, 3, 2, 2, 3, 1, 3, 3, 3, 3, 4 ] , 
-   [ 1, 0, 2, 3, 2, 3, 1, 1, 1, 2, 1, 2, 2, 2, 0, 3, 1, 3, 2, 3, 4 ] , 
-   [ 1, 1 ]  ] ;
-   maxR = 2; /* Maximal root of the b-function. */
+  sss=[    [    0 ]  , [    2 , 2 , 2 , 2 , 2 , 2 , 2 , 3 , 3 , 2 , 1 , 3 , 2 ]  , [    1 , 1 , 1 , 2 , 3 , 2 , 2 , 2 , 2 , 2 , 2 , 3 , 2 , 2 , 2 , 3 , 2 , 3 , 3 , 3 , 4 , 3 , 3 , 4 , 3 , 3 , 4 , 3 , 3 , 4 , 4 , 4 , 4 , 4 , 5 , 4 , 4 , 3 , 5 , 5 , 5 , 5 , 4 ]  , [    1 , 3 , 1 , 3 , 3 , 1 , 2 , 2 , 3 , 2 , 3 , 2 , 3 , 5 , 4 , 4 , 3 , 6 , 5 , 4 , 3 , 2 , 3 , 3 , 5 , 4 , 3 , 2 , 4 , 4 , 4 , 4 , 5 , 3 , 2 , 3 , 3 , 4 , 4 , 4 , 5 , 4 , 4 , 5 , 3 , 5 , 4 , 5 , 5 , 6 ]  , [    3 , 1 , 4 , 5 , 4 , 5 , 2 , 3 , 2 , 4 , 3 , 4 , 3 , 3 , 2 , 4 , 3 , 5 , 4 , 5 , 6 ]  , [    2 , 3 ]  ] ;
+  maxR = 2; /* Maximal root of the b-function. */
   n = Length(sss);
+  euler = 0;
   for (i=0; i<n; i++) {
     ttt = sss[i];
     ans = 0;
@@ -360,8 +356,34 @@ def test21b() {
       }
     }
     Print(ans); Print(", ");
+    euler = euler+(-1)^i*ans;
   }
   Println(" ");
+  Print("Euler number is : "); Println(euler);
+}
+def test21c() {
+  local i,j,n,sss, maxR, ttt,ans,p, euler;
+  Println("The dimensions of linear spaces -----");
+  /* sss is the SgetShifts of the minimal resol. */
+  sss= [    [    0 ]  , [    2 , 2 , 2 , 2 , 2 , 2 , 2 ]  , [    1 , 2 , 2 , 2 , 2 , 3 , 4 , 4 , 4 , 4 ]  , [    1 , 3 , 4 , 6 ]  ];
+  maxR = 2; /* Maximal root of the b-function. */
+  n = Length(sss);
+  euler = 0;
+  for (i=0; i<n; i++) {
+    ttt = sss[i];
+    ans = 0;
+    for (j=0; j<Length(ttt); j++) {
+      p = ttt[j] + maxR + 3; /* degree */
+      if (p >= 0) {
+        ans = ans + CancelNumber(p*(p-1)*(p-2)/(3*2*1));
+        /* Add the number of monomials */
+      }
+    }
+    Print(ans); Print(", ");
+    euler = euler+(-1)^i*ans;
+  }
+  Println(" ");
+  Print("Euler number is : "); Println(euler);
 }
 def test22() {
    a=Sannfs3("x^3+y^3+z^3");
@@ -461,6 +483,17 @@ def test24b() {
   return(Res);
 }
 
+def test25() {
+  w = ["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1,"Dx5",1,"Dx6",1,
+       "x1",-1,"x2",-1,"x3",-1,"x4",-1,"x5",-1,"x6",-1];
+  ans2 = GKZ([[1,1,1,1,1,1],
+              [0,0,0,1,1,1],
+              [0,1,0,0,1,0],
+              [0,0,1,0,0,1]],[0,0,0,0]);;
+  Sweyl("x1,x2,x3,x4,x5,x6",[w]);
+  ans2 = ReParse(ans2[0]);
+  a = Sminimal(ans2);
+}
 
 
 

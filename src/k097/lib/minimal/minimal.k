@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.26 2000/08/10 02:59:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.27 2000/08/16 22:38:52 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1006,7 +1006,7 @@ def Sminimal(g,opt) {
   redundantTable = r[1];
   reducer = r[2];
   bettiTable = SbettiTable(redundantTable);
-  Sprintln2("Betti numbers are ------");
+  Sprintln2("BettiTable ------");
   if (Sverbose || Sverbose2) {sm1_pmat(bettiTable);}
   minRes = SnewArrayOfFormat(freeRes);
   seq = 0;
@@ -1070,9 +1070,9 @@ def Sminimal(g,opt) {
    Println("0: minimal resolution, 3: Schreyer resolution ");
    Println("------------ Resolution Summary  --------------");
    Print("Betti numbers : "); 
-   Println(Map(ansSminimal[0],"Length"));
+   Println(Join([Length(ansSminimal[0,0,0])],Map(ansSminimal[0],"Length")));
    Print("Betti numbers of the Schreyer frame: ");
-   Println(Map(ansSminimal[3],"Length"));
+   Println(Join([Length(ansSminimal[3,0,0])],Map(ansSminimal[3],"Length")));
    Println("-----------------------------------------------");
 
    sm1(" restoreEnvAfterResolution ");
@@ -1509,10 +1509,10 @@ HelpAdd(["SgetShift",
 def SgetShifts(resmat,w) {
   local i,n,ans,m0;
   n = Length(resmat);
-  ans = NewArray(n);
+  ans = NewArray(n+1);
   m0 = NewArray(Length(resmat[0,0]));
   ans[0] = m0;
-  for (i=0; i<n-1; i++) {
+  for (i=0; i<n; i++) {
     ans[i+1] = SgetShift(resmat[i],w,m0);
     m0 = ans[i+1];
   }
