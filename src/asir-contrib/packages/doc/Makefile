@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.57 2004/03/05 19:05:11 ohara Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.58 2004/06/16 01:27:00 takayama Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -44,6 +44,7 @@ DVIPS=dvips -f
 OXWEAVE=$(OpenXM_ROOT)/bin/oxweave
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
+DVIPDF=dvipdfmx
 
 SRC = base.oxweave calculus.oxweave complex.oxweave dsolv.oxweave \
       glib.oxweave gnuplot.oxweave graphic.oxweave hypergeometric.oxweave \
@@ -58,7 +59,7 @@ ENAUTO=  base-auto.en glib-auto.en matrix-auto.en number-auto.en pfp-auto.en \
          plucker-auto.en poly-auto.en print-auto.en sm1-auto.en util-auto.en 
 JAAUTO=${ENAUTO:.en=.ja}
 
-.SUFFIXES: .en .ja .oxweave
+.SUFFIXES: .en .ja .oxweave .dvi .pdf
 
 .oxweave.en:
 	$(RM) -f ${<:.oxweave=.en}
@@ -67,6 +68,9 @@ JAAUTO=${ENAUTO:.en=.ja}
 .oxweave.ja:
 	$(RM) -f ${<:.oxweave=.ja}
 	$(OXWEAVE) C ja < $< > ${<:.oxweave=.ja}
+
+.dvi.pdf:
+	${DVIPDF} $<
 
 all : gentexi $(JASRCS) $(ENSRCS) $(JAAUTO) $(ENAUTO)
 	@echo "Type in  tex cman-en.texi to generate the manual(en) in dvi format."
@@ -231,12 +235,15 @@ install-document2 :  gen-dvi-ps
 	-cp cman-en.dvi $(OpenXM_doc)/asir-contrib/cman-en.dvi
 	-$(DVIPS) cman-en >$(OpenXM_doc)/asir-contrib/cman-en.ps
 gen-dvi-ps: all clean-mk-openxm-asir-contrib-document-dir cman-ja.dvi cman-en.dvi
-cman-ja.dvi: $(JASRCS)
+cman-ja.dvi: $(JASRCS) $(JAAUTO)
 	-ptex cman-ja.texi
 	-ptex cman-ja.texi
-cman-en.dvi: $(ENSRCS)
+cman-en.dvi: $(ENSRCS) $(ENAUTO)
 	-tex cman-en.texi
 	-tex cman-en.texi
+
+cman-ja.pdf: cman-ja.dvi
+cman-en.pdf: cman-en.dvi
 
 clean-mk-openxm-asir-contrib-document-dir :
 	$(RM) -rf $(OpenXM_doc)/asir-contrib
