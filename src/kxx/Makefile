@@ -1,5 +1,5 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.9 1999/11/19 01:11:46 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.10 1999/11/22 04:22:57 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
@@ -79,7 +79,8 @@ testclient : testclient.c ox.a file2.o ox_kan.h
 	gcc $(CFLAGS) testclient.c -o testclient ox.a file2.o $(LFLAG)
 
 
-KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gmp/mpn/libmpn.a $(KANHOME)/gc/gc.a
+#KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gmp/mpn/libmpn.a $(KANHOME)/gc/gc.a
+KANLIB = $(KANHOME)/Kan/kanlib.a $(KANHOME)/gmp/libgmp.a $(KANHOME)/gc/gc.a
 
 ## file2 should be linked from kanlib.a
 
