@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.18 2000/01/26 07:48:10 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.19 2000/01/27 01:13:17 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -393,8 +393,10 @@ See OpenXM/Copyright.
 ★ OpenXM パッケージの Make 法
   FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.
   Linux glib6 では, いまのところ, /usr/include/features.h
-  で #define __FAVOR_BSD 1 してコンパイルする必要があります.
-  (setjmp と sigsetjmp の問題, dirty trick)
+  で #define __FAVOR_BSD 1 してコンパイルする必要がありしたが,
+  一部のソースを
+  -D_BSD_SOURCE option をつけて gcc でコンパイルするように変えてます
+  (setjmp と sigsetjmp の問題, dirty trick).
 
    OpenXM, OpenXM_contrib, OpenXM_contrib2 が必要です.
    cvs コミッタの場合次のようにしてソースをとりよせます.
@@ -402,10 +404,11 @@ See OpenXM/Copyright.
 /*&eg
 * How to make OpenXM package?
  We have tested the OpenXM package on FreeBSD 2.2.8, FreeBSD 3.3, Linux.
- On Linux glib6, you need to define 
+ On Linux glib6, we needed to define 
    #define  __FAVOR_BSD 1
- in /usr/include/features.h
- (setjmp vs sigsetjmp)
+ in /usr/include/features.h,
+ but now we are compiling some sources with -D_BSD_SOURCE
+ (setjmp vs sigsetjmp).
 
  Do you have directories OpenXM, OpenXM_contrib, OpenXM_contrib2?
  If you are a CVS committer, then you can get all sources as follows:
