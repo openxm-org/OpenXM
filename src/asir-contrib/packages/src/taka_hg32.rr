@@ -1,46 +1,51 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_hg32.rr,v 1.1 2001/09/02 01:31:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_hg32.rr,v 1.2 2001/09/02 09:17:41 takayama Exp $ */
 /*  experimental module for hypergeometric function identities. 
     cf.  nach/3f2hom.rr
 */
 
 def taka_hg21(A1,A2,B2,Z) {
-  F = "quote(hypergeometric_2F1("+rtostr(A1)+","+
-                                  rtostr(A2)+","+
-                                  rtostr(B2)+","+
-                                  rtostr(Z)+"))";
-  return eval_str(F);
+  F = quote(hypergeometric_2F1(A1,A2,B2,Z));
+  F2 = eval_variables_in_quote(F);
+  return F2;
 }
 
 /* z^(-B2+1) * cycle * ds/ds */
 def taka_hg21_cycle(A1,A2,B2,Z,S) {
   U=S^(A2)*(Z-S)^(B2-1-A2)*(1-S)^(-A1);
-  S1 = "topology_open_segment("+rtostr(Z)+",1)";
-  C1 = "algebra_tensor("+S1+","+rtostr(U)+")";
-  S2 = "topology_open_segment(0,"+rtostr(Z)+")";
-  C2 = "algebra_tensor("+S2+","+rtostr(U)+")";
+  S1 = quote(topology_open_segment(Z,1));
+  S1 = eval_variables_in_quote(S1);
+  C1 = quote(algebra_tensor(S1,U));
+  C1 = eval_variables_in_quote(C1);
 
-  C1 = eval_str("quote("+C1+")");
-  C2 = eval_str("quote("+C2+")");
-  
+  S2 = quote(topology_open_segment(0,Z));
+  S2 = eval_variables_in_quote(S2);
+  C2 = quote(algebra_tensor(S2,U));
+  C2 = eval_variables_in_quote(C2);
+
   return([C1,C2]);
 }
 
 def taka_hg21_reg_cycle(A1,A2,B2,Z,S) {
   U=S^(A2)*(Z-S)^(B2-1-A2)*(1-S)^(-A1);
-  S1 = "topology_open_segment("+rtostr(Z+epsilon)+",1-epsilon)";
-  C1 = "algebra_tensor("+S1+","+rtostr(U)+")";
+  U = quote_new(U);
+  S1 = quote(topology_open_segment(Z+epsilon,1-epsilon));
+  S1 = eval_variables_in_quote(S1);
+  C1 = quote(algebra_tensor(S1,U));
+  C1 = eval_variables_in_quote(C1);
 
-  S1a = "topology_circle("+rtostr(Z)+",epsilon)";
-  C1a = 1/(exp(2*c_pi*c_i*(B2-1-A2))-1);
-  Sa = "algebra_tensor("+S1a+","+rtostr(C1a*U)+")";
+  S1a = quote(topology_circle(Z,epsilon));
+  S1a = eval_variables_in_quote(S1a);
+  C1a = quote(1/(exp(2*c_pi*c_i*(B2-1-A2))-1));
+  C1a = eval_variables_in_quote(C1a);
 
-  S1b = "topology_circle(1,epsilon)";
-  C1b = 1/(exp(2*c_pi*c_i*(-A1))-1);
-  Sb = "algebra_tensor("+S1b+","+rtostr(C1b*U)+")";
+  Sa = quote(algebra_tensor(S1a,C1a*U));
+  Sa = eval_variables_in_quote(Sa);
 
-  Sa = eval_str("quote("+Sa+")");
-  Sb = eval_str("quote("+Sb+")");
-  C1 = eval_str("quote("+C1+")");
+  S1b = quote(topology_circle(1,epsilon));
+  S1b = eval_variables_in_quote(S1b);
+  C1b = quote(1/(exp(2*c_pi*c_i*(-A1))-1));
+  C1b = eval_variables_in_quote(C1b);
+  Sb = quote(algebra_tensor(S1b,C1b*U));
 
   C1 = Sa+Sb+C1;
 
