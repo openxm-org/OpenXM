@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.6 2000/03/10 12:38:46 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.7 2000/10/10 19:58:29 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -81,6 +81,8 @@ cmo *convert_mlo_to_cmo(mlo *m)
 	return m;
 }
 #endif
+
+#define MLO_FUNCTION   (CMO_PRIVATE+1)
 
 mlo_function *new_mlo_function(char *function)
 {

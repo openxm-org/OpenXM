@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.15 2000/03/10 12:45:48 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.16 2000/10/10 19:58:30 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -212,14 +212,21 @@ int sm_executeFunction(OXFILE* oxfp)
     return 0;
 }
 
-#define VERSION 0x11121400
-#define ID_STRING  "1999/12/14 15:25:00"
-
 int sm_mathcap(OXFILE* oxfp)
 {
-    mathcap_sysinfo_set(VERSION, ID_STRING, "ox_math");
-    push(mathcap_get());
+    push((cmo *)oxf_cmo_mathcap(oxfp));
     return 0;
+}
+
+void sm_set_mathcap(OXFILE *oxfp)
+{
+    cmo_mathcap *m = (cmo_mathcap *)pop();
+    if (m->tag == CMO_MATHCAP) {
+        oxf_mathcap_update(oxfp, m);
+    }else {
+        push_error(-1, m);
+        /* an error object must be pushed */
+    }
 }
 
 int receive_sm_command(OXFILE* oxfp)

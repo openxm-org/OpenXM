@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.16 2000/03/13 09:44:06 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.17 2000/10/10 19:58:29 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -188,11 +188,15 @@ static int  ss_id_stream(int id)
 	return ss[id];
 }
 
+#define VERSION 0x11121400
+#define ID_STRING  "2000/11/29"
+
 int main(int argc, char *argv[])
 {
     /* setting the OX parser */
     setflag_parse(PFLAG_ADDREV);
 	ss = new_sstack(20);
+    mathcap_init(VERSION, ID_STRING, "math2ox", NULL, NULL);
     
     MLMain(argc, argv);
 }
