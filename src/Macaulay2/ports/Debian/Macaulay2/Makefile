@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/Macaulay2/ports/Debian/Macaulay2/Makefile,v 1.1 2001/01/06 08:19:52 takayama Exp $
+# $OpenXM: OpenXM/src/Macaulay2/ports/Debian/Macaulay2/Makefile,v 1.2 2001/05/13 10:36:07 takayama Exp $
 # Makefile of M2 for Debian/potato.
 #  OpenXM_HOME must be properly set.  If you want to install under /usr/local
 #   type in  make PREFIX=/usr/local DISTDIR=/tmp
@@ -51,7 +51,7 @@ post-install: build
 	-mkdir ${PREFIX}/lib ${PREFIX}/bin
 	cat work/Macaulay2-0.8.60-i*-*inux*.tar.gz | (cd ${PREFIX}/lib ; tar xzvf - )
 	(cd ${PREFIX}/lib/Macaulay2; ./setup)
-	-(cd ${PREFIX}/lib/Macaulay2/m2 ; tar xvf ${DISTDIR}/Dmods.tar)
+	-(cd ${PREFIX}/lib/Macaulay2/packages ; tar xvf ${DISTDIR}/Dmods.tar)
 	cp ${PREFIX}/lib/Macaulay2/bin/M2  ${PREFIX}/bin
 
 clean:
