@@ -1,12 +1,12 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.23 2000/08/31 13:35:09 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.24 2000/09/17 03:12:10 takayama Exp $
 
 ## Type in make configure and make all to build all
+TOPDIR=../../../OpenXM
 OpenXM_contrib=../../../OpenXM_contrib
-OPENXM_CONTRIB=../../../OpenXM_contrib
-OpenXM_ROOT=../../../OpenXM
+OpenXM_ROOT=${TOPDIR}
 OpenXM_bin=$(OpenXM_ROOT)/bin
 
-GC=$(OPENXM_CONTRIB)/gc
+GC=${OpenXM_contrib}/gc
 
 all :   all-plugin all-sm1 all-kanlib.a
 ## .SUFFIXES:
@@ -40,8 +40,8 @@ configure_symbolic_links :
 	@if test ! -f ./.done_links  ; \
 	then \
 	 /bin/rm -f gc gmp lib Doc/var.sm1 ; \
-	 ln -f -s $(OpenXM_contrib)/gc gc ; \
-	 ln -f -s $(OpenXM_contrib)/gmp gmp ; \
+	 ln -f -s ${OpenXM_contrib}/gc gc ; \
+	 ln -f -s ${OpenXM_contrib}/gmp gmp ; \
 	 ln -f -s ./Doc lib ; \
 	 (cd Doc; ln -f -s ../Kan/var.sm1 var.sm1) ; \
 	fi

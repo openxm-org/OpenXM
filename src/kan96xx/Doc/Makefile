@@ -1,6 +1,7 @@
-## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.3 2000/01/17 13:02:14 takayama Exp $
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.4 2000/01/19 06:41:02 takayama Exp $
 ########## Documents
-OpenXM_ROOT=../../../../OpenXM
+TOPDIR=../../../../OpenXM
+OpenXM_ROOT=${TOPDIR}
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 CC=gcc
