@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.67 2003/01/16 22:02:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.68 2003/05/18 00:13:16 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -54,14 +54,6 @@ ox_loadfile_(Loaded_glib,"glib")$
 
 #define OX_LOADFILE(A,B)   /* Do nothing. */
 
-/* Function to check OSTYPE (temporary) */
-def ox_ostype() {
-  if (ox_getenv("OPENXMHOMEWIN") != 0) {
-    return(["windows"]);
-  }else{
-    return(["unix"]);
-  }
-}
 
 Print_tex_form_fraction_format="auto"$  /* "frac" or "auto" or "/" */
 Print_tex_form_no_automatic_subscript=0$ /* 0 or 1 */
@@ -383,7 +375,7 @@ def hypergeometric_legendre_q(N,X) { NOT_YET; }
 def hypergeometric_pochhammer(A,B,N) { 
    return taka_pfp_poch1(A,B,N);
 }
-def hypergeometric_gkz(A,B) { return(sm1_gkz([A,B])); }
+def hypergeometric_gkz(A,B) { return(sm1.gkz([A,B])); }
 
 /* Canonical function names from Mathematica/Calculus */
 def calculus_integrate(F,X) { NOT_YET; }

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.1 2003/05/18 00:13:16 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -113,5 +113,13 @@ def ox_grep(A) {
 }
 
 
+/* Function to check OSTYPE (temporary) */
+def ox_ostype() {
+  if (ox_getenv("OPENXMHOMEWIN") != 0) {
+    return(["windows"]);
+  }else{
+    return(["unix"]);
+  }
+}
 
 end$

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.11 2002/01/22 06:18:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.12 2003/01/16 22:02:32 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -378,7 +378,7 @@ def taka_poly_hilbert_polynomial(I) {
     B=map(dp_ht,map(dp_ptod,A,V));
   }
   C=map(dp_dtop,B,V);
-  H = sm1_hilbert([C,V]);
+  H = sm1.hilbert([C,V]);
   return subst(H,h,S);
 }
 
