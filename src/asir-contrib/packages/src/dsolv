@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/dsolv,v 1.6 2000/02/26 11:42:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/dsolv,v 1.7 2001/09/09 09:38:36 takayama Exp $ */
 /* dsolv: Documents are at dsolv.texi */
 load("Diff")$
 load("Dmodule")$
@@ -352,7 +352,16 @@ def dsolv_starting_term(F,V,W) {
        print("----------- dual system is ",0); print(Dual);
     }
     Dual = map(dsolv_subst_log,Dual,V);
-    P = dp_dtop(dp_vtoe(P),V);
+
+    /* 
+      P = dp_dtop(dp_vtoe(P),V); buggy for rational exponents.
+    */
+    P1 = 1;
+    for (I1 = 0; I1 <length(V); I1++) {
+      P1 = P1 * V[I1]^P[I1];
+    }
+    P = P1;
+
     Ans = append(Ans, [ vtol(P*newvect(length(Dual),Dual)) ]);
   }
   print("  ");
