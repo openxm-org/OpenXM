@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.7 2001/05/04 01:06:23 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.8 2002/02/24 10:27:18 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1537,6 +1537,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   newRingp->schreyer = 0;
   newRingp->gbListTower = NULL;
   newRingp->outputOrder = outputVars;
+  newRingp->weightedHomogenization = 0;
 
   if (ob5.tag != Sarray || (getoaSize(ob5) % 2) != 0) {
     errorKan1("%s\n","[(keyword) value (keyword) value ....] should be given.");
@@ -1583,6 +1584,11 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
           errorKan1("%s\n","A name should be given. (ringName)");
         }
         ringName = KopString(getoa(ob5,i+1));
+      } else if (strcmp(KopString(getoa(ob5,i)),"weightedHomogenization") == 0) {
+        if (getoa(ob5,i+1).tag != Sinteger) {
+          errorKan1("%s\n","A integer should be given. (weightedHomogenization)");
+        }
+		newRingp->weightedHomogenization = KopInteger(getoa(ob5,i+1));
       } else {
         errorKan1("%s\n","Unknown keyword to set_up_ring@");
       }

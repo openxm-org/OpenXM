@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.4 2002/02/04 07:58:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.5 2002/02/09 06:21:02 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -98,7 +98,7 @@ void monomialMult_diff(e,f)
      /* (e) * f = [Plist] monomials  */
 {
 
-  int n,k,c,l,q,i,m;
+  int n,k,c,l,q,i,m, weightedHomogenization;
   struct coeff *a;
   struct monomial tmp;
   struct ring *ringp;
@@ -106,6 +106,7 @@ void monomialMult_diff(e,f)
 
   tmp.ringp = ringp = f->m->ringp;
   n = ringp->n; c = ringp->c; l = ringp->l; m = ringp->m;
+  weightedHomogenization = ringp->weightedHomogenization;
   for (k=Plist-1; k>=0; k--) {
     /* coeff */
     a = coeffCopy(CList[k]);
@@ -115,10 +116,13 @@ void monomialMult_diff(e,f)
     for (i=0; i<n; i++) {
       tmp.e[i] = f->m->e[i];
     }
-    if (Homogenize) {
+    if ((!weightedHomogenization) && Homogenize) {
       tmp.e[0].D += EList[k]; /* homogenization.
                                  e[0].D will be added later. */
-    }
+    }else if (weightedHomogenization && Homogenize) {
+      tmp.e[0].D += EList[k]/2 ; /* homogenization.  Weight is (1,0) (special).
+								  */
+	}
 
     /* from m to n:  Differential variables. */
     for (i=0; i<Maxv; i++) {

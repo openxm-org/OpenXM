@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -73,6 +73,7 @@ struct ring {
   void *gbListTower;
   int *outputOrder;
   char *name;
+  int weightedHomogenization;
 };
 
 

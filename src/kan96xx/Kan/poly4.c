@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -338,6 +338,9 @@ int isHomogenized(f)
   int maxg;
   if (!Homogenize_vec) return(isHomogenized_vec(f));
   if (f == ZERO) return(1);
+  if (f->m->ringp->weightedHomogenization) {
+	return 1; /* BUG: do not chech in case of one-zero homogenization */
+  }
   maxg = (*grade)(f);
   t = f;
   while (t != POLYNULL) {
@@ -354,6 +357,9 @@ int isHomogenized_vec(f)
   POLY t;
   int ggg;
   if (f == ZERO) return(1);
+  if (f->m->ringp->weightedHomogenization) {
+	return 1; /* BUG: do not chech in case of one-zero homogenization */
+  }
   while (f != POLYNULL) {
     t = f;
     ggg = (*grade)(f);
@@ -501,6 +507,7 @@ int isTheSameRing(struct ring *rstack[],int rp, struct ring *newRingp)
     if (rrr->multiplication != newRingp->multiplication) { a=15; goto bbb ; }
     /* if (rrr->schreyer != newRingp->schreyer) { a=16; goto bbb ; }*/
     if (newRingp->schreyer == 1) { a=16; goto bbb; }
+    if (rrr->weightedHomogenization != newRingp->weightedHomogenization) { a=16; goto bbb; }
     /* The following fields are ignored. 
        void *gbListTower;
        int *outputOrder;
