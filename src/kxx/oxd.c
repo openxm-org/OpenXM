@@ -1,5 +1,5 @@
 /*
- $OpenXM$
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.1 2002/10/20 13:13:35 takayama Exp $
 */
 
 #include <stdio.h>
@@ -20,6 +20,8 @@
 char *getTag(char *s);
 char *getKeyValue(char *s,char *key);
 char *getBody(char *s);
+char *getOpenXMpath(void);
+void *xtagMalloc(int n);
 
 int MyServerPid;
 #define SERVERNAME_SIZE 4096
@@ -39,23 +41,17 @@ main(int argc, char *argv[]) {
   int fdControl = -1; int portControl = 8089;
   extern int OpenedSocket;
   extern int Serial;
-  int sleepingTime = 0;
   int result;
   int fd;
 
   strcpy(sname,"localhost");
   i = 1;
   while (i<argc) {
-    if (strcmp(argv[i],"--control")==0) {
+    if (strcmp(argv[i],"--port")==0) {
       i++;
       if (i<argc) sscanf(argv[i],"%d",&portControl);
     }else if (strcmp(argv[i],"--insecure") == 0) {
       LocalMode = 0;
-    }else if (strcmp(argv[i],"--wait") == 0) {
-      i++;
-      if (i<argc) {
-        sscanf(argv[i],"%d",&sleepingTime);
-      }
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
       oxdUsage(); exit(10);
@@ -63,17 +59,11 @@ main(int argc, char *argv[]) {
     i++;
   }
 
-  if (sleepingTime) {
-    fprintf(stderr,"Waiting to connect for %d seconds...\n",sleepingTime);
-    sleep(sleepingTime);
-    fprintf(stderr,"\nTrying to connect\n");
-  }
-
   
   if (LocalMode) {
     if (portControl != -1) {
       fdControl = socketOpen(sname,portControl);
-	  if (fdControl < 0) oxdError("Could not open a socket.");
+	  if (fdControl < 0) oxdError("Could not open a socket. \n\nPerhaps, oxd is already running on your machine.\nTo start oxd on a different port xyz, start oxd by oxd --port xyz");
       portControl = OpenedSocket;
 	  while (1) {
 		/* fdControl : fd for the wait queue */
@@ -102,7 +92,7 @@ main(int argc, char *argv[]) {
 
 oxdUsage() {
   fprintf(stderr,"Usage: \n");
-  fprintf(stderr,"  oxd \n");
+  fprintf(stderr,"  oxd [--port xyz]\n");
   fprintf(stderr,"\n");
 }
 
@@ -132,6 +122,8 @@ childServerMain(int fd) {
   char fname[SIZE*2];
   char fnameBody[SIZE];
   char ccc[SIZE*3];
+  extern int Serial;
+  char *openxm;
   /* Starting oxd session */
   signal(SIGALRM,exitServer);
   alarm(60);
@@ -183,14 +175,33 @@ childServerMain(int fd) {
 
   body = getBody(comm);
   if (strlen(body) > SIZE*2) exitServer2(fp,"too big body.");
-  sprintf(ccc,"/usr/local/bin/openxm %s",body);
-  fprintf(stderr,"Serial=%d : Executing command=%s\n",ccc);
+  openxm = getOpenXMpath();
+  sprintf(ccc,"%s %s",openxm,body);
+  fprintf(stderr,"Serial=%d : Executing command=%s\n",Serial,ccc);
   fprintf(fp,"<bye/>\n"); fflush(NULL);
   fclose(fp); /* close the connection */
   system(ccc);
-  fprintf(stderr,"Serial=%d : The following command is finished : %s\n",ccc);
+  fprintf(stderr,"Serial=%d : The following command is finished : %s\n",Serial,ccc);
 }
 
+char *getOpenXMpath() {
+  char *s;
+  char *sss;
+  s = getenv("OpenXM_HOME");
+  if (s == NULL) {
+	s = getenv("OPENXM_HOME");
+  }
+  if (s == NULL) sss="/usr/local/bin/openxm";
+  else {
+	sss = (char *) xtagMalloc(strlen(s)+20);
+	sprintf(sss,"%s/bin/openxm",s);
+  }
+  if (access(sss,X_OK&R_OK) == 0) {
+  }else{
+	oxdError("The shell script openxm does not exists. It is usually generated under OpenXM/rc");
+  }
+  return sss;
+}
 
 /* These are dummy.  It is defined in stackmachine.c */
 unlockCtrlCForOx() { ; }
