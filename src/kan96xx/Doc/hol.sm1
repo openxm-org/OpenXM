@@ -1,5 +1,5 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.3 1999/12/10 09:17:50 takayama Exp $
-%% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5.
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.4 2000/03/14 13:01:28 takayama Exp $
+%% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
 /hol.version (2.990515) def
@@ -10,7 +10,7 @@ hol.version [(Version)] system_variable gt
   error
 } { } ifelse
 
-$hol.sm1, basic package for holonomic systems (C) N.Takayama, 1999, 12/07 $ 
+$hol.sm1, basic package for holonomic systems (C) N.Takayama, 2000, 06/08 $ 
 message-quiet
 
 /rank.v [(x) (y) (z)] def   %% default value of v (variables).
@@ -1279,6 +1279,440 @@ message-quiet
  (Example 2: [[(1) (y^2-1)] [ [(0) (y-1)] [(1) (y+1)]] [(x) (y)]] reduction*)
  (Example 3: [(x^2) [(x^2+y^2-4) (x y-1)] [(x) (y)] [[(x) 10]] ] reduction* )
 ]] putUsages
+
+
+
+%%  2000, 6/7,  at Sevilla, Hernando Colon
+%% macros that deal with homogenized inputs.
+%%  Sample:  [ [(h+x). (x^3).] [(x). (x).]] /ff set
+%%           [(Homogenize_vec) 0] system_varialbe
+%%           (grade) (grave1v) switch_function
+%%  YA homogenization:  [ [(h^3*(h+x)). (x^3).] [(h x). (x).]] /ff set
+%%                          4+0         3+1      2+0    1+1
+/gb_h {
+  /arg1 set
+  [/in-gb_h /aa /typev /setarg /f /v 
+   /gg /wv /termorder /vec /ans /rr /mm
+   /gb_h.opt
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage) (Homogenize_vec)] pushEnv
+  [
+
+    /aa arg1 def
+    aa isArray { } { ( << array >> gb_h) error } ifelse
+    /setarg 0 def
+    /wv 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /f aa 0 get def
+       /v gb.v def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+
+    setarg { } { (gb_h : Argument mismatch) error } ifelse
+    
+    [(KanGBmessage) gb.verbose ] system_variable
+    [(Homogenize_vec) 0] system_variable
+
+    %%% Start of the preprocess
+    f getRing /rr set
+    %% To the normal form : matrix expression.
+    f gb.toMatrixOfString /f set
+    /mm gb.itWasMatrix def
+
+    rr tag 0 eq {
+      %% Define our own ring
+      v isInteger {
+        (Error in gb_h: Specify variables) error
+      } {  } ifelse
+      wv isInteger {        
+        [v ring_of_differential_operators 
+        0] define_ring
+        /termorder 1 def
+      }{
+        [v ring_of_differential_operators 
+         wv weight_vector
+        0] define_ring
+        wv gb.isTermOrder /termorder set
+      } ifelse
+    } {
+      %% Use the ring structre given by the input.
+      v isInteger not {
+        (Warning : the given ring definition is not used.) message
+      } {  } ifelse
+      rr ring_def
+      /wv rr gb.getWeight def
+      wv gb.isTermOrder /termorder set
+    } ifelse
+    getOptions /gb_h.opt set
+    (grade) (module1v) switch_function
+    %%% End of the preprocess
+
+    gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
+    termorder {
+      f { {. } map } map /f set
+      [f gb.options] groebner 0 get /gg set %% Do not use sugar.
+    }{
+      f { {. } map} map /f set
+      f fromVectors /f set
+      [f gb.options] groebner 0 get /gg set
+    }ifelse
+    wv isInteger {
+      /ans [gg gg {init} map] def
+    }{
+      /ans [gg gg {wv 0 get weightv init} map] def
+    }ifelse
+
+    %% Postprocess : recover the matrix expression.
+    mm {
+      ans { /tmp set [mm tmp] toVectors } map
+      /ans set
+    }{ }
+    ifelse
+    gb_h.opt restoreOptions 
+    %% 
+
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(gb_h ) messagen-quiet
+[(gb_h)
+ [(a gb_h b)
+  (array a; array b;)
+  (b : [g ii];  array g; array in; g is a Grobner basis of f)
+  (             in the ring of homogenized differential operators.)
+  ( The input must be homogenized properly.)
+  ( Inproper homogenization may cause an infinite loop.)
+  ( Each element of vectors must be homogenized. If you are using )
+  ( non-term orders, all elements of vectors must have the same degree with)
+  ( a proper degree shift vector.)
+   $            ii is the initial ideal in case of w is given or <<a>> belongs$
+   $            to a ring. In the other cases, it returns the initial monominal.$
+  $ [(Homogenize_vec) 0] system_variable (grade) (module1v) switch_function$ 
+  (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
+  (a : [f v];   array f; string v;  v is the variables. )
+  (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
+  (  )
+  $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -h^4) ( x y Dx Dy -h^4)] (x,y) $
+  $             [ [ (Dx) 1 ] ] ] gb_h pmat ; $
+  $Example 2: [ [[(h+x) (x^3)] [(x) (x)]] (x)] gb_h pmat $
+  $Example 3: [[ [(x^2) (y+x)] [(x+y) (y^3)] $
+  $              [(2 x^2+x y) (y h^3 +x h^3 +x y^3)]] (x,y) $
+  $             [ [ (x) -1 (y) -1] ] ] gb_h pmat ; $
+  $  Infinite loop: see by [(DebugReductionRed) 1] system_variable$
+  $Example 4: [[ [(x^2) (y+x)] [(x^2+y^2) (y)] $
+  $              [(2 x^5+x y^4) (y h^3 +x h^3 +x y^3)]] (x,y) $
+  $             [ [ (x) -1 (y) -1] ] ] gb_h pmat ; $
+  $  This is fine because grade(v_1) = grade(v_2)+1 for all vectors. $
+  (  )
+  (cf. gb, groebner, syz_h. )
+]] putUsages
+
+/syz_h {
+  /arg1 set
+  [/in-syz_h /aa /typev /setarg /f /v 
+   /gg /wv /termorder /vec /ans /ggall /vectorInput /vsize /gtmp /gtmp2
+   /rr /mm
+   /syz_h.opt
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+
+    /aa arg1 def
+    aa isArray { } { (<< array >> syz_h) error } ifelse
+    /setarg 0 def
+    /wv 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /f aa 0 get def
+       /v syz.v def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+
+    setarg { } { (syz_h : Argument mismatch) error } ifelse
+    
+    [(KanGBmessage) syz.verbose ] system_variable
+
+
+
+    %%% Start of the preprocess
+    f getRing /rr set
+    %% To the normal form : matrix expression.
+    f gb.toMatrixOfString /f set
+    /mm gb.itWasMatrix def
+    mm 0 gt {
+      /vectorInput 1 def
+    }{
+      /vectorInput 1 def
+    } ifelse
+
+    rr tag 0 eq {
+      %% Define our own ring
+      v isInteger {
+        (Error in syz_h: Specify variables) error
+      } {  } ifelse
+      wv isInteger {        
+        [v ring_of_differential_operators 
+        0] define_ring
+        /termorder 1 def
+      }{
+        [v ring_of_differential_operators 
+         wv weight_vector
+        0] define_ring
+        wv gb.isTermOrder /termorder set
+      } ifelse
+    }{
+      %% Use the ring structre given by the input.
+      v isInteger not {
+        (Warning : the given ring definition is not used.) message
+      } {  } ifelse
+      rr ring_def
+      /wv rr gb.getWeight def
+      wv gb.isTermOrder /termorder set
+    } ifelse
+
+    getOptions /syz_h.opt set
+    (grade) (module1v) switch_function
+    [(Homogenize_vec) 0] system_variable
+    %%% End of the preprocess
+
+    termorder {
+      f { {. } map } map /f set
+      [f [(needBack) (needSyz)]] groebner /ggall set %% Do not use sugar.
+      ggall 2 get /gg set
+    }{
+      f { {. } map  } map /f set
+      [f [(needBack) (needSyz)]] groebner /ggall set 
+      ggall 2 get /gg set
+    }ifelse
+    vectorInput {
+      /vsize f 0 get length def  %% input vector size.
+      /gtmp ggall 0 get def
+       [vsize gtmp] toVectors /gtmp set
+       ggall 0 gtmp put
+    }{  } ifelse
+
+    syz_h.opt restoreOptions 
+    %% 
+
+      /arg1 [gg ggall] def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(syz_h ) messagen-quiet
+
+[(syz_h)
+ [(a syz_h [b c])
+  (array a; array b; array c)
+  (b is a set of generators of the syzygies of f in the ring of)
+  (homogenized differential operators.)
+  ( The input must be homogenized properly.)
+  ( Inproper homogenization may cause an infinite loop.)
+  ( Each element of vectors must be homogenized. If you are using )
+  ( non-term orders, all elements of vectors must have the same degree with)
+  ( a proper degree shift vector.)
+  (c = [gb, backward transformation, syzygy without dehomogenization].)
+  (See gb_h.)
+  $ [(Homogenize_vec) 0] system_variable (grade) (module1v) switch_function$ 
+  (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
+  (a : [f v];   array f; string v;  v is the variables.)
+  (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
+  $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -h^4) ( x y Dx Dy -h^4)] (x,y) $
+  $             [ [ (Dx) 1 ] ] ] syz_h pmat ; $
+  $Example 2: [ [[(h+x) (x^3)] [(x) (x)]] (x)] syz_h pmat $
+  $Example 3: [[ [(x^2) (y+x)] [(x+y) (y^3)] $
+  $              [(2 x^2+x y) (y h^3 +x h^3 +x y^3)]] (x,y) $
+  $             [ [ (x) -1 (y) -1] ] ] syz_h pmat ; $
+  $  Infinite loop: see by [(DebugReductionRed) 1] system_variable$
+  $Example 4: [[ [(x^2) (y+x)] [(x^2+y^2) (y)] $
+  $              [(2 x^5+x y^4) (y h^3 +x h^3 +x y^3)]] (x,y) $
+  $             [ [ (x) -1 (y) -1] ] ] syz_h pmat ; $
+  $  This is fine because grade(v_1) = grade(v_2)+1 for all vectors. $
+  $Example 5:  [ [ [(0) (0)] [(0) (0)] [(x) (y)]] $
+  $              [(x) (y)]] syz pmat ;$
+]] putUsages
+
+
+/isSameIdeal {
+  /arg1 set
+  [/in-isSameIdeal /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /aa arg1 def
+    %% comparison of hilbert series has not yet been implemented.
+    aa length 3 eq {    }
+    { ([ii jj vv] isSameIdeal) error } ifelse
+    gb.verbose { (isSameIdeal) message } { } ifelse
+    /ii aa 0 get def
+    /jj aa 1 get def
+    /vv aa 2 get def
+    ii length 0 eq jj length 0 eq and 
+    { /ans 1 def /LLL.isSame goto } {  } ifelse
+    [ii vv] gb  /iigg set
+    [jj vv] gb  /jjgg set
+
+    iigg getRing ring_def
+
+    /ans 1 def
+    iigg 0 get { [ (toe_) 3 -1 roll ] gbext } map
+    /iigg set
+    jjgg 0 get { [ (toe_) 3 -1 roll ] gbext } map
+    /jjgg set
+
+    gb.verbose { ( ii < jj ?) messagen } {  } ifelse
+    iigg length /n set
+    0 1 n 1 sub {
+      /k set
+      iigg  k get 
+      jjgg  reduction-noH 0 get
+      (0). eq not { /ans 0 def /LLL.isSame goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    gb.verbose { ( jj < ii ?) messagen } {  } ifelse
+    jjgg length /n set
+    0 1 n 1 sub {
+      /k set
+      jjgg k get 
+      iigg reduction-noH 0 get
+      (0). eq not { /ans 0 def /LLL.isSame goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    /LLL.isSame
+    gb.verbose { ( Done) message } {  } ifelse
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(isSameIdeal ) messagen-quiet
+
+[(isSameIdeal)
+[([ii jj vv] isSameIdeal bool)
+ (ii, jj : ideal, vv : variables)
+ (Note that ii and jj will be dehomogenized and compared in the ring)
+ (of differential operators. cf. isSameIdeal_h)
+ $Example 1: [ [(x^3) (y^2)]  [(x^2+y) (y)] (x,y)] isSameIdeal $
+ $Example 2: [ [[(x^3) (0)] [(y^2) (1)]] $
+ $             [[(x^3+y^2) (1)] [(y^2) (1)]] (x,y)] isSameIdeal $
+]] putUsages
+
+/isSameIdeal_h {
+  /arg1 set
+  [/in-isSameIdeal_h /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /aa arg1 def
+    %% comparison of hilbert series has not yet been implemented.
+    aa length 3 eq {    }
+    { ([ii jj vv] isSameIdeal_h) error } ifelse
+    gb.verbose { (isSameIdeal_h) message } { } ifelse
+    /ii aa 0 get def
+    /jj aa 1 get def
+    /vv aa 2 get def
+    ii length 0 eq jj length 0 eq and 
+    { /ans 1 def /LLL.isSame_h goto } {  } ifelse
+
+    [ii vv] gb_h  /iigg set
+    [jj vv] gb_h  /jjgg set
+
+    iigg getRing ring_def
+
+    /ans 1 def
+    iigg 0 get { [ (toe_) 3 -1 roll ] gbext } map
+    /iigg set
+    jjgg 0 get { [ (toe_) 3 -1 roll ] gbext } map
+    /jjgg set
+
+    gb.verbose { ( ii < jj ?) messagen } {  } ifelse
+    iigg length /n set
+    0 1 n 1 sub {
+      /k set
+      iigg  k get 
+      jjgg  reduction 0 get
+      (0). eq not { /ans 0 def /LLL.isSame_h goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    gb.verbose { ( jj < ii ?) messagen } {  } ifelse
+    jjgg length /n set
+    0 1 n 1 sub {
+      /k set
+      jjgg k get 
+      iigg reduction 0 get
+      (0). eq not { /ans 0 def /LLL.isSame_h goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    /LLL.isSame_h
+    gb.verbose { ( Done) message } {  } ifelse
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(isSameIdeal_h ) messagen-quiet
+
+[(isSameIdeal_h)
+[([ii jj vv] isSameIdeal_h bool)
+ (ii, jj : ideal, vv : variables)
+ (Note that ii and jj will be compared in the ring)
+ (of homogenized differential operators. Each element of the vector must be)
+ (homogenized.)
+ $Example 1: [ [(x Dx - h^2) (Dx^2)]  [(Dx^3) (x Dx-h^2)] (x)] isSameIdeal_h $
+ $Example 2: [ [[(x Dx -h^2) (0)] [(Dx^2) (1)]] $
+ $       [[(x Dx -h^2) (0)] [(Dx^2) (1)] [(Dx^3) (Dx)]] (x,y)] isSameIdeal_h $
+]] putUsages
+
+
 
 ( ) message-quiet ;
 

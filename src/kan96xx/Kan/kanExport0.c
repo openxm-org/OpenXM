@@ -1,4 +1,4 @@
-/* $OpenXM$  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.2 1999/11/06 10:37:30 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2260,6 +2260,12 @@ struct object KgbExtension(struct object obj)
     obj1 = getoa(obj,1);
     if (obj1.tag != Sarray) errorKan1("%s\n","[(toes) array] gbext poly");
     return(KvectorToSchreyer_es(obj1));
+  }else if (strcmp(key,"toe_") == 0) {
+    if (size != 2) errorKan1("%s\n","[(toe_) array] gbext poly");
+    obj1 = getoa(obj,1);
+    if (obj1.tag == Spoly) return(obj1);
+    if (obj1.tag != Sarray) errorKan1("%s\n","[(toe_) array] gbext poly");
+    return(KpoPOLY(arrayToPOLY(obj1)));
   }else if (strcmp(key,"isOrdered") == 0) {
     if (size != 2) errorKan1("%s\n","[(isOrdered) poly] gbext poly");
     obj1 = getoa(obj,1);

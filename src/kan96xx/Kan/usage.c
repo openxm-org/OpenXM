@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.4 2000/02/24 12:33:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.5 2000/03/09 12:04:52 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -188,6 +188,8 @@ char *s;
     fppp(fp,"  [(lmonom) poly] gbext poly \n");
     fppp(fp,"  [(schreyerSkelton) array_of_poly] gbext array \n");
     fppp(fp,"  [(toes) array_of_poly] gbext poly \n");
+    fppp(fp,"  [(toe_) poly] gbext poly   \n");
+    fppp(fp,"  [(toe_) array_of_poly] gbext poly   cf. toVectors \n");
     fppp(fp,"  [(isOrdered) poly] gbext poly \n");
   }else if (strcmp(s,"get")==0) {
     fppp(fp,"<< [f0 f1 ... fn] k get fk >>\n");
