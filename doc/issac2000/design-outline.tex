@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.6 2000/01/15 02:24:18 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.7 2000/01/15 03:23:59 takayama Exp $
 
 \section{Design Outline} 
 
@@ -47,9 +47,10 @@ and it had its own serialization.
 A robust interruption method was provided by having two communication channels
 like ftp.
 As an application of this robust and the interactive distributed computation
-system, speed-up was achieved for a huge Gr\"obner basis computation
+system, speed-up was achieved for a huge Gr\"obner basis computation,
+for example,
 to determine all odd order replicable functions 
-by Noro and McKay \cite{noro-mckay}.
+(Noro and McKay \cite{noro-mckay}).
 However, the protocol was closed in Asir and we thought that we should
 design an open protocol.
 \item Takayama has developed
@@ -59,7 +60,7 @@ In order to implement algorithms in D-modules due to Oaku
 (see, e.g., \cite{sst-book}),
 factorizations and primary ideal decompositions were necessary.
 Kan/sm1 does not have an implementation for these and called
-Risa/Asir as a C library or a UNIX external program.
+Risa/Asir as a UNIX external program.
 This approach was not satisfactory.
 Especially, we could not write a clean interface code between these
 two systems.
@@ -112,21 +113,16 @@ it should follow a grammar that can be parsed with other softwares.
 \item Any server may have a hybrid interface;
 it may accept and execute its original command sequences.
 For example,
-if we send the following string to ox\_asir server
-{\footnotesize
-\begin{verbatim}
-      " fctr(x^10-y^10); "
-\end{verbatim}
-}
-and call the stanck machine command
-SM\_executeStringByLocalParser,
-then the server executes the asir command
+if we send the following string to ox\_asir server \\
+\verb+        " fctr(x^10-y^10); "      + \\
+and call the stanck machine command  \\
+\verb+        SM\_executeStringByLocalParser    + \\ 
+then the server executes the asir command \\
 \verb+ fctr(x^10-y^10); + 
 (factorize $x^10-y^10$ over ${\bf Q}$)
 and push the result on the stack.
 \end{enumerate}
-We are implementing a package, OpenXM package.  
-It is based on above fundamental architecture.
+OpenXM package  is based on above fundamental architecture.
 For example, the following is a command sequence to ask $1+1$ from
 the Asir client to the OX sm1 server:
 \begin{verbatim}
