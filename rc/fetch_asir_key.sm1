@@ -1,5 +1,12 @@
-% $OpenXM$
-% ../bin/sm1 -f fetch_asir_key.sm1 to set the asir key automatically.
+% $OpenXM: OpenXM/rc/fetch_asir_key.sm1,v 1.1 2000/03/09 12:53:34 takayama Exp $
+%% Usages:
+% ../bin/sm1 -f fetch_asir_key.sm1         
+%    Set the asir key automatically.
+%
+% ../bin/sm1 -f fetch_asir_key.sm1 -s "/func (mail) def"
+% ../bin/sm1 -f fetch_asir_key.sm1 -s "/func (set) def"
+%   Step 1.  Only send a mail to get a key.
+%   Step 2.  Wait for a reply and set the keys to asir_key
 
 /fetchSeed {
   [/in-fetchSeed /size] pushVariables
@@ -24,14 +31,16 @@
 
 /waitReply {
   /MAIL [(/var/mail/) [(getenv) (USER)] extension ] cat def
+  (/bin/rm -rf work/reply) system
   {
     [(Waiting a reply in ) MAIL] cat message
-    (/bin/rm -rf work/reply) system
+    [(    Type in   ctrl-Z   and   kill ) 37 (string) dc 37 (string) dc
+     (   to stop this script.) ] cat message
     [(grep risa@sec.flab.fujitsu.co.jp ) MAIL (>work/reply)] cat system
     [(stat) (work/reply)] extension 1 get 0 get 0 eq not {
       exit
     }{  } ifelse
-    (Sleep 5) system
+    (sleep 5) system
   } loop
   (Got a key) message    
 } def
@@ -44,7 +53,7 @@
   cat work/key >>../lib/asir/asir_key
 } def
 
-/fetch {
+/fetch_check {
   [(This script sets OpenXM/lib/asir/asir_key for your machine,)
    (if your system can receive a mail at /var/mail on this machine.)
   ] { message } map
@@ -59,13 +68,35 @@
     (You already have a correct asir_key.) message
     (  ) message
     quit
- }{
+  }{ } ifelse
+} def
+
+/fetch {
+   fetch_check
    sendMail
    waitReply
    setAsirKey
- } ifelse
 } def
 
+/func load tag 0 eq {
+  fetch
+  quit
+} { } ifelse
 
-fetch
+func (mail) eq {
+  ( ) message
+  (Send a mail only) message
+  fetch_check
+  sendMail
+  quit
+} { } ifelse
+
+func (set) eq {
+  ( ) message
+  (Wait a reply and set the keys) message
+  waitReply
+  setAsirKey
+  quit
+} { } ifelse
+
 quit
