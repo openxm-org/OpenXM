@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.34 2000/06/13 14:04:19 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.35 2000/09/13 06:44:55 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -12,8 +12,6 @@ INSTALLDIR = $(OpenXM_HOME)/lib/java-support
 JAVAC = $(JAVABINDIR)javac
 JAVAH = $(JAVABINDIR)javah
 JAR = $(JAVABINDIR)jar
-
-TAR = tar
 
 PKGSRCS =	\
 	ORG/openxm/tam/CMO.java \
@@ -44,6 +42,7 @@ PKGSRCS =	\
 	ORG/openxm/tam/OpenXMserver.java \
 	ORG/openxm/tam/OpenXMstream.java \
 	ORG/openxm/tam/SM.java
+
 PKGTARGETS =	ORG/openxm/tam/CMO.class \
 	ORG/openxm/tam/CMO_BIGFLOAT.class \
 	ORG/openxm/tam/CMO_DATUM.class \
@@ -73,51 +72,35 @@ PKGTARGETS =	ORG/openxm/tam/CMO.class \
 	ORG/openxm/tam/OXmessage.class \
 	ORG/openxm/tam/SM.class
 
-
 TARGETS = OM2OXM.class OMproxy.class
 
+.SUFFIXES: .java .class
+
+.java.class:
+	$(JAVAC) -d . -g -O $<
 
 all:	clean configure OpenXM.jar $(TARGETS)
 
-
 configure:
 
-
 clean:
-	-rm -f *.jar *.class $(PKGTARGETS)
-
+	-find . -name '*.class' | xargs rm -f *.jar
 
 distclean:	clean
-	find . -name '*~' \
-		-exec echo rm -f {} \; \
-		-exec rm -f {} \;
-
+	-find . -name '*~' | xargs rm -f
 
 install:	all
-	if [ ! -d $(INSTALLDIR) ]; then \
-		mkdir -p $(INSTALLDIR); \
-	fi
-	$(TAR) cf - $(TARGETS) `find . -name '*.class'` | \
-		(cd $(INSTALLDIR) ; $(TAR) xf -)
-
+	-mkdir -p $(INSTALLDIR)
+	find . -name '*.class' | \
+	xargs tar cf - $(TARGETS) | \
+	(cd $(INSTALLDIR) ; tar xf -)
 
 install2:
-
 
 test:
 	$(JAVAC) -d . -deprecation -g *.java
 
-
-.SUFFIXES:	.java .class
-
-
-.java.class:
-	#$(JAVAC) -d . -O $<
-	$(JAVAC) -d . -g -O $<
-
-
 OpenXM.jar:	$(PKGSRCS)
-	#-$(JAVAC) -d . -O $?
 	-$(JAVAC) -d . -g -O $?
-	-@#touch $@
-	-@#$(JAR) cf $@ $(PKGTARGETS)
+#	-@touch $@
+#	-@$(JAR) cf $@ $(PKGTARGETS)
