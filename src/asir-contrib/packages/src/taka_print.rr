@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.1 2001/07/16 07:21:58 takayama Exp $ */
 
 #define Number 1
 #define Rational 3
@@ -112,18 +112,50 @@ def taka_tex_form_dpolynomial(F) {
   return Ans;
 }
 
-def taka_dp_print(S) {
-  extern Taka_print_dp_vlist;
-
-
-}
-
 def taka_output(S) {
   shell("rm t.tex ");
   output("t.tex");
   print(S);
   output();
 }
+
+def taka_print(S) {
+  if (type(S) == DPolynomial) {
+    return taka_dp_print(S);
+  }else{
+    return rtostr(S);
+  }
+}
+def taka_dp_print(F) {
+  extern Taka_print_dp_vlist;
+  if (F != 0) {
+    N = size(dp_etov(dp_hm(F)))[0];
+    Vlist = newvect(N);
+    if (length(Taka_print_dp_vlist) < N) {
+      error("Set the variable Taka_print_dp_vlist properly.");
+    }
+    for (I=0; I<N; I++) {
+      Vlist[I] = Taka_print_dp_vlist[I];
+    }
+    Vlist = vtol(Vlist);
+    Ans="distributed_polynomial(\"   ";
+  }else{
+    Ans="0";
+  }
+  C = 0;
+  while (F != 0) {
+     G = dp_hm(F);
+     F = dp_rest(F);
+     if (dp_hc(G)>0 && C != 0) {
+       Ans += "+";
+     }
+     Ans += rtostr(dp_dtop(G,Vlist));
+     if (C == 0) C = 1;
+  }
+  Ans += "   \")";
+  return Ans;
+}
+
 
 Loaded_taka_print=1$
 end$
