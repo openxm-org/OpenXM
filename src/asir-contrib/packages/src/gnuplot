@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.15 2004/12/16 11:41:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.16 2004/12/17 00:13:08 takayama Exp $ */
 
 module gnuplot;
 
@@ -30,6 +30,8 @@ localf closefile $
 localf writeString $
 localf complexToVec $
 localf goutput $
+localf initsm1 $
+localf setenv $
 
 #define PROCESS_MAX  20
 
@@ -39,9 +41,13 @@ static Gnuplot_pid$
 static FileIsOpenInSm1$
 static Gnuplot_Roots$
 static Heat_N $     /* Mesh 分割数, Heat_N=5 */
+static Gnuplot_callingMethod$
+static Plot_gnuplotexec$
 Gnuplot_proc = -1$
 Gnuplot_pid = newvect(20) $
 FileIsOpenInSm1 = newvect(PROCESS_MAX)$
+Gnuplot_callingMethod = -1$
+Plot_gnuplotexec = ""$
 
 /* For heat() */
 Heat_N = 20$     /* Mesh 分割数, Heat_N=5 */
@@ -79,6 +85,26 @@ def flush(P) {
   return P;  /* do nothing. Compatibility for gnuplotf */
 }
 
+def setenv(Key,Value) {
+  if (Key == "gnuplot.callingMethod") {
+    Gnuplot_callingMethod = Value;
+  } else if (Key == "plot.gnuplotexec") {
+    Plot_gnuplotexec = Value;
+  }else {
+    error("Unknown Key --- gnuplot.callingMethod, plot.gnuplotexec");
+  }  
+}
+
+def initsm1(P) {
+   sm1.sm1(P," [(parse) (gnuplot.sm1) pushfile] extension");
+   if (Gnuplot_callingMethod >= 0) {
+     sm1.sm1(P," /gnuplot.callingMethod "+rtostr(Gnuplot_callingMethod)+" def ");
+   }
+   if (Plot_gnuplotexec != "") {
+     sm1.sm1(P,Plot_gnuplotexec+" /plot.gnuplotexec set ");
+   }
+}
+
 def start_unix() {
   /*! extern Gnuplot_pid; */
   extern Xm_noX;
@@ -97,7 +123,7 @@ def start_unix() {
     print(" Output to stdout and a file for debugging. ");
   }else{
     if (Gnuplot_pid[P] == 0) {
-     sm1.sm1(P," [(parse) (gnuplot.sm1) pushfile] extension");
+     initsm1(P);
      sm1.sm1(P," plotstart.aux ");  /* path for gnuplot_forox
                                    is set to this function */
      sm1.sm1(P," gnuplot.pid ");
@@ -112,7 +138,7 @@ def start_unix() {
 def start_windows(S) {
   extern Xm_debug_on_win_1;
   if (!Xm_debug_on_win_1) {
-    error("The component phc has not yet been implemented on Windows(native).");
+    error("The component gnuplot has not yet been implemented on Windows(native).");
   }
 }
 

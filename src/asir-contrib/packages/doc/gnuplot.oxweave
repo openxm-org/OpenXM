@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/gnuplot.oxweave,v 1.3 2004/03/05 15:30:50 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/gnuplot.oxweave,v 1.4 2004/03/05 15:56:40 ohara Exp $ */
 
 
 /*&C
@@ -33,6 +33,8 @@ The file @file{gnuplot} is at @*
 * gnuplot.heat::
 * gnuplot.plot_function::
 * gnuplot.output::
+* gnuplot.setenv::
+* gnuplot.stop::
 @end menu
 
 */
@@ -598,6 +600,140 @@ Polynomial or a list of polynomials
 @end table
 */
 
+/*&en
+
+@node gnuplot.stop,,, GNUPLOT Functions
+@subsection @code{gnuplot.stop}
+@findex gnuplot.stop
+@table @t
+@item gnuplot.stop()
+::  Stop the gnuplot and remove the temporary fifo file.
+@end table
+
+@table @var
+@item return
+Void
+@item s
+String
+@end table
+
+@itemize @bullet
+@item Stop the @code{GNUPLOT} and remove the temporary fifo file generated 
+by the mkfifo system call under the temporary directory.
+@end itemize
+*/
+/*&ja
+
+@node gnuplot.stop,,, GNUPLOT Functions
+@subsection @code{gnuplot.stop}
+@findex gnuplot.stop
+@table @t
+@item gnuplot.stop()
+::  @code{GNUPLOT} を停止し, 通信用の fifo ファイルを消す.
+@end table
+
+@table @var
+@item return
+Void
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  @code{GNUPLOT} を停止し, 一時ディレクトリの下に作成された通信用の fifo ファイルを消す.
+@item 通信用の fifo ファイル名は gnuplot で始まる.
+@end itemize
+*/
+
+/*&C
+@example
+[273] gnuplot.stop()
+@end example
+*/
+
+/*&en
+@table @t
+@item Reference
+    @code{gnuplot.start}
+@end table
+*/
+/*&ja
+@table @t
+@item 参照 
+    @code{gnuplot.start}
+@end table
+*/
+
+/*&en
+@node gnuplot.setenv,,, GNUPLOT Functions
+@subsection @code{gnuplot.setenv}
+@findex gnuplot.setenv
+@table @t
+@item gnuplot.setenv(@var{key},@var{value})
+::  
+@end table
+
+@table @var
+@item return
+Void
+@item key
+String
+@item value
+Object
+@end table
+
+@itemize @bullet
+@item The @var{key} takes the value either in
+"gnuplot.callingMethod" or "plot.gnuplotexec".
+@end itemize
+*/
+/*&ja
+@node gnuplot.setenv,,, GNUPLOT Functions
+@subsection @code{gnuplot.setenv}
+@findex gnuplot.setenv
+@table @t
+@item gnuplot.setenv(@var{key},@var{value})
+::  
+@end table
+
+@table @var
+@item return
+Void
+@item key
+String
+@item value
+Object
+@end table
+
+@itemize @bullet
+@item  @code{key} は "gnuplot.callingMethod" または "plot.gnuplotexec".
+@end itemize
+*/
+
+/*&C
+@example
+   Use the old method to communicate with gnuplot (version 3).
+   This method does not use mkfifo, but we need a patched version of gnuplot.
+[273] gnuplot.setenv("gnuplot.callingMethod",0);
+[274] gnuplot.setenv("plot.gnuplotexec",getenv("OpenXM_HOME")+"/bin/gnuplot4ox");
+
+   Calling your own gnuplot binary. 
+[274] gnuplot.setenv("plot.gnuplotexec","/cygdrive/c/program files/gnuplot/pgnuplot.exe");
+@end example
+*/
+
+/*&en
+@table @t
+@item Reference
+    @code{gnuplot.start}
+@end table
+*/
+/*&ja
+@table @t
+@item 参照 
+    @code{gnuplot.start}
+@end table
+*/
 
 end$
 
