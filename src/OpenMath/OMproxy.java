@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.23 2000/01/20 16:40:13 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.24 2000/01/20 18:14:32 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -150,6 +150,15 @@ class OMproxy implements Runnable{
     debug("push: "+ stack.peek());
   }
 
+  private void SM_setMathCap() throws java.io.IOException{
+    Object mathcap = stack.pop();
+
+    if(mathcap instanceof CMO_MATHCAP){
+      stack.push(new CMO_ERROR2());
+    }
+    ox.setMathCap((CMO_MATHCAP)mathcap);
+  }
+
   private void StackMachine(SM mesg) throws java.io.IOException{
     debug("receive: "+mesg);
 
@@ -164,6 +173,10 @@ class OMproxy implements Runnable{
 
     case SM.SM_mathcap:
       SM_mathcap();
+      break;
+
+    case SM.SM_setMathCap:
+      SM_setMathCap();
       break;
 
     default:

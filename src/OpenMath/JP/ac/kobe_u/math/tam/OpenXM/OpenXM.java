@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.7 2000/01/19 15:32:51 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.8 2000/01/20 18:14:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -166,6 +166,10 @@ public class OpenXM implements Runnable{
     }
 
     System.out.println(")");
+  }
+
+  public void setMathCap(CMO_MATHCAP mathcap){
+    stream.setMathCap(mathcap);
   }
 
   public static String toString(int tag){

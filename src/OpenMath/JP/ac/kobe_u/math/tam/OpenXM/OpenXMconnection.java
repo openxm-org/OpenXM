@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.8 2000/01/19 15:21:58 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.9 2000/01/20 18:14:34 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -135,7 +135,7 @@ class OpenXMconnection{
     return tag;
   }
 
-  public void setMathcap(CMO_MATHCAP mathcap){
+  public void setMathCap(CMO_MATHCAP mathcap){
     this.mathcap = mathcap;
   }
 
