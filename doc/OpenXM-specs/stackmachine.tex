@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.9 2000/09/09 21:59:13 takayama Exp $
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.10 2000/09/11 17:37:28 takayama Exp $
 //&jp \section{ OX スタックマシン }
 //&eg \section{ OX stack machine }
 \label{sec:stackmachine}
@@ -494,10 +494,8 @@ Class.mathcap
 \end{verbatim}
 
 /*&jp
-mathcap は 3つの要素をもつリストである.  まづ, 最初の要素を見よう.
-最初の数字は OpenXM プロトコルのバージョンである.
-現在では 1.1.3 等のバージョンが 001001003 と数字にエンコードされて
-ここに格納される.
+mathcap は 3つの要素をもつリストである.  まづ, 最初の要素(これもリスト)を見よう.
+リストの先頭の数字は OpenXM プロトコルのバージョンである.
 Ox\_system は openXM システム名である.  読み込むライブラリがちがって
 いて, 関数名(または シンボル)の意味がちがうときはこの名前もかえる. た
 とえば, open math の basic content dictionary 対応の関数定義マクロを読
@@ -509,7 +507,8 @@ Ox\_system は openXM システム名である.  読み込むライブラリがちがって
 タのフォマットは(サイズ情報なしの) CMO であることを示す.
 */
 /*&eg
-A mathcap has three components. The first one contains informations
+A mathcap has three components. The first one, which is also a list,
+contains informations
 to identify the version number of the OpenXM protocol,
 the system and hosts on which the application runs.
 In the above example, {\tt Ox\_system} denotes the system name.
