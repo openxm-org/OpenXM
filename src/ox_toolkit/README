@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.1 1999/12/09 22:44:55 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.2 1999/12/15 01:59:58 ohara Exp $
 
 ☆ libox.a マニュアル。
 
@@ -175,5 +175,59 @@ Mathcap を受け取る。現在は Mathcap の処理はユーザプログラムに任されている。
 
 4. 低水準 API
 
-4.1 通信の開始   
+低水準 API はファイルディスクリプタを直接利用する。
 
+4.1 通信に使われるバイトオーダの決定
+
+int decideByteOrderServer(int fd, int order);
+
+このツールキットは、サーバが開始されるときにはすでに通信路が設定されて
+いるが、その通信路に用いるバイトオーダの決定は行われていないと仮定して
+いる。詳しくは、高山-野呂, "OpenXM の設計と実装" を参照せよ。
+
+(注意) クライアント側でのバイトオーダの設定は、高水準 API で自動的に行われる。
+
+4.2 
+
+int send_int32(int fd, int integer);
+
+fd に 32bit 整数を書き込む。
+
+int receive_int32(int fd);
+
+fd から 32bit 整数を読み込む。
+
+4.3 
+
+int  send_cmo(int fd, cmo* m);
+
+fd に cmo を書き込む。
+
+cmo* receive_cmo(int fd);
+
+fd から cmo を読み込む。
+
+4.4
+
+int next_serial();
+
+シリアルナンバを生成する。
+
+4.5
+
+int  send_ox_tag(int fd, int tag);
+
+fd に OX メッセージのヘッダ(tag+id)を書き込む。
+シリアル番号は自動的に生成される。
+
+int  receive_ox_tag(int fd);
+
+fd から OX メッセージのヘッダ(tag+id)を読み込む。
+
+4.6 
+
+int  send_ox(int fd, ox* m);
+int  send_ox_cmo(int fd, cmo* m);
+void send_ox_command(int fd, int sm_command);
+
+ox メッセージを送信する。
