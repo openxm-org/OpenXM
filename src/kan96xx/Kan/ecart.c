@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.5 2003/07/19 06:03:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.6 2003/07/29 08:36:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -401,17 +401,22 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
   /* 1 means homogenize only s */
 
+  if (DebugReductionEcart&1) printf("=======================================\n");
   do {
-    if (DebugReductionRed) printf("r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionRed) printf("(ecart1(d)) r=%s\n",POLYToString(r,'*',1));
+    if (DebugReductionEcart & 1) printf("r=%s+,,,\n",POLYToString(head(r),'*',1));
+
     ells = ecartFindReducer(r,gset,gg);
     ell = ells.ell;
     if (ell > 0) {
+      if (DebugReductionEcart & 2) printf("%");
       gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
     }
     if (ell >= 0) {
       if (ells.first) {
         pp = ((gset->polys[ells.grade])->gh)[ells.gseti];
       }else{
+        if (DebugReductionEcart & 4) printf("+");
         pp = (gg->pa)[ells.ggi];
       }
       if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */

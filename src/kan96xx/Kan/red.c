@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.3 2000/02/24 00:27:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.4 2001/05/04 01:06:25 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -652,7 +652,7 @@ POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,
           if (f ISZERO) goto ss;
           if ((!((grd == skipGrd) && (i == skipi))) && (set->del[i]==0)) {
             /*  Do not use deleted element.*/
-            if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) {
+            if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) { 
               f = (*reduction1Cdr)(f,fs,set->g[i],needSyz,&cc,&cg);
               /* What is cg? */
               if (needSyz) {

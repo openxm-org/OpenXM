@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.2 2003/07/25 01:03:00 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.3 2003/07/29 08:36:39 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -587,5 +587,179 @@
   arg1
 } def
 (ecartn.gb[gb by non-ecart division] ) messagen-quiet 
+
+/ecartd.gb {
+  /arg1 set
+  [/in-ecart.gb /aa /typev /setarg /f /v 
+   /gg /wv /vec /ans /rr /mm
+   /degreeShift  /env2 /opt /ans.gb
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv
+  [
+    /aa arg1 def
+    aa isArray { } { ( << array >> gb) error } ifelse
+    /setarg 0 def
+    /wv 0 def
+    /degreeShift 0 def
+    /opt [(weightedHomogenization) 1] def
+    aa { tag } map /typev set
+    typev [ ArrayP ] eq
+    {  /f aa 0 get def
+       /v gb.v def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP RingP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP StringP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /setarg 1 def
+    } { } ifelse
+
+    /env1 getOptions def
+
+    setarg { } { (ecart.gb : Argument mismatch) error } ifelse
+    
+    [(KanGBmessage) ecart.gb.verbose ] system_variable
+    $ecartd.gb dehomogenizes at each reduction step w.r.t. s (H).$ message
+
+    %%% Start of the preprocess
+    v tag RingP eq {
+       /rr v def 
+    }{
+      f getRing /rr set
+    } ifelse
+    %% To the normal form : matrix expression.
+    f gb.toMatrixOfString /f set
+    /mm gb.itWasMatrix def
+
+    rr tag 0 eq {
+      %% Define our own ring
+      v isInteger {
+        (Error in gb: Specify variables) error
+      } {  } ifelse
+      wv isInteger {        
+        (Give an weight vector such that x < 1) error
+      }{
+       degreeShift isInteger {
+         [v ring_of_differential_operators 
+           wv weight_vector
+          gb.characteristic
+          opt
+         ] define_ring
+
+       }{
+         [v ring_of_differential_operators 
+           wv weight_vector
+          gb.characteristic
+          [(degreeShift) degreeShift] opt join 
+          ] define_ring
+
+       } ifelse
+      } ifelse
+    } {
+      %% Use the ring structre given by the input.
+      v isInteger not {
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
+      } {  } ifelse
+      rr ring_def
+      /wv rr gb.getWeight def
+
+    } ifelse
+    %%% Enf of the preprocess
+
+    ecart.gb.verbose {
+       degreeShift isInteger { }
+       {
+         (The degree shift is ) messagen
+         degreeShift message
+       } ifelse
+    } { } ifelse
+
+    ecart.begin
+    [(EcartAutomaticHomogenization) 1] system_variable
+
+    ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
+
+    f { {. ecart.dehomogenize} map} map /f set   
+    f ecart.homogenize01 /f set
+    f { { [[(H). (1).]] replace } map } map /f set
+
+    ecart.needSyz {
+      [f [(needSyz)] gb.options join ] groebner /gg set
+    } {  
+      [f gb.options] groebner 0 get /gg set
+    } ifelse
+
+    ecart.needSyz {
+      mm {
+       gg 0 get { /tmp set [mm tmp] toVectors } map /ans.gb set
+      } { /ans.gb gg 0 get def } ifelse
+      /ans [gg 2 get , ans.gb , gg 1 get , f ] def
+      ans pmat ;
+    } { 
+      wv isInteger {
+        /ans [gg gg {init} map] def
+      }{
+        /ans [gg gg {wv 0 get weightv init} map] def
+      }ifelse
+
+      %% Postprocess : recover the matrix expression.
+      mm {
+        ans { /tmp set [mm tmp] toVectors } map
+        /ans set
+      }{ }
+      ifelse
+    } ifelse
+
+    ecart.end
+    [(EcartAutomaticHomogenization) 0] system_variable
+
+    %% 
+    env1 restoreOptions  %% degreeShift changes "grade"
+
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(ecartd.gb[results are dehomogenized at each reduction step] ) messagen-quiet 
 
 ( ) message-quiet 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.3 2001/05/04 01:06:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.4 2003/07/17 07:33:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -15,12 +15,13 @@ struct polySet *newPolySet(n)
   g = (struct polySet *)sGC_malloc(sizeof(struct polySet));
   g->g = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
   g->gh = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
+  g->gen = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->del = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->syz = (struct syz0 **)sGC_malloc(sizeof(struct syz0 *)*(n+1));
   g->mark = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->serial = (int *)sGC_malloc(sizeof(int)*(n+1));
   if (g->g == (POLY *)NULL || g->del == (int *)NULL ||
-      g->gh == (POLY *)NULL ||
+      g->gh == (POLY *)NULL || g->gen == (int *)NULL ||
       g->syz == (struct syz0 **)NULL || g->mark == (int *)NULL ||
       g->serial == (int *)NULL) {
     errorGradedSet("No more memory.");
@@ -186,6 +187,7 @@ struct pair *getPair(grD)
   return((struct pair *)NULL);
 }
 
+
 void whereInG(g,fi,gradep,indexp,sugar)
      struct gradedPolySet *g;
      POLY fi;
@@ -257,6 +259,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
     for (i=0; i<g->polys[grade]->lim; i++) {
       polysNew->g[i] = g->polys[grade]->g[i];
       polysNew->gh[i] = g->polys[grade]->gh[i];
+      polysNew->gen[i] = g->polys[grade]->gen[i];
       polysNew->del[i] = g->polys[grade]->del[i];
       polysNew->syz[i] = g->polys[grade]->syz[i];
       polysNew->mark[i] = g->polys[grade]->mark[i];
@@ -269,6 +272,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
   g->polys[grade]->size = index+1;
   g->polys[grade]->g[index] = fi;
   g->polys[grade]->gh[index] = POLYNULL;
+  g->polys[grade]->gen[index] = 0;
   g->polys[grade]->del[index] = 0;
   g->polys[grade]->syz[index] = syz;
   g->polys[grade]->mark[index] = mark;
@@ -297,7 +301,7 @@ void markRedundant(g,fi,grade,index,sugar)
     for (j=0; j<ps->size; j++) {
       if (i == grade && j == index) {
       }else if ((*isReducible)(ps->g[j],fi)) {
-        ps->del[j] = 1;
+		if (! ps->gen[j]) ps->del[j] = 1; /*?*/
       }
     }
   }
@@ -318,9 +322,9 @@ void markRedundant0(g,grade,index)
     for (j=0; j<ps->size; j++) {
       if (i == grade && j == index) {
       }else if ((*isReducible)(ps->g[j],fi)) {
-        ps->del[j] = 1;
+        if (! ps->gen[j] ) ps->del[j] = 1; /*?*/
       }else if ((*isReducible)(fi,ps->g[j])) {
-        g->polys[grade]->del[index] = 1;
+        if (! g->polys[grade]->gen[index] ) g->polys[grade]->del[index] = 1; /*?*/
         return;
       }
     }
@@ -515,4 +519,10 @@ int deletePairByCriterion2B(struct gradedPairs *grD,POLY gt,
     }
   }
   return(count);
+}
+
+int markGeneratorInG(struct gradedPolySet *g,int grade,int index)
+{
+  g->polys[grade]->gen[index] = 1;
+  return 1;
 }

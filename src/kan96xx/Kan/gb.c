@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.5 2001/05/04 01:06:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.6 2002/02/10 08:22:56 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -236,7 +236,8 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
       g = putPolyInG(g,gt,grade,indx,syzp,1,serial);
     }
 
-    markRedundant0(g,grade,indx);
+    /* markRedundant0(g,grade,indx); ?*/
+	markGeneratorInG(g,grade,indx);  /*?*/
     if (Debug) {
       outputGradedPairs(d); outputGradedPolySet(g,needSyz);
     }
@@ -249,6 +250,12 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
   while ((top = getPair(d)) != (struct pair *)NULL) {
     ig = top->ig; ii = top->ii; /* [ig,ii] */
     jg = top->jg; ji = top->ji; /* [jg,ji] */
+	/*
+    if (g->polys[ig]->del[ii] || g->polys[jg]->del[ji]) {
+      if (KanGBmessage) printf("p");
+      continue; 
+    }  Don't do this.
+	*/
     gi = g->polys[ig]->g[ii];
     gj = g->polys[jg]->g[ji];
 

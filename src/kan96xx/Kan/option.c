@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.8 2003/07/17 23:37:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.9 2003/07/29 08:36:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -306,7 +306,7 @@ struct object KsystemVariable(ob)
         Ecart = KopInteger(ob2);
         rob = KpoInteger(Ecart);
       }else if (strcmp(ob1.lc.str,"EcartAutomaticHomogenization") == 0) {
-        Ecart = KopInteger(ob2);
+        EcartAutomaticHomogenization = KopInteger(ob2);
         rob = KpoInteger(EcartAutomaticHomogenization);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
