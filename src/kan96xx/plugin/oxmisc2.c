@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.10 2000/12/05 12:03:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.11 2000/12/06 00:29:52 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -17,8 +17,8 @@ int DebugMathCap = 1;
 
 
 int oxGet(oxclientp client, struct object *op,int *isObj)
-/* This method should be synchronized. */
-/* oxGet is a function for client. */
+     /* This method should be synchronized. */
+     /* oxGet is a function for client. */
 {
   int ans;
   ox_stream os;
@@ -88,7 +88,7 @@ int oxReq(oxclientp client,int func,struct object ob)
   /* request to the control channel */
   if (func == SM_control_reset_connection ||
       func == SM_control_kill) {
-	AbortIfRFC_101(client);
+    AbortIfRFC_101(client);
     switch(func) {
     case SM_control_reset_connection:
       oxReqControlResetConnection(client->controlfd);
@@ -135,10 +135,10 @@ int oxReq(oxclientp client,int func,struct object ob)
     break;
   case SM_setMathCap:
     /* ob = [(mathcap-obj) [[version num, system name] [sm tags]
-                             ob1                        smtags
-                                    oxtags      [[ox numbers, [cmo numbers]]]
-                                                    ob3         ob2 */
-   /*     oxtags      [[OX_DATA, [cmo numbers]],[OX_DATA_LOCAL,[opt]],...]*/
+       ob1                        smtags
+       oxtags      [[ox numbers, [cmo numbers]]]
+       ob3         ob2 */
+    /*     oxtags      [[OX_DATA, [cmo numbers]],[OX_DATA_LOCAL,[opt]],...]*/
     {
       struct object ob1;
       struct object ob2;
@@ -147,20 +147,20 @@ int oxReq(oxclientp client,int func,struct object ob)
       struct object smtags;
       struct object oxtags;
       struct object ox;
-    int n,i;
-    struct mathCap mathcap;
+      int n,i;
+      struct mathCap mathcap;
 
-    if (strcmp(KopString(getoa(ob,0)),"mathcap-object") != 0) {
-      errorOxmisc2("data format error in oxReqSetMathCap");
-      client->dstate = DSTATE_ANY;
-      break;
-    }
+      if (strcmp(KopString(getoa(ob,0)),"mathcap-object") != 0) {
+        errorOxmisc2("data format error in oxReqSetMathCap");
+        client->dstate = DSTATE_ANY;
+        break;
+      }
       obm = getoa(ob,1);
       ob1 = getoa(obm,0);
       smtags = getoa(obm,1);
       oxtags = getoa(obm,2);
       if (smtags.tag != Sarray || oxtags.tag != Sarray) {
-	errorOxmisc2("data format error in oxReqSetMathCap");
+        errorOxmisc2("data format error in oxReqSetMathCap");
       }
       ob1p = (struct object *) sGC_malloc(sizeof(struct object));
       *ob1p = ob1;
@@ -170,32 +170,32 @@ int oxReq(oxclientp client,int func,struct object ob)
       if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
       mathcap.oxSize = n;
       for (i=0; i<n; i++) {
-	ox = getoa(oxtags,i);
-	if (ox.tag != Sarray) {
-	  errorOxmisc2("Data format error of the third argument of mathcap.");
-	}
-	mathcap.ox[i] = KopInteger(getoa(ox,0));
-	if (mathcap.ox[i] == OX_DATA) {
-	  if (getoaSize(ox) < 2) {
-	    errorOxmisc2("Data format error in an entry of the third argument of mathcap.");
-	  }
-	  ob2 = getoa(ox,1);
-	  if (ob2.tag != Sarray) {
-	    errorOxmisc2("Data format error in an entry of the third argument of mathcap.");
-	  }
-	  mathcap.n = getoaSize(ob2);
-	  if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
-	  for (i=0; i<mathcap.n; i++) {
-	    mathcap.cmo[i] = KopInteger(getoa(ob2,i));
-	  }
-	}
+        ox = getoa(oxtags,i);
+        if (ox.tag != Sarray) {
+          errorOxmisc2("Data format error of the third argument of mathcap.");
+        }
+        mathcap.ox[i] = KopInteger(getoa(ox,0));
+        if (mathcap.ox[i] == OX_DATA) {
+          if (getoaSize(ox) < 2) {
+            errorOxmisc2("Data format error in an entry of the third argument of mathcap.");
+          }
+          ob2 = getoa(ox,1);
+          if (ob2.tag != Sarray) {
+            errorOxmisc2("Data format error in an entry of the third argument of mathcap.");
+          }
+          mathcap.n = getoaSize(ob2);
+          if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
+          for (i=0; i<mathcap.n; i++) {
+            mathcap.cmo[i] = KopInteger(getoa(ob2,i));
+          }
+        }
       }
 
       n = getoaSize(smtags);
       if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
       mathcap.smSize = n;
       for (i=0; i<n; i++) {
-	mathcap.sm[i] = KopInteger(getoa(smtags,i));
+        mathcap.sm[i] = KopInteger(getoa(smtags,i));
       }
 
       oxReqSetMathCap(client->datafp2,&mathcap);
@@ -264,8 +264,8 @@ int oxReq(oxclientp client,int func,struct object ob)
 }
 
 struct object KoxCreateClient(struct object ip,
-			      struct object portStream,
-			      struct object portControl)
+                              struct object portStream,
+                              struct object portControl)
 {
   struct object rob;
   oxclientp client;
@@ -276,7 +276,7 @@ struct object KoxCreateClient(struct object ip,
   }
   if (portStream.tag == Sdollar) {
     client = oxCreateClientFile(KopString(ip),KopString(portStream),
-				"/dev/null","w");
+                                "/dev/null","w");
     if (client == NULL) {
       errorOxmisc2("KoxCreateClient(): Open error.");
       return(rob);
@@ -443,8 +443,8 @@ int oxObjectToClient(struct object ob,oxclientp cp)
 }
 
 struct object KoxReq(struct object client,
-		     struct object func,
-		     struct object ob1)
+                     struct object func,
+                     struct object ob1)
 {
   int ans;
   static oxclientp cc1 = NULL;
@@ -560,15 +560,15 @@ struct object KoxMultiSelect(struct object oclients,struct object t)
   if (first) {
     first = 0; csize = size;
     clients = (oxclientp *)mymalloc(sizeof(oxclientp)*(size+1));
-     if (clients == NULL) {
+    if (clients == NULL) {
       errorOxmisc2("KoxMultiSelect(): no more memory.");
       return(rob);
     }
     for (i=0; i<size; i++) {
       clients[i] =  (oxclientp) mymalloc(sizeof(oxclient));
       if (clients[i] == NULL) {
-	errorOxmisc2("KoxMultiSelect(): no more memory.");
-	return(rob);
+        errorOxmisc2("KoxMultiSelect(): no more memory.");
+        return(rob);
       }
       oxInitClient(clients[i]);
     }
@@ -606,7 +606,7 @@ struct object KoxMultiSelect(struct object oclients,struct object t)
 }
 
 struct object KoxWatch(struct object client,struct object f)
-/* f is not used for now. It should be log file. */
+     /* f is not used for now. It should be log file. */
 {
   int ans,k;
   static oxclientp cc1 = NULL;
@@ -614,12 +614,12 @@ struct object KoxWatch(struct object client,struct object f)
   extern int WatchStream;
   rob.tag = Snull;
   if (client.tag == Sinteger) {
-	if (KopInteger(client)) {
-	  WatchStream = 1;
-	}else{
-	  WatchStream = 0;
-	}
-	return;
+    if (KopInteger(client)) {
+      WatchStream = 1;
+    }else{
+      WatchStream = 0;
+    }
+    return;
   }
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -685,7 +685,7 @@ static int cmoCheck00(struct object obj,int cmo[], int n) {
   static int typeTrans[CHECK00_N]; 
   static int init = 0;
   /* if n == 0, report the cmo tag of the object obj.
-	 If it cannot be translated to cmo, then return -1. */
+     If it cannot be translated to cmo, then return -1. */
 
   if (!init) {
     for (i=0; i<CHECK00_N; i++) {
@@ -717,19 +717,19 @@ static int cmoCheck00(struct object obj,int cmo[], int n) {
   }
   /* Only report the cmo tag. */
   if (n == 0) {
-	if (ttt == 0) return(-1);
-	else return(ttt);
+    if (ttt == 0) return(-1);
+    else return(ttt);
   }
 
   for (i=0; i<n; i++) {
     if (ttt == cmo[i]) {
       if (ttt != CMO_LIST) return(1);
       else {
-	m = getoaSize(obj);
-	for (j=0; j<m; j++) {
-	  if (!cmoCheck00(getoa(obj,j),cmo,n)) return(0);
-	}
-	return(1);
+        m = getoaSize(obj);
+        for (j=0; j<m; j++) {
+          if (!cmoCheck00(getoa(obj,j),cmo,n)) return(0);
+        }
+        return(1);
       }
     }
   }
@@ -737,7 +737,7 @@ static int cmoCheck00(struct object obj,int cmo[], int n) {
     if (DebugMathCap && 1) {
       fprintf(stderr,"Type translation table (internal object tag --> CMO tag)\n");
       for (i=0; i<20; i++) {
-	printf("%d ", typeTrans[i]);
+        printf("%d ", typeTrans[i]);
       }
       printf("\n");
     }
@@ -776,12 +776,12 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
   }
   mathcap = *obp;
   /* Example of mathcap 
-    [    $mathcap-object$ ,
-       [    [    199909080 , $Ox_system=ox_sm1.plain$ , $Version=2.991106$ , 
-                 $HOSTTYPE=i386$ ]  , 
-            [    262 , 263 , 264 , 265 , 266 , 268 , 269 , 272 , 273 , 275 , 
-                 276 ]  , 
-            [    [    514  , [    2130706434 , 1 , 2 , 4 , 5 , 17 , 19 , 20 , 22 , 23 , 24 , 25 , 26 , 30 , 31 , 60 , 61 , 27 , 33 , 40 , 16 , 34 ] ] ]  ]  ]
+     [    $mathcap-object$ ,
+     [    [    199909080 , $Ox_system=ox_sm1.plain$ , $Version=2.991106$ , 
+     $HOSTTYPE=i386$ ]  , 
+     [    262 , 263 , 264 , 265 , 266 , 268 , 269 , 272 , 273 , 275 , 
+     276 ]  , 
+     [    [    514  , [    2130706434 , 1 , 2 , 4 , 5 , 17 , 19 , 20 , 22 , 23 , 24 , 25 , 26 , 30 , 31 , 60 , 61 , 27 , 33 , 40 , 16 , 34 ] ] ]  ]  ]
   */
 
   n = getoaSize(mathcap);
@@ -806,7 +806,7 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
   }
     
   /* I should check 
-         getoa(getoa(mathcap,1),2)
+     getoa(getoa(mathcap,1),2)
      contains OX_DATA.
      It has not yet implemented.
   */
@@ -836,41 +836,41 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
     if (getoaSize(ox) != 0) {
       oxtag = getoa(ox,0);
       if (oxtag.tag != Sinteger) {
-	fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
-	printObject(*obp,0,stderr);
-	fprintf(stderr,"\n");
-	errorOxmisc2("cmoCheckMathCap: the third element of mathcap must be [OX_DATA_xxx, [  ]].");
+        fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+        printObject(*obp,0,stderr);
+        fprintf(stderr,"\n");
+        errorOxmisc2("cmoCheckMathCap: the third element of mathcap must be [OX_DATA_xxx, [  ]].");
       }
       if (KopInteger(oxtag) == OX_DATA) {
-	if (getoaSize(ox) > 1) {
-	  cmolist = getoa(ox,1);
-	  if (cmolist.tag != Sarray) {
-	    fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
-	    printObject(*obp,0,stderr);
-	    fprintf(stderr,"\n");
-	    errorOxmisc2("cmoCheckMathCap: mathcap[1] must be an array of integers.\n");
-	  }
-	  n = getoaSize(cmolist);
-	  if (n > CMO_CHECK_MATH_CAP_LIST_SIZE) {
-	    errorOxmisc2("cmoCheckMathCap: Too big cmo list.\n");
-	  }
-	  for (i=0; i<n; i++) {
-	    cmo[i] = KopInteger(getoa(cmolist,i));
-	  }
-	}else{
-	  fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
-	  printObject(*obp,0,stderr);
-	  fprintf(stderr,"\nox=");
-	  printObject(ox,0,stderr);
-	  errorOxmisc2("cmoCheckMathCap: [OX_DATA, cmolist]");
-	}
+        if (getoaSize(ox) > 1) {
+          cmolist = getoa(ox,1);
+          if (cmolist.tag != Sarray) {
+            fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+            printObject(*obp,0,stderr);
+            fprintf(stderr,"\n");
+            errorOxmisc2("cmoCheckMathCap: mathcap[1] must be an array of integers.\n");
+          }
+          n = getoaSize(cmolist);
+          if (n > CMO_CHECK_MATH_CAP_LIST_SIZE) {
+            errorOxmisc2("cmoCheckMathCap: Too big cmo list.\n");
+          }
+          for (i=0; i<n; i++) {
+            cmo[i] = KopInteger(getoa(cmolist,i));
+          }
+        }else{
+          fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+          printObject(*obp,0,stderr);
+          fprintf(stderr,"\nox=");
+          printObject(ox,0,stderr);
+          errorOxmisc2("cmoCheckMathCap: [OX_DATA, cmolist]");
+        }
       }
     }
   }
   return(cmoCheck00(obj,cmo,n));
 }
     
-		     
+             
 struct object KoxGenPortFile(void) {
   struct object ob;
   ob = KpoString(oxGenPortFile());
@@ -939,8 +939,8 @@ struct object KoxGetPort1(struct object host)
 }
 
 struct object KoxCreateClient2(struct object peer,
-			       struct object ipmask,
-			       struct object pass)
+                               struct object ipmask,
+                               struct object pass)
 {
   struct object rob;
   oxclientp client;
@@ -975,7 +975,7 @@ struct object KoxCreateClient2(struct object peer,
   }
 
   client = oxCreateClient2(fdStream, portStream, fdControl, portControl,
-			   KopInteger(ipmask), KopString(pass));
+                           KopInteger(ipmask), KopString(pass));
   if (client == NULL) {
     errorOxmisc2("KoxCreateClient2(): Open error.");
     return(rob);
@@ -1055,8 +1055,8 @@ struct object KoxPushCMO(struct object client,struct object ob) {
   }
 
   if (!cmoCheckMathCap(ob,(struct object *)cc1->mathcapObjp)) {
-	errorOxmisc2("oxPushCMO: your peer does not understand this cmo.\n");
-	return(rob);
+    errorOxmisc2("oxPushCMO: your peer does not understand this cmo.\n");
+    return(rob);
   }
   oxSendOXheader(cc1->datafp2,OX_DATA,SerialOX++);
   cmoObjectToStream2(ob,cc1->datafp2);
@@ -1066,7 +1066,7 @@ struct object KoxPushCMO(struct object client,struct object ob) {
 }
 
 oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
-			                      int ipmask,char *pass);
+                                  int ipmask,char *pass);
 struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,struct object pass) 
 {
   struct object rob;
@@ -1100,7 +1100,7 @@ struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,s
   }
 
   client = oxCreateControl_RFC_101(fdStream, portStream,
-			   KopInteger(ipmask), KopString(pass));
+                                   KopInteger(ipmask), KopString(pass));
   if (client == NULL) {
     errorOxmisc2("KoxCreateControl_RFC_101(): Open error.");
     return(rob);
@@ -1111,7 +1111,7 @@ struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,s
 }
 
 oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
-			                      int ipmask,char *pass)
+                                  int ipmask,char *pass)
 {
   static int clnum = 0;
   int v = 0;
@@ -1155,9 +1155,9 @@ oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
 
   engineByteOrder = oxSetByteOrder(fdStream);
   if (v) fprintf(stderr,"Byte order for control stackmacine is %s.\n",
-		 (engineByteOrder == 0? "network byte order":
-		  (engineByteOrder == 1? "little indican":
-		   "big indian")));
+                 (engineByteOrder == 0? "network byte order":
+                  (engineByteOrder == 1? "little indican":
+                   "big indian")));
   
 
   client = (oxclientp) mymalloc(sizeof(oxclient));
@@ -1178,7 +1178,7 @@ oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
 }
 
 oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
-			                      int ipmask,char *pass, int engineID);
+                                 int ipmask,char *pass, int engineID);
 struct object KoxCreateEngine_RFC_101(struct object peer,struct object ipmask,struct object pass, struct object engineID) 
 {
   struct object rob;
@@ -1215,7 +1215,7 @@ struct object KoxCreateEngine_RFC_101(struct object peer,struct object ipmask,st
   }
 
   client = oxCreateEngine_RFC_101(fdStream, portStream,
-			   KopInteger(ipmask), KopString(pass),KopInteger(engineID));
+                                  KopInteger(ipmask), KopString(pass),KopInteger(engineID));
   if (client == NULL) {
     errorOxmisc2("KoxCreateEngine_RFC_101(): Open error.");
     return(rob);
@@ -1226,7 +1226,7 @@ struct object KoxCreateEngine_RFC_101(struct object peer,struct object ipmask,st
 }
 
 oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
-			                      int ipmask,char *pass,int engineID)
+                                 int ipmask,char *pass,int engineID)
 {
   int v = 0;
   int fdControl = -1;
@@ -1258,21 +1258,21 @@ oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
 
   /* Authentication by password. */
   /*  skip password check for now. BUG. 
-  m = strlen(pass);
-  s = (char *)mymalloc(sizeof(char)*(m+1));
-  read(fdStream,s,m+1); s[m] = '\0';
-  if (strcmp(s,pass) != 0) {
-    fprintf(stderr,"oxCreateEngine_RFC_101(): password authentication failed for control channel.\n");
-    close(fdStream);
-    return(NULL);
-  }
+      m = strlen(pass);
+      s = (char *)mymalloc(sizeof(char)*(m+1));
+      read(fdStream,s,m+1); s[m] = '\0';
+      if (strcmp(s,pass) != 0) {
+      fprintf(stderr,"oxCreateEngine_RFC_101(): password authentication failed for control channel.\n");
+      close(fdStream);
+      return(NULL);
+      }
   */
 
   engineByteOrder = oxSetByteOrder(fdStream);
   if (v) fprintf(stderr,"Byte order for engine stackmacine is %s.\n",
-		 (engineByteOrder == 0? "network byte order":
-		  (engineByteOrder == 1? "little indican":
-		   "big indian")));
+                 (engineByteOrder == 0? "network byte order":
+                  (engineByteOrder == 1? "little indican":
+                   "big indian")));
   
 
   client = (oxclientp) mymalloc(sizeof(oxclient));

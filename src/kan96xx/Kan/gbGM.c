@@ -1,6 +1,6 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gbGM.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 /* gbGM.c  GM=Gebauer and Moller
-*/
+ */
 
 #include <stdio.h>
 #include "datatype.h"
@@ -42,12 +42,12 @@ struct polySet_gm enlargePolySet_gm(struct polySet_gm g);
 struct pairSet deletePair_gm(struct pairSet d,int index);
 int minPair_gm(struct pairSet d);
 struct pairSet updatePair_gm(struct pairSet d,int t,
-			     struct polySet_gm g,POLY gt);
+                             struct polySet_gm g,POLY gt);
 struct polySet_gm markRedundant_gm(struct polySet_gm g,int j);
 /*
-struct gradedPolySet *groebner_gm(struct arrayOfPOLY f,
-				  int needBack,
-				  int needSyz, struct pair **grP);
+  struct gradedPolySet *groebner_gm(struct arrayOfPOLY f,
+  int needBack,
+  int needSyz, struct pair **grP);
 */
 void outputPairSet(struct pairSet d);
 void outputPolySet_gm(struct polySet_gm g);
@@ -71,7 +71,7 @@ int CountI[2*N0];
 #endif
 
 struct polySet_gm newPolySet_gm(n)
-int n;
+     int n;
 {
   struct polySet_gm g;
   int i;
@@ -87,7 +87,7 @@ int n;
 }
 
 struct pairSet newPairSet(n)
-int n;
+     int n;
 {
   struct pairSet g;
   int i;
@@ -103,7 +103,7 @@ int n;
 }
 
 int pairSetSize(d)
-struct pairSet d;
+     struct pairSet d;
 {
   int s,i;
   s = 0;
@@ -114,7 +114,7 @@ struct pairSet d;
 }
 
 struct pairSet pairSetJoin(a,b)
-struct pairSet a,b;
+     struct pairSet a,b;
 {
   int m,n,k,i;
   struct pairSet ans;
@@ -138,7 +138,7 @@ struct pairSet a,b;
 }
 
 struct polySet_gm enlargePolySet_gm(g)
-struct polySet_gm g;
+     struct polySet_gm g;
 {
   int i;
   struct polySet_gm ans;
@@ -154,9 +154,9 @@ struct polySet_gm g;
 }
 
 struct pairSet deletePair_gm(d,index)
-struct pairSet d;
-int index;
-/* delete d[index] */
+     struct pairSet d;
+     int index;
+     /* delete d[index] */
 {
   int i;
   d.del[index] = 0;
@@ -168,7 +168,7 @@ int index;
 }
 
 int minPair_gm(d)
-struct pairSet d;
+     struct pairSet d;
 {
   POLY min;
   int index,i;
@@ -184,10 +184,10 @@ struct pairSet d;
 }
 
 struct pairSet updatePair_gm(d,t,g,gt)
-struct pairSet d;
-int t;
-struct polySet_gm g;
-POLY gt;
+     struct pairSet d;
+     int t;
+     struct polySet_gm g;
+     POLY gt;
 {
   int i,j,k;
   struct pairSet new;
@@ -217,7 +217,7 @@ POLY gt;
   }
 #ifdef DEBUG
   /*printf("\nnew is ...");
-  outputPairSet(new);*/
+    outputPairSet(new);*/
 #endif
   
   /* Candel in D=d all (i,j) such that B_t(i,j) */
@@ -227,21 +227,21 @@ POLY gt;
       /* check T(it) != T(i,j) != T(j,t) */
       i = d.p[k].i; j = d.p[k].j;
       if ((new.del[i] == 1) || (new.del[j] == 1)) {
-	/* fprintf(stderr,"Warning in updatepair_gm(): i=%d, j=%d; rewriting new.\n",i,j); */
-	if (new.del[i] == 1) {
-	  new.p[i].lcm = (*lcm)(g.g[i],gt);
-	}
-	if (new.del[j] == 1) {
-	  new.p[j].lcm = (*lcm)(g.g[j],gt);
-	}
+        /* fprintf(stderr,"Warning in updatepair_gm(): i=%d, j=%d; rewriting new.\n",i,j); */
+        if (new.del[i] == 1) {
+          new.p[i].lcm = (*lcm)(g.g[i],gt);
+        }
+        if (new.del[j] == 1) {
+          new.p[j].lcm = (*lcm)(g.g[j],gt);
+        }
       }
       if (((*mmLarger)((new.p[i].lcm),(new.p[j].lcm)) != 2) &&
-	  ((*mmLarger)((new.p[i].lcm),(d.p[k].lcm)) != 2) &&
-	  ((*mmLarger)((new.p[j].lcm),(d.p[k].lcm)) != 2)) {
-	/* delete T(i,j) in d */
-	d.del[k] = 1;
-	if (Verbose >= 2) printf("B%d(%d,%d) ",t,i,j);
-	Criterion2B++;
+          ((*mmLarger)((new.p[i].lcm),(d.p[k].lcm)) != 2) &&
+          ((*mmLarger)((new.p[j].lcm),(d.p[k].lcm)) != 2)) {
+        /* delete T(i,j) in d */
+        d.del[k] = 1;
+        if (Verbose >= 2) printf("B%d(%d,%d) ",t,i,j);
+        Criterion2B++;
       }
     }
   }
@@ -251,32 +251,32 @@ POLY gt;
   for (i=0; i<g.size; i++) {
     for (j=i+1; j<g.size; j++) {
       if ((g.del[i] == 0) && (g.del[j] == 0)) {
-	it = new.p[i].lcm;
-	jt = new.p[j].lcm;
-	switch ( (*mmLarger)(it,jt)) {
-	case 2:
-	  /* F(j,t), i<j */
-	  new.del[j] = 1;
-	  if (Verbose >= 2) printf("F%d(%d,%d) ",i,j,t);
-	  Criterion2F++;
-	  break;
-	case 1:
-	  /* g[i] > g[j],  M(i,t) */
-	  if ((*isReducible)(it,jt)) {
-	    new.del[i] = 1;
-	    if (Verbose >=2) printf("M%d(%d,%d) ",j,i,t);
-	    Criterion2M++;
-	  }
-	  break;
-	case 0: /* M(j,t) */
-	  if ((*isReducible)(jt,it)) {
-	    new.del[j] = 1;
-	    if (Verbose >=2) printf("M%d(%d,%d) ",i,j,t);
-	    Criterion2M++;
-	  }
-	  break;
+        it = new.p[i].lcm;
+        jt = new.p[j].lcm;
+        switch ( (*mmLarger)(it,jt)) {
+        case 2:
+          /* F(j,t), i<j */
+          new.del[j] = 1;
+          if (Verbose >= 2) printf("F%d(%d,%d) ",i,j,t);
+          Criterion2F++;
+          break;
+        case 1:
+          /* g[i] > g[j],  M(i,t) */
+          if ((*isReducible)(it,jt)) {
+            new.del[i] = 1;
+            if (Verbose >=2) printf("M%d(%d,%d) ",j,i,t);
+            Criterion2M++;
+          }
+          break;
+        case 0: /* M(j,t) */
+          if ((*isReducible)(jt,it)) {
+            new.del[j] = 1;
+            if (Verbose >=2) printf("M%d(%d,%d) ",i,j,t);
+            Criterion2M++;
+          }
+          break;
 
-	}
+        }
       }
     }
   }
@@ -285,11 +285,11 @@ POLY gt;
   if (UseCriterion1) {
     for (i=0; i<g.size; i++) {
       if (new.del[i] == 0) {
-	if (criterion1(g.g[i],gt,new.p[i].lcm)) {
-	  new.del[i] = 1;
-	  if (Verbose >=2) printf("1(%d,%d) ",i,t);
-	  Criterion1++;
-	}
+        if (criterion1(g.g[i],gt,new.p[i].lcm)) {
+          new.del[i] = 1;
+          if (Verbose >=2) printf("1(%d,%d) ",i,t);
+          Criterion1++;
+        }
       }
     }
   }
@@ -305,35 +305,35 @@ POLY gt;
 
 
 struct polySet_gm markRedundant_gm(g,j)
-struct polySet_gm g;
-int j;
-/* compare only with g[j] */
+     struct polySet_gm g;
+     int j;
+     /* compare only with g[j] */
 {
   int i;
   for (i=0; i<g.size; i++) {
     if ((g.del[i] == 0) && (i != j)) {
       if (g.del[j] == 0) {
-	switch((*mmLarger)((g.g[i]),(g.g[j]))) {
-	case 2:
-	  g.del[j] = 1;
-	  break;
-	case 1:
-	  if ((*isReducible)((g.g[i]),(g.g[j]))) {
-	    g.del[i] = 1;
-	  }
-	  break;
-	case 0:
-	  if ((*isReducible)((g.g[j]),(g.g[i]))) {
-	    g.del[j] = 1;
-	  }
-	  break;
-	}
+        switch((*mmLarger)((g.g[i]),(g.g[j]))) {
+        case 2:
+          g.del[j] = 1;
+          break;
+        case 1:
+          if ((*isReducible)((g.g[i]),(g.g[j]))) {
+            g.del[i] = 1;
+          }
+          break;
+        case 0:
+          if ((*isReducible)((g.g[j]),(g.g[i]))) {
+            g.del[j] = 1;
+          }
+          break;
+        }
       }
     }
   }
 #ifdef DEBUG
   /*printf("\nend of markRedundant_gm...");
-  outputPolySet_gm(g);*/
+    outputPolySet_gm(g);*/
 #endif  
   return(enlargePolySet_gm(g));
 }
@@ -341,12 +341,12 @@ int j;
 
 
 struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReduction)
-struct arrayOfPOLY *f;
-int needBack;
-int needSyz;
-struct pair **grP;
-int countDown;
-int forceReduction;
+     struct arrayOfPOLY *f;
+     int needBack;
+     int needSyz;
+     struct pair **grP;
+     int countDown;
+     int forceReduction;
 {
   int r;
   struct pair_gm top;
@@ -414,7 +414,7 @@ int forceReduction;
     
     if (!(h ISZERO)) {
       if (ReduceLowerTerms) {
-	h = mReductionCdrBySet(h,g.g,g.size);
+        h = mReductionCdrBySet(h,g.g,g.size);
       }
       d = updatePair_gm(d,r,g,h);
       g.g[r] = h; g.del[r] = 0;
@@ -460,32 +460,32 @@ int forceReduction;
 
 
 void outputPairSet(d)
-struct pairSet d;
+     struct pairSet d;
 { int i;
-  printf("\nOutput struct pairSet. ");
-  printf(".size=%d, .lim=%d :\n",d.size,d.lim);
-  for (i=0; i<d.size; i++) {
-    printf("%d[%d] i=%d,j=%d, lcm=%s  ",i,d.del[i],d.p[i].i,d.p[i].j,
-	   POLYToString(d.p[i].lcm,' ',0));
-  }
-  printf("\n"); fflush(stdout);
+ printf("\nOutput struct pairSet. ");
+ printf(".size=%d, .lim=%d :\n",d.size,d.lim);
+ for (i=0; i<d.size; i++) {
+   printf("%d[%d] i=%d,j=%d, lcm=%s  ",i,d.del[i],d.p[i].i,d.p[i].j,
+          POLYToString(d.p[i].lcm,' ',0));
+ }
+ printf("\n"); fflush(stdout);
 }
        
 void outputPolySet_gm(g)
-struct polySet_gm g;
+     struct polySet_gm g;
 { int i;
-  printf("\nOutput struct polySet_gm. ");
-  printf(".size=%d, .lim=%d :\n",g.size,g.lim);
-  for (i=0; i<g.size; i++) {
-    printf("%d[%d] %s\n",i,g.del[i],POLYToString(g.g[i],' ',0));
-  }
-  printf("\n"); fflush(stdout);
+ printf("\nOutput struct polySet_gm. ");
+ printf(".size=%d, .lim=%d :\n",g.size,g.lim);
+ for (i=0; i<g.size; i++) {
+   printf("%d[%d] %s\n",i,g.del[i],POLYToString(g.g[i],' ',0));
+ }
+ printf("\n"); fflush(stdout);
 }
        
 int criterion1(f0,g0,lc0)
-POLY f0;
-POLY g0;
-POLY lc0;
+     POLY f0;
+     POLY g0;
+     POLY lc0;
 {
   /* This is used only for commutative case. */
   register int i;
@@ -506,9 +506,9 @@ POLY lc0;
 
 
 POLY mReductionBySet(f,s,size)
-POLY f;
-POLY *s;
-int size;
+     POLY f;
+     POLY *s;
+     int size;
 {
   int reduced1;
   int i;
@@ -518,8 +518,8 @@ int size;
     for (i=0; i<size; i++) {
       if (f ISZERO) goto ss;
       if ((*isReducible)(f,s[i])) {
-	f = (*reduction1)(f,s[i],0,&cc,&cg);
-	reduced1 = 1;
+        f = (*reduction1)(f,s[i],0,&cc,&cg);
+        reduced1 = 1;
       }
     }
   } while (reduced1 != 0);
@@ -528,9 +528,9 @@ int size;
 }
 
 POLY mReductionCdrBySet(f,s,size)
-POLY f;
-POLY *s;
-int size;
+     POLY f;
+     POLY *s;
+     int size;
 {
   int reduced1;
   int i;
@@ -541,8 +541,8 @@ int size;
     for (i=0; i<size; i++) {
       if (f ISZERO) goto ss;
       if ((fs=(*isCdrReducible)(f,s[i])) != ZERO) {
-	f = (*reduction1Cdr)(f,fs,s[i],0,&cc,&cg);
-	reduced1 = 1;
+        f = (*reduction1Cdr)(f,fs,s[i],0,&cc,&cg);
+        reduced1 = 1;
       }
     }
   } while (reduced1 != 0);
@@ -552,7 +552,7 @@ int size;
 
 
 void errorGBGM(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"Fatal error in yaGbasis.c: %s \n",s);
   exit(10);

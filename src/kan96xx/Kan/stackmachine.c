@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.5 2000/11/20 13:33:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.6 2001/01/27 05:48:46 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -92,7 +92,7 @@ struct object * newObject()
 }
 
 struct object newObjectArray(size) 
-int size;
+     int size;
 {
   struct object rob;
   struct object *op;
@@ -110,15 +110,15 @@ int size;
 }
 
 isNullObject(obj)
-struct object obj;
+     struct object obj;
 {
   if (obj.tag == 0) return(1);
   else return(0);
 }
 
 int putSystemDictionary(str,ob)
-char *str;   /* key */
-struct object ob; /* value */
+     char *str;   /* key */
+     struct object ob; /* value */
 {
   int i;
   int j;
@@ -128,8 +128,8 @@ struct object ob; /* value */
     /*printf("Add %d %s\n",i,str);*/
     if (strcmp(str,(SystemDictionary[i]).key) > 0) {
       for (j=Sdp-1; j>=i+1; j--) {
-	(SystemDictionary[j+1]).key = (SystemDictionary[j]).key;
-	(SystemDictionary[j+1]).obj = (SystemDictionary[j]).obj;
+        (SystemDictionary[j+1]).key = (SystemDictionary[j]).key;
+        (SystemDictionary[j+1]).obj = (SystemDictionary[j]).obj;
       }
       (SystemDictionary[i+1]).key = str;
       (SystemDictionary[i+1]).obj = ob;
@@ -169,15 +169,15 @@ int findSystemDictionary(str)
       return(0);
     } else if (first == last) {
       if (strcmp(str,(SystemDictionary[first]).key) == 0) {
-	return((SystemDictionary[first]).obj.lc.ival);
+        return((SystemDictionary[first]).obj.lc.ival);
       }else {
-	return(0);
+        return(0);
       }
     } else if (last - first == 1) { /* This case is necessary */
       if (strcmp(str,(SystemDictionary[first]).key) == 0) {
-	return((SystemDictionary[first]).obj.lc.ival);
+        return((SystemDictionary[first]).obj.lc.ival);
       }else if (strcmp(str,(SystemDictionary[last]).key) == 0) {
-	return((SystemDictionary[last]).obj.lc.ival);
+        return((SystemDictionary[last]).obj.lc.ival);
       }else return(0);
     }
 
@@ -194,10 +194,10 @@ int findSystemDictionary(str)
 }
 
 int putUserDictionary(str,h0,h1,ob,dic)
-char *str;   /* key */
-int h0,h1;   /* Hash values of the key */
-struct object ob; /* value */
-struct dictionary *dic;
+     char *str;   /* key */
+     int h0,h1;   /* Hash values of the key */
+     struct object ob; /* value */
+     struct dictionary *dic;
 {
   int x,r;
   extern int Strict2;
@@ -242,10 +242,10 @@ struct object KputUserDictionary(char *str,struct object ob)
 }
 
 struct object findUserDictionary(str,h0,h1,cp)   
-/* returns NoObject, if there is no item. */
-char *str;    /* key */
-int h0,h1;    /* The hashing values of the key. */
-struct context *cp;
+     /* returns NoObject, if there is no item. */
+     char *str;    /* key */
+     int h0,h1;    /* The hashing values of the key. */
+     struct context *cp;
 {
   int x;
   struct dictionary *dic;
@@ -271,10 +271,10 @@ struct object KfindUserDictionary(char *str) {
 }
 
 int putUserDictionary2(str,h0,h1,attr,dic)
-char *str;   /* key */
-int h0,h1;   /* Hash values of the key */
-int attr;    /* attribute field */
-struct dictionary *dic;
+     char *str;   /* key */
+     int h0,h1;   /* Hash values of the key */
+     int attr;    /* attribute field */
+     struct dictionary *dic;
 {
   int x;
   int i;
@@ -302,8 +302,8 @@ struct dictionary *dic;
 
 
 int putPrimitiveFunction(str,number)
-char *str;
-int number;
+     char *str;
+     int number;
 {
   struct object ob;
   ob.tag = Soperator;
@@ -312,7 +312,7 @@ int number;
 }
 
 struct tokens lookupTokens(t)
-struct tokens t;
+     struct tokens t;
 {
   struct object *left;
   struct object *right;
@@ -328,7 +328,7 @@ struct tokens t;
 }
   
 struct object lookupLiteralString(s)
-char *s; /* s must be a literal string */
+     char *s; /* s must be a literal string */
 {
   struct object ob;
   ob.tag = Slist;
@@ -342,7 +342,7 @@ char *s; /* s must be a literal string */
 
 
 int hash0(str)
-char *str;
+     char *str;
 {
   int h=0;
   while (*str != '\0') {
@@ -353,7 +353,7 @@ char *str;
 }
 
 int hash1(str)
-char *str;
+     char *str;
 {
   return(8-(str[0]%8));
 }
@@ -367,7 +367,7 @@ void hashInitialize(struct dictionary *dic)
 }
 
 static isInteger(str)
-char *str;
+     char *str;
 {
   int i;
   int n;
@@ -388,7 +388,7 @@ char *str;
 }
 
 static strToInteger(str)
-char *str;
+     char *str;
 {
   int i;
   int n;
@@ -409,15 +409,15 @@ char *str;
 }
 
 static power(s,i)
-int s;
-int i;
+     int s;
+     int i;
 {
   if (i == 0) return 1;
   else return( s*power(s,i-1) );
 }
 
 int Kpush(ob)
-struct object ob;     
+     struct object ob;     
 {
   OperandStack[Osp++] = ob;
   if (Osp >= OspMax) {
@@ -438,7 +438,7 @@ struct object Kpop()
 }
 
 struct object peek(k)
-int k;
+     int k;
 {
   if ((Osp-k-1) < 0) {
     return( NullObject );
@@ -587,7 +587,7 @@ void contextControl(actionOfContextControl ctl) {
     
 
 int isLiteral(str)
-char *str;
+     char *str;
 {
   if (strlen(str) <2) return(0);
   else {
@@ -612,7 +612,7 @@ void printOperandStack() {
     
 
 static initSystemDictionary()
- {
+{
   StandardStack.ostack = StandardStackA;
   StandardStack.sp = StandardStackP;
   StandardStack.size = OPERAND_STACK_SIZE;
@@ -627,7 +627,7 @@ static initSystemDictionary()
 
   KdefinePrimitiveFunctions();
 
- }
+}
 
 struct object showSystemDictionary(int f) {
   int i;
@@ -678,7 +678,7 @@ int showUserDictionary()
   for (i=0; i<USER_DICTIONARY_SIZE; i++) {
     if ((dic[i]).key != EMPTY) {
       if (strlen((dic[i]).key) >maxl)
-	maxl = strlen((dic[i]).key);
+        maxl = strlen((dic[i]).key);
     }
   }
   maxl += 3;
@@ -689,12 +689,12 @@ int showUserDictionary()
     if ((dic[i]).key != EMPTY) {
       fprintf(Fstack,format,(dic[i]).key);
       /*{ char *sss; int ii,h0,h1;
-	sss = dic[i].key;
-	h0 = dic[i].h0;
-	h1 = dic[i].h1;
-	for (ii=0; ii<strlen(sss); ii++) fprintf(Fstack,"%x ",sss[ii]);
-	fprintf(Fstack,": h0=%d, h1=%d, %d\n",h0,h1,i);
-      }*/
+        sss = dic[i].key;
+        h0 = dic[i].h0;
+        h1 = dic[i].h1;
+        for (ii=0; ii<strlen(sss); ii++) fprintf(Fstack,"%x ",sss[ii]);
+        fprintf(Fstack,": h0=%d, h1=%d, %d\n",h0,h1,i);
+        }*/
       if (j % nl == nl-1) fprintf(Fstack,"\n");
       j++;
     }
@@ -704,7 +704,7 @@ int showUserDictionary()
   
 
 static struct object executableStringToExecutableArray(s)
-char *s;
+     char *s;
 {
   struct tokens *tokenArray;
   struct object ob;
@@ -718,7 +718,7 @@ char *s;
     if ( ((ob.lc.tokenArray)[i]).kind == EXECUTABLE_STRING) {
       ((ob.lc.tokenArray)[i]).kind = EXECUTABLE_ARRAY;
       ((ob.lc.tokenArray)[i]).object =
-	executableStringToExecutableArray(((ob.lc.tokenArray)[i]).token);
+        executableStringToExecutableArray(((ob.lc.tokenArray)[i]).token);
     }
   }
   return(ob);
@@ -767,48 +767,48 @@ void scanner() {
   if (StartAFile) {
     tmp2 = StartFile;
     StartFile = (char *)sGC_malloc(sizeof(char)*(strlen(StartFile)+
-						40));
+                                                 40));
     sprintf(StartFile,"$%s$ run\n",tmp2);
     token.kind = EXECUTABLE_STRING;
     token.token = StartFile;
-    executeToken(token);	/* execute startup commands */
+    executeToken(token);    /* execute startup commands */
     token.kind = ID;
     token.token = "exec";
     token = lookupTokens(token); /* set hashing values */
     tmp = findSystemDictionary(token.token);
     ob.tag = Soperator;
     ob.lc.ival = tmp;
-    executePrimitive(ob);	/* exec */
+    executePrimitive(ob);   /* exec */
   }
   
   if (StartAString) {
     token.kind = EXECUTABLE_STRING;
     token.token = StartString;
-    executeToken(token);	/* execute startup commands */
+    executeToken(token);    /* execute startup commands */
     token.kind = ID;
     token.token = "exec";
     token = lookupTokens(token); /* set hashing values */
     tmp = findSystemDictionary(token.token);
     ob.tag = Soperator;
     ob.lc.ival = tmp;
-    executePrimitive(ob);	/* exec */
+    executePrimitive(ob);   /* exec */
   }
   
   
   for (;;) {
     if (jval=setjmp(EnvOfStackMachine)) {
       /* ***  The following does not work properly.  ****
-      if (jval == 2) {
-	if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
-	  pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));
-	}
-      }
-      **** */
+         if (jval == 2) {
+         if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
+         pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));
+         }
+         }
+         **** */
       if (DebugStack >= 1) {
-	fprintf(Fstack,"\nscanner> ");
+        fprintf(Fstack,"\nscanner> ");
       }
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
-	  continue ;
+      continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
     token = getokenSM(GET);
@@ -819,7 +819,7 @@ void scanner() {
 
 
 void ctrlC(sig)
-int sig;
+     int sig;
 {
   extern void ctrlC();
   extern int ErrorMessageMode;
@@ -871,7 +871,7 @@ int sig;
 }
 
 int executeToken(token)
-struct tokens token;
+     struct tokens token;
 {      
   struct object ob;
   int primitive;
@@ -885,8 +885,8 @@ struct tokens token;
   if (GotoP) { /* for goto */
     if (token.kind == ID && isLiteral(token.token)) {
       if (strcmp(&((token.token)[1]),GotoLabel) == 0) {
-	GotoP = 0;
-	return(0); /* normal exit */
+        GotoP = 0;
+        return(0); /* normal exit */
       }
     }
     return(0);  /* normal exit */
@@ -908,8 +908,8 @@ struct tokens token;
       strcpy(ob.lc.str, &((token.token)[1]));
 
       if (token.object.tag != Slist) {
-	fprintf(Fstack,"\n%%Warning: The hashing values for the <<%s>> are not set.\n",token.token);
-	token.object = lookupLiteralString(token.token);
+        fprintf(Fstack,"\n%%Warning: The hashing values for the <<%s>> are not set.\n",token.token);
+        token.object = lookupLiteralString(token.token);
       }
       ob.rc.op = token.object.lc.op;
       Kpush(ob);
@@ -920,46 +920,46 @@ struct tokens token;
       Kpush(ob);
     } else {
       if (token.object.tag != Slist) {
-	fprintf(Fstack,"\n%%Warning: The hashing values for the <<%s>> are not set.\n",token.token);
-	token = lookupTokens(token);
+        fprintf(Fstack,"\n%%Warning: The hashing values for the <<%s>> are not set.\n",token.token);
+        token = lookupTokens(token);
       }
       h0 = ((token.object.lc.op)->lc).ival;
       h1 = ((token.object.lc.op)->rc).ival;
       ob=findUserDictionary(token.token,h0,h1,CurrentContextp);
       primitive = ((token.object.rc.op)->lc).ival;
       if (ob.tag >= 0) {
-	/* there is a definition in the user dictionary */
-	if (ob.tag == SexecutableArray) {
-	  tokenArray = ob.lc.tokenArray;
-	  size = ob.rc.ival;
-	  for (i=0; i<size; i++) {
-	    status = executeToken(tokenArray[i]);
-	    if (status != 0) return(status);
-	  }
-	}else {
-	  Kpush(ob);
-	}
+        /* there is a definition in the user dictionary */
+        if (ob.tag == SexecutableArray) {
+          tokenArray = ob.lc.tokenArray;
+          size = ob.rc.ival;
+          for (i=0; i<size; i++) {
+            status = executeToken(tokenArray[i]);
+            if (status != 0) return(status);
+          }
+        }else {
+          Kpush(ob);
+        }
       } else if (primitive) { 
-	/* system operator */
-	ob.tag = Soperator;
-	ob.lc.ival = primitive;
-	return(executePrimitive(ob));
+        /* system operator */
+        ob.tag = Soperator;
+        ob.lc.ival = primitive;
+        return(executePrimitive(ob));
       } else {
-	if (WarningMessageMode == 1 || WarningMessageMode == 2) {
-	  char tmpc[1024];
-	  if (strlen(token.token) < 900) {
-	    sprintf(tmpc,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
-	  }else {strcpy(tmpc,"Warning: identifier is not in the dictionaries.");}
-	  pushErrorStack(KnewErrorPacket(SerialCurrent,-1,tmpc));
-	}
-	if (WarningMessageMode != 1) {
-	  fprintf(Fstack,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
-	/*fprintf(Fstack,"(%d,%d)\n",h0,h1);*/
-	}
-	if (Strict) {
-	  errorStackmachine("Warning: identifier is not in the dictionaries");
-	}
-	Kpush(NullObject); 
+        if (WarningMessageMode == 1 || WarningMessageMode == 2) {
+          char tmpc[1024];
+          if (strlen(token.token) < 900) {
+            sprintf(tmpc,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
+          }else {strcpy(tmpc,"Warning: identifier is not in the dictionaries.");}
+          pushErrorStack(KnewErrorPacket(SerialCurrent,-1,tmpc));
+        }
+        if (WarningMessageMode != 1) {
+          fprintf(Fstack,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
+          /*fprintf(Fstack,"(%d,%d)\n",h0,h1);*/
+        }
+        if (Strict) {
+          errorStackmachine("Warning: identifier is not in the dictionaries");
+        }
+        Kpush(NullObject); 
       }
     }
   } else if (token.kind == EXECUTABLE_STRING) {
@@ -985,7 +985,7 @@ struct tokens token;
       
 
 errorStackmachine(str)
-char *str;
+     char *str;
 {
   int i,j,k;
   static char *u="Usage:";
@@ -1005,20 +1005,20 @@ char *str;
     if (i==6) {
       fprintf(stderr,"ERROR(sm): \n");
       while (str[i] != '\0' && str[i] != ' ') {
-	i++;
+        i++;
       }
       if (str[i] == ' ') {
-	fprintf(stderr,"  %s\n",&(str[i+1]));
-	k = 0;
-	if (i-6 > 1022) message = (char *)sGC_malloc(sizeof(char)*i);
-	for (j=6; j<i ; j++) {
-	  message[k] = str[j];
-	  message[k+1] = '\0';
-	  k++;
-	}
-	Kusage2(stderr,message);
+        fprintf(stderr,"  %s\n",&(str[i+1]));
+        k = 0;
+        if (i-6 > 1022) message = (char *)sGC_malloc(sizeof(char)*i);
+        for (j=6; j<i ; j++) {
+          message[k] = str[j];
+          message[k+1] = '\0';
+          k++;
+        }
+        Kusage2(stderr,message);
       }else{
-	Kusage2(stderr,&(str[6]));
+        Kusage2(stderr,&(str[6]));
       }
     }else {
       fprintf(stderr,"ERROR(sm): ");
@@ -1037,7 +1037,7 @@ char *str;
 }
 
 warningStackmachine(str)
-char *str;
+     char *str;
 {
   extern int WarningMessageMode;
   extern int Strict;
@@ -1058,7 +1058,7 @@ char *str;
    you have to reset the jump buffer by setjmp(EnvOfStackMachine).
    cf. kxx/memo1.txt, kxx/stdserver00.c 1998, 2/6 */
 KSexecuteString(s)
-char *s;
+     char *s;
 {
   struct tokens token;
   struct object ob;
@@ -1086,9 +1086,9 @@ char *s;
     if (jval = setjmp(EnvOfStackMachine)) {
       *EnvOfStackMachine = *saved_EnvOfStackMachine;
       if (jval == 2) {
-	if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
-	  pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));
-	}
+        if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
+          pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));
+        }
       }
       recursive--;
       if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
@@ -1097,14 +1097,14 @@ char *s;
   }else{
     if (recursive == 0) {
       if (jval=setjmp(EnvOfStackMachine)) { 
-	if (jval == 2) {
-	  if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
-	    pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));
-	  }
-	}
-	recursive = 0;
-	if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
-	return(-1);
+        if (jval == 2) {
+          if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
+            pushErrorStack(KnewErrorPacket(SerialCurrent,-1,"User interrupt by ctrl-C."));
+          }
+        }
+        recursive = 0;
+        if (localCatchCtrlC) { signal(SIGINT, sigfunc); }
+        return(-1);
       }else { }
     }
   }
@@ -1134,14 +1134,14 @@ KSdefineMacros() {
   if (StandardMacros && (strlen(SMacros))) {
     token.kind = EXECUTABLE_STRING;
     token.token = SMacros;
-    executeToken(token);	/* execute startup commands */
+    executeToken(token);    /* execute startup commands */
     token.kind = ID;
     token.token = "exec";
     token = lookupTokens(token); /* no use */
     tmp = findSystemDictionary(token.token);
     ob.tag = Soperator;
     ob.lc.ival = tmp;
-    executePrimitive(ob);	/* exec */
+    executePrimitive(ob);   /* exec */
   }
   return(0);
 
@@ -1159,10 +1159,10 @@ void KSstart() {
   /* The following line may cause a core dump, if you do not setjmp properly
      after calling KSstart().*/
   /*
-  if (setjmp(EnvOfStackMachine)) {
+    if (setjmp(EnvOfStackMachine)) {
     fprintf(stderr,"KSstart(): An error or interrupt in reading macros, files and command strings.\n");
     exit(10);
-  } else {  }  */
+    } else {  }  */
 
   /* setup quiet mode or not */
   token.kind = EXECUTABLE_STRING;
@@ -1193,7 +1193,7 @@ struct object KSpop() {
 }
 
 void KSpush(ob)
-struct object ob;
+     struct object ob;
 {
   Kpush(ob);
 }

@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.2 1999/11/18 00:54:17 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.3 1999/11/18 23:57:19 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -98,8 +98,8 @@ int fp2fputc(int c,FILE2 *fp2) {
     printf("fp2 = %x.\n",(int) fp2);
   }
   if (fp2->watch || WatchStream) {
-	if (fp2->watch) fp = fp2->watchFile;
-	else fp = stderr;
+    if (fp2->watch) fp = fp2->watchFile;
+    else fp = stderr;
     if (c >= ' ' && c <='z') {
       fprintf(fp," %2x(%c)-> ",c& 0xff,c);
     }else{
@@ -127,12 +127,12 @@ int fp2fgetc(FILE2 *fp2) {
     fp2->readpos++;
     c = fp2->readBuf[fp2->readpos -1];
     if (fp2->watch || WatchStream) {
-	  if (fp2->watch) fp = fp2->watchFile;
-	  else fp = stderr;
+      if (fp2->watch) fp = fp2->watchFile;
+      else fp = stderr;
       if (c >= ' ' && c <= 'z') {
-		fprintf(fp," %2x(%c) ",c,c);
+        fprintf(fp," %2x(%c) ",c,c);
       }else{
-		fprintf(fp," %2x( ) ",c);
+        fprintf(fp," %2x( ) ",c);
       }
       fflush(NULL);
     }
@@ -143,10 +143,10 @@ int fp2fgetc(FILE2 *fp2) {
       read(fp2->fd, fp2->readBuf, fp2->limit);
     if (fp2->readsize == 0) {
       if (fp2->watch || WatchStream) {
-		if (fp2->watch) fp = fp2->watchFile;
-		else fp = stderr;
-		fprintf(fp," <%2x ",c);
-		fflush(NULL);
+        if (fp2->watch) fp = fp2->watchFile;
+        else fp = stderr;
+        fprintf(fp," <%2x ",c);
+        fflush(NULL);
       }
       return(-1);
     }
@@ -217,11 +217,11 @@ int fp2clearReadBuf(FILE2 *fp2) {
     if (FD_ISSET(fd,&readfds)) {
       n = read(fd,tmp00, TMP00SIZE);
       if (n <=  0) {
-	fprintf(stderr,"fp2clearReadBuf: File is closed or read error.\n");
-	return(-1);
+        fprintf(stderr,"fp2clearReadBuf: File is closed or read error.\n");
+        return(-1);
       }
       if ( n < TMP00SIZE ) {
-	return(0);
+        return(0);
       }
     }else {
       return(0);

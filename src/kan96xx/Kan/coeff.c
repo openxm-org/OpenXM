@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/coeff.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -18,7 +18,7 @@ static void printTag(coeffType t)
 }
 
 char *intToString(i)
-int i;
+     int i;
 {
   char work[80];
   char *s;
@@ -30,7 +30,7 @@ int i;
 }
 
 char *coeffToString(cp)
-struct coeff *cp;
+     struct coeff *cp;
 {
   char *s;
   switch(cp->tag) {
@@ -54,8 +54,8 @@ struct coeff *cp;
 
 /* constructors */
 struct coeff *intToCoeff(i,ringp)
-int i;
-struct ring *ringp;
+     int i;
+     struct ring *ringp;
 {
   struct coeff *c;
   int p;
@@ -79,8 +79,8 @@ struct ring *ringp;
 }
 
 struct coeff *mpintToCoeff(b,ringp)
-MP_INT *b;
-struct ring *ringp;
+     MP_INT *b;
+     struct ring *ringp;
 {
   struct coeff *c;
   struct coeff *c2;
@@ -103,16 +103,16 @@ struct ring *ringp;
     c->val.f = coeffToPoly(c2,ringp->next);
     return(c);
     /*
-    errorCoeff("mpintToCoeff(): mpint --> poly_coeff has not yet be supported. Returns 0.");
-    c->tag = POLY_COEFF;
-    c->val.f = ZERO; 
+      errorCoeff("mpintToCoeff(): mpint --> poly_coeff has not yet be supported. Returns 0.");
+      c->tag = POLY_COEFF;
+      c->val.f = ZERO; 
     */
   }
 }
 
 struct coeff *polyToCoeff(f,ringp)
-POLY f;
-struct ring *ringp;
+     POLY f;
+     struct ring *ringp;
 {
   struct coeff *c;
   if (f ISZERO) {
@@ -133,8 +133,8 @@ struct ring *ringp;
 
 /* returns -c */
 struct coeff *coeffNeg(c,ringp)
-struct coeff *c;
-struct ring *ringp;
+     struct coeff *c;
+     struct ring *ringp;
 {
   struct coeff *r;
   r = intToCoeff(-1,ringp);
@@ -143,7 +143,7 @@ struct ring *ringp;
 }
 
 int coeffToInt(cp)
-struct coeff *cp;
+     struct coeff *cp;
 {
   POLY f;
   switch(cp->tag) {
@@ -164,9 +164,9 @@ struct coeff *cp;
 }
 
 void Cadd(r,a,b)
-struct coeff *r;
-struct coeff *a;
-struct coeff *b;
+     struct coeff *r;
+     struct coeff *a;
+     struct coeff *b;
 {
   int p;
   POLY f;
@@ -175,10 +175,10 @@ struct coeff *b;
     r->p = p = a->p;
     r->val.i = ((a->val.i) + (b->val.i)) % p;
   }else if (a->tag == MP_INTEGER && b->tag == MP_INTEGER
-	    && r->tag == MP_INTEGER) {
+            && r->tag == MP_INTEGER) {
     mpz_add(r->val.bigp,a->val.bigp,b->val.bigp);
   }else if (a->tag == POLY_COEFF && b->tag == POLY_COEFF
-	    && r->tag == POLY_COEFF) {
+            && r->tag == POLY_COEFF) {
     f = ppAdd(a->val.f,b->val.f);
     r->val.f = f;
   }else {
@@ -187,9 +187,9 @@ struct coeff *b;
 }
 
 void Csub(r,a,b)
-struct coeff *r;
-struct coeff *a;
-struct coeff *b;
+     struct coeff *r;
+     struct coeff *a;
+     struct coeff *b;
 {
   int p;
 
@@ -197,7 +197,7 @@ struct coeff *b;
     r->p = p = a->p;
     r->val.i = ((a->val.i) - (b->val.i)) % p;
   }else if (a->tag == MP_INTEGER && b->tag == MP_INTEGER
-	    && r->tag == MP_INTEGER) {
+            && r->tag == MP_INTEGER) {
     mpz_sub(r->val.bigp,a->val.bigp,b->val.bigp);
   }else {
     warningCoeff("Csub(): The data type is not supported.");
@@ -205,9 +205,9 @@ struct coeff *b;
 }
 
 void Cmult(r,a,b)
-struct coeff *r;
-struct coeff *a;
-struct coeff *b;
+     struct coeff *r;
+     struct coeff *a;
+     struct coeff *b;
 {
   int p;
   POLY f;
@@ -216,10 +216,10 @@ struct coeff *b;
     r->p = p = a->p;
     r->val.i = ((a->val.i) * (b->val.i)) % p;
   }else if (a->tag == MP_INTEGER && b->tag == MP_INTEGER
-	    && r->tag == MP_INTEGER) {
+            && r->tag == MP_INTEGER) {
     mpz_mul(r->val.bigp,a->val.bigp,b->val.bigp);
   }else if (a->tag == POLY_COEFF && b->tag == POLY_COEFF
-	    && r->tag == POLY_COEFF) {
+            && r->tag == POLY_COEFF) {
     f = ppMult(a->val.f,b->val.f);
     r->val.f = f;
   }else {
@@ -232,7 +232,7 @@ struct coeff *b;
 }
 
 int isZero(a)
-struct coeff *a;
+     struct coeff *a;
 {
   int r;
   if (a->tag == INTEGER) {
@@ -252,8 +252,8 @@ struct coeff *a;
 }
 
 struct coeff *coeffCopy(c)
-struct coeff *c;
-/* Deep copy */
+     struct coeff *c;
+     /* Deep copy */
 {
   struct coeff *r;
   r = newCoeff();
@@ -281,9 +281,9 @@ struct coeff *c;
 }
 
 void CiiComb(r,p,q)
-struct coeff *r;
-int p,q;
-/* r->val.bigp is read only. */
+     struct coeff *r;
+     int p,q;
+     /* r->val.bigp is read only. */
 {
   switch(r->tag) {
   case INTEGER:
@@ -301,15 +301,15 @@ int p,q;
     
 
 MP_INT *BiiComb(p,q)
-int p,q;
-/* It returns {p \choose q} when p>=0, 0<=q<=p.
-   The value is read only. DON'T CHANGE IT.
-p=0         0                1
-p=1       1   2            1    1
-p=2     3   4   5        1   2    1
-       q=0 q=1 q=2
-       [p(p+1)/2+q]
-*/
+     int p,q;
+     /* It returns {p \choose q} when p>=0, 0<=q<=p.
+        The value is read only. DON'T CHANGE IT.
+        p=0         0                1
+        p=1       1   2            1    1
+        p=2     3   4   5        1   2    1
+        q=0 q=1 q=2
+        [p(p+1)/2+q]
+     */
 {
   extern MP_INT *Mp_one;
   int i,j;
@@ -327,15 +327,15 @@ p=2     3   4   5        1   2    1
     if (newTable == (MP_INT **) NULL) errorCoeff("BiiComb(): No more memory.");
     for (i=0; i<tableSize; i++) {
       for (j=0; j<=i; j++) {
-	newTable[(i*(i+1))/2 + j] = table[(i*(i+1))/2 + j];
+        newTable[(i*(i+1))/2 + j] = table[(i*(i+1))/2 + j];
       }
     }
     for (i=tableSize; i< 2*p; i++) {
       for (j=0; j<=i; j++) {
-	if (j==0 || j==i) newTable[(i*(i+1))/2 + j] = Mp_one;
-	else{
-	  newTable[(i*(i+1))/2 + j] = newMP_INT();
-	}
+        if (j==0 || j==i) newTable[(i*(i+1))/2 + j] = Mp_one;
+        else{
+          newTable[(i*(i+1))/2 + j] = newMP_INT();
+        }
       }
     }
     tableSize = 2*p;
@@ -345,53 +345,53 @@ p=2     3   4   5        1   2    1
   for (i=maxp; i<=p; i++) {
     for (j=1; j<i; j++) {
       mpz_add(table[(i*(i+1))/2 + j],
-	     table[((i-1)*i)/2 + j-1],
-	     table[((i-1)*i)/2 +j]);  /* [p-1,q-1]+[p-1,q] */
+              table[((i-1)*i)/2 + j-1],
+              table[((i-1)*i)/2 +j]);  /* [p-1,q-1]+[p-1,q] */
     }
   }
   maxp = p+1;
   return(table[(p*(p+1))/2 +q]);
-           /*   ^^^^^^ No problem for the optimizer? */
+  /*   ^^^^^^ No problem for the optimizer? */
 }
 
 int iiComb(p,q,P)
-int p,q,P;
+     int p,q,P;
 {
-/**
- foo[n_]:=Block[{p,q,ans},
-    ans={};
-    For[p=0,p<=n,p++,ans=Append[ans,Table[Binomial[p,q],{q,0,n}]]];
-    Return[ans];
- ]
-**/
-/* We assume that int is 32 bit */
-static int table[26][26]=
-{{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,4,6,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,5,10,10,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,6,15,20,15,6,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,7,21,35,35,21,7,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,8,28,56,70,56,28,8,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,9,36,84,126,126,84,36,9,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,10,45,120,210,252,210,120,45,10,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,11,55,165,330,462,462,330,165,55,11,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,12,66,220,495,792,924,792,495,220,66,12,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,13,78,286,715,1287,1716,1716,1287,715,286,78,13,1,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,14,91,364,1001,2002,3003,3432,3003,2002,1001,364,91,14,1,0,0,0,0,0,0,0,0,0,0,0},
-{1,15,105,455,1365,3003,5005,6435,6435,5005,3003,1365,455,105,15,1,0,0,0,0,0,0,0,0,0,0},
-{1,16,120,560,1820,4368,8008,11440,12870,11440,8008,4368,1820,560,120,16,1,0,0,0,0,0,0,0,0,0},
-{1,17,136,680,2380,6188,12376,19448,24310,24310,19448,12376,6188,2380,680,136,17,1,0,0,0,0,0,0,0,0},
-{1,18,153,816,3060,8568,18564,31824,43758,48620,43758,31824,18564,8568,3060,816,153,18,1,0,0,0,0,0,0,0},
-{1,19,171,969,3876,11628,27132,50388,75582,92378,92378,75582,50388,27132,11628,3876,969,171,19,1,0,0,0,0,0,0},
-{1,20,190,1140,4845,15504,38760,77520,125970,167960,184756,167960,125970,77520,38760,15504,4845,1140,190,20,1,0,0,0,0,0},
-{1,21,210,1330,5985,20349,54264,116280,203490,293930,352716,352716,293930,203490,116280,54264,20349,5985,1330,210,21,1,0,0,0,0},
-{1,22,231,1540,7315,26334,74613,170544,319770,497420,646646,705432,646646,497420,319770,170544,74613,26334,7315,1540,231,22,1,0,0,0},
-{1,23,253,1771,8855,33649,100947,245157,490314,817190,1144066,1352078,1352078,1144066,817190,490314,245157,100947,33649,8855,1771,253,23,1,0,0},
-{1,24,276,2024,10626,42504,134596,346104,735471,1307504,1961256,2496144,2704156,2496144,1961256,1307504,735471,346104,134596,42504,10626,2024,276,24,1,0},
-{1,25,300,2300,12650,53130,177100,480700,1081575,2042975,3268760,4457400,5200300,5200300,4457400,3268760,2042975,1081575,480700,177100,53130,12650,2300,300,25,1}};
+  /**
+     foo[n_]:=Block[{p,q,ans},
+     ans={};
+     For[p=0,p<=n,p++,ans=Append[ans,Table[Binomial[p,q],{q,0,n}]]];
+     Return[ans];
+     ]
+  **/
+  /* We assume that int is 32 bit */
+  static int table[26][26]=
+  {{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,4,6,4,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,5,10,10,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,6,15,20,15,6,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,7,21,35,35,21,7,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,8,28,56,70,56,28,8,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,9,36,84,126,126,84,36,9,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,10,45,120,210,252,210,120,45,10,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,11,55,165,330,462,462,330,165,55,11,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,12,66,220,495,792,924,792,495,220,66,12,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,13,78,286,715,1287,1716,1716,1287,715,286,78,13,1,0,0,0,0,0,0,0,0,0,0,0,0},
+   {1,14,91,364,1001,2002,3003,3432,3003,2002,1001,364,91,14,1,0,0,0,0,0,0,0,0,0,0,0},
+   {1,15,105,455,1365,3003,5005,6435,6435,5005,3003,1365,455,105,15,1,0,0,0,0,0,0,0,0,0,0},
+   {1,16,120,560,1820,4368,8008,11440,12870,11440,8008,4368,1820,560,120,16,1,0,0,0,0,0,0,0,0,0},
+   {1,17,136,680,2380,6188,12376,19448,24310,24310,19448,12376,6188,2380,680,136,17,1,0,0,0,0,0,0,0,0},
+   {1,18,153,816,3060,8568,18564,31824,43758,48620,43758,31824,18564,8568,3060,816,153,18,1,0,0,0,0,0,0,0},
+   {1,19,171,969,3876,11628,27132,50388,75582,92378,92378,75582,50388,27132,11628,3876,969,171,19,1,0,0,0,0,0,0},
+   {1,20,190,1140,4845,15504,38760,77520,125970,167960,184756,167960,125970,77520,38760,15504,4845,1140,190,20,1,0,0,0,0,0},
+   {1,21,210,1330,5985,20349,54264,116280,203490,293930,352716,352716,293930,203490,116280,54264,20349,5985,1330,210,21,1,0,0,0,0},
+   {1,22,231,1540,7315,26334,74613,170544,319770,497420,646646,705432,646646,497420,319770,170544,74613,26334,7315,1540,231,22,1,0,0,0},
+   {1,23,253,1771,8855,33649,100947,245157,490314,817190,1144066,1352078,1352078,1144066,817190,490314,245157,100947,33649,8855,1771,253,23,1,0,0},
+   {1,24,276,2024,10626,42504,134596,346104,735471,1307504,1961256,2496144,2704156,2496144,1961256,1307504,735471,346104,134596,42504,10626,2024,276,24,1,0},
+   {1,25,300,2300,12650,53130,177100,480700,1081575,2042975,3268760,4457400,5200300,5200300,4457400,3268760,2042975,1081575,480700,177100,53130,12650,2300,300,25,1}};
 
   int a,b;
   extern MP_INT Mp_work_iiComb;
@@ -411,29 +411,29 @@ static int table[26][26]=
 
 
 MP_INT *BiiPoch(p,q)
-int p,q;
+     int p,q;
 {
-/* It returns  p(p-1) ... (p-q+1) = [p,q] when p>=0 and 0<=q or
-                                               p<0  and 0<=q.
-   [p,q] = p*[p-1,q-1].  [p,0] = 1.
-   The value is read only. DON'T CHANGE IT.
+  /* It returns  p(p-1) ... (p-q+1) = [p,q] when p>=0 and 0<=q or
+     p<0  and 0<=q.
+     [p,q] = p*[p-1,q-1].  [p,0] = 1.
+     The value is read only. DON'T CHANGE IT.
 
-When p>=0,
-p=0         0                1
-p=1       1   2            1    1
-p=2     3   4   5        1   2    2*1
-p=3   6   7   8   9    1   3   3*2    3*2*1,  if p<q,then 0.
-       [p(p+1)/2+q]
+     When p>=0,
+     p=0         0                1
+     p=1       1   2            1    1
+     p=2     3   4   5        1   2    2*1
+     p=3   6   7   8   9    1   3   3*2    3*2*1,  if p<q,then 0.
+     [p(p+1)/2+q]
 
-When p<0, [p,q] is indexed by (-p+q)(-p+q+1)/2 + q.
--p+q = pq.
+     When p<0, [p,q] is indexed by (-p+q)(-p+q+1)/2 + q.
+     -p+q = pq.
 
-q=3  0  (-1)(-2)(-3)  (-2)(-3)(-4)   (-3)(-4)(-5)
-q=2  0  (-1)(-2)      (-2)(-3)       (-3)(-4)
-q=1  0   -1            -2             -3
-q=0  1    1             1              1
-   -p=0  -p=2          -p=3           -p=4  
-*/
+     q=3  0  (-1)(-2)(-3)  (-2)(-3)(-4)   (-3)(-4)(-5)
+     q=2  0  (-1)(-2)      (-2)(-3)       (-3)(-4)
+     q=1  0   -1            -2             -3
+     q=0  1    1             1              1
+     -p=0  -p=2          -p=3           -p=4  
+  */
   extern MP_INT *Mp_one;
   extern MP_INT *Mp_zero;
   MP_INT mp_work;
@@ -461,17 +461,17 @@ q=0  1    1             1              1
       newTable = (MP_INT **)sGC_malloc(sizeof(MP_INT *)*( (2*p*(2*p+1))/2));
       if (newTable == (MP_INT **) NULL) errorCoeff("BiiPoch(): No more memory.");
       for (i=0; i<tableSize; i++) {
-	for (j=0; j<=i; j++) {
-	  newTable[(i*(i+1))/2 + j] = table[(i*(i+1))/2 + j];
-	}
+        for (j=0; j<=i; j++) {
+          newTable[(i*(i+1))/2 + j] = table[(i*(i+1))/2 + j];
+        }
       }
       for (i=tableSize; i< 2*p; i++) {
-	for (j=0; j<=i; j++) {
-	  if (j==0) newTable[(i*(i+1))/2 + j] = Mp_one;
-	  else{
-	    newTable[(i*(i+1))/2 + j] = newMP_INT();
-	  }
-	}
+        for (j=0; j<=i; j++) {
+          if (j==0) newTable[(i*(i+1))/2 + j] = Mp_one;
+          else{
+            newTable[(i*(i+1))/2 + j] = newMP_INT();
+          }
+        }
       }
       tableSize = 2*p;
       table = newTable;
@@ -479,9 +479,9 @@ q=0  1    1             1              1
     /* Compute the binomial coefficients up to {p \choose p} */
     for (i=maxp; i<=p; i++) {
       for (j=1; j<=i; j++) {
-	mpz_mul_ui(table[(i*(i+1))/2 + j],
-		   table[((i-1)*i)/2 + j-1],
-		   (unsigned long int) i); /* [i,j] = i*[i-1,j-1] */
+        mpz_mul_ui(table[(i*(i+1))/2 + j],
+                   table[((i-1)*i)/2 + j-1],
+                   (unsigned long int) i); /* [i,j] = i*[i-1,j-1] */
       }
     }
     maxp = p+1;
@@ -501,18 +501,18 @@ q=0  1    1             1              1
       newTable = (MP_INT **)sGC_malloc(sizeof(MP_INT *)*( (2*pq*(2*pq+1))/2));
       if (newTable == (MP_INT **) NULL) errorCoeff("BiiPoch(): No more memory.");
       for (i=0; i<tablepqSize; i++) {
-	for (j=0; j<=i; j++) {
-	  newTable[(i*(i+1))/2 + j] = tablepq[(i*(i+1))/2 + j];
-	}
+        for (j=0; j<=i; j++) {
+          newTable[(i*(i+1))/2 + j] = tablepq[(i*(i+1))/2 + j];
+        }
       }
       for (i=tablepqSize; i< 2*pq; i++) {
-	for (j=0; j<=i; j++) {
-	  if (j==0) newTable[(i*(i+1))/2 + j] = Mp_one;
-	  else if (j==i) newTable[(i*(i+1))/2+j] = Mp_zero;
-	  else { /*^^^ no problem for optimizer? */
-	    newTable[(i*(i+1))/2 + j] = newMP_INT();
-	  }
-	}
+        for (j=0; j<=i; j++) {
+          if (j==0) newTable[(i*(i+1))/2 + j] = Mp_one;
+          else if (j==i) newTable[(i*(i+1))/2+j] = Mp_zero;
+          else { /*^^^ no problem for optimizer? */
+            newTable[(i*(i+1))/2 + j] = newMP_INT();
+          }
+        }
       }
       tablepqSize = 2*pq;
       tablepq = newTable;
@@ -521,10 +521,10 @@ q=0  1    1             1              1
     mpz_init(&mp_work);
     for (i=maxpq; i<=pq; i++) {
       for (j=1; j<i; j++) {
-	mpz_set_si(&mp_work,-(i-j));
-	mpz_mul(tablepq[(i*(i+1))/2 + j],
-		tablepq[(i*(i+1))/2 + j-1],
-		&mp_work); /* [i,j] = i*[i-1,j-1] */
+        mpz_set_si(&mp_work,-(i-j));
+        mpz_mul(tablepq[(i*(i+1))/2 + j],
+                tablepq[(i*(i+1))/2 + j-1],
+                &mp_work); /* [i,j] = i*[i-1,j-1] */
       }
     }
     maxpq = pq+1;
@@ -538,10 +538,10 @@ int iiPoch(p,k,P) int p,k,P; /* p(p-1)...(p-k+1) */ {
   int r,i;
 
   /*
-  extern MP_INT Mp_work_iiPoch;
-  mpz_mod_ui(&Mp_work_iiPoch,BiiPoch(p,k),(unsigned long) P);
-  return((int) mpz_get_si(&Mp_work_iiPoch));
-  100 test takes 16ms.
+    extern MP_INT Mp_work_iiPoch;
+    mpz_mod_ui(&Mp_work_iiPoch,BiiPoch(p,k),(unsigned long) P);
+    return((int) mpz_get_si(&Mp_work_iiPoch));
+    100 test takes 16ms.
   */
 
   if (p>=0 && p < k) return(0);
@@ -553,9 +553,9 @@ int iiPoch(p,k,P) int p,k,P; /* p(p-1)...(p-k+1) */ {
 }
 
 void CiiPoch(r,p,q)
-struct coeff *r;
-int p,q;
-/* r->val.bigp is read only. */
+     struct coeff *r;
+     int p,q;
+     /* r->val.bigp is read only. */
 {
   switch(r->tag) {
   case INTEGER:
@@ -571,21 +571,21 @@ int p,q;
 }
 
 MP_INT *BiiPower(p,q)
-int p,q;
-/* It returns  p^q.  q must be >=0.
-   p^q = [p,q] = p*[p,q-1].
-   The value is read only. DON'T CHANGE IT.
-*/
-  /*
-[p,q] is indexed by table2D[p+q,q]=table1D[(p+q)(p+q+1)/2 + q].
-p+q = pq.
+     int p,q;
+     /* It returns  p^q.  q must be >=0.
+        p^q = [p,q] = p*[p,q-1].
+        The value is read only. DON'T CHANGE IT.
+     */
+     /*
+       [p,q] is indexed by table2D[p+q,q]=table1D[(p+q)(p+q+1)/2 + q].
+       p+q = pq.
 
-q=3  0    1             8             27
-q=2  0    1             4              9
-q=1  0    1             2              3
-q=0  1    1             1              1
-   -p=0  -p=1          -p=2           -p=3
-  */
+       q=3  0    1             8             27
+       q=2  0    1             4              9
+       q=1  0    1             2              3
+       q=0  1    1             1              1
+       -p=0  -p=1          -p=2           -p=3
+     */
 {
   extern MP_INT *Mp_one;
   extern MP_INT *Mp_zero;
@@ -622,22 +622,22 @@ q=0  1    1             1              1
       errorCoeff("BiiPower(): No more memory.");
     for (i=0; i<tableSize; i++) {
       for (j=0; j<=i; j++) {
-	newTable[(i*(i+1))/2 + j] = table[(i*(i+1))/2 + j];
-	newTable2[(i*(i+1))/2 + j] = tableneg[(i*(i+1))/2 + j];
+        newTable[(i*(i+1))/2 + j] = table[(i*(i+1))/2 + j];
+        newTable2[(i*(i+1))/2 + j] = tableneg[(i*(i+1))/2 + j];
       }
     }
     for (i=tableSize; i< 2*pq; i++) {
       for (j=0; j<=i; j++) {
-	if (j==0) {
-	  newTable[(i*(i+1))/2 + j] = Mp_one;
-	  newTable2[(i*(i+1))/2 + j] = Mp_one;
-	} else if (j==i) {
-	  newTable[(i*(i+1))/2+j] = Mp_zero;
-	  newTable2[(i*(i+1))/2+j] = Mp_zero;
-	}else { /*^^^ no problem for optimizer? */
-	  newTable[(i*(i+1))/2 + j] = newMP_INT();
-	  newTable2[(i*(i+1))/2 + j] = newMP_INT();
-	}
+        if (j==0) {
+          newTable[(i*(i+1))/2 + j] = Mp_one;
+          newTable2[(i*(i+1))/2 + j] = Mp_one;
+        } else if (j==i) {
+          newTable[(i*(i+1))/2+j] = Mp_zero;
+          newTable2[(i*(i+1))/2+j] = Mp_zero;
+        }else { /*^^^ no problem for optimizer? */
+          newTable[(i*(i+1))/2 + j] = newMP_INT();
+          newTable2[(i*(i+1))/2 + j] = newMP_INT();
+        }
       }
     }
     table = newTable;
@@ -650,12 +650,12 @@ q=0  1    1             1              1
     for (j=1; j<i; j++) {
       mpz_set_si(&mp_work,-(i-j));
       mpz_mul(tableneg[(i*(i+1))/2 + j],
-	      tableneg[((i-1)*i)/2 + j-1],
-	      &mp_work); /* (-(i-j))^j=[i,j] = (-i+j)*[i-1,j-1] */
+              tableneg[((i-1)*i)/2 + j-1],
+              &mp_work); /* (-(i-j))^j=[i,j] = (-i+j)*[i-1,j-1] */
       mpz_set_si(&mp_work,i-j);
       mpz_mul(table[(i*(i+1))/2 + j],
-	      table[((i-1)*i)/2 + j-1],
-	      &mp_work); /* (i-j)^j=[i,j] = (i-j)*[i-1,j-1] */
+              table[((i-1)*i)/2 + j-1],
+              &mp_work); /* (i-j)^j=[i,j] = (i-j)*[i-1,j-1] */
     }
   }
   maxp = pq+1;
@@ -667,9 +667,9 @@ q=0  1    1             1              1
 }
 
 int iiPower(k,s,P)
-int k;
-int s;  /* k^s ,  s>=0*/
-int P;
+     int k;
+     int s;  /* k^s ,  s>=0*/
+     int P;
 {
   int kk,r;
   r = 1;
@@ -680,9 +680,9 @@ int P;
 }
 
 void CiiPower(r,p,q)
-struct coeff *r;
-int p,q;
-/* r->val.bigp is read only. */
+     struct coeff *r;
+     int p,q;
+     /* r->val.bigp is read only. */
 {
   switch(r->tag) {
   case INTEGER:
@@ -698,8 +698,8 @@ int p,q;
 }
 
 struct coeff *stringToUniversalNumber(s,flagp)
-char *s;
-int *flagp;
+     char *s;
+     int *flagp;
 {
   MP_INT *value;
   struct coeff * c;
@@ -712,24 +712,24 @@ int *flagp;
 }
 
 struct coeff *newUniversalNumber(i)
-int i;
+     int i;
 { extern struct ring *SmallRingp;
-  struct coeff *c;
-  c = intToCoeff(i,SmallRingp);
-  return(c);
+ struct coeff *c;
+ c = intToCoeff(i,SmallRingp);
+ return(c);
 }
 
 struct coeff *newUniversalNumber2(i)
-MP_INT *i;
+     MP_INT *i;
 { extern struct ring *SmallRingp;
-  struct coeff *c;
-  c = mpintToCoeff(i,SmallRingp);
-  return(c);
+ struct coeff *c;
+ c = mpintToCoeff(i,SmallRingp);
+ return(c);
 }
 
 int coeffEqual(a,b)
-struct coeff *a;
-struct coeff *b;
+     struct coeff *a;
+     struct coeff *b;
 {
   if (a->tag == INTEGER && b->tag == INTEGER) {
     return((a->val.i) == (b->val.i));
@@ -744,8 +744,8 @@ struct coeff *b;
 }
 
 int coeffGreater(a,b)
-struct coeff *a;
-struct coeff *b;
+     struct coeff *a;
+     struct coeff *b;
 {
   if (a->tag == INTEGER && b->tag == INTEGER) {
     return((a->val.i) - (b->val.i));
@@ -760,9 +760,9 @@ struct coeff *b;
 }
 
 void universalNumberDiv(r,a,b)
-struct coeff *r;
-struct coeff *a;
-struct coeff *b;
+     struct coeff *r;
+     struct coeff *a;
+     struct coeff *b;
 {
   if (a->tag == MP_INTEGER && b->tag == MP_INTEGER && r->tag == MP_INTEGER) {
     mpz_div(r->val.bigp,a->val.bigp,b->val.bigp);
@@ -773,26 +773,26 @@ struct coeff *b;
 
 /* Note that it does not check if c is zero or not. cf isZero(). */
 POLY coeffToPoly(c,ringp)
-struct coeff *c;
-struct ring *ringp;
+     struct coeff *c;
+     struct ring *ringp;
 { int p;
-  struct coeff *tc;
+ struct coeff *tc;
 
-  if (c->tag == INTEGER) {
-    tc = intToCoeff(c->val.i,ringp);
-    return(newCell(tc,newMonomial(ringp)));
-  }else if (c->tag == MP_INTEGER) {
-    tc = mpintToCoeff(c->val.bigp,ringp);
-    return(newCell(tc,newMonomial(ringp)));
-  } else if (c->tag == POLY_COEFF) {
-    return(newCell(c,newMonomial(ringp)));
-  }else {
-    warningCoeff("coeffToPoly(): The data type is not supported. Return 0.");
-    return(ZERO);
-  }
+ if (c->tag == INTEGER) {
+   tc = intToCoeff(c->val.i,ringp);
+   return(newCell(tc,newMonomial(ringp)));
+ }else if (c->tag == MP_INTEGER) {
+   tc = mpintToCoeff(c->val.bigp,ringp);
+   return(newCell(tc,newMonomial(ringp)));
+ } else if (c->tag == POLY_COEFF) {
+   return(newCell(c,newMonomial(ringp)));
+ }else {
+   warningCoeff("coeffToPoly(): The data type is not supported. Return 0.");
+   return(ZERO);
+ }
 }
 void errorCoeff(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Error(coeff.c): %s\n",str);
   fprintf(stderr,"Type in ctrl-\\");getchar();
@@ -800,7 +800,7 @@ char *str;
 }
 
 void warningCoeff(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Warning(coeff.c): %s\n",str);
 }

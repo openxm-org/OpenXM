@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -10,8 +10,8 @@ static int DebugReduction = 0;
 
 
 int isReducible_module(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   int n,i;
   MONOMIAL tf;
@@ -33,8 +33,8 @@ POLY g;
 
 
 int isSameComponent_x(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
@@ -77,8 +77,8 @@ POLY g;
 }
 
 int isSameComponent_xd(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
@@ -122,8 +122,8 @@ POLY g;
 
 
 POLY lcm_module(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   MONOMIAL tf,tg;
   MONOMIAL lcm;
@@ -143,7 +143,7 @@ POLY g;
 
 
 int grade_module1v(f)
-POLY f;
+     POLY f;
 {
   int r;
   int i;
@@ -188,7 +188,7 @@ POLY f;
 
 
 int grade_module1(f)
-POLY f;
+     POLY f;
 {
   int r;
   int i;
@@ -222,7 +222,7 @@ POLY f;
 
 
 int grade_firstvec(f)   /* grading by the first vector and h */
-POLY f;
+     POLY f;
 {
   int r;
   int i,k;
@@ -254,7 +254,7 @@ POLY f;
 }
 
 int eliminated(ff)
-POLY ff;
+     POLY ff;
 {
 #define RULEMAX 10
   int r;

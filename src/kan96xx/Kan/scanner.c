@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.2 1999/11/18 08:08:24 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.3 2000/03/20 01:53:46 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -80,29 +80,29 @@ static mygetchar()
 
 static mygetchar()
 { int c;
-  if (EchoInScanner) {
-    c = getc(Cfp);
-    if (c==EOF) {
-      printf("\n%% EOF of file %x\n",(int) Cfp);
-    }else{
-      printf("%c",c);
-    }
-    return( c );
-  }else{
-    return( getc(Cfp) );
-  }
+ if (EchoInScanner) {
+   c = getc(Cfp);
+   if (c==EOF) {
+     printf("\n%% EOF of file %x\n",(int) Cfp);
+   }else{
+     printf("%c",c);
+   }
+   return( c );
+ }else{
+   return( getc(Cfp) );
+ }
 }
 
 
 static myungetchar(c)
-int c;
+     int c;
 {
   return( ungetc(c,Cfp) );
 }
   
 /****************  code part of lexical analizer ********************/
 static int getSM()
-/* get a letter from StringSM */
+     /* get a letter from StringSM */
 {
   int c;
   c = StringSM[StrpSM++];
@@ -112,8 +112,8 @@ static int getSM()
 }
 
 static putSM(c)
-int c;
-/* put a letter on BufSM */
+     int c;
+     /* put a letter on BufSM */
 {
   char *new; int i;
   BufSM[ExistSM++] = ((c=='\n')? ' ' : c);
@@ -157,35 +157,35 @@ static struct tokens flushSM()
 }
 
 static isSpaceSM(c)
-int c;
+     int c;
 {
   if ((c <= ' ') && (c!= EOF)) return(1);
   else return(0);
 }
 
 static isDollarSM(c)
-int c;
+     int c;
 {
   if (c == '$') return(1);
   else return(0);
 }
 
 static isBraceSM(c)
-int c;
+     int c;
 {
   if (c == '{') return(1);
   else return(0);
 }
 
 static isKakkoSM(c)
-int c;
+     int c;
 {
   if (c == '(') return(1);
   else return(0);
 }
 
 static isSymbolSM(c)
-int c;
+     int c;
 {
   if ((c == '{') ||
       (c == '}') ||
@@ -198,8 +198,8 @@ int c;
 }
 
 struct tokens getokenSM(kind,str)
-actionType kind;
-char *str;
+     actionType kind;
+     char *str;
 {
   static int c;
   static struct tokens rnull;
@@ -215,7 +215,7 @@ char *str;
 
     myungetchar('\n'); /* dummy */
     c = mygetchar();  /* Notice that you need at least on input to return
-			 from the getokenSM(INIT); ^^^^^^^^*/
+                         from the getokenSM(INIT); ^^^^^^^^*/
     rnull.token = (char *)NULL; rnull.kind = -1;
     return(rnull);
   }
@@ -234,35 +234,35 @@ char *str;
     }else {
       Cfp = fopen(str,"r");
       if (EchoInScanner)
-	printf("\n%% I open the file %s.\n",str);
+        printf("\n%% I open the file %s.\n",str);
       if (Cfp == (FILE *)NULL) {
 
-	strcpy(fname,getLOAD_SM1_PATH());
-	strcat(fname,str);
-	Cfp = fopen(fname,"r");
-	if (Cfp == (FILE *)NULL) {
-	  strcpy(fname,LOAD_SM1_PATH);
-	  strcat(fname,str);
-	  Cfp = fopen(fname,"r");
-	  if (Cfp == (FILE *)NULL) {
-	    fprintf(stderr,"Warning: Cannot open the file <<%s>> for loading in the current directory nor the library directories %s and %s.\n",str,getLOAD_SM1_PATH(),LOAD_SM1_PATH);
+        strcpy(fname,getLOAD_SM1_PATH());
+        strcat(fname,str);
+        Cfp = fopen(fname,"r");
+        if (Cfp == (FILE *)NULL) {
+          strcpy(fname,LOAD_SM1_PATH);
+          strcat(fname,str);
+          Cfp = fopen(fname,"r");
+          if (Cfp == (FILE *)NULL) {
+            fprintf(stderr,"Warning: Cannot open the file <<%s>> for loading in the current directory nor the library directories %s and %s.\n",str,getLOAD_SM1_PATH(),LOAD_SM1_PATH);
 
-	    Cfp = FileStack[--FileStackP];
-	    fprintf(stderr,"\nWarning: I could not  open the file %s\n",str);
-	    c = mygetchar();
-	    rnull.kind = -3;
-	    return(rnull); /* error */
-	  }else{
-	    c = mygetchar(); /* input from the new file */
-	    return(rnull);
-	  }
-	}else{	
-	  c = mygetchar(); /* input from the new file */
-	  return(rnull);
-	}
+            Cfp = FileStack[--FileStackP];
+            fprintf(stderr,"\nWarning: I could not  open the file %s\n",str);
+            c = mygetchar();
+            rnull.kind = -3;
+            return(rnull); /* error */
+          }else{
+            c = mygetchar(); /* input from the new file */
+            return(rnull);
+          }
+        }else{  
+          c = mygetchar(); /* input from the new file */
+          return(rnull);
+        }
       }else{
-	c = mygetchar(); /* input from the new file */
-	return(rnull);
+        c = mygetchar(); /* input from the new file */
+        return(rnull);
       }
     }
   }
@@ -271,74 +271,74 @@ char *str;
     TypeSM = ID;
     if (c == EOF) {
       if (FileStackP <= 0) {
-	if (ExistSM) return(flushSM());
-	else return(rnull);
+        if (ExistSM) return(flushSM());
+        else return(rnull);
       }else { /* return to the previous file */
-	fclose(Cfp); /* close the file */
-	Cfp = FileStack[--FileStackP];
-	c = mygetchar(Cfp);
+        fclose(Cfp); /* close the file */
+        Cfp = FileStack[--FileStackP];
+        c = mygetchar(Cfp);
       }
     } else if (isSpaceSM(c)) {
       if (ExistSM) {
-	c = mygetchar(); return(flushSM());
+        c = mygetchar(); return(flushSM());
       }else {
-	while (isSpaceSM(c=mygetchar())) ;
+        while (isSpaceSM(c=mygetchar())) ;
       }
     } else if (isDollarSM(c)) { /* output contents in dollar signs. */
       if (ExistSM) return(flushSM());
       else {
-	c = mygetchar();
-	while ((c != EOF) && (c != '$')) {
-	  putSM(c);
-	  c = mygetchar();
-	}
-	if (c=='$') c=mygetchar();
-	TypeSM = DOLLAR;
-	return(flushSM());
+        c = mygetchar();
+        while ((c != EOF) && (c != '$')) {
+          putSM(c);
+          c = mygetchar();
+        }
+        if (c=='$') c=mygetchar();
+        TypeSM = DOLLAR;
+        return(flushSM());
       }
     } else if (isBraceSM(c)) { /* output contents in { }  */
       /*  { {  } } */
       level = 0;
       if (ExistSM) return(flushSM());
       else {
-	c = mygetchar();
-	while (1) {
-	  if (c == '%') { /* skip the comment in the brace. */
-	    while (((c=mygetchar()) != '\n') && (c != EOF))  ;
-	  }
-	  if (c == EOF) break;
-	  if ((c == '}') && (level <= 0)) break;
-	  if ( c == '{') ++level;
-	  if ( c == '}') --level;
-	  putSM(c);
-	  c = mygetchar();
-	}
-	if (c=='}') c=mygetchar();
-	TypeSM = EXECUTABLE_STRING;
-	return(flushSM());
+        c = mygetchar();
+        while (1) {
+          if (c == '%') { /* skip the comment in the brace. */
+            while (((c=mygetchar()) != '\n') && (c != EOF))  ;
+          }
+          if (c == EOF) break;
+          if ((c == '}') && (level <= 0)) break;
+          if ( c == '{') ++level;
+          if ( c == '}') --level;
+          putSM(c);
+          c = mygetchar();
+        }
+        if (c=='}') c=mygetchar();
+        TypeSM = EXECUTABLE_STRING;
+        return(flushSM());
       }
     } else if (isKakkoSM(c)) { /* output contents in (  )  */
       level = 0;
       if (ExistSM) return(flushSM());
       else {
-	c = mygetchar();
-	while (1) {
-	  if (c == EOF) break;
-	  if (c == '\\') { /* e.g. \(  */
-	    putSM(c);
-	    c = mygetchar();
-	    if (c == EOF) break;
-	  }else{
-	    if ((c == ')') && (level <= 0)) break;
-	    if ( c == '(') ++level;
-	    if ( c == ')') --level;
-	  }
-	  putSM(c);
-	  c = mygetchar();
-	}
-	if (c==')') c=mygetchar();
-	TypeSM = DOLLAR;
-	return(flushSM());
+        c = mygetchar();
+        while (1) {
+          if (c == EOF) break;
+          if (c == '\\') { /* e.g. \(  */
+            putSM(c);
+            c = mygetchar();
+            if (c == EOF) break;
+          }else{
+            if ((c == ')') && (level <= 0)) break;
+            if ( c == '(') ++level;
+            if ( c == ')') --level;
+          }
+          putSM(c);
+          c = mygetchar();
+        }
+        if (c==')') c=mygetchar();
+        TypeSM = DOLLAR;
+        return(flushSM());
       }
     } else if (c=='%') { /* comment */
       while (((c=mygetchar()) != '\n') && (c != EOF))  ;
@@ -346,19 +346,19 @@ char *str;
     } else if (isSymbolSM(c)) { /* symbols. {,} etc */
       if(ExistSM) return(flushSM());
       else {
-	putSM(c);
-	c = mygetchar();
-	return(flushSM());
+        putSM(c);
+        c = mygetchar();
+        return(flushSM());
       }
     } else { /* identifier */
       putSM(c);
       c =mygetchar();
       while ((!isDollarSM(c)) &&
-	     (!isSpaceSM(c))  &&
-	     (!isSymbolSM(c)) &&
-	     (c != EOF)) {
-	putSM(c);
-	c = mygetchar();
+             (!isSpaceSM(c))  &&
+             (!isSymbolSM(c)) &&
+             (c != EOF)) {
+        putSM(c);
+        c = mygetchar();
       }
       return(flushSM());
     }
@@ -403,9 +403,9 @@ char *getLOAD_SM1_PATH() {
       p2 = (char *) sGC_malloc(sizeof(char)*(strlen(p)+strlen("/lib/sm1/")+3));
       if (p2 == NULL) { fprintf(stderr,"No more memory.\n"); exit(10); }
       if (p[strlen(p)-1] != '/') {
-	strcpy(p2,p); strcat(p2,"/lib/sm1/");
+        strcpy(p2,p); strcat(p2,"/lib/sm1/");
       }else{
-	strcpy(p2,p); strcat(p2,"lib/sm1/");
+        strcpy(p2,p); strcat(p2,"lib/sm1/");
       }
       return(p2);
     }

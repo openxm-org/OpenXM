@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.2 1999/11/07 13:24:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.3 2000/02/24 12:33:47 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -27,14 +27,14 @@ extern struct dictionary *SystemDictionary;
 static char *operatorType(int i);
 
 static char *operatorType(type)
-int type;
+     int type;
 { int i;
-  for (i=0; i<Sdp; i++) {
-    if (type == (SystemDictionary[i]).obj.lc.ival) {
-      return((SystemDictionary[i]).key);
-    }
-  }
-  return("Unknown operator");
+ for (i=0; i<Sdp; i++) {
+   if (type == (SystemDictionary[i]).obj.lc.ival) {
+     return((SystemDictionary[i]).key);
+   }
+ }
+ return("Unknown operator");
 }
 
 /****** primitive functions *****************************************
@@ -122,10 +122,10 @@ int type;
 #define Scoeff2 100
 /***********************************************/
 void printObject(ob,nl,fp) 
-struct object ob;
-int nl;
-FILE *fp;
-/* print the object on the top of the stack. */
+     struct object ob;
+     int nl;
+     FILE *fp;
+     /* print the object on the top of the stack. */
 {
 
   int size;
@@ -226,20 +226,20 @@ FILE *fp;
     for (i=0; i<size; i++) {
       switch ((ta[i]).kind) {
       case ID:
-	fprintf(fp,"<<ID>>%s ",(ta[i]).token);
-	break;
+        fprintf(fp,"<<ID>>%s ",(ta[i]).token);
+        break;
       case EXECUTABLE_STRING:
-	fprintf(fp,"<<EXECUTABLE_STRING>>{%s} ",(ta[i]).token);
-	break;
+        fprintf(fp,"<<EXECUTABLE_STRING>>{%s} ",(ta[i]).token);
+        break;
       case EXECUTABLE_ARRAY:
-	printObject((ta[i]).object,nl,fp);
-	break;
+        printObject((ta[i]).object,nl,fp);
+        break;
       case DOLLAR:
-	fprintf(fp,"<<STRING(DOLLAR)>>%s ",(ta[i]).token);
-	break;
+        fprintf(fp,"<<STRING(DOLLAR)>>%s ",(ta[i]).token);
+        break;
       default:
-	fprintf(fp,"Unknown token type\n");
-	break;
+        fprintf(fp,"Unknown token type\n");
+        break;
       }
     }
     fprintf(fp," }");
@@ -294,9 +294,9 @@ FILE *fp;
 }
   
 void printObjectArray(ob,nl,fp)
-struct object ob;
-int nl;
-FILE *fp;
+     struct object ob;
+     int nl;
+     FILE *fp;
 {
   int size;
   int i;
@@ -404,7 +404,7 @@ void  KdefinePrimitiveFunctions() {
 }
 
 int executePrimitive(ob) 
-struct object ob;
+     struct object ob;
 {
   struct object ob1;
   struct object ob2;
@@ -471,25 +471,25 @@ struct object ob;
       ob2 = peek(i+k);
       switch(ob2.tag) {
       case Sdollar: /* copy by value */
-	str = (char *)sGC_malloc(strlen(ob2.lc.str)+3);
-	if (str == (char *)NULL) errorStackmachine("No memory (copy)");
-	strcpy(str,ob2.lc.str);
-	Kpush(KpoString(str));
-	break;
+        str = (char *)sGC_malloc(strlen(ob2.lc.str)+3);
+        if (str == (char *)NULL) errorStackmachine("No memory (copy)");
+        strcpy(str,ob2.lc.str);
+        Kpush(KpoString(str));
+        break;
       case Spoly:
-	errorStackmachine("no pCopy (copy)");
-	break;
+        errorStackmachine("no pCopy (copy)");
+        break;
       case Sarray:
-	n = ob2.lc.ival;
-	ob3 = newObjectArray(n);
-	for (j=0; j<n; j++) {
-	  putoa(ob3,j,getoa(ob2,j));
-	}
-	Kpush(ob3);
-	break;
+        n = ob2.lc.ival;
+        ob3 = newObjectArray(n);
+        for (j=0; j<n; j++) {
+          putoa(ob3,j,getoa(ob2,j));
+        }
+        Kpush(ob3);
+        break;
       default:
-	Kpush(ob2);
-	break;
+        Kpush(ob2);
+        break;
       }
       k++;
     }
@@ -511,9 +511,9 @@ struct object ob;
     }
     for (i=0; i<n; i++) {
       if (i < OB_ARRAY_MAX) {
-	obArray[i] = Kpop();
+        obArray[i] = Kpop();
       }else{
-	errorStackmachine("exceeded OB_ARRAY_MAX (roll)\n");
+        errorStackmachine("exceeded OB_ARRAY_MAX (roll)\n");
       }
     }
     for (i=0; i<n; i++) {
@@ -569,14 +569,14 @@ struct object ob;
     ob1 = peek(size);
     while (!(Osp-size-1 < 0)) { /* while the stack is not underflow */
       if (ob1.tag == SleftBraceTag) {
-	rob = newObjectArray(size);
-	for (i=0; i<size; i++) {
-	  (rob.rc.op)[i] = peek(size-1-i);
-	}
-	for (i=0; i<size+1; i++) {
-	  Kpop();
-	}
-	break;
+        rob = newObjectArray(size);
+        for (i=0; i<size; i++) {
+          (rob.rc.op)[i] = peek(size-1-i);
+        }
+        for (i=0; i<size+1; i++) {
+          Kpop();
+        }
+        break;
       }
       size++;
       ob1 = peek(size);
@@ -615,27 +615,27 @@ struct object ob;
     case Sinteger: 
       switch(ob3.tag) {
       case Sarray:
-	i = ob2.lc.ival;
-	size = getoaSize(ob3);
-	if ((0 <= i) && (i<size)) {
-	  getoa(ob3,i) = ob1;
-	}else{
-	  errorStackmachine("Index is out of bound. (put)\n");
-	}
-	break;
+        i = ob2.lc.ival;
+        size = getoaSize(ob3);
+        if ((0 <= i) && (i<size)) {
+          getoa(ob3,i) = ob1;
+        }else{
+          errorStackmachine("Index is out of bound. (put)\n");
+        }
+        break;
       case Sdollar:
-	i = ob2.lc.ival;
-	size = strlen(ob3.lc.str);
-	if ((0 <= i) && (i<size)) {
-	  if (ob1.tag == Sdollar) {
-	    (ob3.lc.str)[i] = (ob1.lc.str)[0];
-	  }else{
-	    (ob3.lc.str)[i] = ob1.lc.ival;
-	  }
-	}else{
-	  errorStackmachine("Index is out of bound. (put)\n");
-	}
-	break;
+        i = ob2.lc.ival;
+        size = strlen(ob3.lc.str);
+        if ((0 <= i) && (i<size)) {
+          if (ob1.tag == Sdollar) {
+            (ob3.lc.str)[i] = (ob1.lc.str)[0];
+          }else{
+            (ob3.lc.str)[i] = ob1.lc.ival;
+          }
+        }else{
+          errorStackmachine("Index is out of bound. (put)\n");
+        }
+        break;
       default: errorStackmachine("Usage:put");
       }
       break;
@@ -643,22 +643,22 @@ struct object ob;
       ob5 = ob3;
       n = getoaSize(ob2);
       for (i=0; i<n; i++) {
-	if (ob5.tag != Sarray)
-	  errorStackmachine("Object pointed by the multi-index is not array (put)\n");
-	ob4 = getoa(ob2,i);
-	if (ob4.tag != Sinteger)
-	  errorStackmachine("Index has to be an integer. (put)\n");
-	k = ob4.lc.ival;
-	size = getoaSize(ob5);
-	if ((0 <= k) && (k<size)) {
-	  if (i == n-1) {
-	    getoa(ob5,k) = ob1;
-	  }else{
-	    ob5 = getoa(ob5,k);
-	  }
-	}else{
-	  errorStackmachine("Index is out of bound for the multi-index. (put)\n");
-	}
+        if (ob5.tag != Sarray)
+          errorStackmachine("Object pointed by the multi-index is not array (put)\n");
+        ob4 = getoa(ob2,i);
+        if (ob4.tag != Sinteger)
+          errorStackmachine("Index has to be an integer. (put)\n");
+        k = ob4.lc.ival;
+        size = getoaSize(ob5);
+        if ((0 <= k) && (k<size)) {
+          if (i == n-1) {
+            getoa(ob5,k) = ob1;
+          }else{
+            ob5 = getoa(ob5,k);
+          }
+        }else{
+          errorStackmachine("Index is out of bound for the multi-index. (put)\n");
+        }
       }
       break;
     default: errorStackmachine("Usage:put");
@@ -755,12 +755,12 @@ struct object ob;
       /***printf("[token %d]%s\n",i,token.token);*/
       i++;
       if (i >= size) {
-	i=0;
+        i=0;
       }
       status = executeToken(token);
       if (status || GotoP) break;
       /* here, do not return 1. Do not propagate exit signal outside of the
-	 loop. */
+         loop. */
     }
     break;
 
@@ -792,32 +792,32 @@ struct object ob;
       inc = ob3.lc.ival;
       if (inc > 0) {
         /*
-	if (lim < i) errorStackmachine("The initial value must not be greater than limit value (for).\n"); 
+          if (lim < i) errorStackmachine("The initial value must not be greater than limit value (for).\n"); 
         */
-	for ( ; i<=lim; i += inc) {
-	  Kpush(KpoInteger(i));
-	  tokenArray = ob1.lc.tokenArray;
-	  size = ob1.rc.ival;
-	  for (j=0; j<size; j++) {
-	    status = executeToken(tokenArray[j]);
-	    if (status || GotoP) goto xyz;
-	  }
-	}
+        for ( ; i<=lim; i += inc) {
+          Kpush(KpoInteger(i));
+          tokenArray = ob1.lc.tokenArray;
+          size = ob1.rc.ival;
+          for (j=0; j<size; j++) {
+            status = executeToken(tokenArray[j]);
+            if (status || GotoP) goto xyz;
+          }
+        }
       }else{
         /*
-	if (lim > i) errorStackmachine("The initial value must not be less than limit value (for).\n");
+          if (lim > i) errorStackmachine("The initial value must not be less than limit value (for).\n");
         */
-	for ( ; i>=lim; i += inc) {
-	  Kpush(KpoInteger(i));
-	  tokenArray = ob1.lc.tokenArray;
-	  size = ob1.rc.ival;
-	  for (j=0; j<size; j++) {
-	    status = executeToken(tokenArray[j]);
-	    if (status || GotoP) goto xyz;
-	  }
-	}
+        for ( ; i>=lim; i += inc) {
+          Kpush(KpoInteger(i));
+          tokenArray = ob1.lc.tokenArray;
+          size = ob1.rc.ival;
+          for (j=0; j<size; j++) {
+            status = executeToken(tokenArray[j]);
+            if (status || GotoP) goto xyz;
+          }
+        }
       }
-      xyz:  ;
+    xyz:  ;
     }
     break;
 
@@ -836,43 +836,43 @@ struct object ob;
       break;
     }
     { int osize,size;
-      int i,j;
-      osize = getoaSize(ob1);
+    int i,j;
+    osize = getoaSize(ob1);
 
-      /*KSexecuteString("[");*/
-      rob.tag = SleftBraceTag;
-      Kpush(rob);
+    /*KSexecuteString("[");*/
+    rob.tag = SleftBraceTag;
+    Kpush(rob);
 
-      for (i=0; i<osize; i++) {
-	Kpush(getoa(ob1,i));
-	tokenArray = ob2.lc.tokenArray;
-	size = ob2.rc.ival;
-	for (j=0; j<size; j++) {
-	  status = executeToken(tokenArray[j]);
-	  if (status) goto foor;
-	}
+    for (i=0; i<osize; i++) {
+      Kpush(getoa(ob1,i));
+      tokenArray = ob2.lc.tokenArray;
+      size = ob2.rc.ival;
+      for (j=0; j<size; j++) {
+        status = executeToken(tokenArray[j]);
+        if (status) goto foor;
       }
+    }
     foor: ;
-      /*KSexecuteString("]");*/
-      {
-	size = 0;
-	ob1 = peek(size);
-	while (!(Osp-size-1 < 0)) { /* while the stack is not underflow */
-	  if (ob1.tag == SleftBraceTag) {
-	    rob = newObjectArray(size);
-	    for (i=0; i<size; i++) {
-	      (rob.rc.op)[i] = peek(size-1-i);
-	    }
-	    for (i=0; i<size+1; i++) {
-	      Kpop();
-	    }
-	    break;
-	  }
-	  size++;
-	  ob1 = peek(size);
-	}
-	Kpush(rob);
+    /*KSexecuteString("]");*/
+    {
+      size = 0;
+      ob1 = peek(size);
+      while (!(Osp-size-1 < 0)) { /* while the stack is not underflow */
+        if (ob1.tag == SleftBraceTag) {
+          rob = newObjectArray(size);
+          for (i=0; i<size; i++) {
+            (rob.rc.op)[i] = peek(size-1-i);
+          }
+          for (i=0; i<size+1; i++) {
+            Kpop();
+          }
+          break;
+        }
+        size++;
+        ob1 = peek(size);
       }
+      Kpush(rob);
+    }
     }
     break;
 
@@ -926,7 +926,7 @@ struct object ob;
     }
     break;
 
-   /* Postscript primitives :dictionary */    
+    /* Postscript primitives :dictionary */    
   case Sdef:
     ob2 = Kpop();
     ob1 = Kpop();
@@ -938,20 +938,20 @@ struct object ob;
       break;
     }
     k=putUserDictionary(ob1.lc.str,(ob1.rc.op->lc).ival,
-			(ob1.rc.op->rc).ival,ob2,
-			CurrentContextp->userDictionary);
+                        (ob1.rc.op->rc).ival,ob2,
+                        CurrentContextp->userDictionary);
     if (k < 0) {
       str = (char *)sGC_malloc(sizeof(char)*(strlen(ob1.lc.str) + 256));
       if (str == (char *)NULL) {
-	errorStackmachine("No memory.\n");
+        errorStackmachine("No memory.\n");
       }
       if (k == -PROTECT) {
-	sprintf(str,"You rewrited the protected symbol %s.\n",ob1.lc.str);
-	/*  cf. [(chattr) num sym] extension */
-	warningStackmachine(str);
+        sprintf(str,"You rewrited the protected symbol %s.\n",ob1.lc.str);
+        /*  cf. [(chattr) num sym] extension */
+        warningStackmachine(str);
       } else if (k == -ABSOLUTE_PROTECT) {
-	sprintf(str,"You cannot rewrite the protected symbol %s.\n",ob1.lc.str);
-	errorStackmachine(str);
+        sprintf(str,"You cannot rewrite the protected symbol %s.\n",ob1.lc.str);
+        errorStackmachine(str);
       } else errorStackmachine("Unknown return value of putUserDictioanry\n");
     }
     break;
@@ -963,9 +963,9 @@ struct object ob;
     default: errorStackmachine("Usage:load");
     }
     ob1 =  findUserDictionary(ob1.lc.str,
-			     (ob1.rc.op->lc).ival,
-			     (ob1.rc.op->rc).ival,
-			      CurrentContextp);
+                              (ob1.rc.op->lc).ival,
+                              (ob1.rc.op->rc).ival,
+                              CurrentContextp);
     if (ob1.tag == -1) Kpush(NullObject);
     else Kpush(ob1);
     
@@ -979,19 +979,19 @@ struct object ob;
     default: errorStackmachine("Usage:set");
     }
     k= putUserDictionary(ob1.lc.str,(ob1.rc.op->lc).ival,
-			 (ob1.rc.op->rc).ival,ob2,
-			 CurrentContextp->userDictionary);
+                         (ob1.rc.op->rc).ival,ob2,
+                         CurrentContextp->userDictionary);
     if (k < 0) {
       str = (char *)sGC_malloc(sizeof(char)*(strlen(ob1.lc.str) + 256));
       if (str == (char *)NULL) {
-	errorStackmachine("No memory.\n");
+        errorStackmachine("No memory.\n");
       }
       if (k == -PROTECT) {
-	sprintf(str,"You rewrited the protected symbol %s. \n",ob1.lc.str);
-	warningStackmachine(str);
+        sprintf(str,"You rewrited the protected symbol %s. \n",ob1.lc.str);
+        warningStackmachine(str);
       } else if (k == -ABSOLUTE_PROTECT) {
-	sprintf(str,"You cannot rewrite the protected symbol %s.\n",ob1.lc.str);
-	errorStackmachine(str);
+        sprintf(str,"You cannot rewrite the protected symbol %s.\n",ob1.lc.str);
+        errorStackmachine(str);
       } else errorStackmachine("Unknown return value of putUserDictioanry\n");
     }
     break;
@@ -1015,9 +1015,9 @@ struct object ob;
     switch(ob2.tag) {
     case Sdollar:
       if (ob1.tag != Sclass) {
-	rob = KdataConversion(ob1,ob2.lc.str);
+        rob = KdataConversion(ob1,ob2.lc.str);
       }else{
-	rob = KclassDataConversion(ob1,ob2);
+        rob = KclassDataConversion(ob1,ob2);
       }
       break;
     case Sarray:
@@ -1047,10 +1047,10 @@ struct object ob;
     break;
 
   case Sfileopen: /* filename  mode   file  descripter */
-              /* ob2       ob1  */
+    /* ob2       ob1  */
     ob1 = Kpop();
     ob2 = Kpop();
-	if (SecureMode) errorStackmachine("Security violation: you cannot open a file.");
+    if (SecureMode) errorStackmachine("Security violation: you cannot open a file.");
     switch(ob1.tag) {
     case Sdollar: break;
     default: errorStackmachine("Usage:file");
@@ -1063,22 +1063,22 @@ struct object ob;
     rob = NullObject;
     if (ob2.tag == Sdollar) {
       if (strcmp(ob2.lc.str,"%stdin") == 0) {
-	rob.tag = Sfile; rob.lc.str="%stdin"; rob.rc.file = stdin;
+        rob.tag = Sfile; rob.lc.str="%stdin"; rob.rc.file = stdin;
       }else if (strcmp(ob2.lc.str,"%stdout") == 0) {
-	rob.tag = Sfile; rob.lc.str="%stdout"; rob.rc.file = stdout;
+        rob.tag = Sfile; rob.lc.str="%stdout"; rob.rc.file = stdout;
       }else if (strcmp(ob2.lc.str,"%stderr") == 0) {
-	rob.tag = Sfile; rob.lc.str="%stderr"; rob.rc.file = stderr;
+        rob.tag = Sfile; rob.lc.str="%stderr"; rob.rc.file = stderr;
       }else if ( (rob.rc.file = fopen(ob2.lc.str,ob1.lc.str)) != (FILE *)NULL) {
-	rob.tag = Sfile; rob.lc.str = ob2.lc.str;
+        rob.tag = Sfile; rob.lc.str = ob2.lc.str;
       }else {
-	errorStackmachine("I cannot open the file."); 
+        errorStackmachine("I cannot open the file."); 
       }
     }else {
       rob.rc.file = fdopen(ob2.lc.ival,ob1.lc.str);
       if ( rob.rc.file != (FILE *)NULL) {
-	rob.tag = Sfile; rob.lc.ival = ob2.lc.ival;
+        rob.tag = Sfile; rob.lc.ival = ob2.lc.ival;
       }else{
-	errorStackmachine("I cannot fdopen the given fd.");
+        errorStackmachine("I cannot fdopen the given fd.");
       }
     }
 
@@ -1115,7 +1115,7 @@ struct object ob;
     break;
 
   case Spushfile: /* filename pushfile  string */
-                  /* ob2       */
+    /* ob2       */
     ob2 = Kpop();
     switch(ob2.tag) {
     case Sdollar: break;
@@ -1132,35 +1132,35 @@ struct object ob;
       ob1.tag = Sfile; ob1.lc.str = ob2.lc.str;
     }else {
       if (ob1.rc.file == (FILE *)NULL) {
-	char fname2[1024];
-      	strcpy(fname2,getLOAD_SM1_PATH());
-	strcat(fname2,ob2.lc.str);
-	ob1.rc.file = fopen(fname2,"r");
-	if (ob1.rc.file == (FILE *)NULL) {
-	  strcpy(fname2,LOAD_SM1_PATH);
-	  strcat(fname2,ob2.lc.str);
-	  ob1.rc.file = fopen(fname2,"r");
-	  if (ob1.rc.file == (FILE *)NULL) {
-	    fprintf(stderr,"Warning: Cannot open the file <<%s>> for loading in the current directory nor the library directories %s and %s.\n",ob2.lc.str,getLOAD_SM1_PATH(),LOAD_SM1_PATH);
-	    errorStackmachine("I cannot open the file.");
-	  }
-	}
+        char fname2[1024];
+        strcpy(fname2,getLOAD_SM1_PATH());
+        strcat(fname2,ob2.lc.str);
+        ob1.rc.file = fopen(fname2,"r");
+        if (ob1.rc.file == (FILE *)NULL) {
+          strcpy(fname2,LOAD_SM1_PATH);
+          strcat(fname2,ob2.lc.str);
+          ob1.rc.file = fopen(fname2,"r");
+          if (ob1.rc.file == (FILE *)NULL) {
+            fprintf(stderr,"Warning: Cannot open the file <<%s>> for loading in the current directory nor the library directories %s and %s.\n",ob2.lc.str,getLOAD_SM1_PATH(),LOAD_SM1_PATH);
+            errorStackmachine("I cannot open the file.");
+          }
+        }
       }
     }
 
     /* read the strings
-    */
+     */
     n = 256; j=0;
     rob.tag = Sdollar; rob.lc.str = (char *) sGC_malloc(sizeof(char)*n);
     if (rob.lc.str == (char *)NULL) errorStackmachine("No more memory.");
     while ((i = fgetc(ob1.rc.file)) != EOF) {
       if (j >= n-1) {
-	n = 2*n;
-	if (n <= 0) errorStackmachine("Too large file to put on the stack.");
+        n = 2*n;
+        if (n <= 0) errorStackmachine("Too large file to put on the stack.");
         str = (char *)sGC_malloc(sizeof(char)*n);
-	if (str == (char *)NULL) errorStackmachine("No more memory.");
-	for (k=0; k< n/2; k++) str[k] = (rob.lc.str)[k];
-	rob.lc.str = str;
+        if (str == (char *)NULL) errorStackmachine("No more memory.");
+        for (k=0; k< n/2; k++) str[k] = (rob.lc.str)[k];
+        rob.lc.str = str;
       }
       (rob.lc.str)[j] = i; (rob.lc.str)[j+1] = '\0';
       j++;
@@ -1183,7 +1183,7 @@ struct object ob;
     case Sstring: break;
     default: errorStackmachine("Usage:system");
     }
-	if (SecureMode) errorStackmachine("Security violation.");
+    if (SecureMode) errorStackmachine("Security violation.");
     system( ob1.lc.str );
     break;
 
@@ -1199,7 +1199,7 @@ struct object ob;
       ob2 = peek(i);
       switch(ob2.tag) {
       case Sdollar: break;
-      default:	errorStackmachine("Usage:cat_n");
+      default:  errorStackmachine("Usage:cat_n");
       }
       k += strlen(ob2.lc.str);
     }
@@ -1232,12 +1232,12 @@ struct object ob;
       times(&after);
       after_real = time(&after_real);
       if (TimerOn) {
-	printf("User time: %f seconds, System time: %f seconds, Real time: %d s\n",
-	       ((double)(after.tms_utime - before.tms_utime)) /100.0,
-	       ((double)(after.tms_stime - before.tms_stime)) /100.0,
-	       (int) (after_real-before_real));
-	/* In cases of Solaris and Linux, the unit of tms_utime seems to
-	   be given 0.01 seconds. */
+        printf("User time: %f seconds, System time: %f seconds, Real time: %d s\n",
+               ((double)(after.tms_utime - before.tms_utime)) /100.0,
+               ((double)(after.tms_stime - before.tms_stime)) /100.0,
+               (int) (after_real-before_real));
+        /* In cases of Solaris and Linux, the unit of tms_utime seems to
+           be given 0.01 seconds. */
 
       }
       timerStart = 1; TimerOn = 0;
@@ -1417,10 +1417,10 @@ struct object ob;
     switch (ob1.tag) {
     case Sclass:
       if (ClassTypes[ob1.lc.ival] == CLASS_OBJ) {
-	Kpush(*(ob1.rc.op));
+        Kpush(*(ob1.rc.op));
       }else{
-	warningStackmachine("<<obj rc >> works only for a class object with CLASS_OBJ attribute.\n");
-	Kpush(ob1);
+        warningStackmachine("<<obj rc >> works only for a class object with CLASS_OBJ attribute.\n");
+        Kpush(ob1);
       }
       break;
     default:
@@ -1435,7 +1435,7 @@ struct object ob;
     switch(ob1.tag) {
     case Sclass:
       if (ob2.tag == Sdollar) {
-	Kpush(KnewContext(ob1,KopString(ob2)));
+        Kpush(KnewContext(ob1,KopString(ob2)));
       }else  errorStackmachine("Usage:newcontext");
       break;
     default:
@@ -1480,11 +1480,11 @@ struct object ob;
     ccflag = 0;
     if (ob2.tag == Sarray ) {
       if (getoaSize(ob2) >= 1) {
-	ob3 = getoa(ob2,0);
-	if (ectag(ob3) == CLASSNAME_CONTEXT) {
-	  contextControl(CCPUSH); ccflag = 1; /* push the current context. */
-	  CurrentContextp = (struct context *)ecbody(ob3);
-	}
+        ob3 = getoa(ob2,0);
+        if (ectag(ob3) == CLASSNAME_CONTEXT) {
+          contextControl(CCPUSH); ccflag = 1; /* push the current context. */
+          CurrentContextp = (struct context *)ecbody(ob3);
+        }
       }
     }
     if (!ccflag) {
@@ -1518,20 +1518,20 @@ struct object ob;
     ccflag = 0;
     if (ob2.tag == Sarray ) {
       if (getoaSize(ob2) >= 1) {
-	ob3 = getoa(ob2,0);
-	if (ectag(ob3) == CLASSNAME_CONTEXT) {
-	  contextControl(CCPUSH); ccflag = 1; /* push the current context. */
-	  CurrentContextp = (struct context *)ecbody(ob3);
-	}
+        ob3 = getoa(ob2,0);
+        if (ectag(ob3) == CLASSNAME_CONTEXT) {
+          contextControl(CCPUSH); ccflag = 1; /* push the current context. */
+          CurrentContextp = (struct context *)ecbody(ob3);
+        }
       }
     }
     if (!ccflag && ob4.tag == Sarray) {
       if (getoaSize(ob4) >= 1) {
-	ob3 = getoa(ob4,0);
-	if (ectag(ob3) == CLASSNAME_CONTEXT) {
-	  contextControl(CCPUSH); ccflag = 1; /* push the current context. */
-	  CurrentContextp = (struct context *)ecbody(ob3);
-	}
+        ob3 = getoa(ob4,0);
+        if (ectag(ob3) == CLASSNAME_CONTEXT) {
+          contextControl(CCPUSH); ccflag = 1; /* push the current context. */
+          CurrentContextp = (struct context *)ecbody(ob3);
+        }
       }
     }
     if (!ccflag) {
@@ -1589,26 +1589,26 @@ struct object ob;
     ccflag = 0;
     if (ob2.tag == Sarray ) {
       if (getoaSize(ob2) >= 1) {
-	ob3 = getoa(ob2,0);
-	if (ectag(ob3) == CLASSNAME_CONTEXT) {
-	  if (((struct context *)ecbody(ob3))->super == NULL) {
-	    errorStackmachine("supmsg2: SuperClass is NIL.");
-	  }
-	  contextControl(CCPUSH); ccflag = 1; /* push the current context. */
-	  CurrentContextp = ((struct context *)ecbody(ob3))->super;
-	}
+        ob3 = getoa(ob2,0);
+        if (ectag(ob3) == CLASSNAME_CONTEXT) {
+          if (((struct context *)ecbody(ob3))->super == NULL) {
+            errorStackmachine("supmsg2: SuperClass is NIL.");
+          }
+          contextControl(CCPUSH); ccflag = 1; /* push the current context. */
+          CurrentContextp = ((struct context *)ecbody(ob3))->super;
+        }
       }
     }
     if (!ccflag && (ob4.tag == Sarray) ) {
       if (getoaSize(ob4) >= 1) {
-	ob3 = getoa(ob4,0);
-	if (ectag(ob3) == CLASSNAME_CONTEXT) {
-	  if (((struct context *)ecbody(ob3))->super == NULL) {
-	    errorStackmachine("supmsg2: SuperClass is NIL.");
-	  }
-	  contextControl(CCPUSH); ccflag = 1; /* push the current context. */
-	  CurrentContextp = ((struct context *)ecbody(ob3))->super;
-	}
+        ob3 = getoa(ob4,0);
+        if (ectag(ob3) == CLASSNAME_CONTEXT) {
+          if (((struct context *)ecbody(ob3))->super == NULL) {
+            errorStackmachine("supmsg2: SuperClass is NIL.");
+          }
+          contextControl(CCPUSH); ccflag = 1; /* push the current context. */
+          CurrentContextp = ((struct context *)ecbody(ob3))->super;
+        }
       }
     }
     if (!ccflag) {
@@ -1636,7 +1636,7 @@ struct object ob;
       /* compose error message */
       ob = Kpop();
       str = (char *) sGC_malloc(sizeof(char)*(strlen("error operator : ")+
-					      strlen(KopString(ob1))+ 10));
+                                              strlen(KopString(ob1))+ 10));
       if (str == NULL) errorStackmachine("No more memory.");
       strcpy(str,"error operator : ");
       strcat(str,KopString(ob1));
@@ -1664,11 +1664,11 @@ struct object ob;
     ob1 = Kpop();
     Kpush(hilberto(ob1,ob2));
     /*
-    {
-    ob1 = Kpop();
-    Kpush(test(ob1));
+      {
+      ob1 = Kpop();
+      Kpush(test(ob1));
 
-    }
+      }
     */
     break;
     

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -26,7 +26,7 @@ void KinitKan(void) {
   int i;
   static char *smallx[] = {"x","t"};
   static char *smalld[] = {"h","T"};
-                           /* t  x  T  h */ 
+  /* t  x  T  h */ 
   static int smallOrder[] = { 1, 0, 0, 0,
                               0, 1, 0, 0,
                               0, 0, 1, 0,
@@ -64,7 +64,7 @@ void KinitKan(void) {
 
 #ifndef NOGC
   /* initialize MPZ */
-   mp_set_memory_functions(sGC_malloc,sGC_realloc2,sGC_free2);
+  mp_set_memory_functions(sGC_malloc,sGC_realloc2,sGC_free2);
 #endif
 
   /* Msize is 8 on SUN gcc */
@@ -97,7 +97,7 @@ void sGC_free2(void *p,size_t size)
 
 
 MONOMIAL newMonomial(ringp)
-struct ring *ringp;
+     struct ring *ringp;
 {
   MONOMIAL f;
   extern int Msize;
@@ -116,7 +116,7 @@ struct ring *ringp;
  
 
 MONOMIAL monomialCopy(m)
-MONOMIAL m;
+     MONOMIAL m;
 {
   extern int Msize;
   MONOMIAL f;
@@ -153,8 +153,8 @@ MP_INT *newMP_INT() {
 }
 
 POLY newCell(c,mon)
-struct coeff *c;
-MONOMIAL mon;
+     struct coeff *c;
+     MONOMIAL mon;
 {
   POLY ff;
   ff = (POLY) sGC_malloc(sizeof(struct listPoly));
@@ -167,10 +167,10 @@ MONOMIAL mon;
 
 /* constructors */
 POLY cxx(c,i,k,ringp)
-int c,i,k;
-struct ring *ringp;
-/*  c x_i^k where p is the characteristic. */
-/* New cell, monomial and coeff. */
+     int c,i,k;
+     struct ring *ringp;
+     /*  c x_i^k where p is the characteristic. */
+     /* New cell, monomial and coeff. */
 {
   POLY f;
   int p;
@@ -199,12 +199,12 @@ struct ring *ringp;
 }
 
 POLY bxx(c,i,k,ringp)
-MP_INT *c;     
-int i,k;
-struct ring *ringp;
-/*  c x_i^k.  c is not copied. */
+     MP_INT *c;     
+     int i,k;
+     struct ring *ringp;
+     /*  c x_i^k.  c is not copied. */
 {
-/* new cell, monomial, coeff. MP_INT c is not copied. */
+  /* new cell, monomial, coeff. MP_INT c is not copied. */
   POLY f;
   int p;
   p = ringp->p;
@@ -229,10 +229,10 @@ struct ring *ringp;
 }
 
 POLY cdd(c,i,k,ringp)
-int c,i,k;
-struct ring *ringp;
-/*  c D_i^k where p is the characteristic. */
-/* New cell, monomial and coeff. */
+     int c,i,k;
+     struct ring *ringp;
+     /*  c D_i^k where p is the characteristic. */
+     /* New cell, monomial and coeff. */
 {
   POLY f;
   int p;
@@ -263,7 +263,7 @@ struct ring *ringp;
 
 
 POLY pCopy(f)
-POLY f;
+     POLY f;
 {
   POLY node;
   struct listPoly nod;
@@ -281,7 +281,7 @@ POLY f;
 }
 
 POLY pcCopy(f)
-POLY f;
+     POLY f;
 {
   
   POLY node;
@@ -302,7 +302,7 @@ POLY f;
 }
 
 POLY pmCopy(f)
-POLY f;
+     POLY f;
 {
   POLY node;
   struct listPoly nod;
@@ -321,7 +321,7 @@ POLY f;
 }
 
 POLY pcmCopy(f)
-POLY f;
+     POLY f;
 {
   POLY node;
   struct listPoly nod;
@@ -340,7 +340,7 @@ POLY f;
 }
 
 POLY head(f)
-POLY f;
+     POLY f;
 {
   if (f == ZERO) return(f);
   else {
@@ -349,14 +349,14 @@ POLY f;
 }
 
 void errorPoly(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Error(poly.c): %s\n",str);
   exit(20);
 }
 
 void warningPoly(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Warning(poly.c): %s\n",str);
 }

@@ -1,6 +1,6 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 /*
-   parser.c   parser for poly.c
+  parser.c   parser for poly.c
 */
 
 #include <stdio.h>
@@ -101,8 +101,8 @@ static union valObject vpop() {
 
 
 POLY stringToPOLY(s,ringp) 
-char *s;
-struct ring *ringp;
+     char *s;
+     struct ring *ringp;
 { 
   /* call init() [ poly.c ] before you use strToPoly(). */
   POLY ppp;
@@ -127,16 +127,16 @@ struct ring *ringp;
   } else { }
   
   ss = (char *)sGC_malloc( strlen(s)+6 );  /* This parser think that an expression
-					  -1+.. is error. ---->
-					  Improved at 1992/03/04.*/
+                      -1+.. is error. ---->
+                      Improved at 1992/03/04.*/
   if (ss == (char *)NULL)
     errorParser("No more space.");
   k=0; while (s[k] == ' ') k++;
   /* This method is quite adhoc. */
   /*
-  if (s[k] == '+' || s[k] == '-') { 
+    if (s[k] == '+' || s[k] == '-') { 
     strcpy(ss,"0"); strcat(ss,&(s[k]));
-  }else strcpy(ss,&(s[k]));
+    }else strcpy(ss,&(s[k]));
   */
   strcpy(ss,&(s[k])); /* we introduce new parser which recognize unary - */
   k = strlen(ss);
@@ -169,7 +169,7 @@ struct ring *ringp;
 
 static int mytolower(c) int c; {
   /*if (c>='A' && c<= 'Z') return( c + 0x20 );
-  else return( c ); */
+    else return( c ); */
   return(c);   /* 1992/06/27  : do nothing now. ***/
 }
 
@@ -185,14 +185,14 @@ static int getoken() {
   int i;
   if (Ch == '\0') return( -1 );
   while (isSpace(Ch)) Ch = getcharFromStr();
- if (isDigit(Ch)) {
+  if (isDigit(Ch)) {
     Symbol = NUM; Bp = 0;
     do {
       Bwork[Bp] = Ch; Bwork[Bp+1] = '\0';
       Ch = getcharFromStr();
       Bp++;
       if (Bp >= BIGNUM_ILIMIT-1) {
-	errorParser(" Too big big-num. ");
+        errorParser(" Too big big-num. ");
       }
     } while (isDigit(Ch));
     BigValue = newMP_INT();
@@ -205,8 +205,8 @@ static int getoken() {
       /* Symbol = NUM; Don't do that. */
       Value = 0;
       do {
-	Value = Value*10+(Ch-'0');
-	Ch = getcharFromStr();
+        Value = Value*10+(Ch-'0');
+        Ch = getcharFromStr();
       } while (isDigit(Ch));
     }else errorParser(" Number is expected after x or d. ");
   } else if (Ch == '@') {
@@ -215,7 +215,7 @@ static int getoken() {
     do {
       Name[i] = Ch; Name[i+1] = '\0'; i++;
       if (i+2 >= NAME_MAX) {
-	errorParser("Too long name begining with @.");
+        errorParser("Too long name begining with @.");
       }
       Ch = getcharFromStr();
     } while (isAlphabetNum(Ch));
@@ -225,13 +225,13 @@ static int getoken() {
   }
 
   /***/ /*
-  if (Symbol == NUM) {
-    fprintf(stderr,"\nToken type = number");
-  } else {
-    fprintf(stderr,"\nToken type = %c",Symbol);
-  }
-  fprintf(stderr,"  value is %d ",Value);
-  */
+      if (Symbol == NUM) {
+      fprintf(stderr,"\nToken type = number");
+      } else {
+      fprintf(stderr,"\nToken type = %c",Symbol);
+      }
+      fprintf(stderr,"  value is %d ",Value);
+        */
   
 }
 
@@ -248,7 +248,7 @@ static  void expr() {
   
   int gtype, ftype;   /* data type.  NUM or POL */
   POLY gp; POLY fp; POLY rp; /* g -> gp, f->fp, r -> rp , if they are
-				polynomials */
+                                polynomials */
   POLY tmpp;
   
   term();
@@ -274,45 +274,45 @@ static  void expr() {
       fp= (ValTmp).p;
     }else ;
 
-   /* debug */
-   /* pWritef(gp,3); printf("\n\n"); sleep(5); */
+    /* debug */
+    /* pWritef(gp,3); printf("\n\n"); sleep(5); */
 
     if (op == '+') {
       if (ftype == NUM && gtype == NUM) {
-	mpz_add(f,f,g);
-	utmp.ival = f;
-	push(NUM,utmp);
+        mpz_add(f,f,g);
+        utmp.ival = f;
+        push(NUM,utmp);
       }else if (ftype== POL && gtype == NUM) {
-	rp = ppAdd(fp,bxx(g,0,0,&Ring0));
-	utmp.p = rp;
-	push(POL, utmp);
+        rp = ppAdd(fp,bxx(g,0,0,&Ring0));
+        utmp.p = rp;
+        push(POL, utmp);
       }else if (ftype==NUM && gtype == POL) {
-	rp = ppAdd(bxx(f,0,0,&Ring0),gp);
-	utmp.p = rp;
-	push(POL,utmp);
+        rp = ppAdd(bxx(f,0,0,&Ring0),gp);
+        utmp.p = rp;
+        push(POL,utmp);
       }else if (ftype==POL && gtype== POL) {
-	rp = ppAdd(fp,gp); 
-	utmp.p = rp;
-	push(POL,utmp);
+        rp = ppAdd(fp,gp); 
+        utmp.p = rp;
+        push(POL,utmp);
       }else ;
-	
+    
     }else {
       if (ftype == NUM && gtype == NUM) {
-	mpz_sub(f,f,g);
-	utmp.ival = f;
-	push(NUM,utmp);
+        mpz_sub(f,f,g);
+        utmp.ival = f;
+        push(NUM,utmp);
       }else if (ftype== POL && gtype == NUM) {
-	rp = ppSub(fp,bxx(g,0,0,&Ring0));
-	utmp.p = rp;
-	push(POL, utmp);
+        rp = ppSub(fp,bxx(g,0,0,&Ring0));
+        utmp.p = rp;
+        push(POL, utmp);
       }else if (ftype==NUM && gtype == POL) {
-	rp = ppSub(bxx(f,0,0,&Ring0),gp); 
-	utmp.p = rp;
-	push(POL,utmp);
+        rp = ppSub(bxx(f,0,0,&Ring0),gp); 
+        utmp.p = rp;
+        push(POL,utmp);
       }else if (ftype==POL && gtype== POL) {
-	rp = ppSub(fp,gp); 
-	utmp.p = rp;
-	push(POL,utmp);
+        rp = ppSub(fp,gp); 
+        utmp.p = rp;
+        push(POL,utmp);
       }else ;
 
     }
@@ -328,15 +328,15 @@ static void term() {
 
   int gtype, ftype;   /* data type.  NUM or POL */
   POLY gp; POLY fp; POLY rp; /* g -> gp, f->fp, r -> rp , if they are
-				polynomials */
+                                polynomials */
   POLY tmpp;
 
 
   /* Unary + and -.  For example -(1+6), -5*3, so on and so forth.
-   term :          factor |
-          ( + | - )factor |
-	           factor ( * | / ) factor ...  |
-	  ( + | - )factor ( * | / ) factor ...
+     term :          factor |
+     ( + | - )factor |
+     factor ( * | / ) factor ...  |
+     ( + | - )factor ( * | / ) factor ...
   */
   if (Symbol == '+') {
     getoken();
@@ -385,37 +385,37 @@ static void term() {
     
     if (op == '*') {
       if (ftype == NUM && gtype == NUM) {
-	mpz_mul(f,f,g);
-	utmp.ival = f;
-	push(NUM,utmp);
+        mpz_mul(f,f,g);
+        utmp.ival = f;
+        push(NUM,utmp);
       }else if (ftype== POL && gtype == NUM) {
-	fp = ppMult(bxx(g,0,0,&Ring0),fp);
-	utmp.p = fp;
-	push(POL, utmp);
+        fp = ppMult(bxx(g,0,0,&Ring0),fp);
+        utmp.p = fp;
+        push(POL, utmp);
       }else if (ftype==NUM && gtype == POL) {
-	gp = ppMult(bxx(f,0,0,&Ring0),gp);
-	utmp.p = gp;
-	push(POL,utmp);
+        gp = ppMult(bxx(f,0,0,&Ring0),gp);
+        utmp.p = gp;
+        push(POL,utmp);
       }else if (ftype==POL && gtype== POL) {
-	rp = ppMult(fp,gp); 
-	utmp.p = rp;
-	push(POL,utmp);
+        rp = ppMult(fp,gp); 
+        utmp.p = rp;
+        push(POL,utmp);
       }else ;
-	
+    
     }else {
       if (ftype == NUM && gtype == NUM) {
-	mpz_div(f,f,g);
-	utmp.ival = f;
-	push(NUM,utmp);
+        mpz_div(f,f,g);
+        utmp.ival = f;
+        push(NUM,utmp);
       }else if (ftype== POL && gtype == NUM) {
-	errorParser("POLY / num is not supported yet.\n"); 
-	/*pvCoeffDiv(BbToCoeff(g),fp);
-	utmp.p = fp;
-	push(POL, utmp);*/
+        errorParser("POLY / num is not supported yet.\n"); 
+        /*pvCoeffDiv(BbToCoeff(g),fp);
+          utmp.p = fp;
+          push(POL, utmp);*/
       }else if (ftype==NUM && gtype == POL) {
-	errorParser(" / POLY is not supported yet.\n"); 
+        errorParser(" / POLY is not supported yet.\n"); 
       }else if (ftype==POL && gtype== POL) {
-	errorParser(" / POLY is not supported yet.\n");
+        errorParser(" / POLY is not supported yet.\n");
       }else ;
 
     }
@@ -429,7 +429,7 @@ static void factor() {
 
   int gtype, ftype;   /* data type.  NUM or POL */
   POLY gp; POLY fp; POLY rp; /* g -> gp, f->fp, r -> rp , if they are
-				polynomials */
+                                polynomials */
   POLY tmpp;
   union valObject utmp;
 
@@ -456,19 +456,19 @@ static void factor() {
     
     if (1) {
       if (ftype == NUM && gtype == NUM) {
-	/* printf("\nf=");mpz_out_str(stdout,10,f);
-   	printf("\ng=");mpz_out_str(stdout,10,g); */
-	mpz_pow_ui(f,f,(unsigned long int) mpz_get_si(g));
-	utmp.ival = f;
-	push(NUM,utmp);
+        /* printf("\nf=");mpz_out_str(stdout,10,f);
+           printf("\ng=");mpz_out_str(stdout,10,g); */
+        mpz_pow_ui(f,f,(unsigned long int) mpz_get_si(g));
+        utmp.ival = f;
+        push(NUM,utmp);
       }else if (ftype== POL && gtype == NUM) {
-	rp = pPower(fp,(int)mpz_get_si(g));
-	utmp.p = rp;
-	push(POL,utmp); 
+        rp = pPower(fp,(int)mpz_get_si(g));
+        utmp.p = rp;
+        push(POL,utmp); 
       }else if (ftype==NUM && gtype == POL) {
-	errorParser("(   ) ^ Polynomial is not supported yet.\n");
+        errorParser("(   ) ^ Polynomial is not supported yet.\n");
       }else if (ftype==POL && gtype== POL) {
-	errorParser("(   ) ^ Polynomial is not supported yet.\n");
+        errorParser("(   ) ^ Polynomial is not supported yet.\n");
       }else ;
 
     }
@@ -495,7 +495,7 @@ static void monom() {
 
   }else if (Symbol == '@') {
     obj = findUserDictionary(&(Name[1]),hash0(&(Name[1])),hash1(&(Name[1])),
-			     CurrentContextp);
+                             CurrentContextp);
     if (isNullObject(obj)) {
       fprintf(stderr,"%s",Name);
       errorParser(" cannot be found in the user dictionary.");
@@ -510,8 +510,8 @@ static void monom() {
       push(POL,utmp);
     }else{
       if (f->m->ringp->n != Ring0.n) {
-	fprintf(stderr,"%s ",Name);
-	errorParser("should be a polynomial in the current ring.\n");
+        fprintf(stderr,"%s ",Name);
+        errorParser("should be a polynomial in the current ring.\n");
       }
       utmp.p = modulo0(f,&Ring0);
       push(POL,utmp);
@@ -570,7 +570,7 @@ static void errorParser(s) char s[]; {
     strcat(tmpc," The error occured around: ");
     j = strlen(tmpc);
     for (i=(((StrPtr-5) >= 0)?StrPtr-5:0)  ;
-	 (i<StrPtr+10) && (String[i] != '\0'); i++) {
+         (i<StrPtr+10) && (String[i] != '\0'); i++) {
       tmpc[j] = String[i]; j++;
       tmpc[j] = '\0';
       if (j >= 1023) break;
@@ -581,7 +581,7 @@ static void errorParser(s) char s[]; {
     fprintf(stderr,"%s\n",s);
     fprintf(stderr,"The error occured around:  ");
     for (i=(((StrPtr-5) >= 0)?StrPtr-5:0)  ;
-	 (i<StrPtr+10) && (String[i] != '\0'); i++)
+         (i<StrPtr+10) && (String[i] != '\0'); i++)
       fprintf(stderr,"%c",String[i]);
     fprintf(stderr,"  ..... \n");
   }

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -8,7 +8,7 @@
 static int Debug=0;
 
 struct polySet *newPolySet(n)
-int n;
+     int n;
 {
   struct polySet *g;
   int i;
@@ -31,7 +31,7 @@ int n;
 }
 
 struct pair *newPair(prev)
-struct pair *prev;
+     struct pair *prev;
 {
   struct pair *g;
   int i;
@@ -47,7 +47,7 @@ struct pair *prev;
 }
 
 struct gradedPolySet *newGradedPolySet(n)
-int n;
+     int n;
 {
   struct gradedPolySet *g;
   g = (struct gradedPolySet *)sGC_malloc(sizeof(struct gradedPolySet));
@@ -61,7 +61,7 @@ int n;
 }
 
 struct gradedPairs *newGradedPairs(n)
-int n;
+     int n;
 {
   struct gradedPairs *g;
   int i;
@@ -86,7 +86,7 @@ struct syz0 *newSyz0() {
 }
   
 struct pair *pairCopy(node)
-struct pair *node;
+     struct pair *node;
 {
   struct pair *r;
   r = newPair(node->prev);
@@ -95,8 +95,8 @@ struct pair *node;
 }
   
 struct gradedPairs *enlargeGradedPairs(size,grD)
-int size;
-struct gradedPairs *grD;
+     int size;
+     struct gradedPairs *grD;
 {
   struct gradedPairs *new;
   int i;
@@ -108,8 +108,8 @@ struct gradedPairs *grD;
 }
 
 void insertPair(inode,before)
-struct pair *inode;
-struct pair *before;
+     struct pair *inode;
+     struct pair *before;
 {
   struct pair *q;
   inode = pairCopy(inode);
@@ -125,7 +125,7 @@ struct pair *before;
 }
 
 struct pair *deletePair(p)
-struct pair *p;
+     struct pair *p;
 {
   struct pair *q;
   struct pair *r;
@@ -142,7 +142,7 @@ struct pair *p;
 }
 
 struct pair *getPair_org(grD)
-struct gradedPairs *grD;
+     struct gradedPairs *grD;
 {
   int gmax,i;
   struct pair *pair;
@@ -157,7 +157,7 @@ struct gradedPairs *grD;
 }
 
 struct pair *getPair(grD)
-struct gradedPairs *grD;
+     struct gradedPairs *grD;
 {
   int gmax,i;
   struct pair *pair;
@@ -171,11 +171,11 @@ struct gradedPairs *grD;
       minnode = node;
       node = node->next;
       while (node != (struct pair *)NULL) {
-	if ((*mmLarger)(minp,node->lcm) >= 1) {
-	  minnode = node;
-	  minp = minnode->lcm;
-	}
-	node = node->next;
+        if ((*mmLarger)(minp,node->lcm) >= 1) {
+          minnode = node;
+          minp = minnode->lcm;
+        }
+        node = node->next;
       }
       pair = deletePair(minnode->prev);
       return(pair);
@@ -185,16 +185,16 @@ struct gradedPairs *grD;
 }
 
 void whereInG(g,fi,gradep,indexp,sugar)
-struct gradedPolySet *g;
-POLY fi;
-int *gradep;
-int *indexp;
-int sugar;
+     struct gradedPolySet *g;
+     POLY fi;
+     int *gradep;
+     int *indexp;
+     int sugar;
 {
   if (sugar) {
     if (*gradep < 0 ) {
       /* if sugar and *gradep < 0, then compute the grade.
-	 Otherwise, grade is given by the caller. */
+         Otherwise, grade is given by the caller. */
       *gradep = grade_sugar(fi);
     }
   }else{
@@ -214,13 +214,13 @@ int sugar;
 }
 
 struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
-struct gradedPolySet *g;
-POLY fi;
-int grade;
-int index;
-struct syz0 *syz;
-int mark;
-int serial;
+     struct gradedPolySet *g;
+     POLY fi;
+     int grade;
+     int index;
+     struct syz0 *syz;
+     int mark;
+     int serial;
 {
   int i,j;
   struct polySet *polysNew;
@@ -228,7 +228,7 @@ int serial;
   struct polySet *ps;
 
   /*printf("--------------------\n");
-  outputGradedPolySet(g,0);*/
+    outputGradedPolySet(g,0);*/
 
   if (grade < 0) {
     warningGradedSet("putPolyInG(): the grade is -1. The element is ignored.");
@@ -272,15 +272,15 @@ int serial;
   if (g->maxGrade < grade+1) g->maxGrade = grade+1;
 
   /*printf("grade=%d, index=%d\n",grade,index);
-  outputGradedPolySet(g,0);*/
+    outputGradedPolySet(g,0);*/
   return(g);
 }
 
 void markRedundant(g,fi,grade,index,sugar)
-struct gradedPolySet *g;
-POLY fi;
-int grade,index;
-int sugar;
+     struct gradedPolySet *g;
+     POLY fi;
+     int grade,index;
+     int sugar;
 {
   int i,j;
   struct polySet *ps;
@@ -293,15 +293,15 @@ int sugar;
     for (j=0; j<ps->size; j++) {
       if (i == grade && j == index) {
       }else if ((*isReducible)(ps->g[j],fi)) {
-	ps->del[j] = 1;
+        ps->del[j] = 1;
       }
     }
   }
 }
 
 void markRedundant0(g,grade,index)
-struct gradedPolySet *g;
-int grade,index;
+     struct gradedPolySet *g;
+     int grade,index;
 {
   int i,j;
   struct polySet *ps;
@@ -314,17 +314,17 @@ int grade,index;
     for (j=0; j<ps->size; j++) {
       if (i == grade && j == index) {
       }else if ((*isReducible)(ps->g[j],fi)) {
-	ps->del[j] = 1;
+        ps->del[j] = 1;
       }else if ((*isReducible)(fi,ps->g[j])) {
-	g->polys[grade]->del[index] = 1;
-	return;
+        g->polys[grade]->del[index] = 1;
+        return;
       }
     }
   }
 }
 
 struct gradedPairs *putPairInGradedPairs(struct gradedPairs *grP,
-					 struct pair *top)
+                                         struct pair *top)
 {
   if (grP == (struct gradedPairs *)NULL) {
     grP = newGradedPairs(top->grade +1);
@@ -338,22 +338,22 @@ struct gradedPairs *putPairInGradedPairs(struct gradedPairs *grP,
 }
   
 void errorGradedSet(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"Error in gradedset.c, red.c, gb.c: %s\n",s);
   exit(23);
 }
 
 void warningGradedSet(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"Warning in gradedset.c, red.c, gb.c: %s\n",s);
 }
 
 
 void outputGradedPolySet(grG,needSyz)
-struct gradedPolySet *grG;
-int needSyz;
+     struct gradedPolySet *grG;
+     int needSyz;
 {
   int i,j;
   struct polySet *set;
@@ -365,12 +365,12 @@ int needSyz;
     for (j=0; j<set->size; j++) {
       printf("j=%d, del=%d, g=%s\n",j,set->del[j],POLYToString(set->g[j],'*',1));
       if (needSyz) {
-	printf("mark=%d,serial=%d, syz.cf=%s, syz.syz=%s\n",set->mark[j],
-	       set->serial[j],POLYToString(set->syz[j]->cf,'*',1),
-	       POLYToString(set->syz[j]->syz,'*',1));
+        printf("mark=%d,serial=%d, syz.cf=%s, syz.syz=%s\n",set->mark[j],
+               set->serial[j],POLYToString(set->syz[j]->cf,'*',1),
+               POLYToString(set->syz[j]->syz,'*',1));
       }else{
-	printf("mark=%d,serial=%d\n",set->mark[j],
-	       set->serial[j]);
+        printf("mark=%d,serial=%d\n",set->mark[j],
+               set->serial[j]);
       }
     }
   }
@@ -378,7 +378,7 @@ int needSyz;
 }
 
 int countGradedPolySet(grG)
-struct gradedPolySet *grG;
+     struct gradedPolySet *grG;
 {
   int i,j;
   struct polySet *set;
@@ -392,7 +392,7 @@ struct gradedPolySet *grG;
 
 
 void outputGradedPairs(grP)
-struct gradedPairs *grP;
+     struct gradedPairs *grP;
 {
   int i,j;
   struct pair *pair;
@@ -412,7 +412,7 @@ struct gradedPairs *grP;
 }
 
 void outputNode(pair)
-struct pair *pair;
+     struct pair *pair;
 {
   int i = 0;
   printf("=== list === \n");
@@ -432,7 +432,7 @@ struct pair *pair;
 
 
 int countPairs(grD)
-struct gradedPairs *grD;
+     struct gradedPairs *grD;
 {
   int i;
   int c;
@@ -450,7 +450,7 @@ struct gradedPairs *grD;
 }
 
 struct gradedPolySet *gradedPolySetCopy(grG)
-struct gradedPolySet *grG;
+     struct gradedPolySet *grG;
 {
   int i,j;
   struct polySet *ps,*psOld;
@@ -474,7 +474,7 @@ struct gradedPolySet *grG;
 }
 
 int deletePairByCriterion2B(struct gradedPairs *grD,POLY gt,
-			    struct gradedPolySet *grG)
+                            struct gradedPolySet *grG)
 {
   int gmax,i;
   struct pair *node;
@@ -489,22 +489,22 @@ int deletePairByCriterion2B(struct gradedPairs *grD,POLY gt,
     if ((grD->pairs[i])->next != (struct pair *)NULL) {
       node = grD->pairs[i]->next;
       while (node != (struct pair *)NULL) {
-	ig = node->ig; ii = node->ii;
-	jg = node->jg; ji = node->ji;
-	if ((*isReducible)(node->lcm,gt)) {
-	  ig = node->ig; ii = node->ii;
-	  jg = node->jg; ji = node->ji;
-	  it = (*lcm)(grG->polys[ig]->g[ii],gt);
-	  ij = (*lcm)(grG->polys[ig]->g[ii],grG->polys[jg]->g[ji]);
-	  jt = (*lcm)(grG->polys[jg]->g[ji],gt);
-	  if ((*mmLarger)(it,ij) != 2 &&
-	      (*mmLarger)(it,jt) != 2 &&
-	      (*mmLarger)(ij,jt) != 2) {
-	    node = deletePair(node->prev);
-	    count++;
-	  }
-	}
-	node = node->next;
+        ig = node->ig; ii = node->ii;
+        jg = node->jg; ji = node->ji;
+        if ((*isReducible)(node->lcm,gt)) {
+          ig = node->ig; ii = node->ii;
+          jg = node->jg; ji = node->ji;
+          it = (*lcm)(grG->polys[ig]->g[ii],gt);
+          ij = (*lcm)(grG->polys[ig]->g[ii],grG->polys[jg]->g[ji]);
+          jt = (*lcm)(grG->polys[jg]->g[ji],gt);
+          if ((*mmLarger)(it,ij) != 2 &&
+              (*mmLarger)(it,jt) != 2 &&
+              (*mmLarger)(ij,jt) != 2) {
+            node = deletePair(node->prev);
+            count++;
+          }
+        }
+        node = node->next;
       }
     }
   }

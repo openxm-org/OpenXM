@@ -1,9 +1,9 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/nogc.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 #include <stdio.h>
 static long Total = 0;
 
 void *GC_malloc(n)
-int n;
+     int n;
 {
   void *p;
   p = (void *)calloc(n,1);  /* clear the memory */

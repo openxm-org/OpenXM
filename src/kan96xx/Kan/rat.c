@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/rat.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 
 /* rat.c: rational functions */
 #include <stdio.h>
@@ -11,8 +11,8 @@ static void errorRationalFunction(char *str);
 static void warningRationalFunction(char *str);
 
 struct object KnewRationalFunction0(op1,op2)
-objectp op1;
-objectp op2;
+     objectp op1;
+     objectp op2;
 {
   struct object rob;
   rob.tag = SrationalFunction;
@@ -24,7 +24,7 @@ objectp op2;
 
   
 int KisZeroObject(op)
-objectp op;
+     objectp op;
 {
   switch(op->tag) {
   case Spoly:
@@ -42,7 +42,7 @@ objectp op;
 }
 
 objectp copyObjectp(op)
-objectp op;
+     objectp op;
 {
   objectp rop;
   rop = newObject();
@@ -51,14 +51,14 @@ objectp op;
 }
 
 void errorRationalFunction(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Error(rat.c): %s\n",str);
   exit(20);
 }
 
 void warningRationalFunction(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Warning(rat.c): %s\n",str);
 }

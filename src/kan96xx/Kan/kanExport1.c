@@ -13,8 +13,8 @@ extern int KanGBmessage;
   
 /** :kan, :ring */
 struct object Kreduction(f,set)
-struct object f;
-struct object set;
+     struct object f;
+     struct object set;
 {
   POLY r;
   struct gradedPolySet *grG;
@@ -54,7 +54,7 @@ struct object set;
 }
 
 struct object Kgroebner(ob)
-struct object ob;
+     struct object ob;
 {
   int needSyz = 0;
   int needBack = 0;
@@ -112,45 +112,45 @@ struct object ob;
     for (i=0; i<getoaSize(ob2); i++) {
       ob2c = getoa(ob2,i);
       if (ob2c.tag == Sdollar) {
-	if (strcmp(ob2c.lc.str,"needBack")==0) {
-	  needBack = 1;
-	}else if (strcmp(ob2c.lc.str,"needSyz")==0) {
-	  if (!needBack) {
-	    /* warningKan("Kgroebner(): needBack is automatically set."); */
-	  }
-	  needSyz = needBack = 1;
-	}else if (strcmp(ob2c.lc.str,"forceReduction")==0) {
-	  forceReduction = 1;
-	}else if (strcmp(ob2c.lc.str,"countDown")==0) {
-	  countDown = 1; cdflag = 1;
-	  if (needSyz) {
-	    warningKan("Kgroebner(): needSyz is automatically turned off.");
-	    needSyz = 0;
-	  }
-	}else if (strcmp(ob2c.lc.str,"StopDegree")==0) {
-	  StopDegree = 0; sdflag = 1;
-	  if (needSyz) {
-	    warningKan("Kgroebner(): needSyz is automatically turned off.");
-	    needSyz = 0;
-	  }
-	}else {
-	  warningKan("Unknown keyword for options.");
-	}
+        if (strcmp(ob2c.lc.str,"needBack")==0) {
+          needBack = 1;
+        }else if (strcmp(ob2c.lc.str,"needSyz")==0) {
+          if (!needBack) {
+            /* warningKan("Kgroebner(): needBack is automatically set."); */
+          }
+          needSyz = needBack = 1;
+        }else if (strcmp(ob2c.lc.str,"forceReduction")==0) {
+          forceReduction = 1;
+        }else if (strcmp(ob2c.lc.str,"countDown")==0) {
+          countDown = 1; cdflag = 1;
+          if (needSyz) {
+            warningKan("Kgroebner(): needSyz is automatically turned off.");
+            needSyz = 0;
+          }
+        }else if (strcmp(ob2c.lc.str,"StopDegree")==0) {
+          StopDegree = 0; sdflag = 1;
+          if (needSyz) {
+            warningKan("Kgroebner(): needSyz is automatically turned off.");
+            needSyz = 0;
+          }
+        }else {
+          warningKan("Unknown keyword for options.");
+        }
       }else if (ob2c.tag == Sinteger) {
-	if (cdflag) {
-	  cdflag = 0;
-	  countDown = KopInteger(ob2c);
-	}else if (sdflag) {
-	  sdflag = 0;
-	  StopDegree = KopInteger(ob2c);
-	}
+        if (cdflag) {
+          cdflag = 0;
+          countDown = KopInteger(ob2c);
+        }else if (sdflag) {
+          sdflag = 0;
+          StopDegree = KopInteger(ob2c);
+        }
       }
     }
     break;
   default:
     errorKan1("%s\n","Kgroebner(): [ [polynomials] ] or [[polynomials] [options]].");
   }
-	 
+     
   if (ob1.tag != Sarray) errorKan1("%s\n","Kgroebner(): The argument must be an array. Example: [ [$x-1$ . $x y -2$ .] [$needBack$ $needSyz$ $needInput$]] ");
   ob1New = newObjectArray(getoaSize(ob1));
   for (i=0; i< getoaSize(ob1); i++) {
@@ -165,9 +165,9 @@ struct object ob;
     /* getoa(ob1,i) is poly, now check the homogenization. */
     if (CheckHomogenization) {
       if ((strcmp(F_groebner,"standard")==0) &&
-	  !isHomogenized(KopPOLY(getoa(ob1New,i)))) {
-	fprintf(stderr,"\n%s",KPOLYToString(KopPOLY(getoa(ob1New,i))));
-	errorKan1("%s\n","Kgroebner(): The above polynomial is not homogenized. cf. homogenize.");
+          !isHomogenized(KopPOLY(getoa(ob1New,i)))) {
+        fprintf(stderr,"\n%s",KPOLYToString(KopPOLY(getoa(ob1New,i))));
+        errorKan1("%s\n","Kgroebner(): The above polynomial is not homogenized. cf. homogenize.");
       }
     }
   }
@@ -208,7 +208,7 @@ struct object ob;
       putoa(rob,1,rob3);
       rob4 = newObjectArray(ob1Size);
       for (i=0; i<ob1Size; i++) {
-	putoa(rob4,i,unitVector(i,ob1Size,myring));
+        putoa(rob4,i,unitVector(i,ob1Size,myring));
       }
       putoa(rob,2,rob4);
     }else if (needBack) {
@@ -368,7 +368,7 @@ static struct object unitVector(int pos, int size,struct ring *r)
 #define INITSIZE 0
 
 struct gradedPolySet *arrayToGradedPolySet(ob)
-struct object ob;
+     struct object ob;
 {
   int n,i,grd,ind;
   POLY f;
@@ -398,8 +398,8 @@ struct object ob;
 
 
 struct object polySetToArray(ps,keepRedundant)
-struct polySet *ps;
-int keepRedundant;
+     struct polySet *ps;
+     int keepRedundant;
 {
   int n,i,j;
   struct object ob;
@@ -425,8 +425,8 @@ int keepRedundant;
 
 
 struct object gradedPolySetToGradedArray(gps,keepRedundant)
-struct gradedPolySet *gps;
-int keepRedundant;
+     struct gradedPolySet *gps;
+     int keepRedundant;
 {
   struct object ob,vec;
   int i;
@@ -443,8 +443,8 @@ int keepRedundant;
 
   
 struct object gradedPolySetToArray(gps,keepRedundant)
-struct gradedPolySet *gps;
-int keepRedundant;
+     struct gradedPolySet *gps;
+     int keepRedundant;
 {
   struct object ob,vec;
   struct polySet *ps;
@@ -459,7 +459,7 @@ int keepRedundant;
       size += ps->size;
     }else{
       for (j=0; j<ps->size; j++) {
-	if (ps->del[j] == 0) ++size;
+        if (ps->del[j] == 0) ++size;
       }
     }
   }
@@ -470,8 +470,8 @@ int keepRedundant;
     ps = gps->polys[i];
     for (j=0; j<ps->size; j++) {
       if (keepRedundant || (ps->del[j] == 0)) {
-	putoa(ob,k,KpoPOLY(ps->g[j]));
-	k++;
+        putoa(ob,k,KpoPOLY(ps->g[j]));
+        k++;
       }
     }
   }
@@ -481,9 +481,9 @@ int keepRedundant;
 
 /* serial == -1  :  It's not in the marix input. */
 struct object syzPolyToArray(size,f,grG)
-int size;
-POLY f;
-struct gradedPolySet *grG;
+     int size;
+     POLY f;
+     struct gradedPolySet *grG;
 {
   struct object ob;
   int i,g0,i0,serial;
@@ -510,7 +510,7 @@ struct gradedPolySet *grG;
 }
 
 struct object getBackwardArray(grG)
-struct gradedPolySet *grG;
+     struct gradedPolySet *grG;
 {
   /* use serial, del.  cf. getBackwardTransformation(). */
   int inputSize,outputSize;
@@ -533,8 +533,8 @@ struct gradedPolySet *grG;
     ps = grG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->del[j] == 0) {
-	putoa(ob,k,syzPolyToArray(inputSize,ps->syz[j]->syz,grG));
-	k++;
+        putoa(ob,k,syzPolyToArray(inputSize,ps->syz[j]->syz,grG));
+        k++;
       }
     }
   }
@@ -543,7 +543,7 @@ struct gradedPolySet *grG;
 
 
 POLY arrayToPOLY(ob)
-struct object ob;
+     struct object ob;
 {
   int size,i;
   struct object f;
@@ -563,15 +563,15 @@ struct object ob;
     if (ff != ZERO) {
       tf = ff->m;
       if (tf->ringp != cr) {
-	n = tf->ringp->n;
-	m = tf->ringp->m;
-	l = tf->ringp->l;
-	c = tf->ringp->c;
-	nn = tf->ringp->nn;
-	mm = tf->ringp->mm;
-	ll = tf->ringp->ll;
-	cc = tf->ringp->cc;
-	cr = tf->ringp;
+        n = tf->ringp->n;
+        m = tf->ringp->m;
+        l = tf->ringp->l;
+        c = tf->ringp->c;
+        nn = tf->ringp->nn;
+        mm = tf->ringp->mm;
+        ll = tf->ringp->ll;
+        cc = tf->ringp->cc;
+        cr = tf->ringp;
       }
       if (n-nn >0) ee = cxx(1,n-1,i,tf->ringp);
       else if (m-mm >0) ee = cxx(1,m-1,i,tf->ringp);
@@ -585,7 +585,7 @@ struct object ob;
 }
 
 struct object POLYToArray(ff)
-POLY ff;
+     POLY ff;
 {
   
   static int nn,mm,ll,cc,n,m,l,c;
@@ -639,7 +639,7 @@ POLY ff;
 }
 
 static int isThereh(f)
-POLY f;
+     POLY f;
 {
   POLY t;
   if (f == 0) return(0);
@@ -652,8 +652,8 @@ POLY f;
 }
 
 struct object homogenizeObject(ob,gradep)
-struct object ob;
-int *gradep;
+     struct object ob;
+     int *gradep;
 {
   struct object rob,ob1;
   int maxg;
@@ -690,7 +690,7 @@ int *gradep;
       ob1 = getoa(ob,i);
       ob1 = homogenizeObject(ob1,&gr);
       if (gr > maxg) {
-	maxg = gr;
+        maxg = gr;
       }
       getoa(rob,i) = ob1;
     }
@@ -699,12 +699,12 @@ int *gradep;
       rp = oRingp(rob);
       if (rp == (struct ring *)NULL) rp = CurrentRingp;
       for (i=0; i<size; i++) {
-	gr = oGrade(getoa(rob,i));
-	/**printf("maxg=%d, gr=%d(i=%d) ",maxg,gr,i); fflush(stdout);**/
-	if (maxg > gr) {
-	  f = cdd(1,0,maxg-gr-i,rp); /* h^{maxg-gr-i} */
-	  getoa(rob,i) = KooMult(KpoPOLY(f),getoa(rob,i));
-	}
+        gr = oGrade(getoa(rob,i));
+        /**printf("maxg=%d, gr=%d(i=%d) ",maxg,gr,i); fflush(stdout);**/
+        if (maxg > gr) {
+          f = cdd(1,0,maxg-gr-i,rp); /* h^{maxg-gr-i} */
+          getoa(rob,i) = KooMult(KpoPOLY(f),getoa(rob,i));
+        }
       }
     }
     *gradep = maxg;
@@ -717,8 +717,8 @@ int *gradep;
 }
 
 struct object homogenizeObject_vec(ob,gradep)
-struct object ob;
-int *gradep;
+     struct object ob;
+     int *gradep;
 {
   struct object rob,ob1;
   int maxg;
@@ -750,7 +750,7 @@ int *gradep;
       ob1 = homogenizeObject_vec(ob1,&gr);
       if (i==0) maxg = gr;
       else {
-	maxg = (maxg > gr? maxg: gr);
+        maxg = (maxg > gr? maxg: gr);
       }
       putoa(rob,i,ob1);
     }
@@ -764,7 +764,7 @@ int *gradep;
 }
 
 struct ring *oRingp(ob)
-struct object ob;
+     struct object ob;
 {
   struct ring *rp,*rptmp;
   int i,size;
@@ -791,7 +791,7 @@ struct object ob;
 }
 
 int oGrade(ob)
-struct object ob;
+     struct object ob;
 {
   int i,size;
   POLY f;
@@ -819,7 +819,7 @@ struct object ob;
 
 
 struct object oPrincipalPart(ob)
-struct object ob;
+     struct object ob;
 {
   POLY f;
   struct object rob;
@@ -835,8 +835,8 @@ struct object ob;
   }
 }
 struct object oInitW(ob,oWeight)
-struct object ob;
-struct object oWeight;
+     struct object ob;
+     struct object oWeight;
 {
   POLY f;
   struct object rob;
@@ -993,7 +993,7 @@ struct object KvectorToSchreyer_es(struct object obarray)
       /*   g = es^i  g */
       g = mpMult_poly(cxx(1,nn,i,rp), g);
       if (!isOrdered(g)) {
-	errorKan1("%s\n","KvectorToSchreyer_es(): given polynomial is not ordered properly by the given Schreyer order.");
+        errorKan1("%s\n","KvectorToSchreyer_es(): given polynomial is not ordered properly by the given Schreyer order.");
       }
       f = ppAdd(f,g);
     }

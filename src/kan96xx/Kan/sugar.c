@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/sugar.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -9,7 +9,7 @@
 static int DebugReduction = 0;
 
 POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
-		     struct syz0 *syzp,int sugarGrade)
+                     struct syz0 *syzp,int sugarGrade)
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -38,29 +38,29 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
     while (grd < gset->maxGrade) {
       set = gset->polys[grd];
       do {
-	reduced2 = 0; /* no */
-	for (i=0; i<set->size; i++) {
-	  if (f ISZERO) goto ss;
-	  if ((*isReducible)(f,set->g[i])) {
-	    tdegm = grade_gen(f) - grade_gen(set->g[i]);
-	    /* Reduce if and only if sugarGrade does not increase. */
-	    if (tdegm+grd <= sugarGrade) {
-	      f = reduction1_sugar(f,set->g[i],needSyz,&cc,&cg,sugarGrade);
-	      if (needSyz) {
-		cf = ppMult(cc,cf);
-		syz = cpMult(toSyzCoeff(cc),syz);
-		syz = ppAddv(syz,toSyzPoly(cg,grd,i));
-	      }
-	      reduced = reduced1 = reduced2 = 1; /* yes */
-	    }
-	  }
-	}
+        reduced2 = 0; /* no */
+        for (i=0; i<set->size; i++) {
+          if (f ISZERO) goto ss;
+          if ((*isReducible)(f,set->g[i])) {
+            tdegm = grade_gen(f) - grade_gen(set->g[i]);
+            /* Reduce if and only if sugarGrade does not increase. */
+            if (tdegm+grd <= sugarGrade) {
+              f = reduction1_sugar(f,set->g[i],needSyz,&cc,&cg,sugarGrade);
+              if (needSyz) {
+                cf = ppMult(cc,cf);
+                syz = cpMult(toSyzCoeff(cc),syz);
+                syz = ppAddv(syz,toSyzPoly(cg,grd,i));
+              }
+              reduced = reduced1 = reduced2 = 1; /* yes */
+            }
+          }
+        }
       } while (reduced2 != 0);
       grd++;
     }
   }while (reduced1 != 0);
 
-  ss: ;
+ ss: ;
   if (needSyz) {
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
@@ -69,13 +69,13 @@ POLY reduction_sugar(POLY f,struct gradedPolySet *gset,int needSyz,
 }
 
 POLY reduction1_sugar(f,g,needSyz,c,h,sugarGrade)
-POLY f;
-POLY g;
-int needSyz;
-POLY *c; /* set */
-POLY *h; /* set */
-int sugarGrade;
-/* f must be reducible by g.  r = c*f + h*g */
+     POLY f;
+     POLY g;
+     int needSyz;
+     POLY *c; /* set */
+     POLY *h; /* set */
+     int sugarGrade;
+     /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
   struct ring *rp;
@@ -94,7 +94,7 @@ int sugarGrade;
   f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
   if (DebugReduction) {
     printf("c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
-	   POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));	   
+           POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));       
     printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
   }
   f = f2;
@@ -111,14 +111,14 @@ int sugarGrade;
       sv = (*sp)(f,g);
       f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
       if (DebugReduction) {
-	printf("! c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
-	       POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));	   
-	printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
+        printf("! c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
+               POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));       
+        printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
       }
       f = f2;
       if (needSyz) {
-	*c = ppMult(sv.a,*c);
-	*h = ppAdd(ppMult(sv.a,*h),sv.b);
+        *c = ppMult(sv.a,*c);
+        *h = ppAdd(ppMult(sv.a,*h),sv.b);
       }
     }else{
       break;
@@ -128,7 +128,7 @@ int sugarGrade;
 }
 
 int grade_sugar(f)
-POLY f;
+     POLY f;
 {
   int r;
   int i,ans;

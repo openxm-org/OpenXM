@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.7 2000/09/08 17:30:50 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.8 2000/12/03 07:29:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -94,8 +94,8 @@ int readOneByte_org(int fd)   /* blocking */
     if (oxSocketSelect0(fd,-1)) { /* block */
       size = read(fd,data,READBUFSIZE-1);
       if (size == 0) {
-	fprintf(MyErrorOut,"oxSocketSelect0() returns 1, but there is no data. Your peer may be killed.\n");
-	return(-1);
+        fprintf(MyErrorOut,"oxSocketSelect0() returns 1, but there is no data. Your peer may be killed.\n");
+        return(-1);
       }
       from = 0;
       to = size;
@@ -175,7 +175,7 @@ int oxWaitSyncBall(ox_stream ostream)
   int mtag;
   while ((mtag = oxGetOXheader(ostream,&sss)) != OX_SYNC_BALL) {
     fprintf(stderr,"Looking for the next message tag. mtag=%d\n",mtag);
-          /* or stdout */
+    /* or stdout */
     fflush(NULL);
   }
 }
@@ -190,7 +190,7 @@ int oxWaitSyncBall_org(ox_stream ostream)
   while (1) {
     /* This part should be revised so that this part understands
        the cmo format.
-       */
+    */
        
     if ((c = fp2fgetc(ostream)) < 0) {
       /* never use read directory. readOneByte() is buffers every thing. */
@@ -208,7 +208,7 @@ int oxWaitSyncBall_org(ox_stream ostream)
       return(mtag);
     }
     fprintf(stderr,"Looking for the next message tag.. %2x, mtag=%d\n",c,mtag);
-          /* or stdout */
+    /* or stdout */
     fflush(NULL);
   }
 }
@@ -493,7 +493,7 @@ int oxGetResultOfControlInt32(int fd) {
 }
 
 int oxclientMultiSelect(oxclientp clients[],int dataready[],
-			int controlready[], int size, int t)
+                        int controlready[], int size, int t)
 {
   int i, ddd;
   int fd;
@@ -517,32 +517,32 @@ int oxclientMultiSelect(oxclientp clients[],int dataready[],
       fd = (fd<humanfd?humanfd:fd);
       FD_SET(humanfd,&readfds);
       if (oxSocketSelect0(humanfd,0)) {
-		ddd = dataready[i] = 1; controlready[i] = 0;
+        ddd = dataready[i] = 1; controlready[i] = 0;
       }else{
-		dataready[i] = 0; controlready[i] = 0;
+        dataready[i] = 0; controlready[i] = 0;
       }
     }else{
-	  if (clients[i]->controlport < 0) { /* For RFC_101 */
-		controlready[i] = 0;  
-	  }else{
-		fd = (fd<clients[i]->controlfd?clients[i]->controlfd:fd);
-		FD_SET(clients[i]->controlfd,&readfds);
-		if (oxSocketSelect0(clients[i]->controlfd,0)) {
-		  ddd = controlready[i] = 1;
-		}else{
-		  controlready[i] = 0;
-		}
-	  }
-      if (clients[i]->datafp2 != NULL) {
-		fd = (fd<clients[i]->datafp2->fd?clients[i]->datafp2->fd:fd);
-		FD_SET(clients[i]->datafp2->fd,&readfds);
-		if (fp2select(clients[i]->datafp2,0)) {
-		  ddd = dataready[i] = 1;
-		}else{
-		  dataready[i] = 0;
-		}
+      if (clients[i]->controlport < 0) { /* For RFC_101 */
+        controlready[i] = 0;  
       }else{
-		dataready[i] = 0;
+        fd = (fd<clients[i]->controlfd?clients[i]->controlfd:fd);
+        FD_SET(clients[i]->controlfd,&readfds);
+        if (oxSocketSelect0(clients[i]->controlfd,0)) {
+          ddd = controlready[i] = 1;
+        }else{
+          controlready[i] = 0;
+        }
+      }
+      if (clients[i]->datafp2 != NULL) {
+        fd = (fd<clients[i]->datafp2->fd?clients[i]->datafp2->fd:fd);
+        FD_SET(clients[i]->datafp2->fd,&readfds);
+        if (fp2select(clients[i]->datafp2,0)) {
+          ddd = dataready[i] = 1;
+        }else{
+          dataready[i] = 0;
+        }
+      }else{
+        dataready[i] = 0;
       }
     }
   }
@@ -567,7 +567,7 @@ int oxclientMultiSelect(oxclientp clients[],int dataready[],
 }
 
 int oxGetControl(oxclientp client) 
-/* synchronized. */
+     /* synchronized. */
 {
   int ans;
   ox_stream os;
@@ -609,7 +609,7 @@ int oxIsThereErrorClient(oxclientp client) {
 }
 
 oxclientp oxCreateClient(char *sname,int portStream,int portControl)
-  /* you also need to change oxCreateClient2. */
+     /* you also need to change oxCreateClient2. */
 {
   static int clnum = 0;
   int v = 0;
@@ -635,14 +635,14 @@ oxclientp oxCreateClient(char *sname,int portStream,int portControl)
 
   controlByteOrder = oxSetByteOrder(fdControl);
   if (v) fprintf(stderr,"Byte order for control process is %s.\n",
-		 (controlByteOrder == 0? "network byte order":
-		  (controlByteOrder == 1? "little indican":
-		   "big indian")));
+                 (controlByteOrder == 0? "network byte order":
+                  (controlByteOrder == 1? "little indican":
+                   "big indian")));
   engineByteOrder = oxSetByteOrder(fdStream);
   if (v) fprintf(stderr,"Byte order for engine process is %s.\n",
-		 (engineByteOrder == 0? "network byte order":
-		  (engineByteOrder == 1? "little indican":
-		   "big indian")));
+                 (engineByteOrder == 0? "network byte order":
+                  (engineByteOrder == 1? "little indican":
+                   "big indian")));
   
   client = (oxclientp) mymalloc(sizeof(oxclient));
   oxInitClient(client);
@@ -721,7 +721,7 @@ oxclientp oxCreateClientFile(char *fname,char *mode,char *controlName,char *cmod
 }
 
 void oxSendOXheader_generic(int type,int fd,ox_stream ox,
-			    int k,int serial)
+                            int k,int serial)
 {
   static int ss = 0;
   extern int UseOXPacketSerial;
@@ -890,7 +890,7 @@ static void cancelConnection() {
 }
 
 oxclientp oxCreateClient2(int fdstream,int portStream,
-			  int fdcontrol,int portControl,int ipmask,char *pass)
+                          int fdcontrol,int portControl,int ipmask,char *pass)
 {
   static int clnum = 0;
   int v = 0;
@@ -948,14 +948,14 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
 
   controlByteOrder = oxSetByteOrder(fdControl);
   if (v) fprintf(stderr,"Byte order for control process is %s.\n",
-		 (controlByteOrder == 0? "network byte order":
-		  (controlByteOrder == 1? "little indican":
-		   "big indian")));
+                 (controlByteOrder == 0? "network byte order":
+                  (controlByteOrder == 1? "little indican":
+                   "big indian")));
   engineByteOrder = oxSetByteOrder(fdStream);
   if (v) fprintf(stderr,"Byte order for engine process is %s.\n",
-		 (engineByteOrder == 0? "network byte order":
-		  (engineByteOrder == 1? "little indican":
-		   "big indian")));
+                 (engineByteOrder == 0? "network byte order":
+                  (engineByteOrder == 1? "little indican":
+                   "big indian")));
   
 
   client = (oxclientp) mymalloc(sizeof(oxclient));

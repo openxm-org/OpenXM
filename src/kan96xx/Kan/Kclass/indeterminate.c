@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.3 2000/02/28 14:10:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.4 2001/04/12 06:48:27 takayama Exp $ */
 /* Kclass/indeterminate.c    */
 /* This file handles   indeterminate, tree, recursivePolynomial,
     polynomialInOneVariable
@@ -163,7 +163,7 @@ struct object KpoRecursivePolynomial(struct object ob) {
 }
 
 static void  printBodyOfRecursivePolynomial(struct object body,
-					    struct object vlist, FILE *fp)
+                                            struct object vlist, FILE *fp)
 {
   int i,j;
   int k;
@@ -182,18 +182,18 @@ static void  printBodyOfRecursivePolynomial(struct object body,
   for (j=1; j<getoaSize(body); j = j+2) {
     k = KopInteger(getoa(body,j));
     if (k != 0) {
-	  if (getoa(vlist,i).tag == Sdollar) {
-		fprintf(fp,"%s",KopString(getoa(vlist,i)));
-	  }else if (ectag(getoa(vlist,i)) == CLASSNAME_tree) {
-		fprintClass(fp,getoa(vlist,i));
-	  }else{
-		errorKan1("%s\n","printBodyOfRecursivePolynomial: format error.");
-	  }
+      if (getoa(vlist,i).tag == Sdollar) {
+        fprintf(fp,"%s",KopString(getoa(vlist,i)));
+      }else if (ectag(getoa(vlist,i)) == CLASSNAME_tree) {
+        fprintClass(fp,getoa(vlist,i));
+      }else{
+        errorKan1("%s\n","printBodyOfRecursivePolynomial: format error.");
+      }
       if (k > 1) {
-	fprintf(fp,"^%d ",k);
+        fprintf(fp,"^%d ",k);
       }else if (k == 1) {
       }else{
-	fprintf(fp,"^(%d) ",k);
+        fprintf(fp,"^(%d) ",k);
       }
       fprintf(fp," * ");
     }
@@ -210,7 +210,7 @@ static void  printBodyOfRecursivePolynomial(struct object body,
 void fprintRecursivePolynomial(FILE *fp,struct object op)
 {
   /* old  code 
-  printObject(KopRecursivePolynomial(op),0,fp); return;
+     printObject(KopRecursivePolynomial(op),0,fp); return;
   */
   struct object ob;
   struct object vlist;
@@ -304,11 +304,11 @@ struct object polyToRecursivePoly(struct object p) {
   putoa(rob,0,vlist2); putoa(rob,1,ob1);
   /* format of rob
      [ list of variables, poly or universalNumber or yyy to express
-                          a recursive polynomial. ]
-     format of yyy = CLASSNAME_polynomialInOneVariable			  
+     a recursive polynomial. ]
+     format of yyy = CLASSNAME_polynomialInOneVariable            
      [Sinteger,    Sinteger, coeff obj, Sinteger, coeff obj, .....]
-      name of var, exp,      coeff,     exp,      coeff
-    This format is checked by isRecursivePolynomial2().
+     name of var, exp,      coeff,     exp,      coeff
+     This format is checked by isRecursivePolynomial2().
   */
   rob = KpoRecursivePolynomial(rob);
   if (isRecursivePolynomial2(rob)) {
@@ -405,9 +405,9 @@ static int isRecursivePolynomial2a(struct object ob2, int n) {
     if (ectag(tmp) == CLASSNAME_polynomialInOneVariable) {
       if (isRecursivePolynomial2a(tmp,n)) {
       }else{
-	fprintf(stderr,"isRecursivePolynomial2a: entry is not a polynomial in one variable.\n");
-	printObject(tmp,0,stderr); fprintf(stderr,"\n");
-	return(0);
+        fprintf(stderr,"isRecursivePolynomial2a: entry is not a polynomial in one variable.\n");
+        printObject(tmp,0,stderr); fprintf(stderr,"\n");
+        return(0);
       }
     }
   }
@@ -442,8 +442,8 @@ int isRecursivePolynomial2(struct object ob) {
   for (i=0; i<n; i++) {
     tmp = getoa(ob1,i);
     if (tmp.tag == Sdollar) {
-	}else if (ectag(tmp) == CLASSNAME_tree) {
-	}else{
+    }else if (ectag(tmp) == CLASSNAME_tree) {
+    }else{
       fprintf(stderr,"%s [list vlist, body]. Element of the vlist must be a string or a tree.\n",s); printObject(ob,1,stderr);
       return(0);
     }
@@ -488,20 +488,20 @@ struct object recursivePolyToPoly(struct object rp) {
 
 struct object KrvtReplace(struct object rp_o,struct object v_o, struct object t_o) {
   /* rp_o : recursive polynomial.
-	 v_o  : variable name (indeterminate).
+     v_o  : variable name (indeterminate).
      t_o  : tree.
   */
   struct object rp, vlist, newvlist, newrp;
   int i,m;
   /* Check the data types. */
   if (ectag(rp_o) != CLASSNAME_recursivePolynomial) {
-	errorKan1("%s\n","KrvtReplace() type mismatch in the first argument.");
+    errorKan1("%s\n","KrvtReplace() type mismatch in the first argument.");
   }
   if (ectag(v_o) != CLASSNAME_indeterminate) {
-	errorKan1("%s\n","KrvtReplace() type mismatch in the second argument.");
+    errorKan1("%s\n","KrvtReplace() type mismatch in the second argument.");
   }
   if (ectag(t_o) != CLASSNAME_tree) {
-	errorKan1("%s\n","KrvtReplace() type mismatch in the third argument.");
+    errorKan1("%s\n","KrvtReplace() type mismatch in the third argument.");
   }
   
   rp = KopRecursivePolynomial(rp_o);
@@ -509,20 +509,20 @@ struct object KrvtReplace(struct object rp_o,struct object v_o, struct object t_
   m = getoaSize(vlist);
   newvlist = newObjectArray(m);
   for (i=0; i<m; i++) {
-	if (KooEqualQ(getoa(vlist,i),KopIndeterminate(v_o))) {
-	  /* should be KooEqualQ(getoa(vlist,i),v_o). It's not a bug.
-	     Internal expression of vlist is an array of string
-		 (not indetermiante). */
-	  putoa(newvlist,i,t_o);
-	}else{
-	  putoa(newvlist,i,getoa(vlist,i));
-	}
+    if (KooEqualQ(getoa(vlist,i),KopIndeterminate(v_o))) {
+      /* should be KooEqualQ(getoa(vlist,i),v_o). It's not a bug.
+         Internal expression of vlist is an array of string
+         (not indetermiante). */
+      putoa(newvlist,i,t_o);
+    }else{
+      putoa(newvlist,i,getoa(vlist,i));
+    }
   }
   newrp = newObjectArray(getoaSize(rp));
   m = getoaSize(rp);
   putoa(newrp,0,newvlist);
   for (i=1; i<m; i++) {
-	putoa(newrp,i,getoa(rp,i));
+    putoa(newrp,i,getoa(rp,i));
   }
   return(KpoRecursivePolynomial(newrp));
 }
@@ -558,19 +558,19 @@ struct object KreplaceRecursivePolynomial(struct object of,struct object rule) {
     if (ectag(getoa(trule,0)) != CLASSNAME_indeterminate) {
       errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be of the form [[a b] [c d] ....] where a,b,c,d,... are polynomials.");
     }
-	/* Do not check the second argument. */
-	/*
-    if (getoa(trule,1).tag != Spoly) {
+    /* Do not check the second argument. */
+    /*
+      if (getoa(trule,1).tag != Spoly) {
       errorKan1("%s\n"," KreplaceRecursivePolynomial(): The second argument must be of the form [[a b] [c d] ....] where a,b,c,d,... are polynomials.");
-    }
-	*/
+      }
+    */
 
   }
 
   rob = f;
   for (i=0; i<n; i++) {
     trule = getoa(rule,i);
-	rob = KrvtReplace(rob,getoa(trule,0),getoa(trule,1));
+    rob = KrvtReplace(rob,getoa(trule,0),getoa(trule,1));
   }
   return(rob);
 }

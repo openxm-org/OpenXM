@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/replace.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -6,16 +6,16 @@
 static int badLRule(POLY set[],int num);
 
 POLY mReplace(mm,lSideX,rSideX,sizex,lSideD,rSideD,sized,commutative)
-POLY mm;
-int lSideX[];
-POLY rSideX[];  /* Rule: a=lSideX[i], x_a ---> rSideX[i] */
-int sizex;
-int lSideD[];   /* Rule: b=lSideD[i], D_b ---> rSideD[i] */
-POLY rSideD[];
-int sized;
-int commutative;
+     POLY mm;
+     int lSideX[];
+     POLY rSideX[];  /* Rule: a=lSideX[i], x_a ---> rSideX[i] */
+     int sizex;
+     int lSideD[];   /* Rule: b=lSideD[i], D_b ---> rSideD[i] */
+     POLY rSideD[];
+     int sized;
+     int commutative;
 {
-/* The function should be tuned by using a table. */
+  /* The function should be tuned by using a table. */
   POLY rp;
   POLY fac;
   int i;
@@ -33,13 +33,13 @@ int commutative;
     if (mp->e[i].D != 0) {
       flag = 1;
       for (j=0; j<sized; j++) {
-	if (lSideD[j] == i) {
-	  if (commutative) fac = pPower_poly(rSideD[j],mp->e[i].D);
-	  else fac = pPower(rSideD[j],mp->e[i].D);
-	  /* if negative, this does not work  well!! */
-	  flag = 0;
-	  break;
-	}
+        if (lSideD[j] == i) {
+          if (commutative) fac = pPower_poly(rSideD[j],mp->e[i].D);
+          else fac = pPower(rSideD[j],mp->e[i].D);
+          /* if negative, this does not work  well!! */
+          flag = 0;
+          break;
+        }
       }
       if (flag) fac = cdd(1,i,mp->e[i].D,mp->ringp);
       if (commutative) rp = ppMult_poly(fac,rp);
@@ -51,13 +51,13 @@ int commutative;
     if (mp->e[i].x != 0) {
       flag = 1;
       for (j=0; j<sizex; j++) {
-	if (lSideX[j] == i) {
-	  if (commutative) fac = pPower_poly(rSideX[j],mp->e[i].x);
-	  else fac = pPower(rSideX[j],mp->e[i].x);
-	  /* if negative, this does not work well!! */
-	  flag = 0;
-	  break;
-	}
+        if (lSideX[j] == i) {
+          if (commutative) fac = pPower_poly(rSideX[j],mp->e[i].x);
+          else fac = pPower(rSideX[j],mp->e[i].x);
+          /* if negative, this does not work well!! */
+          flag = 0;
+          break;
+        }
       }
       if (flag) fac = cxx(1,i,mp->e[i].x,mp->ringp);
       if (commutative) rp = ppMult_poly(fac,rp);
@@ -72,10 +72,10 @@ int commutative;
   lRule[i] ---> rRule[i]
 */
 POLY replace(f,lRule,rRule,num)
-POLY f;
-POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
-POLY rRule[];
-int num;
+     POLY f;
+     POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
+     POLY rRule[];
+     int num;
 {
   POLY rSideX[N0];
   POLY rSideD[N0];
@@ -87,11 +87,11 @@ int num;
   int n;
 
   /***printf("f=%s\n",POLYToString(f,'*',0));
-  for (i=0; i<num; i++) {
-    printf("%s --> %s\n",POLYToString(lRule[i],'*',0),
-	   POLYToString(rRule[i],'*',0));
-  }
-  printf("\n"); ***/
+      for (i=0; i<num; i++) {
+      printf("%s --> %s\n",POLYToString(lRule[i],'*',0),
+      POLYToString(rRule[i],'*',0));
+      }
+      printf("\n"); ***/
   
   if (f ISZERO) return(ZERO);
   sizex = sized = 0;
@@ -104,14 +104,14 @@ int num;
   for (i=0; i<n; i++) {
     for (j=0; j<num; j++) {
       if (lRule[j]->m->e[i].x == 1) {
-	lSideX[sizex] = i;
-	rSideX[sizex] = rRule[j];
-	sizex++;
-	if (sizex >= n) {
-	  warningPoly(" replace(): too many x-rules . ");
-	  sizex--;
-	}
-	break;
+        lSideX[sizex] = i;
+        rSideX[sizex] = rRule[j];
+        sizex++;
+        if (sizex >= n) {
+          warningPoly(" replace(): too many x-rules . ");
+          sizex--;
+        }
+        break;
       }
     }
   }
@@ -119,14 +119,14 @@ int num;
   for (i=0; i<n; i++) {
     for (j=0; j<num; j++) {
       if (lRule[j]->m->e[i].D == 1) {
-	lSideD[sized] = i;
-	rSideD[sized] = rRule[j];
-	sized++;
-	if (sized >= n) {
-	  warningPoly(" replacen(): too many D-rules . ");
-	  sized--;
-	}
-	break;
+        lSideD[sized] = i;
+        rSideD[sized] = rRule[j];
+        sized++;
+        if (sized >= n) {
+          warningPoly(" replacen(): too many D-rules . ");
+          sized--;
+        }
+        break;
       }
     }
   }
@@ -143,10 +143,10 @@ int num;
 
 /* For the dirty trick of mpMult_difference */  
 POLY replace_poly(f,lRule,rRule,num)  
-POLY f;
-POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
-POLY rRule[];
-int num;
+     POLY f;
+     POLY lRule[];  /* lRule[i] must be x0 or ... or D{N-1} */
+     POLY rRule[];
+     int num;
 {
   POLY rSideX[N0];
   POLY rSideD[N0];
@@ -158,11 +158,11 @@ int num;
   int n;
 
   /***printf("f=%s\n",POLYToString(f,'*',0));
-  for (i=0; i<num; i++) {
-    printf("%s --> %s\n",POLYToString(lRule[i],'*',0),
-	   POLYToString(rRule[i],'*',0));
-  }
-  printf("\n"); ***/
+      for (i=0; i<num; i++) {
+      printf("%s --> %s\n",POLYToString(lRule[i],'*',0),
+      POLYToString(rRule[i],'*',0));
+      }
+      printf("\n"); ***/
   
   if (f ISZERO) return(ZERO);
   sizex = sized = 0;
@@ -175,14 +175,14 @@ int num;
   for (i=0; i<n; i++) {
     for (j=0; j<num; j++) {
       if (lRule[j]->m->e[i].x == 1) {
-	lSideX[sizex] = i;
-	rSideX[sizex] = rRule[j];
-	sizex++;
-	if (sizex >= n) {
-	  warningPoly(" replace(): too many x-rules . ");
-	  sizex--;
-	}
-	break;
+        lSideX[sizex] = i;
+        rSideX[sizex] = rRule[j];
+        sizex++;
+        if (sizex >= n) {
+          warningPoly(" replace(): too many x-rules . ");
+          sizex--;
+        }
+        break;
       }
     }
   }
@@ -190,14 +190,14 @@ int num;
   for (i=0; i<n; i++) {
     for (j=0; j<num; j++) {
       if (lRule[j]->m->e[i].D == 1) {
-	lSideD[sized] = i;
-	rSideD[sized] = rRule[j];
-	sized++;
-	if (sized >= n) {
-	  warningPoly(" replacen(): too many D-rules . ");
-	  sized--;
-	}
-	break;
+        lSideD[sized] = i;
+        rSideD[sized] = rRule[j];
+        sized++;
+        if (sized >= n) {
+          warningPoly(" replacen(): too many D-rules . ");
+          sized--;
+        }
+        break;
       }
     }
   }
@@ -213,14 +213,14 @@ int num;
       
   
 static int badLRule(set,num)
-POLY set[];
-int num;
+     POLY set[];
+     int num;
 { int i;
-  for (i=0; i<num; i++) {
-    if (set[0] ISZERO) {
-      return(1);
-    }
-  }
-  return(0);
+ for (i=0; i<num; i++) {
+   if (set[0] ISZERO) {
+     return(1);
+   }
+ }
+ return(0);
 }
 

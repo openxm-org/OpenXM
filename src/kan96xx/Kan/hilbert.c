@@ -1,14 +1,14 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/hilbert.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 /*   hilbert.c
-    1992/06/16
-    1992/06/18
-    1993/04/28
-        \bibitem{Cocoa-Hilbert} 
-         Bigatti, A., Caboara, M., Robianno, L. (1991):
-         On the computation of Hilbert Poincar\'e series.
-         Applicable algebra in Engineering, Communication and Computing
-        {\bf 2}, 21--33.
-    1998/10/31
+     1992/06/16
+     1992/06/18
+     1993/04/28
+     \bibitem{Cocoa-Hilbert} 
+     Bigatti, A., Caboara, M., Robianno, L. (1991):
+     On the computation of Hilbert Poincar\'e series.
+     Applicable algebra in Engineering, Communication and Computing
+     {\bf 2}, 21--33.
+     1998/10/31
 */
 #include <stdio.h>
 #include "datatype.h"
@@ -79,7 +79,7 @@ struct object hilberto(struct object obgb,struct object obv)
     f = KopPOLY(obf);
     if (rr != (struct ring*)NULL) {
       if (rr != f->m->ringp) {
-	errorKan1("%s\n","Hhilbert(): the element must belong to the same ring.");
+        errorKan1("%s\n","Hhilbert(): the element must belong to the same ring.");
       }
     }else{
       rr =  f->m->ringp;
@@ -96,7 +96,7 @@ struct object hilberto(struct object obgb,struct object obv)
     f = KopPOLY(obf);
     if (rr != (struct ring*)NULL) {
       if (rr != f->m->ringp) {
-	errorKan1("%s\n","Hhilbert(): the element must belong to the same ring.");
+        errorKan1("%s\n","Hhilbert(): the element must belong to the same ring.");
       }
     }else{
       rr =  f->m->ringp;
@@ -126,10 +126,10 @@ struct object hilberto(struct object obgb,struct object obv)
     f = KopPOLY(obf);
     for (j=0; j<n0; j++) {
       if ((f->m->e)[j].x) {
-	x[j] = 1; break;
+        x[j] = 1; break;
       }
       if ((f->m->e)[j].D) {
-	d[j] = 1; break;
+        d[j] = 1; break;
       }
     }
   }
@@ -158,14 +158,14 @@ struct object hilberto(struct object obgb,struct object obv)
     g = cxx(1,0,0,rp);
     for (j=0; j<n0; j++) {
       if ((f->m->e)[j].x) {
-	if (x[j] != -1) {
-	  (g->m->e)[x[j]].D = (f->m->e)[j].x;
-	}
+        if (x[j] != -1) {
+          (g->m->e)[x[j]].D = (f->m->e)[j].x;
+        }
       }
       if ((f->m->e)[j].D) {
-	if (d[j] != -1) {
-	  (g->m->e)[d[j]].D = (f->m->e)[j].D;
-	}
+        if (d[j] != -1) {
+          (g->m->e)[d[j]].D = (f->m->e)[j].D;
+        }
       }
     }
     base[i] = g;
@@ -220,26 +220,26 @@ static int polyToInt(POLY f) {
 
 
 static shell(v,n)
-int v[];
-int n;
+     int v[];
+     int n;
 {
   int gap,i,j,temp;
   
   for (gap = n/2; gap > 0; gap /= 2) {
     for (i = gap; i<n; i++) {
       for (j=i-gap ; j>=0 && v[j]>v[j+gap]; j -= gap) {
-	temp = v[j];
-	v[j] = v[j+gap];
-	v[j+gap] = temp;
+        temp = v[j];
+        v[j] = v[j+gap];
+        v[j+gap] = temp;
       }
     }
   }
 }
 
 static POLY ppifac(f,n)
-POLY f;
-int n;
-/*  ppifac returns (f+n) (f+n-1) ... (f+1). */
+     POLY f;
+     int n;
+     /*  ppifac returns (f+n) (f+n-1) ... (f+1). */
 {
   POLY r;
   int i;
@@ -259,13 +259,13 @@ int n;
 
 
 static int isReducibleD1(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   int i;
   for (i = M; i < NN; i++) {
     if (((f->m->e)[i].x >= (g->m->e)[i].x) &&
-	((f->m->e)[i].D >= (g->m->e)[i].D)) {
+        ((f->m->e)[i].D >= (g->m->e)[i].D)) {
       /* do nothing */
     } else {
       return(0);
@@ -277,7 +277,7 @@ POLY g;
 
 static struct arrayOfPOLYold
 reduceMonomials(set)
-struct arrayOfPOLYold set;
+     struct arrayOfPOLYold set;
 {
   int *drop;  /* 1--> yes. drop set[i]. 0--> no. */
   int i,j;
@@ -295,15 +295,15 @@ struct arrayOfPOLYold set;
   for (i = 0; i < size; i++) {
     if (!drop[i]) {
       for (j=i+1; j < size; j++) {
-	if (!drop[j]) {
-	  if (isReducibleD1(getArrayOfPOLYold(set,i),
-			    getArrayOfPOLYold(set,j))) {
-	    drop[i] = 1; break;
-	  }else if (isReducibleD1(getArrayOfPOLYold(set,j),
-			    getArrayOfPOLYold(set,i))) {
-	    drop[j] = 1; break;
-	  }else { }
-	}
+        if (!drop[j]) {
+          if (isReducibleD1(getArrayOfPOLYold(set,i),
+                            getArrayOfPOLYold(set,j))) {
+            drop[i] = 1; break;
+          }else if (isReducibleD1(getArrayOfPOLYold(set,j),
+                                  getArrayOfPOLYold(set,i))) {
+            drop[j] = 1; break;
+          }else { }
+        }
       }
     }
   }
@@ -326,16 +326,16 @@ struct arrayOfPOLYold set;
   return(ans);
 }
   
-	  
+      
 static int tryDecompose(set,i,j,vA,vWhich)
-struct arrayOfPOLYold set;    /* input: monomials */
-int     i,j;               /* decompose with respect to the (i,j)-th
-			      variable: i=0-->x_j, i=1--->D_j */
-int vA[];                  /* Return value: vA[0] is a_0, ... */
-int vWhich[];              /* Return value: vWhich[i] is <<a>> of set[i] */
-/* set ---> x_j^(a_0) I_{a_0} + .... + x_j^{a_{p-1}} I_{a_{p-1}} */
-/* return value is p */
-/* tryDecompose is used to find the best decomposition. */
+     struct arrayOfPOLYold set;    /* input: monomials */
+     int     i,j;               /* decompose with respect to the (i,j)-th
+                                   variable: i=0-->x_j, i=1--->D_j */
+     int vA[];                  /* Return value: vA[0] is a_0, ... */
+     int vWhich[];              /* Return value: vWhich[i] is <<a>> of set[i] */
+     /* set ---> x_j^(a_0) I_{a_0} + .... + x_j^{a_{p-1}} I_{a_{p-1}} */
+     /* return value is p */
+     /* tryDecompose is used to find the best decomposition. */
 {
   int size,k,ell,ell2;
   POLY f;
@@ -356,7 +356,7 @@ int vWhich[];              /* Return value: vWhich[i] is <<a>> of set[i] */
   }
 #ifdef DEBUG3
   /*for (i=0; i<size; i++) printf("%3d", vWhich[i]);
-  printf("     vWhich\n");*/
+    printf("     vWhich\n");*/
 #endif
   /* sort and prune */
   tmp = (int *)sGC_malloc(sizeof(int)*((size+1)*2));
@@ -371,16 +371,16 @@ int vWhich[];              /* Return value: vWhich[i] is <<a>> of set[i] */
 
 #ifdef DEBUG3  
   /*for (i=0; i<p; i++) printf("%3d", vA[i]);
-  printf("---vA\n");*/
+    printf("---vA\n");*/
 #endif
   return(p);
 }
 
 static struct arrayOfPOLYold getJA(a,set,vWhich,ja,ii,xd,ith)
-/* get J_{a_{i+1}} from J_{a_i}
+     /* get J_{a_{i+1}} from J_{a_i}
    J_{a_{i+1}} = J_{a_i} \cup I_{a_{i+1}}
 */
-int a;                  /* each a_i */
+     int a;                  /* each a_i */
 struct arrayOfPOLYold set; /* polynomials */
 int *vWhich;            /* vWhich[0] is exponent a of set[0], .... */
 struct arrayOfPOLYold ja;  /* J_i */
@@ -400,7 +400,7 @@ int ith;                /* x_{ith} or D_{ith} is the best variable */
   
   size = set.n;
   start = 0;
-/*  input = newArrayOfPOLYold(size); */
+  /*  input = newArrayOfPOLYold(size); */
   input = newArrayOfPOLYold(size+ja.n+1);  /* 1993/09/08 */
 
 
@@ -414,9 +414,9 @@ int ith;                /* x_{ith} or D_{ith} is the best variable */
     if (vWhich[i] == a) {
       f = pcmCopy(getArrayOfPOLYold(set,i));
       if (xd == 0) {
-	(f->m->e)[ith].x = 0;
+        (f->m->e)[ith].x = 0;
       }else{
-	(f->m->e)[ith].D = 0;
+        (f->m->e)[ith].D = 0;
       }
       getArrayOfPOLYold(input,start) = f;
       start++ ;
@@ -435,12 +435,12 @@ int ith;                /* x_{ith} or D_{ith} is the best variable */
 #endif
   return( input );
 }
-	
+    
 
 static struct arrayOfPOLYold *getDecomposition(set,activeX,activeD)
-struct arrayOfPOLYold set;
-int activeX[N0];
-int activeD[N0];
+     struct arrayOfPOLYold set;
+     int activeX[N0];
+     int activeD[N0];
 {
   int i;
   int size;
@@ -462,32 +462,32 @@ int activeD[N0];
     if (activeX[i]) {
       p = tryDecompose(set,0,i,vA,vWhich);
       if (p > xmax) {
-	xmax = p;
-	xi = i;
-	if (xmax == size) {
-	  break;
-	}
+        xmax = p;
+        xi = i;
+        if (xmax == size) {
+          break;
+        }
       }
     }
   }
   if (xmax != size) {
     for ( i = M; i < NN; i++) {
       if (activeD[i]) {
-	p = tryDecompose(set,1,i,vA,vWhich);
-	if (p > dmax) {
-	  dmax = p;
-	  di = i;
-	  if (dmax == size) {
-	    break;
-	  }
-	}
+        p = tryDecompose(set,1,i,vA,vWhich);
+        if (p > dmax) {
+          dmax = p;
+          di = i;
+          if (dmax == size) {
+            break;
+          }
+        }
       }
     }
   }
   /*
     ans[0] = (a_0,...,a_{p-1})
     ans[1] = generators of J_{a_0}
-     ....
+    ....
     ans[p] = generators of J_{a_{p-1}},   p = xmax or dmax
   */
   if (xmax > dmax) {
@@ -520,9 +520,9 @@ int activeD[N0];
 }
   
 static POLY hilbert1T(set)
-struct arrayOfPOLYold set;
-/* <<set>> must be reduced basis and each polynomial must have the length 1 */
-/* Unnecessary exponents should be set to zero. For example, f = x_{M-1} x_M
+     struct arrayOfPOLYold set;
+     /* <<set>> must be reduced basis and each polynomial must have the length 1 */
+     /* Unnecessary exponents should be set to zero. For example, f = x_{M-1} x_M
    is illegal input. It should be x_M ( M <= index <= NN ).
    cf. hilbert1() and hilbert2() 
 */
@@ -566,26 +566,26 @@ struct arrayOfPOLYold set;
     f = getArrayOfPOLYold(set,i);
     for (j = M; j < NN; j++) {
       if ((f->m->e)[j].x) {
-	activeX[j] = 1;
+        activeX[j] = 1;
       }
       if ((f->m->e)[j].D) {
-	activeD[j] = 1;
+        activeD[j] = 1;
       }
     }
   }
   for (i = M; i < NN; i++) {
     if (activeX[i]) {
       if (active) {
-	active = 2;
-	break;
+        active = 2;
+        break;
       }
       active = 1;
       xxdd = 0; xi = i;
     }
     if (activeD[i]) {
       if (active) {
-	active = 2;
-	break;
+        active = 2;
+        break;
       }
       active = 1;
       xxdd = 1; di = i;
@@ -642,14 +642,14 @@ struct arrayOfPOLYold set;
   return(ansp);
 }  
 
-	   
+       
 POLY hilbert2(k,p,pArray)
-POLY k; 
-int p;
-POLY pArray[];
-/* This returns n! H(k,p,a^0, ..., a^{p-1}) */
-/* n = (NN-M); */
-/* Expample: hilbert2(xx(0,1),3,...) */
+     POLY k; 
+     int p;
+     POLY pArray[];
+     /* This returns n! H(k,p,a^0, ..., a^{p-1}) */
+     /* n = (NN-M); */
+     /* Expample: hilbert2(xx(0,1),3,...) */
 {
   struct arrayOfPOLYold set;
   int i,j;
@@ -698,23 +698,23 @@ POLY pArray[];
 
 #ifdef DEBUG2
 checkh(set,i)
-struct arrayOfPOLYold set;
-int i;
+     struct arrayOfPOLYold set;
+     int i;
 {
   if (pLength(getArrayOfPOLYold(set,i)) != 1) {
-      printf("Size is %d.",pSize(getArrayOfPOLYold(set,i)));
-      getchar(); getchar(); getchar(); getchar();
-      getchar();getchar();
-    }
+    printf("Size is %d.",pSize(getArrayOfPOLYold(set,i)));
+    getchar(); getchar(); getchar(); getchar();
+    getchar();getchar();
+  }
 }
 #endif
 
 #ifdef DEBUG3
 outputDecomposition(p,activeX,activeD,ja)
-int p;
-int activeX[];
-int activeD[];
-struct arrayOfPOLYold ja[];
+     int p;
+     int activeX[];
+     int activeD[];
+     struct arrayOfPOLYold ja[];
 {
   int i;
   printf("\nActiveX: ");
@@ -740,7 +740,7 @@ struct arrayOfPOLYold ja[];
 }
 
 outputarrayOfPOLYold(set)
-struct arrayOfPOLYold set;
+     struct arrayOfPOLYold set;
 {
   int i;
   for (i=0; i< set.n ; i++) {
@@ -751,13 +751,13 @@ struct arrayOfPOLYold set;
   
   
 warningHilbert(str)
-char str[];
+     char str[];
 {
   fprintf(stderr,"Warning (hilbert.c): %s\n",str);
 }
 
 errorHilbert(str)
-char str[];
+     char str[];
 {
   errorKan1("%s\n",str);
 }

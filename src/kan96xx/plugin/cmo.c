@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.6 2000/02/02 03:30:48 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.7 2001/04/15 07:55:07 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -16,15 +16,15 @@
 #include "cmo.h"
 
 #include "cmotag.htmp"   /* static char *cmotagToName(int tag) is defined
-			    here. */
+                            here. */
 
 extern int OxVersion;
 
 int CmoClientMode = 1;  /* This flag is used to translate names for
-			   indeterminates.
-			   It does not work well if ox_sm1 have a server, i.e.,
-			   sm1 --> ox_sm1 --> ox_sm1
-			   */
+               indeterminates.
+               It does not work well if ox_sm1 have a server, i.e.,
+               sm1 --> ox_sm1 --> ox_sm1
+               */
 
 /* void *malloc(int s);
   #define GC_malloc(x) malloc(x) */
@@ -38,7 +38,7 @@ int CmoClientMode = 1;  /* This flag is used to translate names for
 /*  If you change the format of mathcap, do the follows.
     Mofify  cmoCheckMathCap in oxmisc2.c,
             oxSendMathCap  in oxmisc.c,
-	    newMathCap in cmo.c,
+        newMathCap in cmo.c,
     oxReq, SM_setMathCap: in oxmisc2.c, and
     grep mathCap and make all modifications.
 */
@@ -89,12 +89,12 @@ struct cmoBuffer *cmoOutputToBuf(cmoAction a,void *data, int size)
       break;
     case CMOPUT:
       for (i=0; i<size; i++) {
-	fp2fputc((int) ((char *)data)[i], b.fp);
+        fp2fputc((int) ((char *)data)[i], b.fp);
       }
       break;
     case CMOFLUSH:
       if (fp2fflush(b.fp)<0) {
-	errorCmo("cmoOutputToBuf: CMOFLUSH failed in stream mode.");
+        errorCmo("cmoOutputToBuf: CMOFLUSH failed in stream mode.");
       }
       cb = (struct cmoBuffer *)sGC_malloc(sizeof(struct cmoBuffer));
       cb->isStream = b.isStream;
@@ -128,10 +128,10 @@ struct cmoBuffer *cmoOutputToBuf(cmoAction a,void *data, int size)
       break;
     case CMOPUT:
       if (b.pos + size >= b.size) {
-	tmp = sGC_malloc((b.size)*2+size);
-	memcpy(tmp,b.buf,b.pos);
-	b.buf = tmp;
-	b.size = (b.size)*2+size;
+        tmp = sGC_malloc((b.size)*2+size);
+        memcpy(tmp,b.buf,b.pos);
+        b.buf = tmp;
+        b.size = (b.size)*2+size;
       }
       memcpy((void *) &(((char *)(b.buf))[b.pos]),data,size);
       b.pos += size;
@@ -377,7 +377,7 @@ int cmoOutRingDefinition(struct ring *rp,int option)
     cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint)*3);
     cmoOutInt32((rp->n)*2); /* number of variables */
     cmoOutInt32(rp->p);     /* coefficient field.
-			       CMO_INT32 or CMO_DMS_OF_N_VARIABLES */
+                               CMO_INT32 or CMO_DMS_OF_N_VARIABLES */
     /* Optional arguments are  name of variables, weight_vector, output_order */
     break;
   default:   /* including 0. */
@@ -403,7 +403,7 @@ int cmoOutRingDefinition2(struct ring *rp,int option)
     cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint)*3);
     cmoOutInt32((rp->n)*2); /* number of variables */
     cmoOutInt32(rp->p);     /* coefficient field.
-			       CMO_INT32 or CMO_DMS_OF_N_VARIABLES */
+                               CMO_INT32 or CMO_DMS_OF_N_VARIABLES */
     /* Optional arguments are  list of indeterminates (name of variables),
        weight_vector by list , output_order by list. */
     break;
@@ -425,20 +425,20 @@ int cmoGetIntFromBuf(cmoAction a,struct cmoBuffer *cb)
     switch(a) {
     case CMOGET:
       for (i=0; i<4; i++) {
-	cc = fp2fgetc(cb->fp);
-	if (cc < 0) {
-	  return(-1);
-	  errorCmo("cmoGetIntFromBuf CMOGET: unexpected EOF.\n");
-	}
-	data[i] = cc;
+        cc = fp2fgetc(cb->fp);
+        if (cc < 0) {
+          return(-1);
+          errorCmo("cmoGetIntFromBuf CMOGET: unexpected EOF.\n");
+        }
+        data[i] = cc;
       }
       return( (int) ntohl( *((cmoint *) data) ));
       break;
     case CMOGETBYTE:
       cc = fp2fgetc(cb->fp);
       if (cc < 0) {
-	return(-1);
-	errorCmo("cmoGetIntFromBuf CMOGETBYTE: unexpected EOF.\n");
+        return(-1);
+        errorCmo("cmoGetIntFromBuf CMOGETBYTE: unexpected EOF.\n");
       }
       return(cc);
       break;
@@ -462,18 +462,18 @@ int cmoGetIntFromBuf(cmoAction a,struct cmoBuffer *cb)
     switch(a) {
     case CMOGET:
       if (cb->rpos + sizeof(cmoint) > cb->pos) {
-	fprintf(stderr,"No more data in the buffer. Returns -1.\n");
-	return(-1);
+        fprintf(stderr,"No more data in the buffer. Returns -1.\n");
+        return(-1);
       }
       memcpy(tmp,(void *) &(((char *)(cb->buf))[cb->rpos]),
-	     sizeof(cmoint));
+             sizeof(cmoint));
       cb->rpos += sizeof(cmoint);
       return( (int) ntohl(tmp[0]));
       break;
     case CMOGETBYTE:
       if (cb->rpos + 1 > cb->pos) {
-	fprintf(stderr,"No more data in the buffer. Returns -1.\n");
-	return(-1);
+        fprintf(stderr,"No more data in the buffer. Returns -1.\n");
+        return(-1);
       }
       tmp[0] = ((unsigned char *)(cb->buf))[cb->rpos];
       cb->rpos += 1;
@@ -544,12 +544,12 @@ POLY cmoGetMonomial32(struct cmoBuffer *cb)
     warningCmo("cmoGetMonomials32(): Changed the current ring, because your peer sent a DMS that does not fit to the current ring.");
 
     /* original code.
-    skip = nn - (CurrentRingp->n)*2;
-    nn1 = nn0 = CurrentRingp->n;
-    if (! (cb->errorno) ) {
-      warningCmo("cmoGetMonomial32(): serialized polynomial \\not\\in CurrentRing.");
-    }
-    cmoGetIntFromBuf(CMOERROR,cb);
+       skip = nn - (CurrentRingp->n)*2;
+       nn1 = nn0 = CurrentRingp->n;
+       if (! (cb->errorno) ) {
+       warningCmo("cmoGetMonomial32(): serialized polynomial \\not\\in CurrentRing.");
+       }
+       cmoGetIntFromBuf(CMOERROR,cb);
     */
   }
   if (nn == (CurrentRingp->n)*2 ) {
@@ -671,13 +671,13 @@ void cmoObjectToCmo00(struct object ob)
     case CLASSNAME_ERROR_PACKET:
       /* fprintf(stderr,"ectag=%d\n",ectag(*KopErrorPacket(ob)));  **kxx:CMO_ERROR*/
       if (ectag(*KopErrorPacket(ob)) == CLASSNAME_ERROR_PACKET) {
-	tmp[0] = htonl(CMO_ERROR);
-	cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
+        tmp[0] = htonl(CMO_ERROR);
+        cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
       }else{
-	tmp[0] = htonl(CMO_ERROR2);
-	cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
-	/* Send without OX_DATA header !! */
-	cmoObjectToCmo00(*(KopErrorPacket(ob)));
+        tmp[0] = htonl(CMO_ERROR2);
+        cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
+        /* Send without OX_DATA header !! */
+        cmoObjectToCmo00(*(KopErrorPacket(ob)));
       }
       break;
     case CLASSNAME_mathcap:
@@ -700,52 +700,52 @@ void cmoObjectToCmo00(struct object ob)
       break;
     case CLASSNAME_recursivePolynomial:
       /* We assume that the format of the recursive polynomial
-	 is OK. */
+         is OK. */
       tmp[0] = htonl(CMO_RECURSIVE_POLYNOMIAL);
       cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
       ob = KopRecursivePolynomial(ob);
       vlist = getoa(ob,0);
       vlist0 = newObjectArray(getoaSize(vlist));
       for (i=0; i<getoaSize(vlist); i++) {
-		if (getoa(vlist,i).tag == Sdollar) {
-		  if (CmoClientMode) {
-			putoa(vlist0,i,
-				  KpoIndeterminate(getoa(vlist,i)));
-		  }else{
-			putoa(vlist0,i,
-				  KpoIndeterminate(cmoTranslateVariable_outGoing(getoa(vlist,i))));
-		  }
-		}else{
-		  putoa(vlist0,i,getoa(vlist,i));
-		}
+        if (getoa(vlist,i).tag == Sdollar) {
+          if (CmoClientMode) {
+            putoa(vlist0,i,
+                  KpoIndeterminate(getoa(vlist,i)));
+          }else{
+            putoa(vlist0,i,
+                  KpoIndeterminate(cmoTranslateVariable_outGoing(getoa(vlist,i))));
+          }
+        }else{
+          putoa(vlist0,i,getoa(vlist,i));
+        }
       }
       cmoObjectToCmo00(vlist0); /* output the list of variables. */
       cmoObjectToCmo00(getoa(ob,1)); /* output the body of the recursive poly
-			      polynomial in one variable or any object*/
+                                        polynomial in one variable or any object*/
       break;
     case CLASSNAME_polynomialInOneVariable:
       tmp[0] = htonl(CMO_POLYNOMIAL_IN_ONE_VARIABLE);
       cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
       ob = KopPolynomialInOneVariable(ob);
       if (ob.tag != Sarray) {
-	cmoObjectToCmo00(ob);
+        cmoObjectToCmo00(ob);
       }else{
-	/* We do not check the format. */
-	m = (getoaSize(ob)-1)/2; /* the number of monomials */
-	cmoOutRawInt(m);
-	ob2 = getoa(ob,0);       /* the variable name by integer. */
-	if (ob2.tag != Sinteger) {
-	  warningCmo("cmoObjectToCmo00(): polynomial in one variable: this field should be integer. Output 0");
-	  /* cmoOutInt32(0); */
-	  cmoOutRawInt(0);
-	}else{
-	  /* cmoObjectToCmo00(ob2); */
-	  cmoOutRawInt(KopInteger(ob2));
-	}
-	for (i=1; i<getoaSize(ob); i = i+2) {
-	  cmoOutRawInt(KopInteger(getoa(ob,i)));  /* exponent */
-	  cmoObjectToCmo00(getoa(ob,i+1));          /* coefficient */
-	}
+        /* We do not check the format. */
+        m = (getoaSize(ob)-1)/2; /* the number of monomials */
+        cmoOutRawInt(m);
+        ob2 = getoa(ob,0);       /* the variable name by integer. */
+        if (ob2.tag != Sinteger) {
+          warningCmo("cmoObjectToCmo00(): polynomial in one variable: this field should be integer. Output 0");
+          /* cmoOutInt32(0); */
+          cmoOutRawInt(0);
+        }else{
+          /* cmoObjectToCmo00(ob2); */
+          cmoOutRawInt(KopInteger(ob2));
+        }
+        for (i=1; i<getoaSize(ob); i = i+2) {
+          cmoOutRawInt(KopInteger(getoa(ob,i)));  /* exponent */
+          cmoObjectToCmo00(getoa(ob,i+1));          /* coefficient */
+        }
       }
       break;
     case CLASSNAME_tree:
@@ -861,10 +861,10 @@ struct object cmoCmoToObject00(struct cmoBuffer *cb)
       putoa(rob,i,cmoCmoToObject00(cb));
       /* printObject(getoa(rob,i),0,stdout); */
       if (i==0) {
-	ob1 = getoa(rob,0);
-	if (ob1.tag == CMO+CMO_DMS) {
-	  goto dmscase ;
-	}
+        ob1 = getoa(rob,0);
+        if (ob1.tag == CMO+CMO_DMS) {
+          goto dmscase ;
+        }
       }
     }
     break;
@@ -883,7 +883,7 @@ struct object cmoCmoToObject00(struct cmoBuffer *cb)
       /* Change the CurrentRingp by looking up the name. */
       ob1 = KfindUserDictionary(KopString(ob1));
       if (ob1.tag != Sring) {
-	errorCmo("cmoCmoToObject00(): your ring is not defined in the name space.");
+        errorCmo("cmoCmoToObject00(): your ring is not defined in the name space.");
       }
       CurrentRingp = KopRingp(ob1);
     }
@@ -963,7 +963,7 @@ struct object cmoCmoToObject00(struct cmoBuffer *cb)
         ob1 = KopIndeterminate(ob1);
       }else if (ectag(ob1) == CLASSNAME_tree) {
         /* do nothing. */
-	  }
+      }
       putoa(vlist,i,ob1);
     }
     /* vlist is a list of variables by strings. */
@@ -1091,12 +1091,12 @@ struct object cmoListToPoly(struct object ob) {
     if (n >= 1) {
       ob0 = getoa(ob,0);
       if (ob0.tag == CMO+CMO_DMS) {
-	rob = KpoPOLY(cmoListToPOLY(ob)); /* not ToPoly, ToPOLY */
+        rob = KpoPOLY(cmoListToPOLY(ob)); /* not ToPoly, ToPOLY */
       }else{
-	rob = newObjectArray(n);
-	for (i=0; i<n; i++) {
-	  putoa(rob,i,cmoListToPoly(getoa(ob,i)));
-	}
+        rob = newObjectArray(n);
+        for (i=0; i<n; i++) {
+          putoa(rob,i,cmoListToPoly(getoa(ob,i)));
+        }
       }
     }else{
       rob = ob;
@@ -1113,8 +1113,8 @@ struct object cmoListToPoly2(struct object ob)
   struct object ob0,ob1;
   POLY f;
   /*
-     printf("<<");printObject(ob,0,stdout); printf(">>\n"); fflush(stdout);
-     */
+    printf("<<");printObject(ob,0,stdout); printf(">>\n"); fflush(stdout);
+  */
   if (ob.tag != Sarray) {
     errorCmo("cmoListToPoly2(): the argument must be array.");
   }
@@ -1154,8 +1154,8 @@ POLY cmoListToPOLY(struct object ob)
   struct object ob0,ob1;
   POLY f;
   /*
-     printf("<<");printObject(ob,0,stdout); printf(">>\n"); fflush(stdout);
-     */
+    printf("<<");printObject(ob,0,stdout); printf(">>\n"); fflush(stdout);
+  */
   if (ob.tag != Sarray) {
     errorCmo("cmoListToPOLY(): the argument must be array.");
   }
@@ -1173,9 +1173,9 @@ POLY cmoListToPOLY(struct object ob)
     for (i=size-1; i>=2; i--) {
       ob1 = getoa(ob,i);
       if (ob1.tag == Spoly) {
-	f = ppAdd(f,KopPOLY(ob1));
+        f = ppAdd(f,KopPOLY(ob1));
       }else{
-	f = ppAdd(f,cmoListToPOLY(ob1));
+        f = ppAdd(f,cmoListToPOLY(ob1));
       }
     }
     return(f);
@@ -1370,7 +1370,7 @@ struct object KSmathCap(void)
 }
 
 void *KSmathCapByStruct(void) 
-/* Return the math cap of kan/sm1 with cmo.c as a mathcap classObject*/
+     /* Return the math cap of kan/sm1 with cmo.c as a mathcap classObject*/
 {
   struct mathCap *mathcap;
   struct object ob;
@@ -1432,11 +1432,11 @@ void *KSmathCapByStruct(void)
   mathcap->cmo[21]= CMO_RATIONAL;
 
   mathcap->n = 22 ;   /* This is the number of cmo object. You can use
-		       cmo upto 1023. see mathcap.h */
+                         cmo upto 1023. see mathcap.h */
 
   mathcap->ox[0] = OX_DATA;
   mathcap->oxSize = 1 ;   /* This is the number of OX object. You can use
-		             OX upto 1023. see mathcap.h */
+                             OX upto 1023. see mathcap.h */
 
   mathcap->sm[0] = SM_popCMO;
   mathcap->sm[1] = SM_popString;
@@ -1478,9 +1478,9 @@ errorCmo(char *s) {
 int outfp2(FILE2 *fp2) {
   int i;
   printf("---------  outfp2 ---------\n"); fflush(stdout);
-/*  if (checkfp2(fp2," f2pdumpBuf ") == -1) {
-    return(-1);
-  }*/
+  /*  if (checkfp2(fp2," f2pdumpBuf ") == -1) {
+      return(-1);
+      }*/
   printf("fd=%d\n",fp2->fd);
   printf("initialied=%d\n",fp2->initialized);
   printf("readpos=%d\n",fp2->readpos);
@@ -1513,7 +1513,7 @@ static char *translateReservedName(char *s) {
     return(NULL);
   }
 }
-	  
+      
 struct object cmoTranslateVariable_inComming(struct object ob) {
   /* ob must be Sdollar, return value must be Sdollar. */
   /* Read a variable name from an other system,
@@ -1541,11 +1541,11 @@ struct object cmoTranslateVariable_inComming(struct object ob) {
     if (t == NULL) errorCmo("No more memory.");
     for (i=count=0; i<n; i++) {
       if (s[i] <= ' ' || s[i] == '#') {
-	t[count++] = '#';
-	t[count++] = (s[i]/16 < 10? s[i]/16+'0': (s[i]/16-10)+'A');
-	t[count++] = (s[i]%16 < 10? s[i]%16+'0': (s[i]%16-10)+'A');
+        t[count++] = '#';
+        t[count++] = (s[i]/16 < 10? s[i]/16+'0': (s[i]/16-10)+'A');
+        t[count++] = (s[i]%16 < 10? s[i]%16+'0': (s[i]%16-10)+'A');
       }else{
-	t[count++] = s[i];
+        t[count++] = s[i];
       }
     }
     t[count] = '\0';

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.3 2000/03/20 01:53:47 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.4 2000/09/08 16:08:42 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -38,7 +38,7 @@ socketOpen(char *serverName,int portNumber) {
 
   SET_TCPIOERROR;
   fprintf(TcpioError,"Hello from open. serverName is %s and portnumber is %d\n",
-	  serverName,portNumber);
+          serverName,portNumber);
   if ((myhost = gethostbyname(serverName)) == NULL) {
     errorMsg1s("Bad server name.");
     return(-1);
@@ -47,7 +47,7 @@ socketOpen(char *serverName,int portNumber) {
   me.sin_family = AF_INET;
   me.sin_port = htons(portNumber);
   bcopy(myhost->h_addr,
-	&me.sin_addr,myhost->h_length);
+        &me.sin_addr,myhost->h_length);
 
   if ((s_waiting = socket(AF_INET,SOCK_STREAM,0)) < 0) {
     errorMsg1s("Socket allocation is failed.");
@@ -234,7 +234,7 @@ socketConnect(char *serverName,int portNumber) {
   server.sin_family = AF_INET;
   server.sin_port = htons(portNumber);
   bcopy(servhost->h_addr,
-	(char *)&server.sin_addr,servhost->h_length);
+        (char *)&server.sin_addr,servhost->h_length);
 
   if ((socketid = socket(AF_INET,SOCK_STREAM,0)) <0) {
     errorMsg1s("socket allocation is failed.\n");

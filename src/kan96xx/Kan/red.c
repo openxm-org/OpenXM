@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.3 2000/02/24 00:27:12 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -10,9 +10,9 @@ int DebugReductionRed = 0;
 extern int Sugar;
 
 struct spValue sp_gen(f,g)
-POLY f;
-POLY g;
-/* the results may be rewritten. */
+     POLY f;
+     POLY g;
+     /* the results may be rewritten. */
 {
   struct spValue r;
   POLY a;
@@ -68,18 +68,18 @@ POLY g;
     if (ell-c > 0) { /* q-case */
       amodify = 0;
       for (i=c; i<ell; i++) {
-	amodify += (tb->e[i].D)*(tg->e[i].x);
+        amodify += (tb->e[i].D)*(tg->e[i].x);
       }
       bmodify = 0;
       for (i=c; i<ell; i++) {
-	bmodify += (ta->e[i].D)*(tf->e[i].x);
+        bmodify += (ta->e[i].D)*(tf->e[i].x);
       }
       if (amodify > bmodify) {
-	amodify = amodify-bmodify;
-	bmodify = 0;
+        amodify = amodify-bmodify;
+        bmodify = 0;
       }else{
-	bmodify = bmodify - amodify;
-	amodify = 0;
+        bmodify = bmodify - amodify;
+        amodify = 0;
       }
     }
     if (amodify) {
@@ -109,12 +109,12 @@ POLY g;
     
 
 POLY reduction1_gen_debug(f,g,needSyz,c,h)
-POLY f;
-POLY g;
-int needSyz;
-POLY *c; /* set */
-POLY *h; /* set */
-/* f must be reducible by g.  r = c*f + h*g */
+     POLY f;
+     POLY g;
+     int needSyz;
+     POLY *c; /* set */
+     POLY *h; /* set */
+     /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
   struct ring *rp;
@@ -147,7 +147,7 @@ POLY *h; /* set */
     printf("error in reduction1.");
     printf("f=%s --> f2=%s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
     printf("f2 = (%s)*f+(%s)*(%s)\n",POLYToString(sv.a,'*',1),
-	   POLYToString(sv.b,'*',1),POLYToString(g,'*',1));
+           POLYToString(sv.b,'*',1),POLYToString(g,'*',1));
     getchar();
     getchar();
   }
@@ -171,7 +171,7 @@ POLY *h; /* set */
       if (!isOrdered(f)) {
         printf("\nf is not ordered polynomial.");
       }else if (!isOrdered(f)) {
-	printf("\nf2 is not ordered polynomial.");
+        printf("\nf2 is not ordered polynomial.");
       }
       printf("f=%s,\nf2=%s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
       getchar();
@@ -182,8 +182,8 @@ POLY *h; /* set */
       printf("error in reduction1.");
       printf("f=%s --> f2=%s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
       printf("f2 = (%s)*f+(%s)*(%s)\n",POLYToString(sv.a,'*',1),
-	                               POLYToString(sv.b,'*',1),
-	                               POLYToString(g,'*',1));
+             POLYToString(sv.b,'*',1),
+             POLYToString(g,'*',1));
       getchar();
       getchar();
     }
@@ -197,12 +197,12 @@ POLY *h; /* set */
 }
 
 POLY reduction1_gen(f,g,needSyz,c,h)
-POLY f;
-POLY g;
-int needSyz;
-POLY *c; /* set */
-POLY *h; /* set */
-/* f must be reducible by g.  r = c*f + h*g */
+     POLY f;
+     POLY g;
+     int needSyz;
+     POLY *c; /* set */
+     POLY *h; /* set */
+     /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
   struct ring *rp;
@@ -220,7 +220,7 @@ POLY *h; /* set */
   f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
   if (DebugReductionRed) {
     printf("c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
-	   POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));	   
+           POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));       
     printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
   }
   f = f2;
@@ -234,7 +234,7 @@ POLY *h; /* set */
     f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
     if (DebugReductionRed) {
       printf("! c=%s, d=%s, g=%s:  f --> c*f + d*g.\n",
-             POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));	   
+             POLYToString(sv.a,'*',1),POLYToString(sv.b,'*',1),POLYToString(g,'*',1));     
       printf("%s --> %s\n",POLYToString(f,'*',1),POLYToString(f2,'*',1));
     }
     f = f2;
@@ -247,13 +247,13 @@ POLY *h; /* set */
 }
 
 POLY reduction1Cdr_gen(f,fs,g,needSyz,c,h)
-POLY f;
-POLY fs;
-POLY g;
-int needSyz;
-POLY *c; /* set */
-POLY *h; /* set */
-/* f must be reducible by g.  r = c*f + h*g */
+     POLY f;
+     POLY fs;
+     POLY g;
+     int needSyz;
+     POLY *c; /* set */
+     POLY *h; /* set */
+     /* f must be reducible by g.  r = c*f + h*g */
 {
   extern struct ring *CurrentRingp;
   struct ring *rp;
@@ -297,24 +297,24 @@ POLY *h; /* set */
 
 /* for debug */
 int isOrdered(f)
-POLY f;
+     POLY f;
 { POLY g;
-  if (f ISZERO) return(1);
-  g = f->next;
-  while (g != POLYNULL) {
-    if ((*mmLarger)(g,f)>=1) return(0);
-    f = g;
-    g = f->next;
-  }
-  return(1);
+ if (f ISZERO) return(1);
+ g = f->next;
+ while (g != POLYNULL) {
+   if ((*mmLarger)(g,f)>=1) return(0);
+   f = g;
+   g = f->next;
+ }
+ return(1);
 }
 
 
 POLY reduction_gen(f,gset,needSyz,syzp)
-POLY f;
-struct gradedPolySet *gset;
-int needSyz;
-struct syz0 *syzp; /* set */
+     POLY f;
+     struct gradedPolySet *gset;
+     int needSyz;
+     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -338,29 +338,29 @@ struct syz0 *syzp; /* set */
     grd = 0;
     while (grd < gset->maxGrade) {
       if (!Sugar) {
-	if (grd > (*grade)(f)) break;
+        if (grd > (*grade)(f)) break;
       }
       set = gset->polys[grd];
       do {
-	reduced2 = 0; /* no */
-	for (i=0; i<set->size; i++) {
-	  if (f ISZERO) goto ss;
-	  if ((*isReducible)(f,set->g[i])) {
-	    f = (*reduction1)(f,set->g[i],needSyz,&cc,&cg);
-	    if (needSyz) {
-	      cf = ppMult(cc,cf);
-	      syz = cpMult(toSyzCoeff(cc),syz);
-	      syz = ppAddv(syz,toSyzPoly(cg,grd,i));
-	    }
-	    reduced = reduced1 = reduced2 = 1; /* yes */
-	  }
-	}
+        reduced2 = 0; /* no */
+        for (i=0; i<set->size; i++) {
+          if (f ISZERO) goto ss;
+          if ((*isReducible)(f,set->g[i])) {
+            f = (*reduction1)(f,set->g[i],needSyz,&cc,&cg);
+            if (needSyz) {
+              cf = ppMult(cc,cf);
+              syz = cpMult(toSyzCoeff(cc),syz);
+              syz = ppAddv(syz,toSyzPoly(cg,grd,i));
+            }
+            reduced = reduced1 = reduced2 = 1; /* yes */
+          }
+        }
       } while (reduced2 != 0);
       grd++;
     }
   }while (reduced1 != 0);
 
-  ss: ;
+ ss: ;
   if (needSyz) {
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
@@ -369,10 +369,10 @@ struct syz0 *syzp; /* set */
 }
 
 POLY reduction_gen_rev(f,gset,needSyz,syzp)
-POLY f;
-struct gradedPolySet *gset;
-int needSyz;
-struct syz0 *syzp; /* set */
+     POLY f;
+     struct gradedPolySet *gset;
+     int needSyz;
+     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -397,25 +397,25 @@ struct syz0 *syzp; /* set */
     while (grd >= 0) {  /* reverse order for reduction */
       set = gset->polys[grd];
       do {
-	reduced2 = 0; /* no */
-	for (i=0; i<set->size; i++) {
-	  if (f ISZERO) goto ss;
-	  if ((*isReducible)(f,set->g[i])) {
-	    f = (*reduction1)(f,set->g[i],needSyz,&cc,&cg);
-	    if (needSyz) {
-	      cf = ppMult(cc,cf);
-	      syz = cpMult(toSyzCoeff(cc),syz);
-	      syz = ppAddv(syz,toSyzPoly(cg,grd,i));
-	    }
-	    reduced = reduced1 = reduced2 = 1; /* yes */
-	  }
-	}
+        reduced2 = 0; /* no */
+        for (i=0; i<set->size; i++) {
+          if (f ISZERO) goto ss;
+          if ((*isReducible)(f,set->g[i])) {
+            f = (*reduction1)(f,set->g[i],needSyz,&cc,&cg);
+            if (needSyz) {
+              cf = ppMult(cc,cf);
+              syz = cpMult(toSyzCoeff(cc),syz);
+              syz = ppAddv(syz,toSyzPoly(cg,grd,i));
+            }
+            reduced = reduced1 = reduced2 = 1; /* yes */
+          }
+        }
       } while (reduced2 != 0);
       grd--;
     }
   }while (reduced1 != 0);
 
-  ss: ;
+ ss: ;
   if (needSyz) {
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
@@ -424,10 +424,10 @@ struct syz0 *syzp; /* set */
 }
 
 POLY reductionCdr_gen(f,gset,needSyz,syzp)
-POLY f;
-struct gradedPolySet *gset;
-int needSyz;
-struct syz0 *syzp; /* set */
+     POLY f;
+     struct gradedPolySet *gset;
+     int needSyz;
+     struct syz0 *syzp; /* set */
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -452,29 +452,29 @@ struct syz0 *syzp; /* set */
     grd = 0;
     while (grd < gset->maxGrade) {
       if (!Sugar) {
-	if (grd > (*grade)(f)) break;
+        if (grd > (*grade)(f)) break;
       }
       set = gset->polys[grd];
       do {
-	reduced2 = 0; /* no */
-	for (i=0; i<set->size; i++) {
-	  if (f ISZERO) goto ss;
-	  if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) {
-	    f = (*reduction1Cdr)(f,fs,set->g[i],needSyz,&cc,&cg);
-	    if (needSyz) {
-	      cf = ppMult(cc,cf);
-	      syz = cpMult(toSyzCoeff(cc),syz);
-	      syz = ppAddv(syz,toSyzPoly(cg,grd,i));
-	    }
-	    reduced = reduced1 = reduced2 = 1; /* yes */
-	  }
-	}
+        reduced2 = 0; /* no */
+        for (i=0; i<set->size; i++) {
+          if (f ISZERO) goto ss;
+          if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) {
+            f = (*reduction1Cdr)(f,fs,set->g[i],needSyz,&cc,&cg);
+            if (needSyz) {
+              cf = ppMult(cc,cf);
+              syz = cpMult(toSyzCoeff(cc),syz);
+              syz = ppAddv(syz,toSyzPoly(cg,grd,i));
+            }
+            reduced = reduced1 = reduced2 = 1; /* yes */
+          }
+        }
       } while (reduced2 != 0);
       grd++;
     }
   }while (reduced1 != 0);
 
-  ss: ;
+ ss: ;
   if (needSyz) {
     syzp->cf = cf;
     syzp->syz = syz;
@@ -483,8 +483,8 @@ struct syz0 *syzp; /* set */
 }
 
 int isReducible_gen(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   int n,i;
   MONOMIAL tf;
@@ -505,8 +505,8 @@ POLY g;
 }
 
 POLY isCdrReducible_gen(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   while (f != POLYNULL) {
     if ((*isReducible)(f,g)) {
@@ -518,8 +518,8 @@ POLY g;
 }
 
 POLY lcm_gen(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   MONOMIAL tf,tg;
   MONOMIAL lcm;
@@ -537,7 +537,7 @@ POLY g;
 }
 
 int grade_gen(f)
-POLY f;
+     POLY f;
 {
   int r;
   int i,n;
@@ -555,10 +555,10 @@ POLY f;
 
 /* constructors */
 POLY toSyzPoly(cg,grd,index)
-POLY cg;
-int grd;
-int index;
-/* the result is read only. */
+     POLY cg;
+     int grd;
+     int index;
+     /* the result is read only. */
 {
   extern struct ring *SyzRingp;
   POLY r;
@@ -569,7 +569,7 @@ int index;
 }
 
 struct coeff *toSyzCoeff(f)
-POLY f;
+     POLY f;
 {
   extern struct ring *SyzRingp;
   struct coeff *c;
@@ -614,8 +614,8 @@ void initSyzRingp() {
 }
 
 POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,
-			       int needSyz,struct syz0 *syzp,
-			       int skipGrd,int skipi, int *reducedp)
+                               int needSyz,struct syz0 *syzp,
+                               int skipGrd,int skipi, int *reducedp)
 {
   int reduced,reduced1,reduced2;
   int grd;
@@ -641,35 +641,35 @@ POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,
     grd = 0;
     while (grd < gset->maxGrade) {
       /*
-	 if (!Sugar) {
-	    if (grd > (*grade)(f)) break;
-	 }
+        if (!Sugar) {
+        if (grd > (*grade)(f)) break;
+        }
       */
       set = gset->polys[grd];
       do {
-	reduced2 = 0; /* no */
-	for (i=0; i<set->size; i++) {
-	  if (f ISZERO) goto ss;
-	  if ((!((grd == skipGrd) && (i == skipi))) && (set->del[i]==0)) {
-                                          /*  Do not use deleted element.*/
-	    if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) {
-	      f = (*reduction1Cdr)(f,fs,set->g[i],needSyz,&cc,&cg);
-	      /* What is cg? */
-	      if (needSyz) {
-		cf = ppMult(cc,cf);
-		syz = cpMult(toSyzCoeff(cc),syz);
-		syz = ppAddv(syz,toSyzPoly(cg,grd,i));
-	      }
-	      *reducedp = reduced = reduced1 = reduced2 = 1; /* yes */
-	    }
-	  }
-	}
+        reduced2 = 0; /* no */
+        for (i=0; i<set->size; i++) {
+          if (f ISZERO) goto ss;
+          if ((!((grd == skipGrd) && (i == skipi))) && (set->del[i]==0)) {
+            /*  Do not use deleted element.*/
+            if ((fs =(*isCdrReducible)(f,set->g[i])) != ZERO) {
+              f = (*reduction1Cdr)(f,fs,set->g[i],needSyz,&cc,&cg);
+              /* What is cg? */
+              if (needSyz) {
+                cf = ppMult(cc,cf);
+                syz = cpMult(toSyzCoeff(cc),syz);
+                syz = ppAddv(syz,toSyzPoly(cg,grd,i));
+              }
+              *reducedp = reduced = reduced1 = reduced2 = 1; /* yes */
+            }
+          }
+        }
       } while (reduced2 != 0);
       grd++;
     }
   }while (reduced1 != 0);
 
-  ss: ;
+ ss: ;
   if (needSyz) {
     syzp->cf = cf;
     syzp->syz = syz;

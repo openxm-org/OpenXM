@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -8,7 +8,7 @@
 static POLY mapZmonom(POLY f,struct ring *ringp);
 
 POLY ppAdd(f,g)
-POLY f; POLY g;  /* The result is read only. */
+	 POLY f; POLY g;  /* The result is read only. */
 {
   POLY node;
   struct listPoly nod;
@@ -33,8 +33,8 @@ POLY f; POLY g;  /* The result is read only. */
       h = h->next;
       f = f->next;
       if (f == POLYNULL) {
-	h->next = g;
-	return(node->next);
+		h->next = g;
+		return(node->next);
       }
       break;
     case 0: /* f < g */
@@ -42,37 +42,37 @@ POLY f; POLY g;  /* The result is read only. */
       h = h->next;
       g = g->next;
       if (g == POLYNULL) {
-	h->next = f;
-	return(node->next);
+		h->next = f;
+		return(node->next);
       }
       break;
     case 2:/* f == g */
       c = coeffCopy(f->coeffp);
       Cadd(c,c,g->coeffp);
       if (!isZero(c)) {
-	h->next = newCell(c,f->m);
-	h = h->next;
-	f = f->next;
-	g = g->next;
-	if (f == POLYNULL) {
-	  h->next = g;
-	  return(node->next);
-	}
-	if (g == POLYNULL) {
-	  h->next = f;
-	  return(node->next);
-	}
+		h->next = newCell(c,f->m);
+		h = h->next;
+		f = f->next;
+		g = g->next;
+		if (f == POLYNULL) {
+		  h->next = g;
+		  return(node->next);
+		}
+		if (g == POLYNULL) {
+		  h->next = f;
+		  return(node->next);
+		}
       }else{
-	f = f->next;
-	g = g->next;
-	if (f == POLYNULL) {
-	  h->next = g;
-	  return(node->next);
-	}
-	if (g == POLYNULL) {
-	  h->next = f;
-	  return(node->next);
-	}
+		f = f->next;
+		g = g->next;
+		if (f == POLYNULL) {
+		  h->next = g;
+		  return(node->next);
+		}
+		if (g == POLYNULL) {
+		  h->next = f;
+		  return(node->next);
+		}
       }
       break;
     default:
@@ -84,7 +84,7 @@ POLY f; POLY g;  /* The result is read only. */
 }
 
 POLY ppSub(f,g)
-POLY f; POLY g;  /* The result is read only. */
+	 POLY f; POLY g;  /* The result is read only. */
 {
   POLY h;
   struct coeff *c;
@@ -99,8 +99,8 @@ POLY f; POLY g;  /* The result is read only. */
 
 
 POLY cpMult(c,f)
-struct coeff *c;
-POLY f;
+	 struct coeff *c;
+	 POLY f;
 {
   POLY node;
   struct listPoly nod;
@@ -125,7 +125,7 @@ POLY f;
 }
 
 MONOMIAL monomialAdd_poly(m,m2)
-MONOMIAL m,m2;
+	 MONOMIAL m,m2;
 {
   extern int Msize;
   MONOMIAL f;
@@ -145,8 +145,8 @@ MONOMIAL m,m2;
 
 /* Note that mpMult_poly is called from mmLarger_tower! */
 POLY mpMult_poly(f,g)
-POLY f;
-POLY g;
+	 POLY f;
+	 POLY g;
 {
   POLY node;
   struct listPoly nod;
@@ -176,7 +176,7 @@ POLY g;
 }
 
 POLY ppMult_old(f,g)
-POLY f,g;
+	 POLY f,g;
 {
   POLY r;
   POLY tmp;
@@ -190,7 +190,7 @@ POLY f,g;
 }
 
 POLY ppAddv(f,g)
-POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
+	 POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
 {
   POLY node;
   struct listPoly nod;
@@ -215,44 +215,44 @@ POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
       h->next = f;
       h = h->next; f = f->next;;
       if (f == POLYNULL) {
-	h->next = g;
-	return(node->next);
+		h->next = g;
+		return(node->next);
       }
       break;
     case 0: /* f < g */
       h->next =  g;
       h = h->next; g = g->next;
       if (g == POLYNULL) {
-	h->next = f;
-	return(node->next);
+		h->next = f;
+		return(node->next);
       }
       break;
     case 2:/* f == g */
       c = f->coeffp;
       Cadd(c,c,g->coeffp);
       if (!isZero(c)) {
-	h->next = f;
-	h = h->next; f = f->next;;
-	g = g->next;
-	if (f == POLYNULL) {
-	  h->next = g;
-	  return(node->next);
-	}
-	if (g == POLYNULL) {
-	  h->next = f;
-	  return(node->next);
-	}
+		h->next = f;
+		h = h->next; f = f->next;;
+		g = g->next;
+		if (f == POLYNULL) {
+		  h->next = g;
+		  return(node->next);
+		}
+		if (g == POLYNULL) {
+		  h->next = f;
+		  return(node->next);
+		}
       }else{
-	f = f->next;
-	g = g->next;
-	if (f == POLYNULL) {
-	  h->next = g;
-	  return(node->next);
-	}
-	if (g == POLYNULL) {
-	  h->next = f;
-	  return(node->next);
-	}
+		f = f->next;
+		g = g->next;
+		if (f == POLYNULL) {
+		  h->next = g;
+		  return(node->next);
+		}
+		if (g == POLYNULL) {
+		  h->next = f;
+		  return(node->next);
+		}
       }
       break;
     default:
@@ -264,8 +264,8 @@ POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
 }
 
 POLY pPower(f,k)
-POLY f;
-int k;
+	 POLY f;
+	 int k;
 {
   POLY r;
   int i,n;
@@ -296,8 +296,8 @@ int k;
 }
 
 POLY pPower_poly(f,k)
-POLY f;
-int k;
+	 POLY f;
+	 int k;
 {
   POLY r;
   int i,n;
@@ -328,8 +328,8 @@ int k;
 }
 
 POLY modulop_trash(f,ringp)
-POLY f;
-struct ring *ringp;
+	 POLY f;
+	 struct ring *ringp;
 {
   int p;
   POLY h;
@@ -382,12 +382,12 @@ struct ring *ringp;
       mpz_mod_ui(c,f->coeffp->val.bigp,(unsigned long int)p);
       cc = (int) mpz_get_si(c);
       if (cc != 0) {
-	h->next = newCell(newCoeff(),monomialCopy(f->m));
-	h = h->next;
-	h->m->ringp = ringp;
-	h->coeffp->tag = INTEGER;
-	h->coeffp->p = p;
-	h->coeffp->val.i = cc;
+		h->next = newCell(newCoeff(),monomialCopy(f->m));
+		h = h->next;
+		h->m->ringp = ringp;
+		h->coeffp->tag = INTEGER;
+		h->coeffp->p = p;
+		h->coeffp->val.i = cc;
       }
       f = f->next;
     }
@@ -404,9 +404,9 @@ struct ring *ringp;
 }
   
 POLY modulop(f,ringp)
-POLY f;
-struct ring *ringp;
-/* Z[x] ---> R[x] where R=Z, Z/Zp, ringp->next. */
+	 POLY f;
+	 struct ring *ringp;
+	 /* Z[x] ---> R[x] where R=Z, Z/Zp, ringp->next. */
 {
   int p;
   POLY h;
@@ -447,12 +447,12 @@ struct ring *ringp;
       mpz_mod_ui(c,f->coeffp->val.bigp,(unsigned long int)p);
       cc = (int) mpz_get_si(c);
       if (cc != 0) {
-	h->next = newCell(newCoeff(),monomialCopy(f->m));
-	h = h->next;
-	h->m->ringp = ringp;
-	h->coeffp->tag = INTEGER;
-	h->coeffp->p = p;
-	h->coeffp->val.i = cc;
+		h->next = newCell(newCoeff(),monomialCopy(f->m));
+		h = h->next;
+		h->m->ringp = ringp;
+		h->coeffp->tag = INTEGER;
+		h->coeffp->p = p;
+		h->coeffp->val.i = cc;
       }
       f = f->next;
     }
@@ -471,9 +471,9 @@ struct ring *ringp;
 }
   
 POLY modulopZ(f,pcoeff)
-POLY f;
-struct coeff *pcoeff;
-/* Z[x] ---> Z[x] , f ---> f mod pcoeff*/
+	 POLY f;
+	 struct coeff *pcoeff;
+	 /* Z[x] ---> Z[x] , f ---> f mod pcoeff*/
 {
   int p;
   POLY h;
@@ -535,9 +535,9 @@ struct coeff *pcoeff;
 }
   
 struct pairOfPOLY quotientByNumber(f,pcoeff)
-POLY f;
-struct coeff *pcoeff;
-/* Z[x] ---> Z[x],Z[x] ,  f = first*pcoeff + second */
+	 POLY f;
+	 struct coeff *pcoeff;
+	 /* Z[x] ---> Z[x],Z[x] ,  f = first*pcoeff + second */
 {
   int p;
   POLY h;
@@ -631,8 +631,8 @@ struct coeff *pcoeff;
   
 
 POLY modulo0(f,ringp)
-POLY f;
-struct ring *ringp;
+	 POLY f;
+	 struct ring *ringp;
 {
   int p;
   POLY h;
@@ -650,8 +650,8 @@ struct ring *ringp;
       node = pcmCopy(f);
       f = node;
       while (f != POLYNULL) {
-	f->m->ringp = ringp; /* Touch the monomial "ringp" field. */
-	f = f->next;
+		f->m->ringp = ringp; /* Touch the monomial "ringp" field. */
+		f = f->next;
       }
       return(node);
     }
@@ -692,7 +692,7 @@ struct ring *ringp;
   
 
 struct object test(ob)  /* test3 */
-struct object ob;
+	 struct object ob;
 {
   struct object rob;
   int k;
@@ -714,7 +714,7 @@ struct object ob;
     for (i=k; i>=0; i--) {
       f0->next = bxx(BiiPower(-k,i),0,i,CurrentRingp);
       if (f0->next != POLYNULL) {
-	f0 = f0->next;
+		f0 = f0->next;
       }
     }
     f0 = addNode->next;
@@ -726,7 +726,7 @@ struct object ob;
     for (i=k; i>=0; i--) {
       f1->next = bxx(BiiPower(k,i),0,i,CurrentRingp);
       if (f1->next != POLYNULL) {
-	f1 = f1->next;
+		f1 = f1->next;
       }
     }
     f1 = addNode->next;
@@ -746,7 +746,7 @@ struct object ob;
 
 
 int pLength(f)
-POLY f;
+	 POLY f;
 {
   int c=0;
   if (f ISZERO) return(0);
@@ -759,17 +759,17 @@ POLY f;
 
 
 POLY ppAddv2(f,g,top,nexttop)
-POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
-POLY top;
-POLY *nexttop;
-/* top is the starting address in the list f.
-   if top == POLYNULL, start from f.
+	 POLY f; POLY g;  /* It breaks f and g. Use it just after calling mpMult() */
+	 POLY top;
+	 POLY *nexttop;
+	 /* top is the starting address in the list f.
+		if top == POLYNULL, start from f.
 
-   *nexttop == 0
-            == g
-            == h or 0
+		*nexttop == 0
+		== g
+		== h or 0
 
-  It must be called as r = ppAddv2(r,g,...); 	    
+		It must be called as r = ppAddv2(r,g,...); 	    
 */
 {
   POLY node;
@@ -793,11 +793,11 @@ POLY *nexttop;
   if (top != POLYNULL) {
     while (f != top) {
       if (f == POLYNULL) {
-	fprintf(stderr,"\nppAddv2(): Internal error.\n");fflush(stderr);
-	fprintf(stderr,"f = %s\n",POLYToString(f0,'*',0));
-	fprintf(stderr,"g = %s\n",POLYToString(g0,'*',0));
-	fprintf(stderr,"top=%s\n",POLYToString(top,'*',0));
-	errorPoly("ppAddv2(). Internal error=1.");
+		fprintf(stderr,"\nppAddv2(): Internal error.\n");fflush(stderr);
+		fprintf(stderr,"f = %s\n",POLYToString(f0,'*',0));
+		fprintf(stderr,"g = %s\n",POLYToString(g0,'*',0));
+		fprintf(stderr,"top=%s\n",POLYToString(top,'*',0));
+		errorPoly("ppAddv2(). Internal error=1.");
       }
       h->next = f;
       h = h->next;
@@ -816,54 +816,54 @@ POLY *nexttop;
       h->next = f;
       h = h->next; f = f->next;;
       if (f == POLYNULL) {
-	h->next = g;
-	return(node->next);
+		h->next = g;
+		return(node->next);
       }
       break;
     case 0: /* f < g */
       h->next =  g;
       h = h->next; g = g->next;
       if (g == POLYNULL) {
-	h->next = f;
-	return(node->next);
+		h->next = f;
+		return(node->next);
       }
       break;
     case 2:/* f == g */
       c = g->coeffp;
       Cadd(c,f->coeffp,c);
       if (!isZero(c)) {
-	h->next = g;
-	h = h->next;
-	f = f->next;;
-	g = g->next;
-	if (f == POLYNULL) {
-	  h->next = g;
-	  return(node->next);
-	}
-	if (g == POLYNULL) {
-	  h->next = f;
-	  return(node->next);
-	}
+		h->next = g;
+		h = h->next;
+		f = f->next;;
+		g = g->next;
+		if (f == POLYNULL) {
+		  h->next = g;
+		  return(node->next);
+		}
+		if (g == POLYNULL) {
+		  h->next = f;
+		  return(node->next);
+		}
       }else{
-	if (g == g0) {
-	  if (h != node) {
-	    *nexttop = h;
-	  }else{
-	    *nexttop = POLYNULL;
-	  }
-	}
+		if (g == g0) {
+		  if (h != node) {
+			*nexttop = h;
+		  }else{
+			*nexttop = POLYNULL;
+		  }
+		}
 	
-	f = f->next;
-	g = g->next;
+		f = f->next;
+		g = g->next;
 
-	if (f == POLYNULL) {
-	  h->next = g;
-	  return(node->next);
-	}
-	if (g == POLYNULL) {
-	  h->next = f;
-	  return(node->next);
-	}
+		if (f == POLYNULL) {
+		  h->next = g;
+		  return(node->next);
+		}
+		if (g == POLYNULL) {
+		  h->next = f;
+		  return(node->next);
+		}
       }
       break;
     default:
@@ -875,7 +875,7 @@ POLY *nexttop;
 }
 
 POLY ppMult(f,g)
-POLY f,g;
+	 POLY f,g;
 {
   POLY r;
   POLY tmp;
@@ -894,7 +894,7 @@ POLY f,g;
 }
 
 POLY ppMult_poly(f,g)
-POLY f,g;
+	 POLY f,g;
 {
   POLY r;
   POLY tmp;
@@ -911,8 +911,8 @@ POLY f,g;
 }
 
 POLY mapZmonom(f,ringp)
-POLY f; /* assumes monomial. f \in Z[x] */
-struct ring *ringp;  /* R[x] */
+	 POLY f; /* assumes monomial. f \in Z[x] */
+	 struct ring *ringp;  /* R[x] */
 {
   struct ring *nextRing;
   struct ring nextRing0;

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 /* list.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -16,7 +16,7 @@ static warningList(char *s);
 */
 
 struct object *newList(objp)
-struct object *objp;
+     struct object *objp;
 {
   struct object *op;
   op = (struct object *)sGC_malloc(sizeof(struct object));
@@ -31,7 +31,7 @@ struct object *objp;
 }
 
 int klength(objp)
-struct object *objp;
+     struct object *objp;
 {
   if (objp->tag != Slist) {
     warningList("use klength() for object-list.");
@@ -44,8 +44,8 @@ struct object *objp;
 }
 
 struct object listToArray(objp)
-struct object *objp;
-/* This function copies only the top level of the list */
+     struct object *objp;
+     /* This function copies only the top level of the list */
 {
   int n;
   struct object ans;
@@ -66,8 +66,8 @@ struct object *objp;
 }
 
 struct object *arrayToList(obj)
-struct object obj;
-/* obj.tag must be Sarray */
+     struct object obj;
+     /* obj.tag must be Sarray */
 {
   struct object *op;
   struct object *list;
@@ -85,16 +85,16 @@ struct object obj;
 }
 
 struct object *vJoin(list1,list2)
-struct object *list1,*list2;
-/* Join[(a b), (c d)] ---> (a b c d) */
-/* Join [(),(a b)] ---> (a b) */
-/* We do not copy. NullList is express by (struct object *)NULL.
-   cf. isNullList()
-*/
+     struct object *list1,*list2;
+     /* Join[(a b), (c d)] ---> (a b c d) */
+     /* Join [(),(a b)] ---> (a b) */
+     /* We do not copy. NullList is express by (struct object *)NULL.
+        cf. isNullList()
+     */
 {
   /*
-  printf("list1=");  printObjectList(list1);
-  printf("\nlist2=");  printObjectList(list2);  printf("\n");
+    printf("list1=");  printObjectList(list1);
+    printf("\nlist2=");  printObjectList(list2);  printf("\n");
   */
 
   if (isNullList(list1)) return(list2);
@@ -113,7 +113,7 @@ struct object *list1,*list2;
 }
 
 struct object car(list)
-struct object *list;
+     struct object *list;
 {
   if (list->tag != Slist) {
     warningList("car() is called for a non-list object.");
@@ -125,7 +125,7 @@ struct object *list;
 }
 
 struct object *cdr(list)
-struct object *list;
+     struct object *list;
 {
   if (list->tag != Slist) {
     warningList("cdr() is called for a non-list object.");
@@ -137,7 +137,7 @@ struct object *list;
 
 
 void printObjectList(op)
-struct object *op;
+     struct object *op;
 {
   if (op == NULL) return;
   if (isNullList(op)) return;
@@ -151,9 +151,9 @@ struct object *op;
 }
 
 memberQ(list1,obj2)
-struct object *list1;
-struct object obj2;
-/* If obj2 is an member of list1, the functions the position.
+     struct object *list1;
+     struct object obj2;
+     /* If obj2 is an member of list1, the functions the position.
    memberQ( (1 (2 3) 4), 4) ----> 3.
 */
 {
@@ -168,14 +168,14 @@ struct object obj2;
 }
 
 static errorList(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"list.c: %s\n",str);
   exit(10);
 }
 
 static warningList(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Warning. list.c: %s\n",str);
 }
@@ -183,17 +183,17 @@ char *str;
 
 /********************** test codes for Stest: ********************/
 /* test of objectArrayToObjectList. in Stest: stackmachine.c 
-    { 
-      struct object *list;
-      list = arrayToList(ob1);
-      ob1 = listToArray(list);
-      push(ob1);
-    }
-    test for memberQ().
-    {
-      struct object *list;
-      list = objectArrayToObjectList(pop());
-      printf("\nmemberQ()=%d\n",memberQ(list,ob1));
-    }
+   { 
+   struct object *list;
+   list = arrayToList(ob1);
+   ob1 = listToArray(list);
+   push(ob1);
+   }
+   test for memberQ().
+   {
+   struct object *list;
+   list = objectArrayToObjectList(pop());
+   printf("\nmemberQ()=%d\n",memberQ(list,ob1));
+   }
 
 */

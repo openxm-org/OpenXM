@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.4 2000/06/26 11:15:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/resol.c,v 1.5 2000/07/26 02:21:30 takayama Exp $ */
 /* resol.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -10,7 +10,7 @@
 static void shellForMonomialSyz(struct monomialSyz **p,int size);
 static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i);
 static struct arrayOfMonomialSyz putMonomialSyz(struct arrayOfMonomialSyz a,
-						struct monomialSyz *s);
+                                                struct monomialSyz *s);
 
 static int RemoveRedundantInSchreyerSkelton = 1;
 
@@ -44,7 +44,7 @@ struct arrayOfMonomialSyz enlargeArrayOfMonomialSyz(struct arrayOfMonomialSyz pp
 
 
 static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
-/* return value will be changed by the next call of this function. */
+     /* return value will be changed by the next call of this function. */
 {
   int m,j,k,flag;
   static int s_ij_size = 0;
@@ -59,7 +59,7 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
   if (m > s_ij_size) {
     s_ij_size = m+1;
     s_ij = (struct monomialSyz **)sGC_malloc(sizeof(struct monomialSyz *)*
-					    s_ij_size);
+                                             s_ij_size);
     if (s_ij == NULL) errorGradedSet("schreyerSkelton(): no memory");
   }
   for (j=i+1; j<m; j++) {
@@ -75,21 +75,21 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
   }
   shellForMonomialSyz(s_ij,m-i-1);
   if (RemoveRedundantInSchreyerSkelton) {
-	do {
-	  flag = 0;
+    do {
+      flag = 0;
       for (j=0; j<m-i-1;j++) {
-		if (s_ij[j]->deleted != 1) {
-		  for (k=0; k<m-i-1;k++) {
-			if ((j != k) && (s_ij[k]->deleted != 1)) {
-			  if ((*isReducible)(s_ij[k]->a,s_ij[j]->a)) {
-				s_ij[k]->deleted = 1;
-				flag = 1;
-			  }
-			}
-		  }
-		}
-	  }
-	}while (flag);
+        if (s_ij[j]->deleted != 1) {
+          for (k=0; k<m-i-1;k++) {
+            if ((j != k) && (s_ij[k]->deleted != 1)) {
+              if ((*isReducible)(s_ij[k]->a,s_ij[j]->a)) {
+                s_ij[k]->deleted = 1;
+                flag = 1;
+              }
+            }
+          }
+        }
+      }
+    }while (flag);
   }
   ans.size = m-i-1;
   ans.limit = s_ij_size;
@@ -98,7 +98,7 @@ static struct arrayOfMonomialSyz schreyerSkelton0(struct arrayOfPOLY g,int i)
 }
 
 static struct arrayOfMonomialSyz putMonomialSyz(struct arrayOfMonomialSyz a,
-						struct monomialSyz *s)
+                                                struct monomialSyz *s)
 {
   if (a.limit <= a.size) {
     a = enlargeArrayOfMonomialSyz(a);
@@ -139,11 +139,11 @@ static void shellForMonomialSyz(struct monomialSyz **p,int n)
   for (gap = n/2; gap > 0; gap /= 2) {
     for (i = gap; i < n; i++) {
       for (j = i - gap ; j >= 0; j -= gap) {
-	r = (*mmLarger)(p[j+gap]->a, p[j]->a);
-	if ( r >= 1) break;
-	temp = p[j];
-	p[j] = p[j+gap];
-	p[j+gap] = temp;
+        r = (*mmLarger)(p[j+gap]->a, p[j]->a);
+        if ( r >= 1) break;
+        temp = p[j];
+        p[j] = p[j+gap];
+        p[j+gap] = temp;
       }
     }
   }

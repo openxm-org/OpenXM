@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.13 2000/07/26 02:21:30 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.14 2000/12/03 07:29:38 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -13,22 +13,22 @@
   Any setting must keep the relation: L<=M<=N.
   You must see mmwMult() in poly.c in the above case.
   Example. L=M=0 means there is no q-variables and difference variables.
-           L=5, M=N=5 means all variables are q-variables (x0=q).
-	   L=2, M=2, N=5 means x0=q, x1 is q-variable and x2,,,,x4 are
-	   differential variables.
-	   L=0, M=2, N=5 means x0,x1 are difference variables and x2,,,x4
-	   are differential variables. */
+  L=5, M=N=5 means all variables are q-variables (x0=q).
+  L=2, M=2, N=5 means x0=q, x1 is q-variable and x2,,,,x4 are
+  differential variables.
+  L=0, M=2, N=5 means x0,x1 are difference variables and x2,,,x4
+  are differential variables. */
 /*#define   L     0     number of q-variables */
 /*#define   M     0     number of difference variables */
 /*Number of elimination variables  */
 /*#define  LL     0     */
 /*#define  MM     0    */
-              /* x_MM,...,x_{M-1} are eliminated difference variables */
-              /* MM < M if you want to use it. MM>=M if you do not use it */
+/* x_MM,...,x_{M-1} are eliminated difference variables */
+/* MM < M if you want to use it. MM>=M if you do not use it */
 /*#define  NN     9  */
-              /*x_NN,...,x_{N-1} are eliminated differential variables */
-              /* NN < N if you want to use it. NN>=N if you do not use it.
-		       See the eliminated_standard() in dbm3.c */
+/*x_NN,...,x_{N-1} are eliminated differential variables */
+/* NN < N if you want to use it. NN>=N if you do not use it.
+               See the eliminated_standard() in dbm3.c */
 
 
 /* They are not used.
@@ -100,8 +100,8 @@ int KSPushEnvMode = 0;
 int Sugar = 0;
 int Homogenize_vec = 1; /*x + e (x+1)===>(1) x h + e (x+h) or (0)x + e(x+h) */
 int CmoDMSOutputOption = 0;  /* Output with
-			     (1) RING_BY_NAME or (0) DMS_OF_N_VARIABLES.
-			     plugin/cmo.c */
+                 (1) RING_BY_NAME or (0) DMS_OF_N_VARIABLES.
+                 plugin/cmo.c */
 int SecureMode = 0;
 
 /* global variables for stackmachine.c  */

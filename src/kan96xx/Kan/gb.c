@@ -1,4 +1,5 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.3 2000/02/24 00:27:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.4 2000/03/15 01:31:17 takayama Exp $ */
+/*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -12,7 +13,7 @@ int KanGBmessage = 1;
 
 static int Debug = 0;
 static int sugarGrade(struct pair *inode,struct gradedPolySet *grG,
-		      POLY gt,int gtSugarGrade);
+                      POLY gt,int gtSugarGrade);
 extern int Sugar;
 extern int Statistics;
 extern int Criterion1;
@@ -24,11 +25,11 @@ extern int AutoReduce;
 
 
 struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
-struct gradedPairs *grD;  /* set of pairs */
-POLY gt;                 /* new polynomial */
-int gtGrade;
-int t;
-struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
+     struct gradedPairs *grD;  /* set of pairs */
+     POLY gt;                 /* new polynomial */
+     int gtGrade;
+     int t;
+     struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
 {
   int gmax,newGrade;
   struct pair *node,*new,*inode,*jnode;
@@ -50,18 +51,18 @@ struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
     g = grG->polys[k];
     for (i=0; i<g->size; i++) {
       if (g->del[i] == 0 && (gtGrade != k || t != i)) {
-	lcmp = (*lcm)(g->g[i],gt);
-	if (lcmp == ZERO) {
+        lcmp = (*lcm)(g->g[i],gt);
+        if (lcmp == ZERO) {
 
-	}else {
-	  new->del = 0;
-	  new->next = newPair(new);
-	  new = new->next;
-	  new->lcm = lcmp;
-	  new->ig = k; new->ii = i;  /* g->g[i] */
-	  new->jg = gtGrade; new->ji = t; /* gt */
-	  new->grade = -1; /* one do not need to set grade here. */
-	}
+        }else {
+          new->del = 0;
+          new->next = newPair(new);
+          new = new->next;
+          new->lcm = lcmp;
+          new->ig = k; new->ii = i;  /* g->g[i] */
+          new->jg = gtGrade; new->ji = t; /* gt */
+          new->grade = -1; /* one do not need to set grade here. */
+        }
       }
     }
   }
@@ -71,7 +72,7 @@ struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
   /*  See Gebauer and Mora, 1988, Journal of Symbolic Computation
       279.  We must not use the test T(i)T(j) = T(i,j) because it
       does not hold in the ring of diff op.
-   */
+  */
   
   inode = node->next;
   while (inode != (struct pair *)NULL) {
@@ -80,49 +81,49 @@ struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
       it = inode->lcm;
       jt = jnode->lcm;
       if ((*mmLarger)(it,jt) == 2) {
-	/* F(j,t), i<j */
-	jnode->del = 1;
-	if (Verbose) printf("F[%d,%d]([%d,%d],[%d,%d]) ",
-			    inode->ig,inode->ii,
-			    jnode->ig,jnode->ii,
-			    gtGrade,t);
-	Criterion2F++;
+        /* F(j,t), i<j */
+        jnode->del = 1;
+        if (Verbose) printf("F[%d,%d]([%d,%d],[%d,%d]) ",
+                            inode->ig,inode->ii,
+                            jnode->ig,jnode->ii,
+                            gtGrade,t);
+        Criterion2F++;
       }else {
-	/* g[i] > g[j] ?, M(i,t) */
-	if ((*isReducible)(it,jt)) {
-	  inode->del = 1;
-	  if (Verbose) printf("M[%d,%d]([%d,%d],[%d,%d]) ",
-			      jnode->ig,jnode->ii,
-			      inode->ig,inode->ii,
-			      gtGrade,t);
-	  Criterion2M++;
-	}
+        /* g[i] > g[j] ?, M(i,t) */
+        if ((*isReducible)(it,jt)) {
+          inode->del = 1;
+          if (Verbose) printf("M[%d,%d]([%d,%d],[%d,%d]) ",
+                              jnode->ig,jnode->ii,
+                              inode->ig,inode->ii,
+                              gtGrade,t);
+          Criterion2M++;
+        }
         /* M(j,t) */
-	if ((*isReducible)(jt,it)) {
-	  jnode->del = 1;
-	  if (Verbose) printf("M[%d,%d]([%d,%d],[%d,%d]) ",
-			      inode->ig,inode->ii,
-			      jnode->ig,jnode->ii,
-			      gtGrade,t);
-	  Criterion2M++;
-	}
+        if ((*isReducible)(jt,it)) {
+          jnode->del = 1;
+          if (Verbose) printf("M[%d,%d]([%d,%d],[%d,%d]) ",
+                              inode->ig,inode->ii,
+                              jnode->ig,jnode->ii,
+                              gtGrade,t);
+          Criterion2M++;
+        }
       }
       jnode = jnode->next;
     }
     inode = inode->next;
   }
-	  
+      
   if (UseCriterion1) {
     inode = node->next;
     while (inode != NULL) {
       if (inode->del == 0) {
-	if (criterion1(gt,grG->polys[inode->ig]->g[inode->ii],inode->lcm)) {
-	  inode->del = 1;
-	  if (Verbose) printf("Criterion1([%d,%d],[%d,%d]) ",
-			      inode->ig,inode->ii,
-			      gtGrade,t);
-	  Criterion1++;
-	}
+        if (criterion1(gt,grG->polys[inode->ig]->g[inode->ii],inode->lcm)) {
+          inode->del = 1;
+          if (Verbose) printf("Criterion1([%d,%d],[%d,%d]) ",
+                              inode->ig,inode->ii,
+                              gtGrade,t);
+          Criterion1++;
+        }
       }
       inode = inode->next;
     }
@@ -138,12 +139,12 @@ struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
   while (inode != (struct pair *)NULL) {
     if (inode->del == 0) {
       if (Sugar) {
-	inode->grade = sugarGrade(inode,grG,gt,gtGrade);
+        inode->grade = sugarGrade(inode,grG,gt,gtGrade);
       }else{
-	inode->grade = (*grade)(inode->lcm);
+        inode->grade = (*grade)(inode->lcm);
       }
       if (grD->lim <= inode->grade) {
-	grD = enlargeGradedPairs(2*(inode->grade)+1,grD);
+        grD = enlargeGradedPairs(2*(inode->grade)+1,grD);
       }
       insertPair(inode,grD->pairs[inode->grade]);
       grD->maxGrade = max(grD->maxGrade,inode->grade+1); /* don't forget */
@@ -158,12 +159,12 @@ struct gradedPolySet *grG; /* (f,gt), f \in grG, should be added to grD. */
 }
 
 struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReduction)
-struct arrayOfPOLY *f;
-int needBack;
-int needSyz;
-struct pair **grP;  /* if (needSyz), it is set. */
-int countDown;
-int forceReduction;
+     struct arrayOfPOLY *f;
+     int needBack;
+     int needSyz;
+     struct pair **grP;  /* if (needSyz), it is set. */
+     int countDown;
+     int forceReduction;
 {
   int r;
   struct gradedPolySet *g;
@@ -221,7 +222,7 @@ int forceReduction;
     serial = i;
     if (!needBack) {
       g = putPolyInG(g,gt,grade,indx,
-		     (struct syz0 *)NULL,1,serial);
+                     (struct syz0 *)NULL,1,serial);
     }else {
       syzp = newSyz0();
       syzp->cf = cxx(1,0,0,rp);
@@ -258,90 +259,90 @@ int forceReduction;
 
     if (KanGBmessage) {
       if (KanGBmessage == 2) {
-	printf("sp([%d,%d],[%d,%d]), ",ig,ii,jg,ji);
-	if (rd ISZERO) {
-	  printf(" 0 \n"); 
-	} else{
-	  printf(" terms=%d, grade=%d, ",pLength(rd),top->grade);
-	  printf(" init=%s, ",POLYToString(head(rd),'*',1));
-	}
+        printf("sp([%d,%d],[%d,%d]), ",ig,ii,jg,ji);
+        if (rd ISZERO) {
+          printf(" 0 \n"); 
+        } else{
+          printf(" terms=%d, grade=%d, ",pLength(rd),top->grade);
+          printf(" init=%s, ",POLYToString(head(rd),'*',1));
+        }
       }else{
-	if (pgrade != top->grade) {
-	  pgrade = top->grade;
-	  printf(" %d",pgrade);
-	  fflush(stdout);
-	}
-	if (rd ISZERO) {
-	  printf("o"); fflush(stdout);
-	}else{
-	  printf("."); fflush(stdout);
-	}
+        if (pgrade != top->grade) {
+          pgrade = top->grade;
+          printf(" %d",pgrade);
+          fflush(stdout);
+        }
+        if (rd ISZERO) {
+          printf("o"); fflush(stdout);
+        }else{
+          printf("."); fflush(stdout);
+        }
       }
     }
 
     if (!(rd ISZERO)) {
       if (needBack || needSyz) {
-		syzp = newSyz0();
-		syzp->cf = syzCf; /* no meaning */
-		syzp->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
-		syzp->syz = cpMult(toSyzCoeff(syzCf),syzp->syz);
-		syzp->syz = ppAdd(syzp->syz,syzPoly);
+        syzp = newSyz0();
+        syzp->cf = syzCf; /* no meaning */
+        syzp->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
+        syzp->syz = cpMult(toSyzCoeff(syzCf),syzp->syz);
+        syzp->syz = ppAdd(syzp->syz,syzPoly);
       }
       
       if (ReduceLowerTerms && !(Sugar)) {
-		rd = (*reductionCdr)(rd,g,needBack,&syz);
-		if (needBack || needSyz) {
-		  /* syzp->cf = ppMult(syz.cf,syzp->cf); no meaning */
-		  syzp->syz = ppAdd(syz.syz,
-							cpMult(toSyzCoeff(syz.cf),syzp->syz)); 
-		}
+        rd = (*reductionCdr)(rd,g,needBack,&syz);
+        if (needBack || needSyz) {
+          /* syzp->cf = ppMult(syz.cf,syzp->cf); no meaning */
+          syzp->syz = ppAdd(syz.syz,
+                            cpMult(toSyzCoeff(syz.cf),syzp->syz)); 
+        }
       }
 
       if(Sugar && (!forceReduction)){grade=top->grade;}else{grade=-1;}whereInG(g,rd,&grade,&indx,Sugar);
       if (KanGBmessage == 2) {
-		printf("(gr,indx)=(%d,%d).\n",grade,indx);
-		/*
-		  printf("sp(%s,%s)-->%s\n",POLYToString(gi,' ',1),
-		  POLYToString(gj,' ',1),
-		  POLYToString(rd,' ',1));
-		  */
+        printf("(gr,indx)=(%d,%d).\n",grade,indx);
+        /*
+          printf("sp(%s,%s)-->%s\n",POLYToString(gi,' ',1),
+          POLYToString(gj,' ',1),
+          POLYToString(rd,' ',1));
+        */
       }
-	
+    
       d = updatePairs(d,rd,grade,indx,g);
       g = putPolyInG(g,rd,grade,indx,syzp,0,-1);
       if (Sugar) { markRedundant0(g,grade,indx);}
       else {markRedundant(g,rd,grade,indx,Sugar);}
 
       if (countDown) {
-		if (eliminated(rd) == 1) {
-		  --countDown;
-		  printf("x"); fflush(stdout);
-		  if (countDown == 0) {
-			printf("\nThe computation of the Groebner basis is suspended because of countDown==0.\n");
-			printf("Note that the result is NOT groebner basis.\n");
-			break;
-		  }
-		}
+        if (eliminated(rd) == 1) {
+          --countDown;
+          printf("x"); fflush(stdout);
+          if (countDown == 0) {
+            printf("\nThe computation of the Groebner basis is suspended because of countDown==0.\n");
+            printf("Note that the result is NOT groebner basis.\n");
+            break;
+          }
+        }
       }
       if (Debug) {
-		outputGradedPairs(d); outputGradedPolySet(g,needSyz);
+        outputGradedPairs(d); outputGradedPolySet(g,needSyz);
       }
     }else{
       if (needSyz) {
-		top->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
-		top->syz = cpMult(toSyzCoeff(syzCf),top->syz);
-		top->syz = ppAdd(top->syz,syzPoly);
-		listP->next = top; top->prev = listP; listP = listP->next;
+        top->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
+        top->syz = cpMult(toSyzCoeff(syzCf),top->syz);
+        top->syz = ppAdd(top->syz,syzPoly);
+        listP->next = top; top->prev = listP; listP = listP->next;
       }
     }
-	if (StopDegree < pgrade) {
-	  fprintf(stderr,"Obtained a partial GB (StopDegree=%d)\n",StopDegree);
-	  if (KanGBmessage) {
-		printf("Computation of the Groebner basis is suspended bacause of StopDegree < computing grade.\n");
-		printf("Note that the result is NOT groebner basis.\n");
-	  }
-	  break;
-	}
+    if (StopDegree < pgrade) {
+      fprintf(stderr,"Obtained a partial GB (StopDegree=%d)\n",StopDegree);
+      if (KanGBmessage) {
+        printf("Computation of the Groebner basis is suspended bacause of StopDegree < computing grade.\n");
+        printf("Note that the result is NOT groebner basis.\n");
+      }
+      break;
+    }
   }
 
   if (KanGBmessage == 2) {
@@ -371,7 +372,7 @@ int forceReduction;
 
   
 static int sugarGrade(struct pair *inode,struct gradedPolySet *grG,
-		      POLY gt,int gtSugarGrade)
+                      POLY gt,int gtSugarGrade)
 {
   int a,b,ans;
   int debug = 0;
@@ -379,10 +380,10 @@ static int sugarGrade(struct pair *inode,struct gradedPolySet *grG,
   b = grade_gen(inode->lcm)-grade_gen(gt);
   /* inode = lcm(f_i, gt) = p f_i = q gt  modulo lower order terms.
      a = tdeg(p), b = tdeg(gt);
-     */
+  */
   if (debug) {
     printf("Sugar grade of sp([%d,%d],[%d,%d]) ",inode->ig,inode->ii,
-	   inode->jg,inode->ji);
+           inode->jg,inode->ji);
     printf("is max(%d+%d,%d+%d)\n",a,inode->ig,b,gtSugarGrade);
   }
   a = a+(inode->ig); /* new sugar degree of p f_i. */
@@ -409,49 +410,49 @@ void toReducedBasis(struct gradedPolySet *grP,int needBack, int needSyz)
     while (grd < grP->maxGrade) {
       set = grP->polys[grd];
       for (i=0; i<set->size; i++) {
-	if (set->del[i] == 0) {
-	  f = set->g[i];
-	  if (KanGBmessage) {
-	    /* printf("(%d,%d)",grd,i);  */
-	    fflush(stdout);
-	  }
-	  rd = reductionCdr_except_grd_i(f,grP,needBack,&syz,grd,i,&reduced);
-	  if (KanGBmessage) {
-	    if (reduced) {
-	      printf(".");
-	    }else{
-	      printf("o");
-	    }
-	    fflush(stdout);
-	  }
-	  if (reduced) {
-	    changed = 1;
-	    set->del[i] = 1;
-	    if (rd != ZERO) {
-	      if (needSyz) {
-		syzp = newSyz0();
-		syzp->cf = syz.cf; /* no meaning */
-		syzp->syz = toSyzPoly(cxx(1,0,0,rd->m->ringp),grd,i);
-		syzp->syz = cpMult(toSyzCoeff(syz.cf),syzp->syz);
-		syzp->syz = ppAdd(syzp->syz,syz.syz);
-		/* rd = c*f + \sum c_{d,i} g_{d,i}
-		   c : syz.cf,  \sum c_{d,j} g_{d,j} : syz.syz.
-		   c*grade^grd*index^i + \sum c_{d,j} grade^d*index^j
-		   grP is a set of polynomials. Polynomials are indexed by
-		   grade and index.
-		 */
-		/* printf("%s, ",POLYToString(syzp->cf,' ',1));
-		printf("%s\n",POLYToString(syzp->syz,' ',1)); */
-	      }else{
-		syzp = NULL;
-	      }
-	      grade = -1; whereInG(grP,rd,&grade,&indx,Sugar);
-	      /* Do not forget to set grade to -1 */
-	      /* printf("grade=%d, indx=%d, ",grade,indx); */
-	      putPolyInG(grP,rd,grade,indx,syzp,0,-1);
-	    }
-	  }
-	}
+        if (set->del[i] == 0) {
+          f = set->g[i];
+          if (KanGBmessage) {
+            /* printf("(%d,%d)",grd,i);  */
+            fflush(stdout);
+          }
+          rd = reductionCdr_except_grd_i(f,grP,needBack,&syz,grd,i,&reduced);
+          if (KanGBmessage) {
+            if (reduced) {
+              printf(".");
+            }else{
+              printf("o");
+            }
+            fflush(stdout);
+          }
+          if (reduced) {
+            changed = 1;
+            set->del[i] = 1;
+            if (rd != ZERO) {
+              if (needSyz) {
+                syzp = newSyz0();
+                syzp->cf = syz.cf; /* no meaning */
+                syzp->syz = toSyzPoly(cxx(1,0,0,rd->m->ringp),grd,i);
+                syzp->syz = cpMult(toSyzCoeff(syz.cf),syzp->syz);
+                syzp->syz = ppAdd(syzp->syz,syz.syz);
+                /* rd = c*f + \sum c_{d,i} g_{d,i}
+                   c : syz.cf,  \sum c_{d,j} g_{d,j} : syz.syz.
+                   c*grade^grd*index^i + \sum c_{d,j} grade^d*index^j
+                   grP is a set of polynomials. Polynomials are indexed by
+                   grade and index.
+                */
+                /* printf("%s, ",POLYToString(syzp->cf,' ',1));
+                   printf("%s\n",POLYToString(syzp->syz,' ',1)); */
+              }else{
+                syzp = NULL;
+              }
+              grade = -1; whereInG(grP,rd,&grade,&indx,Sugar);
+              /* Do not forget to set grade to -1 */
+              /* printf("grade=%d, indx=%d, ",grade,indx); */
+              putPolyInG(grP,rd,grade,indx,syzp,0,-1);
+            }
+          }
+        }
       }
       grd++;
     }

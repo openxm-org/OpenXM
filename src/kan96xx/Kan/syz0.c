@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/syz0.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -18,7 +18,7 @@ static int getSize00OfGradedSet(struct gradedPolySet *g);
 static int positionInPairs(struct pair *top,struct pair *pairs);
 /*  if the top is not in the list pairs, it returns -1. */
 static struct pair *oldPairsToNewPairs(struct pair *opairs,
-				       int *table,int size);
+                                       int *table,int size);
 /* In the function getSyzygy(), reduced Grobner basis *grBases is
    constructed from grG by deleting unnecessary elements.
    The array <<table>> gives the correspondence between the index
@@ -29,7 +29,7 @@ static struct pair *oldPairsToNewPairs(struct pair *opairs,
    Note that the <<prev>> fields are not set properly.   
 */
 struct matrixOfPOLY *getSyzygy01(struct gradedPolySet *reducedBasis,
-				 struct pair *excludedPairs);
+                                 struct pair *excludedPairs);
 /*
    When <<excludedPairs>> is NULL,
    this function computes all syzygies for the <<reducedBasis>>.
@@ -42,8 +42,8 @@ struct matrixOfPOLY *getSyzygy01(struct gradedPolySet *reducedBasis,
 
 /* if (mark[j]), then the simplification is done. */
 void getBackwardTransformation(grG)
-struct gradedPolySet *grG;
-/* grG->polys[i]->mark[j],syz[j] are modified. */
+     struct gradedPolySet *grG;
+     /* grG->polys[i]->mark[j],syz[j] are modified. */
 {
   int i,j;
   struct polySet *ps;
@@ -53,16 +53,16 @@ struct gradedPolySet *grG;
     ps = grG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->mark[j] == 0 && ps->del[j] == 0) {
-	simplifyBT(i,j,grG);
+        simplifyBT(i,j,grG);
       }
     }
   }
 }
 
 void simplifyBT(grd,index,grG)
-int grd;
-int index;
-struct gradedPolySet *grG;
+     int grd;
+     int index;
+     struct gradedPolySet *grG;
 {
   POLY s,r;
   int g0,i0;
@@ -89,9 +89,9 @@ struct gradedPolySet *grG;
 
 
 static POLY getFactor0(grG,grd,index)
-struct gradedPolySet *grG;
-int grd;
-int index;
+     struct gradedPolySet *grG;
+     int grd;
+     int index;
 {
   POLY ans;
   int i,j;
@@ -102,7 +102,7 @@ int index;
     ps = grG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->mark[j] && !(i == grd && j == index)) {
-	ans = ppMult(ps->syz[j]->cf,ans);
+        ans = ppMult(ps->syz[j]->cf,ans);
       }
     }
   }
@@ -110,8 +110,8 @@ int index;
 }
 
 struct arrayOfPOLY *getSyzygy0(grG,zeroPairs)
-struct gradedPolySet *grG;
-struct pair *zeroPairs;
+     struct gradedPolySet *grG;
+     struct pair *zeroPairs;
 {
   struct pair *tmp;
   int size,k,i;
@@ -150,10 +150,10 @@ struct pair *zeroPairs;
 }
 
 struct matrixOfPOLY *getSyzygy(grG,zeroPairs,grBasesp,backwardMatp)
-struct gradedPolySet *grG;
-struct pair *zeroPairs;
-struct gradedPolySet **grBasesp;
-struct matrixOfPOLY **backwardMatp;
+     struct gradedPolySet *grG;
+     struct pair *zeroPairs;
+     struct gradedPolySet **grBasesp;
+     struct matrixOfPOLY **backwardMatp;
 {
   int serial;
   int i,j,kk;
@@ -187,13 +187,13 @@ struct matrixOfPOLY **backwardMatp;
     ps = grG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->del[j] == 0) {
-	fi = ps->g[j];
-	grd = -1;whereInG(*grBasesp,fi,&grd,&indx,Sugar);
-	*grBasesp =
-	  putPolyInG(*grBasesp,fi,grd,indx,newSyz0(),0,serial);
-	table[4*serial] = i; table[4*serial+1] = j;
-	table[4*serial+2] = grd; table[4*serial+3] = indx;
-	serial++;
+        fi = ps->g[j];
+        grd = -1;whereInG(*grBasesp,fi,&grd,&indx,Sugar);
+        *grBasesp =
+          putPolyInG(*grBasesp,fi,grd,indx,newSyz0(),0,serial);
+        table[4*serial] = i; table[4*serial+1] = j;
+        table[4*serial+2] = grd; table[4*serial+3] = indx;
+        serial++;
       }
     }
   }
@@ -229,7 +229,7 @@ struct matrixOfPOLY **backwardMatp;
     printf("zeroPairs = "); outputNode(zeroPairs);
     for (i=0; i<size; i++) {
       printf("old gi=%d, old ii=%d, new gi=%d, new ii=%d\n",
-	     table[4*i],table[4*i+1],table[4*i+2],table[4*i+3]);
+             table[4*i],table[4*i+1],table[4*i+2],table[4*i+3]);
     }
     printf("excludePairs = "); outputNode(excludePairs);
     printf("\n");
@@ -248,7 +248,7 @@ struct matrixOfPOLY **backwardMatp;
     printf("\nb=\n"); printMatrixOfPOLY(b);
     printf("\n\nnc=\n"); printMatrixOfPOLY(nc);
     printf("\n\ndc=\n"); printArrayOfPOLY(dc);
-  }*/
+    }*/
     
   if (KanGBmessage) {printf(":"); fflush(stdout);}
   m2 = getSyzygy1(b,nc,dc);
@@ -263,7 +263,7 @@ struct matrixOfPOLY **backwardMatp;
     }
   }
   /*printf(" ap->n = %d, serial=%d \n",ap->n, serial);
-  printf("\nmp = \n"); printMatrixOfPOLY(mp); */
+    printf("\nmp = \n"); printMatrixOfPOLY(mp); */
 
   if (KanGBmessage) {printf(";"); fflush(stdout);}
   m1 = aaMult(mp,b);
@@ -275,7 +275,7 @@ struct matrixOfPOLY **backwardMatp;
   for (i=0; i<m0->m; i++) {
     if (!isZeroRow(m0,i)) {
       for (j=0; j<m0->n; j++) {
-	getMatrixOfPOLY(ans,kk,j) = getMatrixOfPOLY(m0,i,j);
+        getMatrixOfPOLY(ans,kk,j) = getMatrixOfPOLY(m0,i,j);
       }
       kk++;
     }
@@ -283,7 +283,7 @@ struct matrixOfPOLY **backwardMatp;
   for (i=0; i<m1->m; i++) {
     if (!isZeroRow(m1,i)) {
       for (j=0; j<m1->n; j++) {
-	getMatrixOfPOLY(ans,kk,j) = getMatrixOfPOLY(m1,i,j);
+        getMatrixOfPOLY(ans,kk,j) = getMatrixOfPOLY(m1,i,j);
       }
       kk++;
     }
@@ -291,7 +291,7 @@ struct matrixOfPOLY **backwardMatp;
   for (i=0; i<m2->m; i++) {
     if (!isZeroRow(m2,i)) {
       for (j=0; j<m2->n; j++) {
-	getMatrixOfPOLY(ans,kk,j) = getMatrixOfPOLY(m2,i,j);
+        getMatrixOfPOLY(ans,kk,j) = getMatrixOfPOLY(m2,i,j);
       }
       kk++; if (KanGBmessage) printf("*");
     }
@@ -300,7 +300,7 @@ struct matrixOfPOLY **backwardMatp;
     ans2 = newMatrixOfPOLY(kk,ans->n);
     for (i=0; i<kk; i++) {
       for (j=0; j<ans->n; j++) {
-	getMatrixOfPOLY(ans2,i,j) = getMatrixOfPOLY(ans,i,j);
+        getMatrixOfPOLY(ans2,i,j) = getMatrixOfPOLY(ans,i,j);
       }
     }
     return(ans2);
@@ -311,8 +311,8 @@ struct matrixOfPOLY **backwardMatp;
 }
 
 POLY getSyzPolyFromSp(spij,grG)
-struct pair *spij;
-struct gradedPolySet *grG;
+     struct pair *spij;
+     struct gradedPolySet *grG;
 {
   int ig,ii,jg,ji;
   POLY dk;
@@ -348,7 +348,7 @@ struct gradedPolySet *grG;
 }
 
 static void clearMark(grG)
-struct gradedPolySet *grG;
+     struct gradedPolySet *grG;
 {
   int i,j;
   struct polySet *ps;
@@ -362,9 +362,9 @@ struct gradedPolySet *grG;
 
 
 struct arrayOfPOLY *syzPolyToArrayOfPOLY(size,f,grG)
-int size;
-POLY f; /* f is in the SyzRingp */
-struct gradedPolySet *grG;
+     int size;
+     POLY f; /* f is in the SyzRingp */
+     struct gradedPolySet *grG;
 {
   struct arrayOfPOLY *ap;
   int i,g0,i0,serial;
@@ -416,11 +416,11 @@ struct matrixOfPOLY *getBackwardMatrixOfPOLY(struct gradedPolySet *grG)
     ps = grG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->del[j] == 0) {
-	vec = syzPolyToArrayOfPOLY(inputSize,ps->syz[j]->syz,grG);
-	for (p=0; p<inputSize; p++) {
-	  getMatrixOfPOLY(mat,k,p)=getArrayOfPOLY(vec,p);
-	}
-	k++;
+        vec = syzPolyToArrayOfPOLY(inputSize,ps->syz[j]->syz,grG);
+        for (p=0; p<inputSize; p++) {
+          getMatrixOfPOLY(mat,k,p)=getArrayOfPOLY(vec,p);
+        }
+        k++;
       }
     }
   }
@@ -429,9 +429,9 @@ struct matrixOfPOLY *getBackwardMatrixOfPOLY(struct gradedPolySet *grG)
 
 
 struct matrixOfPOLY *getNC(newG,n,grBases)
-struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
-int n;                        /* The number of G. */
-struct gradedPolySet *grBases; /* G (G-basis) is stored. */
+     struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
+     int n;                        /* The number of G. */
+     struct gradedPolySet *grBases; /* G (G-basis) is stored. */
 {
   int size,i,j,k,ii;
   struct matrixOfPOLY *mat;
@@ -453,11 +453,11 @@ struct gradedPolySet *grBases; /* G (G-basis) is stored. */
     ps = newG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->serial[j] >= 0) {
-	ii = ps->serial[j]; 
-	vec = syzPolyToArrayOfPOLY(n,ps->syz[j]->syz,grBases);
-	for (k=0; k<n; k++) {
-	  getMatrixOfPOLY(mat,ii,k) = getArrayOfPOLY(vec,k);
-	}
+        ii = ps->serial[j]; 
+        vec = syzPolyToArrayOfPOLY(n,ps->syz[j]->syz,grBases);
+        for (k=0; k<n; k++) {
+          getMatrixOfPOLY(mat,ii,k) = getArrayOfPOLY(vec,k);
+        }
       }
     }
   }
@@ -465,7 +465,7 @@ struct gradedPolySet *grBases; /* G (G-basis) is stored. */
 }
   
 struct arrayOfPOLY *getDC(newG)
-struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
+     struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
 {
   int size,i,j,k,ii;
   struct arrayOfPOLY *mat;
@@ -487,8 +487,8 @@ struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
     ps = newG->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->serial[j] >= 0) {
-	ii = ps->serial[j];
-	getArrayOfPOLY(mat,ii) = ps->syz[j]->cf;
+        ii = ps->serial[j];
+        getArrayOfPOLY(mat,ii) = ps->syz[j]->cf;
       }
     }
   }
@@ -499,9 +499,9 @@ struct gradedPolySet *newG;   /* F is stored and indexed by serial. */
 
 /* Syzygy from E-CB */
 struct matrixOfPOLY *getSyzygy1(b,nc,dc)
-struct matrixOfPOLY *b;
-struct matrixOfPOLY *nc;
-struct arrayOfPOLY *dc;
+     struct matrixOfPOLY *b;
+     struct matrixOfPOLY *nc;
+     struct arrayOfPOLY *dc;
 {
   int m,n2,n;
   struct matrixOfPOLY *mat;
@@ -517,11 +517,11 @@ struct arrayOfPOLY *dc;
     for (j=0; j<n; j++) {
       r = ZERO;
       if (i == j) {
-	r = getArrayOfPOLY(dc,i);
+        r = getArrayOfPOLY(dc,i);
       }
       for (k=0; k<n2; k++) {
-	tmp = ppMult(getMatrixOfPOLY(nc,i,k),getMatrixOfPOLY(b,k,j));
-	r = ppAdd(r,tmp);
+        tmp = ppMult(getMatrixOfPOLY(nc,i,k),getMatrixOfPOLY(b,k,j));
+        r = ppAdd(r,tmp);
       }
       getMatrixOfPOLY(mat,i,j) = r;
     }
@@ -530,8 +530,8 @@ struct arrayOfPOLY *dc;
 }
 
 static int isZeroRow(mat,i)
-struct matrixOfPOLY *mat;
-int i;
+     struct matrixOfPOLY *mat;
+     int i;
 {
   int n,j;
   n = mat->n;
@@ -542,15 +542,15 @@ int i;
 }
 
 void errorSyz0(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"Error(syz0.c): %s \n",s);
   exit(10);
 }
     
-			       
+                   
 static void printMatrixOfPOLY(mat)
-struct matrixOfPOLY *mat;
+     struct matrixOfPOLY *mat;
 {
   int n,m,i,j;
   POLY f;
@@ -566,7 +566,7 @@ struct matrixOfPOLY *mat;
 }
 
 static void printArrayOfPOLY(mat)
-struct arrayOfPOLY *mat;
+     struct arrayOfPOLY *mat;
 {
   int n,m,i,j;
   POLY f;
@@ -579,7 +579,7 @@ struct arrayOfPOLY *mat;
 }
 
 struct matrixOfPOLY *getSyzygy01(struct gradedPolySet *reducedBasis,
-				 struct pair *excludePairs)
+                                 struct pair *excludePairs)
 {
   int r;
   struct gradedPolySet *g;
@@ -625,7 +625,7 @@ struct matrixOfPOLY *getSyzygy01(struct gradedPolySet *reducedBasis,
       d = updatePairs(d,gt,grade,indx,g);
       g = putPolyInG(g,gt,grade,indx,newSyz0(),1,ps->serial[j]);
       if (Debugsyz0) {
-	outputGradedPairs(d); outputGradedPolySet(g,1);
+        outputGradedPairs(d); outputGradedPolySet(g,1);
       }
     }
   }
@@ -647,28 +647,28 @@ struct matrixOfPOLY *getSyzygy01(struct gradedPolySet *reducedBasis,
       syzCf = syz.cf;
       
       if (KanGBmessage) {
-	if (pgrade != top->grade) {
-	  pgrade = top->grade;
-	  printf(" %d",pgrade);
-	  fflush(stdout);
-	}else{
-	  if (rd ISZERO) {
-	    printf("o"); fflush(stdout);
-	  }else{
-	    printf("."); fflush(stdout);
-	  }
-	}
+        if (pgrade != top->grade) {
+          pgrade = top->grade;
+          printf(" %d",pgrade);
+          fflush(stdout);
+        }else{
+          if (rd ISZERO) {
+            printf("o"); fflush(stdout);
+          }else{
+            printf("."); fflush(stdout);
+          }
+        }
       }
       
       if (!(rd ISZERO)) {
-	fprintf(stderr,"The given argument of getSyzygy01 is not a g-basis.\n");
-	return((struct matrixOfPOLY *)NULL);
+        fprintf(stderr,"The given argument of getSyzygy01 is not a g-basis.\n");
+        return((struct matrixOfPOLY *)NULL);
       }else{
-	top->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
-	top->syz = cpMult(toSyzCoeff(syzCf),top->syz);
-	top->syz = ppAdd(top->syz,syzPoly);
-	listP->next = top; top->prev = listP; listP = listP->next;
-	listPsize++;
+        top->syz = ppAdd(toSyzPoly(h.a,ig,ii),toSyzPoly(h.b,jg,ji));
+        top->syz = cpMult(toSyzCoeff(syzCf),top->syz);
+        top->syz = ppAdd(top->syz,syzPoly);
+        listP->next = top; top->prev = listP; listP = listP->next;
+        listPsize++;
       }
     }
   }
@@ -700,7 +700,7 @@ static int getSize00OfGradedSet(struct gradedPolySet *g) {
     ps = g->polys[i];
     for (j=0; j<ps->size; j++) {
       if (ps->del[j] == 0) {
-	size += 1;
+        size += 1;
       }
     }
   }
@@ -715,9 +715,9 @@ static int positionInPairs(struct pair *top, struct pair *pairs) {
   if (top == (struct pair *)NULL) return(-1);
   while (tmp != (struct pair *)NULL) {
     if (((top->ig == tmp->ig) && (top->ii == tmp->ii) &&
-	 (top->jg == tmp->jg) && (top->ji == tmp->ji)) ||
-	((top->ig == tmp->jg) && (top->ii == tmp->ji) &&
-	 (top->jg == tmp->ig) && (top->ji == tmp->ii))) {
+         (top->jg == tmp->jg) && (top->ji == tmp->ji)) ||
+        ((top->ig == tmp->jg) && (top->ii == tmp->ji) &&
+         (top->jg == tmp->ig) && (top->ji == tmp->ii))) {
       return(pos);
     }
     pos++;
@@ -727,7 +727,7 @@ static int positionInPairs(struct pair *top, struct pair *pairs) {
 }
 
 static struct pair *oldPairsToNewPairs(struct pair *opairs,
-				       int *table,int size) {
+                                       int *table,int size) {
   /* Never loop up prev field. */
   int ig,ii,jg,ji;
   int p,q;
@@ -739,15 +739,15 @@ static struct pair *oldPairsToNewPairs(struct pair *opairs,
   for (p=0; p<size; p++) {
     if (table[4*p] == ig && table[4*p+1] == ii ) {
       for (q = 0; q<size; q++) {
-	if (table[4*q] == jg && table[4*q+1] == ji) {
-	  ans = newPair(NULL);
-	  *ans = *opairs;
-	  ans->prev = NULL;
-	  ans->ig = table[4*p+2]; ans->ii = table[4*p+3];
-	  ans->jg = table[4*q+2]; ans->ji = table[4*q+3];
-	  ans->next = oldPairsToNewPairs(opairs->next,table,size);
-	  return(ans);
-	}
+        if (table[4*q] == jg && table[4*q+1] == ji) {
+          ans = newPair(NULL);
+          *ans = *opairs;
+          ans->prev = NULL;
+          ans->ig = table[4*p+2]; ans->ii = table[4*p+3];
+          ans->jg = table[4*q+2]; ans->ji = table[4*q+3];
+          ans->next = oldPairsToNewPairs(opairs->next,table,size);
+          return(ans);
+        }
       }
     }
   }

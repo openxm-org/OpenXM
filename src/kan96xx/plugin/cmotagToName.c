@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotagToName.c,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
 #include <stdio.h>
 #include "cmotag.h"
 #define BSIZE 1024
@@ -22,10 +22,10 @@ main() {
     for (i=start=0; i<BSIZE-10; i++) {
       if (s[i] == '\0') goto aa ;
       if (s[i] == '#') {
-	s[i+7] = '\0';
-	if (strcmp(&(s[i+1]),"define") != 0) goto aa ;
-	start = i+8;
-	break;
+        s[i+7] = '\0';
+        if (strcmp(&(s[i+1]),"define") != 0) goto aa ;
+        start = i+8;
+        break;
       }
     }
     i = start;
@@ -44,7 +44,7 @@ main() {
     printf("} else if (p == %s) {\n",a);
     printf("  return(\"%s\");\n",a);
 
-    aa: ;
+  aa: ;
   }
   printf("} else { return(\"Unknown tag\"); }\n");
   printf("}\n");

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/matrix.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
 /* matrix.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -7,11 +7,11 @@
 #include "extern2.h"
 
 #include "matrix.h"   /* ind() and ind2() are defined. */
-                      /* You must use n and n2. */
+/* You must use n and n2. */
 
 struct arrayOfPOLY *aaAdd(aa,bb)
-struct arrayOfPOLY *aa,*bb;
-/* this function has not been tested yet. */
+     struct arrayOfPOLY *aa,*bb;
+     /* this function has not been tested yet. */
 {
   int i;
   POLY *r;
@@ -33,7 +33,7 @@ struct arrayOfPOLY *aa,*bb;
 }
 
 struct matrixOfPOLY *aaMult(aa,bb)
-struct matrixOfPOLY *aa,*bb;
+     struct matrixOfPOLY *aa,*bb;
 {
   POLY *a;
   POLY *b;
@@ -54,7 +54,7 @@ struct matrixOfPOLY *aa,*bb;
     for (j=0; j<n2; j++) {
       tmp = ZERO;
       for (k=0; k<n; k++) {
-	tmp = ppAddv(tmp, ppMult( a[ind(i,k)], b[ind2(k,j)]));
+        tmp = ppAddv(tmp, ppMult( a[ind(i,k)], b[ind2(k,j)]));
       }
       r[ind2(i,j)] = tmp;
     }
@@ -69,7 +69,7 @@ struct matrixOfPOLY *aa,*bb;
   
 /****************  error handler ************************/
 void errorMatrix(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"matrix.c: %s\n",str);
   exit(10);
@@ -78,8 +78,8 @@ char *str;
 /********************************************************/
 
 struct arrayOfPOLY *newArrayOfPOLY(size)
-int size;
-/* if size<=0, it returns [0,null]. */
+     int size;
+     /* if size<=0, it returns [0,null]. */
 {
   struct arrayOfPOLY *ap;
   ap = (struct arrayOfPOLY *)sGC_malloc(sizeof(struct arrayOfPOLY));
@@ -95,8 +95,8 @@ int size;
 }
 
 struct matrixOfPOLY *newMatrixOfPOLY(m,n)
-int m,n;
-/* if size<=0, it returns [0,null]. */
+     int m,n;
+     /* if size<=0, it returns [0,null]. */
 {
   struct matrixOfPOLY *ap;
   ap = (struct matrixOfPOLY *)sGC_malloc(sizeof(struct matrixOfPOLY));
@@ -113,9 +113,9 @@ int m,n;
 
 
 struct arrayOfPOLY *carrayToArrayOfPOLY(a,size)
-POLY a[];
-int size;
-/* a[] is read only. */
+     POLY a[];
+     int size;
+     /* a[] is read only. */
 {
   struct arrayOfPOLY *ans;
   int i;

@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.4 1999/11/27 13:24:41 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.5 2000/02/01 02:38:58 noro Exp $ */
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -195,11 +195,11 @@ cmoOutGMPCoeff_new(mpz_srcptr x)
       outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
       outRawInt32(((unsigned long)xp[s])>>32);
     }
-    if ( !(xsize&1) ) {
-      outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
-      outRawInt32(((unsigned long)xp[s])>>32);
-    } else
-      outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
+  if ( !(xsize&1) ) {
+    outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
+    outRawInt32(((unsigned long)xp[s])>>32);
+  } else
+    outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
   return ( ABS (xsize) );
 }
 
@@ -231,7 +231,7 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
   if (xsize == 0)
     {
       x->_mp_size = 0;
-      return 1;			/* we've read 4 bytes */
+      return 1;         /* we've read 4 bytes */
     }
 
   xsize0 = (xsize+1)/2;
@@ -241,11 +241,11 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
 
   for (i=0; i<xsize0-1; i++) {
     xp[i] = ((unsigned long)getRawInt32(cb))
-           |(((unsigned long)getRawInt32(cb))<<32);
+      |(((unsigned long)getRawInt32(cb))<<32);
   }
   if ( !(xsize&1) )
     xp[i] = ((unsigned long)getRawInt32(cb))
-           |(((unsigned long)getRawInt32(cb))<<32);
+      |(((unsigned long)getRawInt32(cb))<<32);
   else
     xp[i] = (unsigned long)getRawInt32(cb);
 
@@ -336,7 +336,7 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
   if (xsize == 0)
     {
       x->_mp_size = 0;
-      return 1;			/* we've read 4 bytes */
+      return 1;         /* we've read 4 bytes */
     }
 
   if (x->_mp_alloc < xsize)

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.5 2000/03/09 12:04:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.6 2000/06/08 08:35:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -10,7 +10,7 @@
 */
 
 void Kusage(ob)
-struct object ob;
+     struct object ob;
 {
   char *s;
   printf("\n");
@@ -27,11 +27,11 @@ struct object ob;
 #define fppp fprintf
 
 void Kusage2(fp,s)
-FILE *fp;
-char *s;
+     FILE *fp;
+     char *s;
 {
   /*int n,i; fprintf(stderr,"\n%d: ",strlen(s));
-  for (i=0; i<strlen(s); i++) fprintf(stderr," %x",s[i]);*/
+    for (i=0; i<strlen(s); i++) fprintf(stderr," %x",s[i]);*/
   if (strcmp(s,"add")==0) {
     fppp(fp,"<< obj1 obj2 add obj3 >>\n");
     fppp(fp,"obj3 is the sum of obj1 and obj2.\n");
@@ -235,7 +235,7 @@ char *s;
     fppp(fp,"Example:  5 2 idiv ::  ===> 2\n");
   }else if (strcmp(s,"ifelse") == 0) {
     fppp(fp,"<< condition { true case } { false case } ifelse >>\n"); /*:*/
-                                          /* Tenuki mark --------------^ */
+    /* Tenuki mark --------------^ */
     fppp(fp,"integer condition;\n");
     fppp(fp,"If condition is non-zero, then true-case will be executed,\n");
     fppp(fp,"else false-case will be executed.\n");
@@ -474,7 +474,7 @@ char *s;
     fppp(fp,"file fd; string s;\n");
     fppp(fp,"Write the string s to the file fd.\n");
     fppp(fp,"cf. [(PrintDollar)] system_variable, file, closefile\n");
-/******* macros ************/
+    /******* macros ************/
   }else if (strcmp(s,"timer")==0) {
     fppp(fp,"<< { executable array } timer >>\n"); /*:*/
   }else{

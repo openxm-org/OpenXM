@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -17,8 +17,8 @@ struct outputQueue {
 static void putstr(char *s,struct outputQueue *oq);
 
 static void putstr(s,oq)
-char *s;
-struct outputQueue *oq;
+     char *s;
+     struct outputQueue *oq;
 {
   int i;
   char **tmp;
@@ -51,9 +51,9 @@ struct outputQueue *oq;
 #define multStr(c) (c==' '?" ":(c=='\0'?"":"*"))
 
 char *POLYToString(f,multSym,brace)
-POLY f;
-int multSym;
-int brace;
+     POLY f;
+     int multSym;
+     int brace;
 {
   extern int Wrap;
   int i,j,jj,fi;
@@ -93,30 +93,30 @@ int brace;
     /*print coefficient*/
     if (fi == 0) {
       if (isConstant(f)) {
-	putstr(coeffToString(f->coeffp),&oq);
+        putstr(coeffToString(f->coeffp),&oq);
       }else if (isOne(f->coeffp)) {
-	/* do nothing */
+        /* do nothing */
       }else if (isMinusOne(f->coeffp)) {
-	putstr("-",&oq);
+        putstr("-",&oq);
       }else{
-	putstr(coeffToString(f->coeffp),&oq);
-	putstr(multStr(multSym),&oq);
+        putstr(coeffToString(f->coeffp),&oq);
+        putstr(multStr(multSym),&oq);
       }
     }else{
       if (isConstant(f)) {
-	if (isNegative(f->coeffp)) {
-	  putstr(coeffToString(f->coeffp),&oq);
-	}else{
-	  putstr("+",&oq);
-	  putstr(coeffToString(f->coeffp),&oq);
-	}
+        if (isNegative(f->coeffp)) {
+          putstr(coeffToString(f->coeffp),&oq);
+        }else{
+          putstr("+",&oq);
+          putstr(coeffToString(f->coeffp),&oq);
+        }
       } else if (isOne(f->coeffp)) {
-	putstr("+",&oq);
+        putstr("+",&oq);
       }else if (isMinusOne(f->coeffp)) {
-	putstr("-",&oq);
+        putstr("-",&oq);
       }else{
-	if (!isNegative(f->coeffp)) putstr("+",&oq);
-	putstr(coeffToString(f->coeffp),&oq);
+        if (!isNegative(f->coeffp)) putstr("+",&oq);
+        putstr(coeffToString(f->coeffp),&oq);
         putstr(multStr(multSym),&oq);
       }
     }
@@ -125,34 +125,34 @@ int brace;
     for (jj=0; jj<n*2; jj++) {
       j = xout[jj];
       if (j <n) {
-	if (f->m->e[j].x) {
-	  vi++;
-	  if (vi != 1) putstr(multStr(multSym),&oq);
-	  putstr(xnames[j],&oq);
-	  if (f->m->e[j].x >= 2) {
-	    putstr("^",&oq);
-	    putstr(intToString(f->m->e[j].x),&oq);
-	  }else if (f->m->e[j].x < 0) {
-	    putstr("^(",&oq);
-	    putstr(intToString(f->m->e[j].x),&oq);
-	    putstr(")",&oq);
-	  }
-	}
+        if (f->m->e[j].x) {
+          vi++;
+          if (vi != 1) putstr(multStr(multSym),&oq);
+          putstr(xnames[j],&oq);
+          if (f->m->e[j].x >= 2) {
+            putstr("^",&oq);
+            putstr(intToString(f->m->e[j].x),&oq);
+          }else if (f->m->e[j].x < 0) {
+            putstr("^(",&oq);
+            putstr(intToString(f->m->e[j].x),&oq);
+            putstr(")",&oq);
+          }
+        }
       }else {
-	j = j-n;  
-	if (f->m->e[j].D) {
-	  vi++;
-	  if (vi != 1) putstr(multStr(multSym),&oq);
-	  putstr(dnames[j],&oq);
-	  if (f->m->e[j].D >= 2) {
-	    putstr("^",&oq);
-	    putstr(intToString(f->m->e[j].D),&oq);
-	  }else if (f->m->e[j].D < 0) {
-	    putstr("^(",&oq);
-	    putstr(intToString(f->m->e[j].D),&oq);
-	    putstr(")",&oq);
-	  }
-	}
+        j = j-n;  
+        if (f->m->e[j].D) {
+          vi++;
+          if (vi != 1) putstr(multStr(multSym),&oq);
+          putstr(dnames[j],&oq);
+          if (f->m->e[j].D >= 2) {
+            putstr("^",&oq);
+            putstr(intToString(f->m->e[j].D),&oq);
+          }else if (f->m->e[j].D < 0) {
+            putstr("^(",&oq);
+            putstr(intToString(f->m->e[j].D),&oq);
+            putstr(")",&oq);
+          }
+        }
       }
     }
     fi++;
@@ -183,14 +183,14 @@ int brace;
 }
 
 char *KPOLYToString(f)
-POLY f;
+     POLY f;
 {
   extern int OutputStyle;
   return(POLYToString(f,OutputStyle,0));
 }
 
 isOne(c)
-struct coeff *c;
+     struct coeff *c;
 {
   switch(c->tag) {
   case INTEGER:
@@ -208,7 +208,7 @@ struct coeff *c;
   }
 }
 isMinusOne(c)
-struct coeff *c;
+     struct coeff *c;
 {
   switch(c->tag) {
   case INTEGER:
@@ -226,7 +226,7 @@ struct coeff *c;
 
 }
 isNegative(c)
-struct coeff *c;
+     struct coeff *c;
 {
   switch(c->tag) {
   case INTEGER:
@@ -245,7 +245,7 @@ struct coeff *c;
 }
 
 isConstant(f)
-POLY f;
+     POLY f;
 {
   int i;
   int n;
@@ -258,7 +258,7 @@ POLY f;
 }
 
 void errorOutput(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"Error(output.c):%s\n",s);
   exit(15);

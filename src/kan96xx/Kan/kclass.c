@@ -1,10 +1,10 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.3 2001/04/12 06:48:26 takayama Exp $ */
 /* kclass.c,  1997, 3/1
    This module handles class data base.
    This is a top level and provides an interface for sm1 for Sclass objects.
    Main processing is done in Kclass/*
-   See, Kclass/sample.h, Kclass/sample.c  ;
-   grep the keyword CLASSNAME_sampleClass
+                                      See, Kclass/sample.h, Kclass/sample.c  ;
+                                      grep the keyword CLASSNAME_sampleClass
 */
 #include <stdio.h>
 #include "datatype.h"
@@ -30,32 +30,32 @@ initClassDataBase() {
   ClassTypes[CLASSNAME_OPERANDSTACK] = CLASS_INTERNAL;
   ClassNames[CLASSNAME_OPERANDSTACK] = "Class.OperandStack";
   ClassDictionaries[CLASSNAME_OPERANDSTACK] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
   ClassTypes[CLASSNAME_ERROR_PACKET] = CLASS_OBJ;
   ClassNames[CLASSNAME_ERROR_PACKET] = "Class.ErrorPacket";
   ClassDictionaries[CLASSNAME_ERROR_PACKET] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
   ClassTypes[CLASSNAME_CONTEXT] = CLASS_INTERNAL;
   ClassNames[CLASSNAME_CONTEXT] = "Class.Context";
   ClassDictionaries[CLASSNAME_CONTEXT] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
   ClassTypes[CLASSNAME_GradedPolySet] = CLASS_INTERNAL;
   ClassNames[CLASSNAME_GradedPolySet] = "Class.GradedPolySet";
   ClassDictionaries[CLASSNAME_GradedPolySet] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
   ClassTypes[CLASSNAME_mathcap] = CLASS_OBJ;
   ClassNames[CLASSNAME_mathcap] = "Class.mathcap";
   ClassDictionaries[CLASSNAME_mathcap] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
   ClassTypes[CLASSNAME_CMO] = CLASS_OBJ;
   ClassNames[CLASSNAME_CMO] = "Class.CMO";
   ClassDictionaries[CLASSNAME_CMO] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
   ClassTypes[CLASSNAME_indeterminate] = CLASS_OBJ;
   ClassNames[CLASSNAME_indeterminate] = "Class.indeterminate";
@@ -76,7 +76,7 @@ initClassDataBase() {
   ClassTypes[CLASSNAME_sampleClass] = CLASS_OBJ;
   ClassNames[CLASSNAME_sampleClass] = "Class.sampleClass";
   ClassDictionaries[CLASSNAME_sampleClass] = (struct object *)NULL;
-                           /* We have to creat new dictionary in a future. */
+  /* We have to creat new dictionary in a future. */
 
 }
 
@@ -141,8 +141,8 @@ int KclassEqualQ(struct object ob1,struct object ob2) {
     return(eqSampleClass(KopSampleClass(ob1),KopSampleClass(ob2)));
     break;
   case CLASSNAME_indeterminate:
-	return(KooEqualQ(KopIndeterminate(ob1),KopIndeterminate(ob2)));
-	break;
+    return(KooEqualQ(KopIndeterminate(ob1),KopIndeterminate(ob2)));
+    break;
   default:
     errorKan1("%s\n","kclass.c (KclassEqualQ cannot compare these objects.)");
     break;
@@ -231,7 +231,7 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
       rob = KpoIndeterminate(ob1);
     }else if (strcmp(ccc,"mathcap") == 0) {
       /* You should check ob1 contains mathcap data or not.
-	 I've not yet written them.
+         I've not yet written them.
       */
       rob = KpoMathCap(&ob1);
     }else if (strcmp(ccc,"tree") == 0) {
@@ -256,31 +256,31 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
     switch(ectag(ob1)) {
     case CLASSNAME_sampleClass:
       if (strcmp(ccc,"sampleClass") == 0) {
-	rob = KpoSampleClass(&ob1);
+        rob = KpoSampleClass(&ob1);
       }else{
-	errorKan1("%s\n","KclassDataCOnversion: this type of data conversion from class object to class object is not supported.");
+        errorKan1("%s\n","KclassDataCOnversion: this type of data conversion from class object to class object is not supported.");
       }
       break;
     default:
-	errorKan1("%s\n","KclassDataConversion: this type of data conversion from class object to class object is not supported.");
+      errorKan1("%s\n","KclassDataConversion: this type of data conversion from class object to class object is not supported.");
     }
     break;
   case 3:
     key = KopString(ob2);  /* target data type */
     if (key[0] == 't' || key[0] =='e') {
       if (strcmp(key,"type?")==0) {
-	rob = KpoInteger(ob1.tag);
-	return(rob);
+        rob = KpoInteger(ob1.tag);
+        return(rob);
       }else if (strcmp(key,"type??")==0) {
-	if (ob1.tag != Sclass) {
-	  rob = KpoInteger(ob1.tag);
-	}else {
-	  rob = KpoInteger(ectag(ob1));
-	}
-	return(rob);
+        if (ob1.tag != Sclass) {
+          rob = KpoInteger(ob1.tag);
+        }else {
+          rob = KpoInteger(ectag(ob1));
+        }
+        return(rob);
       }else if (strcmp(key,"error")==0) {
-	rob = KnewErrorPacketObj(ob1);
-	return(rob);
+        rob = KnewErrorPacketObj(ob1);
+        return(rob);
       }
     }
 
@@ -288,48 +288,48 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
     switch(ectag(ob1)) {
     case CLASSNAME_sampleClass:
       if (strcmp(key,"array") == 0) {
-	rob = *(KopSampleClass(ob1));
+        rob = *(KopSampleClass(ob1));
       }else{
-	errorKan1("%s\n","KclassDataCOnversion: this type of data conversion from class object to primitive object is not supported.");
+        errorKan1("%s\n","KclassDataCOnversion: this type of data conversion from class object to primitive object is not supported.");
       }
       break;
     case CLASSNAME_mathcap:
       if (strcmp(key,"array") == 0) {
-	rob = newObjectArray(2);
-	ob3 = KpoString("mathcap-object");
-	putoa(rob,0,ob3);
-	putoa(rob,1,*(KopMathCap(ob1)));
+        rob = newObjectArray(2);
+        ob3 = KpoString("mathcap-object");
+        putoa(rob,0,ob3);
+        putoa(rob,1,*(KopMathCap(ob1)));
       }else{
-	errorKan1("%s\n","KclassDataConversion: this type of data conversion from class object mathcap to primitive object is not supported.");
+        errorKan1("%s\n","KclassDataConversion: this type of data conversion from class object mathcap to primitive object is not supported.");
       }
       break;
     case CLASSNAME_indeterminate:
       if (strcmp(key,"string") == 0) {
-	rob = KopIndeterminate(ob1);
+        rob = KopIndeterminate(ob1);
       }else {
-	errorKan1("%s\n","KclassDataConversion: interminate-->?? is not supported..");
+        errorKan1("%s\n","KclassDataConversion: interminate-->?? is not supported..");
       }
       break;
     case CLASSNAME_tree:
       if (strcmp(key,"array") == 0) {
-	rob = KopTree(ob1);
+        rob = KopTree(ob1);
       }else {
-	errorKan1("%s\n","KclassDataConversion: tree-->?? is not supported..");
+        errorKan1("%s\n","KclassDataConversion: tree-->?? is not supported..");
       }
       break;
     case CLASSNAME_recursivePolynomial:
       if (strcmp(key,"string") == 0) {
-	errorKan1("%s\n","Translation of recursive polynomial to a string should be implemented.");
+        errorKan1("%s\n","Translation of recursive polynomial to a string should be implemented.");
       }else if (strcmp(key,"poly") == 0) {
-	rob = recursivePolyToPoly(ob1);
+        rob = recursivePolyToPoly(ob1);
       }else if (strcmp(key,"array") == 0) {
-	rob = KopRecursivePolynomial(ob1);
+        rob = KopRecursivePolynomial(ob1);
       }else {
-	errorKan1("%s\n","KclassDataConversion: recursivePoly-->?? is not supported..");
+        errorKan1("%s\n","KclassDataConversion: recursivePoly-->?? is not supported..");
       }
       break;
     default:
-	errorKan1("%s\n","KclassDataConversion: this type of data conversion from class object to primitive object is not supported.");
+      errorKan1("%s\n","KclassDataConversion: this type of data conversion from class object to primitive object is not supported.");
     }
     break;
   }

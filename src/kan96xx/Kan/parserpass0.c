@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 /* parserpass0.c */
 /*  In this preprocessor, for example, the expression
       x^2+y^2-4+x y;
@@ -36,7 +36,7 @@ static struct tokens flush();
 
 
 static int get0()
-/* get a letter from String0 */
+     /* get a letter from String0 */
 {
   int c;
   c = String0[Strp0++];
@@ -46,8 +46,8 @@ static int get0()
 }
 
 static put0(c)
-int c;
-/* put a letter on Buf0 */
+     int c;
+     /* put a letter on Buf0 */
 {
   char *new; int i;
   Buf0[Exist0++] = c;
@@ -86,14 +86,14 @@ static struct tokens flush()
 }
 
 static isSpace0(c)
-int c;
+     int c;
 {
   if (c <= ' ') return(1);
   else return(0);
 }
 
 static int isSymbol0(c)
-int c;
+     int c;
 {
   if ((c == '+') ||
       (c == '-') ||
@@ -108,14 +108,14 @@ int c;
 }
 
 static int isNumber0(c)
-int c;
+     int c;
 {
   if ((c>='0') && (c<='9')) return(1);
   else return(0);
 }
 
 static struct tokens getoken_pass0(kind)
-actionType kind;
+     actionType kind;
 {
   static int c;
   static struct tokens rnull;
@@ -133,33 +133,33 @@ actionType kind;
       else return(rnull);
     } else if (isSpace0(c)) {
       if (Exist0) {
-	c = get0(); return(flush());
+        c = get0(); return(flush());
       }else {
-	while (isSpace0(c=get0())) ;
+        while (isSpace0(c=get0())) ;
       }
     } else if (isSymbol0(c)) {
       if (Exist0) return(flush());
       else {
-	put0(c);
-	c = get0();
-	return(flush());
+        put0(c);
+        c = get0();
+        return(flush());
       }
     } else if (isNumber0(c)) {
       put0(c);
       c = get0();
       while (isNumber0(c)) {
-	put0(c);
-	c = get0();
+        put0(c);
+        c = get0();
       }
       return(flush());
     } else { /* identifier */
       put0(c);
       c =get0();
       while ((!isSymbol0(c)) &&
-	     (!isSpace0(c))  &&
-	     (c != EOF)) {
-	put0(c);
-	c = get0();
+             (!isSpace0(c))  &&
+             (c != EOF)) {
+        put0(c);
+        c = get0();
       }
       return(flush());
     }
@@ -172,8 +172,8 @@ static char *Buf = Buftmp;
 static int Buflimit = STRBUFMAX;
 
 static putstr(str,kind)
-char str[]; /* string to be outputted */
-actionType kind; /* kind is INIT or PUT */
+     char str[]; /* string to be outputted */
+     actionType kind; /* kind is INIT or PUT */
 {
   static int ptr;
   int i;
@@ -192,11 +192,11 @@ actionType kind; /* kind is INIT or PUT */
       fprintf(stderr,"Increasing Buf to %d.\n",2*Buflimit);
       newbuf = (char *) sGC_malloc(2*Buflimit);
       if (newbuf == (char *)NULL) {
-	fprintf(stderr,"\nNo memory in putstr() in parserpass0.c\n");
-	exit(20);
+        fprintf(stderr,"\nNo memory in putstr() in parserpass0.c\n");
+        exit(20);
       }
       for (k=0; k<Buflimit; k++) {
-	newbuf[k] = Buf[k];
+        newbuf[k] = Buf[k];
       }
       Buf = newbuf;
       Buflimit *= 2;
@@ -207,8 +207,8 @@ actionType kind; /* kind is INIT or PUT */
 
 
 char *str2strPass0(string,ringp)
-char *string;
-struct ring *ringp;
+     char *string;
+     struct ring *ringp;
 {
 
   struct tokens ptoken;  /* previous token */
@@ -249,31 +249,31 @@ struct ring *ringp;
     if (inputTranslation && (ptoken.kind == ID)) {
       /* Do the input translation for identifier*/
       for (i=0; i<n; i++) {
-	if (strcmp(ptoken.token,ringp->x[i]) == 0) {
-	  sprintf(work,"x%d",i);
-	  putstr(work,PUT);
-	  i = -1;
-	  break; /* break for */
-	}
-	if (strcmp(ptoken.token,ringp->D[i]) == 0) {
-	  sprintf(work,"d%d",i);
-	  putstr(work,PUT);
-	  i = -1;
-	  break; /* break for */
-	}
+        if (strcmp(ptoken.token,ringp->x[i]) == 0) {
+          sprintf(work,"x%d",i);
+          putstr(work,PUT);
+          i = -1;
+          break; /* break for */
+        }
+        if (strcmp(ptoken.token,ringp->D[i]) == 0) {
+          sprintf(work,"d%d",i);
+          putstr(work,PUT);
+          i = -1;
+          break; /* break for */
+        }
       }
       if (strlen(ptoken.token)>0  && (ptoken.token)[0] == '@') {
-	putstr(ptoken.token,PUT);
-	i = -1;
+        putstr(ptoken.token,PUT);
+        i = -1;
       }
       if (i != -1) { /* very dirty code */
-	fprintf(stderr,"\n Undefined identifier %s. \n",ptoken.token);
-	putstr(ptoken.token,PUT);
+        fprintf(stderr,"\n Undefined identifier %s. \n",ptoken.token);
+        putstr(ptoken.token,PUT);
       }
       /* end of input translations */
     }else { 
       if (ptoken.token != (char *)NULL) {
-	putstr(ptoken.token,PUT);
+        putstr(ptoken.token,PUT);
       }
     }
     /* if ctoken.token is ";" then end */
@@ -287,10 +287,10 @@ struct ring *ringp;
     }
     
     if (((ptoken.kind == ID) || (ptoken.kind == KAZU) || (ptoken.kind == ')'))
-	&&
-	((ctoken.kind == ID) || (ctoken.kind == KAZU) || (ctoken.kind == '(')))
+        &&
+        ((ctoken.kind == ID) || (ctoken.kind == KAZU) || (ctoken.kind == '(')))
       {
-	putstr(" * ",PUT);
+        putstr(" * ",PUT);
       }
     if (ptoken.token != (char *)NULL) sGC_free(ptoken.token);
     ptoken = ctoken;
@@ -300,14 +300,14 @@ struct ring *ringp;
   
   
 /*  
-main() {
-  char str[200];
-  struct ring r;
-  static char *x[]={"x","y","z"};
-  static char *D[]={"Dx","Dy","Dz"};
-  r.n = 3;
-  r.x = x; r.D = D;
-  gets(str);
-  printf("%s\n",str2strPass0(str,&r));
-}
+    main() {
+    char str[200];
+    struct ring r;
+    static char *x[]={"x","y","z"};
+    static char *D[]={"Dx","Dy","Dz"};
+    r.n = 3;
+    r.x = x; r.D = D;
+    gets(str);
+    printf("%s\n",str2strPass0(str,&r));
+    }
 */

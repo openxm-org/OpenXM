@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1pvm.c,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
 #include <stdio.h>
 #include "pvm3.h"
 #define SLAVENAME "slave3"
@@ -30,29 +30,29 @@ static  struct pvmhostinfo *Hostp[MAXHOSTS+1];
 
 KpvmStartSlaves(char *name,int nproc) {
   int numt,i,info;
-    /* enroll in pvm */
-    Nproc = nproc;
-    Mytid = pvm_mytid();
-    if (Nproc > MAXHOSTS) {
-      Nproc = MAXHOSTS-1;
-      fprintf(stderr,"Too many tasks. It is set to %d\n",Nproc);
+  /* enroll in pvm */
+  Nproc = nproc;
+  Mytid = pvm_mytid();
+  if (Nproc > MAXHOSTS) {
+    Nproc = MAXHOSTS-1;
+    fprintf(stderr,"Too many tasks. It is set to %d\n",Nproc);
+  }
+  /* start up slave tasks */
+  numt=pvm_spawn(name, (char**)0, 0, "", Nproc, Tids);
+  if( numt < Nproc ){
+    fprintf(stderr,"Trouble spawning slaves. Aborting. Error codes are:\n");
+    for( i=numt ; i<Nproc ; i++ ) {
+      printf("TID %d %d\n",i,Tids[i]);
     }
-    /* start up slave tasks */
-    numt=pvm_spawn(name, (char**)0, 0, "", Nproc, Tids);
-    if( numt < Nproc ){
-       fprintf(stderr,"Trouble spawning slaves. Aborting. Error codes are:\n");
-       for( i=numt ; i<Nproc ; i++ ) {
-          printf("TID %d %d\n",i,Tids[i]);
-       }
-       for( i=0 ; i<numt ; i++ ){
-          pvm_kill( Tids[i] );
-       }
-       pvm_exit();
-       PvmStarted = 0;
-       return(-1);
+    for( i=0 ; i<numt ; i++ ){
+      pvm_kill( Tids[i] );
     }
-    PvmStarted = 1;
-    return(0);
+    pvm_exit();
+    PvmStarted = 0;
+    return(-1);
+  }
+  PvmStarted = 1;
+  return(0);
 }
     
 int KpvmMcast(char *comm) {
@@ -77,9 +77,9 @@ int KpvmStopSlaves() {
   pvm_mcast(Tids, Nproc, 10);
   /*
     for (i=0; i<numt; i++) {
-      pvm_kill(Tids[i]);
+    pvm_kill(Tids[i]);
     }
-    */
+  */
 
   /* Program Finished exit PVM before stopping */
   PvmStarted = 0;
@@ -154,7 +154,7 @@ struct object KpvmJobPool(struct object obj) {
       pvm_pkint(&remaining,1,1);
       pvm_pkstr(darray[remaining]);
       if (KpvmVerbose)
-	printf("Sending the message <<%s>> of the type 10.\n",darray[remaining]);
+        printf("Sending the message <<%s>> of the type 10.\n",darray[remaining]);
       pvm_send(rtid, 10);
     }
 

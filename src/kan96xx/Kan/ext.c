@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.3 2000/02/24 12:33:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.4 2000/03/09 12:04:52 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,7 +26,7 @@ static void mywait() {
   for (i=0; i<Mycp; i++) {
     if (Mychildren[i]  == pid) {
       for (j=i; j<Mycp-1; j++) {
-	Mychildren[j] = Mychildren[j+1];
+        Mychildren[j] = Mychildren[j+1];
       }
       if (Mycp > 0) Mycp--;
     }
@@ -133,143 +133,143 @@ struct object Kextension(struct object obj)
     if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT))
       errorKan1("%s\n","The number must be 0, 1 or 2.");
     putUserDictionary2((char *)NULL,0,0,m | SET_ATTR_FOR_ALL_WORDS,
-		       CurrentContextp->userDictionary);
+                       CurrentContextp->userDictionary);
   }else if (strcmp(key,"keywords")==0) {
     if (size != 1) errorKan1("%s\n","[(keywords)] extension.");
     rob = showSystemDictionary(1);
     /*  }else if (strcmp(key,"fork0")==0) {
-	if (size != 2) errorKan1("%s\n","[(fork0) sss] extension.");
-	m = fork();
-	if (m>0) { rob = KpoInteger(m); }
-	else {
-	  system(KopString(getoa(obj,1))); exit(0);
-	} */
-    }else if (strcmp(key,"defaultPolyRing")==0) {
-      if (size != 2) errorKan1("%s\n","[(defaultPolyRing) n] extension.");
-      rob = KdefaultPolyRing(getoa(obj,1));
-    }else if (strcmp(key,"getenv")==0) {
-      if (size != 2) errorKan1("%s\n","[(getenv) envstr] extension.");
-      obj1 = getoa(obj,1);
-      if (obj1.tag != Sdollar) errorKan1("%s\n","[(getenv) envstr] extension");
-      abc = getenv(KopString(obj1));
-      if (abc == NULL) {
-	rob = NullObject;
-      }else{
-	abc2 = (char *)sGC_malloc(sizeof(char)*(strlen(abc)+2));
-	strcpy(abc2,abc);
-	rob = KpoString(abc2);
-      }
-    }else if (strcmp(key,"stat")==0) {
-      if (size != 2) errorKan1("%s\n","[(stat) fname] extension.");
-      obj1 = getoa(obj,1);
-      if (obj1.tag != Sdollar) errorKan1("%s\n","[(stat) fname] extension ; string fname.");
-      m = stat(KopString(obj1),&buf);
-      rob = newObjectArray(2);
-      if (m == -1) {
-	/* fail */
-	obj2 = NullObject;
-	putoa(rob,0,obj2);
-	obj3 = newObjectArray(2);
-	putoa(obj3,0,KpoString("error no"));
-	putoa(obj3,1,KpoInteger(errno));
-	putoa(rob,1,obj3);
-      }else{
-	/* success */
-	putoa(rob,0,KpoInteger(0));
-    obj3 = newObjectArray(1);
-	putoa(obj3,0,KpoInteger((int) buf.st_size));
-	putoa(rob,1,obj3); /* We have not yet read buf fully */
-      }
-    }else if (strcmp(key,"forkExec")==0) {
-      if (size != 4) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension.");
-      obj1 = getoa(obj,1);
-      if (obj1.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array argList.");
-      obj2 = getoa(obj,2);
-      if (obj2.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array fdList.");
-      obj3 = getoa(obj,3);
-      if (obj3.tag != Sinteger) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. integer sigblock.");
-      m = KopInteger(obj3);  /* m == 1 : block ctrl-C. */
-      argListc = getoaSize(obj1);
-      fdListc =  getoaSize(obj2);
-      if ((m = fork()) > 0) {
-	/* parent */
-	signal(SIGCHLD,mywait); /* to kill Zombie */
-	Mychildren[Mycp++] = m;
-	if (Mycp >= MYCP_SIZE-1) {
-	  errorKan1("%s\n","Child process table is full.\n");
-	  Mycp = 0;
-	}
-	rob = KpoInteger(m);
-	/* Done */
-      }else{
-	/* Child */
-	for (i=0; i<fdListc; i++) {
-	  /* close the specified files */
-	  close(KopInteger(getoa(obj2,i)));
-	}
-	/* execl */
-	if (m == 1) {
-	  {
-	    sigset_t sss;
-	    sigemptyset(&sss);
-	    sigaddset(&sss,SIGINT);
-	    sigprocmask(SIG_BLOCK,&sss,NULL);
-	  }
-	}
-	argv = (char **) sGC_malloc(sizeof(char *)*(argListc+1));
-	if (argv == NULL) {
-	  fprintf(stderr," no more momory. forkExec --- exiting.\n");
-	  _exit(10);
-	}
-	for (i=0; i<argListc; i++) {
-	  argv[i] = KopString(getoa(obj1,i));
-	  argv[i+1] = NULL;
-	}
-	execv(argv[0],argv);
-        /* This place will never be reached unless execv fails. */
-        fprintf(stderr,"forkExec fails: ");
-	for (i=0; i<argListc; i++) {
-	  fprintf(stderr,"%s ",argv[i]);
-	}
-	fprintf(stderr,"\nExiting, but staying as Zombie.\n");
-	_exit(10);
-      }
-    }else if (strcmp(key,"getchild")==0) {
-      if (size != 1) errorKan1("%s\n","[(getchild)] extension.");
-      rob = newObjectArray(Mycp);
-      for (i=0; i<Mycp; i++) {
-	putoa(rob,i,KpoInteger(Mychildren[i]));
-      }
-    }else if (strcmp(key,"getUniqueFileName")==0) {
-      if (size != 2) errorKan1("%s\n","[(getUniqueFileName) path] extension.");
-      obj1 = getoa(obj,1);
-      if (obj1.tag != Sdollar) errorKan1("%s\n","[(getUniqueFileName) path] extension. path must be a string.");
-      rob = KpoString(ext_generateUniqueFileName(KopString(obj1)));
-    }else if (strcmp(key,"outputObjectToFile")==0) {
-      if (size != 3) errorKan1("%s\n","[(outputObjectToFile) path obj] extension.");
-      obj1 = getoa(obj,1);
-      if (obj1.tag != Sdollar) errorKan1("%s\n","[(outputObjectToFile) path obj] extension. path must be a string.");
-      obj2 = getoa(obj,2);
-      fp = fopen(KopString(obj1),"w");
-      if (fp == NULL) errorKan1("%s\n","[(outputObjectToFile) path object] extension : could not open the path.");
-      printObject(obj2,0,fp);
-      fclose(fp);
+        if (size != 2) errorKan1("%s\n","[(fork0) sss] extension.");
+        m = fork();
+        if (m>0) { rob = KpoInteger(m); }
+        else {
+        system(KopString(getoa(obj,1))); exit(0);
+        } */
+  }else if (strcmp(key,"defaultPolyRing")==0) {
+    if (size != 2) errorKan1("%s\n","[(defaultPolyRing) n] extension.");
+    rob = KdefaultPolyRing(getoa(obj,1));
+  }else if (strcmp(key,"getenv")==0) {
+    if (size != 2) errorKan1("%s\n","[(getenv) envstr] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","[(getenv) envstr] extension");
+    abc = getenv(KopString(obj1));
+    if (abc == NULL) {
       rob = NullObject;
-    }else if (strcmp(key,"hilbert")==0) {
-      if (size != 3) errorKan1("%s\n","[(hilbert) obgb obvlist] extension.");
-      rob = hilberto(getoa(obj,1),getoa(obj,2));
-    }else if (strcmp(key,"chattr")==0) {
-      if (size != 3) errorKan1("%s\n","[(chattr)  num symbol] extension.");
-      obj1 = getoa(obj,1);
-      obj2 = getoa(obj,2);
-      if (obj1.tag != Sinteger) errorKan1("%s\n","[(chattr)  num symbol] extension.");
-      if (obj2.tag != Sstring)  errorKan1("%s\n","[(chattr)  num symbol] extension.");
-      m = KopInteger(obj1);
-      if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT))
-	errorKan1("%s\n","The number must be 0, 1 or 2.");
-      putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
-			 m,CurrentContextp->userDictionary);
+    }else{
+      abc2 = (char *)sGC_malloc(sizeof(char)*(strlen(abc)+2));
+      strcpy(abc2,abc);
+      rob = KpoString(abc2);
     }
+  }else if (strcmp(key,"stat")==0) {
+    if (size != 2) errorKan1("%s\n","[(stat) fname] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","[(stat) fname] extension ; string fname.");
+    m = stat(KopString(obj1),&buf);
+    rob = newObjectArray(2);
+    if (m == -1) {
+      /* fail */
+      obj2 = NullObject;
+      putoa(rob,0,obj2);
+      obj3 = newObjectArray(2);
+      putoa(obj3,0,KpoString("error no"));
+      putoa(obj3,1,KpoInteger(errno));
+      putoa(rob,1,obj3);
+    }else{
+      /* success */
+      putoa(rob,0,KpoInteger(0));
+      obj3 = newObjectArray(1);
+      putoa(obj3,0,KpoInteger((int) buf.st_size));
+      putoa(rob,1,obj3); /* We have not yet read buf fully */
+    }
+  }else if (strcmp(key,"forkExec")==0) {
+    if (size != 4) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array argList.");
+    obj2 = getoa(obj,2);
+    if (obj2.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array fdList.");
+    obj3 = getoa(obj,3);
+    if (obj3.tag != Sinteger) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. integer sigblock.");
+    m = KopInteger(obj3);  /* m == 1 : block ctrl-C. */
+    argListc = getoaSize(obj1);
+    fdListc =  getoaSize(obj2);
+    if ((m = fork()) > 0) {
+      /* parent */
+      signal(SIGCHLD,mywait); /* to kill Zombie */
+      Mychildren[Mycp++] = m;
+      if (Mycp >= MYCP_SIZE-1) {
+        errorKan1("%s\n","Child process table is full.\n");
+        Mycp = 0;
+      }
+      rob = KpoInteger(m);
+      /* Done */
+    }else{
+      /* Child */
+      for (i=0; i<fdListc; i++) {
+        /* close the specified files */
+        close(KopInteger(getoa(obj2,i)));
+      }
+      /* execl */
+      if (m == 1) {
+        {
+          sigset_t sss;
+          sigemptyset(&sss);
+          sigaddset(&sss,SIGINT);
+          sigprocmask(SIG_BLOCK,&sss,NULL);
+        }
+      }
+      argv = (char **) sGC_malloc(sizeof(char *)*(argListc+1));
+      if (argv == NULL) {
+        fprintf(stderr," no more momory. forkExec --- exiting.\n");
+        _exit(10);
+      }
+      for (i=0; i<argListc; i++) {
+        argv[i] = KopString(getoa(obj1,i));
+        argv[i+1] = NULL;
+      }
+      execv(argv[0],argv);
+      /* This place will never be reached unless execv fails. */
+      fprintf(stderr,"forkExec fails: ");
+      for (i=0; i<argListc; i++) {
+        fprintf(stderr,"%s ",argv[i]);
+      }
+      fprintf(stderr,"\nExiting, but staying as Zombie.\n");
+      _exit(10);
+    }
+  }else if (strcmp(key,"getchild")==0) {
+    if (size != 1) errorKan1("%s\n","[(getchild)] extension.");
+    rob = newObjectArray(Mycp);
+    for (i=0; i<Mycp; i++) {
+      putoa(rob,i,KpoInteger(Mychildren[i]));
+    }
+  }else if (strcmp(key,"getUniqueFileName")==0) {
+    if (size != 2) errorKan1("%s\n","[(getUniqueFileName) path] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","[(getUniqueFileName) path] extension. path must be a string.");
+    rob = KpoString(ext_generateUniqueFileName(KopString(obj1)));
+  }else if (strcmp(key,"outputObjectToFile")==0) {
+    if (size != 3) errorKan1("%s\n","[(outputObjectToFile) path obj] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","[(outputObjectToFile) path obj] extension. path must be a string.");
+    obj2 = getoa(obj,2);
+    fp = fopen(KopString(obj1),"w");
+    if (fp == NULL) errorKan1("%s\n","[(outputObjectToFile) path object] extension : could not open the path.");
+    printObject(obj2,0,fp);
+    fclose(fp);
+    rob = NullObject;
+  }else if (strcmp(key,"hilbert")==0) {
+    if (size != 3) errorKan1("%s\n","[(hilbert) obgb obvlist] extension.");
+    rob = hilberto(getoa(obj,1),getoa(obj,2));
+  }else if (strcmp(key,"chattr")==0) {
+    if (size != 3) errorKan1("%s\n","[(chattr)  num symbol] extension.");
+    obj1 = getoa(obj,1);
+    obj2 = getoa(obj,2);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","[(chattr)  num symbol] extension.");
+    if (obj2.tag != Sstring)  errorKan1("%s\n","[(chattr)  num symbol] extension.");
+    m = KopInteger(obj1);
+    if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT))
+      errorKan1("%s\n","The number must be 0, 1 or 2.");
+    putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
+                       m,CurrentContextp->userDictionary);
+  }
 #include "plugin.hh"
   else{
     errorKan1("%s\n","Unknown tag for extension.");

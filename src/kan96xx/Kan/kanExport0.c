@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.5 2000/12/28 00:07:14 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.6 2001/04/12 06:48:25 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -22,7 +22,7 @@ int WarningNoVectorVariable = 1;
 
 /** :arithmetic **/
 struct object KooAdd(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   extern struct ring *CurrentRingp;
   struct object rob = NullObject;
@@ -149,7 +149,7 @@ struct object ob1,ob2;
 }
 
 struct object KooSub(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   struct object rob = NullObject;
   POLY r;
@@ -277,7 +277,7 @@ struct object ob1,ob2;
 }
 
 struct object KooMult(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   struct object rob = NullObject;
   POLY r;
@@ -421,7 +421,7 @@ struct object ob1,ob2;
 
 
 struct object KoNegate(obj)
-struct object obj;
+     struct object obj;
 {
   struct object rob = NullObject;
   extern struct ring SmallRing;
@@ -458,7 +458,7 @@ struct object obj;
 }
     
 struct object KoInverse(obj)
-struct object obj;
+     struct object obj;
 {
   struct object rob = NullObject;
   extern struct coeff *UniversalOne;
@@ -494,7 +494,7 @@ struct object obj;
     
 
 static int isVector(ob)
-struct object ob;
+     struct object ob;
 {
   int i,n;
   n = getoaSize(ob);
@@ -505,8 +505,8 @@ struct object ob;
 }
 
 static int isMatrix(ob,m,n)
-struct object ob;
-int m,n;
+     struct object ob;
+     int m,n;
 {
   int i,j;
   for (i=0; i<m; i++) {
@@ -521,8 +521,8 @@ int m,n;
 
 
 struct object KaoMult(aa,bb)
-struct object aa,bb;
-/* aa and bb is assumed to be array. */
+     struct object aa,bb;
+     /* aa and bb is assumed to be array. */
 {
   int m,n,m2,n2; 
   int i,j,k;
@@ -549,12 +549,12 @@ struct object aa,bb;
     if (r1 != 0) {
       ob1 = getoa(aa,0);
       if (ob1.tag == Spoly) {
-	rob.tag = Spoly; rob.lc.poly = ZERO;
+        rob.tag = Spoly; rob.lc.poly = ZERO;
       }else if (ob1.tag == Sinteger) {
-	rob.tag = Sinteger; rob.lc.ival = 0;
+        rob.tag = Sinteger; rob.lc.ival = 0;
       }else {
-	rob.tag = SuniversalNumber;
-	rob.lc.universalNumber = intToCoeff(0,&SmallRing);
+        rob.tag = SuniversalNumber;
+        rob.lc.universalNumber = intToCoeff(0,&SmallRing);
       }
     }else{
       rob.tag = Spoly; rob.lc.poly = ZERO;
@@ -564,7 +564,7 @@ struct object aa,bb;
     }
     return(rob);
   } else if (r1 == 0 && r2 ) { /* matrix X vector ---> vector */
-                               /* (m n) (m2=n) */
+    /* (m n) (m2=n) */
     n = getoaSize(getoa(aa,0));
     if (isMatrix(aa,m,n) == 0) {
       errorKan1("%s\n","KaoMult(matrix,vector). The left object is not matrix.");
@@ -600,15 +600,15 @@ struct object aa,bb;
     }
     for (i=0; i<m; i++) {
       for (j=0; j<n2; j++) {
-	ofik = getoa(getoa(aa,i),0);
-	ogkj = getoa(getoa(bb,0),j);
-	otmp = KooMult( ofik, ogkj);
-	for (k=1; k<n; k++) {
-	  ofik = getoa(getoa(aa,i),k);
-	  ogkj = getoa(getoa(bb,k),j);
-	  otmp = KooAdd(otmp, KooMult( ofik, ogkj));
-	}
-	getoa(getoa(rob,i),j) = otmp;
+        ofik = getoa(getoa(aa,i),0);
+        ogkj = getoa(getoa(bb,0),j);
+        otmp = KooMult( ofik, ogkj);
+        for (k=1; k<n; k++) {
+          ofik = getoa(getoa(aa,i),k);
+          ogkj = getoa(getoa(bb,k),j);
+          otmp = KooAdd(otmp, KooMult( ofik, ogkj));
+        }
+        getoa(getoa(rob,i),j) = otmp;
       }
     }
     return(rob);
@@ -625,9 +625,9 @@ struct object aa,bb;
     for (j=0; j<n2; j++) {
       tmp = ZERO;
       for (k=0; k<n; k++) {
-	fik = KopPOLY(getoa(getoa(aa,i),k));
-	gkj = KopPOLY(getoa(getoa(bb,k),j));
-	tmp = ppAdd(tmp, ppMult( fik, gkj));
+        fik = KopPOLY(getoa(getoa(aa,i),k));
+        gkj = KopPOLY(getoa(getoa(bb,k),j));
+        tmp = ppAdd(tmp, ppMult( fik, gkj));
       }
       getoa(getoa(rob,i),j) = KpoPOLY(tmp);
     }
@@ -636,7 +636,7 @@ struct object aa,bb;
 }
 
 struct object KooDiv(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   struct object rob = NullObject;
   switch (Lookup[ob1.tag][ob2.tag]) {
@@ -647,7 +647,7 @@ struct object ob1,ob2;
     rob.tag = SuniversalNumber;
     rob.lc.universalNumber = newUniversalNumber(0);
     universalNumberDiv(rob.lc.universalNumber,ob1.lc.universalNumber,
-		       ob2.lc.universalNumber);
+                       ob2.lc.universalNumber);
     return(rob);
     break;
 
@@ -661,8 +661,8 @@ struct object ob1,ob2;
 
 /* :relation */
 KooEqualQ(obj1,obj2)
-struct object obj1;
-struct object obj2;
+     struct object obj1;
+     struct object obj2;
 {
   struct object ob;
   int i;
@@ -671,63 +671,63 @@ struct object obj2;
     return(0);
   }
   switch(obj1.tag) {
-    case 0:
-      return(1); /* case of NullObject */
-      break;
-    case Sinteger:
-      if (obj1.lc.ival == obj2.lc.ival) return(1);
-      else return(0);
-      break;
-    case Sstring:
-    case Sdollar:
-      if (strcmp(obj1.lc.str, obj2.lc.str)==0) return(1);
-      else return(0);
-      break;
-    case Spoly:
-      ob = KooSub(obj1,obj2);
-      if (KopPOLY(ob) == ZERO) return(1);
-      else return(0);
-    case Sarray:
-      if (getoaSize(obj1) != getoaSize(obj2)) return(0);
-      for (i=0; i< getoaSize(obj1); i++) {
-	if (KooEqualQ(getoa(obj1,i),getoa(obj2,i))) { ; }
-	else { return(0); }
-      }
-      return(1);
-    case Slist:
-      if (KooEqualQ(*(obj1.lc.op),*(obj2.lc.op))) {
-	if (isNullList(obj1.rc.op)) {
-	  if (isNullList(obj2.rc.op)) return(1);
-	  else return(0);
-	}else{
-	  if (isNullList(obj2.rc.op)) return(0);
-	  return(KooEqualQ(*(obj1.rc.op),*(obj2.rc.op)));
-	}
-      }else{
-	return(0);
-      }
-      break;
-    case SuniversalNumber:
-      return(coeffEqual(obj1.lc.universalNumber,obj2.lc.universalNumber));
-      break;
-    case Sring:
-      return(KopRingp(obj1) == KopRingp(obj2));
-      break;
-    case Sclass:
-      return(KclassEqualQ(obj1,obj2));
-      break;
-    case Sdouble:
-      return(KopDouble(obj1) == KopDouble(obj2));
-      break;
-    default:
-      errorKan1("%s\n","KooEqualQ() has not supported these objects yet.");
-      break;
+  case 0:
+    return(1); /* case of NullObject */
+    break;
+  case Sinteger:
+    if (obj1.lc.ival == obj2.lc.ival) return(1);
+    else return(0);
+    break;
+  case Sstring:
+  case Sdollar:
+    if (strcmp(obj1.lc.str, obj2.lc.str)==0) return(1);
+    else return(0);
+    break;
+  case Spoly:
+    ob = KooSub(obj1,obj2);
+    if (KopPOLY(ob) == ZERO) return(1);
+    else return(0);
+  case Sarray:
+    if (getoaSize(obj1) != getoaSize(obj2)) return(0);
+    for (i=0; i< getoaSize(obj1); i++) {
+      if (KooEqualQ(getoa(obj1,i),getoa(obj2,i))) { ; }
+      else { return(0); }
     }
+    return(1);
+  case Slist:
+    if (KooEqualQ(*(obj1.lc.op),*(obj2.lc.op))) {
+      if (isNullList(obj1.rc.op)) {
+        if (isNullList(obj2.rc.op)) return(1);
+        else return(0);
+      }else{
+        if (isNullList(obj2.rc.op)) return(0);
+        return(KooEqualQ(*(obj1.rc.op),*(obj2.rc.op)));
+      }
+    }else{
+      return(0);
+    }
+    break;
+  case SuniversalNumber:
+    return(coeffEqual(obj1.lc.universalNumber,obj2.lc.universalNumber));
+    break;
+  case Sring:
+    return(KopRingp(obj1) == KopRingp(obj2));
+    break;
+  case Sclass:
+    return(KclassEqualQ(obj1,obj2));
+    break;
+  case Sdouble:
+    return(KopDouble(obj1) == KopDouble(obj2));
+    break;
+  default:
+    errorKan1("%s\n","KooEqualQ() has not supported these objects yet.");
+    break;
+  }
 }
       
 
 struct object KoIsPositive(ob1)
-struct object ob1;
+     struct object ob1;
 {
   struct object rob = NullObject;
   switch (ob1.tag) {
@@ -742,8 +742,8 @@ struct object ob1;
 }
 
 struct object KooGreater(obj1,obj2)
-struct object obj1;
-struct object obj2;
+     struct object obj1;
+     struct object obj2;
 {
   struct object ob;
   int tt;
@@ -751,40 +751,40 @@ struct object obj2;
     errorKan1("%s\n","You cannot compare different kinds of objects.");
   }
   switch(obj1.tag) {
-    case 0:
-      return(KpoInteger(1)); /* case of NullObject */
-      break;
-    case Sinteger:
-      if (obj1.lc.ival > obj2.lc.ival) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case Sstring:
-    case Sdollar:
-      if (strcmp(obj1.lc.str, obj2.lc.str)>0) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case Spoly:
-      if ((*mmLarger)(obj1.lc.poly,obj2.lc.poly) == 1) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case SuniversalNumber:
-      tt = coeffGreater(obj1.lc.universalNumber,obj2.lc.universalNumber);
-      if (tt > 0) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case Sdouble:
-      if ( KopDouble(obj1) > KopDouble(obj2) ) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    default:
-      errorKan1("%s\n","KooGreater() has not supported these objects yet.");
-      break;
-    }
+  case 0:
+    return(KpoInteger(1)); /* case of NullObject */
+    break;
+  case Sinteger:
+    if (obj1.lc.ival > obj2.lc.ival) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case Sstring:
+  case Sdollar:
+    if (strcmp(obj1.lc.str, obj2.lc.str)>0) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case Spoly:
+    if ((*mmLarger)(obj1.lc.poly,obj2.lc.poly) == 1) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case SuniversalNumber:
+    tt = coeffGreater(obj1.lc.universalNumber,obj2.lc.universalNumber);
+    if (tt > 0) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case Sdouble:
+    if ( KopDouble(obj1) > KopDouble(obj2) ) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  default:
+    errorKan1("%s\n","KooGreater() has not supported these objects yet.");
+    break;
+  }
 }
       
 struct object KooLess(obj1,obj2)
-struct object obj1;
-struct object obj2;
+     struct object obj1;
+     struct object obj2;
 {
   struct object ob;
   int tt;
@@ -792,42 +792,42 @@ struct object obj2;
     errorKan1("%s\n","You cannot compare different kinds of objects.");
   }
   switch(obj1.tag) {
-    case 0:
-      return(KpoInteger(1)); /* case of NullObject */
-      break;
-    case Sinteger:
-      if (obj1.lc.ival < obj2.lc.ival) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case Sstring:
-    case Sdollar:
-      if (strcmp(obj1.lc.str, obj2.lc.str)<0) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case Spoly:
-      if ((*mmLarger)(obj2.lc.poly,obj1.lc.poly) == 1) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case SuniversalNumber:
-      tt = coeffGreater(obj1.lc.universalNumber,obj2.lc.universalNumber);
-      if (tt < 0) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    case Sdouble:
-      if ( KopDouble(obj1) < KopDouble(obj2) ) return(KpoInteger(1));
-      else return(KpoInteger(0));
-      break;
-    default:
-      errorKan1("%s\n","KooLess() has not supported these objects yet.");
-      break;
-    }
+  case 0:
+    return(KpoInteger(1)); /* case of NullObject */
+    break;
+  case Sinteger:
+    if (obj1.lc.ival < obj2.lc.ival) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case Sstring:
+  case Sdollar:
+    if (strcmp(obj1.lc.str, obj2.lc.str)<0) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case Spoly:
+    if ((*mmLarger)(obj2.lc.poly,obj1.lc.poly) == 1) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case SuniversalNumber:
+    tt = coeffGreater(obj1.lc.universalNumber,obj2.lc.universalNumber);
+    if (tt < 0) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  case Sdouble:
+    if ( KopDouble(obj1) < KopDouble(obj2) ) return(KpoInteger(1));
+    else return(KpoInteger(0));
+    break;
+  default:
+    errorKan1("%s\n","KooLess() has not supported these objects yet.");
+    break;
+  }
 }
       
 /* :conversion */
 
 struct object KdataConversion(obj,key)
-struct object obj;
-char *key;
+     struct object obj;
+     char *key;
 {
   char tmps[128]; /* Assume that double is not more than 128 digits */
   char intstr[100]; /* Assume that int is not more than 100 digits */
@@ -847,9 +847,9 @@ char *key;
       return(rob);
     }else if (strcmp(key,"type??")==0) {
       if (obj.tag != Sclass) {
-	rob = KpoInteger(obj.tag);
+        rob = KpoInteger(obj.tag);
       }else {
-	rob = KpoInteger(ectag(obj));
+        rob = KpoInteger(ectag(obj));
       }
       return(rob);
     }else if (strcmp(key,"error")==0) {
@@ -914,7 +914,7 @@ char *key;
       rob.tag = Sstring;
       s = (char *) sGC_malloc(sizeof(char)*(strlen(obj.lc.str)+3));
       if (s == (char *) NULL)   {
-	errorKan1("%s\n","No memory.");
+        errorKan1("%s\n","No memory.");
       }
       s[0] = '/';
       strcpy(&(s[1]),obj.lc.str);
@@ -930,27 +930,27 @@ char *key;
     }else if (strcmp(key,"array")==0) {
       rob = newObjectArray(strlen(obj.lc.str));
       for (i=0; i<strlen(obj.lc.str); i++) {
-	putoa(rob,i,KpoInteger((obj.lc.str)[i]));
+        putoa(rob,i,KpoInteger((obj.lc.str)[i]));
       }
       return(rob);
     }else if (strcmp(key,"universalNumber") == 0) {
       rob.tag = SuniversalNumber;
       rob.lc.universalNumber = stringToUniversalNumber(obj.lc.str,&flag);
       if (flag == -1) errorKan1("KdataConversion(): %s",
-				  "It's not number.\n");
+                                "It's not number.\n");
       return(rob);
     }else if (strcmp(key,"double") == 0) {
       /* Check the format.  2.3432 e2 is not allowed. It should be 2.3232e2.*/
       flag = 0;
       for (i=0; (obj.lc.str)[i] != '\0'; i++) {
-	if ((obj.lc.str)[i] > ' ' && flag == 0) flag=1;
-	else if ((obj.lc.str)[i] <= ' ' && flag == 1) flag = 2;
-	else if ((obj.lc.str)[i] > ' ' && flag == 2) flag=3;
+        if ((obj.lc.str)[i] > ' ' && flag == 0) flag=1;
+        else if ((obj.lc.str)[i] <= ' ' && flag == 1) flag = 2;
+        else if ((obj.lc.str)[i] > ' ' && flag == 2) flag=3;
       }
       if (flag == 3) errorKan1("KdataConversion(): %s","The data for the double contains blanck(s)");
       /* Read the double. */
       if (sscanf(obj.lc.str,"%lf",&f) <= 0) {
-	errorKan1("KdataConversion(): %s","It cannot be translated to double.");
+        errorKan1("KdataConversion(): %s","It cannot be translated to double.");
       }
       rob = KpoDouble(f);
       return(rob);
@@ -990,7 +990,7 @@ char *key;
     }else if (strcmp(key,"integer")==0) {
       if (obj.lc.poly == ZERO) return(KpoInteger(0));
       else {
-	return(KpoInteger(coeffToInt(obj.lc.poly->coeffp)));
+        return(KpoInteger(coeffToInt(obj.lc.poly->coeffp)));
       }
     }else if (strcmp(key,"string")==0 || strcmp(key,"dollar")==0) {
       rob.tag = Sdollar;
@@ -1002,25 +1002,25 @@ char *key;
       return(KringMap(obj));
     }else if (strcmp(key,"universalNumber")==0) {
       if (obj.lc.poly == ZERO) {
-	rob.tag = SuniversalNumber;
-	rob.lc.universalNumber = newUniversalNumber(0);
+        rob.tag = SuniversalNumber;
+        rob.lc.universalNumber = newUniversalNumber(0);
       } else {
-	if (obj.lc.poly->coeffp->tag == MP_INTEGER) {
-	  rob.tag = SuniversalNumber;
-	  rob.lc.universalNumber = newUniversalNumber2(obj.lc.poly->coeffp->val.bigp);
-	}else {
-	  rob = NullObject;
-	  warningKan("Coefficient is not MP_INT.");
-	}
+        if (obj.lc.poly->coeffp->tag == MP_INTEGER) {
+          rob.tag = SuniversalNumber;
+          rob.lc.universalNumber = newUniversalNumber2(obj.lc.poly->coeffp->val.bigp);
+        }else {
+          rob = NullObject;
+          warningKan("Coefficient is not MP_INT.");
+        }
       }
       return(rob);
     }else if (strcmp(key,"ring")==0) {
       if (obj.lc.poly ISZERO) {
-	warningKan("Zero polynomial does not have the ring structure field.\n");
+        warningKan("Zero polynomial does not have the ring structure field.\n");
       }else{
-	rob.tag = Sring;
-	rob.lc.ringp = (obj.lc.poly)->m->ringp;
-	return(rob);
+        rob.tag = Sring;
+        rob.lc.ringp = (obj.lc.poly)->m->ringp;
+        return(rob);
       }
     }else if (strcmp(key,"null") == 0) {
       rob = NullObject;
@@ -1150,7 +1150,7 @@ char *key;
 /* conversion functions between primitive data and objects.
    If it's not time critical, it is recommended to use these functions */
 struct object KpoInteger(k)
-int k;
+     int k;
 {
   struct object obj;
   obj.tag = Sinteger;
@@ -1158,7 +1158,7 @@ int k;
   return(obj);
 }
 struct object KpoString(s)
-char *s;
+     char *s;
 {
   struct object obj;
   obj.tag = Sdollar;
@@ -1166,7 +1166,7 @@ char *s;
   return(obj);
 }
 struct object KpoPOLY(f)
-POLY f;
+     POLY f;
 {
   struct object obj;
   obj.tag = Spoly;
@@ -1174,7 +1174,7 @@ POLY f;
   return(obj);
 }
 struct object KpoArrayOfPOLY(ap)
-struct arrayOfPOLY *ap ;
+     struct arrayOfPOLY *ap ;
 {
   struct object obj;
   obj.tag = SarrayOfPOLY;
@@ -1183,7 +1183,7 @@ struct arrayOfPOLY *ap ;
 }
 
 struct object KpoMatrixOfPOLY(mp)
-struct matrixOfPOLY *mp ;
+     struct matrixOfPOLY *mp ;
 {
   struct object obj;
   obj.tag = SmatrixOfPOLY;
@@ -1192,7 +1192,7 @@ struct matrixOfPOLY *mp ;
 }
 
 struct object KpoRingp(ringp)
-struct ring *ringp;
+     struct ring *ringp;
 {
   struct object obj;
   obj.tag = Sring;
@@ -1202,7 +1202,7 @@ struct ring *ringp;
 
 /*** conversion 2. Data conversions on arrays and matrices. ****/
 struct object arrayOfPOLYToArray(aa)
-struct arrayOfPOLY *aa;
+     struct arrayOfPOLY *aa;
 {
   POLY *a;
   int size;
@@ -1221,7 +1221,7 @@ struct arrayOfPOLY *aa;
 }
 
 struct object matrixOfPOLYToArray(pmat)
-struct matrixOfPOLY *pmat;
+     struct matrixOfPOLY *pmat;
 {
   struct object r;
   struct object tmp;
@@ -1242,7 +1242,7 @@ struct matrixOfPOLY *pmat;
 }
 
 struct arrayOfPOLY *arrayToArrayOfPOLY(oa)
-struct object oa;
+     struct object oa;
 {
   POLY *a;
   int size;
@@ -1251,13 +1251,13 @@ struct object oa;
   struct arrayOfPOLY *ap;
   
   if (oa.tag != Sarray) errorKan1("KarrayToArrayOfPOLY(): %s",
-				  "Argument is not array\n");
+                                  "Argument is not array\n");
   size = getoaSize(oa);
   a = (POLY *)sGC_malloc(sizeof(POLY)*size);
   for (i=0; i<size; i++) {
     tmp = getoa(oa,i);
     if (tmp.tag != Spoly) errorKan1("KarrayToArrayOfPOLY():%s ",
-				    "element must be polynomial.\n");
+                                    "element must be polynomial.\n");
     a[i] = tmp.lc.poly;
   }
   ap = (struct arrayOfPOLY *)sGC_malloc(sizeof(struct arrayOfPOLY));
@@ -1267,7 +1267,7 @@ struct object oa;
 }
 
 struct matrixOfPOLY *arrayToMatrixOfPOLY(oa)
-struct object oa;
+     struct object oa;
 {
   POLY *a;
   int m;
@@ -1277,21 +1277,21 @@ struct object oa;
 
   struct object tmp,tmp2;
   if (oa.tag != Sarray) errorKan1("KarrayToMatrixOfPOLY(): %s",
-				  "Argument is not array\n");
+                                  "Argument is not array\n");
   m = getoaSize(oa);
   tmp = getoa(oa,0);
   if (tmp.tag != Sarray) errorKan1("arrayToMatrixOfPOLY():%s ",
-				  "Argument is not array\n");
+                                   "Argument is not array\n");
   n = getoaSize(tmp);
   a = (POLY *)sGC_malloc(sizeof(POLY)*(m*n));
   for (i=0; i<m; i++) {
     tmp = getoa(oa,i);
     if (tmp.tag != Sarray) errorKan1("arrayToMatrixOfPOLY(): %s",
-				     "element must be array.\n");
+                                     "element must be array.\n");
     for (j=0; j<n; j++) {
       tmp2 = getoa(tmp,j);
       if (tmp2.tag != Spoly) errorKan1("arrayToMatrixOfPOLY(): %s",
-				       "element must be a polynomial.\n");
+                                       "element must be a polynomial.\n");
       a[ind(i,j)] = tmp2.lc.poly;
       /* we use the macro ind here.  Be careful of using m and n. */
     }
@@ -1306,10 +1306,10 @@ struct object oa;
 
 /* :ring    :kan */
 int objArrayToOrderMatrix(oA,order,n,oasize)
-struct object oA;
-int order[];
-int n;
-int oasize;
+     struct object oA;
+     int order[];
+     int n;
+     int oasize;
 {
   int size;
   int k,j;
@@ -1343,7 +1343,7 @@ int oasize;
 }
 
 int KsetOrderByObjArray(oA)
-struct object oA;
+     struct object oA;
 {
   int *order;
   int n,c,l, oasize;
@@ -1371,7 +1371,7 @@ struct object oA;
 }
 
 static int checkRelations(c,l,m,n,cc,ll,mm,nn)
-int c,l,m,n,cc,ll,mm,nn;
+     int c,l,m,n,cc,ll,mm,nn;
 {
   if (!(1<=c && c<=l && l<=m && m<=n)) return(1);
   if (!(cc<=ll && ll<=mm && mm<=nn && nn <= n)) return(1);
@@ -1392,13 +1392,13 @@ struct object KgetOrderMatrixOfCurrentRing()
 
   
 int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
-struct object ob1,ob2,ob3,ob4,ob5;
-/* ob1 = [x(0), ..., x(n-1)];
-   ob2 = [D(0), ..., D(n-1)];
-   ob3 = [p,c,l,m,n,cc,ll,mm,nn,next];
-   ob4 = Order matrix
-   ob5 = [(keyword) value (keyword) value ....]
-*/
+     struct object ob1,ob2,ob3,ob4,ob5;
+     /* ob1 = [x(0), ..., x(n-1)];
+        ob2 = [D(0), ..., D(n-1)];
+        ob3 = [p,c,l,m,n,cc,ll,mm,nn,next];
+        ob4 = Order matrix
+        ob5 = [(keyword) value (keyword) value ....]
+     */
 #define RP_LIMIT 500
 {
   int i;
@@ -1544,47 +1544,47 @@ struct object ob1,ob2,ob3,ob4,ob5;
   for (i=0; i < getoaSize(ob5); i += 2) {
     if (getoa(ob5,i).tag == Sdollar) {
       if (strcmp(KopString(getoa(ob5,i)),"mpMult") == 0) {
-	if (getoa(ob5,i+1).tag != Sdollar) {
-	  errorKan1("%s\n","A keyword should be given. (mpMult)");
-	}
-	fmp_mult_saved = F_mpMult;
-	mpMultName = KopString(getoa(ob5,i+1));
-	switch_function("mpMult",mpMultName);
-	/* Note that this cause a global effect. It will be done again. */
-	newRingp->multiplication = mpMult;
-	switch_function("mpMult",fmp_mult_saved);
+        if (getoa(ob5,i+1).tag != Sdollar) {
+          errorKan1("%s\n","A keyword should be given. (mpMult)");
+        }
+        fmp_mult_saved = F_mpMult;
+        mpMultName = KopString(getoa(ob5,i+1));
+        switch_function("mpMult",mpMultName);
+        /* Note that this cause a global effect. It will be done again. */
+        newRingp->multiplication = mpMult;
+        switch_function("mpMult",fmp_mult_saved);
       } else if (strcmp(KopString(getoa(ob5,i)),"coefficient ring") == 0) {
-	if (getoa(ob5,i+1).tag != Sring) {
-	  errorKan1("%s\n","The pointer to a ring should be given. (coefficient ring)");
-	}
-	nextRing = KopRingp(getoa(ob5,i+1));
-	newRingp->next = nextRing;
+        if (getoa(ob5,i+1).tag != Sring) {
+          errorKan1("%s\n","The pointer to a ring should be given. (coefficient ring)");
+        }
+        nextRing = KopRingp(getoa(ob5,i+1));
+        newRingp->next = nextRing;
       } else if (strcmp(KopString(getoa(ob5,i)),"valuation") == 0) {
-	errorKan1("%s\n","Not implemented. (valuation)");
+        errorKan1("%s\n","Not implemented. (valuation)");
       } else if (strcmp(KopString(getoa(ob5,i)),"characteristic") == 0) {
-	if (getoa(ob5,i+1).tag != Sinteger) {
-	  errorKan1("%s\n","A integer should be given. (characteristic)");
-	}
-	p = KopInteger(getoa(ob5,i+1));
-	newRingp->p = p;
+        if (getoa(ob5,i+1).tag != Sinteger) {
+          errorKan1("%s\n","A integer should be given. (characteristic)");
+        }
+        p = KopInteger(getoa(ob5,i+1));
+        newRingp->p = p;
       } else if (strcmp(KopString(getoa(ob5,i)),"schreyer") == 0) {
-	if (getoa(ob5,i+1).tag != Sinteger) {
-	  errorKan1("%s\n","A integer should be given. (schreyer)");
-	}
-	newRingp->schreyer = KopInteger(getoa(ob5,i+1));
+        if (getoa(ob5,i+1).tag != Sinteger) {
+          errorKan1("%s\n","A integer should be given. (schreyer)");
+        }
+        newRingp->schreyer = KopInteger(getoa(ob5,i+1));
       } else if (strcmp(KopString(getoa(ob5,i)),"gbListTower") == 0) {
-	if (getoa(ob5,i+1).tag != Slist) {
-	  errorKan1("%s\n","A list should be given (gbListTower).");
-	}
-	newRingp->gbListTower = newObject();
-	*((struct object *)(newRingp->gbListTower)) = getoa(ob5,i+1);
+        if (getoa(ob5,i+1).tag != Slist) {
+          errorKan1("%s\n","A list should be given (gbListTower).");
+        }
+        newRingp->gbListTower = newObject();
+        *((struct object *)(newRingp->gbListTower)) = getoa(ob5,i+1);
       } else if (strcmp(KopString(getoa(ob5,i)),"ringName") == 0) {
-	if (getoa(ob5,i+1).tag != Sdollar) {
-	  errorKan1("%s\n","A name should be given. (ringName)");
-	}
-	ringName = KopString(getoa(ob5,i+1));
+        if (getoa(ob5,i+1).tag != Sdollar) {
+          errorKan1("%s\n","A name should be given. (ringName)");
+        }
+        ringName = KopString(getoa(ob5,i+1));
       } else {
-	errorKan1("%s\n","Unknown keyword to set_up_ring@");
+        errorKan1("%s\n","Unknown keyword to set_up_ring@");
       }
     }else{
       errorKan1("%s\n","A keyword enclosed by braces have to be given.");
@@ -1601,10 +1601,10 @@ struct object ob1,ob2,ob3,ob4,ob5;
       CurrentRingp = newRingp;
       /* Install it to the RingStack */
       if (rp <RP_LIMIT) {
-	rstack[rp] = CurrentRingp; rp++; /* Save the previous ringp */
+        rstack[rp] = CurrentRingp; rp++; /* Save the previous ringp */
       }else{
-	rp = 0;
-	errorKan1("%s\n","You have defined too many rings. Check the value of RP_LIMIT.");
+        rp = 0;
+        errorKan1("%s\n","You have defined too many rings. Check the value of RP_LIMIT.");
       }
     }else{
       /* This ring has been defined. */
@@ -1672,13 +1672,13 @@ struct object KsetVariableNames(struct object ob,struct ring *rp)
 
   
 void KshowRing(ringp)
-struct ring *ringp;
+     struct ring *ringp;
 {
   showRing(1,ringp);
 }
 
 struct object KswitchFunction(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   char *ans ;
   struct object rob;
@@ -1698,7 +1698,7 @@ struct object ob1,ob2;
   }
   if (AvoidTheSameRing) {
     if (strcmp(KopString(ob1),"mmLarger") == 0 &&
-	strcmp(KopString(ob2),"matrix") != 0) {
+        strcmp(KopString(ob2),"matrix") != 0) {
       fprintf(stderr,"mmLarger = %s",KopString(ob2));
       errorKan1("%s\n","mmLarger can set only to matrix under AvoidTheSameRing == 1.");
     }
@@ -1720,8 +1720,8 @@ void KprintSwitchStatus(void)
 }
 
 struct object KoReplace(of,rule)
-struct object of;
-struct object rule;
+     struct object of;
+     struct object rule;
 {
   struct object rob;
   POLY f;
@@ -1740,7 +1740,7 @@ struct object rule;
 
   if (of.tag == Spoly) {
   }else if (of.tag ==Sclass && ectag(of) == CLASSNAME_recursivePolynomial) {
-	return(KreplaceRecursivePolynomial(of,rule));
+    return(KreplaceRecursivePolynomial(of,rule));
   }else{
     errorKan1("%s\n"," KoReplace(): The first argument must be a polynomial.");
   }
@@ -1781,8 +1781,8 @@ struct object rule;
 
 
 struct object Kparts(f,v)
-struct object f;
-struct object v;
+     struct object f;
+     struct object v;
 {
   POLY ff;
   POLY vv;
@@ -1798,8 +1798,8 @@ struct object v;
 }
 
 struct object Kparts2(f,v)
-struct object f;
-struct object v;
+     struct object f;
+     struct object v;
 {
   POLY ff;
   POLY vv;
@@ -1815,7 +1815,7 @@ struct object v;
 
 
 struct object Kdegree(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   if (ob1.tag != Spoly || ob2.tag != Spoly)
     errorKan1("%s\n","The arguments must be polynomials.");
@@ -1824,7 +1824,7 @@ struct object ob1,ob2;
 }
 
 struct object KringMap(obj)
-struct object obj;
+     struct object obj;
 {
   extern struct ring *CurrentRingp;
   extern struct ring *SyzRingp;
@@ -1848,7 +1848,7 @@ struct object obj;
 
 
 struct object Ksp(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   struct spValue sv;
   struct object rob,cob;
@@ -1857,7 +1857,7 @@ struct object ob1,ob2;
     errorKan1("%s\n","Ksp(): The arguments must be polynomials.");
   sv = (*sp)(ob1.lc.poly,ob2.lc.poly);
   f = ppAddv(ppMult(sv.a,KopPOLY(ob1)),
-	     ppMult(sv.b,KopPOLY(ob2)));
+             ppMult(sv.b,KopPOLY(ob2)));
   rob = newObjectArray(2);
   cob = newObjectArray(2);
   putoa(rob,1,KpoPOLY(f));
@@ -1868,7 +1868,7 @@ struct object ob1,ob2;
 }
   
 struct object Khead(ob)
-struct object ob;
+     struct object ob;
 {
   if (ob.tag != Spoly) errorKan1("%s\n","Khead(): The argument should be a polynomial.");
   return(KpoPOLY(head( KopPOLY(ob))));
@@ -1877,7 +1877,7 @@ struct object ob;
 
 /* :eval */
 struct object Keval(obj)
-struct object obj;
+     struct object obj;
 {
   char *key;
   int size;
@@ -1899,7 +1899,7 @@ struct object obj;
   
 /* :Utilities */
 char *KremoveSpace(str)
-char str[];
+     char str[];
 {
   int size;
   int start;
@@ -1924,7 +1924,7 @@ char str[];
 }
 
 struct object KtoRecords(ob)
-struct object ob;
+     struct object ob;
 {
   struct object obj;
   struct object tmp;
@@ -1957,16 +1957,16 @@ struct object ob;
 }
 
 int KtoArgvbyCurryBrace(str,argv,limit)
-char *str;
-char *argv[];
-int limit;
-/* This function returns argc */
-/* decompose into tokens by the separators
+     char *str;
+     char *argv[];
+     int limit;
+     /* This function returns argc */
+     /* decompose into tokens by the separators
    { }, [ ], and characters of which code is less than SPACE.
    Example.   { }  ---> nothing            (argc=0)
               {x}----> x                   (argc=1)
               {x,y} --> x   y              (argc=2)
-	      {ab, y, z } --> ab   y   z   (argc=3)
+          {ab, y, z } --> ab   y   z   (argc=3)
               [[ab],c,d]  --> [ab] c   d
 */
 {
@@ -2024,9 +2024,9 @@ int limit;
 
 
 static void checkDuplicateName(xvars,dvars,n)
-char *xvars[];
-char *dvars[];
-int n;
+     char *xvars[];
+     char *dvars[];
+     int n;
 {
   int i,j;
   char *names[N0*2];
@@ -2037,8 +2037,8 @@ int n;
   for (i=0; i<n; i++) {
     for (j=i+1; j<n; j++) {
       if (strcmp(names[i],names[j]) == 0) {
-	fprintf(stderr,"\n%d=%s, %d=%s\n",i,names[i],j,names[j]);
-	errorKan1("%s\n","Duplicate definition of the name above in SetUpRing().");
+        fprintf(stderr,"\n%d=%s, %d=%s\n",i,names[i],j,names[j]);
+        errorKan1("%s\n","Duplicate definition of the name above in SetUpRing().");
       }
     }
   }
@@ -2048,7 +2048,7 @@ int n;
 
 
 struct object KooDiv2(ob1,ob2)
-struct object ob1,ob2;
+     struct object ob1,ob2;
 {
   struct object rob = NullObject;
   POLY f;
@@ -2135,7 +2135,7 @@ struct object ob1,ob2;
 */
 
 int KisInvalidRational(op)
-objectp op;
+     objectp op;
 {
   extern struct coeff *UniversalZero;
   if (op->tag != SrationalFunction) return(0);
@@ -2313,7 +2313,7 @@ struct object KmpzExtension(struct object obj)
     if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
       errorKan1("%s\n","[(gcd)  universalNumber universalNumber] mpzext.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
-	! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
+        ! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
       errorKan1("%s\n","[(gcd)  universalNumber universalNumber] mpzext.");
     }
     f = coeff_to_MP_INT(obj1.lc.universalNumber);
@@ -2329,7 +2329,7 @@ struct object KmpzExtension(struct object obj)
     if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
       errorKan1("%s\n","[(tdiv_qr)  universalNumber universalNumber] mpzext.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
-	! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
+        ! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
       errorKan1("%s\n","[(tdiv_qr)  universalNumber universalNumber] mpzext.");
     }
     f = coeff_to_MP_INT(obj1.lc.universalNumber);
@@ -2360,7 +2360,7 @@ struct object KmpzExtension(struct object obj)
       return(obj0);
     }
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
-	! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
+        ! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
       errorKan1("%s\n","[(cancel)  universalNumber/universalNumber] mpzext.");
     }
     f = coeff_to_MP_INT(obj1.lc.universalNumber);
@@ -2380,7 +2380,7 @@ struct object KmpzExtension(struct object obj)
     rob = KnewRationalFunction0(copyObjectp(&obj1),copyObjectp(&obj2));
     KisInvalidRational(&rob);
   }else if (strcmp(key,"sqrt")==0 ||
-	    strcmp(key,"com")==0) {
+            strcmp(key,"com")==0) {
     /*  One arg functions  */
     if (size != 2) errorKan1("%s\n","[key num] mpzext");
     obj1 = getoa(obj,1);
@@ -2399,8 +2399,8 @@ struct object KmpzExtension(struct object obj)
     rob.tag = SuniversalNumber;
     rob.lc.universalNumber = mpintToCoeff(r1,SmallRingp);
   }else if (strcmp(key,"probab_prime_p")==0 ||
-	    strcmp(key,"and") == 0 ||
-	    strcmp(key,"ior")==0) {
+            strcmp(key,"and") == 0 ||
+            strcmp(key,"ior")==0) {
     /* Two args functions */
     if (size != 3) errorKan1("%s\n","[key  num1 num2] mpzext.");
     obj1 = getoa(obj,1);
@@ -2408,7 +2408,7 @@ struct object KmpzExtension(struct object obj)
     if (obj1.tag != SuniversalNumber || obj2.tag != SuniversalNumber)
       errorKan1("%s\n","[key num1 num2] mpzext.");
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
-	! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
+        ! is_this_coeff_MP_INT(obj2.lc.universalNumber)) {
       errorKan1("%s\n","[key  num1 num2] mpzext.");
     }
     f = coeff_to_MP_INT(obj1.lc.universalNumber);
@@ -2416,9 +2416,9 @@ struct object KmpzExtension(struct object obj)
     if (strcmp(key,"probab_prime_p")==0) {
       gi = (int) mpz_get_si(g);
       if (mpz_probab_prime_p(f,gi)) {
-	rob = KpoInteger(1);
+        rob = KpoInteger(1);
       }else {
-	rob = KpoInteger(0);
+        rob = KpoInteger(0);
       }
     }else if (strcmp(key,"and")==0) {
       r1 = newMP_INT();
@@ -2442,8 +2442,8 @@ struct object KmpzExtension(struct object obj)
       errorKan1("%s\n","[key num1 num2 num3] mpzext : num1, num2 and num3 must be universalNumbers.");
     }
     if (! is_this_coeff_MP_INT(obj1.lc.universalNumber) ||
-	! is_this_coeff_MP_INT(obj2.lc.universalNumber) ||
-	! is_this_coeff_MP_INT(obj3.lc.universalNumber)) {
+        ! is_this_coeff_MP_INT(obj2.lc.universalNumber) ||
+        ! is_this_coeff_MP_INT(obj3.lc.universalNumber)) {
       errorKan1("%s\n","[key num1 num2 num3] mpzext : num1, num2 and num3 must be universalNumbers.");
     }
     f = coeff_to_MP_INT(obj1.lc.universalNumber);
@@ -2479,8 +2479,8 @@ struct object KnewContext(struct object superObj,char *name) {
 }
 
 struct object KcreateClassIncetance(struct object ob1,
-				    struct object ob2,
-				    struct object ob3)
+                                    struct object ob2,
+                                    struct object ob3)
 {
   /* [class-tag super-obj] size [class-tag]  cclass */
   struct object ob4;
@@ -2509,7 +2509,7 @@ struct object KcreateClassIncetance(struct object ob1,
   ob5 = getoa(ob3,0);
   if (ectag(ob5) != CLASSNAME_CONTEXT)
     errorKan1("%s\n","cclass: The third argument must be [class-tag].");
-				    
+                    
   rob = newObjectArray(size);
   putoa(rob,0,ob5);
   if (getoaSize(ob1) < size) size2 = getoaSize(ob1);
@@ -2644,7 +2644,7 @@ struct object KdefaultPolyRing(struct object ob) {
     for (j=0; j<2*n; j++) {
       putoa(t1,j,KpoInteger(0));
       if (j == (2*n-i)) {
-	putoa(t1,j,KpoInteger(-1));
+        putoa(t1,j,KpoInteger(-1));
       }
     }
     putoa(ob4,i,t1);
@@ -2668,8 +2668,8 @@ struct object KdefaultPolyRing(struct object ob) {
 ******************************************************************/
 
 errorKan1(str,message)
-char *str;
-char *message;
+     char *str;
+     char *message;
 {
   extern char *GotoLabel;
   extern int GotoP;
@@ -2698,7 +2698,7 @@ char *message;
 }
 
 warningKan(str)
-char *str;
+     char *str;
 {
   extern int WarningMessageMode;
   extern int Strict;
@@ -2721,7 +2721,7 @@ char *str;
 }
 
 warningKanNoStrictMode(str)
-char *str; 
+     char *str; 
 {
   extern int Strict;
   int t;

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -58,7 +58,7 @@ struct object KsocketOpen(struct object obj) {
   me.sin_family = AF_INET;
   me.sin_port = htons(portNumber);
   bcopy(myhost->h_addr,
-	&me.sin_addr,myhost->h_length);
+        &me.sin_addr,myhost->h_length);
 
   if ((s_waiting = socket(AF_INET,SOCK_STREAM,0)) < 0) {
     errorMsg1s("Socket allocation is failed.");
@@ -82,8 +82,8 @@ struct object KsocketOpen(struct object obj) {
     errorMsg1s("Listen failed");
   }
   /*  
-   fprintf(stderr,"Done the initialization. port =%d\n",ntohs(me.sin_port));
-     fprintf(stderr,"socket id = %d",accept(s_waiting,NULL,NULL)); */
+      fprintf(stderr,"Done the initialization. port =%d\n",ntohs(me.sin_port));
+      fprintf(stderr,"socket id = %d",accept(s_waiting,NULL,NULL)); */
   rob = newObjectArray(2);
   putoa(rob,0,KpoInteger(s_waiting));
   putoa(rob,1,KpoInteger(ntohs(me.sin_port)));
@@ -132,7 +132,7 @@ struct object KsocketConnect(struct object obj) {
   server.sin_family = AF_INET;
   server.sin_port = htons(portNumber);
   bcopy(servhost->h_addr,
-	(char *)&server.sin_addr,servhost->h_length);
+        (char *)&server.sin_addr,servhost->h_length);
 
   if ((socketid = socket(AF_INET,SOCK_STREAM,0)) <0) {
     errorMsg1s("socket allocation is failed.\n");
@@ -237,7 +237,7 @@ struct object KsocketSelect(struct object obj) {
 }
 
 struct object KsocketSelectMulti(struct object obj) 
-/* [ [integer socketid1, integer socketid2, ...] 
+     /* [ [integer socketid1, integer socketid2, ...] 
      optional integer timeout default 0]
    [ result1, result2, ....]
 */
@@ -350,14 +350,14 @@ struct object KsocketRead(struct object obj) {
     if (datasize - totalsize > 0) {
       n = read(socketid,data+totalsize,datasize-totalsize);
       if (n < 0) {
-	errorMsg1s("Read error.");
+        errorMsg1s("Read error.");
       }
       if (n < datasize-totalsize) {
-	totalsize += n;
-	break;
+        totalsize += n;
+        break;
       }else{ totalsize += n; }
       if (totalsize == 0) {
-	errorMsg1s("Select returns 1, but there is no data to read.");
+        errorMsg1s("Select returns 1, but there is no data to read.");
       }
     }else { /* increase the datasize */
       tmp = (char *)GC_malloc(sizeof(char)*2*datasize);

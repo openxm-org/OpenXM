@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 /*  scanner2.c (SM StackMachine) */
 /* export: struct tokens decompostToTokens(char *str,int *sizep);
    scanner2.c is for getting tokens from a string.
@@ -10,18 +10,18 @@ struct tokens lookupTokens(struct tokens t);
 int isLiteral(char *s);
 struct object lookupLiteralString(char *s);
 /****************  defined in stackm.h ****************************
-typedef enum {INIT,GET,PUT,OPEN} actionType;
+                   typedef enum {INIT,GET,PUT,OPEN} actionType;
 
-struct tokens{
-  char *token;
-  int kind;
-};
+                   struct tokens{
+                   char *token;
+                   int kind;
+                   };
 
 
-#define ID   2
-#define DOLLAR 3    strings enclosed by dollar sign 
-#define EXECUTABLE_STRING 4  strings enclosed by {}
-#define EXECUTABLE_ARRAY  8  Don't set it in this file.
+                   #define ID   2
+                   #define DOLLAR 3    strings enclosed by dollar sign 
+                   #define EXECUTABLE_STRING 4  strings enclosed by {}
+                   #define EXECUTABLE_ARRAY  8  Don't set it in this file.
 ******************************************************************/
 
 
@@ -59,8 +59,8 @@ static struct tokens getokenSM2();
 /****************  code part of lexical analizer ********************/
 
 struct tokens *decomposeToTokens(str,sizep)
-char *str;
-int *sizep;
+     char *str;
+     int *sizep;
 {
   struct tokens *tArray;
   struct tokens token;
@@ -94,7 +94,7 @@ int *sizep;
 
 
 static int getSM()
-/* get a letter from StringSM */
+     /* get a letter from StringSM */
 {
   int c;
   c = StringSM[StrpSM++];
@@ -104,8 +104,8 @@ static int getSM()
 }
 
 static putSM(c)
-int c;
-/* put a letter on BufSM */
+     int c;
+     /* put a letter on BufSM */
 {
   char *new; int i;
   BufSM[ExistSM++] = ((c=='\n')? ' ' : c);
@@ -140,7 +140,7 @@ static struct tokens flushSM()
   r.kind = TypeSM;
   if (r.kind == ID) {
     if (isLiteral(r.token)) {
-       r.object = lookupLiteralString(r.token);
+      r.object = lookupLiteralString(r.token);
     }else{
       r = lookupTokens(r); /* Compute hashing values */
     }
@@ -149,35 +149,35 @@ static struct tokens flushSM()
 }
 
 static isSpaceSM(c)
-int c;
+     int c;
 {
   if ((c <= ' ') && (c!= EOF)) return(1);
   else return(0);
 }
 
 static isDollarSM(c)
-int c;
+     int c;
 {
   if (c == '$') return(1);
   else return(0);
 }
 
 static isBraceSM(c)
-int c;
+     int c;
 {
   if (c == '{') return(1);
   else return(0);
 }
 
 static isKakkoSM(c)
-int c;
+     int c;
 {
   if (c == '(') return(1);
   else return(0);
 }
 
 static isSymbolSM(c)
-int c;
+     int c;
 {
   if ((c == '{') ||
       (c == '}') ||
@@ -190,8 +190,8 @@ int c;
 }
 
 static struct tokens getokenSM2(kind,str)
-actionType kind;
-char *str;
+     actionType kind;
+     char *str;
 {
   static int c;
   static struct tokens rnull;
@@ -215,65 +215,65 @@ char *str;
       else return(rnull);
     } else if (isSpaceSM(c)) {
       if (ExistSM) {
-	c = mygetchar(); return(flushSM());
+        c = mygetchar(); return(flushSM());
       }else {
-	while (isSpaceSM(c=mygetchar())) ;
+        while (isSpaceSM(c=mygetchar())) ;
       }
     } else if (isDollarSM(c)) { /* output contents in dollar signs. */
       if (ExistSM) return(flushSM());
       else {
-	c = mygetchar();
-	while ((c != EOF) && (c != '$')) {
-	  putSM(c);
-	  c = mygetchar();
-	}
-	if (c=='$') c=mygetchar();
-	TypeSM = DOLLAR;
-	return(flushSM());
+        c = mygetchar();
+        while ((c != EOF) && (c != '$')) {
+          putSM(c);
+          c = mygetchar();
+        }
+        if (c=='$') c=mygetchar();
+        TypeSM = DOLLAR;
+        return(flushSM());
       }
     } else if (isBraceSM(c)) { /* output contents in { }  */
       /*  { {  } } */
       level = 0;
       if (ExistSM) return(flushSM());
       else {
-	c = mygetchar();
-	while (1) {
-	  if (c == '%') { /* skip the comment in the brace. */
-	    while (((c=mygetchar()) != '\n') && (c != EOF))  ;
-	  }
-	  if (c == EOF) break;
-	  if ((c == '}') && (level <= 0)) break;
-	  if ( c == '{') ++level;
-	  if ( c == '}') --level;
-	  putSM(c);
-	  c = mygetchar();
-	}
-	if (c=='}') c=mygetchar();
-	TypeSM = EXECUTABLE_STRING;
-	return(flushSM());
+        c = mygetchar();
+        while (1) {
+          if (c == '%') { /* skip the comment in the brace. */
+            while (((c=mygetchar()) != '\n') && (c != EOF))  ;
+          }
+          if (c == EOF) break;
+          if ((c == '}') && (level <= 0)) break;
+          if ( c == '{') ++level;
+          if ( c == '}') --level;
+          putSM(c);
+          c = mygetchar();
+        }
+        if (c=='}') c=mygetchar();
+        TypeSM = EXECUTABLE_STRING;
+        return(flushSM());
       }
     } else if (isKakkoSM(c)) { /* output contents in (  )  */
       level = 0;
       if (ExistSM) return(flushSM());
       else {
-	c = mygetchar();
-	while (1) {
-	  if (c == EOF) break;
-	  if (c == '\\') { /* e.g. \(  */
-	    putSM(c);
-	    c = mygetchar();
-	    if (c == EOF) break;
-	  }else{
-	    if ((c == ')') && (level <= 0)) break;
-	    if ( c == '(') ++level;
-	    if ( c == ')') --level;
-	  }
-	  putSM(c);
-	  c = mygetchar();
-	}
-	if (c==')') c=mygetchar();
-	TypeSM = DOLLAR;
-	return(flushSM());
+        c = mygetchar();
+        while (1) {
+          if (c == EOF) break;
+          if (c == '\\') { /* e.g. \(  */
+            putSM(c);
+            c = mygetchar();
+            if (c == EOF) break;
+          }else{
+            if ((c == ')') && (level <= 0)) break;
+            if ( c == '(') ++level;
+            if ( c == ')') --level;
+          }
+          putSM(c);
+          c = mygetchar();
+        }
+        if (c==')') c=mygetchar();
+        TypeSM = DOLLAR;
+        return(flushSM());
       }
     } else if (c=='%') { /* comment */
       while (((c=mygetchar()) != '\n') && (c != EOF))  ;
@@ -281,19 +281,19 @@ char *str;
     } else if (isSymbolSM(c)) { /* symbols. {,} etc */
       if(ExistSM) return(flushSM());
       else {
-	putSM(c);
-	c = mygetchar();
-	return(flushSM());
+        putSM(c);
+        c = mygetchar();
+        return(flushSM());
       }
     } else { /* identifier */
       putSM(c);
       c =mygetchar();
       while ((!isDollarSM(c)) &&
-	     (!isSpaceSM(c))  &&
-	     (!isSymbolSM(c)) &&
-	     (c != EOF)) {
-	putSM(c);
-	c = mygetchar();
+             (!isSpaceSM(c))  &&
+             (!isSymbolSM(c)) &&
+             (c != EOF)) {
+        putSM(c);
+        c = mygetchar();
       }
       return(flushSM());
     }
@@ -304,7 +304,7 @@ char *str;
 
 
 errorScanner2(str)
-char *str;
+     char *str;
 {
   fprintf(stderr,"Error (scanner2.c): %s\n",str);
   exit(10);

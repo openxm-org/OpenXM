@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.3 2000/06/09 08:02:02 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -21,15 +21,15 @@ static void warningOrder(char *s);
 static void errorOrder(char *s);
 
 void setOrderByMatrix(order,n,c,l,omsize)
-int order[];
-int n,c,l,omsize;
+     int order[];
+     int n,c,l,omsize;
 {
   int i,j;
   int *Order;
   extern struct ring *CurrentRingp;
 
   switch_mmLarger("default");
-    /* q-case */
+  /* q-case */
   if ( l-c > 0) {
     switch_mmLarger("qmatrix");
   }
@@ -46,8 +46,8 @@ int n,c,l,omsize;
 }
   
 void showRing(level,ringp) 
-int level;
-struct ring *ringp;
+     int level;
+     struct ring *ringp;
 {
   int i,j;
   FILE *fp;
@@ -81,7 +81,7 @@ struct ring *ringp;
     fprintf(fp,"where ");
     for (i=M; i<N; i++) {
       fprintf(fp," %s %s - %s %s = 1, ",TransD[i],TransX[i],
-	                                TransX[i],TransD[i]);
+              TransX[i],TransD[i]);
     }
     fprintf(fp,"\n\n");
   }
@@ -93,8 +93,8 @@ struct ring *ringp;
     fprintf(fp,"where ");
     for (i=L; i<M; i++) {
       fprintf(fp," %s %s - %s %s = %s, ",TransD[i],TransX[i],
-	                                 TransX[i],TransD[i],
-	                                 TransD[i]);
+              TransX[i],TransD[i],
+              TransD[i]);
     }
     fprintf(fp,"\n\n");
   }
@@ -106,8 +106,8 @@ struct ring *ringp;
     fprintf(fp,"where ");
     for (i=C; i<L; i++) {
       fprintf(fp," %s %s = %s %s %s, ",TransD[i],TransX[i],
-	                               TransX[0],
-	                               TransX[i],TransD[i]);
+              TransX[0],
+              TransX[i],TransD[i]);
     }
     fprintf(fp,"\n\n");
   }
@@ -166,7 +166,7 @@ struct ring *ringp;
     mtype = "unknown";
   }
   fprintf(fp,"Multiplication function --%s(%xH).\n",
-	  mtype,(unsigned int) ringp->multiplication);
+          mtype,(unsigned int) ringp->multiplication);
   if (ringp->schreyer) {
     fprintf(fp,"schreyer=1, gbListTower=");
     printObjectList((struct object *)(ringp->gbListTower));
@@ -203,7 +203,7 @@ if (isD(i))  D_{itod(i)}
 */
 
 void printOrder(ringp)
-struct ring *ringp;
+     struct ring *ringp;
 {
   int i,j;
   FILE *fp;
@@ -245,9 +245,9 @@ struct ring *ringp;
   fprintf(fp,"\n");
 
   /* print D: differential     DE: differential, should be eliminated
-           E: difference
-	   Q: q-difference
-	   C: commutative
+     E: difference
+     Q: q-difference
+     C: commutative
   */
   if (strcmp(F_isSameComponent,"x")== 0 || strcmp(F_isSameComponent,"xd")==0) {
     for (i=0; i<N; i++) {
@@ -316,7 +316,7 @@ struct object oGetOrderMatrix(struct ring *ringp)
 
 
 int mmLarger_matrix(ff,gg)
-POLY ff; POLY gg;
+     POLY ff; POLY gg;
 {
   int exp[2*N0]; /* exponents */
   int i,k;
@@ -369,7 +369,7 @@ POLY ff; POLY gg;
 
 /* This should be used in case of q */
 int mmLarger_qmatrix(ff,gg)
-POLY ff; POLY gg;
+     POLY ff; POLY gg;
 {
   int exp[2*N0]; /* exponents */
   int i,k;
@@ -418,8 +418,8 @@ POLY ff; POLY gg;
 
 /* x(N-1)>x(N-2)>....>D(N-1)>....>D(0) */
 mmLarger_pureLexicographic(f,g)
-POLY f;
-POLY g;
+     POLY f;
+     POLY g;
 {
   int i,r;
   int n;
@@ -458,7 +458,7 @@ POLY g;
 
 
 void setFromTo(ringp)
-struct ring *ringp;
+     struct ring *ringp;
 {
   int n;
   int i,j,oasize;
@@ -474,14 +474,14 @@ struct ring *ringp;
     ringp->from[i] = 0; ringp->to[i] = n;
     for (j=0; j<n; j++) {
       if (ringp->order[i*n+j] != 0) {
-	ringp->from[i] = j;
-	break;
+        ringp->from[i] = j;
+        break;
       }
     }
     for (j=n-1; j>=0; j--) {
       if (ringp->order[i*n+j] != 0) {
-	ringp->to[i] = j+1;
-	break;
+        ringp->to[i] = j+1;
+        break;
       }
     }
   }
@@ -490,7 +490,7 @@ struct ring *ringp;
 /* It ignores h and should be used with mmLarger_tower */
 /* cf. mmLarger_matrix.  h always must be checked at last. */
 static int mmLarger_matrix_schreyer(ff,gg)
-POLY ff; POLY gg;
+     POLY ff; POLY gg;
 {
   int exp[2*N0]; /* exponents */
   int i,k;
@@ -558,16 +558,16 @@ int mmLarger_tower(POLY f,POLY g) {
   }
   if (!(f->m->ringp->schreyer) || !(g->m->ringp->schreyer))
     return(mmLarger_matrix(f,g));
-    /* modifiable: mmLarger_qmatrix */
+  /* modifiable: mmLarger_qmatrix */
   gbList = (struct object *)(g->m->ringp->gbListTower);
   if (gbList == NULL) return(mmLarger_matrix(f,g));
-                      /* modifiable: mmLarger_qmatrix */
+  /* modifiable: mmLarger_qmatrix */
   if (gbList->tag != Slist) {
     warningOrder("mmLarger_tower(): gbList must be in Slist.\n");
     return(1);
   }
   if (klength(gbList) ==0) return(mmLarger_matrix(f,g));
-                      /* modifiable: mmLarger_qmatrix */
+  /* modifiable: mmLarger_qmatrix */
 
   r = mmLarger_tower3(f,g,gbList);
   /* printf("mmLarger_tower3(%s,%s) -->  %d\n",POLYToString(head(f),'*',1),POLYToString(head(g),'*',1),r); */
@@ -598,7 +598,7 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
   n = f->m->ringp->n;
   nn = f->m->ringp->nn;
   /* critical and modifiable */  /* m e_u > m e_v <==> m g_u > m g_v */
-                                 /*                  or equal and u < v */  
+  /*                  or equal and u < v */  
   fv = f->m->e[nn].x ; /* extract component (vector) number of f! */
   gv = g->m->e[nn].x ;
   if (fv == gv) { /* They have the same component number. */
@@ -606,13 +606,13 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
   }
 
   if (gbList == NULL) return(mmLarger_matrix_schreyer(f,g));
-                      /* modifiable: mmLarger_qmatrix */
+  /* modifiable: mmLarger_qmatrix */
   if (gbList->tag != Slist) {
     warningOrder("mmLarger_tower(): gbList must be in Slist.\n");
     return(1);
   }
   if (klength(gbList) ==0) return(mmLarger_matrix(f,g));
-                      /* modifiable: mmLarger_qmatrix */
+  /* modifiable: mmLarger_qmatrix */
   gb = car(gbList);  /* each entry must be monomials */
   if (gb.tag != Sarray) {
     warningOrder("mmLarger_tower3(): car(gbList) must be an array.\n");
@@ -626,7 +626,7 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
   if (fv >= t || gv >= t) {
     warningOrder("mmLarger_tower3(): incompatible input and gbList.\n");
     printf("Length of gb is %d, f is %s, g is %s\n",t,KPOLYToString(f),
-	   KPOLYToString(g));
+           KPOLYToString(g));
     KSexecuteString(" show_ring ");
     return(1);
   }
@@ -641,13 +641,13 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
 }
   
 static void warningOrder(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"Warning in order.c: %s\n",s);
 }
 
 static void errorOrder(s)
-char *s;
+     char *s;
 {
   fprintf(stderr,"order.c: %s\n",s);
   exit(14);

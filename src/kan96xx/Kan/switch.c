@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/switch.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -33,8 +33,8 @@ void print_switch_status(void) {
  or    (report) (function) switch_function value(string)
 */
 char *switch_function(fun,arg)
-char *fun;
-char *arg;
+     char *fun;
+     char *arg;
 {
   char *ans = NULL;
   if (strcmp(fun,"mmLarger")==0) {
@@ -100,7 +100,7 @@ void switch_init(void) {
 */
 
 void switch_mmLarger(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"matrix") == 0) {
     mmLarger = mmLarger_matrix;
@@ -119,7 +119,7 @@ char *arg;
 */
 
 void switch_mpMult(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"poly") == 0) {
     mpMult = mpMult_poly;
@@ -139,7 +139,7 @@ char *arg;
 */
 
 void switch_monomialAdd(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"poly") == 0) {
     monomialAdd = monomialAdd_poly;
@@ -148,7 +148,7 @@ char *arg;
 }
 
 void switch_red(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"standard") == 0) {
     switch_sp("standard");
@@ -209,7 +209,7 @@ char *arg;
 }
 
 void switch_groebner(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"standard") == 0) {
     groebner = groebner_gen;
@@ -222,7 +222,7 @@ char *arg;
 
 /* called from switch_init */
 void switch_isSameComponent(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"x") == 0) {
     isSameComponent = isSameComponent_x;
@@ -234,7 +234,7 @@ char *arg;
 }
 
 void switch_sp(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"standard") == 0) {
     sp = sp_gen;
@@ -244,7 +244,7 @@ char *arg;
 
 
 void switch_grade(arg)
-char *arg;
+     char *arg;
 {
   if (strcmp(arg,"standard")==0) {
     grade = grade_gen;

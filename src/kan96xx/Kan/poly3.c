@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -19,7 +19,7 @@ static int Maxv;
 static POLY *RList;
 static POLY *RListRoot;
 static struct coeff *Tc = (struct coeff *)NULL;
-     /* It is initialized in mpMult_diff() */
+/* It is initialized in mpMult_diff() */
 
 void initT(void) {
   int i;
@@ -28,8 +28,8 @@ void initT(void) {
   EList = (int *)sGC_malloc(sizeof(int)*Lsize);
   Mark = (int *)sGC_malloc(sizeof(int)*Lsize);
   /* The following line causes the warning 'needed to allocate blacklisted..'
-  DList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
-  MList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
+     DList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
+     MList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
   */
   DList = (int *)malloc(sizeof(int)*Lsize*N0);
   MList = (int *)malloc(sizeof(int)*Lsize*N0);
@@ -41,9 +41,9 @@ void initT(void) {
 }
   
 void makeTable(c,e,ringp)
-struct coeff *c; /* read only */
-struct exps e[];
-struct ring *ringp;
+     struct coeff *c; /* read only */
+     struct exps e[];
+     struct ring *ringp;
 {
   int i,j,k,p,q,deg,m,n;
   m = ringp->m; n = ringp->n;
@@ -66,26 +66,26 @@ struct ring *ringp;
     /* Copy j-th row to k-th row and modify it. */
     for (j=0; j<Plist; j++) {
       for (q=1; q<=DList[I(j,i)]; q++) {
-	for (p=0; p<Maxv; p++) { /* copy */
-	  DList[I(k,p)] = DList[I(j,p)];
-	  MList[I(k,p)] = MList[I(j,p)];
-	}
-	/* modify */
-	DList[I(k,i)] -= q;
-	MList[I(k,i)] += q;
+        for (p=0; p<Maxv; p++) { /* copy */
+          DList[I(k,p)] = DList[I(j,p)];
+          MList[I(k,p)] = MList[I(j,p)];
+        }
+        /* modify */
+        DList[I(k,i)] -= q;
+        MList[I(k,i)] += q;
 
-	CiiComb(Tc,DList[I(j,i)],q);
-	/* Tc->val.bigp is read only. */
-	CList[k] = coeffCopy(Tc);
-	Cmult(CList[k],CList[k],CList[j]);
-	/*CList[k] = normalize(CList[j]*BiiComb(DList[I(j,i)],q));*/
-	
-	EList[k] = EList[j]-2*q;
-	Mark[k] = 0;
-	k++;
-	if (k>= Lsize) {
-	  errorPoly("makeTable(): Lsize is not large enough.\n");
-	}
+        CiiComb(Tc,DList[I(j,i)],q);
+        /* Tc->val.bigp is read only. */
+        CList[k] = coeffCopy(Tc);
+        Cmult(CList[k],CList[k],CList[j]);
+        /*CList[k] = normalize(CList[j]*BiiComb(DList[I(j,i)],q));*/
+    
+        EList[k] = EList[j]-2*q;
+        Mark[k] = 0;
+        k++;
+        if (k>= Lsize) {
+          errorPoly("makeTable(): Lsize is not large enough.\n");
+        }
       }
     }
     Plist = k;
@@ -93,9 +93,9 @@ struct ring *ringp;
 }
 
 void monomialMult_diff(e,f)
-struct exps e[];
-POLY f;
-/* (e) * f = [Plist] monomials  */
+     struct exps e[];
+     POLY f;
+     /* (e) * f = [Plist] monomials  */
 {
 
   int n,k,c,l,q,i,m;
@@ -117,7 +117,7 @@ POLY f;
     }
     if (Homogenize) {
       tmp.e[0].D += EList[k]; /* homogenization.
-				 e[0].D will be added later. */
+                                 e[0].D will be added later. */
     }
 
     /* from m to n:  Differential variables. */
@@ -138,15 +138,15 @@ POLY f;
     if (l-c > 0) {
       q =0;
       for (i=c; i<l; i++) {
-	q += (e[i].D)*(tmp.e[i].x);  /* Don't repeat these things. */
-	tmp.e[i].D += e[i].D;
+        q += (e[i].D)*(tmp.e[i].x);  /* Don't repeat these things. */
+        tmp.e[i].D += e[i].D;
       }
       /*printf("l=%d, q=%d\n",l,q);*/
       if (ringp->next == (struct ring *)NULL) {
-	tmp.e[0].x += q;
+        tmp.e[0].x += q;
       }else{
-	Cmult(a,a,polyToCoeff(cxx(1,0,q,ringp->next),ringp));
-	                      /* x[0]^q */
+        Cmult(a,a,polyToCoeff(cxx(1,0,q,ringp->next),ringp));
+        /* x[0]^q */
       }
     }
       
@@ -237,12 +237,12 @@ POLY mpMult_difference(POLY f,POLY g)
     if (f->m->e[i].D) {
       lRule[size] = cxx(1,i,1,f->m->ringp);
       if (Homogenize) {
-	rRule[size] = ppAdd(cxx(1,i,1,f->m->ringp),cdd(f->m->e[i].D,0,1,f->m->ringp));
-                           /* x_i               + e[i].D  h */
+        rRule[size] = ppAdd(cxx(1,i,1,f->m->ringp),cdd(f->m->e[i].D,0,1,f->m->ringp));
+        /* x_i               + e[i].D  h */
       }else{
-	rRule[size] = ppAdd(cxx(1,i,1,f->m->ringp),cdd(f->m->e[i].D,0,0,f->m->ringp));
-                           /* x_i               + e[i].D   */
-      }	
+        rRule[size] = ppAdd(cxx(1,i,1,f->m->ringp),cdd(f->m->e[i].D,0,0,f->m->ringp));
+        /* x_i               + e[i].D   */
+      } 
       size++;
     }
   }

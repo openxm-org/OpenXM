@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -11,17 +11,17 @@ static int degreeOfInitW(POLY f,int w[]);
 
 
 static void shell(v,n)
-int v[];
-int n;
+     int v[];
+     int n;
 {
   int gap,i,j,temp;
   
   for (gap = n/2; gap > 0; gap /= 2) {
     for (i = gap; i<n; i++) {
       for (j=i-gap ; j>=0 && v[j]<v[j+gap]; j -= gap) {
-	temp = v[j];
-	v[j] = v[j+gap];
-	v[j+gap] = temp;
+        temp = v[j];
+        v[j] = v[j+gap];
+        v[j+gap] = temp;
       }
     }
   }
@@ -29,8 +29,8 @@ int n;
 
 
 struct matrixOfPOLY *parts(f,v)
-POLY f;
-POLY v;  /* v must be a single variable, e.g. x */
+     POLY f;
+     POLY v;  /* v must be a single variable, e.g. x */
 {
   struct matrixOfPOLY *evPoly;
   int vi = 0;  /* index of v */
@@ -96,17 +96,17 @@ POLY v;  /* v must be a single variable, e.g. x */
     ft = f;
     while (ft != POLYNULL) {
       if (vx) {
-	if (ft->m->e[vi].x == ev[i]) {
-	  h = newCell(ft->coeffp,monomialCopy(ft->m));
-	  xset0(h,vi); /* touch monomial part, so you need to copy it above. */
-	  ans = ppAdd(ans,h);
-	}
+        if (ft->m->e[vi].x == ev[i]) {
+          h = newCell(ft->coeffp,monomialCopy(ft->m));
+          xset0(h,vi); /* touch monomial part, so you need to copy it above. */
+          ans = ppAdd(ans,h);
+        }
       }else{
-	if (ft->m->e[vi].D == ev[i]) {
-	  h = newCell(ft->coeffp,monomialCopy(ft->m));
-	  dset0(h,vi);
-	  ans = ppAdd(ans,h);
-	}
+        if (ft->m->e[vi].D == ev[i]) {
+          h = newCell(ft->coeffp,monomialCopy(ft->m));
+          dset0(h,vi);
+          ans = ppAdd(ans,h);
+        }
       }
       ft = ft->next;
     }
@@ -114,10 +114,10 @@ POLY v;  /* v must be a single variable, e.g. x */
   }
   return(evPoly);
 }
-	  
+      
 struct object parts2(f,v)
-POLY f;
-POLY v;  /* v must be a single variable, e.g. x */
+     POLY f;
+     POLY v;  /* v must be a single variable, e.g. x */
 {
   struct matrixOfPOLY *evPoly;
   int vi = 0;  /* index of v */
@@ -190,17 +190,17 @@ POLY v;  /* v must be a single variable, e.g. x */
     ft = f;
     while (ft != POLYNULL) {
       if (vx) {
-	if (ft->m->e[vi].x == ev[i]) {
-	  h = newCell(ft->coeffp,monomialCopy(ft->m));
-	  xset0(h,vi); /* touch monomial part, so you need to copy it above. */
-	  ans = ppAdd(ans,h);
-	}
+        if (ft->m->e[vi].x == ev[i]) {
+          h = newCell(ft->coeffp,monomialCopy(ft->m));
+          xset0(h,vi); /* touch monomial part, so you need to copy it above. */
+          ans = ppAdd(ans,h);
+        }
       }else{
-	if (ft->m->e[vi].D == ev[i]) {
-	  h = newCell(ft->coeffp,monomialCopy(ft->m));
-	  dset0(h,vi);
-	  ans = ppAdd(ans,h);
-	}
+        if (ft->m->e[vi].D == ev[i]) {
+          h = newCell(ft->coeffp,monomialCopy(ft->m));
+          dset0(h,vi);
+          ans = ppAdd(ans,h);
+        }
       }
       ft = ft->next;
     }
@@ -216,10 +216,10 @@ POLY v;  /* v must be a single variable, e.g. x */
   putoa(rob,0,ob1); putoa(rob,1,ob2);
   return(rob);
 }
-	  
+      
 int pDegreeWrtV(f,v)
-POLY f;
-POLY v;
+     POLY f;
+     POLY v;
 {
   int vx = 1;
   int vi = 0;
@@ -299,8 +299,8 @@ int containVectorVariable(POLY f)
 }
 
 POLY homogenize(f)
-POLY f;
-/* homogenize by using (*grade)(f) */
+     POLY f;
+     /* homogenize by using (*grade)(f) */
 {
   POLY t;
   int maxg;
@@ -331,7 +331,7 @@ POLY f;
 }
 
 int isHomogenized(f)
-POLY f;
+     POLY f;
 {
   POLY t;
   extern int Homogenize_vec;
@@ -348,9 +348,9 @@ POLY f;
 }
 
 int isHomogenized_vec(f)
-POLY f;
+     POLY f;
 {
-/* This is not efficient version. *grade should be grade_module1v(). */
+  /* This is not efficient version. *grade should be grade_module1v(). */
   POLY t;
   int ggg;
   if (f == ZERO) return(1);
@@ -359,7 +359,7 @@ POLY f;
     ggg = (*grade)(f);
     while (t != POLYNULL) {
       if ((*isSameComponent)(f,t)) {
-	if (ggg != (*grade)(t)) return(0);
+        if (ggg != (*grade)(t)) return(0);
       }
       t = t->next;
     }
@@ -370,7 +370,7 @@ POLY f;
 
 
 static int degreeOfPrincipalPart(f)
-POLY f;
+     POLY f;
 {
   int n,i,dd;
   if (f ISZERO) return(0);
@@ -383,7 +383,7 @@ POLY f;
 }
   
 POLY POLYToPrincipalPart(f)
-POLY f;
+     POLY f;
 {
   POLY node;
   struct listPoly nod;
@@ -412,8 +412,8 @@ POLY f;
 }
 
 static int degreeOfInitW(f,w)
-POLY f;
-int w[];
+     POLY f;
+     int w[];
 {
   int n,i,dd;
   if (f ISZERO) {
@@ -428,8 +428,8 @@ int w[];
 }
 
 POLY POLYToInitW(f,w)
-POLY f;
-int w[]; /* weight vector */
+     POLY f;
+     int w[]; /* weight vector */
 {
   POLY node;
   struct listPoly nod;
@@ -493,8 +493,8 @@ int isTheSameRing(struct ring *rstack[],int rp, struct ring *newRingp)
     if (rrr->orderMatrixSize != newRingp->orderMatrixSize) { a=12; goto bbb ; }
     for (i=0; i<rrr->orderMatrixSize; i++) {
       for (j=0; j<2*(rrr->n); j++) {
-	if (rrr->order[i*2*(rrr->n)+j] != newRingp->order[i*2*(rrr->n)+j])
-	  { a=13; goto bbb ; }
+        if (rrr->order[i*2*(rrr->n)+j] != newRingp->order[i*2*(rrr->n)+j])
+          { a=13; goto bbb ; }
       }
     }
     if (rrr->next != newRingp->next) { a=14; goto bbb ; }
