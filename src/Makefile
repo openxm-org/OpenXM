@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.28 2000/01/07 19:36:51 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.29 2000/01/07 19:38:49 maekawa Exp $
 all: all1 all-tigers all-phc all4 all-pari all-asir all-gnuplot all-openmath all-oxmath
 
 all1:
@@ -14,20 +14,20 @@ all-asir:
 all-gnuplot:
 	(cd gnuplot ; make all ; make install)
 
-all-oxmath:
-	@if test -d /usr/local/mathematica ; then \
-		(cd ox_math ; make) ; \
-	else \
-		echo -n "Warning: Mathematica is not found. " ; \
-		echo "ox_math will not be compiled." ; \
-	fi
-
 all-openmath:
 	@if ../misc/which.pl -s javac ; then \
 		(cd OpenMath ; make) ; \
 	else \
 		echo -n "Warning: javac (java compiler) is not found " ; \
 		echo "in your search path. OpenMath will not be compiled." ; \
+	fi
+
+all-oxmath:
+	@if test -d /usr/local/mathematica ; then \
+		(cd ox_math ; make) ; \
+	else \
+		echo -n "Warning: Mathematica is not found. " ; \
+		echo "ox_math will not be compiled." ; \
 	fi
 
 all-pari:
