@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.10 2000/03/10 14:57:51 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.11 2000/03/11 02:01:42 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -16,6 +16,7 @@ RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 ## Configurations.
 ## OpenXM Version Number.
 VERSION=1.1.2
+TAG=HEAD
 
 RELEASE=
 ## If you like to have a release name as a part of tar ball, then uncomment
@@ -50,8 +51,8 @@ EXECUTABLES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_math
 usage :
 	@echo "Targets are "
 	@echo "  fetch  :   get the sources from the cvs server under $(WORK)"
-	@echo "  tar-ball : generate OpenXM-source.tgz under $(TAR_WORK)"
-	@echo "  tar-ball-01 : generate OpenXM-source-01.tgz under $(TAR_WORK)"
+	@echo "  tar-ball : generate openxm-${VERSION}.tar.gz under $(TAR_WORK)"
+	@echo "  tar-ball-01 : generate openxm01-${VERSION}.tar.gz under $(TAR_WORK)"
 	@echo "  binary-tar-ball : generate OpenXM-binary-OS-CPU.tgz under $(TAR_WORK)"
 	@echo "  shared-tar-ball : generate OpenXM-shared.tgz under $(TAR_WORK)"
 	@echo "  clean-work "
@@ -133,7 +134,7 @@ clean-installed-openxm:
 fetch :
 	@if [ ! -f ./.fetch_done ]; then \
 		/bin/rm -rf work ; mkdir work ; mkdir ${WORK} ; \
-		( cd ${WORK} ; $(RCVS) export -rHEAD OpenXM OpenXM_contrib OpenXM_contrib2) ; \
+		( cd ${WORK} ; $(RCVS) export -r${TAG} OpenXM OpenXM_contrib OpenXM_contrib2) ; \
 		cp Makefile ${WORK}/Makefile ; \
 	fi
 	@touch ./.fetch_done

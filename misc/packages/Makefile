@@ -1,11 +1,15 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.7 2000/03/11 02:45:52 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.8 2000/03/11 02:52:37 takayama Exp $
 
 VERSION=1.1.2
+TAG=HEAD
+## TAG=RELEASE_1_1_2
+
 TAR_WORK=$(HOME)/tmp
 NAME=taka
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
+## TAG for the CVS server.
 
 
 # Modify below for priting.
@@ -35,27 +39,28 @@ print:
 	$(PS) Linux/RPM/Makefile | $(LPR)	
 	$(PS) Linux/RPM/openxm-*spec.in | $(LPR)	
 	$(PS) FreeBSD/openxm-ports/openxm-1.1.2/Makefile | $(LPR)	
+	$(PS) FreeBSD/Makefile | $(LPR)	
 	$(PS) Makefile | $(LPR)	
 
 
 generate-tar-balls:
 	-mkdir ${TAR_WORK}
 	make clean
-	(cd Generic/openxm ; make tar-ball)
+	(cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} tar-ball)
 	make update-plist
-	(cd FreeBSD/openxm-${VERSION} ; make make-tar-ball-for-openxm-port)
+	(cd FreeBSD   ; make TAG=${TAG} VERSION=${VERSION} make-tar-ball-for-openxm-port)
 	(cd Linux/RPM ; make make-directory)
 	(cd Linux/RPM ; make link-for-real-openxm)
 
 update-plist:
-	(cd FreeBSD ; make VERSION=${VERSION} update-plist )
+	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} VERSION=${VERSION} update-plist )
 
 build-on-orange:
-	(cd Generic/openxm ; make tar-ball-01)
-	(cd Generic/openxm ; make binary-tar-ball)
-	(cd Generic/openxm ; make shared-tar-ball)
-	(cd Generic/openxm ; make clean-work)
-	(cd Linux/RPM ; make build-shared-rpm)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} shared-tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} clean-work)
+	(cd Linux/RPM ; make  TAG=${TAG} VERSION=${VERSION} build-shared-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
 
 # You should be a super user.
@@ -65,12 +70,12 @@ build-on-pear:
 	(PATH=/usr/local/${JDK}/java ; export PATH ; cd FreeBSD/openxm-ports/openxm-${VERSION} ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
 
 build-on-redhat:
-	(cd Generic/openxm ; make binary-tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Linux/RPM ; make build-binary-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
 
 build-on-unkei:
-	(cd Generic/openxm ; make binary-tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 
 copy-to-ftp-area:
 	-mkdir ${FTP_AREA}

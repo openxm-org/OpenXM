@@ -1,5 +1,6 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.4 2000/03/11 02:01:40 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.5 2000/03/11 02:45:53 takayama Exp $
 VERSION=1.1.2
+TAG=HEAD
 
 usage:
 	@echo "Targets:  "
@@ -9,7 +10,7 @@ usage:
 all :
 
 clean:
-	-/bin/rm -rf openxm-ports/openxm-1.1.2/work openxm-ports/openxm-1.1.2/openxm-1.1.2.tgz
+	-/bin/rm -rf openxm-ports/openxm-1.1.2/work openxm-ports/openxm-1.1.2/openxm-1.1.2.tgz work
 ##  tmp2 might be used to debug openxm-1.1.2 for ports.
 	-/bin/rm -rf $(HOME)/tmp2/OpenXM $(HOME)/tmp2/bin
 	-mkdir $(HOME)/tmp2
@@ -21,5 +22,12 @@ update-plist :
 	(cd openxm-ports/openxm-${VERSION} ; make TAR_WORK=$(HOME)/tmp DISTDIR=$(HOME)/tmp PREFIX=$(HOME)/tmp2)
 	(cd openxm-ports/openxm-${VERSION}/files ; make ; ./gen-plist.shell)
 	(cd openxm-ports/openxm-${VERSION}/files ; cp plist-tmp2 ../pkg/PLIST)
-	(cd openxm-ports/openxm-${VERSION}/pkg ; rcvs commit PLIST)
+	(cd openxm-ports/openxm-${VERSION}/pkg ; rcvs commit -m 'Automatic update by update-plist' PLIST)
+
+
+make-tar-ball-for-openxm-port:
+	rm -rf work
+	(cd work ; $(RCVS) export -r${TAG} OpenXM/misc/packages/FreeBSD)
+	(cd work ; OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm)
+	(cd work ; tar czf ${TAR_WORK}/openxm-port.tar.gz openxm)
 
