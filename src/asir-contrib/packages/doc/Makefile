@@ -1,6 +1,6 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.53 2004/03/05 15:30:50 ohara Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.54 2004/03/05 15:56:40 ohara Exp $
 # targets
-# all :   
+# all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
 # install : install-help
 # install-help : all
@@ -21,14 +21,14 @@
 #  How to add new documents in the category xxx
 # "xxx*.texi <--- xxx.oxweave (manually written) + xxx*auto*.texi (automatic)"
 #   (1) "xxx.oxweave" --> xxx-en.texi and xxx-ja.texi
-#       xxx-auto-en.texi and xxx-auto-ja.texi should be included from 
+#       xxx-auto-en.texi and xxx-auto-ja.texi should be included from
 #       xxx-en.texi and xxx-ja.texi  (JPSRCS, EGSRCS)
-#     NOTE: xxx.oxweave might be embedded in xxx.rr or xxx, 
+#     NOTE: xxx.oxweave might be embedded in xxx.rr or xxx,
 #           but this style is obsolete.
-#   (2) "xxx.rr" or "xxx" --> xxx-auto-en.texi and xxx-auto-ja.texi 
+#   (2) "xxx.rr" or "xxx" --> xxx-auto-en.texi and xxx-auto-ja.texi
 #       (JAAUTO, ENAUTO)
 #       xxx-auto*.texi's are extracted from xxx or xxx.rr
-#   (3) xxx-en.texi and xxx-ja.texi should be included from cman.texi 
+#   (3) xxx-en.texi and xxx-ja.texi should be included from cman.texi
 #     and cman-en.texi
 #  cf.  glib*  base*
 ########################################################################
@@ -36,7 +36,7 @@ OpenXM_ROOT=../../../../../OpenXM
 ASIRDOC=$(OpenXM_ROOT)/src/asir-doc
 ASIRLIB=$(OpenXM_ROOT)/../OpenXM_contrib2/asir2000/lib
 CONTRIB=$(OpenXM_ROOT)/src/asir-contrib/packages/src
-OPTGENTEXI= --include 
+OPTGENTEXI= --include
 #OPTGENTEXI= --include --example
 ## PS documents are installed under $(OpenXM_doc)/asir-contrib
 OpenXM_doc=$(OpenXM_ROOT)/doc
@@ -45,8 +45,8 @@ OXWEAVE=$(OpenXM_ROOT)/bin/oxweave
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
 
-JPSRCS= opening.texi oxrfc100-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi util-ja.texi 
-EGSRCS= opening.texi oxrfc100-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi util-en.texi 
+JPSRCS= opening.texi oxrfc100-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi util-ja.texi
+EGSRCS= opening.texi oxrfc100-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi util-en.texi
 
 JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi \
        print-auto-ja.texi matrix-auto-ja.texi glib-auto-ja.texi \
@@ -59,7 +59,8 @@ ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi \
 
 all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
 	@echo "Type in  tex cman-en.texi to generate the manual(en) in dvi format."
-	@echo "Type in  ptex cman-ja.texi   to generate the manual(ja) in dvi format."
+	@echo "Type in ptex cman-ja.texi to generate the manual(ja) in dvi format."
+
 install :
 	@if [ ! -f ./.done_install ] ; \
 	then \
@@ -78,8 +79,7 @@ install-document : install-html-help
 		echo "NOTE: Installation of document is already done. Remove .done_install_document for a new installation." ; \
 	fi
 
-
-install2 : install-help 
+install2 : install-help
 
 gentexi : gentexi.c
 	gcc -o gentexi gentexi.c
@@ -220,43 +220,43 @@ complex-en.texi : complex.oxweave
 	$(OXWEAVE) C en  <complex.oxweave >complex-en.texi
 
 
-oxrfc100-ja.texi : oxrfc100.oxweave Makefile
+oxrfc100-ja.texi : oxrfc100.oxweave
 	$(RM) -f oxrfc100-ja.texi
 	$(OXWEAVE) C ja  <oxrfc100.oxweave >oxrfc100-ja.texi
 
-oxrfc100-en.texi : oxrfc100.oxweave Makefile
+oxrfc100-en.texi : oxrfc100.oxweave
 	$(RM) -f oxrfc100-en.texi
 	$(OXWEAVE) C en  <oxrfc100.oxweave >oxrfc100-en.texi
 
-oxmath-ja.texi : m.oxweave Makefile
+oxmath-ja.texi : m.oxweave
 	$(RM) -f oxmath-ja.texi
 	$(OXWEAVE) C ja  <m.oxweave >oxmath-ja.texi
 
-oxmath-en.texi : m.oxweave Makefile
+oxmath-en.texi : m.oxweave
 	$(RM) -f oxmath-en.texi
 	$(OXWEAVE) C en  <m.oxweave >oxmath-en.texi
 
-oxphc-ja.texi : phc.oxweave Makefile
+oxphc-ja.texi : phc.oxweave
 	$(RM) -f oxphc-ja.texi
 	$(OXWEAVE) C ja  <phc.oxweave >oxphc-ja.texi
 
-oxphc-en.texi : phc.oxweave Makefile
+oxphc-en.texi : phc.oxweave
 	$(RM) -f oxphc-en.texi
 	$(OXWEAVE) C en  <phc.oxweave >oxphc-en.texi
 
-oxgnuplot-ja.texi : gnuplot.oxweave Makefile
+oxgnuplot-ja.texi : gnuplot.oxweave
 	$(RM) -f oxgnuplot-ja.texi
 	$(OXWEAVE) C ja  <gnuplot.oxweave >oxgnuplot-ja.texi
 
-oxgnuplot-en.texi : gnuplot.oxweave Makefile
+oxgnuplot-en.texi : gnuplot.oxweave
 	$(RM) -f oxgnuplot-en.texi
 	$(OXWEAVE) C en  <gnuplot.oxweave >oxgnuplot-en.texi
 
 ###sm1
-oxsm1-ja.texi : sm1.oxweave Makefile sm1-auto-ja.texi
+oxsm1-ja.texi : sm1.oxweave sm1-auto-ja.texi
 	$(RM) -f oxsm1-ja.texi
 	$(OXWEAVE) C ja  <sm1.oxweave >oxsm1-ja.texi
-oxsm1-en.texi : sm1.oxweave Makefile sm1-auto-en.texi
+oxsm1-en.texi : sm1.oxweave sm1-auto-en.texi
 	$(RM) -f oxsm1-en.texi
 	$(OXWEAVE) C en  <sm1.oxweave >oxsm1-en.texi
 sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
@@ -266,46 +266,46 @@ sm1-auto-ja.texi : $(CONTRIB)/sm1 gentexi
 	$(RM) -f sm1-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-ja.texi
 
-oxom-ja.texi : $(CONTRIB)/om Makefile
+oxom-ja.texi : $(CONTRIB)/om
 	$(RM) -f oxom-ja.texi
 	$(OXWEAVE) C ja  <$(CONTRIB)/om >oxom-ja.texi
 
-oxom-en.texi : $(CONTRIB)/om Makefile
+oxom-en.texi : $(CONTRIB)/om
 	$(RM) -f oxom-en.texi
 	$(OXWEAVE) C en  <$(CONTRIB)/om >oxom-en.texi
 
-dsolv-ja.texi : dsolv.oxweave Makefile
+dsolv-ja.texi : dsolv.oxweave
 	$(RM) -f dsolv-ja.texi
 	$(OXWEAVE) C ja  <dsolv.oxweave >dsolv-ja.texi
 
-dsolv-en.texi : dsolv.oxweave Makefile
+dsolv-en.texi : dsolv.oxweave
 	$(RM) -f dsolv-en.texi
 	$(OXWEAVE) C en  <dsolv.oxweave >dsolv-en.texi
 
 
-oxtigers-ja.texi : tigers.oxweave Makefile
+oxtigers-ja.texi : tigers.oxweave
 	$(RM) -f oxtigers-ja.texi
 	$(OXWEAVE) C ja  <tigers.oxweave >oxtigers-ja.texi
 
-oxtigers-en.texi : tigers.oxweave Makefile
+oxtigers-en.texi : tigers.oxweave
 	$(RM) -f oxtigers-en.texi
 	$(OXWEAVE) C en  <tigers.oxweave >oxtigers-en.texi
 
 ### windows
-windows-ja.texi : windows.oxweave Makefile
+windows-ja.texi : windows.oxweave
 	$(RM) -f windows-ja.texi
 	$(OXWEAVE) C ja  <windows.oxweave >windows-ja.texi
 
-windows-en.texi : windows.oxweave Makefile
+windows-en.texi : windows.oxweave
 	$(RM) -f windows-en.texi
 	$(OXWEAVE) C en  <windows.oxweave >windows-en.texi
 
 ### intro
-intro-ja.texi : intro.oxweave Makefile
+intro-ja.texi : intro.oxweave
 	$(RM) -f intro-ja.texi
 	$(OXWEAVE) C ja  <intro.oxweave >intro-ja.texi
 
-intro-en.texi : intro.oxweave Makefile
+intro-en.texi : intro.oxweave
 	$(RM) -f intro-en.texi
 	$(OXWEAVE) C en  <intro.oxweave >intro-en.texi
 
