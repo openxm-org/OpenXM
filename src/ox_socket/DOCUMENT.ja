@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/ox_socket/DOCUMENT.ja,v 1.2 2000/11/30 00:51:00 maekawa Exp $
+$OpenXM: OpenXM/src/ox_socket/DOCUMENT.ja,v 1.3 2000/11/30 13:05:45 maekawa Exp $
 
 Drafts of the specification of the OpenXM standard socket APIs.
 
@@ -34,7 +34,7 @@ Drafts of the specification of the OpenXM standard socket APIs.
 
 	listen(2) の代わりに ox_listen を使うべし.
 
-	struct listen_socks *
+	struct ox_listen_socks *
 	ox_listen(const char *hostname, int *port, int backlog,
 		  struct ox_sockopt *opt);
 
@@ -43,9 +43,11 @@ Drafts of the specification of the OpenXM standard socket APIs.
 	backlog	 - listen(2) の第二引数
 	opt	 - setsockopt(2) へ渡したいオプション群 (ox_connect と同様)
 
-	struct listen_socks {
+	#define	OX_MAX_LISTEN_SOCKS	32
+
+	struct ox_listen_socks {
+		int	sock[OX_MAX_LISTEN_SOCKS];
 		int	nsocks;
-		int	listen_sock[nsocks];	/* 動的に割り当てられる */
 	};
 
 	hostname が NULL の場合, ox_listen は任意のホスト
@@ -54,7 +56,7 @@ Drafts of the specification of the OpenXM standard socket APIs.
 	成功すれば listen(2) しているソケットの数と配列への構造体への
 	ポインタを, 失敗すれば NULL を返す.
 
-	listen_socks 構造体を使う理由:
+	ox_listen_socks 構造体を使う理由:
 		待ち受けているソケットは必ずしもひとつではない.
 		IPv4 と IPv6 双方が利用可能な (デュアルスタックな)
 		マシンにおいて, IPv4 および IPv6 をサポートしている
