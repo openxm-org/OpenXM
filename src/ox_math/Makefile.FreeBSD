@@ -1,5 +1,5 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.FreeBSD,v 1.3 1999/11/07 12:12:54 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.FreeBSD,v 1.4 1999/11/23 02:03:14 ohara Exp $ 
 
 #
 PREFIX=/usr/local
@@ -9,14 +9,11 @@ SYS = Linux
 ADDONSDIR = ${MLINKDIR}/${SYS}/CompilerAdditions
 MPREP = ${ADDONSDIR}/mprep
 
-# ADDONSDIR =
-
-CC = gcc
 GMPSRC = /usr/lib
-GMPINC = -I${PREFIX}/include
+GMPINC = 
 
 CDEFS  = -DDEBUG
-INCDIR = -I${ADDONSDIR} ${GMPINC}
+INCDIR = -I${ADDONSDIR} ${GMPINC} -I${OpenXM_HOME}/src/ox_toolkit
 LIBDIR = -L${ADDONSDIR} -L.
 CFLAGS = -g -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
 
@@ -24,56 +21,43 @@ CFLAGS = -g -O2 ${CDEFS} ${INCDIR} ${LIBDIR}
 #MATHLIBS = -lML  -lm
 LIBS = -lox -lgmp ${MATHLIBS} ${SOLLIBS}
 
-LIBOBJS = ox.o parse.o mysocket.o
 BINARIES = bconv testclient
 
-all: libox.a $(BINARIES)
+all: libgmp.a libox.a $(BINARIES)
 
-configure:
-	@(cd ${OpenXM_HOME}/src; ${MAKE} configure)
-	@(cd ${OpenXM_HOME}/src/gmp; ./configure; make)
-
-bconv.o:      ox.h oxtag.h parse.h
-math2ox.o:    ox.h oxtag.h parse.h
-mysocket.o:   mysocket.h
-ox.o:         ox.h oxtag.h parse.h mysocket.h
-parse.o:      ox.h oxtag.h parse.h
-serv1.o:      ox.h oxtag.h serv2.h
-serv2.o:      ox.h oxtag.h parse.h serv2.h
-testclient.o: ox.h oxtag.h
+serv1.o:      serv2.h
+serv2.o:      serv2.h
+mlo.o:        serv2.h
 
 libgmp.a:
-	@if [ ! -f ${GMPSRC}/libgmp.a ]; then \
-		${MAKE} configure; \
-	fi
-	cp -f ${GMPSRC}/libgmp.a .
+	ln -s -f ${GMPSRC}/libgmp.a .
 
-libox.a: ${LIBOBJS} libgmp.a
-	-rm -f $@
-	ar -rc $@ ${LIBOBJS}
-	ranlib $@
+libox.a:
+	-rm -f libox.a
+	(cd ${OpenXM_HOME}/src/ox_toolkit; ${MAKE} libox.a)
+	ln -s ${OpenXM_HOME}/src/ox_toolkit/libox.a .
 
-bconv: bconv.o libox.a
+bconv: bconv.o libox.a libgmp.a
 	${CC} ${CFLAGS} -o $@ bconv.o ${LIBS}
 
-testclient: testclient.o libox.a
+testclient: testclient.o libox.a libgmp.a
 	${CC} ${CFLAGS} -o $@ testclient.o ${LIBS}
 
-ox_math: serv1.o serv2.o libox.a
-	${CC} ${CFLAGS} -o $@ serv2.o serv1.o ${LIBS}
+ox_math: serv1.o serv2.o mlo.o libox.a libgmp.a
+	${CC} ${CFLAGS} -o $@ serv2.o serv1.o mlo.o ${LIBS}
 
-math2ox: math2ox.o math2.o serv2.o libox.a
-	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o ${LIBS}
-
-sample : sample.o libox.a
-	${CC} ${CFLAGS} -o $@ sample.o ${LIBS}
+math2ox: math2ox.o math2.o mlo.o serv2.o libox.a libgmp.a
+	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o mlo.o ${LIBS}
 
 math2.c: math2.tm
 	-rm -f $@
 	${MPREP} $? > $@
 
-install-openXM-bin:  $(BINARIES)
+install-bin:  $(BINARIES)
 	install -c -m 755  $(BINARIES) ${OpenXM_HOME}/bin/
+
+install:  $(BINARIES)
+	-ln -s $(BINARIES) ${OpenXM_HOME}/bin
 
 clean:
 	-rm -f *.o *~ libox.a libgmp.a math2.c
