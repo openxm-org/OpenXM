@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.23 2000/01/07 19:18:13 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.24 2000/01/07 19:21:39 maekawa Exp $
 all : all1 all-tigers all-phc all4 all-pari all-asir all-gnuplot all-openmath all6
 
 all1 :
@@ -19,6 +19,10 @@ all-openmath:
 		echo "in your search path. OpenMath will not be compiled." ; \
 	fi
 
+all-pari:
+	(cd pari ; make install ; make install-lib-sta)
+	(cd pari ; ranlib ../../OpenXM/lib/libpari.a)
+
 all-phc:
 	(cd phc ; make all ; make install)
 
@@ -34,8 +38,6 @@ all6 :
 	(cd ox_math ; make ) ; \
 	fi 
 	   
-all-pari :
-	(cd pari ; make install ; make install-lib-sta ; ranlib ../../OpenXM/lib/libpari.a)
 all-asir : 
 	(cd asir2000; xmkmf -a; make; make install ; make install2)
 
