@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dagb-noro.tex,v 1.4 2001/10/04 08:22:20 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dagb-noro.tex,v 1.5 2001/10/09 01:44:21 noro Exp $
 \setlength{\parskip}{10pt}
 
 \begin{slide}{}
@@ -99,7 +99,7 @@ Whole source tree is available via CVS
 
 Polynomial factorization, Groebner basis related computation
 
-$\Rightarrow$ serves as an OpenXM server/library
+$\Rightarrow$ my main motivation
 
 \item Front-end of a general purpose math software
 
@@ -218,7 +218,7 @@ derived from norms.
 
 \item Current
 
-Multivariate : not so bad
+Multivariate : moderate
 
 Univariate : completely obsolete by M. van Hoeij's new algorithm
 [Hoeij]
@@ -249,9 +249,38 @@ $F_4$ in FGb : much more efficient than $F_4$ in Risa/Asir
 
 Buchberger in Singular [Singular] : faster than Risa/Asir
 
-$\Leftarrow$ efficient monomial and polynomial representation
+$\Leftarrow$ efficient monomial and polynomial comutation
 
 \end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{Some timing data --- DRL Groebner basis computation}
+
+\underline{Over $GF(32003)$}
+\begin{center}
+\begin{tabular}{|c||c|c|c|c|c|c|c|} \hline
+		& $C_7$ & $C_8$ & $K_7$ & $K_8$ & $K_9$ & $K_{10}$ & $K_{11}$ \\ \hline
+Asir $Buchberger$ 	& 31 & 1687  & 2.6  & 27 & 294  & 4309 & --- \\ \hline
+Singular & 8.7 & 278 & 0.6 & 5.6 & 54 & 508 & 5510 \\ \hline
+CoCoA 4 & 241 & & 3.8 & 35 & 402 & &  \\ \hline\hline
+Asir $F_4$ 	& 5.3 & 129 & 0.5  & 4.5 & 31  & 273 & 2641 \\ \hline
+FGb(estimated)	& 0.9 & 23 & 0.1 & 0.8 & 6 & 51 & 366 \\ \hline
+\end{tabular}
+\end{center}
+
+\underline{Over {\bf Q}}
+
+\begin{center}
+\begin{tabular}{|c||c|c|c|c|c|} \hline
+		& $C_7$ & $Homog. C_7$ & $K_7$ & $K_8$ & $McKay$ \\ \hline
+Asir $Buchberger$ 	& 389 & 594 & 29 & 299 & 34950 \\ \hline
+Singular & & 15247 & 7.6 & 79 & \\ \hline
+CoCoA 4 & & & 57 & 709 & \\ \hline\hline
+Asir $F_4$ 	&  989 & 456 & 90 & 991 & 4939 \\ \hline
+FGb(estimated)	& 8 &11 & 0.6 & 5 & 10 \\ \hline
+\end{tabular}
+\end{center}
 \end{slide}
 
 \begin{slide}{}
@@ -262,11 +291,13 @@ $\Leftarrow$ efficient monomial and polynomial representation
 
 {ox\_NTL} for univariate factorization, 
 
-{ox\_FGb} for Groebner basis computation (is it possible?) etc.
+{ox\_???} for Groebner basis computation, etc.
 
 $\Rightarrow$ Risa/Asir can be a front-end of efficient servers
 
 \item Trying to improve our implementation
+
+This is very important as a motivation of further development
 
 Computation of $b$-function : still faster than any other system
 (Kan/sm1, Macaulay2) but not satisfactory
@@ -278,61 +309,6 @@ algebra should be improved
 \begin{center}
 \underline{In both cases, OpenXM interface is important}
 \end{center}
-\end{slide}
-
-\begin{slide}{}
-\fbox{OpenXM server interface in Risa/Asir}
-
-\begin{itemize}
-\item TCP/IP stream
-
-\begin{itemize}
-\item Launcher
-
-A client executes a launcher on a host.
-
-The launcher launches a server on the same host.
-
-\item Server
-
-Reads from the descriptor 3
-
-Writes to the descriptor 4
-
-\end{itemize}
-
-\item Subroutine call
-
-In Risa/Asir subroutine library {\tt libasir.a}:
-
-OpenXM functionalities are implemented as functon calls
-
-pushing and popping data, executing stack commands etc.
-\end{itemize}
-\end{slide}
-
-\begin{slide}{}
-\fbox{OpenXM client interface in Risa/Asir}
-
-\begin{itemize}
-\item Primitive interface functions
-
-Pushing and popping data, sending commands etc.
-
-\item Convenient functions
-
-Launching servers,
-
-Calling remote functions,
-
-Resetting remote executions etc.
-
-\item Parallel distributed computation
-
-Simple parallelization is practically important
-
-Competitive computation is easily realized ($\Rightarrow$ demo)
-\end{itemize}
 \end{slide}
 
 
@@ -685,6 +661,61 @@ evaluated by {\tt eval()}
 
 The knapsack factorization is available via {\tt pari(factor,{\it poly})}
 \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{OpenXM server interface in Risa/Asir}
+
+\begin{itemize}
+\item TCP/IP stream
+
+\begin{itemize}
+\item Launcher
+
+A client executes a launcher on a host.
+
+The launcher launches a server on the same host.
+
+\item Server
+
+Reads from the descriptor 3
+
+Writes to the descriptor 4
+
+\end{itemize}
+
+\item Subroutine call
+
+In Risa/Asir subroutine library {\tt libasir.a}:
+
+OpenXM functionalities are implemented as functon calls
+
+pushing and popping data, executing stack commands etc.
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{OpenXM client interface in Risa/Asir}
+
+\begin{itemize}
+\item Primitive interface functions
+
+Pushing and popping data, sending commands etc.
+
+\item Convenient functions
+
+Launching servers,
+
+Calling remote functions,
+
+Resetting remote executions etc.
+
+\item Parallel distributed computation
+
+Simple parallelization is practically important
+
+Competitive computation is easily realized ($\Rightarrow$ demo)
 \end{itemize}
 \end{slide}
 
