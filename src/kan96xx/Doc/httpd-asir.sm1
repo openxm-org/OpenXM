@@ -1,11 +1,11 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.3 2001/04/21 08:18:03 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.4 2001/04/21 11:16:30 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
 /httpd.initialization
 %% Put initialization codes here.
  [
-  ("Risa/Asir web version 0.80. "+
+  ("Asirweb version 0.80. "+
    " Risa/Asir oxasir version "+rtostr(version());)
  ] cat
 def
@@ -13,25 +13,32 @@ def
 (oxasir.started) boundp { 
 } {
   [(x^2-1) (x)] fctr pop
+  oxasir.ccc oxmathcap
+  oxasir.ccc oxsetmathcap
 } ifelse
+
+/asirweb {
+  (sleep 3; netscape -geometry 800x500 http://localhost:1200 &) system
+   httpd ;
+} def
 
 /httpd_startserver {
    [(sm1.socket) (open) [httpd.port (localhost)]] extension 
-   /server.fdAndPort set
-   (sm1.socket.open returns  ) messagen server.fdAndPort message
-   [(sm1.socket) (accept) [server.fdAndPort 0 get]] extension
-   /server.fd set
+   /httpd.server.fdAndPort set
+   (sm1.socket.open returns  ) messagen httpd.server.fdAndPort message
+   [(sm1.socket) (accept) [httpd.server.fdAndPort 0 get]] extension
+   /httpd.server.fd set
    (connected.) message
-   (sm1.socket.accept returns  ) messagen server.fd message
+   (sm1.socket.accept returns  ) messagen httpd.server.fd message
 } def
 
 /httpd_stopserver {
-   [(sm1.socket) (close) server.fd ] extension message
+   [(sm1.socket) (close) httpd.server.fd ] extension message
 } def
 
 /send_packet {
   /arg1 set
-  [(sm1.socket) (write) [server.fd 0 get arg1]] extension message
+  [(sm1.socket) (write) [httpd.server.fd 0 get arg1]] extension message
 } def
 
 /sendln {
@@ -43,7 +50,7 @@ def
   }{
     10 (string) dc /mmm set
   } ifelse
-  [(sm1.socket) (write) [server.fd 0 get mmm]] extension message
+  [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension message
  ] pop
  popVariables
 } def
@@ -61,14 +68,14 @@ def
 } def
 
 /httpd_action {
-  [/in-httpd /httpd.com.old /ff /httpd.com /httpd.result
+  [/in-httpd /ff /httpd.com /httpd.result /sss
+   /sss.engine /sss.web
   ] pushVariables
   [
   {
-   /httpd.com.old ( ) def
-   [(sm1.socket) (select) [server.fd 0 get -1]] extension 
-%%                                          wait for ever
-        [(sm1.socket) (read) [server.fd 0 get ]] extension /ff set
+       [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
+       %%     wait for ever
+        [(sm1.socket) (read) [httpd.server.fd 0 get ]] extension /ff set
         ff length 0 eq {
            (connection is closed.) message
         }
@@ -84,12 +91,45 @@ def
             /httpd.com  httpd.initialization def 
           } { } ifelse
           httpd.com metaCommand {
-            /httpd.history httpd.history httpd.com append def
+            /httpd.history 
+                httpd.history 
+                [10 (string) dc 
+                 (/**** ) httpd.serial toString ( ****/) 
+                 10 (string) dc
+                  httpd.com 
+                 ] cat
+                append 
+            def
             oxasir.ccc 
              [(if (1) {)  httpd.com  (};)] cat
             oxexecutestring ;
-            oxasir.ccc oxpopstring /httpd.result set
-            /httpd.com.old httpd.com def
+
+            [(oxReq) oxasir.ccc SM_popString ] extension pop
+            [(flush)] extension pop
+            %% Select inputs for interruption.
+            %% Wait by the spin lock.
+            {
+              [(oxMultiSelect) [oxasir.ccc] 1] extension 1 get 0 get
+              /sss.engine set
+              [(sm1.socket) (mselect)
+                [[httpd.server.fd 0 get] 1]
+              ] extension 0 get /sss.web set
+              /sss [sss.engine sss.web] def
+              sss.engine { exit } { } ifelse
+              sss.web    { exit } { } ifelse
+            } loop
+            sss message
+
+            sss 0 get {
+                [(oxGet) oxasir.ccc] extension  /httpd.result set
+                %% oxasir.ccc oxpopstring /httpd.result set
+            } {
+                oxasir.ccc oxreset
+                oxasir.ccc ("computation is interrupted.";) oxexecutestring ;
+                oxasir.ccc oxpopstring
+                /httpd.result set 
+                exit
+            } ifelse
             (------------- result -------------) message
             httpd.result message
             (----------------------------------) message
@@ -105,7 +145,7 @@ def
              (<pre>) httpd.result (</pre>) 
             ] cat
             send-page-3  exit
-          } { } ifelse  %% metaCommand
+          } { exit } ifelse  %% metaCommand
         } ifelse
   } loop
   ] pop
@@ -183,6 +223,12 @@ def
   [$<a href="http://localhost:$ httpd.port toString
    $/?msg=httpdAsirMeta+quit"> Shutdown the asir server. </a>, $
   ] cat sendln
+%%  [$<a href="http://localhost:$ httpd.port toString
+%%   $/?msg=httpdAsirMeta+interrupt"> interrupt </a>, $
+%%  ] cat sendln
+  [$<a href="http://localhost:$ httpd.port toString
+   $/?msg=httpdAsirMeta+save"> save. </a>, $
+  ] cat sendln
   ( <spacer type=horizontal size=80> ) sendln
 
   (HELP:) sendln
@@ -193,6 +239,33 @@ def
   [(<font color="blue"> 
     <a href=) httpd.asir.intro ( > Intro (Ja) </a> </font>, )] cat sendln
 } def
+
+/send-page-save {
+ [/in-send-page-save /i] pushVariables
+ [
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+   (<html> <body>) sendln
+   (/* Save the following to  sm1out.txt */<br>) sendln
+   
+   (<pre>) sendln
+   0 1 httpd.history length 1 sub {
+     /i set
+     httpd.history i get sendln
+   } for
+   (</pre>) sendln
+   (</body> </html>) sendln
+   0 sendln
+   [(flush)] extension
+   [(PrintDollar) 1] system_variable
+   httpd.history output
+   [(PrintDollar) 0] system_variable
+ ] pop
+ popVariables
+} def
+
 
 /stopclient {
   [(sm1.socket) (close) [client.fdAndPort 0 get] ] extension message
@@ -299,6 +372,15 @@ def
     msg (httpdAsirMeta quit) eq {
        send-page-bye
        quit
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta save) eq {
+       send-page-save
+       /result 0 def
+    } { } ifelse
+    msg (httpdAsirMeta interrupt) eq {
+       oxasir.ccc oxreset
+       (Interrupted! <br>) send-page-3
        /result 0 def
     } { } ifelse
     /arg1 result def
