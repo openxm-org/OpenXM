@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.16 2003/11/27 03:43:37 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.17 2003/12/18 10:26:20 ohara Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -929,9 +929,9 @@ cyclic        is            r             sugar
 @item
 @code{map} の引数 @var{function} で与えられる函数は, 内部的にも函数と
 して実装されていなければならない.  そうでなければ parse error になる. 
-例えば @code{map} 自身や @code{car}, @code{cdr} などは内部的には函数と
-して実装されていない.  したがって @code{map} の引数に @code{map} をと
-ることはできない.
+例えば @code{map} 自身や @code{car}, @code{cdr} などは内部的には函数で
+はなく, Asir の文法におけるキーワードとして実装されている.  したがって 
+@code{map} の引数に @code{map} をとることはできない.
 \E
 \BEG
 @item 

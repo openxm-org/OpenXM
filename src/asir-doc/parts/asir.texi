@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.12 2003/12/18 10:26:20 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.13 2003/12/20 13:38:44 ohara Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -227,6 +227,12 @@ Use of lists enables to write programs more easily, shorter and more
 comprehensible than use of structure like C programs.
 \E
 
+\BJP
+@item
+ユーザ定義函数における一行ヘルプ.  Emacs-Lisp に類似した機能である.
+詳しくは, @xref{ユーザ定義函数} を見よ.
+\E
+
 @item
 \JP ユーザ定義函数におけるオプション指定. 
 \EG Options can be specified in calling user defined functions.
@@ -234,6 +240,26 @@ comprehensible than use of structure like C programs.
 \JP これに関しては, @xref{オプション指定}.
 \EG @xref{option}.
 @end itemize
+
+\BJP
+@noindent
+Asir では次の語句がキーワードとして定められている.
+@itemize
+@item C 言語に由来:
+
+@code{break}, @code{continue}, @code{do}, @code{else}, @code{extern},
+@code{for}, @code{if}, @code{return}, @code{static}, @code{struct},
+@code{while}
+@item C 言語からの拡張:
+
+@code{def}, @code{endmodule}, @code{function}, @code{global},
+@code{local}, @code{localf}, @code{module}
+@item 函数:
+
+@code{car}, @code{cdr}, @code{getopt}, @code{newstruct}, @code{map},
+@code{pari}, @code{quote}, @code{recmap}, @code{timer}
+@end itemize
+\E
 
 \BJP
 @node ユーザ定義函数の書き方,,, ユーザ言語 Asir
@@ -461,9 +487,8 @@ All the program variables are initialized to the value 0.
 \BJP
 @item 不定元
 小文字で始まり, アルファベット, 数字, @samp{_} からなる文字列,
-またはシングルクオートで囲まれた文字列.
-
-不定元とは, 多項式環を構成する際に添加される変数をいう. @b{Asir} に
+またはシングルクオートで囲まれた文字列, もしくは函数形式.
+不定元とは, 多項式環を構成する際に添加される変数をいう.  @b{Asir} に
 おいては, 不定元は値をもたない超越的な元であり, 不定元への値の代入は
 許されない. 
 \E
@@ -484,6 +509,9 @@ x
 x^2+x+1
 [5] A='Dx'*(x-1)+x*y-y;
 (y+Dx)*x-y-Dx
+[6] function foo(x,y);
+[7] B=foo(x,y)*x^2-1;
+foo(x,y)*x^2-1
 @end example
 @end table
 
