@@ -1,6 +1,7 @@
-# $OpenXM: OpenXM/src/gnuplot-diff/Makefile,v 1.7 1999/11/22 08:02:10 maekawa Exp $
+# $OpenXM: OpenXM/src/gnuplot-diff/Makefile,v 1.8 1999/11/22 08:38:25 maekawa Exp $
 
-GNUPLOT = ../gnuplot
+GNUPLOT = ../../../OpenXM_contrib/gnuplot
+PATCHDIR = ../../OpenXM/src/gnuplot-diff
 CURDIR = ../gnuplot-diff
 BINDIR = ../../bin
 
@@ -23,12 +24,12 @@ clean : patch-clean
 
 patch:
 	@if [ ! -f $(CURDIR)/.patch_done ]; then \
-		(cd $(GNUPLOT) ; patch < $(CURDIR)/plot.c.diff) \
+		(cd $(GNUPLOT) ; patch < $(PATCHDIR)/plot.c.diff) \
 	fi
 	@touch $(CURDIR)/.patch_done
 
 patch-clean:
 	@if [ -f $(CURDIR)/.patch_done ]; then \
-		(cd $(GNUPLOT) ; patch -R < $(CURDIR)/plot.c.diff) \
+		(cd $(GNUPLOT) ; patch -R < $(PATCHDIR)/plot.c.diff) \
 	fi
 	@rm -f $(CURDIR)/.patch_done
