@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.2 2000/10/13 08:05:49 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.3 2000/11/28 18:11:42 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,14 +9,18 @@
 #include <ox_toolkit.h>
 #include "sm.h"
 
+#define  receive_sm_command(x)   receive_int32((x))
+ 
 /* WARNING: you must NOT use stack[stack_ptr]. */
 
 static cmo **stack = NULL;
 static int stack_ptr = 0;
 static int stack_size = 0;
+OXFILE *stack_oxfp = NULL;
+
 #define DIFFERENCE_OF_STACK  1024
 
-void stack_extend()
+static void stack_extend()
 {
     int newsize = stack_size + DIFFERENCE_OF_STACK;
     cmo **newstack = (cmo **)malloc(sizeof(cmo *)*newsize);
@@ -62,13 +66,13 @@ void push_error(int errcode, cmo* pushback)
 If error occurs, then 
 an sm_* function, called by sm_run, pushes an error obect.
 */
-void sm_popCMO(OXFILE* oxfp)
+void sm_popCMO()
 {
     cmo* m = pop();
-    send_ox_cmo(oxfp, m);
+    send_ox_cmo(stack_oxfp, m);
 }
 
-void sm_pops(OXFILE* oxfp)
+void sm_pops()
 {
     cmo* m = pop();
     if (m->tag == CMO_INT32) {
@@ -78,38 +82,33 @@ void sm_pops(OXFILE* oxfp)
 	}
 }
 
-int receive_sm_command(OXFILE* oxfp)
-{
-    return receive_int32(oxfp);
-}
-
-void sm_run(OXFILE* oxfp, int code)
+void sm_run(int code)
 {
     int (*func)(OXFILE *) = sm_search_f(code);
     if (func != NULL) {
-        func(oxfp);
+        func(stack_oxfp);
     }else {
         fprintf(stderr, "oxc: unknown SM code(%d).\n", code);
     }
 }
 
-int receive_ox(OXFILE *oxfp)
+int sm_receive_ox()
 {
     int tag;
     int code;
 
-    tag = receive_ox_tag(oxfp);
-    if (oxf_error(oxfp)) {
+    tag = receive_ox_tag(stack_oxfp);
+    if (oxf_error(stack_oxfp)) {
         return 0;
     }
     switch(tag) {
     case OX_DATA:
-        push(receive_cmo(oxfp));
+        push(receive_cmo(stack_oxfp));
         break;
     case OX_COMMAND:
-        code = receive_sm_command(oxfp);
-        fprintf(stderr, "oxc: oxfp(%d), code = %d.\n", oxfp->fd, code);
-        sm_run(oxfp, code);
+        code = receive_sm_command(stack_oxfp);
+        fprintf(stderr, "oxc: code = %d.\n", code);
+        sm_run(code);
         break;
     default:
         fprintf(stderr, "illeagal message? ox_tag = (%d)\n", tag);
@@ -130,8 +129,9 @@ int oxf_error(OXFILE *oxfp)
 
 int sm(OXFILE *oxfp)
 {
+	stack_oxfp = oxfp;
     stack_extend();
-    while (receive_ox(oxfp)) {
+    while (sm_receive_ox()) {
     }
-    fprintf(stderr, "oxc: socket(%d) is closed.\n", oxfp->fd);
+    fprintf(stderr, "oxc: socket(%d) is closed.\n", stack_oxfp->fd);
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.4 2000/11/28 04:52:05 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.5 2000/11/28 18:11:42 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,21 +12,24 @@
 
 /* ultra loose data base. */
 static db db_localfunc[] = {
-    {lf_oxc_open, "oxc_open"}, 
+    {lf_oxc_open, "spawn"}, 
     {NULL, NULL}
 };
 
 static db db_sm[] = {
+    {sm_control_spawn,     SM_control_spawn_server},
+    {sm_control_terminate, SM_control_terminate_server},
     {sm_executeFunction, SM_executeFunction}, 
     {sm_mathcap,         SM_mathcap},
     {sm_set_mathcap,     SM_setMathCap},
     {sm_popCMO,          SM_popCMO},
     {sm_pops,            SM_pops},
 	{sm_control_reset_pid, SM_control_reset_connection_pid},
-	{sm_control_kill_pid, SM_control_kill_pid},
 	{sm_control_kill, SM_control_kill},
     {NULL, NULL}
 };
+
+extern OXFILE *stack_oxfp;
 
 __inline__
 static int (*db_search(void *key, db *dbs, int (*cmp)(void *, void *)))()
@@ -50,15 +53,15 @@ Normally local functions push a return value to the stack.
 but, if error occurs, then these return non-positive numbers and
 the sm_executeFunction push an error object.
 */
-void sm_executeFunction(OXFILE *oxfp)
+void sm_executeFunction()
 {
-    int (*func)(OXFILE *);
+    int (*func)();
     int retcode = 0;
     cmo *ob = pop();
     if (ob->tag == CMO_STRING) {
         func = lookup_localfunction(((cmo_string *)ob)->s);
         if (func != NULL) {
-            if ((retcode = func(oxfp)) > 0) {
+            if ((retcode = func()) > 0) {
                 return;
             }
         }
@@ -88,11 +91,12 @@ static int getargs(cmo ***args)
 
 #define MAX_PROCESS 1024
 
+/* Process Table */
 static pid_t *pids = NULL;
 static int pid_ptr = 0;
 static int pid_size = 0;
 
-void pids_extend()
+static void pids_extend()
 {
     int size2 = pid_size + MAX_PROCESS;
     pid_t *pids2 = (pid_t *)malloc(sizeof(pid_t)*size2);
@@ -163,22 +167,20 @@ void pid_kill_all()
 	}
 }
 
-int lf_oxc_open()
+cmo_error2 *type_checker(cmo *ob, int type)
 {
-    cmo **argv;
-    char *cmd;
-    int port;
-    pid_t pid;
+/*	cmo_error2 *err_ob; */
+	if (ob->tag != type) {
+		/* push and return an error object */
+	}
+	return NULL;
+}
 
-    if (getargs(&argv) != 2 || argv[0]->tag != CMO_STRING
-        || argv[1]->tag != CMO_INT32) {
-        fprintf(stderr, "oxc: invalid arguments\n");
-        return -1;
-    }
-
-    cmd  = ((cmo_string *)argv[0])->s;
-    port = ((cmo_int32 *)argv[1])->i;
-    pid = lf_oxc_open_main(cmd, port);
+int sm_control_spawn_main(int argc, cmo *argv[])
+{
+    char *cmd = ((cmo_string *)argv[0])->s;
+    int  port = ((cmo_int32 *)argv[1])->i;
+    pid_t pid = lf_oxc_open_main(cmd, port);
     if (pid > 0) {
         push(new_cmo_int32(pid));
         pid_regist(pid);
@@ -186,28 +188,54 @@ int lf_oxc_open()
     return pid;
 }
 
-void sm_mathcap(OXFILE *oxfp)
+int lf_oxc_open()
 {
-    push((cmo *)oxf_cmo_mathcap(oxfp));
+    cmo **argv;
+	if (getargs(&argv) != 2 || 
+		type_checker(argv[0], CMO_STRING) != NULL 
+		|| type_checker(argv[0], CMO_INT32) != NULL) {
+        fprintf(stderr, "oxc: invalid arguments\n");
+        return -1;
+    }
+	return sm_control_spawn_main(2, argv);
 }
 
-void sm_set_mathcap(OXFILE *oxfp)
+int sm_control_spawn()
+{
+    cmo *argv[2];
+	argv[0] = pop();
+	argv[1] = pop();
+
+	if (type_checker(argv[0], CMO_STRING) != NULL 
+		|| type_checker(argv[0], CMO_INT32) != NULL) {
+        fprintf(stderr, "oxc: invalid arguments\n");
+        return -1;
+    }
+	return sm_control_spawn_main(2, argv);
+}
+
+void sm_mathcap()
+{
+    push((cmo *)oxf_cmo_mathcap(stack_oxfp));
+}
+
+void sm_set_mathcap()
 {
     cmo_mathcap *m = (cmo_mathcap *)pop();
     if (m->tag == CMO_MATHCAP) {
-        oxf_mathcap_update(oxfp, m);
+        oxf_mathcap_update(stack_oxfp, m);
     }else {
         push_error(-1, m);
         /* an error object must be pushed */
     }
 }
 
-void sm_control_kill(OXFILE *oxfp)
+void sm_control_kill()
 {
 	pid_kill_all();
 }
 
-void sm_control_kill_pid(OXFILE *oxfp)
+void sm_control_terminate()
 {
     cmo_int32 *m = (cmo_int32 *)pop();
     pid_t pid = m->i;
@@ -216,7 +244,7 @@ void sm_control_kill_pid(OXFILE *oxfp)
     }
 }
 
-void sm_control_reset_pid(OXFILE *oxfp)
+void sm_control_reset_pid()
 {
     cmo_int32 *m = (cmo_int32 *)pop();
     pid_t pid = m->i;
@@ -227,14 +255,10 @@ void sm_control_reset_pid(OXFILE *oxfp)
 	/* ... */
 }
 
-void sm_control_spawn_server(OXFILE *oxfp);
-void sm_control_terminate_server(OXFILE *oxfp);
-
 static int intcmp(int key1, int key2)
 {
     return key1 != key2;
 }
-
 
 int (*sm_search_f(int code))()
 {
