@@ -1,0 +1,200 @@
+%#!platex
+%% $OpenXM$
+
+\documentclass{jarticle}
+\title{Mathematica の Open XM 化について
+% \\ {\small --- Open Mathematica サーバの内部構成 ---}
+}
+%\date{January 19, 1999}
+\date{July 12, 1999}
+\author{小原功任}
+
+\begin{document}
+\maketitle
+
+\section{Open Mathematicaの構成}
+
+Open Mathmatica サーバはOpen XM クライアントおよびmathematica カーネルと
+通信する。Open Mathmatica サーバは起動直後にmathematica カーネルを起動し、
+mathematica カーネルと協調して動作する。mathematica カーネルとは 
+MathLink ライブラリを利用して通信する。Open Mathmatica サーバはMathLink 
+のラッパだと思ってよい。Open XM クライアントとの間はソケットを利用して通
+信する。Open Mathmatica サーバはファイルディスクリプタ 3,4 が既にオープ
+ンされていると思って, 3 から読み込み、4 に書き出す。
+
+さらに、Open Mathmatica サーバはコントロールプロセスからシグナルを受け取
+る場合がある。シグナルを受け取った場合には,相応の動作が必要であるが、現
+在は実装していない.  SIGUSR1 (SM\_control\_reset\_connection) は計算が全
+て終わってからOX\_SYNC\_BALL を投げるので、実際には意味がない。
+
+\section{OX スタックマシン}
+スタックのオブジェクトは cmo 型の変数、あるいはその派生クラスである.
+つまり、Open XM 規約で定められたデータ形式を流用している.
+% cmo 構造体およびその派生クラスは/home/ohara/openxxx/lib/oxlib.h で定義さ
+% れている.  
+この方法の利点は open xm プロトコルを通して通信するにあたって
+特にデータの変換を必要としないことである.  すなわちCMO の各データタイプ
+は Open Mathematicaサーバ(スタックマシン)の内部でも, CMO として保持する
+わけである.
+
+サーバの各関数は cmo* を受け取り、タグをみて実際のクラスが何であるかを
+知り、動作を決定する.
+
+\section{Mathematica との通信(MathLink) について}
+
+CMO は 次のように変換されてから, MathLink を通して送られる.
+
+\begin{enumerate}
+\item CMO\_INT32 は MLTKINT (多倍長整数型).
+\item CMO\_STRING は MLTKSTR (文字列型).
+\item その他のタイプの CMO は ToExpression[文字列] として送る.
+\end{enumerate}
+
+上で述べられている ToExpression は Mathematica の組み込み関数であり,
+文字列を引数として Mathematica の式を返す.
+(\cite[pp.407]{Wolfram-1996})
+
+ここで一つ注意をしておく.
+MathLink では, int 型以外のデータを MLTKINT として送ることは残念ながらで
+きない.  したがって CMO\_ZZ を直接, 整数型であると Mathematica に思わせ
+ることはできないのである.  そこで, 次のような方法をとることになる.
+
+\begin{verbatim}
+char *CONVERT_ZZ_TO_CSTRING(cmo_t zz);
+
+int main()
+{
+  char *s;
+  cmo_t zz;  /* zz.tag == CMO_ZZ */
+  MLINK lp;  /* MathLink Socket */
+  ...
+  s = CONVERT_ZZ_TO_CSTRING(zz);
+  MLPutFunction(lp, "ToExpression", 1);
+  MLPutString(lp, s);
+  ...
+}
+\end{verbatim}
+
+このようにすると, Mathematica 側では, 例えば
+\[
+\mbox{\tt ToExpression["1234567890"]}
+\]
+という評価が行われ, 文字列データから整数が復元される.
+
+逆に, Mathematica から送られた整数データは,
+マシン整数の範囲内であれば, int として
+取得可能(MLGetInteger を使う)であるが,
+受け取る前に int に収まるか否かを知ることはできない.
+また, 直接 CMO\_ZZ として取得することも不可能である. 
+(MathLink 上でどのような形式でデータ交換されているのかの
+情報は手元にある資料からは得られなかった)
+
+しかしながら, たとえ Mathematica 側から整数データが送られていたとしても,
+そのデータを文字列に変換して受け取ることは MathLink の機構上可能である.
+
+これを利用して, 我々は次のようにして整数を受け取る.
+\begin{verbatim}
+cmo_t CONVERT_CSTRING_TO_ZZ(char *s);
+
+int main()
+{
+  MLINK lp;
+  char *s;
+  cmo_t zz;
+  ...
+  if(MLGetNext(lp) == MLTHINT) {
+    MLGetString(lp, &s);
+    zz = CONVERT_CSTRING_TO_ZZ(s);  /* zz.tag == CMO_ZZ */
+  }
+  ...
+}		
+\end{verbatim}
+
+つまり、Mathematica から整数データを文字列として受け取り、
+その文字列を OX サーバ側で CMO\_ZZ に直している。
+
+基本的に MathLink では全てのデータを文字列で受け取るしか方法はない。どの
+ような種類のデータであるかは受け取る前に知ることはできる。データの型は、
+MLTKERR(エラー), MLTKINT(整数), MLTKSTR(文字列), MLREAL(実数), MLTKSYM
+(シンボル), MLTKFUNC(関数) のいずれかである。このような事情で 
+Mathematica から受け取ったデータは基本的に CMO\_STRINGとしてスタックに積
+まれるので、クライアント側でその文字列の解釈をする必要がでてくる。
+
+しかしながら、全ての MathLink オブジェクトが文字列に変換できるわけではな
+いので、その取り扱いには注意を要する。
+まだ、実装していないが、多項式(CMO\_???\_PORINOMIAL)の扱いが難しい。
+
+\section{個々のスタックマシン命令の実装}
+現在、実装しているのは
+SM\_popCMO, SM\_popString, SM\_pops, SM\_executeFunction,
+SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap(受け取るだけ
+で何もしない)である。
+
+\section{Mathematica を OX のクライアントに}
+
+\begin{verbatim}
+In[1]:= Install["math2ox"]
+\end{verbatim}
+とすると、外部プログラムをロードし、
+
+\begin{verbatim}
+In[2] := OxStart["ox_sm1"]
+\end{verbatim}
+によって OpenXM サーバに接続する。接続先は ox\_sm1 である。
+
+接続が成功したら適当にデータを送ってみよう。
+利用できるコマンドは
+{\tt OxStart[s\_String], OxExecute[s\_String], OxPopString[], OxClose[], OxReset[]}
+の五つである。計算が終わったら、
+\begin{verbatim}
+In[3] := OxClose[]
+\end{verbatim}
+とすると、接続が終了する。
+
+\appendix
+\section{付録}
+
+GMP における ``整数型'' {\tt mpz\_t} はつぎのような
+内部表現を持つ: \\
+まず  {\tt mpz\_t} 型は
+\begin{verbatim}
+typedef struct __mpz_struct mpz_t[1];
+\end{verbatim}
+と typedef されており, 
+{\tt mpz\_t} 型の変数は(関数の仮引数でない限り)配列の
+扱いである. また, 
+\begin{verbatim}
+typedef unsigned long int mp_limb_t;		
+\end{verbatim}
+と宣言されている場合には,
+変数 {\tt mpz\_t x} の {\tt x->\_mp\_d} が unsigned long int の
+配列であり, データの実体である.
+これは整数の最下位4バイトが配列の先頭にくる.
+つまり全体としては``リトルエンディアンっぽい''が, 
+各 unsigned long int はマシンのネイティブな integer である.
+つまり, GMP の内部表現はマシン依存となっている.
+
+\begin{thebibliography}{99}
+\bibitem{Openxxx-1998}
+野呂正行, 高山信毅.
+{Open xxx の設計と実装, xxx = asir,kan}, 1998/10/11
+\bibitem{Ohara-Takayama-Noro-1999}
+小原功任, 高山信毅, 野呂正行.
+{Open asir 入門}.
+\bibitem{Wolfram-1992}
+ウルフラム.
+{Mathematica (日本語版)},
+アジソンウエスレイ, 1992.
+\bibitem{Wolfram-1996}
+Stephen Wolfram.
+{The Mathematica Book}, Third edition,
+Wolfram Media/Cambridge University Press, 1996.
+
+\bibitem{miyachi-1998}
+宮地力.
+{Mathematica によるネットワークプログラミング},
+岩波コンピュータサイエンス,
+岩波書店, 1998.
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,42 @@
+## $OpenXM$
+
+トークンの集合::
+トークンの定義は parse.h にある。
+T_ ではじまるマクロがトークンである。
+それ以外のトークンは次の4つ: "(", ")",  ",",  "\n"
+
+文法規則::
+省略記法を許すのはフラグが立っているときだけ。
+the start symbol は line である。
+
+The following BNFs define the grammer of Common Math Objects:
+
+line -> ox '\n'
+      | cmo '\n'
+      | '\n'
+
+ox   -> '(' T_OX_COMMAND ',' T_SM_COMMAND ')'
+      | '(' T_OX_DATA ',' cmo ')'
+
+cmo  -> '(' cmo_int32 ')'
+      | '(' cmo_string ')'
+      | '(' cmo_list ')'
+
+cmo_list -> T_CMO_LIST ',' T_INTEGER
+          | T_CMO_LIST ',' T_INTEGER ',' list_of_cmo  /* 空リストも許す. */
+
+list_of_cmo -> cmo ',' list_of_cmo
+             |                         /* 空リストも許す. */
+
+cmo_null -> T_CMO_NULL
+
+cmo_int32 -> T_CMO_INT32  ',' T_INTEGER
+cmo_string  -> T_CMO_STRING ',' T_INTEGER ','  T_STRING
+             | T_CMO_STRING ',' T_STRING            /* 省略記法 */
+
+cmo_zz -> T_CMO_ZZ ',' T_INTEGER ',' list_of_int
+        | T_CMO_ZZ ',' T_INTEGER                    /* 省略記法 */
+
+list_of_int -> T_INTEGER ',' list_of_int
+             | T_INTEGER
+
