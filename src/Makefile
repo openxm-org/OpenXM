@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.117 2003/05/17 08:24:56 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.118 2003/06/02 20:26:58 ohara Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -99,6 +99,17 @@ install-gc : all-gc
 		cp gc/include/gc.h gc/include/gc_cpp.h ../include/gc ; \
 	fi 
 	@touch gc/.gc_installed
+
+install-asir-gc : configure-asir
+	@if test ! -f gc/.asir-gc_installed ; \
+	then \
+		if test ! -d ../lib ; then mkdir ../lib ; fi ; \
+		(cd asir2000 ; make install-libasir-gc) ; \
+		rm -f ../lib/libgc.a ; \
+		ln -s ../lib/libasir-gc.a ../lib/libgc.a ; \
+		echo "libasir-gc.a (modifed for asir) is installed as libgc.a instead of libgc.a" ; \
+		touch gc/.asir-gc_installed ; \
+	fi
 
 
 install-gmp : all-gmp
