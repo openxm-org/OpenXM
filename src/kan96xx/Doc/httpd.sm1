@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.9 2002/10/21 10:43:52 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.10 2002/10/23 13:38:50 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -326,17 +326,34 @@ def
 /removeGET {
   /arg1 set
   [/in-removeGET /s /s2 /i /j /i0
-   /tname  /nnn
+   /tname  /nnn /sta
   ] pushVariables
   [
      /s arg1 def
      /httpd.textarea.valid 0 def
      s 1 copy /s2 set
      s (array) dc /s set
+
+     /sta 0 def
+
+     %% In case of POST, remove the HTTP header. cf. trouble for NS 6.0
+     s length 4 gt {
+       [s 0 get s 1 get s 2 get s 3 get] (POST) (array) dc eq {
+          0 1 s length 4 sub { 
+             /i0 set
+             /sta i0 def
+             [ s i0 get  s i0 1 add get ] [ 10 10 ] eq 
+             [ s i0 get  s i0 1 add get s i0 2 add get s i0 3 add get] 
+             [ 13 10 13 10] eq or
+             { exit } { } ifelse
+          } for
+        }{ } ifelse
+     } { } ifelse
+     (sta=) messagen sta message 
      /nnn httpd.textarea.name.aaa length 6 sub def
 
      /tname  [  ] def
-     0 1 s length 1 sub {
+     sta 1 s length 1 sub {
        /i0 set
        s i0 get 61 eq {  %% 61 is = 
          i0 1 add /i0 set
@@ -356,6 +373,7 @@ def
            /httpd.textarea.valid 1 def
          } {
            /httpd.textarea.valid 0 def
+           tname message
            httpd.textarea.name.aaa { (string) dc } map cat message
            (Warning: got an invalid name for the text field.) message
          } ifelse
