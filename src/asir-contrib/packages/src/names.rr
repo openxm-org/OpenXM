@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.73 2003/09/29 07:47:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.74 2003/10/19 06:07:45 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -6,6 +6,8 @@ if (!ctrl("quiet_mode")) {
   print("OpenXM/Risa/Asir-Contrib(20030929), Copyright 2000-2003, OpenXM.org")$
   print("help(\"keyword\"); ox_help(0); ox_help(\"keyword\"); ox_grep(\"keyword\");")$
   print("     for help messages (unix version only). ")$
+}else{
+  /* workaround of a bug of parser. */
 }
 
 
