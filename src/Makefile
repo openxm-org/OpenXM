@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.108 2001/08/21 00:47:17 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.109 2001/12/18 04:24:04 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -48,7 +48,7 @@ all-kxx: configure-kxx all-kan96xx
 	(cd kxx ; make all)
 
 all-openmath:
-	@if ../misc/which.pl -s javac ; then \
+	-@if ../misc/which.pl -s javac ; then \
 		(cd OpenMath ; make all) ; \
 	else \
 		echo -n "Warning: javac (java compiler) is not found " ; \
@@ -124,7 +124,7 @@ install-kxx: all-kxx
 	(cd kxx ; make install)
 
 install-openmath: all-openmath
-	@if ../misc/which.pl -s javac ; then \
+	-@if ../misc/which.pl -s javac ; then \
 		(cd OpenMath ; make install) ; \
 	else \
 		echo -n "Warning: javac (java compiler) is not found " ; \
