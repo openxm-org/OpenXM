@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.3 1999/12/21 02:47:32 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.4 2000/01/20 03:00:34 noro Exp $
 \BJP
 @node 型,,, Top
 @chapter 型
@@ -52,7 +52,7 @@ Each example shows possible forms of inputs for @b{Asir}'s prompt.
 
 @table @code
 @item 0 @b{0}
-
+@*
 \BJP
 実際には 0 を識別子にもつ対象は存在しない. 0 は, C における 0 ポインタに
 より表現されている. しかし, 便宜上 @b{Asir} の @code{type(0)} は
@@ -321,13 +321,13 @@ For details @xref{Groebner basis computation}.
 
 \JP @item 11 @b{エラーオブジェクト}
 \EG @item 11 @b{error object}
-
+@*
 \JP 以上二つは, Open XM において用いられる特殊オブジェクトである. 
 \EG These are special objects used for OpenXM.
 
 \JP @item 12 @b{GF(2) 上の行列}
 \EG @item 12 @b{matrix over GF(2)}
-
+@*
 \BJP
 現在, 標数 2 の有限体における基底変換のためのオブジェクトとして用いられ
 る. 
@@ -338,18 +338,18 @@ This is used for basis conversion in finite fields of characteristic 2.
 
 \JP @item 13 @b{MATHCAP オブジェクト}
 \EG @item 13 @b{MATHCAP object}
-
+@*
 \JP Open XM において, 実装されている機能を送受信するためのオブジェクトである. 
 \EG This object is used to express available funcionalities for Open XM.
 
 @item 14 @b{first order formula}
-
+@*
 \JP quantifier elimination で用いられる一階述語論理式. 
 \EG This expresses a first order formula used in quantifier elimination.
 
 \JP @item -1 @b{VOID オブジェクト}
 \EG @item -1 @b{VOID object}
-
+@*
 \JP 型識別子 -1 をもつオブジェクトは関数の戻り値などが無効であることを示す.
 \BEG
 The object with the object identifier -1 indicates that a return value
@@ -370,7 +370,7 @@ of a function is void.
 @item 0
 \JP @b{有理数}
 \EG @b{rational number}
-
+@*
 \BJP
 有理数は, 任意多倍長整数 (@b{bignum}) により実現されている. 有理数は常に
 既約分数で表現される. 
@@ -384,7 +384,7 @@ lowest terms.
 @item 1
 \JP @b{倍精度浮動小数}
 \EG @b{double precision floating point number (double float)}
-
+@*
 \BJP
 マシンの提供する倍精度浮動小数である. @b{Asir} の起動時には, 
 通常の形式で入力された浮動小数はこの型に変換される. ただし, 
@@ -424,13 +424,13 @@ result shall be computed as a double float number.
 @item 2
 \JP @b{代数的数}
 \EG @b{algebraic number}
-
+@*
 \JP @xref{代数的数に関する演算}.
 \EG @xref{Algebraic numbers}.
 
 @item 3
 @b{bigfloat}
-
+@*
 \BJP
 @b{bigfloat} は, @b{Asir} では @b{PARI} ライブラリにより
 実現されている. @b{PARI} においては, @b{bigfloat} は, 仮数部
@@ -479,7 +479,7 @@ operations of @b{PARI} are performed.
 @item 4
 \JP @b{複素数}
 \EG @b{complex number}
-
+@*
 \BJP
 複素数は, 有理数, 倍精度浮動小数, @b{bigfloat} を実部, 虚部として
 @code{a+b*@@i} (@@i は虚数単位) として与えられる数である. 実部, 虚部は
@@ -498,7 +498,7 @@ taken out by @code{real()} and @code{imag()} respectively.
 @item 5
 \JP @b{小標数の有限素体の元}
 \EG @b{element of a small finite prime field}
-
+@*
 \BJP
 ここで言う小標数とは, 標数が 2^27 未満のもののことである. このような有限
 体は, 現在のところグレブナ基底計算において内部的に用いられ, 有限体係数の
@@ -521,7 +521,7 @@ field operations are executed by using a prime @var{p} which is set by
 @item 6
 \JP @b{大標数の有限素体の元}
 \EG @b{element of large finite prime field}
-
+@*
 \BJP
 標数として任意の素数がとれる. 
 この型の数は, 整数に対し@code{simp_ff} を適用することにより得られる. 
@@ -535,7 +535,7 @@ is an arbitrary prime. An object of this type is obtained by applying
 @item 7
 \JP @b{標数 2 の有限体の元}
 \EG @b{element of a finite field of characteristic 2}
-
+@*
 \BJP
 標数 2 の任意の有限体の元を表現する. 標数 2 の有限体 F は, 拡大次数 
 [F:GF(2)] を n とすれば, GF(2) 上既約な n 次多項式 f(t) により
@@ -560,7 +560,7 @@ representing @var{g} and @var{f} respectively.
 @itemize @bullet
 @item
 @code{@@}
-
+@*
 \BJP
 @code{@@} はその後ろに数字, 文字を伴って, ヒストリや特殊な数をあらわすが, 
 単独で現れた場合には, F=GF(2)[t]/(f(t)) における t mod f をあらわす. 
@@ -574,7 +574,7 @@ By using @code{@@} one can input an element of @var{F}. For example
 
 @item
 @code{ptogf2n}
-
+@*
 \JP 任意変数の 1 変数多項式を, @code{ptogf2n} により対応する F の元に変換する. 
 \BEG
 @code{ptogf2n} converts a univariate polynomial into an element of @var{F}.
@@ -582,7 +582,7 @@ By using @code{@@} one can input an element of @var{F}. For example
 
 @item
 @code{ntogf2n}
-
+@*
 \BJP
 任意の自然数を, 自然な仕方で F の元とみなす. 自然数としては, 10 進, 
 16 進 (0x で始まる), 2 進 (0b で始まる) で入力が可能である. 
@@ -596,7 +596,7 @@ hexadecimal (@code{0x} prefix) and binary (@code{0b} prefix) formats.
 @item
 \JP @code{その他}
 \EG @code{micellaneous}
-
+@*
 \BJP
 多項式の係数を丸ごと F の元に変換するような場合, @code{simp_ff}
 により変換できる. 
@@ -660,7 +660,7 @@ and further are classified into sub-types of the type @b{indeterminate}.
 @item 0
 \JP @b{一般不定元}
 \EG @b{ordinary indeterminate}
-
+@*
 \JP 英小文字で始まる文字列. 多項式の変数として最も普通に用いられる. 
 \BEG
 An object of this sub-type is denoted by a string that start with
@@ -678,7 +678,7 @@ polynomials.
 @item 1
 \JP @b{未定係数}
 \EG @b{undetermined coefficient}
-
+@*
 \BJP
 @code{uc()} は, @samp{_} で始まる文字列を名前とする不定元を生成する. 
 これらは, ユーザが入力できないというだけで, 一般不定元と変わらないが, 
@@ -705,7 +705,7 @@ _0
 @item 2
 \JP @b{函数形式}
 \EG @b{function form}
-
+@*
 \BJP
 組み込み函数, ユーザ函数の呼び出しは, 評価されて何らかの @b{Asir} の
 内部形式に変換されるが, @code{sin(x)}, @code{cos(x+1)} などは, 評価後
@@ -737,7 +737,7 @@ sin(x)
 @item 3
 \JP @b{函数子}
 \EG @b{functor}
-
+@*
 \BJP
 函数呼び出しは, @var{fname(args)} という形で行なわれるが, @var{fname} の
 部分を函数子と呼ぶ. 函数子には, 函数の種類により組み込み函数子,

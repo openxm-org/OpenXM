@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.6 2000/01/20 03:00:34 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.7 2000/01/21 08:22:39 noro Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -51,7 +51,7 @@ The structure of @b{Risa} is as follows.
 @item
 \JP @code{基本演算部}
 \EG @b{The basic algebraic engine}
-
+@*
 \BJP
 これは, @b{Risa} の内部形式に変換されたオブジェクト (数, 多項式など) 
 の間の演算を実行する部分であり, UNIX の @samp{libc.a} などと同様の, ライブラ
@@ -75,7 +75,7 @@ language interface of @b{Risa}.
 @item
 \JP @code{メモリ管理部}
 \EG @b{Memory Manager}
-
+@*
 \BJP
 @b{Risa} では, メモリ管理部として, @code{[Boehm,Weiser]} によるフリー
 ソフトウェア (@code{gc-5.0alpha2}) を用いている. これはガーベジコレクション 
@@ -96,7 +96,7 @@ manager.
 
 @item
 @b{Asir}
-
+@*
 \BJP
 @b{Asir} は, @b{Risa} の計算エンジンの言語インタフェースで
 ある. @b{Risa} では, 比較的容易にユーザ用の言語インタフェースを作る
@@ -610,7 +610,7 @@ Note that the setting takes effect after rebooting the machine on Windows
 @itemize @bullet
 @item
 @code{ASIR_KEY}
-
+@*
 \BJP
 UNIX 版では, @b{Asir} が起動されたマシンに対する @code{key} がなけ
 ればそのマシン上で @b{Asir} は動作しない. @code{key} は 16 進 8 
@@ -666,7 +666,7 @@ if environment @code{ASIR_LIBDIR} is not set.)
 
 @item
 @code{ASIR_LIBDIR}
-
+@*
 \BJP
 @b{Asir} のライブラリディレクトリ, すなわちユーザ言語で書かれたファイル
 などがおかれるディレクトリ. 指定がない場合 UNIX 版では 
@@ -684,7 +684,7 @@ are installed on a private directory of the user.
 
 @item
 @code{ASIRLOADPATH}
-
+@*
 \BJP
 ロードされるファイルがあるディレクトリを UNIX の場合 ':', 
 Windowsの場合 ';' で区切って並べる. ディレ
@@ -703,7 +703,7 @@ the library directory will be searched.
 \E
 @item
 @code{HOME}
-
+@*
 \BJP
 @var{-norc} オプションつきで起動しない場合, @samp{$HOME/.asirrc}があれば, 
 予めこのファイルを実行する. @code{HOME} が設定されていない場合, UNIX 版
@@ -948,7 +948,7 @@ like normal errors.
 @table @code
 @item SEGV
 @itemx BUS ERROR
-
+@*
 \BJP
 組み込み函数によっては, 引数の型を厳密にチェックせずに演算ルーチンに引
 き渡してしまうものも存在している. このような状況において, 
@@ -964,7 +964,7 @@ is detected.
 \E
 
 @item BROKEN PIPE
-
+@*
 \BJP
 プロセス間通信において, 相手先のプロセスとの間のストリーム
 が既に存在していない場合 (例えば既に相手先のプロセスが終了している場合など)

@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.3 1999/12/21 02:47:31 noro Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -67,7 +67,7 @@ capital alphabetical letter in @b{Asir}.
 @item
 \JP 変数の型がない. 
 \EG No types for variables.
-
+@*
 \BJP
 既に説明したとおり, @b{Asir} で扱われる対象自身は全て何らかの型
 を持っている. しかし, プログラム変数自体は, どのような対象でも
@@ -93,7 +93,7 @@ object can be assigned to it.
 @item
 \BJP
 函数内の変数は, デフォルトでは仮引数をこめてすべて局所変数. 
-
+@*
 ただし, @code{extern} 宣言された変数は, トップレベルにおける大域変数となる. 
 すなわち, 変数のスコープは大域変数と局所変数の 2 種類に単純化されている. 
 トップレベル, すなわちプロンプトに対して入力された変数は全て大域変数
@@ -102,7 +102,7 @@ object can be assigned to it.
 \BEG
 Variables, together with formal parameters, in a function (procedure)
 are all local to the function by default.
-
+@*
 Variables can be global at the top level,
 if they are declared with the key word @code{extern}.
 Thus, the scope rule of @b{Asir} is very simple.
@@ -157,7 +157,7 @@ end$
 @item
 \JP プログラム変数は大文字で始まり, 不定元, 函数は小文字で始まる. 
 \EG Program variables and algebraic indeterminates are distinguished in @b{Asir}.
-
+@*
 \BJP
 この点は, 既存の数式処理システムのほとんどと異なる点である. @b{Asir}
 がこの仕様を採用したのは, ユーザが不定元のつもりで使用した変数に
@@ -182,7 +182,7 @@ variables and indeterminates in a program.
 @item
 \JP @code{switch} 文, @code{goto} がない. 
 \EG No @code{switch} statements, and @code{goto} statements.
-
+@*
 \JP @code{goto} がないため, 多重ループを一度に抜けるのがやや複雑になる場合がある. 
 \EG Lack of @code{goto} statement makes it rather bothering to exit from within multiple loops.
 
@@ -195,7 +195,7 @@ variables and indeterminates in a program.
 Comma expressions are allowed only in @code{A}, @code{B} and @code{C}
 of the constructs @code{for (A;B;C)} or @code{while(A)}.
 \E
-
+@*
 \JP これは, リストを正式なオブジェクトとして加えたことによる. 
 \EG This limitation came from adopting lists as legal data objects for @b{Asir}.
 
@@ -858,7 +858,7 @@ the @code{while} statement, the @code{for} statement, and  the
 @item
 \JP @code{while} 文
 \EG @code{while} statement
-
+@*
 \JP 形式は, 
 \EG It has the following form.
 
@@ -882,7 +882,7 @@ infinite loop.
 @item
 \JP @code{for} 文
 \EG @code{for} statement
-
+@*
 \JP 形式は, 
 \EG It has the following form.
 
@@ -916,7 +916,7 @@ while ( expression ) @{
 @item
 \JP @code{do} 文
 \EG @code{do} statement
-
+@*
 @example
 \BJP
 do @{
@@ -957,12 +957,12 @@ the control to a certain point of the loop.
 
 @item
 @code{break}
-
+@*
 \JP @code{break} 文は, それを囲むループを一つだけ抜ける. 
 \EG The @code{break} statement is used to exit the inner most loop.
 @item
 @code{return}
-
+@*
 \BJP
 @code{return} 文は, 一般に函数から抜けるための文であり, 
 ループの中からでも有効である. 
@@ -974,7 +974,7 @@ and it is also effective in a loop.
 
 @item
 @code{continue}
-
+@*
 \BJP
 @code{continue} 文は, ループの本体の文の末端に制御を移す. 
 例えば @code{for} 文では, 最後の式並びの実行を行い, @code{while}
@@ -1006,7 +1006,7 @@ statement, and the termination condition will be evaluated in a
 @item
 \JP 加減乗除, 冪
 \EG addition, subtraction, multiplication, division, exponentiation
-
+@*
 \BJP
 冪は, @samp{^} により表す. 除算 @samp{/} は, 体としての演算に用いる. 
 例えば, @code{2/3} は有理数の @code{2/3} を表す. 
@@ -1027,7 +1027,7 @@ x+1  A^2*B*afo X/3
 @item
 \JP インデックスつきの変数
 \EG programming variables with indices
-
+@*
 \BJP
 ベクトル, 行列, リストの要素はインデックスを用いることにより取り出せる. 
 インデックスは 0 から始まることに注意する. 取り出した要素がベクトル, 
@@ -1048,7 +1048,7 @@ V[0] M[1][2]
 @item
 \JP 比較演算
 \EG comparison operation
-
+@*
 \BJP
 等しい (@samp{==}), 等しくない (@samp{!=}), 大小 (@samp{>}, @samp{<}, 
 @samp{>=}, @samp{<=}) の 2 項演算がある. 真ならば有理数の 1, 偽ならば
@@ -1065,7 +1065,7 @@ or 0 for the false.
 @item
 \JP 論理式
 \EG logical expression
-
+@*
 \BJP
 論理積 (@samp{&&}), 論理和 (@samp{||}) の 2 項演算と, 否定 (@samp{!})
 が用意されている. 値はやはり 1, 0 である. 
@@ -1082,7 +1082,7 @@ and 0 for the false.
 @item
 \JP 代入
 \EG assignment
-
+@*
 \BJP
 通常の代入は @samp{=} で行う. このほか, 算術演算子と組み合わせて
 特殊な代入を行うこともできる. 
@@ -1100,12 +1100,12 @@ There are special assignments combined with arithmetic operations.
 @item
 \JP 函数呼び出し
 \EG function call
-
+@*
 \JP 函数呼び出しも式の一種である. 
 \EG A function call is also an expression.
 @item
 @samp{++}, @samp{--}
-
+@*
 \JP これらは, 変数の前後について, それぞれ次のような操作, 値を表す. 
 \BEG
 These operators are attached to or before a program variable,
@@ -1156,7 +1156,7 @@ through @code{cpp}.  This enables @b{Asir} user to use
 @itemize @bullet
 @item
 @code{#include}
-
+@*
 \BJP
 @code{cpp} に特に引数を渡さないため, インクルードファイルは, 
 @code{#include} が書かれているファイルと同じディレクトリでサーチされる. 
@@ -1168,13 +1168,13 @@ containing @code{#include} so that no arguments are passed to @code{cpp}.
 
 @item
 @code{#define}
-
+@*
 \JP これは, C におけるのと全く同様に用いることができる. 
 \EG This can be used just as in C language.
 
 @item
 @code{#if}
-
+@*
 \BJP
 @code{/*}, @code{*/} によるコメントは入れ子にできないので, プログラム
 の大きな部分をコメントアウトする際に, @code{#if 0}, @code{#endif}
