@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.13 2000/02/27 05:24:26 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.14 2001/02/23 12:28:33 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -7,6 +7,9 @@
 #        Installing online help to OpenXM/lib/asir/help-*
 # install-document :  all
 #        Copy the documents to OpenXM/doc/asir-contrib
+# install-html-help
+#        Copy html help to OpenXM/doc/asir-contrib
+#
 # NOTE: install-help should be executed after installing asir2000.
 OpenXM_ROOT=../../../../../OpenXM
 ASIRDOC=$(OpenXM_ROOT)/src/asir-doc
@@ -16,12 +19,29 @@ CONTRIB=$(OpenXM_ROOT)/src/asir-contrib/packages/src
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 OXWEAVE= ../../../kxx/oxweave
+TEXI2HTML=texi2html -menu -split_node
 
-JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi
-EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi
+JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi names-ja.texi hypergeometric-ja.texi
+EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi names-en.texi hypergeometric-en.texi
 
 all : $(JPSRCS) $(EGSRCS)
 install : install-document install-help
+
+names-ja.texi : names.oxweave
+	/bin/rm -f names-ja.texi
+	$(OXWEAVE) C ja  <names.oxweave >names-ja.texi
+
+names-en.texi : names.oxweave
+	/bin/rm -f names-en.texi
+	$(OXWEAVE) C ja  <names.oxweave >names-en.texi
+
+hypergeometric-ja.texi : hypergeometric.oxweave
+	/bin/rm -f hypergeometric-ja.texi
+	$(OXWEAVE) C ja  <hypergeometric.oxweave >hypergeometric-ja.texi
+
+hypergeometric-en.texi : hypergeometric.oxweave
+	/bin/rm -f hypergeometric-en.texi
+	$(OXWEAVE) C ja  <hypergeometric.oxweave >hypergeometric-en.texi
 
 oxxm.texi : $(ASIRLIB)/xm Makefile
 	/bin/rm -f oxxm.texi
@@ -113,6 +133,18 @@ help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 ## duplicate some help files
 	-(cd help-jp; cp sm1_hilbert hilbert_polynomial)
 
+html-en: help-eg
+	-rm -rf html-en
+	-mkdir html-en
+	-cp tmp/*.texi html-en
+	-(cd html-en; ${TEXI2HTML} cman-eg.texi)
+
+html-ja: help-jp
+	-mkdir html-ja
+	-cp tmp/*.texi html-ja
+	-cp tmp/cman.texi html-ja/cman-ja.texi
+	-(cd html-ja; ${TEXI2HTML} cman-ja.texi)
+
 help: help-eg help-jp
 
 install-help: help
@@ -122,6 +154,10 @@ install-help: help
 	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	-cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+
+install-html-help: html-en html-ja
+	-( tar cf - html-en | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
+	-( tar cf - html-ja | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 
 install-document : all clean-document
 	-ptex cman.texi
@@ -141,5 +177,5 @@ clean-document :
 
 
 clean :
-	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi
-	/bin/rm -rf help-jp help-eg tmp
+	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi
+	/bin/rm -rf help-jp help-eg tmp html-en html-ja
