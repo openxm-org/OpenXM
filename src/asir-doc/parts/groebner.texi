@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.11 2003/04/28 06:43:10 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.12 2003/12/27 11:52:07 takayama Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -15,6 +15,7 @@
 * 基本的な函数::
 * 計算および表示の制御::
 * 項順序の設定::
+* Weight::
 * 有理式を係数とするグレブナ基底計算::
 * 基底変換::
 * Weyl 代数::
@@ -26,6 +27,7 @@
 * Fundamental functions::
 * Controlling Groebner basis computations::
 * Setting term orderings::
+* Weight::
 * Groebner basis computation with rational function coefficients::
 * Change of ordering::
 * Weyl algebra::
@@ -1052,6 +1054,84 @@ expressed by variable @code{x}, and the above explanation justifies
 such a drastic experimental results.
 In practice, however, optimum ordering for variables may not known
 beforehand, and some heuristic trial may be inevitable.
+\E
+
+\BJP
+@node Weight ,,, グレブナ基底の計算
+@section Weight
+\E
+\BEG
+@node Weight,,, Groebner basis computation
+@section Weight
+\E
+\BJP
+前節で紹介した項順序は, 各変数に weight (重み) を設定することで
+より一般的なものとなる. 
+\E
+\BEG
+Term orders introduced in the previous section can be generalized
+by setting a weight for each variable.
+\E
+@example
+[0] dp_td(<<1,1,1>>);
+3
+[1] dp_set_weight([1,2,3])$
+[2] dp_td(<<1,1,1>>);
+6
+@end example
+\BJP
+単項式の全次数を計算する際, デフォルトでは
+各変数の指数の和を全次数とする. これは各変数の weight を 1 と
+考えていることに相当する. この例では, 第一, 第二, 第三変数の
+weight をそれぞれ 1,2,3 と指定している. このため, @code{<<1,1,1>>}
+の全次数 (以下ではこれを単項式の weight と呼ぶ) が @code{1*1+1*2+1*3=6} となる.
+weight を設定することで, 同じ項順序型のもとで異なる項順序が定義できる.
+例えば, weight をうまく設定することで, 多項式を weighted homogeneous
+にすることができる場合がある. 
+\E
+\BEG
+By default, the total degree of a monomial is equal to
+the sum of all exponents. This means that the weight for each variable
+is set to 1.
+In this example, the weights for the first, the second and the third
+variable are set to 1, 2 and 3 respectively.
+Therefore the total degree of @code{<<1,1,1>>} under this weight,
+which is called the weight of the monomial, is @code{1*1+1*2+1*3=6}.
+By setting weights, different term orders can be set under a term
+order type. For example, a polynomial can be made weighted homogeneous
+by setting an appropriate weight.
+\E
+
+\BJP
+各変数に対する weight をまとめたものを weight vector と呼ぶ.
+すべての成分が正であり, グレブナ基底計算において, 全次数の
+代わりに用いられるものを特に sugar weight と呼ぶことにする.
+sugar strategy において, 全次数の代わりに使われるからである.
+一方で, 各成分が必ずしも正とは限らない weight vector は,
+sugar weight として設定することはできないが, 項順序の一般化には
+有用である. これらは, 行列による項順序の設定にすでに現れて
+いる. すなわち, 項順序を定義する行列の各行が, 一つの weight vector
+と見なされる. また, ブロック順序は, 各ブロックの
+変数に対応する成分のみ 1 で他は 0 の weight vector による比較を
+最初に行ってから, 各ブロック毎の tie breaking を行うことに相当する.
+\E
+
+\BEG
+A list of weights for all variables is called a weight vector.
+A weight vector is called a sugar weight vector if
+its elements are all positive and it is used for computing
+a weighted total degree of a monomial, because such a weight
+is used instead of total degree in sugar strategy.
+On the other hand, a weight vector whose elements are not necessarily
+positive cannot be set as a sugar weight, but it is useful for
+generalizing term order. In fact, such a weight vector already
+appeared in a matrix order. That is, each row of a matrix defining
+a term order is regarded as a weight vector. A block order 
+is also considered as a refinement of comparison by weight vectors.
+It compares two terms by using a weight vector whose elements
+corresponding to variables in a block is 1 and 0 otherwise,
+then it applies a tie breaker.
+
 \E
 
 \BJP
