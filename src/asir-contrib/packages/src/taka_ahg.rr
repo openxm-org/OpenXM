@@ -1,36 +1,60 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.1 2003/12/08 05:35:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.2 2003/12/10 12:17:24 takayama Exp $ */
 
 module taka_ahg;
 
 /* ------------ list of local functions ---------- */
 localf b$
 localf toPrimitive$
+localf toPrimitive2$
 localf gcd_L$
 
 def gcd_L(L) {
   if (length(L) == 0) return(0);
-  return gcd(L[0],gcd_L(cdr(L)));
+  return igcd(L[0],gcd_L(cdr(L)));
 }
 
 def toPrimitive(A,F) {
-/*  A set of points, F is a facet. */
+/*  A set of points, F is a set of facets. */
   Nfacets = length(F);
   NewF = [ ];
   V=[]; Sign = 1;
   for (I=0; I<Nfacets; I++) {
     for (J=0; J<length(A); J++) {
       Ip = matrix_inner_product(A[J],F[I]);
-      if ((Sign == -1) && (Ip < 0)) error("isPrimitive: broken facet data.");
+      if ((Sign == -1) && (Ip > 0)) error("isPrimitive: broken facet data.");
       if (Ip < 0) { Sign = -1; }
       Ip = Sign*Ip;
-      V = cons(Ip,V);
+      if (Ip != 0) V = cons(Ip,V);
     }
-    G = gcd_L(V);
+    if (length(V) == 0) G = 1; else G = gcd_L(V);
     if (G != 1) {
       FF=vtol(newvect(length(F[I]),F[I])/G);
     }else FF=F[I];
     NewF = cons(FF,NewF);
   }
+  return reverse(NewF);
+}
+
+def toPrimitive2(A,F) {
+/*  A : a point, F is a set of facets */
+  Nfacets = length(F);
+  V=[]; Sign = 1;
+  for (I=0; I<Nfacets; I++) {
+    Ip = matrix_inner_product(A,F[I]);
+    if ((Sign == -1) && (Ip > 0)) error("isPrimitive2: broken facet data.");
+    if (Ip < 0) { Sign = -1; }
+    Ip = Sign*Ip;
+    if (Ip != 0) V = cons(Ip,V);
+  }
+  NewF = [ ];
+  if (length(V) == 0) G=1; else G = gcd_L(V);
+  if (Sign < 0) G = -G;
+  if (G != 1) {
+    for (I=0; I<Nfacets; I++) {
+      FF=vtol(newvect(length(F[I]),F[I])/G);
+      NewF = cons(FF,NewF);
+    }
+  }else return(F);
   return reverse(NewF);
 }
 
@@ -44,7 +68,7 @@ def b(A,Idx,V) {
   Nfacets = length(F);
    
   /* to primitive */
-  F = toPrimitive(A,F);
+  F = toPrimitive2(P,F);
   Bf = 1;
   for (I=0; I<Nfacets; I++) {
     H = matrix_inner_product(P,F[I]);
