@@ -1,7 +1,8 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.13 2003/03/26 13:26:00 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.14 2003/03/27 11:09:12 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
+JFIX=${OpenXM_HOME}/src/util/sample1.sh
 DVIPS=dvips -f
 RSYNC=rsync -Cavz
 CURRENT=/home/web/OpenXM/Current
@@ -61,11 +62,13 @@ all-html-en: doc
 	if test ! -f .all-html-100-en.done ; \
 	then \
 		(cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM ) ; \
+	    (cd tmpEN/OpenXM ; $(JFIX) *.html ; rm -f *-tmp.old ) ; \
 		touch .all-html-100-en.done ; \
 	fi
 	if test ! -f .all-html-101-en.done ; \
 	then \
 		(cd tmp101EN ; latex OX-RFC-101; latex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
+	    (cd tmp101EN/OX-RFC-101 ; $(JFIX) *.html ; rm -f *-tmp.old ) ; \
 		touch .all-html-101-en.done ; \
 	fi
 

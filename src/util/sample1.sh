@@ -1,5 +1,5 @@
 #!/bin/csh
-oxreplace --oldx 'bbb2b9cdcab8b8a5' --new 'References' $*
+oxreplace --oldx 'bbb2b9cdcab8b8a5' --new 'Bibliography' $*
 oxreplace --oldx 'a4b3a4cecab8bdf1a4cba4c4a4a4a4c62e2e2e' --new 'About this document' $1
 oxreplace --oldx 'cabfc0ae' --new 'Heisei ' $*
 oxreplace --oldx 'c7af' --new '.' $*
