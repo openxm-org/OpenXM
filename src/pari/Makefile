@@ -1,23 +1,30 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.13 2001/12/27 07:10:38 noro Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.14 2001/12/27 07:16:01 noro Exp $
 
 PARI = ../../../OpenXM_contrib/pari-2.2
 OpenXM_ROOT = ../../../OpenXM
 
 all: configure
 	@if [ ! -f ./.make_done ]; then \
-		(cd $(PARI) ; make all) \
+		if [ "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then\
+			(cd $(PARI)/O*-* ; make lib-sta); \
+		else \
+			(cd $(PARI) ; make all);  \
+		fi \
 	fi
 	@touch ./.make_done
 
 install: install-lib-bin
 
 install-lib-bin: all install-lib
-	(cd $(PARI)/O*-* ; make install-lib-dyn)
 	(cd $(PARI)/O*-* ; make install-include)
-	(cd $(PARI)/O*-* ; make install-bin)
-	(cd $(PARI)/O*-* ; make install-misc)
-	(cd $(PARI)/O*-* ; make install-man)
-	(cd $(PARI)/O*-* ; make install-data)
+	if [ "`uname | sed -e 's/_.*$$//'`" != "CYGWIN" ]; then \
+		(cd $(PARI)/O*-* ; make install-lib-dyn);  \
+		(cd $(PARI)/O*-* ; make install-bin);  \
+		(cd $(PARI)/O*-* ; make install-misc);  \
+		(cd $(PARI)/O*-* ; make install-man);  \
+		(cd $(PARI)/O*-* ; make install-data);  \
+	fi
+
 
 install-doc: all 
 	(cd $(PARI) ; make doc)
