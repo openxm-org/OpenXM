@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.2 2004/07/03 15:23:14 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.3 2004/07/05 08:32:54 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -58,7 +58,7 @@ localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
 localf dp_ltom, pfaffian, check_pfaffian;
 localf check_frac_expansion_before, check_frac_expansion_after;
 localf frac_expansion, sing_point, residue;
-localf extract_denom, mtriple, mpair;
+localf extract_denom, extract_denom_poly, mtriple, mpair;
 localf listlist_merge, matrix_to_list, matrices_to_list, matrix_to_coef_matrix;
 localf pfaffian_to_coef_matrices;
 localf ispoly_of_vars, matrix_column_nth, matrix_row_nth;
@@ -966,6 +966,16 @@ def extract_denom(M) {
         for ( J = 0; J < Col; J++ )
             R[I][J] = nm(M[I][J])*sdiv(LCM,dn(M[I][J]));
     return [R,LCM];
+}
+
+/* 多項式の係数を整数化する */
+def extract_denom_poly(P) {
+    V=vars(P);
+    DP=dp_ptod(P,V);
+    for(LCM = dn(dp_hc(DP)), DP = dp_rest(DP); DP != 0; DP = dp_rest(DP)) {
+        LCM = ilcm(LCM, dn(dp_hc(DP)));
+    }
+    return [LCM*P,LCM];
 }
 
 def mtriple(P,S,Q) {
