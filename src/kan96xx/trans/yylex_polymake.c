@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -186,7 +186,8 @@ pmPreprocess() {
 	  break;
 	case 1:
 	  if ((S[oldp] == ' ') || (S[oldp] == '\t')) break;
-	  if ((S[oldp] == '#') || ((S[oldp]=='_') && (S[oldp-1]<' '))) {
+	  if ((S[oldp] == '#') || ((S[oldp]=='_') && (oldp == 0))
+		|| ((S[oldp]=='_') && (S[oldp-1]<' '))) {
 		/* skip the rest of the line, state=1; */
 		for (; S[oldp] != 0 ; oldp++) {
 		  if (S[oldp] == '\n') {oldp--; break;}

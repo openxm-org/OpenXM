@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y ; gcc yylex_polymake.c  yy_polymake.tab.c*/
 %{
@@ -15,6 +15,10 @@ program
 :
 programList {
   pmPrintObject(stdout,$1);
+  fprintf(stdout,"\n");
+} 
+| pmemptyLine programList {
+  pmPrintObject(stdout,$2);
   fprintf(stdout,"\n");
 }
 ;

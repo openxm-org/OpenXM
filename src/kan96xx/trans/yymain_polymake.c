@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.2 2003/12/04 07:49:24 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
@@ -11,6 +11,7 @@ main_t() {
   while ((c=getchar()) != EOF) {
 	pmPutstr(c);
   }
+  pmPutstr('\n');
   SS = pmPutstr(0);
   printf("%s\n",SS);
   pmSetS(SS);
@@ -34,6 +35,7 @@ main() {
   while ((c=getchar()) != EOF) {
 	pmPutstr(c);
   }
+  pmPutstr('\n');
   SS = pmPutstr(0);
 #ifdef DEBUG
   printf("%s\n",SS);
