@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.54 2000/01/09 19:34:55 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.55 2000/01/09 20:13:24 maekawa Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -91,14 +91,14 @@ clean:
 	(cd tigers ; make clean)
 
 distclean: clean
+	(cd $(BINDIR) ; make distclean)
 	(cd asir2000 ; make distclean)
 	(cd gnuplot ; make distclean)
 	(cd kan96xx ; make distclean)
 	(cd pari ; make distclean)
 	(cd phc ; make distclean)
 	(cd tigers ; make distclean)
-	rm -rf $(BINDIR)/d0 $(BINDIR)/fep.linux $(BINDIR)/k0 \
-	       $(BINDIR)/lin_phcv2p $(BINDIR)/ox $(BINDIR)/ox_sm1 \
+	rm -rf $(BINDIR)/d0 $(BINDIR)/k0 $(BINDIR)/ox $(BINDIR)/ox_sm1 \
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 
@@ -110,7 +110,7 @@ configure-asir:
 	(cd asir2000; make configure)
 
 configure-bin:
-	(cd $(BINDIR) ; ./configure2)
+	(cd $(BINDIR) ; make configure)
 
 configure-gnuplot:
 	(cd gnuplot ; make configure)
