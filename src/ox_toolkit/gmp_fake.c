@@ -1,10 +1,11 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/gmp_fake.c,v 1.1 2003/03/30 08:10:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/gmp_fake.c,v 1.2 2003/06/05 21:12:07 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include "gmp_fake.h"
 
 #define DEFAULT_LIMB_SIZE 1
@@ -12,10 +13,6 @@
 #define MALLOC_ATOMIC(x) malloc((x))
 #define REALLOC(p,x) realloc((p),(x))
 #define ALLOCA(x) alloca((x))
-
-#if !defined(CHAR_BIT)
-#define CHAR_BIT 8
-#endif
 
 #define HAVE_UNSIGNED_LONG_LONG
 
