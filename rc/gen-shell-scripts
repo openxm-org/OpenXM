@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.6 2000/03/04 11:24:11 takayama Exp $
+# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.7 2000/03/06 08:08:11 takayama Exp $
 
 #asir
 	rm -f asir
@@ -13,7 +13,8 @@
 	rm -f sm1
 	echo "#!/bin/csh" >sm1
 	cat dot.cshrc >>sm1
-	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/sm1 $*' >>sm1
+#	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/sm1 $*' >>sm1
+	echo 'exec $OpenXM_HOME/bin/sm1 $*' >>sm1
 	chmod +x sm1
 
 #gp
@@ -27,7 +28,8 @@
 	rm -f oxmath
 	echo "#!/bin/csh" >oxmath
 	cat dot.cshrc >>oxmath
-	echo 'exec $OpenXM_HOME/bin/fep math $*' >>oxmath
+#	echo 'exec $OpenXM_HOME/bin/fep math $*' >>oxmath
+	echo 'exec math $*' >>oxmath
 	chmod +x oxmath
 
 #oxMathematica
