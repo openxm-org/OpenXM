@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfpcoh.rr,v 1.2 2002/02/09 08:50:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfpcoh.rr,v 1.3 2002/02/10 03:00:08 takayama Exp $ */
 
 
 /*&usage begin:
@@ -44,6 +44,40 @@ extern Pfpcoh_Symbols$
 extern Pfpcoh_RuleDual$
 extern Pfpcoh_RuleNormal$
 
+extern Heap_Print_nest$
+extern HeapPoint$
+Heap_Print_nest = -1$
+Heap_Pointer    = [0]$
+
+def heap_print_nest_inc() {
+#ifdef DEBUG
+    Heap_Print_nest++;
+#endif
+}
+
+def heap_print_nest_dec() {
+#ifdef DEBUG
+    Heap_Print_nest--;
+#endif
+}
+
+def heap_print(List) {
+#ifdef DEBUG
+    A="";
+    for(I=0;I<Heap_Print_nest;I++) {
+        A+=" ";
+    }
+    Len=length(List);
+    for(I=0;I<Len;I++) {
+        A+=rtostr(List[I]);
+    }
+    Heap_Pointer = cons(heap(),Heap_Pointer);
+    A += " heap=" + rtostr(Heap_Pointer[0]) + " d="
+        + rtostr(Heap_Pointer[0]-Heap_Pointer[1]) + "\n";
+    print(A,2);
+#endif
+}
+
 load("sym")$
 
 Pfpcoh_Symbols = [[a0,a1,a2,a3,a4,a5,a6,a7,a8,a9],[e0,e1,e2,e3,e4,e5,e6,e7,e8,e9],
@@ -59,188 +93,228 @@ Pfpcoh_RuleNormal = [[a0,0],[e0,0],[e1,0]]$
 
 /* by Noro */
 def pfpcoh_extract_denom(M) {
-	S = size(M);
-	Row = S[0]; Col = S[1];
-	LCM = 1;
-	R = newmat(Row,Col);
-	for ( I = 0; I < Row; I++ )
-		for ( J = 0; J < Col; J++ )
-			LCM = dn(M[I][J]) * sdiv(LCM,gcd(dn(M[I][J]),LCM));
-	for ( I = 0; I < Row; I++ )
-		for ( J = 0; J < Col; J++ )
-			R[I][J] = nm(M[I][J])*sdiv(LCM,dn(M[I][J]));
-	return [R,LCM];
+    S = size(M);
+    Row = S[0]; Col = S[1];
+    LCM = 1;
+    R = newmat(Row,Col);
+    for ( I = 0; I < Row; I++ )
+        for ( J = 0; J < Col; J++ )
+            LCM = dn(M[I][J]) * sdiv(LCM,gcd(dn(M[I][J]),LCM));
+    for ( I = 0; I < Row; I++ )
+        for ( J = 0; J < Col; J++ )
+            R[I][J] = nm(M[I][J])*sdiv(LCM,dn(M[I][J]));
+    return [R,LCM];
 }
 
 def pfpcoh_dual(F) {
-	return base_cancel(base_replace(F,Pfpcoh_RuleDual));
+    return base_cancel(base_replace(F,Pfpcoh_RuleDual));
 }
 
 def pfpcoh_make_symmetric(P,C) {
-	FX = 1;
-	for(I=1;I<P;I++) {
-		FX *= x+C[I];
-	}
-	F = newvect(P);
-	for(I=0;I<P;I++) {
-		F[I] = coef(FX,I,x);
-	}
-	return base_replace(F,Pfpcoh_RuleNormal);
+    FX = 1;
+    for(I=1;I<P;I++) {
+        FX *= x+C[I];
+    }
+    F = newvect(P);
+    for(I=0;I<P;I++) {
+        F[I] = coef(FX,I,x);
+    }
+    return base_replace(F,Pfpcoh_RuleNormal);
 }
 
 def pfpcoh_symmetric_symbols(P,I) {
-	return pfpcoh_make_symmetric(P,Pfpcoh_Symbols[I]);
+    return pfpcoh_make_symmetric(P,Pfpcoh_Symbols[I]);
 }
 
 def pfpcoh_coefL(P,I,J) {
-	Sym = pfpcoh_symmetric_symbols(P,I);
-	L   = newmat(P-1,P-1);
-	T   = Pfpcoh_Symbols[J][P];
-	for(I=0;I<P-1;I++) {
-		L[I][I]   = T;
-		L[I][P-2] -= Sym[I];
-	}
-	for(I=0;I<P-2;I++) {
-		L[I+1][I] = 1;
-	}
-	return base_replace(L, Pfpcoh_RuleNormal);
+    Sym = pfpcoh_symmetric_symbols(P,I);
+    L   = newmat(P-1,P-1);
+    T   = Pfpcoh_Symbols[J][P];
+    for(I=0;I<P-1;I++) {
+        L[I][I]   = T;
+        L[I][P-2] -= Sym[I];
+    }
+    for(I=0;I<P-2;I++) {
+        L[I+1][I] = 1;
+    }
+    return base_replace(L, Pfpcoh_RuleNormal);
 }
 
 /* [L0,L1,Lt,Li] */
 def pfpcoh_coefLL(P) {
-	L0 =  pfpcoh_coefL(P,1,0);
-	Li = -pfpcoh_coefL(P,0,1);
-	L1 =  pfpcoh_coefL1(P);
-	Lt =  base_replace(Pfpcoh_Symbols[1][P] - Pfpcoh_Symbols[0][P], Pfpcoh_RuleNormal);
-	Lt =  Lt*matrix_identity_matrix(P-1);
-	return [L0,L1,Lt,Li];
+    L0 =  pfpcoh_coefL(P,1,0);
+    Li = -pfpcoh_coefL(P,0,1);
+    L1 =  pfpcoh_coefL1(P);
+    Lt =  base_replace(Pfpcoh_Symbols[1][P] - Pfpcoh_Symbols[0][P], Pfpcoh_RuleNormal);
+    Lt =  Lt*matrix_identity_matrix(P-1);
+    return [L0,L1,Lt,Li];
+}
+
+/* [inverse(L0),0,0,inverse(Li)] */
+def pfpcoh_coefLL_inverse(P) {
+    L0 =  pfpcoh_coefL(P,1,0);
+    Li = -pfpcoh_coefL(P,0,1);
+    return [matrix_inverse(L0),0,0,matrix_inverse(Li)];
 }
 
 def pfpcoh_coefL1(P) {
-	A = pfpcoh_symmetric_symbols(P,1)-pfpcoh_symmetric_symbols(P,0);
-	L = newmat(P-1,P-1);
-	for(I=0;I<P-1;I++) {
-		L[I][P-2] = A[I];
-	}
-	return L;
+    A = pfpcoh_symmetric_symbols(P,1)-pfpcoh_symmetric_symbols(P,0);
+    L = newmat(P-1,P-1);
+    for(I=0;I<P-1;I++) {
+        L[I][P-2] = A[I];
+    }
+    return L;
+}
+
+def pfpcoh_getPS_sub(LL_inverse,I,S,LCM) {
+    heap_print_nest_inc();
+    heap_print(["pfpcoh_getPS_sub(",I,")",0]);
+    T = pfpcoh_extract_denom(pfpcoh_getP(LL_inverse,I));
+    heap_print(["pfpcoh_getPS_sub(",I,")",1]);
+
+    PS = T[0]*S[0];
+    Dn = T[1];
+    heap_print(["pfpcoh_getPS_sub(",I,")",2]);
+    LCM *= sdiv(Dn,gcd(LCM,Dn));
+    heap_print(["pfpcoh_getPS_sub(",I,")",3]);
+    heap_print_nest_dec();
+
+    return [PS,Dn,LCM];
 }
 
 /* S = [Nm,Dn] */
 
 def pfpcoh_getPS(P,S) {
-	LL = pfpcoh_coefLL(P);
-	PS = newvect(3);
-	Dn = newvect(3);
-	LCM = 1;
-	for(I=0;I<3;I++) {
-		T = pfpcoh_extract_denom(pfpcoh_getP(LL,I));
-		PS[I] = T[0]*S[0];
-		Dn[I] = T[1];
-		LCM *= sdiv(Dn[I],gcd(LCM,Dn[I]));
-	}
-	for ( I = 0; I < 3; I++ )
-		PS[I] *= sdiv(LCM,Dn[I]);
-	return [PS,LCM*S[1]];
+    heap_print_nest_inc();
+    heap_print(["pfpcoh_getPS(",P,")",0]);
+    LL_inverse = pfpcoh_coefLL_inverse(P);
+    heap_print(["pfpcoh_getPS(",P,")",1]);
+    PS = newvect(3);
+    Dn = newvect(3);
+    LCM = 1;
+    for(I=0;I<3;I++) {
+        TT = pfpcoh_getPS_sub(LL_inverse,I,S,LCM);
+        PS[I] = TT[0]; Dn[I] = TT[1]; LCM = TT[2];
+    }
+    for(I=0;I<3;I++) {
+        PS[I] *= sdiv(LCM,Dn[I]);
+    }
+    RESULT = [PS,LCM*S[1]];
+    heap_print(["pfpcoh_getPS(",P,")",2]);
+    heap_print_nest_dec();
+    return RESULT;
 }
 
-def pfpcoh_getP(LL,I) {
-	P = car(size(LL[0]))+1;
-	L0 = LL[0]; AP = Pfpcoh_Symbols[0][P];
-	Li = LL[3]; EP = Pfpcoh_Symbols[1][P];
-	PP = AP^I*matrix_inverse(L0) + EP^I*matrix_inverse(Li);
-	if (I>1) {
-		PP -= (AP - EP)*matrix_identity_matrix(car(size(PP)));
-	}
-	return base_cancel(matrix_transpose(PP));
+def pfpcoh_getP(LL_inverse,I) {
+    P = car(size(LL_inverse[0]))+1;
+    AP = Pfpcoh_Symbols[0][P];
+    EP = Pfpcoh_Symbols[1][P];
+    PP = AP^I*LL_inverse[0] + EP^I*LL_inverse[3];
+    if (I>1) {
+        PP -= (AP - EP)*matrix_identity_matrix(car(size(PP)));
+    }
+    return base_cancel(matrix_transpose(PP));
+}
+
+def pfpcoh_intersection_denom(P) {
+    heap_print_nest_inc();
+    heap_print(["pfpcoh_intersection_denom(",P,")",0]);
+    if (P==2) {
+        R = [matrix_identity_matrix(1),1];
+    }else {
+        R = pfpcoh_intersection_denom(P-1);
+    }
+    heap_print(["pfpcoh_intersection_denom(",P,")",1]);
+    RR = pfpcoh_intersection_S(R);
+    heap_print(["pfpcoh_intersection_denom(",P,")",2]);
+    heap_print_nest_dec();
+    return RR;
 }
 
 def pfpcoh_intersection(P) {
-	if (P==2) {
-		S = matrix_identity_matrix(1);
-	}else {
-		S = pfpcoh_intersection(P-1);
-	}
-	R  = pfpcoh_extract_denom(S);
-	RR = pfpcoh_intersection_S(R);
-	return map(red,RR[0]/RR[1]);
+    RR = pfpcoh_intersection_denom(P);
+    return map(red,RR[0]/RR[1]);
 }
 
 /* S = [Nm,Dm] */
 
 def pfpcoh_intersection_S(S) {
-	P   = car(size(S[0])) + 1;
-	R  = pfpcoh_getPS(P,S);
-	PS = R[0]; Dn = R[1];
-	P0S = PS[0];
-	P1S = PS[1];
-	P2S = PS[2];
-	SS = newmat(P,P);
-	for(I=0;I<P-1;I++) {
-		for(J=0;J<P-1;J++) {
-			SS[I][J] = P0S[I][J];
-		}
-	}
-	for(I=0;I<P-1;I++) {
-		SS[I][P-1] =  P1S[I][P-2];
-		SS[P-1][I] = -P1S[P-2][I];
-
-	}
-	SS[P-1][P-1] = - P2S[P-2][P-2];
-	return [SS,Dn];
+    P   = car(size(S[0])) + 1;
+    heap_print_nest_inc();
+    heap_print(["pfpcoh_intersection_S(",P,")",0]);
+    R  = pfpcoh_getPS(P,S);
+    PS = R[0]; Dn = R[1];
+    P0S = PS[0];
+    P1S = PS[1];
+    P2S = PS[2];
+    SS = newmat(P,P);
+    for(I=0;I<P-1;I++) {
+        for(J=0;J<P-1;J++) {
+            SS[I][J] = P0S[I][J];
+        }
+    }
+    for(I=0;I<P-1;I++) {
+        SS[I][P-1] =  P1S[I][P-2];
+        SS[P-1][I] = -P1S[P-2][I];
+    }
+    SS[P-1][P-1] = - P2S[P-2][P-2];
+    heap_print(["pfpcoh_intersection_S(",P,")",1]);
+    heap_print_nest_dec();
+    return [SS,Dn];
 }
 
 def pfpcoh_check_intersection(S) {
-	P  = car(size(S))+1;
-	R  = pfpcoh_extract_denom(S);
-	Nm = R[0]; Dn = R[1];
-	LL = pfpcoh_coefLL(P);
-	Length = length(LL);
-	R = newvect(Length);
+    P  = car(size(S))+1;
+    R  = pfpcoh_extract_denom(S);
+    Nm = R[0]; Dn = R[1];
+    LL = pfpcoh_coefLL(P);
+    Length = length(LL);
+    R = newvect(Length);
 
-	for(I=0;I<Length;I++) {
-		R[I] = matrix_transpose(LL[I])*Nm + Nm*pfpcoh_dual(LL[I]);
-	}
-	return R;
+    for(I=0;I<Length;I++) {
+        R[I] = matrix_transpose(LL[I])*Nm + Nm*pfpcoh_dual(LL[I]);
+    }
+    return R;
 }
 
 def pfpcoh_list(List,P,L) {
-	Len = L-P+1;
-	V=newvect(Len);
-	for(I=0;I<Len;I++) {
-		V[I]=List[P+I];
-	}
-	return vtol(V);
+    Len = L-P+1;
+    V=newvect(Len);
+    for(I=0;I<Len;I++) {
+        V[I]=List[P+I];
+    }
+    return vtol(V);
 }
 
 def pfpcoh_symmetric_reduction0(P) {
-	VarsA =pfpcoh_list(Pfpcoh_Symbols[0],1,P);
-	SVarsA=reverse(pfpcoh_list(Pfpcoh_Symbols[2],0,P-1));
-	VarsE =pfpcoh_list(Pfpcoh_Symbols[1],2,P);
-	SVarsE=reverse(pfpcoh_list(Pfpcoh_Symbols[3],1,P-1));
-	return [P,[VarsA,SVarsA],[VarsE,SVarsE]];
+    VarsA =pfpcoh_list(Pfpcoh_Symbols[0],1,P);
+    SVarsA=reverse(pfpcoh_list(Pfpcoh_Symbols[2],0,P-1));
+    VarsE =pfpcoh_list(Pfpcoh_Symbols[1],2,P);
+    SVarsE=reverse(pfpcoh_list(Pfpcoh_Symbols[3],1,P-1));
+    return [P,[VarsA,SVarsA],[VarsE,SVarsE]];
 }
 
 def pfpcoh_symmetric_reduction_poly(F,VList) {
-	VarsA =VList[1][0];
-	SVarsA=VList[1][1];
-	VarsE =VList[2][0];
-	SVarsE=VList[2][1];
+    VarsA =VList[1][0];
+    SVarsA=VList[1][1];
+    VarsE =VList[2][0];
+    SVarsE=VList[2][1];
 
-	F=symmetric_reduction(F|vars=VarsA,svars=SVarsA);
-	F=symmetric_reduction(F|vars=VarsE,svars=SVarsE);
-	return F;
+    F=symmetric_reduction(F|vars=VarsA,svars=SVarsA);
+    F=symmetric_reduction(F|vars=VarsE,svars=SVarsE);
+    return F;
 }
 
 def pfpcoh_symmetric_reduction_matrix(M,P) {
-	VList = pfpcoh_symmetric_reduction0(P);
-	Size = car(size(M));
-	MM = newmat(Size,Size);
-	for(I=0; I<Size; I++) {
-		for(J=0; J<Size; J++) {
-			MM[I][J] = pfpcoh_symmetric_reduction_poly(M[I][J], VList);
-		}
-	}
-	return MM;
+    VList = pfpcoh_symmetric_reduction0(P);
+    Size = car(size(M));
+    MM = newmat(Size,Size);
+    for(I=0; I<Size; I++) {
+        for(J=0; J<Size; J++) {
+            MM[I][J] = pfpcoh_symmetric_reduction_poly(M[I][J], VList);
+        }
+    }
+    return MM;
 }
 
 /*
@@ -269,7 +343,7 @@ Taka=base_replace(matrix_list_to_matrix([[a1*a2*a3*a4*e2*e3*e4, -(a1*a2*a3*a4*(e
   -(a1*a2) - a1*a3 - a2*a3 - a1*a4 - a2*a4 - a3*a4 + e2*e3 + e2*e4 + e3*e4],
  [a1*a2*a3*a4, a1*a2*a3 + a1*a2*a4 + a1*a3*a4 + a2*a3*a4 + e2*e3*e4,
   a1*a2 + a1*a3 + a2*a3 + a1*a4 + a2*a4 + a3*a4 - e2*e3 - e2*e4 - e3*e4,
-  a1 + a2 + a3 + a4 + e2 + e3 + e4]]), 
+  a1 + a2 + a3 + a4 + e2 + e3 + e4]]),
   [[e2,-e2],[e3,-e3],[e4,-e4]])$
 */
 /*
