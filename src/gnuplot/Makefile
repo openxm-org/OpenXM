@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.7 2000/02/07 11:11:15 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.8 2004/02/22 13:58:58 takayama Exp $
 
 GNUPLOT = ../../../OpenXM_contrib/gnuplot
 CURDIR = ../../OpenXM/src/gnuplot
@@ -34,8 +34,6 @@ distclean:
 
 configure: patch
 	@if [ ! -f $(GNUPLOT)/.configure_done ]; then \
-		(cd $(GNUPLOT) ; ./configure --with-x) ; \
-		(cd $(GNUPLOT) ; make distclean) ; \
 		(cd $(GNUPLOT) ; ./configure --with-x) ; \
 	fi
 	@touch $(GNUPLOT)/.configure_done
