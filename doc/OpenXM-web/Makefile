@@ -1,7 +1,9 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.35 2001/10/27 11:22:35 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.36 2002/03/02 01:00:24 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.2.1
+OLDVERSION=1.2.1
+NEWVERSION=1.2.2
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 OpenXM_calc=../calc2000p
@@ -13,6 +15,7 @@ OW_FLAG=--recursive
 RSYNC=rsync -avz --delete -e ssh
 WHO=taka@orange
 SSH=ssh -l taka orange
+FILES=ERRATA.html OpenXM-RFC.html anonymous.html index-binary.html index-doc.html index-packages.html index.html 
 
 ### For full copy :  make copy-html; make ALL
 # Only for print target.
@@ -99,11 +102,13 @@ usage:
 	@echo "    install-web-kobe all-spec copy-doc copy-html"
 	@echo "   "
 	@echo " install-web-kobe-main :  main html files."
+	@echo " update-version "
 	@echo "Several examples"
 	@echo " 1. Generate OpenXM-FAQ-en.txt for a test."
 	@echo "   make WEBKOBE1=. ./OpenXM-FAQ-en.txt"
 	@echo " 2. Generate OpenXM-FAQ-ja.txt for a test."
 	@echo "   make WEBKOBE1=. ./OpenXM-FAQ-ja.txt"
+
 
 checkDir :
 	if test ! -d ${WEBKOBE1} ; \
@@ -205,8 +210,14 @@ clean-web-kobe :
 	-rm ${WEBKOBE}/index.html ${WEBKOBE}/issac2000.ps ${WEBKOBE1}/cmotag.h ${WEBKOBE1}/oxMessageTag.h ${WEBKOBE1}/smCommand.h ${WEBKOBE1}/openxm-en.ps ${WEBKOBE1}/openxm-ja.ps
 
 clean:
-	/bin/rm -rf tmp-poster calc2000
+	/bin/rm -rf tmp-poster calc2000 .tmp.txt version
 
 print:
 	$(PS) Makefile | $(LPR)
 	$(PS) index.html | $(LPR)
+
+version : version.c
+
+update-version: version
+	for i in $(FILES); do ./version --oldversioin ${OLDVERSION} --newversion ${NEWVERSION} --file $$i ; done
+	@echo "Change the version of Makefile by hand. Edit Archive in index.html" 
