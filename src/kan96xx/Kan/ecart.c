@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.15 2003/08/26 05:52:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.16 2003/08/27 03:11:12 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -745,7 +745,7 @@ static POLY reduction_ecart1_mod(r,gset)
 	KshowRing(TraceLift_ringmod); **/
 
   r = modulop(r,TraceLift_ringmod);
-  rp = r->m->ringp; /* reset rp */
+  if (r != POLYNULL) rp = r->m->ringp; /* reset rp */
 
   /* printf("r=%s (mod p)\n",POLYToString(head(r),'*',1)); **/
 
