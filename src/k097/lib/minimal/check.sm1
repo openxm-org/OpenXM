@@ -1,5 +1,10 @@
-% $OpenXM$ 
-(cohom.sm1) run
+% $OpenXM: OpenXM/src/k097/lib/minimal/check.sm1,v 1.1 2000/05/03 06:42:07 takayama Exp $ 
+
+% (cohom.sm1) run  % uncomment for foo1.
+(k0-cohom.sm1) run  % uncomment for foo2.
+(k0-tower.sm1) run
+
+/foo1 {
 [[(2*x*Dx + 3*y*Dy+6) (0)]
  [(3*x^2*Dy + 2*y*Dx) (0)]
  [(0)  (x^2+y^2)]
@@ -9,4 +14,43 @@
 [ff (x,y,z)] resol1 /gg set ;
 gg pmat
 (The answer is in gg.) message
+} def
+
+/foo2 {
+
+  [(x^3-y^2) (x,y)] annfs /ff set 
+  ff 0 get /gg set
+  gg { [(x) (y) (Dx) (Dy)] laplace0 } map /gg2 set
+  gg2 message
+  gg2 { toString } map /gg3 set
+  
+  
+  [(x,y) s_ring_of_differential_operators
+   [[(x) -1 (y) -1 (Dx) 1 (Dy) 1]] s_weight_vector
+   0 [(schreyer) 1]] define_ring
+
+  gg3 { tparse } map /gg4 set
+  gg4 sResolution /ans set
+  (Answer is in ans.) message
+} def
+
+
+/foo3 {
+
+  [(x*y*(x-y)*(x+y)) (x,y)] annfs /ff set 
+  ff 0 get /gg set
+  gg { [(x) (y) (Dx) (Dy)] laplace0 } map /gg2 set
+  gg2 message
+  gg2 { toString } map /gg3 set
+  
+  
+  [(x,y) s_ring_of_differential_operators
+   [[(x) -1 (y) -1 (Dx) 1 (Dy) 1]] s_weight_vector
+   0 [(schreyer) 1]] define_ring
+
+  gg3 { tparse } map /gg4 set
+  gg4 sResolution /ans set
+  (Answer is in ans.) message
+} def
+
 

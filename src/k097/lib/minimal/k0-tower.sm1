@@ -1,4 +1,4 @@
-%%  $OpenXM$
+%%  $OpenXM: OpenXM/src/k097/lib/minimal/k0-tower.sm1,v 1.1 2000/05/03 06:42:07 takayama Exp $
 
 %% It is used to check the mmLarger_tower,  1997, 10/26 at Heidelberg.
 %% It is used to check the mmLarger_tower,  1997, 10/27 -- 29 at Oberwolfach.
@@ -17,7 +17,7 @@ tower.version [(Version)] system_variable gt
   error
 } { } ifelse
 
-/debug.res0 0 def
+/debug.res0 1 def
 /debug.sResolution 0 def
 /stat.tower 0 def
 /tower.verbose 0 def
@@ -146,7 +146,9 @@ tower.verbose
     stat.tower { (Done. Number of skelton is ) messagen betti message } { } ifelse
 
     debug.res0  
-      { (init of original g : ) messagen g {init} map  message
+      { (  ) message
+        (g=) messagen g message
+        (init of original g : ) messagen g {init} map  message
         (length of skelton ) messagen betti message
         (schreyerSkelton g : ) messagen skel message
         (Doing reduction ) messagen
@@ -168,6 +170,16 @@ tower.verbose
        si  g  i get mul
        sj  g  j get mul  add   
        grG reduction /tmp set  % si g[i] + sj g[j] + \sum tmp[2][k] g[k] = 0.
+       debug.res0 {
+         (   ) message
+         (pair=) messagen pair message
+         (reducing ) messagen 
+         si  g  i get mul
+         sj  g  j get mul  add   message
+         (by g=) messagen g message
+         (The result is tmp=) messagen tmp message
+         (   ) message
+       } { } ifelse
        tmp 0 get (0). eq { 
            tower.verbose { (.) messagen  [(flush)] extension pop } { } ifelse
        }
