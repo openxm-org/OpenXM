@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.12 2001/09/05 02:10:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.13 2001/09/05 06:26:02 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -26,9 +26,9 @@ def quote_factored_form_to_quote(S) {
   if (type(S) == QUOTE) return S;
   if (type(S) == STRUCT)  {
     /* And we need to check it is struct poly_factored_... */
-    if (S->Tag == "poly_factored_polynomial") {
+    if (struct_type(S) == struct_type("poly_factored_polynomial")) {
        return quote_factored_list_to_quote(S->F);
-    }else if (S->Tag == "poly_factored_rational") {
+    }else if (struct_type(S) == struct_type("poly_factored_rational")) {
        return quote_factored_form_to_quote(S->Numerator)/
               quote_factored_form_to_quote(S->Denominator);
     }else{

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.23 2001/10/11 05:38:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.24 2002/01/22 00:36:30 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -165,17 +165,17 @@ def taka_tex_form_rpolynomial(S) {
 
 /* Tentative */
 def taka_tex_form_struct(S) {
-  if (S->Tag == POLY_FACTORED_POLYNOMIAL || 
-      S->Tag == POLY_FACTORED_RATIONAL) {
+  if (struct_type(S) == POLY_FACTORED_POLYNOMIAL || 
+      struct_type(S) == POLY_FACTORED_RATIONAL) {
       A= taka_poly_tex_form_poly_factored_polynomial(S);
   }
-  else if (S->Tag == POLY_RING) {
+  else if (struct_type(S) == POLY_RING) {
        A = taka_poly_tex_form_poly_ring(S);
   }
-  else if (S->Tag == POLY_POLYNOMIAL) {
+  else if (struct_type(S) == POLY_POLYNOMIAL) {
        A = taka_poly_tex_form_poly_polynomial(S);
   }
-  else if (S->Tag == POLY_IDEAL) {
+  else if (struct_type(S) == POLY_IDEAL) {
        A = taka_poly_tex_form_poly_ideal(S);
   }else {
      print("Unknown struct object for tex_form. Return ???");
@@ -650,15 +650,15 @@ def taka_input_form(S) {
     A = quote_input_form(S);
   }
   else if (type(S) == STRUCT) {
-    if (S->Tag == POLY_FACTORED_POLYNOMIAL) {
+    if (struct_type(S) == POLY_FACTORED_POLYNOMIAL) {
        A = taka_poly_input_form_poly_factored_polynomial(S);
-    }else if (S->Tag == POLY_FACTORED_RATIONAL) {
+    }else if (struct_type(S) == POLY_FACTORED_RATIONAL) {
        A = taka_poly_input_form_poly_factored_rational(S);
-    }else if (S->Tag == POLY_RING) {
+    }else if (struct_type(S) == POLY_RING) {
        A = taka_poly_input_form_poly_ring(S);
-    }else if (S->Tag == POLY_POLYNOMIAL) {
+    }else if (struct_type(S) == POLY_POLYNOMIAL) {
        A = taka_poly_input_form_poly_polynomial(S);
-    }else if (S->Tag == POLY_IDEAL) {
+    }else if (struct_type(S) == POLY_IDEAL) {
        A = taka_poly_input_form_poly_ideal(S);
     }else {
        taka_print_warning("input_form() for this object has not yet been implemented.");
@@ -678,15 +678,15 @@ def taka_terminal_form(S) {
     A = quote_terminal_form(S);
   }
   else if (type(S) == STRUCT) {
-    if (S->Tag == POLY_FACTORED_POLYNOMIAL) {
+    if (struct_type(S) == POLY_FACTORED_POLYNOMIAL) {
        A = taka_poly_terminal_form_poly_factored_polynomial(S);
-    }else if (S->Tag == POLY_FACTORED_RATIONAL) {
+    }else if (struct_type(S) == POLY_FACTORED_RATIONAL) {
        A = taka_poly_terminal_form_poly_factored_rational(S);
-    }else if (S->Tag == POLY_RING) {
+    }else if (struct_type(S) == POLY_RING) {
        A = taka_poly_terminal_form_poly_ring(S);
-    }else if (S->Tag == POLY_POLYNOMIAL) {
+    }else if (struct_type(S) == POLY_POLYNOMIAL) {
        A = taka_poly_terminal_form_poly_polynomial(S);
-    }else if (S->Tag == POLY_IDEAL) {
+    }else if (struct_type(S) == POLY_IDEAL) {
        A = taka_poly_terminal_form_poly_ideal(S);
     }else{
        error("terminal_form() for this object has not yet been implemented.");

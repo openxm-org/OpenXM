@@ -1,15 +1,13 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/datatype.rr,v 1.4 2001/08/25 04:39:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/datatype.rr,v 1.5 2001/08/26 09:50:28 takayama Exp $ */
 
 #include "tags.h"
 
 /* Objects in the category base */
 struct base_field {
-  Tag,
   Type
 }$
 def new_base_filed() {
   A = newstruct(base_field);
-  A -> Tag = BASE_FIELD;
   return A;
 }
 def new__base_filed(T) {
@@ -19,14 +17,12 @@ def new__base_filed(T) {
 }
 
 struct base_identity {
-  Tag,
   Left,
   Right,
   Condition
 }$
 def new_base_identity() {
   A = newstruct(base_identity);
-  A->Tag = BASE_IDENTITY;
   return A;
 }
 def new__base_identity(L,R,C) {
@@ -44,12 +40,10 @@ def new__base_identity(L,R,C) {
     L->Rule = [[x,1/x],[y,1/y]];
 */
 struct base_rule {
-  Tag,
   Rule
 }$
 def new_base_rule() {
   A = newstruct(base_rule);
-  A->Tag = BASE_RULE;
   return A;
 }
 def new__base_rule(R) {
@@ -59,13 +53,11 @@ def new__base_rule(R) {
 }
 
 struct base_text {
-  Tag,
   Type, /* Type is "tex" or "html" ... */
   S   /* Sentence */
 }$
 def new_base_text() {
   A = newstruct(base_text);
-  A->Tag = BASE_TEXT;
   return A;
 }
 def new__base_text(T,S) {
@@ -80,12 +72,10 @@ def new__base_text(T,S) {
 /* Objects in the category poly */
 
 struct poly_factored_polynomial {
-  Tag, /* Tentative */
   F
 }$
 def new_poly_factored_polynomial() {
   A = newstruct(poly_factored_polynomial);
-  A->Tag = POLY_FACTORED_POLYNOMIAL;
   return A;
 }
 def new__poly_factored_polynomial(F) {
@@ -95,12 +85,10 @@ def new__poly_factored_polynomial(F) {
 }
 
 struct poly_factored_rational {
-  Tag, 
   Numerator, Denominator
 }$
 def new_poly_factored_rational() {
   A = newstruct(poly_factored_rational);
-  A->Tag = POLY_FACTORED_RATIONAL ;
   return A;
 }
 def new__poly_factored_rational(F,G) {
@@ -111,7 +99,6 @@ def new__poly_factored_rational(F,G) {
 }
 
 struct poly_ideal {
-  Tag,
   Ring,
   Generators,  /* List of native poly or dpoly. */
   Grobner      /* 1 or 0,  is it already Grobner basis? */
@@ -119,7 +106,6 @@ struct poly_ideal {
 
 def new_poly_ideal() {
   A = newstruct(poly_ideal);
-  A->Tag = POLY_IDEAL;
   return A;
 }
 def new__poly_ideal(R,F,G) {
@@ -139,14 +125,12 @@ def new__poly_ideal(R,F,G) {
 }
 
 struct poly_polynomial {
-  Tag,
   Ring,  
   F  /*  native poly, dpoly, quote  
       or struct factored_polynomial */
 }$
 def new_poly_polynomial() {
   A = newstruct(poly_polynomial);
-  A->Tag = POLY_POLYNOMIAL;
   return A;
 }
 def new__poly_polynomial(R,F) {
@@ -162,7 +146,6 @@ def new__poly_polynomial(R,F) {
 
 
 struct poly_ring {
-  Tag,
   Variables,  
   Order,
   K,  /* base_field.  base_Q (rational numbers),  */
@@ -171,7 +154,6 @@ struct poly_ring {
 
 def new_poly_ring() {
   A = newstruct(poly_ring);
-  A->Tag = POLY_RING;
   return A;
 }
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.9 2001/08/26 09:50:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.10 2001/08/29 07:37:17 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -226,7 +226,7 @@ def taka_poly_get_variables(L) {
     }
     return V;
   }else if (type(L) == STRUCT) {
-    if (L->Tag == POLY_IDEAL) {
+    if (struct_type(L) == POLY_IDEAL) {
       return L->Ring->Variables;
     }
   }else if (type(L) == RPOLYNOMIAL) {
@@ -258,7 +258,7 @@ def taka_poly_elimination_ideal(I,VV) {
   }
 
   if (type(I) == STRUCT) {
-    if (I->Tag == POLY_IDEAL) {
+    if (struct_type(I) == POLY_IDEAL) {
       I = II->Generators;
       V = II->Ring->Variables;
       if (II->Grobner) {
@@ -311,7 +311,7 @@ def taka_poly_grobner_basis(I) {
   }
   Gb = 0;
   if (type(I) == STRUCT) {
-    if (I->Tag == POLY_IDEAL) {
+    if (struct_type(I) == POLY_IDEAL) {
       I = II->Generators;
       V = II->Ring->Variables;
       Or = II->Ring->Order;
@@ -350,7 +350,7 @@ def taka_poly_hilbert_polynomial(I) {
   }
   Gb = 0;
   if (type(I) == STRUCT) {
-   if (I->Tag == POLY_IDEAL) {
+   if (struct_type(I) == POLY_IDEAL) {
      if (I->Grobner) {
        Gb = 1;
      }
@@ -396,7 +396,7 @@ def taka_poly_initial(I) {
   }
   Gb = 0;
   if (type(I) == STRUCT) {
-    if (I->Tag == POLY_IDEAL) {
+    if (struct_type(I) == POLY_IDEAL) {
       I = II->Generators;
       V = II->Ring->Variables;
       Or = II->Ring->Order;
@@ -446,7 +446,7 @@ def taka_poly_initial_coefficients(I) {
   }
   Gb = 0;
   if (type(I) == STRUCT) {
-    if (I->Tag == POLY_IDEAL) {
+    if (struct_type(I) == POLY_IDEAL) {
       I = II->Generators;
       V = II->Ring->Variables;
       Or = II->Ring->Order;
@@ -479,7 +479,7 @@ def taka_poly_initial_term(F) {
   Order = getopt(order);
   Weight = getopt(weight);
   if (type(F) == STRUCT) {
-    if (F->Tag == POLY_POLYNOMIAL) {
+    if (struct_type(F) == POLY_POLYNOMIAL) {
       VV = F->Ring->Variables;
       OOrder = F->Ring->Order;
       F = F->F;
@@ -532,7 +532,7 @@ def taka_poly_degree(F) {
   V = getopt(v);
   Weight = getopt(weight);
   if (type(F) == STRUCT) {
-    if (F->Tag == POLY_POLYNOMIAL) {
+    if (struct_type(F) == POLY_POLYNOMIAL) {
       VV = F->Ring->Variables;
       F = F->F;
     }else{
