@@ -1,4 +1,4 @@
-/* global.c */
+/* global.c $OpenXM$ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -124,7 +124,7 @@ int Lookup[TYPES][TYPES];
 int Quiet = 0;
 int TimerOn = 0;
 
-char *VersionString = "2.990914";
+char *VersionString = "2.991030";
 
 int AvoidTheSameRing = 1;
 int DebugCMO = 0;  /* plugin/cmo.c */

@@ -1,6 +1,6 @@
-/* sm.c */
-#define DATE "1999/09/14"
-#define RELEASE "2.990914"    /* This "string" must be an increasing seq.*/
+/* sm.c   $OpenXM$ */
+#define DATE "1999/10/30"
+#define RELEASE "2.991030"    /* This "string" must be an increasing seq.*/
                               /* You should write the same string in global.c
 			         VersionString for ox_sm1.
 				 Change also OxVersion in plugin/oxmisc.c
