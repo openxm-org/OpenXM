@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.16 2000/03/14 05:10:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.17 2000/03/14 05:38:50 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -9,7 +9,7 @@ abstract public class CMO extends OXbody{
   public static int[] mathcap = null;
 
   final public static int LARGEID     = 0x7f000000;
-  final public static int CMO_ERROR   = ( LARGEID +1 );
+  final public static int ERROR   = ( LARGEID +1 );
   final public static int ERROR2  = ( LARGEID +2 );
   final public static int NULL    = 1;
   final public static int INT32   = 2;
@@ -31,21 +31,21 @@ abstract public class CMO extends OXbody{
   final public static int DISTRIBUTED_POLYNOMIAL     = 31;
   final public static int POLYNOMIAL_IN_ONE_VARIABLE = 33;
 
-  final public static int CMO_RATIONAL                   = 34;
+  final public static int RATIONAL                   = 34;
 
   final public static int CMO_64BIT_MACHINE_DOUBLE           = 40;
-  final public static int CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  = 41;
+  final public static int ARRAY_OF_64BIT_MACHINE_DOUBLE  = 41;
   final public static int CMO_128BIT_MACHINE_DOUBLE          = 42;
-  final public static int CMO_ARRAY_OF_128BIT_MACHINE_DOUBLE = 43;
+  final public static int ARRAY_OF_128BIT_MACHINE_DOUBLE = 43;
 
   final public static int BIGFLOAT          = 50;
-  final public static int CMO_IEEE_DOUBLE_FLOAT = 51;
+  final public static int IEEE_DOUBLE_FLOAT = 51;
 
   final public static int INDETERMINATE      = 60;
   final public static int TREE               = 61;
-  final public static int CMO_LAMBDA             = 62;
+  final public static int LAMBDA             = 62;
 
-  final public static int CMO_PRIVATE = 0x7fff0000;
+  final public static int PRIVATE = 0x7fff0000;
 
   public CMO(){}
 
@@ -91,9 +91,6 @@ abstract public class CMO extends OXbody{
     a = is.readInt();
 
     switch(a){
-    case CMO_ERROR:
-      return new CMO_ERROR().receiveByObject(is);
-
     case CMO.ERROR2:
       return CMO_ERROR2.receive(is);
 
@@ -142,8 +139,8 @@ abstract public class CMO extends OXbody{
     case CMO.POLYNOMIAL_IN_ONE_VARIABLE:
       return CMO_POLYNOMIAL_IN_ONE_VARIABLE.receive(is);
 
-    case CMO_RATIONAL:
-      return new CMO_RATIONAL().receiveByObject(is);
+    case CMO.RATIONAL:
+      return CMO_RATIONAL.receive(is);
 
     case CMO.BIGFLOAT:
       return CMO_BIGFLOAT.receive(is);

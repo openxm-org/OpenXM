@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.25 2000/03/14 02:09:17 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.26 2000/03/14 04:44:16 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -21,7 +21,6 @@ PKGSRCS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.java \
@@ -48,7 +47,6 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.class \
 	JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.class \
