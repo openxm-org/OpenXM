@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.5 2004/09/27 11:18:23 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.6 2004/09/28 12:20:39 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -220,7 +220,8 @@ def
   [
     /saction arg1 def /sfile arg2 def
 % step1. Generate query in URL encoding.
-    [[(URL) cgiQueryPolymake.cginame]
+    [[(URL) [(http://) cgiQueryPolymake.hostname cgiQueryPolymake.cginame] cat]
+% full URL necessary for virtual host of apache.
      [(oxMessageBody)
      [saction ( )
       sfile nl ] cat
@@ -248,6 +249,7 @@ def
 
 % Overrides doPolymake
 %/doPolymake { doPolymake.OoHG } def
+%/polymake.start { polymake.start.OoHG } def
 
 [(doPolymake.OoHG)
 [(It first looks for local polymake. If there is, it calls the local polymake.)
@@ -281,7 +283,15 @@ def
        (Trying web service.) message
        pAction pNative  cgiQueryPolymake /doPolymake.OoHG.result set
 
+      [(regexec) (Not Found) [doPolymake.OoHG.result 0 get ]] 
+      extension length 0 eq not {
+         doPolymake.OoHG.result message
+         (The polymake cgi seems to be out of service.) error
+      } {  } ifelse
+
       doPolymake.OoHG.result 0 get /pNative set
+
+
       pError doPolymake.OoHG.result rest append /pError set
     } {
 % local polymake
@@ -303,6 +313,24 @@ def
   ] pop
   popVariables
   arg1
+} def
+
+/polymake.start.OoHG {
+  (ox.k0.loaded) boundp {  }
+  { [(parse) (ox.sm1) pushfile] extension 
+    /@@@polymake.k0.ccc [ ] def
+  } ifelse
+  @@@polymake.k0.ccc [ ] eq { 
+     k0connectr /@@@polymake.k0.ccc oxk0.ccc def /oxk0.ccc [ ] def
+     @@@polymake.k0.ccc oxsetmathcap @@@polymake.k0.ccc oxmathcap
+  } {  } ifelse
+  @@@polymake.k0.ccc 0 get (closed) eq {
+     k0connectr /@@@polymake.k0.ccc oxk0.ccc def /oxk0.ccc [ ] def
+     @@@polymake.k0.ccc oxsetmathcap @@@polymake.k0.ccc oxmathcap
+  } {  } ifelse
+  [(which) (polymake2tfb)] oxshell tag 0 eq {
+     (polymake2tfb is not installed in this system.) error
+  } {  } ifelse
 } def
 
 
