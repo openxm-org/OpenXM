@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.7 2000/12/03 07:29:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.8 2000/12/03 08:19:55 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -92,7 +92,7 @@ int oxReq(oxclientp client,int func,struct object ob)
     switch(func) {
     case SM_control_reset_connection:
       oxReqControlResetConnection(client->controlfd);
-      client->cstate = 1;
+      client->cstate = 0;
       client->dstate = DSTATE_FIRST_SYNC;
       break;
     case SM_control_kill:
