@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.4 2001/08/29 11:18:57 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.5 2001/09/20 05:57:40 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -74,7 +74,7 @@ def
     httpd_startserver ;
     httpd_action ;
     httpd_stopserver ;
-    (5 sleep) system 
+%    (sleep 2) system 
     httpd.serial 1 add /httpd.serial set
   } loop    
 } def
@@ -93,7 +93,7 @@ def
    0 sendln
    (<html>) sendln
    (Shutdown the engine. <br>) sendln
-   (See you! <a href="http://www.openxm.org"> Web/sm1 </a>) sendln
+   (See you! <a href="http://www.openxm.org"> Web/asir, Web/sm1 </a>) sendln
    (</html>) sendln
    0 sendln
    [(flush)] extension

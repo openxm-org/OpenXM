@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.3 2001/05/04 01:06:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.4 2001/08/12 03:13:36 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -369,10 +369,12 @@ struct object KsocketRead(struct object obj) {
     }
   }
 
-  r = (char *)GC_malloc(sizeof(char)*(n+1));
+  r = (char *)GC_malloc(sizeof(char)*(totalsize+1));
   if (r == (char *)NULL) errorMsg1s("Out of Memory.");
   bcopy(data,r,totalsize);
-  robj = KpoString(r);
+  r[totalsize] = 0;
+  robj = KpoString(r);  /* BUG: it works only for reading string from TCP/IP
+   					            stream. */
 
   return(robj);
     
@@ -526,6 +528,74 @@ struct object KsocketWriteByte(struct object obj) {
   return(KpoInteger(r));
 }
 
+struct object KsocketReadBlock(struct object socketObj) {
+  /* Read until the empty line appears. */
+  struct object ob;
+  char *s;
+  char *sss;
+  char *tmp;
+  int i;
+  int flag;
+  int datasize;
+  ob = KsocketRead(socketObj);
+  s = KopString(ob);
+  flag = 0;
+  for (i=strlen(s)-1; i>=0; i--) {
+	if ((s[i] == '\n') && (i==0)) {
+	  flag = 1;
+	}else if ((s[i] == '\n') && (s[i-1] == '\n')) {
+	  flag = 1;
+	}else if ((s[i] == 0xd) && (s[i+1] == 0xa) && (i == 0)) {
+	  flag = 1;
+	}else if ((s[i] == 0xa) && (s[i-1] == 0xd) && (s[i+1] == 0xd) && (s[i+2] == 0xa)) {
+	  flag = 1;
+	}
+  }
+  if (flag == 1) return ob;
+  datasize = strlen(s);
+  sss = s;
+
+  while (flag == 0) {
+	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line).\n");
+	if (strlen(s) == 0) {fprintf(stderr,"but I'm not receiving data. Expecting a bug.\n");
+	}else{
+	  /* for debugging. */
+	  for (i=0; i<strlen(sss); i++) {
+		fprintf(stderr,"%3x",sss[i]);
+	  }
+	  fprintf(stderr,"\n");
+	}
+	sleep(2);
+	ob = KsocketRead(socketObj);
+	s = KopString(ob);
+	flag = 0;
+	for (i=strlen(s)-1; i>=0; i--) {
+	  if ((s[i] == '\n') && (i==0)) {
+		flag = 1;
+	  }else if ((s[i] == '\n') && (s[i-1] == '\n')) {
+		flag = 1;
+	  }else if ((s[i] == 0xd) && (s[i+1] == 0xa) && (i == 0)) {
+		flag = 1;
+	  }else if ((s[i] == 0xa) && (s[i-1] == 0xd) && (s[i+1] == 0xd) && (s[i+2] == 0xa)) {
+		flag = 1;
+	  }
+	}
+	if (datasize-1 <= strlen(sss)+strlen(s)) {
+      tmp = (char *)GC_malloc(sizeof(char)*2*(datasize+strlen(s))+1);
+      if (tmp == (char *)NULL) errorMsg1s("Out of Memory.");
+	  strcpy(tmp,sss);
+	  strcat(tmp,s);
+      datasize = 2*(datasize+strlen(s));
+	  sss = tmp;
+	}else{
+	  strcat(sss,s);
+	}
+  }
+
+  return KpoString(sss);
+
+}
+
 struct object Kplugin_sm1Socket(char *key,struct object obj) {
   struct object robj = NullObject;
   if (strcmp(key,"open") == 0) {
@@ -540,6 +610,8 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
     robj = KsocketSelectMulti(obj);
   }else if (strcmp(key,"read") == 0) {
     robj = KsocketRead(obj);
+  }else if (strcmp(key,"readBlock") == 0) {
+    robj = KsocketReadBlock(obj);
   }else if (strcmp(key,"write") == 0) {
     robj = KsocketWrite(obj);
   }else if (strcmp(key,"read") == 0) {
