@@ -1,0 +1,124 @@
+%$OpenXM$
+%% You need acmconf.cls and flushend.sty to compile this file.
+%% They may be obtained from 
+%%  http://riksun.riken.go.jp/archives/tex-archive/macros/latex/contrib/supported/acmconf/
+\documentclass[submit]{acmconf}
+%\documentclass{article}
+%% \CopyrightText{\copyright 2000, }
+\IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
+\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
+\ConferenceName{ISSAC 2000, St. Andrews, UK, 2000}
+\ConferenceShortName{ISSAC2000}
+\def\OpenXM{{\rm OpenXM\ }}
+
+\begin{document}
+\date{January 16, 2000}
+\title{OpenXM 
+      --- an Open System \\ to Integrate Mathematical Softwares}
+\author{\Author{Masahide Maekawa}\\
+         \Address{Kobe University}\\
+         \Email{maekawa@math.kobe-u.ac.jp}\\
+         \and
+         \Author{Masayuki Noro}\\
+         \Address{Fujitsu Labs}\\
+         \Email{noryo@flab.fujitsu.co.jp}
+         \and
+         \Author{Katsuyoshi Ohara}\\
+         \Address{Kanazawa University}\\
+         \Email{ohara@air.s.kanazawa-u.ac.jp}
+         \and
+         \Author{Yukio Okutani}\\
+         \Address{Kobe University}\\
+         \Email{okutani@math.kobe-u.ac.jp}
+         \and
+         \Author{Nobuki Takayama}\\
+         \Address{Kobe University}\\
+         \Email{takayama@math.kobe-u.ac.jp}
+         \and
+         \Author{Yasushi Tamura}\\
+         \Address{Kobe University}\\
+         \Email{tamura@math.kobe-u.ac.jp}
+       }
+\maketitle
+
+\begin{abstract}
+\OpenXM is a free, or Open Source, infrastructure for mathematical
+softwares.
+It provides methods and protocols 
+for interactive distributed computation and
+for integrating mathematical softwares.
+\OpenXM package is a set of softwares that supports \OpenXM protocols.
+It is currently a collection of softwares
+{\tt Risa/Asir} \cite{asir}, {\tt Kan/sm1} \cite{kan}, {\tt PHC} pack \cite{phc}, {\tt GNUPLOT},
+{\tt Mathematica} interface, and
+{\tt OpenMath}/XML \cite{OpenMath} translator.
+These are wrapped with the \OpenXM stack machine
+to connect each other.
+{\it Availability}: The OpenXM package is obtainable at \cite{openxm-web}
+from January 24, 2000.
+\end{abstract}
+
+\begin{keywords}
+Asir,
+IAMC, Interactive Distributed Computation, 
+Integration of Mathematical Softwares,
+MP, OpenMath, OpenXM. 
+\end{keywords}
+
+%\section{Introduction}
+
+\input{design-outline}
+
+\input{ox-messages}
+
+\input{data-format}
+
+\input{openxm-stackmachines}
+
+\input{session-management}
+
+\input{openxm-clients}
+
+\input{openxm-development-environment}
+
+\input{heterotic-network}
+\input{homogeneous-network}
+
+\input{bib}
+\end{document}
+\endinput
+%%
+
+
+%%Text may be set as \emph{emph}.\\
+%%Text may be set as \texttt{texttt}.\\
+%%Text may be set as \underline{unterline}.\\
+%%Text may be set as \textbf{textbf}.\\
+%%Text may be set as \textrm{textrm}.\\
+%%Text may be set as {\tiny tiny}.\\
+
+%%\begin{figure}
+%%\hrule
+%%Nice Postscript, isn't it?
+%%\begin{center}
+%%\IfFileExists{graphicx.sty}{
+%%  \includegraphics{body.eps}
+%%}{
+%%  Sorry, package \texttt{graphicx} not present.
+%%}
+%%\end{center}
+%%Same, a little bit smaller:
+%%\begin{center}
+%%\IfFileExists{graphicx.sty}{
+%%  \includegraphics[scale=.5]{body.eps}
+%%  }{
+%%  Sorry, package \texttt{graphicx} not present.
+%%}
+%%\end{center}
+%%\caption{\label{fig-1}This is a nice floating figure}
+%%\hrule
+%%\end{figure}
+
+
+
+

@@ -1,0 +1,88 @@
+% $OpenXM$
+
+\section{OpenXM Clients}    
+
+\subsection{Risa/Asir}
+
+Risa/Asir provides a launcher {\tt ox\_launch}
+to invoke an OpenXM server and to set up the
+communication between the server and itself.
+Fundamental operations on OpenXM servers are 
+exchange of OX data and sending of stack machine commands.
+As a client, Asir provides the following functions
+to execute these primitive operations:
+{\tt ox\_push\_cmo()} for pushing data,
+{\tt ox\_push\_cmd()} for sending a stack machine command
+and {\tt ox\_get()} for receiving data from a stream.
+
+Some operations including the reset operation are implemented by
+combining these primitives.  Among them, frequently used ones are
+provided as built-in functions. We show some of them.
+
+\begin{itemize}
+\item {\tt ox\_pop\_cmo()}
+
+It requests a server to send data on the stack to the stream, then
+it receives the data from the stream.
+
+\item {\tt ox\_cmo\_rpc()}
+
+After pushing the name of a function, arguments and the number of the
+arguments to the stack of a server, it requests the server to execute
+the function. It does not wait the termination of the function call.
+
+\item {\tt ox\_reset()}
+
+After sending {\tt SM\_control\_reset\_connection} to a control server,
+it completes the operations stated in Section \ref{control}.
+\end{itemize}
+Furthermore {\tt ox\_select()} is provided to detect if streams are ready for
+reading. It is implemented by the {\tt select()} system call and is used
+to avoid blocking on read operations.
+
+\subsection{Mathematica}
+
+We provide an OpenXM client {\tt math2ox} written as an external module
+for Mathematica.  
+The module {\tt math2ox} communicates with Mathematica by MathLink and
+with any OpenXM server by the OpenXM protocol.  
+By using the module {\tt math2ox},
+we can call OpenXM servers from Mathematica;
+here is a demonstration of a computation of the de Rham cohomology groups
+of ${\bf C}^2 \setminus V(x^3-y^2)$ from Mathematica.
+{\footnotesize
+\begin{verbatim}
+In[1]:= Install["math2ox"]
+In[2]:= OxStart["../lib/sm1/bin/ox_sm1_forAsir"]
+In[3]:= OxExecute[" [(x^3-y^2) (x,y)] deRham "]
+In[4]:= OxPopString[]
+Out[4]=  [ 1 , 1 , 0 ]  (* The dimension of 
+                           cohomology groups *)
+\end{verbatim}
+}
+
+The {\tt math2ox} adds the following functions to Mathematica.
+\begin{quote}
+{\tt OxStart[s\_String]} \\
+{\tt OxStartInsecure[s\_String]} \\
+{\tt OxExecuteString[s\_String]}  \\
+{\tt OxParse[s\_String]} \\
+{\tt OxGet[]} \\
+{\tt OxPopCMO[]} \\
+{\tt OxPopString[]} \\
+{\tt OxClose[]} \\
+{\tt OxReset[]}
+\end{quote}
+Although the list of functions speaks itself,
+we add some explanations.
+The function {\tt OxPopCMO[]} executes the same operation
+as {\tt ox\_pop\_cmo()} in Risa/Asir;
+it pops data from the server stack.
+The {\tt OxGet[]} receives an OX data message
+and returns its translation to an local object.
+The function {\tt OxParse[]} helps debugging to connect Mathematica
+and ox servers.
+By using the function, one can send OX messages,
+written by the OX expression, to a server. 
+OX expressions are Lisp-like expressions for OX messages and are defined
+in~\cite{noro-takayama}.  

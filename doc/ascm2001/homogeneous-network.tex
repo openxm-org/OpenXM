@@ -1,0 +1,97 @@
+% $OpenXM$
+
+\subsection{Distributed computation with homogeneous servers}
+\label{section:homog}
+
+One of the aims of OpenXM is a parallel speedup by a distributed computation
+with homogeneous servers. As the current specification of OpenXM does
+not include communication between servers, one cannot expect
+the maximal parallel speedup. However it is possible to execute
+several types of distributed computation as follows.
+
+\subsubsection{Product of univariate polynomials}
+
+Shoup \cite{Shoup} showed that the product of univariate polynomials
+with large degrees and large coefficients can be computed efficiently
+by FFT over small finite fields and Chinese remainder theorem.
+It can be easily parallelized:
+
+\begin{tabbing}
+Input :\= $f_1, f_2 \in {\bf Z}[x]$ such that $deg(f_1), deg(f_2) < 2^M$\\
+Output : $f = f_1f_2$ \\
+$P \leftarrow$ \= $\{m_1,\cdots,m_N\}$ where $m_i$ is an odd prime, \\
+\> $2^{M+1}|m_i-1$ and $m=\prod m_i $ is sufficiently large. \\
+Separate $P$ into disjoint subsets $P_1, \cdots, P_L$.\\
+for \= $j=1$ to $L$ $M_j \leftarrow \prod_{m_i\in P_j} m_i$\\
+Compute $F_j$ such that $F_j \equiv f_1f_2 \bmod M_j$\\
+\> and $F_j \equiv 0 \bmod m/M_j$ in parallel.\\
+\> (The product is computed by FFT.)\\
+return $\phi_m(\sum F_j)$\\
+(For $a \in {\bf Z}$, $\phi_m(a) \in (-m/2,m/2)$ and $\phi_m(a)\equiv a \bmod m$)
+\end{tabbing}
+
+Figure \ref{speedup}
+shows the speedup factor under the above distributed computation
+on Risa/Asir. For each $n$, two polynomials of degree $n$
+with 3000bit coefficients are generated and the product is computed.
+The machine is FUJITSU AP3000,
+a cluster of Sun workstations connected with a high speed network 
+and MPI over the network is used to implement OpenXM.
+\begin{figure}[htbp]
+\epsfxsize=8.5cm
+\epsffile{speedup.ps}
+\caption{Speedup factor}
+\label{speedup}
+\end{figure}
+
+If the number of servers is $L$ and the inputs are fixed, then the cost to
+compute $F_j$ in parallel is $O(1/L)$, whereas the cost
+to send and receive polynomials is $O(L)$ if {\tt ox\_push\_cmo()} and
+{\tt ox\_pop\_cmo()} are repeatedly applied on the client.
+Therefore the speedup is limited and the upper bound of
+the speedup factor depends on the ratio of 
+the computational cost and the communication cost for each unit operation.
+Figure \ref{speedup} shows that 
+the speedup is satisfactory if the degree is large and $L$
+is not large, say, up to 10 under the above environment.
+If OpenXM provides operations for the broadcast and the reduction
+such as {\tt MPI\_Bcast} and {\tt MPI\_Reduce} respectively, the cost of 
+sending $f_1$, $f_2$ and gathering $F_j$ may be reduced to $O(\log_2L)$
+and we can expect better results in such a case.
+
+\subsubsection{Competitive distributed computation by various strategies}
+
+SINGULAR \cite{Singular} implements {\it MP} interface for distributed
+computation and a competitive Gr\"obner basis computation is
+illustrated as an example of distributed computation.
+Such a distributed computation is also possible on OpenXM.
+The following Risa/Asir function computes a Gr\"obner basis by
+starting the computations simultaneously from the homogenized input and
+the input itself.  The client watches the streams by {\tt ox\_select()}
+and the result which is returned first is taken. Then the remaining
+server is reset.
+
+\begin{verbatim}
+/* G:set of polys; V:list of variables */
+/* O:type of order; P0,P1: id's of servers */
+def dgr(G,V,O,P0,P1)
+{
+  P = [P0,P1]; /* server list */
+  map(ox_reset,P); /* reset servers */
+  /* P0 executes non-homogenized computation */
+  ox_cmo_rpc(P0,"dp_gr_main",G,V,0,1,O);
+  /* P1 executes homogenized computation */
+  ox_cmo_rpc(P1,"dp_gr_main",G,V,1,1,O);
+  map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
+  F = ox_select(P); /* wait for data */
+  /* F[0] is a server's id which is ready */
+  R = ox_get(F[0]);
+  if ( F[0] == P0 ) {
+    Win = "nonhomo"; Lose = P1;
+  } else {
+    Win = "homo"; Lose = P0;
+  }
+  ox_reset(Lose); /* reset the loser */
+  return [Win,R];
+}
+\end{verbatim}

@@ -1,0 +1,49 @@
+%%$OpenXM$
+
+\section{OX messages}
+
+An OX message for TCP/IP is a byte stream consisting of
+a header and a body.
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Header	& \hspace{10mm} Body \hspace{10mm} \\
+\hline
+\end{tabular}
+\end{center}
+The header consists of two signed 32 bit integers.
+The first one is an OX tag 
+and the second one is a serial number of the OX message.
+%Negative numbers are expressed by the two's complement.
+Several byte orders including the network byte order
+are allowed and the byte order is determined as a part of
+the establishment of a connection. See Section \ref{secsession} for details.
+
+The OX messages are classified into three types:
+DATA, COMMAND, and SPECIAL.
+We have currently the following general tags for the OX messages.
+\begin{verbatim}
+#define	OX_COMMAND               513  // COMMAND
+#define	OX_DATA	                 514  // DATA
+#define OX_SYNC_BALL             515  // SPECIAL
+#define OX_DATA_WITH_LENGTH      521  // DATA
+#define OX_DATA_OPENMATH_XML     523  // DATA
+#define OX_DATA_OPENMATH_BINARY  524  // DATA
+#define OX_DATA_MP               525  // DATA
+\end{verbatim}
+
+A new OX tag may be added.
+The new tag should be classified into DATA or COMMAND.
+For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added recently
+to send internal serialized objects of Asir via the OpenXM protocol.
+This is a tag classified to DATA.
+See the web page of OpenXM to add a new tag \cite{openxm-web}.
+
+%An OpenXM client admit that its own command sends some OX messages
+%sequentially at once.  
+%
+%For example, the asir command
+%{\tt ox\_execute\_string(P, "Print[x+y]")} sends an OX data message
+%{\tt (OX\_DATA, (CMO\_STRING, "Print[x+y]"))} and an OX command message
+%{\tt (OX\_COMMAND, (SM\_executeStringByLocalParser))} to an OpenXM
+%server.
