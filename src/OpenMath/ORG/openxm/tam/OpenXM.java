@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.7 2001/11/01 08:54:50 takayama Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.8 2001/11/04 09:58:14 takayama Exp $
  */
 package ORG.openxm.tam;
 
@@ -84,8 +84,26 @@ public class OpenXM{
     stream.sendByteOrder();
   }
 
+  public OpenXM(String host,int CtrlPort,int StreamPort,String ox_server,int oxd_port,String pass)
+	   throws IOException{
+		 // pass may be a null string.
+    control = new OpenXMstream(host,CtrlPort,pass);
+    stream = new OpenXMstream(host,StreamPort,pass);
+    System.err.println("Listening...");
+    System.err.println("Launch ox server with the reverse option, e.g., ox -ox ox_asir -reverse");
+    // Launch ox_server by the oxd daemon (oxd_port).
+    // BUG: It has not yet been implemented.
+    control.OpenXMstreamAccept();
+    System.err.println("Accepted the control port.");
+    stream.OpenXMstreamAccept();
+    System.err.println("Accepted the data port.");
+
+
+    control.sendByteOrder();
+    stream.sendByteOrder();
+  }
   /*&ja
-   * 接続の初期化を行なう. 現在は未実装.
+   * サーバの計算中断を行なう. 現在は未実装.
    */
   /**
    * Resetting the engine process.  It has not yet been implemented.

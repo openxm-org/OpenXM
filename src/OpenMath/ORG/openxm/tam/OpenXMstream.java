@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMstream.java,v 1.2 2000/10/11 08:32:15 ohara Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXMstream.java,v 1.3 2001/03/02 11:13:57 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -21,6 +21,7 @@ public class OpenXMstream{
   private int order = OX_BYTE_NETWORK_BYTE_ORDER;
   private CMO_MATHCAP mathcap = null;
   private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+  private ServerSocket ssocket = null;
 
   /**
    * ネットワークバイトオーダを表す.
@@ -71,6 +72,19 @@ public class OpenXMstream{
       socket = new ServerSocket(Port,50,InetAddress.getByName(host)).accept();
     }
 
+    //is =new DebugInputStream(new BufferedInputStream(socket.getInputStream()));
+    is= new BufferedInputStream(socket.getInputStream());
+    os = socket.getOutputStream();
+  }
+
+  public OpenXMstream(String host,int Port,String pass) throws IOException{
+    // create socket
+    ssocket = new ServerSocket(Port,1,InetAddress.getByName(host));
+	// pass has not been implemented.
+  }
+
+  public void OpenXMstreamAccept() throws IOException{
+	Socket socket = ssocket.accept();
     //is =new DebugInputStream(new BufferedInputStream(socket.getInputStream()));
     is= new BufferedInputStream(socket.getInputStream());
     os = socket.getOutputStream();
