@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.7 2001/01/26 12:24:57 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.8 2001/09/20 00:48:17 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -15,6 +15,14 @@ if (Boundp("NoX")) {
   as = Asir.generate(false); 
 }else{
   as = Asir.generate();
+}
+
+def demoReduction(v) {
+  if (v == true) {
+    sm1(" [(Verbose) 1] system_variable  [(DebugReductionRed) 1] system_variable Onverbose ");
+  }else{
+    sm1(" [(Verbose) 0] system_variable  [(DebugReductionRed) 0] system_variable Offverbose ");
+  }
 }
 
 asssssir = as;
