@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.6 2000/03/13 06:27:48 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.7 2000/03/15 14:16:38 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -22,13 +22,13 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 
 all: ${BINARIES}
 
-serv1.o serv2.o mlo.o: serv2.h
+serv1.o sm.o sm_ext.o mlo.o: sm.h
 
-ox_math: serv1.o serv2.o mlo.o
-	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ serv2.o serv1.o mlo.o ${LIBS}
+ox_math: serv1.o sm.o sm_ext.o mlo.o
+	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ sm.o sm_ext.o serv1.o mlo.o ${LIBS}
 
-math2ox: math2ox.o math2.o mlo.o serv2.o
-	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ math2ox.o math2.o serv2.o mlo.o ${LIBS}
+math2ox: math2ox.o math2.o mlo.o sm.o sm_ext.o
+	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ math2ox.o math2.o sm.o sm_ext.o mlo.o ${LIBS}
 
 math2.c: math2.tm
 	-rm -f $@

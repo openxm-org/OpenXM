@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.11 2000/11/28 20:16:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.12 2000/12/03 15:19:23 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -16,11 +16,11 @@
 #include <signal.h>
 #include <mathlink.h>
 #include <ox_toolkit.h>
-#include "serv2.h"
+#include "sm.h"
 
 static int send_ox_sync_ball();
 
-static OXFILE *sv;
+extern OXFILE *stack_oxfp;
 
 static int flag_sigusr1 = 0;
 static int flag_sigusr2 = 0;
@@ -60,59 +60,62 @@ static int handler_reset1()
 
 static int handler_kill()
 {
-	oxf_close(sv);
+    oxf_close(stack_oxfp);
     exit(1);
 }
 
 static int send_ox_sync_ball()
 {
     fprintf(stderr, "sending a sync_ball.\n");
-    send_ox_tag(sv, OX_SYNC_BALL);
+    send_ox_tag(stack_oxfp, OX_SYNC_BALL);
 }
 
 static int exchange_ox_syncball()
 {
     int tag;
 
-    while((tag = receive_ox_tag(sv)) != OX_SYNC_BALL) {
+    while((tag = receive_ox_tag(stack_oxfp)) != OX_SYNC_BALL) {
         /* skipping a message. */
         if (tag == OX_DATA) {
-            receive_cmo(sv);
+            receive_cmo(stack_oxfp);
         }else {
-            receive_int32(sv);
+            receive_int32(stack_oxfp);
         }
     }
     fprintf(stderr, "received a sync_ball.\n");
 }
 
 /* a part of stack machine. */
-int receive_ox(OXFILE *oxfp)
+int sm_receive_ox()
 {
     int tag;
     int code;
 
-    tag = receive_ox_tag(oxfp);
+    tag = receive_ox_tag(stack_oxfp);
+    if (oxf_error(stack_oxfp)) {
+        return 0;
+    }
     switch(tag) {
     case OX_DATA:
-        push(receive_cmo(oxfp));
+        push(receive_cmo(stack_oxfp));
         break;
     case OX_COMMAND:
-        code = receive_sm_command(oxfp);
+        code = receive_sm_command(stack_oxfp);
         set_critical();
-        execute_sm_command(oxfp, code);
+        sm_run(code);
         unset_critical();
         break;
     default:
         fprintf(stderr, "illeagal message? ox_tag = (%d)\n", tag);
-        return -1;
+        return 0;
         break;
     }
-    return 0;
+    return 1;
 }
 
 int shutdown()
 {
-    oxf_close(sv);
+    oxf_close(stack_oxfp);
     ml_exit();
     exit(0);
 }
@@ -120,9 +123,18 @@ int shutdown()
 #define VERSION 0x11121400
 #define ID_STRING  "2000/11/29"
 
+int oxf_error(OXFILE *oxfp)
+{
+    int e = oxfp->error;
+    if (e != 0) {
+        oxfp->error = 0;
+    }
+    return e;
+}
+
 int main()
 {
-	sv = oxf_open(3);
+    OXFILE* sv;
 
     ml_init();
     mathcap_init(VERSION, ID_STRING, "ox_math", NULL, NULL);
@@ -130,10 +142,17 @@ int main()
     signal(SIGUSR1, handler_reset1);
     signal(SIGKILL, handler_kill);
 
-	oxf_determine_byteorder_server(sv);
+    sv = oxf_open(3);
+    oxf_determine_byteorder_server(sv);
+    sm(sv);
+    shutdown();
+}
 
-    while(1) {
-        receive_ox(sv);
+int sm(OXFILE *oxfp)
+{
+    stack_oxfp = oxfp;
+    stack_extend();
+    while(sm_receive_ox()) {
         if(flag_sigusr1) {
             if (!already_send_ox_sync_ball) {
               send_ox_sync_ball();
@@ -144,5 +163,5 @@ int main()
             already_send_ox_sync_ball = 0;
         }
     }
-    shutdown();
+    fprintf(stderr, "SM: socket(%d) is closed.\n", stack_oxfp->fd);
 }

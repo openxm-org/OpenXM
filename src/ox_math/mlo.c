@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.7 2000/10/10 19:58:29 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.8 2000/11/28 20:16:03 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -16,7 +16,7 @@
 #include <mathlink.h>
 #include <ox_toolkit.h>
 #include "mlo.h"
-#include "serv2.h"
+#include "sm.h"
 
 /* If this flag sets then we identify MLTKSYM to CMO_INDETERMINATE. */
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
