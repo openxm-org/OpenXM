@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.8 2004/03/02 09:30:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.9 2004/03/03 02:31:50 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -70,7 +70,7 @@ static int startEngine(int type,char *msg);
 */
 FILE *Dfp;
 
-main() {
+main(int argc,char *argv[]) {
   char *s;
   char *r;
   char *sys;
@@ -79,6 +79,7 @@ main() {
   int vmode=1;
   char *openxm_home;
   char *asir_config;
+  int i;
 
   openxm_home = (char *) getenv("OpenXM_HOME");
   asir_config = (char *) getenv("ASIR_CONFIG");
@@ -93,8 +94,18 @@ main() {
 #endif
   
   /* Set consts */
-  sys = "asir> ";
   Quiet = 1;
+  for (i=1; i<argc; i++) {
+	if (strcmp(argv[i],"--sm1") == 0) {
+	  TM_Engine = SM1;
+	}else if (strcmp(argv[i],"--asir") == 0) {
+	  TM_Engine = ASIR;
+	}else if (strcmp(argv[i],"--k0") == 0) {
+	  TM_Engine = K0;
+	}else{
+	  printv("Unknown option\n");
+	}
+  }
 
   /* Initialize kanlib (gc is also initialized) */
   KSstart();
@@ -241,8 +252,11 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
-  if (s[n-1] == '$' && TM_Engine == ASIR) TM_do_not_print = 1;
-  else TM_do_not_print = 0;
+  if (s[n-1] == '$' && TM_Engine == ASIR) {
+	TM_do_not_print = 1; s[n-1] = ' ';
+  } else if (s[n-1] == ';' && TM_Engine == SM1) {
+	TM_do_not_print = 1; s[n-1] = ' ';
+  } else TM_do_not_print = 0;
   /* Check the escape sequence */
   if (strcmp(&(s[start]),"!quit;") == 0) {
     printv("Terminated the process ox_texmacs.\n"); 
@@ -319,7 +333,17 @@ static int startEngine(int type,char *msg) {
   if (type == SM1) {
     if (!TM_sm1Started) KSexecuteString(" sm1connectr ");
     KSexecuteString(" /ox.engine oxsm1.ccc def ");
+    /* Initialize the setting of sm1. */
+    KSexecuteString("  oxsm1.ccc ( [(cmoLispLike) 0] extension ) oxsubmit ");
+    KSexecuteString("  oxsm1.ccc ( ox_server_mode ) oxsubmit ");
+    KSexecuteString("  oxsm1.ccc ( ( ) message (------------- Message from sm1 ----------------)message ) oxsubmit ");
     TM_sm1Started = 1;
+	/* Welcome message.  BUG. Copyright should be returned by a function. */
+    printf("Kan/StackMachine1                         1991 April --- 2004.\n");
+    printf("This software may be freely distributed as is with no warranty expressed. \n");
+	printf("See OpenXM/Copyright/Copyright.generic\n");
+	printf("Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp.\n");
+	printf("0 usages to show a list of functions. \n(keyword) usages to see a short description\n");
     printf("%s\n",msg);
   }else if (type == K0) {
     if (!TM_k0Started) KSexecuteString(" k0connectr ");
