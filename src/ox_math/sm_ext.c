@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.2 2000/12/03 22:09:34 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.3 2003/01/11 12:38:57 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -51,10 +51,7 @@ void sm_popString()
     cmo *err;
     cmo *m;
 
-#ifdef DEBUG
-    fprintf(ox_stderr, "ox_math:: opecode = SM_popString.\n");
-#endif
-
+    ox_printf("ox_math:: opecode = SM_popString.\n");
     m = pop();
     if (m->tag == CMO_STRING) {
         send_ox_cmo(stack_oxfp, m);
@@ -90,10 +87,8 @@ void sm_executeStringByLocalParser()
     symbol_t symp;
     cmo* m = pop();
     char *s = NULL;
-#ifdef DEBUG
-    fprintf(ox_stderr, "ox_math:: opecode = SM_executeStringByLocalParser.\n");
-#endif
 
+    ox_printf("ox_math:: opecode = SM_executeStringByLocalParser.\n");
     if (m->tag == CMO_STRING
         && strlen(s = ((cmo_string *)m)->s) != 0) {
         if (s[0] == ':') {
@@ -108,7 +103,7 @@ void sm_executeStringByLocalParser()
     }else {
 #ifdef DEBUG
 		symp = lookup_by_tag(m->tag);
-		fprintf(ox_stderr, "ox_math:: error. the top of stack is %s.\n", symbol_get_key(symp));
+		ox_printf("ox_math:: error. the top of stack is %s.\n", symbol_get_key(symp));
 #endif
 		push_error(SM_executeStringByLocalParser, m);
 	}

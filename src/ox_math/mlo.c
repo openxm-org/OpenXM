@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.9 2000/12/03 21:46:52 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.10 2003/01/11 12:38:57 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -24,13 +24,34 @@ int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 /* MLINK is a indentifier of MathLink connection. */
 MLINK stdlink;
 
+mlo *receive_mlo_real()
+{
+    char *s;
+    cmo *ob;
+    /* Yet we have no implementation of CMO_DOUBLE... */
+    MLGetString(stdlink, &s);
+    ox_printf("MLTKREAL(%s)", s);
+    ob = (cmo *)new_cmo_string(s);
+    MLDisownString(stdlink, s);
+    return ob;
+}
+
+mlo *receive_mlo_error()
+{
+    int errcode = MLError(stdlink);
+    char *s = MLErrorMessage(stdlink);
+    MLClearError(stdlink);
+    ox_printf("MLTKERR(%d,\"%s\")", errcode, s);
+    return (cmo *)make_error_object(ERROR_ID_FAILURE_MLINK, new_cmo_string(s));
+}
+
 mlo *receive_mlo_zz()
 {
     char *s;
     mlo  *m;
 
     MLGetString(stdlink, &s);
-    fprintf(ox_stderr, "--debug: MLO == MLTKINT (%s).\n", s);
+    ox_printf("MLTKINT(%s)", s);
     m = (mlo *)new_cmo_zz_set_string(s);
     MLDisownString(stdlink, s);
     return m;
@@ -41,7 +62,7 @@ mlo *receive_mlo_string()
     char *s;
     mlo  *m;
     MLGetString(stdlink, &s);
-    fprintf(ox_stderr, "--debug: MLO == MLTKSTR (\"%s\").\n", s);
+    ox_printf("MLTKSTR(\"%s\")", s);
     m = (cmo *)new_cmo_string(s);
     MLDisownString(stdlink, s);
     return m;
@@ -55,14 +76,14 @@ cmo *receive_mlo_function()
     int  i,n;
 
     MLGetFunction(stdlink, &s, &n);
-    fprintf(ox_stderr, "--debug: MLO == MLTKFUNC (%s[#%d]).\n", s, n);
+    ox_printf("MLTKFUNC(%s[#%d])", s, n);
     m = new_cmo_list();
     list_append((cmo_list *)m, new_cmo_string(s));
 
     for (i=0; i<n; i++) {
-        fprintf(ox_stderr, "  --debug: arg[%d]\n", i);
-        fflush(ox_stderr);
+        ox_printf(" arg[%d]: ", i);
         ob = receive_mlo();
+        ox_printf(", ");
         list_append((cmo_list *)m, ob);
     }
 
@@ -102,14 +123,12 @@ cmo *receive_mlo_function_newer()
     int  i,n;
 
     MLGetFunction(stdlink, &s, &n);
-#ifdef DEBUG
-    fprintf(ox_stderr, "--debug: MLO == MLTKFUNC, (%s[#%d])\n", s, n);
-#endif
+    ox_printf("MLTKFUNC(%s[#%d])", s, n);
     m = new_mlo_function(s);
     for (i=0; i<n; i++) {
-        fprintf(ox_stderr, "--debug: arg[%d]\n", i);
-        fflush(ox_stderr);
+        ox_printf(" arg[%d]: ", i);
         ob = receive_mlo();
+        ox_printf(", ");
         list_append((cmo_list *)m, ob);
     }
 
@@ -123,9 +142,7 @@ cmo *receive_mlo_symbol()
     char *s;
 
     MLGetSymbol(stdlink, &s);
-#ifdef DEBUG
-    fprintf(ox_stderr, "--debug: MLO == MLTKSYM, (%s).\n", s);
-#endif
+    ox_printf("MLTKSYM(%s)", s);
     if(flag_mlo_symbol == FLAG_MLTKSYM_IS_INDETERMINATE) {
         ob = new_cmo_indeterminate(new_cmo_string(s));
     }else {
@@ -143,7 +160,7 @@ int ml_init()
 
     if(MLInitialize(NULL) == NULL
        || (stdlink = MLOpen(argc, argv)) == NULL) {
-        fprintf(ox_stderr, "Mathematica Kernel not found.\n");
+        ox_printf("Mathematica Kernel not found.\n");
         exit(1);
     }
     return 0;
@@ -175,31 +192,25 @@ int ml_flush()
 
 cmo *receive_mlo()
 {
-    char *s;
-    int type;
+    int type = MLGetNext(stdlink);
 
-    switch(type = MLGetNext(stdlink)) {
+    switch(type) {
     case MLTKINT:
         return receive_mlo_zz();
     case MLTKSTR:
         return receive_mlo_string();
     case MLTKREAL:
-        /* Yet we have no implementation of CMO_DOUBLE... */
-        fprintf(ox_stderr, "--debug: MLO == MLTKREAL.\n");
-        MLGetString(stdlink, &s);
-        return (cmo *)new_cmo_string(s);
+        return receive_mlo_real();
     case MLTKSYM:
         return receive_mlo_symbol();
     case MLTKFUNC:
         return receive_mlo_function();
     case MLTKERR:
-        fprintf(ox_stderr, "--debug: MLO == MLTKERR.\n");
+        ox_printf("MLTKERR()");
         return (cmo *)make_error_object(ERROR_ID_FAILURE_MLINK, new_cmo_null());
     default:
-        fprintf(ox_stderr, "--debug: MLO(%d) is unknown.\n", type);
-        MLGetString(stdlink, &s);
-        fprintf(ox_stderr, "--debug: \"%s\"\n", s);
-        return (cmo *)new_cmo_string(s);
+        ox_printf("MLO is broken?(%d)", type);
+        return NULL;
     }
 }
 
@@ -268,6 +279,8 @@ int send_mlo(cmo *m)
 
 int ml_evaluateStringByLocalParser(char *str)
 {
+    ox_printf("ox_evaluateString(%s)\n", str);
+    MLPutFunction(stdlink, "EvaluatePacket", 1);
     MLPutFunction(stdlink, "ToExpression", 1);
     MLPutString(stdlink, str);
     MLEndPacket(stdlink);
@@ -276,6 +289,7 @@ int ml_evaluateStringByLocalParser(char *str)
 int ml_executeFunction(char *function, int argc, cmo *argv[])
 {
     int i;
+    MLPutFunction(stdlink, "EvaluatePacket", 1);
     MLPutFunction(stdlink, function, argc);
     for (i=0; i<argc; i++) {
         send_mlo(argv[i]);

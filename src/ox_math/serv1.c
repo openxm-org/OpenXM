@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.18 2002/04/11 19:53:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.19 2003/01/11 12:38:57 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -27,7 +27,7 @@ static void handler()
 	sigemptyset(&newmask);
 	sigaddset(&newmask, SIGUSR1);
 	sigprocmask(SIG_SETMASK, &newmask, &oldmask);
-    fprintf(ox_stderr, "signal received.\n");
+    ox_printf("signal received.\n");
     exchange_ox_sync_ball(stack_oxfp);
 	sigprocmask(SIG_SETMASK, &oldmask, NULL); /* unmasked. */
 }
@@ -88,7 +88,7 @@ int sm_receive_ox()
         sm_run(code);
         break;
     default:
-        fprintf(ox_stderr, "illeagal message? ox_tag = (%d)\n", tag);
+        ox_printf("illeagal message? ox_tag = (%d)\n", tag);
         break;
     }
     return 1;
@@ -114,5 +114,5 @@ int sm(OXFILE *oxfp)
 			sigprocmask(SIG_SETMASK, &oldmask, NULL); /* unmasked. */
         }
     }
-    fprintf(ox_stderr, "SM: socket(%d) is closed.\n", stack_oxfp->fd);
+    ox_printf("SM: socket(%d) is closed.\n", stack_oxfp->fd);
 }
