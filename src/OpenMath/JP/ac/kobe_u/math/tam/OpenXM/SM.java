@@ -1,12 +1,10 @@
 /*
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/SM.java,v 1.2 1999/11/07 21:22:04 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
-import java.io.DataOutputStream;
-
-public class SM{
-  int SMcode;
+final public class SM extends OXbody{
+  private int SMcode;
 
   // SMobject/Basic 0 or 1
   final public static int SM_popSerializedLocalObject   = 258;
@@ -34,12 +32,16 @@ public class SM{
     SMcode = code;
   }
 
-  public SM(java.io.InputStream is) throws java.io.IOException{
-    SMcode = new java.io.DataInputStream(is).readInt();
+  public SM(java.io.DataInputStream is) throws java.io.IOException{
+    SMcode = is.readInt();
   }
 
   public int getCode(){
 	return SMcode;
+  }
+
+  public void write(java.io.DataOutputStream os) throws java.io.IOException{
+    os.writeInt(SMcode);
   }
 
   public String toString(){
@@ -116,7 +118,7 @@ public class SM{
     return val;
   }
 
-  public void send(DataOutputStream os) throws java.io.IOException{
-    os.writeInt(SMcode);
+  public String toOXexpression(){
+    return "";
   }
 }
