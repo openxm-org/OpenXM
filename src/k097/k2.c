@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* k2.c main program of k. */
 
 #define DATE "1998,12/15"
@@ -63,6 +64,7 @@ main(int argc,char *argv[]) {
 
   fprintf(stderr,"This is kan/k0 Version %s",DATE);
   fprintf(stderr,"\n");
+  fprintf(stderr,"WARNING: This is an EXPERIMENTAL version\n");
   if (K00_verbose == 1) {
     KSexecuteString(" /K00_verbose 1 def ");
   }else if (K00_verbose == 2) {
