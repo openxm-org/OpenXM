@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.3 2000/01/07 06:27:55 noro Exp $
 
 \section{Applications}
 \subsection{Distributed computation with homogeneous servers}
@@ -53,12 +53,11 @@ compute $F_j$ in parallel is proportional to $1/L$, whereas the time
 for sending and receiving of polynomials is proportional to $L$
 because we don't have the broadcast and the reduce
 operations. Therefore the speedup is limited and the upper bound of
-the speedup factor depends on the communication cost and the degree
-of inputs. Figure \ref{speedup} shows that 
+the speedup factor depends on the ratio of 
+the computational cost and the communication cost.
+Figure \ref{speedup} shows that 
 the speedup is satisfactory if the degree is large and the number of
-servers is not large, say, up to 10.
-
-\subsubsection{Order counting of an elliptic curve}
+servers is not large, say, up to 10 under the above envionment.
 
 \subsubsection{Gr\"obner basis computation by various methods}
 

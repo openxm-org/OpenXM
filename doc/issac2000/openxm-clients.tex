@@ -1,6 +1,57 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.1 1999/12/23 10:25:08 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
 
 \section{OpenXM Clients}    
 (noryo and Ohara)
 MEMO: keywords:
 Asir and Mathematica clients.
+
+\subsection{Risa/Asir}
+
+Risa/Asir provides a launcher to invoke an OpenXM server and to set up the
+communication between the server and itself. It also provides primitives
+for communication as built-in functions.
+
+\subsubsection{{\tt ox\_launch}}
+{\tt ox\_launch} is a general purpose launcher.  This application
+invokes a server and initiates the server-client communication
+according to the protocol stated in Section \ref{launcher}, then
+itself becomes a control server.
+Several facilities related to {{\tt ox\_launch}} are provided
+as built-in functions of Risa/Asir: a function to invoke a server
+automatically from a give host name and a server name, and a set 
+of functions to execute the port generation, {\tt bind}, {\tt listen},
+{\tt connect} and {\tt accept} operations on sockets individually.
+
+\subsubsection{Manipulating servers}
+
+Fundamental operations on OpenXM servers are sending and receiving
+of {\tt OX} data and sending of {\tt OX} commands. The following functions
+are provided to execute these primitive operations:
+{\tt ox\_push\_cmo()} for pushing data to a server, 
+{\tt ox\_push\_cmd()} for sending an {\tt SM} command to a server
+and {\tt ox\_get()} for receiving data from a stream.
+
+Some operations including the reset operation are realized by
+combining these primitives.  Among them, frequently used ones are
+provided as built-in functions. We show several ones.
+
+\begin{itemize}
+\item {\tt ox\_pop\_cmo()}
+
+It requests a server to send data on the stack to the stream, then
+it receives the data from the stream.
+
+\item {\tt ox\_cmo\_rpc()}
+
+After pushing the name of a function, arguments and the number of the
+arguments to the stack of a server , it request the server to execute
+the function. It does not wait the termination of the function call.
+
+\item {\tt ox\_reset()}
+
+After sending {\tt SM\_control\_reset\_connection} to a control server,
+it completes the operations stated in Section \ref{control}.
+\end{itemize}
+Furthermore {\tt ox\_select()} is provided to detect streams ready for
+reading. It is realized by the {\tt select()} system call and is used
+to avoid blocking on read operations.
