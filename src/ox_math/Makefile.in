@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.11 2003/01/12 03:16:38 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.in,v 1.12 2003/01/13 12:04:28 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -14,9 +14,9 @@ DEFS      = -DDEBUG
 CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include
 LIBS      = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgmp -L${ADDONSDIR} -lML -lm
 STATIC_LINK_FLAGS = @static_link_flags@
+TM_C      = math2.c int.c
 
-
-BINARIES  = ox_math math2ox
+BINARIES  = ox_math math2ox test1 test2
 INSTALL   = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 
@@ -27,6 +27,12 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 	${MPREP} $? > $@
 
 all: ${BINARIES}
+
+test1: test1.o mlo.o
+	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ test1.o mlo.o ${LIBS}
+
+test2: test2.o int.o 
+	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ test2.o int.o ${LIBS}
 
 serv1.o sm.o sm_ext.o mlo.o: sm.h
 
@@ -61,7 +67,7 @@ clean-for-debug:
 clean-binary: clean-for-debug
 
 clean:
-	-rm -f *.o *~ math2.c ${BINARIES}
+	-rm -f *.o *~ ${TM_C} ${BINARIES}
 
 distclean: clean
 	-rm -f .configure_done configure config.cache config.log config.status Makefile
