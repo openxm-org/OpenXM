@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.9 2000/03/11 05:44:14 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.10 2000/03/11 06:22:32 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -10,8 +10,6 @@ TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
 ## TAG for the CVS server.
-
-RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 
 # Modify below for priting.
 PS=a2ps-j
@@ -57,7 +55,7 @@ generate-tar-balls:
 	(cd Linux/RPM ; make link-for-real-openxm)
 
 update-plist:
-	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} RCVS=${RCVS} update-plist )
+	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} update-plist )
 
 build-on-orange:
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.6 2000/03/11 05:44:15 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.7 2000/03/11 06:22:33 takayama Exp $
 VERSION=1.1.2
 TAG=HEAD
 
@@ -24,7 +24,7 @@ update-plist :
 	(cd openxm-ports/openxm-${VERSION} ; make TAR_WORK=$(HOME)/tmp DISTDIR=$(HOME)/tmp PREFIX=$(HOME)/tmp2)
 	(cd openxm-ports/openxm-${VERSION}/files ; make ; ./gen-plist.shell)
 	(cd openxm-ports/openxm-${VERSION}/files ; cp plist-tmp2 ../pkg/PLIST)
-	(cd openxm-ports/openxm-${VERSION}/pkg ; ${RCVS} commit -m 'Automatic update by update-plist' PLIST)
+	(cd openxm-ports/openxm-${VERSION}/pkg ; ${RCVS} commit -m 'AutomaticUpdate' PLIST)
 
 
 make-tar-ball-for-openxm-port:
