@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.27 2002/09/30 01:57:05 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.28 2002/09/30 02:30:38 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -10,7 +10,7 @@ WGET_HEAD=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/O
 WINASIR=c:/home/asir
 
 usage:
-	@echo "Targets: all build-tgz clean clean-work link-for-debug"
+	@echo "Targets: all build-tgz clean clean-work link-for-debug copy-to-ftp-area"
 	@echo "         remove-experimental gen-cd"
 	@echo "  The target all, gen-cd builds the directory OpenXM-win" 
 	@echo "Other targets: win-correction3, build-bat"  
@@ -131,6 +131,8 @@ build-tgz: win-correction-clean
 
 copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
+copy-to-ftp-area: build-tgz
+	scp OpenXM-win.tgz taka@orange:/export/home01/ftp/pub/OpenXM/Head
 
 link-for-debug:
 	(cd ${OpenXM_TOP} ; cd bin ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
