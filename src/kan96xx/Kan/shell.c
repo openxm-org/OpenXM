@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.7 2003/12/04 06:29:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.8 2003/12/05 07:05:24 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -420,12 +420,18 @@ int oxsFileToVar(char *v,char *fname) {
   int limit;
   int c,i;
 
-  if (v == NULL) errorKan1("%s\n","oxsFileToVar(), v is NULL.");
+  if (v == NULL) {
+	/* errorKan1("%s\n","oxsFileToVar(), v is NULL."); */
+	fprintf(stderr,"oxsFileToVar(), v is NULL.");
+	return(-1);
+  }
   limit = 1024;
   fp = fopen(fname,"r");
   if (fp == NULL) {
     fprintf(stderr,"Filename=%s\n",fname);
-    errorKan1("%s\n","oxsFileToVar(), the file cannot be opened.");
+    /* errorKan1("%s\n","oxsFileToVar(), the file cannot be opened."); */
+	fprintf(stderr,"oxsFileToVar(), the file cannot be opened.");
+	return(-1);
   }
   s = (char *)mymalloc(limit);
   if (s == NULL) errorKan1("%s\n","No more memory in oxsFileToVar().");
@@ -533,6 +539,7 @@ static struct object oxsExecuteBlocked(struct object ob)
 {
   int r,i,n;
   char **argv;
+  int errorf;
 
   argv = oxsBuildArgv(ob);  
   argv = oxsBuildArgvRedirect(argv);  
@@ -545,9 +552,12 @@ static struct object oxsExecuteBlocked(struct object ob)
     errorKan1("%s\n","ForkExecBlocked failed.");
   }
   */
+  errorf=0;
   if (AfterPt > 0) {
     for (i=0; i< AfterPt; i++) {
-      oxsFileToVar(AfterSetVar[i],AfterReadFile[i]);
+      if (oxsFileToVar(AfterSetVar[i],AfterReadFile[i]) != 0) {
+        errorf=1;
+      }
     }
   }
   AfterPt = 0;
@@ -560,6 +570,7 @@ static struct object oxsExecuteBlocked(struct object ob)
     }
   }
   AfterD = 0;
+  if (errorf) errorKan1("%s\n","Some errors in oxsFileToVar().");
 
   return(KpoInteger(r));
 }
