@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.6 2000/01/15 03:18:27 noro Exp $
+% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.7 2000/01/15 12:18:42 takayama Exp $
 
 \section{Data Format}   
 
@@ -19,13 +19,13 @@ and such an error can be avoided.
 Mathcap is also defined as a CMO.
 See \cite{noro-takayama} for the details.
 
-Mathematical encoding types of OX data are distinguished with tags
+Encoding types of OX data are distinguished with tags
 of OX messages.
 For example,
 an OX message with the tag 
-OX\_DATA is followed by a CMO packet.
+{\tt OX\_DATA} is followed by a CMO packet.
 An OX message with the tag 
-OX\_DATA\_OPENMATH\_XML is followed by 
+{\tt OX\_DATA\_OPENMATH\_XML} is followed by 
 an OpenMath XML string.
 
 Let us explain the data format of CMO.
@@ -108,6 +108,8 @@ $\cdots$ & {\sl byte} {\rm data[n-1]} \\
 $\cdots$ & {\sl CMObject} {\rm ob[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
+
+As to the formats of other CMO's, see \cite{noro-takayama}.
 
 When one wants to implement CMO on a server, the person proceeds 
 as follows.

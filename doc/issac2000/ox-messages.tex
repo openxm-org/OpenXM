@@ -1,4 +1,4 @@
-%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.5 2000/01/15 03:46:27 noro Exp $
+%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.6 2000/01/15 12:18:42 takayama Exp $
 
 \section{OX messages}
 
@@ -32,29 +32,12 @@ We have currently the following general tags for the OX messages.
 #define OX_DATA_MP               525  // DATA
 \end{verbatim}
 
-New OX tags may be added.
+A new OX tag may be added.
 The new tag should be classified into DATA or COMMAND.
 For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added recently
-to send internal serialized objects of asir via the OpenXM protocol.
+to send internal serialized objects of Asir via the OpenXM protocol.
 This is a tag classified to DATA.
 See the web page of OpenXM to add a new tag \cite{openxm-web}.
-Any server is a stack machine (see Section~\ref{sec:ox-stackmachines}
-for detail).
-{\it OX data} message sent by a client
-are pushed onto the stack of a server. 
-If the server gets an {\it OX command} message, then the server 
-executes the command.
-
-For example, the asir command {\tt ox\_push\_cmo(P,1)}
-(push integer $1$ onto the server $P$)
-sends an OX data message
-{\tt (OX\_DATA,(CMO\_ZZ,1))} to the server $P$.
-Here,
-OX\_DATA stands for OX\_DATA header and 
-{\tt (CMO\_ZZ,1)} is a body standing for $1$ expressed 
-in the CMO data encoding format.
-The server tranlates $(CMO\_ZZ, 1)$ to its own internal object fotrmat
-for integers and pushs the object onto the stack.
 
 %An OpenXM client admit that its own command sends some OX messages
 %sequentially at once.  
