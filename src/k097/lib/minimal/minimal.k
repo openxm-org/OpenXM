@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.15 2000/06/14 07:44:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.16 2000/06/15 07:38:36 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -567,7 +567,7 @@ def SlaScala(g,opt) {
     bases = Sbases_to_vec(bases,bettiTable[i]);
     freeResV[i] = bases;
   }
-  return([freeResV, redundantTable,reducer,bettiTable,redundantTable_ordinary]);
+  return([freeResV, redundantTable,reducer,bettiTable,redundantTable_ordinary,rf]);
 }
 
 def SthereIs(reductionTable_tmp,strategy) {
@@ -969,9 +969,10 @@ def Sminimal(g,opt) {
    }
    tminRes = Stetris(minRes,redundantTable);
    return([SpruneZeroRow(tminRes), tminRes,
-          [ minRes, redundantTable, reducer,r[3],r[4]],r[0]]);
+          [ minRes, redundantTable, reducer,r[3],r[4]],r[0],r[5]]);
   /* r[4] is the redundantTable_ordinary */
   /* r[0] is the freeResolution */
+  /* r[5] is the skelton */
 }  
 
 
