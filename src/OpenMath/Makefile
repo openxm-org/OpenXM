@@ -1,8 +1,8 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.2 1999/11/02 14:54:37 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.3 1999/11/02 16:16:10 tam Exp $
 
 make:
-	@if ! test -d ../../lib/java-support; then \
+	if ! test -d ../../lib/java-support; then \
 		mkdir -p ../../lib/java-support; \
 	fi
 	javac -d ../../lib/java-support -O *.java
