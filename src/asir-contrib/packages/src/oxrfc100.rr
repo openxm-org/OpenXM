@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.6 2003/08/13 04:45:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.7 2003/09/23 11:21:38 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -31,7 +31,9 @@ if ((getenv("USER") == "taka") ||
   Xm_noX = 0 $  
 } else {
   Xm_noX = 1 $
-  print("Debug windows of ox servers will not be opened. Set Xm_noX=0 to open it.")$
+  if (!ctrl(quiet_mode)) {
+    print("Debug windows of ox servers will not be opened. Set Xm_noX=0 to open it.")$
+  }
 } $
 /* 0 : using X-window system. 1 : not using X-window system. */
 /* TODO: db.restore should be called after sm1 error and interruption.
