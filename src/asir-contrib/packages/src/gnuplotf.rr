@@ -1,16 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.13 2003/05/20 07:47:17 takayama Exp $ */
+/* $OpenXM$ */
 
-module gnuplot;
+module gnuplotf;
 
 /* list of local functions */
-localf get_Gnuplot_proc$
-localf set_Gnuplot_proc$
-localf find_proc $
 localf start $
 localf flush $
-localf start_unix $
-localf start_windows $
-localf isAlive $
 localf gnuplot $
 localf demo0 $
 localf clean $
@@ -24,162 +18,62 @@ localf heat $
 localf to_gnuplot_format_old $
 localf to_gnuplot_format $
 localf plot_function $
-localf openfile $
-localf closefile $
-localf writeString $
 localf complexToVec $
 localf goutput $
 
-#define PROCESS_MAX  20
-
 /* static variables */
-static Gnuplot_proc$
-static Gnuplot_pid$
-static FileIsOpenInSm1$
+static Com $
+static Gnuplot_path $
+static Gnuplot_file $
+static Gnuplot_fn $
 static Gnuplot_Roots$
 static Heat_N $     /* Mesh 分割数, Heat_N=5 */
-Gnuplot_proc = -1$
-Gnuplot_pid = newvect(20) $
-FileIsOpenInSm1 = newvect(PROCESS_MAX)$
 
+Com = "" $
+Gnuplot_path ="gnuplot4ox" $
+Gnuplot_file = ".gnuplot-in.tmp" $
 /* For heat() */
 Heat_N = 20$     /* Mesh 分割数, Heat_N=5 */
 
-#define GNUPLOTL_FIND_PROC(P)  P = getopt(proc);\
-                          if (type(P) == -1) {\
-                             P = find_proc();\
-                          }
-def get_Gnuplot_proc() {
-  return Gnuplot_proc;
-}
-def set_Gnuplot_proc(A) {
-  Gnuplot_proc = A;
-}
-def find_proc() {
-  /*! extern Gnuplot_proc; */
-  if (Gnuplot_proc == -1) {
-     A = ox_get_serverinfo();
-     /* Look for ox_sm1_for_gnuplot. Not yet written */
-     /* Start sm1 automatically if there is not ox_sm1 */
-     Gnuplot_proc = start();
-  }
-  return(Gnuplot_proc);
-}
-
 def start() {
   extern Xm_unix;
-  if (ox_ostype()[0] == "windows" && Xm_unix == 0)
-    return start_windows(0);
-  else
-    return start_unix();
+  /* BUG: Set gnuplot_path properly for windows. */
+  return 1;
+}
+
+def gnuplot(S) {
+   Com += S+"\n";
+   /* if autopause, Com += "\npause 1;\n"; */
 }
 
 def flush(P) {
-  return P;  /* do nothing. Compatibility for gnuplotf */
-}
-
-def start_unix() {
-  /*! extern Gnuplot_pid; */
-  extern Xm_noX;
-  /*! extern Gnuplot_proc; */
-  extern Sm1_lib;
-  if (Xm_noX) {
-    P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_gnuplot");
-  }else{
-    P = ox_launch(0,Sm1_lib+"/bin/ox_sm1_gnuplot");
+  Com += "\npause "+rtostr(P)+" ;\n";
+  Fp = open_file(Gnuplot_file,"w");
+  if (Fp < 0) error("Open error of the file "+Gnuplot_file);
+  S = strtoascii(Com);
+  for (I=0; I<length(S); I++) {
+    put_byte(Fp,S[I]);
   }
-  if (P < 0) error("ox_sm1_gnuplot is not found.");
-  if (P >= PROCESS_MAX) error("Too many process. Increase PROCESS_MAX in xm.");
-  T = 0;
-  if (T == -1) {
-    Gnuplot_pid[P] = -1;
-    print(" Output to stdout and a file for debugging. ");
-  }else{
-    if (Gnuplot_pid[P] == 0) {
-     sm1.sm1(P," [(parse) (gnuplot.sm1) pushfile] extension");
-     sm1.sm1(P," plotstart.aux ");  /* path for gnuplot_forox
-                                   is set to this function */
-     sm1.sm1(P," gnuplot.pid ");
-     Gnuplot_pid[P] = sm1.pop(P);
-    }
-  }
-  ox_check_errors(P);
-  Gnuplot_proc = P;
-  return(P);
-}
+  close_file(Fp);
 
-def start_windows(S) {
-  extern Xm_debug_on_win_1;
-  if (!Xm_debug_on_win_1) {
-    error("The component phc has not yet been implemented on Windows(native).");
-  }
-}
-
-def isAlive(P) {
-  /*! extern Gnuplot_pid; */
-  if (Gnuplot_pid[P] == -1) return(0);
-  sm1.sm1(P," [(getchild)] extension ");
-  Gnuplot_pidList = sm1.pop(P);
-  N = length(Gnuplot_pidList);
-  for (I=0; I<N; I++) {
-    if (Gnuplot_pidList[I] == Gnuplot_pid[P]) return(1);
-    if (I == N-1) { 
-      error("Error in isAlive. No gnuplot_forox"); 
-    }
-  }
-}
-
-
-
-def gnuplot(S) {
-  /*! extern Gnuplot_pid; */
-  GNUPLOTL_FIND_PROC(P) ;
-  if (isAlive(P) == 1) {
-    if (Gnuplot_pid[P] == -1) {
-      print("$ "+S+" $"+" gnuplot pop ");
-    }else{
-      sm1.sm1(P,"$ "+S+" $"+" gnuplot pop ");
-      ox_check_errors2(P);
-    }
-  }else{
-    print("Gnuplot got an error by the previous command. Restarting gnuplot.");
-    sm1.sm1(P," plotstart.aux  gnuplot.pid ");
-    Gnuplot_pid[P] = sm1.pop(P);
-    if (Gnuplot_pid[P] == 0) {
-      error("Gnuplot_pid is 0. We could not restart open gnuplot.");
-    }
-    print(["New Gnuplot_pid is ",Gnuplot_pid[P]]);
-    print("Trying your command again.");
-    return(gnuplot(S|proc=P));
-  }
+  shell(Gnuplot_path+" <"+Gnuplot_file+" & ");
+  A = Com;
+  Com = "";
+  return A;
 }
 
 def demo0() {
-  print(" Type in ctrl-C, t, y, ox_reset(0); [not ox_sync(0);] ");
   for (I=0; I<500; I++) {
     gnuplot("plot cos(x+" + rtostr(I) + ");");
+    gnuplot("pause 0.1;");
+    if (I % 50 == 0) flush(1);
   }
 }
 
 
-def openfile(P,F,Mode) {
-  /*! extern FileIsOpenInSm1; */
-  sm1.sm1(P,"("+F+")" + " (" + Mode + ") file  /asir.fp set ");
-  sm1.sm1(P," [(PrintDollar) 0] system_variable ");
-  FileIsOpenInSm1[P] = 1;
-}
-def closefile(P) {
-  /*! extern FileIsOpenInSm1; */
-  sm1.sm1(P," asir.fp closefile ");
-  FileIsOpenInSm1[P] = 0;
-}  
-def writeString(P,S) {
-  sm1.push_int0(P,S);
-  sm1.sm1(P," asir.fp 2 1 roll writestring ");
-}
-  
 def clean() {
-  shell("/bin/rm -rf /tmp/gnuplot-data-tmp.*");
+  shell("rm -rf "+Gnuplot_file);
+  shell("rm -rf "+Gnuplot_file+"[0-9]");
 }
 
 def check_arg_plotDots(C,Style,Fname) {
@@ -202,7 +96,6 @@ def check_arg_plotDots(C,Style,Fname) {
 }
 
 
-
 /* For the backward compatibility */
 def plotDots(C,Style) {
   return(plot_dots(C,Style));
@@ -210,32 +103,35 @@ def plotDots(C,Style) {
 
 /* plot_dots(0,[ [1.2, 3.0], [34,24.5] ],0); */
 def plot_dots(C,Style) {
-  /*! extern Gnuplot_Roots; */
-  /*! extern Gnuplot_pid; */
-  GNUPLOTL_FIND_PROC(P);
   if (type(C) == 0) { C = [ ] ; }
   check_arg_plotDots(C,Style,"Error in plot_dots");
-  Tfile = "/tmp/gnuplot-data-tmp."+rtostr(Gnuplot_pid[P])+".t";
+  Tfile = Gnuplot_file+rtostr(Gnuplot_fn);
+  Gnuplot_fn++;
   if (C == [ ]) {
     /* Clean the data file. */
-    openfile(P,Tfile,"w");
-    closefile(P);
-    return(sm1.pop(P));
+    Fp=open_file(Tfile,"w");
+    close_file(Fp);
+    return 1;
   }else{
-    openfile(P,Tfile,"a");
+    Fp = open_file(Tfile,"a");
     A = " ";
     for (I=0; I<length(C); I++) {
       A = A + rtostr(C[I][0])+ "   "+ rtostr(C[I][1])+ "\n"; 
       /* print(A); */
     }
     Gnuplot_Roots = C;
-    writeString(P,A);
-    closefile(P);
+    A = strtoascii(A);
+    for (I=0; I<length(A); I++) {
+      put_byte(Fp,A[I]);
+    }
+    close_file(Fp);
     /* draw */
     if ( type(Style) != 7 ) {
-       gnuplot(" plot '"+ Tfile + "' ; "|proc=P);
+       gnuplot(" plot '"+ Tfile + "' ; ");
+       gnuplot("pause 1; ");
     }else{
-       gnuplot(" plot '"+ Tfile + "' with " + Style + " ; "|proc=P);
+       gnuplot(" plot '"+ Tfile + "' with " + Style + " ; ");
+       gnuplot("pause 1; ");
     }
     return;
   }
@@ -247,24 +143,24 @@ def complexToVec(A) {
 
 /* plotRoots(x^4-1) */
 def plotRoots(F) {
-  GNUPLOTL_FIND_PROC(P);
   B = vtol(pari(roots,F));
   B = map(complexToVec,B);
   print(B);
-  plot_dots([ ],0|proc=P);
-  plot_dots(B,0|proc=P);
+  plot_dots([ ],0);
+  plot_dots(B,0);
+  flush(5);
   return(B);
 }
 
 
 def demo2() {
   gnuplot(" plot sin(x); ");
-  /* Do I need a wait ? */ 
+  flush(1);
   for (I=0 ; I<10000; I++) {
      fctr(x^2-1);
   }
-  /* Do I need to flush the sm1 socket? */
   plot_dots([[1.2, 3.4]],0);
+  flush(1);
 }
 
 /** heat equation **/
@@ -326,22 +222,21 @@ def heat(K,M) {
 
 
 def goutput() {
-  GNUPLOTL_FIND_PROC(P) ;
   T = getopt(file); 
   if (type(T) == -1 || type(T) != 7) {
        print("Usage of goutput: gnuplot.goutput(|file=\"string\")")$
        print("                  gnuplot.goutput(|file=\"x11\")")$
        print("Output device is set to X11")$
-	   gnuplot("set terminal x11" | proc=P);
+	   gnuplot("set terminal x11");
        return(0);
   }
   if (T == "x11") {
        print("Output device is set to X11")$
-	   gnuplot("set terminal x11" | proc=P);
+	   gnuplot("set terminal x11");
 	   return(0);
   }
-  gnuplot("set terminal postscript eps color"| prec=P);
-  gnuplot("set output \""+T+"\"" | prec=P);
+  gnuplot("set terminal postscript eps color");
+  gnuplot("set output \""+T+"\"" );
   print("Graphic output of GNUPLOT will be written to "+T+" as a Poscript file.");
   return(0);
 }
@@ -351,12 +246,12 @@ def goutput() {
 /* Replacing ^ by **  */
 def to_gnuplot_format_old(F) {
     G = rtostr(F);
-    GS=sm1.to_ascii_array(G);
+    GS=strtoascii(G);
     N = length(GS);
     GS = newvect(N,GS);
     GS2 = newvect(2*N);
-    Times = sm1.to_ascii_array("*")[0];
-    Power = sm1.to_ascii_array("^")[0];
+    Times = strtoascii("*")[0];
+    Power = strtoascii("^")[0];
     J = 0;
     for (I=0; I<N; I++) {
       GS2[J] = GS[I];
@@ -380,7 +275,6 @@ def to_gnuplot_format(F) {
 }
 
 def plot_function(F) {
-  GNUPLOTL_FIND_PROC(P) ;
   if (type(F) == 4) { /* In case of list */
     S = " ";
     for (I=0; I<length(F)-1; I++) {
@@ -388,10 +282,10 @@ def plot_function(F) {
       S = S+T+", ";
     }
     S = S+ to_gnuplot_format(F[length(F)-1]);
-    gnuplot("plot "+S | proc=P)	;
+    gnuplot("plot "+S);
   }else {
     S = to_gnuplot_format(F);
-    gnuplot("plot "+S | proc=P)	;
+    gnuplot("plot "+S);
   }
   return(0);
 }
