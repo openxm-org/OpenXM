@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.127 2003/09/03 02:03:23 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.128 2003/09/06 11:43:52 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -237,7 +237,12 @@ configure-oxc:
 	(cd oxc; ./make-configure)
 
 configure-oxmath:
-	(cd ox_math; ./make-configure)
+	-@if test -d /usr/local/mathematica ; then \
+		(cd ox_math; ./make-configure) ; \
+	else \
+		echo -n "Warning: Mathematica is not found. " ; \
+		echo "ox_math will not be compiled." ; \
+	fi
 
 configure-pari:
 	(cd pari ; make configure)
