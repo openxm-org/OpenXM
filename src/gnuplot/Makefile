@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.17 2005/01/18 16:25:35 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.18 2005/01/18 16:31:17 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
@@ -34,7 +34,7 @@ patch: extract
 configure: patch
 	if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd ${WRKSRC} ; ./configure --with-x --prefix="$$prefix" ) ; \
+		(cd ${WRKSRC} ; ./configure --with-x --prefix="$$prefix" --without-pdf) ; \
 	fi
 	@touch work/.configure_done
 
