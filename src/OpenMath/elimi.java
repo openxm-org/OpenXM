@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.3 1999/12/09 00:32:36 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.4 2000/03/16 09:14:52 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -102,20 +102,12 @@ class elimi extends Applet implements ActionListener,Runnable{
   public void run(){ // for debug
     try{
       while(true){
-        CMO tmp;
+        OXmessage tmp;
 
         Thread.yield();
 
-        switch(oxm.receiveOXtag()){
-        case OpenXM.OX_COMMAND:
-          oxm.receiveSM();
-          break;
-
-        case OpenXM.OX_DATA:
-          tmp = oxm.receiveCMO();
-          System.out.println("=> "+ tmp);
-          break;
-        }
+        tmp = oxm.receive();
+	System.out.println("=> "+ tmp);
       }
     }catch(java.io.IOException e){}
   }
@@ -186,7 +178,9 @@ class elimi extends Applet implements ActionListener,Runnable{
 	oxm.send(new CMO_STRING(com));
 	oxm.send(new SM(SM.SM_executeStringByLocalParser));
 	oxm.send(new SM(SM.SM_popString));
-      }catch(java.io.IOException e){}
+      }catch(java.io.IOException e){
+      }catch(MathcapViolation e){
+      }
     }
     /*
       if ("first".equals(arg)) {

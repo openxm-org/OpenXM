@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.8 2000/01/28 06:22:01 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.9 2000/03/16 12:28:42 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -119,20 +119,10 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
   public void run(){ // for debug
     try{
       while(true){
-        CMO tmp;
+        OXmessage tmp = oxm.receive();
 
+	textarea.append("=> "+ tmp +"\n");
         Thread.yield();
-
-        switch(oxm.receiveOXtag()){
-        case OpenXM.OX_COMMAND:
-          oxm.receiveSM();
-          break;
-
-        case OpenXM.OX_DATA:
-          tmp = oxm.receiveCMO();
-          textarea.append("=> "+ tmp +"\n");
-          break;
-        }
       }
     }catch(java.io.IOException e){}
   }
