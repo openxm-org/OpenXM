@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/library.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/library.tex,v 1.2 2000/01/24 00:57:11 noro Exp $
 /*&jp
 \section{ OX サーバに対する C ライブラリインタフェース }
 
@@ -16,9 +16,9 @@ Asir の OX サーバ用クライアント関数に似たインタフェースを持つ.
 In some OX servers, one can use the OX server as a C library.
 The interface functions of the C library
 are similar to Asir OX client functions such as
-\verb+ ox_push_cmo() +, \verb+ ox_pop_cmo() +.
+{\tt ox\_push\_cmo()}, {\tt ox\_pop\_cmo()}.
 
-CMO should be in the binary encoded form to call these functions.
+CMO should be converted into the binary encoded form to call these functions.
 */
 /*&C
 
@@ -90,21 +90,13 @@ Stack underflow の場合の戻り値は 0 である.
 /*&eg
 Return the size of the CMO at the top of the stack.
 */
-
-/*&C
-
-\smallskip
-\begin{verbatim}
-  int xxx_ox_peek_cmo_size()
-\end{verbatim}
-*/
 /*&jp
 stack の一番上にある CMO のサイズを byte で戻す.
 */
 
 \smallbreak
 \begin{verbatim}
-void xxx_ox_push_cmd(int cmd)
+ void xxx_ox_push_cmd(int cmd)
 \end{verbatim}
 /*&eg
 This function sends a stack machine command 
@@ -115,9 +107,8 @@ This function sends a stack machine command
 */
 
 \begin{verbatim}
-void xxx_ox_execute_string(char *s) 
+ void xxx_ox_execute_string(char *s) 
 \end{verbatim}
-*/
 /*&eg
 These function requests a server to execute a string {\tt s}.
 {\tt s} should be acceptable by the parser of the server.

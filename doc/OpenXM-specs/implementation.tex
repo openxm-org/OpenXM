@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/doc/OpenXM-specs/implementation.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
 //&jp \section{ 実装, デバッグ, 検証 }
 
 //&jp \subsection{ 実装の手順 }
@@ -55,9 +55,9 @@ Ans = kan("(%p).  (%p).  mul toString",F,G)
 メカニズムを利用すると容易にリンクできた.
 参照: {\tt  noro/src/Old1/parif.c}.
 
-次に, CMO Basic0 の機能を
+次に, CMO Primitive の機能を
 1997, 5 月, 6 月に実現した.
-その後, 1997年 7 月に, SMObject/Basic1 の実装,
+その後, 1997年 7 月に, SMObject/Basic の実装,
 1997年 7 月には, 野呂がイタリアの CoCoA のワークショップにおいて,
 大阿久の b-function を stratification 込みで計算する計算プログラムを
 asir, kan を連係してデモした. このときは, {\tt Sm1\_executeStringByLocalParser}
@@ -92,12 +92,12 @@ open XM スタックマシンを実現している.
 
 \subsubsection{ ox\_null }
 
-Basic0 のスタックマシンのソケットによる実装. 
+Primitive のスタックマシンのソケットによる実装. 
 スタックマシンは {\tt nullstackmachine.c} に実装されており,
 {\tt oxserver00.c} にリンクしてサーバとなる.
-サンプルサーバであり, これに CMO Basic0 仕様の関数を結合すれば,
+サンプルサーバであり, これに CMO Primitive 仕様の関数を結合すれば,
 一応 サーバが動作するはずである.
-スタックには,CMO の Basic0 の object へのポインタがそのまま push される.
+スタックには,CMO の Primitive の object へのポインタがそのまま push される.
 コントロール機能なし. 1997/11/29 版よりコントロール機能追加.
 @Old/nullserver00.c.19971122c,
 @Old/mytcpip.c.19971122c

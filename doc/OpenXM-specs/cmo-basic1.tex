@@ -1,7 +1,7 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.3 2000/01/23 05:28:33 noro Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
-
+\label{sec:basic1}
 /*&C
 @../SSkan/plugin/cmotag.h
 \begin{verbatim}
@@ -24,7 +24,7 @@
 */
 
 /*&jp
-以下, グループ CMObject/Basic1, CMObject/Tree 
+以下, グループ CMObject/Basic, CMObject/Tree 
 および CMObject/DistributedPolynomial
 に属する CMObject の形式を説明する.
 \noroa{ tagged list を導入すべきか?  cf. SSkan/plugin/cmo.txt }
@@ -32,7 +32,7 @@
 */
 /*&eg
 In the sequel, we will explain on the groups
-CMObject/Basic1, CMObject/Tree 
+CMObject/Basic, CMObject/Tree 
 and CMObject/DistributedPolynomial.
 */
 
@@ -40,8 +40,8 @@ and CMObject/DistributedPolynomial.
 
 \bigbreak
 \noindent
-Group CMObject/Basic1 requires CMObject/Basic0. \\
-ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic1. \\
+Group CMObject/Basic requires CMObject/Primitive. \\
+ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- ユニバーサルな ゼロを表す. } \\
@@ -60,8 +60,8 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic1. \\
 
 \bigbreak
 \noindent
-Group CMObject/Basic1 requires CMObject/Basic0. \\
-ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic1. \\
+Group CMObject/Basic requires CMObject/Primitive. \\
+ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- Universal zero } \\
@@ -102,8 +102,8 @@ in one to one correspondence.
 /*&jp 
 
 \noindent
-Group CMObject/Tree requires CMObject/Basic1. \\
-Tree, Lambda $\in$ CMObject/Basic1. \\
+Group CMObject/Tree requires CMObject/Basic. \\
+Tree, Lambda $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
  {\sl Cstring}\, {\rm cdname}, {\sl List}\, {\rm leaves}) \\
@@ -119,8 +119,8 @@ Tree, Lambda $\in$ CMObject/Basic1. \\
 /*&eg 
 
 \noindent
-Group CMObject/Tree requires CMObject/Basic1. \\
-Tree, Lambda $\in$ CMObject/Basic1. \\
+Group CMObject/Tree requires CMObject/Basic. \\
+Tree, Lambda $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
  {\sl Cstring}\, {\rm cdname}, {\sl List}\, {\rm leaves}) \\
@@ -160,7 +160,7 @@ For example,
 $\sin(x+e)$ is expressed as
 {\tt (sin, (plus, x, e))}
 as a tree.
-Tree may be expressed by putting itself between
+Tree may be expressed by putting the expression between
 {\tt SM\_beginBlock} and {\tt SM\_endBlock}, which are
 stack machine commands for delayed evaluation.
 (cf. {\tt \{ }, {\tt \} } in PostScript).
@@ -213,12 +213,15 @@ Class.tree [    $plus$ , $Basic$ , [    123 , 345 ]  ]
 
 \bigbreak
 //&jp 次に, 分散表現多項式に関係するグループを定義しよう.
-//&eg Let us define a group for distributed polynomials.
+/*&eg
+Let us define a group for distributed polynomials. In the following
+DMS stands for Distributed Monomial System.
+*/
 
 \medbreak
 \noindent
-Group CMObject/DistributedPolynomials requires CMObject/Basic0,
-CMObject/Basic1. \\
+Group CMObject/DistributedPolynomials requires CMObject/Primitive,
+CMObject/Basic. \\
 Monomial, Monomial32, Coefficient, Dpolynomial, DringDefinition,
 Generic DMS ring, RingByName, DMS of N variables $\in$ 
 CMObject/DistributedPolynomials. \\
@@ -289,7 +292,7 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ の各指数 $e_i$
 \mbox{Generic DMS ring}
                  &:& ({\tt CMO\_DMS\_GENERIC}) \\
 \mbox{RingByName}&:& ({\tt CMO\_RING\_BY\_NAME}, {\sl Cstring} s) \\
-                 & & \mbox{ --- The ring definition refered by the name ``s''.} \\
+                 & & \mbox{ --- The ring definition referred by the name ``s''.} \\
 \mbox{DMS of N variables}
                  &:& ({\tt CMO\_DMS\_OF\_N\_VARIABLES}, \\
                  & & \ ({\tt CMO\_LIST}, {\sl int32}\, \mbox{m},
@@ -394,7 +397,7 @@ a CMO\_ZZ $14$ is expressed by
 \mbox{(CMO\_ZZ, 1, 0, 0, 0, e)},
 \]
 //&jp と表わす. これはバイト列では
-//&egThe corresponding byte sequence is
+//&eg The corresponding byte sequence is
 \[
 \mbox{\tt 00 00 00 14 00 00 00 01 00 00 00 0e}
 \]
@@ -442,25 +445,22 @@ Ring by Name を用いた場合, 現在の名前空間で変数 yyy に格納された ring object
 /*&eg
 We treat polynomial rings and their elements as follows.
 
-An element of a generic DMS ring is an element of
-an $n$-variate polynomial ring $K[x_1, \ldots, x_n]$,
+Generic DMS ring is an $n$-variate polynomial ring $K[x_1, \ldots, x_n]$,
 where $K$ is some coefficient set. $K$ is unknown in advance
-and it is determined when coefficients are received.
-When a server has received an element in a generic DMS ring,
+and it is determined when coefficients of an element are received.
+When a server has received an element in Generic DMS ring,
 the server has to translate it into the corresponding local object
 on the server. Each server has its own translation scheme.
-
 In Asir such an element are translated into a distributed polynomial.
-
 In {\tt kan/sm1} things are complicated.
-{\tt kan/sm1} does not have any class corresponding to a generic DMS ring.
+{\tt kan/sm1} does not have any class corresponding to Generic DMS ring.
 {\tt kan/sm1} translates a DMS of N variables into an element of
 the CurrentRing. 
 If the CurrentRing is $n'$-variate and $n' < n$, then
-a polynomial ring is newly created. Optional informations such as
+an $n$-variate polynomial ring is newly created. Optional informations such as
 the term order are all ignored.
 
-If RingbyName ({\tt CMO\_RING\_BY\_NAME}, yyy) 
+If RingByName ({\tt CMO\_RING\_BY\_NAME}, yyy) 
 is specified as the second field of DMS,
 it requests a sever to use a ring object whose name is yyy
 as the destination ring for the translation.
@@ -504,7 +504,7 @@ $3 x^2 y$ is regarded as an element of a six-variate polynomial ring.
 #define CMO_POLYNOMIAL_IN_ONE_VARIABLE  33
 \end{verbatim}
 
-Group CMObject/RecursivePolynomial requires CMObject/Basic0, CMObject/Basic1.\\
+Group CMObject/RecursivePolynomial requires CMObject/Primitive, CMObject/Basic.\\
 Polynomial in 1 variable, Coefficient, Name of the main variable,
 Recursive Polynomial, Ring definition for recursive polynomials
 $\in$ CMObject/RecursivePolynomial \\
@@ -543,8 +543,8 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{({\tt CMO\_POLYNOMIAL\_IN\_ONE\_VARIABLE},\, {\sl int32}\, m, } \\
 & & \quad \mbox{ Name of the main variable }, \\
 & & \quad \mbox{ \{ {\sl int32} e, Coefficient \}} \\
-& & \mbox{ --- m is the number of monimials. } \\
-& & \mbox{ --- A pair of e and Coefficieint represents a monomial. } \\
+& & \mbox{ --- m is the number of monomials. } \\
+& & \mbox{ --- A pair of e and Coefficient represents a monomial. } \\
 & & \mbox{ --- The pairs of e and Coefficient are sorted in the } \\
 & & \mbox{ \quad decreasing order, usually with respect to e.} \\
 & & \mbox{ ---  e denotes an exponent of a monomial with respect to } \\
@@ -591,7 +591,7 @@ $$   x^3 (1234 y^5 + 17 ) +  x^1 (y^{10} + 31 y^5)  $$
 /*&eg
 We intend to represent non-commutative polynomials with the
 same form. In such a case, the order of products are defined
-as above, that is a power of the mail variable $\times$ a coeffcient.
+as above, that is a power of the main variable $\times$ a coeffcient.
 */
 
 \noindent
@@ -613,7 +613,7 @@ Class.recursivePolynomial h * ((-1)) + (x^2  * (1))
 \end{verbatim}
 
 \noindent
-Group CMObject/MachineDouble requires CMObject/Basic0.\\
+Group CMObject/MachineDouble requires CMObject/Primitive.\\
 64bit machine double, Array of 64bit machine double
 128bit machine double, Array of 128bit machine double
 $\in$ CMObject/MachineDouble \\
@@ -693,7 +693,7 @@ conformant float.
 */
 
 \noindent
-Group CMObject/Bigfloat requires CMObject/Basic0, CMObject/Basic1.\\
+Group CMObject/Bigfloat requires CMObject/Primitive, CMObject/Basic.\\
 Bigfloat
 $\in$ CMObject/Bigfloat \\
 

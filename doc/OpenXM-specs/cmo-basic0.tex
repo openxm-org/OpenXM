@@ -1,26 +1,27 @@
-%% $OpenXM$
-//&jp \section{CMO Basic0 の object}
-//&eg \section{CMO Basic0 object}
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic0.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+//&jp \section{CMO Primitive の object}
+//&eg \section{CMO Primitive object}
+\label{sec:basic0}
 /*&jp
-CMO (Common Mathematical Object format) グループ Basic0 の Object は, 
+CMO (Common Mathematical Object format) グループ Primitive の Object は, 
 ローレベルのデータ型, {\tt int} , {\tt string}
 などに対応する object である.
 この CMO はすべての OpenXM が実装していると仮定される.
-この節では, イントロダクションとして, グループ Basic0 に属する CMObject
+この節では, イントロダクションとして, グループ Primitive に属する CMObject
 (Common Mathematical Object) を形式的な方法をつかわず導入しよう.
 */
 /*&eg
-Objects in CMO (Common Mathematical Object format) group Basic0 
+Objects in CMO (Common Mathematical Object format) group Primitive 
 are primitive data such as {\tt int}, {\tt string}.
 All OpenXM compliant systems should implement all data types
-in the group Basic0.
+in the group Primitive.
 In this section, as an introduction, we will introduce
-CMObject (Common Mathematical Object) of the group Basic0 without 
+CMObject (Common Mathematical Object) of the group Primitive without 
 using the Backus-Nauer form.
 */
 /*&jp
 このグループの正式な名前は,
-CMObject/Basic0  である.
+CMObject/Primitive  である.
 以下, {\tt int32} で2の補数表現された
 32 bit integer をあらわす
 (これはよく使われる計算機での C 言語の int の内部表現).
@@ -28,7 +29,7 @@ CMObject/Basic0  である.
 */
 /*&eg
 The canonical name of this group is
-CMObject/Basic0.
+CMObject/Primitive.
 In the sequel,
 {\tt int32} means the signed 32 bit integer expressed by two's complement
 (internal expressions of {\tt int} of the language C usually use 
@@ -68,7 +69,7 @@ any CMObject consists of a tag and a body: \\
 {\tt cmo\_tag} は object のタイプをあらわすタグであり,
 以下のように決めている.
 */
-//&eg The following is a list of tags of CMObject/Basic0.
+//&eg The following is a list of tags of CMObject/Primitive.
 /*&C
 @../SSkan/plugin/cmotag.h
 \begin{verbatim}

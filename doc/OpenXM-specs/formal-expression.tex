@@ -1,10 +1,10 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.2 2000/01/23 05:28:33 noro Exp $
 //&jp \section{ CMO の形式的表現方法 }
 //&eg \section{ A formal expression of CMO }
 
 /*&jp
 前の節で CMO の表現方法を形式的に定義せず, 
-CMO のBasic0 の表現法を説明したが,
+CMO のPrimitive の表現法を説明したが,
 ここでは, CMO の Lisp 風表現 (Lisp-like expression)
 である
 CMOexpression
@@ -12,8 +12,8 @@ CMOexpression
 % (タグの省略記法がほしい.)
 */
 /*&eg
-In the previous setion, we have explained the format of CMO's in the
-Basic0 group.
+In the previous section, we have explained the format of CMO's in the
+Primitive group.
 In this section, we will introduce CMOexpression which is like the 
 bracket expression of Lisp. 
 We again explain a standard encoding method of CMO,
@@ -80,7 +80,7 @@ The comma ({\tt ,}) may be used to separate each element in CMOexpressions.
 */
 
 /*&jp
-この表記法 CMOexpression を利用して, CMO Basic0 の object を記述
+この表記法 CMOexpression を利用して, CMO Primitive の object を記述
 してみよう.
 Object 自体の構造を説明するため,
 BNF をもうすこし拡張して, 非終端記号, 終端記号名のみならず, 変数の
@@ -88,7 +88,7 @@ BNF をもうすこし拡張して, 非終端記号, 終端記号名のみならず, 変数の
 からである. また ``---'' でコメントのはじまりを表すものとする. 
 */
 /*&eg
-Let us describe CMO's in the Basic0 group.
+Let us describe CMO's in the Primitive group.
 In order to explain the meaning of objects,
 we may also put variable names to CMOexpressions.
 The start of comments are denoted by ``---''.
@@ -116,21 +116,21 @@ CMObject の
 32 bit integer $n$ を表現しているんだということが, 1 行でわかる.
 */
 /*&jp
-この記法を用いて, 前節で導入した, Basic0 の CMObject を
+この記法を用いて, 前節で導入した, Primitive の CMObject を
 形式的に定義しよう.
 */
 /*&eg
 By using this notation, let us define formally CMObjects in the group
-Basic0.
+Primitive.
 */
 
 /*&C
 
 \bigbreak
 \noindent
-Group CMObject/Basic0  requires nothing. \\
-Error2, Null, Integer32, Datum, Cstring, Mathcap, List $\in$ CMObject/Basic0. \\
-Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/OpenXM}
+Group CMObject/Primitive  requires nothing. \\
+Error2, Null, Integer32, Datum, Cstring, Mathcap, List $\in$ CMObject/Primitive. \\
+Document of CMObject/Primitive is at {\tt http://www.math.kobe-u.ac.jp/OpenXM}
 (in English and Japanese) \\
 \begin{eqnarray*}
 \mbox{Error2}&:& ({\tt CMO\_ERROR2}, {\sl CMObject}\, \mbox{ob}) \\
@@ -164,23 +164,23 @@ Document of CMObject/Basic0 is at {\tt http://www.math.kobe-u.ac.jp/OpenXM}
 //&jp となる.
 /*&jp
 また, 
-``Group CMObject/Basic0  requires nothing''
-は, 以下は, グループ CMObject/Basic0 の定義であり,
+``Group CMObject/Primitive  requires nothing''
+は, 以下は, グループ CMObject/Primitive の定義であり,
 このグループの CMObject を定義するのに, 要請される CMObject のグループは
 ないことを示す.
 ``Error2, Null, Integer32, Datum, Cstring, Mathcap, List
-$\in$ CMObject/Basic0''
-は, グループ CMObject/Basic0 には,  Error2, Null, Integer32,
+$\in$ CMObject/Primitive''
+は, グループ CMObject/Primitive には,  Error2, Null, Integer32,
 Datum, Cstring なるクラスの object が属することを示す.
 */
 /*&eg
-``Group CMObject/Basic0  requires nothing''
-means that there is no super group to define CMO's in the group Basic0.
+``Group CMObject/Primitive  requires nothing''
+means that there is no super group to define CMO's in the group Primitive.
 ``Error2, Null, Integer32, Datum, Cstring, Mathcap, List
-$\in$ CMObject/Basic0''
+$\in$ CMObject/Primitive''
 means that
 Error2, Null, Integer32, Datum, Cstring
-are members of the group CMObject/Basic0.
+are members of the group CMObject/Primitive.
 */
 
 /*&C

@@ -1,6 +1,6 @@
 //&jp \section{ OX スタックマシン }
-//&eg \section{ OX stackmachine }  (This section has not yet been translated.)
-
+//&eg \section{ OX stack machine }
+\label{sec:stackmachine}
 /*&jp
 この節では, OX スタックマシン operator の説明
 (TCP/IP ソケット上での標準 encoding 法 を用いる),
@@ -39,11 +39,11 @@ that for event-driven programming.
 {\tt oxserver00.c} is implemented as a sample server.
 If you want to implement you own server,
 write the following functions and use them instead of
-those in {\tt nullstackmachine.c }.
+those in {\tt nullstackmachine.c}.
 */
 
-//&jp \subsubsection{サーバスタックマシンのグループ SMobject/Basic0 に属するオペレータ}
-//&eg \subsubsection{Operators in the group SMobject/Basic0}
+//&jp \subsubsection{サーバスタックマシンのグループ SMobject/Primitive に属するオペレータ}
+//&eg \subsubsection{Operators in the group SMobject/Primitive}
 
 /*&jp
 \noindent
@@ -78,8 +78,9 @@ CMObject に対する最大公約数的なメッセージの仕様をcontent dictionary
 意.  CMO 形式で書いてあっても, それはサーバスタックマシンのlocal 形式
 でスタック上にあると解釈して下さい.)
 
-すべてのサーバスタックマシンは以下の関数を実装していないといけない.
-
+すべてのサーバスタックマシンは以下の操作を実装していないといけない.
+各操作に対し, その前後におけるスタックの状態を示す. 図において, 
+右端のオブジェクトがスタックのトップに対応する. 
 */
 
 /*&eg
@@ -90,39 +91,44 @@ Object xxx_OperandStack[SIZE];
 \end{verbatim}
 Here {\tt Object} may be local to the system {\tt xxx} wrapped by the stack
 machine. 
-That is, the server may translate CMObjects into local its
-objects and push them onto the stack.  However, it is preferable that
+That is, the server may translate CMObjects into its local
+objects and push them onto the stack.  It is preferable that
 the composition of such a translation and its inverse is equal to the
-identity map. The translation scheme is called the phrase book of the
+identity map. The translation scheme is called the {\it phrase book} of the
 server and it should be documented for each stack machine.  In OpenXM,
-any message is private.  In future we will provide a content
+any message is private to a connection.  In future we will provide a content
 dictionary (CD; see OpenMath \cite{openmath}) for basic specifications
 of CMObjects.
 
 In the following, \verb+ xxx_ + may be omitted if no confusion occurs.
 As the names of functions and tags are long, one may use abbreviated
-names.  Message packets are represented as follows.  Each field is
-shown as \fbox{data type \quad data}.  For example {\tt int32
-OX\_DATA} denotes a number {\tt OX\_DATA} which is represented by a 32
-bit network byte order.  If a field is displayed by italic characters,
-it should be defined elsewhere or its meaning should be clear.  For
-example {\it String commandName} denotes a local object {\it
-commandName} whose data type is String.  Note that an object on the
-stack may have a local data type even if it is represented as CMO.
+names.  Message packets are represented as follows.
+
+Each field is shown as \fbox{data type \quad data}.  For example {\tt
+int32 OX\_DATA} denotes a number {\tt OX\_DATA} which is represented
+by a 32 bit integer with the network byte order.  If a field is
+displayed by italic characters, it should be defined elsewhere or its
+meaning should be clear.  For example {\it String commandName} denotes
+a local object {\it commandName} whose data type is String.  Note that
+an object on the stack may have a local data type even if it is
+represented as CMO. 
 
 Any server stack machine has to implement the following operations.
+For each operation we show the states of the stack before and after
+the operation. In the figures the rightmost object corresponds to the
+top of the stack. Only the modified part of the stack are shown.
 */
 
 \begin{enumerate}
 \item
 /*&jp
-CMObject/Basic0 の CMO データのうち必須のもの, {\tt CMO\_ERROR2}, {\tt
+CMObject/Primitive の CMO データのうち必須のもの, {\tt CMO\_ERROR2}, {\tt
 CMO\_NULL}, {\tt CMO\_INT32}, {\tt CMO\_STRING}, {\tt CMO\_LIST}がおく
 られて来た場合それをスタックに push する.  たとえば, {\tt CMO\_NULL} 
 あるいは {\tt CMO\_String} の場合次のようになる.
 */
 /*&eg
-Any server should accept CMObjects in the group CMObject/Basic0.
+Any server should accept CMObjects in the group CMObject/Primitive.
 The server pushes such data onto the stack.
 The following examples show the states of the stack after receiving
 {\tt CMO\_NULL} or {\tt CMO\_String} respectively.
@@ -140,9 +146,9 @@ Stack after the request:
 \hline
 \end{tabular}
 
-Result:  none.
+Output:  none.
 
-Request:
+Request:\\
 \begin{tabular}{|c|c|c|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_String} &{\tt int32} {\rm size} 
 &{\tt byte} {\rm s1} & $\cdots$ &{\tt byte} {\rm ssize}\\
@@ -155,10 +161,10 @@ Stack after the request:
 \hline
 \end{tabular}
 
-Result:  none.
+Output:  none.
 
 //&jp CMO データの受け取りに失敗した時のみ  \\
-//&eg If the server fails to receive a CMO data,
+//&eg If the server fails to receive a CMO data,\\
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_ERROR2} & {\it CMObject} ob\\
 \hline 
@@ -190,8 +196,8 @@ SM_mathcap
 /*&jp
 このサーバの mathcap をもどす (termcap のまね).  サーバのタイプ, サー
 バスタックマシンの能力を知ることができる.  C 言語で実装する場合は,
-mathCap の構造体をシステム毎にきめるものとし,この関数はその構造体への
-ポインタを戻す.  (open sm1 では {\tt struct mathCap} を用いている.
+mathcap の構造体をシステム毎にきめるものとし,この関数はその構造体への
+ポインタを戻す.  (open sm1 では {\tt struct mathcap} を用いている.
 */
 /*&eg
 It requests a server to push the mathcap of the server. 
@@ -212,17 +218,17 @@ Stack after the request:
 \hline
 \end{tabular}
 
-Result: none.
+Output: none.
 
 \item
 \begin{verbatim}
-SM_setMathCap
+SM_setMathcap
 \end{verbatim}
 /*&jp
 受け取った Mathcap {\tt m} を自分のシステムに設定して, 相手側が理解不
-能な CMO をおくらないようにする.  C 言語で実装する場合は, mathCap の構
+能な CMO をおくらないようにする.  C 言語で実装する場合は, mathcap の構
 造体をシステム毎にきめるものとし,この関数はその構造体へのポインタを引
-数とする.  (open sm1 では {\tt struct mathCap} を用いている.
+数とする.  (open sm1 では {\tt struct mathcap} を用いている.
 */
 /*&eg
 It requests a server to register the peer's mathcap {\tt m} in the server.
@@ -233,11 +239,11 @@ The server can avoid to send OX messages unknown to its peer.
 Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\sl Mathcap} m  \\ \hline
-{\tt int32 OX\_COMMAND} & {\tt int32 SM\_setMathCap}  \\
+{\tt int32 OX\_COMMAND} & {\tt int32 SM\_setMathcap}  \\
 \hline
 \end{tabular}
 
-Result:  none.
+Output:  none.
 /*&jp
 \noindent
 注意: mathcap は一般にクライアント主体で設定する.
@@ -246,14 +252,14 @@ Result:  none.
 それを, クライアントはそのサーバに付随した mathcap として
 設定する.
 次に, クライアントはサーバに自分の mathcap を
-{\tt SM\_setMathCap} でおくり, 自分の mathcap を設定させる.
+{\tt SM\_setMathcap} でおくり, 自分の mathcap を設定させる.
 */
 /*&eg
 \noindent
 Remark: In general the exchange of mathcaps is triggered by a client.
 A client sends {\tt SM\_mathcap} to a server and obtains the server's
 mathcap. Then the client registers the mathcap. Finally the client
-sends its own mathcap by {\tt SM\_setMathCap} and the server
+sends its own mathcap by {\tt SM\_setMathcap} and the server
 registers it.
 */
 
@@ -273,13 +279,13 @@ OpenXM では, 現在のところ関数名の標準化はおこなっていない.
 /*&eg
 It requests a server to pop a character string {\tt s}, to
 parse it by the local parser of the stack machine,  and
-to interprete by the local interpreter.
-If the exececution produces a result, it is pushed onto 
+to interpret by the local interpreter.
+If the execution produces a Output, it is pushed onto 
 {\tt OperandStack}.
-If an error has occured,  Error2 Object is pushed onto the stack.
+If an error has occurred,  Error2 Object is pushed onto the stack.
 OpenXM does not provide standard function names.
 If this operation and {\tt SM\_popString} is implemented, the stack machine
-can be used as an OX server.
+is ready to be used as an OX server.
 */
 
 Stack before the request: 
@@ -295,11 +301,11 @@ Request:
 \hline 
 \end{tabular}
 
-Result:  none.
+Output:  none.
 /*&jp
 \noindent
 参考: \  実行前のスタックのデータは,
-{\it String commandString} なる local stackmachine の object としてス
+{\it String commandString} なる local stack machine の object としてス
 タック上にあるが, TCP/IP の通信路では, 次のようなデータがまずながれて
 {\it commandName} がスタックに push される:
 */
@@ -325,7 +331,7 @@ SM_executeStringByLocalParserInBatchMode
 /*&eg
 This is the same request as {\tt SM\_executeStringByLocalParser}
 except that it does not modify the stack. It pushes an Error2 Object
-if an error has occured.
+if an error has occurred.
 */
 \item
 \begin{verbatim}
@@ -343,7 +349,7 @@ to convert it into a character string according to the output format
 of the local system, and to send the character string via TCP/IP stream.
 {\tt (char *)NULL} is returned when the stack is empty.
 The returned strings is sent as a CMO string data.
-{\tt CMO\_ERROR2} should be returned if an error has occured.
+{\tt CMO\_ERROR2} should be returned if an error has occurred.
 */
 
 Stack before the request:
@@ -358,7 +364,7 @@ Request:
 \hline 
 \end{tabular}
 
-Result: 
+Output: 
 \begin{tabular}{|c|c|c|}  \hline
 {\tt int32 OX\_DATA} & {\tt int32 CMO\_STRING} & {\it size and the string s} \\
 \hline 
@@ -397,7 +403,7 @@ Stack after the request:
 \hline 
 \end{tabular}
 
-Result:  none.
+Output:  none.
 
 \item
 \begin{verbatim}
@@ -411,12 +417,6 @@ SM_dupErrors
 It requests a server to push a list object containing all error objects on the stack.
 */
 
-Stack before the request:
-\begin{tabular}{|c|}  \hline
-{\it Object} \\
-\hline 
-\end{tabular}
-
 Request:
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_COMMAND} & {\tt int32 SM\_dupErrors} \\
@@ -429,7 +429,7 @@ Stack after the request:
 \hline 
 \end{tabular}
 
-Result: none.
+Output: none.
 \end{enumerate}
 
 \medbreak
@@ -442,7 +442,7 @@ mathcap の問い合わせに対して, {\tt ox\_sm1} は次のように答える.
 {\bf Example}: \ 
 {\tt ox\_sm1} returns the following data as its mathcap.
 */
-%%Prog: [(cmoMathCap)] extension ::
+%%Prog: [(cmoMathcap)] extension ::
 \begin{verbatim}
 Class.mathcap 
  [ [199909080 , $Ox_system=ox_sm1.plain$ , $Version=2.990911$ , 
@@ -454,10 +454,10 @@ Class.mathcap
 
 /*&jp
 mathcap は 3つの要素をもつリストである.  まづ, 最初の要素を見よう.
-Ox\_system は open xxx システム名である.  読み込むライブラリがちがって
+Ox\_system は openXM システム名である.  読み込むライブラリがちがって
 いて, 関数名(または シンボル)の意味がちがうときはこの名前もかえる. た
 とえば, open math の basic content dictionary 対応の関数定義マクロを読
-みこんだ sm1 は, ox\_sm1\_basicCD なる名前にする.  HOSTTYPE値は, CPU 
+みこんだ sm1 は, ox\_sm1\_basicCD なる名前にする.  HOSTTYPE 値は, CPU 
 の種類をあらわしunix では環境変数\verb+$HOSTTYPE+ の値である.  2 番目
 の要素は 利用可能な SM コマンドをあつめたリストである.  3 番目のリスト
 は, 処理可能な数学データの形式, およびCMOの場合なら処理可能なCMOのタグ
@@ -467,8 +467,8 @@ Ox\_system は open xxx システム名である.  読み込むライブラリがちがって
 /*&eg
 A mathcap has three components. The first one contains informations
 to identify the system and hosts on which the application runs.
-In the above example, Ox\_system denotes the system name.
-HOSTTYPE represents the OS type and taken from \verb+$HOSTTYPE+
+In the above example, {\tt Ox\_system} denotes the system name.
+{\tt HOSTTYPE} represents the OS type and taken from \verb+$HOSTTYPE+
 enviroment variable.
 The second component consists of avaiable SM commands.
 The third component is a list of pairs. Each pair consists
@@ -549,8 +549,8 @@ Each data has the following meaning.
 (OX\_DATA, (CMO\_STRING, 7, "12345 ;")).
 \end{enumerate}
 
-//&jp \subsubsection{グループ SMobject/Basic1 に属するオペレータ}
-//&eg \subsubsection{Operators in the group SMobject/Basic1}
+//&jp \subsubsection{グループ SMobject/Basic に属するオペレータ}
+//&eg \subsubsection{Operators in the group SMobject/Basic}
 
 \begin{enumerate}
 \item
@@ -558,7 +558,7 @@ Each data has the following meaning.
 SM_pops
 \end{verbatim}
 /*&jp
-operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn}) 
+operand stack より, {\it n} 個の元 ({\it obj1, obj2, $\ldots$, objn} 
 を pop して捨てる.
 */
 /*&eg
@@ -566,10 +566,10 @@ It requests a server to pop {\it n} and to discard elements {\it obj1, obj2,
 $\ldots$, objn}) from the stack.
 */
 
-//&jp Stack before the request: (右が stack のトップである.) \\
-//&eg Stack before the request: (The rightmost one is the top of the stack.) \\
+//&jp Stack before the request: \\
+//&eg Stack before the request: \\
 \begin{tabular}{|c|c|c|c|c|}  \hline
-{\it obj1} & {\it  obj2}  & $\cdots$ & {\it objn}  &{\it INT32 n} \\
+{\it obj1} & {\it  obj2}  & $\cdots$ & {\it objn}  &{\it Integer32 n} \\
 \hline
 \end{tabular}
 
@@ -579,7 +579,7 @@ Request:
 \hline
 \end{tabular}
 
-Result:  none.
+Output:  none.
 
 
 \item
@@ -594,11 +594,12 @@ bind する.  正常終了なら 0 を, 異常終了なら -1 をもどす.  TCP/IP によ
 */
 /*&eg
 It requests a server to pop {\it name}, to pop {\it obj}, and to
-bind {\it obj} to a variable {\it name} in the current name space.
-If an error has occured {\tt CMO\_ERROR2} is pushed to the stack.
+bind {\it obj} to a variable {\it name} in the current name space 
+of the server.
+If an error has occurred {\tt CMO\_ERROR2} is pushed onto the stack.
 */
-//&jp Stack before the request: (右が stack の top.)
-//&eg Stack before the request: (The rightmost one is the top of the stack.)
+//&jp Stack before the request:
+//&eg Stack before the request: 
 \begin{tabular}{|c|c|}  \hline
 {\it obj} & {\it String name}  \\
 \hline
@@ -610,7 +611,7 @@ Request:
 \hline
 \end{tabular}
 
-Result: none.
+Output: none.
 
 \item
 \begin{verbatim}
@@ -619,20 +620,20 @@ SM_evalName
 
 /*&jp
 現在の名前空間で変数 {\it name} を評価する.  評価の結果 {\it
-resultObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
+OutputObj} をスタックへ戻す.  関数自体は正常終了なら 0 を, 異常終了な
 ら -1 をもどす.  TCP/IP の場合, 異常終了の場合のみ {\tt CMO\_ERROR2} 
 を stack へ push する.
 */
 
 /*&eg
 It requests a server to pop {\it name} and to evaluate a variable
-{\it name} in the current name space. The result of the evaluation
-{\it resultObj} is pushed to the stack.
-If an error has occured {\tt CMO\_ERROR2} is pushed to the stack.
+{\it name} in the current name space. The Output of the evaluation
+{\it OutputObj} is pushed to the stack.
+If an error has occurred {\tt CMO\_ERROR2} is pushed to the stack.
 */
 
-//&jp Stack before the request: (右が stack の top.)
-//&eg Stack before the request: (The rightmost one is the top of the stack.)
+//&jp Stack before the request:
+//&eg Stack before the request:
 \begin{tabular}{|c|}  \hline
 {\it String name}  \\
 \hline
@@ -644,14 +645,14 @@ Request:
 \hline
 \end{tabular}
 
-//&jp Stack after the request: (右が stack の top.)
-//&eg Stack after the request: (The rightmost one is the top of the stack.)
+//&jp Stack after the request:
+//&eg Stack after the request:
 \begin{tabular}{|c|}  \hline
-{\it resultObj} \\
+{\it OutputObj} \\
 \hline
 \end{tabular}
 
-Result:  none.
+Output:  none.
 
 \item
 \begin{verbatim}
@@ -667,11 +668,11 @@ It requests a server to pop {\it s} as a function name,
 to pop {\it n} as the number of arguments and to execute
 a local function {\it s} with {\it n} arguments popped from
 the stack.
-If an error has occured {\tt CMO\_ERROR2} is pushed to the stack.
+If an error has occurred {\tt CMO\_ERROR2} is pushed to the stack.
 */
 
-//&jp Stack before the request: (右が stack の top.) \\
-//&eg Stack before the request: (右が stack の top.) \\
+//&jp Stack before the request: \\
+//&eg Stack before the request: \\
 \begin{tabular}{|c|c|c|c|c|}  \hline
 {\it objn} & $\cdots$ & {\it obj1} & {\it INT32 n} & {\it String s} \\
 \hline 
@@ -684,9 +685,9 @@ Request:
 \end{tabular}
 
 //&jp Stack after the request: 関数実行の結果.
-//&eg Stack after the request: The result of the execution.
+//&eg Stack after the request: The Output of the execution.
 
-Result: none.
+Output: none.
 
 \item
 \begin{verbatim}
@@ -730,7 +731,7 @@ Request:
 \hline 
 \end{tabular}
 
-Result:  
+Output:  
 \begin{tabular}{|c|c|}  \hline
 {\tt int32 OX\_DATA} &   {\it Serialized CMO} \\
 \hline 

@@ -1,6 +1,6 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/communication-model.tex,v 1.4 2000/01/21 06:24:49 noro Exp $
-//&jp \section{ Open XM の通信モデル}
-//&eg \section{ Communication model of Open XM}  (This part has not yet been translated)
+%% $OpenXM: OpenXM/doc/OpenXM-specs/communication-model.tex,v 1.5 2000/01/21 08:44:54 noro Exp $
+//&jp \section{ OpenXM の通信モデル}
+//&eg \section{ Communication model of OpenXM}
 
 /*&jp
 われわれは, 数学プロセスがメッセージを
@@ -22,7 +22,7 @@
 メッセージは論理的に次のような構造をもつ: 
 */
 /*&eg
-In our model of comutation, mathematical processes proceed 
+In our model of computation, mathematical processes proceed 
 a computation by exchanging messages. Each process is a stack machine,
 which is called an OX stack machine.
 The following methods are possible to realize communications between
@@ -32,12 +32,12 @@ mathematical processes.
 \item Linking as a subroutine library.
 \item TCP/IP streams.
 \item Remote Procedure call.
-\item Muitithread.
+\item Multi-thread.
 \item PVM library.
 \item MPI library.
 \end{enumerate}
 
-In OpenXM Communication is exechange of messages between processes.
+In OpenXM communication means exchange of messages between processes.
 A message has the following structure:
 */
 /*&C
@@ -51,10 +51,10 @@ A message has the following structure:
 \end{center}
 */
 /*&jp
-このメッセージを, OX Message (Open XM message object) とよぶ.
+このメッセージを, OX message (OpenXM message object) とよぶ.
 OX Message はトップレベルのメッセージ object であり,
 仕様書では, さまざまなグループに属する object が登場する.
-グループ名は, たとえば, OX Message/TCPIP/Basic0 などと書く.
+グループ名は, たとえば, OX Message/TCPIP/Primitive などと書く.
 {\tt message\_body} の部分の仕様は, OX Message
 の上位に位置する部分であり,  SMobject または CMObject がくる.
 これらの object はタグをもち, そのタグ定数は {\tt SM\_} または
@@ -62,36 +62,36 @@ OX Message はトップレベルのメッセージ object であり,
 SMobject は, スタックマシンコマンドメッセージ object であり,
 やはり, グループ分けされている.
 各グループ名は,
-SMobject/Basic0,  SMobject/Basic1 などと書く.
+SMobject/Primitive,  SMobject/Basic などと書く.
 SMobject の構造は
 サーバスタックマシンの節で詳しく説明する.
-CMObject についてはすでに Basic0 の CMObject の説明をしたが,
+CMObject についてはすでに Primitive の CMObject の説明をしたが,
 あとで CMObject レベル 1の説明をする.
 OX Message の
 {\tt ox message\_tag} の定数は {\tt OX\_} で始まる.
 */
 /*&eg
 We call it an OX message (OpenXM message object).
-OX Message is the top level message object.
+OX message is the top level message object.
 The OX messages are classified into three types: DATA, COMMAND,
 and SPECIAL. They are distinguished by {\tt ox message\_tag}.
 The name of an ox message tag begins with  {\tt OX\_}.
 Typical OX message tags are {\tt OX\_COMMAND} followed by
-SMobject and {\tt OX\_DATA} followed by CMOobject.
+SMobject and {\tt OX\_DATA} followed by CMObject.
 Each message object also has its tag. For SMobject, the name
-of a tag begins with {\tt SM\_}. For CMOobject, the name of
+of a tag begins with {\tt SM\_}. For CMObject, the name of
 a tag begins with {\tt CMO\_}.
 An SMobject represents a stack machine command and categorized
-into several groups such as SMobject/Basic0, SMobject/Basic1.
+into several groups such as SMobject/Primitive, SMobject/Basic.
 The details of SMobjects will be explained in Section \ref{sec:stackmachine}.
-We have already explained the Basic0 CMOobjects.
-We will describe the Basic1 CMOobjects later.
+We have already explained the Primitive CMObjects.
+We will describe the Basic CMObjects in Section \ref{sec:basic1}.
 */
 //&jp \subsection{  OX Message の 表現方法 }
 //&eg \subsection{  OX Messages }
 
 /*&jp
-Open XM で各プロセスは
+OpenXM で各プロセスは
 \begin{center}
 (OXexpression を理解するスタックマシン) $+$ (xxx 言語で動くエンジン)
 \end{center}
@@ -106,7 +106,7 @@ SMobject を スタックマシンオペレータともよぶ.
 */
 
 /*&eg
-In Open XM, each process may have a hybrid interface; 
+In OpenXM, each process may have a hybrid interface; 
 it may accept and execute not only stack machine commands,
 but also its original command sequences.
 We call such a process an OX stack machine.
@@ -141,7 +141,7 @@ From AAA, To BBB, を OXexpression の前に書く.
 */
 
 /*&eg
-A comman `{\tt ,}' may be used to separate elements in an expression.
+A comma `{\tt ,}' may be used to separate elements in an expression.
 {\tt OX\_tag} is a constant which denotes an OX message tag.
 {\tt SM\_tag} is a constant which denotes an SM command tag.
 If a sender AAA or a receiver BBB has to be specified,
@@ -157,7 +157,7 @@ push a CMO string ``Hello''.
 */
 
 
-/*&jp
+/*&eg
 The following expression means a request to execute
 a local function ``hoge''.
 */
@@ -177,7 +177,7 @@ a 32 bit (4 byte) integer with the network byte order.
 */
 
 //&jp \subsection{OXexpression の 標準 encoding と TCP/IP ソケットによる実装法}
-//&eg \subsection{Standard enconding of OXexpressions and an implementation by TCP/IP sockets}
+//&eg \subsection{Standard encoding of OXexpressions and an implementation by TCP/IP sockets}
 /*&jp
 通信の実現方法は通信路のとりかたによりかわるが,
 論理構造は統一的にあつかわないといけない.
@@ -231,24 +231,25 @@ Thus OX messages are represented as follows.
 \end{tabular}
 \end{center}
 */
-//&jp が, もっとこまかく見ると,
-//&eg More precisely it has the following representation.
+//&jp \noindent が, もっとこまかく見ると,
+//&eg \noindent More precisely it has the following representation.
 /*&C
 \begin{center}
 \begin{tabular}{|c|c|}
 \hline
-{\tt ox message\_tag}, \ {\tt packet number}&{\tt message\_body} \\ 
+{\tt ox message\_tag}, \ {\tt serial number}&{\tt message\_body} \\ 
 \hline
 \end{tabular}
 \end{center}
 */
 /*&jp
+\noindent
 となっている.
 
-グループ OX Message/TCPIP/Basic0 の
+グループ OX Message/TCPIP/Primitive の
 {\tt ox message\_tag} としては次のものが用意されている.
 */
-//&eg As {\tt ox message\_tag} the following are provided.
+//&eg \noindent As {\tt ox message\_tag} the following are provided.
 
 /*&C
 @plugin/oxMessageTag.h
@@ -287,7 +288,7 @@ Thus OX messages are represented as follows.
 \verb+ OX_COMMAND + メッセージは次の形のパケットで表現される: \\
 */
 /*&eg
-Two streams are used for communication between a client and a server.
+Two streams are provided for communication between a client and a server.
 One is the stream to exchange data and to send stack machine commands.
 The other is the stream to control stack machines.
 Messages on the latter stream are called control messages and
@@ -297,6 +298,7 @@ the above two streams by using two ports on TCP/IP.
 The stack machine command message has the following forms: \\
 */
 /*&C
+\noindent
 \begin{tabular}{|c|c|}
 \hline
 {\tt OX\_COMMAND} & {\tt int32 function\_id} \\  \hline
@@ -338,7 +340,7 @@ debugging threads, or to exit form the debugging mode.
 */
 
 //&jp コントロールメッセージの結果メッセージは次の形のパケットで表現される: \\
-//&eg The result of a cotrol message has the following form:\\
+//&eg The result of a control message has the following form:\\
 /*&C
 \begin{tabular}{|c|c|l|}
 \hline
@@ -352,12 +354,12 @@ debugging threads, or to exit form the debugging mode.
 /*&jp
 {\tt int32 function\_id}
 の部分に, サーバスタックマシン の operator に対応する番号がはいる.
-グループ SMobject/Basic0 および SMobject/Basic1 に属する
+グループ SMobject/Primitive および SMobject/Basic に属する
 タグとして以下のものがある. 
 */
 /*&eg
 {\tt int32 function\_id} is the value of a stack machine command.
-SM tags in SMobject/Basic0 and SMobject/Basic1 and corresponding
+SM tags in SMobject/Primitive and SMobject/Basic and corresponding
 values are as follows.
 */
 /*&C
@@ -387,15 +389,15 @@ values are as follows.
 \end{verbatim}
 */
 
-//&jp たとえば,
-//&eg For example
+//&jp \noindent たとえば,
+//&eg \noindent For example
 /*&C
 \begin{center}
 (OX\_COMMAND, SM\_pops)
 \end{center}
 */
-//&jp は
-//&eg is encoded as follows.
+//&jp \noindent は
+//&eg \noindent is encoded as follows.
 /*&C
 \begin{center}
 \begin{tabular}{|c|c|}
@@ -412,7 +414,7 @@ operator の詳細は次の節で説明する.
 これらの定数の名前はインプリメントのとき短縮形で表現してもよい.
 */
 /*&eg
-The details of the operators are described in Section \ref{sec:stackmanine}.
+The details of the operators are described in Section \ref{sec:stackmachine}.
 Names of these constants may be represented by abbreviated forms.
 */
 

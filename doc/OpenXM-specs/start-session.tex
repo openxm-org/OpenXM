@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/start-session.tex,v 1.2 2000/01/23 00:41:08 noro Exp $
 //&jp \section{TCP/IP でのセッションのスタート}
 //&eg \section{How to start a session on TCP/IP}
 
@@ -46,7 +46,7 @@ with a descriptor can be done by {\tt fdopen()}.
 */
 /*&eg
 Though there need several socket operations to establish a 
-connetion over TCP/IP, servers do not have any functionality for
+connection over TCP/IP, servers do not have any functionality for
 connection establishment.
 An application called {\it launcher} is provided to start servers
 and to establish connections as follows.
@@ -113,8 +113,8 @@ The one byte data is {\tt 0}, {\tt 1} or {\tt 0xFF}.
 {\tt 0} means that one wants to use the network byte order to
 send 16 or 32bit quantities.
 {\tt 1} means that one wants to use the little endian order.
-{\tt 0xFF} means that one wants to use the little endian order.
-On each side, if the preference coicides with each other then
+{\tt 0xFF} means that one wants to use the big endian order.
+On each side, if the preference coincides with each other then
 the byte order is used. Otherwise the network byte order is used.
 
 If a system implements only the network byte order, then
@@ -173,20 +173,21 @@ a client informs the both a control server and an engine of
 byte sequences as one time passwords.
 
 {\tt ox} is created from {\tt oxmain.c} and {\tt
-kan96xx/plugin/oxmisc.c}.  In {\tt ox} {\tt oxTellMyByteOrder()}
+kan96xx/plugin/oxmisc.c}.  In {\tt ox} \\
+{\tt oxTellMyByteOrder()}
 executes the exchange of the byte order information. In a client it is
 done in {\tt oxSetByteOrder()}.
 
 One time passwords should be sent via secure communication channels.
-Note that in the current implementation of {\rm ox}, one time passwords
+Note that in the current implementation of {\tt ox}, one time passwords
 are visible to all users logging in machines on which the server
-and the client run, assuming that there is no evil person in the users.
+and the client run, assuming that there is no evil person among the users.
 One may use {\tt ssh} with {\tt -f } option when one wants to send 
 a one time password securely to a remote machine.
 
 The following example shows invocation of an {\tt ox\_sm1}
-server and the comminucation establishment on {\rm sm1}.
-In this example {\tt ox} on the host {\tt ox} is invoked from 
+server and the communication establishment on {\rm sm1}.
+In this example {\tt ox} on the host {\tt dc1} is invoked from 
 {\tt sm1} on the host {\tt yama}.
 */
 {\footnotesize
