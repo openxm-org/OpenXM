@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.3 2004/02/29 13:02:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.4 2004/03/01 07:55:38 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -38,10 +38,20 @@
 */
 #define END_OF_INPUT '\n'
 
+/* Table for the engine type. */
+#define ASIR          1
+#define SM1           2
+#define K0            3
+
 extern int Quiet;
 extern JMP_BUF EnvOfStackMachine;
 int Format=1;  /* 1 : latex mode */
 int OutputLimit_for_TeXmacs = (1024*10);
+
+int TM_Engine  = ASIR ;
+int TM_asirStarted = 0;
+int TM_sm1Started  = 0;
+int TM_k0Started  = 0;
 
 void ctrlC();
 struct object KpoString(char *s);
@@ -52,6 +62,7 @@ static void printv(char *s);
 static void printl(char *s);
 static void printp(char *s);
 static void printCopyright(char *s);
+static int startEngine(int type,char *msg);
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -84,7 +95,7 @@ main() {
   /* Load ox engine here */
   /* engine id should be set to ox.engine */
   KSexecuteString(" [(parse) (ox.sm1) pushfile] extension ");
-  KSexecuteString(" asirconnectr /ox.engine oxasir.ccc def ");
+  startEngine(TM_Engine," ");
 
   if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
 	signal(SIGINT,ctrlC);
@@ -106,8 +117,15 @@ main() {
 	  printf("%s",DATA_END); fflush(stdout);
 	}
 	irt = 0;
-	s=readString(stdin, "if (1) { ", " ; }else{ }"); /* see test data */
-	if (s == NULL) break;
+	if (TM_Engine == K0) {
+	  s=readString(stdin, " ", " "); /* see test data */
+	}else if (TM_Engine == SM1) {
+	  s=readString(stdin, " ", " "); /* see test data */
+	}else{
+	  s=readString(stdin, "if (1) { ", " ; }else{ }"); /* see test data */
+	}
+
+	if (s == NULL) { irt = 1; continue; }
 	printf("%s",DATA_BEGIN_V);
     KSexecuteString(" ox.engine ");
     ob = KpoString(s);
@@ -125,6 +143,9 @@ main() {
 	  if (ob.tag == Sinteger) {
 		/* printf("cmotag=%d\n",ob.lc.ival);*/
 		if (ob.lc.ival == CMO_ERROR2) {
+		  vmode = 1;
+		}
+		if (ob.lc.ival == CMO_STRING) {
 		  vmode = 1;
 		}
 	  }
@@ -202,10 +223,38 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
 	s[n++] = c; s[n] = 0;  m++;
     INC_BUF ;
   }
-  if (strcmp(&(s[start]),"quit;") == 0) {
+  /* Check the escape sequence */
+  if (strcmp(&(s[start]),"!quit;") == 0) {
 	printv("Terminated the process ox_texmacs.\n"); 
 	exit(0);
   }
+  /* Check the escape sequence to change the globa env. */
+  if (strcmp(&(s[start]),"!verbatim;") == 0) {
+	printv("Output mode is changed to verbatim mode.");
+	Format=0;
+	return NULL;
+  }
+  if (strcmp(&(s[start]),"!latex;") == 0) {
+	printv("Output mode is changed to latex/verbose.");
+	Format = 1;
+	return NULL;
+  }
+  if (strcmp(&(s[start]),"!asir;") == 0) {
+	Format=1;
+	TM_Engine=ASIR; startEngine(TM_Engine,"Asir");
+	return NULL;
+  }
+  if (strcmp(&(s[start]),"!sm1;") == 0) {
+	Format=0;
+	TM_Engine=SM1; startEngine(TM_Engine,"sm1");
+	return NULL;
+  }
+  if (strcmp(&(s[start]),"!k0;") == 0) {
+	Format=0;
+	TM_Engine=K0; startEngine(TM_Engine,"k0");
+	return NULL;
+  }
+
   for (i=0; i < strlen(epilog); i++) {
 	s[n++] = epilog[i];  s[n] = 0;
     INC_BUF ;
@@ -237,8 +286,37 @@ static void printp(char *s) {
 }
 static void printCopyright(char *s) {
   printf("%s",DATA_BEGIN_V);
-  printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org\n");
+  printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
+  printf(" under the BSD licence.  !asir, !sm1, !k0.");
   printf("%s",s);
+  printf("%s",DATA_END);
+  fflush(NULL);
+}
+
+static int startEngine(int type,char *msg) {
+  struct object ob;
+  printf("%s",DATA_BEGIN_V);
+  if (type == SM1) {
+    if (!TM_sm1Started) KSexecuteString(" sm1connectr ");
+	KSexecuteString(" /ox.engine oxsm1.ccc def ");
+	TM_sm1Started = 1;
+	printf("%s\n",msg);
+  }else if (type == K0) {
+    if (!TM_k0Started) KSexecuteString(" k0connectr ");
+	KSexecuteString(" /ox.engine oxk0.ccc def ");
+	TM_k0Started = 1;
+	printf("%s\n",msg);
+  }else{
+    if (!TM_asirStarted) KSexecuteString(" asirconnectr ");
+	KSexecuteString(" /ox.engine oxasir.ccc def ");
+	TM_asirStarted = 1;
+	printf("%s\n",msg);
+	KSexecuteString(" oxasir.ccc (copyright();) oxsubmit oxasir.ccc oxpopstring ");
+	ob = KSpop();
+	if (ob.tag == Sdollar) {
+	  printf("%s",ob.lc.str);
+	}
+  }
   printf("%s",DATA_END);
   fflush(NULL);
 }
