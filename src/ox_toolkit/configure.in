@@ -1,15 +1,19 @@
-dnl  $OpenXM: OpenXM/src/ox_toolkit/configure.in,v 1.8 2004/02/28 16:54:55 ohara Exp $
+dnl  $OpenXM: OpenXM/src/ox_toolkit/configure.in,v 1.9 2004/02/28 23:39:38 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
-
 AC_INIT(mysocket.c)
+AC_PREREQ(2.53)
+AM_INIT_AUTOMAKE(ox_toolkit, 20040628)
+AM_MAINTAINER_MODE
 AC_CANONICAL_SYSTEM
-dnl AC_CANONICAL_HOST
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_RANLIB
-dnl AC_PROG_LN_S
+AM_PROG_LIBTOOL
 AC_PATH_XTRA
+
+if test "${ac_test_CFLAGS}" != set -a "${GCC}" = yes ; then
+    CFLAGS="${CFLAGS} -finline-functions"
+fi
 
 AC_ARG_WITH([gmp],
 [  --with-gmp              with the GNU MP library [[no]]],
@@ -17,11 +21,8 @@ AC_ARG_WITH([gmp],
 
 if test ${with_gmp:=no} != no ; then
     AC_DEFINE([WITH_GMP])
-    GMPLIB="-lgmp"
-    USE_GMP='#'
 fi
-AC_SUBST([GMPLIB])
-AC_SUBST([USE_GMP])
+AM_CONDITIONAL([USE_GMP],[test "$with_gmp" = yes])
 
 case "${host}" in
 [i[3-6]86-*-interix*])
