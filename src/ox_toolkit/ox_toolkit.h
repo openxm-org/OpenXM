@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.16 2003/05/24 23:10:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.17 2003/05/25 16:35:41 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -46,7 +46,7 @@ typedef struct OXFILE{
     int error;
 } OXFILE;
 
-typedef struct {
+typedef struct cmo {
     int tag;
 } cmo;
 
@@ -81,7 +81,7 @@ typedef cmo_mathcap cmo_indeterminate;
 
 /* a double linked list */
 typedef struct cell {
-    cmo *cmo;
+    struct cmo *cmo;
     struct cell *next;
     struct cell *prev;
 } cell;
@@ -135,7 +135,7 @@ typedef struct {
 
 typedef struct {
     int tag;
-    cmo *cmo;
+    struct cmo *cmo;
 } ox_data;
 
 cmo_null*          new_cmo_null();
