@@ -1,4 +1,4 @@
-%%  $OpenXM$
+%%  $OpenXM: OpenXM/doc/OpenXM-specs/stackmachine.tex,v 1.8 2000/09/08 20:01:38 takayama Exp $
 //&jp \section{ OX スタックマシン }
 //&eg \section{ OX stack machine }
 \label{sec:stackmachine}
@@ -472,6 +472,9 @@ Output: none.
 
 \medbreak
 \noindent
+
+//&C \subsubsection{ MathCap }  \label{subsubsection:mathcap}
+
 /*&jp
 {\bf 例}: \ 
 mathcap の問い合わせに対して, {\tt ox\_sm1} は次のように答える.
@@ -521,7 +524,52 @@ as mathematical data messages. In this case the subsequent
 list represents available CMO tags.
 */
 
+/*&C
+\noindent
+OpenXM/XML expression of the example above:
+\begin{verbatim}
+  <cmo_mathcap>
+     <cmo_list for="mathcap">
+
+       <cmo_list>
+          <int32 for="length"> 4 </int32>
+          <int32 for="Protocol version">  001001003 </int32>
+          <cmo_string for="system name"> Ox_system=ox_sm1.plain  </cmo_string>
+          <cmo_string for="system version"> Version=2.990911  </cmo_string>
+          <cmo_string for="hosttype"> HOSTTYPE=i386  </cmo_string>
+       </cmo_list>
+
+       <cmo_list for="Available SM tags">
+          <int32 for="length"> 11 </int32>
+          <int32> 262 </int32> 
+          <int32> 263 </int32> 
+           ...
+       </cmo_list>
+
+       <cmo_list for="Available OX_DATA tags">
+          <int32 for="length"> 2 </int32>
+          <cmo_list for="OX_DATA tag">
+             <int32 for="length"> 1 </int32>
+             <int32 comment="OX_DATA">  514 </int32>
+          </cmo_list>
+          <cmo_list for="Available CMO tags">
+             <int32 for="length"> 21 </int32>
+             <int32 comment="CMO_ERROR2">  2130706434 </int32>
+             <int32 comment="CMO_NULL"> 1 </int32>
+              ....
+          </cmo_list>
+
+       </cmo_list>
+     </cmo_list>
+  </cmo_mathcap>
+\end{verbatim}
+*/
+
 \medbreak
+
+//&jp \subsubsection{ 例 }
+//&eg \subsubsection{ Examples }
+
 \noindent
 //&jp {\bf 例}: \ 
 //&eg {\bf Example}: \ 

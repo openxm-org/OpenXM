@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/introduction.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/introduction.tex,v 1.2 2000/01/24 07:36:35 noro Exp $
 //&jp \section{はじめに}
 //&eg \section{Introduction}
 
@@ -22,11 +22,11 @@ OpenXM 数学ソフトパッケージプロジェクトに
 */
 /*&eg
 OpenXM is a free, or Open Source, infrastructure for mathematical
-softwares.
+software systems.
 It provides methods and protocols
 for interactive distributed computation and
-for integrating mathematical softwares.
-OpenXM package is a set of softwares that supports OpenXM protocols.
+for integrating mathematical software systems.
+OpenXM package is a set of software systems that support OpenXM protocols.
 It is currently a collection of softwares
 {\tt Risa/Asir} \cite{asir}, {\tt Kan/sm1} \cite{kan}, {\tt PHC} pack \cite{phc}
 , {\tt GNUPLOT},
@@ -59,14 +59,16 @@ OpenXM はなにも考えずに簡単に接続できるシステムを作ろう,というまで野心
 
 /*&eg
 We have been profited from increasing number
-of mathematical softwares.
+of mathematical software systems.
 These are usually ``expert'' systems in one area of mathematics
 such as ideals, groups, numbers, polytopes, and so on.
 They have their own interfaces and data formats,
 which are fine for intensive users of these systems.
 However, a unified system will be more convenient
 for users who want to explore a new area of mathematics with these
-softwares or users who need these systems only occasionally.
+software systems or users who need these systems only occasionally.
+It is also wonderful for developpers to have various software components
+that can be used from the target system.
  
 OpenXM provides not only data representation and communication protocols
 but also programming guidelines to develop cooperative applications.
@@ -112,6 +114,8 @@ SM 層は (スタックマシン)サーバを制御するための命令の
 あつまりであり, サーバは非同期的に動作させることが可能である.
 柔軟性が高いので, IMC などのリモートプロシージャコール系の
 プロトコルもエミュレートできる.
+OX メッセージは DTD を用いて定義可能であり, XML を用いて
+記述できる.
 */
 /*&eg 
 In OpenXM, communication is an exchange of messages. 
@@ -122,12 +126,14 @@ mathematical data.  We use standards of mathematical data formats such
 as OpenMath and MP as well as our own data format {\it CMO} ({\it
 Common Mathematical Object format}).  Servers, which provide services
 to other processes, are stack machines.  The stack machine is called
-the {\it OX stack machine}.  Existing mathematical softwares are
+the {\it OX stack machine}.  Existing mathematical software systems are
 wrapped with this stack machine.  OX stack machines work in the
 asynchronous mode which is similar to X servers. That is, OpenXM
 server won't send messages to the client unless it is requested
 to send them. It is also possible to emulate RPC and a web server for MCP
 \cite{iamc} on our asynchronous OX stack machines.
+OX messages can be defined by DTD and be expressed by XML.
+We call it OpenXM/XML.
 */
 /*&jp
 OpenXM に準拠したシステム xxx を, open xxx とよぶ.
@@ -135,9 +141,9 @@ OpenXM に準拠したシステム xxx を, open xxx とよぶ.
 OpenXM 対応の kan/sm1 は open sm1 である.
 */
 /*&eg
-A system xxx conforming to OpenXM is called open xxx.
-For example Asir conforming to OpenXM is called open Asir, and
-kan/sm1 conforming to OpenXM is called open sm1.
+A system xxx complient to the OpenXM protocol is called open xxx.
+For example Asir complient to the OpenXM protocol is called open Asir, and
+kan/sm1 complient to the OpenXM protocol is called open sm1.
 */
 
 /*&jp

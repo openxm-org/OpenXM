@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.5 2000/09/08 18:57:49 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/formal-expression.tex,v 1.6 2000/09/09 16:32:26 takayama Exp $
 //&jp \section{ CMO の形式的表現方法 }
 //&eg \section{ A formal expression of CMO }
 
@@ -17,7 +17,8 @@ Primitive group.
 In this section, we will introduce CMOexpression which is like the 
 bracket expression of Lisp. 
 We again explain a standard encoding method of CMO,
-which we have already explained in the previous section.
+which we have already explained in the previous section, but
+the explanation is more formal.
 */
 
 /*&jp
@@ -235,7 +236,7 @@ CMOexpression と, CMObject の区別を理解しておくのは重要である.
 書く.
 */
 /*&eg
-It is possible to express CMO by XML like Open Math (\cite{openmath}).
+CMO's are expressed by XML like Open Math (\cite{openmath}).
 See example below.
 */
 
@@ -256,7 +257,7 @@ See example below.
 */
 
 //&jp \noindent cmo\_string は次のようにあらわしてもよい.
-//&eg \noindent cmo\_string can also be expressed as follows.
+//&eg \noindent cmo\_string may be expressed as follows.
 /*&C
 \begin{verbatim}
 
@@ -304,17 +305,19 @@ and byte data are encoded as it is.
 100Mbps の通信路で 12Mbytes の {\tt CMO\_ZZ} の転送では 
 約 90\% の時間が network byte order への変換についやされているという
 実験データもある.
-効率を重視した encoding 法については後述する.
+効率を重視した encoding 法については後述する \ref{subsection:byteorder}.
 */
 /*&eg
 When we are using a high speed network,
 the translation from the internal expression of 32 bit integers to
 network byte order may become a bottle neck.
 There are experimental data which presents that 90 percents of the transmission
-time are
+time are used
 for the translation to the network byte order to send {\tt CMO\_ZZ} of size
-12M bytes on a 100Mbps network.
-In a later section, we will discuss a protocol to avoid the translation.
+12M bytes.
+We used a 100Mbps network.
+In a later section \ref{subsection:byteorder}, 
+we will discuss a protocol to avoid the translation.
 */
 
 /*&C
@@ -363,14 +366,14 @@ is the encoding of the CMOexpression
 
 /*&jp
 (実験的)
-CMO および OX packets は XML 規格に準拠している.
+CMO および OX packets は XML 規格 \cite{xml} に準拠している.
 XML 規格の Attribute を binary encode するために
 特別なタグ \\
 */
 /*&eg
 (Experimental)
-CMO and OX packets are complient to XML specification.
-In order to encode ``Attribute'' in XML in a binary format,
+CMO and OX packets are complient to XML specification \cite{xml}.
+In order to encode ``Attribute'' in XML in our binary format,
 we have a tag: \\
 */
 //&C \verb! #define CMO_ATTRIBUTE_LIST  (LARGEID+3) !  \\
@@ -401,4 +404,11 @@ XML 表現では XML のタグとして理解される.
 All tags except this special CMO tag {\tt CMO\_ATTRIBUTE\_LIST}
 are XML tags in the CMO/XML expression.
 */
-
+/*&jp
+CMO/XML で {\it comment}, {\it for} と名前がついた
+attributes は CMO binary expression にはエンコードされない.
+*/
+/*&eg
+CMO/XML attributes such as {\it comment}, {\it for}
+are not encoded in the CMO binary expression.
+*/
