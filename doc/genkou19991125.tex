@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.56 1999/12/23 12:57:20 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.57 1999/12/23 14:02:56 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
@@ -280,38 +280,50 @@ mathcap で設定されていないメッセージをクライアント側へ
 
 mathcap は以下のような 3 つの要素からなるリストを持っている。
 
-\begin{tabular}{|c|c|c|} \hline
-$A$ & $B$ & $C$	\\ \hline
-\end{tabular}
+\[	\begin{tabular}{|c|c|c|} \hline
+	$A$ & $B$ & $C$	\\ \hline
+	\end{tabular}	\]
 
 最初の要素 $A$ の部分は以下のようなリスト構造をしており、
 $a_1$ は 32 ビット整数でバージョンナンバーを、
 $a_2$ は文字列でシステムの名前を表すことになっている。
 
-\begin{tabular}{|c|c|} \hline
-$a_1$ & $a_2$	\\ \hline
-\end{tabular}
+\[	\begin{tabular}{|c|c|} \hline
+	$a_1$ & $a_2$	\\ \hline
+	\end{tabular}	\]
 
 2 番目の要素 $B$ の部分は次のようなリスト構造をしている。
-
-\begin{tabular}{|c|c|c|c|} \hline
-$b_1$ & $b_2$ & $\cdots$ & $b_n$	\\ \hline
-\end{tabular}
-
 この $b_1$, $b_2$, $\cdots$, $b_n$ はすべて 32 ビットの整数である。
 スタックマシンへの命令はすべて 32 ビットの整数で表しており、
 各 $b_i$ は利用可能な命令に対応する 32 ビットの整数となっている。
 
+\[	\begin{tabular}{|c|c|c|c|} \hline
+	$b_1$ & $b_2$ & $\cdots$ & $b_n$	\\ \hline
+	\end{tabular}	\]
+
 3 番目の要素 $C$ は以下のようなリスト構造をしている。
 
-\begin{tabular}{|c|c|c|c|} \hline
-$c_1$ & $c_2$ & $\cdots$ & $c_n$ \\ \hline
-\end{tabular}
+\[  \overbrace{
+	\begin{tabular}{|c|c|c|c|} \hline
+	$c_1$ & $c_2$ & $\cdots$ & $c_n$	\\ \hline
+	\end{tabular}
+   }^{C}	\]
 
-各 $c_i$ もまたリスト構造となっており、
+%$n$ は OX\_COMMAND 以外の受け取れるメッセージのタグの種類の数に等しい。
+%要素数は 1 でももちろん構わない。
+各 $c_i$ もまた以下のようなリスト構造となっている。
+
+\[  \overbrace{
+	\begin{tabular}{|c|c|c} \hline
+	$c_{i1}$ & $c_{i2}$ & $\cdots$	\\ \hline
+	\end{tabular}
+   }^{c_i}	\]
+
 最初の要素が 32 ビットの整数となっている。
-この整数値は受け取れるメッセージのタグとなっており、
-2 番目の要素以降についてはタグごとに独立に決まっている。
+この整数値は受け取れるメッセージのタグとなっている。
+2 番目の要素以降については最初の要素の値によって異なっている。
+ここでは、最初の要素が OX\_DATA の場合についてのみ説明する。
+
 
 
 具体的な mathcap の例をあげる。
