@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.1 2000/07/03 05:57:43 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OXplot.java,v 1.2 2000/07/07 03:02:36 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -23,6 +23,7 @@ public class OXplot extends OpenXMserver{
     plotframe = new Vector();
     try{
       while(true){
+	Thread.yield();
 	try{
 	  OXmessage message = stream.receive();
 	  int ox_tag = message.getTag();
@@ -57,7 +58,7 @@ public class OXplot extends OpenXMserver{
     }
   }
 
-  class plotframe extends java.awt.Frame{
+  class plotframe extends java.awt.Frame implements java.awt.event.MouseListener{
     Canvas canvas;
     int pixels[][];
 
@@ -66,10 +67,14 @@ public class OXplot extends OpenXMserver{
       add("Center", new Panel().add(canvas = new Canvas()));
       canvas.setSize(width,height);
       setResizable(false);
+      canvas.addMouseListener(this);
 
-      pixels = new int[width][];
+      pixels = new int[height][];
       for(int i=0;i<pixels.length;i++){
-	pixels[i] = new int[height];
+	pixels[i] = new int[width];
+	for(int j=0;j<pixels[i].length;j++){
+	  pixels[i][j] = 255*j/width;
+	}
       }
 
       pack();
@@ -77,22 +82,38 @@ public class OXplot extends OpenXMserver{
     }
 
     public void paint(Graphics gr){
+      paint();
+    }
+
+    public void paint(){
       Graphics g = canvas.getGraphics();
 
-      for(int x=0;x<pixels.length;x++){
-	for(int y=0;y<pixels[x].length;y++){
-	  if(pixels[x][y] == 1){
-	    g.setColor(Color.black);
-	  }else{
-	    g.setColor(Color.white);
-	  }
+      for(int y=0;y<pixels.length;y++){
+	for(int x=0;x<pixels[y].length;x++){
+	  g.setColor(new Color(pixels[y][x],pixels[y][x],pixels[y][x]));
 	  g.fillRect(x,y,1,1);
 	}
       }
     }
 
-    public void pset(int x,int y){
-      pixels[x][y] = 1;
+    public void mouseClicked(java.awt.event.MouseEvent e){
+      paint();
+    }
+
+    public void mousePressed(java.awt.event.MouseEvent e){
+    }
+
+    public void mouseReleased(java.awt.event.MouseEvent e){
+    }
+
+    public void mouseEntered(java.awt.event.MouseEvent e){
+    }
+
+    public void mouseExited(java.awt.event.MouseEvent e){
+    }
+
+    public void pset(int x,int y,int bright){
+      pixels[y][x] = bright;
     }
   }
 
@@ -131,8 +152,8 @@ public class OXplot extends OpenXMserver{
 
     if(function_name.equals("CREATE") && argc==2){
       stack.push(CREATE(argv));
-    }else if(function_name.equals("CMO2OMXML") && argc==1){
-      //stack.push(CMO2OMXML(argv[0]));
+    }else if(function_name.equals("PSET") && argc==4){
+      PSET(argv);
     }else{
       stack.push(new CMO_ERROR2(new CMO_NULL()));
     }
@@ -224,9 +245,8 @@ public class OXplot extends OpenXMserver{
   private CMO CREATE(CMO[] argv){
     plotframe tmp = new plotframe(((CMO_INT32)argv[0]).intValue()
 				  ,((CMO_INT32)argv[1]).intValue());
-    int i;
 
-    for(i=0;i<plotframe.size();i++){
+    for(int i=0;i<plotframe.size();i++){
       if(plotframe.elementAt(i) == null){
 	plotframe.setElementAt(tmp,i);
 	return new CMO_INT32(i);
@@ -234,8 +254,18 @@ public class OXplot extends OpenXMserver{
     }
 
     plotframe.addElement(tmp);
+    plotframe.trimToSize();
 
-    return new CMO_INT32(plotframe.size());
+    return new CMO_INT32(plotframe.size()-1);
+  }
+
+  private CMO PSET(CMO[] argv){
+    plotframe tmp = (plotframe)plotframe.elementAt(((CMO_INT32)argv[0]).intValue());
+
+    tmp.pset(((CMO_INT32)argv[1]).intValue(),
+	     ((CMO_INT32)argv[2]).intValue(),
+	     ((CMO_INT32)argv[3]).intValue());
+    return new CMO_NULL();
   }
 
   private void debug(String str){
