@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.1 2003/12/08 05:35:32 takayama Exp $ */
 
 module taka_ahg;
 
@@ -49,7 +49,7 @@ def b(A,Idx,V) {
   for (I=0; I<Nfacets; I++) {
     H = matrix_inner_product(P,F[I]);
     if (H != 0) {
-      B = matrix_inner_product(P,V);
+      B = matrix_inner_product(F[I],V);
       for (J=0; J<H; J++) {
         Bf = Bf*(B-J);  /* See Paper3/ip/ip2/hg.dvi [SST; compositio] */
       }
