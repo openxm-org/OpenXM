@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.30 2000/11/26 11:09:01 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.31 2000/11/30 02:41:37 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -6,9 +6,12 @@ OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 OpenXM_calc=../calc2000p
 DVIPS=dvips -f
-LATEX2HTML=jlatex2html -tmp /tmp
+LATEX2HTML=latex2html -tmp /tmp
 OXWEAVE=../../bin/oxweave
 OW_FLAG=--recursive
+RSYNC=rsync -avz --delete -e ssh
+WHO=taka@orange
+SSH=ssh -l taka orange
 
 ### For full copy :  make copy-html; make ALL
 # Only for print target.
@@ -29,26 +32,38 @@ copy-doc :
 
 copy-html: copy-html-spec copy-html-poster copy-html-spec-101
 
-copy-html-spec: 
-	/bin/rm -rf ${WEBKOBE1}/html/OpenXM-en
-	/bin/rm -rf ${WEBKOBE1}/html/OpenXM-ja
-	-mkdir ${WEBKOBE1}/html
-	mkdir ${WEBKOBE1}/html/OpenXM-en
-	mkdir ${WEBKOBE1}/html/OpenXM-ja
-	-(cd $(OpenXM_spec) ; make ; cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM )
+copy-html-spec: copy-html-spec-ja copy-html-spec-en
+
+copy-html-spec-ja: 
+	$(SSH) /bin/rm -rf ${WEBKOBE1}/html/OpenXM-ja
+	-$(SSH) mkdir ${WEBKOBE1}/html
+	$(SSH) mkdir ${WEBKOBE1}/html/OpenXM-ja
 	-(cd $(OpenXM_spec) ; cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM )
-	-(cd $(OpenXM_spec) ; cd tmpEN ; cp -rf OpenXM ${WEBKOBE1}/html/OpenXM-en)
-	-(cd $(OpenXM_spec) ; cd tmpJA ; cp -rf OpenXM ${WEBKOBE1}/html/OpenXM-ja)
-copy-html-spec-101: 
-	/bin/rm -rf ${WEBKOBE1}/html/OX-RFC-101-en
-	/bin/rm -rf ${WEBKOBE1}/html/OX-RFC-101-ja
-	-mkdir ${WEBKOBE1}/html
-	mkdir ${WEBKOBE1}/html/OX-RFC-101-en
-	mkdir ${WEBKOBE1}/html/OX-RFC-101-ja
-	-(cd $(OpenXM_spec) ; make ; cd tmp101EN ; latex OX-RFC-101; latex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 )
+	-(cd $(OpenXM_spec) ; cd tmpJA ; $(RSYNC) OpenXM $(WHO):${WEBKOBE1}/html/OpenXM-ja)
+
+copy-html-spec-en: 
+	$(SSH) /bin/rm -rf ${WEBKOBE1}/html/OpenXM-en
+	-$(SSH) mkdir ${WEBKOBE1}/html
+	$(SSH) mkdir ${WEBKOBE1}/html/OpenXM-en
+	-(cd $(OpenXM_spec) ; make ; cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM )
+	-(cd $(OpenXM_spec) ; cd tmpEN ; $(RSYNC) OpenXM $(WHO):${WEBKOBE1}/html/OpenXM-en)
+
+copy-html-spec-101: copy-html-spec-101-ja copy-html-spec-101-en
+
+copy-html-spec-101-ja:
+	$(SSH) /bin/rm -rf ${WEBKOBE1}/html/OX-RFC-101-ja
+	-$(SSH) mkdir ${WEBKOBE1}/html
+	$(SSH) mkdir ${WEBKOBE1}/html/OX-RFC-101-ja
 	-(cd $(OpenXM_spec) ; cd tmp101JA; platex OX-RFC-101; platex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 )
-	-(cd $(OpenXM_spec) ; cd tmp101EN ; cp -rf OX-RFC-101 ${WEBKOBE1}/html/OX-RFC-101-en)
-	-(cd $(OpenXM_spec) ; cd tmp101JA ; cp -rf OX-RFC-101 ${WEBKOBE1}/html/OX-RFC-101-ja)
+	-(cd $(OpenXM_spec) ; cd tmp101JA ; $(RSYNC) OX-RFC-101 $(WHO):${WEBKOBE1}/html/OX-RFC-101-ja)
+
+copy-html-spec-101-en:
+	$(SSH) /bin/rm -rf ${WEBKOBE1}/html/OX-RFC-101-en
+	-$(SSH) mkdir ${WEBKOBE1}/html
+	$(SSH) mkdir ${WEBKOBE1}/html/OX-RFC-101-en
+	-(cd $(OpenXM_spec) ; make ; cd tmp101EN ; latex OX-RFC-101; latex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 )
+	-(cd $(OpenXM_spec) ; cd tmp101EN ; $(RSYNC) OX-RFC-101 $(WHO):${WEBKOBE1}/html/OX-RFC-101-en)
+
 copy-html-poster:
 	-mkdir ${WEBKOBE1}/html
 	/bin/rm -rf ${WEBKOBE1}/html/OpenXM-poster
