@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.1 2003/12/04 10:40:02 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.2 2003/12/06 03:10:37 takayama Exp $ */
 
 module oxshell;
 
@@ -7,6 +7,7 @@ localf oxshell$
 localf get_value$
 localf set_value$
 localf tfb_to_tree$
+localf facets$
 localf get_Sm1_proc$
 localf set_Sm1_proc$
 localf find_proc$
@@ -222,6 +223,47 @@ def sm1(P,F) {
 
 def sm1pop(P) {
   return(ox_pop_cmo(P));
+}
+
+
+def facets(A) {
+  if (type(A) != 4) error("oxshell.facets: argument must be a list.");
+  N = length(A);
+  for (I=0; I<N; I++) {
+   if (type(A[I]) != 4) error("oxshell.facts: argument must be a list of lists.");
+   if (A[I][0] != 1) error("oxshell.facets: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
+  }
+  S = ["FACETS","polymake.data(polymake.POINTS("+rtostr(A)+"))"];
+  SM1L_FIND_PROC(P);
+  ox_push_cmo(P,S);
+  sm1(P," doPolymake ");
+  R = ox_pop_cmo(P);
+  if (type(R) != 4) {
+    print(R);
+    ox_check_errors(P);
+    error("oxshell.facets");
+  }
+  if (length(R) != 3) {
+    print(R);
+    ox_check_errors(P);
+    error("oxshell.facets");
+  }
+  T = R[1];
+ 
+  TT=0;
+  PP=0;
+  N = length(T);
+  for (I=2; I<N; I++) {
+    D = T[I];
+    if (D[1] == "FACETS") {
+      TT = D[2]; 
+    }
+    if (D[1] == "POINTS") {
+      PP = D[2];
+    }
+  }
+  if ((TT == 0) || (PP==0)) error("oxshell.facets: no facets nor no points in data.");
+  return([PP,TT]);
 }
 
 

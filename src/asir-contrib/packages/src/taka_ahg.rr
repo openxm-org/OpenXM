@@ -1,0 +1,77 @@
+/* $OpenXM$ */
+
+module taka_ahg;
+
+/* ------------ list of local functions ---------- */
+localf b$
+localf toPrimitive$
+localf gcd_L$
+
+def gcd_L(L) {
+  if (length(L) == 0) return(0);
+  return gcd(L[0],gcd_L(cdr(L)));
+}
+
+def toPrimitive(A,F) {
+/*  A set of points, F is a facet. */
+  Nfacets = length(F);
+  NewF = [ ];
+  V=[]; Sign = 1;
+  for (I=0; I<Nfacets; I++) {
+    for (J=0; J<length(A); J++) {
+      Ip = matrix_inner_product(A[J],F[I]);
+      if ((Sign == -1) && (Ip < 0)) error("isPrimitive: broken facet data.");
+      if (Ip < 0) { Sign = -1; }
+      Ip = Sign*Ip;
+      V = cons(Ip,V);
+    }
+    G = gcd_L(V);
+    if (G != 1) {
+      FF=vtol(newvect(length(F[I]),F[I])/G);
+    }else FF=F[I];
+    NewF = cons(FF,NewF);
+  }
+  return reverse(NewF);
+}
+
+def b(A,Idx,V) {
+  F = oxshell.facets(A);
+  if (A != F[0]) error("b: points are sorted. Not implemented in this case.");
+  F = F[1];
+
+  P = A[Idx];
+
+  Nfacets = length(F);
+   
+  /* to primitive */
+  F = toPrimitive(A,F);
+  Bf = 1;
+  for (I=0; I<Nfacets; I++) {
+    H = matrix_inner_product(P,F[I]);
+    if (H != 0) {
+      B = matrix_inner_product(P,V);
+      for (J=0; J<H; J++) {
+        Bf = Bf*(B-J);  /* See Paper3/ip/ip2/hg.dvi [SST; compositio] */
+      }
+    }
+  } 
+  return(Bf);
+}
+
+endmodule$
+
+def test() {
+ A=[[1,0,0],[1,1,0],[1,0,1],[1,1,1],[1,2,0]];
+ print("A="); print(A); 
+ print("P=",0); print(0);
+ print(fctr(taka_ahg.b(A,0,[s1,s2,s3])));
+
+ print("P=",0); print(3);
+ print(fctr(taka_ahg.b(A,3,[s1,s2,s3])));
+
+ print("P=",0); print(4);
+ print(fctr(taka_ahg.b(A,4,[s1,s2,s3])));
+
+}
+
+end$
