@@ -41,6 +41,18 @@ def dmod_make_dv(V) {
   return Dv;
 }
 
+/* [x1,x2,...] -> [tx1,tx2,...] */
+def dmod_make_tv(V) {
+  if (type(V) != 4) {
+    error("parameter type error.");
+  }
+  Tv = [];
+  for (I = 0; I < length(V); I++) {
+    Tv = append(Tv, [strtov("t" + rtostr(V[I]))]);
+  }
+  return Tv;
+}
+
 def dmod_p_dn(Poly) {
 #if _DEBUG_Dmodule_
   print("polynomial: ", 0); print(Poly);
@@ -587,6 +599,7 @@ def dmod_euler2d(N, V) {
   }
   return D;
 }
+
 /* a -> a+n, b -> b+n, c1 -> c1+n, c2 -> c2+n */
 /* Param: List, [a,b,c1,c2] */
 /* Ns: List, [na,nb,nc1,nc2] */

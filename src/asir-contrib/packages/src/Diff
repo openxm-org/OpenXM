@@ -14,7 +14,8 @@
          ...
          [Dv0^N(F)] ] */
 
-Diff_ActList2 = [ newvect(2,[[x,[x,y]],newvect(1,[newvect(1,[x])])]) ]$
+Diff_ActList2 = [ newvect(2, [ [(1)/(x*y), [x,y]],
+			       newvect(1, [ newvect(1, [(1)/(x*y)]) ]) ]) ]$
 
 /*---------*/
 /* Utility */
@@ -60,7 +61,7 @@ def diff2_act(L, F, V) {
   if (N == length(Diff_ActList2)) {
     /* make Diff_ActList2[N]. */
     Diff_ActList2 = append(Diff_ActList2,
-			   [ newvect(2,[[F, V],newvect(1,[newvect(1,[F])])]) ]);
+			   [ newvect(2, [[F, V],newvect(1,[newvect(1,[F])])]) ]);
   }
   Table = Diff_ActList2[N];  /* a vetor of size 2 */
   /* calculate order of L. */
@@ -118,16 +119,17 @@ def diff_act_mono(D, F, V) {
 /* the return value of this function is reduced by using 'red()'. */
 def diff_act(L, F, V) {
 #if _OPTIMIZE_Diff_
-  if (length(V) == 2) {
+  if (length(V) == 2 && type(F) == 3) {
     return diff2_act(L, F, V);
   }
 #endif
 
   Lf = 0;
-  for (I = 0; I < length(L); I++) {
+  for (I = length(L) - 1; I >= 0; I--) {
     Lf += L[I][0]*diff_act_mono(L[I][1], F, V);
+    Lf = red(Lf);
   }
-  return red(Lf);
+  return Lf;
 }
 
 def diff_acts(L_list, F, V) {
