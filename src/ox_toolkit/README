@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.10 2000/03/10 12:24:38 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.11 2000/10/10 05:23:19 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -129,7 +129,7 @@ new_cmo_error2(cmo* ob);
 
 */
 /*&ja
-2.5 コネクション
+3. コネクション
 
 OXFILE は OpenXM での通信路を表現するクラスである。このクラスのオブジェ
 クトを明示的には生成しないこと。必ずコンストラクタを利用しなければなら
@@ -137,40 +137,66 @@ OXFILE は OpenXM での通信路を表現するクラスである。このクラスのオブジェ
 バイトオーダに関連した処理はこのクラスのメソッドで実現される。このクラ
 スのメソッドとして次のものが用意されている。
 
-2.5.1 コンストラクタ
+3.1 コンストラクタ
+
 OXFILE *oxf_connect_active(char *hostname, short port);
+
+能動的に接続する場合のコンストラクタ。通常、サーバで利用する。
+
 OXFILE *oxf_connect_passive(int listened);
+
+受動的に接続するためのコンストラクタ。
+内部で accept() を呼ぶので、listened には mysocketListen() の返した値が必要。
+
 OXFILE *oxf_open(int fd);
 
-2.5.2 認証に関連したメソッド
+インスタンスを生成するだけで、接続は行わない。すでにオープンされたファ
+イルディスクリプタを fd に指定する。計算サーバでの利用を想定。
+
+3.2 認証に関連したメソッド
+
 int  oxf_confirm_client(OXFILE *oxfp, char *passwd);
+
+クライアント側での認証を行う。返り値が1のときに成功、0のときに失敗。
+
 int  oxf_confirm_server(OXFILE *oxfp, char *passwd);
+
+サーバ側での認証を行う。常に成功する。
+
 void oxf_determine_byteorder_client(OXFILE *oxfp);
 void oxf_determine_byteorder_server(OXFILE *oxfp);
+
+oxfp の指す通信路でのバイトオーダを決定し、oxfp のインスタンスを書き換える。
+
 void oxf_setopt(OXFILE *oxfp, int mode);
 
-2.5.3 その他のメソッド
+oxfp の設定を行う。oxf_determine_byteorder_XXX() で用いられている。
+
+3.3 その他のメソッド
+
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 void oxf_flush(OXFILE *oxfp);
 void oxf_close(OXFILE *oxfp);
 
+fread, fwrite, fflush, fclose に準拠。
+
 */
 /*&ja
-3. 高水準 API(この記述は古いので使わないこと)
+4. 高水準 API(この記述は古いので使わないこと)
 
 高水準 API は「OpenXM クライアント」から利用することを前提に設計されている。
 
-3.1 通信の開始   
+4.1 通信の開始   
 
 通信を開始する場合には、次の関数のいずれかを利用する。
 */
 /*&en
-3. High-level API
+4. High-level API
 
 High-level API is prepared to help an implementation of OpenXM clients.
 
-3.1 How to make connections to OpenXM servers?
+4.1 How to make connections to OpenXM servers?
 
 In order to open a connection to an OpenXM server, you need to call
 ox_start() or to call ox_start_insecure_nonreverse().
@@ -208,13 +234,13 @@ OpenXM server run on a remote host and you need to provide port numbers.
 
 */
 /*&ja
-3.2 通信の終了
+4.2 通信の終了
 
 通信の終了のためには次の二つの関数が用意されている。
 
 */
 /*&en
-3.2 How to close connections to OpenXM servers?
+4.2 How to close connections to OpenXM servers?
 
 In order to close a connection to an OpenXM server, you need to call
 ox_close() or to call ox_shutdown().
@@ -232,10 +258,10 @@ void ox_shutdown(OXFILE *sv);
 
 */
 /*&ja
-3.3 SM コマンドの送信
+4.3 SM コマンドの送信
 */
 /*&en
-3.3 How to command to OpenXM stack machines?
+4.3 How to command to OpenXM stack machines?
 */
 /*&common
 
@@ -252,10 +278,10 @@ See OpenXM/include/ox_toolkit_tags.h for a list of operation codes.
 
 */
 /*&ja
-3.4 CMO の送受信
+4.4 CMO の送受信
 */
 /*&en
-3.4 How to receive a CMO?
+4.4 How to receive a CMO?
 */
 /*&common
 
@@ -273,7 +299,7 @@ ox_push_cmo は cmo を送信、ox_pop_cmo は cmo を受信する。ox_popString
 /*&en
 */
 /*&ja
-3.5 スタック処理
+4.5 スタック処理
 */
 /*&common
 
@@ -285,7 +311,7 @@ int ox_pops(OXFILE *sv, int num);
 
 */
 /*&ja
-3.6 通信路のフラッシュ
+4.6 通信路のフラッシュ
 */
 /*&common
 
@@ -297,7 +323,7 @@ int ox_flush(OXFILE *sv);
 
 */
 /*&ja
-3.7 通信の中断
+4.7 通信の中断
 */
 /*&common
 
@@ -309,7 +335,7 @@ void ox_reset(OXFILE *sv);
 
 */
 /*&ja
-3.8 ローカル言語で書かれたコマンドの評価
+4.8 ローカル言語で書かれたコマンドの評価
 */
 /*&common
 
@@ -321,7 +347,7 @@ void ox_execute_string(OXFILE *sv, char* str);
 
 */
 /*&ja
-3.9 関数呼び出し
+4.9 関数呼び出し
 */
 /*&common
 
@@ -333,7 +359,7 @@ function(argv[1], ...) を計算し、結果をスタックに積む。
 
 */
 /*&ja
-3.10 Mathcap の受信
+4.10 Mathcap の受信
 
 */
 /*&common
@@ -346,19 +372,19 @@ Mathcap を受け取る。現在は Mathcap の処理はユーザプログラムに任されている。
 */
 /*&ja
 
-4. 低水準 API
+5. 低水準 API
 
 低水準 API はファイルディスクリプタを直接利用する。
 
-4.1 通信に使われるバイトオーダの決定
+5.1 通信に使われるバイトオーダの決定
 */
 /*&en
 
-4. Low-level API.
+5. Low-level API.
 
 In this section, ``fd'' is an identifier of an OpenXM connection.
 
-4.1 How to decide a byte order of integers?
+5.1 How to decide a byte order of integers?
 
 */
 /*&common
@@ -379,7 +405,7 @@ as an expression for integers.
 */
 /*&common
 
-4.2 
+5.2 
 
 */
 /*&common
@@ -397,7 +423,7 @@ receive_int32() reads 32bits integer from an OpenXM connection.
 */
 /*&common
 
-4.3 
+5.3 
 
 */
 /*&common
@@ -415,7 +441,7 @@ receive_cmo() reads an CMObject from an OpenXM connection.
 */
 /*&common
 
-4.4
+5.4
 
 */
 /*&common
@@ -430,7 +456,7 @@ next_serial() generates a serial number for ox message.
 */
 /*&common
 
-4.5
+5.5
 
 */
 /*&common
@@ -450,7 +476,7 @@ receive_ox_tag() reads a tag and a serial number of an ox message.
 */
 /*&common
 
-4.6 Sending OX messages.
+5.6 Sending OX messages.
 
 */
 /*&common
@@ -465,12 +491,12 @@ OX メッセージを送信する。
 
 /*&ja
 
-5. OX expression パーサ
+6. OX expression パーサ
 
 */
 /*&en
 
-5. Parser for OX expressions
+6. Parser for OX expressions
 
 */
 /*&ja
@@ -484,11 +510,11 @@ encoded OX/CMO expression.  In this section, we explain the parser.
 */
 /*&en
 
-5.1 Setting an option
+6.1 Setting an option
 */
 /*&ja
 
-5.1 オプション
+6.1 オプション
 */
 /*&common
 
@@ -505,11 +531,11 @@ expressios.
 */
 /*&en
 
-5.2 Initializing
+6.2 Initializing
 */
 /*&ja
 
-5.2 初期化
+6.2 初期化
 */
 /*&common
 
@@ -524,11 +550,11 @@ We give the parser an OX/CMO expression, that is, a Lisp style string.
 */
 /*&en
 
-5.3 Getting an object
+6.3 Getting an object
 */
 /*&ja
 
-5.3 結果を得る
+6.3 結果を得る
 */
 /*&common
 
