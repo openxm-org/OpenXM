@@ -1,5 +1,5 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.6 1999/11/19 20:51:36 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.7 1999/11/23 02:03:14 ohara Exp $ 
 
 #
 PREFIX=/usr/local
@@ -40,6 +40,7 @@ ox.o:         ox.h oxtag.h parse.h mysocket.h
 parse.o:      ox.h oxtag.h parse.h
 serv1.o:      ox.h oxtag.h serv2.h
 serv2.o:      ox.h oxtag.h parse.h serv2.h
+mlo.o:        ox.h oxtag.h parse.h serv2.h
 testclient.o: ox.h oxtag.h
 
 libgmp.a:
@@ -59,11 +60,11 @@ bconv: bconv.o libox.a
 testclient: testclient.o libox.a
 	${CC} ${CFLAGS} -o $@ testclient.o ${LIBS}
 
-ox_math: serv1.o serv2.o libox.a
-	${CC} ${CFLAGS} -o $@ serv2.o serv1.o ${LIBS}
+ox_math: serv1.o serv2.o mlo.o libox.a
+	${CC} ${CFLAGS} -o $@ serv2.o serv1.o mlo.o ${LIBS}
 
-math2ox: math2ox.o math2.o serv2.o libox.a
-	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o ${LIBS}
+math2ox: math2ox.o math2.o mlo.o serv2.o libox.a
+	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o mlo.o ${LIBS}
 
 sample : sample.o libox.a
 	${CC} ${CFLAGS} -o $@ sample.o ${LIBS}
