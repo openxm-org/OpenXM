@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.1 2000/03/11 07:09:18 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.2 2000/03/16 07:57:31 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -11,45 +11,61 @@ $OpenXM: OpenXM/doc/OpenXM-web/index-packages.html,v 1.1 2000/03/11 07:09:18 tak
 <BODY>
 <H1>OpenXM Distribution by Packages</H1>
 
-<OL>
-<LI>General Installation Guide
+<H2>General Installation Guide  </H2>
+<LI>
 <A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-eg.txt">in English</A>,
+<LI>
 <A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-jp.txt">in Japanese</A>,
-</OL>
 
-<H2>FreeBSD 3 (RELEASE_1_1_2). Use "pkg_add" </H2>
 
-<LI> 
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-1.1.2.tgz"> The OpenXM package (Shift-Click)</A>].
-</OL>
 
-<H2>RPM (redhat package manager) (RELEASE_1_1_2). Use "rpm -i" </H2>
+<H2>FreeBSD 3 (RELEASE_1_1_2) INSTALLATION  </H2>
 
-You need both openxm-shared-1.1.2-test-noarch.rpm and
-openxm-binary-1.1.2-test-(YOUR CPU).rpm
-to run the OpenXM packages.
-
-<P>
-
-<LI>Architecture Independent Files (Library Files, Java Executables, Documents)
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-shared-1.1.2-test-noarch.rpm"> openxm-shared (Shift-Click)</A>].
-
-<LI> Binaries for i386 (Intel Pentium etc) (for libc 6 = glibc2)
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-test-i386.rpm"> Intel CPU  (Shift-Click) </A>].
-This distribution does not contain the support for Mathematica.
-<PRE>
-This binary is generated on the following environment:
+<LI> Become the super user and input as follows if your shell is csh:
+<FONT COLOR="#008080">
+<PRE> 
+  set path=(/usr/local/jdk1.1.8/bin $path)
+  rehash
+  pkg_add -r ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-1.1.2.tgz
 </PRE>
+</FONT>
+The package will be installed under /usr/local/OpenXM.
+You need to set /usr/local/lib/asir/asir_key following the opening message
+of the command asir.
+
+<H2>Linux RPM (redhat package manager) (RELEASE_1_1_2) INSTALLATION </H2>
+
+<LI>
+Become the super user and type in
+<FONT COLOR="#008080">
+<PRE>
+  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-shared-1.1.2-test.noarch.rpm
+  rpm -ivvh ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-test.i386.rpm
+  ln -s /  /var/tmp/openxm-binary-root
+</PRE>
+</FONT>
+The package will be installed under /usr/local/OpenXM.
+You need to set /usr/local/lib/asir/asir_key following the opening message
+of the command asir.
+
+
+<H2>FreeBSD 3 (RELEASE_1_1_2)  Download the package  </H2>
+<LI> openxm-1.1.2.tgz
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-1.1.2.tgz"> the OpenXM package (Shift-Click)</A>].
+
+
+<H2>Linux RPM (redhat package manager) (RELEASE_1_1_2) Download the packages</H2>
+<LI>Architecture Independent Files (Library Files, Java Executables, Documents)
+openxm-1.1.2-test.noarch.rpm
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-shared-1.1.2-test.noarch.rpm"> openxm-shared for Linux (Shift-Click)</A>].
 
 <LI> Binaries for i386 (Intel Pentium etc) (for libc 6 = glibc2)
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-mathematica-i386.rpm"> Intel CPU  (Shift-Click) </A>].
+openxm-1.1.2-test.i386.rpm
+[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/openxm-binary-1.1.2-test.i386.rpm"> Intel CPU  (Shift-Click) </A>].
 This distribution does contain the support for Mathematica.
 <PRE>
 This binary is generated on the following environment:
 </PRE>
-
-</OL>
-
 
 
 

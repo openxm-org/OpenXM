@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/index-binary.html,v 1.1 2000/03/11 07:09:17 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/index-binary.html,v 1.2 2000/03/16 04:29:00 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -11,54 +11,63 @@ $OpenXM: OpenXM/doc/OpenXM-web/index-binary.html,v 1.1 2000/03/11 07:09:17 takay
 <BODY>
 <H1>OpenXM Binary Distribution (tar+gzip format)</H1>
 
-You need both OpenXM-shared.tgz and OpenXM-binary-(YOUR OS)-(YOUR-CPU).tgz
+You need both 
+<FONT COLOR="#800000">
+OpenXM-shared.tgz 
+</FONT>
+and 
+<FONT COLOR="#800000">
+OpenXM-binary-(YOUR OS)-(YOUR-CPU).tgz
+</FONT>
 to run the OpenXM package.
 
-<H2>Architecture Independent Files (RELEASE_1_1_2)</H2>
-
-<OL>
-<LI>Installation Guide
+<H2> Installation Guide </H2>
+<LI>
 <A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-eg.txt">in English</A>,
+<LI>
 <A HREF="http://www.math.sci.kobe-u.ac.jp/OpenXM/1.1.2/install-jp.txt">in Japanese</A>,
+
+<H2>Architecture Independent Files (RELEASE_1_1_2)
+ OpenXM-shared.tgz </H2>
+
 <LI>Library Files, Java Class Files, Documents
 [<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/OpenXM-shared.tgz"> Library Files etc. (Shift-Click)</A>].
-</OL>
 
-<H2>Binaries (RELEASE_1_1_2)</H2>
 
-<LI>FreeBSD 3.3 
+<H2>Binaries (RELEASE_1_1_2) OpenXM-binary-*.tgz </H2>
+
+<LI>FreeBSD 3.3, i386.
 [<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/OpenXM-binary-FreeBSD3-i386.tgz">FreeBSD 3.3 (Shift-Click)</A>].
 This binary is generated on FreeBSD 3.3-RELEASE.
 This binary does not contain math2ox and ox_math (binary files to support Mathematica).
 
-<LI>Linux (libc 6)
+<LI>Linux (libc 6), i386.
 [<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/OpenXM-binary-Linux-i686.tgz"> Linux (glibc 2) (Shift-Click) </A>].
 There might be troubles on shared libraries. Please report.
-This binary does not contain math2ox and ox_math (binary files to support Mathematica).
-<PRE>
-This binary is generated on the following environment:
-</PRE>
-
-<LI>Linux (libc 6)
-[<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/OpenXM-binary-SunOS-sun4u.tgz"> Linux (glibc 2) (Shift-Click) </A>].
 This binary contains math2ox and ox_math (binary files to support Mathematica).
-There may be troubles on shared libraries. Please report.
-<PRE>
-This binary is generated on the following environment:
-</PRE>
-</OL>
 
 <LI>Solaris 2.5.1 SPARC
 [<A HREF="ftp://ftp.math.sci.kobe-u.ac.jp/pub/OpenXM/1.1.2/OpenXM-binary-SunOS-sun4u.tgz"> Solaris (Shift-Click) </A>].
 This binary contains math2ox and ox_math (binary files to support Mathematica).
-It does not contains an executable for PHC pack nor gnuplot.
+It does not contain an executable for PHC pack nor gnuplot.
 There might be troubles on shared libraries. Please report.
+
+<H2> Build machines </H2>
+The binaries are generated on the following environments:
+<LI> FreeBSD-i386
 <PRE>
-This binary is generated on the following environment:
-uname -a
-SunOS unkei.math.kobe-u.ac.jp 5.5.1 Generic sun4u sparc SUNW,Ultra-2
+   bash-2.03$ uname -a
+   FreeBSD orange.math.sci.kobe-u.ac.jp 3.4-STABLE FreeBSD 3.4-STABLE #0: 
+   Sun Mar  5 17:56:00 JST 2000     
+   okutani@orange.math.sci.kobe-u.ac.jp:/usr/src/sys/compile/SMP_SUPPORT  i386
 </PRE>
-</OL>
+<LI> Linux-i686
+<LI> SunOS-sun4u
+<PRE>
+   uname -a
+   SunOS unkei.math.kobe-u.ac.jp 5.5.1 Generic sun4u sparc SUNW,Ultra-2
+</PRE>
+
 
 
 
