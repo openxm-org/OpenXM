@@ -1,53 +1,41 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.122 2003/08/26 05:04:40 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.123 2003/09/02 03:35:56 takayama Exp $
 
-OpenXM_HOME=../../OpenXM
-OPENXM_CONTRIB=../../OpenXM_contrib
-OPENXM_CONTRIB2=../../OpenXM_contrib2
+OpenXM_HOME=..
+OpenXM_contrib=../../OpenXM_contrib
+OpenXM_contrib2=../../OpenXM_contrib2
 LIBDIR=../lib
 BINDIR=../bin
 RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
-all: configure all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
+all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep
 
 all-gc: 
-	@if test ! -f gc/.gc_make_done ; \
-	then \
-		(cd gc ; make all) ; \
-	fi 
-	@touch gc/.gc_make_done
+	(cd gc; make all)
 
 all-gmp: configure-gmp
-	-@if test ! -f gmp/.gmp_make_done ; then \
-		(cd gmp ; make) ; \
-	fi
-	@touch gmp/.gmp_make_done 
+	(cd gmp; make all)
 
-all-oxtoolkit: configure-oxtoolkit install-gmp install-gc configure-util
+all-oxtoolkit: configure-oxtoolkit install-gmp install-gc install-util
 	(cd ox_toolkit; make)
 
 all-oxc: configure-oxc install-oxtoolkit
 	(cd oxc; make)
 
-all-asir: configure-asir
-	@if test -d $(OPENXM_CONTRIB2) ; then \
-		(cd asir2000 ; make all) ; \
-	else \
-		echo -n "Warning: Asir source is not found. " ; \
-		echo "asir will not be compiled." ; \
-	fi
+all-asir: configure-asir install-pari
+	(cd asir2000 ; make all)
 
 all-gnuplot: configure-gnuplot
 	-(cd gnuplot ; make all)
 
-all-k097: configure-k097 all-kan96xx all-kxx
+all-k097: configure-k097 all-kan96xx all-kxx install-oxtags
 	(cd k097 ; make all)
 
-all-kan96xx: configure-kan96xx install-gc install-gmp
+all-kan96xx: configure-kan96xx install-gc install-gmp install-util install-oxtags
 	(cd kan96xx ; make all)
 
-all-kxx: configure-kxx all-kan96xx
+all-kxx: configure-kxx all-kan96xx install-util install-oxtags
 	(cd kxx ; make all)
 
 all-openmath:
@@ -76,60 +64,40 @@ all-tigers:
 	(cd tigers ; make all)
 
 all-fep:
-	-(cd ${OPENXM_CONTRIB2}/fep ; make all)
+	-(cd ${OpenXM_contrib2}/fep ; make all)
 
 
-all-misc :
+all-misc : install-util
 	(cd ../rc ; make repl)
 	(cd ../doc ; make all-install)
 	(cd ../doc ; make all-spec)
 
 all-rc:
 	(cd ../rc ; make )
+all-util: 
+	(cd util ; make all)
 
-install: install-asir install-gnuplot install-k097 install-kan96xx \
+install: install-oxtags install-util install-asir install-gnuplot \
+	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
-	 install-misc install-fep
+	 install-misc install-fep install-uuencoded 
 
+install-oxtags:
+	(cd ../doc/OpenXM-web ; make install-exec)
+
+install-util: all-util
+	(cd util; make install)
 
 install-gc : all-gc
-	-@if test ! -f gc/.gc_installed ; \
-	then \
-		if test ! -d ../lib ; then mkdir ../lib ; fi ; \
-		cp gc/gc.a ../lib/libgc.a ; \
-		if test ! -d ../include/gc ; then mkdir -p ../include/gc ; fi ; \
-		cp gc/include/gc.h gc/include/gc_cpp.h ../include/gc ; \
-	fi 
-	@touch gc/.gc_installed
-
-install-asir-gc : configure-asir
-	@if test ! -f gc/.asir-gc_installed ; \
-	then \
-		if test ! -d ../lib ; then mkdir ../lib ; fi ; \
-		(cd asir2000 ; make install-libasir-gc) ; \
-		rm -f ../lib/libgc.a ; \
-		ln -s ../lib/libasir-gc.a ../lib/libgc.a ; \
-		echo "libasir-gc.a (modifed for asir) is installed as libgc.a instead of libgc.a" ; \
-		touch gc/.asir-gc_installed ; \
-	fi
+	(cd gc; make install)
 
 
 install-gmp : all-gmp
-	@if test ! -f gmp/.gmp_installed ; \
-	then \
-		(cd gmp; make install-exec) ; \
-		(cd gmp; cp gmp.h ../../OpenXM/include) ; \
-	fi 
-	@touch gmp/.gmp_installed
+	(cd gmp; make install)
 
 install-asir: all-asir
-	@if test -d $(OPENXM_CONTRIB2) ; then \
-		(cd asir2000 ; make install) ; \
-	else \
-		echo -n "Warning: Asir source is not found. " ; \
-		echo "asir will not be installed." ; \
-	fi
+	(cd asir2000 ; make install) ; \
 
 install-gnuplot: all-gnuplot
 	-(cd gnuplot ; make install)
@@ -157,7 +125,7 @@ install-oxtoolkit: all-oxtoolkit
 install-oxc: all-oxc
 	(cd oxc; make install)
 
-install-oxmath: all-oxmath configure-util
+install-oxmath: all-oxmath 
 	-@if test -d /usr/local/mathematica ; then \
 		(cd ox_math ; make install) ; \
 	else \
@@ -176,7 +144,7 @@ install-phc: all-phc
 install-tigers: all-tigers
 	(cd tigers ; make install)
 
-install-asir-contrib: install-asir install-kxx
+install-asir-contrib: install-asir install-kxx install-util
 	(cd asir-contrib ; make install)
 
 install-asir-doc: install-asir
@@ -186,35 +154,39 @@ install-misc:
 	(cd ../rc ; make install.man)
 
 install-fep: all-fep
-	-(cd ${OPENXM_CONTRIB2}/fep ; make PREFIX=../../OpenXM install)
+	-(cd ${OpenXM_contrib2}/fep ; make PREFIX=../../OpenXM install)
 
 install-rc: all-rc
 	(cd ../rc ; make install)
 
+install-uuencoded:
+	(cd uuencoded ; make install)
+
 clean:
 	-rm ./.configure-links-done
-	-rm $(OPENXM_CONTRIB)/gmp/.gmp_*
-	-rm $(OPENXM_CONTRIB)/gc/.gc_*
-	-(cd $(OPENXM_CONTRIB)/gmp ; make clean)
-	(cd $(OPENXM_CONTRIB)/gc ; make clean ; /bin/rm -f *.a)
-	(cd asir2000 ; make clean)
-	(cd gnuplot ; make clean)
-	(cd k097 ; make clean)
-	(cd kan96xx ; make clean)
+	-rm ${OpenXM_contrib}/gmp/.gmp_*
+	-rm ${OpenXM_contrib}/gc/.gc_*
+	-(cd ${OpenXM_contrib}/gmp ; make clean)
+	-(cd ${OpenXM_contrib}/gc ; make clean ; /bin/rm -f *.a)
+	-(cd asir2000 ; make clean)
+	-(cd gnuplot ; make clean)
+	-(cd k097 ; make clean)
+	-(cd kan96xx ; make clean)
 	-(cd kxx ; make clean)
-	(cd OpenMath ; make clean)
+	-(cd OpenMath ; make clean)
 	-(cd ox_math ; make clean)
-	(cd pari ; make clean)
-	(cd phc ; make clean)
-	(cd tigers ; make clean)
-	(cd asir-doc ; make clean)
-	(cd asir-contrib ; make clean)
-	-(cd ${OPENXM_CONTRIB2}/fep ; make clean)
+	-(cd pari ; make clean)
+	-(cd phc ; make clean)
+	-(cd tigers ; make clean)
+	-(cd asir-doc ; make clean)
+	-(cd asir-contrib ; make clean)
+	-(cd ${OpenXM_contrib2}/fep ; make clean)
+	-(cd util ; make clean)
 
 distclean: clean
 	(cd uuencoded ; make distclean)
-	-(cd $(OPENXM_CONTRIB)/gmp ; make distclean)
-	(cd $(OPENXM_CONTRIB)/gc ; make clean ; /bin/rm -f *.a)
+	-(cd ${OpenXM_contrib}/gmp ; make distclean)
+	(cd ${OpenXM_contrib}/gc ; make clean ; /bin/rm -f *.a)
 	(cd asir2000 ; make distclean)
 	(cd gnuplot ; make distclean)
 	(cd kan96xx ; make distclean)
@@ -229,89 +201,36 @@ distclean: clean
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 
-configure: configure-links configure-include configure-bin configure-util \
-       configure-asir \
+configure: configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp
 
-configure-util: configure-directory
-	(cd util; make install)
+configure-gmp: 
+	(cd gmp; make configure)
 
-configure-include: configure-include-make-dir ../include/ox/cmotag.h ../include/ox/oxMessageTag.h ../include/ox/smCommand.h
-
-configure-include-make-dir:
-	@if test ! -d ../include ; \
-	then \
-	mkdir  ../include ; \
-	fi
-	@if test ! -d ../include/ox ; \
-	then \
-	mkdir  ../include/ox ; \
-	fi
-../include/ox/cmotag.h : ../doc/OpenXM-web/cmotag.h 
-	cp ../doc/OpenXM-web/cmotag.h ../include/ox 
-../include/ox/oxMessageTag.h : ../doc/OpenXM-web/oxMessageTag.h
-	cp ../doc/OpenXM-web/oxMessageTag.h ../include/ox 
-../include/ox/smCommand.h : ../doc/OpenXM-web/smCommand.h
-	cp ../doc/OpenXM-web/smCommand.h ../include/ox 
-
-configure-gmp: configure-links
-	@if test -f gmp/.gmp_configured ; \
-	then \
-	  echo "MESSAGE: gmp is already configured. (.gmp_configured) " ;  \
-	else \
-	  (cd gmp ; ./configure --prefix=`pwd`/../../OpenXM; touch .gmp_configured) ; \
-	fi 
-
-configure-asir: configure-directory configure-util
-	@if test -d $(OPENXM_CONTRIB2) ; then \
-		(cd asir2000 ; make configure) ; \
-	else \
-		echo -n "Warning: Asir source is not found. " ; \
-		echo "asir will not be compiled." ; \
-	fi
-
-configure-bin:
-	(cd uuencoded ; make configure)
+configure-asir: 
+	(cd asir2000 ; make configure) 
 
 configure-gnuplot:
 	-(cd gnuplot ; make configure)
 
-configure-k097: configure-links configure-util
+configure-k097:
 	(cd k097 ; ./configure)	
 
-configure-kan96xx: configure-links configure-util
+configure-kan96xx:
 	(cd kan96xx ; make configure)
 
-configure-kxx: configure-util
+configure-kxx: 
 	( cd kxx ; ./make-configure) 
 
-configure-links: configure-directory
-	-@if [ ! -f ./.configure-links-done ] ; then \
-	rm -f -r $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp ; \
-	(cd $(LIBDIR) ; ln -f -s ../src/k097 k097) ; \
-	(cd $(LIBDIR) ; ln -f -s ../src/kan96xx/Doc sm1) ; \
-	ln -f -s kan96xx SSkan ; \
-	ln -f -s $(BINDIR) bin ; \
-	ln -f -s $(OPENXM_CONTRIB)/gc gc ; \
-	ln -f -s $(OPENXM_CONTRIB)/gmp gmp ; \
-	mkdir ${OpenXM_HOME}/libexec ; \
-	touch ./.configure-links-done ;\
-	fi
-
-configure-directory:
-	-@if [ ! -d ../bin ] ; then \
-	mkdir ../bin ; \
-	fi
-
-configure-oxtoolkit: configure-include
+configure-oxtoolkit:
 	(cd ox_toolkit; ./make-configure)
 
-configure-oxc: configure-include
+configure-oxc: 
 	(cd oxc; ./make-configure)
 
-configure-oxmath: configure-include configure-directory
+configure-oxmath:
 	(cd ox_math; ./make-configure)
 
 configure-pari:
