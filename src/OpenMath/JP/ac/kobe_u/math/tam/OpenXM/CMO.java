@@ -39,7 +39,17 @@ abstract public class CMO{
   final public static int CMO_DMS_OF_N_VARIABLES = 25;
   final public static int CMO_RING_BY_NAME       = 26;
 
-  final public static int CMO_DISTRIBUTED_POLYNOMIAL = 31;
+  final public static int CMO_RECURSIVE_POLYNOMIAL       = 27;
+  final public static int CMO_DISTRIBUTED_POLYNOMIAL     = 31;
+  final public static int CMO_POLYNOMIAL_IN_ONE_VARIABLE = 33;
+
+  final public static int CMO_64BIT_MACHINE_DOUBLE           = 40;
+  final public static int CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  = 41;
+  final public static int CMO_128BIT_MACHINE_DOUBLE          = 42;
+  final public static int CMO_ARRAY_OF_128BIT_MACHINE_DOUBLE = 43;
+
+  final public static int CMO_BIGFLOAT          = 50;
+  final public static int CMO_IEEE_DOUBLE_FLOAT = 51;
 
   final public static int CMO_INDETERMINATE      = 60;
   final public static int CMO_TREE               = 61;
@@ -118,6 +128,9 @@ abstract public class CMO{
     case CMO_DISTRIBUTED_POLYNOMIAL:
       return new CMO_DISTRIBUTED_POLYNOMIAL().receiveByObject(is);
 
+    case CMO_BIGFLOAT:
+      return new CMO_BIGFLOAT().receiveByObject(is);
+
     case CMO_INDETERMINATE:
       return new CMO_INDETERMINATE().receiveByObject(is);
 
@@ -125,7 +138,7 @@ abstract public class CMO{
       return new CMO_TREE().receiveByObject(is);
 
     default:
-      System.out.println("Tam("+ a +")");
+      System.err.println("unknown CMO type("+ a +")");
     }
     return null;
   }

@@ -17,6 +17,7 @@ class OpenXMconnection{
   final public static int OX_COMMAND                  = 513;
   final public static int OX_DATA                     = 514;
   final public static int OX_SYNC_BALL                = 515;
+  final public static int OX_SECURED_DATA             = 521;
   final public static int OX_PRIVATE                  = 0x7fff0000;
 
   // byte order (support network byte order only)
