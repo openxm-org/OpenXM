@@ -1,9 +1,9 @@
-% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.3 2000/01/07 06:27:55 noro Exp $
+% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.4 2000/01/11 05:17:11 noro Exp $
 
 \section{Applications}
 \subsection{Distributed computation with homogeneous servers}
 
-OpenXM also aims at speedup by a distributed computation
+One of the aims of OpenXM is a parallel speedup by a distributed computation
 with homogeneous servers. As the current specification of OpenXM does
 not include communication between servers, one cannot expect
 the maximal parallel speedup. However it is possible to execute
@@ -48,28 +48,27 @@ network is used to implement OpenXM.
 
 The task of a client is the generation and partition of $P$, sending
 and receiving of polynomials and the synthesis of the result. If the
-number of servers is $L$ and the inputs are fixed, then the time to
-compute $F_j$ in parallel is proportional to $1/L$, whereas the time
-for sending and receiving of polynomials is proportional to $L$
+number of servers is $L$ and the inputs are fixed, then the cost to
+compute $F_j$ in parallel is $O(1/L)$, whereas the cost
+to send and receive polynomials is $O(L)$
 because we don't have the broadcast and the reduce
 operations. Therefore the speedup is limited and the upper bound of
 the speedup factor depends on the ratio of 
 the computational cost and the communication cost.
 Figure \ref{speedup} shows that 
-the speedup is satisfactory if the degree is large and the number of
-servers is not large, say, up to 10 under the above envionment.
+the speedup is satisfactory if the degree is large and $L$
+is not large, say, up to 10 under the above envionment.
+If OpenXM provides the broadcast and the reduce operations, the cost of 
+sending $f_1$, $f_2$ and gathering $F_j$ may be reduced to $O(log_2L)$
+and we will obtain better results in such a case.
 
-\subsubsection{Gr\"obner basis computation by various methods}
+\subsubsection{Competitive distributed computation by various strategies}
 
 Singular \cite{Singular} implements {\tt MP} interface for distributed
 computation and a competitive Gr\"obner basis computation is
-illustrated as an example of distributed computation.  However,
-interruption has not implemented yet and the looser process have to be
-killed explicitly. As stated in Section \ref{secsession} OpenXM
-provides such a function and one can safely reset the server and
-continue to use it.  Furthermore, if a client provides synchronous I/O
-multiplexing by {\tt select()}, then a polling is not necessary.  The
-following {\tt Risa/Asir} function computes a Gr\"obner basis by
+illustrated as an example of distributed computation.
+Such a distributed computation is also possible on OpenXM.
+The following {\tt Risa/Asir} function computes a Gr\"obner basis by
 starting the computations simultaneously from the homogenized input and
 the input itself.  The client watches the streams by {\tt ox\_select()}
 and The result which is returned first is taken. Then the remaining
