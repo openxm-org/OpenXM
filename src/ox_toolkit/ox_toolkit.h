@@ -1,13 +1,15 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.3 2000/10/11 08:22:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.4 2000/10/12 15:53:25 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
 #define _OX_TOOLKIT_H_
 
 #include <stdio.h>
-#include <gmp.h>  
-#include "ox_toolkit_tags.h"
+#include <gmp.h>
+#include <ox/cmotag.h>
+#include <ox/oxMessageTag.h>
+#include <ox/smCommand.h>
 
 #if !defined(__GNUC__) && !defined(__inline__)
 #define __inline__
