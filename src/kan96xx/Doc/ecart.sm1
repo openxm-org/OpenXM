@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.34 2004/09/13 11:24:10 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.35 2004/09/14 03:12:17 takayama Exp $ 
 (hol_loaded) boundp { }
 { [(parse) (hol.sm1) pushfile] extension } ifelse
 %[(parse) (appell.sm1) pushfile] extension
@@ -11,6 +11,9 @@
 /ecartd.gb.oxRingStructure [[ ] [ ] ] def
 /ecart.partialEcartGlobalVarX [ ] def
 
+/ecart.gb.verbose 1 def
+/ecart.message.quiet 0 def
+
 /ecartd.begin { 
   ecart.begin
   [(EcartAutomaticHomogenization) 1] system_variable
@@ -20,7 +23,6 @@
   [(EcartAutomaticHomogenization) 0] system_variable
 } def
 
-/ecart.message.quiet 0 def
 /ecart.message {
   ecart.message.quiet { pop } { message } ifelse
 } def
@@ -80,11 +82,11 @@
     } for 
 
     ecart.gb.verbose {
-      (ecart.setOpt:) message
-      (degreeShift=) messagen degreeShift message
-      $hdShift(startingShift)=$ messagen hdShift message
-      (sugar=) messagen ecart.useSugar message
-      (Other options=) messagen ans message
+      (ecart.setOpt:) ecart.message
+      (degreeShift=) ecart.messagen degreeShift ecart.message
+      $hdShift(startingShift)=$ ecart.messagen hdShift ecart.message
+      (sugar=) ecart.messagen ecart.useSugar ecart.message
+      (Other options=) ecart.messagen ans ecart.message
     } {  } ifelse
 
     /arg1 ans def
@@ -297,7 +299,6 @@
   (               not to dehomogenize and homogenize)
 ]] putUsages
 
-/ecart.gb.verbose 1 def
 %ecarth.gb  s(H)-homogenized outputs.  GG's original version of ecart gb.
 /ecarth.gb {
   /arg1 set
@@ -874,6 +875,7 @@
     
     [(KanGBmessage) ecart.gb.verbose ] system_variable
     $ecartd.gb dehomogenizes at each reduction step w.r.t. s (H).$ ecart.message
+   
 
     %%% Start of the preprocess
     v tag RingP eq {
@@ -1066,7 +1068,7 @@
     vv {toString} map /vv set
     vvGlobal isArray
     { } { [vvGlobal to_records pop] /vvGlobal set } ifelse
-    vvGlobal {toString} map /vv set
+    vvGlobal {toString} map /vvGlobal set
 
     vv vvGlobal setMinus /vv set
     vv { /tt set [@@@.Dsymbol tt] cat } map /dd set
@@ -1822,7 +1824,11 @@
      vv { /tt set [@@@.Dsymbol tt] cat } map /dvv set
      dvv { 1 } map /wv1 set
      vv { -1 } map dvv { 1 } map join /wv2 set
-     /arg1 [wv1 wv2 ] def
+     vv length 0 eq {
+       /arg1 [ ] def
+     } {
+       /arg1 [wv1 wv2 ] def
+     } ifelse
   ] pop
   popVariables
   arg1
@@ -1833,6 +1839,7 @@
   [/in-ecartd.isSameIdeal_h /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f
    /ecartd.isSameIdeal_h.opt
    /save-ecart.autoHomogenize  /wv /save-ecart.message.quiet
+   /vvGlobal  /rng
    ] pushVariables
   [(CurrentRingp) (Homogenize_vec)] pushEnv
   [
@@ -1840,20 +1847,32 @@
     gb.verbose { (Getting in ecartd.isSameIdeal_h) message } { } ifelse
     %% comparison of hilbert series has not yet been implemented.
     /save-ecart.message.quiet ecart.message.quiet def
-    aa length 3 eq {    }
+    aa length 3 eq , aa length 4 eq , or {    }
     { ([ii jj vv] ecartd.isSameIdeal_h) error } ifelse
     /ii aa 0 get def
     /jj aa 1 get def
     /vv aa 2 get def
+
+    aa length 4 eq {
+      /vvGlobal aa 3 get def
+      vvGlobal isString { [vvGlobal to_records pop] /vvGlobal set } 
+      { vvGlobal { toString } map /vvGlobal set } ifelse
+    } { /vvGlobal [ ] def } ifelse
+
     ii length 0 eq jj length 0 eq and 
     { /ans 1 def /LLL.ecartd.isSame_h goto } {  } ifelse
 
-    vv ecart.stdOrder /wv set
+    [vv vvGlobal] ecart.stdBlockOrder /wv set
+    vvGlobal length 0 eq {
+      /rng [vv wv ] def
+    }{
+      /rng [vv wv [(partialEcartGlobalVarX) vvGlobal]] def
+    } ifelse
 
     /save-ecart.autoHomogenize ecart.autoHomogenize def
     /ecart.autoHomogenize 0 def
-    [ii vv wv] ecartd.gb  /iigg set
-    [jj vv wv] ecartd.gb  /jjgg set
+    [ii] rng join  ecartd.gb  /iigg set
+    [jj] rng join ecartd.gb  /jjgg set
     save-ecart.autoHomogenize /ecart.autoHomogenize set
 
     iigg getRing ring_def
@@ -1874,7 +1893,7 @@
     0 1 n 1 sub {
       /k set
       iigg  k get 
-      [jjgg vv wv] ecartd.reduction 0 get
+      [jjgg] ecartd.reduction 0 get
       (0). eq not { /ans 0 def /LLL.ecartd.isSame_h goto} {  } ifelse
       gb.verbose { (o) messagen } {  } ifelse
     } for
@@ -1883,7 +1902,7 @@
     0 1 n 1 sub {
       /k set
       jjgg k get 
-      [iigg vv wv] ecartd.reduction 0 get
+      [iigg] ecartd.reduction 0 get
       (0). eq not { /ans 0 def /LLL.ecartd.isSame_h goto} {  } ifelse
       gb.verbose { (o) messagen } {  } ifelse
     } for
@@ -1902,10 +1921,112 @@
 [(ecartd.isSameIdeal_h)
 [([ii jj vv] ecartd.isSameIdeal_h bool)
  (ii, jj : ideal, vv : variables)
- $The ideals ii and jj will be compared in the ring h[0,1](D).$
+ $The ideals ii and jj will be compared in the ring h[0,1](D_0).$
  $ii and jj are re-parsed.$
  $Example 1: [ [((1-x) Dx + h)]  [((1-x)^2 Dx + h (1-x))] (x)] ecartd.isSameIdeal_h $
+ ([ii jj vv vvGlobal] ecartd.isSameIdeal_h bool)
+ $ Ideals are compared in Q(x')_0 [x''] <Dx',Dx'',h> $
+ (  where x'' is specified in vvGlobal.)
+ (cf. partialEcartGlobalVarX option)
 ]] putUsages
+
+/ecartd.isSameIdeal_noh {
+  /arg1 set
+  [/aa /ii /jj /iigg /jjgg /vv /ans /k /n /f
+   /ecartd.isSameIdeal_h.opt
+   /save-ecart.autoHomogenize  /wv /save-ecart.message.quiet
+   /vvGlobal  /rng
+   ] pushVariables
+  [(CurrentRingp) (Homogenize_vec)] pushEnv
+  [
+    /aa arg1 def
+    gb.verbose { (Getting in ecartd.isSameIdeal_noh) message } { } ifelse
+    %% comparison of hilbert series has not yet been implemented.
+    /save-ecart.message.quiet ecart.message.quiet def
+    aa length 3 eq , aa length 4 eq , or {    }
+    { ([ii jj vv] ecartd.isSameIdeal_noh) error } ifelse
+    /ii aa 0 get def
+    /jj aa 1 get def
+    /vv aa 2 get def
+
+    aa length 4 eq {
+      /vvGlobal aa 3 get def
+      vvGlobal isString { [vvGlobal to_records pop] /vvGlobal set } 
+      { vvGlobal { toString } map /vvGlobal set } ifelse
+    } { /vvGlobal [ ] def } ifelse
+
+    ii length 0 eq jj length 0 eq and 
+    { /ans 1 def /LLL.ecartd.isSame_h goto } {  } ifelse
+
+    [vv vvGlobal] ecart.stdBlockOrder /wv set
+    vvGlobal length 0 eq {
+      /rng [vv wv ] def
+    }{
+      /rng [vv wv [(partialEcartGlobalVarX) vvGlobal]] def
+    } ifelse
+
+    /save-ecart.autoHomogenize ecart.autoHomogenize def
+    /ecart.autoHomogenize 0 def
+    [ii] rng join  ecartd.gb  /iigg set
+    [jj] rng join ecartd.gb  /jjgg set
+    save-ecart.autoHomogenize /ecart.autoHomogenize set
+
+    iigg getRing ring_def
+
+    getOptions /ecartd.isSameIdeal_h.opt set
+
+    /ans 1 def
+    iigg 0 get /iigg set
+    jjgg 0 get /jjgg set
+    %%Bug: not implemented for the case of module.
+
+    /save-ecart.message.quiet ecart.message.quiet def
+    /ecart.message.quiet 1 def
+    gb.verbose { (Comparing) message iigg message (and) message jjgg message }
+    {  } ifelse
+    gb.verbose { ( ii < jj ?) messagen } {  } ifelse
+    iigg length /n set
+    0 1 n 1 sub {
+      /k set
+      iigg  k get 
+      [jjgg] ecartd.reduction_noh 0 get
+      (0). eq not { /ans 0 def /LLL.ecartd.isSame_noh goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    gb.verbose { ( jj < ii ?) messagen } {  } ifelse
+    jjgg length /n set
+    0 1 n 1 sub {
+      /k set
+      jjgg k get 
+      [iigg] ecartd.reduction_noh 0 get
+      (0). eq not { /ans 0 def /LLL.ecartd.isSame_noh goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    /LLL.ecartd.isSame_noh
+    gb.verbose { ( Done) message } {  } ifelse
+    save-ecart.message.quiet /ecart.message.quiet set
+    ecartd.isSameIdeal_h.opt restoreOptions 
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+[(ecartd.isSameIdeal_noh)
+[([ii jj vv] ecartd.isSameIdeal_noh bool)
+ (ii, jj : ideal, vv : variables)
+ $The ideals ii and jj will be compared in the ring D_0.$
+ $ii and jj are re-parsed.$
+ $Example 1: [ [((1-x) Dx + 1)]  [((1-x)^2 Dx + (1-x))] (x)] ecartd.isSameIdeal_noh $
+ ([ii jj vv vvGlobal] ecartd.isSameIdeal_noh bool)
+ $ Ideals are compared in Q(x')_0 [x''] <Dx',Dx''> $
+ (  where x'' is specified in vvGlobal.)
+ (cf. partialEcartGlobalVarX option, ecartd.reduction_noh, ecartd.isSameIdeal_h)
+ $Example 2: [ [(1-z) (1-x-y-z)]  [(1-x) (1-y)] (x,y,z) [(x)]] $
+ $            ecartd.isSameIdeal_noh $
+]] putUsages
+(ecartd.isSameIdeal_noh ) messagen-quiet
 
 /ecart.01Order {
   /arg1 set
@@ -1954,7 +2075,48 @@
  $Example 1: [ [((1-x) Dx + 1)] (x)] ecart.homogenize01Ideal $
 ]] putUsages
 
+% Example: [(x,y,z) (x)] ecart.stdBlockOrder 
+%            [[(Dy) 1 (Dz) 1] [(y) -1 (z) -1 (Dy) 1 (Dz) 1] [(x) 1 (Dx) 1]]
+% Example: [(x,y,z) [ ]] ecart.stdBlockOrder
+/ecart.stdBlockOrder {
+  /arg1 set
+  [/vv /vvGlobal /tt /dd /rr] pushVariables
+  [
+    /vv arg1 0 get def
+    /vvGlobal arg1 1 get def
+    {
+      vv isArray
+      { } { [vv to_records pop] /vv set } ifelse
+      vv {toString} map /vv set
+      vvGlobal isArray
+      { } { [vvGlobal to_records pop] /vvGlobal set } ifelse
+      vvGlobal {toString} map /vvGlobal set
 
+      vvGlobal length 0 eq {   
+         vv ecart.stdOrder /rr set exit
+      } {  } ifelse
+
+      vv vvGlobal setMinus /vv set
+      vv ecart.stdOrder /rr set
+
+      vvGlobal { /tt set [@@@.Dsymbol tt] cat } map /dd set
+      [[
+         0 1 vvGlobal length 1 sub {
+           /tt set
+           vvGlobal tt get , 1 
+         } for
+         0 1 dd length 1 sub {
+           /tt set
+           dd tt get , 1 
+         } for
+      ]] rr join /rr set
+      exit
+    } loop
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
 
 ( ) message-quiet 
 
