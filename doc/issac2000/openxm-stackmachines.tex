@@ -1,9 +1,9 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.2 2000/01/02 07:32:12 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.3 2000/01/03 04:27:52 takayama Exp $
 
-\section{OpenXM Stackmachines}   (Tamura)
+\section{OpenXM Stack machines}   (Tamura)
 
-In OpenXM specification, all servers are stackmachines.
-These are called OX stachmachines.
+In OpenXM specification, all servers are stack machines.
+These are called OpenXM stack machines.
 When a server ox\_xyz gets an OX data message,
 it translates the data into its own object and push the object
 on the stack.
@@ -13,7 +13,7 @@ of the system ox\_xyz is called the {\it phrase dictionary} of
 ox\_xyz following the OpenMath specification.
 
 Any OX command message starts with the int32 tag OX\_COMMAND.
-The body is OX stackmachine operation code expressed by int32.
+The body is OX stack machine operation code expressed by int32.
 The codes are listed below.
 \begin{verbatim}
 #define SM_popSerializedLocalObject               258
@@ -46,10 +46,10 @@ Each OpenXM server has its own mathematical operation set.
 Mathematical operations are performed as follows.
 Mathematical operator name, such as fctr (asir factorization command),
 is pushed as a string,
-the stackmachine command
+the stack machine command
 SM\_executeFunction (269) pops the operator name, the number of arguments
 and arguments, and
-the OX stackmachine evaluates the operator, and pushes the result on the stack.
+the OX stack machine evaluates the operator, and pushes the result on the stack.
 For example, the following code factorizes $x^{100}-1$ by calling
 ox\_asir from asir.
 \begin{verbatim}
