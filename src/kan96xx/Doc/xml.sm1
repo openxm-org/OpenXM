@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.1 1999/11/03 09:24:33 takayama Exp $
 %% xml.sm1  XML support for sm1.
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
@@ -58,6 +58,27 @@ tag 0 eq {
  (   xmlconnect )
  $   (12345).. xml :: $
  $   ( (x-1)^2 ). xml :: $ 
+]] putUsages
+
+/xml_to_cmo {
+  /arg1 set
+  [/in-xml_to_cmo /ob] pushVariables
+  [
+     /ob arg1 def
+     @@@.xml ob oxpushcmo
+     @@@.xml (OMXML2CMO) oxexec
+     @@@.xml oxpopcmo /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(xml_to_cmo)
+[(xml-string xml_to_cmo cmo)
+ (Example:   )
+ (   xmlconnect )
+ $   (<OMOBJ><OMI>5</OMI></OMOBJ>) xml_to_cmo :: $
+ $   ( (x-1)^2 ). xml /aa set $ 
+ $   aa xml_to_cmo :: $
 ]] putUsages
 
 
