@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #ifndef _MLO_H_
 
 #define _MLO_H_
