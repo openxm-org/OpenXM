@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*  work7/check.c  1996, 3/19 */
 /*   should move to SSkan/Kan/check.c */
 #include <stdio.h>

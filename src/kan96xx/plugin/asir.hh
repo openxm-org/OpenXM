@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 else if (strcmp(key,"Asir_ExecuteString") == 0) {
   if (size != 2) errorKan1("%s\n","[(Asir_ExecuteString)  string] extension result.");
   obj1 = getoa(obj,1);

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
   else if (strcmp(key,"start slaves")==0) {
     if (size != 3)
       errorKan1("%s\n","[(start slaves) (slave name) n] extension");

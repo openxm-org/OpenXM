@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;

@@ -1,4 +1,4 @@
-
+/* $OpenXM$ */
 
 /* rat.c: rational functions */
 #include <stdio.h>

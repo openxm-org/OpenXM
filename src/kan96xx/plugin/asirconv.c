@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #define NS (char *)NULL
 typedef enum {start,output,setdic,cleardic} prAction;

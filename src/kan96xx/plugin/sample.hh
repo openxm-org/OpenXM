@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* This file is included in Kan/ext.c */
 
 else if (strcmp(key,"sample")==0) {

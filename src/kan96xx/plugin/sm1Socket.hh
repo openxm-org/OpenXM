@@ -1,3 +1,4 @@
+/* $OpenXM$ */
   else if (strcmp(key,"sm1.socket") == 0) {
     if (size != 3)  {
       errorKan1("%s\n","[(sm1.socket) (key for sm1.socket) [ args ]] extension");

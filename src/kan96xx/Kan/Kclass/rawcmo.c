@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* Kclass/rawcmo.c   */
 #include <stdio.h>
 #include "../datatype.h"

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "pvm3.h"
 #define SLAVENAME "slave3"

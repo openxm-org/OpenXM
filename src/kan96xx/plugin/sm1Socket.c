@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* matrix.c */
 #include <stdio.h>
 #include "datatype.h"

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* size : success,  -1: error , -2 : do not use size field. */
 int cmoFindHeader(struct cmoBuffer *cb)
 {

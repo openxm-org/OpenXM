@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* kancmo.h */
 #define Kan_ExecuteString(s) KSexecuteString(s)
 #define Kan_Start()          KSstart()

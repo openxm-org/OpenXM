@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* op-codes for sample */
 #define KPLUGIN_SAMPLE_INIT 0
 #define KPLUGIN_SAMPLE_SELECT 1

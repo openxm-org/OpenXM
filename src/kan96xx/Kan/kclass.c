@@ -1,4 +1,4 @@
-
+/* $OpenXM$ */
 /* kclass.c,  1997, 3/1
    This module handles class data base.
    This is a top level and provides an interface for sm1 for Sclass objects.

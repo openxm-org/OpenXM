@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*  cmotag.h */
 /* #define     CMO   1024  It is defined in stackm.h. */
 /* Never Use 0 as a CMO tag. */

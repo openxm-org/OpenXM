@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* Kclass/indeterminate.c    */
 /* This file handles   indeterminate, tree, recursivePolynomial,
     polynomialInOneVariable

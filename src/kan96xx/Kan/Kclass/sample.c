@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* Kclass/sample.c   sample new class. */
 /* How to add a new class to sm1. 
    1. create a new file Kclass/newclass-name.c and change

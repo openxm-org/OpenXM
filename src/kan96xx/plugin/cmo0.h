@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*  cmo0.h */
 
 typedef enum {CMOINIT,CMOPUT,CMOGET,CMOFLUSH,

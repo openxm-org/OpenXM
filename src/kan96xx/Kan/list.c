@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* list.c */
 #include <stdio.h>
 #include "datatype.h"

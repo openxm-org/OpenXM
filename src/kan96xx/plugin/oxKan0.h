@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* ox_kan0.h */
 
 #define mymalloc(n) malloc(n)

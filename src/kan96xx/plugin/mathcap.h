@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #define MATHCAP_SIZE  1024
 struct mathCap {
   void *infop;

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* file2.h */
 
 #define MAGIC2 "Buffered IO by FILE2"

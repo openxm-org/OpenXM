@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*   stackmachin.c */
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 struct object test2(ob)  /* test2 */
 struct object ob;
 {

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* parserpass0.c */
 /*  In this preprocessor, for example, the expression
       x^2+y^2-4+x y;

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* gbGM.c  GM=Gebauer and Moller
 */
 

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include "gmp.h"
 
 /* GC */

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "../Kan/datatype.h"
 #include "../Kan/stackm.h"

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 struct object KsocketOpen(struct object obj);
 /* [  optional integer port default 0, optional string host default localhost]
    [ integer socketid, integer port ]

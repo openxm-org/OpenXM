@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 else if (strcmp(key,"fp2fdopen") == 0) {
   if (size != 2) errorKan1("%s\n","[(fp2fdopen)  obj] extension obj-fp2.");
   obj1 = getoa(obj,1);

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 #include "cmotag.h"
 #define BSIZE 1024

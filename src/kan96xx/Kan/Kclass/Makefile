@@ -1,3 +1,4 @@
+# $OpenXM$
 all : sample.o rawcmo.o indeterminate.o
 
 ## Change also ../Makekefile

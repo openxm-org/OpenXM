@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 else if (strcmp(key,"cmoObjectToCmo") == 0) {
   if (size != 2) errorKan1("%s\n","[(cmoObjectToCmo)  obj] extension cmo-obj.");
   obj1 = getoa(obj,1);

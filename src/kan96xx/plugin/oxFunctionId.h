@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* ox_function_id.h */
 /* If you add new add new SM_*,
    you also need to modify, KSmathcapByStruct()

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);

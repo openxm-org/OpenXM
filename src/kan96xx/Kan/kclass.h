@@ -1,4 +1,4 @@
-
+/* $OpenXM$ */
 
 /* kclass.h  1997, 3/1
    This module handles class data base.

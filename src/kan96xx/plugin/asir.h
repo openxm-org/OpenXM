@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 int Asir_ExecuteString(char *s);
 char *Asir_PopString(void);
 char *KasirKanConvert(char *s);

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <stdio.h>
 static long Total = 0;
 

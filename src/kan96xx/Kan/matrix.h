@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* 1992/09/21,
    The size of the matrix must be (m,n) and (m2,n2) respectively.
    They are older.
