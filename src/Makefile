@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.106 2001/05/20 09:19:16 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.107 2001/05/31 08:04:34 ohara Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -188,7 +188,7 @@ clean:
 	(cd asir-contrib ; make clean)
 
 distclean: clean
-	(cd $(BINDIR) ; make distclean)
+	(cd uuencoded ; make distclean)
 	-(cd $(OPENXM_CONTRIB)/gmp ; make distclean)
 	(cd $(OPENXM_CONTRIB)/gc ; make clean ; /bin/rm -f *.a)
 	(cd asir2000 ; make distclean)
@@ -245,7 +245,7 @@ configure-asir:
 	fi
 
 configure-bin:
-	(cd $(BINDIR) ; make configure)
+	(cd uuencoded ; make configure)
 
 configure-gnuplot:
 	-(cd gnuplot ; make configure)
