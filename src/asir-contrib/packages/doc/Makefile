@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.54 2004/03/05 15:56:40 ohara Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.55 2004/03/05 16:52:28 ohara Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -253,10 +253,10 @@ oxgnuplot-en.texi : gnuplot.oxweave
 	$(OXWEAVE) C en  <gnuplot.oxweave >oxgnuplot-en.texi
 
 ###sm1
-oxsm1-ja.texi : sm1.oxweave sm1-auto-ja.texi
+oxsm1-ja.texi : sm1.oxweave
 	$(RM) -f oxsm1-ja.texi
 	$(OXWEAVE) C ja  <sm1.oxweave >oxsm1-ja.texi
-oxsm1-en.texi : sm1.oxweave sm1-auto-en.texi
+oxsm1-en.texi : sm1.oxweave
 	$(RM) -f oxsm1-en.texi
 	$(OXWEAVE) C en  <sm1.oxweave >oxsm1-en.texi
 sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
