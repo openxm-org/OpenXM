@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.2 2003/12/10 12:17:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_ahg.rr,v 1.3 2003/12/11 01:52:53 takayama Exp $ */
 
 module taka_ahg;
 
 /* ------------ list of local functions ---------- */
 localf b$
+localf bb$
 localf toPrimitive$
 localf toPrimitive2$
 localf gcd_L$
@@ -81,8 +82,37 @@ def b(A,Idx,V) {
   } 
   return(Bf);
 }
+/* bb is almost idential with b. A is transposed. */
+def bb(A,Idx,V) {
+  A = matrix_transpose(A);
+  A = matrix_matrix_to_list(A);
+
+  F = oxshell.facets(A);
+  if (A != F[0]) error("bb: points are sorted. Not implemented in this case.");
+  F = F[1];
+
+  P = A[Idx];
+
+  Nfacets = length(F);
+   
+  /* to primitive */
+  F = toPrimitive2(P,F);
+  Bf = 1;
+  for (I=0; I<Nfacets; I++) {
+    H = matrix_inner_product(P,F[I]);
+    if (H != 0) {
+      B = matrix_inner_product(F[I],V);
+      for (J=0; J<H; J++) {
+        Bf = Bf*(B-J);  /* See Paper3/ip/ip2/hg.dvi [SST; compositio] */
+      }
+    }
+  } 
+  return(Bf);
+}
 
 endmodule$
+
+Loaded_taka_ahg=1$
 
 def test() {
  A=[[1,0,0],[1,1,0],[1,0,1],[1,1,1],[1,2,0]];

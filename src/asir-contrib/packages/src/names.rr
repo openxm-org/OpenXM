@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.80 2004/03/11 12:36:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.81 2004/03/11 22:15:42 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -38,6 +38,8 @@ load("taka_util.rr")$
 load("taka_pfp.rr")$
 load("taka_weyl.rr")$
 load("plucker.rr")$
+load("oxshell.rr")$
+load("taka_ahg.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
@@ -821,6 +823,17 @@ def util_v(V,L) {
   return(taka_indexed_variable(V,L));
 }
 
+/*&usage begin: a_hypergeometric_bfunction(A,V,S)
+  It returns the hypergeometric b-function.
+  {A} is the defining matrix of the hypergeometric system.
+  {V} is an integer, which indicates a direction.
+  {S} is a list of variables.
+  example: a_hypergeometric_bfunction([[1,1,1],[0,1,2]],0,[s1,s2]);
+end: */
+def a_hypergeometric_bfunction(A,V,S) {
+  OX_LOADFILE(Loaded_taka_ahg,"taka_ahg.rr");
+  return( taka_ahg.bb(A,V,S) );
+}
 end$
 
 

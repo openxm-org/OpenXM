@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.2 2003/12/06 03:10:37 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.3 2003/12/08 05:35:32 takayama Exp $ */
 
 module oxshell;
 
@@ -273,6 +273,101 @@ endmodule;
 def ox_shell(L) {
   oxshell.oxshell(L);
 }
+
+/* temporary put here. */
+module polymake;
+localf facets$
+localf gale_transform$
+localf volume$
+
+def facets(A) {
+  return oxshell.facets(A);
+}
+
+def gale_transform(A) {
+  if (type(A) != 4) error("polymake.gale_transform: argument must be a list.");
+  N = length(A);
+  for (I=0; I<N; I++) {
+   if (type(A[I]) != 4) error("polymake.facts: argument must be a list of lists.");
+   if (A[I][0] != 1) error("polymake.gale_transform: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
+  }
+  S = ["GALE_TRANSFORM","polymake.data(polymake.POINTS("+rtostr(A)+"))"];
+  oxshell.find_proc();
+  ox_push_cmo(P,S);
+  oxshell.sm1(P," doPolymake ");
+  R = ox_pop_cmo(P);
+  if (type(R) != 4) {
+    print(R);
+    oxshell.ox_check_errors(P);
+    error("polymake.gale_transform");
+  }
+  if (length(R) != 3) {
+    print(R);
+    oxshell.ox_check_errors(P);
+    error("polymake.gale_transform");
+  }
+  T = R[1];
+ 
+  TT=0;
+  PP=0;
+  N = length(T);
+  for (I=2; I<N; I++) {
+    D = T[I];
+    if (D[1] == "GALE_TRANSFORM") {
+      TT = D[2]; 
+    }
+    if (D[1] == "POINTS") {
+      PP = D[2];
+    }
+  }
+  if ((TT == 0) || (PP==0)) error("polymake.gale_transform: no gale_transform nor no points in data.");
+  return([PP,TT]);
+}
+
+def volume(A) {
+  if (type(A) != 4) error("polymake.volume: argument must be a list.");
+  N = length(A);
+  for (I=0; I<N; I++) {
+   if (type(A[I]) != 4) error("polymake.facts: argument must be a list of lists.");
+   if (A[I][0] != 1) error("polymake.volume: the first element must be 1. Example: [[1,0,0],[1,1,0],[1,0,1]]");
+  }
+  S = ["VOLUME","polymake.data(polymake.POINTS("+rtostr(A)+"))"];
+  oxshell.find_proc();
+  ox_push_cmo(P,S);
+  oxshell.sm1(P," doPolymake ");
+  R = ox_pop_cmo(P);
+  if (type(R) != 4) {
+    print(R);
+    oxshell.ox_check_errors(P);
+    error("polymake.volume");
+  }
+  if (length(R) != 3) {
+    print(R);
+    oxshell.ox_check_errors(P);
+    error("polymake.volume");
+  }
+  T = R[1];
+ 
+  TT=0;
+  PP=0;
+  N = length(T);
+  for (I=2; I<N; I++) {
+    D = T[I];
+    if (D[1] == "VOLUME") {
+      TT = D[2]; 
+    }
+    if (D[1] == "POINTS") {
+      PP = D[2];
+    }
+  }
+  if ((TT == 0) || (PP==0)) {
+     print(R);
+     error("polymake.volume: no volume nor no points in data.");
+  }
+  return([PP,TT]);
+}
+
+endmodule;
 
 end$
 
