@@ -1,0 +1,22 @@
+## $OpenXM$
+
+OpenXM_HOME=../..
+CC         = @CC@
+CFLAGS     = @CFLAGS@ -g -Wall -O2 -finline-functions -I${OpenXM_HOME}/src/ox_toolkit -I${OpenXM_HOME}/include
+LIBS       = @LIBS@ -L${OpenXM_HOME}/lib -lox -lgmp
+
+all: oxc
+
+oxc: oxc.o sm.o sm_ext.o
+	${CC} -o oxc oxc.o sm.o sm_ext.o ${LIBS}
+
+sm.o sm_ext.o : sm.h
+
+smtest: smtest.o sm.o sm_ext.o ${GETOPT}
+	${CC} -o smtest smtest.o sm.o sm_ext.o ${GETOPT} ${LIBS}
+
+clean:
+	-rm -f *.o *~ smtest oxc
+
+distclean: clean
+	-rm -f .configure_done configure config.cache config.log config.status Makefile
