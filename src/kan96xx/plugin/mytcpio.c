@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.6 2002/02/24 10:27:20 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.7 2002/10/20 07:58:18 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -139,6 +139,42 @@ socketAcceptLocal(int snum) {
     errorMsg1s("Error in closing the old socket.");
     return(-1);
   }
+  return(news);
+}
+
+/* It does not close the socket for listening. */
+socketAcceptLocal2(int snum) {
+  int s, news;
+  struct sockaddr peer;
+  int len;
+  int i;
+
+  SET_TCPIOERROR;
+  s = snum;
+  fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
+  len = sizeof(struct sockaddr);
+  if ((news = accept(s,&peer,&len)) < 0) {
+    errorMsg1s("Error in accept.");
+    return(-1);
+  }
+
+  len = sizeof(struct sockaddr);
+  getpeername(news,&peer,&len);
+  printf("len= %d\n",len);
+  for (i=0; i<len; i++) {
+    printf(" %x ",peer.sa_data[i]);
+  }
+  printf("\n");
+  if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
+      peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
+    fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
+  }else{
+    errorMsg1s("Authentication: The connection is not from the localhost.");
+    fprintf(stderr,"The connection is refused.");
+    return(-1);
+  }
+
+  fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
   return(news);
 }
 
