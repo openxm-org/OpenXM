@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.18 2000/03/13 02:54:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.19 2000/03/13 03:06:09 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -79,6 +79,7 @@ build-on-pear:
 	(PATH=/usr/local/${JDK}/bin:$(PATH) ; export PATH ; cd /usr/ports/math/openxm ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
 
 build-on-redhat: prepare-build-rpm clean-Generic-openxm-work
+	(cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} TAR_WORK=${TAR_WORK} tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Linux/RPM ; make build-binary-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
