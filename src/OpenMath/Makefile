@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.28 2000/03/15 17:58:05 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.29 2000/03/17 07:52:32 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -77,7 +77,7 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 TARGETS = OM2OXM.class OMproxy.class
 
 
-all:	clear configure OpenXM.jar $(TARGETS)
+all:	clean configure OpenXM.jar $(TARGETS)
 
 
 configure:
