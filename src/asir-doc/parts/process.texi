@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.10 2002/08/14 03:26:36 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.11 2002/09/03 02:15:35 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -525,7 +525,7 @@ input @code{quit}.
 * ox_flush::
 * ox_get_serverinfo::
 * generate_port try_bind_listen try_connect try_accept register_server::
-* ifplot conplot plot plotover::
+* ifplot conplot plot polarplot plotover::
 * open_canvas clear_canvas draw_obj draw_string::
 @end menu
 
@@ -799,7 +799,7 @@ ox_xterm*saveLines:1000
 \EG @item References
 @fref{ox_rpc ox_cmo_rpc ox_execute_string},
 @fref{ox_pop_cmo ox_pop_local},
-@fref{ifplot conplot plot plotover}
+@fref{ifplot conplot plot polarplot plotover}
 @end table
 
 \JP @node ox_launch_generic,,, 分散計算に関する関数
@@ -1887,11 +1887,12 @@ identifier @var{id} is returned.
 @fref{Mathcap}.
 @end table
 
-\JP @node ifplot conplot plot plotover,,, 分散計算に関する関数
-\EG @node ifplot conplot plot plotover,,, Functions for distributed computation
-@subsection @code{ifplot}, @code{conplot}, @code{plot}, @code{plotover}
+\JP @node ifplot conplot plot polarplot plotover,,, 分散計算に関する関数
+\EG @node ifplot conplot plot polarplot plotover,,, Functions for distributed computation
+@subsection @code{ifplot}, @code{conplot}, @code{plot}, @code{polarplot}, @code{plotover}
 @findex ifplot
 @findex conplot
+@findex polarplot
 @findex plot
 @findex plotover
 
