@@ -1,9 +1,9 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmo0.h,v 1.2 2000/01/16 07:55:46 takayama Exp $ */
 /*  cmo0.h */
 
 typedef enum {CMOINIT,CMOPUT,CMOGET,CMOFLUSH,
 	      CMOINITSTREAM,CMOGETBYTE,CMOERROR,CMOERROR2} cmoAction;
-typedef unsigned long int cmoint;
+typedef unsigned int cmoint;
 
 struct  cmoBuffer {
   int size;
