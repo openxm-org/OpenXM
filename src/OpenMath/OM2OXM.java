@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.3 1999/11/12 07:46:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.4 1999/11/12 08:07:56 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -223,7 +223,7 @@ final class OM2OXM implements Runnable{
       while((ch = is.read()) != '<' && ch != -1){
 	debug("debug: "+ch);
 	if(isSpace(ch)){
-	  String spaces = String.valueOf(ch);
+	  String spaces = String.valueOf((char)ch);
 
 	  while(isSpace(ch = is.read())){
 	    spaces += (char)ch;
