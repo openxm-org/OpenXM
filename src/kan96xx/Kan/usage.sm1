@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Kan/usage.sm1,v 1.2 2000/01/16 07:55:42 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Kan/usage.sm1,v 1.3 2000/06/08 08:35:03 takayama Exp $
 %% usage.sm1
 %%  [(key word)
 %%    [(   )
@@ -111,6 +111,7 @@
 
 [(ring_of_difference_operators)
  [ (string ring_of_difference_operators)
+   (!!! OBSOLETE !!!)
    (  )
    (This command has not been maintained since 1996. So, there may be)
    (troubles if it is used with new features of kan/sm1.)
@@ -146,6 +147,22 @@
  ]
 ] putUsages
 
+[(ring_of_differential_difference_operators)
+ [ ([string1 string2]  ring_of_differential_difference operators)
+   (This command is used to define a ring of differential-difference operators )
+   (with the macros define_ring, weight_vector and elimination_order.)
+   (string1 is a set of variables for differential operators.)
+   (string2 is a set of variables for difference operators.)
+   (The user cannot use the variable names h, e, H and E.)
+   (cf. show_ring, system_variable --- CurrentRing)
+   (    print_switch_status, switch_function)
+   (Example: [[(x,y) (s)] ring_of_differential_difference_operators )
+   (          [[(Es) 1] [(s) 1]] weight_vector 0] define_ring)
+   (         Dx and Dy are corresponding differential operators to the )
+   (         space variables x and y.  Try show_ring to see the commutation)
+   (         relations.)
+ ]
+] putUsages
 
 [(define_ring)
   [( [varlist ring_of_??? order characteristic options] define_ring)

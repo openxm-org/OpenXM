@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.6 2000/12/10 07:48:42 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.7 2000/12/29 07:19:38 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -257,6 +257,8 @@
   /arg1 set
   [/vars /n /i /xList /dList /param] pushVariables
   [
+     (This is an obsolete macro. Use ring_of_differential_difference_operators)
+      error 
      (mmLarger) (matrix) switch_function
      (mpMult)   (difference) switch_function
      (red@)     (module1) switch_function
@@ -278,6 +280,43 @@
 } def
 
 
+/ring_of_differential_difference_operators {
+  /arg1 set
+  [/vars /n /i /xList /dList /param /dvar /evar /vars2 ] pushVariables
+  [
+     /vars arg1 def
+     vars tag 6 eq not {
+       ( List is expected as the argument for ring_of_differential_difference_operators ) error
+     } { } ifelse
+     vars 0 get /dvar set
+     vars 1 get /evar set
+     (mmLarger) (matrix) switch_function
+     (mpMult)   (difference) switch_function
+     (red@)     (module1) switch_function
+     (groebner) (standard) switch_function
+     (isSameComponent) (x) switch_function
+
+     [dvar to_records pop] /vars set %[x y z]
+     vars reverse /xList set         %[z y x]
+
+     [evar to_records pop] /vars2 set %[s1 s2]
+
+     vars2 reverse  {@@@.Esymbol 2 1 roll 2 cat_n} map
+     xList 
+     join /xList set   %[Es2 Es1 z y x]
+
+     vars2 reverse
+     vars {@@@.Dsymbol 2 1 roll 2 cat_n} map
+     reverse join /dList set              %[s2 s1 Dz Dy Dx]
+     [(H)] xList join [@@@.esymbol] join /xList set
+     [(h)] dList join [@@@.Esymbol] join /dList set
+     [0 1 1 << vars2 length 1 add >>  << xList length >>
+        1 1 << vars2 length 1 add >> << xList length 1 sub >> ] /param set
+     [ xList dList param ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
 
 /reverse {
   /arg1 set

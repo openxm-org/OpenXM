@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3a.c,v 1.1 2002/02/04 07:58:28 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -314,14 +314,14 @@ void monomialMult_differential_difference(e,f,mt)
 }
 
 /* Note also that mpMult_diff assumes coefficients and Dx commutes each other*/
-POLY mpMult_diff(POLY f,POLY g)
+POLY mpMult_difference(POLY f,POLY g)
 {
   int k;
   POLY r,temp;
   mt_declare_locals()
   struct multTable *mt;
 
-  /* printf("mpMult_diff(%s,%s)\n",POLYToString(f,'*',1),POLYToString(g,'*',1)); */
+  /* printf("mpMult_difference(%s,%s)\n",POLYToString(f,'*',1),POLYToString(g,'*',1)); */
   
   if (f == POLYNULL || g == POLYNULL) return(POLYNULL);
   checkRing(f,g);

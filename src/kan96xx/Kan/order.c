@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.3 2000/06/09 08:02:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.4 2001/05/04 01:06:24 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -58,6 +58,7 @@ void showRing(level,ringp)
   int P;
   char *mtype;
   extern char *F_isSameComponent;
+  POLY f;
   fp = stdout;
 
   N=ringp->n; M = ringp->m; L = ringp->l; C = ringp->c;
@@ -92,9 +93,11 @@ void showRing(level,ringp)
     fprintf(fp,"\n");
     fprintf(fp,"where ");
     for (i=L; i<M; i++) {
-      fprintf(fp," %s %s - %s %s = %s, ",TransD[i],TransX[i],
-              TransX[i],TransD[i],
-              TransD[i]);
+      fprintf(fp," %s %s - %s %s = ",TransD[i],TransX[i],
+              TransX[i],TransD[i]);
+      f=ppSub(ppMult(cdd(1,i,1,ringp),cxx(1,i,1,ringp)),
+              ppMult(cxx(1,i,1,ringp),cdd(1,i,1,ringp)));
+      fprintf(fp," %s, ",POLYToString(f,'*',0));
     }
     fprintf(fp,"\n\n");
   }

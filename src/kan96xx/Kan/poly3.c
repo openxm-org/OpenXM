@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.4 2002/02/04 07:58:28 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -176,7 +176,7 @@ void monomialMult_diff(e,f)
 
 /* Note that you cannot call mpMult_diff recursively. */
 /* Note also that mpMult_diff assumes coefficients and Dx commutes each other*/
-POLY mpMult_diff_org(POLY f,POLY g)
+POLY mpMult_diff(POLY f,POLY g)
 {
   int k;
   POLY r,temp;
@@ -214,7 +214,7 @@ POLY mpMult_diff_org(POLY f,POLY g)
   return(r);
 }
 
-POLY mpMult_difference(POLY f,POLY g)
+POLY mpMult_difference_org(POLY f,POLY g)
 {
   POLY r;
   int m,l;
