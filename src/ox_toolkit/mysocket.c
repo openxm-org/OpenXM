@@ -1,10 +1,14 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.1 1999/12/09 22:44:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.2 2000/01/05 06:05:35 ohara Exp $ */
 /* 
-setsockopt()してオプションを設定後,
-socket, bind
-するとローカルポートが割り当てられる。
-その後, getsockname によってポート番号が求まる.
+Q: How to get a local port number?
+A: You do setsockopt() to set options and do socket(), bind().
+An OS set a local port for you.
+In order to get the local port, you need to do getsockname().
+(See [1] pp. 91, pp. 187 for detail)
+
+Reference
+[1] W. Richard Stevens, "UNIX Network Programming", 2nd ed. Vol. 1
 */
 
 #include <stdio.h>
