@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.8 2000/11/28 20:16:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.9 2000/12/03 21:46:52 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -30,7 +30,7 @@ mlo *receive_mlo_zz()
     mlo  *m;
 
     MLGetString(stdlink, &s);
-    fprintf(stderr, "--debug: MLO == MLTKINT (%s).\n", s);
+    fprintf(ox_stderr, "--debug: MLO == MLTKINT (%s).\n", s);
     m = (mlo *)new_cmo_zz_set_string(s);
     MLDisownString(stdlink, s);
     return m;
@@ -41,7 +41,7 @@ mlo *receive_mlo_string()
     char *s;
     mlo  *m;
     MLGetString(stdlink, &s);
-    fprintf(stderr, "--debug: MLO == MLTKSTR (\"%s\").\n", s);
+    fprintf(ox_stderr, "--debug: MLO == MLTKSTR (\"%s\").\n", s);
     m = (cmo *)new_cmo_string(s);
     MLDisownString(stdlink, s);
     return m;
@@ -55,13 +55,13 @@ cmo *receive_mlo_function()
     int  i,n;
 
     MLGetFunction(stdlink, &s, &n);
-    fprintf(stderr, "--debug: MLO == MLTKFUNC (%s[#%d]).\n", s, n);
+    fprintf(ox_stderr, "--debug: MLO == MLTKFUNC (%s[#%d]).\n", s, n);
     m = new_cmo_list();
     list_append((cmo_list *)m, new_cmo_string(s));
 
     for (i=0; i<n; i++) {
-        fprintf(stderr, "  --debug: arg[%d]\n", i);
-        fflush(stderr);
+        fprintf(ox_stderr, "  --debug: arg[%d]\n", i);
+        fflush(ox_stderr);
         ob = receive_mlo();
         list_append((cmo_list *)m, ob);
     }
@@ -103,12 +103,12 @@ cmo *receive_mlo_function_newer()
 
     MLGetFunction(stdlink, &s, &n);
 #ifdef DEBUG
-    fprintf(stderr, "--debug: MLO == MLTKFUNC, (%s[#%d])\n", s, n);
+    fprintf(ox_stderr, "--debug: MLO == MLTKFUNC, (%s[#%d])\n", s, n);
 #endif
     m = new_mlo_function(s);
     for (i=0; i<n; i++) {
-        fprintf(stderr, "--debug: arg[%d]\n", i);
-        fflush(stderr);
+        fprintf(ox_stderr, "--debug: arg[%d]\n", i);
+        fflush(ox_stderr);
         ob = receive_mlo();
         list_append((cmo_list *)m, ob);
     }
@@ -124,7 +124,7 @@ cmo *receive_mlo_symbol()
 
     MLGetSymbol(stdlink, &s);
 #ifdef DEBUG
-    fprintf(stderr, "--debug: MLO == MLTKSYM, (%s).\n", s);
+    fprintf(ox_stderr, "--debug: MLO == MLTKSYM, (%s).\n", s);
 #endif
     if(flag_mlo_symbol == FLAG_MLTKSYM_IS_INDETERMINATE) {
         ob = new_cmo_indeterminate(new_cmo_string(s));
@@ -143,7 +143,7 @@ int ml_init()
 
     if(MLInitialize(NULL) == NULL
        || (stdlink = MLOpen(argc, argv)) == NULL) {
-        fprintf(stderr, "Mathematica Kernel not found.\n");
+        fprintf(ox_stderr, "Mathematica Kernel not found.\n");
         exit(1);
     }
     return 0;
@@ -185,7 +185,7 @@ cmo *receive_mlo()
         return receive_mlo_string();
     case MLTKREAL:
         /* Yet we have no implementation of CMO_DOUBLE... */
-        fprintf(stderr, "--debug: MLO == MLTKREAL.\n");
+        fprintf(ox_stderr, "--debug: MLO == MLTKREAL.\n");
         MLGetString(stdlink, &s);
         return (cmo *)new_cmo_string(s);
     case MLTKSYM:
@@ -193,12 +193,12 @@ cmo *receive_mlo()
     case MLTKFUNC:
         return receive_mlo_function();
     case MLTKERR:
-        fprintf(stderr, "--debug: MLO == MLTKERR.\n");
+        fprintf(ox_stderr, "--debug: MLO == MLTKERR.\n");
         return (cmo *)make_error_object(ERROR_ID_FAILURE_MLINK, new_cmo_null());
     default:
-        fprintf(stderr, "--debug: MLO(%d) is unknown.\n", type);
+        fprintf(ox_stderr, "--debug: MLO(%d) is unknown.\n", type);
         MLGetString(stdlink, &s);
-        fprintf(stderr, "--debug: \"%s\"\n", s);
+        fprintf(ox_stderr, "--debug: \"%s\"\n", s);
         return (cmo *)new_cmo_string(s);
     }
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.18 2000/11/28 20:16:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.19 2000/12/03 21:57:59 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -40,9 +40,9 @@ void OX_get(int id)
     receive_ox_tag(ss[id]);
     c = receive_cmo(ss[id]);
 #ifdef DEBUG
-    fprintf(stderr, "ox message is received in OxGet[].\n");
+    fprintf(ox_stderr, "ox message is received in OxGet[].\n");
     print_cmo(c);
-    fflush(stderr);
+    fflush(ox_stderr);
 #endif
     send_mlo(c);
 	ml_flush();
@@ -113,7 +113,7 @@ int OX_start(char* s)
     }
 	if (++max_process < len_ss) {
 		ss[max_process] = ox_start(host, ctlserv, oxprog);
-		fprintf(stderr, "open (%s)\n", "localhost");
+		fprintf(ox_stderr, "open (%s)\n", "localhost");
 		return max_process;
 	}
 	return -1;
@@ -129,7 +129,7 @@ int OX_start_remote_ssh(char *s, char *host)
     }
 	if (++max_process < len_ss) {
 		ss[max_process] = ox_start_remote_with_ssh(oxprog, host);
-		fprintf(stderr, "open (%s)\n", host);
+		fprintf(ox_stderr, "open (%s)\n", host);
 		return max_process;
 	}
     return -1;
@@ -149,7 +149,7 @@ int OX_start_insecure(char *host, int portCtl, int portDat)
     
 	if (++max_process < len_ss) {
 		ss[max_process] = ox_start_insecure(host, portCtl, portDat);
-		fprintf(stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
+		fprintf(ox_stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
 		return max_process;
 	}
 
@@ -193,6 +193,8 @@ static int  ss_id_stream(int id)
 
 int main(int argc, char *argv[])
 {
+    ox_stderr_init(NULL);
+
     /* setting the OX parser */
     setflag_parse(PFLAG_ADDREV);
 	ss = new_sstack(20);
