@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.2 2000/03/04 04:00:48 takayama Exp $ */
+/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.3 2000/03/04 11:03:36 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -86,6 +86,7 @@ main() {
   LLL: ;
 
   }
+  printf("@dirrm OpenXM\n");
 }
 
 isExclude(char *s,char *pattern) {

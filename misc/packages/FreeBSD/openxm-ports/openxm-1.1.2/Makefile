@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.9 2000/03/04 08:04:58 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.10 2000/03/04 11:03:35 takayama Exp $
 
 ## For debugging. 
 #DISTDIR=$(HOME)/tmp
@@ -42,7 +42,10 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 ### already exist.
 ### Unfortunately, japanese/vfxdvik is empty (2000, 3/4).
 
-RUN_DEPENDS=    
+RUN_DEPENDS=/compat/linux/usr/i486-linux-libc5/lib/libc.so.5:${PORTSDIR}/emulators/linux_base \
+	    	/compat/linux/usr/bin/i386-redhat-linux-egcs:${PORTSDIR}/devel/linux_devtools \
+
+			 
 
 pre-install:
 	-/bin/rm -rf ${PREFIX}/OpenXM
