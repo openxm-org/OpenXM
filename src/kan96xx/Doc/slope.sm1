@@ -1,5 +1,10 @@
-% $OpenXM$
-(cohom.sm1) run (oxasir.sm1) run
+% $OpenXM: OpenXM/src/kan96xx/Doc/slope.sm1,v 1.1 2000/11/01 01:57:55 takayama Exp $
+(oxasir.sm1.loaded) boundp not {
+   [(parse) (oxasir.sm1)  pushfile] extension
+} { } ifelse
+(cohom.sm1.loaded) boundp not {
+   [(parse) (cohom.sm1)  pushfile] extension
+} { } ifelse
 $slope.sm1, computing the slopes of a D-ideal:  June 15, 2000$ message
 $                            (C) F.Castro-Jimenez, N.Takayama$ message
 $Imported commands:  slope $ message
@@ -748,3 +753,4 @@ $Imported commands:  slope $ message
 
 } def
 
+/slope.sm1.loaded 1 def
