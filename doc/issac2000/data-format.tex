@@ -1,11 +1,11 @@
-% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.3 2000/01/03 04:27:52 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/data-format.tex,v 1.4 2000/01/11 05:35:48 noro Exp $
 
 \section{Data Format}   (Ohara)
 
-OpenXM admits multiple math encodings such as OpenMath, MP, CMO
+OpenXM admits multiple mathematical encodings such as OpenMath, MP, CMO
 (Common Mathematical Object format).
 OpenXM itself does not exhibit a bias towards a particular encodings 
-as a main math data carrier and OpenXM compliant system do not need to
+as a main mathematical data carrier and an OpenXM compliant system do not need to
 implement all possible data formats.
 A server or a client does not necessarily implement full specifications
 of OpenXM. 
@@ -14,12 +14,15 @@ an unrecoverable error may occur.
 To avoid such a case OpenXM provides a scheme not
 to send an OX message unknown to peers. 
 It is realized by exchanging a list of
-supported CMO's, OpenXM stackmachine codes, and necessary extra informations. 
+supported CMO's, OpenXM stack machine codes, and necessary extra informations. 
 The list is called {\it mathcap}.
-Mathcap is also defined as a CMO and its elements are 32bit integers
-or strings.
+% Mathcap is also defined as a CMO and its elements are 32bit integers
+% or strings.
+Mathcap is also defined as a CMO and the CMO has a structure of a nest
+of lists.  its leafs of the end are also a CMO which tags with
+CMO\_INT32 or CMO\_STRING.
 
-Math encoding types of OX data are distinguished with tags
+Mathematical encoding types of OX data are distinguished with tags
 of OX messages.
 For example,
 an OX message with the tag 
@@ -28,11 +31,11 @@ An OX message with the tag
 OX\_DATA\_OPENMATH\_XML is followed by 
 an OpenMath XML string and its length.
 
-All OpenXM compliant systems should implement 7 primitive data types
+All OpenXM compliant systems should implement seven primitive data types
 of the CMO.
 These are used not only to express mathematical objects, but also
 indispensable to carry control informations such as mathcap.
-CMO is an original methematical data encoding system of the OpenXM project.
+CMO is an original mathematical data encoding system of the OpenXM project.
 Let us explain the data format of CMO.
 Any CMO packet consists of a header and a body.
 The size of the header is 4 bytes that tags the data type of the body.
@@ -75,55 +78,51 @@ The first seven types should be implemented on all OpenXM compliant systems.
 The format of the first seven CMO's are as follows. \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_ERROR2} & {\sl CMObject} {\rm ob} \\ 
+{\sl int32} {\tt CMO\_ERROR2} & {\sl CMObject} {\rm ob} \\ 
 \hline
 \end{tabular} \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_NULL}  \\ 
+{\sl int32} {\tt CMO\_NULL}  \\ 
 \hline
 \end{tabular} \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_INT32}& {\tt int32} {\rm n}  \\ 
+{\sl int32} {\tt CMO\_INT32}& {\sl int32} {\rm n}  \\ 
 \hline
 \end{tabular} \\
 \begin{tabular}{|c|c|c|}
 \hline
-{\tt int32 CMO\_DATUM}& {\tt int32} {\rm n} & {\tt byte} {\rm  data[0]} \\
+{\sl int32} {\tt CMO\_DATUM}& {\sl int32} {\rm n} & {\sl byte} {\rm  data[0]} \\
 \hline
-$\cdots$ & {\tt byte} {\rm  data[n-1]} \\ 
+$\cdots$ & {\sl byte} {\rm  data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
 \begin{tabular}{|c|c|c|}
 \hline
-{\tt int32 CMO\_STRING}& {\tt int32} {\rm n} & {\tt byte} {\rm data[0]} \\
+{\sl int32} {\tt CMO\_STRING}& {\sl int32} {\rm n} & {\sl byte} {\rm data[0]} \\
 \hline
-$\cdots$ & {\tt byte} {\rm data[n-1]} \\ 
+$\cdots$ & {\sl byte} {\rm data[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
 \begin{tabular}{|c|c|}
 \hline
-{\tt int32 CMO\_MATHCAP} & {\it CMObject} {\rm ob} \\ 
+{\sl int32} {\tt CMO\_MATHCAP} & {\sl CMObject} {\rm ob} \\ 
 \hline
 \end{tabular} \\
 \begin{tabular}{|c|c|c|}
 \hline
-{\tt int32 CMO\_LIST}& {\tt int32} {\rm n} & {\tt CMObject} {\rm ob[0]} \\
+{\sl int32} {\tt CMO\_LIST}& {\sl int32} {\rm n} & {\sl CMObject} {\rm ob[0]} \\
 \hline
-$\cdots$ & {\tt CMObject} {\rm ob[n-1]} \\ 
+$\cdots$ & {\sl CMObject} {\rm ob[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
-
 
 A mathematical programmer who wants to implement CMO on a server proceeds 
 as follows.
 \begin{enumerate}
 \item Look for the CMO list at the web cite \cite{openxm-web}.
-If there is a CMO tht fits to her or his requirement, then use this CMO.     
+If there is a CMO that fits to her or his requirement, then use this CMO.     
 \item If there is no suitable CMO, design a new CMO and register 
 the new CMO to \cite{openxm-web} with a description and examples.
 \end{enumerate}
-
-
-
