@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.26 2001/05/20 07:48:17 takayama Exp $
+##  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.27 2001/12/24 00:49:56 takayama Exp $
 
 ## Type in make configure and make all to build all
 TOPDIR=../../../OpenXM
@@ -100,7 +100,7 @@ clean-binary :
 install-openXM-bin: install-bin-OpenXM  #alias
 
 install-bin-OpenXM: clean-for-debug
-	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	if [ "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  rm -f $(OpenXM_bin)/sm1.exe ; \
 	  cp Kan/sm1.exe $(OpenXM_bin) ; \
 	else \
@@ -108,7 +108,7 @@ install-bin-OpenXM: clean-for-debug
 	fi
 
 install-for-debug :
-	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	if [ "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  ln -f -s ../src/kan96xx/Kan/sm1.exe $(OpenXM_bin)/sm1.exe ; \
 	else \
 	  ln -f -s ../src/kan96xx/Kan/sm1 $(OpenXM_bin)/sm1 ; \
