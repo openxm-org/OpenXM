@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.6 2002/10/28 08:57:28 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.7 2002/10/28 23:55:57 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -14,10 +14,11 @@ def
 
 %%******* Put initialization codes for ox_asir here. 
 /httpd.initialization
- [
+ [(if(1){)
   (XM_debug=0; ctrl("debug_window",0); Xm_noX=1;)
   ("Asirweb version 0.80. "+
    " Risa/Asir oxasir version "+rtostr(version());)
+  (};)
  ] cat
 def
 
@@ -217,7 +218,7 @@ oxNoX
   } ifelse
    (<INPUT TYPE=submit VALUE="submit">) sendln
    [(<textarea name=) httpd.textarea.name 
-    ( rows=10 cols="80" wrap="soft"></textarea>)] cat sendln
+    ( rows=7 cols="80" wrap="soft"></textarea>)] cat sendln
    (</FORM>) sendln
 
   (Input example---factorization:<font color="blue"> fctr(x^3-1)</font>) sendln
@@ -347,7 +348,8 @@ oxNoX
   arg1
 } def
 /httpd.refusedCommands 
-   [(shell) (eval_str) (ox_) (sm1_) (m_) 
+   [(shell) (eval_str) (ox_) (sm1_)  
+    (m_start) (m_N_) (m_Inverse) (m_TexForm) %(m_) 
     (connect) (load)  (bload) (bsave) 
     (end) (quit) (output) (bload27) (open)
     (plot) (ctrl) (debug) (error) (port) (bind) (accept)
