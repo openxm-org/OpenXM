@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001/data-format.tex,v 1.1 2001/03/07 02:42:10 noro Exp $
 
 \section{Data Format}   
 
@@ -17,7 +17,7 @@ an unrecoverable error may occur.
 By exchanging mathcaps, a program knows its peer's capability 
 and such an error can be avoided.
 Mathcap is also defined as a CMO.
-See \cite{noro-takayama} for the details.
+See \cite{ox-rfc-100} for the details.
 
 Encoding types of OX data are distinguished with tags
 of OX messages.
@@ -108,8 +108,18 @@ $\cdots$ & {\sl byte} {\rm data[n-1]} \\
 $\cdots$ & {\sl CMObject} {\rm ob[n-1]} \\ 
 \cline{1-2}
 \end{tabular} \\
-
-As to the formats of other CMO's, see \cite{noro-takayama}.
+CMO's can be expressed in terms of XML.
+For example, {\tt CMO\_INT32} $1234$ can be expressed by
+{\footnotesize
+\begin{verbatim}
+<cmo>
+ <cmo_int32>
+   <int32> 1234 </int32>
+ </cmo_int32>
+</cmo>
+\end{verbatim}
+}
+As to the formats of other CMO's and XML, see \cite{ox-rfc-100}.
 
 When one wants to implement CMO on a server, the person proceeds 
 as follows.

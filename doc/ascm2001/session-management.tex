@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001/session-management.tex,v 1.1 2001/03/07 02:42:11 noro Exp $
 
 \section{Session Management}
 \label{secsession}
@@ -31,7 +31,7 @@ are necessary for interactive distributed computation.
 %skip the byte order conversion because its cost is often dominant over
 %fast networks.
 
-\subsection{Invocation of servers}
+\subsection{Invocation of servers by OpenXM-RFC 100}
 \label{launcher}
 
 An application called {\it launcher} is provided to start servers
@@ -65,6 +65,13 @@ order. Nevertheless it is necessary to negotiate the byte order to
 skip the byte order conversion because its cost is often dominant over
 fast networks.
 
+\subsection{Invocation of servers by OpenXM-RFC 101}
+OpenXM-RFC 101 \cite{ox-rfc-101} gives more secure and
+efficient way to start servers.
+It uses ``ssh'' to launch a control server and 
+the control server can launch one or more than one
+engines.
+See \cite{oc-rfc-101} for details.
 
 \subsection{Control server}
 \label{control}
