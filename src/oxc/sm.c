@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/oxc/sm.c,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 #include <ox_toolkit.h>
 #include "sm.h"
 
-/* WARNING: you must be use stack[stack_ptr]. */
+/* WARNING: you must NOT use stack[stack_ptr]. */
 
 static cmo **stack = NULL;
 static int stack_ptr = 0;
