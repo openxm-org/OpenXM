@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.5 2000/02/02 03:30:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.6 2000/03/20 01:53:47 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -71,6 +71,7 @@ int oxGet(oxclientp client, struct object *op,int *isObj)
 int oxGetFromControl(oxclientp client)
 {
   int ans = -1;
+  AbortIfRFC_101(client);
   if (client->cstate != -1) {
     ans = oxGetResultOfControlInt32(client->controlfd);
     if (ans != -1) {    client->cstate = 0; }
@@ -86,6 +87,7 @@ int oxReq(oxclientp client,int func,struct object ob)
   /* request to the control channel */
   if (func == SM_control_reset_connection ||
       func == SM_control_kill) {
+	AbortIfRFC_101(client);
     switch(func) {
     case SM_control_reset_connection:
       oxReqControlResetConnection(client->controlfd);
@@ -972,4 +974,72 @@ errorOxmisc2(char *s) {
   SET_MYERROROUT;  
   fprintf(MyErrorOut,"error in oxmisc2.c: %s\n",s);
   errorKan1("%s\n","  ");
+}
+
+struct object KoxPushCMD(struct object client,struct object cmd) {
+  int ans;
+  static oxclientp cc1 = NULL;
+  struct object rob;
+  rob.tag = Snull;
+  if (cc1 == NULL) {
+    cc1 = (oxclientp) mymalloc(sizeof(oxclient));
+    if (cc1 == NULL) {
+      errorOxmisc2("KoxReq(): no more memory.");
+      return(rob);
+    }
+    oxInitClient(cc1);  /* BUG: is it fine? */
+  }
+
+  if (oxObjectToClient(client,cc1) == -1) return(rob);
+  if (cc1 == NULL) {
+    errorOxmisc2("KoxReq(): the first argument must be a client object.");
+    return(rob);
+  }
+  if (cmd.tag != Sinteger) {
+    errorOxmisc2("KoxReq(): the second argument must be an integer.");
+    return(rob);
+  }
+  /* BUG: check the mathcap */
+  oxSendOXheader(cc1->datafp2,OX_COMMAND,SerialOX++);
+  oxSendInt32(cc1->datafp2,KopInteger(cmd));
+  /* synchronize cc1 and client. */
+  oxClientToObject(cc1,client);
+  return(cmd);
+}
+
+struct object KoxPushCMO(struct object client,struct object ob) {
+  int ans;
+  static oxclientp cc1 = NULL;
+  struct object rob;
+  rob.tag = Snull;
+  if (cc1 == NULL) {
+    cc1 = (oxclientp) mymalloc(sizeof(oxclient));
+    if (cc1 == NULL) {
+      errorOxmisc2("KoxReq(): no more memory.");
+      return(rob);
+    }
+    oxInitClient(cc1);  /* BUG: is it fine? */
+  }
+
+  if (oxObjectToClient(client,cc1) == -1) return(rob);
+  if (cc1 == NULL) {
+    errorOxmisc2("KoxReq(): the first argument must be a client object.");
+    return(rob);
+  }
+
+  /* request to the data channel */
+  if (cc1->dstate != DSTATE_ANY) {
+    errorOxmisc2("oxPushCMO: cc1->dstate != DSTATE_ANY, data channel is not ready to send data.\n");
+    return(rob);
+  }
+
+  if (!cmoCheckMathCap(ob,(struct object *)cc1->mathcapObjp)) {
+	errorOxmisc2("oxPushCMO: your peer does not understand this cmo.\n");
+	return(rob);
+  }
+  oxSendOXheader(cc1->datafp2,OX_DATA,SerialOX++);
+  cmoObjectToStream2(ob,cc1->datafp2);
+  /* synchronize cc1 and client. */
+  oxClientToObject(cc1,client);
+  return(ob);
 }

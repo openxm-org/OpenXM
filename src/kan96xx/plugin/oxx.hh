@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.2 1999/11/18 00:54:17 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.3 2000/02/24 12:33:48 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
@@ -100,6 +100,24 @@ else if (strcmp(key,"oxPrintMessage") == 0) {
       errorKan1("%s\n","[(oxPrintMessge) level] extension obj, integer level");
     OXprintMessage = KopInteger(obj1);
     rob = KpoInteger(OXprintMessage);
+  }
+}
+else if (strcmp(key,"oxPushCMD") == 0) {
+  if (size == 3) {
+    lockCtrlCForOx();
+    rob = KoxPushCMD(getoa(obj,1),getoa(obj,2)); 
+    unlockCtrlCForOx();
+  }else {
+    errorKan1("%s\n","[(oxPushCMD) client SM_id] extension result.");
+  }
+}
+else if (strcmp(key,"oxPushCMO") == 0) {
+  if (size == 3) {
+    lockCtrlCForOx();
+    rob = KoxPushCMO(getoa(obj,1),getoa(obj,2));
+    unlockCtrlCForOx();
+  }else {
+    errorKan1("%s\n","[(oxPushCMO) client obj] extension result.");
   }
 }
 

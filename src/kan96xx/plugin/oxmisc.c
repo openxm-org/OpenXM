@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.6 2000/09/08 16:08:42 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.7 2000/09/08 17:30:50 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -24,7 +24,7 @@ FILE *MyErrorOut = NULL;
 
 #define READBUFSIZE 5000
 
-int OxVersion = 199909080;
+int OxVersion = 200012030;
 int UseOXPacketSerial = 1;
 int SerialOX = 1;
 extern int Quiet;
@@ -517,28 +517,32 @@ int oxclientMultiSelect(oxclientp clients[],int dataready[],
       fd = (fd<humanfd?humanfd:fd);
       FD_SET(humanfd,&readfds);
       if (oxSocketSelect0(humanfd,0)) {
-	ddd = dataready[i] = 1; controlready[i] = 0;
+		ddd = dataready[i] = 1; controlready[i] = 0;
       }else{
-	dataready[i] = 0; controlready[i] = 0;
+		dataready[i] = 0; controlready[i] = 0;
       }
     }else{
-      fd = (fd<clients[i]->controlfd?clients[i]->controlfd:fd);
-      FD_SET(clients[i]->controlfd,&readfds);
-      if (oxSocketSelect0(clients[i]->controlfd,0)) {
-	ddd = controlready[i] = 1;
-      }else{
-	controlready[i] = 0;
-      }
+	  if (clients[i]->controlport < 0) { /* For RFC_101 */
+		controlready[i] = 0;  
+	  }else{
+		fd = (fd<clients[i]->controlfd?clients[i]->controlfd:fd);
+		FD_SET(clients[i]->controlfd,&readfds);
+		if (oxSocketSelect0(clients[i]->controlfd,0)) {
+		  ddd = controlready[i] = 1;
+		}else{
+		  controlready[i] = 0;
+		}
+	  }
       if (clients[i]->datafp2 != NULL) {
-	fd = (fd<clients[i]->datafp2->fd?clients[i]->datafp2->fd:fd);
-	FD_SET(clients[i]->datafp2->fd,&readfds);
-	if (fp2select(clients[i]->datafp2,0)) {
-	  ddd = dataready[i] = 1;
-	}else{
-	  dataready[i] = 0;
-	}
+		fd = (fd<clients[i]->datafp2->fd?clients[i]->datafp2->fd:fd);
+		FD_SET(clients[i]->datafp2->fd,&readfds);
+		if (fp2select(clients[i]->datafp2,0)) {
+		  ddd = dataready[i] = 1;
+		}else{
+		  dataready[i] = 0;
+		}
       }else{
-	dataready[i] = 0;
+		dataready[i] = 0;
       }
     }
   }

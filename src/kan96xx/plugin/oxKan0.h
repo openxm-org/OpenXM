@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
 /* ox_kan0.h */
 
 #define mymalloc(n) malloc(n)
@@ -69,10 +69,13 @@ typedef  struct oxclient {
 } oxclient;
 #define N_OF_CLIENT_FIELDS  13    /* If you add new field to struct oxclient
 				     do not forget to increase the number.*/
-/* Change also, oxInitClient, oxCreateClient, oxCreateClientFile    oxmisc.c
+/* Change also, oxInitClient, oxCreateClient(2), oxCreateClientFile    oxmisc.c
    oxClientToObject, oxObjectToClient oxmisc2.c
    */
 typedef oxclient * oxclientp;
+
+#define AbortIfRFC_101(oxclient) if (oxclient->controlport < 0) {\
+  errorOxmisc2("The OpenXM RFC 101 client is used for RFC 100\n"); }
 
 #define CLIENT_SOCKET 0
 #define CLIENT_FILE   1
