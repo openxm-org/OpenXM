@@ -1,4 +1,4 @@
-%%  $OpenXM$
+%%  $OpenXM: OpenXM/src/k097/lib/minimal/k0-cohom.sm1,v 1.1 2000/05/03 06:42:07 takayama Exp $
 
 %%  These macros should be moved to dr.sm1 with usages.
 /define_ring_variables {
@@ -8,11 +8,16 @@
      /v0 v def
      v { dup /p set (/) 2 1 roll ( $) p ($. def ) } map cat
      /v set
-     v message
+%     v message
      [(parse) v] extension 
   ] pop
   popVariables
 } def
+[(define_ring_variables)
+[(It binds  a variable <<a>> in the current ring to the sm1 variable <<a>>.)
+ (For example, if x is a variable in the current ring, it defines the sm1)
+ (variable x by /x (x) def)
+]] putUsages
 
 /boundp {
   /arg1 set

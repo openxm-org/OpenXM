@@ -1,6 +1,6 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.17 2000/07/26 12:56:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.18 2000/07/30 02:26:25 takayama Exp $ */
 #define DEBUG 1 
-/* #define ORDINARY 1 */
+Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
    make a symbolic link by the command
    ln -s /usr/bin/cpp /lib/cpp
@@ -49,6 +49,41 @@ def Reverse(f) {
 def Sgroebner(f) {
    sm1(" [f] groebner /FunctionValue set");
 }
+
+
+def Error(s) {
+  sm1(" s error ");
+}
+
+def IsNull(s) {
+  if (Stag(s) == 0) return(true);
+  else return(false);
+}
+
+def MonomialPart(f) {
+  sm1(" [(lmonom) f] gbext /FunctionValue set ");
+}
+
+def Warning(s) {
+  Print("Warning: ");
+  Println(s);
+}
+def RingOf(f) {
+  local r;
+  if (IsPolynomial(f)) {
+    if (f != Poly("0")) {
+      sm1(f," (ring) dc /r set ");
+    }else{
+      sm1(" [(CurrentRingp)] system_variable /r set ");
+    }
+  }else{
+    Warning("RingOf(f): the argument f must be a polynomial. Return the current ring.");
+    sm1(" [(CurrentRingp)] system_variable /r set ");
+  }
+  return(r);
+}
+
+/*  End of standard functions that should be moved to standard libraries. */
 def test0() {
   local f;
   Sweyl("x,y,z");
@@ -136,22 +171,31 @@ sm1(" [(AvoidTheSameRing)] pushEnv
 
 def SresolutionFrameWithTower(g,opt) {
   local gbTower, ans, ff, count, startingGB, opts, skelton,withSkel, autof,
-        gbasis, nohomog;
+        gbasis, nohomog,i,n;
+  /* extern Sordinary */
   nohomog = false;
-  count = -1;
+  count = -1;  Sordinary = false; /* default value for options. */
   if (Length(Arglist) >= 2) {
-    if (IsInteger(opt)) {
-      count = opt;
-    }else if (IsString(opt)) {
-      if (opt == "homogenized") {
-         nohomog = true;
-      }else{
-         Println("Warning: unknown option");
-         Println(opt);
+    if (IsArray(opt)) {
+      n = Length(opt);
+      for (i=0; i<n; i++) {
+        if (IsInteger(opt[i])) {
+          count = opt[i];
+        }
+        if (IsString(opt[i])) {
+          if (opt[i] == "homogenized") {
+            nohomog = true;
+          }else if (opt[i] == "Sordinary") {
+            Sordinary = true;
+          }else{
+            Println("Warning: unknown option");
+            Println(opt);
+          }
+        }
       }
+    }else{
+      Println("Warning: option should be given by an array.");
     }
-  }else{
-    count = -1;
   }
 
   sm1(" setupEnvForResolution ");
@@ -512,10 +556,10 @@ def SlaScala(g,opt) {
                   place = f[3];
                   /* (level-1, place) is the place for f[0], 
                      which is a newly obtained  GB. */
-#ifdef ORDINARY
+if (Sordinary) {
                   redundantTable[level-1,place] = redundant_seq;
                   redundant_seq++;
-#else
+}else{
                   if (f[4] > f[5]) {
                     /* Zero in the gr-module */
                     Print("v-degree of [org,remainder] = ");
@@ -526,7 +570,7 @@ def SlaScala(g,opt) {
                     redundantTable[level-1,place] = redundant_seq;
                     redundant_seq++;
                   }
-#endif
+}
                   redundantTable_ordinary[level-1,place]
                      =redundant_seq_ordinary;
                   redundant_seq_ordinary++;
@@ -652,14 +696,6 @@ def SunitOfFormat(pos,forms) {
   return(ans);
 }
 
-def Error(s) {
-  sm1(" s error ");
-}
-
-def IsNull(s) {
-  if (Stag(s) == 0) return(true);
-  else return(false);
-}
 
 def StowerOf(tower,level) {
   local ans,i;
@@ -681,9 +717,6 @@ def Sspolynomial(f,g) {
   sm1("f g spol /FunctionValue set");
 }
 
-def MonomialPart(f) {
-  sm1(" [(lmonom) f] gbext /FunctionValue set ");
-}
 
 /* WARNING:
   When you use SwhereInTower, you have to change gbList
@@ -804,24 +837,6 @@ def Sreduction(f,myset) {
   return([tmp[0],tmp[1],t_syz]);
 }
 
-def Warning(s) {
-  Print("Warning: ");
-  Println(s);
-}
-def RingOf(f) {
-  local r;
-  if (IsPolynomial(f)) {
-    if (f != Poly("0")) {
-      sm1(f," (ring) dc /r set ");
-    }else{
-      sm1(" [(CurrentRingp)] system_variable /r set ");
-    }
-  }else{
-    Warning("RingOf(f): the argument f must be a polynomial. Return the current ring.");
-    sm1(" [(CurrentRingp)] system_variable /r set ");
-  }
-  return(r);
-}
 
 def Sfrom_es(f,size) {
   local c,ans, i, d, myes, myee, j,n,r,ans2;
@@ -882,6 +897,8 @@ def Sbases_to_vec(bases,size) {
 HelpAdd(["Sminimal",
 ["It constructs the V-minimal free resolution by LaScala's algorithm",
  "option: \"homogenized\" (no automatic homogenization ",
+ "      : \"Sordinary\"   (no (u,v)-minimal resolution)",
+ "Options should be given as an array.",
  "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
  "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
  "             [3*x^2*Dy + 2*y*Dx, 0],",
@@ -900,6 +917,8 @@ def Sminimal(g,opt) {
   if (Length(Arglist) < 2) {
      opt = null;
   }
+  /* Sordinary is set in SlaScala(g,opt) --> SresolutionFrameWithTower */
+
   ScheckIfSchreyer("Sminimal:0");
   r = SlaScala(g,opt);
   /* Should I turn off the tower?? */
