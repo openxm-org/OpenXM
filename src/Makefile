@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.95 2000/08/31 13:23:12 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.96 2000/09/17 03:12:09 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -191,10 +191,26 @@ distclean: clean
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 
-configure: configure-links configure-bin configure-asir \
+configure: configure-links configure-include configure-bin configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp
+
+configure-include:
+	@if test ! -d ../include ; \
+	then \
+	mkdir  ../include ; \
+	fi
+	@if test ! -d ../include/ox ; \
+	then \
+	mkdir  ../include/ox ; \
+	fi
+	@if test -d ../include/ox ; \
+	then \
+	cp ../doc/OpenXM-web/cmotag.h ../include/ox ; \
+	cp ../doc/OpenXM-web/oxMessageTag.h ../include/ox ; \
+	cp ../doc/OpenXM-web/smCommand.h ../include/ox ; \
+	fi
 
 configure-gmp: configure-links
 	@if test -f gmp/.gmp_configured ; \
