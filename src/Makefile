@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.12 1999/11/22 08:55:07 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.13 1999/11/23 01:38:32 takayama Exp $
 all : all1 all3  all4 pari asir all2 all5 all6
 
 all1 :
@@ -67,6 +67,7 @@ configure :
 	(cd kan96xx ; make configure )
 	(cd pari-2.0.17.beta; ./Configure --prefix=../../..)
 	(cd asir99; ./configure)
+	(cd ox_math; ./configure)
 
 
 
