@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/oxMessageTag.h,v 1.2 2000/01/19 00:31:38 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/oxMessageTag.h,v 1.3 2000/09/10 18:21:51 takayama Exp $ */
 /* oxMessageTag.h */
 
 #define OX_COMMAND                   513	
 #define OX_DATA                      514
 #define OX_SYNC_BALL                 515      /* ball to interrupt */
+#define OX_NOTIFY                    516
 
 #define OX_DATA_WITH_SIZE              521
 #define OX_DATA_ASIR_BINARY_EXPRESSION 522  /* This number should be changed*/
