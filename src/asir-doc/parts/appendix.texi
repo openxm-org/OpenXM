@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/appendix.texi,v 1.5 2000/03/17 02:17:03 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/appendix.texi,v 1.6 2000/03/17 08:27:28 noro Exp $
 \BJP
 @node 付録,,, Top
 @appendix 付録
@@ -532,18 +532,35 @@ of radicals (@pxref{primadec primedec}).
 \E
 
 \BJP
-既に述べたように, DOS 版, Windows 版, Macintosh 版では入力インタフェースと
+DOS 版, Windows 版では入力インタフェースと
 してコマンドライン編集およびヒストリ置き換えが組み込まれている. UNIX 版では
 このような機能は組み込まれていないが, 以下で述べるような入力インタフェース
 が用意されている. これらは @b{Asir} バイナリとともに ftp 可能である. 
 ftp server に関しては @xref{入手方法}.
+
+Windows 版 @samp{asirgui.exe} は, 通常の Windows における慣習とは異なる
+形のコピーペースト機能を提供している. Window 上に表示されている文字列
+に対しマウス左ボタンを押しながらドラッグすると文字列が選択される. 
+ボタンを離すと反転表示が元に戻るが, その文字列はコピーバッファに
+取り込まれている. マウス右ボタンを押すと, コピーバッファ内の文字列が
+現在のカーソル位置に挿入される. 既に表示された部分は readonly
+であり, その部分を改変できないことに注意して欲しい. 
 \E
 \BEG
-As already mentioned a command line editing facility and a history
-substitution facility are built-in for DOS, Windows Macintosh version
+A command line editing facility and a history
+substitution facility are built-in for DOS, Windows version
 of @b{Asir}. UNIX versions of @b{Asir} do not have such built-in facilites.
 Instead, the following input interfaces are prepared. This are also available
 from our ftp server. As for our ftp server @xref{How to get Risa/Asir}.
+
+On Windows, @samp{asirgui.exe} has a copy and paste functionality
+different from Windows convention. Press the left button of the mouse
+and drag the mouse cursor on a text, then the text is selected and is
+highlighted.  When the button is released, highlighted text returns to
+the normal state and it is saved in the copy buffer.  If the right
+button is pressed, the text in the copy buffer is inserted at the
+current text cursor position. Note that the existing text is read-only and 
+one cannot modify it.
 \E
 
 @menu
