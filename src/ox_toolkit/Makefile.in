@@ -1,19 +1,19 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.11 2000/11/30 18:10:50 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.12 2003/03/23 20:17:34 ohara Exp $
 
 OpenXM_HOME = ../..
 OXWEAVE     = ${OpenXM_HOME}/bin/oxweave
 CC          = @CC@
 DEFS        = @DEFS@
 CFLAGS      = -g -Wall -O2 ${DEFS} -I${OpenXM_HOME}/include -finline-functions
-OBJS        = ox.o cmo.o parse.o mysocket.o mathcap.o dump.o cmolen.o print.o oxf.o oxf_old.o
+OBJS        = ox.o cmo.o parse.o mysocket.o mathcap.o dump.o cmolen.o print.o oxf.o oxf_old.o @USE_GMP@ gmp_fake.o
 BINARIES    = bconv testclient sample1 sample2 zclient
 DOCUMENTS   = readme-en.txt readme-ja.txt bnf-en.txt bnf-ja.txt
 X11INC      = @X_CFLAGS@
 X11LIB      = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@
 RANLIB      = @RANLIB@
 GMPLIB      = @GMPLIB@
-LIBS        = @LIBS@ -L${OpenXM_HOME}/lib -L. -lox ${GMPLIB}
+LIBS        = @LIBS@ -L${OpenXM_HOME}/lib libox.a ${GMPLIB}
 INSTALL_DATA= cp -f 
 OXOBJS      = ${OBJS} bconv.o testclinet.o ox_Xsample.o sample1.o sample2.o
 
@@ -24,6 +24,7 @@ all2: all ox_Xsample
 ox.o mysocket.o: mysocket.h
 ox.o parse.o:    parse.h
 ${OXOBJS}:       ox_toolkit.h
+gmp_fake.o:      gmp_fake.h
 
 libox.a: ${OBJS}
 	-rm -f $@
@@ -91,5 +92,4 @@ clean-binary:
 clean: clean-document clean-binary
 
 distclean: clean
-	-rm -f .configure_done configure config.cache config.log config.status Makefile
-
+	-rm -f .configure_done config.cache config.log config.status Makefile

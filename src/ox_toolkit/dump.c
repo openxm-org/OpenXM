@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.1 2000/10/10 05:23:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.2 2003/03/23 20:17:35 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -18,10 +18,8 @@ static void dump_cmo_mathcap(cmo_mathcap* m);
 static void dump_cmo_null(cmo_null* m);
 static void dump_cmo_string(cmo_string* m);
 static void dump_cmo_monomial32(cmo_monomial32* c);
-#if defined(WITH_GMP)
 static void dump_cmo_zz(cmo_zz* c);
 static void dump_mpz(mpz_ptr mpz);
-#endif /* WITH_GMP */
 static void dump_string(void *s, int len);
 static void dump_integer(int x);
 
@@ -48,7 +46,6 @@ static void dump_integer(int x)
     dump_string(&x, sizeof(int));
 }
 
-#if defined(WITH_GMP)
 static void dump_mpz(mpz_ptr mpz)
 {
     int i;
@@ -58,7 +55,6 @@ static void dump_mpz(mpz_ptr mpz)
         dump_integer(mpz->_mp_d[i]);
     }
 }
-#endif /* WITH_GMP */
 
 __inline__
 static void dump_cmo_null(cmo_null* m)
@@ -105,12 +101,10 @@ static void dump_cmo_monomial32(cmo_monomial32* c)
     dump_cmo(c->coef);
 }
 
-#if defined(WITH_GMP)
 static void dump_cmo_zz(cmo_zz* c)
 {
     dump_mpz(c->mpz);
 }
-#endif /* WITH_GMP */
 
 static void dump_cmo_distributed_polynomial(cmo_distributed_polynomial* m)
 {
@@ -150,11 +144,9 @@ void dump_cmo(cmo* m)
     case CMO_MONOMIAL32:
         dump_cmo_monomial32((cmo_monomial32 *)m);
         break;
-#if defined(WITH_GMP)
     case CMO_ZZ:
         dump_cmo_zz((cmo_zz *)m);
         break;
-#endif /* WITH_GMP */
     case CMO_DISTRIBUTED_POLYNOMIAL:
         dump_cmo_distributed_polynomial((cmo_distributed_polynomial *)m);
         break;

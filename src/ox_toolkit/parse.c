@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.11 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.12 2003/03/23 22:09:57 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -52,9 +52,7 @@ static void parse_error(char *s);
 static void parse_right_parenthesis();
 static void parse_left_parenthesis();
 static void parse_comma();
-#if defined(WITH_GMP)
 static mpz_ptr parse_mpz_integer();
-#endif /* WITH_GMP */
 static int   parse_integer();
 static char *parse_string();
 static cmo  *parse_cmo_null();
@@ -63,9 +61,7 @@ static cmo  *parse_cmo_string();
 static cmo  *parse_cmo_mathcap();
 static cmo  *parse_cmo_list();
 static cmo  *parse_cmo_monomial32();
-#if defined(WITH_GMP)
 static cmo  *parse_cmo_zz();
-#endif /* WITH_GMP */
 static cmo  *parse_cmo_zero();
 static cmo  *parse_cmo_dms_generic();
 static cmo  *parse_cmo_ring_by_name();
@@ -222,12 +218,10 @@ static cmo *parse_cmo()
         token = lex();
         m = parse_cmo_monomial32();
         break;
-#if defined(WITH_GMP)
     case TOKEN(CMO_ZZ):
         token = lex();
         m = parse_cmo_zz();
         break;
-#endif /* WITH_GMP */
     case TOKEN(CMO_ZERO):
         token = lex();
         m = parse_cmo_zero();
@@ -282,7 +276,6 @@ static void parse_comma()
     token = lex();
 }
 
-#if defined(WITH_GMP)
 static mpz_ptr new_mpz_set_str(char *s)
 {
     mpz_ptr z = malloc(sizeof(mpz_t));
@@ -326,11 +319,10 @@ static mpz_ptr parse_mpz_integer()
     token = lex();
     return val;
 }
-#endif /* WITH_GMP */
 
 static int parse_integer()
 {
-#if defined(WITH_GMP)
+#if 0
     return mpz_get_si(parse_mpz_integer());
 #else
     int sign = 1;
@@ -474,7 +466,6 @@ static cmo *parse_cmo_monomial32()
     return (cmo *)m;
 }
 
-#if defined(WITH_GMP)
 /* the following function rewrite internal data of mpz/cmo_zz. */
 static cmo *parse_cmo_zz()
 {
@@ -503,7 +494,6 @@ static cmo *parse_cmo_zz()
     parse_right_parenthesis();
     return (cmo *)m;
 }
-#endif /* WITH_GMP */
 
 static cmo *parse_cmo_zero()
 {

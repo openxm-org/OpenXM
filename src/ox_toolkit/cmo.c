@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.8 2003/02/03 23:13:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.9 2003/03/23 20:17:34 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -18,9 +18,7 @@ static cell*        new_cell();
 static char*        new_string_set_cmo_null();
 static char*        new_string_set_cmo_int32(int integer);
 static char*        new_string_set_cmo_list(cmo_list *c);
-#if defined(WITH_GMP)
 static char*        new_string_set_cmo_zz(cmo_zz *c);
-#endif /* WITH_GMP */
 static char*        new_string_set_cmo_double(cmo_double *m);
 
 /* functions for a cmo_list */
@@ -104,14 +102,12 @@ cmo *list_nth(cmo_list* this, int n)
     return NULL;
 }
 
-#if defined(WITH_GMP)
 /* for GNU mpz */
 void resize_mpz(mpz_ptr mpz, int size)
 {
     _mpz_realloc(mpz, abs(size));
     mpz->_mp_size = size;
 }
-#endif /* WITH_GMP */
 
 /* functions named new_cmo_*. */
 cmo_null* new_cmo_null()
@@ -178,7 +174,6 @@ cmo_monomial32* new_cmo_monomial32_size(int size)
     return c;
 }
 
-#if defined(WITH_GMP)
 cmo_zz* new_cmo_zz()
 {
     cmo_zz* c = malloc(sizeof(cmo_zz));
@@ -221,7 +216,6 @@ cmo_zz* new_cmo_zz_size(int size)
     resize_mpz(c->mpz, size);
     return c;
 }
-#endif /* WITH_GMP */
 
 cmo_zero* new_cmo_zero()
 {
@@ -281,13 +275,11 @@ cmo_error2* new_cmo_error2(cmo* ob)
 }
 
 
-#if defined(WITH_GMP)
 /* Following functions translate cmo's to (asciiz) strings. */
 static char *new_string_set_cmo_zz(cmo_zz *c)
 {
     return mpz_get_str(NULL, 10, c->mpz);
 }
-#endif /* WITH_GMP */
 
 static char *new_string_set_cmo_null()
 {
@@ -348,10 +340,8 @@ static char *new_string_set_cmo_double(cmo_double *m)
 char *new_string_set_cmo(cmo *m)
 {
     switch(m->tag) {
-#if defined(WITH_GMP)
     case CMO_ZZ:
         return new_string_set_cmo_zz((cmo_zz *)m);
-#endif /* WITH_GMP */
     case CMO_INT32:
         return new_string_set_cmo_int32(((cmo_int32 *)m)->i);
     case CMO_STRING:

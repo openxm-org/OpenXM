@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.21 2003/02/04 20:43:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.22 2003/03/23 20:17:35 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -44,12 +44,10 @@ static int          send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c);
 static int          send_cmo_error2(OXFILE *oxfp, cmo_error2* c);
 static int          send_cmo_distributed_polynomial(OXFILE *oxfp, cmo_distributed_polynomial* c);
 
-#if defined(WITH_GMP)
 static cmo_zz*      receive_cmo_zz(OXFILE *oxfp);
 static void         receive_mpz(OXFILE *oxfp, mpz_ptr mpz);
 static int          send_cmo_zz(OXFILE *oxfp, cmo_zz* c);
 static int          send_mpz(OXFILE *oxfp, mpz_ptr mpz);
-#endif /* WITH_GMP */
 
 /* hook functions. (yet not implemented) */
 static hook_t hook_before_send_cmo = NULL;
@@ -185,14 +183,12 @@ static cmo_monomial32* receive_cmo_monomial32(OXFILE *oxfp)
     return c;
 }
 
-#if defined(WITH_GMP)
 static cmo_zz* receive_cmo_zz(OXFILE *oxfp)
 {
     cmo_zz* c = new_cmo_zz();
     receive_mpz(oxfp, c->mpz);
     return c;
 }
-#endif /* WITH_GMP */
 
 static cmo_zero* receive_cmo_zero(OXFILE *oxfp)
 {
@@ -256,11 +252,9 @@ cmo* receive_cmo(OXFILE *oxfp)
     case CMO_MONOMIAL32:
         m = (cmo *)receive_cmo_monomial32(oxfp);
         break;
-#if defined(WITH_GMP)
     case CMO_ZZ:
         m = (cmo *)receive_cmo_zz(oxfp);
         break;
-#endif /* WITH_GMP */
     case CMO_ZERO:
         m = (cmo *)receive_cmo_zero(oxfp);
         break;
@@ -285,7 +279,6 @@ cmo* receive_cmo(OXFILE *oxfp)
     return m;
 }
 
-#if defined(WITH_GMP)
 static void receive_mpz(OXFILE *oxfp, mpz_ptr mpz)
 {
     int i;
@@ -297,7 +290,6 @@ static void receive_mpz(OXFILE *oxfp, mpz_ptr mpz)
         mpz->_mp_d[i] = receive_int32(oxfp);
     }
 }
-#endif /* WITH_GMP */
 
 void send_ox_command(OXFILE *oxfp, int sm_command)
 {
@@ -482,13 +474,11 @@ static int send_cmo_monomial32(OXFILE *oxfp, cmo_monomial32* c)
     return 0;
 }
 
-#if defined(WITH_GMP)
 static int send_cmo_zz(OXFILE *oxfp, cmo_zz* c)
 {
     send_mpz(oxfp, c->mpz);
     return 0;
 }
-#endif /* WITH_GMP */
 
 static int send_cmo_error2(OXFILE *oxfp, cmo_error2* c)
 {
@@ -528,11 +518,9 @@ void send_cmo(OXFILE *oxfp, cmo* c)
     case CMO_MONOMIAL32:
         send_cmo_monomial32(oxfp, (cmo_monomial32 *)c);
         break;
-#if defined(WITH_GMP)
     case CMO_ZZ:
         send_cmo_zz(oxfp, (cmo_zz *)c);
         break;
-#endif /* WITH_GMP */
     case CMO_DISTRIBUTED_POLYNOMIAL:
         send_cmo_distributed_polynomial(oxfp, (cmo_distributed_polynomial *)c);
         break;
@@ -541,7 +529,6 @@ void send_cmo(OXFILE *oxfp, cmo* c)
     }
 }
 
-#if defined(WITH_GMP)
 static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
 {
     int i;
@@ -552,7 +539,6 @@ static int send_mpz(OXFILE *oxfp, mpz_ptr mpz)
     }
     return 0;
 }
-#endif /* WITH_GMP */
 
 ox_data* new_ox_data(cmo* c)
 {

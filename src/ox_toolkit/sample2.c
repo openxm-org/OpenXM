@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.5 2003/02/04 20:43:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.6 2003/03/23 20:17:35 ohara Exp $ */
 
 /*
   This program explains how to get
@@ -36,12 +36,10 @@ void explain_cmo_string(cmo_string *c)
     printf("%s", c->s);
 }
 
-#if defined(WITH_GMP)
 void explain_cmo_zz(cmo_zz *c)
 {
     printf("%s", new_string_set_cmo((cmo *)c));
 }
-#endif /* WITH_GMP */
 
 void explain_cmo(cmo *c)
 {
@@ -55,11 +53,9 @@ void explain_cmo(cmo *c)
     case CMO_STRING:
         explain_cmo_string((cmo_string *)c);
         break;
-#if defined(WITH_GMP)
     case CMO_ZZ:
         explain_cmo_zz((cmo_zz *)c);
         break;
-#endif /* WITH_GMP */
     default:
         printf("cmo");
     }
@@ -79,9 +75,7 @@ int main()
     c = list_appendl(new_cmo_list(),
                      (cmo *)new_cmo_int32(10000), 
                      (cmo *)new_cmo_string("Hello"),
-#if defined(WITH_GMP)
                      (cmo *)new_cmo_zz_set_string("3141592653289793238462643383279"),
-#endif /* WITH_GMP */
                      NULL);
 
     ox_push_cmo(s, (cmo *)c);
