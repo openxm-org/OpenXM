@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.32 2003/09/11 00:52:04 takayama Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.33 2003/11/24 08:16:13 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -12,13 +12,13 @@ RM=rm
 
 all :   all-sm1 all-kanlib.a
 
-all-sm1 : all-plugin 
+all-sm1 : all-plugin all-trans
 	(cd Kan; make all)
 all-plugin :  configure
 	 (cd plugin ; make all)
 all-trans: configure
 	(cd trans ; make all)
-all-kanlib.a : all-plugin
+all-kanlib.a : all-plugin all-trans
 	(cd Kan ; make kanlib.a)
 
 ### When you make sm1 without the garbage collector, type in make sm1.nogc
