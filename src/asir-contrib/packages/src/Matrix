@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.9 2001/08/17 11:57:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.10 2001/08/18 08:18:14 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -396,6 +396,18 @@ def omatrix_rank(M) {
   return N-A[0];
 }
 
+def omatrix_inner_product(A,B) {
+  if (type(A) == 4) {
+    N = length(A);
+  }else{
+    N = size(A)[0];
+  }
+  P = 0;
+  for (I=0; I<N; I++) {
+    P += A[I]*B[I];
+  }
+  return P;
+}
 
 Loaded_Matrix = 1 $
 end$

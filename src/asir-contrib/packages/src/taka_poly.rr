@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.8 2001/08/25 04:39:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.9 2001/08/26 09:50:28 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -229,6 +229,10 @@ def taka_poly_get_variables(L) {
     if (L->Tag == POLY_IDEAL) {
       return L->Ring->Variables;
     }
+  }else if (type(L) == RPOLYNOMIAL) {
+    return vars(L);
+  }else if (L == 0) {
+    return [ ];
   }
   return "???";
 }
@@ -468,6 +472,103 @@ def taka_poly_initial_coefficients(I) {
   G2 = map(dp_ptod,G,V);
   G3 = map(dp_hc,G2); 
   return G3;
+}
+
+def taka_poly_initial_term(F) {
+  V = getopt(v);
+  Order = getopt(order);
+  Weight = getopt(weight);
+  if (type(F) == STRUCT) {
+    if (F->Tag == POLY_POLYNOMIAL) {
+      VV = F->Ring->Variables;
+      OOrder = F->Ring->Order;
+      F = F->F;
+    }else{
+      error("Invalid structure as an argument.");
+    }
+  }
+  if (type(V) == -1) {
+    if (VV == 0) {
+      V = taka_poly_get_variables(F);  
+    }else {
+      V = VV;
+    }
+  }
+  if (type(Order) == -1) {
+    if (OOrder == 0) {
+      Order = 0;
+    }else{
+      Order = OOrder;
+    }
+  }
+  if (type(Weight) == -1) {
+    Weight = 0;
+  }
+  if (Weight == 0) {
+     dp_ord(Order);
+     G = dp_ptod(F,V);
+     T = dp_ht(G);
+     C = dp_hc(G);
+     return [ C, dp_dtop(T,V)];
+  }else {
+     dp_ord(taka_poly_weight_vector(Weight,V));
+     G = dp_ptod(F,V);
+     C = 0;  T = 0;
+     D = dp_ht(G);
+     D = taka_poly_degree(D|weight=Weight,v=V);
+     while (G != 0) {
+       H = dp_ht(G);
+       if (D > taka_poly_degree(H|weight=Weight,v=V)) break;
+       C += dp_hc(G);
+       T += dp_ht(G);
+       G = G-dp_hm(G);
+     }
+     return [C,dp_dtop(T,V)];
+  }
+}
+
+def taka_poly_degree(F) {
+  if (F == 0) return 0;
+  V = getopt(v);
+  Weight = getopt(weight);
+  if (type(F) == STRUCT) {
+    if (F->Tag == POLY_POLYNOMIAL) {
+      VV = F->Ring->Variables;
+      F = F->F;
+    }else{
+      error("Invalid structure as an argument.");
+    }
+  }
+  if (type(V) == -1) {
+    if (VV == 0) {
+      if (type(F) != DPOLYNOMIAL) {
+        V = taka_poly_get_variables(F);  
+      }else{
+        V = dp_etov(F);
+        V = vtol(V); /* Dummy */
+      }
+    }else {
+      V = VV;
+    }
+  }
+  N = length(V);
+  if (type(Weight) == -1) {
+    Weight = newvect(N);
+    for (I=0; I<N; I++) Weight[I] = 1;
+  }else{
+    Weight = taka_poly_weight_vector_parse(Weight,V);
+  }
+
+  if (F == 0) return 0;
+  if (type(F) != DPOLYNOMIAL) {
+    dp_ord(taka_poly_weight_vector(Weight,V));
+    F = dp_ptod(F,V);
+  }
+  if (type(Weight) != VECTOR) {
+    Weight = newvect(N,Weight);
+  }
+  D = matrix_inner_product(dp_etov(F),Weight);
+  return D;
 }
 
 /*

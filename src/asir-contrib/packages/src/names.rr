@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.20 2001/08/25 04:39:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.21 2001/08/26 09:50:28 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -173,6 +173,50 @@ def poly_initial_coefficients(I) {
     return taka_poly_initial_coefficients(I|order=Or,v=V);
   }
 }
+def poly_initial_term(F) {
+  Or = getopt(order);
+  V = getopt(v);
+  Weight = getopt(weight);
+  OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
+  if (type(Or) == -1 && type(V) == -1 && type(Weight) == -1) {
+    return taka_poly_initial_term(F);
+  }
+  else if (type(Or) != -1 && type(V) == -1 && type(Weight) == -1) {
+    return taka_poly_initial_term(F|order=Or);
+  }
+  else if (type(Or) == -1 && type(V) != -1 && type(Weight) == -1) {
+    return taka_poly_initial_term(F|v=V);
+  }else if (type(Or) != -1 && type(V) != -1 && type(Weight) == -1) {
+    return taka_poly_initial_term(F|order=Or,v=V);
+  }
+  else if (type(Or) == -1 && type(V) == -1 && type(Weight) != -1) {
+    return taka_poly_initial_term(F|weight=Weight);
+  }
+  else if (type(Or) != -1 && type(V) == -1 && type(Weight) != -1) {
+    return taka_poly_initial_term(F|order=Or,weight=Weight);
+  }
+  else if (type(Or) == -1 && type(V) != -1 && type(Weight) != -1) {
+    return taka_poly_initial_term(F|v=V, weight=Weight);
+  }else if (type(Or) != -1 && type(V) != -1 && type(Weight) != -1) {
+    return taka_poly_initial_term(F|order=Or,v=V,weight=Weight);
+  }
+}
+def poly_degree(I) {
+  Or = getopt(weight);
+  V = getopt(v);
+  OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
+  if (type(Or) == -1 && type(V) == -1) {
+    return taka_poly_degree(I);
+  }
+  else if (type(Or) != -1 && type(V) == -1) {
+    return taka_poly_degree(I|weight=Or);
+  }
+  else if (type(Or) == -1 && type(V) != -1) {
+    return taka_poly_degree(I|v=V);
+  }else if (type(Or) != -1 && type(V) != -1) {
+    return taka_poly_degree(I|weight=Or,v=V);
+  }
+}
 
 def poly_solve(Eqs,V) { NOT_YET; }
 def poly_solve_linear(Eqs,V) { 
@@ -230,6 +274,10 @@ def matrix_diagonal_matrix(L) {
 def matrix_identity_matrix(N) {
   OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_1(N);
+}
+def matrix_inner_product(A,B) {
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_inner_product(A,B);
 }
 def matrix_transpose(M) {
   OX_LOADFILE(Loaded_Matrix,"Matrix");
