@@ -1,9 +1,18 @@
 #!/bin/sh
-# $OpenXM$
-if [ ! -f ./.configure_done ]; then 
-    if [ ! -x ./configure ]; then 
-		autoconf 
-  	fi
-    ./configure 
+# $OpenXM: OpenXM/src/ox_math/make-configure,v 1.1 2000/02/08 21:14:01 ohara Exp $
+
+if [ ! -f ./.configure_done ]; then
+	case `uname` in
+    CYGWIN*)
+        cp -f Makefile.cygwin Makefile
+        (cd mathlink; ./configure-cygwin)
+        ;;
+    *)
+        if [ ! -x ./configure ]; then
+    		autoconf
+      	fi
+        ./configure
+    	;;
+    esac
 fi
-touch .configure_done 
+touch .configure_done

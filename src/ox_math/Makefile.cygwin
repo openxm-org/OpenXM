@@ -1,0 +1,66 @@
+# -*- mode: Makefile -*-
+# $OpenXM$
+
+OpenXM_HOME=../..
+
+PREFIX    = /usr/local
+SYS       = 
+ADDONSDIR = mathlink/mldev32
+MPREP     = ${ADDONSDIR}/bin/mprep
+
+LN        = ln -s
+CC        = gcc
+DEFS      = -DDEBUG -mwindows -DWIN32_MATHLINK
+CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR}/include -I${OpenXM_HOME}/include
+LIBS      = -L${OpenXM_HOME}/lib -L${ADDONSDIR}/lib -lox -lgmp -lml32i1 -lml32i2 -lm
+STATIC_LINK_FLAGS = -e _mainCRTStartup
+
+
+BINARIES  = ox_math math2ox
+INSTALL   = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL}
+
+all: ${BINARIES}
+
+serv1.o sm.o sm_ext.o mlo.o: sm.h
+
+ox_math: serv1.o sm.o sm_ext.o mlo.o
+	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ sm.o sm_ext.o serv1.o mlo.o ${LIBS}
+
+math2ox: math2ox.o math2.o mlo.o sm_ext.o
+	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ math2ox.o math2.o sm.o sm_ext.o mlo.o ${LIBS}
+
+math2.c: math2.tm
+	-rm -f $@
+	${MPREP} $? > $@
+
+install: install-binary install-document
+
+install-document:
+	(cd documents; ${MAKE} install-document)
+
+install-binary:
+	if [ -x ${MPREP} ]; then \
+		${MAKE} install-binary-real ; \
+	fi
+
+install-binary-real: ${BINARIES}
+	${INSTALL_PROGRAM} ${BINARIES} ${OpenXM_HOME}/bin/
+	(cd lib; ${MAKE} install)
+
+install-for-debug: ${BINARIES}
+	-for i in ${BINARIES}; do \
+		${LN} ${OpenXM_HOME}/src/ox_math/$$i ${OpenXM_HOME}/bin ; \
+	done
+
+clean-for-debug: 
+	(cd ${OpenXM_HOME}/bin; rm -f ${BINARIES})
+
+clean-binary: clean-for-debug
+
+clean:
+	-rm -f *.o *~ math2.c ox_math math2ox
+
+distclean: clean
+	-rm -f .configure_done configure config.cache config.log config.status Makefile
+

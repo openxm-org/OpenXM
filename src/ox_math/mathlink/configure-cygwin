@@ -1,0 +1,39 @@
+#!/bin/sh
+# $OpenXM$
+
+ARCHIVE=Windows-ml_v3r8.zip
+URL=http://support.wolfram.com/mathematica/mathlink/updates/v3r8/$ARCHIVE
+
+_fetch () {
+    if [ ! -f $ARCHIVE ] ; then
+        wget -nd $URL
+    fi
+}
+
+_unzip () {
+    if [ -f $ARCHIVE ] ; then
+        unzip $ARCHIVE
+        if [ -e mldev32 ] ; then 
+            rm -rf mldev32
+        fi
+        mv Windows/CompilerAdditions/mldev32 .
+        mv Windows/SystemAdditions/* mldev32/lib/
+        rm -rf Windows
+    fi
+}
+
+_dlltool () {
+    for i in ml32i1 ml32i2; do
+        (echo EXPORTS ; nm "$i"m.lib | grep 'T _' | sed 's/.* T _//' ) > $i.def
+        dlltool --dllname $i.dll --def $i.def --output-lib lib$i.a -k
+		rm -f $i.def
+    done
+#   rm -rf *.lib
+}
+
+if [ ! -f ./.configure_done ]; then 
+    _fetch
+    _unzip
+    (cd mldev32/lib ; _dlltool)
+fi
+touch .configure_done 
