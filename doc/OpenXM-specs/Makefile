@@ -1,5 +1,10 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.8 2000/09/09 03:01:24 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.9 2000/11/30 02:41:36 takayama Exp $
 all : doc
+
+LATEX2HTML=latex2html -tmp /tmp
+DVIPS=dvips -f
+RSYNC=rsync -Cavz
+CURRENT=/home/web/OpenXM/Current
 
 OXWEAVE=../../src/kxx/oxweave
 OXWEAVEFLAG=--recursive --plain
@@ -49,8 +54,54 @@ OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 $(OXWEAVE) : $(OXWEAVE).c
 	(cd ../../src/kxx ; make oxweave)
 
-clean :
+all-html: doc .all-html-100-en.done .all-html-101-en.done
+	if test ! -f .all-html-100-ja.done ; \
+	then \
+		(cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM) ; \
+		touch .all-html-100-ja.done ; \
+	fi
+	if test ! -f .all-html-100-en.done ; \
+	then \
+		(cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM ) ; \
+		touch .all-html-100-en.done ; \
+	fi
+	if test ! -f .all-html-101-ja.done ; \
+	then \
+		(cd tmp101JA; platex OX-RFC-101; platex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
+		touch .all-html-101-ja.done ; \
+	fi
+	if test ! -f .all-html-101-en.done ; \
+	then \
+		(cd tmp101EN ; latex OX-RFC-101; latex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
+		touch .all-html-101-en.done ; \
+	fi
+
+.all-html-100-en.done: ${SRC}
+	make clean-done
+.all-html-101-en.done: ${SRC101}
+	make clean-done
+
+install-web-all: all-html
+	if test ! -d ${CURRENT}/doc ; then mkdir ${CURRENT}/doc ; fi  
+	if test ! -d ${CURRENT}/doc/OX-RFC-100-en ; then mkdir ${CURRENT}/doc/OX-RFC-100-en ; fi  
+	if test ! -d ${CURRENT}/doc/OX-RFC-100-ja ; then mkdir ${CURRENT}/doc/OX-RFC-100-ja ; fi 
+	if test ! -d ${CURRENT}/doc/OX-RFC-101-en ; then mkdir ${CURRENT}/doc/OX-RFC-101-en ; fi 
+	if test ! -d ${CURRENT}/doc/OX-RFC-101-ja ; then mkdir ${CURRENT}/doc/OX-RFC-101-ja ; fi 
+	(cd tmpEN; ${RSYNC} OpenXM ${CURRENT}/doc/OX-RFC-100-en)
+	(cd tmpJA; ${RSYNC} OpenXM ${CURRENT}/doc/OX-RFC-100-ja)
+	(cd tmp101JA; ${RSYNC} OX-RFC-101 ${CURRENT}/doc/OX-RFC-101-ja)
+	(cd tmp101EN; ${RSYNC} OX-RFC-101 ${CURRENT}/doc/OX-RFC-101-en)
+	if test ! -f .install-ps-done ; then \
+	(cd tmpEN ; $(DVIPS) OpenXM >${CURRENT}/openxm-en.ps) ; \
+	(cd tmpJA ; $(DVIPS) OpenXM >${CURRENT}/openxm-ja.ps) ; \
+	touch .install-ps-done ; \
+	fi
+
+
+clean : clean-done
 	/bin/rm -rf tmpEN tmpJA tmp101EN tmp101JA
 	/bin/rm -f OpenXM-en.dvi OpenXM-ja.dvi OX-RFC-101-en.dvi OX-RFC-101-ja.dvi
+clean-done:
+	/bin/rm -f .[a-z]*done
 
 
