@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.7 2000/11/17 02:50:04 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.8 2000/11/30 02:41:36 takayama Exp $
 \section{Session Management}
 
 \subsection{Control server}
@@ -245,7 +245,7 @@ OpenXM サーバは, 可能であるかぎり寡黙である.
 かぎり何も送信しない.
 */
 /*&eg
-OpenXM servers try to be quiet as far as possible.
+OpenXM servers try to be as quiet as possible.
 For example, engine errors of a server are only put on the engine stack and
 the engine does not send error packets unless the client sends the message
 {\tt pop\_cmo}.
@@ -259,9 +259,9 @@ OpenXM はこの原則をやぶる例外的な方法を一つ用意している.
 この機能は mathcap で禁止することも可能である.
 */
 /*&eg
-OpenXM provides a method to break this principle.
+OpenXM provides a method to notify events.
 Control server may send {\tt OX\_NOTIFY} header and an {\tt OX\_DATA} packet.
-This transmission can be prohibited by mathcap.
+This transmission may be prohibited by mathcap.
 */
 
 /*&jp
@@ -274,7 +274,7 @@ quit ボタンがおされると canvas が消滅するが, エンジン自体は存在を
 {\tt OX\_NOTIFY} を用いる.
 */
 /*&eg
-Let us explain how to use {\tt OX\_NOTIFY}.
+Let us explain how to use {\tt OX\_NOTIFY} by an example.
 The {\tt ox\_plot} server of {\tt asir} has a quit button.
 If the quit button is pressed, the canvas dissappears, but the engine
 does not terminate.
@@ -290,9 +290,10 @@ the {\tt OX\_NOTIFY} message should be used.
 あることに注意しよう.
 したがってエンジンはなんらかの方法で, コントロールサーバに
 {\tt OX\_NOTIFY} をおくることを依頼しないといけない.
-OpenXM の規格では,
-ファイル {\tt /tmp/.ox\_notify.pid} に touch することでこれの
-一つの実現方法を与えている.
+この方法は, OS によりいろいろな方法が可能だか,
+たとえば, unix では
+ファイル {\tt /tmp/.ox\_notify.pid} に touch することでこれを
+一つの実現することが可能である.
 ここで {\tt pid} はエンジンのプロセス番号である.
 コントロールサーバはファイル {\tt /tmp/.ox\_notify.pid} が
 touch されたことを検出したら, クライアントに
@@ -301,14 +302,18 @@ touch されたことを検出したら, クライアントに
 共有メモリやシグナルを用いてしらせてもよい.
 */
 /*&eg
-Let us note that it is the control process that sends {\tt OX\_NOTIFY}.
+Let us note that only the control process is allowed to send {\tt OX\_NOTIFY}.
 Therefore, the engine must ask the control server to send
 {\tt OX\_NOTIFY}.
-In the OpenXM, if the engine touches the file
+Methods to ask the control process from the engine
+depends on operating system.
+In case of unix, one method is the use of a file;
+for instance,
+if the engine touches the file
 {\tt /tmp/.ox\_notify.pid}, then the control server sends
 the {\tt OX\_NOTIFY} header and the {\tt OX\_DATA} packet 
 of {\tt cmo\_null}.
 Here, {\tt pid} is the process id of the engine.
 Engines and control processes may use a shared memory or a signal
-instead of the file {\tt /tmp.ox\_notify.pid}.
+instead of the file {\tt /tmp/.ox\_notify.pid}.
 */

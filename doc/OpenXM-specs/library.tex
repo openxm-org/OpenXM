@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/library.tex,v 1.4 2000/03/16 04:59:53 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/library.tex,v 1.5 2000/09/08 18:57:49 takayama Exp $
 /*&jp
 \section{ OX サーバに対する C ライブラリインタフェース }
 
@@ -14,8 +14,8 @@ Asir の OX サーバ用クライアント関数に似たインタフェースを持つ.
 \section{ OX servers as a C library}
 
 In some OX servers, one can use the OX server as a C library.
-The interface functions of the C library
-are similar to Asir OX client functions such as
+The API to the C library
+is similar to Asir OX client API such as
 {\tt ox\_push\_cmo()}, {\tt ox\_pop\_cmo()}.
 
 CMO should be converted into the binary encoded form to call these functions.
@@ -110,7 +110,8 @@ This function sends a stack machine command
  void xxx_ox_execute_string(char *s) 
 \end{verbatim}
 /*&eg
-These function requests a server to execute a string {\tt s}.
+This function requests a server to execute a command expressed by 
+a string {\tt s}.
 {\tt s} should be acceptable by the parser of the server.
 */
 /*&jp

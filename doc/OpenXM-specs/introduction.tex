@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/introduction.tex,v 1.2 2000/01/24 07:36:35 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/introduction.tex,v 1.3 2000/09/09 21:59:13 takayama Exp $
 //&jp \section{はじめに}
 //&eg \section{Introduction}
 
@@ -27,7 +27,7 @@ It provides methods and protocols
 for interactive distributed computation and
 for integrating mathematical software systems.
 OpenXM package is a set of software systems that support OpenXM protocols.
-It is currently a collection of softwares
+It is currently a collection of software systems
 {\tt Risa/Asir} \cite{asir}, {\tt Kan/sm1} \cite{kan}, {\tt PHC} pack \cite{phc}
 , {\tt GNUPLOT},
 {\tt Mathematica} interface, and
@@ -53,7 +53,7 @@ OpenXM はなにも考えずに簡単に接続できるシステムを作ろう,というまで野心
 つくるというのは気が遠くなる仕事である. そのかわり, 今よりすこしだけこ
 ういったデータ交換や分散システム構築の仕事を楽にしたいというのがささや
 かな第1目標である.  また, Mathematica や Maple といった巨大な統合ソフ
-トを, Free Mathematical Softwares としてわれわれ自身の手でつくっていく
+トを, Free Mathematical Software としてわれわれ自身の手でつくっていく
 ための基礎でもある.
 */
 
@@ -78,10 +78,11 @@ Our design goals are (1) simpleness, (2) extensibility, (3)
 easiness of implementation, (4) practicality, and (5) robustness.
 
 We believe that an open integrated system is a future of mathematical
-softwares.  However, it might be just a dream without realizability.
+software systems.  
+However, it might be  a dream without realizability.
 We want to build a prototype of such an open system by using existing
-standards, technologies and several mathematical softwares.  We want
-to see how far we can go with this approach.
+standards, technologies and several mathematical software systems.  
+We want to see how far we can go with this approach.
 */
 
 /*&jp
@@ -128,11 +129,19 @@ Common Mathematical Object format}).  Servers, which provide services
 to other processes, are stack machines.  The stack machine is called
 the {\it OX stack machine}.  Existing mathematical software systems are
 wrapped with this stack machine.  OX stack machines work in the
-asynchronous mode which is similar to X servers. That is, OpenXM
-server won't send messages to the client unless it is requested
-to send them. It is also possible to emulate RPC and a web server for MCP
-\cite{iamc} on our asynchronous OX stack machines.
-OX messages can be defined by DTD and be expressed by XML.
+asynchronous mode like X servers. 
+OpenXM servers try to be as quiet as possible.
+OpenXM server does not send messages to the client unless it is requested
+to send them. 
+
+Our stackmachine architecutre can be used as the lowest level layer
+to implement other protocols.
+Emulating RPC or constructing a web server like MCP
+\cite{iamc} on our asynchronous OX stack machines
+are possible.
+
+Our datatype definition is compliant to XML architecture.
+OX messages can be defined by DTD and can be expressed by XML.
 We call it OpenXM/XML.
 */
 /*&jp

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.10 2001/04/10 11:56:29 takayama Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.11 2001/08/27 05:39:15 takayama Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -59,11 +59,11 @@ bash$ ./bconv
 \bigbreak
 \noindent
 Group CMObject/Basic requires CMObject/Primitive. \\
-ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
+ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- ユニバーサルな ゼロを表す. } \\
-\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots
+\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots , 
 {\sl byte}\, \mbox{a[$|$f$|$]} ) \\
 &:& \mbox{ --- bignum をあらわす. a[i] についてはあとで説明}\\
 \mbox{QQ}        &:& ({\tt CMO\_QQ}, 
@@ -76,16 +76,18 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 & & \mbox{ --- 変数名 $v$ . } \\
 \end{eqnarray*}
 */
+
+
 /*&eg
 
 \bigbreak
 \noindent
 Group CMObject/Basic requires CMObject/Primitive. \\
-ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
+ZZ, QQ, Zero, Rational, Indeterminate $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- Universal zero } \\
-\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots
+\mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots ,
 {\sl byte}\, \mbox{a[$|$m$|$]} ) \\
 &:& \mbox{ --- bignum. The meaning of a[i] will be explained later.}\\
 \mbox{QQ}        &:& ({\tt CMO\_QQ}, 
@@ -101,9 +103,11 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 /*&C
 
 */
+/*&C
+
+*/
 
 /*&jp
-\subsection{Indeterminate および Tree}
 Indeterminate は変数名をあらわす.
 v はバイト列であればなにを用いてもよいが,
 システム毎に変数名として用いられるバイト列は制限がある.
@@ -115,19 +119,20 @@ escape sequence を用いて実現するのは, 無理があるようである.
 テーブルを作成する必要があるであろう.)
 */
 /*&eg
-\subsection{Indetermnate and Tree}
-Indeterminate is a name of a variable.
+The name of a variable should be expressed by using Indeterminate.
 v may be any sequence of bytes, but each system has its own
 restrictions on the names of variables.
 Indeterminates of CMO and internal variable names must be translated
-in one to one correspondence.
+in one-to-one correspondence.
 */
 
+
 /*&jp 
+\subsection{Indeterminate および Tree}
 
 \noindent
 Group CMObject/Tree requires CMObject/Basic. \\
-Tree, Lambda $\in$ CMObject/Basic. \\
+Tree, Lambda $\in$ CMObject/Tree. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
  {\sl List}\, {\rm attributes}, {\sl List}\, {\rm leaves}) \\
@@ -137,24 +142,23 @@ Tree, Lambda $\in$ CMObject/Basic. \\
 \mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
                           {\sl Tree} {\rm body}) \\                          
 & & \mbox{ --- body を args を引数とする関数とする. } \\
-& & \mbox{ --- optional な引数が必要なときは, leaves の後へつづける.} \\
 \end{eqnarray*}
 */
 /*&eg 
+\subsection{Indeterminate and Tree}
 
 \noindent
 Group CMObject/Tree requires CMObject/Basic. \\
-Tree, Lambda $\in$ CMObject/Basic. \\
+Tree, Lambda $\in$ CMObject/Tree. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
  {\sl List}\, {\rm attributes}, {\sl List}\, {\rm leaves}) \\
-& & \mbox{ --- A function or a constant of name. Functions are not evaluated. } \\
-& & \mbox{ --- attributes may be a null list. If it is not null, it is a list of}\\
+& & \mbox{ --- ``name'' is the name of the node of the tree. } \\
+& & \mbox{ --- Attributes may be a null list. If it is not null, it is a list of}\\
 & & \mbox{ --- key and value pairs. } \\
 \mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
                           {\sl Tree} {\rm body}) \\                          
 & & \mbox{ --- a function with the arguments body. } \\
-& & \mbox{ --- optional arguments come after leaves.} \\
 \end{eqnarray*}
 */
 
@@ -207,7 +211,7 @@ Lisp の Lambda 表現と同じ.
 */
 /*&eg
 Lambda is used to define functions.
-It is the same as the Lambda expression in Lisp.
+The notion ``lambda'' is borrowed from the language Lisp.
 */
 
 \noindent
@@ -222,7 +226,8 @@ It is the same as the Lambda expression in Lisp.
             (CMO_LIST,[size=]2, (CMO_INDETERMINATE,"x"),
 //&jp                  (CMO_TREE,(CMO_STRING, "e"),  自然対数の底
 //&eg                  (CMO_TREE,(CMO_STRING, "e"),  the base of natural logarithms
-                            (CMO_STRING, "basic"))
+    (CMO_LIST,[size=]1,(CMO_LIST,[size=]2,(CMO_STRING, "cdname"),
+                                          (CMO_STRING,"basic")))
         ))
     )
 )
@@ -233,16 +238,37 @@ It is the same as the Lambda expression in Lisp.
 \noindent
 Example:
 \begin{verbatim}
-sm1> [(plus) (Basic) [(123).. (345)..]] [(class) (tree)] dc ::
-Class.tree [    $plus$ , $basic$ , [    123 , 345 ]  ] 
+sm1> [(plus) [[(cdname) (basic)]] [(123).. (345)..]] [(class) (tree)] dc ::
+Class.tree [$plus$ , [[$cdname$ , $basic$ ]], [ 123 , 345 ]  ] 
 \end{verbatim}
 
+\noindent
+Example:
+\begin{verbatim}
+asir
+[753] taka_cmo100_xml_form(quote(sin(x+1)));
+<cmo_tree>  <cmo_string>"sin"</cmo_string> 
+ <cmo_list><cmo_int32 for="length">1</cmo_int32>   
+   <cmo_list><cmo_int32 for="length">2</cmo_int32>    
+     <cmo_string>"cdname"</cmo_string> 
+     <cmo_string>"basic"</cmo_string> 
+   </cmo_list> </cmo_list> 
+<cmo_tree>    <cmo_string>"plus"</cmo_string> 
+  <cmo_list><cmo_int32 for="length">1</cmo_int32>     
+    <cmo_list><cmo_int32 for="length">2</cmo_int32>      
+      <cmo_string>"cdname"</cmo_string> 
+      <cmo_string>"basic"</cmo_string> 
+    </cmo_list> </cmo_list> 
+ <cmo_indeterminate> <cmo_string>"x"</cmo_string>  </cmo_indeterminate>
+ <cmo_zz>1</cmo_zz>
+</cmo_tree></cmo_tree>
+\end{verbatim}
 
 
 \bigbreak
 //&jp 次に, 分散表現多項式に関係するグループを定義しよう.
 /*&eg
-Let us define a group for distributed polynomials. In the following
+Let us define a group for distributed polynomials. In the following,
 DMS stands for Distributed Monomial System.
 */
 
@@ -265,7 +291,7 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ の各指数 $e_i$
 をあらわす.} \\
 \mbox{Coefficient}&:& \mbox{ZZ} | \mbox{Integer32} \\
 \mbox{Dpolynomial}&:& \mbox{Zero} \\
-& & |\ ({\tt CMO\_DISTRIBUTED\_POLYNOMIAL},{\sl int32} m, \\
+& & |\ ({\tt CMO\_DISTRIBUTED\_POLYNOMIAL},{\sl int32}\, m, \\
 & & \ \ \mbox{DringDefinition},
 [\mbox{Monomial32}|\mbox{Zero}], \\
 & &\ \ 
@@ -307,7 +333,7 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ の各指数 $e_i$
                       $x^e = x_1^{e_1} \cdots x_n^{e_n}$. } \\
 \mbox{Coefficient}&:& \mbox{ZZ} | \mbox{Integer32} \\
 \mbox{Dpolynomial}&:& \mbox{Zero} \\
-                 & & |\ ({\tt CMO\_DISTRIBUTED\_POLYNOMIAL},{\sl int32} m, \\
+                 & & |\ ({\tt CMO\_DISTRIBUTED\_POLYNOMIAL},{\sl int32}\, m, \\
                  & & \ \ \mbox{DringDefinition}, [\mbox{Monomial32}|\mbox{Zero}], \\
                  & &\ \ 
                     \{\mbox{Monomial32}\})  \\
@@ -353,14 +379,12 @@ are implemented on Asir and Kan.
 
 \subsection{ Zero}
 /*&jp
-CMO では ゼロの表現法がなんとおりもあるが,
-どのようなゼロをうけとっても,
-システムのゼロに変換できるべきである.
+CMO では ゼロの表現法がなんとおりもあることに注意.
+%% どのようなゼロをうけとっても,
+%% システムのゼロに変換できるべきである.
 */
 /*&eg
-Though CMO has various representations of zero,
-each representation should be translated into zero
-in the system.
+Note that CMO has various representations of zero.
 */
 
 
@@ -379,8 +403,9 @@ GNU MPライブラリなどを参考にして設計されていて, 符号付き絶対値表現を用
 plugin/cmo-gmp.c}) CMO\_ZZ は次の形式をとる.
 */
 /*&eg
-We describe the bignum (multi-precision integer) representation in OpenXM.
-In OpenXM {\tt CMO\_ZZ} is used to represent bignum. Its design is similar
+We describe the bignum (multi-precision integer) representation 
+{\tt CMO\_ZZ} in OpenXM.
+The format is similar
 to that in GNU MP. (cf. {\tt plugin/cmo-gmp.c} in the {\tt kan/sm1} 
 distribution). CMO\_ZZ is defined as follows.
 */
@@ -402,7 +427,8 @@ Open xxx 規約では上の CMO は以下の整数を意味する. ($R = 2^{32}$)
 /*&eg
 $f$ is a 32bit integer. $b_0, \ldots, b_n$ are unsigned 32bit integers.
 $|f|$ is equal to $n+1$. 
-The sign of $f$ represents that of the above CMO. As stated in Section
+The sign of $f$ represents that of the above integer to be expressed. 
+As stated in Section
 \ref{sec:basic0}, a negative 32bit integer is represented by
 two's complement.
 
@@ -414,10 +440,12 @@ In OpenXM the above CMO represents the following integer. ($R = 2^{32}$.)
 \]
 
 /*&jp
+\noindent  例: 
 {\tt int32} を network byte order で表現
 しているとすると,例えば, 整数 $14$ は CMO\_ZZ で表わすと,
 */
 /*&eg
+\noindent Example:
 If we express {\tt int32} by the network byte order,
 a CMO\_ZZ $14$ is expressed by
 */
@@ -474,7 +502,7 @@ Ring by Name を用いた場合, 現在の名前空間で変数 yyy に格納された ring object
 We treat polynomial rings and their elements as follows.
 
 Generic DMS ring is an $n$-variate polynomial ring $K[x_1, \ldots, x_n]$,
-where $K$ is some coefficient set. $K$ is unknown in advance
+where $K$ is a coefficient set. $K$ is unknown in advance
 and it is determined when coefficients of an element are received.
 When a server has received an element in Generic DMS ring,
 the server has to translate it into the corresponding local object
@@ -485,14 +513,13 @@ In {\tt kan/sm1} things are complicated.
 {\tt kan/sm1} translates a DMS of N variables into an element of
 the CurrentRing. 
 If the CurrentRing is $n'$-variate and $n' < n$, then
-an $n$-variate polynomial ring is newly created. Optional informations such as
-the term order are all ignored.
+an $n$-variate polynomial ring is newly created. 
+
 
 If RingByName ({\tt CMO\_RING\_BY\_NAME}, yyy) 
 is specified as the second field of DMS,
 it requests a sever to use a ring object whose name is yyy
 as the destination ring for the translation.
-This is done in {\tt kan/sm1}.
 */
 
 \medbreak \noindent
@@ -542,7 +569,7 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{Polynomial in 1 variable} &:& 
 \mbox{({\tt CMO\_POLYNOMIAL\_IN\_ONE\_VARIABLE},\, {\sl int32}\, m, } \\
 & & \quad \mbox{ Name of the main variable }, \\
-& & \quad \mbox{ \{ {\sl int32} e, Coefficient \}} \\
+& & \quad \mbox{ \{ {\sl int32} e, Coefficient \}} ) \\
 & & \mbox{ --- m はモノミアルの個数. } \\
 & & \mbox{ --- e, Coefficieint はモノミアルを表現している. } \\
 & & \mbox{ --- 順序の高い順にならべる. 普通は巾の高い順.} \\
@@ -558,7 +585,7 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{ ( {\tt CMO\_RECURSIVE\_POLYNOMIAL}, } \\
 & & \quad \mbox{ RringDefinition, } \\
 & & \quad
-\mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient}   \\
+\mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient} )  \\
 \mbox{RringDefinition} 
 & : &  \mbox{ {\sl List} v } \\
 & & \quad \mbox{ --- v は, 変数名(indeterminate) または Tree のリスト. } \\
@@ -570,7 +597,7 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{Polynomial in 1 variable} &:& 
 \mbox{({\tt CMO\_POLYNOMIAL\_IN\_ONE\_VARIABLE},\, {\sl int32}\, m, } \\
 & & \quad \mbox{ Name of the main variable }, \\
-& & \quad \mbox{ \{ {\sl int32} e, Coefficient \}} \\
+& & \quad \mbox{ \{ {\sl int32} e, Coefficient \}} ) \\
 & & \mbox{ --- m is the number of monomials. } \\
 & & \mbox{ --- A pair of e and Coefficient represents a monomial. } \\
 & & \mbox{ --- The pairs of e and Coefficient are sorted in the } \\
@@ -588,7 +615,7 @@ $\in$ CMObject/RecursivePolynomial \\
 \mbox{ ( {\tt CMO\_RECURSIVE\_POLYNOMIAL}, } \\
 & & \quad \mbox{ RringDefinition, } \\
 & & \quad
-\mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient}   \\
+\mbox{ Polynomial in 1 variable}\, | \, \mbox{Coefficient} )  \\
 \mbox{RringDefinition} 
 & : &  \mbox{ {\sl List} v } \\
 & & \quad \mbox{ --- v is a list of names of indeterminates or trees. } \\
@@ -613,13 +640,14 @@ Example:
 $$   x^3 (1234 y^5 + 17 ) +  x^1 (y^{10} + 31 y^5)  $$
 /*&jp
 をあらわす.
-非可換多項式もこの形式であらわしたいので, 積の順序を上のように
-すること. つまり, 主変数かける係数の順番.
+%%非可換多項式もこの形式であらわしたいので, 積の順序を上のように
+%%すること. つまり, 主変数かける係数の順番.
 */
 /*&eg
-We intend to represent non-commutative polynomials with the
-same form. In such a case, the order of products are defined
-as above, that is a power of the main variable $\times$ a coeffcient.
+%%We intend to represent non-commutative polynomials with the
+%%same form. In such a case, the order of products are defined
+%%as above, that is a power of the main variable $\times$ a coeffcient.
+
 */
 
 \noindent
@@ -650,7 +678,7 @@ $\in$ CMObject/MachineDouble \\
 \begin{eqnarray*}
 \mbox{64bit machine double} &:& 
 \mbox{({\tt CMO\_64BIT\_MACHINE\_DOUBLE}, } \\
-& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte}} s8)\\
+& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s8})\\
 & & \mbox{ --- s1, $\ldots$, s8 は {\tt double} (64bit). } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
 &&  \mbox{\quad\quad mathcap に CPU 情報を付加しておく.} \\
@@ -662,13 +690,13 @@ $\in$ CMObject/MachineDouble \\
 & & \mbox{ \quad\quad mathcap に CPU 情報を付加しておく.} \\
 \mbox{128bit machine double} &:& 
 \mbox{({\tt CMO\_128BIT\_MACHINE\_DOUBLE}, } \\
-& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte}} s16)\\
+& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s16})\\
 & & \mbox{ --- s1, $\ldots$, s16 は {\tt long double} (128bit). } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
 &&  \mbox{\quad\quad mathcap に CPU 情報を付加しておく.} \\
 \mbox{Array of 128bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_128BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
-& & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte}} s16[1], \ldots , {\sl byte} s16[m])\\
+& & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte} s16[1], \ldots , {\sl byte} s16[m]})\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] は m 個の long double (128bit) である. } \\
 & & \mbox{ --- この表現はCPU依存である.}\\
 & & \mbox{ \quad\quad mathcap に CPU 情報を付加しておく.} 
@@ -678,34 +706,33 @@ $\in$ CMObject/MachineDouble \\
 \begin{eqnarray*}
 \mbox{64bit machine double} &:& 
 \mbox{({\tt CMO\_64BIT\_MACHINE\_DOUBLE}, } \\
-& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte}} s8)\\
+& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s8})\\
 & & \mbox{ --- s1, $\ldots$, s8 は {\tt double} (64bit). } \\
-& & \mbox{ --- This depends on CPU.}\\
+& & \mbox{ --- Encoding depends on CPU.}\\
 &&  \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
 \mbox{Array of 64bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_64BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
 & & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte}}\, s8[1], \ldots , {\sl byte}\, s8[m])\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] are 64bit double's. } \\
-& & \mbox{ --- This depends on CPU.}\\
+& & \mbox{ --- Encoding depends on CPU.}\\
 & & \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
 \mbox{128bit machine double} &:& 
 \mbox{({\tt CMO\_128BIT\_MACHINE\_DOUBLE}, } \\
-& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte}} s16)\\
+& & \quad \mbox{ {\sl byte} s1 , \ldots , {\sl byte} s16})\\
 & & \mbox{ --- s1, $\ldots$, s16 は {\tt long double} (128bit). } \\
-& & \mbox{ --- This depends on CPU.}\\
+& & \mbox{ --- Encoding depends on CPU.}\\
 & & \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
 \mbox{Array of 128bit machine double} &:& 
 \mbox{({\tt CMO\_ARRAY\_OF\_128BIT\_MACHINE\_DOUBLE}, {\sl int32} m, } \\
-& & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte}} s16[1], \ldots , {\sl byte} s16[m])\\
+& & \quad \mbox{ {\sl byte} s1[1] , \ldots , {\sl byte} s16[1], \ldots , {\sl byte} s16[m]})\\
 & & \mbox{ --- s*[1], $\ldots$ s*[m] are 128bit long double's. } \\
-& & \mbox{ --- This depends on CPU.}\\
+& & \mbox{ --- Encoding depends on CPU.}\\
 & & \mbox{\quad\quad Add informations on CPU to the mathcap.} \\
 \end{eqnarray*}
 */
 
 \bigbreak
-//&jp 次に IEEE 準拠の float および Big float を定義しよう.
-//&eg We define float and big float conforming to the IEEE standard.
+
 \begin{verbatim}
 #define CMO_BIGFLOAT   50
 #define CMO_IEEE_DOUBLE_FLOAT 51
@@ -717,7 +744,7 @@ format (64 bit) の定義を見よ.
 */
 /*&eg
 See IEEE 754 double precision floating-point (64 bit) for the details of 
-float conforming to the IEEE standard.
+float compliant to the IEEE standard.
 */
 
 \noindent
