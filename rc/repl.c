@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.10 2003/01/16 08:27:23 maekawa Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.11 2003/01/17 00:41:05 maekawa Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +10,7 @@
 
 #define BUFSIZE 10000
 
+#define	REPL_IMGFILE	"/tmp/repl_test.img"
 #define	REPL_PSFILE	"/tmp/repl_test.ps"
 
 int
@@ -62,13 +63,13 @@ main(int argc,char *argv[]) {
   fprintf(fp,"showpage \n");
   fclose(fp);
 
-  if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.png >/dev/null")) {
+  if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.img >/dev/null")) {
 	if (type == 'b') {
 	  printf("export OpenXM_PSTOIMG_TYPE=png\n");
 	}else{
 	  printf("setenv OpenXM_PSTOIMG_TYPE png\n");
 	}
-  }else if (!system("pstoimg -type gif /tmp/repl_test.ps -out /tmp/repl_test.gif >/dev/null")) {
+  }else if (!system("pstoimg -type gif /tmp/repl_test.ps -out /tmp/repl_test.img >/dev/null")) {
 	if (type == 'b') {
 	  printf("OpenXM_PSTOIMG_TYPE=gif\n");
       printf("export OpenXM_PSTOIMG_TYPE\n");
@@ -79,8 +80,17 @@ main(int argc,char *argv[]) {
 	printf("OpenXM_PSTOIMG_TYPE=no\n");
 	printf("export OpenXM_PSTOIMG_TYPE\n");
   }
-  system("rm -f /tmp/repl_test.*");
 
+  while (unlink(REPL_IMGFILE) != 0) {
+	if (errno == EINTR)
+		continue;
+	break;
+  }
+  while (unlink(REPL_PSFILE) != 0) {
+	if (errno == EINTR)
+		continue;
+	break;
+  }
 
   exit(EXIT_SUCCESS);
 }
