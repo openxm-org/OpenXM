@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.12 2002/07/29 05:02:58 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.13 2002/07/31 02:57:37 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
@@ -19,26 +19,35 @@ OpenXM_HOME_WIN tag 0 eq {
 } { } ifelse
 
 
-%% Set constants for windows.
-[(getenv) (OSTYPE)] extension tag 0 eq {
-  /oxasir.ostype (native-windows) def
-}{
-  [(getenv) (OSTYPE)] extension /oxasir.ostype set
-} ifelse
+ox.ostype 1 get (cygwin) eq {
+  /oxasirpath.oxasir  
+    [ (c:/cygwin) OpenXM_HOME_WIN 
+      (/bin/ox_asir) ] cat
+  def
+  /oxasirpath.asirlib
+    [ [(getenv) (OpenXM_HOME)] extension
+      (/lib/sm1/oxasir.asir) ] cat
+  def
+  /oxpath.ox
+    (ox)
+  def
+}{ } ifelse
 
-oxasir.ostype (cygwin) eq {
-/oxasirpath.oxasir  
-  [ [(getenv) (OpenXM_HOME)] extension
-    (/bin/ox_asir) ] cat
-def
-/oxasirpath.asirlib
-  [ [(getenv) (OpenXM_HOME)] extension
-    (/lib/sm1/oxasir.asir) ] cat
-def
-/oxpath.ox
-  (ox)
-def
-}{
+ox.ostype 1 get (xcygwin) eq {
+  /oxasirpath.oxasir  
+    [ [(getenv) (OpenXM_HOME)] extension
+      (/bin/ox_asir) ] cat
+  def
+  /oxasirpath.asirlib
+    [ [(getenv) (OpenXM_HOME)] extension
+      (/lib/sm1/oxasir.asir) ] cat
+  def
+  /oxpath.ox
+    (ox)
+  def
+}{ } ifelse
+
+ox.ostype 1 get (native) eq {
  /oxasirpath.oxasir  
   [ OpenXM_HOME_WIN
     (\bin\ox_asir) ] cat
@@ -53,35 +62,62 @@ def
     (\bin\ox.exe)
   ] cat
  def
-} ifelse
+}{ } ifelse
 %% Override asirconnectr
+
 /asirconnectr {
- [(getenv) (OSTYPE)] extension tag 0 eq {
-     asirconnectr_win
- }{
-   [(getenv) (OSTYPE)] extension (cygwin) eq
-   {
-     asirconnectr_cygwin
-   }{
-     asirconnectr_win
-   }ifelse
- } ifelse
+  ox.ostype 1 get (cygwin) eq {
+    asirconnectr_cygwin
+  }{ } ifelse
+  ox.ostype 1 get (xcygwin) eq {
+    asirconnectr_xcygwin
+  }{ } ifelse
+  ox.ostype 1 get (native) eq {
+    asirconnectr_win
+  }{ } ifelse
 } def
 
 /asirconnectr_cygwin {
- [/in-asirconnectr /pass /peer /data /control /oxasir] pushVariables
+ [/in-asirconnectr /pass /peer /data /control /oxasir /sss ] pushVariables
  [
  /pass [(oxGenPass)] extension def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
  peer message
- [oxpath.xterm
-  oxpath.ox ( -reverse -ox ) oxasirpath.oxasir
+ [ox.win.start { ( ) } map cat ox_backslash_to_slash
+  ( ox ) ( -reverse -ox ) 
+  oxasirpath.oxasir
   ( -data ) data ( -control ) control  ( -pass ) pass 
   ( -wait 5 )
   oxpath.null
- ] cat system
+ ] cat /sss set 
+ sss message sss system
+ [(oxCreateClient2) peer 0 pass] extension /oxasir set
+                     %% 0 means connect from only localhost. 
+ oxasir asirinit
+ /arg1 oxasir def
+ ] pop
+ popVariables
+ arg1
+} def
+
+/asirconnectr_xcygwin {
+ [/in-asirconnectr /pass /peer /data /control /oxasir /sss ] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(oxlog /usr/X11R6/bin/xterm -iconic -e )
+  ( ox ) ( -reverse -ox ) 
+  oxasirpath.oxasir
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  ( -wait 5 )
+  oxpath.null
+ ] cat /sss set 
+ sss message sss system
  [(oxCreateClient2) peer 0 pass] extension /oxasir set
                      %% 0 means connect from only localhost. 
  oxasir asirinit

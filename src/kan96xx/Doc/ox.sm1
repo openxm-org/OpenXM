@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.18 2001/12/28 01:20:25 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.19 2001/12/28 08:05:44 takayama Exp $
 
 /ox.sm1.loaded 1 def
 %%%%%%%%%%%% Configuration: Specify your server path
@@ -1018,6 +1018,62 @@ ox.verbose {
   (cf. oxWorkDir)
  ]
 ] putUsages
+
+/ox_get_os {
+  [/in-ox_get_ox /os1 /os2] pushVariables
+  [
+    /os1 [(ostype)] extension 0 get def
+    os1 (windows) eq {
+      [(getenv) (WINDOWID)] extension tag 0 eq not {
+         %% expect cygwin X
+         /os2 (xcygwin) def
+      }{
+         [(getenv) (OSTYPE)] extension tag 0 eq not 
+         [(getenv) (MACHTYPE)] extension tag 0 eq not  or 
+         [(getenv) (PWD)] extension tag 0 eq not  or 
+         { 
+           %% expect cygwin environment
+           /os2 (cygwin) def
+         }{
+           %% expect the native windows environment
+           /os2 (native) def
+         } ifelse 
+      } ifelse
+    }{
+      /os2 null def
+    } ifelse
+    /arg1 [os1 os2] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ox.ostype ox_get_os def
+
+/ox_backslash_to_slash {
+  /arg1 set
+  [/in-ox_backslash_to_slash /sss ] pushVariables
+  [
+    /sss arg1 def
+    sss (array) dc /sss set
+    sss { dup 92 eq { pop 47 } {  } ifelse } map
+    { (string) dc } map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+/ox_slash_to_backslash {
+  /arg1 set
+  [/in-ox_slash_to_backslash /sss ] pushVariables
+  [
+    /sss arg1 def
+    sss (array) dc /sss set
+    sss { dup 47 eq { pop 92 } {  } ifelse } map
+    { (string) dc } map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
 
 [(ostype)] extension  0 get
 (windows) eq {

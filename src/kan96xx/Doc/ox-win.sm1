@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.18 2002/07/31 02:57:37 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.19 2002/07/31 04:09:16 takayama Exp $
 
 (ox-win.start.noiconic) boundp {
   /ox-win.start.iconic 0 def
@@ -52,17 +52,10 @@ OpenXM_HOME_WIN tag 0 eq {
 } def
 ox.win.set.start
 
-%% This is used in asirconnectr_win
-/OX_LAUNCH (c:\home\asir\bin\ox_launch.exe) def
 %%%%%%%%%%%%%%% end configuration  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set constants for windows.
-[(getenv) (OSTYPE)] extension tag 0 eq {
-  /ox.ostype (native-windows) def
-}{
-  [(getenv) (OSTYPE)] extension /ox.ostype set
-} ifelse
 
-ox.ostype (cygwin) eq {
+ox.ostype 1 get (cygwin) eq {
  /oxpath.ox (bin/ox.exe) def
  /oxpath.oxsm1 (bin/ox_sm1.exe) def
  /oxpath.oxlog (bin/oxlog.exe) def
@@ -70,42 +63,63 @@ ox.ostype (cygwin) eq {
  /oxpath.null  (  ) def
  /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
  /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
-}{
+}{ } ifelse
+
+ox.ostype 1 get (xcygwin) eq {
+ /oxpath.ox (bin/ox.exe) def
+ /oxpath.oxsm1 (bin/ox_sm1.exe) def
+ /oxpath.oxlog (bin/oxlog.exe) def
+ /oxpath.xterm (/usr/X11R6/bin/xterm -icon -e ) def
+ /oxpath.oxlog.xterm (oxlog /usr/X11R6/bin/xterm -icon -e ) def
+ /oxpath.null  (  ) def
+ /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
+ /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
+}{ } ifelse
+
+ox.ostype 1 get (native) eq {
   /oxpath.ox
   [ OpenXM_HOME_WIN
     (\bin\ox.exe)
   ] cat
  def
-} ifelse
+}{ } ifelse
 
 /sm1connectr {
- [(getenv) (OSTYPE)] extension tag 0 eq {
-     sm1connectr_win
- }{
-   [(getenv) (OSTYPE)] extension (cygwin) eq
-   {
-     sm1connectr_cygwin
-   }{
-     sm1connectr_win
-   }ifelse
- } ifelse
+  ox.ostype 1 get (cygwin) eq {
+    sm1connectr_cygwin
+  }{ } ifelse
+  ox.ostype 1 get (xcygwin) eq {
+    sm1connectr_xcygwin
+  }{ } ifelse
+  ox.ostype 1 get (native) eq {
+    sm1connectr_win
+  }{ } ifelse
 } def
 
 %% For cygwin
+%% How to debug: 
+%% 1. Use start 'c:\cygwin\cygwin.bat' to create a cygwin window.
+%% 2. Set OpenXM_HOME and run sm1 , (ox.sm1) run, sm1_connectr
+%% 3. In order to kill a process, use ps and kill -9 
 /sm1connectr_cygwin {
- [/in-sm1connectr /pass /peer /data /control ] pushVariables
+ [/in-sm1connectr /pass /peer /data /control /sss ] pushVariables
  [
  /pass [(oxGenPass)] extension def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
  peer message
- [oxpath.xterm
-  ( ox ) ( -reverse -ox ) OpenXM_HOME_WIN (/bin/ox_sm1.exe)
+ [ox.win.start { ( ) } map cat ox_backslash_to_slash
+  ( ox ) 
+  ( -reverse -ox ) 
+  [(c:/cygwin) OpenXM_HOME_WIN (/bin/ox_sm1.exe)] cat
+%  (c:/cygwin/home/TakayamaNobuki/OpenXM/bin/ox_sm1.exe)
   ( -data ) data ( -control ) control  ( -pass ) pass 
   ( -wait 2 )
   oxpath.null
-  ( )] cat system 
+  ( )] cat /sss set 
+  sss message
+  sss system 
  [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
                      %% 0 means connect from only localhost. 
  (The server is binded to the variable ox.ccc) message
@@ -114,6 +128,10 @@ ox.ostype (cygwin) eq {
  popVariables
 } def
 
+%% How to debug: 
+%% 1. Set a batch file to change directory. Start command window.
+%% 2. Set OpenXMHOMEWIN (cf. debug-tool/asirgui-debug.bat) 
+%%    and run sm1 , (ox.sm1) run, sm1_connectr
 %% For Native windows system
 /sm1connectr_win {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
@@ -148,33 +166,29 @@ ox.ostype (cygwin) eq {
  popVariables
 } def
 
-%% Test
-/asirconnectr_win_test {
- [/in-sm1connectr /pass /peer /data /control ] pushVariables
+%% For cygwin
+/sm1connectr_xcygwin {
+ [/in-sm1connectr_xcygwin /pass /peer /data /control /sss] pushVariables
  [
- /pass [ ] cat def  %% Do not use one time password.
+ (Hello) message
+ /pass [(oxGenPass)] extension def
  /peer [(oxGetPort) (localhost)] extension def
  /data peer 1 get toString def
  /control peer 3 get toString def
  peer message
- [control data] message
- [(forkExec)
-  [OX_LAUNCH
-   (ox_launch)
-   (localhost)
-   (0)
-   control toString
-   data toString
-   (ox_asir)
-   (1)
-  ]
-  [ ]
-  7 %% 1 1 1
- ] extension ;
- [(oxCreateClient2) peer 0 pass] extension /oxasir.ccc set
+ [oxpath.oxlog.xterm  
+  [oxpath.ox] getPathNameSm1  
+  ( -reverse -ox ) 
+  [oxpath.oxsm1] getPathNameSm1
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( &)] cat /sss set
+ sss message 
+ sss system
+ [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
                      %% 0 means connect from only localhost. 
- (The server is binded to the variable oxasir.ccc) message
-  %% Initialization code for asir.
+ (The server is binded to the variable ox.ccc) message
+  ox.ccc.init 
  ] pop
  popVariables
 } def
