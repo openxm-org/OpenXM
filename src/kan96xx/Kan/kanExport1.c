@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.4 2003/07/13 07:53:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.5 2003/07/17 07:33:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -43,6 +43,7 @@ struct object Kreduction(f,set)
   }else{
     r = (*reduction)(f.lc.poly,grG,1,&syz);
   }
+  /* outputGradedPolySet(grG,0); */
   if (flag) {
     rob = newObjectArray(3);
     putoa(rob,0,KpoPOLY(r));
@@ -500,7 +501,7 @@ struct object syzPolyToArray(size,f,grG)
 
   while (f != POLYNULL) {
     g0 = srGrade(f);
-    i0 = srIndex(f);
+    i0 = srIndex(f);  
     serial = grG->polys[g0]->serial[i0];
     if (serial < 0) {
       errorKan1("%s\n","syzPolyToArray(): invalid serial[i] of grG.");

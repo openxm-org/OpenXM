@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.6 2003/08/13 03:52:25 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.7 2003/08/18 06:36:50 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -7,6 +7,14 @@
 /ecart.end   { endEcart } def
 /ecart.autoHomogenize 1 def
 /ecart.needSyz 0 def
+/ecartd.begin { 
+  ecart.begin
+  [(EcartAutomaticHomogenization) 1] system_variable
+} def
+/ecartd.end {  
+  ecart.end 
+  [(EcartAutomaticHomogenization) 0] system_variable
+} def
 
 /ecart.dehomogenize {
  /arg1 set
@@ -430,12 +438,12 @@
   (array a; array b;)
   $b : [syzygy gb tmat input];  gb = tmat * input $
   $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) (  x y Dx Dy -1)] (x,y) $
-  $             [ [ (Dx) 1 (Dy) 1] ] ] ecart.syz /ff set $
+  $             [ [ (Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.syz /ff set $
   $ ff 0 get ff 3 get mul pmat $
   $ ff 2 get  ff 3 get mul [ff 1 get ] transpose sub pmat ; $
   (  )
   $Example 2: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [ (x) -1 (y) -1] ]  [[0 1] [-3 1] ] ] ecart.syz pmat ; $
+  $             [ [(Dx) 1 (Dy) 1] [ (x) -1 (y) -1] ]  [[0 1] [-3 1] ] ] ecart.syz pmat ; $
   (  )
   (cf. ecart.gb)
   (    /ecart.autoHomogenize 0 def )
@@ -766,8 +774,7 @@
     %%BUG: case of v is integer
     v ecart.checkOrder
 
-    ecart.begin
-    [(EcartAutomaticHomogenization) 1] system_variable
+    ecartd.begin
 
     ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
 
@@ -802,8 +809,7 @@
       ifelse
     } ifelse
 
-    ecart.end
-    [(EcartAutomaticHomogenization) 0] system_variable
+    ecartd.end
 
     %% 
     env1 restoreOptions  %% degreeShift changes "grade"

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.10 2003/08/20 05:18:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.11 2003/08/21 02:30:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -248,13 +248,17 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
      struct syz0 *syzp; /* set */
 {
   POLY rn;
+  if (TraceLift && needSyz) {
+    warningGradedSet("TraceLift cannot be used to get syzygy. TraceLift is turned off.\n");
+    TraceLift = 0;
+  }
   if (TraceLift) {
 	if (EcartAutomaticHomogenization) {
 	  if (TraceLift_ringmod == NULL) {
 		warningPoly("reduction_ecart: TraceLift_ringmod is not set.\n");
 		return reduction_ecart1(r,gset,needSyz,syzp);
 	  }
-	  rn = reduction_ecart1_mod(r,gset); /* BUG: syzygy is not obtained. */
+	  rn = reduction_ecart1_mod(r,gset);
 	  if (rn == POLYNULL) return rn;
 	  else return reduction_ecart1(r,gset,needSyz,syzp);
 	}else{
@@ -400,6 +404,9 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   struct ecartPolyArray *gg;
   POLY pp;
   int ell;
+  POLY cf_o;
+  POLY syz_o;
+  POLY r_0;
   int se;
   struct coeff *cont;
 
@@ -407,6 +414,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   struct ring *rp;
   extern struct ring *SmallRingp;
 
+  r_0 = r;
   gg = NULL;
   if (needSyz) {
     if (r ISZERO) { rp = CurrentRingp; } else { rp = r->m->ringp; }
@@ -434,7 +442,11 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
     ell = ells.ell;
     if (ell > 0) {
       if (DebugReductionEcart & 2) printf("%");
-      gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
+	  if (needSyz) {
+		gg = ecartPutPolyInG(r,gg,cf,syz);
+	  }else{
+		gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
+	  }
     }
     if (ell >= 0) {
       if (ells.first) {
@@ -446,7 +458,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
       if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
       r = (*reduction1)(r,pp,needSyz,&cc,&cg);
 
-      if (DoCancel && (r != POLYNULL)) { /* BUG: syzygy should be corrected. */
+      if (DoCancel && (r != POLYNULL)) { 
         if (shouldReduceContent(r,0)) {
           r = reduceContentOfPoly(r,&cont);
           shouldReduceContent(r,1);
@@ -456,15 +468,35 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
 
       if (needSyz) {
         if (ells.first) {
+		  if (ell > 0) cc = ppMult(cc,cxx(1,0,ell,rp));
           cf = ppMult(cc,cf);
           syz = cpMult(toSyzCoeff(cc),syz);
           syz = ppAddv(syz,toSyzPoly(cg,ells.grade,ells.gseti));
         }else{
-          fprintf(stderr,"It has not yet implemented.\n");
-          exit(10);
-          /* BUG: not yet */
+          if (ell >0) cc = ppMult(cc,cxx(1,0,ell,rp));
+          cf_o = (gg->cf)[ells.ggi];
+          syz_o = (gg->syz)[ells.ggi];
+          cf = ppMult(cc,cf);
+          cf = ppAdd(cf,ppMult(cg,cf_o));
+          syz = cpMult(toSyzCoeff(cc),syz);
+          syz = ppAdd(syz,cpMult(toSyzCoeff(cg),syz_o));
+          /* Note. 2003.07.19 */
         }
       }
+
+      if (DebugReductionRed) {
+        POLY tp;
+        tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
+		tp = goDeHomogenizeS(tp);
+        if (tp != POLYNULL) {
+          fprintf(stderr,"reduction_ecart1(): sygyzy is broken. Return the Current values.\n");
+          fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
+          syzp->cf = cf;
+          syzp->syz = syz;
+          return r;
+        }
+      }
+
       if (r ISZERO) goto ss1;
       r = ecartDivideSv(r,&se); /* r = r/s^? */
     }
@@ -472,15 +504,17 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
 
  ss1: ;
   if (needSyz) {
+    /* dehomogenize the syzygy. BUG, this may be inefficient.  */
+	cf = goDeHomogenizeS(cf);
+	syz = goDeHomogenizeS(syz);
+	printf("cf=%s\n",POLYToString(cf,'*',1));
+	printf("syz=%s\n",POLYToString(syz,'*',1));
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
-    /* BUG: dehomogenize the syzygy */
-    fprintf(stderr,"It has not yet implemented.\n");
-    exit(10);
   }
 
   r = goDeHomogenizeS(r);
-  if (DoCancel && (r != POLYNULL)) { /* BUG: syzygy should be corrected. */
+  if (DoCancel && (r != POLYNULL)) { 
     if (r->m->ringp->p == 0) {
 	  r = reduceContentOfPoly(r,&cont);
 	  if (DebugReductionEcart || DebugReductionRed || DebugContentReduction) printf("cont=%s ",coeffToString(cont));     

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.7 2003/07/19 06:03:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.8 2003/08/19 08:02:10 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -539,6 +539,39 @@ int isTheSameRing(struct ring *rstack[],int rp, struct ring *newRingp)
 
 /* s->1 */  
 POLY goDeHomogenizeS(POLY f) {
+  POLY lRule[1];
+  POLY rRule[1];
+  struct ring *rp;
+  POLY ans;
+  /* printf("1:[%s]\n",POLYToString(f,'*',1)); */
+  if (f == POLYNULL) return f;
+  rp = f->m->ringp;
+  if (rp->next == NULL) {
+	lRule[0] = cxx(1,0,1,rp);
+	rRule[0] = cxx(1,0,0,rp);
+	ans=replace(f,lRule,rRule,1);
+  }else{
+	struct coeff *cp;
+	POLY t;
+	POLY nc;
+    ans = POLYNULL;
+	while (f != POLYNULL) {
+	  cp = f->coeffp;
+	  if (cp->tag == POLY_COEFF) {
+		t = goDeHomogenizeS((cp->val).f);
+		nc = newCell(polyToCoeff(t,f->m->ringp),f->m);
+		ans = ppAddv(ans,nc);
+		f = f->next;
+	  }else{
+		ans = f; break;
+	  }
+	}
+  }
+  /* printf("2:[%s]\n",POLYToString(ans,'*',1)); */
+  return ans;
+}
+
+POLY goDeHomogenizeS_buggy(POLY f) {
   POLY node;
   POLY lastf;
   struct listPoly nod;
@@ -546,6 +579,7 @@ POLY goDeHomogenizeS(POLY f) {
   POLY tf;
   int gt,first;
 
+  printf("1:[%s]\n",POLYToString(f,'*',1));
   if (f == POLYNULL) return(POLYNULL);
   node = &nod;
   node->next = POLYNULL;
@@ -575,6 +609,7 @@ POLY goDeHomogenizeS(POLY f) {
     }
     f = f->next;
   }
+  printf("2:[%s]\n",POLYToString(node->next,'*',1));
   return (node->next);
 }  
 
