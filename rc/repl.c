@@ -1,9 +1,13 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.6 2002/04/05 01:49:09 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.7 2002/04/05 01:55:59 takayama Exp $ */
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 
 #define BUFSIZE 10000
+
+int
 main(int argc,char *argv[]) {
   char s[BUFSIZE];
   char cwd[BUFSIZE];
@@ -60,9 +64,6 @@ main(int argc,char *argv[]) {
   }
   system("rm -f /tmp/repl_test.*");
 
-  
+
   exit(0);
 }
-
-	  
-  
