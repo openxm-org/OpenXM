@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.34 2003/11/24 23:16:02 takayama Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.35 2003/12/04 07:49:24 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -42,7 +42,7 @@ configure_symbolic_links :
 	fi
 	@touch ./.configure_symbolic_links_done 
 ###############
-install: install-exec install-man install-document
+install: install-exec install-man 
 install-exec: clean-for-install all-sm1
 	install Kan/sm1 ${OpenXM_bin}
 	install trans/polymake2tfb ${OpenXM_bin}

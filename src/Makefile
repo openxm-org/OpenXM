@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.133 2003/11/27 12:10:18 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.134 2004/02/22 06:39:09 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -263,6 +263,12 @@ all-Copyright :
 install-all-asir-lib:
 	(cd asir2000 ; make install-lib-small)
 
+install-document: install-document-kan96xx install-document-asir-contrib
+
+install-document-kan96xx: install-kan96xx
+	(cd kan96xx ; make install-document)
+install-document-asir-contrib: install-asir-contrib
+	(cd asir-contrib; make install-document)
 
 ## Targets for debugging
 install-for-debug:

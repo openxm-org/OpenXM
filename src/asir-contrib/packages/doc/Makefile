@@ -1,8 +1,8 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.49 2003/07/28 01:36:36 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.50 2003/08/22 23:56:27 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
-# install : install-document install-help
+# install : install-help
 # install-help : all
 #        Installing online help to OpenXM/lib/asir/help-*
 # install-document :  all  gen-dvi-ps
@@ -69,7 +69,17 @@ install :
 		echo "NOTE: Installation is already done. Remove .done_install for a new installation." ; \
 	fi
 
-install2 : install-document install-help install-html-help
+install-document : install-html-help
+	@if [ ! -f ./.done_install_document ] ; \
+	then \
+		make install-document2 ; \
+		touch ./.done_install_document ; \
+	else \
+		echo "NOTE: Installation of document is already done. Remove .done_install_document for a new installation." ; \
+	fi
+
+
+install2 : install-help 
 
 gentexi : gentexi.c
 	gcc -o gentexi gentexi.c
@@ -390,7 +400,7 @@ install-html-help: gen-html-en gen-html-ja
 	-( tar cf - html-en | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 	-( tar cf - html-ja | (cd $(OpenXM_doc)/asir-contrib ; tar xf -))
 
-install-document :  gen-dvi-ps
+install-document2 :  gen-dvi-ps
 	-cp cman-ja.dvi $(OpenXM_doc)/asir-contrib/cman-ja.dvi
 	-$(DVIPS) cman-ja >$(OpenXM_doc)/asir-contrib/cman-ja.ps
 	-cp cman-en.dvi $(OpenXM_doc)/asir-contrib/cman-en.dvi
@@ -406,13 +416,13 @@ cman-en.dvi: $(ENSRCS)
 
 clean-mk-openxm-asir-contrib-document-dir :
 	$(RM) -rf $(OpenXM_doc)/asir-contrib
-	$(RM) -f ./.done_install
+	$(RM) -f ./.done_install ./.done_install_document
 	mkdir $(OpenXM_doc)/asir-contrib
 	touch $(OpenXM_doc)/asir-contrib/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_AUTOMATICDALLY_GENERATED.
 
 
 clean :
-	$(RM) -f ./.done_install
+	$(RM) -f ./.done_install ./.done_install_document
 	$(RM) -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
 	$(RM) -f oxrfc100-ja.texi oxrfc100-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi windows-ja.texi windows-en.texi intro-ja.texi intro-en.texi util-en.texi util-ja.texi
 	$(RM) -rf help-ja help-en tmp tmp-ja html-en html-ja
