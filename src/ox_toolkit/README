@@ -1,0 +1,79 @@
+# Author: 小原功任 @ 金沢大学理学部計算科学教室
+# URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
+# $OpenXM$
+
+☆ libox.a マニュアル。
+
+libox.a を利用するには次のヘッダファイルをインクルードする必要があります。
+
+#include <oxtag.h>
+#include <ox.h>
+#include <parse.h>
+
+各構造体および関数の宣言はそれぞれのヘッダファイルを見てください。
+ここでは基本的な考え方について説明します。
+
+まず、すべての CMO データはそのデータ型に対応した new 関数によって生成
+します。たとえば CMO_ZZ 型のオブジェクトは new_cmo_zz() 関数によって生
+成されます。
+
+CMO データを送受信するには、CMO の種類によらず send_cmo(),
+receive_cmo() を用います。これらの関数は OX ヘッダを扱いませんので、OX 
+メッセージを送受信するときには send_ox_tag(), receive_ox_tag() をその
+前に呼ぶ必要があります。
+
+
+☆ CMO オブジェクト
+次のデータ型(構造体)が用意されている。
+
+cmo
+cmo_null
+cmo_int32
+cmo_datum
+cmo_string
+cmo_mathcap
+cmo_list
+cmo_monomial32
+cmo_zz
+cmo_qq
+cmo_zero
+cmo_dms_generic
+cmo_ring_by_name
+cmo_distributed_polynomial
+cmo_indeterminate
+cmo_error2
+
+このうち cmo 型はいわば抽象基底クラスに相当するものであり、この型のオ
+ブジェクトをつくってはいけない。また cmo_distributed_polynomial は 
+cmo_list の派生クラスであると思ってもよい。ユーザはオブジェクトの実体を
+直接扱ってはならない。必ず、new_... 関数、すなわち
+
+new_cmo_null();
+new_cmo_int32(int i);
+new_cmo_string(char* s);
+new_cmo_mathcap(cmo* ob);
+new_cmo_list();
+new_cmo_monomial32();
+new_cmo_monomial32_size(int size);
+new_cmo_zz();
+new_cmo_zz_size(int size);
+new_cmo_zz_set_si(int integer);
+new_cmo_zz_noinit();
+new_cmo_zero();
+new_cmo_distributed_polynomial();
+new_cmo_dms_generic();
+new_cmo_ring_by_name(cmo* ob);
+new_cmo_indeterminate(cmo* ob);
+new_cmo_error2(cmo* ob);
+
+によってオブジェクトを生成し、ユーザはポインタのみを扱うこと。
+
+☆ OX オブジェクト
+次のデータ型(構造体)が用意されている。
+
+ox
+ox_command
+ox_data
+
+このうち、ox 型は抽象基底クラスなので、オブジェクトをつくってはいけない。
+
