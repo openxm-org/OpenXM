@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.4 2005/04/05 13:12:06 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.5 2005/04/06 05:08:11 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
@@ -300,6 +300,7 @@ struct item *getItem() {
   int pp,pOld;
   int argc;
   int examplec = 0;
+  int i;
   it = newItem();
   do {
     p = nextToken(key,LIMIT);
@@ -425,7 +426,11 @@ struct item *getItem() {
         }
       }
     }else{
-      fprintf(stderr,"Warning: unknown keyword << %s >> at %s. Ignored.\n",key, it->name);
+      fprintf(stderr,"Error: unknown keyword << %s >> at %s.\n",key, it->name);
+	  fprintf(stderr,"       The error occurs around ");
+	  for (i=pp ; i < p; i++) fputc(S[i],stderr);
+	  fprintf(stderr,"\n\n");
+	  exit(1);
       p = nextToken(key,LIMIT);
     }
   }while (p >= 0);
@@ -623,7 +628,9 @@ outputExample(FILE *fp,char *s) {
 		fprintf(fp,":"); i += 5;
 	  }else fprintf(fp,"@@");
     }else{
-	  fputc(s[i],fp);
+	  if (s[i] == '{') {fprintf(fp,"%s","@{"); }
+	  else if (s[i] == '}') {fprintf(fp,"%s","@}");}
+	  else fputc(s[i],fp);
     }
   }
 }

@@ -1,27 +1,49 @@
 /*&generate-prologue
 */
 $Id$
-$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.3 2005/04/02 05:56:57 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.4 2005/04/03 11:05:21 takayama Exp $
 
 注意: testing/tr.rr では quote を quotetolist で list に変換して扱うため,
       下の仕様とはことなり, list 型でデータを戻す場合も多い.
       ユーザ言語で書いている関係上 pn(x) を pn("x") としている. 
       他にも同様な関数があり.
 
-gentexi <tr.oxt >t.texi
-t.texi に
-\input texinfo
-@def@pi{PI}
-を加えてから ptex t.texi で 大体見れるが,
+このファイルから texi ファイルを作成するには以下のように入力して下さい.
+oxgentexi は OpenXM/src/util の下にあります.
 
-cat pre.texi >t.texi
-${OpenXM_HOME}/asir-contrib/packages/doc/gentexi tr.oxt >>t.texi
-echo "@bye" >>t.texi
-ptex t.texi
-とすればもっとマニュアルっぽいものができる.
+nkf -e tr.oxt | oxgentexi --noSorting --title 'Term rewriting functions for Risa/Asir' --author 'Nobuki Takayama' >t.texi
 
-@c --------------------------------------------------------------------
+begin: AAA01|
+
+@c ---------------------------------------------------------
+@section 変数パターンと関数パターン
+
+
+変数パターン
+
+pn(x)                    任意のものにマッチ. マッチしたものを x に bind.
+pn(x,qt_is_integer(x))
+
+Todo; fn は多分いらない. qt_is_function(x) で OK.
+fn(f)                    任意の関数にマッチ. マッチした関数名を f に bind.
+fn(f,pn(x),pn(y))        任意の関数にマッチ. マッチした関数名を f に bind.
+                         f の引数を x, y に bind               
+
+
+パターンは quote で与える.
+予約語  tr_and, tr_or, tr_not  はパターンのマッチに関して論理演算をおこなう.
+たとえば
+quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
+は x が 整数で - が先頭についていない場合マッチする.
+
+end:
+
+begin: AAA02|
+
 @section quote に対する基本関数
+
+end:
+
 
 begin: qt_node(Q)
  quote データ {Q} の node を取り出す.
@@ -73,6 +95,10 @@ end:
 begin: qt_replace(Qobj,[[x,Valuex],[y,Valuey],...])
    quote object {Qobj} の中の x を Valuex, y を Valuey, ... に置き換えた
    quote object を戻す.
+   description:
+    課題; x, y は大文字も許すか? @var{Qobj} も元々含まれている大文字を評価して置き換える
+    関数も必要か?
+
    example: qt_replace(quote(sin(x*@pi)), [[x,quote( (2*t+3) )]])
 end:
 
@@ -83,19 +109,34 @@ begin: qt_parenthesis(Qobj)
    quote object {Qobj} の中の括弧が足りないときには補い, 多いときには取り去った
    quote object を作る.
    +, *, /, ^, - 等について asir の文法での演算子の強さを仮定する.
+  description:
+  参考;
+   noro_simplify.rr  の @code{remove_paren()} がすでに実現づみ?
+   @code{flatten()} や @code{quote_to_funargs()} を利用してる模様.
+
 end:
 
 begin: qt_eval(Qobj,type)
    Qobj を asir の他の object に変換.
+  description:
+   @code{eval_quote()} がすでに実現づみ.
+
 end:
 
 begin: qt_(Obj)
    asir の Obj を quote 型に変換.  
+   description:
+     @code{objtoquote()} がすでに実現づみ.
+
 end:
 
 
+begin: tr|
+
 @c --------------------------------------------------------------------
 @section tr (term rewriting) のトップレベルの関数
+
+end:
 
 begin: tr_match0(Qobj,P)
  quote データ {Qobj} が パターン {P} に適合すれば 1 を戻し, そうでなければ 0
@@ -134,7 +175,7 @@ begin: tr_apply_rule1(Qobj,P,Act)
 
 description:
  ここで sin_int(X) は X が integer の時は quote(0) を戻し,
- そうでないときは quote(sin(X*@pi)) を戻す.
+ そうでないときは quote(sin(X*@@pi)) を戻す.
  深さ優先で書き換えをするには 関数 sin_int の中でまた tr_apply_rule1 を呼び出せば
  よい.
 
@@ -156,37 +197,15 @@ end:
 begin: tr_make_binding(Qobj,P)
 end:
 
-@c ---------------------------------------------------------
-@section 変数パターンと関数パターン
 
-begin: remark_on_pn()
-変数パターン
-example:
-pn(x)                    任意のものにマッチ. マッチしたものを x に bind.
-pn(x,qt_is_integer(x))
+begin: zzz00|
 
-Todo; fn は多分いらない. qt_is_function(x) で OK.
-fn(f)                    任意の関数にマッチ. マッチした関数名を f に bind.
-fn(f,pn(x),pn(y))        任意の関数にマッチ. マッチした関数名を f に bind.
-                         f の引数を x, y に bind               
+@section 例題
+
 end:
 
-@c ---------------------------------------------------------
-@section パターン
-
-begin: remark_pattern()
-パターンは quote で与える.
-予約語  tr_and, tr_or, tr_not  はパターンのマッチに関して論理演算をおこなう.
-たとえば
-quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative(x))))
-は x が 整数で - が先頭についていない場合マッチする.
-end:
-
-@c ---------------------------------------------------------
-@section 例題  sin(整数*@pi) を 0 に.
-
-begin: example_sin_int();
-例題  sin(整数*@pi) を 0 に.
+begin: zzz01|
+例題  sin(整数*@@pi) を 0 に.
 example:
    /* 準備 */
    extern P,A;
@@ -206,7 +225,7 @@ end:
 @c ------------------------------------------------------
 @section 例題 Mathematica の N[ ] 相当の関数をユーザが書けるように.
 
-begin: example_Mathematica_N()
+begin: zzz02|
 例題 Mathematica の N[ ] 相当の関数をユーザが書けるように.
 example:
     nn(sin(cos(@pi)+sqrt(2))) 
@@ -228,7 +247,7 @@ end:
 @c ---------------------------------------------------------
 @section 例題  不定積分
 
-begin: example_indefinite_integral()
+begin: zzz03|
 例題  不定積分
 example:
    /* integral(f+g) => integral(f)+integral(g) */
@@ -257,8 +276,11 @@ end:
 @c ---------------------------------------------------------
 @section 例題  簡単な構文解析
 
-begin: example_parsing()
+begin: zzz04|sortKey: zzz04
+description:
+
 例題  簡単な構文解析
+
 example:
    式(expression) は 式+式 | 式*式 | (式) | 整数
 
@@ -297,34 +319,30 @@ example:
    tr_eval_expression(quote(1+2*(3+15)));
 end:
 
-@c ---------------------------------------------------------
-@section 例題  非可換環の簡単な構文解析
-
-
-
-@section  Todo;
-
- 例; 冪級数の計算を quote で実現.
-        sort や expand は組み込みで.
-
- 例; Mathematica の Expand[], Toghether[] 相当のもの.
-
- 例; D の掛け算を パターンマッチで実現.  
-
- 例; (x^(1/n))^n --> x 等.
-
- 例; 記号微分と微分環での計算.
-       y''+xy=0,  y''=y^2+x 等.  index 付きの変数生成が必要. idxtov
-
- 例; QE, 論理式.
+begin: misc|
 
 @section 考え方についての概説
 
  トップレベルの関数達.  (stylesheet の考えに似てる.)
+
   iterator の一種.
+
+  yacc に似てる.
+
+@section デバッガー
+
+  選択すべきルールが沢山あるときは, 警告する機能.
+
+  無限ループの|検出.
+
+end:
+
+begin: exp|
 
 @c ------------------------------------------------
 @section 実験的関数
+
+end:
 
 begin: qt_map_arg(F,Q)
  関数 F を quote データ {Q} の すべてのノードに再帰的に
@@ -333,9 +351,57 @@ begin: qt_map_arg(F,Q)
            nn(nn(sin(nn(@pi)))+nn(nn(2)/nn(3)))
 end:
 
+begin: todo|
+
+@section  Todo
+
+@subsection ユーザ定義の中置演算子
+
+   tfb の書き方を導入.
+
+@subsection 数学よりの例題
+
+数学的におもしろい例題をなるべく沢山用意する.
+これらの例題に対して tr が試作品を作るのに有効であるということをいう.
+
+ 例; gcd 計算の多項式 reduction を tr で実現.
+
+ 例; 冪級数の計算を quote で実現.
+        sort や expand は組み込みで.
+
+ 例; Mathematica の Expand[], Toghether[] 相当のもの.
+
+ 例; D の掛け算を パターンマッチで実現.  
+    holonomic 関数を係数とする微分作用素環での計算.
+
+ 例; (x^(1/n))^n --> x 等.
+
+ 例; 記号微分と微分環での計算.
+       y''+xy=0,  y''=y^2+x 等.  index 付きの変数生成が必要. idxtov
+
+ 例; QE, 論理式.
+
+ 例; 外積代数. 
+
+ 例; 岩波, 応用数学, 神保のソリトンの本にあるような fermion 等の例.
+
+
+ 例;
+   Bergman, George M.
+   The diamond lemma for ring theory.
+   Advances in Math. 29 (1978), no. 2, 178--218.
+   にあるような非可換代数の例.
+
+end:
+
+begin: new-functions|
+
 @section   まだスケッチのみの関数仕様
 
-  qt_ltor, qt_rtol : 木の構造の変換; 例 (x*y)*z --> x*(y*z)
+  qt_ltor, qt_rtol ; 木の構造の変換; 例 (x*y)*z --> x*(y*z)
+
+
+@subsection Index つき変数
 
   idxtov(x,i)  x_i を生成.  x_i の index (idx) 属性 を i に. 
                                     base_name 属性を  x に.
@@ -347,12 +413,16 @@ end:
   qt_function(名前, 引数) --> quote(名前(引数)) を生成.  
    index 付き関数は微分環の取扱に必要.
 
+@subsection 冪級数, dp の pretty print.
+
   巾級数の取扱, dp の pretty print のため.
   qt_qttodp(Qobj | vlist,  order?)  quote から dp を作る. 
        exponent が数でないと作れず.
   qt_dptoqt(Qobj | vlist)  dp から quote を作る.  vlist は属性で対応?
 
   qt_expand, qt_sort, qt_ht, qt_rest, qt_mtov も基礎関数として欲しい.
+
+end:
 
 /*&generate-epilogue
 */
