@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.3 2003/11/24 06:50:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.4 2003/11/24 08:16:13 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -67,6 +67,8 @@ struct object addTree(struct object ob1, struct object ob2)
 {
   struct object rob,aob;
   struct object ob3,ob4;
+  struct object attr;
+  struct object keyValue;
   int i;
   if (isTreeAdd(ob1) && !isTreeAdd(ob2)) {
     ob1 = KopTree(ob1);
@@ -101,9 +103,14 @@ struct object addTree(struct object ob1, struct object ob2)
     putoa(aob,0,ob1);
     putoa(aob,1,ob2);
   }
+  attr = newObjectArray(1);
+  keyValue = newObjectArray(2);
+  putoa(keyValue,0,KpoString("arith1"));
+  putoa(keyValue,1,KpoString("plus"));
+  putoa(attr,0,keyValue);
   rob = newObjectArray(3);
   putoa(rob,0,KpoString("add"));
-  putoa(rob,1,KpoString("basic"));
+  putoa(rob,1,attr);
   putoa(rob,2,aob);
   return(KpoTree(rob));
 }

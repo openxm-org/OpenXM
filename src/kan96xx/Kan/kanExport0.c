@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.17 2003/08/23 02:28:38 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.18 2003/08/26 12:46:05 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -19,6 +19,7 @@ int SerialCurrent = -1;  /* Current Serial number of the recieved packet as serv
 
 int ReverseOutputOrder = 1;  
 int WarningNoVectorVariable = 1;
+extern int QuoteMode;
 
 /** :arithmetic **/
 struct object KooAdd(ob1,ob2)
@@ -142,7 +143,11 @@ struct object KooAdd(ob1,ob2)
     
 
   default:
-    warningKan("KooAdd() has not supported yet these objects.\n");
+    if (QuoteMode) {
+	  rob = addTree(ob1,ob2);
+    }else{
+      warningKan("KooAdd() has not supported yet these objects.\n");
+    }
     break;
   }
   return(rob);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.8 2003/11/20 09:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.9 2003/12/03 01:21:43 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -14,6 +14,7 @@
 
 int PrintDollar = 1;         /* flag for printObject() */
 int PrintComma  = 1;         /* flag for printObject() */
+int InSendmsg2 = 0;
 #define OB_ARRAY_MAX   (AGLIMIT+100)
 
 extern int GotoP;
@@ -1560,7 +1561,9 @@ int executePrimitive(ob)
     size = ob1.rc.ival;
     for (i=0; i<size; i++) {
       token = tokenArray[i];
+      InSendmsg2 = 1;
       status = executeToken(token);
+      InSendmsg2 = 0;
       if (QuoteMode && (status==DO_QUOTE)) {
         /* generate tree object, for kan/k0 */
         struct object qob;

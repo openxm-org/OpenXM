@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.12 2002/11/07 23:35:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.13 2003/11/20 09:20:36 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -734,6 +734,7 @@ void scanner() {
   char *tmp2;
   extern int ErrorMessageMode;
   int jval;
+  extern int InSendmsg2;
   getokenSM(INIT);
   initSystemDictionary();
 
@@ -818,6 +819,7 @@ void scanner() {
       }
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook? */
+      InSendmsg2 = 0;
       continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
@@ -836,7 +838,7 @@ void ctrlC(sig)
   extern int SGClock;
   extern int UserCtrlC;
   extern int OXlock;
-  
+
   signal(sig,SIG_IGN);
   /* see 133p */
   cancelAlarm();
@@ -899,6 +901,7 @@ int executeToken(token)
   int i,h0,h1;
   extern int WarningMessageMode;
   extern int Strict;
+  extern int InSendmsg2;
 
   if (GotoP) { /* for goto */
     if (token.kind == ID && isLiteral(token.token)) {
@@ -963,8 +966,12 @@ int executeToken(token)
         ob.lc.ival = primitive;
         return(executePrimitive(ob));
       } else {
-		if (QuoteMode) {
-		  return(DO_QUOTE);
+        if (QuoteMode) {
+          if (InSendmsg2) return(DO_QUOTE);
+          else {
+            Kpush(KpoString(token.token));
+            return(0); /* normal exit.*/
+          }
 		}
         if (WarningMessageMode == 1 || WarningMessageMode == 2) {
           char tmpc[1024];
