@@ -1,15 +1,15 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.1 2000/01/09 20:19:39 maekawa Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.2 2000/01/09 20:24:46 maekawa Exp $
 
 LIBDIR=../lib
 
 configure:
 	@if [ -f lin_phcv2p.gz.uuencoded ]; then \
-		uudecode -p lin_phcv2p.gz.uuencoded | gzip -d ; \
+		uudecode -p lin_phcv2p.gz.uuencoded | gzip -dc > lin_phcv2p ; \
 		chmod +x lin_phcv2p ; \
 	fi
 
 	@if [ -f fep.linux.gz.uuencoded ]; then \
-		uudecode -p fep.linux.gz.uuencoded | gzip -d ; \
+		uudecode -p fep.linux.gz.uuencoded | gzip -dc > fep.linux ; \
 		chmod +x fep.linux ; \
 	fi
 
