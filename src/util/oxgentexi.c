@@ -1,9 +1,9 @@
-/*  $OpenXM$ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.1 2005/04/04 06:10:58 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
 #define VMAX 20
-#define LIMIT 1024
+#define LIMIT   65536
 #define ITEMMAX 1024
 struct item {
   char *category;  /* base */
@@ -22,6 +22,8 @@ struct item {
   int refc;
   char *refv[VMAX];
   char *author;
+  char *sortKey;
+  int type;
 };
 struct item *getItem(void);
 char *str(char *key);
@@ -36,6 +38,7 @@ char *Category=NULL;
 char *Lang="en";
 int Include = 0;
 int GenExample = 0;
+int DebugItem = 0;
 
 main(int argc,char *argv[]) {
   char *t;
@@ -61,6 +64,8 @@ main(int argc,char *argv[]) {
       GenExample = 1;
     }else if (strcmp(argv[i],"--debug") == 0) {
       Debug = 1;
+    }else if (strcmp(argv[i],"--debugItem") == 0) {
+      DebugItem = 1;
     }else {
       fprintf(stderr,"Unknown option\n"); exit(1);
     }
@@ -100,7 +105,14 @@ main(int argc,char *argv[]) {
   if (Debug) fprintf(stderr,"Sorting...\n");
   shell(items,n);
   if (Debug) fprintf(stderr,"Done.\n");
-  
+
+  if (DebugItem) {
+	for (i=0; i<n; i++) {
+	  printItem(items[i]);
+	}
+	exit(0);
+  }
+
   printMenu(stdout,items,n);
 
   for (i=0; i<n; i++) {
@@ -129,7 +141,7 @@ genInclude(char *name) {
 }
 
 cmpItem(struct item *it,struct item *it2) {
-  return strcmp(it->name,it2->name);
+  return strcmp(it->sortKey,it2->sortKey);
 }
 struct item * newItem(){
   struct item *a;
@@ -139,8 +151,9 @@ struct item * newItem(){
     exit(20);
   }
   a->argc = 0; a->optc = 0; a->refc=0; a->examplec = 0;
+  a->type=0;
   a->category = a->category2 = a->name = a->shortDescription
-    = a->description = a->author = a->algorithm = NULL; 
+    = a->description = a->author = a->algorithm = a->sortKey = NULL; 
   return a;
 }
   
@@ -208,6 +221,8 @@ printItem(struct item *it) {
     printf("  refv[%d]=%s\n",i,it->refv[i]);
   if (it->author != NULL)
     printf("author=%s\n",it->author);
+  if (it->sortKey != NULL)
+    printf("sortKey=%s\n",it->sortKey);
   printf("\n");
 }
 
@@ -280,42 +295,44 @@ struct item *getItem() {
     return NULL;
   }
   p = nextToken(key,LIMIT);
-  it->name = str(key);
+  it->name = it->sortKey = str(key);
   it->category = getCategory(key);
   it->category2 = getCategory2(key);
   nextToken(key,LIMIT);
   if (strcmp(key,"(") != 0) {
-    fprintf(stderr," ( is expected at %s\n",it->name);
-    exit(10);
-  }
-  argc = 0; 
-  while ((pp=nextToken(key,LIMIT)) >= 0) {
-    if (strcmp(key,"|") == 0) {
-      /* options */
-      argc = 0;
-      while ((pp=nextToken(key,LIMIT)) >= 0) {
-        if (strcmp(key,")") == 0) {
-          break;
-        }
-        if (strcmp(key,",") != 0) {
-          it->optv[argc] = str(key);
-          argc++; it->optc = argc;
-        }
-        if (argc >+ VMAX -1) {
-          fprintf(stderr,"Too many opt args at %s\n",it->name);
-          exit(10);
+    pp = p+1;
+    it->type = 1; /* For non-functions */
+  }else{
+    it->type = 0; /* For functions */
+    argc = 0; 
+    while ((pp=nextToken(key,LIMIT)) >= 0) {
+      if (strcmp(key,"|") == 0) {
+        /* options */
+        argc = 0;
+        while ((pp=nextToken(key,LIMIT)) >= 0) {
+          if (strcmp(key,")") == 0) {
+            break;
+          }
+          if (strcmp(key,",") != 0) {
+            it->optv[argc] = str(key);
+            argc++; it->optc = argc;
+          }
+          if (argc >+ VMAX -1) {
+            fprintf(stderr,"Too many opt args at %s\n",it->name);
+            exit(10);
+          }
         }
       }
-    }
-    if (strcmp(key,")") == 0) {
-      break;
-    }else if (strcmp(key,",") != 0) {
-      it->argv[argc] = str(key); 
-      argc++; it->argc=argc;
-    }
-    if (argc >= VMAX-1) {
-      fprintf(stderr,"Too many args at %s\n",it->name);
-      exit(10);
+      if (strcmp(key,")") == 0) {
+        break;
+      }else if (strcmp(key,",") != 0) {
+        it->argv[argc] = str(key); 
+        argc++; it->argc=argc;
+      }
+      if (argc >= VMAX-1) {
+        fprintf(stderr,"Too many args at %s\n",it->name);
+        exit(10);
+      }
     }
   }
 
@@ -336,8 +353,9 @@ struct item *getItem() {
     if (strcmp(key,"description:") == 0 ||
         strcmp(key,"algorithm:") == 0 ||
         strcmp(key,"author:") == 0 ||
+        strcmp(key,"sortKey:") == 0 ||
         strcmp(key,"example:") == 0 ||
-		strcmp(key,"example_description:") ==0 ) {
+        strcmp(key,"example_description:") ==0 ) {
       pp = p;
       strcpy(key2,key);
       do {
@@ -363,6 +381,10 @@ struct item *getItem() {
       }
       if (strcmp(key2,"author:") == 0) {
         it->author = str2(&(S[pp]),pOld-pp);
+      }
+      if (strcmp(key2,"sortKey:") == 0) {
+		while (S[pp] <= ' ') pp++;
+        it->sortKey = str2(&(S[pp]),pOld-pp);
       }
       if (strcmp(key2,"algorithm:") == 0) {
         it->algorithm = str2(&(S[pp]),pOld-pp);
@@ -406,17 +428,73 @@ shell(struct item *v[],int n) {
 }
 
 printMenu(FILE *fp, struct item **it, int n) {
-  int i;
+  int i,m;
 
-  fprintf(fp,"@menu\n");
+  m = 0;
   for ( i = 0; i < n; i++ )
-  	fprintf(fp,"* %s::\n",it[i]->name);
-  fprintf(fp,"@end menu\n");
+    if (it[i]->type != 1) m++;
+  if (m != 0) {
+    fprintf(fp,"@menu\n");
+    for ( i = 0; i < n; i++ )
+      if (it[i]->type != 1) fprintf(fp,"* %s::\n",it[i]->name);
+    fprintf(fp,"@end menu\n");
+  }
 }
 
 printTexi(FILE *fp, struct item *it) {
   int i;
-  fprintf(fp,"@c DO NOT EDIT THIS FILE. Generated by gentexi.\n");
+  if (it->type == 1) return printTexi1(fp,it);
+  else return printTexi0(fp,it);
+}
+
+printTexi_common(FILE *fp,struct item *it) {
+  int i;
+  if (it->description != NULL) {
+    fprintf(fp,"%s\n\n",it->description);
+  }
+
+  if (it->algorithm != NULL) {
+    fprintf(fp,"\n\n@noindent\nAlgorithm: \n");
+    fprintf(fp,"%s\n\n",it->algorithm);
+  }
+
+  if (it->examplec > 0) {
+    for (i=0; i<it->examplec; i++) {
+      if (it->examplec == 1) {
+        fprintf(fp,"Example:\n");
+      }else{
+        fprintf(fp,"Example %d:\n",i);
+      }
+      fprintf(fp,"@example\n");
+      fprintf(fp,"%s\n",it->examplev[i]);
+      if (GenExample) {
+        outputOfExample(it->examplev[i]);
+      }
+      fprintf(fp,"@end example\n");
+      if (it->exampleDescv[i] != NULL && strlen(it->exampleDescv[i]) > 0) {
+        fprintf(fp,"%s\n\n",it->exampleDescv[i]);
+      }
+    }
+  }
+  if (it->author != NULL) {
+    fprintf(fp,"Author : %s\n\n",it->author);
+  }
+  if (it->refc > 0) {
+    fprintf(fp,"@table @t\n");
+    fprintf(fp,"@item References\n");
+    for (i=0; i <it->refc; i++) {
+      fprintf(fp,"@code{%s} ",it->refv[i]);
+      if (i != it->refc-1) fprintf(fp,", ");
+    }
+    fprintf(fp,"\n@end table\n");
+  }
+  fprintf(fp,"\n");
+}
+
+printTexi0(FILE *fp, struct item *it) {
+  int i;
+
+  fprintf(fp,"@c DO NOT EDIT THIS FILE. Generated by gentexi0.\n");
   if (it == NULL) {
     fprintf(fp,"@c item is NULL.\n");
     return ;
@@ -481,47 +559,34 @@ printTexi(FILE *fp, struct item *it) {
   fprintf(fp,"@c @itemize @bullet \n");
   fprintf(fp,"@c @item \n");
   fprintf(fp,"@c @end itemize\n");
+
+  printTexi_common(fp,it);  
+}
+
+printTexi1(FILE *fp, struct item *it) {
+  int i;
+  /* For  it->type == 1 */
+
+  fprintf(fp,"@c DO NOT EDIT THIS FILE. Generated by gentexi1.\n");
+  if (it == NULL) {
+    fprintf(fp,"@c item is NULL.\n");
+    return ;
+  }
+
+  if (it->shortDescription != NULL) {
+    for (i=0; i<strlen(it->shortDescription); i++) {
+      fprintf(fp,"%c",it->shortDescription[i]);
+    }
+    fprintf(fp," \n");
+  }
+
+  /* include file */
+  if (Include) {
+    if (genInclude(it->name)) 
+      fprintf(fp,"@c @include tmp/%s-auto-en.texi\n",it->name);
+  }
   
-  if (it->description != NULL) {
-    fprintf(fp,"%s\n\n",it->description);
-  }
-
-  if (it->algorithm != NULL) {
-    fprintf(fp,"\n\n@noindent\nAlgorithm: \n");
-    fprintf(fp,"%s\n\n",it->algorithm);
-  }
-
-  if (it->examplec > 0) {
-    for (i=0; i<it->examplec; i++) {
-	  if (it->examplec == 1) {
-        fprintf(fp,"Example:\n");
-	  }else{
-        fprintf(fp,"Example %d:\n",i);
-	  }
-      fprintf(fp,"@example\n");
-      fprintf(fp,"%s\n",it->examplev[i]);
-      if (GenExample) {
-        outputOfExample(it->examplev[i]);
-      }
-      fprintf(fp,"@end example\n");
-	  if (it->exampleDescv[i] != NULL && strlen(it->exampleDescv[i]) > 0) {
-		fprintf(fp,"%s\n\n",it->exampleDescv[i]);
-	  }
-    }
-  }
-  if (it->author != NULL) {
-    fprintf(fp,"Author : %s\n\n",it->author);
-  }
-  if (it->refc > 0) {
-    fprintf(fp,"@table @t\n");
-    fprintf(fp,"@item References\n");
-    for (i=0; i <it->refc; i++) {
-      fprintf(fp,"@code{%s} ",it->refv[i]);
-      if (i != it->refc-1) fprintf(fp,", ");
-    }
-    fprintf(fp,"\n@end table\n");
-  }
-  fprintf(fp,"\n");
+  printTexi_common(fp,it);  
 }
 
 outputOfExample(char *com) {
