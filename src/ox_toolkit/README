@@ -1,33 +1,43 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.2 1999/12/15 01:59:58 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.3 1999/12/15 02:44:12 ohara Exp $
 
-☆ libox.a マニュアル。
+/*&ja ox_toolkit ユーザガイド
 
+*/
+/*&en A user's guide for ox_toolkit.
+
+*/
+/*&ja
 libox.a を利用するには次のヘッダファイルをインクルードする必要があります。
+*/
+/*&en
+How to use OpenXM C library?
+
+The OpenXM C libraiy has header files:
+*/
+/*&common
 
 #include <oxtag.h>
 #include <ox.h>
 #include <parse.h>
 
-各構造体および関数の宣言はそれぞれのヘッダファイルを見てください。
-ここでは基本的な考え方について説明します。
-
-まず、すべての CMO データはそのデータ型に対応した new 関数によって生成
-します。たとえば CMO_ZZ 型のオブジェクトは new_cmo_zz() 関数によって生
-成されます。
-
-CMO データを送受信するには、CMO の種類によらず send_cmo(),
-receive_cmo() を用います。これらの関数は OX ヘッダを扱いませんので、OX 
-メッセージを送受信するときには send_ox_tag(), receive_ox_tag() をその
-前に呼ぶ必要があります。
-
+*/
+/*&ja
 1. データ型
 
 このツールキットで定義されている各構造体の生成については次節を参照せよ。
 
 1.1 CMO (Common Math Object)
 次のデータ型(構造体)が用意されている。
+*/
+/*&en
+1. Types
+
+1.1 CMO (Common Math Object)
+The following structures is defined in ox.h:
+*/
+/*&common
 
 cmo
 cmo_null
@@ -46,24 +56,54 @@ cmo_distributed_polynomial
 cmo_indeterminate
 cmo_error2
 
+*/
+/*&ja
 このうち cmo 型はいわば抽象基底クラスに相当するものであり、この型のオ
 ブジェクトを明示的には生成されない。このクラスはポインタ型のキャストの
 ために用意されている。また cmo_distributed_polynomial は cmo_list の派
 生クラスであると思ってもよい。
 
+*/
+/*&en
+The cmo above is similer to abstract base class; 
+you never make an object of cmo class.
+
+*/
+/*&ja
 1.2 OX オブジェクト
 次のデータ型(構造体)が用意されている。
+*/
+/*&en
+1.2 OX objects
+The following structures is defined in ox.h:
+*/
+/*&common
 
 ox
 ox_command
 ox_data
 
+*/
+/*&ja
 このうち、ox 型は抽象基底クラスなので、オブジェクトをつくってはいけない。
 
+*/
+/*&en
+The ox above is abstract base class.
+
+*/
+/*&ja
 2. オブジェクトの生成
 
 オブジェクトを生成するために、new 関数群が用意されている。それぞれの関
 数はオブジェクトを生成して、そのオブジェクトへのポインタを返す。
+*/
+/*&en
+2. How to make CMObjects?
+
+You may use new functions which generate an object and return its pointer.
+*/
+/*&common
 
 new_cmo_null();
 new_cmo_int32(int i);
@@ -83,6 +123,8 @@ new_cmo_ring_by_name(cmo* ob);
 new_cmo_indeterminate(cmo* ob);
 new_cmo_error2(cmo* ob);
 
+*/
+/*&ja
 3. 高水準 API
 
 高水準 API は「OpenXM クライアント」から利用することを前提に設計されている。
@@ -90,10 +132,23 @@ new_cmo_error2(cmo* ob);
 3.1 通信の開始   
 
 通信を開始する場合には、次の関数のいずれかを利用する。
+*/
+/*&en
+3. High-level API
+
+High-level API is prepared for implementation of your OpenXM clients.
+
+3.1 How to make connection to OpenXM server?
+
+You may call ox_start or ox_start_insecure_nonreverse.
+*/
+/*&common
 
 ox_file_t ox_start(char* host, char* prog1, char* prog2);
 ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
 
+*/
+/*&ja
 第一の関数は、ローカルマシン上に OpenXM サーバを起動し、そのサーバとの
 間に"reverse モード"で通信路を開設する。通信に使われるポート番号は自動
 的に生成される。host はローカルマシンのホスト名(あるいは "localhost")、
@@ -109,23 +164,51 @@ portStream は計算サーバとの通信のためのポート番号である。
 それぞれの関数はサーバ(正確には二つのサーバの組)の識別子を返す。
 この識別子は高水準 API の各関数で利用される。
 
+*/
+/*&ja
 3.2 通信の終了
 
 通信の終了のためには次の二つの関数が用意されている。
 
+*/
+/*&en
+3.2 How to close connection to OpenXM server?
+
+You may call ox_close or ox_shutdown.
+
+*/
+/*&common
 void ox_close(ox_file_t sv);
 void ox_shutdown(ox_file_t sv);
 
+*/
+/*&ja
 第一の関数はコントロールサーバに SM_control_kill を送ることによって、
 サーバを終了させる。第二の関数は計算サーバに SM_shutdown を送ることに
 よって、サーバを終了させる(予定)。
 
+/*
+/*&ja
 3.3 SM コマンドの送信
 
+*/
+/*&en
+3.3 How to command to OpenXM stack machine?
+
+*/
+/*&common
 void  ox_push_cmd(ox_file_t sv, int sm_code);
 
+*/
+/*&ja
 サーバにスタックマシンコマンドを送る。コマンドはコマンド番号で与える。
 
+*/
+/*&en
+This function send operation code to an OpenXM stack machine.
+Table of opecode is defined in oxtag.h.
+*/
+/*&ja
 3.4 CMO の送受信
 
 void  ox_push_cmo(ox_file_t sv, cmo *c);
@@ -173,38 +256,66 @@ cmo_mathcap* ox_mathcap(ox_file_t sv);
 Mathcap を受け取る。現在は Mathcap の処理はユーザプログラムに任されている。
 いずれこの関数は廃止される予定。
 
+*/
+/*&ja
 4. 低水準 API
 
 低水準 API はファイルディスクリプタを直接利用する。
 
 4.1 通信に使われるバイトオーダの決定
 
+*/
+/*&en
+4. Low-level API.
+
+4.1 How to decide a byte order of integers?
+
+*/
+/*&common
 int decideByteOrderServer(int fd, int order);
 
+*/
+/*&ja
 このツールキットは、サーバが開始されるときにはすでに通信路が設定されて
 いるが、その通信路に用いるバイトオーダの決定は行われていないと仮定して
 いる。詳しくは、高山-野呂, "OpenXM の設計と実装" を参照せよ。
 
 (注意) クライアント側でのバイトオーダの設定は、高水準 API で自動的に行われる。
 
+*/
+/*&common
 4.2 
 
 int send_int32(int fd, int integer);
 
+*/
+/*&ja
 fd に 32bit 整数を書き込む。
 
+*/
+/*&common
 int receive_int32(int fd);
 
+*/
+/*&ja
 fd から 32bit 整数を読み込む。
 
+*/
+/*&common
 4.3 
 
 int  send_cmo(int fd, cmo* m);
 
+*/
+/*&ja
 fd に cmo を書き込む。
 
+*/
+/*&common
 cmo* receive_cmo(int fd);
 
+*/
+/*&ja
 fd から cmo を読み込む。
 
 4.4
@@ -231,3 +342,4 @@ int  send_ox_cmo(int fd, cmo* m);
 void send_ox_command(int fd, int sm_command);
 
 ox メッセージを送信する。
+*/
