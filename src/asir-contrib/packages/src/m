@@ -1,7 +1,7 @@
 /*&jp \documentclass{jarticle}
 \begin{document}
 */
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.8 2002/05/09 03:48:07 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.9 2002/07/28 05:20:43 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -236,6 +236,7 @@ def m_start_windows(U) {
   extern Ox_math_lib;
   extern Xm_noX;
   extern M_proc;
+  extern Xm_use_timer_to_start_server
 
   CPort = generate_port();
   SPort = generate_port();
@@ -267,9 +268,12 @@ def m_start_windows(U) {
 
   print(Com +"\n");
   shell(Com);
-  /* shell("sleep 5"); */
-  purge_stdin(); print("Type in Return to connect to the server.");
-  get_line();
+  if (Xm_use_timer_to_start_server) {
+    print("Sleeping 3 seconds."); sleep(3000); 
+  }else{
+    purge_stdin(); print("Type in Return to connect to the server.");
+    get_line();
+  }
   print("Trying to connect to the server...",0)$
   CSocket = try_connect("localhost",CPort);
   SSocket = try_connect("localhost",SPort);
