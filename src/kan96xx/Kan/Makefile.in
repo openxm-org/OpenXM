@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.17 2003/12/03 01:21:43 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.18 2003/12/04 08:10:02 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -6,9 +6,13 @@
 all : configure sm1
 # .SUFFIXES:
 ########################## configuration ##############################
-OpenXM_HOME=../../..
+OpenXM_HOME=@prefix@
 OpenXM_include=${OpenXM_HOME}/include
 OpenXM_lib=${OpenXM_HOME}/lib
+#
+OpenXM_HOME_debug=../../..
+OpenXM_include_debug=${OpenXM_HOME_debug}/include
+OpenXM_lib_debug=${OpenXM_HOME_debug}/lib
 
 CC=@CC@
 RANLIB=@RANLIB@
@@ -36,7 +40,7 @@ PLUGIN_LINKFLAG =
 configure: Makefile
 
 Makefile: Makefile.in
-	sh ./configure
+	sh ./configure --prefix=@prefix@
 
 
 HEADERS = datatype.h  stackm.h lookup.h extern.h  kclass.h 
@@ -54,13 +58,13 @@ kanlibKclass = Kclass/sample.o Kclass/rawcmo.o Kclass/indeterminate.o Kclass/tre
 
 ##### Add also to Kclass/Makefile
 Kclass/sample.o : $(HEADERS) Kclass/sample.c
-	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' sample.o )
+	(cd Kclass ; make CC=${CC} OpenXM_HOME=@prefix@ CFLAGS='${CFLAGS}' sample.o )
 Kclass/rawcmo.o : $(HEADERS) Kclass/rawcmo.c
-	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' rawcmo.o )
+	(cd Kclass ; make CC=${CC} OpenXM_HOME=@prefix@ CFLAGS='${CFLAGS}' rawcmo.o )
 Kclass/indeterminate.o : $(HEADERS) Kclass/indeterminate.c
-	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' indeterminate.o )
+	(cd Kclass ; make CC=${CC} OpenXM_HOME=@prefix@ CFLAGS='${CFLAGS}' indeterminate.o )
 Kclass/tree.o : $(HEADERS) Kclass/tree.c
-	(cd Kclass ; make CC=${CC} OpenXM_HOME=../${OpenXM_HOME} CFLAGS='${CFLAGS}' tree.o )
+	(cd Kclass ; make CC=${CC} OpenXM_HOME=@prefix@ CFLAGS='${CFLAGS}' tree.o )
 
 
 ######

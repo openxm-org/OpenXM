@@ -1,12 +1,15 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.35 2003/12/04 07:49:24 takayama Exp $
+#  $OpenXM$
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
 #
-OpenXM_HOME=../..
-OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
+OpenXM_HOME=@prefix@
 OpenXM_bin=${OpenXM_HOME}/bin
 OpenXM_lib=${OpenXM_HOME}/lib
+#
+OpenXM_HOME_debug=../..
+OpenXM_bin_debug=${OpenXM_HOME_debug}/bin
+OpenXM_lib_debug=${OpenXM_HOME_debug}/lib
 
 RM=rm
 
@@ -26,13 +29,14 @@ sm1-nogc : all-plugin
 	(cd Kan; make sm1.nogc)
 ##########################################################
 configure: configure_symbolic_links 
-	if test ! -f ./.configure_done  ; \
+	if test ! -f ./.configure_sub_done  ; \
 	then \
-	(cd Kan; sh ./configure) ; \
-	(cd plugin; sh ./configure) ; \
-	(cd trans; sh ./configure) ; \
+	(cd Kan; sh ./configure --prefix=@prefix@) ; \
+	(cd plugin; sh ./configure --prefix=@prefix@) ; \
+	(cd trans; sh ./configure --prefix=@prefix@) ; \
+	(cd Doc; sh ./configure --prefix=@prefix@) ; \
 	fi
-	@touch ./.configure_done
+	@touch ./.configure_sub_done
 configure_symbolic_links :
 	@if test ! -f ./.configure_symbolic_links_done  ; \
 	then \
@@ -52,17 +56,18 @@ install-document:
 	-(cd Doc ; make install-document)
 install-for-debug : clean-for-install
 	if [ "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-	  ln -f -s ../src/kan96xx/Kan/sm1.exe ${OpenXM_bin}/sm1.exe ; \
-	  ln -f -s ../src/kan96xx/trans/polymake2tfb.exe ${OpenXM_bin}/polymake2tfb.exe ; \
+	  ln -f -s ../src/kan96xx/Kan/sm1.exe ${OpenXM_bin_debug}/sm1.exe ; \
+	  ln -f -s ../src/kan96xx/trans/polymake2tfb.exe ${OpenXM_bin_debug}/polymake2tfb.exe ; \
 	else \
-	  ln -f -s ../src/kan96xx/Kan/sm1 ${OpenXM_bin}/sm1 ; \
-	  ln -f -s ../src/kan96xx/trans/polymake2tfb ${OpenXM_bin}/polymake2tfb ; \
+	  ln -f -s ../src/kan96xx/Kan/sm1 ${OpenXM_bin_debug}/sm1 ; \
+	  ln -f -s ../src/kan96xx/trans/polymake2tfb ${OpenXM_bin_debug}/polymake2tfb ; \
 	fi
 
 
 ##############
 clean-for-install :
 	${RM} -f ${OpenXM_bin}/sm1
+	${RM} -f ${OpenXM_bin_debug}/sm1
 clean-done:
 	${RM} -f ./.*done
 clean : clean-done
