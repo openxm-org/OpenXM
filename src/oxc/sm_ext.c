@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.5 2000/11/28 18:11:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.6 2000/11/30 10:27:02 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@ static db db_sm[] = {
     {sm_set_mathcap,     SM_setMathCap},
     {sm_popCMO,          SM_popCMO},
     {sm_pops,            SM_pops},
-	{sm_control_reset_pid, SM_control_reset_connection_pid},
+	{sm_control_reset_pid, SM_control_reset_connection_server},
 	{sm_control_kill, SM_control_kill},
     {NULL, NULL}
 };
