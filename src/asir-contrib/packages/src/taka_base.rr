@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.5 2001/08/17 11:57:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.6 2001/08/19 09:55:18 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -38,9 +38,6 @@ def taka_base_cancel(S) {
     }else {
        print(S1); error("internal error: matrix_clone is not working properly.");
     }
-  }
-  if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
-    Rule = Rule->Rule;
   }
   if (type(S) == 3) {
     return red(S);
