@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.9 1999/11/04 19:33:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.10 1999/11/05 12:34:25 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -31,6 +31,8 @@ YYY_cmo_XXX 関数が処理する.  cmo の内部に cmo_ZZZ へのポインタが
 #include <errno.h>
 #include <fcntl.h>
 #include <gmp.h>
+#include <unistd.h>
+#include <sys/file.h>
 
 #include "mysocket.h"
 #include "ox.h"
@@ -509,7 +511,16 @@ void send_ox_command(int fd, int sm_command)
 int print_cmo(cmo* c)
 {
     int tag = c->tag;
-    fprintf(stderr, "local::tag = (%d): ", tag);
+
+#ifdef DEBUG
+	symbol* symp = lookup_by_tag(tag);
+	if (symp != NULL) {
+		fprintf(stderr, "local::tag = %s: ", symp->key);
+	}else {		
+		fprintf(stderr, "local::tag = %d: ", tag);
+	}
+#endif
+
     switch(tag) {
     case CMO_LIST:
         print_cmo_list((cmo_list *)c);
@@ -561,7 +572,7 @@ int print_cmo_string(cmo_string* c)
 void ox_close(ox_file_t sv)
 {
     send_ox_command(sv->control, SM_control_kill);
-#if DEBUG
+#ifdef DEBUG
     sleep(2); /* OpenXM server の終了を待つ. あまり意味はない. */
     fprintf(stderr, "I have closed the connection to an Open XM server.\n");
 #endif
@@ -569,11 +580,12 @@ void ox_close(ox_file_t sv)
 
 void ox_executeStringByLocalParser(ox_file_t sv, char* s)
 {
-    /* 文字列ををスタックにプッシュ. */
-    send_ox_cmo(sv->stream, (cmo *)new_cmo_string(s));
-
-    /* サーバに実行させる. */
-    send_ox_command(sv->stream, SM_executeStringByLocalParser);
+	if (s != NULL) {
+		/* 文字列ををスタックにプッシュ. */
+		send_ox_cmo(sv->stream, (cmo *)new_cmo_string(s));
+		/* サーバに実行させる. */
+		send_ox_command(sv->stream, SM_executeStringByLocalParser);
+	}
 }
 
 /* ox_mathcap() をコールする.  */
@@ -612,25 +624,67 @@ static char *create_otp()
 /* OneTimePassword の処理 */
 static int login_with_otp(int fd, char* passwd)
 {
-    char buff[1024];
-	int len = strlen(passwd)+1;
-    int n = read(fd, buff, len);
-	if (strcmp(passwd, buff) != 0) {
-        fprintf(stderr, "Socket#%d: Login incorrect.\n", fd);
-        fprintf(stderr, "password = (%s), %d bytes.\n", passwd, len);
-        fprintf(stderr, "received = (%s), %d bytes.\n", buff, n);
-		fflush(stderr);
-		exit(1);
-    }
+	int len   = strlen(passwd)+1;
+	char *buf = alloca(len);
+    int n     = read(fd, buf, len);
+	int ret   = strcmp(passwd, buf);
+
 #ifdef DEBUG
-	fprintf(stderr, "Socket#%d: login!.\n", fd);
+	if (ret != 0) {
+        fprintf(stderr, "Socket#%d: Login incorrect.\n", fd);
+    }else {
+		fprintf(stderr, "Socket#%d: login!.\n", fd);
+	}
 	fprintf(stderr, "password = (%s), %d bytes.\n", passwd, len);
-	fprintf(stderr, "received = (%s), %d bytes.\n", buff, n);
+	fprintf(stderr, "received = (%s), %d bytes.\n", buf, n);
 	fflush(stderr);
 #endif
+
+	return ret;
 }
 
-/* 
+static int exists_ox(char *dir, char *prog)
+{
+	char *path = alloca(strlen(dir)+strlen(prog)+6);
+	sprintf(path, "%s/%s", dir, prog);
+	return access(path, X_OK|R_OK);
+}
+
+static char *search_ox(char *prog)
+{
+	char *env = getenv("OpenXM_HOME");
+	char *dir;
+	if (env != NULL) {
+		dir = malloc(strlen(env)+5);
+		sprintf(dir, "%s/bin", env);
+		if (exists_ox(dir, prog) == 0) {
+			return dir;
+		}
+		free(dir);
+	}
+	dir = "/usr/local/OpenXM/bin";
+	if (exists_ox(dir, prog) == 0) {
+		return dir;
+	}
+	dir = ".";
+	if (exists_ox(dir, prog) == 0) {
+		return dir;
+	}
+	return NULL;
+}
+
+static int mysocketAccept2(int fd, char *pass)
+{
+    fd = mysocketAccept(fd);
+	if(login_with_otp(fd, pass)==0) {
+		decideByteOrderClient(fd, 0);
+		return fd;
+	}
+	close(fd);
+	return -1;
+}
+
+/*
    (-reverse 版の ox_start)
    ox_start は クライアントが呼び出すための関数である.
    サーバでは使われない.  ctl_prog は コントロールサーバであり,
@@ -641,38 +695,47 @@ static int login_with_otp(int fd, char* passwd)
 
 ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 {
-	char *pass = create_otp();
+	char *pass;
     char ctl[16], dat[16];
     short portControl = 0; /* short であることに注意 */
     short portStream  = 0;
-    ox_file_t sv = malloc(sizeof(__ox_file_struct));
+    ox_file_t sv = NULL;
+	char *dir;
 
+	if ((dir = search_ox(ctl_prog)) == NULL) {
+		fprintf(stderr, "client:: %s not found.\n", ctl_prog);
+		return NULL;
+	}
+    sv = malloc(sizeof(__ox_file_struct));
     sv->control = mysocketListen(host, &portControl);
     sv->stream  = mysocketListen(host, &portStream);
+
     sprintf(ctl, "%d", portControl);
     sprintf(dat, "%d", portStream);
+	pass = create_otp();
 
     if (fork() == 0) {
         dup2(2, 1);
         dup2(open(DEFAULT_LOGFILE, O_RDWR|O_CREAT|O_TRUNC, 0644), 2);
+		chdir(dir);
         execl(ctl_prog, ctl_prog, "-reverse", "-ox", dat_prog,
               "-data", dat, "-control", ctl, "-pass", pass,
               "-host", host, NULL);
     }
 
-    sv->control = mysocketAccept(sv->control);
-	login_with_otp(sv->control, pass);
-    decideByteOrderClient(sv->control, 0);
+	if ((sv->control = mysocketAccept2(sv->control, pass)) == -1) {
+		close(sv->stream);
+		return NULL;
+	}
 	/* 10マイクロ秒, 時間稼ぎする. */
     usleep(10);
-    sv->stream  = mysocketAccept(sv->stream);
-	login_with_otp(sv->stream, pass);
-    decideByteOrderClient(sv->stream, 0);
-
+    if((sv->stream  = mysocketAccept2(sv->stream, pass)) == -1) {
+		return NULL;
+	}
     return sv;
 }
 
-/* 
+/*
    (-insecure 版の ox_start)  まだ、中身はありません。
    ox_start_insecure_nonreverse は クライアントが呼び出すための関数である.
    接続時には, sv->control を先にオープンする.
@@ -709,7 +772,7 @@ void ox_reset(ox_file_t sv)
     }
 
     send_ox_tag(sv->stream, OX_SYNC_BALL);
-#if DEBUG
+#ifdef DEBUG
     fprintf(stderr, "I have reset an Open XM server.\n");
 #endif
 }
@@ -1137,42 +1200,48 @@ static int known_types[] = {
     CMO_ERROR2,
 };
 
-#define ID_TEMP   "(CMO_MATHCAP, (CMO_LIST, (CMO_LIST, (CMO_INT32, %d), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\")), (CMO_LIST, (CMO_INT32, 1), (CMO_INT32, 2), (CMO_INT32, 4), (CMO_INT32, 5), (CMO_INT32, 17), (CMO_INT32, 20), (CMO_INT32, 2130706434))))\n"
+#define ID_TEMP   "(CMO_LIST, (CMO_INT32, %d), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\"), (CMO_STRING, \"%s\"))"
 
-cmo* make_mathcap_object2(int ver, char* ver_s, char* sysname)
+
+static cmo_list* make_list_of_id(int ver, char* ver_s, char* sysname)
 {
-    cmo *cap;
-    char buff[8192];
+    cmo_list *cap;
+    char buff[512];
 
     setgetc(mygetc);
     sprintf(buff, ID_TEMP, ver, sysname, ver_s, getenv("HOSTTYPE"));
-    setmode_mygetc(buff, 8192);
+    setmode_mygetc(buff, 512);
     cap = parse();
     resetgetc();
 
     return cap;
 }
 
-cmo* make_mathcap_object(int version, char* id_string)
+static cmo_list *make_list_of_tag(int type)
 {
-    cmo_list *li_ver, *li_cmo, *li;
-    
-    int i;
-    li_ver = new_cmo_list();
-    append_cmo_list(li_ver, (cmo *)new_cmo_int32(version));
-    append_cmo_list(li_ver, (cmo *)new_cmo_string(id_string));
+	cmo_list *li = new_cmo_list();
+	symbol *symp;
+	int i = 0;
+	while((symp = lookup(i++))->key != NULL) {
+		if (symp->type == type) {
+			append_cmo_list(li, (cmo *)new_cmo_int32(symp->tag));
+		}
+	}
+	return li;
+}
 
-    li_cmo = new_cmo_list();
-    for(i=0; i<MAX_TYPES; i++) {
-        if (known_types[i] != -1) {
-            append_cmo_list(li_cmo, (cmo *)new_cmo_int32(known_types[i]));
-        }
-    }
+cmo* make_mathcap_object(int version, char *id_string)
+{
+	char sysname[]   = "ox_math";
+    cmo_list *li     = new_cmo_list();
+    cmo_list *li_ver = make_list_of_id(version, id_string, sysname);
+	cmo_list *li_cmo = make_list_of_tag(IS_CMO);
+	cmo_list *li_sm  = make_list_of_tag(IS_SM);
 
-    li = new_cmo_list();
     append_cmo_list(li, (cmo *)li_ver);
     append_cmo_list(li, (cmo *)li_cmo);
-    
+    append_cmo_list(li, (cmo *)li_sm);
+
     return (cmo *)new_cmo_mathcap((cmo *)li);
 }
 
@@ -1245,6 +1314,7 @@ char *convert_zz_to_string(cmo_zz *c)
 
 char *convert_cmo_to_string(cmo *m)
 {
+	symbol *symp;
     switch(m->tag) {
     case CMO_ZZ:
         return convert_zz_to_string((cmo_zz *)m);
@@ -1255,7 +1325,8 @@ char *convert_cmo_to_string(cmo *m)
     case CMO_NULL:
         return convert_null_to_string();
     default:
-        fprintf(stderr, "sorry, not implemented CMO\n");
+		symp = lookup_by_tag(m->tag);
+        fprintf(stderr, "I do not know how to convert %s to a string.\n", symp->key);
         /* まだ実装していません. */
         return NULL;
     }

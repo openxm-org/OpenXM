@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.3 1999/11/04 17:53:04 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.4 1999/11/04 19:33:17 ohara Exp $ */
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -47,17 +46,21 @@ int OX_reset()
 }
 
 /* 文字列 s を parse() にかけて生成された cmo を サーバに送る. */
-/* s は "...\n" の形でなければならない(??). */
 int OX_parse(char *s)
 {
     cmo *m;
+	symbol *symp;
 	int len = strlen(s);
     setmode_mygetc(s, len);
 
     if(s != NULL && len > 0 && (m = parse()) != NULL) {
-		/* 本来 m->tag のチェックをして CMO であることを
-           確かめなければならない. */
-		send_ox_cmo(sv->stream, m);		
+		if (m->tag == OX_DATA) {
+			send_ox_cmo(sv->stream, ((ox_data *)m)->cmo);
+		}else if (m->tag == OX_COMMAND) {
+			send_ox_command(sv->stream, ((ox_command *)m)->command);
+		}else {
+			send_ox_cmo(sv->stream, m);		
+		}
 		return 0;
 	}
 	return -1; /* 失敗した場合 */

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.5 1999/11/03 10:56:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.6 1999/11/04 18:15:20 ohara Exp $ */
 
 /* OX expression, CMO expression パーサ */
 
@@ -562,6 +562,77 @@ static int lex_digit()
     return d;
 }
 
+#define MK_KEY_CMO(x)  { #x , x  , TOKEN(x)  , IS_CMO }
+#define MK_KEY_SM(x)   { #x , x  , TOKEN(SM) , IS_SM  }
+#define MK_KEY_OX(x)   { #x , x  , TOKEN(x)  , IS_OX  }
+
+static symbol symbol_list[] = {
+	MK_KEY_CMO(CMO_NULL),
+    MK_KEY_CMO(CMO_INT32), 
+	MK_KEY_CMO(CMO_DATUM),
+	MK_KEY_CMO(CMO_STRING), 
+	MK_KEY_CMO(CMO_MATHCAP),
+	MK_KEY_CMO(CMO_LIST), 
+	MK_KEY_CMO(CMO_MONOMIAL32),
+	MK_KEY_CMO(CMO_ZZ),
+	MK_KEY_CMO(CMO_ZERO), 
+	MK_KEY_CMO(CMO_DMS_GENERIC),
+	MK_KEY_CMO(CMO_RING_BY_NAME),
+	MK_KEY_CMO(CMO_INDETERMINATE),
+	MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
+	MK_KEY_CMO(CMO_ERROR2),
+    MK_KEY_SM(SM_popCMO),   
+	MK_KEY_SM(SM_popString), 
+	MK_KEY_SM(SM_mathcap),  
+	MK_KEY_SM(SM_pops), 
+	MK_KEY_SM(SM_executeStringByLocalParser), 
+	MK_KEY_SM(SM_executeFunction), 
+	MK_KEY_SM(SM_setMathCap),
+    MK_KEY_SM(SM_control_kill), 
+	MK_KEY_SM(SM_control_reset_connection),
+    MK_KEY_OX(OX_COMMAND),
+	MK_KEY_OX(OX_DATA),
+	{NULL, 0, 0, 0}        /* a gate keeper */
+}; 
+
+symbol* lookup_by_symbol(char *key)
+{
+	symbol *symp;
+	for(symp = symbol_list; symp->key != NULL; symp++) {
+		if (strcmp(key, symp->key)==0) {
+			return symp;
+		}
+	}
+    return NULL;
+}
+
+symbol* lookup_by_token(int tok)
+{
+	symbol *symp;
+	for(symp = symbol_list; symp->key != NULL; symp++) {
+		if (tok == symp->token) {
+			return symp;
+		}
+	}
+    return NULL;
+}
+
+symbol* lookup_by_tag(int tag)
+{
+	symbol *symp;
+	for(symp = symbol_list; symp->key != NULL; symp++) {
+		if (tag == symp->tag) {
+			return symp;
+		}
+	}
+    return NULL;
+}
+
+symbol* lookup(int i)
+{
+	return &symbol_list[i];
+}
+
 /* バッファあふれした場合の対策をちゃんと考えるべき */
 static char *lex_quoted_string()
 {
@@ -591,56 +662,15 @@ static char *lex_quoted_string()
     /* return NULL; */
 }
 
-typedef struct {
-	char *key;
-	int  tag;
-	int  token;
-} symbol; 
-
-#define MK_KEY_CMO(x)  { #x , x  , TOKEN(x)  }
-#define MK_KEY_SM(x)   { #x , x  , TOKEN(SM) }
-#define MK_KEY(x)      { #x , x  , TOKEN(x)  }
-
-static symbol symbol_list[] = {
-	MK_KEY_CMO(CMO_NULL),
-    MK_KEY_CMO(CMO_INT32), 
-	MK_KEY_CMO(CMO_DATUM),
-	MK_KEY_CMO(CMO_STRING), 
-	MK_KEY_CMO(CMO_MATHCAP),
-	MK_KEY_CMO(CMO_LIST), 
-	MK_KEY_CMO(CMO_MONOMIAL32),
-	MK_KEY_CMO(CMO_ZZ),
-	MK_KEY_CMO(CMO_ZERO), 
-	MK_KEY_CMO(CMO_DMS_GENERIC),
-	MK_KEY_CMO(CMO_RING_BY_NAME),
-	MK_KEY_CMO(CMO_INDETERMINATE),
-	MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
-	MK_KEY_CMO(CMO_ERROR2),
-    MK_KEY_SM(SM_popCMO),   
-	MK_KEY_SM(SM_popString), 
-	MK_KEY_SM(SM_mathcap),  
-	MK_KEY_SM(SM_pops), 
-	MK_KEY_SM(SM_executeStringByLocalParser), 
-	MK_KEY_SM(SM_executeFunction), 
-	MK_KEY_SM(SM_setMathCap),
-    MK_KEY_SM(SM_control_kill), 
-	MK_KEY_SM(SM_control_reset_connection),
-    MK_KEY(OX_COMMAND),
-	MK_KEY(OX_DATA),
-	{NULL, 0, 0}        /* a gate keeper */
-}; 
-
 static int token_of_symbol(char *key)
 {
-	symbol *kp;
-	for(kp = symbol_list; kp->key != NULL; kp++) {
-		if (strcmp(key, kp->key)==0) {
-			yylval.d = kp->tag;
-			return kp->token;
-		}
+	symbol *symp = lookup_by_symbol(key);
+	if (symp != NULL) {
+		yylval.d = symp->tag;
+		return symp->token;
 	}
 #if DEBUG
-    fprintf(stderr, "lex error\n");
+    fprintf(stderr, "lex error:: \"%s\" is unknown symbol.\n", key);
 #endif
     return 0;
 }

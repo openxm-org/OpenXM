@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.h,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/parse.h,v 1.3 1999/11/02 19:51:18 ohara Exp $ */
 
 #ifndef _PARSE_H_
 
@@ -23,6 +22,10 @@
 #define MIN_T_OX      TOKEN(512)
 #define MAX_T_OX      TOKEN(600)
 
+#define IS_CMO   1
+#define IS_SM    2
+#define IS_OX    3
+
 #define PFLAG_ADDREV   1
 int setflag_parse(int flag);
 
@@ -32,5 +35,12 @@ int setgetc(int (*foo)());
 int resetgetc();
 int mygetc();
 int setmode_mygetc(char *s, int len);
+
+typedef struct {
+	char *key;
+	int  tag;
+	int  token;
+	int  type;
+} symbol; 
 
 #endif /* _PARSE_H_ */

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.5 1999/11/03 10:56:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.6 1999/11/04 18:13:48 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -182,7 +182,7 @@ int           send_ox_cmo(int fd, cmo* m);
 void          send_ox_command(int fd, int sm_command);
 int           send_ox_tag(int fd, int tag);
 
-int           append_cmo_list(cmo_list* this, cmo *newcmo);
+int           append_cmo_list(cmo_list* this, cmo *ob);
 int           length_cmo_list(cmo_list* this);
 cell*         next_cell(cell *this);
 int           cmolen_cmo(cmo* m);
