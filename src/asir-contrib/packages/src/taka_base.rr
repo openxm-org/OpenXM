@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.18 2002/11/16 08:09:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.19 2002/12/05 02:16:31 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -57,6 +57,11 @@ def taka_base_flatten(S) {
 def taka_base_replace(S,Rule) {
   if (type(S) == LIST || type(S) == MATRIX || type(S) == VECTOR) {
      return(map(taka_base_replace,S,Rule));
+  }else if (type(S) == DPOLYNOMIAL) {
+    for(P=0; S!=0; S=dp_rest(S)) {
+      P += taka_base_replace(dp_hc(S),Rule)*dp_ht(S);
+    }
+    return P;
   }
   if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
     Rule = Rule->Rule;
