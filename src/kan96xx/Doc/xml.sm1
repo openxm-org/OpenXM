@@ -1,0 +1,63 @@
+%% $OpenXM$
+%% xml.sm1  XML support for sm1.
+%% This package requires ox.sm1
+[(parse) (ox.sm1) pushfile] extension
+%%%%% These should be under /usr/local/OpenXM or OpenXM_HOME
+/oxpath.java-support (lib/java-support) def
+
+[(getenv) (OpenXM_HOME)] extension 
+tag 0 eq {
+  /oxpath.java-support [(/usr/local/OpenXM/) oxpath.java-support] cat def
+} {
+  /oxpath.java-support [ [(getenv) (OpenXM_HOME)] extension (/) oxpath.java-support] cat def
+} ifelse
+
+/xmlconnect {
+ [/in-xmlconnect  /data /control /com] pushVariables
+ [
+  /data [(oxGenPass)] extension def
+  /control [(oxGenPass)] extension def
+  [data control] message
+  [(tdiv_qr) data .. (2000)..] mpzext 1 get (integer) dc 1025 add /data set
+  [(tdiv_qr) control .. (2000)..] mpzext 1 get (integer) dc 1025 add /control set
+
+ [$($ ( cd ) oxpath.java-support ( ; )
+  ( java OMproxy )
+  ( -data ) data ( -control ) control 
+  $)$
+%%  ( >& /dev/null )   %%  Syntax error: Bad fd 
+  ( & )
+ ] cat /com set
+  (Executing the command ) messagen com message
+  com system
+  (sleep 5) system
+  [(oxCreateClient) (localhost) data control] extension
+  /@@@.xml set
+ (The server is binded to the variable @@@.xml) message
+  @@@.xml /arg1 set
+ ] pop
+ popVariables
+ arg1
+} def
+
+/xml {
+  /arg1 set
+  [/in-cmo2xml /ob] pushVariables
+  [
+     /ob arg1 def
+     @@@.xml ob oxpushcmo
+     @@@.xml (CMO2OMXML) oxexec
+     @@@.xml oxpopcmo /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(xml)
+[(object xml xml-string)
+ (Example:   )
+ (   xmlconnect )
+ $   (12345).. xml :: $
+ $   ( (x-1)^2 ). xml :: $ 
+]] putUsages
+
+
