@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.2 1999/11/02 13:09:19 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -64,14 +64,14 @@ class OMproxy implements Runnable{
   private void SM_executeFunction() throws java.io.IOException{
     String function_name;
     CMO[] argv;
-    int argc;
+    int argc = 1;
 
     if(!(stack.peek() instanceof CMO_STRING)){
       stack.push(new CMO_ERROR2());
       return;
     }
     function_name = ((CMO_STRING)stack.pop()).getString();
-    argc = ((CMO_INT32)stack.pop()).intValue();
+    //argc = ((CMO_INT32)stack.pop()).intValue();
     argv = new CMO[argc];
     for(int i=0;i<argc;i++){
       argv[i] = (CMO)stack.pop();
