@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.5 2000/12/12 13:58:21 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.6 2000/12/14 04:35:16 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -47,6 +47,14 @@ class OXchannel extends Object {
     return(r);
   }
 
+  def popString() {
+    local cc,r;
+    cc = channel;
+    sm1(" cc oxpopstring /r set ");
+    return(r);
+  }
+    
+
 }
 
 class OXcontrol extends Object {
@@ -88,6 +96,9 @@ class OXcontrol extends Object {
   }
   def popCMO() {
     return(control.channel.popCMO());
+  }
+  def popString() {
+    return(control.channel.popString());
   }
 
 }
@@ -141,6 +152,9 @@ class OX extends OXcontrol {
   def popCMO() {
     return(engine.channel.popCMO());
   }
+  def popString() {
+    return(engine.channel.popString());
+  }
 
   def rpc(func,ar) {
      local n,i,one,comm;
@@ -174,6 +188,11 @@ class OX extends OXcontrol {
      this.pushCMO("ox_ptod");
      this.pushCMD(SM_executeFunction);
      return(this.popCMO());
+  }
+  
+  def executeString(s) {
+     this.pushCMO(s);
+     this.pushCMD(SM_executeStringByLocalParser);
   }
 
 }
