@@ -1,10 +1,10 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/testclient.java,v 1.2 2000/03/15 15:02:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/testclient.java,v 1.3 2000/10/11 08:32:14 ohara Exp $
  *
  */
 
 import java.io.*;
-import JP.ac.kobe_u.math.tam.OpenXM.*;
+import ORG.openxm.tam.*;
 
 final class testclient{
   private OpenXM asir; // for debug

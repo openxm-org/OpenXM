@@ -1,8 +1,8 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.5 2000/04/02 19:24:40 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/elimi.java,v 1.6 2000/10/11 08:32:13 ohara Exp $
  */
 
-import JP.ac.kobe_u.math.tam.OpenXM.*;
+import ORG.openxm.tam.*;
 import java.applet.*;
 import java.awt.event.*;
 import java.awt.*;
