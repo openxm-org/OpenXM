@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.6 1999/11/02 09:17:08 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.7 1999/11/02 12:33:56 takayama Exp $
 all : all1 all2 all3
 
 all1 :
@@ -14,7 +14,7 @@ all2 :
 all3 :
 	(cd k097 ; make all ; cp k0 ../../bin)
 all4 :
-	(cd JavaSupport ; make )
+	(cd OpenMath ; make )
 	   
 
 clean :
