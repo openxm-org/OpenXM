@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.130 2003/09/11 00:43:16 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.131 2003/09/11 00:46:18 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -172,8 +172,8 @@ clean:
 	-rm ./.configure-links-done
 	-rm ${OpenXM_contrib}/gmp/.gmp_*
 	-rm ${OpenXM_contrib}/gc/.gc_*
-	-(cd ${OpenXM_contrib}/gmp ; make clean)
-	-(cd ${OpenXM_contrib}/gc ; make clean ; /bin/rm -f *.a)
+	-(cd gmp ; make clean)
+	-(cd gc ; make clean ; /bin/rm -f *.a)
 	-(cd asir2000 ; make clean)
 	-(cd gnuplot ; make clean)
 	-(cd k097 ; make clean)
@@ -194,8 +194,8 @@ clean:
 
 distclean: clean
 	(cd uuencoded ; make distclean)
-	-(cd ${OpenXM_contrib}/gmp ; make distclean)
-	(cd ${OpenXM_contrib}/gc ; make clean ; /bin/rm -f *.a)
+	-(cd gmp ; make distclean)
+	-(cd gc ; make distclean ; /bin/rm -f *.a)
 	(cd asir2000 ; make distclean)
 	(cd gnuplot ; make distclean)
 	(cd kan96xx ; make distclean)
@@ -209,7 +209,7 @@ distclean: clean
 	-(cd oxc ; make distclean)
 	rm -rf $(BINDIR)/d0 $(BINDIR)/k0 $(BINDIR)/ox $(BINDIR)/ox_sm1 \
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
-	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
+	       $(LIBDIR)/k097 $(LIBDIR)/sm1 
 
 configure: configure-asir \
 	   configure-gnuplot \

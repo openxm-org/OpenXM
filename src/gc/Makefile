@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.1 2003/09/02 14:07:45 takayama Exp $
 OpenXM_HOME=../..
 OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
 OpenXM_lib=${OpenXM_HOME}/lib
@@ -23,4 +23,9 @@ clean:
 	${RM} -f ./.*done
 	@if [ -f ./.make_done ]; then \
 		(cd ${GC} ; make clean) \
+	fi
+distclean: 
+	${RM} -f ./.*done
+	-@if [ -f ./.make_done ]; then \
+		(cd ${GC} ; make distclean) \
 	fi
