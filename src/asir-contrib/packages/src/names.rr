@@ -1,11 +1,22 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.76 2003/12/01 01:53:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.77 2003/12/12 03:02:36 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
+def asir_contrib_copyright() {
+  S=
+  "OpenXM/Risa/Asir-Contrib(20040225), Copyright 2000-2004, OpenXM.org committers\n"+
+  "help(\"keyword\"); ox_help(0); ox_help(\"keyword\"); ox_grep(\"keyword\");\n"+
+  "     for help messages (unix version only).\n";
+  return S;
+}
+
+def asir_contrib_document_url() {
+  return "http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc.html";
+}
+ 
 if (!ctrl("quiet_mode")) {
-  print("OpenXM/Risa/Asir-Contrib(20030929), Copyright 2000-2003, OpenXM.org")$
-  print("help(\"keyword\"); ox_help(0); ox_help(\"keyword\"); ox_grep(\"keyword\");")$
-  print("     for help messages (unix version only). ")$
+  print(asir_contrib_copyright(),0)$
+  print(asir_contrib_document_url())$
 }else{ }$
 
 
