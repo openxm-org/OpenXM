@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.15 2000/12/06 00:29:51 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.16 2001/08/22 02:36:34 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -1017,4 +1017,8 @@ ox.verbose {
  ]
 ] putUsages
 
-initializePathNamesForOx  %% This should be 
+[(ostype)] extension  0 get
+(windows) eq {
+}{
+  initializePathNamesForOx  %% This should be 
+} ifelse

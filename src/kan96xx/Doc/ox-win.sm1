@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.6 2001/08/12 03:13:35 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.7 2001/08/22 02:36:34 takayama Exp $
 
 [(parse) (ox.sm1) pushfile] extension pop
 
@@ -21,7 +21,6 @@ OpenXM_HOME_WIN tag 0 eq {
 %% This is used in asirconnectr_win
 /OX_LAUNCH (c:\home\asir\bin\ox_launch.exe) def
 %%%%%%%%%%%%%%% end configuration  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 /oxpath.ox (bin/ox.exe) def
 /oxpath.oxsm1 (bin/ox_sm1.exe) def
 /oxpath.oxlog (bin/oxlog.exe) def
@@ -29,6 +28,26 @@ OpenXM_HOME_WIN tag 0 eq {
 /oxpath.null  (  ) def
 /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
 /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
+
+/sm1connectr {
+ [/in-sm1connectr /pass /peer /data /control ] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(start ox ) ( -reverse -ox ) (/home/nobuki/OpenXM/src/kxx/ox_sm1.exe)
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( )] cat system 
+ [(oxCreateClient2) peer 0 pass] extension /ox.ccc set
+                     %% 0 means connect from only localhost. 
+ (The server is binded to the variable ox.ccc) message
+  ox.ccc.init 
+ ] pop
+ popVariables
+} def
 
 /sm1connectr_win {
  [/in-sm1connectr /pass /peer /data /control ] pushVariables
@@ -40,10 +59,10 @@ OpenXM_HOME_WIN tag 0 eq {
  peer message
  [(forkExec) [
     (c:/windows/command/start)
-    [OpenXM_HOME_WIN  (/bin/ox)] cat
+    [OpenXM_HOME_WIN  (\bin\ox)] cat
     (-reverse)
     (-ox)
-    [OpenXM_HOME_WIN (/bin/ox_sm1.exe)] cat
+    [OpenXM_HOME_WIN (\bin\ox_sm1.exe)] cat
     (-data)
      data
      (-control)
@@ -91,4 +110,4 @@ OpenXM_HOME_WIN tag 0 eq {
  popVariables
 } def
 
-initializePathNamesForOx  %% This should be 
+%% Skip it. initializePathNamesForOx   
