@@ -1,13 +1,16 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.9 2003/01/16 07:57:42 maekawa Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.10 2003/01/16 08:27:23 maekawa Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
 
 #define BUFSIZE 10000
+
+#define	REPL_PSFILE	"/tmp/repl_test.ps"
 
 int
 main(int argc,char *argv[]) {
@@ -16,6 +19,7 @@ main(int argc,char *argv[]) {
   char *slash;
   char type = 'b';
   FILE *fp;
+  int fd;
 
   if (argc >= 2) {
 	if (strcmp(argv[1],"csh")==0) {
@@ -25,11 +29,11 @@ main(int argc,char *argv[]) {
 
   if (getcwd(cwd, sizeof(cwd)) == NULL) {
 	fprintf(stderr, "getcwd: %s\n", strerror(errno));
-	exit(1);
+	exit(EXIT_FAILURE);
   }
   if ((slash = strrchr(cwd, '/')) == cwd) {
 	fprintf(stderr, "The current working directory is /.\n");
-	exit(1);
+	exit(EXIT_FAILURE);
   }
   *slash = 0;
   while (fgets(s,BUFSIZE,stdin) != NULL) {
@@ -44,15 +48,20 @@ main(int argc,char *argv[]) {
 
   /* Configuring environmental variables. */
   /* Check if pstoimg (src/asir-contrib) supports png format. */
-  fp = fopen("/tmp/repl_test.ps","w");
-  if (fp == NULL) {
-     fprintf(stderr,"Open error of /tmp/repl_test.ps. Use the existing file.\n");
-  }else{
-     fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
-     fprintf(fp," 390 290 moveto  (F) show \n");
-     fprintf(fp,"showpage \n");
-     fclose(fp);
+  if ((fd = open("/tmp/repl_test.ps", O_WRONLY|O_CREAT|O_EXCL|O_TRUNC,
+		 S_IRUSR|S_IWUSR)) < 0) {
+	fprintf(stderr, "open: %s: %s\n", REPL_PSFILE, strerror(errno));
+	exit(EXIT_FAILURE);
   }
+  if ((fp = fdopen(fd, "w")) == NULL) {
+	fprintf(stderr, "fdopen: %s", strerror(errno));
+	exit(EXIT_FAILURE);
+  }
+  fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
+  fprintf(fp," 390 290 moveto  (F) show \n");
+  fprintf(fp,"showpage \n");
+  fclose(fp);
+
   if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.png >/dev/null")) {
 	if (type == 'b') {
 	  printf("export OpenXM_PSTOIMG_TYPE=png\n");
@@ -73,5 +82,5 @@ main(int argc,char *argv[]) {
   system("rm -f /tmp/repl_test.*");
 
 
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
