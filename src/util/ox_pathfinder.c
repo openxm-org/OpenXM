@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.13 2003/12/03 13:38:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.14 2003/12/04 03:17:33 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -141,6 +141,7 @@ int oxForkExec(char **argv) {
     fprintf(stderr,"Cannot fork and exec.\n"); return -1;
   }
   if ((pid = fork()) > 0) {
+	oxResetRedirect();
     if (m&2) {
       /* Do not call singal to turn around a trouble on cygwin. BUG. */
     }else{
@@ -185,6 +186,7 @@ int oxForkExecBlocked(char **argv) {
     fprintf(stderr,"Cannot fork and exec.\n"); return -1;
   }
   if ((pid = fork()) > 0) {
+	oxResetRedirect();
     Myforkchildren[Myforkcp++] = pid;
     if (Myforkcp >= MYFORKCP_SIZE-1) {
       fprintf(stderr,"Child process table is full.\n");
@@ -1084,6 +1086,9 @@ char *oxEvalEnvVar(char *s) {
 }
 
 void oxResetRedirect(void) {
+  if (OX_P_stdin >= 0) close(OX_P_stdin);
+  if (OX_P_stdout >= 0) close(OX_P_stdout);
+  if (OX_P_stderr >= 0) close(OX_P_stderr);
   OX_P_stdin = OX_P_stdout = OX_P_stderr = -1;
 }
 

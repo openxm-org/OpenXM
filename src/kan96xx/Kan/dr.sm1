@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.23 2003/09/12 02:52:50 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.24 2003/09/13 13:14:03 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3826,6 +3826,10 @@ $ [ff ff] fromVectors :: $
   ] pop
   popVariables
   arg1
+} def
+
+/addStdoutStderr {
+  [(>) (stringOut://@@@stdout) (2>) (stringOut://@@@stderr)] join
 } def
 
 /usages {

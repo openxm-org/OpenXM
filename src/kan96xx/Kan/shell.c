@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.3 2003/12/03 09:00:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.4 2003/12/03 23:26:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,9 +22,13 @@ static struct object oxsSetenv(struct object ob);
 static char *oxsIsURI(char *s);
 static char *oxsURIgetVarName(char *s);
 static char *oxsURIgetExtension(char *s);
+static char *oxsURIgetFileName(char *s);
+static char *oxsRemoveOpt(char *s);
+static char *oxsGetOpt(char *s);
 static char *oxsVarToFile(char *v,char *extension,char *comamnd,int tmp);
 static int oxsFileToVar(char *v,char *fname);
 static char **oxsBuildArgv(struct object ob);
+static char **oxsBuildArgvRedirect(char **argv);
 static struct object testmain(struct object ob);
 
 #define mymalloc(n)  sGC_malloc(n)
@@ -37,17 +41,24 @@ static int AfterPt=0;
 static char *AfterDeleteFile[MAXFILES];
 static int AfterD=0;
 
+static int KeepTmpFiles = 1;
+
+extern int OX_P_stdin;
+extern int OX_P_stdout;
+extern int OX_P_stderr;
+
 struct object KoxShell(struct object ob) {
   return KoxShell_test1(ob);
 }
 
 /* A temporary help system */
 void KoxShellHelp(char *key,FILE *fp) {
-  char *keys[]={"command","export","which","@@@@gatekeeper"};
+  char *keys[]={"command","export","which","redirect","@@@@gatekeeper"};
   int i;
 #define HSIZE 20
   char *s[HSIZE];
   if (key == NULL) {
+	fprintf(fp,"\n");
     for (i=0; strcmp(keys[i],"@@@@gatekeeper") != 0; i++) {
 	  fprintf(fp,"%s\n",keys[i]);
 	  KoxShellHelp(keys[i],fp);
@@ -71,6 +82,12 @@ void KoxShellHelp(char *key,FILE *fp) {
 	s[1] = "cmdname arg1 arg2 ... ";
 	s[2] = "Example 1: /afo (Hello! ) def [(cat) (stringIn://afo)] oxshell";
 	s[3] = "Example 2: [(polymake) (stringInOut://afo.poly) (FACETS)] oxshell";
+    s[4] = NULL;
+  }else if (strcmp(key,"redirect")==0) {
+	s[0] = "The following redirect operators are implemented.";
+	s[1] = "< > 2>";
+	s[2] = "Example 1: [(ls) (hoge) (2>) (stringOut://afo)] oxshell\n    afo ::";
+	s[3] = "Example 2: [(cp) ] addStdoutStderr oxshell\n      [@@@stdout @@@stderr] ::";
     s[4] = NULL;
   }else{
   }
@@ -178,6 +195,7 @@ char *oxsIsURI(char *s) {
   int n,i,j;
   char *u;
   if (s == NULL) return((char *)NULL);
+  s = oxsRemoveOpt(s);
   n = strlen(s);
   for (i=0; i<n-3;i++) {
     if ((s[i] == ':') && (s[i+1] == '/') && (s[i+2] == '/')) {
@@ -201,6 +219,7 @@ char *oxsURIgetVarName(char *s) {
   int n,i,j;
   char *u;
   if (s == NULL) return((char *)NULL);
+  s = oxsRemoveOpt(s);
   n = strlen(s);
   for (i=0; i<n-3;i++) {
     if ((s[i] == ':') && (s[i+1] == '/') && (s[i+2] == '/')) {
@@ -225,6 +244,7 @@ char *oxsURIgetExtension(char *s) {
   int n,i,j,k;
   char *u;
   if (s == NULL) return((char *)NULL);
+  s = oxsRemoveOpt(s);
   n = strlen(s);
   for (i=0; i<n-3;i++) {
     if ((s[i] == ':') && (s[i+1] == '/') && (s[i+2] == '/')) {
@@ -243,6 +263,68 @@ char *oxsURIgetExtension(char *s) {
   }
   return(NULL);
 }
+
+/* stringInOut://abc.poly=:file://pqr.txt */
+static char *oxsRemoveOpt(char *s) {
+  int n,i,j;
+  char *u;
+  if (s == NULL) return((char *)NULL);
+  n = strlen(s);
+  for (i=0; i<n-1;i++) {
+    if ((s[i] == '=') && (s[i+1] == ':')) {
+      u = (char *) mymalloc(i+1);
+      if (u == NULL) nomemory(1);
+      u[0]=0;
+      for (j=0; j<i; j++) {
+        u[j] = s[j]; u[j+1]=0;
+      }
+      return(u);
+    }
+  }
+  return(s);
+}
+
+/* stringInOut://abc.poly=:file://pqr.txt */
+/* stringInOut://abc.poly  */
+char *oxsGetOpt(char *s) {
+  int n,i,j;
+  char *u;
+  if (s == NULL) return((char *)NULL);
+  n = strlen(s);
+  for (i=0; i<n-1;i++) {
+    if ((s[i] == '=') && (s[i+1] == ':')) {
+      u = (char *) mymalloc(n-i+1);
+      if (u == NULL) nomemory(1);
+      u[0]=0;
+      for (j=i+2; j<n; j++) {
+        u[j-i-2] = s[j]; u[j-i-2+1]=0;
+      }
+      return(u);
+    }
+  }
+  return(NULL);
+}
+
+char *oxsURIgetFileName(char *s) {
+  int n,i,j;
+  char *u;
+  if (s == NULL) return((char *)NULL);
+  s = oxsRemoveOpt(s);
+  n = strlen(s);
+  for (i=0; i<n-3;i++) {
+    if ((s[i] == ':') && (s[i+1] == '/') && (s[i+2] == '/')) {
+      u = (char *) mymalloc(n-i+1);
+      if (u == NULL) nomemory(1);
+      u[0]=0;
+      for (j=i+3; j<n; j++) {
+        u[j-i-3] = s[j]; u[j-i-3+1]=0;
+      }
+      return(u);
+    }
+  }
+  return(NULL);
+}
+
 
 static struct object testmain(struct object ob) {
   struct object rob;
@@ -431,8 +513,8 @@ static struct object oxsExecuteBlocked(struct object ob)
   int r,i,n;
   char **argv;
 
-  /* bug: Set stdout, stderr to result variables. */
   argv = oxsBuildArgv(ob);  
+  argv = oxsBuildArgvRedirect(argv);  
   r=oxForkExecBlocked(argv);  /* bug: what happen when NoX? */
   /*
   if (1) {
@@ -451,10 +533,66 @@ static struct object oxsExecuteBlocked(struct object ob)
 
   if (AfterD > 0) {
 	for (i=0; i< AfterD; i++) {
-	  /* oxDeleteFile(AfterDeleteFile[i]);  not implemented. */
+	  if (!KeepTmpFiles) {
+	    oxDeleteFile(AfterDeleteFile[i]); 
+      }
 	}
   }
   AfterD = 0;
 
   return(KpoInteger(r));
+}
+
+static char **oxsBuildArgvRedirect(char **argv) {
+  char **newargv;
+  int n,i,j;
+  FILE *fp;
+  char *fname;
+
+  n = 0; while (argv[n] != NULL) n++;
+  newargv = (char **) mymalloc(sizeof(char *)*(n+1));
+  for (i=0; i<=n; i++) newargv[i]=(char *)NULL;
+  j=0;
+  /* bug: Critical area, do not make an interruption. */
+  for (i=0; i<n; i++) {
+	if (strcmp(argv[i],"<")==0) {
+	  fname=argv[i+1];
+	  OX_P_stdin = open(fname,O_RDONLY);
+	  if (OX_P_stdin < 0) {
+		OX_P_stdin = -1;
+		oxResetRedirect();
+		errorKan1("%s\n","oxsBuildArgvRedirect fails to open the input file.");
+	  }
+      i++;
+	}else if (strcmp(argv[i],">")==0) {
+	  fname = argv[i+1];
+	  fp == NULL;
+	  if (fname != NULL) {
+		fp = fopen(fname,"w");
+	  }
+      if (fp == NULL) {
+		oxResetRedirect();
+		errorKan1("%s\n","oxsBuildArgvRedirect, cannot open the output file.\n");
+	  }
+	  fclose(fp); /* touch */
+	  OX_P_stdout = open(fname,O_WRONLY);
+	  i++;
+	}else if (strcmp(argv[i],"2>") == 0) {
+	  fname = argv[i+1];
+	  fp == NULL;
+	  if (fname != NULL) {
+		fp = fopen(fname,"w");
+	  }
+      if (fp == NULL) {
+		oxResetRedirect();
+		errorKan1("%s\n","oxsBuildArgvRedirect, cannot open the output (stderr) file.\n");
+	  }
+	  fclose(fp); /* touch */
+	  OX_P_stderr = open(fname,O_WRONLY);
+	  i++;
+	}else{
+	  newargv[j++] = argv[i]; 
+	}
+  }
+  return( newargv );
 }
