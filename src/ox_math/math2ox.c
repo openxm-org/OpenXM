@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.8 1999/11/29 12:09:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.9 1999/12/14 09:31:55 ohara Exp $ */
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -78,7 +78,7 @@ int OX_parse(char *s)
     cmo *m;
     symbol *symp;
     int len = strlen(s);
-    setmode_mygetc(s, len);
+    init_parser(s);
 
     if(s != NULL && len > 0 && (m = parse()) != NULL) {
         if (m->tag == OX_DATA) {
@@ -144,8 +144,6 @@ int main(int argc, char *argv[])
 {
     /* 構文解析器の設定 */
     setflag_parse(PFLAG_ADDREV);
-    setgetc(mygetc);
-
 	len_svs = 20;
 	svs = (ox_file_t *)malloc(sizeof(ox_file_t)*len_svs);
     
