@@ -1,3 +1,4 @@
+# $OpenXM$
 BDATE =19970416
 CC = gcc
 GC = $(KHOME)/gc/gc.a
@@ -18,8 +19,7 @@ EXTRALIB =
 ########### end of configuration.
 
 ### These are to switch k2 linux and k2 solaris version.
-SOLARIS_SLIB =
-#SOLARIS_SLIB =   -lsocket -lnsl -lc /usr/ucblib/libucb.a  
+SOLARIS_SLIB =   -lsocket -lnsl -lc /usr/ucblib/libucb.a  
 ### if you use K2LFLAG below, you don't need ALIB.
 #K2LFLAG = -lm $(SOLARIS_ALIB)  
 K2LFLAG = -lfunc -lparse -lengine -lm -Wl,-rpath,/usr/X11R6/lib
@@ -90,7 +90,12 @@ KXX = simple.tab.o d.o ki.o dic.o
 KXXASIR = simple.tab.o d.o ki-asir.o dic.o
 
 k0 :  k0.o $(KXX) $(KAN_HOME)/kanlib.a $(GC) $(GMP) $(KAN_HOME)/lookup.h
-	$(CC) $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB)
+	if test `uname` = "SunOS" ; \
+	then \
+	$(CC) $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) $(SOLARIS_SLIB) ; \
+	else \
+	$(CC) $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0 k0.o $(KXX)  $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC) $(EXTRALIB) ; \
+	fi
 
 k0.o : k2.c
 	$(CC) -c $(FLAG) -I$(GMP_HOME) -I$(KAN_HOME) -o k0.o k2.c
