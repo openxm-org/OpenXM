@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dag-noro.tex,v 1.2 2001/10/10 06:32:10 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dag-noro.tex,v 1.3 2001/10/12 02:22:17 noro Exp $ 
 \documentclass{slides}
 \usepackage{color}
 \usepackage{rgb}
@@ -15,8 +15,13 @@
 \textheight 7.2in
 \columnsep 0.33in
 \topmargin -1in
+\def\tc{\color{red}}
+\def\fbc{\bf\color{MediumBlue}}
+\def\itc{\color{brown}}
+\def\urlc{\bf\color{DarkGreen}}
+\def\bc{\color{LightGoldenrod1}}
 
-\title{A computer algebra system Risa/Asir and OpenXM}
+\title{\tc A computer algebra system Risa/Asir and OpenXM}
 
 \author{Masayuki Noro\\ Kobe University, Japan}
 \begin{document}
@@ -25,18 +30,18 @@
 
 %\begin{slide}{}
 %\begin{center}
-%\fbox{\large Part I : OpenXM and Risa/Asir --- overview and history}
+%\fbox{\fbc \large Part I : OpenXM and Risa/Asir --- overview and history}
 %\end{center}
 %\end{slide}
 
 %\begin{slide}{}
-%\fbox{Integration of mathematical software systems}
+%\fbox{\fbc Integration of mathematical software systems}
 %
 %\begin{itemize}
 %\item Data integration
 %
 %\begin{itemize}
-%\item OpenMath ({\tt http://www.openmath.org}) , MP [GRAY98]
+%\item OpenMath ({\urlc \tt http://www.openmath.org}) , MP [GRAY98]
 %\end{itemize}
 %
 %Standards for representing mathematical objects
@@ -54,7 +59,7 @@
 %\begin{itemize}
 %\item MathLink, OpenMath+MCP, MP+MCP
 %
-%and OpenXM ({\tt http://www.openxm.org})
+%and OpenXM ({\urlc \tt http://www.openxm.org})
 %\end{itemize}
 %
 %Both are necessary for practical implementation
@@ -62,26 +67,26 @@
 %\end{itemize}
 %\end{slide}
 \begin{slide}{}
-\fbox{A computer algebra system Risa/Asir}
+\fbox{\fbc A computer algebra system Risa/Asir}
 
-({\tt http://www.math.kobe-u.ac.jp/Asir/asir.html})
+({\urlc \tt http://www.math.kobe-u.ac.jp/Asir/asir.html})
 
 \begin{itemize}
-\item Software mainly for polynomial computation
+\item {\itc Software mainly for polynomial computation}
 
-\item User language with C-like syntax
+\item {\itc User language with C-like syntax}
 
 C language without type declaration, with list processing
 
-\item Builtin {\tt gdb}-like debugger for user programs
+\item {\itc Builtin {\tt gdb}-like debugger for user programs}
 
-\item Open source
+\item {\itc Open source}
 
 Whole source tree is available via CVS
 
-The latest version : see {\tt http://www.openxm.org}
+The latest version : see {\urlc \tt http://www.openxm.org}
 
-\item OpenXM interface
+\item {\itc OpenXM interface}
 
 \begin{itemize}
 \item OpenXM 
@@ -95,10 +100,10 @@ An infrastructure for exchanging mathematical data
 \end{slide}
 
 \begin{slide}{}
-\fbox{Goal of developing Risa/Asir}
+\fbox{\fbc Goal of developing Risa/Asir}
 
 \begin{itemize}
-\item Testing new algorithms
+\item {\itc Testing new algorithms}
 
 \begin{itemize}
 \item Development started in Fujitsu labs
@@ -107,20 +112,20 @@ Polynomial factorization, Groebner basis related computation,
 cryptosystems , quantifier elimination , $\ldots$
 \end{itemize}
 
-\item To be a general purpose, open system
+\item {\itc To be a general purpose, open system}
 
 Since 1997, we have been developing OpenXM package
 containing various servers and clients
 
 Risa/Asir is a component of OpenXM
 
-\item Environment for parallel and distributed computation
+\item {\itc Environment for parallel and distributed computation}
 
 \end{itemize}
 \end{slide}
 
 %\begin{slide}{}
-%\fbox{Capability for polynomial computation}
+%\fbox{\fbc Capability for polynomial computation}
 %
 %\begin{itemize}
 %\item Fundamental polynomial arithmetics
@@ -150,46 +155,46 @@ Risa/Asir is a component of OpenXM
 %\end{slide}
 
 \begin{slide}{}
-\fbox{History of development : Polynomial factorization}
+\fbox{\fbc History of development : Polynomial factorization}
 
 \begin{itemize}
-\item 1989
+\item {\itc 1989}
 
 Start of Risa/Asir with Boehm's conservative GC 
 
-({\tt http://www.hpl.hp.com/personal/Hans\_Boehm/gc})
+({\urlc \tt http://www.hpl.hp.com/personal/Hans\_Boehm/gc})
 
-\item 1989-1992
+\item {\itc 1989-1992}
 
 Univariate and multivariate factorizers over {\bf Q}
 
-\item 1992-1994
+\item {\itc 1992-1994}
 
 Univariate factorization over algebraic number fields
 
 Intensive use of successive extension, non-squarefree norms
 
-\item 1996-1998
+\item {\itc 1996-1998}
 
 Univariate factorization over large finite fields
 
 Motivated by a reseach project in Fujitsu on cryptography
 
-\item 2000-current 
+\item {\itc 2000-current}
 
 Multivariate factorization over small finite fields (in progress)
 \end{itemize}
 \end{slide}
 
 \begin{slide}{}
-\fbox{History of development : Groebner basis}
+\fbox{\fbc History of development : Groebner basis}
 
 \begin{itemize}
-\item 1992-1994
+\item {\itc 1992-1994}
 
 User language $\Rightarrow$ C version; trace lifting [TRAV88]
 
-\item 1994-1996
+\item {\itc 1994-1996}
 
 Trace lifting with homogenization
 
@@ -199,16 +204,16 @@ Modular change of ordering/RUR[ROUI96] [NOYO99]
 
 Primary ideal decomposition [SHYO96]
 
-\item 1996-1998
+\item {\itc 1996-1998}
 
 Efficient content reduction during NF computation [NORO97]
 Solved {\it McKay} system for the first time
 
-\item 1998-2000
+\item {\itc 1998-2000}
 
 Test implementation of $F_4$ [FAUG99]
 
-\item 2000-current
+\item {\itc 2000-current}
 
 Buchberger algorithm in Weyl algebra
 
@@ -217,9 +222,9 @@ Efficient $b$-function computation[OAKU97] by a modular method
 \end{slide}
 
 \begin{slide}{}
-\fbox{Timing data --- Factorization}
+\fbox{\fbc Timing data --- Factorization}
 
-\underline{Univariate; over {\bf Q}}
+\underline{\itc Univariate; over {\bf Q}}
 
 $N_i$ : a norm of a polynomial, $\deg(N_i) = i$
 \begin{center}
@@ -233,7 +238,7 @@ NTL-5.2	& 0.16 	& 0.9 	& 1.4 & 0.4 \\ \hline
 \end{tabular}
 \end{center}
 
-\underline{Multivariate; over {\bf Q}}
+\underline{\itc Multivariate; over {\bf Q}}
 
 $W_{i,j,k} = Wang[i]\cdot Wang[j]\cdot Wang[k]$ in {\tt asir2000/lib/fctrdata}
 \begin{center}
@@ -251,9 +256,9 @@ Maple 7& 0.5 	& 18 	& 967  & 48 & 1.3 \\ \hline
 \end{slide}
 
 \begin{slide}{}
-\fbox{Timing data --- DRL Groebner basis computation}
+\fbox{\fbc Timing data --- DRL Groebner basis computation}
 
-\underline{Over $GF(32003)$}
+\underline{\itc Over $GF(32003)$}
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|c|c|} \hline
 		& $C_7$ & $C_8$ & $K_7$ & $K_8$ & $K_9$ & $K_{10}$ & $K_{11}$ \\ \hline
@@ -265,7 +270,7 @@ FGb(estimated)	& 0.9 & 23 & 0.1 & 0.8 & 6 & 51 & 366 \\ \hline
 \end{tabular}
 \end{center}
 
-\underline{Over {\bf Q}}
+\underline{\itc Over {\bf Q}}
 
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|} \hline
@@ -281,10 +286,10 @@ FGb(estimated)	& 8 &11 & 0.6 & 5 & 10 \\ \hline
 \end{slide}
 
 \begin{slide}{}
-\fbox{Summary of performance}
+\fbox{\fbc Summary of performance}
 
 \begin{itemize}
-\item Factorizer
+\item {\itc Factorizer}
 
 \begin{itemize}
 \item Multivariate : reasonable performance
@@ -292,7 +297,7 @@ FGb(estimated)	& 8 &11 & 0.6 & 5 & 10 \\ \hline
 \item Univariate : obsoleted by M. van Hoeij's new algorithm [HOEI00]
 \end{itemize}
 
-\item Groebner basis computation
+\item {\itc Groebner basis computation}
 
 \begin{itemize}
 \item Buchberger
@@ -312,29 +317,30 @@ But we observe that {\it McKay} is computed efficiently by $F_4$
 \end{slide}
 
 \begin{slide}{}
-\fbox{What is the merit to use Risa/Asir?}
+\fbox{\fbc What is the merit to use Risa/Asir?}
 
 \begin{itemize}
-\item Total performance is not excellent, but not bad
+\item {\itc Total performance is not excellent, but not bad}
 
-\item A completely open system
+\item {\itc A completely open system}
 
 The whole source is available
 
-\item Interface compliant to OpenXM RFC-100
+\item {\itc It serves as a test bench to try new ideas}
+
+Interactive debugger is very useful
+
+\item {\itc Interface compliant to OpenXM RFC-100}
 
 The interface is fully documented
 
-\item It serves as a test bench to try new ideas
-
-Interactive debugger is very useful
 \end{itemize}
 
 \end{slide}
 
 
 %\begin{slide}{}
-%\fbox{CMO = Serialized representation of mathematical object}
+%\fbox{\fbc CMO = Serialized representation of mathematical object}
 %
 %\begin{itemize}
 %\item primitive data
@@ -361,7 +367,7 @@ Interactive debugger is very useful
 %\end{slide}
 %
 %\begin{slide}{}
-%\fbox{Stack based communication}
+%\fbox{\fbc Stack based communication}
 %
 %\begin{itemize}
 %\item Data arrived a client
@@ -387,20 +393,20 @@ Interactive debugger is very useful
 %\end{slide}
 
 \begin{slide}{}
-\fbox{OpenXM (Open message eXchange protocol for Mathematics) }
+\fbox{\fbc OpenXM (Open message eXchange protocol for Mathematics) }
 
 \begin{itemize}
-\item An environment for parallel distributed computation
+\item {\itc An environment for parallel distributed computation}
 
 Both for interactive, non-interactive environment
 
-\item OpenXM RFC-100 = Client-server architecture
+\item {\itc OpenXM RFC-100 = Client-server architecture}
 
 Client $\Leftarrow$ OX (OpenXM) message $\Rightarrow$ Server
 
 OX (OpenXM) message : command and data
 
-\item Data
+\item {\itc Data}
 
 Encoding : CMO (Common Mathematical Object format)
 
@@ -408,9 +414,9 @@ Serialized representation of mathematical object
 
 --- Main idea was borrowed from OpenMath 
 
-({\tt http://www.openmath.org})
+({\urlc \tt http://www.openmath.org})
 
-\item Command
+\item {\itc Command}
 
 stack machine command --- server is a stackmachine
 
@@ -419,22 +425,23 @@ stack machine command --- server is a stackmachine
 \end{slide}
 
 \begin{slide}{}
-\fbox{Example of distributed computation --- $F_4$ vs. $Buchberger$ }
+\fbox{\fbc Example of distributed computation --- $F_4$ vs. $Buchberger$ }
 
 \begin{verbatim}
 /* competitive Gbase computation over GF(M) */
 /* Cf. A.28 in SINGULAR Manual */
-/* Process list is specified as an option : grvsf4(...|proc=P) */
-def grvsf4(G,V,M,O)
+/* Process list is specified as buch_vs_f4_mod(...|proc=P) */
+def buch_vs_f4_mod(G,V,M,O)
 {
   P = getopt(proc);
   if ( type(P) == -1 ) return dp_f4_mod_main(G,V,M,O);
   P0 = P[0]; P1 = P[1]; P = [P0,P1];
-  map(ox_reset,P);
-  ox_cmo_rpc(P0,"dp_f4_mod_main",G,V,M,O);
-  ox_cmo_rpc(P1,"dp_gr_mod_main",G,V,0,M,O);
+  map(ox_reset,P); /* resets the both servers */
+  ox_cmo_rpc(P0,"dp_f4_mod_main",G,V,M,O);  /* for F4 */
+  ox_cmo_rpc(P1,"dp_gr_mod_main",G,V,0,M,O); /* for Buchberger */
   map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
-  F = ox_select(P); R = ox_get(F[0]);
+  F = ox_select(P); /* waits a server to return the result */
+  R = ox_get(F[0]); /* gets the result from the winner */
   if ( F[0] == P0 ) { Win = "F4"; Lose = P1;}
   else { Win = "Buchberger"; Lose = P0; }
   ox_reset(Lose); /* simply resets the loser */
@@ -444,7 +451,27 @@ def grvsf4(G,V,M,O)
 \end{slide}
 
 \begin{slide}{}
-\fbox{References}
+\fbox{\fbc Real speedup by parallelism --- polynomial multiplication}
+
+{\itc Product of dense univariate polynomials with 3000bit coefficients}
+
+{\itc Algorithm : FFT+Chinese remainder (by Shoup)}
+
+\epsfxsize=20cm
+\epsffile{3k.ps}
+
+{\itc Communication cost}
+
+\begin{itemize}
+\item $O(n{\color{red}\log L})$ with server-server communication (OX-RFC102)
+\item $O(n{\color{red}L})$ without server-server communication (OX-RFC100)
+\end{itemize}
+($L$: number of processes, $n$: degree)
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{\fbc References}
 
 [BERN97] L. Bernardin, On square-free factorization of 
 multivariate polynomials over a finite field, Theoretical
