@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.4 2003/07/21 13:36:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.5 2003/07/22 03:25:56 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -791,6 +791,12 @@ char *generateTMPfileName(char *seed) {
   char *fname;
   char *tt;
   int num;
+  static int prevnum=0; 
+   /* Bugs for k0.
+      (1) unlink does not work so, load["t.k"];; load["t.k"];; fails (only cygwin.
+      (2) In case of  error, TMP file is not removed. cf KCerror().
+     In case of cygwin, we can only load 90 times.
+   */ 
   int i;
   int clean = 0;
   tmp = getenv("TMP");
@@ -808,14 +814,16 @@ char *generateTMPfileName(char *seed) {
     fname = (char *)mymalloc(strlen(seed)+40);
     if (fname == NULL) nomemory(fname);
   }
-  for (num=0; num <100; num++) {
+  for (num=prevnum+1; num <100; num++) {
     if (tmp != NULL) {
       sprintf(fname,"%s/%s-tmp-%d.txt",tmp,seed,num);
     }else{
       sprintf(fname,"%s-tmp-%d.txt",seed,num);
     }
-    if (getFileSize(fname) < 0) return fname;
-    else {
+    if (getFileSize(fname) < 0) {
+      prevnum = num;
+      return fname;
+    } else {
       if ((num > 90) && (!clean)) {
         /* Clean the old garbages. */
         for (i=0; i<100; i++) {
@@ -842,7 +850,7 @@ char *generateTMPfileName(char *seed) {
 #endif
           }
         }
-        num = 0; clean=1;
+        num = 0; clean=1; prevnum=0;
       }
     }
   }

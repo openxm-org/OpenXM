@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.11 2003/07/22 03:25:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.12 2003/07/22 03:34:08 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1097,9 +1097,10 @@ void loadFileWithCpp(objectp op)
 	argv[5] = NULL;
   }else{
 	argv[0] = cpp;
-	argv[1] = cygwinPathToWinPath(sfile);
-	argv[2] = cygwinPathToWinPath(outfile);
-	argv[3] = NULL;
+	argv[1] = "-P";
+	argv[2] = cygwinPathToWinPath(sfile);
+	argv[3] = cygwinPathToWinPath(outfile);
+	argv[4] = NULL;
   }
   n=oxForkExecBlocked(argv);
 
