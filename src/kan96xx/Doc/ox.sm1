@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.36 2004/03/01 07:19:44 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.37 2004/03/03 06:09:29 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -850,10 +850,11 @@ oxasir.verbose {
   (If you interrupted the computation by typing ctrl-C, type in )
   (   oxasir.ccc oxreset  ; )
   (to interrupt the ox_asir server.)
+  (NOTE: all asir-args must belong to the same ring. cf.oxasir.changeRing. )
   (Example: oxasir.ccc [(fctr) (x^10-1).] asir )
   (  )
   (This function requires plugins cmo, socket and ox_asir server. cf. oxasir)
-  (See, ftp://endeavor.fujitsu.co.jp/pub/isis/asir on asir)
+  (See, http://www.math.kobe-u.ac.jp/Asir on asir)
  ]
 ] putUsages
 
@@ -902,16 +903,27 @@ oxasir.verbose {
 %%% Mathematical functions for asir
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /oxasir.changeRing {
+  /oxasir.changeRing.rr.prev 0 def
+  oxasir.changeRing2
+} def
+/oxasir.changeRing2 {
   /arg1 set
-  [/in-oxasir.changeRing /f /rr] pushVariables
+  [/in-oxasir.changeRing2 /f /rr ] pushVariables
   [
      /f arg1 def
      f isArray {
-       f {oxasir.changeRing} map 
+       f {oxasir.changeRing2} map 
      }{
        f isPolynomial {
          f (0). eq { } 
-         { f (ring) dc /rr set [(CurrentRingp) rr] system_variable } ifelse
+         { f (ring) dc /rr set [(CurrentRingp) rr] system_variable 
+           oxasir.changeRing.rr.prev tag 1 eq { }
+           {    
+              oxasir.changeRing.rr.prev rr eq  {  } 
+              {  (asir : arguments must belong to the same ring.) error } ifelse
+           } ifelse
+           /oxasir.changeRing.rr.prev rr def
+         } ifelse
        } {  } ifelse
      } ifelse
   ] pop
@@ -1497,7 +1509,7 @@ oxasir.verbose {
      [wvec] weight_vector
     0] define_ring
 
-    ff { . dehomogenize homogenize } map /ff set
+    ff { toString . dehomogenize homogenize } map /ff set
     vvx { . } map /vvx set %%ex  [x,y] 
     vvd { . } map /vvd set %%ex  [Dx,Dy]
     vvx vvd join [(h).] join /avv set
