@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.7 2000/03/10 12:38:47 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.8 2000/10/10 19:58:30 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
@@ -12,7 +12,6 @@
 #define ERROR_ID_UNKNOWN_SM 10
 #define ERROR_ID_FAILURE_MLINK         11
 
-int  initialize_stack();
 int  push(cmo *m);
 cmo  *pop();
 int  sm_popCMO(OXFILE *oxfp);

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.16 2000/10/10 19:58:30 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.17 2000/11/28 20:16:03 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -26,28 +26,23 @@
 extern int flag_mlo_symbol;
 
 /* MathLink independent */
-#define INIT_S_SIZE 2048
-#define EXT_S_SIZE  2048
-
-static int stack_size = 0;
-static int stack_pointer = 0;
 static cmo **stack = NULL;
+static int stack_size = 0;
+static int stack_ptr = 0;
+OXFILE *stack_oxfp = NULL;
 
-int initialize_stack()
-{
-    stack_pointer = 0;
-	stack_size = INIT_S_SIZE;
-	stack = malloc(stack_size*sizeof(cmo*));
-}
+#define DIFFERENCE_OF_STACK  1024
 
-static int extend_stack()
+static void stack_extend()
 {
-	int size2 = stack_size + EXT_S_SIZE;
-	cmo **stack2 = malloc(size2*sizeof(cmo*));
-	memcpy(stack2, stack, stack_size*sizeof(cmo *));
-	free(stack);
-	stack = stack2;
-	stack_size = size2;
+    int newsize = stack_size + DIFFERENCE_OF_STACK;
+    cmo **newstack = (cmo **)malloc(sizeof(cmo *)*newsize);
+    if (stack != NULL) {
+        memcpy(newstack, stack, sizeof(cmo *)*stack_size);
+        free(stack);
+    }
+    stack_size = newsize;
+    stack = newstack;
 }
 
 int push(cmo* m)
@@ -62,29 +57,33 @@ int push(cmo* m)
         fprintf(stderr, "ox_math:: a %s was pushed.\n", symbol_get_key(symp));
     }
 #endif
-    stack[stack_pointer] = m;
-    stack_pointer++;
-    if (stack_pointer >= stack_size) {
-		extend_stack();
+    if (stack_ptr >= stack_size) {
+        stack_extend();
     }
+    stack[stack_ptr] = m;
+    stack_ptr++;
 }
 
 /* if the stack is empty, then pop() returns (CMO_NULL). */
 cmo* pop()
 {
-    if (stack_pointer > 0) {
-        stack_pointer--;
-        return stack[stack_pointer];
+    if (stack_ptr > 0) {
+        return stack[--stack_ptr];
     }
     return new_cmo_null();
 }
 
 void pops(int n)
 {
-    stack_pointer -= n;
-    if (stack_pointer < 0) {
-        stack_pointer = 0;
+    stack_ptr -= n;
+    if (stack_ptr < 0) {
+        stack_ptr = 0;
     }
+}
+
+void push_error(int errcode, cmo* pushback)
+{
+    return push((cmo *)make_error_object(errcode, pushback));
 }
 
 /* 
@@ -173,7 +172,7 @@ int sm_executeStringByLocalParser(OXFILE* oxfp)
             /* for mathematica */
             /* Sending the string `s' to mathematica for its evaluation. */
             ml_evaluateStringByLocalParser(s);
-			ml_select();
+            ml_select();
             push(receive_mlo());
         }
         return 0;
@@ -207,7 +206,7 @@ int sm_executeFunction(OXFILE* oxfp)
         argv[i] = pop();
     }
     ml_executeFunction(func, argc, argv);
-	ml_select();
+    ml_select();
     push(receive_mlo());
     return 0;
 }

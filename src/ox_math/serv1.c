@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.10 2000/10/10 19:58:30 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.11 2000/11/28 20:16:03 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -125,7 +125,6 @@ int main()
 	sv = oxf_open(3);
 
     ml_init();
-    initialize_stack();
     mathcap_init(VERSION, ID_STRING, "ox_math", NULL, NULL);
 
     signal(SIGUSR1, handler_reset1);
