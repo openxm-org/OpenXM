@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/m.oxweave,v 1.3 2003/07/16 05:36:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/doc/m.oxweave,v 1.4 2003/07/27 13:18:46 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -16,7 +16,7 @@
 
 
 */
-/*&jp-texi
+/*&ja
 @chapter Mathematica 函数
 
 この節では Mathematica の ox サーバ @code{ox_math}
@@ -27,7 +27,7 @@
 
 注意: @code{ox_reset} は動かない.
 */
-/*&eg-texi
+/*&en
 @chapter Mathematica Functions
 
 This chapter describes  interface functions for
@@ -71,13 +71,13 @@ Author of @code{ox_math}: Katsuyoshi Ohara,
 */
 
 
-/*&jp-texi
+/*&ja
 @section 函数一覧
 */ 
-/*&eg-texi
+/*&en
 @section Functions
 */ 
-/*&jp-texi
+/*&ja
 @node mathematica.start,,, Mathematica Functions
 @subsection @code{mathematica.start}
 @findex mathematica.start
@@ -98,7 +98,7 @@ Author of @code{ox_math}: Katsuyoshi Ohara,
 @item 識別番号は @code{M_proc} に格納される.
 @end itemize
 */
-/*&eg-texi
+/*&en
 @node mathematica.start,,, Mathematica Functions
 @subsection @code{mathematica.start}
 @findex mathematica.start
@@ -124,13 +124,13 @@ Integer
 P = mathematica.start()
 @end example
 */
-/*&jp-texi
+/*&ja
 @table @t
 @item 参照
 @code{ox_launch}
 @end table
 */
-/*&eg-texi
+/*&en
 @table @t
 @item Reference
 @code{ox_launch}
@@ -141,7 +141,7 @@ P = mathematica.start()
   以下でMathematica を呼ぶための補助関数を定義する.
 */
 
-/*&jp-texi
+/*&ja
 @node mathematica.tree_to_string,,, Mathematica Functions
 @subsection @code{mathematica.tree_to_string}
 @findex mathematica.tree_to_string
@@ -171,7 +171,7 @@ ox_math の戻す Mathematica の木構造データ @var{t} を @code{asi
    かえる.
 @end itemize
 */
-/*&eg-texi
+/*&en
 @node mathematica.tree_to_string,,, Mathematica Functions
 @subsection @code{mathematica.tree_to_string}
 @findex mathematica.tree_to_string
@@ -233,13 +233,13 @@ mathematica.complex(2.3 , 4.55)
 (1.7+3.5*@@i)
 @end example
 */
-/*&jp-texi
+/*&ja
 @table @t
 @item 参照
 @code{ox_pop_cmo}, @code{eval_str}, @code{mathematica.rtomstr}
 @end table
 */
-/*&eg-texi
+/*&en
 @table @t
 @item Reference
 @code{ox_pop_cmo}, @code{eval_str}, @code{mathematica.rtomstr}
@@ -256,7 +256,7 @@ mathematica.complex(2.3 , 4.55)
    変える.
 */
 
-/*&jp-texi
+/*&ja
 @node mathematica.rtomstr,,, Mathematica Functions
 @subsection @code{mathematica.rtomstr}
 @findex mathematica.rtomstr
@@ -279,7 +279,7 @@ mathematica.complex(2.3 , 4.55)
    この関数はこの変換をおこなう.
 @end itemize
 */
-/*&eg-texi
+/*&en
 @node mathematica.rtomstr,,, Mathematica Functions
 @subsection @code{mathematica.rtomstr}
 @findex mathematica.rtomstr
@@ -312,7 +312,7 @@ This function makes this sort of translations.
 @{@{1,x,x^2@},@{1,y,y^2@}@}
 @end example
 */
-/*&jp-texi
+/*&ja
 もう一つ例をあげよう.
 次の関数 @code{mathematica.inverse(M)} は @code{ox_math}
 をよんで行列 @code{M} の逆行列を計算する関数である.
@@ -321,7 +321,7 @@ asir の行列を Mathematica 形式に変換してから
 @code{ox_execute_string} で Mathematica に逆行列を計算
 させている.
 */
-/*&eg-texi
+/*&en
 Let us see one more example.
 The following function @code{mathematica.inverse(M)} outputs
 the inverse matrix of the matrix @code{M} by calling @code{ox_math}.
@@ -348,14 +348,14 @@ def inverse(M) @{
 (z*y)/(x^2+(-y-z)*x+z*y)
 @end example
 */
-/*&jp-texi
+/*&ja
 @table @t
 @item 参照
 @code{ox_execute_string}, @code{ToExpression}(Mathematica),
 @code{mathematica.tree_to_string}
 @end table
 */
-/*&eg-texi
+/*&en
 @table @t
 @item Reference
 @code{ox_execute_string}, @code{ToExpression}(Mathematica),

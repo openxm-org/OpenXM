@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.51 2004/02/23 11:38:36 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.52 2004/03/05 14:43:36 ohara Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -222,43 +222,43 @@ complex-en.texi : complex.oxweave
 
 oxrfc100-ja.texi : oxrfc100.oxweave Makefile
 	$(RM) -f oxrfc100-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <oxrfc100.oxweave >oxrfc100-ja.texi
+	$(OXWEAVE) C-texi ja  <oxrfc100.oxweave >oxrfc100-ja.texi
 
 oxrfc100-en.texi : oxrfc100.oxweave Makefile
 	$(RM) -f oxrfc100-en.texi
-	$(OXWEAVE) C-texi eg-texi  <oxrfc100.oxweave >oxrfc100-en.texi
+	$(OXWEAVE) C-texi en  <oxrfc100.oxweave >oxrfc100-en.texi
 
 oxmath-ja.texi : m.oxweave Makefile
 	$(RM) -f oxmath-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <m.oxweave >oxmath-ja.texi
+	$(OXWEAVE) C-texi ja  <m.oxweave >oxmath-ja.texi
 
 oxmath-en.texi : m.oxweave Makefile
 	$(RM) -f oxmath-en.texi
-	$(OXWEAVE) C-texi eg-texi  <m.oxweave >oxmath-en.texi
+	$(OXWEAVE) C-texi en  <m.oxweave >oxmath-en.texi
 
 oxphc-ja.texi : phc.oxweave Makefile
 	$(RM) -f oxphc-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <phc.oxweave >oxphc-ja.texi
+	$(OXWEAVE) C-texi ja  <phc.oxweave >oxphc-ja.texi
 
 oxphc-en.texi : phc.oxweave Makefile
 	$(RM) -f oxphc-en.texi
-	$(OXWEAVE) C-texi eg-texi  <phc.oxweave >oxphc-en.texi
+	$(OXWEAVE) C-texi en  <phc.oxweave >oxphc-en.texi
 
 oxgnuplot-ja.texi : gnuplot.oxweave Makefile
 	$(RM) -f oxgnuplot-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <gnuplot.oxweave >oxgnuplot-ja.texi
+	$(OXWEAVE) C-texi ja  <gnuplot.oxweave >oxgnuplot-ja.texi
 
 oxgnuplot-en.texi : gnuplot.oxweave Makefile
 	$(RM) -f oxgnuplot-en.texi
-	$(OXWEAVE) C-texi eg-texi  <gnuplot.oxweave >oxgnuplot-en.texi
+	$(OXWEAVE) C-texi en  <gnuplot.oxweave >oxgnuplot-en.texi
 
 ###sm1
 oxsm1-ja.texi : sm1.oxweave Makefile sm1-auto-ja.texi
 	$(RM) -f oxsm1-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <sm1.oxweave >oxsm1-ja.texi
+	$(OXWEAVE) C-texi ja  <sm1.oxweave >oxsm1-ja.texi
 oxsm1-en.texi : sm1.oxweave Makefile sm1-auto-en.texi
 	$(RM) -f oxsm1-en.texi
-	$(OXWEAVE) C-texi eg-texi  <sm1.oxweave >oxsm1-en.texi
+	$(OXWEAVE) C-texi en  <sm1.oxweave >oxsm1-en.texi
 sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
 	$(RM) -f sm1-auto-en.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-en.texi
@@ -268,28 +268,28 @@ sm1-auto-ja.texi : $(CONTRIB)/sm1 gentexi
 
 oxom-ja.texi : $(CONTRIB)/om Makefile
 	$(RM) -f oxom-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/om >oxom-ja.texi
+	$(OXWEAVE) C-texi ja  <$(CONTRIB)/om >oxom-ja.texi
 
 oxom-en.texi : $(CONTRIB)/om Makefile
 	$(RM) -f oxom-en.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/om >oxom-en.texi
+	$(OXWEAVE) C-texi en  <$(CONTRIB)/om >oxom-en.texi
 
 dsolv-ja.texi : dsolv.oxweave Makefile
 	$(RM) -f dsolv-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <dsolv.oxweave >dsolv-ja.texi
+	$(OXWEAVE) C-texi ja  <dsolv.oxweave >dsolv-ja.texi
 
 dsolv-en.texi : dsolv.oxweave Makefile
 	$(RM) -f dsolv-en.texi
-	$(OXWEAVE) C-texi eg-texi  <dsolv.oxweave >dsolv-en.texi
+	$(OXWEAVE) C-texi en  <dsolv.oxweave >dsolv-en.texi
 
 
 oxtigers-ja.texi : tigers.oxweave Makefile
 	$(RM) -f oxtigers-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <tigers.oxweave >oxtigers-ja.texi
+	$(OXWEAVE) C-texi ja  <tigers.oxweave >oxtigers-ja.texi
 
 oxtigers-en.texi : tigers.oxweave Makefile
 	$(RM) -f oxtigers-en.texi
-	$(OXWEAVE) C-texi eg-texi  <tigers.oxweave >oxtigers-en.texi
+	$(OXWEAVE) C-texi en  <tigers.oxweave >oxtigers-en.texi
 
 ### windows
 windows-ja.texi : windows.oxweave Makefile
