@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.1 2003/05/14 07:09:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.2 2003/08/22 16:08:20 ohara Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -76,7 +76,7 @@ nullserver(int fdStream) {
   int engineByteOrder;
 
   fflush(NULL);
-  engineByteOrder = oxTellMyByteOrder(fdStream);
+  engineByteOrder = oxTellMyByteOrder(fdStream,fdStream);
   /* Set the network byte order. */
   fprintf(stderr,"engineByteOrder=%x\n",engineByteOrder);
   

@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.4 2001/05/04 01:06:30 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.5 2003/11/17 05:45:47 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -102,6 +102,7 @@ int fp2fputc(int c,FILE2 *fp2) {
   if (fp2->watch || WatchStream) {
     if (fp2->watch) fp = fp2->watchFile;
     else fp = stderr;
+	fprintf(stderr,"put to <%x> ",fp2->fd); /* output the channel for debug */
     if (c >= ' ' && c <='z') {
       fprintf(fp," %2x(%c)-> ",c& 0xff,c);
     }else{
@@ -132,6 +133,7 @@ int fp2fgetc(FILE2 *fp2) {
     if (fp2->watch || WatchStream) {
       if (fp2->watch) fp = fp2->watchFile;
       else fp = stderr;
+      fprintf(fp,"get from <%x> ",fp2->fd); /* output the channel for debug*/
       if (c >= ' ' && c <= 'z') {
         fprintf(fp," %2x(%c) ",c,c);
       }else{

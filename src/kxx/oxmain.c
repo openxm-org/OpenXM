@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.11 2002/05/02 08:33:47 ohara Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.12 2002/10/28 00:38:32 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -269,7 +269,7 @@ parentServerMain(int fdControl, int fdStream) {
 	}
   }
   
-  controlByteOrder = oxTellMyByteOrder(fdControl);
+  controlByteOrder = oxTellMyByteOrder(fdControl,fdControl);
   /* Set the network byte order. */
   fprintf(stderr,"controlByteOrder=%x\n",controlByteOrder);
 

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.15 2002/11/08 02:54:11 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.16 2003/07/20 07:18:45 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1008,17 +1008,17 @@ int oxSetByteOrder(int fd) {
   return(OX_BYTE_NETWORK_BYTE_ORDER);
 }
 
-int oxTellMyByteOrder(int fd) {  
+int oxTellMyByteOrder(int fdOut, int fdIn) {  
   char data[1];
   int peertype;
   /* It is for server. read and next write. */
 
   /* We support only Network byte order */
   data[0] = OX_BYTE_NETWORK_BYTE_ORDER;
-  write(fd,data,1);
-  fsync(fd);  /* returns 0 if normal. Does it work for socket? */
+  write(fdOut,data,1);
+  fsync(fdOut);  /* returns 0 if normal. Does it work for socket? */
 
-  read(fd,data,1);
+  read(fdIn,data,1); /* Read pear's byte order */
 
   return(OX_BYTE_NETWORK_BYTE_ORDER);
 }
