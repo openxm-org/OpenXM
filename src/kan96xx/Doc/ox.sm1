@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.17 2001/08/22 03:23:25 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.18 2001/12/28 01:20:25 takayama Exp $
 
 /ox.sm1.loaded 1 def
 %%%%%%%%%%%% Configuration: Specify your server path
@@ -1021,7 +1021,7 @@ ox.verbose {
 
 [(ostype)] extension  0 get
 (windows) eq {
-  /ox-win.sm1.loaded boundp {
+  (ox-win.sm1.loaded) boundp {
   }{
     [(parse) (ox-win.sm1) pushfile] extension
   } ifelse
