@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.9 2003/01/20 03:16:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.10 2003/01/29 13:31:55 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -95,43 +95,6 @@ def taka_util_remove_cr(S) {
     }
   }
   return vtol(R);
-}
-/*
-  example: taka_util_find_and_replace1([1,2],[3,4,1,2,5,6],[22,23,24],0); 
-  example: taka_util_find_and_replace1([1,2],[1,2,2,2,5,6],[22,23,24],0); 
-  example: taka_util_find_and_replace1([1,2],[2,2,2,2,1,2],[22,23,24],0); 
-  example: taka_util_find_and_replace1([1,2],[3,4,1,2,5,6],[],0); 
-*/
-/* It is slow, because of append. It is no longer used. */
-def taka_util_find_and_replace1(W,S,Snew,StartIndex) {
-  N1 = length(W); N2 = length(S);
-  for (J=StartIndex; J<N2-N1+1; J++) {
-    for  (I=0; I<N1; I++) {
-      if (W[I] != S[J+I]) break;
-      if (I == N1-1) {
-         S0 = taka_util_part(S,0,J-1);
-         S0 = append(S0,Snew);
-         S0 = append(S0,taka_util_part(S,J+N1,N2-1));
-         return [J,S0];
-      }
-    }
-  }
-  return [-1,S];
-}
-
-/*
-  example: taka_util_find_and_replace([1,2],[5,1,2,5,1,2,1,2],[22,23,24]); 
-*/
-/* It is slow, because of append. It is no longer used. */
-def taka_util_find_and_replace_old1(W,S,Snew) {
-  J = 0;
-  T = [-1,S];
-  while (J < length(T[1])) {
-    T = taka_util_find_and_replace1(W,T[1],Snew,J);
-    if (T[0] == -1) break;
-    J = T[0]+length(Snew);
-  }
-  return T[1];
 }
 
 def taka_util_v(V,L) {
