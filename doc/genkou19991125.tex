@@ -1,12 +1,12 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.67 1999/12/24 08:08:48 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.68 1999/12/24 08:56:45 ohara Exp $
 
 \usepackage{jssac}
 \title{
 1. 意味もない修飾過剰な語句は排除しましょう。\\
-2. 姓と名の間の2バイトの空白は何か理由があるの?
-(jssac の規約だっけ)\\
+%2. 姓と名の間の2バイトの空白は何か理由があるの?
+%(jssac の規約だっけ) <- 規約っす\\
 3. せっかく fill しているのをいじらないでくれ。
 }
 
@@ -95,8 +95,10 @@ OpenXM 規約で規定されているメッセージはバイトストリームとなっており、
 \end{verbatim}
 
 ボディの構造はメッセージの種類によって異なる。
-この論文では OX\_DATA と \\
-OX\_COMMAND で識別されるメッセージについてのみ、説明する。
+タグが OX\_COMMAND となっているメッセージはスタックマシンへの命令であり、
+それ以外のメッセージは何らかのオブジェクトを表している。
+この論文では OX\_DATA と OX\_COMMAND で識別される
+メッセージについてのみ、説明する。
 
 既存のメッセージでは対応できない場合は、新しい識別子を定義することで新し
 い種類のメッセージを作成することができる。この方法は各数学ソフトウェアの
@@ -187,34 +189,34 @@ OpenXM 規約ではサーバはスタックマシンであると定義している。以下、OpenXM
 とはない。現在のところ、OpenXM 規約では以下の命令が定義されている。
 
 \begin{verbatim}
-#define SM_popSerializedLocalObject 258
-#define SM_popCMO 262
-#define SM_popString 263
+#define SM_popSerializedLocalObject               258
+#define SM_popCMO                                 262
+#define SM_popString                              263
 
-#define SM_mathcap 264
-#define SM_pops 265
-#define SM_setName 266
-#define SM_evalName 267 
-#define SM_executeStringByLocalParser 268 
-#define SM_executeFunction 269
-#define SM_beginBlock  270
-#define SM_endBlock    271
-#define SM_shutdown    272
-#define SM_setMathCap  273
-#define SM_executeStringByLocalParserInBatchMode 274
-#define SM_getsp   275
-#define SM_dupErrors 276
+#define SM_mathcap                                264
+#define SM_pops                                   265
+#define SM_setName                                266
+#define SM_evalName                               267
+#define SM_executeStringByLocalParser             268 
+#define SM_executeFunction                        269
+#define SM_beginBlock                             270
+#define SM_endBlock                               271
+#define SM_shutdown                               272
+#define SM_setMathCap                             273
+#define SM_executeStringByLocalParserInBatchMode  274
+#define SM_getsp                                  275
+#define SM_dupErrors                              276
 
-#define SM_DUMMY_sendcmo  280
-#define SM_sync_ball 281
+#define SM_DUMMY_sendcmo                          280
+#define SM_sync_ball                              281
 
-#define SM_control_kill 1024
-#define SM_control_reset_connection  1030
-#define SM_control_to_debug_mode 1025
-#define SM_control_exit_debug_mode 1026
-#define SM_control_ping  1027
-#define SM_control_start_watch_thread 1028
-#define SM_control_stop_watch_thread 1029
+#define SM_control_kill                          1024
+#define SM_control_to_debug_mode                 1025
+#define SM_control_exit_debug_mode               1026
+#define SM_control_ping                          1027
+#define SM_control_start_watch_thread            1028
+#define SM_control_stop_watch_thread             1029
+#define SM_control_reset_connection              1030
 \end{verbatim}
 
 以下、どういうときに結果をスタックに積むかエラーの場合どうするかの説明が
@@ -242,12 +244,13 @@ CMO 形式におけるデータ構造は次のような構造をもつ。
 \end{verbatim}
 
 
-%OpenXM 規約で定義されているメッセージを実際に作成する場合、
 CMO 形式で定義されている多倍長整数を理解しておくと、
 CMO 形式の他のデータ構造だけでなく、
 OpenXM 規約で定義されている様々なデータ構造を理解する助けになると思えるので、
 ここでは CMO 形式の多倍長整数のデータ構造についてのみ説明する。
+%ここでは CMO 形式の中でもよく使われるもののみについて説明する。
 
+>>>>>>> 1.68
 CMO 形式で定義されているデータは多倍長整数以外にも
 文字列やリスト構造などがある。どのようなデータであるかは
 データの先頭 4 バイトにある(メッセージの識別子とは別にある)タグを見れば
@@ -257,12 +260,19 @@ CMO 形式で定義されているデータは多倍長整数以外にも
 多倍長整数は 20 となっている。
 よく使われると思われる CMO 形式のタグをあげておく。
 \begin{verbatim}
-#define CMO_INT32    2 /* 32 ビット整数 */
-#define CMO_STRING   4 /* 文字列        */
-#define CMO_MATHCAP  5 /* mathcap(後述) */
-#define CMO_LIST    17 /* リスト構造    */
-#define CMO_ZZ      20 /* 多倍長整数    */
+#define CMO_INT32    2 /* (CMO 形式の)32 ビット整数 */
+#define CMO_STRING   4 /* 文字列                    */
+#define CMO_MATHCAP  5 /* mathcap(後述)             */
+#define CMO_LIST    17 /* リスト構造                */
+#define CMO_ZZ      20 /* 多倍長整数                */
 \end{verbatim}
+タグ以降はデータ本体であり、データ本体の構造はデータの種類によって異なる。
+整数値 $123456789$ を表す CMO\_INT32 は
+\begin{tabular}{|c|c|} \hline
+CMO\_INT32 & $123456789$	\\ \hline
+\end{tabular}
+と定義されているが、これを以後 (CMO\_INT32, 123456789) として表す。
+
 
 ここで 32 bit の整数の表現方法について説明する必要がある。
 OpenXM 規約ではバイトストリームで 32 bit の整数 20 を
