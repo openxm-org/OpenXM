@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001p/openxm-clients.tex,v 1.1 2001/06/19 07:32:58 noro Exp $
 
 \section{OpenXM Clients}    
 
@@ -10,7 +10,7 @@ communication between the server and itself.
 %Fundamental operations on OpenXM servers are 
 %exchange of OX data and sending of stack machine commands.
 As a client, Asir provides the following functions
-to execute these primitive operations:
+to execute primitive operations:
 {\tt ox\_push\_cmo()} for pushing data,
 {\tt ox\_push\_cmd()} for sending a stack machine command
 and {\tt ox\_get()} for receiving data from a stream.
@@ -38,8 +38,9 @@ are implemented by combining these primitives.
 %it completes the operations stated in Section \ref{control}.
 %\end{itemize}
 Furthermore {\tt ox\_select()} is provided to detect if streams are ready for
-reading. It is implemented by the {\tt select()} system call and is used
-to avoid blocking on read operations.
+reading.  It is used to avoid blocking on read operations.
+%% It is implemented by the {\tt select()} system call and is used
+%% to avoid blocking on read operations.
 
 \subsection{Mathematica}
 

@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001p/session-management.tex,v 1.1 2001/06/19 07:32:59 noro Exp $
 
 \section{Session Management}
 \label{secsession}
@@ -41,7 +41,8 @@ computations.
 Under OpenXM-RFC 100, servers are invoked as follows.
 An application called {\it launcher} is invoked from a client.
 The launcher sets up two communication channels: the data channel 
-and the control. Then it creates a server process which can communicate
+and the control channel. 
+Then it creates a server process which can communicate
 with the client via the data channel. Finally the launcher
 acts as a control server and controls the server process.
 As to the details of the control server see Section \ref{control}.
@@ -56,12 +57,11 @@ As to the details of the control server see Section \ref{control}.
 %order. Nevertheless it is necessary to negotiate the byte order to
 %skip the byte order conversion because its cost is often dominant over
 %fast networks.
-OpenXM-RFC 101 \cite{ox-rfc-101} gives more secure and
+OpenXM-RFC 101\cite{ox-rfc-101} gives a more secure and
 efficient way to start servers.
 It uses ``ssh'' to launch a control server and 
 the control server can launch one or more than one
 engines.
-See \cite{ox-rfc-101} for details.
 
 \subsection{Control server}
 \label{control}

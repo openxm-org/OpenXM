@@ -1,10 +1,10 @@
-% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.5 2001/06/20 03:08:05 takayama Exp $
+% $OpenXM: OpenXM/doc/ascm2001p/homogeneous-network.tex,v 1.6 2001/06/20 03:18:21 noro Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
 
 One of the aims of OpenXM is a parallel speedup by a distributed computation
-with homogeneous servers. 
+with homogeneous servers.  Let us see some examples.
 %As the current specification of OpenXM does
 %not include communication between servers, one cannot expect
 %the maximal parallel speedup. However it is possible to execute
@@ -14,7 +14,7 @@ with homogeneous servers.
 
 SINGULAR \cite{Singular} implements {\it MP} interface for distributed
 computation and a competitive Gr\"obner basis computation is
-illustrated as an example of distributed computation.
+illustrated as an example of distributed computation by the MP interface.
 Such a distributed computation is also possible on OpenXM.
 
 \begin{verbatim}
@@ -43,14 +43,15 @@ def dgr(G,V,Mod,O)
 }
 \end{verbatim}
 In the above Asir program, the client creates two servers and it requests 
-Gr\"obner basis comutations by the Buchberger algorithm the $F_4$ algorithm
-to the servers for the same input.
+Gr\"obner basis computations by the Buchberger algorithm 
+and the $F_4$ algorithm to the servers for the same input.
 The client watches the streams by {\tt ox\_select()}
 and the result which is returned first is taken. Then the remaining
 server is reset.
 
 \subsubsection{Nesting of client-server communication}
 
+%%Prog:  load ("dfff"); df_demo();  enter 100.
 Under OpenXM-RFC 100 an OpenXM server can be a client of other servers.
 Figure \ref{tree} illustrates a tree-like structure of an OpenXM
 client-server communication.
@@ -132,7 +133,7 @@ algorithms whose task can be divided into subtasks recursively.
 %\end{verbatim}
 %
 A typical example is a parallelization of the Cantor-Zassenhaus
-algorithm for polynomial factorization over finite fields.
+algorithm for polynomial factorization over finite fields,
 which is a recursive algorithm.
 At each level of the recursion, a given polynomial can be
 divided into two non-trivial factors with some probability by using 
@@ -150,7 +151,7 @@ itself.
 %  if ( N == E ) return [F];
 %  M = field_order_ff(); K = idiv(N,E); L = [F];
 %  while ( 1 ) {
-%    /* gererate a random polynomial */
+%    /* generate a random polynomial */
 %    W = monic_randpoly_ff(2*E,V);
 %    /* compute a power of the random polynomial */
 %    T = generic_pwrmod_ff(W,F,idiv(M^E-1,2));
@@ -249,7 +250,7 @@ work well on OpenXM.
 %Such a distributed computation is also possible on OpenXM as follows:
 %
 %The client creates two servers and it requests 
-%Gr\"obner basis comutations from the homogenized input and the input itself
+%Gr\"obner basis computations from the homogenized input and the input itself
 %to the servers.
 %The client watches the streams by {\tt ox\_select()}
 %and the result which is returned first is taken. Then the remaining

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/ascm2001p/design-outline.tex,v 1.3 2001/06/20 02:40:09 takayama Exp $
+% $OpenXM: OpenXM/doc/ascm2001p/design-outline.tex,v 1.4 2001/06/20 03:08:05 takayama Exp $
 
 \section{Design Outline and OpenXM Request For Comments} 
 
@@ -6,7 +6,7 @@ As Schefstr\"om\cite{schefstrom} clarified,
 integration of tools and software has three dimensions:
 data, control, and user interface.
 
-Data integration concerns with the exchange of data between different
+Data integration is concerned with the exchange of data between different
 software or same software.
 OpenMath \cite{OpenMath} and MP (Multi Protocol) \cite{GKW} are,
 for example, general purpose mathematical data protocols.
@@ -17,20 +17,20 @@ They provide standard ways to express mathematical objects.
 %\end{verbatim}
 %means the (OpenMath) integer $123$ in OpenMath/XML expression.
 
-Control integration concerns with the establishment and management of
+Control integration is concerned with the establishment and management of
 inter-software communications.
-Control involves, for example, a way to ask computations to other processes
+Control involves, for example, a way to call subroutines on other processes
 and a method to interrupt computations on servers from a client.
 RPC, HTTP, MPI, PVM are regarded as a general purpose control protocols or
 infrastructures.
-MCP (Mathematical Communication Protocol)
-by Wang \cite{iamc} and OMEI \cite{omei} are such protocols for mathematics.
+MCP (Mathematical Communication Protocol)\cite{iamc}
+and OMEI \cite{omei} are such protocols for mathematics.
 
 Although data and control are orthogonal to each other,
-real world requires both.
+the real world requires both.
 NetSolve \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
 and MathLink \cite{mathlink} provide both data and control integration.
-Each integration method has their own features determined by their
+Each integration method has its own features determined by its
 own design goals.
 OpenXM (Open message eXchange protocol for Mathematics)
 is a project aiming to integrate data, control and user interfaces
@@ -50,9 +50,9 @@ to determine all odd order replicable functions
 Takayama has developed
 a special purpose system Kan/sm1 \cite{kan},
 which is a Gr\"obner engine for the ring of differential operators $D$
-and designed as a component of a larger system. 
+and which was designed as a component of larger systems. 
 
-Noro and Takayama firstly tried to integrate these existing two
+Noro and Takayama first tried to integrate these existing two
 software systems.
 We believe that an open integrated system is a future of mathematical
 software.
@@ -61,7 +61,7 @@ and that it is an important research subject to
 build a prototype of such an integrated system. % Project X
 We started the OpenXM project with the following
 fundamental architecture, which is currently described in
-OpenXM-RFC 100  proposed standard %% ``draft standard'' and ``standard''
+the OpenXM-RFC 100  proposed standard %% ``draft standard'' and ``standard''
 \cite{ox-rfc-100}.
 \begin{enumerate}
 \item Communication is an exchange of messages. The messages are classified into
@@ -101,7 +101,7 @@ and pushes the result onto the stack.
 OpenXM package  implements the OpenXM-RFC 100 \cite{ox-rfc-100}
 and 101 \cite{ox-rfc-101} based on
 the above fundamental architecture.
-In this paper, we discuss mainly on systems implementing
+In this paper, we mainly discuss systems implementing
 OpenXM-RFC 100 and 101 on TCP/IP.
 %For example, the following is a command sequence to ask $1+1$ from
 %the Asir client to the {\tt ox\_sm1} server through TCP/IP:

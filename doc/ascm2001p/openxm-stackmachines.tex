@@ -1,8 +1,8 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001p/openxm-stackmachines.tex,v 1.1 2001/06/19 07:32:58 noro Exp $
 
 \section{OpenXM Stack machines}\label{sec:ox-stackmachines}
 
-In OpenXM specification, all servers are stack machines.
+In the OpenXM specification, all servers are stack machines.
 %These are called OpenXM stack machines.
 When a server ox\_xyz gets an OX data message,
 it translates the data into a local object of ox\_xyz
@@ -19,7 +19,7 @@ Here,
 {\tt OX\_DATA} stands for {\tt OX\_DATA} header and 
 {\tt (CMO\_ZZ,1)} is a body standing for $1$ expressed 
 by the CMO.
-The server translates {\tt (CMO\_ZZ, 1)} to its internal object of
+The server translates {\tt (CMO\_ZZ,1)} to its internal object for
 the integer  $1$
 and pushes the object onto the stack.
 
@@ -64,7 +64,7 @@ is pushed as a string.
 Finally, the stack machine command
 {\tt SM\_executeFunction} evaluates the operator and
 pushes the result onto the stack
-after poping the operator name, the number of arguments
+after popping the operator name, the number of arguments,
 and arguments.
 %For example, the following code factorizes $x^{100}-1$ by calling
 %{\tt ox\_asir} from Asir.
