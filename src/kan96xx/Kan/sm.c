@@ -1,6 +1,6 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.23 2004/02/23 04:54:45 takayama Exp $ */
-#define DATE "2004/02/23"
-#define RELEASE "3.040223"    /* This "string" must be an increasing seq.*/
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.24 2004/02/27 09:46:46 takayama Exp $ */
+#define DATE "2004/09/21"
+#define RELEASE "3.040921"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
                      VersionString for ox_sm1.
                  Change also OxVersion in plugin/oxmisc.c
@@ -78,12 +78,12 @@ main(argc,argv)
   if (!Quiet) {
     fprintf(Fstack,"\n");
     fprintf(Fstack,"Kan/StackMachine1");
-    fprintf(Fstack,"                         1991 April --- 2003.\n");
+    fprintf(Fstack,"                         1991 April --- 2004.\n");
     fprintf(Fstack,"                              Release %s (C) N. Takayama\n",
             RELEASE);
     fprintf(Fstack,"gc %d.%d-%d (C) Boehm, Demers, Xerox, SGI, HP,\nGNU MP 4.1 (C) Free Software Foundation,\n",GC_version >>16, (GC_version >> 8)&0xff,GC_version & 0xff);
     fprintf(Fstack,"OpenXM RFC100, 101, 103 (C) OpenXM developing team. \n");
-    fprintf(Fstack,"This software may be freely distributed as is ");
+    fprintf(Fstack,"This software may be freely distributed  ");
     fprintf(Fstack,"with no warranty expressed. \nSee OpenXM/Copyright/Copyright.generic\n");
     fprintf(Fstack,"Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp. ? for help.\n");
 #ifdef NOGC

@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.30 2004/06/15 08:15:11 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.31 2004/09/17 02:42:57 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -139,7 +139,7 @@ int Lookup[TYPES][TYPES];
 int Quiet = 0;
 int TimerOn = 0;
 
-char *VersionString = "3.040223";
+char *VersionString = "3.040921";
 
 char *LeftBracket = NULL;
 char *RightBracket = NULL;
