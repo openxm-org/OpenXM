@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.5 2000/10/11 08:32:15 ohara Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.6 2001/01/28 19:17:24 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -7,19 +7,36 @@ import java.io.*;
 import java.net.*;
 
 
+/*&ja
+    OpenXM サーバとの接続を行なうクラス. 
+    クライアント側が使用する.     
+    接続するサーバ毎に一つの OpenXM クラスが必要. 
+*/
 /**
- * OpenXM サーバとの接続を行なうクラス.
- * クライアント側が使用する.
- * 接続するサーバ毎に一つの OpenXM クラスが必要.
+ * OpenXM is a class to connect to OpenXM RFC100 compliant 
+ * servers.
+ * There is one-to-one correspondence between the instances
+ * of the class OpenXM and the OpenXM servers.
  */
 public class OpenXM{
   private OpenXMstream control = null, stream = null;
   final protected boolean debug = false;
 
-  /**
+  /*&ja
    * OpenXM サーバとの接続を TCP/IP ソケットを用いて行なう.
    * マシン名 host のポート番号 CtrlPort にコントロールを,
    * ポート番号 StreamPort にデータ用の接続を行なう.
+   */
+  /**
+   * Connect to an OpenXM server via TCP/IP socket.
+   * host : machine name of the OpenXM server.
+   * CtrlPort : control port number of the OpenXM server.
+   * StreamPort : data port number of the OpenXM server.
+   * As to details on the notion of control port and data port, see 
+   *    Design and Implementation of OpenXM client server model and
+   *        common mathematical object format (OpenXM-RFC 100,
+   *                                            proposed standard) 
+   *   at http://www.openxm.org
    */
   public OpenXM(String host,int CtrlPort,int StreamPort) throws IOException{
     control = new OpenXMstream(host,CtrlPort);
