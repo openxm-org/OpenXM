@@ -1,10 +1,10 @@
-rem $OpenXM$
+rem $OpenXM: OpenXM/rc/bat.bat,v 1.1 2001/08/09 08:21:32 takayama Exp $
 rem
 rem Set the following values
 rem
 set HOME=c:\cygwin\home\nobuki
 set WIN_ASIR_ROOT=c:\home\asir
-set OpenXM_HOME=%HOME%\OpenXM
+set OpenXM_HOME=c:\cygwin\home\nobuki\OpenXM
 rem 
 rem Do not touch below
 rem 
