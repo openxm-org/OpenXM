@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/README,v 1.2 2000/03/13 00:52:20 takayama Exp $
+$OpenXM: OpenXM/misc/packages/README,v 1.3 2000/03/13 02:54:26 takayama Exp $
 
 /*&japanese
 
@@ -15,24 +15,27 @@ Generic/openxm/Makefile
 よりソースをとりだし work 以下に展開して, make をおこない
 TAR_WORK に tar file をおきます.
 
-設定の必要な Makefile のパラメータ:
+[1] 設定が必要かもしれない Makefile のパラメータ ([2] の状況では変更必要なし):
 TAG           cvs server より ソースをとりだすときのタグ. 現在値 HEAD
 TAR_WORK      できあがった, tar file をおく場所.          現在値 $(HOME)/tmp
 VERSION       OpenXM の Version                           現在値 1.1.2
-TAR_WORK_EXPLICIT TAR_WORK を展開した値. build-on-pear (root) で利用
+TAR_WORK_EXPLICIT TAR_WORK を展開した値. 
+                ターゲット build-on-pear (root) で利用
 FTP_AREA      ftp 用の tar をおく場所. mkdir しておくこと.
+                ターゲット copy-to-ftp-area のみで使用.
 
 
-用意しておくファイル, directory
+[2] 用意しておくファイル, directory
 # OpenXM, OpenXM_contrib, OpenXM_contrib2 は $(HOME) 直下にあると仮定.
 # RPM は /var/tmp/openxm* に, binary を一時的に install します. 50 M 程度の
 領域が必要でしょう.  変更には, Linux/RPM/Makefile, *spec.in を編集.
-# mkdir ${TAR_WORK}
+# mkdir ${TAR_WORK}  つまり mkdir ~/tmp
 # $(HOME)/.rpmrc
   内容: TopDir: /home/taka/OpenXM/misc/packages/Linux/RPM/work
    /home/taka は $(HOME) の値
    rpm は この direcotry 以下で作業を行う.
-# サーチパスに実行可能なスクリプト cvs-OpenXM (cvs サーバにアクセスするため)
+# サーチパスに実行可能なスクリプト cvs-OpenXM 
+  (cvs サーバにアクセスしてファイルを rcvs export するため)
   参考: (私の cvs-OpenXM)
     orange% cat bin/cvs-OpenXM
      #!/bin/sh
@@ -43,11 +46,21 @@ FTP_AREA      ftp 用の tar をおく場所. mkdir しておくこと.
      #!/bin/sh
      ssh1 -l takayama $*
 
-パス設定:
+# パス設定:
 set path=(/usr/local/jdk1.1.8/bin $path) として, java, javac をサーチ
 パスにいれること. [build-on-pear では自動]
 
-マシン構成:
+
+### Linux 用のバイナリ配布ファイル
+     OpenXM-binary-Linux-cpu.tgz
+     openxm-binary-1.1.2-test.cpu.tgz
+を作成するには次のようにします.  Redhat 系の OS で rpm が必要です. 
+(Debian ではだめ.)  Redhat 日本語版 6.1 改 でテストずみ.
+(a)     make TAG=RELEASE_1_1_2 generate-tar-balls-without-update-plist
+(b)     make TAG=RELEASE_1_1_2 build-on-redhat
+
+
+神戸におけるマシン構成:
    すべてのマシンで home は NFS で共有されている.
    orange : FreeBSD
    pear :   FreeBSD  root になり, FreeBSD 用の package をつくる.

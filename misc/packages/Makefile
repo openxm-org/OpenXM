@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.21 2000/03/16 08:45:49 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.22 2000/03/16 12:23:01 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -22,9 +22,11 @@ usage :
 	@echo "  print "
 	@echo "Do not forget to put java and javac in your search path." 
 	@echo "Put your rcvs script by the name cvs-OpenXM under your search path."
+	@echo "OpenXM must be under the home directory. Otherwise, input like make OpenXM_HOME=/hoge/hoge/OpenXM ..."
 	@echo "   (See Generic/openxm/Makefile for details) "
 	@echo "1.  generate-tar-balls"
 	@echo "  (update-plist)"
+	@echo "  (or  generate-tar-balls-without-update-plist) "
 	@echo "2.  build-on-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
 	@echo "3.  build-on-pear (do it as a super user)"
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
@@ -58,6 +60,13 @@ generate-tar-balls:
 
 update-plist:
 	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} update-plist )
+
+generate-tar-balls-without-update-plist:
+	-mkdir ${TAR_WORK}
+	make clean
+	(cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
+	(cd FreeBSD   ; make TAG=${TAG} VERSION=${VERSION} make-tar-ball-for-openxm-port)
 
 prepare-build-rpm:
 	(cd Linux/RPM ; make make-directory)
