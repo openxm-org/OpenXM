@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.12 2003/05/15 00:49:17 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.13 2003/05/16 08:58:52 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3726,6 +3726,20 @@ $ [ff ff] fromVectors :: $
   ] pop
   popVariables
   arg1
+} def
+
+[(execve)
+ [  
+   (command execve)
+   ([arg0 arg1 arg2 ...] execve )
+   (It executes the command by the system call execve.)
+   (cf. system, forkExec)
+ ] 
+] putUsages
+
+/execve {
+  /execve.arg set
+  [(forkExec) execve.arg [ ] 1] extension
 } def
 
 ;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.12 2003/06/26 13:00:10 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.13 2003/07/05 01:53:33 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2062,6 +2062,46 @@ int KtoArgvbyCurryBrace(str,argv,limit)
   return(argc);
 }
 
+struct object KstringToArgv(struct object ob) {
+  struct object rob;
+  char *s;
+  int n,wc,i,inblank;
+  char **argv;
+  if (ob.tag != Sdollar)
+	errorKan1("%s\n","KstringToArgv(): the argument must be a string.");
+  n = strlen(KopString(ob));
+  s = (char *) sGC_malloc(sizeof(char)*(n+2));
+  if (s == NULL) errorKan1("%s\n","KstringToArgv(): No memory.");
+  strcpy(s,KopString(ob));
+  inblank = 1;  wc = 0; 
+  for (i=0; i<n; i++) {
+	if (inblank && (s[i] > ' ')) {
+	  wc++; inblank = 0;
+	}else if ((!inblank) && (s[i] <= ' ')) {
+	  inblank = 1;
+	}
+  }
+  argv = (char **) sGC_malloc(sizeof(char *)*(wc+2));
+  argv[0] = NULL;
+  inblank = 1;  wc = 0; 
+  for (i=0; i<n; i++) {
+	if (inblank && (s[i] > ' ')) {
+	  argv[wc] = &(s[i]); argv[wc+1]=NULL;
+	  wc++; inblank = 0;
+	}else if ((inblank == 0) && (s[i] <= ' ')) {
+	  inblank = 1; s[i] = 0;
+	}else if (inblank && (s[i] <= ' ')) {
+	  s[i] = 0;
+	}
+  }
+
+  rob = newObjectArray(wc);
+  for (i=0; i<wc; i++) {
+	putoa(rob,i,KpoString(argv[i]));
+	printf("%s\n",argv[i]);
+  }
+  return(rob);
+}
 
 static void checkDuplicateName(xvars,dvars,n)
      char *xvars[];

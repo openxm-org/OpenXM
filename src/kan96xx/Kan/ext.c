@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.12 2002/10/24 05:19:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.13 2002/11/10 07:00:05 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,6 +13,8 @@
 #include <signal.h>
 #include "plugin.h"
 #include <ctype.h>
+
+extern char **environ;
 
 #define MYCP_SIZE 100
 static int Mychildren[MYCP_SIZE];
@@ -203,8 +205,11 @@ struct object Kextension(struct object obj)
   }else if (strcmp(key,"forkExec")==0) {
     if (size != 4) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension.");
     obj1 = getoa(obj,1);
+	if (obj1.tag == Sdollar) {
+	  obj1 = KstringToArgv(obj1);
+	}
     if (obj1.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array argList.");
-    obj2 = getoa(obj,2);
+	obj2 = getoa(obj,2);
     if (obj2.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array fdList.");
     obj3 = getoa(obj,3);
     if (obj3.tag != Sinteger) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. integer sigblock.");
@@ -255,7 +260,7 @@ struct object Kextension(struct object obj)
 	sleep(5);
         fprintf(stderr,">>>\n");
       }
-      execv(argv[0],argv);
+      execve(argv[0],argv,environ);
       /* This place will never be reached unless execv fails. */
       fprintf(stderr,"forkExec fails: ");
       for (i=0; i<argListc; i++) {
