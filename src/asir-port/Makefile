@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.7 2004/02/24 07:24:10 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.8 2004/02/27 00:12:22 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix. 
 KNOPPIX_HOME=/home/knoppix
@@ -10,6 +10,7 @@ MD5=md5sum
 OS=`uname -s`
 OpenXM_HOME_=../..
 RSYNC=rsync -avz -e ssh
+FTP_DIR=/home/ftp/pub/asir/knoppix-all/knoppix-2005-02
 
 all:
 install: all
@@ -56,7 +57,7 @@ gentar-for-knoppix:
 
 copy-for-knoppix:
 	if [ ! -d work ]; then make gentar-for-knoppix ; fi
-	(cd work ; ${RSYNC} "asir-${OS}-`cat distinfo-asir`.gz" "asirlib-${OS}-`cat distinfo-lib`.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:/home/ftp/pub/asir/knoppix/)
+	(cd work ; ${RSYNC} "asir-${OS}-`cat distinfo-asir`.gz" "asirlib-${OS}-`cat distinfo-lib`.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 
 clean:
 	rm -rf for_knoppix work
