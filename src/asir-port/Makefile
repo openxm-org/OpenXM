@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.1 2004/02/21 12:57:32 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.2 2004/02/22 06:39:09 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix. 
 KNOPPIX_HOME=/home/knoppix
@@ -40,10 +40,10 @@ uninstall-for-knoppix:
 gentar-for-knoppix:
 	-mkdir work
 	(cd work ; rm -rf *)
-	(cd work ; cp ../${OpenXM_HOME_}/bin/asir . )
+	(cd work ; cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2000/asir . )
 	(cd work ; strip asir ; gzip asir )
 	(cd work ; for i in ${LIBS} ; do \
-		cp ../${OpenXM_HOME_}/lib/asir/$$i . ; \
+		cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2000/lib/$$i . ; \
 	done )
 	(cd work ; ${MD5} asir.gz | awk '{print $$1}' >distinfo-asir)
 	(cd work ; mv asir.gz "asir-${OS}-`cat distinfo-asir`.gz")
