@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.13 2000/03/11 10:32:27 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.14 2000/03/11 11:08:30 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -6,6 +6,7 @@ TAG=HEAD
 
 TAR_WORK=$(HOME)/tmp
 NAME=taka
+# It must be equal to TAR_WORK. To work as a super user. Used in build-on-pear.
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
@@ -37,6 +38,7 @@ clean :
 
 print:
 	$(PS) Makefile | $(LPR)	
+	$(PS) README | $(LPR)	
 	$(PS) Generic/openxm/Makefile | $(LPR)	
 	$(PS) Linux/RPM/Makefile | $(LPR)	
 	$(PS) Linux/RPM/openxm-*spec.in | $(LPR)	
@@ -47,16 +49,17 @@ print:
 generate-tar-balls:
 	-mkdir ${TAR_WORK}
 	make clean
+	(cd Linux/RPM ; make make-directory)
+	(cd Linux/RPM ; make link-for-real-openxm)
 	(cd Generic/openxm ; make TAG=${TAG} VERSION=${VERSION} tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} tar-ball-01)
 	make update-plist
 	(cd FreeBSD   ; make TAG=${TAG} VERSION=${VERSION} make-tar-ball-for-openxm-port)
-	(cd Linux/RPM ; make make-directory)
-	(cd Linux/RPM ; make link-for-real-openxm)
 
 update-plist:
 	(cd FreeBSD ; make VERSION=${VERSION}  TAG=${TAG} update-plist )
 
+# set path=(/usr/local/jdk1.1.8/bin $path) ; rehash
 build-on-orange:
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} shared-tar-ball)
@@ -76,6 +79,8 @@ build-on-redhat:
 	(cd Linux/RPM ; make build-binary-rpm)
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
 
+# set path=(/usr/ccs/bin /usr/local/bin $path); rehash
+# (Note for taka). On unkei, cd Solaris/OpenXM/misc/packages and make build-on-unkei
 build-on-unkei:
 	(cd Generic/openxm ; make clean-for-make)
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)

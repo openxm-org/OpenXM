@@ -1,4 +1,4 @@
-$OpenXM$
+$OpenXM: OpenXM/misc/packages/README,v 1.1 2000/03/11 11:08:30 takayama Exp $
 
 /*&japanese
 
@@ -94,5 +94,17 @@ generate-tar-ball は複雑なので, 解説:
  (cd Linux/RPM ; make make-directory)
  (cd Linux/RPM ; make link-for-real-openxm)
          これは, rpm 用の初期か. すぐおわる.
+
+
+# 新しく, /usr/local/bin, /usr/local/man/man1 など /usr/local/OpenXM
+  以外にインストールするファイルができたばあい 以下のファイルの修正  
+  の必要があるかもしれない.
+  Generic/openxm/Makefile
+  FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c および
+  自動生成された plist. cf. cd FreeBSD ; make update-plist (時間かかる)
+  Linux/RPM/*.spec.in
+
+  Generic/openxm/Makefile の SHARED_FILES, BINARY_FILES も注意深く
+  変更のこと.
 
 */

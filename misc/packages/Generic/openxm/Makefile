@@ -1,8 +1,11 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.12 2000/03/11 05:44:15 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.13 2000/03/11 06:22:34 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
 # If you add new directory under OpenXM/lib, edit SHARED_FILES.
+
+# If you add new files to be installed under /usr/local/bin, man, etc,
+# you have to edit several files. See OpenXM/misc/packages/README.
 
 ## For committers: prepare cvs-OpenXM under your search path 
 ## to access to CVS servers.

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.8 2000/03/11 07:10:03 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.9 2000/03/11 08:07:17 takayama Exp $
 VERSION=1.1.2
 TAG=HEAD
 TAR_WORK=$(HOME)/tmp
@@ -18,6 +18,8 @@ clean:
 	-/bin/rm -rf $(HOME)/tmp2/OpenXM $(HOME)/tmp2/bin
 	-mkdir $(HOME)/tmp2
 	-mkdir $(HOME)/tmp2/bin
+	-mkdir $(HOME)/tmp2/man
+	-mkdir $(HOME)/tmp2/man/man1
 
 ## You need to put the source tar ball under $(HOME)/tmp
 update-plist :
