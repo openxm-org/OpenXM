@@ -1,4 +1,4 @@
-%$OpenXM$
+%$OpenXM: OpenXM/doc/calc2000p/calc2000.tex,v 1.1.1.1 2000/06/27 06:47:52 noro Exp $
 %% You need acmconf.cls and flushend.sty to compile this file.
 %% They may be obtained from 
 %%  http://riksun.riken.go.jp/archives/tex-archive/macros/latex/contrib/supported/acmconf/
@@ -34,5 +34,89 @@ Kobe University
 }
 \maketitle
 
-\input{design-outline}
+OpenXM (Open message eXchange protocol for Mathematics)
+is a project aiming to integrate data, control and user interfaces
+with the following fundamental architecture.
+\begin{enumerate}
+\item Communication is an exchange of {\it OX (OpenXM) messages},
+which are classified into three types:
+DATA, COMMAND, and SPECIAL.
+{\it OX data messages} wrap mathematical data.
+We use standards of mathematical data formats such as OpenMath and MP
+as well as our own data format {\it CMO}
+({\it Common Mathematical Object format}).
+\item Each server, which provides services to other processes, is a stack machine. The stack machine is called the {\it OX stack machine}.
+Existing mathematical software tools are wrapped with this stack machine.
+\item Any server may have a hybrid interface;
+it may accept and execute not only stack machine commands, 
+but also its original command sequences.
+For example,
+if we send the following string to the {\tt ox\_asir} server 
+(OpenXM server based on Risa/Asir)\\
+\verb+            "fctr(x^100-y^100);"+\\
+and call the stack machine command\\
+\verb+            SM_executeStringByLocalParser+\\
+then the server executes the asir command
+\verb+fctr(x^100-y^100);+ 
+(factorize $x^{100}-y^{100}$ over ${\bf Q}$)
+and pushes the result onto the stack.
+\item Network transparent supports for controlling servers are provided.
+For example OpenXM defines a robust reset procedure to restart computations
+without any confusion in I/O buffers.
+It is very useful for debugging programs running on distributed environment.
+\end{enumerate}
+%OpenXM has been designed and implemented from experimental mathematician's
+%point of view, i.e., 
+OpenXM is supposed to be used to connect mathematical
+softwares in the academic community and to test new ideas in distributed
+algorithms in mathematics.
+Currently the following servers are available in the OpenXM package.
+
+\begin{description}
+\item{\tt ox\_asir}
+A server for Risa/Asir, a general-purpose computer algebra
+system. It provides almost
+all functionalities of Risa/Asir such as polynomial factorization,
+Gr\"obner basis computation and primary ideal decomposition.
+\item{\tt ox\_sm1}
+A server for Kan/sm1, a system for computation in 
+the ring of differential operators including computation of Gr\"obner bases
+and cohomology groups.
+\item {\tt ox\_phc}
+A server for PHC pack, a general-purpose solver for
+polynomial systems by homotopy continuation. 
+\item {\tt ox\_tigers}
+A server for TiGERS, a system to enumerate
+all Gr\"obner bases of affine toric ideals.
+It can be used to determine the state polytope
+of a given affine toric ideal.
+\item {\tt ox\_gnuplot}
+A server for GNUPLOT, a famous plotting tool.
+\item {\tt ox\_math}
+A server for Mathematica.
+\item {\tt OMproxy}
+A server for translation between CMO and OpenMath/XML expressions.
+It is written in Java.
+This module provides Java classes OXmessage, CMO, and SM
+for the OpenXM protocol, too.
+\end{description}
+In addition to these servers, Risa/Asir, Kan/sm1 and Mathematica
+can act as clients. 
+For example, the following is a command sequence to ask $1+1$ from
+the Asir client to the {\tt ox\_sm1} server:
+\begin{verbatim}
+  P = sm1_start(); ox_push_cmo(P,1); ox_push_cmo(P,1);
+  ox_execute_string(P,"add"); ox_pop_cmo(P);
+\end{verbatim}
+The OpenXM package is implemented on the  OpenXM for TCP/IP, 
+which uses the client-server model.
+The OpenXM on MPI is currently tested on Risa/Asir,
+where collective operations such as broadcast and reduction
+are implemented to achieve a real speedup for massively parallel cases.
+A C library interface is available for some servers.
+The source code and binary packages are distributed from
+{\tt http://www.openxm.org}.
+The current version is 1.1.2.
+Documents and a full paper including references are available
+from this cite, too.
 \end{document}
