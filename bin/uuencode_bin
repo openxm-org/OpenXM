@@ -1,0 +1,13 @@
+#!/bin/sh
+# $OpenXM$
+gzip lin_phcv2p
+/bin/rm -f lin_phcv2p.gz.uuencoded
+echo '$OpenXM$' >lin_phcv2p.gz.uuencoded
+uuencode lin_phcv2p.gz lin_phcv2p.gz >>lin_phcv2p.gz.uuencoded
+/bin/rm -f lin_phcv2p.gz
+##
+gzip fep.linux
+/bin/rm -f fep.linux.gz.uuencoded
+echo '$OpenXM$' >fep.linux.gz.uuencoded
+uuencode fep.linux.gz fep.linux.gz >>fep.linux.gz.uuencoded
+/bin/rm -f fep.linux.gz

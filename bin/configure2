@@ -1,4 +1,17 @@
 #!/bin/sh
+#  $OpenXM$
+if test -f lin_phcv2p.gz.uuencoded
+then
+   uudecode lin_phcv2p.gz.uuencoded
+   gunzip lin_phcv2p.gz
+   chmod +x lin_phcv2p
+fi
+if test -f fep.linux.gz.uuencoded
+then
+   uudecode fep.linux.gz.uuencoded
+   gunzip fep.linux.gz
+   chmod +x fep.linux
+fi
 if test `uname` = "Linux"
 then
   ln -fs ./fep.linux fep
