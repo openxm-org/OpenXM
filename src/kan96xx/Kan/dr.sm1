@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.10 2002/11/08 14:18:01 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.11 2003/05/15 00:42:07 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -2527,6 +2527,44 @@ newline
       << www iii 1 add get >> mul
       ddd add /ddd set
     } for
+    /ord_w.LLL
+    /arg1 ddd def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(ord_w_all)
+ [(ff [v1 w1 v2 w2 ... vm wm] ord_w d)
+  (poly ff; string v1; integer w1; ...)
+  (order of ff by the weight vector [w1 w2 ...])
+  (Example: [(x,y,t) ring_of_polynomials 0] define_ring )
+  (          (x^2 y^3-x-t). [(t) 1 ] ord_w_all ::)
+ ]
+] putUsages 
+/ord_w_all {
+  /arg2 set /arg1 set
+  [/ord_w-in /fff /fff-in /www /rrr /iii /ddd /zzz] pushVariables
+  [
+    /fff arg1 def
+    /www arg2 def
+    fff (0). eq { /ddd -intInfinity def /ord_w.LLL goto} { } ifelse
+    fff (ring) dc /rrr set
+    /zzz (0) rrr ,, def
+    fff init /fff-in set
+    fff fff-in sub /fff set
+    /ddd 0 def
+    {
+     0 2 www length 1 sub {
+       /iii set
+       fff-in << www iii get rrr ,, >> degree
+       << www iii 1 add get >> mul
+       ddd add /ddd set
+     } for
+     fff zzz eq { exit } {  } ifelse
+     fff init /fff-in set
+     fff fff-in sub /fff set
+    } loop
     /ord_w.LLL
     /arg1 ddd def
   ] pop
