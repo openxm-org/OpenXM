@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.128 2003/09/06 11:43:52 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.129 2003/09/08 13:11:41 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -20,7 +20,7 @@ all-gmp: configure-gmp
 all-oxtoolkit: configure-oxtoolkit install-gmp install-gc install-util
 	(cd ox_toolkit; make)
 
-all-oxc: configure-oxc install-oxtoolkit
+all-oxc: configure-oxc install-oxtoolkit 
 	(cd oxc; make)
 
 all-asir: configure-asir install-pari
@@ -46,7 +46,7 @@ all-openmath:
 		echo "in your search path. OpenMath will not be compiled." ; \
 	fi
 
-all-oxmath: configure-oxmath install-oxtoolkit
+all-oxmath: configure-oxmath install-oxtoolkit install-gc
 	-@if test -d /usr/local/mathematica ; then \
 		(cd ox_math ; make) ; \
 	else \
@@ -102,7 +102,7 @@ install-asir: all-asir
 install-gnuplot: all-gnuplot
 	-(cd gnuplot ; make install)
 
-install-k097:  install-kxx all-k097
+install-k097:  install-kxx all-k097 install-oxc
 	(cd k097 ; make install)
 
 install-kan96xx: all-kan96xx
