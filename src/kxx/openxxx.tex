@@ -1,4 +1,4 @@
-%%  $OpenXM$
+%%  $OpenXM: OpenXM/src/kxx/openxxx.tex,v 1.3 1999/11/02 09:07:33 takayama Exp $
 %\documentclass{jarticle}
 \documentstyle{jarticle}
 \title{{\bf Open XM の設計と実装} \\
@@ -7,7 +7,7 @@
 } , 
          高山信毅\thanks{神戸大学理学部数学教室}
 }
-\date{ 1999年, 11月2日}
+\date{ 1999年, 11月22日}
 \begin{document}
 \maketitle
 
@@ -1640,7 +1640,6 @@ Tree, Lambda $\in$ CMObject/Basic1. \\
 & & \mbox{ --- optional な引数が必要なときは, leaves の後へつづける.} \\
 \end{eqnarray*}
 
---------------------- 修正ここまで --------------------------
 
 数式を処理するシステムでは, Tree 構造が一般にもちいられる.
 たとえば, $\sin(x+e)$ は,
@@ -1662,6 +1661,20 @@ Tree 構造は Open Math 風の表現をもちいた CMO を導入することにした.
 
 Lambda は関数を定義するための関数である.
 Lisp の Lambda 表現と同じ.
+
+\noindent
+例: $sin(x+e)$ の表現.
+\begin{verbatim}
+(CMO_TREE, (CMO_STRING, "sin"), (CMO_STRING, "basic"),
+    (CMO_LIST,[size=]1, 
+        (CMO_TREE, (CMO_STRING, "plus"), (CMO_STRING, "basic"),
+            (CMO_LIST,[size=]2, (CMO_INDETERMINATE,"x"),
+                                (CMO_TREE,(CMO_STRING, "e"),  自然対数の底
+                                          (CMO_STRING, "basic"))
+        ))
+    )
+)
+\end{verbatim}
 
 
 \bigbreak
@@ -1698,7 +1711,7 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ の各指数 $e_i$
 & & \mbox{ --- 分散表現多項式環の定義. } \\
 \mbox{Generic DMS ring}
 &:& ({\tt CMO\_DMS\_GENERIC})\  新版はこちら\\
-\mbox{RingByName}&:& ({\tt CMO\_RING\_BY\_NAME}, {\sl Cstring} s) \\
+\mbox{RingByName}&:& ({\tt CMO\_RING\_BY\_NAME}, {\sl Cstring}\  {\rm s}) \\
 & & \mbox{ --- 名前 s で, 格納された ring 定義.} \\
 \mbox{DMS of N variables}
 &:& ({\tt CMO\_DMS\_OF\_N\_VARIABLES}, \\
@@ -1711,10 +1724,14 @@ $x^e = x_1^{e_1} \cdots x_n^{e_n}$ の各指数 $e_i$
 & & \mbox{ --- n は変数の数, p は 標数} \\
 & & \mbox{ --- s は ring の名前} \\
 & & \mbox{ --- c は係数環, QQ, ZZ の場合は文字列で QQ, ZZ と書く.} \\
-& & \mbox{ --- vlist は Indeterminate のリスト(新版)} \\
+& & \mbox{ --- vlist は Indeterminate のリスト(新版). 多項式環の変数リスト} \\
 & & \mbox{ --- wvec は order をきめる weight vector,} \\
 & & \mbox{ --- outord は出力するときの変数順序.} \\
 \end{eqnarray*}
+
+RingByName や DMS of N variables はなくても, DMS を定義できる.
+したがって, これらを実装してないシステムで DMS を扱うものが
+あってもかまわない.
 
 以下, 以上の CMObject  にたいする,
 xxx = asir, kan の振舞いを記述する.
@@ -2356,7 +2373,8 @@ Open Asir マニュアル, サンプル: 小原, 高山.
 パラメータ付積分のグラフ表示のソフトをかくことで
 さらに問題点をさぐることを
 計画している.
-グレブナdeformation による多項式解の導出(線形および非線形方程式)
+グレブナdeformation による多項式解, 有理解の導出(線形および非線形方程式,
+非線形微分方程式から出発すると代数方程式を解く問題になる)
 は OpenXM 的なプログラムのおもしろい練習問題.
 Java の並列計算記述能力をつかって ox サーバを使うのもおもしろい.
 
