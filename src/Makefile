@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.64 2000/01/19 03:03:34 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.65 2000/01/19 06:06:30 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -67,7 +67,13 @@ install-kxx: all-kxx
 	(cd kxx ; make install)
 
 install-openmath: all-openmath
-	(cd OpenMath ; make install)
+	@if ../misc/which.pl -s javac ; then \
+		(cd OpenMath ; make install) ; \
+	else \
+		echo -n "Warning: javac (java compiler) is not found " ; \
+		echo "in your search path. OpenMath will not be installed." ; \
+	fi
+
 
 install-oxmath: all-oxmath
 
