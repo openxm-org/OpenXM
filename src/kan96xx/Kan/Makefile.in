@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.13 2003/11/24 02:33:39 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.14 2003/11/24 08:16:13 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -45,7 +45,7 @@ HEADERS = datatype.h  stackm.h lookup.h extern.h  kclass.h
 
 kanlibP = kanExport0.o kanExport1.o
 kanlibS1 = stackmachine.o 
-kanlibS2 = scanner.o scanner2.o list.o global.o kclass.o
+kanlibS2 = scanner.o scanner2.o list.o global.o kclass.o shell.o
 kanlibS3 = usage.o option.o
 kanlibS4 = primitive.o
 kanlibK = matrix.o poly4.o replace.o poly3.o poly3a.o poly.o output.o coeff.o order.o switch.o poly2.o parser.o parserpass0.o rat.o ext.o
@@ -90,8 +90,9 @@ coeff.o : extern2.h $(HEADERS)
 output.o : extern2.h $(HEADERS)
 poly.o : extern2.h $(HEADERS)
 rat.o : extern2.h $(HEADERS)
-ext.o : extern2.h $(HEADERS) plugin.h plugin.hh Kclass/tree.hh 
+ext.o : extern2.h $(HEADERS) plugin.h plugin.hh Kclass/tree.hh  shell.hh
 sm.o : sm.c $(HEADERS)
+shell.o : shell.c $(HEADERS)
 
 sm1 : sm.o  $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB)
 	${CC} -I${OpenXM_include} $(CFLAGS) -o sm1 sm.o $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(PLUGIN_LINKFLAG) $(LIBS2) $(LIBS) 

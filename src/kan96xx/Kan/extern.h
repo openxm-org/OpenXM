@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.11 2003/08/23 02:28:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.12 2003/08/24 05:19:42 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -274,3 +274,6 @@ struct object KschreyerSkelton(struct object g);
 /* misc */
 struct object KregionMatches(struct object sobj, struct object keyArray);
 int objToInteger(struct object ob);
+
+/* shell.c */
+struct object KoxWhich(struct object cmdo,struct object patho);
