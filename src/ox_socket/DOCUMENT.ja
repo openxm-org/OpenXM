@@ -1,0 +1,120 @@
+Drafts of specifications of the OpenXM standard socket functions.
+
+1. connect(2)
+	connect(2) の代わりに ox_connet を使うべし.
+
+	int ox_connect(const char *hostname, int port, struct ox_sockopt *opt);
+
+	hostname - 接続先のホスト名
+	port	 - 接続先のポート番号
+	opt	 - setsockopt(2) へ渡したいオプション群
+		   setsockopt(2) の第一引数は生成されたソケット番号を渡すが,
+		   これは ox_connect 内で生成される.
+
+	struct ox_sockopt {
+		...
+
+		int		level;		/* setsockopt(2) の第二引数 */
+		int		option_name;	/* setsockopt(2) の第三引数 */
+		void		*option_value;	/* setsockopt(2) の第四引数 */
+		socklen_t	option_len;	/* setsockopt(2) の第五引数 */
+
+		...
+	};
+
+	成功すれば生成されたソケット番号を, 失敗すれば -1 を返す.
+
+2. listen(2)
+
+	listen(2) の代わりに ox_listen を使うべし.
+
+	struct listen_socks *
+	ox_listen(const char *hostname, int *port, int backlog,
+		  struct ox_sockopt *opt);
+
+	hostname - 接続先のホスト名
+	port	 - 接続先のポート番号
+	backlog	 - listen(2) の第二引数
+	opt	 - setsockopt(2) へ渡したいオプション群 (ox_connect と同様)
+
+	成功すれば listen(2) しているソケットの数と配列への構造体への
+	ポインタを, 失敗すれば NULL を返す.
+
+	struct listen_socks {
+		int	nsocks;
+		int	listen_sock[nsocks];	/* 動的に割り当てられる */
+	};
+
+	理由:
+		待ち受けているソケットは必ずしもひとつではない.
+		IPv4 と IPv6 双方が利用可能な (デュアルスタックな)
+		マシンにおいて, IPv4 および IPv6 をサポートしている
+		sshd (OpenSSH など) をワイルドカードアドレスで待ち受けている
+		場合は, 以下のようになっている.
+
+	# sockstat | grep sshd
+	root     sshd       177    4 tcp4   *:22                  *:*
+        root     sshd       177    3 tcp46  *:22                  *:*
+
+3. accept(2)
+
+	accept(2) の代わりに ox_accept を使うべし.
+
+	int ox_accept(struct listen_socks *socks);
+
+	socks	 - ox_listen の戻り値
+
+	成功すれば accept(2) されたソケット番号を, 失敗すれば -1 を返す.
+
+4. getsockname(2)
+
+	getsockname(2) の代わりに ox_getsockname を使うべし.
+
+	int ox_getsockname(int socket,
+			   struct sockaddr **addr, socklen_t *addrlen);
+
+	socket	 - 有効なソケット番号
+	addr	 - sockaddr 構造体へのポインタのポインタ
+	addrlen	 - sockaddr 構造体の長さ
+
+	成功すれば 0 を, 失敗すれば -1 を返す.
+	取得できた sockaddr 構造体は addr に格納され,
+	長さは addrlen に格納される.
+
+	理由:
+		sockaddr 構造体は, 今日では汎用的なインターフェイスを
+		提供しているにしかすぎない. 実際のサイズはそれぞれの
+		アドレスファミリごとに違うので, 現在では, 実質的な
+		sockaddr 構造体の placeholder として, sockaddr_storage
+		構造体が定義されている. ただし, この構造体は, 事実上
+		IPv6 登場以降の OS にしか実装されておらず, OpenXM として
+		実装を仮定するのはよくない. そこで, ox_getsockname という
+		wrapper を用意し, 実際の挙動を隠蔽することにした.
+		中身が必要となる場合として, ポート番号の取得があるが,
+		これについては, ox_getport という wrapper を用意し,
+		sockaddr 構造体をさらに隠蔽できるようにしてある.
+
+	ox_getsockname で取得した sockaddr 構造体へ割り当てたメモリは,
+	必要がなくなった時点で確実に free(2) されるべきである.
+	GC を用いている場合は, この限りではない.
+
+5. ポート番号の取得
+
+	ポート番号の取得に関する汎用的なインターフェイスは存在しない.
+	それぞれのアドレスファミリごとに個別に対処する必要がある.
+	この操作を OpenXM として用意したのが, ox_getport である.
+
+	int ox_getport(int socket);
+
+	socket	 - 有効なソケット番号
+
+	成功すればポート番号を, 失敗すれば -1 を返す.
+
+	現在サポートされているのは, IPv4 および IPv6 だけである.
+	事実上これで十分であるが, ox_getport は容易に拡張可能である.
+
+注意事項:
+	一部の OS には socklen_t が宣言されていない.
+	Single UNIX Specification, version 2 あるいは,
+	POSIX に基づいて 32 ビット符号無し整数と仮定してよいだろう.
+	これ以上のサイズが必要となるときと, 我々の死とどちらが早いだろうか...
