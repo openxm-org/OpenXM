@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.78 2004/02/24 23:58:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.79 2004/03/02 09:10:04 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -48,7 +48,7 @@ def ox_loadfile(Tag,FileName) {
 }
 #define ox_loadfile_(A,B) load(B)
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
-ox_loadfile_(Loaded_taka_print,"taka_print.rr")$
+ox_loadfile_(Loaded_taka_print,"noro_print.rr")$
 ox_loadfile_(Loaded_om,"om")$
 ox_loadfile_(Loaded_Matrix,"Matrix")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
@@ -550,7 +550,7 @@ def print_cmo_xml_form(F) { NOT_YET; }
  example: print_em(x^2-1);
 end: */
 def print_em(F) {
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_em(F);
 }
 /*&usage begin: print_dvi_form(S)
@@ -559,7 +559,7 @@ def print_em(F) {
  ref: print_xdvi_form, print_tex_form 
 end: */
 def print_dvi_form(F) {
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_dvi_form(F);
 }
 
@@ -570,7 +570,7 @@ def print_dvi_form(F) {
 end: */
 def print_gif_form(F) {
   Opt = getopt();
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_gif_form(F,Opt);
 }
 def print_html_form(F) { NOT_YET; }
@@ -580,7 +580,7 @@ def print_html_form(F) { NOT_YET; }
  example: print_input_form(quote(x^3-1));
 end: */
 def print_input_form(F) { 
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   /* Bug */
   if (type(F) == QUOTE || type(F) == STRUCT) 
     return taka_input_form(F);
@@ -613,7 +613,7 @@ def print_ox_rfc100_xml_form(F) {
  ref: print_tex_form
 end: */
 def print_png_form(F) {
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_png_form(F);
 }
 
@@ -621,7 +621,7 @@ def print_png_form(F) {
  It transforms {S} to the terminal form???
 end: */
 def print_terminal_form(F) {  
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_terminal_form(F);
 }
 
@@ -641,7 +641,7 @@ def print_terminal_form(F) {
 end: */
 def print_tex_form(F) {  
   Argv = getopt();
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return taka_tex_form_top(F,Argv);
 }
 
@@ -652,7 +652,7 @@ def print_tex_form(F) {
  ref: print_tex_form, print_dvi_form
 end: */
 def print_xdvi_form(F) { 
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return(taka_xdvi_form(F));
 }
 
@@ -666,7 +666,7 @@ def print_xdvi_form(F) {
 end: */
 def print_xv_form(F) { 
   Argv = getopt();
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   return(taka_xv_form(F,Argv));
 }
 
@@ -697,7 +697,7 @@ def print_input_form_(F) {
  ref: glib_tops()
 end: */
 def print_output(Obj) { 
-  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"noro_print.rr");
   M = "a"; F = "asir_output_tmp.txt";
   Argv = getopt();
   for (I=0; I<length(Argv); I++) {
