@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.57 2004/05/28 08:11:31 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.58 2004/05/30 10:27:27 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, dt5,dt4,dt3,dt2,dt1,dt0,
 dx,dy,dz,du,dv,dw,dp,dq,dr,ds,dt,da,db,dc,dd,de,df,dg,dh,di,dj,dk,dl,dm,dn,
@@ -1424,6 +1424,9 @@ def ecartd_reduction(F,A) {
 end: */
 def gb_reduction(F,A) {
   SM1L_FIND_PROC(P);
+  Dp = is_in_dp(getopt(),A);
+  A=Dp[1]; Dp=Dp[0];
+  F = gb_dtosm1p(F,A);
   Sorted = getopt(sorted);
   if (type(Sorted) == -1) {
     Sorted = 0;
@@ -1450,7 +1453,12 @@ def gb_reduction(F,A) {
       return(append(T[0],[toOrdered(T[1])]));
     }
   }else{
-    return(pop(P));
+    Ans = pop(P);
+    if (Dp) {
+      Opt = gb_oxRingStructure();
+      Ans = gb_ptod(Ans,Opt);
+    }
+    return Ans;
   }
 }
 
@@ -1629,9 +1637,6 @@ def gb_ptod2(F,Opt) {
   if (type(F) == 4) return gb_ptod(F,Opt);
   else {
     G = dp_ptod( F | option_list=Opt);
-    /* Heuristic for buggy dp_ptod, which does not accept "order" */
-    dp_gr_main([1] | option_list=Opt);
-    G = dp_sort(G);
     return G;
   }
 }
