@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.2 1999/11/10 06:50:49 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.3 1999/11/12 01:40:32 takayama Exp $
 
 Q.  1999, 11/10: 
     " (file) run  " を ox_sm1 に送って executeStringByLocalParser しても
@@ -57,4 +57,24 @@ AS=/usr/ccs/bin/as
 
 このように設定しておくと configure の時自動的にAS=/usr/ccs/bin/as
 としてくれる.
+
+//&jp  Q. pari で, LLL algorithm をつかうのにはどうしますか?
+//&eg  Q. How to use functions for LLL algorithm in pari?
+/*&C
+
+A. gp                         (Starting pari)
+   x = [1,0 ; 0,1]            (Define a matrix. Do not use [[1,0],[0,1]].)
+   qflll(x)
+
+*/
+
+//&jp  Q. Asir より pari をよびだして, LLL algorithm をつかうのにはどうしますか?
+//&eg  Q. How to use functions for LLL algorithm in asir by calling pari.
+/*&C
+
+A. asir
+   X = newmat(2,2,[[1,0],[0,1]]);
+   pari(lll,X);
+
+*/
 
