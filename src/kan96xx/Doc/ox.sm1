@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.2 1999/11/01 03:49:47 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.3 1999/11/03 00:45:43 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -139,7 +139,7 @@ ox.version [(Version)] system_variable gt
  (oxhelp for this message, [(oxWatch) client] extension to start a log.)
  ([(oxSerial)] extension serial-number-of-out-going-ox-packet.)
  (oxpopcmo1, oxpopcmo2,  sm1connect2, sm1connect3) 
- (sm1connectr )
+ (sm1connectr ox_launch, ox_launch_nox)
  (oxNoX : set an environment to invoke oxlog without xterm and to call oxlog with >& /dev/null)
  $        ex 1.  (ox.sm1) run oxNoX sm1connectr $
  $        ex 2.  (oxasir.sm1) run oxNoX (x^2-1). fctr pmat ; $
@@ -776,6 +776,77 @@ ox.verbose {
  (This command searches the fname in /usr/local/lib/asir and ASIR_LIBDIR)
  (and returns the fullname.)
 ]] putUsages
+
+
+/ox_launch_nox { 
+  /@@@.ox_launch_nox  1 def
+  ox_launch_aux
+} def
+/ox_launch { 
+  /@@@.ox_launch_nox  0 def
+  ox_launch_aux
+} def
+
+/ox_launch_aux {
+ /arg1 set
+ [/in-launch_nox /pass /peer /data /control /name /machine
+  /your-peer /comm /remoteOpenXMbin /remoteServer /myhost
+ ] pushVariables
+ [
+   /machine arg1 0 get def
+   /remoteOpenXMbin arg1 1 get def
+   /remoteServer arg1 2 get def
+   /name arg1 3 get def
+   /myhost arg1 4 get def
+
+   /pass [(oxGenPass)] extension def
+   /peer [(oxGetPort) myhost] extension def
+   /data peer 1 get toString def
+   /control peer 3 get toString def
+   peer message
+ [(ssh -f ) machine ( -l ) name ( ")
+
+   @@@.ox_launch_nox {
+   } {
+     remoteOpenXMbin(/oxlog )
+     ( /usr/X11R6/bin/xterm -icon -e )
+   } ifelse
+
+  ( ) remoteOpenXMbin (/ox ) 
+  ( -reverse -ox ) remoteServer
+  ( -host ) myhost
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( ")
+ ] cat /comm set
+ (Executing the command : ) messagen comm message message
+  comm system
+ (sleep 5) system
+ [(oxCreateClient2) peer 1 pass] extension /your-peer set
+ /arg1 your-peer def
+ ] pop
+ popVariables
+ arg1
+} def
+
+[(ox_launch)
+[( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
+ (  ox_launch  client )
+ (Example 1: )
+ $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
+ $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $ ] ox_launch /@@@.oxmath set $
+]] putUsages
+
+[(ox_launch_nox)
+[( [remote remote-OpenXM-bin remote-ox-server remote-login-name myhostname] )
+ (  ox_launch_nox  client )
+ (Example 1: )
+ $ [(tau.math.kobe-u.ac.jp) (/home/taka/OpenXM/bin) $
+ $  (/home/taka/OpenXM/src/ox_math/ox_math) (taka) (dc4.math.kobe-u.ac.jp) $
+ $ ] ox_launch_nox /@@@.oxmath set $
+]] putUsages
+
 
 
 

@@ -1,7 +1,8 @@
 %  oxmath.sm1  : An interface to Open Mathematica Server. (ox_math)
-%  $OpenXM$
+%  $OpenXM: OpenXM/src/kan96xx/Doc/oxmath.sm1,v 1.1 1999/11/04 02:42:11 takayama Exp $
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
+(oxmathconnectr-ssh ) message
 %%%%%%%%%%%%%  Configure path for ox and ox_math on your remote machine.
 /oxpath.oxlog.xterm-ssh  (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def
 /oxpath.oxmath-ssh (/home/taka/OpenXM/src/ox_math/ox_math) def
@@ -55,6 +56,4 @@
  $    /myhostname-ssh   (dc1.math.kobe-u.ac.jp) def $
  $         [(tau.math.kobe-u.ac.jp) (taka)] oxmathconnectr-ssh /@@@.oxmath set  $
 ]] putUsages
-
-
 
