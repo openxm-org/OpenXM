@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.18 2002/07/30 00:28:00 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.19 2002/07/31 00:39:44 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -14,6 +14,8 @@ clean:
 	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done
 clean-work:
 	-rm -rf work
+clean0:
+	-rm -rf .copy-binary-done oxasir-win.rr .copy-cygwin-dlls-done
 
 all: copy-binary copy-binary-asir win-correction win-correction-clean
 
