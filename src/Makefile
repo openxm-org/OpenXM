@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.45 2000/01/08 20:54:57 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.46 2000/01/09 15:59:44 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
@@ -11,7 +11,7 @@ all-gnuplot: configure-gnuplot
 	(cd gnuplot ; make all ; make install)
 
 all-kan96xx: configure-kan96xx
-	(cd kan96xx ; make all ; make install2)
+	(cd kan96xx ; make all)
 
 all-kxx: configure-kxx
 	(cd kxx ; make all ; make install2)
@@ -45,6 +45,9 @@ all-tigers:
 	(cd tigers ; make all ; make install)
 
 install: install-pari
+
+install-kan96xx: all-kan96xx
+	(cd kan96xx ; make install2)
 
 install-pari: all-pari
 	(cd pari ; make install)
@@ -84,7 +87,7 @@ configure-gnuplot:
 configure-kan96xx:
 	(cd kan96xx ; make configure)
 
-configure-kxx:
+configure-kxx: install-kan96xx
 	(cd kxx ; make configure)
 
 configure-links:
