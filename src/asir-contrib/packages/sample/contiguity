@@ -1,0 +1,60 @@
+/* $OpenXM$ */
+
+/* contiguity */
+
+def contiguity_param_only(F) {
+   if (deg(F,x) != 0) return(0);
+   if (deg(F,y) != 0) return(0);
+   if (deg(F,dx) != 0) return(0);
+   if (deg(F,dy) != 0) return(0);
+   return(F);
+}
+
+def contiguity_eliminated(G) {
+   A = map(contiguity_param_only,G);
+   C = [];
+   for (I=0; I<length(A); I++) {
+     if (A[I] != 0) {
+         C = append(C,[A[I]]);
+     }
+   }
+   return(C);
+}
+def contiguity_f4_a_bf() {
+   V = [x,y,a,b,c,cp];
+   W = [[dx,1,dy,1,x,1,y,1]];
+   G = sm1_gb([[dx*(x*dx+c)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
+                dy*(y*dy+cp)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
+                x*dx+y*dy+a],V,W]);
+
+   G = G[0];
+   B = contiguity_eliminated(G);
+   print("b-function for HG is ",0);
+   print(map(fctr,B));
+   return(map(fctr,B));
+}
+  
+def contiguity_f4_a() {
+   V = [x,y,a,b,c,cp];
+   W = [[dx,1,dy,1,x,1,y,1]];
+   F = [x*dx+y*dy+a, 
+        dx*(x*dx+c)-(x*dx+y*dy+a)*(x*dx+y*dy+b),
+        dy*(y*dy+cp)-(x*dx+y*dy+a)*(x*dx+y*dy+b)];
+   G = sm1_syz([F,V,W]);
+
+   Gb = map(first,G[1][0]);
+   C  = G[1][1];
+   Ans = [ ];
+   for (I=0; I<length(Gb); I++) {
+     if (contiguity_param_only(Gb[I]) != 0) {
+        Ans = append(Ans,[ [Gb[I],C[I][0]] ]);
+     }
+   }
+   return(Ans);
+}
+  
+
+
+end$
+
+               
