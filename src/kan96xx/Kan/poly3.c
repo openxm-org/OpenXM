@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.6 2002/09/08 10:49:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.7 2004/02/23 09:03:42 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -117,8 +117,13 @@ void monomialMult_diff(e,f)
       tmp.e[i] = f->m->e[i];
     }
     if ((!weightedHomogenization) && Homogenize) {
-      tmp.e[0].D += EList[k]; /* homogenization.
-                                 e[0].D will be added later. */
+      if (Homogenize == 3) {
+        tmp.e[0].D += EList[k]/2; /* Double homogenization. */
+        tmp.e[0].x += EList[k]/2; /* Dx x = x Dx + h H */
+      }else{
+        tmp.e[0].D += EList[k]; /* homogenization.
+                                   e[0].D will be added later. */
+      }
     }else if (weightedHomogenization && Homogenize) {
       tmp.e[0].D += EList[k]/2 ; /* homogenization.  Weight is (1,0) (special).
 								  */

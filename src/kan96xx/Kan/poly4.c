@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.11 2003/08/23 02:28:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.12 2003/08/24 05:19:42 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -9,7 +9,8 @@ static void shell(int v[],int n);
 static int degreeOfPrincipalPart(POLY f);
 static int degreeOfInitW(POLY f,int w[]);
 static int degreeOfInitWS(POLY f,int w[],int s[]);
-
+static int dDegree(POLY f);
+static POLY dHomogenize(POLY f);
 
 static void shell(v,n)
      int v[];
@@ -306,8 +307,12 @@ POLY homogenize(f)
   POLY t;
   int maxg;
   int flag,d;
+  extern int Homogenize;
 
   if (f == ZERO) return(f);
+  if (Homogenize == 3) { /* double homogenization Dx x = x Dx + h H */
+    return dHomogenize(f); 
+  }
   t = f; maxg = (*grade)(f); flag = 0;
   while (t != POLYNULL) {
     d = (*grade)(t);
@@ -375,6 +380,53 @@ int isHomogenized_vec(f)
   return(1);
 }
 
+static POLY dHomogenize(f)
+POLY f;
+{
+  POLY t;
+  int maxg, maxdg;
+  int flag,d,dd,neg;
+
+  if (f == ZERO) return(f);
+  t = f; maxg = (*grade)(f); flag = 0;
+  maxdg = dDegree(f);
+  while (t != POLYNULL) {
+    d = (*grade)(t);
+    if (d != maxg) flag = 1;
+    if (d > maxg) {
+      maxg = d;
+    }
+    d = dDegree(f);
+    if (d > maxdg) {
+      maxdg = d;
+    }
+    t = t->next;
+  }
+  if (flag == 0) return(f);
+
+  t = f; neg = 0;
+  while (t != POLYNULL) {
+    d = (*grade)(t);
+    dd = dDegree(t);
+    if (maxg-d-(maxdg-dd) < neg) {
+      neg = maxg-d-(maxdg-dd);
+    }
+    t = t->next;
+  }
+  neg = -neg;
+
+  f = pmCopy(f); /* You can rewrite the monomial parts */
+  t = f;
+  while (t != POLYNULL) {
+    d = (*grade)(t);
+    dd = dDegree(t);
+    t->m->e[0].D += maxdg-dd; /* h */
+    t->m->e[0].x += maxg-d-(maxdg-dd)+neg; /* Multiply H */
+    /* example Dx^2+Dx+x */
+    t = t->next;
+  }
+  return(f);
+}
 
 static int degreeOfPrincipalPart(f)
      POLY f;
@@ -384,6 +436,19 @@ static int degreeOfPrincipalPart(f)
   n = f->m->ringp->n; dd = 0;
   /* D[0] is homogenization var */
   for (i=1; i<n; i++) {
+    dd += f->m->e[i].D;
+  }
+  return(dd);
+}
+
+static int dDegree(f)
+     POLY f;
+{
+  int nn,i,dd,m;
+  if (f ISZERO) return(0);
+  nn = f->m->ringp->nn; dd = 0;
+  m = f->m->ringp->m;
+  for (i=m; i<nn; i++) {
     dd += f->m->e[i].D;
   }
   return(dd);
