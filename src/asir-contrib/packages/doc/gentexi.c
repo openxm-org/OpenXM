@@ -1,4 +1,4 @@
-/*  $OpenXM$  */
+ /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.1 2002/01/27 07:13:28 takayama Exp $  */
 
 #include <stdio.h>
 int Debug = 0;
@@ -31,12 +31,13 @@ int Sp = 0;
 char *Upnode;
 char *Category=NULL;
 char *Lang="en";
+int Include = 0;
+int GenExample = 0;
 
 main(int argc,char *argv[]) {
   char *t;
   int p,c,n,i;
   struct item *tt;
-  int Template = 0;
   struct item *items[ITEMMAX];
 
   Upnode = str("UNKNOWN");
@@ -51,8 +52,10 @@ main(int argc,char *argv[]) {
       Lang = "en";
     }else if (strcmp(argv[i],"--ja") == 0) {
       Lang = "ja";
-    }else if (strcmp(argv[i],"--template") == 0) {
-      Template = 1;
+    }else if (strcmp(argv[i],"--include") == 0) {
+      Include = 1;
+    }else if (strcmp(argv[i],"--example") == 0) {
+      GenExample = 1;
     }else if (strcmp(argv[i],"--debug") == 0) {
       Debug = 1;
     }else {
@@ -96,23 +99,28 @@ main(int argc,char *argv[]) {
   if (Debug) fprintf(stderr,"Done.\n");
   
   for (i=0; i<n; i++) {
-    if (Template) {
-      genTemplate(items[i]->name);
-    }
     printTexi(stdout,items[i]);
   }
-  
+  exit(0);  
 }
 
-genTemplate(char *name) {
+genInclude(char *name) {
   char fname[4098];
   FILE *fp;
+  int c;
   
   sprintf(fname,"tmp/%s-auto-%s.texi",name,Lang);
-  if (fopen(fname,"r") == NULL) {
-    fp = fopen(fname,"w");
-    fclose(fp);
+  fp = fopen(fname,"r");
+  if (fp == NULL) {
+    fprintf(stderr,"No file %s\n",fname);
+    return 0;
   }
+  while ((c=fgetc(fp)) != EOF) {
+    putchar(c);
+  }
+  putchar('\n');
+  fclose(fp);
+  return 0;
 }
 
 cmpItem(struct item *it,struct item *it2) {
@@ -431,7 +439,10 @@ printTexi(FILE *fp, struct item *it) {
   fprintf(fp,"@end table\n");
 
   /* include file */
-  fprintf(fp,"@include tmp/%s-auto-en.texi\n",it->name);
+  if (Include) {
+    if (genInclude(it->name)) 
+      fprintf(fp,"@c @include tmp/%s-auto-en.texi\n",it->name);
+  }
   fprintf(fp,"@c @itemize @bullet \n");
   fprintf(fp,"@c @item \n");
   fprintf(fp,"@c @end itemize\n");
@@ -440,6 +451,9 @@ printTexi(FILE *fp, struct item *it) {
     for (i=0; i<it->examplec; i++) {
       fprintf(fp,"@example\n");
       fprintf(fp,"%s\n",it->examplev[i]);
+      if (GenExample) {
+        outputOfExample(it->examplev[i]);
+      }
       fprintf(fp,"@end example\n");
     }
   }
@@ -455,3 +469,29 @@ printTexi(FILE *fp, struct item *it) {
   fprintf(fp,"\n");
 }
 
+outputOfExample(char *com) {
+  FILE *fp2;
+  int c;
+  fp2 = fopen("gentexi-in.tmp","w");
+  if (fp2 == NULL) {
+    fprintf(stderr,"Cannot open tentexi-in.tmp\n");
+    exit(10);
+  }
+  system("rm -f gentexi-out.tmp");
+  fprintf(fp2,"output(\"gentexi-out.tmp\")$\n");
+  fprintf(fp2,"%s\n",com);
+  fprintf(fp2,"output()$\n");
+  fprintf(fp2,"quit;");
+  fclose(fp2);
+  system("asir <gentexi-in.tmp >/dev/null");
+
+  fp2 = fopen("gentexi-out.tmp","r");
+  if (fp2 == NULL) {
+    fprintf(stderr,"Cannot open tentexi-in.tmp\n");
+    exit(10);
+  }
+  while ((c=fgetc(fp2)) != EOF) {
+    putchar(c);
+  }
+  putchar('\n');
+}

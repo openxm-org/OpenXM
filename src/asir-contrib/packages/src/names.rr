@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.32 2001/12/23 11:10:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.33 2002/01/06 08:47:34 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -51,22 +51,43 @@ Print_tex_form_fraction_format="auto"$  /* "frac" or "auto" or "/" */
 Print_tex_form_no_automatic_subscript=0$ /* 0 or 1 */
 
 /* Base module */
+/*&usage begin: base_cancel(S)
+ It simplifies {S} by canceling the common factors of 
+ denominators and numerators.
+ example: base_cancel([(x-1)/(x^2-1), (x-1)/(x^3-1)]); 
+end: */
 def base_cancel(S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_cancel(S);
 }
+/*&usage begin: base_choose(L,M)
+ It returns the list of the order {M} subsets of L.
+ example: base_choose([1,2,3],2);
+end: */
 def base_choose(L,M) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_choose(L,M);
 }
+/*&usage begin: base_flatten(S)
+ It flattens a nested list {S}.
+ example: base_flatten([[1,2,3],4]);
+end: */
 def base_flatten(S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_flatten(S);
 }
+/*&usage begin: base_intersection(A,B)
+ It returns the intersection of {A} and {B} as a set.
+ example: base_intersection([1,2,3],[2,3,5,[6,5]]);
+end: */
 def base_intersection(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_intersection(A,B);
 }
+/*&usage begin: base_memberq(A,S)
+ It returns 1 if {A} is a member of the set {S} else returns 0.
+ example: base_memberq(2,[1,2,3]);
+end: */
 def base_memberq(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_memberq(A,S);
@@ -283,7 +304,10 @@ def print_gif_form(F) {
 def print_html_form(F) { NOT_YET; }
 def print_input_form(F) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
-  return taka_input_form(F);
+  /* Bug */
+  if (type(F) == QUOTE || type(F) == STRUCT) 
+    return taka_input_form(F);
+  else return rtostr(F);
 }
 def print_open_math_xml_form(F) { 
   OX_LOADFILE(Loaded_om,"om");

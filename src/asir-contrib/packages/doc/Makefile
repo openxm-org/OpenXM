@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.21 2002/01/21 07:59:19 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.22 2002/01/27 07:13:28 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -15,6 +15,8 @@ OpenXM_ROOT=../../../../../OpenXM
 ASIRDOC=$(OpenXM_ROOT)/src/asir-doc
 ASIRLIB=$(OpenXM_ROOT)/../OpenXM_contrib2/asir2000/lib
 CONTRIB=$(OpenXM_ROOT)/src/asir-contrib/packages/src
+OPTGENTEXI= --include 
+#OPTGENTEXI= --include --example
 ## PS documents are installed under $(OpenXM_doc)/asir-contrib
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
@@ -24,7 +26,10 @@ TEXI2HTML=texi2html -menu -split_node
 JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro.texi Diff.texi Dmodule.texi Matrix.texi base-ja.texi
 EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-eg.texi cman-eg.texi base-en.texi
 
-all : gentexi $(JPSRCS) $(EGSRCS)
+JAAUTO=base-auto-ja.texi
+ENAUTO=base-auto-en.texi
+
+all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
 install : install-document install-help install-html-help
 
 gentexi : gentexi.c
@@ -199,19 +204,29 @@ oxtigers-eg.texi : $(CONTRIB)/tigers Makefile
 	/bin/rm -f oxtigers-eg.texi
 	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/tigers >oxtigers-eg.texi
 
-gen-help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
+### Generating *auto*.texi   cf. JAAUTO,  ENAUTO
+base-auto-en.texi : $(CONTRIB)/names.rr gentexi
+	rm -f base-auto-en.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --en --upnode Top ${OPTGENTEXI} >base-auto-en.texi
+
+base-auto-ja.texi : $(CONTRIB)/names.rr gentexi
+	rm -f base-auto-ja.texi
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --ja --upnode Top ${OPTGENTEXI} >base-auto-ja.texi
+
+### Generating online manual
+gen-help-eg: $(EGSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
 	-rm -rf tmp help-eg
 	mkdir help-eg tmp
-	cp cman-eg.texi $(EGSRCS) tmp
+	cp cman-eg.texi $(EGSRCS) $(ENAUTO) tmp
 	-(cd tmp; makeinfo --force cman-eg.texi)
 	(cd help-eg; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
 ## duplicate some help files
 	-(cd help-eg; cp sm1_hilbert hilbert_polynomial)
 
-gen-help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
+gen-help-jp: $(JPSRCS) $(ASIRDOC)/extract_func $(JAAUTO)
 	-rm -rf tmp-ja help-jp
 	mkdir help-jp tmp-ja
-	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp-ja/$$i; done
+	for i in cman.texi $(JPSRCS) $(JAAUTO); do nkf -e $$i > tmp-ja/$$i; done
 	-(cd tmp-ja; makeinfo --force cman.texi)
 	(cd help-jp; for i in ../tmp-ja/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
 ## duplicate some help files
@@ -261,6 +276,6 @@ clean-document :
 
 
 clean :
-	rm -f gentexi
+	rm -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
 	rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi
 	/bin/rm -rf help-jp help-eg tmp tmp-ja html-en html-ja
