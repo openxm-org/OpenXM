@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.3 2000/02/02 02:03:42 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/smCommand.h,v 1.4 2000/11/17 04:35:20 ohara Exp $ */
 /* smCommand.h */
 
 #define SM_popSerializedLocalObject 258
@@ -21,10 +21,13 @@
 #define SM_pushCMOtag 277
 
 #define SM_control_kill 1024
-#define SM_control_reset_connection  1030
 #define SM_control_to_debug_mode 1025
 #define SM_control_exit_debug_mode 1026
 #define SM_control_spawn_server 1027
 #define SM_control_terminate_server 1028
+#define SM_control_kill_pid  1029
+#define SM_control_reset_connection  1030
+#define SM_control_reset_connection_pid  1031
+
 
 #define  SM_PRIVATE         0x7fff0000    /*  2147418112  */
