@@ -1,13 +1,11 @@
 ######### configurations.    
-##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.2 1999/10/30 02:24:26 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile,v 1.3 1999/11/02 13:11:11 takayama Exp $
 KANHOME = ../SSkan
 
 LFLAG =
-#LFLAG = -lnsl -lsocket /usr/ucblib/libucb.a
+SOLARISLFLAG = -lnsl -lsocket /usr/ucblib/libucb.a
 
-#CFLAGS = -DSOLARIS
 CFLAGS = -g
-MYOSTYPE = linux
 
 ########## end of configurations
 ### Set the server name in oxmain.c if you do not use the environmental
@@ -40,14 +38,29 @@ ox_kan.h :
 	ln -s $(KANHOME)/plugin/ox_kan.h ox_kan.h
 
 ox : oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o ox_kan.h
-	gcc $(CFLAGS) oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LFLAG)
+	if test `uname` = "SunOS" ; \
+	then \
+	gcc $(CFLAGS) oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(SOLARISLFLAG) ; \
+	else \
+	gcc $(CFLAGS) oxmain.c $(KANHOME)/plugin/mytcpio.o $(KANHOME)/plugin/oxmisc.o file2.o -o ox  $(LFLAG) ; \
+	fi
 
 ox_null : oxserver00.c ox.a nullstackmachine.o file2.o ox_kan.h
-	gcc $(CFLAGS) oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LFLAG)
+	if test `uname` = "SunOS" ; \
+	then \
+	gcc $(CFLAGS) oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(SOLARISLFLAG) ; \
+	else \
+	gcc $(CFLAGS) oxserver00.c ox.a nullstackmachine.o file2.o -o ox_null  $(LFLAG) ; \
+	fi
 
 ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
 	(cd $(KANHOME)/Kan ; make kanlib.a)
-	gcc $(CFLAGS) oxserver00.c sm1stackmachine.o -o ox_sm1  $(LFLAG) $(KANLIB)
+	if test `uname` = "SunOS" ; \
+	then \
+	gcc $(CFLAGS) oxserver00.c sm1stackmachine.o -o ox_sm1  $(SOLARISLFLAG) $(KANLIB) ; \
+	else \
+	gcc $(CFLAGS) oxserver00.c sm1stackmachine.o -o ox_sm1  $(LFLAG) $(KANLIB) ; \
+	fi
 
 oxlog : oxlog.c
 	gcc -o oxlog oxlog.c

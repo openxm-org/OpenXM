@@ -1,3 +1,4 @@
+###  $OpenXM$
 all : sm1
 ########################## configuration ##############################
 ####  What C compiler do you use?
@@ -26,10 +27,8 @@ LIBGMP=$(GMP_HOME)/libgmp.a
 ## This line is for buggy linux-gmp.
 ##LIBGMP = $(GMP_HOME)/libgmp.a $(GMP_HOME)/mpn/libmpn.a
 
-SOLARISLIB =
-## If you are using Solaris 2.x and you need to compile sm1 with socket 
-## interface (make sm1_socket), uncommnet the following line.
-## SOLARISLIB = -lnsl -lsocket /usr/ucblib/libucb.a
+## Library you need on Solaris 2.*
+SOLARISLIB = -lnsl -lsocket /usr/ucblib/libucb.a
 
 ###################  Plugin modules
 ## Note that you need to make PLUGIN_LIB by your hand.
@@ -128,7 +127,13 @@ ext.o : extern2.h $(HEADERS) plugin.h plugin.hh
 MSG0 = msg0.o
 
 sm1 : sm.c  $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) $(GC) 
-	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB)
+	if test `uname` = "SunOS" ; \
+	then \
+	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG) $(SOLARISLIB) ; \
+	else \
+	$(CC) -I$(GMP_HOME) $(CFLAGS) $(DDD) -o sm1 sm.c $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2)  $(kanlibKclass) $(PLUGIN_LIB) $(LIBGMP) $(GC) $(PLUGIN_LINKFLAG)  ; \
+	fi
+
 
 $(kanlibP) : $(HEADERS)  gradedset.h extern2.h
 $(kanlibS1) : $(HEADERS) smacro.h  gradedset.h
