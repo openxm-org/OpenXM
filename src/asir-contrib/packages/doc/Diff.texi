@@ -1,4 +1,4 @@
-@c $OpenXM$
+@c $OpenXM: OpenXM/src/asir-contrib/packages/doc/Diff.texi,v 1.3 2000/01/03 09:15:53 okutani Exp $
 @node Differential equations,,, その他の函数
 @section Differential equations
 ファイル @file{gr}, @file{Matrix} が必要です.
@@ -210,5 +210,10 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 @item  @code{diff_rat_solve}の例.
 @end itemize
 @example
-@end example
+[333] diff_rat_solve([[[x,[1]],[1,[0]]]],x,1,[x]);
+[(_8)/(x),[_8]]
 
+[350] D = diff_op_appell4(0,0,3,0,[x,y])$
+[351] diff_rat_solve(D,x^2,2,[x,y]);
+[(_118*x^2-_114*y*x+1/2*_114*y^2+_114*y)/(x^2),[_114,_118]]
+@end example
