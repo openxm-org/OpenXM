@@ -1,7 +1,11 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.7 2000/02/28 13:22:27 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.8 2000/02/28 14:10:29 takayama Exp $
 %% xml.sm1  XML support for sm1.
 %% This package requires ox.sm1
-[(parse) (ox.sm1) pushfile] extension
+[(ostype)] extension 0 get (windows) eq {
+  [(parse) (ox-win.sm1) pushfile] extension 
+}{
+  [(parse) (ox.sm1) pushfile] extension
+} ifelse
 (xml.sm1 :  1999, 11/20 Sat) message
 %%%%% These should be under /usr/local/OpenXM or OpenXM_HOME
 /oxpath.java-support (lib/java-support) def
