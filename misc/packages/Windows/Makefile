@@ -1,8 +1,9 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.19 2002/07/31 00:39:44 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.20 2002/07/31 02:00:26 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
 WGET_ARG=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
+WGET_PHC=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/phc.exe
 
 WINASIR=c:/home/asir
 
@@ -11,17 +12,17 @@ usage:
 	@echo "         remove-experimental "
 
 clean:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done
 clean-work:
 	-rm -rf work
 clean0:
 	-rm -rf .copy-binary-done oxasir-win.rr .copy-cygwin-dlls-done
 
-all: copy-binary copy-binary-asir win-correction win-correction-clean
+all: copy-binary-phc copy-binary copy-binary-asir win-correction win-correction-clean
 
 build-binary-openxm-cygwin:
 	if [ ! -f .build-binary-openxm-cygwin-done ] ; then \
-		(cd ${OpenXM_TOP}/src ; make install-kan-ox ) ; \
+		(cd ${OpenXM_TOP}/src ; make install-kan-ox ; make install-phc) ; \
 		touch .build-binary-openxm-cygwin-done ; \
 	fi
 
@@ -65,6 +66,17 @@ copy-binary-asir-from-local-disk:
 	 ) ; \
 	  touch .copy-binary-asir-done ; \
 	fi
+
+copy-binary-phc:
+	if [ ! -f .copy-binary-phc-done ] ; then \
+		make copy-binary-phc-from-internet ; \
+	fi
+
+copy-binary-phc-from-internet:
+	if [ ! -f ${OpenXM_TOP}/bin/phc.exe ] ; then \
+	 (cd ${OpenXM_TOP}/bin ; wget ${WGET_PHC} ) ; \
+	fi
+	touch .copy-binary-phc-done
 
 copy-cygwin-dlls:
 	if [ ! -f .copy-cygwin-dlls-done ] ; then \
