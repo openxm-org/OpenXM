@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.83 2000/03/05 06:54:00 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.84 2000/03/06 04:30:39 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 OPENXM_CONTRIB2=../../OpenXM_contrib2
@@ -7,8 +7,25 @@ BINDIR=../bin
 RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
-all: configure all-asir all-gnuplot all-k097 all-kan96xx all-kxx \
-     all-pari all-phc all-openmath all-oxmath all-tigers
+all: configure all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
+     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers 
+
+all-gc: 
+	@if test ! -f gc/.gc_make_done ; \
+	then \
+		(cd gc ; make all) ; \
+	fi 
+	@touch gc/.gc_make_done
+
+all-gmp: configure-gmp
+	if test -f /usr/lib/libgmp.a ; \
+	then \
+	  echo "Using /usr/lib/libgmp.a" ; \
+	  /bin/rm -rf gmp/libgmp.a ; \
+	  ln -s /usr/lib/libgmp.a gmp/libgmp.a ; \
+	else \
+	 (if test ! -f .gmp_make_done ; then cd gmp ; make ; touch .gmp_make_done ; fi) ; \
+	fi
 
 all-asir: configure-asir
 	@if test -d $(OPENXM_CONTRIB2) ; then \
@@ -24,7 +41,7 @@ all-gnuplot: configure-gnuplot
 all-k097: configure-k097 all-kan96xx
 	(cd k097 ; make all)
 
-all-kan96xx: configure-kan96xx
+all-kan96xx: configure-kan96xx install-gc install-gmp
 	(cd kan96xx ; make all)
 
 all-kxx: configure-kxx all-kan96xx
@@ -64,6 +81,26 @@ install: install-asir install-gnuplot install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
 	 install-misc
+
+
+install-gc : all-gc
+	-@if test ! -f gc/.gc_installed ; \
+	then \
+		mkdir ../lib ; \
+		cp gc/gc.a ../lib/libgc.a ; \
+	fi 
+	@touch gc/.gc_installed
+
+
+install-gmp : all-gmp
+	-@if test ! -f gmp/.gmp_installed ; \
+	then \
+		mkdir ../lib ; \
+		cp gmp/libgmp.a ../lib ; \
+		mkdir ../include ; \
+		cp gmp/gmp.h ../include ; \
+	fi 
+	@touch gmp/.gmp_installed
 
 install-asir: all-asir
 	@if test -d $(OPENXM_CONTRIB2) ; then \
@@ -123,6 +160,10 @@ install-misc:
 	(cd ../rc ; make install.man)
 
 clean:
+	-rm $(OPENXM_CONTRIB)/gmp/.gmp_*
+	-rm $(OPENXM_CONTRIB)/gc/.gc_*
+	-(cd $(OPENXM_CONTRIB)/gmp ; make clean)
+	(cd $(OPENXM_CONTRIB)/gc ; make clean ; /bin/rm -f *.a)
 	(cd asir2000 ; make clean)
 	(cd gnuplot ; make clean)
 	(cd k097 ; make clean)
@@ -138,6 +179,8 @@ clean:
 
 distclean: clean
 	(cd $(BINDIR) ; make distclean)
+	-(cd $(OPENXM_CONTRIB)/gmp ; make distclean)
+	(cd $(OPENXM_CONTRIB)/gc ; make clean ; /bin/rm -f *.a)
 	(cd asir2000 ; make distclean)
 	(cd gnuplot ; make distclean)
 	(cd kan96xx ; make distclean)
@@ -153,7 +196,15 @@ distclean: clean
 configure: configure-links configure-bin configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
-	   configure-pari
+	   configure-pari configure-gmp
+
+configure-gmp: configure-links
+	@if test -f gmp/.gmp_configured ; \
+	then \
+	  echo "MESSAGE(kan96xx/Makefile): gmp is already configured. (.gmp_configured) " ;  \
+	else \
+	  (cd gmp ; ./configure ; touch .gmp_configured) ; \
+	fi 
 
 configure-asir:
 	@if test -d $(OPENXM_CONTRIB2) ; then \
