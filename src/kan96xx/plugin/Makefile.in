@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/kan96xx/plugin/Makefile.in,v 1.2 2003/09/11 00:52:06 takayama Exp $
+#$OpenXM: OpenXM/src/kan96xx/plugin/Makefile.in,v 1.3 2004/06/24 12:45:15 takayama Exp $
 #
 #  depends on install-gmp  
 #  The source directory of gmp must exist.
@@ -19,7 +19,7 @@ RANLIB=@RANLIB@
 #CFLAGS+=-g -I${OpenXM_include} -I${Kan96xx}/Kan -D_BSD_SOURCE
 CFLAGS=@CFLAGS@ -g -I${OpenXM_include} -I${Kan96xx}/Kan -D_BSD_SOURCE
 
-all: configure cmo.a file2.a ox.a sample.a sm1Socket.a
+all: configure cmo.a file2.a ox.a sample.a sm1Socket.a 
 configure: Makefile
 
 Makefile: Makefile.in
@@ -97,6 +97,18 @@ sm1Socket.a: sm1Socket.o
 	${RANLIB} sm1Socket.a
 
 sm1Socket.o: sm1Socket.h sm1Socket.hh sm1Socket.c
+
+oxxml.a: oxxml.o
+	${AR} ru oxxml.a oxxml.o
+	${RANLIB} oxxml.a
+
+oxxml.o: oxxml.h oxxml.hh oxxml.c
+
+oxcgi.a: oxcgi.o
+	${AR} ru oxcgi.a oxcgi.o
+	${RANLIB} oxcgi.a
+
+oxcgi.o: oxcgi.h oxcgi.hh oxcgi.c
 
 
 clean:
