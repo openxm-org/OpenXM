@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
 /* $Id$ */
 
 #ifndef _OX_H_
@@ -112,6 +112,14 @@ typedef struct {
 	cmo *num;  /* 分子 (cmo_zz) */
 	cmo *den;  /* 分母 (cmo_zz) */
 } cmo_qq;
+
+/* cmo_list の派生. append_cmo_list を使ってよい. */
+typedef struct {
+    int tag;
+    int length;  /* number of monomials */
+    cell *head;  /* a list of monomials */
+	cmo *ringdef;
+} cmo_distributed_polynomial;
 
 typedef cmo ox;
 

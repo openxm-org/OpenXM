@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
 /* $Id$ */
 
 /*
@@ -384,6 +384,16 @@ cmo_indeterminate* new_cmo_indeterminate(cmo* ob)
     return c;
 }
 
+cmo_distributed_polynomial* new_cmo_distributed_polynomial()
+{
+    cmo_distributed_polynomial* c = malloc(sizeof(cmo_distributed_polynomial));
+    c->tag     = CMO_DISTRIBUTED_POLYNOMIAL;
+    c->length  = 0;
+    c->head    = NULL;
+	c->ringdef = NULL;
+    return c;
+}
+
 cmo_error2* new_cmo_error2(cmo* ob)
 {
     cmo_error2* c = malloc(sizeof(cmo_error2));
@@ -493,6 +503,7 @@ int print_cmo_string(cmo_string* c)
 }
 
 /* ox_start() から呼び出す */
+/* OneTimePassword の処理 */
 static int read_password(int fd, char* passwd)
 {
     char buff[1024];
@@ -579,12 +590,10 @@ ox_file_t ox_start(char* host, char* prog1, char* prog2)
     }
 
     sv->control = mysocketAccept(sv->control);
-    read_password(sv->control, pass);
-    decideByteOrder(sv->control, sv->control, 0);
+    decideByteOrderWithReadPasswd(sv->control, sv->control, 0, pass);
     usleep(10);
     sv->stream  = mysocketAccept(sv->stream);
-    read_password(sv->stream, pass);
-    decideByteOrder(sv->stream, sv->stream, 0);
+    decideByteOrderWithReadPasswd(sv->control, sv->control, 0, pass);
 
     return sv;
 }
@@ -655,6 +664,11 @@ static int cmolen_cmo_zz(cmo_zz* c)
     return sizeof(len) + len*sizeof(int);
 }
 
+static int cmolen_cmo_distributed_polynomial(cmo_distributed_polynomial* c)
+{
+	return cmolen_cmo_list((cmo_list *)c) + cmolen_cmo(c->ringdef);
+}
+
 /* CMO がバイトエンコードされた場合のバイト列の長さを求める */
 int cmolen_cmo(cmo* c)
 {
@@ -686,6 +700,9 @@ int cmolen_cmo(cmo* c)
     case CMO_ZZ:
         size += cmolen_cmo_zz((cmo_zz *)c);
         break;
+	case CMO_DISTRIBUTED_POLYNOMIAL:
+		size += cmolen_cmo_distributed_polynomial((cmo_distributed_polynomial *)c);
+		break;
     default:
     }
     return size;
@@ -744,6 +761,19 @@ static char* dump_cmo_zz(char* array, cmo_zz* c)
     return dump_mpz(array, c->mpz);
 }
 
+static char* dump_cmo_distributed_polynomial(char* array, cmo_distributed_polynomial* m)
+{
+    cell* cp = m->head;
+    int len = length_cmo_list(m);
+    array = dump_integer(array, len);
+	array = dump_cmo(array, m->ringdef);
+    while(cp != NULL) {
+        array = dump_cmo(array, cp->cmo);
+        cp = cp->next;
+    }
+    return array;
+}
+
 /* タグを書き出してから、各関数を呼び出す */
 char* dump_cmo(char* array, cmo* m)
 {
@@ -767,6 +797,8 @@ char* dump_cmo(char* array, cmo* m)
         return dump_cmo_monomial32(array, (cmo_monomial32 *)m);
     case CMO_ZZ:
         return dump_cmo_zz(array, (cmo_zz *)m);
+    case CMO_DISTRIBUTED_POLYNOMIAL:
+        return dump_cmo_distributed_polynomial(array, (cmo_distributed_polynomial *)m);
     default:
         return NULL;
     }
@@ -1028,25 +1060,38 @@ cmo* receive_cmo2(int fd)
         return foo(fd);
     }
 }
-#endif 
+#endif
+
+/* ファイルディスクリプタ fd の通信路での integer の byte order を決定する */
+/* 実際には order (0,1,or 0xFF)をみてはいない */
+int decideByteOrderWithReadPasswd(int fd_read, int fd_write, int order, char* passwd)
+{
+    char zero = OX_BYTE_NETWORK_BYTE_ORDER;
+    char dest;
+	read_password(fd_read, passwd);
+    write(fd_write, &zero, sizeof(char));
+    read(fd_read, &dest, sizeof(char));
+    return 0;
+}
+
 /* ファイルディスクリプタ fd の通信路での integer の byte order を決定する */
 /* 実際には order (0,1,or 0xFF)をみてはいない */
 int decideByteOrder(int fd_read, int fd_write, int order)
 {
-    char zero = '\0';
+    char zero = OX_BYTE_NETWORK_BYTE_ORDER;
     char dest;
-    write(fd_write, &zero, 1);
-    read(fd_read, &dest, 1);
+    write(fd_write, &zero, sizeof(char));
+    read(fd_read, &dest, sizeof(char));
     return 0;
 }
 
 /* Server 側ではこちらを用いる */
 int decideByteOrder2(int fd_read, int fd_write, int order)
 {
-    char zero = '\0';
+    char zero = OX_BYTE_NETWORK_BYTE_ORDER;
     char dest;
-    read(fd_read, &dest, 1);
-    write(fd_write, &zero, 1);
+    read(fd_read, &dest, sizeof(char));
+    write(fd_write, &zero, sizeof(char));
     return 0;
 }
 

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
 /* $Id$ */
 /* OX expression, CMO expression パーサ */
 
@@ -66,17 +66,17 @@ static ox* parse_ox();
 static ox* parse_ox_command();
 static ox* parse_ox_data();
 
-static int is_t_cmo(int token)
+static int is_token_cmo(int token)
 {
     return (token >= MIN_T_CMO && token < MAX_T_CMO) || token == TOKEN(CMO_ERROR2);
 }
 
-static int is_t_sm(int token)
+static int is_token_sm(int token)
 {
     return token >= MIN_T_SM && token < MAX_T_SM;
 }
 
-static int is_t_ox(int token)
+static int is_token_ox(int token)
 {
     return token >= MIN_T_OX && token < MAX_T_OX;
 }
@@ -86,7 +86,7 @@ static jmp_buf env_parse;
 /* 構文解析に失敗したことを意味する. */
 static int parse_error(char *s)
 {
-	fprintf(stderr, "%s\n", s);
+	fprintf(stderr, "syntax error: %s\n", s);
 	longjmp(env_parse, 1);
 }
 
@@ -105,12 +105,12 @@ cmo *parse()
 
     if (token == '(') {
         token = lex();
-        if (is_t_cmo(token)) {
+        if (is_token_cmo(token)) {
             m = parse_cmo();
-        }else if(is_t_ox(token)) {
+        }else if(is_token_ox(token)) {
             m = parse_ox();
         }else {
-            parse_error("syntax error: unknown symbol.");
+            parse_error("invalid symbol.");
         }
         parse_lf();
         return m;
@@ -122,7 +122,7 @@ cmo *parse()
 static int parse_lf()
 {
     if (token != '\n') {
-        parse_error("syntax error: not new line.");
+        parse_error("no new line.");
     }
     return 0;
 }
@@ -142,7 +142,7 @@ static ox* parse_ox()
         m = parse_ox_data();
         break;
     default:
-        parse_error("syntax error: invalid ox_tag.");
+        parse_error("invalid ox.");
     }
     return m;
 }
@@ -161,8 +161,8 @@ static ox* parse_ox_data()
 static int parse_sm()
 {
     int sm_code;
-    if (!is_t_sm(token)) {
-        parse_error("syntax error: invalid sm code.");
+    if (!is_token_sm(token)) {
+        parse_error("invalid SM opecode.");
     }
     sm_code = token - T_MAGIC;
     token = lex();
@@ -227,12 +227,16 @@ static cmo *parse_cmo()
         token = lex();
         m = parse_cmo_ring_by_name();
         break;
+    case TOKEN(CMO_DISTRIBUTED_POLYNOMIAL):
+        token = lex();
+        m = parse_cmo_distributed_polynomial();
+        break;
     case TOKEN(CMO_ERROR2):
         token = lex();
         m = parse_cmo_error2();
         break;
     default:
-        parse_error("syntax error: invalid cmo_tag.");
+        parse_error("invalid cmo.");
     }
     return m;
 }
@@ -240,7 +244,7 @@ static cmo *parse_cmo()
 static int parse_left_parenthesis()
 {
     if (token != '(') {
-        parse_error("syntax error: no left parenthesis.");
+        parse_error("no left parenthesis.");
     }
     token = lex();
 }
@@ -248,7 +252,7 @@ static int parse_left_parenthesis()
 static int parse_right_parenthesis()
 {
     if (token != ')') {
-        parse_error("syntax error: no right parenthesis.");
+        parse_error("no right parenthesis.");
     }
     token = lex();
 }
@@ -256,7 +260,7 @@ static int parse_right_parenthesis()
 static int parse_comma()
 {
     if (token != ',') {
-        parse_error("syntax error: no comma.");
+        parse_error("no comma.");
     }
     token = lex();
 }
@@ -265,7 +269,7 @@ static int parse_integer()
 {
     int val;
     if (token != T_INTEGER) {
-        parse_error("syntax error: no integer.");
+        parse_error("no integer.");
     }
     val = yylval.d;
     token = lex();
@@ -276,7 +280,7 @@ static char *parse_string()
 {
     char *s;
     if (token != T_STRING) {
-        parse_error("syntax error: no string.");
+        parse_error("no string.");
     }
     s = yylval.sym;
     token = lex();
@@ -309,7 +313,7 @@ static cmo *parse_cmo_string()
         parse_integer();
         parse_comma();
     }else if (!pflag_cmo_addrev) {
-        parse_error("syntax error: not a cmo string.");
+        parse_error("invalid cmo string.");
     }
 	s = parse_string();
     m = new_cmo_string(s);
@@ -342,7 +346,7 @@ static cmo *parse_cmo_list()
 			parse_integer();
 			parse_comma();
 		}else if (!pflag_cmo_addrev) {
-			parse_error("syntax error: not a list.");
+			parse_error("invalid cmo_list.");
 		}
 
 		while(token == '(') {
@@ -355,7 +359,7 @@ static cmo *parse_cmo_list()
 			parse_comma();
 		}
 	}else if (!pflag_cmo_addrev) {
-		parse_error("syntax error: not a list.");
+		parse_error("invalid cmo_list.");
 	}
     parse_right_parenthesis();
     return (cmo *)m;
@@ -367,11 +371,12 @@ static cmo *parse_cmo_monomial32()
 	int *exps;
 	int i;
 	cmo_monomial32 *m;
+	int tag;
 
 	parse_comma();
 	size = parse_integer();
-	if (size <= 0) {
-		parse_error("syntax error: invalid value.");
+	if (size < 0) {
+		parse_error("invalid value.");
 	}
 	m = new_cmo_monomial32_size(size);
 
@@ -382,7 +387,12 @@ static cmo *parse_cmo_monomial32()
 	parse_comma();
 	parse_left_parenthesis();
 	m->coef = parse_cmo(); 
-    /* 意味的チェックの必要あり */
+	tag = m->coef->tag;
+
+    /* m->coef は CMO_ZZ 型か CMO_INT32 型でなければならない */
+	if (tag != CMO_ZZ && tag != CMO_INT32) {
+		parse_error("invalid cmo.");
+	}
     parse_right_parenthesis();
     return (cmo *)m;
 }
@@ -407,7 +417,7 @@ static cmo *parse_cmo_zz()
     }else if (pflag_cmo_addrev) {
         m = new_cmo_zz_set_si(length);
     }else {
-        parse_error("syntax error: invalid symbol.");
+        parse_error("no comma.");
     }
 
     parse_right_parenthesis();
@@ -433,10 +443,63 @@ static cmo *parse_cmo_ring_by_name()
     parse_comma();
 	parse_left_parenthesis();
 	ob = parse_cmo();  	
-    /* 意味的チェックが必要(ob->tag == CMO_STRINGでなければいけない) */
+
+    /* ob は CMO_STRING 型でなければならない */
+	if (ob->tag != CMO_STRING) {
+		parse_error("invalid cmo.");
+	}
     parse_right_parenthesis();
     return (cmo *)new_cmo_ring_by_name(ob);
 }
+
+static cmo *parse_cmo_distributed_polynomial()
+{
+    int length=0;
+    int i=0;
+    cmo_distributed_polynomial *m = new_cmo_distributed_polynomial();
+    cmo *ob;
+	int tag;
+
+	if (token == ',') {
+		parse_comma();
+
+		if (token == T_INTEGER) {
+			parse_integer();
+			parse_comma();
+		}else if (!pflag_cmo_addrev) {
+			parse_error("invalid d-polynomial.");
+		}
+
+		parse_left_parenthesis();
+		m->ringdef = parse_cmo();
+		tag = m->ringdef->tag;
+		/* m->ringdef は DringDefinition でなければならない */
+		if (tag != CMO_RING_BY_NAME && tag != CMO_DMS_GENERIC 
+			&& tag != CMO_DMS_OF_N_VARIABLES) {
+			parse_error("invalid cmo.");
+		}
+
+		parse_comma();
+
+		while(token == '(') {
+			parse_left_parenthesis();
+			ob = parse_cmo();
+			if (ob->tag != CMO_MONOMIAL32 && ob->tag != CMO_ZERO) {
+				parse_error("invalid cmo.");
+			}
+			append_cmo_list(m, ob);
+			if (token != ',') {
+				break;
+			}
+			parse_comma();
+		}
+	}else if (!pflag_cmo_addrev) {
+		parse_error("invalid d-polynomial.");
+	}
+    parse_right_parenthesis();
+    return (cmo *)m;
+}
+
 
 static cmo *parse_cmo_error2()
 {
@@ -515,22 +578,24 @@ typedef struct {
 	int  token;
 } symbol; 
 
+#define MK_KEY_CMO(x)  { #x  , TOKEN(x) }
 #define MK_KEY(x)  { #x  , TOKEN(x) }
 
 static symbol symbol_list[] = {
-	MK_KEY(CMO_NULL),
-    MK_KEY(CMO_INT32), 
-	MK_KEY(CMO_DATUM),
-	MK_KEY(CMO_STRING), 
-	MK_KEY(CMO_MATHCAP),
-	MK_KEY(CMO_LIST), 
-	MK_KEY(CMO_MONOMIAL32),
-	MK_KEY(CMO_ZZ),
-	MK_KEY(CMO_ZERO), 
-	MK_KEY(CMO_DMS_GENERIC),
-	MK_KEY(CMO_RING_BY_NAME),
-	MK_KEY(CMO_INDETERMINATE),
-	MK_KEY(CMO_ERROR2),
+	MK_KEY_CMO(CMO_NULL),
+    MK_KEY_CMO(CMO_INT32), 
+	MK_KEY_CMO(CMO_DATUM),
+	MK_KEY_CMO(CMO_STRING), 
+	MK_KEY_CMO(CMO_MATHCAP),
+	MK_KEY_CMO(CMO_LIST), 
+	MK_KEY_CMO(CMO_MONOMIAL32),
+	MK_KEY_CMO(CMO_ZZ),
+	MK_KEY_CMO(CMO_ZERO), 
+	MK_KEY_CMO(CMO_DMS_GENERIC),
+	MK_KEY_CMO(CMO_RING_BY_NAME),
+	MK_KEY_CMO(CMO_INDETERMINATE),
+	MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
+	MK_KEY_CMO(CMO_ERROR2),
     MK_KEY(SM_popCMO),   
 	MK_KEY(SM_popString), 
 	MK_KEY(SM_mathcap),  
