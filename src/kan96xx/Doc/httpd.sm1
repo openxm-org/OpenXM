@@ -1,9 +1,20 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.10 2002/10/23 13:38:50 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.11 2002/10/29 07:29:23 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
   [(getenv) (OpenXM_PSTOIMG_TYPE)] extension
 def
+
+[(getenv) (OXWEB_DEBUG)] extension tag 0 eq {
+   /httpd.debug 0 def
+} {  
+   /httpd.debug 1 def
+} ifelse
+[(getenv) (OXWEB_TAKE_LOG)] extension tag 0 eq {
+   /httpd.take.log  0 def
+} {  
+   /httpd.take.log 1 def
+} ifelse
 
 
 /httpd_startserver {
@@ -27,7 +38,7 @@ def
 
 /sendln {
  /arg1 set
- [/in-sendln /mmm] pushVariables
+ [/in-sendln /mmm /i] pushVariables
  [ arg1 /mmm set
   mmm tag 5 eq {
     [mmm 10 (string) dc] cat /mmm set
@@ -37,7 +48,8 @@ def
   [(sm1.socket) (select) [httpd.server.fd 0 get 0]] extension {
     (Warning (sendln): your peer closed the connection. Do not send the data.) message
   } {
-    [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension message
+    [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension /i set
+     httpd.debug { i message } { } ifelse
   } ifelse
  ] pop
  popVariables
@@ -74,6 +86,7 @@ def
     httpd_startserver ;
     httpd_action ;
     httpd_stopserver ;
+    httpd.take.log { (date) system  } { } ifelse
 %    (sleep 2) system 
     httpd.serial 1 add /httpd.serial set
   } loop    
@@ -288,7 +301,7 @@ def
         ss i (,) put
       } {  } ifelse
     } for
-    ss message
+    httpd.debug { ss message } {  } ifelse
     [ ss to_records pop] /arg1 set
   ] pop
   popVariables
@@ -368,12 +381,12 @@ def
          ] reverse /tname set 
          (GET /?) (array) dc tname join /tname set
 
-         httpd.textarea.name.aaa message
+         httpd.debug { httpd.textarea.name.aaa message } {  } ifelse
          tname httpd.textarea.name.aaa eq {
            /httpd.textarea.valid 1 def
          } {
            /httpd.textarea.valid 0 def
-           tname message
+           tname message 
            httpd.textarea.name.aaa { (string) dc } map cat message
            (Warning: got an invalid name for the text field.) message
          } ifelse

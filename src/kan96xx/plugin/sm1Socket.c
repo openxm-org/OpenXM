@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.12 2002/10/24 01:29:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.13 2002/10/24 02:12:35 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -14,6 +14,7 @@
 #include "sm1Socket.h"
 
 extern int Quiet;
+static int Post_debug=0;
 static void errorMsg1s(char *s);
 static int getContentLength(char *s);
 static int getReceivedContentLength(char *s);
@@ -30,6 +31,11 @@ struct object KsocketOpen(struct object obj) {
   int on;
   int tt;
   extern int errno;
+  extern int Post_debug;
+
+  if ((char *)getenv("OXWEB_DEBUG") != NULL) {
+	Post_debug = 1;
+  }
 
   if (obj.tag != Sarray) {
     errorMsg1s("KsocketOpen([optional integer,optional string name])");
@@ -582,6 +588,7 @@ struct object KsocketReadHTTP(struct object socketObj) {
   int last;
   int contentLength=-1;
   int socketid;
+  extern int Post_debug;
   nob = NullObject;
 
   if (socketObj.tag != Sarray) {
@@ -630,22 +637,26 @@ struct object KsocketReadHTTP(struct object socketObj) {
 		break;
 	  }
 	}
-	fprintf(stderr,"Waiting in socketReadBlock. flagmax(0d,0a)=%d, content-length=%d, received content-length=%d\n",flagmax,contentLength,getReceivedContentLength(sss));
+	if (Post_debug) {
+	  fprintf(stderr,"Waiting in socketReadBlock. flagmax(0d,0a)=%d, content-length=%d, received content-length=%d\n",flagmax,contentLength,getReceivedContentLength(sss));
+	}
 	if (strlen(s) == 0) {
 	  fprintf(stderr,"No data. Perhaps connection is closed by foreign host.\n");
 	  return nob;
 	}else{
 	  /* for debugging. */
-	  for (i=0; i<strlen(sss); i++) {
-		if ((sss[i] >= ' ') && (sss[i] < 0x7f)) {
-		  fprintf(stderr,"%c",sss[i]);
-		}else{
-          fprintf(stderr,"(%3x)",sss[i]);
-		  if (sss[i] == 0xa) fprintf(stderr,"\n");
-		}
+	  if (Post_debug) {
+		for (i=0; i<strlen(sss); i++) {
+		  if ((sss[i] >= ' ') && (sss[i] < 0x7f)) {
+			fprintf(stderr,"%c",sss[i]);
+		  }else{
+			fprintf(stderr,"(%3x)",sss[i]);
+			if (sss[i] == 0xa) fprintf(stderr,"\n");
+		  }
 
+		}
+		fprintf(stderr,"\n");
 	  }
-	  fprintf(stderr,"\n");
 	}
 
     if (KsocketSelect0(socketid,-1) != 1) {
