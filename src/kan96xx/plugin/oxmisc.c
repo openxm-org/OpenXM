@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.4 1999/11/27 01:41:11 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.5 2000/03/20 01:53:47 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -925,18 +925,18 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
     return(NULL);
   }
 
-  /* Authentification by password. */
+  /* Authentication by password. */
   m = strlen(pass);
   s = (char *)mymalloc(sizeof(char)*(m+1));
   read(fdControl,s,m+1); s[m] = '\0';
   if (strcmp(s,pass) != 0) {
-    fprintf(stderr,"oxCreateClient2(): password authentification failed for control channel.\n");
+    fprintf(stderr,"oxCreateClient2(): password authentication failed for control channel.\n");
     close(fdControl);
     return(NULL);
   }
   read(fdStream,s,m+1); s[m] = '\0';
   if (strcmp(s,pass) != 0) {
-    fprintf(stderr,"oxCreateClient2(): password authentification failed for data channel.\n");
+    fprintf(stderr,"oxCreateClient2(): password authentication failed for data channel.\n");
     close(fdStream);
     return(NULL);
   }

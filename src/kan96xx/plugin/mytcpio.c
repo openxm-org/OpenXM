@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.2 1999/10/30 02:22:16 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.3 2000/03/20 01:53:47 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -121,9 +121,9 @@ socketAcceptLocal(int snum) {
   printf("\n");
   if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
       peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
-    fprintf(stderr,"Authentification: localhost is allowed to be accepted.\n");
+    fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
   }else{
-    errorMsg1s("Authentification: The connection is not from the localhost.");
+    errorMsg1s("Authentication: The connection is not from the localhost.");
     close(s);
     fprintf(stderr,"The connection is refused.");
     return(-1);
