@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.11 2003/06/02 10:25:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.12 2003/06/03 16:06:48 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -120,7 +120,7 @@ void resize_mpz(mpz_ptr mpz, int size)
 /* functions named new_cmo_*. */
 cmo_null* new_cmo_null()
 {
-    cmo_null* m = MALLOC(sizeof(cmo_null));
+    cmo_null* m = MALLOC_ATOMIC(sizeof(cmo_null));
     m->tag = CMO_NULL;
     return m;
 }
@@ -128,8 +128,8 @@ cmo_null* new_cmo_null()
 cmo_int32* new_cmo_int32(int i)
 {
     cmo_int32* c;
-    c = MALLOC(sizeof(cmo_int32));
-    c->tag     = CMO_INT32;
+    c = MALLOC_ATOMIC(sizeof(cmo_int32));
+    c->tag = CMO_INT32;
     c->i = i;
     return c;
 }
@@ -139,7 +139,7 @@ cmo_string* new_cmo_string(char* s)
     cmo_string* c = MALLOC(sizeof(cmo_string));
     c->tag = CMO_STRING;
     if (s != NULL) {
-        c->s = MALLOC(strlen(s)+1);
+        c->s = MALLOC_ATOMIC(strlen(s)+1);
         strcpy(c->s, s);
     }else {
         c->s = NULL;
@@ -227,14 +227,14 @@ cmo_zz* new_cmo_zz_size(int size)
 
 cmo_zero* new_cmo_zero()
 {
-    cmo_zero* m = MALLOC(sizeof(cmo_zero));
+    cmo_zero* m = MALLOC_ATOMIC(sizeof(cmo_zero));
     m->tag = CMO_ZERO;
     return m;
 }
 
 cmo_double *new_cmo_double(double d)
 {
-    cmo_double* m = MALLOC(sizeof(cmo_double));
+    cmo_double* m = MALLOC_ATOMIC(sizeof(cmo_double));
     m->tag = CMO_64BIT_MACHINE_DOUBLE;
     m->d = d;
     return m;
@@ -242,7 +242,7 @@ cmo_double *new_cmo_double(double d)
 
 cmo_dms_generic* new_cmo_dms_generic()
 {
-    cmo_dms_generic* m = MALLOC(sizeof(cmo_dms_generic));
+    cmo_dms_generic* m = MALLOC_ATOMIC(sizeof(cmo_dms_generic));
     m->tag = CMO_DMS_GENERIC;
     return m;
 }
@@ -337,8 +337,8 @@ static char *new_string_set_cmo_double(cmo_double *m)
     char buff[1024];
     char *s;
 
-    sprintf(buff, "%lf", m->d);
-    s = MALLOC(strlen(buff)+1);
+    sprintf(buff, "%.20f", m->d);
+    s = MALLOC_ATOMIC(strlen(buff)+1);
     strcpy(s, buff);
 
     return s;

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.21 2003/06/02 20:38:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.22 2003/06/03 16:06:48 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -21,6 +21,7 @@ extern "C" {
 #include <gc/gc.h>
 
 #define MALLOC(x) GC_MALLOC((x))
+#define MALLOC_ATOMIC(x) GC_MALLOC_ATOMIC((x))
 #define ALLOCA(x) alloca((x))
 /* #define FREE(x)   free((x)) */
 #define FREE(x)   

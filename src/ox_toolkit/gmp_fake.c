@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/gmp_fake.c,v 1.1 2003/03/30 08:10:57 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,9 @@
 
 #define DEFAULT_LIMB_SIZE 1
 #define MALLOC(x) malloc((x))
-#define FREE(x)   free((x))
+#define MALLOC_ATOMIC(x) malloc((x))
+#define REALLOC(p,x) realloc((p),(x))
+#define ALLOCA(x) alloca((x))
 
 #if !defined(CHAR_BIT)
 #define CHAR_BIT 8
@@ -36,15 +38,17 @@ inline static void __mpz_clear(mpz_ptr z)
 
 void *_mpz_realloc(mpz_ptr z, size_t n)
 {
-    FREE(z->_mp_d);
-    z->_mp_size = n;
-    return z->_mp_d = MALLOC(n*sizeof(mp_limb_t));  
+    mp_limb_t *p = REALLOC(z->_mp_d, n*sizeof(mp_limb_t));
+    if (p != NULL) {
+        z->_mp_d = p;
+    }
+    return p;
 }
 
 void mpz_init(mpz_ptr z)
 {
     z->_mp_size = DEFAULT_LIMB_SIZE;
-    z->_mp_d    = MALLOC(DEFAULT_LIMB_SIZE);
+    z->_mp_d    = MALLOC_ATOMIC(DEFAULT_LIMB_SIZE);
     __mpz_clear(z);
 }
 
@@ -109,7 +113,7 @@ char *mpz_get_str(char *s, int base, mpz_ptr src)
     len = ((CHAR_BIT)*sizeof(mp_limb_t)*abs(src->_mp_size))/((base==16)? 4: 3)+4;
     mpz_init(z);
     mpz_set(z, src);
-    t = MALLOC(len+1);
+    t = ALLOCA(len+1);
     t[len] = '\0';
     for(i=len-1; i>=0; i--) {
         res = 0;
@@ -135,10 +139,9 @@ char *mpz_get_str(char *s, int base, mpz_ptr src)
     }
     len = strlen(t+i)+1;
     if (s == NULL) {
-        s = MALLOC(len);
+        s = MALLOC_ATOMIC(len);
     }
     memcpy(s, t+i, len);
-    FREE(t);
     return s;
 }
 
