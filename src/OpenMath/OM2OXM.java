@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.8 1999/11/15 23:13:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.9 1999/11/16 13:16:22 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -141,17 +141,21 @@ final class OM2OXM implements Runnable{
     case CMO.CMO_INDETERMINATE:
       return "<OMV name=\""+ ((CMO_INDETERMINATE)cmo).getString() +"\"/>";
 
-      /*
-	case CMO.CMO_TREE:
-	return "<OMA><OMS name=\""+ ((CMO_TREE)cmo).getName() +"\" cdname=\""+
-	((CMO_TREE)cmo).getCDName() +"\"/>" + "</OMA>";
-	*/
+    case CMO.CMO_TREE:
+      ret += "<OMA><OMS name=\""+ ((CMO_TREE)cmo).getName() +"\" cdname=\""+
+	((CMO_TREE)cmo).getCDName() +"\"/>";
+      for(int i=0;i<((CMO_TREE)cmo).getLeaves().getElement().length;i++){
+	ret += CMO2OM_sub(((CMO_TREE)cmo).getLeaves().getElement()[i]);
+      }
+      ret += "</OMA>";
+      return ret;
 
     default:
       //return "<OMSTR>"+ cmo.toCMOexpression() +"</OMSTR>";
     }
 
-    throw new NumberFormatException(""+ cmo.toCMOexpression());
+    throw new NumberFormatException("unknown convert way:"+
+				    cmo.toCMOexpression());
   }
 
   private boolean isSpace(int ch){ // use from lex
