@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.25 2002/01/22 06:18:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.26 2002/07/15 02:14:10 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
 Taka_print_dp_vlist_vname="x"$
 Taka_print_warning=0$
+Taka_print_tex_table=[]$
 
 def taka_print_dp_vlist(N) {
   extern Taka_print_dp_vlist_vname;
@@ -13,6 +14,18 @@ def taka_print_dp_vlist(N) {
   /* Used in taka_tex_form_dpolynomial
      and taka_dp_print  */
 
+def taka_tex_form_top(S,Argv) {
+  extern Taka_print_tex_table;
+  Taka_print_tex_table = [];
+  for (I=0; I<length(Argv); I++) {
+    if (Argv[I][0] == "table") {
+      Taka_print_tex_table = Argv[I][1];
+    }else{
+      error("Unknown option "+rtostr(Argv[I][0])+" in print_tex_form.");
+    }
+  }
+  return taka_tex_form(S);
+}
 def taka_tex_form(S) {
   if (type(S) == MATRIX) {
      return taka_tex_form_matrix(S);
@@ -475,6 +488,16 @@ def taka_tex_symbol(S) {
 def taka_tex_symbol_(S) {
   extern Tex_symbol_table;
   extern Tex_symbol_table;
+  extern Taka_print_tex_table;
+   
+  N = length(Taka_print_tex_table);
+  /* Linear search for now*/
+  for (I=0; I<N; I++) {
+    if (S == Taka_print_tex_table[I][0]) {
+       return Taka_print_tex_table[I][1];
+    }
+  }
+
   N = size(Tex_symbol_table)[0];
   /* Linear search for now*/
   for (I=0; I<N; I++) {
@@ -638,9 +661,30 @@ def taka_jpeg_form(S) {
   return [File0+".jpeg",F[1],F[2],F[3]];
 }
 
-def taka_xv_form(S) {
-  F = taka_gif_form(S);
-  shell(" xv "+F[1]+".gif &");
+def taka_xv_form(S,Argv) {
+  Format = "gif";
+  Input = 0;
+  for (I=0; I<length(Argv); I++) {
+    if (Argv[I][0] == "format") {
+      Format = Argv[I][1];
+    }else if (Argv[I][0] == "input") {
+      Input = Artv[I][1];
+    }else {
+      error("Unknown option "+rtostr(Argv[I][0])+" in print_xv_form.");
+    }
+  } 
+  if (Input != 0) {
+    shell(" xv "+Input+" &");
+    return Input;
+  }
+  if (Format == "gif") {
+    F = taka_gif_form(S);
+  }else if (Format == "png") {
+    F = taka_png_form(S);
+  }else {  
+    error("Unknown format " + rtostr(Format) + " in print_xv_form.");
+  }
+  shell(" xv "+F[1]+"."+Format+" &");
   return F;
 }
 

@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.49 2002/08/11 08:39:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.50 2002/08/13 08:26:49 noro Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
-print("OpenXM/Risa/Asir-Contrib(20020808), Copyright 2000-2002, OpenXM.org")$
+print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
 print("help(\"keyword\"); ox_help(0); ox_help(\"keyword\"); ox_grep(\"keyword\");")$
 print("     for help messages (unix version only). ")$
 
@@ -578,18 +578,29 @@ def print_terminal_form(F) {
   return taka_terminal_form(F);
 }
 
-/*&usage begin: print_tex_form(S)
+/*&usage begin: print_tex_form(S|table)
  It transforms {S} to a string of the LaTeX format.
+ description:
+ The global variable Print_tex_form_fraction_format
+ takes the values "auto", "frac",  or "/".
+ The global variable Print_tex_form_no_automatic_subscript
+ takes the values 0 or 1.
+ example: print_tex_form(x*dx+1 | table=[["dx","\\partial_x"]]);
+ example_description:
+ The optional variable table is used to give a translation
+ table of asir symbols and tex symbols.
  ref: print_xdvi_form
 end: */
 def print_tex_form(F) {  
+  Argv = getopt();
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
-  return taka_tex_form(F);
+  return taka_tex_form_top(F,Argv);
 }
 
 /*&usage begin: print_xdvi_form(S)
  It transforms {S} to a xdvi file and previews the file by xdvi.
  example: print_xdvi_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
+ example: print_xdvi_form(print_tex_form(1/2));
  ref: print_tex_form, print_dvi_form
 end: */
 def print_xdvi_form(F) { 
@@ -597,14 +608,18 @@ def print_xdvi_form(F) {
   return(taka_xdvi_form(F));
 }
 
-/*&usage begin: print_xv_form(S)
+/*&usage begin: print_xv_form(S|input,format)
  It transforms {S} to a gif file and previews the file by xv.
  example: print_xv_form(newmat(2,2,[[x^2,x],[y^2-1,x/(x-1)]]));
+ example: print_xv_form(x+y | format="png");
+ example_description: If the optional variable format="png" is set,
+  png format will be used to generate an input for xv.
  ref: print_tex_form, print_gif_form
 end: */
 def print_xv_form(F) { 
+  Argv = getopt();
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
-  return(taka_xv_form(F));
+  return(taka_xv_form(F,Argv));
 }
 
 
