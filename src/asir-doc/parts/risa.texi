@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.12 2003/10/19 04:57:00 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.13 2005/03/24 23:40:50 takayama Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -604,6 +604,7 @@ Note that the setting takes effect after rebooting the machine on Windows
 などがおかれるディレクトリ. 指定がない場合 UNIX 版では 
 @samp{/usr/local/lib/asir}, Windows 版では Asir メインディレクトリの下の 
 @samp{lib} ディレクトリが用いられる. 
+この環境変数は @code{ASIRLOADPATH} に統合され廃止される予定.
 \E
 \BEG
 The library directory of @b{Asir}, i.e., the directory where
@@ -612,6 +613,7 @@ If not specified, on UNIX, @samp{/usr/local/lib/asir} is used by default.
 On Windows, @samp{lib} in @b{Asir root directory} is used by default.
 This environment will be useful in a case where @b{Asir} binaries
 are installed on a private directory of the user.
+This environmental variable will become obsolete. 
 \E
 @item
 @code{ASIR_CONTRIB_DIR}
@@ -623,6 +625,8 @@ are installed on a private directory of the user.
 @samp{/usr/local/lib/asir-contrib}, 
 Windows 版では Asir メインディレクトリの下の @samp{lib-asir-contrib} 
 ディレクトリが用いられる. 
+この環境変数は @code{ASIRLOADPATH} に統合され廃止される予定.
+This environmental variable will become obsolete. 
 \E
 \BEG
 The asir-contrib library directory of @b{Asir}, i.e., the directory where
