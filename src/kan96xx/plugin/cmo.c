@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.5 2000/01/25 05:07:11 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.6 2000/02/02 03:30:48 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -692,9 +692,9 @@ void cmoObjectToCmo00(struct object ob)
       /* cmoObjectToCmo00(KopIndeterminate(ob)); Old code. */
       /* If you need to translate the name, do it here. */
       if (CmoClientMode) {
-	ob = KopIndeterminate(ob);
+        ob = KopIndeterminate(ob);
       }else{
-	ob = cmoTranslateVariable_outGoing(KopIndeterminate(ob));
+        ob = cmoTranslateVariable_outGoing(KopIndeterminate(ob));
       }
       cmoObjectToCmo00(ob);
       break;
@@ -707,13 +707,17 @@ void cmoObjectToCmo00(struct object ob)
       vlist = getoa(ob,0);
       vlist0 = newObjectArray(getoaSize(vlist));
       for (i=0; i<getoaSize(vlist); i++) {
-	if (CmoClientMode) {
-	  putoa(vlist0,i,
-		KpoIndeterminate(getoa(vlist,i)));
-	}else{
-	  putoa(vlist0,i,
-		KpoIndeterminate(cmoTranslateVariable_outGoing(getoa(vlist,i))));
-	}
+		if (getoa(vlist,i).tag == Sdollar) {
+		  if (CmoClientMode) {
+			putoa(vlist0,i,
+				  KpoIndeterminate(getoa(vlist,i)));
+		  }else{
+			putoa(vlist0,i,
+				  KpoIndeterminate(cmoTranslateVariable_outGoing(getoa(vlist,i))));
+		  }
+		}else{
+		  putoa(vlist0,i,getoa(vlist,i));
+		}
       }
       cmoObjectToCmo00(vlist0); /* output the list of variables. */
       cmoObjectToCmo00(getoa(ob,1)); /* output the body of the recursive poly
@@ -956,8 +960,10 @@ struct object cmoCmoToObject00(struct cmoBuffer *cb)
     for (i=0; i<getoaSize(vlist0); i++) {
       ob1 = getoa(vlist0,i);
       if (ectag(ob1) == CLASSNAME_indeterminate) {
-	ob1 = KopIndeterminate(ob1);
-      }
+        ob1 = KopIndeterminate(ob1);
+      }else if (ectag(ob1) == CLASSNAME_tree) {
+        /* do nothing. */
+	  }
       putoa(vlist,i,ob1);
     }
     /* vlist is a list of variables by strings. */
