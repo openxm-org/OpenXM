@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.14 2004/03/04 12:29:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.15 2004/03/09 02:53:05 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -346,7 +346,7 @@ static void printCopyright(char *s) {
   printf("%s",DATA_BEGIN_V);
   if (! NoCopyright) {
     printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
-    printf(" under the BSD licence.  !asir; !sm1; !k0; !verbatim;\n");
+    printf(" under the BSD license.  !asir; !sm1; !k0; !verbatim;\n");
     printf("Type in      !reset;     when the engine gets confused. ");
     printf("%s",s);
   }
