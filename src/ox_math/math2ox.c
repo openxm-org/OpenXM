@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.14 2000/03/10 12:38:46 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.15 2000/03/13 07:47:15 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -82,7 +82,7 @@ int OX_reset(int id)
 /* Parsing s and sending its cmo to an OX server. */
 int OX_parse(int id, char *s)
 {
-	return OX_sendMessage(int id, char *s);
+	return OX_sendMessage(id, s);
 }
 
 /* After creating an OX message by parsing a string s, 
