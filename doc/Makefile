@@ -1,7 +1,12 @@
-#$OpenXM: OpenXM/doc/Makefile,v 1.1 1999/12/15 03:30:13 takayama Exp $
+#$OpenXM: OpenXM/doc/Makefile,v 1.2 2000/01/07 16:04:40 maekawa Exp $
 OXWEAVE=../src/kxx/oxweave
 OW_FLAG=--recursive
-all : $(OXWEAVE) install-jp.txt  install-eg.txt
+all : all-install all-spec
+
+all-install : $(OXWEAVE) install-jp.txt  install-eg.txt
+
+all-spec :
+	-(cd OpenXM-specs ; make all)
 
 install-jp.txt : install.oxweave
 	-rm -f install-jp.txt
