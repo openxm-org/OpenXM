@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.29 2001/10/11 01:11:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.30 2001/10/11 05:38:00 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -42,6 +42,10 @@ def base_cancel(S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_cancel(S);
 }
+def base_choose(L,M) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_choose(L,M);
+}
 def base_flatten(S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_flatten(S);
@@ -53,6 +57,10 @@ def base_intersection(A,B) {
 def base_memberq(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_memberq(A,S);
+}
+def base_permutation(L) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_permutation(L);
 }
 def base_position(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");

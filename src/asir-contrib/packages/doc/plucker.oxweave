@@ -1,14 +1,14 @@
-@c $OpenXM$
+@c $OpenXM: OpenXM/src/asir-contrib/packages/doc/plucker.oxweave,v 1.1 2001/12/02 07:43:04 takayama Exp $
 
 /*&ja
 @node Plucker relations,,, Top
-@chapter Plucker 関係式(標準数学函数)
+@chapter Plucker 関係式 
 
 */
 
 /*&en
 @node Plucker relations,,, Top
-@chapter Plucker Relations (Standard Mathematical Functions)
+@chapter Plucker Relations 
 
 */
 
@@ -16,6 +16,7 @@
 @menu
 * plucker::
 * plucker_y::
+* plucker_relation::
 @end menu
 */
 
@@ -41,6 +42,43 @@ $$ \sum_{k=0}^{m+1} (-1)^k
 /*&en
 
 Not yet written
+
+*/
+
+/*&ja
+@node plucker_relation,,, Plucker relation
+@subsection @code{plucker_relation}
+@findex plucker_relation
+@table @t
+@item plucker_relation(@var{L},@var{M})
+::  Index 集合 @var{L}, @var{M} に対応する Plucker 関係式を戻す.
+@end table
+@table @var
+@item return
+quote
+@item L
+リスト
+@item M
+リスト
+@end table
+@itemize @bullet
+@item  @var{L} には, Plucker 関係式の @tex $i_1, \ldots, i_m$ @end tex
+を, 
+@var{M} には, Plucker 関係式の @tex $j_0, \ldots, j_{m+1}$ @end tex
+を与える.
+@end itemize
+@example
+[297] A = plucker_relation([1,2],[3,4,5,6]);
+quote(y_1_2_3*y_4_5_6-y_1_2_4*y_3_5_6+y_1_2_5*y_3_4_6-y_1_2_6*y_3_4_5)
+[298] eval_str(print_terminal_form(A));
+y_4_5_6*y_1_2_3-y_3_5_6*y_1_2_4+y_3_4_6*y_1_2_5-y_3_4_5*y_1_2_6
+
+@end example
+*/
+
+/*&en
+
+Not yet written.
 
 */
 
@@ -71,3 +109,10 @@ y_1_2_3
 
 @end example
 */
+
+/*&en
+
+Not yet written
+
+*/
+
