@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.17 2001/09/20 06:06:05 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.18 2003/02/03 07:14:38 ohara Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -8,6 +8,7 @@ SHELL_SCRIPTS=asir sm1 oxgp oxmath oxMathematica ox openxm webasir
 PREFIX=/usr/local
 INSTALL_DIR=${PREFIX}/bin
 MAN_DIR=../man/man1
+KDE_MENU_DIR=/usr/lib/menu
 
 all :  dot.bashrc  dot.cshrc  openxm  .done_gen-shell-scripts
 
@@ -38,9 +39,14 @@ openxm : dot.bashrc
 	./gen-shell-scripts
 	touch .done_gen-shell-scripts
 
-install : all 
-	cp -f $(SHELL_SCRIPTS) ${INSTALL_DIR}
-
+install : install-usr-bin install-kde-menu
+install-usr-bin: all
+	-cp -f $(SHELL_SCRIPTS) ${INSTALL_DIR}
+install-kde-menu:
+	-cp kde/asir-knoppix ${KDE_MENU_DIR}
+	-cp kde/asir-openxm-knoppix ${KDE_MENU_DIR}
+	-cp kde/asir-openxm  ${KDE_MENU_DIR}
+	-cp kde/sm1 ${KDE_MENU_DIR}
 install.man :
 	-cp openxm.1 ${MAN_DIR}
 
