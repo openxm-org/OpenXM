@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.19 2000/01/21 14:50:04 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.20 2000/02/07 08:26:39 ohara Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -112,6 +112,6 @@ test:
 
 
 OpenXM.jar:	$(PKGSRCS)
-	$(JAVAC) -d . -O $?
+	-$(JAVAC) -d . -O $?
 	@#touch $@
 	-@#$(JAR) cf $@ $(PKGTARGETS)
