@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.11 2000/02/06 06:39:48 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.12 2000/02/11 04:31:34 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
@@ -17,8 +17,8 @@ OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 OXWEAVE= ../../../kxx/oxweave
 
-JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi
-EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi
+JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi dsolv-jp.texi longname-jp.texi oxtigers-jp.texi
+EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi dsolv-eg.texi longname-eg.texi oxtigers-eg.texi
 
 all : $(JPSRCS) $(EGSRCS)
 install : install-document install-help
@@ -87,6 +87,14 @@ longname-eg.texi : $(CONTRIB)/longname Makefile
 	/bin/rm -f longname-eg.texi
 	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/longname >longname-eg.texi
 
+oxtigers-jp.texi : $(CONTRIB)/tigers Makefile
+	/bin/rm -f oxtigers-jp.texi
+	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/tigers >oxtigers-jp.texi
+
+oxtigers-eg.texi : $(CONTRIB)/tigers Makefile
+	/bin/rm -f oxtigers-eg.texi
+	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/tigers >oxtigers-eg.texi
+
 help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
 	-rm -rf tmp help-eg
 	mkdir help-eg tmp
@@ -129,5 +137,5 @@ clean-document :
 
 
 clean :
-	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi
+	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi dsolv-jp.texi dsolv-eg.texi longname-jp.texi longname-eg.texi oxtigers-jp.texi oxtigers-eg.texi
 	/bin/rm -rf help-jp help-eg tmp
