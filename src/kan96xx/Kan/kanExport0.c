@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.37 2004/09/17 02:42:57 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.38 2004/09/20 02:11:22 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -3105,13 +3105,15 @@ struct object newByteArray(int size,struct object obj) {
   struct object rob,tob;
   int i,n;
   ba = NULL;
-  if (size > 0) ba = (unsigned char *) sGC_malloc(size);
-  if (ba == NULL) errorKan1("%s\n","No more memory.");
+  if (size > 0) {
+    ba = (unsigned char *) sGC_malloc(size);
+    if (ba == NULL) errorKan1("%s\n","No more memory.");
+  }
   rob.tag = SbyteArray; rob.lc.bytes = ba; rob.rc.ival = size;
   if (obj.tag == SbyteArray) {
     n = getByteArraySize(obj);
     ba2 = KopByteArray(obj);
-    for (i=0; i<n; i++) {
+    for (i=0; i<(n<size?n:size); i++) {
       ba[i] = ba2[i];
     }
     for (i=n; i<size; i++) ba[i] = 0;
