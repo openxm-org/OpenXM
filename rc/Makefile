@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.12 2000/03/06 08:08:11 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.13 2000/03/09 12:53:34 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -22,7 +22,9 @@ dot.cshrc : cshrc repl
 	./repl <cshrc >>dot.cshrc
 
 repl : repl.c 
-	${CC} -static -o repl repl.c
+	rm -f repl
+	${CC} -static -o ../bin/rc.repl repl.c
+	ln -s ../bin/rc.repl repl
 
 openxm : dot.cshrc
 	rm -f openxm
@@ -46,5 +48,5 @@ install.asir_key:
 	-../bin/sm1 -f fetch_asir_key.sm1
 
 clean :
-	rm -f dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .gen-shell-scripts work
+	rm -rf dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .gen-shell-scripts work
 
