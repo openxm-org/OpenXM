@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.124 2003/09/02 15:15:58 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.125 2003/09/02 22:18:39 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -102,7 +102,7 @@ install-asir: all-asir
 install-gnuplot: all-gnuplot
 	-(cd gnuplot ; make install)
 
-install-k097: all-k097
+install-k097:  install-kxx all-k097
 	(cd k097 ; make install)
 
 install-kan96xx: all-kan96xx
