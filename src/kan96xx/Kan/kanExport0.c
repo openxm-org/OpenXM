@@ -1,3 +1,4 @@
+/* $OpenXM$  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -837,6 +838,8 @@ char *key;
   struct object rob1,rob2;
   char *s;
   int i;
+  double f;
+  double f2;
   /* reports the data type */
   if (key[0] == 't' || key[0] =='e') {
     if (strcmp(key,"type?")==0) {
@@ -935,6 +938,21 @@ char *key;
       rob.lc.universalNumber = stringToUniversalNumber(obj.lc.str,&flag);
       if (flag == -1) errorKan1("KdataConversion(): %s",
 				  "It's not number.\n");
+      return(rob);
+    }else if (strcmp(key,"double") == 0) {
+      /* Check the format.  2.3432 e2 is not allowed. It should be 2.3232e2.*/
+      flag = 0;
+      for (i=0; (obj.lc.str)[i] != '\0'; i++) {
+	if ((obj.lc.str)[i] > ' ' && flag == 0) flag=1;
+	else if ((obj.lc.str)[i] <= ' ' && flag == 1) flag = 2;
+	else if ((obj.lc.str)[i] > ' ' && flag == 2) flag=3;
+      }
+      if (flag == 3) errorKan1("KdataConversion(): %s","The data for the double contains blanck(s)");
+      /* Read the double. */
+      if (sscanf(obj.lc.str,"%lf",&f) <= 0) {
+	errorKan1("KdataConversion(): %s","It cannot be translated to double.");
+      }
+      rob = KpoDouble(f);
       return(rob);
     }else if (strcmp(key,"null") == 0) {
       rob = NullObject;

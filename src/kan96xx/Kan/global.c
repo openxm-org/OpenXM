@@ -1,4 +1,4 @@
-/* global.c $OpenXM$ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.2 1999/10/30 02:20:54 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -124,7 +124,7 @@ int Lookup[TYPES][TYPES];
 int Quiet = 0;
 int TimerOn = 0;
 
-char *VersionString = "2.991030";
+char *VersionString = "2.991106";
 
 int AvoidTheSameRing = 1;
 int DebugCMO = 0;  /* plugin/cmo.c */
