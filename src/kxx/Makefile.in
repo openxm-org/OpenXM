@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.17 2002/10/20 23:05:16 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.18 2002/11/10 12:15:48 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -28,7 +28,7 @@ STATIC_LINK_FLAG=
 ### Set the server name in oxmain.c if you do not use the environmental
 ### variable LOAD_SM1_PATH.  cf. $KANHOME/lib/ox.sm1
 
-all : configure all-plugin kanlib.a ox ox_sm1  oxlog 
+all : configure all-plugin kanlib.a ox ox_sm1  oxlog ox100start
 
 all2 : all-plugin kanlib.a ox ox_sm1 testclient oxlog
 
@@ -83,6 +83,8 @@ ox_sm1 : oxserver00.c sm1stackmachine.o ox_kan.h ox.a $(KANHOME)/Kan/kanlib.a
 
 oxlog : oxlog.c
 	$(CC)   ${STATIC_LINK_FLAG} ${DDD} -o oxlog oxlog.c
+ox100start : ox100start.c
+	$(CC)   ${STATIC_LINK_FLAG} ${DDD} -o ox100start ox100start.c
 
 
 ## file2.c file2.h is in SSkan/plugin/
@@ -109,17 +111,18 @@ testclient2 : testclient2.c  ox_kan.h $(KANHOME)/Kan/kanlib.a ox.a
 
 
 clean : 
-	-/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex .configure_done
+	-/bin/rm -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex .configure_done ox100start
 
 distclean : clean clean-for-install
 	/bin/rm -f config.status config.cache config.log
 
 ## install targets.
 install-for-debug : clean-for-install install_lib_bin-for-debug
-	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog 
+	/bin/rm -f ../bin/ox ../bin/ox_sm1 ../bin/oxlog ../bin/ox100start
 	ln -f -s  ../src/kxx/ox ../bin/ox
 	ln -f -s  ../src/kxx/ox_sm1 ../bin/ox_sm1
 	ln -f -s  ../src/kxx/oxlog ../bin/oxlog
+	ln -f -s  ../src/kxx/ox100start ../bin/ox100start
 
 install_lib_bin-for-debug :
 	ln -f -s ../src/kan96xx/Doc $(OpenXM_lib)/sm1
@@ -134,9 +137,9 @@ install_lib_bin-for-debug :
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
 install : copy-kan-lib install_lib_bin
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
-	  cp -f ox.exe ox_sm1.exe oxlog.exe $(OpenXM_bin) ; \
+	  cp -f ox.exe ox_sm1.exe oxlog.exe ox100start.exe $(OpenXM_bin) ; \
 	else \
-	  cp -f ox ox_sm1 oxlog $(OpenXM_bin) ; \
+	  cp -f ox ox_sm1 oxlog ox100start $(OpenXM_bin) ; \
 	fi
 install_lib_bin:
 	if [  "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
@@ -185,7 +188,7 @@ copy-kan-lib : clean-for-install
 	cp $(KANHOME)/Kan/var.sm1 $(OpenXM_lib)/sm1
 clean-for-install :
 	-/bin/rm -rf $(OpenXM_lib)/sm1
-	-/bin/rm -rf $(OpenXM_bin)/oxlog $(OpenXM_bin)/ox_sm1 $(OpenXM_bin)/ox   
+	-/bin/rm -rf $(OpenXM_bin)/oxlog $(OpenXM_bin)/ox_sm1 $(OpenXM_bin)/ox   $(OpenXM_bin)/ox100start
 
 
 
