@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.49 2000/01/09 16:16:20 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.50 2000/01/09 16:25:20 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
@@ -39,18 +39,24 @@ all-pari: configure-pari
 	(cd pari ; make all)
 
 all-phc:
-	(cd phc ; make all ; make install)
+	(cd phc ; make all)
 
 all-tigers:
-	(cd tigers ; make all ; make install)
+	(cd tigers ; make all)
 
-install: install-kan96xx install-pari
+install: install-kan96xx install-pari install-phc install-tigers
 
 install-kan96xx: all-kan96xx
 	(cd kan96xx ; make install2)
 
 install-pari: all-pari
 	(cd pari ; make install)
+
+install-phc: all-phc
+	(cd phc ; make install)
+
+install-tigers: all-tigers
+	(cd tigers ; make install)
 
 clean:
 	(cd kan96xx ; make clean)
