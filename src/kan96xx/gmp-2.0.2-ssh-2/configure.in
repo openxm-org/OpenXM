@@ -1,0 +1,543 @@
+# THIS IS A MODIFIED VERSION OF GMP-2.0.2.  THE MODIFICATIONS WERE MADE
+# TO INTEGRATE THIS CODE TO THE SSH SOFTWARE PACKAGE.  PLEASE CONTACT
+# ssh-bugs@cs.hut.fi IF MORE INFORMATION IS NEEDED.
+#
+# Copyright (C) 1991, 1993, 1994, 1996 Free Software Foundation, Inc.
+
+# This file is part of the GNU MP Library.
+
+# The GNU MP Library is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Library General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+
+# The GNU MP Library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+# License for more details.
+
+# You should have received a copy of the GNU Library General Public License
+# along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+# MA 02111-1307, USA.
+
+AC_INIT(gmp-impl.h)
+AC_PREREQ(2.10)
+AM_INIT_AUTOMAKE(gmp,`grep gmp_version $srcdir/version.c | sed 's/.*"\(.*\)".*/\1/'`)
+
+AC_CANONICAL_HOST
+AC_MSG_CHECKING(cached information)
+hostcheck="$host"
+AC_CACHE_VAL(ac_cv_gmp_hostcheck, [ ac_cv_gmp_hostcheck="$hostcheck" ])
+if test "$ac_cv_gmp_hostcheck" != "$hostcheck"; then
+  AC_MSG_RESULT(changed)
+  AC_MSG_WARN(config.cache exists!)
+  AC_MSG_ERROR(you must do 'make distclean' first to compile for different host or different parameters.)
+else
+  AC_MSG_RESULT(ok)
+fi
+
+AC_PROG_CC
+AC_C_CONST
+AC_C_INLINE
+AC_HEADER_STDC
+AC_PROG_LN_S
+AC_PROG_RANLIB
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AC_REPLACE_FUNCS(random)
+AC_ARG_PROGRAM
+AC_CHECK_SIZEOF(int,4)
+AC_FUNC_ALLOCA
+
+# We need to kludge with autoconf quotes to use [...] syntax in regexps.
+changequote
+case "$host" in
+  sparc9*-*-* | sparc64*-*-* | ultrasparc*-*-*)
+    #path="sparc64" ;;      Don't use this until compilers are ready
+    path="sparc32/v8 sparc"
+    ;;
+  sparc8*-*-* | microsparc*-*-*)
+    path="sparc32/v8 sparc"
+    GCC_CFLAGS="-mv8"
+    ;;
+  supersparc*-*-*)
+    path="sparc32/v8/supersparc sparc32/v8 sparc"
+    extra_functions="udiv"
+    GCC_CFLAGS="-mv8 -DSUPERSPARC"
+    ;;
+  sparc*-*-*)
+    path="sparc32"
+    if test "$with_fp" = "no"
+      then extra_functions="udiv_nfp"
+      else extra_functions="udiv_fp"
+    fi
+    ;;
+  hppa7000*-*-*)
+    path="hppa/hppa1_1 hppa"
+    extra_functions="udiv_qrnnd"
+    changequote([, ])dnl
+    AC_MSG_CHECKING(whether assembler understands +DA1.1 option)
+    OLD_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS -Wa,+DA1.1"
+    AC_TRY_LINK(,, [AC_MSG_RESULT(yes)
+	SFLAGS="-Wa,+DA1.1"], AC_MSG_RESULT(no))
+    CFLAGS=$OLD_CFLAGS
+    changequote
+    ;;
+  hppa1.0*-*-*)
+    path="hppa"
+    extra_functions="udiv_qrnnd"
+    ;;
+  hppa*-*-*)                                    # assume pa7100
+    path="hppa/hppa1_1/pa7100 hppa/hppa1_1 hppa"
+    extra_functions="udiv_qrnnd"
+    changequote([, ])dnl
+    AC_MSG_CHECKING(whether assembler understands +DA1.1 option)
+    OLD_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS -Wa,+DA1.1"
+    AC_TRY_LINK(,, [AC_MSG_RESULT(yes)
+	SFLAGS="-Wa,+DA1.1"], AC_MSG_RESULT(no))
+    CFLAGS=$OLD_CFLAGS
+    changequote
+    ;;
+  cray2-cray-unicos* | [xy]mp-cray-unicos* | [ctj]90-cray-unicos* | t3e-*-*)
+    path="cray" 
+    ;;
+  alphaev5-*-*)
+    path="alpha/ev5 alpha"
+    extra_functions="udiv_qrnnd"
+    ;;
+  alpha*-*-*)
+    path="alpha"
+    extra_functions="udiv_qrnnd"
+    ;;
+  am29000*-*-*)
+    path="am29000"
+    ;;
+  a29k*-*-*)
+    path="am29000"
+    ;;
+  i[3456]86*-*-*elf | pentium-*-*elf)  # 386/486 running BSD or Linux with ELF
+    path="x86"
+    syntax_alternatives="$syntax_alternatives ELF_SYNTAX BSD_SYNTAX INTEL_SYNTAX"
+    ;;
+  i[34]86*-*-linuxaout* | i[34]86*-*-linuxoldld* | \
+  i[34]86*-*-*bsd*)         # 386/486 running BSD or Linux with a.out
+    path="x86"
+    x86_broken_align=yes
+    syntax_alternatives="$syntax_alternatives BSD_SYNTAX"
+    ;;
+  i[56]86*-*-linuxaout* | pentium-*-linuxaout* | pentiumpro-*-linuxaout* | \
+  i[56]86*-*-linuxoldld* | pentium-*-linuxoldld* | pentiumpro-*-linuxoldld* | \
+  i[56]86*-*-*bsd* | pentium-*-*bsd* | pentiumpro-*-*bsd*)
+    path="x86/pentium x86"
+    x86_broken_align=yes
+    syntax_alternatives="$syntax_alternatives BSD_SYNTAX"
+    ;;
+  i[34]86*-*-*)
+    path="x86"
+    syntax_alternatives="$syntax_alternatives ELF_SYNTAX BSD_SYNTAX INTEL_SYNTAX"
+    ;;
+  i[56]86*-*-* | pentium-*-* | pentiumpro-*-*)
+    path="x86/pentium x86"
+    syntax_alternatives="$syntax_alternatives ELF_SYNTAX BSD_SYNTAX INTEL_SYNTAX"
+    ;;
+
+# Motorola 68k configurations.  Let m68k mean 68020-68040.
+# mc68000 or mc68060 configurations need to be specified explicitly
+  m680[234]0*-*-linuxaout* | m68k*-*-linuxaout*)
+    path="m68k/mc68020 m68k"
+    syntax_alternatives="$syntax_alternatives MIT_SYNTAX"
+    ;;
+  m68060*-*-linuxaout*)
+    path="m68k"
+    syntax_alternatives="$syntax_alternatives MIT_SYNTAX"
+    ;;
+  m680[234]0*-*-linux* | m68k*-*-linux*)
+    path="m68k/mc68020 m68k"
+    syntax_alternatives="$syntax_alternatives ELF_SYNTAX"
+    ;;
+  m68060*-*-linux*)
+    path="m68k"
+    syntax_alternatives="$syntax_alternatives ELF_SYNTAX"
+    ;;
+  m68000*-*-* | m68060*-*-*)
+    path="m68k/mc68000"
+    syntax_alternatives="$syntax_alternatives MIT_SYNTAX"
+    ;;
+  m680[234]0*-*-* | m68k*-*-*)
+    path="m68k/mc68020 m68k"
+    syntax_alternatives="$syntax_alternatives MIT_SYNTAX ELF_SYNTAX SONY_SYNTAX MOTOROLA_SYNTAX"
+    ;;
+
+  i960*-*-*)
+    path="i960"
+    ;;
+  m88k*-*-* | m88k*-*-*)
+    path="m88k"
+    ;;
+  m88110*-*-*)
+    path="m88k/mc88110 m88k"
+    ;;
+  ns32k*-*-*)
+    path="n32k"
+    ;;
+
+# Power/PowerPC platforms
+  ppc601-*-aix[456789]* | ppc601-*-aix3.2.[456789])
+    path="power powerpc32"
+    SFLAGS="-Wa,-mppc"
+    ;;
+  ppc601-*-*)
+    path="power powerpc32"
+    ;;
+  ppc620-*-* | powerpc64*-*-*)
+    path="powerpc64"
+    ;;
+  ppc60[234]*-*-aix[456789]* | ppc60[234]*-*-aix3.2.[456789] | \
+  powerpc*-*-aix[456789]* | powerpc*-*-aix3.2.[456789])
+    path="powerpc32"
+    SFLAGS="-Wa,-mppc"
+    ;;
+  ppc60[234]*-*-* | powerpc*-*-*)
+    path="powerpc32"
+    ;;
+  rs6000-*-aix[456789]* | rs6000-*-aix3.2.[456789]*)
+    path="power"
+    extra_functions="udiv_w_sdiv"
+    SFLAGS="-Wa,-mpwr"
+    ;;
+  rs6000-*-* | power-*-* | power2-*-*)
+    path="power"
+    extra_functions="udiv_w_sdiv"
+    ;;
+
+  pyramid-*-*)
+    path="pyr"
+    ;;
+  sh-*-*)
+    path="sh"
+    ;;
+  sh2-*-*)
+    path="sh/sh2 sh"
+    ;;
+  mips[34]*-*-*)
+    path="mips3"
+    ;;
+  mips*-*-irix6*)
+    path="mips3"
+    ;;
+  mips*-*-*)
+    path="mips2"
+    ;;
+  vax*-*-*)
+    path="vax"
+    extra_functions="udiv_w_sdiv"
+    ;;
+  z8000x*-*-*)
+    path="z8000x"
+    extra_functions="udiv_w_sdiv"
+    ;;
+  z8000*-*-*)
+    path="z8000"
+    extra_functions="udiv_w_sdiv"
+    ;;
+  clipper*-*-*)
+    path="clipper"
+    ;;
+  *-*-*)
+    ;;
+esac
+
+# System specific settings
+
+case "$host" in
+  *-*-solaris*)
+    # If not using gcc add -Xs option to cpp so we can process assembler files
+    if test -z "$GCC"; then
+      CPP="$CPP -Xs"
+    fi
+esac
+changequote([, ])dnl
+
+# Add gcc-specific flags if using gcc
+if test -n "$GCC"; then
+  CFLAGS="$CFLAGS $GCC_CFLAGS"
+fi
+
+# Check X86_BROKEN_ALIGN
+if test -n "$x86_broken_align"; then
+  AC_DEFINE(X86_BROKEN_ALIGN)
+fi
+
+# Check whether an underscore gets prepended in names
+AC_CACHE_CHECK(whether underscore gets prepended in C function names,
+  ac_cv_c_underscore, [
+cat > conftest.c <<EOF
+int foobarzappafunction() { return 0; }
+EOF
+${CC-cc} -c $CFLAGS $CPPFLAGS conftest.c 1>/dev/null
+if test -n "`nm conftest.o | grep _foobarzappafunction`" 2>/dev/null; then
+  ac_cv_c_underscore=yes
+elif test -n "`nm conftest.o | grep foobarzappafunction`" 2>/dev/null; then
+  ac_cv_c_underscore=no
+else
+  AC_MSG_WARN(CHECK FAILED)
+  path=""
+fi
+rm -f conftest.o conftest.c ])
+if test "$ac_cv_c_underscore" = "yes"; then
+  AC_DEFINE(C_UNDERSCORE)
+  echo "Underscores are prepended in function names." >&5
+else
+  echo "Underscores are not prepended in function names." >&5
+fi
+
+# Check for asm files
+functions="${extra_functions} inlines add_n addmul_1 cmp divmod_1
+ divrem divrem_1 dump lshift mod_1 mul mul_1 mul_n random2 rshift sqrtrem
+ sub_n submul_1 get_str set_str scan0 scan1 popcount hamdist gcd_1
+ pre_mod_1 perfsqr bdivmod gcd gcdext"
+path="$path generic"
+if test '!' -d mpn; then mkdir mpn; fi
+
+AC_MSG_CHECKING(asm code)
+AC_CACHE_VAL(ac_cv_gmp_asm_status, [
+  asm_status=""
+  asm_files=""
+  asm_links=""
+  asm_objs=""
+  remaining_functions=""
+  for fn in $functions ; do
+    found=no
+    for dir in $path ; do
+      if test -f $srcdir/mpn/$dir/$fn.S ; then
+        if test -f mpn/../$srcdir/mpn/$dir/$fn.S; then
+	  asm_files="$asm_files ../$srcdir/mpn/$dir/$fn.S"
+	else
+	  asm_files="$asm_files $srcdir/mpn/$dir/$fn.S"
+	fi
+	asm_links="$asm_links $fn.S"
+	asm_objs="$asm_objs $fn.o"
+	found=yes
+	break
+      elif test -f $srcdir/mpn/$dir/$fn.s ; then
+        if test -f mpn/../$srcdir/mpn/$dir/$fn.s; then
+	  asm_files="$asm_files ../$srcdir/mpn/$dir/$fn.s"
+	else
+	  asm_files="$asm_files $srcdir/mpn/$dir/$fn.s"
+	fi
+	asm_links="$asm_links $fn.s"
+	asm_objs="$asm_objs $fn.o"
+	found=yes
+	break
+      fi
+    done
+    if test "$found" = "no"; then
+      remaining_functions="$remaining_functions $fn"
+    fi
+  done
+
+  AC_ARG_ENABLE(asm,
+    [  --disable-asm           Disable assembly language optimizations. ],
+    [ case "$enableval" in
+	no)
+	  AC_DEFINE(NO_ASM)
+	  asm_files=""
+	  asm_objs=""
+	  asm_links=""
+	  asm_status="disabled"
+	  path="generic"
+	  remaining_functions="$functions"
+	  ;;
+      esac ])
+
+  if test -z "$asm_files"; then
+    if test -z "$asm_status"; then
+      asm_status="no"
+    fi
+  else
+    # found asm files; validate them and determine correct syntax
+
+    syntax_h=""
+    for dir in $path; do
+      if test -f $srcdir/mpn/$dir/syntax.h; then
+        if test -f mpn/../$srcdir/mpn/$dir/syntax.h; then
+	  syntax_h="../$srcdir/mpn/$dir/syntax.h"
+	else
+	  syntax_h="$srcdir/mpn/$dir/syntax.h"
+	fi
+	break
+      fi
+    done
+
+    syntax_alternatives="$syntax_alternatives default"
+
+    echo "asm_files: $asm_files" >&5
+    echo "asm_links: $asm_links" >&5
+    echo "asm_objs: $asm_objs" >&5
+    echo "syntax_alternatives: $syntax_alternatives" >&5
+
+    (cd mpn; rm -f $asm_links; $LN_S $asm_files .)
+
+    asm_ok=no
+    for asm_syntax in $syntax_alternatives; do
+      if test "$asm_syntax" = "default"; then
+	rm -f mpn/asm-syntax.h
+      else
+	echo "#define $asm_syntax" >mpn/asm-syntax.h
+	echo "#include \"$syntax_h\"" >>mpn/asm-syntax.h
+      fi
+      echo "testing syntax $asm_syntax" >&5
+
+      # Check if the found asm files will compile
+      asm_ok=yes
+      for file in $asm_links; do
+        changequote(<<, >>)dnl
+        s=`echo $file | sed 's/[sS]$/s/'`
+	o=`echo $file | sed 's/[sS]$/o/'`
+	changequote([, ])dnl
+	if test -d mpn/../$srcdir/mpn; then
+	  mpnincl="../$srcdir/mpn"
+	else
+	  mpnincl="$srcdir/mpn"
+	fi
+	if test "$s" = "$file"; then
+          echo "${CC-cc} -c -I$mpnincl -I. -I.. $CFLAGS $SFLAGS $file" >&5
+          (cd mpn; ${CC-cc} -c -I$mpnincl -I. -I.. $CFLAGS $SFLAGS $file >../conftemp.$$ 2>&1 )
+	else
+	  echo "$CPP $SFLAGS -I$mpnincl -I. -I.. $CFLAGS $file | grep -v '^#' >tmp-$s; ${CC-cc} -c $CFLAGS $SFLAGS tmp-$s; rm -f tmp-$s; mv tmp-$o $o" >&5
+	  (cd mpn; $CPP $SFLAGS -I$mpnincl -I. -I.. $CFLAGS $file | grep -v '^#' >tmp-$s; ${CC-cc} -c $CFLAGS $SFLAGS tmp-$s; rm -f tmp-$s; mv tmp-$o $o >../conftemp.$$ 2>&1)
+	fi
+        if test "$?" != 0 || test -n "`cat conftemp.$$`"; then
+	  asm_ok=no
+	fi
+        cat conftemp.$$ >&5
+      done
+
+      rm -f conftemp.$$ mpn/asm-syntax.h
+      if test "$asm_ok" = "yes"; then
+	asm_status="ok"
+	echo "Chose $asm_syntax." >&5
+	break
+      fi
+    done
+
+    (cd mpn; rm -f $asm_objs $asm_links)
+    if test "$asm_ok" = "no"; then
+      asm_files=""
+      asm_objs=""
+      asm_links=""
+      asm_status="FAILED"
+      echo "Asm fails to compile; chose no asm." >&5
+      echo "$CC -v" >&5
+      $CC -v  >&5 2>&5
+      echo "$CC -V" >&5
+      $CC -V >&5 2>&5
+      remaining_functions="$functions"
+    fi
+  fi
+  ac_cv_gmp_asm_status="$asm_status"
+])
+AC_MSG_RESULT($ac_cv_gmp_asm_status)
+if test "$ac_cv_gmp_asm_status" = "FAILED"; then
+  AC_MSG_WARN(Assembly language optimizations failed and were disabled.)
+  AC_MSG_WARN(Please mail gmp-2.0.2-ssh-2/config.log to ssh-bugs@cs.hut.fi.)
+fi
+
+AC_MSG_CHECKING(asm links)
+AC_CACHE_VAL(ac_cv_gmp_asm_links, [ ac_cv_gmp_asm_links="$asm_links" ])
+AC_MSG_RESULT(done)
+
+AC_MSG_CHECKING(asm sources)
+AC_CACHE_VAL(ac_cv_gmp_asm_files, [ ac_cv_gmp_asm_files="$asm_files" ])
+AC_MSG_RESULT(done)
+
+AC_MSG_CHECKING(asm objects)
+AC_CACHE_VAL(ac_cv_gmp_asm_objs, [ ac_cv_gmp_asm_objs="$asm_objs" ])
+AC_MSG_RESULT(done)
+
+AC_CACHE_CHECK(asm syntax, ac_cv_gmp_asm_syntax, 
+  [ ac_cv_gmp_asm_syntax="$asm_syntax" ])
+AC_CACHE_CHECK(asm syntax header, ac_cv_gmp_asm_syntax_h,
+  [ ac_cv_gmp_asm_syntax_h="$syntax_h" ])
+
+AC_CACHE_CHECK(for gmp-mparam.h, ac_cv_gmp_mparam, [
+  ac_cv_gmp_mparam="NONE"
+  for dir in $path; do
+    if test -f $srcdir/mpn/$dir/gmp-mparam.h; then
+      if test -f mpn/../$srcdir/mpn/$dir/gmp-mparam.h; then
+        ac_cv_gmp_mparam="../$srcdir/mpn/$dir/gmp-mparam.h"
+      else
+        ac_cv_gmp_mparam="$srcdir/mpn/$dir/gmp-mparam.h"
+      fi
+      break
+    fi
+  done
+  if test "$ac_cv_gmp_mparam" = NONE; then
+    AC_ERROR(gmp-mparam.h not found)
+  fi ])
+
+AC_MSG_CHECKING(other objs)
+AC_CACHE_VAL(ac_cv_gmp_other_objs, [
+  other_objs=""
+  other_files=""
+  other_links=""
+  for fn in $remaining_functions; do
+    for dir in $path; do
+      if test -f $srcdir/mpn/$dir/$fn.c; then
+        if test -f mpn/../$srcdir/mpn/$dir/$fn.c; then
+          other_files="$other_files ../$srcdir/mpn/$dir/$fn.c"
+	else
+          other_files="$other_files $srcdir/mpn/$dir/$fn.c"
+	fi
+        other_links="$other_links $fn.c"
+        other_objs="$other_objs $fn.o"
+        break
+      fi
+    done
+  done
+  ac_cv_gmp_other_objs="$other_objs" ])
+AC_MSG_RESULT(done)
+
+AC_MSG_CHECKING(other sources)
+AC_CACHE_VAL(ac_cv_gmp_other_files, [ ac_cv_gmp_other_files="$other_files" ])
+AC_MSG_RESULT(done)
+
+AC_MSG_CHECKING(other links)
+AC_CACHE_VAL(ac_cv_gmp_other_links, [ ac_cv_gmp_other_links="$other_links" ])
+AC_MSG_RESULT(done)
+
+MPN_DISTCLEANFILES="$ac_cv_gmp_asm_links $ac_cv_gmp_other_links gmp-mparam.h asm-syntax.h conftest.c"
+(cd mpn; rm -f $MPN_DISTCLEANFILES)
+(cd mpn; $LN_S $ac_cv_gmp_asm_files $ac_cv_gmp_other_files .)
+(cd mpn; $LN_S $ac_cv_gmp_mparam .)
+
+if test "$ac_cv_gmp_asm_syntax" != "default"; then
+  echo "#define $ac_cv_gmp_asm_syntax" >mpn/asm-syntax.h
+  echo "#include \"$ac_cv_gmp_asm_syntax_h\"" >>mpn/asm-syntax.h
+fi
+
+MPN_OBJS="$ac_cv_gmp_asm_objs $ac_cv_gmp_other_objs"
+
+AC_MSG_CHECKING(links to mpz sources in mpbsd)
+mpz_files="add.c cmp.c dmincl.c gcd.c mul.c pow_ui.c powm.c sqrtrem.c sub.c"
+if test '!' -d mpbsd; then mkdir mpbsd; fi
+for file in $mpz_files; do
+  rm -f mpbsd/$file
+  if test -f mpbsd/../$srcdir/mpz/$file; then
+    (cd mpbsd; $LN_S ../$srcdir/mpz/$file .)
+  else
+    (cd mpbsd; $LN_S $srcdir/mpz/$file .)
+  fi
+done
+AC_MSG_RESULT(done)
+
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+AC_SUBST(SFLAGS)
+AC_SUBST(MPN_DISTCLEANFILES)
+AC_SUBST(MPN_OBJS)
+
+AC_OUTPUT(Makefile demos/Makefile mpbsd/Makefile mpf/Makefile mpf/tests/Makefile mpn/Makefile mpn/tests/Makefile mpq/Makefile mpq/tests/Makefile mpz/Makefile mpz/tests/Makefile)
