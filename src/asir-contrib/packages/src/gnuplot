@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.16 2004/12/17 00:13:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.17 2004/12/18 01:56:03 takayama Exp $ */
 
 module gnuplot;
 
@@ -161,6 +161,7 @@ def stop() {
   if (Gnuplot_proc == -1) return 0;
   GNUPLOTL_FIND_PROC(P) ;
   sm1.sm1(P," plotstop.aux ");
+  ox_pop_cmo(P); /* Wait until plotstop.aux is done. */
   return 0;
 }
 
@@ -430,5 +431,8 @@ def plot_function(F) {
 }
 
 endmodule;
+
+/* Added callbacks. */
+add_handler("quit","gnuplot.stop")$
 
 end$
