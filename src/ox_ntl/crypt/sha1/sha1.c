@@ -1,5 +1,7 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.1 2004/01/12 13:16:28 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.2 2004/03/25 13:34:19 iwane Exp $ */
 /* RFC 3174 - SHA-1 (US Secure Hash Algorithm 1 (SHA1))*/
+
+#include <stdio.h>
 
 #include "sha1.h"
 
@@ -81,8 +83,8 @@ f(unsigned int t, unsigned int b, unsigned int c, unsigned int d)
 /* sizeof(msg) == 512 / 8.
  * padding.
  */
-static void
-md(unsigned int *h, const unsigned char *msg)
+void
+sha1_md(unsigned int *h, const unsigned char *msg)
 {
 	int t;
 	unsigned int a, b, c, d, e, temp;
@@ -114,7 +116,6 @@ md(unsigned int *h, const unsigned char *msg)
 		c = lshift32(b, 30);
 		b = a;
 		a = temp;
-
 	}
 
 	h[0] += a;
@@ -131,17 +132,20 @@ sha1_h(unsigned char *Ph, const unsigned char *msg, int len, const unsigned int 
 	unsigned char buf[1024];
 	unsigned int h[sizeof(H) / sizeof(H[0])];
 
-	memcpy(h, hp, sizeof(h));
+	if (hp == NULL)
+		memcpy(h, H, sizeof(H));
+	else
+		memcpy(h, hp, sizeof(h));
 
 	while (l > BLOCK) {
-		md(h, msg);
+		sha1_md(h, msg);
 		msg += BLOCK;
 		l -= BLOCK;
 	}
 
 	cnt = padding(buf, msg, len);
 	for (i = 0; i < cnt; i++) {
-		md(h, buf + BLOCK * i);
+		sha1_md(h, buf + BLOCK * i);
 	}
 
 	memset(Ph, 0x00, sizeof(H));
@@ -151,7 +155,6 @@ sha1_h(unsigned char *Ph, const unsigned char *msg, int len, const unsigned int 
 		}
 	}
 
-
 	return (0);
 }
 
@@ -159,7 +162,7 @@ sha1_h(unsigned char *Ph, const unsigned char *msg, int len, const unsigned int 
 int
 sha1(unsigned char *Ph, const unsigned char *msg, int len)
 {
-	return (sha1_h(Ph, msg, len, H));
+	return (sha1_h(Ph, msg, len, NULL));
 }
 
 

@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/ntlsha.cpp,v 1.1 2004/01/12 13:16:28 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/ntlsha.cpp,v 1.2 2004/03/25 13:34:19 iwane Exp $ */
 /* RFC 3174 -- see sha1.c */
 
 #include <NTL/ZZ.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "sha1.h"
 
@@ -18,7 +19,7 @@ ntl_sha1_h(ZZ &sha, const ZZ &m, unsigned int *t)
 	int ret;
 
 	msglen = NumBytes(m);
-	if (msglen <= sizeof(msg)) {
+	if (msglen <= sizeof(msg_buf)) {
 		msg = msg_buf;
 	} else {
 		msg = new unsigned char[msglen];
@@ -32,12 +33,7 @@ ntl_sha1_h(ZZ &sha, const ZZ &m, unsigned int *t)
 		msg[msglen - i - 1] = uch;
 	}
 
-	if (t == NULL) {
-		ret = sha1(h, msg, msglen);
-	} else {
-		ret = sha1_h(h, msg, msglen, t);
-
-	}
+	ret = sha1_h(h, msg, msglen, t);
 
 	if (msg != msg_buf)
 		delete [] msg;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.h,v 1.1 2004/01/12 13:16:28 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.h,v 1.2 2004/03/25 13:34:19 iwane Exp $ */
 
 #ifndef __SHA1_H__
 #define __SHA1_H__
@@ -9,6 +9,8 @@ extern "C" {
 
 int	sha1(unsigned char *, const unsigned char *, int len);
 int	sha1_h(unsigned char *, const unsigned char *, int len, const unsigned int *_h);
+
+void	sha1_md	(unsigned int *, const unsigned char *);
 
 
 #ifdef _WITH_NTL_

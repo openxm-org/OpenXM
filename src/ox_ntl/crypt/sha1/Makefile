@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/Makefile,v 1.1 2004/01/12 13:16:28 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/Makefile,v 1.2 2004/03/25 13:34:19 iwane Exp $
 
 CPP=g++
 CC =gcc
@@ -14,17 +14,17 @@ CPPFLAGS=$(CFLAGS) -D_WITH_NTL_ -I$(PREFIX)/include
 
 .SUFFIXES: .cpp .o .c
 
-SRCC=sha1.c
+SRCC=sha1.c sha1test.c
 SRCP=ntlsha.cpp
 
-OBJC=$(SRCC:.c=.o) $(SRCP:.cpp=.o)
+OBJC=$(SRCC:.c=.o)
 
-PROGS=sha1
+PROGS=sha1test
 
 all: $(PROGS)
 
-sha1: $(OBJC)
-#	$(CPP) $(CPPFLAGS) $(LDFLAGS) $(OBJC) -o $@
+$(PROGS): $(OBJC)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJC) -o $@ 
 
 
 .cpp.o:
