@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.2 2000/10/13 07:39:10 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "oxc: cannot connect.\n");
     }else {
 		fprintf(stderr, "oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
-		mathcap_sysinfo_set(20001006, "v2000.10.06", "oxc");
+	    sysinfo_set(20001006, "v2000.10.06", "oxc");
 		sm(oxfp);
 	}
     return 0;

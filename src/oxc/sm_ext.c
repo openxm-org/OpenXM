@@ -1,10 +1,11 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/oxc/sm_ext.c,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/signal.h>
 #include <ox_toolkit.h>
 #include "sm.h"
 
@@ -83,13 +84,37 @@ static int getargs(cmo ***args)
 static int pids[1024] = {0};
 static int pid_ptr = 0;
 
-int regist_pid(int pid)
+int pid_lookup(int pid)
+{
+	int i;
+	for(i=0; i<pid_ptr; i++) {
+		if (pids[i] == pid) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int pid_registed(int pid)
+{
+	return pid_lookup(pid)+1;
+}
+
+int pid_regist(int pid)
 {
 	if (pid_ptr < 1024) {
 		pids[pid_ptr++] = pid;
 		return pid;
 	}
 	return 0;
+}
+
+void pid_delete(int pid)
+{
+	int i = pid_lookup(pid);
+	if (i >= 0 && i != --pid_ptr) {
+		pids[i] = pids[pid_ptr];
+	}
 }
 
 int lf_oxc_open()
@@ -110,7 +135,7 @@ int lf_oxc_open()
 	pid = lf_oxc_open_main(cmd, port);
 	if (pid > 0) {
 		push(new_cmo_int32(pid));
-		regist_pid(pid);
+		pid_regist(pid);
 	}
 	return pid;
 }
@@ -125,6 +150,31 @@ void sm_mathcap(OXFILE *oxfp)
 		/* an error object must be pushed */
 	}
 }
+
+void sm_control_kill(OXFILE *oxfp)
+{
+	cmo_int32 *m = pop();
+	int pid = m->i;
+	if (m->tag != CMO_INT32 || !pid_registed(pid)) {
+		push_error(-1, m);
+	}else {
+		kill(pid, SIGKILL);
+		pid_delete(pid);
+	}
+}
+
+void sm_control_reset(OXFILE *oxfp)
+{
+	cmo_int32 *m = pop();
+	int pid = m->i;
+	if (m->tag != CMO_INT32 || !pid_registed(pid)) {
+		push_error(-1, m);
+	}else {
+		kill(pid, SIGUSR1);
+	}
+}
+
+void sm_control_start_engin(OXFILE *oxfp);
 
 static int intcmp(int key1, int key2)
 {
