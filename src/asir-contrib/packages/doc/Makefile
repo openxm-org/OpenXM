@@ -1,11 +1,21 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.3 1999/12/10 05:05:39 noro Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.4 1999/12/11 13:51:18 takayama Exp $
+# targets
+# all :   
+#        Extracts all tex-info files from ../src/*
+# install-help :
+#        Installing online help to OpenXM/lib/asir/help-*
+# install-document :
+#        Copy the documents to OpenXM/doc/asir-contrib
+OpenXM_ROOT=../../../../../OpenXM
+ASIRDOC=$(OpenXM_ROOT)/src/asir-doc
+ASIRLIB=$(OpenXM_ROOT)/../OpenXM_contrib2/asir2000/lib
+CONTRIB=$(OpenXM_ROOT)/src/asir-contrib/packages/src
+OpenXM_doc=$(OpenXM_ROOT)/doc
+DVIPS=dvips -f
+
 JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi
 EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi
 all : $(JPSRCS) $(EGSRCS)
-
-ASIRDOC=$(OpenXM_HOME)/src/asir-doc
-ASIRLIB=$(OpenXM_HOME)/src/asir2000/lib
-CONTRIB=$(OpenXM_HOME)/src/asir-contrib/packages/src
 
 oxxm.texi : $(ASIRLIB)/xm Makefile
 	/bin/rm -f oxxm.texi
@@ -60,21 +70,39 @@ help-eg: $(EGSRCS) $(ASIRDOC)/extract_func
 	mkdir help-eg tmp
 	cp cman-eg.texi $(EGSRCS) tmp
 	-(cd tmp; makeinfo --force cman-eg.texi)
-	(cd help-eg; for i in ../tmp/asir-contrib*; do $(ASIRDOC)/extract_func $$i; done)
+	(cd help-eg; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
 
 help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 	-rm -rf tmp help-jp
 	mkdir help-jp tmp
 	for i in cman.texi $(JPSRCS); do nkf -e $$i > tmp/$$i; done
 	-(cd tmp; makeinfo --force cman.texi)
-	(cd help-jp; for i in ../tmp/asir-contrib*; do $(ASIRDOC)/extract_func $$i; done)
+	(cd help-jp; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
 
 help: help-eg help-jp
 
 install-help: help
-	/bin/rm -f $(OpenXM_HOME)/lib/asir/help-jp/xm.help
-	mkdir $(OpenXM_HOME)/lib/asir/help-jp/xm.help
-	cp -f help-jp/* $(OpenXM_HOME)/lib/asir/help-jp/xm.help
+	/bin/rm -f $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+	mkdir $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+	cp -f help-jp/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+	/bin/rm -f $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+	cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+
+install-document : all clean-document
+	-ptex cman.texi
+	-ptex cman.texi
+	-$(DVIPS) cman >$(OpenXM_doc)/asir-contrib/cman-jp.ps
+	-tex cman-eg.texi
+	-tex cman-eg.texi
+	-$(DVIPS) cman-eg >$(OpenXM_doc)/asir-contrib/cman-eg.ps
+
+
+clean-document :
+	/bin/rm -rf $(OpenXM_doc)/asir-contrib
+	mkdir $(OpenXM_doc)/asir-contrib
+	touch $(OpenXM_doc)/asir-contrib/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_AUTOMATICDALLY_GENERATED.
+
 
 clean :
 	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi
