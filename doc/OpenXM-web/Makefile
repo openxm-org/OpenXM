@@ -1,7 +1,7 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.36 2002/03/02 01:00:24 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.37 2002/08/10 07:46:50 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
-WEBKOBE1=/home/web/OpenXM/1.2.1
+WEBKOBE1=/home/web/OpenXM/1.2.2
 OLDVERSION=1.2.1
 NEWVERSION=1.2.2
 OpenXM_doc=../.
@@ -29,10 +29,11 @@ ALL : all all-spec copy-doc
 all-spec : ${WEBKOBE1}/openxm-en.ps ${WEBKOBE1}/openxm-ja.ps
 
 
-copy-doc :
+copy-doc : 
 	/bin/rm -rf ${WEBKOBE1}/doc
 	mkdir ${WEBKOBE1}/doc
 	-(cd ../../doc ; cp -r Papers asir-contrib asir2000 kan96xx ox_math pari ${WEBKOBE1}/doc)
+	make ${WEBKOBE1}/doc/index.html
 
 copy-html: copy-html-intro copy-html-spec copy-html-poster copy-html-spec-101
 
@@ -219,5 +220,5 @@ print:
 version : version.c
 
 update-version: version
-	for i in $(FILES); do ./version --oldversioin ${OLDVERSION} --newversion ${NEWVERSION} --file $$i ; done
+	for i in $(FILES); do ./version --oldversion ${OLDVERSION} --newversion ${NEWVERSION} --file $$i ; done
 	@echo "Change the version of Makefile by hand. Edit Archive in index.html" 
