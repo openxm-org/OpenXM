@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.7 2000/01/05 06:09:11 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.8 2000/01/22 06:29:18 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -14,9 +14,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include <gmp.h>
 #include <mathlink.h>
-#include "ox.h"
+#include <ox_toolkit.h>
 #include "serv2.h"
 
 static int send_ox_sync_ball(int fd);

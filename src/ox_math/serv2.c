@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.12 2000/01/05 06:09:11 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.13 2000/01/22 06:29:18 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -20,8 +20,7 @@
 #include <unistd.h>
 #include <gmp.h>
 #include <mathlink.h>
-#include "ox.h"
-#include "parse.h"
+#include <ox_toolkit.h>
 #include "serv2.h"
 
 extern int flag_mlo_symbol;
@@ -54,13 +53,13 @@ static int extend_stack()
 int push(cmo* m)
 {
 #if DEBUG
-    symbol *symp;
+    symbol_t symp;
 
     if (m->tag == CMO_STRING) {
         fprintf(stderr, "ox_math:: a CMO_STRING(%s) was pushed.\n", ((cmo_string *)m)->s);
     }else {
         symp = lookup_by_tag(m->tag);
-        fprintf(stderr, "ox_math:: a %s was pushed.\n", symp->key);
+        fprintf(stderr, "ox_math:: a %s was pushed.\n", symbol_get_key(symp));
     }
 #endif
     stack[stack_pointer] = m;
@@ -97,7 +96,7 @@ int sm_popCMO(int fd_write)
     cmo* m = pop();
 #ifdef DEBUG
     symbol *symp = lookup_by_tag(m->tag);
-    fprintf(stderr, "ox_math:: opecode = SM_popCMO. (%s)\n", symp->key);
+    fprintf(stderr, "ox_math:: opecode = SM_popCMO. (%s)\n", symbol_get_key(symp));
 #endif
 
     if (m != NULL) {
@@ -181,7 +180,7 @@ int sm_executeStringByLocalParser(int fd_write)
     }
 #ifdef DEBUG
     symp = lookup_by_tag(m->tag);
-    fprintf(stderr, "ox_math:: error. the top of stack is %s.\n", symp->key);
+    fprintf(stderr, "ox_math:: error. the top of stack is %s.\n", symbol_get_key(symp));
 #endif
     return SM_executeStringByLocalParser;
 }
@@ -231,8 +230,8 @@ int execute_sm_command(int fd_write, int code)
 {
     int err = 0;
 #ifdef DEBUG    
-    symbol *sp = lookup_by_tag(code);
-    fprintf(stderr, "ox_math:: %s received.\n", sp->key);
+    symbol_t sp = lookup_by_tag(code);
+    fprintf(stderr, "ox_math:: %s received.\n", symbol_get_key(sp));
 #endif
 
     switch(code) {

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.12 2000/01/22 06:29:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.13 2000/02/14 09:39:12 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -20,9 +20,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <mathlink.h>
-
-#include "ox.h"
-#include "parse.h"
+#include <ox_toolkit.h>
 #include "serv2.h"
 
 static char *host    = "localhost";
@@ -84,7 +82,6 @@ int OX_reset(int id)
 int OX_parse(int id, char *s)
 {
     cmo *m;
-    symbol *symp;
     int len = strlen(s);
     init_parser(s);
 

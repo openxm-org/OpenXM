@@ -1,10 +1,10 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.5 1999/11/29 12:09:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.6 1999/12/14 09:31:56 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
 
-#include "ox.h"
+#include <ox_toolkit.h>
 
 #define FLAG_MLTKSYM_IS_INDETERMINATE   0
 #define FLAG_MLTKSYM_IS_STRING          1

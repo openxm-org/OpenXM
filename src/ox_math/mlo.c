@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.4 2000/01/05 06:09:11 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.5 2000/01/22 06:29:18 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -13,10 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <gmp.h>
 #include <mathlink.h>
-#include "oxtag.h"
-#include "ox.h"
+#include <ox_toolkit.h>
 #include "mlo.h"
 #include "serv2.h"
 

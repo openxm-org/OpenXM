@@ -1,9 +1,9 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.4 2000/01/22 06:30:23 ohara Exp $ */
 #ifndef _MLO_H_
 
 #define _MLO_H_
 
-#include "ox.h"
+#include <ox_toolkit.h>
 
 /* definitions of Mathlink Local Objects. */
 typedef struct {
