@@ -1,7 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM$
-# $Id$
+# $OpenXM: OpenXM/src/ox_math/documents/readme.jp,v 1.2 1999/11/02 06:12:00 ohara Exp $
 
 ☆ Open Mathematica マニュアル
 
@@ -37,7 +36,13 @@ In[1]:= Install["math2ox"]
 In[2] := OxStart["ox_sm1"]
 によって OpenXM サーバに接続する。接続先は ox_sm1 である。
 
-In[3] := OxClose[]
+CMO を送る場合には
+
+In[3] := OxParse["(CMO_DISTRIBUTED_POLYNOMIAL, (CMO_DMS_GENERIC), (CMO_ZERO))\n"]
+
+とすれば、正しい CMO であれば送信される。失敗した場合には何も起こらない.
+
+In[4] := OxClose[]
 とすると、接続が終了する。
 
 ☆ Mathematica を OX のサーバとして使おう。
@@ -53,12 +58,14 @@ In[3] := OxClose[]
 (1) SM_popString が来たときに、CMO_ERROR2 を返すようにする。
     (注) ox_sm1 は、長さ0の文字列を返す。
 (2) CMO_ERROR2 に SM_popString できない CMO 型の列を返す。
-(3) ox の -insecure オプションに対応したクライアントの設計。
+(3) ox の -insecure オプションに対応したクライアントの設計。(done)
 (4) bconv の逆向き変換。
 (5) bconv で
     (CMO_DISTRIBUTED_POLYNOMIAL,(CMO_DMS_GENERIC),(CMO_ZERO))
-    が変換できるようにする。
-
-at Wed Jul 14 17:06:16 JST 1999
-  parse.c の CMO_STRING の size_unmached なエラーの処理を緩くした。
-
+    が変換できるようにする。(done)
+(6) mathcap 新仕様への追随。(done)
+(7) ox_math スタックマシンの挙動を制御できるようにする。
+    例 executeStringByLocalParser(":indeterminate2string")
+(8) OxParse で スタックマシンコマンドを扱えるようにする。(done)
+(9) CMO_ERROR2 の実装に問題あり。
+(10) Solaris で正しく走るようにする。(done)
