@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_math/Makefile.cygwin,v 1.1 2002/08/15 02:31:52 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -20,6 +20,12 @@ BINARIES  = ox_math math2ox
 INSTALL   = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
 
+.SUFFIXES: .tm .c
+
+.tm.c:
+	-rm -f $@
+	${MPREP} $? > $@
+
 all: ${BINARIES}
 
 serv1.o sm.o sm_ext.o mlo.o: sm.h
@@ -27,12 +33,8 @@ serv1.o sm.o sm_ext.o mlo.o: sm.h
 ox_math: serv1.o sm.o sm_ext.o mlo.o
 	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ sm.o sm_ext.o serv1.o mlo.o ${LIBS}
 
-math2ox: math2ox.o math2.o mlo.o sm_ext.o
+math2ox: math2ox.o math2.o mlo.o sm.o sm_ext.o
 	${CC} ${CFLAGS} ${STATIC_LINK_FLAGS} -o $@ math2ox.o math2.o sm.o sm_ext.o mlo.o ${LIBS}
-
-math2.c: math2.tm
-	-rm -f $@
-	${MPREP} $? > $@
 
 install: install-binary install-document
 
