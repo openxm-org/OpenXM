@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.6 2002/10/17 13:40:28 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.7 2002/10/21 01:59:15 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -322,7 +322,7 @@ def
   arg1
 } def
 
-%% remove GET /?msg=
+%% remove GET /?msg= or msg=
 /removeGET {
   /arg1 set
   [/in-removeGET /s /s2 /i /j /i0
@@ -368,6 +368,8 @@ def
      i0 1 s length 1 sub {
        /i set
        s2 j << s i get (string) dc >> put
+       j s2 length 1 sub lt { s2 j 1 add ( ) put } { } ifelse
+       %% might cause a BUG. It should be improved.
        j 1 add /j set
      } for
      /arg1 s2 def
