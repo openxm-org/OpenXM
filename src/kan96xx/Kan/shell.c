@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.4 2003/12/03 23:26:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.5 2003/12/04 05:27:19 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -58,42 +58,42 @@ void KoxShellHelp(char *key,FILE *fp) {
 #define HSIZE 20
   char *s[HSIZE];
   if (key == NULL) {
-	fprintf(fp,"\n");
+    fprintf(fp,"\n");
     for (i=0; strcmp(keys[i],"@@@@gatekeeper") != 0; i++) {
-	  fprintf(fp,"%s\n",keys[i]);
-	  KoxShellHelp(keys[i],fp);
-	  fprintf(fp,"\n",keys[i]);
-	}
-	return;
+      fprintf(fp,"%s\n",keys[i]);
+      KoxShellHelp(keys[i],fp);
+      fprintf(fp,"\n",keys[i]);
+    }
+    return;
   }
   for (i=0; i<HSIZE; i++) s[i] = NULL;
   if (strcmp(key,"export")==0) {
-	s[0] = "export env_name  =  value";
-	s[1] = "export env_name = ";
-	s[2] = "Example: [(export) (PATH) (=) (/usr/new/bin:${PATH})] oxshell";
-	s[3] = NULL;
+    s[0] = "export env_name  =  value";
+    s[1] = "export env_name = ";
+    s[2] = "Example: [(export) (PATH) (=) (/usr/new/bin:${PATH})] oxshell";
+    s[3] = NULL;
   }else if (strcmp(key,"which")==0) {
-	s[0] = "which cmd_name";
-	s[1] = "which cmd_name path";
-	s[2] = "Example: [(which) (ls)] oxshell";
+    s[0] = "which cmd_name";
+    s[1] = "which cmd_name path";
+    s[2] = "Example: [(which) (ls)] oxshell";
     s[3] = NULL;
   }else if (strcmp(key,"command")==0) {
-	s[0] = "Executing a command";
-	s[1] = "cmdname arg1 arg2 ... ";
-	s[2] = "Example 1: /afo (Hello! ) def [(cat) (stringIn://afo)] oxshell";
-	s[3] = "Example 2: [(polymake) (stringInOut://afo.poly) (FACETS)] oxshell";
+    s[0] = "Executing a command";
+    s[1] = "cmdname arg1 arg2 ... ";
+    s[2] = "Example 1: /afo (Hello! ) def [(cat) (stringIn://afo)] oxshell";
+    s[3] = "Example 2: [(polymake) (stringInOut://afo.poly) (FACETS)] oxshell";
     s[4] = NULL;
   }else if (strcmp(key,"redirect")==0) {
-	s[0] = "The following redirect operators are implemented.";
-	s[1] = "< > 2>";
-	s[2] = "Example 1: [(ls) (hoge) (2>) (stringOut://afo)] oxshell\n    afo ::";
-	s[3] = "Example 2: [(cp) ] addStdoutStderr oxshell\n      [@@@stdout @@@stderr] ::";
+    s[0] = "The following redirect operators are implemented.";
+    s[1] = "< > 2>";
+    s[2] = "Example 1: [(ls) (hoge) (2>) (stringOut://afo)] oxshell\n    afo ::";
+    s[3] = "Example 2: [(cp) ] addStdoutStderr oxshell\n      [@@@stdout @@@stderr] ::";
     s[4] = NULL;
   }else{
   }
   i = 0;
   while (s[i] != NULL) {
-	fprintf(fp,"%s\n",s[i++]);
+    fprintf(fp,"%s\n",s[i++]);
   }
 }
 
@@ -108,7 +108,7 @@ static struct object KoxShell_test1(struct object ob) {
   if (ob.tag != Sarray) errorKan1("%s\n","KoxShell requires an array as an argument.");
   n = getoaSize(ob);
   for (i=0; i<n; i++) {
-	if (getoa(ob,i).tag != Sdollar) errorKan1("%s\n","KoxShell requires an array of string as an argument.");
+    if (getoa(ob,i).tag != Sdollar) errorKan1("%s\n","KoxShell requires an array of string as an argument.");
   }
 
   if (n == 0) return(rob);
@@ -116,18 +116,18 @@ static struct object KoxShell_test1(struct object ob) {
   if (strcmp(cmd,"testmain")==0) {
     rob = testmain(ob);
   }else if (strcmp(cmd,"which")==0) {
-	if (n == 2) {
-	  rob = KoxWhich(getoa(ob,1),KpoInteger(0));
-	}else if (n==3) {
-	  rob = KoxWhich(getoa(ob,1),getoa(ob,2));
-	}else{
-	  errorKan1("%s\n","shell: << which command-name >> or << which command-name path >>");
-	}
-	return(rob);
+    if (n == 2) {
+      rob = KoxWhich(getoa(ob,1),KpoInteger(0));
+    }else if (n==3) {
+      rob = KoxWhich(getoa(ob,1),getoa(ob,2));
+    }else{
+      errorKan1("%s\n","shell: << which command-name >> or << which command-name path >>");
+    }
+    return(rob);
   }else if (strcmp(cmd,"export")==0) {
-	rob=oxsSetenv(ob);
+    rob=oxsSetenv(ob);
   }else{
-	rob = oxsExecuteBlocked(ob);
+    rob = oxsExecuteBlocked(ob);
   }
   return(rob);
 }
@@ -164,26 +164,26 @@ static struct object oxsSetenv(struct object ob) {
   n = getoaSize(ob);
   if ((n != 4) && (n != 3)) errorKan1("%s\n","oxsSetenv requires an array of srings. Length must be 3 or 4.");
   for (i=0; i<n; i++) {
-	if (getoa(ob,i).tag != Sdollar) errorKan1("%s\n","oxsSetenv requires an array of srings. Length must be 3 or 4.");
+    if (getoa(ob,i).tag != Sdollar) errorKan1("%s\n","oxsSetenv requires an array of srings. Length must be 3 or 4.");
   }
 
   if (strcmp(KopString(getoa(ob,2)),"=") != 0) {
-	errorKan1("%s\n","oxsSetenv, example [(export)  (PATH)  (=)  (/usr/new/bin:$PATH)] oxshell");
+    errorKan1("%s\n","oxsSetenv, example [(export)  (PATH)  (=)  (/usr/new/bin:$PATH)] oxshell");
   }
   envp = KopString(getoa(ob,1));
   if (n == 4) {
-	new = KopString(getoa(ob,3));
-	/* printf("%s\n",new); */
-	new = oxEvalEnvVar(new);
-	/* printf("%s\n",new); */
-	r = setenv(envp,new,1);
+    new = KopString(getoa(ob,3));
+    /* printf("%s\n",new); */
+    new = oxEvalEnvVar(new);
+    /* printf("%s\n",new); */
+    r = setenv(envp,new,1);
   }else{
-	unsetenv(envp); r = 0;
+    unsetenv(envp); r = 0;
   }
   if (r != 0) errorKan1("%s\n","setenv failed.");
   new = (char *) getenv(envp);
   if (new != NULL) {
-	rob = KpoString((char *) getenv(envp));
+    rob = KpoString((char *) getenv(envp));
   }
   return(rob);
 }
@@ -342,7 +342,7 @@ static struct object testmain(struct object ob) {
   getoa(ot,2)=KpoString("${HOME}/t.t");
   av=oxsBuildArgv(ot);
   for (i=0; av[i] != NULL; i++) {
-	printf("%s\n",av[i]);
+    printf("%s\n",av[i]);
   }
   printf("------------------------------\n");
 
@@ -378,15 +378,15 @@ char *oxsVarToFile(char *v,char *ext,char *command,int usetmp) {
   n = strlen(prog);
   prevc = 0;
   for (i=0; i<n ; i++) {
-	c = prog[i];
-	if (winname) {
-	  if ((c == '\n') && (prevc != 0xd)) {
-		fputc(0xd,fp); fputc(c,fp);
-	  }
-	}else{
-	  fputc(c,fp);
-	}
-	prevc = c;
+    c = prog[i];
+    if (winname) {
+      if ((c == '\n') && (prevc != 0xd)) {
+        fputc(0xd,fp); fputc(c,fp);
+      }
+    }else{
+      fputc(c,fp);
+    }
+    prevc = c;
   }
   if (fclose(fp) != 0) errorKan1("%s\n","oxsVarToFile(), fail to close the file.");
 
@@ -403,21 +403,21 @@ int oxsFileToVar(char *v,char *fname) {
   limit = 1024;
   fp = fopen(fname,"r");
   if (fp == NULL) {
-	fprintf(stderr,"Filename=%s\n",fname);
-	errorKan1("%s\n","oxsFileToVar(), the file cannot be opened.");
+    fprintf(stderr,"Filename=%s\n",fname);
+    errorKan1("%s\n","oxsFileToVar(), the file cannot be opened.");
   }
   s = (char *)mymalloc(limit);
   if (s == NULL) errorKan1("%s\n","No more memory in oxsFileToVar().");
 
   i = 0;
   while ((c=fgetc(fp)) != EOF) {
-	s[i] = c; s[i+1] = 0;
-	if (i > limit - 10) {
-	  sold = s; limit *= 2;
-	  s = (char *)mymalloc(limit);
-	  if (s == NULL) errorKan1("%s\n","No more memory in oxsFileToVar().");
-	  strcpy(s,sold);
-	}
+    s[i] = c; s[i+1] = 0;
+    if (i > limit - 10) {
+      sold = s; limit *= 2;
+      s = (char *)mymalloc(limit);
+      if (s == NULL) errorKan1("%s\n","No more memory in oxsFileToVar().");
+      strcpy(s,sold);
+    }
     i++;
   }
   fclose(fp);
@@ -441,7 +441,7 @@ static char **oxsBuildArgv(struct object ob) {
   if (ob.tag != Sarray) errorKan1("%s\n","oxsBuildArgv() requires an array as an argument.");
   n = getoaSize(ob);
   for (i=0; i<n; i++) {
-	if (getoa(ob,i).tag != Sdollar) errorKan1("%s\n","oxsBuildArgv() requires an array of string as an argument.");
+    if (getoa(ob,i).tag != Sdollar) errorKan1("%s\n","oxsBuildArgv() requires an array of string as an argument.");
   }
 
   argv = (char **) mymalloc(sizeof(char *)*(n+2));
@@ -452,57 +452,57 @@ static char **oxsBuildArgv(struct object ob) {
   s = oxEvalEnvVar(s);
   ocmd = KoxWhich(KpoString(s),KpoInteger(0));
   if (ocmd.tag != Sdollar) {
-	argv[0] = NULL;
+    argv[0] = NULL;
   }else{
-	argv[0] = KopString(ocmd);
+    argv[0] = KopString(ocmd);
   }
   argv[1] = (char *)NULL;
   if (argv[0] == NULL) {
-	fprintf(stderr,"cmdname=%s\n",s);
-	errorKan1("%s\n","oxsBuildArgv() Command is not found.\n");
+    fprintf(stderr,"cmdname=%s\n",s);
+    errorKan1("%s\n","oxsBuildArgv() Command is not found.\n");
   }
   for (i=1; i<n; i++) {
-	argv[i] = argv[i+1] = NULL;
-	s = KopString(getoa(ob,i));
-	s = oxEvalEnvVar(s);
-	type = oxsIsURI(s);
-	if (type == NULL) {
-	  argv[i] = s;
-	}else{
-	  /* Case when argv[i] is like "stringInOut:abc.poly" */
-	  v = oxsURIgetVarName(s);
-	  ext = oxsURIgetExtension(s);
-	  if (strcmp(type,"stringIn") == 0) {
-		argv[i] = oxsVarToFile(v,ext,argv[0],usetmp);
-		AfterDeleteFile[AfterD++] = argv[i];
-	  }else if (strcmp(type,"stringInOut") == 0) {
-		argv[i] = oxsVarToFile(v,ext,argv[0],usetmp);
-		AfterDeleteFile[AfterD++] = argv[i];
-		AfterReadFile[AfterPt] = argv[i];
-		AfterSetVar[AfterPt] = v;
-		AfterPt++;
-		if (AfterPt >= MAXFILES) {
-		  AfterPt=0;
-		  errorKan1("%s\n","oxsBuildArgv(), Too may files to open.");
-		}
-	  }else if (strcmp(type,"stringOut") == 0) {
-		argv[i] = generateTMPfileName2(v,ext,usetmp,win);
-		AfterDeleteFile[AfterD++] = argv[i];
-		AfterReadFile[AfterPt] = argv[i];
-		AfterSetVar[AfterPt] = v;
-		AfterPt++;
-		if (AfterPt >= MAXFILES) {
-		  AfterPt=0;
-		  errorKan1("%s\n","oxsBuildArgv(), Too may files to open.");
-		}
-	  }else {
-		errorKan1("%s\n","This URI type has not yet been implemented.");
-	  }
-	  if (AfterD >= MAXFILES) {
-		  AfterD=0;
-		  errorKan1("%s\n","oxsBuildArgv(), Too may files to open.");
-	  }
-	}
+    argv[i] = argv[i+1] = NULL;
+    s = KopString(getoa(ob,i));
+    s = oxEvalEnvVar(s);
+    type = oxsIsURI(s);
+    if (type == NULL) {
+      argv[i] = s;
+    }else{
+      /* Case when argv[i] is like "stringInOut:abc.poly" */
+      v = oxsURIgetVarName(s);
+      ext = oxsURIgetExtension(s);
+      if (strcmp(type,"stringIn") == 0) {
+        argv[i] = oxsVarToFile(v,ext,argv[0],usetmp);
+        AfterDeleteFile[AfterD++] = argv[i];
+      }else if (strcmp(type,"stringInOut") == 0) {
+        argv[i] = oxsVarToFile(v,ext,argv[0],usetmp);
+        AfterDeleteFile[AfterD++] = argv[i];
+        AfterReadFile[AfterPt] = argv[i];
+        AfterSetVar[AfterPt] = v;
+        AfterPt++;
+        if (AfterPt >= MAXFILES) {
+          AfterPt=0;
+          errorKan1("%s\n","oxsBuildArgv(), Too may files to open.");
+        }
+      }else if (strcmp(type,"stringOut") == 0) {
+        argv[i] = generateTMPfileName2(v,ext,usetmp,win);
+        AfterDeleteFile[AfterD++] = argv[i];
+        AfterReadFile[AfterPt] = argv[i];
+        AfterSetVar[AfterPt] = v;
+        AfterPt++;
+        if (AfterPt >= MAXFILES) {
+          AfterPt=0;
+          errorKan1("%s\n","oxsBuildArgv(), Too may files to open.");
+        }
+      }else {
+        errorKan1("%s\n","This URI type has not yet been implemented.");
+      }
+      if (AfterD >= MAXFILES) {
+          AfterD=0;
+          errorKan1("%s\n","oxsBuildArgv(), Too may files to open.");
+      }
+    }
   }
   return(argv);
 }
@@ -518,25 +518,25 @@ static struct object oxsExecuteBlocked(struct object ob)
   r=oxForkExecBlocked(argv);  /* bug: what happen when NoX? */
   /*
   if (1) {
-	for (i=0; argv[i] != NULL; i++) {
-	  fprintf(stderr,"argv[%d]=%s\n",i,argv[i]);
-	}
-	errorKan1("%s\n","ForkExecBlocked failed.");
+    for (i=0; argv[i] != NULL; i++) {
+      fprintf(stderr,"argv[%d]=%s\n",i,argv[i]);
+    }
+    errorKan1("%s\n","ForkExecBlocked failed.");
   }
   */
   if (AfterPt > 0) {
-	for (i=0; i< AfterPt; i++) {
-	  oxsFileToVar(AfterSetVar[i],AfterReadFile[i]);
-	}
+    for (i=0; i< AfterPt; i++) {
+      oxsFileToVar(AfterSetVar[i],AfterReadFile[i]);
+    }
   }
   AfterPt = 0;
 
   if (AfterD > 0) {
-	for (i=0; i< AfterD; i++) {
-	  if (!KeepTmpFiles) {
-	    oxDeleteFile(AfterDeleteFile[i]); 
+    for (i=0; i< AfterD; i++) {
+      if (!KeepTmpFiles) {
+        oxDeleteFile(AfterDeleteFile[i]); 
       }
-	}
+    }
   }
   AfterD = 0;
 
@@ -555,44 +555,44 @@ static char **oxsBuildArgvRedirect(char **argv) {
   j=0;
   /* bug: Critical area, do not make an interruption. */
   for (i=0; i<n; i++) {
-	if (strcmp(argv[i],"<")==0) {
-	  fname=argv[i+1];
-	  OX_P_stdin = open(fname,O_RDONLY);
-	  if (OX_P_stdin < 0) {
-		OX_P_stdin = -1;
-		oxResetRedirect();
-		errorKan1("%s\n","oxsBuildArgvRedirect fails to open the input file.");
-	  }
+    if (strcmp(argv[i],"<")==0) {
+      fname=argv[i+1];
+      OX_P_stdin = open(fname,O_RDONLY);
+      if (OX_P_stdin < 0) {
+        OX_P_stdin = -1;
+        oxResetRedirect();
+        errorKan1("%s\n","oxsBuildArgvRedirect fails to open the input file.");
+      }
       i++;
-	}else if (strcmp(argv[i],">")==0) {
-	  fname = argv[i+1];
-	  fp == NULL;
-	  if (fname != NULL) {
-		fp = fopen(fname,"w");
-	  }
+    }else if (strcmp(argv[i],">")==0) {
+      fname = argv[i+1];
+      fp == NULL;
+      if (fname != NULL) {
+        fp = fopen(fname,"w");
+      }
       if (fp == NULL) {
-		oxResetRedirect();
-		errorKan1("%s\n","oxsBuildArgvRedirect, cannot open the output file.\n");
-	  }
-	  fclose(fp); /* touch */
-	  OX_P_stdout = open(fname,O_WRONLY);
-	  i++;
-	}else if (strcmp(argv[i],"2>") == 0) {
-	  fname = argv[i+1];
-	  fp == NULL;
-	  if (fname != NULL) {
-		fp = fopen(fname,"w");
-	  }
+        oxResetRedirect();
+        errorKan1("%s\n","oxsBuildArgvRedirect, cannot open the output file.\n");
+      }
+      fclose(fp); /* touch */
+      OX_P_stdout = open(fname,O_WRONLY);
+      i++;
+    }else if (strcmp(argv[i],"2>") == 0) {
+      fname = argv[i+1];
+      fp == NULL;
+      if (fname != NULL) {
+        fp = fopen(fname,"w");
+      }
       if (fp == NULL) {
-		oxResetRedirect();
-		errorKan1("%s\n","oxsBuildArgvRedirect, cannot open the output (stderr) file.\n");
-	  }
-	  fclose(fp); /* touch */
-	  OX_P_stderr = open(fname,O_WRONLY);
-	  i++;
-	}else{
-	  newargv[j++] = argv[i]; 
-	}
+        oxResetRedirect();
+        errorKan1("%s\n","oxsBuildArgvRedirect, cannot open the output (stderr) file.\n");
+      }
+      fclose(fp); /* touch */
+      OX_P_stderr = open(fname,O_WRONLY);
+      i++;
+    }else{
+      newargv[j++] = argv[i]; 
+    }
   }
   return( newargv );
 }
