@@ -1,8 +1,9 @@
-/* $OpenXM: OpenXM/src/k097/object.kk,v 1.3 2001/01/05 11:14:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/object.kk,v 1.4 2001/01/08 05:26:49 takayama Exp $ */
 /* object.kk , 1997, 4/11. */
 Protect("showln",0);
 
 class Object extends PrimitiveObject {
+  local ;
   def new0() {
     return(Object);
   }
@@ -35,6 +36,7 @@ HelpAdd(["IsObject",
    1997, 4/17 
 */
 class Gmp extends Object {
+  local ;
   def BitAnd(a,b) {
     sm1("[(and) ",a," ",b," ] mpzext /FunctionValue set ");
   }
@@ -75,6 +77,7 @@ HelpAdd(["Gmp.",
 ]);
 
 class Stderr extends Object {
+  local ;
   def Print(s) {
      s = ToString(s);
      if (!Boundp("Stderr_fd")) {

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/simple.y,v 1.2 2000/01/21 03:01:26 takayama Exp $ */
 /* simple.y 1996, 1/1 --- 1/6 */
 /* simple.y.ccc,  1996, 4/1 --- */
 %{
@@ -460,13 +460,6 @@ class_definition
 	/* debug */ K00foo1();
         K00toPrimitiveClass();
       }
-  |
-    class_definition_prefix  globalstatements '}'
-      { pkkan(" PrimitiveContextp setcontext ");
-	K00putIncetanceVariable(IEXIT," ");
-	/* debug */ K00foo1();
-	K00toPrimitiveClass();
-      }
   ;
 
 class_definition_prefix
@@ -489,6 +482,10 @@ class_definition_prefix
 
 incetance_variables
   : LOCAL incetance_variables_list ';'
+      {
+	K00putIncetanceVariable(IEXIT," ");
+      }
+  | LOCAL ';'
       {
 	K00putIncetanceVariable(IEXIT," ");
       }

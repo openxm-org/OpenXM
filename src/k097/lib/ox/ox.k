@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.8 2000/12/21 09:25:23 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.9 2000/12/27 10:16:12 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -72,7 +72,7 @@ class OXcontrol extends Object {
   }
   def start() {
     local c,e, pass, peer, data, s, stmp;
-    this = new(super.new0());
+    this = new(Object.new0());
     sm1(" [(oxGenPass)] extension /pass set ");
     sm1(" [(oxGetPort1) (localhost)] extension /peer set ");
     sm1(" /data peer 1 get toString def ");
@@ -125,8 +125,8 @@ class OX extends OXcontrol {
     if (Length(Arglist) == 1) {
       control = null;
     }
-    this = new(super.generate(control));
-    control = super.getControl();
+    this = new(OXcontrol.generate(control));
+    control = this.getControl();
     sm1(" [(oxGetPort1) (localhost)] extension /peer set ");
     sm1(" /data peer 1 get def ");
     /* BUG: control.pushCMO(data) does not work. 
@@ -222,3 +222,15 @@ def startAsir() {
   return(a);
 }
 
+class Asir extends OX {
+  local ;
+  def generate() {
+    local asirpeer,a;
+    this = new(OX.generate("ox_asir",null));
+    a = this;
+    asirpeer = (a.getEngine()).getChannel();
+    Println(asirpeer);
+    sm1(" [asirpeer oxasirpath.asirlib] loadAsirFile ");
+    return(this);
+  }
+}
