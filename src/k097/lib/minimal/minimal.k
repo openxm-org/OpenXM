@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.5 2000/05/05 08:13:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.6 2000/05/06 07:58:37 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -37,6 +37,7 @@ def load_tower() {
     sm1(" [(parse) (k0-tower.sm1) pushfile ] extension ");
     sm1(" /k0-tower.sm1.loaded 1 def ");
   }
+  sm1(" oxNoX ");
 }
 load_tower();
 SonAutoReduce = true;
@@ -1152,20 +1153,30 @@ def Sschreyer(g) {
                   /* i must be equal to f[2], I think. Double check. */
 
                   /* Correction Of Constant */
-                  c2 = -f[6];  /* or f[6]?  Double check. */
+                  c2 = f[6];  /* or -f[6]?  Double check. */
+                  Print("c2="); Println(c2);
                   nn = Length(bases);
                   for (ii=0; ii<nn;ii++) {
                      if ((ii != place) && (! IsNull(bases[ii]))) {
-                       bases[ii] = bases[ii]*c2;
+                       m = Length(bases[ii]);
+                       for (jj=0; jj<m; jj++) {
+                         if (jj != place) {
+                           bases[ii,jj] = bases[ii,jj]*c2;
+                         }
+                       } 
                      }
                   }
 
+                  Print("Old freeRes[level] = "); sm1_pmat(freeRes[level]);
                   freeRes[level] = bases;
+                  Print("New freeRes[level] = "); sm1_pmat(freeRes[level]);
 
                  /* Update the freeRes[level-1] */
+                  Print("Old freeRes[level-1] = "); sm1_pmat(freeRes[level-1]);
                   bases = freeRes[level-1];
                   bases[place] = f[0];
                   freeRes[level-1] = bases; 
+                  Print("New freeRes[level-1] = "); sm1_pmat(freeRes[level-1]);
 
                   reducer[level-1,place] = f[1];
                }else{
