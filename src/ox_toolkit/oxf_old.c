@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.1 2000/10/10 05:23:21 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/param.h>
@@ -98,9 +97,11 @@ void set_OpenXM_HOME()
     }
 }
 
-void ox_exec_local(char* host, char* ctl_prog, char* dat_prog, int portControl, int portStream, char *passwd)
+void ox_exec_local(char* ctl_prog, char* dat_prog, int portControl, int portStream, char *passwd)
 {
     char  ctl[128], dat[128];
+    char localhost[MAXHOSTNAMELEN];
+
 
     sprintf(ctl, "%d", portControl);
     sprintf(dat, "%d", portStream);
@@ -109,14 +110,15 @@ void ox_exec_local(char* host, char* ctl_prog, char* dat_prog, int portControl, 
     ctl_prog = concat_openxm_home_bin(ctl_prog);
     dat_prog = concat_openxm_home_bin(dat_prog);
 
-    if (fork() == 0) {
-        execlp("oxlog", "oxlog", "xterm", "-icon", "-e", ctl_prog,
-              "-reverse", "-ox", dat_prog,
-              "-data", dat, "-control", ctl, "-pass", passwd,
-              "-host", host, NULL);
-        exit(1);
-    }
-
+    if (gethostname(localhost, MAXHOSTNAMELEN)==0) {
+		if (fork() == 0) {
+			execlp("oxlog", "oxlog", "xterm", "-icon", "-e", ctl_prog,
+				   "-reverse", "-ox", dat_prog,
+				   "-data", dat, "-control", ctl, "-pass", passwd,
+				   "-host", localhost, NULL);
+			exit(1);
+		}
+	}
 }
 
 /*
@@ -135,11 +137,11 @@ OXFILE *ox_start(char* host, char* ctl_prog, char* dat_prog)
     int   listen[2];
     short ports[2] = {0};  /* short! */
 
-    listen[0] = mysocketListen(host, &ports[0]);
-    listen[1] = mysocketListen(host, &ports[1]);
+	/* host を無視 */
+    listen[0] = oxf_listen(&ports[0]);
+    listen[1] = oxf_listen(&ports[1]);
 
-    ox_exec_local(host, ctl_prog, dat_prog, ports[0], ports[1], passwd);
-
+    ox_exec_local(ctl_prog, dat_prog, ports[0], ports[1], passwd);
     ct = mysocketAccept2(listen[0], passwd);
     if (ct != NULL) {
         usleep(10);   /* zzz... */

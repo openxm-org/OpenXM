@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.2 2000/10/11 06:56:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.3 2000/10/11 08:22:58 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -19,6 +19,11 @@
 #include "mysocket.h"
 #include "ox_toolkit.h"
 
+static int send_int32_lbo(OXFILE *oxfp, int int32);
+static int send_int32_nbo(OXFILE *oxfp, int int32);
+static int receive_int32_lbo(OXFILE *oxfp);
+static int receive_int32_nbo(OXFILE *oxfp);
+
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
 	int n = read(oxfp->fd, buffer, size*num);
@@ -32,6 +37,44 @@ int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp)
 {
     return write(oxfp->fd, buffer, size*num);
 }
+
+/* sending an object of int32 type with Network Byte Order. 
+   (not equal to cmo_int32 type)  */
+static int send_int32_nbo(OXFILE *oxfp, int int32)
+{
+    int32 = htonl(int32);
+    return oxf_write(&int32, sizeof(int), 1, oxfp);
+}
+
+/* sending an object of int32 type with Local Byte Order. 
+   (not equal to cmo_int32 type)  */
+static int send_int32_lbo(OXFILE *oxfp, int int32)
+{
+    return oxf_write(&int32, sizeof(int), 1, oxfp);
+}
+
+/* receiving an object of int32 type with Network Byte Order. 
+   (not equal to cmo_int32 type)  */
+static int receive_int32_nbo(OXFILE *oxfp)
+{
+    int tag;
+    oxf_read(&tag, sizeof(int), 1, oxfp);
+    return ntohl(tag);
+}
+
+/* receiving an object of int32 type with Local Byte Order. 
+   (not equal to cmo_int32 type)  */
+static int receive_int32_lbo(OXFILE *oxfp)
+{
+    int tag;
+    oxf_read(&tag, sizeof(int), 1, oxfp);
+    return tag;
+}
+
+/* socket システムコールなどで socket を開いたのち、
+   fdopen(sd, "a+") でバッファリングする(予定)。("w+" ではない)
+   バッファリングの後、バイトオーダを決定し、
+   oxf_setopt() で関数ポインタを設定し直す。*/
 
 OXFILE *oxf_open(int fd)
 {
@@ -105,6 +148,15 @@ void oxf_setopt(OXFILE *oxfp, int mode)
         oxfp->send_int32    = send_int32_nbo;
         oxfp->receive_int32 = receive_int32_nbo;
     }
+}
+
+int oxf_listen(short *portp)
+{
+    char localhost[MAXHOSTNAMELEN];
+    if (gethostname(localhost, MAXHOSTNAMELEN)==0) {
+		return mysocketListen(localhost, portp);
+	}
+	return -1;
 }
 
 OXFILE *oxf_connect_active(char *hostname, short port)
@@ -192,4 +244,21 @@ int oxc_start(char *remote_host, short port, char *passwd)
         }
     }
     return pid;
+}
+
+/*  Example: oxf_execute_cmd(oxfp, "ox_sm1"); */
+OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd)
+{
+	short port = 0;
+	int listened;
+
+	if ((listened = oxf_listen(&port)) != -1) {
+		send_ox_cmo(oxfp, (cmo *)new_cmo_int32(port));
+		send_ox_cmo(oxfp, (cmo *)new_cmo_string(cmd));
+		send_ox_cmo(oxfp, (cmo *)new_cmo_int32(2));  /* number of arguments */
+		send_ox_cmo(oxfp, (cmo *)new_cmo_string("oxc_open"));
+		send_ox_command(oxfp, SM_executeFunction);
+		return oxf_connect_passive(listened);
+	}
+	return NULL;
 }

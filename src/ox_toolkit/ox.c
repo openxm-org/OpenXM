@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.13 2000/10/10 05:23:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.14 2000/10/11 06:56:02 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -45,14 +45,6 @@ static int          send_cmo_zz(OXFILE *oxfp, cmo_zz* c);
 static int          send_cmo_error2(OXFILE *oxfp, cmo_error2* c);
 static int          send_mpz(OXFILE *oxfp, mpz_ptr mpz);
 static int          send_cmo_distributed_polynomial(OXFILE *oxfp, cmo_distributed_polynomial* c);
-
-int ssh_ox_server(char *, char *, char *, short, short);
-
-OXFILE *current_fd = NULL;
-void set_current_fd(OXFILE *oxfp)
-{
-    current_fd = oxfp;
-}
 
 /* hook functions. (yet not implemented) */
 static hook_t hook_before_send_cmo = NULL;
@@ -118,49 +110,11 @@ int send_int32(OXFILE *oxfp, int int32)
     return oxfp->send_int32(oxfp, int32);
 }
 
-/* sending an object of int32 type with Network Byte Order. 
-   (not equal to cmo_int32 type)  */
-int send_int32_nbo(OXFILE *oxfp, int int32)
-{
-    int32 = htonl(int32);
-    return oxf_write(&int32, sizeof(int), 1, oxfp);
-}
-
-/* sending an object of int32 type with Local Byte Order. 
-   (not equal to cmo_int32 type)  */
-int send_int32_lbo(OXFILE *oxfp, int int32)
-{
-    return oxf_write(&int32, sizeof(int), 1, oxfp);
-}
-
 /* receiving an object of int32 type. (not equal to cmo_int32 type)  */
 int receive_int32(OXFILE *oxfp)
 {
     return oxfp->receive_int32(oxfp);
 }
-
-/* receiving an object of int32 type with Network Byte Order. 
-   (not equal to cmo_int32 type)  */
-int receive_int32_nbo(OXFILE *oxfp)
-{
-    int tag;
-    oxf_read(&tag, sizeof(int), 1, oxfp);
-    return ntohl(tag);
-}
-
-/* receiving an object of int32 type with Local Byte Order. 
-   (not equal to cmo_int32 type)  */
-int receive_int32_lbo(OXFILE *oxfp)
-{
-    int tag;
-    oxf_read(&tag, sizeof(int), 1, oxfp);
-    return tag;
-}
-
-/* socket システムコールなどで socket を開いたのち、
-   fdopen(sd, "a+") でバッファリングする。("w+" ではない)
-   バッファリングの後、バイトオーダを決定し、
-   oxf_setopt() で関数ポインタを設定し直す。*/
 
 /* receiving an (OX_tag, serial number)  */
 int receive_ox_tag(OXFILE *oxfp)

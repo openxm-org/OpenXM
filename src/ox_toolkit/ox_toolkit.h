@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.2 2000/10/10 05:23:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.3 2000/10/11 08:22:58 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -15,15 +15,12 @@
 
 /* functions related to ox.c */
 
-#define LOGOXFILE  "/tmp/oxtk.XXXXXX"
-
 #define MATHCAP_FLAG_DENY   0
 #define MATHCAP_FLAG_ALLOW  1
 
 /* Open Xm File Descripter */
 typedef struct OXFILE{
 	int fd;
-/*    FILE *fp; */
 	int (*send_int32)(struct OXFILE *oxfp, int int32);
 	int (*receive_int32)(struct OXFILE *oxfp);
 	int serial_number;
@@ -145,7 +142,6 @@ ox_sync_ball*      new_ox_sync_ball();
 char*              new_string_set_cmo(cmo* m);
 
 cmo_error2*        make_error_object(int err_code, cmo* ob);
-cmo*               make_mathcap_object(int version, char *id_string);
 
 /* Low level API */
 cmo*               receive_cmo(OXFILE *fp);
@@ -216,22 +212,14 @@ char *symbol_get_key(symbol_t sp);
 
 /* for mathcap database */
 cmo_mathcap *mathcap_get();
-int mathcap_cmo_isallow_cmo(cmo *ob);
-void mathcap_cmo_allow(int tag);
-void mathcap_cmo_deny(int tag);
-void mathcap_cmo_deny_all();
-void mathcap_cmo_allow_all();
-cmo_list *mathcap_cmo_get_allow_all();
-cmo_list *mathcap_sm_get_all();
-cmo_list *mathcap_sysinfo_get_all();
+int  mathcap_cmo_isallow_cmo(cmo *ob);
 void mathcap_sysinfo_set(int version, char *id, char *sysname);
-
-
 
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 
 /* for OXFILE */
+int oxf_listen(short *portp);
 OXFILE *oxf_connect_active(char *hostname, short port);
 OXFILE *oxf_connect_passive(int listened);
 OXFILE *oxf_open(int fd);
@@ -244,15 +232,10 @@ void oxf_close(OXFILE *oxfp);
 void oxf_setopt(OXFILE *oxfp, int mode);
 void oxf_determine_byteorder_client(OXFILE *oxfp);
 void oxf_determine_byteorder_server(OXFILE *oxfp);
-
-int send_int32_lbo(OXFILE *oxfp, int int32);
-int send_int32_nbo(OXFILE *oxfp, int int32);
-int receive_int32_lbo(OXFILE *oxfp);
-int receive_int32_nbo(OXFILE *oxfp);
+OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd);
 
 /* example: which("xterm", getenv("PATH")); */
 char *which(char *exe, const char *env);
 char *generate_otp();
-
 
 #endif /* _OX_TOOLKIT_H_ */
