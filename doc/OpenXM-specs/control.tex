@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.1.1.1 2000/01/20 08:52:46 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/control.tex,v 1.2 2000/01/23 00:41:08 noro Exp $
 \section{Session Management}
 
 \subsection{Control server}
@@ -126,13 +126,6 @@ the engine returns to the usual state.
 \end{enumerate}
 */
 
-\begin{figure}[htbp]
-\epsfxsize=17cm
-\epsffile{reset.eps}
-\caption{OpenXM reset procedure}
-\label{reset}
-\end{figure}
-
 /*&eg
 Figure \ref{reset} illustrates the flow of data.
 {\tt OX\_SYNC\_BALL} is a special OX message and
@@ -149,6 +142,13 @@ I/O stream に残るデータの終りを示す.
 後に続くクライアントからのリクエストと, エンジンからの返答が
 正しく対応する. 
 */
+\begin{figure}[htbp]
+\epsfxsize=12cm
+\epsffile{reset.eps}
+\caption{OpenXM reset procedure}
+\label{reset}
+\end{figure}
+
 \subsection{Control message (SMObject/TCPIP/Control)}
 
 \begin{enumerate}
