@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.19 2003/01/11 12:38:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.20 2003/01/13 12:04:53 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -19,18 +19,6 @@
 #include "sm.h"
 
 extern OXFILE *stack_oxfp;
-
-/* SM_control_reset_connection */
-static void handler()
-{
-	sigset_t newmask, oldmask;
-	sigemptyset(&newmask);
-	sigaddset(&newmask, SIGUSR1);
-	sigprocmask(SIG_SETMASK, &newmask, &oldmask);
-    ox_printf("signal received.\n");
-    exchange_ox_sync_ball(stack_oxfp);
-	sigprocmask(SIG_SETMASK, &oldmask, NULL); /* unmasked. */
-}
 
 static int exchange_ox_sync_ball(OXFILE *oxfp)
 {
@@ -52,14 +40,15 @@ int shutdown()
     exit(0);
 }
 
-#define VERSION 0x11121400
-#define ID_STRING  "2000/11/29"
+/* (Heisei)15/02/01 */
+#define VERSION     0x15020100
+#define ID_STRING  "2003/02/01"
 
 int main()
 {
     OXFILE* sv;
 
-    ox_stderr_init(NULL);
+    ox_stderr_init(stderr);
     ml_init();
     mathcap_init(VERSION, ID_STRING, "ox_math", NULL, NULL);
 
@@ -88,7 +77,7 @@ int sm_receive_ox()
         sm_run(code);
         break;
     default:
-        ox_printf("illeagal message? ox_tag = (%d)\n", tag);
+        ox_printf("illeagal OX message(%d)\n", tag);
         break;
     }
     return 1;
@@ -96,23 +85,29 @@ int sm_receive_ox()
 
 int sm(OXFILE *oxfp)
 {
+    int i=0;
     fd_set fdmask;
     stack_oxfp = oxfp;
     stack_extend();
-    signal(SIGUSR1, handler);
+    sm_siginit();
 
     FD_ZERO(&fdmask);
     FD_SET(oxf_fileno(oxfp), &fdmask);
 
     while(1) {
+        ox_printf("phase%d: select\n",i);
         if (select(5, &fdmask, NULL, NULL, NULL) > 0) {
-			sigset_t newmask, oldmask;
-			sigemptyset(&newmask);
-			sigaddset(&newmask, SIGUSR1);
-			sigprocmask(SIG_SETMASK, &newmask, &oldmask);
+            sm_sigmask();
+            ox_printf("phase%d: receiving\n",i);
             sm_receive_ox();
-			sigprocmask(SIG_SETMASK, &oldmask, NULL); /* unmasked. */
+            sm_sigunmask();  /* unmasked. */
         }
+        ox_printf("phase%d: clearing(%d)\n",i,sm_state_interrupting());
+        if (sm_state_interrupting()) {
+            exchange_ox_sync_ball(stack_oxfp);
+            sm_state_clear_interrupting();
+        }
+        i++;
     }
-    ox_printf("SM: socket(%d) is closed.\n", stack_oxfp->fd);
+    ox_printf("ox_math::socket(%d) is closed.\n", stack_oxfp->fd);
 }

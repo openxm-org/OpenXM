@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.6 2003/01/15 10:16:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm_ext.c,v 1.7 2003/02/04 14:27:43 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -13,9 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <gmp.h>
+#include <signal.h>
 #include <ox_toolkit.h>
 #include "sm.h"
+#include "mlo.h"
 
 static struct { int (*func_ptr)(); int key; } tbl_smcmd[] = {
     {sm_executeFunction, SM_executeFunction}, 
@@ -31,6 +32,49 @@ static struct { int (*func_ptr)(); int key; } tbl_smcmd[] = {
 };
 
 extern OXFILE *stack_oxfp;
+
+static sigset_t mask;
+static int flag_state_interrupting = 0;
+
+/* state management for the OpenXM robust interruption */
+void sm_state_set_interrupting()
+{
+    ml_state_set(RESERVE_INTERRUPTION);
+}
+
+int sm_state_interrupting()
+{
+    return ml_state(RESERVE_INTERRUPTION);
+}
+
+void sm_state_clear_interrupting()
+{
+    ml_state_clear_all();
+}
+
+/* handling OpenXM singals */
+static void sm_sighandler()
+{
+    sm_state_set_interrupting();
+}
+
+/* generating the mask pattern */
+void sm_siginit()
+{
+    signal(SIGUSR1, sm_sighandler);
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGUSR1);
+}
+
+void sm_sigmask()
+{
+    sigprocmask(SIG_BLOCK, &mask, NULL);
+}
+
+void sm_sigunmask()
+{
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);
+}
 
 int (*sm_search_f(int code))()
 {
@@ -90,6 +134,9 @@ void sm_executeStringByLocalParser()
             /* for mathematica */
             /* Sending the string `s' to mathematica for its evaluation. */
             ml_evaluateStringByLocalParser(s);
+            sm_sigunmask();
+            ml_select();
+            sm_sigmask();
             m = ml_return();
             push(m);
         }
@@ -121,6 +168,9 @@ void sm_executeFunction()
         argv[i] = pop();
     }
     ml_executeFunction(func, argc, argv);
+    sm_sigunmask();
+    ml_select();
+    sm_sigmask();
     m = ml_return();
     push(m);
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm.c,v 1.3 2003/01/13 12:04:53 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm.c,v 1.4 2003/02/04 14:27:43 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +87,7 @@ void sm_pops()
 void sm_run(int code)
 {
     int (*func)(OXFILE *) = sm_search_f(code);
-    ox_printf("ox_math:: opecode=<%s>[%d]", get_symbol_by_tag(code), code);
+    ox_printf("opecode=<%s>[%d] ", get_symbol_by_tag(code), code);
     if (func != NULL) {
         func(stack_oxfp);
     }else {

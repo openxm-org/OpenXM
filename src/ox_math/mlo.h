@@ -1,9 +1,14 @@
-/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.5 2000/03/10 12:38:47 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.h,v 1.6 2003/01/15 05:08:10 ohara Exp $ */
 #ifndef _MLO_H_
 
 #define _MLO_H_
 
 #include <ox_toolkit.h>
+
+#define RESERVE_INTERRUPTION 1
+#define INTERRUPTED          2
+#define RESERVE_ABORTION     4
+#define ABORTED              8
 
 /* definitions of Mathlink Local Objects. */
 typedef struct {
@@ -44,4 +49,9 @@ int ml_evaluateStringByLocalParser(char *str);
 int ml_executeFunction(char *function, int argc, cmo *argv[]);
 mlo *ml_return();
 
+/* state management for the OpenXM robust interruption */
+unsigned ml_state_set(unsigned fl);
+unsigned ml_state_clear(unsigned fl);
+unsigned ml_state(unsigned fl);
+void     ml_state_clear_all();
 #endif

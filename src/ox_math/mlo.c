@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.13 2003/01/15 10:46:09 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.14 2003/01/17 11:31:10 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -30,18 +30,10 @@ static int ml_clear_interruption();
 static int ml_clear_abortion();
 static mlo *ml_return0();
 
-/* #define STATE_NONE */
-#define STATE_INTERRUPTED         1
-#define STATE_ABORTED             2
-#define STATE_RESERVE_INTERRUPTION 4
-#define STATE_RESERVE_ABORTION    8
-#define STATE_IDLE                16
-
-static unsigned state = 0;
-
 static int ml_current_packet = -1;
 
 static double mathkernel_version;
+static char *mathkernel_versionstring = NULL;
 
 /* If this flag sets then we identify MLTKSYM to CMO_INDETERMINATE. */
 int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
@@ -49,24 +41,35 @@ int flag_mlo_symbol = FLAG_MLTKSYM_IS_INDETERMINATE;
 /* MLINK is a indentifier of MathLink connection. */
 MLINK stdlink;
 
+static unsigned flag_ml_state = 0;
+
+/* state management for the OpenXM robust interruption */
+unsigned ml_state_set(unsigned fl)
+{
+    return flag_ml_state |= fl;
+}
+
+unsigned ml_state_clear(unsigned fl)
+{
+    return flag_ml_state &= ~fl;
+}
+
+unsigned ml_state(unsigned fl)
+{
+    return (flag_ml_state & fl);
+}
+
+void ml_state_clear_all()
+{
+    flag_ml_state = 0;
+}
+
 mlo *receive_mlo_real()
 {
-    char *s;
-    cmo *ob;
-
-#if 1
     double d;
     MLGetReal(stdlink, &d);
-    ox_printf("MLTKREAL(%lf)", d);
-    ob = new_cmo_double(d);
-#else
-    /* Yet we have no implementation of CMO_DOUBLE... */
-    MLGetString(stdlink, &s);
-    ox_printf("MLTKREAL(%s)", s);
-    ob = (cmo *)new_cmo_string(s);
-    MLDisownString(stdlink, s);
-#endif
-    return ob;
+    ox_printf("%lf", d);
+    return new_cmo_double(d);
 }
 
 mlo *receive_mlo_error()
@@ -84,7 +87,7 @@ mlo *receive_mlo_zz()
     mlo  *m;
 
     MLGetString(stdlink, &s);
-    ox_printf("MLTKINT(%s)", s);
+    ox_printf("%s", s);
     m = (mlo *)new_cmo_zz_set_string(s);
     MLDisownString(stdlink, s);
     return m;
@@ -95,7 +98,7 @@ mlo *receive_mlo_string()
     char *s;
     mlo  *m;
     MLGetString(stdlink, &s);
-    ox_printf("MLTKSTR(\"%s\")", s);
+    ox_printf("\"%s\"", s);
     m = (cmo *)new_cmo_string(s);
     MLDisownString(stdlink, s);
     return m;
@@ -109,17 +112,16 @@ cmo *receive_mlo_function()
     int  i,n;
 
     MLGetFunction(stdlink, &s, &n);
-    ox_printf("MLTKFUNC(%s[#%d])", s, n);
-    m = new_cmo_list();
+    ox_printf("%s#%d[", s, n);
+    m = (cmo *)new_cmo_list();
     list_append((cmo_list *)m, new_cmo_string(s));
 
     for (i=0; i<n; i++) {
-        ox_printf(" arg[%d]: ", i);
         ob = receive_mlo();
         ox_printf(", ");
         list_append((cmo_list *)m, ob);
     }
-
+    ox_printf("]");
     MLDisownString(stdlink, s);
     return m;
 }
@@ -156,14 +158,14 @@ cmo *receive_mlo_function_newer()
     int  i,n;
 
     MLGetFunction(stdlink, &s, &n);
-    ox_printf("MLTKFUNC(%s[#%d])", s, n);
+    ox_printf("%s#%d[", s, n);
     m = new_mlo_function(s);
     for (i=0; i<n; i++) {
-        ox_printf(" arg[%d]: ", i);
         ob = receive_mlo();
         ox_printf(", ");
         list_append((cmo_list *)m, ob);
     }
+    ox_printf("]");
 
     MLDisownString(stdlink, s);
     return (cmo *)m;
@@ -177,9 +179,9 @@ cmo *receive_mlo_symbol()
     MLGetSymbol(stdlink, &s);
     ox_printf("MLTKSYM(%s)", s);
     if(flag_mlo_symbol == FLAG_MLTKSYM_IS_INDETERMINATE) {
-        ob = new_cmo_indeterminate(new_cmo_string(s));
+        ob = (cmo *)new_cmo_indeterminate((cmo *)new_cmo_string(s));
     }else {
-        ob = new_cmo_string(s);
+        ob = (cmo *)new_cmo_string(s);
     }
     MLDisownString(stdlink, s);
     return ob;
@@ -199,7 +201,10 @@ int ml_init()
     /* set the version of Mathematica kernel. */
     ml_evaluateStringByLocalParser("$VersionNumber");
     mathkernel_version = ((cmo_double *)ml_return())->d;
-    ox_printf("Kernel Version = %lf\n", mathkernel_version);
+    ml_evaluateStringByLocalParser("$Version");
+    mathkernel_versionstring = ((cmo_string *)ml_return())->s;
+    ox_printf("Mathematica %lf <%s>\n", 
+              mathkernel_version, mathkernel_versionstring);
     return 0;
 }
 
@@ -214,14 +219,13 @@ int ml_exit()
 /* Remember calling ml_select() before ml_return(). */
 int ml_select()
 {
+    int i=0;
+    MLFlush(stdlink);
     while(!MLReady(stdlink)) {
-#if 0
-        if (state == STATE_RESERVE_INTERRUPTION) {
+        if (i==0 && ml_state(RESERVE_INTERRUPTION)) {
             ml_interrupt();
-        }else if (state == STATE_RESERVE_ABORTION) {
-            ml_abort();
+            i++;
         }
-#endif
         usleep(10);
     }
 }
@@ -250,7 +254,7 @@ cmo *receive_mlo()
     case MLTKERR:
         return (cmo *)receive_mlo_error();
     default:
-        ox_printf("MLO is broken?(%d)", type);
+        ox_printf("broken MLO\(%d)", type);
         return NULL;
     }
 }
@@ -276,7 +280,6 @@ static int send_mlo_zz(cmo *m)
 
 static int send_mlo_list(cmo *c)
 {
-    char *s;
     cell *cp = list_first((cmo_list *)c);
     int len = list_length((cmo_list *)c);
 
@@ -289,7 +292,6 @@ static int send_mlo_list(cmo *c)
 
 int send_mlo(cmo *m)
 {
-    char *s;
     switch(m->tag) {
     case CMO_INT32:
         send_mlo_int32(m);
@@ -312,8 +314,7 @@ int send_mlo(cmo *m)
         break;
     default:
         MLPutFunction(stdlink, "ToExpression", 1);
-        s = new_string_set_cmo(m);
-        MLPutString(stdlink, s);
+        MLPutString(stdlink, new_string_set_cmo(m));
         break;
     }
 }
@@ -356,7 +357,6 @@ int ml_new_packet()
 /* Remember calling ml_new_packet() after ml_read_packet(). */
 int ml_read_packet()
 {
-    int ob=NULL;
     int pkt = ml_next_packet();
     switch(pkt) {
     case MENUPKT:
@@ -408,11 +408,10 @@ static int ml_read_menupacket()
 static int ml_read_textpacket()
 {
     char *s;
-    int n;
     int type = MLGetNext(stdlink);
     if (type == MLTKSTR) {
         MLGetString(stdlink, &s);
-        ox_printf("TEXTPKT[MLTKSTR(%s)]", s);
+        ox_printf("TEXTPKT[\"%s\"]", s);
         MLDisownString(stdlink, s);
     }else {
         ox_printf("TEXTPKT is broken? (%d)", type);
@@ -433,7 +432,7 @@ int ml_interrupt()
     /* On UNIX, the MLPutMessage(process, MLInterruptMessage)
        sends ``SIGINT" to the process running on the local machine. */
     MLPutMessage(stdlink, MLInterruptMessage);
-    state = STATE_INTERRUPTED;
+    ml_state_set(INTERRUPTED);
 }
 
 /* Remark:
@@ -455,14 +454,15 @@ static int ml_clear_interruption()
 {
     if (ml_read_packet() == MENUPKT) {
         MLPutString(stdlink, "\n");
+        ox_printf("MLPutString(\"\\n\");\n");
         ml_new_packet();
         if(ml_read_packet() == MENUPKT) {
             MLPutString(stdlink, "a");
+            ox_printf("MLPutString(\"a\");\n");
             ml_new_packet();
             if(ml_read_packet() == TEXTPKT) {
                 ml_new_packet();
-                ox_printf("END of ml_clear_interruption()\n");
-                state = 0;
+                ox_printf("\n---END of ml_clear_interruption()---\n");
                 return 0; /* success */
             }
         }
@@ -475,7 +475,7 @@ static int ml_clear_interruption()
 int ml_abort()
 {
     MLPutMessage(stdlink, MLAbortMessage);
-    state = STATE_ABORTED;
+    ml_state_set(ABORTED);
 }
 
 /* broken */
@@ -491,7 +491,7 @@ static int ml_clear_abortion()
         ox_printf("MLError=%s\n", MLErrorMessage(stdlink));
     }
     receive_mlo();
-    state = 0;
+    ml_state_clear_all();
 }
 
 static mlo *ml_return0()
@@ -510,39 +510,18 @@ static mlo *ml_return0()
     }
     ob = ml_read_returnpacket();
     ml_new_packet();
-    ox_printf("END of ml_return0()\n");
+    ox_printf("\n---END of ml_return0()---\n");
     return ob;
 }
-
-#if 0
-mlo *ml_return()
-{
-    int type;
-    mlo *ob;
-    if (state == STATE_INTERRUPTED) { 
-        if ((type = ml_next_packet()) == RETURNPKT) {
-            ob = ml_return0();
-            ml_clear_interruption();
-        }else {
-            ob = new_cmo_indeterminate(new_cmo_string("$Aborted"));
-            ml_clear_interruption();
-/*          ob = ml_return0(); /* need to read RETURNPKT[MLTKSYM($Aborted)] */
-        }
-    }else {
-        ob = ml_return0();
-    }
-    return ob;
-}
-#endif
 
 mlo *ml_return()
 {
     mlo *ob;
-    if (state == STATE_INTERRUPTED) { 
+    if (ml_state(INTERRUPTED)) { 
         if (ml_next_packet() == RETURNPKT) {
             ob = ml_return0();
         }else {
-            ob = (mlo *)new_cmo_indeterminate(new_cmo_string("$Aborted"));
+            ob = (mlo *)new_cmo_indeterminate((cmo *)new_cmo_string("$Aborted"));
         }
         ml_clear_interruption();
     }else {

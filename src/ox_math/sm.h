@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/sm.h,v 1.1 2000/12/03 21:45:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/sm.h,v 1.2 2000/12/03 22:09:34 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
@@ -13,6 +13,10 @@
 #define ERROR_ID_FAILURE_MLINK         11
 
 /* sm.c */
+void sm_sigmask();
+void sm_sigunmask();
+void sm_siginit();
+
 void push_error(int errcode, cmo* pushback);
 int  sm_receive_ox();
 int  oxf_error(OXFILE *oxfp);
