@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.6 2000/11/24 05:49:26 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.7 2000/11/27 09:57:10 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -244,6 +244,7 @@ void oxf_setopt(OXFILE *oxfp, int mode);
 void oxf_determine_byteorder_client(OXFILE *oxfp);
 void oxf_determine_byteorder_server(OXFILE *oxfp);
 OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd);
+cmo_mathcap *oxf_cmo_mathcap(OXFILE *oxfp);
 void oxf_mathcap_update(OXFILE *oxfp, cmo_mathcap *ob);
 
 /* example: which("xterm", getenv("PATH")); */

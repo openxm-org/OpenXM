@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.6 2000/11/21 07:59:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.7 2000/11/27 09:57:10 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -46,19 +46,6 @@ static int prompt()
 
 #define VERSION 0x11121500
 #define ID_STRING  "v0.11121500"
-
-mathcap *oxf_mathcap(OXFILE *oxfp)
-{
-    if (oxfp->mathcap == NULL) {
-        oxfp->mathcap = new_mathcap();
-    }
-	return oxfp->mathcap;
-}
-
-cmo_mathcap *oxf_cmo_mathcap(OXFILE *oxfp)
-{
-	return mathcap_get(oxf_mathcap(oxfp));
-}
 
 int test_0()
 {

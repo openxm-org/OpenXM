@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.4 2000/10/12 15:53:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.5 2000/11/24 05:49:27 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -18,6 +18,8 @@
 
 #include "mysocket.h"
 #include "ox_toolkit.h"
+
+static mathcap *oxf_mathcap(OXFILE *oxfp);
 
 static int send_int32_lbo(OXFILE *oxfp, int int32);
 static int send_int32_nbo(OXFILE *oxfp, int int32);
@@ -205,12 +207,23 @@ int oxf_confirm_server(OXFILE *oxfp, char *passwd)
     return oxf_write(passwd, 1, strlen(passwd)+1, oxfp);
 }
 
-void oxf_mathcap_update(OXFILE *oxfp, cmo_mathcap *ob)
+__inline__
+static mathcap *oxf_mathcap(OXFILE *oxfp)
 {
     if (oxfp->mathcap == NULL) {
         oxfp->mathcap = new_mathcap();
     }
-    mathcap_update(oxfp->mathcap, ob);
+	return oxfp->mathcap;
+}
+
+cmo_mathcap *oxf_cmo_mathcap(OXFILE *oxfp)
+{
+	return mathcap_get(oxf_mathcap(oxfp));
+}
+
+void oxf_mathcap_update(OXFILE *oxfp, cmo_mathcap *ob)
+{
+    mathcap_update(oxf_mathcap(oxfp), ob);
 }
 
 /* example: which("xterm", getenv("PATH")); */
