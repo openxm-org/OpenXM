@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.10 2000/01/25 01:01:38 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.11 2000/02/04 07:21:47 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/20000124
@@ -76,6 +76,8 @@ $(WEBKOBE1)/ERRATA.html : ERRATA.html
 
 copy-errata : 
 	cp -f ERRATA.html $(WEBKOBE1)/ERRATA.html
+copy-index :
+	cp -f index.html $(WEBKOBE1)/index.html
 
 clean-web-kobe :
 	-rm $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h $(WEBKOBE1)/openxm-eg.ps $(WEBKOBE1)/openxm-jp.ps
