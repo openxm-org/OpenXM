@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.h,v 1.1 2004/09/21 12:52:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.h,v 1.2 2004/09/24 08:35:47 takayama Exp $ */
 
 /* ----- data conversion : urlEncoding <---> keyValue pair */
 struct object cgiUrlEncodingToKeyValuePair(char *s);
@@ -7,6 +7,9 @@ struct object cgiKeyValuePairToUrlEncodingString(struct object ob);
 int cgiKeyValuePairToUrlEncodingFile2(struct object ob,FILE2 *fp);
 char *byteArrayToUrlEncoding(unsigned char *s,int size);
 struct object urlEncodedStringToObj(char *s,int vstart,int vend,int mode);
+
+struct object KooStringToUrlEncoding(struct object sob);
+struct object KooUrlEncodedStringToObj(struct object sob);
 
 /* ------- HTML header <---> keyValue pair  */
 struct object cgiHttpToKeyValuePair(char *s,int size);

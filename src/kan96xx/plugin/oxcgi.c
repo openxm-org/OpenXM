@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.1 2004/09/21 12:52:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.2 2004/09/24 08:35:47 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -521,3 +521,30 @@ struct object cgiKeyValuePairToHttpString(struct object ob) {
   return KpoString(s);
 }
 
+struct object KooStringToUrlEncoding(struct object sob) {
+  unsigned char *s;
+  char *rs;
+  int n;
+  if (sob.tag == Sdollar) {
+    s = (unsigned char *) KopString(sob);
+    n = strlen((char *)s);
+  }else if (sob.tag == SbyteArray) {
+    s = KopByteArray(sob);
+    n = getByteArraySize(sob);
+  }else errorKan1("%s\n","KooStringToUrlEncoding: argument must be a string or a bytearray.");
+  rs = byteArrayToUrlEncoding(s,n);
+  return KpoString(rs);
+}
+
+struct object KooUrlEncodedStringToObj(struct object sob) {
+  char *s;
+  int n;
+  if (sob.tag == Sdollar) {
+    s = KopString(sob);
+    n = strlen((char *)s);
+  }else if (sob.tag == SbyteArray) {
+    s = KopByteArray(sob);
+    n = getByteArraySize(sob);
+  }else errorKan1("%s\n","KooUrlEncodedStringToObj: argument must be a string.");
+  return urlEncodedStringToObj(s,0,n-1,0);
+}

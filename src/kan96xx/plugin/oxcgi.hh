@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.hh,v 1.1 2004/09/21 12:52:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.hh,v 1.2 2004/09/24 08:35:47 takayama Exp $ */
 else if (strcmp(key,"cgiUrlEncodingToKeyValuePair") == 0) {
   if (size != 2) errorKan1("%s\n","[(cgiUrlEncodingToKeyValuePair)  obj] extension kv-pair.");
   obj1 = getoa(obj,1);
@@ -14,6 +14,16 @@ else if (strcmp(key,"cgiKeyValuePairToUrlEncodingString") == 0) {
   if (size != 2) errorKan1("%s\n","[(cgiKeyValuePairToUrlEncodingString)  kv-pair] extension sobj.");
   obj1 = getoa(obj,1);
   rob = cgiKeyValuePairToUrlEncodingString(obj1);
+}
+else if (strcmp(key,"cgiStringToUrlEncoding") == 0) {
+  if (size != 2) errorKan1("%s\n","[(cgiStringToUrlEncoding)  s] extension sobj.");
+  obj1 = getoa(obj,1);
+  rob = KooStringToUrlEncoding(obj1);
+}
+else if (strcmp(key,"cgiUrlEncodedStringToObj") == 0) {
+  if (size != 2) errorKan1("%s\n","[(cgiUrlEncodedStringToObj)  s] extension sobj.");
+  obj1 = getoa(obj,1);
+  rob = KooUrlEncodedStringToObj(obj1);
 }
 else if (strcmp(key,"cgiHttpToKeyValuePair") == 0) {
   if (size != 2) errorKan1("%s\n","[(cgiHttpToKeyValuePair) sobj] extension kv-pair");
