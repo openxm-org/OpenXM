@@ -1,13 +1,14 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.1 2003/02/23 03:18:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.2 2003/02/23 07:41:31 takayama Exp $ */
 #define ANK_SIZE 20
 /*
 #define ANK              Taka_diffop1_ANK
 #define diff2(F,G,K)     taka_diffop1_diff2(F,G,K)
-#define dr_mult(F,G)     taka_diffop1_dr_mult(F,G)
-#define dr_exp(F)        taka_diffop1_dr_exp(F)
-#define dr_in(F)         taka_diffop1_dr_in(F)
-#define dr_division(F,G) taka_diffop1_dr_division(F,G)
-#define dr_gcd(F,G)      taka_diffop1_dr_gcd(F,G)
+#define dr1_mult(F,G)     taka_diffop1_dr1_mult(F,G)
+#define dr1_exp(F)        taka_diffop1_dr1_exp(F)
+#define dr1_in(F)         taka_diffop1_dr1_in(F)
+#define dr1_division(F,G) taka_diffop1_dr1_division(F,G)
+#define dr1_gcd(F,G)      taka_diffop1_dr1_gcd(F,G)
+#define dr1_act(L,F)      taka_diffop1_dr1_act(L,F)
 #define initANK()        taka_diffop_initANK()
 #define thetapower2diff(J,X,D) taka_diffop_thetapower2diff(J,X,D)
 #define euler2diff(F,Xlist,Tlist,Dlist) taka_diffop_euler2diff(F,Xlist,Tlist,Dlist) 
@@ -24,7 +25,7 @@ ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
 */
 
 /* cf. d_gcd.rr */
-def dr_mult(F,G){
+def dr1_mult(F,G){
 	N=deg(nm(F),dx);
 	A=0;
 	for(K=0;K<=N;K++){
@@ -40,25 +41,25 @@ def diff2(F,G,K){
 }
 
 
-def dr_in(F) {
+def dr1_in(F) {
   Dn = dn(F); F=nm(F);
   D = deg(F,dx);
   C = coef(F,D,dx);
   return( red(C*dx^D/Dn) );
 }
 
-def dr_division(F,G) {
+def dr1_division(F,G) {
    Q = 0; R = F;
    while ((R != 0) && (deg(nm(R),dx) >= deg(nm(G),dx))) {
-      D = red(dr_in(R)/dr_in(G));
+      D = red(dr1_in(R)/dr1_in(G));
       Q = red(Q+D);
-      R = red(R-dr_mult(D,G));
+      R = red(R-dr1_mult(D,G));
    }
    return([Q,R]);
 }
 
 
-def dr_gcd(F,G) {
+def dr1_gcd(F,G) {
    S = 1; T = 0; SS=0; TT=1;
    if (deg(nm(F),dx) > deg(nm(G),dx)) {
      Changed = 0;
@@ -66,7 +67,7 @@ def dr_gcd(F,G) {
      T=F; F=G; G=T; Changed = 1;
    }
    do {
-     D=dr_division(F,G);
+     D=dr1_division(F,G);
      Q = D[0]; R = D[1];
      SSS = S-Q*SS; TTT = T-Q*TT;
      F = G; G = R;
@@ -77,6 +78,17 @@ def dr_gcd(F,G) {
    }else {
      return [F,S,T];
    }
+}
+
+def dr1_act(L,F) {
+  D = dn(L);
+  L = nm(L);
+  N = deg(L,dx);
+  R = 0;
+  for (I=0; I<=N; I++) {
+   R += coef(L,I,dx)*diff2(F,x,I);
+  }
+  return red(R/D);
 }
 
 /* --------------------------------------------------------
