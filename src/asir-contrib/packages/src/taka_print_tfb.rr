@@ -1,7 +1,17 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.5 2002/11/20 01:25:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.6 2002/12/06 03:37:01 takayama Exp $ */
 
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
+/*
+#define ARITH1_PLUS " ~arith1.plus~ "
+#define ARITH1_MINUS " ~arith1.minus~ "
+#define ARITH1_TIMES " ~arith1.times~ "
+*/
+
+#define ARITH1_PLUS " + "
+#define ARITH1_MINUS " - "
+#define ARITH1_TIMES " * "
+
 
 Tfb_symbol_table_ = [
  ["sin", "transc1.sin"],
@@ -244,7 +254,7 @@ def taka_tfb_form_quote_list_b_op(S) {
     N = length(T);
     for (I=0; I<N; I++) {
       A += taka_tfb_form_quote_list(T[I]);
-        if (I != N-1) A += " ~arith1.plus~ ";
+        if (I != N-1) A += ARITH1_PLUS ; 
     }
   }else
   if (S[0] == "-") {
@@ -256,7 +266,7 @@ def taka_tfb_form_quote_list_b_op(S) {
       } else {
          A += taka_tfb_form_quote_list(T[I]);
       }
-      if (I != N-1) A += " ~arith1.minus~ ";
+      if (I != N-1) A += ARITH1_MINUS ; 
     }
   } else
   if (S[0] == "*") {
@@ -265,7 +275,7 @@ def taka_tfb_form_quote_list_b_op(S) {
     A += "(";
     for (I=0; I<N; I++) {
       A += taka_tfb_form_quote_list(T[I]);
-      if (I != N-1) A += " ~arith1.times~ ";
+      if (I != N-1) A += ARITH1_TIMES ;
     }
     A += ")";
   } else
@@ -449,12 +459,27 @@ def taka_tfb_is_infix(S) {
   return 0;
 }
 
+def taka_asirsymbol2tfb(S) {
+  A = strtoascii(S);
+  L = newvect(length(A),A);
+  for (I=0; I < size(L)[0]; I++) {
+    if (L[I] == 95) { /* 95 = _ */
+      L[I] = 46; /* 46 = . */
+      break;
+    }
+  }
+  return asciitostr(vtol(L));
+}
+
 def taka_tfb_symbol(S) {
   R = taka_is_indexed(S);
+  /* 
   if (R[0]) {
     return taka_tfb_symbol_(R[1])+"_{"+R[2]+"}";
   }
   return taka_tfb_symbol_(R[1]);
+  */
+  return taka_tfb_symbol_(S);
 }
 
 def taka_tfb_symbol_(S) {
@@ -466,7 +491,7 @@ def taka_tfb_symbol_(S) {
        return Tfb_symbol_table[I][1];
     }
   }
-  return S;
+  return taka_asirsymbol2tfb(S);
 }
 
 /*  test data
