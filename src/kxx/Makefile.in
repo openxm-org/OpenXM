@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.33 2004/06/25 04:25:48 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.34 2004/06/25 04:37:54 takayama Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -71,7 +71,7 @@ ox: oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o
 oxmain.o: oxmain.c ox_kan.h serversm.h
 
 oxd: oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o 
-	${CC}  ${STATIC_LINK_FLAG} ${CFLAGS} oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o oxd  ${LIBS} 
+	${CC}  ${STATIC_LINK_FLAG} ${CFLAGS} oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o oxd  ${LIBS} -L{OpenXM_lib} -lgc
 oxd.o: oxd.c ox_kan.h serversm.h
 xtag.o: xtag.c 
 oxd-thread: oxd-thread.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o

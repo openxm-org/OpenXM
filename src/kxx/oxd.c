@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.6 2002/10/28 08:57:28 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.7 2004/02/25 23:14:36 takayama Exp $
 */
 
 #include <stdio.h>
@@ -244,4 +244,5 @@ oxdError(char *s) {
 }
 
 
+void *sGC_malloc(int n) { return (void *) GC_malloc(n); }
 
