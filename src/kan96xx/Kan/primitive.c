@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.17 2004/09/16 02:22:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.18 2004/09/17 02:42:57 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -200,6 +200,9 @@ void printObject(ob,nl,fp)
     case Sdouble:
       fprintf(fp,"<double> ");
       break;
+    case SbyteArray:
+      fprintf(fp,"<byteArray> ");
+      break;
     default:
       fprintf(fp,"<Unknown object tag. %d >",ob.tag);
       break;
@@ -293,6 +296,9 @@ void printObject(ob,nl,fp)
     break;
   case Sdouble:
     fprintf(fp,"%f",KopDouble(ob));
+    break;
+  case SbyteArray:
+    printObject(byteArrayToArray(ob),nl,fp); /* Todo: I should save memory.*/
     break;
   default:
     fprintf(fp,"[Unknown object tag.]");
@@ -514,6 +520,11 @@ int executePrimitive(ob)
         }
         Kpush(ob3);
         break;
+      case SbyteArray:
+        n = getByteArraySize(ob2);
+        ob3 = newByteArray(n,ob2);
+        Kpush(ob3);
+        break;
       default:
         Kpush(ob2);
         break;
@@ -656,6 +667,17 @@ int executePrimitive(ob)
           errorStackmachine("Index is out of bound. (put)\n");
         }
         break;
+      case SbyteArray:
+        i = ob2.lc.ival;
+        size = getByteArraySize(ob3);
+        if ((0 <= i) && (i<size)) {
+		  if (ob1.tag != Sinteger) ob1 = Kto_int32(ob1);
+          if (ob1.tag != Sinteger) errorStackmachine("One can put only integer.\n");
+          KopByteArray(ob3)[i] = KopInteger(ob1);
+        }else{
+          errorStackmachine("Index is out of bound. (put)\n");
+        }
+        break;
       default: errorStackmachine("Usage:put");
       }
       break;
@@ -726,6 +748,9 @@ int executePrimitive(ob)
       break;
     case Spoly:
       Kpush(KpoInteger(KpolyLength(KopPOLY(ob1))));
+      break;
+    case SbyteArray:
+      Kpush(KpoInteger(getByteArraySize(ob1)));
       break;
     default: errorStackmachine("Usage:length");
     }

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.6 2004/09/12 00:26:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.7 2004/09/16 23:53:44 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -35,8 +35,9 @@
 #define SrationalFunction 16
 #define Sclass          17   /* class, for extension */
 #define Sdouble         18
+#define SbyteArray      19
 
-#define TYPES            19   /* number of data types. */
+#define TYPES            20   /* number of data types. */
 /* NOTE! If you change the above, you need to change mklookup.c too. */
 /* Change also dr.sm1 : datatype constants. */
 
@@ -62,6 +63,7 @@ union cell {
   struct coeff *universalNumber;
   void *voidp;
   double *dbl;
+  unsigned char *bytes;
 };
 
 struct object{

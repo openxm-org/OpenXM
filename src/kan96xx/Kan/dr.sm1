@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.45 2004/09/17 00:10:41 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.46 2004/09/17 00:47:08 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -1528,6 +1528,13 @@
   (type?) data_conversion  RingP eq
 } def
 
+[(isByteArray)
+ [(obj isByteArray bool) ]
+] putUsages
+/isByteArray {
+  (type?) data_conversion  ByteArrayP eq
+} def
+
 /toString.tmp {
   /arg1 set
   [/obj /fname] pushVariables
@@ -1557,6 +1564,8 @@
     { obj (string) data_conversion } { } ifelse
     obj isRational
     { obj (string) data_conversion } { } ifelse
+    obj isByteArray
+    { obj (array) data_conversion toString } { } ifelse
     obj tag 0 eq
     { (null) } { } ifelse
 
@@ -1671,9 +1680,10 @@
 /RationalFunctionP 16 def
 /ClassP 17 def
 /DoubleP 18 def
+/ByteArrayP 19 def
 /@.datatypeConstant.usage [
  (IntegerP, LiteralP, StringP, ExecutableArrayP, ArrayP, PolyP, FileP, RingP,)
- (UniversalNumberP, RationalFunctionP, ClassP, DoubleP)
+ (UniversalNumberP, RationalFunctionP, ClassP, DoubleP, ByteArrayP)
  (      return data type identifiers.)
  (Example:  7 tag IntegerP eq  ---> 1)
 ] def
@@ -1688,6 +1698,7 @@
 [(RationalFunctionP) @.datatypeConstant.usage ] putUsages
 [(ClassP) @.datatypeConstant.usage ] putUsages
 [(DoubleP) @.datatypeConstant.usage ] putUsages
+[(ByteArrayP) @.datatypeConstant.usage ] putUsages
 
 [(__)
  [( string ring __ polynomial)

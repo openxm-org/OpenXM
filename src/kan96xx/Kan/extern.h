@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.27 2004/09/12 10:22:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.28 2004/09/13 11:24:11 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -138,6 +138,8 @@ struct object KarrayToList(struct object ob);
 /* list:conversion */
 struct object listToArray(struct object *op);
 struct object *arrayToList(struct object ob);
+struct object newByteArray(int size,struct object obj);
+struct object byteArrayToArray(struct object obj);
 
 /* kanExport0.c */
 /** arithmetic **/
@@ -192,6 +194,8 @@ struct object KintToUniversalNumber(int n);
 #define Knumerator(o)  ( (o).lc.op )
 #define Kdenominator(o) ( (o).rc.op )
 #define KopDouble(ob)  (*((ob).lc.dbl))
+#define KopByteArray(o) ( (o).lc.bytes )
+#define getByteArraySize(o) ( (o).rc.ival )
 char *KPOLYToString(POLY f);
 /** conversion 2 **/
 struct object arrayOfPOLYToArray(struct arrayOfPOLY *aa);

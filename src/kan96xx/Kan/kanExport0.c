@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.36 2004/09/16 02:22:03 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.37 2004/09/17 02:42:57 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1041,6 +1041,9 @@ struct object KdataConversion(obj,key)
     }else if (strcmp(key,"null") == 0) {
       rob = NullObject;
       return(rob);
+    }else if (strcmp(key,"byteArray") == 0) {
+      rob = newByteArray(getoaSize(obj),obj);
+      return(rob);
     }else {
 	  { /* Automatically maps the elements. */
 		int n,i;
@@ -1215,6 +1218,14 @@ struct object KdataConversion(obj,key)
       rob = oRingToOXringStructure(KopRingp(obj));
       return(rob);
     }else{
+      warningKan("Sorryl This type of data conversion of ringp has not supported yet.\n");
+    }
+    break;
+  case SbyteArray:
+    if (strcmp(key,"array") == 0) {
+      rob = byteArrayToArray(obj);
+      return(rob);
+    } else {
       warningKan("Sorryl This type of data conversion of ringp has not supported yet.\n");
     }
     break;
@@ -3067,7 +3078,68 @@ struct object Kget(struct object ob1, struct object ob2) {
       ob1 = rob;
     }
     return Kcar(ob1);
+  } else if (ob1.tag == SbyteArray) {
+    size = getByteArraySize(ob1);
+    if ((0 <= i) && (i<size)) {
+      return(KpoInteger(KopByteArray(ob1)[i]));
+    }else{
+      errorKan1("%s\n","Kget: Index is out of bound. (get)\n");
+    }
+  } else if (ob1.tag == Sdollar) {
+    unsigned char *sss;
+    sss = (unsigned char *) KopString(ob1);
+    size = strlen(sss);
+    if ((0 <= i) && (i<size)) {
+      return(KpoInteger(sss[i]));
+    }else{
+      errorKan1("%s\n","Kget: Index is out of bound. (get)\n");
+    }
+
   }else errorKan1("%s\n","Kget: argument must be an array or a list.");
+}
+
+/* Constructor of byteArray */
+struct object newByteArray(int size,struct object obj) {
+  unsigned char *ba;
+  unsigned char *ba2;
+  struct object rob,tob;
+  int i,n;
+  ba = NULL;
+  if (size > 0) ba = (unsigned char *) sGC_malloc(size);
+  if (ba == NULL) errorKan1("%s\n","No more memory.");
+  rob.tag = SbyteArray; rob.lc.bytes = ba; rob.rc.ival = size;
+  if (obj.tag == SbyteArray) {
+    n = getByteArraySize(obj);
+    ba2 = KopByteArray(obj);
+    for (i=0; i<n; i++) {
+      ba[i] = ba2[i];
+    }
+    for (i=n; i<size; i++) ba[i] = 0;
+    return rob;
+  }else if (obj.tag == Sarray) {
+    n = getoaSize(obj);
+    for (i=0; i<n; i++) {
+      tob = getoa(obj,i);
+      tob = Kto_int32(tob);
+      if (tob.tag != Sinteger) errorKan1("%s\n","newByteArray: array is not an array of integer or universalNumber.");
+      ba[i] = (unsigned char) KopInteger(tob);
+    }
+    for (i=n; i<size; i++) ba[i] = 0;
+    return rob;
+  }else{
+    for (i=0; i<size; i++) ba[i] = 0;
+    return rob;
+  }
+}
+struct object byteArrayToArray(struct object obj) {
+  int n,i; unsigned char *ba;
+  struct object rob;
+  if (obj.tag != SbyteArray) errorKan1("%s\n","byteArrayToArray: argument is not an byteArray.");
+  n = getByteArraySize(obj);
+  rob = newObjectArray(n);
+  ba = KopByteArray(obj);
+  for (i=0; i<n; i++) putoa(rob,i,KpoInteger((int) ba[i]));
+  return rob;
 }
 
 /******************************************************************
