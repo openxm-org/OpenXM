@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.10 2003/01/13 12:03:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.11 2003/02/04 20:43:55 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -50,13 +50,9 @@ static int prompt()
 int test_0()
 {
     cmo* c = NULL;
-#ifdef DEBUG
     ox_printf("testclient:: calling ox_mathcap().\n");
     c = ox_mathcap(sv);
     ox_printf("testclient:: cmo received.(%p)\n", c);
-#else
-    c = (cmo *)ox_mathcap(sv);
-#endif
     print_cmo(c);
 
     mathcap_init(VERSION, ID_STRING, "testclient", NULL, NULL);

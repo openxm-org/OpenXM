@@ -1,12 +1,14 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.12 2003/01/17 06:49:53 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.13 2003/02/03 23:13:23 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
 #define _OX_TOOLKIT_H_
 
 #include <stdio.h>
+#if defined(WITH_GMP)
 #include <gmp.h>
+#endif /* WITH_GMP */
 #include <ox/cmotag.h>
 #include <ox/oxMessageTag.h>
 #include <ox/smCommand.h>
@@ -91,6 +93,7 @@ typedef struct {
     cmo *coef;
 } cmo_monomial32;
 
+#if defined(WITH_GMP)
 typedef struct {
     int tag;
     mpz_t mpz;
@@ -101,6 +104,7 @@ typedef struct {
     cmo *num;  /* Bunshi (cmo_zz) */
     cmo *den;  /* Bunbo (cmo_zz) */
 } cmo_qq;
+#endif /* WITH_GMP */
 
 typedef struct {
     int tag;
@@ -137,12 +141,14 @@ cmo_mathcap*       new_cmo_mathcap(cmo* ob);
 cmo_list*          new_cmo_list();
 cmo_monomial32*    new_cmo_monomial32();
 cmo_monomial32*    new_cmo_monomial32_size(int size);
+#if defined(WITH_GMP)
 cmo_zz*            new_cmo_zz();
 cmo_zz*            new_cmo_zz_size(int size);
 cmo_zz*            new_cmo_zz_set_si(int integer);
 cmo_zz*            new_cmo_zz_set_mpz(mpz_ptr z);
 cmo_zz*            new_cmo_zz_noinit();
 cmo_zz*            new_cmo_zz_set_string(char* s);
+#endif /* WITH_GMP */
 cmo_zero*          new_cmo_zero();
 cmo_double*        new_cmo_double(double d);
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();
@@ -203,7 +209,9 @@ void               dump_ox_command(ox_command* m);
 void               dump_ox_data(ox_data* m);
 
 void               print_cmo(cmo* c);
+#if defined(WITH_GMP)
 void               resize_mpz(mpz_ptr mpz, int size);
+#endif /* WITH_GMP */
 
 typedef cmo *(*hook_t)(OXFILE *, cmo *);
 

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.4 2003/01/11 11:42:32 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.5 2003/02/04 20:43:55 ohara Exp $ */
 
 /*
    This sample program explains how to construct
@@ -33,9 +33,11 @@ int main()
        the elements are a bignum. */
     c = new_cmo_list();
 
+#if defined(WITH_GMP)
     list_append(c, new_cmo_zz_set_si(10000));
     list_append(c, new_cmo_zz_set_si(-2342));
     list_append(c, new_cmo_zz_set_string("3141592653289793238462643383279"));
+#endif /* WITH_GMP */
 
     /* sending the list above. */
     ox_push_cmo(s, (cmo *)c);

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.9 2003/01/13 12:03:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.10 2003/02/03 23:13:23 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -52,7 +52,10 @@ static void parse_error(char *s);
 static void parse_right_parenthesis();
 static void parse_left_parenthesis();
 static void parse_comma();
-static mpz_ptr parse_integer();
+#if defined(WITH_GMP)
+static mpz_ptr parse_mpz_integer();
+#endif /* WITH_GMP */
+static int   parse_integer();
 static char *parse_string();
 static cmo  *parse_cmo_null();
 static cmo  *parse_cmo_int32();
@@ -60,7 +63,9 @@ static cmo  *parse_cmo_string();
 static cmo  *parse_cmo_mathcap();
 static cmo  *parse_cmo_list();
 static cmo  *parse_cmo_monomial32();
+#if defined(WITH_GMP)
 static cmo  *parse_cmo_zz();
+#endif /* WITH_GMP */
 static cmo  *parse_cmo_zero();
 static cmo  *parse_cmo_dms_generic();
 static cmo  *parse_cmo_ring_by_name();
@@ -217,10 +222,12 @@ static cmo *parse_cmo()
         token = lex();
         m = parse_cmo_monomial32();
         break;
+#if defined(WITH_GMP)
     case TOKEN(CMO_ZZ):
         token = lex();
         m = parse_cmo_zz();
         break;
+#endif /* WITH_GMP */
     case TOKEN(CMO_ZERO):
         token = lex();
         m = parse_cmo_zero();
@@ -275,6 +282,7 @@ static void parse_comma()
     token = lex();
 }
 
+#if defined(WITH_GMP)
 static mpz_ptr new_mpz_set_str(char *s)
 {
     mpz_ptr z = malloc(sizeof(mpz_t));
@@ -287,13 +295,13 @@ static mpz_ptr my_mpz_neg(mpz_ptr src)
     mpz_ptr z = malloc(sizeof(mpz_t));
     mpz_init(z);
     mpz_neg(z, src);
-#ifndef DEBUG
+#ifdef DEBUG
     free(src);
 #endif
     return z;
 }
 
-static mpz_ptr parse_integer()
+static mpz_ptr parse_mpz_integer()
 {
     int sign = 1;
     mpz_ptr val;
@@ -312,11 +320,21 @@ static mpz_ptr parse_integer()
     if (sign == -1) {
         val = my_mpz_neg(val);
     }
-#ifndef DEBUG
+#ifdef DEBUG
     free(yylval.sym);
 #endif
     token = lex();
     return val;
+}
+#endif /* WITH_GMP */
+
+static int parse_integer()
+{
+#if defined(WITH_GMP)
+    return mpz_get_si(parse_mpz_integer());
+#else
+    abort(); /* not implemented */
+#endif
 }
 
 static char *parse_string()
@@ -338,12 +356,12 @@ static cmo *parse_cmo_null()
 
 static cmo *parse_cmo_int32()
 {
-    mpz_ptr z;
+    int z;
 
     parse_comma();
     z = parse_integer();
     parse_right_parenthesis();
-    return (cmo *)new_cmo_int32(mpz_get_si(z));
+    return (cmo *)new_cmo_int32(z);
 }
 
 static cmo *parse_cmo_string()
@@ -414,7 +432,7 @@ static cmo *parse_cmo_monomial32()
     int tag;
 
     parse_comma();
-    size = mpz_get_si(parse_integer());
+    size = parse_integer();
     if (size < 0) {
         parse_error("invalid value.");
     }
@@ -422,7 +440,7 @@ static cmo *parse_cmo_monomial32()
 
     for(i=0; i<size; i++) {
         parse_comma();
-        m->exps[i] = mpz_get_si(parse_integer());
+        m->exps[i] = parse_integer();
     }
     parse_comma();
     parse_left_parenthesis();
@@ -438,6 +456,7 @@ static cmo *parse_cmo_monomial32()
     return (cmo *)m;
 }
 
+#if defined(WITH_GMP)
 /* the following function rewrite internal data of mpz/cmo_zz. */
 static cmo *parse_cmo_zz()
 {
@@ -447,7 +466,7 @@ static cmo *parse_cmo_zz()
     mpz_ptr z;
 
     parse_comma();
-    z = parse_integer();
+    z = parse_mpz_integer();
     if (token == ',') {
         length = mpz_get_si(z);
         m = new_cmo_zz_size(length);
@@ -455,7 +474,7 @@ static cmo *parse_cmo_zz()
         length = abs(length);
         for(i=0; i<length; i++) {
             parse_comma();
-            m->mpz->_mp_d[i] = mpz_get_si(parse_integer());
+            m->mpz->_mp_d[i] = parse_integer();
         }
     }else if (pflag_cmo_addrev) {
         m = new_cmo_zz_set_mpz(z);
@@ -466,6 +485,7 @@ static cmo *parse_cmo_zz()
     parse_right_parenthesis();
     return (cmo *)m;
 }
+#endif /* WITH_GMP */
 
 static cmo *parse_cmo_zero()
 {
@@ -724,9 +744,7 @@ static int token_of_symbol(char *key)
         yylval.d = symp->tag;
         return symp->token;
     }
-#if DEBUG
     ox_printf("lex error:: \"%s\" is unknown symbol.\n", key);
-#endif
     return 0;
 }
 

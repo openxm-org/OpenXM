@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmolen.c,v 1.1 2000/10/10 05:23:20 ohara Exp $ */
 
 /* This module is needed by bconv.c */
 
@@ -17,7 +17,9 @@ static int          cmolen_cmo_list(cmo_list* c);
 static int          cmolen_cmo_mathcap(cmo_mathcap* c);
 static int          cmolen_cmo_null(cmo_null* c);
 static int          cmolen_cmo_string(cmo_string* c);
+#if defined(WITH_GMP)
 static int          cmolen_cmo_zz(cmo_zz* c);
+#endif /* WITH_GMP */
 static int          cmolen_cmo_monomial32(cmo_monomial32* c);
 
 __inline__
@@ -57,11 +59,13 @@ static int cmolen_cmo_monomial32(cmo_monomial32* c)
     return len + cmolen_cmo(c->coef);
 }
 
+#if defined(WITH_GMP)
 static int cmolen_cmo_zz(cmo_zz* c)
 {
     int len = abs(c->mpz->_mp_size);
     return sizeof(int) + len*sizeof(int);
 }
+#endif /* WITH_GMP */
 
 static int cmolen_cmo_distributed_polynomial(cmo_distributed_polynomial* c)
 {
@@ -97,9 +101,11 @@ int cmolen_cmo(cmo* c)
     case CMO_MONOMIAL32:
         size += cmolen_cmo_monomial32((cmo_monomial32 *)c);
         break;
+#if defined(WITH_GMP)
     case CMO_ZZ:
         size += cmolen_cmo_zz((cmo_zz *)c);
         break;
+#endif /* WITH_GMP */
     case CMO_DISTRIBUTED_POLYNOMIAL:
         size += cmolen_cmo_distributed_polynomial((cmo_distributed_polynomial *)c);
         break;
