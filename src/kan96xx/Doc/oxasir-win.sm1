@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.1 2001/12/21 03:00:41 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.2 2001/12/28 01:20:26 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
@@ -21,6 +21,15 @@ def
 def
 %% Override asirconnectr
 /asirconnectr {
+   [(getenv) (OSTYPE)] extension (cygwin) eq
+   {
+     asirconnectr_cygwin
+   }{
+     asirconnectr_win
+   }ifelse
+} def
+
+/asirconnectr_cygwin {
  [/in-asirconnectr /pass /peer /data /control /oxasir] pushVariables
  [
  /pass [(oxGenPass)] extension def
@@ -33,6 +42,45 @@ def
   ( -wait 5 )
   oxpath.null
  ] cat system
+ [(oxCreateClient2) peer 0 pass] extension /oxasir set
+                     %% 0 means connect from only localhost. 
+ oxasir asirinit
+ /arg1 oxasir def
+ ] pop
+ popVariables
+ arg1
+} def
+
+/asirconnectr_win {
+ [/in-asirconnectr /pass /peer /data /control /oxasir] pushVariables
+ [
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) (localhost)] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+
+ /oxasirpath.asirlib
+   (\OpenXM-win\lib\sm1\oxasir.asir)
+ def
+
+ [(forkExec) [
+    (start)
+    (\OpenXM-win\bin\ox.exe)
+    (-reverse)
+    (-ox)
+    (\OpenXM-win\bin\ox_asir)
+    (-data)
+     data
+     (-control)
+     control
+     (-pass)
+     pass
+     (-wait)
+     (5)
+  ]
+  [  ] 3] extension
+
  [(oxCreateClient2) peer 0 pass] extension /oxasir set
                      %% 0 means connect from only localhost. 
  oxasir asirinit
