@@ -1,10 +1,10 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.1 1999/12/16 11:35:48 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.2 2000/03/10 12:24:38 ohara Exp $ */
 
 #include <stdio.h>
 #include "ox_toolkit.h"
 
-int fd_rw = 3;
+OXFILE *fd_rw;
 
 #define INIT_S_SIZE 2048
 #define EXT_S_SIZE  2048
@@ -16,18 +16,18 @@ static cmo **stack = NULL;
 int initialize_stack()
 {
     stack_pointer = 0;
-	stack_size = INIT_S_SIZE;
-	stack = malloc(stack_size*sizeof(cmo*));
+    stack_size = INIT_S_SIZE;
+    stack = malloc(stack_size*sizeof(cmo*));
 }
 
 static int extend_stack()
 {
-	int size2 = stack_size + EXT_S_SIZE;
-	cmo **stack2 = malloc(size2*sizeof(cmo*));
-	memcpy(stack2, stack, stack_size*sizeof(cmo *));
-	free(stack);
-	stack = stack2;
-	stack_size = size2;
+    int size2 = stack_size + EXT_S_SIZE;
+    cmo **stack2 = malloc(size2*sizeof(cmo*));
+    memcpy(stack2, stack, stack_size*sizeof(cmo *));
+    free(stack);
+    stack = stack2;
+    stack_size = size2;
 }
 
 int push(cmo* m)
@@ -35,7 +35,7 @@ int push(cmo* m)
     stack[stack_pointer] = m;
     stack_pointer++;
     if (stack_pointer >= stack_size) {
-		extend_stack();
+        extend_stack();
     }
 }
 
@@ -57,11 +57,12 @@ void pops(int n)
 }
 
 #define VERSION 0x11121400
-#define ID_STRING  "ox_math server 1999/12/14 15:25:00"
+#define ID_STRING  "1999/12/14 15:25:00"
 
 int sm_mathcap()
 {
-    push(make_mathcap_object(VERSION, ID_STRING));
+	mathcap_sysinfo_set(VERSION, ID_STRING, "ox_Xsample");
+    push(mathcap_get());
     return 0;
 }
 
@@ -78,78 +79,78 @@ int sm_popCMO()
 
 cmo_error2 *make_error2(int code)
 {
-	return new_cmo_int32(-1);
+    return new_cmo_int32(-1);
 }
 
 int get_i()
 {
-	cmo *c = pop();
-	if (c->tag == CMO_INT32) {
-		return ((cmo_int32 *)c)->i;
-	}else if (c->tag == CMO_ZZ) {
-		return mpz_get_si(((cmo_zz *)c)->mpz);
-	}
-	make_error2(-1);
-	return 0;
+    cmo *c = pop();
+    if (c->tag == CMO_INT32) {
+        return ((cmo_int32 *)c)->i;
+    }else if (c->tag == CMO_ZZ) {
+        return mpz_get_si(((cmo_zz *)c)->mpz);
+    }
+    make_error2(-1);
+    return 0;
 }
 
 int get_xy(int *x, int *y)
 {
-	cmo *c = pop();
-	*x = get_i();
-	*y = get_i();
+    cmo *c = pop();
+    *x = get_i();
+    *y = get_i();
 }
 
 int my_setpixel()
 {
-	int x, y;
-	get_xy(&x, &y);
-	setpixel(x, y);
-	push(new_cmo_int32(0));
+    int x, y;
+    get_xy(&x, &y);
+    setpixel(x, y);
+    push(new_cmo_int32(0));
 }
 
 int my_moveto()
 {
-	int x, y;
-	get_xy(&x, &y);
-	moveto(x, y);
-	push(new_cmo_int32(0));
+    int x, y;
+    get_xy(&x, &y);
+    moveto(x, y);
+    push(new_cmo_int32(0));
 }
 
 int my_lineto()
 {
-	int x, y;
-	get_xy(&x, &y);
-	lineto(x, y);
-	push(new_cmo_int32(0));
+    int x, y;
+    get_xy(&x, &y);
+    lineto(x, y);
+    push(new_cmo_int32(0));
 }
 
 int my_clear()
 {
-	/* dummy */
-	pop();
-	push(new_cmo_int32(0));
+    /* dummy */
+    pop();
+    push(new_cmo_int32(0));
 }
 
 int sm_executeFunction()
 {
-	cmo_string *func = (cmo_string *)pop();
-	if (func->tag != CMO_STRING) {
-		push(make_error2(0));
-		return -1;
-	}
-	if (strcmp(func->s, "setpixel") == 0) {
-		my_setpixel();
-	}else if (strcmp(func->s, "moveto") == 0) {
-		my_moveto();
-	}else if (strcmp(func->s, "lineto") == 0) {
-		my_lineto();
-	}else if (strcmp(func->s, "clear") == 0) {
-		my_clear();
-	}else {
-		push(make_error2(0));
-		return -1;
-	}
+    cmo_string *func = (cmo_string *)pop();
+    if (func->tag != CMO_STRING) {
+        push(make_error2(0));
+        return -1;
+    }
+    if (strcmp(func->s, "setpixel") == 0) {
+        my_setpixel();
+    }else if (strcmp(func->s, "moveto") == 0) {
+        my_moveto();
+    }else if (strcmp(func->s, "lineto") == 0) {
+        my_lineto();
+    }else if (strcmp(func->s, "clear") == 0) {
+        my_clear();
+    }else {
+        push(make_error2(0));
+        return -1;
+    }
 }
 
 
@@ -193,12 +194,14 @@ int receive()
 int main()
 {
     initialize_stack();
-    decideByteOrderServer(fd_rw, 0);
 
-	gopen();
+	fd_rw = oxf_open(3);
+	oxf_determine_byteorder_server(fd_rw);
+
+    gopen();
     while(1) {
         receive();
-		gFlush();
+        gFlush();
     }
-	gclose();
+    gclose();
 }

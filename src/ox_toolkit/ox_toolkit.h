@@ -1,35 +1,34 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.1 2000/03/10 12:24:39 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
 #define _OX_TOOLKIT_H_
 
+#include <stdio.h>
 #include <gmp.h>  
 #include "ox_toolkit_tags.h"
 
-/* functions related to ox.c */
-
-#define LOGFILE  "/tmp/oxtk.XXXXXX"
-
-/* Open Xm File Descripter */
-typedef int oxfd;
-
-#if 0
-typedef struct {
-    int fd;
-    int byteorder;
-} oxfile;
-typedef oxfile *oxfd;
+#if !defined(__GNUC__) && !defined(__inline__)
+#define __inline__
 #endif
 
-/* descripter pair. (needed by a client) */
-typedef struct {
-    oxfd stream;
-    oxfd control;
-} __ox_file_struct;
+/* functions related to ox.c */
 
-typedef __ox_file_struct *ox_file_t;
+#define LOGOXFILE  "/tmp/oxtk.XXXXXX"
+
+#define MATHCAP_FLAG_DENY   0
+#define MATHCAP_FLAG_ALLOW  1
+
+/* Open Xm File Descripter */
+typedef struct OXFILE{
+	int fd;
+/*    FILE *fp; */
+	int (*send_int32)(struct OXFILE *oxfp, int int32);
+	int (*receive_int32)(struct OXFILE *oxfp);
+	int serial_number;
+	struct OXFILE *control;  /* pointer to his control server. */
+} OXFILE;
 
 typedef struct {
     int tag;
@@ -64,9 +63,11 @@ typedef cmo_mathcap cmo_error2;
 typedef cmo_mathcap cmo_ring_by_name;
 typedef cmo_mathcap cmo_indeterminate;
 
+/* a double linked list */
 typedef struct cell {
-    struct cell *next;
     cmo *cmo;
+    struct cell *next;
+    struct cell *prev;
 } cell;
 
 typedef struct {
@@ -74,7 +75,6 @@ typedef struct {
     int length;   /* length of this list (unnecessary) */
     cell head[1];
 } cmo_list;
-
 
 typedef struct {
     int tag;
@@ -95,7 +95,7 @@ typedef struct {
 } cmo_qq;
 
 /* The following is a derived class from cmo_list. 
-   that is, append_cmo_list can be used. */
+   that is, list_append can be used. */
 typedef struct {
     int tag;
     int length;    /* number of monomials */
@@ -147,55 +147,52 @@ cmo_error2*        make_error_object(int err_code, cmo* ob);
 cmo*               make_mathcap_object(int version, char *id_string);
 
 /* Low level API */
-cmo*               receive_cmo(int fd);
-int                receive_int32(int fd);
-int                receive_ox_tag(int fd);
+cmo*               receive_cmo(OXFILE *fp);
+int                receive_int32(OXFILE *fp);
+int                receive_ox_tag(OXFILE *fp);
 
-int                send_cmo(int fd, cmo* m);
-int                send_int32(int fd, int integer);
-int                send_ox(int fd, ox* m);
-int                send_ox_cmo(int fd, cmo* m);
-void               send_ox_command(int fd, int sm_command);
-int                send_ox_tag(int fd, int tag);
+void               send_cmo(OXFILE *fp, cmo* m);
+int                send_int32(OXFILE *fp, int integer);
+void               send_ox(OXFILE *fp, ox* m);
+void               send_ox_cmo(OXFILE *fp, cmo* m);
+void               send_ox_command(OXFILE *fp, int sm_command);
+int                send_ox_tag(OXFILE *fp, int tag);
 
-int                decideByteOrderClient(int fd, int order);
-int                decideByteOrderServer(int fd, int order);
 int                next_serial();
 void               setCmotypeDisable(int type);
-cell*              new_cell();
-cmo*               nth_cmo_list(cmo_list* this, int n);
-int                set_current_fd(int fd);
 
 /* High level API */
-ox_file_t          ox_start(char* host, char* prog1, char* prog2);
-ox_file_t          ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
-ox_file_t          ox_start_remote_with_ssh(char *dat_prog, char* host);
+void               ox_close(OXFILE *sv);
+void               ox_shutdown(OXFILE *sv);
+void               ox_reset(OXFILE *sv);
+void               ox_execute_string(OXFILE *sv, char* str);
+cmo_mathcap*       ox_mathcap(OXFILE *sv);
+char*              ox_popString(OXFILE *sv);
+void               ox_pops(OXFILE *sv, int num);
+cmo*               ox_pop_cmo(OXFILE *sv);
+void               ox_push_cmo(OXFILE *sv, cmo *c);
+void               ox_push_cmd(OXFILE *sv, int sm_code);
+void               ox_cmo_rpc(OXFILE *sv, char *function, int argc, cmo *argv[]);
+int                ox_flush(OXFILE *sv);
 
-void               ox_close(ox_file_t sv);
-void               ox_shutdown(ox_file_t sv);
-void               ox_reset(ox_file_t sv);
-void               ox_execute_string(ox_file_t sv, char* str);
-cmo_mathcap*       ox_mathcap(ox_file_t sv);
-char*              ox_popString(ox_file_t sv);
-int                ox_pops(ox_file_t sv, int num);
-cmo*               ox_pop_cmo(ox_file_t sv);
-void               ox_push_cmo(ox_file_t sv, cmo *c);
-void               ox_push_cmd(ox_file_t sv, int sm_code);
-int                ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
-int                ox_flush(ox_file_t sv);
+cell*              list_first(cmo_list *this);
+int                list_endof(cmo_list *this, cell *el);
+cell*              list_next(cell *el);
+cmo_list*          list_append(cmo_list* this, cmo *ob);
+cmo_list*          list_appendl(cmo_list* this, ...);
+int                list_length(cmo_list* this);
+cmo*               list_nth(cmo_list* this, int n);
 
-int                append_cmo_list(cmo_list* this, cmo *ob);
-int                length_cmo_list(cmo_list* this);
-cell*              next_cell(cell *this);
 int                cmolen_cmo(cmo* m);
-int                init_dump_buff(char *buff);
-int                dump_cmo(cmo* m);
-int                dump_ox_command(ox_command* m);
-int                dump_ox_data(ox_data* m);
+void               dump_buffer_init(char *s);
+void               dump_cmo(cmo* m);
+void               dump_ox_command(ox_command* m);
+void               dump_ox_data(ox_data* m);
 
-int                print_cmo(cmo* c);
+void               print_cmo(cmo* c);
+void               resize_mpz(mpz_ptr mpz, int size);
 
-typedef cmo *(*hook_t)(int, cmo *);
+typedef cmo *(*hook_t)(OXFILE *, cmo *);
 
 int add_hook_before_send_cmo(hook_t func);
 int add_hook_after_send_cmo(hook_t func);
@@ -206,14 +203,55 @@ int add_hook_after_send_cmo(hook_t func);
 
 typedef struct symbol *symbol_t;
 
-int setflag_parse(int flag);
+void setflag_parse(int flag);
 cmo *parse();
-int init_parser(char *s);
+void init_parser(char *s);
 
 symbol_t lookup_by_symbol(char *key);
 symbol_t lookup_by_token(int tok);
 symbol_t lookup_by_tag(int tag);
 symbol_t lookup(int i);
 char *symbol_get_key(symbol_t sp);
+
+/* for mathcap database */
+cmo_mathcap *mathcap_get();
+int mathcap_cmo_isallow_cmo(cmo *ob);
+void mathcap_cmo_allow(int tag);
+void mathcap_cmo_deny(int tag);
+void mathcap_cmo_deny_all();
+void mathcap_cmo_allow_all();
+cmo_list *mathcap_cmo_get_allow_all();
+cmo_list *mathcap_sm_get_all();
+cmo_list *mathcap_sysinfo_get_all();
+void mathcap_sysinfo_set(int version, char *id, char *sysname);
+
+
+
+int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
+int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
+
+/* for OXFILE */
+OXFILE *oxf_connect_active(char *hostname, short port);
+OXFILE *oxf_connect_passive(int listened);
+OXFILE *oxf_open(int fd);
+OXFILE *oxf_control_set(OXFILE *oxfp, OXFILE *control);
+OXFILE *oxf_control(OXFILE *oxfp);
+int  oxf_confirm_client(OXFILE *oxfp, char *passwd);
+int  oxf_confirm_server(OXFILE *oxfp, char *passwd);
+void oxf_flush(OXFILE *oxfp);
+void oxf_close(OXFILE *oxfp);
+void oxf_setopt(OXFILE *oxfp, int mode);
+void oxf_determine_byteorder_client(OXFILE *oxfp);
+void oxf_determine_byteorder_server(OXFILE *oxfp);
+
+int send_int32_lbo(OXFILE *oxfp, int int32);
+int send_int32_nbo(OXFILE *oxfp, int int32);
+int receive_int32_lbo(OXFILE *oxfp);
+int receive_int32_nbo(OXFILE *oxfp);
+
+/* example: which("xterm", getenv("PATH")); */
+char *which(char *exe, const char *env);
+char *generate_otp();
+
 
 #endif /* _OX_TOOLKIT_H_ */

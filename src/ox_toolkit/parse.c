@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.3 2000/01/17 19:55:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.4 2000/03/10 12:24:39 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/param.h>
 #include <setjmp.h>
+#include <ctype.h>
 
 #include "ox_toolkit.h"
 #include "parse.h"
@@ -47,11 +48,10 @@ static union{
 static int pflag_cmo_addrev = 1;
 
 /* definitions of local functions */
-static int  parse_error(char *s);
-static int  parse_lf();
-static int  parse_right_parenthesis();
-static int  parse_left_parenthesis();
-static int  parse_comma();
+static void parse_error(char *s);
+static void parse_right_parenthesis();
+static void parse_left_parenthesis();
+static void parse_comma();
 static mpz_ptr parse_integer();
 static char *parse_string();
 static cmo  *parse_cmo_null();
@@ -72,6 +72,9 @@ static int  parse_sm();
 static ox   *parse_ox();
 static ox   *parse_ox_command();
 static ox   *parse_ox_data();
+static void init_lex(char *s);
+static int  lex();
+
 
 static int is_token_cmo(int token)
 {
@@ -91,21 +94,21 @@ static int is_token_ox(int token)
 static jmp_buf env_parse;
 
 /* This is a parsing fault. */
-static int parse_error(char *s)
+static void parse_error(char *s)
 {
     fprintf(stderr, "syntax error: %s\n", s);
     longjmp(env_parse, 1);
 }
 
-int setflag_parse(int flag)
+void setflag_parse(int flag)
 {
     pflag_cmo_addrev = flag;
 }
 
-int init_parser(char *s)
+void init_parser(char *s)
 {
-	setflag_parse(PFLAG_ADDREV);
-	init_lex(s);
+    setflag_parse(PFLAG_ADDREV);
+    init_lex(s);
 }
 
 cmo *parse()
@@ -114,10 +117,10 @@ cmo *parse()
 
     if (setjmp(env_parse) != 0) {
         return NULL;
-		/* This is an error. */
+        /* This is an error. */
     }
 
-	token = lex();
+    token = lex();
     if (token == '(') {
         token = lex();
         if (is_token_cmo(token)) {
@@ -248,7 +251,7 @@ static cmo *parse_cmo()
     return m;
 }
 
-static int parse_left_parenthesis()
+static void parse_left_parenthesis()
 {
     if (token != '(') {
         parse_error("no left parenthesis.");
@@ -256,7 +259,7 @@ static int parse_left_parenthesis()
     token = lex();
 }
 
-static int parse_right_parenthesis()
+static void parse_right_parenthesis()
 {
     if (token != ')') {
         parse_error("no right parenthesis.");
@@ -264,7 +267,7 @@ static int parse_right_parenthesis()
     token = lex();
 }
 
-static int parse_comma()
+static void parse_comma()
 {
     if (token != ',') {
         parse_error("no comma.");
@@ -274,43 +277,43 @@ static int parse_comma()
 
 static mpz_ptr new_mpz_set_str(char *s)
 {
-	mpz_ptr z = malloc(sizeof(mpz_t));
-	mpz_init_set_str(z, s, 10);
-	return z;
+    mpz_ptr z = malloc(sizeof(mpz_t));
+    mpz_init_set_str(z, s, 10);
+    return z;
 }
 
 static mpz_ptr my_mpz_neg(mpz_ptr src)
 {
-	mpz_ptr z = malloc(sizeof(mpz_t));
-	mpz_init(z);
-	mpz_neg(z, src);
+    mpz_ptr z = malloc(sizeof(mpz_t));
+    mpz_init(z);
+    mpz_neg(z, src);
 #ifndef DEBUG
-	free(src);
+    free(src);
 #endif
-	return z;
+    return z;
 }
 
 static mpz_ptr parse_integer()
 {
-	int sign = 1;
-	mpz_ptr val;
+    int sign = 1;
+    mpz_ptr val;
 
-	if (token == '+') {
-		token = lex();
-	}else if (token == '-') {
-		sign = -1;
-		token = lex();
-	}
+    if (token == '+') {
+        token = lex();
+    }else if (token == '-') {
+        sign = -1;
+        token = lex();
+    }
 
     if (token != T_DIGIT) {
         parse_error("no integer.");
     }
-	val = new_mpz_set_str(yylval.sym);
-	if (sign == -1) {
-		val = my_mpz_neg(val);
-	}
+    val = new_mpz_set_str(yylval.sym);
+    if (sign == -1) {
+        val = my_mpz_neg(val);
+    }
 #ifndef DEBUG
-	free(yylval.sym);
+    free(yylval.sym);
 #endif
     token = lex();
     return val;
@@ -335,7 +338,7 @@ static cmo *parse_cmo_null()
 
 static cmo *parse_cmo_int32()
 {
-	mpz_ptr z;
+    mpz_ptr z;
 
     parse_comma();
     z = parse_integer();
@@ -374,8 +377,6 @@ static cmo *parse_cmo_mathcap()
 
 static cmo *parse_cmo_list()
 {
-    int length=0;
-    int i=0;
     cmo_list *m = new_cmo_list();
     cmo *newcmo;
 
@@ -392,7 +393,7 @@ static cmo *parse_cmo_list()
         while(token == '(') {
             parse_left_parenthesis();
             newcmo = parse_cmo();
-            append_cmo_list(m, newcmo);
+            list_append(m, newcmo);
             if (token != ',') {
                 break;
             }
@@ -408,7 +409,6 @@ static cmo *parse_cmo_list()
 static cmo *parse_cmo_monomial32()
 {
     int size;
-    int *exps;
     int i;
     cmo_monomial32 *m;
     int tag;
@@ -444,12 +444,12 @@ static cmo *parse_cmo_zz()
     int length;
     int i=0;
     cmo_zz *m= NULL;
-	mpz_ptr z;
+    mpz_ptr z;
 
     parse_comma();
     z = parse_integer();
     if (token == ',') {
-		length = mpz_get_si(z);
+        length = mpz_get_si(z);
         m = new_cmo_zz_size(length);
         
         length = abs(length);
@@ -497,8 +497,6 @@ static cmo *parse_cmo_ring_by_name()
 
 static cmo *parse_cmo_distributed_polynomial()
 {
-    int length=0;
-    int i=0;
     cmo_distributed_polynomial *m = new_cmo_distributed_polynomial();
     cmo *ob;
     int tag;
@@ -530,7 +528,7 @@ static cmo *parse_cmo_distributed_polynomial()
             if (ob->tag != CMO_MONOMIAL32 && ob->tag != CMO_ZERO) {
                 parse_error("invalid cmo.");
             }
-            append_cmo_list((cmo_list *)m, ob);
+            list_append((cmo_list *)m, ob);
             if (token != ',') {
                 break;
             }
@@ -574,10 +572,10 @@ static int c = ' ';
 static char *mygetc_ptr;
 static int mygetc()
 {
-	return *mygetc_ptr++;
+    return *mygetc_ptr++;
 }
 
-int init_lex(char *s)
+static void init_lex(char *s)
 {
     mygetc_ptr=s;
 }
@@ -587,33 +585,31 @@ static char buffer[SIZE_BUFFER];
 
 static char *mkstr(char *src)
 {
-	int len;
-	char *s;
-	len = strlen(src);
-	s = malloc(len+1);
-	strcpy(s, src);
-	return s;
+    int len;
+    char *s;
+    len = strlen(src);
+    s = malloc(len+1);
+    strcpy(s, src);
+    return s;
 }
 
 /* no measure for buffer overflow */
 static char *lex_digit()
 {
-	static char buff[SIZE_BUFFER];
-	int i;
-	char *s;
-	int len;
+    static char buff[SIZE_BUFFER];
+    int i;
 
-	for(i=0; i<SIZE_BUFFER-1; i++) {
-		if(isdigit(c)) {
-			buff[i] = c;
-		}else {
-			buff[i] = '\0';
-			return mkstr(buff);
-		}
+    for(i=0; i<SIZE_BUFFER-1; i++) {
+        if(isdigit(c)) {
+            buff[i] = c;
+        }else {
+            buff[i] = '\0';
+            return mkstr(buff);
+        }
         c = mygetc();
-	}
-	buff[SIZE_BUFFER-1] = '\0';
-	return mkstr(buff);
+    }
+    buff[SIZE_BUFFER-1] = '\0';
+    return mkstr(buff);
 }
 
 #define MK_KEY_CMO(x)  { #x , x  , TOKEN(x)  , IS_CMO }
@@ -690,7 +686,7 @@ symbol_t lookup(int i)
 
 char *symbol_get_key(symbol_t sp)
 {
-	return sp->key;
+    return sp->key;
 }
 
 /* no measure for buffer overflow */
@@ -704,7 +700,7 @@ static char *lex_quoted_string()
         if(c == '"') {
             c = mygetc();
             buffer[i]='\0';
-			return mkstr(buffer);
+            return mkstr(buffer);
         }else if (c == '\\') {
             c0 = c;
             c = mygetc();
@@ -748,7 +744,7 @@ static int lex_symbol()
 }
 
 /* return する前に一文字先読みしておく. */
-int lex()
+static int lex()
 {
     int c_dash = 0;
   
@@ -761,8 +757,8 @@ int lex()
     case '(':
     case ')':
     case ',':
-	case '+':
-	case '-':
+    case '+':
+    case '-':
         c_dash = c;
         c = ' ';
         return c_dash;
@@ -776,11 +772,11 @@ int lex()
     }
 
     if (isalpha(c)) {
-		/* symbols */
+        /* symbols */
         return lex_symbol();
     }
 
-	/* digit */
+    /* digit */
     if (isdigit(c)){
         yylval.sym = lex_digit();
         return T_DIGIT;

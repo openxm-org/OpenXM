@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.3 1999/12/22 11:26:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.4 2000/03/10 12:24:40 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -12,15 +12,16 @@
 
 #include "ox_toolkit.h"
 
-ox_file_t sv;
+extern OXFILE *ox_start(char* host, char* prog1, char* prog2);
+OXFILE *sv;
 
-int dumpx(int fd, int n)
+int dumpx(OXFILE *oxfp, int n)
 {
     unsigned char buff[2048]; 
     int i;
-    int len = read(fd, buff, n);
+    int len = oxf_read(buff, 1, n, oxfp);
 
-    fprintf(stderr, "I have read %d byte from socket.\n", len);
+    fprintf(stderr, "I have read %d byte from socket(%d).\n", len, oxfp->fd);
     for(i = 0; i < len; i++) {
         fprintf(stderr, "%02x ", buff[i]);
         if (i%20 == 19) {
@@ -44,7 +45,7 @@ static int prompt()
 }
 
 #define VERSION 0x11121500
-#define ID_STRING  "testclient version 0.11121500"
+#define ID_STRING  "v0.11121500"
 
 int test_0()
 {
@@ -54,31 +55,35 @@ int test_0()
     c = ox_mathcap(sv);
     fprintf(stderr, "testclient:: cmo received.(%p)\n", c);
 #else
-    c = ox_mathcap(sv);
+    c = (cmo *)ox_mathcap(sv);
 #endif
     print_cmo(c);
     fflush(stderr);
-    send_ox_cmo(sv->stream, make_mathcap_object(VERSION, ID_STRING));
+
+    mathcap_sysinfo_set(VERSION, ID_STRING, "testclient");
+    send_ox_cmo(sv, mathcap_get());
 
     ox_reset(sv);
-    send_ox_cmo(sv->stream, new_cmo_string("N[ArcTan[1]]"));
-    send_ox_command(sv->stream, SM_executeStringByLocalParser);
-    send_ox_command(sv->stream, SM_popCMO);
-    receive_ox_tag(sv->stream);
-    c = receive_cmo(sv->stream);
+    send_ox_cmo(sv, (cmo *)new_cmo_string("N[ArcTan[1]]"));
+    send_ox_command(sv, SM_executeStringByLocalParser);
+    send_ox_command(sv, SM_popCMO);
+    receive_ox_tag(sv);
+    c = receive_cmo(sv);
     fprintf(stderr, "testclient:: cmo received.\n");
     print_cmo(c);
 }
 
 int test_1()
 {
-    cmo *c = NULL;
-    cmo *m = make_mathcap_object(1000, "test!");
+    cmo *c, *m;
+
+	mathcap_sysinfo_set(1000, "test!", "testclient");
+	m = mathcap_get();
     fprintf(stderr, "testclient:: test cmo_mathcap.\n");
-    send_ox_cmo(sv->stream, m);
-    send_ox_command(sv->stream, SM_popCMO);
-    receive_ox_tag(sv->stream);
-    c = receive_cmo(sv->stream);
+    send_ox_cmo(sv, m);
+    send_ox_command(sv, SM_popCMO);
+    receive_ox_tag(sv);
+    c = receive_cmo(sv);
     fprintf(stderr, "testclient:: cmo received.(%p)\n", c);
     print_cmo(c);
     fputc('\n', stderr);
@@ -103,7 +108,7 @@ int main(int argc, char* argv[])
         server = argv[1];
     }
     fprintf(stderr, "testclient:: I use %s as an OX server.\n", server);
-    sv = ox_start("localhost", "ox", server); 
+/*    sv = ox_start("localhost", "ox", server);  */
     if (sv == NULL) {
         fprintf(stderr, "testclient:: I cannot connect to servers.\n");
         exit(1);
@@ -116,14 +121,14 @@ int main(int argc, char* argv[])
     setflag_parse(PFLAG_ADDREV);
 
     while(prompt(), (m = parse()) != NULL) {
-        send_ox(sv->stream, m);
+        send_ox(sv, m);
         if (m->tag == OX_COMMAND) {
             code = ((ox_command *)m)->command;
             if (code >= 1024) {
                 break;
             }else if (code == SM_popCMO || code == SM_popString) {
-                receive_ox_tag(sv->stream);
-                c = receive_cmo(sv->stream);
+                receive_ox_tag(sv);
+                c = receive_cmo(sv);
                 fprintf(stderr, "testclient:: cmo received.\n");
                 print_cmo(c);
             }

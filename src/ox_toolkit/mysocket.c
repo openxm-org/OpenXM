@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.2 2000/01/05 06:05:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.3 2000/01/13 07:57:09 ohara Exp $ */
 /* 
 Q: How to get a local port number?
 A: You do setsockopt() to set options and do socket(), bind().
@@ -16,6 +16,7 @@ Reference
 #include <unistd.h>
 #include <errno.h>
 #include <netdb.h>
+#include <string.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -41,8 +42,7 @@ static int getsocket(struct sockaddr_in *mp, char *host, short port)
 
 int mysocketAccept(int s_waiting)
 {
-    int val = accept(s_waiting, NULL, NULL);
-    return val;
+    return accept(s_waiting, NULL, NULL);
 }
 
 int mysocketListen(char *hostname, short *portp)

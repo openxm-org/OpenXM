@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.2 1999/12/22 11:26:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.3 2000/03/10 12:24:38 ohara Exp $ */
 
 /* bconv can convert an OX expression or a CMO expression to a byte stream. */
 /* Any expressions, as a string, must have shorter length than 8192.*/
@@ -9,7 +9,7 @@
 
 #include "ox_toolkit.h"
 
-static int display(ox *m)
+static void display(ox *m)
 {
     int i;
     int len = 0;
@@ -19,19 +19,19 @@ static int display(ox *m)
     case OX_DATA:
         len = sizeof(int) + sizeof(int) + cmolen_cmo(((ox_data *)m)->cmo);
         d_buff = malloc(len);
-        init_dump_buffer(d_buff);
+        dump_buffer_init(d_buff);
         dump_ox_data((ox_data *)m);
         break;
     case OX_COMMAND:
         len = sizeof(int) + sizeof(int) + sizeof(int);
         d_buff = malloc(len);
-        init_dump_buffer(d_buff);
+        dump_buffer_init(d_buff);
         dump_ox_command((ox_command *)m);
         break;
     default:
         len = cmolen_cmo((cmo *)m);
         d_buff = malloc(len);
-        init_dump_buffer(d_buff);
+        dump_buffer_init(d_buff);
         dump_cmo((cmo *)m);
     }
 
@@ -51,7 +51,7 @@ static int display(ox *m)
 
 static char cmdline[SIZE_CMDLINE];
 
-static int prompt()
+static void prompt()
 {
     fprintf(stdout, "> ");
     fgets(cmdline, SIZE_CMDLINE, stdin);

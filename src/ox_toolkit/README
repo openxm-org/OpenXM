@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.9 2000/01/20 17:18:55 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.10 2000/03/10 12:24:38 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -129,7 +129,35 @@ new_cmo_error2(cmo* ob);
 
 */
 /*&ja
-3. 高水準 API
+2.5 コネクション
+
+OXFILE は OpenXM での通信路を表現するクラスである。このクラスのオブジェ
+クトを明示的には生成しないこと。必ずコンストラクタを利用しなければなら
+ない。これはクライアントとサーバで接続時の手順が異なることに由来する。
+バイトオーダに関連した処理はこのクラスのメソッドで実現される。このクラ
+スのメソッドとして次のものが用意されている。
+
+2.5.1 コンストラクタ
+OXFILE *oxf_connect_active(char *hostname, short port);
+OXFILE *oxf_connect_passive(int listened);
+OXFILE *oxf_open(int fd);
+
+2.5.2 認証に関連したメソッド
+int  oxf_confirm_client(OXFILE *oxfp, char *passwd);
+int  oxf_confirm_server(OXFILE *oxfp, char *passwd);
+void oxf_determine_byteorder_client(OXFILE *oxfp);
+void oxf_determine_byteorder_server(OXFILE *oxfp);
+void oxf_setopt(OXFILE *oxfp, int mode);
+
+2.5.3 その他のメソッド
+int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
+int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
+void oxf_flush(OXFILE *oxfp);
+void oxf_close(OXFILE *oxfp);
+
+*/
+/*&ja
+3. 高水準 API(この記述は古いので使わないこと)
 
 高水準 API は「OpenXM クライアント」から利用することを前提に設計されている。
 
@@ -149,8 +177,8 @@ ox_start() or to call ox_start_insecure_nonreverse().
 */
 /*&common
 
-ox_file_t ox_start(char* host, char* prog1, char* prog2);
-ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
+OXFILE *ox_start(char* host, char* prog1, char* prog2);
+OXFILE *ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
 
 */
 /*&ja
@@ -193,8 +221,8 @@ ox_close() or to call ox_shutdown().
 
 */
 /*&common
-void ox_close(ox_file_t sv);
-void ox_shutdown(ox_file_t sv);
+void ox_close(OXFILE *sv);
+void ox_shutdown(OXFILE *sv);
 
 */
 /*&ja
@@ -211,7 +239,7 @@ void ox_shutdown(ox_file_t sv);
 */
 /*&common
 
-void  ox_push_cmd(ox_file_t sv, int sm_code);
+void  ox_push_cmd(OXFILE *sv, int sm_code);
 
 */
 /*&ja
@@ -231,9 +259,9 @@ See OpenXM/include/ox_toolkit_tags.h for a list of operation codes.
 */
 /*&common
 
-void  ox_push_cmo(ox_file_t sv, cmo *c);
-cmo*  ox_pop_cmo(ox_file_t sv);
-char* ox_popString(ox_file_t sv);
+void  ox_push_cmo(OXFILE *sv, cmo *c);
+cmo*  ox_pop_cmo(OXFILE *sv);
+char* ox_popString(OXFILE *sv);
 
 */
 /*&ja
@@ -249,7 +277,7 @@ ox_push_cmo は cmo を送信、ox_pop_cmo は cmo を受信する。ox_popString
 */
 /*&common
 
-int ox_pops(ox_file_t sv, int num);
+int ox_pops(OXFILE *sv, int num);
 
 */
 /*&ja
@@ -261,7 +289,7 @@ int ox_pops(ox_file_t sv, int num);
 */
 /*&common
 
-int ox_flush(ox_file_t sv);
+int ox_flush(OXFILE *sv);
 
 */
 /*&ja
@@ -273,7 +301,7 @@ int ox_flush(ox_file_t sv);
 */
 /*&common
 
-void ox_reset(ox_file_t sv);
+void ox_reset(OXFILE *sv);
 
 */
 /*&ja
@@ -285,7 +313,7 @@ void ox_reset(ox_file_t sv);
 */
 /*&common
 
-void ox_execute_string(ox_file_t sv, char* str);
+void ox_execute_string(OXFILE *sv, char* str);
 
 */
 /*&ja
@@ -297,7 +325,7 @@ void ox_execute_string(ox_file_t sv, char* str);
 */
 /*&common
 
-int ox_cmo_rpc(ox_file_t sv, char *function, int argc, cmo *argv[]);
+int ox_cmo_rpc(OXFILE *sv, char *function, int argc, cmo *argv[]);
 
 */
 /*&ja
@@ -309,7 +337,7 @@ function(argv[1], ...) を計算し、結果をスタックに積む。
 
 */
 /*&common
-cmo_mathcap* ox_mathcap(ox_file_t sv);
+cmo_mathcap* ox_mathcap(OXFILE *sv);
 
 */
 /*&ja

@@ -1,20 +1,19 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.7 2000/03/08 06:41:54 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.8 2000/03/10 12:24:38 ohara Exp $
 
 OpenXM_HOME = ../..
 OXWEAVE     = ${OpenXM_HOME}/bin/oxweave
 CC          = @CC@
-CFLAGS      = -g -O2 -DDEBUG -I${OpenXM_HOME}/include
-OBJS        = ox.o parse.o mysocket.o
-BINARIES    = bconv testclient sample1 sample2 
+CFLAGS      = -g -Wall -O2 -DDEBUG -I${OpenXM_HOME}/include -finline-functions
+OBJS        = ox.o cmo.o parse.o mysocket.o mathcap.o dump.o cmolen.o print.o oxf.o oxf_old.o
+BINARIES    = bconv testclient sample1 sample2 zclient
 DOCUMENTS   = readme-eg readme-jp bnf-eg bnf-jp
 X11INC      = @X_CFLAGS@
 X11LIB      = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@
 RANLIB      = @RANLIB@
 LIBS        = @LIBS@ -L${OpenXM_HOME}/lib -L. -lox -lgmp
 INSTALL_DATA= cp -f 
-OXOBJS      = ox.o parse.o bconv.o testclinet.o ox_Xsample.o \
-              sample1.o sample2.o
+OXOBJS      = ${OBJS} bconv.o testclinet.o ox_Xsample.o sample1.o sample2.o
 
 all: libox.a ${BINARIES} ${DOCUMENTS}
 
@@ -34,6 +33,9 @@ bconv: bconv.o libox.a
 
 testclient: testclient.o libox.a
 	${CC} ${CFLAGS} -o $@ testclient.o ${LIBS}
+
+zclient: zclient.o libox.a
+	${CC} ${CFLAGS} -o $@ zclient.o ${LIBS}
 
 sample1: sample1.o libox.a
 	${CC} ${CFLAGS} -o $@ sample1.o ${LIBS}
