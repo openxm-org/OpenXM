@@ -1,152 +1,37 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.5 2000/01/18 12:41:13 takayama Exp $
-OpenXM/doc/install.oxweave
+%% $OpenXM$
 
-/*&C
-OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
 
-OpenXM package : Getting started.
+/*&
 
 */
 /*&jp
 ★ OpenXM パッケージの利用方法
-この節では, OpenXM package binary distribution のインストール法を説明します.
-インストールに必要なシステムの仕様については, 動作環境を御覧ください.
+OpenXM をホームの直下に展開した場合, 次のようにします.
 */
 /*&eg
-***** HOW TO USE OpenXM PACKAGE?
-In this section, we will explain how to install OpenXM package binary
-distribution.
-As to the required environment, see the section "System Requirement"
-*/
-/*&jp
-
-(1)  Tar ボールより次のようにしてディレクトリ OpenXM を取り出します.
-     OpenXM はどこにおいてもかまいません.
-     
-*/
-/*&eg
-
-(1)  Extract the directory OpenXM from the tar ball.
-     You can put the directory OpenXM at any place in the file system.
-
-*/
-/*&C
-         tar xzvf OpenXM-binary-OPERATING_SYSTEM_CPU_TYPE.tgz
-
-*/
-/*&jp
-以下 (1) で生成されたディレクトリ OpenXM の絶対パスを /xxx/yyy/OpenXM
-と書きます.
-
-*/
-/*&eg
-In the sequel, we will denote the absolute path of the directory OpenXM 
-by /xxx/yyy/OpenXM.
-
-*/
-/*&jp
-(2) 次のように入力して OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc 
-    ファイルを自動生成します.
-    これらのファイルには, OpenXM/bin のファイルを実行するための
-    環境変数が定義されています.
-
-*/
-/*&eg
-(2) Generate  OpenXM/rc/dot.cshrc and OpenXM/rc/dot.bashrc
-    by the following command.
-    Environmental variables to execute commands in OpenXM/bin
-    are defined in these files.
-
+* How to use the OpenXM package?
+If you have OpenXM under your home directory, do as follows.
 */
 /*&C
 
-     cd /xxx/yyy/OpenXM
-     make
+    cp OpenXM/rc/asirrc ~/.asirrc 
+    source OpenXM/rc/bashrc (in case of bash)
+    source OpenXM/rc/cshrc  (in case of csh)
 
 */
 /*&jp
-(3) csh を利用してる場合, 次の行を ~/.cshrc の最後に加えます.
-
+OpenXM をホームの直下に展開してない場合は OpenXM/rc/bashrc, OpenXM/rc/cshrc を
+適当に変更して使用してください.
 */
 /*&eg
-(3) Append the following line to the end of  ~/.cshrc when you are
-    using csh as your shell.
-
+If you have OpenXM in a different place, edit OpenXM/rc/bashrc or
+OpenXM/rc/cshrc properly.
 */
-/*&C
-
-    source /xxx/yyy/OpenXM/rc/dot.cshrc
-
-*/
-/*&jp
-(3') bash を利用してる場合, 次の行を ~/.bashrc の最後に加えます.
-
-*/
-/*&eg
-(3') Append the following line to the end of  ~/.bashrc when you are
-    using bash as your shell.
-
-*/
-/*&C
-
-    source /xxx/yyy/OpenXM/rc/dot.bash
-
-*/
-
 //&C 
-//&jp (4) asir の利用には  key が必要です.  以下のファイルを御覧ください.
-//&eg (5) You need key to use asir.  See the following file:
+//&jp asir の利用には  key が必要です.  以下のファイルを御覧ください.
+//&eg You need key to use asir.  See the following file:
 //&C OpenXM/lib/asir/asir_key
 //&C  
-
-/*&C
-QUALITY:
-  the following functions have still experimental qualities:
-   OpenXM/bin/k0,  OpenXM/bin/d0
-   OpenXM/bin/ox_math,  OpenXM/bin/math2ox
-   OpenXM/lib/java-support/ *
-   Asir client functions:   m_* (Mathematica)  ,  om_*  (OpenMath)
-*/
-/*&C
-
-
-
-
-*/
-/*&jp
-★ 動作環境
-
-*/
-/*&eg
-***** System Requirements
-
-*/
-/*&C
-
-OS:  FreeBSD 3.x,  Free BSD 2.8, Most Linux systems.
-
-*/
-/*&jp
-次の module は, OS の標準 distribution 以外に, さらに下に記したソフトを
-必要とします.
-*/
-/*&eg
-The following modules require the listed softwares other than the standard
-OS package.
-*/
-/*&C
-
-(1) OpenXM/bin/ox_math  :       Mathematica Version 3.x or 4.x 
-   (Mathematica server)         at /usr/local/Mathematica
-    OpenXM/bin/math2ox          [ see http://www.wolfram.com ]
-    Asir client functions  m_*
-(2) OpenXM/lib/java-support :   JDK at /usr/local/jdk??
-    Asir client functions  om_*
-    sm1 client functions   om_*
-
-*/
-
-
 /*&jp
 注意 1.
 asir で日本語のヘルプを利用するには, 
@@ -237,7 +122,18 @@ sm1
 
 [著作権表示] 
 OpenXM/Copyright を御覧ください.
-*/
+
+OpenXM : url http://www.math.kobe-u.ac.jp/OpenXM
+         cvs cite : kerberos.math.kobe-u.ac.jp
+sm1 :  作者 Nobuki Takayama, url http://www.math.kobe-u.ac.jp/KAN, 
+asir :    作者  url
+         ライセンス形態   ??
+gnuplot : 作者  url
+         ライセンス形態   GPL?
+phc : 作者 Jan Verschelde,  url
+         ライセンス形態   ??
+tigers : 作者 Birk Hubert,  url
+         ライセンス形態   ??
 
 /*&jp
 ★ OpenXM パッケージの Make 法
