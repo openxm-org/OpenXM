@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.1 2003/11/08 12:34:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.2 2003/11/15 09:06:20 iwane Exp $ */
 
 #include <NTL/ZZX.h>
 #include <NTL/mat_ZZ.h>
@@ -11,6 +11,9 @@
 #define __NTL_PRINT (1)
 #endif
 
+/*==========================================================================*
+ * Block interrupt input
+ *==========================================================================*/
 #define BLOCK_NEW_CMO()         BLOCK_INPUT()
 #define UNBLOCK_NEW_CMO()       UNBLOCK_INPUT()
 
@@ -145,13 +148,17 @@ cmo_zz *
 ZZ_to_cmo_zz(const ZZ &z)
 {
 	cmo_zz *c;
+	char *ptr;
 
 	ostrstream sout;
 	sout << z << '\0';
+	ptr = sout.str();
 
 	BLOCK_NEW_CMO();
-	c = new_cmo_zz_set_string(sout.str());
+	c = new_cmo_zz_set_string(ptr);
 	UNBLOCK_NEW_CMO();
+	
+	delete [] ptr;
 
 	return (c);
 }
