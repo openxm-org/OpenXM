@@ -1,9 +1,9 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.11 2000/01/17 15:42:00 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.12 2000/01/17 16:53:43 tam Exp $
 
 
 JAVADIR = /usr/local/jdk1.1.8/
-JAVABINDIR = $(JAVADIR)bin/
+#JAVABINDIR = $(JAVADIR)bin/
 LIBDIR = ../../lib/java-support
 
 TARGETS = OpenXM.jar OM2OXM.class OMproxy.class libnative.so
@@ -39,7 +39,7 @@ install2:
 
 
 test:
-	$(JAVADIR)/bin/javac -d . -deprecation -g *.java
+	$(JAVABINDIR)javac -d . -deprecation -g *.java
 	make libnative.so
 
 
@@ -51,10 +51,9 @@ test:
 
 
 OpenXM.jar:	JP/ac/kobe_u/math/tam/OpenXM/*.java
-	@echo jar
-	@#$(JAVABINDIR)javac -d . -O JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java
 	$(JAVABINDIR)javac -d . -O $?
-	-$(JAVABINDIR)jar cf OpenXM.jar `find JP/ -name '*.class'`
+	touch $@
+	-@#$(JAVABINDIR)jar cf OpenXM.jar `find JP/ -name '*.class'`
 
 
 OMproxy.h:	OMproxy.class
