@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.19 2003/11/17 08:49:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.20 2003/12/06 02:35:54 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -252,6 +252,10 @@ int oxReq(oxclientp client,int func,struct object ob)
     break;
   case SM_dupErrors:
     oxReqSingleOperand(client->datafp2,SM_dupErrors);
+    client->dstate = DSTATE_ANY;
+    break;
+  case SM_pushCMOtag:
+    oxReqSingleOperand(client->datafp2,SM_pushCMOtag);
     client->dstate = DSTATE_ANY;
     break;
   default:

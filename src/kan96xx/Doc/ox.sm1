@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.34 2004/02/28 12:27:16 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.35 2004/02/28 13:39:42 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -76,6 +76,8 @@ ox.version [(Version)] system_variable gt
 /SM_getsp     275  def
 /SM_dupErrors 276  def
 
+/SM_pushCMOtag 277 def
+
 /SM_control_kill 1024 def
 /SM_control_reset_connection  1030 def
 /SM_control_spawn_server  1027 def
@@ -96,6 +98,7 @@ ox.version [(Version)] system_variable gt
  (client str oxevalname, client str oxsetname, client num oxpops, client oxget) 
  (   )
  (client oxmathcap, client oxsetmathcap, oxgenportfile, oxremoveportfile)
+ (client oxpushcmotag)
  (   )
  (client oxgetsp --- get stack pointer,  client oxgeterrors --- get all errors)
  (cleint oxisData, client oxreset, client oxshutdown)
@@ -144,6 +147,11 @@ ox.verbose { oxhelp } {  } ifelse
   ox.takelog { ox.log [(oxSerial)] extension ox.mod arg1 put 
   } {  } ifelse
   [(oxReq) arg2 SM_DUMMY_sendcmo arg1] extension pop
+} def
+
+/oxpushcmotag {
+  /arg2 set
+  [(oxReq) arg2 SM_pushCMOtag ] extension pop
 } def
 
 /oxpopcmo {
