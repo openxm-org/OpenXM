@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.17 2000/11/28 20:16:03 ohara Exp $ */
+/* $OpenXM$ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -21,19 +21,19 @@
 #include <gmp.h>
 #include <mathlink.h>
 #include <ox_toolkit.h>
-#include "serv2.h"
+#include "sm.h"
 
 extern int flag_mlo_symbol;
 
 /* MathLink independent */
 static cmo **stack = NULL;
-static int stack_size = 0;
 static int stack_ptr = 0;
+static int stack_size = 0;
 OXFILE *stack_oxfp = NULL;
 
 #define DIFFERENCE_OF_STACK  1024
 
-static void stack_extend()
+void stack_extend()
 {
     int newsize = stack_size + DIFFERENCE_OF_STACK;
     cmo **newstack = (cmo **)malloc(sizeof(cmo *)*newsize);
@@ -45,7 +45,7 @@ static void stack_extend()
     stack = newstack;
 }
 
-int push(cmo* m)
+void push(cmo* m)
 {
 #if DEBUG
     symbol_t symp;
@@ -65,7 +65,7 @@ int push(cmo* m)
 }
 
 /* if the stack is empty, then pop() returns (CMO_NULL). */
-cmo* pop()
+cmo *pop()
 {
     if (stack_ptr > 0) {
         return stack[--stack_ptr];
@@ -87,8 +87,9 @@ void push_error(int errcode, cmo* pushback)
 }
 
 /* 
-   if error occurs, then a sm_*() function returns non-zero and 
-   an error obect is set by a function which calls sm_*().
+If error occurs, then
+an sm_*() function returns non-zero and 
+an error obect is set by a function which calls sm_*().
 */
 int sm_popCMO(OXFILE* oxfp)
 {
@@ -275,4 +276,9 @@ int execute_sm_command(OXFILE* oxfp, int code)
     if (err != 0) {
         push((cmo *)make_error_object(err, new_cmo_null()));
     }
+}
+
+int sm_run(int code)
+{
+    return execute_sm_command(stack_oxfp, code);
 }
