@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.4 1999/11/29 12:05:15 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.5 2000/01/20 15:09:24 ohara Exp $
 
 \documentclass{jarticle}
 \title{Mathematica の Open XM 化について
@@ -13,7 +13,14 @@
 \begin{document}
 \maketitle
 
-\section{Open Mathematicaの構成}
+\section{我々が提供するもの}
+
+我々が提供するのは二つのプログラムとそのソースである。一つ目は 
+{\tt ox\_math} プログラムであり、これは OpenXM サーバの一種である。二つ
+目は {\tt math2ox} であり、OpenXM クライアントである。
+
+
+\section{Open Mathematica サーバの構成}
 
 Open Mathmatica サーバはOpen XM クライアントおよびmathematica カーネルと
 通信する。Open Mathmatica サーバは起動直後にmathematica カーネルを起動し、
@@ -126,18 +133,19 @@ Mathematica から受け取ったデータは基本的に CMO\_STRINGとしてスタックに積
 まだ、実装していないが、多項式(CMO\_???\_PORINOMIAL)の扱いが難しい。
 
 \section{個々のスタックマシン命令の実装}
-現在、実装しているのは
+
+現在、実装されているのは
 SM\_popCMO, SM\_popString, SM\_pops, SM\_executeFunction,
 SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap(受け取るだけ
 で何もしない)である。
 
 \section{Mathematica を OX のクライアントに}
-OpenXM クライアントは Mathematica の外部プログラム({\tt math2ox})
-の形で実現されている。
-すなわち、Mathematica -- math2ox の間は MathLink プロトコルで、
-math2ox -- OpenXM サーバの間は OpenXM プロトコルで通信し、
-math2ox が適切に情報を変換しながらやりとりする。
-その意味で wrapper の一種であるとも言える。
+
+OpenXM クライアントは Mathematica の外部プログラム({\tt math2ox}) の形で
+実現されている。すなわち、Mathematica と math2ox の間は MathLink プロト
+コルで、math2ox と OpenXM サーバの間は OpenXM プロトコルで通信し、
+math2ox が適切に情報を変換しながらやりとりする。その意味で wrapper の一
+種であるとも言える。
 
 利用するには、最初に
 \begin{verbatim}
