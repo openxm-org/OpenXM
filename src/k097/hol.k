@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* hol.k,  1998, 12/14 */
 /* packages for holonomic systems. */
 sm1("[(chattr) 0 /npower ] extension ");

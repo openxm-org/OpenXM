@@ -1,4 +1,4 @@
-
+/* $OpenXM$ */
 /* d.h;*/
 /*  from stackm.h */
 

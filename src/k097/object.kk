@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* object.kk , 1997, 4/11. */
 Protect("showln",0);
 

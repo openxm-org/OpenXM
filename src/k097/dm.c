@@ -1,4 +1,4 @@
-
+/* $OpenXM$ */
 #include <stdio.h>
 #include "d.h"
 

@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>

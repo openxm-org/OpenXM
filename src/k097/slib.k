@@ -1,4 +1,4 @@
-
+/* $OpenXM$ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/

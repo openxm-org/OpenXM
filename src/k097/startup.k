@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /*  startup.k */
 Println("Loading startup files (startup.k)   1997, 3/11.");
 sm1("(sm1 version = ) messagen"); sm1("[(Version)] system_variable message ");

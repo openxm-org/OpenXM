@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
