@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.107 2001/05/31 08:04:34 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.108 2001/08/21 00:47:17 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -258,7 +258,7 @@ configure-kan96xx: configure-links
 configure-kxx: 
 	( cd kxx ; ./make-configure) 
 
-configure-links:
+configure-links: configure-directory
 	-@if [ ! -f ./.configure-links-done ] ; then \
 	rm -f -r $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp ; \
 	(cd $(LIBDIR) ; ln -f -s ../src/k097 k097) ; \
@@ -269,6 +269,11 @@ configure-links:
 	ln -f -s $(OPENXM_CONTRIB)/gmp gmp ; \
 	mkdir ${OpenXM_HOME}/libexec ; \
 	touch ./.configure-links-done ;\
+	fi
+
+configure-directory:
+	-@if [ ! -d ../bin ] ; then \
+	mkdir ../bin ; \
 	fi
 
 configure-oxtoolkit: configure-include
