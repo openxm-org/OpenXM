@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.94 1999/12/26 03:55:35 ohara Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.95 1999/12/26 04:11:54 tam Exp $
 
 \usepackage{jssac}
 
@@ -108,7 +108,9 @@ OpenXM 規約で規定されているメッセージはバイトストリームとなっており, 次
 
 OpenXM 規約での計算とはメッセージを交換することである. また, OpenXM 規
 約ではクライアント・サーバモデルを採用しているので, メッセージの交換はサー
-バとクライアントの間で行なわれる. クライアントからサーバへメッセージを送
+バとクライアントの間で行なわれる.\footnote{これの拡張は, いま主に野呂
+が考えてる.  サーバ同士通信できないと効率的並列計算の実験には使えない.}
+クライアントからサーバへメッセージを送
 り, クライアントがサーバからメッセージを受け取ることによって計算の結果が
 得られる. このメッセージのやりとりはクライアントの主導で行われる. つまり,
 クライアントは自由にメッセージをサーバに送付してもよいが, サーバからは自
@@ -435,11 +437,9 @@ http://www.openmath.org/omsoc/
 数学的対象の SGML 的表記の標準化を目指した大規模なプロジェクト. 異なる種
 類の数式処理システムの間で情報を交換するときに, OpenMath で定義された表
 現を利用することができる.  実際の情報交換の手続きにはいろいろなものが考
-えられるが, 例えば MCP (Mathematical Computation Protocol) によって通信
-を行うことができる.
-MCP によって送信されるデータは, 本文に OpenMath 形式で数式を記述したテキ
-ストで, いささかメイルに似ていなくもない.
-実際にこの方法で GAP と Axiom の間で通信が行われている.
+えられるが, 例えば MCP を用いた実装があり, GAP と Axiom の間で通信が行わ
+れている.  OpenXM は OpenMath 規約の phrasedictionary と同じアイデアを用
+いている.
 
 \item NetSolve
 
@@ -462,14 +462,17 @@ http://symbolicnet.mcs.kent.edu/SN/areas/protocols/mp.html
 ことができるようにするのが目標である.  現在すでに, C 言語で利用可能なラ
 イブラリが提供されている.
 
-\item MCP
+\item MCP (Mathematical Computation Protocol)
 
 http://horse.mcs.kent.edu/\~{}pwang/
 
-数学的な計算を行なうための HTTP スタイルのプロトコル.  クライアント・サー
+数学的な計算を行なうための HTTP に似たプロトコル.  クライアント・サー
 バモデルを採用しており, ピアツーピアのストリームコネクションを行なう. 
 数学的なオブジェクトを MP や MathML で定められた方法で表現することが考え
 られている.  すでに OpenMath を用いた実装が存在する.
+この場合 MCP によって送信されるデータは, 本文に OpenMath 形式で数式を記
+述したテキストである.
+
 \end{itemize}
 
 
@@ -487,14 +490,14 @@ OMproxy という名前で提供されている.
 \begin{thebibliography}{99}
 \bibitem{Ohara-Takayama-Noro-1999}
 小原功任, 高山信毅, 野呂正行:
-	{Open asir 入門}, 1999, 数式処理,
-	Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
+{Open asir 入門}, 1999, 数式処理,
+Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
 
 \bibitem{OpenXM-1999}
 野呂正行, 高山信毅:
-	{Open XM の設計と実装
-		--- Open message eXchange protocol for Mathematics},
-	1999/11/22
+{Open XM の設計と実装
+--- Open message eXchange protocol for Mathematics},
+1999/11/22
 \end{thebibliography}
 
 \end{document}
