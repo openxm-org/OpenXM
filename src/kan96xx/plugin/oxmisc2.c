@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.13 2002/02/24 10:27:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.14 2002/11/07 13:32:06 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -1303,29 +1303,6 @@ oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
   return(client);
 }
 
-#define MAX_N_OF_CLIENT 1024
-static struct object OxClientList[MAX_N_OF_CLIENT];
-static int OxClientListn = 0;
-int oxGetClientID() {
-  extern struct object OxClientList[];
-  extern int OxClientListn;
-  extern struct object Nobj;
-  int i;
-  for (i=0; i<OxClientListn; i++) {
-	if ((OxClientList[i]).tag == Snull) {
-	  return i;
-	}
-  }
-  i = OxClientListn;
-  (OxClientList[i]).tag = Snull;
-  if (OxClientListn < MAX_N_OF_CLIENT-1) {
-	OxClientListn++;
-	return i;
-  }else{
-	errorOxmisc2("oxGetClientID(): the client table is full.\n");
-	return 0;
-  }
-}
 void oxClientListUpdate(struct object ob) {
   int id;
   extern struct object OxClientList[];

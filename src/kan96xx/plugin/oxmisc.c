@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.12 2002/02/24 10:27:20 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.13 2002/11/07 13:32:06 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1022,4 +1022,27 @@ int oxTellMyByteOrder(int fd) {
 }
 
 
+struct object OxClientList[MAX_N_OF_CLIENT];
+int OxClientListn = 0;
+
+int oxGetClientID() {
+  extern struct object OxClientList[];
+  extern int OxClientListn;
+  extern struct object Nobj;
+  int i;
+  for (i=0; i<OxClientListn; i++) {
+	if ((OxClientList[i]).tag == Snull) {
+	  return i;
+	}
+  }
+  i = OxClientListn;
+  (OxClientList[i]).tag = Snull;
+  if (OxClientListn < MAX_N_OF_CLIENT-1) {
+	OxClientListn++;
+	return i;
+  }else{
+	fprintf(MyErrorOut,"oxGetClientID(): the client table is full. Returns ID = 0.\n");
+	return 0;
+  }
+}
 

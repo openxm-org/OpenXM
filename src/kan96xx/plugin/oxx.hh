@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.6 2000/12/05 12:03:44 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.7 2000/12/06 00:29:52 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
@@ -135,5 +135,8 @@ else if (strcmp(key,"oxCreateEngine_RFC_101") == 0) {
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateEngine_RFC_101.");
   rob = KoxCreateEngine_RFC_101(getoa(obj,1),getoa(obj,2),getoa(obj,3),getoa(obj,4));
 }
-
+else if (strcmp(key,"oxGetClientList") == 0) {
+  if (size != 1) errorKan1("%s\n","[(oxClientList)] extension list_of_clients.");
+  rob = KoxGetClientList();
+}
 

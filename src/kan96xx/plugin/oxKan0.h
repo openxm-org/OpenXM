@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.3 2000/12/03 07:29:39 takayama Exp $ */
 /* ox_kan0.h */
 
 #define mymalloc(n) malloc(n)
@@ -150,3 +150,5 @@ int oxWritePortFile(int func,int port,char *fname);
 char *oxGenPortFile(void);
 int oxRemovePortFile(void);
 
+#define MAX_N_OF_CLIENT 1024
+int oxGetClientID();
