@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.1 2003/03/26 04:45:37 takayama Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <time.h>
@@ -61,6 +61,7 @@ main(int argc, char *argv[]) {
 	  }
 	}
   }
+  exit(0);
 }
 	
 #define DEBUG 1
