@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.13 2004/09/13 09:23:30 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.14 2004/09/14 01:32:34 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1464,6 +1464,7 @@ Computation of the global b function is implemented as an application.
 * tolexm minipolym::
 * dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main::
 * dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main::
+* nd_gr nd_gr_trace nd_f4 nd_weyl_gr nd_weyl_gr_trace::
 * dp_gr_flags dp_gr_print::
 * dp_ord::
 * dp_ptod::
@@ -2299,6 +2300,123 @@ except for lack of the argument for controlling homogenization.
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
 @fref{gr hgr gr_mod},
+\JP @fref{計算および表示の制御}.
+\EG @fref{Controlling Groebner basis computations}
+@end table
+
+\JP @node nd_gr nd_gr_trace nd_f4 nd_weyl_gr nd_weyl_gr_trace,,, グレブナ基底に関する函数
+\EG @node nd_gr nd_gr_trace nd_f4 nd_weyl_gr nd_weyl_gr_trace,,, Functions for Groebner basis computation
+@subsection @code{nd_gr}, @code{nd_gr_trace}, @code{nd_f4}, @code{nd_weyl_gr}, @code{nd_weyl_gr_trace}
+@findex nd_gr
+@findex nd_gr_trace
+@findex nd_f4
+@findex nd_weyl_gr
+@findex nd_weyl_gr_trace
+
+@table @t
+@item nd_gr(@var{plist},@var{vlist},@var{p},@var{order})
+@itemx nd_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
+@itemx nd_f4(@var{plist},@var{vlist},@var{modular},@var{order})
+@item nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order})
+@itemx nd_weyl_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
+\JP :: グレブナ基底の計算 (組み込み函数)
+\EG :: Groebner basis computation (built-in functions)
+@end table
+
+@table @var
+@item return
+\JP リスト
+\EG list
+@item plist  vlist
+\JP リスト
+\EG list
+@item order
+\JP 数, リストまたは行列
+\EG number, list or matrix
+@item homo
+\JP フラグ
+\EG flag
+@item modular
+\JP フラグまたは素数
+\EG flag or prime
+@end table
+
+\BJP
+@itemize @bullet
+@item
+これらの函数は, グレブナ基底計算組み込み関数の新実装である.
+@item @code{nd_gr} は, @code{p} が 0 のとき有理数体上の Buchberger
+アルゴリズムを実行する. @code{p} が 2 以上の自然数のとき, GF(p) 上の
+Buchberger アルゴリズムを実行する.
+@item @code{nd_gr_trace} は有理数体上で trace アルゴリズムを実行する.
+@code{p} が 0 または 1 のとき, 自動的に選ばれた素数を用いて, 成功する
+まで trace アルゴリズムを実行する.
+@code{p} が 2 以上のとき, trace はGF(p) 上で計算される. trace アルゴリズム
+が失敗した場合 0 が返される. @code{p} が負の場合, グレブナ基底チェックは
+行わない. この場合, @code{p} が -1 ならば自動的に選ばれた素数が,
+それ以外は指定された素数を用いてグレブナ基底候補の計算が行われる.
+@item
+@code{nd_f4} は, 有限体上の F4 アルゴリズムを実行する.
+@item
+@code{nd_weyl_gr}, @code{nd_weyl_gr_trace} は Weyl 代数用である.
+@item
+いずれの関数も, 有理関数体上の計算は未対応である.
+@item
+一般に @code{dp_gr_main}, @code{dp_gr_mod_main} より高速であるが,
+特に有限体上の場合顕著である.
+@end itemize
+\E
+
+\BEG
+@itemize @bullet
+@item
+These functions are new implementations for computing Groebner bases.
+@item @code{nd_gr} executes Buchberger algorithm over the rationals
+if  @code{p} is 0, and that over GF(p) if @code{p} is a prime.
+@item @code{nd_gr_trace} executes the trace algorithm over the rationals.
+If @code{p} is 0 or 1, the trace algorithm is executed until it succeeds
+by using automatically chosen primes.
+If @code{p} a positive prime, 
+the trace is comuted over GF(p). 
+If the trace algorithm fails 0 is returned.
+If @code{p} is negative, 
+the Groebner basis check and ideal-membership check are omitted.
+In this case, an automatically chosen prime if @code{p} is 1,
+otherwise the specified prime is used to compute a Groebner basis
+candidate.
+@item
+@code{nd_f4} executes F4 algorithm over a finite field.
+@item
+@code{nd_weyl_gr}, @code{nd_weyl_gr_trace} are for Weyl algebra computation.
+@item
+Each function cannot handle rational function coefficient cases.
+@item
+In general these functions are more efficient than 
+@code{dp_gr_main}, @code{dp_gr_mod_main}, especially over finite fields.
+@end itemize
+\E
+
+@example
+[38] load("cyclic")$
+[49] C=cyclic(7)$
+[50] V=vars(C)$
+[51] cputime(1)$
+[52] dp_gr_mod_main(C,V,0,31991,0)$
+26.06sec + gc : 0.313sec(26.4sec)
+[53] nd_gr(C,V,31991,0)$
+ndv_alloc=1477188
+5.737sec + gc : 0.1837sec(5.921sec)
+[54] dp_f4_mod_main(C,V,31991,0)$  
+3.51sec + gc : 0.7109sec(4.221sec)
+[55] nd_f4(C,V,31991,0)$
+1.906sec + gc : 0.126sec(2.032sec)
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{dp_ord},
+@fref{dp_gr_flags dp_gr_print},
 \JP @fref{計算および表示の制御}.
 \EG @fref{Controlling Groebner basis computations}
 @end table
