@@ -235,3 +235,7 @@ rm -rf ./usr/share/info/gmp.info.gz
 rm -rf ./usr/share/info/gmp.info-1.gz
 #
 rm -rf ./usr/local/OpenXM/rc/repl
+#
+# A temporary hack to remove gnuplot.
+rm -rf ./usr/local/OpenXM/bin/gnuplot
+rm -rf ./usr/local/OpenXM/libexec/gnuplot
