@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.10 2003/07/20 07:18:45 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.11 2003/07/20 07:23:31 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -91,8 +91,12 @@ socketAccept(int snum) {
   s = snum;
   fprintf(TcpioError,"Trying to accept... "); fflush(TcpioError);
   if ((news = accept(s,NULL,NULL)) < 0) {
-    errorMsg1s("Error in accept.");
-    return(-1);
+    errorMsg1s("Error in accept. Retrying (socketAccept).");
+    /* Code added for strange behavior on cygwin. */
+    if ((news = accept(s,NULL,NULL)) < 0) {
+      errorMsg1s("Error in accept. Retry failed.");
+      return (-1);
+    }
   }
   fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
   if (close(s) < 0) {
@@ -116,7 +120,7 @@ socketAcceptLocal(int snum) {
     errorMsg1s("Error in accept. Retrying");
     /* Code added for strange behavior on cygwin. */
    if ((news = accept(s,&peer,&len)) < 0) {
-      errorMsg1s("Error in accept. Retrying");
+      errorMsg1s("Error in accept. Retry failed.");
       return (-1);
    }
   }
@@ -158,8 +162,12 @@ socketAcceptLocal2(int snum) {
   fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
   len = sizeof(struct sockaddr);
   if ((news = accept(s,&peer,&len)) < 0) {
-    errorMsg1s("Error in accept.");
-    return(-1);
+    errorMsg1s("Error in accept. Retrying (socketAcceptLocal2).");
+    /* Code added for strange behavior on cygwin. */
+    if ((news = accept(s,&peer,&len)) < 0) {
+      errorMsg1s("Error in accept. Retry failed.");
+      return (-1);
+    }
   }
 
   len = sizeof(struct sockaddr);

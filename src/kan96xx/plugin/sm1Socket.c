@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.13 2002/10/24 02:12:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.14 2002/10/30 13:23:06 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -179,7 +179,11 @@ struct object KsocketAccept(struct object obj) {
   }
   s = KopInteger(obj1);
   if ((news = accept(s,NULL,NULL)) < 0) {
-    errorMsg1s("Error in accept.");
+    fprintf(stderr,"Error in accept. Retrying (KsocketAccept).\n");
+    /* Code added for strange behavior on cygwin. */
+    if ((news = accept(s,NULL,NULL)) < 0) {
+      errorMsg1s("Error in accept. Retry failed.");
+    }
   }
   if (close(s) < 0) {
     errorMsg1s("Error in closing the old socket.");
@@ -215,7 +219,11 @@ struct object KsocketAccept2(struct object obj) {
   }
   s = KopInteger(obj1);
   if ((news = accept(s,NULL,NULL)) < 0) {
-    errorMsg1s("Error in accept.");
+    fprintf(stderr,"Error in accept. Retrying (KsocketAccept2).\n");
+    /* Code added for strange behavior on cygwin. */
+    if ((news = accept(s,NULL,NULL)) < 0) {
+      errorMsg1s("Error in accept. Retry failed.");
+    }
   }
   if (close(s) < 0) {
     errorMsg1s("Error in closing the old socket.");
