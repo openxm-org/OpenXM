@@ -1,8 +1,12 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.16 2000/09/02 02:45:02 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.17 2000/09/05 07:28:02 takayama Exp $
 
 #Edit this.  VERSION number must be compatible between Generic/openxm/Makefile
 # and *.spec.in
 VERSION=1.1.3
+
+## configuration only for committers
+WHO=taka@orange
+FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
 
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
@@ -62,6 +66,8 @@ usage :
 	@echo "make-directory"
 	@echo "link-for-real-openxm "
 	@echo "link-for-fake-openxm "
+	@echo "copy-to-ftp-area "
+	@echo "clean"
 
 build-binary-rpm: openxm-binary-spec
 	(cd work/SPECS ; rpm -bb openxm-binary.spec )
@@ -132,7 +138,10 @@ link-for-real-openxm: make-directory clean
 link-for-fake-openxm: make-directory clean
 	(cd work/SOURCES ; rm -rf openxm-$(VERSION).tar.gz ; ln -s $(HOME)/tmp/openxm-fake.tar.gz ./openxm-$(VERSION).tar.gz)
 
-
+copy-to-ftp-area:
+	-scp work/RPMS/i386/openxm-*.rpm ${WHO}:${FTP_AREA}
+	-scp work/RPMS/noarch/openxm-*.rpm ${WHO}:${FTP_AREA}
+	-scp work/SRPMS/openxm-*.rpm ${WHO}:${FTP_AREA}
 
 
 
