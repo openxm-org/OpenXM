@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/gmp/Makefile-ports,v 1.1 2004/02/22 08:28:20 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -40,6 +40,7 @@ post-install: build
 	then \
 		-mkdir ${PREFIX}/lib ${PREFIX}/bin ; \
 		(cd work/${GMP} ; make install) ; \
+		(cd work/${GMP} ; cp gmp-impl.h config.h gmp-mparam.h ${OpenXM_HOME}/include)
 	fi
 	@touch .post-install_done
 
