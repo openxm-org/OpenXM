@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/README,v 1.4 2000/03/18 08:06:14 takayama Exp $
+$OpenXM: OpenXM/misc/packages/README,v 1.5 2000/03/24 08:32:30 takayama Exp $
 
 /*&japanese
 
@@ -31,7 +31,11 @@ FTP_AREA      ftp 用の tar をおく場所. mkdir しておくこと.
 領域が必要でしょう.  変更には, Linux/RPM/Makefile, *spec.in を編集.
 # mkdir ${TAR_WORK}  つまり mkdir ~/tmp
 # $(HOME)/.rpmrc
+ rpm 3.0 以上の場合 (普通はこちら)
+  内容: %_topdir /home/taka/OpenXM/misc/packages/Linux/RPM/work
+ rpm 3.0 未満の場合 (FreeBSD 3.3 )
   内容: TopDir: /home/taka/OpenXM/misc/packages/Linux/RPM/work
+
    /home/taka は $(HOME) の値
    rpm は この direcotry 以下で作業を行う.
 # サーチパスに実行可能なスクリプト cvs-OpenXM 
@@ -129,8 +133,11 @@ generate-tar-ball は複雑なので, 解説:
 */
 
 /*&common
-FAQ:
-TopDir parameter is not accepted.
+FAQ: 
+TopDir parameter is not accepted by RPM 3.0
+
+Answer: use  %_topdir
+Or, see below.
 
 Re: RPM no longer accepting topdir parameter ?
                                                                                                Reply   
