@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.14 2001/08/23 02:08:41 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.15 2001/08/29 11:18:57 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -240,6 +240,12 @@ def
       msg2 0 get (httpdAsirMeta) eq 
       msg2 1 get (Pretty) eq and
       {
+        httpd.image.type null eq {
+          send-page-warning-image
+          /skip-image goto
+        } {  } ifelse
+
+
         msg2 2 get . (integer) dc /nn set 
 
         %% Reformat the "nn"-th result by tex and send it.
@@ -262,6 +268,7 @@ def
         } ifelse
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        /skip-image 
         /result 0 def
       } { } ifelse    
     }{ } ifelse
