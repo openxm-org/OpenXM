@@ -1,9 +1,12 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.4 1999/11/27 01:41:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.5 2000/02/02 03:30:48 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
 #include "cmo.h"
 extern FILE *MyErrorOut;
+#define SET_MYERROROUT { if (MyErrorOut == NULL) MyErrorOut=stdout; }
+/* It is also defined in oxmisc.c */
+
 extern int SerialOX; /* defined in SerialOX */
 
 extern int OxVersion;
@@ -79,6 +82,7 @@ int oxGetFromControl(oxclientp client)
 int oxReq(oxclientp client,int func,struct object ob)
 {
   struct object *ob1p;
+  SET_MYERROROUT;
   /* request to the control channel */
   if (func == SM_control_reset_connection ||
       func == SM_control_kill) {
@@ -965,6 +969,7 @@ int KgetCmoTagOfObject(struct object obj) {
 }
 
 errorOxmisc2(char *s) {
+  SET_MYERROROUT;  
   fprintf(MyErrorOut,"error in oxmisc2.c: %s\n",s);
   errorKan1("%s\n","  ");
 }

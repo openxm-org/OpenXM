@@ -1,4 +1,4 @@
-/*  $OpenXM$ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.2 1999/10/30 02:22:16 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -23,7 +23,8 @@ static void errorMsg1s(char *s) {
   fprintf(stderr,"%s\n",s);
 }
 
-FILE *TcpioError = stdout;
+#define SET_TCPIOERROR  { if (TcpioError == NULL) TcpioError = stdout; }
+FILE *TcpioError = NULL;
 int OpenedSocket = 0;
 extern int Quiet;
 
@@ -35,7 +36,7 @@ socketOpen(char *serverName,int portNumber) {
   extern int errno;
   int tt;
 
-
+  SET_TCPIOERROR;
   fprintf(TcpioError,"Hello from open. serverName is %s and portnumber is %d\n",
 	  serverName,portNumber);
   if ((myhost = gethostbyname(serverName)) == NULL) {
@@ -81,6 +82,7 @@ socketOpen(char *serverName,int portNumber) {
 socketAccept(int snum) {
   int s, news;
     
+  SET_TCPIOERROR;
   s = snum;
   fprintf(TcpioError,"Trying to accept... "); fflush(TcpioError);
   if ((news = accept(s,NULL,NULL)) < 0) {
@@ -100,7 +102,8 @@ socketAcceptLocal(int snum) {
   struct sockaddr peer;
   int len;
   int i;
-    
+
+  SET_TCPIOERROR;
   s = snum;
   fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
   len = sizeof(struct sockaddr);
@@ -139,6 +142,7 @@ int oxSocketSelect0(int fd,int t) {
   struct timeval timeout;
   int debug = 0;
   extern int errno;
+  SET_TCPIOERROR;
   FD_ZERO(&readfds);
   FD_SET(fd,&readfds);
   timeout.tv_sec = 0;
@@ -171,6 +175,7 @@ oxSocketMultiSelect(int sid[],int size,int t,int result[])
   int isdata = 0;
   extern errno;
 
+  SET_TCPIOERROR;
   FD_ZERO(&readfds);
   timeout.tv_sec = 0;
   timeout.tv_usec = (long)t;
@@ -220,6 +225,7 @@ socketConnect(char *serverName,int portNumber) {
   int socketid;
   int on;
 
+  SET_TCPIOERROR;
   if ((servhost = gethostbyname(serverName)) == NULL) {
     errorMsg1s("bad server name.\n");
     return(-1);
@@ -250,6 +256,7 @@ socketConnectWithPass(char *servername,int port,char *pass)
 {
   int fd;
   int m;
+  SET_TCPIOERROR;
   fd = socketConnect(servername,port);
   if (fd >= 0) {
     m = write(fd,pass,strlen(pass)+1);

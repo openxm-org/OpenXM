@@ -1,4 +1,4 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.2 1999/11/18 08:08:24 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -39,7 +39,8 @@ struct tokens{
 
 
 
-FILE *BaseFp = stdin;       /* file pointer of the first file. */
+FILE *BaseFp = NULL;       /* Initialized to stdin in stackmachine_init().
+                              file pointer of the first file. */
 
 int EchoInScanner = 0;      /* echo in scanner */
 

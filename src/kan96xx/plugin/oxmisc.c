@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.3 1999/11/03 08:29:40 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.4 1999/11/27 01:41:11 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -11,7 +11,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <setjmp.h>
-FILE *MyErrorOut = stdout;
+#define SET_MYERROROUT { if (MyErrorOut == NULL) MyErrorOut=stdout; }
+/* It is also defined in oxmisc2.c */
+FILE *MyErrorOut = NULL;
 
 /* Include files to understand object */
 #include "../Kan/datatype.h"
@@ -37,6 +39,7 @@ int readOneByte(int fd)   /* blocking */
   int ans;
   int watch = 1;
 
+  SET_MYERROROUT;
   if (fd < 0) {
     fprintf(MyErrorOut,"readOneByte fd < 0 ??? .\n");
     return(-1);
@@ -65,6 +68,7 @@ int readOneByte_org(int fd)   /* blocking */
   int ans;
   int watch = 1;
 
+  SET_MYERROROUT;
   if ((thisFd == -1) && (fd >= 0)) {thisFd = fd;}
   if (fd < 0) {
     fprintf(MyErrorOut,"readOneByte fd < 0 ??? .\n");
@@ -123,6 +127,7 @@ int oxGetInt32(ox_stream ostream)
 int oxGetCMOInt32(ox_stream ostream)
 {
   int id;
+  SET_MYERROROUT;
   id = oxGetInt32(ostream);
   if (id != CMO_INT32) {
     fprintf(MyErrorOut,"It is not CMO_INT32.\n");
@@ -135,6 +140,7 @@ char *oxGetCMOString(ox_stream ostream) {
   int size;
   char *r;
   int i;
+  SET_MYERROROUT;
   id = oxGetInt32(ostream);
   if (id != CMO_STRING) {
     fprintf(MyErrorOut,"It is not CMO_STRING.\n");
@@ -179,6 +185,7 @@ int oxWaitSyncBall_org(ox_stream ostream)
   int mtag;
   char data[4];
   int c;
+  SET_MYERROROUT;
   data[0] = data[1] = data[2] = data[3] = 0xff;
   while (1) {
     /* This part should be revised so that this part understands
@@ -474,6 +481,7 @@ void oxReqPopCMO(ox_stream os) {
 
 int oxGetResultOfControlInt32(int fd) {
   int k; int sss;
+  SET_MYERROROUT;
   k = oxfdGetOXheader(fd,&sss);
   if (k != OX_DATA) {
     fprintf(MyErrorOut,"oxGetResultOfControlInt32: wrong header.");
@@ -494,6 +502,7 @@ int oxclientMultiSelect(oxclientp clients[],int dataready[],
   struct timeval timeout;
   extern int errno;
 
+  SET_MYERROROUT;
   /** printf("(1)"); fflush(NULL); */
   FD_ZERO(&readfds);
   timeout.tv_sec = 0;
@@ -830,6 +839,7 @@ char *oxGenPortFile(void) {
 int oxRemovePortFile(void) {
   char fname[1024];
   FILE *fp;
+  SET_MYERROROUT;
   strcpy(fname,OxPortFileName);
   strcat(fname,".control");
   if ((fp=fopen(fname,"r")) == NULL) {

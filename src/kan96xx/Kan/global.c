@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.9 2000/02/24 00:27:12 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.10 2000/02/24 12:33:47 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -108,8 +108,9 @@ int SecureMode = 0;
 int VerboseStack = 1;     /* 0 is quiet, 1 is standard, 2 ... */
 int DebugStack   = 0;
 
-FILE *Fstack = stdout;             /* standard output stream
-				      for module: stackmachine */
+FILE *Fstack = NULL; /* Initialized to standard output stream 
+                        in stackmachine_init()
+                        for module: stackmachine */
 
 #if defined(sun)
 /* in case of Solaris, use the following: */
@@ -126,7 +127,7 @@ int Lookup[TYPES][TYPES];
 int Quiet = 0;
 int TimerOn = 0;
 
-char *VersionString = "3.000224";
+char *VersionString = "3.000320";
 
 char *LeftBracket = NULL;
 char *RightBracket = NULL;
@@ -138,10 +139,18 @@ int OXprintMessage = 1; /* referred only from ox_sm1  plugin/ox.hh */
 char *OxSystem = "ox_sm1.plain";         /* Example :  ox_sm1.plain */
 char *OxSystemVersion = NULL;            /* Example :  0.1 */
 
+/*  global variables for kanExport0.c */
+int VerboseK = 1;  /* 1 is standard */
+int DebugK   = 0;
+FILE *Fk = NULL;  /* Initialized to stdout in stackmachine_init() */
+
 stackmachine_init() {
   int i,j;
+  extern FILE *BaseFp;
   OxSystemVersion = VersionString;
   Fstack = stdout;  /* initialize output stream */
+  Fk = stdout;
+  BaseFp = stdin;
   LeftBracket = "["; RightBracket = "]";
   /* initialize null object */
   NullObject.tag = 0;
@@ -167,10 +176,6 @@ stackmachine_close() {
 }
 
 
-/*  global variables for kanExport0.c */
-int VerboseK = 1;  /* 1 is standard */
-int DebugK   = 0;
-FILE *Fk = stdout;
 
 Kclose() {
   /* close Fk */
