@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.1 2000/10/10 05:23:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.2 2000/10/12 15:50:10 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -73,6 +73,9 @@ cmo_list *list_appendl(cmo_list* this, ...)
     cmo *ob;
     va_list ap;
     va_start(ap, this);
+	if (this == NULL) {
+		this = new_cmo_list();
+	}
     while((ob = va_arg(ap, cmo *)) != NULL) {
         list_append(this, ob);
     }
