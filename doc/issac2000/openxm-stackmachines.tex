@@ -1,18 +1,18 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.6 2000/01/13 10:54:33 ohara Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.7 2000/01/14 10:45:10 tam Exp $
 
 \section{OpenXM Stack machines}\label{sec:ox-stackmachines} (Tamura)
 
 In OpenXM specification, all servers are stack machines.
-These are called OpenXM stack machines.
+%These are called OpenXM stack machines.
 When a server ox\_xyz gets an OX data message,
 it translates the data into an object of its local mathematical system 
 and push the object on the stack.
-The translation scheme together with definitions of mathematical operations
-of the system ox\_xyz is called the {\it PhraseBook} of
-ox\_xyz following the OpenMath specification.
+Following the OpenMath specification, 
+the translation scheme together with definitions of mathematical operations
+of the system ox\_xyz is called the {\it PhraseBook} of ox\_xyz.
 
 Any OX command message starts with the int32 tag OX\_COMMAND.
-The body is OpenXM stack machine operation code expressed by int32.
+The body is an OpenXM stack machine operation code expressed by int32.
 The codes are listed below.
 \begin{verbatim}
 #define SM_popSerializedLocalObject               258
@@ -41,19 +41,19 @@ The codes are listed below.
 
 OpenXM does not have a standard for mathematical operation sets
 while it is a work in progress in \cite{gap}.
-Each OpenXM server has its own mathematical operation set.
-Mathematical operations are performed as follows.
-Mathematical operator name, such as fctr (asir factorization command),
+Each OpenXM server has its own set of mathematical operations,
+which are performed as follows.
+Mathematical operator name, such as {\tt fctr} (asir factorization command),
 is pushed as a string,
 the stack machine command
-SM\_executeFunction (269) pops the operator name, the number of arguments
+{\tt SM\_executeFunction} (269) pops the operator name, the number of arguments
 and arguments, and
-the OX stack machine evaluates the operator, and pushes the result on the stack.
+the OX stack machine evaluates the operator, and pushes the result onto the stack.
 For example, the following code factorizes $x^{100}-1$ by calling
 ox\_asir from asir.
 \begin{verbatim}
 P = ox_launch(); 
-ox_push_cmo(P,x^100-1); ox_push_cmo(P,ox_int32(1));
+ox_push_cmo(P,x^100-1); ox_push_cmo(P,ntoint32(1));
 ox_push_cmd(P,269); 
 Ans = ox_pop_cmo(P);
 \end{verbatim}

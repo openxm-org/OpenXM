@@ -1,4 +1,4 @@
-%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.3 2000/01/11 05:35:48 noro Exp $
+%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.4 2000/01/13 10:57:10 ohara Exp $
 
 \section{OX messages}
 
@@ -17,15 +17,15 @@ and the second one is a serial number of the OX message.
 Negative numbers are expressed by the two's complement.
 Several byte orders including the network byte order
 are allowed and the byte order is determined as a part of
-the establishment of a connection. See Section \ref{secsession}.
+the establishment of a connection. See Section \ref{secsession} for details.
 
 The OX messages are classified into three types:
-DATA, COMMAND, and others.
+DATA, COMMAND, and SPECIAL.
 We have the following main tags for the OX messages.
 \begin{verbatim}
 #define	OX_COMMAND               513  // COMMAND
 #define	OX_DATA	                 514  // DATA
-#define OX_SYNC_BALL             515  // others
+#define OX_SYNC_BALL             515  // SPECIAL
 #define OX_DATA_WITH_LENGTH      521  // DATA
 #define OX_DATA_OPENMATH_XML     523  // DATA
 #define OX_DATA_OPENMATH_BINARY  524  // DATA
@@ -38,26 +38,18 @@ For example, \verb+ OX_DATA_ASIR_LOCAL_BINARY +  was added a few month ago
 to send internal serialized objects of asir via the OpenXM protocol.
 This is a tag classified to DATA.
 See the web page of OpenXM to add a new tag.
-
-In OpenXM, a distributed computation is done as follows:
-\begin{enumerate}
-\item A client requests something to a server.
-\item The server does some work according to the request.
-\item The client requests to send data to the server.
-\item The server sends the data to the client and the client gets the data.
-\end{enumerate}
-The server is a stack machine. (see Section~\ref{sec:ox-stackmachines}
-for detail)
-That is {\it OX data} message sent by the client
-are pushed to the stack of the server. 
-If the server gets an {\it OX command} message, then the server extract
-a stack machine code in the OX command message and interpret the code.
+The server is a stack machine (see Section~\ref{sec:ox-stackmachines}
+for detail).
+{\it OX data} message sent by the client
+are pushed onto the stack of the server. 
+If the server gets an {\it OX command} message, then the server extracts
+a stack machine code in the OX command message and interprets the code.
 For example, in case of SM\_executeFunction, some data are popped from
 the stack and they are used as arguments of a function call.
 
 We explain an implementation of handling OX messages.
 For example, the asir command {\tt ox\_push\_cmo(P,1)}
-(push integer $1$ to the server $P$)
+(push integer $1$ onto the server $P$)
 sends an OX data message
 {\tt (OX\_DATA,(CMO\_ZZ,1))} to the server $P$.
 Here,
@@ -65,13 +57,13 @@ OX\_DATA stands for OX\_DATA header and
 {\tt (CMO\_ZZ,1)} is a body standing for $1$ expressed 
 in the CMO data encoding format.
 The server tranlates $(CMO\_ZZ, 1)$ to its own internal object fotrmat
-for integers and pushs the object to the stack.
+for integers and pushs the object onto the stack.
 
-An OpenXM client admit that its own command sends some OX messages
-sequentially at once.  
-
-For example, the asir command
-{\tt ox\_execute\_string(P, "Print[x+y]")} sends an OX data message
-{\tt (OX\_DATA, (CMO\_STRING, "Print[x+y]"))} and an OX command message
-{\tt (OX\_COMMAND, (SM\_executeStringByLocalParser))} to an OpenXM
-server.
+%An OpenXM client admit that its own command sends some OX messages
+%sequentially at once.  
+%
+%For example, the asir command
+%{\tt ox\_execute\_string(P, "Print[x+y]")} sends an OX data message
+%{\tt (OX\_DATA, (CMO\_STRING, "Print[x+y]"))} and an OX command message
+%{\tt (OX\_COMMAND, (SM\_executeStringByLocalParser))} to an OpenXM
+%server.

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.5 2000/01/11 05:35:48 noro Exp $
+% $OpenXM: OpenXM/doc/issac2000/session-management.tex,v 1.6 2000/01/15 00:20:46 takayama Exp $
 
 \section{Session Management}
 \label{secsession}
@@ -23,7 +23,7 @@ messages. As the streams are for binary data,
 the byte order conversion is necessary when a
 client and a server have different byte orders. It is determined by
 exchanging the preferable byte order of each peer. If the preference
-does not coincides with each other,
+does not coincide with each other,
 then the network byte order is used.
 This implies that all servers and clients should be able to
 handle the network byte
@@ -50,7 +50,7 @@ specified port number.
 setting the binary I/O channels appropriately.
 \end{enumerate}
 
-Though the above is all the task as a launcher, the launcher process
+After finishing the above task as a launcher, the launcher process
 acts as a control server and controls the server process created by
 itself. As for a control server see Section \ref{control}.
 
@@ -59,7 +59,7 @@ itself. As for a control server see Section \ref{control}.
 When we use a mathematical software, an execution time or necessary
 storage is often unknown in advance. Therefore it is desirable
 to be able to abort an execution and to start another execution.
-On OpenXM we adopted the following simple and robust method.
+In OpenXM we adopted the following simple and robust method.
 
 An OpenXM server has logically two I/O channels: one for exchanging
 data for computations and the other for controlling computations. The
@@ -104,7 +104,7 @@ a resetting.
 
 \begin{enumerate}
 \item The client sends {\tt SM\_control\_reset\_connection} to the
-control server.
+control server. The control server sends {\tt SIGUSR1} to the engine.
 \item The client enters the resetting state. it skips all {\tt
 OX} messages from the engine until it receives {\tt OX\_SYNC\_BALL}.
 \item After receiving {\tt OX\_SYNC\_BALL} the client sends 
@@ -128,10 +128,10 @@ usual state.
 \end{enumerate}
 
 {\tt OX\_SYNC\_BALL} means an end mark of the data remaining in the
-I/O streams. After reading it it is assured that the stream is empty
-and that a request from a client correctly corresponds to the response
-from the server. We note that we don't have to associate 
-{\tt OX\_SYNC\_BALL} with
+I/O streams. After reading it it is assured that each stream is empty
+and that the subsequent request from a client correctly 
+corresponds to the response from the server.
+We note that we don't have to associate {\tt OX\_SYNC\_BALL} with
 any special action to be executed by the server because it is
 assured that the peer is in the resetting state when one receives
 {\tt OX\_SYNC\_BALL}.
@@ -146,6 +146,6 @@ then debugging of user defined programs will be
 possible. For example {\tt ox\_asir}, which is
 the OpenXM server of {\tt Risa/Asir}, can pop up a window to input
 debug commands and the debugging similar to that on usual terminals is possible.
-One can also send {\tt SIGINT} by using {\tt SM\_control\_intr}
+One can also send {\tt SIGINT} by using {\tt SM\_control\_to\_debug\_mode}
 and it provides a similar functionality to entering the debugging
 mode from a keyboard interruption.
