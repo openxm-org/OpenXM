@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.5 2000/12/01 08:34:37 maekawa Exp $
+ *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.6 2000/12/01 17:34:14 maekawa Exp $
  */
 
 #include <sys/types.h>
@@ -45,17 +45,19 @@
 
 #ifdef HAVE_SOCKADDR_LEN
 #define	_SS_PAD1SIZE	(_SS_ALIGNSIZE - sizeof(uint8_t) - sizeof(sa_family_t))
+#define	_SS_PAD2SIZE	(_SS_ALIGNSIZE - sizeof(uint8_t) - sizeof(sa_family_t) \
+			 - _SS_PAD1SIZE - _SS_ALIGNSIZE)
 #else /* HAVE_SOCKADDR_LEN */
 #define	_SS_PAD1SIZE	(_SS_ALIGNSIZE - sizeof(sa_family_t))
-#endif /* HAVE_SOCKADDR_LEN */
 #define	_SS_PAD2SIZE	(_SS_MAXSIZE - sizeof(sa_family_t) \
 			 - _SS_PAD1SIZE - _SS_ALIGNSIZE)
+#endif /* HAVE_SOCKADDR_LEN */
 
 struct sockaddr_storage {
 #ifdef HAVE_SOCKADDR_LEN
-	uint8_t		__ss_len;
+	uint8_t		ss_len;
 #endif /* HAVE_SOCKADDR_LEN */
-	sa_family_t	__ss_family;
+	sa_family_t	ss_family;
 
 	char		__ss_pad1[_SS_PAD1SIZE];
 	int64_t		__ss_align;
@@ -74,7 +76,7 @@ ox_getport(int sock)
 		return (-1);
 	}
 
-	switch (ss.__ss_family) {
+	switch (ss.ss_family) {
 	case AF_INET:
 	{
 		struct sockaddr_in *sin;
