@@ -1,4 +1,4 @@
-%$OpenXM$
+%$OpenXM: OpenXM/doc/compalg/bib.tex,v 1.3 2000/03/28 02:02:29 noro Exp $
 \begin{thebibliography}{99}
 \bibitem{ABBOTT}
 Abbott, J.A. et al, Factorisation of Polynomials: Old Ideas and Recent Results.
@@ -89,6 +89,11 @@ Giovini, A., Mora, T., Nielsi, G., Robbiano, L., Traverso, C., ``One
 sugar cube, please'' OR Selection strategies in the Buchberger
 algorithm.  Proc. ISSAC '91, 49-54.
 
+\bibitem{HOEIJ}
+van Hoeij, M., Factoring polynomials and the knapsack problem.
+To appear in Journal of Number Theory. The preprint is available
+from {\tt http://euclid.math.fsu.edu/\verb+~+hoeij/papers.html}.
+
 \bibitem{KR}
 カーニハン, B.W., リッチー, D.M., プログラミング言語 C 第 2 版. 
 共立出版 (1989).
@@ -96,6 +101,10 @@ algorithm.  Proc. ISSAC '91, 49-54.
 \bibitem{KNUTH}
 Knuth, D.E., The Art of Computer Programming, Vol. 2. 
 Seminumerical Algorithms, 2nd ed. Addison-Wesley (1981).
+
+\bibitem{LENSTRA}
+Lenstra, A.K., Lenstra, H.W., Lob\'asz, Factoring polynomials with
+rational coefficients, Math, Ann. 261 (1982), 515-534.
 
 \bibitem{SUB}
 Loos, R., Generalized Polynomial Remainder Sequences.
@@ -261,7 +270,15 @@ GCD アルゴリズムとよばれるタイプのアルゴリズムがあり, 倍精度整数除算
 解も, 数学における実験ツールとして計算機代数システムを用いる場合に大変
 有効な機能である. この章の内容のうち, 有限体, 有理数体上の一変数多項式
 の因数分解に関しては \cite{KNUTH}, 多変数多項式の因数分解に関しては
-\cite{SASAKI} あるいは \cite{GEDDES} を参照. 
+\cite{SASAKI} あるいは \cite{GEDDES} を参照. なお, アルゴリズム 
+\ref{zassenhaus} は 分解される多項式の次数 $n$ に関して最悪計算量が 
+$O(2^n)$ となるが, LLL アルゴリズム を用いる多項式時間アルゴリズムが 
+\cite{LENSTRA} により提案されている. ただしこのアルゴリズムは実用的と
+はいえず, 一般にはアルゴリズム \ref{zassenhaus}が用いられてきた. ごく
+最近, 異なる観点から LLL アルゴリズムを用いる方法が \cite{HOEIJ} 
+により提案された. この方法は, これまでの方法では事実上分解が不可能だっ
+た多項式を効率よく分解するなど, 実用的にも優れていることが報告されてい
+る.
 
 \noi
 第 7 章, 第 8 章:
@@ -284,12 +301,12 @@ GCD アルゴリズムとよばれるタイプのアルゴリズムがあり, 倍精度整数除算
 第 10 章, 第 11 章:
 
 これらの章はやや特殊な内容を扱っており, グレブナ基底計算をツールとして
-用いる場合には特に意識する必要はない. しかし, それを単なる便利なブラック
-ボックスと考えると, ちょっとした問題でもすぐに計算が破綻してしまうこと
-は知っておく必要がある. 任意入力からのグレブナ基底計算については, 
-最近提案された $F_4$ アルゴリズム \cite{F} が有力であるが, まだ
-汎用計算機代数システムなどには実装されていないようである. 
-また, change of ordering については, ここで述べた方法の他に
-\cite{WALK} で異なる方法が提案されている. modular change of ordering
-および modular RUR は Risa/Asir に実装されている. 
+用いる場合には特に意識する必要はない. しかし, それを単なる便利なブラッ
+クボックスと考えると, ちょっとした問題でもすぐに計算が破綻してしまうこ
+とは知っておく必要がある. 任意入力からのグレブナ基底計算については, 最
+近提案された $F_4$ アルゴリズム \cite{F} が有力であるが, まだ汎用計算
+機代数システムなどには実装されていないようである. また, change of
+ordering については, ここで述べた方法の他に Gr\"obner walk と呼ばれる方法が 
+\cite{WALK} で提案されている. modular change of orderingおよび modular
+RUR は Risa/Asir に実装されている.
 
