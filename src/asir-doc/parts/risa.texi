@@ -1,7 +1,9 @@
+@comment $OpenXM$
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
 @menu
+\BJP
 * Risa および Asir::
 * Asir の特徴::
 * インストレーション::
@@ -11,52 +13,133 @@
 * 割り込み::
 * エラー処理::
 * 計算結果および特殊な数::
+\E
+\BEG
+* Risa and Asir::
+* Features of Asir::
+* Installation::
+* Command line options::
+* Environment variable::
+* Starting and Terminating an Asir session::
+* Interruption::
+* Error handling::
+* Referencing results and special numbers::
+\E
 @end menu
 
+\BJP
 @node Risa および Asir,,, Risa/Asir
 @section Risa および Asir
+\E
+\BEG
+@node Risa and Asir,,, Risa/Asir
+@section @b{Risa} and @b{Asir}
+\E
 
 @noindent
+\BJP
 @b{Risa} は, 富士通研で開発中の数式処理システム/ライブラリの総称である. 
 @b{Risa} の構成は次の通りである. 
+\E
+\BEG
+@b{Risa} is the name of whole libraries of a computer algebra system
+which is under development at FUJITSU LABORATORIES LIMITED.
+The structure of @b{Risa} is as follows.
+\E
 
 @itemize @bullet 
 @item
-@code{基本演算部}
+\JP @code{基本演算部}
+\EG @b{The basic algebraic engine}
 
+\BJP
 これは, @b{Risa} の内部形式に変換されたオブジェクト (数, 多項式など) 
 の間の演算を実行する部分であり, UNIX の @samp{libc.a} などと同様の, ライブラ
 リとして存在する. エンジンは, C および アセンブラで記述され, 後述する
-言語インタフェース @b{Asir} の基本演算部として用いられている一方, 
-数式計算を必要とするさまざまなプログラム中にリンクして用いることができる. 
-(未公開)
-@item
-@code{メモリ管理部}
+言語インタフェース @b{Asir} の基本演算部として用いられている.
+@comment 一方, 数式計算を必要とするさまざまなプログラム中にリンクして用いることができる. 
+\E
+\BEG
+This is the part which performs basic algebraic operations,
+such as arithmetic operations, to algebraic objects, e.g., numbers and
+polynomials, which are already converted into internal forms.
+It exists, like @samp{libc.a} of UNIX, as a library of ordinary UNIX system.
+The algebraic engine is written mainly in C language and
+partly in assembler.
+It serves as the basic operation part of @b{Asir}, a standard
+language interface of @b{Risa}.
+@comment It can also be linked to various programs that need some symbolic
+@comment and algebraic computation.
+\E
 
+@item
+\JP @code{メモリ管理部}
+\EG @b{Memory Manager}
+
+\BJP
 @b{Risa} では, メモリ管理部として, @code{[Boehm,Weiser]} によるフリー
 ソフトウェア (@code{gc-5.0alpha2}) を用いている. これはガーベジコレクション 
 (以下 GC と呼ぶ) を自動的に行うメモリ割り当て機構を持ち, @b{Risa} の各
 部分はすべてこれにより必要なメモリを得ている.
+\E
+\BEG
+@b{Risa} employs, as its memory management component (the memory
+manager), a free software distributed by Boehm (@code{gc-5.0alpha2}).
+It is proposed by @code{[Boehm,Weiser]}, and developed by Boehm and
+his colleagues.
+The memory manager has a memory allocator which automatically
+reclaims garbages, i.e., allocated but unused memories,
+and refreshes them for further use.
+The algebraic engine gets all its necessary memories through the memory
+manager.
+\E
 
 @item
 @b{Asir}
 
+\BJP
 @b{Asir} は, @b{Risa} の計算エンジンの言語インタフェースで
 ある. @b{Risa} では, 比較的容易にユーザ用の言語インタフェースを作る
 ことができる. @b{Asir} はその一つの例として作ったもので, C 言語に近
 い文法をもつ. また, C のデバッガとして広く用いられている @code{dbx} 風
 のデバッガも備えている. 
+\E
+\BEG
+@b{Asir} is a standard language interface of @b{Risa}'s algebraic
+engine. It is one of the possible language interfaces, because
+one can develop one's own language interface easily on @b{Risa}
+system.
+@b{Asir} is an example of such language interfaces.
+@b{Asir} has very similar syntax and semantics as C language.
+Furthermore, it has a debugger that provide a subset of commands of
+@code{dbx}, a widely used debugger of C language.
+\E
 @end itemize
 
+\BJP
 @node Asir の特徴,,, Risa/Asir
 @section Asir の特徴
+\E
+\BEG
+@node Features of Asir,,, Risa/Asir
+@section Features of @b{Asir}
+\E
 
 @noindent
+\BJP
 @b{Asir} は, 前述の通り, 計算エンジンの言語インタフェースであ
 る. 通常 @b{Asir} という名前の実行可能ファイルとして提供される. 
 現在サポートされている機能は概ね次の通りである. 
+\E
+\BEG
+As mentioned in the previous section, @b{Asir} is a standard language
+interface for@b{Risa}'s algebraic engine.
+Usually, it is provided as an executable file named @code{asir}.
+Main features supported for the current version of Asir is as follows.
+\E
 
 @itemize @bullet
+\BJP
 @item
 C 言語風のユーザ言語
 
@@ -88,65 +171,154 @@ C 言語風のユーザ言語
 UNIX 上での分散計算機能 (Open XM)
 @comment @item
 @comment ヒストリ置換機能をもつ X11 インタフェース
+\E
+\BEG
+@item
+A C-like programming language
+
+@item
+Arithmetic operations (addition, subtraction, multiplication
+and division) on numbers, polynomials and rational expressions
+
+@item
+Operations on vectors and matrices
+
+@item
+List processing operations at the minimum
+
+@item
+Several Built-in functions (factorization, GCD computation, Groebner basis
+computation etc.)
+
+@item
+Useful user defined functions(e.g., factorization over algebraic number fields)
+
+@item
+A @code{dbx}-like debugger
+
+@item
+Plotting of implicit functions
+
+@item
+Numerical evaluation of mathematical expressions including elementary
+transcendental functions at arbitrary precision. This feature is
+in force only if @b{PARI} system (@pxref{pari}).
+
+@item
+Distributed computation over UNIX
+\E
 @end itemize
 
+\BJP
 @node インストレーション,,, Risa/Asir
 @section インストレーション
+\E
+\BEG
+@node Installation,,, Risa/Asir
+@section Installation
+\E
 
-以下の手続きで不明な点, 不都合な点があった場合の問い合わせは
+\JP 以下の手続きで不明な点, 不都合な点があった場合の問い合わせは
+\BEG
+Any questions and any comments on this manual are well come by e-mails
+to the following address.
+\E
 
 @example
-noro@@para.flab.fujitsu.co.jp
+noryo@@flab.fujitsu.co.jp
 @end example
 
 @noindent
-宛に e-mail でお願いします. 
+\JP 宛に e-mail でお願いします. 
 
 @menu
+\BJP
 * UNIX 版::
 * Windows 版::
+\E
+\BEG
+* UNIX version::
+* Windows version::
+\E
 @end menu
 
+\BJP
 @node UNIX 版,,, インストレーション
 @subsection UNIX 版
+\E
+\BEG
+@node UNIX version,,, Installation
+@subsection UNIX version
+\E
 
 @noindent
+\BJP
 必要なファイルは @samp{asir.tgz} である. 
 これらは全て @code{gzip} で圧縮してあるので, 入手後 @code{gzip} で
 展開する. まず, インストールするディレクトリを決める. デフォルトでは
 @samp{/usr/local/lib} に @samp{asir} というディレクトリとして
 インストールされることを仮定している. 以下このディレクトリをライブラリ
 ディレクトリと呼ぶ. 
+\E
+\BEG
+A file @samp{asir.tgz} suitable for the taget machine/architecture 
+is required. After getting it,
+you have to unpack it by @code{gzip}. First of all, determine
+a derectory where binaries and library files are installed.
+We call the directory the @b{library directory}.
+The following installs the files in @samp{/usr/local/lib/asir}.
+\E
 
 @example
 # gzip -dc asir.tgz | ( cd /usr/local/lib; tar xf - )
 @end example
 
-個人的に使用する場合には, @samp{$HOME}などに置いてもよい. 
+\JP 個人的に使用する場合には, @samp{$HOME}などに置いてもよい. 
+\BEG
+In this case you don't have to set any environment variable.
 
+You can install them elsewhere.
+\E
 @example
 % gzip -dc asir.tgz | ( cd $HOME; tar xf - )
 @end example
 
 @noindent
+\BJP
 この場合, ライブラリディレクトリの名前を環境変数 
 @code{ASIR_LIBDIR} に設定する必要がある.
+\E
+\BEG
+In this case you have to set the name of the library directory
+to the environment variable @code{ASIR_LIBDIR}.
+\E
 
 @example
 % setenv ASIR_LIBDIR $HOME/asir
 @end example
 
 @noindent
+\BJP
 Asir 本体は, ライブラリディレクトリの @samp{asir} である. 
 @samp{/usr/local/bin} あるいはユーザの実行ファイルサーチパス
 のどこかにシンボリックリンクを作ると便利である. 
+\E
+\BEG
+@b{Asir} itself is in the library directory. It will be convenient
+to create a symbolic link to it from @samp{/usr/local/bin} or 
+the user's search path.
+\E
 
 @example
 # ln -s /usr/local/lib/asir/asir /usr/local/bin/asir
 @end example
 
 @noindent
-この状態で @samp{asir} を起動してみる. 
+\JP この状態で @samp{asir} を起動してみる. 
+\BEG
+Start @samp{asir}, and @b{Asir} will immediately terminate leaving you
+a message as follows.
+\E
 
 @example
 % /usr/local/bin/asir
@@ -156,6 +328,7 @@ See the file ASIR_INSTALL to get the correct key.
 @end example
 
 @noindent
+\BJP
 すると, このようなメッセージが出て @samp{asir} は終了する. UNIX 版
 では, マシンごとに @code{key} と呼ばれる文字列が必要である. 
 @code{key} を入手するためには, 
@@ -164,14 +337,12 @@ See the file ASIR_INSTALL to get the correct key.
 risa@@para.flab.fujitsu.co.jp
 @end example
 
-@noindent
 宛に, 
 
 @example
 ASIR XXXXXXXX
 @end example
 
-@noindent
 という 1 行のみからなる e-mail を送ればよい. @code{XXXXXXXX} は表示された
 @code{ID} である. 折り返し
 
@@ -182,6 +353,40 @@ YYYYYYYY YYYYYYYY YYYYYYYY
 @noindent
 という形の 1 行のみからなる e-mail が届くので, この 1 行を含む @samp{asir_key}
 なるファイルをカレントディレクトリに作って @samp{asir} を起動してみる. 
+\E
+
+\BEG
+For UNIX version of @b{Asir}, you need a @code{key}, a string,
+for each machine you want to run @b{Asir}.
+In order to get the @code{key}, you just need to send an e-mail
+consisting of a single line like
+
+@example
+ASIR XXXXXXXX
+@end example
+
+to address
+
+@example
+risa@@para.flab.fujitsu.co.jp
+@end example
+
+@noindent
+Here, @code{XXXXXXXX} is the machine ID notified in the first message
+from @b{Asir}.
+
+After a while, an e-mail will be returned containing only one line like
+
+@example
+YYYYYYYY YYYYYYYY YYYYYYYY
+@end example
+
+@noindent
+Then, you shall create a new file in the current directory
+named @samp{asir_key} containing the returned string in one line.
+
+All after this, call again @samp{asir}.
+\E
 
 @example
 % /usr/local/bin/asir
@@ -192,6 +397,7 @@ Copyright (C) FUJITSU LABORATORIES LIMITED.
 @end example
 
 @noindent
+\BJP
 このようなプロンプトが出れば, 入手した @code{key} はそのマシンに対して有効
 である. @code{key} を書いておくファイルに関しては, 環境変数 @code{ASIR_KEY}
 の説明の項で詳しく述べるが, ライブラリディレクトリにここで作成した
@@ -199,25 +405,56 @@ Copyright (C) FUJITSU LABORATORIES LIMITED.
 を使用できるようになる. @samp{asir_key} には複数のマシンに対する @code{key}
 を書けるので, ライブラリディレクトリを共有している場合でも @samp{asir_key}
 に行を追加していけばよい. 
+\E
+\BEG
+If you get such a prompt (@samp{[0]}) from @b{Asir},
+the key you have is valid to the machine you are currently running
+@code{asir}.
+
+When the file @samp{asir_key} is located on the library directory,
+all the users of the machine can execute @samp{asir}.
+The file @samp{asir_key} can contain several lines for
+several @code{key}'s.
+This enables users to run several machines sharing the same library
+directory by simply adding lines for machines to be used.
+We shall describe about the file for @code{key}'s in detail in
+@ref{Environment variable}.
+\E
 
 @example
 # cp asir_key /usr/local/lib/asir
 @end example
 
+\BJP
 @node Windows 版,,, インストレーション
 @subsection Windows 版
+\E
+\BEG
+@node Windows version,,, Installation
+@subsection Windows version
+\E
 
 @noindent
+\BJP
 必要なファイルは @samp{asirwin.tgz} である. 他に, @samp{gzip.exe},
 @samp{tar.exe} が必要だが, asirwin.tgz と同じディレクトリに用意して
 ある. これら 3 つのファイルを同一ディレクトリにおき, DOS プロンプト
 から
+\E
+\BEG
+The necessary file is @samp{asirwin.tgz}. To unpack it @samp{gzip.exe}
+and @samp{tar.exe} are necessary. They are in the same
+directory as @samp{asirwin.tgz} on the ftp server.
+Putting them in the same directory, execute the following:
+\E
 
 @example
-C:\...> tar xzf asirwin.tgz
+\JP C:\...> tar xzf asirwin.tgz
+\EG C:\...> tar xzf asirwin.tgz
 @end example
 
 @noindent
+\BJP
 を実行すれば, @samp{Asir} というディレクトリ (Asir ルートディレクトリ) 
 ができる. 990831 版では, GUI と本体が分離され, またデバッグウィンドウも
 別プロセスとして GUI が呼び出されるため, Asir ルートディレクトリが正しく
@@ -225,70 +462,157 @@ C:\...> tar xzf asirwin.tgz
 リ @samp{bin} に @samp{asirgui.exe} (GUI), @samp{engine.exe} (本体) が
 置かれている. @samp{asirgui.exe} の初回の立ち上げは, エクスプローラから行
 う. これにより
+\E
+
+\BEG
+Then a directory @samp{Asir} (@b{Asir root directory}) is created,
+which has subdirectories named @samp{bin} and @samp{lib}. To set up it,
+invoke @samp{bin\asirgui.exe} from Explorer and
+click @code{OK}.  Then the name of @b{Asir root directory} is set to the
+following registries.
+\E
 
 @example
-HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
+\JP HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
+\EG HKEY_LOCAL_MACHINE\SOFTWARE\FUJITSU\Asir\99.03.31\Directory
 @end example
 
 @noindent
-というレジストリに Asir ルートディレクトリが正しく登録される. 
+\JP というレジストリに Asir ルートディレクトリが正しく登録される. 
 
+\BJP
 @node コマンドラインオプション,,, Risa/Asir
 @section コマンドラインオプション
+\E
+\BEG
+@node Command line options,,, Risa/Asir
+@section Command line options
+\E
 
 @noindent
-コマンドラインオプションは次の通り. 
+\JP コマンドラインオプションは次の通り. 
+\EG Command-line options for the command @samp{asir} are as follows.
 
 @table @code
 
 @item -heap @var{number}
+\BJP
 @code{Risa/Asir} では, 4KB のブロックをメモリ割り当ての単位として用いている. 
 デフォルトでは, 初期 heap として, 16 ブロック (64KB) 割り当てるが, それ
 を変更する場合, @code{-heap} を用いる. 単位はブロックである. 
 heap の大きさは, @code{heap()} 函数で調べることができる (単位はバイト). 
+\E
+\BEG
+In @b{Risa/Asir}, 4KB is used as an unit, called block,
+for memory allocation.
+By default, 16 blocks (64KB) are allocated initially.
+This value can be changed by giving an option @code{-heap}
+a number parameter in unit block.
+Size of the heap area is obtained by a Built-in function heap(),
+the result of which is a number in Bytes.
+\E
 
 @item -adj @var{number}
+\BJP
 この値が大きいほど, 使用メモリ量は大きくなるが, GC 時間が少なくな
 る. @var{number} として 1 以上の整数が指定できる. デフォルトでは 3 であ
 る. この値が 1 以下になると GC をしない設定になるので要注意である. heap 
 をなるべく伸ばさずに, GC を主体にしてメモリ管理したい場合には, この値を
 大きく (例えば 8) 設定する.
+\E
+\BEG
+Heap area will be stretched by the memory manager,
+if the size of reclaimed memories is less than 1/@var{number}
+of currently allocated heap area.
+The default value for @var{number} is 3.
+If you do not prefer to stretch heap area by some reason, perhaps by
+restriction of available memories, but if prefer to resort to
+reclaiming garbages as far as possible,
+then a large value should be chosen for @var{number}, e.g., 8.
+\E
 
 @item -norc
-初期化ファイル @samp{$HOME/.asirrc} を読まない. 
+\JP 初期化ファイル @samp{$HOME/.asirrc} を読まない. 
+\BEG
+When this option is specified, @b{Asir} does not read the
+initial file @samp{$HOME/.asirrc}.
+\E
 
 @item -f @var{file}
+\BJP
 標準入力の代わりに, @var{file} から入力を読み込んで実行する. 
 エラーの際にはただちに終了する. 
+\E
+\BEG
+Instead of the standard input, @var{file} is used as the input.
+Upon an error, the execution immediately terminates.
+\E
 
 @item -paristack @var{number}
+\BJP
 @b{PARI} (@pxref{pari}) 専用の領域の大きさを指定する. 単位はバイト. デフォ
 ルトでは 1 MB.
+\E
+\BEG
+This option specifies the private memory size for @code{PARI} (@pxref{pari}).
+The unit is Bytes. By default, it is set to 1 MB.
+\E
 
 @item -maxheap @var{number}
+\BJP
 heap 領域の上限を指定する. 単位はバイト. デフォルトでは無制限. UNIX の
 場合, 実際には @code{limit} コマンドで表示される @code{datasize} の値
 に制限されているため, @code{-maxheap} の指定がなくても一定量以上に
 heap を獲得できない場合があるので注意.)
+\E
+\BEG
+This option sets an upper limit of the heap size. The unit is Bytes.
+Note that the size is already limited by the value of @code{datasize}
+displayed by the command @code{limit} on UNIX.
+\E
 @end table
 
+\BJP
 @node 環境変数,,, Risa/Asir
 @section 環境変数
+\E
+\BEG
+@node Environment variable,,, Risa/Asir
+@section Environment variable
+\E
 
 @noindent
+\BJP
 @b{Asir} の実行に関するいくつかの環境変数が存在する. UNIX 上では環境変数
 は shell のコマンドラインから直接設定するか, shell の rc ファイルで設定
 する. Windows NT では, [設定]->[システム]->[環境] で設定する. Windows 95/98
 では, @samp{c:\autoexec.bat} に書いて reboot する. 
-
+\E
+\BEG
+There exist several environment variables concerning with an execution
+of @b{Asir}. On UNIX, an environment variable is set from shells, or
+in rc files of shells. On Windows NT, it can be set from [Control Panel]
+->[Environment]. On Windows 95/98, it can be set in @samp{c:\autoexec.bat}.
+Note that the setting takes effect after rebooting the machine on Windows
+95/98.
+\E
 @itemize @bullet
 @item
 @code{ASIR_KEY}
 
+\BJP
 UNIX 版では, @b{Asir} が起動されたマシンに対する @code{key} がなけ
 ればそのマシン上で @b{Asir} は動作しない. @code{key} は 16 進 8 
 桁 3 ワードからなり, 
-
+\E
+\BEG
+@b{Asir} shall not work unless a @code{key} for the machine
+on which @b{Asir} is invoked is given.
+The @code{key} consists of a string which denotes 3 word hexadecimal
+number, each of which has 8 hexadecimal digits.
+In order to run @b{Asir} for several machines,
+several @code{key}'s can be written together on a same file as follows.
+\E
 @example
 % cat asir_key
 cf6f236c 61a35091 dddc4529 geisha
@@ -296,71 +620,148 @@ cf6f236c 61a35091 dddc4529 geisha
 34b75d30 63f8df93 3e881113 nyanchu
 @end example
 
+\BJP
 という形で複数台のマシンに対する @code{key} を一つのファイルにまとめて
 書くことができる. @code{key} の後ろは無視されるので, コメントを書く
 ことができる. @code{key} を含むファイルは, 以下の順でサーチされる. 
+\E
+\BEG
+The text after each @code{key} is neglected to the end-of-line.
+This is convenient to comment on the respective @code{key}.
+Files containing @code{key}'s are searched by the following order.
+\E
 
 @enumerate
 @item
-環境変数 @code{ASIR_KEY} に指定されたファイル
+\JP 環境変数 @code{ASIR_KEY} に指定されたファイル
+\EG File set to environment @code{ASIR_KEY}
 
 @item
-カレントディレクトリの @samp{asir_key}
+\JP カレントディレクトリの @samp{asir_key}
+\EG File @samp{asir_key} on the current directory.
 
 @item
+\BJP
 環境変数 @code{ASIR_LIBDIR} で指定されたディレクトリ (指定がなければ
 @samp{/usr/local/lib/asir}) の @samp{asir_key}
+\E
+\BEG
+Files on the directory specified by environment @code{ASIR_LIBDIR}.
+(File @samp{asir_key} on @samp{/usr/local/lib/asir/},
+if environment @code{ASIR_LIBDIR} is not set.)
+\E
+
 @end enumerate
 
 @item
 @code{ASIR_LIBDIR}
 
+\BJP
 @b{Asir} のライブラリディレクトリ, すなわちユーザ言語で書かれたファイル
 などがおかれるディレクトリ. 指定がない場合 UNIX 版では 
 @samp{/usr/local/lib/asir}, Windows 版では Asir メインディレクトリの下の 
 @samp{lib} ディレクトリが用いられる. 
+\E
+\BEG
+The library directory of @b{Asir}, i.e., the directory where
+, for example, files containing programs written in @b{Asir}.
+If not specified, on UNIX, @samp{/usr/local/lib/asir} is used by default.
+On Windows, @samp{lib} in @b{Asir root directory} is used by default.
+This environment will be useful in a case where @b{Asir} binaries
+are installed on a private directory of the user.
+\E
 
 @item
 @code{ASIRLOADPATH}
 
+\BJP
 ロードされるファイルがあるディレクトリを UNIX の場合 ':', 
 Windowsの場合 ';' で区切って並べる. ディレ
 クトリは左から順にサーチされる. この指定がない場合, および指定された
 ファイルが @code{ASIRLOADPATH} になかった場合, ライブラリディレクトリ
 もサーチされる. 
-
+\E
+\BEG
+This environment specifies directories which contains files to be
+loaded by @b{Asir} command @code{load()}.
+Directories are separated by a `:' on UNIX, a ';' on Windows respectively.
+The search order is from the left to the right.
+After searching out all directories in @code{ASIRLOADPATH},
+or in case of no specification at all,
+the library directory will be searched.
+\E
 @item
 @code{HOME}
 
+\BJP
 @var{-norc} オプションつきで起動しない場合, @samp{$HOME/.asirrc}があれば, 
 予めこのファイルを実行する. @code{HOME} が設定されていない場合, UNIX 版
 ではなにも読まないが, Windows 版では Asir メインディレクトリ
 (@code{get_rootdir()} で返されるディレクトリ) の @samp{.asirrc} を探し, 
 あればそれを実行する.
-
+\E
+\BEG
+If @b{Asir} is invoked without @var{-norc}, @samp{$HOME/.asirrc}, if exists,
+is executed. If @code{HOME} is not set, nothing is done on UNIX. On Windows,
+@samp{.asirrc} in @b{Asir root directory} is executed if it exists.
+\E
 @end itemize
 
+\BJP
 @node 起動から終了まで,,, Risa/Asir
 @section 起動から終了まで
+\E
+\BEG
+@node Starting and Terminating an Asir session,,, Risa/Asir
+@section Starting and Terminating an @b{Asir} session
+\E
 
 @noindent
-@b{Asir} を起動すると, 
+\JP @b{Asir} を起動すると, 
+\BEG
+Run @b{Asir}, then the copyright notice and the first prompt
+will appear on your screen, 
+and a new @b{Asir} session will be started.
+\E
+
 @example
 [0]
 @end example
 
 @noindent
+\BJP
 なるプロンプトが表示され, セッションが開始する. @samp{$HOME/.asirrc}
 (Windows 版の場合, @code{HOME} 設定されていない場合には @code{get_rootdir()}
 で返されるディレクトリにある @samp{.asirrc})
 が存在している場合, このファイルを @b{Asir} ユーザ言語でかかれた
 ファイルと見なし, 解釈実行する. 
+\E
+\BEG
+When initialization file @samp{$HOME/.asirrc} exists,
+@b{Asir} interpreter executes it at first taking it as a program
+file written in @b{Asir}.
+\E
 
 @noindent
+\BJP
 プロンプトは入力の番号を表す. セッションは, @code{end;} または 
 @code{quit;} を入力することにより終了する. 入力は, @samp{;} または 
 @samp{$} までを一区切りとして評価される. @samp{;} のとき結果は表示され, 
 @samp{$} のとき表示されない. 
+\E
+\BEG
+The prompt indicates the sequential number of your input commands to
+@b{Asir}.
+The session will terminate when you input @code{end;} or @code{quit;}
+to @b{Asir}.
+Input commands are evaluated statement by statement.
+A statement normally ends with its terminator
+@samp{;} or @samp{$}.
+(There are some exceptions. See, syntax of @b{Asir}.)
+The result will be displayed when the command, i.e. statement,
+is terminated by a @samp{;},
+and will not when terminated by a @samp{$}.
+\E
 
 @example
 % asir
@@ -382,6 +783,7 @@ a
 @end example
 
 @noindent
+\BJP
 この例では, @code{A}, @code{a}, @code{x}, @code{y} なる文字が使用されている. 
 @code{A} はプログラムにおける変数で, @code{a}, @code{x}, @code{y} は数学的
 な意味での不定元である. 一般にプログラム変数は大文字で始まり, 
@@ -390,14 +792,48 @@ a
 一方, 不定元はそれ自身で値を持つことはできず, 従って, 不定元に対する
 代入は許されない. 後に示すが, 不定元に対する代入は, 組み込み函数 @code{subst()}
 により明示的に行われる. 
+\E
+\BEG
+In the above example, names @code{A}, @code{a}, @code{x} and @code{y}
+are used to identify mathematical and programming objects.
+There, the name @code{A} denotes a program variable
+(some times called simply as a program variable.)
+while the other names, @code{a}, @code{x} and @code{y}, denote
+mathematical objects, that is, indeterminates.
+In general, program variables have names which begin with
+capital letters, while names of indeterminates begin with
+small letters.
+As you can see in the example, program variables are used to hold and
+keep objects, such as numbers and expressions, as their values,
+just like variables in C programming language.
+Whereas, indeterminates cannot have values so that assignment to
+indeterminates are illegal.
+If one wants to get a result by substituting a value for an indeterminate
+in an expression, it is achieved by the function @code{subst} as the
+value of the function.
+\E
 
+\BJP
 @node 割り込み,,, Risa/Asir
 @section 割り込み
+\E
+\BEG
+@node Interruption,,, Risa/Asir
+@section Interruption
+\E
 
 @noindent
+\BJP
 計算を実行中に割り込みをかけたい場合, 割り込みキャラクタ(通常は
 @kbd{C-c}, DOS 版では @kbd{C-x}, Mac 版では 
 @code{command+}@samp{.} ) を入力する.
+\E
+\BEG
+To interrupt the @b{Asir} execution, input an interrupt character
+from the keyboard.  A @kbd{C-c} is usually used for it.
+(Notice: @kbd{C-x} for DOS version; @code{command+}@samp{.} for Macintosh
+version.)
+\E
 
 @example
 @@ (x+y)^1000;
@@ -405,9 +841,11 @@ a
 @end example
 
 @noindent
-各選択肢の意味は次の通り. 
+\JP 各選択肢の意味は次の通り. 
+\EG Here, the meaning of options are as follows.
 
 @table @code
+\BJP
 @item q
 @b{Asir} を終了する. (確認あり)
 @item t
@@ -423,12 +861,43 @@ a
 中断点までの函数の呼び出し列を表示する. 
 @item ?
 各選択肢の意味を説明する. 
+\E
+\BEG
+@item q
+Terminates @b{Asir} session. (Confirmation requested.)
+@item t
+Returns to toplevel. (Confirmation requested.)
+@item c
+Resumes to continue the execution.
+@item d
+Enters debugging mode at the next statement of the @b{Asir} program,
+if @b{Asir} has been executing a program loaded from a file.
+Note that it will sometimes take a long time before entering
+debugging mode when @b{Asir} is executing basic functions in the
+algebraic engine, (e.g., arithmetic operation, factorization etc.)
+Detailed description about the debugger will be given in @ref{Debugger}.
+@item u
+After executing a function registered by @code{register_handler()}
+(@pxref{ox_reset register_handler}), returns to toplevel. A confirmation
+is prompted.
+@item w
+Displays the calling sequence up to the interruption.
+@item ?
+Show a brief description of options.
+\E
 @end table
 
+\BJP
 @node エラー処理,,, Risa/Asir
 @section エラー処理
+\E
+\BEG
+@node Error handling,,, Risa/Asir
+@section Error handling
+\E
 
 @noindent
+\BJP
 組み込み函数に不正な型の引数を渡した場合などには実行が中断されるが, 
 ユーザ函数の中でエラーが起きた場合にはトップレベルに戻る前に自動的にデバッグ
 モードに入る. この状態で
@@ -436,42 +905,101 @@ a
 表示されるエラーメッセージはさまざまであり, 内部の函数名に引き続いて
 メッセージが表示される. これは, 呼び出された組み込み函数
 と必ずしも対応はしない. 
+\E
+\BEG
+When arguments with illegal types are given to a built-in function,
+an error will be detected and the execution will be quit.
+In many cases, when an error is detected in a built-in function,
+@b{Asir} automatically enters debugging mode before coming back
+to toplevel.
+At that time, one can examine the state of the program,
+for example, inspect argument values just before the error occurred.
+Messages reported there are various depending on cases.  They are
+reported after the internal function name.  The internal function name
+sometimes differs from the built-in function name that is specified by
+the user program.
+\E
 
 @noindent
+\BJP
 その他, さまざまな原因により内部演算函数においてエラーが生ずることが
 ある. UNIX 版の場合, これは次のいずれかの
 @code{internal error} として報告され, 通常のエラーと同様に扱って, 
 デバッグモードに入る. 
+\E
+\BEG
+In the execution of internal functions, errors may happen by various
+reasons.  The UNIX version of @b{Asir} will report those errors as one of
+the following @code{internal error}'s, and enters debugging mode just
+like normal errors.
+\E
 
 @table @code
 @item SEGV
 @itemx BUS ERROR
 
+\BJP
 組み込み函数によっては, 引数の型を厳密にチェックせずに演算ルーチンに引
 き渡してしまうものも存在している. このような状況において, 
 不正なポインタ, あるいは NULL ポインタによるアクセス違反があった場合, これら
 のエラーとなる. 
+\E
+\BEG
+Some of the built-in functions transmit their arguments to internal
+operation routines without strict type-checking.  In such cases,
+one of these two errors will be reported
+when an access violation caused by an illegal pointer or a NULL pointer
+is detected.
+\E
 
 @item BROKEN PIPE
 
+\BJP
 プロセス間通信において, 相手先のプロセスとの間のストリーム
 が既に存在していない場合 (例えば既に相手先のプロセスが終了している場合など)
 に, そのストリームに入出力しようとした場合にこのエラーとなる. 
+\E
+\BEG
+In the process communication, this error will be reported if a process
+attempts to read from or to write onto the partner process when the
+stream to the partner process does not already exist, (e.g., terminated
+process.)
+\E
 @end table
 
 @noindent
+\BJP
 これらは実際には, 組み込み函数の入口において, 引数を完全にチェック
 することにより大部分は防げるが, 手間が多くかかることと, 場合に
 よっては効率を落すことにもなるため, あえて引数チェックはユーザ
 任せにしてある. 
+\E
+\BEG
+For UNIX version, even in such a case, the process itself does not
+terminate because such an error can be caught by @code{signal()} and
+recovered. 
+To remove this weak point, complete type
+checking of all arguments are indispensable at the entry of a built-in
+function, which requires an enormous amount of re-making efforts.
+\E
 
+\BJP
 @node 計算結果および特殊な数,,, Risa/Asir
 @section 計算結果, 特殊な数
+\E
+\BEG
+@node Referencing results and special numbers,,, Risa/Asir
+@section Referencing results and special numbers
+\E
 
 @noindent
-@code{@@} はエスケープ文字として使用される. 現在次のような規定がある. 
-
+\JP @code{@@} はエスケープ文字として使用される. 現在次のような規定がある. 
+\BEG
+An @code{@@} used for an escape character; rules currently in force
+are as follows.
+\E
 @table @code
+\BJP
 @item @@@var{n}
 @var{n} 番目の計算結果. 
 @item @@@@
@@ -486,6 +1014,26 @@ a
 2 元体 GF(2) 上の一変数多項式の変数 (不定元).
 @item @@>, @@<, @@>=, @@<=, @@==, @@&&, @@||
 quantifier elimination における, 一階述語論理演算子
+\E
+\BEG
+@item @@@var{n}
+The evaluated result of @var{n}-th input command
+@item @@@@
+The evaluated result of the last command
+@item @@i
+The unit of imaginary number, square root of -1.
+@item @@pi
+The number pi,
+the ratio of a circumference of the circle and its diameter.
+@item @@e
+Napier's number, the base of natural logarithm.
+@item @@
+A generator of GF(2^m), a finite field of characteristic 2, over GF(2).
+It is a root of an irreducible univariate polynomial over GF(2)
+which is set as the defining polynomial of GF(2^m).
+@item @@>, @@<, @@>=, @@<=, @@==, @@&&, @@||
+Fist order logical operators. They are used in quantifier elimination.
+\E
 @end table
 
 @example
@@ -508,10 +1056,23 @@ x^4-x^3+x^2-x+1
 @end example
 
 @noindent
+\BJP
 トップレベルで計算された値はこのようにヒストリとして取り出し可能であるが, 
 このことは, ガベージコレクタにとっては負担をもたらす可能性がある. 特に, 
 大きな式をトップレベルで計算した場合, その後の GC 時間が急速に増大する可
 能性がある. このような場合, @code{delete_history()}
 (@pxref{delete_history,,@code{delete_history}}) が有効である.
+\E
+\BEG
+As you can see in the above example,
+results of toplevel computation can be referred to
+by @code{@@} convention.
+This is convenient for users, while it sometimes imposes a heavy
+burden to the garbage collector.
+It may happen that GC time will rapidly increase after computing
+a very large expression at the toplevel.
+In such cases @code{delete_history()} 
+(@pxref{delete_history,,@code{delete_history}}) takes effect.
+\E
 
 

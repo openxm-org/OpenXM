@@ -1,5 +1,12 @@
+@comment $OpenXM$
+\BJP
 @node 配列,,, 組み込み函数
 @section 配列
+\E
+\BEG
+@node Arrays,,, Built-in Function
+@section Arrays
+\E
 
 @menu
 * newvect::
@@ -10,25 +17,31 @@
 * qsort::
 @end menu
 
-@node newvect,,, 配列
+\JP @node newvect,,, 配列
+\EG @node newvect,,, Arrays
 @subsection @code{newvect}
 @findex newvect
 
 @table @t
 @item newvect(@var{len}[,@var{list}])
-:: 長さ @var{len} のベクトルを生成する. 
+\JP :: 長さ @var{len} のベクトルを生成する. 
+\EG :: Creates a new vector object with its length @var{len}.
 @end table
 
 @table @var
 @item return
-ベクトル
+\JP ベクトル
+\EG vector
 @item len
-自然数
+\JP 自然数
+\EG non-negative integer
 @item list
-リスト
+\JP リスト
+\EG list
 @end table
 
 @itemize @bullet
+\BJP
 @item
 長さ @var{len} のベクトルを生成する. 第 2 引数がない場合, 
 各成分は 0 に初期化される. 第 2 引数がある場合, 
@@ -54,6 +67,60 @@
 @item
 函数の引数としてベクトルを渡した場合, 渡された函数は, そのベクトルの成分
 を書き換えることができる. 
+\E
+\BEG
+@item 
+Creates a new vector object with its length @var{len} and its elements
+all cleared to value 0.
+If the second argument, a list, is given, the vector is initialized by
+the list elements.
+Elements are used from the first through the last.
+If the list is short for initializing the full vector,
+0's are filled in the remaining vector elements.
+@item 
+Elements are indexed from 0 through @var{len}-1.  Note that the first
+element has not index 1.
+@item 
+List and vector are different types in @b{Asir}.
+Lists are conveniently used for representing many data objects whose
+size varies dynamically as computation proceeds.
+By its flexible expressive power, it is also conveniently used to
+describe initial values for other structured objects as you see
+for vectors.
+Access for an element of a list is performed by following pointers to
+next elements.  By this, access costs for list elements differ for
+each element.
+In contrast to lists, vector elements can be accessed in a same time,
+because they are accessed by computing displacements from the top memory
+location of the vector object.
+      
+Note also, in @b{Asir}, modification of an element of a vector causes
+modification of the whole vector itself,
+while modification of a list element does not cause the modification
+of the whole list object.
+      
+By this, in @b{Asir} language,
+a vector element designator can be a left value of
+assignment statement, but a list element designator can NOT be a left
+value of assignment statement.
+      
+@item
+No distinction of column vectors and row vectors in @b{Asir}.
+If a matrix is applied to a vector from left, the vector shall be taken
+as a column vector, and if from right it shall be taken as a row vector.
+@item
+The length (or size or dimension) of a vector is given by function
+@code{size()}.
+@item 
+When a vector is passed to a function as its argument
+(actual parameter), the vector element can be modified in that
+function.
+      
+@item
+A vector is displayed in a similar format as for a list.
+Note, however, there is a distinction: Elements of a vector are
+separated simply by a `blank space', while those of a list by a `comma.'
+\E
 @end itemize
 
 @example
@@ -74,32 +141,46 @@
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{newmat}, @fref{size}.
 @end table
 
-@node vtol,,, 配列
+\JP @node vtol,,, 配列
+\EG @node vtol,,, Arrays
 @subsection @code{vtol}
 @findex vtol
 
 @table @t
 @item vtol(@var{vect})
-:: ベクトルをリストに変換する. 
+\JP :: ベクトルをリストに変換する. 
+\EG :: Converts a vector into a list.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item vect
-ベクトル
+\JP ベクトル
+\EG vector
 @end table
 
 @itemize @bullet
+\BJP
 @item
 長さ @var{n} のベクトル @var{vect} を
  @code{[@var{vect}[0],...,@var{vect}[@var{n}-1]]} なるリストに変換する. 
 @item
 リストからベクトルへの変換は @code{newvect()} で行う. 
+\E
+\BEG
+@item 
+Converts a vector @var{vect} of length @var{n} into
+a list @code{[@var{vect}[0],...,@var{vect}[@var{n}-1]]}.
+@item 
+A conversion from a list to a vector is done by @code{newvect()}.
+\E
 @end itemize
 
 @example
@@ -110,29 +191,36 @@
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{newvect}.
 @end table
 
-@node newmat,,, 配列
+\JP @node newmat,,, 配列
+\EG @node newmat,,, Arrays
 @subsection @code{newmat}
 @findex newmat
 
 @table @t
 @item newmat(@var{row},@var{col} [,@var{[[a,b,}...@var{],[c,d,}...@var{],}...@var{]}])
-:: @var{row} 行 @var{col} 列の行列を生成する. 
+\JP :: @var{row} 行 @var{col} 列の行列を生成する. 
+\EG :: Creates a new matrix with @var{row} rows and @var{col} columns.
 @end table
 
 @table @var
 @item return
-行列
+\JP 行列
+\EG matrix
 @item row,col
-自然数
+\JP 自然数
+\EG non-negative integer
 @item a,b,c,d
-任意
+\JP 任意
+\EG arbitrary
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{row} 行 @var{col} 列の行列を生成する. 第 3 引数がない場合, 
 各成分は 0 に初期化される. 第 3 引数がある場合, 
@@ -148,6 +236,29 @@
 @item
 函数の引数として行列を渡した場合, 渡された函数は, その行列の成分
 を書き換えることができる. 
+\E
+\BEG
+@item 
+If the third argument, a list, is given, the newly created matrix
+is initialized so that each element of the list (again a list)
+initializes each of the rows of the matrix.
+Elements are used from the first through the last.
+If the list is short, 0's are filled in the remaining matrix elements.
+If no third argument is given all the elements are cleared to 0.
+@item 
+The size of a matrix is given by function  @code{size()}.
+@item 
+Let @code{M} be a program variable assigned to a matrix.
+Then, @code{M[I]} denotes a (row) vector which corresponds with
+the @code{I}-th row of the matrix.
+Note that the vector shares its element with the original matrix.
+Subsequently, if an element of the vector is modified, then the
+corresponding matrix element is also modified.
+@item 
+When a matrix is passed to a function as its argument
+(actual parameter), the matrix element can be modified within that
+function.
+\E
 @end itemize
 
 @example
@@ -167,33 +278,56 @@ return to toplevel
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{newvect}, @fref{size}, @fref{det}.
 @end table
 
-@node size,,, 配列
+\JP @node size,,, 配列
+\EG @node size,,, Arrays
 @subsection @code{size}
 @findex size
 
 @table @t
 @item size(@var{vect|mat})
-:: @code{[@var{vect} の長さ]} または @code{[@var{mat} の行数,@var{mat} の列数]}. 
+\JP :: @code{[@var{vect} の長さ]} または @code{[@var{mat} の行数,@var{mat} の列数]}. 
+\BEG
+:: A list containing the number of elements of the given vector,
+@code{[size of @var{vect}]},
+or a list containing row size and column size of the given matrix,
+@code{[row size of @var{mat}, column size of @var{mat}]}.
+\E
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item vect
-ベクトル
+\JP ベクトル
+\EG vector
 @item mat
-行列
+\JP 行列
+\EG matrix
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{vect} 又は, @var{mat} のサイズをリストで出力する. 
 @item
 @var{list} のサイズは @code{length()}を, 有理式に現れる単項式の数は @code{nmono()} を用いる. 
+\E
+\BEG
+@item 
+Return a list consisting of the dimension of the vector @var{vect},
+or a list consisting of the row size and column size of the matrix
+@var{matrix}.
+@item 
+Use @code{length()} for the size of @var{list}, and
+@code{nmono()} for the number of monomials with non-zero coefficients
+in a rational expression.
+\E
 @end itemize
 
 @example
@@ -209,29 +343,36 @@ return to toplevel
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{car cdr cons append reverse length}, @fref{nmono}.
 @end table
 
-@node det,,, 配列
+\JP @node det,,, 配列
+\EG @node det,,, Arrays
 @subsection @code{det}
 @findex det
 
 @table @t
 @item det(@var{mat}[,@var{mod}])
-:: @var{mat} の行列式を求める. 
+\JP :: @var{mat} の行列式を求める. 
+\EG :: Determinant of @var{mat}.
 @end table
 
 @table @var
 @item return
-式
+\JP 式
+\EG expression
 @item mat
-行列
+\JP 行列
+\EG matrix
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 行列 @var{mat} の行列式を求める. 
 @item
@@ -239,6 +380,17 @@ return to toplevel
 @item
 分数なしのガウス消去法によっているため, 多変数多項式を成分とする
 行列に対しては小行列式展開による方法のほうが効率がよい場合もある. 
+\E
+\BEG
+@item 
+Determinant of matrix @var{mat}.
+@item 
+The computation is done over GF(@var{mod}) if @var{mod} is specitied.
+@item 
+The fraction free Gaussian algorithm is employed.  For matrices with
+multi-variate polynomial entries, minor expansion algorithm sometimes
+is more efficient than the fraction free Gaussian algorithm.
+\E
 @end itemize
 
 @example
@@ -258,29 +410,36 @@ return to toplevel
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{newmat}.
 @end table
 
-@node qsort,,, 配列
+\JP @node qsort,,, 配列
+\EG @node qsort,,, Arrays
 @subsection @code{qsort}
 @findex qsort
 
 @table @t
 @item qsort(@var{array}[,@var{func}]) 
-:: 一次元配列 @var{array} をソートする. 
+\JP :: 一次元配列 @var{array} をソートする. 
+\EG :: Sorts an array @var{array}.
 @end table
 
 @table @var
 @item return
-@var{array} (入力と同じ; 要素のみ入れ替わる)
+\JP @var{array} (入力と同じ; 要素のみ入れ替わる)
+\EG @var{array} (The same as the input; Only the elements are exchanged.)
 @item array
-一次元配列
+\JP 一次元配列
+\EG array
 @item func
-比較用関数
+\JP 比較用関数
+\EG function for comparison
 @end table
 
 @itemize @bullet
+\BJP
 @item
 一次元配列を quick sort でソートする. 
 @item
@@ -292,6 +451,22 @@ return to toplevel
 ものから順に並べ換えられる. 
 @item
 配列は新たに生成されず, 引数の配列の要素のみ入れ替わる. 
+\E
+\BEG
+@item
+This function sorts an array by @var{quick sort}.
+@item
+If @var{func} is not specified, the built-in comparison function
+is used and the array is sorted in increasing order.
+@item
+If a function of two arguments @var{func} which returns 0, 1, or -1
+is provided, then an ordering is detemined so that
+@code{A<B} if @code{@var{func}(A,B)=1} holds, and
+the array is sorted in increasing order with respect to the ordering.
+@item
+The returned array is the same as the input. Only the elements
+are exchanged.
+\E
 @end itemize
 
 @example
@@ -303,6 +478,7 @@ return to toplevel
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ord}, @fref{vars}.
 @end table

@@ -1,92 +1,175 @@
+@comment $OpenXM$
+\BJP
 @node $BJ,;67W;;(B,,, Top
 @chapter $BJ,;67W;;(B
+\E
+\BEG
+@node Distributed computation,,, Top
+@chapter Distributed computation
+\E
 
 @menu
 * OpenXM::
 * Mathcap::
+\BJP
 * $B%9%?%C%/%^%7%s%3%^%s%I(B::
 * $B%G%P%C%0(B::
 * $BJ,;67W;;$K4X$9$k4X?t(B::
+\E
+\BEG
+* Stackmachine commands::
+* Debugging::
+* Functions for distributed computation::
+\E
 @end menu
 
-@node OpenXM,,, $BJ,;67W;;(B
+\JP @node OpenXM,,, $BJ,;67W;;(B
+\EG @node OpenXM,,, Distributed computation
 @section OpenXM
 
-@b{Asir} $B$O(B, $BJ,;67W;;$K$*$1$kDL?.%W%m%H%3%k$H$7$F(B, @b{Open XM} 
+\BJP
+@b{Asir} $B$O(B, $BJ,;67W;;$K$*$1$kDL?.%W%m%H%3%k$H$7$F(B, @b{OpenXM} 
 (Open message eXchange protocol for Mathematics) $B$r:NMQ$7$F$$$k(B. 
-@b{Open XM} $B$O(B, $B<g$H$7$F?t3X%*%V%8%'%/%H$r%W%m%;%94V$G$d$j$H$j$9$k(B
-$B$?$a$N5,Ls$G$"$k(B. @b{Open XM} $B$K$*$$$F$O(B
+@b{OpenXM} $B$O(B, $B<g$H$7$F?t3X%*%V%8%'%/%H$r%W%m%;%94V$G$d$j$H$j$9$k(B
+$B$?$a$N5,Ls$G$"$k(B. @b{OpenXM} $B$K$*$$$F$O(B
+\E
+\BEG
+In @b{Asir} distributed computations are done under @b{OpenXM}
+(Open message eXchange protocol for Mathematics), which
+is a protocol for exchanging mainly mathematical objects
+between processes.
+In @b{OpenXM} a distributed computation is done as follows:
+\E
 
 @enumerate
+\BJP
 @item client $B$,(B server $B$KBP$7$F7W;;<B9T0MMj$N%a%C%;!<%8$rAw$k(B. 
 @item server $B$,7W;;$r<B9T$9$k(B. 
 @item client $B$,(B server $B$K7k2LAwIU0MMj$N%a%C%;!<%8$rAw$k(B. 
 @item server $B$O7k2L$rJV$7(B, client $B$O7k2L$r<u$1<h$k(B
+\E
+\BEG
+@item A client requests something to a server.
+@item The server does works according to the request.
+@item The client requests to send data to the server.
+@item The server sends the data to the client and the client gets the data.
+\E
 @end enumerate
 
+\BJP
 $B$H$$$&7A$GJ,;67W;;$,9T$o$l$k(B. server $B$O%9%?%C%/%^%7%s$G$"$k(B. $B$9$J$o$A(B,
 client $B$+$iAw$i$l$?%G!<%?%*%V%8%'%/%H$O(B, $B;XDj$,$J$$8B$j(B server $B$N%9%?%C(B
 $B%/$K@Q$^$l(B, $B%3%^%s%I$,Aw$i$l$?;~$K(B, $BI,MW$J$@$1%9%?%C%/$+$i%G!<%?$r<h$j=P(B
 $B$7$F(B, $B4X?t8F$S=P$7$N0z?t$H$9$k(B. 
+\E
+\BEG
+The server is a stack machine. That is data objects sent by the client
+are pushed to the stack of the server. 
+If the server gets a command, then the data are
+popped form the stack and they are used as arguments of a function call.
+\E
 
-@b{Open XM} $B$K$*$$$FFCD'E*$J$3$H$O(B, $B7W;;7k2L$OC1$K(B server $B$N%9%?%C%/$K(B
+\BJP
+@b{OpenXM} $B$K$*$$$FFCD'E*$J$3$H$O(B, $B7W;;7k2L$OC1$K(B server $B$N%9%?%C%/$K(B
 $B@Q$^$l$k$@$1$G(B, client $B$+$i$N0MMj$,$J$$8B$j(B, $BDL?.O)$K%G!<%?$ON.$l$J$$(B
 $B$H$$$&E@$G$"$k(B. 
+\E
 
+\BEG
+In @b{OpenXM}, the result of a computation done in the server
+is simply pushed to the stack and the data is not written to
+the communication stream without requests from the client.
+\E
+
+\BJP
 $B%W%m%H%3%k$K$O(B, $B%*%V%8%'%/%H$N6&DL%U%)!<%^%C%H$r5,Dj(B
 $B$9$k(B @b{CMO} (Common Mathematical Object format), $B%W%m%;%9$KBP$9$k(B
 $BF0:n$r;XDj$9$k(B @b{SM} (Stack Machine command) $B$,4^$^$l$k(B. 
-$B$3$l$i$O(B, $B%9%?%C%/%^%7%s$K%G!<%?$rAw$k:]$K(B, $B%G!<%?$N<oN`$r;XDj$9$k(B
+$B$3$l$i$O(B, $B%G!<%?$rAw$k:]$K(B, $B%G!<%?$N<oN`$r;XDj$9$k(B
 $B$?$a$N(B @b{OX} expression $B$H$7$F%i%C%T%s%0$5$l$k(B. 
 
-@b{Asir} $B$r(B client $B$H$7$F(B @b{Open XM} $B$K$h$kJ,;67W;;$r9T$&>l9g$K$O(B, 
+@b{OpenXM} $B$K$h$kJ,;67W;;$r9T$&>l9g$K$O(B, 
 $B$^$:(B, server $B$rN)$A>e$2$F(B, $BDL?.$r@.N)$5$;$kI,MW$,$"$k(B. $B$3$N$?$a$K(B, 
 @code{ox_launch()}, @code{ox_launch_nox()}, @code{ox_launch_generic()}
 $B$J$I$N4X?t$,MQ0U$5$l$F$$$k(B. $B$5$i$K(B, $BDL?.$N@.N)$7$?(B server $B$KBP$7$F(B
 $B0J2<$N$h$&$JA`:n$,4X?t$H$7$FMQ0U$5$l$F$$$k(B. 
+\E
+
+\BEG
+@b{OpenXM} protocol consists of two components:
+@b{CMO} (Common Mathematical Object format) which determines
+a common format of data representations and
+@b{SM} (StackMachine command) which specifies actions on servers.
+These are wrapped as @b{OX} expressions to indicate the sort of
+data when they are sent.
+
+To execute a distributed computation by @b{OpenXM},
+one has to invoke @b{OpenXM} servers and to establish communications
+between the client and the servers. 
+@code{ox_launch()}, @code{ox_launch_nox()}, @code{ox_launch_generic()}
+are preprared for such purposes. Furthermore the following functions
+are available.
+\E
 
 @table @code
 @item @code{ox_push_cmo()}
 
-$B%G!<%?$r(B server $B$N%9%?%C%/$K@Q$`(B
+\JP $B%G!<%?$r(B server $B$N%9%?%C%/$K@Q$`(B
+\EG It requests a server to push an object to the stack of the server.
 
 @item @code{ox_pop_cmo()}
-$B%G!<%?$r(B server $B$N%9%?%C%/$+$i<h$j=P$9(B. 
+\JP $B%G!<%?$r(B server $B$N%9%?%C%/$+$i<h$j=P$9(B. 
+\EG It request a server to pop an object from the stack of the server.
 
 @item @code{ox_cmo_rpc()}
 
-server $B$N4X?t$r8F$S=P$7(B, $B7k2L$r%9%?%C%/$K@Q$`(B. 
+\JP server $B$N4X?t$r8F$S=P$7(B, $B7k2L$r%9%?%C%/$K@Q$`(B. 
+\BEG
+It requests to execute a function on a server.
+The result is pushed to the stack of the server.
+\E
 
 @item @code{ox_execute_string()}
 
+\BJP
 server $B8GM-$N%f!<%68@8l(B (@b{Asir} $B$J$i(B Asir $B8@8l(B) $B$G=q$+$l$?J8;zNs$r(B
 server $B$,<B9T$7(B, $B7k2L$r%9%?%C%/$K@Q$`(B. 
+\E
+\BEG
+It requests a server to parse and execute a string 
+by the parser and the evaluater of the server.
+The result is pushed to the stack of the server.
+\E
 
 @item @code{ox_push_cmd()}
 
-@b{SM} $B%3%^%s%I$NAw?.(B. 
+\JP @b{SM} $B%3%^%s%I$NAw?.(B. 
+\EG It requests a server to execute a command.
 
 @item @code{ox_get()}
 
-$B4{$KDL?.O)$K$"$k%G!<%?$N<h$j=P$7(B. 
+\JP $B4{$KDL?.O)$K$"$k%G!<%?$N<h$j=P$7(B. 
+\EG It gets an object from a data stream.
 @end table
 
-@node Mathcap,,, $BJ,;67W;;(B
+\JP @node Mathcap,,, $BJ,;67W;;(B
+\EG @node Mathcap,,, Distributed computation
 @section Mathcap
 
-server, client $B$H$b$K(B, @b{Open XM} $B$G5,Dj$5$l$F$$$kA4$F$N(B@b{CMO} $B%U%)!<(B
+\BJP
+server, client $B$H$b$K(B, @b{OpenXM} $B$G5,Dj$5$l$F$$$kA4$F$N(B@b{CMO} $B%U%)!<(B
 $B%^%C%H(B, @b{SM} $B%3%^%s%I$r<BAu$7$F$$$k$H$O8B$i$J$$(B. $BAj<j$NCN$i$J$$%G!<%?(B, 
-$B%3%^%s%I$rAw$C$?>l9g(B, $B8=>u$G$O7k2L$OM=A[$G$-$J$$(B. $B$3$N$?$a(B, @b{Open XM} 
+$B%3%^%s%I$rAw$C$?>l9g(B, $B8=>u$G$O7k2L$OM=A[$G$-$J$$(B. $B$3$N$?$a(B, @b{OpenXM} 
 $B$G$O(B, $B$"$i$+$8$a8_$$$N%5%]!<%H$9$k(B @b{CMO}, @b{SM} $B$N%j%9%H$r8r49$7$"$C$F(B, 
 $BAj<j$NCN$i$J$$%G!<%?$rAw$i$J$$$h$&$K$9$k;EAH$_$rDs>'$7$F$$$k(B. $B$3$N$?$a$N(B
 $B%G!<%?$,(B Mathcap $B$G$"$k(B. Mathcap $B$O(B @b{CMO} $B$H$7$F$O%j%9%H$G$"$j(B, $B$=$N(B
 $BMWAG$O(B 32 bit $B@0?t$^$?$OJ8;zNs$G$"$k(B. $B8=:_$N5,Dj$G$O(B, Mathcap $B$O(B
 $BD9$5$,(B 3 $B$N%j%9%H$G(B, 
 
-[[version $BHV9f(B, server $BL>(B],@b{SM}taglist,[@b{OX}taglist,@b{CMO}taglist, @b{CMO}taglist,...]]
+[[version $BHV9f(B, server $BL>(B],@b{SM}taglist,[[@b{OX}tag,@b{CMO}taglist],
+[@b{OX}tag,@b{CMO}taglist],...]]
 
-$B$H$$$&7A$r$7$F$$$k(B. @b{OX}taglist $B$N(B @var{i} $BHVL\$NMWAG$O(B, 
-$B$=$N8e$KB3$/(B @b{CMO}taglist $B$N(B @var{i} $BHVL\$N$b$N$KBP1~$7$F$$$F(B, 
+$B$H$$$&7A$r$7$F$$$k(B. [@b{OX}tag,@b{CMO}taglist] $B$O(B, 
 @b{OX}tag $B$G<($5$l$k%+%F%4%j$N%G!<%?$KBP$7$F(B, $B$I$N$h$&$J(B @b{CMO} $B$,;HMQ2D(B
 $BG=$+$r<($9$b$N$G$"$k(B. $B$3$N;XDj$rJ#?t5v$9$3$H$K$h$j(B, $BNc$($P(B 
 @samp{ox_asir} $B$N$h$&$K(B, @b{CMO} $B%G!<%?0J30$K(B, @b{Asir} $B8GM-$N%G!<%?7A<0(B
@@ -97,13 +180,46 @@ Mathcap $B$K$h$k%A%'%C%/$r9T$&$+H]$+$O(B,
 @code{ctrl} $B%3%^%s%I$N(B @code{"ox_check"} $B%9%$%C%A$K$h$j7h$^$k(B. 
 $B$3$N%9%$%C%A$N=i4|CM$O(B 1 $B$G(B, $B%A%'%C%/$r9T$&$3$H$r0UL#$9$k(B. 
 @code{ctrl("ox_check",0)} $B$K$h$j%A%'%C%/$r9T$o$J$$$h$&$K$G$-$k(B. 
+\E
+\BEG
+A server or a client does not necessarily implement full specifications
+of @b{OpenXM}. If a program sends data unknown to its peer, an unrecoverable
+error may occur. To avoid such a case @b{OpenXM} provides a scheme not
+to send data unknown to peers. It is realized by exchanging the list of
+supported @b{CMO} and @b{SM}. The list is called mathcap.
+Mathcap is also defined as a @b{CMO} and the elements are 32bit integers
+or strings.
+The format of mathcap is as follows.
 
+[[version number, server name],@b{SM}taglist,[@b{OX}taglist,@b{CMO}taglist, @b{CMO}taglist,...]]
+[[version number, server name],@b{SM}taglist,[[@b{OX}tag,@b{CMO}taglist],
+[@b{OX}tag,@b{CMO}taglist],...]]
+
+[@b{OX}tag,@b{CMO}taglist] indicates that available object tags for
+a category of data specified by @b{OX}tag.
+For example @samp{ox_asir} accepts the local object format used by @b{Asir}
+and the mathcap from @samp{ox_asir} reflects the fact.
+
+If @code{"ox_check"} switch of @code{ctrl} is set to 1,
+the check by a mathcap is done before data is sent.
+If @code{"ox_check"} switch of @code{ctrl} is set to 0,
+the check is not done.
+By default it is set to 1.
+\E
+
+\BJP
 @node $B%9%?%C%/%^%7%s%3%^%s%I(B,,, $BJ,;67W;;(B
 @section $B%9%?%C%/%^%7%s%3%^%s%I(B
+\E
+\BEG
+@node Stackmachine commands,,, Distributed computation
+@section Stackmachine commands
+\E
 
+\BJP
 $B%9%?%C%/%^%7%s%3%^%s%I$O(B, $B%9%?%C%/%^%7%s$G$"$k(B server $B$K2?$i$+$NA`:n$r9T(B
 $B$o$;$k$?$a$KMQ0U$5$l$F$$$k(B. $B$$$/$D$+$N%3%^%s%I$O(B, $B$h$/MQ$$$i$l$k7A$G(B, $BB>(B
-$B$N%3%^%s%I(B, $B%G!<%?$H$H$b$K(B, @b{Asir} $B$NAH$_9~$_4X?t$K$h$kAw$i$l$k$,(B, $B%f!<(B
+$B$N%3%^%s%I(B, $B%G!<%?$H$H$b$K(B, @b{Asir} $B$NAH$_9~$_4X?t$K$h$jAw$i$l$k$,(B, $B%f!<(B
 $B%6$,L@<(E*$K$"$k%3%^%s%I$rAw$kI,MW$,$7$P$7$P@8$:$k(B. $B%9%?%C%/%^%7%s%3%^%s(B
 $B%I$O(B 32 bit $B0J2<$N@0?t$G$"$j(B, @code{ox_push_cmd()} $B%3%^%s%I$GAw?.$G$-$k(B. 
 $B0J2<$G(B, $BBeI=E*$J%9%?%C%/%^%7%s%3%^%s%I$K$D$$$F2r@b$9$k(B. @b{SM_xxx=yyy}
@@ -111,96 +227,195 @@ Mathcap $B$K$h$k%A%'%C%/$r9T$&$+H]$+$O(B,
 
 $B0J2<$G(B, $B%9%?%C%/$+$i%G!<%?$r<h$j=P$9$H$O(B, $B%9%?%C%/$N0lHV>e$+$i%G!<%?$r(B
 $B<h$j=|$/$3$H$r8@$&(B. 
+\E
+
+\BEG
+The stackmachine commands are provided to request a server to execute
+various operations.
+They are automatically sent by built-in functions of @b{Asir},
+but one often has to send them manually. They are represented by
+32bit integers. One can send them by calling @code{ox_push_cmd()}.
+Typical stackmachine commands are as follows.
+@b{SM_xxx=yyy} means that @b{SM_xxx} is a mnemonic and that
+@b{yyy} is its value.
+\E
 
 @table @b
 @item SM_popSerializedLocalObject=258
 
+\BJP
 server $B$,(B @samp{ox_asir} $B$N>l9g$K(B, $BI,$:$7$b(B @b{CMO} $B$GDj5A$5$l$F$$$J$$(B
-$B%*%V%8%'%/%H$r%9%?%C%/$+$i<h$j=P$7(B, $BDL?.O)$KN.$9(B.  
+$B%*%V%8%'%/%H$r%9%?%C%/$+$i<h$j=P$7(B, $BDL?.O)$KN.$9(B. 
+\E
+\BEG
+An object not necessarily defined as @b{CMO} is popped from the stack
+and is sent to the client. This is available only on @samp{ox_asir}.
+\E
 
 @item SM_popCMO=262
 
-@b{CMO} $B%*%V%8%'%/%H$r%9%?%C%/$+$i<h$j=P$7(B, $BDL?.O)$KN.$9(B. 
+\JP @b{CMO} $B%*%V%8%'%/%H$r%9%?%C%/$+$i<h$j=P$7(B, $BDL?.O)$KN.$9(B. 
+\EG A @b{CMO} object is popped from the stack and is sent to the client.
 
 @item SM_popString=263
 
-$B%9%?%C%/$+$i%G!<%?$r<h$j=P$7(B, $B2DFI7A<0$NJ8;zNs$KJQ49$7$FDL?.O)$KN.$9(B. 
+\JP $B%9%?%C%/$+$i%G!<%?$r<h$j=P$7(B, $B2DFI7A<0$NJ8;zNs$KJQ49$7$FDL?.O)$KN.$9(B. 
+\EG An object is popped from the stack and is sent to the client as a readable string.
 
 @item SM_mathcap=264
 
-server $B$N(B mathcap $B$r%9%?%C%/$K@Q$`(B. 
+\JP server $B$N(B mathcap $B$r%9%?%C%/$K@Q$`(B. 
+\EG The server's mathcap is pushed to the stack.
 
 @item SM_pops=265
 
+\BJP
 $B%9%?%C%/$+$i<h$j=P$7$?%G!<%?$r8D?t$H$7$F(B, $B$=$N8D?tJ,%9%?%C%/$+$i(B
 $B%G!<%?$r<h$j=|$/(B. 
+\E
+\BEG
+Objects are removed from the stack. The number of object to be removed
+is specified by the object at the top of the stack.
+\E
 
 @item SM_setName=266
 
+\BJP
 $B%9%?%C%/$+$i%G!<%?$rJQ?tL>$H$7$F<h$j=P$7(B, $B<!$K<h$j=P$7$?%G!<%?$r$=$N(B
 $BJQ?t$K3d$jEv$F$k(B. $B$3$N3d$jEv$F$O(B, server $B8GM-$N=hM}$H$7$F9T$o$l$k(B. 
+\E
+\BEG
+A variable name is popped form the stack. Then an object is
+popped and it is assigned to the variable. This assignment is done
+by the local language of the server.
+\E
 
 @item SM_evalName=267
 
-$B%9%?%C%/$+$i<h$j=P$7$?%G!<%?$rJQ?tL>$H$7$F(B, $B$=$NCM$r%9%?%C%/$K:\$;$k(B. 
+\JP $B%9%?%C%/$+$i<h$j=P$7$?%G!<%?$rJQ?tL>$H$7$F(B, $B$=$NCM$r%9%?%C%/$K:\$;$k(B. 
+\BEG
+A variable name is popped from the stack. 
+Then the value of the variable is pushed to the stack.
+\E
 
 @item SM_executeStringByLocalParser=268
 
+\BJP
 $B%9%?%C%/$+$i<h$j=P$7$?%G!<%?$r(B, server $B8GM-$N(B parser, evaluator $B$G(B
 $B=hM}$7(B, $B7k2L$r%9%?%C%/$K:\$;$k(B. 
+\E
+\BEG
+A string popped from the stack is parsed and evaluated.
+The result is pushed to the stack.
+\E
 
 @item SM_executeFunction=269
 
+\BJP
 $B%9%?%C%/$+$i(B, $B4X?tL>(B, $B0z?t$N8D?t(B, $B8D?tJ,$N0z?t$r<h$j=P$7(B, $B4X?t$r8F$S=P$7(B
 $B7k2L$r%9%?%C%/$K:\$;$k(B. 
+\E
+\BEG
+A function name, the number of arguments and the arguments are
+popped from the stack. Then the function is executed and the result
+is pushed to the stack.
+\E
 
 @item SM_beginBlock=270 
-$B%G!<%?%V%m%C%/$N$O$8$^$j(B. 
+\JP $B%G!<%?%V%m%C%/$N$O$8$^$j(B. 
+\EG It indicates the beginning of a block.
 
 @item SM_endBlock=271
-$B%G!<%?%V%m%C%/$N=*$j(B. 
+\JP $B%G!<%?%V%m%C%/$N=*$j(B. 
+\EG It indicates the end of a block.
 
 @item SM_shutdown=272
 
-server $B$H$N8r?.$r@ZCG$7(B, server $B$r=*N;$5$;$k(B. 
+\JP server $B$H$N8r?.$r@ZCG$7(B, server $B$r=*N;$5$;$k(B. 
+\EG It shuts down communications and terminates servers.
 
 @item SM_setMathcap=273
 
-$B%9%?%C%/$N%G!<%?$r(B client $B$N(B mathcap $B$H$7$F(B, server $B$KEPO?$rMW5a$9$k(B. 
+\JP $B%9%?%C%/$N%G!<%?$r(B client $B$N(B mathcap $B$H$7$F(B, server $B$KEPO?$rMW5a$9$k(B. 
+\BEG
+It requests a server to register the data at the top of the stack
+as the client's mathcap.
+\E
 
 @item SM_getsp=275
 
-$B8=:_%9%?%C%/$K@Q$^$l$F$$$k%G!<%?$N?t$r%9%?%C%/$K:\$;$k(B. 
+\JP $B8=:_%9%?%C%/$K@Q$^$l$F$$$k%G!<%?$N?t$r%9%?%C%/$K:\$;$k(B. 
+\EG The number of objects in the current stack is pushed to the stack.
 
 @item SM_dupErrors=276
 
+\BJP
 $B8=:_%9%?%C%/$K@Q$^$l$F$$$k%*%V%8%'%/%H$NFb(B, $B%(%i!<%*%V%8%'%/%H$N$_(B
 $B$r%j%9%H$K$7$F(B, $B%9%?%C%/$K:\$;$k(B. 
+\E
+\BEG
+The list of all the error objects in the current stack is pushed to
+the stack.
+\E
 
 @item SM_nop=300
 
-$B$J$K$b$7$J$$(B. 
+\JP $B$J$K$b$7$J$$(B. 
+\EG Nothing is done.
 @end table
 
+\BJP
 @node $B%G%P%C%0(B,,, $BJ,;67W;;(B
 @section $B%G%P%C%0(B
+\E
+\BEG
+@node Debugging,,, Distributed computation
+@section Debugging
+\E
 
+\BJP
 $BJ,;67W;;$K$*$$$F$O(B, $B0lHL$K%G%P%C%0$,:$Fq$H$J$k(B. @samp{ox_asir} $B$K(B
 $B$*$$$F$O(B, $B%G%P%C%0$N$?$a$N$$$/$D$+$N5!G=$rDs6!$7$F$$$k(B. 
+\E
+\BEG
+In general, it is difficult to debug distributed computations.
+@samp{ox_asir} provides several functions for debugging.
+\E
 
 @menu
+\BJP
 * $B%(%i!<%*%V%8%'%/%H(B::
 * $B%j%;%C%H(B::
 * $B%G%P%C%0MQ%]%C%W%"%C%W%&%#%s%I%&(B::
+\E
+\BEG
+* Error object::
+* Resetting a server::
+* Pop-up command window for debugging::
+\E
 @end menu
 
+\BJP
 @node $B%(%i!<%*%V%8%'%/%H(B,,, $B%G%P%C%0(B
 @subsection $B%(%i!<%*%V%8%'%/%H(B
+\E
+\BEG
+@node Error object,,, Debugging
+@subsection Error object
+\E
 
-@b{Open XM} server $B$,<B9TCf$K%(%i!<$r5/$3$7$?>l9g(B, $B7k2L$N$+$o$j$K(B
+\BJP
+@b{OpenXM} server $B$,<B9TCf$K%(%i!<$r5/$3$7$?>l9g(B, $B7k2L$N$+$o$j$K(B
 @b{CMO} $B%(%i!<%*%V%8%'%/%H$r%9%?%C%/$K@Q$`(B. $B%(%i!<%*%V%8%'%/%H$O(B, $BBP1~$9$k(B
 @b{SM} $B%3%^%s%I$N%7%j%"%kHV9f$H(B, $B%(%i!<%a%C%;!<%8$+$i$J$j(B, $B$=$l$K$h$C$F(B
 $B$I$N(B @b{SM} $B%3%^%s%I$,$I$N$h$&$J%(%i!<$r5/$3$7$?$,$"$kDxEYH=L@$9$k(B. 
+\E
+\BEG
+When an error has occurred on an @b{OpenXM} server,
+an error object is pushed to the stack instead of a result of the computation.
+The error object consists of the serial number of the @b{SM} command
+which caused the error, and an error message.
+\E
 
 @example
 [340] ox_launch();
@@ -211,20 +426,43 @@ server $B$H$N8r?.$r@ZCG$7(B, server $B$r=*N;$5$;$k(B.
 error([8,fctrp : invalid argument])
 @end example
 
+\BJP
 @node $B%j%;%C%H(B,,, $B%G%P%C%0(B
+@subsection $B%j%;%C%H(B
+\E
+\BEG
+@node Resetting a server,,, Debugging
+@subsection Resetting a server
+\E
 
+\BJP
 @code{ox_reset()} $B$O8=:_<B9TCf$N(B server $B$r%j%;%C%H$7$F(B, $B%3%^%s%I<u$1IU$1(B
 $B>uBV$KLa$9(B. $B$3$N5!G=$O(B, $BDL>o$N(B @b{Asir} $B%;%C%7%g%s$K$*$1$k%-!<%\!<%I3d$j9~$_(B
-$B$H$[$\F1MM$K(B, @b{Open XM} server $B$r%j%;%C%H$G$-$k(B. $B$^$?(B, $B2?$i$+$N860x$G(B, 
+$B$H$[$\F1MM$K(B, @b{OpenXM} server $B$r%j%;%C%H$G$-$k(B. $B$^$?(B, $B2?$i$+$N860x$G(B, 
 $BDL?.O)$N%G!<%?$,:\$C$?$^$^$N>uBV$G(B @code{ox_rpc()} $B$J$I$r<B9T$9$k$H(B, 
 @code{ox_pop_cmo()} $B$J$I(B, $B%9%?%C%/$+$i$N<h$j=P$7$H(B, $B<B:]$KFI$^$l$k%G!<%?(B
 $B$NBP1~$,IT@5$K$J$k(B. $B$=$N$h$&$J>l9g$K$bM-8z$G$"$k(B. 
+\E
 
-@subsection $B%j%;%C%H(B
+\BEG
+@code{ox_reset()} resets a process whose identifier is @var{number}.
+After its execution the process is ready for receiving data.
+This function corresponds to the keyboard interrupt on an usual @b{Asir}
+session. It often happens that a request of a client does not correspond
+correctly to the result from a server. It is caused by remaining data
+on data streams. @code{ox_reset} is effective for such cases.
+\E
 
+\BJP
 @node $B%G%P%C%0MQ%]%C%W%"%C%W%&%#%s%I%&(B,,, $B%G%P%C%0(B
 @subsection $B%G%P%C%0MQ%]%C%W%"%C%W%&%#%s%I%&(B
+\E
+\BEG
+@node Pop-up command window for debugging,,, Debugging
+@subsection Pop-up command window for debugging
+\E
 
+\BJP
 server $B$K$O(B, client $B$K$*$1$k%-!<%\!<%I$KAjEv$9$kF~NO5!G=$,$J$$$?$a(B,
 server $BB&$GF0:n$7$F$$$k%f!<%68@8l%W%m%0%i%`$N%G%P%C%0$,:$Fq$K$J$k(B. $B$3$N(B
 $B$?$a(B, server $BB&$G$N%f!<%68@8l%W%m%0%i%`<B9TCf$N%(%i!<$*$h$S(B, client $B$+$i(B
@@ -232,9 +470,26 @@ server $BB&$GF0:n$7$F$$$k%f!<%68@8l%W%m%0%i%`$N%G%P%C%0$,:$Fq$K$J$k(B. $B$3$N
 $B$rF~NO$9$k$?$a$N>.$5$J%&%#%s%I%&$,%]%C%W%"%C%W$9$k(B. $B$3$N%&%#%s%I%&$+$i$N(B
 $BF~NO$KBP$9$k=PNO$O(B, log $BMQ$N(B @samp{xterm} $B$KI=<($5$l$k(B. $B$3$N%&%#%s%I%&$r(B
 $BJD$8$k$K$O(B, @code{quit} $B$rF~NO$9$l$P$h$$(B. 
+\E
+\BEG
+As a server does not have any standard input device such as a keyboard,
+it is difficult to debug user programs running on the server.
+@samp{ox_asir} pops up a small command window to input debug commands
+when an error has occurred during user a program execution or
+@code{ox_rpc(@var{id},"debug")} has been executed.
+The responses to commands are shown in @samp{xterm} to display
+standard outputs from the server. To close the small window,
+input @code{quit}.
+\E
 
+\BJP
 @node $BJ,;67W;;$K4X$9$k4X?t(B,,, $BJ,;67W;;(B
 @section $BJ,;67W;;$K4X$9$k4X?t(B
+\E
+\BEG
+@node Functions for distributed computation,,, Distributed computation
+@section Functions for distributed computation
+\E
 
 @menu
 * ox_launch ox_launch_nox ox_shutdown::
@@ -254,7 +509,8 @@ server $BB&$GF0:n$7$F$$$k%f!<%68@8l%W%m%0%i%`$N%G%P%C%0$,:$Fq$K$J$k(B. $B$3$N
 * ifplot conplot plot plotover::
 @end menu
 
-@node ox_launch ox_launch_nox ox_shutdown,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_launch ox_launch_nox ox_shutdown,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_launch ox_launch_nox ox_shutdown,,, Functions for distributed computation
 @subsection @code{ox_launch}, @code{ox_launch_nox}, @code{ox_shutdown}
 @findex ox_launch
 @findex ox_launch_nox
@@ -263,23 +519,30 @@ server $BB&$GF0:n$7$F$$$k%f!<%68@8l%W%m%0%i%`$N%G%P%C%0$,:$Fq$K$J$k(B. $B$3$N
 @table @t
 @item ox_launch([@var{host}[,@var{dir}],@var{command}])
 @itemx ox_launch_nox([@var{host}[,@var{dir}],@var{command}])
-:: $B1s3V%W%m%;%9$N5/F0$*$h$SDL?.$r3+;O$9$k(B. 
+\JP :: $B1s3V%W%m%;%9$N5/F0$*$h$SDL?.$r3+;O$9$k(B. 
+\EG :: Initialize OpenXM servers.
 @item ox_shutdown(@var{id})
-:: $B1s3V%W%m%;%9$r=*N;$5$;(B, $BDL?.$r=*N;$9$k(B. 
+\JP :: $B1s3V%W%m%;%9$r=*N;$5$;(B, $BDL?.$r=*N;$9$k(B. 
+\EG :: Terminates OpenXM servers.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item host
-$BJ8;zNs$^$?$O(B 0
+\JP $BJ8;zNs$^$?$O(B 0
+\EG string or 0
 @item dir, command
-$BJ8;zNs(B
+\JP $BJ8;zNs(B
+\EG string
 @item id
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{ox_launch()} $B$O(B, $B%[%9%H(B @var{host} $B>e$G%3%^%s%I(B @var{command} $B$r5/F0$7(B, 
 $B$3$N%W%m%;%9$HDL?.$r3+;O$9$k(B. 
@@ -291,13 +554,16 @@ server $BB&$GF0:n$7$F$$$k%f!<%68@8l%W%m%0%i%`$N%G%P%C%0$,:$Fq$K$J$k(B. $B$3$N
 $BL50z?t$N>l9g(B, @var{host} $B$O(B 0, @var{dir} $B$O(B @code{get_rootdir()} 
 $B$GJV$5$l$k%G%#%l%/%H%j(B, @var{command} $B$OF1$8%G%#%l%/%H%j$N(B @samp{ox_asir}
 $B$r0UL#$9$k(B. 
+
 @item
 @var{host} $B$,(B 0, $B$9$J$o$A%5!<%P$r(B local $B$K5/F0$9$k>l9g$K$O(B, @var{dir}
 $B$r>JN,$G$-$k(B. $B$3$N>l9g(B, @var{dir} $B$O(B @code{get_rootdir()} $B$GJV$5$l$k(B
 $B%G%#%l%/%H%j$H$J$k(B. 
+
 @item
 @var{command} $B$,(B @samp{/} $B$G;O$^$kJ8;zNs$N>l9g(B, $B@dBP%Q%9$H2r<a$5$l$k(B. 
 $B$=$l0J30$N>l9g(B, @var{dir} $B$+$i$NAjBP%Q%9$H2r<a$5$l$k(B. 
+
 @item
 UNIX $BHG$K$*$$$F$O(B, @code{ox_launch()} $B$O(B, @var{command} $B$NI8=`=PNO(B, $BI8=`(B
 $B%(%i!<=PNO$rI=<($9$k$?$a$N(B @samp{xterm} $B$r5/F0$9$k(B. 
@@ -366,13 +632,132 @@ log $BI=<(MQ(B @samp{xterm} $B$O(B @samp{-name ox_term} $B%*%W%7%g%s$G5/F0$
 $B$h$C$F(B, @samp{ox_term} $B$J$k%j%=!<%9L>$KBP$7$F(B @samp{xterm} $B$N%j%=!<%9@_Dj(B
 $B$r9T$($P(B, log $BMQ(B @samp{xterm} $B$N5sF0$N$_$rJQ$($k$3$H$,$G$-$k(B. 
 $BNc$($P(B, 
+
 @example
 ox_xterm*iconic:on
 ox_xterm*scrollBar:on
 ox_xterm*saveLines:1000
 @end example
+
 $B$K$h$j(B, icon $B$G5/F0(B, scrollbar $B$D$-(B, scrollbar $B$G;2>H$G$-$k9T?t(B
 $B$,:GBg(B 1000 $B9T(B, $B$H$$$&;XDj$,$G$-$k(B. 
+\E
+
+\BEG
+@item
+Function @code{ox_launch()} invokes a process to execute @var{command}
+on a host @var{host} and enables @b{Asir} to communicate with that
+process.
+If the number of arguments is 3, @samp{ox_launch} in @var{dir} 
+is invoked on @var{host}. Then @samp{ox_launch} invokes @var{command}.
+If @var{host} is equal to 0, all the commands are invoked
+on the same machine as the @b{Asir} is running.
+If no arguments are specified, @var{host}, @var{dir} and @var{command}
+are regarded as 0, the value of @code{get_rootdir()} and @samp{ox_dir} in 
+the same directory respectively.
+
+@item
+If @var{host} is equal to 0, then @var{dir} can be omitted.
+In such a case @var{dir} is regarded as the value of @code{get_rootdir()}.
+
+@item
+If @var{command} begins with @samp{/}, it is regarded as an absolute
+pathname. Otherwise it is regarded as a relative pathname from
+@var{dir}.
+
+@item
+On UNIX, @code{ox_launch()} invokes @samp{xterm} to display
+standard outputs from @var{command}.
+If @code{X11} is not available or one wants to invoke servers without
+@samp{xterm}, use @code{ox_launch_nox()}, where the outputs of
+@var{command} are redirected to @samp{/dev/null}.
+If the environment variable @code{DISPLAY} is not set,
+@code{ox_launch()} and @code{ox_launch_nox()} behave identically.
+
+@item
+The returned value is used as the identifier for communication.
+
+@item
+The peers communicating with @b{Asir} are not necessarily processes
+running on the same machine.
+The communication will be successful even if
+the byte order is different from those of the peer processes,
+because the byte order for the communication is determined
+by a negotiation between a client and a server.
+
+@item
+The following preparations are necessary.
+Here, Let @code{A} be the host on which @b{Asir} is running, and
+@code{B} the host on which the peer process will run.
+
+@enumerate
+@item
+Set the command search path of @code{csh} on the remote host @code{B}
+so that your program, say @code{P}, can run on @code{B}.
+This is done by putting the directory of @code{P} to the command search
+path of @code{csh} on @code{B}.
+The program @code{P} is invoked by @code{rsh} or @code{remsh}.
+Thus, invocation of
+the program @code{P} shall fail unless it is found within the search
+path on the host @code{B}.
+For such a case, you can run the program @code{P} by either giving
+the absolute path or adding the directory of the program @code{P} to
+the search path description in your @samp{~/.cshrc}.
+Note that the the `directory' means the directory on the remote host
+@code{B}.
+
+@item
+Register the hostname of the host @code{A} to the @samp{~/.rhosts} of
+the host @code{B}.
+That is, you should be allowed to access the host @code{B} from @code{A}
+without supplying a password.
+
+@item
+For cases where connection to @code{X} is also used,
+let @code{Xserver} authorize the relevant hosts.
+Adding the hosts can be done by command @code{xhost}.
+
+@item
+Some @var{command}'s consume much stack space.  You are recommended
+to set the stack size to about 16MB large in @samp{.cshrc} for safe.
+To specify the size, put @code{limit stacksize 16m} for an example.
+@end enumerate
+
+@item
+When @var{command} opens a window on @code{X},
+it uses the string specified for @var{display};
+if the specification is omitted, it uses the value set for the
+environment variable @code{DISPLAY}.
+
+@item
+@code{ox_shutdown()} terminates OpenXM servers whose identifier
+is @var{id}.
+
+@item
+When @b{Asir} is terminated successfully, all I/O streams are
+automatically closed, and all the processes invoked are also terminated.
+However, some remote processes may not terminated when @b{Asir}
+is terminated abnormally.
+If ever @b{Asir} is terminated abnormally, you have to kill all the
+unterminated process invoked by @b{Asir} on every remote host.
+Check by @code{ps} command on the remote hosts to see if such processed
+are alive.
+
+@item
+@samp{xterm} for displaying the outputs from @var{command} is
+invoked with @samp{-name ox_term} option. Thus, by
+specifying resources for the resource name @samp{ox_term},
+only the behaviour of the @samp{xterm} can be customized.
+
+@example
+/* iconify on start */
+ox_xterm*iconic:on 
+/* activate the scroll bar */
+ox_xterm*scrollBar:on
+/* 1000 lines can be shown by the scrollbar */
+ox_xterm*saveLines:1000
+@end example
+\E
 @end itemize
 
 @example
@@ -388,61 +773,117 @@ ox_xterm*saveLines:1000
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_rpc}, @code{ox_pop_local},
-@code{ifplot}, @code{conplot}, @code{plot}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_rpc ox_cmo_rpc ox_execute_string},
+@fref{ox_pop_cmo ox_pop_local},
+@fref{ifplot conplot plot plotover}
 @end table
 
-@node ox_launch_generic,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_launch_generic,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_launch_generic,,, Functions for distributed computation
 @subsection @code{ox_launch_generic}
 @findex ox_launch_generic
 
 @table @t
 @item ox_launch_generic(@var{host},@var{launch},@var{server},@var{use_unix},@var{use_ssh},@var{use_x},@var{conn_to_serv})
-:: $B1s3V%W%m%;%9$N5/F0$*$h$SDL?.$r3+;O$9$k(B. 
+\JP :: $B1s3V%W%m%;%9$N5/F0$*$h$SDL?.$r3+;O$9$k(B. 
+\EG :: Initialize OpenXM servers.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item host
-$BJ8;zNs$^$?$O(B 0
+\JP $BJ8;zNs$^$?$O(B 0
+\EG string or 0
 @item launcher, server
-$BJ8;zNs(B
+\JP $BJ8;zNs(B
+\EG string
 @item use_unix, use_ssh, use_x, conn_to_serv
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{ox_launch_generic()} $B$O(B, 
 $B%[%9%H(B @var{host} $B>e$G(B, $B%3%s%H%m!<%k%W%m%;%9(B @var{launch} $B$*$h$S(B
 $B%5!<%P%W%m%;%9(B @var{server} $B$r5/F0$9$k(B. $B$=$NB>$N0z?t$O(B, $B;HMQ$9$k(B
 protocol $B$N<oN`(B, X $B$N;HMQ(B/$BIT;HMQ(B, rsh/ssh $B$K$h$k%W%m%;%95/F0(B, connect
 $BJ}K!$N;XDj$J$I$r9T$&%9%$%C%A$G$"$k(B. 
+
 @item
 @var{host} $B$,(B 0 $B$N>l9g(B, @b{Asir} $B$,F0:n$7$F$$$k%^%7%s>e$K(B, @var{launch},
 @var{server} $B$rN)$A>e$2$k(B. $B$3$N>l9g(B, @var{use_unix} $B$NCM$K$+$+$o$i$:(B, 
 UNIX internal protocol $B$,MQ$$$i$l$k(B. 
+
 @item
 @var{use_unix} $B$,(B 1 $B$N>l9g(B, UNIX internal protocol $B$rMQ$$$k(B. 0 $B$N>l9g(B, 
 Internet protocol $B$rMQ$$$k(B. 
+
 @item
 @var{use_ssh} $B$,(B 1 $B$N>l9g(B, @samp{ssh} (Secure Shell) $B$K$h$j%3%s%H%m!<%k(B, 
-$B%5!<%P%W%m%;%9$rN)$A>e$2$k(B. $BI,MW$K1~$8$F%Q%9%o!<%I$rF~NO$9$kI,MW$,$"$k(B. 
+$B%5!<%P%W%m%;%9$rN)$A>e$2$k(B. @samp{ssh-agent} $B$J$I$rMxMQ$7$F$$$J>l9g(B, 
+$B%Q%9%o!<%I$NF~NO$,I,MW$H$J$k(B. 
 $BAj<j@h$G(B @samp{sshd} $B$,F0$$$F$$$J$$>l9g(B, $B<+F0E*$K(B @samp{rsh} $B$,MQ$$$i$l$k$,(B, 
 $B%Q%9%o!<%I$,I,MW$H$J$k>l9g$K$O(B, $B$=$N>l$G5/F0$K<:GT$9$k(B. 
+
 @item
 @var{use_x} $B$,(B 1 $B$N>l9g(B, X $B>e$G$NF0:n$r2>Dj$7(B, $B@_Dj$5$l$F$$$k(B DISPLAY$BJQ(B
 $B?t$rMQ$$$F(B, log $BI=<(MQ(B @samp{xterm} $B$N$b$H$G(B @var{server} $B$,5/F0$5$l(B
 $B$k(B. DISPLAY $BJQ?t$,%;%C%H$5$l$F$$$J$$>l9g$K$O(B, $B<+F0E*$K(B X $B$J$7$N@_Dj$H$J(B
 $B$k(B. DISPLAY $B$,ITE,@Z$K%;%C%H$5$l$F$$$k>l9g$K$O(B, $B%3%s%H%m!<%k(B, $B%5!<%P$,%O(B
 $B%s%0$9$k$N$GMWCm0U$G$"$k(B.
+
 @item
 @var{conn_to_serv} $B$,(B 1 $B$N>l9g(B, @b{Asir} (client) $B$,@8@.$7$?%]!<%H$K(B
 $BBP$7(B, client $B$,(B bind,listen $B$7(B, $B5/F0$5$l$?%W%m%;%9$,(B connect $B$9$k(B. 
 @var{conn_to_serv} $B$,(B 0 $B$N>l9g(B, $B5/F0$5$l$?%W%m%;%9$,(B bind, listen $B$7(B, 
 client $B$,(B connect $B$9$k(B. 
+\E
+
+\BEG
+@item
+@code{ox_launch_generic()} invokes a control process @var{launch}
+and a server process @var{server} on @var{host}. The other arguments
+are switches for protocol family selection, on/off of the X environment,
+method of process invocation and selection of connection type.
+
+@item
+If @var{host} is equal to 0, processes
+are invoked on the same machine as the @b{Asir} is running.
+In this case UNIX internal protocol is always used.
+
+@item
+If @var{use_unix} is equal to 1, UNIX internal protocol is used.
+If @var{use_unix} is equal to 0, Internet protocol is used.
+
+@item
+If @var{use_ssh} is equal to 1,@samp{ssh} (Secure Shell) 
+is used to invoke processes. If one does not use @samp{ssh-agent},
+a password (passphrase) is required.
+If @samp{sshd} is not running on the target machine,
+@samp{rsh} is used instead. But it will immediately fail
+if a password is required.
+
+@item
+If @var{use_x} is equal to 1, it is assumed that X environment
+is available. In such a case @var{server} is invoked under 
+@samp{xterm} by using the current @code{DISPLAY} variable.
+If @code{DISPLAY} is not set, it is invoked without X.
+Note that the processes will hang up if @code{DISPLAY} is incorrectly set.
+
+@item
+If @var{conn_to_serv} is equal to 1, @b{Asir} (client)
+executes @code{bind} and @code{listen}, and the invoked processes execute
+@code{connect}.
+If @var{conn_to_serv} is equal to 0, @b{Asir} (client)
+the invoked processes execute @code{bind} and @code{listen}, and
+the client executes @code{connect}.
+\E
 @end itemize
 
 @example
@@ -463,11 +904,13 @@ client $B$,(B connect $B$9$k(B.
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_launch}, @code{ox_launch_generic}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_launch_generic}
 @end table
 
-@node generate_port try_bind_listen try_connect try_accept register_server,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node generate_port try_bind_listen try_connect try_accept register_server,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node generate_port try_bind_listen try_connect try_accept register_server,,, Functions for distributed computation
 @subsection @code{generate_port}, @code{try_bind_listen}, @code{try_connect}, @code{try_accept}, @code{register_server}
 @findex generate_port
 @findex try_bind_listen
@@ -477,56 +920,112 @@ client $B$,(B connect $B$9$k(B.
 
 @table @t
 @item generate_port([@var{use_unix}])
-:: port $B$N@8@.(B
+\JP :: port $B$N@8@.(B
+\EG :: Generates a port number.
 @itemx try_bind_listen(@var{port})
-:: port $B$KBP$7$F(B bind, listen
+\JP :: port $B$KBP$7$F(B bind, listen
+\EG :: Binds and listens on a port.
 @itemx try_connect(@var{host},@var{port})
-:: port $B$KBP$7$F(B connect
+\JP :: port $B$KBP$7$F(B connect
+\EG :: Connects to a port.
 @itemx try_accept(@var{socket},@var{port})
-:: connect $BMW5a$r(B accept
+\JP :: connect $BMW5a$r(B accept
+\EG :: Accepts a connection request.
 @itemx register_server(@var{control_socket},@var{control_port},@var{server_socket},@var{server_port})
-:: connection $B$N@.N)$7$?(B control socket, server socket $B$NEPO?(B
+\JP :: connection $B$N@.N)$7$?(B control socket, server socket $B$NEPO?(B
+\EG :: Registers the sockets for which connections are established.
 @end table
 
 @table @var
 @item return
-@code{generate_port()} $B$N$_@0?t$^$?$OJ8;zNs(B. $B$=$NB>$O@0?t(B. 
+\JP @code{generate_port()} $B$N$_@0?t$^$?$OJ8;zNs(B. $B$=$NB>$O@0?t(B. 
+\EG integer or string for @code{generate_port()}, integer for the others
 @item use_unix
-0 $B$^$?$O(B 1
+\JP 0 $B$^$?$O(B 1
+\EG 0 or 1
 @item host
-$BJ8;zNs(B
+\JP $BJ8;zNs(B
+\EG string
 @item port,control_port,server_port
-$B@0?t$^$?$OJ8;zNs(B
+\JP $B@0?t$^$?$OJ8;zNs(B
+\EG integer or string
 @item socket,control_socket,server_socket
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B$3$l$i$N4X?t$O(B, $B1s3V%W%m%;%9$HDL?.$r@.N)$5$;$k$?$a$N%W%j%_%F%#%V$G$"$k(B. 
+
 @item
 @code{generate_port()} $B$ODL?.$N$?$a$N(B port $B$r@8@.$9$k(B. $BL50z?t$"$k$$$O(B
 $B0z?t$,(B 0 $B$N>l9g(B, Internet domain $B$N(B socket $B$N$?$a$N(B port $BHV9f(B, $B$=$l(B
 $B0J30$N>l9g$K$O(B, UNIX domain (host-internal protocol) $B$N$?$a$N(B, $B%U%!%$%kL>(B
 $B$r@8@.$9$k(B. port $BHV9f$O(B random $B$K@8@.$5$l$k$,(B, $B$=$N(B port $B$,;HMQCf$G$J$$(B
 $BJ]>Z$O$J$$(B. 
+
 @item
 @code{try_bind_listen()} $B$O(B, $BM?$($i$l$?(B port $B$KBP$7(B, $B$=$N(B protocol $B$K(B
-$BBP1~$7$?(B socket $B$r@8@.$7(B, bind, listen $B$9$k(B. $B<:GT$7$?>l9g(B, -1 $B$,JV$k(B. 
+$BBP1~$7$?(B socket $B$r@8@.$7(B, bind, listen $B$9$k(B. $B@.8y$7$?>l9g(B, 
+socket $B<1JL;R$rJV$9(B. $B<:GT$7$?>l9g(B, -1 $B$,JV$k(B. 
+
 @item
 @code{try_connect()} $B$O(B, $B%[%9%H(B @var{host} $B$N(B port @var{port} $B$KBP$7(B
-connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B. 
+connect $B$r;n$_$k(B. $B@.8y$7$?>l9g(B, socket $B<1JL;R$rJV$9(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B. 
+
 @item
 @code{try_accept()} $B$O(B, @var{socket} $B$KBP$9$k(B connect $BMW5a$r(B accept
 $B$7(B, $B?7$?$K@8@.$5$l$?(B socket $B$rJV$9(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B. 
 $B$$$:$l$N>l9g$K$b(B, @var{socket} $B$O<+F0E*$K(B close $B$5$l$k(B.
 $B0z?t(B @var{port} $B$O(B, @var{socket} $B$N(B protocol $B$rH=JL$9$k$?$a$KM?$($k(B. 
+
 @item
 @code{register_server()} $B$O(B, control, server $B$=$l$>$l$N(B socket $B$r(B
 $B0lAH$K$7$F(B, server list $B$KEPO?$7(B, @code{ox_push_cmo()} $B$J$I$GMQ$$$k(B
 $B%W%m%;%9<1JL;R$rJV$9(B. 
+
 @item
 $B1s3V%W%m%;%9$N5/F0$O(B, @code{shell()} $B$^$?$O<jF0$G9T$&(B. 
+\E
+\BEG
+@item
+These functions are primitives to establish communications between
+a client and servers.
+
+@item
+@code{generate_port()} generates a port name for communication.
+If the argument is not specified or equal to 0, a port number
+for Internet domain socket is generated randomly. Otherwise
+a file name for UNIX domain (host-internal protocol) is generated.
+Note that it is not assured that the generated port is not in use.
+
+@item
+@code{try_bind_listen()} creates a socket according to the protocol
+family indicated by the given port and executes @code{bind} and @code{listen}.
+It returns a socket identifier if it is successful. -1 indicates an error.
+
+@item
+@code{try_connect()} tries to connect to a port @var{port} on 
+a host @var{host}.
+It returns a socket identifier if it is successful. -1 indicates an error.
+
+@item
+@code{try_accept()} accepts a connection request to a socket @var{socket}.
+It returns a new socket identifier if it is successful. -1 indicates an error.
+In any case @var{socket} is automatically closed.
+@var{port} is specified to distinguish the protocol family of @var{socket}.
+
+@item
+@code{register_server()} registers a pair of a control socket and a server
+socket. A process identifier indicating the pair is returned. 
+The process identifier is used as an argument
+of @code{ox} functions such as @code{ox_push_cmo()}.
+
+@item
+Servers are invoked by using @code{shell()}, or manually.
+\E
 @end itemize
 
 @example
@@ -540,7 +1039,8 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 5
 
 /*
-$B$3$3$G(B, ox_launch $B$r5/F0(B :
+\JP $B$3$3$G(B, ox_launch $B$r5/F0(B :
+\EG ox_launch is invoked here :
 %  ox_launch "127.1" 0 39716 37043 ox_asir "shio:0"
 */
 
@@ -553,17 +1053,29 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_launch}, @code{ox_launch_generic}, @code{shell}, @code{ox_push_cmo}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_launch ox_launch_nox ox_shutdown},
+@fref{ox_launch_generic}, @fref{shell}, @fref{ox_push_cmo ox_push_local}
 @end table
 
-@node ox_asir,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_asir,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_asir,,, Functions for distributed computation
 @subsection @samp{ox_asir}
 
-$B$3$N@a$NH!?t$O(B, UNIX $B>e$G(B $BJ#?t$N%^%7%s>e$G(B @code{Asir} $B$rJ#?t5/F0$7$F(B
-$BJ,;67W;;$r9T$&$?$a$N$b$N$G$"$k(B. $B0J2<$K=R$Y$k5!G=$rMQ$$$k$?$a$K$O(B, $B$"$i(B
-$B$+$8$a3F%^%7%s>e$K(B @samp{ox_asir} $B$r(B @code{ox_launch()} $B$K$h$j5/F0$7$F$*$/(B
-$BI,MW$,$"$k(B.
+\BJP
+@samp{ox_asir} $B$O(B, @b{Asir} $B$N$[$\A4$F$N5!G=$r(B @b{OpenXM} $B%5!<%P(B
+$B$H$7$FDs6!$9$k(B. 
+@samp{ox_asir} $B$O(B, @code{ox_launch} $B$^$?$O(B @code{ox_launch_nox} $B$G(B
+$B5/F0$9$k(B. $B8e<T$O(B X $B4D6-$rMQ$$$J$$>l9g$N$?$a$KMQ0U$5$l$F$$$k(B. 
+\E
+\BEG
+@samp{ox_asir} provides almost all the functionalities of @b{Asir} as
+an @b{OpenXM} server.
+@samp{ox_asir} is invoked by @code{ox_launch} or @code{ox_launch_nox}.
+If X environment is not available or is not necessary, one can use
+@code{ox_launch_nox}.
+\E
 
 @example
 [5] ox_launch();
@@ -575,13 +1087,6 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 0
 @end example
 
-@noindent
-$B8e<T$N>l9g$*$h$S4D6-JQ?t(B DISPLAY $B$,@_Dj$5$l$F$$$J$$>l9g(B, 
-@samp{xterm}$B$O5/F0$5$l$:(B, @samp{ox_asir} $B$K$h$j5/F0$5$l$k(B @code{Asir} $B$N(B
-$B=PNO$O(B @samp{/dev/null} $B$K@\B3$5$l$k(B. $B%G%P%C%0$,40N;$7(B, $B;R%W%m%;%9$NI=<((B
-$B$9$k%a%C%;!<%8$r8+$kI,MW$,$J$$>l9g$K$O(B @code{ox_launch_nox()} $B$rMQ$$$l$P(B
-$B$h$$(B. 
-
 @example
 [7] RemoteLibDir = "/usr/local/lib/asir/"$
 [8] Machines = ["sumire","rokkaku","genkotsu","shinpuku"];
@@ -591,11 +1096,13 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_launch}, @code{ox_launch_nox}, @code{ox_shutdown}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_launch ox_launch_nox ox_shutdown}
 @end table
 
-@node ox_rpc ox_cmo_rpc ox_execute_string,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_rpc ox_cmo_rpc ox_execute_string,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_rpc ox_cmo_rpc ox_execute_string,,, Functions for distributed computation
 @subsection @code{ox_rpc}, @code{ox_cmo_rpc}, @code{ox_execute_string}
 @findex ox_rpc
 @findex ox_cmo_rpc
@@ -605,40 +1112,78 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 @item ox_rpc(@var{number},@code{"@var{func}"},@var{arg0},...)
 @itemx ox_cmo_rpc(@var{number},@code{"@var{func}"},@var{arg0},...)
 @itemx ox_execute_string(@var{number},@code{"@var{command}"},...)
-:: $B%W%m%;%9$NH!?t8F$S=P$7(B
+\JP :: $B%W%m%;%9$NH!?t8F$S=P$7(B
+\EG :: Calls a function on an OpenXM server
 @end table
 
 @table @var
 @item return
 0
 @item number
-$B?t(B ($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B ($B%W%m%;%9<1JL;R(B)
+\EG integer (process identifier)
 @item func
-$BH!?tL>(B
+\JP $BH!?tL>(B
+\EG function name
 @item command
-$BJ8;zNs(B
+\JP $BJ8;zNs(B
+\EG string
 @item arg0, arg1, ...
-$BG$0U(B ($B0z?t(B)
+\JP $BG$0U(B ($B0z?t(B)
+\EG arbitrary (arguments)
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B<1JL;R(B @var{number} $B$N%W%m%;%9$NH!?t$r8F$S=P$9(B. 
+
 @item
 $BH!?t$N7W;;=*N;$rBT$?$:(B, $BD>$A$K(B 0 $B$rJV$9(B. 
+
 @item
 @code{ox_rpc()} $B$O(B, $B%5!<%P$,(B @samp{ox_asir} $B$N>l9g$N$_MQ$$$k$3$H$,$G$-$k(B. 
 $B$=$l0J30$N>l9g$O(B, @code{ox_cmo_rpc()} $B$rMQ$$$k(B. 
+
 @item
 $BH!?t$,JV$9CM$O(B @code{ox_pop_local()}, @code{ox_pop_cmo()} $B$K$h$j<h$j=P$9(B. 
+
 @item
 $B%5!<%P$,(B @samp{ox_asir} $B0J30$N$b$N(B ($BNc$($P(B Kan $B%5!<%P(B @samp{ox_sm1}$B$J$I(B)
 $B$N>l9g$K$O(B, @b{Open_XM} $B%W%m%H%3%k$G%5%]!<%H$5$l$F$$$k%G!<%?$N$_$r(B
 $BAw$k$3$H$,$G$-$k(B. 
+
 @item
 @code{ox_execute_string} $B$O(B, $BAw$C$?J8;zNs(B @var{command} $B$r%5!<%P$,<+$i$N(B
 $B%f!<%68@8l%Q!<%6$G2r@O$7(B, $BI>2A$7$?7k2L$r%5!<%P$N%9%?%C%/$KCV$/$h$&$K(B
 $B;X<($9$k(B. 
+\E
+
+\BEG
+@item
+Calls a function on an @b{OpenXM} server whose identifier is @var{number}.
+
+@item
+It returns 0 immediately. It does not wait the termination of the function
+call.
+
+@item
+@code{ox_rpc()} can be used when the server is @samp{ox_asir}.
+Otherwise @code{ox_cmo_rpc()} should be used.
+
+@item
+The result of the function call is put on the stack of the server.
+It can be received by @code{ox_pop_local()} or @code{ox_pop_cmo()}.
+
+@item
+If the server is not @samp{ox_asir}, only data defined in
+@b{OpenXM} can be sent.
+
+@item
+@code{ox_execute_string} requests the server to parse and execute 
+@var{command} by the parser and the evaluater of the server.
+The result is pushed to the stack.
+\E
 @end itemize
 
 @example
@@ -653,50 +1198,90 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_pop_local}, @code{ox_pop_cmo}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_pop_cmo ox_pop_local}
 @end table
 
-@node ox_reset register_handler,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_reset register_handler,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_reset register_handler,,, Functions for distributed computation
 @subsection @code{ox_reset},@code{register_handler}
 @findex ox_reset
 @findex register_handler
 
 @table @t
 @item ox_reset(@var{number})
-:: $B%W%m%;%9$N%j%;%C%H(B
+\JP :: $B%W%m%;%9$N%j%;%C%H(B
+\EG :: Resets an OpenXM server
 @item register_handler(@var{func})
-:: $B%W%m%;%9$N%j%;%C%H$N$?$a$N4X?tEPO?(B
+\JP :: $B%W%m%;%9$N%j%;%C%H$N$?$a$N4X?tEPO?(B
+\EG :: Registers a function callable on a keyboard interrupt.
 @end table
 
 @table @var
 @item return
 1
 @item number
-$B?t(B ($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B ($B%W%m%;%9<1JL;R(B)
+\EG integer(process identifier)
 @item func
-$B4X?t;R$^$?$O(B 0
+\JP $B4X?t;R$^$?$O(B 0
+\EG functor or 0
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{ox_reset()} $B$O(B, $B<1JL;R(B @var{number} $B$N%W%m%;%9$r%j%;%C%H$7(B, $B%3%^%s(B
 $B%I<u$1IU$1>uBV$K$9$k(B.
+
 @item
 $B$=$N%W%m%;%9$,4{$K=q$-=P$7$?(B, $B$"$k$$$O8=:_=q$-=P$7Cf$N%G!<%?$,$"$k>l9g(B, 
 $B$=$l$rA4ItFI$_=P$7(B, $B=PNO%P%C%U%!$r6u$K$7$?;~E@$GLa$k(B. 
+
 @item
 $B;R%W%m%;%9$,(B RUN $B>uBV$N>l9g$G$b(B, $B3d$j9~$_$K$h$j6/@)E*$K7W;;$r=*N;$5$;$k(B. 
+
 @item
 $BJ,;67W;;$r9T$&H!?t$N@hF,$G(B, $B;HMQ$9$k%W%m%;%9$KBP$7$F<B9T$9$k(B. $B$"$k$$$O(B
 $B7W;;ESCf$G$N6/@)CfCG$KMQ$$$k(B. 
+
 @item
 @code{register_handler()} $B$O(B, @kbd{C-c} $B$J$I$K$h$k3d$j9~$_$N:]$K(B, 
 @kbd{u} $B$r;XDj$9$k$3$H$G(B, $BL50z?t%f!<%6Dj5A4X?t(B @var{func()} $B$,8F$S=P$5$l$k(B
 $B$h$&$K@_Dj$9$k(B. $B$3$N4X?t$K(B, @code{ox_reset()} $B$r8F$S=P$5$;$k$3$H$G(B, 
-$B3d$j9~$_$N:]$K<+F0E*$K(B @b{Open XM} server $B$N%j%;%C%H$r9T$&$3$H$,$G$-$k(B. 
+$B3d$j9~$_$N:]$K<+F0E*$K(B @b{OpenXM} server $B$N%j%;%C%H$r9T$&$3$H$,$G$-$k(B. 
+
 @item
 @var{func} $B$K(B 0 $B$r;XDj$9$k$3$H$G(B, $B@_Dj$r2r=|$G$-$k(B. 
+\E
+
+\BEG
+@item
+@code{ox_reset()} resets a process whose identifier is @var{number}.
+After its execution the process is ready for receiving data.
+
+@item
+After executing @code{ox_reset()}, sending/receiving buffers and
+stream buffers are assured to be empty.
+
+@item
+Even if a process is running, the execution is safely stopped.
+
+@item
+@code{ox_reset()} may be used prior to a distirbuted computation.
+It can be also used to interrupt a distributed computation.
+
+@item
+@code{register_handler()} registers a function @var{func()}.
+If @kbd{u} is specified on a keybord interrupt, @var{func()}
+is executed before returning the toplevel.
+If @code{ox_reset()} calls are included in @var{func()},
+one can automatically reset @b{OpenXM} servers on a keyboard interrupt.
+
+@item
+If @var{func} is equal to 0, the setting is reset.
+\E
 @end itemize
 
 @example
@@ -704,8 +1289,14 @@ connect $B$r;n$_$k(B. $B<:GT$7$?>l9g(B -1 $B$,JV$k(B.
 0
 [11] ox_rpc(0,"fctr",x^100-y^100);
 0
-[12] ox_reset(0); /* xterm $B$N%&%#%s%I%&$K$O(B usr1 : return to toplevel by SIGUSR1 */
-1              /* $B$,I=<($5$l$k(B.                                              */
+\BJP
+[12] ox_reset(0); /* xterm $B$N%&%#%s%I%&$K$O(B                             */
+1                 /* usr1 : return to toplevel by SIGUSR1 $B$,I=<($5$l$k(B. */
+\E
+\BEG
+[12] ox_reset(0); /* usr1 : return to toplevel by SIGUSR1 */
+1                 /* is displayed on the xterm.           */
+\E
 @end example
 
 @example
@@ -722,11 +1313,13 @@ Calling the registered exception handler...done.
 return to toplevel
 @end example
 @table @t
-@item $B;2>H(B
-@code{ox_rpc}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_rpc ox_cmo_rpc ox_execute_string}
 @end table
 
-@node ox_push_cmo ox_push_local ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_push_cmo ox_push_local,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_push_cmo ox_push_local,,, Functions for distributed computation
 @subsection @code{ox_push_cmo}, @code{ox_push_local}
 @findex ox_push_cmo
 @findex ox_push_local
@@ -734,50 +1327,76 @@ return to toplevel
 @table @t
 @item ox_push_cmo(@var{number},@var{obj}) 
 @itemx ox_push_local(@var{number},@var{obj}) 
-:: @var{obj} $B$r<1JL;R(B @var{number} $B$N%W%m%;%9$KAw?.(B
+\JP :: @var{obj} $B$r<1JL;R(B @var{number} $B$N%W%m%;%9$KAw?.(B
+\EG :: Sends @var{obj} to a process whose identifier is @var{number}.
 @end table
 
 @table @var
 @item return
 0
 @item number
-$B?t(B($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B($B%W%m%;%9<1JL;R(B)
+\EG integer(process identifier)
 @item obj
-$B%*%V%8%'%/%H(B
+\JP $B%*%V%8%'%/%H(B
+\EG object
 @end table
 
 @itemize @bullet
+\BJP
 @item $B<1JL;R(B @var{number} $B$N%W%m%;%9$K(B @var{obj} $B$rAw?.$9$k(B. 
 @item @code{ox_push_cmo} $B$O(B, Asir $B0J30$N(B @b{Open_XM} $B%5!<%P$KAw?.(B
 $B$9$k:]$KMQ$$$k(B. 
 @item @code{ox_push_local} $B$O(B, @samp{ox_asir}, @samp{ox_plot} $B$K(B
 $B%G!<%?$rAw$k>l9g$KMQ$$$k$3$H$,$G$-$k(B. 
 @item $B%P%C%U%!$,$$$C$Q$$$K$J$i$J$$8B$j(B, $B$?$@$A$KI|5"$9$k(B. 
+\E
+\BEG
+@item
+Sends @var{obj} to a process whose identifier is @var{number}.
+
+@item
+@code{ox_push_cmo} is used to send data to an @b{Open_XM} other
+than @samp{ox_asir} and @samp{ox_plot}.
+
+@item
+@code{ox_push_local} is used to send data to @samp{ox_asir} and @samp{ox_plot}.
+
+@item
+The call immediately returns unless the stream buffer is full.
+\E
 @end itemize
 
 @table @t
-@item $B;2>H(B
-@code{ox_rpc}, @code{ox_cmo_rpc}, @code{ox_pop_cmo}, @code{ox_pop_local}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_rpc ox_cmo_rpc ox_execute_string},
+@fref{ox_pop_cmo ox_pop_local}
 @end table
 
-@node ox_pop_cmo ox_pop_local ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_pop_cmo ox_pop_local,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_pop_cmo ox_pop_local,,, Functions for distributed computation
 @subsection @code{ox_pop_cmo}, @code{ox_pop_local}
 @findex ox_pop_local
 @findex ox_pop_cmo
 
 @table @t
 @item ox_pop_local(@var{number}) 
-:: $B%W%m%;%9<1JL;R(B @var{number} $B$+$i%G!<%?$r<u?.$9$k(B. 
+\JP :: $B%W%m%;%9<1JL;R(B @var{number} $B$+$i%G!<%?$r<u?.$9$k(B. 
+\EG :: Receives data from a process whose identifier is @var{number}.
 @end table
 
 @table @var
 @item return
-$B<u?.%G!<%?(B
+\JP $B<u?.%G!<%?(B
+\EG received data
 @item number
-$B?t(B ($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B ($B%W%m%;%9<1JL;R(B)
+\EG integer(process identifier)
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$+$i%G!<%?$r<u?.$9$k(B. 
 @item @code{ox_pop_cmo} $B$O(B, Asir $B0J30$N(B @b{Open_XM} $B%5!<%P$+$i<u?.(B
@@ -787,8 +1406,23 @@ return to toplevel
 @item $B%5!<%P$,7W;;Cf$N>l9g%V%m%C%/$9$k(B. $B$3$l$rHr$1$k$?$a$K$O(B, 
 @code{ox_push_cmd} $B$G(B @code{SM_popCMO} (262) $B$^$?$O(B @code{SM_popSerializedLocalObject} (258) $B$rAw$C$F$*$-(B, @code{ox_select} $B$G%W%m%;%9$,(B ready 
 $B$K$J$C$F$$$k$3$H$r3N$+$a$F$+$i(B @code{ox_get} $B$9$l$P$h$$(B. 
+\E
+\BEG
 @item
-
+Receives data from a process whose identifier is @var{number}.
+@item
+@code{ox_pop_cmo} can be used to receive data form an @b{OpenXM} server
+other than @samp{ox_asir} and @samp{ox_plot}.
+@item
+@code{ox_pop_local} can be used to receive data from 
+@samp{ox_asir}, @samp{ox_plot}.
+@item
+If no data is available, these functions block.
+To avoid it, send @code{SM_popCMO} (262) or 
+@code{SM_popSerializedLocalObject} (258).
+Then check the process status by @code{ox_select}.
+Finally call @code{ox_get} for a ready process.
+\E
 @end itemize
 
 @example
@@ -803,75 +1437,122 @@ return to toplevel
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_rpc}, @code{ox_push_cmd}, @code{ox_select}, @code{ox_get}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_rpc ox_cmo_rpc ox_execute_string},
+@fref{ox_push_cmd ox_sync}, @fref{ox_select}, @fref{ox_get}
 @end table
 
-@node ox_push_cmd ox_sync,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_push_cmd ox_sync,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_push_cmd ox_sync,,, Functions for distributed computation
 @subsection @code{ox_push_cmd}, @code{ox_sync}
 @findex ox_push_cmd
 @findex ox_sync
 
 @table @t
 @item ox_push_cmd(@var{number},@var{command}) 
-:: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$K%3%^%s%I(B @var{command} $B$rAw?.$9$k(B. 
+\JP :: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$K%3%^%s%I(B @var{command} $B$rAw?.$9$k(B. 
+\EG :: Sends a command @var{command} to a process whose identifier is @var{number}.
 @item ox_sync(@var{number}) 
-:: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$K(B @b{OX_SYNC_BALL} $B$rAw?.$9$k(B. 
+\JP :: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$K(B @b{OX_SYNC_BALL} $B$rAw?.$9$k(B. 
+\EG :: Sends @b{OX_SYNC_BALL} to a process whose identifier is @var{number}.
 @end table
 
 @table @var
 @item return
 0
 @item number
-$B?t(B ($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B ($B%W%m%;%9<1JL;R(B)
+\EG integer(process identifier)
 @item command
-$B?t(B ($B%3%^%s%I<1JL;R(B)
+\JP $B?t(B ($B%3%^%s%I<1JL;R(B)
+\EG integer(command identifier)
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B<1JL;R(B @var{number} $B$N%W%m%;%9$K%3%^%s%I$^$?$O(B @b{OX_SYNC_BALL} $B$rAw?.$9$k(B. 
+
 @item
 @b{Open_XM} $B$K$*$$$FAw<u?.%G!<%?$O(B @b{OX_DATA}, @b{OX_COMMAND},
 @b{OX_SYNC_BALL}$B$N(B 3 $B<oN`$KJ,$+$l$k(B. $BDL>o(B, $B%3%^%s%I$O2?$i$+$NA`:n$K(B
 $BIU?o$7$F0EL[$N$&$A$KAw?.$5$l$k$,(B, $B$3$l$r%f!<%6$,8DJL$KAw$j$?$$>l9g$K(B
 $BMQ$$$i$l$k(B. 
+
 @item
 @b{OX_SYNC_BALL} $B$O(B @code{ox_reset} $B$K$h$k7W;;CfCG(B, $BI|5"$N:]$KAw<u?.$5$l$k(B
 $B$,(B, $B$3$l$r8DJL$KAw$j$?$$>l9g$KMQ$$$k(B. $B$J$*(B, $BDL>o>uBV$G$O(B @b{OX_SYNC_BALL}
 $B$OL5;k$5$l$k(B. 
+\E
+
+\BEG
+@item
+Sends a command or @b{OX_SYNC_BALL} to a process whose identifier is 
+@var{number}.
+
+@item
+Data in @b{OpenXM} are categorized into three types:
+@b{OX_DATA}, @b{OX_COMMAND}, @b{OX_SYNC_BALL}.
+Usually @b{OX_COMMAND} and @b{OX_SYNC_BALL} are
+sent implicitly with high level operations, but
+these functions are prepared to send these data explicitly.
+
+@item
+@b{OX_SYNC_BALL} is used on the reseting operation by @code{ox_reset}.
+Usually @b{OX_SYNC_BALL} will be ignored by the peer.
+\E
 @end itemize
 
 @table @t
-@item $B;2>H(B
-@code{ox_rpc}, @code{ox_cmo_rpc}, @code{ox_reset}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_rpc ox_cmo_rpc ox_execute_string}, @fref{ox_reset register_handler}
 @end table
 
-@node ox_get,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_get,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_get,,, Functions for distributed computation
 @subsection @code{ox_get}
 @findex ox_get
 
 @table @t
 @item ox_get(@var{number}) 
-:: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$+$i%G!<%?$r<u?.$9$k(B. 
+\JP :: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$+$i%G!<%?$r<u?.$9$k(B. 
+\EG :: Receives data form a process whose identifer is @var{number}.
 @end table
 
 @table @var
 @item return
-$B<u?.%G!<%?(B
+\JP $B<u?.%G!<%?(B
 @item number
-$B?t(B($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B($B%W%m%;%9<1JL;R(B)
+\EG integer(process identifier)
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$+$i%G!<%?$r<u?.$9$k(B. $B4{$K(B
 $B%9%H%j!<%`>e$K%G!<%?$,$"$k$3$H$r2>Dj$7$F$$$k(B. 
+
 @item
 @code{ox_push_cmd} $B$HAH$_9g$o$;$FMQ$$$k(B. 
+
 @item
 @code{ox_pop_cmo}, @code{ox_pop_local} $B$O(B, @code{ox_push_cmd} $B$H(B
 @code{ox_get} $B$NAH$_9g$o$;$G<B8=$5$l$F$$$k(B. 
+\E
+\BEG
+@item
+Receives data form a process whose identifer is @var{number}.
+
+@item
+One may use this function with @code{ox_push_cmd}.
+
+@item
+@code{ox_pop_cmo} and @code{ox_pop_local} 
+is realized as combinations of @code{ox_push_cmd} and @code{ox_get}.
+\E
 @end itemize
 
 @example
@@ -884,32 +1565,46 @@ return to toplevel
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_pop_cmo}, @code{ox_pop_local}, @code{ox_push_cmd}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_pop_cmo ox_pop_local}, @fref{ox_push_cmd ox_sync}
 @end table
 
-@node ox_pops,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_pops,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_pops,,, Functions for distributed computation
 @subsection @code{ox_pops}
 @findex ox_pops
 
 @table @t
 @item ox_pops(@var{number}[,@var{nitem}) 
-:: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$N%9%?%C%/$+$i%G!<%?$r<h$j=|$/(B. 
+\JP :: $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$N%9%?%C%/$+$i%G!<%?$r<h$j=|$/(B. 
+\EG :: Removes data form the stack of a process whose identifier is @var{number}.
 @end table
 
 @table @var
 @item return
 0
 @item number
-$B?t(B ($B%W%m%;%9<1JL;R(B)
+\JP $B?t(B ($B%W%m%;%9<1JL;R(B)
+\EG integer(process identifier)
 @item nitem
-$B<+A3?t(B
+\JP $B<+A3?t(B
+\EG non-negative integer
 @end table
 
 @itemize @bullet
-@item $B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$N%9%?%C%/$+$i%G!<%?$r<h$j=|$/(B. 
+\BJP
+@item
+$B%W%m%;%9<1JL;R(B @var{number} $B$N%W%m%;%9$N%9%?%C%/$+$i%G!<%?$r<h$j=|$/(B. 
 @var{nitem} $B$,;XDj$5$l$F$$$k>l9g$O(B @var{nitem} $B8D(B, $B;XDj$N$J$$>l9g$O(B
 1 $B8D<h$j=|$/(B. 
+\E
+\BEG
+@item
+Removes data form the stack of a process whose identifier is @var{number}.
+If @var{nitem} is specified, @var{nitem} items are removed.
+If @var{nitem} is not specified, 1 item is removed.
+\E
 @end itemize
 
 @example
@@ -921,41 +1616,67 @@ return to toplevel
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_pop_cmo}, @code{ox_pop_local}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_pop_cmo ox_pop_local}
 @end table
 
-@node ox_select ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_select,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_select,,, Functions for distributed computation
 @subsection @code{ox_select}
 @findex ox_select
 
 @table @t
 @item ox_select(@var{nlist}[,@var{timeout}])
-:: $BFI$_=P$72DG=$J%W%m%;%9$N<1JL;R$rJV$9(B. 
+\JP :: $BFI$_=P$72DG=$J%W%m%;%9$N<1JL;R$rJV$9(B. 
+\EG :: Returns the list of process identifiers on which data is available.
 @end table
 
 @table @var
 @item return
-$B%j%9%H(B
+\JP $B%j%9%H(B
+\EG list
 @item nlist
-$B?t(B ($B;R%W%m%;%9<1JL;R(B) $B$N%j%9%H(B
+\JP $B?t(B ($B;R%W%m%;%9<1JL;R(B) $B$N%j%9%H(B
+\EG list of integers (process identifier)
 @item timeout
-$B?t(B
+\JP $B?t(B
+\EG number
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B<1JL;R%j%9%H(B @var{nlist} $B$N%W%m%;%9$N$&$A4{$K=PNO$rJV$7$F$$$k(B
 $B%W%m%;%9$N<1JL;R%j%9%H$rJV$9(B. 
+
 @item
 $BA4$F$N%W%m%;%9$,(B RUN $B>uBV$N$H$-(B, $B$$$:$l$+$N%W%m%;%9$N=*N;$rBT$D(B. 
 $BC"$7(B, @var{timeout} $B$,;XDj$5$l$F$$$k>l9g(B, @var{timeout} $BIC$@$1BT$D(B. 
+
 @item
 @code{ox_push_cmd()} $B$G(B @code{SM_popCMO} $B$"$k$$$O(B 
 @code{SM_popSerializedLocalObject} $B$rAw$C$F$*$-(B, @code{ox_select()} $B$G(B 
 ready $B>uBV$N%W%m%;%9$rD4$Y$F(B@code{ox_get()} $B$9$k$3$H$G(B,
 @code{ox_pop_local()}, @code{ox_pop_cmo()}$B$GBT$A>uBV$KF~$k$N$rKI$0$3$H$,(B
 $B$G$-$k(B.
+\E
+\BEG
+@item
+Returns the list of process identifiers on which data is available.
+
+@item
+If all the processes in @var{nlist} are running, it blocks until
+one of the processes returns data. If @var{timeout} is specified,
+it waits for only @var{timeout} seconds.
+
+@item
+By sending @code{SM_popCMO} or @code{SM_popSerializedLocalObject} with
+@code{ox_push_cmd()} in advance and by examining the process status with
+@code{ox_select()}, one can avoid a hanging up caused by @code{ox_pop_local()}
+or @code{ox_pop_cmo()}. In such a case, data can be received by
+@code{ox_get()}.
+\E
 @end itemize
 
 @example
@@ -983,39 +1704,68 @@ ox_launch();
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_pop_local}, @code{ox_pop_cmo}, @code{ox_push_cmd}, @code{ox_get}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_pop_cmo ox_pop_local}, @fref{ox_push_cmd ox_sync}, @fref{ox_get}
 @end table
 
-@node ox_flush ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_flush ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_flush ,,, Functions for distributed computation
 @subsection @code{ox_flush}
 @findex ox_flush
 
 @table @t
 @item ox_flush(@var{id})
-:: $BAw?.%P%C%U%!$N6/@)(B flush
+\JP :: $BAw?.%P%C%U%!$N6/@)(B flush
+\EG :: Flushes the sending buffer.
 @end table
 
 @table @var
 @item return
 1
 @item id
-$B;R%W%m%;%9<1JL;R(B
+\JP $B;R%W%m%;%9<1JL;R(B
+\EG process identifier
 @end table
 
 @itemize @bullet
+\BJP
 @item $BDL>o$O%P%C%A%b!<%I$O(B off $B$G$"$j(B, $B%G!<%?(B, $B%3%^%s%IAw?.$4$H$K(B
 $BAw?.%P%C%U%!$O(B flush $B$5$l$k(B. 
+
 @item $B%P%C%A%b!<%I$O(B @code{"ctrl"} $B%3%^%s%I$N(B @code{"ox_batch"} $B%9%$%C%A(B
 $B$G(B on/off $B$G$-$k(B. 
+
 @item $B:Y$+$$%G!<%?$rB??tAw$k>l9g$K(B, @code{ctrl("ox_batch",1)}
 $B$G%P%C%A%b!<%I$r(B on $B$K$9$k$H(B, $B%P%C%U%!$,$$$C$Q$$$K$J$C$?>l9g$K$N$_(B flush 
 $B$5$l$k$?$a(B, overhead $B$,>.$5$/$J$k>l9g$,$"$k(B. $B$?$@$7$3$N>l9g$K$O(B, $B:G8e$K(B 
 @code{ox_flush(@var{id})} $B$r<B9T$7$F(B, $B%P%C%U%!$r6/@)E*$K(B flush $B$9$kI,MW$,(B
 $B$"$k(B.
+
 @item @code{ox_pop_cmo}, @code{ox_pop_local} $B$N$h$&$K(B, $B%3%^%s%IAw?.8e(B
 $B$?$@$A$K%G!<%?BT$A$KF~$k4X?t$,%O%s%0$7$J$$$h$&(B, $B$3$l$i$N4X?t$NFbIt$G$O(B
 $B6/@)(B flush $B$,<B9T$5$l$F$$$k(B. 
+\E
+
+\BEG
+@item 
+By default the batch mode is off and the sending buffer is flushed
+at every sending operation of data and command.
+
+@item 
+The batch mode is set by @code{"ox_batch"} switch of @code{"ctrl"}.
+
+@item 
+If one wants to send many pieces of small data,
+@code{ctrl("ox_batch",1)} may decrease the overhead of flush operations.
+Of course, one has to call @code{ox_flush(@var{id})} at the end of
+the sending operations.
+
+@item
+Functions such as @code{ox_pop_cmo} and @code{ox_pop_local}
+enter a waiting mode immediately after sending a command.
+These functions always flush the sending buffer.
+\E
 @end itemize
 
 @example
@@ -1036,31 +1786,46 @@ ox_launch();
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_push_cmo}, @code{ox_push_local}, @code{ox_pop_cmo}, @code{ox_pop_local}, @code{ctrl}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_pop_cmo ox_pop_local}, @fref{ctrl}
 @end table
 
-@node ox_get_serverinfo ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ox_get_serverinfo ,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ox_get_serverinfo ,,, Functions for distributed computation
 @subsection @code{ox_get_serverinfo}
 @findex ox_get_serverinfo
 
 @table @t
 @item ox_get_serverinfo([@var{id}])
-:: server $B$N(B Mathcap, $BF0:nCf$N%W%m%;%9<1JL;R$N<hF@(B
+\JP :: server $B$N(B Mathcap, $BF0:nCf$N%W%m%;%9<1JL;R$N<hF@(B
+\EG :: Gets server's mathcap and proess id.
 @end table
 
 @table @var
 @item return
-$B%j%9%H(B
+\JP $B%j%9%H(B
+\EG list
 @item id
-$B;R%W%m%;%9<1JL;R(B
+\JP $B;R%W%m%;%9<1JL;R(B
+\EG process identifier
 @end table
 
 @itemize @bullet
+\BJP
 @item $B0z?t(B @var{id} $B$,$"$k$H$-(B, $B%W%m%;%9<1JL;R(B @var{id} $B$N%W%m%;%9$N(B
 Mathcap $B$r%j%9%H$H$7$FJV$9(B. 
 @item $B0z?t$J$7$N$H$-(B, $B8=:_F0:nCf$N%W%m%;%9<1JL;R$*$h$S$=$N(B Mathcap $B$+$i(B
 $B$J$k%Z%"$r(B, $B%j%9%H$H$7$FJV$9(B. 
+\E
+\BEG
+@item If @var{id} is specified, the mathcap of the process whose
+identifier is @var{id} is returned.
+@item If @var{id} is not specified, the list of @var{[id,Mathcap]}
+is returned, where @var{id} is the identifier of a currently active process,
+and @var{Mathcap} is the mathcap of the process.
+identifier @var{id} is returned.
+\E
 @end itemize
 
 @example
@@ -1079,11 +1844,13 @@ Mathcap $B$r%j%9%H$H$7$FJV$9(B.
 @end example
 
 @table @t
-@item $B;2>H(B
-@ref{Mathcap}.
+\JP @item $B;2>H(B
+\EG @item References
+@fref{Mathcap}.
 @end table
 
-@node ifplot conplot plot plotover,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\JP @node ifplot conplot plot plotover,,, $BJ,;67W;;$K4X$9$k4X?t(B
+\EG @node ifplot conplot plot plotover,,, Functions for distributed computation
 @subsection @code{ifplot}, @code{conplot}, @code{plot}, @code{plotover}
 @findex ifplot
 @findex conplot
@@ -1092,45 +1859,59 @@ Mathcap $B$r%j%9%H$H$7$FJV$9(B.
 
 @table @t
 @item ifplot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{yrange}] [,@var{id}] [,@var{name}])
-:: 2 $BJQ?t4X?t$N<B?t>e$G$NNmE@$rI=<($9$k(B. 
+\JP :: 2 $BJQ?t4X?t$N<B?t>e$G$NNmE@$rI=<($9$k(B. 
+\EG :: Displays real zeros of a bi-variate function.
 @item conplot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{yrange}] [,@var{zrange}] [,@var{id}] [,@var{name}])
-:: 2 $BJQ?t4X?t$N<B?t>e$G$NEy9b@~$rI=<($9$k(B. 
+\JP :: 2 $BJQ?t4X?t$N<B?t>e$G$NEy9b@~$rI=<($9$k(B. 
+\EG :: Displays real contour lines of a bi-variate function.
 @item plot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{id}] [,@var{name}])
-:: 1 $BJQ?t4X?t$N%0%i%U$rI=<($9$k(B. 
+\JP :: 1 $BJQ?t4X?t$N%0%i%U$rI=<($9$k(B. 
+\EG :: Displays the graph of a univariate function.
 @item plotover(@var{func},@var{id},@var{number})
-:: $B$9$G$KB8:_$7$F$$$k%&%#%s%I%&$XIA2h$9$k(B. 
+\JP :: $B$9$G$KB8:_$7$F$$$k%&%#%s%I%&$XIA2h$9$k(B. 
+\EG Plots on the existing window real zeros of a bivariate function.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item func
-$BB?9`<0(B
+\JP $BB?9`<0(B
+\EG polynomial
 @item geometry, xrange, yrange, zrange
-$B%j%9%H(B
+\JP $B%j%9%H(B
+\EG list
 @item id, number
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item name
-$BJ8;zNs(B
+\JP $BJ8;zNs(B
+\EG string
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{ifplot()} $B$O(B, 2 $BJQ?t4X?t(B @var{func} $B$N<B?t>e$G$NNmE@$N(B
 $B%0%i%U$NI=<($r9T$&(B. @code{conplot()} $B$O(B, $BF1MM$N0z?t$KBP$7(B, 
 $BEy9b@~$NI=<($r9T$&(B. @code{plot()} $B$O(B 1 $BJQ?t4X?t$N(B
 $B%0%i%U$NI=<($r9T$&(B. Windows $BHG$O8=>u$G$OL$%5%]!<%H$G$"$k(B. 
+
 @item
 UNIX $BHG$O(B, $B1s3V%W%m%;%9$K$h$j<B8=$5$l$F$$$k(B. $B%3%^%s%I$O(B @samp{ox_plot}
 $B$G(B, @code{ox_launch()} $B$K$h$j5/F0$7$F$*$/I,MW$,$"$k(B. @samp{ox_plot}
 $B$O(B, @b{Asir} $B$NI8=`%i%$%V%i%j%G%#%l%/%H%j$K$"$k(B. 
+
 @item
 $B0z?t$NFb(B, @var{func} $B$OI,?\$G$"$k(B. $B$=$NB>$N0z?t$O%*%W%7%g%s$G$"$k(B. 
 $B%*%W%7%g%s$N7A<0$*$h$S$=$N%G%U%)%k%HCM(B ($B%+%C%3Fb(B) $B$O<!$NDL$j(B. 
+
 @table @var
 @item geometry
 $B%&%#%s%I%&$N%5%$%:$r%I%C%HC10L$G(B @var{[x,y]} $B$G;XDj$9$k(B. 
 (UNIX $BHG$G$O(B @var{[}@code{300},@code{300}@var{]}. )
+
 @item xrange, yrange
 $BJQ?t$NHO0O$N;XDj$G(B, @var{[v,vmin,vmax]} $B$G;XDj$9$k(B. 
 ($B$$$:$l$NJQ?t$b(B @var{[v},@code{-2},@code{2}@var{]}.)
@@ -1138,22 +1919,27 @@ UNIX $BHG$O(B, $B1s3V%W%m%;%9$K$h$j<B8=$5$l$F$$$k(B. $B%3%^%s%I$O(B @samp{
 $B$,(B @samp{x}, $B2<$NJQ?t$,(B @samp{y} $B$H$7$F07$o$l$k(B. $B$3$l$rHr$1$k$?$a$K$O(B
 @var{xrange}, @var{yrange} $B$r;XDj$9$k(B. $B$^$?(B, @var{func} $B$,(B 1 $BJQ?t$N(B
 $B>l9g(B, $B$3$l$i$N;XDj$OI,?\$H$J$k(B. 
+
 @item zrange
 @code{conplot()} $B$N>l9g$N$_;XDj$G$-$k(B. $B7A<0$O(B 
 @var{[v,vmin,vmax} @code{[},@var{step} @code{]}@var{]} $B$G(B, @var{step} $B$,;XDj$5$l(B
 $B$?>l9g$K$O(B, $BEy9b@~$N4V3V$,(B @var{(vmax-vmin)/step} $B$H$J$k(B. 
 (@var{[z},@code{-2},@code{2},@code{16}@var{]}.)
+
 @item id
 $B1s3V%W%m%;%9$NHV9f(B, $B$9$J$o$A(B @code{ox_launch()} $B$,JV$7$?HV9f$r;XDj$9$k(B. 
 ($B0lHV:G6a$K:n$i$l(B, $B$+$D%"%/%F%#%V$J%W%m%;%9$KBP1~$9$kHV9f(B.)
+
 @item name
 $B%&%#%s%I%&$NL>A0(B. (@code{Plot}.) 
 $B@8@.$5$l$?%&%#%s%I%&$N%?%$%H%k$O(B @var{name:n/m} $B$H$J$k(B.
 $B$3$l$O(B, $B%W%m%;%9HV9f(B @var{n} $B$N%W%m%;%9$N(B, @var{m} $BHV$N%&%#%s%I%&$r0UL#$9$k(B. 
 $B$3$NHV9f$O(B, @code{plotover()} $B$GMQ$$$i$l$k(B. 
 @end table
+
 @item
 $B0l$D$N%W%m%;%9>e$GIA2h$G$-$k%&%#%s%I%&$N?t$O:GBg(B 128 $B8D$G$"$k(B. 
+
 @item
 @code{plotover()} $B$O(B, $B;XDj$7$?%&%#%s%I%&>e$K(B, $B0z?t$G$"$k(B 2 $BJQ?tB?9`<0$N(B
 $BNmE@$r>e=q$-$9$k(B. 
@@ -1177,16 +1963,18 @@ UNIX $BHG$O(B, $B1s3V%W%m%;%9$K$h$j<B8=$5$l$F$$$k(B. $B%3%^%s%I$O(B @samp{
 $B%&%#%s%I%&$KBP1~$9$k%l%Y%k$,I=<($5$l$k(B. 
 
 @item
-UNIX $BHG$G$O$$$/$D$+$N%\%?%s(B, Mac $BHG$G$O%W%k%@%&%s%a%K%e!<$K$h$j(B
+UNIX $BHG$G$O$$$/$D$+$N%\%?%s$K$h$j(B
 $B$$$/$D$+$N@_DjJQ99(B, $BA`:n$,$G$-$k(B. UNIX $BHG$G$O<!$N%\%?%s$,$"$k(B. 
 
 @table @code
 @item quit
 window $B$rGK2u$9$k(B. $B7W;;$rCfCG$9$k>l9g(B, @code{ox_reset()} $B$rMQ$$$k(B. 
+
 @item wide ($B%H%0%k(B)
 $B8=:_$NI=<(ItJ,$r=D2#3F(B 10 $BG\$7$?NN0h$rI=<($9$k(B. $B8=:_I=<($5$l$F$$$kHO0O$O(B
 $B$3$NI=<($K$*$$$FCf1{It$KD9J}7A$G<($5$l$k(B. $B$3$NI=<($GHO0O;XDj$r9T$&$H(B, 
 $B$=$NHO0O$,?7$7$$%&%#%s%I%&$KIA2h$5$l$k(B. 
+
 @item precise ($B%H%0%k(B)
 $BA*BrNN0h$r(B, $B@0?t1i;;$K$h$j(B, $B$h$j@53N$K:FIA2h$9$k(B. $B$3$l$O(B, @var{func} $B$,(B
 $BM-M}?t78?t$N(B 2 $BJQ?tB?9`<0$N>l9g$K$N$_M-8z$G$"$k(B. $B$3$N%b!<%I$G$O(B Sturm $BNs(B
@@ -1197,6 +1985,7 @@ window $B$rGK2u$9$k(B. $B7W;;$rCfCG$9$k>l9g(B, @code{ox_reset()} $B$rMQ$$$k
 
 @item formula
 $BBP1~$9$k<0$rI=<($9$k(B. 
+
 @item noaxis ($B%H%0%k(B)
 $B:BI8<4$r>C$9(B. 
 @end table
@@ -1213,6 +2002,147 @@ window $B$rGK2u$9$k(B. $B7W;;$rCfCG$9$k>l9g(B, @code{ox_reset()} $B$rMQ$$$k
 resource $B$N;XDj$N;EJ}$O0J2<$NDL$j!#!J%G%U%)%k%H$r<($7$F$*$/!K(B
 @code{plot*form*shapeStyle} $B$O!"(B@t{rectangle, oval, ellipse, roundedRectangle}
 $B$,!";XDj$G$-$k!#(B
+\E
+\BEG
+@item
+Function @code{ifplot()} draws a graph of real zeros of a bi-variate 
+function.
+Function @code{conplot()} plots the contour lines for a same argument. 
+Function @code{plot()} draws the graph of a uninivariate function.
+These functions are available on UNIX version (on @code{X11}).
+
+@item
+The plotting functions for UNIX version are realized on remote process 
+facilities described previously. 
+The command for this is  @samp{ox_plot} in @b{Asir} root directory.
+Of course, it must be activated by @code{ox_launch()}. 
+
+@item 
+Argument @var{func} is indispensable. Other arguments are optional. 
+The format of optional arguments and their default values (parenthesized) 
+are listed below. 
+
+@table @var
+@item geometry
+Window size is specified by @var{[x,y]} in unit `dot.' 
+(@var{[}@code{300},@code{300}@var{]} for UNIX version; 
+
+@item xrange, yrange 
+Value ranges of the variables are specified by @var{[v,vmin,vmax]}. 
+(@var{[v},@code{-2},@code{2}@var{]} for each variable.)
+If this specification is omitted, the indeterminate having the higher
+order in @var{func} is taken for @samp{x} and the one with lower order 
+is taken for @samp{y}.  To change this selection, specify explicitly 
+by @var{xrange} and/or @var{yrange}.  
+For an uni-variate function, the specification is mandatory.   
+
+@item zrange
+This specification applies only to @code{conplot()}.  The format is 
+@var{[v,vmin,vmax} @code{[},@var{step} @code{]}@var{]}.  
+If @var{step} is specified, the height difference of contours is set to 
+@var{(vmax-vmin)/step}. 
+(@var{[z},@code{-2},@code{2},@code{16}@var{]}.)
+
+@item id
+This specifies the number of the remote process by which you wish 
+to draw a graph. 
+(The number for the newest active process.)
+
+@item name 
+The name of the window. 
+(@code{Plot}.)  
+The created window is titled @var{name:n/m} which means the @var{m}-th 
+window of the process with process number @var{n}. 
+These numbers are used for @code{plotover()}. 
+@end table
+
+@item
+The maximum number of the windows that can be created on a process is 
+128. 
+
+@item
+Function @code{plotover()} superposes reals zeros of its argument 
+bi-variate function onto the specified window. 
+
+@item 
+Enlarged plot can be obtained for rectangular area which is specified, 
+on an already existing window with a graph, 
+by dragging cursor with the left button of mouse
+from the upper-left corner to lower-right corner 
+and then releasing it. 
+Then, a new window is created whose shape is similar to the specified 
+area and whose size is determined so that the largest 
+side of the new window has the same size of the largest side of 
+the original window.  
+If you wish to cancel the action, drag the cursor to any point 
+above or left of the starting point. 
+
+This facility is effective when @code{precise} button switch is 
+inactive.  If @code{precise} is selected and active, the area specified 
+by the cursor dragging will be rewritten on the same window. This 
+will be explained later. 
+@item
+A click of the right button will display the current coordinates of 
+the cursor at the bottom area of the window. 
+
+@item
+Place the cursor at any point in the right marker area on 
+a window created by @code{conplot()}, 
+and drag the cursor with the middle mutton.  Then you will find the contour lines changing 
+their colors depending on the movement of the cursor and the 
+corresponding height level displayed on the upper right corner of 
+the window. 
+
+@item 
+Several operations are available on the window: by button operations 
+for UNIX version, and pull-down menus for Macintosh version. 
+
+@table @code
+@item quit
+Destroys (kills) the window.  While computing, quit the current 
+computation. 
+If one wants to interrupt the computation, use @code{ox_reset()}.
+
+@item wide (toggle) 
+Will display, on the same window, a new area enlarged by 10 times 
+as large as the current area for both width-direction and 
+height-direction.  The current area will be indicated by a rectangle 
+placed at the center.  Area specification by dragging the cursor will 
+create a new window with a plot of the graph in the specified area. 
+@item precise (toggle) 
+When selected and active, 
+@code{ox_plot} redraws the specified area more precisely by integer 
+arithmetic. 
+This mode uses bisection method based on Sturm sequence computation to 
+locate real zeros precisely.  More precise plotting can be expected 
+by this technique than by the default plotting technique, at the expense 
+of significant increase of computing time.  As you see by above 
+explanation, this function is only effective to polynomials with 
+rational coefficients. 
+(Check how they differ for (x^2+y^2-1)^2.) 
+
+@item formula 
+Displays the expression for the graph. 
+
+@item noaxis (toggle)
+Erase the coordinates. 
+@end table
+
+@item
+Program @samp{ox_plot} may consume much stack space depending on 
+which machine it is running.  
+You are recommended to set the stack size to about 16MB as large 
+in @samp{.cshrc} for safe.
+To specify the size, put @code{limit stacksize 16m} for an example.
+
+@item
+You can customize various resources of a window on @code{X}, e.g., 
+coloring, shape of buttons etc. 
+The default setting of resources is shown below. 
+For @code{plot*form*shapeStyle} you can select among 
+@t{rectangle}, @t{oval}, @t{ellipse}, and @t{roundedRectangle}.
+\E
+
 @example
 plot*background:white
 plot*form*shapeStyle:rectangle
@@ -1234,6 +2164,7 @@ plot*form*ydone*background:white
 @end example
 
 @table @t
-@item $B;2>H(B
-@code{ox_launch}, @code{ox_shutdown}, @code{ox_reset}
+\JP @item $B;2>H(B
+\EG @item References
+@fref{ox_launch ox_launch_nox ox_shutdown}, @fref{ox_reset register_handler}
 @end table

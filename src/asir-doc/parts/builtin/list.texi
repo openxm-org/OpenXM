@@ -1,11 +1,19 @@
+@comment $OpenXM$
+\BJP
 @node リストの演算,,, 組み込み函数
 @section リストの演算
+\E
+\BEG
+@node Lists,,, Built-in Function
+@section Lists
+\E
 
 @menu
 * car cdr cons append reverse length::
 @end menu
 
-@node car cdr cons append reverse length,,, リストの演算
+\JP @node car cdr cons append reverse length,,, リストの演算
+\EG @node car cdr cons append reverse length,,, Lists
 @subsection @code{car}, @code{cdr}, @code{cons}, @code{append}, @code{reverse}, @code{length}
 @findex car
 @findex cdr
@@ -16,29 +24,39 @@
 
 @table @t
 @item car(@var{list})
-:: 空でない @var{list} の先頭要素. 
+\JP :: 空でない @var{list} の先頭要素. 
+\EG :: The first element of the given non-null list @var{list}.
 @item cdr(@var{list})
-:: 空でない @var{list} から先頭要素を取り除いたリスト. 
+\JP :: 空でない @var{list} から先頭要素を取り除いたリスト. 
+\EG :: A list obtained by removing the first element of the given non-null list @var{list}.
 @item cons(@var{obj},@var{list})
-:: @var{list} の先頭に @var{obj} を付け加えたリスト. 
+\JP :: @var{list} の先頭に @var{obj} を付け加えたリスト. 
+\EG :: A list obtained by adding an element @var{obj} to the top of the given list @var{list}.
 @item @t{append}(@var{list1},@var{list2})
-:: @var{list1} と @var{list2} をこの順に 1 つにしたリスト. 
+\JP :: @var{list1} と @var{list2} をこの順に 1 つにしたリスト. 
+\EG :: A list obtained by adding all elements in the list @var{list2} according to the order as it is to the last element in the list @var{list1}.
 @item @t{reverse}(@var{list})
-:: @var{list} を逆順にしたリスト. 
+\JP :: @var{list} を逆順にしたリスト. 
+\EG :: reversed list of @var{list}.
 @item length(@var{list})
-:: @var{list} の長さ. 
+\JP :: @var{list} の長さ. 
+\EG :: Number of elements in a list @var{list}.
 @end table
 
 @table @var
 @item return
-@code{car()} : 任意, @code{cdr()}, @code{cons()}, @code{append()}, @code{reverse()} : リスト,  @code{length()} : 自然数
+\JP @code{car()} : 任意, @code{cdr()}, @code{cons()}, @code{append()}, @code{reverse()} : リスト,  @code{length()} : 自然数
+\EG @code{car()} : arbitrary, @code{cdr()}, @code{cons()}, @code{append()}, @code{reverse()} : list,  @code{length()} : non-negative integer
 @item list,list1,list2
-リスト
+\JP リスト
+\EG list
 @item obj
-任意
+\JP 任意
+\EG arbitrary
 @end table
 
 @itemize @bullet
+\BJP
 @item
 リストは @t{[}@var{obj1},@var{obj2},...@t{]} と表される. @var{obj1} が
 先頭要素である. 
@@ -67,6 +85,58 @@
 第 1 引数のリストの長さだけの @code{cons()} の繰り返しとなるため, 
 第 1 引数のリストが長い場合には多くのメモリを消費することになる. 
 @code{reverse()} に関しても同様である. 
+\E
+\BEG
+@item
+A list is written in @b{Asir} as @t{[}@var{obj1},@var{obj2},@dots{}@t{]}.
+Here, @var{obj1} is the first element.
+@item
+Function @code{car()} outputs the first element of a non-null list.
+For a null list, the result should be undefined. In the current
+implementation, however, it outputs a null list.  This treatment for a
+null list may subject to change in future, and users are suggested not
+to use the tentative treatment for a null list for serious programming.
+@item
+Function @code{cdr()} outputs a list obtained by removing the first
+element from the input non-null list.
+For a null list, the result should be undefined. In the current
+implementation, however, it outputs a null list.  This treatment for a
+null list may subject to change in future, and users are suggested not
+to use the tentative treatment for a null list for serious programming.
+@item
+Function @code{cons()} composes a new list from the input list @var{list}
+and an arbitrary object @var{obj} by adding @var{obj} to the top of
+@var{list}.
+@item
+Function @code{append()} composes a new list, which has all elements of
+@var{list1} in the same ordering followed by all elements of @var{list2}
+in the same ordering.
+@item
+Function @code{reverse()} returns a reversed list of @var{list}.
+@item
+Function @code{length()} returns a non-negative integer which is the
+number of elements in the input list @var{list}.
+Note that function @code{size} should be used for counting elements
+of @var{vector} and @var{matrix}.
+@item
+Lists are read-only objects in @b{Asir}.  There elements cannot be
+modified.
+@item
+The @var{n}-th element in a list can be referred to by applying the
+function @code{cdr()} @var{n} times repeatedly and @code{cdr()} at last.
+A more convenient way to access to the @var{n}-th element is the use
+of bracket notation, that is, to attach an index @code{[@var{n}]}
+like vectors and matrices.  The system, however, follow the
+@var{n} pointers to access the desired element. Subsequently, much
+time is spent for an element located far from the top of the list.
+@item
+Function @code{cdr()} does not create a new cell (a memory quantity).
+Function @code{append()}, as a matter of fact, repeats @code{cons()}
+for as many as the length of @var{list1} the first argument.
+Subsequently, @code{append()} consumes much memory space if its
+first argument is long.
+Similar argument applies to function @code{reverse()}.
+\E
 @end itemize
 
 @example

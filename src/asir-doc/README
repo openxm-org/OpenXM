@@ -1,22 +1,36 @@
-/* $OpenXM: OpenXM/src/asir99/doc/README,v 1.1 1999/11/15 03:50:12 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/README,v 1.1.1.1 1999/12/08 05:47:43 noro Exp $ */
 
-0. make には makeinfo, nkf が必要です. make html には texi2html が必要です. 
+0. Necessary applications
 
-1. 単に make すると, 
+Makeinfo later than version 1.68 is necessary to make help files.
+Texi2html is necessary to make HTML files.
+Additionally, nkf is necessary to make Japanese versions.
 
-man.dvi
-help-jp
-euc
+1. English version
 
-ができます. euc は作業用ディレクトリで, 全 texinfo source を一旦 EUC に
-変換して, そのディレクトリで makeinfo し, extract_func というプログラム
-help-jp directory に, 各関数ごとに, JIS コードの説明ファイルができます. 
-必要があれば symbolic link も作られます. 
+Type 'make'. Then the following will be made.
 
-2. make html すると, html directory に, man_toc.html, man_xxx.html
-というファイルが大量にできます. 
+man-eg.dvi    users manual
+help-eg       help files; It should be placed in Asir library directory.
+html-eg       HTML files; The table of contents file is html-eg/man_toc.html.
+tmpEG*        working directories
 
-netscape man_toc.html
+2. Japanese version
 
-とすれば, html 形式でマニュアルを読むことができて便利です. 
+Type 'make all-jp'. Then the following will be made.
+
+man-jp.dvi    users manual
+help-jp       help files; It should be placed in Asir library directory.
+html-jp       HTML files; The table of contents file is html-jp/man_toc.html.
+tmpJP*        working directories
+
+
+
+
+
+
+
+
+
+
 

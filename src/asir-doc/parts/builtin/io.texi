@@ -1,5 +1,12 @@
+@comment $OpenXM$
+\BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
+\E
+\BEG
+@node Inputs and Outputs,,, Built-in Function
+@section Inputs and Outputs
+\E
 
 @menu
 * end quit::
@@ -11,18 +18,26 @@
 * print::
 @end menu
 
-@node end quit,,, 入出力
+\JP @node end quit,,, 入出力
+\EG @node end quit,,, Inputs and Outputs
 @subsection @code{end}, @code{quit}
 @findex end
 @findex quit
 
 @table @t
 @item end, quit
+\BJP
 :: 現在読み込み中のファイルを閉じる. 
 トップレベルにおいてはセッションを終了することになる. 
+\E
+\BEG
+:: Close the currently reading file.
+At the top level, terminate the @b{Asir} session.
+\E
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{end}, @code{quit} ともに無引数の函数であるが, @samp{()} なしで
 呼び出すことができる. いずれも現在読み込み中のファイルを閉じる. 
@@ -31,6 +46,20 @@
 ファイルの場合, ファイルの終端まで読めば, 自動的にファイルは閉じられる
 が, トップレベルの場合プロンプトが出ないまま, 入力待ちになるので, 
 ファイルの終端には @code{end$} を書くのが望ましい. 
+\E
+\BEG
+@item
+These two functions take no arguments.  These functions can be called
+without a @samp{()}.  Either function close the current input file.
+This means the termination of the @b{Asir} session at the top level.
+@item
+An input file will be automatically closed if it is read to its end.
+However, if no @code{end$} is written at the last of the input file,
+the control will be returned to the top level and @b{Asir} will be
+waiting for an input without any prompting.
+Thus, in order to avoid confusion, putting a @code{end$} at the last
+line of the input file is strongly recommended.
+\E
 @end itemize
 
 @example
@@ -39,27 +68,32 @@
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{load}.
 @end table
 
-@node load,,, 入出力
+\JP @node load,,, 入出力
+\EG @node load,,, Inputs and Outputs
 @subsection @code{load}
 @findex load
 
 @table @t
 @item load("@var{filename}")
-:: @var{filename} を読み込む. 
+\JP :: @var{filename} を読み込む. 
+\EG :: Read a program file @var{filename}.
 @end table
 
 @table @var
 @item return
 (1|0)
 @item filename
-ファイル名 (パス名)
+\JP ファイル名 (パス名)
+\EG file (path) name
 @end table
 
 @itemize @bullet
+\BJP
 @item
 実際のプログラムの書き方は, @xref{ユーザ言語 Asir}.
  テキストファイルを読み込む場合, @code{cpp} 
@@ -73,8 +107,8 @@
 サーチする. それらに該当するファイルが存在しない場合, 標準ライブラリ
 ディレクトリ (あるいは環境変数 @code{ASIR_LIBDIR} に設定されている
 ディレクトリ) もサーチする. 
-Windows 版の場合, @code{ASIR_LIBDIR} が設定されていない場合には, @code{get_rootdir()/lib}
-をサーチする. 
+Windows 版の場合, @code{ASIR_LIBDIR} が設定されていない場合には, 
+@code{get_rootdir()/lib} をサーチする. 
 @item
 読み込むファイルの最後に, @code{end$} がないと @code{load()} 
 終了後にプロンプトがでないが, 実際には入力を受け付ける. しかし, 
@@ -83,30 +117,69 @@ Windows 版の場合, @code{ASIR_LIBDIR} が設定されていない場合には, @co
 ため, @code{end$} をお勧めする. )
 @item
 Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+\E
+\BEG
+@item
+@xref{User language Asir} for practical programming.
+Since text files are read through @code{cpp},
+the user can use, as in C programs, @code{#include} and @code{#define}
+in @b{Asir} program source codes.
+@item
+It returns 1 if the designated file exists, 0 otherwise.
+@item
+If the @var{filename} begins with @samp{/}, it is understood as an
+absolute path name; with  @samp{.}, relative path name from current
+directory; otherwise, the file is searched first from directories
+assigned to an environmental variable @code{ASIRLOADPATH}, then
+if the search ends up in failure, the standard library directory
+(or directories assigned to @code{ASIR_LIBDIR}) shall be searched.
+On Windows, @code{get_rootdir()/lib} is searched if 
+@code{ASIR_LIBDIR} is not set.
+@item
+We recommend to write an @code{end} command at the last line of
+your program.  If not, @b{Asir} will not give you a prompt after it
+will have executed @code{load} command.
+(Escape with an interrupt character (@pxref{Interruption}),
+if you have lost yourself.)
+Even in such a situation,
+@b{Asir} itself is still ready to read keyboard inputs as usual.
+It is, however, embarrassing and may cause other errors.
+Therefore, to put an @code{end$} at the last line is desirable.
+(Command @code{end;} will work as well,
+but it also returns and displays verbose.)
+@item
+On Windows one has to use @samp{/} as the separator of directory names.
+\E
 @end itemize
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{end quit}, @fref{which}, @fref{get_rootdir}.
 @end table
 
-@node which,,, 入出力
+\JP @node which,,, 入出力
+\EG @node which,,, Inputs and Outputs
 @subsection @code{which}
 @findex which
 
 @table @t
 @item which("@var{filename}")
-:: 引数 @var{filename} に対し, @code{load()} が読み込むパス名を返す. 
+\JP :: 引数 @var{filename} に対し, @code{load()} が読み込むパス名を返す. 
+\EG :: This returns the path name for the @var{filename} which @code{load()} will read.
 @end table
 
 @table @var
 @item return
-パス名
+\JP パス名
+\EG path name
 @item filename
-ファイル名 (パス名) または 0
+\JP ファイル名 (パス名) または 0
+\EG filename (path name) or 0
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{load()} がファイルをサーチする手順に従ってサーチし, 
 ファイルが存在する場合にはパス名を文字列として, 存在しない場合
@@ -115,6 +188,18 @@ Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
 サーチの手順については @code{load()} を参照. 
 @item
 Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+\E
+\BEG
+@item
+This function searches directory trees according to the same procedure
+as @code{load()} will do.  Then, returns a string, the path name to the
+file if the named file exists; 0 unless otherwise.
+@item
+For details of searching procedure,
+refer to the description about @code{load()}.
+@item
+On Windows one has to use @samp{/} as the separator of directory names.
+\E
 @end itemize
 
 @example
@@ -127,27 +212,32 @@ Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{load}.
 @end table
 
-@node output,,, 入出力
+\JP @node output,,, 入出力
+\EG @node output,,, Inputs and Outputs
 @subsection @code{output}
 @findex output
 
 @table @t
 @item output(["@var{filename}"])
-:: 以降の出力先を @var{filename}または標準出力に切替える. 
+\JP :: 以降の出力先を @var{filename}または標準出力に切替える. 
+\EG :: Writes the return values and prompt onto file @var{filename}.
 @end table
 
 @table @var
 @item return
 1
 @item filename
-ファイル名
+\JP ファイル名
+\EG filename
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @b{Asir} の出力を標準出力から, ファイルへの出力に切替える. 
 なお, ファイル出力の間は, 標準出力にはキーボードからの入力以外, 
@@ -174,6 +264,39 @@ Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
 @code{bload()}, @code{bsave()} を使うのが, 時間, 空間ともに効率がよい. 
 @item
 Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+\E
+\BEG
+@item
+Standard output stream of @b{Asir} is redirected to the specified file.
+While @b{Asir} is writing its outputs onto a file, no outputs, except for
+keyboard inputs and some of error messages, are written onto the standard
+output. (You cannot see the result on the display.)
+@item
+To direct the @b{Asir} outputs to the standard output, issue the command
+without argument, i.e., @code{output()}.
+@item
+If the specified file already exists, new outputs will be added to the
+tail of the file. If not, a file is newly created and the outputs
+will be written onto the file.
+@item
+When file name is specified without double quotes (@code{""}), or
+when protected file is specified, an error occurs and the system returns
+to the top level.
+@item
+If you want to write inputs from the key board onto the file as well
+as @b{Asir} outputs, put command @code{ctrl("echo",1)}, and then
+redirect the standard output to your desired file.
+@item
+Contents which are written onto the standard error output, CPU time etc.,
+are not written onto the file.
+@item
+Reading and writing algebraic expressions which contain neither
+functional forms nor unknown coefficients (@code{vtype()} References)
+are performed more efficiently, with respect to both time and space,
+by @code{bload()} and  @code{bsave()}.
+@item
+On Windows one has to use @samp{/} as the separator of directory names.
+\E
 @end itemize
 
 @example
@@ -192,32 +315,43 @@ output();
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ctrl}, @fref{bsave bload}.
 @end table
 
-@node bsave bload,,, 入出力
+\JP @node bsave bload,,, 入出力
+\EG @node bsave bload,,, Inputs and Outputs
 @subsection @code{bsave}, @code{bload}
 @findex bsave
 @findex bload
 
 @table @t
 @item bsave(@var{obj},"@var{filename}")
-:: @var{filename} に @var{obj} をバイナリ形式で書き込む. 
+\JP :: @var{filename} に @var{obj} をバイナリ形式で書き込む. 
+\EG :: This function writes @var{obj} onto @var{filename} in binary form.
 @item bsave("@var{filename}")
-:: @var{filename} から数式をバイナリ形式で読み込む. 
+\JP :: @var{filename} から数式をバイナリ形式で読み込む. 
+\EG :: This function reads an expression from @var{filename} in binary form.
 @end table
 
 @table @var
 @item return
-@code{bsave()} : 1, @code{bload()} : 読み込んだ数式
+\JP @code{bsave()} : 1, @code{bload()} : 読み込んだ数式
+\EG @code{bsave()} : 1, @code{bload()} : the expression read
 @item obj
-函数形式, 未定係数を含まない任意の数式
+\JP 函数形式, 未定係数を含まない任意の数式
+\BEG
+arbitrary expression which does not contain neither function forms
+nor unknown coefficients.
+\E
 @item filename
-ファイル名
+\JP ファイル名
+\EG filename
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{bsave()} は内部形式をほぼそのままバイナリ形式でファイルに書き込む. 
 @code{bload()} は, @code{bsave()} で書き込んだ数式を読み込んで内部形式
@@ -233,6 +367,29 @@ output();
 その場合には, 自動的に現在の変数順序における内部形式に変換される. 
 @item
 Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+\E
+\BEG
+@item
+Function @code{bsave()} writes an object onto a file in its internal
+form (not exact internal form but very similar).
+Function @code{bload()} read the expression from files
+which is written by @code{bsave()}.
+Current implementation support arbitrary expressions, including
+lists, arrays (i.e., vectors and matrices), except for function forms
+and unknown coefficients (@code{vtype()} References.)
+@item
+The parser is activated to retrieve expressions written by
+@code{output()} , whereas internal forms are directly reconstructed
+by @code{bload()} from the @code{bsave()}'ed object in the file.
+The latter is much more efficient with respect to both time and space.
+@item
+It may happen that the variable ordering at reading is changed from
+that at writing.  In such a case, the variable ordering in the internal
+expression is automatically rearranged according to the current
+variable ordering.
+@item
+On Windows one has to use @samp{/} as the separator of directory names.
+\E
 @end itemize
 
 @example
@@ -253,59 +410,83 @@ y^2+2*x*y+x^2
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{output}.
 @end table
 
-@node bload27,,, 入出力
+\JP @node bload27,,, 入出力
+\EG @node bload27,,, Inputs and Outputs
 @subsection @code{bload27}
 @findex bload27
 
 @table @t
 @item xxx(@var{filename}) 
-:: 旧版で作られた bsave file の読み込み
+\JP :: 旧版で作られた bsave file の読み込み
+\EG :: Reads bsaved file created by older version of @b{Asir}.
 @end table
 
 @table @var
 @item return
-読み込んだ数式
+\JP 読み込んだ数式
+\EG expression read
 @item filename
-ファイル名
+\JP ファイル名
+\EG filename
 @end table
 
 @itemize @bullet
+\BJP
 @item
 旧版では, 多倍長整数が, 1 ワード 27 bit で表現されていたが, 新版では 1 ワード 32 bit
 に変更された. このため, 旧版で @code{bsave} されたバイナリファイルはそのままでは
 読み込めない. このようなファイルを読み込むために @code{bload27} を用いる. 
 @item
 Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
+\E
+\BEG
+@item
+In older versions an arbitrary precision integer is represented as
+an array of 27bit integers. In the current version it is represented
+as an array of 32bit integers. By this incompatibility the bsaved
+file created by older versions cannot be read in the current version
+by @code{bload}.
+@code{bload27} is used to read such files.
+@item
+On Windows one has to use @samp{/} as the separator of directory names.
+\E
 @end itemize
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{bsave bload}.
 @end table
 
-@node print,,, 入出力
+\JP @node print,,, 入出力
+\EG @node print,,, Inputs and Outputs
 @subsection @code{print}
 @findex print
 
 @table @t
 @item print(@var{obj} [,@var{nl}])
-:: @var{obj} を表示する. 
+\JP :: @var{obj} を表示する. 
+\EG :: Displays (or outputs) @var{obj}.
 @end table
 
 @table @var
 @item return
 0
 @item obj
-任意
+\JP 任意
+\EG arbitrary
 @item nl
-フラグ (任意)
+\JP フラグ (任意)
+\EG flag (arbitrary)
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{obj} を評価して表示する. 
 @item
@@ -319,6 +500,29 @@ Windows 版もディレクトリのセパレータとして @samp{/} を用いる.
 @code{print()$} とすれば, 最後の 0 は出力されない.
 @item
 複数の @var{obj} を同時に出力したい時は @var{obj} をリストにするとよい.
+\E
+\BEG
+@item 
+Displays (or outputs) @var{obj}.
+@item 
+It normally adds linefeed code to cause the cursor moving to the next
+line.  If 0 or 2 is given as the second argument, it does not add a linefeed.
+If the second argument is 0, the output is simply written in the buffer.
+If the second argument is 2, the output is flushed.
+@item 
+The return value of this function is 0.
+If command @code{print(@var{rat});} is performed at the top level,
+first the value of @var{rat} will be printed,
+followed by a linefeed, followed by a 0 which is the value of the
+function and followed by a linefeed and the next prompt.
+(If the command is terminated by a `$', e.g., @code{print(@var{rat})$},
+The last 0 will not be printed. )
+@item 
+Formatted outputs are not currently supported.
+If one wishes to output multiple objects by a single @code{print()} command,
+use list like @code{[@var{obj1,...}]}, which is not so beautiful, but
+convenient to minimize programming efforts.
+\E
 @end itemize
 
 @example

@@ -1,5 +1,12 @@
+@comment $OpenXM$
+\BJP
 @node $B?t$N1i;;(B,,, $BAH$_9~$_H!?t(B
 @section $B?t$N1i;;(B
+\E
+\BEG
+@node Numbers,,, Built-in Function
+@section Numbers
+\E
 
 @menu
 * idiv irem::
@@ -19,26 +26,32 @@
 * lrandom::
 @end menu
 
-@node idiv irem,,, $B?t$N1i;;(B
+\JP @node idiv irem,,, $B?t$N1i;;(B
+\EG @node idiv irem,,, Numbers
 @subsection @code{idiv}, @code{irem}
 @findex idiv
 @findex irem
 
 @table @t
 @item idiv(@var{i1},@var{i2})
-:: $B@0?t=|;;$K$h$k>&(B. 
+\JP :: $B@0?t=|;;$K$h$k>&(B. 
+\EG :: Integer quotient of @var{i1} divided by @var{i2}.
 @item irem(@var{i1},@var{i2})
-:: $B@0?t=|;;$K$h$k>jM>(B. 
+\JP :: $B@0?t=|;;$K$h$k>jM>(B. 
+\EG :: Integer remainder of @var{i1} divided by @var{i2}.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item i1,i2
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{i1} $B$N(B @var{i2} $B$K$h$k@0?t=|;;$K$h$k>&(B, $B>jM>$r5a$a$k(B. 
 @item
@@ -50,6 +63,23 @@
 @code{irem()} $B$NBe$o$j$KMQ$$$k$3$H$,$G$-$k(B. 
 @item
 $BB?9`<0$N>l9g$O(B @code{sdiv}, @code{srem} $B$rMQ$$$k(B. 
+\E
+\BEG
+@item 
+Integer quotient and remainder of @var{i1} divided by @var{i2}.
+@item 
+@var{i2} must not be 0.
+@item 
+If the dividend is negative, the results are obtained by changing the
+sign of the results for absolute values of the dividend.
+@item 
+One can use
+@var{i1} @code{%} @var{i2}
+for replacement of @code{irem()} which only differs in the point that
+the result is always normalized to non-negative values.
+@item 
+Use @code{sdiv()}, @code{srem()} for polynomial quotient.
+\E
 @end itemize
 
 @example
@@ -64,31 +94,44 @@
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{sdiv sdivm srem sremm sqr sqrm}, @fref{%}.
 @end table
 
-@node fac,,, $B?t$N1i;;(B
+\JP @node fac,,, $B?t$N1i;;(B
+\EG @node fac,,, Numbers
 @subsection @code{fac}
 @findex fac
 
 @table @t
 @item fac(@var{i})
-:: @var{i} $B$N3,>h(B. 
+\JP :: @var{i} $B$N3,>h(B. 
+\EG :: The factorial of @var{i}.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item i
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{i} $B$N3,>h$r7W;;$9$k(B. 
 @item
 @var{i} $B$,Ii$N>l9g$O(B 0 $B$rJV$9(B. 
+\E
+\BEG
+@item 
+The factorial of @var{i}.
+@item 
+Returns 0 if the argument @var{i} is negative.
+\E
 @end itemize
 
 @example
@@ -96,26 +139,32 @@
 30414093201713378043612608166064768844377641568960512000000000000
 @end example
 
-@node igcd igcdcntl,,, $B?t$N1i;;(B
+\JP @node igcd igcdcntl,,, $B?t$N1i;;(B
+\EG @node igcd igcdcntl,,, Numbers
 @subsection @code{igcd},@code{igcdcntl}
 @findex igcd
 @findex igcdcntl
 
 @table @t
 @item igcd(@var{i1},@var{i2})
-:: $B@0?t$N(B GCD ($B:GBg8xLs?t(B)
+\JP :: $B@0?t$N(B GCD ($B:GBg8xLs?t(B)
+\EG :: The integer greatest common divisor of @var{i1} and @var{i2}.
 @item igcdcntl([@var{i}])
-:: $B@0?t(B GCD$B$N%"%k%4%j%:%`A*Br(B
+\JP :: $B@0?t(B GCD$B$N%"%k%4%j%:%`A*Br(B
+\EG :: Selects an algorithm for integer GCD.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item i1,i2,i
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{igcd} $B$O(B @var{i1} $B$H(B @var{i2} $B$N(B GCD $B$r5a$a$k(B. 
 @item
@@ -135,9 +184,38 @@ bmod GCD
 @item 3
 accelerated integer GCD
 @end table
-2, 3 $B$O(B K. Weber, ACM TOMS, Vol.21, No. 1 (1995), pp. 111-122 $B$K$h$k(B. 
+@code{2}, @code{3} $B$O(B @code{[Weber]} $B$K$h$k(B. 
 
-$B$*$*$`$M(B 3 $B$,9bB.$@$,(B, $BNc30$b$"$k(B. 
+$B$*$*$`$M(B @code{3} $B$,9bB.$@$,(B, $BNc30$b$"$k(B. 
+\E
+\BEG
+@item 
+Function @code{igcd()} returns the integer greatest common divisor of
+the given two integers.
+@item 
+An error will result if the argument is not an integer; the result is
+not valid even if one is returned.
+@item 
+Use @code{gcd()}, @code{gcdz()} for polynomial GCD.
+
+@item
+Various method of integer GCD computation are implemented
+and they can be selected by @code{igcdcntl}.
+
+@table @code
+@item 0
+Euclid algorithm (default)
+@item 1
+binary GCD
+@item 2
+bmod GCD
+@item 3
+accelerated integer GCD
+@end table
+@code{2}, @code{3} are due to @code{[Weber]}.
+
+In most cases @code{3} is the fastest, but there are exceptions.
+\E
 @end itemize
 
 @example
@@ -161,61 +239,89 @@ accelerated integer GCD
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{gcd gcdz}.
 @end table
 
-@node ilcm,,, $B?t$N1i;;(B
+\JP @node ilcm,,, $B?t$N1i;;(B
+\EG @node ilcm,,, Numbers
 @subsection @code{ilcm}
 @findex ilcm
 
 @table @t
 @item ilcm(@var{i1},@var{i2})
-:: $B:G>.8xG\?t$r5a$a$k(B. 
+\JP :: $B:G>.8xG\?t$r5a$a$k(B. 
+\EG :: The integer least common multiple of @var{i1} and @var{i2}.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item i1,i2
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B@0?t(B @var{i1}, @var{i2} $B$N:G>.8xG\?t$r5a$a$k(B. 
 @item
 $B0lJ}$,(B 0 $B$N>l9g(B 0 $B$rJV$9(B. 
+\E
+\BEG
 @item
-
+This function computes the integer least common multiple of
+@var{i1}, @var{i2}.
+@item
+If one of argument is equal to 0, the return 0.
+\E
 @end itemize
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{igcd igcdcntl}, @fref{mt_save mt_load}.
 @end table
-@node inv,,, $B?t$N1i;;(B
+
+\JP @node inv,,, $B?t$N1i;;(B
+\EG @node inv,,, Numbers
 @subsection @code{inv}
 @findex inv
 
 @table @t
 @item inv(@var{i},@var{m})
-:: @var{m} $B$rK!$H$9$k(B @var{i} $B$N5U?t(B
+\JP :: @var{m} $B$rK!$H$9$k(B @var{i} $B$N5U?t(B
+\EG :: the inverse (reciprocal) of @var{i} modulo @var{m}.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item i,m
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{ia} @equiv{} 1 mod (@var{m}) $B$J$k@0?t(B @var{a} $B$r5a$a$k(B. 
 @item
 @var{i} $B$H(B @var{m} $B$O8_$$$KAG$G$J$1$l$P$J$i$J$$$,(B, @code{inv()} $B$O(B
 $B$=$N%A%'%C%/$O9T$o$J$$(B. 
+\E
+\BEG
+@item 
+This function computes an integer such that
+@var{ia} @equiv{} 1 mod (@var{m}).
+@item 
+The integer @var{i} and  @var{m} must be mutually prime.
+However, @code{inv()} does not check it.
+\E
 @end itemize
 
 @example
@@ -228,11 +334,13 @@ accelerated integer GCD
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{igcd igcdcntl}.
 @end table
 
-@node prime lprime,,, $B?t$N1i;;(B
+\JP @node prime lprime,,, $B?t$N1i;;(B
+\EG @node prime lprime,,, Numbers
 @subsection @code{prime}, @code{lprime}
 @findex prime
 @findex lprime
@@ -240,17 +348,21 @@ accelerated integer GCD
 @table @t
 @item prime(@var{index})
 @item lprime(@var{index})
-:: $BAG?t$rJV$9(B
+\JP :: $BAG?t$rJV$9(B
+\EG :: Returns a prime number.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item index
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{prime()}, @code{lprime()} $B$$$:$l$b%7%9%F%`$,FbIt$K;}$D(B
 $BAG?tI=$NMWAG$rJV$9(B. @code{index} $B$O(B 0 $B0J>e$N@0?t$G(B, $BAG?tI=(B
@@ -259,8 +371,28 @@ accelerated integer GCD
 $BAG?t$+$iBg$-$$=g$K(B 999 $B8DJV$9(B. $B$=$l0J30$N%$%s%G%C%/%9$KBP$7$F$O(B
 0 $B$rJV$9(B. 
 @item
-$B$h$j0lHLE*$JAG?t@8@.H!?t$H$7$F$O(B, @code{pari(nextprime,@var{number})}
+$B$h$j0lHLE*$JAG?t@8@.H!?t$H$7$F$O(B,
+@code{pari(nextprime,@var{number})}
 $B$,$"$k(B. 
+\E
+\BEG
+@item
+The two functions, @code{prime()} and @code{lprime()}, returns
+an element stored in the system table of prime numbers.
+Here, @code{index} is a non-negative integer and be used as an index
+for the prime tables.
+The function @code{prime()} can return one of 1900 primes 
+up to 16381 indexed so that the smaller one has smaller
+index.  The function @code{lprime()} can return one of 999 primes which
+are 8 digit sized and indexed so that the larger one has the smaller
+index.
+The two function always returns 0 for other indices.
+@item
+For more general function for prime generation, there is a @code{PARI}
+function
+
+@code{pari(nextprime,@var{number})}.
+\E
 @end itemize
 
 @example
@@ -275,26 +407,30 @@ accelerated integer GCD
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{pari}.
 @end table
 
-@node random,,, $B?t$N1i;;(B
+\JP @node random,,, $B?t$N1i;;(B
+\EG @node random,,, Numbers
 @subsection @code{random}
 @findex random
 
 @table @t
 @item radom([@var{seed}])
-:: $BMp?t$r@8@.$9$k(B. 
+\JP :: $BMp?t$r@8@.$9$k(B. 
 @end table
 
 @table @var
 @item seed
-@item return
-$B<+A3?t(B
+@itemx return
+\JP $B<+A3?t(B
+\EG non-negative integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B:GBg(B 2^32-1 $B$NHsIi@0?t$NMp?t$r@8@.$9$k(B. 
 @item
@@ -310,63 +446,112 @@ default $B$N(B seed $B$O8GDj$N$?$a(B, $B<o$r@_Dj$7$J$1$l$P(B, $B@8@.$5$l$
 @code{mt_save} $B$K$h$j(B state $B$r%U%!%$%k$K(B save $B$G$-$k(B. $B$3$l$r(B @code{mt_load}
 $B$GFI$_9~$`$3$H$K$h$j(B, $B0[$k(B Asir $B%;%C%7%g%s4V$G0l$D$NMp?t$N7ONs$rC)$k$3$H$,(B
 $B$G$-$k(B. 
+\E
+\BEG
+@item
+Generates a random number which is a non-negative integer less than 2^32.
+@item
+If a non zero argument is specified, then after setting it as a random seed,
+a random number is generated.
+@item
+As the default seed is fixed, the sequence of the random numbers is
+always the same if a seed is not set.
+@item
+The algorithm is Mersenne Twister
+(http://www.math.keio.ac.jp/matsumoto/mt.html) by M. Matsumoto and
+T. Nishimura. The implementation is done also by themselves.
+@item
+The period of the random number sequence is 2^19937-1.
+@item
+One can save the state of the random number generator with @code{mt_save}.
+By loading the state file with @code{mt_load},
+one can trace a single random number sequence arcoss multiple sessions.
+\E
 @end itemize
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{lrandom}, @fref{mt_save mt_load}.
 @end table
 
-@node lrandom,,, $B?t$N1i;;(B
+\JP @node lrandom,,, $B?t$N1i;;(B
+\EG @node lrandom,,, Numbers
 @subsection @code{lrandom}
 @findex lrandom
 
 @table @t
 @item lradom(@var{bit})
-:: $BB?G\D9Mp?t$r@8@.$9$k(B. 
+\JP :: $BB?G\D9Mp?t$r@8@.$9$k(B. 
+\EG :: Generates a long random number.
 @end table
 
 @table @var
 @item bit
 @item return
-$B<+A3?t(B
+\JP $B<+A3?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B9b!9(B @var{bit} $B$NHsIi@0?t$NMp?t$r@8@.$9$k(B. 
 @item
 @code{random} $B$rJ#?t2s8F$S=P$7$F7k9g$7(B, $B;XDj$N(B bit $BD9$K%^%9%/$7$F$$$k(B. 
+\E
+\BEG
+@item
+Generates a non-negative integer of at most @var{bit} bits.
+@item
+The result is a concatination of outputs of @code{random}.
+\E
 @end itemize
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{random}, @fref{mt_save mt_load}.
 @end table
 
-@node mt_save mt_load,,, $B?t$N1i;;(B
+\JP @node mt_save mt_load,,, $B?t$N1i;;(B
+\EG @node mt_save mt_load,,, Numbers
 @subsection @code{mt_save}, @code{mt_load}
 @findex mt_save
 @findex mt_load
 
 @table @t
 @item mt_save(@var{fname})
-:: $BMp?t@8@.4o$N8=:_$N>uBV$r%U%!%$%k$K%;!<%V$9$k(B. 
+\JP :: $BMp?t@8@.4o$N8=:_$N>uBV$r%U%!%$%k$K%;!<%V$9$k(B. 
+\EG :: Saves the state of the random number generator.
 @item mt_load(@var{fname})
-:: $B%U%!%$%k$K%;!<%V$5$l$?Mp?t@8@.4o$N>uBV$r%m!<%I$9$k(B. 
+\JP :: $B%U%!%$%k$K%;!<%V$5$l$?Mp?t@8@.4o$N>uBV$r%m!<%I$9$k(B. 
+\EG :: Loads a saved state of the random number generator.
 @end table
 
 @table @var
 @item return
-0 $B$^$?$O(B 1
+\JP 0 $B$^$?$O(B 1
+\EG 0 or 1
 @item fname
-$BJ8;zNs(B
+\JP $BJ8;zNs(B
+\EG string
 @end table
 
 @itemize @bullet
-@item $B$"$k>uBV$r%;!<%V$7(B, $B$=$N>uBV$r%m!<%I$9$k$3$H$G(B, 
+\BJP
+@item
+$B$"$k>uBV$r%;!<%V$7(B, $B$=$N>uBV$r%m!<%I$9$k$3$H$G(B, 
 $B0l$D$N5?;wMp?t7ONs$r(B, $B?75,$N(B Asir $B%;%C%7%g%s$GB3$1$F$?$I$k$3$H$,(B
 $B$G$-$k(B. 
+\E
+\BEG
+@item
+One can save the state of the random number generator with @code{mt_save}.
+By loading the state file with @code{mt_load},
+one can trace a single random number sequence arcoss multiple 
+@b{Asir} sessions.
+\E
 @end itemize
 
 @example
@@ -388,30 +573,37 @@ Copyright (C) FUJITSU LABORATORIES LIMITED.
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{random}, @fref{lrandom}.
 @end table
 
-@node nm dn,,, $B?t$N1i;;(B
+\JP @node nm dn,,, $B?t$N1i;;(B
+\EG @node nm dn,,, Numbers
 @subsection @code{nm}, @code{dn}
 @findex nm
 @findex dn
 
 @table @t
 @item nm(@var{rat})
-:: @var{rat} $B$NJ,;R(B. 
+\JP :: @var{rat} $B$NJ,;R(B. 
+\EG :: Numerator of @var{rat}.
 @item dn(@var{rat})
-:: @var{rat} $B$NJ,Jl(B. 
+\JP :: @var{rat} $B$NJ,Jl(B. 
+\EG :: Denominator of @var{rat}.
 @end table
 
 @table @var
 @item return
-$B@0?t$^$?$OB?9`<0(B
+\JP $B@0?t$^$?$OB?9`<0(B
+\EG integer or polynomial
 @item rat
-$BM-M}?t$^$?$OM-M}<0(B
+\JP $BM-M}?t$^$?$OM-M}<0(B
+\EG rational number or rational expression
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $BM?$($i$l$?M-M}?t$^$?M-M}<0$NJ,;R5Z$SJ,Jl$rJV$9(B. 
 @item
@@ -420,6 +612,24 @@ Copyright (C) FUJITSU LABORATORIES LIMITED.
 $BM-M}<0$N>l9g(B, $BC1$KJ,Jl(B, $BJ,;R$r<h$j=P$9$@$1$G$"$k(B. 
 $BM-M}<0$KBP$7$F$O(B, $BLsJ,$O<+F0E*$K$O9T$o$l$J$$(B. @code{red()}
 $B$rL@<(E*$K8F$S=P$9I,MW$,$"$k(B. 
+\E
+\BEG
+@item
+Numerator and denominator of a given rational expression.
+@item
+For a rational number, they return its numerator and denominator,
+respectively.  For a rational expression whose numerator and denominator
+may contain rational numbers, they do not separate those rational
+coefficients to numerators and denominators.
+@item
+For a rational number, the denominator is always kept positive, and
+the sign is contained in the numerator.
+@item
+@b{Risa/Asir} does not cancel the common divisors unless otherwise explicitly
+specified by the user.
+Therefore, @code{nm()} and @code{dn()} return the numerator and the
+denominator as it is, respectively.
+\E
 @end itemize
 
 @example
@@ -432,33 +642,47 @@ y
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{red}.
 @end table
 
-@node conj real imag,,, $B?t$N1i;;(B
+\JP @node conj real imag,,, $B?t$N1i;;(B
+\EG @node conj real imag,,, Numbers
 @subsection @code{conj}, @code{real}, @code{imag}
 @findex conj
 
 @table @t
 @item real(@var{comp})
-:: @var{comp} $B$N<B?tItJ,(B. 
+\JP :: @var{comp} $B$N<B?tItJ,(B. 
+\EG :: Real part of @var{comp}.
 @item imag(@var{comp})
-:: @var{comp} $B$N5u?tItJ,(B. 
+\JP :: @var{comp} $B$N5u?tItJ,(B. 
+\EG :: Imaginary part of @var{comp}.
 @item conj(@var{comp})
-:: @var{comp} $B$N6&LrJ#AG?t(B. 
+\JP :: @var{comp} $B$N6&LrJ#AG?t(B. 
+\EG :: Complex conjugate of @var{comp}.
 @end table
 
 @table @var
 @item return comp
-$BJ#AG?t(B
+\JP $BJ#AG?t(B
+\EG complex number
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $BJ#AG?t$KBP$7(B, $B<BIt(B, $B5uIt(B, $B6&Lr$r5a$a$k(B. 
 @item
 $B$3$l$i$O(B, $BB?9`<0$KBP$7$F$bF/$/(B. 
+\E
+\BEG
+@item
+Basic operations for complex numbers.
+@item
+These functions works also for polynomials with complex coefficients.
+\E
 @end itemize
 
 @example
@@ -468,26 +692,32 @@ y
 [2,11,(2-11*@@i)]
 @end example
 
-@node eval,,, $B?t$N1i;;(B
+\JP @node eval,,, $B?t$N1i;;(B
+\EG @node eval,,, Numbers
 @subsection @code{eval}
 @findex eval
 @cindex PARI
 
 @table @t
 @item eval(@var{obj}[,@var{prec}])
-:: @var{obj} $B$NCM$NI>2A(B. 
+\JP :: @var{obj} $B$NCM$NI>2A(B. 
+\EG :: Evaluate @var{obj} numerically.
 @end table
 
 @table @var
 @item return
-$B?t$"$k$$$O<0(B
+\JP $B?t$"$k$$$O<0(B
+\EG number or expression
 @item obj
-$B0lHL$N<0(B
+\JP $B0lHL$N<0(B
+\EG general expression
 @item prec
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{obj} $B$K4^$^$l$kH!?t$NCM$r2DG=$J8B$jI>2A$9$k(B. 
 @item
@@ -519,6 +749,44 @@ y
 @item @@e
 $B<+A3BP?t$NDl(B
 @end table
+\E
+\BEG
+@item
+Evaluates the value of the functions contained in @var{obj} as far as
+possible.
+@item
+The computation is done by @b{PARI} (@xref{pari}).
+@item
+When @var{prec} is specified, computation will be performed with a
+precision of about @var{prec}-digits.
+If @var{prec} is not specified, computation is performed with the
+precision set currently. (@xref{setprec})
+@item
+Currently available numerical functions are listed below.
+Note they are only a small part of whole @b{PARI} functions.
+
+@table @t
+@code{sin}, @code{cos}, @code{tan},
+
+@code{asin}, @code{acos}, @code{atan},
+
+@code{sinh}, @code{cosh}, @code{tanh},
+@code{asinh}, @code{acosh}, @code{atanh},
+
+@code{exp}, @code{log}, @code{pow(a,b) (a^b)}
+@end table
+@item
+Symbols for special values are as the followings.
+@table @t
+@item @@i
+unit of imaginary number
+@item @@pi
+the number pi,
+the ratio of circumference to diameter
+@item @@e
+Napier's number (@t{exp}(1))
+@end table
+\E
 @end itemize
 
 @example
@@ -533,32 +801,40 @@ y
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{ctrl}, @fref{setprec}, @fref{pari}.
 @end table
 
-@node pari,,, $B?t$N1i;;(B
+\JP @node pari,,, $B?t$N1i;;(B
+\EG @node pari,,, Numbers
 @subsection @code{pari}
 @findex pari
 @cindex PARI
 
 @table @t
 @item pari(@var{func},@var{arg},@var{prec}) 
-:: @b{PARI} $B$NH!?t(B @var{func} $B$r8F$S=P$9(B. 
+\JP :: @b{PARI} $B$NH!?t(B @var{func} $B$r8F$S=P$9(B. 
+\EG :: Call @b{PARI} function @var{func}.
 @end table
 
 @table @var
 @item return
-@var{func} $BKh$K0[$J$k(B. 
+\JP @var{func} $BKh$K0[$J$k(B. 
+\EG Depends on @var{func}.
 @item func
-@b{PARI} $B$NH!?tL>(B
+\JP @b{PARI} $B$NH!?tL>(B
+\EG Function name of @b{PARI}.
 @item arg
-@var{func} $B$N0z?t(B
+\JP @var{func} $B$N0z?t(B
+\EG Arguments of @var{func}.
 @item prec
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @b{PARI} $B$NH!?t$r8F$S=P$9(B. 
 
@@ -570,8 +846,8 @@ y
 $BH!?tCM$NI>2A$r9bB.$K9T$&$3$H$,$G$-$k(B. @b{PARI} $B$OB>$N%W%m%0%i%`$+$i(B
 $B%5%V%k!<%A%s%i%$%V%i%j$H$7$FMQ$$$k$3$H$,$G$-(B, $B$^$?(B, @samp{gp} $B$H$$$&(B 
 @b{PARI}$B%i%$%V%i%j$N%$%s%?%U%'!<%9$K$h$j(B UNIX $B$N%"%W%j%1!<%7%g%s$H$7$F(B
-$BMxMQ$9$k$3$H$b$G$-$k(B. $B8=:_$N%P!<%8%g%s$O(B @b{1.39} $B$G$$$/$D$+$N(B ftp
-site ($B$?$H$($P(B @code{math.ucla.edu:/pub/pari})
+$BMxMQ$9$k$3$H$b$G$-$k(B. $B8=:_$N%P!<%8%g%s$O(B @b{2.0.17beta} $B$G$$$/$D$+$N(B ftp
+site ($B$?$H$($P(B @code{ftp://megrez.ceremab.u-bordeaux.fr/pub/pari})
 $B$+$i(B anonymous ftp $B$G$-$k(B. 
 @item
 $B:G8e$N0z?t(B @var{prec} $B$G7W;;@:EY$r;XDj$G$-$k(B.
@@ -580,6 +856,33 @@ site ($B$?$H$($P(B @code{math.ucla.edu:/pub/pari})
 $B8=;~E@$G<B9T$G$-$k(B @b{PARI} $B$NH!?t$O<!$NDL$j$G$"$k(B. $B$$$:$l$b(B
 1 $B0z?t$G(B @b{Asir} $B$,BP1~$G$-$k7?$N0z?t$r$H$kH!?t$G$"$k(B. 
 $B$J$*3F!9$N5!G=$K$D$$$F$O(B @b{PARI} $B$N%^%K%e%"%k$r;2>H$N$3$H(B.
+\E
+\BEG
+@item
+This command connects @b{Asir} to @b{PARI} system so that several
+functions of @b{PARI} can be conveniently used from @b{Risa/Asir}.
+@item
+@b{PARI} @code{[Batut et al.]} is developed at Bordeaux University, and
+distributed as a free software.  Though it has a certain facility to computer
+algebra, its major target is the operation of numbers (@b{bignum},
+@b{bigfloat}) related to the number theory.  It facilitates various
+function evaluations as well as arithmetic operations at a remarkable
+speed.  It can also be used from other external programs as a library.
+It provides a language interface named @samp{gp} to its library, which
+enables a user to use @b{PARI} as a calculator which runs on UNIX.
+The current version is @b{2.0.17beta}.  It can be obtained by several ftp
+sites. (For example, @code{ftp://megrez.ceremab.u-bordeaux.fr/pub/pari}.)
+@item
+The last argument (optional) @var{int} specifies the precision in digits
+for bigfloat operation.
+If the precision is not explicitly specified, operation will be performed
+with the precision set by @code{setprec()}.
+@item
+Currently available functions of @b{PARI} system are as follows.
+Note these are only a part of functions in @b{PARI} system.
+For details of individual functions, refer to the @b{PARI} manual.
+(Some of them can be seen in the following example.)
+\E
 
 @code{abs},
 @code{adj},
@@ -714,44 +1017,60 @@ site ($B$?$H$($P(B @code{math.ucla.edu:/pub/pari})
 @code{wf2},
 @code{zeta}
 
+\BJP
 @item
 @b{Asir} $B$GMQ$$$F$$$k$N$O(B @b{PARI} $B$N$[$s$N0lIt$N5!G=$G$"$k$,(B, $B:#8e(B
 $B$h$jB?$/$N5!G=$,MxMQ$G$-$k$h$&2~NI$9$kM=Dj$G$"$k(B. 
+\E
+\BEG
+@item
+@b{Asir} currently uses only a very small subset of @b{PARI}.
+We will improve @b{Asir} so that it can provide more functions of
+@b{PARI}.
+\E
 @end itemize
 
 @example
-/* $B9TNs$N8GM-%Y%/%H%k$r5a$a$k(B. */
+\JP /* $B9TNs$N8GM-%Y%/%H%k$r5a$a$k(B. */
+\EG /* Eigen vectors of a numerical matrix */
 [0] pari(eigen,newmat(2,2,[[1,1],[1,2]]));
 [ -1.61803398874989484819771921990 0.61803398874989484826 ]
 [ 1 1 ]
-/* 1 $BJQ?tB?9`<0$N:,$r5a$a$k(B. */
+\JP /* 1 $BJQ?tB?9`<0$N:,$r5a$a$k(B. */
+\EG /* Roots of a polynomial */
 [1] pari(roots,t^2-2);
 [ -1.41421356237309504876 1.41421356237309504876 ]
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
+\EG @item References
 @fref{setprec}.
 @end table
 
-@node setprec,,, $B?t$N1i;;(B
+\JP @node setprec,,, $B?t$N1i;;(B
+\EG @node setprec,,, Numbers
 @subsection @code{setprec}
 @findex setprec
 @cindex PARI
 
 @table @t
 @item setprec([@var{n}])
-:: @b{bigfloat} $B$N7e?t$r(B @var{n} $B7e$K@_Dj$9$k(B. 
+\JP :: @b{bigfloat} $B$N7e?t$r(B @var{n} $B7e$K@_Dj$9$k(B. 
+\EG :: Sets the precision for @b{bigfloat} operations to @var{n} digits.
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item n
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $B0z?t$,$"$k>l9g(B, @b{bigfloat} $B$N7e?t$r(B @var{n} $B7e$K@_Dj$9$k(B. 
 $B0z?t$N$"$k$J$7$K$+$+$o$i$:(B, $B0JA0$K@_Dj$5$l$F$$$?CM$rJV$9(B. 
@@ -763,6 +1082,24 @@ site ($B$?$H$($P(B @code{math.ucla.edu:/pub/pari})
 @item
 $B@_Dj$G$-$k7e?t$K>e8B$O$J$$$,(B, $B;XDj$7$?7e?t$K@_Dj$5$l$k$H$O(B
 $B8B$i$J$$(B. $BBg$-$a$NCM$r@_Dj$9$k$N$,0BA4$G$"$k(B. 
+\E
+\BEG
+@item
+When an argument is given, it
+sets the precision for @b{bigfloat} operations to @var{n} digits.
+The return value is always the previous precision in digits regardless of
+the existence of an argument.
+
+@item
+@b{Bigfloat} operations are done by @b{PARI}. (@xref{pari})
+@item
+This is effective for computations in @b{bigfloat}.
+Refer to @code{ctrl()} for turning on the `@b{bigfloat} flag.'
+@item
+There is no upper limit for precision digits.
+It sets the precision to some digits around the specified precision.
+Therefore, it is safe to specify a larger value.
+\E
 @end itemize
 
 @example
@@ -775,32 +1112,50 @@ site ($B$?$H$($P(B @code{math.ucla.edu:/pub/pari})
 @end example
 
 @table @t
-@item $B;2>H(B
+\JP @item $B;2>H(B
 @fref{ctrl}, @fref{eval}, @fref{pari}.
 @end table
 
-@node setmod,,, $B?t$N1i;;(B
+\JP @node setmod,,, $B?t$N1i;;(B
+\EG @node setmod,,, Numbers
 @subsection @code{setmod}
 @findex setmod
 
 @table @t
 @item setmod([@var{p}])
-:: $BM-8BBN$r(B GF(@var{p}) $B$K@_Dj$9$k(B. 
+\JP :: $BM-8BBN$r(B GF(@var{p}) $B$K@_Dj$9$k(B. 
+\EG :: Sets the ground field to GF(@var{p}).
 @end table
 
 @table @var
 @item return
-$B@0?t(B
+\JP $B@0?t(B
+\EG integer
 @item n
-2^27 $BL$K~$NAG?t(B
+\JP 2^27 $BL$K~$NAG?t(B
+\EG prime less than 2^27
 @end table
 
 @itemize @bullet
+\BJP
 @item
 $BM-8BBN$r(B GF(@var{p}) $B$K@_Dj$9$k(B. $B@_DjCM$rJV$9(B. 
 @item
 $BM-8BBN$N85$N7?$r;}$D?t$O(B, $B$=$l<+?H$O$I$NM-8BBN$KB0$9$k$+$N>pJs$r;}$?$:(B, 
 $B8=:_@_Dj$5$l$F$$$kAG?t(B @var{p} $B$K$h$j(B GF(@var{p}) $B>e$G$N1i;;$,E,MQ$5$l$k(B. 
+@item
+$B0L?t$NBg$-$JM-8BBN$K4X$7$F$O(B @pxref{$BM-8BBN$K4X$9$k1i;;(B}.
+\E
+\BEG
+@item
+Sets the ground field to GF(@var{p}) and returns the value @var{p}.
+@item
+A member of a finite field does not have any information
+about the field and the arithmetic operations over GF(@var{p}) are applied
+with @var{p} set at the time.
+@item
+As for large finite fields, @pxref{Finite fields}.
+\E
 @end itemize
 
 @example
@@ -816,7 +1171,9 @@ return to toplevel
 @end example
 
 @table @t
-@item $B;2>H(B
-@fref{dp_mod dp_rat}, @fref{$B?t$N7?(B}.
+\JP @item $B;2>H(B
+\EG @item References
+\JP @fref{dp_mod dp_rat}, @fref{$B?t$N7?(B}.
+\EG @fref{dp_mod dp_rat}, @fref{Types of numbers}.
 @end table
 

@@ -1,5 +1,12 @@
+@comment $OpenXM$
+\BJP
 @node 型を求める函数,,, 組み込み函数
 @section 型を求める函数
+\E
+\BEG
+@node Types,,, Built-in Function
+@section Types
+\E
 
 @menu
 * type::
@@ -7,23 +14,28 @@
 * vtype::
 @end menu
 
-@node type,,, 型を求める函数
+\JP @node type,,, 型を求める函数
+\EG @node type,,, Types
 @subsection @code{type}
 @findex type
 
 @table @t
 @item type(@var{obj})
-:: @var{obj} の 型 (整数) を返す. 
+\JP :: @var{obj} の 型 (整数) を返す. 
+\EG :: Returns an integer which identifies the type of the object @var{obj} in question.
 @end table
 
 @table @var 
 @item return
-自然数
+\JP 整数
+\EG integer
 @item obj
-任意
+\JP 任意
+\EG arbitrary
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{obj} の 型の値は次の通り. 
 @table @t
@@ -47,34 +59,94 @@
 構造体
 @item 9
 分散表現多項式
+@item 10
+32bit 符号なし整数
+@item 11
+エラーオブジェクト
+@item 12
+GF(2) 上の行列
+@item 13
+MATHCAP オブジェクト
+@item 14
+一階述語論理式
+@item -1
+VOID オブジェクト
 @end table
 @item
 数の型を求めるには, @code{ntype} を用いる. 
 不定元の型を求めるには, @code{vtype} を用いる. 
+\E
+\BEG
+@item
+Current assignment of integers for object types is listed below.
+@table @t
+@item 0
+0 
+@item 1
+number
+@item 2
+polynomial (not number)
+@item 3
+rational expression (not polynomial)
+@item 4
+list
+@item 5
+vector
+@item 6
+matrix
+@item 7
+string
+@item 8
+structure
+@item 9
+distributed polynomial
+@item 10
+32bit unsigned integer
+@item 11
+error object
+@item 12
+matrix over GF(2)
+@item 13
+MATHCAP object
+@item 14
+first order formula
+@item -1
+VOID object
+@end table
+@item
+For further classification of @var{number}, use @code{ntype()}.
+For further classification of @var{variable}, use @code{vtype()}.
+\E
 @end itemize
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ntype}, @fref{vtype}.
 @end table
 
-@node ntype,,, 型を求める函数
+\JP @node ntype,,, 型を求める函数
+\EG @node ntype,,, Types
 @subsection @code{ntype}
 @findex ntype
 
 @table @t
 @item ntype(@var{num})
-:: @var{num} (数) の 型 (整数) を返す. 
+\JP :: @var{num} (数) の 型 (整数) を返す. 
+\EG :: Classifier of type @var{num}.  Returns a sub-type number, an integer, for @var{obj}.
 @end table
 
 @table @var
 @item return
-自然数
+\JP 自然数
+\EG integer  
 @item obj
-数
+\JP 数
+\EG number
 @end table
 
 @itemize @bullet
+\BJP
 @item
 数の型の値は次の通り. 
 @table @t
@@ -90,12 +162,50 @@
 複素数
 @item 5
 有限体の元
+@item 6
+大標数素体の元
+@item 7
+標数 2 の有限体の元
 @end table
 @item
 @code{newalg(x^2+1)} で生成した数と, 虚数単位 @code{@@i} は, 
 異なるものとして扱われる. 
 @item
 代数的数に関しては, @xref{代数的数に関する演算}. 
+\E
+\BEG
+@item
+Sub-types for type number are listed below.
+@table @t
+@item 0
+rational number
+@item 1
+floating double (double precision floating point number)
+@item 2
+algebraic number over rational number field
+@item 3
+arbitrary precision floating point number (@b{bigfloat})
+@item 4
+complex number
+@item 5
+element of a finite field
+@item 6
+element of a large finite prime field
+@item 7
+element of a finite field of characteristic 2
+@end table
+@item
+When arithmetic operations for numbers are performed,
+type coercion will be taken if their number sub-types are different
+so that the object having smaller sub-type number will be transformed
+to match the other object, except for algebraic numbers.
+@item
+A number object created by @code{newalg(x^2+1)} and the unit of
+imaginary number @code{@@i} have different number sub-types, and
+it is treated independently.
+@item
+@xref{Algebraic numbers} for algebraic numbers.
+\E
 @end itemize
 
 @example
@@ -112,27 +222,33 @@
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{type}.
 @end table
 
-@node vtype,,, 型を求める函数
+\JP @node vtype,,, 型を求める函数
+\EG @node vtype,,, Types   
 @subsection @code{vtype}
 @findex vtype
 
 @table @t
 @item vtype(@var{var})
-:: @var{var} (不定元) の 型 (整数) を返す. 
+\JP :: @var{var} (不定元) の 型 (整数) を返す. 
+\EG :: Type of indetarminates @var{var}.
 @end table
 
 @table @var
 @item return
-自然数
+\JP 整数
+\EG integer
 @item var
-不定元
+\JP 不定元
+\EG indeterminate
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{var} (不定元) の型の値は次の通り. 詳細は @xref{不定元の型}.
 @table @t
@@ -151,10 +267,40 @@
 @item
 @code{@@pi}, @code{@@e} は不定元として扱われるが, @code{eval()}, @code{pari()}
 においては数として扱われる. 
+\E
+\BEG
+@item
+Classify indeterminates into sub-types by giving an integer value as follows.
+For details  @xref{Types of indeterminates}.
+@table @t
+@item 0
+ordinary indeterminate, which can be directly typed in on a keyboard
+(a,b,x,afo,bfo,...,etc.)
+@item 1
+Special indeterminate, created by @code{uc()}
+(@code{_0}, @code{_1}, @code{_2}, ... etc.)
+@item 2
+function form (@code{sin(x)}, @code{log(a+1)}, @code{acosh(1)}, @code{@@pi}, @code{@@e}, ... etc.)
+@item 3
+functor (built-in functor name, user defined functor, functor for
+the elementary functions)
+ : @code{sin}, @code{log}, ... etc)
+@end table
+@item
+Note: An input `@code{a();}' will cause an error, but it changes
+the system database for identifiers.  After this error, you will find
+`@code{vtype(a)}' will result 3. (Identifier @code{a} is registered as
+a user defined functor).
+@item
+Usually @code{@@pi} and @code{@@e} are treated as indeterminates,
+whereas they are treated as numbers within functions @code{eval()} and
+ @code{pari()}.
+\E
 @end itemize
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{type}, @fref{ntype}, @fref{uc}.
 @end table
 

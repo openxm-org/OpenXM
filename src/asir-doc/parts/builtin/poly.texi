@@ -1,5 +1,12 @@
+@comment $OpenXM$
+\BJP
 @node 多項式および有理式の演算,,, 組み込み函数
 @section 多項式, 有理式の演算
+\E
+\BEG
+@node Polynomials and rational expressions,,, Built-in Function
+@section operations with polynomials and rational expressions
+\E
 
 @menu
 * var::
@@ -24,23 +31,28 @@
 * red::
 @end menu
 
-@node var,,, 多項式および有理式の演算
+\JP @node var,,, 多項式および有理式の演算
+\EG @node var,,, Polynomials and rational expressions
 @subsection @code{var}
 @findex var
 
 @table @t
 @item var(@var{rat}) 
-:: @var{rat} の主変数. 
+\JP :: @var{rat} の主変数. 
+\EG :: Main variable (indeterminate) of @var{rat}.
 @end table
 
 @table @var
 @item return
-不定元
+\JP 不定元
+\EG indeterminate
 @item rat
-有理式
+\JP 有理式
+\EG rational expression
 @end table
 
 @itemize @bullet
+\BJP
 @item
 主変数に関しては, @xref{Asir で使用可能な型}.
 @item 
@@ -48,6 +60,19 @@
 
 @code{x}, @code{y}, @code{z}, @code{u}, @code{v}, @code{w}, @code{p}, @code{q}, @code{r}, @code{s}, @code{t}, @code{a}, @code{b}, @code{c}, @code{d}, @code{e},
 @code{f}, @code{g}, @code{h}, @code{i}, @code{j}, @code{k}, @code{l}, @code{m}, @code{n}, @code{o},以後は変数の現れた順. 
+\E
+\BEG
+@item
+@xref{Types in Asir} for main variable.
+@item
+Indeterminates (variables) are ordered by default as follows.
+ 
+@code{x}, @code{y}, @code{z}, @code{u}, @code{v}, @code{w}, @code{p}, @code{q},
+@code{r}, @code{s}, @code{t}, @code{a}, @code{b}, @code{c}, @code{d}, @code{e},
+@code{f}, @code{g}, @code{h}, @code{i}, @code{j}, @code{k}, @code{l}, @code{m},
+@code{n}, @code{o}. The other variables will be ordered after the above noted variables
+so that the first comer will be ordered prior to the followers.
+\E
 @end itemize
 
 @example
@@ -60,31 +85,44 @@ abc
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ord}, @fref{vars}.
 @end table
 
-@node vars,,, 多項式および有理式の演算
+\JP @node vars,,, 多項式および有理式の演算
+\EG @node vars,,, Polynomials and rational expressions
 @subsection @code{vars}
 @findex vars
 
 @table @t
 @item vars(@var{obj})
-:: @var{obj} に含まれる変数のリスト. 
+\JP :: @var{obj} に含まれる変数のリスト. 
+\EG :: A list of variables (indeterminates) in an expression @var{obj}.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item obj
-任意
+\JP 任意
+\EG arbitrary
 @end table
 
 @itemize @bullet
+\BJP
 @item
 与えられた式に含まれる変数のリストを返す. 
 @item
 変数順序の高いものから順に並べる. 
+\E
+\BEG
+@item
+Returns a list of variables (indeterminates) contained in a given expression.
+@item
+Lists variables according to the variable ordering.
+\E
 @end itemize
 
 @example
@@ -97,25 +135,30 @@ abc
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{var}, @fref{uc}, @fref{ord}.
 @end table
 
-@node uc,,, 多項式および有理式の演算
+\JP @node uc,,, 多項式および有理式の演算
+\EG @node uc,,, Polynomials and rational expressions
 @subsection @code{uc}
 @findex uc
 
 @table @t
 @item uc()
-:: 新たな不定元を生成する. 
+\JP :: 未定係数法のための不定元を生成する. 
+\EG :: Create a new indeterminate for an undermined coeficient.
 @end table
 
 @table @var
 @item return
-@code{vtype} が 1 の不定元
+\JP @code{vtype} が 1 の不定元
+\EG indeterminate with its @code{vtype} 1.
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{uc()} を実行するたびに, @code{_0}, @code{_1}, @code{_2},... という
 不定元を生成する. 
@@ -129,6 +172,24 @@ abc
 @item
 @code{uc()} で生成された不定元の不定元としての型 (@code{vtype}) は 1 である. 
 (@xref{不定元の型})
+\E
+\BEG
+@item
+At every evaluation of command @code{uc()}, a new indeterminate in
+the sequence of indeterminates @code{_0}, @code{_1}, @code{_2}, @dots{}
+is created successively.
+@item
+Indeterminates created by @code{uc()} cannot be input on the keyboard.
+By this property, you are free, no matter how many indeterminates you
+will create dynamically by a program, from collision of created names
+with indeterminates input from the keyboard or from program files.
+@item
+Functions, @code{rtostr()} and @code{strtov()}, are used to create
+ordinary indeterminates (indeterminates having 0 for their @code{vtype}).
+@item
+Kernel sub-type of indeterminates created by @code{uc()} is 1.
+(@code{vtype(uc())}=1)
+\E
 @end itemize
 
 @example
@@ -143,31 +204,42 @@ _0^2+2*_1*_0+_1^2
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{vtype}, @fref{rtostr}, @fref{strtov}.
 @end table
 
-@node coef,,, 多項式および有理式の演算
+\JP @node coef,,, 多項式および有理式の演算
+\EG @node coef,,, Polynomials and rational expressions
 @subsection @code{coef}
 @findex coef
 
 @table @t
 @item coef(@var{poly},@var{deg}[,@var{var}])
-:: @var{poly} の @var{var} (省略時は主変数) に関する @var{deg} 次の係数. 
+\JP :: @var{poly} の @var{var} (省略時は主変数) に関する @var{deg} 次の係数. 
+\BEG
+:: The coefficient of a polynomial @var{poly} at degree @var{deg}
+with respect to the variable @var{var} (main variable if unspecified).
+\E
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG polynomial
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @item var
-不定元
+\JP 不定元
+\EG indeterminate
 @item deg
-自然数
+\JP 自然数
+\EG non-negative integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{poly} の @var{var} に関する @var{deg} 次の係数を出力する. 
 @item
@@ -175,6 +247,19 @@ _0^2+2*_1*_0+_1^2
 @item
 @var{var} が主変数でない時, @var{var} が主変数の場合に比較して
 効率が落ちる. 
+\E
+\BEG
+@item
+The coefficient of a polynomial @var{poly} at degree @var{deg}
+with respect to the variable @var{var}.
+@item
+The default value for @var{var} is the main variable, i.e.,
+@t{var(@var{poly})}.
+@item
+For multi-variate polynomials, access to coefficients depends on
+the specified indeterminates.  For example, taking coef for the main
+variable is much faster than for other variables.
+\E
 @end itemize
 
 @example
@@ -187,36 +272,59 @@ y^3+3*z*y^2+3*z^2*y+z^3
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{var}, @fref{deg mindeg}.
 @end table
 
-@node deg mindeg,,, 多項式および有理式の演算
+\JP @node deg mindeg,,, 多項式および有理式の演算
+\EG @node deg mindeg,,, Polynomials and rational expressions
 @subsection @code{deg}, @code{mindeg}
 @findex deg
 @findex mindeg
 
 @table @t
 @item deg(@var{poly},@var{var})
-:: @var{poly} の, 変数 @var{var} に関する最高次数. 
+\JP :: @var{poly} の, 変数 @var{var} に関する最高次数. 
+\EG :: The degree of a polynomial @var{poly} with respect to variable.
 @item mindeg(@var{poly},@var{var})
-:: @var{poly} の, 変数 @var{var} に関する最低次数. 
+\JP :: @var{poly} の, 変数 @var{var} に関する最低次数. 
+\BEG
+:: The least exponent of the terms with non-zero coefficients in
+a polynomial @var{poly} with respect to the variable @var{var}.
+In this manual, this quantity is sometimes referred to the minimum
+degree of a polynomial for short.
+\E
 @end table
 
 @table @var
 @item return	
-自然数
+\JP 自然数
+\EG non-negative integer
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @item var
-不定元
+\JP 不定元
+\EG indeterminate
 @end table
 
 @itemize @bullet
+\BJP
 @item
 与えられた多項式の変数 @var{var} に関する最高次数, 最低次数を出力する. 
 @item
 変数 @var{var} を省略することは出来ない. 
+\E
+\BEG
+@item
+The least exponent of the terms with non-zero coefficients in
+a polynomial @var{poly} with respect to the variable @var{var}.
+In this manual, this quantity is sometimes referred to the minimum
+degree of a polynomial for short.
+@item
+Variable @var{var} must be specified.
+\E
 @end itemize
 
 @example
@@ -228,29 +336,46 @@ y^3+3*z*y^2+3*z^2*y+z^3
 1
 @end example
 
-@node nmono,,, 多項式および有理式の演算
+\JP @node nmono,,, 多項式および有理式の演算
+\EG @node nmono,,,Polynomials and rational expressions
 @subsection @code{nmono}
 @findex nmono
 
 @table @t
 @item nmono(@var{rat})
-:: @var{rat} の単項式の項数. 
+\JP :: @var{rat} の単項式の項数. 
+\EG :: Number of monomials in rational expression @var{rat}.
 @end table
 
 @table @var
 @item return
-自然数
+\JP 自然数
+\EG non-negative integer
 @item rat
-有理式
+\JP 有理式
+\EG rational expression
 @end table
 
 @itemize @bullet
+\BJP
 @item
 多項式を展開した状態での 0 でない係数を持つ単項式の項数を求める. 
 @item
 有理式の場合は, 分子と分母の項数の和が返される. 
 @item
 函数形式 (@xref{不定元の型}) は, 引数が何であっても単項とみなされる. (1 個の不定元と同じ. )
+\E
+\BEG
+@item
+Number of monomials with non-zero number coefficients in the full
+expanded form of the given polynomial.
+@item
+For a rational expression, the sum of the numbers of monomials
+of the numerator and denominator.
+@item
+A function form is regarded as a single indeterminate no matter how
+complex arguments it has.
+\E
 @end itemize
 
 @example
@@ -263,27 +388,33 @@ y^3+3*z*y^2+3*z^2*y+z^3
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{vtype}.
 @end table
 
-@node ord,,, 多項式および有理式の演算
+\JP @node ord,,, 多項式および有理式の演算
+\EG @node ord,,, Polynomials and rational expressions
 @subsection @code{ord}
 @findex ord
 
 @table @t
 @item ord([@var{varlist}])
-:: 変数順序の設定
+\JP :: 変数順序の設定
+\EG :: It sets the ordering of indeterminates (variables).
 @end table
 
 @table @var
 @item return	
-変数のリスト
+\JP 変数のリスト
+\EG list of indeterminates 
 @item varlist
-変数のリスト
+\JP 変数のリスト
+\EG list of indeterminates 
 @end table
 
 @itemize @bullet
+\BJP
 @item
 引数があるとき, 引数の変数リストを先頭に出し, 残りの変数がその後に
 続くように変数順序を設定する. 引数のあるなしに関わらず, @code{ord()}
@@ -296,6 +427,26 @@ y^3+3*z*y^2+3*z^2*y+z^3
 あるいは, 新たな変数が現れた時点に行われる
 べきである. 異なる変数順序のもとで生成された式どうしの演算
 が行われた場合, 予期せぬ結果が生ずることもあり得る. 
+\E
+\BEG
+@item
+When an argument is given,
+this function rearranges the ordering of variables (indeterminates)
+so that the indeterminates in the argument @var{varlist} precede
+and the other indeterminates follow in the system's variable ordering.
+Regardless of the existence of an argument, it always returns the
+final variable ordering.
+
+@item
+Note that no change will be made to the variable ordering of internal
+forms of objects which already exists in the system, no matter what
+reordering you specify.  Therefore, the reordering should be limited to
+the time just after starting @b{Asir}, or to the time when one has
+decided himself to start a totally new computation which has no relation
+with the previous results.
+Note that unexpected results may be obtained from operations between
+objects which are created under different variable ordering.
+\E
 @end itemize
 
 @example
@@ -311,7 +462,8 @@ _w,_p,_q,_r,_s,_t,_a,_b,_c,_d,_e,_f,_g,_h,_i,_j,_k,_l,_m,_n,_o,exp(_x),
 cosh(_x),sinh(_x),tanh(_x),(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
 @end example
 
-@node sdiv sdivm srem sremm sqr sqrm,,, 多項式および有理式の演算
+\JP @node sdiv sdivm srem sremm sqr sqrm,,, 多項式および有理式の演算
+\EG @node sdiv sdivm srem sremm sqr sqrm,,, Polynomials and rational expressions
 @subsection @code{sdiv}, @code{sdivm}, @code{srem}, @code{sremm}, @code{sqr}, @code{sqrm}
 @findex sdiv
 @findex sdivm
@@ -323,28 +475,50 @@ cosh(_x),sinh(_x),tanh(_x),(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
 @table @t
 @item sdiv(@var{poly1},@var{poly2}[,@var{v}])
 @itemx sdivm(@var{poly1},@var{poly2},@var{mod}[,@var{v}])
-:: @var{poly1} を @var{poly2} で割る除算が最後まで実行できる場合に商を求める. 
+\JP :: @var{poly1} を @var{poly2} で割る除算が最後まで実行できる場合に商を求める. 
+\BEG
+:: Quotient of @var{poly1} divided by @var{poly2} provided that the
+division can be performed within polynomial arithmetic over the
+rationals.
+\E
 @item srem(@var{poly1},@var{poly2}[,@var{v}])
 @item sremm(@var{poly1},@var{poly2},@var{mod}[,@var{v}])
-:: @var{poly1} を @var{poly2} で割る除算が最後まで実行できる場合に剰余を求める. 
+\JP :: @var{poly1} を @var{poly2} で割る除算が最後まで実行できる場合に剰余を求める. 
+\BEG
+:: Remainder of @var{poly1} divided by @var{poly2} provided that the
+division can be performed within polynomial arithmetic over the
+rationals.
+\E
 @item sqr(@var{poly1},@var{poly2}[,@var{v}])
 @item sqrm(@var{poly1},@var{poly2},@var{mod}[,@var{v}])
+\BJP
 :: @var{poly1} を @var{poly2} で割る除算が最後まで実行できる場合に商, 剰余を
 求める. 
+\E
+\BEG
+:: Quotient and remainder of @var{poly1} divided by @var{poly2} provided
+that the division can be performed within polynomial arithmetic over
+the rationals.
+\E
 @end table
 
 @table @var
 @item return
-@code{sdiv()}, @code{sdivm()}, @code{srem()}, @code{sremm()} : 多項式, @code{sqr()}, @code{sqrm()} : @code{[商,剰余]} なるリスト
+\JP @code{sdiv()}, @code{sdivm()}, @code{srem()}, @code{sremm()} : 多項式, @code{sqr()}, @code{sqrm()} : @code{[商,剰余]} なるリスト
+\EG @code{sdiv()}, @code{sdivm()}, @code{srem()}, @code{sremm()} : polynomial @code{sqr()}, @code{sqrm()} : a list @code{[quotient,remainder]}
 @item poly1 poly2
-多項式
+\JP 多項式
+\EG polynomial
 @item v
-不定元
+\JP 不定元
+\EG indeterminate
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{poly1} を @var{poly2} の主変数 @t{var}(@var{poly2}) 
 ( 引数 @var{v} がある場合には @var{v}) に関する多項式と見て, 
@@ -368,6 +542,40 @@ cosh(_x),sinh(_x),tanh(_x),(_x^2+1)^(-1/2),(_x^2-1)^(-1/2)]
 整数除算の商, 剰余は @code{idiv}, @code{irem} を用いる. 
 @item
 係数に対する剰余演算は @code{%} を用いる. 
+\E
+\BEG
+@item
+Regarding @var{poly1} as an uni-variate polynomial in the main variable
+of @var{poly2},
+i.e. @t{var(@var{poly2})} (@var{v} if specified), @code{sdiv()} and
+@code{srem()} compute
+the polynomial quotient and remainder of @var{poly1} divided by @var{poly2}.
+@item @code{sdivm()}, @code{sremm()}, @code{sqrm()} execute the same
+operation over GF(@var{mod}).
+@item
+Division operation of polynomials is performed by the following steps:
+(1) obtain the quotient of leading coefficients; let it be Q;
+(2) remove the leading term of @var{poly1} by subtracting, from
+@var{poly1}, the product of Q with some powers of main variable
+and @var{poly2}; obtain a new @var{poly1};
+(3) repeat the above step until the degree of @var{poly1} become smaller
+than that of @var{poly2}.
+For fulfillment, by operating in polynomials, of this procedure, the
+divisions at step (1) in every repetition must be an exact division of
+polynomials.  This is the true meaning of what we say
+``division can be performed within polynomial arithmetic
+over the rationals.''
+@item
+There are typical cases where the division is possible:
+leading coefficient of @var{poly2} is a rational number;
+@var{poly2} is a factor of @var{poly1}.
+@item
+Use @code{sqr()} to get both the quotient and remainder at once.
+@item
+Use @code{idiv()}, @code{irem()} for integer quotient.
+@item
+For remainder operation on all integer coefficients, use @code{%}.
+\E
 @end itemize
 
 @example
@@ -391,32 +599,48 @@ return to toplevel
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{idiv irem}, @fref{%}.
 @end table
 
-@node tdiv,,, 多項式および有理式の演算
+\JP @node tdiv,,, 多項式および有理式の演算
+\EG @node tdiv,,, Polynomials and rational expressions
 @subsection @code{tdiv}
 @findex tdiv
 
 @table @t
 @item tdiv(@var{poly1},@var{poly2})
-:: @var{poly1} が @var{poly2} で割り切れるかどうか調べる. 
+\JP :: @var{poly1} が @var{poly2} で割り切れるかどうか調べる. 
+\EG :: Tests whether @var{poly2} divides @var{poly1}.
 @end table
 
 @table @var
 @item return	
-割り切れるならば商, 割り切れなければ 0
+\JP 割り切れるならば商, 割り切れなければ 0
+\EG Quotient if @var{poly2} divides @var{poly1}, 0 otherwise.
 @item poly1 poly2
-多項式
+\JP 多項式
+\EG polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{poly2} が @var{poly1} を多項式として割り切るかどうか調べる. 
 @item
 ある多項式が既約因子であることはわかっているが, その重複度がわからない
 場合に, @code{tdiv()} を繰り返し呼ぶことにより重複度がわかる. 
+\E
+\BEG
+@item
+Tests whether @var{poly2} divides @var{poly1} in polynomial ring.
+@item
+One application of this function: Consider the case where a polynomial
+is certainly an irreducible factor of the other polynomial, but
+the multiplicity of the factor is unknown.  Application of @code{tdiv()}
+to the polynomials repeatedly yields the multiplicity.
+\E
 @end itemize
 
 @example
@@ -432,29 +656,36 @@ x^8+(2*y+2*z)*x^7+(-2*y^2-4*z*y-2*z^2)*x^6+(-6*y^3-18*z*y^2-18*z^2*y-6*z^3)*x^5
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{sdiv sdivm srem sremm sqr sqrm}.
 @end table
 
-@node %,,, 多項式および有理式の演算
+\JP @node %,,, 多項式および有理式の演算
+\EG @node %,,, Polynomials and rational expressions
 @subsection @code{%}
 @findex %
 
 @table @t
 @item @var{poly} % @var{m}
-:: 整数による剰余
+\JP :: 整数による剰余
+\EG :: integer remainder to all integer coefficients of the polynomial.
 @end table
 
 @table @var
 @item return	
-整数または多項式
+\JP 整数または多項式
+\EG integer or polynomial
 @item poly
-整数または整数係数多項式
+\JP 整数または整数係数多項式
+\EG integer or polynomial with integer coefficients
 @item m
-整数
+\JP 整数
+\EG intger
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{poly} の各係数を @var{m} で割った剰余で置き換えた多項式を返す. 
 @item
@@ -464,6 +695,21 @@ x^8+(2*y+2*z)*x^7+(-2*y^2-4*z*y-2*z^2)*x^6+(-6*y^3-18*z*y^2-18*z^2*y-6*z^3)*x^5
 @code{irem()} と同様に用いることができる. 
 @item
 @var{poly} の係数, @var{m} とも整数である必要があるが, チェックは行なわれない. 
+\E
+\BEG
+@item
+Returns a polynomial whose coefficients are remainders of the
+coefficients of the input polynomial divided by @var{m}.
+@item
+The resulting coefficients are all normalized to non-negative integers.
+@item
+An integer is allowed for @var{poly}.  This can be used for an
+alternative for @code{irem()} except that the result is normalized to
+a non-negative integer.
+@item
+Coefficients of @var{poly} and @var{m} must all be integers, though the
+type checking is not done.
+\E
 @end itemize
 
 @example
@@ -478,11 +724,13 @@ x^5+2*x^4+x^3+x^2+2*x+1
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{idiv irem}.
 @end table
 
-@node subst psubst,,, 多項式および有理式の演算
+\JP @node subst psubst,,, 多項式および有理式の演算
+\EG @node subst psubst,,, Polynomials and rational expressions
 @subsection @code{subst}, @code{psubst}
 @findex subst
 @findex psubst
@@ -490,20 +738,32 @@ x^5+2*x^4+x^3+x^2+2*x+1
 @table @t
 @item subst(@var{rat}[,@var{varn},@var{ratn}]*)
 @item psubst(@var{rat}[,@var{var},@var{rat}]*)
+\BJP
 :: @var{rat} の @var{varn} に @var{ratn} を代入
 (@var{n=1,2},... で左から右に順次代入する). 
+\E
+\BEG
+:: Substitute @var{ratn} for @var{varn} in expression @var{rat}.
+(@var{n=1,2},@dots{}.
+Substitution will be done successively from left to right
+if arguments are repeated.)
+\E
 @end table
 
 @table @var
 @item return
-有理式
+\JP 有理式
+\EG rational expression
 @item rat,ratn
-有理式
+\JP 有理式
+\EG rational expression
 @item varn
-不定元
+\JP 不定元
+\EG indeterminate
 @end table
 
 @itemize @bullet
+\BJP
 @item
 有理式の特定の不定元に, 定数あるいは多項式, 有理式などを代入するのに用いる. 
 @item
@@ -523,6 +783,35 @@ x^5+2*x^4+x^3+x^2+2*x+1
 なるべく分母, 分子が大きくならないように配慮することもしばしば必要となる. 
 @item
 分数を代入する場合も同様である. 
+\E
+\BEG
+@item
+Substitutes rational expressions for specified kernels in a rational
+expression.
+@item
+@t{subst}(@var{rat},@var{var1},@var{rat1},@var{var2},@var{rat2},@dots{})
+has the same effect as
+@t{subst}(@t{subst}(@var{rat},@var{var1},@var{rat1}),@var{var2},@var{rat2},@dots{}).
+@item
+Note that repeated substitution is done from left to right successively.
+You may get different result by changing the specification order.
+@item
+Ordinary @code{subst()} performs
+substitution at all levels of a scalar algebraic expression creeping
+into arguments of function forms recursively.
+Function @code{psubst()} regards such a function form as an independent
+indeterminate, and does not attempt to apply substitution to its
+arguments.  (The name comes after Partial SUBSTitution.)
+@item
+Since @b{Asir} does not reduce common divisors of a rational expression
+automatically, substitution of a rational expression to an expression
+may cause unexpected increase of computation time.
+Thus, it is often necessary to write a special function to meet the
+individual problem so that the denominator and the numerator do not
+become too large.
+@item
+The same applies to substitution by rational numbers.
+\E
 @end itemize
 
 @example
@@ -544,34 +833,55 @@ sint(t)*t
 sin(x)*t
 @end example
 
-@node diff,,, 多項式および有理式の演算
+\JP @node diff,,, 多項式および有理式の演算
+\EG @node diff,,, Polynomials and rational expressions
 @subsection @code{diff}
 @findex diff
 
 @table @t
 @item diff(@var{rat}[,@var{varn}]*)
 @item diff(@var{rat},@var{varlist})
-:: @var{rat} を @var{varn} あるいは @var{varlist} の中の変数で順次微分する. 
+\JP :: @var{rat} を @var{varn} あるいは @var{varlist} の中の変数で順次微分する.
+\BEG
+:: Differentiate @var{rat} successively by @var{var}'s for the first
+form, or by variables in @var{varlist} for the second form.
+\E
 @end table
 
 @table @var
 @item return
-式
+\JP 式
+\EG expression
 @item rat
-有理式 (初等函数を含んでもよい)
+\JP 有理式 (初等函数を含んでもよい)
+\EG rational expression which contains elementary functions.
 @item varn
-不定元
+\JP 不定元
+\EG indeterminate
 @item varlist
-不定元のリスト
+\JP 不定元のリスト
+\EG list of indeterminates
 @end table
 
 @itemize @bullet
+\BJP
 @item
 与えられた初等函数を @var{varn} あるいは @var{varlist} の中の変数で
 順次微分する. 
 @item
 左側の不定元より, 順に微分していく. つまり, @t{diff}(@var{rat},@t{x,y}) は, 
 @t{diff}(@t{diff}(@var{rat},@t{x}),@t{y}) と同じである. 
+\E
+\BEG
+@item
+Differentiate @var{rat} successively by @var{var}'s for the first
+form, or by variables in @var{varlist} for the second form.
+@item
+differentiation is performed by the specified indeterminates (variables)
+from left to right.
+@t{diff}(@var{rat},@t{x,y}) is the same as
+@t{diff}(@t{diff}(@var{rat},@t{x}),@t{y}).
+\E
 @end itemize
 
 @example
@@ -585,27 +895,34 @@ sin(x)*t
 sin(x)
 @end example
 
-@node res,,, 多項式および有理式の演算
+\JP @node res,,, 多項式および有理式の演算
+\EG @node res,,, Polynomials and rational expressions
 @subsection @code{res}
 @findex res
 
 @table @t
 @item res(@var{var},@var{poly1},@var{poly2}[,@var{mod}])
-:: @var{var} に関する @var{poly1} と @var{poly2} の終結式. 
+\JP :: @var{var} に関する @var{poly1} と @var{poly2} の終結式. 
+\EG :: Resultant of @var{poly1} and @var{poly2} with respect to @var{var}.
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG polynomial
 @item var
-不定元
+\JP 不定元
+\EG indeterminate
 @item poly1,poly2
-多項式
+\JP 多項式
+\EG polynomial
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 二つの多項式 @var{poly1} と @var{poly2} の, 変数 @var{var} に関する
 終結式を求める. 
@@ -613,6 +930,16 @@ sin(x)
 部分終結式アルゴリズムによる. 
 @item
 引数 @var{mod} がある時, GF(@var{mod}) 上での計算を行う. 
+\E
+\BEG
+@item
+Resultant of two polynomials @var{poly1} and @var{poly2}
+with respect to @var{var}.
+@item
+Sub-resultant algorithm is used to compute the resultant.
+@item
+The computation is done over GF(@var{mod}) if @var{mod} is specified.
+\E
 @end itemize
 
 @example
@@ -620,26 +947,32 @@ sin(x)
 -x^3-x^2-y^3
 @end example
 
-@node fctr sqfr,,, 多項式および有理式の演算
+\JP @node fctr sqfr,,, 多項式および有理式の演算
+\EG @node fctr sqfr,,, Polynomials and rational expressions
 @subsection @code{fctr}, @code{sqfr}
 @findex fctr
 @findex sqfr
 
 @table @t
 @item fctr(@var{poly})
-:: @var{poly} を既約因子に分解する. 
+\JP :: @var{poly} を既約因子に分解する. 
+\EG :: Factorize polynomial @var{poly} over the rationals.
 @item sqfr(@var{poly})
-:: @var{poly} を無平方分解する. 
+\JP :: @var{poly} を無平方分解する. 
+\EG :: Gets a square-free factorization of polynomial @var{poly}.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item poly
-有理数係数の多項式
+\JP 有理数係数の多項式
+\EG polynomial with rational coefficients
 @end table
 
 @itemize @bullet
+\BJP
 @item
 有理数係数の多項式 @var{poly} を因数分解する. @code{fctr()} は既約因子分解, 
 @code{sqfr()} は無平方因子分解. 
@@ -650,6 +983,25 @@ sin(x)
 @item
 @b{数係数} は, (@var{poly}/@b{数係数}) が, 整数係数で, 係数の GCD が 1 となる
 ような多項式になるように選ばれている. (@code{ptozp()} 参照)
+\E
+\BEG
+@item
+Factorizes polynomial @var{poly} over the rationals.
+@code{fctr()} for irreducible factorization;
+@code{sqfr()} for square-free factorization.
+@item
+The result is represented by a list, whose elements are a pair
+represented as
+
+[[@b{num},1],[@b{factor},@b{multiplicity}],...].
+@item
+Products of all @b{factor}^@b{multiplicity} and @b{num} is equal to
+@var{poly}.
+@item
+The number @b{num} is determined so that (@var{poly}/@b{num}) is an
+integral polynomial and its content (GCD of all coefficients) is 1.
+(@xref{ptozp}.)
+\E
 @end itemize
 
 @example
@@ -670,29 +1022,40 @@ x^5+x^4-2*y^2*x^3-2*y^2*x^2+y^4*x+y^4
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ufctrhint}.
 @end table
 
-@node ufctrhint,,, 多項式および有理式の演算
+\JP @node ufctrhint,,, 多項式および有理式の演算
+\EG @node ufctrhint,,, Polynomials and rational expressions
 @subsection @code{ufctrhint}
 @findex ufctrhint
 
 @table @t
 @item ufctrhint(@var{poly},@var{hint})
-:: 次数情報を用いた 1 変数多項式の因数分解
+\JP :: 次数情報を用いた 1 変数多項式の因数分解
+\BEG
+:: Factorizes uni-variate polynomial @var{poly} over the rational number
+field when the degrees of its factors are known to be some integer
+multiples of @var{hint}.
+\E
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item poly
-有理数係数の 1 変数多項式
+\JP 有理数係数の 1 変数多項式
+\EG uni-variate polynomial with rational coefficients
 @item hint
-自然数
+\JP 自然数
+\EG non-negative integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 各既約因子の次数が @var{hint} の倍数であることがわかっている場合に
 @var{poly} の既約因子分解を @code{fctr()} より効率良く行う. 
@@ -700,6 +1063,21 @@ x^5+x^4-2*y^2*x^3-2*y^2*x^2+y^4*x+y^4
 ある多項式のノルム (@xref{代数的数に関する演算}) で無平方である場合, 
 各既約因子の次数は @var{d} の倍数となる. このような場合に
 用いられる. 
+\E
+\BEG
+@item
+By any reason, if the degree of all the irreducible factors of @var{poly}
+is known to be some multiples of @var{hint}, factors can be computed
+more efficiently by the knowledge than @code{fctr()}.
+@item
+When @var{hint} is 1, @code{ufctrhint()} is the same as @code{fctr()} for
+uni-variate polynomials.
+An typical application where @code{ufctrhint()} is effective:
+Consider the case where @var{poly} is a norm (@xref{Algebraic numbers})
+of a certain polynomial over an extension field with its extension
+degree @var{d}, and it is square free;  Then, every irreducible factor
+has a degree that is a multiple of @var{d}.
+\E
 @end itemize
 
 @example
@@ -740,29 +1118,36 @@ t^9-15*t^6-87*t^3-125
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{fctr sqfr}.
 @end table
 
-@node modfctr,,, 多項式および有理式の演算
+\JP @node modfctr,,, 多項式および有理式の演算
+\EG @node modfctr,,, Polynomials and rational expressions
 @subsection @code{modfctr}
 @findex modfctr
 
 @table @t
 @item modfctr(@var{poly},@var{mod})
-:: 有限体上での 1 変数多項式の因数分解
+\JP :: 有限体上での 1 変数多項式の因数分解
+\EG :: Univariate factorizer over small finite fields
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item poly
-整数係数の 1 変数多項式
+\JP 整数係数の 1 変数多項式
+\EG univariate polynomial with integer coefficients
 @item mod
-自然数
+\JP 自然数
+\EG non-negative integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 2^31 未満の自然数 @var{mod} を標数とする素体上で一変数多項式
 @var{poly} を既約因子に分解する. 
@@ -770,6 +1155,27 @@ t^9-15*t^6-87*t^3-125
 結果は [[@b{数係数},1],[@b{因子},@b{重複度}],...] なるリスト. 
 @item
 @b{数係数} と 全ての @b{因子}^@b{重複度} の積が @var{poly} と等しい. 
+@item
+大きな位数を持つ有限体上の因数分解には @code{fctr_ff} を用いる. 
+(@ref{有限体に関する演算},@pxref{fctr_ff}).
+\E
+\BEG
+@item
+This function factorizes a univarate polynomial @var{poly} over
+the finite prime field of characteristic @var{mod}, where
+@var{mod} must be smaller than 2^31.
+@item
+The result is represented by a list, whose elements are a pair
+represented as
+
+[[@b{num},1],[@b{factor},@b{multiplicity}],...].
+@item
+Products of all @b{factor}^@b{multiplicity} and @b{num} is equal to
+@var{poly}.
+@item
+To factorize polynomials over large finite fields, use
+@code{fctr_ff} (@pxref{Finite fields},@ref{fctr_ff}).
+\E
 @end itemize
 
 @example
@@ -780,27 +1186,36 @@ t^9-15*t^6-87*t^3-125
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{fctr sqfr}.
 @end table
 
-@node ptozp,,, 多項式および有理式の演算
+\JP @node ptozp,,, 多項式および有理式の演算
+\EG @node ptozp,,, Polynomials and rational expressions
 @subsection @code{ptozp}
 @findex ptozp
 
 @table @t
 @item ptozp(@var{poly})
-:: @var{poly} を有理数倍して整数係数多項式にする. 
+\JP :: @var{poly} を有理数倍して整数係数多項式にする. 
+\BEG
+:: Converts a polynomial @var{poly} with rational coefficients into
+an integral polynomial such that GCD of all its coefficients is 1.
+\E
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG polynomial
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 与えられた多項式 @var{poly} に適当な有理数を掛けて, 整数係数かつ
 係数の GCD が 1 になるようにする. 
@@ -812,6 +1227,24 @@ t^9-15*t^6-87*t^3-125
 分子多項式の係数は有理数のままであり, 有理式の分子を求める
 @code{nm()} では, 分数係数多項式は, 分数係数のままの形で出力されるため, 
 直ちに整数係数多項式を得る事は出来ない. 
+\E
+\BEG
+@item 
+Converts the given polynomial by multiplying some rational number
+into an integral polynomial such that GCD of all its coefficients is 1.
+@item 
+In general, operations on polynomials can be
+performed faster for integer coefficients than for rational number
+coefficients.  Therefore, this function is conveniently used to improve
+efficiency.
+@item 
+Function @code{red} does not convert rational coefficients of the
+numerator.
+You cannot obtain an integral polynomial by direct use of the function
+@code{nm()}.  The function @code{nm()} returns the numerator of its
+argument, and a polynomial with rational coefficients is
+the numerator of itself and will be returned as it is.
+\E
 @end itemize
 
 @example
@@ -822,32 +1255,45 @@ t^9-15*t^6-87*t^3-125
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{nm dn}.
 @end table
 
-@node prim cont,,, 多項式および有理式の演算
+\JP @node prim cont,,, 多項式および有理式の演算
+\EG @node prim cont,,, Polynomials and rational expressions
 @subsection @code{prim}, @code{cont}
 @findex prim
 
 @table @t
 @item prim(@var{poly}[,@var{v}])
-:: @var{poly} の原始的部分 (primitive part). 
+\JP :: @var{poly} の原始的部分 (primitive part). 
+\EG :: Primitive part of @var{poly}.
 @item cont(@var{poly}[,@var{v}])
-:: @var{poly} の容量 (content). 
+\JP :: @var{poly} の容量 (content). 
+\EG :: Content of @var{poly}.
 @end table
 
 @table @var
 @item return poly
-有理数係数多項式
+\JP 有理数係数多項式
+\EG polynomial over the rationals
 @item v
-不定元
+\JP 不定元
+\EG indeterminate
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{poly} の主変数 (引数 @var{v} がある場合には @var{v}) 
 に関する原始的部分, 容量を求める. 
+\E
+\BEG
+@item 
+The primitive part and the content of a polynomial @var{poly}
+with respect to its main variable (@var{v} if specified).
+\E
 @end itemize
 
 @example
@@ -862,30 +1308,37 @@ y-z
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{var}, @fref{ord}.
 @end table
 
-@node gcd gcdz,,, 多項式および有理式の演算
+\JP @node gcd gcdz,,, 多項式および有理式の演算
+\EG @node gcd gcdz,,, Polynomials and rational expressions
 @subsection @code{gcd}, @code{gcdz}
 @findex gcd
 
 @table @t
 @item gcd(@var{poly1},@var{poly2}[,@var{mod}])
 @item gcdz(@var{poly1},@var{poly2})
-:: @var{poly1} と @var{poly2} の gcd. 
+\JP :: @var{poly1} と @var{poly2} の gcd. 
+\EG :: The polynomial greatest common divisor of @var{poly1} and @var{poly2}.
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG polynomial
 @item poly1,poly2
-多項式
+\JP 多項式
+\EG polynomial
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 二つの多項式の最大公約式 (GCD) を求める. 
 @item
@@ -902,6 +1355,30 @@ y-z
 @code{gcd()}, @code{gcdz()} Extended Zassenhaus アルゴリズムによる. 
 有限体上の GCD は PRS アルゴリズムによっているため, 大きな問題, 
 GCD が 1 の場合などにおいて効率が悪い. 
+\E
+\BEG
+@item 
+Functions @code{gcd()} and @code{gcdz()} return the greatest common divisor
+(GCD) of the given two polynomials.
+@item 
+Function @code{gcd()} returns an integral polynomial GCD over the
+rational number field.  The coefficients are normalized such that
+their GCD is 1.  It returns 1 in case that the given polynomials are
+mutually prime.
+@item 
+Function @code{gcdz()} works for arguments of integral polynomials,
+and returns a polynomial GCD over the integer ring, that is,
+it returns @code{gcd()} multiplied by the contents of all coefficients
+of the two input polynomials.
+@item 
+@code{gcd()} computes the GCD over GF(@var{mod}) if @var{mod} is specified.
+@item 
+Polynomial GCD is computed by an improved algorithm based
+on Extended Zassenhaus algorithm.
+@item 
+GCD over a finite field is computed by PRS algorithm and it may not be
+efficient for large inputs and co-prime inputs.
+\E
 @end itemize
 
 @example
@@ -916,27 +1393,33 @@ x^3+y*x^2+y^2*x+y^3
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{igcd igcdcntl}.
 @end table
 
-@node red,,, 多項式および有理式の演算
+\JP @node red,,, 多項式および有理式の演算
+\EG @node red,,, Polynomials and rational expressions
 @subsection @code{red}
 @findex red
 
 @table @t
 @item red(@var{rat})
-:: @var{rat} を約分したもの. 
+\JP :: @var{rat} を約分したもの. 
+\EG :: Reduced form of @var{rat} by canceling common divisors.
 @end table
 
 @table @var
 @item return
-有理式
+\JP 有理式
+\EG rational expression
 @item rat
-有理式
+\JP 有理式
+\EG rational expression
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @b{Asir} は有理数の約分を常に自動的に行う. 
 しかし, 有理式については通分は行うが, 
@@ -953,6 +1436,30 @@ GCD は大変重い演算なので, 他の方法で除ける共通因子は可能な限り除くのが
 $B望ましい. また, 分母, 分子が大きくなってからのこの函数の呼び出しは, 
 非常に時間が掛かる場合が多い. 有理式演算を行う場合は, ある程度
 頻繁に, 約分を行う必要がある. 
+\E
+\BEG
+@item 
+@b{Asir} automatically performs cancellation of common divisors of rational numb
+ers.
+But, without an explicit command, it does not cancel common polynomial divisors
+of rational expressions.
+(Reduction of rational expressions to a common denominator will be always done.)
+Use command @t{red()} to perform this cancellation.
+@item 
+Cancel the common divisors of the numerator and the denominator of
+a rational expression @var{rat} by computing their GCD.
+@item 
+The denominator polynomial of the result is an integral polynomial
+which has no common divisors in its coefficients,
+while the numerator may have rational coefficients.
+@item 
+Since GCD computation is a very hard operation, it is desirable to
+detect and remove by any means common divisors as far as possible.
+Furthermore, a call to this function after swelling of the denominator
+and the numerator shall usually take a very long time.  Therefore,
+often, to some extent, reduction of common divisors is inevitable for
+operations of rational expressions.
+\E
 @end itemize
 
 @example
@@ -969,7 +1476,8 @@ x^2+(-y-z)*x+y^2-z*y+z^2
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{nm dn}, @fref{gcd gcdz}, @fref{ptozp}.
 @end table
 

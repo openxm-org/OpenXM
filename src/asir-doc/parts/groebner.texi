@@ -1,7 +1,15 @@
+@comment $OpenXM$
+\BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
+\E
+\BEG
+@node Groebner basis computation,,, Top
+@chapter Groebner basis computation
+\E
 
 @menu
+\BJP
 * 分散表現多項式::
 * ファイルの読み込み::
 * 基本的な函数::
@@ -10,22 +18,56 @@
 * 有理式を係数とするグレブナ基底計算::
 * 基底変換::
 * グレブナ基底に関する函数::
+\E
+\BEG
+* Distributed polynomial:: 
+* Reading files::
+* Fundamental functions::
+* Controlling Groebner basis computations::
+* Setting term orderings::
+* Groebner basis computation with rational function coefficients::
+* Change of ordering::
+* Functions for Groebner basis computation::
+\E
 @end menu
 
+\BJP
 @node 分散表現多項式,,, グレブナ基底の計算
 @section 分散表現多項式
+\E
+\BEG
+@node Distributed polynomial,,, Groebner basis computation
+@section Distributed polynomial
+\E
 
 @noindent
+\BJP
 分散表現多項式とは, 多項式の内部形式の一つである. 通常の多項式 
 (@code{type} が 2) は, 再帰表現と呼ばれる形式で表現されている. すなわ
 ち, 特定の変数を主変数とする 1 変数多項式で, その他の変数は, その 1 変
 数多項式の係数に, 主変数を含まない多項式として現れる. この係数が, また, 
 ある変数を主変数とする多項式となっていることから再帰表現と呼ばれる.
-
+\E
+\BEG
+A distributed polynomial is a polynomial with a special internal
+representation different from the ordinary one.
+      
+An ordinary polynomial (having @code{type} 2) is internally represented
+in a format, called recursive representation.
+In fact, it is represented as an uni-variate polynomial with respect to
+a fixed variable, called main variable of that polynomial,
+where the other variables appear in the coefficients which may again
+polynomials in such variables other than the previous main variable.
+A polynomial in the coefficients is again represented as
+an uni-variate polynomial in a certain fixed variable,
+the main variable.  Thus, by this recursive structure of polynomial
+representation, it is called the `recursive representation.'
+\E
 
 @iftex
 @tex
-$(x+y+z)^2 = 1 \cdot x^2 + (2 \cdot y + (2 \cdot z)) \cdot x + ((2 \cdot z) \cdot y + (1 \cdot z^2 ))$
+\JP $(x+y+z)^2 = 1 \cdot x^2 + (2 \cdot y + (2 \cdot z)) \cdot x + ((2 \cdot z) \cdot y + (1 \cdot z^2 ))$
+\EG $(x+y+z)^2 = 1 \cdot x^2 + (2 \cdot y + (2 \cdot z)) \cdot x + ((2 \cdot z) \cdot y + (1 \cdot z^2 ))$
 @end tex
 @end iftex
 @ifinfo
@@ -35,12 +77,25 @@ $(x+y+z)^2 = 1 \cdot x^2 + (2 \cdot y + (2 \cdot z)) \cdot x + ((2 \cdot z) \cdo
 @end ifinfo
 
 @noindent
+\BJP
 これに対し, 多項式を, 変数の冪積と係数の積の和として表現したものを分散
 表現と呼ぶ. 
+\E
+\BEG
+On the other hand,
+we call a representation the distributed representation of a polynomial,
+if a polynomial is represented, according to its original meaning,
+as a sum of monomials,
+where a monomial is the product of power product of variables
+and a coefficient.  We call a polynomial, represented in such an
+internal format, a distributed polynomial. (This naming may sounds
+something strange.)
+\E
 
 @iftex
 @tex
-$(x+y+z)^2 = 1 \cdot x^2 + 2 \cdot xy + 2 \cdot xz + 1 \cdot y^2 + 2 \cdot yz +1 \cdot z^2$
+\JP $(x+y+z)^2 = 1 \cdot x^2 + 2 \cdot xy + 2 \cdot xz + 1 \cdot y^2 + 2 \cdot yz +1 \cdot z^2$
+\EG $(x+y+z)^2 = 1 \cdot x^2 + 2 \cdot xy + 2 \cdot xz + 1 \cdot y^2 + 2 \cdot yz +1 \cdot z^2$
 @end tex
 @end iftex
 @ifinfo
@@ -50,59 +105,128 @@ $(x+y+z)^2 = 1 \cdot x^2 + 2 \cdot xy + 2 \cdot xz + 1 \cdot y^2 + 2 \cdot yz +1
 @end ifinfo
 
 @noindent
+\BJP
 グレブナ基底計算においては, 単項式に注目して操作を行うため多項式が分散表現
 されている方がより効率のよい演算が可能になる. このため, 分散表現多項式が, 
 識別子 9 の型として @b{Asir} のトップレベルから利用可能となっている. 
 ここで, 後の説明のために, いくつかの言葉を定義しておく. 
+\E
+\BEG
+For computation of Groebner basis, efficient operation is expected if
+polynomials are represented in a distributed representation,
+because major operations for Groebner basis are performed with respect
+to monomials.
+From this view point, we provide the object type distributed polynomial
+with its object identification number 9, and objects having such a type
+are available by @b{Asir} language.
+      
+Here, we provide several definitions for the later description.
+\E
 
 @table @b
+\BJP
 @item 項 (term)
 変数の冪積. すなわち, 係数 1 の単項式のこと. @b{Asir} においては, 
+\E
+\BEG
+@item term
+The power product of variables, i.e., a monomial with coefficient 1.
+In an @b{Asir} session, it is displayed in the form like
+\E
 
 @example
 <<0,1,2,3,4>>
 @end example
 
+\BJP
 という形で表示され, また, この形で入力可能である. この例は, 5 変数の項
 を示す. 各変数を @code{a}, @code{b}, @code{c}, @code{d}, @code{e} とすると
 この項は @code{b*c^2*d^3*e^4} を表す. 
+\E
+\BEG
+and also can be input in such a form.
+This example shows a term in 5 variables.  If we assume the 5 variables
+as @code{a}, @code{b}, @code{c}, @code{d}, and @code{e},
+the term represents @code{b*c^2*d^3*e^4} in the ordinary expression.
+\E
 
+\BJP
 @item 項順序 (term order)
 分散表現多項式における項は, 次の性質を満たす全順序により整列される. 
+\E
+\BEG
+@item term order
+Terms are ordered according to a total order with the following properties.
+\E
 
 @enumerate
 @item
-任意の項 @code{t} に対し @code{t} > 1
+\JP 任意の項 @code{t} に対し @code{t} > 1
+\EG For all @code{t} @code{t} > 1.
 
 @item
-@code{t}, @code{s}, @code{u} を項とする時, @code{t} > @code{s} ならば
-@code{tu} > @code{su}
+\JP @code{t}, @code{s}, @code{u} を項とする時, @code{t} > @code{s} ならば @code{tu} > @code{su}
+\EG For all @code{t}, @code{s}, @code{u} @code{t} > @code{s} implies @code{tu} > @code{su}.
 @end enumerate
 
+\BJP
 この性質を満たす全順序を項順序と呼ぶ. この順序は変数順序 (変数のリスト) 
 と項順序型 (数, リストまたは行列) により指定される.
+\E
+\BEG
+Such a total order is called a term ordering. A term ordering is specified
+by a variable ordering (a list of variables) and a type of term ordering
+(an integer, a list or a matrix).
+\E
 
+\BJP
 @item 単項式 (monomial)
 項と係数の積. 
+\E
+\BEG
+@item monomial
+The product of a term and a coefficient.
+In an @b{Asir} session, it is displayed in the form like
+\E
 
 @example
 2*<<0,1,2,3,4>>
 @end example
 
-という形で表示され, また, この形で入力可能である. 
+\JP という形で表示され, また, この形で入力可能である. 
+\EG and also can be input in such a form.
 
+\BJP
 @itemx 頭単項式 (head monomial)
 @item 頭項 (head term)
 @itemx 頭係数 (head coefficient)
 分散表現多項式における各単項式は, 項順序により整列される. この時順
 序最大の単項式を頭単項式, それに現れる項, 係数をそれぞれ頭項, 頭係数
 と呼ぶ. 
+\E
+\BEG
+@itemx head monomial
+@item head term
+@itemx head coefficient
+      
+Monomials in a distributed polynomial is sorted by a total order.
+In such representation, we call the monomial that is maximum
+with respect to the order the head monomial, and its term and coefficient
+the head term and the head coefficient respectively.
+\E
 @end table
 
+\BJP
 @node ファイルの読み込み,,, グレブナ基底の計算
 @section ファイルの読み込み
+\E
+\BEG
+@node Reading files,,, Groebner basis computation
+@section Reading files
+\E
 
 @noindent
+\BJP
 グレブナ基底を計算するための基本的な函数は @code{dp_gr_main()} および
 @code{dp_gr_mod_main()} なる 2 つの組み込み函数であるが, 通常は, パラメタ
 設定などを行ったのちこれらを呼び出すユーザ函数を用いるのが便利である. 
@@ -110,52 +234,119 @@ $(x+y+z)^2 = 1 \cdot x^2 + 2 \cdot xy + 2 \cdot xz + 1 \cdot y^2 + 2 \cdot yz +1
 み込むことにより使用可能となる. @samp{gr} は, @b{Asir} の標準
 ライブラリディレクトリに置かれている. よって, 環境変数 @code{ASIR_LIBDIR}
 を特に異なるパスに設定しない限り, ファイル名のみで読み込むことができる. 
+\E
+\BEG
+Facilities for computing Groebner bases are provided not by built-in
+functions but by a set of user functions written in @b{Asir}.
+The set of functions is provided as a file (sometimes called package),
+named @samp{gr}.
+The facilities will be ready to use after you load the package by
+@code{load()}.  The package @samp{gr} is placed in the standard library
+directory of @b{Asir}.  Therefore, it is loaded simply by specifying
+its file name, unless the environment variable @code{ASIR_LIBDIR}
+is set to a non-standard one.
+\E
 
 @example
 [0] load("gr")$
 @end example
 
+\BJP
 @node 基本的な函数,,, グレブナ基底の計算
 @section 基本的な函数
+\E
+\BEG
+@node Fundamental functions,,, Groebner basis computation
+@section Fundamental functions
+\E
 
 @noindent
+\BJP
 @samp{gr} では数多くの函数が定義されているが, 直接
 グレブナ基底を計算するためのトップレベルは次の 3 つである. 
 以下で, @var{plist} は多項式のリスト, @var{vlist} は変数 (不定元) のリスト, 
 @var{order} は変数順序型, @var{p} は @code{2^27} 未満の素数である. 
+\E
+\BEG
+There are many functions and options defined in the package @samp{gr}.
+Usually not so many of them are used.  Top level functions for Groebner
+basis computation are the following three functions.
+      
+In the following description, @var{plist}, @var{vlist}, @var{order}
+and @var{p} stand for  a list of polynomials,  a list of variables
+(indeterminates), a type of term ordering and a prime less than
+@code{2^27} respectively.
+\E
 
 @table @code
 @item gr(@var{plist},@var{vlist},@var{order})
 
+\BJP
 Gebauer-Moeller による useless pair elimination criteria, sugar
 strategy および Traverso による trace-lifting を用いた Buchberger アル
 ゴリズムによる有理数係数グレブナ基底計算函数. 一般にはこの函数を用いる.
+\E
+\BEG
+Function that computes Groebner bases over the rationals. The
+algorithm is Buchberger algorithm with useless pair elimination
+criteria by Gebauer-Moeller, sugar strategy and trace-lifting by
+Traverso. For ordinary computation, this function is used.
+\E
 
 @item hgr(@var{plist},@var{vlist},@var{order})
 
+\BJP
 入力多項式を斉次化した後 @code{gr()} のグレブナ基底候補生成部により候
 補生成し, 非斉次化, interreduce したものを @code{gr()} のグレブナ基底
 チェック部でチェックする. 0 次元システム (解の個数が有限個の方程式系) 
 の場合, sugar strategy が係数膨張を引き起こす場合がある. このような場
 合, strategy を斉次化による strategy に置き換えることにより係数膨張を
 抑制することができる場合が多い.
+\E
+\BEG
+After homogenizing the input polynomials a candidate of the \gr basis
+is computed by trace-lifting. Then the candidate is dehomogenized and
+checked whether it is indeed a Groebner basis of the input.  Sugar
+strategy often causes intermediate coefficient swells.  It is
+empirically known that the combination of homogenization and supresses
+the swells for such cases.
+\E
 
 @item gr_mod(@var{plist},@var{vlist},@var{order},@var{p})
 
+\BJP
 Gebauer-Moeller による useless pair elimination criteria, sugar
 strategy および Buchberger アルゴリズムによる GF(p) 係数グレブナ基底計
 算函数.
+\E
+\BEG
+Function that computes Groebner bases over GF(@var{p}). The same
+algorithm as @code{gr()} is used.
+\E
 
 @end table
 
+\BJP
 @node 計算および表示の制御,,, グレブナ基底の計算
 @section 計算および表示の制御
+\E
+\BEG
+@node Controlling Groebner basis computations,,, Groebner basis computation
+@section Controlling Groebner basis computations
+\E
 
 @noindent
+\BJP
 グレブナ基底の計算において, さまざまなパラメタ設定を行うことにより計算, 
 表示を制御することができる. これらは, 組み込み函数 @code{dp_gr_flags()}
 により設定参照することができる. 無引数で @code{dp_gr_flags()} を実行する
 と, 現在設定されているパラメタが, 名前と値のリストで返される. 
+\E
+\BEG
+One can cotrol a Groebner basis computation by setting various parameters.
+These parameters can be set and examined by a built-in function
+@code{dp_gr_flags()}. Without argument it returns the current settings.
+\E
 
 @example
 [100] dp_gr_flags();
@@ -164,73 +355,163 @@ Print,1,Stat,0,Reverse,0,InterReduce,0,Multiple,0]
 [101]
 @end example
 
+\BJP
 以下で, 各パラメタの意味を説明する. on の場合とは, パラメタが 0 でない場合を
 いう. これらのパラメタの初期値は全て 0 (off) である. 
-
+\E
+\BEG
+The return value is a list which contains the names of parameters and their
+values. The meaning of the parameters are as follows. `on' means that the
+parameter is not zero.
+\E
 
 @table @code
 @item NoSugar
+\BJP
 on の場合, sugar strategy の代わりに Buchbergerの normal strategy が用
 いられる.
+\E
+\BEG
+If `on', Buchberger's normal strategy is used instead of sugar strategy.
+\E
 
 @item NoCriB
-on の場合, 不必要対検出規準のうち, 規準 B を適用しない.
+\JP on の場合, 不必要対検出規準のうち, 規準 B を適用しない.
+\EG If `on', criterion B among the Gebauer-Moeller's criteria is not applied.
 
 @item NoGC
-on の場合, 結果がグレブナ基底になっているかどうかのチェックを行わない.
+\JP on の場合, 結果がグレブナ基底になっているかどうかのチェックを行わない.
+\BEG
+If `on', the check that a Groebner basis candidate is indeed a Groebner basis,
+is not executed.
+\E
 
 @item NoMC
+\BJP
 on の場合, 結果が入力イデアルと同等のイデアルであるかどうかのチェック
 を行わない.
+\E
+\BEG
+If `on', the check that the resulting polynomials generates the same ideal as
+the ideal generated by the input, is not executed.
+\E
 
 @item NoRA
+\BJP
 on の場合, 結果を reduced グレブナ基底にするための
 interreduce を行わない. 
+\E
+\BEG
+If `on', the interreduction, which makes the Groebner basis reduced, is not
+executed.
+\E
 
 @item NoGCD
+\BJP
 on の場合, 有理式係数のグレブナ基底計算において, 生成された多項式の, 
 係数の content をとらない.
+\E
+\BEG
+If `on', content removals are not executed during a Groebner basis computation
+over a rational function field.
+\E
 
 @item Top
-on の場合, normal form 計算において頭項消去のみを行う. 
+\JP on の場合, normal form 計算において頭項消去のみを行う. 
+\EG If `on', Only the head term of the polynomial being reduced is reduced.
 
-@item Interreduce
-on の場合, 多項式を生成する毎に, それまで生成された基底をその多項式に
-よる normal form で置き換える.
+@comment @item Interreduce
+@comment \BJP
+@comment on の場合, 多項式を生成する毎に, それまで生成された基底をその多項式に
+@comment よる normal form で置き換える.
+@comment \E
+@comment \BEG
+@comment If `on', intermediate basis elements are reduced by using a newly generated
+@comment basis element.
+@comment \E
 
 @item Reverse
+\BJP
 on の場合, normal form 計算の際の reducer を, 新しく生成されたものを優
 先して選ぶ.
+\E
+\BEG
+If `on', the selection strategy of reducer in a normal form computation
+is such that a newer reducer is used first.
+\E
 
 @item Print
-on の場合, グレブナ基底計算の途中におけるさまざまな情報を表示する. 
+\JP on の場合, グレブナ基底計算の途中におけるさまざまな情報を表示する. 
+\BEG
+If `on', various informations during a Groebner basis computation is
+displayed.
+\E
 
 @item Stat
+\BJP
 on で @code{Print} が off ならば, @code{Print} が on のとき表示さ
 れるデータの内, 集計データのみが表示される. 
+\E
+\BEG
+If `on', a summary of informations is shown after a Groebner basis
+computation. Note that the summary is always shown if @code{Print} is `on'.
+\E
 
 @item ShowMag
+\BJP
 on で @code{Print} が on ならば, 生成が生成される毎に, その多項式の
 係数のビット長の和を表示し, 最後に, それらの和の最大値を表示する. 
+\E
+\BEG
+If `on' and @code{Print} is `on', the sum of bit length of
+coefficients of a generated basis element, which we call @var{magnitude},
+is shown after every normal computation.  After comleting the
+computation the maximal value among the sums is shown.
+\E
 
 @item Multiple
+\BJP
 0 でない整数の時, 有理数上の正規形計算において, 係数のビット長の和が
 @code{Multiple} 倍になるごとに係数全体の GCD が計算され, その GCD で
 割った多項式を簡約する. @code{Multiple} が 1 ならば, 簡約するごとに
 GCD 計算が行われ一般には効率が悪くなるが, @code{Multiple} を 2 程度
 とすると, 巨大な整数が係数に現れる場合, 効率が良くなる場合がある. 
+\E
+\BEG
+If a non-zero integer, in a normal form computation
+over the rationals, the integer content of the polynomial being
+reduced is removed when its magnitude becomes @code{Multiple} times
+larger than a registered value, which is set to the magnitude of the
+input polynomial. After each content removal the registered value is
+set to the magnitude of the resulting polynomial. @code{Multiple} is
+equal to 1, the simiplification is done after every normal form computation.
+It is empirically known that it is often efficient to set @code{Multiple} to 2
+for the case where large integers appear during the computation.
+\E
 
 @item Demand
+
+\BJP
 正当なディレクトリ名 (文字列) を値に持つとき, 生成された多項式はメモリ
 中におかれず, そのディレクトリ中にバイナリデータとして置かれ, その多項
 式を用いる normal form 計算の際, 自動的にメモリ中にロードされる. 各多
 項式は, 内部でのインデックスをファイル名に持つファイルに格納される. 
 ここで指定されたディレクトリに書かれたファイルは自動的には消去されない
 ため, ユーザが責任を持って消去する必要がある. 
+\E
+\BEG
+If the value (a character string) is a valid directory name, then
+generated basis elements are put in the directory and are loaded on
+demand during normal form computations.  Each elements is saved in the
+binary form and its name coincides with the index internally used in
+the computation. These binary files are not removed automatically
+and one should remove them by hand.
+\E
 @end table
 
 @noindent
-@code{Print} が 0 でない場合次のようなデータが表示される.
+\JP @code{Print} が 0 でない場合次のようなデータが表示される.
+\EG If @code{Print} is `on', the following informations are shown.
 
 @example
 [93] gr(cyclic(4),[c0,c1,c2,c3],0)$
@@ -256,185 +537,453 @@ Max_mag=6
 @end example
 
 @noindent
+\BJP
 最初に表示される @code{mod}, @code{eval} は, trace-lifting で用いられる法
 である. @code{mod} は素数, @code{eval} は有理式係数の場合に用いられる
 数のリストである. 
+\E
+\BEG
+In this example @code{mod} and @code{eval} indicate moduli used in
+trace-lifting. @code{mod} is a prime and @code{eval} is a list of integers
+used for evaluation when the ground field is a field of rational functions.
+\E
 
 @noindent
-計算途中で多項式が生成される毎に次の形のデータが表示される. 
+\JP 計算途中で多項式が生成される毎に次の形のデータが表示される. 
+\EG The following information is shown after every normal form computation.
 
 @example
 (TNF)(TCONT)HT(INDEX),nb=NB,nab=NAB,rp=RP,sugar=S,mag=M
 @end example
 
 @noindent
-それらの意味は次の通り. 
+\JP それらの意味は次の通り. 
+\EG Meaning of each component is as follows.
 
 @table @code
+\BJP
 @item TNF
+
 normal form 計算時間 (秒)
 
 @item TCONT
+
 content 計算時間 (秒)
 
 @item HT
+
 生成された多項式の頭項
 
 @item INDEX
+
 S-多項式を構成する多項式のインデックスのペア
 
 @item NB
+
 現在の, 冗長性を除いた基底の数
 
 @item NAB
+
 現在までに生成された基底の数
 
 @item RP
+
 残りのペアの数
 
 @item S
+
 生成された多項式の sugar の値
 
 @item M
+
 生成された多項式の係数のビット長の和 (@code{ShowMag} が on の時に表示される. )
+\E
+\BEG
+@item TNF
+
+CPU time for normal form computation (second)
+
+@item TCONT
+
+CPU time for content removal(second)
+
+@item HT
+
+Head term of the generated basis element
+
+@item INDEX
+
+Pair of indices which corresponds to the reduced S-polynomial
+
+@item NB
+
+Number of basis elements after removing redundancy
+      
+@item NAB
+
+Number of all the basis elements
+      
+@item RP
+
+Number of remaining pairs
+
+@item S
+
+Sugar of the generated basis element
+      
+@item M
+
+Magnitude of the genrated basis element (shown if @code{ShowMag} is `on'.)
+\E
 @end table
 
 @noindent
+\BJP
 最後に, 集計データが表示される. 意味は次の通り. 
 (時間の表示において, 数字が 2 つあるものは, 計算時間と GC 時間のペアである.)
-
+\E
+\BEG
+The summary of the informations shown after a Groebner basis
+computation is as follows.  If a component shows timings and it
+contains two numbers, they are a pair of time for computation and time
+for garbage colection.
+\E
 
 @table @code
+\BJP
 @item UP
+
 ペアのリストの操作にかかった時間
 
 @item SP
+
 有理数上の S-多項式計算時間
 
 @item SPM
+
 有限体上の S-多項式計算時間
 
 @item NF
+
 有理数上の normal form 計算時間
 
 @item NFM
+
 有限体上の normal form 計算時間
 
 @item ZNFM
+
 @code{NFM} の内, 0 への reduction にかかった時間
 
 @item PZ
+
 content 計算時間
 
 @item NP
+
 有理数係数多項式の係数に対する剰余演算の計算時間
 
 @item MP
+
 S-多項式を生成するペアの選択にかかった時間
 
 @item RA
+
 interreduce 計算時間
 
 @item MC
+
 trace-lifting における, 入力多項式のメンバシップ計算時間
 
 @item GC
+
 結果のグレブナ基底候補のグレブナ基底チェック時間
 
 @item T
+
 生成されたペアの数
 
 @item B, M, F, D
+
 各 criterion により除かれたペアの数
       
 @item ZR
+
 0 に reduce されたペアの数
 
 @item NZR
+
 0 でない多項式に reduce されたペアの数
 
 @item Max_mag
-生成された多項式の, 係数のビット長の和の最大値
 
+生成された多項式の, 係数のビット長の和の最大値
+\E
+\BEG
+@item UP
+
+Time to manipulate the list of critical pairs
+
+@item SP
+
+Time to compute S-polynomials over the rationals
+
+@item SPM
+
+Time to compute S-polynomials over a finite field
+
+@item NF
+
+Time to compute normal forms over the rationals
+
+@item NFM
+
+Time to compute normal forms over a finite field
+
+@item ZNFM
+
+Time for zero reductions in @code{NFM}
+
+@item PZ
+
+Time to remove integer contets
+
+@item NP
+
+Time to compute remainders for coefficients of polynomials with coeffieints
+in the rationals
+
+@item MP
+
+Time to select pairs from which S-polynomials are computed
+
+@item RA
+
+Time to interreduce the Groebner basis candidate
+
+@item MC
+
+Time to check that each input polynomial is a member of the ideal
+generated by the Groebner basis candidate.
+
+@item GC
+
+Time to check that the Groebner basis candidate is a Groebner basis
+
+@item T
+
+Number of critical pairs generated
+
+@item B, M, F, D
+
+Number of critical pairs removed by using each criterion
+     
+@item ZR
+
+Number of S-polynomials reduced to 0
+
+@item NZR
+
+Number of S-polynomials reduced to non-zero results
+
+@item Max_mag
+
+Maximal magnitude among all the generated polynomials
+\E
 @end table
 
+\BJP
 @node 項順序の設定,,, グレブナ基底の計算
 @section 項順序の設定
+\E
+\BEG
+@node Setting term orderings,,, Groebner basis computation
+@section Setting term orderings
+\E
 
 @noindent
+\BJP
 項は内部では, 各変数に関する指数を成分とする整数ベクトルとして表現され
 る. 多項式を分散表現多項式に変換する際, 各変数がどの成分に対応するかを
 指定するのが, 変数リストである. さらに, それら整数ベクトルの全順序を
 指定するのが項順序の型である. 項順序型は, 数, 数のリストあるいは
 行列で表現される. 
+\E
+\BEG
+A term is internally represented as an integer vector whose components
+are exponents with respect to variables. A variable list specifies the
+correspondences between variables and components. A type of term ordering
+specifies a total order for integer vectors. A type of term ordering is
+represented by an integer, a list of integer or matrices.
+\E
 
 @noindent
-基本的な項順序型として次の 3 つがある. 
+\JP 基本的な項順序型として次の 3 つがある. 
+\EG There are following three fundamental types.
 
 @table @code
-@item 0 (DegRevLex; @b{全次数逆辞書式順序})
+\JP @item 0 (DegRevLex; @b{全次数逆辞書式順序})
+\EG @item 0 (DegRevLex; @b{total degree reverse lexicographic ordering})
 
+\BJP
 一般に, この順序によるグレブナ基底計算が最も高速である. ただし, 
 方程式を解くという目的に用いることは, 一般にはできない. この
 順序によるグレブナ基底は, 解の個数の計算, イデアルのメンバシップや, 
 他の変数順序への基底変換のためのソースとして用いられる. 
+\E
+\BEG
+In general, computation by this ordering shows the fastest speed
+in most Groebner basis computations.
+However, for the purpose to solve polynomial equations, this type
+of ordering is, in general, not so suitable.
+The Groebner bases obtained by this ordering is used for computing
+the number of solutions, solving ideal membership problem and seeds
+for conversion to other Groebner bases under different ordering.
+\E
 
-@item 1 (DegLex; @b{全次数辞書式順序})
+\JP @item 1 (DegLex; @b{全次数辞書式順序})
+\EG @item 1 (DegLex; @b{total degree lexicographic ordering})
 
+\BJP
 この順序も, 辞書式順序に比べて高速にグレブナ基底を求めることができるが, 
 @code{DegRevLex} と同様直接その結果を用いることは困難である. しかし, 
 辞書式順序のグレブナ基底を求める際に, 斉次化後にこの順序でグレブナ基底
 を求めている. 
+\E
+\BEG
+By this type term ordering, Groebner bases are obtained fairly faster
+than Lex (lexicographic) ordering, too.
+Alike the @code{DegRevLex} ordering, the result, in general, cannot directly
+be used for solving polynomial equations.
+It is used, however, in such a way
+that a Groebner basis is computed in this ordering after homogenization
+to obtain the final lexicographic Groebner basis.
+\E
 
-@item 2 (Lex; @b{辞書式順序})
+\JP @item 2 (Lex; @b{辞書式順序})
+\EG @item 2 (Lex; @b{lexicographic ordering})
 
+\BJP
 この順序によるグレブナ基底は, 方程式を解く場合に最適の形の基底を与えるが
 計算時間がかかり過ぎるのが難点である. 特に, 解が有限個の場合, 結果の
 係数が極めて長大な多倍長数になる場合が多い. この場合, @code{gr()}, 
 @code{hgr()} による計算が極めて有効になる場合が多い. 
+\E
+\BEG
+Groebner bases computed by this ordering give the most convenient
+Groebner bases for solving the polynomial equations.
+The only and serious shortcoming is the enormously long computation
+time. 
+It is often observed that the number coefficients of the result becomes
+very very long integers, especially if the ideal is 0-dimensional.
+For such a case, it is empirically true for many cases
+that i.e., computation by
+@code{gr()} and/or @code{hgr()} may be quite effective.
+\E
 @end table
 
 @noindent
+\BJP
 これらを組み合わせてリストで指定することにより, 様々な消去順序が指定できる. 
 これは, 
+\E
+\BEG
+By combining these fundamental orderingl into a list, one can make
+various term ordering called elimination orderings.
+\E
 
 @code{[[O1,L1],[O2,L2],...]}
 
 @noindent
+\BJP
 で指定される. @code{Oi} は 0, 1, 2 のいずれかで, @code{Li} は変数の個
 数を表す. この指定は, 変数を先頭から @code{L1}, @code{L2} , ...個
 ずつの組に分け, それぞれの変数に関し, 順に @code{O1}, @code{O2},
 ...の項順序型で大小が決定するまで比較することを意味する. この型の
 順序は一般に消去順序と呼ばれる. 
+\E
+\BEG
+In this example @code{Oi} indicates 0, 1 or 2 and @code{Li} indicates
+the number of variables subject to the correspoinding orderings.
+This specification means the following.
+      
+The variable list is separated into sub lists from left to right where
+the @code{i}-th list contains @code{Li} members and it corresponds to
+the ordering of type @code{Oi}. The result of a comparison is equal
+to that for the leftmost different sub components. This type of ordering
+is called an elimination ordering.
+\E
 
 @noindent
+\BJP
 さらに, 行列により項順序を指定することができる. 一般に, @code{n} 行
 @code{m} 列の実数行列 @code{M} が次の性質を持つとする. 
+\E
+\BEG
+Furthermore one can specify a term ordering by a matix.
+Suppose that a real @code{n}, @code{m} matrix @code{M} has the
+following properties.
+\E
 
 @enumerate
 @item
-長さ @code{m} の整数ベクトル @code{v} に対し @code{Mv=0} と @code{v=0} は同値. 
+\JP 長さ @code{m} の整数ベクトル @code{v} に対し @code{Mv=0} と @code{v=0} は同値. 
+\BEG
+For all integer verctors @code{v} of length @code{m} @code{Mv=0} is equivalent
+to @code{v=0}.
+\E
 
 @item
+\BJP
 非負成分を持つ長さ @code{m} の 0 でない整数ベクトル @code{v} に対し, 
 @code{Mv} の 0 でない最初の成分は非負.
+\E
+\BEG
+For all non-negative integer vectors @code{v} the first non-zero component
+of @code{Mv} is non-negative.
+\E
 @end enumerate
 
 @noindent
+\BJP
 この時, 2 つのベクトル @code{t}, @code{s} に対し, 
 @code{t>s} を, @code{M(t-s)} の 0 でない最初の成分が非負,
 で定義することにより項順序が定義できる.
+\E
+\BEG
+Then we can define a term ordering such that, for two vectors
+@code{t}, @code{s}, @code{t>s} means that the first non-zero component
+of @code{M(t-s)} is non-negative.
+\E
 
 @noindent
+\BJP
 項順序型は, @code{gr()} などの引数として指定される他, 組み込み函数
 @code{dp_ord()} で指定され, さまざまな函数の実行の際に参照される. 
+\E
+\BEG
+Types of term orderings are used as arguments of functions such as
+@code{gr()}. It is also set internally by @code{dp_ord()} and is used
+during executions of various functions.
+\E
 
 @noindent
+\BJP
 これらの順序の具体的な定義およびグレブナ基底に関する更に詳しい解説は
 @code{[Becker,Weispfenning]} などを参照のこと. 
+\E
+\BEG
+For concrete definitions of term ordering and more information
+about Groebner basis, refer to, for example, the book
+@code{[Becker,Weispfenning]}.
+\E
 
 @noindent
-項順序型の設定の他に, 変数の順序自体も計算時間に大きな影響を与える. 
+\JP 項順序型の設定の他に, 変数の順序自体も計算時間に大きな影響を与える. 
+\BEG
+Note that the variable ordering have strong effects on the computation
+time as well as the choice of types of term orderings.
+\E
 
 @example
 [90] B=[x^10-t,x^8-z,x^31-x^6-x-y]$
@@ -466,6 +1015,7 @@ z^5-t^4]
 @end example
 
 @noindent
+\BJP
 変数順序 @code{[x,y,z,t]} におけるグレブナ基底は, 基底の数も多く, それぞれの
 式も大きい. しかし, 順序 @code{[t,z,y,x]} にもとでは, @code{B} がすでに
 グレブナ基底となっている. 大雑把にいえば, 辞書式順序でグレブナ基底を求める
@@ -474,15 +1024,44 @@ z^5-t^4]
 @code{x} で表されていることからこのような極端な結果となったわけである. 
 実際に現れる計算においては, このように選ぶべき変数順序が明らかである
 ことは少なく, 試行錯誤が必要な場合もある. 
+\E
+\BEG
+As you see in the above example, the Groebner base under variable
+ordering @code{[x,y,z,t]} has a lot of bases and each base itself is
+large.  Under variable ordering @code{[t,z,y,x]}, however, @code{B} itself
+is already the Groebner basis.
+Roughly speaking, to obtain a Groebner base under the lexicographic
+ordering is to express the variables on the left (having higher order)
+in terms of variables on the right (having lower order).
+In the example, variables @code{t},  @code{z}, and @code{y} are already
+expressed by variable @code{x}, and the above explanation justifies
+such a drastic experimental results.
+In practice, however, optimum ordering for variables may not known
+beforehand, and some heuristic trial may be inevitable.
+\E
 
+\BJP
 @node 有理式を係数とするグレブナ基底計算,,, グレブナ基底の計算
 @section 有理式を係数とするグレブナ基底計算
+\E
+\BEG
+@node Groebner basis computation with rational function coefficients,,, Groebner basis computation
+@section Groebner basis computation with rational function coefficients
+\E
 
 @noindent
+\BJP
 @code{gr()} などのトップレベル函数は, いずれも, 入力多項式リストに
 現れる変数 (不定元) と, 変数リストに現れる変数を比較して, 変数リストに
 ない変数が入力多項式に現れている場合には, 自動的に, その変数を, 係数
 体の元として扱う. 
+\E
+\BEG
+Such variables that appear within the input polynomials but
+not appearing in the input variable list are automatically treated
+as elements in the coefficient field
+by top level functions, such as @code{gr()}.
+\E
 
 @example
 [64] gr([a*x+b*y-c,d*x+e*y-f],[x,y],2);
@@ -490,6 +1069,7 @@ z^5-t^4]
 @end example
 
 @noindent
+\BJP
 この例では, @code{a}, @code{b}, @code{c}, @code{d} が係数体の元として
 扱われる. すなわち, 有理函数体 
 @b{F} = @b{Q}(@code{a},@code{b},@code{c},@code{d}) 上の 2 変数多項式環
@@ -501,11 +1081,36 @@ z^5-t^4]
 には異なる. また, 主として計算効率上の問題のため, 分散表現多項式
 の係数として実際に許されるのは多項式までである. すなわち, 分母を
 持つ有理式は分散表現多項式の係数としては許されない. 
+\E
+\BEG
+In this example, variables @code{a}, @code{b}, @code{c}, and @code{d}
+are treated as elements in the coefficient field.
+In this case, a Groebner basis is computed
+on a bi-variate polynomial ring
+@b{F}[@code{x},@code{y}]
+over rational function field
+ @b{F} = @b{Q}(@code{a},@code{b},@code{c},@code{d}).
+Notice that coefficients are considered as a member in a field.
+As a consequence, polynomial factors common to the coefficients
+are removed so that the result, in general, is different from
+the result that would be obtained when the problem is considered
+as a computation of Groebner basis over a polynomial ring
+with rational function coefficients.
+And note that coefficients of a distributed polynomial are limited
+to numbers and polynomials because of efficiency.
+\E
 
+\BJP
 @node 基底変換,,, グレブナ基底の計算
 @section 基底変換
+\E
+\BEG
+@node Change of ordering,,, Groebner basis computation
+@section Change of orderng
+\E
 
 @noindent
+\BJP
 辞書式順序のグレブナ基底を求める場合, 直接 @code{gr()} などを起動する
 より, 一旦他の順序 (例えば全次数逆辞書式順序) のグレブナ基底を計算して, 
 それを入力として辞書式順序のグレブナ基底を計算する方が効率がよい場合
@@ -516,16 +1121,44 @@ z^5-t^4]
 以下の 2 つの函数は, 変数順序 @var{vlist1}, 項順序型 @var{order} で
 既にグレブナ基底となっている多項式リスト @var{gbase} を, 変数順序
 @var{vlist2} における辞書式順序のグレブナ基底に変換する函数である. 
+\E
+\BEG
+When we compute a lex order Groebner basis, it is often efficient to
+compute it via Groebner basis with respect to another order such as
+degree reverse lex order, rather than to compute it directory by
+@code{gr()} etc. If we know that an input is a Groebner basis with
+respect to an order, we can apply special methods called change of
+ordering for a Groebner basis computation with respect to another
+order, without using Buchberger algorithm. The following two functions
+are ones for change of ordering such that they convert a Groebner
+basis @var{gbase} with respect to the variable order @var{vlist1} and
+the order type @var{order} into a lex Groebner basis with respect
+to the variable order @var{vlist2}.
+\E
 
 @table @code
 @item tolex(@var{gbase},@var{vlist1},@var{order},@var{vlist2})
 
+\BJP
 この函数は, @var{gbase} が有理数体上のシステムの場合にのみ使用可能である. 
 この函数は, 辞書式順序のグレブナ基底を, 有限体上で計算されたグレブナ基底
 を雛型として, 未定係数法および Hensel 構成により求めるものである. 
+\E
+\BEG
+This function can be used only when @var{gbase} is an ideal over the
+rationals.  The input @var{gbase} must be a Groebner basis with respect
+to the variable order @var{vlist1} and the order type @var{order}. Moreover
+the ideal generated by @var{gbase} must be zero-dimensional.
+This computes the lex Groebner basis of @var{gbase}
+by using the modular change of ordering algorithm. The algorithm first
+computes the lex Groebner basis over a finite field. Then each element
+in the lex Groebner basis over the rationals is computed with undetermined
+coefficient method and linear equation solving by Hensel lifting.
+\E
 
 @item tolex_tl(@var{gbase},@var{vlist1},@var{order},@var{vlist2},@var{homo})
 
+\BJP
 この函数は, 辞書式順序のグレブナ基底を Buchberger アルゴリズムにより求
 めるものであるが, 入力がある順序におけるグレブナ基底である場合の 
 trace-liftingにおけるグレブナ基底候補の頭項, 頭係数の性質を利用して, 
@@ -536,16 +1169,44 @@ trace-liftingにおけるグレブナ基底候補の頭項, 頭係数の性質を利用して,
 直接辞書式順序の計算を行うより効率がよい. (もちろん例外あり. )
 引数 @var{homo} が 0 でない時, @code{hgr()} と同様に斉次化を経由して
 計算を行う. 
-
+\E
+\BEG
+This function computes the lex Groebner basis of @var{gbase}.  The
+input @var{gbase} must be a Groebner basis with respect to the
+variable order @var{vlist1} and the order type @var{order}.
+Buchberger algorithm with trace lifting is used to compute the lex
+Groebner basis, however the Groebner basis check and the ideal
+membership check can be omitted by using several properties derived
+from the fact that the input is a Groebner basis. So it is more
+efficient than simple repetition of Buchberger algorithm. If the input
+is zero-dimensional, this function inserts automatically a computation
+of Groebner basis with respect to an elimination order, which makes
+the whole computation more efficient for many cases. If @var{homo} is
+not equal to 0, homogenization is used in each step.
+\E
 @end table
 
 @noindent
+\BJP
 その他, 0 次元システムに対し, 与えられた多項式の最小多項式を求める
 函数, 0 次元システムの解を, よりコンパクトに表現するための函数などが
 @samp{gr} で定義されている. これらについては個々の函数の説明を参照のこと. 
+\E
+\BEG
+For zero-dimensional systems, there are several fuctions to
+compute the minimal polynomial of a polynomial and or a more compact
+representation for zeros of the system. They are all defined in @samp{gr}.
+Refer to the sections for each functions.
+\E
 
+\BJP
 @node グレブナ基底に関する函数,,, グレブナ基底の計算
 @section グレブナ基底に関する函数
+\E
+\BEG
+@node Functions for Groebner basis computation,,, Groebner basis computation
+@section Functions for Groebner basis computation
+\E
 
 @menu
 * gr hgr gr_mod::
@@ -580,7 +1241,8 @@ trace-liftingにおけるグレブナ基底候補の頭項, 頭係数の性質を利用して,
 * lex_hensel_gsl tolex_gsl tolex_gsl_d::
 @end menu
 
-@node gr hgr gr_mod,,, グレブナ基底に関する函数
+\JP @node gr hgr gr_mod,,, グレブナ基底に関する函数
+\EG @node gr hgr gr_mod,,, Functions for Groebner basis computation
 @subsection @code{gr}, @code{hgr}, @code{gr_mod}, @code{dgr}
 @findex gr
 @findex hgr
@@ -592,21 +1254,27 @@ trace-liftingにおけるグレブナ基底候補の頭項, 頭係数の性質を利用して,
 @itemx hgr(@var{plist},@var{vlist},@var{order})
 @itemx gr_mod(@var{plist},@var{vlist},@var{order},@var{p})
 @itemx dgr(@var{plist},@var{vlist},@var{order},@var{procs})
-:: グレブナ基底の計算
+\JP :: グレブナ基底の計算
+\EG :: Groebner basis computation
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item plist, vlist, procs
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item p
-2^27 未満の素数
+\JP 2^27 未満の素数
+\EG prime less than 2^27
 @end table
 
 @itemize @bullet
+\BJP
 @item
 標準ライブラリの @samp{gr} で定義されている. 
 @item
@@ -628,6 +1296,35 @@ strategy による計算, @code{hgr()} は trace-lifting および
 @item
 @code{dgr()} で表示される時間は, この函数が実行されているプロセスでの
 CPU 時間であり, この函数の場合はほとんど通信のための時間である. 
+\E
+\BEG
+@item 
+These functions are defined in @samp{gr} in the standard library
+directory.
+@item 
+They compute a Groebner basis of a polynomial list @var{plist} with
+respect to the variable order @var{vlist} and the order type @var{order}.
+@code{gr()} and @code{hgr()} compute a Groebner basis over the rationals
+and @code{gr_mod} computes over GF(@var{p}).
+@item 
+Variables not included in @var{vlist} are regarded as
+included in the ground field.
+@item 
+@code{gr()} uses trace-lifting (an improvement by modular computation)
+ and sugar strategy.
+@code{hgr()} uses trace-lifting and a cured sugar strategy
+by using homogenization.
+@item 
+@code{dgr()} executes @code{gr()}, @code{dgr()} simultaneously on
+two process in a child process list @var{procs} and returns
+the result obtained first. The results returned from both the process
+should be equal, but it is not known in advance which method is faster.
+Therefore this function is useful to reduce the actual elapsed time.
+@item 
+The CPU time shown after an exection of @code{dgr()} indicates
+that of the master process, and most of the time corresponds to the time
+for communication.
+\E
 @end itemize
 
 @example
@@ -642,13 +1339,15 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @comment @fref{dp_gr_main dp_gr_mod_main},
 @fref{dp_gr_main dp_gr_mod_main},
 @fref{dp_ord}.
 @end table
 
-@node lex_hensel lex_tl tolex tolex_d tolex_tl,,, グレブナ基底に関する函数
+\JP @node lex_hensel lex_tl tolex tolex_d tolex_tl,,, グレブナ基底に関する函数
+\EG @node lex_hensel lex_tl tolex tolex_d tolex_tl,,, Functions for Groebner basis computation
 @subsection @code{lex_hensel}, @code{lex_tl}, @code{tolex}, @code{tolex_d}, @code{tolex_tl}
 @findex lex_hensel
 @findex lex_tl
@@ -659,25 +1358,32 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @table @t
 @item lex_hensel(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
 @itemx lex_tl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
-:: 基底変換による辞書式順序グレブナ基底の計算
+\JP :: 基底変換による辞書式順序グレブナ基底の計算
+\EG:: Groebner basis computation with respect to a lex order by change of ordering
 @item tolex(@var{plist},@var{vlist1},@var{order},@var{vlist2})
 @itemx tolex_d(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{procs})
 @itemx tolex_tl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
-:: グレブナ基底を入力とする, 基底変換による辞書式順序グレブナ基底の計算
+\JP :: グレブナ基底を入力とする, 基底変換による辞書式順序グレブナ基底の計算
+\EG :: Groebner basis computation with respect to a lex order by change of ordering, starting from a Groebner basis
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item plist, vlist1, vlist2, procs
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item homo
-フラグ
+\JP フラグ
+\EG flag
 @end table
 
 @itemize @bullet
+\BJP
 @item
 標準ライブラリの @samp{gr} で定義されている. 
 @item
@@ -695,7 +1401,6 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @item
 @code{lex_hensel()}, @code{lex_tl()} においては, 辞書式順序グレブナ基底の
 計算は次のように行われる. (@code{[Noro,Yokoyama]} 参照.)
-
 @enumerate
 @item
 @var{vlist1}, @var{order} に関するグレブナ基底 @var{G0} を計算する. 
@@ -750,6 +1455,87 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @item
 @code{tolex_d()} で表示される時間は, この函数が実行されているプロセスに
 おいて行われた計算に対応していて, 子プロセスにおける時間は含まれない. 
+\E
+\BEG
+@item 
+These functions are defined in @samp{gr} in the standard library
+directory.
+@item 
+@code{lex_hensel()} and @code{lex_tl()} first compute a Groebner basis
+with respect to the variable order @var{vlist1} and the order type @var{order}.
+Then the Groebner basis is converted into a lex order Groebner basis
+with respect to the varable order @var{vlist2}.
+@item 
+@code{tolex()} and @code{tolex_tl()} convert a Groebner basis @var{plist}
+with respect to the variable order @var{vlist1} and the order type @var{order}
+into a lex order Groebner basis
+with respect to the varable order @var{vlist2}.
+@code{tolex_d()} does computations of basis elements in @code{tolex()}
+in parallel on the processes in a child process list @var{procs}.
+@item 
+In @code{lex_hensel()} and @code{tolex_hensel()} a lex order Groebner basis
+is computed as follows.(Refer to @code{[Noro,Yokoyama]}.)
+@enumerate
+@item 
+Compute a Groebner basis @var{G0} with respect to @var{vlist1} and @var{order}.
+(Only in @code{lex_hensel()}. )
+@item 
+Choose a prime which does not divide head coefficients of elements in @var{G0}
+with respect to @var{vlist1} and @var{order}. Then compute a lex order
+Groebner basis @var{Gp} over GF(@var{p}) with respect to @var{vlist2}.
+@item 
+Compute @var{NF}, the set of all the normal forms with respect to
+@var{G0} of terms appearing in @var{Gp}.
+@item 
+For each element @var{f} in @var{Gp}, replace coefficients and terms in @var{f}
+with undetermined coefficients and the corresponding polynomials in @var{NF}
+respectively, and generate a system of liear equation @var{Lf} by equating
+the coefficients of terms in the replaced polynomial with 0.
+@item 
+Solve @var{Lf} by Hensel lifting, starting from the unique mod @var{p}
+solution.
+@item 
+If all the linear equations generated from the elements in @var{Gp}
+could be solved, then the set of solutions corresponds to a lex order
+Groebner basis. Otherwise redo the whole process with another @var{p}.
+@end enumerate
+      
+@item
+In @code{lex_tl()} and @code{tolex_tl()} a lex order Groebner basis
+is computed as follows.(Refer to @code{[Noro,Yokoyama]}.)
+      
+@enumerate
+@item 
+Compute a Groebner basis @var{G0} with respect to @var{vlist1} and @var{order}.
+(Only in @code{lex_tl()}. )
+@item 
+If @var{G0} is not zero-dimensional, choose a prime which does not divide
+head coefficients of elements in @var{G0} with respect to @var{vlist1} and
+@var{order}. Then compute a candidate of a lex order Groebner basis
+via trace lifting with @var{p}. If it succeeds the candidate is indeed
+a lex order Groebner basis without any check. Otherwise redo the whole
+process with another @var{p}.
+@item
+    
+If @var{G0} is zero-dimensional, starting from @var{G0},
+compute a Groebner basis @var{G1} with respect to an elimination order
+to eliminate variables other than the last varibale in @var{vlist2}.
+Then compute a lex order Groebner basis stating from @var{G1}. These
+computations are done by trace lifting and the selection of a mudulus
+@var{p} is the same as in non zero-dimensional cases.
+@end enumerate
+      
+@item
+Computations with rational function coefficients can be done only by
+@code{lex_tl()} and @code{tolex_tl()}.
+@item 
+If @code{homo} is not equal to 0, homogenization is used in Buchberger
+algorithm.
+@item 
+The CPU time shown after an execution of @code{tolex_d()} indicates
+that of the master process, and it does not include the time in child
+processes.
+\E
 @end itemize
 
 @example
@@ -771,12 +1557,15 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_gr_main dp_gr_mod_main},
-@fref{dp_ord}, @fref{分散計算}
+\JP @fref{dp_ord}, @fref{分散計算}
+\EG @fref{dp_ord}, @fref{Distributed computation}
 @end table
 
-@node lex_hensel_gsl tolex_gsl tolex_gsl_d,,, グレブナ基底に関する函数
+\JP @node lex_hensel_gsl tolex_gsl tolex_gsl_d,,, グレブナ基底に関する函数
+\EG @node lex_hensel_gsl tolex_gsl tolex_gsl_d,,, Functions for Groebner basis computation
 @subsection @code{lex_hensel_gsl}, @code{tolex_gsl}, @code{tolex_gsl_d}
 @findex lex_hensel_gsl
 @findex tolex_gsl
@@ -784,24 +1573,31 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 
 @table @t
 @item lex_hensel_gsl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
-:: GSL 形式のイデアル基底の計算
+\JP :: GSL 形式のイデアル基底の計算
+\EG ::Computation of an GSL form ideal basis
 @item tolex_gsl(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo})
 @itemx tolex_gsl_d(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{homo},@var{procs})
-:: グレブナ基底を入力とする, GSL 形式のイデアル基底の計算
+\JP :: グレブナ基底を入力とする, GSL 形式のイデアル基底の計算
+\EG :: Computation of an GSL form ideal basis stating from a Groebner basis
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item plist, vlist1, vlist2, procs
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item homo
-フラグ
+\JP フラグ
+\EG flag
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{lex_hensel_gsl()} は @code{lex_hensel()} の, @code{tolex_gsl()} は
 @code{tolex()} の変種で, 結果のみが異なる. 
@@ -813,7 +1609,7 @@ CPU 時間であり, この函数の場合はほとんど通信のための時間である.
 @code{x0} の 1 変数多項式) なる形 (これを SL 形式と呼ぶ) を持つ場合, 
 @code{[[x1,g1,d1],...,[xn,gn,dn],[x0,f0,f0']]} なるリスト (これを GSL 形式と呼ぶ)
 を返す. 
-ここで, @code{gi} は, @code{f0'fi-gi} が @code{f0} で割り切れるような
+ここで, @code{gi} は, @code{di*f0'*fi-gi} が @code{f0} で割り切れるような
 @code{x0} の1 変数多項式で, 
 解は @code{f0(x0)=0} なる @code{x0} に対し, @code{[x1=g1/(d1*f0'),...,xn=gn/(dn*f0')]}
 となる. 辞書式順序グレブナ基底が上のような形でない場合, @code{tolex()} に
@@ -823,6 +1619,36 @@ GSL 形式により表される基底はグレブナ基底ではないが, 一般に係数が SL 
 のグレブナ基底より非常に小さいため計算も速く, 解も求めやすい. 
 @code{tolex_gsl_d()} で表示される時間は, この函数が実行されているプロセスに
 おいて行われた計算に対応していて, 子プロセスにおける時間は含まれない. 
+\E
+\BEG
+@item 
+@code{lex_hensel_gsl()} and @code{lex_hensel()} are variants of
+@code{tolex_gsl()} and @code{tolex()} respectively. The results are
+Groebner basis or a kind of ideal basis, called GSL form.
+@code{tolex_gsl_d()} does basis computations in parallel on child
+processes specified in @code{procs}.
+      
+@item
+If the input is zero-dimensional and a lex order Groebner basis has
+the form @code{[f0,x1-f1,...,xn-fn]} (@code{f0},...,@code{fn} are
+univariate polynomials of @code{x0}; SL form), then this these
+functions return a list such as
+@code{[[x1,g1,d1],...,[xn,gn,dn],[x0,f0,f0']]} (GSL form).  In this list
+@code{gi} is a univariate polynomial of @code{x0} such that
+@code{di*f0'*fi-gi} divides @code{f0} and the roots of the input ideal is
+@code{[x1=g1/(d1*f0'),...,xn=gn/(dn*f0')]} for @code{x0}
+such that @code{f0(x0)=0}.
+If the lex order Groebner basis does not have the above form, 
+these functions return
+a lex order Groebner basis computed by @code{tolex()}.
+@item 
+Though an ideal basis represented as GSL form is not a Groebner basis
+we can expect that the coefficients are much smaller than those in a Groebner
+basis and that the computation is efficient.
+The CPU time shown after an execution of @code{tolex_gsl_d()} indicates
+that of the master process, and it does not include the time in child
+processes.
+\E
 @end itemize
 
 @example
@@ -839,39 +1665,51 @@ GSL 形式により表される基底はグレブナ基底ではないが, 一般に係数が SL 
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{lex_hensel lex_tl tolex tolex_d tolex_tl},
-@fref{分散計算}
+\JP @fref{分散計算}
+\EG @fref{Distributed computation}
 @end table
 
-@node gr_minipoly minipoly,,, グレブナ基底に関する函数
+\JP @node gr_minipoly minipoly,,, グレブナ基底に関する函数
+\EG @node gr_minipoly minipoly,,, Functions for Groebner basis computation
 @subsection @code{gr_minipoly}, @code{minipoly}
 @findex gr_minipoly
 @findex minipoly
 
 @table @t
 @item gr_minipoly(@var{plist},@var{vlist},@var{order},@var{poly},@var{v},@var{homo})
-:: 多項式の, イデアルを法とした最小多項式の計算
+\JP :: 多項式の, イデアルを法とした最小多項式の計算
+\EG :: Computation of the minimal polynomial of a polynomial modulo an ideal
 @item minipoly(@var{plist},@var{vlist},@var{order},@var{poly},@var{v})
-:: グレブナ基底を入力とする, 多項式の最小多項式の計算
+\JP :: グレブナ基底を入力とする, 多項式の最小多項式の計算
+\EG :: Computation of the minimal polynomial of a polynomial modulo an ideal
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG polynomial
 @item plist, vlist
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @item v
-不定元
+\JP 不定元
+\EG indeterminate
 @item homo
-フラグ
+\JP フラグ
+\EG flag
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{gr_minipoly()} はグレブナ基底の計算から行い, @code{minipoly()} は
 入力をグレブナ基底とみなす. 
@@ -890,6 +1728,30 @@ K[@var{v}] の元 f(@var{v}) に f(@var{p}) mod I を対応させる
 @item
 @code{gr_minipoly()} に指定する項順序としては, 通常全次数逆辞書式順序を
 用いる. 
+\E
+\BEG
+@item 
+@code{gr_minipoly()} begins by computing a Groebner basis.
+@code{minipoly()} regards an input as a Groebner basis with respect to
+the variable order @var{vlist} and the order type @var{order}.
+@item 
+Let K be a field. If an ideal @var{I} in K[X] is zero-dimensional, then, for
+a polynomial @var{p} in K[X], the kernel of a homomorphism from
+K[@var{v}] to K[X]/@var{I} which maps f(@var{v}) to f(@var{p}) mod @var{I}
+is generated by a polynomial. The generator is called the minimal polynomial
+of @var{p} modulo @var{I}.
+@item 
+@code{gr_minipoly()} and @code{minipoly()} computes the minimal polynomial
+of a polynomial @var{p} and returns it as a polynomial of @var{v}.
+@item 
+The minimal polynomial can be computed as an element of a Groebner basis.
+But if we are only interested in the minimal polynomial,
+@code{minipoly()} and @code{gr_minipoly()} can compute it more efficiently
+than methods using Groebner basis computation.
+@item 
+It is recommended to use a degree reverse lex order as a term order
+for @code{gr_minipoly()}.
+\E
 @end itemize
 
 @example
@@ -902,34 +1764,43 @@ K[@var{v}] の元 f(@var{v}) に f(@var{p}) mod I を対応させる
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{lex_hensel lex_tl tolex tolex_d tolex_tl}.
 @end table
 
-@node tolexm minipolym,,, グレブナ基底に関する函数
+\JP @node tolexm minipolym,,, グレブナ基底に関する函数
+\EG @node tolexm minipolym,,, Functions for Groebner basis computation
 @subsection @code{tolexm}, @code{minipolym}
 @findex tolexm
 @findex minipolym
 
 @table @t
 @item tolexm(@var{plist},@var{vlist1},@var{order},@var{vlist2},@var{mod})
-:: 法 @var{mod} での基底変換によるグレブナ基底計算
+\JP :: 法 @var{mod} での基底変換によるグレブナ基底計算
+\EG :: Groebner basis computation modulo @var{mod} by change of ordering.
 @item minipolym(@var{plist},@var{vlist1},@var{order},@var{poly},@var{v},@var{mod})
-:: 法 @var{mod} でのグレブナ基底による多項式の最小多項式の計算
+\JP :: 法 @var{mod} でのグレブナ基底による多項式の最小多項式の計算
+\EG :: Minimal polynomial computation modulo @var{mod} the same method as
 @end table
 
 @table @var
 @item return
-@code{tolexm()} : リスト, @code{minipolym()} : 多項式
+\JP @code{tolexm()} : リスト, @code{minipolym()} : 多項式
+\EG @code{tolexm()} : list, @code{minipolym()} : polynomial
 @item plist, vlist1, vlist2
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 入力 @var{plist} はいずれも 変数順序 @var{vlist1}, 項順序型 @var{order},
 法 @var{mod} におけるグレブナ基底でなければならない. 
@@ -938,6 +1809,17 @@ K[@var{v}] の元 f(@var{v}) に f(@var{p}) mod I を対応させる
 @item
 @code{tolexm()} は FGLM 法による基底変換により @var{vlist2},
 辞書式順序によるグレブナ基底を計算する. 
+\E
+\BEG
+@item 
+An input @var{plist} must be a Groebner basis modulo @var{mod}
+with respect to the variable order @var{vlist1} and the order type @var{order}.
+@item 
+@code{minipolym()} executes the same computation as in @code{minipoly}.
+@item 
+@code{tolexm()} computes a lex order Groebner basis modulo @var{mod}
+with respect to the variable order @var{vlist2}, by using FGLM algorithm.
+\E
 @end itemize
 
 @example
@@ -948,12 +1830,14 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{lex_hensel lex_tl tolex tolex_d tolex_tl},
 @fref{gr_minipoly minipoly}.
 @end table
 
-@node dp_gr_main dp_gr_mod_main,,, グレブナ基底に関する函数
+\JP @node dp_gr_main dp_gr_mod_main,,, グレブナ基底に関する函数
+\EG @node dp_gr_main dp_gr_mod_main,,, Functions for Groebner basis computation
 @subsection @code{dp_gr_main}, @code{dp_gr_mod_main}
 @findex dp_gr_main
 @findex dp_gr_mod_main
@@ -961,23 +1845,30 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @table @t
 @item dp_gr_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
 @itemx dp_gr_mod_main(@var{plist},@var{vlist},@var{homo},@var{modular},@var{order})
-:: グレブナ基底の計算 (組み込み函数)
+\JP :: グレブナ基底の計算 (組み込み函数)
+\EG :: Groebner basis computation (built-in functions)
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item plist, vlist
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item homo
-フラグ
+\JP フラグ
+\EG flag
 @item modular
-フラグまたは素数
+\JP フラグまたは素数
+\EG flag or prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 これらの函数は, グレブナ基底計算の基本的組み込み函数であり, @code{gr()},
 @code{hgr()}, @code{gr_mod()} などはすべてこれらの函数を呼び出して計算
@@ -1009,17 +1900,56 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @item
 @var{homo}, @var{modular} の他に, @code{dp_gr_flags()} で設定される
 さまざまなフラグにより計算が制御される. 
+\E
+\BEG
+@item
+These functions are fundamental built-in functions for Groebner basis
+computation and @code{gr()},@code{hgr()} and @code{gr_mod()}
+are all interfaces to these functions.
+@item
+If @var{homo} is not equal to 0, homogenization is applied before entering
+Buchberger algorithm
+@item
+For @code{dp_gr_mod_main()}, @var{modular} means a computation over
+GF(@var{modular}).
+For @code{dp_gr_main()}, @var{modular} has the following mean.
+@enumerate
+@item
+If @var{modular} is 1 , trace lifting is used. Primes for trace lifting
+are generated by @code{lprime()}, starting from @code{lprime(0)}, until
+the computation succeeds.
+@item
+If @var{modular} is an integer  greater than 1, the integer is regarded as a
+prime and trace lifting is executed by using the prime. If the computation
+fails then 0 is returned.
+@item
+If @var{modular} is negative, the above rule is applied for @var{-modular}
+but the Groebner basis check and ideal-membership check are omitted in
+the last stage of trace lifting.
+@end enumerate
+     
+@item
+@code{gr(P,V,O)}, @code{hgr(P,V,O)} and @code{gr_mod(P,V,O,M)} execute
+@code{dp_gr_main(P,V,0,1,O)}, @code{dp_gr_main(P,V,1,1,O)}
+and @code{dp_gr_mod_main(P,V,0,M,O)} respectively.
+@item
+Actual computation is controlled by various parameters set by 
+@code{dp_gr_flags()}, other then by @var{homo} and @var{modular}.
+\E
 @end itemize
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
 @fref{gr hgr gr_mod},
-@fref{計算および表示の制御}.
+\JP @fref{計算および表示の制御}.
+\EG @fref{Controlling Groebner basis computations}
 @end table
 
-@node dp_f4_main dp_f4_mod_main,,, グレブナ基底に関する函数
+\JP @node dp_f4_main dp_f4_mod_main,,, グレブナ基底に関する函数
+\EG @node dp_f4_main dp_f4_mod_main,,, Functions for Groebner basis computation
 @subsection @code{dp_f4_main}, @code{dp_f4_mod_main}
 @findex dp_f4_main
 @findex dp_f4_mod_main
@@ -1027,19 +1957,24 @@ z^32+11405*z^31+20868*z^30+21602*z^29+...
 @table @t
 @item dp_f4_main(@var{plist},@var{vlist},@var{order})
 @itemx dp_f4_mod_main(@var{plist},@var{vlist},@var{order})
-:: F4 アルゴリズムによるグレブナ基底の計算 (組み込み函数)
+\JP :: F4 アルゴリズムによるグレブナ基底の計算 (組み込み函数)
+\EG :: Groebner basis computation by F4 algorithm (built-in functions)
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item plist, vlist
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @end table
 
 @itemize @bullet
+\BJP
 @item
 F4 アルゴリズムによりグレブナ基底の計算を行う. 
 @item
@@ -1049,17 +1984,32 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 @item
 引数および動作はそれぞれ @code{dp_gr_main()}, @code{dp_gr_mod_main()}
 と同様である. 
+\E
+\BEG
+@item
+These functions compute Groebner bases by F4 algorithm.
+@item
+F4 is a new generation algorithm for Groebner basis computation
+invented by J.C. Faugere. The current implementation of @code{dp_f4_main()}
+uses Chinese Remainder theorem and not highly optimized.
+@item
+Arguments and actions are the same as those of 
+@code{dp_gr_main()}, @code{dp_gr_mod_main()}.
+\E
 @end itemize
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_ord},
 @fref{dp_gr_flags dp_gr_print},
 @fref{gr hgr gr_mod},
-@fref{計算および表示の制御}.
+\JP @fref{計算および表示の制御}.
+\EG @fref{Controlling Groebner basis computations}
 @end table
 
-@node dp_gr_flags dp_gr_print,,, グレブナ基底に関する函数
+\JP @node dp_gr_flags dp_gr_print,,, グレブナ基底に関する函数
+\EG @node dp_gr_flags dp_gr_print,,, Functions for Groebner basis computation
 @subsection @code{dp_gr_flags}, @code{dp_gr_print}
 @findex dp_gr_flags
 @findex dp_gr_print
@@ -1067,17 +2017,23 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 @table @t
 @item dp_gr_flags([@var{list}])
 @itemx dp_gr_print([@var{0|1}])
-:: 計算および表示用パラメタの設定, 参照
+\JP :: 計算および表示用パラメタの設定, 参照
+\BEG :: Set and show various parameters for cotrolling computations 
+and showing informations.
+\E
 @end table
 
 @table @var
 @item return
-設定値
+\JP 設定値
+\EG value currently set
 @item list
-リスト
+\JP リスト
+\EG list
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_gr_main()}, @code{dp_gr_mod_main()} 実行時におけるさまざま
 なパラメタを設定, 参照する. 
@@ -1091,30 +2047,54 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 できる. これは, @code{dp_gr_main()} などをサブルーチンとして用いるユーザ
 函数において, @code{Print} の値を見て, そのサブルーチンが中間情報の表示
 を行う際に, 迅速にフラグを見ることができるように用意されている. 
+\E
+\BEG
+@item
+@code{dp_gr_flags()} sets and shows various parameters for Groebner basis
+ computation.
+@item
+If no argument is specified the current settings are returned.
+@item
+Arguments must be specified as a list such as
+ @code{["Print",1,"NoSugar",1,...]}. Names of parameters must be character
+strings.
+@item
+@code{dp_gr_print()} is used to set and show the value of a parameter
+@code{Print}. This functions is prepared to get quickly the value of
+@code{Print} when a user defined function calling @code{dp_gr_main()} etc.
+uses the value as a flag for showing intermediate informations.
+\E
 @end itemize
 
 @table @t
-@item 参照
-@fref{計算および表示の制御}
+\JP @item 参照
+\EG @item References
+\JP @fref{計算および表示の制御}
+\EG @fref{Controlling Groebner basis computations}
 @end table
 
-@node dp_ord,,, グレブナ基底に関する函数
+\JP @node dp_ord,,, グレブナ基底に関する函数
+\EG @node dp_ord,,, Functions for Groebner basis computation
 @subsection @code{dp_ord}
 @findex dp_ord
 
 @table @t
 @item dp_ord([@var{order}])
-:: 変数順序型の設定, 参照
+\JP :: 変数順序型の設定, 参照
+\EG :: Set and show the ordering type.
 @end table
 
 @table @var
 @item return
-変数順序型 (数, リストまたは行列)
+\JP 変数順序型 (数, リストまたは行列)
+\EG ordering type (number, list or matrix)
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @end table
 
 @itemize @bullet
+\BJP
 @item
 引数がある時, 変数順序型を @var{order} に設定する. 引数がない時, 
 現在設定されている変数順序型を返す. 
@@ -1137,6 +2117,34 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 @item
 トップレベル函数以外の函数を直接呼び出す場合には, この函数により
 変数順序型を正しく設定しなければならない. 
+\E
+\BEG
+@item
+If an argument is specified, the function
+sets the current ordering type to @var{order}.
+If no argument is specified, the function returns the ordering
+type currently set.
+     
+@item
+There are two types of functions concerning distributed polynomial,
+functions which take a ordering type and those which don't take it.
+The latter ones use the current setting.
+     
+@item
+Functions such as @code{gr()}, which need a ordering type as an argument,
+call @code{dp_ord()} internally during the execution.
+The setting remains after the execution.
+     
+Fundamental arithmetics for distributed polynomial also use the current
+setting. Therefore, when such arithmetics for distributed polynomials
+are done, the current setting must coincide with the ordering type
+which was used upon the creation of the polynomials. It is assumed
+that such polynomials were generated under the same ordering type.
+     
+@item
+Type of term ordering must be correctly set by this function
+when functions other than top level functions are called directly.
+\E
 @end itemize
 
 @example
@@ -1149,33 +2157,51 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 @end example
 
 @table @t
-@item 参照
-@fref{項順序の設定}
+\JP @item 参照
+\EG @item References
+\JP @fref{項順序の設定}
+\EG @fref{Setting term orderings}
 @end table
 
-@node dp_ptod,,, グレブナ基底に関する函数
+\JP @node dp_ptod,,, グレブナ基底に関する函数
+\EG @node dp_ptod,,, Functions for Groebner basis computation
 @subsection @code{dp_ptod}
 @findex dp_ptod
 
 @table @t
 @item dp_ptod(@var{poly},@var{vlist})
-:: 多項式を分散表現多項式に変換する. 
+\JP :: 多項式を分散表現多項式に変換する. 
+\EG :: Converts an ordinary polynomial into a distributed polynomial.
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @item vlist
-リスト
+\JP リスト
+\EG list
 @end table
 
 @itemize @bullet
+\BJP
 @item
 変数順序 @var{vlist} および現在の変数順序型に従って分散表現多項式に変換する. 
 @item
 @var{vlist} に含まれない不定元は, 係数体に属するとして変換される. 
+\E
+\BEG
+@item
+According to the variable ordering @var{vlist} and current
+type of term ordering, this function converts an ordinary
+polynomial into a distributed polynomial.
+@item
+Indeterminates not included in @var{vlist} are regarded to belong to
+the coefficient field.
+\E
 @end itemize
 
 @example
@@ -1189,34 +2215,50 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_dtop},
 @fref{dp_ord}.
 @end table
 
-@node dp_dtop,,, グレブナ基底に関する函数
+\JP @node dp_dtop,,, グレブナ基底に関する函数
+\EG @node dp_dtop,,, Functions for Groebner basis computation
 @subsection @code{dp_dtop}
 @findex dp_dtop
 
 @table @t
 @item dp_dtop(@var{dpoly},@var{vlist})
-:: 分散表現多項式を多項式に変換する. 
+\JP :: 分散表現多項式を多項式に変換する. 
+\EG :: Converts a distributed polynomial into an ordinary polynomial.
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG polynomial
 @item dpoly
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item vlist
-リスト
+\JP リスト
+\EG list
 @end table
 
 @itemize @bullet
+\BJP
 @item
 分散表現多項式を, 与えられた不定元リストを用いて多項式に変換する. 
 @item
 不定元リストは, 長さ分散表現多項式の変数の個数と一致していれば何でもよい. 
+\E
+\BEG
+@item
+This function converts a distributed polynomial into an ordinary polynomial
+according to a list of indeterminates @var{vlist}.
+@item
+@var{vlist} is such a list that its length coincides with the number of
+variables of @var{dpoly}.
+\E
 @end itemize
 
 @example
@@ -1226,30 +2268,41 @@ F4 アルゴリズムは, J.C. Faugere により提唱された新世代グレブナ基底
 z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @end example
 
-@node dp_mod dp_rat,,, グレブナ基底に関する函数
+\JP @node dp_mod dp_rat,,, グレブナ基底に関する函数
+\EG @node dp_mod dp_rat,,, Functions for Groebner basis computation
 @subsection @code{dp_mod}, @code{dp_rat}
 @findex dp_mod
 @findex dp_rat
 
 @table @t
 @item dp_mod(@var{p},@var{mod},@var{subst})
-:: 有理数係数分散表現多項式の有限体係数への変換
+\JP :: 有理数係数分散表現多項式の有限体係数への変換
+\EG :: Converts a disributed polynomial into one with coefficients in a finite field.
 @item dp_rat(@var{p})
-:: 有限体係数分散表現多項式の有理数係数への変換
+\JP :: 有限体係数分散表現多項式の有理数係数への変換
+\BEG
+:: Converts a distributed polynomial with coefficients in a finite field into
+one with coefficients in the rationals.
+\E
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item p
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item mod
-素数
+\JP 素数
+\EG prime
 @item subst
-リスト
+\JP リスト
+\EG list
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_nf_mod()}, @code{dp_true_nf_mod()} は, 入力として有限体係数の
 分散表現多項式を必要とする. このような場合, @code{dp_mod()} により
@@ -1263,38 +2316,64 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @var{subst} は, 係数が有理式の場合, その有理式の変数にあらかじめ数を代入
 した後有限体係数に変換するという操作を行う際の, 代入値を指定するもので, 
 @code{[[@var{var},@var{value}],...]} の形のリストである. 
+\E
+\BEG
+@item
+@code{dp_nf_mod()} and @code{dp_true_nf_mod()} require
+distributed polynomials with coefficients in a finite field as arguments.
+@code{dp_mod()} is used to convert distributed polynomials with rational
+number coefficients into appropriate ones.
+Polynomials with coefficients in a finite field
+cannot be used as inputs of operations with polynomials
+with rational number coefficients. @code{dp_rat()} is used for such cases.
+@item
+The ground finite field must be set in advance by using @code{setmod()}.
+@item
+@var{subst} is such a list as @code{[[@var{var},@var{value}],...]}.
+This is valid when the ground field of the input polynomial is a
+rational function field. @var{var}'s are variables in the ground field and
+the list means that @var{value} is substituted for @var{var} before
+converting the coefficients into elements of a finite field.
+\E
 @end itemize
 
 @example
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod},
 @fref{subst psubst},
 @fref{setmod}.
 @end table
 
-@node dp_homo dp_dehomo,,, グレブナ基底に関する函数
+\JP @node dp_homo dp_dehomo,,, グレブナ基底に関する函数
+\EG @node dp_homo dp_dehomo,,, Functions for Groebner basis computation
 @subsection @code{dp_homo}, @code{dp_dehomo}
 @findex dp_homo
 @findex dp_dehomo
 
 @table @t
 @item dp_homo(@var{dpoly})
-:: 分散表現多項式の斉次化
+\JP :: 分散表現多項式の斉次化
+\EG :: Homogenize a distributed polynomial
 @item dp_dehomo(@var{dpoly})
-:: 斉次分散表現多項式の非斉次化
+\JP :: 斉次分散表現多項式の非斉次化
+\EG :: Dehomogenize a homogenious distributed polynomial
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item dpoly
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_homo()} は, @var{dpoly} の 各項 @var{t} について, 指数ベクトルの長さを
 1 伸ばし, 最後の成分の値を @var{d}-@code{deg(@var{t})} 
@@ -1307,6 +2386,23 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 正しく設定する必要がある. 
 @item
 @code{hgr()} などにおいて, 内部的に用いられている.
+\E
+\BEG
+@item
+@code{dp_homo()} makes a copy of @var{dpoly}, extends
+the length of the exponent vector of each term @var{t} in the copy by 1,
+and sets the value of the newly appended
+component to @var{d}-@code{deg(@var{t})}, where @var{d} is the total
+degree of @var{dpoly}.
+@item
+@code{dp_dehomo()} make a copy of @var{dpoly} and removes the last component
+of each terms in the copy.
+@item
+Appropriate term orderings must be set when the results are used as inputs
+of some operations.
+@item
+These are used internally in @code{hgr()} etc.
+\E
 @end itemize
 
 @example
@@ -1319,30 +2415,45 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{gr hgr gr_mod}.
 @end table
 
-@node dp_ptozp dp_prim,,, グレブナ基底に関する函数
+\JP @node dp_ptozp dp_prim,,, グレブナ基底に関する函数
+\EG @node dp_ptozp dp_prim,,, Functions for Groebner basis computation
 @subsection @code{dp_ptozp}, @code{dp_prim}
 @findex dp_ptozp
 @findex dp_prim
 
 @table @t
 @item dp_ptozp(@var{dpoly})
-:: 定数倍して係数を整数係数かつ係数の整数 GCD を 1 にする. 
+\JP :: 定数倍して係数を整数係数かつ係数の整数 GCD を 1 にする. 
+\BEG
+:: Converts a distributed polynomial @var{poly} with rational coefficients
+into an integral distributed polynomial such that GCD of all its coefficients
+is 1.
+\E
 @itemx dp_prim(@var{dpoly})
-:: 有理式倍して係数を整数係数多項式係数かつ係数の多項式 GCD を 1 にする. 
+\JP :: 有理式倍して係数を整数係数多項式係数かつ係数の多項式 GCD を 1 にする. 
+\BEG
+:: Converts a distributed polynomial @var{poly} with rational function
+coefficients into an integral distributed polynomial such that polynomial 
+GCD of all its coefficients is 1.
+\E
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item dpoly
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_ptozp()} は,  @code{ptozp()} に相当する操作を分散表現多項式に
 対して行う. 係数が多項式を含む場合, 係数に含まれる多項式共通因子は
@@ -1350,6 +2461,15 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @item
 @code{dp_prim()} は, 係数が多項式を含む場合, 係数に含まれる多項式共通因子
 を取り除く. 
+\E
+\BEG
+@item
+@code{dp_ptozp()} executes the same operation as @code{ptozp()} for
+a distributed polynomial. If the coefficients include polynomials,
+polynomial contents included in the coefficients are not removed.
+@item
+@code{dp_prim()} removes polynomial contents.
+\E
 @end itemize
 
 @example
@@ -1362,11 +2482,13 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ptozp}.
 @end table
 
-@node dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod,,, グレブナ基底に関する函数
+\JP @node dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod,,, グレブナ基底に関する函数
+\EG @node dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod,,, Functions for Groebner basis computation
 @subsection @code{dp_nf}, @code{dp_nf_mod}, @code{dp_true_nf}, @code{dp_true_nf_mod}
 @findex dp_nf
 @findex  dp_true_nf
@@ -1376,29 +2498,44 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 @table @t
 @item dp_nf(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce})
 @item dp_nf_mod(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce},@var{mod})
-:: 分散表現多項式の正規形を求める. (結果は定数倍されている可能性あり)
+\JP :: 分散表現多項式の正規形を求める. (結果は定数倍されている可能性あり)
 
+\BEG
+:: Computes the normal form of a distributed polynomial.
+(The result may be multiplied by a constant in the ground field.)
+\E
 @item dp_true_nf(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce})
 @item dp_true_nf_mod(@var{indexlist},@var{dpoly},@var{dpolyarray},@var{fullreduce},@var{mod})
-:: 分散表現多項式の正規形を求める. (真の結果を @code{[分子, 分母]} の形で返す)
+\JP :: 分散表現多項式の正規形を求める. (真の結果を @code{[分子, 分母]} の形で返す)
+\BEG
+:: Computes the normal form of a distributed polynomial. (The true result
+is returned in such a list as @code{[numerator, denominator]})
+\E
 @end table
 
 @table @var
 @item return
-@code{dp_nf()} : 分散表現多項式, @code{dp_true_nf()} : リスト
+\JP @code{dp_nf()} : 分散表現多項式, @code{dp_true_nf()} : リスト
+\EG @code{dp_nf()} : distributed polynomial, @code{dp_true_nf()} : list
 @item indexlist
-リスト
+\JP リスト
+\EG list
 @item dpoly
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item dpolyarray
-配列
+\JP 配列
+\EG array of distributed polynomial
 @item fullreduce
-フラグ
+\JP フラグ
+\EG flag
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 分散表現多項式 @var{dpoly} の正規形を求める. 
 @item
@@ -1429,7 +2566,43 @@ z^2+(2*a+2*b)*z+a^2+2*b*a+b^2
 分散表現でない固定された多項式集合による正規形を多数求める必要がある場合
 に便利である. 単一の演算に関しては, @code{p_nf}, @code{p_true_nf} を
 用いるとよい. 
-
+\E
+\BEG
+@item
+Computes the normal form of a distributed polynomial.
+@item
+@code{dp_nf_mod()} and @code{dp_true_nf_mod()} require
+distributed polynomials with coefficients in a finite field as arguments.
+@item
+The result of @code{dp_nf()} may be multiplied by a constant in the
+ground field in order to make the result integral. The same is true
+for @code{dp_nf_mod()}, but it returns the true normal form if
+the ground field is a finite field.
+@item
+@code{dp_true_nf()} and @code{dp_true_nf_mod()} return
+such a list as @code{[@var{nm},@var{dn}]}.
+Here @var{nm} is a distributed polynomial whose coefficients are integral
+in the ground field, @var{dn} is an integral element in the ground
+field and @var{nm}/@var{dn} is the true normal form.
+@item
+@var{dpolyarray} is a vector whose components are distributed polynomials
+and @var{indexlist} is a list of indices which is used for the normal form
+computation.
+@item
+When argument @var{fullreduce} has non-zero value,
+all terms are reduced. When it has value 0,
+only the head term is reduced.
+@item
+As for the polynomials specified by @var{indexlist}, one specified by
+an index placed at the preceding position has priority to be selected.
+@item
+In general, the result of the function may be different depending on
+@var{indexlist}.  However, the result is unique for Groebner bases.
+@item
+These functions are useful when a fixed non-distributed polynomial set
+is used as a set of reducers to compute normal forms of many polynomials.
+For single computation @code{p_nf} and @code{p_true_nf} are sufficient.
+\E
 @end itemize
 
 @example
@@ -1457,14 +2630,16 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_dtop},
 @fref{dp_ord},
 @fref{dp_mod dp_rat},
 @fref{p_nf p_nf_mod p_true_nf p_true_nf_mod}.
 @end table
 
-@node dp_hm dp_ht dp_hc dp_rest,,, グレブナ基底に関する函数
+\JP @node dp_hm dp_ht dp_hc dp_rest,,, グレブナ基底に関する函数
+\EG @node dp_hm dp_ht dp_hc dp_rest,,, Functions for Groebner basis computation
 @subsection @code{dp_hm}, @code{dp_ht}, @code{dp_hc}, @code{dp_rest}
 @findex dp_hm
 @findex dp_ht
@@ -1473,28 +2648,49 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 
 @table @t
 @item dp_hm(@var{dpoly})
-:: 頭単項式を取り出す. 
+\JP :: 頭単項式を取り出す. 
+\EG :: Gets the head monomial.
 @item dp_ht(@var{dpoly})
-:: 頭項を取り出す. 
+\JP :: 頭項を取り出す. 
+\EG :: Gets the head term.
 @item dp_hc(@var{dpoly})
-:: 頭係数を取り出す. 
+\JP :: 頭係数を取り出す. 
+\EG :: Gets the head coefficient.
 @item dp_rest(@var{dpoly})
-:: 頭単項式を取り除いた残りを返す. 
+\JP :: 頭単項式を取り除いた残りを返す. 
+\EG :: Gets the remainder of the polynomial where the head monomial is removed.
 @end table
 
 @table @var
+\BJP
 @item return
 @code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : 分散表現多項式,
 @code{dp_hc()} : 数または多項式
 @item dpoly
 分散表現多項式
+\E
+\BEG
+@item return
+@code{dp_hm()}, @code{dp_ht()}, @code{dp_rest()} : distributed polynomial
+@code{dp_hc()} : number or polynomial
+@item dpoly
+distributed polynomial
+\E
 @end table
 
 @itemize @bullet
+\BJP
 @item
 これらは, 分散表現多項式の各部分を取り出すための函数である. 
 @item
 分散表現多項式 @var{p} に対し次が成り立つ. 
+\E
+\BEG
+@item
+These are used to get various parts of a distributed polynomial.
+@item
+The next equations hold for a distributed polynomial @var{p}.
+\E
 @table @code
 @item @var{p} = dp_hm(@var{p}) + dp_rest(@var{p})
 @item dp_hm(@var{p}) = dp_hc(@var{p}) dp_ht(@var{p})
@@ -1516,28 +2712,35 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 +(-490)*<<0,0,0>>
 @end example
 
-@node dp_td dp_sugar,,, グレブナ基底に関する函数
+\JP @node dp_td dp_sugar,,, グレブナ基底に関する函数
+\EG @node dp_td dp_sugar,,, Functions for Groebner basis computation
 @subsection @code{dp_td}, @code{dp_sugar}
 @findex dp_td
 @findex dp_sugar
 
 @table @t
 @item dp_td(@var{dpoly})
-:: 頭項の全次数を返す. 
+\JP :: 頭項の全次数を返す. 
+\EG :: Gets the total degree of the head term.
 @item dp_sugar(@var{dpoly})
-:: 多項式の @code{sugar} を返す. 
+\JP :: 多項式の @code{sugar} を返す. 
+\EG :: Gets the @code{sugar} of a polynomial.
 @end table
 
 @table @var
 @item return
-自然数
+\JP 自然数
+\EG non-negative integer
 @item dpoly
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item onoff
-フラグ
+\JP フラグ
+\EG flag
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_td()} は, 頭項の全次数, すなわち各変数の指数の和を返す. 
 @item
@@ -1546,6 +2749,20 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 @item
 @code{sugar} は, グレブナ基底計算における正規化対の選択のストラテジを
 決定するための重要な指針となる.
+\E
+\BEG
+@item
+Function @code{dp_td()} returns the total degree of the head term,
+i.e., the sum of all exponent of variables in that term.
+@item
+Upon creation of a distributed polynomial, an integer called @code{sugar}
+is associated.  This value is
+the total degree of the virtually homogenized one of the original
+polynomial.
+@item
+The quantity @code{sugar} is an important guide to determine the
+selection strategy of critical pairs in Groebner basis computation.
+\E
 @end itemize
 
 @example
@@ -1558,25 +2775,36 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 3
 @end example
 
-@node dp_lcm,,, グレブナ基底に関する函数
+\JP @node dp_lcm,,, グレブナ基底に関する函数
+\EG @node dp_lcm,,, Functions for Groebner basis computation
 @subsection @code{dp_lcm}
 @findex dp_lcm
 
 @table @t
 @item dp_lcm(@var{dpoly1},@var{dpoly2})
-:: 最小公倍項を返す. 
+\JP :: 最小公倍項を返す. 
+\EG :: Returns the least common multiple of the head terms of the given two polynomials.
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item dpoly1, dpoly2
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 それぞれの引数の頭項の最小公倍項を返す. 係数は 1 である. 
+\E
+\BEG
+@item
+Returns the least common multiple of the head terms of the given
+two polynomials, where coefficient is always set to 1.
+\E
 @end itemize
 
 @example
@@ -1585,32 +2813,46 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{p_nf p_nf_mod p_true_nf p_true_nf_mod}.
 @end table
 
-@node dp_redble,,, グレブナ基底に関する函数
+\JP @node dp_redble,,, グレブナ基底に関する函数
+\EG @node dp_redble,,, Functions for Groebner basis computation
 @subsection @code{dp_redble}
 @findex dp_redble
 
 @table @t
 @item dp_redble(@var{dpoly1},@var{dpoly2})
-:: 頭項どうしが整除可能かどうか調べる. 
+\JP :: 頭項どうしが整除可能かどうか調べる. 
+\EG :: Checks whether one head term is divisible by the other head term.
 @end table
 
 @table @var
 @item return
-整数
+\JP 整数
+\EG integer
 @item dpoly1, dpoly2
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{dpoly1} の頭項が @var{dpoly2} の頭項で割り切れれば 1, 割り切れなければ
 0 を返す. 
 @item
 多項式の簡約を行う際, どの項を簡約できるかを探すのに用いる. 
+\E
+\BEG
+@item
+Returns 1 if the head term of @var{dpoly2} divides the head term of
+@var{dpoly1}; otherwise 0.
+@item
+Used for finding candidate terms at reduction of polynomials.
+\E
 @end itemize
 
 @example
@@ -1626,32 +2868,46 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_red dp_red_mod}.
 @end table
 
-@node dp_subd,,, グレブナ基底に関する函数
+\JP @node dp_subd,,, グレブナ基底に関する函数
+\EG @node dp_subd,,, Functions for Groebner basis computation
 @subsection @code{dp_subd}
 @findex dp_subd
 
 @table @t
 @item dp_subd(@var{dpoly1},@var{dpoly2})
-:: 頭項の商単項式を返す. 
+\JP :: 頭項の商単項式を返す. 
+\EG :: Returns the quotient monomial of the head terms.
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item dpoly1, dpoly2
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_ht(@var{dpoly1})/dp_ht(@var{dpoly2})} を求める. 結果の係数は 1 
 である. 
 @item
 割り切れることがあらかじめわかっている必要がある.
+\E
+\BEG
+@item
+Gets @code{dp_ht(@var{dpoly1})/dp_ht(@var{dpoly2})}.
+The coefficient of the result is always set to 1.
+@item
+Divisibility assumed.
+\E
 @end itemize
 
 @example
@@ -1660,37 +2916,53 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_red dp_red_mod}.
 @end table
 
-@node dp_vtoe dp_etov,,, グレブナ基底に関する函数
+\JP @node dp_vtoe dp_etov,,, グレブナ基底に関する函数
+\EG @node dp_vtoe dp_etov,,, Functions for Groebner basis computation
 @subsection @code{dp_vtoe}, @code{dp_etov}
 @findex dp_vtoe
 @findex dp_etov
 
 @table @t
 @item dp_vtoe(@var{vect})
-:: 指数ベクトルを項に変換
+\JP :: 指数ベクトルを項に変換
+\EG :: Converts an exponent vector into a term.
 @item dp_etov(@var{dpoly})
-:: 頭項を指数ベクトルに変換
+\JP :: 頭項を指数ベクトルに変換
+\EG :: Convert the head term of a distributed polynomial into an exponent vector.
 @end table
 
 @table @var
 @item return
-@code{dp_vtoe} : 分散表現多項式, @code{dp_etov} : ベクトル
+\JP @code{dp_vtoe} : 分散表現多項式, @code{dp_etov} : ベクトル
+\EG @code{dp_vtoe} : distributed polynomial, @code{dp_etov} : vector
 @item vect
-ベクトル
+\JP ベクトル
+\EG vector
 @item dpoly
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{dp_vtoe()} は, ベクトル @var{vect} を指数ベクトルとする項を生成する. 
 @item
 @code{dp_etov()} は, 分散表現多項式 @code{dpoly} の頭項の指数ベクトルを
 ベクトルに変換する. 
+\E
+\BEG
+@item
+@code{dp_vtoe()} generates a term whose exponent vector is @var{vect}.
+@item
+@code{dp_etov()} generates a vector which is the exponent vector of the
+head term of @code{dpoly}.
+\E
 @end itemize
 
 @example
@@ -1703,23 +2975,28 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 (1)*<<1,2,4>>
 @end example
 
-@node dp_mbase,,, グレブナ基底に関する函数
+\JP @node dp_mbase,,, グレブナ基底に関する函数
+\EG @node dp_mbase,,, Functions for Groebner basis computation
 @subsection @code{dp_mbase}
 @findex dp_mbase
 
 @table @t
 @item dp_mbase(@var{dplist})
-:: monomial 基底の計算
+\JP :: monomial 基底の計算
+\EG :: Computes the monomial basis
 @end table
 
 @table @var
 @item return
-分散表現多項式のリスト
+\JP 分散表現多項式のリスト
+\EG list of distributed polynomial
 @item dplist
-分散表現多項式のリスト
+\JP 分散表現多項式のリスト
+\EG list of distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 ある順序でグレブナ基底となっている多項式集合の, その順序に関する分散表現
 である @var{dplist} について, 
@@ -1727,6 +3004,18 @@ u4^2+(6*u3+2*u2+6*u1-2)*u4+9*u3^2+(6*u2+18*u1-6)*u3+u2^2+(6*u1-2)*u2+9*u1^2-6*u1
 K 上有限次元線形空間である K[X]/I の monomial による基底を求める. 
 @item
 得られた基底の個数が, K[X]/I の K-線形空間としての次元に等しい. 
+\E
+\BEG
+@item
+Assuming that @var{dplist} is a list of distributed polynomials which
+is a Groebner basis with respect to the current ordering type and
+that the ideal @var{I} generated by @var{dplist} in K[X] is zero-dimensional,
+this function computes the monomial basis of a finite dimenstional K-vector
+space K[X]/I.
+@item
+The number of elements in the monomial basis is equal to the
+K-dimenstion of K[X]/I.
+\E
 @end itemize
 
 @example
@@ -1741,27 +3030,33 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{gr hgr gr_mod}.
 @end table
 
-@node dp_mag,,, グレブナ基底に関する函数
+\JP @node dp_mag,,, グレブナ基底に関する函数
+\EG @node dp_mag,,, Functions for Groebner basis computation
 @subsection @code{dp_mag}
 @findex dp_mag
 
 @table @t
 @item dp_mag(@var{p})
-:: 係数のビット長の和を返す
+\JP :: 係数のビット長の和を返す
+\EG :: Computes the sum of bit lengths of coefficients of a distributed polynomial.
 @end table
 
 @table @var
 @item return
-数
+\JP 数
+\EG integer
 @item p
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @end table
 
 @itemize @bullet
+\BJP
 @item
 分散表現多項式の係数に現れる有理数につき, その分母分子 (整数の場合は分子)
 のビット長の総和を返す. 
@@ -1772,6 +3067,20 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @item
 @code{dp_gr_flags()} で, @code{ShowMag}, @code{Print} を on にすることにより
 途中生成される多項式にたいする @code{dp_mag()} の値を見ることができる. 
+\E
+\BEG
+@item
+This function computes the sum of bit lengths of coefficients of a
+distributed polynomial @var{p}. If a coefficient is non integral,
+the sum of bit lengths of the numerator and the denominator is taken.
+@item
+This is a measure of the size of a polynomial. Especially for
+zero-dimensional system coefficient swells are often serious and
+the returned value is useful to detect such swells.
+@item
+If @code{ShowMag} and @code{Print} for @code{dp_gr_flags()} are on,
+values of @code{dp_mag()} for intermediate basis elements are shown.
+\E
 @end itemize
 
 @example
@@ -1781,11 +3090,13 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_gr_flags dp_gr_print}.
 @end table
 
-@node dp_red dp_red_mod,,, グレブナ基底に関する函数
+\JP @node dp_red dp_red_mod,,, グレブナ基底に関する函数
+\EG @node dp_red dp_red_mod,,, Functions for Groebner basis computation
 @subsection @code{dp_red}, @code{dp_red_mod}
 @findex dp_red
 @findex dp_red_mod
@@ -1793,21 +3104,27 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @table @t
 @item dp_red(@var{dpoly1},@var{dpoly2},@var{dpoly3})
 @item dp_red_mod(@var{dpoly1},@var{dpoly2},@var{dpoly3},@var{mod})
-:: 一回の簡約操作
+\JP :: 一回の簡約操作
+\EG :: Single reduction operation
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item dpoly1, dpoly2, dpoly3
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item vlist
-リスト
+\JP リスト
+\EG list
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{dpoly1} + @var{dpoly2} なる分散表現多項式を @var{dpoly3} で
 1 回簡約する.
@@ -1822,6 +3139,26 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 項 @var{t} により @var{a(dpoly1 + dpoly2)-bt dpoly3} として計算される. 
 @item
 結果は, @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]} なるリストである.
+\E
+\BEG
+@item
+Reduces a distributed polynomial, @var{dpoly1} + @var{dpoly2},
+by @var{dpoly3} for single time.
+@item
+An input for @code{dp_red_mod()} must be converted into a distributed
+polynomial with coefficients in a finite field.
+@item
+This implies that
+the divisibility of the head term of @var{dpoly2} by the head term of
+@var{dpoly3} is assumed.
+@item
+When integral coefficients, computation is so carefully performed that
+no rational operations appear in the reduction procedure.
+It is computed for integers @var{a} and @var{b}, and a term @var{t} as:
+@var{a(dpoly1 + dpoly2)-bt dpoly3}.
+@item
+The result is a list @code{[@var{a dpoly1},@var{a dpoly2 - bt dpoly3}]}.
+\E
 @end itemize
 
 @example
@@ -1837,11 +3174,13 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_mod dp_rat}.
 @end table
 
-@node dp_sp dp_sp_mod,,, グレブナ基底に関する函数
+\JP @node dp_sp dp_sp_mod,,, グレブナ基底に関する函数
+\EG @node dp_sp dp_sp_mod,,, Functions for Groebner basis computation
 @subsection @code{dp_sp}, @code{dp_sp_mod}
 @findex dp_sp
 @findex dp_sp_mod
@@ -1849,19 +3188,24 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @table @t
 @item dp_sp(@var{dpoly1},@var{dpoly2})
 @item dp_sp_mod(@var{dpoly1},@var{dpoly2},@var{mod})
-:: S-多項式の計算
+\JP :: S-多項式の計算
+\EG :: Computation of an S-polynomial
 @end table
 
 @table @var
 @item return
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item dpoly1, dpoly2
-分散表現多項式
+\JP 分散表現多項式
+\EG distributed polynomial
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{dpoly1}, @var{dpoly2} の S-多項式を計算する. 
 @item
@@ -1869,6 +3213,17 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @item
 結果に有理数, 有理式が入るのを避けるため, 結果が定数倍, あるいは多項式
 倍されている可能性がある. 
+\E
+\BEG
+@item
+This function computes the S-polynomial of @var{dpoly1} and @var{dpoly2}.
+@item
+Inputs of @code{dp_sp_mod()} must be polynomials with coefficients in a
+finite field.
+@item
+The result may be multiplied by a constant in the ground field in order to
+make the result integral.
+\E
 @end itemize
 
 @example
@@ -1881,10 +3236,12 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_mod dp_rat}.
 @end table
-@node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, グレブナ基底に関する函数
+\JP @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, グレブナ基底に関する函数
+\EG @node p_nf p_nf_mod p_true_nf p_true_nf_mod,,, Functions for Groebner basis computation
 @subsection @code{p_nf}, @code{p_nf_mod}, @code{p_true_nf}, @code{p_true_nf_mod}
 @findex p_nf
 @findex p_nf_mod
@@ -1894,26 +3251,40 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @table @t
 @item p_nf(@var{poly},@var{plist},@var{vlist},@var{order})
 @itemx p_nf_mod(@var{poly},@var{plist},@var{vlist},@var{order},@var{mod})
-:: 表現多項式の正規形を求める. (結果は定数倍されている可能性あり)
+\JP :: 表現多項式の正規形を求める. (結果は定数倍されている可能性あり)
+\BEG
+:: Computes the normal form of the given polynomial. 
+(The result may be multiplied by a constant.)
+\E
 @item p_true_nf(@var{poly},@var{plist},@var{vlist},@var{order})
 @itemx p_true_nf_mod(@var{poly},@var{plist},@var{vlist},@var{order},@var{mod})
-:: 表現多項式の正規形を求める. (真の結果を @code{[分子, 分母]} の形で返す)
+\JP :: 表現多項式の正規形を求める. (真の結果を @code{[分子, 分母]} の形で返す)
+\BEG
+:: Computes the normal form of the given polynomial. (The result is returned
+as a form of @code{[numerator, denominator]})
+\E
 @end table
 
 @table @var
 @item return
-@code{p_nf} : 多項式, @code{p_true_nf} : リスト
+\JP @code{p_nf} : 多項式, @code{p_true_nf} : リスト
+\EG @code{p_nf} : polynomial, @code{p_true_nf} : list
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @item plist,vlist
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @item mod
-素数
+\JP 素数
+\EG prime
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @samp{gr} で定義されている. 
 @item
@@ -1934,6 +3305,30 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @item
 @code{p_true_nf()}, @code{p_true_nf_mod()} の出力に関しては,
 @code{dp_true_nf()}, @code{dp_true_nf_mod()} の項を参照. 
+\E
+\BEG
+@item
+Defined in the package @samp{gr}.
+@item
+Obtains the normal form of a polynomial by a polynomial list.
+@item
+These are interfaces to @code{dp_nf()}, @code{dp_true_nf()}, @code{dp_nf_mod()},
+ @code{dp_true_nf_mod}
+@item
+The polynomial @var{poly} and the polynomials in @var{plist} is
+converted, according to the variable ordering @var{vlist} and
+type of term ordering @var{otype}, into their distributed polynomial
+counterparts and passed to @code{dp_nf()}.
+@item
+@code{dp_nf()}, @code{dp_true_nf()}, @code{dp_nf_mod()} and
+@code{dp_true_nf_mod()}
+is called with value 1 for @var{fullreduce}.
+@item
+The result is converted back into an ordinary polynomial.
+@item
+As for @code{p_true_nf()}, @code{p_true_nf_mod()}
+refer to @code{dp_true_nf()} and @code{dp_true_nf_mod()}.
+\E
 @end itemize
 
 @example
@@ -1949,34 +3344,42 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_ptod},
 @fref{dp_dtop},
 @fref{dp_ord},
 @fref{dp_nf dp_nf_mod dp_true_nf dp_true_nf_mod}.
 @end table
 
-@node p_terms,,, グレブナ基底に関する函数
+\JP @node p_terms,,, グレブナ基底に関する函数
+\EG @node p_terms,,, Functions for Groebner basis computation
 @subsection @code{p_terms}
 @findex p_terms
 
 @table @t
 @item p_terms(@var{poly},@var{vlist},@var{order})
-:: 多項式にあらわれる単項をリストにする. 
+\JP :: 多項式にあらわれる単項をリストにする. 
+\EG :: Monomials appearing in the given polynomial is collected into a list.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item poly
-多項式
+\JP 多項式
+\EG polynomial
 @item vlist
-リスト
+\JP リスト
+\EG list
 @item order
-数, リストまたは行列
+\JP 数, リストまたは行列
+\EG number, list or matrix
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @samp{gr} で定義されている. 
 @item
@@ -1986,6 +3389,20 @@ u1*u2,u1^2,u4*u0,u3*u0,u2*u0,u1*u0,u0^2,u4,u3,u2,u1,u0,1]
 @item
 グレブナ基底はしばしば係数が巨大になるため, 実際にどの項が現れて
 いるのかを見るためなどに用いる. 
+\E
+\BEG
+@item
+Defined in the package @samp{gr}.
+@item
+This returns a list which contains all non-zero monomials in the given
+polynomial.  The monomials are ordered according to the current
+type of term ordering and @var{vlist}.
+@item
+Since polynomials in a Groebner base often have very large coefficients,
+examining a polynomial as it is may sometimes be difficult to perform.
+For such a case, this function enables to examine which term is really
+exists.
+\E
 @end itemize
 
 @example
@@ -1996,27 +3413,42 @@ u0^19,u0^18,u0^17,u0^16,u0^15,u0^14,u0^13,u0^12,u0^11,u0^10,u0^9,u0^8,u0^7,
 u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @end example
 
-@node gb_comp,,, グレブナ基底に関する函数
+\JP @node gb_comp,,, グレブナ基底に関する函数
+\EG @node gb_comp,,, Functions for Groebner basis computation
 @subsection @code{gb_comp}
 @findex gb_comp
 
 @table @t
 @item gb_comp(@var{plist1}, @var{plist2})
-:: 多項式リストが, 符号を除いて集合として等しいかどうか調べる. 
+\JP :: 多項式リストが, 符号を除いて集合として等しいかどうか調べる. 
+\EG :: Checks whether two polynomial lists are equal or not as a set
 @end table
 
 @table @var
-@item return 0 または 1
+\JP @item return 0 または 1
+\EG @item return 0 or 1
 @item plist1, plist2
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @var{plist1}, @var{plist2} について, 符号を除いて集合として等しいかどうか
 調べる. 
 @item
 異なる方法で求めたグレブナ基底は, 基底の順序, 符号が異なる場合があり, 
 それらが等しいかどうかを調べるために用いる. 
+\E
+\BEG
+@item
+This function checks whether @var{plist1} and @var{plist2} are equal or
+not as a set .
+@item
+For the same input and the same term ordering different
+functions for Groebner basis computations may produce different outputs
+as lists. This function compares such lists whether they are equal
+as a generating set of an ideal.
+\E
 @end itemize
 
 @example
@@ -2029,7 +3461,8 @@ u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 1
 @end example
 
-@node katsura hkatsura cyclic hcyclic,,, グレブナ基底に関する函数
+\JP @node katsura hkatsura cyclic hcyclic,,, グレブナ基底に関する函数
+\EG @node katsura hkatsura cyclic hcyclic,,, Functions for Groebner basis computation
 @subsection @code{katsura}, @code{hkatsura}, @code{cyclic}, @code{hcyclic}
 @findex katsura
 @findex hkatsura
@@ -2041,17 +3474,21 @@ u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @item hkatsura(@var{n})
 @item cyclic(@var{n})
 @item hcyclic(@var{n})
-:: 多項式リストの生成
+\JP :: 多項式リストの生成
+\EG :: Generates a polynomial list of standard benchmark.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG list
 @item n
-整数
+\JP 整数
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @code{katsura()} は @samp{katsura}, @code{cyclic()} は @samp{cyclic}
 で定義されている. 
@@ -2061,6 +3498,19 @@ u0^6,u0^5,u0^4,u0^3,u0^2,u0,1]
 @item
 @code{cyclic} は @code{Arnborg}, @code{Lazard}, @code{Davenport} などの
 名で呼ばれることもある. 
+\E
+\BEG
+@item
+Function @code{katsura()} is defined in @samp{katsura}, and
+function @code{cyclic()} in  @samp{cyclic}.
+@item
+These functions generate a series of polynomial sets, respectively,
+which are often used for testing and bench marking:
+@code{katsura}, @code{cyclic} and their homogenized versions.
+@item
+Polynomial set @code{cyclic} is sometimes called by other name:
+@code{Arnborg}, @code{Lazard}, and @code{Davenport}.
+\E
 @end itemize
 
 @example
@@ -2092,7 +3542,8 @@ u0^2-u0+2*u4^2+2*u3^2+2*u2^2+2*u1^2+2*u5^2]
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{dp_dtop}.
 @end table
 

@@ -1,19 +1,42 @@
+@comment $OpenXM$
+\BJP
 @node 付録,,, Top
 @appendix 付録
+\E
+\BEG
+@node Appendix,,, Top
+@appendix Appendix
+\E
 
 @menu
+\BJP
 * 文法の詳細::
 * 添付のユーザ定義函数ファイル::
 * 入力インタフェース::
 * 変更点::
 * 文献::
+\E
+\BEG
+* Details of syntax:: 
+* Files of user defined functions::
+* Input interfaces::
+* Changes:: 
+* References::
+\E
 @end menu
 
+\BJP
 @node 文法の詳細,,, 付録
 @section 文法の詳細
+\E
+\BEG
+@node Details of syntax,,, Appendix
+@section Details of syntax
+\E
 
 @example
-<式>: (@xref{さまざまな式})
+\BJP
+<式>: 
     @samp{(}<式>@samp{)}
     <式> <二項演算子> <式>
     @samp{+} <式>
@@ -32,108 +55,239 @@
     <指数ベクトル>
     <アトム>
     <リスト>
+\E
+\BEG
+<expression>:
+    @samp{(}<expression>@samp{)}
+    <expression> <binary operator> <expression>
+    @samp{+} <expression>
+    @samp{-} <expression>
+    <left value>
+    <left value> <assignment operator> <expression>
+    <left value> @samp{++}
+    <left value> @samp{--}
+    @samp{++} <left value>
+    @samp{--} <left value>
+    @samp{!} <expression>
+    <expression> @samp{?} <expression> @samp{:} <expression>
+    <function> @samp{(} <expr list> @samp{)}
+    <function> @samp{(} <expr list> @samp{|} <option list> @samp{)}
+    <string>
+    <exponent vector>
+    <atom>
+    <list>
+\E
 @end example
+\JP (@xref{さまざまな式})
+\EG (@xref{various expressions})
 
 @example
+\BJP
 <左辺値>:
     <変数> [@samp{[}<式>@samp{]}]*
+\E
+\BEG
+<left value>:
+    <program variable> [@samp{[}<expression>@samp{]}]*
+\E
 @end example
 
 @example
+\BJP
 <二項演算子>:
     @samp{+} @samp{-} @samp{*} @samp{/} @samp{%} @samp{^}(冪) 
+\E
+\BEG
+<binary operator>:
+    @samp{+} @samp{-} @samp{*} @samp{/} @samp{%} @samp{^}(exponentiation)
+    @samp{==} @samp{!=} @samp{<} @samp{>} @samp{<=} @samp{>=} @samp{&&} @samp{||}
+\E
     @samp{==} @samp{!=} @samp{<} @samp{>} @samp{<=} @samp{>=} @samp{&&} @samp{||}
 @end example
 
 @example
-<代入演算子>:
+\JP <代入演算子>:
+\EG <assignment operator>:
     @samp{=} @samp{+=} @samp{-=} @samp{*=} @samp{/=} @samp{%=} @samp{^=} 
 @end example
 
 @example
+\BJP
 <式並び>:
     <空>
     <式> [@samp{,} <式>]*
+\E
+\BEG
+<expr list>:
+    <empty>
+    <expression> [@samp{,} <expression>]*
+\E
 @end example
 
 @example
+\BJP
 <オプション>:
-    alphabet で始まる文字列 @samp{=} 式
+    alphabet で始まる文字列 @samp{=} <式>
+\E
+\BEG
+<option>:
+    Character sequence beginning with an alphabetical letter @samp{=} <expression>
+\E
 @end example
 
 @example
+\BJP
 <オプション並び>:
     <オプション>
     <オプション> [@samp{,} <オプション>]*
+\E
+\BEG
+<option list>:
+    <option>
+    <option> [@samp{,} <option>]*
+\E
 @end example
 
 
 @example
+\BJP
 <リスト>:
     @samp{[} <式並び> @samp{]}
+\E
+\BEG
+<list>:
+    @samp{[} <expr list> @samp{]}
+\E
 @end example
 
 @example
-<変数>: (@xref{変数および不定元})
+\BJP
+<変数>: 
     大文字で始まる文字列 (X,Y,Japan など)
+\E
+\BEG
+<program variable>:
+   Sequence of alphabetical letters or numeric digits or @code{_}
+   that begins with a capital alphabetical letter
+   (X,Y,Japan etc.)
+\E
 @end example
+\JP (@xref{変数および不定元})
+\EG (@xref{variables and indeterminates})
 
 @example
+\BJP
 <函数>:
    小文字で始まる文字列 (fctr,gcd など)
+\E
+\BEG
+<function>:
+   Sequence of alphabetical letters or numeric digits or @code{_}
+   that begins with a small alphabetical letter
+   (fctr,gcd etc.)
+\E
 @end example
 
 @example
+\BJP
 <アトム>:
    <不定元>
    <数>
+\E
+\BEG
+<atom>:
+   <indeterminate>
+   <number>
+\E
 @end example
 
 @example
-<不定元>: (@xref{変数および不定元})
+\BJP
+<不定元>: 
    小文字で始まる文字列 (a,bCD,c1_2 など)
+\E
+\BEG
+<indeterminate>:
+   Sequence of alphabetical letters or numeric digits or @code{_}
+   that begin with a small alphabetical letter
+   (a,bCD,c1_2 etc.)
+\E
 @end example
+\JP (@xref{変数および不定元})
+\EG (@xref{variables and indeterminates})
 
 @example
-<数>: (@xref{数の型})
+\BJP
+<数>: 
    <有理数>
    <浮動小数>
    <代数的数>
    <複素数>
+\E
+\BEG
+<number>:
+   <rational number>
+   <floating point number>
+   <algebraic number>
+   <complex number>
+\E
 @end example
+\JP (@xref{数の型})
+\EG (@xref{Types of numbers})
 
 @example
-<有理数>:
+\JP <有理数>:
+\EG <rational number>:
    0, 1, -2, 3/4
 @end example
 
 @example
-<浮動小数>:
+\JP <浮動小数>:
+\EG <floating point number>:
    0.0, 1.2e10
 @end example
 
 @example
-<代数的数>: (@xref{代数的数に関する演算})
+\JP <代数的数>: 
+\EG <algebraic number>: 
    newalg(x^2+1), alg(0)^2+1
 @end example
+\JP (@xref{代数的数に関する演算})
+\EG (@xref{Algebraic numbers})
 
 @example
-<複素数>:
+\JP <複素数>:
+\EG <complex number>:
    1+@code{@@i}, 2.3*@code{@@i}
 @end example
 
 @example
+\BJP
 <文字列>:
    @samp{"} で囲まれた文字列 
+\E
+\BEG
+<string>:
+   character sequence enclosed by two @samp{"}'s.
+\E
 @end example
 
 @example
-<指数ベクトル>: (@xref{グレブナ基底の計算})
+\BJP
+<指数ベクトル>:
    @samp{<<} <式並び> @samp{>>}
+\E
+\BEG
+<exponent vector>:
+   @samp{<<} <expr list> @samp{>>}
+\E
 @end example
+\JP (@xref{グレブナ基底の計算})
+\EG (@xref{Groebner basis computation})
 
 @example
-<文>: (@xref{文})
+\BJP
+<文>:
     <式> <終端>
     <複文>
     @samp{break} <終端>
@@ -147,60 +301,134 @@
     @samp{while} @samp{(} <式並び> @samp{)} <文>
     @samp{def} <函数> @samp{(} <式並び> @samp{)} @samp{@{} <変数宣言> <文並び> @samp{@}}
     @samp{end(quit)} <終端> 
+\E
+\BEG
+<statement>:
+    <expression> <terminator>
+    <compound statement>
+    @samp{break} <terminator>
+    @samp{continue} <terminator>
+    @samp{return} <terminator>
+    @samp{return} <expression> <terminator>
+    @samp{if} @samp{(} <expr list> @samp{)} <statement>
+    @samp{if} @samp{(} <expr list> @samp{)} <statement> @samp{else} <statement>
+    @samp{for} @samp{(} <expr list> @samp{;} <expr list> @samp{;} <expr list> @samp{)} <statement>
+    @samp{do} <statement> @samp{while} @samp{(} <expr list> @samp{)} <terminator>
+    @samp{while} @samp{(} <expr list> @samp{)} <statement>
+    @samp{def} <function> @samp{(} <expr list> @samp{)} @samp{@{} <variable declaration> <stat list> @samp{@}}
+    @samp{end(quit)} <terminator>
+\E
 @end example
+\JP (@xref{文})
+\EG (@xref{statements})
 
 @example
-<終端>:
+\JP <終端>:
+\EG <terminator>:
     @samp{;} @samp{$}
 @end example
 
 @example
+\BJP
 <変数宣言>:
     [@samp{extern} <変数> [@samp{,} <変数>]* <終端>]*
+\E
+\BEG
+<variable declaration>:
+    [@samp{extern} <program variable> [@samp{,} <program variable>]* <terminator>]*
+\E
 @end example
 
 @example
+\BJP
 <複文>:
     @samp{@{} <文並び> @samp{@}}
+\E
+\BEG
+<compound statement>:
+    @samp{@{} <stat list> @samp{@}}
+\E
 @end example
 
 @example
+\BJP
 <文並び>:
     [<文>]*
+\E
+\BEG
+<stat list>:
+    [<statement>]*
+\E
 @end example
 
+\BJP
 @node 添付のユーザ定義函数ファイル,,, 付録
 @section 添付のユーザ定義函数ファイル
+\E
+\BEG
+@node Files of user defined functions,,, Appendix
+@section Files of user defined functions
+\E
 
 @noindent
+\BJP
 標準ライブラリディレクトリ (デフォルトでは @samp{/usr/local/lib/asir}) には
 いくつかのユーザ定義函数ファイルがおかれている. これらのうちの主なものについて
 説明する. 
+\E
+\BEG
+There are several files of user defined functions under the standard
+library directory. (@samp{/usr/local/lib/asir} by default.)
+Here, we explain some of them.
+\E
 
 @table @samp
 @item fff
-大標数素体および標数 2 の有限体上の一変数多項式因数分解 (@xref{有限体に関する演算})
+\JP 大標数素体および標数 2 の有限体上の一変数多項式因数分解 (@xref{有限体に関する演算})
+\EG Univariate factorizer over large finite fields (@xref{Finite fields})
 @item gr
-グレブナ基底計算パッケージ.  (@xref{グレブナ基底の計算})
+\JP グレブナ基底計算パッケージ.  (@xref{グレブナ基底の計算})
+\EG Groebner basis package.  (@xref{Groebner basis computation})
 @item sp
-代数的数の演算および因数分解, 最小分解体. (@xref{代数的数に関する演算})
+\JP 代数的数の演算および因数分解, 最小分解体. (@xref{代数的数に関する演算})
+\EG Operations over algebraic numbers and factorization, Splitting fields. (@xref{Algebraic numbers})
 @item alpi
 @itemx bgk
 @itemx cyclic
 @itemx katsura
 @itemx kimura
-グレブナ基底計算において, ベンチマークその他で用いられる例. 
+\JP グレブナ基底計算において, ベンチマークその他で用いられる例. 
+\EG Example polynomial sets for benchmarks of Groebner basis computation.
 (@xref{katsura hkatsura cyclic hcyclic})
 @item defs.h
-いくつかのマクロ定義. (@xref{プリプロセッサ})
+\JP いくつかのマクロ定義. (@xref{プリプロセッサ})
+\EG Macro definitions. (@xref{preprocessor})
 @item fctrtest
+\BJP
 整数上の多項式の因数分解のテスト. REDUCE の @samp{factor.tst} および
 重複度の大きいいくつかの例を含む. これは, @code{load()} すると
 直ちに計算が始まる. 入手した @b{Asir} が正しく動作しているかの
 テストにも使うことができる. 
+\E
+\BEG
+Test program of factorization of integral polynomials.
+It includes  @samp{factor.tst} of REDUCE and several examples
+for large multiplicity factors.  If this file is @code{load()}'ed,
+computation will begin immediately.
+You may use it as a first test whether @b{Asir} at you hand runs
+correctly.
+\E
 @item fctrdata
+\BJP
 @samp{fctrtest} で使われている例を含む, 因数分解テスト用の例. 
 @code{Alg[]} に収められている例は, @code{af()} (@xref{asq af}) 用の例である. 
+\E
+\BEG
+This contains example polynomials for factorization.  It includes
+polynomials used in @samp{fctrtest}.
+Polynomials contained in vector @code{Alg[]} is for the algebraic
+factorization @code{af()} (@xref{asq af}).
+\E
 @example
 [45] load("sp")$
 [84] load("fctrdata")$
@@ -217,16 +445,33 @@ x^9-15*x^6-87*x^3-125
 3.600sec + gc : 1.040sec
 @end example
 @item ifplot
+\BJP
 描画 (@xref{ifplot conplot plot plotover}) のための例. @code{IS[]} には有名な
 曲線の例, 変数 @code{H, D, C, S} にはトランプのハート, ダイヤ, クラブ, 
 スペード (らしき) 曲線の例が入っている. 
+\E
+\BEG
+Examples for plotting (@xref{ifplot conplot plot plotover}).
+Vector @code{IS[]} contains several famous algebraic curves.
+Variables @code{H, D, C, S} contains something like the suits
+(Heart, Diamond, Club, and Spade) of cards.
+\E
 @item num
-数に関する簡単な演算函数の例. 
+\JP 数に関する簡単な演算函数の例. 
+\EG Examples of simple operations on numbers.
 @item mat
-行列に関する簡単な演算函数の例. 
+\JP 行列に関する簡単な演算函数の例. 
+\EG Examples of simple operations on matrices.
 @item ratint
+\BJP
 有理函数の不定積分. @samp{sp}, @samp{gr} が必要. @code{ratint()} という
 函数が定義されているが, その返す結果はやや複雑である. 例で説明する. 
+\E
+\BEG
+Indefinite integration of rational functions.  For this,
+files @samp{sp} and @samp{gr} is necessary.  A function @code{ratint()}
+is defined.  Its returns a rather complex result.
+\E
 @example
 [0] load("gr")$
 [45] load("sp")$
@@ -236,6 +481,7 @@ x^9-15*x^6-87*x^3-125
 [[(#2)*log(-140*x+(-2737*#2^2+552*#2-131)),161*t#2^3-23*t#2^2+15*t#2-1],
 [(#1)*log(-5*x+(-21*#1-4)),21*t#1^2+3*t#1+1]]]
 @end example
+\BJP
 この例では, @code{x^6/(x^5+x+1)} の不定積分の計算を行っている. 
 結果は 2 つの要素からなるリストで, 第 1 要素は不定積分の有理部分, 
 第 2 要素は対数部分を表す. 対数部分は更にリストとなっていて, 各要素は, 
@@ -245,7 +491,26 @@ x^9-15*x^6-87*x^3-125
 @code{root} を含んでいて, @code{root} を入れ替える場合には @code{poly}
 に対しても同じ操作を行うものとする. この操作を, 結果の第 2 要素の
 各成分に対して行って, 全てを足し合わせたものが対数部分となる. 
+\E
+\BEG
+In this example, indefinite integral of the rational function
+ @code{x^6/(x^5+x+1)} is computed.
+The result is a list which comprises two elements:
+The first element is the rational part of the integral;
+The second part is the logarithmic part of the integral.
+The logarithmic part is again a list which comprises finite number of
+elements, each of which is of form @code{[root*log(poly),defpoly]}.
+This pair should be interpreted to sum up
+the expression @code{root*log(poly)}
+through all @b{root}'s @code{root}'s of the @code{defpoly}.
+Here, @code{poly} contains @code{root}, and substitution for @code{root}
+is equally applied to @code{poly}.
+The logarithmic part in total is obtained by applying such
+interpretation to all element pairs in the second element of the
+result and then summing them up all.
+\E
 @item primdec
+\BJP
 多項式イデアルの準素イデアル分解とその根基の素イデアル分解
 (@code{[Shimoyama,Yokoyama]} 参照).
 準素イデアル分解は @code{primadec()}, 素イデアル分解は, @code{primedec()}
@@ -256,6 +521,23 @@ x^9-15*x^6-87*x^3-125
 その結果はいずれもグレブナ基底になっているが, その
 変数順序は, それぞれ大域変数 @code{PRIMAORD}, @code{PRIMEORD}
  の値 0,1 あるいは 2 によって決まる. 
+\E
+\BEG
+Primary ideal decomposition of polynomial ideals and prime compotision
+of radicals
+(Refer to @code{[Shimoyama,Yokoyama]}).
+@code{primadec()}, @code{primedec()} are the function for primary
+ideal decomposition and prime decomposition of the radical respectively.
+The arguments are a list of polynomials and a list of variables.
+These functions accept ideals with rational function coefficients
+and non zero-dimenstional ideals.
+@code{primadec} returns the list of pair lists consisting a primary component
+and its associated prime.
+@code{primedec} returns the list of prime components.
+Each component is a Groebner basis and the corresponding term order
+is indicated by the global variables @code{PRIMAORD}, @code{PRIMEORD}
+respectively.
+\E
 @example
 [84] load("primdec")$
 [102] primedec([p*q*x-q^2*y^2+q^2*y,-p^2*x^2+p^2*x+p*q*y,
@@ -267,65 +549,131 @@ x^9-15*x^6-87*x^3-125
 @end example
 @end table
 
+\BJP
 @node 入力インタフェース,,, 付録
 @section 入力インタフェース
+\E
+\BEG
+@node Input interfaces,,, Appendix
+@section Input interfaces
+\E
 
+\BJP
 既に述べたように, DOS 版, Windows 版, Macintosh 版では入力インタフェースと
 してコマンドライン編集およびヒストリ置き換えが組み込まれている. UNIX 版では
 このような機能は組み込まれていないが, 以下で述べるような入力インタフェース
 が用意されている. これらは @b{Asir} バイナリとともに ftp 可能である. 
 ftp server に関しては @xref{入手方法}.
+\E
+\BEG
+As already mentioned a command line editing facility and a history
+substitution facility are built-in for DOS, Windows Macintosh version
+of @b{Asir}. UNIX versions of @b{Asir} do not have such built-in facilites.
+Instead, the following input interfaces are prepared. This are also available
+from our ftp server. As for our ftp server @xref{How to get Risa/Asir}.
+\E
 
 @menu
 * fep::
 * asir.el::
 @end menu
 
-@node fep,,, 入力インタフェース
+\JP @node fep,,, 入力インタフェース
+\EG @node fep,,, Input interfaces
 @subsection fep
 
 @noindent
+\BJP
 fep とは, SRA の歌代氏により開発されたコマンドライン編集, ヒストリ置き換え
 用の入力フロントエンドである. このプログラムの元で @samp{asir} を起動する
 ことにより vi あるいは emacs 風のコマンドライン編集および csh 風のヒストリ
 置き換えが可能になる. 
+\E
+\BEG
+Fep is a general purpose front end processor. The author is
+K. Utashiro (SRA Inc.).
 
+Under fep,
+emacs- or vi-like command line editing and csh-like history substitution are
+available for UNIX commands, including @samp{asir}.
+\E
 @example
 % fep asir
 ...
 [0] fctr(x^5-1);
 [[1,1],[x-1,1],[x^4+x^3+x^2+x+1,1]]
 [1] !!                              /* !!+Return                      */
+\BJP
 fctr(x^5-1);                        /* 直前の入力が現れるて編集できる */
 ...                                 /* 編集+Return                    */
+\E
+\BEG
+fctr(x^5-1);                        /* The last input appears.        */
+...                                 /* Edit+Return                    */
+\E
 fctr(x^5+1);
 [[1,1],[x+1,1],[x^4-x^3+x^2-x+1,1]]
 @end example
 
 @noindent
+\BJP
 fep はフリーソフトでソースが入手可能であるが, オリジナルのものは make できる
 機種 (OS) が限られている. いくつかの機種上で動作するように我々が改造したもの
 が, ftp で入手可能である.
+\E
+\BEG
+Fep is a free software and the source is available. However
+machines or operating systems on which the original one can run are limited.
+The modified version by us running on several unsupported environments
+is available from our ftp server.
+\E
 
-@node asir.el,,, 入力インタフェース
+\JP @node asir.el,,, 入力インタフェース
+\EG @node asir.el,,, Input interfaces
 @subsection asir.el
 
 @noindent
+\BJP
 @samp{asir.el} は, @b{Asir} の GNU Emacs インタフェースである (著者は
 宮嶋光治氏 (@code{YVE25250@@pcvan.or.jp}).  @samp{asir.el} においては, 
 通常の emacs で可能な編集機能の他に, ファイル名, コマンド名の completion
 が実現されている. 
+\E
+\BEG
+@samp{asir.el} is a GNU Emacs interface for @b{Asir}.
+The author is Koji Miyajima (@code{YVE25250@@pcvan.or.jp}).
+In @samp{asir.el}, completion of file names and command names is
+realized other than the ordinary editing functions
+which are available on Emacs.
+\E
 
 @noindent
+\BJP
 @samp{asir.el} は PC-VAN で
 既に公開されているが, 今回の改訂に伴う変更を行ったものが, やはり ftp で
 入手可能である. 
+\E
+\BEG
+@samp{asir.el} is distributed on PC-VAN. The version where several
+changes have been made according to the current version of @b{Asir}
+is available via ftp.
+\E
 
 @noindent
-セットアップ, 使用方法は, @samp{asir.el} の先頭に記述されている. 
+\JP セットアップ, 使用方法は, @samp{asir.el} の先頭に記述されている. 
+\BEG
+The way of setting up and the usage can be found at the top of
+@samp{asir.el}.
+\E
 
+\BJP
 @node 変更点,,, 付録
 @section 変更点
+\E
+\BEG
+@node Changes,,, Appendix
+@section Appendix
+\E
 
 @menu
 * Version 990831::
@@ -333,45 +681,86 @@ fep はフリーソフトでソースが入手可能であるが, オリジナルのものは mak
 * Version 940420::
 @end menu
 
-@node Version 990831,,, 変更点
+\JP @node Version 990831,,, 変更点
+\EG @node Version 990831,,, Changes
 @subsection Version 990831
 
+\BJP
 4 年ぶりの大改訂. 整数の 32bit 化他, 中身はずいぶん変わっているものの, 
 見掛けはそれほど変わっているようには見えない. むしろ, Windows 版などは, 
 plot が使えないため, 退化している. 
 
 旧版のユーザがもっとも注意すべき点は, 旧版で作った bsave file を読み込む
 場合は @code{bload27} を使う必要がある, という点である. 
+\E
 
-@node Version 950831,,, 変更点
+\BEG
+Four years have passed since the last distribution.
+Though the look and feel seem unchanged, internally there are
+several changes such as 32-bit representation of bignums.
+Plotting facilities are not available on Windows.
+
+If you have files created by @code{bsave} on the older version,
+you have to use @code{bload27} to read such files.
+\E
+
+\JP @node Version 950831,,, 変更点
+\EG @node Version 950831,,, Changes
 @subsection Version 950831
 
 @menu
+\BJP
 * デバッガ(変更)::
 * 組み込み函数(変更)::
 * グレブナ基底(変更)::
 * その他(変更)::
+\E
+\BEG
+* Debugger(Changes)::
+* Built-in functions(Changes)::
+* Groebner basis computation(Changes)::
+* Others(Changes)::
+\E
 @end menu
 
+\BJP
 @node デバッガ(変更),,, Version 950831
 @subsubsection デバッガ
+\E
+\BEG
+@node Debugger(Changes),,, Version 950831
+@subsubsection Debugger
+\E
 
 @itemize @bullet
 @item
-任意の時点にデバッグモードに入れる.
+\JP 任意の時点にデバッグモードに入れる.
+\EG One can enter the debug mode anytime.
 @item
-@code{finish} コマンドの追加. 
+\JP @code{finish} コマンドの追加. 
+\EG A command @code{finish} has been appended.
 @item
+\BJP
 @code{up}, @code{down}, @code{frame} コマンドによる, 任意のスタックフレーム
-の参照. 
+の参照.
+\E
+\EG One can examine any stack frame with @code{up}, @code{down} and @code{frame}.
 @item
-@code{trace} コマンドの追加. 
+\JP @code{trace} コマンドの追加. 
+\EG A command @code{trace} has been appended.
 @end itemize
 
+\BJP
 @node 組み込み函数(変更),,, Version 950831
 @subsubsection 組み込み函数
+\E
+\BEG
+@node Built-in functions(Changes),,, Version 950831
+@subsubsection Built-in functions
+\E
 
 @itemize @bullet
+\BJP
 @item
 @code{sdiv()} などにおける, 主変数の指定のサポート. 
 @item
@@ -382,12 +771,33 @@ plot が使えないため, 退化している.
 @code{vtol()} (ベクトルからリストへの変換) の追加. 
 @item
 @code{map()} の追加. 
+\E
+\BEG
+@item
+One can specify a main variable for @code{sdiv()} etc.
+@item
+Functions for polynomial division over finite fields
+such as @code{sdivm()} have been appended.
+@item
+@code{det()}, @code{res()} can produce results over finite fields.
+@item
+@code{vtol()}, conversion from a vector to a list has been appended.
+@item
+@code{map()} has been appended.
+\E
 @end itemize
 
+\BJP
 @node グレブナ基底(変更),,, Version 950831
 @subsubsection グレブナ基底
+\E
+\BEG
+@node Groebner basis computation(Changes),,, Version 950831
+@subsubsection Groebner basis computation
+\E
 
 @itemize @bullet
+\BJP
 @item
 グレブナ基底計算機能の組み込み函数化. 
 @item
@@ -402,12 +812,38 @@ plot が使えないため, 退化している.
 基底変換による辞書式順序グレブナ基底計算のサポート. 
 @item
 いくつかの新しい組み込み函数の提供. 
+\E
+\BEG
+@item Functions for Groebner basis computation have been implemented
+as built-in functions.
+@item
+@code{grm()} and @code{hgrm()} have been changed to @code{gr()} and
+@code{hgr()} respectively.
+@item
+@code{gr()} and @code{hgr()} requires explicit specification of
+an ordering type.
+@item
+Extension of specification of a term ordering type.
+@item
+Groebner basis computations over finite fields.
+@item
+Lex order Groebner basis computation via a modular change of ordering algorithm.
+@item
+Several new built-in functions.
+\E
 @end itemize
 
+\BJP
 @node その他(変更),,, Version 950831
 @subsubsection その他
+\E
+\BEG
+@node Others(Changes),,, Version 950831
+@subsubsection Others
+\E
 
 @itemize @bullet
+\BJP
 @item
 分散計算用ツール, 函数の追加.
 @item
@@ -416,16 +852,36 @@ plot が使えないため, 退化している.
 イデアルの準素分解のサポート. 
 @item
 Windows への移植.
+\E
+\BEG
+@item
+Implementation of tools for distributed computation.
+@item
+Application of modular computation for GCD computation over algebraic number
+fields.
+@item
+Implementation of primary decompostion of ideals.
+@item
+Porting to Windows.
+\E
 @end itemize
 
-@node Version 940420,,, 変更点
+\JP @node Version 940420,,, 変更点
+\EG @node Version 940420,,, Changes
 @subsection Version 940420
 
 @noindent
-最初の公開版. 
+\JP 最初の公開版. 
+\EG The first public verion.
 
+\BJP
 @node 文献,,, 付録
 @section 文献
+\E
+\BEG
+@node References,,, Appendix
+@section References
+\E
 @table @code
 @item [Batut et al.]
 Batut, C., Bernardi, D., Cohen, H., Olivier, M., "User's Guide to PARI-GP",
@@ -447,13 +903,19 @@ Proc. ISSAC'91, 49-54.
 Noro, M., Takeshima, T., "Risa/Asir -- A Computer Algebra System",
 Proc. ISSAC'92, 387-396.
 @item [Noro,Yokoyama] 
-Noro, M., Yokoyama, K., "New methods for the change-of-ordering in Groebner
-basis computation", ISIS Research Report ISIS-RR-95-8E, 1995.
+Noro, M., Yokoyama, K., "A Modular Method to Compute the Rational Univariate
+Representation of Zero-Dimensional Ideals", 
+J. Symb. Comp. 28/1 (1999), 243-263.
 @item [Shimoyama,Yokoyama]
 Shimoyama, T., Yokoyama, K.,
 "Localization and primary decomposition of polynomial ideals",
-to appear in J. Symb. Comp.
+J. Symb. Comp. 22 (1996), 247-277.
+@item [Shoup]
+Shoup, V., "A new polynomial factorization algorithm and its implementation",
+J. Symb. Comp. 20 (1995), 364-397.
 @item [Traverso]
 Traverso, C., "Groebner trace algorithms", Proc. ISSAC '88(LNCS 358), 125-138.
+@item [Weber]
+Weber, K., "The accelerated Integer GCD Algorithm", ACM TOMS, 21, 1(1995), 111-122.
 @end table
 

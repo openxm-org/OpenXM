@@ -1,5 +1,12 @@
+@comment $OpenXM$
+\BJP
 @node 文字列に関する演算,,, 組み込み函数
 @section 文字列に関する演算
+\E
+\BEG
+@node Strings,,, Built-in Function
+@section Strings
+\E
 
 @menu
 * rtostr::
@@ -7,23 +14,28 @@
 * eval_str::
 @end menu
 
-@node rtostr,,, 文字列に関する演算
+\JP @node rtostr,,, 文字列に関する演算
+\EG @node rtostr,,, Strings
 @subsection @code{rtostr}
 @findex rtostr
 
 @table @t
 @item rtostr(@var{obj})
-:: @var{obj} を文字列に変える. 
+\JP :: @var{obj} を文字列に変える. 
+\EG :: Convert @var{obj} into a string.
 @end table
 
 @table @var
 @item return
-文字列
+\JP 文字列
+\EG string
 @item obj
-任意
+\JP 任意
+\EG arbitrary
 @end table
 
 @itemize @bullet
+\BJP
 @item
 任意のオブジェクト @var{obj} を文字列に変える. 
 @item
@@ -31,6 +43,17 @@
 添字付きの不定元を生成する場合に多く用いられる. 
 @item
 逆に, 文字列を不定元に変換する時には, @code{strtov} を用いる. 
+\E
+\BEG
+@item
+Convert an arbitrary object @var{obj} into a string.
+@item
+This function is convenient to create variables with numbered
+(or indexed) names by converting integers into strings and appending them
+to some name strings.
+@item
+Use @code{strtov()} for inverse conversion from string to indeterminate.
+\E
 @end itemize
 
 @example
@@ -47,27 +70,33 @@ afo1
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{strtov}, @fref{type}.
 @end table
 
-@node strtov,,, 文字列に関する演算
+\JP @node strtov,,, 文字列に関する演算
+\EG @node strtov,,, Strings
 @subsection @code{strtov}
 @findex strtov
 
 @table @t
 @item strtov(@var{str})
-:: @var{str} (文字列) を不定元に変える. 
+\JP :: @var{str} (文字列) を不定元に変える. 
+\EG :: Convert a string @var{str} into an indeterminate.
 @end table
 
 @table @var
 @item return
-不定元
+\JP 不定元
+\EG intederminate
 @item str
-不定元として変換可能な文字列
+\JP 不定元として変換可能な文字列
+\EG string which is valid to constitute an indeterminate.
 @end table
 
 @itemize @bullet
+\BJP
 @item
 不定元として変換可能な文字列を不定元に変える. 
 @item
@@ -76,6 +105,18 @@ afo1
 @item
 @code{rtostr()} と組合せて, プログラム中で自動的に不定元を生成したい時に
 用いられる. 
+\E
+\BEG
+@item
+Convert a string that is valid for an indeterminate into an indeterminate
+which have @var{str} as its print name.
+@item
+The valid string for an indeterminate is such a string that begins
+with a small alphabetical letter possibly followed by any string composed
+of alphabetical letters, digits or a symbol @samp{_}.
+@item
+Use the command to create indeterminates dynamically in programs.
+\E
 @end itemize
 
 @example
@@ -88,33 +129,49 @@ afo
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{rtostr}, @fref{type}, @fref{uc}.
 @end table
 
-@node eval_str,,, 文字列に関する演算
+\JP @node eval_str,,, 文字列に関する演算
+\EG @node eval_str,,, Strings
 @subsection @code{eval_str}
 @findex eval_str
 
 @table @t
 @item eval_str(@var{str})
-:: @var{str} (文字列) を評価する. 
+\JP :: @var{str} (文字列) を評価する. 
+\EG :: Evaluates a string @var{str}.
 @end table
 
 @table @var
 @item return
-オブジェクト
+\JP オブジェクト
+\EG object
 @item str
-@b{Asir} の parser が受理可能な文字列
+\JP @b{Asir} の parser が受理可能な文字列
+\EG string which can be accepted by @b{Asir} parser
 @end table
 
 @itemize @bullet
+\BJP
 @item
 @b{Asir} の parser が受理可能な文字列を評価してその結果を返す. 
 @item
 評価可能な文字列は, 式を表すものに限る. 
 @item
 論理的には @code{rtostr()} の逆関数となる. 
+\E
+\BEG
+@item
+This function evaluates a string which can be accepted by @b{Asir} parser
+and returns the result.
+@item
+The input string should represent an expression.
+@item
+This functions is the inversion function of @code{rtostr()}.
+\E
 @end itemize
 
 @example
@@ -125,7 +182,8 @@ afo
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{rtostr}
 @end table
 

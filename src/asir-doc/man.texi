@@ -1,7 +1,11 @@
-\input jtexinfo
+@comment $OpenXM$
+\JP \input jtexinfo
+\EG \input texinfo
 @iftex
 @catcode`@#=6
-@def@b#1{{@bf@gt #1}}
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+\JP @def@b#1{{@bf@gt #1}}
+\EG @def@b#1{{@bf #1}}
 @catcode`@#=@other
 @end iftex
 @overfullrule=0pt
@@ -14,7 +18,8 @@
 
 @ifinfo
 @macro fref{name}
-@ref{\name\,,@code{\name\}}
+\JP @ref{\name\,,@code{\name\}}
+\EG @ref{\name\,,@code{\name\}}
 @end macro
 @end ifinfo
 
@@ -26,10 +31,10 @@
 
 @title Asir
 @subtitle Asir User's Manual
-@subtitle Edition 4.1 for Asir-991201
-@subtitle August 19
+@subtitle Edition 4.1 for Asir-991214
+@subtitle December 1999
 
-@author  by Masayuki Noro and Takeshi Shimoyama
+@author  by Masayuki Noro, Takeshi Shimoyama and Taku Takeshima
 @end titlepage
 
 @synindex vr fn
@@ -40,6 +45,7 @@
 @menu
 * Introduction::
 * Risa/Asir::
+\BJP
 * 型::
 * ユーザ言語 Asir::
 * デバッガ::
@@ -50,6 +56,19 @@
 * 有限体に関する演算::
 * 付録::
 * 索引::
+\E
+\BEG
+* Data types::
+* User language Asir::
+* Debugger::
+* Built-in Function::
+* Distributed computation::
+* Groebner basis computation::
+* Algebraic numbers::
+* Finite fields::
+* Appendix::
+* Index::
+\E
 @end menu
 
 @include parts/intro.texi
@@ -64,8 +83,14 @@
 @include parts/ff.texi
 @include parts/appendix.texi
 
+\BJP
 @node 索引,,, Top
 @unnumbered 索引
+\E
+\BEG
+@node Index,,, Top
+@unnumbered Index
+\E
 @printindex fn
 @printindex cp
 @iftex

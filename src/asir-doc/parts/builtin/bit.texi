@@ -1,12 +1,20 @@
+@comment $OpenXM$
+\BJP
 @node bit 演算,,, 組み込み函数
 @section bit 演算
+\E
+\BEG
+@node Bit operations,,, Built-in Function
+@section Bit operations
+\E
 
 @menu
 * iand ior ixor::
 * ishift::
 @end menu
 
-@node iand ior ixor,,, bit 演算
+\JP @node iand ior ixor,,, bit 演算
+\EG @node iand ior ixor,,, Bit operations
 @subsection @code{iand}, @code{ior}, @code{ixor}
 @findex iand
 @findex ior
@@ -14,25 +22,38 @@
 
 @table @t
 @item iand(@var{i1},@var{i2})
-:: bit ごとの and
+\JP :: bit ごとの and
+\EG :: bitwise and
 @item ior(@var{i1},@var{i2})
-:: bit ごとの or
+\JP :: bit ごとの or
+\EG :: bitwise or
 @item ixor(@var{i1},@var{i2})
-:: bit ごとの xor
+\JP :: bit ごとの xor
+\EG :: bitwise xor
 @end table
 
 @table @var
 @item return
-整数
+\JP 整数
+\EG integer
 @item i1,i2
-整数
+\JP 整数
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 整数 @var{i1}, @var{i2} の絶対値を bit 列とみて演算する. 
 @item
 引数の符号は無視し, 非負の値を返す. 
+\E
+\BEG
+@item
+The absolute value of the argument is regarded as a bit string.
+@item
+The sign of the argument is ignored and a non-negative integer is returned.
+\E
 @end itemize
 
 @example
@@ -47,11 +68,13 @@
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{ishift}.
 @end table
 
-@node ishift,,, bit 演算
+\JP @node ishift,,, bit 演算
+\EG @node ishift,,, Bit operations
 @subsection @code{ishift}
 @findex ishift
 
@@ -62,18 +85,31 @@
 
 @table @var
 @item return
-整数
+\JP 整数
+\EG integer
 @item i,count
-整数
+\JP 整数
+\EG integer
 @end table
 
 @itemize @bullet
+\BJP
 @item
 整数 @var{i} の絶対値を bit 列とみて shift する. 
 @item
 @var{i} の符号は無視し, 非負の値を返す. 
 @item
 @var{count} が正ならば右 shift, 負ならば左 shift を行う. 
+\E
+\BEG
+@item
+The absolute value of @var{i} is regarded as a bit string.
+@item
+The sign of @var{i} is ignored and a non-negative integer is returned.
+@item
+If @var{count} is positive, then @var{i} is shifted to the right.
+If @var{count} is negative, then @var{i} is shifted to the left.
+\E
 @end itemize
 
 @example
@@ -87,6 +123,7 @@
 @end example
 
 @table @t
-@item 参照
+\JP @item 参照
+\EG @item References
 @fref{iand ior ixor}.
 @end table

@@ -1,9 +1,10 @@
-# $OpenXM: OpenXM/src/asir/doc/Makefile,v 1.6 19/11/19 08:17:40 noro Exp $
-all: texindex manual help
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.1.1.1 1999/12/08 05:47:43 noro Exp $
+
+all-eg: texindex man-eg.dvi help-eg html-eg
+all-jp: texindex man-jp.dvi help-jp html-jp
+
 texindex:
 	(cd jtexindex/C; ./configure; make)
-
-manual: man.dvi
 
 BUILTINS=\
 	parts/builtin/array.texi parts/builtin/bit.texi\
@@ -22,28 +23,77 @@ PARTS=\
 
 SRCS=man.texi $(PARTS) $(BUILTINS)
 
-man.dvi: $(SRCS)
-	ptex man.texi
-	jtexindex/C/texindex man.??
-	ptex man.texi
+tmpJP: $(SRCS) extract_man
+	-rm -rf tmpJP
+	mkdir tmpJP tmpJP/parts tmpJP/parts/builtin
+	cp jtexinfo.tex texinfo-js.tex tmpJP
+	for i in ${SRCS}; do extract_man JP $$i > tmpJP/$$i; done
 
-help: $(SRCS) extract_func
-	-rm -rf euc help-jp
-	mkdir help-jp euc euc/parts euc/parts/builtin
-	for i in ${SRCS}; do nkf -e $$i > euc/$$i; done
-	(cd euc; makeinfo man.texi)
-	(cd help-jp; for i in ../euc/risaman*; do ../extract_func $$i; done)
+tmpJPeuc: $(SRCS) extract_man
+	-rm -rf tmpJPeuc
+	mkdir tmpJPeuc tmpJPeuc/parts tmpJPeuc/parts/builtin
+	cp jtexinfo.tex texinfo-js.tex tmpJPeuc
+	for i in ${SRCS}; do extract_man JP $$i | nkf -e > tmpJPeuc/$$i; done
 
-html: $(SRCS)
-	-rm -rf euc html
-	mkdir html euc euc/parts euc/parts/builtin
-	for i in ${SRCS}; do nkf -e $$i | sed -e "s/@fref/@ref/g" > euc/$$i; done
-	(cd html; texi2html -menu -split_node ../euc/man.texi)
+tmpJPhtml: $(SRCS) extract_man
+	-rm -rf tmpJPhtml
+	mkdir tmpJPhtml tmpJPhtml/parts tmpJPhtml/parts/builtin
+	cp jtexinfo.tex texinfo-js.tex tmpJPhtml
+	for i in ${SRCS}; do extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmpJPhtml/$$i; done
+
+tmpEG: $(SRCS) extract_man
+	-rm -rf tmpEG
+	mkdir tmpEG tmpEG/parts tmpEG/parts/builtin
+	cp texinfo.tex tmpEG
+	for i in ${SRCS}; do extract_man EG $$i > tmpEG/$$i; done
+
+tmpEGhtml: $(SRCS) extract_man
+	-rm -rf tmpEGhtml
+	mkdir tmpEGhtml tmpEGhtml/parts tmpEGhtml/parts/builtin
+	cp texinfo.tex tmpEG
+	for i in ${SRCS}; do extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i; done
+	
+man-jp.dvi: tmpJP texindex
+	-rm man-jp.dvi
+	(cd tmpJP; ptex man.texi; ../jtexindex/C/texindex man.??; ptex man.texi)
+	mv tmpJP/man.dvi man-jp.dvi
+
+man-eg.dvi: tmpEG texindex
+	-rm man-eg.dvi
+	(cd tmpEG; ptex man.texi; ../jtexindex/C/texindex man.??; tex man.texi)
+	mv tmpEG/man.dvi man-eg.dvi
+
+help-jp: tmpJPeuc extract_func
+	-rm -rf help-jp
+	mkdir help-jp
+	(cd tmpJPeuc; makeinfo man.texi)
+	(cd help-jp; for i in ../tmpJPeuc/risaman*; do ../extract_func $$i; done)
+
+help-eg: tmpEG extract_func
+	-rm -rf help-eg
+	mkdir help-eg
+	(cd tmpEG; makeinfo man.texi)
+	(cd help-eg; for i in ../tmpEG/risaman*; do ../extract_func $$i; done)
+
+html-jp: tmpJPhtml
+	-rm -rf html-jp
+	mkdir html-jp
+	(cd html-jp; texi2html -menu -split_node ../tmpJPhtml/man.texi)
+
+html-eg: tmpEGhtml
+	-rm -rf html-eg
+	mkdir html-eg
+	(cd html-eg; texi2html -menu -split_node ../tmpEGhtml/man.texi)
 
 extract_func: extract_func.c
 	gcc -o extract_func extract_func.c
 
+extract_man: extract_man.c
+	gcc -o extract_man extract_man.c
+
 clean:
 	(cd jtexindex/C; make clean)
-	rm -f man.?? man.???
-	rm -rf euc html help-jp extract_func
+	rm -f man*.dvi man-jp.dvi extract_man extract_func
+	rm -rf tmp*
+	rm -rf help-*
+	rm -rf html-*
