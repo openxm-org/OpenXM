@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.56 2002/11/14 09:29:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.57 2002/11/14 11:23:34 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -35,6 +35,8 @@ load("tex_symbols.rr")$
 load("xml_basic_symbols.rr")$
 load("taka_print_cmo100.rr")$
 load("taka_util.rr")$
+load("taka_pfp.rr")$
+load("taka_weyl.rr")$
 load("plucker.rr")$
 
 /* should use load_exec() for demand loading. */
@@ -354,7 +356,7 @@ def poly_solve_linear(Eqs,V) {
 def poly_weight_vector(W) { NOT_YET; }
 
 
-
+/* ---------------------hypergeometric------------------ */
 /* Canonical function names for hypergeometric functions of
    one variables. 
 */
@@ -368,7 +370,15 @@ def hypergeometric_beta(A,B) { NOT_YET; }
 def hypergeometric_gamma(A) { NOT_YET; }
 def hypergeometric_legendre_p(N,X) { NOT_YET; }
 def hypergeometric_legendre_q(N,X) { NOT_YET; }
-def hypergeometric_pochhammer(A,N) { NOT_YET; }
+/*&usage   begin:
+  hypergeometric_pochhammer(A,B,N)
+  Multi-pochhammer symbol.
+  example: hypergeometric_pochhammer([a,b],[c,1],3)
+  end:
+*/
+def hypergeometric_pochhammer(A,B,N) { 
+   return taka_pfp_poch1(A,B,N);
+}
 def hypergeometric_gkz(A,B) { return(sm1_gkz([A,B])); }
 
 /* Canonical function names from Mathematica/Calculus */

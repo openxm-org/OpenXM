@@ -1,0 +1,71 @@
+/* $OpenXM$ */
+
+/* Codes from misc/200205/runge-kutta.rr */
+def taka_pfp_poch(A,B,N) {
+  R = 1;
+  M1 = length(A);
+  M2 = length(B);
+  for (I=0; I<N; I++) {
+    for (J=0; J<M1; J++) {
+      R = R*(A[J]+I);
+    }
+    for (J=0; J<M2; J++) {
+      R = R/(B[J]+I);
+    }
+    R = R/(I+1);
+  }
+  return(R);
+}
+def taka_pfp_poch1(A,B,N) {
+  R = 1;
+  M1 = length(A);
+  M2 = length(B);
+  for (I=0; I<N; I++) {
+    for (J=0; J<M1; J++) {
+      R = R*(A[J]+I);
+    }
+    for (J=0; J<M2; J++) {
+      R = R/(B[J]+I);
+    }
+  }
+  return(R);
+}
+
+def taka_pfp_poch2(A,B,N,R) {
+  if (N == 0) return R;
+  M1 = length(A);
+  M2 = length(B);
+  for (J=0; J<M1; J++) {
+      R = R*(A[J]+N-1);
+  }
+  for (J=0; J<M2; J++) {
+      R = R/(B[J]+N-1);
+  }
+  R = R/N;
+  return(R);
+}
+
+def taka_pfp(A,B,Z,N) {
+  R = 0; P = 1;
+  for (I=0; I<N; I++) {
+     P = taka_pfp_poch2(A,B,I,P);
+     R = R+P*Z^I;
+  }
+  return(R);
+}
+
+def taka_pfp_series(A,B,Z,N) {
+  F = taka_pfp(A,B,Z,N);
+  F1 = nm(F);
+  F2 = dn(F);
+  R = [];
+  for (I=0; I<N; I++) {
+    G1 = coef(F1,I,Z);
+    G1 = red(G1/F2);
+    R = cons(G1,R);
+  }
+  return R;
+}
+
+
+end$
