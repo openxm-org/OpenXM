@@ -1,8 +1,9 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.66 2000/01/19 07:30:34 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.67 2000/01/19 12:05:59 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
 BINDIR=../bin
+RCDIR=../rc
 
 all: configure all-asir all-gnuplot all-k097 all-kan96xx all-kxx \
      all-pari all-phc all-openmath all-oxmath all-tigers
@@ -160,5 +161,8 @@ configure-oxmath:
 configure-pari:
 	(cd pari ; make configure)
 
-dist : all install all-misc
+clean-rc :
+	(cd $(RCDIR) ; make clean )
+
+dist : clean-rc all install all-misc
 

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.6 2000/01/19 12:57:39 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.7 2000/01/20 03:14:07 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -60,7 +60,7 @@ by /xxx/yyy/OpenXM.
 */
 /*&C
 
-     cd /xxx/yyy/OpenXM
+     cd /xxx/yyy/OpenXM/rc
      make
 
 */
@@ -100,13 +100,38 @@ by /xxx/yyy/OpenXM.
 //&C  
 
 /*&C
-QUALITY:
-  the following functions have still experimental qualities:
+
+***** QUALITY:
+  the following modules and functions have still experimental qualities:
    OpenXM/bin/k0,  OpenXM/bin/d0
    OpenXM/bin/ox_math,  OpenXM/bin/math2ox
    OpenXM/lib/java-support/ *
    Asir client functions:   m_* (Mathematica)  ,  om_*  (OpenMath)
 */
+/*&C
+
+
+*/
+/*&jp
+★ Java に関する注意:
+注意 1.
+OpenMath 用の OMproxy には現在のところ, jdk が必要です.
+たとえば bash を利用している場合, .bashrc で
+PATH=/usr/local/jdk1.1.8/bin:$PATH
+export PATH
+などとして, jdk の javac をサーチパスの先のほうへもっていくようにして
+ください.
+*/
+/*&eg
+***** JAVA
+In order to use OMproxy, asir client om_*,
+you need to install JDK.
+The bin dir of the JDK must be in yur search path.
+For example, you need to add the following line
+to your .chsrc
+set path=(/usr/local/jdk1.1.8/bin $path)
+*/
+
 /*&C
 
 
@@ -129,11 +154,11 @@ OS:  FreeBSD 3.3,
      X window system is required.
 
      Most part of the OpenXM package may work on other versions of 
-     FreeBSD and Linux versions, but we have not yet tested.
+     FreeBSD and Linux, but we have not yet tested.
 
 */
 /*&jp
-次の module は, OS の標準 distribution 以外に, さらに下に記したソフトを
+次の modules は, OS の標準 distribution 以外に, さらに下に記したソフトを
 必要とします.
 */
 /*&eg
@@ -147,12 +172,19 @@ OS package.
     OpenXM/bin/math2ox          [ see http://www.wolfram.com ]
     Asir client functions  m_*
 (2) OpenXM/lib/java-support :   JDK at /usr/local/jdk??
+                                [ see the section on JAVA]
     Asir client functions  om_*
     sm1 client functions   om_*
 (3) PHC pack (OpenXM/bin/phc)  and  asir client functions
     phc_*  run only on linux (glib5).
-    If you install the linux emulation on Free BSD, they run on
-    FreeBSD, too. (In this case, generate OpenXM/bin/phc by hand.)
+    If you install the linux emulation^{note 1} on Free BSD, they run on
+    FreeBSD, too. 
+    <note 1>
+      Add linux_enable="YES" in /etc/rc.conf 
+      You need the following packages:
+      pkg_info | grep linu
+      linux_base-5.2      The base set of packages needed in Linux mode
+      linux_devtools-5.2  Packages needed for doing development in Linux mode
 
 */
 
@@ -168,7 +200,7 @@ export PAGER
 
 /*&eg
 
-The install is completed. 
+The installation is completed. 
 
 */
 /*&jp
@@ -216,37 +248,47 @@ The install is completed.
 */
 
 
+/*&eg
+
+
+***** A QUICK TOUR OF OPENXM BY ASIR
+
+*/
 /*&jp
-注意:
-$OpenXM_HOME/bin の下の, fep, phc は, いまのところ
-linux 用のバイナリまたはバイナリへのシンボリックリンクです. 
-Linux 以外の場合はバイナリを入れ換える必要があります.
 
 
+★ ASIR による使用例  
 
-★使用例
-
-OpenXM は X Window System 上でしか動作しません. 
 
 asir を動作させるには, key が必要です.
-OpenXM/lib/asir/asir_key のコメントをみて, key を E-mail で
-とりよせて下さい.
+OpenXM/lib/asir/asir_key のコメントまたは起動時のメッセージをみて, 
+key を E-mail でとりよせて下さい.
 
---------------------------------------------------
-OpenXM クライアント : asir 入門
-----------------   例 : asir に kan/sm1  を組み込む.
-asir
-load("xm");
-P=sm1_start();    /* P はプロセス番号 */
-load("katsura");
-sm1_pgb(P,[katsura(4),[u0,u1,u2,u3,u4]]); /* sm1 でグレブナ基底を計算 */
+*/
+/*&C
+----------------   Call ox_sm1 from asir.
+bash-2.03$ asir
+This is Risa/Asir, Version 20000120.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+1994-1999. All rights reserved.
+xm Version 20000116. ox_help(0); ox_help("keyword"); for help message 
+[269] sm1_genericAnn([x^3-y^2,[s,x,y]]); 
+   /* The annihilating ideal of (x^3-y^2)^s */
+[-2*y*dx-3*x^2*dy,2*x*dx+3*y*dy-6*s]
 
----------------    例 : asir より gnuplot を呼び出す.
-asir
-load("xm");
-P=gnuplot_start();
-gnuplot(P,"plot  tan(x); ");
-gnuplot(P,"splot sin(x)*cos(x); ");
+
+---------------    Call gnuplot from asir.
+bash-2.03$ asir
+This is Risa/Asir, Version 20000120.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+1994-1999. All rights reserved.
+xm Version 20000116. ox_help(0); ox_help("keyword"); for help message 
+[269] gnuplot("plot sin(x);");
+0
+[270] 
+
+*/
+/*&jp
 
 ---------------    例 : asir より tigers を呼び出す.
 asir
@@ -266,31 +308,53 @@ x1 x3 - x2^2, x1 x4 - x2 x3, x2 x4 - x3^2
 が GB であり, initial ideal は
 x1 x3 , x1 x4 , x2 x4 
 で生成されています.
-
-----------------------------------
-sm1
-(oxasir.sm1) run  ;
-(x^20-1). fctr pmat ;       sm1 より ox_asir を呼び出して因数分解させる.
-
-
-
-[著作権表示] 
-OpenXM/Copyright を御覧ください.
 */
 
 /*&C
+--------------------------------------  call ox_asir from sm1
+sm1
+(oxasir.sm1) run  ;
+[(x^20-y^20) (x,y)] fctr pmat ;     factorize x^20-y^20 by call ox_asir
 
 
 */
+
 /*&jp
+[著作権表示] 
+OpenXM/Copyright を御覧ください.
+*/
+/*&eg
+[COPYRIGHT]
+See OpenXM/Copyright.
+*/
+
+/*&eg
+
+
+
+*****  TO COMPILE FROM A SOURCE *****
+
+*/
+/*&jp
+
+
 ★ OpenXM パッケージの Make 法
   FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.
+  Linux glib6 では, いまのところ, /usr/include/features.h
+  で #define __FAVOR_BSD 1 してコンパイルする必要があります.
+  (setjmp と sigsetjmp の問題, dirty trick)
+
    OpenXM, OpenXM_contrib, OpenXM_contrib2 が必要です.
    cvs コミッタの場合次のようにしてソースをとりよせます.
 */
 /*&eg
 * How to make OpenXM package?
  We have tested the OpenXM package on FreeBSD 2.2.8, FreeBSD 3.3, Linux.
+ On Linux glib6, you need to define 
+   #define  __FAVOR_BSD 1
+ in /usr/include/features.h
+ (setjmp vs sigsetjmp)
+
  Do you have directories OpenXM, OpenXM_contrib, OpenXM_contrib2?
  If you are a CVS committer, then you can get all sources as follows:
 */
@@ -317,29 +381,19 @@ you need jdk (java environment).
 /*&C
 
 */
-/*&jp
-  Solaris でコンパイルするには, /usr/ccs/bin をサーチパスの最初へもっていって
-  おきます.
-*/
-/*&eg
- /usr/ccs/bin must be at the top of the command search path to compile
- on Solaris.
-*/
 
 /*&jp 
-[OpenXM についての連絡先]
-takayama@math.sci.kobe-u.ac.jp
 
-[OpenXM_HOME 下のファイルの構成]
+[OpenXM 下のファイルの構成メモ]
 lib/asir には, asir のライブラリ, ox_asir 本体
-(ox_asir.xxyyzz.os なる名前で格納されています)
 
+cd OpenXM/src/kxx ; make install-for-debug した場合,
 lib/sm1 は src/SSkan/Doc への symbolic link
 であり, sm1 のライブラリファイルが格納されています.
 lib/sm1/bin には, binaryfiles
     sm1, ox_sm1, ox,  ox_log, ox_sm1_*
 へのシンボリックリンクが格納されます.
-このシンボリックリンクは src/kxx で make install を実行することにより
+このシンボリックリンクは src/kxx で make install-for-debug を実行することにより
 作成されます.
 
 sm1 が ox_asir を利用するのに必要なファイル.
@@ -373,8 +427,8 @@ asir が ox_sm1_gnuplot を利用するのに必要なファイル:
 binary file は各 directory の make install により
 OpenXM/bin にコピーされますが,
 debug 用にいちいちコピーするのは面倒なので,
-OpenXM/src/kan96xx で make install2
-OpenXM/src/kxx で make install2
+OpenXM/src/kan96xx で make install-for-debug
+OpenXM/src/kxx で make install-for-debug
 を実行すると, 
 OpenXM/bin/sm1, ox, ox_sm1, oxlog より,
 OpenXM/src/kan96xx/Kan/sm1
@@ -398,28 +452,19 @@ rcvs export -rHEAD OpenXM_contrib2
 Solaris ではまだ問題が山積してます.
 Solaris での make の問題点については, OpenXM/doc/OpenXM-FAQ-jp.txt
 を見てください.
+Solaris でコンパイルするには, /usr/ccs/bin をサーチパスの最初へもっていって
+おきます.
 
 */
+/*&eg
+***** COMPILE ON SOLARIS
+ There are a lot of troubles on Solaris for now.
+ At least,
+ /usr/ccs/bin must be at the top of the command search path to compile
+ on Solaris.
+*/
+
 
 /*&C
 
-*/
-/*&jp
-★ Java に関する注意:
-注意 1.
-OpenMath 用の OMproxy には現在のところ, jdk が必要です.
-bash を利用している場合, .bashrc で
-PATH=/usr/local/jdk1.1.8/bin:$PATH
-export PATH
-などとして, jdk の javac をサーチパスの先のほうへもっていくようにして
-ください.
-*/
-/*&eg
-***** JAVA
-In order to use OMproxy, asir client om_*,
-you need to install JDK.
-The bin dir of the JDK must be in yur search path.
-For example, you need to add the following line
-to your .chsrc
-set path=(/usr/local/jdk1.1.8/bin $path)
 */
