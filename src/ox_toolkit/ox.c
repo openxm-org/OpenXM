@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.7 2000/01/17 19:55:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.8 2000/01/19 19:46:42 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -852,7 +852,7 @@ int ssh_ox_server(char *host, char *ctl_prog, char *dat_prog, short portControl,
 	ctl_prog = concat_openxm_home_bin(ctl_prog);
 	dat_prog = concat_openxm_home_bin(dat_prog);
 
-	ssh = which("ssh", getenv(PATH));
+	ssh = which("ssh", getenv("PATH"));
 
 	if (fork() == 0) {
 		execl(ssh, ssh, "-f", host, oxlog, "xterm", "-icon",
