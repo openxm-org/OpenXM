@@ -1,7 +1,7 @@
 /*&generate-prologue
 */
 $Id$
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.1 2005/04/01 08:08:36 takayama Exp $
 
 注意: testing/tr.rr では quote を quotetolist で list に変換して扱うため,
       下の仕様とはことなり, list 型でデータを戻す場合も多い.
@@ -63,6 +63,15 @@ end: */
    +, *, /, ^, - 等についての asir の文法での演算子の強さを仮定する.
 end: */
 
+/*&usage begin: qt_eval(Qobj,type)
+   Qobj を asir の他の object に変換.
+end: */
+
+/*&usage begin: qt_(Obj)
+   asir の Obj を quote 型に変換.  
+end: */
+
+その他 qt_expand, qt_sort, qt_ht, qt_rest, qt_mtov も基礎関数として欲しい.
 
 @c --------------------------------------------------------------------
 @section tr (term rewriting) のトップレベルの関数
@@ -106,14 +115,26 @@ end: */
 /*&usage begin: tr_apply_or_rules(Qobj,Rules)
 end: */
 
+@subsection 内部関数
+
+/*&usage begin: tr_apply_function0(Qobj,Arg1,...)
+end: */
+
+/*&usage begin: tr_rp(Qobj,P,A)
+end: */
+
+/*&usage begin: tr_make_binding(Qobj,P)
+end: */
+
 @c ---------------------------------------------------------
 @section 変数パターンと関数パターン
 
 例:
-pn(x)
+pn(x)                    任意のものにマッチ. マッチしたものを x に bind.
 pn(x,qt_is_integer(x))
-fn(f)
-fn(f,x,y)
+fn(f)                    任意の関数にマッチ. マッチした関数名を f に bind.
+fn(f,pn(x),pn(y))        任意の関数にマッチ. マッチした関数名を f に bind.
+                         f の引数を x, y に bind               
 
 @c ---------------------------------------------------------
 @section パターン
@@ -127,13 +148,84 @@ quote(tr_and(pn(x,qt_is_integer),pn(x,qt_is_non_negative)))
 @c ---------------------------------------------------------
 @section 例題  sin(整数*@pi) を 0 に.
 
+   /* 準備 */
+   extern P,A;
+   P=quote(sin(pn(x)*@pi));  /* パターン */
+   A=[sin_int,x]             /* action, action 関数 */ 
+   def sin_int(X) {
+     X = tr_apply_rule1(X,P,A); /* 子供に [P,A] を再帰的に適用 */  
+     if (qt_is_integer(X)) return qt_zero();
+     else qt_replace(sin(y*@pi),[[y,X]]);  /* sin(x*@pi) をそのまま戻す.*/ 
+   }
+
+   /* 計算 */
+   Qobj=quote(1+sin(sin(2*@pi)*@pi)*sin((1/2)*@pi));
+   tr_apply_rule1(Qobj,P,A);
+   
 
 @c ---------------------------------------------------------
 @section 例題  不定積分
 
+   /* integral(f+g) => integral(f)+integral(g) */
+   S1=[quote(integral(pn(f)+pn(g))),
+       [int_linear1,f,g]];
+   def int_linear1(X,Y) {
+      return qt_replace(quote(integral(f)+integral(g)),[[f,X],[g,Y]]);
+   }
+
+   /* integral(c*f) => c*integral(f) */
+   def qt_independent(F,X) { return !qt_dependent(F,X); }
+   S2=[quote(integral(pn(c,qt_independent(c,x))*f)),
+       [int_linear2,c,f]];
+   def int_linear2(X,Y) {
+      return qt_replace(quote(c*integral(f)),[[c,X],[f,Y]]);
+   }
+
+   apply_or_rules(quote(integral(a*x^2+x+2/x)),[S1,S2]);
+   これをこれ以上書き換えが起きないまで繰り返す.
+   このルールの場合答えは
+   a*integral(x^2)+integral(x)+integral(2/x);   
+
+   quote(integral(x^pn(n))) --> x^(n+1)/(n+1) or log(x) を書く.
+
 @c ---------------------------------------------------------
 @section 例題  簡単な構文解析
 
+   式(expression) は 式+式 | 式*式 | (式) | 整数
+
+   extern R1,R2,R3,R4,S1,S2,S3,S4;
+   /* 文法を満たすかどうかの check 用. Action 部は 1 か 0 */
+   R1=[quote(pn(x,is_expression(x))+pn(y,is_expression(y))), 1];
+   R2=[quote(pn(x,is_expression(x))*pn(y,is_expression(y))), 1];
+   R3=[quote((pn(x,is_expression(x)))), 1];
+   R4=[quote(pn(x,qt_is_integer(x))), 1];
+   def is_expression(Qobj) {
+     R = [R1,R2,R3,R4];
+     A = apply_or_match0(Qobj,R);
+     if (A == 0) return 0; else return 1;
+   }
+
+   /* 計算用. R1,R2,R3,R4 と左は共通. */
+   S1=[quote(pn(x,is_expression(x))+pn(y,is_expression(y))), [myadd,x,y]];
+   S2=[quote(pn(x,is_expression(x))*pn(y,is_expression(y))), [mymul,x,y]];
+   S3=[quote((pn(x,is_expression(x)))), [qt_id,x]];
+   S4=[quote(pn(x,qt_is_integer(x))), [qt_id,x]]; 
+
+   def eval_expression(Qobj) {
+     S = [S1,S2,S3,S4];
+     return apply_or_rules(Qobj,S);
+   }
+
+   def myadd(X,Y) {
+     return qt_(qt_eval(X,1)+qt_eval(Y,1));
+   }
+
+   def mymul(X,Y) {
+     return qt_(qt_eval(X,1)*qt_eval(Y,1));
+   }
+
+   /* 計算 */
+   tr_eval_expression(quote(1+2*(3+15)));
 
 @c ---------------------------------------------------------
 @section 例題  非可換環の簡単な構文解析
