@@ -1,7 +1,260 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.4 2004/09/15 07:41:59 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.5 2004/09/16 06:16:44 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Two examples are given below to get a global Grobner fan and 
+%% a local Grobner fan ; cone.sample and cone.sample2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Global Grobner Fan 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% How to input data?  An example.   (cf. test13.sm1)
+%%  Modify the following or copy the /cone.sample { ... } def 
+%%  to your own file, 
+%%  edit it, and execute if by  " cone.sample ; "
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/cone.sample {
+  cone.load.cohom
+% write a comment about the problem.  "nl" means new line.  
+/cone.comment [
+  (Toric ideal for 1-simplex x 2-simplex, in k[x]) nl
+] cat def
+
+% List of variables
+% If cone.type=1, then (H) should be added.
+/cone.vlist [(x11) (x12) (x13) (x21) (x22) (x23)
+             (Dx11) (Dx12) (Dx13) (Dx21) (Dx22) (Dx23) (h)] def
+
+% List of variables in the form for define_ring.
+/cone.vv (x11,x12,x13,x21,x22,x23) def
+
+% If cone.type=0, then  x,Dx,
+% If cone.type=1, then  x,Dx,h,H    (Doubly homogenized)
+% If cone.type=2, then  x,Dx,h 
+/cone.type 2 def
+
+% Set how to parametrize the weight space.
+% In the example below, 6 means the number of variables x11,x12,x13,x21,x22,x33
+%   p q parametrizeSmallFan  (p >= q) : Enumerate Grobner cones in the Small
+%                                       Grobner fan. 
+%                                       The weights for the last p-q variables
+%                                       are 0.
+%     Example. 6 2 parametrizeSmallFan   weights for x12,x21,x22,x23 are 0.
+%
+%   p q parametrizeTotalFan  (p = q = number of variables in cone.vv)
+%                             p > q has not yet been implemented.
+%
+/cone.parametrizeWeightSpace {
+  6 6 parametrizeSmallFan
+} def
+
+% If you want to enumerate Grobner cones in local order (i.e., x^e <= 0),
+% then  cone.local = 1  else cone.local = 0.
+/cone.local 0 def	
+
+% Initial value of the weight in the weight space of which dimension is
+% cone.m
+% If it is null, then a random weight is used.
+/cone.w_start
+  null
+def   
+
+% If cone.h0=1, then the weight for h is 0.
+% It is usally set to 1.
+/cone.h0 1 def
+
+% Set input polynomials which generate the ideal.
+% Input must be homogenized. 
+%    (see also data/test14.sm1 for double homogenization.)
+/cone.input 
+  [
+    (x11 x22 - x12 x21) 
+    (x12 x23 - x13 x22)
+    (x11 x23 - x13 x21)
+  ]
+def
+
+% Set a function to compute Grobner basis.
+%  cone.gb_Dh   : For computing in Homogenized Weyl algebra h[1,1](D).
+%  cone.gb_DhH  : For computing in doubly homogenized Weyl algebra. 
+%                  ( Computation in ^O and h[0,1](^D) need this 
+%                    as the first step.  /cone.local  1 def )
+/cone.gb {
+  cone.gb_Dh
+} def
+
+
+cone.comment message
+(cone.input = ) message
+cone.input message
+%%%% Step 1.  Enumerating the Grobner Cones in a global ring.
+%%%%   The result is stored in cone.fan
+getGrobnerFan
+
+%%%% If you want to print the output, then uncomment.
+printGrobnerFan 
+
+%%%% If you want to save the data to the file sm1out.txt, then uncomment.
+% /cone.wightGblist 1 def saveGrobnerFan /ff set ff output 
+
+%%%% Step 2. Dehomogenize the Grobner Cones 
+%%%%  by the equivalence relation in a local ring (uncomment).
+% dhCones_h
+
+%%%% Generate the final data dhcone2.fan (a list of local Grobner cones.) 
+% dhcone.rtable 
+
+%%%%  Output dhcone2.fan with explanations 
+% dhcone.printGrobnerFan 
+
+} def
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% End of " How to input data?  An example. "
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Local Grobner Fan 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% How to input data?  The example 2 (cf. test14.sm1). 
+%%  Modify the following or copy the /cone.sample2 { ... } def 
+%%  to your own file, 
+%%  edit it, and execute if by  " cone.sample2 ; "
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/cone.sample2 {
+  cone.load.cohom
+% write a comment about the problem.  "nl" means new line.  
+/cone.comment [
+  (BS for y and y-(x-1)^2, t1, t2 space, in doubly homogenized Weyl algebra.) nl
+  (The Grobner cones are dehomogenized to get local Grobner fan.) nl
+] cat def
+
+% List of variables
+% If cone.type=1, then (H) should be added.
+/cone.vlist [(t1) (t2) (x) (y) (Dt1) (Dt2) (Dx) (Dy) (h) (H)] def
+
+% List of variables in the form for define_ring.
+/cone.vv (t1,t2,x,y) def
+
+% If cone.type=0, then  x,Dx,
+% If cone.type=1, then  x,Dx,h,H    (Doubly homogenized)
+% If cone.type=2, then  x,Dx,h 
+/cone.type 1 def
+
+% Set how to parametrize the weight space.
+% In the example below, 6 means the number of variables x11,x12,x13,x21,x22,x33
+%   p q parametrizeSmallFan  (p >= q) : Enumerate Grobner cones in the Small
+%                                       Grobner fan. 
+%                                       The weights for the last p-q variables
+%                                       are 0.
+%     Example. 6 2 parametrizeSmallFan   weights for x12,x21,x22,x23 are 0.
+%
+%   p q parametrizeTotalFan  (p = q = number of variables in cone.vv)
+%                             p > q has not yet been implemented.
+%
+/cone.parametrizeWeightSpace {
+  4 2 parametrizeSmallFan
+} def
+
+% If you want to enumerate Grobner cones in local order (i.e., x^e <= 0),
+% then  cone.local = 1  else cone.local = 0.
+/cone.local 1 def	
+
+% Initial value of the weight in the weight space of which dimension is
+% cone.m
+% If it is null, then a random weight is used.
+/cone.w_start
+  null
+def   
+
+% If cone.h0=1, then the weight for h is 0.
+% It is usally set to 1.
+/cone.h0 1 def
+
+% Set input polynomials which generate the ideal.
+% Input must be homogenized. 
+%    (see also data/test14.sm1 for double homogenization.)
+/cone.input 
+  [
+    (t1-y) (t2 - (y-(x-1)^2))  
+    ((-2 x + 2)*Dt2+Dx)
+    (Dt1+Dt2+Dy)
+  ]
+def
+% homogenize
+  [cone.vv ring_of_differential_operators
+   [[(t1) -1 (t2) -1 (Dt1) 1 (Dt2) 1]] ecart.weight_vector 
+  0] define_ring
+  dh.begin
+  cone.input { . homogenize toString } map /cone.input set
+  dh.end
+
+% Set a function to compute Grobner basis.
+%  cone.gb_Dh   : For computing in Homogenized Weyl algebra h[1,1](D).
+%  cone.gb_DhH  : For computing in doubly homogenized Weyl algebra. 
+%                  ( Computation in ^O and h[0,1](^D) need this 
+%                    as the first step.  /cone.local  1 def )
+/cone.gb {
+  cone.gb_DhH
+} def
+
+cone.comment message
+(cone.input = ) message
+cone.input message
+%%%% Step 1.  Enumerating the Grobner Cones in a global ring.
+%%%%   The result is stored in cone.fan
+getGrobnerFan
+
+%%%% If you want to print the output, then uncomment.
+printGrobnerFan 
+
+%%%% If you want to save the data to the file sm1out.txt, then uncomment.
+% /cone.wightGblist 1 def saveGrobnerFan /ff set ff output 
+
+%%%% Step 2. Dehomogenize the Grobner Cones 
+%%%%  by the equivalence relation in a local ring (uncomment).
+dhCones_h
+
+%%%% Generate the final data dhcone2.fan (a list of local Grobner cones.) 
+dhcone.rtable 
+
+%%%%  Output dhcone2.fan with explanations 
+dhcone.printGrobnerFan 
+
+} def
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% End of " How to input data?  The example 2. "
+%% Do not touch below.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[(parse) (cgi.sm1) pushfile] extension
+
+% If you use local polymake, then comment out.
+% If you use the cgi/polymake on the net, then uncomment out.
+%/doPolymake {doPolymake.OoHG} def
+
+% My setting.
+[(getenv) (HOST)] extension /cone.hostname set
+cone.hostname tag 0 eq { /cone.hostname (?) def }  { } ifelse
+cone.hostname (orange2.math.sci.kobe-u.ac.jp) eq
+cone.hostname (orange2-clone.math.sci.kobe-u.ac.jp) eq 
+or
+{ 
+   (Using doPolymake.OoHG ) message 
+   /doPolymake {doPolymake.OoHG} def
+} {  } ifelse
 
 /cone.debug 1 def
 
@@ -10,12 +263,43 @@
  [(parse) (ox.sm1) pushfile] extension
 } ifelse
 
+/cone.load.cohom {
+ /cone.loaded boundp { }
+ {
+  [(parse) (cohom.sm1) pushfile] extension
+  [(parse) (cone.sm1) pushfile] extension
+  [(parse) (dhecart.sm1) pushfile] extension
+  /cone.loaded 1 def
+  oxNoX polymake.start  (  ) message
+ } ifelse
+} def
+
+%% Usages:  cone.gb_DhH.  h H (double homogenized) 用の GB.
+%%   dhecart.sm1 を load してあること. 入力は同次でないといけない.
+%% [cone.vv ring_of_differential_operators
+%%  [[(t1) -1 (t2) -1 (Dt1) 1 (Dt2) 1]] ecart.weight_vector 
+%%  0] define_ring
+%%   dh.begin  homogenize dh.end などの方法で同次化できる.
+/cone.gb_DhH {
+  /arg2 set /arg1 set
+  [/ff /ww] pushVariables
+  [
+     /ff arg1 def
+     /ww arg2 def
+     /dh.gb.verbose 1 def
+     /dh.autoHomogenize 0 def
+     [(AutoReduce) 1] system_variable
+     [ff { toString } map cone.vv 
+      [ww cone.vv generateD1_1]] dh.gb 0 get /arg1 set
+  ] pop
+  arg1 
+} def
+
 %
 % cone.fan, cone.gblist に fan のデータがはいる.
 %
-
-%%%%<<<<  初期データの設定例  data/test13 より.  <<<<<<<<<<<<<<
-/cone.sample.test13 {
+%%%%<<<<  初期データの設定例. 日本語版  data/test13 より.  <<<<<<<<<<<<<<
+/cone.sample.test13.ja {
  /cone.loaded boundp { }
  {
   [(parse) (cohom.sm1) pushfile] extension
