@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.3 2000/03/23 11:54:07 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.4 2005/03/24 09:05:05 takayama Exp $
 
 How to commit your asir program to asir-contrib? [2005, 3/24]
 
@@ -8,11 +8,15 @@ How to commit your asir program to asir-contrib? [2005, 3/24]
        Example:  noro_matrix.rr
 
        Your asir source should be at asir-contrib/packages/src.
-       You may make a new directory under asir-contrib/packages/src
-       to put your programs and data,
-       but the top level file must be under asir-contrib/packages/src.
+       Or, you may make a new directory under asir-contrib/packages/src
+       to put your programs and data.
+       Example: todo_parametrize
 
-   2.  Please encapsulate your source code
+       Your may use both your own directory and the top level source code.
+       Example:  naka_mora
+                 naka_mora.rr
+
+   2.  Please encapsulate your source code with module.
        If you want to use the module name which represents a mathematical notion
        or a data structure,
        the module name should be 
@@ -21,6 +25,7 @@ How to commit your asir program to asir-contrib? [2005, 3/24]
        notion or data structure name related to your module.
        Example: nmatrix  where "p" is "n" and "xxxx" is "matrix".
        Example: fres  where "p" is "f" and "xxxx" is "res" (or "resultant").
+       Example: nmora  where "p" is "n" and "xxxx" is "mora".
 
     
    3.  Manuals should be written by the texinfo in English and/or Japanese.
