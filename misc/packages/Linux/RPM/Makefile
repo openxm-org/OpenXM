@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.14 2000/08/29 06:48:48 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.15 2000/09/02 01:37:21 takayama Exp $
 
 #Edit this.  VERSION number must be compatible between Generic/openxm/Makefile
 # and *.spec.in
@@ -15,7 +15,7 @@ VERSION=1.1.3
 #      Generate ~/.rpmmacros and set the %_topdir for the work.
 #      Here is my .rpmmacros
 #
-#      %_topdir  home/taka/OpenXM/misc/packages/Linux/RPM/work
+#      %_topdir  /home/taka/OpenXM/misc/packages/Linux/RPM/work
 #
 #  [ To extract a source from *src.rpm to SOURCES dir, 
 #    type in "make make-directory" and "rpm -i your.src.rpm" ]
@@ -68,7 +68,7 @@ build-binary-rpm: openxm-binary-spec
 build-shared-rpm: openxm-shared-spec
 	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -bb openxm-shared.spec )
 
-build-source-rpm: 
+build-source-rpm:  openxm-binary-spec openxm-shared-spec
 	(cd work/SPECS ; rpm -ba openxm-binary.spec )
 	(cd work/SPECS ; rpm --buildarch noarch --buildos Linux -ba openxm-shared.spec )
 
