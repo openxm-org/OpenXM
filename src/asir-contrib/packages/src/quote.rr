@@ -1,11 +1,13 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.11 2001/09/01 07:12:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.12 2001/09/05 02:10:55 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
 
 def quote_to_quote(S) {
   if (type(S) == QUOTE) return S;
-  else {
+  else if (type(S) == LIST || type(S) == VECTOR || type(X) == MATRIX) {
+    S = map(quote_to_quote,S);
+  }else {
     return eval_str("quote("+rtostr(S)+")");
   }
 }

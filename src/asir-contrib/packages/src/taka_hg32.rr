@@ -1,63 +1,80 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_hg32.rr,v 1.2 2001/09/02 09:17:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_hg32.rr,v 1.3 2001/09/04 11:29:04 takayama Exp $ */
 /*  experimental module for hypergeometric function identities. 
     cf.  nach/3f2hom.rr
 */
 
 def taka_hg21(A1,A2,B2,Z) {
-  F = quote(hypergeometric_2F1(A1,A2,B2,Z));
-  F2 = eval_variables_in_quote(F);
+  F = quote(hypergeometric_2F1(a1,a2,b2,z));
+  F2 = base_replace(F,[[a1,A1],[a2,A2],[b2,B2],[z,Z]]);
   return F2;
 }
 
 /* z^(-B2+1) * cycle * ds/ds */
 def taka_hg21_cycle(A1,A2,B2,Z,S) {
   U=S^(A2)*(Z-S)^(B2-1-A2)*(1-S)^(-A1);
-  S1 = quote(topology_open_segment(Z,1));
-  S1 = eval_variables_in_quote(S1);
-  C1 = quote(algebra_tensor(S1,U));
-  C1 = eval_variables_in_quote(C1);
+  Rule = [[a1,A1],[a2,A2],[b2,B2],[z,Z],[s,S],[u,U]];
+  C1 = quote(algebra_tensor(topology_open_segment(z,1),u));
+  C1 = base_replace(C1,Rule);
 
-  S2 = quote(topology_open_segment(0,Z));
-  S2 = eval_variables_in_quote(S2);
-  C2 = quote(algebra_tensor(S2,U));
-  C2 = eval_variables_in_quote(C2);
+  C2 = quote(algebra_tensor(topology_open_segment(0,z),u));
+  C2 = base_replace(C2,Rule);
 
   return([C1,C2]);
 }
 
 def taka_hg21_reg_cycle(A1,A2,B2,Z,S) {
   U=S^(A2)*(Z-S)^(B2-1-A2)*(1-S)^(-A1);
-  U = quote_new(U);
-  S1 = quote(topology_open_segment(Z+epsilon,1-epsilon));
-  S1 = eval_variables_in_quote(S1);
-  C1 = quote(algebra_tensor(S1,U));
-  C1 = eval_variables_in_quote(C1);
+  C = [[u,U]];
+  Rule = [[a1,A1],[a2,A2],[b2,B2],[z,Z],[s,S]];
+  C1 = quote(algebra_tensor(topology_open_segment(z+varepsilon,1-varepsilon),u));
+  C1 = base_replace(C1,Rule);
 
-  S1a = quote(topology_circle(Z,epsilon));
-  S1a = eval_variables_in_quote(S1a);
-  C1a = quote(1/(exp(2*c_pi*c_i*(B2-1-A2))-1));
-  C1a = eval_variables_in_quote(C1a);
+  S1a = quote(topology_circle(z,varepsilon));
+  C1a = quote(1/(c5-1));
+  C   = append(C,[[c5,quote(exp(2*c_pi*c_i*(b2-1-a2)))]]);
+  Sa = quote(algebra_tensor(s1a,c1a*u));
+  Sa = base_replace(Sa,append(Rule,[[s1a,S1a],[c1a,C1a]]));
 
-  Sa = quote(algebra_tensor(S1a,C1a*U));
-  Sa = eval_variables_in_quote(Sa);
+  S1b = quote(topology_circle(1,varepsilon));
+  C1b = quote(1/(c2-1));
+  C   = append(C,[[c2,quote(exp(2*c_pi*c_i*(-a1)))]]);
+  Sb = quote(algebra_tensor(s1b,c1b*u));
+  Sb = base_replace(Sb,append(Rule,[[s1b,S1b],[c1b,C1b]]));
 
-  S1b = quote(topology_circle(1,epsilon));
-  S1b = eval_variables_in_quote(S1b);
-  C1b = quote(1/(exp(2*c_pi*c_i*(-A1))-1));
-  C1b = eval_variables_in_quote(C1b);
-  Sb = quote(algebra_tensor(S1b,C1b*U));
-
-  C1 = Sa+Sb+C1;
+  C1 = Sa+C1+Sb;
 
   /* C2 has not yet been set. */
-  return([C1,C2]);
+  C2 = quote(algebra_tensor(topology_open_segment(0+varepsilon,z-varepsilon),u));
+  C2 = base_replace(C2,Rule);
+
+  S1a = quote(topology_circle(0,varepsilon));
+  C1a = quote(1/(c4-1));
+  C   = append(C,[[c4,quote(exp(2*c_pi*c_i*a2))]]);
+  Sa = quote(algebra_tensor(s1a,c1a*u));
+  Sa = base_replace(Sa,append(Rule,[[s1a,S1a],[c1a,C1a]]));
+
+  S1b = quote(topology_circle(z,varepsilon));
+  C1b = quote(1/(c5-1));
+  Sb = quote(algebra_tensor(s1b,c1b*u));
+  Sb = base_replace(Sb,append(Rule,[[s1b,S1b],[c1b,C1b]]));
+
+  C2 = Sa+C2+Sb;
+
+
+  C = base_replace(C,Rule);
+  print(C);
+  Cond = quote(base_where(c));
+  Cond = base_replace(Cond,[[c,C]]); 
+  return([[C1,C2],Cond]);
 }
 
 def taka_hg21_exp(A1,A2,B2) {
-  C = [ c2-exp(2*c_pi*c_i*(-A1)),
-        c4-exp(2*c_pi*c_i*A2),
-        c5-exp(2*c_pi*c_i*(B2-1-A2))];
-  return C;  
+  C = [ [c2,exp(2*c_pi*c_i*(-A1))],
+        [c4,exp(2*c_pi*c_i*A2)],
+        [c5,exp(2*c_pi*c_i*(B2-1-A2))]];
+  Cond = quote(base_where(c));
+  Cond = base_replace(Cond,[[c,C]]); 
+  return Cond;  
 }
 
 def taka_hg21_monodromy(A1,A2,B2) {
@@ -68,7 +85,7 @@ def taka_hg21_monodromy(A1,A2,B2) {
         [[c2*c5,1-c2],
          [0,1]]);
   C = taka_hg21_exp(A1,A2,B2);
-  return( [M0,M1,C] );
+  return( [[M0,M1],C] );
 }
 
 
