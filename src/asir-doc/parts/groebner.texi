@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.2 1999/12/21 02:47:31 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1239,6 +1239,7 @@ Refer to the sections for each functions.
 * katsura hkatsura cyclic hcyclic::
 * dp_vtoe dp_etov::
 * lex_hensel_gsl tolex_gsl tolex_gsl_d::
+* primadec primedec::
 @end menu
 
 \JP @node gr hgr gr_mod,,, グレブナ基底に関する函数
@@ -3547,3 +3548,97 @@ u0^2-u0+2*u4^2+2*u3^2+2*u2^2+2*u1^2+2*u5^2]
 @fref{dp_dtop}.
 @end table
 
+\JP @node primadec primedec,,, グレブナ基底に関する函数
+\EG @node primadec primedec,,, Functions for Groebner basis computation
+@subsection @code{primadec}, @code{primedec}
+@findex primadec
+@findex primedec
+
+@table @t
+@item primadec(@var{plist},@var{vlist})
+@item primedec(@var{plist},@var{vlist})
+\JP :: イデアルの分解
+\EG :: Computes decompositions of ideals.
+@end table
+
+@table @var
+@item return
+@itemx plist
+\JP 多項式リスト
+\EG list of polynomials
+@item vlist
+\JP 変数リスト
+\EG list of variables
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@code{primadec()}, @code{primedec} は @samp{primdec} で定義されている.
+@item
+@code{primadec()}, @code{primedec()} はそれぞれ有理数体上でのイデアルの
+準素分解, 根基の素イデアル分解を行う.
+@item
+引数は多項式リストおよび変数リストである. 多項式は有理数係数のみが許される. 
+@item
+@code{primadec} は @code{[準素成分, 付属素イデアル]} のリストを返す. 
+@item
+@code{primadec} は 素因子のリストを返す. 
+@item
+結果において, 多項式リストとして表示されている各イデアルは全て
+グレブナ基底である. 対応する項順序は, それぞれ 
+変数 @code{PRIMAORD}, @code{PRIMEORD} に格納されている. 
+@item
+@code{primadec} は @code{[Shimoyama,Yokoyama]} の準素分解アルゴリズム
+を実装している. 
+@item
+もし素因子のみを求めたいなら, @code{primedec} を使う方がよい. 
+これは, 入力イデアルが根基イデアルでない場合に, @code{primadec}
+の計算に余分なコストが必要となる場合があるからである. 
+\E
+\BEG
+@item
+Function @code{primadec()} and @code{primedec} are defined in @samp{primdec}.
+@item
+@code{primadec()}, @code{primedec()} are the function for primary
+ideal decomposition and prime decomposition of the radical over the
+rationals respectively.
+@item
+The arguments are a list of polynomials and a list of variables.
+These functions accept ideals with rational function coefficients only.
+@item
+@code{primadec} returns the list of pair lists consisting a primary component
+and its associated prime.
+@item
+@code{primedec} returns the list of prime components.
+@item
+Each component is a Groebner basis and the corresponding term order
+is indicated by the global variables @code{PRIMAORD}, @code{PRIMEORD}
+respectively.
+@item
+@code{primadec} implements the primary decompostion algorithm 
+in @code{[Shimoyama,Yokoyama]}.
+@item
+If one only wants to know the prime components of an ideal, then
+use @code{primedec} because @code{primadec} may need additional costs
+if an input ideal is not radical.
+\E
+@end itemize
+
+@example
+[84] load("primdec")$
+[102] primedec([p*q*x-q^2*y^2+q^2*y,-p^2*x^2+p^2*x+p*q*y,
+(q^3*y^4-2*q^3*y^3+q^3*y^2)*x-q^3*y^4+q^3*y^3,
+-q^3*y^4+2*q^3*y^3+(-q^3+p*q^2)*y^2],[p,q,x,y]);
+[[y,x],[y,p],[x,q],[q,p],[x-1,q],[y-1,p],[(y-1)*x-y,q*y^2-2*q*y-p+q]]
+[103] primadec([x,z*y,w*y^2,w^2*y-z^3,y^3],[x,y,z,w]);
+[[[x,z*y,y^2,w^2*y-z^3],[z,y,x]],[[w,x,z*y,z^3,y^3],[w,z,y,x]]]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{fctr sqfr},
+\JP @fref{項順序の設定}.
+\EG @fref{Setting term orderings}.
+@end table

@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/appendix.texi,v 1.3 1999/12/21 02:47:30 noro Exp $
 \BJP
 @node 付録,,, Top
 @appendix 付録
@@ -512,41 +512,12 @@ result and then summing them up all.
 @item primdec
 \BJP
 多項式イデアルの準素イデアル分解とその根基の素イデアル分解
-(@code{[Shimoyama,Yokoyama]} 参照).
-準素イデアル分解は @code{primadec()}, 素イデアル分解は, @code{primedec()}
-という関数で, 用意されている. 引数は, 多項式リストと変数である. 
-有理式係数の多項式イデアルや, 0次元でないイデアルも扱える. 
-@code{primadec} は, 準素成分とその素成分のペアリストのリストを返す. 
-@code{primedec} は, 素成分のリストを返す. 
-その結果はいずれもグレブナ基底になっているが, その
-変数順序は, それぞれ大域変数 @code{PRIMAORD}, @code{PRIMEORD}
- の値 0,1 あるいは 2 によって決まる. 
+(@pxref{primadec primedec}).
 \E
 \BEG
 Primary ideal decomposition of polynomial ideals and prime compotision
-of radicals
-(Refer to @code{[Shimoyama,Yokoyama]}).
-@code{primadec()}, @code{primedec()} are the function for primary
-ideal decomposition and prime decomposition of the radical respectively.
-The arguments are a list of polynomials and a list of variables.
-These functions accept ideals with rational function coefficients
-and non zero-dimenstional ideals.
-@code{primadec} returns the list of pair lists consisting a primary component
-and its associated prime.
-@code{primedec} returns the list of prime components.
-Each component is a Groebner basis and the corresponding term order
-is indicated by the global variables @code{PRIMAORD}, @code{PRIMEORD}
-respectively.
+of radicals (@pxref{primadec primedec}).
 \E
-@example
-[84] load("primdec")$
-[102] primedec([p*q*x-q^2*y^2+q^2*y,-p^2*x^2+p^2*x+p*q*y,
-(q^3*y^4-2*q^3*y^3+q^3*y^2)*x-q^3*y^4+q^3*y^3,
--q^3*y^4+2*q^3*y^3+(-q^3+p*q^2)*y^2],[p,q,x,y]);
-[[y,x],[y,p],[x,q],[q,p],[x-1,q],[y-1,p],[(y-1)*x-y,q*y^2-2*q*y-p+q]]
-[103] primadec([x,z*y,w*y^2,w^2*y-z^3,y^3],[x,y,z,w]);
-[[[x,z*y,y^2,w^2*y-z^3],[z,y,x]],[[w,x,z*y,z^3,y^3],[w,z,y,x]]]
-@end example
 @end table
 
 \BJP

@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.2 1999/12/21 02:47:31 noro Exp $
 \BJP
 @node $BJ,;67W;;(B,,, Top
 @chapter $BJ,;67W;;(B
@@ -34,7 +34,7 @@
 $B$?$a$N5,Ls$G$"$k(B. @b{OpenXM} $B$K$*$$$F$O(B
 \E
 \BEG
-In @b{Asir} distributed computations are done under @b{OpenXM}
+On @b{Asir} distributed computations are done under @b{OpenXM}
 (Open message eXchange protocol for Mathematics), which
 is a protocol for exchanging mainly mathematical objects
 between processes.
@@ -115,11 +115,11 @@ are available.
 @item @code{ox_push_cmo()}
 
 \JP $B%G!<%?$r(B server $B$N%9%?%C%/$K@Q$`(B
-\EG It requests a server to push an object to the stack of the server.
+\EG It requests a server to push an object to the stack of a server.
 
 @item @code{ox_pop_cmo()}
 \JP $B%G!<%?$r(B server $B$N%9%?%C%/$+$i<h$j=P$9(B. 
-\EG It request a server to pop an object from the stack of the server.
+\EG It request a server to pop an object from the stack of a server.
 
 @item @code{ox_cmo_rpc()}
 
@@ -191,9 +191,8 @@ Mathcap is also defined as a @b{CMO} and the elements are 32bit integers
 or strings.
 The format of mathcap is as follows.
 
-[[version number, server name],@b{SM}taglist,[@b{OX}taglist,@b{CMO}taglist, @b{CMO}taglist,...]]
-[[version number, server name],@b{SM}taglist,[[@b{OX}tag,@b{CMO}taglist],
-[@b{OX}tag,@b{CMO}taglist],...]]
+[[version number, server name],@b{SM}taglist,
+[[@b{OX}tag,@b{CMO}taglist],[@b{OX}tag,@b{CMO}taglist],...]]
 
 [@b{OX}tag,@b{CMO}taglist] indicates that available object tags for
 a category of data specified by @b{OX}tag.
@@ -588,14 +587,6 @@ UNIX $BHG$K$*$$$F$O(B, @code{ox_launch()} $B$O(B, @var{command} $B$NI8=`=PN
 
 @enumerate
 @item
-$B%[%9%H(B @code{B} $B$N(B @code{csh} $B$N%5!<%A%Q%9$K5/F0$5$l$k%W%m%0%i%`(B
-$B$N$"$k%G%#%l%/%H%j$r$$$l$k(B. $B%W%m%0%i%`$O(B @code{rsh} $B$G5/F0$5$l$k(B. $B$7$?(B
-$B$,$C$F(B, $B%[%9%H(B @code{B} $B$N%5!<%A%Q%9$K(B $B$=$N%W%m%0%i%`$,F~$C$F$$$J$$>l(B
-$B9g$K$O5/F0$G$-$J$$(B. $B$3$N>l9g@dBP%Q%9$rM?$($k$+(B, @samp{~/.cshrc} $B$N%5!<(B
-$B%A%Q%9$K$=$N%W%m%0%i%`$N$"$k%G%#%l%/%H%j$rDI2C$9$kI,MW$,$"$k(B. $B$=$N:](B, 
-$BAj<j@h%[%9%H$K$*$1$k%G%#%l%/%H%j$G$"$k$3$H$rK:$l$J$$$h$&$K$9$k$3$H(B. 
-
-@item
 $B%[%9%H(B @code{B} $B$N(B @samp{~/.rhosts} $B$K(B, $B%[%9%H(B @code{A} $B$N%[%9%H(B
 $BL>$rEPO?$9$k(B. 
 
@@ -653,7 +644,7 @@ is invoked on @var{host}. Then @samp{ox_launch} invokes @var{command}.
 If @var{host} is equal to 0, all the commands are invoked
 on the same machine as the @b{Asir} is running.
 If no arguments are specified, @var{host}, @var{dir} and @var{command}
-are regarded as 0, the value of @code{get_rootdir()} and @samp{ox_dir} in 
+are regarded as 0, the value of @code{get_rootdir()} and @samp{ox_asir} in 
 the same directory respectively.
 
 @item
@@ -691,21 +682,6 @@ Here, Let @code{A} be the host on which @b{Asir} is running, and
 @code{B} the host on which the peer process will run.
 
 @enumerate
-@item
-Set the command search path of @code{csh} on the remote host @code{B}
-so that your program, say @code{P}, can run on @code{B}.
-This is done by putting the directory of @code{P} to the command search
-path of @code{csh} on @code{B}.
-The program @code{P} is invoked by @code{rsh} or @code{remsh}.
-Thus, invocation of
-the program @code{P} shall fail unless it is found within the search
-path on the host @code{B}.
-For such a case, you can run the program @code{P} by either giving
-the absolute path or adding the directory of the program @code{P} to
-the search path description in your @samp{~/.cshrc}.
-Note that the the `directory' means the directory on the remote host
-@code{B}.
-
 @item
 Register the hostname of the host @code{A} to the @samp{~/.rhosts} of
 the host @code{B}.
