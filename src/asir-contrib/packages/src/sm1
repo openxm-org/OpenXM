@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.52 2004/05/13 07:21:59 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.53 2004/05/13 12:30:23 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dx,dy,dz,du,dv,dw,dp,dq,dr,ds,dt,da,db,dc,dd,de,df,dg,dh,di,dj,dk,dl,dm,dn,
@@ -106,6 +106,7 @@ localf ecartd_isSameIdeal_h$
 localf ecart_homogenize01Ideal$
 localf aux_parse_gb_option_list$
 localf ecartd_gb_oxRingStructure$
+localf isSameIdeal_in_Dalg$
 
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
@@ -1413,7 +1414,7 @@ def gb_oxRingStructure() {
   SM1L_FIND_PROC(P);
   P = check_server(P);
   sm1(P," gb.oxRingStructure ");
-  Option_list = pop(p);
+  Option_list = pop(P);
   return aux_parse_gb_option_list(Option_list);
 }
 
@@ -1458,7 +1459,7 @@ def ecartd_isSameIdeal_h(F) {
 }
 
 /*&usage begin: sm1.ecart_homogenize01Ideal(A)
- It (0,1)-homogenizes the ideal A[0]. Note that it is not an elementwise
+ It (0,1)-homogenizes the ideal {A}[0]. Note that it is not an elementwise
  homogenization.
  example:
  input1
@@ -1493,8 +1494,26 @@ def ecartd_gb_oxRingStructure() {
   SM1L_FIND_PROC(P);
   P = check_server(P);
   sm1(P," ecartd.gb.oxRingStructure ");
-  Option_list = pop(p);
+  Option_list = pop(P);
   return aux_parse_gb_option_list(Option_list);
+}
+
+/*&usage begin: sm1.isSameIdeal_in_Dalg(I,J,V)
+ It compares two ideals {I} and {J} in D_alg (algebraic D
+ with variables {V},  no homogenization).
+ example:
+  Input1
+    II=[(1-x)^2*dx+(1-x)]$ JJ = [(1-x)*dx+1]$ V=[x]$
+    sm1.isSameIdeal_in_Dalg(II,JJ,V);
+end: */
+def isSameIdeal_in_Dalg(I,J,V) {
+  SM1L_FIND_PROC(P);
+  P = check_server(P);
+  Ih = ecart_homogenize01Ideal([I,V]);
+  Jh = ecart_homogenize01Ideal([J,V]);
+  /* print([Ih,Jh,V]); */
+  R = ecartd_isSameIdeal_h([Ih,Jh,V]);
+  return R;
 }
 
 endmodule;
