@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.3 2001/04/12 06:48:26 takayama Exp $ */
 
 /* kclass.h  1997, 3/1
    This module handles class data base.
@@ -77,9 +77,6 @@ void fprintCMOClass(FILE *fp,struct object op);
 /* Functions in Kclass/indeterminate.c */
 void fprintInderminate(FILE *fp,struct object ob);
 int eqIndetermiante(struct object *ob1, struct object *ob2);
-struct object addTree(struct object ob1,struct object ob2);
-void fprintTree(FILE *fp,struct object ob);
-int isTreeAdd(struct object ob);
 
 void fprintRecursivePolynomial(FILE *fp,struct object ob);
 void fprintPolynomialInOneVariable(FILE *fp,struct object ob);
@@ -94,4 +91,31 @@ struct object KreplaceRecursivePolynomial(struct object of,struct object rule);
 
 
 
+/* In Kclass/tree.c */
+struct object addTree(struct object ob1,struct object ob2);
+void fprintTree(FILE *fp,struct object ob);
+int isTreeAdd(struct object ob);
+/* DOM-like API's for cmo tree */
+struct object KtreeGetDocumentElement(struct object otree); /* string */
+struct object KtreeCreateElement(struct object ostr);      /* string --> tree */
+
+struct object KtreeGetChildNodes(struct object otree);      /* array  */
+struct object KtreeSetChildNodes(struct object otree,struct object oarray);
+
+struct object KtreeGetAttributes(struct object otree);      /* array  */
+struct object KtreeSetAttributes(struct object otree,struct object oarray);
+struct object KtreeGetAttributeValue(struct object otree,struct object okey);
+struct object KtreeSetAttributeValue(struct object otree,struct object okey,struct object ovalue);
+struct object KtreeRemoveAttribute(struct object otree,struct object okey);
+
+struct object KtreeAppendChild(struct object otree,struct object och);
+struct object KtreeConsChild(struct object otree,struct object och);
+struct object KtreeInsertBefore(struct object otree,struct object och,struct object before);
+struct object KtreeReplaceChild(struct object otree,struct object onew,struct object oold);
+struct object KtreeiReplaceChild(struct object otree,struct object onew,struct object index);
+struct object KtreeRemoveChild(struct object otree,struct object oold);
+struct object KtreeiRemoveChild(struct object otree,struct object index);
+
+struct object KtreeCopy(struct object otree);
+struct object KtreeCopyCopy(struct object otree);  /* recursive copy */
 
