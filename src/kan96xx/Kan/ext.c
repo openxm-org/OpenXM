@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.3 2000/02/24 12:33:47 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -176,7 +176,9 @@ struct object Kextension(struct object obj)
       }else{
 	/* success */
 	putoa(rob,0,KpoInteger(0));
-	putoa(rob,1,newObjectArray(0)); /* We have not yet read buf */
+    obj3 = newObjectArray(1);
+	putoa(obj3,0,KpoInteger((int) buf.st_size));
+	putoa(rob,1,obj3); /* We have not yet read buf fully */
       }
     }else if (strcmp(key,"forkExec")==0) {
       if (size != 4) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension.");
