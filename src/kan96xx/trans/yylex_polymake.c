@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.2 2004/04/08 01:49:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yylex_polymake.c,v 1.3 2004/07/15 07:50:40 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -82,13 +82,17 @@ int PMlex_aux() {
   }
   if (((S[Pt] >= 'A') && (S[Pt] <= 'Z')) ||
       ((S[Pt] >= 'a') && (S[Pt] <= 'z')) ||
-      (S[Pt] == '_')) {
-	putstr(-1); putstr(S[Pt++]);
-	while (((S[Pt] >= 'A') && (S[Pt] <= 'Z')) ||
-      ((S[Pt] >= 'a') && (S[Pt] <= 'z')) ||
-      (S[Pt] == '_')) putstr(S[Pt++]);
-	PMlval = pmNewStrObject(putstr(0));
-	return PM_keyword;
+      (S[Pt] == '_') || S[Pt] == '!') {
+    if (S[Pt] != '!') {putstr(-1); putstr(S[Pt++]);}
+    else {
+	  putstr(-1); Pt++;
+	  putstr('N'); putstr('O'); putstr('T'); putstr('_'); putstr('_');
+	}
+    while (((S[Pt] >= 'A') && (S[Pt] <= 'Z')) ||
+           ((S[Pt] >= 'a') && (S[Pt] <= 'z')) ||
+           (S[Pt] == '_')) putstr(S[Pt++]);
+    PMlval = pmNewStrObject(putstr(0));
+    return PM_keyword;
   }
   Pt++;  return PM_unknown;
 }
