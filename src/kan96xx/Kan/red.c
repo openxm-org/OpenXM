@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.5 2003/07/30 09:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.6 2003/08/21 02:30:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -209,13 +209,15 @@ POLY reduction1_gen(f,g,needSyz,c,h)
   struct ring *rp;
   struct spValue sv;
   POLY f2;
-
+  extern DoCancel;
+  static int crcount=0;
   
   if (needSyz) {
     if (f ISZERO) { rp = CurrentRingp; } else {rp = f->m->ringp; }
     *c = cxx(1,0,0,rp);
     *h = ZERO;
   }
+  if ((DoCancel&4) && (f != POLYNULL)) shouldReduceContent(f,1);
 
   sv = (*sp)(f,g);
   f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
@@ -230,6 +232,8 @@ POLY reduction1_gen(f,g,needSyz,c,h)
     *h = ppAdd(ppMult(sv.a,*h),sv.b);
   }
 
+  
+
   while ((*isReducible)(f,g)) {
     sv = (*sp)(f,g);
     f2 = ppAddv(cpMult((sv.a)->coeffp,f),ppMult(sv.b,g));
@@ -243,6 +247,20 @@ POLY reduction1_gen(f,g,needSyz,c,h)
       *c = ppMult(sv.a,*c);
       *h = ppAdd(ppMult(sv.a,*h),sv.b);
     }
+
+	if ((DoCancel&4) && (f != POLYNULL)) {
+	  if (shouldReduceContent(f,0)) {
+		struct coeff *cont;
+		f = reduceContentOfPoly(f,&cont);
+		shouldReduceContent(f,1);
+		if (DebugContentReduction) {
+		  printf("CoNT=%s ",coeffToString(cont));
+		  if (crcount % 10 == 0) fflush(NULL);
+		  crcount++;
+		}
+	  }
+	}
+
   }
   return(f);
 }

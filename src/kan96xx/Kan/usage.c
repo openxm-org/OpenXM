@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.15 2003/08/20 01:39:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.16 2003/08/21 02:30:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -472,6 +472,7 @@ void Kusage2(fp,s)
     fppp(fp,"DebugReductionEcart (bit):  (2) *% (1) find_reducer,in(r) \n");
     fppp(fp,"              (any) cont   (4) #+[rat division, + ecartd] \n");
     fppp(fp,"DoCancel (bit):  (2) always_reduce_content  (1) Noro_strategy \n");
+    fppp(fp,"                 (4) DoCancel_in_reduction1 \n");
   }else if (strcmp(s,"tlimit")==0) {
     fppp(fp,"<< { ... } t tlimit results >>\n");
     fppp(fp,"Limit the execution time to t seconds.\n");
