@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.10 2002/07/28 02:48:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.11 2002/08/03 03:35:40 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -299,6 +299,13 @@ struct object Kextension(struct object obj)
       errorKan1("%s\n","The number must be 0, 1 or 2.");
     putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
                        m,CurrentContextp->userDictionary);
+  }else if (strcmp(key,"regionMatches")==0) {
+    if (size != 3) errorKan1("%s\n","[(regionMatches) str strArray] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sdollar) errorKan1("%s\n","[(regionMatches) str strArray] extension. str must be a string.");
+	obj2 = getoa(obj,2);
+    if (obj2.tag != Sarray) errorKan1("%s\n","[(regionMatches) str strArray] extension. strArray must be an array.");
+    rob = KregionMatches(obj1,obj2);
   }else if (strcmp(key,"ostype")==0) {
     rob = newObjectArray(1);
     /* Hard encode the OS type. */
@@ -315,5 +322,40 @@ struct object Kextension(struct object obj)
 
 
   return(rob);
+}
+
+struct object KregionMatches(struct object sobj, struct object keyArray)
+{
+  struct object rob;
+  int n,i,j,m,keyn;
+  char *s,*key;
+  rob = newObjectArray(3);
+  getoa(rob,0) = KpoInteger(-1);
+  getoa(rob,1) = NullObject;
+  getoa(rob,2) = NullObject;
+
+  if (sobj.tag != Sdollar) return rob;
+  if (keyArray.tag != Sarray) return rob;
+  n = getoaSize(keyArray);
+  for (i=0; i<n; i++) {
+	if (getoa(keyArray,i).tag != Sdollar) { return rob; }
+  }
+
+  s = KopString(sobj);
+  m = strlen(s);
+
+  for (i=0; i<n; i++) {
+	key = KopString(getoa(keyArray,i));
+	keyn = strlen(key);
+	for (j=0; j<m; j++) {
+	  if (strncmp(&(s[j]),key,keyn) == 0) {
+		getoa(rob,0) = KpoInteger(j);
+		getoa(rob,1) = KpoString(key);
+		getoa(rob,2) = KpoInteger(i);
+		return rob;
+	  }
+	}
+  }
+  return rob;
 }
 

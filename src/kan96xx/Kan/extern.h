@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.4 2000/07/17 02:58:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.5 2002/02/24 10:27:18 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -263,3 +263,6 @@ char *KobjectToBinary(struct object ob,int *size);
 
 int mmLarger_tower3(POLY ff,POLY gg,struct object *gbList); /* order.c */
 struct object KschreyerSkelton(struct object g);  
+
+/* misc */
+struct object KregionMatches(struct object sobj, struct object keyArray);
