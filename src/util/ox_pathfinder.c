@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.12 2003/12/03 08:58:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.13 2003/12/03 13:38:39 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -13,6 +13,10 @@
 #include <time.h>
 #include <string.h>
 #include "ox_pathfinder.h"
+
+int OX_P_stdin = -1;
+int OX_P_stdout = -1;
+int OX_P_stderr = -1;
 
 extern char **environ;
 
@@ -115,7 +119,7 @@ static void myforkwait() {
   pid = wait(&status);
   fprintf(stderr,"Child process %d is exiting.\n",pid);
   if (pid < 0) {
-	perror("wait");
+    perror("wait");
   }
   for (i=0; i<Myforkcp; i++) {
     if (Myforkchildren[i]  == pid) {
@@ -158,9 +162,13 @@ int oxForkExec(char **argv) {
     if (NoX) {
       FILE *null;
       null = fopen("/dev/null","wb");
-      dup2(fileno(null),1);
-      dup2(fileno(null),2);
+      if (OX_P_stdout >= 0) dup2(OX_P_stdout,1); else dup2(fileno(null),1);
+      if (OX_P_stderr >= 0) dup2(OX_P_stderr,2); else dup2(fileno(null),2);
+    }else{
+      if (OX_P_stdout >= 0) dup2(OX_P_stdout,1);
+      if (OX_P_stderr >= 0) dup2(OX_P_stderr,2);
     }
+    if (OX_P_stdin >= 0) dup2(OX_P_stdin,0);
     execve(argv[0],argv,environ);
     /* This place will never be reached unless execv fails. */
     fprintf(stderr,"oxForkExec fails: ");
@@ -173,22 +181,18 @@ int oxForkExecBlocked(char **argv) {
   char **eee;
   int m;
   int status;
-  m = 0;
   if (argv == NULL) {
     fprintf(stderr,"Cannot fork and exec.\n"); return -1;
   }
   if ((pid = fork()) > 0) {
-    if (m&2) {
-      /* Do not call singal to turn around a trouble on cygwin. BUG. */
-    }else{
-      signal(SIGCHLD,myforkwait); /* to kill Zombie */
-    }
     Myforkchildren[Myforkcp++] = pid;
     if (Myforkcp >= MYFORKCP_SIZE-1) {
       fprintf(stderr,"Child process table is full.\n");
       Myforkcp = 0;
     }
-    waitpid(pid,&status,0);  /* block */
+    if (waitpid(pid,&status,0) < 0) {  /* blocked */
+      perror("waitpid");
+    }
     return status;
   }else{
     /* close the specified files */
@@ -201,9 +205,13 @@ int oxForkExecBlocked(char **argv) {
     if (NoX) {
       FILE *null;
       null = fopen("/dev/null","wb");
-      dup2(fileno(null),1);
-      dup2(fileno(null),2);
+      if (OX_P_stdout >= 0) dup2(OX_P_stdout,1); else dup2(fileno(null),1);
+      if (OX_P_stderr >= 0) dup2(OX_P_stderr,2); else dup2(fileno(null),2);
+    }else{
+      if (OX_P_stdout >= 0) dup2(OX_P_stdout,1);
+      if (OX_P_stderr >= 0) dup2(OX_P_stderr,2);
     }
+    if (OX_P_stdin >= 0) dup2(OX_P_stdin,0);
     execve(argv[0],argv,environ);
     /* This place will never be reached unless execv fails. */
     fprintf(stderr,"oxForkExecBlock fails: ");
@@ -875,23 +883,23 @@ char *generateTMPfileName2(char *seed,char *ext,int usetmp,int win){
   char *extold;
   if (ext == NULL) ext="";
   else {
-	extold = ext;
-	ext = (char *) mymalloc(strlen(ext)+3);
-	if (ext == NULL) {fprintf(stderr,"No more memory.\n"); return NULL;}
-	strcpy(ext,".");
-	strcat(ext,extold);
+    extold = ext;
+    ext = (char *) mymalloc(strlen(ext)+3);
+    if (ext == NULL) {fprintf(stderr,"No more memory.\n"); return NULL;}
+    strcpy(ext,".");
+    strcat(ext,extold);
   }
   if (usetmp) {
-	tmp = getenv("TMP");
-	if (tmp == NULL) {
-	  tmp = getenv("TEMP");
-	}
-	if ((tmp == NULL) && (strcmp(getOStypes(),"Windows-native") != 0)) {
-	  tmp = "/tmp";
-	}
-	tmp = winPathToCygwinPath(tmp);
+    tmp = getenv("TMP");
+    if (tmp == NULL) {
+      tmp = getenv("TEMP");
+    }
+    if ((tmp == NULL) && (strcmp(getOStypes(),"Windows-native") != 0)) {
+      tmp = "/tmp";
+    }
+    tmp = winPathToCygwinPath(tmp);
   }else{
-	tmp = NULL;
+    tmp = NULL;
   }
   if (tmp != NULL) {
     fname = (char *)mymalloc(strlen(tmp)+strlen(seed)+40);
@@ -908,7 +916,7 @@ char *generateTMPfileName2(char *seed,char *ext,int usetmp,int win){
     }
     if (getFileSize(fname) < 0) {
       prevnum = num;
-	  if (win) fname= cygwinPathToWinPath(fname);
+      if (win) fname= cygwinPathToWinPath(fname);
       return fname;
     } else {
       if ((num > MAXTMP2-10) && (!clean)) {
@@ -974,33 +982,33 @@ char *getCommandPath(char *cmdname)
   /* Use /cygdrive format always. */
   if (cmdname == NULL) return NULL;
   if (strlen(cmdname) < 1) {
-	errorPathFinder("getCommandPath: cmdname is an empty string.\n");
-	return NULL;
+    errorPathFinder("getCommandPath: cmdname is an empty string.\n");
+    return NULL;
   }
   if (cmdname[0] == '/') {
-	if (getFileSize(cmdname) >= 0) { /* Todo: isExecutableFile() */
-	}else{
-	  msg = (char *)mymalloc(strlen(cmdname)+30);
-	  sprintf(msg,"getCommandPath: %s is not found.");
-	  errorPathFinder(msg);
-	  return NULL;
-	}
-	return cmdname;
+    if (getFileSize(cmdname) >= 0) { /* Todo: isExecutableFile() */
+    }else{
+      msg = (char *)mymalloc(strlen(cmdname)+30);
+      sprintf(msg,"getCommandPath: %s is not found.");
+      errorPathFinder(msg);
+      return NULL;
+    }
+    return cmdname;
   }
 
   path = getOpenXM_HOME();  /* It will return /cygdrive for windows. */
   if (path != NULL) {
-	path2 = (char *)mymalloc(strlen(path)+5);
-	strcpy(path2,path);
-	strcat(path2,"bin");
-	ss = oxWhich(cmdname,path2);
+    path2 = (char *)mymalloc(strlen(path)+5);
+    strcpy(path2,path);
+    strcat(path2,"bin");
+    ss = oxWhich(cmdname,path2);
     if (ss != NULL) return ss;
   }
 
   path = (char *)getenv("PATH");  /* Todo: it will not give /cygdrive format*/
   ss = oxWhich(cmdname,path);
   if (ss == NULL) {
-	errorPathFinder("oxWhich_unix: could not find it in the path string.\n");
+    errorPathFinder("oxWhich_unix: could not find it in the path string.\n");
   }
   return ss;
 }
@@ -1013,21 +1021,21 @@ char *oxWhich_unix(char *cmdname,char *path) {
   char *path2;
   int i,j;
   if (path == NULL) {
-	return NULL;
+    return NULL;
   }
 
   path2 = (char *)mymalloc(strlen(path)+strlen(cmdname)+2);
   for (i=0, j=0; i <= strlen(path); i++) {
-	path2[j] = 0;
-	if ((path[i] == ':') || (path[i] == 0)) {
-	  strcat(path2,"/"); strcat(path2,cmdname);
-	  if (getFileSize(path2) >= 0) { /* Todo: isExecutableFile() */
-		return path2;
-	  }
-	  j = 0; path2[j] = 0;
-	}else{
-	  path2[j] = path[i]; j++; path2[j] = 0;
-	}
+    path2[j] = 0;
+    if ((path[i] == ':') || (path[i] == 0)) {
+      strcat(path2,"/"); strcat(path2,cmdname);
+      if (getFileSize(path2) >= 0) { /* Todo: isExecutableFile() */
+        return path2;
+      }
+      j = 0; path2[j] = 0;
+    }else{
+      path2[j] = path[i]; j++; path2[j] = 0;
+    }
   }
   return NULL;
 }
@@ -1075,3 +1083,14 @@ char *oxEvalEnvVar(char *s) {
   }
 }
 
+void oxResetRedirect(void) {
+  OX_P_stdin = OX_P_stdout = OX_P_stderr = -1;
+}
+
+int oxDeleteFile(char *fname) {
+  if (getFileSize(fname) >= 0) {
+    return(unlink(fname));
+  }else{
+    return(-1);
+  }
+}
