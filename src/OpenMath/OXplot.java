@@ -1,24 +1,23 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.38 2000/06/14 08:01:08 tam Exp $
+ * $OpenXM$
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.util.Stack;
-import java.io.*;
+//import java.io.*;
 
-public class OMproxy extends OpenXMserver{
+public class OXplot extends OpenXMserver{
   private Stack stack = new Stack();
-  protected boolean debug = false;
-  final int version = 200006130;
+  private Vector plotframe = new Vector();
+  protected boolean debug = true;
+  final int version = 200007010;
 
-  public OMproxy(String hostname,int ControlPort,int DataPort){
+  public OXplot(String hostname,int ControlPort,int DataPort){
     super(hostname,ControlPort,DataPort);
   }
 
   public void computeProcess(OpenXMconnection stream){
-    OM2OXM P = new OM2OXM();
-
-    debug("OMproxy started.");
+    debug("OXplot started.");
     try{
       while(true){
 	try{
@@ -42,7 +41,7 @@ public class OMproxy extends OpenXMserver{
 	  stack = new Stack();
 	}
       }
-    }catch(IOException e){
+    }catch(java.io.IOException e){
       System.err.println(e.getMessage());
       e.printStackTrace();
       System.err.println("error occured, and recovering processes seems to be impossible.");
@@ -55,18 +54,20 @@ public class OMproxy extends OpenXMserver{
     }
   }
 
-  /*
-  public void stop(){
-    System.out.println("OMproxy Stoping...");
-    synchronized(ox){
-      //this.stop();
-      while(!stack.empty()){
-	stack.pop();
+  class plotframe extends java.awt.Frame{
+    int pixels[][];
+
+    plotframe(int width,int height){
+      super("plotframe");
+      setSize(width,height);
+      setResizable(false);
+
+      pixels = new int[width][];
+      for(int i=0;i<pixels.length;i++){
+	pixels[i] = new int[height];
       }
-      System.out.println("OMproxy Stopped");
     }
   }
-  */
 
   private void SM_popCMO(OpenXMconnection stream) throws java.io.IOException{
     try{
@@ -101,20 +102,14 @@ public class OMproxy extends OpenXMserver{
       argv[i] = (CMO)stack.pop();
     }
 
-    if(argc != 1){
+    if(function_name.equals("CREATE") && argc==2){
+      stack.push(CREATE(argv));
+    }else if(function_name.equals("CMO2OMXML") && argc==1){
+      //stack.push(CMO2OMXML(argv[0]));
+    }else{
       stack.push(new CMO_ERROR2(new CMO_NULL()));
-      return;
     }
 
-    if(function_name.equals("OMXML2CMO")){
-      stack.push(OMXML2CMO(argv[0]));
-      return;
-    }else if(function_name.equals("CMO2OMXML")){
-      stack.push(CMO2OMXML(argv[0]));
-      return;
-    }
-
-    stack.push(new CMO_ERROR2(new CMO_NULL()));
     return;
   }
 
@@ -148,10 +143,6 @@ public class OMproxy extends OpenXMserver{
 			 new CMO_INT32(CMO.ZZ),
 			 new CMO_INT32(CMO.QQ),
 			 new CMO_INT32(CMO.ZERO),
-			 new CMO_INT32(CMO.DMS_GENERIC),
-			 new CMO_INT32(CMO.RECURSIVE_POLYNOMIAL),
-			 new CMO_INT32(CMO.DISTRIBUTED_POLYNOMIAL),
-			 new CMO_INT32(CMO.POLYNOMIAL_IN_ONE_VARIABLE),
 			 new CMO_INT32(CMO.BIGFLOAT),
 			 new CMO_INT32(CMO.INDETERMINATE),
 			 new CMO_INT32(CMO.TREE)};
@@ -203,43 +194,18 @@ public class OMproxy extends OpenXMserver{
     }
   }
 
-  private CMO CMO2OMXML(CMO obj){
-    String str;
+  private CREATE(CMO[] argv){
+    plotframe tmp = new plotframe(argv[0],argv[1]);
+    int i;
 
-    try{
-      str = OM2OXM.CMO2OM(obj);
-    }catch(NumberFormatException e){
-      debug("CMO2OMXML occuered error in trans");
-      return new CMO_ERROR2(new CMO_STRING(e.toString()));
+    for(i=0;i<plotframe.size();i++){
+      if(plotframe.elementAt(i) == null){
+	plotframe.setElementAt(tmp,i);
+	return i;
+      }
     }
 
-    return new CMO_STRING(str);
-  }
-
-  private CMO OMXML2CMO(CMO obj){
-    OM2OXM trans = new OM2OXM();
-    //StringBufferInputStream stream;
-    ByteArrayInputStream stream;
-    CMO ret;
-
-    debug("OMXML2CMO called: "+obj);
-    if(!(obj instanceof CMO_STRING)){
-      return new CMO_ERROR2(new CMO_STRING("It's not CMO_STRING."));
-    }
-
-    try{
-      stream = new ByteArrayInputStream(((CMO_STRING)obj).getString().getBytes());
-      ret = trans.parse(stream);
-    }catch(IOException e){
-      debug("OMXML2CMO occuered error in trans");
-      return new CMO_ERROR2(new CMO_STRING(e.toString()));
-    }catch(NumberFormatException e){
-      debug("OMXML2CMO occuered error in trans");
-      return new CMO_ERROR2(new CMO_STRING(e.toString()));
-    }
-
-    debug("push: "+ret);
-    return ret;
+    plotframe.addElement(tmp);
   }
 
   private void debug(String str){
