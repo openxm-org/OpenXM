@@ -1,5 +1,7 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.41 2003/03/26 13:26:01 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.42 2003/03/27 11:16:45 takayama Exp $
 #
+OpenXM_HOME=../..
+OpenXM_include=${OpenXM_HOME}/include
 OXHOME=/home/web/OpenXM
 #OXHOME=/home/taka/afo/OpenXM    ## for test.
 CURRENT=${OXHOME}/Current
@@ -93,3 +95,11 @@ clean-everything: clean clean-top
 clean-en-html:
 	-(cd ../OpenXM-specs ; make clean-en-done)
 	-(make -f Makefile-intro clean)
+
+install-exec: ${OpenXM_include}/ox/cmotag.h ${OpenXM_include}/ox/oxMessageTag.h ${OpenXM_include}/ox/smCommand.h
+${OpenXM_include}/ox/cmotag.h: cmotag.h 
+	cp cmotag.h ${OpenXM_include}/ox
+${OpenXM_include}/ox/oxMessageTag.h: oxMessageTag.h
+	cp oxMessageTag.h ${OpenXM_include}/ox
+${OpenXM_include}/ox/smCommand.h: smCommand.h
+	cp smCommand.h ${OpenXM_include}/ox
