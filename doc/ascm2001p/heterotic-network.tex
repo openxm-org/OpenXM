@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/ascm2001p/heterotic-network.tex,v 1.1 2001/06/19 07:32:58 noro Exp $
 \section{Applications}
 
 \subsection{Heterogeneous Servers}
@@ -12,34 +12,36 @@ depend each servers,
 it is relatively easy to install new servers.
 We can build a new computer math system by assembling
 different OpenXM servers.
-It is similar to building a toy house by LEGO blocks.
+OpenXM servers currently provide 1077 functions
+\cite{openxm-1077}.
+We can use these as building blocks for a new system.
 
-We will see two examples of custom-made systems
+We present an example of a custom-made system
 built by OpenXM servers.
 
-\subsubsection{Computation of annihilating ideals by kan/sm1 and ox\_asir}
-
-Let $D = {\bf Q} \langle x_1, \ldots, x_n , \pd{1}, \ldots, \pd{n} \rangle$
-be the ring of differential operators.
-For a given polynomial
-$ f \in {\bf Q}[x_1, \ldots, x_n] $,
-the annihilating ideal of $f^{-1}$ is defined as
-$$ {\rm Ann}\, f^{-1} = \{ \ell \in D \,|\,
-  \ell \bullet f^{-1} = 0 \}.
-$$
-Here, $\bullet$ denotes the action of $D$ to functions.
-The annihilating ideal can be regarded as the maximal differential
-equations for the function $f^{-1}$.
-An algorithm to determine generators of the annihilating ideal
-was given by Oaku (see, e.g., \cite[5.3]{sst-book}).
-His algorithm reduces the problem to computations of Gr\"obner bases
-in $D$ and to find the minimal integral root of a polynomial.
-This algorithm (the function {\tt annfs}) is implemented by
-kan/sm1 \cite{kan}, for Gr\"obner basis computation in $D$, and
-{\tt ox\_asir}, to factorize polynomials to find the integral
-roots.
-These two OpenXM compliant systems are integrated by
-the OpenXM protocol.
+%\subsubsection{Computation of annihilating ideals by kan/sm1 and ox\_asir}
+%
+%Let $D = {\bf Q} \langle x_1, \ldots, x_n , \pd{1}, \ldots, \pd{n} \rangle$
+%be the ring of differential operators.
+%For a given polynomial
+%$ f \in {\bf Q}[x_1, \ldots, x_n] $,
+%the annihilating ideal of $f^{-1}$ is defined as
+%$$ {\rm Ann}\, f^{-1} = \{ \ell \in D \,|\,
+%  \ell \bullet f^{-1} = 0 \}.
+%$$
+%Here, $\bullet$ denotes the action of $D$ to functions.
+%The annihilating ideal can be regarded as the maximal differential
+%equations for the function $f^{-1}$.
+%An algorithm to determine generators of the annihilating ideal
+%was given by Oaku (see, e.g., \cite[5.3]{sst-book}).
+%His algorithm reduces the problem to computations of Gr\"obner bases
+%in $D$ and to find the minimal integral root of a polynomial.
+%This algorithm (the function {\tt annfs}) is implemented by
+%kan/sm1 \cite{kan}, for Gr\"obner basis computation in $D$, and
+%{\tt ox\_asir}, to factorize polynomials to find the integral
+%roots.
+%These two OpenXM compliant systems are integrated by
+%the OpenXM protocol.
 
 %For example, the following is a sm1 session to find the annihilating
 %ideal for $f = x^3 - y^2 z^2$.
@@ -116,11 +118,16 @@ these algorithms.
 What we need for the implementation are mainly
 (1) Gr\"obner basis computation both in the ring of polynomials
 and in the ring of differential operators,
+(2) enumeration of all the Gr\"obner bases of toric ideals,
+and 
+(3) primary ideal decomposition.
+Asir and kan/sm1 provide functions for (1),
+{\tt TiGERS} provides a function for (2),
 and
-(2) enumeration of all the Gr\"obner bases of toric ideals.
-Asir and kan/sm1 provide functions for (1) and
-{\tt TiGERS} provides a function for (2).
-These components communicate each other by OpenXM-RFC 100 protocol.
+Asir provides a function for (3).
+These software systems communicate each other by OpenXM-RFC 100 protocol
+and form a unified package for GKZ hypergeometric systems.
+See the chapter of dsolv of Asir Contrib User's manual \cite{openxm-web}
 
 %Let us see an example how to construct series solution of a GKZ hypergeometric
 %system.
