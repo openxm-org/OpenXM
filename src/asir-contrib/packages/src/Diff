@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.7 2000/02/13 01:02:04 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.8 2000/02/13 01:16:49 okutani Exp $ */
 
 /*------------------------------------*/
 /* Package for differential equations */
@@ -138,6 +138,94 @@ def diff_op_rat2zp(L_list) {
     }
   }
   return NewL_list;
+}
+
+/* asir polynomial -> sm1 string */
+/* note! sm1 understand only polynomial with integer coefficients. */
+def diff_poly_tosm1(Poly, V) {
+  if (type(Poly) > 2 || type(V) != 4) {
+    error("parameter type error.");
+  }
+  if (Poly == 0) {
+    return "0";
+  }
+  Dpoly = dp_ptod(Poly, V);
+  Str_poly = "";
+  do {
+    Hc = dp_hc(Dpoly);
+    Ht = dp_ht(Dpoly);
+    HtV = dp_etov(Ht);
+#if _DEBUG_Dmodule_
+    print("Dpoly: ", 0); print(Dpoly);
+    print("Hc: ", 0); print(Hc);
+    print("Ht: ", 0); print(Ht);
+    print("HtV: ", 0); print(HtV);
+    print("size(HtV): ", 0); print(size(HtV));
+#endif
+    /* coefficient */
+    if (type(Hc) < 2) {
+      Str_poly += " + (" + rtostr(Hc) + ")";
+    }
+    else {
+#if _DEBUG_Dmodule_
+      print("Hc is polynomial.");
+#endif
+      Str_poly += " + (" + diff_poly_tosm1(Hc, vars(Hc)) + ")";
+    }
+#if _DEBUG_Dmodule_
+    print("coefficient OK.");
+#endif
+    /* power product */
+    Str_mono = "";
+    for (J = 0; J < size(HtV)[0]; J++) {
+      if (HtV[J] != 0) {
+	Str_mono += " " + rtostr(V[J]^HtV[J]);
+      }
+    }
+    Str_poly += Str_mono;
+#if _DEBUG_Dmodule_
+    print("power product OK.");
+#endif
+    Dpoly -= dp_hm(Dpoly);
+  } while (Dpoly != 0);
+  return Str_poly;
+}
+
+/* differential operators with polynomial coefficients -> sm1 string */
+/* L_list: [ [[fa(V),[a1,...,an]],...], ... ], coefficient must be polynomial. */
+def diff_op_tosm1(L_list, V) {
+  if (type(L_list[0]) <= 2) {
+    L_list = diff_op_fromasir(L_list, V);
+  }
+  L_list = diff_op_rat2zp(L_list);
+  L_str_list = [];
+  for (I = 0; I < length(L_list); I++) {
+    L_str = "";
+    for (J = 0; J < length(L_list[I]); J++) {
+      Poly = red(L_list[I][J][0]);
+      if (Poly != 0) {
+	Str_Poly = "(" + diff_poly_tosm1(Poly, V) + ")";
+	Str_D = "";
+	Index = L_list[I][J][1];
+	for (K = 0; K < length(Index); K++) {
+	  if (Index[K] != 0) {
+	    Str_D += " d" + rtostr(V[K]^Index[K]);
+	  }
+	}
+	L_str += " + " + Str_Poly + Str_D;
+      }
+    }
+#if _DEBUG_Dmodule_
+    print("L_str: ", 0); print(L_str);
+#endif
+    if (L_str == "") {
+      L_str_list = append(L_str_list, ["0"]);
+    }
+    else {
+      L_str_list = append(L_str_list, [L_str]);
+    }
+  }
+  return L_str_list;
 }
 
 /*-------------------------------*/
@@ -296,11 +384,7 @@ def diff_act(L, F, V) {
 }
 
 def diff_acts(L_list, F, V) {
-  Lf_list = [];
-  for (I = 0; I < length(L_list); I++) {
-    Lf_list = append(Lf_list, [diff_act(L_list[I], F, V)]);
-  }
-  return Lf_list;
+  return map(diff_act, L_list, F, V);
 }
 
 /* Dim: a number of variables */

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.6 2000/01/31 10:56:52 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.7 2000/02/13 01:02:04 okutani Exp $ */
 
 /*----------------------*/
 /* package for D-module */
@@ -71,95 +71,18 @@ def dmodule_var_tosm1(V) {
   return V_str;
 }
 
-/* asir polynomial -> sm1 string */
-/* note! sm1 understand only polynomial with integer coefficients. */
-def dmodule_p_tosm1(Poly, V) {
-  if (type(Poly) > 2 || type(V) != 4) {
-    error("parameter type error.");
-  }
-  if (Poly == 0) {
-    return "0";
-  }
-  Dpoly = dp_ptod(Poly, V);
-  Str_poly = "";
-  do {
-    Hc = dp_hc(Dpoly);
-    Ht = dp_ht(Dpoly);
-    HtV = dp_etov(Ht);
-#if _DEBUG_Dmodule_
-    print("Dpoly: ", 0); print(Dpoly);
-    print("Hc: ", 0); print(Hc);
-    print("Ht: ", 0); print(Ht);
-    print("HtV: ", 0); print(HtV);
-    print("size(HtV): ", 0); print(size(HtV));
-#endif
-    /* coefficient */
-    if (type(Hc) < 2) {
-      Str_poly += " + (" + rtostr(Hc) + ")";
-    }
-    else {
-#if _DEBUG_Dmodule_
-      print("Hc is polynomial.");
-#endif
-      Str_poly += " + (" + dmodule_p_tosm1(Hc, vars(Hc)) + ")";
-    }
-#if _DEBUG_Dmodule_
-    print("coefficient OK.");
-#endif
-    /* power product */
-    Str_mono = "";
-    for (J = 0; J < size(HtV)[0]; J++) {
-      if (HtV[J] != 0) {
-	Str_mono += " " + rtostr(V[J]^HtV[J]);
-      }
-    }
-    Str_poly += Str_mono;
-#if _DEBUG_Dmodule_
-    print("power product OK.");
-#endif
-    Dpoly -= dp_hm(Dpoly);
-  } while (Dpoly != 0);
-  return Str_poly;
-}
-
 /* differential operators with polynomial coefficients -> sm1 string */
 /* L_list: [ [[fa(V),[a1,...,an]],...], ... ], coefficient must be polynomial. */
 def dmodule_d_op_tosm1(L_list, V) {
-  L_list = diff_op_rat2zp(L_list);
-  L_str_list = [];
-  for (I = 0; I < length(L_list); I++) {
-    L_str = "";
-    for (J = 0; J < length(L_list[I]); J++) {
-      Poly = red(L_list[I][J][0]);
-      if (Poly != 0) {
-	Str_Poly = "(" + dmodule_p_tosm1(Poly, V) + ")";
-	Str_D = "";
-	Index = L_list[I][J][1];
-	for (K = 0; K < length(Index); K++) {
-	  if (Index[K] != 0) {
-	    Str_D += " d" + rtostr(V[K]^Index[K]);
-	  }
-	}
-	L_str += " + " + Str_Poly + Str_D;
-      }
-    }
-#if _DEBUG_Dmodule_
-    print("L_str: ", 0); print(L_str);
-#endif
-    if (L_str == "") {
-      L_str_list = append(L_str_list, ["0"]);
-    }
-    else {
-      L_str_list = append(L_str_list, [L_str]);
-    }
-  }
-  return L_str_list;
+  return diff_op_tosm1(L_list, V);
 }
 
+/* list form -> asir form */
 def dmodule_d_op_toasir(L_list, V) {
   return diff_op_toasir(L_list, V);
 }
 
+/* asir form -> list form */
 def dmodule_d_op_fromasir(D_list, V) {
   return diff_op_fromasir(D_list, V);
 }
@@ -219,6 +142,7 @@ def dmodule_calc_w(E, W) {
   return M;
 }
 
+/* this function returns initial form of Poly with respect to weight W */
 def dmodule_initial_form(Poly, W, V) {
   if (Poly == 0) {
     return 0;
@@ -257,13 +181,16 @@ def dmodule_ptogp(Poly, W, V) {
   return GPoly;
 }
 
-/* D_ideal: ["...", "...",...], string is sm1 format. */
+/* D_ideal: sm1 form, asir form, list form */
 /* V: [x1,x2,...] */
 def dmodule_ch_ideal(D_ideal, V) {
   return dmodule_ch_ideal_generic(D_ideal, [], V);
 }
 
 def dmodule_ch_ideal_generic(D_ideal, Param, V) {
+  if (type(D_ideal[0]) != 7) {
+    D_ideal = dmodule_d_op_tosm1(D_ideal, V);
+  }
   Gb = sm1_gb([ D_ideal, dmodule_var_tosm1(append(V,Param)),
                 [dmodule_order_filt(append(V,Param))] ]);
 #if _DEBUG_Dmodule_
@@ -317,11 +244,54 @@ def dmodule_ch_ideal_gkz(A, B, V) {
   return dmodule_ch_ideal(D_ideal_str, V);
 }
 
+/* elimination in polynomial ring */
+def dmodule_poly_elimination(Ideal, V, Elim) {
+  for (Var = [], I = 0; I < length(V); I++) {
+    if (!dmodule_lookup(V[I], Elim)) {
+      Var = append(Var, [V[I]]);
+    }
+  }
+  GG = gr(Ideal, append(Elim, Var), 2);
+  for (E_Ideal = [], I = 0; I < length(GG); I++) {
+    Vars = vars(GG[I]);
+    Flag = 1;
+    for (J = 0; J < length(Elim); J++) {
+      if (dmodule_lookup(Elim[J], Vars)) {
+	Flag = 0;
+	break;
+      }
+    }
+    if (Flag == 1) {
+      E_Ideal = append(E_Ideal, [GG[I]]);
+    }
+  }
+  return E_Ideal;
+}
+
+/* this function returns singular locus of D-ideal. */
+def dmodule_singular_locus(L_list, Param, V) {
+  D_ideal_str = dmodule_d_op_tosm1(L_list, V);
+  Ch_ideal = dmodule_ch_ideal_generic(D_ideal_str, Param, V);
+  Dv = dmodule_make_dv(V);
+  UC_y = uc();
+  for (F = 0, I = 0; I < length(Dv); I++) {
+    F += UC_y^I*Dv[I];
+  }
+  UC_z = uc(); UC_w = uc();
+  Elim = append([UC_w,UC_y,UC_z], Dv);
+  Sing = dmodule_poly_elimination(append(Ch_ideal,[UC_z-F,1-UC_w*UC_z]),
+                                  append(V, Elim), Elim);
+  return Sing;
+}
+
 /* restriction to {t1=0,t2=0,...} */
-/* D_ideal: ["...", "...",...], string is sm1 format. */
+/* D_ideal: sm1 form, asir form, list form */
 /* Rest: [t1,t2,...] */
 /* V: [x1,x2,...] */
 def dmodule_restriction(D_ideal, V, Rest) {
+  if (type(D_ideal[0]) != 7) {
+    D_ideal = dmodule_d_op_tosm1(D_ideal, V);
+  }
   D_ideal_str = "";
   for (I = 0; I < length(D_ideal); I++) {
     D_ideal_str += " (" + D_ideal[I] + ") ";
@@ -343,6 +313,9 @@ def dmodule_restriction(D_ideal, V, Rest) {
 }
 
 def dmodule_restriction_generic(D_ideal, Param, V, Rest) {
+  if (type(D_ideal[0]) != 7) {
+    D_ideal = dmodule_d_op_tosm1(D_ideal, V);
+  }
   D_ideal_str = "";
   for (I = 0; I < length(D_ideal); I++) {
     D_ideal_str += " (" + D_ideal[I] + ") ";
@@ -495,6 +468,9 @@ def dmodule_elimination(D_ideal, V, Elim) {
 
 /* In the case of D_ideal with generic parameter. */
 def dmodule_elimination_generic(D_ideal, Param, V, Elim) {
+  if (type(D_ideal[0]) != 7) {
+    D_ideal = dmodule_d_op_tosm1(D_ideal, V);
+  }
 #if _DEBUG_Dmodule_
   print("D-idal: ", 0); print(D_ideal);
 #endif
