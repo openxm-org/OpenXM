@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.3 1999/11/07 21:22:04 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.4 1999/11/09 09:43:49 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -17,7 +17,10 @@ class OpenXMconnection{
   final public static int OX_COMMAND                  = 513;
   final public static int OX_DATA                     = 514;
   final public static int OX_SYNC_BALL                = 515;
-  final public static int OX_SECURED_DATA             = 521;
+  final public static int OX_DATA_WITH_LENGTH         = 521;
+  final public static int OX_DATA_OPENMATH_XML        = 523;
+  final public static int OX_DATA_OPENMATH_BINARY     = 524;
+  final public static int OX_DATA_MP                  = 525;
   final public static int OX_PRIVATE                  = 0x7fff0000;
 
   // byte order (support network byte order only)
@@ -85,6 +88,13 @@ class OpenXMconnection{
     }else if(object instanceof SM){
       sendSM((SM)object);
     }
+  }
+
+  public void sendOX_SYNC_BALL() throws IOException{
+    DataOutputStream dos = new DataOutputStream(os);
+
+    dos.writeInt(OX_SYNC_BALL);
+    dos.writeInt(serial_num);
   }
 
   public CMO receiveCMO() throws IOException{

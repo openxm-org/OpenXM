@@ -1,25 +1,23 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.5 1999/11/02 15:58:11 tam Exp $
+ * $OpenXM$
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.applet.*;
 import java.awt.event.*;
 import java.awt.*;
+import java.util.Vector;
 
-class PolyCalc extends Applet implements ActionListener,Runnable{
+class elimi extends Applet implements ActionListener,Runnable{
   private String host = "localhost";
   private int ControlPort = 1200,DataPort = 1300;
   private OpenXM oxm;
-  //private Button random1_button,random2_button;
-  //private Button mul_button,remainder_button,swap_button,set_button;
   private TextField poly1,poly2;
-  private TextArea textarea;
+  private TextArea input,output;
   private Thread thread = null;
   private boolean debug = false;
-  //private Text
 
-  PolyCalc(String host,int ControlPort,int DataPort){
+  elimi(String host,int ControlPort,int DataPort){
     this.host = host;
     this.ControlPort = ControlPort;
     this.DataPort = DataPort;
@@ -35,30 +33,33 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 
     c.fill = GridBagConstraints.BOTH;
 
-    textarea = new TextArea();
-    textarea.setEditable(false);
-    c.gridwidth = GridBagConstraints.REMAINDER;
-    gridbag.setConstraints(textarea,c);
-    c.gridwidth = 1;
-    add(textarea);
-
     {
-      Label label = new Label("poly A:");
+      Label label = new Label("input polynomials");
+      c.gridwidth = 2;
       gridbag.setConstraints(label,c);
+      c.gridwidth = 1;
+      add(label);
+
+      label = new Label("outputs");
+      c.gridwidth = GridBagConstraints.REMAINDER;
+      gridbag.setConstraints(label,c);
+      c.gridwidth = 1;
       add(label);
     }
 
-    button = new Button("generate random polynomial A");
-    button.addActionListener(this);
-    gridbag.setConstraints(button,c);
-    add(button);
-
-    button = new Button("A * B"); 
-    button.addActionListener(this);
-    c.gridwidth = GridBagConstraints.REMAINDER;
-    gridbag.setConstraints(button,c);
+    input = new TextArea(10,40);
+    input.setEditable(true);
+    c.gridwidth = 2;
+    gridbag.setConstraints(input,c);
     c.gridwidth = 1;
-    add(button);
+    add(input);
+
+    output = new TextArea(10,40);
+    output.setEditable(false);
+    c.gridwidth = GridBagConstraints.REMAINDER;
+    gridbag.setConstraints(output,c);
+    c.gridwidth = 1;
+    add(output);
 
     poly1 = new TextField(20);
     poly1.addActionListener(this);
@@ -66,13 +67,6 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
     gridbag.setConstraints(poly1,c);
     c.gridwidth = 1;
     add(poly1);
-
-    button = new Button("A % B");
-    button.addActionListener(this);
-    //c.gridx = 2;
-    //c.weightx = 0.0;
-    gridbag.setConstraints(button,c);
-    add(button);
 
     button = new Button("swap A & B");
     button.addActionListener(this);
@@ -87,23 +81,12 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
       add(label);
     }
 
-    button = new Button("generate random polynomial B");
-    button.addActionListener(this);
-    gridbag.setConstraints(button,c);
-    add(button);
-
     button = new Button("poly1 <= poly2");
     button.addActionListener(this);
     c.gridwidth = GridBagConstraints.REMAINDER;
     gridbag.setConstraints(button,c);
     c.gridwidth = 1;
     add(button);
-
-    poly2 = new TextField();
-    c.gridwidth = 2;
-    gridbag.setConstraints(poly2,c);
-    c.gridwidth = 1;
-    add(poly2);
 
     button = new Button("grobner base");
     button.addActionListener(this);
@@ -130,7 +113,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 
         case OpenXM.OX_DATA:
           tmp = oxm.receiveCMO();
-          textarea.append("=> "+ tmp +"\n");
+          System.out.println("=> "+ tmp);
           break;
         }
       }
@@ -144,9 +127,63 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 
     if(arg.equals("quit")){
     }else if(arg.equals("grobner base")){
+      Vector polys = new Vector(),variables = new Vector();
+
       try{
+	java.io.StringReader in = new java.io.StringReader(input.getText());
+	String poly,variable,com;
+	char a = 0;
+
+	while(a != (char)-1){
+	  poly = "";
+	  variable = "";
+	  while((a=(char)in.read()) != (char)-1 && a != '\n'){
+	    //debug("read :"+(int)a);
+	    if(Character.isLetter(a) ||
+	       (Character.isDigit(a) && !variable.equals(""))){
+	      variable += a;
+	    }else if(!variable.equals("")){
+	      debug("add variable:" + variable);
+	      variables.addElement(variable);
+	      variable = "";
+	    }
+	    if(!Character.isWhitespace(a)){
+	      poly += a;
+	    }
+	  }
+	  if(!variable.equals("")){
+	    debug("add variable:" + variable);
+	    variables.addElement(variable);
+	  }
+	  if(!poly.equals("")){
+	    debug("read poly:"+ poly);
+	    polys.addElement(poly);
+	  }
+	}
+
 	debug("poly A: "+ poly1.getText());
-	oxm.sendCMO(new CMO_STRING("[[("+ poly1.getText() +") ("+ poly2.getText() +")] (x,y)] gb"));
+	com = "[[";
+	while(!polys.isEmpty()){
+	  com += "("+ polys.elementAt(0) +")";
+	  polys.removeElementAt(0);
+	  if(!polys.isEmpty()){
+	    com += " ";
+	  }
+	}
+	com += "] (";
+	while(!variables.isEmpty()){
+	  Object tmp = variables.elementAt(0);
+
+	  com += tmp;
+	  while(variables.removeElement(tmp)){};
+	  if(!variables.isEmpty()){
+	    com += ",";
+	  }
+	}
+	com += ")] gb";
+
+	debug("command: "+ com);
+	oxm.sendCMO(new CMO_STRING(com));
 	oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
 	oxm.sendSM(new SM(SM.SM_popString));
       }catch(java.io.IOException e){}
@@ -167,26 +204,26 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
   }
 
   public void start(){
-    textarea.append("Connecting to "+ host
-		 +"("+ ControlPort +","+ DataPort +")\n");
+    System.out.println("Connecting to "+ host
+		       +"("+ ControlPort +","+ DataPort +")");
 
     try{
       oxm = new OpenXM(host,ControlPort,DataPort);
-      textarea.append("Connected.\n");
+      System.out.println("Connected.");
       oxm.sendCMO(new CMO_STRING("(cohom.sm1) run ;\n"));
       oxm.sendSM(new SM(SM.SM_executeStringByLocalParser));
 
       thread = new Thread(this);
       thread.start();
     }catch(java.io.IOException e){
-      textarea.append("failed.\n");
+      System.out.println("failed.");
       stop();
     }
   }
 
   private void debug(String str){
     if(debug){
-      System.out.println(str);
+      System.err.println(str);
     }
   }
 
@@ -207,7 +244,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
   public static void main(String argv[]){
     Frame frame = new Frame("Polynomial Calculator");
     //Applet applet;
-    PolyCalc applet;
+    elimi applet;
     String host = "localhost";
     int DataPort = 1300, ControlPort = 1200;
 
@@ -230,7 +267,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
         System.exit(1);
       }
     }
-    applet = new PolyCalc(host,ControlPort,DataPort);
+    applet = new elimi(host,ControlPort,DataPort);
     applet.debug = true;
 
     applet.init();

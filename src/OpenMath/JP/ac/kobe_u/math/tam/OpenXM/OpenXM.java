@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java,v 1.2 1999/11/07 21:22:03 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -9,6 +9,7 @@ import java.net.*;
 public class OpenXM implements Runnable{
   private OpenXMconnection control = null, stream = null;
   private Thread thread = null;
+  final boolean debug = true;
 
   // OX message_tag
   final public static int OX_COMMAND                  = 513;
@@ -73,13 +74,17 @@ public class OpenXM implements Runnable{
   }
 
   public synchronized void resetConnection(){
+    debug("control: stopping computer process...");
     synchronized(stream){
       thread.stop();
     }
+    debug("control: stopped.");
 
     try{
-      stream.sendSM(new SM(SM.SM_control_reset_connection));
+      debug("control: sending SYNC BALL.");
+      stream.sendOX_SYNC_BALL();
 
+      debug("control: waiting to receive SYNC BALL.");
       while(true){
 	int ox_tag = stream.receiveOXtag();
 
@@ -156,6 +161,12 @@ public class OpenXM implements Runnable{
     }
 
     return "";
+  }
+
+  private final void debug(String str){
+    if(debug){
+      System.err.println(str);
+    }
   }
 
   public static void main(String[] args){
