@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.5 2000/06/08 08:35:01 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.6 2000/06/09 08:02:01 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -13,6 +13,7 @@ hol.version [(Version)] system_variable gt
 $hol.sm1, basic package for holonomic systems (C) N.Takayama, 2000, 06/08 $ 
 message-quiet
 
+/gb.warning 0 def
 /rank.v [(x) (y) (z)] def   %% default value of v (variables).
 /rank.ch [ ] def  %% characteristic variety.
 /rank.verbose 0 def
@@ -340,7 +341,9 @@ message-quiet
     } {
       %% Use the ring structre given by the input.
       v isInteger not {
-        (Warning : the given ring definition is not used.) message
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
       } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
@@ -448,7 +451,9 @@ message-quiet
     } {
       %% Use the ring structre given by the input.
       v isInteger not {
-        (Warning : the given ring definition is not used.) message
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
       } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
@@ -823,7 +828,9 @@ message-quiet
     }{
       %% Use the ring structre given by the input.
       v isInteger not {
-        (Warning : the given ring definition is not used.) message
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
       } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
@@ -1225,7 +1232,9 @@ message-quiet
     } {
       %% Use the ring structre given by the input.
       v isInteger not {
-        (Warning : the given ring definition is not used.) message
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
       } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
@@ -1360,7 +1369,9 @@ message-quiet
     } {
       %% Use the ring structre given by the input.
       v isInteger not {
-        (Warning : the given ring definition is not used.) message
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
       } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
@@ -1513,7 +1524,9 @@ message-quiet
     }{
       %% Use the ring structre given by the input.
       v isInteger not {
-        (Warning : the given ring definition is not used.) message
+        gb.warning {
+         (Warning : the given ring definition is not used.) message
+        } { } ifelse
       } {  } ifelse
       rr ring_def
       /wv rr gb.getWeight def
