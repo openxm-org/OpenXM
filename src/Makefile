@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.110 2002/02/25 08:18:40 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.111 2002/04/05 01:28:46 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -137,7 +137,7 @@ install-oxtoolkit: all-oxtoolkit
 install-oxc: all-oxc
 	(cd oxc; make install)
 
-install-oxmath: all-oxmath install-kxx
+install-oxmath: all-oxmath configure-util
 	-@if test -x /usr/local/bin/math ; then \
 		(cd ox_math ; make install) ; \
 	else \
@@ -259,7 +259,7 @@ configure-k097: configure-links
 configure-kan96xx: configure-links
 	(cd kan96xx ; make configure)
 
-configure-kxx: 
+configure-kxx: configure-util
 	( cd kxx ; ./make-configure) 
 
 configure-links: configure-directory
