@@ -1,4 +1,30 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.5 2000/12/05 23:14:40 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.6 2000/12/17 05:21:07 takayama Exp $
+
+//&C Jan 18, 2001
+/*&ja Q. Debian potato で OpenXM/src/ox_math (Mathematica の OpenXM サポート)	のソースがコンパイル, 実行
+ できません.
+*/
+/*&en Q. I cannot compile and execute OpenXM/src/ox_math (OpenXM support of
+Mathematica) on Debian potato.
+*/
+
+/*&ja  
+A (by Ohara).
+1. Mathlink は glibc2.1 では正しく動作しません.
+http://support.wolfram.com/MathLink/Linux/glibc21.html
+をみて, libML.a を取り換えます.
+2. apt-get install libc5
+で libc5 をインストールする.
+*/
+
+/*&en  
+A (by Ohara).
+1. Mathlink does now work properly under glibc2.1.
+See http://support.wolfram.com/MathLink/Linux/glibc21.html
+and replace libML.a
+2. Install libc5 by
+     apt-get install libc5
+*/
 
 //&C Dec 17, 2000
 //&ja Q. Debian potato で OpenXM server 用の xterm がひらかず, OpenXM server が起動できません.
