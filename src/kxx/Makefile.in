@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.7 2000/12/21 08:20:10 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.8 2001/05/20 07:48:20 takayama Exp $
 ## Targets :  
 ##   all  : generates ox oxlog ox_sm1 oxweave
 ##   install : copy the binaries to $(OpenXM_bin),
@@ -130,15 +130,19 @@ install_lib_bin-for-debug :
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_phc
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
-
 install : copy-kan-lib install_lib_bin
 	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
 	  cp -f ox.exe ox_sm1.exe oxlog.exe oxweave.exe $(OpenXM_bin) ; \
 	else \
 	  cp -f ox ox_sm1 oxlog oxweave $(OpenXM_bin) ; \
 	fi
-
-install_lib_bin : 
+install_lib_bin:
+	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	  make install_lib_bin_windows ; \
+	else \
+	  make install_lib_bin_unix ; \
+	fi
+install_lib_bin_unix : 
 	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
 	ln -f -s ../../../bin/ox $(OpenXM_lib)/sm1/bin/ox
 	ln -f -s ../../../bin/oxlog $(OpenXM_lib)/sm1/bin/oxlog
@@ -148,6 +152,18 @@ install_lib_bin :
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_phc
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_tigers
 	ln -f -s ./ox_sm1 $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD
+install_lib_bin_windows : 
+	-mkdir $(OpenXM_lib)/sm1/bin
+	/bin/rm -f $(OpenXM_lib)/sm1/bin/ox*
+	cp ox.exe $(OpenXM_lib)/sm1/bin/ox.exe
+	cp oxlog.exe $(OpenXM_lib)/sm1/bin/oxlog.exe
+	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1.exe
+	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_forAsir.exe
+#	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_gnuplot.exe
+#	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_phc.exe
+	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_tigers.exe
+	cp ox_sm1.exe $(OpenXM_lib)/sm1/bin/ox_sm1_basicCD.exe
+
 
 # This target overrides the symbolic link 
 # from $(OpenXM_ROOT)/src/kan96xx/lib to $(OpenXM_lib)/sm1
@@ -155,9 +171,12 @@ install_lib_bin :
 copy-kan-lib : clean-for-install
 	mkdir $(OpenXM_lib)/sm1
 	touch $(OpenXM_lib)/sm1/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_COPIED_FROM_kan96xx_Doc
-	cp -r $(KANHOME)/Doc/* $(OpenXM_lib)/sm1
 	if [ "`uname`" = "CYGWIN_NT-5.0" ]; then \
+	  cp $(KANHOME)/Doc/* $(OpenXM_lib)/sm1 ; \
+	  mkdir $(OpenXM_lib)/sm1/bin ; \
 	  cp $(OpenXM_lib)/sm1/ox-win.sm1 $(OpenXM_lib)/sm1/ox.sm1 ; \
+	else \
+	  cp -r $(KANHOME)/Doc/* $(OpenXM_lib)/sm1 ; \
 	fi
 	-/bin/rm -rf $(OpenXM_lib)/sm1/CVS
 	cp $(KANHOME)/Kan/var.sm1 $(OpenXM_lib)/sm1

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.2 2001/12/22 05:59:22 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.3 2001/12/23 11:10:52 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -30,7 +30,6 @@ copy-binary-asir:
 	fi
 
 win-correction: copy-binary
-	(cd OpenXM-win/lib/sm1/bin ; rm -f ox_sm1_forAsir ; cp ../../../bin/ox_sm1.exe ox_sm1_forAsir.exe)
 	-mkdir OpenXM-win/bin-windows
 	cp ${STARTEXE} OpenXM-win/bin-windows
 	cp OpenXM-win/src/asir-contrib/win/asirgui.bat OpenXM-win/bin-windows
