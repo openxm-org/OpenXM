@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.6 2002/10/20 07:58:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.7 2002/10/21 00:37:00 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -15,6 +15,8 @@
 
 extern int Quiet;
 static void errorMsg1s(char *s);
+static int getContentLength(char *s);
+static int getReceivedContentLength(char *s);
 #define MAX_LISTEN_QUEUE 3
 
 /* [(sm1.socket) (open) [optional integer port, optional string name] ] extension ; */
@@ -540,9 +542,10 @@ struct object KsocketReadHTTP(struct object socketObj) {
   int flagmax = 1;
   int datasize;
   int last;
+  int contentLength=-1;
   ob = KsocketRead(socketObj);
   s = KopString(ob);
-  if (strncmp(s,"POST",4) == 0) flagmax=2;
+  if (strncmp(s,"POST",4) == 0) flagmax=2; /* for IE */
   else flagmax=1;
   flag = 0;
   for (i=strlen(s)-1; i>=0; i--) {
@@ -565,12 +568,24 @@ struct object KsocketReadHTTP(struct object socketObj) {
   }else last = 0;
 
   while (flag < flagmax) {
-	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d\n",flagmax);
+	contentLength = getContentLength(sss);
+	if (contentLength != -1) {
+	  if (contentLength <= getReceivedContentLength(sss)) {
+		break;
+	  }
+	}
+	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d, contentLength\n",flagmax,contentLength);
 	if (strlen(s) == 0) {fprintf(stderr,"but I'm not receiving data. Expecting a bug.\n");
 	}else{
 	  /* for debugging. */
 	  for (i=0; i<strlen(sss); i++) {
-		fprintf(stderr,"%3x",sss[i]);
+		if ((sss[i] >= ' ') && (sss[i] < 0x7f)) {
+		  fprintf(stderr,"%c",sss[i]);
+		}else{
+          fprintf(stderr,"%3x",sss[i]);
+		  if (sss[i] == 0xa) fprintf(stderr,"\n");
+		}
+
 	  }
 	  fprintf(stderr,"\n");
 	}
@@ -643,6 +658,38 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
 }
 
 
+static int getContentLength(char *s) {
+  int n;
+  int i;
+  int len = -1;
+  char *s1 = "Content-length:";
+  char *s2 = "CONTENT-LENGTH:";
+  n = strlen(s);
+  for (i=0; i<n; i++) {
+	if ((strncmp(&(s[i]),s1,strlen(s1)) == 0) ||
+		(strncmp(&(s[i]),s2,strlen(s2)) == 0)) {
+	  sscanf(&(s[i+strlen(s1)]),"%d",&len);
+	  break;
+	}
+  }
+  return len;
+}
+static int getReceivedContentLength(char *s) {
+  int n;
+  int i;
+  int start;
+  start = -1;
+  n = strlen(s);
+  for (i=0; i<n; i++) {
+	if ((s[i] == '\n') && (s[i+1] == '\n')) {
+	  start = i+2; break;
+	}else if ((s[i] == 0xd) && (s[i+1] == 0xa) && (s[i+2] == 0xd) && (s[i+3] == 0xa)) {
+	  start = i+4;
+	}
+  }
+  if (start == -1) return 0;
+  return (n-start);
+}
 
 
 
