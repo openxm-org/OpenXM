@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.16 2000/03/13 00:57:44 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.17 2000/03/13 02:41:36 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -82,10 +82,13 @@ build-on-redhat: prepare-build-rpm
 	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
 
 # set path=(/usr/ccs/bin /usr/local/bin $path); rehash
-# (Note for taka). On unkei, cd Solaris/OpenXM/misc/packages and make build-on-unkei
+# setenv OpenXM_HOME  xxx-yyy  
+# (Note for taka). On unkei, cd Solaris/OpenXM/misc/packages, 
+#                  setenv OpenXM_HOME $HOME/Solaris/OpenXM 
+#                  and make OpenXM_HOME=$OpenXM_HOME build-on-unkei
 build-on-unkei:
 	(cd Generic/openxm ; make clean-work ; make fetch)
-	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
+	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} OpenXM_HOME=${OpenXM_HOME} binary-tar-ball)
 
 copy-to-ftp-area:
 	-mkdir ${FTP_AREA}
