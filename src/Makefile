@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.111 2002/04/05 01:28:46 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.112 2002/04/05 01:43:48 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -9,7 +9,7 @@ RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
 all: configure all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
-     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers 
+     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep
 
 all-gc: 
 	@if test ! -f gc/.gc_make_done ; \
@@ -72,6 +72,9 @@ all-phc:
 all-tigers:
 	(cd tigers ; make all)
 
+all-fep:
+	-(cd ${OPENXM_CONTRIB2}/fep ; make all)
+
 
 all-misc :
 	(cd ../rc ; make repl)
@@ -84,7 +87,7 @@ all-rc:
 install: install-asir install-gnuplot install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
-	 install-misc
+	 install-misc install-fep
 
 
 install-gc : all-gc
@@ -165,6 +168,9 @@ install-asir-doc: install-asir
 install-misc:
 	(cd ../rc ; make install.man)
 
+install-fep: all-fep
+	-(cd ${OPENXM_CONTRIB2}/fep ; make PREFIX=../../OpenXM install)
+
 install-rc: all-rc
 	(cd ../rc ; make install)
 
@@ -186,6 +192,7 @@ clean:
 	(cd tigers ; make clean)
 	(cd asir-doc ; make clean)
 	(cd asir-contrib ; make clean)
+	-(cd ${OPENXM_CONTRIB2}/fep ; make clean)
 
 distclean: clean
 	(cd uuencoded ; make distclean)

@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.1 2001/08/21 00:39:13 takayama Exp $
 
 OPENXM=../../../OpenXM
 OPENXM_CONTRIB=../../../OpenXM_contrib
@@ -16,7 +16,7 @@ configure:
 	@if [ -f .configure_done ] ; then \
 		echo "OpenXM/bin is already configured." ; \
 	else \
-		rm -f $(OPENXM_BIN)/fep $(OPENXM_BIN)/phc ; \
+		rm -f $(OPENXM_BIN)/phc ; \
 		if [ "`uname`" = "FreeBSD" ]; then \
 			make configure-freebsd ; \
 		fi ; \
@@ -33,19 +33,11 @@ configure-freebsd:
 		uudecode -p $(OPENXM_UU)/${PHCFBSD}.gz.uuencoded | zcat - > $(OPENXM_BIN)/phc ; \
 		chmod +x $(OPENXM_BIN)/phc ; \
 	fi
-	if [ -f ${FEPFBSD}.gz.uuencoded ]; then \
-		uudecode -p $(OPENXM_UU)/${FEPFBSD}.gz.uuencoded | zcat - > $(OPENXM_BIN)/fep ; \
-		chmod +x $(OPENXM_BIN)/fep ; \
-	fi
 
 configure-linux:
 	if [ -f $(OPENXM_UU)/${PHCLINUX}.gz.uuencoded ]; then \
 		uudecode -o /dev/stdout $(OPENXM_UU)/${PHCLINUX}.gz.uuencoded | zcat - > $(OPENXM_BIN)/phc ; \
 		chmod +x $(OPENXM_BIN)/phc ; \
-	fi
-	if [ -f $(OPENXM_UU)/${FEPLINUX}.gz.uuencoded ]; then \
-		uudecode -o /dev/stdout $(OPENXM_UU)/${FEPLINUX}.gz.uuencoded | zcat - > $(OPENXM_BIN)/fep ; \
-		chmod +x $(OPENXM_BIN)/fep ; \
 	fi
 
 configure-linux-phc-on-freebsd:
@@ -57,20 +49,10 @@ configure-linux-phc-on-freebsd:
 	fi
 
 distclean:
-	(cd $(OPENXM_BIN) ; rm -f asir ox_asir fep phc)
+	(cd $(OPENXM_BIN) ; rm -f asir ox_asir phc)
 	@rm -f .configure_done
 
 uuencode:
-	@if [ -f $(OPENXM_BIN)/$(FEPLINUX) ]; then \
-		echo -n '$Open' > $(OPENXM_UU)/$(FEPLINUX).gz.uuencoded ; \
-		echo -n 'XM$' >> $(OPENXM_UU)/$(FEPLINUX).gz.uuencoded ; \
-		gzip -c $(OPENXM_BIN)/$(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(OPENXM_UU)/$(FEPLINUX).gz.uuencoded ; \
-	fi
-	@if [ -f $(OPENXM_BIN)/$(FEPFBSD) ]; then \
-		echo -n '$Open' > $(OPENXM_UU)/$(FEPFBSD).gz.uuencoded ; \
-		echo -n 'XM$' >> $(OPENXM_UU)/$(FEPFBSD).gz.uuencoded ; \
-		gzip -c $(OPENXM_BIN)/$(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(OPENXM_UU)/$(FEPFBSD).gz.uuencoded ; \
-	fi
 	@if [ -f $(OPENXM_BIN)/$(PHC) ]; then \
 		echo -n '$Open' > $(OPENXM_UU)/$(PHC).gz.uuencoded ; \
 		echo -n 'XM$' >> $(OPENXM_UU)/$(PHC).gz.uuencoded ; \
