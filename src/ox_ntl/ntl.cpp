@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.1 2003/11/03 03:11:21 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
 
 #include <NTL/ZZXFactoring.h>
+#include <NTL/LLL.h>
 
 #include "ox_toolkit.h"
 #include "ntl.h"
@@ -8,6 +9,9 @@
 #if __NTL_DEBUG
 #define __NTL_PRINT (1)
 #endif
+
+#define __NTL_PRINT (1)
+#define DPRINTF(x)	printf x; fflush(stdout)
 
 /****************************************************************************
  *
@@ -27,14 +31,7 @@ ntl_fctr(cmo **arg, int argc)
 	cmo *poly = arg[0];
 	cmo_indeterminate *x;
 	ZZX f;
-	ZZ c;
-
 	int ret;
-
-	vec_pair_ZZX_long factors;
-
-	cmo_list *ans;
-	cmo *fcts;
 
 	if (argc != 1) {
 		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
@@ -50,25 +47,80 @@ ntl_fctr(cmo **arg, int argc)
 	cout << "input: " << f << endl;
 #endif
 
-	factor(c, factors, f);
+	cmon_factors_t *factors = new_cmon_factors();
+	factors->x = x;
+
+	factor(*factors->cont, *factors->f, f);
 
 #if __NTL_PRINT
-	cout << "fctr : " << factors << endl;
+	cout << "fctr : " << *factors->f << endl;
 #endif
 
-	cmo_zz *zz = ZZ_to_cmo_zz(c);
 
-	ans = new_cmo_list();
+	return ((cmo *)factors);
+}
 
-	fcts = (cmo *)vec_pair_ZZX_long_to_cmo(factors, x);
+/****************************************************************************
+ *
+ * Factorize polynomial over the integers.
+ *
+ * PARAM : I : arg  : polynomial
+ *       : I : argc :
+ * RETURN: [num,[[factor1,multiplicity1],[factor2,multiplicity2],...]]
+ *
+ * EX    : ntl_fctr([2*x^11+4*x^8-2*x^6+2*x^5-4*x^3-2],1) ==>
+         : [2,[[x-1,1],[x^4+x^3+x^2+x+1,1],[x+1,2],[x^2-x+1,2]]]
+ *
+ ****************************************************************************/
+cmo *
+ntl_lll(cmo **arg, int argc)
+{
+	cmo *poly = arg[0];
+	cmo_indeterminate *x;
+	ZZX f;
+	int ret;
+	cmon_mat_zz_t *mat;
+	
+DPRINTF(("lll start\n"));
 
-	list_appendl(ans, zz, (cmo *)fcts, NULL);
+	if (argc != 1) {
+DPRINTF(("invalid argc %d\n", argc));
+		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
+	}
 
-	return ((cmo *)ans);
+	mat = new_cmon_mat_zz();
+	ret = cmo_to_mat_zz(*mat->mat, arg[0]);
+DPRINTF(("ret = %d, convert\n", ret));
+	if (ret != NTL_SUCCESS) {
+DPRINTF(("convert failed\n", ret));
+		delete_cmon_mat_zz(mat);
+		/* format error */
+		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(type)")));
+	}
+
+DPRINTF(("convert success\n", ret));
+
+#if __NTL_PRINT
+DPRINTF(("convert success\n", ret));
+	cout << "input: " << (*mat->mat) << endl;
+#endif
+
+
+DPRINTF(("lll start\n", ret));
+	ZZ det2;
+	long rd = LLL(det2, *mat->mat);
+
+
+#if __NTL_PRINT
+	cout << "output: " << (*mat->mat) << endl;
+#endif
+
+	return ((cmo *)mat);
 }
 
 
-#if __NTL_DEBUG
+
+#if __NTL_DEBUG /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 int
 main(int argc, char *argv[])

@@ -1,9 +1,12 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.rr,v 1.1 2003/11/03 03:11:21 iwane Exp $ */
 
 module ntl;
 localf factor$
+localf lll$
 localf ex_data$
 localf ex_data_tmp$
+localf mat2list$
+localf list2mat$
 
 
 /* static variables */
@@ -104,7 +107,7 @@ def factor(PID, POLY)
 
 	/* ERROR Check */
 	if (type(RET_NTL) != 4 || length(RET_NTL) < 2) {
-		error(RET_NTL);
+		return (RET_NTL);
 	}
 
 	RET = cons([RET_NTL[0] * C, 1], RET_NTL[1]);
@@ -160,6 +163,98 @@ def ex_data(N)
 	}
 
 	return (ex_data_tmp(t^2-p, N));
+}
+
+
+def mat2list(M)
+{
+	A = size(M);
+
+	ROW=A[0];
+	COL=A[1];
+
+	for (I = 0; I < ROW; I++) {
+		for (J = 0; J < COL; J++) {
+			A = append(A, [M[I][J]]);
+		}
+	}
+
+	return (A);
+}
+
+def list2mat(L)
+{
+	if (type(L) != 4) {
+		return ("Invalid Argument");
+	}
+
+	ROW = L[0];
+	if (type(ROW) == 10)
+		ROW = int32ton(ROW);
+	COL = L[1];
+	if (type(COL) == 10)
+		COL = int32ton(COL);
+
+	A = newmat(2, 2); /*, [[1, 0],[0, 1]]); /* COL, COL); */
+
+	C = 2;
+	for (I = 0; I < ROW; I++) {
+		for (J = 0; J < COL; J++) {
+			A[I][J] = L[C];
+			C++;
+		}
+	}
+
+	
+	return (A);
+}
+
+
+
+/*&usage begin: ntl.lll(PID, MAT)
+  the basics of LLL reducation.
+
+{M}
+	Matrix which element is Integer.
+
+example: 
+[1081] M=newmat(2,2,[[10,0],[-7,3]]);
+[ 10 0 ]
+[ -7 3 ]
+[1082] ntl.lll(PID, M);
+[ 3 3 ]
+[ 4 -6 ]
+[1083] pari(lll, M);
+[ 0 1 ]
+[ 1 2 ]                 <== why ?
+
+
+ref:
+pari(lll)
+
+end: */
+def lll(PID, M)
+{
+	/* parameter check */
+	TYPE = type(M);
+	if (TYPE != 6) {	/* matrix */
+		error("ntl.lll: invalid argument");
+	}
+
+	A = mat2list(M);
+
+	ox_cmo_rpc(PID, "lll", A);
+
+	RET_NTL = ox_pop_cmo(PID);	
+
+	/* return value check */
+	if (type(RET_NTL) != 4) { /* list */
+		error("ntl.lll: error");
+	}
+	
+	R = list2mat(RET_NTL);
+
+	return (R);
 }
 
 

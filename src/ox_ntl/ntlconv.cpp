@@ -1,6 +1,7 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.1 2003/11/08 12:34:00 iwane Exp $ */
 
 #include <NTL/ZZX.h>
+#include <NTL/mat_ZZ.h>
 
 #include <strstream>
 
@@ -9,6 +10,11 @@
 #if __NTL_DEBUG
 #define __NTL_PRINT (1)
 #endif
+
+#define BLOCK_NEW_CMO()         BLOCK_INPUT()
+#define UNBLOCK_NEW_CMO()       UNBLOCK_INPUT()
+
+
 
 /*==========================================================================*
  * Check string format
@@ -143,7 +149,9 @@ ZZ_to_cmo_zz(const ZZ &z)
 	ostrstream sout;
 	sout << z << '\0';
 
+	BLOCK_NEW_CMO();
 	c = new_cmo_zz_set_string(sout.str());
+	UNBLOCK_NEW_CMO();
 
 	return (c);
 }
@@ -165,6 +173,7 @@ cmo_to_ZZ(ZZ &z, cmo *c)
 
 	switch (c->tag) {
 	case CMO_ZERO:
+	case CMO_NULL:
 		z = to_ZZ(0);
 		break;
 	case CMO_ZZ:
@@ -191,6 +200,118 @@ cmo_to_ZZ(ZZ &z, cmo *c)
 
 	return (ret);
 }
+
+
+/****************************************************************************
+ * convert cmo to ZZX which is polynomial in Z[x]
+ *
+ * PARAM : O : f       : polynomial in Z[x]
+ *       : I : m       : cmo.
+ *       : O : x       : indeterminate
+ * RETURN: success     : NTL_SUCCESS
+ *       : failure     : NTL_FAILURE
+ ****************************************************************************/
+cmo_list *
+mat_zz_to_cmo(mat_ZZ &mat)
+{
+	cmo_list *list;
+	int ret;
+
+	cmo_zz *zz;
+	int row, col;
+	int i, j;
+
+	row = (int)mat.NumRows();
+	col = (int)mat.NumCols();
+
+	BLOCK_NEW_CMO();
+	list = list_appendl(NULL, new_cmo_int32(row), new_cmo_int32(col), NULL);
+
+	for (i = 0; i < row; i++) {
+		for (j = 0; j < col; j++) {
+			zz = ZZ_to_cmo_zz(mat[i][j]);
+			list_append(list, (cmo *)zz);
+		}
+	}
+	UNBLOCK_NEW_CMO();
+
+	return (list);
+}
+
+
+
+
+/****************************************************************************
+ * convert cmo to ZZX which is polynomial in Z[x]
+ *
+ * PARAM : O : f       : polynomial in Z[x]
+ *       : I : m       : cmo.
+ *       : O : x       : indeterminate
+ * RETURN: success     : NTL_SUCCESS
+ *       : failure     : NTL_FAILURE
+ ****************************************************************************/
+int
+cmo_to_mat_zz(mat_ZZ &mat, cmo *m)
+{
+	cmo_list *list;
+	int ret;
+	ZZ row, col, size;
+	int len;
+	cell *el;
+	int i, j;
+	int c, r;
+
+	if (m->tag != CMO_LIST) {
+		return (NTL_FAILURE);
+	}
+
+	list = (cmo_list *)m;
+	len = list_length(list);
+
+	if (len < 2) {
+		return (NTL_FAILURE);
+	}
+
+	el = list_first(list);
+	ret = cmo_to_ZZ(row, el->cmo);
+	if (ret != NTL_SUCCESS) {
+		return (ret);
+	}
+
+	el = list_next(el);
+	ret = cmo_to_ZZ(col, el->cmo);
+	if (ret != NTL_SUCCESS) {
+		return (ret);
+	}
+
+	mul(size, row, col);
+
+	if (len - 2 != size) {
+		return (NTL_FAILURE);
+	}
+
+	/* row and col is less than INT_MAX */
+	r = to_int(row);
+	c = to_int(col);
+	mat.SetDims(r, c);
+	for (i = 0; i < r; i++) {
+		for (j = 0; j < c; j++) {
+			el = list_next(el);
+			ret = cmo_to_ZZ(mat[i][j], el->cmo);
+			if (ret) {
+				return (ret);
+			}
+		}
+	}
+	return (NTL_SUCCESS);
+}
+
+
+
+
+
+
+
 
 
 /****************************************************************************
@@ -282,6 +403,8 @@ ZZX_to_cmo(ZZX &factor, cmo_indeterminate *x)
 	int i;
 	cmo *coef;
 
+	BLOCK_NEW_CMO();
+
 	ringdef = new_cmo_list();
 	list_append(ringdef, (cmo *)x);
 
@@ -295,6 +418,9 @@ ZZX_to_cmo(ZZX &factor, cmo_indeterminate *x)
 	}
 
 	rec = new_cmo_recursive_polynomial(ringdef, (cmo *)poly);
+
+	UNBLOCK_NEW_CMO();
+
 	return (rec);
 }
 
@@ -315,9 +441,13 @@ ZZX_int_to_cmo(ZZX &factor, int d, cmo_indeterminate *x)
 	cmo_list *list;
 
 	poly = ZZX_to_cmo(factor, x);
-	deg = new_cmo_int32(d);
 
+	BLOCK_NEW_CMO();
+
+	deg = new_cmo_int32(d);
 	list = list_appendl(NULL, poly, deg, NULL);
+
+	UNBLOCK_NEW_CMO();
 
 	return (list);
 }
@@ -336,15 +466,89 @@ cmo_list *
 vec_pair_ZZX_long_to_cmo(vec_pair_ZZX_long &factors, cmo_indeterminate *x)
 {
 	int i;
-	cmo_list *list = new_cmo_list();
+	cmo_list *list;
 	cmo_list *factor;
 
+	BLOCK_NEW_CMO();
+
+	list = new_cmo_list();
 	for (i = 0; i < factors.length(); i++) {
 		factor = ZZX_int_to_cmo(factors[i].a, (int)factors[i].b, x);
 		list_append(list, (cmo *)factor);
 	}
 
+	UNBLOCK_NEW_CMO();
+
 	return (list);
 }
+
+
+/****************************************************************************
+ * convert local object to cmo.
+ * for SM_popCMO
+ *
+ * PARAM : I : p : cmo
+ * RETURN: cmo
+ ****************************************************************************/
+cmo *
+convert_cmon(cmo *p)
+{
+
+	switch (p->tag) {
+	case CMON_ZZ:
+	{
+		cmon_zz_t *z = (cmon_zz_t *)p;
+		return ((cmo *)ZZ_to_cmo_zz(*z->z));
+	}
+	case CMON_ZZX:
+	{
+		cmon_zzx_t *f = (cmon_zzx_t *)p;
+		return ((cmo *)ZZX_to_cmo(*f->f, f->x));
+	}
+	case CMON_FACTORS:
+	{
+		cmon_factors_t *f = (cmon_factors_t *)p;
+		cmo_zz *z = ZZ_to_cmo_zz(*f->cont);
+		cmo_list *list = vec_pair_ZZX_long_to_cmo(*f->f, f->x);
+		return ((cmo *)list_appendl(NULL, (cmo *)z, list, NULL));
+	}
+	case CMON_MAT_ZZ:
+	{
+		cmon_mat_zz_t *m = (cmon_mat_zz_t *)p;
+		cmo_list *list = mat_zz_to_cmo(*m->mat);
+		return ((cmo *)list);
+	}
+	default:
+		return (p);
+	}
+}
+
+
+
+/****************************************************************************
+ * convert tag of local object to tag of cmo.
+ * for SM_pushCMOtag
+ *
+ * PARAM : I : p : cmo
+ * RETURN:  tag
+ ****************************************************************************/
+int
+get_cmon_tag(cmo *p)
+{
+	switch (p->tag) {
+	case CMON_ZZ:
+		return (CMO_ZZ);
+	case CMON_ZZX:
+		return (CMO_RECURSIVE_POLYNOMIAL);
+	case CMON_FACTORS:
+		return (CMO_LIST);
+	case CMON_MAT_ZZ:
+		return (CMON_MAT_ZZ);
+	default:
+		return (p->tag);
+	}
+}
+
+
 
 

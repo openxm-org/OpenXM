@@ -1,8 +1,13 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.1 2003/11/03 03:11:21 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
 
 #ifndef __OX_SERVE_H__
 #define __OX_SERVE_H__
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <signal.h>
 #include "ox_toolkit.h"
 
 #ifndef OXSERV_FAILURE
@@ -14,7 +19,16 @@
 extern "C" {
 #endif
 
-void	 oxserv_delete_cmo	(cmo *);
+/* signal */
+extern sigset_t	G_oxserv_sigusr1;
+
+#define	BLOCK_INPUT()	do { \
+	sigprocmask(SIG_BLOCK, &G_oxserv_sigusr1, NULL); \
+} while(0)
+
+#define	UNBLOCK_INPUT()	do { \
+	sigprocmask(SIG_UNBLOCK, &G_oxserv_sigusr1, NULL); \
+} while(0)
 
 /* c.f. mathcap_init in ox_toolkit */
 int	 oxserv_init	(OXFILE *, int, char *, char *, int *, int *);

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.6 2003/11/12 13:31:45 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.7 2003/11/14 03:20:07 ohara Exp $
 #
 #
 #
@@ -16,8 +16,12 @@ CC =gcc
 RM =/bin/rm
 CP =/bin/cp
 
-CFLAGS=-I$(PREFIX)/include
+CFLAGS=-I$(PREFIX)/include -g
 CPPFLAGS=$(CFLAGS)
+
+# WITH_GMP        <== for ox_toolkit --      include "gmp.h"
+# __GMP_FALE_H__  <==                -- dont include "gmp_fake.h"
+DEFS=-DWITH_GMP=1 -D__GMP_FAKE_H__
 
 PREFIX=$(OpenXM_HOME)
 
@@ -36,7 +40,7 @@ GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=${OpenXM_HOME} GMP_INCDIR=${OpenXM_HOME}/includ
 .SUFFIXES: .cpp .o .c
 
 SRCC=oxserv.c oxstack.c
-SRCP=main.cpp ntl.cpp ntlconv.cpp
+SRCP=main.cpp ntl.cpp ntlconv.cpp cmon.cpp
 
 OBJC=$(SRCC:.c=.o) $(SRCP:.cpp=.o)
 
@@ -45,7 +49,7 @@ all: $(PROG)
 
 
 $(PROG): $(OBJC) $(LIBDIR)/libox.a $(NTL_LIBDIR)/libntl.a
-	$(CPP) $(CPPFLAGS) -L$(LIBDIR) -L$(NTL_LIBDIR) $(OBJC) -o $@ -lntl -lgmp -lox -lgc
+	$(CPP) $(CPPFLAGS) -L$(LIBDIR) -L$(NTL_LIBDIR) $(OBJC) -o $@ -lntl -lgmp -lox -lgc ${LIBS}
 
 
 ox_ntl_debug: ntl.cpp ntl.h oxstack.o
@@ -53,9 +57,6 @@ ox_ntl_debug: ntl.cpp ntl.h oxstack.o
 
 oxserv_debug: oxserv.h oxserv.c
 	$(CC) $(CFLAGS) -g -D__OXSERV_DEBUG=1 -L$(LIBDIR) oxserv.c oxstack.o -o $@ -lox -lgc
-
-cpp.exe: cpp.cpp
-	$(CPP) $(CPPFLAGS) -g -L/usr/local/lib -L$(LIBDIR) -L$(NTL_LIBDIR) cpp.cpp -o $@ -lntl -lgmp -lox -lgc
 
 oxserv.c: oxserv.h oxstack.h
 
@@ -66,10 +67,10 @@ main.cpp: oxserv.h ntl.h oxstack.h
 ntl.cpp: ntl.h
 
 .cpp.o:
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CPP) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@
 
 install: all
 	$(CP) $(PROG) $(PREFIX)/bin
@@ -87,7 +88,7 @@ fetch-ntl:
 	fi
 
 extract-ntl: fetch-ntl
-	-mkdir work
+	-mkdir ${WORK}
 	@if [ ! -f .extract-ntl-done ]; then \
 		(cd ${WORK}; tar xvzf ${DISTDIR}/${DISTFILE}); \
 		touch .extract-ntl-done; \
@@ -104,7 +105,8 @@ build-ntl: patch-ntl
 		(cd ${WORK}/${DISTFILEDIR}/src; \
 		 LD_LIBRARY_PATH=${OpenXM_HOME}/lib; \
 		 export LD_LIBRARY_PATH; \
-		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT}; make); \
+		 ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT};
+		 make); \
 		touch .build-ntl-done; \
 	fi
 
