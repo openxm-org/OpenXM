@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.8 2000/01/17 10:41:51 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.9 2000/01/17 11:07:12 tam Exp $
 
 
 JAVADIR = /usr/local/jdk1.1.8
@@ -29,7 +29,7 @@ install:	all
 	if ! test -d $(LIBDIR); then \
 		mkdir -p $(LIBDIR); \
 	fi
-	cp ${.ALLSRC} $(LIBDIR)
+	-cp ${.ALLSRC} $(LIBDIR)
 
 install2:
 
