@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.12 2001/05/04 01:06:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.13 2002/02/24 10:27:20 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -301,6 +301,7 @@ struct object KoxCreateClient(struct object ip,
   }
   rob = newObjectArray(N_OF_CLIENT_FIELDS);
   oxClientToObject(client,rob);
+  oxClientListUpdate(rob);
   return(rob);
 }
 
@@ -674,6 +675,7 @@ struct object KoxCloseClient(struct object client) {
     errorOxmisc2("Unknown client->type\n");
     break;
   }
+  oxClientListRemove(client);
   return(KpoInteger(0));
 
 }
@@ -982,6 +984,7 @@ struct object KoxCreateClient2(struct object peer,
   }
   rob = newObjectArray(N_OF_CLIENT_FIELDS);
   oxClientToObject(client,rob);
+  oxClientListUpdate(rob);
   return(rob);
 }
 
@@ -1113,7 +1116,6 @@ struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,s
 oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
                                   int ipmask,char *pass)
 {
-  static int clnum = 0;
   int v = 0;
   int fdControl = -1;
   int fdStream = -1;
@@ -1174,7 +1176,7 @@ oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
   client->dataport = portStream;
   client->controlport = -1;
   client->controlfd = -1;
-  client->id = clnum; clnum++;
+  client->id = oxGetClientID();
   client->type = CLIENT_SOCKET; /* socket */
   client->engineByteOrder = engineByteOrder;
   client->controlByteOrder = -1;
@@ -1226,6 +1228,7 @@ struct object KoxCreateEngine_RFC_101(struct object peer,struct object ipmask,st
   }
   rob = newObjectArray(N_OF_CLIENT_FIELDS);
   oxClientToObject(client,rob);
+  oxClientListUpdate(rob);
   return(rob);
 }
 
@@ -1299,3 +1302,72 @@ oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
   client->controlByteOrder = -1;
   return(client);
 }
+
+#define MAX_N_OF_CLIENT 1024
+static struct object OxClientList[MAX_N_OF_CLIENT];
+static int OxClientListn = 0;
+int oxGetClientID() {
+  extern struct object OxClientList[];
+  extern int OxClientListn;
+  extern struct object Nobj;
+  int i;
+  for (i=0; i<OxClientListn; i++) {
+	if ((OxClientList[i]).tag == Snull) {
+	  return i;
+	}
+  }
+  i = OxClientListn;
+  (OxClientList[i]).tag = Snull;
+  if (OxClientListn < MAX_N_OF_CLIENT-1) {
+	OxClientListn++;
+	return i;
+  }else{
+	errorOxmisc2("oxGetClientID(): the client table is full.\n");
+	return 0;
+  }
+}
+void oxClientListUpdate(struct object ob) {
+  int id;
+  extern struct object OxClientList[];
+  id = KopInteger(getoa(ob,8));
+  /* printf("id=%d\n",id); */
+  if ((id <MAX_N_OF_CLIENT) && (id >= 0)) {
+	OxClientList[id] = ob;
+  }else{
+	errorOxmisc2("oxClientListUpdate(): the client table is full.\n");
+  }
+}
+void oxClientListRemove(struct object ob) {
+  int id;
+  extern struct object OxClientList[];
+  id = KopInteger(getoa(ob,8));
+  if ((id <MAX_N_OF_CLIENT) && (id >= 0)) {
+	(OxClientList[id]).tag = Snull;
+  }else{
+	/* errorOxmisc2("oxClientListRemove(): the client table is full.\n");*/
+  }
+}
+struct object KoxGetClientList() {
+  extern int OxClientListn;
+  extern struct object OxClientList[];
+  int i,j,n;
+  struct object rob;
+  n = 0;
+  for (i=0; i<OxClientListn; i++) {
+	if ((OxClientList[i]).tag != Snull) n++;
+  }
+  rob = newObjectArray(n); 
+  for (i=0, j=0; i<OxClientListn; i++) {
+	if ((OxClientList[i]).tag != Snull) {
+	  if (j >= n) {
+		j=0;
+		errorOxmisc2("oxGetClientList(): the client table is broken.\n");
+	  }
+	  putoa(rob,j,OxClientList[i]);
+	  j++;
+	}
+  }
+  return rob;
+}
+
+

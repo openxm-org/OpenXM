@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.11 2001/12/28 08:18:22 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.12 2002/02/24 10:27:20 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -611,7 +611,6 @@ int oxIsThereErrorClient(oxclientp client) {
 oxclientp oxCreateClient(char *sname,int portStream,int portControl)
      /* you also need to change oxCreateClient2. */
 {
-  static int clnum = 0;
   int v = 0;
   int fdControl = -1;
   int fdStream = -1;
@@ -654,7 +653,7 @@ oxclientp oxCreateClient(char *sname,int portStream,int portControl)
   client->dataport = portStream;
   client->controlport = portControl;
   client->controlfd = fdControl;
-  client->id = clnum; clnum++;
+  client->id = oxGetClientID();
   client->type = CLIENT_SOCKET; /* socket */
   client->engineByteOrder = engineByteOrder;
   client->controlByteOrder = controlByteOrder;
@@ -900,7 +899,6 @@ static void cancelConnection() {
 oxclientp oxCreateClient2(int fdstream,int portStream,
                           int fdcontrol,int portControl,int ipmask,char *pass)
 {
-  static int clnum = 0;
   int v = 0;
   int fdControl = -1;
   int fdStream = -1;
@@ -986,7 +984,7 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
   client->dataport = portStream;
   client->controlport = portControl;
   client->controlfd = fdControl;
-  client->id = clnum; clnum++;
+  client->id = oxGetClientID();
   client->type = CLIENT_SOCKET; /* socket */
   client->engineByteOrder = engineByteOrder;
   client->controlByteOrder = controlByteOrder;
