@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.8 2000/12/03 07:29:39 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.9 2001/05/04 01:06:30 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -931,18 +931,20 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
 
   /* Authentication by password. */
   m = strlen(pass);
-  s = (char *)mymalloc(sizeof(char)*(m+1));
-  read(fdControl,s,m+1); s[m] = '\0';
-  if (strcmp(s,pass) != 0) {
-    fprintf(stderr,"oxCreateClient2(): password authentication failed for control channel.\n");
-    close(fdControl);
-    return(NULL);
-  }
-  read(fdStream,s,m+1); s[m] = '\0';
-  if (strcmp(s,pass) != 0) {
-    fprintf(stderr,"oxCreateClient2(): password authentication failed for data channel.\n");
-    close(fdStream);
-    return(NULL);
+  if (m > 0) {
+    s = (char *)mymalloc(sizeof(char)*(m+1));
+    read(fdControl,s,m+1); s[m] = '\0';
+    if (strcmp(s,pass) != 0) {
+      fprintf(stderr,"oxCreateClient2(): password authentication failed for control channel.\n");
+      close(fdControl);
+      return(NULL);
+    }
+    read(fdStream,s,m+1); s[m] = '\0';
+    if (strcmp(s,pass) != 0) {
+      fprintf(stderr,"oxCreateClient2(): password authentication failed for data channel.\n");
+      close(fdStream);
+      return(NULL);
+    }
   }
   signal(SIGALRM,SIG_IGN);
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.5 2001/05/04 01:06:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.6 2001/08/09 22:13:58 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -188,12 +188,12 @@ struct object Kextension(struct object obj)
     if (obj2.tag != Sarray) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. array fdList.");
     obj3 = getoa(obj,3);
     if (obj3.tag != Sinteger) errorKan1("%s\n","[(forkExec) argList fdList sigblock] extension. integer sigblock.");
-    m = KopInteger(obj3);  /* m == 1 : block ctrl-C. */
+    m = KopInteger(obj3);  /* m&1 : block ctrl-C. */
     argListc = getoaSize(obj1);
     fdListc =  getoaSize(obj2);
     if ((pid = fork()) > 0) {
       /* parent */
-      if (m&3) {
+      if (m&2) {
          /* Do not call singal to turn around a trouble on cygwin. BUG. */
       }else{
          signal(SIGCHLD,mywait); /* to kill Zombie */
@@ -212,7 +212,7 @@ struct object Kextension(struct object obj)
         close(KopInteger(getoa(obj2,i)));
       }
       /* execl */
-      if ((m&1) == 1) {
+      if (m&1) {
         {
           sigset_t sss;
           sigemptyset(&sss);
@@ -228,6 +228,12 @@ struct object Kextension(struct object obj)
       for (i=0; i<argListc; i++) {
         argv[i] = KopString(getoa(obj1,i));
         argv[i+1] = NULL;
+      }
+      
+      if (m&4) {
+	fprintf(stderr,"execv %s\n",argv[0]);
+	sleep(5);
+        fprintf(stderr,">>>\n");
       }
       execv(argv[0],argv);
       /* This place will never be reached unless execv fails. */
