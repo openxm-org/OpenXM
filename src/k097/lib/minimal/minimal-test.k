@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.2 2000/06/08 08:37:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.3 2000/06/09 08:04:54 takayama Exp $ */
 load["minimal.k"];
 def test5() {
   local a,b,c,cc,v;
@@ -279,11 +279,88 @@ def test12() {
   ans2 = a[0];
   v = [x,y,z];
   ww2 = [["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1]];
-  Sweyl("x,y,z",ww2);
-  ans2 = ReParse(ans2);
+  Sweyl("x,y,z",ww2); 
+  ans2 = ReParse(ans2); /* DO NOT FORGET! */
   r= IsExact_h(ans2,[x,y,z]);
   Println(r);
   Println("It may stop by non-exact statement. The code of Sminimal_v (non-LaScala-Stillman contains bugs.");
   return([r,ans2]);
 }
+
+def test13() {
+  Println("test13 try to construct a minimal free resolution");
+  Println("of a GKZ system [[1,2]]. 6/12, 2000.");
+  ww2 = [["x1",-1,"x2",-1,"Dx1",1,"Dx2",1]];
+  Sweyl("x1,x2",ww2);
+  ans2 = GKZ([[1,2]],[0]);
+  ans2 = ReParse(ans2[0]);
+  return(Sminimal(ans2));
+}
+
+def test14() {
+  Println("test14 try to construct a minimal free resolution");
+  Println("of a GKZ system [[1,2,3]]. 6/12, 2000.");
+  ww2 = [["x1",-1,"x2",-1,"x3",-1,"Dx1",1,"Dx2",1,"Dx3",1]];
+  Sweyl("x1,x2,x3",ww2);
+  ans2 = GKZ([[1,2,3]],[0]);  /* It stops by the strategy error. */
+  ans2 = ReParse(ans2[0]);
+  return(Sminimal(ans2));
+}
+def test14a() {
+  Println("test14a try to construct a minimal free resolution");
+  Println("of a GKZ system [[1,2,3]]. 6/12, 2000.");
+  Println("Without automatic homogenization.");
+  ww2 = [["x1",-1,"x2",-1,"x3",-1,"Dx1",1,"Dx2",1,"Dx3",1]];
+  Sweyl("x1,x2,x3",ww2);
+  ans2 = [x1*Dx1+2*x2*Dx2+3*x3*Dx3 , Dx1^2-Dx2*h , -Dx1*Dx2+Dx3*h , 
+          Dx2^2-Dx1*Dx3 ];
+  ans2 = ReParse(ans2);
+  return(Sminimal(ans2,"homogenized"));
+}
+
+def test15() {
+  Println("test15 try to construct a minimal free resolution");
+  Println("of a GKZ system [[1,2,3]] by the order filt. 6/12, 2000.");
+  ww2 = [["Dx1",1,"Dx2",1,"Dx3",1]];
+  Sweyl("x1,x2,x3",ww2);
+  ans2 = GKZ([[1,2,3]],[0]);  
+  ans2 = ReParse(ans2[0]);
+  return(Sminimal(ans2));
+}
+
+def test15b() {
+  Println("test15b try to construct a minimal free resolution");
+  Println("of toric [[1,2,3]] by the order filt. 6/12, 2000.");
+  ww2 = [["Dx1",1,"Dx2",1,"Dx3",1]];
+  Sweyl("x1,x2,x3",ww2);
+  ans2 = [Dx1^2-Dx2*h , -Dx1*Dx2+Dx3*h , Dx2^2-Dx1*Dx3 ];
+  ans2 = ReParse(ans2);
+  return(Sminimal(ans2,"homogenized"));
+}
+
+def test16() {
+  Println("test16 try to construct a minimal free resolution");
+  Println("of a GKZ system [[1,2,3,5]] by the order filt. 6/12, 2000.");
+  ww2 = [["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1]];
+  Sweyl("x1,x2,x3,x4",ww2);
+  ans2 = GKZ([[1,2,3,5]],[0]);  
+  ans2 = ReParse(ans2[0]);
+  return(Sminimal(ans2));
+}
+
+def test16b() {
+  Println("test16b try to construct a minimal free resolution");
+  Println("of a toric [[1,2,3,5]] by the order filt. 6/12, 2000.");
+  ww2 = [["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1]];
+  Sweyl("x1,x2,x3,x4",ww2);
+  ans2 = GKZ([[1,2,3,5]],[0]);  
+  ans3 = Rest(ans2[0]);
+  ans3 = ReParse(ans3);
+  Println("Toric variety:");
+  Println(ans3);
+  return(Sminimal(ans3));
+}
+
+          
+
 

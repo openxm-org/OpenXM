@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.13 2000/06/08 08:37:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.14 2000/06/09 08:04:54 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -137,9 +137,20 @@ sm1(" [(AvoidTheSameRing)] pushEnv
 
 def SresolutionFrameWithTower(g,opt) {
   local gbTower, ans, ff, count, startingGB, opts, skelton,withSkel, autof,
-        gbasis;
+        gbasis, nohomog;
+  nohomog = false;
+  count = -1;
   if (Length(Arglist) >= 2) {
-    if (IsInteger(opt)) count = opt;
+    if (IsInteger(opt)) {
+      count = opt;
+    }else if (IsString(opt)) {
+      if (opt == "homogenized") {
+         nohomog = true;
+      }else{
+         Println("Warning: unknown option");
+         Println(opt);
+      }
+    }
   }else{
     count = -1;
   }
@@ -153,7 +164,12 @@ def SresolutionFrameWithTower(g,opt) {
   */
 
   sm1(" (mmLarger) (matrix) switch_function ");
-  g = Map(g,"Shomogenize");
+  if (! nohomog) {
+    Println("Automatic homogenization.");
+    g = Map(g,"Shomogenize");
+  }else{
+    Println("No automatic homogenization.");
+  }
   if (SonAutoReduce) {
     sm1("[ (AutoReduce) ] system_variable /autof set ");
     sm1("[ (AutoReduce) 1 ] system_variable ");
@@ -193,12 +209,13 @@ def SresolutionFrameWithTower(g,opt) {
 }
 HelpAdd(["SresolutionFrameWithTower",
 ["It returs [resolution of the initial, gbTower, skelton, gbasis]",
+ "option: \"homogenized\" (no automatic homogenization) ",
  "Example: Sweyl(\"x,y\");",
  "         a=SresolutionFrameWithTower([x^3,x*y,y^3-1]);"]]);
 
 def SresolutionFrame(f,opt) {
   local ans;
-  ans = SresolutionFrameWithTower(f);
+  ans = SresolutionFrameWithTower(f,opt);
   return(ans[0]);
 }
 /* ---------------------------- */
@@ -438,7 +455,7 @@ def SmaxOfStrategy(a) {
 }  
 
 
-def SlaScala(g) {
+def SlaScala(g,opt) {
   local rf, tower, reductionTable, skel, redundantTable, bases,
         strategy, maxOfStrategy, height, level, n, i,
         freeRes,place, f, reducer,pos, redundant_seq,bettiTable,freeResV,ww,
@@ -447,7 +464,7 @@ def SlaScala(g) {
   /* extern WeightOfSweyl; */
   ww = WeightOfSweyl;
   Print("WeightOfSweyl="); Println(WeightOfSweyl);
-  rf = SresolutionFrameWithTower(g);
+  rf = SresolutionFrameWithTower(g,opt);
   Print("rf="); sm1_pmat(rf);
   redundant_seq = 1;   redundant_seq_ordinary = 1;
   tower = rf[1];
@@ -862,6 +879,7 @@ def Sbases_to_vec(bases,size) {
 
 HelpAdd(["Sminimal",
 ["It constructs the V-minimal free resolution by LaScala-Stillman's algorithm",
+ "option: \"homogenized\" (no automatic homogenization ",
  "Example:  Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
  "          v=[[2*x*Dx + 3*y*Dy+6, 0],",
  "             [3*x^2*Dy + 2*y*Dx, 0],",
@@ -873,11 +891,11 @@ HelpAdd(["Sminimal",
  "         IsExact_h(b,[x,y]):",
  "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution."]]);
 
-def Sminimal(g) {
+def Sminimal(g,opt) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
         betti_levelplus, newbases, i, j,qq, tminRes;
-  r = SlaScala(g);
+  r = SlaScala(g,opt);
   /* Should I turn off the tower?? */
   freeRes = r[0];
   redundantTable = r[1];

@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.3 2000/06/08 08:37:53 takayama Exp $   
+$OpenXM: OpenXM/src/k097/lib/minimal/minimal-note-ja.txt,v 1.4 2000/06/09 08:04:54 takayama Exp $   
 
 SpairAndReduction() :
    与えられた pair を reduction する.
@@ -546,6 +546,65 @@ In(11)=bases:
 In(12)=  これは, [3, 2, 1]  の元のうち, 2,1 がもとまっている.
 [ 2 ] の計算に 0 番目が必要でこれがまだない.
 
+-----------------------------------------
+June 11, 2000 (Tue),  20:05
+V-strict かどうかをチェックする関数を書きたい.
+安全に ring (schreyer order) を定義する関数が欲しい.
+安全に parse する関数も欲しい.
+ベクトルと es 表現の変換関数もいる.
 
+AvoidTheSameRing == 1 なら, schreyer の gbList も変更できないように
+すべきか？
+関連変数:
+needWarningForAvoidTheSameRing
+isTheSameRing() :  ring が同じか check. pointer でなく中身までみる.
+see poly4.c.  ここのコメントは参考になる.
+3.If Schreyer = 1, then the system always generates a new ring.
 
+define_ring に gbList も渡せるの?
+==> set_up_ring@ を見る. grep set_up_ring ==>
+primitive.c  KsetUpRing() grep KsetUpRing ==>
+keyword gbListTower が使えるが, list で与えないといけない.
+list に変換するのは, (list) dc.
 
+tparse の必要なわけ?
+?? おもいだせない.
+
+ring_def で ring (schreyer order) を定義すると, 計算のときの
+order も tower でやってくれるの?
+多分 NO.
+grep ppAdd *.c ==>
+poly2.c  
+  checkRing(f,g);
+
+  while (f != POLYNULL && g != POLYNULL) {
+    /*printf("%s + %s\n",POLYToString(f,'*',1),POLYToString(g,'*',1));*/
+    checkRing2(f,g); /* for debug */
+    gt = (*mmLarger)(f,g);
+
+   mmLarger は変えてないように見える.  checkRing はマクロ.
+
+mmLarger_tower は
+  if (!(f->m->ringp->schreyer) || !(g->m->ringp->schreyer))
+    return(mmLarger_matrix(f,g));
+となってるので mmLarger_tower を default にしておけば心配ないように見える.
+
+ring_def は正しく動く?
+
+関数の仕様:
+  mmLarger は tower に変えてしまう.
+  変数名, weight vector, シフトベクトル m を与えると ring (with schreyer order)
+  を作る.   ==> weyl<m>,  weyl
+  parser はとくに作る必要がないように見えるが... ==> name
+  ベクトル <---> es 表現  cf. toVectors, [(toe_)  f] gbext ==> name
+  適切な homogenization 関数 ==> homogenize<m>
+  ord_w の schreyer 版       ==> ord_w<m> 
+  init  の schreyer 版       ==> init<m>
+  gb_h, syz_h の対応版       ==> [ ii vv ww m] syz_h
+  resolution から shift vector を計算する関数.
+
+上の シフトベクトル対応版の関数は当分 new.sm1 へ. そのあと complex.sm1 へ.
+
+cohom.sm1 の interface 関数は cohom.k へ.
+Help key word は (Cohom.deRham) みたいに, . でくぎって書く.
+test13()  GKZ の minimal free resolution.

@@ -1,6 +1,6 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.1 2000/05/03 06:42:07 takayama Exp $ */
 
-
+/* k0 interface functions for cohom.sm1 */
 def Boundp(a) {
    local b;
    sm1("[(parse) [(/) ",a," ( load tag 0 eq 
@@ -185,3 +185,38 @@ def ex2_9() {
   return(a);
 }
 
+def to_int0(A) {
+   local i,c,n,r;
+   if (IsArray(A)) {
+     n = Length(A);
+     r = NewArray(n);
+     for (i=0; i<n; i++) {
+       r[i] = to_int0(A[i]);
+     }
+     return(r);
+   } else if (IsInteger(A)) {
+     return(IntegerToSm1Integer(A));
+   } else {
+     return(A);
+   }
+}
+HelpAdd(["Translate.to_int0",
+ ["to_int0(a) :  as same as sm1_push_int0."]]);
+
+
+def GKZ(A,B) {
+  /* we need sm1_rat_to_p in a future. */
+  local c;
+  c = to_int0([A,B]);
+  sm1(c," gkz /FunctionValue set ");
+}
+HelpAdd(["GKZ.GKZ",
+  ["GKZ(a,b) returns the GKZ systems associated to the matrix a and the vector b",
+   "The answer is given by strings.",
+   "Example: GKZ([[1,1,1,1],[0,1,3,4]],[0,2])"]]);
+
+def Rest(a) {
+  sm1(a," rest /FunctionValue set ");
+}
+HelpAdd(["Rest",
+["Rest(a), list a; "]]);
