@@ -1,0 +1,7 @@
+:
+: $OpenXM$
+for fn in $*
+do
+  ar x $fn
+  ls | grep -v 'CVS$' | grep -v '__'| xargs chmod 644 
+done

@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.18 2003/12/04 08:10:02 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.19 2004/06/24 12:45:15 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -111,7 +111,7 @@ $(kanlibS4) : $(HEADERS) gradedset.h
 
 kanlib.a : $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) kanlib.o ${OpenXM_lib}/libox_pathfinder.a
 	(cd plugin-tmp; /bin/rm -f *.o; ../ar-decomp $(PLUGIN_LIB) ; cp ../kanlib.o .)
-	(cd plugin-tmp; ../ar-decomp ${OpenXM_lib}/libox_pathfinder.a)
+	(cd plugin-tmp; ../ar-decomp2 ${OpenXM_lib}/libox_pathfinder.a)
 	ar ru kanlib.a $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) plugin-tmp/*.o
 	${RANLIB} kanlib.a
 
