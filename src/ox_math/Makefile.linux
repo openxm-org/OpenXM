@@ -1,5 +1,5 @@
 # -*- mode: Makefile; coding: euc-japan -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.4 1999/11/05 08:41:19 ohara Exp $ 
+# $OpenXM: OpenXM/src/ox_math/Makefile.linux,v 1.5 1999/11/07 12:12:55 ohara Exp $ 
 
 #
 PREFIX=/usr/local
@@ -65,8 +65,8 @@ testclient: testclient.o libox.a
 ox_math: serv1.o serv2.o libox.a
 	${CC} ${CFLAGS} -o $@ serv2.o serv1.o ${LIBS}
 
-math2ox: math2ox.o math2.o libox.a
-	${CC} ${CFLAGS} -o $@ math2ox.o math2.o ${LIBS}
+math2ox: math2ox.o math2.o serv2.o libox.a
+	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o ${LIBS}
 
 sample : sample.o libox.a
 	${CC} ${CFLAGS} -o $@ sample.o ${LIBS}

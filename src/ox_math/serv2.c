@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.7 1999/11/07 12:12:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.8 1999/11/18 21:56:44 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -176,7 +176,6 @@ int send_mlo_string(cmo *m)
 {
     char *s = ((cmo_string *)m)->s;
     MLPutString(lp, s);
-    fprintf(stderr, "ox_math:: put %s.", s);
 }
 
 int send_mlo_zz(cmo *m)
@@ -185,7 +184,6 @@ int send_mlo_zz(cmo *m)
     MLPutFunction(lp, "ToExpression", 1);
     s = convert_cmo_to_string(m);
     MLPutString(lp, s);
-    fprintf(stderr, "put %s.", s);
 }
 
 int send_mlo_list(cmo *c)
@@ -194,7 +192,6 @@ int send_mlo_list(cmo *c)
     cell *cp = ((cmo_list *)c)->head;
     int len = length_cmo_list((cmo_list *)c);
 
-    fprintf(stderr, "ox_math:: put List with %d args.\n", len);
     MLPutFunction(lp, "List", len);
     while(cp->next != NULL) {
         send_mlo(cp->cmo);
@@ -215,17 +212,26 @@ int send_mlo(cmo *m)
     case CMO_INT32:
         send_mlo_int32(m);
         break;
+    case CMO_ZERO:
+    case CMO_NULL:
+        send_mlo_int32(new_cmo_int32(0));
+        break;
     case CMO_STRING:
         send_mlo_string(m);
         break;
     case CMO_LIST:
         send_mlo_list(m);
         break;
+    case CMO_MATHCAP:
+        send_mlo(((cmo_mathcap *)m)->ob);
+        break;
+    case CMO_ZZ:
+        send_mlo_zz(m);
+        break;
     default:
         MLPutFunction(lp, "ToExpression", 1);
         s = convert_cmo_to_string(m);
         MLPutString(lp, s);
-        fprintf(stderr, "put %s.", s);
         break;
     }
 }

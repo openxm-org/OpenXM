@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.4 1999/11/04 19:33:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.5 1999/11/07 12:12:55 ohara Exp $ */
 
 /* サーバとの通信路を開く */
 int OX_start P((const char *));
@@ -48,6 +48,26 @@ char *OX_popString P(());
 :Arguments: {}
 :ArgumentTypes: {}
 :ReturnType: String
+:End:
+
+void OX_popCMO P(());
+
+:Begin:
+:Function: OX_popCMO
+:Pattern: OxPopCMO[]
+:Arguments: {}
+:ArgumentTypes: {}
+:ReturnType: Manual
+:End:
+
+void OX_receive P(());
+
+:Begin:
+:Function: OX_receive
+:Pattern: OxReceive[]
+:Arguments: {}
+:ArgumentTypes: {}
+:ReturnType: Manual
 :End:
 
 int OX_close P(());
