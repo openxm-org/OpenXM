@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.10 2002/01/09 11:19:25 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.11 2002/01/13 06:55:30 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
@@ -76,7 +76,8 @@ def
  /data peer 1 get toString def
  /control peer 3 get toString def
  peer message
- [(start ) oxpath.ox ( -reverse -ox ) oxasirpath.oxasir
+ [ox.win.start   aload pop 
+  oxpath.ox ( -reverse -ox ) oxasirpath.oxasir
   ( -data ) data ( -control ) control  ( -pass ) pass 
   ( -wait 5 )
   oxpath.null
@@ -101,7 +102,7 @@ def
 
 
  [(forkExec) [
-    (start)
+    ox.win.start   aload pop 
     oxpath.ox
     (-reverse)
     (-ox)

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.13 2002/01/09 11:32:01 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.14 2002/01/13 06:55:30 takayama Exp $
 
 /ox-win.sm1.loaded 1 def
 (ox.sm1.loaded) boundp {
@@ -29,6 +29,16 @@ OpenXM_HOME_WIN tag 0 eq {
   def
 } { } ifelse
 
+/ox.win.set.start {
+  [(stat) (c:\windows\system32.cmd.exe)] extension 0 get
+  null eq {
+    /ox.win.start [     (c:\windows\system32\cmd.exe) (/c) (start) ] def
+  }{
+    /ox.win.start [ (start) ] def
+  } ifelse
+} def
+ox.win.set.start
+
 %% This is used in asirconnectr_win
 /OX_LAUNCH (c:\home\asir\bin\ox_launch.exe) def
 %%%%%%%%%%%%%%% end configuration  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,7 +53,7 @@ ox.ostype (cygwin) eq {
  /oxpath.ox (bin/ox.exe) def
  /oxpath.oxsm1 (bin/ox_sm1.exe) def
  /oxpath.oxlog (bin/oxlog.exe) def
- /oxpath.xterm (start ) def
+ /oxpath.xterm (cmd /c start ) def
  /oxpath.null  (  ) def
  /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
  /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
@@ -77,7 +87,8 @@ ox.ostype (cygwin) eq {
  /data peer 1 get toString def
  /control peer 3 get toString def
  peer message
- [(start ox ) ( -reverse -ox ) (/home/nobuki/OpenXM/src/kxx/ox_sm1.exe)
+ [ox.win.start   aload pop 
+  ( ox ) ( -reverse -ox ) (/home/nobuki/OpenXM/src/kxx/ox_sm1.exe)
   ( -data ) data ( -control ) control  ( -pass ) pass 
   ( -wait 2 )
   oxpath.null
@@ -99,10 +110,10 @@ ox.ostype (cygwin) eq {
  /data peer 1 get toString def
  /control peer 3 get toString def
  peer message
+ (Hello ) message
  [(forkExec) [
-    %%(c:/windows/command/start)
-    (start)
-    %%[OpenXM_HOME_WIN  (\bin\ox)] cat
+    ox.win.start   aload pop 
+%%(c:\windows\system32\cmd.exe) (/c) (start)
     oxpath.ox
     (-reverse)
     (-ox)
