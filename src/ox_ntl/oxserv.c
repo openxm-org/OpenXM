@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,7 +65,8 @@ static OXFILE *G_oxfilep = NULL;
 static cmo_mathcap *G_oxserv_mathcap = NULL;
 
 /* signal */
-sigset_t	G_oxserv_sigusr1;
+int		G_oxserv_sigusr1flag = 0;
+int		G_oxserv_sigusr1cnt = 0;
 static jmp_buf  G_jmpbuf;
 
 /* User Function */
@@ -149,9 +150,10 @@ oxserv_sm_popCMO(OXFILE *fd)
 		m = new_cmo_null();
 	} else if (G_convertCmo) {
 		n = G_convertCmo(m);
-		if (m != n)
+		if (m != n) {
 			oxserv_delete_cmo(m);
-		m = n;
+			m = n;
+		}
 	}
 
 	send_ox_cmo(fd, m);
@@ -389,6 +391,8 @@ oxserv_sm_executeStringByLocalParser(void)
  * pop s as a function name, pop n as the number of arguments and to execute a
  * local function s with n arguments poped from the stack.
  *
+ * suppose G_userExecuteFunction not equal NULL
+ *
  * PARAM : NONE
  * RETURN: NONE
  *****************************************************************************/
@@ -400,17 +404,21 @@ oxserv_sm_executeFunction(void)
 	cmo_int32 *cnt = (cmo_int32 *)oxstack_pop();
 	cmo **arg;
 
-	arg = (cmo **)malloc(cnt->i * sizeof(cmo *));
 
 	if (name == NULL || cnt == NULL) {
 		oxserv_push_errormes("stack underflow in executeFunction");
 		return ;
 	}
 
+	arg = (cmo **)malloc(cnt->i * sizeof(cmo *));
 	for (i = 0; i < cnt->i; i++) {
 		arg[i] = oxstack_pop();
 		if (arg[i] == NULL) {
 			oxserv_push_errormes("stack underflow in executeFunction");
+
+			for (i--; i >= 0; i--)
+				oxserv_delete_cmo(arg[i]);
+			free(arg);
 			return ;
 		}
 	}
@@ -477,15 +485,25 @@ oxserv_sm_dupErrors()
  * -- SM_control_reset_connection -- signal handler for SIGUSR1 --
  *
  * PARAM : NONE
+ *
+ *       : if (sig == 0) called UNBLOCK_INPUT()
  * RETURN: NONE
  *****************************************************************************/
-static void
+void
 oxserv_sm_control_reset_connection(int sig)
 {
 	int tag;
 	OXFILE *fd = G_oxfilep;
 
+	if (G_oxserv_sigusr1cnt > 0) {
+		G_oxserv_sigusr1flag = 1;
+		return ;
+	}
+
+
 	DPRINTF(("reset -- start ==> "));
+	G_oxserv_sigusr1flag = 0;
+
 	send_ox_tag(fd, OX_SYNC_BALL);
 
 	oxstack_init_stack();
@@ -501,6 +519,7 @@ oxserv_sm_control_reset_connection(int sig)
 			receive_int32(fd);
 	}
 	DPRINTF((" <== end.\n"));
+
 
 	longjmp(G_jmpbuf, sig);
 }
@@ -591,7 +610,9 @@ oxserv_ox_receive(OXFILE *fd)
 
 	switch (tag) {
 	case OX_DATA:
+		BLOCK_INPUT();
 		c = receive_cmo(fd);
+		UNBLOCK_INPUT();
 		DPRINTF(("[CMO:%d=0x%x]", c->tag, c->tag));
 		oxstack_push(c);
 		break;
@@ -655,9 +676,6 @@ oxserv_init(OXFILE *oxfp, int ver, char *vstr, char *sysname, int *cmos, int *sm
 
 	oxserv_mathcap_init(ver, vstr, sysname, cmos, sms);
 
-	/* signal */
-	sigemptyset(&G_oxserv_sigusr1);
-	sigaddset(&G_oxserv_sigusr1, SIGUSR1);
 	signal(SIGUSR1, oxserv_sm_control_reset_connection);
 
 	/* initialize GMP memory functions. */
@@ -718,6 +736,8 @@ oxserv_set(int mode, void *ptr, void *rsv)
 void
 oxserv_dest()
 {
+	oxserv_delete_cmo((cmo *)G_oxserv_mathcap);
+
 	oxstack_dest();
 }
 	
@@ -728,7 +748,7 @@ oxserv_dest()
  *===========================================================================*/
 
 
-cmo *
+void
 oxserv_executeFunction(const char *func, cmo **arg, int argc)
 {
 	int i;
@@ -739,7 +759,7 @@ oxserv_executeFunction(const char *func, cmo **arg, int argc)
 		printf("\t%2d: %s\n", i, new_string_set_cmo(arg[i]));
 	}
 
-	return ((cmo *)new_cmo_int32(0));
+	return ;
 }
 
 /*****************************************************************************
@@ -759,18 +779,14 @@ main(int argc, char *argv[])
 
 	ox_stderr_init(stderr);
 
+        oxserv_set(OXSERV_SET_EXECUTE_FUNCTION, oxserv_executeFunction, NULL);
+
 	oxserv_init(oxfp, 0, "$Date$", "oxserv", NULL, NULL);
 
-	DPRINTF(("main - start\n"));
-	for (i = 0;; i++) {
-		DPRINTF(("@"));
-		ret = oxserv_receive(oxfp);
-		if (ret != OXSERV_SUCCESS)
-			break;
-	}
+	ret = oxserv_receive(oxfp);
 
+	oxserv_dest();
 	oxf_close(oxfp);
-	oxserv_delete_cmo((cmo *)G_oxserv_mathcap);
 
 	return (0);
 }

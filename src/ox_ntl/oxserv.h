@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.2 2003/11/08 12:34:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
 
 #ifndef __OX_SERVE_H__
 #define __OX_SERVE_H__
@@ -20,14 +20,18 @@ extern "C" {
 #endif
 
 /* signal */
-extern sigset_t	G_oxserv_sigusr1;
+extern int      G_oxserv_sigusr1cnt;
+extern int      G_oxserv_sigusr1flag;
 
 #define	BLOCK_INPUT()	do { \
-	sigprocmask(SIG_BLOCK, &G_oxserv_sigusr1, NULL); \
+	G_oxserv_sigusr1cnt++;			\
 } while(0)
 
 #define	UNBLOCK_INPUT()	do { \
-	sigprocmask(SIG_UNBLOCK, &G_oxserv_sigusr1, NULL); \
+	G_oxserv_sigusr1cnt--; 		\
+	if (G_oxserv_sigusr1cnt == 0 && G_oxserv_sigusr1flag) {	\
+		oxserv_sm_control_reset_connection(0);		\
+	}					\
 } while(0)
 
 /* c.f. mathcap_init in ox_toolkit */
@@ -35,6 +39,8 @@ int	 oxserv_init	(OXFILE *, int, char *, char *, int *, int *);
 void	 oxserv_dest	(void);
 
 int	 oxserv_receive	(OXFILE *);
+
+void	 oxserv_sm_control_reset_connection(int);
 
 int	 oxserv_set	(int mode, void *, void *);
 
@@ -44,6 +50,8 @@ int	 oxserv_set	(int mode, void *, void *);
 #define OXSERV_SET_DELETE_CMO                   (0x04)
 #define OXSERV_SET_GET_CMOTAG                   (0x05)
 
+/* debug */
+void	dprintf(const char *, ...);
 
 #ifdef __cplusplus
 }
