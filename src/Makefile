@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.86 2000/03/08 04:51:37 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.87 2000/03/08 05:31:33 ohara Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 OPENXM_CONTRIB2=../../OpenXM_contrib2
@@ -58,7 +58,7 @@ all-openmath:
 		echo "in your search path. OpenMath will not be compiled." ; \
 	fi
 
-all-oxmath: configure-oxmath
+all-oxmath: configure-oxmath install-oxtoolkit
 	@if test -x /usr/local/bin/math ; then \
 		(cd ox_math ; make) ; \
 	else \
