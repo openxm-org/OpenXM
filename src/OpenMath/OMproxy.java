@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.4 1999/11/04 18:21:42 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.5 1999/11/04 18:24:16 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -125,8 +125,7 @@ class OMproxy implements Runnable{
     CMO ret;
 
     debug("OMXML2CMO called: "+obj);
-
-    if(obj instanceof CMO_STRING){
+    if(!(obj instanceof CMO_STRING)){
       return new CMO_ERROR2();
     }
 
@@ -134,6 +133,7 @@ class OMproxy implements Runnable{
       stream = new ByteArrayInputStream(((CMO_STRING)obj).getString().getBytes());
       ret = trans.parse(stream);
     }catch(IOException e){
+      debug("OMXML2CMO occuered error in trans");
       return new CMO_ERROR2(new CMO_STRING(e.toString()));
     }
 
