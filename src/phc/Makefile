@@ -1,5 +1,6 @@
-# $OpenXM: OpenXM/src/phc/Makefile,v 1.5 2000/01/08 20:46:20 maekawa Exp $
+# $OpenXM: OpenXM/src/phc/Makefile,v 1.6 2000/01/31 05:52:06 noro Exp $
 
+OPENXM_CONTRIB=../../../OpenXM_contrib
 PROG=phc6
 
 SRCS=phc6.c
@@ -10,7 +11,7 @@ BINDIR=../../bin
 all: $(PROG)
 
 install: all
-	if test `uname` = "OSF1" ; then \
+	if [ "`uname`" = "OSF1" ]; then \
 		installbsd -c -s $(PROG) $(BINDIR)/$(PROG) ; \
 	else \
 		install -c -s $(PROG) $(BINDIR)/$(PROG) ; \
@@ -24,3 +25,7 @@ distclean:
 
 $(PROG): $(SRCS)
 	$(CC) -o $(PROG) $(SRCS)
+
+phcpack:
+	(cd ${OPENXM_CONTRIB}/PHC/Objects/ ; make phc)
+	gzip -c -9 /tmp/phc | uuencode phc.gz > ${BINDIR}/fbsd-phcv2p.gz.uuencoded
