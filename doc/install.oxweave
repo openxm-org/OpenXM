@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.24 2000/03/11 08:07:16 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.25 2000/03/15 10:42:57 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -163,6 +163,10 @@ If you use only OpenXM clients, skip (3) and (3').
        /xxx/yyy/OpenXM/rc/fetch_asir_key
     を実行することにより asir_key を自動で設定できます.
 
+    FreeBSD の package, Redhat Package manager を利用している
+    場合は, /usr/local/OpenXM/lib/asir/asir_key がすでに存在して
+    いる場合, このファイルは保存されます.
+
 */
 /*&eg
     Please get the key by following the instruction from asir itself or
@@ -172,6 +176,10 @@ If you use only OpenXM clients, skip (3) and (3').
     If you can get your mails under /var/mail, you can automatically set
     your key by executing
        /xxx/yyy/OpenXM/rc/fetch_asir_key
+
+    If you install the OpenXM package by the pkg_add of FreeBSD or
+    the redhat package manager, the old key file
+    /usr/local/OpenXM/lib/asir/asir_key, if exists,  is saved.
 
 */
 
