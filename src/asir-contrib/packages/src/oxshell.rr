@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.4 2004/04/07 01:06:54 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.5 2004/04/07 07:07:48 takayama Exp $ */
 
 module oxshell;
 
@@ -304,12 +304,12 @@ def gale_transform(A) {
   R = ox_pop_cmo(P);
   if (type(R) != 4) {
     print(R);
-    oxshell.ox_check_errors(P);
+    ox_check_errors(P);
     error("polymake.gale_transform");
   }
   if (length(R) != 3) {
     print(R);
-    oxshell.ox_check_errors(P);
+    ox_check_errors(P);
     error("polymake.gale_transform");
   }
   T = R[1];
@@ -344,12 +344,12 @@ def volume(A) {
   R = ox_pop_cmo(P);
   if (type(R) != 4) {
     print(R);
-    oxshell.ox_check_errors(P);
+    ox_check_errors(P);
     error("polymake.volume");
   }
   if (length(R) != 3) {
     print(R);
-    oxshell.ox_check_errors(P);
+    ox_check_errors(P);
     error("polymake.volume");
   }
   T = R[1];
