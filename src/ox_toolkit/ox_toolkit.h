@@ -1,9 +1,13 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.14 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.15 2003/03/30 08:05:22 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
 #define _OX_TOOLKIT_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 #if defined(WITH_GMP)
@@ -192,13 +196,13 @@ void               ox_push_cmd(OXFILE *sv, int sm_code);
 void               ox_cmo_rpc(OXFILE *sv, char *function, int argc, cmo *argv[]);
 int                ox_flush(OXFILE *sv);
 
-cell*              list_first(cmo_list *this);
-int                list_endof(cmo_list *this, cell *el);
+cell*              list_first(cmo_list *);
+int                list_endof(cmo_list *, cell *el);
 cell*              list_next(cell *el);
-cmo_list*          list_append(cmo_list* this, cmo *ob);
-cmo_list*          list_appendl(cmo_list* this, ...);
-int                list_length(cmo_list* this);
-cmo*               list_nth(cmo_list* this, int n);
+cmo_list*          list_append(cmo_list*, cmo *ob);
+cmo_list*          list_appendl(cmo_list*, ...);
+int                list_length(cmo_list* );
+cmo*               list_nth(cmo_list* , int n);
 
 int                cmolen_cmo(cmo* m);
 void               dump_buffer_init(char *s);
@@ -233,9 +237,9 @@ char*    get_symbol_by_tag(int tag);
 /* for mathcap database */
 mathcap *new_mathcap();
 void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[]);
-cmo_mathcap* mathcap_get(mathcap *this);
-mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc);
-int mathcap_allowQ_cmo(mathcap *this, cmo *ob);
+cmo_mathcap* mathcap_get(mathcap *);
+mathcap *mathcap_update(mathcap *, cmo_mathcap *mc);
+int mathcap_allowQ_cmo(mathcap *, cmo *ob);
 
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);
@@ -264,4 +268,9 @@ char *generate_otp();
 
 int ox_stderr_init(FILE *fp);
 int ox_printf(char *format, ...);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _OX_TOOLKIT_H_ */
