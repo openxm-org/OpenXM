@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.c,v 1.1 2003/11/20 00:06:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.c,v 1.2 2003/11/20 03:25:08 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -9,8 +9,10 @@
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
 
-/* #define mymalloc(n) sGC_malloc(n) */
+#define mymalloc(n) sGC_malloc(n)
+/*
 #define mymalloc(n) malloc(n)
+*/
 /* pm = PolyMake */
 #define PM_emptyLineCode 1
 
@@ -23,7 +25,22 @@ static int PMdebug = 0;
 
 /* char *PMlval; */
 
+/* The function putstr() uses static variables inside,
+  so if it is under use, it must not be initialized.
+  The function putstr2() is for the second use and is identical
+  function with putstr().
+*/
 static char *putstr(int c);
+static char *putstr2(int c);
+
+char *pmPutstr(int c) {
+  return putstr(c);
+}
+
+pmSetS(char *s) {
+  S = s;
+  return 0;
+}
 
 int PMlex() {
   int type;
@@ -70,6 +87,34 @@ int PMlex_aux() {
 
 #define PUTSTR_INIT 10
 static char *putstr(int c) {
+  static char *s=NULL;
+  static int pt=0;
+  static int limit=0;
+  int i;
+  char *old;
+  if (c < 0) {
+	s = (char *)mymalloc(PUTSTR_INIT);
+	if (s == NULL) {fprintf(stderr,"No more memory.\n"); exit(10);}
+	limit = PUTSTR_INIT;
+	pt = 0; s[pt] = 0;
+	return s;
+  }
+  if (s == NULL) putstr(-1);
+  if (pt < limit-1) {
+	s[pt++]=c; s[pt]=0;
+	return s;
+  }else{
+	old = s;
+	limit = 2*limit;
+	s = (char *)mymalloc(limit);
+	if (s == NULL) {fprintf(stderr,"No more memory.\n"); exit(10);}
+	for (i=0; i<=pt; i++) {
+	  s[i] = old[i];
+	}
+	return putstr(c);
+  }
+}
+static char *putstr2(int c) {
   static char *s=NULL;
   static int pt=0;
   static int limit=0;
@@ -326,44 +371,6 @@ void pmPrintObject(FILE *fp,pmObjectp p) {
 	/* sleep(100);  to call debugger. */
 	break;
   }
-}
-
-main_t() {
-  int c,type;
-  putstr(-1);
-  while ((c=getchar()) != EOF) {
-	putstr(c);
-  }
-  S = putstr(0);
-  printf("%s\n",S);
-  pmPreprocess(S);
-  printf("--------------------------\n");
-  printf("%s\n",S);
-  printf("--------------------------\n");
-  while ((type=PMlex()) != PM_noToken) {
-	printf("type=%d ",type);
-	if ((type == PM_number) || (type == PM_keyword)) {
-	  printf("value="); pmPrintObject(stdout,PMlval);
-	}
-	printf("\n");
-  }
-}
-
-main() {
-  int c,type;
-
-  
-  putstr(-1);
-  while ((c=getchar()) != EOF) {
-	putstr(c);
-  }
-  S = putstr(0);
-  printf("%s\n",S);
-  pmPreprocess(S);
-  printf("--------------------------\n");
-  printf("%s\n",S);
-  printf("--------------------------\n");
-  PMparse();
 }
 
 PMerror() {

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.h,v 1.2 2003/11/20 00:06:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.h,v 1.3 2003/11/20 03:25:08 takayama Exp $ */
 struct pmObject {
   int tag;
   void *body;
@@ -23,6 +23,9 @@ struct pmTree {
   pmObjectp childs;
 };
 
+int pmSetS(char *s);
+int pmPreprocess(void);
+char *pmPutstr(int c);
 pmObjectp pmNewStrObject(char *s);
 pmObjectp pmNewListObject(pmObjectp a);
 pmObjectp pmCons(pmObjectp a,struct pmList *b);
