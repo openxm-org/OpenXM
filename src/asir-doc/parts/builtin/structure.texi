@@ -1,0 +1,214 @@
+@comment $OpenXM$
+\BJP
+@node 構造体,,, 組み込み函数
+@section 構造体
+\E
+\BEG
+@node Structures,,, Built-in Function
+@section Structures
+\E
+
+@menu
+* newstruct::
+* arfreg::
+@end menu
+
+\JP @node newstruct,,, 構造体
+\EG @node newstruct,,, Structures
+@subsection @code{newstruct}
+@findex newstruct
+
+@table @t
+@item newstruct(@var{name})
+\JP :: 構造体名が @var{name}の構造体を生成する. 
+\EG :: Creates a new structure object whose name is @var{name}.
+@end table
+
+@table @var
+@item return
+\JP 構造体
+\EG structure
+@item name
+\JP 文字列
+\EG string
+@end table
+
+@itemize @bullet
+@item
+\JP 名前が @var{name} である構造体を生成する. 
+\EG This function creates an new structure object whose name is @var{name}.
+@item
+\JP あらかじめ, @var{name} なる構造体が定義されていなければならない. 
+\EG A structure named @var{name} should be defined in advance.
+@item 
+\BJP
+構造体の各メンバは演算子 @code{->} により名前でアクセスする.
+メンバが構造体の場合, 更に @code{->} による指定を続けることができる. 
+\E
+\BEG
+Each member of a structure is specified by its name using the operator
+@code{->}. If the specified member is also an structure, the specification
+by @code{->} can be nested.
+\E
+@end itemize
+
+@example
+[0] struct list @{h,t@};    
+0
+[1] A=newstruct(list);
+@{0,0@}
+[2] A->t = newstruct(list);
+@{0,0@}
+[3] A; 
+@{0,@{0,0@}@}
+[4] A->h = 1;
+1
+[5] A->t->h = 2;
+2
+[6] A->t->t = 3;
+3
+[7] A;
+@{1,@{2,3@}@}
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{arfreg},
+\JP @fref{構造体定義}
+\EG @fref{structure definition}
+@end table
+
+\JP @node arfreg,,, 構造体
+\EG @node arfreg,,, Structures
+@subsection @code{arfreg}
+@findex arfreg
+
+@table @t
+@item arfreg(@var{name},@var{add},@var{sub},@var{mul},@var{div},@var{pwr},@var{chsgn},@var{comp})
+\JP :: 構造体に体する基本演算を登録する. 
+\EG :: Registers a set of fundamental operations for a type of structure.
+@end table
+
+@table @var
+@item return
+\JP 1
+\EG 1
+@item name
+\JP 文字列
+\EG string
+@item add, sub, mul, div, pwr, chsgn, comp
+\JP ユーザ定義関数
+\EG user defined functions
+@end table
+
+@itemize @bullet
+@item 
+\JP @var{name} なる構造体型に対する基本演算を登録する. 
+\BEG
+This function registers a set of fundamental operations for a type
+of structure whose name is @var{name}.
+\E
+@item
+\JP それぞれの関数の仕様は次の通りである. 
+\EG The specification of each function is as follows.
+@table @var
+@item add(A,B)
+A+B
+@item sub(A,B)
+A-B
+@item mul(A,B)
+A*B
+@item div(A,B)
+A/B
+@item pwr(A,B)
+A^B
+@item chsgn(A)
+-A
+@item comp(A,B)
+1,0,-1 according to the result of a comparison between A and B.
+@end table
+@end itemize
+
+@example
+% cat test
+struct a @{id,body@}$
+
+def add(A,B)
+@{
+  C = newstruct(a);
+  C->id = A->id; C->body = A->body+B->body;
+  return C;
+@}
+
+def sub(A,B)
+@{
+  C = newstruct(a);
+  C->id = A->id; C->body = A->body-B->body;
+  return C;
+@}
+
+def mul(A,B)
+@{
+  C = newstruct(a);
+  C->id = A->id; C->body = A->body*B->body;
+  return C;
+@}
+
+def div(A,B)
+@{
+  C = newstruct(a);
+  C->id = A->id; C->body = A->body/B->body;
+  return C;
+@}
+
+def pwr(A,B)
+@{
+  C = newstruct(a);
+  C->id = A->id; C->body = A->body^B;
+  return C;
+@}
+
+def chsgn(A)
+@{
+  C = newstruct(a);
+  C->id = A->id; C->body = -A->body;
+  return C;
+@}
+
+def comp(A,B)
+@{
+  if ( A->body > B->body )
+    return 1;
+  else if ( A->body < B->body )
+    return -1;
+  else
+    return 0;
+@}
+
+arfreg("a",add,sub,mul,div,pwr,chsgn,comp)$
+end$
+% asir
+This is Risa/Asir, Version 20000908.
+Copyright (C) FUJITSU LABORATORIES LIMITED.
+1994-2000. All rights reserved.
+[0] load("./test")$
+[11] A=newstruct(a);
+@{0,0@}
+[12] B=newstruct(a);
+@{0,0@}
+[13] A->body = 3;
+3
+[14] B->body = 4;
+4
+[15] A*B;
+@{0,12@}
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newstruct},
+\JP @fref{構造体定義}
+\EG @fref{structure definition}
+@end table
