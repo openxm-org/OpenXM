@@ -31,16 +31,16 @@
 \topmargin -1in
 \def\tc{\color{orange}}
 \def\fbc{\bf\color{orange}}
-\def\itc{\color{LimeGreen}}
-%\def\itc{\color{DarkGreen}}
+%\def\itc{\color{LimeGreen}}
+\def\itc{\color{DarkGreen}}
 %\def\urlc{\bf\color{DarkGreen}}
 \def\urlc{\bf\color{LimeGreen}}
 \def\goldc{\color{goldenrod3}}
 \def\redc{\color{orange}}
 \def\vs{\vskip 1cm}
 \def\vsh{\vskip 0.5cm}
-
-\title{\bf Risa/Asir $B>e$N?7%0%l%V%J!<4pDl7W;;%Q%C%1!<%8$K$D$$$F(B}
+\def\ns{\itc\LARGE}
+\title{\tc\bf\ns Risa/Asir $B>e$N?7%0%l%V%J!<4pDl7W;;%Q%C%1!<%8$K$D$$$F(B}
 
 %\slideCaption{Risa/Asir $B>e$N?7%0%l%V%J!<4pDl7W;;%Q%C%1!<%8$K$D$$$F(B}
 \author{{\bf\Large $BLnO$(B $B@59T(B\\ $B?@8MBg3XM}3XIt?t3X2J(B}}
@@ -48,7 +48,7 @@
 %\date{\bf\Large Nov. 26, 2003}
 \date{\bf\Large Dec. 18, 2003}
 \begin{document}
-\setlength{\parskip}{10pt}
+\setlength{\parskip}{20pt}
 \maketitle
 
 %\itc: item color
@@ -61,7 +61,7 @@
 \bf
 \setlength{\parskip}{0pt}
 
-\begin{slide}{$B?7%Q%C%1!<%83+H/$N7P0^(B}
+\begin{slide}{\ns $B?7%Q%C%1!<%83+H/$N7P0^(B}
 
 $B%0%l%V%J!<4pDl7W;;$N8zN((B : $B%"%k%4%j%:%`$HF1;~$K(B, $B<BAu(B, $B%G!<%?9=B$$K$bBg$-$/(B
 $B0MB8(B
@@ -70,35 +70,35 @@
 
 {\tt MP} : $B;X?t%Y%/%H%k(B {\tt DL} $B$r%]%$%s%?$G$b$D(B
 
-{\tt DL} : 32bit $B@0?tG[Ns(B (1 $BMWAG(B 32bit $B$G8GDj(B)
+{\tt DL} : $BA4<!?t$*$h$S(B 32bit $B@0?tG[Ns(B (1 $BMWAG(B 32bit $B$G8GDj(B)
 
-\vskip 1cm
-\begin{tabular}{cc}
-\begin{minipage}{.5\hsize}
-\baselineskip 0.5in
-\begin{verbatim}
-typedef struct oMP {
-    struct oDL *dl;
-    P c;
-    struct oMP *next;
-} *MP;
-\end{verbatim}
-\end{minipage}
-&
-\begin{minipage}{.5\hsize}
-\baselineskip 0.5in
-\begin{verbatim}
-typedef struct oDL {
-    int td;
-    int d[1];
-} *DL;
-\end{verbatim}
-\end{minipage}
-\end{tabular}
+%\vskip 1cm
+%\begin{tabular}{cc}
+%\begin{minipage}{.5\hsize}
+%\baselineskip 0.5in
+%\begin{verbatim}
+%typedef struct oMP {
+%    struct oDL *dl;
+%    P c;
+%    struct oMP *next;
+%} *MP;
+%\end{verbatim}
+%\end{minipage}
+%&
+%\begin{minipage}{.5\hsize}
+%\baselineskip 0.5in
+%\begin{verbatim}
+%typedef struct oDL {
+%    int td;
+%    int d[1];
+%} *DL;
+%\end{verbatim}
+%\end{minipage}
+%\end{tabular}
 
 \end{slide}
 
-\begin{slide}{Singular $B$H$NHf3S(B}
+\begin{slide}{\ns Singular $B$H$NHf3S(B}
 
 Singular 2-0-4
 
@@ -117,7 +117,9 @@ gmp $B$r@0?t1i;;$K;HMQ(B $\Rightarrow$ Asir $B$N(B bignum $B$h$j(B,
 \end{itemize}
 \end{slide}
 
-\begin{slide}{$BIi$1$C$Q$J$7$O$/$d$7$$(B$\ldots$}
+\begin{slide}{\ns $BIi$1$C$Q$J$7$O$/$d$7$$(B$\ldots$}
+
+($B$"$k$$$O(B, $B!VIwI>!W$K<BBV$r9g$o$;$k(B)
 
 $B$[$\40A4$K(B 0 $B$+$i=q$/(B
 
@@ -133,7 +135,7 @@ geobucket, $B2DJQD9;X?t%Y%/%H%k$O<BAu(B
 $B4X?t$N%$%s%i%$%s(B, unrolling $B$NB?MQ(B
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- geobucket}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- geobucket}
 
 $BB?9`<0$r(B, $BG[Ns(B $g$$B$G;}$D(B
 
@@ -141,7 +143,7 @@ $g[i]$ $B$K$O(B, $B9`?t$,(B, $B9b!9(B $b^i$ $B$NB?9`<0$,F~$k(B
 
 $BB?9`<0$O(B, $g[i]$ $BA4It$NOB(B
 
-$B9`?t$,(B $l$ ($b^(i-1) < l \le b^i$) $B$NB?9`<0(B $p$ $B$r(B $g$ $B$K(B
+$B9`?t$,(B $l$ ($b^{(i-1)} < l \le b^i$) $B$NB?9`<0(B $p$ $B$r(B $g$ $B$K(B
 $BB-$9>l9g(B
 
 \begin{enumerate}
@@ -154,7 +156,7 @@ $g[i]$ $B$K$O(B, $B9`?t$,(B, $B9b!9(B $b^i$ $B$NB?9`<0$,F~$k(B
 
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- $B2DJQD9;X?t%Y%/%H%k(B}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- $B2DJQD9;X?t%Y%/%H%k(B}
 
 $BNc$($P(B, $f(x_1,x_2,x_3,x_4)$ $B$N3FJQ?t$N;X?t$,(B 256 $B0J2<$J$i(B, $B;X?t%Y%/%H%k$O(B
 32 bit $B$K(B 4 $B$DF~$k(B.
@@ -166,11 +168,12 @@ $e_1$ & $e_2$ & $e_3$ & $e_4$ \\ \hline
 $B;X?t$NOB(B : 32bit $B@0?t$NOB(B
 
 $B;X?t$NHf3S(B : $B<-=q<0$J$i(B, 32bit $B@0?t$NBg$-$5$NHf3S(B
+
 $B5U<-=q<0$J$i(B, $B$"$i$+$8$a5U=g$K5M$a$k(B.
 
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- $BG[Ns$K$h$kB?9`<0$NJ];}(B}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- $BG[Ns$K$h$kB?9`<0$NJ];}(B}
 
 $B4pK\A`:n(B : $f-mg$ ($m$ $B$OC19`<0(B)
 
@@ -186,7 +189,7 @@ $mg$ $B<+?H$O(B, $B2C;;$K$^$o$k$N$G(B, linked list $B$,$h$$(B
 
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- $B4X?t$N%$%s%i%$%s2=(B, unrolling}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- $B4X?t$N%$%s%i%$%s2=(B, unrolling}
 
 $BBgJ*$rJRIU$1$k$H(B, $B>.J*$,L\$K$D$/(B
 
@@ -195,7 +198,7 @@ $mg$ $B<+?H$O(B, $B2C;;$K$^$o$k$N$G(B, linked list $B$,$h$$(B
 $B<B83$GHf3S$7$J$,$i(B, $B$7$?$[$&$,$h$$$b$N$r%$%s%i%$%s(B, unrolling
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- reducer $B%5!<%A$N%O%C%7%e2=(B}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- reducer $B%5!<%A$N%O%C%7%e2=(B}
 
 $B9`(B t $B$r3d$j@Z$kCf4V4pDl(B $g_t$ $B$N%5!<%A$bLdBj$H$J$C$?(B
 
@@ -210,7 +213,7 @@ $t$ $B$,M?$($i$l$?$i(B, $H[h(t)]$ $B$rC5$7(B, $B$_$D$+$C$?$i(B $g_t$ $B$r
 $BEPO?(B
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- $B@F<!$N>l9g$N8zN(2=(B}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- $B@F<!$N>l9g$N8zN(2=(B}
 
 \begin{itemize}
 \item $B0lHL$N>l9g(B : $BESCf$G(B interreduction $B$7$J$$(B
@@ -225,7 +228,7 @@ $\Rightarrow$ 0 $B$K@55,2=$5$l$?(B S-poly $B$O(B, interreduction $B8e$b(B 
 \end{itemize}
 \end{slide}
 
-\begin{slide}{$B8zN(2=$N9)IW(B --- $B%a%b%j4IM}(B}
+\begin{slide}{\ns $B8zN(2=$N9)IW(B --- $B%a%b%j4IM}(B}
 
 $BHf3SE*>.$5$$%a%b%jNN0h$,7+$jJV$7I,MW$H$J$k(B
 
@@ -235,7 +238,7 @@ $\Rightarrow$ GC $B$+$i$b$i$C$?%a%b%j$r(B, $B<+A0$G(B
 $B%U%j!<%j%9%H4IM}(B
 \end{slide}
 
-\begin{slide}{$B3FIt$N>\:Y(B --- $B%I%i%$%P(B}
+\begin{slide}{\ns $B3FIt$N>\:Y(B --- $B%I%i%$%P(B}
 
 \begin{itemize}
 \item {\tt nd\_gr}
@@ -256,7 +259,7 @@ $\Rightarrow$ GC $B$+$i$b$i$C$?%a%b%j$r(B, $B<+A0$G(B
 \end{itemize}
 \end{slide}
 
-\begin{slide}{$B3FIt$N>\:Y(B --- $B;X?t%Y%/%H%k$ND9$5JQ99(B}
+\begin{slide}{\ns $B3FIt$N>\:Y(B --- $B;X?t%Y%/%H%k$ND9$5JQ99(B}
 
 \begin{itemize}
 \item $B$"$U$l(B 
@@ -274,7 +277,7 @@ S-poly $B7W;;(B, $B@55,2=$K$*$1$k(B, $BC19`<0(B $\times$ reducer $B$N7W;;
 
 \end{slide}
 
-\begin{slide}{$B3FIt$N>\:Y(B --- $B$=$NB>(B}
+\begin{slide}{\ns $B3FIt$N>\:Y(B --- $B$=$NB>(B}
 
 \begin{itemize}
 \item $BCf4V4pDl$r%G%#%9%/>e$KCV$-(B, demand loading
@@ -289,7 +292,7 @@ content $B=|5n(B
 
 \end{slide}
 
-\begin{slide}{$B@-G=(B --- $BM-8BBN>e$G$N(B cyclic-$n$ }
+\begin{slide}{\ns $B@-G=(B --- $BM-8BBN>e$G$N(B cyclic-$n$ }
 
 \vskip 1cm
 
@@ -299,11 +302,22 @@ content $B=|5n(B
   8         &   124        &  135         & 34       & 564                     \\
   9         &   27810      &  29725       & 3951     &    ---                  \\
 \end{tabular}
+\vskip 1cm
+
+{\tt nd\_gr} cyclic-$8$
+
+geobucket $B$J$7(B : 155sec
+
++reducer hash $B$J$7(B : 187sec
+
++inline $B$J$7(B : 240sec
+
++$B;X?t(B 32bit $B8GDj(B : 390sec
+
 \end{slide}
 
-\begin{slide}{$B@-G=(B --- $BM-8BBN>e$G$N%Y%s%A%^!<%/(B }
+\begin{slide}{\ns $B@-G=(B --- $BM-8BBN>e$G$N%Y%s%A%^!<%/(B }
 
-\vskip 1cm
 \begin{tabular}{c||c|c|c}
        & {\tt nd\_gr} & Singular & {\tt nd\_f4} \\ \hline
 dl & 5.9 & 4.9 &4.0 \\
@@ -319,9 +333,8 @@ hairer3 & 11 & 35 &*
 \end{tabular}
 \end{slide}
 
-\begin{slide}{$B@-G=(B --- $BM-8BBN>e$G$N%Y%s%A%^!<%/(B }
+\begin{slide}{\ns $B@-G=(B --- $BM-8BBN>e$G$N%Y%s%A%^!<%/(B }
 
-\vskip 1cm
 \begin{tabular}{c||c|c|c}
        & {\tt nd\_gr} & Singular & {\tt nd\_f4} \\ \hline
 hcyclic7 & 6.5 & 4.8 &3.1 \\
@@ -337,9 +350,8 @@ katsura9 & 35 & 29 &11 \\
 \end{tabular}
 \end{slide}
 
-\begin{slide}{$B@-G=(B --- $BM-8BBN>e$G$N%Y%s%A%^!<%/(B }
+\begin{slide}{\ns $B@-G=(B --- $BM-8BBN>e$G$N%Y%s%A%^!<%/(B }
 
-\vskip 1cm
 \begin{tabular}{c||c|c|c}
        & {\tt nd\_gr} & Singular & {\tt nd\_f4} \\ \hline
 noon7 & 4.4 & 1.8 &13 \\
@@ -356,7 +368,7 @@ virasoro & 1.8 & 1.4 & 0.65
 \end{tabular}
 \end{slide}
 
-\begin{slide}{$B:#8e$NM=Dj(B}
+\begin{slide}{\ns $B:#8e$NM=Dj(B}
 
 \begin{itemize}
 \item $BM-M}4X?tBN>e$N%0%l%V%J!<4pDl7W;;(B
@@ -365,9 +377,44 @@ virasoro & 1.8 & 1.4 & 0.65
 
 \item tangent cone $B%"%k%4%j%:%`(B, $BI8=`4pDl(B
 
+\item incremental $B$JF~NO$NDI2C(B
+
+(Singular $B$N40A4$J$^$M$J$N$G(B, $B$d$kM=Dj$J$7(B)
+
+$BF~NOB?9`<0$O(B S-poly $B%j%9%H$K2C$($k(B
+
+$B%Z%"(B $\Rightarrow$ S-poly $B$r@55,2=(B
+
+$BB?9`<0(B $\Rightarrow$ $B$=$N$^$^@55,2=(B
+
+$BF@$9$k>l9g$,$"$k(B
 \end{itemize}
 \end{slide}
 
+\begin{slide}{\ns $B$*CN$i$;(B}
+
+Risa/Asir Conference 2004
+
+3/22--3/24
+
+$B?@8MBg3X(B
+
+$B!:@Z(B : 2/28
+
+$B?=9~@h(B : takayama@math.kobe-u.ac.jp
+
+{\tt http://www.math.kobe-u.ac.jp/RisaCon/}
+
+$B!V?t<0=hM}!W$GFC=89f$r=P$9M=Dj(B
+\end{slide}
+\begin{slide}{\ns $B9V5fO?869F(B}
+
+$B!:@Z(B : 3/19
+
+$BAw$j@h(B : {\tt noro@math.kobe-u.ac.jp}
+
+$B>\:Y$O(B : {\tt http://www.jssac.org} $B$K7G:\M=Dj(B
+\end{slide}
 %\begin{slide}{}
 %\end{slide}
 \end{document}
