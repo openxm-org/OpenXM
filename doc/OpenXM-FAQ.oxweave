@@ -1,4 +1,21 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.7 2001/01/18 02:57:56 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.8 2001/05/06 10:38:17 takayama Exp $
+
+//&C August 10, 2001
+//&ja Q. cygwin 環境で : から始まる sh ファイルが動かないことがあります.(開発者向け)
+//&en Q. Shell scripts which start with ":" does not sometimes work on cygwin (for developers).
+
+/*&ja
+ Login  shell が csh 系の場合この現象がおきるようです.
+ OpenXM/src/kan96xx/Kan/cat0,  OpenXM/src/kan96xx/Kan/ar-decomp
+ の : を #!/bin/sh に置き換えてください.
+*/
+
+/*&en
+ It seems that this trouble happens when the login shell is csh.
+ Please replace :'s in
+ OpenXM/src/kan96xx/Kan/cat0,  OpenXM/src/kan96xx/Kan/ar-decomp
+ by #!/bin/sh
+*/
 
 //&C May 6, 2001
 //&ja Q. tab をスペースで置き換えたい.    (開発者向け)
