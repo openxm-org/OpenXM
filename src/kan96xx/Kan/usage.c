@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.16 2003/08/21 02:30:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.17 2003/08/21 04:45:40 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -254,7 +254,13 @@ void Kusage2(fp,s)
     fppp(fp,"h is the initial term of the polynomial f.\n");
     fppp(fp,"Example: (2 x^3 + 3 x + 1). init :: ---> 2 x^3\n");
     fppp(fp,"Example: [(x^3+1). (x h+ h^5).] {init} map ::\n");
-    fppp(fp,"Example: (x+1). [0 1 1 1] init ::    cf. weightv \n");
+    fppp(fp,"Example: (x+1). [0 1 1 1] init ::    cf. weightv \n\n");
+    fppp(fp,"<< fv weight_vector init h >>\n");
+    fppp(fp,"<< fv [weight_vector shift_vector] init h >>\n");
+    fppp(fp,"fv is a polynomial or a vector of polynomials.\n");
+    fppp(fp,"Note: the last x variable is always assumed to be the vector index.\n");
+    fppp(fp,"Example: [(x,y) ring_of_differential_operators 0] define_ring\n");
+	fppp(fp,"    [(x^2*Dx^2+2*x*Dx+x). (Dx+x).] [[(Dx) 1 (x) -1] weightv [0 -1]] init ::\n");
   }else if (strcmp(s,"lc")==0) {
     fppp(fp,"<< obj lc leftCell >>\n");
     fppp(fp,"class leftCell;\n");

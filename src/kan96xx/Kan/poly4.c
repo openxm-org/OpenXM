@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.8 2003/08/19 08:02:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.9 2003/08/21 12:28:58 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -8,6 +8,7 @@
 static void shell(int v[],int n);
 static int degreeOfPrincipalPart(POLY f);
 static int degreeOfInitW(POLY f,int w[]);
+static int degreeOfInitWS(POLY f,int w[],int s[]);
 
 
 static void shell(v,n)
@@ -463,6 +464,75 @@ POLY POLYToInitW(f,w)
   }
   h->next = POLYNULL;
   return(node->next);
+}
+
+static int degreeOfInitWS(f,w,s)
+     POLY f;
+     int w[];
+	 int s[];
+{
+  int n,i,dd;
+  if (f ISZERO) {
+    errorPoly("degreeOfInitWS(0,w) ");
+  }
+  n = f->m->ringp->n; dd = 0;
+  for (i=0; i<n-1; i++) {
+    dd += (f->m->e[i].D)*w[n+i];
+    dd += (f->m->e[i].x)*w[i];
+  }
+  dd += s[(f->m->e[n-1].x)];
+  return(dd);
+}
+
+POLY POLYToInitWS(f,w,s)
+     POLY f;
+     int w[]; /* weight vector */
+	 int s[]; /* shift vector */
+{
+  POLY node;
+  struct listPoly nod;
+  POLY h;
+  POLY g;
+  int maxd;
+  int dd;
+  node = &nod; node->next = POLYNULL; h = node;
+
+  if (f ISZERO) return(f);
+  maxd = degreeOfInitWS(f,w,s);
+  g = pCopy(f); /* shallow copy */
+  while (!(f ISZERO)) {
+    dd = degreeOfInitWS(f,w,s);
+    if (dd > maxd) maxd = dd;
+    f = f->next;
+  }
+  while (!(g ISZERO)) {
+    dd = degreeOfInitWS(g,w,s);
+    if (dd == maxd) {
+      h->next = g;
+      h = h->next;
+    }
+    g = g->next;
+  }
+  h->next = POLYNULL;
+  return(node->next);
+}
+
+int ordWsAll(f,w,s)
+     POLY f;
+     int w[]; /* weight vector */
+	 int s[]; /* shift vector */
+{
+  int maxd;
+  int dd;
+
+  if (f ISZERO)  errorPoly("ordWsAll(0,w,s) ");
+  maxd = degreeOfInitWS(f,w,s);
+  while (!(f ISZERO)) {
+    dd = degreeOfInitWS(f,w,s);
+    if (dd > maxd) maxd = dd;
+    f = f->next;
+  }
+  return maxd;
 }
 
 

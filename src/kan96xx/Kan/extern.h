@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.8 2003/07/10 08:20:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.9 2003/07/14 12:49:52 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -252,6 +252,8 @@ int oGrade(struct object ob);
 struct ring *oRingp(struct object ob);
 struct object KisOrdered(struct object of);
 struct object KvectorToSchreyer_es(struct object obarray);
+POLY objArrayToPOLY(struct object ob);
+struct object POLYtoObjArray(POLY f,int size);
 
 /* hilbert.c */
 struct object hilberto(struct object obgb,struct object obvlist);

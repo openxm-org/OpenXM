@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.7 2003/08/20 01:39:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.8 2003/08/21 02:30:23 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -72,6 +72,8 @@ int isHomogenized_vec(POLY f);
 int containVectorVariable(POLY f);
 POLY POLYToPrincipalPart(POLY f);
 POLY POLYToInitW(POLY f,int w[]);
+POLY POLYToInitWS(POLY f,int w[],int s[]);
+int ordWsAll(POLY f,int w[],int s[]);
 
 POLY polyGCD(POLY f,POLY g);
 int isTheSameRing(struct ring *rstack[], int rp, struct ring *newRingp);
