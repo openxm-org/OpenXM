@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.11 2004/06/30 09:30:44 ohara Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.12 2004/07/07 02:58:45 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -120,6 +120,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * mapat::
 * set_print_function::
 * small_jacobi::
+* flatten_quote::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -1067,15 +1068,78 @@ http://members.jcom.home.ne.jp/yokolabo/asirlib/
 @end table
 
 @comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
-@item この関数は 2004-3-1 から 2004-3-14 にかけて アルゴリズム xyz (論文
- http://www.afo.org/xyz.pdf ) を用いて書き直された.
- 変更をうけたソースコードは xxxyy.rr, ppp.c である.
-@item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
+@item この関数の由来は不明.
 @end itemize
+
+
+@node quote_flatten,,, 実験的仕様の関数
+@subsection @code{quote_flatten}
+@findex quote_flatten
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item quote_flatten(@var{q},@var{op})
+:: quote の括弧をとりさる.
+@end table
+
+@table @var
+@item return
+Quote
+@item q
+Quote
+@item op
+演算子を表す文字列.
+@end table
+
+@itemize @bullet
+@item
+Quote 型のデータは木構造をしている
+( quotetolist 参照 ).
+@code{quote_flatten()} は, @var{q} の中にあられる演算子 @var{op} 
+の子供ノードを平等にする.
+つまり演算子 @var{op} に関する括弧づけがあった場合それをすべてとりさる.
+たとえば (1+2)+(3+4) という表現を 1+2+3+4 に変換する.
+@item 
+ 現在の実装では n-ary の演算子は定義されていないので,
+ 1+2+3 は実は (1+2)+3 と表現されている.
+ つまり + 演算子は左結合的である.
+@end itemize
+
+@example
+[1288] flatten_quote(quote((1+2)+(3+4*(x+3))),"+");
+quote(1+2+3+4*(x+3))
+[1289] flatten_quote(quote( (x*y)*(p*3)-(x*y)*z),"*");
+quote(x*y*p*3-x*y*z)
+[1290] quotetolist(quote(1+2+3));
+[b_op,+,[b_op,+,[internal,1],[internal,2]],[internal,3]]
+@end example
+
+@table @t
+@item 参照
+@ref{quotetolist}, @ref{print_tex_form}(contrib)
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+ この関数は 2004-7-7 から 2004-7-8 にかけて
+ quote に関する操作を研究するために実験的に書かれた.
+ OpenXM/fb で蓄積された公式の不要な括弧をとりはずし, tex 形式に変換するのに
+ 応用.
+@item
+ 変更をうけたソースコードは 
+ builtin/strobj.c 1.47,
+ parse/eval.c 1.35,
+ parse/parse.h 1.31,
+ parse/quote.c 1.14--1.16.
+@end itemize
+
+
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
 
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
