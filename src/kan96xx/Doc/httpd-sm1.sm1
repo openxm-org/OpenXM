@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.13 2002/10/17 13:40:28 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.14 2002/10/21 00:37:01 takayama Exp $
 %% http server by sm1
 %% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
@@ -86,8 +86,8 @@ def
        [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
        %%     wait for ever
         [(sm1.socket) (readHTTP) [httpd.server.fd 0 get ]] extension /ff set
-        ff length 0 eq {
-           (connection is closed.) message
+        ff tag 0 eq {
+           (connection is closed.) message exit
         }
         {
           (------------  start ----------------------) message

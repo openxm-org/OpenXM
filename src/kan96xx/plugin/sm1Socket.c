@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.11 2002/10/24 01:05:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.12 2002/10/24 01:29:00 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -156,6 +156,42 @@ struct object KsocketConnect(struct object obj) {
 /* [ integer socketid ]
    [ integer newsocketid ] */
 struct object KsocketAccept(struct object obj) {
+  struct object obj1;
+  struct object obj2;
+  struct object robj;
+  int s, news;
+    
+  if (obj.tag != Sarray) {
+    errorMsg1s("KsocketAccept([integer socketid])");
+  }
+  if (getoaSize(obj) < 1) {
+    errorMsg1s("KsocketAccept([integer socketid])");
+  }
+  obj1 = getoa(obj,0);
+  if (obj1.tag != Sinteger ) {
+    errorMsg1s("KsocketAccept([integer socketid]), argument must be integer.");
+  }
+  s = KopInteger(obj1);
+  if ((news = accept(s,NULL,NULL)) < 0) {
+    errorMsg1s("Error in accept.");
+  }
+  if (close(s) < 0) {
+    errorMsg1s("Error in closing the old socket.");
+  }
+  robj = newObjectArray(1);
+  putoa(robj,0,KpoInteger(news));
+  return(robj);
+}
+
+/* [ integer socketid ]
+   [ integer newsocketid ] */
+/* It does not close the listening socket. You can call it as
+   ls = open.
+   fd=accept2(ls).  close(fd).
+   fd=accept2(ls).  close(fd).
+   ....
+   */
+struct object KsocketAccept2(struct object obj) {
   struct object obj1;
   struct object obj2;
   struct object robj;
@@ -534,6 +570,8 @@ struct object KsocketWriteByte(struct object obj) {
 struct object KsocketReadHTTP(struct object socketObj) {
   /* Read until two empty line appears. */
   struct object ob;
+  struct object ob1;
+  struct object nob;
   char *s;
   char *sss;
   char *tmp;
@@ -543,6 +581,24 @@ struct object KsocketReadHTTP(struct object socketObj) {
   int datasize;
   int last;
   int contentLength=-1;
+  int socketid;
+  nob = NullObject;
+
+  if (socketObj.tag != Sarray) {
+    errorMsg1s("KsocketReadHTTP([integer socketid])");
+  }
+  if (getoaSize(socketObj) < 1) {
+    errorMsg1s("KsocketReadHTTP([integer socketid])");
+  }
+  ob1 = getoa(socketObj,0);
+  if (ob1.tag != Sinteger) {
+    errorMsg1s("KsocketReadHTTP([integer socketid]) : the argument must be integer.");
+  }
+  socketid = KopInteger(ob1);
+
+  if (KsocketSelect0(socketid,-1) != 1) {
+	return(nob);
+  }
   ob = KsocketRead(socketObj);
   s = KopString(ob);
   if (strncmp(s,"POST",4) == 0) flagmax=2; /* for IE */
@@ -574,8 +630,10 @@ struct object KsocketReadHTTP(struct object socketObj) {
 		break;
 	  }
 	}
-	fprintf(stderr,"Waiting in socketReadBlock (spin lock to wait an empty line). flagmax(0d,0a)=%d, content-length=%d, received content-length=%d\n",flagmax,contentLength,getReceivedContentLength(sss));
-	if (strlen(s) == 0) {fprintf(stderr,"but I'm not receiving data. Expecting a bug.\n");
+	fprintf(stderr,"Waiting in socketReadBlock. flagmax(0d,0a)=%d, content-length=%d, received content-length=%d\n",flagmax,contentLength,getReceivedContentLength(sss));
+	if (strlen(s) == 0) {
+	  fprintf(stderr,"No data. Perhaps connection is closed by foreign host.\n");
+	  return nob;
 	}else{
 	  /* for debugging. */
 	  for (i=0; i<strlen(sss); i++) {
@@ -589,7 +647,10 @@ struct object KsocketReadHTTP(struct object socketObj) {
 	  }
 	  fprintf(stderr,"\n");
 	}
-	sleep(2);
+
+    if (KsocketSelect0(socketid,-1) != 1) {
+	  return nob;
+	}
 	ob = KsocketRead(socketObj);
 	s = KopString(ob);
 	for (i=strlen(s)-1; i>=0; i--) {
@@ -633,6 +694,8 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
     robj = KsocketConnect(obj);
   }else if (strcmp(key,"accept") == 0) {
     robj = KsocketAccept(obj);
+  }else if (strcmp(key,"accept2") == 0) {
+    robj = KsocketAccept2(obj);
   }else if (strcmp(key,"select") == 0) {
     robj = KsocketSelect(obj);
   }else if (strcmp(key,"mselect") == 0) {

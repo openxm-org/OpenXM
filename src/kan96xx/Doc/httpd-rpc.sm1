@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.1 2002/10/23 13:38:50 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -9,7 +9,14 @@ def
 /httpd.port 8090 def
 /httpd.serial 0 def
 
-/httpd.image.name (kobeuniv2.jpg) def
+%%******* Put initialization codes for ox_asir here. 
+/httpd.initialization
+ [
+  (XM_debug=0; ctrl("debug_window",0); Xm_noX=1;)
+  ("Asirweb version 0.80. "+
+   " Risa/Asir oxasir version "+rtostr(version());)
+ ] cat
+def
 
 
 [(parse) (oxasir.sm1) pushfile] extension 
@@ -20,6 +27,9 @@ oxNoX
   [(x^2-1) (x)] fctr pop
   oxasir.ccc oxmathcap
   oxasir.ccc oxsetmathcap
+  oxasir.ccc httpd.initialization oxexecutestring ;
+  (Initialization returns ...: ) messagen
+  oxasir.ccc oxpopcmo message ;
 } ifelse
 
 /webrpc  {
@@ -60,8 +70,8 @@ oxNoX
        [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
        %%     wait for ever
         [(sm1.socket) (readHTTP) [httpd.server.fd 0 get ]] extension /ff set
-        ff length 0 eq {
-           (connection is closed.) message
+        ff tag 0 eq {
+           (connection is closed.) message exit
         }
         {
           (------------  start ----------------------) message
@@ -71,9 +81,7 @@ oxNoX
              [(httpd.com=) httpd.com] cat message
           (------------  end ----------------------) message
           (   ) message
-          httpd.serial 0 eq {
-            /httpd.com  httpd.initialization def 
-          } { } ifelse
+
           httpd.com metaCommand {
             httpd.textarea.valid {
 
@@ -120,8 +128,10 @@ oxNoX
             httpd.result message
             (----------------------------------) message
             (  ) message
-
+            
+            (----------- error -------------) message
             err message
+            (-------------------------------) message
             err [ ] eq  { 
             } {
               oxasir.ccc cleanErrors
@@ -215,14 +225,22 @@ oxNoX
   popVariables
 } def
 
-%%******* Put initialization codes for ox_asir here. 
-/httpd.initialization
- [
-  (XM_debug=0; ctrl("debug_window",0); Xm_noX=1;)
-  ("Asirweb version 0.80. "+
-   " Risa/Asir oxasir version "+rtostr(version());)
- ] cat
-def
+%% **** Overwrites the definition in httpd.sm1
+/httpd_startserver {
+   (httpd server accessible outside localhost.) message
+   %%  get the hostname of this machine.
+   [(sm1.socket) (open) [httpd.port 
+                         [(sm1.socket) (gethostname) [ ] ]extension ] ]
+    extension 
+   /httpd.server.fdAndPort set
+   (sm1.socket.open returns  ) messagen httpd.server.fdAndPort message
+   [(sm1.socket) (accept) [httpd.server.fdAndPort 0 get]] extension
+   /httpd.server.fd set
+   (connected.) message
+   (sm1.socket.accept returns <httpd.server.fd> ) messagen 
+   httpd.server.fd message
+
+} def
 
 %% ******* sample of cooked command
 /cookedCommand {
