@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.55 1999/12/23 11:59:22 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.56 1999/12/23 12:57:20 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
@@ -299,6 +299,19 @@ $b_1$ & $b_2$ & $\cdots$ & $b_n$	\\ \hline
 \end{tabular}
 
 この $b_1$, $b_2$, $\cdots$, $b_n$ はすべて 32 ビットの整数である。
+スタックマシンへの命令はすべて 32 ビットの整数で表しており、
+各 $b_i$ は利用可能な命令に対応する 32 ビットの整数となっている。
+
+3 番目の要素 $C$ は以下のようなリスト構造をしている。
+
+\begin{tabular}{|c|c|c|c|} \hline
+$c_1$ & $c_2$ & $\cdots$ & $c_n$ \\ \hline
+\end{tabular}
+
+各 $c_i$ もまたリスト構造となっており、
+最初の要素が 32 ビットの整数となっている。
+この整数値は受け取れるメッセージのタグとなっており、
+2 番目の要素以降についてはタグごとに独立に決まっている。
 
 
 具体的な mathcap の例をあげる。
