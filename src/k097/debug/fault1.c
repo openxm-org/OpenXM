@@ -17,7 +17,7 @@ main() {
 #ifdef CALLASIR
   GC_init();
   KasirKanAsirInit();
-  printf("%s\n",KasirKanExecuteString((char *)NULL)); exit();
+  printf("%s\n",KasirKanExecuteString((char *)NULL)); exit(0);
 #endif
 
 /* OMIT */

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.3 2001/01/28 02:40:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.4 2002/02/24 10:27:21 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -98,7 +98,7 @@ char *s;
   if (strlen(s)+Kpt >= Ksize) {
     Ksize = Ksize*2;
     t = (char *)GC_malloc(sizeof(char)*Ksize);
-    if (t == (char *)NULL) { fprintf(stderr,"No memory."); exit();}
+    if (t == (char *)NULL) { fprintf(stderr,"No memory."); exit(1);}
     strcpy(t,Kbuff); Kbuff = t;
   }
   strcpy(&(Kbuff[Kpt]),s);

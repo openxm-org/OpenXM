@@ -15,7 +15,7 @@
 \section{前書き}
 */
 /* OpenXM: OpenXM/src/kxx/oxweave.c,v 1.7 2001/05/06 07:53:01 takayama Exp 
-   $OpenXM$
+   $OpenXM: OpenXM/src/util/oxweave.c,v 1.1 2002/04/05 01:12:09 takayama Exp $
  */
 #include <stdio.h>
 
@@ -80,7 +80,7 @@ main(int argc,char *argv[]) {
   tagc = tagc2 = 0;
   if (argc <= 1 || argc >= VSIZE) {
     usage();
-    exit();
+    exit(0);
   }else{
     for (i=1; i< argc ; i++) {
       if (strcmp(argv[i],"--source") == 0) {

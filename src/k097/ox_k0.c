@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.1 2003/05/14 07:09:47 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -183,7 +183,7 @@ nullserver(int fdStream) {
       case OX_DATA:    fprintf(stderr," OX_DATA \n"); break;
       case OX_SYNC_BALL: fprintf(stderr," OX_SYNC_BALL \n"); break;
       case -1: fprintf(stderr," End of file. Exiting the server child.\n");
-        exit(); break;
+        exit(0); break;
       default: fprintf(stderr," ?! \n"); break;
       }
     }

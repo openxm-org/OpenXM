@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1pvm.c,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1pvm.c,v 1.3 2001/05/04 01:06:30 takayama Exp $ */
 #include <stdio.h>
 #include "pvm3.h"
 #define SLAVENAME "slave3"
@@ -185,7 +185,7 @@ main()
   m = 5;
 
 
-  if (KpvmStartSlaves(SLAVENAME,3)) exit();
+  if (KpvmStartSlaves(SLAVENAME,3)) exit(0);
   KpvmMcast("/afo { /n  set (x+1). n power [((x-1)^2).] reduction 0 get (string) dc} def ");
 
   obj = newObjectArray(m);

@@ -14,7 +14,7 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.6 1999/12/15 03:30:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.7 2001/05/06 07:53:01 takayama Exp $ */
 #include <stdio.h>
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
@@ -78,7 +78,7 @@ main(int argc,char *argv[]) {
   tagc = tagc2 = 0;
   if (argc <= 1 || argc >= VSIZE) {
     usage();
-    exit();
+    exit(0);
   }else{
     for (i=1; i< argc ; i++) {
       if (strcmp(argv[i],"--source") == 0) {

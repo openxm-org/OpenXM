@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/misc/packages/Windows/debug-tools/crlf.c,v 1.1 2002/01/16 09:11:59 takayama Exp $ */
 #include <stdio.h>
 main(int argc,char *argv[]) {
   FILE *fp;
@@ -9,7 +9,7 @@ main(int argc,char *argv[]) {
   int c;
   if (argc < 2) {
     fprintf(stderr,"crlf filename\n");
-    exit();
+    exit(1);
   }
   fp = fopen(argv[1],"r");
   if (fp == NULL) {
