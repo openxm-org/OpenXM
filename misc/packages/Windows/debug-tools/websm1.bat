@@ -1,9 +1,10 @@
-rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/websm1.bat,v 1.1 2002/01/13 07:10:16 takayama Exp $
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/websm1.bat,v 1.2 2002/10/01 13:00:34 takayama Exp $
 rem Moved from OpenXM/src/kan96xx/win/websm1.bat,v 
 rem            1.2 2001/08/10 08:33:02 takayama Exp 
 rem
 rem Set the following values
 rem
+set OXWEB_POST=1
 set HOME=c:\cygwin\home\nobuki
 set OpenXM_WIN_ROOT=c:\cygwin\home\nobuki\OpenXM\misc\packages\Windows\OpenXM-win
 set OPENXMHOMEWIN=%OpenXM_WIN_ROOT%
