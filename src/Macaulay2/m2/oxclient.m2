@@ -1,4 +1,4 @@
-ID=" $OpenXM$ "
+ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.1 2000/09/21 09:20:53 takayama Exp $ "
 
 load "oxcommon.m2"
 
@@ -58,7 +58,7 @@ oxStartSession = (s) -> (
      comm = toString "xterm -geometry 80x25-0-0 -e  ox -ox " | s | " -data " |
                       dPort | " -control " | cPort |
 		      " -reverse -host localhost" | " -pass " | PASS | " &" ;
-     comm = makeLaunchCommand(true,"localhost","mike","localhost",
+     comm = makeLaunchCommand(true,"localhost",getenv("USER"),"localhost",
 	                      s,dPort,cPort,PASS);
      print comm;
      if (run (comm) != 0) 
