@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.22 2000/02/26 11:42:48 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.23 2000/02/28 14:10:29 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -1580,6 +1580,7 @@ Number  (the process number of ox_sm1)
 in the homogenized Weyl algebra; it applies the
 division algorithm to @var{f}. The set of variables is @var{v} and
 @var{w} is weight vectors to determine the order, which can be ommited.
+@code{sm1_reduction_noH} is for the Weyl algebra.
 @item The return value is of the form
 [r,c0,[c1,...,cm],[g1,...gm]] where @var{g}=[g1, ..., gm] and
 r/c0 + c1 g1 + ... + cm gm = 0.
@@ -1621,6 +1622,7 @@ are for distributed polynomials.
 変数集合は @var{v} で指定する.
 @var{w} は順序を指定するための ウエイトベクトルであり,
 省略してもよい.
+@code{sm1_reduction_noH} は, Weyl algebra 用.
 @item 戻り値は次の形をしている:
 [r,c0,[c1,...,cm],[g1,...gm]] ここで @var{g}=[g1, ..., gm] であり,
 r/c0 + c1 g1 + ... + cm gm = 0
@@ -1660,8 +1662,28 @@ def sm1_reduction(A) {
   if (type(A) != 4) {
    error("sm1_reduction(A|proc=p): A must be a list.");
   }
+  AA = [rtostr(A[0])];
+  AA = append(AA,[ map(rtostr,A[1]) ]);
+  AA = append(AA, cdr(cdr(A)));
   sm1(P," /reduction*.noH 0 def ");
-  sm1_push_int0(P,A);
+  sm1_push_int0(P,AA);
+  sm1(P," reduction* ");
+  ox_check_errors2(P);
+  return(sm1_pop(P));
+}
+
+def sm1_reduction_noH(A) {
+  /* Example: sm1_reduction(A|proc=10) */
+  SM1_FIND_PROC(P);
+  /* check the arguments */
+  if (type(A) != 4) {
+   error("sm1_reduction_noH(A|proc=p): A must be a list.");
+  }
+  AA = [rtostr(A[0])];
+  AA = append(AA,[ map(rtostr,A[1]) ]);
+  AA = append(AA, cdr(cdr(A)));
+  sm1(P," /reduction*.noH 1 def ");
+  sm1_push_int0(P,AA);
   sm1(P," reduction* ");
   ox_check_errors2(P);
   return(sm1_pop(P));
