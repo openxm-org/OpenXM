@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.14 2003/12/03 01:21:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.15 2003/12/03 09:00:46 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -136,6 +136,7 @@ struct object KaoMult(struct object aa,struct object bb);
 struct object KooDiv2(struct object ob1,struct object ob2);
 struct object KoNegate(struct object ob1);
 struct object KreduceRationalFunction(struct object ob);
+struct object KooPower(struct object ob1,struct object ob2);
 
 /* for rational function object */
 struct object KoInverse(struct object ob);

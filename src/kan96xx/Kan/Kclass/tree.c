@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.5 2003/12/05 13:51:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.6 2003/12/05 23:14:14 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -115,6 +115,115 @@ struct object addTree(struct object ob1, struct object ob2)
   putoa(rob,1,attr);
   putoa(rob,2,aob);
   return(KpoTree(rob));
+}
+struct object minusTree(struct object ob1,struct object ob2) {
+  struct object rob,aob;
+  struct object attr;
+  struct object keyValue;
+  struct object to;
+
+  rob = NullObject;
+  attr = newObjectArray(1);
+  keyValue = newObjectArray(2);
+  aob = newObjectArray(2);
+  putoa(aob,0,ob1);
+  putoa(aob,1,ob2);
+  putoa(keyValue,0,KpoString("cd"));
+  putoa(keyValue,1,KpoString("arith1"));
+  putoa(attr,0,keyValue);
+  rob = newObjectArray(3);
+  putoa(rob,0,KpoString("minus"));
+  putoa(rob,1,attr);
+  putoa(rob,2,aob);
+  return(KpoTree(rob));
+  return(rob);
+}
+struct object timesTree(struct object ob1,struct object ob2) {
+  struct object rob,aob;
+  struct object attr;
+  struct object keyValue;
+  struct object to;
+
+  rob = NullObject;
+  attr = newObjectArray(1);
+  keyValue = newObjectArray(2);
+  aob = newObjectArray(2);
+  putoa(aob,0,ob1);
+  putoa(aob,1,ob2);
+  putoa(keyValue,0,KpoString("cd"));
+  putoa(keyValue,1,KpoString("arith1"));
+  putoa(attr,0,keyValue);
+  rob = newObjectArray(3);
+  putoa(rob,0,KpoString("times"));
+  putoa(rob,1,attr);
+  putoa(rob,2,aob);
+  return(KpoTree(rob));
+  return(rob);
+}
+struct object divideTree(struct object ob1,struct object ob2) {
+  struct object rob,aob;
+  struct object attr;
+  struct object keyValue;
+  struct object to;
+
+  rob = NullObject;
+  attr = newObjectArray(1);
+  keyValue = newObjectArray(2);
+  aob = newObjectArray(2);
+  putoa(aob,0,ob1);
+  putoa(aob,1,ob2);
+  putoa(keyValue,0,KpoString("cd"));
+  putoa(keyValue,1,KpoString("arith1"));
+  putoa(attr,0,keyValue);
+  rob = newObjectArray(3);
+  putoa(rob,0,KpoString("divide"));
+  putoa(rob,1,attr);
+  putoa(rob,2,aob);
+  return(KpoTree(rob));
+  return(rob);
+}
+struct object powerTree(struct object ob1,struct object ob2) {
+  struct object rob,aob;
+  struct object attr;
+  struct object keyValue;
+  struct object to;
+
+  rob = NullObject;
+  attr = newObjectArray(1);
+  keyValue = newObjectArray(2);
+  aob = newObjectArray(2);
+  putoa(aob,0,ob1);
+  putoa(aob,1,ob2);
+  putoa(keyValue,0,KpoString("cd"));
+  putoa(keyValue,1,KpoString("arith1"));
+  putoa(attr,0,keyValue);
+  rob = newObjectArray(3);
+  putoa(rob,0,KpoString("power"));
+  putoa(rob,1,attr);
+  putoa(rob,2,aob);
+  return(KpoTree(rob));
+  return(rob);
+}
+struct object unaryminusTree(struct object ob1) {
+  struct object rob,aob;
+  struct object attr;
+  struct object keyValue;
+  struct object to;
+
+  rob = NullObject;
+  attr = newObjectArray(1);
+  keyValue = newObjectArray(2);
+  aob = newObjectArray(1);
+  putoa(aob,0,ob1);
+  putoa(keyValue,0,KpoString("cd"));
+  putoa(keyValue,1,KpoString("arith1"));
+  putoa(attr,0,keyValue);
+  rob = newObjectArray(3);
+  putoa(rob,0,KpoString("unaryminus"));
+  putoa(rob,1,attr);
+  putoa(rob,2,aob);
+  return(KpoTree(rob));
+  return(rob);
 }
 
 /* XML DOM-like interfaces */

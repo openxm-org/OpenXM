@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.19 2003/12/03 01:21:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.20 2003/12/04 07:49:24 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -358,6 +358,11 @@ struct object Kextension(struct object obj)
 	for (i=0; i<KopInteger(obj1); i++) {
       putoa(rob,i,newObjectArray(KopInteger(obj2)));
 	}
+  }else if (strcmp(key,"ooPower")==0) {
+    if (size != 3) errorKan1("%s\n","[(ooPower) a b] extension.");
+    obj1 = getoa(obj,1);
+	obj2 = getoa(obj,2);
+    rob = KooPower(obj1,obj2);
   }else if (strcmp(key,"ostype")==0) {
     rob = newObjectArray(1);
     /* Hard encode the OS type. */

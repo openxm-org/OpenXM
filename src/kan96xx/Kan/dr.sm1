@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.24 2003/09/13 13:14:03 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.25 2003/12/04 05:27:19 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -1766,7 +1766,11 @@
   /arg1 set
   [/f /k /i /ans] pushVariables
   [
-     /ans (1).. def
+   /ans (1).. def
+   [(QuoteMode)] system_variable {
+     /f arg1 def   /k arg2 def
+     [(ooPower) f k] extension /ans set
+   } {
      /f arg1 def   /k arg2 ..int def
      k 0 lt {
        1 1 << 0 k sub >> {
@@ -1779,7 +1783,8 @@
          /ans f ans {mul} sendmsg2 def
        } for
      } ifelse
-     /arg1 ans def
+   } ifelse
+   /arg1 ans def
   ] pop
   popVariables
   arg1

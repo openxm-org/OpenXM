@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.3 2001/04/12 06:48:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.h,v 1.4 2003/11/21 02:39:10 takayama Exp $ */
 
 /* kclass.h  1997, 3/1
    This module handles class data base.
@@ -93,6 +93,11 @@ struct object KreplaceRecursivePolynomial(struct object of,struct object rule);
 
 /* In Kclass/tree.c */
 struct object addTree(struct object ob1,struct object ob2);
+struct object minusTree(struct object ob1,struct object ob2);
+struct object timesTree(struct object ob1,struct object ob2);
+struct object divideTree(struct object ob1,struct object ob2);
+struct object powerTree(struct object ob1,struct object ob2);
+struct object unaryminusTree(struct object ob1);
 void fprintTree(FILE *fp,struct object ob);
 int isTreeAdd(struct object ob);
 /* DOM-like API's for cmo tree */

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.18 2003/08/26 12:46:05 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.19 2003/12/05 13:51:31 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -275,7 +275,11 @@ struct object KooSub(ob1,ob2)
     break;
 
   default:
-    warningKan("KooSub() has not supported yet these objects.\n");
+    if (QuoteMode) {
+      rob = minusTree(ob1,ob2);
+    }else{
+      warningKan("KooSub() has not supported yet these objects.\n");
+    }
     break;
   }
   return(rob);
@@ -417,7 +421,11 @@ struct object KooMult(ob1,ob2)
     break;
 
   default:
-    warningKan("KooMult() has not supported yet these objects.\n");
+    if (QuoteMode) {
+	  rob = timesTree(ob1,ob2);
+    }else{
+      warningKan("KooMult() has not supported yet these objects.\n");
+    }
     break;
   }
   return(rob);
@@ -456,7 +464,11 @@ struct object KoNegate(obj)
     break;
 
   default:
-    warningKan("KoNegate() has not supported yet these objects.\n");
+    if (QuoteMode) {
+      rob = unaryminusTree(obj);
+    }else{
+      warningKan("KoNegate() has not supported yet these objects.\n");
+    }
     break;
   }
   return(rob);
@@ -658,7 +670,11 @@ struct object KooDiv(ob1,ob2)
 
 
   default:
-    warningKan("KooDiv() has not supported yet these objects.\n");
+    if (QuoteMode) {
+      rob = divideTree(ob1,ob2);
+    }else{
+      warningKan("KooDiv() has not supported yet these objects.\n");
+    }
     break;
   }
   return(rob);
@@ -2129,6 +2145,16 @@ static void checkDuplicateName(xvars,dvars,n)
   }
 }
 
+struct object KooPower(struct object ob1,struct object ob2) {
+  struct object rob;
+  /* Bug. It has not yet been implemented. */
+  if (QuoteMode) {
+	rob = powerTree(ob1,ob2);
+  }else{
+	warningKan("KooDiv2() has not supported yet these objects.\n");
+  }
+  return(rob);
+}
 
 
 
@@ -2191,7 +2217,11 @@ struct object KooDiv2(ob1,ob2)
     break;
 
   default:
-    warningKan("KooDiv2() has not supported yet these objects.\n");
+    if (QuoteMode) {
+      rob = divideTree(ob1,ob2);
+    }else{
+      warningKan("KooDiv2() has not supported yet these objects.\n");
+    }
     break;
   }
   return(rob);
