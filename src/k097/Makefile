@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.10 2000/03/11 01:18:24 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.11 2000/03/13 06:46:38 takayama Exp $
 # targets
 # all 
 #     compile
@@ -11,7 +11,8 @@ CC = gcc
 GC = $(KHOME)/gc/gc.a
 OpenXM_lib=../../lib
 DDD=-D_BSD_SOURCE
-STATIC_LINK_FLAG=-static
+#STATIC_LINK_FLAG=-static
+STATIC_LINK_FLAG=
 
 ## Kan source.  kan sources must be built up by hand.
 KHOME = ../kan96xx
