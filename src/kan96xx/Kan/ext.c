@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.4 2000/03/09 12:04:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.5 2001/05/04 01:06:23 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -81,7 +81,7 @@ struct object Kextension(struct object obj)
   struct object keyo;
   struct object rob = NullObject;
   struct object obj1,obj2,obj3,obj4;
-  int m,i;
+  int m,i,pid;
   int argListc, fdListc;
   char *abc;
   char *abc2;
@@ -191,15 +191,19 @@ struct object Kextension(struct object obj)
     m = KopInteger(obj3);  /* m == 1 : block ctrl-C. */
     argListc = getoaSize(obj1);
     fdListc =  getoaSize(obj2);
-    if ((m = fork()) > 0) {
+    if ((pid = fork()) > 0) {
       /* parent */
-      signal(SIGCHLD,mywait); /* to kill Zombie */
-      Mychildren[Mycp++] = m;
+      if (m&3) {
+         /* Do not call singal to turn around a trouble on cygwin. BUG. */
+      }else{
+         signal(SIGCHLD,mywait); /* to kill Zombie */
+      }
+      Mychildren[Mycp++] = pid;
       if (Mycp >= MYCP_SIZE-1) {
         errorKan1("%s\n","Child process table is full.\n");
         Mycp = 0;
       }
-      rob = KpoInteger(m);
+      rob = KpoInteger(pid);
       /* Done */
     }else{
       /* Child */
@@ -208,7 +212,7 @@ struct object Kextension(struct object obj)
         close(KopInteger(getoa(obj2,i)));
       }
       /* execl */
-      if (m == 1) {
+      if ((m&1) == 1) {
         {
           sigset_t sss;
           sigemptyset(&sss);
