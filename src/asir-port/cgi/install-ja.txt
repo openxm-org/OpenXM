@@ -1,0 +1,83 @@
+$Id$
+$OpenXM$
+cgi-asir.sh のインストール方法.
+
+0. cgi を実行可能な apache を用意する.
+
+1. cgi-asir.sh を /var/www/cgi-bin 等の apache の cgi ディレクトリへ
+   置く.
+
+2. cgi-asir.sh の 
+   source $(OpenXM_HOME)/rc/dot.bashrc
+  を OpenXM をインストールした directory の絶対パスを読み込むように変更.  
+  例：  source /home/taka/OpenXM/rc/dot.bashrc
+ 
+  注意: OpenXM をインストールした directory は nobody が読み込み, 実行可
+       であること. たとえば 755.
+       Fedora Core ではホームが 700 となっているので注意.
+
+3. 正しく動いているか, たとえば
+   http://polymake.math.kobe-u.ac.jp/cgi-bin/cgi-asir.sh
+   みたいな感じでテスト.
+
+Q. テストしても動きません. チェックすべきことを教えてください.
+A. httpd サーバの log (/var/log/httpd/?) をまず見てください.
+---------------------------------------------------
+
+とりあえず動く状態になったら
+(A) 公開するライブラリ関数を決める.
+(B) 公開するライブラリ関数を読み込むようにする.
+(C) 計算時間の上限を決める.
+
+(A), (B), (C) の変更は即座に web server に反映される.
+httpd のリスタートは必要ない.
+-----------  詳細 ----------------------
+(A) 公開するライブラリ関数を決める.
+
+   例: 公開する独自ライブラリ関数があれば,
+    /home/nakayama/myasir.rr に書く.
+
+    公開関数が afo1(), afo2() の場合,
+    myasir.rr の最後に
+
+    Cgi_asir_allow=["afo1","afo2"]$
+    map(set_secure_flag,Cgi_asir_allow,1)$
+
+    を書いておく.
+    変数名 Cgi_asir_allow は変更しないこと.
+
+
+    独自ライブラリ関数が無い場合でも, 公開する関数名を
+    上の方法で書いておく.
+
+    注意: 公開する関数は cgi-asir.sh の環境変数 CGI_ASIR_ALLOW
+         で指定してもよい.
+         この場合は cgi-asir.sh が query string 無しで実行されたときに,
+         allowed command として表示される.
+         myasir.rr で公開しているものは表示されない.
+
+(B) 公開するライブラリ関数を読み込むようにする.
+
+    公開する独自ライブラリ関数が書いてあるファイルを
+    $(OpenXM_HOME)/rc/asirrc を用いて読み込む.
+    たとえば (A) の例の場合なら,
+
+    ... 略
+    load("names.rr")$
+    load("oxrfc103.rr")$
+    load("/home/nakayama/myasir.rr")$  <=== この行を加える.
+    User_asirrc=which(getenv("HOME")+"/.asirrc")$
+    ... 略
+
+   注意: myasir.rr は nobody が読み込み可であること. 
+       Fedora Core ではホームが 700 となっているので注意.
+
+(C) 計算時間の上限は cgi-asir.sh の環境変数
+    CGI_ASIR_TLIMIT で指定する.
+    デフォールトは 30 秒である.
+
+    例: 10 秒にしたいとき.
+    export CGI_ASIR_TLIMIT="10"  
+   
+
+
