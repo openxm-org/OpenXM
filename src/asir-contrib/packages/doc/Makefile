@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.55 2004/03/05 16:52:28 ohara Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.56 2004/03/05 16:58:57 ohara Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -19,16 +19,16 @@
 # NOTE: install-help should be executed after installing asir2000.
 ########################################################################
 #  How to add new documents in the category xxx
-# "xxx*.texi <--- xxx.oxweave (manually written) + xxx*auto*.texi (automatic)"
-#   (1) "xxx.oxweave" --> xxx-en.texi and xxx-ja.texi
-#       xxx-auto-en.texi and xxx-auto-ja.texi should be included from
-#       xxx-en.texi and xxx-ja.texi  (JPSRCS, EGSRCS)
+# "xxx*.texi <--- xxx.oxweave (manually written) + xxx*-auto.{en,ja} (automatic)"
+#   (1) "xxx.oxweave" --> xxx.en and xxx.ja
+#       xxx-auto.en and xxx-auto.ja should be included from
+#       xxx.en and xxx.ja  (JASRCS, ENSRCS)
 #     NOTE: xxx.oxweave might be embedded in xxx.rr or xxx,
 #           but this style is obsolete.
-#   (2) "xxx.rr" or "xxx" --> xxx-auto-en.texi and xxx-auto-ja.texi
+#   (2) "xxx.rr" or "xxx" --> xxx-auto.en and xxx-auto.ja
 #       (JAAUTO, ENAUTO)
 #       xxx-auto*.texi's are extracted from xxx or xxx.rr
-#   (3) xxx-en.texi and xxx-ja.texi should be included from cman.texi
+#   (3) xxx.en and xxx.ja should be included from cman.texi
 #     and cman-en.texi
 #  cf.  glib*  base*
 ########################################################################
@@ -45,25 +45,35 @@ OXWEAVE=$(OpenXM_ROOT)/bin/oxweave
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
 
-JPSRCS= opening.texi oxrfc100-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi util-ja.texi
-EGSRCS= opening.texi oxrfc100-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi util-en.texi
+SRC = base.oxweave calculus.oxweave complex.oxweave dsolv.oxweave \
+      glib.oxweave gnuplot.oxweave graphic.oxweave hypergeometric.oxweave \
+      intro.oxweave m.oxweave matrix.oxweave misc.oxweave names.oxweave \
+      number.oxweave oxrfc100.oxweave pfp.oxweave phc.oxweave \
+      plucker.oxweave poly.oxweave print.oxweave series.oxweave sm1.oxweave \
+      tigers.oxweave util.oxweave windows.oxweave 
 
-JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi \
-       print-auto-ja.texi matrix-auto-ja.texi glib-auto-ja.texi \
-	   sm1-auto-ja.texi plucker-auto-ja.texi util-auto-ja.texi \
-       number-auto-ja.texi
-ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi \
-       print-auto-en.texi matrix-auto-en.texi glib-auto-en.texi \
-	   sm1-auto-en.texi plucker-auto-en.texi util-auto-en.texi \
-       number-auto-en.texi
+ENSRCS = ${SRC:.oxweave=.en} opening.texi oxom.en
+JASRCS = ${SRC:.oxweave=.ja} opening.texi oxom.ja Diff-ja.texi Dmodule-ja.texi
+ENAUTO=  base-auto.en glib-auto.en matrix-auto.en number-auto.en pfp-auto.en \
+         plucker-auto.en poly-auto.en print-auto.en sm1-auto.en util-auto.en 
+JAAUTO=${ENAUTO:.en=.ja}
 
-all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
+.SUFFIXES: .en .ja .oxweave
+
+.oxweave.en:
+	$(RM) -f ${<:.oxweave=.en}
+	$(OXWEAVE) C en < $< > ${<:.oxweave=.en}
+
+.oxweave.ja:
+	$(RM) -f ${<:.oxweave=.ja}
+	$(OXWEAVE) C ja < $< > ${<:.oxweave=.ja}
+
+all : gentexi $(JASRCS) $(ENSRCS) $(JAAUTO) $(ENAUTO)
 	@echo "Type in  tex cman-en.texi to generate the manual(en) in dvi format."
 	@echo "Type in ptex cman-ja.texi to generate the manual(ja) in dvi format."
 
 install :
-	@if [ ! -f ./.done_install ] ; \
-	then \
+	@if [ ! -f ./.done_install ] ; then \
 		make install2 ; \
 		touch ./.done_install ; \
 	else \
@@ -71,8 +81,7 @@ install :
 	fi
 
 install-document : install-html-help
-	@if [ ! -f ./.done_install_document ] ; \
-	then \
+	@if [ ! -f ./.done_install_document ] ; then \
 		make install-document2 ; \
 		touch ./.done_install_document ; \
 	else \
@@ -84,305 +93,116 @@ install2 : install-help
 gentexi : gentexi.c
 	gcc -o gentexi gentexi.c
 
-###base
-base-ja.texi : base.oxweave
-	$(RM) -f base-ja.texi
-	$(OXWEAVE) C ja  <base.oxweave >base-ja.texi
-base-en.texi : base.oxweave
-	$(RM) -f base-en.texi
-	$(OXWEAVE) C en  <base.oxweave >base-en.texi
-base-auto-en.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f base-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --en --upnode "Basic (Standard Functions)" ${OPTGENTEXI} >base-auto-en.texi
-base-auto-ja.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f base-auto-ja.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --ja --upnode "Basic (Standard Functions)" ${OPTGENTEXI} >base-auto-ja.texi
+oxom.ja : $(CONTRIB)/om
+	$(RM) -f oxom.ja
+	$(OXWEAVE) C ja  <$(CONTRIB)/om >oxom.ja
+oxom.en : $(CONTRIB)/om
+	$(RM) -f oxom.en
+	$(OXWEAVE) C en  <$(CONTRIB)/om >oxom.en
 
+### base
+base-auto.en : $(CONTRIB)/names.rr gentexi
+	$(RM) -f base-auto.en
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --en --upnode "Basic (Standard Functions)" ${OPTGENTEXI} >base-auto.en
+base-auto.ja : $(CONTRIB)/names.rr gentexi
+	$(RM) -f base-auto.ja
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category base --ja --upnode "Basic (Standard Functions)" ${OPTGENTEXI} >base-auto.ja
 
-names-ja.texi : names.oxweave
-	$(RM) -f names-ja.texi
-	$(OXWEAVE) C ja  <names.oxweave >names-ja.texi
-
-names-en.texi : names.oxweave
-	$(RM) -f names-en.texi
-	$(OXWEAVE) C en  <names.oxweave >names-en.texi
-
-###plucker
-plucker-ja.texi : plucker.oxweave
-	$(RM) -f plucker-ja.texi
-	$(OXWEAVE) C ja  <plucker.oxweave >plucker-ja.texi
-plucker-en.texi : plucker.oxweave
-	$(RM) -f plucker-en.texi
-	$(OXWEAVE) C en  <plucker.oxweave >plucker-en.texi
-plucker-auto-en.texi : $(CONTRIB)/plucker.rr gentexi
-	$(RM) -f plucker-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --en --upnode "Plucker relations" ${OPTGENTEXI} >plucker-auto-en.texi
-plucker-auto-ja.texi : $(CONTRIB)/plucker.rr gentexi
-	$(RM) -f plucker-auto-ja.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --ja --upnode "Plucker relations" ${OPTGENTEXI} >plucker-auto-ja.texi
-
-hypergeometric-ja.texi : hypergeometric.oxweave
-	$(RM) -f hypergeometric-ja.texi
-	$(OXWEAVE) C ja  <hypergeometric.oxweave >hypergeometric-ja.texi
-
-hypergeometric-en.texi : hypergeometric.oxweave
-	$(RM) -f hypergeometric-en.texi
-	$(OXWEAVE) C en  <hypergeometric.oxweave >hypergeometric-en.texi
+### plucker
+plucker-auto.en : $(CONTRIB)/plucker.rr gentexi
+	$(RM) -f plucker-auto.en
+	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --en --upnode "Plucker relations" ${OPTGENTEXI} >plucker-auto.en
+plucker-auto.ja : $(CONTRIB)/plucker.rr gentexi
+	$(RM) -f plucker-auto.ja
+	$(OXWEAVE) usage  <$(CONTRIB)/plucker.rr | ./gentexi --category plucker --ja --upnode "Plucker relations" ${OPTGENTEXI} >plucker-auto.ja
 
 ### number
-number-ja.texi : number.oxweave
-	$(RM) -f number-ja.texi
-	$(OXWEAVE) C ja  <number.oxweave >number-ja.texi
-
-number-en.texi : number.oxweave
-	$(RM) -f number-en.texi
-	$(OXWEAVE) C en  <number.oxweave >number-en.texi
-number-auto-en.texi :  $(CONTRIB)/names.rr gentexi
-	$(RM) -f number-auto-en.texi
-	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage | ./gentexi  --category number --en --upnode "Numbers (Standard Mathematical Functions)" ${OPTGENTEXI} >number-auto-en.texi
-number-auto-ja.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f number-auto-ja.texi
-	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage  | ./gentexi   --category number  --ja --upnode "Numbers (Standard Mathematical Functions)" ${OPTGENTEXI} >number-auto-ja.texi
-
-calculus-ja.texi : calculus.oxweave
-	$(RM) -f calculus-ja.texi
-	$(OXWEAVE) C ja  <calculus.oxweave >calculus-ja.texi
-
-calculus-en.texi : calculus.oxweave
-	$(RM) -f calculus-en.texi
-	$(OXWEAVE) C en  <calculus.oxweave >calculus-en.texi
-
-series-ja.texi : series.oxweave
-	$(RM) -f series-ja.texi
-	$(OXWEAVE) C ja  <series.oxweave >series-ja.texi
-
-series-en.texi : series.oxweave
-	$(RM) -f series-en.texi
-	$(OXWEAVE) C en  <series.oxweave >series-en.texi
+number-auto.en :  $(CONTRIB)/names.rr gentexi
+	$(RM) -f number-auto.en
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage | ./gentexi  --category number --en --upnode "Numbers (Standard Mathematical Functions)" ${OPTGENTEXI} >number-auto.en
+number-auto.ja : $(CONTRIB)/names.rr gentexi
+	$(RM) -f number-auto.ja
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage  | ./gentexi   --category number  --ja --upnode "Numbers (Standard Mathematical Functions)" ${OPTGENTEXI} >number-auto.ja
 
 ### matrix
-matrix-ja.texi : matrix.oxweave
-	$(RM) -f matrix-ja.texi
-	$(OXWEAVE) C ja  <matrix.oxweave >matrix-ja.texi
-matrix-en.texi : matrix.oxweave
-	$(RM) -f matrix-en.texi
-	$(OXWEAVE) C en  <matrix.oxweave >matrix-en.texi
-matrix-auto-en.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f matrix-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --en --upnode "Matrix (Standard Mathematical Functions)" ${OPTGENTEXI} >matrix-auto-en.texi
-matrix-auto-ja.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f matrix-auto-ja.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --ja --upnode "Matrix (Standard Mathematical Functions)" ${OPTGENTEXI} >matrix-auto-ja.texi
-
-
-graphic-ja.texi : graphic.oxweave
-	$(RM) -f graphic-ja.texi
-	$(OXWEAVE) C ja  <graphic.oxweave >graphic-ja.texi
-
-graphic-en.texi : graphic.oxweave
-	$(RM) -f graphic-en.texi
-	$(OXWEAVE) C en  <graphic.oxweave >graphic-en.texi
+matrix-auto.en : $(CONTRIB)/names.rr gentexi
+	$(RM) -f matrix-auto.en
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --en --upnode "Matrix (Standard Mathematical Functions)" ${OPTGENTEXI} >matrix-auto.en
+matrix-auto.ja : $(CONTRIB)/names.rr gentexi
+	$(RM) -f matrix-auto.ja
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category matrix --ja --upnode "Matrix (Standard Mathematical Functions)" ${OPTGENTEXI} >matrix-auto.ja
 
 ### print
-print-ja.texi : print.oxweave
-	$(RM) -f print-ja.texi
-	$(OXWEAVE) C ja  <print.oxweave >print-ja.texi
-print-en.texi : print.oxweave
-	$(RM) -f print-en.texi
-	$(OXWEAVE) C en  <print.oxweave >print-en.texi
-print-auto-en.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f print-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --en --upnode "Print (Standard Mathematical Functions)" ${OPTGENTEXI} >print-auto-en.texi
-print-auto-ja.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f print-auto-ja.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --ja --upnode "Print (Standard Mathematical Functions)" ${OPTGENTEXI} >print-auto-ja.texi
+print-auto.en : $(CONTRIB)/names.rr gentexi
+	$(RM) -f print-auto.en
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --en --upnode "Print (Standard Mathematical Functions)" ${OPTGENTEXI} >print-auto.en
+print-auto.ja : $(CONTRIB)/names.rr gentexi
+	$(RM) -f print-auto.ja
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category print --ja --upnode "Print (Standard Mathematical Functions)" ${OPTGENTEXI} >print-auto.ja
 
-###poly
-poly-ja.texi : poly.oxweave
-	$(RM) -f poly-ja.texi
-	$(OXWEAVE) C ja  <poly.oxweave >poly-ja.texi
-poly-en.texi : poly.oxweave
-	$(RM) -f poly-en.texi
-	$(OXWEAVE) C en  <poly.oxweave >poly-en.texi
-poly-auto-en.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f poly-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --en --upnode "Polynomials (Standard Mathematical Functions)" ${OPTGENTEXI} >poly-auto-en.texi
-poly-auto-ja.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f poly-auto-ja.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --ja --upnode "Polynomials (Standard Mathematical Functions)" ${OPTGENTEXI} >poly-auto-ja.texi
+### poly
+poly-auto.en : $(CONTRIB)/names.rr gentexi
+	$(RM) -f poly-auto.en
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --en --upnode "Polynomials (Standard Mathematical Functions)" ${OPTGENTEXI} >poly-auto.en
+poly-auto.ja : $(CONTRIB)/names.rr gentexi
+	$(RM) -f poly-auto.ja
+	$(OXWEAVE) usage  <$(CONTRIB)/names.rr | ./gentexi --category poly --ja --upnode "Polynomials (Standard Mathematical Functions)" ${OPTGENTEXI} >poly-auto.ja
+### sm1
+sm1-auto.en : $(CONTRIB)/sm1 gentexi
+	$(RM) -f sm1-auto.en
+	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto.en
+sm1-auto.ja : $(CONTRIB)/sm1 gentexi
+	$(RM) -f sm1-auto.ja
+	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto.ja
 
-complex-ja.texi : complex.oxweave
-	$(RM) -f complex-ja.texi
-	$(OXWEAVE) C ja  <complex.oxweave >complex-ja.texi
+### glib
+glib-auto.en : ${ASIRLIB}/glib gentexi
+	$(RM) -f glib-auto.en
+	cat ${ASIRLIB}/glib | $(OXWEAVE) usage | ./gentexi  --category glib --en --upnode "Graphic Library (2 dimensional)" ${OPTGENTEXI} >glib-auto.en
+glib-auto.ja : ${ASIRLIB}/glib gentexi
+	$(RM) -f glib-auto.ja
+	cat ${ASIRLIB}/glib | $(OXWEAVE) usage  | ./gentexi   --category glib  --ja --upnode "Graphic Library (2 dimensional)" ${OPTGENTEXI} >glib-auto.ja
 
-complex-en.texi : complex.oxweave
-	$(RM) -f complex-en.texi
-	$(OXWEAVE) C en  <complex.oxweave >complex-en.texi
+### pfp
+pfp-auto.en : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
+	$(RM) -f pfp-auto.en
+	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage | ./gentexi  --en --upnode  Pfpcohom ${OPTGENTEXI} >pfp-auto.en
+pfp-auto.ja : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
+	$(RM) -f pfp-auto.ja
+	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage  | ./gentexi  --ja --upnode Pfpcohom ${OPTGENTEXI} >pfp-auto.ja
 
+### util
+util-auto.en :  $(CONTRIB)/names.rr gentexi
+	$(RM) -f util-auto.en
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage | ./gentexi  --category util --en --upnode "Utility Functions" ${OPTGENTEXI} >util-auto.en
+util-auto.ja : $(CONTRIB)/names.rr gentexi
+	$(RM) -f util-auto.ja
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage  | ./gentexi   --category util  --ja --upnode "Utility Functions" ${OPTGENTEXI} >util-auto.ja
 
-oxrfc100-ja.texi : oxrfc100.oxweave
-	$(RM) -f oxrfc100-ja.texi
-	$(OXWEAVE) C ja  <oxrfc100.oxweave >oxrfc100-ja.texi
+### Generating online manual
+gen-help-en: $(ENSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
+	-$(RM) -rf tmp-en help-en
+	mkdir help-en tmp-en
+	cp cman-en.texi $(ENSRCS) $(ENAUTO) tmp-en
+	-(cd tmp-en; makeinfo --force cman-en.texi)
+	(cd help-en; for i in ../tmp-en/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
 
-oxrfc100-en.texi : oxrfc100.oxweave
-	$(RM) -f oxrfc100-en.texi
-	$(OXWEAVE) C en  <oxrfc100.oxweave >oxrfc100-en.texi
-
-oxmath-ja.texi : m.oxweave
-	$(RM) -f oxmath-ja.texi
-	$(OXWEAVE) C ja  <m.oxweave >oxmath-ja.texi
-
-oxmath-en.texi : m.oxweave
-	$(RM) -f oxmath-en.texi
-	$(OXWEAVE) C en  <m.oxweave >oxmath-en.texi
-
-oxphc-ja.texi : phc.oxweave
-	$(RM) -f oxphc-ja.texi
-	$(OXWEAVE) C ja  <phc.oxweave >oxphc-ja.texi
-
-oxphc-en.texi : phc.oxweave
-	$(RM) -f oxphc-en.texi
-	$(OXWEAVE) C en  <phc.oxweave >oxphc-en.texi
-
-oxgnuplot-ja.texi : gnuplot.oxweave
-	$(RM) -f oxgnuplot-ja.texi
-	$(OXWEAVE) C ja  <gnuplot.oxweave >oxgnuplot-ja.texi
-
-oxgnuplot-en.texi : gnuplot.oxweave
-	$(RM) -f oxgnuplot-en.texi
-	$(OXWEAVE) C en  <gnuplot.oxweave >oxgnuplot-en.texi
-
-###sm1
-oxsm1-ja.texi : sm1.oxweave
-	$(RM) -f oxsm1-ja.texi
-	$(OXWEAVE) C ja  <sm1.oxweave >oxsm1-ja.texi
-oxsm1-en.texi : sm1.oxweave
-	$(RM) -f oxsm1-en.texi
-	$(OXWEAVE) C en  <sm1.oxweave >oxsm1-en.texi
-sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
-	$(RM) -f sm1-auto-en.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-en.texi
-sm1-auto-ja.texi : $(CONTRIB)/sm1 gentexi
-	$(RM) -f sm1-auto-ja.texi
-	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-ja.texi
-
-oxom-ja.texi : $(CONTRIB)/om
-	$(RM) -f oxom-ja.texi
-	$(OXWEAVE) C ja  <$(CONTRIB)/om >oxom-ja.texi
-
-oxom-en.texi : $(CONTRIB)/om
-	$(RM) -f oxom-en.texi
-	$(OXWEAVE) C en  <$(CONTRIB)/om >oxom-en.texi
-
-dsolv-ja.texi : dsolv.oxweave
-	$(RM) -f dsolv-ja.texi
-	$(OXWEAVE) C ja  <dsolv.oxweave >dsolv-ja.texi
-
-dsolv-en.texi : dsolv.oxweave
-	$(RM) -f dsolv-en.texi
-	$(OXWEAVE) C en  <dsolv.oxweave >dsolv-en.texi
-
-
-oxtigers-ja.texi : tigers.oxweave
-	$(RM) -f oxtigers-ja.texi
-	$(OXWEAVE) C ja  <tigers.oxweave >oxtigers-ja.texi
-
-oxtigers-en.texi : tigers.oxweave
-	$(RM) -f oxtigers-en.texi
-	$(OXWEAVE) C en  <tigers.oxweave >oxtigers-en.texi
-
-### windows
-windows-ja.texi : windows.oxweave
-	$(RM) -f windows-ja.texi
-	$(OXWEAVE) C ja  <windows.oxweave >windows-ja.texi
-
-windows-en.texi : windows.oxweave
-	$(RM) -f windows-en.texi
-	$(OXWEAVE) C en  <windows.oxweave >windows-en.texi
-
-### intro
-intro-ja.texi : intro.oxweave
-	$(RM) -f intro-ja.texi
-	$(OXWEAVE) C ja  <intro.oxweave >intro-ja.texi
-
-intro-en.texi : intro.oxweave
-	$(RM) -f intro-en.texi
-	$(OXWEAVE) C en  <intro.oxweave >intro-en.texi
-
-###misc
-misc-ja.texi : misc.oxweave
-	$(RM) -f misc-ja.texi
-	$(OXWEAVE) C ja  <misc.oxweave >misc-ja.texi
-misc-en.texi : misc.oxweave
-	$(RM) -f misc-en.texi
-	$(OXWEAVE) C en  <misc.oxweave >misc-en.texi
-
-###glib
-glib-ja.texi : glib.oxweave
-	$(RM) -f glib-ja.texi
-	$(OXWEAVE) C ja  <glib.oxweave >glib-ja.texi
-glib-en.texi : glib.oxweave
-	$(RM) -f glib-en.texi
-	$(OXWEAVE) C en  <glib.oxweave >glib-en.texi
-glib-auto-en.texi : ${ASIRLIB}/glib gentexi
-	$(RM) -f glib-auto-en.texi
-	cat ${ASIRLIB}/glib | $(OXWEAVE) usage | ./gentexi  --category glib --en --upnode "Graphic Library (2 dimensional)" ${OPTGENTEXI} >glib-auto-en.texi
-glib-auto-ja.texi : ${ASIRLIB}/glib gentexi
-	$(RM) -f glib-auto-ja.texi
-	cat ${ASIRLIB}/glib | $(OXWEAVE) usage  | ./gentexi   --category glib  --ja --upnode "Graphic Library (2 dimensional)" ${OPTGENTEXI} >glib-auto-ja.texi
-
-###pfp
-pfp-ja.texi : pfp.oxweave
-	$(RM) -f pfp-ja.texi
-	$(OXWEAVE) C ja  <pfp.oxweave >pfp-ja.texi
-pfp-en.texi : pfp.oxweave
-	$(RM) -f pfp-en.texi
-	$(OXWEAVE) C en  <pfp.oxweave >pfp-en.texi
-pfp-auto-en.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
-	$(RM) -f pfp-auto-en.texi
-	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage | ./gentexi  --en --upnode  Pfpcohom ${OPTGENTEXI} >pfp-auto-en.texi
-pfp-auto-ja.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
-	$(RM) -f pfp-auto-ja.texi
-	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage  | ./gentexi  --ja --upnode Pfpcohom ${OPTGENTEXI} >pfp-auto-ja.texi
-
-###util
-util-ja.texi : util.oxweave
-	$(RM) -f util-ja.texi
-	$(OXWEAVE) C ja <util.oxweave >util-ja.texi
-util-en.texi : util.oxweave
-	$(RM) -f util-en.texi
-	$(OXWEAVE) C en  <util.oxweave >util-en.texi
-util-auto-en.texi :  $(CONTRIB)/names.rr gentexi
-	$(RM) -f util-auto-en.texi
-	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage | ./gentexi  --category util --en --upnode "Utility Functions" ${OPTGENTEXI} >util-auto-en.texi
-util-auto-ja.texi : $(CONTRIB)/names.rr gentexi
-	$(RM) -f util-auto-ja.texi
-	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage  | ./gentexi   --category util  --ja --upnode "Utility Functions" ${OPTGENTEXI} >util-auto-ja.texi
-
-###### Generating online manual
-gen-help-en: $(EGSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
-	-$(RM) -rf tmp help-en
-	mkdir help-en tmp
-	cp cman-en.texi $(EGSRCS) $(ENAUTO) tmp
-	-(cd tmp; makeinfo --force cman-en.texi)
-	(cd help-en; for i in ../tmp/asir-contrib*; do ../$(ASIRDOC)/extract_func $$i; done)
-
-gen-help-ja: $(JPSRCS) $(ASIRDOC)/extract_func $(JAAUTO)
+gen-help-ja: $(JASRCS) $(ASIRDOC)/extract_func $(JAAUTO)
 	-$(RM) -rf tmp-ja help-ja
 	mkdir help-ja tmp-ja
-	for i in cman-ja.texi $(JPSRCS) $(JAAUTO); do nkf -e $$i > tmp-ja/$$i; done
+	for i in cman-ja.texi $(JASRCS) $(JAAUTO); do nkf -e $$i > tmp-ja/$$i; done
 	-(cd tmp-ja; makeinfo --force cman-ja.texi)
 	(cd help-ja; for i in ../tmp-ja/asir-contrib*; do ../$(ASIRDOC)/extract_func -j $$i; done)
 
 gen-html-en: gen-help-en
 	-$(RM) -rf html-en
 	-mkdir html-en
-	-cp tmp/*.texi html-en
+	-cp tmp-en/*.texi tmp-en/*.en html-en
 	-(cd html-en; ${TEXI2HTML} cman-en.texi)
 
 gen-html-ja: gen-help-ja
 	-mkdir html-ja
-	-cp tmp-ja/*.texi html-ja
+	-cp tmp-ja/*.texi tmp-ja/*.ja html-ja
 	-cp tmp-ja/cman-ja.texi html-ja/cman-ja.texi
 	-(cd html-ja; ${TEXI2HTML} cman-ja.texi)
 
@@ -408,13 +228,12 @@ install-document2 :  gen-dvi-ps
 	-cp cman-en.dvi $(OpenXM_doc)/asir-contrib/cman-en.dvi
 	-$(DVIPS) cman-en >$(OpenXM_doc)/asir-contrib/cman-en.ps
 gen-dvi-ps: all clean-mk-openxm-asir-contrib-document-dir cman-ja.dvi cman-en.dvi
-cman-ja.dvi: $(JPSRCS)
+cman-ja.dvi: $(JASRCS)
 	-ptex cman-ja.texi
 	-ptex cman-ja.texi
 cman-en.dvi: $(ENSRCS)
 	-tex cman-en.texi
 	-tex cman-en.texi
-
 
 clean-mk-openxm-asir-contrib-document-dir :
 	$(RM) -rf $(OpenXM_doc)/asir-contrib
@@ -422,9 +241,9 @@ clean-mk-openxm-asir-contrib-document-dir :
 	mkdir $(OpenXM_doc)/asir-contrib
 	touch $(OpenXM_doc)/asir-contrib/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_AUTOMATICDALLY_GENERATED.
 
-
 clean :
 	$(RM) -f ./.done_install ./.done_install_document
 	$(RM) -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
-	$(RM) -f oxrfc100-ja.texi oxrfc100-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi windows-ja.texi windows-en.texi intro-ja.texi intro-en.texi util-en.texi util-ja.texi
-	$(RM) -rf help-ja help-en tmp tmp-ja html-en html-ja
+	$(RM) -f *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr *~
+	$(RM) -f  *.en *.ja
+	$(RM) -rf help-ja help-en tmp-en tmp-ja html-en html-ja
