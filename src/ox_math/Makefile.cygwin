@@ -1,18 +1,18 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.cygwin,v 1.1 2002/08/15 02:31:52 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.cygwin,v 1.2 2003/01/11 12:39:11 ohara Exp $
 
 OpenXM_HOME=../..
 
 PREFIX    = /usr/local
 SYS       = 
-ADDONSDIR = mathlink/mldev32
-MPREP     = ${ADDONSDIR}/bin/mprep
+ADDONSDIR = mathlink/ml
+MPREP     = ${ADDONSDIR}/mprep
 
 LN        = ln -s
 CC        = gcc
 DEFS      = -DDEBUG -mwindows -DWIN32_MATHLINK
-CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR}/include -I${OpenXM_HOME}/include
-LIBS      = -L${OpenXM_HOME}/lib -L${ADDONSDIR}/lib -lox -lgmp -lml32i1 -lml32i2 -lm
+CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include
+LIBS      = -L. -L${OpenXM_HOME}/lib -L${ADDONSDIR} -lox -lgmp -lml32i1 -lml32i2 -lm
 STATIC_LINK_FLAGS = -e _mainCRTStartup
 
 
@@ -56,13 +56,13 @@ install-for-debug: ${BINARIES}
 	done
 
 clean-for-debug: 
-	(cd ${OpenXM_HOME}/bin; rm -f ${BINARIES})
+	(cd ${OpenXM_HOME}/bin; rm -f ${BINARIES} *.exe)
 
 clean-binary: clean-for-debug
 
 clean:
-	-rm -f *.o *~ math2.c ox_math math2ox
+	-rm -f *.o *~ math2.c ${BINARIES} *.exe
 
 distclean: clean
 	-rm -f .configure_done configure config.cache config.log config.status Makefile
-
+	-rm -rf mathlink/ml mathlink/.configure_done
