@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.17 2003/07/17 23:37:01 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.18 2003/08/20 01:39:16 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3773,6 +3773,27 @@ $ [ff ff] fromVectors :: $
   (red@) (standard) switch_function
   [(Ecart) 0] system_variable
 } def
+
+/ord_ws_all {
+  /arg2 set /arg1 set
+  [(ord_ws_all) arg1 arg2] gbext
+} def
+[(ord_ws_all)
+ [  
+   (fv wv ord_ws_all degree)
+   (  ord_ws_all returns the ord with respect to the weight vector wv.)
+   $Example: [(x,y) ring_of_differential_operators 0] define_ring  $
+   $        (Dx^2+x*Dx*Dy+2). [(Dx) 1 (Dy) 1] weightv ord_ws_all ::  $
+   (  )
+   (fv [wv shiftv] ord_ws_all degree)
+   (  ord_ws_all returns the ord with respect to the weight vector wv and)
+   (  the shift vector shiftv.)
+   $Example: [(x,y) ring_of_differential_operators 0] define_ring  $
+   $        [(Dx^2+x*Dx*Dy+2). (Dx).] [[(Dx) 1 (Dy) 1] weightv [0 2]] ord_ws_all ::$
+   (  )
+   (cf: init, gbext.   Obsolete: ord_w, ord_w_all)
+ ] 
+] putUsages
 
 ;
 

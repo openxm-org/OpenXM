@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.15 2003/08/18 11:59:56 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.16 2003/08/20 01:39:17 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2370,6 +2370,11 @@ struct object KgbExtension(struct object obj)
 	}else{
 	  putoa(rob,1,KpoPOLY(newCell(cont,newMonomial(f1->m->ringp))));
 	}
+  }else if (strcmp(key,"ord_ws_all")==0) {
+    if (size != 3) errorKan1("%s\n","[(ord_ws_all) fv wv] gbext");
+    obj1 = getoa(obj,1);
+    obj2 = getoa(obj,2);
+    rob  = KordWsAll(obj1,obj2);
   }else {
     errorKan1("%s\n","gbext : unknown tag.");
   }

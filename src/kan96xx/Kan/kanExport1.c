@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.6 2003/08/21 12:28:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.7 2003/08/22 11:47:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -936,7 +936,12 @@ struct object oInitW(ob,oWeight)
     errorKan1("%s\n","oInitW(): the second argument must be array.");
   }
   n = getoaSize(oWeight);
-  if (n == 0)  errorKan1("%s\n","oInitW(): the size of the second argument is invalid.");
+  if (n == 0) {
+	m = getoaSize(ob);
+	f = objArrayToPOLY(ob);
+	f = head(f);
+    return POLYtoObjArray(f,m);
+  }
   if (getoa(oWeight,0).tag == Sarray) {
 	if (n != 2) errorKan1("%s\n","oInitW(): the size of the second argument should be 2.");
 	shiftvec = 1;
@@ -1023,6 +1028,7 @@ POLY objArrayToPOLY(struct object ob) {
       if (ringp == NULL) {
         ringp = t->m->ringp;
         n = ringp->n;
+		if (n - ringp->nn <= 0) errorKan1("%s\n","Graduation variable in D is not given.");
       }
       t = (*mpMult)(cxx(1,n-1,i,ringp),t);
       f = ppAddv(f,t);
@@ -1051,7 +1057,7 @@ struct object POLYtoObjArray(POLY f,int size) {
   while (f != POLYNULL) {
     d = f->m->e[n-1].x;
     if (d >= size) errorKan1("%s\n","POLYtoObjArray() size is too small.");
-    t = newCell(f->coeffp,monomialCopy(f->m));
+    t = newCell(coeffCopy(f->coeffp),monomialCopy(f->m));
 	i = t->m->e[n-1].x;
     t->m->e[n-1].x = 0;
     pa[i] = ppAddv(pa[i],t); /* slow to add from the top. */
@@ -1063,6 +1069,98 @@ struct object POLYtoObjArray(POLY f,int size) {
   return rob;
 }
 
+struct object KordWsAll(ob,oWeight)
+     struct object ob;
+     struct object oWeight;
+{
+  POLY f;
+  struct object rob;
+  int w[2*N0];
+  int n,i;
+  struct object ow;
+  int shiftvec;
+  struct object oShift;
+  int *s;
+  int ssize,m;
+
+  shiftvec = 0;
+  s = NULL;
+  
+  if (oWeight.tag != Sarray) {
+    errorKan1("%s\n","ordWsAll(): the second argument must be array.");
+  }
+  n = getoaSize(oWeight);
+  if (n == 0) {
+	m = getoaSize(ob);
+	f = objArrayToPOLY(ob);
+	f = head(f);
+    return POLYtoObjArray(f,m);
+  }
+  if (getoa(oWeight,0).tag == Sarray) {
+	if (n != 2) errorKan1("%s\n","ordWsAll(): the size of the second argument should be 2.");
+	shiftvec = 1;
+	oShift = getoa(oWeight,1);
+	oWeight = getoa(oWeight,0);
+	if (oWeight.tag != Sarray) {
+	  errorKan1("%s\n","ordWsAll(): the weight vector must be array.");
+	}
+	n = getoaSize(oWeight);
+	if (oShift.tag != Sarray) {
+	  errorKan1("%s\n","ordWsAll(): the shift vector must be array.");
+	}
+  }
+  /* oWeight = Ksm1WeightExpressionToVec(oWeight); */
+  if (n >= 2*N0) errorKan1("%s\n","ordWsAll(): the size of the second argument is invalid.");
+  for (i=0; i<n; i++) {
+    ow = getoa(oWeight,i);
+	if (ow.tag == SuniversalNumber) {
+	  ow = KpoInteger(coeffToInt(ow.lc.universalNumber));
+	}
+    if (ow.tag != Sinteger) {
+      errorKan1("%s\n","ordWsAll(): the entries of the second argument must be integers.");
+    }
+    w[i] = KopInteger(ow);
+  }
+  if (shiftvec) {
+    ssize = getoaSize(oShift);
+	s = (int *)sGC_malloc(sizeof(int)*(ssize+1));
+	if (s == NULL) errorKan1("%s\n","ordWsAll() no more memory.");
+	for (i=0; i<ssize; i++) {
+	  ow = getoa(oShift,i);
+	  if (ow.tag == SuniversalNumber) {
+		ow = KpoInteger(coeffToInt(ow.lc.universalNumber));
+	  }
+	  if (ow.tag != Sinteger) {
+		errorKan1("%s\n","ordWsAll(): the entries of shift vector must be integers.");
+	  }
+	  s[i] = KopInteger(ow);
+	}
+  }
+
+  switch(ob.tag) {
+  case Spoly:
+    f = KopPOLY(ob);
+	if (f == POLYNULL) errorKan1("%s\n","ordWsAll(): the argument is 0");
+	if (shiftvec) {
+	  return( KpoInteger(ordWsAll(f,w,s)));
+	}else{
+	  return( KpoInteger(ordWsAll(f,w,(int *) NULL)));
+	}
+    break;
+  case Sarray:
+	m = getoaSize(ob);
+	f = objArrayToPOLY(ob);
+	if (f == POLYNULL) errorKan1("%s\n","ordWsAll(): the argument is 0");
+	if (shiftvec) {
+	  return KpoInteger(ordWsAll(f,w,s));
+	}else{
+	  return KpoInteger(ordWsAll(f,w,(int *)NULL));
+	}
+  default:
+    errorKan1("%s\n","ordWsAll(): Argument must be polynomial or a vector of polynomials");
+    break;
+  }
+}
 
 int KpolyLength(POLY f) {
   int size;

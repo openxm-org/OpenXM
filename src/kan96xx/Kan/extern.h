@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.9 2003/07/14 12:49:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.10 2003/08/22 11:47:03 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -243,6 +243,7 @@ POLY arrayToPOLY(struct object ob);
 struct object POLYToArray(POLY f);
 struct object oPrincipalPart(struct object ob);
 struct object oInitW(struct object ob,struct object oWeight);
+struct object KordWsAll(struct object ob,struct object oWeight);
 
 /* :misc  */
 struct object homogenizeObject(struct object ob,int *gradep);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.9 2003/08/21 12:28:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.10 2003/08/22 11:47:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -438,17 +438,16 @@ POLY POLYToInitW(f,w)
      POLY f;
      int w[]; /* weight vector */
 {
-  POLY node;
-  struct listPoly nod;
   POLY h;
   POLY g;
   int maxd;
   int dd;
-  node = &nod; node->next = POLYNULL; h = node;
+  h = POLYNULL;
 
+  /*printf("1:%s\n",POLYToString(f,'*',1));*/
   if (f ISZERO) return(f);
   maxd = degreeOfInitW(f,w);
-  g = pCopy(f); /* shallow copy */
+  g = f; 
   while (!(f ISZERO)) {
     dd = degreeOfInitW(f,w);
     if (dd > maxd) maxd = dd;
@@ -457,13 +456,12 @@ POLY POLYToInitW(f,w)
   while (!(g ISZERO)) {
     dd = degreeOfInitW(g,w);
     if (dd == maxd) {
-      h->next = g;
-      h = h->next;
+      h = ppAdd(h,newCell(g->coeffp,g->m)); /* it might be slow. */
     }
     g = g->next;
   }
-  h->next = POLYNULL;
-  return(node->next);
+  /*printf("2:%s\n",POLYToString(h,'*',1));*/
+  return(h);
 }
 
 static int degreeOfInitWS(f,w,s)
@@ -475,6 +473,7 @@ static int degreeOfInitWS(f,w,s)
   if (f ISZERO) {
     errorPoly("degreeOfInitWS(0,w) ");
   }
+  if (s == (int *) NULL) return degreeOfInitW(f,w);
   n = f->m->ringp->n; dd = 0;
   for (i=0; i<n-1; i++) {
     dd += (f->m->e[i].D)*w[n+i];
@@ -489,17 +488,16 @@ POLY POLYToInitWS(f,w,s)
      int w[]; /* weight vector */
 	 int s[]; /* shift vector */
 {
-  POLY node;
-  struct listPoly nod;
   POLY h;
   POLY g;
   int maxd;
   int dd;
-  node = &nod; node->next = POLYNULL; h = node;
+  h = POLYNULL;
 
+  /*printf("1s:%s\n",POLYToString(f,'*',1));*/
   if (f ISZERO) return(f);
   maxd = degreeOfInitWS(f,w,s);
-  g = pCopy(f); /* shallow copy */
+  g = f;
   while (!(f ISZERO)) {
     dd = degreeOfInitWS(f,w,s);
     if (dd > maxd) maxd = dd;
@@ -508,13 +506,12 @@ POLY POLYToInitWS(f,w,s)
   while (!(g ISZERO)) {
     dd = degreeOfInitWS(g,w,s);
     if (dd == maxd) {
-      h->next = g;
-      h = h->next;
+      h = ppAdd(h,newCell(g->coeffp,g->m)); /* it might be slow. */
     }
     g = g->next;
   }
-  h->next = POLYNULL;
-  return(node->next);
+  /*printf("2s:%s\n",POLYToString(h,'*',1));*/
+  return(h);
 }
 
 int ordWsAll(f,w,s)
@@ -629,7 +626,7 @@ POLY goDeHomogenizeS(POLY f) {
 	  cp = f->coeffp;
 	  if (cp->tag == POLY_COEFF) {
 		t = goDeHomogenizeS((cp->val).f);
-		nc = newCell(polyToCoeff(t,f->m->ringp),f->m);
+		nc = newCell(polyToCoeff(t,f->m->ringp),monomialCopy(f->m));
 		ans = ppAddv(ans,nc);
 		f = f->next;
 	  }else{

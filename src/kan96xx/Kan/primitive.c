@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.4 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.5 2002/11/04 10:53:56 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -1360,8 +1360,17 @@ int executePrimitive(ob)
     if (ob2.tag != Sarray) {
       Kpush(Khead(ob2));
     }else{
-      ob1 = Kpop();
-      Kpush(oInitW(ob1,ob2));
+      if (getoaSize(ob2) > 0) {
+        if (getoa(ob2,getoaSize(ob2)-1).tag == Spoly) {
+          Kpush(oInitW(ob2,newObjectArray(0)));
+        }else{
+          ob1 = Kpop();
+          Kpush(oInitW(ob1,ob2));
+        }
+      }else{
+        ob1 = Kpop();
+        Kpush(oInitW(ob1,ob2));
+      }
     }
     break;
 

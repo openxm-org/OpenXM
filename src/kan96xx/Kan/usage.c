@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.17 2003/08/21 04:45:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.18 2003/08/22 11:47:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -177,6 +177,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(isReducible) poly1 poly2 ] gbext integer \n");
     fppp(fp,"  [(lcm) poly1 poly2] gbext poly \n");
     fppp(fp,"  [(grade) poly1 ] gbext integer \n");
+    fppp(fp,"  [(ord_ws_all) fv wv] gbext integer \n");
     fppp(fp,"  [(mod) poly1 universalNumber] gbext poly \n");
     fppp(fp,"          poly = poly1 mod universalNumber where char=0 and \n"); 
     fppp(fp,"          poly and poly2 belong to a same ring.\n");
@@ -257,7 +258,10 @@ void Kusage2(fp,s)
     fppp(fp,"Example: (x+1). [0 1 1 1] init ::    cf. weightv \n\n");
     fppp(fp,"<< fv weight_vector init h >>\n");
     fppp(fp,"<< fv [weight_vector shift_vector] init h >>\n");
+    fppp(fp,"<< fv init h >> or << hv [ ] init h >>\n");
     fppp(fp,"fv is a polynomial or a vector of polynomials.\n");
+    fppp(fp,"h is the initial term with respect to the weight vector and the shift vector\n");
+    fppp(fp,"if they are given.\n");
     fppp(fp,"Note: the last x variable is always assumed to be the vector index.\n");
     fppp(fp,"Example: [(x,y) ring_of_differential_operators 0] define_ring\n");
 	fppp(fp,"    [(x^2*Dx^2+2*x*Dx+x). (Dx+x).] [[(Dx) 1 (x) -1] weightv [0 -1]] init ::\n");
