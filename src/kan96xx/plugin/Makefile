@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.4 2000/01/10 14:31:38 maekawa Exp $ 
+## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.5 2000/01/10 19:21:17 maekawa Exp $ 
 
 OPENXM=../../../../OpenXM
 OPEMXM_CONTRIB=../../../../OpenXM_contrib
@@ -55,6 +55,8 @@ file2.a: file2.o
 file2.o: file2.h file2.c
 
 ox.a: mytcpio.o oxmisc.o oxmisc2.o
+	$(AR) ru $@ $?
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
 
 ox.h: oxx.h
 	@echo "Making ox.h"
