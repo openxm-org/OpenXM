@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.5 2000/11/24 05:49:26 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.6 2000/11/27 09:57:10 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -94,7 +94,7 @@ static table *new_table(int *src)
     return new;
 }
 
-/* 次の tag についてのキーを探す */
+/* looking for an item of the tag */
 static table *table_lookup(table *tbl, int tag)
 {
     while (tbl->tag != 0) {
@@ -106,7 +106,7 @@ static table *table_lookup(table *tbl, int tag)
     return NULL;
 }
 
-/* tag に対する送信制御 */
+/* controller about a cmo identified by the tag */
 static void table_ctl(table *tbl, int tag, int flag)
 {
     table *e = table_lookup(tbl, tag);
@@ -115,7 +115,7 @@ static void table_ctl(table *tbl, int tag, int flag)
     }
 }
 
-/* 全データに対する送信制御 */
+/* controller about all CMObjects */
 static void table_ctl_all(table *tbl, int flag)
 {
     while (tbl->tag != 0) {
@@ -124,7 +124,7 @@ static void table_ctl_all(table *tbl, int flag)
     }
 }
 
-/* 送信許可されている tag のリストを得る */
+/* getting the list of tags of all allowed objects */
 static cmo_list *table_get_all(table *tbl)
 {
     cmo_list *list = new_cmo_list();
@@ -137,14 +137,14 @@ static cmo_list *table_get_all(table *tbl)
     return list;
 }
 
-/* 次の tag をもつ cmo or sm_cmd の送信を許可する */
+/* giving a permssion to send objects identified by the tag. */
 __inline__
 static void table_allow(table *tbl, int tag)
 {
     table_ctl(tbl, tag, MATHCAP_FLAG_ALLOW);
 }
 
-/* 次の tag をもつ cmo or sm_cmd の送信を不許可にする */
+/* taking a permssion to send objects identified by the tag. */
 __inline__
 static void table_deny(table *tbl, int tag)
 {
@@ -164,7 +164,7 @@ static void table_update(table *cmotbl, cmo_list* types)
     }
 }
 
-/* 次の tag をもつ cmo or sm_cmd の送信が許可されているかを調べる */
+/* getting a permission to send objects identified by the tag. */
 static int table_allowQ_tag(table *tbl, int tag)
 {
     while (tbl->tag != 0 && tbl->tag != tag) {
@@ -203,7 +203,7 @@ static int table_allowQ_cmo_mathcap(table *cmotbl, cmo_mathcap *ob)
         && table_allowQ_cmo(cmotbl, ob->ob);
 }
 
-/* 次の cmo の送信が許可されているかを調べる */
+/* getting a permission to send the following object. */
 static int table_allowQ_cmo(table *cmotbl, cmo *ob)
 {
     int tag = ob->tag;
@@ -223,7 +223,7 @@ static int table_allowQ_cmo(table *cmotbl, cmo *ob)
     }
 }
 
-/* システム情報を得る */
+/* getting the System Information */
 static cmo_list *sysinfo_get()
 {
     cmo_list *syslist = new_cmo_list();
@@ -274,7 +274,7 @@ mathcap *new_mathcap()
     return new;
 }
 
-/* データベースから cmo_mathcap を生成する */
+/* generating a cmo_mathcap by a local database. */
 cmo_mathcap* mathcap_get(mathcap *this)
 {
     cmo_list *mc = new_cmo_list();
@@ -312,14 +312,13 @@ static cmo_list *cmo_mathcap_get_cmotypes(cmo_mathcap *mc)
     return get_messagetypes(ob, OX_DATA);
 }
 
-/* 受信した mathcap データを反映させる */
-/* this == NULL のとき、はじめて mathcap* オブジェクトをせいせいする */
+/* The mathcap_update integrates received cmo_mathcap into the mathcap
+   database. If this == NULL, then an instance of mathcap is generated. */
 mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc)
 {
     cmo_list *types;
     types = cmo_mathcap_get_cmotypes(mc);
     if (types != NULL) {
-        /* すべての cmo の送信を禁止 */
         table_ctl_all(this->cmotbl, MATHCAP_FLAG_DENY);
         table_update(this->cmotbl, types);
     }

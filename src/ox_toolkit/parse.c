@@ -1,9 +1,9 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.4 2000/03/10 12:24:39 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.5 2000/10/10 05:23:21 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
-   Some commnets is written in Japanese by using the EUC-JP coded 
+   Some commnets are written in Japanese by using the EUC-JP coded 
    character set.
 */
 
@@ -743,7 +743,7 @@ static int lex_symbol()
     return 0;
 }
 
-/* return する前に一文字先読みしておく. */
+/* Remark: prefetching a character before return. */
 static int lex()
 {
     int c_dash = 0;

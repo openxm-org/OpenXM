@@ -1,9 +1,9 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.7 2000/11/28 22:11:14 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.8 2000/12/01 07:27:03 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
-   Some commnets is written in Japanese by the EUC-JP coded
+   Some commnets are written in Japanese by the EUC-JP coded
    character set.
 */
 
@@ -73,11 +73,11 @@ static int receive_int32_lbo(OXFILE *oxfp)
     return tag;
 }
 
-/* socket システムコールなどで socket を開いたのち、
-   fdopen(sd, "a+") でバッファリングする(予定)。("w+" ではない)
-   バッファリングの後、バイトオーダを決定し、
-   oxf_setopt() で関数ポインタを設定し直す。*/
-
+/* (1) getting the fd by socket(2).
+   (2) preparing a buffer by fdopen(fd, "a+"). (not "w+")
+   (3) determing the byte order of the OX connection.
+   (4) setting function pointers by oxf_setopt().
+*/
 OXFILE *oxf_open(int fd)
 {
     OXFILE *oxfp = (OXFILE *)malloc(sizeof(OXFILE));
@@ -120,8 +120,7 @@ void oxf_determine_byteorder_client(OXFILE *oxfp)
     oxf_setopt(oxfp, mode);
 }
 
-/* Server 側ではこちらを用いる */
-/* いまの実装は dup されていることが前提になっている */
+/* If the program is an OX server, then you must use this function. */
 void oxf_determine_byteorder_server(OXFILE *oxfp)
 {
     int  offer = OX_BYTE_LITTLE_ENDIAN;
@@ -300,22 +299,12 @@ int oxc_start_with_pipe(char *remote_host, int port, char *passwd)
     return pid;
 }
 
-/* pipe_*_info で送る情報の形式の定義 */
-/* Integer port    : 4byte, ポート番号, Network byte order 
-   String  hostname: ホスト名
-   String  password: パスワード
-
-   String は C のストリングではなくて、cmo_string のような、長さ付きの
-   ストリングである。ただし、\0 文字を含む。
-   すなわち、"Hello" は (int32)6 H e l l o \0 に展開される(合計10byte)。
-*/
-
 static void pipe_send_string(int fd, char *s)
 {
-	int len  = strlen(s)+1;
+	int len  = strlen(s);
 	int lenN = htonl(len);
 	write(fd, &lenN, sizeof(int));
-	write(fd, s, len);
+	write(fd, s, len+1);
 }
 
 static char *pipe_read_string()
@@ -323,12 +312,13 @@ static char *pipe_read_string()
 	int len;
 	char *s;
 	read(0, &len, sizeof(int));
-	len = ntohl(len);
+	len = ntohl(len)+1;
 	s = malloc(len);
 	read(0, s, len);
 	return s;
 }
 
+/* The data format used by pipe_send_info() is defined in OX-RFC-101. */
 void pipe_send_info(int fd, char *hostname, int port, char *password)
 {
 	port = htonl(port);

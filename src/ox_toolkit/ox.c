@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.15 2000/10/12 15:53:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.16 2000/11/28 22:11:13 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -19,7 +19,7 @@
 #include "ox_toolkit.h"
 #include "parse.h"
 
-/* CMO_xxx の値の順にならべること(デバッグのため) */
+/* sorting by the value of CMO_xxx.  (for debugging) */
 static cmo_null*         receive_cmo_null(OXFILE *oxfp);
 static cmo_int32*        receive_cmo_int32(OXFILE *oxfp);
 static cmo_string*       receive_cmo_string(OXFILE *oxfp);
@@ -88,7 +88,6 @@ cmo_error2* make_error_object(int err_code, cmo *ob)
     list_append(li, (cmo *)new_cmo_int32(current_received_serial));
     list_append(li, (cmo *)new_cmo_int32(err_code));
     list_append(li, ob);
-    /* 他の情報を加えるならココ */
     return new_cmo_error2((cmo *)li);
 }
 
@@ -226,10 +225,7 @@ static cmo_error2* receive_cmo_error2(OXFILE *oxfp)
     return new_cmo_error2(ob);
 }
 
-/* receive_ox_tag() == OX_DATA の後に呼び出される */
-/* 関数ポインタを使った方がきれいに書けるような気がする.  */
-/* if (foo[tag] != NULL) foo[tag](oxfp); とか */
-
+/* receive_cmo() is called after receive_ox_tag(). */
 cmo* receive_cmo(OXFILE *oxfp)
 {
     cmo* m;
