@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/oxc/sm.h,v 1.1 2000/10/13 06:05:12 ohara Exp $ */
 
 #ifndef _SM_ERRNO_H_
 #define _SM_ERRNO_H_
@@ -18,6 +18,7 @@ void sm_popCMO(OXFILE *oxfp);
 void sm_pops(OXFILE *oxfp);
 void sm_executeFunction(OXFILE *oxfp);
 void sm_mathcap(OXFILE *oxfp);
+void sm_set_mathcap(OXFILE *oxfp);
 void sm_run(OXFILE *oxfp, int code);
 int sm(OXFILE *oxfp);
 
