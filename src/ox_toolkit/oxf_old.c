@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.2 2000/10/12 15:53:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.3 2002/04/09 09:40:37 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -11,6 +11,12 @@
 #include <sys/file.h>
 #include <sys/param.h>
 #include <time.h>
+
+#if defined(__sun__)
+#include <netdb.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#endif
 
 #include "mysocket.h"
 #include "ox_toolkit.h"

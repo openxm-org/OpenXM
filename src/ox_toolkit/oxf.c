@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.10 2000/12/14 01:41:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.11 2000/12/16 01:49:32 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -15,6 +15,12 @@
 #include <sys/file.h>
 #include <sys/param.h>
 #include <time.h>
+
+#if defined(__sun__)
+#include <netdb.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#endif
 
 #include "mysocket.h"
 #include "ox_toolkit.h"
