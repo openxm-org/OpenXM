@@ -1,7 +1,7 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.34 2001/03/08 07:22:29 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.35 2001/10/27 11:22:35 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
-WEBKOBE1=/home/web/OpenXM/1.1.3
+WEBKOBE1=/home/web/OpenXM/1.2.1
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
 OpenXM_calc=../calc2000p

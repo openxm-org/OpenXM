@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.28 2001/03/23 12:16:15 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.29 2001/03/29 01:25:00 takayama Exp $
 
-VERSION=1.1.3
+VERSION=1.2.1
 TAG=HEAD
-## TAG=RELEASE_1_1_3
+## TAG=RELEASE_1_2_1
 
 ### Configure below.
 TAR_WORK=$(HOME)/tmp
@@ -38,6 +38,7 @@ usage :
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
 	@echo "7.  copy-head-tar-ball-to-ftp-area "
+	@echo "7.b  copy-release-tar-ball-to-ftp-area "
 	@echo "8.  copy-asir-head-tar-ball-to-ftp-area "
 	@echo "9.  copy-asir-stable-tar-ball-to-ftp-area "
 	@echo "10.  copy-asir-misc-tar-ball-to-ftp-area "
@@ -120,6 +121,15 @@ copy-to-ftp-area:
 	-cp ${TAR_WORK}/openxm-${VERSION}.tgz ${FTP_AREA}
 	-cp ${TAR_WORK}/openxm-port.tar.gz ${FTP_AREA}
 	ls -l ${FTP_AREA}
+
+copy-release-tar-ball-to-ftp-area:
+	-mkdir ${TAR_WORK}
+	-mkdir work
+	(cd work ; /bin/rm -rf *)
+	(cd work ; ${RCVS} checkout OpenXM OpenXM_contrib OpenXM_contrib2)
+	(cd work ; tar czvf ${TAR_WORK}/openxm-${VERSION}.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
+	/bin/rm -rf work
+	-scp ${TAR_WORK}/openxm-${VERSION}.tar.gz ${WHO}:${FTP_AREA}
 
 copy-head-tar-ball-to-ftp-area:
 	-mkdir ${TAR_WORK}

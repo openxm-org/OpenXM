@@ -1,6 +1,6 @@
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/Linux/Debian/Makefile,v 1.1 2000/09/27 22:52:22 takayama Exp $
 
-VERSION=1.1.3
+VERSION=1.2.1
 ## configuration only for committers
 WHO=taka@orange
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
