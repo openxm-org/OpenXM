@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.1 2000/10/10 05:23:21 ohara Exp $ */
 
 /*
 Functions in this module print a given CMO to console.
@@ -49,7 +49,7 @@ void print_cmo(cmo* c)
         fprintf(stderr, ")");
         break;
     default:
-        fprintf(stderr, "print_cmo() does not know how to print.\n");
+        fprintf(stderr, "\nprint_cmo() does not know how to print cmo of type %d.\n", tag);
     }
 }
 
@@ -61,6 +61,7 @@ static void print_cmo_int32(cmo_int32* c)
 static void print_cmo_list(cmo_list* this)
 {
     cell* cp = list_first(this);
+	fprintf(stderr, "[%d]", list_length(this));
     while(!list_endof(this, cp)) {
         fprintf(stderr, ", ");
         print_cmo(cp->cmo);
