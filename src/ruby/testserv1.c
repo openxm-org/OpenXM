@@ -1,5 +1,5 @@
 
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ruby/testserv1.c,v 1.1 2000/01/28 07:04:25 ogino Exp $ */
 
 #include <stdio.h>
 /* #include <pari.h> */
@@ -106,6 +106,10 @@ int getdisc(n)
 
 int pushdisc()
 {
+  if (get_i() != 1) {
+    push(make_error2(0));
+    return -1;
+  }
   push(new_cmo_int32(getdisc(get_i())));
   return 0;
 }
