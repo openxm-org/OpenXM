@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.12 2003/01/17 00:53:09 maekawa Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.13 2003/01/17 01:01:04 maekawa Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,9 +9,10 @@
 #include <unistd.h>
 
 #define BUFSIZE 10000
+#define SSIZE  1024
 
-#define	REPL_IMGFILE	"/tmp/repl_test.img"
-#define	REPL_PSFILE	"/tmp/repl_test.ps"
+#define	REPL_IMGFILE	"repl_test.img"
+#define	REPL_PSFILE	    "repl_test.ps"
 
 int
 main(int argc,char *argv[]) {
@@ -21,6 +22,8 @@ main(int argc,char *argv[]) {
   char type = 'b';
   FILE *fp;
   int fd;
+  char sss_png[SSIZE];
+  char sss_gif[SSIZE];
 
   if (argc >= 2) {
 	if (strcmp(argv[1],"csh")==0) {
@@ -49,13 +52,8 @@ main(int argc,char *argv[]) {
 
   /* Configuring environmental variables. */
   /* Check if pstoimg (src/asir-contrib) supports png format. */
-  if ((fd = open("/tmp/repl_test.ps", O_WRONLY|O_CREAT|O_EXCL|O_TRUNC,
-		 S_IRUSR|S_IWUSR)) < 0) {
-	fprintf(stderr, "open: %s: %s\n", REPL_PSFILE, strerror(errno));
-	exit(EXIT_FAILURE);
-  }
-  if ((fp = fdopen(fd, "w")) == NULL) {
-	fprintf(stderr, "fdopen: %s", strerror(errno));
+  if ((fp = fopen(REPL_PSFILE,"w")) == NULL) {
+	fprintf(stderr, "fopen: %s", strerror(errno));
 	exit(EXIT_FAILURE);
   }
   fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
@@ -67,13 +65,22 @@ main(int argc,char *argv[]) {
 	break;
   }
 
-  if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.img >/dev/null")) {
+  if (snprintf(sss_png,SSIZE,"pstoimg -type png %s -out %s >/dev/null",REPL_PSFILE,REPL_IMGFILE) <0) {
+	fprintf(stderr,"SSIZE is small.\n");
+	exit(EXIT_FAILURE);
+  }
+  if (snprintf(sss_gif,SSIZE,"pstoimg -type gif %s -out %s >/dev/null",REPL_PSFILE,REPL_IMGFILE) <0) {
+	fprintf(stderr,"SSIZE is small.\n");
+	exit(EXIT_FAILURE);
+  }
+  
+  if (!system(sss_png)) {
 	if (type == 'b') {
 	  printf("export OpenXM_PSTOIMG_TYPE=png\n");
 	}else{
 	  printf("setenv OpenXM_PSTOIMG_TYPE png\n");
 	}
-  }else if (!system("pstoimg -type gif /tmp/repl_test.ps -out /tmp/repl_test.img >/dev/null")) {
+  }else if (!system(sss_gif)) {
 	if (type == 'b') {
 	  printf("OpenXM_PSTOIMG_TYPE=gif\n");
       printf("export OpenXM_PSTOIMG_TYPE\n");
