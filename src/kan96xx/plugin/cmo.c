@@ -1,3 +1,4 @@
+/*$OpenXM$*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -86,7 +87,7 @@ struct cmoBuffer *cmoOutputToBuf(cmoAction a,void *data, int size)
       break;
     case CMOPUT:
       for (i=0; i<size; i++) {
-	fp2fputc(((char *)data)[i], b.fp);
+	fp2fputc((int) ((char *)data)[i], b.fp);
       }
       break;
     case CMOFLUSH:
@@ -195,9 +196,9 @@ cmoToStream(struct object cmoObj,struct object of)
   s = (char *)(cb->buf);
   for (i=0; i<size; i++) {
     if (file2) {
-      fp2fputc(s[i],(FILE2 *)(of.rc.voidp));
+      fp2fputc((int) s[i],(FILE2 *)(of.rc.voidp));
     }else{
-      fputc(s[i],of.rc.file);
+      fputc((int) s[i],of.rc.file);
     }
   }
 }

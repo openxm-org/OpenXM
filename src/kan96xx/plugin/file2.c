@@ -1,4 +1,4 @@
-/*$OpenXM$ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.2 1999/11/18 00:54:17 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -101,9 +101,9 @@ int fp2fputc(int c,FILE2 *fp2) {
 	if (fp2->watch) fp = fp2->watchFile;
 	else fp = stderr;
     if (c >= ' ' && c <='z') {
-      fprintf(fp," %2x(%c)-> ",c,c);
+      fprintf(fp," %2x(%c)-> ",c& 0xff,c);
     }else{
-      fprintf(fp," %2x( )-> ",c);
+      fprintf(fp," %2x( )-> ",c& 0xff);
     }
     fflush(NULL);
   }
