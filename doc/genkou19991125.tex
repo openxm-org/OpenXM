@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.117 1999/12/30 14:21:34 ohara Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.118 2000/01/04 11:43:37 tam Exp $
 
 \usepackage{jssac}
 
@@ -487,19 +487,28 @@ C 言語による実装(MP-C ライブラリ)は上記のウェブページから収得可能である.
 が必要である.  control integration としては, ソケット, MPI, PVM などが利
 用できる.
 
+
 \item MCP (Mathematical Computation Protocol)
 
 http://horse.mcs.kent.edu/\~{}pwang/
 
-数学的な計算を行なうための HTTP に似たプロトコル.
-%クライアント・サーバモデルを採用している.
-MCP の視野は主に control integration であり,
-交換に用いられる数学データの表現方法については規定されていない.
-したがって数学的なデータの表現には MP や OpenMath で定め
-られたものを利用することができる.  実際, 数学データの表現に OpenMath 
-の XML 表現を用いた実装があり, GAP と Axiom の間で通信が行われている.
-この場合 MCP によって送信されるデータは, 本文に OpenMath 形式で数式を
-記述したテキストである.
+HTTP に似せた数学的な計算を行なうためのプロトコル.
+MCP は主に control integration を規定しており,
+クライアント・サーバ型の通信を行なう.
+MCP のメッセージはヘッダとボディから構成されている.
+ヘッダはテキストであり, 最初に現れる空行でヘッダとボディは
+区切られている.
+ボディの形式は固定ではなく,
+ヘッダを見ればボディの形式が分かるようになっている.
+
+数式はボディに記述されて送られるが,
+このプロトコルでは数学的オブジェクトの表現方法についての規定はなく,
+そのため, オブジェクトの表現には MP や OpenMath で定められたものを
+使用することが考えられている.
+実際, 数式の表現に OpenMath 規約の XML 表現を用いた実装があり,
+GAP と Axiom の間で通信が行なわれている.
+この場合, MCP によって送信されるメッセージは
+ボディに OpenMath 形式で数式を記述したテキストである.
 
 \end{itemize}
 
