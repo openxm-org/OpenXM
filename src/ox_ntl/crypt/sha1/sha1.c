@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.4 2004/06/20 10:59:01 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/sha1/sha1.c,v 1.5 2004/07/04 02:31:51 iwane Exp $ */
 /* RFC 3174 - SHA-1 (US Secure Hash Algorithm 1 (SHA1))*/
 
 #include <stdio.h>
@@ -158,7 +158,7 @@ sha1_h(unsigned char *Ph, const unsigned char *msg, size_t len, const uint32_t *
 	}
 
 	memset(Ph, 0x00, sizeof(H));
-	for (i = 0; i < sizeof(H) / sizeof(H[0]); i++) {
+	for (i = 0; i < (int)(sizeof(H) / sizeof(H[0])); i++) {
 		for (j = 0; j < 32; j++) {
 			Ph[4 * i + j / 8] |= ((h[i] >> (31 - j)) & 1) << (7 - j % 8);
 		}
@@ -229,7 +229,7 @@ _PADDING:
 
 
 	memset(Ph, 0x00, sizeof(H));
-	for (i = 0; i < sizeof(H) / sizeof(H[0]); i++) {
+	for (i = 0; i < (int)(sizeof(H) / sizeof(H[0])); i++) {
 		for (j = 0; j < 32; j++) {
 			Ph[4 * i + j / 8] |= ((h[i] >> (31 - j)) & 1) << (7 - j % 8);
 		}
