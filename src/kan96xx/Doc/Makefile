@@ -1,10 +1,11 @@
-## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.4 2000/01/19 06:41:02 takayama Exp $
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.5 2000/12/25 06:19:10 takayama Exp $
 ########## Documents
 TOPDIR=../../../../OpenXM
 OpenXM_ROOT=${TOPDIR}
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 CC=gcc
+LATEX2HTML=latex2html
 
 all : ttt.tex onlinehelp.tex
 	echo "The document kan/example is in the file ttt.tex."
@@ -27,24 +28,30 @@ onlinehelp.dvi : onlinehelp.tex
 ole : ole.c
 	${CC} -o ole ole.c
 
+make-html-document : onlinehelp.tex ttt.tex
+	-${LATEX2HTML} onlinehelp
+	-${LATEX2HTML} ttt
+
 ###
-install-document : onlinehelp.dvi ttt.dvi clean-OpenXM-doc
+install-document : onlinehelp.dvi ttt.dvi clean-OpenXM-doc make-html-document
 	mkdir $(OpenXM_doc)/kan96xx
 	touch $(OpenXM_doc)/kan96xx/DO_NOT_EDIT_THIS_DIRECTORY._ALL_FILES_ARE_AUTOMATICDALLY_GENERATED.
 	-cp ttt.tex $(OpenXM_doc)/kan96xx/intro.tex
 	-cp onlinehelp.tex $(OpenXM_doc)/kan96xx/onlinehelp.tex
 	-$(DVIPS)  ttt >$(OpenXM_doc)/kan96xx/intro.ps
 	-$(DVIPS) onlinehelp >$(OpenXM_doc)/kan96xx/onlinehelp.ps
+	-cp -r onlinehelp $(OpenXM_doc)/kan96xx
+	-cp -r ttt $(OpenXM_doc)/kan96xx
 
 clean-OpenXM-doc : 
 	-/bin/rm -rf $(OpenXM_doc)/kan96xx
 
 ########## cleaning
 clean:
-	-/bin/rm ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out bin/ox bin/oxlog bin/ox_sm1
+	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out bin/ox bin/oxlog bin/ox_sm1 onlinehelp ttt
 
 clean-document:
-	-/bin/rm ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out 
+	-/bin/rm -rf ttt.* ole *.dvi *.aux *.log *~ kanlib1 onlinehelp.tex a.out onlinehelp ttt
 
 ########### kan/library
 CC=gcc
