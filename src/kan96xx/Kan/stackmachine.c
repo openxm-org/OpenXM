@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.20 2004/09/11 23:49:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.21 2004/09/12 00:26:21 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -740,11 +740,13 @@ void scanner() {
   struct object ob;
   extern int Quiet;
   extern void ctrlC();
-  int tmp;
+  int tmp, status;
   char *tmp2;
   extern int ErrorMessageMode;
   int jval;
   extern int InSendmsg2;
+  int infixOn = 0;
+  struct tokens infixToken;
   getokenSM(INIT);
   initSystemDictionary();
 
@@ -834,12 +836,20 @@ void scanner() {
       Calling_ctrlC_hook = 0;  
       KSexecuteString(" (Computation is interrupted.) "); /* move to ctrlC-hook? */
       InSendmsg2 = 0;
+      infixOn = 0;
       continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
-    token = getokenSM(GET);
-    if ((tmp=executeToken(token)) < 0) break;
-    /***if (tmp == 1) fprintf(stderr," --- exit --- \n");*/
+    token = getokenSM(GET); 
+    if ((status=executeToken(token)) < 0) break;
+    /***if (status == 1) fprintf(stderr," --- exit --- \n");*/
+    /* fprintf(stderr,"token.token=%s, status=%d, infixOn=%d\n",token.token,status,infixOn); */
+    if (status & STATUS_INFIX) {
+      infixOn = 1;  infixToken = token; infixToken.tflag |= NO_DELAY;
+    }else if (infixOn) {
+      infixOn = 0;
+      if ((status=executeToken(infixToken)) < 0) break;
+    }
   }
 }
 
@@ -964,6 +974,11 @@ int executeToken(token)
       h1 = ((token.object.lc.op)->rc).ival;
       ob=findUserDictionary(token.token,h0,h1,CurrentContextp);
       primitive = ((token.object.rc.op)->lc).ival;
+      if (!(token.tflag & NO_DELAY)) {
+        if ((ob.tag >= 0) && (UD_attr & ATTR_INFIX)) {
+          tracePopName(); return STATUS_INFIX; 
+        }
+      }
       if (ob.tag >= 0) {
         /* there is a definition in the user dictionary */
         if (ob.tag == SexecutableArray) {

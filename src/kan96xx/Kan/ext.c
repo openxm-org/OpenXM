@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.27 2004/09/11 12:13:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.28 2004/09/11 23:49:34 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -320,6 +320,22 @@ struct object Kextension(struct object obj)
     m = KopInteger(obj1);
 	/* if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT || m == ATTR_INFIX))
 	   errorKan1("%s\n","The number must be 0, 1 or 2.");*/
+    putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
+                       m,CurrentContextp->userDictionary);
+  }else if (strcmp(key,"or_attr")==0) {
+    if (size != 3) errorKan1("%s\n","[(or_attr)  num symbol] extension.");
+    obj1 = getoa(obj,1);
+    obj2 = getoa(obj,2);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","[(or_attr)  num symbol] extension.");
+    if (obj2.tag != Sstring)  errorKan1("%s\n","[(or_attr)  num symbol] extension.");
+    m = KopInteger(obj1);
+    rob = KfindUserDictionary(obj2.lc.str);
+    if (rob.tag != NoObject.tag) {
+      if (strcmp(UD_str,obj2.lc.str) == 0) {
+        m |= UD_attr;
+      }else errorKan1("%s\n","or_attr: internal error.");
+    }
+    rob = KpoInteger(m);
     putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
                        m,CurrentContextp->userDictionary);
   }else if (strcmp(key,"getattr")==0) {

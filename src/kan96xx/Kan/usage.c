@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.32 2004/09/11 01:00:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.33 2004/09/11 12:13:41 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -159,6 +159,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(newMatrix) m n] extension mat \n");
     fppp(fp,"  [(newVector) m ] extension vec \n");
     fppp(fp,"  [(getUniqueFileName) path] extension newName \n");
+    fppp(fp,"  [(or_attr) atr literal] extension new_value \n");
     fppp(fp,"  [(outputObjectToFile) path obj] extension null \n");
     fppp(fp,"  [(ostype)] extension list \n");
     fppp(fp,"  [(regionMatches) string stringArray] extension list \n");
