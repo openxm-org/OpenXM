@@ -1,12 +1,6 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
-/*&usage
-Abstract:
-Computing intersection matrix of cycles associated to 3F2 
-See "Ohara, Sugiki, Takayama, Quadratic Relations for Generalized
-     Hypergeometric Functions ${}_p F_{p-1}$"
-for methematical details.
-*/
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfphom.rr,v 1.1 2001/12/17 07:19:38 ohara Exp $ */
+
 /* cycles
      C1 = [t,1] \otimes q_1
      C2 = [0,t] \otimes q_1
@@ -15,15 +9,24 @@ for methematical details.
 */
 
 /*&usage 
+begin: pfphom_intersection(P)
+description:  
+   Computing intersection matrix of cycles associated to p F_(p-1). 
+   See "Ohara, Sugiki, Takayama, Quadratic Relations for Generalized
+     Hypergeometric Functions ${}_p F_{p-1}$"
+   for methematical details.
 
-   (1) In order to get the intersection matrix of homologies for 3F2,
-       you must put the following on asir console:
+
+   (1) In order to get the intersection matrix of homologies for 3 F 2,
+       you must put the following on asir console
          SS = pfphom_intersection(3)$
        SS is a 3x3-matrix.
    (2) In order to get monodromy matricies for 3F2,
-       you must put the following on asir console:
+       you must put the following on asir console
 	     MP = pfphom_monodromy_pair_kyushu(3)$
        MP is a list of 3x3-matricies.
+author: K.Ohara
+end:
 */
 
 extern Pfphom_RuleDual$

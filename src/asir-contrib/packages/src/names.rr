@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.34 2002/01/27 08:18:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.35 2002/01/27 09:11:22 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -64,6 +64,8 @@ def base_cancel(S) {
 /*&usage begin: base_choose(L,M)
  It returns the list of the order {M} subsets of L.
  example: base_choose([1,2,3],2);
+ example_description: @tex It outputs all the order $2$ subsets of the set
+                      $\{ 1, 2, 3\}$ @end tex
 end: */
 def base_choose(L,M) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
@@ -93,31 +95,60 @@ def base_memberq(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_memberq(A,S);
 }
+/*&usage begin: base_permutation(L)
+ It outputs all permutations of {L}.  BUG; it uses a slow algorithm.
+ example: base_permutation([1,2,3,4]);
+end: */
 def base_permutation(L) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_permutation(L);
 }
+/*&usage begin: base_position(A,S)
+ It returns the position of {A} in {S}.
+ example: base_position("cat",["dog","cat","monkey"]);
+end: */
 def base_position(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_position(A,S);
 }
+/*&usage begin: base_prune(A,S)
+ It returns a list in which {A} is removed from {S}.
+ example: base_prune("cat",["dog","cat","monkey"]);
+end: */
 def base_prune(A,S) {
-  /* Prune A from the set S */
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_prune(A,S);
 }
+/*&usage begin: base_replace(S,Rule)
+ It rewrites {S} by using the rule {Rule}
+ example: base_replace(x^2+y^2,[[x,a+1],[y,b]]);
+ example_description: x is replaced by a+1 and y is replaced by b in
+ x^2+y^2.
+end: */
 def base_replace(S,Rule) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_replace(S,Rule);
 }
+/*&usage begin: base_set_minus(A,B)
+ @tex $A \setminus B$ @end tex
+ example: base_set_minus([1,2,3],[3,4,5]);
+end: */
 def base_set_minus(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_set_minus(A,B);
 }
+/*&usage begin: base_set_union(A,B)
+ @tex $A \cup B$ @end tex
+ example: base_set_union([1,2,3],[3,4,5]);
+end: */
 def base_set_union(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_set_union(A,B);
 }
+/*&usage begin: base_subsetq(A,B)
+ @tex if $A \subseteq B$, then it returns 1 else 0. @end tex
+ example: base_subsetq([1,2],[1,2,3,4,5]);
+end: */
 def base_subsetq(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_subsetq(A,B);

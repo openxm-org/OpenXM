@@ -1,18 +1,23 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
-/*&usage
-Abstract:
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfpcoh.rr,v 1.1 2001/12/17 07:19:38 ohara Exp $ */
+
+
+/*&usage begin:
+pfpcoh_intersection(P)
+pfpcoh_intersection({P}) returns an intersection matrix
+for cocycles associated to the generalized hypergeometric function 
+p F_(p-1).
+
+description:
 This program pfpcoh.rr computes an intersection matrix S of cocycles 
-of pF_{p-1} and compares it with the matrix given by takayama.
+of pF_{p-1} and compares it with the matrix obtained by solving a differential
+equation for intersection matrix.
 See "Ohara, Sugiki, Takayama, Quadratic Relations for Generalized
      Hypergeometric Functions ${}_p F_{p-1}$"
 for methematical details.
-*/
 
-/*&usage
-matrix pfpcoh_intersection(integer p) returns an intersection matrix
-for cocycles associated to the generalized hypergeometric function p F p-1.
-Example:
+
+example:
 [dhc10:~] openxm asir
 This is Risa/Asir, Version 20010917 (Kobe Distribution).
 Copyright (C) 1994-2000, all rights reserved, FUJITSU LABORATORIES LIMITED.
@@ -26,6 +31,9 @@ help("keyword"); ox_help(0); ox_help("keyword"); ox_grep("keyword");
 Loading ~/.asirrc
 [670] load("pfpcoh.rr")$
 [701] S=pfpcoh_intersection(3);
+
+author: K.Ohara
+end:
 */
 
 extern Pfpcoh_Symbols$

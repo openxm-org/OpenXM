@@ -1,4 +1,4 @@
- /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.1 2002/01/27 07:13:28 takayama Exp $  */
+ /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.2 2002/01/27 08:18:52 takayama Exp $  */
 
 #include <stdio.h>
 int Debug = 0;
@@ -16,9 +16,11 @@ struct item {
   char *shortDescription;
   char *description;
   char *examplev[VMAX];
+  char *exampleDescv[VMAX];
   int examplec;
   int refc;
   char *refv[VMAX];
+  char *author;
 };
 struct item *getItem(void);
 char *str(char *key);
@@ -135,7 +137,7 @@ struct item * newItem(){
   }
   a->argc = 0; a->optc = 0; a->refc=0; a->examplec = 0;
   a->category = a->category2 = a->name = a->shortDescription
-    = a->description = NULL;
+    = a->description = a->author = NULL; 
   return a;
 }
   
@@ -195,8 +197,12 @@ printItem(struct item *it) {
     printf("description=%s\n",it->description);
   for (i=0; i <it->examplec; i++) 
     printf("examplev[%d]=%s\n",i,it->examplev[i]);
+  for (i=0; i <it->examplec; i++) 
+    printf("exampleDescv[%d]=%s\n",i,it->exampleDescv[i]);
   for (i=0; i<it->refc; i++)
     printf("  refv[%d]=%s\n",i,it->refv[i]);
+  if (it->author != NULL)
+    printf("author=%s\n",it->author);
   printf("\n");
 }
 
@@ -323,7 +329,9 @@ struct item *getItem() {
     /* Get Description or Examples */
     if (strcmp(key,"end:") == 0) break;
     if (strcmp(key,"description:") == 0 ||
-        strcmp(key,"example:") == 0) {
+        strcmp(key,"author:") == 0 ||
+        strcmp(key,"example:") == 0 ||
+		strcmp(key,"example_description:") ==0 ) {
       pp = p;
       strcpy(key2,key);
       do {
@@ -337,11 +345,18 @@ struct item *getItem() {
       }
       if (strcmp(key2,"example:") == 0) {
         it->examplev[examplec++] = str2(&(S[pp]),pOld-pp);
+        it->exampleDescv[examplec-1] = "";
         it->examplec = examplec;
         if (examplec > VMAX-1) {
           fprintf(stderr,"Too many examples. \n");
           exit(20);
         }
+      }
+      if (strcmp(key2,"example_description:") == 0) {
+        it->exampleDescv[examplec-1] = str2(&(S[pp]),pOld-pp);
+      }
+      if (strcmp(key2,"author:") == 0) {
+        it->author = str2(&(S[pp]),pOld-pp);
       }
     }else if (strcmp(key,"ref:") == 0) {
       argc = 0;
@@ -358,7 +373,7 @@ struct item *getItem() {
         }
       }
     }else{
-      fprintf(stderr,"Unknown keyword at %s\n",it->name);
+      fprintf(stderr,"Unknown keyword << %s >> at %s\n",key, it->name);
       exit(10);
     }
   }while (p >= 0);
@@ -447,15 +462,30 @@ printTexi(FILE *fp, struct item *it) {
   fprintf(fp,"@c @item \n");
   fprintf(fp,"@c @end itemize\n");
   
+  if (it->description != NULL) {
+    fprintf(fp,"%s\n\n",it->description);
+  }
+
   if (it->examplec > 0) {
     for (i=0; i<it->examplec; i++) {
+	  if (it->examplec == 1) {
+        fprintf(fp,"Example:\n");
+	  }else{
+        fprintf(fp,"Example %d:\n",i);
+	  }
       fprintf(fp,"@example\n");
       fprintf(fp,"%s\n",it->examplev[i]);
       if (GenExample) {
         outputOfExample(it->examplev[i]);
       }
       fprintf(fp,"@end example\n");
+	  if (it->exampleDescv[i] != NULL && strlen(it->exampleDescv[i]) > 0) {
+		fprintf(fp,"%s\n\n",it->exampleDescv[i]);
+	  }
     }
+  }
+  if (it->author != NULL) {
+    fprintf(fp,"Author : %s\n\n",it->author);
   }
   if (it->refc > 0) {
     fprintf(fp,"@table @t\n");
