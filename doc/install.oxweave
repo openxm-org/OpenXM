@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.39 2000/11/30 12:45:13 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.40 2000/12/01 02:27:31 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -187,6 +187,11 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
        ox_xterm*iconic: on
 
 */
+/*&C
+
+-------------------------------------------------------------
+
+*/
 /*&jp
 
 ★ OpenXM FreeBSD binary パッケージのインストール方法
@@ -309,6 +314,12 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
 
 /*&C
 
+---------------------------------------------------------
+
+*/
+
+/*&C
+
 ***** OpenXM client programs under OpenXM/bin or /usr/local/bin:
    asir           
    oxmath
@@ -392,7 +403,7 @@ So, it cannot be used for the OpenMath module.
 
 /*&C
 
-
+--------------------------------------------------------
 
 
 */
@@ -465,6 +476,12 @@ The installation is completed.
 /*&jp
 
 以上. 
+
+*/
+
+/*&C
+
+-----------------------------------------------------
 
 */
 
@@ -595,6 +612,10 @@ OpenXM/Copyright を御覧ください.
 See OpenXM/Copyright.
 */
 
+//&C   
+//&C ----------------------------------------------
+//&C        
+
 /*&eg
 
 
@@ -715,6 +736,91 @@ OpenXM/rc/dot.bashrc を source コマンドで
 
 */
 
+//&C ---------------------------------------------------------
+
+/*&eg
+***** How to generate a subset of the full OpenXM package 
+      from the head branch.
+   *  The souce tarball of the head branch is at
+          ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
+      Get this tarball by the ftp command. Extract the directories
+         OpenXM OpenXM_contrib OpenXM_contrib2 
+      by
+         tar xzvf openxm-head.tar.gz
+*/
+/*&jp
+★ OpenXM package の一部分のみ生成する方法 (head branch より).
+   *  Head ブランチの tarball は
+          ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz
+      にあります.  これを ftp で取得してから
+          tar xzvf openxm-head.tar.gz
+      を展開してください.
+      OpenXM OpenXM_contrib OpenXM_contrib2 が作成されます.
+*/
+/*&C
+
+*/
+/*&eg
+   [Subpackage asir]  If you want to generate only Risa/Asir, 
+                      type in as follows.
+*/
+/*&jp
+   [部分パッケージ asir] Risa/Asir のみを生成したい場合は, 
+                         つぎのように入力します.
+*/
+/*&C
+
+          (cd OpenXM/src ;  make install-asir)
+          (cd OpenXM/rc ; make )
+
+*/
+/*&eg
+        Copy the shell script "asir" at OpenXM/rc in your search path, e.g.,
+        /usr/local/bin or ~/bin
+        Or, read OpenXM/rc/dot.bashrc or OpenXM/rc/dot.bashrc by the source
+        command from your ~/.bashrc or ~/.cshrc.
+*/
+/*&jp
+        OpenXM/rc の下のシェルスクリプト "asir" をサーチパスにコピーして
+        ください (たとえば, /usr/local/bin or ~/bin へ).
+        または OpenXM/rc/dot.bashrc か OpenXM/rc/dot.cshrc を
+        source コマンドで ~/.bashrc か ~/.cshrc より読み込んでください.
+*/
+/*&C
+
+*/
+/*&eg
+   [Subpackage kan-ox]  If you want to generate only kan/k0, kan/sm1 and asir
+                        type in as follows.
+*/
+/*&jp
+   [部分パッケージ kan-ox] Kan/k0, Kan/sm1, asir のみを生成したい場合は, 
+                           つぎのように入力します.
+*/
+/*&C
+
+          (cd OpenXM/src ;  make install-kan-ox)
+          (cd OpenXM/rc ; make )
+
+*/
+/*&eg
+        Copy the shell script "asir", "sm1" and "openxm" at OpenXM/rc 
+        to your search path, e.g.,
+        /usr/local/bin or ~/bin
+        Or, read OpenXM/rc/dot.bashrc or OpenXM/rc/dot.bashrc by the source
+        command from your ~/.bashrc or ~/.cshrc.
+*/
+/*&jp
+        OpenXM/rc の下のシェルスクリプト "asir", "sm1", "openxm" を
+        サーチパスにコピーして
+        ください (たとえば, /usr/local/bin or ~/bin へ).
+        または OpenXM/rc/dot.bashrc か OpenXM/rc/dot.cshrc を
+        source コマンドで ~/.bashrc か ~/.cshrc より読み込んでください.
+*/
+
+//&C   
+//&C ------------------------------------------------------
+//&C   
 /*&jp 
 
 [OpenXM 下のファイルの構成メモ]
