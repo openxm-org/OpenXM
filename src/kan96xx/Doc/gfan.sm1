@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.3 2004/09/14 08:30:47 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.4 2004/09/15 07:41:59 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -2935,9 +2935,9 @@ def
        [(cones) [ ] cones] arrayToTree
        [(facets) [ ] facets] arrayToTree
        [(merged) [ ] merged] arrayToTree
-       [(nextcid) [ ] merged] arrayToTree
-       [(nextfid) [ ] merged] arrayToTree
-       [(coneid) [ ] merged] arrayToTree
+       [(nextcid) [ ] nextcid] arrayToTree
+       [(nextfid) [ ] nextfid] arrayToTree
+       [(coneid) [ ] coneid] arrayToTree
      ] 
    ] arrayToTree /arg1 set
   ] pop
@@ -2970,4 +2970,161 @@ def
   dhcone.fan
 } def
 
-% Todo: print, save functions.  Representative of weight & init.
+%<
+% Usages: dhcone.rtable
+% dhcone の番号と cone の番号の 置換表を生成し dhcone2.fan (merge した cone の情報)
+% を dhcone.fan から作る. dhcone2.gblist も作る補助関数.
+% dhCones_h してから dhcone.rable する.
+%>
+/dhcone.rtable {
+  [/i /j /vv /cones /facets /facets2 /merged /nextcid /nextcid2 /ii /ww] pushVariables
+  [
+% 置換表 dhcone.h2dh を作る.
+    /dhcone.h2dh cone.fan length newVector.with-1 def
+    0 1 , dhcone.fan length 1 sub {
+      /i set
+      dhcone.fan i get , (cones) getNode 2 get /vv set
+      0 1 vv length 1 sub {
+        /j set
+        dhcone.h2dh , vv j get , i to_univNum , put
+      } for
+    } for
+% merge した dhcone を整理したもの, dhcone2.fan を作る.
+    /dhcone2.fan dhcone.fan length newVector def
+    0 1 , dhcone.fan length 1 sub {
+      /i set
+      dhcone.fan i get (facets) getNode 2 get /facets set
+      dhcone.fan i get (merged) getNode 2 get /merged set
+      dhcone.fan i get (nextcid) getNode 2 get /nextcid set
+      dhcone.fan i get (cones) getNode 2 get /cones set
+      /facets2 [ ] def
+      /nextcid2 [ ] def
+      0 1 , facets length 1 sub {
+         /j set
+         merged j get , (3).. eq {
+            facets2 [ facets j get ] join /facets2 set
+% となりの cone があるとき 変換表にしたがい, cone 番号を変換
+            nextcid2 [ dhcone.h2dh , nextcid j get , get ] join /nextcid2 set
+         } {  } ifelse
+         merged j get , (2).. eq {
+            facets2 [ facets j get ] join /facets2 set
+% 境界のとき -2 を入れる.
+            nextcid2 [ (-2).. ] join /nextcid2 set
+         } { } ifelse
+      } for
+
+      dhcone2.fan i ,
+      [(dhcone) [ ]
+       [
+         [(facets) [ ] facets2] arrayToTree
+         [(nextcid) [ ] nextcid2] arrayToTree
+         [(cones) [ ] cones] arrayToTree
+       ] 
+      ] arrayToTree , put
+
+    } for
+
+% 最後に dhcone2.gblist を作る.
+    /dhcone2.gblist , dhcone2.fan length newVector , def
+    0 1 , dhcone2.fan length 1 sub {
+      /i set
+      dhcone2.fan i get (cones) getNode 2 get /cones set
+      cone.grGblist , cones 0 get , get , /ii set % GB of initial (H->1).
+      cone.gblist i get , (weight) getNode , [ 2 0 2 ] get  /ww set
+
+      dhcone2.gblist i,
+      [(gbasis) [ ]
+       [
+         [(initial) [ ] ii] arrayToTree
+         [(weight) [ ] ww] arrayToTree
+       ] 
+      ] arrayToTree , put
+      
+    } for
+    (dhcone2.fan, dhcone2.gblist, dhcone.h2dh are set.) message
+
+  ] pop
+  popVariables
+} def
+
+%<
+% 表の見方の解説を印刷する関数.
+% Usages: dhcone.explain
+%>
+/dhcone.explain {
+  [
+    ( ) nl 
+    (Data format in << dhcone2.fan >>, which is a dehomogenized Grobner fan.) nl nl
+    (<< cone.vlist >> is the list of the variables.) nl
+    @@@.Hsymbol  ( is the homogenization variable to be dehomogenized.) nl nl
+    (<< cone.input >> is generators of a given ideal.) nl nl
+    (<< cone.d >> is the dimension of parametrization space of the weights P_w) nl
+    (    P_w is a cone in R^m  where the number m is stored in << cone.m >>) nl
+    (    P_w --- W --->  R^n [weight space].  ) nl
+    (    W is stored in << cone.W >> ) nl 
+    (    << u   cone.W  mul >> gives the weight vector standing for u) nl nl
+    (All cones in the data lie in the weight parametrization space P_w.) nl
+    ( "facets" are the inner normal vector of the cone. )  nl
+    ( "nextcid" is a list of the cone id's of the adjacent cones.) nl
+    (   -2 in "nextcid" means that this facet lies on the border of the weight space.) nl
+    ( "cones" is a list of the cone id's of the NON-dehomonized Grobner fan) nl
+    (                                               stored in << cone.fan >>) nl
+  ] cat 
+} def
+
+%<
+%  dhcone.printGrobnerFan
+%  dhcone の印刷関数
+%>
+/dhcone.printGrobnerFan {
+  [/i] pushVariables
+  [
+  (==========  Grobner Fan (for dehomogenized cones) ============) message
+   [
+      (cone.comment)
+      (cone.vlist) (cone.vv)
+      (cone.input)
+      (cone.type)  (cone.local) (cone.h0)
+      (cone.n) (cone.m) (cone.d) 
+      (cone.W) (cone.Wpos) (cone.Wt)
+      (cone.L) (cone.Lp) (cone.Lpt)
+      (cone.weightBorder)
+      (cone.incidence)
+   ] { printGrobnerFan.1 } map
+   (   ) message
+   (The number of cones = ) messagen dhcone.fan length message
+   (   ) message
+   0 1 dhcone2.fan length 1 sub {
+     /ii set
+     ii messagen ( : ) messagen
+     dhcone2.fan ii get printTree
+   } for
+   1 {
+    0 1 dhcone2.gblist length 1 sub {
+      /ii set
+      ii messagen ( : ) messagen
+      dhcone2.gblist ii get printTree
+    } for
+  } {  } ifelse
+
+
+  (=========================================) message
+  %(cone.withGblist = ) messagen cone.withGblist message
+  dhcone.explain message
+  (  ) message
+  ] pop
+  popVariables
+} def
+
+%
+% 試し方  test14, 22, 25
+%
+%  (data/test14.sm1) run (data/test14-data.sm1) run
+%   printGrobnerFan ;  % H 付きで印刷.
+%   dhCones_h ;   %  dehomogenize Cones.
+%   dhcone.rtable ; % dhcone2.fan 等を生成.
+%   dhcone.printGrobnerFan ; % 印刷.
+%   印刷したものは  test*-print.txt へ格納してある.
+%  
+
+% Todo: save functions. 
