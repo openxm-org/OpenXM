@@ -1,9 +1,13 @@
-%%  $OpenXM: OpenXM/install.txt,v 1.7 1999/11/21 19:31:48 maekawa Exp $    
+%%  $OpenXM: OpenXM/install.txt,v 1.8 1999/12/04 02:20:07 takayama Exp $    
 OpenXM/install.txt    in Japanese
 As to English version see install.eg.txt (which has not been written).
 
 ★ OpenXM パッケージの Make 法
   (FreeBSD 2.2.8, FreeBSD 3.3, Linux で動作するものと期待してます.)
+   OpenXM, OpenXM_contrib, OpenXM_contrib2 が必要です.
+   cvs コミッタの場合  rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2
+   としてソースをとりよせます.
+
    cd OpenXM/src
    make configure
    make
@@ -42,6 +46,10 @@ Solaris での make の問題点については, OpenXM/doc/OpenXM-FAQ-jp.txt
 ★使用例
 
 OpenXM は X Window System 上でしか動作しません. 
+
+asir を動作させるには, key が必要です.
+OpenXM/lib/asir/asir_key のコメントをみて, key を E-mail で
+とりよせて下さい.
 
 ----------------  Asir クライアントの使いかた.
 ----------------   例 : asir に kan/sm1  を組み込む.
@@ -102,6 +110,8 @@ phc : 作者 Jan Verschelde,  url
 tigers : 作者 Birk Hubert,  url
          ライセンス形態   ??
 
+[OpenXM についての連絡先]
+takayama@math.sci.kobe-u.ac.jp
 
 [OpenXM_HOME 下のファイルの構成]
 lib/asir には, asir のライブラリ, ox_asir 本体
@@ -155,7 +165,7 @@ OpenXM/src/kxx/ox, OpenXM/src/kxx/ox_sm1, OpenXM/src/kxx/oxlog
 へのシンボリックリンクが作成されます.
 
 [CVSコミッタ用メモ]
-<<  openXM ディレクトリ配布版の作成方法 >>
+<<  OpenXM ディレクトリ配布版の作成方法 >>
 rcvs export -rHEAD OpenXM
 rcvs export -rHEAD OpenXM_contrib
 rcvs export -rHEAD OpenXM_contrib2
