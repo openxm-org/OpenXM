@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.57 1999/12/23 14:02:56 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.58 1999/12/23 14:57:46 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
@@ -311,19 +311,28 @@ $a_2$ は文字列でシステムの名前を表すことになっている。
 
 %$n$ は OX\_COMMAND 以外の受け取れるメッセージのタグの種類の数に等しい。
 %要素数は 1 でももちろん構わない。
-各 $c_i$ もまた以下のようなリスト構造となっている。
+各 $c_i$ もまた以下のようなリスト構造となっており、
+どの $c_i$ も最初の要素が 32 ビットの整数となっている。
 
 \[  \overbrace{
-	\begin{tabular}{|c|c|c} \hline
-	$c_{i1}$ & $c_{i2}$ & $\cdots$	\\ \hline
+	\begin{tabular}{|c|c|c|c|c|} \hline
+	$c_{i1}$ (32 ビットの整数) & $c_{i2}$ & $c_{i3}$ &
+		$\cdots$ & $c_{im}$	\\ \hline
 	\end{tabular}
    }^{c_i}	\]
 
-最初の要素が 32 ビットの整数となっている。
-この整数値は受け取れるメッセージのタグとなっている。
-2 番目の要素以降については最初の要素の値によって異なっている。
+このリストの最初の整数値は受け取れるメッセージのタグが入っている。
+$c_{i2}$ 以降については最初の $c_{i1}$ の値によって異なっている。
 ここでは、最初の要素が OX\_DATA の場合についてのみ説明する。
+この OX\_DATA の場合、 $m=2$ である。
+$c_{i1}$ にはもちろんのこと、 OX\_DATA が入っており、
+$c_{i2}$ は以下のようなリスト構造になっている。
 
+\[  \overbrace{
+	\begin{tabular}{|c|c|c|c|c|} \hline
+	$c_{i21}$ & $c_{i22}$ & $\cdots$ & $c_{i2l}$	\\ \hline
+	\end{tabular}
+   }^{c_{i2}}	\]
 
 
 具体的な mathcap の例をあげる。
