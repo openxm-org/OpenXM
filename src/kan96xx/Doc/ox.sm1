@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.39 2004/03/08 08:24:42 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.40 2004/08/22 02:00:24 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1095,6 +1095,7 @@ oxasir.verbose {
   arg1
 } def
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /polygcd {
   /arg1 set
   [/pp /f /g /comm /vv] pushVariables
@@ -1163,6 +1164,67 @@ oxasir.verbose {
   (Example: [(x^2-1) (x-1) [(x)]] polylcm )
  ]
 ] putUsages
+
+/asir_red {
+  /arg1 set
+  [/pp /f /g /rr /vv] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /pp arg1 def
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+    {
+     pp isRational {
+      /f pp numerator def
+      /g pp denominator def
+      [[f g]] reduceByAsir /rr set
+     }{ } ifelse
+     exit
+
+     pp isArray {
+       /vv pp 2 get def
+       /f pp 0 get 0 get def
+       /g pp 0 get 1 get def
+       [[f toString g toString] vv] reduceByAsir /rr set
+     } {  } ifelse
+     exit
+
+     (asir_red: not implemented) error exit
+    } loop
+
+    rr 1 get isPolynomial {
+      rr 0 get rr 1 get div /rr set
+    }{ 
+      rr 1 get (1).. eq {
+         rr 0 get /rr set
+      }{
+         rr 0 get rr 1 get div /rr set
+      } ifelse
+    } ifelse
+
+    /arg1 rr def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(asir_red)
+ [(Calling the function red of asir. It simplifies a rational function.)
+  (cf. cancel)
+  (Example:  (x^2). (x). div asir_red )
+]] putUsages
+
+/asir_fctr { fctr } def
+[(asir_fctr)
+ [(Calling the factorizer of asir.)
+]] putUsages
+
+/asir_primadec { primadec } def
+[(asir_primadec)
+ [(Calling the primadec of asir.)
+]] putUsages
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [(chattr) 0 /findIntegralRoots] extension pop
