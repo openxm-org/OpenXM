@@ -1,7 +1,8 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.2 1999/11/08 11:12:06 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.3 1999/11/11 08:06:44 takayama Exp $
 %% xml.sm1  XML support for sm1.
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
+(xml.sm1 :  1999, 11/20 Sat) message
 %%%%% These should be under /usr/local/OpenXM or OpenXM_HOME
 /oxpath.java-support (lib/java-support) def
 
@@ -111,12 +112,178 @@ tag 0 eq {
 
   null t_aux
   123  t_aux
-%  (Hello World) t_aux  %% error in XML to CMO.
+  (Hello World) t_aux  %% was error in XML to CMO.
 %  [1 2 3] t_aux  %% not supported.
   (123123).. t_aux
 %  (-12).. (12345).. div t_aux  %% not supported in sm1.
-%  (x^2-1). t_aux %% not supported.  CMO_DMS_GENERIC??
+  (x^2-1). t_aux %% was not supported.  CMO_DMS_GENERIC??
 
   (End) message
 } def
 
+/cmoTreeToPostfix {
+  /arg1 set
+  [/in-cmoTreeToPostfix /in /ans /dic] pushVariables
+  [
+    /in arg1 def
+    in etag 263 eq not
+    {  /ans in toStringForParse def }
+    { 
+      in (array) dc /in set
+      /dic in 1 get def
+      %% concatenate the dictionary name to the function name.
+      /ans in 2 get { cmoTreeToPostfix } map toString def
+      [ ans ( )  in 0 get (_) dic] cat /ans set
+    } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(cmoTreeToPostfix)
+[(tree-obj cmoTreeToPostfix postfix-str)
+ $Example 1: [(plus) (Basic) [(123).. (345)..]] [(class) (tree)] dc /ff set$
+ $         ff cmoTreeToPostfix /gg set $
+ $         [(parse) gg] extension pop :: $
+ $Example 2: ( (x-T-2)^5). /p set $
+ $          p [(class) (recursivePolynomial)] dc xml /ff set $
+ $         ff xml_to_cmo cmoTreeToPostfix /gg set $
+ $         [(parse) gg] extension pop p sub :: $
+]] putUsages
+
+/toStringForParse {
+  /arg1 set
+  [/in-toStringForParse /f /ans] pushVariables
+  [
+    /f arg1 def
+    f isUniversalNumber {
+     /ans [ $ ($ f toString $).. $] cat def
+     /@@@.LLL goto
+    } { } ifelse
+    f isPolynomial {
+     /ans [ $ ($ f toString $). $] cat def
+     /@@@.LLL goto
+    } { } ifelse
+    f etag 262 eq {  %% indeterminate
+     /ans [ $ ($ f (string) dc toString $). $] cat def
+     /@@@.LLL goto
+    } { } ifelse
+    f toString /ans set
+    /@@@.LLL
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/plus_Basic {
+  /arg1 set
+  [/in-plus_Basic /s /a /n /i] pushVariables
+  [
+    /a arg1 def
+    /s a 0 get def
+    /n a length 1 sub def
+    1 1 n {
+      /i set
+      s a i get add /s set
+    } for
+    s /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+/times_Basic {
+  /arg1 set
+  [/in-times_Basic /s /a /n /i] pushVariables
+  [
+    /a arg1 def
+    /s a 0 get def
+    /n a length 1 sub def
+    1 1 n {
+      /i set
+      s a i get mul /s set
+    } for
+    s /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+/power_Basic {
+  /arg1 set
+  [/in-power_Basic /a ] pushVariables
+  [
+    /a arg1 def
+    a 0 get a 1 get power /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+
+/cmoTreeToPrefix {
+  /arg1 set
+  [/in-cmoTreeToPostfix /in /ans /dic] pushVariables
+  [
+    /in arg1 def
+    in etag 263 eq not
+    {  /ans in toStringForParse2 def }
+    { 
+      in (array) dc /in set
+      /dic in 1 get def
+      %% concatenate the dictionary name to the function name.
+      /ans in 2 get { cmoTreeToPrefix } map bracketForm def
+      [in 0 get (_) dic ans ] cat /ans set
+    } ifelse
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+[(cmoTreeToPrefix)
+[(tree-obj cmoTreeToPrefix prefix-str)
+ $Example 1: [(plus) (Basic) [(123).. (345)..]] [(class) (tree)] dc /ff set$
+ $         ff cmoTreeToPrefix /gg set $
+ $Example 2: ( (x-T-2)^5). /p set $
+ $          p [(class) (recursivePolynomial)] dc xml /ff set $
+ $         ff xml_to_cmo cmoTreeToPrefix /gg set $
+]] putUsages
+
+
+/bracketForm {
+  /arg1 set
+  [/in-bracketForm /ans /f /i /n] pushVariables
+  [
+    /f arg1 def
+    /n f length 1 sub def 
+    [ $($
+      0 1 n 1 sub {
+        /i set
+        f i get toStringForParse2
+        (,)
+      } for
+      f n get toStringForParse2
+      $)$
+    ] cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/toStringForParse2 {
+  /arg1 set
+  [/in-toStringForParse2 /f /ans] pushVariables
+  [
+    /f arg1 def
+    f etag 262 eq {  %% indeterminate
+     /ans  f (string) dc def
+     /@@@.LLL goto
+    } { } ifelse
+    f toString /ans set
+    /@@@.LLL
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
