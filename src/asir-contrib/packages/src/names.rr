@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.50 2002/08/13 08:26:49 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.51 2002/09/22 12:41:08 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -585,6 +585,7 @@ def print_terminal_form(F) {
  takes the values "auto", "frac",  or "/".
  The global variable Print_tex_form_no_automatic_subscript
  takes the values 0 or 1.
+ BUG; A large input {S} cannot be translated.
  example: print_tex_form(x*dx+1 | table=[["dx","\\partial_x"]]);
  example_description:
  The optional variable table is used to give a translation
