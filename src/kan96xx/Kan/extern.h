@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.13 2003/11/24 12:38:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.14 2003/12/03 01:21:43 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -278,3 +278,4 @@ int objToInteger(struct object ob);
 /* shell.c */
 struct object KoxWhich(struct object cmdo,struct object patho);
 struct object KoxShell(struct object ob);
+void KoxShellHelp(char *key,FILE *fp);

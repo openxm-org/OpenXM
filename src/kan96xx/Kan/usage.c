@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.25 2003/11/20 09:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.26 2003/12/03 01:21:43 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -328,6 +328,7 @@ void Kusage2(fp,s)
   }else if (strcmp(s,"oxshell") == 0) {
     fppp(fp,"<< cmds oxshell result >>\n"); /*:*/
     fppp(fp,"cmds is an array of strings.\n");
+	KoxShellHelp((char *)NULL,fp);
   }else if (strcmp(s,"pop")==0) {
     fppp(fp,"<< obj pop >>  \n"); /*:*/
     fppp(fp,"It removes the obj from the stack.\n");
