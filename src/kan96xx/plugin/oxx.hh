@@ -1,10 +1,12 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.2 1999/11/18 00:54:17 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
+  if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
   rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3));
 }
 else if (strcmp(key,"oxCreateClientFile") == 0) {
   if (size != 3) errorKan1("%s\n","[(oxCreateClientFile) fname mode] extension client.");
+  if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClientFile.");
   rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,2));
                                                  /* dummy */
 }
@@ -68,10 +70,12 @@ else if (strcmp(key,"oxGenPass") == 0) {
 }
 else if (strcmp(key,"oxGetPort") == 0) {
   if (size != 2) errorKan1("%s\n","[(oxGetPort) host] extension obj");
+  if (SecureMode) errorKan1("%s\n","Security violation for oxGetPort.");
   rob = KoxGetPort(getoa(obj,1));
 }
 else if (strcmp(key,"oxCreateClient2") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient2) peer ipmask pass] extension client.");
+  if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient2.");
   rob = KoxCreateClient2(getoa(obj,1),getoa(obj,2),getoa(obj,3));
 }
 else if (strcmp(key,"oxPrintMessage") == 0) {

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.2 1999/11/07 13:24:19 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -433,6 +433,7 @@ struct object ob;
   extern int History;
   extern struct ring *CurrentRingp;
   extern TimerOn;
+  extern SecureMode;
 
   if (DebugStack >= 2) {
     fprintf(Fstack,"In execute %d\n",ob.lc.ival); printOperandStack();
@@ -1049,6 +1050,7 @@ struct object ob;
               /* ob2       ob1  */
     ob1 = Kpop();
     ob2 = Kpop();
+	if (SecureMode) errorStackmachine("Security violation: you cannot open a file.");
     switch(ob1.tag) {
     case Sdollar: break;
     default: errorStackmachine("Usage:file");
@@ -1181,6 +1183,7 @@ struct object ob;
     case Sstring: break;
     default: errorStackmachine("Usage:system");
     }
+	if (SecureMode) errorStackmachine("Security violation.");
     system( ob1.lc.str );
     break;
 

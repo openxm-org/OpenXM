@@ -1,6 +1,6 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.8 2000/02/02 09:07:59 takayama Exp $ */
-#define DATE "2000/02/22"
-#define RELEASE "3.000222"    /* This "string" must be an increasing seq.*/
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.9 2000/02/24 00:27:12 takayama Exp $ */
+#define DATE "2000/02/24"
+#define RELEASE "3.000224"    /* This "string" must be an increasing seq.*/
                               /* You should write the same string in global.c
 			         VersionString for ox_sm1.
 				 Change also OxVersion in plugin/oxmisc.c

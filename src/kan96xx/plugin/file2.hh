@@ -1,6 +1,7 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.hh,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
 else if (strcmp(key,"fp2fdopen") == 0) {
   if (size != 2) errorKan1("%s\n","[(fp2fdopen)  obj] extension obj-fp2.");
+  if (SecureMode) errorKan1("%s\n","Security violation for fp2fdopen.");
   obj1 = getoa(obj,1);
   if (obj1.tag != Sinteger) {
     errorKan1("%s\n","[(fp2fdopen)  file-descriptor-integer] extension obj-fp2.");
@@ -72,6 +73,7 @@ else if (strcmp(key,"fp2dumpBuffer") == 0) {
 }
 else if (strcmp(key,"fp2openForRead") == 0) {
   if (size != 2) errorKan1("%s\n","[(fp2openForRead) name] extension c.");
+  if (SecureMode) errorKan1("%s\n","Security violation for fp2openForRead.");
   obj1= getoa(obj,1);
   if (obj1.tag != Sdollar) {
     errorKan1("%s\n","[(fp2openForRead)  name-string] extension c.");
@@ -80,6 +82,7 @@ else if (strcmp(key,"fp2openForRead") == 0) {
 }
 else if (strcmp(key,"fp2openForWrite") == 0) {
   if (size != 2) errorKan1("%s\n","[(fp2openForWrite) name] extension c.");
+  if (SecureMode) errorKan1("%s\n","Security violation for fp2openForWrite.");
   obj1= getoa(obj,1);
   if (obj1.tag != Sdollar) {
     errorKan1("%s\n","[(fp2openForWrite)  name-string] extension c.");

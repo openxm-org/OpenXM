@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -95,7 +95,8 @@ struct object Kextension(struct object obj)
   struct stat buf;
   char **argv;
   FILE *fp;
-  void (*oldsig)();  
+  void (*oldsig)();
+  extern SecureMode;
 
   if (obj.tag != Sarray) errorKan1("%s\n","Kextension(): The argument must be an array.");
   size = getoaSize(obj);

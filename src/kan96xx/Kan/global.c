@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.8 2000/02/02 09:07:59 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.9 2000/02/24 00:27:12 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -102,6 +102,7 @@ int Homogenize_vec = 1; /*x + e (x+1)===>(1) x h + e (x+h) or (0)x + e(x+h) */
 int CmoDMSOutputOption = 0;  /* Output with
 			     (1) RING_BY_NAME or (0) DMS_OF_N_VARIABLES.
 			     plugin/cmo.c */
+int SecureMode = 0;
 
 /* global variables for stackmachine.c  */
 int VerboseStack = 1;     /* 0 is quiet, 1 is standard, 2 ... */
@@ -125,7 +126,7 @@ int Lookup[TYPES][TYPES];
 int Quiet = 0;
 int TimerOn = 0;
 
-char *VersionString = "3.000222";
+char *VersionString = "3.000224";
 
 char *LeftBracket = NULL;
 char *RightBracket = NULL;
