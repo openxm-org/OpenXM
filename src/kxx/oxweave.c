@@ -6,7 +6,7 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.2 1999/11/16 11:48:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.3 1999/12/13 07:55:23 takayama Exp $ */
 #include <stdio.h>
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
@@ -19,6 +19,7 @@ char *EndComment1="\n";
 #define BSIZE 256
 #define VSIZE 256
 static int Debug = 0;
+static int Plain = 0;
 /*&jp \noindent
   {\tt Buf} は標準出力よりのデータを一時格納しておく領域.
   {\tt Head} が最初の文字をさし, {\tt Tail} は最後の文字をさす.
@@ -30,9 +31,9 @@ int Head = 0;
 int Tail = 0;
 char *Tag = NULL;
 /*&jp \noindent {\tt OutputNoTaggedSegment = 1}
-       なら コメント記号の外は verbatim を用いて出力. 
-      {\tt --source} オプションでこの変数を1にできる.
-*/
+  なら コメント記号の外は verbatim を用いて出力. 
+  {\tt --source} オプションでこの変数を1にできる.
+  */
 int OutputNoTaggedSegment = 0;
 /*&jp \noindent 1 ならタグのついた場所を出力中. */
 int OutputtingTaggedSegment = 0;
@@ -44,6 +45,7 @@ main(int argc,char *argv[]) {
   extern char *BeginTag;
   extern char *EndComment0;
   extern char *EndComment1;
+  extern int Plain;
   int c;
   int tagc,i;
   char *tagv[VSIZE];
@@ -52,7 +54,9 @@ main(int argc,char *argv[]) {
   int pos;
   Head = Tail = 0; Buf[0] = ' ';  /* initialize */
 
-  /*&jp  {\tt tagv[]} にタグのあつまりをいれる. */
+  /*&jp  {\tt tagv[]} にタグのあつまりをいれる. 
+	{\tt tagv2[]} に対応するタグのおわりの記号をいれる.
+	*/
   tagc = tagc2 = 0;
   if (argc <= 1 || argc >= VSIZE) {
     usage();
@@ -60,61 +64,65 @@ main(int argc,char *argv[]) {
   }else{
     for (i=1; i< argc ; i++) {
       if (strcmp(argv[i],"--source") == 0) {
-	OutputNoTaggedSegment = 1;
+		OutputNoTaggedSegment = 1;
+	  }else if (strcmp(argv[i],"--plain") == 0) {
+		Plain = 1; OutputNoTaggedSegment = 1;
       } else{
-	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
-	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
-	strcpy(tagv[tagc],BeginTag0);
-	strcat(tagv[tagc],argv[i]);
-	tagv2[tagc] = EndComment0; 
-        /* コメントのおわりの記号. sm1 なら 0xa である. */
-        tagc2++;
-	tagc++;
+		tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+		tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+		strcpy(tagv[tagc],BeginTag0);
+		strcat(tagv[tagc],argv[i]);
+		tagv2[tagc] = EndComment0; 
+		/* コメントのおわりの記号.  */
+		tagc2++;
+		tagc++;
 
-	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
-	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
-	strcpy(tagv[tagc],BeginTag1);
-	strcat(tagv[tagc],argv[i]);
-	tagv2[tagc] = EndComment1;
+		tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+		tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+		strcpy(tagv[tagc],BeginTag1);
+		strcat(tagv[tagc],argv[i]);
+		tagv2[tagc] = EndComment1;
         tagc2++;
-	tagc++;
+		tagc++;
       }
     }
   }
   /*&jp プログラムは３つの状態を持つ. 状態 0 はタグ付きコメント記号の外.
-   状態 1 は指定されたタグの付いたコメントの中.
-   状態 2 は指定されていないタグの付いたコメントの中
-   (状態２にあるときは印刷されない.) */
+	状態 1 は指定されたタグの付いたコメントの中.
+	状態 2 は指定されていないタグの付いたコメントの中
+	(状態２にあるときは印刷されない.) */
   /*
-       state 0  -- / * & jp  --->  state 1  
-            if ( BeginVerbatim & OutputNoTaggedSegment ) end-verbatim
-                <---  * /    ---   state 1
-            if ( OutputNoTaggedSegment ) begin-verbatim
+	state 0  -- / * & jp  --->  state 1  
+	if ( BeginVerbatim & OutputNoTaggedSegment ) end-verbatim
+	<---  * /    ---   state 1
+	if ( OutputNoTaggedSegment ) begin-verbatim
 
-       state 0  -- / * & unknown  --->  state 2  
-                <---  * /    ---   state 2
+	state 0  -- / * & unknown  --->  state 2  
+	<---  * /    ---   state 2
 
-       state 0  & OutputNoTaggedSegment  ==> putchar()
-       state 1                           ==> putchar()
-       state 2                           ==> skip
-   */
+	state 0  & OutputNoTaggedSegment  ==> putchar()
+	state 1                           ==> putchar()
+	state 2                           ==> skip
+	*/
   while (notEOF()) {
     /* We are in the state 0. */
     pos = findNextTag(tagc,tagv,tagc2,tagv2);
+	/* printf(" ===pos=%d=== ",pos); */
     /* We are in the state 1. */
     findEndTag(tagc2,tagv2,pos);
   }
   if (BeginVerbatim) {
-    printf("\n\\end{verbatim\x07d}\n");
+    if (!Plain) printf("\n\\end{verbatim\x07d}\n");
   }
   exit(0);
 }
 
 /*&jp \noindent 次の関数は利用法を表示する. */
 usage() {
-  fprintf(stderr,"oxweave [--source] [key1 key2 ...]\n");
+  fprintf(stderr,"oxweave [--plain] [--source] [key1 key2 ...]\n");
   fprintf(stderr,"Example 1: oxweave --source jp <oxweave.c >t.tex\n");
   fprintf(stderr,"Example 2: oxweave  jp <oxweave.c >t.tex\n");
+  fprintf(stderr,"Example 2: oxweave --plain  <oxweave.c >t.tex\n");
 }
 
 #define inc(a) ((a+1) % BSIZE)
@@ -172,14 +180,14 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
     for (i=0; i<tagc; i++) {
       /* fprintf(stderr,"\nChecking %s : ",tagv[i]); */
       if (wcmp(tagv[i]) == 0) {
-	/* fprintf(stderr," : matched."); */
-	wgetc(strlen(tagv[i]));
-	if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
-	  BeginVerbatim = 0;
-	  printf("\\end{verbatim\x07d}\n");
-	}
-	OutputtingTaggedSegment = 1;
-	return(i);  /* Now, state is 1. */
+		/* fprintf(stderr," : matched."); */
+		wgetc(strlen(tagv[i]));
+		if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
+		  BeginVerbatim = 0;
+		  if (!Plain) printf("\\end{verbatim\x07d}\n");
+		}
+		OutputtingTaggedSegment = 1;
+		return(i);  /* Now, state is 1. */
       }
     }
     /*&jp {\tt /\*\&} だけどどのタグにも一致しない */
@@ -201,11 +209,11 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
     /* We are in the state 0 */
     c = wgetc(1);
     if (OutputNoTaggedSegment) {
-      putchar(c);
+      if (c != EOF) putchar(c);
     }
   }while( c!= EOF);
   if (BeginVerbatim == 1) {
-    printf("\n\\quad\n\\end{verbatim\x07d}\n");
+    if (!Plain) printf("\n\\quad\n\\end{verbatim\x07d}\n");
   }
   exit(0);
 }
@@ -221,10 +229,11 @@ findEndTag(int tagc,char *tagv[],int rule) {
     i = rule;
     if (wcmp(tagv[i]) == 0) {
       wgetc(strlen(tagv[i]));
+	  if (strcmp(tagv[i],"\n")==0) putchar('\n');
       OutputtingTaggedSegment = 0;
       if (OutputNoTaggedSegment) {
-	printf("\n{\\footnotesize \\begin{verbatim}\n");
-	BeginVerbatim = 1;
+		if (!Plain) printf("\n{\\footnotesize \\begin{verbatim}\n");
+		BeginVerbatim = 1;
       }
       return;			/* Our state is 0. */
     }
@@ -245,20 +254,20 @@ skipToEndTag(int tagc,char *tagv[],int rule) {
   do {
     if (rule == 0) {
       if (wcmp(EndComment0) == 0) {
-	wgetc(strlen(EndComment0));
-	return;  /* our state is 0. */
+		wgetc(strlen(EndComment0));
+		return;  /* our state is 0. */
       }
     }else if (rule == 1) {
       if (wcmp(EndComment1) == 0) {
-	wgetc(strlen(EndComment1));
-	return;  /* our state is 0. */
+		wgetc(strlen(EndComment1));
+		return;  /* our state is 0. */
       }
     }else{
       for (i=0; i<tagc; i++) {
-	if (wcmp(tagv[i]) == 0) {
-	  wgetc(strlen(tagv[i]));
-	  return;  /* our state is 0. */
-	}
+		if (wcmp(tagv[i]) == 0) {
+		  wgetc(strlen(tagv[i]));
+		  return;  /* our state is 0. */
+		}
       }
 
     }
@@ -275,8 +284,8 @@ skipToEndTag_old(int tagc,char *tagv[]) {
   do {
     for (i=0; i<tagc; i++) {
       if (wcmp(tagv[i]) == 0) {
-	wgetc(strlen(tagv[i]));
-	return;  /* our state is 0. */
+		wgetc(strlen(tagv[i]));
+		return;  /* our state is 0. */
       }
     }
     /* our state is 2. */
@@ -293,12 +302,18 @@ skipToEndTag_old(int tagc,char *tagv[]) {
 あとのバイトが 0x20 以下でないが, その他のバイトが一致するときは
 1 を戻す.
 以上二つの場合に合致しない場合は -1 を戻す.
+{\tt s} が 0xa,0 のときは, Buf[Head] が 0xa なら, 0 を戻す.
+そうでないなら, -1 を戻す.
 */    
 wcmp(char *s) {
   int n;
   int i,j;
   wread();
   if (Debug == 2) fprintf(stderr,"[Checking %s]\n",s);
+  if (strcmp(s,"\n") == 0) {
+	if (s[0] == Buf[Head]) return(0);
+	else return(-1);
+  }
   n = strlen(s);
   j = Head;
   for (i=0; i<n; i++) {
@@ -319,7 +334,7 @@ notEOF() {
 
 irregularExit() {
   if (BeginVerbatim == 1) {
-    printf("\\end{verbatim\x07d}\n");
+    if (!Plain) printf("\\end{verbatim\x07d}\n");
   }
   exit(-1);
 }
