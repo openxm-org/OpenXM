@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.7 2000/01/14 10:23:34 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.8 2000/01/19 18:31:33 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -424,7 +424,7 @@ receive_ox_tag() reads a tag and a serial number of an ox message.
 */
 /*&common
 
-4.6 
+4.6 Sending OX messages.
 
 */
 /*&common
@@ -434,7 +434,7 @@ void send_ox_command(int fd, int sm_command);
 
 */
 /*&ja
-ox メッセージを送信する。
+OX メッセージを送信する。
 */
 
 /*&ja
@@ -442,37 +442,80 @@ ox メッセージを送信する。
 5. OX expression パーサ
 
 */
-/*&ja
-OpenXM C library には 文字列表現された 
-OX expression および CMO expression から、
-ox 構造体または cmo 構造体を生成するためのパーサが付属している。
+/*&en
 
-ここではこのパーサについて説明する。
+5. Parser for OX expressions
 
 */
+/*&ja
+OpenXM C library には 文字列表現された OX expression および CMO
+expression から、ox 構造体または cmo 構造体を生成するためのパーサが付
+属している。ここではこのパーサについて説明する。
+*/
+/*&en
+We have a parser which generate an OX object or a CMO from a string
+encoded OX/CMO expression.  In this section, we explain the parser.
+*/
+/*&en
+
+5.1 Setting an option
+*/
+/*&ja
+
+5.1 オプション
+*/
 /*&common
+
 int setflag_parse(int flag);
 
 */
 /*&ja
 setflag_parse(PFLAG_ADDREV) によって、CMO の短縮表現を許す。
+*/
+/*&en
+We set an option for the parser.  If we call
+setflag_parse(PFLAG_ADDREV), then the parser admits external
+expressios.
+*/
+/*&en
 
+5.2 Initializing
+*/
+/*&ja
+
+5.2 初期化
 */
 /*&common
+
 int init_parser(char *str);
 
 */
 /*&ja
 パーサが処理すべき文字列をセットする。
+*/
+/*&en
+We give the parser an OX/CMO expression, that is, a Lisp style string.
+*/
+/*&en
 
+5.3 Getting an object
+*/
+/*&ja
+
+5.3 結果を得る
 */
 /*&common
+
 cmo *parse();
 
 */
 /*&ja
 Lisp 表現による OX expression, CMO expression の構文解析器。あらかじめ
 設定された文字列を解析して ox 構造体、あるいは cmo 構造体を生成する。
+*/
+/*&en
+The parser returns an OX/CMO object.  If the given string is illegal,
+then the parser returns NULL.
 */
 /*&ja
 
@@ -512,6 +555,7 @@ bconv
 A byte code encoder.  It shows a byte stream which corresponds to an
 OX expression.
 
+*/
 /*&common
 ox_Xsample
 
