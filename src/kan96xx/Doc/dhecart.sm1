@@ -1,14 +1,17 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Doc/dhecart.sm1,v 1.1 2004/07/29 08:13:42 takayama Exp $
 % Stdbasis via the double homogenization:  dx x = x dx + h H
 % Homogenize=3
 (ecart_loaded) boundp { }
 { [(parse) (ecart.sm1) pushfile] extension } ifelse
 
 /dh.begin {
+  [(Homogenize) (AutoReduce) (KanGBmessage)] pushEnv /dh.saved.env set
   [(Homogenize) 3] system_variable
+  dh.autoReduce { [(AutoReduce) 1] system_variable } { } ifelse
 } def
 
 /dh.end {
+  dh.saved.env popEnv
   [(Homogenize) 1] system_variable
 } def
 
@@ -19,6 +22,7 @@
 % Global environmental variables
 /dh.gb.verbose 1 def
 /dh.autoHomogenize 1 def
+/dh.autoReduce 1 def
 /dh.needSyz 0 def
 
 /dh.message {
@@ -209,5 +213,62 @@
   $   [[(x) -1 (Dx) 1 (y) -1 (Dy) 1]]] dh.gb  /ff set ff pmat ;$
   (To set the current ring to the ring in which ff belongs )
   (      ff getRing ring_def  )
+  ( )
+  (Data:  dh.p1, dh.p2, dh.p3 )
+  (In order to get a standard basis of the test data, type in dh.test.p1, ...)
   (  )
 ]] putUsages
+
+%Test input.
+%misc-2003/09/oaku/b.sm1, Granger-Oaku-Takayama, Tangent cone algorithm ...
+/dh.p1 {
+ [
+  [(t-(x^3 - y^2 z^2 - w^2))
+   (Dx + (3 x^2 ) Dt)
+   (Dy - (2 y z^2) Dt)
+   (Dz - (2 y^2 z) Dt)
+   (Dw - (2 w ) Dt)
+  ]
+  [ [(t) -1 (Dt) 1]
+    [(Dt) 1 (Dx) 1 (Dy) 1 (Dz) 1 (Dw) 1]
+    [(t) -1 (x) -1 (y) -1 (z) -1 (w) -1]]
+ ]
+} def
+/dh.test.p1 {
+  [(KanGBmessage) 1] system_variable
+  { [dh.p1 0 get (x,y,z,t,w)  dh.p1 1 get] dh.gb } timer
+} def
+
+%misc-2003/09/oaku/ob.sm1,
+% fw2 [(x) (y) (z) (w)] fw_delta
+%  > 30min, degree 25.
+/dh.p2 {
+ [
+  [   (-w^8-z^4-y^3*w-x^3+t)  (3*x^2*Dt+Dx)  (3*y^2*w*Dt+Dy)  (4*z^3*Dt+Dz)  
+       (8*w^7*Dt+y^3*Dt+Dw) ]
+  [ [(t) -1 (Dt) 1]
+    [(Dt) 1 (Dx) 1 (Dy) 1 (Dz) 1 (Dw) 1]
+    [(t) -1 (x) -1 (y) -1 (z) -1 (w) -1]]
+ ]
+} def
+/dh.test.p2 {
+  [(KanGBmessage) 1] system_variable
+  { [dh.p2 0 get (x,y,z,t,w)  dh.p2 1 get] dh.gb } timer
+} def
+
+%misc-2003/09/oaku/
+% x^3 + (x+1)*y*z,  x^3+x*y*z is easy, but it is difficult in ecart.
+/dh.p3 {
+ [
+  [ $-x^3-x*y*z-y*z+t$ , $3*x^2*Dt+y*z*Dt+Dx$ , $x*z*Dt+z*Dt+Dy$ , 
+    $x*y*Dt+y*Dt+Dz$ ]
+  [ [(t) -1 (Dt) 1]
+    [(Dt) 1 (Dx) 1 (Dy) 1 (Dz) 1]
+    [(t) -1 (x) -1 (y) -1 (z) -1]]
+ ]
+} def
+/dh.test.p3 {
+  [(KanGBmessage) 1] system_variable
+  { [dh.p3 0 get (x,y,z,t)  dh.p3 1 get] dh.gb } timer
+} def
+

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.11 2004/02/23 09:03:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.12 2004/07/30 11:21:55 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1397,6 +1397,7 @@ struct object KgetExponents(struct object obPoly,struct object otype) {
       tob = KgetExponents(getoa(obPoly,i),otype);
       putoa(rob,i,tob);
     }
+	return rob;
   }else{
     errorKan1("%s\n","KgetExponents(): argument must be a polynomial.");
   }
