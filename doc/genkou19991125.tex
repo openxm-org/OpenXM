@@ -1,10 +1,10 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.92 1999/12/25 17:05:28 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.93 1999/12/25 17:56:56 tam Exp $
 
 \usepackage{jssac}
 
-\title{OpenXM の現状について}
+\title{OpenXM プロジェクトの現状について}
 \author{奥 谷 　 行 央\affil{神戸大学大学院自然科学研究科}
 		\mail{okutani@math.sci.kobe-u.ac.jp}
   \and	小 原 　 功 任\affil{金沢大学理学部}
@@ -56,20 +56,20 @@ OpenXM 規約では通信の方法に幾らかの自由度があるが, 現在のところは TCP/IP
 
 OpenXM 規約で規定されているメッセージはバイトストリームとなっており, 次
 のような構造になっている.
-
+\begin{center}
 \begin{tabular}{|c|c|}
 \hline
 ヘッダ	& \hspace{10mm} ボディ \hspace{10mm} \\ 
 \hline
 \end{tabular}
-
+\end{center}
 ヘッダの長さは 8 バイトであると定められている.  ボディの長さはメッセージ
 ごとに異なっているが, 長さは $0$ でもよい.
 
 ヘッダは次の二つの情報を持っている.
 \begin{enumerate}
 \item
-前半の 4 バイト. メッセージの種類を表わす識別子であり, タグと呼ばれる.
+前半の 4 バイト. メッセージの種類を表す識別子であり, タグと呼ばれる.
 \item
 後半の 4 バイト. メッセージにつけられた通し番号である.
 \end{enumerate}
@@ -210,11 +210,13 @@ Mathematical Object format)を定義している. この CMO 形式にしたがったデー
 ている.
 
 CMO 形式におけるデータ構造は次のような構造をもつ.
-
-\begin{tabular}{|c|c|} \hline
-ヘッダ        & \hspace{10mm} ボディ \hspace{10mm} \\ \hline
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+ヘッダ        & \hspace{10mm} ボディ \hspace{10mm} \\
+\hline
 \end{tabular}
-
+\end{center}
 ヘッダは4バイトである. ボディの長さはそれぞれのデータによって異なるが,
 0でもよい.
 
@@ -226,70 +228,63 @@ CMO では, タグによってボディの論理的構造が決定する. すなわち, タグはそれ
 定義されている.
 
 \begin{verbatim}
-#define CMO_ERROR2  0x7f000002
-#define CMO_NULL    1
-#define CMO_INT32   2
-#define CMO_DATUM   3
-#define CMO_STRING  4
-#define CMO_MATHCAP 5
-
-#define CMO_START_SIGNATURE      0x7fabcd03     
-#define CMO_ARRAY                16
-#define CMO_LIST                 17
-#define CMO_ATOM                 18
-#define CMO_MONOMIAL32           19
-#define CMO_ZZ                   20
-#define CMO_QQ                   21
-#define CMO_ZERO                 22
-#define CMO_DMS_GENERIC          24
-#define CMO_DMS_OF_N_VARIABLES   25
-#define CMO_RING_BY_NAME         26
-#define CMO_RECURSIVE_POLYNOMIAL 27
-#define CMO_LIST_R               28
-
-#define CMO_INT32COEFF                 30
-#define CMO_DISTRIBUTED_POLYNOMIAL     31
-#define CMO_POLYNOMIAL_IN_ONE_VARIABLE 33
-#define CMO_RATIONAL                   34
-
+#define CMO_ERROR2                         0x7f000002
+#define CMO_NULL                           1
+#define CMO_INT32                          2
+#define CMO_DATUM                          3
+#define CMO_STRING                         4
+#define CMO_MATHCAP                        5
+#define CMO_ARRAY                          16
+#define CMO_LIST                           17
+#define CMO_ATOM                           18
+#define CMO_MONOMIAL32                     19
+#define CMO_ZZ                             20
+#define CMO_QQ                             21
+#define CMO_ZERO                           22
+#define CMO_DMS_GENERIC                    24
+#define CMO_DMS_OF_N_VARIABLES             25
+#define CMO_RING_BY_NAME                   26
+#define CMO_RECURSIVE_POLYNOMIAL           27
+#define CMO_LIST_R                         28
+#define CMO_INT32COEFF                     30
+#define CMO_DISTRIBUTED_POLYNOMIAL         31
+#define CMO_POLYNOMIAL_IN_ONE_VARIABLE     33
+#define CMO_RATIONAL                       34
 #define CMO_64BIT_MACHINE_DOUBLE           40
 #define CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  41
 #define CMO_128BIT_MACHINE_DOUBLE          42
 #define CMO_ARRAY_OF_128BIT_MACHINE_DOUBLE 43
-
-#define CMO_BIGFLOAT          50
-#define CMO_IEEE_DOUBLE_FLOAT 51
-
-#define CMO_INDETERMINATE 60
-#define CMO_TREE          61
-#define CMO_LAMBDA        62
+#define CMO_BIGFLOAT                       50
+#define CMO_IEEE_DOUBLE_FLOAT              51
+#define CMO_INDETERMINATE                  60
+#define CMO_TREE                           61
+#define CMO_LAMBDA                         62
 \end{verbatim}
 
 この中で CMO\_ERROR2, CMO\_NULL, CMO\_INT32, CMO\_DATUM, CMO\_STRING,
 CMO\_MATHCAP, CMO\_LIST で識別されるオブジェクトは最も基本的なオブジェ
 クトであって, すべての OpenXM 対応システムに実装されていなければならない.
 
-これらについての解説を行う前に記法について, 少し説明しておく.
-この論文では, 大文字で CMO\_INT32 と書いた場合には, 上記で定義した識別子
-を表わす. また CMO\_INT32 で識別されるオブジェクトのクラス(あるいはデー
-タ構造)を cmo\_int32 と小文字で表わすことにする.
+これらについての解説を行う前に記法について, 少し説明しておく.  この論文
+では, 大文字で CMO\_INT32 と書いた場合には, 上記で定義した識別子を表す. 
+また CMO\_INT32 で識別されるオブジェクトのクラス(あるいはデータ構造) を 
+cmo\_int32 と小文字で表すことにする.
 
 さて cmo を表現するための一つの記法を導入する. この記法は CMO expression
 と呼ばれている. その正確な形式的定義は \cite{OpenXM-1999} を参照すること.
 
-まず CMO expssion は Lisp 風表現の一種で, cmo を括弧で囲んだリストとし
-て表現する. それぞれの要素はカンマで区切る.
-例えば,
+CMO expssion は Lisp 風表現の一種で, cmo を括弧で囲んだリストとして表現
+する. それぞれの要素はカンマで区切る.  例えば,
 \begin{quote}
 (17, {\sl int32}, (CMO\_NULL), (2, {\sl int32} $n$))
 \end{quote}
 は CMO expression である. ここで, 小文字の斜体で表された``{\sl int32}'' 
-は 4バイトの任意のデータを表す記号であり, ``{\sl int32} $n$'' は同じく 4
-バイトのデータであるが以下の説明で $n$ と表すことを示す. また数字 17, 2 
-などは 4バイトのデータで整数値としてみたときの値を意味する. CMO\_NULL は
-識別子(すなわち数字 1 と等価)である. この記法から上記のデータは 20 バイ
-トの大きさのデータであることが分かる.  なお, CMO expression は単なる表記
-法であることに特に注意してほしい.
+は 4 バイトの任意のデータを表す記号であり, ``{\sl int32} $n$'' は同じく 
+4 バイトのデータであるが以下の説明で $n$ と表すことを示す. また数字 17,
+2 などは 4 バイトのデータで整数値としてみたときの値を意味する. CMO\_NULL 
+は識別子(すなわち数字 1 と等価)である. この記法から上記のデータは 20 バ
+イトの大きさのデータであることが分かる.  なお, CMO expression は単なる表
+記法であることに特に注意してほしい.
 
 さて, この記法のもとで cmo\_int32 を次のデータ構造であると定義する.
 \begin{quote}
@@ -316,7 +311,7 @@ OpenXM 規約では, 通信時に用いられるメッセージの種類を各ソフトウェアが制
 は mathcap と呼ばれるデータ構造によって行われる. この節では mathcap のデー
 タ構造と, 具体的なメッセージの制限の手続きについて説明する.
 
-では, 手続きについて説明しよう.
+まず, 手続きについて説明しよう.
 
 第一にサーバの機能を制限するには次のようにする. クライアントが mathcap 
 オブジェクトをサーバへ送ると, サーバは受け取ったmathcap をスタックに積む.
@@ -347,66 +342,60 @@ cmo\_mathcap := (CMO\_MATHCAP, {\sl cmo\_list})
 
 第一要素 $a$ はまた cmo\_list であり, リスト長は 4 以上, $a_1$ は 
 cmo\_int32 でバージョンを表す. $a_2$, $a_3$, $a_4$ は cmo\_string であり, 
-それぞれシステムの名前, バージョン, HOSTTYPE を表すことになっている.
+それぞれ数学システムの名前, バージョン, HOSTTYPE を表すことになっている.
 \begin{quote}
 (CMO\_LIST, {\sl int32},
 {\sl cmo\_int32} $a_1$, {\sl cmo\_string} $a_2$, {\sl cmo\_string}
 $a_3$, {\sl cmo\_string} $a_4$, $\ldots$)
 \end{quote}
 
-第二要素 $b$ の部分は次のようなリスト構造をしている.
-この $b_1$, $b_2$, $\ldots$, $b_n$ はすべて cmo\_int32 である.
-\ref{sec:oxsm} 節で説明したが,
-スタックマシンへの命令はすべて {\sl int32} で表されていたことに注意しよ
-う. 各 $b_i$ は利用可能な命令をボディとした cmo\_int32 となっている.
+第二要素 $b$ も cmo\_list であり, OpenXM スタックマシンを制御するために
+用いられる.  各 $b_i$ は cmo\_int32 であり, ボディはスタックマシンの命令
+コードである.  \ref{sec:oxsm} 節で説明したが, スタックマシンへの命令はす
+べて {\sl int32} で表されていたことに注意しよう.
 \begin{quote}
 (CMO\_LIST, {\sl int32} $n$,
-	{\sl cmo\_int32} $b_1$, {\sl cmo\_int32} $b_2$,
-	$\ldots$, {\sl cmo\_int32} $b_n$)
+{\sl cmo\_int32} $b_1$, $\ldots$, {\sl cmo\_int32} $b_n$)
 \end{quote}
 
-第三要素 $c$ は以下のようなリスト構造をしていなければならない.
+第三要素 $c$ は以下のような cmo\_list であり, オブジェクトの送受信を制御
+するために用いられる.  送受信の制御はメッセージの種類ごとに行われる.  
 \begin{quote}
-(CMO\_LIST, {\sl int32} $m$,
-	{\sl cmo\_list} $list_1$, {\sl cmo\_list} $list_2$,
-		$\ldots$, {\sl cmo\_list} $list_m$)
+(CMO\_LIST, {\sl int32} $m$, {\sl cmo\_list} $\ell_1$, $\ldots$, 
+{\sl cmo\_list} $\ell_m$)
 \end{quote}
+各 $\ell_i$ が制御のための情報を表す.  どの $\ell_i$ も一つ以上の要素を
+持っており, 第一要素は必ず cmo\_int32 となっていなければならない.  これ
+は制御すべきメッセージの識別子を入れるためである.
 
-どの $list_i$ も 1 つ以上の要素を持っており,
-1 番目の要素は必ず cmo\_int32 となっていなければならない.
-これは受け取れるオブジェクトのメッセージの識別子を
-入れるためである.
-ここでは, OX\_DATA の場合についてのみ説明する.
-
-1 番目の要素が OX\_DATA の場合,
-リスト $list_i$ は以下のような構造となっている.
-各 $c_{ij}$ は cmo\_int32 であり,
-受け取ることが可能な CMO 形式のタグとなる.
+各 $\ell_i$ の構造はメッセージの種類によって異なる.  ここでは, OX\_DATA 
+の場合についてのみ説明する.  第一要素が OX\_DATA の場合, リスト $\ell_i$ 
+は以下のような構造となっている.  各 $c_i$ は cmo\_int32 であり, そのボディ
+は CMO の識別子である.  $c_i$ で指示された CMO のみが送受信することを許
+される.
 \begin{quote}
 (CMO\_LIST, 2, (CMO\_INT32, OX\_DATA), \\
-\ \ 	(CMO\_LIST, {\sl int32} $k$,
-		{\sl cmo\_int32} $c_{i1}$, {\sl cmo\_int32} $c_{i2}$,
-			$\ldots$, {\sl cmo\_int32} $c_{ik}$))
+\ \ (CMO\_LIST, {\sl int32} $k$, {\sl cmo\_int32} $c_1$, 
+$\ldots$, {\sl cmo\_int32} $c_k$))
 \end{quote}
 
 具体的な mathcap の例をあげよう.  名前が ``ox\_test'', バージョンナンバー
-が 199911250 のサーバで, PC-UNIX 上で動いており,
-このサーバのスタックマシンが命令 SM\_popCMO, SM\_popString,
-SM\_mathcap, SM\_executeStringByLocalParser を利用可能,
-かつ cmo\_int32, cmo\_string, cmo\_mathcap, cmo\_list のみに制限したい
-ときの mathcap は
+が 199911250 のサーバで, Linux 上で動いており, このサーバのスタックマシ
+ンが命令 SM\_popCMO, SM\_popString, SM\_mathcap,
+SM\_executeStringByLocalParser を利用可能で, かつ オブジェクトを 
+cmo\_int32, cmo\_string, cmo\_mathcap, cmo\_list のみに制限したいときの 
+mathcap は
 \begin{quote}
 (CMO\_LIST, 3, \\
-\ \ (CMO\_LIST, 4, (CMO\_INT32, $199911250$), (CMO\_STRING, 7, "ox\_test"), \\
-\ \ \ \ 	(CMO\_STRING, 9, "199911250"), (CMO\_STRING, 4, "i386")) \\
-\ \ (CMO\_LIST, $5$, (CMO\_INT32, SM\_popCMO), \\
-\ \ \ \ 	(CMO\_INT32, SM\_popString), (CMO\_INT32, SM\_mathcap), \\
-\ \ \ \ 	(CMO\_INT32, SM\_executeStringByLocalParser)) \\
-\ \ (CMO\_LIST, $1$, \\
-\ \ \ \ (CMO\_LIST, $2$, (CMO\_INT32, OX\_DATA), \\
-\ \ \ \ \ \ (CMO\_LIST, $4$, (CMO\_INT32, CMO\_INT32), \\
-\ \ \ \ \ \ \ \ (CMO\_INT32, CMO\_STRING), (CMO\_INT32, CMO\_MATHCAP), \\
-\ \ \ \ \ \ \ \ (CMO\_INT32, CMO\_LIST)))))
+$\quad$ (CMO\_LIST, 4, (CMO\_INT32, $199911250$), (CMO\_STRING, 7, ``ox\_test''), \\
+$\qquad$ (CMO\_STRING, 9, ``199911250''), (CMO\_STRING, 4, ``i386'')) \\
+$\quad$ (CMO\_LIST, $5$, (CMO\_INT32, SM\_popCMO), \\
+$\qquad$ (CMO\_INT32, SM\_popString), (CMO\_INT32, SM\_mathcap), \\
+$\qquad$ (CMO\_INT32, SM\_executeStringByLocalParser)) \\
+$\quad$ (CMO\_LIST, $1$, (CMO\_LIST, $2$, (CMO\_INT32, OX\_DATA), \\
+$\qquad$ (CMO\_LIST, $4$, (CMO\_INT32, CMO\_INT32), \\
+$\qquad\quad$ (CMO\_INT32, CMO\_STRING), (CMO\_INT32, CMO\_MATHCAP), \\
+$\qquad\quad$ (CMO\_INT32, CMO\_LIST)))))
 \end{quote}
 になる.
 
@@ -433,9 +422,10 @@ OpenXM 規約は TCP/IP を用いて通信を行うことを考慮している. ネットワーク
 ssh を利用して対応している.
 
 
-\section{他のプロジェクト}
+\section{OpenXM 以外のプロジェクト}
 
-他のプロジェクトについても触れておこう.
+OpenXM 以外にも数式処理システム間の通信を目指したプロジェクトは存在する. 
+ここでは他のプロジェクトについても触れておこう.
 
 \begin{itemize}
 \item ESPRIT OpenMath Project
@@ -445,10 +435,11 @@ http://www.openmath.org/omsoc/
 数学的対象の SGML 的表記の標準化を目指した大規模なプロジェクト. 異なる種
 類の数式処理システムの間で情報を交換するときに, OpenMath で定義された表
 現を利用することができる.  実際の情報交換の手続きにはいろいろなものが考
-えられるが, 例えば MCP (Mathematical Computation Protocol) なる手続きが
-考案されている.  MCP によって送信されるデータは, 本文に OpenMath 形式で
-数式を記述したテキストで, いささかメイルに似ていなくもない.  実際にこの
-方法で GAP と Axiom の間で通信が行われている.
+えられるが, 例えば MCP (Mathematical Computation Protocol) によって通信
+を行うことができる.
+MCP によって送信されるデータは, 本文に OpenMath 形式で数式を記述したテキ
+ストで, いささかメイルに似ていなくもない.
+実際にこの方法で GAP と Axiom の間で通信が行われている.
 
 \item NetSolve
 
@@ -463,40 +454,35 @@ NetSolve はクライアント・サーバ型の分散システムであり, 単なる計算システ
 
 \item MP
 
-http://symbolicNet.mcs.kent.edu/SN/areas/protocols/mp.html
+http://symbolicnet.mcs.kent.edu/SN/areas/protocols/mp.html
 
-科学技術計算を行なうソフトウェア間で数学的なデータを効率的に交換
-させることを目的としたプロトコルを作成している. 木構造を用いて
-簡単, かつ柔軟なものを目指しており, データの表現方法や交換方法に
-負わずにソフトウェアを作ることができるようにしようとしている.
-現在すでに, C 言語で利用可能なライブラリが提供されている.
+科学技術計算を行なうソフトウェア間で数学的なデータを効率的に交換させるこ
+とを目的としたプロトコルを作成している. 木構造を用いて, 簡単かつ柔軟なも
+のを目指しており, データの表現方法や交換方法によらずにソフトウェアを作る
+ことができるようにするのが目標である.  現在すでに, C 言語で利用可能なラ
+イブラリが提供されている.
 
 \item MCP
 
 http://horse.mcs.kent.edu/\~{}pwang/
 
-数学的な計算を行なうための HTTP スタイルのプロトコル.
-クライアント・サーバモデルを採用しており,
-ピアツーピアのストリームコネクションを行なう.
-数学的なオブジェクトを MP や MathML で定められた方法で
-表現することが考えられている.
-すでに OpenMath を用いた実装が存在する.
-
-
+数学的な計算を行なうための HTTP スタイルのプロトコル.  クライアント・サー
+バモデルを採用しており, ピアツーピアのストリームコネクションを行なう. 
+数学的なオブジェクトを MP や MathML で定められた方法で表現することが考え
+られている.  すでに OpenMath を用いた実装が存在する.
 \end{itemize}
 
 
 \section{現在提供されているソフトウェア}
 
-現在 OpenXM 規約に対応しているクライアントにはasir, sm1, Mathematica がある.
-これらのクライアントから OpenXM 規約に対応したサーバを呼び出すこと
-ができる. 現在 OpenXM 規約に対応しているサーバソフトウェアには, asir,
-sm1, gnuplot, Mathematica, PHC pack などがあり,
-それぞれ ox\_asir, ox\_sm1, ox\_sm1\_gnuplot, ox\_math, ox\_sm1\_phc
-という名前で提供されている. また, OpenMath
-規約の XML 表現で表現されたオブジェクトと CMO 形式のオブジェクトを変換す
-るソフトウェアが JAVA によって実装されており, OMproxy という名前で提供さ
-れている.
+現在 OpenXM 規約に対応しているクライアントにはasir, sm1, Mathematica が
+ある.  これらのクライアントから OpenXM 規約に対応したサーバを呼び出すこ
+とができる.  また OpenXM 規約に対応しているサーバには, asir, sm1,
+Mathematica, gnuplot, PHC pack などがあり, それぞれ ox\_asir, ox\_sm1,
+ox\_math, ox\_sm1\_gnuplot, ox\_sm1\_phc という名前で提供されている. 
+さらに OpenMath 規約の XML 表現で表現されたオブジェクトと CMO 形式のオブ
+ジェクトを相互変換するソフトウェアが JAVA によって実装されており,
+OMproxy という名前で提供されている.
 
 \begin{thebibliography}{99}
 \bibitem{Ohara-Takayama-Noro-1999}
