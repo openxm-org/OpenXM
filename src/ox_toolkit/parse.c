@@ -1,7 +1,11 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.2 1999/12/22 11:26:37 ohara Exp $ */
 
-/* OX expression, CMO expression パーサ */
+/* 
+   This module is a parser for OX/CMO expressions.
+   Some commnets is written in Japanese by using the EUC-JP coded 
+   character set.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,18 +16,17 @@
 #include "ox.h"
 #include "parse.h"
 
-/* --- 構文解析部 --- */
-/* (重要)セマンティックスについての注意.
+/* --- Parser --- */
+/* Remarks for semantics.
    CMO_LIST, CMO_STRING は、あらかじめ与えられた要素の個数を無視する.
    CMO_MONOMIAL32 は無視しない. (つまりおかしいときは構文エラーになる)
 */
 
-/* parse.c, lex.c では, Lisp 表現された CMO 文字列を読み込み,
+/* 
+   parse.c では, Lisp 表現された CMO 文字列を読み込み,
    バイト列を出力する.  中間表現として、cmo 構造体を利用する.
    parse() はトークンの列から cmo 構造体を生成し、そのポインタを返す.  
-*/
-
-/* 重要なことはパーサ(の各サブルーチン)は
+   重要なことはパーサ(の各サブルーチン)は
    常にトークンをひとつ先読みしていると言うことである.
 */
 
@@ -36,18 +39,20 @@ static union{
     char *sym;
 } yylval;
 
-/* pflag_cmo_addrev がセットされていれば、厳密には CMO expression では
-   ないもの, 例えば (CMO_STRING, "hello") も CMO に変換される. */
+/* 
+   If `pflag_cmo_addrev' sets, then we admit extended CMO expressions.
+   For example, (CMO_STRING, "hello") is not a real CMO expression
+   but it is admitted.
+*/
+static int pflag_cmo_addrev = 1;
 
-static int pflag_cmo_addrev = 1;  /* CMO の省略記法を許すか否かのフラグ */
-
-/* 関数の宣言 */
+/* definitions of local functions */
 static int  parse_error(char *s);
 static int  parse_lf();
 static int  parse_right_parenthesis();
 static int  parse_left_parenthesis();
 static int  parse_comma();
-static int  parse_integer();
+static mpz_ptr parse_integer();
 static char *parse_string();
 static cmo  *parse_cmo_null();
 static cmo  *parse_cmo_int32();
@@ -85,7 +90,7 @@ static int is_token_ox(int token)
 
 static jmp_buf env_parse;
 
-/* 構文解析に失敗したことを意味する. */
+/* This is a parsing fault. */
 static int parse_error(char *s)
 {
     fprintf(stderr, "syntax error: %s\n", s);
@@ -100,22 +105,19 @@ int setflag_parse(int flag)
 int init_parser(char *s)
 {
 	setflag_parse(PFLAG_ADDREV);
-	setmode_mygetc(s);
+	init_lex(s);
 }
 
-/* この部分は書き換え予定. */
 cmo *parse()
 {
     cmo *m;
 
     if (setjmp(env_parse) != 0) {
-        return NULL; /* 構文解析に失敗したら NULL を返す. */
+        return NULL;
+		/* This is an error. */
     }
 
-    do{
-        token = lex();
-    }while (token == '\n');
-
+	token = lex();
     if (token == '(') {
         token = lex();
         if (is_token_cmo(token)) {
@@ -125,21 +127,10 @@ cmo *parse()
         }else {
             parse_error("invalid symbol.");
         }
-/*      parse_lf(); */
         return m;
     }
     return NULL;
 }
-
-/* トークンを先読みしない(重要). */
-static int parse_lf()
-{
-    if (token != '\n') {
-        parse_error("no new line.");
-    }
-    return 0;
-}
-
 
 static ox *parse_ox()
 {
@@ -194,9 +185,6 @@ static int parse_sm()
     return sm_code;
 }
 
-
-/* 正しい入力ならば, parse_cmo を呼ぶ時点で, token には 
-   TOKEN(CMO_xxx), TOKEN(OX_xxx) のいずれかがセットされている. */
 static cmo *parse_cmo()
 {
     cmo *m = NULL;
@@ -284,13 +272,46 @@ static int parse_comma()
     token = lex();
 }
 
-static int parse_integer()
+static mpz_ptr new_mpz_set_str(char *s)
 {
-    int val;
-    if (token != T_INTEGER) {
+	mpz_ptr z = malloc(sizeof(mpz_t));
+	mpz_init_set_str(z, s, 10);
+	return z;
+}
+
+static mpz_ptr my_mpz_neg(mpz_ptr src)
+{
+	mpz_ptr z = malloc(sizeof(mpz_t));
+	mpz_init(z);
+	mpz_neg(z, src);
+#ifndef DEBUG
+	free(src);
+#endif
+	return z;
+}
+
+static mpz_ptr parse_integer()
+{
+	int sign = 1;
+	mpz_ptr val;
+
+	if (token == '+') {
+		token = lex();
+	}else if (token == '-') {
+		sign = -1;
+		token = lex();
+	}
+
+    if (token != T_DIGIT) {
         parse_error("no integer.");
     }
-    val = yylval.d;
+	val = new_mpz_set_str(yylval.sym);
+	if (sign == -1) {
+		val = my_mpz_neg(val);
+	}
+#ifndef DEBUG
+	free(yylval.sym);
+#endif
     token = lex();
     return val;
 }
@@ -314,12 +335,12 @@ static cmo *parse_cmo_null()
 
 static cmo *parse_cmo_int32()
 {
-    int i;
+	mpz_ptr z;
 
     parse_comma();
-    i = parse_integer();
+    z = parse_integer();
     parse_right_parenthesis();
-    return (cmo *)new_cmo_int32(i);
+    return (cmo *)new_cmo_int32(mpz_get_si(z));
 }
 
 static cmo *parse_cmo_string()
@@ -328,7 +349,7 @@ static cmo *parse_cmo_string()
     char *s;
 
     parse_comma();
-    if (token == T_INTEGER) {
+    if (token == T_DIGIT) {
         parse_integer();
         parse_comma();
     }else if (!pflag_cmo_addrev) {
@@ -361,7 +382,7 @@ static cmo *parse_cmo_list()
     if (token == ',') {
         parse_comma();
 
-        if (token == T_INTEGER) {
+        if (token == T_DIGIT) {
             parse_integer();
             parse_comma();
         }else if (!pflag_cmo_addrev) {
@@ -393,7 +414,7 @@ static cmo *parse_cmo_monomial32()
     int tag;
 
     parse_comma();
-    size = parse_integer();
+    size = mpz_get_si(parse_integer());
     if (size < 0) {
         parse_error("invalid value.");
     }
@@ -401,14 +422,15 @@ static cmo *parse_cmo_monomial32()
 
     for(i=0; i<size; i++) {
         parse_comma();
-        m->exps[i] = parse_integer();
+        m->exps[i] = mpz_get_si(parse_integer());
     }
     parse_comma();
     parse_left_parenthesis();
     m->coef = parse_cmo(); 
     tag = m->coef->tag;
 
-    /* m->coef は CMO_ZZ 型か CMO_INT32 型でなければならない */
+    /* semantics: 
+       The tag of m->coef must be CMO_ZZ or CMO_INT32. */
     if (tag != CMO_ZZ && tag != CMO_INT32) {
         parse_error("invalid cmo.");
     }
@@ -416,25 +438,27 @@ static cmo *parse_cmo_monomial32()
     return (cmo *)m;
 }
 
-/* cmo_zz の内部を直接いじる. */
+/* the following function rewrite internal data of mpz/cmo_zz. */
 static cmo *parse_cmo_zz()
 {
     int length;
     int i=0;
     cmo_zz *m= NULL;
+	mpz_ptr z;
 
     parse_comma();
-    length = parse_integer();
+    z = parse_integer();
     if (token == ',') {
+		length = mpz_get_si(z);
         m = new_cmo_zz_size(length);
         
         length = abs(length);
         for(i=0; i<length; i++) {
             parse_comma();
-            m->mpz->_mp_d[i] = parse_integer();
+            m->mpz->_mp_d[i] = mpz_get_si(parse_integer());
         }
     }else if (pflag_cmo_addrev) {
-        m = new_cmo_zz_set_si(length);
+        m = new_cmo_zz_set_mpz(z);
     }else {
         parse_error("no comma.");
     }
@@ -463,7 +487,7 @@ static cmo *parse_cmo_ring_by_name()
     parse_left_parenthesis();
     ob = parse_cmo();   
 
-    /* ob は CMO_STRING 型でなければならない */
+    /* The ob has a type of CMO_STRING. */
     if (ob->tag != CMO_STRING) {
         parse_error("invalid cmo.");
     }
@@ -482,7 +506,7 @@ static cmo *parse_cmo_distributed_polynomial()
     if (token == ',') {
         parse_comma();
 
-        if (token == T_INTEGER) {
+        if (token == T_DIGIT) {
             parse_integer();
             parse_comma();
         }else if (!pflag_cmo_addrev) {
@@ -492,7 +516,7 @@ static cmo *parse_cmo_distributed_polynomial()
         parse_left_parenthesis();
         m->ringdef = parse_cmo();
         tag = m->ringdef->tag;
-        /* m->ringdef は DringDefinition でなければならない */
+        /* m->ringdef needs to be a DringDefinition. */
         if (tag != CMO_RING_BY_NAME && tag != CMO_DMS_GENERIC 
             && tag != CMO_DMS_OF_N_VARIABLES) {
             parse_error("invalid cmo.");
@@ -541,47 +565,55 @@ static cmo *parse_cmo_error2()
     return (cmo *)new_cmo_error2(ob);
 }
 
-/* --- 字句解析部 --- */
+/* --- lexical analyzer --- */
 
-/* lexical analyzer で読み飛ばされる文字なら何を初期値にしてもよい */
+/* A white space is ignored by lexical analyzer. */
 static int c = ' ';    
 
-/* 一文字読み込む関数 */
+/* getting a character from string. */
 static char *mygetc_ptr;
 static int mygetc()
 {
 	return *mygetc_ptr++;
 }
 
-int setmode_mygetc(char *s)
+int init_lex(char *s)
 {
     mygetc_ptr=s;
-}
-
-static int (*GETC)() = mygetc;
-
-/* 一文字読み込む関数の選択 (ex. setgetc(getchar); ) */
-int setgetc(int (*foo)())
-{
-	if (foo == NULL) {
-		GETC = mygetc;
-	}else {	
-		GETC = foo;
-	}
 }
 
 #define SIZE_BUFFER  8192
 static char buffer[SIZE_BUFFER];
 
-/* 桁溢れの場合の対策はない */
-static int lex_digit()
+static char *mkstr(char *src)
 {
-    int d = 0;
-    do {
-        d = 10*d + (c - '0');
-        c = GETC();
-    } while(isdigit(c));
-    return d;
+	int len;
+	char *s;
+	len = strlen(src);
+	s = malloc(len+1);
+	strcpy(s, src);
+	return s;
+}
+
+/* no measure for buffer overflow */
+static char *lex_digit()
+{
+	static char buff[SIZE_BUFFER];
+	int i;
+	char *s;
+	int len;
+
+	for(i=0; i<SIZE_BUFFER-1; i++) {
+		if(isdigit(c)) {
+			buff[i] = c;
+		}else {
+			buff[i] = '\0';
+			return mkstr(buff);
+		}
+        c = mygetc();
+	}
+	buff[SIZE_BUFFER-1] = '\0';
+	return mkstr(buff);
 }
 
 #define MK_KEY_CMO(x)  { #x , x  , TOKEN(x)  , IS_CMO }
@@ -656,24 +688,21 @@ symbol* lookup(int i)
     return &symbol_list[i];
 }
 
-/* バッファあふれした場合の対策をちゃんと考えるべき */
+/* no measure for buffer overflow */
 static char *lex_quoted_string()
 {
     int i;
     char c0 = ' ';
-    char *s = NULL;
+
     for (i=0; i<SIZE_BUFFER; i++) {
-        c = GETC();
+        c = mygetc();
         if(c == '"') {
-            s = malloc(i+1);
+            c = mygetc();
             buffer[i]='\0';
-            strcpy(s, buffer);
-      
-            c = GETC();
-            return s;
+			return mkstr(buffer);
         }else if (c == '\\') {
             c0 = c;
-            c = GETC();
+            c = mygetc();
             if (c != '"') {
                 buffer[i++] = c0;
             }
@@ -707,7 +736,7 @@ static int lex_symbol()
             return token_of_symbol(buffer);
         }
         buffer[i]=c;
-        c = GETC();
+        c = mygetc();
     }
     fprintf(stderr, "buffer overflow!\n");
     return 0;
@@ -718,21 +747,22 @@ int lex()
 {
     int c_dash = 0;
   
-    /* 空白をスキップする. */
-    while (isspace(c) && c != '\n') {
-        c = GETC();
+    /* white spaces are ignored. */
+    while (isspace(c)) {
+        c = mygetc();
     }
 
     switch(c) {
     case '(':
     case ')':
     case ',':
-    case '\n':
+	case '+':
+	case '-':
         c_dash = c;
         c = ' ';
         return c_dash;
     case EOF:
-        c = GETC();
+        c = mygetc();
         return c_dash;
     case '"':      /* a quoted string! */
         yylval.sym = lex_quoted_string();
@@ -740,27 +770,16 @@ int lex()
     default:
     }
 
-    if (isalpha(c)) {    /* 識別子 */
+    if (isalpha(c)) {
+		/* symbols */
         return lex_symbol();
     }
 
-    /* 32bit 整数値 */
+	/* digit */
     if (isdigit(c)){
-        yylval.d = lex_digit();
-        return T_INTEGER;
+        yylval.sym = lex_digit();
+        return T_DIGIT;
     }
-    if (c == '-') {
-        c = GETC();
-        while (isspace(c) && c != '\n') {
-            c = GETC();
-        }
-        if (isdigit(c)){
-            yylval.d = - lex_digit();
-            return T_INTEGER;
-        }
-        return 0;
-    }
-
-    c = GETC();
+    c = mygetc();
     return 0;
 }

@@ -1,5 +1,5 @@
-/* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.h,v 1.1 1999/12/09 22:44:56 ohara Exp $ */
+/* -*- mode: C -*- */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.h,v 1.2 1999/12/22 11:26:37 ohara Exp $ */
 
 #ifndef _PARSE_H_
 
@@ -7,16 +7,16 @@
 
 #define _PARSE_H_
 
-/* トークンの定義 */
-/* 256 より小さいものは、一文字だけのトークンである */
+/* Remarks: a token, which is less than 256, means a one character token. */
 
-#define T_INTEGER       257
+/* The followings are definitions of some tokens. */
+#define T_DIGIT         257
 #define T_STRING        258
 #define T_MAGIC         2048
 #define TOKEN(x)        (T_MAGIC + (x))
 #define SM              SM_popCMO
 
-/* トークンの種類を判定するためのマクロ */
+/* Macros for distinction of kinds of tokens. */
 #define MIN_T_CMO     TOKEN(0)
 #define MAX_T_CMO     TOKEN(256)
 #define MIN_T_OX      TOKEN(512)
@@ -27,12 +27,9 @@
 #define IS_OX    3
 
 #define PFLAG_ADDREV   1
+
 int setflag_parse(int flag);
-
 cmo *parse();
-
-int setgetc(int (*foo)());
-int setmode_mygetc(char *s);
 int init_parser(char *s);
 
 typedef struct {

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.5 1999/12/16 06:58:01 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.6 1999/12/22 11:26:37 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -134,10 +134,10 @@ static cmo *call_hook_after_send_cmo(int fd, cmo *c)
 	return c;
 }
 
-/* エラーハンドリングのため */
+/* Handling an error. */
 static int current_received_serial = 0;
 
-/* エラーを起こしたときにサーバは次を呼び出す.  */
+/* If an error object be needed, then a server call the following function. */
 cmo_error2* make_error_object(int err_code, cmo *ob)
 {
     cmo_list* li = new_cmo_list();
@@ -152,21 +152,21 @@ cmo_error2* make_error_object(int err_code, cmo *ob)
 #define DEFAULT_SERIAL_NUMBER 0x0000ffff
 #define receive_serial_number(x)   (receive_int32(x))
 
-/* 新しいシリアル番号を得る */
+/* getting a next serial number. */
 int next_serial()
 {
     static int serial_number = DEFAULT_SERIAL_NUMBER;
     return serial_number++;
 }
 
-/* int32 型のオブジェクトを送信する.  */
+/* sending an object of int32 type. (not equal to cmo_int32 type)  */
 int send_int32(int fd, int int32)
 {
     int32 = htonl(int32);
     return write(fd, &int32, sizeof(int));
 }
 
-/* int32 型のオブジェクトを受信する.  */
+/* receiving an object of int32 type. (not equal to cmo_int32 type)  */
 int receive_int32(int fd)
 {
     int tag;
@@ -174,7 +174,7 @@ int receive_int32(int fd)
     return ntohl(tag);
 }
 
-/* (OX_tag, serial number) を受信する.  */
+/* receiving an (OX_tag, serial number)  */
 int receive_ox_tag(int fd)
 {
     int serial;
@@ -183,14 +183,14 @@ int receive_ox_tag(int fd)
     return tag;
 }
 
-/* (OX_tag, serial number) を送信する.   */
+/* sending an (OX_tag, serial number)  */
 int send_ox_tag(int fd, int tag)
 {
     send_int32(fd, tag);
     return send_int32(fd, next_serial());
 }
 
-/* CMO_LIST 関係の関数群 */
+/* functions for a cmo_list */
 cell* new_cell()
 {
     cell* h = malloc(sizeof(cell));
@@ -238,7 +238,7 @@ int length_cmo_list(cmo_list* this)
     return this->length;
 }
 
-/** receive_cmo_XXX 関数群 **/
+/* functions named receive_cmo_*. */
 static cmo_null* receive_cmo_null(int fd)
 {
     return new_cmo_null();
@@ -314,7 +314,7 @@ static cmo_dms_generic* receive_cmo_dms_generic(int fd)
 static cmo_ring_by_name* receive_cmo_ring_by_name(int fd)
 {
     cmo* ob = receive_cmo(fd);
-    /* 意味的チェックが必要 */
+	/* We need to check semantics but yet ... */
     return new_cmo_ring_by_name(ob);
 }
 
@@ -412,7 +412,7 @@ static void resize_mpz(mpz_ptr mpz, int size)
     mpz->_mp_size = size;
 }
 
-/** new_cmo_XXX 関数群 **/
+/* functions named new_cmo_*. */
 cmo_null* new_cmo_null()
 {
     cmo_null* m = malloc(sizeof(cmo_null));
@@ -495,6 +495,13 @@ cmo_zz* new_cmo_zz_set_si(int i)
 {
     cmo_zz* c = new_cmo_zz();
     mpz_set_si(c->mpz, i);
+    return c;
+}
+
+cmo_zz* new_cmo_zz_set_mpz(mpz_ptr z)
+{
+    cmo_zz* c = new_cmo_zz();
+    mpz_set(c->mpz, z);
     return c;
 }
 
@@ -635,14 +642,15 @@ void ox_close(ox_file_t sv)
 {
     send_ox_command(sv->control, SM_control_kill);
 #ifdef DEBUG
-    sleep(2); /* OpenXM server の終了を待つ. あまり意味はない. */
+    sleep(2);
+	/* We wait thar an OpenXM server terminates. */
     fprintf(stderr, "I have closed the connection to an Open XM server.\n");
 #endif
 }
 
 void ox_shutdown(ox_file_t sv)
 {
-	/* 後で SM_shutdown を用いるものに書き換える予定. */
+	/* We need to use SM_shutdown but yet ... */
 	ox_close(sv);
 }
 
@@ -668,7 +676,6 @@ void ox_push_cmd(ox_file_t sv, int sm_code)
     send_ox_command(sv->stream, sm_code);
 }
 
-/* ox_mathcap() をコールする.  */
 cmo_mathcap* ox_mathcap(ox_file_t sv)
 {
     send_ox_command(sv->stream, SM_mathcap);
@@ -705,20 +712,20 @@ void ox_push_cmo(ox_file_t sv, cmo *c)
 	send_ox_cmo(sv->stream, c);
 }
 
-/* バッファのフラッシュの振りをする. */
+/* a dummy function for flushing a connection. */
 int ox_flush(ox_file_t sv)
 {
 	return 1;
 }
 
-/* 手抜き. (後で改善しよう...) */
+/* a dummy password function. */
 static char *create_otp()
 {
     static char otp[] = "otpasswd";
     return otp;
 }
 
-/* OneTimePassword の処理 */
+/* proceeding an one time password. */
 static int login_with_otp(int fd, char* passwd)
 {
     int len   = strlen(passwd)+1;

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.4 1999/12/15 01:58:13 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.h,v 1.5 1999/12/16 06:58:01 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -156,6 +156,7 @@ cmo_monomial32*    new_cmo_monomial32_size(int size);
 cmo_zz*            new_cmo_zz();
 cmo_zz*            new_cmo_zz_size(int size);
 cmo_zz*            new_cmo_zz_set_si(int integer);
+cmo_zz*            new_cmo_zz_set_mpz(mpz_ptr z);
 cmo_zz*            new_cmo_zz_noinit();
 cmo_zz*            new_cmo_zz_set_string(char* s);
 cmo_zero*          new_cmo_zero();
