@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.2 2003/08/22 16:08:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.3 2003/11/18 11:08:27 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -43,7 +43,7 @@ main(int argc, char *argv[]) {
   /* Sm1_start(0, NULL, "ox_sm1");  */
   K0_start();
 
-  nullserver(3);
+  nullserver(3,4);
 }
 
 static char *getSuffix(char *s) {
@@ -62,10 +62,11 @@ static char *getSuffix(char *s) {
   }
   return(s);
 }
-nullserver(int fdStream) {
+nullserver(int fdStreamIn,int fdStreamOut) {
   int mtag;
   int message = 1;
-  ox_stream ostream;
+  ox_stream ostreamIn;
+  ox_stream ostreamOut;
   char sreason[1024];
   extern void controlResetHandler();
 #if defined(__CYGWIN__)
@@ -76,17 +77,25 @@ nullserver(int fdStream) {
   int engineByteOrder;
 
   fflush(NULL);
-  engineByteOrder = oxTellMyByteOrder(fdStream,fdStream);
+  engineByteOrder = oxTellMyByteOrder(fdStreamOut,fdStreamIn);
   /* Set the network byte order. */
   fprintf(stderr,"engineByteOrder=%x\n",engineByteOrder);
   
-  if (fdStream != -1) {
-    ostream = fp2open(fdStream);
-    if (ostream == NULL) {
-      fprintf(stderr,"fp2open(fdStream) failed.\n");
-      fdStream = -1;
+  if (fdStreamIn != -1) {
+    ostreamIn = fp2open(fdStreamIn);
+    if (ostreamIn == NULL) {
+      fprintf(stderr,"fp2open(fdStreamIn) failed.\n");
+      fdStreamIn = -1;
     }
-    if (PacketMonitor) fp2watch(ostream,stdout);
+    if (PacketMonitor) fp2watch(ostreamIn,stdout);
+  }
+  if (fdStreamOut != -1) {
+    ostreamOut = fp2open(fdStreamOut);
+    if (ostreamOut == NULL) {
+      fprintf(stderr,"fp2open(fdStreamOut) failed.\n");
+      fdStreamOut = -1;
+    }
+    if (PacketMonitor) fp2watch(ostreamOut,stdout);
   }
   aaa : ;
   clearInop(); 
@@ -155,18 +164,18 @@ nullserver(int fdStream) {
     if (OxInterruptFlag) {
       OxCritical = 1;
       if (message) {fprintf(stderr,"Clearing the read buffer.\n");fflush(NULL); }
-      fp2clearReadBuf(ostream); /* clear the read buffer */
+      fp2clearReadBuf(ostreamIn); /* clear the read buffer */
       if (message) {fprintf(stderr,"Throwing OX_SYNC_BALL\n"); fflush(NULL);}
-      oxSendSyncBall(ostream);
+      oxSendSyncBall(ostreamOut);
       if (message) {fprintf(stderr,"Waiting for OX_SYNC_BALL\n");fflush(NULL);}
-      oxWaitSyncBall(ostream);
+      oxWaitSyncBall(ostreamIn);
       if (message) {fprintf(stderr,"Done changing OX_SYNC_BALL\n"); fflush(NULL);}
       OxInterruptFlag = 0;
       OxCritical = 0;
       goto aaa ;
     }
     OxCritical = 0;
-    if (fp2select(ostream,-1)) {
+    if (fp2select(ostreamIn,-1)) {
       /* If there is an data in the ostream, then read data in the buffer and
          read data in the communication stream. */
       OxCritical = 1;
@@ -175,7 +184,7 @@ nullserver(int fdStream) {
       /* This part is never reached. */
     }
     OxCritical = 1;
-    mtag = oxGetOXheader(ostream,&SerialCurrent); /* get the message_tag */
+    mtag = oxGetOXheader(ostreamIn,&SerialCurrent); /* get the message_tag */
     if (message) {
       fprintf(stderr,"\nmtag is %d (serial=%d) : ",mtag,SerialCurrent);
       switch(mtag) {
@@ -190,11 +199,11 @@ nullserver(int fdStream) {
     /*sleep(2);  /* for dubug OX_SYNC_BALL */
     switch(mtag) {
     case OX_COMMAND:
-      nullserverCommand(ostream);
+      nullserverCommand(ostreamIn,ostreamOut);
       goto aaa ;  /* We always reset the jump vector. cf. memo1.txt 1998 2/13*/
       break;
     case OX_DATA:
-      Sm1_pushCMO(ostream);
+      Sm1_pushCMO(ostreamIn);
       break;
     case OX_SYNC_BALL:
       /* if (OxInterruptFlag)  think about it later. */
@@ -206,7 +215,7 @@ nullserver(int fdStream) {
   }
 }
 
-nullserverCommand(ox_stream ostream) {
+nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   int id;
   int mtag;
   int n;
@@ -220,7 +229,7 @@ nullserverCommand(ox_stream ostream) {
 
   message = OXprintMessage;
   /* message_body */
-  id = oxGetInt32(ostream);   /* get the function_id */
+  id = oxGetInt32(ostreamIn);   /* get the function_id */
   if (message) {fprintf(stderr,"\nfunction_id is %d\n",id);}
   switch( id ) {
   case SM_mathcap:
@@ -230,7 +239,7 @@ nullserverCommand(ox_stream ostream) {
     break;
   case SM_setMathCap:
     if (message) fprintf(stderr," setMathCap\n");
-    Sm1_setMathCap(ostream);
+    Sm1_setMathCap(ostreamOut);
     break;
   case SM_pops:
     if (message) fprintf(stderr," pops \n");
@@ -286,14 +295,14 @@ nullserverCommand(ox_stream ostream) {
     break;
   case SM_popCMO:
     if (message) fprintf(stderr,"popCMO.  Start to sending data.\n",n);
-    oxSendOXheader(ostream,OX_DATA,SerialOX++);
-    n=Sm1_popCMO(ostream,SerialCurrent);
+    oxSendOXheader(ostreamOut,OX_DATA,SerialOX++);
+    n=Sm1_popCMO(ostreamOut,SerialCurrent);
     if (message) fprintf(stderr,"Done.\n"); 
     break;
   case SM_popString:
     if (message) fprintf(stderr,"popString. send data from the stack.\n",n);
-    oxSendOXheader(ostream,OX_DATA,SerialOX++);
-    oxSendCmoString(ostream,Sm1_popString());
+    oxSendOXheader(ostreamOut,OX_DATA,SerialOX++);
+    oxSendCmoString(ostreamOut,Sm1_popString());
     if (message) fprintf(stderr,"Done.\n");
     break;
   case SM_shutdown:
