@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.15 2000/01/21 12:48:47 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.16 2000/01/21 13:49:52 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -155,6 +155,10 @@ export PATH
 csh を利用している場合, .cshrc で
 set path=(/usr/local/jdk1.1.8/bin $path)
 として, jdk の java, javac をサーチパスにいれます.
+
+注意:
+なお, Kaffe 1.0.b4 の java は, class BigInteger に method
+toByteArray が含まれてないため, OpenMath モジュールでは使用できません.
 */
 /*&eg
 ***** JAVA
@@ -167,6 +171,11 @@ set path=(/usr/local/jdk1.1.8/bin $path)
 Bash users put the following line to .bashrc
 PATH=/usr/local/jdk1.1.8/bin:$PATH
 export PATH
+
+Remark:
+The Java interpreter of Kaffe 1.0.b4 does not contain the method
+toByteArray in the class BigInteger.
+So, it cannot be used for the OpenMath module.
 */
 
 /*&C
