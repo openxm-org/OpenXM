@@ -82,7 +82,7 @@ void printCMO_object(FILE *fp,CMO_Object *op)
       n = ntohl(((CMO_string_object *)op)->size);
       fprintf(stderr,"n=%d :"); fflush(NULL);
       for (i=0; i<n; i++) {
-	fprintf(fp,"%c",((CMO_string_object *)op)->data[i]);
+        fprintf(fp,"%c",((CMO_string_object *)op)->data[i]);
       }
       break;
     default:
@@ -124,13 +124,13 @@ int Sm1_executeStringByLocalParser(void) {
   if (s != NULL) {
     if (strcmp(s,"sleep") == 0) {
       while (1) {
-	fprintf(stderr,"Sleeping...  "); fflush(NULL);
-	sleep(10);
+        fprintf(stderr,"Sleeping...  "); fflush(NULL);
+        sleep(10);
       }
     }else if (strcmp(s,"pstack") == 0) {
       fprintf(stderr,"pstack -------------- Stackp = %d\n",Stackp);
       for (i=Stackp-1; i>=0; i--) {
-	printCMO_object(stdout,LocalStack[i]); fprintf(stderr,"\n");
+        printCMO_object(stdout,LocalStack[i]); fprintf(stderr,"\n");
       }
       fprintf(stderr,"\n--------------------\n");
     }else{
@@ -242,23 +242,23 @@ int Sm1_pushCMO(ox_stream ostream) /* old one went to junk.c */
       n = nullCmoGetInt32(ostream);
       fprintf(stderr,"size=%d ",n);
       if (n > 1000-2) {
-	fprintf(stderr," size is too large. \n");
+        fprintf(stderr," size is too large. \n");
       }else{
-	for (i=0; i<n; i++) {
-	  data[i] = fp2fgetc(ostream);
-	  data[i+1] = '\0';
-	}
-	fprintf(stderr," string=%s ",data);
-	Sm1_pushToLocalStack(CMO_new_string(data));
+        for (i=0; i<n; i++) {
+          data[i] = fp2fgetc(ostream);
+          data[i+1] = '\0';
+        }
+        fprintf(stderr," string=%s ",data);
+        Sm1_pushToLocalStack(CMO_new_string(data));
       }
       break;
     default: 
       do {
-	if ((c = fp2fgetc(ostream)) == EOF) {
-	  fprintf(stderr,"pushCMOFromStrem: Select returns 0, but there is no data or unexpected EOF.\n");
-	  return(-1);
-	}
-	fprintf(stderr,"%2x ",c);
+        if ((c = fp2fgetc(ostream)) == EOF) {
+          fprintf(stderr,"pushCMOFromStrem: Select returns 0, but there is no data or unexpected EOF.\n");
+          return(-1);
+        }
+        fprintf(stderr,"%2x ",c);
       }while(isData(ostream));
     }
   }

@@ -31,8 +31,8 @@ int Sm1_start(int argc, char *fnames[],char *myname) {
     for (i=0; i<argc; i++) {
       /* load files from the search path */
       if (strlen(fnames[i]) > 1024) {
-	fprintf(stderr,"Too long name for sm1 library file to load.\n");
-	exit(10);
+        fprintf(stderr,"Too long name for sm1 library file to load.\n");
+        exit(10);
       }
       sprintf(cmd," [(parse) (%s) pushfile ] extension pop ",fnames[i]);
       KSexecuteString(cmd);
@@ -182,9 +182,9 @@ void Sm1_pushCMOtag(int serial) {
   obj = KSpeek(0);
   t = KgetCmoTagOfObject(obj);
   if (t != -1) {
-	KSpush(KpoInteger(t));
+    KSpush(KpoInteger(t));
   }else{
-	Sm1_pushError2(serial,-1,"The top object on the server stack cannot be translated to cmo.");
+    Sm1_pushError2(serial,-1,"The top object on the server stack cannot be translated to cmo.");
   }
 }
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.3 2000/02/02 03:30:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.4 2000/07/30 09:55:40 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -33,7 +33,7 @@ main(int argc, char *argv[]) {
   char *tigers[] = {"callsm1.sm1","tigers.sm1"};
   char *basicCD[] = {"basicCD.sm1"};
   /*  If you change the above, you need to change the argc of Sm1_start below.
-      */
+   */
 
   if (argc > 1) {
     if (strcmp(argv[1],"-monitor")==0) {
@@ -116,10 +116,10 @@ nullserver(int fdStream) {
     /* In case of error in the stack machine, pop the error info
        and send the error packet. */
     /* oxSendOXheader(ostream,OX_DATA,SerialOX++);
-    oxSendCmoError(ostream); 
-    oxSendOXheader(ostream,OX_DATA,SerialOX++);
-    sprintf(sreason,"Jump here by sm1 error.");
-    oxSendCmoError2(ostream,sreason);
+       oxSendCmoError(ostream); 
+       oxSendOXheader(ostream,OX_DATA,SerialOX++);
+       sprintf(sreason,"Jump here by sm1 error.");
+       oxSendCmoError2(ostream,sreason);
     */
     Sm1_pushError2(SerialCurrent,-1,"Global jump by sm1 error");
 
@@ -164,7 +164,7 @@ nullserver(int fdStream) {
       case OX_DATA:    fprintf(stderr," OX_DATA \n"); break;
       case OX_SYNC_BALL: fprintf(stderr," OX_SYNC_BALL \n"); break;
       case -1: fprintf(stderr," End of file. Exiting the server child.\n");
-	exit(); break;
+        exit(); break;
       default: fprintf(stderr," ?! \n"); break;
       }
     }
@@ -228,7 +228,7 @@ nullserverCommand(ox_stream ostream) {
   case SM_pushCMOtag:
     if (message) fprintf(stderr," pushCMOtag \n");
     Sm1_pushCMOtag(SerialCurrent);
-	break;
+    break;
   case SM_setName:
     if (message) fprintf(stderr," setName \n");
     iresult = Sm1_setName();
@@ -278,9 +278,9 @@ nullserverCommand(ox_stream ostream) {
     if (message) fprintf(stderr,"Done.\n");
     break;
   case SM_shutdown:
-	fprintf(stderr,"Shutting down the engine.\n");
-	exit(0);
-	break;
+    fprintf(stderr,"Shutting down the engine.\n");
+    exit(0);
+    break;
   case SM_beginBlock:
   case SM_endBlock:
     fprintf(stderr,"This command has not yet been implemented.\n");
@@ -305,7 +305,7 @@ nullserver_simplest(int fd) {
 
 
 void controlResetHandler(sig)
-int sig;
+     int sig;
 {
   signal(sig,SIG_IGN);
   fprintf(stderr,"From controlResetHandler. OxCritical = %d\n",OxCritical);

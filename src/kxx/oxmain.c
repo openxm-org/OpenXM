@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.5 2000/07/30 09:55:40 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.6 2000/12/05 05:58:33 ohara Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -78,15 +78,15 @@ main(int argc, char *argv[]) {
     }else if (strcmp(argv[i],"-portfile") == 0) {
       i++;
       if (i<argc) {
-		sscanf(argv[i],"%s",portfile);
-		portControl = 0;
-		portStream = 0;
-		NotifyPortnumber = 1;
+        sscanf(argv[i],"%s",portfile);
+        portControl = 0;
+        portStream = 0;
+        NotifyPortnumber = 1;
       }
     }else if (strcmp(argv[i],"-pass") == 0) {
       i++;
       if (i<argc) {
-		pass = argv[i];
+        pass = argv[i];
       }
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
@@ -96,11 +96,11 @@ main(int argc, char *argv[]) {
   }
 
   if (Do_not_use_control_stream_to_tell_no_server) {
-	if (findOxServer(ServerName) < 0) {
-	  fprintf(stderr,"Sleeping five seconds...\n");
-	  sleep(5);
-	  exit(-1);
-	}
+    if (findOxServer(ServerName) < 0) {
+      fprintf(stderr,"Sleeping five seconds...\n");
+      sleep(5);
+      exit(-1);
+    }
   }
 
   if (reverse) {
@@ -109,7 +109,7 @@ main(int argc, char *argv[]) {
     fdStream = socketConnectWithPass(sname,portStream,pass);
 
     fprintf(stderr,"Connected: control = %d, data = %d.\n",fdControl,fdStream);
-	result = 0;
+    result = 0;
 
 
     if (portControl != -1) {
@@ -120,9 +120,9 @@ main(int argc, char *argv[]) {
       result=childServerMain(fdControl,fdStream);
     }
     /* This line will be never executed in case of success */
-	if (result < 0 ) {
-	  errorToStartEngine();
-	}
+    if (result < 0 ) {
+      errorToStartEngine();
+    }
   }
 
   /* non-reverse case. */
@@ -137,7 +137,7 @@ main(int argc, char *argv[]) {
       fdControl = socketOpen(sname,portControl);
       portControl = OpenedSocket;
       if (NotifyPortnumber) {
-		oxWritePortFile(0,portControl,portfile);
+        oxWritePortFile(0,portControl,portfile);
       }
       fdControl = socketAcceptLocal(fdControl);
       fprintf(stderr,"\n control port %d : Connected.\n",portControl);
@@ -146,7 +146,7 @@ main(int argc, char *argv[]) {
       fdStream = socketOpen(sname,portStream);
       portStream = OpenedSocket;
       if (NotifyPortnumber) {
-		oxWritePortFile(1,portStream,portfile);
+        oxWritePortFile(1,portStream,portfile);
       }
       fdStream = socketAcceptLocal(fdStream);
       fprintf(stderr,"\n stream port %d : Connected.\n",portStream);
@@ -156,7 +156,7 @@ main(int argc, char *argv[]) {
       fdControl = socketOpen(sname,portControl);
       portControl = OpenedSocket;
       if (NotifyPortnumber) {
-		oxWritePortFile(0,portControl,portfile);
+        oxWritePortFile(0,portControl,portfile);
       }
       fdControl = socketAccept(fdControl);
       fprintf(stderr,"\n control port %d : Connected.\n",portControl);
@@ -165,7 +165,7 @@ main(int argc, char *argv[]) {
       fdStream = socketOpen(sname,portStream);
       portStream = OpenedSocket;
       if (NotifyPortnumber) {
-		oxWritePortFile(1,portStream,portfile);
+        oxWritePortFile(1,portStream,portfile);
       }
       fdStream = socketAccept(fdStream);
       fprintf(stderr,"\n stream port %d : Connected.\n",portStream);
@@ -187,12 +187,12 @@ main(int argc, char *argv[]) {
 static void errorToStartEngine(void) {
   fprintf(stderr,"Failed to start the engine. Childing process is terminating.\n");
   /* You have to tell to the control server that there is no engine.
-	 And, the control server must tell the client that there is no
-	 engine.
-	 This part has not yet been implemented.
-	 If you implement this, set Do_not_use_control_stream_to_tell_no_server to
-	 zero.
-	 */
+     And, the control server must tell the client that there is no
+     engine.
+     This part has not yet been implemented.
+     If you implement this, set Do_not_use_control_stream_to_tell_no_server to
+     zero.
+  */
   sleep(2);
   exit(-1);
 }
@@ -262,7 +262,7 @@ parentServerMain(int fdControl, int fdStream) {
       r=kill(MyServerPid,SIGUSR1);
       if (message) printf("Result = %d\n",r);
       fflush(NULL);
-/*      oxSendResultOfControlInt32(fdControl,0); */
+      /*      oxSendResultOfControlInt32(fdControl,0); */
       break;
     default:
       fprintf(stderr,"[control] Unknown control message.\n");
@@ -285,26 +285,26 @@ childServerMain(int fdControl, int fdStream) {
   dup2(fdStream,3);
   dup2(fdStream,4);  
   /*close(0);
-	#include <sys/param.h>
-	for (i=5; i<NOFILE; i++) close(i); 
-	*/
+    #include <sys/param.h>
+    for (i=5; i<NOFILE; i++) close(i); 
+  */
   if (!Do_not_use_control_stream_to_tell_no_server) {
-	if (findOxServer(ServerName) < 0) {
-	  return(-1);
-	}
+    if (findOxServer(ServerName) < 0) {
+      return(-1);
+    }
   }
   fprintf(stderr,"childServerMain: Starting the server %s\n",ServerName); fflush(NULL);
   if (PacketMonitor) {
     if (execl(ServerName,ServerName,"-monitor",NULL)) {
       fprintf(stderr,"%s cannot be executed with -monitor.\n",ServerName);
-	  fflush(NULL);
-	  return(-1);
+      fflush(NULL);
+      return(-1);
     }
   }else {
     if (execl(ServerName,ServerName,NULL)) {
       fprintf(stderr,"%s cannot be executed.\n",ServerName);
-	  fflush(NULL);
-	  return(-1);
+      fflush(NULL);
+      return(-1);
     }
   }
   /* never reached. */
@@ -323,13 +323,13 @@ static int findOxServer(char *server) {
   if (strlen(server) == 0) return(-1);
   fd = open(server,O_RDONLY);
   if (fd >= 0) {
-	fprintf(stderr,"Starting OX server : %s\n",server);
-	close(fd);
-	return(0);
+    fprintf(stderr,"Starting OX server : %s\n",server);
+    close(fd);
+    return(0);
   }
   if (server[0] == '/') {
-	couldNotFind(server);
-	return(-1);
+    couldNotFind(server);
+    return(-1);
   }
   fprintf(stderr,"The server %s was not found. Trying to find it under OpenXM/bin\n",server);
   p = getenv("OpenXM_HOME");
@@ -341,14 +341,14 @@ static int findOxServer(char *server) {
   strcpy(p2,p); strcat(p2,"/bin/"); strcat(p2,server);
   fd = open(p2,O_RDONLY);
   if (fd >= 0) {
-	fprintf(stderr,"Starting OX server : %s\n",p2);
-	if (strlen(p2) < SERVERNAME_SIZE) strcpy(server,p2);
-	else {
-	  couldNotFind("Too long ox server name.");
-	  return(-1);
-	}
-	close(fd);
-	return(0);
+    fprintf(stderr,"Starting OX server : %s\n",p2);
+    if (strlen(p2) < SERVERNAME_SIZE) strcpy(server,p2);
+    else {
+      couldNotFind("Too long ox server name.");
+      return(-1);
+    }
+    close(fd);
+    return(0);
   }
   couldNotFind(p2);
   return(-1);

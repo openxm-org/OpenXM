@@ -14,7 +14,7 @@
 \maketitle
 \section{前書き}
 */
-/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.5 1999/12/14 06:41:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxweave.c,v 1.6 1999/12/15 03:30:14 takayama Exp $ */
 #include <stdio.h>
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
@@ -74,7 +74,7 @@ main(int argc,char *argv[]) {
 
   /*&jp  {\tt tagv[]} にタグのあつまりをいれる. 
     {\tt tagv2[]} に対応するタグのおわりの記号をいれる.
-    */
+  */
   tagc = tagc2 = 0;
   if (argc <= 1 || argc >= VSIZE) {
     usage();
@@ -82,33 +82,33 @@ main(int argc,char *argv[]) {
   }else{
     for (i=1; i< argc ; i++) {
       if (strcmp(argv[i],"--source") == 0) {
-	OutputNoTaggedSegment = 1;
+        OutputNoTaggedSegment = 1;
       }else if (strcmp(argv[i],"--plain") == 0) {
-	Plain = 1; OutputNoTaggedSegment = 1;
+        Plain = 1; OutputNoTaggedSegment = 1;
       }else if (strcmp(argv[i],"--recursive") == 0) {
-	Recursive = 1;
+        Recursive = 1;
       }else if (strcmp(argv[i],"--debug") == 0) {
-	Debug2 = 1;
+        Debug2 = 1;
       } else{
-	if (strcmp(argv[i]," ") == 0) {
-	  argv[i] = "";
-	}
-	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
-	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
-	strcpy(tagv[tagc],BeginTag0);
-	strcat(tagv[tagc],argv[i]);
-	tagv2[tagc] = EndComment0; 
-	/* コメントのおわりの記号.  */
-	tagc2++;
-	tagc++;
-
-	tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
-	tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
-	strcpy(tagv[tagc],BeginTag1);
-	strcat(tagv[tagc],argv[i]);
-	tagv2[tagc] = EndComment1;
+        if (strcmp(argv[i]," ") == 0) {
+          argv[i] = "";
+        }
+        tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+        tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+        strcpy(tagv[tagc],BeginTag0);
+        strcat(tagv[tagc],argv[i]);
+        tagv2[tagc] = EndComment0; 
+        /* コメントのおわりの記号.  */
         tagc2++;
-	tagc++;
+        tagc++;
+
+        tagv[tagc] = (char *) malloc(sizeof(char)*(strlen(argv[i])+10));
+        tagv2[tagc2] = (char *) malloc(sizeof(char)*10);
+        strcpy(tagv[tagc],BeginTag1);
+        strcat(tagv[tagc],argv[i]);
+        tagv2[tagc] = EndComment1;
+        tagc2++;
+        tagc++;
       }
     }
   }
@@ -128,7 +128,7 @@ main(int argc,char *argv[]) {
     state 0  & OutputNoTaggedSegment  ==> putchar()
     state 1                           ==> putchar()
     state 2                           ==> skip
-    */
+  */
   while (notEOF()) {
     /* We are in the state 0. */
     pos = findNextTag(tagc,tagv,tagc2,tagv2);
@@ -202,15 +202,15 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
     for (i=0; i<tagc; i++) {
       /* fprintf(stderr,"\nChecking %s : ",tagv[i]); */
       if (wcmp(tagv[i]) == 0) {
-	LevelState1++;
-	/* fprintf(stderr," : matched."); */
-	wgetc(strlen(tagv[i])+1);
-	if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
-	  BeginVerbatim = 0;
-	  if (!Plain) printf("\\end{verbatim\x07d}\n");
-	}
-	OutputtingTaggedSegment = 1;
-	return(i);  /* Now, state is 1. */
+        LevelState1++;
+        /* fprintf(stderr," : matched."); */
+        wgetc(strlen(tagv[i])+1);
+        if (OutputNoTaggedSegment == 1 && BeginVerbatim == 1) {
+          BeginVerbatim = 0;
+          if (!Plain) printf("\\end{verbatim\x07d}\n");
+        }
+        OutputtingTaggedSegment = 1;
+        return(i);  /* Now, state is 1. */
       }
     }
     /*&jp {\tt / *\&} だけどどのタグにも一致しない */
@@ -257,18 +257,18 @@ findEndTag(int tagc,char *tagv[],int rule) {
       LevelState1--;
       if (Debug2) printf("[LevelState1=%d by end of comment in the state 1.]\n",LevelState1);
       if (LevelState1 > 0 && Recursive) {
-	wgetc(strlen(tagv[i]));
-	printf("%s",tagv[i]);
-	return(findEndTag(tagc,tagv,rule));
+        wgetc(strlen(tagv[i]));
+        printf("%s",tagv[i]);
+        return(findEndTag(tagc,tagv,rule));
       }else{
-	wgetc(strlen(tagv[i]));
-	if (strcmp(tagv[i],"\n")==0) putchar('\n');
-	OutputtingTaggedSegment = 0;
-	if (OutputNoTaggedSegment) {
-	  if (!Plain) printf("\n{\\footnotesize \\begin{verbatim}\n");
-	  BeginVerbatim = 1;
-	}
-	return;			/* Our state is 0. */
+        wgetc(strlen(tagv[i]));
+        if (strcmp(tagv[i],"\n")==0) putchar('\n');
+        OutputtingTaggedSegment = 0;
+        if (OutputNoTaggedSegment) {
+          if (!Plain) printf("\n{\\footnotesize \\begin{verbatim}\n");
+          BeginVerbatim = 1;
+        }
+        return;         /* Our state is 0. */
       }
     }
     /* Our state is 1. */
@@ -292,38 +292,38 @@ skipToEndTag(int tagc,char *tagv[],int rule) {
   do {
     if (rule == 0) {
       if (wcmp(EndComment0) == 0) {
-	LevelState2--;
-	if (LevelState2 > 0 && Recursive) {
-	  wgetc(strlen(EndComment0));
-	  return(skipToEndTag(tagc,tagv,rule));
-	}else{
-	  wgetc(strlen(EndComment0));
-	  return;  /* our state is 0. */
-	}
+        LevelState2--;
+        if (LevelState2 > 0 && Recursive) {
+          wgetc(strlen(EndComment0));
+          return(skipToEndTag(tagc,tagv,rule));
+        }else{
+          wgetc(strlen(EndComment0));
+          return;  /* our state is 0. */
+        }
       }
     }else if (rule == 1) {
       if (wcmp(EndComment1) == 0) {
-	LevelState2--;
-	if (LevelState2 > 0 && Recursive) {
-	  wgetc(strlen(EndComment0));
-	  return(skipToEndTag(tagc,tagv,rule));
-	}else{
-	  wgetc(strlen(EndComment1));
-	  return;  /* our state is 0. */
-	}
+        LevelState2--;
+        if (LevelState2 > 0 && Recursive) {
+          wgetc(strlen(EndComment0));
+          return(skipToEndTag(tagc,tagv,rule));
+        }else{
+          wgetc(strlen(EndComment1));
+          return;  /* our state is 0. */
+        }
       }
     }else{
       for (i=0; i<tagc; i++) {
-	if (wcmp(tagv[i]) == 0) {
-	  LevelState2--;
-	  if (LevelState2 > 0 && Recursive) {
-	    wgetc(strlen(EndComment0));
-	    return(skipToEndTag(tagc,tagv,rule));
-	  }else{
-	    wgetc(strlen(tagv[i]));
-	    return;  /* our state is 0. */
-	  }
-	}
+        if (wcmp(tagv[i]) == 0) {
+          LevelState2--;
+          if (LevelState2 > 0 && Recursive) {
+            wgetc(strlen(EndComment0));
+            return(skipToEndTag(tagc,tagv,rule));
+          }else{
+            wgetc(strlen(tagv[i]));
+            return;  /* our state is 0. */
+          }
+        }
       }
 
     }
@@ -381,10 +381,10 @@ irregularExit() {
 
 
 /*&jp
-\end{document}
+  \end{document}
 */
 /*&eg
-\end{document}
+  \end{document}
 */
 
 
