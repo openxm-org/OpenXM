@@ -1,9 +1,9 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/make-configure,v 1.1 2004/06/14 09:07:32 takayama Exp $
+# $OpenXM: OpenXM/src/util/make-configure,v 1.2 2004/06/23 22:49:17 takayama Exp $
 if test ! -f ./.configure_done 
 then 
 # make -f Makefile.conf
- echo "--prefix=`pwd`/../../../OpenXM"
- ./configure --prefix=`pwd`/../../../OpenXM
+ echo "--prefix=`cd ../../../OpenXM ; pwd`"
+ ./configure --prefix="`cd ../../../OpenXM ; pwd`"
 fi
 touch .configure_done 
