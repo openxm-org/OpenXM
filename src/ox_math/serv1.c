@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.20 2003/01/13 12:04:53 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.21 2003/02/12 08:28:41 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -23,6 +23,7 @@ extern OXFILE *stack_oxfp;
 static int exchange_ox_sync_ball(OXFILE *oxfp)
 {
     int tag;
+	ox_printf("exchanging OX_SYNC_BALL\n");
     send_ox_tag(oxfp, OX_SYNC_BALL);
     while((tag = receive_ox_tag(oxfp)) != OX_SYNC_BALL) {
         if (tag == OX_DATA) {
@@ -94,20 +95,20 @@ int sm(OXFILE *oxfp)
     FD_ZERO(&fdmask);
     FD_SET(oxf_fileno(oxfp), &fdmask);
 
-    while(1) {
+    for (i=0; ; i++) {
+        sm_sigunmask();
         ox_printf("phase%d: select\n",i);
         if (select(5, &fdmask, NULL, NULL, NULL) > 0) {
             sm_sigmask();
             ox_printf("phase%d: receiving\n",i);
             sm_receive_ox();
-            sm_sigunmask();  /* unmasked. */
         }
+        sm_sigmask();
         ox_printf("phase%d: clearing(%d)\n",i,sm_state_interrupting());
         if (sm_state_interrupting()) {
             exchange_ox_sync_ball(stack_oxfp);
             sm_state_clear_interrupting();
         }
-        i++;
     }
     ox_printf("ox_math::socket(%d) is closed.\n", stack_oxfp->fd);
 }
