@@ -1,3 +1,4 @@
+/*$OpenXM$*/
   fprintf(stderr,"oxweave [--plain] [--source] [--recursive] [key1 key2 ...]\n");
   fprintf(stderr,"oxweave reads bytes from the standarndard input stream \n");
   fprintf(stderr,"and outputs them if one of the following conditions\n");
