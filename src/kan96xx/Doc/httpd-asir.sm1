@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.22 2002/10/21 00:37:01 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.23 2002/10/24 02:12:34 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -90,6 +90,7 @@ def
           (   ) message
           httpd.serial 0 eq {
             /httpd.com  httpd.initialization def 
+            /httpd.textarea.valid 1 def
           } { } ifelse
           httpd.sendFile tag 0 eq { }
           {
