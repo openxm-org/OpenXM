@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.12 2004/06/19 00:21:50 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_matrix.rr,v 1.13 2004/06/26 01:03:00 noro Exp $ */
 
 /* functions for linear algebra */
 
@@ -12,6 +12,7 @@ localf mulsub_vect,muladd_vect,dup_vect,mul_smat_vect,mul_svect_vect;
 localf mat_to_smat,smat_to_mat,vect_to_svect,zero_vect,ptozp_vect;
 localf etrans_mat,swap_mat,sample_mat;
 localf reduced_form_mat,mat_to_col;
+localf companion_mat;
 
 localf minipoly_mat,minipoly_mat_direct,reduce_mat;
 localf minipoly_cand_mat,minipoly_cand_smat;
@@ -30,7 +31,18 @@ localf next_combination,reduce_symmetric_form,generate_elementary_symmetric_form
 
 localf extended_euclid2,extended_euclid;
 localf binomial_coef;
-localf power_mat;
+localf power_mat,exp_mat;
+
+def companion_mat(F,V)
+{
+	D = deg(F,V);
+	A = matrix(D,D);
+	for ( I = 0; I < D-1;I++ )
+		A[I][I+1] = 1;
+	for ( J = 0; J < D; J++ )
+		A[D-1][J] = -coef(F,J,V);
+	return A;
+}
 
 def random_mat(N,Bound)
 {
@@ -577,19 +589,24 @@ def binomial_coef(M,I)
 
 def power_mat(A)
 {
+	Solve = getopt(solve);
+	if ( type(Solve)== -1 ) Solve = 0;
+
 	/* JCF = [P,Block,DefIdeal] */
 	JCF = jordan_canonical_form(A);
 	P = JCF[0];
 	Block = JCF[1];
 	DefIdeal = JCF[2];
-	Inv = invmat(P); PI = Inv[0]/Inv[1];
+	if ( !Solve ) {
+		Inv = invmat(P); PI = map(red,Inv[0]/Inv[1]);
+	}
 	N = size(A)[0];
 	PAPM = matrix(N,N);
 	for ( T = Block, I = 0; T != []; T = cdr(T) ) {
 		BI = car(T); Alpha = BI[0]; K = BI[1]; R = BI[2];
 		JM = matrix(K,K);
 		for ( Y = 0; Y < K; Y++ ) {
-			Ent = (Alpha==1?1:Alpha^m)*binomial_coef(m,Y)/Alpha^Y;
+			Ent = (Alpha==1?1:Alpha^(m-Y))*binomial_coef(m,Y);
 			for ( X = 0; X+Y < K; X++ )
 				JM[X][X+Y] = Ent;
 		}
@@ -598,7 +615,59 @@ def power_mat(A)
 				for ( Y = X; Y < K; Y++ )
 					PAPM[I+X][I+Y] = JM[X][Y];
 	}
-	return P*PAPM*PI;
+	if ( Solve ) {
+		S = map(red,P*PAPM);
+		for ( J = N-1, Basis = []; J >= 0; J-- ) {
+			SI = vector(N);
+			for ( I = 0; I < N; I++ )
+				SI[I] = S[I][J];
+			Basis = cons(SI,Basis);
+		}
+		return Basis;
+	} else
+		return map(red,P*map(red,PAPM*PI));
+}
+
+def exp_mat(A)
+{
+	Solve = getopt(solve);
+	if ( type(Solve)== -1 ) Solve = 0;
+
+	/* JCF = [P,Block,DefIdeal] */
+	JCF = jordan_canonical_form(A);
+	P = JCF[0];
+	Block = JCF[1];
+	DefIdeal = JCF[2];
+	if ( !Solve ) {
+		Inv = invmat(P); PI = map(red,Inv[0]/Inv[1]);
+	}
+	N = size(A)[0];
+	ExpJ = matrix(N,N);
+	for ( T = Block, I = 0; T != []; T = cdr(T) ) {
+		BI = car(T); Alpha = BI[0]; K = BI[1]; R = BI[2];
+		JM = matrix(K,K);
+		Exp = Alpha==0?1:exp(Alpha*t);
+		for ( Y = 0; Y < K; Y++ ) {
+			Ent = Exp*t^Y/fac(Y);
+			for ( X = 0; X+Y < K; X++ )
+				JM[X][X+Y] = Ent;
+		}
+		for ( J = 0; J < R; J++, I += K )
+			for ( X = 0; X < K; X++ )
+				for ( Y = X; Y < K; Y++ )
+					ExpJ[I+X][I+Y] = JM[X][Y];
+	}
+	if ( Solve ) {
+		S = map(red,P*ExpJ);
+		for ( J = N-1, Basis = []; J >= 0; J-- ) {
+			SI = vector(N);
+			for ( I = 0; I < N; I++ )
+				SI[I] = S[I][J];
+			Basis = cons(SI,Basis);
+		}
+		return Basis;
+	} else
+	return map(red,P*map(red,ExpJ*PI));
 }
 
 def compute_image(A)
