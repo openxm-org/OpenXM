@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.25 2004/08/22 12:52:34 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.26 2004/08/23 08:33:55 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1114,6 +1114,7 @@ struct object KdataConversion(obj,key)
     break;
   case SuniversalNumber:
     if ((strcmp(key,"universalNumber")==0) || (strcmp(key,"numerator")==0)) {
+      rob = obj;
       return(rob);
     }else if (strcmp(key,"integer")==0) {
       rob = KpoInteger(coeffToInt(obj.lc.universalNumber));
