@@ -1,3 +1,4 @@
+/* $OpenXM$ */
 #include <asir/ox.h>
 
 main(int argc, char **argv)
