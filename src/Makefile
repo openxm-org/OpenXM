@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.87 2000/03/08 05:31:33 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.88 2000/03/08 05:48:44 ohara Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 OPENXM_CONTRIB2=../../OpenXM_contrib2
@@ -194,6 +194,8 @@ distclean: clean
 	(cd pari ; make distclean)
 	(cd phc ; make distclean)
 	(cd tigers ; make distclean)
+	-(cd ox_toolkit ; make distclean)
+	-(cd ox_math ; make distclean)
 	rm -rf $(BINDIR)/d0 $(BINDIR)/k0 $(BINDIR)/ox $(BINDIR)/ox_sm1 \
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
