@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.4.2.1 2000/11/10 20:12:08 maekawa Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.4.2.2 2000/11/11 04:44:30 maekawa Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -44,7 +44,7 @@ socketOpen(char *serverName,int portNumber) {
 	hints.ai_socktype = SOCK_STREAM;
 
 	memset(pstr, 0, sizeof(pstr));
-	snprintf(pstr, sizeof(pstr), "%u", portNumber);
+	snprintf(pstr, sizeof(pstr), "%d", portNumber);
 
 	error = getaddrinfo(serverName, pstr, &hints, &res);
 	if (error) {
@@ -189,7 +189,7 @@ socketAcceptLocal(int s) {
 	{
 		struct sockaddr_in6 *sin6;
 		sin6 = (struct sockaddr_in6 *)&ss;
-		if (IN6_IS_ADDR_LOOPBACK(sin6->sin6_addr))
+		if (IN6_IS_ADDR_LOOPBACK(&sin6->sin6_addr))
 			accepted = 1;
 		break;
 	}
@@ -303,36 +303,59 @@ oxSocketMultiSelect(int sid[],int size,int t,int result[])
 
 
 socketConnect(char *serverName,int portNumber) {
-  struct hostent *servhost;
-  struct sockaddr_in server;
-  int socketid;
-  int on;
+	struct addrinfo hints, *res, *ai;
+	char pstr[BUFSIZ], *errstr;
+	int s, error;
 
-  SET_TCPIOERROR;
-  if ((servhost = gethostbyname(serverName)) == NULL) {
-    errorMsg1s("bad server name.\n");
-    return(-1);
-  }
-  bzero((char *)&server,sizeof(server));
-  server.sin_family = AF_INET;
-  server.sin_port = htons(portNumber);
-  bcopy(servhost->h_addr,
-	(char *)&server.sin_addr,servhost->h_length);
+	SET_TCPIOERROR;
 
-  if ((socketid = socket(AF_INET,SOCK_STREAM,0)) <0) {
-    errorMsg1s("socket allocation is failed.\n");
-    return(-1);
-  }
-  /* on=1; setsockopt(socketid,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on));  */
-  if (!Quiet) {
-    fprintf(TcpioError,"Trying to connect port %d, ip=%x\n",ntohs(server.sin_port),server.sin_addr);
-  }
-  if (connect(socketid,(struct sockaddr *)&server,sizeof(server)) == -1) {
-    errorMsg1s("cannot connect");
-    return(-1);
-  }
-  if (!Quiet) fprintf(TcpioError,"connected.\n");
-  return(socketid);
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	memset(pstr, 0, sizeof(pstr));
+	snprintf(pstr, sizeof(pstr), "%d", portNumber);
+
+	error = getaddrinfo(serverName, pstr, &hints, &res);
+	if (error) {
+		errorMsg1s("bad server name.\n");
+		return (-1);
+	}
+
+	s = -1;
+	errstr = NULL;
+
+	for (ai = res ; ai != NULL ; ai = ai->ai_next) {
+		s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+		if (s < 0) {
+			errstr = "socket";
+			continue;
+		}
+
+		if (!Quiet) {
+			fprintf(TcpioError, "Trying to connect %s, port %d\n",
+					    serverName, portNumber);
+		}
+
+		if (connect(s, ai->ai_addr, ai->ai_addrlen) < 0) {
+			errstr = "connect";
+			close(s);
+			s = -1;
+			continue;
+		}
+	}
+
+	freeaddrinfo(res);
+
+	if (s < 0) {
+		fprintf(stderr, "Error %s\n", errstr);
+		return (-1);
+	}
+
+	if (!Quiet)
+		fprintf(TcpioError,"connected.\n");
+
+	return (s);
 }
 
 socketConnectWithPass(char *servername,int port,char *pass)
