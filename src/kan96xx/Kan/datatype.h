@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.8 2003/07/30 09:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.9 2003/08/19 08:02:09 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -78,6 +78,11 @@ struct ring {
   int degreeShiftSize;
   int degreeShiftN;
   int *degreeShift;
+  int partialEcart;
+  int *partialEcartGlobalVarX;
+
+/* To be used. */
+  void *ringInInputForm;
 };
 
 

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.6 2004/09/11 03:18:02 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.7 2004/09/11 23:49:34 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -183,6 +183,50 @@ Warning が表示されるか?
 よって, {\tt executeToken} の戻り値の status の値を
 用いる.  status は {\tt loop} から {\tt exit} するときにも使われている
 ので, status の判定方法を見直す必要がある.
+\end{enumerate}
+
+\section{2004-09-13, 部分的な ecart division}
+
+\noindent Debug 用のデータ 1.
+{\footnotesize \begin{verbatim}
+[ [( (x Dx)^2 + (y Dy)^2 -1) ] (x,y) 
+  [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] 
+  [(partialEcartGlobalVarX) [(x) (y)]] ] ecart.gb /ff set
+
+ff getRing ring_def show_ring
+
+\end{verbatim}
+}
+
+\noindent Debug 用のデータ 2.
+{\footnotesize \begin{verbatim}
+/ecart.checkOrder { 1 } def
+[(DebugReductionEcart) 3] system_variable
+[ [(1-x-y-z) (1-z)] (x,y,z) 
+  [ [(y) -1 (z) -1 (Dy) 1 (Dz) 1] [(x) 1 (Dx) 1]] 
+  [(partialEcartGlobalVarX) [(x)]] ] ecart.gb /ff set
+
+ff getRing ring_def show_ring
+
+ [ [(1-z) (-x+1-y-z)] (x,y,z) 
+  [ [(y) -1 (z) -1 (Dy) 1 (Dz) 1] [(x) 1 (Dx) 1]] 
+  [(partialEcartGlobalVarX) [(x)]] ] /std set
+(1+x^3) std ecartd.reduction
+(x*y*z) std ecartd.reduction
+\end{verbatim}
+}
+GlobalVarX の変数については local order ではいけない.
+無限ループとなる.
+{\tt ecart.checkOrder} も書き直さないといけない.
+
+\begin{enumerate}
+\item \verb@ ringp->partialEcart @ は int の配列
+\verb@ ringp->partialEcartGlobalVarX @ の長さ.
+この配列に local でない変数 (first weight が non-negative な x 変数) のリストを入れる.
+{\tt ecartGetEllPartial()} で利用される.
+\item Todo: ring のメンバ {\tt ringInInputForm} の活用. ( weight vector や
+input 形式の ring を object として格納.
+\item Todo: {\tt KgetRingInfo} を実装する. index から 変数, 変数から index 等.
 \end{enumerate}
 
 \end{document}

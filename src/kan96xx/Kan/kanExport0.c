@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.32 2004/09/09 11:42:22 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.33 2004/09/11 01:00:42 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1646,6 +1646,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   newRingp->degreeShiftSize = 0;
   newRingp->degreeShiftN = 0;
   newRingp->degreeShift = NULL;
+  newRingp->partialEcart = 0;
+  newRingp->partialEcartGlobalVarX = NULL;
 
   if (ob5.tag != Sarray || (getoaSize(ob5) % 2) != 0) {
     errorKan1("%s\n","[(keyword) value (keyword) value ....] should be given.");
@@ -1726,6 +1728,36 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
             }
           }
         }
+      } else if (strcmp(KopString(getoa(ob5,i)),"partialEcartGlobalVarX") == 0) {
+        if (getoa(ob5,i+1).tag != Sarray) {
+          errorKan1("%s\n","An array of array should be given. (partialEcart)");
+        }
+        {
+          struct object odv;
+          struct object ovv;
+          int k,j,nn;
+          char *vname;
+          odv=getoa(ob5,i+1);
+          nn = getoaSize(odv);
+          newRingp->partialEcart = nn;
+          newRingp->partialEcartGlobalVarX = (int *) sGC_malloc(sizeof(int)*nn+1);
+          if (newRingp->partialEcartGlobalVarX == NULL) errorKan1("%s\n","No more memory.");
+          for (j=0; j<nn; j++)
+            (newRingp->partialEcartGlobalVarX)[j] = -1;
+          for (j=0; j<nn; j++) {
+            ovv = getoa(odv,j);
+            if (ovv.tag != Sdollar) errorKan1("%s\n","partialEcartGlobalVarX: string is expected.");
+            vname = KopString(ovv);
+            for (k=0; k<n; k++) {
+              if (strcmp(vname,xvars[k]) == 0) {
+                (newRingp->partialEcartGlobalVarX)[j] = k; break;
+              }else{
+                if (k == n-1) errorKan1("%s\n","partialEcartGlobalVarX: no such variable.");
+              }
+            }
+          }
+        }
+
         switch_function("grade","module1v");
         /* Warning: grading is changed to module1v!! */
       } else {

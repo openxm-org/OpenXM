@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.11 2004/05/13 06:30:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.12 2004/05/15 12:00:48 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -196,6 +196,14 @@ void showRing(level,ringp)
   }
   fprintf(fp,"---  weight vectors ---\n");
   if (level) printOrder(ringp);
+
+  if (ringp->partialEcart) {
+    fprintf(fp,"---  partialEcartGlobalVarX ---\n");
+    for (i=0; i<ringp->partialEcart; i++) {
+      fprintf(fp," %4s ",TransX[ringp->partialEcartGlobalVarX[i]]);
+    }
+    fprintf(fp,"\n");
+  }
   
   if (ringp->next != (struct ring *)NULL) {
     fprintf(fp,"\n\n-------- The next ring is .... --------------\n");

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.7 2003/08/21 04:45:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.8 2003/09/12 02:52:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -661,6 +661,7 @@ void initSyzRingp() {
   if (ringName == NULL) errorGradedSet("No more memory.");
   sprintf(ringName,"syzring%05d",ringSerial);
   SyzRingp->name = ringName;
+  SyzRingp->partialEcart = 0;
 }
 
 POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,

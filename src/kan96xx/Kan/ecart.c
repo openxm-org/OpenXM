@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.19 2003/09/20 09:57:29 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.20 2003/09/21 02:19:43 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -26,6 +26,7 @@ static int ecartCheckPoly(POLY f);  /* check if it does not contain s-variables 
 static int ecartCheckEnv();         /* check if the environment is OK for ecart div*/
 static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray,POLY cf, POLY syz);
 static int ecartGetEll(POLY r,POLY g);
+static int ecartGetEllPartial(POLY r,POLY g);
 static POLY ecartDivideSv(POLY r,int *d);
 /* No automatic homogenization and s is used as a standart var. */
 static POLY reduction_ecart0(POLY r,struct gradedPolySet *gset,
@@ -117,6 +118,41 @@ static int ecartGetEll(POLY f,POLY g) {
   else return(-p);
 }
 
+static int ecartGetEllPartial(POLY f,POLY g) {
+  int n,i,p;
+  MONOMIAL tf;
+  MONOMIAL tg;
+  int nglob; int *glob; int k;
+  
+  if (f ISZERO) return(-1);
+  if (g ISZERO) return(-1);
+
+  checkRingIsR(f,g);
+
+  if (!isSameComponent_x(f,g)) return(-1);
+  tf = f->m; tg = g->m; n = tf->ringp->n;
+  for (i=1; i<n; i++) {
+    if (tf->e[i].x < tg->e[i].x) return(-1);
+    if (tf->e[i].D < tg->e[i].D) return(-1);
+  }
+  if (tf->e[0].D < tg->e[0].D) return(-1);  /*  h  */
+
+  /* Find u and ell s.t. s^\ell f = u g.
+     When u contains variables in glob (index x var), then returns -1.
+     x' = glob, x'' = complement of glob.  Division in Q(x'')[x'].
+  */
+  nglob = tf->ringp->partialEcart;
+  glob = tf->ringp->partialEcartGlobalVarX;
+  for (i=0; i<nglob; i++) {
+    k = glob[i];
+    if (tf->e[k].x > tg->e[k].x) return(-1);
+  }
+
+  p = tf->e[0].x - tg->e[0].x;  /* H,  s */
+  if (p >=0 ) return 0;
+  else return(-p);
+}
+
 
 #define EP_SIZE 10
 static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray,POLY cf,POLY syz)
@@ -203,7 +239,7 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
   if (epa != NULL) {
     /* Try to find in the second group. */
     for (i=0; i< epa->size; i++) {
-      ell = ecartGetEll(r,(epa->pa)[i]);
+      ell = ecartGetEllPartial(r,(epa->pa)[i]);
       if ((ell>=0) && (ell < ell2)) {
         ell2 = ell;
         minGgi = i;
@@ -701,7 +737,7 @@ static struct ecartReducer ecartFindReducer_mod(POLY r,
   if (epa != NULL) {
     /* Try to find in the second group. */
     for (i=0; i< epa->size; i++) {
-      ell = ecartGetEll(r,(epa->pa)[i]);
+      ell = ecartGetEllPartial(r,(epa->pa)[i]);
       if ((ell>=0) && (ell < ell2)) {
         ell2 = ell;
         minGgi = i;

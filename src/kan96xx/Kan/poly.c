@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -54,6 +54,7 @@ void KinitKan(void) {
   SmallRing.gbListTower = NULL;
   SmallRing.outputOrder = outputOrderForSmallRing;
   SmallRing.name = "SmallRingp";
+  SmallRing.partialEcart = 0;
 
   CurrentRingp = &SmallRing;
   initSyzRingp();

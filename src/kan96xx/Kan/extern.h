@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.26 2004/09/12 08:55:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.27 2004/09/12 10:22:50 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -222,7 +222,8 @@ struct object Khead(struct object ob);
 int KpolyLength(POLY f);
 struct object KsetOutputOrder(struct object obj,struct ring *rp);
 struct object KsetVariableNames(struct object obj,struct ring *rp);
-
+/* KgetRingInfo has not yet been implemented. */
+struct object KgetRingInfo(struct object ringObj, struct object ofunc);
 
 /* :eval */
 struct object Keval(struct object obj);
