@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.4 2001/04/21 11:16:30 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.5 2001/04/21 13:54:29 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
@@ -12,13 +12,16 @@ def
 [(parse) (oxasir.sm1) pushfile] extension 
 (oxasir.started) boundp { 
 } {
+  %% Initialize oxasir.
   [(x^2-1) (x)] fctr pop
   oxasir.ccc oxmathcap
   oxasir.ccc oxsetmathcap
 } ifelse
 
 /asirweb {
-  (sleep 3; netscape -geometry 800x500 http://localhost:1200 &) system
+  [(sleep 3; netscape -geometry 800x500 http://localhost:)
+    httpd.port toString
+   ( &)] cat system
    httpd ;
 } def
 
@@ -69,7 +72,7 @@ def
 
 /httpd_action {
   [/in-httpd /ff /httpd.com /httpd.result /sss
-   /sss.engine /sss.web
+   /sss.engine /sss.web /err
   ] pushVariables
   [
   {
@@ -91,19 +94,12 @@ def
             /httpd.com  httpd.initialization def 
           } { } ifelse
           httpd.com metaCommand {
-            /httpd.history 
-                httpd.history 
-                [10 (string) dc 
-                 (/**** ) httpd.serial toString ( ****/) 
-                 10 (string) dc
-                  httpd.com 
-                 ] cat
-                append 
-            def
             oxasir.ccc 
              [(if (1) {)  httpd.com  (};)] cat
             oxexecutestring ;
+            [(oxReq) oxasir.ccc SM_dupErrors ] extension pop
 
+            [(oxReq) oxasir.ccc SM_popCMO ] extension pop
             [(oxReq) oxasir.ccc SM_popString ] extension pop
             [(flush)] extension pop
             %% Select inputs for interruption.
@@ -121,6 +117,7 @@ def
             sss message
 
             sss 0 get {
+                [(oxGet) oxasir.ccc] extension  /err          set
                 [(oxGet) oxasir.ccc] extension  /httpd.result set
                 %% oxasir.ccc oxpopstring /httpd.result set
             } {
@@ -134,6 +131,24 @@ def
             httpd.result message
             (----------------------------------) message
             (  ) message
+
+            err message
+            err [ ] eq  { 
+              /httpd.history 
+                httpd.history 
+                [10 (string) dc 
+                 (/**** ) httpd.serial toString ( ****/) 
+                 10 (string) dc
+                  httpd.com 
+                 ] cat
+                append 
+              def
+            } {
+              oxasir.ccc cleanErrors
+              [httpd.result 10 (string) dc err toString] cat
+              /httpd.result set
+            } ifelse
+
             [httpd.serial 0 eq { } {
                 (<title> asirweb </title> )
                 (<font color="blue"> Input-) httpd.serial toString
@@ -248,7 +263,8 @@ def
    (Content-Type: text/html) sendln
    0 sendln
    (<html> <body>) sendln
-   (/* Save the following to  sm1out.txt */<br>) sendln
+   (/* Saved the following to sm1out.txt */<br>) sendln
+   (/* Save the following by your browser as a text file. */<br>) sendln
    
    (<pre>) sendln
    0 1 httpd.history length 1 sub {
@@ -269,6 +285,18 @@ def
 
 /stopclient {
   [(sm1.socket) (close) [client.fdAndPort 0 get] ] extension message
+} def
+
+
+/cleanErrors {
+  /arg1 set
+  [/in-cleanErrors /clientt /spp] pushVariables
+  [
+    /clientt arg1 def
+    clientt oxgetsp (integer) dc /spp set
+    clientt spp oxpops
+  ] pop
+  popVariables
 } def
 
 
