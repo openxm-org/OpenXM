@@ -1,4 +1,6 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.1 2001/08/17 11:57:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.2 2001/08/19 09:55:18 takayama Exp $ */
+#define RPOLYNOMIAL 2
+#define RATIONAL 3
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -78,6 +80,86 @@ def taka_poly_solve_linear(Z,X) {
     }
   }
   return vtol(Sol2);
+}
+
+def taka_poly_factor(S) {
+  if (type(S) == LIST) {
+    N = length(S);
+    Ans = newvect(N);
+    for (I=0; I<N; I++) {
+      Ans[I] = taka_poly_factor(S[I]);
+    }
+    return vtol(Ans);
+  }
+  if (type(S) == MATRIX || type(S) == VECTOR) {
+    S1 = matrix_clone(S);  
+    
+    if (type(S1) == VECTOR) {
+       N = size(S1)[0];
+       for (I=0; I<N; I++) {
+         S1[I] = taka_poly_factor(S1[I]);
+       }
+       return(S1);
+    }else if (type(S1) == MATRIX) {
+       M = size(S1)[0]; N = size(S1)[1];
+       for (I=0; I<M; I++) {
+         for (J=0; J<N; J++) {
+           S1[I][J] = taka_poly_factor(S1[I][J]);
+         }
+       }
+       return(S1);
+    }else {
+       print(S1); error("internal error: matrix_clone is not working properly.");
+    }
+  }
+  if (type(S) == RPOLYNOMIAL) {
+     S1 = new_poly_factored_polynomial();
+     S1->F = fctr(S);
+     return S1;
+  }
+  if (type(S) == RATIONAL) {
+     NN = nm(S); DD = dn(S);
+     NN = taka_poly_factor(NN);
+     DD = taka_poly_factor(DD);
+     S = new_poly_factored_rational();
+     S->Numerator = NN;
+     S->Denominator = DD;
+     return S;
+  }
+  /* It has not yet been implemented. */
+  return S;
+}
+
+/*
+  taka_poly_elimination_ideal(I,V,VV|grobner_basis=yes);
+*/
+def taka_poly_elimination_ideal(I,V,VV) {
+  Gb = getopt(grobner_basis);
+  print(Gb);
+  if (type(Gb) == -1) {
+    Gb = 0;
+  }else{
+    Gb = 1;
+  } 
+  if (!Gb) {
+     V2 = base_set_minus(V,VV);
+     V2 = append(V2,VV);
+     /* Computing a lexicographic GB. */
+     I = gr(I,V2,2);
+  }
+  S = map(taka_poly_elimination_poly,I,V,VV);
+  S = base_prune(0,S);
+  return S;
+}
+
+def taka_poly_elimination_poly(F,V,VV) {
+  U = vars(F);
+  U = base_intersection(U,V);
+  if (base_subsetq(U,VV)) {
+     return F;
+  }else{
+     return 0;
+  }
 }
 
 Taka_poly_loaded = 1$

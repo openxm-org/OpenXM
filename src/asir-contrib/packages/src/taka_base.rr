@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.6 2001/08/19 09:55:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.7 2001/08/20 00:14:02 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -146,6 +146,42 @@ def taka_base_memberq(A,S) {
     }
   }
   return 0;
+}
+
+def taka_base_subsetq(A,B) {
+  /* Better algorithm should be used in the final version. */
+  N = length(A);
+  for (I=0; I<N; I++) {
+    if (!taka_base_memberq(A[I],B)) return 0;
+  }
+  return 1;
+}
+
+def taka_base_intersection(A,B) {
+  /* Better algorithm should be used in the final version. */
+  Ans = [ ];
+  N = length(A);
+  for (I=0; I<N; I++) {
+    if (taka_base_memberq(A[I],B)) {
+      Ans = append(Ans,[A[I]]);
+    }
+  }
+  return Ans;
+}
+
+def taka_base_prune(A,S) {
+  N = length(S);
+  Ans = [ ];
+  for (I=0; I<N; I++) {
+    if (type(A) == type(S[I])) {
+      if (A != S[I])  {
+        Ans = append(Ans,[S[I]]);
+      }
+    }else{
+      Ans = append(Ans,[S[I]]);
+    }
+  }
+  return Ans;
 }
 
 Taka_base_loaded = 1$

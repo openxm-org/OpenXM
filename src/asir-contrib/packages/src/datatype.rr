@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/datatype.rr,v 1.1 2001/08/11 02:59:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/datatype.rr,v 1.2 2001/08/11 08:55:33 takayama Exp $ */
 
 /*
   Example:  
@@ -8,6 +8,25 @@
 struct base_rule {
   Rule
 }$
+
+struct poly_factored_polynomial {
+  Tag, /* Tentative */
+  F
+}$
+def new_poly_factored_polynomial() {
+  A = newstruct(poly_factored_polynomial);
+  A->Tag = "poly_factored_polynomial";
+  return A;
+}
+struct poly_factored_rational {
+  Tag, /* Tentative */
+  Numerator, Denominator
+}$
+def new_poly_factored_rational() {
+  A = newstruct(poly_factored_rational);
+  A->Tag = "poly_factored_rational";
+  return A;
+}
 
 end$
 
