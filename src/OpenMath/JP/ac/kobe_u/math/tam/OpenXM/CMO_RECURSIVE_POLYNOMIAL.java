@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java,v 1.1 1999/11/16 00:45:24 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -16,11 +16,19 @@ public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
     this.polynomial = polynomial;
   }
 
+  public CMO_LIST getVariables(){
+    return variables;
+  }
+
+  public CMO getPolynomial(){
+    return polynomial;
+  }
+
   public int DISCRIMINATOR(){
     return CMO_RECURSIVE_POLYNOMIAL;
   }
 
-  public void sendByObject(DataOutputStream os) throws IOException{
+  protected void sendByObject(DataOutputStream os) throws IOException{
     variables.send(os);
     polynomial.send(os);
   }
@@ -39,20 +47,12 @@ public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
     return this;
   }
 
-  public String toCMOexpressionByObject(){
+  protected String toCMOexpressionByObject(){
     String ret = "CMO_RECURSIVE_POLYNOMIAL";
 
     ret += ","+ variables.toCMOexpression();
     ret += ","+ polynomial.toCMOexpression();
 
     return ret;
-  }
-
-  public CMO_LIST getVariables(){
-    return variables;
-  }
-
-  public CMO getPolynomial(){
-    return polynomial;
   }
 }

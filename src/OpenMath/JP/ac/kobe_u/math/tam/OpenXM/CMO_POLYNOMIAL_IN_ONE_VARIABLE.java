@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.1 1999/11/16 00:18:30 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.2 1999/11/16 00:45:24 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -16,6 +16,18 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
     this.variable = variable;
     this.degree = degree;
     this.coefficient = coefficient;
+  }
+
+  public int getVariable(){
+    return variable;
+  }
+
+  public int[] getDegree(){
+    return degree;
+  }
+
+  public CMO[] getCoefficient(){
+    return coefficient;
   }
 
   public int DISCRIMINATOR(){
@@ -49,7 +61,7 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
     }
   }
 
-  public String toCMOexpressionByObject(){
+  protected String toCMOexpressionByObject(){
     String ret;
 
     ret = "CMO_POLYNOMIAL_IN_ONE_VARIABLE,"+ degree.length +","+ variable;
