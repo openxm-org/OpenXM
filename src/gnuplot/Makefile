@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.1 2000/01/07 18:03:25 maekawa Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.2 2000/01/08 16:36:24 maekawa Exp $
 
 GNUPLOT = ../../../OpenXM_contrib/gnuplot
 CURDIR = ../../OpenXM/src/gnuplot
@@ -30,7 +30,7 @@ configure: patch
 	@touch ./.configure_done
 
 patch:
-	@if [ ! -f ./.patch_done ]; then \
+	-@if [ ! -f ./.patch_done ]; then \
 		(cd $(GNUPLOT) ; patch < $(CURDIR)/plot.c.diff) \
 	fi
 	@touch ./.patch_done
