@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.3 2000/03/05 06:11:56 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.4 2000/03/06 03:07:19 takayama Exp $
 # This is a Makefile to generate source and binary distributions of
 # the OpenXM package on various plathomes.
 
@@ -43,7 +43,7 @@ fetch :
 
 make-tar-ball: fetch
 	(cd work/OpenXM/src ; make generate-source-distribution)
-	(cd work ; tar czvf OpenXM-source.tgz OpenXM OpenXM_Contrib OpenXM_contrib2 )
+	(cd work ; tar czvf OpenXM-source.tgz OpenXM OpenXM_contrib OpenXM_contrib2 )
 
 make-tar-ball-01: fetch
 	@if [ ! -f ./.make-tar-ball-01_done ]; then \
