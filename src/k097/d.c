@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.12 2003/07/22 03:34:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.13 2003/07/22 07:39:57 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1089,12 +1089,16 @@ void loadFileWithCpp(objectp op)
   }
   /* printf("%s\n",outfile); */
   if ((char *)strstr(cpp,"/asir/bin/cpp.exe") == NULL) {
+#if defined(__APPLE_CC__)
+    sprintf(tmpName,"cpp -P %s | sed -e 's/^\\#.*//g' >%s",sfile,outfile);
+#else
 	argv[0] = cpp;
 	argv[1] = "-P";
 	argv[2] = "-lang-c++";
 	argv[3] = sfile;
 	argv[4] = outfile;
 	argv[5] = NULL;
+#endif
   }else{
 	argv[0] = cpp;
 	argv[1] = "-P";
@@ -1102,7 +1106,11 @@ void loadFileWithCpp(objectp op)
 	argv[3] = cygwinPathToWinPath(outfile);
 	argv[4] = NULL;
   }
+#if defined(__APPLE_CC__)
+  system(tmpName);
+#else
   n=oxForkExecBlocked(argv);
+#endif
 
   ob = newObject_d();
   ob->tag = Sstring;
