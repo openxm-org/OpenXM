@@ -1,6 +1,7 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.16 2000/03/16 10:07:04 takayama Exp $
-# This is a Makefile to generate source and binary distributions of
-# the OpenXM package on various plathomes.
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.17 2000/08/29 04:08:52 takayama Exp $
+# The FIRST part is a Makefile FOR COMMITTERS: it is used 
+# to generate source and binary distributions of
+# the OpenXM package on various operating systems.
 
 # If you add new directory under OpenXM/lib, edit SHARED_FILES.
 
@@ -54,8 +55,8 @@ MAN_PAGES    = openxm.1 sm1.1
 EXECUTABLES=gnuplot4ox gnuplot_x11 k0 ox ox_sm1 oxlog oxweave sm1 tigers ox_math
 
 usage : usage-of-real-make
-	@echo "    "
-	@echo "Usage for building tar balls for distribution:"
+	@echo "--------------------------------------------------"
+	@echo "Usage for building distributions (for COMMITTERS):"
 	@echo "Targets are "
 	@echo "  fetch  :   get the sources from the cvs server under $(WORK)"
 	@echo "  tar-ball : generate openxm-${VERSION}.tar.gz under $(TAR_WORK)"
@@ -65,6 +66,7 @@ usage : usage-of-real-make
 	@echo  "  install-tar-to-ftp-area : copy openxm-${VERSION}.tar.gz to ${FTP_AREA}"
 	@echo "  clean-work "
 	@echo "  clean-for-make "
+	@echo "--------------------------------------------------"
 	@echo -n "Type is "
 	@echo $(TYPE)
 	@echo -n "INSTALL_WORK is "
@@ -75,16 +77,17 @@ usage : usage-of-real-make
 	@echo  $(FTP_AREA)
 	@echo " "
 
+### The SECOND part is a Makefile to build binaries from source.
+### It only calls the Makefile at OpenXM/src.
 ### Start of Makefile  to work in the directory work/openxm-$(VERSION)
-### It does not work here.
 ### Original version is in misc/packages/FreeBSD/openxm-1.1.2
 ### Absolute path should be used for TAR_WORK
 
 usage-of-real-make:
-	@echo "Usage for building OpenXM binaries:"
-	@echo "Targets are configure, all, install, clean, distclean"
-	@echo "You need to specify the PREFIX to install,"
-	@echo "e.g., make install PREFIX=/usr/local"
+	@echo "Usage for building OpenXM binaries (main Makefile is at OpenXM/src):"
+	@echo "Targets are "
+	@echo "   configure, all, install, clean, distclean"
+	@echo "You need to specify the PREFIX to install, e.g., make install PREFIX=/usr/local"
 
 configure :
 	@if [ ! -f .configure_done ] ; then \
