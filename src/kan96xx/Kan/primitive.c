@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.7 2003/08/24 05:19:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.8 2003/11/20 09:20:36 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -123,6 +123,7 @@ static char *operatorType(type)
 #define Scclass 99
 #define Scoeff2 100
 #define Stlimit 101
+#define Soxshell 102
 /***********************************************/
 void printObject(ob,nl,fp) 
      struct object ob;
@@ -376,6 +377,7 @@ void  KdefinePrimitiveFunctions() {
   putPrimitiveFunction("system_variable",Ssystem_variable);
   putPrimitiveFunction("test",Stest);
   putPrimitiveFunction("tlimit",Stlimit);
+  putPrimitiveFunction("oxshell",Soxshell);
   putPrimitiveFunction("map",Smap);
   putPrimitiveFunction("to_records",Sto_records);
   putPrimitiveFunction("Usage",Susage);
@@ -1711,6 +1713,11 @@ int executePrimitive(ob)
 
       }
     */
+    break;
+
+  case Soxshell:
+    ob1 = Kpop();
+    Kpush(KoxShell(ob1));
     break;
 
   case Stlimit:
