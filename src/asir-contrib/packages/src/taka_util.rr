@@ -1,17 +1,16 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.1 2002/11/13 13:22:19 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
  end:
 */
-def taka_util_filter(Comm,InS) {
+def taka_util_filter(Comm,InS,Opt) {
   Commfile = ".openxm-tmp.util.filter.commfile";
   Infile   = ".openxm-tmp.util.filter.infile";
   Outfile  = ".openxm-tmp.util.filter.outfile";
-  /*
-  Opt = getopt();  
-    example:
-    taka_util_filter(Comm,InS|env=[["CLASSPATH","/usr/local/java/lib"]])
+  /* BUG: Opt is ignored for now.
+      example:
+     util_filter(Comm,InS|env=[["CLASSPATH","/usr/local/java/lib"]])
   */
   C = "#!/bin/sh\n"+
       Comm+" <"+Infile+" "+
@@ -55,4 +54,5 @@ def taka_util_load_file_as_a_string(Fname) {
   return asciitostr(Str);
 }
 
+Loaded_taka_util=1$
 end$

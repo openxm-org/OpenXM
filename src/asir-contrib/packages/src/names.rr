@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.54 2002/10/11 11:16:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.55 2002/10/22 20:05:39 ohara Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -34,6 +34,7 @@ load("misc.rr")$
 load("tex_symbols.rr")$
 load("xml_basic_symbols.rr")$
 load("taka_print_cmo100.rr")$
+load("taka_util.rr")$
 load("plucker.rr")$
 
 /* should use load_exec() for demand loading. */
@@ -696,6 +697,25 @@ end: */
 def print_open_math_tfb_form(F) { 
   OX_LOADFILE(Loaded_taka_print_tfb,"taka_print_tfb.rr");
   return("<tfb> "+taka_tfb_form(F)+" </tfb>" );
+}
+
+/* -----------------util---------------------- */
+/*&usage begin: util_load_file_as_a_string(F)
+ It reads a file {F} as a string.
+end: */
+def util_load_file_as_a_string(F) { 
+  OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
+  return(taka_load_file_as_a_string(F));
+}
+/*&usage begin: util_filter(Command,Input|env)
+ It executes the filter program {Command} with the {Input}
+ and returns the output of the filter as a string.
+ example: util_filter("ls -lt","");
+end: */
+def util_filter(C,I) { 
+  OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
+  Env = getopt();
+  return(taka_util_filter(Command,Input,Env));
 }
 
 

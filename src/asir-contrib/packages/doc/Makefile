@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.39 2002/08/23 08:16:11 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.40 2002/08/23 11:52:08 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -43,15 +43,15 @@ OXWEAVE= ../../../kxx/oxweave
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
 
-JPSRCS= opening.texi oxxm-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi longname-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi
-EGSRCS= opening.texi oxxm-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi longname-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi
+JPSRCS= opening.texi oxxm-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi longname-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi util-ja.texi
+EGSRCS= opening.texi oxxm-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi longname-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi util-en.texi
 
 JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi \
        print-auto-ja.texi matrix-auto-ja.texi glib-auto-ja.texi \
-	   sm1-auto-ja.texi plucker-auto-ja.texi
+	   sm1-auto-ja.texi plucker-auto-ja.texi util-auto-ja.texi
 ENAUTO=base-auto-en.texi pfp-auto-en.texi poly-auto-en.texi \
        print-auto-en.texi matrix-auto-en.texi glib-auto-en.texi \
-	   sm1-auto-en.texi plucker-auto-en.texi
+	   sm1-auto-en.texi plucker-auto-en.texi util-auto-en.texi
 
 all : gentexi $(JPSRCS) $(EGSRCS) $(JAAUTO) $(ENAUTO)
 	@echo "Type in  tex cman-en.texi to generate the manual(en) in dvi format."
@@ -331,6 +331,20 @@ pfp-auto-ja.texi : $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr gentexi
 	$(RM) -f pfp-auto-ja.texi
 	cat $(CONTRIB)/pfpcoh.rr $(CONTRIB)/pfphom.rr | $(OXWEAVE) usage  | ./gentexi  --ja --upnode Pfpcohom ${OPTGENTEXI} >pfp-auto-ja.texi
 
+###util
+util-ja.texi : util.oxweave
+	$(RM) -f util-ja.texi
+	$(OXWEAVE) C ja <util.oxweave >util-ja.texi
+util-en.texi : util.oxweave
+	$(RM) -f util-en.texi
+	$(OXWEAVE) C en  <util.oxweave >util-en.texi
+util-auto-en.texi :  $(CONTRIB)/names.rr gentexi
+	$(RM) -f util-auto-en.texi
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage | ./gentexi  --category util --en --upnode "Utility Functions" ${OPTGENTEXI} >util-auto-en.texi
+util-auto-ja.texi : $(CONTRIB)/names.rr gentexi
+	$(RM) -f util-auto-ja.texi
+	cat ${CONTRIB}/names.rr | $(OXWEAVE) usage  | ./gentexi   --category util  --ja --upnode "Utility Functions" ${OPTGENTEXI} >util-auto-ja.texi
+
 ###### Generating online manual
 gen-help-en: $(EGSRCS) $(ASIRDOC)/extract_func $(ENAUTO)
 	-$(RM) -rf tmp help-en
@@ -400,5 +414,5 @@ clean-mk-openxm-asir-contrib-document-dir :
 clean :
 	$(RM) -f ./.done_install
 	$(RM) -f gentexi $(JAAUTO) $(ENAUTO) gentexi-in.tmp gentexi-out.tmp
-	$(RM) -f oxxm-ja.texi oxxm-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi windows-ja.texi windows-en.texi intro-ja.texi intro-en.texi
+	$(RM) -f oxxm-ja.texi oxxm-en.texi oxmath-ja.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-en.texi oxphc-ja.texi oxphc-en.texi oxgnuplot-ja.texi oxgnuplot-en.texi oxsm1-ja.texi oxsm1-en.texi oxom-en.texi oxom-ja.texi dsolv-ja.texi dsolv-en.texi longname-ja.texi longname-en.texi oxtigers-ja.texi oxtigers-en.texi names-ja.texi names-en.texi hypergeometric-ja.texi hypergeometric-en.texi number-en.texi number-ja.texi calculus-en.texi calculus-ja.texi series-en.texi series-ja.texi matrix-en.texi matrix-ja.texi graphic-en.texi graphic-ja.texi print-en.texi print-ja.texi poly-en.texi poly-ja.texi complex-en.texi complex-ja.texi plucker-ja.texi plucker-en.texi base-ja.texi base-en.texi glib-ja.texi glib-en.texi misc-ja.texi misc-en.texi pfp-ja.texi pfp-en.texi windows-ja.texi windows-en.texi intro-ja.texi intro-en.texi util-en.texi util-ja.texi
 	$(RM) -rf help-ja help-en tmp tmp-ja html-en html-ja
