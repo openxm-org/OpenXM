@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.6 1999/11/19 20:51:36 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.7 1999/12/14 09:31:55 ohara Exp $ */
 
 /* サーバとの通信路を開く */
 int OX_start P((const char *));
@@ -8,6 +8,15 @@ int OX_start P((const char *));
 :Pattern: OxStart[s_String]
 :Arguments: {s}
 :ArgumentTypes: {String}
+:ReturnType: Integer
+:End:
+
+int OX_start_remote_ssh P((const char *, const char *));
+:Begin:
+:Function: OX_start_remote_ssh
+:Pattern: OxStartRemoteSSH[s_String, host_String]
+:Arguments: {s, host}
+:ArgumentTypes: {String, String}
 :ReturnType: Integer
 :End:
 

@@ -1,5 +1,10 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.9 1999/12/14 09:31:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.10 1999/12/22 11:27:59 ohara Exp $ */
+
+/* 
+   Some commnets is written in Japanese by the EUC-JP coded 
+   character set.
+*/
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -105,6 +110,23 @@ int OX_start(char* s)
 		return max_process;
 	}
 	return -1;
+}
+
+int OX_start_remote_ssh(char *s, char *host)
+{
+    if (s != NULL && s[0] != '\0') {
+        oxprog = s;
+    }
+    if (host != NULL || host[0] == '\0') {
+        host = "localhost";
+    }
+	if (++max_process < len_svs) {
+		sv = ox_start_remote_with_ssh(oxprog, host);
+		fprintf(stderr, "open (%s)\n", host);
+		svs[max_process] = sv;
+		return max_process;
+	}
+    return -1;
 }
 
 int OX_start_insecure(char *host, int portCtl, int portDat)
