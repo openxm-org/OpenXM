@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.26 2000/01/21 06:27:24 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.27 2000/01/21 06:55:45 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -66,8 +66,8 @@ class OMproxy implements Runnable{
       }
     }catch(MathcapViolation e){
       try{
-	ox.send("MathcapViolation: "+
-		new CMO_ERROR2(new CMO_STRING(e.getMessage())));
+	ox.send(new CMO_ERROR2(new CMO_STRING("MathcapViolation: "+
+					      e.getMessage())));
       }catch(MathcapViolation tmp){}
     }
   }
