@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.26 2000/12/21 12:26:57 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.27 2000/12/21 12:41:52 takayama Exp $
 
 VERSION=1.1.3
 TAG=HEAD
@@ -13,6 +13,7 @@ TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
 FTP_AREA_HEAD=/export/home01/ftp/pub/OpenXM/Head
+FTP_AREA_ASIR=/export/home01/ftp/pub/asir
 RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/home/cvs
 ## TAG for the CVS server.
 
@@ -37,6 +38,8 @@ usage :
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
 	@echo "7.  copy-head-tar-ball-to-ftp-area "
+	@echo "8.  copy-asir-head-tar-ball-to-ftp-area "
+	@echo "9.  copy-asir-stable-tar-ball-to-ftp-area "
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
@@ -125,3 +128,23 @@ copy-head-tar-ball-to-ftp-area:
 	(cd work ; tar czvf ${TAR_WORK}/openxm-head.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
 	/bin/rm -rf work
 	-scp ${TAR_WORK}/openxm-head.tar.gz ${WHO}:${FTP_AREA_HEAD}
+
+copy-asir-head-tar-ball-to-ftp-area:
+	-mkdir ${TAR_WORK}
+	-mkdir work
+	(cd work ; /bin/rm -rf *)
+	(cd work ; ${RCVS} export -rHEAD OpenXM_contrib/pari OpenXM_contrib2/asir2000)
+	(cd work/OpenXM_contrib ; tar czvf ${TAR_WORK}/pari.tar.gz pari)
+	(cd work/OpenXM_contrib2 ; tar czvf ${TAR_WORK}/asir-head.tar.gz asir2000)
+	/bin/rm -rf work
+	-scp ${TAR_WORK}/pari.tar.gz ${WHO}:${FTP_AREA_ASIR}
+	-scp ${TAR_WORK}/asir-head.tar.gz ${WHO}:${FTP_AREA_ASIR}
+
+copy-asir-stable-tar-ball-to-ftp-area:
+	-mkdir ${TAR_WORK}
+	-mkdir work
+	(cd work ; /bin/rm -rf *)
+	(cd work ; ${RCVS} export -rSTABLE_1_1_3 OpenXM_contrib2/asir2000)
+	(cd work/OpenXM_contrib2 ; tar czvf ${TAR_WORK}/asir-stable.tar.gz asir2000)
+	/bin/rm -rf work
+	-scp ${TAR_WORK}/asir-stable.tar.gz ${WHO}:${FTP_AREA_ASIR}
