@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.30 2002/03/02 01:00:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.31 2003/04/22 00:19:12 takayama Exp $
 
 VERSION=1.2.1
 TAG=HEAD
@@ -14,7 +14,7 @@ JDK=jdk1.1.8
 FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
 FTP_AREA_HEAD=/home/ftp/pub/OpenXM/Head
 FTP_AREA_ASIR=/home/ftp/pub/asir
-RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/home/cvs
+RCVS=cvs-OpenXM -d kerberos.math.sci.kobe-u.ac.jp:/usr/cvs
 ## TAG for the CVS server.
 
 # Modify below for priting.
