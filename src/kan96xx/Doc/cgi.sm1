@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.6 2004/09/28 12:20:39 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.7 2004/10/13 12:11:31 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -233,6 +233,16 @@ def
         [80 cgiQueryPolymake.hostname]] extension 0 get /goo set
      [(sm1.socket) (write) [goo sss2]]  extension 
      goo readHTTP0 /pp set
+
+     % For the case of error.
+     [(regexec) (200 OK) [pp]] extension length 0 eq {
+        (sss2=) message
+        sss2 message
+        (pp=) message
+        pp message
+        (cgi.sm1: there seems to be an error in the HTTP connection.) 
+     } { } ifelse
+
      cgi.verbose { pp message } {  } ifelse
      [(sm1.socket) (close) [goo]] extension
      [(cgiHttpToKeyValuePair) pp] extension /pp2 set
