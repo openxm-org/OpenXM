@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.7 2002/12/01 08:07:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.8 2003/01/16 00:54:26 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -148,7 +148,9 @@ def taka_util_index(V) {
       NF = 1;
       J = 0; I++;
       while ( I<length(S) && S[I] != 95) {
-        J = J*10+eval_str(asciitostr([S[I]]));
+        if ((S[I] >= 0x30) && (S[I] <= 0x39)) {
+          J = J*10+eval_str(asciitostr([S[I]]));
+        }
         I++;
       }
       Id=cons(J,Id);
