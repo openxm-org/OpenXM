@@ -1,5 +1,6 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/doc/oxlib/test3.c,v 1.2 2000/03/16 07:41:41 noro Exp $ */
 #include <asir/ox.h>
+#include <signal.h>
 
 main(int argc, char **argv)
 {
@@ -13,6 +14,7 @@ main(int argc, char **argv)
 	char *kwd,*bdy;
 	unsigned int cmd;
 
+	signal(SIGINT,SIG_IGN);
 	asir_ox_init(1); /* 1: network byte order; 0: native byte order */
 	result_len = BUFSIZ;
 	result = (void *)malloc(BUFSIZ);
