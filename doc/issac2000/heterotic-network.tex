@@ -1,4 +1,5 @@
-% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.5 2000/01/15 03:23:59 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.6 2000/01/15 03:47:59 takayama Exp $
+\section{Applications}
 
 \subsection{Heterogeneous Servers}
 
@@ -84,17 +85,22 @@ controlled by asir user language, which is similar to C.
 The following is an asir session to solve algebraic equations by calling
 the PHC pack.
 \begin{verbatim}
-[257] phc([x^2+y^2-4,x*y-1]);
+[287] phc(katsura(7));
 The detailed output is in the file tmp.output.*
 The answer is in the variable Phc.
 0
-[260] Phc ;
-[[[-0.517638,0],[-1.93185,0]],
-[[1.93185,0],[0.517638,0]],
-[[-1.93185,0],[-0.517638,0]],
-[[0.517638,0],[1.93185,0]]]
-[261] 
+[290] B=map(first,Phc)$
+[291] gnuplot_plotDots([],0)$
+[292] gnuplot_plotDots(B,0)$
 \end{verbatim}
+
+\begin{figure}[htbp]
+\epsfxsize=8.5cm
+\epsffile{katsura7.ps}
+\caption{The first components of the solutions to the system of algebraic equations Katsura 7.}
+\label{katsura}
+\end{figure}
+
 
 
 
