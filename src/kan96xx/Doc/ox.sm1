@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.20 2002/08/03 06:02:35 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.21 2002/11/08 14:18:00 takayama Exp $
 
 /ox.sm1.loaded 1 def
 %%%%%%%%%%%% Configuration: Specify your server path
@@ -46,7 +46,12 @@
    oxpath.oxlog.xterm message
 } def
 
-/ox.ccc.init { ox.ccc ( [(oxPrintMessage) 0] extension pop ) oxsubmit } def
+/ox.ccc.init { 
+   ox.ccc ( [(oxPrintMessage) 0] extension pop ) oxsubmit 
+   (Ox103_loaded) boundp
+   { ox.ccc ox103_sm1_init }
+   { }  ifelse
+} def
 
 /ox.verbose 0   def
 /ox.version (2.981105) def
@@ -1103,6 +1108,36 @@ ox.verbose {
  [(oxGetClientList)] extension 
  { dup oxIsInterruptable { oxreset } { pop } ifelse } map
 } def
+
+/oxrpc2 {
+  /arg2 set
+  /arg1 set
+ [/in-oxrpc2 /pid /n /comm /i] pushVariables
+ [
+   /pid arg1 def
+   /comm arg2 def
+   /n comm length def
+   n 1 sub -1 1 {
+       /i set
+       pid comm i get oxsendcmo
+   } for
+   pid n 1 sub oxsendcmo
+   pid comm 0 get oxexec
+ ] pop
+ popVariables
+} def
+
+[(oxrpc2)
+  [(Remote procedure call by using oxexec)
+   (client [function-name  arg1 arg2 ...] oxrpc2 )
+   (cf. ox-cmo-rpc in Risa/Asir)
+   (Example: )
+   $ (oxasir.sm1) run (x^2-1). fctr $  
+   (oxasir.ccc [(igcd) (6).. (10)..] oxrpc2) 
+   (oxasir.ccc oxpopcmo :: )
+  ]
+] putUsages
+
 
 [(ostype)] extension  0 get
 (windows) eq {

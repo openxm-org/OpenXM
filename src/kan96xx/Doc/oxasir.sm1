@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.10 2002/09/30 02:01:37 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir.sm1,v 1.11 2002/11/09 01:24:08 takayama Exp $
 %% kxx/oxasir.sm1   1998, 2/12 (this version is at Old/oxasir.sm1.19980212
 %%   3/1, 1995, 11/5, 11/21
 %% This file is error clean.
@@ -90,6 +90,10 @@ oxasir.verbose {
  } ifelse
  asirinit.peer oxmathcap
  asirinit.peer oxsetmathcap 
+ (Ox103_loaded) boundp 
+ {
+   asirinit.peer ox103_asir_init
+ }{  } ifelse
 } def
 /asirconnect {
  [(localhost) 1300 1200] oxconnect /oxasir.ccc set
@@ -781,3 +785,4 @@ oxasir.verbose {
 }{
   initializePathNamesForOxAsir   %% This should be the last.
 } ifelse
+

@@ -1,10 +1,12 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.2 2002/12/09 02:20:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc103.rr,v 1.3 2002/12/10 22:48:02 takayama Exp $ */
 
 /* BUG: If you load glib, then you have to reset "register_handler"
 */
 
-Xm_rfc103_reset=1$
-Xm_rfc103_shared=0$
+extern Xm_rfc103_reset;
+extern Xm_rfc103_shared;
+Xm_rfc103_reset = 1$
+Xm_rfc103_shared = 0$
 /* format [ [name,value], [name,value], .... ] */
 
 def ox103_get_server_type(L) {
@@ -18,6 +20,7 @@ def ox103_is_supported(L) {
 }
 def ox103_reset_is_supported(L) {
   Name = ox103_get_server_type(L);
+  print(Name);
   if ((Name == "ox_asir") || (Name == "ox_sm1") || (Name == "ox_plot") ||
       (Name == "Ox_system=ox_sm1_ox_sm1_forAsir")) return 1;
   else return 0;
@@ -28,6 +31,9 @@ def ox103_reset_is_supported(L) {
 end: */
 def ox103_reset() {
   extern Xm_rfc103_reset;
+  print("In ox103_reset: ",0);
+ /* print("Xm_rfc103_reset=",0);
+  print(Xm_rfc103_reset,0); */
   if (Xm_rfc103_reset) {
     L = ox_get_serverinfo();
     for (I=0; I<length(L); I++) {
@@ -44,6 +50,7 @@ def ox103_reset() {
       }
     }
   }
+  print("Done.");
 }
 /*  ******   register_handler ******** */
 register_handler(ox103_reset)$
@@ -55,9 +62,11 @@ register_handler(ox103_reset)$
 end: */
 def ox103_set_shared_variable(Name,Value) {
   extern Xm_rfc103_shared;
+  print("Xm_rfc103_shared=",0); print(Xm_rfc103_shared);
   X = Xm_rfc103_shared;
   Found = 0;
-  eval_str(Name+"="+rtostr(Value)); /* BUG: it does not work.
+  /* eval_str(Name+"="+rtostr(Value)); */
+                                  /* BUG: it does not work.
                                     Because Name is not declared as a extern*/
   if (X == 0) {
     Xm_rfc103_shared =[[Name,Value]];
@@ -87,6 +96,7 @@ def ox103_set_shared_variable(Name,Value) {
       /* ox_pop_cmo(L[I][0]); check if it is error or not. */
     }
   }
+  print("Xm_rfc103_shared=",0); print(Xm_rfc103_shared);
   return [Name,Value];
 }
 
