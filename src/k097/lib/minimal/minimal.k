@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.29 2000/08/22 05:34:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.30 2000/11/19 05:50:30 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -44,13 +44,25 @@ def Sprint2(s) {
      
 */
 
+/* We cannot use load command in the if statement. */
+load("lib/minimal/cohom.k");
 
-load("cohom.k");
 def load_tower() {
+  local ppp;
   if (Boundp("k0-tower.sm1.loaded")) {
   }else{
-    sm1(" [(parse) (k0-tower.sm1) pushfile ] extension ");
-    sm1(" [(parse) (new.sm1) pushfile ] extension ");
+    if (Tag(GetPathName("k0-tower.sm1")) == 0) {
+      ppp = GetPathName("lib/minimal/k0-tower.sm1");
+      sm1(" [(parse) ppp pushfile ] extension ");
+    }else{
+      sm1(" [(parse) (k0-tower.sm1) pushfile ] extension ");
+    }
+    if (Tag(GetPathName("new.sm1")) == 0) {
+      ppp = GetPathName("lib/minimal/new.sm1");
+      sm1(" [(parse) ppp pushfile ] extension ");
+    }else{
+      sm1(" [(parse) (new.sm1) pushfile ] extension ");
+    }
     sm1(" /k0-tower.sm1.loaded 1 def ");
   }
   sm1(" oxNoX ");

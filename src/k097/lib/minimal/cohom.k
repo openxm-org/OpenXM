@@ -1,17 +1,17 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.4 2000/11/19 05:50:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.5 2000/11/19 10:48:48 takayama Exp $ */
 
 /* k0 interface functions for cohom.sm1 */
-def Boundp(a) {
-   local b;
-   sm1("[(parse) [(/) ",a," ( load tag 0 eq 
-                          { /FunctionValue 0 def }
-                          { /FunctionValue 1 def } ifelse )] cat ] extension");
-}
 
 def load_cohom() {
+  local ppp;
   if (Boundp("cohom.sm1.loaded")) {
   }else{
-    sm1(" [(parse) (k0-cohom.sm1) pushfile ] extension ");
+    if (Tag(GetPathName("k0-cohom.sm1")) == 0) {
+      ppp = GetPathName("lib/minimal/k0-cohom.sm1");
+      sm1(" [(parse) ppp pushfile ] extension ");
+    }else{
+      sm1(" [(parse) (k0-cohom.sm1) pushfile ] extension ");
+    }
   }
 }
 
@@ -244,11 +244,6 @@ HelpAdd(["ToricIdeal",
    "The answer is given by a list of strings.",
    "Example: ToricIdeal([[1,1,1,1],[0,1,3,4]]);"]]);
 
-def Rest(a) {
-  sm1(a," rest /FunctionValue set ");
-}
-HelpAdd(["Rest",
-["Rest(a), list a; "]]);
 
 def Annfs(f,v) {
   local fs;

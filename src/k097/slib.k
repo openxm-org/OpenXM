@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.2 2000/01/21 03:01:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.3 2000/12/10 02:21:46 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -326,3 +326,36 @@ def GetEnv(s) {
 }
 HelpAdd(["GetEnv",
 ["GetEnv(s) returns the value of the environmental variable s (string s)."]]);
+def Boundp(a) {
+   local b;
+   sm1("[(parse) [(/) ",a," ( load tag 0 eq 
+                          { /FunctionValue 0 def }
+                          { /FunctionValue 1 def } ifelse )] cat ] extension");
+}
+HelpAdd(["Boundp",
+["Boundp(s) checks if the symbol s is bounded to a value or not (string s)."]]);
+def Rest(a) {
+  sm1(a," rest /FunctionValue set ");
+}
+HelpAdd(["Rest",
+["Rest(a) returns the rest (cdr) of  a (list a)."]]);
+def GetPathName(s) {
+  local t,sss;
+  sss = s;
+  sm1(" [(stat) s] extension 0 get /t set ");
+  if (Tag(t) == 0) {
+    s=AddString([GetEnv("LOAD_K_PATH"),"/",s]);
+    sm1(" [(stat) s] extension 0 get /t set ");
+    if (Tag(t) == 0) {
+      return(null); 
+    }else{
+      return(s);
+    }
+  }else{
+    return(s);
+  }
+}
+HelpAdd(["GetPathName",
+["GetPathName(s) checks if the file s exists in the current directory or",
+ "in LOAD_K_PATH. If there exists, it returns the path name (string s)."]]);
+

@@ -1,5 +1,5 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.21 2000/08/24 00:48:58 takayama Exp $ */
-load["minimal.k"];
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.22 2000/08/30 04:07:56 takayama Exp $ */
+load["lib/minimal/minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
 }

@@ -728,3 +728,72 @@ FunctionValue } def
 
 this [ %% function args 
 [ (GetEnv) [ (GetEnv(s) returns the value of the environmental variable s (string s).)   ]   ] ] {HelpAdd} sendmsg2 
+/Boundp {
+ db.DebugStack setstack $In function : Boundp of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/b ] pushVariables [ %%local variables
+ [(parse) [(/)   a   ( load tag 0 eq 
+                          { /FunctionValue 0 def }
+                          { /FunctionValue 1 def } ifelse )] cat ] extension /ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Boundp) [ (Boundp(s) checks if the symbol s is bounded to a value or not (string s).)   ]   ] ] {HelpAdd} sendmsg2 
+/Rest {
+ db.DebugStack setstack $In function : Rest of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /a  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+ a   rest /FunctionValue set  /ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (Rest) [ (Rest(a) returns the rest (cdr) of  a (list a).)   ]   ] ] {HelpAdd} sendmsg2 
+/GetPathName {
+ db.DebugStack setstack $In function : GetPathName of class PrimitiveObject$  stdstack 
+ /Arglist set /Argthis set /FunctionValue [ ] def
+ [/this /s  ] /ArgNames set ArgNames pushVariables [ %%function body
+ [Argthis] Arglist join ArgNames mapset
+[ %%start of local variables
+/t /sss ] pushVariables [ %%local variables
+s /sss  set
+  [(stat) s] extension 0 get /t set  this [ %% function args 
+t ] {Tag} sendmsg2 
+(0)..  eq
+ %% if-condition
+  { %%ifbody
+this [ %% function args 
+[ this [ %% function args 
+(LOAD_K_PATH) ] {GetEnv} sendmsg2 
+(/) s   ] ] {AddString} sendmsg2 
+/s  set
+  [(stat) s] extension 0 get /t set  this [ %% function args 
+t ] {Tag} sendmsg2 
+(0)..  eq
+ %% if-condition
+  { %%ifbody
+null  /FunctionValue set  {/ExitPoint goto} exec %%return
+  }%%end if if body
+  { %%if- else part
+s  /FunctionValue set  {/ExitPoint goto} exec %%return
+  } ifelse
+  }%%end if if body
+  { %%if- else part
+s  /FunctionValue set  {/ExitPoint goto} exec %%return
+  } ifelse
+/ExitPoint ]pop popVariables %%pop the local variables
+/ExitPoint ]pop popVariables %%pop argValues
+ db.DebugStack setstack pop stdstack 
+FunctionValue } def
+%%end of function
+
+this [ %% function args 
+[ (GetPathName) [ (GetPathName(s) checks if the file s exists in the current directory or) (in LOAD_K_PATH. If there exists, it returns the path name (string s).)   ]   ] ] {HelpAdd} sendmsg2 
