@@ -1,9 +1,11 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.7 2002/04/05 01:55:59 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.8 2003/01/16 07:50:57 maekawa Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+
+#include <errno.h>
 #include <string.h>
+#include <unistd.h>
 
 #define BUFSIZE 10000
 
@@ -21,7 +23,10 @@ main(int argc,char *argv[]) {
 	}
   }
 
-  getcwd(cwd,BUFSIZE);
+  if (getcwd(cwd, sizeof(cwd)) == NULL) {
+	fprintf(stderr, "getcwd: %s\n", strerror(errno));
+	exit(1);
+  }
   slash = strrchr(cwd,'/');
   *slash = 0;
   while (fgets(s,BUFSIZE,stdin) != NULL) {
