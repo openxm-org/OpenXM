@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.5 2003/12/12 01:30:45 takayama Exp $
+% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.6 2003/12/12 01:54:05 noro Exp $
 %% xdvi -paper a4r rims-2003-12-16-ja-ohp
 %% dvips -f -t landscape  rims-2003-12-16-ja-ohp| psnup -8 -r | lpr -Pxerox6
 %% dvipdfm -l rims-2003-12-16-ja-ohp
@@ -564,7 +564,48 @@ $Data$ が指定された場合, スタックにプッシュしてから上記の操作を
 \newpage
 
 \noindent
-\pagetitle{パフォーマンス}
+\pagetitle{実行例 : 一変数多項式の積 (master 側)}
+
+\begin{verbatim}
+def d_mul(F1,F2)
+{
+    Procs = getopt(proc);
+    if ( !var(F1) || !var(F2) ) return F1*F2;
+    NP = length(Procs);
+    /* 引数を server 0 に送る */
+    ox_push_cmo(0,[F1,F2]);
+    /* 各 server に, server 0 を root として仕事を始めるよう依頼 */
+    for ( I = 0; I < NP; I++ ) 
+        ox_cmo_rpc(I,"d_mul_main",0);
+    /* server 0 から結果を受け取る */
+    R = ox_pop_cmo(0);
+    return R;
+}
+\end{verbatim}
+
+\newpage
+
+\noindent
+\pagetitle{実行例 : 一変数多項式の積 (server 側; collective)}
+\begin{verbatim}
+def d_mul_main(Root)
+{
+    /* server の総数, 自分の id を知る */
+    Id = ox_get_rank_102(); NP = Id[0]; Rank = Id[1];
+    /* Root にある引数を broadcast で共有 */
+    Arg = ox_bcast_102(Root); F1 = Arg[0]; F2 = Arg[1];
+    L = setup_modarrays(F1,F2,NP);
+    Marray = L[0]; MIarray = L[1]; M = L[2];
+    R = umul_chrem(F1,F2,MIarray[Rank],Marray[Rank],M);
+    Arg = 0; F1 = 0; F2 = 0;
+    /* 各 server の結果を足し合わせて, Root に置く */
+    R = ox_reduce_102(Root,"+",R);
+    /* Root のみ, 結果を normalize する */
+    if ( Rank == Root )
+        R = uadj_coef(R%M,M,ishift(M,1));
+    return R;
+}
+\end{verbatim}
 
 \rightline{開発: 野呂}
 
