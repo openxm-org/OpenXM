@@ -1,7 +1,7 @@
 # ox-taka.rb OpenXM client written by Ruby  
 #   (takayama's version based on ogino's ox.rb)
 #
-# $OpenXM: OpenXM/src/ruby/ox-taka.rb,v 1.1 2000/07/28 06:02:20 takayama Exp $
+# $OpenXM: OpenXM/src/ruby/ox-taka.rb,v 1.2 2000/07/28 07:08:30 takayama Exp $
 # 
 require 'socket'
 include Socket::Constants
@@ -163,7 +163,7 @@ end
 
 class OXSession
   def initialize(
-         oxserver = "/usr/local/OpenXM/bin/ox_sm1",
+         oxserver = "ox_sm1",
          host = "localhost",
 		 byteorder = 0
          )
@@ -175,6 +175,7 @@ class OXSession
          oxhome = "/usr/local/OpenXM/"
       end
 
+      oxserver = oxhome+"bin/"+oxserver
       @controlport = rand(20000)+1024
  	  @dataport = @controlport+1
       printf(oxhome+"\n")
