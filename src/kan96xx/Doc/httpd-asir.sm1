@@ -1,13 +1,16 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.1 2001/04/20 13:38:31 takayama Exp $
 %% http server by sm1
+
+/httpd.port 1200 def
 [(parse) (oxasir.sm1) pushfile] extension 
 (oxasir.started) boundp { 
 } {
   [(x^2-1) (x)] fctr pop
 } ifelse
 
-/startserver {
-   [(sm1.socket) (open) [1200 (localhost)]] extension /server.fdAndPort set
+/httpd_startserver {
+   [(sm1.socket) (open) [httpd.port (localhost)]] extension 
+   /server.fdAndPort set
    (sm1.socket.open returns  ) messagen server.fdAndPort message
    [(sm1.socket) (accept) [server.fdAndPort 0 get]] extension
    /server.fd set
@@ -15,7 +18,7 @@
    (sm1.socket.accept returns  ) messagen server.fd message
 } def
 
-/stopserver {
+/httpd_stopserver {
    [(sm1.socket) (close) server.fd ] extension message
 } def
 
@@ -25,25 +28,32 @@
 } def
 
 /sendln {
-  /mmm set
+ /arg1 set
+ [/in-sendln /mmm] pushVariables
+ [ arg1 /mmm set
   mmm tag 5 eq {
     [mmm 10 (string) dc] cat /mmm set
   }{
     10 (string) dc /mmm set
   } ifelse
   [(sm1.socket) (write) [server.fd 0 get mmm]] extension message
+ ] pop
+ popVariables
 } def
 
 /httpd {
   {
-    startserver ;
-    action ;
-    stopserver ;
+    httpd_startserver ;
+    httpd_action ;
+    httpd_stopserver ;
     (5 sleep) system 
   } loop    
 } def
 
-/action {
+/httpd_action {
+  [/in-httpd /httpd.com.old /ff /httpd.com /httpd.result] pushVariables
+  [
+  (httpd:sm1 is ready) message
   {
    /httpd.com.old ( ) def
    [(sm1.socket) (select) [server.fd 0 get -1]] extension 
@@ -72,10 +82,11 @@
           httpd.result message
           (----------------------------------) message
           (  ) message
-          [(Input:)  (<pre> ) httpd.com (</pre>) (<br>)
-           (Output:) (<pre>)
-            httpd.result 
-            (</pre>) 
+          [(<title> asirweb </title> )
+           (<font color="blue"> Input: </font> )  
+           (<pre> ) httpd.com (</pre>) (<br>)
+           (<font color="green"> Output: </font> ) 
+           (<pre>) httpd.result (</pre>) 
           ] cat
           send-page-3  exit
           %% [(SigIgn) 1] system_variable
@@ -83,6 +94,8 @@
    }
    {  } ifelse
   } loop
+  ] pop
+  popVariables
 } def
 
 
@@ -128,7 +141,7 @@
    result sendln
    (<FORM NAME="myFORM">) sendln
    (<INPUT TYPE=submit VALUE="submit">) sendln
-   (<textarea name=msg rows=10 cols="62" wrap="soft"></textarea>) sendln
+   (<textarea name=msg rows=10 cols="80" wrap="soft"></textarea>) sendln
    (</FORM>) sendln
    0 sendln
    [(flush)] extension
