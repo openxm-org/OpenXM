@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.20 2003/07/25 23:55:32 takayama Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.21 2003/08/21 12:30:15 takayama Exp $ */
 #define DATE "2003/08/21"
 #define RELEASE "3.030821"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
@@ -80,7 +80,7 @@ main(argc,argv)
     fprintf(Fstack,"                         1991 April --- 2003.\n");
     fprintf(Fstack,"                              Release %s (C) N. Takayama\n",
             RELEASE);
-    fprintf(Fstack,"gc 5.3 (C) Boehm, Demers, GNU MP 3.1.1 (C) Free Software Foundation,\n");
+    fprintf(Fstack,"gc 5.3 (C) Boehm, Demers, GNU MP 4.1 (C) Free Software Foundation,\n");
     fprintf(Fstack,"OpenXM RFC100, 101, 103 (C) OpenXM developing team. \n");
     fprintf(Fstack,"This software may be freely distributed as is ");
     fprintf(Fstack,"with no warranty expressed. \nSee OpenXM/Copyright/Copyright.generic\n");
