@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.22 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.23 2003/03/30 08:05:22 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -231,8 +231,13 @@ static cmo_error2* receive_cmo_error2(OXFILE *oxfp)
 /* receive_cmo() is called after receive_ox_tag(). */
 cmo* receive_cmo(OXFILE *oxfp)
 {
-    cmo* m;
     int tag = receive_int32(oxfp);
+    return receive_cmo_tag(oxfp, tag);
+}
+
+cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
+{
+    cmo* m;
     switch(tag) {
     case CMO_NULL:
         m = receive_cmo_null(oxfp);

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.15 2003/03/30 08:05:22 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.16 2003/05/24 23:10:40 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -169,6 +169,7 @@ cmo_error2*        make_error_object(int err_code, cmo* ob);
 
 /* Low level API */
 cmo*               receive_cmo(OXFILE *fp);
+cmo*               receive_cmo_tag(OXFILE *fp, int tag);
 int                receive_int32(OXFILE *fp);
 int                receive_ox_tag(OXFILE *fp);
 
