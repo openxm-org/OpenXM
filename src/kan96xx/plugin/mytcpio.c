@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.13 2004/02/25 23:14:35 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.14 2004/02/28 13:39:42 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -89,7 +89,7 @@ socketAccept(int snum) {
     
   SET_TCPIOERROR;
   s = snum;
-  if (!Quiet) fprintf(TcpioError,"Trying to accept... "); fflush(TcpioError);
+  if (!Quiet) {fprintf(TcpioError,"Trying to accept... "); fflush(TcpioError);}
   if ((news = accept(s,NULL,NULL)) < 0) {
     errorMsg1s("Error in accept. Retrying (socketAccept).");
     /* Code added for strange behavior on cygwin. */
@@ -98,7 +98,7 @@ socketAccept(int snum) {
       return (-1);
     }
   }
-  if (!Quiet) fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
+  if (!Quiet) {fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);}
   if (close(s) < 0) {
     errorMsg1s("Error in closing the old socket.");
     return(-1);
@@ -114,7 +114,7 @@ socketAcceptLocal(int snum) {
 
   SET_TCPIOERROR;
   s = snum;
-  if (!Quiet) fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
+  if (!Quiet) {fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);}
   len = sizeof(struct sockaddr);
   if ((news = accept(s,&peer,&len)) < 0) {
     errorMsg1s("Error in accept. Retrying");
@@ -131,7 +131,7 @@ socketAcceptLocal(int snum) {
   for (i=0; i<len; i++) {
     if (!Quiet) printf(" %x ",peer.sa_data[i]);
   }
-  printf("\n");
+  if (!Quiet) printf("\n");
   if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
       peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
     if (!Quiet) fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
@@ -142,7 +142,7 @@ socketAcceptLocal(int snum) {
     return(-1);
   }
 
-  if (!Quiet) fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
+  if (!Quiet) {fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);}
   if (close(s) < 0) {
     errorMsg1s("Error in closing the old socket.");
     return(-1);
@@ -159,7 +159,7 @@ socketAcceptLocal2(int snum) {
 
   SET_TCPIOERROR;
   s = snum;
-  if (!Quiet) fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
+  if (!Quiet) {fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);}
   len = sizeof(struct sockaddr);
   if ((news = accept(s,&peer,&len)) < 0) {
     errorMsg1s("Error in accept. Retrying (socketAcceptLocal2).");
@@ -176,7 +176,7 @@ socketAcceptLocal2(int snum) {
   for (i=0; i<len; i++) {
     if (!Quiet) printf(" %x ",peer.sa_data[i]);
   }
-  printf("\n");
+  if (!Quiet) printf("\n");
   if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
       peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
     if (!Quiet) fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
@@ -186,7 +186,7 @@ socketAcceptLocal2(int snum) {
     return(-1);
   }
 
-  if (!Quiet) fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
+  if (!Quiet) {fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);}
   return(news);
 }
 
