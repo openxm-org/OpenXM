@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.32 2003/07/16 05:19:49 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.33 2003/07/20 07:30:25 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -45,6 +45,7 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/man . ; \
 	   rsync -avz --delete --exclude CVS ../${OpenXM_TOP}/src/asir-contrib src ; \
 	   find . -name 'CVS' -print | xargs rm -rf ; \
+	   find . -name 'DO_NOT_EDIT*' -print | xargs rm -rf ; \
 	  ) ; \
 	   cp Readme-CD/readme-ja.html OpenXM-win ; \
 	   cp Readme-CD/readme-en.html OpenXM-win ; \
