@@ -1,8 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/povray.rr,v 1.3 2001/02/24 06:37:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/povray.rr,v 1.4 2001/02/24 06:48:16 takayama Exp $ */
 
 /* This is an experimental asir program to model
-   implicit algebraic surfaces for povray
-   by using phc and pari(roots,*).
+   z=f(x,y) for povray.
 */
 
 /* 
@@ -25,6 +24,8 @@ References:
 
   Introduction in Japanese.
     http://www.jks.is.tsukuba.ac.jp/~akaho/cg/3d/povray.html
+
+  Check out also surf.
 */
 
 /* File IO functions. These should be implemented as an asir
@@ -56,7 +57,8 @@ def put_bytes(Fp,S) {
 
 def close_file_for_write(Fp) {
   extern Sm1_proc;
-  sm1(Sm1_proc," asir_file_tmp closefile ");
+  sm1(Sm1_proc," asir_file_tmp closefile 0");
+  ox_pop_cmo(Sm1_proc); /* Wait for closing the file. */
 }
 
 
@@ -219,26 +221,25 @@ def test_mesh() {
 }
 
 /* test mesh */
-DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
 def test_f(X,Y) {
   return(deval((X^2-(Y-3)^2)/4));
 }
 def test_triangle1(X,Y) {
-  extern DX,DY;
+  DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
   return([
           [X,test_f(X,Y),Y],
           [X+DX,test_f(X+DX,Y),Y],
           [X,test_f(X,Y+DY),Y+DY]]);
 }
 def test_triangle2(X,Y) {
-  extern DX,DY;
+  DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
   return([
           [X,test_f(X,Y),Y],
           [X-DX,test_f(X-DX,Y),Y],
           [X,test_f(X,Y-DY),Y-DY]]);
 }
 def test_mesh2() {
-    extern DX,DY;
+    DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
     Mesh=[];  
     for (X=-5; X<5; X += DX) {
       for (Y=0; Y<5; Y += DY) {
@@ -251,15 +252,113 @@ def test_mesh2() {
     povray_epilog(0);
     print("See the picture by  ")$
     print("   povray +it.pov +D0 ")$
+    print("or ")$
+    print("   povray +it.pov +L/usr/local/lib/povray3/include +D0 +P +H200 +W200")$
+    povray_render("t.pov");
 }
 
-/* A general function to generate meshes for z=f(x,y). */
+def povray_render(F)  {
+   /* If FreeBSD, */
+   shell("   povray +i"+F+" +L/usr/local/lib/povray3/include +D0 +P +H200 +W200&")$
+}
 
-/* Not yet written */
+
+/* A general function to generate meshes for z=f(x,y). */
+/*  povray_plot3d_mesh(F|xrange=[xmin,xmax],yrange=[ymin,ymax],
+                         z_bounding_box=[zmin,zmax],camera=[x,y,z],
+                         floor=bool);
+   Ex. povray_plot3d_mesh(sin(2*x)*y^2);
+*/
+#define XMAX 5
+#define XMIN (-5)
+#define YMAX 5
+#define YMIN (-1)
+#define ZMAX 5
+#define ZMIN (-5)
+Povray_bound_zmin = 2*ZMIN$
+Povray_bound_zmax = 2*ZMAX$
+def povray_plot3d_mesh(F) {
+
+    Workfile = "t.pov";
+    Xmin = XMIN; Xmax = XMAX;
+    Ymin = YMIN; Ymax = YMAX;
+    Need_floor = 1;
+    /* Getting options.  Not yet written */
+
+    Z_bound = povray_get_z_bound(F,Xmin,Xmax,Ymin,Ymax);
+    print("Z_bound=",0); print(Z_bound);
+    Zmin = Z_bound[0];
+    Zmax = Z_bound[1];
+    
+    F = subst(F,x,(XMIN-XMAX)*(x-Xmax)/(Xmin-Xmax)+XMAX,
+                y,(YMIN-YMAX)*(y-Ymax)/(Ymin-Ymax)+YMAX);
+    F = (ZMIN-ZMAX)*(F-Zmax)/(Zmin-Zmax)+ZMAX;
+
+    /* Generate mesh */
+    DX = 0.5$ DY=0.5$  /* Use camera at <10,5,-20> */
+    Mesh=[];  
+    for (X=XMIN; X<XMAX; X += DX) {
+      for (Y=YMIX; Y<YMAX; Y += DY) {
+         Mesh = append(Mesh,
+                 [povray_triangle1(F,X,Y,DX,DY),
+                  povray_triangle2(F,X+DX,Y+DY,DX,DY)
+                 ]);
+      }
+    }
+    povray_prolog(Workfile,0,0);
+    if (Need_floor)  povray_plane(0);
+    povray_mesh(0,Mesh);
+    povray_epilog(0);
+
+    print("See the picture by  ")$
+    print("   povray +i"+Workfile+" +D0 ")$
+    print("or ")$
+    print("   povray +i"+Workfile+" +L/usr/local/lib/povray3/include +D0 +P +H200 +W200")$
+    povray_render(Workfile);
+    return(Mesh);
+}
+
+def povray_get_z_bound(F,Xmin,Xmax,Ymin,Ymax) {
+   Zmin = Zmax = deval(subst(F,x,(Xmax-Xmin)/2,y,(Ymax-Ymin)/2));
+   DX = deval((Xmax-Xmin)/5);
+   DY = deval((Ymax-Ymin)/5);
+   for (X=Xmin; X<Xmax; X += DX) {
+     for (Y=Ymin; Y<Ymax; Y += DY) {
+       Z = deval(subst(F,x,X,y,Y));
+       if (Z < Zmin) { 
+         Zmin=Z;
+       }else if (Z > Zmax) {
+         Zmax =Z;
+       }
+     }
+   }
+   return([Zmin,Zmax]);
+}
+
+def povray_function(F,X,Y) {
+   extern Povray_bound_zmin, Povray_bound_zmax;
+   Z = deval(subst(F,x,X,y,Y));
+   if (Z > Povray_bound_zmax) return(Povray_bound_zmax);
+   if (Z < Povray_bound_zmin) return(Povray_bound_zmin);
+   return(Z);
+}
+
+def povray_triangle1(F,X,Y,DX,DY) {
+  return([
+          [X,povray_function(F,X,Y),Y],
+          [X+DX,povray_function(F,X+DX,Y),Y],
+          [X,povray_function(F,X,Y+DY),Y+DY]]);
+}
+def povray_triangle2(F,X,Y,DX,DY) {
+  return([
+          [X,povray_function(F,X,Y),Y],
+          [X-DX,povray_function(F,X-DX,Y),Y],
+          [X,povray_function(F,X,Y-DY),Y-DY]]);
+}
 
 
 /* The next function patches f(x,y,z)=0 by small squares
-   by using phc pack and normal vectors.
+   by using phc pack or pari(root,*) and normal vectors.
 */
 
 /* Not yet written */

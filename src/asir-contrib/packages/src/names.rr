@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.1 2001/03/08 06:16:13 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* This file and logname give a list of canonical names of functions.
@@ -16,10 +16,10 @@
 def number_base_form(X,B) { NOT_YET; }
 def number_chop(Exp,Dx) {  NOT_YET; }
 def number_round(X) { NOT_YET; }
-def number_floor(X) { NOT_YET; }
-def number_ceiling(X) { NOT_YET; }
+def number_floor(X) { return(pari(floor,X)); }
+def number_ceiling(X) { return(pari(ceil,X)); }
 def number_sign(X) { NOT_YET; }
-def number_abs(X)  { NOT_YET; }
+def number_abs(X)  { return(pari(abs,S)); }
 def number_max(X)  { NOT_YET; }
 def number_min(X)  { NOT_YET; }
 def number_n(Exp)  { NOT_YET; }  /* N [ ], numerical evaluator. */
@@ -80,7 +80,7 @@ def graphic_parametric_plot_3d(F,R) { NOT_YET; }
 /* Canonical function names for printing. cf. Mathematica/Output */
 def print_tex_form(F) { NOT_YET; }
 def print_html_form(F) { NOT_YET; }
-def print_open_math_xml_form(F) { NOT_YET; }
+def print_open_math_xml_form(F) { return(ox_xml(F)); }
 def print_cmo_xml_form(F) { NOT_YET; }
 
 end$
