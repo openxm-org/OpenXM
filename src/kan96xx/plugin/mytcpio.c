@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.9 2002/10/23 08:42:22 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.10 2003/07/20 07:18:45 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -114,19 +114,11 @@ socketAcceptLocal(int snum) {
   len = sizeof(struct sockaddr);
   if ((news = accept(s,&peer,&len)) < 0) {
     errorMsg1s("Error in accept. Retrying");
-    {  /* Code added for strange behavior on cygwin. */
-      int i;
-      for (i=0; i<5; i++) {
-        if ((news = accept(s,&peer,&len)) < 0) {
-          fprintf(stderr,"%d : ",i);
-          errorMsg1s("Error in accept. Retrying");
-        }
-      }
-      if (news < 0) {
-        errorMsg1s("Error in accept. Retrying");
-        return(-1);
-      }
-    }
+    /* Code added for strange behavior on cygwin. */
+   if ((news = accept(s,&peer,&len)) < 0) {
+      errorMsg1s("Error in accept. Retrying");
+      return (-1);
+   }
   }
 
   len = sizeof(struct sockaddr);
