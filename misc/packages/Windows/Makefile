@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.35 2003/07/21 07:00:03 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.36 2003/07/21 08:07:37 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -165,6 +165,7 @@ debug-tools/gcwd : debug-tools/gcwd.c
 build-bat: debug-tools/crlf debug-tools/debug-sed debug-tools/gcwd
 	-mkdir OpenXM-win/bin-windows
 	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirgui-cd.bat ; ./crlf ../OpenXM-win/bin-windows/asirgui-cd.bat)
+	(cd debug-tools; sed -f dist.sed <sm1-cd.bat >../OpenXM-win/bin-windows/sm1-cd.bat ; ./crlf ../OpenXM-win/bin-windows/sm1-cd.bat)
 	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat ; ./crlf ../OpenXM-win/bin-windows/webasir.bat)
 	(cd debug-tools; sed -f dist.sed <websm1.bat >../OpenXM-win/bin-windows/websm1.bat ; ./crlf ../OpenXM-win/bin-windows/websm1.bat)
 	(rm -f ../OpenXM-win/bin-windows/*.BAK ../OpenXM-win/bin-windows/*.bak)
