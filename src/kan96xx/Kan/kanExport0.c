@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.33 2004/09/11 01:00:42 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.34 2004/09/13 11:24:11 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -687,8 +687,16 @@ KooEqualQ(obj1,obj2)
 {
   struct object ob;
   int i;
+  extern int Verbose;
   if (obj1.tag != obj2.tag) {
     warningKan("KooEqualQ(ob1,ob2): the datatypes of ob1 and ob2  are not same. Returns false (0).\n");
+	if (Verbose & 0x10) {
+	  fprintf(stderr,"obj1=");
+	  printObject(obj1,0,stderr);
+	  fprintf(stderr,", obj2=");
+	  printObject(obj2,0,stderr);
+	  fprintf(stderr,"\n"); fflush(stderr);
+	}
     return(0);
   }
   switch(obj1.tag) {
