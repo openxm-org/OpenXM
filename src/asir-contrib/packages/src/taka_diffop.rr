@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_diffop.rr,v 1.1 2003/02/23 03:18:06 takayama Exp $ */
 #define ANK_SIZE 20
 /*
 #define ANK              Taka_diffop1_ANK
@@ -25,7 +25,7 @@ ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
 
 /* cf. d_gcd.rr */
 def dr_mult(F,G){
-	N=deg(F,dx);
+	N=deg(nm(F),dx);
 	A=0;
 	for(K=0;K<=N;K++){
 		A=A+(1/fac(K))*diff2(F,dx,K)*diff2(G,x,K);
@@ -60,7 +60,7 @@ def dr_division(F,G) {
 
 def dr_gcd(F,G) {
    S = 1; T = 0; SS=0; TT=1;
-   if (deg(F,dx) > deg(G,dx)) {
+   if (deg(nm(F),dx) > deg(nm(G),dx)) {
      Changed = 0;
    }else {
      T=F; F=G; G=T; Changed = 1;
