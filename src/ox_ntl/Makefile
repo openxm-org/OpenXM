@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.5 2003/11/12 12:56:05 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.6 2003/11/12 13:31:45 iwane Exp $
 #
 #
 #
@@ -26,7 +26,7 @@ MASTER_CITES=ftp.math.sci.kobe-u.ac.jp
 NTL_LIBDIR=$(PREFIX)/lib/NTL
 LIBDIR=$(PREFIX)/lib 
 
-DISTDIR=$(PWD)/distfile
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 DISTFILEDIR=ntl-5.3.1
 DISTFILE=ntl-5.3.1.tar.gz
 WORK=$(PWD)/work
@@ -80,22 +80,20 @@ clean:
 	@-$(RM) -f .*-ntl-done
 
 
-pre-fetch-ntl:
-	@if [ ! -f .pre-fetch-ntl-done ]; then\
-		mkdir -p ${DISTDIR} ${WORK}; \
-		touch .pre-fetch-ntl-done; \
-	fi
-
-fetch-ntl: pre-fetch-ntl
+fetch-ntl:
 	@if [ ! -f .fetch-ntl-done ]; then \
-		if [ ! -f ${DISTDIR}/${DISTFILE} ]; then \
-			(cd ${DISTDIR}; wget --no-directories --passive-ftp ftp://$(MASTER_CITES)/pub/OpenXM/misc/1.2.2/$(DISTFILE)) ; \
-		fi ; \
-		(cd ${WORK}; tar xvzf ${DISTDIR}/${DISTFILE}); \
+		${OpenXM_HOME}/bin/oxfetch.sh ftp://${MASTER_CITES}/pub/OpenXM/misc/1.2.2/${DISTFILE} ${DISTDIR}; \
 		touch .fetch-ntl-done; \
 	fi
 
-patch-ntl: fetch-ntl
+extract-ntl: fetch-ntl
+	-mkdir work
+	@if [ ! -f .extract-ntl-done ]; then \
+		(cd ${WORK}; tar xvzf ${DISTDIR}/${DISTFILE}); \
+		touch .extract-ntl-done; \
+	fi
+
+patch-ntl: extract-ntl
 	@if [ ! -f .patch-ntl-done ]; then \
 		touch .patch-ntl-done; \
 	fi
