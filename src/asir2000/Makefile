@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.5 2000/01/09 18:42:24 maekawa Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.6 2000/01/09 20:39:49 maekawa Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 PARI = ../pari
@@ -10,7 +10,7 @@ all: configure
 	@touch ./.make_done
 
 install: all
-	(cd $(ASIR) ; make install ; make install2)
+	(cd $(ASIR) ; make install ; make install-lib)
 
 clean:
 	(cd $(ASIR) ; make clean)

@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.61 2000/01/18 02:03:42 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.62 2000/01/19 00:26:20 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -49,7 +49,7 @@ all-tigers:
 
 install: install-asir install-gnuplot install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
-	 install-phc install-tigers install-asir-contrib
+	 install-phc install-tigers install-asir-doc install-asir-contrib
 
 install-asir: all-asir
 	(cd asir2000 ; make install)
@@ -82,6 +82,9 @@ install-tigers: all-tigers
 
 install-asir-contrib: install-asir
 	(cd asir-contrib ; make install)
+
+install-asir-doc: install-asir
+	(cd asir-doc ; make install)
 
 clean:
 	(cd asir2000 ; make clean)
