@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.119 2000/01/05 14:12:05 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.120 2000/01/07 06:04:13 tam Exp $
 
 \usepackage{jssac}
 
@@ -435,7 +435,7 @@ OpenXM 以外にも数式処理システム間の通信や数学データの共通表現を目指した
 \begin{itemize}
 \item ESPRIT OpenMath Project
 
-http://www.openmath.org/omsoc/
+http://www.nag.co.uk/projects/openmath/omsoc/
 
 数学的対象の SGML 的表記の標準化を目指した大規模なプロジェクト.  このプ
 ロジェクトでは数学データを数学的意味を保ったままで如何に表現すべきかとい
@@ -447,10 +447,6 @@ http://www.openmath.org/omsoc/
 ロジェクトの対象外である. OpenXM における共通データ形式と数学システム固
 有のオブジェクトとの変換は OpenMath 規約の Phrasebook と同じアイデアを用
 いている.
-
-% ここは書かなくてもいいように思えてきたので削除しました。
-%OpenXM 規約の CMO 形式の定義は OpenMath 規約の content dictionary の概念
-%に似ている(もちろん OpenMath の方がもっと大掛かりで厳密な規定である).
 
 
 \item NetSolve
@@ -492,18 +488,16 @@ C 言語による実装(MP-C ライブラリ)は上記のウェブページから収得可能である.
 
 http://horse.mcs.kent.edu/\~{}pwang/
 
-HTTP に似せた数学的な計算を行なうためのプロトコル.
-MCP は control integration を規定しており,
-クライアント・サーバ型の通信を行なう.
+数学的なデータや命令を含むメッセージをやりとりするための
+HTTP に似たプロトコル.
+MCP は control integration であり,
+クライアント・サーバ型の通信モデルを採用している.
 MCP のメッセージはヘッダとボディから構成されている.
 ヘッダはテキストであり, 最初に現れる空行でヘッダとボディは
 区切られている.
-ボディの形式は固定ではなく,
-ヘッダを見ればボディの形式が分かるようになっている.
 
-数式はボディに記述されて送られるが,
-このプロトコルでは数式の表現方法についての規定はなく,
-そのため, オブジェクトの表現には MP や OpenMath で定められたものを
+数式はボディに記述されて送られる.
+数式の表現方法としては MP や OpenMath で定められたものを
 使用することが考えられている.
 実際, 数式の表現に OpenMath 規約の XML 表現を用いた実装があり,
 GAP と Axiom の間で通信が行なわれている.
@@ -525,16 +519,37 @@ ox\_math, ox\_sm1\_gnuplot, ox\_sm1\_phc という名前で提供されている.
 OMproxy という名前で提供されている.
 
 \begin{thebibliography}{99}
+\bibitem{NetSolve1.2b}
+Henri Casanova, Jack Dongarra, Alexander Karainov, Jerzy Wasniewski:
+Users' Guide to NetSolve, version 1.2.beta, October 27 1998.
+(http://www.cs.utk.edu/netsolve/download/ug.ps)
+
 \bibitem{Ohara-Takayama-Noro-1999}
-小原功任, 高山信毅, 野呂正行:
-{Open asir 入門}, 1999, 数式処理,
-Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
+小原 功任, 高山 信毅, 野呂 正行: Open asir 入門,
+{\it 数式処理}, {\bf Vol 7}(No 2), 1999, 2--17.
+(ISBN 4-87243-086-7, SEG 出版, Tokyo).
 
 \bibitem{OpenXM-1999}
-野呂正行, 高山信毅:
-{Open XM の設計と実装
---- Open message eXchange protocol for Mathematics},
-1999/11/22
+野呂 正行, 高山 信毅: {Open XM の設計と実装 --- Open message eXchange protocol for Mathematics}, 1999/11/22
+(http://www.math.sci.kobe-u.ac.jp/openxxx/openxxx.tex)
+
+\bibitem{OpenMath1.0}
+O. Caprotti, A. M. Cohen: The OpenMath Standard, Version 1.0, February 1999.
+(http://www.nag.co.uk/projects/OpenMath/omstd/partI.ps.gz)
+
+\bibitem{ISSAC99}
+Paul S. Wang:
+Design and Protocol for Internet Accessible Mathematical Computation,
+{\it Proceedings of the 1999 International Symposium on Symbolic and Algebraic Computation}, 1999, 291--298.
+(ISBN 1-58113-073-2, ACM, New York 1999. Order No. 505990).
+
+\bibitem{MP}
+Simon Gray, Norbert Kajler, Paul S. Wang:
+Design and Implementation of MP,
+a Protocol for Efficient Exchange of Mathematical Expressions,
+{\it Journal of Symbolic Computation}, 1996.
+(ftp://ftp.mcs.kent.edu/dist/MP/mp-jsc-96.ps.gz)
+
 \end{thebibliography}
 
 \end{document}
