@@ -1,4 +1,4 @@
-ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.2 2000/12/14 05:09:29 takayama Exp $ "
+ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.3 2000/12/14 05:28:05 takayama Exp $ "
 
 load "oxcommon.m2"
 
@@ -250,7 +250,7 @@ makeLaunchCommand=(UseSSH,MyHostName,RemoteLoginName,RemoteHostName,OxServerName
 		       " -host " | RemoteHostName | 
 		       " -pass " | PASS   | "  ";
      if (UseSSH) then (
-	  comm = toString "ssh -f -l " | RemoteLoginName | " " | 
+	  comm = toString "ssh -f -X -A -l " | RemoteLoginName | " " | 
 	                   RemoteHostName |
 	                   " '" | commXterm |
   		           --uncomment when X11 forwarding is not allowed.
