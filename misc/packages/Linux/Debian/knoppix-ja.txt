@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.2 2004/02/23 23:17:15 takayama Exp $ 
+$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.3 2004/02/24 00:05:00 takayama Exp $ 
 2004/02/23 by Takayama
 
 deb package の生成の仕方:
@@ -46,3 +46,12 @@ uninstall
        rm ~/tmp/openxm-head.tar.gz しとく?
        mango での生成は,  cd /private/taka  へ OpenXM を checkout してやる.
        cd work ; cp openxm*.deb /home/ftp/pub/asir/knoppix
+
+-----------------------------
+dpkg で消せないとき.
+
+/var/lib/dpkg/info/openxm*
+でおかしいものを無理矢理書き直してから,
+dpkg --remove openxm-binary
+とか
+dpkg --purge openxm-binary
