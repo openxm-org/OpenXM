@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.60 1999/12/23 17:01:13 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.61 1999/12/23 18:01:04 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
@@ -179,7 +179,7 @@ OpenXM 規約では、数学的オブジェクトを表現する方法として
 CMO 形式(Common Mathematical Object format)を定義している。
 この CMO 形式を使ってメッセージを送るには、
 タグを OX\_DATA にすればよい。
-CMO 形式におけるメッセージのボディ部分について以下で説明するが、
+CMO 形式におけるデータ構造について以下で説明するが、
 %OpenXM 規約で定義されているメッセージを実際に作成する場合、
 CMO 形式で定義されている多倍長整数を理解しておくと、
 CMO 形式の他のデータ構造だけでなく、
@@ -276,8 +276,8 @@ mathcap で設定されていないメッセージをクライアント側へ
 このようにしてクライアントはサーバ側の mathcap を受け取るわけである。
 
 次に mathcap のデータ構造について説明する。
-
-mathcap は以下のような 3 つの要素からなるリストを持っている。
+mathcap は 1 つの CMO 形式のオブジェクトを持つ。
+そのオブジェクトは以下のような 3 つの要素からなるリストでなければならない。
 
 \[	\begin{tabular}{|c|c|c|} \hline
 	$A$ & $B$ & $C$	\\ \hline
