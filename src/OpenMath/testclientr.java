@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/testclientr.java,v 1.1 2002/10/23 08:40:16 takayama Exp $
  *
  */
 
@@ -35,7 +35,8 @@ final class testclientr{
     }
 
     try{ // connect to server
-      asir = new OpenXM(host,CtrlPort,StreamPort,"ox_asir",8089,"");
+		// asir = new OpenXM(host,CtrlPort,StreamPort,"ox_asir",8089,"");
+		asir = new OpenXM("ox_asir");
     }catch(java.net.UnknownHostException e){
       System.err.println("host unknown.");
       System.err.println(e.getMessage());

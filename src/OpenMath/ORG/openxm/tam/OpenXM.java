@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.8 2001/11/04 09:58:14 takayama Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.9 2002/10/23 08:40:16 takayama Exp $
  */
 package ORG.openxm.tam;
 
@@ -102,6 +102,37 @@ public class OpenXM{
     control.sendByteOrder();
     stream.sendByteOrder();
   }
+
+public OpenXM(String ox_server) throws IOException {
+	int oxdPort = 8089;
+	String host = "localhost";
+	oxdStream oxd = new oxdStream(oxdPort);
+	int cport,dport;
+	cport = oxd.startPhase1();
+	dport = cport+1;
+	try {
+		control = new OpenXMstream(host,cport,"");
+		stream = new OpenXMstream(host,dport,"");
+	}catch( IOException e) {
+		System.err.println("Could not open ports for client.");
+		oxd.write("<bye/>");
+	}
+
+	System.err.println("Listenning...");
+
+	oxd.startPhase2(ox_server,cport);
+	
+    control.OpenXMstreamAccept();
+    System.err.println("Accepted the control port.");
+    stream.OpenXMstreamAccept();
+    System.err.println("Accepted the data port.");
+
+
+    control.sendByteOrder();
+    stream.sendByteOrder();
+}
+
+
   /*&ja
    * サーバの計算中断を行なう. 現在は未実装.
    */

@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.2 2002/10/20 23:38:12 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.3 2002/10/20 23:49:12 takayama Exp $
 */
 
 #include <stdio.h>
@@ -16,6 +16,8 @@
 /* -lnsl -lsocket /usr/ucblib/libucb.a */
 #include "ox_kan.h"
 #include "serversm.h"
+
+/* #define DEBUG */
 
 char *getTag(char *s);
 char *getKeyValue(char *s,char *key);
