@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.5 2001/08/10 08:37:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.6 2001/08/11 02:59:24 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -9,10 +9,33 @@
 /*---------*/
 /* Utility */
 /*---------*/
+def omatrix_clone(M) {
+  if (type(L) == 5) {
+    N = size(M)[0];
+    A = newvect(N);
+    for (I=0; I<N; I++) {
+      A[I] = omatrix_clone(M[I]);
+    }
+    return A;
+  }else if (type(L) == 6) {
+    M = size(M)[0];
+    N = size(M)[1];
+    A = newmat(M,N);
+    for (I=0; I<M; I++) {
+      for (J=0; J<N; J++) {
+        A[I][J] = omatrix_clone(M[I][J]);
+      }
+    }
+    return A;
+  }else{
+    return(M);
+  }
+}
 def omatrix_ltom(L) {
-  if (type(L) != 4) {
+  if (type(L) != 4 && type(L) != 5 && type(L) !=6) {
     error("parameter type error.");
   }
+  if (type(L) == 5 || type(L) == 6) return L;
   if (type(L[0]) != 4) return omatrix_ltov(L);
   return newmat(length(L), length(L[0]), L);
 }

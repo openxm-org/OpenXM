@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.6 2001/08/10 08:37:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.7 2001/08/11 02:59:24 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -25,9 +25,10 @@ ox_loadfile(Loaded_taka_base,"taka_base.rr") $
      def number_chop(Exp,Dx) {  return(hoge_chop(Exp,Dx)); }
 */
 
+#define OX_LOADFILE(A,B)   /* Do nothing. */
 /* Base module */
 def base_replace(S,Rule) {
-  ox_loadfile(Loaded_taka_base,"taka_base.rr");
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_replace(S,Rule);
 }
 
@@ -75,28 +76,32 @@ def series_solve(Eq,A) { NOT_YET; }
 def series_limit(F,A) { NOT_YET; }
 
 /* Canonical function names for matrix. cf. Mathematica/LiearAlgebra */
+def matrix_clone(M) {
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  return omatrix_clone(M);
+}
 def matrix_matrix_to_list(M) {
-  ox_loadfile(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_mtol(M);
 }
 def matrix_list_to_matrix(M) {
-  ox_loadfile(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_ltom(M);
 }
 def matrix_diagonal_matrix(L) { NOT_YET; }
 def matrix_identity_matrix(N) { NOT_YET; }
 def matrix_transpose(M) {
-  ox_loadfile(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_trans(M);
 }
 def matrix_submatrix(M,R,C) { NOT_YET; } 
 def matrix_dimensions(M) { NOT_YET; }
 def matrix_inverse(M) {  
-  ox_loadfile(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_inverse(M);
 }
 def matrix_det(M) { 
-  ox_loadfile(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_Matrix,"Matrix");
   return omatrix_det(M);
 }
 def matrix_minors(M,K) { NOT_YET; }
@@ -115,12 +120,12 @@ def graphic_parametric_plot_3d(F,R) { NOT_YET; }
 
 /* Canonical function names for printing. cf. Mathematica/Output */
 def print_tex_form(F) {  
-  ox_loadfile(Loaded_taka_print,"taka_print.rr");
+  OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
   return taka_tex_form(F);
 }
 def print_html_form(F) { NOT_YET; }
 def print_open_math_xml_form(F) { 
-  ox_loadfile(Loaded_om,"om");
+  OX_LOADFILE(Loaded_om,"om");
   return(ox_xml(F)); 
 }
 def print_cmo_xml_form(F) { NOT_YET; }
