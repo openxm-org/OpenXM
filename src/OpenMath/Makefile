@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.21 2000/02/07 10:09:52 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.22 2000/02/21 03:48:20 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -67,8 +67,11 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/DebugInputStream.class \
 	JP/ac/kobe_u/math/tam/OpenXM/MathcapViolation.class \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXM.class \
+	JP/ac/kobe_u/math/tam/OpenXM/OXbody.class \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.class \
 	JP/ac/kobe_u/math/tam/OpenXM/SM.class
+#JP/ac/kobe_u/math/tam/OpenXM/OXmessage.class \
+
 
 TARGETS = OM2OXM.class OMproxy.class
 
