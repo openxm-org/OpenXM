@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.4 2000/03/10 12:24:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.5 2000/10/10 05:23:21 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -60,7 +60,7 @@ int test_0()
     print_cmo(c);
     fflush(stderr);
 
-    mathcap_sysinfo_set(VERSION, ID_STRING, "testclient");
+    mathcap_init(VERSION, ID_STRING, "testclient", NULL, NULL);
     send_ox_cmo(sv, mathcap_get());
 
     ox_reset(sv);
@@ -77,7 +77,7 @@ int test_1()
 {
     cmo *c, *m;
 
-	mathcap_sysinfo_set(1000, "test!", "testclient");
+	mathcap_init(1000, "test!", "testclient", NULL, NULL);
 	m = mathcap_get();
     fprintf(stderr, "testclient:: test cmo_mathcap.\n");
     send_ox_cmo(sv, m);

@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.13 2000/10/11 20:34:28 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.14 2000/11/20 17:59:34 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -571,27 +571,31 @@ then the parser returns NULL.
 */
 /*&ja
 
-7. Mathcap データベース
+7. Mathcap クラス
+データベース
 
 7.1. 概要 
 
-Mathcap データベースは、各通信路ごとに生成される局所データベースと、通
-信路に関係なく保持される大域データベースからなる。大域データベースは、
-局所データベースの生成時に初期値としても利用される。局所データベースと
-$大域データベースの関係は次のように理解すればよい。すなわち、Mathcap ク
-ラスのインスタンスが局所データベースであり、静的メンバが大域データベー
-スである。
+Mathcap クラスは OpenXM アプリケーションの Mathcap を表現するクラスで
+ある。これは cmo_mathcap とは別物である。Mathcap クラスのインスタンス
+は各通信路ごとに生成され、OXFILE クラスのメンバになる。このことは、複
+数の計算プロセスと同時に通信するクライアントを作成するためである。さて、
+Mathcap クラスは、静的メンバももつ。これら静的メンバは、通信路から独立
+した、 OpenXM アプリケーション自体の情報を保持するために用いられる。また。
+インスタンスの生成時にもその情報は利用される。
 
 7.2. メソッド
 
-Mathcap データベースは mathcap.c で実装されている。ユーザは次の関数を
-介して、Mathcap データベースにアクセスすることができる。
+Mathcap クラスは mathcap.c で実装されている。ユーザは次の関数を介して、
+Mathcap クラスにアクセスすることができる。
 
-void mathcap_global_init(int version, char *id, char *sysname, int cmo[], sm_cmd[]);
+void mathcap_init(int version, char *id, char *sysname, int cmo[], sm_cmd[]);
 
-大域データベースを初期化する。クライアントおよびサーバはプログラムを開
-始するときに、この関数を呼ばなければならない。cmo は CMO のタグのリス
-トであって、0 で終端しなければならない。sm_cmd も同様。
+静的メンバを初期化する。Mathcap クラスのインスタンスを生成するまえに、
+したがって、クライアントおよびサーバはプログラムを開始するときに、この
+関数を呼ばなければならない。cmo は、そのアプリケーションの利用する CMO 
+のタグのリストであって、0 で終端しなければならない。NULL のときには既
+定値が用いられる。sm_cmd も同様。
 
 cmo_mathcap *mathcap_get(mathcap *this);
 
@@ -599,18 +603,9 @@ Mathcap クラスのインスタンスを cmo_mathcap クラスのインスタンスに変換する。
 
 mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc);
 
-通信相手から入手したcmo_mathcap オブジェクトを用いて、Mathcap データベー
-スを更新する。
+通信相手から入手した cmo_mathcap オブジェクトを用いて、Mathcap クラスの
+インスタンスを更新する。
 
-7.3. ox_toolkit における実装の問題点(obsolete)
-
-現在はシステム全体で一つの Mathcap データベースしかもたないような実装
-になっている。ところが、OpenXM クライアントは複数の計算サーバと同時に
-接続されることが許されている。これらの計算サーバは同種あるいは異種であ
-るが、異種の場合、それら OX サーバの許容する CMO の範囲は異なる。した
-がって、計算サーバごとに Mathcap データベースをもつ必要がある。具体的
-には OXFILE クラスの(static ではない)メンバになるような実装でなければ
-ならない。
 */
 /*&ja
 
