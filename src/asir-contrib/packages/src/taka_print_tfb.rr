@@ -1,10 +1,20 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print_tfb.rr,v 1.1 2002/08/08 02:11:44 takayama Exp $ */
 
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
 Tfb_symbol_table_ = [
- ["sin", "transc1.sin"]
+ ["sin", "transc1.sin"],
+ ["cos", "transc1.cos"],
+ ["tan", "transc1.tan"],
+ ["log", "transc1.log"],
+ ["exp", "transc1.exp"],
+ ["hypergeometric_gamma","hypergeo0.gamma"],
+ ["hypergeometric_pochhammer","hypergeo0.pochhammer"],
+ ["hypergeometric_beta","hypergeo0.beta"],
+ ["hypergeometric_2f1","hypergeo1.hypergeometric2F1"],
+ ["hypergeometric_pfp1","hypergeo1.hypergeometric_pFq"],
+ ["logic_imply","logic1.imply"]
 ]$
 Tfb_symbol_table = newmat(length(Tfb_symbol_table_),2,
                            Tfb_symbol_table_)$
