@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.55 2000/01/09 20:13:24 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.56 2000/01/09 20:19:40 maekawa Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -61,7 +61,7 @@ install-k097: all-k097
 	(cd k097 ; make install)
 
 install-kan96xx: all-kan96xx
-	(cd kan96xx ; make install2)
+	(cd kan96xx ; make install)
 
 install-kxx: all-kxx
 	(cd kxx ; make install2)
