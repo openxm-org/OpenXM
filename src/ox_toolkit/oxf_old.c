@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.1 2000/10/10 05:23:21 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.2 2000/10/12 15:53:25 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -135,7 +135,7 @@ OXFILE *ox_start(char* host, char* ctl_prog, char* dat_prog)
     OXFILE *st, *ct;
     char *passwd = generate_otp();
     int   listen[2];
-    short ports[2] = {0};  /* short! */
+    int   ports[2] = {0};  /* short! */
 
 	/* host を無視 */
     listen[0] = oxf_listen(&ports[0]);
