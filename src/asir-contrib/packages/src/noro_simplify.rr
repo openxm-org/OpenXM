@@ -8,6 +8,7 @@ localf is_paren;
 
 #define O_QUOTE 17
 
+#define I_FUNC 8
 #define I_LIST 18
 #define I_PAREN 34
 #define I_MINUS 35
@@ -21,16 +22,7 @@ def remove_paren(Q)
 def is_monomial(Q)
 {
 	F = quote_to_funargs(Q);
-	if ( F[0] == I_FORMULA && nmono(F[1]) == 1 )
-		return 1;
-	else
-		return 0;
-}
-
-def is_paren(Q)
-{
-	F = quote_to_funargs(Q);
-	if ( F[0] == I_PAREN )
+	if ( (F[0] == I_FORMULA && nmono(F[1]) == 1) || F[0] == I_FUNC )
 		return 1;
 	else
 		return 0;
