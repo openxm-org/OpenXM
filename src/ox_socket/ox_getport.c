@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.2 2000/12/01 08:09:41 maekawa Exp $
+ *	$OpenXM: OpenXM/src/ox_socket/ox_getport.c,v 1.3 2000/12/01 08:15:06 maekawa Exp $
  */
 
 #include <sys/types.h>
@@ -54,7 +54,7 @@
 struct sockaddr_storage {
 #ifdef HAVE_SOCKADDR_LEN
 	uint8_t		__ss_len;
-#endif /* HAVE_SOCKADDR_LEN
+#endif /* HAVE_SOCKADDR_LEN */
 	sa_family_t	__ss_family;
 
 	char		__ss_pad1[_SS_PAD1SIZE];
