@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.9 2000/09/12 23:09:18 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.10 2001/04/10 11:56:29 takayama Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -103,6 +103,7 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 */
 
 /*&jp
+\subsection{Indeterminate および Tree}
 Indeterminate は変数名をあらわす.
 v はバイト列であればなにを用いてもよいが,
 システム毎に変数名として用いられるバイト列は制限がある.
@@ -114,6 +115,7 @@ escape sequence を用いて実現するのは, 無理があるようである.
 テーブルを作成する必要があるであろう.)
 */
 /*&eg
+\subsection{Indetermnate and Tree}
 Indeterminate is a name of a variable.
 v may be any sequence of bytes, but each system has its own
 restrictions on the names of variables.
@@ -128,10 +130,10 @@ Group CMObject/Tree requires CMObject/Basic. \\
 Tree, Lambda $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
- {\sl Cstring}\, {\rm cdname}, {\sl List}\, {\rm leaves}) \\
+ {\sl List}\, {\rm attributes}, {\sl List}\, {\rm leaves}) \\
 & & \mbox{ --- 名前 name の定数または関数. 関数の評価はおこなわない. } \\
-& & \mbox{ --- cdname は空文字列でなければ name の意味が説明されている }\\
-& & \mbox{ --- OpenMath CD (content dictionary) の名前. } \\
+& & \mbox{ --- attributes は空リストでなければ name の属性を保持している. }\\
+& & \mbox{ --- 属性リストは, key と 値のペアである. }\\
 \mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
                           {\sl Tree} {\rm body}) \\                          
 & & \mbox{ --- body を args を引数とする関数とする. } \\
@@ -145,10 +147,10 @@ Group CMObject/Tree requires CMObject/Basic. \\
 Tree, Lambda $\in$ CMObject/Basic. \\
 \begin{eqnarray*}
 \mbox{Tree}        &:& ({\tt CMO\_TREE}, {\sl Cstring}\, {\rm name},
- {\sl Cstring}\, {\rm cdname}, {\sl List}\, {\rm leaves}) \\
+ {\sl List}\, {\rm attributes}, {\sl List}\, {\rm leaves}) \\
 & & \mbox{ --- A function or a constant of name. Functions are not evaluated. } \\
-& & \mbox{ --- cdname may be a null. If it is not null, it is the name of}\\
-& & \mbox{ --- the OpenMath CD (content dictionary). } \\
+& & \mbox{ --- attributes may be a null list. If it is not null, it is a list of}\\
+& & \mbox{ --- key and value pairs. } \\
 \mbox{Lambda}        &:& ({\tt CMO\_LAMBDA}, {\sl List}\, {\rm args},
                           {\sl Tree} {\rm body}) \\                          
 & & \mbox{ --- a function with the arguments body. } \\
@@ -212,7 +214,9 @@ It is the same as the Lambda expression in Lisp.
 //&jp 例: $sin(x+e)$ の表現.
 //&eg Example: the expression of $sin(x+e)$.
 \begin{verbatim}
-(CMO_TREE, (CMO_STRING, "sin"), (CMO_STRING, "basic"),
+(CMO_TREE, (CMO_STRING, "sin"), 
+    (CMO_LIST,[size=]1,(CMO_LIST,[size=]2,(CMO_STRING, "cdname"),
+                                          (CMO_STRING,"basic")))
     (CMO_LIST,[size=]1, 
         (CMO_TREE, (CMO_STRING, "plus"), (CMO_STRING, "basic"),
             (CMO_LIST,[size=]2, (CMO_INDETERMINATE,"x"),
