@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.25 2004/09/09 03:14:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.26 2004/09/09 08:50:12 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -113,6 +113,8 @@ struct object Kextension(struct object obj)
   FILE *fp;
   void (*oldsig)();
   extern SecureMode;
+  extern char *UD_str;
+  extern int UD_attr;
 
   if (obj.tag != Sarray) errorKan1("%s\n","Kextension(): The argument must be an array.");
   size = getoaSize(obj);
@@ -320,6 +322,16 @@ struct object Kextension(struct object obj)
       errorKan1("%s\n","The number must be 0, 1 or 2.");
     putUserDictionary2(obj2.lc.str,(obj2.rc.op->lc).ival,(obj2.rc.op->rc).ival,
                        m,CurrentContextp->userDictionary);
+  }else if (strcmp(key,"getattr")==0) {
+    if (size != 2) errorKan1("%s\n","[(getattr) symbol] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sstring)  errorKan1("%s\n","[(getattr) symbol] extension.");
+    rob = KfindUserDictionary(obj1.lc.str);
+	if (rob.tag != NoObject.tag) {
+	  if (strcmp(UD_str,obj1.lc.str) == 0) {
+		rob = KpoInteger(UD_attr);
+	  }else errorKan1("%s\n","getattr: internal error.");
+	}else rob = NullObject;
   }else if (strcmp(key,"getServerEnv")==0) {
     if (size != 2) errorKan1("%s\n","[(getServerEnv) serverName] extension.");
     obj1 = getoa(obj,1);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.17 2004/09/05 01:15:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.18 2004/09/05 08:08:41 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -82,6 +82,9 @@ int SGClock = 0;
 int UserCtrlC = 0;
 int OXlock = 0;
 int OXlockSaved = 0;
+
+char *UD_str;
+int  UD_attr;
 
 struct object * newObject() 
 {
@@ -249,14 +252,19 @@ struct object findUserDictionary(str,h0,h1,cp)
      char *str;    /* key */
      int h0,h1;    /* The hashing values of the key. */
      struct context *cp;
+	 /* Set char *UD_str, int UD_attr (attributes) */
 {
   int x;
   struct dictionary *dic;
+  extern char *UD_str;
+  extern int UD_attr;
+  UD_str = NULL; UD_attr = -1;
   dic = cp->userDictionary;
   x = h0;
   while (1) {
     if ((dic[x]).key == EMPTY) { break; }
     if (strcmp((dic[x]).key,str) == 0) {
+	  UD_str = (dic[x]).key; UD_attr = (dic[x]).attr;
       return( (dic[x]).obj );
     }
     x = (x+h1) % USER_DICTIONARY_SIZE;

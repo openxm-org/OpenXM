@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.3 2003/11/20 09:20:36 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -134,8 +134,13 @@ if ((ob).tag != Sarray) {fprintf(stderr,"Warning: PUTOA is for an array of objec
 #define SET_ATTR_FOR_ALL_WORDS 0x10
 #define PROTECT 0x1
 #define ABSOLUTE_PROTECT 0x2
+#define ATTR_INFIX       0x4
 
-#define DO_QUOTE 9999
+/* For status */
+#define STATUS_EOF   -1
+#define STATUS_BREAK 0x1
+#define STATUS_INFIX 0x2
+#define DO_QUOTE     0x10
 
 typedef enum {CCPUSH,CCPOP,CCRESTORE} actionOfContextControl;
 
