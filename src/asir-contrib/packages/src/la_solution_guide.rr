@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.1 2001/07/16 07:21:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.2 2001/07/16 07:33:48 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 /* Suffix should be  lasg_ */
 
@@ -139,7 +139,15 @@ def lasg_gen_1b(M,N,Rank,Seed) {
    return A;
 }
 
-
+/*&usage begin: lasg_gen_rank_prob(M,N,Rank,P)
+ It returns problems to evaluate ranks of matrices.
+ description:
+  It returns {P} 
+  {M} X {N} matrix of the rank {Rank}.
+  The symbol {Step} is used to control the difficulty
+  and the global variable {Lasg_seed0} is a seed for random numbers.
+ example: lasg_gen_rank_prob(3,4,2,2);
+end: */
 def lasg_gen_rank_prob(M,N,Rank,P) {
   extern Lasg_Seed0;
   Ans = [ ];
@@ -185,6 +193,16 @@ def lasg_print_matrix_list(B) {
   print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 }
 
+/*&usage begin: lasg_gen_eq_prob(M,Rank,N)
+ It returns problems to solve systems of linear equations.
+ description:
+  It returns {N} 
+  {M} X {M} matrix of the rank {Rank}.
+  The symbol {Step} is used to control the difficulty
+  and the global variable {Lasg_seed0} is a seed for random numbers.
+ example: lasg_gen_eq_prob(4,3,2);
+ ref: lasg_gen_lineq_quiz.
+end: */
 def lasg_gen_eq_prob(M,Rank,P) {
   extern Lasg_Seed0;
   Ans = [ ];
@@ -423,6 +441,19 @@ def lasg_kernel(A) {
   return Ans;
 }
 
+/*&usage begin: lasg_gen_lineq_quiz()
+ It returns a set of problems and answers 
+ to solve systems of linear equations
+ in the LaTeX format.
+ description:
+  Change parameters in the program
+    P = lasg_gen_eq_prob(M,R,N);
+  where {M} X {M} is the size of the matrix, {R} is the rank, and 
+  {N} is the number of problems.
+  The symbol {Step} is used to control the difficulty
+  and the global variable {Lasg_seed0} is a seed for random numbers.
+ Ref: lasg_gen_rank_prob, lasg_gen_eq_prob, lasg_build_solution, lasg_test.
+end: */
 def lasg_gen_lineq_quiz() {
    S = "\\documentclass{article} \\begin{document}\n";
    N = 2;  /* Number of questions */
