@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.tex,v 1.2 2000/01/20 15:09:24 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.tex,v 1.3 2000/01/21 09:55:21 takayama Exp $
 
 \documentclass{article}
 \title{Mathematica Client for Open XM}
@@ -11,17 +11,16 @@
 
 \section{Mathematica Client}
 
-We provide an OX client named {\tt math2ox} by an external module for
-Mathematica. That is, we can call an OX server on Mathematica.  The
-math2ox has communication with the OX server by OpenXM protocols and
-communication with Mathematica by MathLink.  The math2ox interpret our
-commands and translate them to OX messages.
+The program {\tt math2ox} is an external module for Mathematica
+to call OpenXM servers.
+The {\tt math2ox} communicates with OpenXM servers by the OpenXM protocol
+and communicates with Mathematica by MathLink.
 
 The {\tt math2ox} has the following commands:\\
 {\tt OxStart[s\_String], 
 OxStartInsecure[s\_String, p\_Integer, q\_Integer],
 OxStartRemoteSSH[s\_String, t\_String], 
-OxExecuteString[s\_String], OxParse[s\_String], OxGet[], OxPopCMO[],
+OxExecuteString[s\_String], OxSendMessage[s\_String], OxGet[], OxPopCMO[],
 OxPopString[], OxClose[], OxReset[]}.
 
 First, let us load the math2ox.
@@ -32,13 +31,13 @@ In[1]:= Install["math2ox"]
 Second, let us open a connection with an OX server.
 For example, if we want to call the ox\_sm1 (the kan/sm1 server), then
 \begin{verbatim}
-In[2] := OxStart["ox_sm1"]
+In[2] := oxid = OxStart["ox_sm1"]
 \end{verbatim}
 where we have the connection of reverse mode.  The OxStart function
 automatically invoke ox\_sm1 on the local machine.  If you need to
 connect an OX server on a remote machine, then you can use reverse mode.
 \begin{verbatim}
-In[2] := OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
+In[2] := oxid = OxStartInsecure["water.s.kanazawa-u.ac.jp", 1300, 1400]
 \end{verbatim}
 The mode is not secured but you can crypt data stream by using ssh
 (Secure SHell).
@@ -49,20 +48,20 @@ In[3] := Run["ssh -f water ox -insecure -ox ox_sm1 -host water"]
 Third, let us send an OX message to the OX server.
 We can send an OX message written in OX/CMO expressions.
 \begin{verbatim}
-In[4] := OxParse["(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
-In[5] := OxParse["(OX_COMMAND, (SM_popCMO))"]
+In[4] := OxSendMessage["(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
+In[5] := OxSendMessage["(OX_COMMAND, (SM_popCMO))"]
 \end{verbatim}
-If the expression is illegal, then nothing is sent.
+If the expression conains syntax errors, then nothing is sent.
 
-Remarks: if SM\_popCMO is sent by the {\tt OxParse[]} function, then the
+Remarks: if SM\_popCMO is sent by the {\tt OxSendMessage[]} function, then the
 OX stack machine returns the top of the stack to the {\tt math2ox}.
 Then, in order to receive the message, we need to call the {\tt OxGet[]}
-function.
+function always after executing {\tt OxSendMessage[]}
 \begin{verbatim}
 In[6] := OxGet[]
 \end{verbatim}
 
-If we do not use the {\tt OxParse} function and use the {\tt OxPopCMO[]}
+If we do not use the {\tt OxSendMessage} function and use the {\tt OxPopCMO[]}
 function, then we do not need to call the {\tt OxGet[]}.
 \begin{verbatim}
 In[5] := OxPopCMO[]

@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.1 2000/03/08 06:59:37 ohara Exp $
 
 \input texinfo
 @iftex
@@ -55,7 +55,7 @@ and communicates with Mathematica by MathLink.
 @section @code{OxStart}
 @findex OxStart
 @table @t
-@item OxStart(@var{s})
+@item OxStart[@var{s}]
 ::  Start the OX server @code{s}. 
 @end table
 
@@ -73,13 +73,52 @@ String
 
 @example
 In[1]:= Install["math2ox"]
-In[2] := Pid = OxStart["ox_sm1"]
+In[2]:= pid = OxStart["ox_sm1"]
 @end example
 
 In this example, @code{ox_sm1} is started on the local machine.
 
+@c  Description of OxSendMessage
+@menu
+* OxSendMessage::
+@end menu
+@node OxSendMessage,,, Mathematica Client Functions
+@section @code{OxSendMessage}
+@findex OxSendMessage
+@table @t
+@item OxSendMessage[@var{pid}, @var{s}]
+::  SendMessage @code{s} to the OX server @code{pid}.
+@end table
+
+@table @var
+@item return
+Integer
+@item id
+Integer
+@item s
+String
+@end table
+
+@itemize @bullet
+@item  It starts the OX server @code{s}. 
+@item Servers are looked for in the directory $OenXM_HOME/bin , hoge hoge.
+@end itemize
+
+@example
+In[4] := OxSendMessage[pid, "(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
+In[5] := OxSendMessage[pid, "(OX_COMMAND, (SM_popCMO))"]
+@end example
+
+In this example, an OX data message 
+(OX_DATA, (CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO)) 
+and an OX command message (OX_COMMAND, (SM_popCMO)) are sent to 
+the OX server @code{pid}.
+
 @c  Put descriptions of a next function.
 
+
+@node Starting OX servers on a remote machines,,, Top
+@chapter Starting OX servers on a remote machines
 
 @node Sample Programs,,, Top
 @chapter Sample Programs
