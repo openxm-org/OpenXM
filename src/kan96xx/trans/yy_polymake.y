@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.2 2004/04/08 01:49:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.3 2004/07/15 07:50:40 takayama Exp $ */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y ; gcc yylex_polymake.c  yy_polymake.tab.c*/
 %{
@@ -101,6 +101,18 @@ dataUnit
 | PM_LBrace dataUnitList PM_RBrace {
   $$=pmAddChild($2,pmNewTreeObject("_tuple"));  /* tuple */
   /* printf("()");pmPrintObject(stdout,$2); */
+}
+| PM_LCurryBrace  PM_RCurryBrace {
+  $$=pmNewTreeObject("_set"); 
+}
+| PM_LAngle PM_RAngle {
+  $$=pmNewTreeObject("_pairs"); 
+}
+| PM_LBracket PM_RBracket {
+  $$=pmNewTreeObject("_bracket");
+}
+| PM_LBrace PM_RBrace {
+  $$=pmNewTreeObject("_tuple");
 }
 ;
 
