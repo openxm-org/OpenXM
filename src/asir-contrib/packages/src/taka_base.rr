@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.4 2001/08/15 04:20:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.5 2001/08/17 11:57:51 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -7,6 +7,84 @@
 
 def taka_base_rule_name(I) {
   return strtov("taka_base_v"+rtostr(I));
+}
+
+def taka_base_cancel(S) {
+  if (type(S) == LIST) {
+    N = length(S);
+    Ans = newvect(N);
+    for (I=0; I<N; I++) {
+      Ans[I] = taka_base_cancel(S[I]);
+    }
+    return vtol(Ans);
+  }
+  if (type(S) == MATRIX || type(S) == VECTOR) {
+    S1 = matrix_clone(S);  
+    
+    if (type(S1) == VECTOR) {
+       N = size(S1)[0];
+       for (I=0; I<N; I++) {
+         S1[I] = taka_base_cancel(S1[I]);
+       }
+       return(S1);
+    }else if (type(S1) == MATRIX) {
+       M = size(S1)[0]; N = size(S1)[1];
+       for (I=0; I<M; I++) {
+         for (J=0; J<N; J++) {
+           S1[I][J] = taka_base_cancel(S1[I][J]);
+         }
+       }
+       return(S1);
+    }else {
+       print(S1); error("internal error: matrix_clone is not working properly.");
+    }
+  }
+  if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
+    Rule = Rule->Rule;
+  }
+  if (type(S) == 3) {
+    return red(S);
+  }else{
+    return S;
+  }
+}
+
+def taka_base_flatten(S) {
+/*  RemoveZero = getopt(remove_zero);
+  if (type(RemoveZero) == -1) {
+    RemoveZero = 0;
+  }else{
+    RemoveZero = 1;
+  } Options should be passed to the subroutine. */
+  Ans = [ ];
+  if (type(S) == LIST) {
+    N = length(S);
+    for (I=0; I<N; I++) {
+      T = taka_base_flatten(S[I]);
+      Ans = append(Ans,T);
+    }
+    return Ans;
+  }
+  if (type(S) == VECTOR) {
+    N = size(S)[0];
+    for (I=0; I<N; I++) {
+      T = taka_base_flatten(S[I]);
+      Ans = append(Ans,T);
+    }
+    return Ans;
+  }
+  if (type(S) == MATRIX) {
+    N = size(S)[0];
+    M = size(S)[1];
+    for (I=0; I<N; I++) {
+      for (J=0; J<M; J++) {
+        T = taka_base_flatten(S[I][J]);
+        Ans = append(Ans,T);
+      }
+    }
+    return Ans;
+  }
+  return [S];
 }
 
 def taka_base_replace(S,Rule) {

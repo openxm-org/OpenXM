@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.9 2001/08/17 11:57:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.10 2001/08/18 08:18:14 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -28,6 +28,14 @@ ox_loadfile(Loaded_taka_poly,"taka_poly.rr") $
 
 #define OX_LOADFILE(A,B)   /* Do nothing. */
 /* Base module */
+def base_cancel(S) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_cancel(S);
+}
+def base_flatten(S) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_flatten(S);
+}
 def base_replace(S,Rule) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_replace(S,Rule);
@@ -52,6 +60,10 @@ def number_binomial(P,Q) { NOT_YET; }
 
 /* See longname for basic_ and poly_. Here are some added functions */
 def poly_solve(Eqs,V) { NOT_YET; }
+def poly_solve_linear(Eqs,V) { 
+  OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
+  return taka_poly_solve_linear(Eqs,V);
+}
 def poly_weight_vector(W) { NOT_YET; }
 def poly_elimination_ideal(I,V,V2) { NOT_YET; }
 

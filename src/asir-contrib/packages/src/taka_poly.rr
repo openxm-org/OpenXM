@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.1 2001/08/17 11:57:51 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -33,6 +33,52 @@ def taka_poly_solve_poly1(F,V) {
   return Ans;
 }
 
+def taka_poly_solve_linear(Z,X) {
+  Size_Z = length(Z);
+  Sol = [ ];
+  F = [];
+  for (I = 0; I < Size_Z; I++) {
+    if (Z[I] != 0) {
+      if (type(Z[I]) == 3) {
+        F = append(F,[ nm(red(Z[I])) ]);
+      }else{
+        F = append(F, [Z[I]]);
+      }
+    }
+  }
+
+  if (F == []) {
+    return Sol;
+  }
+
+  G = gr(F, reverse(X), 2);
+
+  if (G[0] == 1 || G[0] == -1) {
+    return [];
+  }
+
+  Sol = newvect(length(X));
+  N = 0;
+  for (I = 0; I < length(G); I++) {
+    for (J = length(X) - 1; J >= 0; J--) {
+      Nm = nm(G[I]); Dn = dn(G[I]);
+      if (coef(Nm, 1, X[J]) != 0) {
+        Sol[J] = [X[J], X[J] - Nm/coef(Nm, 1, X[J])];
+        N++;
+        break;
+      }
+    }
+  }
+  Sol2 = newvect(N);
+  I = 0;
+  for (J=0; J<size(Sol)[0]; J++) {
+    if (Sol[J] == 0) {
+    }else{
+       Sol2[I] = Sol[J]; I++;
+    }
+  }
+  return vtol(Sol2);
+}
 
 Taka_poly_loaded = 1$
 end$
