@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.15 2000/03/10 10:34:47 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.16 2000/03/11 07:09:17 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.2
@@ -41,10 +41,10 @@ $(WEBKOBE)/index.html : index.html
 	cp -f index.html $(WEBKOBE1)
 
 $(WEBKOBE1)/index-binary.html : index-binary.html
-	cp -f index-binary.html $(WEBKOBE)
+	cp -f index-binary.html $(WEBKOBE1)
 
 $(WEBKOBE1)/index-packages.html : index-packages.html
-	cp -f index-packages.html $(WEBKOBE)
+	cp -f index-packages.html $(WEBKOBE1)
 
 $(WEBKOBE)/issac2000.ps : $(OpenXM_doc)/issac2000/issac2000.ps
 	cp -f $(OpenXM_doc)/issac2000/issac2000.ps $(WEBKOBE)
