@@ -1,5 +1,6 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.92 2000/03/10 03:15:57 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.93 2000/03/13 06:51:04 takayama Exp $
 
+OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
 OPENXM_CONTRIB2=../../OpenXM_contrib2
 LIBDIR=../lib
@@ -243,6 +244,7 @@ configure-links:
 	ln -f -s $(BINDIR) bin
 	ln -f -s $(OPENXM_CONTRIB)/gc gc
 	ln -f -s $(OPENXM_CONTRIB)/gmp gmp
+	-mkdir ${OpenXM_HOME}/libexec 
 
 configure-oxtoolkit:
 	(cd ox_toolkit; ./make-configure)
