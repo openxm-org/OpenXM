@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.h,v 1.3 1999/11/02 19:51:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/parse.h,v 1.4 1999/11/06 21:39:37 ohara Exp $ */
 
 #ifndef _PARSE_H_
 
@@ -37,10 +37,15 @@ int mygetc();
 int setmode_mygetc(char *s, int len);
 
 typedef struct {
-	char *key;
-	int  tag;
-	int  token;
-	int  type;
+    char *key;
+    int  tag;
+    int  token;
+    int  type;
 } symbol; 
+
+symbol* lookup_by_symbol(char *key);
+symbol* lookup_by_token(int tok);
+symbol* lookup_by_tag(int tag);
+symbol* lookup(int i);
 
 #endif /* _PARSE_H_ */

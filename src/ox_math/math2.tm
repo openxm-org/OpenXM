@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.3 1999/11/04 17:53:04 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.4 1999/11/04 19:33:17 ohara Exp $ */
 
 /* サーバとの通信路を開く */
 int OX_start P((const char *));

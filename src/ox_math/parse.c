@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.6 1999/11/04 18:15:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.7 1999/11/06 21:39:37 ohara Exp $ */
 
 /* OX expression, CMO expression パーサ */
 
@@ -88,8 +88,8 @@ static jmp_buf env_parse;
 /* 構文解析に失敗したことを意味する. */
 static int parse_error(char *s)
 {
-	fprintf(stderr, "syntax error: %s\n", s);
-	longjmp(env_parse, 1);
+    fprintf(stderr, "syntax error: %s\n", s);
+    longjmp(env_parse, 1);
 }
 
 /* この部分は書き換え予定. */
@@ -97,9 +97,9 @@ cmo *parse()
 {
     cmo *m;
 
-	if (setjmp(env_parse) != 0) {
-		return NULL; /* 構文解析に失敗したら NULL を返す. */
-	}
+    if (setjmp(env_parse) != 0) {
+        return NULL; /* 構文解析に失敗したら NULL を返す. */
+    }
 
     do{
         token = lex();
@@ -323,7 +323,7 @@ static cmo *parse_cmo_string()
     }else if (!pflag_cmo_addrev) {
         parse_error("invalid cmo string.");
     }
-	s = parse_string();
+    s = parse_string();
     m = new_cmo_string(s);
     parse_right_parenthesis();
     return (cmo *)m;
@@ -331,11 +331,11 @@ static cmo *parse_cmo_string()
 
 static cmo *parse_cmo_mathcap()
 {
-	cmo *ob;
+    cmo *ob;
 
     parse_comma();
-	parse_left_parenthesis();
-	ob = parse_cmo();
+    parse_left_parenthesis();
+    ob = parse_cmo();
     parse_right_parenthesis();
     return (cmo *)new_cmo_mathcap(ob);
 }
@@ -347,60 +347,60 @@ static cmo *parse_cmo_list()
     cmo_list *m = new_cmo_list();
     cmo *newcmo;
 
-	if (token == ',') {
-		parse_comma();
+    if (token == ',') {
+        parse_comma();
 
-		if (token == T_INTEGER) {
-			parse_integer();
-			parse_comma();
-		}else if (!pflag_cmo_addrev) {
-			parse_error("invalid cmo_list.");
-		}
+        if (token == T_INTEGER) {
+            parse_integer();
+            parse_comma();
+        }else if (!pflag_cmo_addrev) {
+            parse_error("invalid cmo_list.");
+        }
 
-		while(token == '(') {
-			parse_left_parenthesis();
-			newcmo = parse_cmo();
-			append_cmo_list(m, newcmo);
-			if (token != ',') {
-				break;
-			}
-			parse_comma();
-		}
-	}else if (!pflag_cmo_addrev) {
-		parse_error("invalid cmo_list.");
-	}
+        while(token == '(') {
+            parse_left_parenthesis();
+            newcmo = parse_cmo();
+            append_cmo_list(m, newcmo);
+            if (token != ',') {
+                break;
+            }
+            parse_comma();
+        }
+    }else if (!pflag_cmo_addrev) {
+        parse_error("invalid cmo_list.");
+    }
     parse_right_parenthesis();
     return (cmo *)m;
 }
 
 static cmo *parse_cmo_monomial32()
 {
-	int size;
-	int *exps;
-	int i;
-	cmo_monomial32 *m;
-	int tag;
+    int size;
+    int *exps;
+    int i;
+    cmo_monomial32 *m;
+    int tag;
 
-	parse_comma();
-	size = parse_integer();
-	if (size < 0) {
-		parse_error("invalid value.");
-	}
-	m = new_cmo_monomial32_size(size);
+    parse_comma();
+    size = parse_integer();
+    if (size < 0) {
+        parse_error("invalid value.");
+    }
+    m = new_cmo_monomial32_size(size);
 
-	for(i=0; i<size; i++) {
-		parse_comma();
-		m->exps[i] = parse_integer();
-	}
-	parse_comma();
-	parse_left_parenthesis();
-	m->coef = parse_cmo(); 
-	tag = m->coef->tag;
+    for(i=0; i<size; i++) {
+        parse_comma();
+        m->exps[i] = parse_integer();
+    }
+    parse_comma();
+    parse_left_parenthesis();
+    m->coef = parse_cmo(); 
+    tag = m->coef->tag;
 
     /* m->coef は CMO_ZZ 型か CMO_INT32 型でなければならない */
-	if (tag != CMO_ZZ && tag != CMO_INT32) {
-		parse_error("invalid cmo.");
-	}
+    if (tag != CMO_ZZ && tag != CMO_INT32) {
+        parse_error("invalid cmo.");
+    }
     parse_right_parenthesis();
     return (cmo *)m;
 }
@@ -446,16 +446,16 @@ static cmo *parse_cmo_dms_generic()
 
 static cmo *parse_cmo_ring_by_name()
 {
-	cmo *ob;
+    cmo *ob;
 
     parse_comma();
-	parse_left_parenthesis();
-	ob = parse_cmo();  	
+    parse_left_parenthesis();
+    ob = parse_cmo();   
 
     /* ob は CMO_STRING 型でなければならない */
-	if (ob->tag != CMO_STRING) {
-		parse_error("invalid cmo.");
-	}
+    if (ob->tag != CMO_STRING) {
+        parse_error("invalid cmo.");
+    }
     parse_right_parenthesis();
     return (cmo *)new_cmo_ring_by_name(ob);
 }
@@ -466,66 +466,66 @@ static cmo *parse_cmo_distributed_polynomial()
     int i=0;
     cmo_distributed_polynomial *m = new_cmo_distributed_polynomial();
     cmo *ob;
-	int tag;
+    int tag;
 
-	if (token == ',') {
-		parse_comma();
+    if (token == ',') {
+        parse_comma();
 
-		if (token == T_INTEGER) {
-			parse_integer();
-			parse_comma();
-		}else if (!pflag_cmo_addrev) {
-			parse_error("invalid d-polynomial.");
-		}
+        if (token == T_INTEGER) {
+            parse_integer();
+            parse_comma();
+        }else if (!pflag_cmo_addrev) {
+            parse_error("invalid d-polynomial.");
+        }
 
-		parse_left_parenthesis();
-		m->ringdef = parse_cmo();
-		tag = m->ringdef->tag;
-		/* m->ringdef は DringDefinition でなければならない */
-		if (tag != CMO_RING_BY_NAME && tag != CMO_DMS_GENERIC 
-			&& tag != CMO_DMS_OF_N_VARIABLES) {
-			parse_error("invalid cmo.");
-		}
+        parse_left_parenthesis();
+        m->ringdef = parse_cmo();
+        tag = m->ringdef->tag;
+        /* m->ringdef は DringDefinition でなければならない */
+        if (tag != CMO_RING_BY_NAME && tag != CMO_DMS_GENERIC 
+            && tag != CMO_DMS_OF_N_VARIABLES) {
+            parse_error("invalid cmo.");
+        }
 
-		parse_comma();
+        parse_comma();
 
-		while(token == '(') {
-			parse_left_parenthesis();
-			ob = parse_cmo();
-			if (ob->tag != CMO_MONOMIAL32 && ob->tag != CMO_ZERO) {
-				parse_error("invalid cmo.");
-			}
-			append_cmo_list((cmo_list *)m, ob);
-			if (token != ',') {
-				break;
-			}
-			parse_comma();
-		}
-	}else if (!pflag_cmo_addrev) {
-		parse_error("invalid d-polynomial.");
-	}
+        while(token == '(') {
+            parse_left_parenthesis();
+            ob = parse_cmo();
+            if (ob->tag != CMO_MONOMIAL32 && ob->tag != CMO_ZERO) {
+                parse_error("invalid cmo.");
+            }
+            append_cmo_list((cmo_list *)m, ob);
+            if (token != ',') {
+                break;
+            }
+            parse_comma();
+        }
+    }else if (!pflag_cmo_addrev) {
+        parse_error("invalid d-polynomial.");
+    }
     parse_right_parenthesis();
     return (cmo *)m;
 }
 
 static cmo *parse_cmo_indeterminate()
 {
-	cmo *ob;
+    cmo *ob;
 
     parse_comma();
-	parse_left_parenthesis();
-	ob = parse_cmo();
+    parse_left_parenthesis();
+    ob = parse_cmo();
     parse_right_parenthesis();
     return (cmo *)new_cmo_indeterminate(ob);
 }
 
 static cmo *parse_cmo_error2()
 {
-	cmo *ob;
+    cmo *ob;
 
     parse_comma();
-	parse_left_parenthesis();
-	ob = parse_cmo();
+    parse_left_parenthesis();
+    ob = parse_cmo();
     parse_right_parenthesis();
     return (cmo *)new_cmo_error2(ob);
 }
@@ -567,70 +567,70 @@ static int lex_digit()
 #define MK_KEY_OX(x)   { #x , x  , TOKEN(x)  , IS_OX  }
 
 static symbol symbol_list[] = {
-	MK_KEY_CMO(CMO_NULL),
+    MK_KEY_CMO(CMO_NULL),
     MK_KEY_CMO(CMO_INT32), 
-	MK_KEY_CMO(CMO_DATUM),
-	MK_KEY_CMO(CMO_STRING), 
-	MK_KEY_CMO(CMO_MATHCAP),
-	MK_KEY_CMO(CMO_LIST), 
-	MK_KEY_CMO(CMO_MONOMIAL32),
-	MK_KEY_CMO(CMO_ZZ),
-	MK_KEY_CMO(CMO_ZERO), 
-	MK_KEY_CMO(CMO_DMS_GENERIC),
-	MK_KEY_CMO(CMO_RING_BY_NAME),
-	MK_KEY_CMO(CMO_INDETERMINATE),
-	MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
-	MK_KEY_CMO(CMO_ERROR2),
+    MK_KEY_CMO(CMO_DATUM),
+    MK_KEY_CMO(CMO_STRING), 
+    MK_KEY_CMO(CMO_MATHCAP),
+    MK_KEY_CMO(CMO_LIST), 
+    MK_KEY_CMO(CMO_MONOMIAL32),
+    MK_KEY_CMO(CMO_ZZ),
+    MK_KEY_CMO(CMO_ZERO), 
+    MK_KEY_CMO(CMO_DMS_GENERIC),
+    MK_KEY_CMO(CMO_RING_BY_NAME),
+    MK_KEY_CMO(CMO_INDETERMINATE),
+    MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
+    MK_KEY_CMO(CMO_ERROR2),
     MK_KEY_SM(SM_popCMO),   
-	MK_KEY_SM(SM_popString), 
-	MK_KEY_SM(SM_mathcap),  
-	MK_KEY_SM(SM_pops), 
-	MK_KEY_SM(SM_executeStringByLocalParser), 
-	MK_KEY_SM(SM_executeFunction), 
-	MK_KEY_SM(SM_setMathCap),
+    MK_KEY_SM(SM_popString), 
+    MK_KEY_SM(SM_mathcap),  
+    MK_KEY_SM(SM_pops), 
+    MK_KEY_SM(SM_executeStringByLocalParser), 
+    MK_KEY_SM(SM_executeFunction), 
+    MK_KEY_SM(SM_setMathCap),
     MK_KEY_SM(SM_control_kill), 
-	MK_KEY_SM(SM_control_reset_connection),
+    MK_KEY_SM(SM_control_reset_connection),
     MK_KEY_OX(OX_COMMAND),
-	MK_KEY_OX(OX_DATA),
-	{NULL, 0, 0, 0}        /* a gate keeper */
+    MK_KEY_OX(OX_DATA),
+    {NULL, 0, 0, 0}        /* a gate keeper */
 }; 
 
 symbol* lookup_by_symbol(char *key)
 {
-	symbol *symp;
-	for(symp = symbol_list; symp->key != NULL; symp++) {
-		if (strcmp(key, symp->key)==0) {
-			return symp;
-		}
-	}
+    symbol *symp;
+    for(symp = symbol_list; symp->key != NULL; symp++) {
+        if (strcmp(key, symp->key)==0) {
+            return symp;
+        }
+    }
     return NULL;
 }
 
 symbol* lookup_by_token(int tok)
 {
-	symbol *symp;
-	for(symp = symbol_list; symp->key != NULL; symp++) {
-		if (tok == symp->token) {
-			return symp;
-		}
-	}
+    symbol *symp;
+    for(symp = symbol_list; symp->key != NULL; symp++) {
+        if (tok == symp->token) {
+            return symp;
+        }
+    }
     return NULL;
 }
 
 symbol* lookup_by_tag(int tag)
 {
-	symbol *symp;
-	for(symp = symbol_list; symp->key != NULL; symp++) {
-		if (tag == symp->tag) {
-			return symp;
-		}
-	}
+    symbol *symp;
+    for(symp = symbol_list; symp->key != NULL; symp++) {
+        if (tag == symp->tag) {
+            return symp;
+        }
+    }
     return NULL;
 }
 
 symbol* lookup(int i)
 {
-	return &symbol_list[i];
+    return &symbol_list[i];
 }
 
 /* バッファあふれした場合の対策をちゃんと考えるべき */
@@ -664,11 +664,11 @@ static char *lex_quoted_string()
 
 static int token_of_symbol(char *key)
 {
-	symbol *symp = lookup_by_symbol(key);
-	if (symp != NULL) {
-		yylval.d = symp->tag;
-		return symp->token;
-	}
+    symbol *symp = lookup_by_symbol(key);
+    if (symp != NULL) {
+        yylval.d = symp->tag;
+        return symp->token;
+    }
 #if DEBUG
     fprintf(stderr, "lex error:: \"%s\" is unknown symbol.\n", key);
 #endif
@@ -687,7 +687,7 @@ static int lex_symbol()
         c = GETC();
     }
     fprintf(stderr, "buffer overflow!\n");
-	return 0;
+    return 0;
 }
 
 /* return する前に一文字先読みしておく. */
@@ -750,21 +750,21 @@ static int  mygetc_nonlf_flag;
 
 int mygetc()
 {
-	int c = '\0';
+    int c = '\0';
 
-	if (mygetc_nonlf_flag && mygetc_counter <= mygetc_counter_max) {
-		c = mygetc_line[mygetc_counter++];
-		if (c == '\0') {
-			c = '\n';
-			mygetc_nonlf_flag = 0;
-		}
+    if (mygetc_nonlf_flag && mygetc_counter <= mygetc_counter_max) {
+        c = mygetc_line[mygetc_counter++];
+        if (c == '\0') {
+            c = '\n';
+            mygetc_nonlf_flag = 0;
+        }
     }
     return c;
 }
 
 int setmode_mygetc(char *s, int len)
 {
-	mygetc_nonlf_flag=1;
+    mygetc_nonlf_flag=1;
     mygetc_counter=0;
     mygetc_counter_max=len;
     mygetc_line=s;
@@ -772,5 +772,5 @@ int setmode_mygetc(char *s, int len)
 
 int setflag_parse(int flag)
 {
-	pflag_cmo_addrev = flag;
+    pflag_cmo_addrev = flag;
 }

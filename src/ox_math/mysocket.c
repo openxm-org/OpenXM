@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/mysocket.c,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
 /* 
 setsockopt()してオプションを設定後,
 socket, bind

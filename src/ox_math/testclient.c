@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/testclient.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/testclient.c,v 1.3 1999/11/06 21:39:37 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,38 +28,21 @@ int dumpx(int fd, int n)
     return len;
 }
 
-/* 平成11年7月10日 */
-#define VERSION 0x11071000
-#define ID_STRING  "testclient version 0.11071000"
+/* 平成11年11月7日 */
+#define VERSION 0x11110700
+#define ID_STRING  "testclient version 0.11110700"
 
 int prompt()
 {
     printf("> ");
 }
 
-int main(int argc, char* argv[])
+int test_0()
 {
-    ox* m = NULL;
     cmo* c = NULL;
-    int code;
-	char *server = "ox_sm1";
 
-    setbuf(stderr, NULL);
-
-    if (argc>1) {
-		server = argv[1];
-	}
-	fprintf(stderr, "testclient:: I use %s as an OX server.\n", server);
-	sv = ox_start("localhost", "ox", server); 
-	if (sv == NULL) {
-		fprintf(stderr, "testclient:: I cannot connect to servers.\n");
-		exit(1);
-	}
-
-    if (argc>1) {
-        ox_mathcap(sv);
-        send_ox_cmo(sv->stream, make_mathcap_object(VERSION, ID_STRING));
-    }
+	ox_mathcap(sv);
+	send_ox_cmo(sv->stream, make_mathcap_object(VERSION, ID_STRING));
 
     ox_reset(sv);
     send_ox_cmo(sv->stream, new_cmo_string("N[ArcTan[1]]"));
@@ -69,6 +52,30 @@ int main(int argc, char* argv[])
     c = receive_cmo(sv->stream);
     fprintf(stderr, "testclient:: cmo received.\n");
     print_cmo(c);
+}
+
+int main(int argc, char* argv[])
+{
+    ox* m = NULL;
+    cmo* c = NULL;
+    int code;
+    char *server = "ox_sm1";
+
+    setbuf(stderr, NULL);
+
+    if (argc>1) {
+        server = argv[1];
+    }
+    fprintf(stderr, "testclient:: I use %s as an OX server.\n", server);
+    sv = ox_start("localhost", "ox", server); 
+    if (sv == NULL) {
+        fprintf(stderr, "testclient:: I cannot connect to servers.\n");
+        exit(1);
+    }
+
+    if (strcmp(argc, "ox_math")==0) {
+		test_0();
+    }
 
     while(prompt(), (m = parse()) != NULL) {
         send_ox(sv, m);

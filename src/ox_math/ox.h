@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.6 1999/11/04 18:13:48 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.7 1999/11/06 21:39:36 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -39,9 +39,9 @@ typedef int oxfd;
 #if 0
 /* そのうちこちらに移行したい... */
 typedef struct {
-	int fd_read;
-	int fd_write;
-	int byteorder;
+    int fd_read;
+    int fd_write;
+    int byteorder;
 } oxfile;
 typedef oxfile *oxfd;
 #endif
@@ -77,7 +77,7 @@ typedef struct {
 
 typedef struct {
     int tag;
-	int size;
+    int size;
     char *body;
 } cmo_datum;
 
@@ -108,10 +108,10 @@ typedef struct {
 
 
 typedef struct {
-	int tag;
-	int length;
-	int *exps;
-	cmo *coef;
+    int tag;
+    int length;
+    int *exps;
+    cmo *coef;
 } cmo_monomial32;
 
 typedef struct {
@@ -121,8 +121,8 @@ typedef struct {
 
 typedef struct {
     int tag;
-	cmo *num;  /* 分子 (cmo_zz) */
-	cmo *den;  /* 分母 (cmo_zz) */
+    cmo *num;  /* 分子 (cmo_zz) */
+    cmo *den;  /* 分母 (cmo_zz) */
 } cmo_qq;
 
 /* cmo_list の派生. append_cmo_list を使ってよい. */
@@ -130,7 +130,7 @@ typedef struct {
     int tag;
     int length;    /* number of monomials */
     cell head[1];  /* a list of monomials */
-	cmo *ringdef;
+    cmo *ringdef;
 } cmo_distributed_polynomial;
 
 typedef cmo ox;
@@ -145,35 +145,35 @@ typedef struct {
     cmo *cmo;
 } ox_data;
 
-cmo_null*     new_cmo_null();
-cmo_int32*    new_cmo_int32(int i);
-cmo_string*   new_cmo_string(char* s);
-cmo_mathcap*  new_cmo_mathcap(cmo* ob);
-cmo_list*     new_cmo_list();
-cmo_monomial32* new_cmo_monomial32();
-cmo_monomial32* new_cmo_monomial32_size(int size);
-cmo_zz*       new_cmo_zz();
-cmo_zz*       new_cmo_zz_size(int size);
-cmo_zz*       new_cmo_zz_set_si(int integer);
-cmo_zz*       new_cmo_zz_noinit();
-cmo_zero*     new_cmo_zero();
+cmo_null*          new_cmo_null();
+cmo_int32*         new_cmo_int32(int i);
+cmo_string*        new_cmo_string(char* s);
+cmo_mathcap*       new_cmo_mathcap(cmo* ob);
+cmo_list*          new_cmo_list();
+cmo_monomial32*    new_cmo_monomial32();
+cmo_monomial32*    new_cmo_monomial32_size(int size);
+cmo_zz*            new_cmo_zz();
+cmo_zz*            new_cmo_zz_size(int size);
+cmo_zz*            new_cmo_zz_set_si(int integer);
+cmo_zz*            new_cmo_zz_noinit();
+cmo_zero*          new_cmo_zero();
 cmo_distributed_polynomial* new_cmo_distributed_polynomial();
-cmo_dms_generic* new_cmo_dms_generic();
-cmo_ring_by_name* new_cmo_ring_by_name(cmo* ob);
+cmo_dms_generic*   new_cmo_dms_generic();
+cmo_ring_by_name*  new_cmo_ring_by_name(cmo* ob);
 cmo_indeterminate* new_cmo_indeterminate(cmo* ob);
-cmo_error2*   new_cmo_error2(cmo* ob);
+cmo_error2*        new_cmo_error2(cmo* ob);
 
-ox_data*      new_ox_data(cmo* c);
-ox_command*   new_ox_command(int sm_code);
+ox_data*           new_ox_data(cmo* c);
+ox_command*        new_ox_command(int sm_code);
 
-cmo_error2*   gen_error_object(int err_code);
-cmo*          make_mathcap_object(int version, char *id_string);
+cmo_error2*        make_error_object(int err_code, cmo *ob);
+cmo*               make_mathcap_object(int version, char *id_string);
 
-void          resize_mpz(mpz_ptr mpz, int size);
-cmo*          receive_cmo(int fd);
-cmo*          receive_cmo2(int fd);
-int           receive_int32(int fd);
-int           receive_ox_tag(int fd);
+void               resize_mpz(mpz_ptr mpz, int size);
+cmo*               receive_cmo(int fd);
+cmo*               receive_cmo2(int fd);
+int                receive_int32(int fd);
+int                receive_ox_tag(int fd);
 
 int           send_cmo(int fd, cmo* m);
 int           send_int32(int fd, int integer);
@@ -194,6 +194,7 @@ char*         ox_popString(ox_file_t sv, int fd);
 cmo*          ox_pop_cmo(ox_file_t sv, int fd);
 void          ox_reset(ox_file_t sv);
 ox_file_t     ox_start(char* host, char* prog1, char* prog2);
+ox_file_t     ox_start_insecure_nonreverse(char* host, short portControl, short portStream);
 
 int           init_dump_buff(char *buff);
 int           dump_cmo(cmo* m);

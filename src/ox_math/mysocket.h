@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/mysocket.h,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
 
 #ifndef _MYSOCKET_H_
 

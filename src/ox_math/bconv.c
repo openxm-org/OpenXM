@@ -1,6 +1,6 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/bconv.c,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/bconv.c,v 1.3 1999/11/02 21:15:02 ohara Exp $ */
+
 /* 
 OX  expression -> バイト列
 CMO expression -> バイト列
@@ -22,19 +22,19 @@ static int display(ox *m)
     case OX_DATA:
         len = sizeof(int) + sizeof(int) + cmolen_cmo(((ox_data *)m)->cmo);
         d_buff = malloc(len);
-		init_dump_buffer(d_buff);
+        init_dump_buffer(d_buff);
         dump_ox_data((ox_data *)m);
         break;
     case OX_COMMAND:
         len = sizeof(int) + sizeof(int) + sizeof(int);
         d_buff = malloc(len);
-		init_dump_buffer(d_buff);
+        init_dump_buffer(d_buff);
         dump_ox_command((ox_command *)m);
         break;
     default:
         len = cmolen_cmo((cmo *)m);
         d_buff = malloc(len);
-		init_dump_buffer(d_buff);
+        init_dump_buffer(d_buff);
         dump_cmo((cmo *)m);
     }
 
@@ -44,10 +44,10 @@ static int display(ox *m)
             fprintf(stdout, "\n");
         }
     }
-	if(i%20 != 19) {
-		fprintf(stdout, "\n");
-	}
-	free(d_buff);
+    if(i%20 != 19) {
+        fprintf(stdout, "\n");
+    }
+    free(d_buff);
 }
 
 #define SIZE_CMDLINE  8192
@@ -68,7 +68,7 @@ int main()
     setbuf(stderr, NULL);
     setbuf(stdout, NULL);
 
-	setflag_parse(PFLAG_ADDREV);
+    setflag_parse(PFLAG_ADDREV);
     setgetc(mygetc);
 
     for(prompt(); (m = parse()) != NULL; prompt()) {

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.10 1999/11/05 12:34:25 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.11 1999/11/06 21:39:36 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -63,20 +63,20 @@ static int          login_with_otp(int fd, char* passwd);
 static char         *create_otp();
 
 /* CMO_xxx の値順にならべること(デバッグのため) */
-static cmo_null*    receive_cmo_null(int fd);
-static cmo_int32*   receive_cmo_int32(int fd);
-static cmo_string*  receive_cmo_string(int fd);
-static cmo_mathcap* receive_cmo_mathcap(int fd);
-static cmo_list*    receive_cmo_list(int fd);
+static cmo_null*         receive_cmo_null(int fd);
+static cmo_int32*        receive_cmo_int32(int fd);
+static cmo_string*       receive_cmo_string(int fd);
+static cmo_mathcap*      receive_cmo_mathcap(int fd);
+static cmo_list*         receive_cmo_list(int fd);
 static cmo_monomial32*   receive_cmo_monomial32(int fd);
-static cmo_zz*      receive_cmo_zz(int fd);
-static cmo_zero*    receive_cmo_zero(int fd);
+static cmo_zz*           receive_cmo_zz(int fd);
+static cmo_zero*         receive_cmo_zero(int fd);
 static cmo_dms_generic*  receive_cmo_dms_generic(int fd);
 static cmo_ring_by_name* receive_cmo_ring_by_name(int fd);
 static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(int fd);
 
-static cmo_error2*  receive_cmo_error2(int fd);
-static void         receive_mpz(int fd, mpz_ptr mpz);
+static cmo_error2*       receive_cmo_error2(int fd);
+static void              receive_mpz(int fd, mpz_ptr mpz);
 
 static int          send_cmo_null(int fd, cmo_null* c);
 static int          send_cmo_int32(int fd, cmo_int32* m);
@@ -92,12 +92,13 @@ static int          send_cmo_distributed_polynomial(int fd, cmo_distributed_poly
 /* エラーハンドリングのため */
 static int current_received_serial = 0;
 
-/* エラーを起こしたときはサーバは次のようにすればよい.  */
-cmo_error2* gen_error_object(int err_code)
+/* エラーを起こしたときにサーバは次を呼び出す.  */
+cmo_error2* make_error_object(int err_code, cmo *ob)
 {
     cmo_list* li = new_cmo_list();
     append_cmo_list(li, (cmo *)new_cmo_int32(current_received_serial));
     append_cmo_list(li, (cmo *)new_cmo_int32(err_code));
+    append_cmo_list(li, ob);
     /* 他の情報を加えるならココ */
     return new_cmo_error2((cmo *)li);
 }
@@ -169,7 +170,7 @@ static cell *tail(cmo_list* this) {
 int append_cmo_list(cmo_list* this, cmo* newcmo)
 {
     cell *cp = tail(this);
-	cp->cmo  = newcmo;
+    cp->cmo  = newcmo;
     cp->next = new_cell();
     this->length++;
     return 0;
@@ -225,14 +226,14 @@ static cmo_list* receive_cmo_list(int fd)
 
 static cmo_monomial32* receive_cmo_monomial32(int fd)
 {
-	int i;
-	int len = receive_int32(fd);
+    int i;
+    int len = receive_int32(fd);
     cmo_monomial32* c = new_cmo_monomial32(len);
 
-	for(i=0; i<len; i++) {
-		c->exps[i] = receive_int32(fd);
-	}
-	c->coef = receive_cmo(fd);
+    for(i=0; i<len; i++) {
+        c->exps[i] = receive_int32(fd);
+    }
+    c->coef = receive_cmo(fd);
     return c;
 }
 
@@ -256,7 +257,7 @@ static cmo_dms_generic* receive_cmo_dms_generic(int fd)
 static cmo_ring_by_name* receive_cmo_ring_by_name(int fd)
 {
     cmo* ob = receive_cmo(fd);
-	/* 意味的チェックが必要 */
+    /* 意味的チェックが必要 */
     return new_cmo_ring_by_name(ob);
 }
 
@@ -265,7 +266,7 @@ static cmo_distributed_polynomial* receive_cmo_distributed_polynomial(int fd)
     cmo* ob;
     cmo_distributed_polynomial* c = new_cmo_distributed_polynomial();
     int len = receive_int32(fd);
-	c->ringdef = receive_cmo(fd);
+    c->ringdef = receive_cmo(fd);
 
     while (len>0) {
         ob = receive_cmo(fd);
@@ -317,14 +318,14 @@ cmo* receive_cmo(int fd)
         m = (cmo *)receive_cmo_zero(fd);
         break;
     case CMO_DMS_GENERIC:
-		m = (cmo *)receive_cmo_dms_generic(fd);
-		break;
-	case CMO_RING_BY_NAME:
-		m = (cmo *)receive_cmo_ring_by_name(fd);
-		break;
-	case CMO_DISTRIBUTED_POLYNOMIAL:
-		m = (cmo *)receive_cmo_distributed_polynomial(fd);
-		break;
+        m = (cmo *)receive_cmo_dms_generic(fd);
+        break;
+    case CMO_RING_BY_NAME:
+        m = (cmo *)receive_cmo_ring_by_name(fd);
+        break;
+    case CMO_DISTRIBUTED_POLYNOMIAL:
+        m = (cmo *)receive_cmo_distributed_polynomial(fd);
+        break;
     case CMO_ERROR2:
         m = (cmo *)receive_cmo_error2(fd);
         break;
@@ -375,12 +376,12 @@ cmo_string* new_cmo_string(char* s)
 {
     cmo_string* c = malloc(sizeof(cmo_string));
     c->tag = CMO_STRING;
-	if (s != NULL) {
-		c->s = malloc(strlen(s)+1);
-		strcpy(c->s, s);
-	}else {
-		c->s = NULL;
-	}
+    if (s != NULL) {
+        c->s = malloc(strlen(s)+1);
+        strcpy(c->s, s);
+    }else {
+        c->s = NULL;
+    }
     return c;
 }
 
@@ -411,10 +412,10 @@ cmo_monomial32* new_cmo_monomial32()
 cmo_monomial32* new_cmo_monomial32_size(int size)
 {
     cmo_monomial32* c = new_cmo_monomial32();
-	if (size>0) {
-		c->length = size;
-		c->exps = malloc(sizeof(int)*size);
-	}
+    if (size>0) {
+        c->length = size;
+        c->exps = malloc(sizeof(int)*size);
+    }
     return c;
 }
 
@@ -490,7 +491,7 @@ cmo_distributed_polynomial* new_cmo_distributed_polynomial()
     c->tag     = CMO_DISTRIBUTED_POLYNOMIAL;
     c->length  = 0;
     c->head->next = NULL;
-	c->ringdef = NULL;
+    c->ringdef = NULL;
     return c;
 }
 
@@ -513,12 +514,12 @@ int print_cmo(cmo* c)
     int tag = c->tag;
 
 #ifdef DEBUG
-	symbol* symp = lookup_by_tag(tag);
-	if (symp != NULL) {
-		fprintf(stderr, "local::tag = %s: ", symp->key);
-	}else {		
-		fprintf(stderr, "local::tag = %d: ", tag);
-	}
+    symbol* symp = lookup_by_tag(tag);
+    if (symp != NULL) {
+        fprintf(stderr, "local::tag = %s: ", symp->key);
+    }else {     
+        fprintf(stderr, "local::tag = %d: ", tag);
+    }
 #endif
 
     switch(tag) {
@@ -580,12 +581,12 @@ void ox_close(ox_file_t sv)
 
 void ox_executeStringByLocalParser(ox_file_t sv, char* s)
 {
-	if (s != NULL) {
-		/* 文字列ををスタックにプッシュ. */
-		send_ox_cmo(sv->stream, (cmo *)new_cmo_string(s));
-		/* サーバに実行させる. */
-		send_ox_command(sv->stream, SM_executeStringByLocalParser);
-	}
+    if (s != NULL) {
+        /* 文字列ををスタックにプッシュ. */
+        send_ox_cmo(sv->stream, (cmo *)new_cmo_string(s));
+        /* サーバに実行させる. */
+        send_ox_command(sv->stream, SM_executeStringByLocalParser);
+    }
 }
 
 /* ox_mathcap() をコールする.  */
@@ -617,71 +618,71 @@ cmo* ox_pop_cmo(ox_file_t sv, int fd)
 /* 手抜き. (後で改善しよう...) */
 static char *create_otp()
 {
-	static char otp[] = "otpasswd";
-	return otp;
+    static char otp[] = "otpasswd";
+    return otp;
 }
 
 /* OneTimePassword の処理 */
 static int login_with_otp(int fd, char* passwd)
 {
-	int len   = strlen(passwd)+1;
-	char *buf = alloca(len);
+    int len   = strlen(passwd)+1;
+    char *buf = alloca(len);
     int n     = read(fd, buf, len);
-	int ret   = strcmp(passwd, buf);
+    int ret   = strcmp(passwd, buf);
 
 #ifdef DEBUG
-	if (ret != 0) {
+    if (ret != 0) {
         fprintf(stderr, "Socket#%d: Login incorrect.\n", fd);
     }else {
-		fprintf(stderr, "Socket#%d: login!.\n", fd);
-	}
-	fprintf(stderr, "password = (%s), %d bytes.\n", passwd, len);
-	fprintf(stderr, "received = (%s), %d bytes.\n", buf, n);
-	fflush(stderr);
+        fprintf(stderr, "Socket#%d: login!.\n", fd);
+    }
+    fprintf(stderr, "password = (%s), %d bytes.\n", passwd, len);
+    fprintf(stderr, "received = (%s), %d bytes.\n", buf, n);
+    fflush(stderr);
 #endif
 
-	return ret;
+    return ret;
 }
 
 static int exists_ox(char *dir, char *prog)
 {
-	char *path = alloca(strlen(dir)+strlen(prog)+6);
-	sprintf(path, "%s/%s", dir, prog);
-	return access(path, X_OK|R_OK);
+    char *path = alloca(strlen(dir)+strlen(prog)+6);
+    sprintf(path, "%s/%s", dir, prog);
+    return access(path, X_OK|R_OK);
 }
 
 static char *search_ox(char *prog)
 {
-	char *env = getenv("OpenXM_HOME");
-	char *dir;
-	if (env != NULL) {
-		dir = malloc(strlen(env)+5);
-		sprintf(dir, "%s/bin", env);
-		if (exists_ox(dir, prog) == 0) {
-			return dir;
-		}
-		free(dir);
-	}
-	dir = "/usr/local/OpenXM/bin";
-	if (exists_ox(dir, prog) == 0) {
-		return dir;
-	}
-	dir = ".";
-	if (exists_ox(dir, prog) == 0) {
-		return dir;
-	}
-	return NULL;
+    char *env = getenv("OpenXM_HOME");
+    char *dir;
+    if (env != NULL) {
+        dir = malloc(strlen(env)+5);
+        sprintf(dir, "%s/bin", env);
+        if (exists_ox(dir, prog) == 0) {
+            return dir;
+        }
+        free(dir);
+    }
+    dir = "/usr/local/OpenXM/bin";
+    if (exists_ox(dir, prog) == 0) {
+        return dir;
+    }
+    dir = ".";
+    if (exists_ox(dir, prog) == 0) {
+        return dir;
+    }
+    return NULL;
 }
 
 static int mysocketAccept2(int fd, char *pass)
 {
     fd = mysocketAccept(fd);
-	if(login_with_otp(fd, pass)==0) {
-		decideByteOrderClient(fd, 0);
-		return fd;
-	}
-	close(fd);
-	return -1;
+    if(login_with_otp(fd, pass)==0) {
+        decideByteOrderClient(fd, 0);
+        return fd;
+    }
+    close(fd);
+    return -1;
 }
 
 /*
@@ -695,43 +696,43 @@ static int mysocketAccept2(int fd, char *pass)
 
 ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 {
-	char *pass;
+    char *pass;
     char ctl[16], dat[16];
     short portControl = 0; /* short であることに注意 */
     short portStream  = 0;
     ox_file_t sv = NULL;
-	char *dir;
+    char *dir;
 
-	if ((dir = search_ox(ctl_prog)) == NULL) {
-		fprintf(stderr, "client:: %s not found.\n", ctl_prog);
-		return NULL;
-	}
+    if ((dir = search_ox(ctl_prog)) == NULL) {
+        fprintf(stderr, "client:: %s not found.\n", ctl_prog);
+        return NULL;
+    }
     sv = malloc(sizeof(__ox_file_struct));
     sv->control = mysocketListen(host, &portControl);
     sv->stream  = mysocketListen(host, &portStream);
 
     sprintf(ctl, "%d", portControl);
     sprintf(dat, "%d", portStream);
-	pass = create_otp();
+    pass = create_otp();
 
     if (fork() == 0) {
         dup2(2, 1);
         dup2(open(DEFAULT_LOGFILE, O_RDWR|O_CREAT|O_TRUNC, 0644), 2);
-		chdir(dir);
+        chdir(dir);
         execl(ctl_prog, ctl_prog, "-reverse", "-ox", dat_prog,
               "-data", dat, "-control", ctl, "-pass", pass,
               "-host", host, NULL);
     }
 
-	if ((sv->control = mysocketAccept2(sv->control, pass)) == -1) {
-		close(sv->stream);
-		return NULL;
-	}
-	/* 10マイクロ秒, 時間稼ぎする. */
+    if ((sv->control = mysocketAccept2(sv->control, pass)) == -1) {
+        close(sv->stream);
+        return NULL;
+    }
+    /* 10マイクロ秒, 時間稼ぎする. */
     usleep(10);
     if((sv->stream  = mysocketAccept2(sv->stream, pass)) == -1) {
-		return NULL;
-	}
+        return NULL;
+    }
     return sv;
 }
 
@@ -748,16 +749,16 @@ ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short port
 {
     ox_file_t sv = malloc(sizeof(__ox_file_struct));
 
-	sv->control = mysocketOpen(host, portControl);
+    sv->control = mysocketOpen(host, portControl);
 #if 0
-	/* ox は insecure のとき byte order の決定が正しくできないようだ... */
+    /* ox は insecure のとき byte order の決定が正しくできないようだ... */
     decideByteOrderClient(sv->control, 0);
 #endif
-	/* 10マイクロ秒, 時間稼ぎする. */
-	usleep(10);
-	sv->stream  = mysocketOpen(host, portStream);
+    /* 10マイクロ秒, 時間稼ぎする. */
+    usleep(10);
+    sv->stream  = mysocketOpen(host, portStream);
     decideByteOrderClient(sv->stream, 0);
-	return sv;
+    return sv;
 }
 
 void ox_reset(ox_file_t sv)
@@ -816,8 +817,8 @@ static int cmolen_cmo_list(cmo_list* c)
 
 static int cmolen_cmo_monomial32(cmo_monomial32* c)
 {
-	int len = (c->length + 1)*sizeof(int);
-	return len + cmolen_cmo(c->coef);
+    int len = (c->length + 1)*sizeof(int);
+    return len + cmolen_cmo(c->coef);
 }
 
 static int cmolen_cmo_zz(cmo_zz* c)
@@ -828,7 +829,7 @@ static int cmolen_cmo_zz(cmo_zz* c)
 
 static int cmolen_cmo_distributed_polynomial(cmo_distributed_polynomial* c)
 {
-	return cmolen_cmo_list((cmo_list *)c) + cmolen_cmo(c->ringdef);
+    return cmolen_cmo_list((cmo_list *)c) + cmolen_cmo(c->ringdef);
 }
 
 /* CMO がバイトエンコードされた場合のバイト列の長さを求める */
@@ -863,9 +864,9 @@ int cmolen_cmo(cmo* c)
     case CMO_ZZ:
         size += cmolen_cmo_zz((cmo_zz *)c);
         break;
-	case CMO_DISTRIBUTED_POLYNOMIAL:
-		size += cmolen_cmo_distributed_polynomial((cmo_distributed_polynomial *)c);
-		break;
+    case CMO_DISTRIBUTED_POLYNOMIAL:
+        size += cmolen_cmo_distributed_polynomial((cmo_distributed_polynomial *)c);
+        break;
     default:
     }
     return size;
@@ -876,13 +877,13 @@ static char *d_buf;
 
 int init_dump_buffer(char *s)
 {
-	d_buf = s;
-	d_ptr = 0;
+    d_buf = s;
+    d_ptr = 0;
 }
 
 static int dump_cmo_null(cmo_null* m)
 {
-	return 0;
+    return 0;
 }
 
 static int dump_cmo_int32(cmo_int32* m)
@@ -894,7 +895,7 @@ static int dump_cmo_string(cmo_string* m)
 {
     int len = strlen(m->s);
     dump_integer(len);
-	dump_string(m->s, len);
+    dump_string(m->s, len);
 }
 
 static int dump_cmo_mathcap(cmo_mathcap* c)
@@ -916,13 +917,13 @@ static int dump_cmo_list(cmo_list* m)
 
 static int dump_cmo_monomial32(cmo_monomial32* c)
 {
-	int i;
-	int length = c->length;
-	dump_integer(c->length);
-	for(i=0; i<length; i++) {
-		dump_integer(c->exps[i]);
-	}
-	dump_cmo(c->coef);
+    int i;
+    int length = c->length;
+    dump_integer(c->length);
+    for(i=0; i<length; i++) {
+        dump_integer(c->exps[i]);
+    }
+    dump_cmo(c->coef);
 }
 
 static int dump_cmo_zz(cmo_zz* c)
@@ -935,7 +936,7 @@ static int dump_cmo_distributed_polynomial(cmo_distributed_polynomial* m)
     cell* cp = m->head;
     int len = length_cmo_list((cmo_list *)m);
     dump_integer(len);
-	dump_cmo(m->ringdef);
+    dump_cmo(m->ringdef);
     while(cp != NULL) {
         dump_cmo(cp->cmo);
         cp = cp->next;
@@ -951,31 +952,31 @@ int dump_cmo(cmo* m)
     case CMO_ZERO:
     case CMO_DMS_GENERIC:
         dump_cmo_null(m);
-		break;
+        break;
     case CMO_INT32:
         dump_cmo_int32((cmo_int32 *)m);
-		break;
+        break;
     case CMO_STRING:
         dump_cmo_string((cmo_string *)m);
-		break;
+        break;
     case CMO_MATHCAP:
     case CMO_RING_BY_NAME:
     case CMO_INDETERMINATE:
     case CMO_ERROR2:
         dump_cmo_mathcap((cmo_mathcap *)m);
-		break;
+        break;
     case CMO_LIST:
         dump_cmo_list((cmo_list *)m);
-		break;
+        break;
     case CMO_MONOMIAL32:
         dump_cmo_monomial32((cmo_monomial32 *)m);
-		break;
+        break;
     case CMO_ZZ:
         dump_cmo_zz((cmo_zz *)m);
-		break;
+        break;
     case CMO_DISTRIBUTED_POLYNOMIAL:
         dump_cmo_distributed_polynomial((cmo_distributed_polynomial *)m);
-		break;
+        break;
     default:
     }
 }
@@ -1000,7 +1001,7 @@ static int dump_string(char *s, int len)
 static int dump_integer(int x)
 {
     int nx = htonl(x);
-	dump_string((char *)&nx, sizeof(int));
+    dump_string((char *)&nx, sizeof(int));
 }
 
 int dump_ox_data(ox_data* m)
@@ -1088,7 +1089,7 @@ static int send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c
     cell* cp = c->head;
     int len = length_cmo_list((cmo_list *)c);
     send_int32(fd, len);
-	send_cmo(fd, c->ringdef);
+    send_cmo(fd, c->ringdef);
 
     while(cp->next != NULL) {
         send_cmo(fd, cp->cmo);
@@ -1099,20 +1100,20 @@ static int send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c
 
 static int send_cmo_monomial32(int fd, cmo_monomial32* c)
 {
-	int i;
-	int len = c->length;
-	send_int32(fd, len);
-	for(i=0; i<len; i++) {
-		send_int32(fd, c->exps[i]);
-	}
-	send_cmo(fd, c->coef);
-	return 0;
+    int i;
+    int len = c->length;
+    send_int32(fd, len);
+    for(i=0; i<len; i++) {
+        send_int32(fd, c->exps[i]);
+    }
+    send_cmo(fd, c->coef);
+    return 0;
 }
 
 static int send_cmo_zz(int fd, cmo_zz* c)
 {
     send_mpz(fd, c->mpz);
-	return 0;
+    return 0;
 }
 
 static int send_cmo_error2(int fd, cmo_error2* c)
@@ -1219,24 +1220,24 @@ static cmo_list* make_list_of_id(int ver, char* ver_s, char* sysname)
 
 static cmo_list *make_list_of_tag(int type)
 {
-	cmo_list *li = new_cmo_list();
-	symbol *symp;
-	int i = 0;
-	while((symp = lookup(i++))->key != NULL) {
-		if (symp->type == type) {
-			append_cmo_list(li, (cmo *)new_cmo_int32(symp->tag));
-		}
-	}
-	return li;
+    cmo_list *li = new_cmo_list();
+    symbol *symp;
+    int i = 0;
+    while((symp = lookup(i++))->key != NULL) {
+        if (symp->type == type) {
+            append_cmo_list(li, (cmo *)new_cmo_int32(symp->tag));
+        }
+    }
+    return li;
 }
 
 cmo* make_mathcap_object(int version, char *id_string)
 {
-	char sysname[]   = "ox_math";
+    char sysname[]   = "ox_math";
     cmo_list *li     = new_cmo_list();
     cmo_list *li_ver = make_list_of_id(version, id_string, sysname);
-	cmo_list *li_cmo = make_list_of_tag(IS_CMO);
-	cmo_list *li_sm  = make_list_of_tag(IS_SM);
+    cmo_list *li_cmo = make_list_of_tag(IS_CMO);
+    cmo_list *li_sm  = make_list_of_tag(IS_SM);
 
     append_cmo_list(li, (cmo *)li_ver);
     append_cmo_list(li, (cmo *)li_cmo);
@@ -1314,7 +1315,7 @@ char *convert_zz_to_string(cmo_zz *c)
 
 char *convert_cmo_to_string(cmo *m)
 {
-	symbol *symp;
+    symbol *symp;
     switch(m->tag) {
     case CMO_ZZ:
         return convert_zz_to_string((cmo_zz *)m);
@@ -1325,8 +1326,10 @@ char *convert_cmo_to_string(cmo *m)
     case CMO_NULL:
         return convert_null_to_string();
     default:
-		symp = lookup_by_tag(m->tag);
+#ifdef DEBUG
+        symp = lookup_by_tag(m->tag);
         fprintf(stderr, "I do not know how to convert %s to a string.\n", symp->key);
+#endif
         /* まだ実装していません. */
         return NULL;
     }

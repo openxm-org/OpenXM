@@ -1,6 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
-/* $Id$ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
@@ -10,13 +9,12 @@
 int  MATH_evaluateStringByLocalParser(char *str);
 int  MATH_init();
 int  MATH_exit();
-char *MATH_getObject();
-cmo  *MATH_getObject2();
+cmo  *MATH_get_object();
 int  MATH_executeFunction(char *function, int argc, cmo *argv[]);
 
 int  initialize_stack();
 int  push(cmo *m);
-cmo* pop();
+cmo  *pop();
 int  sm_popCMO(int fd_write);
 int  sm_popString_old(int fd_write);
 int  sm_popString(int fd_write);
@@ -25,5 +23,5 @@ int  sm_executeStringByLocalParser();
 int  sm_executeFunction(int fd_write);
 
 int  receive_sm_command(int fd_read);
-int execute_sm_command(int fd_write, int code);
+int  execute_sm_command(int fd_write, int code);
 #endif

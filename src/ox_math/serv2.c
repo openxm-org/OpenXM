@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.5 1999/11/04 19:33:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.6 1999/11/06 21:39:37 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -15,8 +15,8 @@
 #include "parse.h"
 #include "serv2.h"
 
-#define UNKNOWN_SM_COMMAND 50000
-#define MATH_ERROR         50001
+#define ERROR_ID_UNKNOWN_SM 10
+#define ERROR_ID_FAILURE_MLINK         11
 
 /* MLINK はポインタ型. */
 MLINK lp = NULL;
@@ -27,75 +27,75 @@ typedef cmo_zz mlo_zz;
 
 /* cmo_list の派生クラス*/
 typedef struct {
-	int tag;
-	int length;
-	cell head[1];
-	char *function;
+    int tag;
+    int length;
+    cell head[1];
+    char *function;
 } mlo_function;
 
 
 mlo *receive_mlo_zz()
 {
-	char *s;
-	mlo  *m;
+    char *s;
+    mlo  *m;
 
-	fprintf(stderr, "--debug: MLO == MLTKINT.\n");
-	MLGetString(lp, &s);
- 	fprintf(stderr, "--debug: zz = %s.\n", s);
-	m = (mlo *)new_cmo_zz_set_string(s);
-	MLDisownString(lp, s);
-	return m;
+    fprintf(stderr, "--debug: MLO == MLTKINT.\n");
+    MLGetString(lp, &s);
+    fprintf(stderr, "--debug: zz = %s.\n", s);
+    m = (mlo *)new_cmo_zz_set_string(s);
+    MLDisownString(lp, s);
+    return m;
 }
 
 mlo *receive_mlo_string()
 {
-	char *s;
-	mlo  *m;
-	fprintf(stderr, "--debug: MLO == MLTKSTR.\n");
-	MLGetString(lp, &s);
- 	fprintf(stderr, "--debug: string = \"%s\".\n", s);
-	m = (cmo *)new_cmo_string(s);
-	MLDisownString(lp, s);
-	return m;
+    char *s;
+    mlo  *m;
+    fprintf(stderr, "--debug: MLO == MLTKSTR.\n");
+    MLGetString(lp, &s);
+    fprintf(stderr, "--debug: string = \"%s\".\n", s);
+    m = (cmo *)new_cmo_string(s);
+    MLDisownString(lp, s);
+    return m;
 }
 
 cmo *receive_mlo_function()
 {
-	char *s;
-	cmo *m;
+    char *s;
+    cmo *m;
     cmo  *ob;
     int  i,n;
 
-	fprintf(stderr, "--debug: MLO == MLTKFUNC.\n");
-	MLGetFunction(lp, &s, &n);
-	fprintf(stderr, "--debug: Function = \"%s\", # of args = %d\n", s, n);
-	m = new_cmo_list();
-	append_cmo_list((cmo_list *)m, new_cmo_string(s));
+    fprintf(stderr, "--debug: MLO == MLTKFUNC.\n");
+    MLGetFunction(lp, &s, &n);
+    fprintf(stderr, "--debug: Function = \"%s\", # of args = %d\n", s, n);
+    m = new_cmo_list();
+    append_cmo_list((cmo_list *)m, new_cmo_string(s));
 
-	for (i=0; i<n; i++) {
-		fprintf(stderr, "--debug: arg[%d]\n", i);
-		fflush(stderr);
-		ob = receive_mlo();
-		append_cmo_list((cmo_list *)m, ob);
-	}
+    for (i=0; i<n; i++) {
+        fprintf(stderr, "--debug: arg[%d]\n", i);
+        fflush(stderr);
+        ob = receive_mlo();
+        append_cmo_list((cmo_list *)m, ob);
+    }
 
-	MLDisownString(lp, s);
-	return m;
+    MLDisownString(lp, s);
+    return m;
 }
 
 cmo *receive_mlo_symbol()
 {
-	cmo *ob;
-	char *s;
+    cmo *ob;
+    char *s;
 
-	fprintf(stderr, "--debug: MLO == MLTKSYM.\n");
-	MLGetSymbol(lp, &s);
-	fprintf(stderr, "--debug: Symbol \"%s\".\n", s);
+    fprintf(stderr, "--debug: MLO == MLTKSYM.\n");
+    MLGetSymbol(lp, &s);
+    fprintf(stderr, "--debug: Symbol \"%s\".\n", s);
 
-	ob = new_cmo_indeterminate(new_cmo_string(s)); 
+    ob = new_cmo_indeterminate(new_cmo_string(s)); 
 
-	MLDisownString(lp, s);
-	return ob;
+    MLDisownString(lp, s);
+    return ob;
 }
 
 /* Mathematica を起動する. */
@@ -105,11 +105,11 @@ int MATH_init()
     char *argv[] = {"-linkname", "math -mathlink"};
 
     if(MLInitialize(NULL) == NULL 
-	   || (lp = MLOpen(argc, argv)) == NULL) {
-		fprintf(stderr, "Mathematica Kernel not found.\n");
-		exit(1);
+       || (lp = MLOpen(argc, argv)) == NULL) {
+        fprintf(stderr, "Mathematica Kernel not found.\n");
+        exit(1);
     }
-	return 0;
+    return 0;
 }
 
 int MATH_exit()
@@ -119,85 +119,85 @@ int MATH_exit()
     MLClose(lp);
 }
 
-cmo *MATH_getObject2()
+cmo *MATH_get_object()
 {
     /* skip any packets before the first ReturnPacket */
     while (MLNextPacket(lp) != RETURNPKT) {
         usleep(10);
         MLNewPacket(lp);
     }
-	return receive_mlo();
+    return receive_mlo();
 }
 
 cmo *receive_mlo()
 {
     char *s;
-	int type;
+    int type;
 
     switch(type = MLGetNext(lp)) {
     case MLTKINT:
-		return receive_mlo_zz();
+        return receive_mlo_zz();
     case MLTKSTR:
-		return receive_mlo_string();
+        return receive_mlo_string();
     case MLTKREAL:
-		/* double はまだ... */
+        /* double はまだ... */
         fprintf(stderr, "--debug: MLO == MLTKREAL.\n");
         MLGetString(lp, &s);
         return (cmo *)new_cmo_string(s);
     case MLTKSYM:
         return receive_mlo_symbol();
     case MLTKFUNC:
-		return receive_mlo_function();
+        return receive_mlo_function();
     case MLTKERR:
         fprintf(stderr, "--debug: MLO == MLTKERR.\n");
-        return (cmo *)gen_error_object(MATH_ERROR);
+        return (cmo *)make_error_object(ERROR_ID_FAILURE_MLINK, new_cmo_null());
     default:
         fprintf(stderr, "--debug: MLO(%d) is unknown.\n", type);
         MLGetString(lp, &s);
-		fprintf(stderr, "--debug: \"%s\"\n", s);
+        fprintf(stderr, "--debug: \"%s\"\n", s);
         return (cmo *)new_cmo_string(s);
     }
 }
 
 int send_mlo_int32(cmo *m)
 {
-	MLPutInteger(lp, ((cmo_int32 *)m)->i);
+    MLPutInteger(lp, ((cmo_int32 *)m)->i);
 }
 
 int send_mlo_string(cmo *m)
 {
-	char *s = ((cmo_string *)m)->s;
-	MLPutString(lp, s);
-	fprintf(stderr, "ox_math:: put %s.", s);
+    char *s = ((cmo_string *)m)->s;
+    MLPutString(lp, s);
+    fprintf(stderr, "ox_math:: put %s.", s);
 }
 
 int send_mlo_zz(cmo *m)
 {
-	char *s;
-	MLPutFunction(lp, "ToExpression", 1);
-	s = convert_cmo_to_string(m);
-	MLPutString(lp, s);
-	fprintf(stderr, "put %s.", s);
+    char *s;
+    MLPutFunction(lp, "ToExpression", 1);
+    s = convert_cmo_to_string(m);
+    MLPutString(lp, s);
+    fprintf(stderr, "put %s.", s);
 }
 
 int send_mlo_list(cmo *c)
 {
-	char *s;
-	cell *cp = ((cmo_list *)c)->head;
-	int len = length_cmo_list((cmo_list *)c);
+    char *s;
+    cell *cp = ((cmo_list *)c)->head;
+    int len = length_cmo_list((cmo_list *)c);
 
-	fprintf(stderr, "ox_math:: put List with %d args.\n", len);
-	MLPutFunction(lp, "List", len);
-	while(cp->next != NULL) {
-		send_mlo(cp->cmo);
-		cp = cp->next;
-	}
+    fprintf(stderr, "ox_math:: put List with %d args.\n", len);
+    MLPutFunction(lp, "List", len);
+    while(cp->next != NULL) {
+        send_mlo(cp->cmo);
+        cp = cp->next;
+    }
 }
 
 int MATH_sendObject(cmo *m)
 {
-	send_mlo(m);
-	MLEndPacket(lp);
+    send_mlo(m);
+    MLEndPacket(lp);
 }
 
 int send_mlo(cmo *m)
@@ -205,13 +205,13 @@ int send_mlo(cmo *m)
     char *s;
     switch(m->tag) {
     case CMO_INT32:
-		send_mlo_int32(m);
+        send_mlo_int32(m);
         break;
     case CMO_STRING:
-		send_mlo_string(m);
+        send_mlo_string(m);
         break;
-	case CMO_LIST:
-		send_mlo_list(m);
+    case CMO_LIST:
+        send_mlo_list(m);
         break;
     default:
         MLPutFunction(lp, "ToExpression", 1);
@@ -254,20 +254,20 @@ int initialize_stack()
 int push(cmo* m)
 {
 #if DEBUG
-	symbol *symp;
+    symbol *symp;
 
     if (m->tag == CMO_STRING) {
-        fprintf(stderr, "ox_math:: a cmo_string(%s) was pushed.\n", ((cmo_string *)m)->s);
+        fprintf(stderr, "ox_math:: a CMO_STRING(%s) was pushed.\n", ((cmo_string *)m)->s);
     }else {
-		symp = lookup_by_tag(m->tag);
-		fprintf(stderr, "ox_math:: a %s was pushed.\n", symp->key);
-	}
+        symp = lookup_by_tag(m->tag);
+        fprintf(stderr, "ox_math:: a %s was pushed.\n", symp->key);
+    }
 #endif
     Operand_Stack[Stack_Pointer] = m;
     Stack_Pointer++;
     if (Stack_Pointer >= SIZE_OPERAND_STACK) {
         fprintf(stderr, "stack over flow.\n");
-		Stack_Pointer--;
+        Stack_Pointer--;
     }
 }
 
@@ -295,8 +295,8 @@ int sm_popCMO(int fd_write)
 {
     cmo* m = pop();
 #ifdef DEBUG
-	symbol *symp = lookup_by_tag(m->tag);
-	
+    symbol *symp = lookup_by_tag(m->tag);
+    
     fprintf(stderr, "ox_math:: opecode = SM_popCMO. (%s)\n", symp->key);
 #endif
     if (m != NULL) {
@@ -313,7 +313,7 @@ int sm_pops(int fd_write)
         pops(((cmo_int32 *)m)->i);
         return 0;
     }
-    return UNKNOWN_SM_COMMAND;
+    return ERROR_ID_UNKNOWN_SM;
 }
 
 /* MathLink 依存部分 */
@@ -327,51 +327,51 @@ int sm_popString(int fd_write)
     fprintf(stderr, "ox_math:: opecode = SM_popString.\n");
 #endif
 
-	m = pop();
-	if (m->tag == CMO_STRING) {
+    m = pop();
+    if (m->tag == CMO_STRING) {
         send_ox_cmo(fd_write, m);
-	}else if ((s = convert_cmo_to_string(m)) != NULL) {
+    }else if ((s = convert_cmo_to_string(m)) != NULL) {
         send_ox_cmo(fd_write, (cmo *)new_cmo_string(s));
     }else {
-		err = new_cmo_error2(m);
-		send_ox_cmo(fd_write, err);
-	}
-	return 0;
+        err = make_error_object(SM_popString, m);
+        send_ox_cmo(fd_write, err);
+    }
+    return 0;
 }
 
 int local_execute(char *s)
 {
-	return 0;
+    return 0;
 }
 
 /* この関数はサーバに依存する. */
 int sm_executeStringByLocalParser(int fd_write)
 {
-	symbol *symp;
+    symbol *symp;
     cmo* m = pop();
-	char *s = NULL;
+    char *s = NULL;
 #ifdef DEBUG
     fprintf(stderr, "ox_math:: opecode = SM_executeStringByLocalParser.\n");
 #endif
 
     if (m->tag == CMO_STRING
-		&& strlen(s = ((cmo_string *)m)->s) != 0) {
-		if (s[0] == ':') {
-			local_execute(s);
-		}else {
-			/* for mathematica */
-			/* mathematica に文字列を送って評価させる */
-			MATH_evaluateStringByLocalParser(s);
-			push(MATH_getObject2());
-		}
-		return 0;
+        && strlen(s = ((cmo_string *)m)->s) != 0) {
+        if (s[0] == ':') {
+            local_execute(s);
+        }else {
+            /* for mathematica */
+            /* mathematica に文字列を送って評価させる */
+            MATH_evaluateStringByLocalParser(s);
+            push(MATH_get_object());
+        }
+        return 0;
     }
 #ifdef DEBUG
-	if ((symp = lookup_by_tag(m->tag)) != NULL) {
-		fprintf(stderr, "ox_math:: error. the top of stack is %s.\n", symp->key);
-	}else {
-		fprintf(stderr, "ox_math:: error. the top of stack is unknown cmo. (%d)\n", m->tag);
-	}
+    if ((symp = lookup_by_tag(m->tag)) != NULL) {
+        fprintf(stderr, "ox_math:: error. the top of stack is %s.\n", symp->key);
+    }else {
+        fprintf(stderr, "ox_math:: error. the top of stack is unknown cmo. (%d)\n", m->tag);
+    }
 #endif
     return SM_executeStringByLocalParser;
 }
@@ -393,12 +393,12 @@ int sm_executeFunction(int fd_write)
     }
 
     argc = ((cmo_int32 *)m)->i;
-    argv = malloc(sizeof(cmo *)*argc);
+    argv = malloc(argc*sizeof(cmo *));
     for (i=0; i<argc; i++) {
         argv[i] = pop();
     }
     MATH_executeFunction(func, argc, argv);
-    push(MATH_getObject2());
+    push(MATH_get_object());
     return 0;
 }
 
@@ -408,8 +408,7 @@ int sm_executeFunction(int fd_write)
 
 int sm_mathcap(int fd_write)
 {
-    cmo* c = make_mathcap_object(VERSION, ID_STRING);
-    push(c);
+    push(make_mathcap_object(VERSION, ID_STRING));
     return 0;
 }
 
@@ -446,10 +445,10 @@ int execute_sm_command(int fd_write, int code)
         break;
     default:
         fprintf(stderr, "unknown command: %d.\n", code);
-        err = UNKNOWN_SM_COMMAND;
+        err = ERROR_ID_UNKNOWN_SM;
     }
 
     if (err != 0) {
-        push((cmo *)gen_error_object(err));
+        push((cmo *)make_error_object(err, new_cmo_null()));
     }
 }
