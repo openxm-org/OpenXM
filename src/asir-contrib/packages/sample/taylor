@@ -1,0 +1,16 @@
+def taylor(F,X,P,N){
+	R = 0;
+	A = F;
+
+	for(I=0;I<N;I++){
+		if(I!=0){
+			A /= I;
+		}
+		R += subst(A,X,P) * x^I;
+		A = diff(A,X);
+	}
+	return R;
+}
+
+taylor(1/(1-x),x,0,20);
+quit;
