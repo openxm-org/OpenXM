@@ -1,7 +1,7 @@
 # ox-taka.rb OpenXM client written by Ruby  
 #   (takayama's version based on ogino's ox.rb)
 #
-# $OpenXM$
+# $OpenXM: OpenXM/src/ruby/ox-taka.rb,v 1.1 2000/07/28 06:02:20 takayama Exp $
 # 
 require 'socket'
 include Socket::Constants
@@ -163,7 +163,7 @@ end
 
 class OXSession
   def initialize(
-         oxserver = "/home/taka/OpenXM/bin/ox_sm1",
+         oxserver = "/usr/local/OpenXM/bin/ox_sm1",
          host = "localhost",
 		 byteorder = 0
          )
@@ -180,7 +180,8 @@ class OXSession
       printf(oxhome+"\n")
       printf("Starting the server %s\n",oxserver)
       $stdout.flush
-      system("oxlog  /usr/X11R6/bin/xterm -e /home/taka/OpenXM/bin/ox -ox "+oxserver+" -control "+@controlport.to_s()+" -data "+@dataport.to_s()+" &");
+      ox = oxhome+"bin/ox"
+      system("oxlog  /usr/X11R6/bin/xterm -e "+ox+" -ox "+oxserver+" -control "+@controlport.to_s()+" -data "+@dataport.to_s()+" &");
       if $? == nil
          printf("failed to start the ox server.\n")
          exit()
@@ -271,8 +272,8 @@ class OXSession
     
   def receive
     oxtag = receive_int32
-    printf("oxtag = %d ",oxtag)
-    $stdout.flush
+#    printf("oxtag = %d ",oxtag)
+#    $stdout.flush
     seqNum = receive_int32
     if oxtag = OX_DATA then
        tag = receive_int32
@@ -280,8 +281,8 @@ class OXSession
        printf("Cannot handle this OX tag %d\n",oxtag)
        $stdout.flush
     end
-    printf("cmotag = %d ",tag)
-    $stdout.flush
+#    printf("cmotag = %d ",tag)
+#    $stdout.flush
     case tag  
     when CMO_NULL
       m = receive_cmo_null
@@ -360,9 +361,23 @@ end
 s = OXSession.new()
 
 s.submit(" [(oxWatch) 1] extension ");
+## sample
 a = s.rpc(" 1 1 add ")
 printf("%s\n",a)
 $stdout.flush
+
+## sample
+##  1 3 add
+while 1
+  printf("\nruby-sm1>")
+  STDOUT.flush
+  input = gets
+  break if not input
+  str = input
+  str.chop!
+  eval("print(s.rpc(\""+str+"\"))")
+end
+
 
 while 1
   print '> '
