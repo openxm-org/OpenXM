@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.14 2002/01/22 06:18:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.15 2004/03/09 07:01:59 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -178,6 +178,16 @@ def quote_input_form_quote_list_b_op(S) {
          A += quote_input_form_quote_list(T[I]);
       }
       if (I != N-1) A += S[0];
+    }
+  } else if ( S[0] == "^" ) {
+    T = cdr(S);
+    A += quote_input_form_quote_list(T[0]);
+    Exp = T[1];
+    if ( Exp[0] == "internal" ) {
+      /* Exp must be a number or an indeterminate */
+      A += "^"+quote_input_form_quote_list(Exp);
+    } else {
+      A += "^("+quote_input_form_quote_list(Exp)+")";
     }
   }else {
      T = cdr(S);
