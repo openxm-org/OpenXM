@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.3 2003/03/11 01:11:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.4 2003/03/11 02:00:53 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -151,6 +151,15 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
          Taka_Runge_kutta_H_Upper_Bound,
          Taka_Runge_kutta_Make_Larger;
 
+  Opt = getopt();
+  if (H > 0) Forward = 1; else Forward = 0;
+  while(Opt != []) {
+    if (car(Opt)[0] == "forward") {
+      Forward = car(Opt)[1];
+    }
+    Opt = cdr(Opt);
+  }
+
   Ans = [cons(X0,Y0)];
   if (Taka_Runge_kutta_graphic0) {
      glib_open();
@@ -176,9 +185,9 @@ def taka_runge_kutta_4_adaptive(F,X,Y,X0,Y0,H,X1) {
   Xk = X0;
 
   while (true) {
-    if (H > 0) {
+    if (Forward) {
        if (Xk > X1) break;
-    }else{
+    } else{
        if (Xk < X1) break;
     }
     /* Regular step */
