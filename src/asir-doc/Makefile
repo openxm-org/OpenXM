@@ -1,9 +1,14 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.13 2003/04/19 10:36:27 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.14 2003/04/20 05:51:22 saito Exp $
 
 WHICH=../../misc/which.pl
 
-all: all-eg all-jp
-install: install-eg install-jp 
+all:
+	if [ ! -f .make_done ]; then make all2 ; touch .make_done ; fi
+install:
+	if [ ! -f .install_done ] ; then make install2 ; touch .install_done ; fi
+
+all2: all-eg all-jp
+install2: install-eg install-jp 
 
 all-eg: texindex extract_man extract_func man-eg.dvi help-eg html-eg
 all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp html-internal-ja
@@ -191,7 +196,7 @@ targzuu: help-eg help-jp html-eg html-jp
 
 clean:
 	(cd jtexindex/C; make clean)
-	-rm -f man*.dvi man-jp.dvi extract_man extract_func gen_hh
+	-rm -f man*.dvi man-jp.dvi extract_man extract_func gen_hh .*done
 	-rm -f internal-jp.dvi
 	-rm -rf tmp*
 	-rm -rf help-*
