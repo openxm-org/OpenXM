@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.8 2003/10/19 06:29:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.9 2003/10/19 10:06:52 ohara Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -43,18 +43,29 @@ Xm_use_timer_to_start_server = 1$
 XM_debug=1$
 Xm_debug_on_win_1=0$
 
-
 Sm1_lib = ox_getenv("OpenXM_HOME")$
 if (Sm1_lib == 0) {
   Sm1_lib = "/usr/local/lib/sm1"$
 } else {
   Sm1_lib = Sm1_lib+"/lib/sm1"$
 }
+
 ToAsir_Debug = 0$
 
+Xm_helpdir="help-eg"$
+if (getenv("LANG") == "ja_JP.eucJP" ||
+    getenv("LANG") == "ja_JP.EUC") {
+  Xm_helpdir="help-jp"$
+}else { }$
+Xm_server_mode = 0$
+
 def ox_help(A) { 
+  extern Xm_helpdir;
+  extern Xm_server_mode;
   if (type(A) == 0) {
-    shell("ls "+ox_getenv("OpenXM_HOME")+"/lib/asir/help/xm.help");
+    Cmd = "ls "+ox_getenv("OpenXM_HOME")+"/lib/asir/"+Xm_helpdir+"/xm.help";
+    if (Xm_server_mode) return util_filter(Cmd," ");
+    else shell(Cmd);
   }else{
     if (type(A) == 2) {
       A = rtostr(A);
@@ -64,11 +75,25 @@ def ox_help(A) {
     S = strtoascii(A);
     for (I=0; I<length(S); I++) {
       if (S[I] == 42 || S[I] == 63) {
-        shell("(cd "+ox_getenv("OpenXM_HOME")+"/lib/asir/help/xm.help ; ls "+A+")");
+        Cmd="(cd "+ox_getenv("OpenXM_HOME")+"/lib/asir/"+Xm_helpdir+"/xm.help ; ls "+A+")";
+        if (Xm_server_mode) return util_filter(Cmd," ");
+        else shell(Cmd);
         return;
       }
     }
-    help("xm.help/"+A)$
+    Name = get_rootdir()+"/"+Xm_helpdir+"/xm.help/"+A;
+    if (which(Name) != 0) {
+        if (Xm_server_mode) return util_read_file_as_a_string(Name);
+        else help("xm.help/"+A)$
+    }else {
+        Name = get_rootdir()+"/"+Xm_helpdir+"/"+A$
+        if (which(Name) != 0) {
+            if (Xm_server_mode) return util_read_file_as_a_string(Name);
+            else help(A)$
+        }else{
+           return "A help document for "+A+" is not found.";
+        }
+    }
   }
 }
 
@@ -116,28 +141,47 @@ def first(A) {return(A[0]);}
 
 
 def ox_grep(A) {
+  extern Xm_helpdir;
+  extern Xm_server_mode;
   if (type(A) == 2) {
     A = rtostr(A);
   }else if (type(A) != 7) {
     return("Usage: ox_grep(keyword)");
   }
-  if (ox_getenv("LANG") == "ja_JP.EUC") {
-    F = get_rootdir()+"/help-jp/";
-  }else{
-    F = get_rootdir()+"/help-eg/";
-  }
+  F = get_rootdir()+"/"+Xm_helpdir+"/";
+  /* print(F); */
   Pager = ox_getenv("PAGER");
-  if (Pager == 0) Pager="more";
+  if (Pager == 0) {
+    Pager="more";
+    if (ox_getenv("LANG") == "ja_JP.EUC" || 
+        ox_getenv("LANG") == "ja_JP.eucJP") {
+      Jless = "/usr/local/bin/jless";
+      if (which(Jless) != 0) Pager=Jless;
+      Jless = "/usr/bin/jless";
+      if (which(Jless) != 0) Pager=Jless;
+      /* Give up */
+    }
+  }
+  /* print(Pager); */
   OF = F+"xm.help";
 
+  SS = "";
   print("---------- Result of grep  (ox_grep) ---------------------")$
-  shell("(cd " + F + " ; " + " grep "+A+" * xm.help/* | "+Pager+" )");
+  Cmd="(cd " + F + " ; " + " grep "+A+" * xm.help/* | "+Pager+" )";
+  if (Xm_server_mode)  SS += util_filter(Cmd,"");
+  else shell(Cmd);
 
   print("---------- Possible help keyword  for help -------------")$
-  shell("ls "+F+" | grep "+A);
-  print("---------- Possible help keyword  for ox_help ----------")$
-  shell("ls "+OF+" | grep "+A);
+  Cmd = "ls "+F+" | grep "+A;
+  if (Xm_server_mode)  SS += util_filter(Cmd,"");
+  else shell(Cmd);
 
+  print("---------- Possible help keyword  for ox_help ----------")$
+  Cmd = "ls "+OF+" | grep "+A;
+  if (Xm_server_mode)  SS += util_filter(Cmd,"");
+  else shell(Cmd);
+
+  if (Xm_server_mode) return SS;
   return(0);
 }
 
