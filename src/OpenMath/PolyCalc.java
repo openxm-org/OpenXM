@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.2 1999/11/02 14:54:37 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.3 1999/11/02 15:07:40 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -110,6 +110,20 @@ class PolyCalc extends Applet{
     }
   }
 
+  private static String usage(){
+    String ret = "";
+
+    ret += "usage\t: java PolyCalc [options]\n";
+    ret += "options\t:\n";
+    ret += "\t -h \t show this message\n";
+    ret += "\t -host hostname \t (default localhost)\n";
+    ret += "\t -data port \t (default 1300)\n";
+    ret += "\t -control port \t (default 1200)\n";
+
+    return ret;
+  }
+
+
   public static void main(String argv[]){
     Frame frame = new Frame("Polynomial Calculator");
     Applet applet;
@@ -118,7 +132,7 @@ class PolyCalc extends Applet{
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-        System.out.println("");
+        System.out.print(usage());
         System.exit(0);
       }else if(argv[i].equals("-host")){
         host = argv[++i];
@@ -127,7 +141,8 @@ class PolyCalc extends Applet{
       }else if(argv[i].equals("-control")){
         ControlPort = Integer.valueOf(argv[++i]).intValue();
       }else{
-        System.err.println("unknown option :"+ argv[i]);
+        System.err.println("unknown option : "+ argv[i]);
+        System.err.print(usage());
         System.exit(1);
       }
     }
