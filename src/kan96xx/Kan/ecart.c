@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.3 2003/07/17 23:37:01 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.4 2003/07/17 23:47:44 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -16,14 +16,24 @@ struct ecartPolyArray {
   int size;
   int limit;
   POLY *pa;
+  POLY *cf;
+  POLY *syz;
 };
 
 static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,struct ecartPolyArray *epa);
 static int ecartCheckPoly(POLY f);  /* check if it does not contain s-variables */
 static int ecartCheckEnv();         /* check if the environment is OK for ecart div*/
-static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray);
+static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray,POLY cf, POLY syz);
 static int ecartGetEll(POLY r,POLY g);
-static POLY ecartDivideSv(POLY r);
+static POLY ecartDivideSv(POLY r,int *d);
+/* No automatic homogenization and s is used as a standart var. */
+static POLY reduction_ecart0(POLY r,struct gradedPolySet *gset,
+                             int needSyz, struct syz0 *syzp);
+/* Automatic homogenization and s->1 */
+static POLY reduction_ecart1(POLY r,struct gradedPolySet *gset,
+                             int needSyz, struct syz0 *syzp);
+static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
+                            struct gradedPolySet *gg,POLY r);
 
 extern int DebugReductionRed; 
 
@@ -38,9 +48,10 @@ extern int EcartAutomaticHomogenization;
 #define LARGE 0x7fffffff
 
 
-static POLY ecartDivideSv(POLY r) {
+static POLY ecartDivideSv(POLY r,int *d) {
   POLY f;
   int k;
+  *d = 0;
   if (r == POLYNULL) return r;
   f = r; k = LARGE;
   while (r != POLYNULL) {
@@ -50,6 +61,7 @@ static POLY ecartDivideSv(POLY r) {
     r = r->next;
   }
   if (k > 0) {
+    *d = k;
     f = r;
     while (r != POLYNULL) {
       r->m->e[0].x -= k;
@@ -83,7 +95,7 @@ static int ecartGetEll(POLY f,POLY g) {
 
 
 #define EP_SIZE 10
-static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray)
+static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *eparray,POLY cf,POLY syz)
 {
   struct ecartPolyArray *a;
   POLY *ep;
@@ -93,6 +105,10 @@ static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *epar
     outofmemory(a);
     ep = (POLY *) sGC_malloc(sizeof(POLY)*EP_SIZE);
     outofmemory(ep);
+    a->cf = (POLY *) sGC_malloc(sizeof(POLY)*EP_SIZE);
+    outofmemory(a->cf);
+    a->syz = (POLY *) sGC_malloc(sizeof(POLY)*EP_SIZE);
+    outofmemory(a->syz);
     a->limit = EP_SIZE;
     a->size = 0;
     a->pa = ep;
@@ -103,16 +119,24 @@ static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *epar
     outofmemory(a);
     ep = (POLY *) sGC_malloc(sizeof(POLY)*((eparray->limit)*2));
     outofmemory(ep);
+    a->cf = (POLY *) sGC_malloc(sizeof(POLY)*((eparray->limit)*2));
+    outofmemory(a->cf);
+    a->syz = (POLY *) sGC_malloc(sizeof(POLY)*((eparray->limit)*2));
+    outofmemory(a->syz);
     a->limit = (eparray->limit)*2;
     a->size = eparray->size;
     a->pa = ep;
     for (i=0; i<eparray->size; i++) {
       (a->pa)[i] = (eparray->pa)[i];
+      (a->cf)[i] = (eparray->cf)[i];
+      (a->syz)[i] = (eparray->syz)[i];
     }
     eparray  = a;
   }
   i = eparray->size;
   (eparray->pa)[i] = g;
+  (eparray->cf)[i] = cf;
+  (eparray->syz)[i] = syz;
   (eparray->size)++;
   return eparray;
 }
@@ -184,12 +208,51 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
   }
 }
 
+static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
+                           struct gradedPolySet *gg,POLY r)
+{
+  POLY f;
+  int grd,i;
+  POLY q;
+  struct coeff *c;
+  f = ppMult(cf,r_0);
+  while (syz != POLYNULL) {
+    grd = syz->m->e[0].x;
+    i = syz->m->e[0].D;
+    c = syz->coeffp;
+    if (c->tag == POLY_COEFF) {
+      q = c->val.f;
+    }else{
+      q = POLYNULL;
+    }
+    f = ppAdd(f,ppMult(q,((gg->polys[grd])->g)[i]));
+                                /* not gh, works only for _ecart0 */
+    syz = syz->next;
+  }
+  f = ppSub(f,r);
+  return f;
+}
+
+
+POLY reduction_ecart(r,gset,needSyz,syzp)
+     POLY r;
+     struct gradedPolySet *gset;
+     int needSyz;
+     struct syz0 *syzp; /* set */
+{
+  if (EcartAutomaticHomogenization) {
+    return reduction_ecart1(r,gset,needSyz,syzp);
+  }else{
+    return reduction_ecart0(r,gset,needSyz,syzp);
+  }
+}
+
 /*
   r and gset are assumed to be (0,1)-homogenized (h-homogenized)
-  If EcartAutomaticHomogenization == 0, then r and gset are assumed
+  Polynomials r and gset are assumed
   to be double homogenized (h-homogenized and s(H)-homogenized)
  */  
-POLY reduction_ecart(r,gset,needSyz,syzp)
+static POLY reduction_ecart0(r,gset,needSyz,syzp)
      POLY r;
      struct gradedPolySet *gset;
      int needSyz;
@@ -205,6 +268,113 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
   struct ecartPolyArray *gg;
   POLY pp;
   int ell;
+  POLY cf_o;
+  POLY syz_o;
+  POLY r_0;
+
+  extern struct ring *CurrentRingp;
+  struct ring *rp;
+
+  r_0 = r;
+  gg = NULL;
+  if (needSyz) {
+    if (r ISZERO) { rp = CurrentRingp; } else { rp = r->m->ringp; }
+    cf = cxx(1,0,0,rp);
+    syz = ZERO;
+  }
+
+  if (r != POLYNULL) {
+    rp = r->m->ringp;
+    if (! rp->weightedHomogenization) {
+      errorKan1("%s\n","ecart.c: the given ring must be declared with [(weightedHomogenization) 1]");
+    }
+  }
+
+  do {
+    if (DebugReductionRed) printf("r=%s\n",POLYToString(r,'*',1));
+    ells = ecartFindReducer(r,gset,gg);
+    ell = ells.ell;
+    if (ell > 0) {
+      if (needSyz) {
+        gg = ecartPutPolyInG(r,gg,cf,syz);
+      }else{
+        gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
+      }
+    }
+    if (ell >= 0) {
+      if (ells.first) {
+        pp = ((gset->polys[ells.grade])->gh)[ells.gseti];
+      }else{
+        pp = (gg->pa)[ells.ggi];
+      }
+      if (ell > 0) r = mpMult(cxx(1,0,ell,rp),r); /* r = s^ell r */
+      r = (*reduction1)(r,pp,needSyz,&cc,&cg);
+      if (needSyz) {
+        if (ells.first) {
+          if (ell >0) cc = ppMult(cc,cxx(1,0,ell,rp));
+          cf = ppMult(cc,cf);
+          syz = cpMult(toSyzCoeff(cc),syz);
+          syz = ppAdd(syz,toSyzPoly(cg,ells.grade,ells.gseti));
+        }else{
+          if (ell >0) cc = ppMult(cc,cxx(1,0,ell,rp));
+          cf_o = (gg->cf)[ells.ggi];
+          syz_o = (gg->syz)[ells.ggi];
+          cf = ppMult(cc,cf);
+          cf = ppAdd(cf,ppMult(cg,cf_o));
+          syz = cpMult(toSyzCoeff(cc),syz);
+          syz = ppAdd(syz,cpMult(toSyzCoeff(cg),syz_o));
+		  /* Note. 2003.07.19 */
+        }
+        if (DebugReductionRed) {
+		  POLY tp;
+		  tp = ecartCheckSyz0(cf,r_0,syz,gset,r);
+		  if (tp != POLYNULL) {
+			fprintf(stderr,"reduction_ecart0(): sygyzy is broken. Return the Current values.\n");
+			fprintf(stderr,"%s\n",POLYToString(tp,'*',1));
+			syzp->cf = cf;
+			syzp->syz = syz;
+			return r;
+		  }
+        }
+      }
+      if (r ISZERO) goto ss;
+      /*r = ecartDivideSv(r,&se); r = r/s^? Don't do this. */
+    }
+  }while (ell >= 0);
+
+ ss: ;
+  if (needSyz) {
+    syzp->cf = cf;   /* cf is in the CurrentRingp */
+    syzp->syz = syz; /* syz is in the SyzRingp */
+  }
+
+  return(r);
+}
+
+/*
+  r and gset are assumed to be (0,1)-homogenized (h-homogenized)
+  r and gset are not assumed
+  to be double homogenized (h-homogenized and s(H)-homogenized)
+  They are automatically s(H)-homogenized, and s is set to 1 
+  when this function returns.
+ */  
+static POLY reduction_ecart1(r,gset,needSyz,syzp)
+     POLY r;
+     struct gradedPolySet *gset;
+     int needSyz;
+     struct syz0 *syzp; /* set */
+{
+  int reduced,reduced1,reduced2;
+  int grd;
+  struct polySet *set;
+  POLY cf,syz;
+  int i;
+  POLY cc,cg;
+  struct ecartReducer ells;
+  struct ecartPolyArray *gg;
+  POLY pp;
+  int ell;
+  int se;
 
   extern struct ring *CurrentRingp;
   struct ring *rp;
@@ -223,9 +393,7 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
     }
   }
 
-  if (EcartAutomaticHomogenization) {
-      r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
-  }
+  r = goHomogenize11(r,DegreeShifto_vec,DegreeShifto_size,-1,1);
   /* 1 means homogenize only s */
 
   do {
@@ -233,7 +401,7 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
     ells = ecartFindReducer(r,gset,gg);
     ell = ells.ell;
     if (ell > 0) {
-      gg = ecartPutPolyInG(r,gg);
+      gg = ecartPutPolyInG(r,gg,POLYNULL,POLYNULL);
     }
     if (ell >= 0) {
       if (ells.first) {
@@ -249,22 +417,26 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
           syz = cpMult(toSyzCoeff(cc),syz);
           syz = ppAddv(syz,toSyzPoly(cg,ells.grade,ells.gseti));
         }else{
+		  fprintf(stderr,"It has not yet implemented.\n");
+		  exit(10);
           /* BUG: not yet */
         }
       }
-      if (r ISZERO) goto ss;
-      r = ecartDivideSv(r); /* r = r/s^? */
+      if (r ISZERO) goto ss1;
+      r = ecartDivideSv(r,&se); /* r = r/s^? */
     }
   }while (ell >= 0);
 
- ss: ;
+ ss1: ;
   if (needSyz) {
     syzp->cf = cf;   /* cf is in the CurrentRingp */
     syzp->syz = syz; /* syz is in the SyzRingp */
     /* BUG: dehomogenize the syzygy */
+	fprintf(stderr,"It has not yet implemented.\n");
+	exit(10);
   }
-  /* 
+
   r = goDeHomogenizeS(r);
-  */
+
   return(r);
 }

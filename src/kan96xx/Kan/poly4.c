@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.5 2003/07/10 08:20:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.6 2003/07/17 07:33:03 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -508,6 +508,21 @@ int isTheSameRing(struct ring *rstack[],int rp, struct ring *newRingp)
     /* if (rrr->schreyer != newRingp->schreyer) { a=16; goto bbb ; }*/
     if (newRingp->schreyer == 1) { a=16; goto bbb; }
     if (rrr->weightedHomogenization != newRingp->weightedHomogenization) { a=16; goto bbb; }
+    if (rrr->degreeShiftSize != newRingp->degreeShiftSize) {
+      a = 17; goto bbb;
+    }
+    if (rrr->degreeShiftN != newRingp->degreeShiftN) {
+      a = 17; goto bbb;
+    }
+    for (i=0; i < rrr->degreeShiftSize; i++) {
+      for (j=0; j< rrr->degreeShiftN; j++) {
+        if (rrr->degreeShift[i*(rrr->degreeShiftN)+j] !=
+            newRingp->degreeShift[i*(rrr->degreeShiftN)+j]) {
+          a = 17; goto bbb;
+        }
+      }
+    }
+
     /* The following fields are ignored. 
        void *gbListTower;
        int *outputOrder;
@@ -578,9 +593,14 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei,int onlyS)
   POLY h;
   POLY tf;
   int gt,first,m,mp,t,tp,dsIdx,message;
+  struct ring *rp;
 
   message = 1;
   if (f == POLYNULL) return(POLYNULL);
+  rp = f->m->ringp;
+  if ((rp->degreeShiftSize == 0) && (dssize > 0)) {
+	warningPoly("You are trying to homogenize a polynomial with degree shift. However, the polynomial belongs to the ring without degreeShift option. It may cause a trouble in comparison in free module.\n");
+  }
   node = &nod;
   node->next = POLYNULL;
   lastf = POLYNULL;
