@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.22 2000/01/07 19:10:16 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.23 2000/01/07 19:18:13 maekawa Exp $
 all : all1 all-tigers all-phc all4 all-pari all-asir all-gnuplot all-openmath all6
 
 all1 :
@@ -15,7 +15,8 @@ all-openmath:
 	@if ../misc/which.pl -s javac ; then \
 		(cd OpenMath ; make) ; \
 	else \
-		echo "Warning: javac (java compiler) is not found in your search path. OpenMath will not be compiled." ; \
+		echo -n "Warning: javac (java compiler) is not found " ; \
+		echo "in your search path. OpenMath will not be compiled." ; \
 	fi
 
 all-phc:
