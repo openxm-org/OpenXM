@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.116 2003/03/06 10:36:03 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.117 2003/05/17 08:24:56 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -95,6 +95,8 @@ install-gc : all-gc
 	then \
 		if test ! -d ../lib ; then mkdir ../lib ; fi ; \
 		cp gc/gc.a ../lib/libgc.a ; \
+		if test ! -d ../include/gc ; then mkdir -p ../include/gc ; fi ; \
+		cp gc/include/gc.h gc/include/gc_cpp.h ../include/gc ; \
 	fi 
 	@touch gc/.gc_installed
 
