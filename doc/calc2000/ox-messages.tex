@@ -1,4 +1,4 @@
-%%$OpenXM: OpenXM/doc/issac2000/ox-messages.tex,v 1.7 2000/01/16 06:02:41 takayama Exp $
+%%$OpenXM: OpenXM/doc/calc2000/ox-messages.tex,v 1.1.1.1 2000/04/24 04:20:11 noro Exp $
 
 \section{OX messages}
 
@@ -20,17 +20,16 @@ are allowed and the byte order is determined as a part of
 the establishment of a connection. See Section \ref{secsession} for details.
 
 The OX messages are classified into three types:
-DATA, COMMAND, and SPECIAL.
+COMMAND, DATA and SPECIAL.
 We have currently the following general tags for the OX messages.
-\begin{verbatim}
-#define	OX_COMMAND               513  // COMMAND
-#define	OX_DATA	                 514  // DATA
-#define OX_SYNC_BALL             515  // SPECIAL
-#define OX_DATA_WITH_LENGTH      521  // DATA
-#define OX_DATA_OPENMATH_XML     523  // DATA
-#define OX_DATA_OPENMATH_BINARY  524  // DATA
-#define OX_DATA_MP               525  // DATA
-\end{verbatim}
+\begin{description}
+\item{COMMAND}
+{\tt OX\_COMMAND}
+\item{DATA}
+{\tt OX\_DATA}, {\tt OX\_DATA\_WITH\_LENGTH}, {\tt OX\_DATA\_OPENMATH\_XML},
+
+{\tt OX\_DATA\_OPENMATH\_BINARY} {\tt OX\_DATA\_MP} \item{SPECIAL} {\tt OX\_SYNC\_BALL}
+\end{description}
 
 A new OX tag may be added.
 The new tag should be classified into DATA or COMMAND.
