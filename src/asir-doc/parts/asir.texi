@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.6 2002/09/03 01:50:57 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.7 2003/04/20 08:01:25 noro Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -258,6 +258,7 @@ comprehensible than use of structure like C programs.
 * さまざまな式::
 * プリプロセッサ::
 * オプション指定::
+* モジュール::
 \E
 \BEG
 * User defined functions::
@@ -272,6 +273,7 @@ comprehensible than use of structure like C programs.
 * various expressions::
 * preprocessor::
 * option::
+* module::
 \E
 @end menu
 
@@ -1355,3 +1357,188 @@ After @samp{|} one can append any number of options seperated by @samp{,}.
 @end example
 
 
+\BJP
+@node モジュール,,, ユーザ定義函数の書き方
+@subsection モジュール
+\E
+\BEG
+@node module,,, Writing user defined functions
+@subsection module
+\E
+
+\BJP
+ライブラリで定義されている関数, 変数をカプセル化する仕組みが
+モジュール (module) である.
+はじめにモジュールを用いたプログラムの例をあげよう.
+\E
+\BEG
+Function names and variables in a library may be
+encapsulated by module.
+Let us see an example of using module
+\E
+
+@example
+module stack;
+
+static Sp $
+Sp = 0$
+static Ssize$
+Ssize = 100$
+static Stack $
+Stack = newvect(Ssize)$
+localf push $
+localf pop $
+
+def push(A) @{
+  if (Sp >= Ssize) @{print("Warning: Stack overflow\nDiscard the top"); pop();@}
+  Stack[Sp] = A;
+  Sp++;
+@}
+def pop() @{
+  local A;
+  if (Sp <= 0) @{print("Stack underflow"); return 0;@}
+  Sp--;
+  A = Stack[Sp];
+  return A;
+@}
+endmodule;
+
+def demo() @{
+  stack.push(1);
+  stack.push(2);
+  print(stack.pop());
+  print(stack.pop());
+@}
+@end example
+
+\BJP
+モジュールは @code{module} モジュール名  〜 @code{endmodule}で囲む.
+モジュールの中だけで使う大域変数は @code{static} で宣言する.
+この変数はモジュールの外からは参照もできないし変更もできない.
+モジュールの外の大域変数は @code{extern} で宣言する.
+\E
+\BEG
+Module is encapsulated by the sentences
+@code{module} module name
+and
+@code{endmodule}.
+A variable of a module is declared with the key word @code{static}.
+The static variables cannot be refered nor changed out of the module,
+but it can be refered and changed in any functions in the module.
+A global variable which can be refered and changed at any place
+is declared with the key word @code{extern}.
+\E
+
+\BJP
+モジュール内部で定義する関数は @code{localf} を用いて宣言しないといけない.
+上の例では @code{push} と @code{pop} を宣言している.
+この宣言は必須である. 
+\E
+\BEG
+Any function defined in a module must be declared forward
+with the keyword @code{localf}.
+In the example above, @code{push} and @code{pop} are declared.
+This declaration is necessary.
+\E
+
+\BJP
+モジュール @code{moduleName} で定義された関数 @code{functionName} を
+モジュールの外から呼ぶには
+     @code{moduleName.functionName(引数1, 引数2, ... )}
+なる形式でよぶ.
+モジュールの中からは, 関数名のみでよい.
+次の例では, モジュールの外からモジュール @code{stack} で定義された関数 @code{push},
+@code{pop} を呼んでいる.
+\E
+\BEG
+A function @code{functionName} defined in a module @code{moduleName}
+can be called by the expression
+@code{moduleName.functioName(arg1, arg2, ...)}
+out of the module.
+Inside the module, @code{moduleName.} is not necessary.
+In the example below, the functions @code{push} and @code{pop} defined
+in the module @code{stack} are called out of the module.
+\E
+
+@example
+ stack.push(2);
+ print( stack.pop() );
+ 2
+@end example
+
+\BJP
+モジュールで用いる関数名は局所的である.
+つまりモジュールの外や別のモジュールで定義されている関数名と同じ名前が
+利用できる.
+\E
+\BEG
+Any function name defined in a module is local.
+In other words, the same function name may be used out of the module
+to define a different function.
+\E
+
+\BJP
+モジュール機能は大規模ライブラリの開発を想定している.
+ライブラリを必要に応じて分割ロードするには, 関数 @code{module_definedp} を用いるのが
+便利である.
+デマンドロードはたとえば次のように行なえば良い.
+\E
+\BEG
+The module structure of asir is introduced to develop large libraries.
+In order to load libraries on demand, the command @code{module_definedp}
+will be useful.
+The below is an example of demand loading.
+\E
+
+@example
+if (!module_definep("stack")) load("stack.rr") $
+@end example
+
+\BJP
+asir では局所変数の宣言は不要であった.
+しかしモジュール stack の例を見れば分かるように, @code{local A;} なる形式で
+局所変数を宣言できる.
+キーワード @code{local} を用いると, 宣言機能が有効となる.
+宣言機能を有効にすると, 宣言されてない変数はロードの段階で
+エラーを起こす.
+変数名のタイプミスによる予期しないトラブルを防ぐには,
+宣言機能を有効にしてプログラムするのがよい.
+\E
+\BEG
+It is not necessary to declare local variables in asir.
+As you see in the example of the stack module,
+we may declare local variables by the key word @code{local}.
+Once this key word is used, asir requires to declare all the 
+variables.
+In order to avoid some troubles to develop a large libraries,
+it is recommended to use @code{local} declarations.
+\E
+
+\BJP
+モジュール内の関数をそのモジュールが定義される前に
+呼び出すような関数を書くときには, その関数の前でモジュールを次のように
+プロトタイプ宣言しておく必要がある.
+\E
+\BEG
+When we need to call a function in a module before the module is defined,
+we must make a prototype declaration as the example below.
+\E
+
+@example
+/* Prototype declaration of the module stack */
+module stack;
+localf push $
+localf pop $
+endmodule;  
+
+def demo() @{
+  print("----------------");
+  stack.push(1);
+  print(stack.pop());
+  print("---------------");
+@}
+
+module stack;
+  /* The body of the module stack */
+endmodule;
+@end example
