@@ -96,10 +96,12 @@ $N$ $B$H$9$k$H$-(B, $O(N\log N)$ $B$N%3%9%H$GB?9`<0$NOB$,7W;;$G$-$k(B.
 \item $B2DJQD9;X?t%Y%/%H%k(B
 
 {\tt oDL} $B$N%a%s%P!<$G$O(B, $BC19`<0$NJQ?t$N3F;X?t$r(B 32 bit $B8GDj$GI=8=$7$F(B
-$B$$$?$,(B, $BB?$/$N>l9g$3$l$O2aJ,$G$"$j(B, $B7k2L$H$7$F(B, $BB?9`<0$N$b$D>pJsNL(B
-$B$h$j$bM>J,$K%a%b%j$,I,MW$H$J$C$F$$$?(B. $B$3$l$KBP$7$F(B, $BI,MW:G>.8B$N(B
-bit $BD9$r;X?t$K3d$jEv$F$F$*$-(B, $B$"$U$l$,@8$8$k:]$K(B, $B%5%$%:$rJQ99$7$F(B
-$BB?9`<0$r:n$j$J$*$9$H$$$&$N$,$3$NJ}K!$G$"$k(B. $B$3$l$O(B \cite{Singular}
+$B$$$?$,(B, $BB?$/$N>l9g$3$l$O2aJ,$G$"$k(B.
+$BI,MW:G>.8B$N(B bit $BD9$r;X?t$K3d$jEv$F$k$3$H$K$9$l$P(B, 32 bit $BCf$KJ#?t$N(B
+$B;X?t$rJ];}$G$-(B, $BHf3S(B, $BOB$J$I$r0lEY$KJ#?t8D<B9T$G$-$k(B. $B$^$?(B, $B;X?t$N(B
+$BJ];}$KI,MW$J%a%b%jNL$b8:$k(B. $B$3$&$9$k$H(B, $BOB$G$"$U$l$,@8$8$k>l9g$,$"$k$,(B,
+$B$3$N>l9g$K$O%5%$%:$rJQ99$7$F(B
+$BB?9`<0$r:n$j$J$*$9(B. $B$3$l$O(B \cite{Singular}
 $B$GDs0F$5$l$F$$$kJ}K!$G$"$k(B.
 
 \item $BG[Ns$K$h$kB?9`<0$NJ];}(B
@@ -162,31 +164,32 @@ $(t,g_t)$ $B$rEPO?$9$k(B. $t$ $B$N(B reducer $B$rC5$9:]$K$O(B, $h_t$ $B$N
 
 \section{$B4pK\%G!<%?9=B$(B}
 
-\vskip 5mm
-\begin{tabular}{cc}
-\begin{minipage}{.5\hsize}
-\begin{verbatim}
-typedef struct oND {
-    struct oNM *body;
-    int nv,len,sugar;
-} *ND;
-\end{verbatim}
-\end{minipage}
-&
-\begin{minipage}{.5\hsize}
-\begin{verbatim}
-typedef struct oNDV {
-    struct oNMV *body;
-    int nv,len,sugar;
-} *NDV;
-\end{verbatim}
-\end{minipage}
-\end{tabular}
-\vskip 5mm
+%\vskip 5mm
+%\begin{tabular}{cc}
+%\begin{minipage}{.5\hsize}
+%\begin{verbatim}
+%typedef struct oND {
+%    struct oNM *body;
+%    int nv,len,sugar;
+%} *ND;
+%\end{verbatim}
+%\end{minipage}
+%&
+%\begin{minipage}{.5\hsize}
+%\begin{verbatim}
+%typedef struct oNDV {
+%    struct oNMV *body;
+%    int nv,len,sugar;
+%} *NDV;
+%\end{verbatim}
+%\end{minipage}
+%\end{tabular}
+%\vskip 5mm
 
-$B$3$l$i$O(B, $B$$$:$l$bJ,;6I=8=B?9`<0$rJ];}$9$k$?$a$N9=B$BN$G$"$k(B.
+$BJ,;6I=8=B?9`<0$rJ];}$9$k$?$a$N9=B$BN$,Fs$DDj5A$5$l$F$$$k(B.
 {\tt ND} $B$O(B linked list $B7A<0$N(B, {\tt NDV} $B$OG[Ns7A<0$NB?9`<0(B
-$B$rI=$9(B.
+$B$rI=$9(B. $BA0<T$O<!$G=R$Y$k(B {\tt oNM} $B$X$N(B, $B8e<T$O(B {\tt oNMV} $B$X$N(B
+$B%]%$%s%?$r;}$C$F$$$k(B.
 
 \vskip 5mm
 \begin{tabular}{cc}
@@ -289,16 +292,13 @@ $F_4$ $B$N3K?4$G$"$k(B, $BJ#?t$N(B S-pair $B$+$i(B, reducer $B$r$^$H$a$F
 $B3FCf4V4pDl$KBP$7(B, $B3FJQ?t$KBP$9$k;X?t$N:GBgCM$r5-O?$7$F$*$-(B,
 $B$=$N%Y%/%H%k$H$NOB$,$"$U$l$r5/$3$9>l9g$K:n$j$J$*$7$r$7$F$$$k(B.
 
-\subsection{$BCf4V4pDl$N(B demand loading}
+\subsection{$B$=$NB>(B}
 
 {\tt dp} $B7O$GDs6!$5$l$F$$$k$N$HF1MM$K(B,
 nd $B$K$*$$$F$b(B, $BCf4V4pDl$r%G%#%9%/>e$N;XDj$5$l$?%G%#%l%/%H%j$K(B
 $BCV$/$3$H$,$G$-$k(B. $B;XDjJ}K!$O(B {\tt dp} $B7O$HF1MM(B {\tt dp\_gr\_flags()}
 $B$G;XDj$9$k(B. $B%U%!%$%k$O(B {\tt dp} $B7O$HF1MM$N7A<0$J$N$G(B, {\tt bload()}
-$B$GFI$`$3$H$,$G$-$k(B.
-
-\subsection{$BM-M}?tBN>e$G$N(B content $B=|5n(B}
-
+$B$GFI$`$3$H$,$G$-$k(B. $B$^$?(B, $BM-M}?tBN>e$N>l9g(B,
 $B@55,2=7W;;ESCf$G$N(B content $B=|5n$O(B, $B>o$K9T$o$l$k(B. $B8=>u$G$O(B
 $BF,78?t$,(B 2 $BG\(B ($B8GDj(B) $B$K$J$C$?$H$-$K=|5n$,9T$o$l$k!#(B
 
