@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/util/Makefile,v 1.8 2003/09/08 02:43:47 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile,v 1.9 2003/09/08 06:21:08 takayama Exp $
 OpenXM_ROOT=../../../OpenXM
 OpenXM_bin=$(OpenXM_ROOT)/bin
 OpenXM_lib=$(OpenXM_ROOT)/lib
@@ -23,8 +23,8 @@ install: all
 	install oxweave ${OpenXM_ROOT}/src/kxx ; \
 	cp -f libox_pathfinder.a ${OpenXM_lib}  ; \
 	cp -f ox_pathfinder.h ${OpenXM_include} ; \
-	cp -f lndir.sh ${OpenXM_bin} ; \
-	chmod 755 ${OpenXM_bin}/lndir.sh ; \
+	install lndir.sh ${OpenXM_bin} ; \
+	install oxfetch.sh ${OpenXM_bin} ; \
 	touch ./.install_done ; \
 	fi
 
