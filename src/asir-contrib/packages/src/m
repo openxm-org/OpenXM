@@ -1,7 +1,7 @@
 /*&jp \documentclass{jarticle}
 \begin{document}
 */
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.13 2002/08/08 08:56:34 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/m,v 1.14 2002/08/23 08:16:15 takayama Exp $ */
 /* Use oxweave to generate documents on this source code
    Use iso-2022 to write this file. No default use of GL and GR is allowed.
 */
@@ -655,7 +655,9 @@ def m_Complex(A,B) {
   \end{verbatim}
 */
 def m_N_Eigenvalues(M) {
-  P = 0;
+  extern M_proc;
+  M_FIND_PROC(P)  ;
+
   A = m_rtostr(M);
   ox_execute_string(P,"N[Eigenvalues["+A+"]]");
   B = ox_pop_cmo(B);
@@ -681,7 +683,9 @@ def m_N_Eigenvalues(M) {
   \end{verbatim}
 */
 def m_Inverse(M) {
-  P = 0;
+  extern M_proc;
+  M_FIND_PROC(P)  ;
+
   A = m_rtostr(M);
   ox_execute_string(P,"Inverse["+A+"]");
   B = ox_pop_cmo(B);
@@ -702,6 +706,22 @@ def m_Inverse(M) {
 
 /* まだ書いてない. */
 
+
+def m_TeXForm(M) {
+  extern M_proc;
+  M_FIND_PROC(P)  ;
+
+  A = m_rtostr(M);
+  ox_execute_string(P,"ToString[TeXForm["+A+"]]");
+  B = ox_pop_cmo(B);
+  C = m_tree_to_string(B);
+  return C;
+}
+/* example:
+   m_TeXForm("2/x");
+   example:
+   m_TeXForm((x^2-1)/x);
+*/
 
 end$
 
