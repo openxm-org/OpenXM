@@ -1,0 +1,322 @@
+% $OpenXM$
+%% xdvi -paper a4r rims-2003-12-16-ja-ohp
+%% dvips -f -t landscape  rims-2003-12-16-ja-ohp| psnup -8 -r | lpr -Pxerox6
+\documentclass{slides}
+\usepackage{color}
+\usepackage{rgb}
+\usepackage{epsfig}
+%\def\color#1{ }
+%\def\epsffile#1{ Picture File: #1 }
+%\def\epsfxsize{ }
+%% Sample:
+%% \epsfxsize=17cm
+%% \epsffile{cz.ps}
+
+\textwidth 9.2in
+\textheight 7.2in
+\columnsep 0.33in
+\topmargin -1in
+
+\def\nnn{ {\color{red} $\bullet$}\ }    %% 事実
+\def\eee{ {\color{magenta} Example}:\ } %% 例
+\def\ttt{ {\color{red} $\bullet$}\ }   %% 定理
+
+\def\pagetitle#1{ \fbox{{\color{magenta} #1 }}}
+
+\newenvironment{FRAME}{\begin{trivlist}\item[]
+  \hrule
+  \hbox to \linewidth\bgroup
+  \advance\linewidth by -30pt
+  \hsize=\linewidth
+  \vrule\hfill
+  \vbox\bgroup
+    \vskip15pt
+    \def\thempfootnote{\arabic{mpfootnote}}
+    \begin{minipage}{\linewidth}}{%
+    \end{minipage}\vskip15pt
+  \egroup\hfill\vrule
+ \egroup\hrule
+\end{trivlist}}
+
+\begin{document}
+\noindent
+\begin{center}
+{\color{magenta} OpenXM の新サーバ, 新プロトコル}
+\end{center}
+%% 2003, 12/16 (Tue), 
+\begin{center}
+{\color{SlateGray} OpenXM 開発グループ (committers):  http://www.openxm.org }
+\end{center} 
+\begin{enumerate}
+\item 新しいサーバ ntl
+\item 新しいサーバ polymake と oxshell.
+\item OX-RFC 103 ( 100, 101 補遺)
+\item OX-RFC 102 --- 本格的なサーバ間通信
+\end{enumerate}
+\newpage
+
+\noindent  \quad \\
+\nnn 数学での並列計算,  \\
+\nnn 数学ソフトウエアの統合化 または Conglomerate 化 (A.Solomon) \\
+\nnn 数学的知識のマネージメント (Mathematical Knowledge Management) \\
+\nnn 実際に数学の研究や数学の応用に使えるパッケージの開発 
+
+\noindent  \quad \\
+\nnn OpenXM 1.1.1 (January 24, 2000): 最初の実験版. \\
+\nnn OpenXM 1.1.2 (March 20, 2000): とりあえず使える版. \\
+\nnn OpenXM 1.1.3 (September 26, 2000): 1.1 系の最終版. OpenXM RFC 100 形式
+   のプロセス木. 1077 個の数学関数を提供. 
+   提供しているサーバは {\tt ox\_asir}, {\tt ox\_sm1},
+   {\tt ox\_phc}, {\tt ox\_gnuplot}, {\tt ox\_m2}, {\tt ox\_tigers},
+   {\tt ox\_math}(ematica), {\tt OMproxy}. \\
+\nnn OpenXM 1.2.1 (March 2, 2002): Cygwin (Windows) への対応開始. 
+       マニュアル自動生成(gentexi)など. \\
+\nnn OpenXM 1.2.2 (May 13, 2003):  RFC 103 (部分的), autoconf\\ 
+(\nnn) Digital formula book, OpenMath, tfb, CD (hypergeo*, weylalgebra*, intpath*),
+ 数値計算.
+
+\newpage
+
+\noindent
+\pagetitle{ 1. {\color{blue} 新しいサーバ ntl}}
+http://www.shoup.net/ntl,
+{\footnotesize
+NTL is a high-performance, portable C++ library providing data structures and algorithms for manipulating signed, arbitrary length integers, and for vectors,
+matrices, and polynomials over the integers and over finite fields. 
+}
+
+{\color{blue} ox\_toolkit $+$ NTL ライブラリ}
+$\Rightarrow$ {\color{red} ox\_ntl}
+{\footnotesize
+\begin{verbatim}
+[1145]= ox_launch_nox(0,"/home/taka/OX4/OpenXM/bin/ox_ntl");
+[1028] F=ntl.ex_data(4)$
+[1029] F = F * subst(F, x, x + 1)$
+[1030] ntl.factor(PID, F);  /* NTL の knapsac factorizer */
+[[1,1],
+ [x^16+16*x^15-16*x^14-1344*x^13-4080*x^12+32576*x^11+157376*x^10-255232*x^9-2062624*x^8-249088*x^7+10702080*x^6+9126912*x^5-18643712*x^4-24167424*x^3+2712576*x^2+10653696*x+2324736,1],
+[x^16-136*x^14+6476*x^12-141912*x^10+1513334*x^8-7453176*x^6+13950764*x^4-5596840*x^2+46225,1]]
+\end{verbatim}
+}
+
+実装により明らかになったこと: \\
+ox\_toolkit の問題点の改善, LLL をよぶために CMO array も必要.
+
+\rightline{開発: 岩根 (小原)}
+\newpage
+
+
+\noindent
+\pagetitle{2. {\color{blue} 新しいサーバ polymake と oxshell}}
+
+{\color{red} Polymake } : 多面体用ソフトウエア. \\
+{\tt http://www.math.tu-berlin.de/polymake},
+by Ewgenji Gawrilow, Michael Joswig. \\
+% polemake logo
+Facets, Convex hull, Triangulation, 構成, polytope data,
+Visualization by JavaView and Povray.
+
+\newpage
+\eee
+点 $(1,0,0)$, $(1,1,0)$, $(1,0,1)$, $(1,1,1)$ 上の cone の facet を求めよ. \\
+{\tt polymake} ではつぎような入力ファイル {\tt square.poly} をまず作成する.
+
+{\footnotesize \color{blue} \begin{verbatim}
+POINTS
+1 0 0
+1 1 0
+1 0 1
+1 1 1
+\end{verbatim} }
+
+{\color{red} \verb@ polymake square.poly FACETS @ } \\
+結果:
+{\footnotesize \begin{verbatim}
+FACETS
+0 0 1
+0 1 0
+1 0 -1
+1 -1 0
+\end{verbatim} }
+
+\newpage
+
+\pagetitle{ Polymake の OX 100, 101 サーバ化で何が問題であったか?}
+%todo OX 100 の概略が必要か?
+
+新しい OX RFC 100 準拠のサーバを作る場合には
+ターゲットとする数学ソフトウエアシステムのソースコードに OX RFC 100 対応部分
+を加える作業をしないといけない.
+この作業はソースコードの理解とかなりの手間を要する.
+C++ で書かれた polymake のソースは先端的な C++ の機能を
+利用しておりコンパイルが容易でない.
+
+
+Polymake はあらかじめファイルにコマンドやデータを書き出しておくことにより
+unix の shell (や Windows のコマンドプロンプト) 
+から利用可能なように作られている: {\color{red} バッチ処理対応アプリケーション}.
+サーバとの通信の頻度は問題によるがある程度大きい計算の場合は通信時間は無視できる.
+Polymake は対話的利用は想定しておらずサーバの計算を中断して, 再度開始するなどの必要がない.
+$\Rightarrow$ {\tt system} の強化版 {\color{blue} oxshell}
+\newpage
+
+\pagetitle{ Oxshell とは }
+Oxshell は上記のようなバッチ処理対応アプリケーションをソースコードの改変なく 
+OX RFC 100 準拠にするためのいわゆるラッパー型の OX サーバを書くための補助機能を
+提供する sm1 への組み込み関数である.
+
+Oxshell を用いて OX サーバを実現するのが適切な数学ソフトウエアは以下のような特徴をもつものであろう. \\
+\nnn バッチ処理対応アプリケーションである. \\
+\nnn ソースコードの変更ができないか困難. \\
+\nnn サーバとの通信が頻繁におきない. \\
+\nnn サーバの計算を中断して, 再度開始するなどの必要がない. \\
+\nnn Windows でも unix でも動かしたい.  \\
+
+\pagetitle{ OX RFC 100 の復習}
+
+クライアント-サーバモデル.
+サーバは stackmachine. 
+(1) スタックマシンへのメッセージを送ることにより計算が進行する.
+(2) 計算の中断などのメッセージもある.
+(3) サーバはエンジンとコントロールプロセスよりなる.
+
+\newpage
+
+\noindent OX RFC 100 には\underline{ファイルの概念がない}. したがって, \\
+\verb@ polymake ファイル名 動作 @ \\
+みたいなプログラムは OX スタックマシンの上のデータをファイルに書き出してから
+実行して, それからまたスタックマシンの上のデータに変換しないといけない.
+(単純仕事, しかし,  ZPG の極致; unix と windows 違い,
+/bin/sh の存在, プログラムが大変読みにくく保守もしにくい)
+
+{\tt oxshell} ではこの仕事は次の 1 行で書く. \\
+{\color{red} \verb@[(polymake) (stringInOut://スタックマシン変数名.poly) 動作] oxshell@}\\
+スタックマシンの変数をファイルをみなしている.
+
+このような考え方は, なにも新しいものではない. \\
+例: Java の io.StringReader ( io.InputStreamReader の代わり). \\
+例: スクリプト言語である Python
+  \verb@ x=os.popen("abc","r").read(); @
+
+\noindent
+{\color{blue} 新しい部分}:
+この考えを数学ソフトウエアの統合化のために使うための実装は存在していなかった.
+これが oxshell コマンドの導入によって解決される点の一つである.
+考え方が整理されプログラムの保守性が大変よくなり, また新しいバッチ型アプリケーションのOX サーバ化が楽になった.
+
+\newpage
+
+\eee
+文字列 {\tt S} に格納された単語 dog, cat, lion を unix のツール sort で
+並べ変えるには次のように書く.
+入力は oxshell を実行しているスタックマシンの変数 {\tt S} に格納されている.
+
+\begin{verbatim}
+[1163]:= S="dog\ncat\nlion\n";
+[1164]:= oxshell.set_value("S",S);
+[1165]:= T=oxshell.oxshell(["sort","stringIn://S"]);
+[cat
+dog
+lion
+,]
+\end{verbatim}
+\newpage
+
+\pagetitle{ oxshell.facets() の実装, 数学関数の実装例 }
+
+\nnn データ変換には tfb/2 (田村)format を利用, OpenMath アーキテクチャを利用.
+{\color{blue}成果}: その有効性を実証できた.)
+%% これも新しい点であろう.
+{\footnotesize \begin{verbatim}
+[ $polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,1,1]]),
+   polymake.FACETS([[0,0,1],[0,1,0],[1,0,-1],[1,-1,0]]),
+   polymake.AFFINE_HULL())$
+  CMO tree expression of the data above
+  Outputs to stdout and stderr ]
+\end{verbatim} }
+
+
+{\color{red} taka\_ahg.b(A,Idx)}(OpenXM/src/asir-contrib/packages/src/taka\_ahg.rr)
+oxshell による polymake 呼び出し機能を用いた数学関数.
+この関数は 行列 {\tt A} に付随した 方向 {\tt Idx} のある $b$ 関数を計算する.
+これは {\tt A} の定義する cone のファセットをあらわす一次式の積で表現されることが,
+知られている
+(Saito, Mutsumi; Sturmfels, Bernd; Takayama, Nobuki; Hypergeometric polynomials and integer programming. Compositio Math. 115 (1999), no. 2, 185--204
+および
+Saito, Mutsumi; Parameter shift in normal generalized hypergeometric systems. Tohoku Math. J. (2) 44 (1992), no. 4, 523--534
+をみよ.)
+
+\newpage
+
+{\footnotesize
+\begin{verbatim}
+[1163]:= load("oxshell.rr");
+[1164]:= load("taka_ahg.rr");
+[1165]:=  A=[[1,0,0],[1,1,0],[1,0,1],[1,1,1],[1,2,0]];
+[1166]:= fctr(taka_ahg.b(A,4,[s1,s2,s3]));
+[[1,1],[s1+2*s2,2],[s1+2*s2-1,1]]
+\end{verbatim}
+
+\begin{verbatim}
+def b(A,Idx,V) {
+  F = oxshell.facets(A);    /* Computing all the facets by polymake server.*/
+  F = F[1];                 /* F is the set of the facets */
+  P = A[Idx];
+  Nfacets = length(F);
+  F = toPrimitive2(P,F);   /* Translate into primitive supporting function */
+  Bf = 1;
+  for (I=0; I<Nfacets; I++) {
+    H = matrix_inner_product(P,F[I]);
+    if (H != 0) {
+      B = matrix_inner_product(P,V);
+      for (J=0; J<H; J++) {
+        Bf = Bf*(B-J);  /* See the papers above. */
+      }
+    }
+  } 
+  return(Bf);
+}
+\end{verbatim}
+}
+
+
+\rightline{開発: 高山}
+\newpage
+
+
+\noindent
+\pagetitle{3. {\color{blue} OX-RFC 103 ( 100, 101 補遺)}}
+
+この RFC は OpenXM RFC 100 (および 101) の実装により明らかになった種々の問題点をもとに
+RFC 100 プロトコルへの幾つかの追加を提案する.
+
+\nnn ファイルへの読み書き \\
+\nnn 新しい CMO \\
+\nnn  エンジン認証手続き \\
+\nnn 中断および変数の伝播 \\
+1. 自分の子供プロセスをすべてリストする
+  (asirの場合:{\tt ox\_get\_serverinfo()}) \\
+2. 子供プロセスに順番に OpenXM-RFC 100 の中断メッセージを送る.
+
+\noindent
+{\color{red} ox103\_set\_shared\_variable(} CMO string {\tt Name}, CMO object {\tt
+value}{\tt )}
+エンジンスタックマシンの変数 {\tt Name} に値
+{\tt value} が設定,
+さらに子どものプロセスすべてのエンジン関数
+ {\tt ox103\_set\_shared\_variable}
+をよぶ.
+
+\rightline{開発: 高山}
+\newpage
+
+\noindent
+\pagetitle{4. {\color{blue} OX-RFC 102 --- 本格的なサーバ間通信を用いた分散計算}}
+
+
+\rightline{開発: 野呂}
+\newpage
+
+\end{document}
+
+%%$Id$ at misc-2003/12/RIMS
