@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.14 2002/11/07 23:52:20 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.15 2002/11/08 02:54:11 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -940,7 +940,8 @@ oxclientp oxCreateClient2(int fdstream,int portStream,
   if (v) fprintf(stderr,"\nStream port %d : Connected.\n",portStream);
 
   if (fdStream == -1 || fdControl == -1) {
-    fprintf(stderr,"\nOpen error in oxCreateClient.\n");
+    fprintf(stderr,"\nOpen error in oxCreateClient2.\n");
+    fprintf(stderr,"fdStream=%d, fdControl=%d\n",fdStream,fdControl);
     return(NULL);
   }
 
