@@ -1,4 +1,12 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.5 2000/03/10 14:26:51 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.6 2000/03/11 02:01:39 takayama Exp $
+
+VERSION=1.1.2
+TAR_WORK=$(HOME)/tmp
+NAME=taka
+TAR_WORK_EXPLICIT=/home/${NAME}/tmp
+JDK=jdk1.1.8
+FTP_AREA=/home/ftp/pub/OpenXM/${VERSION}
+
 
 # Modify below for priting.
 PS=a2ps-j
@@ -8,18 +16,18 @@ usage :
 	@echo "Targets "
 	@echo "  clean "
 	@echo "  print "
+	@echo "1.  generate-tar-balls"
+	@echo "  (update-plist)"
+	@echo "2.  build-on-orange (do not forget to set .rpmrc. See Linux/RPM/Makefile)"
+	@echo "3.  build-on-pear"
+	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
+	@echo "5.  build-on-unkei"
+	@echo "6.  copy-to-ftp-area "
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
 	-(cd FreeBSD ; make clean)
 	-(cd Linux/RPM ; make clean)
-
-generate-tar-balls:
-	make clean
-	(cd Generic/openxm ; make tar-ball)
-	(cd FreeBSD/openxm-1.1.2 ; make make-tar-ball-for-openxm-port)
-	(cd Linux/RPM ; make make-directory)
-	(cd Linux/RPM ; make link-for-real-openxm)
 
 print:
 	$(PS) Generic/openxm/Makefile | $(LPR)	
@@ -27,3 +35,45 @@ print:
 	$(PS) Linux/RPM/openxm-*spec.in | $(LPR)	
 	$(PS) FreeBSD/openxm-ports/openxm-1.1.2/Makefile | $(LPR)	
 
+
+generate-tar-balls:
+	-mkdir ${TAR_WORK}
+	make clean
+	(cd Generic/openxm ; make tar-ball)
+	make update-plist
+	(cd FreeBSD/openxm-${VERSION} ; make make-tar-ball-for-openxm-port)
+	(cd Linux/RPM ; make make-directory)
+	(cd Linux/RPM ; make link-for-real-openxm)
+
+update-plist:
+	(cd FreeBSD ; make VERSION=${VERSION} update-plist )
+
+build-on-orange:
+	(cd Generic/openxm ; make tar-ball-01)
+	(cd Generic/openxm ; make binary-tar-ball)
+	(cd Generic/openxm ; make shared-tar-ball)
+	(cd Generic/openxm ; make clean-work)
+	(cd Linux/RPM ; make build-shared-rpm)
+	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
+
+# You should be a super user.
+build-on-pear:
+	cp ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tar.gz /usr/ports/distfiles
+	(cd /usr/ports/math ; tar xzvf ${TAR_WORK_EXPLICIT}/openxm-port.tar.gz)
+	(PATH=/usr/local/${JDK}/java ; export PATH ; cd FreeBSD/openxm-ports/openxm-${VERSION} ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
+
+build-on-redhat:
+	(cd Generic/openxm ; make binary-tar-ball)
+	(cd Linux/RPM ; make build-binary-rpm)
+	(cp Linux/RPM/work/RPMS/i386/*.rpm ${TAR_WORK})
+
+build-on-unkei:
+	(cd Generic/openxm ; make binary-tar-ball)
+
+copy-to-ftp-area:
+	-mkdir ${FTP_AREA}
+	cp ${TAR_WORK}/openxm*rpm ${FTP_AREA}
+	cp ${TAR_WORK}/openxm01-${VERSION}.tar.gz ${FTP_AREA}
+	cp ${TAR_WORK}/OpenXM-*.tgz ${FTP_AREA}
+	cp ${TAR_WORK}/openxm-${VERSION}.tgz ${FTP_AREA}
+	ls -l ${FTP_AREA}

@@ -1,4 +1,10 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.3 2000/03/05 06:11:54 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/Makefile,v 1.4 2000/03/11 02:01:40 takayama Exp $
+VERSION=1.1.2
+
+usage:
+	@echo "Targets:  "
+	@echo "  clean "
+	@echo "  update-plist "
 
 all :
 
@@ -8,4 +14,12 @@ clean:
 	-/bin/rm -rf $(HOME)/tmp2/OpenXM $(HOME)/tmp2/bin
 	-mkdir $(HOME)/tmp2
 	-mkdir $(HOME)/tmp2/bin
+
+## You need to put the source tar ball under $(HOME)/tmp
+update-plist :
+	-mkdir $(HOME)/tmp2 $(HOME)/tmp2/bin $(HOME)/tmp2/man $(HOME)/tmp2/man/man1
+	(cd openxm-ports/openxm-${VERSION} ; make TAR_WORK=$(HOME)/tmp DISTDIR=$(HOME)/tmp PREFIX=$(HOME)/tmp2)
+	(cd openxm-ports/openxm-${VERSION}/files ; make ; ./gen-plist.shell)
+	(cd openxm-ports/openxm-${VERSION}/files ; cp plist-tmp2 ../pkg/PLIST)
+	(cd openxm-ports/openxm-${VERSION}/pkg ; rcvs commit PLIST)
 
