@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.10 2002/10/22 00:53:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.11 2002/10/24 01:05:05 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -641,7 +641,6 @@ struct object Kplugin_sm1Socket(char *key,struct object obj) {
     robj = KsocketRead(obj);
   }else if (strcmp(key,"readHTTP") == 0) {
     robj = KsocketReadHTTP(obj);
-  }else if (strcmp(key,"write") == 0) {
   }else if (strcmp(key,"gethostname") == 0) {
     robj = KsocketGetHostName();
   }else if (strcmp(key,"write") == 0) {
