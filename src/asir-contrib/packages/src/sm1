@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.50 2004/05/04 08:29:34 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.51 2004/05/05 07:09:43 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dx,dy,dz,du,dv,dw,dp,dq,dr,ds,dt,da,db,dc,dd,de,df,dg,dh,di,dj,dk,dl,dm,dn,
@@ -101,7 +101,11 @@ localf saturation$
 localf ecartd_gb$
 localf ecartd_reduction$
 localf gb_reduction$
+localf gb_oxRingStructure$
 localf ecartd_isSameIdeal_h$
+localf ecart_homogenize01Ideal$
+localf aux_parse_gb_option_list$
+localf ecartd_gb_oxRingStructure$
 
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
@@ -1226,12 +1230,16 @@ def saturation(A) {
  It returns a standard basis of {A} by using
  a tangent cone algorithm. h[0,1](D)-homogenization is used.
  example:
- input
+ input1
    F=[2*(1-x-y)*dx+1,2*(1-x-y)*dy+1]$
    FF=[F,"x,y",[[dx,1,dy,1],[x,-1,y,-1,dx,1,dy,1]]]$
    sm1.ecartd_gb(FF);
- output
+ output1
    [[(-2*x-2*y+2)*dx+h,(-2*x-2*y+2)*dy+h],[(-2*x-2*y+2)*dx,(-2*x-2*y+2)*dy]]
+ input2
+   F=[2*(1-x-y)*dx+h,2*(1-x-y)*dy+h]$
+   FF=[F,"x,y",[[dx,1,dy,1],[x,-1,y,-1,dx,1,dy,1]],["noAutoHomogenize",1]]$
+   sm1.ecartd_gb(FF);
 end: */
 def ecartd_gb(A) {
   SM1L_FIND_PROC(P);
@@ -1346,6 +1354,17 @@ def gb_reduction(F,A) {
   }
 }
 
+/*&usage begin: sm1.gb_oxRingStructure()
+ It returns the oxRingStructure of the most recent gb computation.
+end: */
+def gb_oxRingStructure() {
+  SM1L_FIND_PROC(P);
+  P = check_server(P);
+  sm1(P," gb.oxRingStructure ");
+  Option_list = pop(p);
+  return aux_parse_gb_option_list(Option_list);
+}
+
 /*&usage begin: sm1.ecartd_isSameIdeal_h(F)
  Here, {F}=[{II},{JJ},{V}].
  It compares two ideals {II} and {JJ} in h[0,1](D)_alg.
@@ -1384,6 +1403,46 @@ def ecartd_isSameIdeal_h(F) {
   }else{
     return(pop(P));
   }
+}
+
+/*&usage begin: sm1.ecart_homogenize01Ideal(A)
+ It (0,1)-homogenizes the ideal A[0]. Note that it is not an elementwise
+ homogenization.
+ example:
+ input1
+   F=[(1-x)*dx+1]$ FF=[F,"x,y"]$
+   sm1.ecart_homogenize01Ideal(FF);
+ intput2
+   F=sm1.appell1([1,2,3,4]);
+   sm1.ecart_homogenize01Ideal(F);
+
+end: */
+def ecart_homogenize01Ideal(A) {
+  SM1L_FIND_PROC(P);
+  P = check_server(P);
+  check_arg_gb(A,"Error in ecart_homogenize01Ideal");
+  push_int0(P,A);
+  sm1(P," ecart.homogenize01Ideal ");
+  return(pop(P));
+}
+
+def aux_parse_gb_option_list(Ol) {
+  Ans = [];
+  while (length(Ol) != 0) {
+    L = car(Ol); Ol = cdr(Ol);
+    Ans = cons([L[0],map(eval_str,map(rtostr,L[1]))], Ans);
+  }
+  return reverse(Ans);
+}
+/*&usage begin: sm1.ecartd_gb_oxRingStructure()
+ It returns the oxRingStructure of the most recent ecartd_gb computation.
+end: */
+def ecartd_gb_oxRingStructure() {
+  SM1L_FIND_PROC(P);
+  P = check_server(P);
+  sm1(P," ecartd.gb.oxRingStructure ");
+  Option_list = pop(p);
+  return aux_parse_gb_option_list(Option_list);
 }
 
 endmodule;
