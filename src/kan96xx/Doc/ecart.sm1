@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.4 2003/07/30 09:00:51 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.5 2003/08/04 11:42:42 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -219,21 +219,23 @@
       } {  } ifelse
       wv isInteger {        
         [v ring_of_differential_operators 
-         [ v ecart.wv1 v ecart.wv2 ] weight_vector
+%         [ v ecart.wv1 v ecart.wv2 ] weight_vector
          gb.characteristic
          opt
         ] define_ring
       }{
        degreeShift isInteger {
          [v ring_of_differential_operators 
-          [v ecart.wv1 v ecart.wv2] wv join weight_vector
+%          [v ecart.wv1 v ecart.wv2] wv join weight_vector
+          wv weight_vector
           gb.characteristic
           opt
          ] define_ring
 
        }{
          [v ring_of_differential_operators 
-          [v ecart.wv1 v ecart.wv2] wv join weight_vector
+%          [v ecart.wv1 v ecart.wv2] wv join weight_vector
+          wv  weight_vector
           gb.characteristic
           [(degreeShift) degreeShift] opt join 
           ] define_ring
@@ -254,7 +256,7 @@
     %%% Enf of the preprocess
 
     ecart.gb.verbose {
-      (The first and the second weight vectors are automatically set as follows)
+      (The first and the second weight vectors for automatic homogenization: )
        message
        v ecart.wv1 message
        v ecart.wv2 message
@@ -341,7 +343,7 @@
   (               not to dehomogenize and homogenize)
   ( )
   $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) ( x y Dx Dy -1)] (x,y) $
-  $             [ [ (Dx) 1 ] ] ] ecart.gb pmat ; $
+  $             [ [ (Dx) 1 ] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
   (Example 2: )
   (To put H and h=1, type in, e.g., )
   $ [ [(2 x Dx + 3 y Dy+6) (2 y Dx + 3 x^2 Dy)] (x,y) $
@@ -351,10 +353,10 @@
   $             [ [ (Dx) 1 (Dy) 1] ] ] ecart.gb pmat ; $
   (  )
   $Example 4: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [ (x) -1 (y) -1] ] ] ecart.gb pmat ; $
+  $             [ [ (x) -1 (y) -1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]] ] ecart.gb pmat ; $
   (  )
   $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
-  $             [ [ (x) -1 (y) -1] ]  [[0 1] [-3 1] ] ] ecart.gb pmat ; $
+  $             [ [(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1] ]  [[0 1] [-3 1] ] ] ecart.gb pmat ; (buggy infinite loop)$
   (  )
   (cf. gb, groebner, ecart.syz, ecart.begin, ecart.end, ecart.homogenize01, )
   (    ecart.dehomogenize, ecart.dehomogenizeH)
@@ -792,7 +794,7 @@
        /i set
        vv i get . /tt set
        tt (1). add init (1). eq { }
-       { [vv i get ( is larger than 1) vv i get] cat error} ifelse
+       { [vv i get ( is larger than 1 ) ] cat error} ifelse
     } for
     /arg1 1 def
   ] pop
