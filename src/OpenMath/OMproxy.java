@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.36 2000/04/17 03:18:57 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.37 2000/06/13 14:04:19 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -7,9 +7,8 @@ import java.util.Stack;
 import java.io.*;
 
 public class OMproxy extends OpenXMserver{
-  private OpenXM ox;
   private Stack stack = new Stack();
-  protected boolean debug = true;
+  protected boolean debug = false;
   final int version = 200006130;
 
   public OMproxy(String hostname,int ControlPort,int DataPort){
@@ -28,7 +27,7 @@ public class OMproxy extends OpenXMserver{
 
 	  switch(ox_tag){
 	  case OXmessage.OX_COMMAND:
-	    StackMachine((SM)message.getBody());
+	    StackMachine((SM)message.getBody(),stream);
 	    break;
 
 	  case OXmessage.OX_DATA:
@@ -65,18 +64,18 @@ public class OMproxy extends OpenXMserver{
   }
   */
 
-  private void SM_popCMO() throws java.io.IOException{
+  private void SM_popCMO(OpenXMconnection stream) throws java.io.IOException{
     try{
       if(stack.empty()){
-	ox.send(new CMO_NULL());
+	stream.send(new CMO_NULL());
       }else{
 	debug("sending CMO: "+ stack.peek());
-	ox.send((CMO)stack.pop());
+	stream.send((CMO)stack.pop());
 	debug("test");
       }
     }catch(MathcapViolation e){
       try{
-	ox.send(new CMO_ERROR2(new CMO_STRING("MathcapViolation: "+
+	stream.send(new CMO_ERROR2(new CMO_STRING("MathcapViolation: "+
 					      e.getMessage())));
       }catch(MathcapViolation tmp){}
     }
@@ -115,7 +114,7 @@ public class OMproxy extends OpenXMserver{
     return;
   }
 
-  private void SM_mathcap() throws java.io.IOException{
+  private void SM_mathcap(OpenXMconnection stream) throws java.io.IOException{
     CMO[] mathcap = new CMO[3];
 
     {
@@ -164,21 +163,23 @@ public class OMproxy extends OpenXMserver{
     debug("push: "+ stack.peek());
   }
 
-  private void SM_setMathCap() throws java.io.IOException{
+  private void SM_setMathCap(OpenXMconnection stream)
+       throws java.io.IOException{
     Object mathcap = stack.pop();
 
     if(mathcap instanceof CMO_MATHCAP){
       stack.push(new CMO_ERROR2(new CMO_NULL()));
     }
-    ox.setMathCap((CMO_MATHCAP)mathcap);
+    stream.setMathCap((CMO_MATHCAP)mathcap);
   }
 
-  private void StackMachine(SM mesg) throws java.io.IOException{
+  private void StackMachine(SM mesg,OpenXMconnection stream)
+       throws java.io.IOException{
     debug("receive: "+mesg);
 
     switch(mesg.getCode()){
     case SM.SM_popCMO:
-      SM_popCMO();
+      SM_popCMO(stream);
       break;
 
     case SM.SM_executeFunction:
@@ -186,11 +187,11 @@ public class OMproxy extends OpenXMserver{
       break;
 
     case SM.SM_mathcap:
-      SM_mathcap();
+      SM_mathcap(stream);
       break;
 
     case SM.SM_setMathCap:
-      SM_setMathCap();
+      SM_setMathCap(stream);
       break;
 
     default:
@@ -238,9 +239,9 @@ public class OMproxy extends OpenXMserver{
   }
 
   private void debug(String str){
-    //if(debug){
-    System.err.println(str);
-    //}
+    if(debug){
+      System.err.println(str);
+    }
   }
 
   private static String usage(){

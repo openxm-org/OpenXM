@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMserver.java,v 1.1 2000/04/17 03:18:58 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMserver.java,v 1.2 2000/06/13 14:04:20 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -12,7 +12,7 @@ public abstract class OpenXMserver{
   private OpenXMconnection control = null;
   private OpenXMconnection stream = null;
   private Thread computeThread = null;
-  final protected boolean debug = true;
+  final protected boolean debug = false;
 
   public OpenXMserver(){
     this("localhost",1200,1300);
