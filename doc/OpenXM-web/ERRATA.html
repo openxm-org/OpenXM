@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.14 2000/03/20 00:24:34 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.15 2000/09/25 07:12:41 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -14,9 +14,16 @@ $OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.14 2000/03/20 00:24:34 takayama E
 
 <OL>  
 <PRE>
-
+OpenXM/bin/phc6 may stop with a core dump.
+The program phc6 is called from the function phc of asir-contrib package.
+To fix this bug,
+get the latest source of phc6.c from the cvs web and
+compile it by the command
+   gcc -o phc6 phc6.c
+and put phc6 to OpenXM/bin
 </PRE>
-    Empty
+
+
 
 </OL>
 
