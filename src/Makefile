@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.98 2000/12/15 06:20:37 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.99 2000/12/16 05:58:34 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -36,7 +36,7 @@ all-asir: configure-asir
 	fi
 
 all-gnuplot: configure-gnuplot
-	(cd gnuplot ; make all)
+	-(cd gnuplot ; make all)
 
 all-k097: configure-k097 all-kan96xx
 	(cd k097 ; make all)
@@ -56,8 +56,8 @@ all-openmath:
 	fi
 
 all-oxmath: configure-oxmath install-oxtoolkit
-	@if test -x /usr/local/bin/math ; then \
-		-(cd ox_math ; make) ; \
+	-@if test -x /usr/local/bin/math ; then \
+		(cd ox_math ; make) ; \
 	else \
 		echo -n "Warning: Mathematica is not found. " ; \
 		echo "ox_math will not be compiled." ; \
@@ -108,7 +108,7 @@ install-asir: all-asir
 	fi
 
 install-gnuplot: all-gnuplot
-	(cd gnuplot ; make install)
+	-(cd gnuplot ; make install)
 
 install-k097: all-k097
 	(cd k097 ; make install)
@@ -134,8 +134,8 @@ install-oxc: all-oxc
 	(cd oxc; make install)
 
 install-oxmath: all-oxmath install-kxx
-	@if test -x /usr/local/bin/math ; then \
-		-(cd ox_math ; make install) ; \
+	-@if test -x /usr/local/bin/math ; then \
+		(cd ox_math ; make install) ; \
 	else \
 		echo -n "Warning: Mathematica is not found. " ; \
 		echo "ox_math will not be installed." ; \
@@ -238,7 +238,7 @@ configure-bin:
 	(cd $(BINDIR) ; make configure)
 
 configure-gnuplot:
-	(cd gnuplot ; make configure)
+	-(cd gnuplot ; make configure)
 
 configure-k097: 
 
