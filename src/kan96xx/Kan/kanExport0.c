@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.20 2003/12/06 02:49:22 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.21 2004/02/28 13:39:42 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -144,7 +144,7 @@ struct object KooAdd(ob1,ob2)
 
   default:
     if (QuoteMode) {
-	  rob = addTree(ob1,ob2);
+      rob = addTree(ob1,ob2);
     }else{
       warningKan("KooAdd() has not supported yet these objects.\n");
     }
@@ -422,7 +422,7 @@ struct object KooMult(ob1,ob2)
 
   default:
     if (QuoteMode) {
-	  rob = timesTree(ob1,ob2);
+      rob = timesTree(ob1,ob2);
     }else{
       warningKan("KooMult() has not supported yet these objects.\n");
     }
@@ -1158,6 +1158,9 @@ struct object KdataConversion(obj,key)
     if (strcmp(key,"orderMatrix")==0) {
       rob = oGetOrderMatrix(KopRingp(obj));
       return(rob);
+    }else if (strcmp(key,"oxRingStructure")==0) {
+      rob = oRingToOXringStructure(KopRingp(obj));
+      return(rob);
     }else{
       warningKan("Sorryl This type of data conversion of ringp has not supported yet.\n");
     }
@@ -1221,6 +1224,14 @@ struct object KpoRingp(ringp)
   return(obj);
 }
 
+struct object KpoUniversalNumber(u)
+     struct coeff *u;
+{
+  struct object obj;
+  obj.tag = SuniversalNumber;
+  obj.lc.universalNumber = u;
+  return(obj);
+}
 /*** conversion 2. Data conversions on arrays and matrices. ****/
 struct object arrayOfPOLYToArray(aa)
      struct arrayOfPOLY *aa;
@@ -1642,8 +1653,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
             }
           }
         }
-		switch_function("grade","module1v");
-		/* Warning: grading is changed to module1v!! */
+        switch_function("grade","module1v");
+        /* Warning: grading is changed to module1v!! */
       } else {
         errorKan1("%s\n","Unknown keyword to set_up_ring@");
       }
@@ -2089,37 +2100,37 @@ struct object KstringToArgv(struct object ob) {
   int n,wc,i,inblank;
   char **argv;
   if (ob.tag != Sdollar)
-	errorKan1("%s\n","KstringToArgv(): the argument must be a string.");
+    errorKan1("%s\n","KstringToArgv(): the argument must be a string.");
   n = strlen(KopString(ob));
   s = (char *) sGC_malloc(sizeof(char)*(n+2));
   if (s == NULL) errorKan1("%s\n","KstringToArgv(): No memory.");
   strcpy(s,KopString(ob));
   inblank = 1;  wc = 0; 
   for (i=0; i<n; i++) {
-	if (inblank && (s[i] > ' ')) {
-	  wc++; inblank = 0;
-	}else if ((!inblank) && (s[i] <= ' ')) {
-	  inblank = 1;
-	}
+    if (inblank && (s[i] > ' ')) {
+      wc++; inblank = 0;
+    }else if ((!inblank) && (s[i] <= ' ')) {
+      inblank = 1;
+    }
   }
   argv = (char **) sGC_malloc(sizeof(char *)*(wc+2));
   argv[0] = NULL;
   inblank = 1;  wc = 0; 
   for (i=0; i<n; i++) {
-	if (inblank && (s[i] > ' ')) {
-	  argv[wc] = &(s[i]); argv[wc+1]=NULL;
-	  wc++; inblank = 0;
-	}else if ((inblank == 0) && (s[i] <= ' ')) {
-	  inblank = 1; s[i] = 0;
-	}else if (inblank && (s[i] <= ' ')) {
-	  s[i] = 0;
-	}
+    if (inblank && (s[i] > ' ')) {
+      argv[wc] = &(s[i]); argv[wc+1]=NULL;
+      wc++; inblank = 0;
+    }else if ((inblank == 0) && (s[i] <= ' ')) {
+      inblank = 1; s[i] = 0;
+    }else if (inblank && (s[i] <= ' ')) {
+      s[i] = 0;
+    }
   }
 
   rob = newObjectArray(wc);
   for (i=0; i<wc; i++) {
-	putoa(rob,i,KpoString(argv[i]));
-	/* printf("%s\n",argv[i]); */
+    putoa(rob,i,KpoString(argv[i]));
+    /* printf("%s\n",argv[i]); */
   }
   return(rob);
 }
@@ -2149,9 +2160,9 @@ struct object KooPower(struct object ob1,struct object ob2) {
   struct object rob;
   /* Bug. It has not yet been implemented. */
   if (QuoteMode) {
-	rob = powerTree(ob1,ob2);
+    rob = powerTree(ob1,ob2);
   }else{
-	warningKan("KooDiv2() has not supported yet these objects.\n");
+    warningKan("KooDiv2() has not supported yet these objects.\n");
   }
   return(rob);
 }
@@ -2404,14 +2415,14 @@ struct object KgbExtension(struct object obj)
     if (obj1.tag != Spoly)
       errorKan1("%s\n","[(reduceContent)  poly1 ] gbext.");
     f1 = KopPOLY(obj1);
-	rob = newObjectArray(2);
-	f1 = reduceContentOfPoly(f1,&cont);
-	putoa(rob,0,KpoPOLY(f1));
-	if (f1 == POLYNULL) {
-	  putoa(rob,1,KpoPOLY(f1));
-	}else{
-	  putoa(rob,1,KpoPOLY(newCell(cont,newMonomial(f1->m->ringp))));
-	}
+    rob = newObjectArray(2);
+    f1 = reduceContentOfPoly(f1,&cont);
+    putoa(rob,0,KpoPOLY(f1));
+    if (f1 == POLYNULL) {
+      putoa(rob,1,KpoPOLY(f1));
+    }else{
+      putoa(rob,1,KpoPOLY(newCell(cont,newMonomial(f1->m->ringp))));
+    }
   }else if (strcmp(key,"ord_ws_all")==0) {
     if (size != 3) errorKan1("%s\n","[(ord_ws_all) fv wv] gbext");
     obj1 = getoa(obj,1);
@@ -2843,6 +2854,7 @@ errorKan1(str,message)
   longjmp(EnvOfStackMachine,1);
 #endif
 }
+
 
 warningKan(str)
      char *str;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.26 2003/12/03 01:21:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.27 2003/12/03 09:00:46 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -99,6 +99,8 @@ void Kusage2(fp,s)
     fppp(fp,"           map, orderMatrix, error, \n");
     fppp(fp," or [(class) (class-name)].\n");
     fppp(fp,"The primitive reports and converts the data type of obj.\n");
+    fppp(fp,"Special combinations of obj and keyword.\n");
+    fppp(fp,"   ring (oxRingStructure) data_conversion list\n");
     fppp(fp,"Example: (2) (integer) data_conversion ===> 2\n");
   }else if (strcmp(s,"def")==0 || strcmp(s,"set")==0) {
     fppp(fp,"<< /name object def >>  or  << object /name set >>\n");

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.15 2003/12/03 09:00:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.16 2003/12/06 02:49:22 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -164,6 +164,7 @@ struct object KpoArrayOfPOLY(struct arrayOfPOLY *ap);
 struct object KpoMatrixOfPOLY(struct matrixOfPOLY *mp);
 struct object KpoRingp(struct ring *ringp);
 struct object KpoDouble(double a);
+struct object KpoUniversalNumber(struct coeff *u);
 #define KopInteger(o) ( (o).lc.ival )
 #define KopString(o)  ( (o).lc.str )
 #define KopPOLY(o)    ( (o).lc.poly )
@@ -189,6 +190,7 @@ int objArrayToOrderMatrix(struct object oA,int order[],int n,int oasize);
 int KsetOrderByObjArray(struct object oA);
 struct object oGetOrderMatrix(struct ring *ringp); /* order.c */
 struct object KgetOrderMatrixOfCurrentRing();
+struct object oRingToOXringStructure(struct ring *ringp); /* order.c */
 int KsetUpRing(struct object ob1,struct object ob2, struct object ob3,struct object ob4,struct object ob5);
 void KshowRing(struct ring *ringp);
 struct object KdefaultPolyRing(struct object num);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.8 2003/06/26 13:00:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.9 2003/08/26 12:46:05 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -678,6 +678,92 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
   else if (fv < gv) return(1); /* modifiable */
 }
   
+struct object oRingToOXringStructure(struct ring *ringp)
+{
+  struct object rob,ob2;
+  struct object obMat;
+  struct object obV;
+  struct object obShift;
+  struct object obt;
+  char **TransX; char **TransD;
+  int n,i,j,m,p,nonzero;
+  int *om;
+  n = ringp->n;
+  m = ringp->orderMatrixSize;
+  om = ringp->order;
+  TransX = ringp->x; TransD = ringp->D;
+  if (m<=0) m = 1;
+  /*test: (1). getRing /rr set rr (oxRingStructure) dc  */
+  obMat = newObjectArray(m);
+  for (i=0; i<m; i++) {
+    nonzero = 0;
+    for (j=0; j<2*n; j++) {
+      if (om[2*n*i+j] != 0) nonzero++;
+    }
+    ob2 = newObjectArray(nonzero*2);
+    nonzero=0;
+    for (j=0; j<2*n; j++) {
+      /* fprintf(stderr,"%d, ",nonzero); */
+      if (om[2*n*i+j] != 0) {
+        if (j < n) {
+          putoa(ob2,nonzero,KpoString(TransX[n-1-j])); nonzero++;
+        }else{
+          putoa(ob2,nonzero,KpoString(TransD[n-1-(j-n)])); nonzero++;
+        }
+        putoa(ob2,nonzero,KpoUniversalNumber(newUniversalNumber(om[2*n*i+j]))); nonzero++;
+      }
+    }
+    /* printObject(ob2,0,stderr); fprintf(stderr,".\n"); */
+    putoa(obMat,i,ob2);
+  }
+  /* printObject(obMat,0,stderr); */
+
+  obV = newObjectArray(2*n);
+  for (i=0; i<n; i++) putoa(obV,i,KpoString(TransX[n-1-i]));
+  for (i=0; i<n; i++) putoa(obV,i+n,KpoString(TransD[n-1-i]));
+  /* printObject(obV,0,stderr); */
+
+  if (ringp->degreeShiftSize) {
+    /*test:
+    [(x) ring_of_differential_operators [[(x)]] weight_vector 0
+      [(weightedHomogenization) 1 (degreeShift) [[1 2 1]]] ] define_ring ;
+     (1). getRing /rr set rr (oxRingStructure) dc message
+    */
+    obShift = newObjectArray(ringp->degreeShiftN);
+    for (i=0; i<ringp->degreeShiftN; i++) {
+      obt = newObjectArray(ringp->degreeShiftSize);
+      for (j=0; j< ringp->degreeShiftSize; j++) {
+        putoa(obt,j,KpoUniversalNumber(newUniversalNumber(ringp->degreeShift[i*(ringp->degreeShiftSize)+j])));
+      }
+      putoa(obShift,i,obt);
+    }
+    /* printObject(obShift,0,stderr); */
+  }
+
+  p = 0;
+  if (ringp->degreeShiftSize) {
+    rob = newObjectArray(3);
+    obt = newObjectArray(2);
+    putoa(obt,0,KpoString("degreeShift"));
+    putoa(obt,1,obShift);
+    putoa(rob,p, obt); p++;
+  }else {
+    rob = newObjectArray(2);
+  }
+
+  obt = newObjectArray(2);
+  putoa(obt,0,KpoString("v"));
+  putoa(obt,1,obV);
+  putoa(rob,p, obt); p++;
+
+  obt = newObjectArray(2);
+  putoa(obt,0,KpoString("order"));
+  putoa(obt,1,obMat);
+  putoa(rob,p, obt); p++;
+
+  return(rob);
+}
+
 static void warningOrder(s)
      char *s;
 {
