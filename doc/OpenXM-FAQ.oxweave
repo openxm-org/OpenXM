@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.8 2001/05/06 10:38:17 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.9 2001/08/10 09:28:05 takayama Exp $
 
 //&C August 10, 2001
 //&ja Q. cygwin 環境で : から始まる sh ファイルが動かないことがあります.(開発者向け)
@@ -15,6 +15,23 @@
  Please replace :'s in
  OpenXM/src/kan96xx/Kan/cat0,  OpenXM/src/kan96xx/Kan/ar-decomp
  by #!/bin/sh
+*/
+
+//&C December 24, 2001
+//&ja Q. OpenXM/misc/packages/Windows/asirgui2.bat を起動しようとすると, "環境変数領域がたりませんとエラーがでます.
+//&en Q. OpenXM/misc/packages/Windows/asirgui2.bat stops with an error "Not enough area for environmental variables".
+
+/*&ja
+ 環境変数領域を増やします.
+ command /e:1024
+ で command.com を立ち上げるのは一番簡単な方法.
+*/
+
+/*&en
+ Increase the area for environmental variables.
+ Staring the command prompt with
+   command /e:1024 
+ is the simplest way.
 */
 
 //&C May 6, 2001
