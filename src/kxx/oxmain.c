@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.4 2000/01/31 01:34:23 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.5 2000/07/30 09:55:40 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -262,7 +262,7 @@ parentServerMain(int fdControl, int fdStream) {
       r=kill(MyServerPid,SIGUSR1);
       if (message) printf("Result = %d\n",r);
       fflush(NULL);
-      oxSendResultOfControlInt32(fdControl,0);
+/*      oxSendResultOfControlInt32(fdControl,0); */
       break;
     default:
       fprintf(stderr,"[control] Unknown control message.\n");
