@@ -1,4 +1,4 @@
-/*$OpenXM$*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.3 1999/11/18 23:57:19 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -37,7 +37,9 @@ int CmoClientMode = 1;  /* This flag is used to translate names for
 **************************************************************************/
 /*  If you change the format of mathcap, do the follows.
     Mofify  cmoCheckMathCap in oxmisc2.c,
-    oxReq, SM_setMathCap:, and
+            oxSendMathCap  in oxmisc.c,
+	    newMathCap in cmo.c,
+    oxReq, SM_setMathCap: in oxmisc2.c, and
     grep mathCap and make all modifications.
 */
 
@@ -1318,8 +1320,9 @@ struct object newMathCap(struct mathCap *mathcap){
   struct object ob3;
   struct object obOx;
   struct object obSm;
+  struct object ob3tmp;
   struct object *obp;
-  int i;
+  int i,j;
   struct object mathinfo;
 
   rob = newObjectArray(3);
@@ -1329,17 +1332,17 @@ struct object newMathCap(struct mathCap *mathcap){
   for (i=0; i<getoaSize(mathinfo); i++) {
     putoa(ob1,i,getoa(mathinfo,i));
   }
-  ob2 = newObjectArray(mathcap->n);
-  for (i=0; i<mathcap->n; i++) {
-    putoa(ob2,i,KpoInteger((mathcap->cmo)[i]));
-  }
-  obOx = newObjectArray(mathcap->oxSize);
+  ob3 = newObjectArray(mathcap->oxSize);
   for (i=0; i<mathcap->oxSize; i++) {
-    putoa(obOx,i,KpoInteger((mathcap->ox)[i]));
+    ob3tmp = newObjectArray(2);
+    putoa(ob3tmp,0,KpoInteger((mathcap->ox)[i]));
+    ob2 = newObjectArray(mathcap->n);
+    for (j=0; j<mathcap->n; j++) {
+      putoa(ob2,j,KpoInteger((mathcap->cmo)[j]));
+    }
+    putoa(ob3tmp,1,ob2);
+    putoa(ob3,i,ob3tmp);
   }
-  ob3 = newObjectArray(2);
-  putoa(ob3,0,obOx); 
-  putoa(ob3,1,ob2);
 
   obSm = newObjectArray(mathcap->smSize);
   for (i=0; i<mathcap->smSize; i++) {

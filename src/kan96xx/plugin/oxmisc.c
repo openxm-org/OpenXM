@@ -1,4 +1,4 @@
-/*  $OpenXM$ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.3 1999/11/03 08:29:40 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -335,7 +335,7 @@ void oxSendResultOfControl(int fd)
 
 void oxSendMathCap(ox_stream os,struct mathCap *mathcap)
 {
-  int i,n,infosize;
+  int i,n,infosize,ncmo;
   struct object mathinfo;
   /* printf("ox sending mathcap\n"); fflush(stdout); */
   mathinfo = *((struct object *)(mathcap->infop));
@@ -364,22 +364,22 @@ void oxSendMathCap(ox_stream os,struct mathCap *mathcap)
 
   /* [2] */
   oxSendInt32(os,CMO_LIST);
-  oxSendInt32(os,2);
-
-  /* first element */
-  oxSendInt32(os,CMO_LIST);
-  oxSendInt32(os,mathcap->oxSize);
   n = mathcap->oxSize;
-  for (i=0; i<n; i++) {
-    oxSendCmoInt32(os,(mathcap->ox)[i]);
-  }
-  /* second element */
+  oxSendInt32(os,n);
+
   oxSendInt32(os,CMO_LIST);
-  oxSendInt32(os,mathcap->n);
-  n = mathcap->n;
+  oxSendInt32(os,2);
   for (i=0; i<n; i++) {
-    oxSendCmoInt32(os,(mathcap->cmo)[i]);
-    /* printf("i=%d %d, ",i,(mathcap->cmo)[i]); */
+    /* OX_DATA_xxx */
+    oxSendCmoInt32(os,(mathcap->ox)[i]);
+    /* OX_DATA_xxx tags. In case of CMO, it is CMO tags. */
+    oxSendInt32(os,CMO_LIST);
+    oxSendInt32(os,mathcap->n);
+    ncmo = mathcap->n;
+    for (i=0; i<ncmo; i++) {
+      oxSendCmoInt32(os,(mathcap->cmo)[i]);
+      /* printf("i=%d %d, ",i,(mathcap->cmo)[i]); */
+    }
   }
   /* printf("\n"); fflush(stdout); */
 }

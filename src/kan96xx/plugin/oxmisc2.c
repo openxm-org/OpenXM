@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.2 1999/11/09 09:57:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.3 1999/11/18 00:54:17 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -129,13 +129,17 @@ int oxReq(oxclientp client,int func,struct object ob)
   case SM_setMathCap:
     /* ob = [(mathcap-obj) [[version num, system name] [sm tags]
                              ob1                        smtags
-                                                [[ox numbers] [cmo numbers]]]
+                                    oxtags      [[ox numbers, [cmo numbers]]]
                                                     ob3         ob2 */
+   /*     oxtags      [[OX_DATA, [cmo numbers]],[OX_DATA_LOCAL,[opt]],...]*/
     {
       struct object ob1;
       struct object ob2;
       struct object ob3;
+      struct object obm;
       struct object smtags;
+      struct object oxtags;
+      struct object ox;
     int n,i;
     struct mathCap mathcap;
 
@@ -144,25 +148,40 @@ int oxReq(oxclientp client,int func,struct object ob)
       client->dstate = DSTATE_ANY;
       break;
     }
-      ob1 = getoa(getoa(ob,1),0);
-      smtags = getoa(getoa(ob,1),1);
-      ob2 = getoa(getoa(getoa(ob,1),2),1);
-      ob3 = getoa(getoa(getoa(ob,1),2),0);
-      
+      obm = getoa(ob,1);
+      ob1 = getoa(obm,0);
+      smtags = getoa(obm,1);
+      oxtags = getoa(obm,2);
+      if (smtags.tag != Sarray || oxtags.tag != Sarray) {
+	errorOxmisc2("data format error in oxReqSetMathCap");
+      }
       ob1p = (struct object *) sGC_malloc(sizeof(struct object));
       *ob1p = ob1;
       mathcap.infop = ob1p;
-      n = getoaSize(ob2);
-      mathcap.n = n;
-      if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
-      for (i=0; i<n; i++) {
-	mathcap.cmo[i] = KopInteger(getoa(ob2,i));
-      }
-      n = getoaSize(ob3);
+
+      n = getoaSize(oxtags);
       if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
       mathcap.oxSize = n;
       for (i=0; i<n; i++) {
-	mathcap.ox[i] = KopInteger(getoa(ob3,i));
+	ox = getoa(oxtags,i);
+	if (ox.tag != Sarray) {
+	  errorOxmisc2("Data format error of the third argument of mathcap.");
+	}
+	mathcap.ox[i] = KopInteger(getoa(ox,0));
+	if (mathcap.ox[i] == OX_DATA) {
+	  if (getoaSize(ox) < 2) {
+	    errorOxmisc2("Data format error in an entry of the third argument of mathcap.");
+	  }
+	  ob2 = getoa(ox,1);
+	  if (ob2.tag != Sarray) {
+	    errorOxmisc2("Data format error in an entry of the third argument of mathcap.");
+	  }
+	  mathcap.n = getoaSize(ob2);
+	  if (n >= MATHCAP_SIZE) errorOxmisc2("Too big mathcap of your peer.");
+	  for (i=0; i<mathcap.n; i++) {
+	    mathcap.cmo[i] = KopInteger(getoa(ob2,i));
+	  }
+	}
       }
 
       n = getoaSize(smtags);
@@ -724,7 +743,11 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
   struct object mathcap;
   struct object cmolist;
   struct object mathcapMain;
+  struct object mathcapThird;
+  struct object ox;
+  struct object oxtag;
   struct object ob0;
+  int oxsize;
   int n;
   int i;
 #define CMO_CHECK_MATH_CAP_LIST_SIZE 1024
@@ -744,7 +767,7 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
                  $HOSTTYPE=i386$ ]  , 
             [    262 , 263 , 264 , 265 , 266 , 268 , 269 , 272 , 273 , 275 , 
                  276 ]  , 
-            [    [    514 ]  , [    2130706434 , 1 , 2 , 4 , 5 , 17 , 19 , 20 , 22 , 23 , 24 , 25 , 26 , 30 , 31 , 60 , 61 , 27 , 33 , 40 , 16 , 34 ]  ]  ]  ]
+            [    [    514  , [    2130706434 , 1 , 2 , 4 , 5 , 17 , 19 , 20 , 22 , 23 , 24 , 25 , 26 , 30 , 31 , 60 , 61 , 27 , 33 , 40 , 16 , 34 ] ] ]  ]  ]
   */
 
   n = getoaSize(mathcap);
@@ -786,27 +809,49 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
     fprintf(stderr,"\n");
     errorOxmisc2("cmoCheckMathCap: format error in the (client->mathcapObjp)[1] field. It should be an array of which length is more than 2.\n");
   }
-  mathcap = getoa(mathcapMain,2);
-  n = getoaSize(mathcap);
-  if (n < 2) {
-    fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
-    printObject(*obp,0,stderr);
-    fprintf(stderr,"\n");
-    errorOxmisc2("cmoCheckMathCap: length of mathcap is wrong in the client->mathcapObjp field.\n");
-  }
-  cmolist = getoa(mathcap,1);
-  if (cmolist.tag != Sarray) {
-    fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
-    printObject(*obp,0,stderr);
-    fprintf(stderr,"\n");
-    errorOxmisc2("cmoCheckMathCap: mathcap[1] must be an array of integers.\n");
-  }
-  n = getoaSize(cmolist);
-  if (n > CMO_CHECK_MATH_CAP_LIST_SIZE) {
-    errorOxmisc2("cmoCheckMathCap: Too big cmo list.\n");
-  }
-  for (i=0; i<n; i++) {
-    cmo[i] = KopInteger(getoa(cmolist,i));
+  mathcapThird = getoa(mathcapMain,2);
+  oxsize = getoaSize(mathcapThird);
+  for (i=0; i<oxsize; i++) {
+    ox = getoa(mathcapThird,i);
+    if (ox.tag != Sarray) {
+      fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+      printObject(*obp,0,stderr);
+      fprintf(stderr,"\n");
+      errorOxmisc2("cmoCheckMathCap: the third element of mathcap is a list of lists.");
+    }
+    if (getoaSize(ox) != 0) {
+      oxtag = getoa(ox,0);
+      if (oxtag.tag != Sinteger) {
+	fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+	printObject(*obp,0,stderr);
+	fprintf(stderr,"\n");
+	errorOxmisc2("cmoCheckMathCap: the third element of mathcap must be [OX_DATA_xxx, [  ]].");
+      }
+      if (KopInteger(oxtag) == OX_DATA) {
+	if (getoaSize(ox) > 1) {
+	  cmolist = getoa(ox,1);
+	  if (cmolist.tag != Sarray) {
+	    fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+	    printObject(*obp,0,stderr);
+	    fprintf(stderr,"\n");
+	    errorOxmisc2("cmoCheckMathCap: mathcap[1] must be an array of integers.\n");
+	  }
+	  n = getoaSize(cmolist);
+	  if (n > CMO_CHECK_MATH_CAP_LIST_SIZE) {
+	    errorOxmisc2("cmoCheckMathCap: Too big cmo list.\n");
+	  }
+	  for (i=0; i<n; i++) {
+	    cmo[i] = KopInteger(getoa(cmolist,i));
+	  }
+	}else{
+	  fprintf(stderr,"cmoCheckMathCap: the mathcap obj is \n");
+	  printObject(*obp,0,stderr);
+	  fprintf(stderr,"\nox=");
+	  printObject(ox,0,stderr);
+	  errorOxmisc2("cmoCheckMathCap: [OX_DATA, cmolist]");
+	}
+      }
+    }
   }
   return(cmoCheck00(obj,cmo,n));
 }
