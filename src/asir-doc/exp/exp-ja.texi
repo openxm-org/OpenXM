@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.13 2004/07/09 02:17:45 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.14 2004/07/10 05:50:57 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -121,6 +121,10 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * set_print_function::
 * small_jacobi::
 * flatten_quote::
+* sprintf::
+* quote_to_funargs::
+* funargs_to_quote::
+* remove_paren::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -1195,6 +1199,148 @@ ChangeLog
  parse/quote.c 1.14--1.16.
 @end itemize
 
+
+@node sprintf,,, 実験的仕様の関数
+@subsection @code{sprintf}
+@findex sprintf
+
+@table @t
+@item sprintf(@var{format}[,@var{args}])
+:: C に似たプリント関数
+@end table
+
+@table @var
+@item return
+文字列
+@item format
+文字列
+@item args
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+フォーマット文字列 @var{format } にしたがい @var{args} を文字列に変換する.
+@item
+フォーマット文字列の中に @code{%a} (any) が利用可能.
+@var{args} の個数はフォーマット文字列の中の @code{%a} の個数に等しくすること.
+@end itemize
+
+@example
+[0] sprintf("%a: rat = %a",10,x^2-1);
+  10: rat = x^2-1
+@end example
+
+@table @t
+@item 参照
+@ref{rtostr}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+ この関数は 2004-7-13 にコミットされた.
+ 変更をうけたソースコードは builtin/strobj (1.50) である.
+@item 
+ @code{%a} は Maple の sprintf の真似か.
+@end itemize
+
+
+@node quote_to_funargs,,, 実験的仕様の関数
+@subsection @code{quote_to_funargs}, @code{funargs_to_quote}, @code{remove_paren}
+@findex quote_to_funargs
+@findex funargs_to_quote
+@findex remove_paren
+
+@table @t
+@item quote_to_funargs(@var{q})
+::  quote を funarg 形式(リスト) へ.
+@item funargs_to_quote(@var{f})
+::  funarg 形式を quote へ.
+@item remove_paren(@var{q})
+::  上の関数を用いて書かれた余分な括弧を取り去る simplifier (asir-contrib マニュアルへ: todo)
+@end table
+
+@table @var
+@item return
+quote(funargs_to_quote, remove_paren) か リスト(quote_to_funargs)
+@item q
+quote
+@item f
+リスト 
+@end table
+
+@itemize @bullet
+@item
+ @code{quote_to_funargs} は quote 型のデータ (内部的には FNODE) を
+quote への復元可能な形でリストへ変換する.
+@code{quotetolist} は quote をリストへ変換するが, 一部の情報を捨てるため
+もとの quote の復元はできない.
+@item
+ @code{quote_to_funargs} の戻り値は [fid, op, arg1, arg2] なる形式をしている.
+ここで op はなにか謎 (Todo)
+@item
+ 下の例で
+ quote_to_funargs(FA[2]);
+[34,[b_op,+,[internal,x],[internal,1]]]
+となるが, この 34 も謎 (Todo).
+@end itemize
+
+次の例では (x+1)+(x+2) の括弧をはずして x+1+x+2 に変換している.
+@example
+[0] ctrl("print_quote",1) $
+
+[1] Q=quote((x+1)+(x+2));
+[b_op,+,[u_op,(),[b_op,+,[internal,x],[internal,1]]],
+        [u_op,(),[b_op,+,[internal,x],[internal,2]]]]
+
+[2] FA=quote_to_funargs(Q);
+[0,<...quoted...>,
+  [u_op,(),[b_op,+,[internal,x],[internal,1]]],
+  [u_op,(),[b_op,+,[internal,x],[internal,2]]]]
+
+[3] FA2=quote_to_funargs(FA[2])[1];
+[b_op,+,[internal,x],[internal,1]]
+
+[4] FA3=quote_to_funargs(FA[3])[1];
+[b_op,+,[internal,x],[internal,2]]
+
+[5] funargs_to_quote([FA[0],FA[1],FA2,FA3]);
+[b_op,+,[b_op,+,[internal,x],[internal,1]],
+        [b_op,+,[internal,x],[internal,2]]]
+@end example
+
+次の例は OpenXM/asir-contrib 版の asir で実行.
+@example
+[1287] load("noro_simplify.rr");
+1
+[1293] noro_simplify.remove_paren(quote( f(1-(x))));
+quote(f(1-x))
+@end example
+
+@table @t
+@item 参照
+@ref{quotetolist}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+ このマニュアルは覚え書きである. 開発者が本格的なのを書くだろう.
+@item 
+ これらの関数は 2004-7-8 から開発のはじまっている quote の simplification 関連
+ の実験的関数である.
+ 変更をうけたソースコードは多岐にわたるのでまだ書かない.
+@item 
+ 括弧を取り去る問題は OpenXM/fb が蓄えている公式を tex で綺麗に表示するのが動機の一つ.
+@item 
+ 2004-6-26 の計算代数セミナーにおいて, 中川さんが simplifier についていろいろ問題提起
+をした (計算代数セミナービデオ参照).
+@end itemize
 
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
 
