@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.17 2000/01/25 06:48:49 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.18 2000/01/26 07:48:10 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -51,14 +51,16 @@ by /xxx/yyy/OpenXM.
 
 */
 /*&jp
-(2) 次のように入力して OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc 
+(2) 次のように入力して OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc,
+     OpenXM/rc/openxm
     ファイルを自動生成します.
     これらのファイルには, OpenXM/bin のファイルを実行するための
     環境変数が定義されています.
 
 */
 /*&eg
-(2) Generate  OpenXM/rc/dot.cshrc and OpenXM/rc/dot.bashrc
+(2) Generate  OpenXM/rc/dot.cshrc, OpenXM/rc/dot.bashrc and 
+    OpenXM/rc/openxm
     by the following command.
     Environmental variables to execute commands in OpenXM/bin
     are defined in these files.
@@ -103,12 +105,25 @@ by /xxx/yyy/OpenXM.
 
  (3) または (3') を終了したら, いったん logout して login しなおすか
  または, source コマンドで, dot.bashrc または dot.csh を読み込んで下さい.
+ (3)  または (3') をやらないという選択もあります.
+ この場合, シェルスクリプト 
+ OpenXM/rc/openxm を コマンドサーチパスに移し,
+ OpenXM/bin 以下の全てのコマンドの実行は, 
+    openxm コマンド名
+ という形で呼び出します.
+ たとえば,  openxm asir とか  openxm sm1 という形でよびだします.
 
 */
 /*&eg 
    
    After finishing the step (3) or (3'), logout and login again,
    or read dot.bashrc or dot.cshrc file by the source command.
+   You may skip the step (3) or (3').
+   In this case, move the shell script OpenXM/rc/openxm to your
+   command search path. To execute commands in OpenXM/bin,  type in
+       openxm command-name
+   For example,  "openxm asir"  starts asir and "openx sm1" starts sm1
+   with a proper setting of environmental variables.
 
 */
 

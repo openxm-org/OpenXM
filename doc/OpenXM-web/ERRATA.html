@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <!--
-$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.5 2000/01/25 08:26:37 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.6 2000/01/26 07:48:11 takayama Exp $
 -->
 <HEAD>
 <LINK REV=MADE HREF="mailto:takayama@math.sci.kobe-u.ac.jp">
@@ -10,7 +10,7 @@ $OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.5 2000/01/25 08:26:37 takayama Ex
 </HEAD>
 <BODY>
 
-<H1>ERRATA (20000124) (OpenXM) </H1>
+<H1>ERRATA (20000124) (OpenXM) :  IMPORTANT </H1>
 
 <OL>
 
@@ -19,14 +19,40 @@ $OpenXM: OpenXM/doc/OpenXM-web/ERRATA.html,v 1.5 2000/01/25 08:26:37 takayama Ex
       in some unix distributions.
 
 <LI>  (OpenXM/doc/install-??.txt) 
+  <PRE>
       Wrong:  source /xxx/yyy/OpenXM/rc/dot.bash  
    ===> Correct: source /xxx/yyy/OpenXM/rc/dot.bashrc
+  </PRE>
 
 <LI>  (OpenXM/doc/install-??.txt) 
+  <PRE>
    Wrong:  or read dot.bash or dot.cshrc file by the source command.
    ===> Correct :  or read dot.bashrc or dot.cshrc file by the source command.
+  </PRE>
+<LI>  (OpenXM/rc/cshrc, OpenXM/rc/bashrc, OpenXM/bin/gp)
+  <PRE>
+   Pari gp needs a shared library libpari.so.2.0.
+   So, LD_LIBRARY_PATH must be set properly to use "gp".
+   Append the following lines to OpenXM/rc/bashrc and
+   OpenXM/rc/cshrc  respectively and type in "make" in OpenXM/rc to generate
+   dot.bashrc, dot.cshrc and openxm.
+   bashrc : 
+     LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:$OpenXM_HOME/lib
+     export LD_LIBRARY_PATH
+   cshrc :
+     if ( ${?LD_LIBRARY_PATH} == 1) then
+        setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib:$OpenXM_HOME/lib
+     else
+       setenv LD_LIBRARY_PATH /usr/lib:$OpenXM_HOME/lib
+     endif
+  </PRE>
 
-  
+
+</OL>
+
+<H1>ERRATA (20000124) (OpenXM) :  Minor corrections </H1>
+
+<OL>
 
 
 </OL>
