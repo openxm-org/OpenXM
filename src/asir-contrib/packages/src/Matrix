@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.10 2001/08/18 08:18:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.11 2001/08/29 07:37:17 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -131,7 +131,12 @@ def omatrix_mini(A, Row, Col) {
   return R;
 }
 
-def omatrix_det(A) {
+/*&usage begin: omatrix_det2(A)
+ It computes the determinant of  {A} by using the method of smaller matrix
+ expansion.
+ example: omatrix_det2([[1,x],[1,x^2]]);
+end: */
+def omatrix_det2(A) {
   if (type(A) == 4) {
     A = omatrix_ltom(A);
   }
@@ -150,10 +155,42 @@ def omatrix_det(A) {
   else {
     Det = 0;
     for (I = 0; I < Size; I++) {
-      Det += (-1)^I*A[0][I]*omatrix_det(omatrix_mini(A, 0, I));
+      Det += (-1)^I*A[0][I]*omatrix_det2(omatrix_mini(A, 0, I));
     }
     return red(Det);
   }
+}
+
+/*&usage begin: omatrix_det(A)
+ It computes the determinant of {A} by calling asir native det function.
+ example: omatrix_det([[1,x],[1,x^2]]);
+end: */
+def omatrix_det(A) {
+  if (type(A) == 4) {
+    A = omatrix_ltom(A);
+  }
+  if (type(A) != 6) {
+    error("parameter type is wrong.");
+  }
+  Size_A = size(A);
+  if (Size_A[0] != Size_A[1]) {
+    error("A is not NxN.");
+  }
+  Size = Size_A[0];
+
+  B = newmat(Size,Size);
+  D = 1;
+  for (I=0; I<Size; I++) {
+    for (J=0; J<Size; J++) {
+      D = red(D*dn(A[I][J])/(gcd(D,dn(A[I][J]))));
+    }
+  }
+  for (I=0; I<Size; I++) {
+    for (J=0; J<Size; J++) {
+      B[I][J] = red(A[I][J]*D);
+    }
+  }
+  return red(det(B)/D^Size);
 }
 
 def omatrix_cofactor(A, Row, Col) {
@@ -193,7 +230,11 @@ def omatrix_adjugate(A) {
   return R;
 }
 
-def omatrix_inverse(A) {
+/*&usage begin: omatrix_inverse2(A)
+ It returns the inverse matrix of {A} by using adjunction matrix.
+ example: omatrix_inverse2([[1,1/(x+1)],[1,1/(x+1)^2]]);
+end: */
+def omatrix_inverse2(A) {
   if (type(A) == 4) {
     A = omatrix_ltom(A);
   }
@@ -210,6 +251,70 @@ def omatrix_inverse(A) {
 
   return omatrix_adjugate(A)/Det_A;
 }
+
+/*&usage begin: omatrix_inverse(A)
+ It computes the inverse matrix of {A} by using the Gaussian elimination.
+ example: omatrix_inverse([[1,1/(x+1)],[1,1/(x+1)^2]]);
+end: */
+/* Written by Nakayama, 2002 */
+def omatrix_inverse(A)
+{
+  if (type(A) == 4) {
+    A = omatrix_ltom(A);
+  }else {
+    A = omatrix_clone(A);
+  }
+  Size_A = size(A);
+  if (Size_A[0] != Size_A[1]) {
+    error("A is not NxN.");
+  }
+  Size = Size_A[0];
+
+  Det_A = omatrix_det(A);  /* BUG: should be removed. */
+  if (Det_A == 0) {
+    error("Det(A) is zero.");
+  }
+ B=A;
+ N = size(B)[0];
+ C = newmat(N, N);
+
+ for (I = 0; I < N; I++)
+  C[I][I] = 1;
+
+ for (I = 0; I < N; I++) {
+  J = I;
+  while (J < N && B[J][I] == 0)
+   J++;
+   for (K = I; K < N; K++) {
+     T = B[J][K];
+     B[J][K] = B[I][K];
+     B[I][K] = T;
+   }
+   for (K = 0; K < N; K++) {
+     T = C[J][K];
+     C[J][K] = C[I][K];
+     C[I][K] = T;
+   }
+   V = B[I][I];
+   B[I][I] = 1;
+   for (K = I + 1; K < N; K++)
+     B[I][K] = B[I][K] / V;
+   for (K = 0; K < N; K++)
+     C[I][K] = C[I][K] / V;
+   for (J = 0; J < N; J++) {
+     if (J == I)
+       continue;
+     V = B[J][I];
+     B[J][I] = 0;
+     for (K = I + 1; K < N; K++)
+       B[J][K] = B[J][K] - B[I][K] * V;
+     for (K = 0; K < N; K++)
+       C[J][K] = C[J][K] - C[I][K] * V;
+   }
+ }
+ return C;
+}
+
 
 def omatrix_trans(A) {
   if (type(A) == 4) {
