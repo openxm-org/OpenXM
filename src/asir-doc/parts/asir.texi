@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.9 2003/11/27 12:08:58 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.10 2003/11/27 12:23:58 ohara Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -860,6 +860,19 @@ if ( expression1 ) @{
 @noindent
 \JP としなければならない. 
 
+\BJP 
+@noindent
+関数の中でなく, top level で @code{if} 文を用いるときは @code{$} または @code{;} 
+で終了する必要がある.
+これらがないと次の文がよみとばされる.
+\E
+\BEG 
+@noindent
+When @code{if} is used in the top level, the @code{if} expression should be
+terminated with @code{$} or @code{;}.
+If there is no terminator, the next expression will be skipped to be evaluated.
+\E
+
 \BJP
 @node ループ break return continue,,, ユーザ定義函数の書き方
 @subsection ループ, @code{break}, @code{return}, @code{continue}
@@ -1294,6 +1307,21 @@ because such comments cannot be nested.
 #define MAX(a,b) ((a)>(b)?(a):(b))
 @end example
 
+\BJP
+@noindent
+C のプリプロセッサを流用しているため, プリプロセッサは @code{$} を正しく処理できない.
+たとえば @code{LIST} が定義されていても
+@code{LIST$}は置換されない. @code{$} の前に空白をおいて
+@code{LIST $} と書かないといけない.
+\E
+\BEG
+@noindent
+Since we are utilizing the C preprocessor, it cannot properly preprocess expressions
+with @code{$}.
+For example, even if @code{LIST} is defined, @code{LIST} in the expression
+@code{LIST$} is not replaced.  Add a blank before @code{$}, i.e.,
+write as @code{LIST $} to make the proprocessor replace it properly.
+\E
 
 \BJP
 @node オプション指定,,, ユーザ定義函数の書き方
