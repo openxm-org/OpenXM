@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.8 2003/12/05 07:05:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.9 2003/12/13 13:29:44 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -173,6 +173,28 @@ struct object KoxWhich(struct object cmdo,struct object patho) {
   return(rob);
 }
 
+static int mysetenv(char *name, char *value, int overwrite);
+static int myunsetenv(char *name);
+static int mysetenv(char *name, char *value, int overwrite) {
+  char *s;
+  char *orig;
+  s = (char *)getenv(name);
+  if ((s == NULL) || overwrite) {
+	s = (char *) malloc(strlen(name)+strlen(value)+5);
+	if (s == 0) { fprintf(stderr,"No more memory.\n"); exit(10); }
+    strcpy(s,name);
+	strcat(s,"="); strcat(s,value);
+	return(putenv(s));
+  }
+  return (0);
+} 
+
+/* bug on Solaris. It does not unsetenv.
+   libc4, libc5, glibc. It does unsetenv. */
+static myunsetenv(char *name) {
+  return(putenv(name));
+}
+
 /* Example. [(export)  (PATH)  (=)  (/usr/new/bin:$PATH)] */
 static struct object oxsSetenv(struct object ob) {
   struct object rob;
@@ -197,9 +219,10 @@ static struct object oxsSetenv(struct object ob) {
     /* printf("%s\n",new); */
     new = oxEvalEnvVar(new);
     /* printf("%s\n",new); */
-    r = setenv(envp,new,1);
+    r = mysetenv(envp,new,1);
   }else{
-    unsetenv(envp); r = 0;
+    myunsetenv(envp); r = 0;
+    /* bug: On Solaris, unsetenv will not work. */
   }
   if (r != 0) errorKan1("%s\n","setenv failed.");
   new = (char *) getenv(envp);
