@@ -1,7 +1,10 @@
-
-
+% $OpenXM$
 %% start of var.sm1.  1997, 2/27
 %%(type in initv to initialize the variable stack and type in test.var to start a test) message
+
+(var.sm1 : Version 3/7, 1997) message
+%% Execute debugMode to override pushVariables and popVariables by
+%% localVariables and restroreVariables.
 
 /sm1.var.Verbose 0 def
 /@@@.quiet.var 1 def
@@ -120,12 +123,6 @@
 } def
 
 %%% Usages.
-[(resolution)
- [(Efficient resolution is still be tested. See Kan/debug/tower-sugar.sm1)
-  (DMacaulay provides a function to compute resolution in the ring of)
-  (homogenized differential operators. See http://www.math.kobe-u.ac.jp/KAN)
- ]
-] putUsages
 
 [(db.where)
  [(db.where shows the db.VariableStack)
@@ -238,7 +235,8 @@ ifelse
 } def
 [(debugMode)
  [(debugMode overrides on the functions pushVariables and popVariables)
-  (and enables to use db.where)
+  (and enables to use db.where.  Never execute debugMode inside a block of)
+  (pushVariables and popVariables)
  ]
 ] putUsages
 

@@ -1,3 +1,4 @@
+% $OpenXM$
 %%% cohom.sm1  Choose Schreyer 1 or 2 below.
 [
 (cohom.sm1 is the top of an experimental package to compute restrictions)
@@ -13,6 +14,10 @@
 %%/Schreyer     1 def   %% V-homogenize, Schreyer
 /Schreyer     2 def   %% h-homogenize, Schreyer
 %%%% Load files
+   [(parse) (var.sm1) pushfile] extension  
+   %% DO NOT execute debugMode 
+   %% inside a block of pushVariables and popVariables.
+   %% debugMode
    [(parse) (hol.sm1) pushfile] extension
    [(parse) (gkz.sm1) pushfile] extension 
    [(parse) (appell.sm1)pushfile] extension
