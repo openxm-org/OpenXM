@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.11 2002/10/29 07:29:23 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.12 2002/10/30 13:23:06 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -547,4 +547,103 @@ def
    ] pop
    popVariables
    arg1
+} def
+
+% This function will be written in C in a future.
+% [(httpd) (parseHTTP) string] extension
+% [(GET) key-value-pair-1 key-value-pair-2 ...]
+% [(POST) key-value-pair-1 key-value-pair-2 ...]
+% [(GET-file) file-1 file2 ...]
+% ex. (GET / HTT..) (GET /?rpc=1-2) 
+/httpd.parse {
+ /arg1 set 
+ [/in-httpd.parse /s /s2 /sta /i0
+  /ans /getKeyword /j /tname /tvalue
+ ] pushVariables
+ [
+     /s arg1 def
+     s 1 copy /s2 set
+     s (array) dc /s set
+
+     /sta 0 def
+     /getKeyword 0 def
+
+     s length 7 lt {
+        /ans [(GET-file)] def
+        /httpd.exit goto        
+     }{ } ifelse
+
+     /ans [(GET)] def
+     [s 0 get s 1 get s 2 get s 3 get s 4 get s 5 get] (GET /?) (array) dc eq {
+        /sta 6 def
+        /getKeyword 1 def
+     }{
+        [s 0 get s 1 get s 2 get s 3 get s 4 get] (GET /) (array) dc eq {
+            /sta 5 def
+        }{
+          [s 0 get s 1 get s 2 get s 3 get] (GET ) (array) dc eq {
+             /ans [(GET-file)] def 
+             /httpd.exit goto        
+          }  { /ans [ ] def /httpd.exit.goto } ifelse
+        } ifelse
+     }ifelse  
+
+     %% In case of POST, remove the HTTP header. cf. trouble for NS 6.0
+     [s 0 get s 1 get s 2 get s 3 get] (POST) (array) dc eq {
+          /ans [(POST) ] def
+          /getKeyword  1 def
+          0 1 s length 4 sub { 
+             /i0 set
+             /sta i0 def
+             [ s i0 get  s i0 1 add get ] [ 10 10 ] eq 
+             [ s i0 get  s i0 1 add get s i0 2 add get s i0 3 add get] 
+             [ 13 10 13 10] eq or
+             { exit } { } ifelse
+          } for
+     }{ } ifelse
+     (sta=) messagen sta message 
+
+     %% get file name
+     getKeyword not {
+       /tname  [  ] def
+       sta 1 << s length 1 sub >> {
+         /i0 set
+         s i0 get 32 le {  %% 32 is  " "
+           exit
+         } { } ifelse
+         tname s i0 get append /tname set
+       } for 
+       httpd.debug { (Filename is ) messagen tname {(string) dc } map message} {  } ifelse
+       /ans [(GET-file) tname { (string) dc } map cat ] def
+       /httpd.exit goto 
+     } { } ifelse
+
+     /tname  [  ] def
+     sta 1 << s length 1 sub >> {
+       /i0 set
+       s i0 get 61 eq {  %% 61 is = 
+         httpd.debug { tname message tname {(string) dc } map cat message} {  } ifelse
+         i0 1 add /i0 set
+         exit
+       } { } ifelse
+       tname s i0 get append /tname set
+     } for 
+
+     /j 0 def
+     i0 1 s length 1 sub {
+       /i set
+       s2 j << s i get (string) dc >> put
+       j s2 length 1 sub lt { s2 j 1 add ( ) put } { } ifelse
+       %% might cause a BUG. It should be improved.
+       j 1 add /j set
+     } for
+     ans [tname {(string) dc} map  cat
+           s2 webstringToAscii ] append
+     /ans set
+
+     /httpd.exit
+     /arg1 ans def
+ ] pop
+ popVariables
+ arg1
 } def

@@ -1,12 +1,21 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.8 2002/10/29 00:19:56 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.9 2002/10/29 10:54:17 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
+%% keyword for rpc
 /httpd.textarea.name (rpc) def
 /httpd.textarea.name.aaa
   [(GET /?) httpd.textarea.name] cat (array) dc
 def
-/httpd.port 8090 def
+
+[(getenv) (OXWEB_PORT)] extension tag 0 eq {
+  (Default httpd port : ) messagen
+  /httpd.port 8090 def
+} {  
+  /httpd.port [(getenv) (OXWEB_PORT)] extension .. (integer) dc def
+} ifelse
+(httpd.port = ) messagen httpd.port message
+
 /httpd.serial 0 def
 
 /httpd.oxasir.timer 1 def  %% 1 to use timer, but it accepts only one command
