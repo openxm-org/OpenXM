@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.3 2001/08/11 08:55:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.4 2001/08/21 02:38:17 takayama Exp $ */
 
 #define Number 1
 #define RPolynomial 2
@@ -6,6 +6,7 @@
 #define List 4
 #define Vector 5
 #define Matrix 6
+#define STRING 7
 #define DPolynomial   9
 #define QUOTE 17
 
@@ -119,26 +120,38 @@ def taka_tex_form_dpolynomial(F) {
 }
 
 def taka_tex_form_rpolynomial(S) {
-  return rtostr(S);
-  /* Should use quote to remove * and properly treat ^ */
+  return taka_tex_form_quote(quote_to_quote(S));
 }
 
 def taka_tex_form_quote(S) {
   S = quotetolist(S);
   return taka_tex_form_quote_list(S);
 }
+
 def taka_tex_form_quote_list(S) {
-  if (type(S) != List) return rtostr(S);
+  if (type(S) != List) return taka_tex_form_node_name(S);
   A = " ";
-  if (length(S) < 2) return "???";
-  if (S[0] == "+" || S[0] == "-") {
+  if (length(S) < 2) return taka_tex_form_node_name(S[0]);
+  if (S[0] == "+") {
     T = S[1];
     N = length(T);
     for (I=0; I<N; I++) {
       A += taka_tex_form_quote_list(T[I]);
         if (I != N-1) A += S[0];
     }
-  }
+  }else
+  if (S[0] == "-") {
+    T = S[1];
+    N = length(T);
+    for (I=0; I<N; I++) {
+      if (I == 0 && T[I] == 0) {
+         /* Do not print 0. */
+      } else {
+         A += taka_tex_form_quote_list(T[I]);
+      }
+      if (I != N-1) A += S[0];
+    }
+  } else
   if (S[0] == "*") {
     T = S[1];
     N = length(T);
@@ -146,7 +159,7 @@ def taka_tex_form_quote_list(S) {
       A += taka_tex_form_quote_list(T[I]);
       A += " ";
     }
-  }
+  } else
   if (S[0] == "/") {
     T = S[1];
     A += "\\frac{";
@@ -154,20 +167,60 @@ def taka_tex_form_quote_list(S) {
     A += "} {";
     A += taka_tex_form_quote_list(T[1]);
     A += "} ";
-  }
+  } else
   if (S[0] == "^") {
     T = S[1];
     A += taka_tex_form_quote_list(T[0]);
     A += "^{";
     A += taka_tex_form_quote_list(T[1]);
     A += "} ";
-  }
+  } else
   if (S[0] == "()") {
     A += "(";
     A += taka_tex_form_quote_list(S[1]);
     A += ") ";
+  }else
+  {   
+    /* Node is assumed to be a function name */
+    A += taka_tex_form_node_name(S[0]);
+    A += "(";
+    T = S[1];
+    N = length(T);
+    for (I=0; I<N; I++) {
+      A += taka_tex_form_quote_list(T[I]);
+      if (I != N-1) {
+        A += ", ";
+      }
+    }
+    A += ")";
   }
   return(A);
+}
+
+def taka_tex_form_node_name(S) {
+  if (type(S) != STRING) return rtostr(S);
+  /* Table of Mathematical Symbols. */
+  if (S == "sin") {
+     return "\\sin ";
+  }else if (S == "cos") {
+     return "\\cos ";
+  }else if (S == "tan") {
+     return "\\tan ";
+  }else if (S == "exp") {
+     return "\\exp ";
+  }else if (S == "log") {
+     return "\\log ";
+  }else if (S == "alpha") {
+     return "\\alpha";
+  }else if (S == "beta") {
+     return "\beta";
+  }else if (S == "gamma") {
+     return "\\gamma";
+  }else if (S == "ggamma") {
+     return "\\Gamma";
+  }else {
+     return S;
+  }
 }
 
 def taka_output(S) {
@@ -221,9 +274,10 @@ def taka_xdvi_form(S) {
       S + "$ \n \\end{document}\n";
   print(S);
   output();
-  shell(" (cd /tmp ; latex "+File0+" )");
+  shell(" (cd /tmp ; latex "+File0+" >>/dev/null) ");
   /* Use xdvi for a moment. */
-  shell(" (cd /tmp ; xdvi -s 3 -geometry 800x300 "+File0+" ) & ");
+  shell(" (cd /tmp ; xdvi -s 3 -geometry 800x300 "+File0+" ) >>/dev/null & ");
+  return [File,File0+".dvi"];
 }
 
 

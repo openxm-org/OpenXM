@@ -1,0 +1,25 @@
+/* $OpenXM$ */
+#define NUMBER 1
+#define RPOLYNOMIAL 2
+#define RATIONAL 3
+#define LIST 4
+#define VECTOR 5
+#define MATRIX 6
+#define STRING 7
+#define DPOLYNOMIAL   9
+#define QUOTE 17
+
+/* Functions for asir quote object. */
+
+def quote_to_quote(S) {
+  if (type(S) == QUOTE) return S;
+  else {
+    return eval_str("quote("+rtostr(S)+")");
+  }
+}
+
+def quote_factored_form_to_quote(S) {
+
+}
+
+end$
