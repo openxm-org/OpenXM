@@ -1,0 +1,273 @@
+/* $OpenXM$ */
+/* parser for polymake output */
+/* This program requires
+
+
+*/
+
+#include <stdio.h>
+#include "yylex_polymake.h"
+#include "yy_polymake.tab.h"
+
+/* #define mymalloc(n) sGC_malloc(n) */
+#define mymalloc(n) malloc(n)
+/* pm = PolyMake */
+#define PM_emptyLineCode 1
+
+
+static char *S=NULL;
+/* It is assumed that the newline code is only \n (preprocessed).
+   Empty line is marked with 0x1. More than one empty line does not appear. */
+static int Pt=-1;
+static int PMdebug = 0;
+
+/* char *PMlval; */
+
+static char *putstr(int c);
+
+int PMlex() {
+  int type;
+  type = PMlex_aux();
+
+  if (PMdebug) {
+	printf("type=%d ",type);
+	if ((type == PM_number) || (type == PM_keyword)) {
+	  printf("value="); pmPrintObject(stdout,PMlval);
+	}
+	printf("\n");
+  }
+  
+  return type;
+}
+int PMlex_aux() {
+  if (Pt < 0) {
+	return PM_noToken;
+  }
+  if (S[Pt] == 0) { Pt=-1; return PM_noToken; }
+  while ((S[Pt]<=' ') && (S[Pt]!='\n') && (S[Pt] != PM_emptyLineCode)) Pt++;
+  if (S[Pt] == '\n') { Pt++; return PM_newline; }
+  if (S[Pt] == PM_emptyLineCode) {Pt++; return PM_emptyLine; }
+  if (S[Pt] == '{') { Pt++; return PM_LCurryBrace; }
+  if (S[Pt] == '}') { Pt++; return PM_RCurryBrace; }
+  if (((S[Pt] >= '0') && (S[Pt] <= '9')) || (S[Pt] == '-')) {
+	putstr(-1); putstr(S[Pt++]);
+	while (((S[Pt]>='0') && (S[Pt]<='9')) || (S[Pt] == '/')) putstr(S[Pt++]);
+	PMlval = pmNewStrObject(putstr(0));
+	return PM_number;
+  }
+  if (((S[Pt] >= 'A') && (S[Pt] <= 'Z')) ||
+      ((S[Pt] >= 'a') && (S[Pt] <= 'z')) ||
+      (S[Pt] == '_')) {
+	putstr(-1); putstr(S[Pt++]);
+	while (((S[Pt] >= 'A') && (S[Pt] <= 'Z')) ||
+      ((S[Pt] >= 'a') && (S[Pt] <= 'z')) ||
+      (S[Pt] == '_')) putstr(S[Pt++]);
+	PMlval = pmNewStrObject(putstr(0));
+	return PM_keyword;
+  }
+  Pt++;  return PM_unknown;
+}
+
+#define PUTSTR_INIT 10
+static char *putstr(int c) {
+  static char *s=NULL;
+  static int pt=0;
+  static int limit=0;
+  int i;
+  char *old;
+  if (c < 0) {
+	s = (char *)mymalloc(PUTSTR_INIT);
+	if (s == NULL) {fprintf(stderr,"No more memory.\n"); exit(10);}
+	limit = PUTSTR_INIT;
+	pt = 0; s[pt] = 0;
+	return s;
+  }
+  if (s == NULL) putstr(-1);
+  if (pt < limit-1) {
+	s[pt++]=c; s[pt]=0;
+	return s;
+  }else{
+	old = s;
+	limit = 2*limit;
+	s = (char *)mymalloc(limit);
+	if (s == NULL) {fprintf(stderr,"No more memory.\n"); exit(10);}
+	for (i=0; i<=pt; i++) {
+	  s[i] = old[i];
+	}
+	return putstr(c);
+  }
+}
+
+pmPreprocess() {
+  int newp,oldp;
+  int state;
+  int i,j;
+  if (S == NULL) return -1;
+  Pt = 0; 
+  for (oldp = newp = 0; S[oldp] != 0; oldp++) {
+	if ((S[oldp] == 0xd) && (S[oldp] == 0xa)) { /* Windows 0d 0a */
+	  S[newp++] = '\n'; oldp++;  
+	}else{
+	  S[newp++] = S[oldp];
+	}
+  }
+  S[newp] = '\0';
+
+  for (oldp = newp = 0; S[oldp] != 0; oldp++) {
+	if (S[oldp] == 0xd) { /* Replace for mac 0xd to 0xa */
+	  S[newp++] = '\n';   
+	}else{
+	  S[newp++] = S[oldp];
+	}
+  }
+  S[newp] = '\0';
+
+  /* Remove #, empty lines, ... */
+  state = 1; newp=0;
+  for (oldp=0; S[oldp] != 0; oldp++) {
+	/* printf("oldp=%d, state=%d, char=%c\n",oldp,state,S[oldp]); */
+	switch(state) {
+	case 0:
+	  if (S[oldp] == '\n') {state=1; newp=oldp+1;}
+	  break;
+	case 1:
+	  if ((S[oldp] == ' ') || (S[oldp] == '\t')) break;
+	  if ((S[oldp] == '#') || ((S[oldp]=='_') && (S[oldp-1]<' '))) {
+		/* skip the rest of the line, state=1; */
+		for (; S[oldp] != 0 ; oldp++) {
+		  if (S[oldp] == '\n') {oldp--; break;}
+		}
+		if (S[oldp] == 0) oldp--;
+	  }else if (S[oldp] == '\n') {
+		/* replace the empty line by PM_emptyLine */
+		S[newp]= PM_emptyLineCode; j=oldp+1;
+		for (i=newp+1; S[j] != 0; i++) {
+		  S[i] = S[j]; j++;
+		}
+		oldp=newp;
+		S[i] = 0;
+	  }else{
+		state = 0;
+	  }
+	  break;
+	default:
+	  break;
+	}
+  }
+}	  
+
+pmObjectp pmNewStrObject(char *s) {
+  pmObjectp ob;
+  ob = (pmObjectp) mymalloc(sizeof(struct pmObject));
+  if (ob == NULL) {
+	fprintf(stderr,"No more memory.\n");
+	exit(10);
+  }
+  ob->tag = PMobject_str;
+  ob->body = s;
+  return ob;
+}
+pmObjectp pmNewListObject(pmObjectp a) {
+  pmObjectp ob;
+  struct pmList *aa;
+  ob = (pmObjectp) mymalloc(sizeof(struct pmObject));
+  if (ob == NULL) {
+	fprintf(stderr,"No more memory.\n");
+	exit(10);
+  }
+  aa= (struct pmList *)mymalloc(sizeof(struct pmList));
+  if (aa == NULL) {
+	fprintf(stderr,"No more memory.\n");
+	exit(10);
+  }
+  aa->left=a;
+  aa->right=NULL;
+  ob->tag = PMobject_list;
+  ob->body = aa;
+  return ob;
+}
+pmObjectp pmCons(pmObjectp a,struct pmList *b) {
+  pmObjectp ob;
+  struct pmList *t;
+  ob = pmNewListObject(a);
+  t = ob->body;
+  t->right = b;
+  return ob;
+}
+void pmPrintObject(FILE *fp,pmObjectp p) {
+  int n,i;
+  struct pmList *list;
+  struct pmList *t;
+  if (p == NULL) {
+	/* fprintf(stderr,"NULL "); */
+	return;
+  }
+  /* fprintf(stderr,"tag=%d ",p->tag); */
+  switch (p->tag) {
+  case PMobject_str:
+	fprintf(fp,"%s",(char *)(p->body));
+	break;
+  case PMobject_list:
+	list = (struct pmList *)(p->body);
+	if (list == NULL) break;
+	t = list; n = 0;
+	while (t != NULL) {
+	  n++;
+	  t = t->right;
+	}
+	t = list;
+	fprintf(fp,"[");
+	for (i=0; i<n; i++) {
+	  pmPrintObject(fp,t->left);
+	  if (i != n-1) fprintf(fp,",");
+	  if (t == NULL) break; else t = t->right;
+	}
+	fprintf(fp,"]");
+	break;
+  default:
+	fprintf(stderr,"Unknown object tag %d.\n",p->tag);
+	/* sleep(100);  to call debugger. */
+	break;
+  }
+}
+
+main_t() {
+  int c,type;
+  putstr(-1);
+  while ((c=getchar()) != EOF) {
+	putstr(c);
+  }
+  S = putstr(0);
+  printf("%s\n",S);
+  pmPreprocess(S);
+  printf("--------------------------\n");
+  printf("%s\n",S);
+  printf("--------------------------\n");
+  while ((type=PMlex()) != PM_noToken) {
+	printf("type=%d ",type);
+	if ((type == PM_number) || (type == PM_keyword)) {
+	  printf("value="); pmPrintObject(stdout,PMlval);
+	}
+	printf("\n");
+  }
+}
+
+main() {
+  int c,type;
+
+  
+  putstr(-1);
+  while ((c=getchar()) != EOF) {
+	putstr(c);
+  }
+  S = putstr(0);
+  printf("%s\n",S);
+  pmPreprocess(S);
+  printf("--------------------------\n");
+  printf("%s\n",S);
+  printf("--------------------------\n");
+  PMparse();
+}
+
+PMerror() {
+}
