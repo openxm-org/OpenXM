@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.125 2003/09/02 22:18:39 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.126 2003/09/03 00:21:14 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -144,8 +144,14 @@ install-phc: all-phc
 install-tigers: all-tigers
 	(cd tigers ; make install)
 
-install-asir-contrib: install-asir install-kxx install-util
+install-asir-contrib: install-asir-contrib-asir-progs \
+                      install-asir-contrib-oxservers
+install-asir-contrib-oxservers: install-asir install-util \
+                install-k097 install-kxx install-openmath install-oxmath \
+                install-phc install-tigers install-uuencoded install-gnuplot
+install-asir-contrib-asir-progs: install-asir install-util
 	(cd asir-contrib ; make install)
+
 
 install-asir-doc: install-asir
 	-(cd asir-doc ; make install)
