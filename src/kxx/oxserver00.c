@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.2 1999/11/09 11:43:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.3 2000/02/02 03:30:49 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -83,6 +83,7 @@ nullserver(int fdStream) {
   extern jmp_buf EnvOfStackMachine;
   int engineByteOrder;
 
+  fflush(NULL);
   engineByteOrder = oxTellMyByteOrder(fdStream);
   /* Set the network byte order. */
   fprintf(stderr,"engineByteOrder=%x\n",engineByteOrder);

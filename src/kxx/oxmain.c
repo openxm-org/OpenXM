@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.3 1999/11/04 02:12:31 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.4 2000/01/31 01:34:23 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -110,6 +110,8 @@ main(int argc, char *argv[]) {
 
     fprintf(stderr,"Connected: control = %d, data = %d.\n",fdControl,fdStream);
 	result = 0;
+
+
     if (portControl != -1) {
       MyServerPid = fork();
       if (MyServerPid > 0 ) parentServerMain(fdControl,fdStream);
@@ -291,14 +293,17 @@ childServerMain(int fdControl, int fdStream) {
 	  return(-1);
 	}
   }
+  fprintf(stderr,"childServerMain: Starting the server %s\n",ServerName); fflush(NULL);
   if (PacketMonitor) {
     if (execl(ServerName,ServerName,"-monitor",NULL)) {
       fprintf(stderr,"%s cannot be executed with -monitor.\n",ServerName);
+	  fflush(NULL);
 	  return(-1);
     }
   }else {
     if (execl(ServerName,ServerName,NULL)) {
       fprintf(stderr,"%s cannot be executed.\n",ServerName);
+	  fflush(NULL);
 	  return(-1);
     }
   }
