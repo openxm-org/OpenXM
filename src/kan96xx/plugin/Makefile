@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.7 2000/01/18 09:46:53 takayama Exp $ 
+## $OpenXM: OpenXM/src/kan96xx/plugin/Makefile,v 1.8 2000/01/19 02:38:51 takayama Exp $ 
 
 OPENXM=../../../../OpenXM
 OPEMXM_CONTRIB=../../../../OpenXM_contrib
@@ -6,11 +6,13 @@ GC=$(OPEMXM_CONTRIB)/gc
 GMP=$(OPEMXM_CONTRIB)/gmp
 KAN96XX=$(OPENXM)/src/kan96xx
 
-AR=/usr/bin/ar
+#AR=/usr/bin/ar
+AR=ar
 RM=/bin/rm
 
 CC=gcc
-CFLAGS+=-g -I$(GMP) -I../Kan
+#CFLAGS+=-g -I$(GMP) -I../Kan
+CFLAGS=-g -I$(GMP) -I../Kan
 
 all: all-gc all-gmp asirconv.a cmo.a file2.a ox.a sample.a sm1Socket.a
 
@@ -27,10 +29,14 @@ all-gmp:
 	(cd $(KAN96XX) ; make all-gmp)
 
 asirconv.a: asirconv.o
+	$(AR) ru $@ $?
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
 
 asirconv.o: asir.h asir.hh asirconv.c
 
 cmo.a: cmo.o cmo-gmp.o
+	$(AR) ru $@ $?
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
 
 cmo.o: cmo.h cmo.c cmo-gmp.c file2.h mathcap.h cmotag.htmp \
 	oxMessageTag.h oxFunctionId.h
@@ -53,6 +59,8 @@ cmo.h: cmo0.h cmotag.h
 	@cat cmotag.h cmo0.h >> cmo.h
 
 file2.a: file2.o
+	$(AR) ru $@ $?
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
 
 file2.o: file2.h file2.c
 
@@ -84,14 +92,20 @@ oxmisc.o: ox.h ox.hh ox_kan.h oxmisc.c
 oxmisc2.o: cmo.h mathcap.h ox.h ox.hh ox_kan.h oxmisc2.c
 
 sample.a: sample.o
+	$(AR) ru $@ $?
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
 
 sample.o: sample.h sample.hh sample.c
 
 sm1Socket.a: sm1Socket.o
+	$(AR) ru sm1Socket.a sm1Socket.o
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib sm1Socket.a
 
 sm1Socket.o: sm1Socket.h sm1Socket.hh sm1Socket.c
 
 sm1pvm.a: sm1pvm.o
+	$(AR) ru $@ $?
+	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
 
 sm1pvm.o: sm1pvm.h sm1pvm.hh sm1pvm.c
 	$(CC) $(CFLAGS) -I $(PVM_ROOT)/include -c sm1pvm.c
@@ -109,6 +123,7 @@ libasir.a:
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
-.o.a:
-	$(AR) ru $@ $?
-	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
+# GNU make only.
+#.o.a:
+#	$(AR) ru $@ $?
+#	$(GC)/if_not_there $(GC)/on_sparc_sunos5 ranlib $@
