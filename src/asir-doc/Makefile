@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.8 2001/03/15 03:33:08 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.9 2001/04/23 05:45:34 noro Exp $
 
 WHICH=../../misc/which.pl
 
 all: all-eg all-jp
-install: install-eg install-jp
+install: install-eg install-jp 
 
 all-eg: texindex extract_man extract_func man-eg.dvi help-eg html-eg
 all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp
@@ -23,6 +23,9 @@ install-jp: all-jp
 	-rm -r -f ../../doc/asir2000/html-jp
 	-tar cf - html-jp | ( cd ../../doc/asir2000; tar xf - )
 	-cp man-jp.dvi ../../doc/asir2000
+
+install-man-pages:
+	-cp asir.1 ../../man/man1
 
 configure:
 	(cd jtexindex/C; ./configure; make clean)
@@ -86,7 +89,7 @@ tmpEGhtml: $(SRCS)
 	-for i in ${SRCS}; do \
 		./extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i;\
 	done
-	
+
 man-jp.dvi: tmpJP
 	-rm man-jp.dvi
 	-(cd tmpJP; ptex man.texi; ../jtexindex/C/texindex man.??; ptex man.texi)
@@ -147,7 +150,7 @@ targzuu: help-eg help-jp html-eg html-jp
 	-tar cf - help-jp | gzip -9 | uuencode help-jp.tgz > help-jp.uu
 	-tar cf - html-eg | gzip -9 | uuencode html-eg.tgz > html-eg.uu
 	-tar cf - html-jp | gzip -9 | uuencode html-jp.tgz > html-jp.uu
-	
+
 clean:
 	(cd jtexindex/C; make clean)
 	-rm -f man*.dvi man-jp.dvi extract_man extract_func gen_hh
