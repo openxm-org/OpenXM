@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.14 2002/10/30 13:23:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.15 2003/09/16 02:57:40 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -413,8 +413,8 @@ struct object KsocketRead(struct object obj) {
         errorMsg1s("Select returns 1, but there is no data to read.");
       }
     }else { /* increase the datasize */
-      tmp = (char *)GC_malloc(sizeof(char)*2*datasize);
-      /*I should use GC_malloc_atomic and free after finishing this function?*/
+      tmp = (char *)sGC_malloc(sizeof(char)*2*datasize);
+      /*I should use sGC_malloc_atomic and free after finishing this function?*/
       if (tmp == (char *)NULL) errorMsg1s("Out of Memory.");
       bcopy(data,tmp,totalsize);
       data = tmp;
@@ -422,7 +422,7 @@ struct object KsocketRead(struct object obj) {
     }
   }
 
-  r = (char *)GC_malloc(sizeof(char)*(totalsize+1));
+  r = (char *)sGC_malloc(sizeof(char)*(totalsize+1));
   if (r == (char *)NULL) errorMsg1s("Out of Memory.");
   bcopy(data,r,totalsize);
   r[totalsize] = 0;
@@ -684,7 +684,7 @@ struct object KsocketReadHTTP(struct object socketObj) {
 	  }
 	}
 	if (datasize-1 <= strlen(sss)+strlen(s)) {
-      tmp = (char *)GC_malloc(sizeof(char)*2*(datasize+strlen(s))+1);
+      tmp = (char *)sGC_malloc(sizeof(char)*2*(datasize+strlen(s))+1);
       if (tmp == (char *)NULL) errorMsg1s("Out of Memory.");
 	  strcpy(tmp,sss);
 	  strcat(tmp,s);
@@ -788,7 +788,7 @@ struct object KsocketGetHostName(void) {
   if (gethostname(name,1023) != 0) {
     return rob;	
   }
-  s = (char *)GC_malloc(sizeof(char)*(strlen(name)+2));
+  s = (char *)sGC_malloc(sizeof(char)*(strlen(name)+2));
   if (s == (char *)NULL) errorMsg1s("Out of Memory.");
   strcpy(s,name);
   return(KpoString(s));

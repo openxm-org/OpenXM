@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.7 2003/11/23 13:16:30 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.8 2003/11/24 08:16:13 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -17,9 +17,9 @@ or define FORSTRING
 #endif
 
 #ifdef KXX
-#define GC_malloc(n) malloc(n)
+#define sGC_malloc(n) malloc(n)
 #else
-void *GC_malloc(int size);
+void *sGC_malloc(int size);
 #endif
 int WatchStream = 0;
 /*  Note:  1997, 12/6   cf. SS475/kxx/openxxx.tex, SS475/memo1.txt
@@ -49,7 +49,7 @@ FILE2 *fp2open(int fd) {
   if (debug1) {
     printf("fp2open is called. \n");
   }
-  fp2 = (FILE2 *) GC_malloc(sizeof(FILE2));
+  fp2 = (FILE2 *) sGC_malloc(sizeof(FILE2));
   if (fd < -1) {
     fprintf(stderr,"fp2open  Invalid file descriptor %d\n",fd);
     return(NULL);
@@ -66,8 +66,8 @@ FILE2 *fp2open(int fd) {
   fp2->readsize = 0;
   fp2->writepos = 0;
   fp2->limit = FILE2BSIZE;
-  fp2->readBuf = (char *) GC_malloc(FILE2BSIZE);
-  fp2->writeBuf = (char *) GC_malloc(FILE2BSIZE);
+  fp2->readBuf = (char *) sGC_malloc(FILE2BSIZE);
+  fp2->writeBuf = (char *) sGC_malloc(FILE2BSIZE);
   if ((fp2->readBuf == NULL) || (fp2->writeBuf == NULL)) {
 	fprintf(stderr,"fp2open. No more memory.\n");
 	return(NULL);
@@ -329,8 +329,8 @@ static int fp2fputcString(int c,FILE2 *fp2) {
 	return(-1);
   }
   newsize = (fp2->limit)*2;
-  newwrite = (char *)GC_malloc(newsize);
-  newread = (char *)GC_malloc(newsize);
+  newwrite = (char *)sGC_malloc(newsize);
+  newread = (char *)sGC_malloc(newsize);
   if ((newwrite == NULL) || (newread == NULL)) {
 	fprintf(stderr,"fp2fputcString: No more memory.\n");
 	return(-1);

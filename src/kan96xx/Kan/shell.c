@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.9 2003/12/13 13:29:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.10 2004/02/05 10:35:04 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -180,7 +180,7 @@ static int mysetenv(char *name, char *value, int overwrite) {
   char *orig;
   s = (char *)getenv(name);
   if ((s == NULL) || overwrite) {
-	s = (char *) malloc(strlen(name)+strlen(value)+5);
+	s = (char *) mymalloc(strlen(name)+strlen(value)+5);
 	if (s == 0) { fprintf(stderr,"No more memory.\n"); exit(10); }
     strcpy(s,name);
 	strcat(s,"="); strcat(s,value);

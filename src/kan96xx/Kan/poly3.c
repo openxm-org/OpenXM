@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.5 2002/02/09 06:21:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly3.c,v 1.6 2002/09/08 10:49:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -31,8 +31,8 @@ void initT(void) {
      DList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
      MList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
   */
-  DList = (int *)malloc(sizeof(int)*Lsize*N0);
-  MList = (int *)malloc(sizeof(int)*Lsize*N0);
+  DList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
+  MList = (int *)sGC_malloc(sizeof(int)*Lsize*N0);
 
   RList = (POLY *)sGC_malloc(sizeof(POLY)*Lsize);
   RListRoot = (POLY *)sGC_malloc(sizeof(POLY)*Lsize);

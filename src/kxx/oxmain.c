@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.13 2003/11/18 11:08:27 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.14 2003/11/20 07:18:41 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -40,6 +40,10 @@ static void couldNotFind(char *s);
 int errno;
 #endif
 /*  gcc -v -c hoge.c */
+
+void *sGC_malloc(int n) {
+  return (void *)malloc(n);
+}
 
 main(int argc, char *argv[]) {
   int fd;

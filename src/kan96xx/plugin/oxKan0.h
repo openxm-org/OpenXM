@@ -1,8 +1,8 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.6 2003/11/18 11:08:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.7 2003/11/19 01:02:39 takayama Exp $ */
 /* ox_kan0.h */
 
-#define mymalloc(n) malloc(n)
-#define myfree(p) free(p)
+#define mymalloc(n) sGC_malloc(n)
+#define myfree(p) sGC_free(p)
 typedef FILE2 *  ox_stream;
 
 int socketOpen(char *serverName,int portNumber);

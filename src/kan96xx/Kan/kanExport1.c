@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.9 2003/08/24 05:19:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.10 2003/08/27 03:11:12 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -234,8 +234,8 @@ struct object Kgroebner(ob)
   }
   /* Assume ob1Size , ob2Size > 0 */
   ob2 = newObjectArray(ob2Size);
-  ob1ToOb2 =   (int *)GC_malloc(sizeof(int)*ob1Size);
-  ob1ZeroPos = (int *)GC_malloc(sizeof(int)*(ob1Size-ob2Size+1));
+  ob1ToOb2 =   (int *)sGC_malloc(sizeof(int)*ob1Size);
+  ob1ZeroPos = (int *)sGC_malloc(sizeof(int)*(ob1Size-ob2Size+1));
   if (ob1ToOb2 == NULL || ob1ZeroPos == NULL) errorKan1("%s\n","No more memory.");
   j = 0; k = 0;
   for (i=0; i<ob1Size; i++) {
