@@ -1,0 +1,115 @@
+% $OpenXM$
+(oxasir.sm1.loaded) boundp
+{  }
+{
+  [(parse) (oxasir.sm1) pushfile] extension
+} ifelse
+
+/ctrlC-hook {
+  ox103_reset
+} def
+
+[(ox103_reset)
+ [(ox103_reset broadcasts the OX reset to all processes)
+  (cf. ctrlC-hook, register_hander)
+]] putUsages
+/ox103_reset {
+  [/in-ox103_reset /L /n /i] pushVariables
+  [
+     /L [(oxGetClientList)] extension def
+    (In ox103_reset...) message
+     /n L length def
+     0 1 n 1 sub {
+       /i set
+       L i get oxreset
+     } for
+     (Done) message
+  ] pop
+  popVariables
+} def
+
+%%%%%%%
+/ox103_asir_init {
+  /arg1 set
+  [/ttt] pushVariables
+  [
+    /ttt arg1 def
+    %% ttt oxsetmathcap     ttt oxmathcap  %% It is done in asirinit
+    %% Do nothing special for now.
+  ] pop
+  popVariables
+} def
+/ox103_sm1_init {
+  /arg1 set
+  [/ttt] pushVariables
+  [
+    /ttt arg1 def
+    ttt oxsetmathcap
+    ttt oxmathcap
+    ttt ([(parse) (oxrfc103.sm1) pushfile] extension ) oxsubmit 
+  ] pop
+  popVariables
+} def
+%%% 
+
+/Xm_rfc103_shared [ ] def
+
+[(ox103_set_shared_variable)
+ [(value name 2 ox103_set_shared_variable)
+  (It broadcasts the <<value>> of a shared variable <<name>>)
+  (to all processes.)
+  (cf. Xm_rfc103_shared, )
+  $Example:  (2).. (hoge) 2 ox103_set_shared_variable$
+]] putUsages 
+/ox103_set_shared_variable {
+  /arg0 set  %% Dummy to be called by rpc2. Number of args
+  /arg1 set  %% Name
+  /arg2 set  %% Value,  [Name Value] not [Value Name]
+  [/in-ox103_set_shared_variable /Name /Value
+   /Found /N /i  /L 
+  ] pushVariables
+  [
+    /Name arg1 def
+    /Value arg2 def
+    Value message
+    /Found 0 def
+    /N  Xm_rfc103_shared length def
+    0 1 N 1 sub {
+      /i set
+      Xm_rfc103_shared i get 0 get
+      Name eq {
+        Xm_rfc103_shared i [Name Value] put
+        /Found 1 def
+        exit 
+      } {  } ifelse
+    } for
+    Found 1 eq { }
+    {
+      Xm_rfc103_shared [Name Value] append
+      /Xm_rfc103_shared set
+    } ifelse
+    /L [(oxGetClientList)] extension def    
+    0 1 L length 1 sub {
+      /i set
+      L i get [(ox103_set_shared_variable) Name Value] oxrpc2
+    } for 
+
+    (ox103_set_shared_variable: Xm_rfc103_shared=) message
+    Xm_rfc103_shared message
+    %% [(parse) [(/) Name ( ) Value toString ( def )] cat] extension
+    %% Add $ $ when Value is a string.
+ 
+    /arg1 [Name Value] def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/ox103_test {
+  (x^2-1). fctr
+  oxasir.ccc ( sm1_start(); ) oxexecutestring
+  sm1connectr
+} def
+
+(oxrfc103, 2003, 1/1) message
+/Ox103_loaded 1 def
