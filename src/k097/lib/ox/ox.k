@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.4 2000/12/11 13:53:28 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.5 2000/12/12 13:58:21 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -118,9 +118,9 @@ class OX extends OXcontrol {
     control = super.getControl();
     sm1(" [(oxGetPort1) (localhost)] extension /peer set ");
     sm1(" /data peer 1 get def ");
-    control.pushCMO(data); /* BUG: control.pushCMO(data) does not work. 
-                              Use control = super.getControl(); */
-    control.pushCMO(name);
+    /* BUG: control.pushCMO(data) does not work. 
+            Use control = super.getControl(); */
+    control.pushCMO([[data],name]);
     control.pushCMD(SM_control_spawn_server);
     engineID = control.popCMO();
     print("engineID=");Println(engineID);
