@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.2 1999/12/21 02:47:33 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/io.texi,v 1.3 2000/03/02 07:46:14 noro Exp $
 \BJP
 @node 入出力,,, 組み込み函数
 @section 入出力
@@ -331,7 +331,7 @@ output();
 @item bsave(@var{obj},"@var{filename}")
 \JP :: @var{filename} に @var{obj} をバイナリ形式で書き込む. 
 \EG :: This function writes @var{obj} onto @var{filename} in binary form.
-@item bsave("@var{filename}")
+@item bload("@var{filename}")
 \JP :: @var{filename} から数式をバイナリ形式で読み込む. 
 \EG :: This function reads an expression from @var{filename} in binary form.
 @end table
@@ -422,7 +422,7 @@ y^2+2*x*y+x^2
 @findex bload27
 
 @table @t
-@item xxx(@var{filename}) 
+@item bload27("@var{filename}") 
 \JP :: 旧版で作られた bsave file の読み込み
 \EG :: Reads bsaved file created by older version of @b{Asir}.
 @end table
