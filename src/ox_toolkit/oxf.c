@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.8 2000/12/01 07:27:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.9 2000/12/03 16:15:03 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -345,11 +345,9 @@ OXFILE *oxf_execute_cmd(OXFILE *oxfp, char *cmd)
     int listened;
 
     if ((listened = oxf_listen(&port)) != -1) {
-        send_ox_cmo(oxfp, (cmo *)new_cmo_int32(port));
-        send_ox_cmo(oxfp, (cmo *)new_cmo_string(cmd));
-        send_ox_cmo(oxfp, (cmo *)new_cmo_int32(2));  /* number of arguments */
-        send_ox_cmo(oxfp, (cmo *)new_cmo_string("oxc_open"));
-        send_ox_command(oxfp, SM_executeFunction);
+		cmo_list *args =  list_appendl(NULL, list_append(new_cmo_list(), new_cmo_int32(port)), new_cmo_string(cmd), NULL);
+		send_ox_cmo(oxfp, (cmo *)args);
+        send_ox_command(oxfp, SM_control_spawn_server);
         return oxf_connect_passive(listened);
     }
     return NULL;
