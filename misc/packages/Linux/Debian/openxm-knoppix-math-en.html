@@ -1,0 +1,141 @@
+<html>
+<!--  -->
+<title>
+ OpenXM/Risa/Asir, etc 
+</title>
+<body bgcolor=#ffffff text=#000000>
+<h1> OpenXM 
+               <img src="file:///usr/share/pixmaps/logo-openxm2-color.xpm" />
+  Package of Mathematical Software Systems </h1>
+
+
+<p>
+<a href="http://www.openxm.org">The OpenXM project  </a>
+provides a package of mathematical software systems,
+which are integrated by 
+the OpenXM protocol. 
+OpenXM is an abbreviation of Open message eXchange for Mathematics.
+
+The computer algebra system
+<a href="http://www.math.kobe-u.ac.jp/Asir/index.html">
+Risa/Asir</a>
+<img src="file:///usr/share/pixmaps/hopo_std_color.xpm"/>,
+which is made in Japan,
+is a main client of the package and
+all software systems in the package can be used from Risa/Asir.
+</p>
+
+<h2> <font color="red"> How to start Risa/Asir </font> </h2>
+From the KDE menu, choose <br>
+<font color="green"> Application </font>
+--> 
+<font color="green"> Mathematics </font>
+--> 
+<font color="green"> Asir(OpenXM) <img src="file:///usr/share/pixmaps/hopo_std_color.xpm"/> 
+</font>
+<br>
+In order to use Asir(OpenXM), 
+your computer must be connected to the internet, because
+a part of Risa/Asir is downloaded from ftp.math.kobe-u.ac.jp. <br>
+<font color="cyan">
+NOTE:
+A part of Asir cannot be included in the CD because of a restriction
+of the Risa/Asir license and the part is downloaded from the internet
+after you agree with the license.
+The size of the part is less than 2 Mega bytes.
+The part is saved under your home directory
+with the names .asir-tmp, .TeXmacs, .asirrc. 
+If you have a USB memory, you can save the files of your home directory
+to the USB memory.
+Choose the KDE menu <br>
+knoppix --> configure --> create persistent home directory <br>
+As to details, see a knoppix manual.
+</font>
+<br>
+Once you downloaded, you can use Asir(OpenMX) from the TeXmacs, too.
+In the TeXmacs menu, choose<br>
+<font color="gree"> Text  </font>
+-->
+<font color="gree"> session </font>
+-->
+<font color="gree"> OpenXM[asir,sm1] </font> <br>
+The screeen will look like  
+<a href="http://www.math.kobe-u.ac.jp/Asir/texmacs-oxasir-1.png"> 
+this</a>.
+
+
+<h2> <font color="red"> What kind of computation can I do by Risa/Asir? </font> </h2>
+Here are some examples
+<ol>
+<li>  <font color="blue"> fctr(x^100-1);   </font> 
+   Factorization of x <sup> 100 </sup> - 1  
+<li>  <font color="blue">
+     ifplot(x^3-y^2);
+    </font>
+  Drawing the zero set of x <sup> 3 </sup> - y <sup> 2 </sup> = 0.
+<li>  <font color="blue">
+     gnuplot.heat(0.0001,100);
+    </font>
+    Solving the heat equation by using the forward difference scheme.
+    The time step is 0.0001.
+<li>  <font color="blue">
+   dp_gr_main([x^2+y^2-4,x*y-1] | v=[x,y], order=[[x,1]]);
+     </font>
+   <br>
+   Computation of the Grobner basis of
+   x <sup> 2 </sup> +y <sup> 2 </sup> -4, x y -1  
+   with the weight 1 for the variable x and the weight 0 
+   for the variable y.
+<li> <font color="blue">
+ F=[x^2+y^2-4,x*y-1]; V=[x,y]; 
+ dp_gr_main(map(dp_ptod,F,V) | v=V, order=[[x,1]]);
+</font>
+The same computation, but the answer is given by DP (distributed polynomial).
+<li> Others:
+A faster Grobner basis computation (nd_gr_main), 
+primary ideal decomposition (primadec), factorization in algebraic
+extensions of Q (afctr), computation in the ring of differential operators
+(*weyl*), number theoretic functions in pari, ... 
+</ol>
+
+
+<h2> <font color="red"> What are references of Asir? </font> </h2>
+<ol>
+<li> <a href="file:///usr/local/OpenXM/doc/asir2000/html-eg/man_toc.html"> 
+     Asir Manual (HTML) </a>
+<li> <a href="file:///usr/local/OpenXM/doc/asir-contrib/cman-en.dvi"> 
+     Asir-contrib Manual (dvi) </a>, 
+     <a href="http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/html-en/cman-en_toc.html"> HTML </a>
+</ol>
+
+<h2> What OX servers can I call from  Asir? </h2>
+<ol>
+<li> kan/sm1 : A system for algebraic analysis and the ring of differential
+operators.  The standalone version is started by typing in "openxm sm1"
+in the terminal (unix shell).
+<a href="file:///usr/local/OpenXM/doc/kan96xx/ttt/ttt.html">
+Introductory manual </a>,  
+<a href="file:///usr/local/OpenXM/doc/kan96xx/onlinehelp/onlinehelp.html"> 
+manual  </a>.
+<li> phc :  Solving systems of algebraic equations by the homotopy method.
+The standalone version is started by typing in "openxm phc"
+<li> gnuplot : The famous plotting software.
+<li> And others.
+</ol> 
+As to details, see  
+<a href="http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/html-en/cman-en_toc.html">  
+OpenXM/asir-contrib manual</a>.
+
+
+<h2>  OpenXM CVS Repositry  (for developpers).
+</h2>
+<a href="http://www.math.sci.kobe-u.ac.jp/cgi/cvsweb.cgi/">cvsweb </a>
+ (Risa/Asir is under OpenXM_contrib2/asir2000. 
+  sm1 is under OpenXM/src.)
+
+<br>
+<br>
+
+$OpenXM$
+</body>
+</html>
