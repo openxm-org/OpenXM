@@ -1,0 +1,50 @@
+/* $OpenXM$ */
+
+/*&usage begin:
+  taka_weyl_act(L,VDlist,F) 
+  example: taka_weyl_act((x-y)*dx*dy+1,[[x,y],[dx,dy]],(x-y)^3);
+  end:
+*/
+def taka_weyl_act(L,VDlist,F) {
+  Vlist = VDlist[0];
+  Dlist = VDlist[1];
+  N=length(Vlist);
+  if (N != length(Dlist)) error("taka_weyl_act: invalid format of VDlist.");
+  if (N == 0) return L*F;
+  X = car(Vlist);
+  D = car(Dlist);
+  Deg = deg(L,D);
+  R = 0;
+  for (I=0; I<=Deg; I++) {
+    FF = F;
+    C = coef(L,I,D); /* C*dx^I  F */
+    for (J=0; J<I; J++) {
+      FF = diff(FF,X);
+    }
+    if (FF != 0) {
+      R += taka_weyl_act(C,[cdr(Vlist),cdr(Dlist)],FF);
+    }
+  }
+  return R;
+}
+def taka_weyl_assert() {
+  F = (x-y)^3+x+2;
+  A = taka_weyl_act(1,[[x,y],[dx,dy]],F);
+  B = F;
+  print(A-B);
+
+  A = taka_weyl_act((y+1)*dx^2,[[x,y],[dx,dy]],F);
+  B = (y+1)*diff(F,x,x);
+  print(A-B);
+
+  A = taka_weyl_act((y+1)*dy^2,[[x,y],[dx,dy]],F);
+  B = (y+1)*diff(F,y,y);
+  print(A-B);
+
+  A = taka_weyl_act((y+1)*dx*dy^2+x*dx,[[x,y],[dx,dy]],F);
+  B = (y+1)*diff(F,x,y,y)+x*diff(F,x);
+  print(A-B);
+
+}
+
+end$
