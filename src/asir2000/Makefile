@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.4 2000/01/09 18:41:04 maekawa Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.5 2000/01/09 18:42:24 maekawa Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 PARI = ../pari
@@ -14,7 +14,7 @@ install: all
 
 clean:
 	(cd $(ASIR) ; make clean)
-	@rm -f ./.make_done ./.configure_done
+	@rm -f ./.make_done ./.configure_done ./.install-pari_done
 
 distclean:
 	@cat BINARIES | xargs -t rm -rf
@@ -26,4 +26,7 @@ configure: install-pari
 	@touch ./.configure_done
 
 install-pari:
-	(cd $(PARI) ; make install)
+	@if [ ! -f ./.install-pari_done ]; then \
+		(cd $(PARI) ; make install) \
+	fi
+	@touch ./.install-pari_done
