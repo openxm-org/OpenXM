@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.1.1.1 1999/12/08 05:47:43 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.2 1999/12/21 02:47:29 noro Exp $
 
 all-eg: texindex man-eg.dvi help-eg html-eg
 all-jp: texindex man-jp.dvi help-jp html-jp
@@ -27,31 +27,31 @@ tmpJP: $(SRCS) extract_man
 	-rm -rf tmpJP
 	mkdir tmpJP tmpJP/parts tmpJP/parts/builtin
 	cp jtexinfo.tex texinfo-js.tex tmpJP
-	for i in ${SRCS}; do extract_man JP $$i > tmpJP/$$i; done
+	for i in ${SRCS}; do ./extract_man JP $$i > tmpJP/$$i; done
 
 tmpJPeuc: $(SRCS) extract_man
 	-rm -rf tmpJPeuc
 	mkdir tmpJPeuc tmpJPeuc/parts tmpJPeuc/parts/builtin
 	cp jtexinfo.tex texinfo-js.tex tmpJPeuc
-	for i in ${SRCS}; do extract_man JP $$i | nkf -e > tmpJPeuc/$$i; done
+	for i in ${SRCS}; do ./extract_man JP $$i | nkf -e > tmpJPeuc/$$i; done
 
 tmpJPhtml: $(SRCS) extract_man
 	-rm -rf tmpJPhtml
 	mkdir tmpJPhtml tmpJPhtml/parts tmpJPhtml/parts/builtin
 	cp jtexinfo.tex texinfo-js.tex tmpJPhtml
-	for i in ${SRCS}; do extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmpJPhtml/$$i; done
+	for i in ${SRCS}; do ./extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmpJPhtml/$$i; done
 
 tmpEG: $(SRCS) extract_man
 	-rm -rf tmpEG
 	mkdir tmpEG tmpEG/parts tmpEG/parts/builtin
 	cp texinfo.tex tmpEG
-	for i in ${SRCS}; do extract_man EG $$i > tmpEG/$$i; done
+	for i in ${SRCS}; do ./extract_man EG $$i > tmpEG/$$i; done
 
 tmpEGhtml: $(SRCS) extract_man
 	-rm -rf tmpEGhtml
 	mkdir tmpEGhtml tmpEGhtml/parts tmpEGhtml/parts/builtin
 	cp texinfo.tex tmpEG
-	for i in ${SRCS}; do extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i; done
+	for i in ${SRCS}; do ./extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i; done
 	
 man-jp.dvi: tmpJP texindex
 	-rm man-jp.dvi
