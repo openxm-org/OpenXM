@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.1 2004/02/21 12:57:32 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.2 2004/02/22 06:39:09 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -48,6 +48,16 @@ _agree() {
 	fi
 	_agree
 }
+
+# If there is un usb memory, then download under the usb memory.
+if [ -d /mnt/sda1/.asir-tmp ] ; then
+	rm -f $HOME/.asir-tmp ; \
+	ln -s /mnt/sda1/.asir-tmp $HOME/.asir-tmp 
+fi
+if [ -d /mnt/sdb1/.asir-tmp ] ; then
+	rm -f $HOME/.asir-tmp ; \
+	ln -s /mnt/sdb1/.asir-tmp $HOME/.asir-tmp
+fi
 
 if [ ! -f $HOME/.asir-tmp/$asirnamegunzip ]; then
 	_agree ; \
