@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.7 2000/01/15 06:11:17 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/heterotic-network.tex,v 1.8 2000/01/15 06:26:06 takayama Exp $
 \section{Applications}
 
 \subsection{Heterogeneous Servers}
@@ -36,7 +36,7 @@ His algorithm reduces the problem to computations of Gr\"obner bases
 in $D$ and to find the maximal integral root of a polynomial.
 This algorithm (the function {\tt annfs}) is implemented by
 kan/sm1 \cite{kan}, for Gr\"obner basis computation in $D$, and
-ox\_asir, to factorize polynomials to find the integral
+{\tt ox\_asir}, to factorize polynomials to find the integral
 roots.
 These two OpenXM complient systems are integrated by
 OpenXM protocol.
@@ -63,27 +63,28 @@ an algorithm to stratify singularity
 \cite{oaku-advance}
 is implemented by
 kan/sm1 \cite{kan}, for Gr\"obner basis computation in $D$, and
-ox\_asir, for primary ideal decompositions.
+{\tt ox\_asir}, for primary ideal decompositions.
 
 \subsubsection{A Course on Solving Algebraic Equations}
 
-Risa/asir \cite{asir} is a general computer algebra system
-which is good at Gr\"obner basis computations for zero dimensional ideal
+Risa/Asir \cite{asir} is a general computer algebra system
+which can be used for Gr\"obner basis computations for zero dimensional ideal
 with ${\bf Q}$ coefficients.
 However, it is not good at graphical presentations and
 numerical methods.
-We integrated Risa/asir, ox\_phc (based on PHC pack by Verschelde \cite{phc}
+We integrated Risa/Asir, ox\_phc (based on PHC pack by Verschelde \cite{phc}
 for the polyhedral homotopy method) and
 ox\_gnuplot (GNUPLOT) servers
 to teach a course on solving algebraic equations.
-This course was presented with the text book \cite{CLO} which discusses
+This course was presented with the text book \cite{CLO},
+which discusses 
 on the Gr\"obner basis method and the polyhedral homotopy method
 to solve systems of algebraic equations.
 We could teach a course
 with a unified environment
-controlled by asir user language, which is similar to C.
-The following is an asir session to solve algebraic equations by calling
-the PHC pack (see Figure \ref{katsura} too):
+controlled by Asir user language, which is similar to C.
+The following is an Asir session to solve algebraic equations by calling
+the PHC pack (Figure \ref{katsura} is the output of {\tt [292]}):
 \begin{verbatim}
 [287] phc(katsura(7));
 The detailed output is in the file tmp.output.*

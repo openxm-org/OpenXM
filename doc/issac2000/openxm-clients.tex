@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.5 2000/01/15 06:26:06 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-clients.tex,v 1.6 2000/01/16 03:15:49 noro Exp $
 
 \section{OpenXM Clients}    
 
@@ -56,25 +56,27 @@ to avoid blocking on read operations.
 \subsection{Mathematica}
 
 We provide an OpenXM client {\tt math2ox} written as an external module
-for Mathematica.  Our client communicates with Mathematica by MathLink and
-with an OpenXM server by OpenXM protocols.  
+for Mathematica.  
+The module {\tt math2ox} communicates with Mathematica by MathLink and
+with any OpenXM server by the OpenXM protocol.  
 By using the module {\tt math2ox},
 we can call OpenXM servers from Mathematica;
 here is an example of a computation of the de Rham cohomology groups
-of ${\bf C}^2 \setminus V(x^3-y^2)$.
+of ${\bf C}^2 \setminus V(x^3-y^2)$ from Mathematica.
 {\footnotesize
 \begin{verbatim}
 In[1]:= Install["math2ox"]
 In[2]:= OxStart["../lib/sm1/bin/ox_sm1_forAsir"]
 In[3]:= OxExecute[" [(x^3-y^2) (x,y)] deRham "]
 In[4]:= OxPopString[]
-Out[4]=  [ 1 , 1 , 0 ] 
+Out[4]=  [ 1 , 1 , 0 ]  (* The dimension of 
+                           cohomology groups *)
 \end{verbatim}
 }
 
 \subsubsection{Functions}
 
-The {\tt math2ox} has the following functions.
+The {\tt math2ox} adds the following functions to Mathematica.
 \begin{quote}
 {\tt OxStart[s\_String]} \\
 {\tt OxStartInsecure[s\_String]} \\
@@ -86,11 +88,14 @@ The {\tt math2ox} has the following functions.
 {\tt OxClose[]} \\
 {\tt OxReset[]}
 \end{quote}
-For example, {\tt OxPopCMO[]} executes the same operation
-as {\tt ox\_pop\_cmo()} in Risa/Asir.
-By using the {\tt OxParse[]} function, one can send suitable OX messages,
-written by the OX expression, to a server. OX expressions are
-Lisp-like expressions for OX messages and are defined
-in~\cite{noro-takayama}.  
+Although the list of functions speaks itself,
+we add some explanations.
+The function {\tt OxPopCMO[]} executes the same operation
+as {\tt ox\_pop\_cmo()} in Risa/Asir;
+it pops data from the server stack.
 The {\tt OxGet[]} receives an OX data message
 and returns its translation to an local object.
+By using the {\tt OxParse[]} function, one can send OX messages,
+written by the OX expression, to a server. 
+OX expressions are Lisp-like expressions for OX messages and are defined
+in~\cite{noro-takayama}.  

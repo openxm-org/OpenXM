@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.9 2000/01/15 12:18:42 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.10 2000/01/16 06:02:41 takayama Exp $
 
 \section{OpenXM Stack machines}\label{sec:ox-stackmachines}
 
@@ -28,7 +28,7 @@ If the server gets an {\it OX command} message, then the server
 executes the command.
 Any OX command message starts with the int32 tag OX\_COMMAND.
 The body is a stack machine operation code expressed by int32.
-The codes are listed below.
+The codes are listed below \cite{noro-takayama}.
 \begin{verbatim}
 #define SM_popSerializedLocalObject               258
 #define SM_popCMO                                 262
@@ -82,8 +82,9 @@ instead of a result of the computation.
 The error object consists of the serial number of the OX message
 which caused the error, and an error message.
 \begin{verbatim}
-[341] ox_rpc(0,"fctr",1.2*x)$
-[342] ox_pop_cmo(0);
+[340] P = ox_launch()$
+[341] ox_rpc(P,"fctr",1.2*x)$
+[342] ox_pop_cmo(P);
 error([8,fctr : invalid argument])
 \end{verbatim}
 
