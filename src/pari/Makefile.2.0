@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.2 2004/12/09 18:54:31 ohara Exp $
+# $OpenXM: OpenXM/src/pari/Makefile.2.0,v 1.3 2004/12/10 10:58:38 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 RANLIB=ranlib
-PARI=pari-2.0.17.beta
+PARI=pari-2.0.21.beta
 PATCH_FILE=${PARI}.diff
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DIST_SUFFIX=.tgz
@@ -28,7 +28,7 @@ extract: fetch
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
 	    if [ -f "${PATCH_FILE}" ]; then \
-	        cat ${PATCH_FILE} | (cd work ; patch -p ) ; \
+	        cat ${PATCH_FILE} | (cd work/${PARI} ; patch -p1 ) ; \
 	    fi \
 	fi 
 	@touch work/.patch_done
