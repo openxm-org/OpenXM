@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.20 2002/11/07 23:35:23 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.21 2003/07/10 05:01:41 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -103,7 +103,7 @@ int CmoDMSOutputOption = 0;  /* Output with
                  (1) RING_BY_NAME or (0) DMS_OF_N_VARIABLES.
                  plugin/cmo.c */
 int SecureMode = 0;
-int TangentCone = 0;
+int Ecart = 0;
 
 /* global variables for stackmachine.c  */
 int VerboseStack = 1;     /* 0 is quiet, 1 is standard, 2 ... */

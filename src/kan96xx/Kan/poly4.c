@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.4 2002/09/08 10:49:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.5 2003/07/10 08:20:04 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -521,14 +521,56 @@ int isTheSameRing(struct ring *rstack[],int rp, struct ring *newRingp)
   }
   return(-1);
 }
-  
+
+/* s->1 */  
+POLY goDeHomogenizeS(POLY f) {
+  POLY node;
+  POLY lastf;
+  struct listPoly nod;
+  POLY h;
+  POLY tf;
+  int gt,first;
+
+  if (f == POLYNULL) return(POLYNULL);
+  node = &nod;
+  node->next = POLYNULL;
+  lastf = POLYNULL;
+  first = 1;
+  while (f != POLYNULL) {
+    tf = newCell(f->coeffp,monomialCopy(f->m));
+    tf->m->e[0].x = 0;  /* H, s variable in the G-O paper. */
+    if (first) {
+      node->next = tf;
+      lastf = tf;
+      first = 0;
+    }else{
+      gt = (*mmLarger)(lastf,tf);
+      if (gt == 1) {
+        lastf->next = tf;
+        lastf = tf;
+      }else{
+        h = node->next;
+        h = ppAddv(h,tf);
+        node->next = h;
+        lastf = h;
+        while (lastf->next != POLYNULL) {
+          lastf = lastf->next;
+        }
+      }
+    }
+    f = f->next;
+  }
+  return (node->next);
+}  
+
 /* Granger-Oaku's homogenization for the ecart tangent cone.
    Note: 2003.07.10.
    ds[] is the degree shift.
    ei ( element index ). If it is < 0, then e[n-1]->x will be used,
                          else ei is used.
+   if onlyS is set to 1, then input is assumed to be (u,v)-h-homogeneous.
 */
-POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei)
+POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei,int onlyS)
 {
   POLY node;
   POLY lastf;
@@ -560,7 +602,9 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei)
       /*go-debug fprintf(stderr,"Automatic dehomogenize and homogenize.\n"); */
 	  message = 0;
 	}
-    tf->m->e[0].D = -t;  /* h */
+	if (!onlyS) {
+	  tf->m->e[0].D = -t;  /* h */
+	}
     tf->m->e[0].x = tp;  /* H, s variable in the G-O paper. */
 	/*go-debug printf("t(h)=%d, tp(uv+ds)=%d\n",t,tp); */
     if (first) {
@@ -589,7 +633,7 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei)
   /*go-debug printf("m=%d, mp=%d\n",m,mp); */
   while (h != POLYNULL) {
     /*go-debug printf("Old: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x); */
-    h->m->e[0].D += m;   /* h */
+    if (!onlyS) h->m->e[0].D += m;   /* h */
     h->m->e[0].x += -mp; /* H, s*/
     /*go-debug printf("New: h=%d, s=%d\n",h->m->e[0].D,h->m->e[0].x); */
     h = h->next;
@@ -598,7 +642,7 @@ POLY goHomogenize(POLY f,int u[],int v[],int ds[],int dssize,int ei)
 }  
 
 /* u[] = -1, v[] = 1 */
-POLY goHomogenize11(POLY f,int ds[],int dssize,int ei)
+POLY goHomogenize11(POLY f,int ds[],int dssize,int ei,int onlyS)
 {
   int r;
   int i,t,n,m,nn;
@@ -622,14 +666,14 @@ POLY goHomogenize11(POLY f,int ds[],int dssize,int ei)
 	  u[i] = -1; v[i] = 1;
 	}
   }
-  return(goHomogenize(f,u,v,ds,dssize,ei));
+  return(goHomogenize(f,u,v,ds,dssize,ei,onlyS));
 }
 
-POLY goHomogenize_dsIdx(POLY f,int u[],int v[],int dsIdx,int ei)
+POLY goHomogenize_dsIdx(POLY f,int u[],int v[],int dsIdx,int ei,int onlyS)
 {
   if (f == POLYNULL) return POLYNULL;
 }
-POLY goHomogenize11_dsIdx(POLY f,int ds[],int dsIdx,int ei)
+POLY goHomogenize11_dsIdx(POLY f,int ds[],int dsIdx,int ei,int onlyS)
 {
   if (f == POLYNULL) return POLYNULL;
 }

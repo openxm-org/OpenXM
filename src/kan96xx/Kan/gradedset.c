@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.3 2001/05/04 01:06:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -14,11 +14,13 @@ struct polySet *newPolySet(n)
   int i;
   g = (struct polySet *)sGC_malloc(sizeof(struct polySet));
   g->g = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
+  g->gh = (POLY *)sGC_malloc(sizeof(POLY)*(n+1));
   g->del = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->syz = (struct syz0 **)sGC_malloc(sizeof(struct syz0 *)*(n+1));
   g->mark = (int *)sGC_malloc(sizeof(int)*(n+1));
   g->serial = (int *)sGC_malloc(sizeof(int)*(n+1));
   if (g->g == (POLY *)NULL || g->del == (int *)NULL ||
+      g->gh == (POLY *)NULL ||
       g->syz == (struct syz0 **)NULL || g->mark == (int *)NULL ||
       g->serial == (int *)NULL) {
     errorGradedSet("No more memory.");
@@ -254,6 +256,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
     polysNew = newPolySet(index*2+1);
     for (i=0; i<g->polys[grade]->lim; i++) {
       polysNew->g[i] = g->polys[grade]->g[i];
+      polysNew->gh[i] = g->polys[grade]->gh[i];
       polysNew->del[i] = g->polys[grade]->del[i];
       polysNew->syz[i] = g->polys[grade]->syz[i];
       polysNew->mark[i] = g->polys[grade]->mark[i];
@@ -265,6 +268,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
   
   g->polys[grade]->size = index+1;
   g->polys[grade]->g[index] = fi;
+  g->polys[grade]->gh[index] = POLYNULL;
   g->polys[grade]->del[index] = 0;
   g->polys[grade]->syz[index] = syz;
   g->polys[grade]->mark[index] = mark;
@@ -357,6 +361,7 @@ void outputGradedPolySet(grG,needSyz)
 {
   int i,j;
   struct polySet *set;
+  extern Ecart;
   printf("======== gradedPolySet ==========\n");
   printf("maxGrade=%d\n",grG->maxGrade);
   for (i=0; i<grG->maxGrade; i++) {
@@ -364,6 +369,7 @@ void outputGradedPolySet(grG,needSyz)
     printf("grade=%d, size=%d\n",i,set->size);
     for (j=0; j<set->size; j++) {
       printf("j=%d, del=%d, g=%s\n",j,set->del[j],POLYToString(set->g[j],'*',1));
+	  if (Ecart) printf("     gh=%s\n",POLYToString(set->gh[j],'*',1));
       if (needSyz) {
         printf("mark=%d,serial=%d, syz.cf=%s, syz.syz=%s\n",set->mark[j],
                set->serial[j],POLYToString(set->syz[j]->cf,'*',1),
