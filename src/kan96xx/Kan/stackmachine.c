@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.3 2000/01/21 01:08:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.4 2000/02/02 03:30:48 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -14,7 +14,8 @@
 /* #define OPERAND_STACK_SIZE  2000 */
 #define OPERAND_STACK_SIZE 30000 
 #define SYSTEM_DICTIONARY_SIZE 200
-#define USER_DICTIONARY_SIZE   1223
+/* #define USER_DICTIONARY_SIZE   1223 */
+#define USER_DICTIONARY_SIZE  3581
 /* The value of USER_DICTIONARY_SIZE must be prime number, because of hashing
    method */
 #define ARGV_WORK_MAX  (AGLIMIT+100)
