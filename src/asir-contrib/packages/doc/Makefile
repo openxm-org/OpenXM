@@ -1,21 +1,26 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.4 1999/12/11 13:51:18 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.5 2000/01/16 08:19:58 takayama Exp $
 # targets
 # all :   
 #        Extracts all tex-info files from ../src/*
-# install-help :
+# install : install-document install-help
+# install-help : all
 #        Installing online help to OpenXM/lib/asir/help-*
-# install-document :
+# install-document :  all
 #        Copy the documents to OpenXM/doc/asir-contrib
+# NOTE: install-help should be executed after installing asir2000.
 OpenXM_ROOT=../../../../../OpenXM
 ASIRDOC=$(OpenXM_ROOT)/src/asir-doc
 ASIRLIB=$(OpenXM_ROOT)/../OpenXM_contrib2/asir2000/lib
 CONTRIB=$(OpenXM_ROOT)/src/asir-contrib/packages/src
+## PS documents are installed under $(OpenXM_doc)/asir-contrib
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 
 JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi
 EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi
+
 all : $(JPSRCS) $(EGSRCS)
+install : install-document install-help
 
 oxxm.texi : $(ASIRLIB)/xm Makefile
 	/bin/rm -f oxxm.texi
@@ -82,10 +87,10 @@ help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 help: help-eg help-jp
 
 install-help: help
-	/bin/rm -f $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
+	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
 	cp -f help-jp/* $(OpenXM_ROOT)/lib/asir/help-jp/xm.help
-	/bin/rm -f $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
+	/bin/rm -rf $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	mkdir $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 	cp -f help-eg/* $(OpenXM_ROOT)/lib/asir/help-eg/xm.help
 
