@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.19 2000/08/22 02:13:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.20 2000/08/22 05:34:06 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -492,6 +492,21 @@ def test25() {
               [0,0,1,0,0,1]],[0,0,0,0]);;
   Sweyl("x1,x2,x3,x4,x5,x6",[w]);
   ans2 = ReParse(ans2[0]);
+  a = Sminimal(ans2);
+}
+
+def test25b() {
+  w = ["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1,"Dx5",1,"Dx6",1,
+       "x1",-1,"x2",-1,"x3",-1,"x4",-1,"x5",-1,"x6",-1];
+  ans2 = GKZ([[1,1,1,1,1,1],
+              [0,0,0,1,1,1],
+              [0,1,0,0,1,0],
+              [0,0,1,0,0,1]],[0,0,0,0]);
+  Sweyl("x1,x2,x3,x4,x5,x6",[w]);
+  ans2 = ans2[0];
+  sm1(" ans2 rest rest rest rest /ans2 set ");
+  Println(ans2);  /* Generators of the toric ideal */
+  ans2 = ReParse(ans2);
   a = Sminimal(ans2);
 }
 
