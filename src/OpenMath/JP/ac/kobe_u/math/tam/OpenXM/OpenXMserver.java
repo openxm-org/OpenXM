@@ -1,22 +1,26 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMserver.java,v 1.1 2000/04/17 03:18:58 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 import java.net.*;
 
-public class OpenXMserver{
+//public abstract class OpenXMserver implements Runnable{
+public abstract class OpenXMserver{
+  private OpenXMserver server = null;
   private OpenXMconnection control = null;
   private OpenXMconnection stream = null;
   private Thread computeThread = null;
-  final protected boolean debug = false;
+  final protected boolean debug = true;
 
   public OpenXMserver(){
     this("localhost",1200,1300);
   }
 
   public OpenXMserver(String host,int CtrlPort,int StreamPort){
+    server = this;
+
     try{
       control = new OpenXMconnection(host,CtrlPort,true);
       stream = new OpenXMconnection(host,StreamPort,true);
@@ -35,10 +39,11 @@ public class OpenXMserver{
 	  try{
 	    stream.sendByteOrder();
 	  }catch(IOException e){}
-	  computeProcess(stream);
+	  server.computeProcess(stream);
 	}
       };
 
+      debug("control: compute process starting");
       computeThread.start();
       while(true){
 	OXmessage message = control.receive();
@@ -70,13 +75,17 @@ public class OpenXMserver{
     }
   }
 
+  abstract protected void computeProcess(OpenXMconnection DataStream);
+  /*
   private void computeProcess(OpenXMconnection DataStream){
     while(true){
+      debug("test process executing");
       try{
 	DataStream.receive();
       }catch(IOException e){}
     }
   }
+  */
 
   /*
   final public synchronized void resetConnection(){
@@ -116,6 +125,7 @@ public class OpenXMserver{
     }
   }
 
+  /*
   public static void main(String[] argv){
     String hostname = "localhost";
     int ControlPort = 1200, DataPort = 1300;
@@ -137,9 +147,8 @@ public class OpenXMserver{
       }
     }
 
-    ox = new OpenXMserver(hostname,ControlPort,DataPort);
-    /*
     try{
+      ox = new OpenXMserver(hostname,ControlPort,DataPort);
     }catch(UnknownHostException e){
       System.err.println("host unknown.");
       System.err.println(e.getMessage());
@@ -150,10 +159,10 @@ public class OpenXMserver{
       System.err.println(e.getMessage());
       return;
     }
-    */
 
     ox.start();
 
     System.out.println("breaking...");
   }
+  */
 }

@@ -1,16 +1,20 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.35 2000/03/15 15:02:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.36 2000/04/17 03:18:57 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.util.Stack;
 import java.io.*;
 
-class OMproxy extends OpenXMserver{
+public class OMproxy extends OpenXMserver{
   private OpenXM ox;
   private Stack stack = new Stack();
-  protected boolean debug = false;
-  final int version = 200001190;
+  protected boolean debug = true;
+  final int version = 200006130;
+
+  public OMproxy(String hostname,int ControlPort,int DataPort){
+    super(hostname,ControlPort,DataPort);
+  }
 
   public void computeProcess(OpenXMconnection stream){
     OM2OXM P = new OM2OXM();
@@ -36,6 +40,7 @@ class OMproxy extends OpenXMserver{
 	  System.err.println(e.getMessage());
 	  e.printStackTrace();
 	  debug("error occured. stack was cleared.");
+	  stack = new Stack();
 	}
       }
     }catch(IOException e){
@@ -67,6 +72,7 @@ class OMproxy extends OpenXMserver{
       }else{
 	debug("sending CMO: "+ stack.peek());
 	ox.send((CMO)stack.pop());
+	debug("test");
       }
     }catch(MathcapViolation e){
       try{
@@ -153,6 +159,7 @@ class OMproxy extends OpenXMserver{
       mathcap[2] = new CMO_LIST(list);
     }
 
+    stack = new Stack();
     stack.push(new CMO_MATHCAP(new CMO_LIST(mathcap)));
     debug("push: "+ stack.peek());
   }
@@ -231,9 +238,9 @@ class OMproxy extends OpenXMserver{
   }
 
   private void debug(String str){
-    if(debug){
-      System.out.println(str);
-    }
+    //if(debug){
+    System.err.println(str);
+    //}
   }
 
   private static String usage(){
@@ -251,43 +258,45 @@ class OMproxy extends OpenXMserver{
     return ret;
   }
 
-  /*
-  public static void main(String argv[]){
-    String host = "localhost";
-    int DataPort = 1300, ControlPort = 1200;
-    boolean debug = false;
+  public static void main(String[] argv){
+    String hostname = "localhost";
+    int ControlPort = 1200, DataPort = 1300;
+    OpenXMserver ox;
 
     for(int i=0;i<argv.length;i++){
       if(argv[i].equals("-h")){
-	System.out.print(usage());
-	System.exit(0);
+        System.out.println("");
+        System.exit(0);
       }else if(argv[i].equals("-host")){
-	host = argv[++i];
+        hostname = argv[++i];
       }else if(argv[i].equals("-data")){
-	DataPort = Integer.valueOf(argv[++i]).intValue();
+        DataPort = Integer.valueOf(argv[++i]).intValue();
       }else if(argv[i].equals("-control")){
-	ControlPort = Integer.valueOf(argv[++i]).intValue();
-      }else if(argv[i].equals("-insecure")){
-      }else if(argv[i].equals("-debug")){
-	debug = true;
+        ControlPort = Integer.valueOf(argv[++i]).intValue();
       }else{
-	System.err.println("unknown option : "+ argv[i]);
-	System.err.print(usage());
-	System.exit(1);
+        System.err.println("unknown option :"+ argv[i]);
+        System.exit(1);
       }
     }
 
-    System.out.println("host(ctrl,data): "+ host
-		       +"("+ ControlPort +","+ DataPort +")");
-
+    //ox = new OpenXMserver(hostname,ControlPort,DataPort);
+    ox = new OMproxy(hostname,ControlPort,DataPort);
+    /*
     try{
-      new OMproxy(host,ControlPort,DataPort).debug = debug;
-      System.out.println("connected.");
-    }catch(IOException e){
-      System.err.println("Error occured: "+ e);
-      System.err.println(e.getLocalizedMessage());
+    }catch(java.net.UnknownHostException e){
+      System.err.println("host unknown.");
       System.err.println(e.getMessage());
+      return;
+    }catch(IOException e){
+      System.err.println("connection failed.");
+      System.err.println("IOException occuer !!");
+      System.err.println(e.getMessage());
+      return;
     }
+    */
+
+    ox.start();
+
+    System.out.println("breaking...");
   }
-  */
 }
