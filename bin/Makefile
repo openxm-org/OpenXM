@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.7 2000/01/20 03:47:25 takayama Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $
 
 LIBDIR=../lib
 FEPLINUX=fep.linux
@@ -6,7 +6,15 @@ FEPFBSD=fep.fbsd
 PHC=lin_phcv2p
 RM=rm
 
-configure: $(FEPLINUX) $(FEPFBSD) $(PHC)
+configure:
+	@if [ -f .configure_done ] ; then \
+		echo "OpenXM/bin is already configured." ; \
+	else \
+		make configure-real ; \
+		$(RM) -f *uuencoded* ; \
+	fi
+
+configure-real: $(FEPLINUX) $(FEPFBSD) $(PHC)
 	@if [ "`uname`" = "Linux" ]; then \
 		rm -f fep phc ; \
 		ln -f -s $(FEPLINUX) fep ; \
@@ -25,10 +33,9 @@ configure: $(FEPLINUX) $(FEPFBSD) $(PHC)
 	     echo "Not FreeBSD" ; \
 	fi
 
-	rm -f asir
-	ln -f -s $(LIBDIR)/asir/asir asir
 	rm -f ox_asir
-	ln -f -s $(LIBDIR)/asir/asir ox_asir
+	ln -f -s ./asir ox_asir
+	@touch .configure_done
 
 $(FEPLINUX) : $(FEPLINUX).gz.uuencoded
 	@if [ -f $(FEPLINUX).gz.uuencoded ]; then \
@@ -52,18 +59,18 @@ $(PHC) : $(PHC).gz.uuencoded
 	fi
 
 distclean:
-	rm -f asir ox_asir fep fep.linux fep.fbsd lin_phcv2p phc
+	rm -f asir ox_asir fep fep.linux fep.fbsd lin_phcv2p phc .configure_done
 
 uuencode:
 	@if [ -f $(FEPLINUX) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.7 2000/01/20 03:47:25 takayama Exp $' > $(FEPLINUX).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $' > $(FEPLINUX).gz.uuencoded ; \
 		gzip -c $(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(FEPLINUX).gz.uuencoded ; \
 	fi
 	@if [ -f $(FEPFBSD) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.7 2000/01/20 03:47:25 takayama Exp $' > $(FEPFBSD).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $' > $(FEPFBSD).gz.uuencoded ; \
 		gzip -c $(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(FEPFBSD).gz.uuencoded ; \
 	fi
 	@if [ -f $(PHC) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.7 2000/01/20 03:47:25 takayama Exp $' > $(PHC).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.8 2000/01/21 09:51:08 noro Exp $' > $(PHC).gz.uuencoded ; \
 		gzip -c $(PHC) | uuencode $(PHC).gz >> $(PHC).gz.uuencoded ; \
 	fi
