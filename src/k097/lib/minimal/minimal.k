@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.1 2000/05/03 06:42:07 takayama Exp $ */
 #define DEBUG 1 
 /* #define ORDINARY 1 */
 /* Test sequences. 
@@ -942,3 +942,29 @@ def SvDegree(f,tower,level,w) {
   return(ans);
 }
 
+def Sannfs(f,v) {
+  local f2;
+  f2 = ToString(f);
+  if (IsArray(v)) {
+     v = Map(v,"ToString");
+  }
+  sm1(" [f2 v] annfs /FunctionValue set ");
+}
+
+/* Sannfs2("x^3-y^2"); */
+def Sannfs2(f) {
+  local p,pp;
+  p = Sannfs(f,"x,y");
+  Sweyl("x,y",[["x",-1,"y",-1,"Dx",1,"Dy",1]]);
+  pp = Map(p[0],"Spoly");
+  return(Sminimal(pp));
+}
+
+/*
+  The betti numbers of most examples are 2,1. (0-th and 1-th).
+  a=Sannfs2("x*y*(x+y-1)"); ==> The betti numbers are 3, 2. 
+  a=Sannfs2("x^3-y^2-x");    : it causes an error. It should be fixed.
+
+*/
+     
+ 
