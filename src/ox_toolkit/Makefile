@@ -1,13 +1,15 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile,v 1.5 1999/12/16 06:55:07 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile,v 1.6 1999/12/16 11:35:48 ohara Exp $
 
 CFLAGS = -g -O2 -DDEBUG -I${OpenXM_HOME}/src/gmp
 LIBOBJS = ox.o parse.o mysocket.o
 GMPSRC = ${OpenXM_HOME}/src/gmp
 OXWEAVE = ${OpenXM_HOME}/bin/oxweave
-BINARIES = bconv testclient sample1 sample2 ox_Xsample
+BINARIES = bconv testclient sample1 sample2 
 
 all: libox.a libgmp.a ${BINARIES} README.jp README.en
+
+all2 : all ox_Xsample
 
 ox.o mysocket.o: mysocket.h
 ox.o parse.o:    ox.h oxtag.h parse.h
