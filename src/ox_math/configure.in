@@ -1,0 +1,36 @@
+dnl  $OpenXM$
+dnl  If you change this file, do not forget to run autoconf and rm .configure_done
+
+AC_INIT(math2ox.c)
+AC_PROG_CC
+AC_PROG_LN_S
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PATH_XTRA
+
+AC_CHECK_FUNC(socket)
+if test "$ac_cv_func_socket" = no ; then
+  AC_CHECK_LIB(socket,socket)
+fi
+AC_CHECK_FUNC(gethostbyname)
+if test "$ac_cv_func_gethostbyname" = no ; then
+  AC_CHECK_LIB(nsl,gethostbyname)
+fi
+
+AC_CANONICAL_HOST
+case "$host_os" in
+linux*|freebsd*)
+	ml_system=Linux
+	;;
+osf)
+	ml_system=DEC-AXP
+	;;
+solaris2*)
+	ml_system=Solaris
+	;;
+*)
+	;;
+esac
+AC_SUBST(ml_system)
+
+AC_OUTPUT(Makefile)

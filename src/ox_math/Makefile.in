@@ -1,0 +1,74 @@
+# -*- mode: Makefile -*-
+# $OpenXM$
+
+OpenXM_HOME=../..
+
+PREFIX    = @prefix@
+SYS       = @ml_system@
+ADDONSDIR = ${PREFIX}/mathematica/AddOns/MathLink/DevelopersKits/${SYS}/CompilerAdditions
+MPREP     = ${ADDONSDIR}/mprep
+
+GMPSRC    = ${OpenXM_HOME}/src/gmp
+OXTK      = ${OpenXM_HOME}/src/ox_toolkit
+LN        = @LN_S@
+CC        = @CC@
+DEFS      = -DDEBUG
+CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${GMPSRC} -I${OXTK}
+LIBS      = @LIBS@ -L. -lox -lgmp -L${ADDONSDIR} -lML -lm
+
+BINARIES  = ox_math math2ox
+INSTALL   = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+
+all: libgmp.a libox.a ${BINARIES}
+
+serv1.o serv2.o mlo.o: serv2.h
+
+libgmp.a:
+	if [ ! -f ${GMPSRC}/libgmp.a ]; then \
+		(cd ${GMPSRC}; ./configure; ${MAKE} libgmp.a) \
+	fi
+	${LN} ${GMPSRC}/libgmp.a .
+
+libox.a:
+	if [ ! -f ${OXTK}/libox.a ]; then \
+		(cd ${OXTK}; ./make-configure; ${MAKE} libox.a) \
+	fi
+	${LN} ${OXTK}/libox.a .
+
+ox_math: serv1.o serv2.o mlo.o libox.a libgmp.a
+	${CC} ${CFLAGS} -o $@ serv2.o serv1.o mlo.o ${LIBS}
+
+math2ox: math2ox.o math2.o mlo.o serv2.o libox.a libgmp.a
+	${CC} ${CFLAGS} -o $@ math2ox.o math2.o serv2.o mlo.o ${LIBS}
+
+math2.c: math2.tm
+	-rm -f $@
+	${MPREP} $? > $@
+
+install: install-binary install-document
+
+install-document:
+	(cd documents; ${MAKE} install-document)
+
+install-binary:
+	if [ -x ${MPREP} ]; then \
+		${MAKE} install-binary-real ; \
+	fi
+
+install-binary-real: ${BINARIES}
+	${INSTALL_PROGRAM} ${BINARIES} ${OpenXM_HOME}/bin/
+	(cd lib; ${MAKE} install)
+
+install-for-debug: ${BINARIES}
+	-for i in ${BINARIES}; do \
+		${LN} ${OpenXM_HOME}/src/ox_math/$$i ${OpenXM_HOME}/bin ; \
+	done
+
+clean-for-debug: 
+	(cd ${OpenXM_HOME}/bin; rm -f ${BINARIES})
+
+clean-binary: clean-for-debug
+
+clean:
+	-rm -f *.o *~ libox.a libgmp.a math2.c ox_math math2ox
