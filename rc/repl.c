@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/rc/repl.c,v 1.5 2001/09/18 08:29:26 takayama Exp $ */
+/* $OpenXM: OpenXM/rc/repl.c,v 1.6 2002/04/05 01:49:09 takayama Exp $ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -34,13 +34,13 @@ main(int argc,char *argv[]) {
   /* Check if pstoimg (src/asir-contrib) supports png format. */
   fp = fopen("/tmp/repl_test.ps","w");
   if (fp == NULL) {
-	fprintf(stderr,"Open error of /tmp/repl_test.ps\n");
-	exit(10);
+     fprintf(stderr,"Open error of /tmp/repl_test.ps. Use the existing file.\n");
+  }else{
+     fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
+     fprintf(fp," 390 290 moveto  (F) show \n");
+     fprintf(fp,"showpage \n");
+     fclose(fp);
   }
-  fprintf(fp,"/Times-Roman findfont 10 scalefont setfont\n");
-  fprintf(fp," 390 290 moveto  (F) show \n");
-  fprintf(fp,"showpage \n");
-  fclose(fp);
   if (!system("pstoimg -type png /tmp/repl_test.ps -out /tmp/repl_test.png >/dev/null")) {
 	if (type == 'b') {
 	  printf("export OpenXM_PSTOIMG_TYPE=png\n");
