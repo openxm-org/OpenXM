@@ -1,4 +1,44 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.21 2003/12/31 06:30:53 ohara Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.22 2004/02/07 10:45:27 takayama Exp $
+
+//&C Sep 2, 2004
+//&ja Q. MacOS X で OpenXM package を make するにはどうしますか?
+//&en Q. How to make OpenXM package on MacOS X?
+
+/*&ja
+[1] fink をインストールしてなければインストールします.
+    fink は Unix の Open Source software を Mac OS X でパッケージとして
+    扱うための基礎システムです.  fink をインストールすると, Debian linux や
+    Fedora, wine 等でおなじみのパッケージ管理コマンド apt-get が
+    使えるようになります. 
+    http://fink.sourceforge.net/index.php?phpLang=ja
+    よりダウンロード.
+[2] xterm を開き,  wget を apt-get でインストールします.
+      apt-get install wget
+    なおインストールされてるソフトの一覧は 
+      dpkg --list 
+    でみれます.
+    fink でインストールされたコマンドは /sw/bin の下にインストールされます.
+[3] OpenXM のソースをダウンロードして他の unix と同様な方法で make します.
+    なお wget は gc, gmp のソースを ftp でネットワークダウンロードするのに
+    利用されます.
+    マニュアル等を正しく処理するには, tex, ptex, nkf 等のインストール
+    も必要です.  とりあえず実行形式を得るためには不要.
+
+*/
+/*&en
+[1] If you have not yet installed fink, install the fink system.
+    The fink system is a Debian-like packaging system.
+    The commands apt-get and dpkg are installed.
+    http://fink.sourceforge.net
+[2] Open the xterm and install the command wget by apt-get
+      apt-get install wget
+[3] Build the OpenXM package.
+    The wget is used to download the source codes for gc and gmp
+    by the ftp.
+    In order to build documents properly, you need tex, ptex, and nkf.
+    If you need only binary executables, you do not need these.
+
+*/
 
 //&C Feb 7, 2004 
 //&ja Q. Solaris 5.5.1 で make すると kan96xx の make で __register_frame_info がないといってコンパイルがとまる.
