@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.7 2000/01/21 08:22:39 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/risa.texi,v 1.8 2000/01/26 01:37:32 noro Exp $
 @node Risa/Asir,,, Top
 @chapter Risa/Asir
 
@@ -6,7 +6,7 @@
 \BJP
 * Risa および Asir::
 * Asir の特徴::
-* インストレーション::
+* Installation::
 * コマンドラインオプション::
 * 環境変数::
 * 起動から終了まで::
@@ -209,51 +209,34 @@ Distributed computation over UNIX
 \E
 @end itemize
 
-\BJP
-@node インストレーション,,, Risa/Asir
-@section インストレーション
-\E
-\BEG
 @node Installation,,, Risa/Asir
 @section Installation
-\E
 
 \JP 以下の手続きで不明な点, 不都合な点があった場合の問い合わせは
 \BEG
-Any questions and any comments on this manual are well come by e-mails
+Any questions and any comments on this manual are welcome by e-mails
 to the following address.
 \E
 
 @example
-noryo@@flab.fujitsu.co.jp
+risa-admin@@sec.flab.fujitsu.co.jp
 @end example
 
 @noindent
 \JP 宛に e-mail でお願いします. 
 
 @menu
-\BJP
-* UNIX 版::
-* Windows 版::
-\E
-\BEG
-* UNIX version::
+* UNIX binary version::
+* UNIX source code version::
 * Windows version::
-\E
 @end menu
 
-\BJP
-@node UNIX 版,,, インストレーション
-@subsection UNIX 版
-\E
-\BEG
-@node UNIX version,,, Installation
-@subsection UNIX version
-\E
+@node UNIX binary version,,, Installation
+@subsection UNIX binary version
 
 @noindent
 \BJP
-必要なファイルは @samp{asir.tgz} である. 
+ターゲット CPU/OS に対応する @samp{asir.tgz} が必要である. 
 これらは全て @code{gzip} で圧縮してあるので, 入手後 @code{gzip} で
 展開する. まず, インストールするディレクトリを決める. デフォルトでは
 @samp{/usr/local/lib} に @samp{asir} というディレクトリとして
@@ -261,7 +244,7 @@ noryo@@flab.fujitsu.co.jp
 ディレクトリと呼ぶ. 
 \E
 \BEG
-A file @samp{asir.tgz} suitable for the taget machine/architecture 
+A file @samp{asir.tgz} suitable for the target machine/architecture 
 is required. After getting it,
 you have to unpack it by @code{gzip}. First of all, determine
 a derectory where binaries and library files are installed.
@@ -314,136 +297,84 @@ the user's search path.
 @end example
 
 @noindent
-\JP この状態で @samp{asir} を起動してみる. 
+\JP これで @samp{asir} が起動できる. 
 \BEG
-Start @samp{asir}, and @b{Asir} will immediately terminate leaving you
-a message as follows.
+Then you can start @samp{asir}.
 \E
 
 @example
 % /usr/local/bin/asir
-asir_key not found.
-
-You need a key for each machine on which you want to run Asir.
-In order to get the key, send an e-mail consisting of the following
-single line to risa@@sec.flab.fujitsu.co.jp.
-
-ASIR XXXXXXXX
-
-After a while, an e-mail will be returned containing only one line like
-
-YYYYYYYY YYYYYYYY YYYYYYYY
-
-Create '.../asir_key'
-if necessary and append the returned string to the file.
-@end example
-
-@noindent
-\BJP
-すると, このようなメッセージが出て @samp{asir} は終了する. UNIX 版
-では, マシンごとに @code{key} と呼ばれる文字列が必要である. 
-@code{key} を入手するためには, 
-
-@example
-risa@@sec.flab.fujitsu.co.jp
-@end example
-
-宛に, 
-
-@example
-ASIR XXXXXXXX
-@end example
-
-という 1 行のみからなる e-mail を送ればよい. @code{XXXXXXXX} は表示された
-@code{ID} である. 折り返し
-
-@example
-YYYYYYYY YYYYYYYY YYYYYYYY
-@end example
-
-@noindent
-という形の 1 行のみからなる e-mail が届くので, この 1 行を含む @samp{asir_key}
-なるファイルをカレントディレクトリに作って @samp{asir} を起動してみる. 
-\E
-
-\BEG
-For UNIX version of @b{Asir}, you need a @code{key}, a string,
-for each machine you want to run @b{Asir}.
-In order to get the @code{key}, you just need to send an e-mail
-consisting of a single line like
-
-@example
-ASIR XXXXXXXX
-@end example
-
-to address
-
-@example
-risa@@sec.flab.fujitsu.co.jp
-@end example
-
-@noindent
-Here, @code{XXXXXXXX} is the machine ID notified in the first message
-from @b{Asir}.
-
-After a while, an e-mail will be returned containing only one line like
-
-@example
-YYYYYYYY YYYYYYYY YYYYYYYY
-@end example
-
-@noindent
-Then, you shall create a new file in the current directory
-named @samp{asir_key} containing the returned string in one line.
-
-All after this, call again @samp{asir}.
-\E
-
-@example
-% /usr/local/bin/asir
-This is Risa/Asir, Version 991227.
+This is Risa/Asir, Version 20000821.
 Copyright (C) FUJITSU LABORATORIES LIMITED.
-1994-1999. All rights reserved.
+1994-2000. All rights reserved.
 [0]
 @end example
 
-@noindent
-\BJP
-このようなプロンプトが出れば, 入手した @code{key} はそのマシンに対して有効
-である. @code{key} を書いておくファイルに関しては, 環境変数 @code{ASIR_KEY}
-の説明の項で詳しく述べるが, ライブラリディレクトリにここで作成した
-ファイル @samp{asir_key} を置けば, そのマシン上で全てのユーザが @samp{asir}
-を使用できるようになる. @samp{asir_key} には複数のマシンに対する @code{key}
-を書けるので, ライブラリディレクトリを共有している場合でも @samp{asir_key}
-に行を追加していけばよい. 
-\E
-\BEG
-If you get such a prompt (@samp{[0]}) from @b{Asir},
-the key you have is valid to the machine you are currently running
-@code{asir}.
+@node UNIX source code version,,, Installation
+@subsection UNIX source code version
 
-When the file @samp{asir_key} is located on the library directory,
-all the users of the machine can execute @samp{asir}.
-The file @samp{asir_key} can contain several lines for
-several @code{key}'s.
-This enables users to run several machines sharing the same library
-directory by simply adding lines for machines to be used.
-We shall describe about the file for @code{key}'s in detail in
-@ref{Environment variable}.
+\BEG
+First of all you have to install PARI library. The following is
+a sample of installation of PARI on FreeBSD.
+\E
+\BJP
+まず PARI ライブラリを install する必要がある. 以下は FreeBSD 上での
+PARI の installation の例である. 
 \E
 
 @example
-# cp asir_key /usr/local/lib/asir
+% su
+# gzip -dc pari-2.0.17.beta.tgz | tar xf -
+# cd pari-2.0.17.beta
+# ./Configure
+# make install
+# make install-lib-sta
 @end example
 
 \BJP
-@node Windows 版,,, インストレーション
-@subsection Windows 版
+@samp{asir2000-src.tgz} を入手後, 適当なディレクトリ
+において, @code{gzip} で展開し, 以下の手順で install する. 
 \E
 \BEG
+After getting @samp{asir2000-src.tgz}, unpack it by @code{gzip}
+and install necessary files as follows. 
+\E
+
+@example
+% gzip -dc asir.tgz | tar xf - 
+% cd asir2000
+% ./configure -oxhome /usr/local -pari -plot
+% xmkmf -a
+% make
+% su
+# make install
+# make install-lib
+# make install-doc
+@end example
+
+\BJP
+上の例で, @samp{/usr/local} はファイルが install されるディレクトリを
+表す. 即ち, バイナリファイル @samp{asir} は @samp{/usr/local/bin} 
+に install され, ライブラリおよび文書ファイルは @samp{/usr/local/lib}
+に install される. @code{-oxhome} の引数として指定されるディレクトリ
+は, PARI の install 先もそこであることを意味する. もし @b{Asir} が
+install されるディレクトリを変更する場合, @samp{include/Risa.tmpl}
+の, 変数 @code{PARIINC} および @code{PARILIB} の値を適宜変更する
+必要がある. 
+\E
+\BEG
+In the above example, @samp{/usr/local} indicates the destination of the
+installation. That is, the binary file @samp{asir} is installed in
+@samp{/usr/local/bin} and the library and documentation files are
+installed in @samp{/usr/local/lib}. The directory name specified as an
+argument of @code{-oxhome} also indicates that PARI files are installed
+in that directory.  If you change the destination directory, you have to
+modify the values of @code{PARIINC} and @code{PARILIB} in
+@samp{include/Risa.tmpl} appropriately.
+\E
+
 @node Windows version,,, Installation
 @subsection Windows version
-\E
 
 @noindent
 \BJP
