@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.13 2003/08/22 01:02:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.14 2003/08/26 05:06:01 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -297,6 +297,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
   POLY cf_o;
   POLY syz_o;
   POLY r_0;
+  int se;
   struct coeff *cont;
 
   extern struct ring *CurrentRingp;
@@ -381,7 +382,16 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
         }
       }
       if (r ISZERO) goto ss;
-      /*r = ecartDivideSv(r,&se); r = r/s^? Don't do this. */
+
+      /* r = r/s^? Don't do this?? */
+      r = ecartDivideSv(r,&se); 
+	  if (needSyz && (se > 0)) {
+		POLY tt;
+		tt = cxx(1,0,-se,rp);
+		cf = mpMult(tt,cf);
+		syz = cpMult(toSyzCoeff(tt),syz);
+	  }
+
     }
   }while (ell >= 0);
 
@@ -519,6 +529,15 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
 
       if (r ISZERO) goto ss1;
       r = ecartDivideSv(r,&se); /* r = r/s^? */
+
+	  if (needSyz && (se > 0)) { /* It may not necessary because of dehomo*/
+		POLY tt;
+		/*printf("!1/H!"); fflush(NULL);*/ /* misc-2003/ecart/t1.sm1 foo4 */
+		tt = cxx(1,0,-se,rp);
+		cf = mpMult(tt,cf);
+		syz = cpMult(toSyzCoeff(tt),syz);
+	  }
+
     }
   }while (ell >= 0);
 
