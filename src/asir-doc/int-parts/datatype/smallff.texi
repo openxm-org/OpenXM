@@ -1,0 +1,60 @@
+@comment $OpenXM$
+@section 小標数素体
+
+@example
+struct oMQ @{      小標数素体の元
+    short id;       識別子 (= O_N)
+    char nid;       数識別子 (= N_M)
+    char pad;       
+    int cont;       小標数素体の元
+@};
+
+typedef struct oMQ *MQ;
+
+extern int current_mod;
+@end example
+標数が 2^29 未満の素体を効率よく扱うための型である. 有限体の各元自体は
+属する体に関する情報をもっておらず, 大域変数 @code{current_mod} の値
+により演算が行われる. 
+
+@subsection 小標数素体の元の生成, 変換
+@example
+#include "ca.h"
+ptomp(int m,P p,P *pr)
+有理数係数多項式 (有理数を含む) の各係数を, 標数 @code{m} の素体の元に
+変換したものを生成する. 
+
+mptop(P p,P *pr)
+小標数素体係数多項式 (小標数素体の元を含む) の各係数を有理数型に変換したもの
+を生成する. 
+@end example
+@noindent
+
+@subsection 四則
+@noindent
+引数は 0 または小標数素体の元に限る. 生成された時点での標数にかかわらず, 
+current_mod を標数として計算する. 
+
+@example
+#include "ca.h"
+
+addmi(MQ a,MQ b,MQ *rp)
+*rp = a + b
+
+submi(MQ a,MQ b,MQ *rp)
+*rp = a - b
+
+mulmi(MQ a,MQ b,MQ *rp)
+*rp = a * b
+
+divmi(MQ a,MQ b,MQ *rp)
+*rp = a / b
+
+pwrmi(MQ a,Q e,MQ *rp)
+*rp = a ^ e
+
+int cmpmi(MQ a,MQ b)
+cont の値を自然数として比較
+@end example
+
+

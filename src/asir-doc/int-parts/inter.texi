@@ -1,0 +1,320 @@
+@comment $OpenXM$
+@chapter Interpreter
+
+@section Interpreter の構成
+
+interpreter は, 中間言語の構成要素である @code{FNODE} (式), @code{SNODE}
+(文) それぞれの解釈を行う関数群からなる. 
+
+@subsection 式の解釈実行
+
+@example
+pointer eval(FNODE f)
+式 f の解釈実行
+
+pointer evalf(FUNC f,FNODE a, FNODE opt)
+関数 f の実行
+
+struct oAFUNC @{    算術演算テーブル
+  void (*add)();   和
+  void (*sub)();   差
+  void (*mul)();   積
+  void (*div)();   商
+  void (*pwr)();   冪
+  void (*chsgn)(); 符号反転
+  void (*comp)();  比較
+@};
+
+struct oAFUNC afunc[] = @{
+/* ??? */    @{0,0,0,0,0,0,0@},
+/* O_N */    @{addnum,subnum,mulnum,divnum,pwrnum,chsgnnum,compnum@},
+/* O_P */    @{addp,subp,mulp,divr,pwrp,chsgnp,compp@},
+/* O_R */    @{addr,subr,mulr,divr,pwrr,chsgnr,compr@},
+/* O_LIST */ @{notdef,notdef,notdef,notdef,notdef,notdef,complist@},
+/* O_VECT */ @{addvect,subvect,mulvect,divvect,notdef,chsgnvect,compvect@},
+/* O_MAT */  @{addmat,submat,mulmat,divmat,pwrmat,chsgnmat,compmat@},
+/* O_STR */  @{addstr,notdef,notdef,notdef,notdef,notdef,compstr@},
+/* O_COMP */ @{addcomp,subcomp,mulcomp,divcomp,pwrcomp,chsgncomp,compcomp@},
+/* O_DP */   @{addd,subd,muld,divsdc,notdef,chsgnd,compd@},
+@};
+
+void arf_add(VL vl,Obj a,Obj b,Obj *r)
+*r = a+b
+
+void arf_sub(VL vl,Obj a,Obj b,Obj *r)
+*r = a-b
+
+void arf_mul(VL vl,Obj a,Obj b,Obj *r)
+*r = a*b
+
+void arf_div(VL vl,Obj a,Obj b,Obj *r)
+*r = a/b
+
+void arf_remain(VL vl,Obj a,Obj b,Obj *r)
+*r = a%b
+
+void arf_pwr(VL vl,Obj a,Obj b,Obj *r)
+*r = a^b
+
+void arf_chsgn(Obj a,Obj *r)
+*r = -a
+
+int arf_comp(VL vl,Obj a,Obj b)
+return 1 if a>b; -1 if a<b; 0 if a=b;
+@end example
+
+@code{eval} は, 必要に応じて自分自身を呼び出しながら式を評価する. 
+四則演算については算術演算テーブルに登録されている関数を, Risa object
+の識別子に従って呼び出す. 関数呼び出しがあった場合, @code{evalf} が
+呼び出される. 引数を式のリストとして評価して Risa object に変換した
+あと, それを引数として実際に関数の値の評価を行う. 関数が組み込みの場合, 
+組み込み関数を呼び出せばよい. 関数がユーザ定義関数の場合, 局所変数配列
+の生成, 仮引数への実引数の代入の後, 関数定義本体の文リストを, 次に述べる
+文の解釈実行関数で評価していく. 
+
+@subsection 文の解釈実行
+
+@example
+pointer evalstat(SNODE f)
+文の解釈実行 
+@end example
+
+文を解釈実行する場合, 文中の式は @code{eval} で評価する. また, 文が複文
+の場合には @code{evalstat} を再帰的に呼び出して評価する. @code{evalstat}
+の重要な仕事として, @samp{if}, @samp{for} などの制御文の解釈実行がある. 
+また, 次章で述べる debugger と協調して, ブレークポイント情報, 
+ステップ実行情報の管理を行う. 以下で, 主なものについて, 実際にどのように
+文が解釈実行されるかを示す.
+
+@subsubsection 単文
+
+@example
+  case S_SINGLE:
+    val = eval((FNODE)FA0(f)); break;
+@end example
+
+この場合, @code{f} の引数は一つの式であり, @code{eval()} を呼び出すこと
+で式の値が計算される. 
+
+@subsubsection 複文
+
+@example
+  case S_CPLX:
+    for ( tn = (NODE)FA0(f); tn; tn = NEXT(tn) ) @{
+      if ( BDY(tn) )
+         val = evalstat((SNODE)BDY(tn));
+         if ( f_break || f_return || f_continue )
+           break;
+    @}
+    break;
+@end example
+
+この場合, @code{f} の引数は文リストを表す @code{NODE} である. 
+よって, 各 @code{NODE} から順に文を取り出して, @code{evalstat()}
+を呼び出す. 各文を実行したあと, @code{break}, @code{return},
+@code{continue} フラグをチェックし, どれかが on の場合には
+残りの文を実行しない. 
+
+@subsubsection If 文
+
+@example
+  case S_IFELSE:
+    if ( evalnode((NODE)FA1(f)) )
+      val = evalstat((SNODE)FA2(f));
+    else if ( FA3(f) )
+      val = evalstat((SNODE)FA3(f));
+      break;
+@end example
+
+第 0 引数はダミー, 条件式リストである第 1 引数を @code{evalnode()} で評
+価する. @code{evalnode()} はリストの最後尾の式の値を返すので, その値が非
+零の場合第 2 引数を @code{evalstat()} で実行, 零の場合, もし第 3 引数が0 
+でなければそれを実行する. @code{else} なしの場合, 第 3 引数は 0 である.
+
+@subsubsection For 文
+
+@example
+  case S_FOR:
+    evalnode((NODE)FA1(f));
+    while ( 1 ) @{
+      if ( !evalnode((NODE)FA2(f)) )
+        break;
+      val = evalstat((SNODE)FA4(f));
+      if ( f_break || f_return )
+        break;
+      f_continue = 0;
+      evalnode((NODE)FA3(f));
+   @}
+   f_break = 0; break;
+@end example
+
+第 0 引数はダミー, 第 1 引数は初期化のための式リストである. まずこれを
+@code{evalnode()} で実行したあと, ループを実行する. まず, 条件式リストで
+ある第 2 引数を評価し, その最後尾の式の値が零の場合, ループを抜ける. 非
+零の場合, ループ本体である第 4 引数を @code{evalstat()} で実行する. この
+実行において, break, continue, return 文が現れた場合, これらに対応するフ
+ラグが on になっている. C 言語における規定に従い, break, returnの場合に
+はループを抜ける. さらに break の場合には, ループを一段抜けたことで役目
+を果たしているため, フラグを off にする.  continue の場合には, 単に
+continue フラグを off にする. 最後にループの最後に実行する式リストである
+第 3 引数を実行してループの先頭に戻る. 
+
+@section ユーザ関数の実行
+
+@example
+pointer evalf(FUNC f, FNODE a, FNODE opt)
+関数 f を引数 a, option opt で実行
+@end example
+
+@code{evalf()} は組み込み関数, ユーザ関数共に実行できる. @code{evalf()}
+は式の解釈実行のサブルーチンであるが, ユーザ関数の実行は, 実際には文の解
+釈実行であり, また, プログラム変数の操作を含むやや複雑な手続きである.
+
+@example
+    /* ユーザ関数の解釈実行 */
+  case A_USR:
+    /* 引数リストを評価して LIST オブジェクトとする */
+    args = (LIST)eval(a);
+    /* ローカル変数 template */
+    pvs = f->f.usrf->pvs;
+    if ( PVSS ) @{
+    /* 既に関数内の場合, その関数内での現関数呼び出しの位置の記録 */
+      ((VS)BDY(PVSS))->at = evalstatline;
+      level = ((VS)BDY(PVSS))->level+1;
+    @} else
+      level = 1;
+    /* スタックフレームを生成, リストに追加, 現在の変数配列とする */
+    MKNODE(tn,pvs,PVSS); PVSS = tn;
+    CPVS = (VS)ALLOCA(sizeof(struct oVS)); BDY(PVSS) = (pointer)CPVS;
+    CPVS->usrf = f; CPVS->n = CPVS->asize = pvs->n;
+    CPVS->level = level; CPVS->opt = opts;
+    if ( CPVS->n ) @{
+      CPVS->va = (struct oPV *)ALLOCA(CPVS->n*sizeof(struct oPV));
+      bcopy((char *)pvs->va,(char *)CPVS->va,
+      (int)(pvs->n*sizeof(struct oPV)));
+    @}
+    /* ステップ実行のためのレベルをアップデート */
+    if ( nextbp )
+      nextbplevel++;
+    /* 仮引数に実引数を代入 */
+    for ( tn = f->f.usrf->args, sn = BDY(args); 
+      sn; tn = NEXT(tn), sn = NEXT(sn) )
+      ASSPV((int)FA0((FNODE)BDY(tn)),BDY(sn));
+    /* 関数本体を実行 */
+    val = evalstat((SNODE)BDY(f->f.usrf)); 
+    /* フラグ, スタックフレームをリセット */
+    f_return = f_break = f_continue = 0; poppvs(); 
+    break;
+@end example
+
+@section デバッガ
+
+ユーザ関数の実行は文を単位として行われるが, 文の実行前にデバッグモードに
+入る場合がある. デバッグモードでは, 以下のような機能が提供される. 
+
+@itemize @bullet
+@item ブレークポイントの設定
+@item ステップ実行
+@item 変数の値の参照, 変更
+@item 関数の実行
+@item 関数呼び出し列の表示
+@item ソースのリスティング
+@end itemize
+
+@subsection デバッグモードへの移行
+
+デバッグモードへの移行は次のような状況で起こる. 
+
+@itemize @bullet
+@item @code{debug} 関数が実行された場合. 
+
+@item キーボード割り込みに対するメニューで @samp{d} を選択した場合
+
+@item 実行中にエラーを起こした場合
+
+@item ブレークポイントに達した場合
+
+@item デバッグモードからステップ実行が指定された場合
+
+文の実行前にステップ実行フラグが調べられ, その値によりデバッグモードに移
+行する.
+
+@item 組み込み関数 @code{error()} が実行された場合 
+@end itemize
+
+@subsection ステップ実行
+
+デバッガにおけるステップ実行コマンドには @code{step} と @code{next}
+がある. これらはいずれも次の文を実行しようとするが, 次のような違いがある. 
+
+@table @code
+@item next
+次の文がユーザ関数を含んでいても, 文ごと実行し, デバッグモードに戻る. 
+@item step
+次の文がユーザ関数を含んでいた場合, 最初に評価されたユーザ関数の先頭でデバッグモードに戻る. 
+@end table
+
+この機能を実現するために, 二つの変数が用意してある.
+
+@table @code
+@item nextbp
+
+この変数が 0 でないとき, デバッガからステップ実行コマンドのもとで, 
+インタプリタが実行中であることを示す. 
+
+@item nextbplevel
+
+ステップ実行中にユーザ関数実行に入るとき 1 増え, ユーザ関数から抜けるとき
+1 減る. 
+@end table
+
+また @code{evalstat()} の先頭では次のようなコードが実行されている. 
+
+@example
+  /* ステップ実行中で nextbplevel が非正 */
+  if ( nextbp && nextbplevel <= 0 && f->id != S_CPLX ) @{
+    nextbp = 0;
+  /* デバッグモードに入る */
+    bp(f);
+  @} 
+@end example
+
+これらによりステップ実行は次のように実現される. 
+
+@table @code
+@item next
+@code{nextbp = 1}, @code{nextbplevel = 0} として実行を継続する. 
+文の実行中に関数に入ると, @code{nextbplevel} が正となるので, 文中
+の関数実行中はデバッグモードに入らない. 文の実行が終って次の
+文の先頭に達したとき, @code{nextbp = 0}, @code{nextbplevel = 0}
+となっているためデバッグモードに入る. 
+
+@item step
+@code{nextbp = 1}, @code{nextbplevel = -1} として実行を継続する. 
+文の実行中に関数に入っても, @code{nextbplevel = 0} なので
+デバッグモードに入る. 
+@end table
+
+@subsection ブレークポイントの設定
+
+ブレークポイントの設定は, 対象となる文の前に, ブレークポイント文
+(文識別子 @code{S_BP} を挿入することで行う. ブレークポイント文は
+引数として対象となる文, ブレークポイントに入るための条件式を持つ. 
+ブレークポイント文が実行された場合, 条件がないか, または条件式
+が真 (0 でない) 場合に @code{nextbp = 1}, @code{nextbplevel = 1}
+として, 引数である文を実行する. 既に述べたことより, 
+@code{evalstat()} の先頭でブレークポイントに入ることになる. 
+
+@subsection デバッグモードにおける変数の参照
+
+現在実行中の関数は, その関数構造体へのポインタ (型 @code{FUNC}) が
+@code{tagetf} なる変数に登録されている. 現在実行中の関数がユーザ関数の場
+合, 対応するプログラム変数スタックは @code{CPVS} に登録されている.
+
+トップレベルからその関数に至る呼び出し列に対応するプログラム変数スタック
+リストは, node 変数 @code{PVSS} に登録されている. 各プログラム変数スタック
+は型 @code{oVS} であり, ユーザ関数を示すメンバ @code{usrf} を持つ. 
+
+以上により, 現在実行中の関数に至る呼び出し列中の関数名, 各関数における
+変数の値などにアクセスすることができる. 
+

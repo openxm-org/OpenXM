@@ -1,0 +1,106 @@
+@comment $OpenXM$
+@chapter その他の演算
+
+@section 除算
+@example
+#include "ca.h"
+
+divsrp(vl,a,b,qp,rp)   *qp = a / b; *rp = a % b; (多項式としての商, 剰余)
+VL vl;
+P a,b,*qp,*rp;
+
+premp(vl,a,b,rp)       *rp = lc(b)^(deg(a)-deg(b)+1)*a % b (擬剰余)
+VL vl;
+P a,b,*rp;
+@end example
+@noindent
+一般に多変数多項式に対しては, 必ずしも除算が実行できるとは限らない. 
+@code{divsrp()} は, 商, 剰余が存在することが分かっている場合にそれらを求
+める函数である. これは, 例えば除数の主係数が有理数である場合などに用いら
+れる. 一般に多項式剰余は擬剰余を計算することにより求める. 
+
+@section GCD
+@example
+#include "ca.h"
+
+ezgcdp(vl,a,b,rp)     *rp = gcd(pp(a),pp(b));
+VL vl;
+P a,b,*rp;
+
+ezgcdpz(vl,a,b,rp)    *rp = gcd(a,b);
+VL vl;
+P a,b,*rp;
+
+pcp(vl,a,pp,cp)       *pp = pp(a); *cp = cont(cp);
+VL vl;
+P a,*pp,*cp;
+@end example
+@noindent
+@code{pp(a)} は @code{a} の原始的部分, @code{cont(a)} は容量を
+表す. @code{ezgcdp()} は整数因子を除いた gcd, @code{ezgcdpz()} は整数因
+子をこめた gcd を計算する. 
+
+@section 代入
+@example
+#include "ca.h"
+
+substp(vl,a,v,b,rp)   *rp = a の v に b を代入
+VL vl;
+P a,b,*rp;
+V v;
+
+substr(vl,a,v,b,rp)   *rp = a の v に b を代入
+VL vl;
+R a,b,*rp;
+V v;
+@end example
+@section 微分
+@example
+#include "ca.h"
+
+diffp(vl,a,v,rp)      *rp = a を v で偏微分
+VL vl;
+P a,*rp;
+V v;
+
+pderivr(vl,a,v,rp)    *rp = a を v で偏微分
+VL vl;
+R a,*rp;
+V v;
+@end example
+
+@section 終結式
+@example
+#include "ca.h"
+
+resultp(vl,v,a,b,rp)  *rp = a と b の終結式 (符号は除く)
+VL v;
+P a,b,*rp;
+@end example
+
+@section 因数分解
+@example
+#include "ca.h"
+
+fctrp(vl,a,dcp)       *dcp = a を有理数上で因数分解したもの
+VL vl;
+P a;
+DCP *dcp;
+
+sqfrp(vl,a,dcp)       *dcp = a の有理数上で無平方分解したもの
+VL vl;
+P a;
+DCP *dcp;
+@end example
+@noindent
+因数分解の結果は @code{[因子, 重複度]} のリストとして表現できる. これを
+次数係数リスト用のデータ構造 @code{DCP} を流用して表現する. すなわち, メ
+ンバ @code{d} に重複度, メンバ @code{c} に因子を代入する. 分解は, まず
+入力多項式 @code{a} を
+@example
+a = c * b   (c は有理数, b は整数上原始的な多項式)
+@end example
+@noindent
+と分解した後, @code{b} を実際に分解する. 結果は, リストの先頭に, 
+@code{[c, 1]} なる定数項, 以下 @code{b} の因子が続く. 
+

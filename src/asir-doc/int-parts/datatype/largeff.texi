@@ -1,0 +1,66 @@
+@comment $OpenXM$
+@section 大標数素体
+
+@example
+struct oLM @{          大標数素体の元
+    short id;         識別子 (= O_N)
+    char nid;         数識別子 (= N_LM)
+    char pad;       
+    struct oN *body;  大標数素体の元
+@};
+
+typedef struct oLM *LM;
+@end example
+任意標数の素体を扱うための型である. 標数は oN 型の自然数としてある静的変
+数に格納される. 各元自体は属する体に関する情報をもっておらず, 設定された
+標数の値により演算が行われる.
+
+@subsection 大標数素体の元の生成, 変換
+@example
+#include "ca.h"
+void setmod_lm(N p)
+自然数 p を大標数素体の標数として設定する. p の素数チェックは行わない. 
+
+void getmod_lm(N *p)
+その時点で設定されている大標数素体の標数を返す. 設定されていない場合 0
+を返す. 
+
+void qtolm(Q q,LM *l)
+有理数 q を標準的写像によりその時点で設定されている
+素体の元に写像した値を生成する. 分母の行き先が 0 の場合 error() 関数
+が呼ばれる. 
+
+void simplm(LM n,LM *r)
+n の body の, その時点で設定されている標数による剰余を body とする元を生成
+する. 
+@end example
+@noindent
+
+@subsection 四則
+@noindent
+引数は 0 または大標数素体の元または有理数. 有理数はその時点で設定されている
+素体の元に変換される. 
+
+@example
+#include "ca.h"
+
+addlm(LM a,LM b,LM *rp)
+*rp = a + b
+
+sublm(LM a,LM b,LM *rp)
+*rp = a - b
+
+mullm(LM a,LM b,LM *rp)
+*rp = a * b
+
+divlm(LM a,LM b,LM *rp)
+*rp = a / b
+
+pwrlm(LM a,Q e,LM *rp)
+*rp = a ^ e
+
+int cmplm(LM a,LM b)
+body の値を自然数として比較
+@end example
+
+

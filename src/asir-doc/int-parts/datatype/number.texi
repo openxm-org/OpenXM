@@ -1,0 +1,59 @@
+@comment $OpenXM$
+@section 数
+
+@example
+struct oNum @{       数の共通部分
+    short id;       識別子 (= O_N)
+    char nid;       数識別子
+    char pad;
+@};
+
+typedef struct oQ *Q;
+@end example
+@noindent
+数は, 多項式と同レベルの object として扱われ, 多項式に対する演算ルー
+チンの入力として同様に用いることができる. メンバ @code{id} はそのため
+の識別子であり, 数では常に @code{O_N} である. 数は数識別子
+@code{nid} をもつ. 現在, 数には次のような型がある. 
+
+@table @code
+@item N_Q = 0 @b{有理数}
+@item N_R = 1 @b{倍精度浮動小数}
+@item N_A = 2 @b{代数的数}
+@item N_B = 3 @b{PARI bigfloat}
+@item N_C = 4 @b{複素数}
+@item N_M = 5 @b{小標数素体}
+@item N_LM = 6 @b{大標数素体}
+@item N_GF2N = 7 @b{標数 2 有限体}
+@item N_GFPN = 8 @b{小標数素体の拡大体}
+@end table
+
+@subsection 四則
+@noindent
+以下の四則は数に対するトップレベルの函数である. 同一の数識別子を持つ数の
+演算では, 結果はその識別子をもつ数になる. 倍精度浮動小数と有理数の演算
+結果は倍精度浮動小数, 倍精度浮動小数と PARI bigfloat の演算結果は PARI
+bigfloat, 有理数と有限体の元の演算結果は有限体の元となる. 
+
+@example
+#include "ca.h"
+
+addnum(Num a,Num b,Num *rp)
+*rp = a + b
+
+subnum(Num a,Num b,Num *rp)
+*rp = a - b
+
+mulnum(Num a,Num b,Num *rp)
+*rp = a * b
+
+divnum(Num a,Num b,Num *qp,Num *rp)
+*qp = a / b
+
+pwrnum(Num a,Num e,Num *rp)
+*rp = a ^ e
+
+int compnum(Num a,Num b)      
+ある規則による比較. 有理数の場合は a=b のとき 1, a>b のとき 1, a<b のとき -1.
+@end example
+

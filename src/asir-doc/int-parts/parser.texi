@@ -1,0 +1,418 @@
+@comment $OpenXM$
+@chapter Paser
+
+@section Parser の構成
+
+parser は Asir 言語で書かれた文字列を中間言語に変換する. paser は
+次のものから構成される. 
+
+@itemize
+@item 文法定義
+
+Asir 言語の文法は @code{yacc} のソースファイルとして定義されている. この
+ファイルは @code{yacc} により parser プログラムに変換される.
+
+@item 字句解析
+
+yacc で生成される parser プログラムは, 入力文字列の先頭から順に, 属性毎
+に文字列を切り分ける関数 @code{yylex()} を呼び出しながら, 文法定義に従っ
+て中間言語 tree を構成していく. 字句解析定義ファイルから @code{yylex()} 
+を生成するプログラム @code{lex} もあるが, Asir では歴史的な理由から
+C 言語により直接記述している. 
+
+@item 名前管理
+
+@code{yylex()} によって切り分けられる文字列として, あらかじめ定義された
+keyword (@samp{if}, @samp{for} など) の他に, 変数名, 関数名など動的に
+生成される名前がある. これらは属性毎にリスト, 配列などの形で管理され, 
+parser の実行中に参照, 追加などが行われる. 
+@end itemize
+
+@section 中間言語
+
+@example
+typedef struct oFNODE @{   式を表すノード
+    fid id;               識別子
+    pointer arg[1];       引数配列 (長さ可変)
+@} oFNODE *FNODE;
+
+typedef struct oSNODE @{   文を表すノード
+    sid id;               識別子
+    int ln;               行番号
+    pointer arg[1];       引数配列 (長さ可変)
+@} oSNODE *SNODE;
+@end example
+
+interpreter の入力となる中間言語の構成は極めて単純である. 
+中間言語の構成要素は @b{文} および @b{式} である. 
+Asir 言語による入力文字列は, 文の並びとして parse され, 
+@code{SNODE} 構造体のリストに変換される. 文の種類は識別子 @code{id}
+により示される. 引数配列は文の種類に応じて長さ, およびその各要素の
+意味(役割)が決まる. 以下で @code{S_} で始まるのは識別子の名前で, 
+実際には相異なる整数が割り当てられている. 
+@samp{|} は, 識別子および引数の仕切りを示す. 
+
+@table @code
+@item S_SINGLE | 式
+
+@samp{式}を実行する. 
+
+@item S_BREAK
+
+最も内側のループ (@code{S_FOR}, @code{S_DO}) を抜ける. 
+
+@item S_CONTINUE
+
+最も内側のループの先頭に飛ぶ. 
+
+@item S_RETURN | 式
+
+関数から抜けて, @samp{式} の値を返す. 
+
+@item S_IFELSE | ダミー | 条件式 | 文1 | 文2
+
+@samp{条件式} の値が 0 でないなら @samp{文1} を実行, 0 なら @samp{文2} を
+実行. 
+
+@item S_FOR | ダミー | 式1 | 条件式 | 文 | 式2
+
+まず @samp{式1} を実行したあと, @samp{条件式} の値が 0 でない間, @samp{文}
+と @samp{式2} の計算を繰り返す. 
+
+@item S_DO | ダミー | 文 | 条件式
+
+@samp{文} を実行したあと @samp{条件式} を計算し, その値が 0 でない間
+繰り返す. 
+@end table
+
+@code{SNODE} は行番号を示すメンバ @code{ln} を持つ. 各行がファイルから読まれた
+場合に, そのファイルにおける行番号を格納しておく. これはデバッグ時に行番号
+から文を特定するためなどに用いられる. 
+
+文に対する中間言語定義で分かるように, 文は最終的には式から構成されている. 
+文中に現れた式は, parser によって解析され, @code{FNODE} 構造体のリストに
+変換される. 式の種類は識別子 @code{id}により示される. 引数配列は式の種類
+に応じて長さ, およびその各要素の意味(役割)が決まる. 以下で @code{I_} で
+始まるのは識別子の名前で, 実際には相異なる整数が割り当てられてい
+る. @samp{|} は, 識別子および引数の仕切りを示す.
+
+@table @code
+@item I_STR | 文字列
+
+文字列
+
+@item I_FORMULA | Risa object
+
+既に Risa object に変換されている式
+
+@item I_ANS | インデックス
+
+@samp{インデックス} 番目の計算結果
+
+@item I_GF2NGEN
+
+標数 2 有限体の生成元
+
+@item I_EV | インデックスノード
+
+@samp{インデックスノード} を指数ベクトルとみて, 係数 1 の単項式を生成する. 
+
+@item I_FUNC | 関数 | 引数リスト
+
+関数呼び出し
+
+@item I_CAR | リスト
+
+リストの先頭要素
+
+@item I_CDR | リスト
+
+リストから先頭要素を除いたリスト
+
+@item I_PVAR | インデックス
+
+@code{インデックス} 番目のプログラム変数の値
+
+@item I_ASSPVAR | 式1 | 式2
+
+@samp{式1} で示されるプログラム変数に @samp{式2} を代入
+
+@item I_INDEX | 式 | インデックスノード
+
+@samp{式} を配列またはリストと見て, @samp{インデックス}で指定される要素を取り出す. 
+
+@item I_POSTSELF | 関数 | 式
+
+@samp{式} の値を取り出したあと, @samp{関数} が加算なら @samp{式} を 1 増やし, 
+@samp{関数} が減算なら @samp{式} を 1 減らす. 
+
+@item I_PRESELF | 関数 | 式
+
+@samp{関数} が加算なら @samp{式} を 1 増やし, @samp{関数} が減算なら 
+@samp{式} を 1 減らす. その後 @samp{式} の値を取り出す.
+
+@item I_LIST | ノード
+
+@samp{ノード}からリストを生成する. 
+
+@item I_NOP | 式
+
+@samp{式} が 0 でないなら 0, 0 なら 1.
+
+@item I_OR | 式1 | 式2
+
+@samp{式1}, @samp{式2} がともに 0 なら 0, それ以外は 1.
+
+@item I_AND | 式1 | 式2
+
+@samp{式1}, @samp{式2} がともに 0 でないなら 1, それ以外は 0.
+
+@item I_CE | 条件式 | 式1 | 式2
+
+@samp{条件式} が 0 でないとき @samp{式1} の値, 0 のとき @samp{式2} の値. 
+
+@item I_BOP | 識別子 | 式1 | 式2
+
+@samp{識別子} で指定される二項演算子 (加減乗除など) に従って, @samp{式1},
+@samp{式2} を引数として演算. 
+
+@item I_COP | 識別子 | 式1 | 式2
+
+@samp{識別子} で指定される比較演算子に従って, @samp{式1},
+@samp{式2} を比較. 結果は 0, 1, -1.
+
+@item I_LOP | 識別子 | 式1 | 式2
+
+@samp{識別子} で指定される論理演算子により, @samp{式1},
+@samp{式2} を引数として論理式を生成. 
+@end table
+
+@section 字句解析
+
+字句解析部では, 空白, タブ, 改行をスキップしたあとの最初の文字によって
+最初の分類を行う. 
+
+@itemize @bullet
+@item 0 
+
+続く 0 をスキップして, 数字が来たら 10 進数, b が来たら 2 進数, x が来たら
+16 進数として, あとに続く valid な文字をバッファに読み込み, 2^32 進数に
+変換する. 
+
+@item 0 以外の数字
+
+以下に続く数字をバッファに読み込み, 10 進数として 2^32 進数に変換する. 
+
+@item 英小文字
+
+以下に続く, アルファベット, 数字, @samp{_} をバッファに読み込み, keyword
+の場合にはその識別子, そうでない場合には @samp{小文字で始まる文字列} を意味
+する識別子を返す. 
+
+@item 英大文字
+
+以下に続く, アルファベット, 数字, @samp{_} をバッファに読み込み,
+@samp{大文字で始まる文字列} を意味する識別子を返す. 
+
+@item @code{@@}
+
+@code{@@} はその後に来る文字列によりさまざまな対象を表す. 
+
+@itemize @code{-}
+@item @code{@@@@}
+
+直前の計算結果
+
+@item @code{@@pi}
+
+円周率を表す不定元 
+@item @code{@@e}
+
+自然対数の底を表す不定元 
+
+@item @code{@@i}
+
+虚数単位
+
+@item @code{@@p}
+
+奇標数有限体の拡大体の生成元
+
+@item @code{@@true}, @code{@@false}, @code{@@impl}, @code{@@repl}, @code{@@equiv}
+
+論理演算子
+@end itemize
+
+これ以外の場合 @code{@@} は標数 2 の有限体の生成元を表す. 
+
+@item @samp{"}
+
+次の @samp{"} の直前の文字までを文字列 Risa object とみなす. 
+
+@item @samp{'}
+
+次の @samp{'} の直前の文字までを @samp{小文字で始まる文字列} とみなす. 
+これは, 任意文字列を名前とする不定元を生成する必要がある場合などに
+用いる. 
+
+@item その他の記号
+
+記号に応じてさまざまに扱われる. 多くは演算子として扱われるが, 
+@samp{@{}, @samp{@}}, @samp{[}, @samp{]}, @samp{(}, @samp{)}
+など, 一対で間にある対象に作用するものもある. 
+@end itemize
+
+@section 名前管理
+
+Asir においては, 不定元, 関数, プログラム変数という 3 つのカテゴリ別に
+名前が管理されている. 
+
+@subsection 不定元
+
+不定元は変数リスト @code{CO} (Current variable Order) で管理される. 不定
+元と認識される文字列が字句解析部から与えられた場合, @code{CO} に登録され
+ている不定元の名前とその文字列を順に比較し, 一致した場合にはその不定元構
+造体ポインタを対応する変数として用いる. 一致する名前がない場合には新たに
+不定元構造体を生成し, 与えられた文字列を名前として登録し, @code{CO} の
+末尾に追加する. 
+
+@subsection 関数
+
+@example
+typedef struct oFUNC @{    Asir 関数
+  char *name;             関数名
+  int argc;               引数の個数
+  int type;               PARI 関数型 
+  aid id;                 型 (未定義, 組み込み, ユーザ, 純, PARI)
+  union @{
+    void (*binf)();       組み込み関数
+    struct oUSRF *usrf;   ユーザ定義関数構造体
+    struct oPF *puref;    純関数
+  @} f;
+@} *FUNC;
+
+typedef struct oUSRF @{    ユーザ定義関数
+  char *fname;            関数名
+  short vol;              未使用
+  int startl,endl;        ファイル内での開始, 終了位置
+  NODE args;              仮引数リスト
+  VS pvs;                 局所プログラム変数配列
+  char *desc;             関数の説明
+  struct oSNODE *body;    文リスト(関数本体)
+@} *USRF;
+
+typedef struct oPF @{      純関数
+  char *name;             関数名
+  int argc;               引数の個数
+  Obj body;               ユーザ定義純関数の本体
+  V *args;                引数配列
+  Obj *deriv;             偏導関数配列
+  NODE ins;               関数インスタンスリスト
+  int (*pari)();          PARI 呼び出し関数
+  double (*libm)();       C 数学関数
+  int (*simplify)();      simplifier
+@} *PF;
+
+struct oV @{               不定元(再掲)
+    char *name;
+    pointer attr;         属性
+    pointer priv;
+@};
+
+extern NODE sysf,noargsysf;  組み込み関数リスト
+extern NODE usrf;            ユーザ定義関数リスト
+extern NODE parif;           PARI 関数リスト
+extern NODE pflist;          純関数リスト
+@end example
+
+関数には, 組み込み関数, ユーザ定義関数, PARI 関数および純関数がある. い
+ずれも 関数構造体 @code{FUNC} として登録されリストとして保持される. 組み
+込み関数のうち, 引数を持つものは, @code{sysf} に, 持たないものは 
+@code{noargsysf} に登録される. 
+
+ユーザ定義関数は, 呼び出し時あるいは関数定義時に, @code{usrf} を検索し, 
+リスト中にその名の関数がない場合に @code{FUNC} 構造体が生成され, リストに
+追加される. 関数定義が行われる前に呼び出しが行われた場合, @code{FUNC}
+構造体のメンバ @code{id} には, 未定義を意味する識別子がセットされる. 
+後に実際に関数定義が行われた際に, このメンバはユーザ定義関数を意味する
+識別子で上書きされ, その他のメンバも然るべくセットされる. 既に定義
+されている場合には, これらのメンバは上書きされる. 即ち, 同一関数名
+では最新の定義が用いられる. 
+
+PARI 関数は, 実際の計算に PARI ライブラリを用いるという点を除けば, 
+組み込み関数と同等である. ただし, PARI ライブラリは PARI bigfloat
+を結果として返すので, double float の結果を得たい場合のために, 
+C の @code{libm} ライブラリの同等の関数ポインタを保持している. 
+
+組み込み, ユーザ定義, PARI 関数は, 引数を用いて計算を行い, Risa object
+を結果として返す, 通常のプログラミング言語の意味での関数だが, 純関数は, 
+引数のみが評価されて, その引数を持つ関数呼び出しそのものを返す. 
+Asir の実行例を示す. 
+
+@example
+[0] A=sin(x);
+sin(x);
+[1] type(A);
+2                     <--- 純関数は多項式
+[2] vtype(A);
+2                     <--- 属性は純関数
+[3] args(A);
+[x]                   <--- 引数リスト
+[4] B=functor(A);
+sin                   <--- 関数子
+[5] type(B);
+2                     <--- 関数子も多項式
+[4] vtype(B);         
+3                     <--- 属性は関数子
+@end example
+
+この例では, @code{sin(x)} なる純関数が生成されているが, Risa object とし
+ては, @code{sin(x)} 自身が不定元, 即ち多項式となる. しかし @code{V} 構造
+体としての属性 (メンバ @code{attr}) の値が異なる. この値が純関数を意味す
+るとき, メンバ @code{priv} にはこの純関数に関するさまざまな情報が格納さ
+れ, @code{args}, @code{functor} により取得される. 関数子自身も, Risa
+object としては不定元として存在する. この場合も属性により関数子である
+ことが示される. 
+
+@subsection プログラム変数
+
+@example
+typedef struct oVS @{   プログラム変数配列
+  unsigned int n;      現在含まれる変数の個数
+  unsigned int asize;  割り当てられた配列の長さ
+  unsigned int at;     
+  unsigned int level;
+  struct oFUNC *usrf;  
+  struct oPV *va;      配列本体
+  NODE opt;            未使用
+@} *VS;
+
+typedef struct oPV @{   プログラム変数
+  char *name;          変数名
+  sort attr,type;     
+  pointer priv;
+@} *PV;
+
+extern VS GPVS;  大域変数配列
+extern VS CPVS;  現在の変数配列
+extern VS EPVS;  extern 宣言された変数配列
+extern VS APVS;  計算結果を格納する配列
+@end example
+
+Asir においては, プログラム変数のスコープは, 大域変数と, プログラム内で
+の局所変数の 2 レベルに単純化されている. 変数は, 現れた時点でいずれかの
+プログラム変数として登録される. 関数の外で現れたプログラム変数は, 大域変
+数配列に登録される. 関数定義内で現れたプログラム変数は, 関数定義固有の局
+所変数配列に登録され, @code{USRF} 構造体のメンバ @code{pvs}として登録さ
+れる. 関数が実行される場合に, 登録された局所変数配列をテンプレートとして, 
+スタックに相当する変数配列が生成され, 実行時の変数の値はこの配列に格納
+される. 
+
+中間言語において, プログラム変数参照はインデックスにより行われる.  関数
+内での変数参照は, 通常は局所変数配列内の変数に対するインデックスが用いら
+れるが, extern 宣言されている変数に関しては, 同名の大域変数配列の変数に
+対するインデックスが用いられる. この場合, 実際にはこの区別はインデックス
+の最上位ビットを 1 にすることで行っている. 
+
+
+

@@ -1,0 +1,97 @@
+@comment $OpenXM$
+@chapter マクロ, 大域変数
+
+@section macro
+@samp{ca.h} で定義される主なマクロは次の通りである. 
+@subsection 一般マクロ
+@table @code
+@item MAX(a,b)
+@code{((a) > (b) ? (a) : (b) )}
+@item MIN(a,b)
+@code{((a) > (b) ? (b) : (a) )}
+@item ABS(a)
+@code{((a)>0?(a):-(a))}
+@item ID(p)
+@code{((p)->id)}
+@item BDY(p)
+@code{((p)->body)}
+@item NEXT(p)
+@code{((p)->next)}
+@item VR(p)
+@code{((p)->v)}
+@item NM(q)
+@code{((q)->nm)}
+@item DN(q)
+@code{((q)->dn)}
+@item SGN(q)
+@code{((q)->sgn)}
+@item PL(n)
+@code{((n)->p)}
+@item BD(n)
+@code{((n)->b)}
+@end table
+
+@subsection 述語
+@table @code
+@item NUM(a)
+@code{ID(a)==O_Q}
+@item INT(a)
+@code{(!DN(a))}
+@item UNIQ(a)
+@code{a が有理数の 1 に等しい}
+@item MUNIQ(a)
+@code{a が有理数の -1 に等しい}
+@item UNIN(a)
+@code{a が自然数の 1 に等しい}
+@end table
+
+@subsection メモリ割り当て器
+@table @code
+@item (char *) MALLOC(d)
+@code{d bytes の領域を割り当てる. }
+@item (char *) CALLOC(d,e)
+@code{d * e bytes の領域を割り当てて, 0 で初期化する. }
+@item (N) NALLOC(d)
+@code{d 桁の自然数用の領域を割り当てる. }
+@end table
+@noindent
+これらはすべて領域の先頭ポインタを返す. 
+@subsection cell allocators
+@table @code
+@item NEWQ(q)
+@code{q に Q 用の領域を割り当てる. }
+@item NEWP(p)
+@code{p に P 用の領域を割り当てる. }
+@item NEWR(r)
+@code{r に R 用の領域を割り当てる. }
+@item NEWNODE(a)
+@code{a に NODE 用の領域を割り当てる. }
+@item NEWDC(dc)
+@code{dc に DCP 用の領域を割り当てる. }
+@item NEWV(v)
+@code{v に V 用の領域を割り当てる. }
+@item NEWVL(vl)
+@code{vl に VL 用の領域を割り当てる. }
+@end table
+@noindent
+@code{NEWP()}, @code{NEWQ()}, @code{NEWR()} においては, メンバ @code{id} 
+もしかるべき値に初期化される. 
+
+@section 主な大域変数
+@table @code
+@item VL CO;
+@code{現在の変数順序. }
+@item Q ONE;
+@code{有理数の 1. } 
+@item N ONEN;
+@code{自然数の 1. }
+@item int prime[];
+@code{4 桁までの素数(小->大). }
+@item int lprime[];
+@code{8 桁程度の素数 1000 個(大->小). }
+@end table
+@noindent
+@code{CO} は, ユーザが初期化, および新たに変数が出現した場合に更新する必
+要がある. また, @code{ONER}, @code{ONE}, @code{ONEN}は, 起動時に函数
+@code{nglob_init()} により初期化する必要がある. 
+

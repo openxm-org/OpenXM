@@ -1,0 +1,77 @@
+@comment $OpenXM$
+@section 標数 2 の有限体の元
+
+@example
+struct oGF2N @{        GF(2^n) の元
+    short id;         識別子 (= O_N)
+    char nid;         数識別子 (= N_GF2N)
+    char pad;       
+    struct oUP2 *body;  GF(2^n) の元
+@};
+
+typedef struct oGF2N *GF2N;
+
+typedef struct oUP2 @{   GF(2) 上の 1 変数多項式
+    int w;              配列 b のサイズ
+    unsigned int b[1];  係数配列 (dense 表現)
+@} *UP2;
+
+typedef struct oUP2 *UP2;
+@end example
+標数 2 の有限体を扱うための型である. 標数は UP2 型の多項式としてある静的変
+数に格納される. 各元自体は属する体に関する情報をもっておらず, 設定された
+標数の値により演算が行われる.
+
+@subsection 標数 2 の有限体の元の生成, 変換
+@example
+#include "ca.h"
+void setmod_gf2n(P p)
+整数係数多項式 p の各係数を GF(2) の元とみた多項式を, GF(2) の拡大体の
+定義多項式として設定する. 多項式の GF(2) 上の既約性はチェックしない. 
+
+void getmod_gf2n(UP2 *p)
+
+その時点で設定されている定義多項式を UP2 形式で返す. 
+
+void ptogf2n(Obj q,GF2N *l)
+
+整数係数多項式 p の各係数を GF(2) の元とみた多項式を, GF2N 型に変換する. 
+定義多項式が設定されている, いないにかかわらず, 簡単化は行わない. 
+
+void gf2ntop(GF2N q,P *l)
+ptogf2n() の逆操作である. 
+
+void simpgf2n(GF2N n,GF2N *r)
+body が, n の body のその時点で設定されている定義多項式による剰余である
+ような GF2N 型の元を生成する. 
+@end example
+@noindent
+
+@subsection 四則
+@noindent
+引数は F(2^n)の元または有理数. 有理数はその時点で設定されているGF(2^n) 
+の元に変換される.
+
+@example
+#include "ca.h"
+
+addgf2n(GF2N a,GF2N b,GF2N *rp)
+*rp = a + b
+
+subgf2n(GF2N a,GF2N b,GF2N *rp)
+*rp = a - b
+
+mulgf2n(GF2N a,GF2N b,GF2N *rp)
+*rp = a * b
+
+divgf2n(GF2N a,GF2N b,GF2N *rp)
+*rp = a / b
+
+pwrgf2n(GF2N a,Q e,GF2N *rp)
+*rp = a ^ e
+
+int cmpgf2n(GF2N a,GF2N b)
+body の値を GF(2) 上の多項式として比較
+@end example
+
+

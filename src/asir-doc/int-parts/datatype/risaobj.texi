@@ -1,0 +1,36 @@
+@comment $OpenXM$
+@section Risa object
+
+@example
+struct oObj @{           object の共通部分
+    short id;           識別子
+    short pad;
+@};
+
+typedef struct oObj *Obj;
+@end example
+
+Risa object とは構造体 @code{oObj} を先頭部分に持つ object の総称である. 
+Risa object は Asir において独立した object として変数の値となり得る. 
+Risa object は @code{id} により識別される. 現在, 次のような種類の Risa
+object が定義されている. 
+
+@table @code
+@item 0 @b{0}
+@item O_N = 1 @b{number; 数}
+@item O_P = 2 @b{polynomial; 多項式} (数でない)
+@item O_R = 3 @b{rational expression; 有理式} (多項式でない)
+@item O_LIST = 4 @b{list}
+@item O_VECT = 5 @b{vector}
+@item O_MAT = 6 @b{matrix}
+@item O_STR = 7 @b{character string; 文字列}
+@item O_COMP = 8 @b{composite object}
+@item O_DP = 9 @b{distributed polynomial; 分散多項式}
+@item O_USINT = 10 @b{32bit unsigned integer}
+@item O_ERR = 11 @b{error object}
+@item O_GF2MAT = 12 @b{matrix over GF(2)}
+@item O_MATHCAP = 13 @b{MATHCAP object}
+@item O_F = 14 @b{first order formula}
+@item O_GFMMAT = 15 @b{matrix over GF(p)}
+@item O_VOID = -1 @b{VOID object}
+@end table

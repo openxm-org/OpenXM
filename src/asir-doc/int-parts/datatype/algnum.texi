@@ -1,0 +1,91 @@
+@comment $OpenXM$
+@section 代数的数
+
+@example
+struct oAlg @{      代数的数
+    short id;       識別子 (= O_N)
+    char nid;       数識別子 (= N_A)
+    char pad;       
+    struct oObj *body;    代数的数を表す多項式または有理式
+@};
+
+typedef struct oAlg *Alg;
+
+struct oV @{             root
+    char *name;         名前
+    pointer attr;       定義多項式 (主変数は #n )
+    pointer priv;       対応する不定元 (t#n) へのポインタ
+@};
+
+typedef struct oV *V;
+
+struct oVL @{            root リスト
+    V v;                root
+    struct oVL *next;   次へのポインタ
+@};
+
+typedef struct oVL *VL;
+
+extern VL ALG;          定義済み root のリスト
+@end example
+
+代数的数は, root と呼ばれる特殊な代数的数の有理数係数多項式または有理式
+として表現される. root とは, それまで定義された root で表される代数的
+数を係数とする 1 変数多項式の根として定義される. root は, 定義が新しい
+順に, 多項式に対する変数リストと同じ形式で, root リストとして
+大域変数 @code{ALG} に保持される. root は定義順に @code{#n} (@code{n} は
+0 から始まる) という名前で登録される. 代数的数は, それまでに定義された
+不定元の有理式または多項式として表現されるが, これを実際に多項式として
+扱うために, 各 root に @code{t#n} という名前の特別な不定元を対応させて
+いる. これらの操作は, 次に示す @code{mkalg()} により自動的に行われる. 
+
+
+@subsection 代数的数の生成
+@example
+#include "ca.h"
+
+MKAlg(a,b) (macro; Obj a; Real b)
+生成元の多項式または有理式から代数的数を生成する. 
+
+void mkalg(P p,Alg *r)
+@code{p} を定義多項式とする root を生成する. 
+
+void algtorat(Num n,Obj *r)
+代数的数 @code{n} の各 root を対応する不定元に置き換えた有理式または多項式を生成する. 
+
+void rattoalg(Obj obj,Alg *n)
+root に対応する不定元を root に置き換えた代数的数を生成する. 
+@end example
+@noindent
+マクロで必要な領域はマクロ内で確保される. 
+
+@subsection 四則
+@noindent
+いずれも, 代数的数, 有理数両方を入力にとれる. 結果はすべて代数的数となる. 
+
+@example
+#include "ca.h"
+
+addalg(Num a,Num b,Alg *rp)
+*rp = a + b
+
+subalg(Num a,Num b,Alg *rp)
+*rp = a - b
+
+mulalg(Num a,Num b,Alg *rp)
+*rp = a * b
+
+divalg(Num a,Num b,Alg *rp)
+*rp = a / b
+
+pwralg(Num a,Num e,Alg *rp)
+*rp = a ^ e
+
+int cmpalg(Num a,Num b)
+root の多項式あるいは有理式として比較する. 
+@end example
+
+@code{cmpalg()} の結果は, 代数的数を, root の多項式あるいは有理式とみて, 
+root 間の順序を元にした順序比較により決まる. root 間の順序は, 後で定義
+されたもの程順序が高くなるように設定されている. 
+

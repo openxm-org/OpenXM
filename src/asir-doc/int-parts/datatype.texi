@@ -1,0 +1,26 @@
+@comment $OpenXM$
+@chapter データ型
+
+この章では, 様々な object の定義, 生成, 演算について解説する. 各々の
+ object のデータ構造は, C の構造体として表現される. しかし, 実際に函
+数に引数として渡されるのは, それらへのポインタである. 一般に, 構造体その
+ものは, @samp{o} で始まる名前をもち, それへのポインタは, 構造体の名前か
+ら @samp{o} をとったものとして@code{typedef} されている. すべてのオブジェ
+クトに対し, @code{0} には@code{NULL} ポインタを対応させることとする. す
+なわち, @code{0} でないポインタは, @code{0} でない object を表す. 
+
+@include int-parts/datatype/risaobj.texi
+@include int-parts/datatype/number.texi
+@include int-parts/datatype/ratnum.texi
+@include int-parts/datatype/float.texi
+@include int-parts/datatype/algnum.texi
+@include int-parts/datatype/smallff.texi
+@include int-parts/datatype/largeff.texi
+@include int-parts/datatype/char2ff.texi
+@include int-parts/datatype/poly.texi
+@include int-parts/datatype/ratexp.texi
+@include int-parts/datatype/list.texi
+@include int-parts/datatype/vect.texi
+@include int-parts/datatype/mat.texi
+@include int-parts/datatype/string.texi
+@include int-parts/datatype/dpoly.texi

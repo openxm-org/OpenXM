@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.7 2000/09/23 07:53:22 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.8 2001/03/15 03:33:08 noro Exp $
 
 WHICH=../../misc/which.pl
 
@@ -126,6 +126,12 @@ html-win: html-jp gen_hh
 	-mkdir html-win
 	(cd html-jp; for i in *; do nkf -s $$i > ../html-win/$$i; done)
 	gen_hh html-win html-win
+
+html-win-eg: html-eg gen_hh
+	-rm -rf html-win-eg
+	-mkdir html-win-eg
+	(cd html-eg; for i in *; do nkf -s $$i > ../html-win-eg/$$i; done)
+	gen_hh html-win-eg html-win-eg
 
 extract_func: extract_func.c
 	gcc -o extract_func extract_func.c

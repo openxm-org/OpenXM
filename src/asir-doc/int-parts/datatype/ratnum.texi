@@ -1,0 +1,125 @@
+@comment $OpenXM$
+@section 有理数
+
+@example
+struct oN @{       自然数
+    int p;        桁数
+    int b[1];     BASE-進表示の各桁
+@};
+
+typedef struct oN *N;
+
+struct oQ @{         有理数
+    short id;       識別子 (= O_N)
+    char nid;       数識別子 (= N_Q)
+    char sgn;       符号   (= 1 or -1)
+    N nm;           分子
+    N dn;           分母   (整数を表す時 0)
+@};
+
+typedef struct oQ *Q;
+@end example
+@noindent
+有理数は自然数を用いて定義されるが, 自然数自体は Risa object ではな
+い. 自然数は, @samp{include/base.h}で定義される数 @code{BASE} により 
+@code{BASE}-進表示され, その桁数が @code{p}, 各桁は, 最も下の桁から 
+@code{b[0]}, @code{b[1]}, @dots{} に入る. 現在 BASE は @code{2^32} であ
+る. 定義では, @code{b[]} が一桁分しか宣言されていないが, 実際には桁数分
+の連続領域を用意することになる. 実際の演算においては, @code{oN} ではなく 
+@code{N}(即ちポインタ)の方を変数あるいは引数として用いる. 現在、自然数は 
+parser において一旦 @code{10^8} 進数として @code{oN}型に変換され, 次の 
+@code{bnton()} 関数により @code{2^32} 進数に変換されている.
+
+有理数は自然数を分母分子とし, 符号を持つ. 有理数は常に既約分数である. 分
+母を 0 とすることにより整数を表現する.
+
+@subsection 自然数の生成
+@example
+#include "ca.h"
+
+bnton(int Base,N a,N *rp)
+Base-進表示された a を BASE-進表示に変換する. 
+@end example
+@noindent
+文字列で表された(例えば 10進の)多倍長数を内部形式に変換する場合, 
+@code{Base} として 10 のべきをとれば容易に @code{Base} 表示ができる. こ
+れから @code{ntobn()} により @code{BASE} 表示の自然数が得られる. 
+
+@subsection 自然数の四則
+@example
+#include "ca.h"
+
+addn(N a,N b,N *rp)
+*rp = a + b
+
+int subn(N a,N b,N *rp)
+*rp = |a - b| return sgn(a-b)
+
+muln(N a,N b,N *rp)
+*rp = a * b
+
+divn(N a,N b,N *qp,N *rp)
+*qp = a / b (商) *rp = a mod b (剰余)
+
+pwrn(N a,int e,N *rp)
+*rp = a ^ e
+
+gcdn(N a,N b,N *rp)
+*rp = gcd(a,b)
+
+int cmpn(N a,N b)
+sgn(a-b)
+@end example
+@noindent
+@code{sgn(a)} は, @code{a} の正, @code{0}, 負に応じて @code{1}, 
+@code{0}, @code{-1} を表す. 呼び出し方は次のようになる. 
+@example
+@dots{}
+N n1,n2,n3;
+@dots{}
+addn(n1,n2,&n3);
+@dots{}
+@end example
+
+@subsection 有理数の生成
+@example
+#include "ca.h"
+
+NTOQ(n,s,q)    (macro; N n; int s; Q q)
+sgn = s, nm = n, dn = 0 なる有理数(整数) q を生成する. 
+
+NDTOQ(n,d,s,q) (macro; N n,d; int s; Q q)
+sgn = s, nm = n, dn = d なる有理数 q を生成する.
+
+STOQ(n,q)      (macro; int n; Q q)
+単整数 n を 有理数 (整数) に変換する. 
+@end example
+@noindent
+いずれのマクロも必要な領域はマクロ内で確保される. 
+
+@subsection 有理数の四則
+@example
+#include "ca.h"
+
+addq(Q a,Q b,Q *rp)
+*rp = a + b
+
+subq(Q a,Q b,Q *rp)
+*rp = a - b
+
+mulq(Q a,Q b,Q *rp)
+*rp = a * b
+
+divq(Q a,Q b,Q *qp)
+*qp = a / b
+
+invq(Q a,Q *rp)
+*qp = 1 / a
+
+pwrq(Q a,Q e,Q *rp)
+*rp = a ^ e
+
+int cmpq(Q a,Q b)
+sgn(a-b)
+@end example
+

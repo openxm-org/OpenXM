@@ -1,0 +1,53 @@
+% $OpenXM$
+\input jtexinfo
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@setfilename spec
+@settitle Risa Internals
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@titlepage
+@title Risa/Asir Internals
+@subtitle Risa/Asir 内部仕様
+@subtitle Version 20000530
+@subtitle May 2000
+
+@author  by Masayuki Noro
+@end titlepage
+@synindex vr fn
+
+@node Top, 概要 , (dir) , (dir)
+@comment  node-name,  next,  previous,  up
+
+@menu
+* Risa/Asir の構成::
+* データ型::
+* その他の演算::
+* マクロ, 大域変数::
+* メモリ管理::
+* 中間言語::
+* parser::
+* evaluator::
+* debugger::
+* 移植::
+* 文献::
+@end menu
+
+@include int-parts/intro.texi
+@include int-parts/datatype.texi
+@include int-parts/operation.texi
+@include int-parts/macro.texi
+@include int-parts/parser.texi
+@include int-parts/inter.texi
+@include int-parts/gc.texi
+@include int-parts/port.texi
+
+@appendix 文献
+@table @code
+@item [Boehm,Weiser] 
+"Garbage Collection in an Uncooperative Environment", Software Practice
+& Experience, September 1988, pp. 807-820.
+@end table
+@contents @bye

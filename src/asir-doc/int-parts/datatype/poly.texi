@@ -1,0 +1,100 @@
+@comment $OpenXM$
+@section 多項式
+
+@example
+struct oV @{             変数 (不定元)
+    char *name;         名前
+    pointer attr;       属性 (通常の不定元では 0)
+    pointer priv;       属性に応じたプライベートデータ
+@};
+
+typedef struct oV *V;
+
+struct oVL @{            変数リスト
+    V v;                変数
+    struct oVL *next;   次へのポインタ
+@};
+
+typedef struct oVL *VL;
+
+struct oP @{             多項式
+    short id;           識別子 (= O_P)
+    short pad;
+    V v;                主変数
+    struct oDCP *dc;    次数係数リストへのポインタ
+@};
+
+typedef struct oP *P;
+
+struct oDCP @{           次数係数リスト
+    Q d;                次数
+    P c;                係数 ( Q でもよい )
+    struct oDCP *next;  次へのポインタ
+@};
+
+typedef struct oDCP *DCP;
+
+extern VL CO;           定義済み不定元リスト
+@end example
+@noindent
+多項式は, ある変数(主変数)に関する多項式として再帰的に表現される. 
+次数係数リストは
+@example
+<係数> * <主変数>^<次数>
+@end example
+@noindent
+という多項式の各項を, 降べきの順にリストで表現したものである. 多項式も数
+と同様に識別子を持つ. 係数が真に多項式であるか, 数であるかは, その識別子
+により判定する. 変数たちはある順序が定められ, 多項式はその変数順序により
+構成され, 演算される. 変数順序は @code{VL} により表現される. 
+
+@subsection 多項式の生成
+@example
+#include "ca.h"
+
+MKP(v,dc,p)  (macro; V v; DCP dc; P p)
+主変数 v, 次数係数リスト dc から多項式 p を生成する. 
+dc の次数が 0 の場合 p = <dc の係数> となる. 
+
+MKV(v,p)     (macro; V v; P p)   変数 v を多項式に変換する. 
+
+NEXTDC(r,c)  (macro; MP r,c)
+r を次数係数リストの先頭とし, c を末尾とするとき, 末尾に次数係数リストを
+追加し, c をその次数係数リストを指すようにする. r が 0 のとき, 
+次数係数リストが生成され, r および c はその次数係数リストを指す. 
+@end example
+
+@code{NEXTDC()}は, 次数係数リストの末尾に次数係数ペアを追加していく場合に用いる. 
+@subsection 四則
+@example
+#include "ca.h"
+
+addp(VL vl,P a,P b,P *rp)
+*rp = a + b
+
+subp(VL vl,P a,P b,P *rp)
+*rp = a - b
+
+mulp(VL vl,P a,P b,P *rp)
+*rp = a * b
+
+pwrp(VL vl,P a,Q e,P *rp)
+*rp = a ^ e
+
+compp(VL vl,P a,P b)
+ある規則による比較. 
+@end example
+@noindent
+これらの函数の引数として数も同様にとれる. 割り算はその他の演算の項で述べる. 
+
+@code{compp(vl,a,b)} は次のような順序づけによる. 以下で, @code{a} の順序
+が上の場合 1, @code{b} が上の場合 -1 を返す. 
+
+@enumerate
+@item 一方が数, 一方が数でない多項式の場合, 後者が上. 
+@item 双方とも数の場合, @code{compnum(a,b)} の値による. 
+@item 双方とも多項式の場合, 主変数の順序が @code{vl} の方が上. 
+@item 主変数が等しい場合, 次数が高い方が上. 
+@item 主変数も次数も等しい場合, 係数を上から比較する. 
+@end enumerate
+

@@ -1,0 +1,230 @@
+@comment $OpenXM$
+@chapter 移植
+
+@code{risa} は大部分 C により書かれているが, 多倍長演算部の一部はアセ
+ンブラにより記述されている. また, メモリ管理部は, セグメントの配置により
+パラメタの調整が必要で, 結果として OS に依存する. その他, 細かい点でい
+くつか機種依存する部分がある. ここでは, 移植の際に必要な作業について述
+べる. 
+
+@section 多倍長演算部
+
+多倍長演算部で, アセンブラを用いている部分は @samp{asm} というディレク
+トリにまとめられている. アセンブラが必要になる理由は, 多倍長数の表現で, 
+1桁を半語長より大きくとると, 乗除算で, 倍長演算が必要になるが, 通常
+の C 言語では倍長演算をサポートしていないためである. 用意すべき函数は
+次の 5つである. 
+
+@example
+int dm(a1,a2,pu)           t = a1*a2; *pu = t/BASE; return t%BASE;
+int a1,a2,*pu;
+
+int dmb(base,a1,a2,pu)     t = a1*a2; *pu = t/base; return t%base;
+int base,a1,a2,*pu;
+
+int dma(a1,a2,a3,pu)       t = a1*a2+a3; *pu =t/BASE; return t%BASE;
+int a1,a2,a3,*pu;
+
+int dmab(base,a1,a2,a3,pu) t = a1*a2+a3; *pu = t/base; return t%base;
+int base,a1,a2,a3,*pu;
+
+int dmar(a1,a2,a3,d)       t = a1*a2+a3; return t%d;
+int a1,a2,a3,d;
+@end example
+
+これらを書くことにより, 多倍長演算部は完成する. 現在の版では, 
+
+@table @code
+@item 680X0 用 
+@code{asm3.s (SUN3およびNeXT), asma.s(apollo), asmn.s(NEWS)}
+@item sparc 用 
+@code{asm4.s}
+@item VAX 用 
+@code{asmv.s}
+@item MIPS 用 
+@code{asmm.s}
+@end table
+
+が用意されている. ターゲットの CPU がこれらに対応する場合には, これら
+をそのまま, あるいは多少変更して使用することができる. 
+
+さらに, @samp{asm/@{ddM.c,ddN.c@}} では, 上記函数のインライン展開も使
+用できる. 現在の所, CPU が @code{680X0}, @code{VAX} であるマシンのいく
+つかで実現されている. これは, @code{gcc} の インライン @code{asm} の機
+能を用いているため, @code{gcc} が使用可能であることが必要である. また, 
+@code{mips}, @code{sparc} など, 所謂 RISC CPU では インライン展開の効
+果が薄いと考えられるため行なっていない. @code{680X0} を CPU に持つマシ
+ンに対し インライン展開を行なうようにする場合, @samp{include/inline.h} 
+を変更する必要がある. @samp{inline.h} では, @code{680X0} 用として, 
+@code{sun} および @code{motorola} の アセンブラ用の二つのマクロを用意
+している. ターゲットのマシンのアセンブラがどちらのアセンブラを用
+いているかにより, いずれかのマクロを選択するように @code{#if} の部分
+に変更/追加を行なう. 
+
+@section メモリ管理
+
+GC においては, レジスタ, スタック, 静的領域からのマーキングを行なう. 
+特に, レジスタは, 機種依存なので, この部分は機種毎に書く必要がある. 
+これは, @samp{gc/mach_dep.c} に集められている. ただし, @code{mips} に
+ついては @code{mips} の C コンパイラが, @code{asm} 文を許していないた
+め, @samp{gc/mips_mach_dep.s} として分離されている. ここに納められてい
+ない機種に対しては, 他機種用の部分を参照して書くことになる. 
+@samp{gc/runtime.h} の先頭部分に, 機種別の定義を行なう部分があ
+る. ここで定義されたシンボルにより @samp{mach_dep.c} の機種別の 
+函数が選ばれるので, 対応がきちんと取れるようにする. 
+@samp{gc/runtime.h} には, 多くのパラメタが定義されている. これらの内大
+部分は CPU, OS に無関係だが, @code{STACKTOP} と @code{DATASTART} の 2
+つのパラメタだけは機種毎に調整する必要がある. これらは次のような意味を
+持つ. 
+
+@itemize @bullet
+@item 
+STACKTOP
+stack の上限. これは通常 @code{USRSTACK} などの名前で 
+@samp{/usr/include/machine/vmparam.h} に定義されている. 
+
+@item
+DATASTART
+静的データ領域の下限. 少なくとも @code{etext} (プログラム領域の上限) より上であ
+るが, これは機種によって様々に異なる. @code{etext} と静的データ領域の下限が連
+続していない場合, @code{DATASTART} を実際の下限より下にとると アクセス違反
+となる場合もあるので, 何らかの方法で正しい値を調べて設定する必要がある. 
+@end itemize
+
+以上により GC は動作するはずである. 
+
+@section alloca()
+
+函数内で作業領域として使用されるメモリはスタックから取るのが望ましい. 
+通常これは @code{alloca()} により実現されるが, マシンによっては 
+@code{alloca()} を @code{malloc()} を使って実現しているものもある. こ
+のような場合, GC の関係でトラブルの原因となるので @code{alloca()} の代
+わりに @code{gc_malloc()} を使う必要がある. この選択は, 
+@samp{include/ca.h} で @code{ALLOCA()} なるマクロを定義することにより
+行なわれる. よって, ターゲットマシンの @code{alloca()} がどのように実
+現されているかを調べ, それがスタックを使っているならば 
+
+@example 
+#define ALLOCA(d) alloca(d) 
+@end example 
+
+@noindent
+ malloc() を使っているならば, 
+
+@example
+#define ALLOCA(d) alloca(d) 
+@end example
+
+@noindent
+とする. 
+
+@section インクリメンタルローディング(ASIR)
+
+@code{ASIR} では, リロケータブル object  (@code{xxx.o}) を実行中に
+ロードできる. この機能は, @code{UNIX} 版では @code{KCL} (Kyoto Common
+Lisp) で用いられている方法を参考にして実現されている. 
+(@samp{parse/load.c} の @code{loadaoutfile()}. ) これは, @code{ld}
+(link editor) のインクリメンタルローディング機能を用いている. 
+@code{ld} がこの機能を持たない場合は何らかの手段が必要となる. 
+@code{KCL} では, リンクエディタを別に用意することで対応している. 
+@code{ld} がこの機能を持つ場合にも,  object ファイルのヘッダの形
+式の違いにより変更が必要になる場合もある. 基本的には次の一連の操作を行
+なう函数を書けばよい. 
+
+@enumerate
+@item
+ロードすべきファイルを @code{ld} によりインクリメンタルロードする. こ
+れは, リンク後の object のサイズを調べるためのロードである. 
+@item
+1. でできた object 用の領域を確保する. この領域の先頭ポインタは, 
+GC で回収されるのを防ぐため, ヒープ領域から始まるリストに繋ぐ. 
+@item
+2. で得たポインタをプログラム領域の先頭アドレスとして, 改めてロードす
+る. 
+@item
+3. でできた object を 2. で確保した領域上に読み込む. 
+@item
+ロード可能な object の先頭は, そのファイルに含まれる函数を 
+@code{ASIR} に登録するための函数となっているので, それを呼び出す. 
+@end enumerate
+
+@code{mips} を CPU とするマシンでは, ロードされる object をコンパ
+イルする際にやや特殊な注意を要する場合がある. ここでは 
+@code{DECStation} を例にとり説明する. @code{mips} では, 函数呼び出しは
+
+@example
+jal	function
+@end example
+
+@noindent
+とコンパイルされる. しかし, @code{jal} は, 現在のプログラムカウンタの
+上 4bit を飛び先アドレスの上 4bit として使うため, @code{function} の 
+アドレスの上 4bit が現在のプログラムカウンタの上 4bit と一致しないと呼
+び出しできない. 上記のような方法でインクリメンタルロードした場合, オブ
+ジェクトはヒープに置かれることになるが, @code{DECStation} の場合, 元の
+プログラム領域と, ヒープでは, 上 4bit が異なる. よって, 普通にコンパイ
+ルした object はロードできない. コンパイラおよびアセンブラでこれを
+解消する方法が今の所見当たらないので, 次のような方法をとることにした. 
+すなわち, @code{cc -S} でアセンブラのソースを出し, 
+
+@example
+jal	function
+@end example
+@noindent
+を
+@example
+.set    noat
+la      $at,function
+jal     $at
+.set    at
+@end example
+
+@noindent
+に書き換えて, アセンブルすることとした. (実際には, @code{cc}, 
+@code{as} 共に @samp{-G 0} なるオプションが必要である. また, @code{as} 
+の 警告メッセージを消すためには, @samp{-w} なるオプションを付ける. ) 
+この書き換えは, 次の @code{awk} スクリプトにより行なわれる. 
+
+@example
+{ 
+    if ( $1 == "jal" && substr($2,0,1) != "$" ) 
+        printf "\t.set\tnoat\n\tla\t$at,%s\n\tjal\t$at\n\t.set\tat\n",$2 
+    else print
+}
+@end example
+
+@noindent
+
+この修正は, @code{mips} を CPU とする他のマシン (@code{RISC NEWS} など) 
+に対しても必要であると思われる. 
+
+@section NeXT への移植
+
+これまで @code{UNIX} 上での移植作業について述べてきたが, @code{NeXT} 
+は @code{Mach} を OS とするマシンであり, GC, インクリメンタルローディ
+ングなどより OS に依存する部分では通常の @code{UNIX} と異なる部分が出
+てくる. それらについて述べる. 
+
+@subsection メモリ管理
+
+@code{UNIX} と @code{Mach} では, OS 側の メモリ管理が大きく異なってい
+る. @code{UNIX} においては, データセグメントは連続領域であり, OS に対
+する メモリの要求は, その領域を伸ばすことにより満たされる. しかし, 
+@code{Mach} においては, @code{vm_allocate()} なる函数により個別の領域
+として与えられ, 一般にそれら全体は連続した領域とはならない. オリジナル
+の GC では, データセグメントの 先頭, 末尾だけを知って, その間を全て 
+検査するが, @code{Mach} の場合, このままではアクセス違反を起こす可能性
+がある. これらを考慮して, @code{NeXT} 版では次のような変更を行なった. 
+
+@enumerate
+@item
+オリジナルで @code{brk()}, @code{sbrk()} で書かれている部分を 
+@code{vm_allocate()} を使って書き直した. 
+@item
+効率低下を招く恐れはあるが, @code{vm_allocate()} で得た領域の上下限の
+リストを保持し, ある数が妥当なポインタであるか否かのチェックの際に, こ
+のリストによるチェックも行なうようにした. 
+@end enumerate
+
+@noindent
+これらの変更は, その他の @code{Mach} マシンにも通用すると思われる. 
