@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.11 2003/04/19 15:44:58 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.12 2003/04/20 08:01:29 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -87,6 +87,10 @@ on の時, 函数の再定義時にメッセージを表示する.
 @item hex
 1 のとき, 整数は 0x で始まる 16 進数として表示される. -1 のとき, 16 進数は, 
 間に @samp{|} をはさんで 8 桁ごとに区切って表示される. 
+@item real_digit
+倍精度浮動小数の表示の桁数を指定する.
+@item double_output
+1 のとき, 倍精度浮動小数はつねに ddd.ddd の形で表示される.
 @item fortran_output
 1 のとき, 多項式の表示が FORTRAN スタイルになる. すなわち冪が
 @samp{^} の代わりに @samp{**} で表される. 
@@ -152,8 +156,12 @@ and as a result, the frequency of garbage collection decreases.
 If `on' a warning messages is displayed when a function is redefined.
 @item hex
 If 1 is set, integers are displayed as hexadecimal numbers with prefix
-@code{0x}. if -1 is set, hexadecimal numbers are desplayed with 
+@code{0x}. if -1 is set, hexadecimal numbers are displayed with 
 @samp{|} inserted at every 8 hexadecimal digits.
+@item real_digit
+Sets the number of digits used to print a floating double.
+@item double_output
+If set to 1, any floating double is printed in the style ddd.ddd.
 @item fortran_output
 If `on' polynomials are displayed in FORTRAN style. That is, a power
 is represented by @samp{**} instead of @samp{^}.
