@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/parse.c,v 1.3 1999/11/02 18:58:25 ohara Exp $ */
 /* $Id$ */
 /* OX expression, CMO expression パーサ */
 
@@ -73,7 +73,7 @@ static int is_token_cmo(int token)
 
 static int is_token_sm(int token)
 {
-    return token >= MIN_T_SM && token < MAX_T_SM;
+    return token == TOKEN(SM);
 }
 
 static int is_token_ox(int token)
@@ -158,27 +158,29 @@ static ox* parse_ox_data()
     return m;
 }
 
-static int parse_sm()
-{
-    int sm_code;
-    if (!is_token_sm(token)) {
-        parse_error("invalid SM opecode.");
-    }
-    sm_code = token - T_MAGIC;
-    token = lex();
-    return sm_code;
-}
-
-
 static ox* parse_ox_command()
 {
     ox* m;
 
     parse_comma();
+    parse_left_parenthesis();
     m = (ox *)new_ox_command(parse_sm());
     parse_right_parenthesis();
     return m;
 }
+
+static int parse_sm()
+{
+    int sm_code;
+    if (token != TOKEN(SM)) {
+        parse_error("no opecode.");
+    }
+    sm_code = yylval.d;
+    token = lex();
+    parse_right_parenthesis();
+    return sm_code;
+}
+
 
 /* 正しい入力ならば, parse_cmo を呼ぶ時点で, token には 
    TOKEN(CMO_xxx), TOKEN(OX_xxx) のいずれかがセットされている. */
@@ -576,10 +578,12 @@ static char *lex_quoted_string()
 typedef struct {
 	char *key;
 	int  token;
+	int  op;
 } symbol; 
 
-#define MK_KEY_CMO(x)  { #x  , TOKEN(x) }
-#define MK_KEY(x)  { #x  , TOKEN(x) }
+#define MK_KEY_CMO(x)  { #x  , TOKEN(x) , 0}
+#define MK_KEY_SM(x)  { #x  , TOKEN(SM) , x}
+#define MK_KEY(x)  { #x  , TOKEN(x) , 0}
 
 static symbol symbol_list[] = {
 	MK_KEY_CMO(CMO_NULL),
@@ -596,16 +600,17 @@ static symbol symbol_list[] = {
 	MK_KEY_CMO(CMO_INDETERMINATE),
 	MK_KEY_CMO(CMO_DISTRIBUTED_POLYNOMIAL),
 	MK_KEY_CMO(CMO_ERROR2),
-    MK_KEY(SM_popCMO),   
-	MK_KEY(SM_popString), 
-	MK_KEY(SM_mathcap),  
-	MK_KEY(SM_pops), 
-	MK_KEY(SM_executeStringByLocalParser), 
-	MK_KEY(SM_executeFunction), 
-	MK_KEY(SM_setMathCap),
-    MK_KEY(SM_control_kill), 
-	MK_KEY(SM_control_reset_connection),
-    MK_KEY(OX_COMMAND),  MK_KEY(OX_DATA),
+    MK_KEY_SM(SM_popCMO),   
+	MK_KEY_SM(SM_popString), 
+	MK_KEY_SM(SM_mathcap),  
+	MK_KEY_SM(SM_pops), 
+	MK_KEY_SM(SM_executeStringByLocalParser), 
+	MK_KEY_SM(SM_executeFunction), 
+	MK_KEY_SM(SM_setMathCap),
+    MK_KEY_SM(SM_control_kill), 
+	MK_KEY_SM(SM_control_reset_connection),
+    MK_KEY(OX_COMMAND),
+	MK_KEY(OX_DATA),
 	{NULL, 0}        /* a gate keeper */
 }; 
 
@@ -614,6 +619,7 @@ static int token_of_symbol(char *key)
 	symbol *kp;
 	for(kp = symbol_list; kp->key != NULL; kp++) {
 		if (strcmp(key, kp->key)==0) {
+			yylval.d = kp->op;
 			return kp->token;
 		}
 	}

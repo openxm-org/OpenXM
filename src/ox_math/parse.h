@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/parse.h,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
 /* $Id$ */
 
 #ifndef _PARSE_H_
@@ -15,12 +15,11 @@
 #define T_STRING        258
 #define T_MAGIC         2048
 #define TOKEN(x)        (T_MAGIC + (x))
+#define SM              SM_popCMO
 
 /* トークンの種類を判定するためのマクロ */
 #define MIN_T_CMO     TOKEN(0)
 #define MAX_T_CMO     TOKEN(256)
-#define MIN_T_SM      TOKEN(256)
-#define MAX_T_SM      TOKEN(1100)
 #define MIN_T_OX      TOKEN(512)
 #define MAX_T_OX      TOKEN(600)
 
