@@ -1,11 +1,14 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Doc/test-shift.sm1,v 1.1 2003/06/26 08:14:45 takayama Exp $
 
 (testing degree shift) message
 
 [(t,x,y) ring_of_differential_operators 
   [[(Dt) 1 (t) -1]] weight_vector
   0
- [(degreeShift) [1 0 (1).. 0 0]]
+ [(degreeShift) [ [1 0 (1).. 0 0]
+                  [0 5 5 5 5]
+                 ] 
+ ]
 ] define_ring
 
 
@@ -21,6 +24,20 @@
   gg pmat ;
 } def
 
+/foo2 {
+  % 0     1
+  ( e_ +  x ).  message  (x + e_ ?) message
+  (--------------------------) message     
+  % 0     1
+    5     0
+  ( e_ +  t ).  message  (e_ + t ?) message
+  (--------------------------) message     
+  % 0     1
+    5     0
+  ( e_ +  t ).  message  (e_ + t ?) message
+  (--------------------------) message     
+
+} def
 
 (Type in foo) message
 

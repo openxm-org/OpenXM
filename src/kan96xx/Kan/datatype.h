@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.3 2002/09/08 10:49:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.4 2003/06/26 08:14:46 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -75,6 +75,7 @@ struct ring {
   char *name;
   int weightedHomogenization;
   int degreeShiftSize;
+  int degreeShiftN;
   int *degreeShift;
 };
 

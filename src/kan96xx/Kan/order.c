@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.6 2002/09/08 10:49:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.7 2003/06/26 08:14:46 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -181,11 +181,15 @@ void showRing(level,ringp)
     fprintf(fp,"\n");
   }
   if (ringp->degreeShiftSize) {
-    fprintf(fp,"degreeShift vector = [");
+    fprintf(fp,"degreeShift vector (N=%d,Size=%d)= \n[\n",ringp->degreeShiftN,ringp->degreeShiftSize);
     {
-      int i;
-      for (i=0; i<ringp->degreeShiftSize; i++) {
-        fprintf(fp," %d ",ringp->degreeShift[i]);
+      int i,j;
+      for (i=0; i<ringp->degreeShiftN; i++) {
+        fprintf(fp," [");
+        for (j=0; j< ringp->degreeShiftSize; j++) {
+          fprintf(fp," %d ",ringp->degreeShift[i*(ringp->degreeShiftSize)+j]);
+        }
+        fprintf(fp,"]\n");
       }
     }
     fprintf(fp,"]\n");
@@ -347,6 +351,7 @@ int mmLarger_matrix(ff,gg)
   int *from, *to;
   int omsize;
   int dssize;
+  int dsn;
   int *degreeShiftVector;
   
   if (ff == POLYNULL ) {
@@ -367,6 +372,7 @@ int mmLarger_matrix(ff,gg)
   omsize = rp->orderMatrixSize;
   if (dssize = rp->degreeShiftSize) {
 	degreeShiftVector = rp->degreeShift;  /* Note. 2003.06.26 */
+	dsn = rp->degreeShiftN;
   }
  
   flag = 1;
@@ -384,11 +390,11 @@ int mmLarger_matrix(ff,gg)
     sum = 0; in2 = i*2*N;
     /* for (k=0; k<2*N; k++) sum += exp[k]*Order[in2+k]; */
     for (k=from[i]; k<to[i]; k++) sum += exp[k]*Order[in2+k];
-    if (dssize && ( i == 0)) { /* Note, 2003.06.26 */
+    if (dssize && ( i < dsn)) { /* Note, 2003.06.26 */
       if ((f->e[N-1].x < dssize) && (f->e[N-1].x >= 0) &&
           (g->e[N-1].x < dssize) && (g->e[N-1].x >= 0)) {
-        sum += degreeShiftVector[f->e[N-1].x]
-              -degreeShiftVector[g->e[N-1].x];
+        sum += degreeShiftVector[i*dssize+ (f->e[N-1].x)]
+              -degreeShiftVector[i*dssize+ (g->e[N-1].x)];
       }else{
         warningOrder("Size mismatch in the degree shift vector. It is ignored.");
       }

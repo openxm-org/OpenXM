@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.10 2002/11/04 10:53:55 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.11 2003/06/26 08:14:46 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1539,6 +1539,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   newRingp->outputOrder = outputVars;
   newRingp->weightedHomogenization = 0;
   newRingp->degreeShiftSize = 0;
+  newRingp->degreeShiftN = 0;
+  newRingp->degreeShift = NULL;
 
   if (ob5.tag != Sarray || (getoaSize(ob5) % 2) != 0) {
     errorKan1("%s\n","[(keyword) value (keyword) value ....] should be given.");
@@ -1592,21 +1594,30 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
         newRingp->weightedHomogenization = KopInteger(getoa(ob5,i+1));
       } else if (strcmp(KopString(getoa(ob5,i)),"degreeShift") == 0) {
         if (getoa(ob5,i+1).tag != Sarray) {
-          errorKan1("%s\n","An array should be given. (degreeShift)");
+          errorKan1("%s\n","An array of array should be given. (degreeShift)");
         }
         {
           struct object ods;
-          int dssize,k;
+          struct object ods2;
+          int dssize,k,j,nn;
           ods=getoa(ob5,i+1);
-          dssize = getoaSize(ods);
+          if ((getoaSize(ods) < 1) || (getoa(ods,0).tag != Sarray)) {
+            errorKan1("%s\n", "An array of array should be given. (degreeShift)");
+          }
+          nn = getoaSize(ods);
+          dssize = getoaSize(getoa(ods,0));
           newRingp->degreeShiftSize = dssize;
-          newRingp->degreeShift = (int *) sGC_malloc(sizeof(int)*(dssize+1));
+          newRingp->degreeShiftN = nn;
+          newRingp->degreeShift = (int *) sGC_malloc(sizeof(int)*(dssize*nn+1));
           if (newRingp->degreeShift == NULL) errorKan1("%s\n","No more memory.");
-          for (k=0; k<dssize; k++) {
-            if (getoa(ods,k).tag == SuniversalNumber) {
-              (newRingp->degreeShift)[k] = coeffToInt(getoa(ods,k).lc.universalNumber);
-            }else{
-              (newRingp->degreeShift)[k] = KopInteger(getoa(ods,k));
+          for (j=0; j<nn; j++) {
+            ods2 = getoa(ods,j);
+            for (k=0; k<dssize; k++) {
+              if (getoa(ods2,k).tag == SuniversalNumber) {
+                (newRingp->degreeShift)[j*dssize+k] = coeffToInt(getoa(ods2,k).lc.universalNumber);
+              }else{
+                (newRingp->degreeShift)[j*dssize+k] = KopInteger(getoa(ods2,k));
+              }
             }
           }
         }
