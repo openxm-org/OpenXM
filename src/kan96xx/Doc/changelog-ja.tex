@@ -1,0 +1,63 @@
+% $OpenXM$
+\documentclass{jarticle}
+\title{ChangeLog \\ ---kan96xx, kxx, k097}
+\author{Nobuki Takayama}
+\date{}
+\begin{document}
+\maketitle
+
+
+%%OpenXM/doc/Papers/rims-2003-12* に oxshell, polymake
+
+\section{2004-02, port 化}
+
+\begin{enumerate}
+\item gmp はネットワークからダウンロードしてインストールするようにする.
+{\tt OpenXM\_contrib} はつかわない.
+\item {\tt OpenXM/src/gmp/Makefile-ports} 1.1--1.5,
+%%Mail/openxm-cvs.inbox 141
+\end{enumerate}
+
+\section{2004-02,  memory leak}
+\begin{enumerate}
+\item {\tt misc-2003/A2/bs-poly/bs2-leak.sm1} 実行時にクライアント構造体
+が壊れる.  gmp 4.x によるメモリリークを疑うも, {\tt GC\_malloc} を使うべきところで
+{\tt malloc} を用いていたのでメモリが破壊されていたと判明.
+{\tt malloc} の中にポインタを入れてはいけない.
+\item {\tt OpenXM/src/kan96xx} 以下の各ファイル.
+{\tt Kan/kanExport1.c} 1.11,
+{\tt Kan/poly3.c} 1.7,
+{\tt Kan/shell.c} 1.11,
+{\tt plugin/file2.c} 1.9 (原因),
+{\tt plugin/oxKan0.h} 1.16,
+{\tt plugin/sm1Socket.c} 1.16 (原因).
+{\tt OpenXM/src/kxx/oxmain.c} 1.15.
+%%Mail/openxm-cvs.inbox 164 2004-2-23
+\end{enumerate}
+
+\section{2004-02, 03, ox\_texmacs}
+\begin{enumerate}
+\item sm1 を基礎として ox\_texmacs を作る.  {\tt -q} option で余計な
+メッセージを標準出力へ出さないようにする.  次のファイルを変更.
+%%Mail/openxm-cvs.inbox 203, 204, 210, 213, 215, 220, 221, 222
+\item {\tt OpenXM/src/util/ox\_pathfinder.c} 1.18--1.19,
+{\tt OpenXM/src/util/ox\_pathfinder.h} 1.11,
+{\tt OpenXM/src/kxx/ox100start.c} 1.6,
+{\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.34--1.35,
+{\tt OpenXM/src/kan96xx/Kan/ext.c} 1.23,
+{\tt OpenXM/src/kan96xx/Kan/kanExport0.c} 1.21,
+{\tt OpenXM/src/kan96xx/plugin/mytcpio.c} 1.14.
+\item {\tt ox\_texmacs}. 
+ {\tt OpenXM/src/kxx} 以下の次のファイルを変更.
+\item {\tt ox\_texmacs.c} 1.1--1.17,
+{\tt sample\_kanlib.c} 1.1,
+\item {\tt init-openxm.scm} の作成 (小原).
+\end{enumerate}
+
+\section{2004-03, ox 機能の強化}
+\begin{enumerate}
+\item option つきの関数よびだし.
+%%Mail/openxm-cvs.inbox 286, 288  まだ書いてない
+\end{enumerate}
+
+\end{document}
