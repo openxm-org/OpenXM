@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.11 2000/03/05 02:25:23 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.12 2000/03/05 06:11:55 takayama Exp $
 
 ## For debugging. 
 #TAR_WORK=$(HOME)/tmp
@@ -45,6 +45,7 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
 
 RUN_DEPENDS=/compat/linux/usr/i486-linux-libc5/lib/libc.so.5:${PORTSDIR}/emulators/linux_base \
 	    	/compat/linux/usr/bin/i386-redhat-linux-egcs:${PORTSDIR}/devel/linux_devtools \
+		java:${PORTSDIR}/java/jdk \
 
 			 
 
