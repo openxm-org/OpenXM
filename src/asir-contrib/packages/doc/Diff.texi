@@ -42,7 +42,7 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 * diff_poly_solve_appell4::
 @c * diff_poly_solve_selberg2::
 @c * diff_poly_solve_gkz::
-@c * diff_rat_solve::
+* diff_rat_solve::
 @c * diff_pseries_appell4::
 @end menu
 
@@ -185,5 +185,30 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 
 [300] diff_poly_solve_appell4(-3,1,1,-1,5,[x,y]);
 [-3*_45*y^2*x-_45*y^3+_45*y^2,[_45]]
+@end example
+
+@node diff_rat_solve,,, Differential equations
+@subsection @code{diff_rat_solve}
+@findex diff_rat_solve
+@table @t
+@item diff_rat_solve(@var{LL},@var{Dn},@var{N},@var{V})
+::  与えられた線型微分方程式系の分母が @var{Dn}, 分子が @var{N} 次以下の多項式であるような解を求める.
+@end table
+@table @var
+@item return
+リスト
+@item LL
+リスト
+@item Dn
+有理式
+@item N
+整数
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_rat_solve}の例.
+@end itemize
+@example
 @end example
 

@@ -9,7 +9,7 @@
 Dmodule_sm1_PID = -1$
 Dmodule_Euler2D = [[1],[0,1],[0,1,1]]$
 
-def dmod_sm1_start() {
+def dmodule_sm1_start() {
   extern Dmodule_sm1_PID;
   if (Dmodule_sm1_PID < 0) {
 #if _DEBUG_Dmodule_
@@ -23,14 +23,14 @@ def dmod_sm1_start() {
   return Dmodule_sm1_PID;
 }
 
-def dmod_sm1_restart() {
+def dmodule_sm1_restart() {
   extern Dmodule_sm1_PID;
   Dmodule_sm1_PID = sm1_start();
   return Dmodule_sm1_PID;
 }
 
 /* [x1,x2,...] -> [dx1,dx2,...] */
-def dmod_make_dv(V) {
+def dmodule_make_dv(V) {
   if (type(V) != 4) {
     error("parameter type error.");
   }
@@ -42,7 +42,7 @@ def dmod_make_dv(V) {
 }
 
 /* [x1,x2,...] -> [tx1,tx2,...] */
-def dmod_make_tv(V) {
+def dmodule_make_tv(V) {
   if (type(V) != 4) {
     error("parameter type error.");
   }
@@ -53,73 +53,8 @@ def dmod_make_tv(V) {
   return Tv;
 }
 
-def dmod_p_dn(Poly) {
-#if _DEBUG_Dmodule_
-  print("polynomial: ", 0); print(Poly);
-  print("variables: ", 0); print(vars(Poly));
-#endif
-  if (type(Poly) > 2) {
-    error("parameter type error.");
-  }
-  if (Poly == 0) {
-    return 1;
-  }
-  Vars = vars(Poly);
-  Dpoly = dp_ptod(Poly, Vars);
-  Dn_list = [];
-  while (Dpoly != 0) {
-#if _DEBUG_Dmodule_
-    print("Dpoly: ", 0); print(Dpoly);
-#endif
-    Hc = dp_hc(Dpoly);
-#if _DEBUG_Dmodule_
-    print("Hc (number): ", 0); print(Hc);
-#endif
-    Dn_list = append(Dn_list, [dn(Hc)]);
-    Dpoly -= dp_hm(Dpoly);
-  }
-  Gcd = Lcm = Dn_list[0];
-  for (I = 1; I < length(Dn_list); I++) {
-    Gcd = igcd(Lcm, Dn_list[I]);
-    Lcm = (Lcm/Gcd)*(Dn_list[I]/Gcd)*Gcd;
-  }
-  return Lcm;
-}
-
-def dmod_p_nm(Poly) {
-  return Poly*dmod_p_dn(Poly);
-}
-
-def dmod_d_op_dn(L_list, V) {
-  L_list_asir = dmod_d_op_toasir(L_list, V);
-  V = append(V, dmod_make_dv(V));
-  Dn_list = [];
-  for (I = 0; I < length(L_list_asir); I++) {
-    Dn_list = append(Dn_list, [dmod_p_dn(L_list_asir[I])]);
-  }
-  Gcd = Lcm = Dn_list[0];
-  for (I = 1; I < length(Dn_list); I++) {
-    Gcd = igcd(Lcm, Dn_list[I]);
-    Lcm = (Lcm/Gcd)*(Dn_list[I]/Gcd)*Gcd;
-  }
-  return Lcm;
-}
-
-def dmod_d_op_nm(L_list, V) {
-  Dn = dmod_d_op_dn(L_list, V);
-  L_nm_list = [];
-  for (I = 0; I < length(L_list); I++) {
-    L_nm = [];
-    for (J = 0; J < length(L_list[I]); J++) {
-      L_nm = append(L_nm, [[L_list[I][J][0]*Dn, L_list[I][J][1]]]);
-    }
-    L_nm_list = append(L_nm_list, [L_nm]);
-  }
-  return L_nm_list;
-}
-
 /* [x1,x2,...] -> "x1,x2,..." */
-def dmod_var_tosm1(V) {
+def dmodule_var_tosm1(V) {
   if (type(V) != 4) {
     error("parameter type error.");
   }
@@ -137,17 +72,15 @@ def dmod_var_tosm1(V) {
 }
 
 /* asir polynomial -> sm1 string */
-def dmod_p_tosm1(Poly, V) {
+/* note! sm1 understand only polynomial with integer coefficients. */
+def dmodule_p_tosm1(Poly, V) {
   if (type(Poly) > 2 || type(V) != 4) {
     error("parameter type error.");
   }
-
   if (Poly == 0) {
     return "0";
   }
-
   Dpoly = dp_ptod(Poly, V);
-
   Str_poly = "";
   do {
     Hc = dp_hc(Dpoly);
@@ -160,7 +93,6 @@ def dmod_p_tosm1(Poly, V) {
     print("HtV: ", 0); print(HtV);
     print("size(HtV): ", 0); print(size(HtV));
 #endif
-
     /* coefficient */
     if (type(Hc) < 2) {
       Str_poly += " + (" + rtostr(Hc) + ")";
@@ -169,12 +101,11 @@ def dmod_p_tosm1(Poly, V) {
 #if _DEBUG_Dmodule_
       print("Hc is polynomial.");
 #endif
-      Str_poly += " + (" + dmod_p_tosm1(Hc, vars(Hc)) + ")";
+      Str_poly += " + (" + dmodule_p_tosm1(Hc, vars(Hc)) + ")";
     }
 #if _DEBUG_Dmodule_
     print("coefficient OK.");
 #endif
-
     /* power product */
     Str_mono = "";
     for (J = 0; J < size(HtV)[0]; J++) {
@@ -186,24 +117,22 @@ def dmod_p_tosm1(Poly, V) {
 #if _DEBUG_Dmodule_
     print("power product OK.");
 #endif
-
     Dpoly -= dp_hm(Dpoly);
   } while (Dpoly != 0);
-
   return Str_poly;
 }
 
 /* differential operators with polynomial coefficients -> sm1 string */
 /* L_list: [ [[fa(V),[a1,...,an]],...], ... ], coefficient must be polynomial. */
-def dmod_d_op_tosm1(L_list, V) {
-  L_list = dmod_d_op_nm(L_list, V);
+def dmodule_d_op_tosm1(L_list, V) {
+  L_list = diff_op_rat2zp(L_list);
   L_str_list = [];
   for (I = 0; I < length(L_list); I++) {
     L_str = "";
     for (J = 0; J < length(L_list[I]); J++) {
       Poly = red(L_list[I][J][0]);
       if (Poly != 0) {
-	Str_Poly = "(" + dmod_p_tosm1(Poly, V) + ")";
+	Str_Poly = "(" + dmodule_p_tosm1(Poly, V) + ")";
 	Str_D = "";
 	Index = L_list[I][J][1];
 	for (K = 0; K < length(Index); K++) {
@@ -227,26 +156,22 @@ def dmod_d_op_tosm1(L_list, V) {
   return L_str_list;
 }
 
-def dmod_d_op_toasir(L_list, V) {
-  Dv = dmod_make_dv(V);
+def dmodule_d_op_toasir(L_list, V) {
+  Dv = dmodule_make_dv(V);
   L_list_asir = [];
   for (I = 0; I < length(L_list); I++) {
     L = L_list[I];
     L_asir = 0;
     for (J = 0; J < length(L); J++) {
-      D = 1;
-      for (K = 0; K < length(L[J][1]); K++) {
-	D *= Dv[K]^L[J][1][K];
-      }
-      L_asir += L[J][0]*D;
+      L_asir += L[J][0]*dp_dtop(dp_vtoe(matrix_ltov(L[J][1])), Dv);
     }
     L_list_asir = append(L_list_asir, [L_asir]);
   }
   return L_list_asir;
 }
 
-def dmod_d_op_fromasir(D_list, V) {
-  Dv = dmod_make_dv(V);
+def dmodule_d_op_fromasir(D_list, V) {
+  Dv = dmodule_make_dv(V);
   L_list = [];
   for (I = 0; I < length(D_list); I++) {
     D = dp_ptod(D_list[I], Dv);
@@ -265,14 +190,14 @@ def dmod_d_op_fromasir(D_list, V) {
   return L_list;
 }
 
-def dmod_filt(V, W) {
+def dmodule_filt(V, W) {
   if (type(V) != 4 || type(W) != 4) {
     error("parameter type error.");
   }
   if (2*length(V) != length(W)) {
     error("a length of list is no match.");
   }
-  V = append(V, dmod_make_dv(V));
+  V = append(V, dmodule_make_dv(V));
   Filt = [];
   for (I = 0; I < length(V); I++) {
     Filt = append(Filt, [V[I], W[I]]);
@@ -281,7 +206,7 @@ def dmod_filt(V, W) {
 }
 
 /* weight (0,...,0,1,...,1) */
-def dmod_order_filt(V) {
+def dmodule_order_filt(V) {
   OrderX = []; OrderD = [];
   for (I = 0; I < length(V); I++) {
     OrderX = append(OrderX, [V[I], 0]);
@@ -295,7 +220,7 @@ def dmod_order_filt(V) {
 }
 
 /* weight (1,...,1,1,...,1) */
-def dmod_bernstein_filt(V) {
+def dmodule_bernstein_filt(V) {
   OrderX = []; OrderD = [];
   for (I = 0; I < length(V); I++) {
     OrderX = append(OrderX, [V[I], 1]);
@@ -309,80 +234,64 @@ def dmod_bernstein_filt(V) {
 
 /* D_ideal: ["...", "...",...], string is sm1 format. */
 /* V: [x1,x2,...] */
-def dmod_ch_ideal(D_ideal, V) {
-  Gb = sm1_gb(dmod_sm1_start(), [D_ideal, dmod_var_tosm1(V), [dmod_order_filt(V)]]);
+def dmodule_ch_ideal(D_ideal, V) {
+  return dmodule_ch_ideal_generic(D_ideal, [], V);
+}
+
+def dmodule_ch_ideal_generic(D_ideal, Param, V) {
+  Gb = sm1_gb(dmodule_sm1_start(),
+              [D_ideal, dmodule_var_tosm1(append(V,Param)), [dmodule_order_filt(append(V,Param))]]);
 #if _DEBUG_Dmodule_
   print("sm1_gb: ", 0); print(Gb);
 #endif
   return Gb[1];
 }
 
-def dmod_ch_ideal_appell1(A, B1, B2, C, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell1(A, B1, B2, C, V), V);
-  return dmod_ch_ideal(D_ideal_str, V, Rest);
+def dmodule_ch_ideal_appell1(A, B1, B2, C, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell1(A, B1, B2, C, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
 }
 
-def dmod_ch_ideal_appell2(A, B1, B2, C1, C2, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell2(A, B1, B2, C1, C2, V), V);
-  return dmod_ch_ideal(D_ideal_str, V, Rest);
+def dmodule_ch_ideal_appell2(A, B1, B2, C1, C2, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell2(A, B1, B2, C1, C2, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
 }
 
-def dmod_ch_ideal_appell3(A1, A2, B1, B2, C, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell3(A1, A2, B1, B2, C, V), V);
-  return dmod_ch_ideal(D_ideal_str, V, Rest);
+def dmodule_ch_ideal_appell3(A1, A2, B1, B2, C, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell3(A1, A2, B1, B2, C, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
 }
 
-def dmod_ch_ideal_appell4(A, B, C1, C2, V) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
-  return dmod_ch_ideal(D_ideal_str, V);
+def dmodule_ch_ideal_appell4(A, B, C1, C2, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
 }
 
-def dmod_ch_ideal_selberg2(A, B, C, S, V) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
-  return dmod_ch_ideal(D_ideal_str, V);
+def dmodule_ch_ideal_selberg2(A, B, C, S, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
 }
 
-def dmod_ch_ideal_selberg2_1(A, B, K1, K2, V) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_selberg2_1(A, B, K1, K2, V), V);
-  return dmod_ch_ideal(D_ideal_str, V);
+def dmodule_ch_ideal_generic_selberg2(A, B, C, S, Param, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
+  return dmodule_ch_ideal_generic(D_ideal_str, Param, V);
 }
 
-def dmod_ch_ideal_gkz(A, B, V) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_gkz(A, B, V), V);
-  return dmod_ch_ideal(D_ideal_str, V);
+def dmodule_ch_ideal_selberg2_1(A, B, K1, K2, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2_1(A, B, K1, K2, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
 }
 
-/* def dmod_proj(D_ideal, V) {
-  Dv = dmod_make_dv(V);
-  Ch = gr(dmod_ch_ideal(D_ideal, V), append(Dv, V), 2);
-  Proj = [];
-  for (I = 0; I < length(Ch); I++) {
-    P = Ch[I];
-    for (J = 0; J < length(Dv); J++) {
-      P = subst(P, Dv[J], 0);
-    }
-    if (P != 0) {
-      Proj = append(Proj, [P]);
-    }
-  }
-  return Proj;
-} */
-
-/* def dmod_proj_appell4(A, B, C1, C2, V) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
-  return dmod_proj(D_ideal_str, V);
-} */
-
-/* def dmod_holonomic_rank(D_ideal, V) {
-  ChI = dmod_ch_ideal(D_ideal, V);
-  Gb = gr(ChI, dmod_make_dv(V), 2);
-} */
+def dmodule_ch_ideal_gkz(A, B, V) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_gkz(A, B, V), V);
+  return dmodule_ch_ideal(D_ideal_str, V);
+}
 
 /* restriction to {t1=0,t2=0,...} */
 /* D_ideal: ["...", "...",...], string is sm1 format. */
 /* Rest: [t1,t2,...] */
 /* V: [x1,x2,...] */
-def dmod_restriction(D_ideal, V, Rest) {
+def dmodule_restriction(D_ideal, V, Rest) {
   D_ideal_str = "";
   for (I = 0; I < length(D_ideal); I++) {
     D_ideal_str += " (" + D_ideal[I] + ") ";
@@ -399,46 +308,75 @@ def dmod_restriction(D_ideal, V, Rest) {
 #if _DEBUG_Dmodule_
   print("sm1 command string: ", 0); print(Cmd_str);
 #endif
-  sm1(dmod_sm1_start(), Cmd_str);
-  return sm1_pop(dmod_sm1_start());
+  sm1(dmodule_sm1_start(), Cmd_str);
+  return sm1_pop(dmodule_sm1_start());
 }
 
-def dmod_restriction_appell1(A, B1, B2, C, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell1(A, B1, B2, C, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_generic(D_ideal, Param, V, Rest) {
+  D_ideal_str = "";
+  for (I = 0; I < length(D_ideal); I++) {
+    D_ideal_str += " (" + D_ideal[I] + ") ";
+  }
+  Rest_str = "";
+  for (I = 0; I < length(Rest); I++) {
+    Rest_str += " (" + rtostr(Rest[I]) + ") ";
+  }
+  V_str = "";
+  for (I = 0; I < length(V); I++) {
+    V_str += " (" + rtostr(V[I]) + ") ";
+  }
+  for (I = 0; I < length(Param); I++) {
+    V_str += " (" + rtostr(Param[I]) + ") ";
+  }
+  Cmd_str = "[ [" + D_ideal_str + "] [" + Rest_str + "] [[" + V_str + "] [ ]] 0 ] restriction";
+#if _DEBUG_Dmodule_
+  print("sm1 command string: ", 0); print(Cmd_str);
+#endif
+  sm1(dmodule_sm1_start(), Cmd_str);
+  return sm1_pop(dmodule_sm1_start());
 }
 
-def dmod_restriction_appell2(A, B1, B2, C1, C2, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell2(A, B1, B2, C1, C2, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_appell1(A, B1, B2, C, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell1(A, B1, B2, C, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
 }
 
-def dmod_restriction_appell3(A1, A2, B1, B2, C, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell3(A1, A2, B1, B2, C, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_appell2(A, B1, B2, C1, C2, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell2(A, B1, B2, C1, C2, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
 }
 
-def dmod_restriction_appell4(A, B, C1, C2, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_appell3(A1, A2, B1, B2, C, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell3(A1, A2, B1, B2, C, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
 }
 
-def dmod_restriction_selberg2(A, B, C, S, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_appell4(A, B, C1, C2, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
 }
 
-def dmod_restriction_selberg2_1(A, B, K1, K2, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_selberg2_1(A, B, K1, K2, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_generic_appell4(A, B, C1, C2, Param, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
+  return dmodule_restriction_generic(D_ideal_str, Param, V, Rest);
 }
 
-def dmod_restriction_gkz(A, B, V, Rest) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_gkz(A, B, V), V);
-  return dmod_restriction(D_ideal_str, V, Rest);
+def dmodule_restriction_selberg2(A, B, C, S, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
 }
 
-def dmod_lookup(X, List) {
+def dmodule_restriction_selberg2_1(A, B, K1, K2, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2_1(A, B, K1, K2, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
+}
+
+def dmodule_restriction_gkz(A, B, V, Rest) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_gkz(A, B, V), V);
+  return dmodule_restriction(D_ideal_str, V, Rest);
+}
+
+def dmodule_lookup(X, List) {
   if (type(List) != 4) {
     error("parameter type error.");
   }
@@ -450,25 +388,49 @@ def dmod_lookup(X, List) {
   return 0;
 }
 
-def dmod_assign0(Rat, V0) {
-  if (type(Rat) > 3 || type(V0) != 4) {
+/* dmodule_assign0(Rat, [x,y,z]); -> x=0,y=0,z=0 */
+def dmodule_assign0(Rat, V) {
+  if (type(Rat) > 3 || type(V) != 4) {
     error("parameter type error.");
   }
-  for (I = 0; I < length(V0); I++) {
-    Rat = subst(Rat, V0[I], 0);
+  for (I = 0; I < length(V); I++) {
+    Rat = subst(Rat, V[I], 0);
   }
   return Rat;
 }
 
-def dmod_elimination_order(V, Elim) {
+/* dmodule_assign(Rat, [x,y,z], [1,2]); <-> x=1,y=2,z=0 */
+def dmodule_assign(Rat, V, Value) {
+  if (type(Rat) > 3 || type(V) != 4 || type(Value) != 4) {
+    error("parameter type error.");
+  }
+  for (I = 0; I < length(V); I++) {
+    if (I < length(Value)) {
+      Rat = subst(Rat, V[I], Value[I]);
+    }
+    else {
+      Rat = subst(Rat, V[I], 0);
+    }
+  }
+  return Rat;
+}
+
+/* dmodule_elimination_order([x,y,z], [y,z])
+   -> [ [dy,1,dz,0,dx,0,y,0,z,0,x,0],
+        [dy,0,dz,1,dx,0,y,0,z,0,x,0],
+        [dy,0,dz,0,dx,1,y,0,z,0,x,0],
+        [dy,0,dz,0,dx,0,y,1,z,0,x,0],
+        [dy,0,dz,0,dx,0,y,0,z,1,x,0],
+        [dy,0,dz,0,dx,0,y,0,z,0,x,1] ] */
+def dmodule_elimination_order(V, Elim) {
   if (type(V) != 4 || type(Elim) != 4) {
     error("parameter type error.");
   }
-  Dv = dmod_make_dv(V);
+  Dv = dmodule_make_dv(V);
   VarOrderX = Elim;  
-  VarOrderD = dmod_make_dv(Elim);
+  VarOrderD = dmodule_make_dv(Elim);
   for (I = 0; I < length(V); I++) {
-    if (!dmod_lookup(V[I], Elim)) {
+    if (!dmodule_lookup(V[I], Elim)) {
       VarOrderX = append(VarOrderX, [V[I]]);
       VarOrderD = append(VarOrderD, [Dv[I]]);
     }
@@ -494,22 +456,31 @@ def dmod_elimination_order(V, Elim) {
 }
 
 /* D_ideal: ["sm1 string format",...] */
-/* Elim: eliminated variables */
-def dmod_elimination(D_ideal, V, Elim) {
+/* Elim: eliminated variables and values */
+/* Elim: [[x1,...,xt],[a1,...,at]] -> restrict to {x1=a1,...,xt=at} */
+/* In the case of D_ideal with no generic parameter. */
+def dmodule_elimination(D_ideal, V, Elim) {
+  return dmodule_elimination_generic(D_ideal, [], V, Elim);
+}
+
+/* In the case of D_ideal with generic parameter. */
+def dmodule_elimination_generic(D_ideal, Param, V, Elim) {
 #if _DEBUG_Dmodule_
   print("D-idal: ", 0); print(D_ideal);
 #endif
-  Gb1 = sm1_gb(dmod_sm1_start(), [D_ideal, dmod_var_tosm1(V), dmod_elimination_order(V, Elim)]);
+  Gb1 = sm1_gb(dmodule_sm1_start(),
+	       [ D_ideal, dmodule_var_tosm1(append(V, Param)),
+	         dmodule_elimination_order(append(V, Param), Elim[0]) ]);
 #if _DEBUG_Dmodule_
   print("Gb1: ", 0); print(Gb1);
 #endif
   Gb2 = [];
-  D_Elim = dmod_make_dv(Elim);
+  D_Elim = dmodule_make_dv(Elim[0]);
   for (I = 0; I < length(Gb1[0]); I++) {
     Vars = vars(Gb1[0][I]);
     Flag = 0;
     for (J = 0; J < length(D_Elim); J++) {
-      if (dmod_lookup(D_Elim[J], Vars)) {
+      if (dmodule_lookup(D_Elim[J], Vars)) {
 	Flag = 1;
 	break;
       }
@@ -523,7 +494,7 @@ def dmod_elimination(D_ideal, V, Elim) {
 #endif
   R_Gb = [];
   for (I = 0; I < length(Gb2); I++) {
-    if ((Poly = dmod_assign0(Gb2[I], Elim)) != 0) {
+    if ((Poly = dmodule_assign(Gb2[I], Elim[0], Elim[1])) != 0) {
       R_Gb = append(R_Gb, [Poly]);
     }
   }
@@ -538,48 +509,76 @@ def dmod_elimination(D_ideal, V, Elim) {
   }
 }
 
-def dmod_elimination_appell1(A, B1, B2, C, V, Elim) {
-  D_idal = dmod_d_op_tosm1(diff_op_appell1(A, B1, B2, C, V), V);
-  return dmod_elimination(D_ideal, V, Elim);
+def dmodule_elimination_appell1(A, B1, B2, C, V, Elim) {
+  D_idal = dmodule_d_op_tosm1(diff_op_appell1(A, B1, B2, C, V), V);
+  return dmodule_elimination(D_ideal, V, Elim);
 }
 
-def dmod_elimination_appell2(A, B1, B2, C1, C2, V, Elim) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell2(A, B1, B2, C1, C2, V), V);
-  return dmod_elimination(D_ideal_str, V, Elim);
+def dmodule_elimination_appell2(A, B1, B2, C1, C2, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell2(A, B1, B2, C1, C2, V), V);
+  return dmodule_elimination(D_ideal_str, V, Elim);
 }
 
-def dmod_elimination_appell3(A1, A2, B1, B2, C, V, Elim) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell3(A1, A2, B1, B2, C, V), V);
-  return dmod_elimination(D_ideal_str, V, Elim);
+def dmodule_elimination_appell3(A1, A2, B1, B2, C, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell3(A1, A2, B1, B2, C, V), V);
+  return dmodule_elimination(D_ideal_str, V, Elim);
 }
 
-def dmod_elimination_appell4(A, B, C1, C2, V, Elim) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
-  return dmod_elimination(D_ideal_str, V, Elim);
+def dmodule_elimination_appell4(A, B, C1, C2, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
+  return dmodule_elimination(D_ideal_str, V, Elim);
 }
 
-def dmod_elimination_selberg2(A, B, C, S, V, Elim) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
-  return dmod_elimination(D_ideal_str, V, Elim);
+def dmodule_elimination_appell4s(R_A, R_B, R_C1, R_C2, V, Elim, Flag) {
+  Res_list = [];
+  for (A = R_A[0]; A <= R_A[1]; A += R_A[2]) {
+    for (B = R_B[0]; B <= R_B[1]; B += R_B[2]) {
+      for (C1= R_C1[0]; C1 <= R_C1[1]; C1 += R_C1[2]) {
+	for (C2= R_C2[0]; C2 <= R_C2[1]; C2 += R_C2[2]) {
+	  Res = dmodule_elimination_appell4(A, B, C1, C2, V, Elim);
+	  print([[A,B,C1,C2],[Res]]);
+	  if (Flag) {
+	    Res_list = append(Res_list, [ [[A, B, C1, C2],[Res]] ]);
+	  }
+	}
+      }
+    }
+  }
+  return Res_list;
 }
 
-def dmod_elimination_selberg2_1(A, B, K1, K2, V, Elim) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_selberg2_1(A, B, K1, K2, V), V);
-  return dmod_elimination(D_ideal_str, V, Elim);
+def dmodule_elimination_generic_appell4(A, B, C1, C2, Param, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_appell4(A, B, C1, C2, V), V);
+  return dmodule_elimination_generic(D_ideal_str, Param, V, Elim);
 }
 
-def dmod_elimination_gkz(A, B, V, Elim) {
-  D_ideal_str = dmod_d_op_tosm1(diff_op_gkz(A, B, V), V);
-  return dmod_elimination(D_ideal_str, V, Elim);
+def dmodule_elimination_selberg2(A, B, C, S, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
+  return dmodule_elimination(D_ideal_str, V, Elim);
+}
+
+def dmodule_elimination_generic_selberg2(A, B, C, S, Param, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2(A, B, C, S, V), V);
+  return dmodule_elimination_generic(D_ideal_str, Param, V, Elim);
+}
+
+def dmodule_elimination_selberg2_1(A, B, K1, K2, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_selberg2_1(A, B, K1, K2, V), V);
+  return dmodule_elimination(D_ideal_str, V, Elim);
+}
+
+def dmodule_elimination_gkz(A, B, V, Elim) {
+  D_ideal_str = dmodule_d_op_tosm1(diff_op_gkz(A, B, V), V);
+  return dmodule_elimination(D_ideal_str, V, Elim);
 }
 
 /* (V[0] dV[0])^N -> V[0]^N dV[0]^N + ... */
-def dmod_euler2d(N, V) {
+def dmodule_euler2d(N, V) {
   extern Dmodule_Euler2D;
   if (N < 0) {
     error("parameter range error.");
   }
-
+  /* extent a table */
   if (N >= length(Dmodule_Euler2D)) {
     for (I = length(Dmodule_Euler2D); I <= N; I++) {
       List = [0];
@@ -590,9 +589,9 @@ def dmod_euler2d(N, V) {
       Dmodule_Euler2D = append(Dmodule_Euler2D, [List]);
     }
   }
-
+  /* calculate by using a table */
   Coef = Dmodule_Euler2D[N];
-  Dv = dmod_make_dv(V);
+  Dv = dmodule_make_dv(V);
   D = 0;
   for (I = 0; I < length(Coef); I++) {
     D += Coef[I]*V[0]^I*Dv[0]^I;
@@ -600,43 +599,34 @@ def dmod_euler2d(N, V) {
   return D;
 }
 
-/* a -> a+n, b -> b+n, c1 -> c1+n, c2 -> c2+n */
-/* Param: List, [a,b,c1,c2] */
-/* Ns: List, [na,nb,nc1,nc2] */
-def dmod_contiguity_appell4(Param, Ns, F, V) {
+/* Param: List, [a,b,c] */
+/* Return: [[a->a+1,a->a-1],[b->b+1,b->b-1],[c->c+1,c->c-1]] */
+def dmodule_contiguity_hg1(Param, V) {
+  if (length(V) != 1) {
+    error("a length of List V is wrong.");
+  }
+  A = Param[0]; B = Param[1]; C = Param[2];
+  return [ [ [[V[0],[1]],[A,[0]]],[[V[0]*(1-V[0]),[1]],[C-A-B*V[0],[0]]] ],
+           [ [[V[0],[1]],[B,[0]]],[[V[0]*(1-V[0]),[1]],[C-B-A*V[0],[0]]] ],
+           [ [[1-V[0],[1]],[C-A-B,[0]]],[[V[0],[1]],[C-1,[0]]] ] ];
+}
+
+def dmodule_contiguity_appell4(Param, V) {
   if (length(V) != 2) {
     error("a length of List V is wrong.");
   }
-  if (Ns[0] < 0 || Ns[1] < 0 || Ns[2] > 0 || Ns[3] > 0) {
-    error("this case is undefined.");
-  }
+  A = Param[0]; B = Param[1]; C1 = Param[2]; C2 = Param[3];
+  return [ [ [[V[0],[1,0]],[V[1],[0,1]],[A,[0,0]]],["undefined"] ],
+           [ [[V[0],[1,0]],[V[1],[0,1]],[B,[0,0]]],["undefined"] ],
+           [ ["undefined"],[[V[0],[1,0]],[C1-1,[0,0]]] ],
+           [ ["undefined"],[[V[1],[0,1]],[C2-1,[0,0]]] ] ];
+}
 
-  Tx = uc(); Ty = uc();
-  L = 1;
-  for (I = 0; I < Ns[0]; I++) {
-    L *= Tx + Ty + Param[0] + I;
+def dmodule_contiguity_selberg2(Param, V) {
+  if (length(V) != 2) {
+    error("a length of List V is wrong.");
   }
-  for (I = 0; I < Ns[1]; I++) {
-    L *= Tx + Ty + Param[1] + I;
-  }
-  for (I = 0; I < -Ns[2]; I++) {
-    L *= Tx + Param[2] - I - 1;
-  }
-  for (I = 0; I < -Ns[3]; I++) {
-    L *= Ty + Param[3] - I - 1;
-  }
-
-  Dp_L = dp_ptod(L, [Tx,Ty]);
-  L = 0;
-  while (Dp_L != 0) {
-    Hm = dp_hm(Dp_L);
-    He = vtol(dp_etov(Hm));
-    L += dp_hc(Hm)*dmod_euler2d(He[0], [V[0]])*dmod_euler2d(He[1], [V[1]]);
-    Dp_L -= Hm;
-  }
-
-  L_list = dmod_d_op_fromasir([L], V);
-  return diff_act(L_list[0], F, V);
+  A = Param[0]; B = Param[1]; C = Param[2]; S = Param[3];
 }
 
 end$

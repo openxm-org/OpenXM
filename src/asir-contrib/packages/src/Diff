@@ -4,8 +4,10 @@
 /* Package for differential equations */
 /*------------------------------------*/
 
-#define _DEBUG_Diff_ 0
+#define _DEBUG_Diff_ 1
 #define _OPTIMIZE_Diff_ 1
+
+Diff_ActList1 = [ newvect(2, [ [(1)/(x),[x]], newvect(1,[(1)/(x)]) ]) ]$
 
 /* [[[F,V] DF],...] */
 /* DF: vector with vector elements */
@@ -14,8 +16,8 @@
          ...
          [Dv0^N(F)] ] */
 
-Diff_ActList2 = [ newvect(2, [ [(1)/(x*y), [x,y]],
-			       newvect(1, [ newvect(1, [(1)/(x*y)]) ]) ]) ]$
+Diff_ActList2 = [ newvect(2, [ [(1)/(x*y),[x,y]],
+			       newvect(1,[ newvect(1,[(1)/(x*y)]) ]) ]) ]$
 
 /*---------*/
 /* Utility */
@@ -43,15 +45,112 @@ def diff_is_neg0_int(N) {
   return 0;
 }
 
+/* translate coefficients of type 3 to of type 2. */
+def diff_op_rat2p(L_list) {
+  NewL_list = [];
+  for (I = 0; I < length(L_list); I++) {
+    L = L_list[I];
+    Dn = [];
+    for (J = 0; J < length(L); J++) {
+      Dn = append(Dn, [dn(red(L[J][0]))]);
+    }
+    if (Dn != []) {
+      Lcm = Dn[0];
+      for (J = 1; J < length(Dn); J++) {
+	Lcm *= sdiv(Dn[J], gcd(Lcm, Dn[J]));
+      }
+      NewL = [];
+      for (J = 0; J < length(L); J++) {
+	NewL = append(NewL, [ [red(L[J][0]*Lcm), L[J][1]] ]);
+      }
+      NewL_list = append(NewL_list, [NewL]);
+    }
+  }
+  return NewL_list;
+}
+
+/* translate coefficients of type 3 to of type 2 with integer coef. */
+def diff_op_rat2zp(L_list) {
+  L_list = diff_op_rat2p(L_list);
+  NewL_list = [];
+  for (I = 0; I < length(L_list); I++) {
+    L = L_list[I];
+    Dn = [];
+    for (J = 0; J < length(L); J++) {
+      Dn = append(Dn, [dn(sdiv(L[J][0], ptozp(L[J][0])))]);
+    }
+    if (Dn != []) {
+      Lcm = Dn[0];
+      for (J = 1; J < length(Dn); J++) {
+	Lcm *= idiv(Dn[J], igcd(Lcm, Dn[J]));
+      }
+      NewL = [];
+      for (J = 0; J < length(L); J++) {
+	NewL = append(NewL, [ [L[J][0]*Lcm, L[J][1]] ]);
+      }
+      NewL_list = append(NewL_list, [NewL]);
+    }
+  }
+  return NewL_list;
+}
+
 /*-------------------------------*/
 /* In the case of many variables */
 /*-------------------------------*/
-def diff2_act(L, F, V) {
+def diff_act1(L, F, V) {
+  if (length(V) != 1) {
+    error("a length of list V is wrong.");
+  }
+  extern Diff_ActList1;
+  /* search list */
+  for (I = 0; I < length(Diff_ActList1); I++) {
+    if (Diff_ActList1[I][0] == [F, V]) {
+      break;
+    }
+  }
+  N = I;
+  if (N == length(Diff_ActList1)) {
+    /* make Diff_ActList1[N] */
+    Diff_ActList1 = append(Diff_ActList1, [ newvect(2, [[F,V],newvect(1,[F])]) ]);
+  }
+  Table = Diff_ActList1[N];
+  /* calculate order of L */
+  MaxOrd = 0;
+  for (I = 0; I < length(L); I++) {
+    if (MaxOrd < L[I][1][0]) {
+      MaxOrd = L[I][1][0];
+    }
+  }
+  /* if MaxOrd >= length(Diff_ActList1[N][1][0]), extend Diff_ActList1[N][1]. */
+  if (MaxOrd >= size(Table[1])[0]) {
+    New = newvect(MaxOrd+1, vtol(Table[1]));
+    for (I = size(Table[1])[0]; I <= MaxOrd; I++) {
+      New[I] = red(diff(New[I-1], V[0]));
+    }
+    Table[1] = New;
+  }
+  /* action L */
+#if _DEBUG_Diff_
+  print("calculate Lf... ", 0);
+#endif
+  Lf = 0;
+  for (I = length(L) - 1; I >= 0; I--) {
+    Df = Table[1][L[I][1][0]];
+    Lf += L[I][0]*Df;
+    Lf = red(Lf);
+  }
+#if _DEBUG_Diff_
+  print("done.");
+#endif
+  return Lf;
+}
+
+def diff_act2(L, F, V) {
   if (length(V) != 2) {
     error("a length of list V is wrong.");
   }
   extern Diff_ActList2;
-  /* search list. */
+  /* search list */
   for (I = 0; I < length(Diff_ActList2); I++) {
     if (Diff_ActList2[I][0] == [F, V]) {
       break;
@@ -59,12 +158,12 @@ def diff2_act(L, F, V) {
   }
   N = I;
   if (N == length(Diff_ActList2)) {
-    /* make Diff_ActList2[N]. */
+    /* make Diff_ActList2[N] */
     Diff_ActList2 = append(Diff_ActList2,
 			   [ newvect(2, [[F, V],newvect(1,[newvect(1,[F])])]) ]);
   }
   Table = Diff_ActList2[N];  /* a vetor of size 2 */
-  /* calculate order of L. */
+  /* calculate order of L */
   MaxOrd = 0;
   for (I = 0; I < length(L); I++) {
     if (MaxOrd < L[I][1][0] + L[I][1][1]) {
@@ -90,7 +189,7 @@ def diff2_act(L, F, V) {
     }
     Table[1] = NewTable;
   }
-  /* action L. */
+  /* action L */
   Lf = 0;
   for (I = length(L) - 1; I >= 0; I--) {
     Df = Table[1][L[I][1][0]][L[I][1][1]];
@@ -113,14 +212,28 @@ def diff_act_mono(D, F, V) {
   return diff(F, Var);
 }
 
+def diff_contain_uc(Obj) {
+  List = vars(Obj);
+  for (I = 0; I < length(List); I++) {
+    if (vtype(List[I]) == 1) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 /* L: [ [fa(V),[a1,...,an]],... ] */
 /* F: rational expr */
 /* V: list, [x1,...,xn] */
 /* the return value of this function is reduced by using 'red()'. */
 def diff_act(L, F, V) {
 #if _OPTIMIZE_Diff_
+  if (length(V) == 1 && type(F) == 3) {
+    return diff_act1(L, F, V);
+  }
+  /* if (length(V) == 2 && type(F) == 3 && !diff_contain_uc(F)) { */
   if (length(V) == 2 && type(F) == 3) {
-    return diff2_act(L, F, V);
+    return diff_act2(L, F, V);
   }
 #endif
 
@@ -236,7 +349,7 @@ def diff_rat_solve(L_list, Dn, N, V) {
   U = 0;
   for (I = 0; I <= Deg_U; I++) {
     for (J = 0; J < length(Basis_U[I]); J++) {
-      U += Coef_U[I][J]*dp_dtop(dp_vtoe(mat_ltov(Basis_U[I][J])), V);
+      U += Coef_U[I][J]*dp_dtop(dp_vtoe(matrix_ltov(Basis_U[I][J])), V);
     }
   }
 #if _DEBUG_Diff_
@@ -306,7 +419,7 @@ def diff_rat_solve(L_list, Dn, N, V) {
 #endif
 
   /* OK: solve A*X = 0 */
-  Sol = mat_solve(A, X, newvect(Size_Row));
+  Sol = matrix_solve(A, X, newvect(Size_Row));
 #if _DEBUG_Diff_
   print("Sol: ", 0); print(Sol);
 #endif
@@ -392,6 +505,27 @@ def diff_poly_solve_hg1_check(Sol,A,B,C,V) {
   return 1;
 }
 
+def diff_op_hg1_rat(A,B,C,K1,K2,V) {
+  A3 = A+B-2*K1-2*K2+1;
+  A2 = -A-B-C+4*K1+2*K2-1;
+  A1 = C-2*K1;
+  B2 = (A-K1-K2)*(B-K1-K2);
+  B1 = -(A-K1)*(B-K1)+(K1+K2)*C-K1*(K1+2*K2+1);
+  B0 = K1*(K1-C+1);
+  return [ [ [V[0]^2*(1-V[0])^2,[2]],
+             [A3*V[0]^3+A2*V[0]^2+A1*V[0],[1]],
+             [B2*V[0]^2+B1*V[0]+B0,[0]] ] ];
+}
+
+def diff_act_hg1_rat(A,B,C,K1,K2,F,V) {
+  return diff_acts(diff_op_hg1_rat(A,B,C,K1,K2,V),F,V);
+}
+
+def diff_rat_solve_hg1(A,B,C,K1,K2,N,V) {
+  L_list = diff_op_hg1_rat(A,B,C,K1,K2,V);
+  Sol = diff_poly_solve(L_list,N,V);
+  return [red(Sol[0]/(V[0]^K1*(1-V[0])^K2)), Sol[1]];
+}
 /*---------------------------*/
 /* the case of two variables */
 /*---------------------------*/
@@ -536,7 +670,7 @@ def diff_pseries_appell4(A,B,C1,C2,N,V) {
       C1_M = diff_pochhammer(C1, Basis[I][J][0]);
       C2_N = diff_pochhammer(C2, Basis[I][J][1]);
       Coef = A_K*B_K/(C1_M*C2_N*fac(Basis[I][J][0])*fac(Basis[I][J][1]));
-      Pseries += red(Coef)*dp_dtop(dp_vtoe(mat_ltov(Basis[I][J])), V);
+      Pseries += red(Coef)*dp_dtop(dp_vtoe(matrix_ltov(Basis[I][J])), V);
     }
   }
   return Pseries;
@@ -578,8 +712,70 @@ def diff_poly_solve_appell4_check(Sol,A,B,C1,C2,V) {
   return 1;
 }
 
-def diff_rat_solve_appell4(A,B,C1,C2,Dn,N,V) {
-  return diff_rat_solve(diff_op_appell4(A,B,C1,C2,V),Dn,N,V);
+def diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V) {
+  C1Gxx = V[0]^2*(1-V[0])*((V[0]-1)^2-2*(V[0]+1)*V[1]+V[1]^2);
+  C1Gxy = -2*V[0]^2*V[1]*((V[0]-1)^2-2*(V[0]+1)*V[1]+V[1]^2);
+  C1Gyy = -V[0]*V[1]^2*((V[0]-1)^2-2*(V[0]+1)*V[1]+V[1]^2);
+  C1Gx = V[0]*( (x-1)^2*(C1-2*K1-(1+A+B)*V[0]
+                         +2*(K1+K2+2*K3)*V[0])
+                -2*(-2*K1+2*(K1+K2+2*K3)*V[0]^2+C1*(V[0]+1)
+                    -V[0]*(1+A+B-2*K2+(1+A+B)*V[0]))*V[1]
+                +(C1-2*K1-(1+A+B)*V[0]+2*(K1+K2+2*K3)*V[0])*V[1]^2 );
+  C1Gy = -V[0]*V[1]*( (V[0]-1)*(-1+2*K1+2*K2+A*(V[0]-1)+B*(V[0]-1)
+                                +V[0]-2*(K1+K2+2*K3)*V[0])
+                      -2*(1+A+B-2*K1-2*K2-2*K3+V[0]
+                          +(A+B-2*(K1+K2+2*K3))*V[0])*V[1]
+                      +(1+A+B-2*K1-2*K2-4*K3)*V[1]^2 );
+  C1G = ( (V[0]-1)*(-K1^2*(V[0]-1)^2
+                    +K1*(V[0]-1)*(1-C1+(A+B-2*K2-4*K3)*V[0])
+                    +V[0]*((A-K2)*(B-K2)-2*C1*K3
+                           +(A-K2-2*K3)*(-B+K2+2*K3)*V[0]))
+                    +2*(-K1*(1-C1+K1)+A*B*V[0]
+                    -(K1*(1+A+B-C1-2*K2)+(A+B-K2)*K2+(1+A+B-C1-2*K2)*K3)*V[0]
+                    +(-A+K1+K2+2*K3)*(-B+K1+K2+2*K3)*V[0]^2)*V[1]
+          -(-K1*(1-C1+K1)+(-A+K1+K2+2*K3)*(-B+K1+K2+2*K3)*V[0])*V[1]^2 );
+
+  C2Gxx = -V[0]^2*V[1]*((-1+V[0])^2-2*(1+V[0])*V[1]+V[1]^2);
+  C2Gxy = -2*V[0]*V[1]^2*((-1+V[0])^2-2*(1+V[0])*V[1]+V[1]^2);
+  C2Gx = -V[1]*V[0]*( (-1+V[0])*(-1-A-B+2*K1+2*K2+V[0]
+                                 +(A+B-2*(K1+K2+2*K3))*V[0])
+                      -2*(1+A+B-2*K1-2*K2-2*K3+V[0]
+                          +(A+B-2*(K1+K2+2*K3))*V[0])*V[1]
+                      +(1+A+B-2*K1-2*K2-4*K3)*V[1]^2 );
+  C2Gyy = -V[1]*(-1+V[1])*V[1]*((-1+V[0])^2-2*(1+V[0])*V[1]+V[1]^2);
+  C2Gy = V[1]*( -2*K2*(-1+V[0])^2
+                -(1+A+B-2*K1)*V[1]
+                +(-(1+A+B-2*K1)*(-2+V[0])*V[0]
+                  +4*K3*(1+V[0]^2)
+                  +2*K2*(3+V[0]^2))*V[1]
+                +2*(1+A+B-2*K1-3*K2-4*K3+V[0]
+                    +(A+B-2*(K1+K2+2*K3))*V[0])*V[1]^2
+                -(1+A+B-2*K1-2*K2-4*K3)*V[1]^3
+                +C2*((-1+V[0])^2-2*(1+V[0])*V[1]+V[1]^2) );
+  C2G = ( K2*(1-C2+K2)*(-1+V[0])^2
+          -(K1^2+2*K2+2*K1*K2+3*K2^2+4*K2*K3-2*C2*(K2+K3)
+            -2*((-1+C2)*(K2+K3)+K1*(K1+2*(K2+K3)))*V[0]
+            +(K1+K2+2*K3)^2*V[0]^2
+            +A*(-1+V[0])*(K1+K2+B*(-1+V[0])-(K1+K2+2*K3)*V[0])
+            -B*(-1+V[0])*(-K1-K2+(K1+K2+2*K3)*V[0]))*V[1]
+          +(2*A*B-2*A*K1-2*B*K1+2*K1^2+K2-2*A*K2-2*B*K2-C2*K2+4*K1*K2
+            +3*K2^2-2*A*K3-2*B*K3-2*C2*K3+4*K1*K3+8*K2*K3+4*K3^2
+            +2*(-A+K1+K2+2*K3)*(-B+K1+K2+2*K3)*V[0])*V[1]^2
+          -(-A+K1+K2+2*K3)*(-B+K1+K2+2*K3)*V[1]^3 );
+  return [ [ [C1Gxx,[2,0]],[C1Gxy,[1,1]],[C1Gyy,[0,2]],
+             [C1Gx,[1,0]],[C1Gy,[0,1]],[C1G,[0,0]] ],
+           [ [C2Gyy,[0,2]],[C2Gxy,[1,1]],[C2Gxx,[2,0]],
+             [C2Gx,[1,0]],[C2Gy,[0,1]],[C2G,[0,0]] ] ];
+}
+
+def diff_act_appell4_rat(A,B,C1,C2,K1,K2,K3,Nm,V) {
+  return diff_acts(diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V),Nm,V);
+}
+
+def diff_rat_solve_appell4(A,B,C1,C2,K1,K2,K3,N,V) {
+  Dn = V[0]^K1*V[1]^K2*((V[0]-V[1])^2-2*(V[0]+V[1])+1)^K3;
+  Sol = diff_poly_solve(diff_op_appell4_rat(A,B,C1,C2,K1,K2,K3,V),N,V);
+  return [red(Sol[0]/Dn), Sol[1]];
 }
 
 /* selberg2 */
@@ -713,13 +909,13 @@ def diff_lookup(X, List) {
 /* [[u1,v1],[u2,v2],...] <- { x^u1-x^v1, x^u2-x^v2,...} */
 def diff_toric_ideal(A) {
   if (type(A) == 6) {
-    A = mat_mtol(A);
+    A = matrix_mtol(A);
   }
   if (type(A) != 4) {
     error("parameter type error.");
   }
 
-  A = mat_mtol(mat_trans(A));
+  A = matrix_mtol(matrix_trans(A));
 
   Vx = [];
   for (I = 0; I < length(A); I++) {
@@ -807,7 +1003,7 @@ def diff_toric_ideal(A) {
 /* B: vetor or list */
 def diff_op_gkz(A, B, V) {
   if (type(A) == 6) {
-    A = mat_mtol(A);
+    A = matrix_mtol(A);
   }
   if (type(B) == 5) {
     B = vtol(B);
