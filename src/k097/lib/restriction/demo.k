@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.1 2000/12/14 13:18:41 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/restriction/demo.k,v 1.2 2000/12/15 02:44:32 takayama Exp $  */
 
 load["restriction.k"];;
 load("../ox/ox.k");;
@@ -30,6 +30,46 @@ def asirAnnfsXYZ(a,f) {
   p = ToString(f);
   b = a.rpc("myann",[p]);
   return(b);
+}
+
+def asir_rpc_old(argv_rpc_asir) {
+   sm1(" oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+        } {  } ifelse ");
+   sm1(" oxasir.ccc argv_rpc_asir asir /FunctionValue set ");
+}
+def asir_define_own_functions() {
+   asir_rpc_old(["igcd",2,3]);
+   sm1(" oxasir.ccc (def mygeneric_bfct(Id,V,DV,W)  {
+                            return( rtostr(generic_bfct(Id,V,DV,W))); 
+                      })  oxsubmit ");
+}
+
+def asir_generic_bfct(ii,vv,dd,ww) {
+   local ans;
+   ans = asir_rpc_old(["mygeneric_bfct",ii,vv,dd,ww]);
+   return(ans);
+}
+/* asir_generic_bfct([Dx^2+Dy^2-1,Dx*Dy-4],[x,y],[Dx,Dy],[1,1]): */
+
+def asir_BfRoots2(G) {
+   local bb,ans,ss;
+   sm1(" G flatten {dehomogenize} map /G set ");
+   asir_define_own_functions();
+   ss = asir_generic_bfct(G,[x,y],[Dx,Dy],[1,1]);
+   bb = [ss];
+   sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
+   return([ans, bb]);
+}
+def asir_BfRoots3(G) {
+   local bb,ans,ss;
+   sm1(" G flatten {dehomogenize} map /G set ");
+   asir_define_own_functions();
+   ss = asir_generic_bfct(G,[x,y,z],[Dx,Dy,Dz],[1,1,1]);
+   bb = [ss];
+   sm1(" bb 0 get findIntegralRoots { (universalNumber) dc } map /ans set ");
+   return([ans, bb]);
 }
 
 def findMinSol(f) {
@@ -67,7 +107,8 @@ def nonquasi2(p,q) {
   Res = Sminimal(pp);
   Res0 = Res[0];
   Println("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y");
+/*  R = BfRoots1(Res0[0],"x,y"); */
+  R = asir_BfRoots2(Res0[0]);
   Println("Step3: computing the cohomology of the truncated complex.");
   Print("Roots and b-function are "); Println(R);
   R0 = R[0];
@@ -96,7 +137,8 @@ def DeRham2WithAsir(f) {
   Res = Sminimal(pp);
   Res0 = Res[0];
   Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y");
+  /* R = BfRoots1(Res0[0],"x,y"); */
+  R = asir_BfRoots2(Res0[0]);
   Println("Step3: computing the cohomology of the truncated complex.");
   Print("Roots and b-function are "); Println(R);
   R0 = R[0];
@@ -115,7 +157,8 @@ def DeRham3WithAsir(f) {
   Res = Sminimal(pp);
   Res0 = Res[0];
   Print("Step2: (-1,1)-minimal resolution (Res0) "); sm1_pmat(Res0);
-  R = BfRoots1(Res0[0],"x,y,z");
+/*  R = BfRoots1(Res0[0],"x,y,z"); */
+  R = asir_BfRoots3(Res0[0]);
   Println("Step3: computing the cohomology of the truncated complex.");
   Print("Roots and b-function are "); Println(R);
   R0 = R[0];
