@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.1 2003/11/03 03:11:21 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile,v 1.2 2003/11/03 22:06:09 ohara Exp $
 #
 #
 #
@@ -29,6 +29,7 @@ DISTFILEDIR=ntl-5.3.1
 DISTFILE=ntl-5.3.1.tar.gz
 WORK=$(PWD)/work
 
+GMPOPT=NTL_GMP_LIP=on GMP_PREFIX=${OpenXM_HOME} GMP_INCDIR=${OpenXM_HOME}/include GMP_LIBDIR=${OpenXM_HOME}/lib
 
 .SUFFIXES: .cpp .o .c
 
@@ -88,7 +89,7 @@ patch-ntl: fetch-ntl
 
 build-ntl: patch-ntl
 	@if [ ! -f .build-ntl-done ]; then \
-		(cd ${WORK}/${DISTFILEDIR}/src; ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX}; make); \
+		(cd ${WORK}/${DISTFILEDIR}/src; ./configure LIBDIR=${NTL_LIBDIR} PREFIX=${PREFIX} ${GMPOPT}; make); \
 		touch .build-ntl-done; \
 	fi
 
