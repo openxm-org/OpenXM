@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.14 2000/10/11 06:56:02 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.15 2000/10/12 15:53:25 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -92,15 +92,9 @@ cmo_error2* make_error_object(int err_code, cmo *ob)
     return new_cmo_error2((cmo *)li);
 }
 
-#define DEFAULT_SERIAL_NUMBER 0x0000ffff
-#define receive_serial_number(x)   (receive_int32((x)))
-
 /* getting a next serial number. */
 int next_serial(OXFILE *oxfp)
 {
-/*
-    static int serial_number = DEFAULT_SERIAL_NUMBER;
-*/
     return oxfp->serial_number++;
 }
 
@@ -120,7 +114,7 @@ int receive_int32(OXFILE *oxfp)
 int receive_ox_tag(OXFILE *oxfp)
 {
     int tag = receive_int32(oxfp);
-    current_received_serial = receive_serial_number(oxfp);
+    oxfp->received_serial_number = receive_int32(oxfp);
     return tag;
 }
 
