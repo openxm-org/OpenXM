@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.33 2001/03/07 07:34:19 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.34 2001/03/08 07:22:29 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -98,6 +98,7 @@ usage:
 	@echo "Targets are "
 	@echo "    install-web-kobe all-spec copy-doc copy-html"
 	@echo "   "
+	@echo " install-web-kobe-main :  main html files."
 	@echo "Several examples"
 	@echo " 1. Generate OpenXM-FAQ-en.txt for a test."
 	@echo "   make WEBKOBE1=. ./OpenXM-FAQ-en.txt"
@@ -115,7 +116,10 @@ checkDir :
 	fi \
 
 
-install-web-kobe :  checkDir ${WEBKOBE}/index.html ${WEBKOBE}/OpenXM-RFC.html ${WEBKOBE}/issac2000.ps ${WEBKOBE1}/cmotag.h ${WEBKOBE1}/oxMessageTag.h ${WEBKOBE1}/smCommand.h  ${WEBKOBE1}/install-en.txt ${WEBKOBE1}/install-ja.txt  ${WEBKOBE1}/ERRATA.html ${WEBKOBE1}/index-binary.html ${WEBKOBE1}/index-packages.html ${WEBKOBE1}/install-faq.txt ${WEBKOBE1}/OpenXM-FAQ-en.txt ${WEBKOBE1}/OpenXM-FAQ-ja.txt ${WEBKOBE1}/doc/index.html ${WEBKOBE}/people.html
+install-web-kobe : install-web-kobe-main install-web-kobe-suppl
+install-web-kobe-main : checkDir ${WEBKOBE}/index.html ${WEBKOBE}/OpenXM-RFC.html  ${WEBKOBE1}/cmotag.h ${WEBKOBE1}/oxMessageTag.h ${WEBKOBE1}/smCommand.h  ${WEBKOBE1}/install-en.txt ${WEBKOBE1}/install-ja.txt  ${WEBKOBE1}/ERRATA.html ${WEBKOBE1}/index-binary.html ${WEBKOBE1}/index-packages.html ${WEBKOBE1}/install-faq.txt ${WEBKOBE1}/OpenXM-FAQ-en.txt ${WEBKOBE1}/OpenXM-FAQ-ja.txt ${WEBKOBE1}/doc/index.html ${WEBKOBE}/people.html ${WEBKOBE}/anonymous.html
+
+install-web-kobe-suppl : ${WEBKOBE}/issac2000.ps
 
 ${WEBKOBE}/index.html : index.html
 	cp -f index.html ${WEBKOBE}
@@ -123,6 +127,9 @@ ${WEBKOBE}/index.html : index.html
 
 ${WEBKOBE}/people.html : people.html
 	cp -f people.html ${WEBKOBE}
+
+${WEBKOBE}/anonymous.html : anonymous.html
+	cp -f anonymous.html ${WEBKOBE}
 
 ${WEBKOBE1}/index-binary.html : index-binary.html
 	cp -f index-binary.html ${WEBKOBE1}

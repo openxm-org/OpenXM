@@ -1,0 +1,35 @@
+<html>
+<!--
+$OpenXM$
+-->
+<title>Getting the latest version (HEAD branch) 
+       from anonymous CVS server</title>
+<body>
+<H2>Getting the latest version (HEAD branch) from anonymous CVS server</H2>
+
+<OL>
+<LI> Password registration (necessary only for the first connection) <BR>
+
+Execute the following command: <BR>
+
+% cvs -d :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvs login <BR>
+(Logging in to anoncvs@kerberos.math.kobe-u.ac.jp) <BR>
+CVS password: <BR>
+
+Type anoncvs, then a line will be appended to $HOME/.cvspass<BR>
+
+<LI> Getting the source tree<BR>
+
+Execute the following command: <BR>
+
+% cvs -d :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvs checkout OpenXM OpenXM_contrib OpenXM_contrib2<BR>
+
+<LI> Updating the source tree<BR>
+
+Execute the following command in the directory where OpenXM, OpenXM_contrib and OpenXM_contrib2 exist: <BR>
+
+% cvs -d :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvs update OpenXM OpenXM_contrib OpenXM_contrib2<BR>
+
+</OL>
+</body>
+</html>
