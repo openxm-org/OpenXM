@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.4 2000/09/08 16:08:42 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.4.2.1 2000/11/10 20:12:08 maekawa Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -147,46 +147,77 @@ socketAccept(int snum) {
   return(news);
 }
 
-socketAcceptLocal(int snum) {
-  int s, news;
-  struct sockaddr_storage ss;
-  int len;
-  int i;
+socketAcceptLocal(int s) {
+	struct sockaddr_storage ss;
+	socklen_t len;
+	int ps, accepted, error;
 
-  SET_TCPIOERROR;
-  s = snum;
-  fprintf(TcpioError,"Trying to accept from localhost... "); fflush(TcpioError);
-  len = sizeof(ss);
-  if ((news = accept(s, (struct sockaddr *)&ss,&len)) < 0) {
-    errorMsg1s("Error in accept.");
-    return(-1);
-  }
+	SET_TCPIOERROR;
 
-  len = sizeof(ss);
-  getpeername(news, (struct sockaddr *)&ss,&len);
-#if 0
-  printf("len= %d\n",len);
-  for (i=0; i<len; i++) {
-    printf(" %x ", peer.sa_data[i]);
-  }
-  printf("\n");
-  if (peer.sa_data[2] == 0x7f && peer.sa_data[3] == 0 &&
-      peer.sa_data[4] == 0    && peer.sa_data[5] == 1) {
-    fprintf(stderr,"Authentication: localhost is allowed to be accepted.\n");
-  }else{
-    errorMsg1s("Authentication: The connection is not from the localhost.");
-    close(s);
-    fprintf(stderr,"The connection is refused.");
-    return(-1);
-  }
-#endif
+	fprintf(TcpioError,"Trying to accept from localhost... ");
+	fflush(TcpioError);
 
-  fprintf(TcpioError,"Accepted.\n"); fflush(TcpioError);
-  if (close(s) < 0) {
-    errorMsg1s("Error in closing the old socket.");
-    return(-1);
-  }
-  return(news);
+	len = sizeof(ss);
+	if ((ps = accept(s, (struct sockaddr *)&ss, &len)) < 0) {
+		errorMsg1s("Error in accept.");
+		close(s);
+		return (-1);
+	}
+
+	len = sizeof(ss);
+	if (getpeername(ps, (struct sockaddr *)&ss, &len) < 0) {
+		close(s);
+		close(ps);
+		errorMsg1s("Error in getpeername.");
+		return (-1);
+	}
+
+	accepted = 0;
+	switch (ss.ss_family) {
+	case AF_INET:
+	{
+#ifndef INADDR_LOOPBACK
+#define	INADDR_LOOPBACK		0x7f000001	/* 127.0.0.1 */
+#endif /* INADDR_LOOPBACK */
+		struct sockaddr_in *sin;
+		sin = (struct sockaddr_in *)&ss;
+		if (sin->sin_addr.s_addr == INADDR_LOOPBACK)
+			accepted = 1;
+		break;
+	}
+	case AF_INET6:
+	{
+		struct sockaddr_in6 *sin6;
+		sin6 = (struct sockaddr_in6 *)&ss;
+		if (IN6_IS_ADDR_LOOPBACK(sin6->sin6_addr))
+			accepted = 1;
+		break;
+	}
+	default:
+		accepted = 0;
+	}
+
+	if (accepted) {
+		fprintf(stderr, "Authentication: "
+				"localhost is allowed to be accepted.\n");
+	} else {
+		errorMsg1s("Authentication: "
+			   "The connection is not from the localhost.");
+		close(s);
+		close(ps);
+		fprintf(stderr, "The connection is refused.");
+		return (-1);
+	}
+
+	fprintf(TcpioError, "Accepted.\n");
+	fflush(TcpioError);
+	if (close(s) < 0) {
+		errorMsg1s("Error in closing the old socket.");
+		close(ps);
+		return(-1);
+	}
+
+	return(ps);
 }
 
 int oxSocketSelect0(int fd,int t) {
