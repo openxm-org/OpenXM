@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.2 2000/03/03 05:13:26 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.3 2000/03/04 04:00:47 takayama Exp $
 
 # Modify this.
 OpenXM_TOP=$(HOME)
@@ -52,6 +52,13 @@ make-tar-ball :
 	mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm
 	tar czf $(HOME)/tmp/openxm-port.tar.gz openxm
 
+make-tar-ball-for-openxm-port:
+	rm -rf openxm 
+	rm -rf OpenXM/misc/packages/FreeBSD
+	$(RCVS) export -rHEAD OpenXM/misc/packages/FreeBSD
+	mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm
+	tar czf $(HOME)/tmp/openxm-port.tar.gz openxm
+
 make-tar-ball-from-local-OpenXM :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2
 	(cd $(OpenXM_TOP) ; tar cf - OpenXM OpenXM_contrib OpenXM_contrib2) | tar xf -
@@ -69,4 +76,4 @@ generate-symbolic-links :
 
 
 clean-this-directory:
-	/bin/rm -rf OpenXM OpenXM_contrib OpenXM_contrib2 *~
+	/bin/rm -rf OpenXM OpenXM_contrib OpenXM_contrib2 *~ openxm
