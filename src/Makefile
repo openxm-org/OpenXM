@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.109 2001/12/18 04:24:04 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.110 2002/02/25 08:18:40 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -21,7 +21,7 @@ all-gc:
 all-gmp: configure-gmp
 	(if test ! -f .gmp_make_done ; then cd gmp ; make ; touch .gmp_make_done ; fi) ; 
 
-all-oxtoolkit: configure-oxtoolkit install-gmp install-gc install-kxx
+all-oxtoolkit: configure-oxtoolkit install-gmp install-gc configure-util
 	(cd ox_toolkit; make)
 
 all-oxc: configure-oxc install-oxtoolkit
@@ -205,10 +205,14 @@ distclean: clean
 	       $(BINDIR)/oxlog $(BINDIR)/oxweave $(BINDIR)/sm1 \
 	       $(LIBDIR)/k097 $(LIBDIR)/sm1 SSkan bin gc gmp
 
-configure: configure-links configure-include configure-bin configure-asir \
+configure: configure-links configure-include configure-bin configure-util \
+       configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp
+
+configure-util: configure-directory
+	(cd util; make install)
 
 configure-include: configure-include-make-dir ../include/ox/cmotag.h ../include/ox/oxMessageTag.h ../include/ox/smCommand.h
 
