@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.41 2002/06/04 09:02:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.42 2002/07/15 02:14:10 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -573,10 +573,18 @@ def print_input_form_(F) {
 end: */
 def print_output(Obj) { 
   OX_LOADFILE(Loaded_taka_print,"taka_print.rr");
-  M = getopt(mode);
-  if (type(M) == -1) { M = "a"; }
-  F = getopt(file);
-  if (type(F) == -1) { F = "asir_output_tmp.txt"; }
+  M = "a"; F = "asir_output_tmp.txt";
+  Argv = getopt();
+  for (I=0; I<length(Argv); I++) {
+    if (Argv[I][0] == "mode") {
+      M = Argv[I][1];
+    }else if (Argv[I][0] == "file") {
+      F = Argv[I][1];
+    }else{
+      error("Unknown option "+rtostr(Argv[I][0])+" in print_output");
+      return;
+    }
+  }
   return taka_print_output(Obj,F,M);
 }
 
