@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.14 2000/12/03 07:29:38 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.15 2001/05/04 01:06:23 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -117,6 +117,10 @@ FILE *Fstack = NULL; /* Initialized to standard output stream
 int EnvOfStackMachine[2000];
 #else
 jmp_buf EnvOfStackMachine;
+#endif
+
+#if defined(__CYGWIN__)
+int errno;
 #endif
 
 struct object NullObject;
