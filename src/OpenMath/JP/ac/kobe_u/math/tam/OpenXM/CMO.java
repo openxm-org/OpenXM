@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.9 2000/02/21 03:48:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.10 2000/03/12 14:24:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -85,7 +85,7 @@ abstract public class CMO extends OXbody{
     this.sendByObject(os);
   }
 
-  public static CMO receive(DataInputStream is) throws IOException{
+  protected static CMO receive(DataInputStream is) throws IOException{
     int a = 0;
 
     a = is.readInt();
@@ -101,7 +101,7 @@ abstract public class CMO extends OXbody{
       return cmoNull.receive(is);
 
     case CMO_INT32:
-      return new CMO_INT32().receiveByObject(is);
+      return cmoInt32.receive(is);
 
     case CMO_DATUM:
       return new CMO_DATUM().receiveByObject(is);
