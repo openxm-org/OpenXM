@@ -1,8 +1,8 @@
-% $OpenXM: OpenXM/doc/ascm2001p/design-outline.tex,v 1.1 2001/06/19 07:32:58 noro Exp $
+% $OpenXM: OpenXM/doc/ascm2001p/design-outline.tex,v 1.2 2001/06/20 02:09:45 takayama Exp $
 
 \section{Design Outline and OpenXM Request for Comments (OpenXM-RFC)} 
 
-As Schefstr\"om clarified in \cite{schefstrom},
+As Schefstr\"om\cite{schefstrom}, clarified,
 integration of tools and software has three dimensions:
 data, control, and user interface.
 
@@ -11,11 +11,11 @@ software or same software.
 OpenMath \cite{OpenMath} and MP (Multi Protocol) \cite{GKW} are,
 for example, general purpose mathematical data protocols.
 They provide standard ways to express mathematical objects.
-For example,
-\begin{verbatim}
- <OMOBJ>  <OMI> 123 </OMI> </OMOBJ>
-\end{verbatim}
-means the (OpenMath) integer $123$ in OpenMath/XML expression.
+%For example,
+%\begin{verbatim}
+% <OMOBJ>  <OMI> 123 </OMI> </OMOBJ>
+%\end{verbatim}
+%means the (OpenMath) integer $123$ in OpenMath/XML expression.
 
 Control integration concerns with the establishment and management of
 inter-software communications.
@@ -34,64 +34,36 @@ Each integration method has their own features determined by their
 own design goals.
 OpenXM (Open message eXchange protocol for Mathematics)
 is a project aiming to integrate data, control and user interfaces
-with design goals motivated by the followings.
-\begin{enumerate}
-\item We should test the proposed standards mentioned above on
-various mathematical software systems, but the testing has not been
-enough.
-\item Noro has been involved in the development of 
+started by Noro and Takayama.
+
+Noro has been involved in the development of 
 a computer algebra system Risa/Asir \cite{asir}.
 An interface for interactive distributed computations was introduced
-to Risa/Asir 
-%% version 950831 released 
-in 1995.
-The model of computation was RPC (remote procedure call).
+to Risa/Asir in 1995.
+The model of computation was RPC.
 A robust interruption protocol was provided 
-by  two communication channels
-like the File Transfer Protocol (ftp).
+by  two communication channels like ftp.
 As an application of this protocol,
 a parallel speed-up was achieved for a Gr\"obner basis computation
 to determine all odd order replicable functions 
 (Noro and McKay \cite{noro-mckay}).
-However, the protocol was local in Asir and we thought that we should
-design an open protocol.
-\item Takayama has developed
+Takayama has developed
 a special purpose system Kan/sm1 \cite{kan},
-which is a Gr\"obner engine for the ring of differential operators $D$. 
-In order to implement algorithms in $D$-modules due to Oaku 
-(see, e.g., \cite{sst-book}),
-factorizations and primary ideal decompositions are necessary.
-Kan/sm1 does not have an implementation for these and called
-Risa/Asir as a UNIX external program.
-This approach was not satisfactory.
-Especially, we could not write a clean interface code between these
-two systems.
-We thought that it is necessary to provide a data and control protocol
-for Risa/Asir to work as a server of factorization and primary ideal
-decomposition.
-\item We have been profited from increasing number 
-of mathematical software.
-These are usually ``expert'' systems in one area of mathematics
-such as ideals, groups, numbers, polytopes, and so on.
-They have their own interfaces and data formats,
-which are fine for intensive users of these systems.
-However, a unified system will be more convenient.
-%for users who want to explore a new area of mathematics with these
-%software or users who need these systems only occasionally.
+which is a Gr\"obner engine for the ring of differential operators $D$
+and designed as a component of a larger system. 
 
-\item  We believe that an open integrated system is a future of mathematical
+Noro and Takayama firstly tried to integrate these existing two
+software systems.
+We believe that an open integrated system is a future of mathematical
 software.
-However, it might be just a dream without realizability.
-We want to build a prototype of such an open system by using
-existing standards, technologies and several mathematical software.
-We want to see how far we can go with this approach.
-\end{enumerate}
+However, we found that it might be just a dream without realizability
+and that it is an important research subject to
+build a prototype of such an integrated system. % Project X
 
-Motivated with these, we started the OpenXM project with the following
+We started the OpenXM project with the following
 fundamental architecture, which is currently described in
 OpenXM-RFC 100  proposed standard %% ``draft standard'' and ``standard''
-``Design and Implementation of OpenXM client-server model and common
-mathematical object format'' \cite{ox-rfc-100}.
+\cite{ox-rfc-100}.
 \begin{enumerate}
 \item Communication is an exchange of messages. The messages are classified into
 three types:
