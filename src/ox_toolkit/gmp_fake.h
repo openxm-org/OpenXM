@@ -1,8 +1,12 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/gmp_fake.h,v 1.1 2003/03/30 08:10:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/gmp_fake.h,v 1.2 2003/04/09 09:33:07 ohara Exp $ */
 
 #ifndef __GMP_FAKE_H__
 #define __GMP_FAKE_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stddef.h>
 
@@ -28,5 +32,9 @@ int  mpz_set_str(mpz_ptr, char *, int);
 char *mpz_get_str(char *, int, mpz_ptr);
 int  mpz_get_si(mpz_ptr z);
 void mpz_neg(mpz_ptr, mpz_ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GMP_FAKE_H__ */

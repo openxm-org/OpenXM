@@ -1,13 +1,9 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.25 2003/09/15 09:31:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.26 2003/09/18 12:46:08 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
 #define _OX_TOOLKIT_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdio.h>
 #if defined(WITH_GMP)
@@ -15,6 +11,11 @@ extern "C" {
 #else
 #include "gmp_fake.h"
 #endif /* WITH_GMP */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ox/cmotag.h>
 #include <ox/oxMessageTag.h>
 #include <ox/smCommand.h>
