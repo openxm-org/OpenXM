@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.8 2000/01/20 07:25:25 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.9 2000/01/20 08:21:50 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -119,8 +119,11 @@ OpenMath 用の OMproxy には現在のところ, jdk が必要です.
 たとえば bash を利用している場合, .bashrc で
 PATH=/usr/local/jdk1.1.8/bin:$PATH
 export PATH
-などとして, jdk の javac をサーチパスの先のほうへもっていくようにして
+などとして, jdk の java, javac をサーチパスの先のほうへもっていくようにして
 ください.
+csh を利用している場合, .cshrc で
+set path=(/usr/local/jdk1.1.8/bin $path)
+として, jdk の java, javac をサーチパスにいれます.
 */
 /*&eg
 ***** JAVA
@@ -128,8 +131,11 @@ In order to use OMproxy, asir client om_*,
 you need to install JDK.
 The bin dir of the JDK must be in yur search path.
 For example, you need to add the following line
-to your .chsrc
+to your .chsrc when your shell is csh
 set path=(/usr/local/jdk1.1.8/bin $path)
+Bash users put the following line to .bashrc
+PATH=/usr/local/jdk1.1.8/bin:$PATH
+export PATH
 */
 
 /*&C
