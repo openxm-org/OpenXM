@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.12 2003/08/24 05:19:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.13 2004/06/12 07:29:46 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -388,8 +388,27 @@ POLY f;
   int flag,d,dd,neg;
 
   if (f == ZERO) return(f);
-  t = f; maxg = (*grade)(f); flag = 0;
-  maxdg = dDegree(f);
+
+  t = f;
+  maxg = (*grade)(f); 
+  while (t != POLYNULL) {
+	dd = (*grade)(t);
+	if (maxg < dd) maxg = dd;
+	t = t->next;
+  }
+  /* fprintf(stderr,"maxg=%d\n",maxg); */
+
+  t = f;
+  maxdg = dDegree(f); 
+  while (t != POLYNULL) {
+	dd = dDegree(t);
+	if (maxdg < dd) maxdg = dd;
+	t = t->next;
+  }
+  /* fprintf(stderr,"maxdg=%d\n",maxdg); */
+
+  t = f;
+  flag = 0;
   while (t != POLYNULL) {
     d = (*grade)(t);
     if (d != maxg) flag = 1;
