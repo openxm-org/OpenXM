@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.6 1999/12/14 09:31:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.h,v 1.7 2000/03/10 12:38:47 ohara Exp $ */
 
 #ifndef _SERV2_H_
 #define _SERV2_H_
@@ -15,14 +15,14 @@
 int  initialize_stack();
 int  push(cmo *m);
 cmo  *pop();
-int  sm_popCMO(int fd);
-int  sm_popString(int fd);
-int  sm_pops(int fd);
+int  sm_popCMO(OXFILE *oxfp);
+int  sm_popString(OXFILE *oxfp);
+int  sm_pops(OXFILE *oxfp);
 int  sm_executeStringByLocalParser();
-int  sm_executeFunction(int fd);
+int  sm_executeFunction(OXFILE *oxfp);
 
-int  receive_sm_command(int fd);
-int  execute_sm_command(int fd, int code);
+int  receive_sm_command(OXFILE *oxfp);
+int  execute_sm_command(OXFILE *oxfp, int code);
 
 int shutdown();
 #endif

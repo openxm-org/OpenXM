@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.15 2000/03/13 07:47:15 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.16 2000/03/13 09:44:06 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -27,7 +27,7 @@ static char *host    = "localhost";
 static char *ctlserv = "ox";
 static char *oxprog  = "ox_sm1";
 
-static ox_file_t *ss = NULL;
+static OXFILE **ss = NULL;
 static int len_ss = 0;
 static int max_process = 0;
 
@@ -37,8 +37,8 @@ void OX_get(int id)
 {
     cmo *c = NULL;
 
-    receive_ox_tag(ss[id]->stream);
-    c = receive_cmo(ss[id]->stream);
+    receive_ox_tag(ss[id]);
+    c = receive_cmo(ss[id]);
 #ifdef DEBUG
     fprintf(stderr, "ox message is received in OxGet[].\n");
     print_cmo(c);
@@ -95,11 +95,11 @@ int OX_sendMessage(int id, char *s)
 
     if(s != NULL && len > 0 && (m = parse()) != NULL) {
         if (m->tag == OX_DATA) {
-            send_ox_cmo(ss[id]->stream, ((ox_data *)m)->cmo);
+            send_ox_cmo(ss[id], ((ox_data *)m)->cmo);
         }else if (m->tag == OX_COMMAND) {
-            send_ox_command(ss[id]->stream, ((ox_command *)m)->command);
+            send_ox_command(ss[id], ((ox_command *)m)->command);
         }else {
-            send_ox_cmo(ss[id]->stream, m);     
+            send_ox_cmo(ss[id], m);     
         }
         return 0;
     }
@@ -148,7 +148,7 @@ int OX_start_insecure(char *host, int portCtl, int portDat)
     }
     
 	if (++max_process < len_ss) {
-		ss[max_process] = ox_start_insecure_nonreverse(host, portCtl, portDat);
+		ss[max_process] = ox_start_insecure(host, portCtl, portDat);
 		fprintf(stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
 		return max_process;
 	}
@@ -171,21 +171,21 @@ int OX_setClientParam(char *h, char* c, char* p)
     return 0;
 }
 
-static ox_file_t *new_sstack(int size)
+static OXFILE **new_sstack(int size)
 {
 	max_process = 0;
 	len_ss = size;
-	return (ox_file_t *)malloc(sizeof(ox_file_t)*len_ss);
+	return (OXFILE **)malloc(sizeof(OXFILE *)*len_ss);
 }
 
-static ox_file_t ss_id(int id)
+static OXFILE *ss_id(int id)
 {
 	return ss[id];
 }
 
 static int  ss_id_stream(int id)
 {
-	return ss[id]->stream;
+	return ss[id];
 }
 
 int main(int argc, char *argv[])

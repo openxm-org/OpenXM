@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.5 2000/01/22 06:29:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.6 2000/03/10 12:38:46 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -57,13 +57,13 @@ cmo *receive_mlo_function()
     MLGetFunction(stdlink, &s, &n);
     fprintf(stderr, "--debug: MLO == MLTKFUNC (%s[#%d]).\n", s, n);
     m = new_cmo_list();
-    append_cmo_list((cmo_list *)m, new_cmo_string(s));
+    list_append((cmo_list *)m, new_cmo_string(s));
 
     for (i=0; i<n; i++) {
         fprintf(stderr, "  --debug: arg[%d]\n", i);
         fflush(stderr);
         ob = receive_mlo();
-        append_cmo_list((cmo_list *)m, ob);
+        list_append((cmo_list *)m, ob);
     }
 
     MLDisownString(stdlink, s);
@@ -108,7 +108,7 @@ cmo *receive_mlo_function_newer()
         fprintf(stderr, "--debug: arg[%d]\n", i);
         fflush(stderr);
         ob = receive_mlo();
-        append_cmo_list((cmo_list *)m, ob);
+        list_append((cmo_list *)m, ob);
     }
 
     MLDisownString(stdlink, s);
@@ -223,13 +223,13 @@ int send_mlo_zz(cmo *m)
 int send_mlo_list(cmo *c)
 {
     char *s;
-    cell *cp = ((cmo_list *)c)->head;
-    int len = length_cmo_list((cmo_list *)c);
+    cell *cp = list_first((cmo_list *)c);
+    int len = list_length((cmo_list *)c);
 
     MLPutFunction(stdlink, "List", len);
-    while(cp->next != NULL) {
+    while(!list_endof(c, cp)) {
         send_mlo(cp->cmo);
-        cp = cp->next;
+        cp = list_next(cp);
     }
 }
 

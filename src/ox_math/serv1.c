@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.8 2000/01/22 06:29:18 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.9 2000/03/10 12:38:47 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -18,10 +18,9 @@
 #include <ox_toolkit.h>
 #include "serv2.h"
 
-static int send_ox_sync_ball(int fd);
+static int send_ox_sync_ball();
 
-static int sv_read  = 3;
-static int sv_write = 4;
+static OXFILE *sv;
 
 static int flag_sigusr1 = 0;
 static int flag_sigusr2 = 0;
@@ -53,7 +52,7 @@ static int handler_reset1()
     if (!flag_sigusr1) {
         flag_sigusr1 = 1;
         if(critical_p()) {
-            send_ox_sync_ball(sv_write);
+            send_ox_sync_ball();
             already_send_ox_sync_ball = 1;
         }
     }
@@ -61,47 +60,46 @@ static int handler_reset1()
 
 static int handler_kill()
 {
-    close(3);
-    close(4);
+	oxf_close(sv);
     exit(1);
 }
 
-static int send_ox_sync_ball(int fd)
+static int send_ox_sync_ball()
 {
     fprintf(stderr, "sending a sync_ball.\n");
-    send_ox_tag(fd, OX_SYNC_BALL);
+    send_ox_tag(sv, OX_SYNC_BALL);
 }
 
-static int exchange_ox_syncball(int fd)
+static int exchange_ox_syncball()
 {
     int tag;
 
-    while((tag = receive_ox_tag(fd)) != OX_SYNC_BALL) {
+    while((tag = receive_ox_tag(sv)) != OX_SYNC_BALL) {
         /* skipping a message. */
         if (tag == OX_DATA) {
-            receive_cmo(fd);
+            receive_cmo(sv);
         }else {
-            receive_int32(fd);
+            receive_int32(sv);
         }
     }
     fprintf(stderr, "received a sync_ball.\n");
 }
 
 /* a part of stack machine. */
-int receive_ox(int fd_read, int fd_write)
+int receive_ox(OXFILE *oxfp)
 {
     int tag;
     int code;
 
-    tag = receive_ox_tag(fd_read);
+    tag = receive_ox_tag(oxfp);
     switch(tag) {
     case OX_DATA:
-        push(receive_cmo(fd_read));
+        push(receive_cmo(oxfp));
         break;
     case OX_COMMAND:
-        code = receive_sm_command(fd_read);
+        code = receive_sm_command(oxfp);
         set_critical();
-        execute_sm_command(fd_write, code);
+        execute_sm_command(oxfp, code);
         unset_critical();
         break;
     default:
@@ -114,30 +112,31 @@ int receive_ox(int fd_read, int fd_write)
 
 int shutdown()
 {
-    close(sv_read);
-    close(sv_write);
+    oxf_close(sv);
     ml_exit();
     exit(0);
 }
 
 int main()
 {
+	sv = oxf_open(3);
+
     ml_init();
     initialize_stack();
 
     signal(SIGUSR1, handler_reset1);
     signal(SIGKILL, handler_kill);
 
-    decideByteOrderServer(sv_read, 0);
+	oxf_determine_byteorder_server(sv);
 
     while(1) {
-        receive_ox(sv_read, sv_write);
+        receive_ox(sv);
         if(flag_sigusr1) {
             if (!already_send_ox_sync_ball) {
-              send_ox_sync_ball(sv_write);
+              send_ox_sync_ball();
                 already_send_ox_sync_ball = 1;
             }
-            exchange_ox_syncball(sv_read);
+            exchange_ox_syncball();
             flag_sigusr1 = 0;
             already_send_ox_sync_ball = 0;
         }

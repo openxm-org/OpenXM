@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.14 2000/03/10 12:38:47 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.15 2000/03/10 12:45:48 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -91,7 +91,7 @@ void pops(int n)
    if error occurs, then a sm_*() function returns non-zero and 
    an error obect is set by a function which calls sm_*().
 */
-int sm_popCMO(int fd_write)
+int sm_popCMO(OXFILE* oxfp)
 {
     cmo* m = pop();
 #ifdef DEBUG
@@ -100,13 +100,13 @@ int sm_popCMO(int fd_write)
 #endif
 
     if (m != NULL) {
-        send_ox_cmo(fd_write, m);
+        send_ox_cmo(oxfp, m);
         return 0;
     }
     return SM_popCMO;
 }
 
-int sm_pops(int fd_write)
+int sm_pops(OXFILE* oxfp)
 {
     cmo* m = pop();
     if (m != NULL && m->tag == CMO_INT32) {
@@ -117,7 +117,7 @@ int sm_pops(int fd_write)
 }
 
 /* MathLink dependent */
-int sm_popString(int fd_write)
+int sm_popString(OXFILE* oxfp)
 {
     char *s;
     cmo *err;
@@ -129,12 +129,12 @@ int sm_popString(int fd_write)
 
     m = pop();
     if (m->tag == CMO_STRING) {
-        send_ox_cmo(fd_write, m);
+        send_ox_cmo(oxfp, m);
     }else if ((s = new_string_set_cmo(m)) != NULL) {
-        send_ox_cmo(fd_write, (cmo *)new_cmo_string(s));
+        send_ox_cmo(oxfp, (cmo *)new_cmo_string(s));
     }else {
         err = make_error_object(SM_popString, m);
-        send_ox_cmo(fd_write, err);
+        send_ox_cmo(oxfp, err);
     }
     return 0;
 }
@@ -156,7 +156,7 @@ int local_execute(char *s)
 }
 
 /* The following function is depend on an implementation of a server. */
-int sm_executeStringByLocalParser(int fd_write)
+int sm_executeStringByLocalParser(OXFILE* oxfp)
 {
     symbol_t symp;
     cmo* m = pop();
@@ -185,7 +185,7 @@ int sm_executeStringByLocalParser(int fd_write)
     return SM_executeStringByLocalParser;
 }
 
-int sm_executeFunction(int fd_write)
+int sm_executeFunction(OXFILE* oxfp)
 {
     int i, argc;
     cmo **argv;
@@ -213,20 +213,21 @@ int sm_executeFunction(int fd_write)
 }
 
 #define VERSION 0x11121400
-#define ID_STRING  "ox_math server 1999/12/14 15:25:00"
+#define ID_STRING  "1999/12/14 15:25:00"
 
-int sm_mathcap(int fd_write)
+int sm_mathcap(OXFILE* oxfp)
 {
-    push(make_mathcap_object(VERSION, ID_STRING));
+    mathcap_sysinfo_set(VERSION, ID_STRING, "ox_math");
+    push(mathcap_get());
     return 0;
 }
 
-int receive_sm_command(int fd_read)
+int receive_sm_command(OXFILE* oxfp)
 {
-    return receive_int32(fd_read);
+    return receive_int32(oxfp);
 }
 
-int execute_sm_command(int fd_write, int code)
+int execute_sm_command(OXFILE* oxfp, int code)
 {
     int err = 0;
 #ifdef DEBUG    
@@ -236,23 +237,23 @@ int execute_sm_command(int fd_write, int code)
 
     switch(code) {
     case SM_popCMO:
-        err = sm_popCMO(fd_write);
+        err = sm_popCMO(oxfp);
         break;
     case SM_popString:
-        err = sm_popString(fd_write);
+        err = sm_popString(oxfp);
         break;
     case SM_mathcap:
-        err = sm_mathcap(fd_write);
+        err = sm_mathcap(oxfp);
         break;
     case SM_pops:
-        err = sm_pops(fd_write);
+        err = sm_pops(oxfp);
         break;
     case SM_executeStringByLocalParser:
     case SM_executeStringByLocalParserInBatchMode:
-        err = sm_executeStringByLocalParser(fd_write);
+        err = sm_executeStringByLocalParser(oxfp);
         break;
     case SM_executeFunction:
-        err = sm_executeFunction(fd_write);
+        err = sm_executeFunction(oxfp);
         break;
     case SM_shutdown:
         shutdown();
