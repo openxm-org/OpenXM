@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.1 2000/05/03 06:42:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/cohom.k,v 1.2 2000/06/14 07:44:04 takayama Exp $ */
 
 /* k0 interface functions for cohom.sm1 */
 def Boundp(a) {
@@ -214,6 +214,22 @@ HelpAdd(["GKZ.GKZ",
   ["GKZ(a,b) returns the GKZ systems associated to the matrix a and the vector b",
    "The answer is given by strings.",
    "Example: GKZ([[1,1,1,1],[0,1,3,4]],[0,2])"]]);
+
+def ToricIdeal(A) {
+  /* we need sm1_rat_to_p in a future. */
+  local c,B,i,n,pp;
+  n = Length(A);
+  B = NewArray(n);
+  for (i=0; i<n; i++) {B[i] = 0;}
+  c = to_int0([A,B]);
+  sm1(c," gkz 0 get /pp set ");
+  for (i=0; i<n; i++) { pp = Rest(pp); }
+  return(pp);
+}
+HelpAdd(["ToricIdeal",
+  ["ToricIdeal(a) returns the affine toric ideal associated to the matrix a",
+   "The answer is given by a list of strings.",
+   "Example: ToricIdeal([[1,1,1,1],[0,1,3,4]]"]]);
 
 def Rest(a) {
   sm1(a," rest /FunctionValue set ");
