@@ -1,4 +1,4 @@
-@c $OpenXM: OpenXM/src/asir99/lib/contrib/packages/doc/Diff.texi,v 1.4 1999/11/24 10:24:36 okutani Exp $
+@c $OpenXM$
 @node Differential equations,,, その他の函数
 @section Differential equations
 ファイル @file{gr}, @file{Matrix} が必要です.
@@ -16,7 +16,7 @@ $$ [ [ [f_{\alpha^{(1)}},[\alpha_{1}^{(1)},\ldots,\alpha_{n}^{(1)}]],\ldots ],\l
 $$ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ] $$
 となります. また微分作用素のリストで$x dx + y dy + 1, dx^2 + dy^2$を表すと
 $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
-となります.
+となります. またこれらの表現法を使うときは変数リストを常に意識している必要があります。
 @end tex
 @menu
 @c * diff_op_hg1::
@@ -39,9 +39,11 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 @c * diff_poly_solve_appell1::
 @c * diff_poly_solve_appell2::
 @c * diff_poly_solve_appell3::
-@c * diff_poly_solve_appell4::
+* diff_poly_solve_appell4::
 @c * diff_poly_solve_selberg2::
 @c * diff_poly_solve_gkz::
+@c * diff_rat_solve::
+@c * diff_pseries_appell4::
 @end menu
 
 @node diff_op_appell4,,, Differential equations
@@ -155,5 +157,33 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 
 [298] diff_poly_solve([[[x,[1,0]],[-2,[0,0]]],[[y,[0,1]],[-2,[0,0]]]],5,[x,y]);
 [_33*y^2*x^2,[_33]]
+@end example
+
+@node diff_poly_solve_appell4,,, Differential equations
+@subsection @code{diff_poly_solve_appell4}
+@findex diff_poly_solve_appell4
+@table @t
+@item diff_poly_solve_appell4(@var{a},@var{b},@var{c1},@var{c2},@var{N},@var{V})
+::  F_4がみたす線型微分方程式系の @var{N} 次以下の多項式解を求める.
+@end table
+@table @var
+@item return
+リスト
+@item a, b, c1, c2
+有理式
+@item N
+整数
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_poly_solve_appell4}の例.
+@end itemize
+@example
+[299] diff_poly_solve_appell4(-3,1,-1,-1,5,[x,y]);
+[-_26*x^3+(3*_26*y+_26)*x^2+3*_24*y^2*x-_24*y^3+_24*y^2,[_24,_26]]
+
+[300] diff_poly_solve_appell4(-3,1,1,-1,5,[x,y]);
+[-3*_45*y^2*x-_45*y^3+_45*y^2,[_45]]
 @end example
 
