@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.1 2003/05/18 00:13:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.2 2003/05/18 02:20:22 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -92,6 +92,11 @@ def first(A) {return(A[0]);}
 
 
 def ox_grep(A) {
+  if (type(A) == 2) {
+    A = rtostr(A);
+  }else if (type(A) != 7) {
+    return("Usage: ox_grep(keyword)");
+  }
   if (ox_getenv("LANG") == "ja_JP.EUC") {
     F = get_rootdir()+"/help-jp/";
   }else{
