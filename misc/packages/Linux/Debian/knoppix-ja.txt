@@ -1,4 +1,4 @@
-$OpenXM$ 
+$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.1 2004/02/23 07:51:02 takayama Exp $ 
 2004/02/23 by Takayama
 
 deb package の生成の仕方:
@@ -31,3 +31,13 @@ asir (OpenXM 版) の使い方:
 インストール方法:
   dpkg --install openxm-shared*.deb
   dpkg --install openxm-binary*.deb
+
+-----------------------
+
+注意.  make install-document すると asir がもう一度 install されるので
+       cd asir-port ; make install して symbolic link にする.  cf. debian/rule
+
+高山の個人メモ.
+       rm ~/tmp/openxm-head.tar.gz しとく?
+       mango での生成は,  cd /private/taka  へ OpenXM を checkout してやる.
+       cd work ; cp openxm*.deb /home/ftp/pub/asir/knoppix
