@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.45 2003/05/19 05:15:52 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.46 2003/05/24 23:56:32 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -43,8 +43,8 @@ OXWEAVE= ../../../kxx/oxweave
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
 
-JPSRCS= opening.texi oxrfc100-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi util-ja.texi oxxm-ja.texi
-EGSRCS= opening.texi oxrfc100-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi util-en.texi oxxm-ja.texi
+JPSRCS= opening.texi oxrfc100-ja.texi oxmath-ja.texi oxphc-ja.texi oxgnuplot-ja.texi oxsm1-ja.texi oxom-ja.texi dsolv-ja.texi oxtigers-ja.texi names-ja.texi hypergeometric-ja.texi number-ja.texi calculus-ja.texi series-ja.texi matrix-ja.texi  graphic-ja.texi print-ja.texi poly-ja.texi complex-ja.texi intro-ja.texi Diff-ja.texi Dmodule-ja.texi  base-ja.texi misc-ja.texi glib-ja.texi pfp-ja.texi plucker-ja.texi windows-ja.texi util-ja.texi 
+EGSRCS= opening.texi oxrfc100-en.texi oxmath-en.texi oxphc-en.texi oxgnuplot-en.texi oxsm1-en.texi oxom-en.texi dsolv-en.texi oxtigers-en.texi names-en.texi hypergeometric-en.texi number-en.texi calculus-en.texi series-en.texi matrix-en.texi  graphic-en.texi print-en.texi poly-en.texi complex-en.texi intro-en.texi cman-en.texi base-en.texi misc-en.texi glib-en.texi pfp-en.texi plucker-en.texi windows-en.texi util-en.texi 
 
 JAAUTO=base-auto-ja.texi pfp-auto-ja.texi poly-auto-ja.texi \
        print-auto-ja.texi matrix-auto-ja.texi glib-auto-ja.texi \
@@ -253,14 +253,6 @@ sm1-auto-en.texi : $(CONTRIB)/sm1 gentexi
 sm1-auto-ja.texi : $(CONTRIB)/names.rr gentexi
 	$(RM) -f sm1-auto-ja.texi
 	$(OXWEAVE) usage  <$(CONTRIB)/sm1 | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto-ja.texi
-
-oxxm-ja.texi : oxxm.oxweave Makefile
-	$(RM) -f oxxm-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <oxxm.oxweave >oxxm-ja.texi
-
-oxxm-en.texi : oxxm.oxweave Makefile
-	$(RM) -f oxxm-en.texi
-	$(OXWEAVE) C-texi eg-texi  <oxxm.oxweave >oxxm-en.texi
 
 oxom-ja.texi : $(CONTRIB)/om Makefile
 	$(RM) -f oxom-ja.texi
