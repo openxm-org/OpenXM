@@ -1,8 +1,9 @@
-## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.2 2000/01/15 22:45:32 takayama Exp $
+## $OpenXM: OpenXM/src/kan96xx/Doc/Makefile,v 1.3 2000/01/17 13:02:14 takayama Exp $
 ########## Documents
 OpenXM_ROOT=../../../../OpenXM
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
+CC=gcc
 
 all : ttt.tex onlinehelp.tex
 	echo "The document kan/example is in the file ttt.tex."
@@ -23,6 +24,7 @@ onlinehelp.dvi : onlinehelp.tex
 	-latex onlinehelp
 
 ole : ole.c
+	${CC} -o ole ole.c
 
 ###
 install-document : onlinehelp.dvi ttt.dvi clean-OpenXM-doc
@@ -55,3 +57,4 @@ GC = ../gc/gc.a
 kanlib1 : kanlib1.c 
 	(cd $(KAN_HOME); make kanlib.a)
 	$(CC) -I$(GMP_HOME) -I$(KAN_HOME) -o kanlib1 kanlib1.c $(KAN_HOME)/kanlib.a $(LIBGMP) $(GC)
+

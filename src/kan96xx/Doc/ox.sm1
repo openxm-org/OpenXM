@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.5 1999/11/11 01:35:07 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.6 1999/11/18 08:08:23 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -775,9 +775,11 @@ ox.verbose {
      } {  } ifelse
      
      %% Otherwise error.
-       [ (getPathNameAsir: The file )  fname 
+       [ (getPathNameAsir: The file )  
+          fname  (ox_asir) eq
+          {(ox\_asir)} { fname }ifelse
        ( could not be found ) 
-       (neigher in /usr/local/lib/asir nor in ASIR_LIBDIR. )
+       (neigher in /usr/local/lib/asir nor in ASIR\_LIBDIR. )
        ] cat /getPathNameAsir.errorMessage set
        getPathNameAsir.errorMessage message
      ] pop popVariables getPathNameAsir.errorMessage error
