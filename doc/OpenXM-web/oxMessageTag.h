@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/OpenXM-web/oxMessageTag.h,v 1.1 2000/01/18 07:30:12 takayama Exp $ */
+/* $OpenXM: OpenXM/doc/OpenXM-web/oxMessageTag.h,v 1.2 2000/01/19 00:31:38 takayama Exp $ */
 /* oxMessageTag.h */
 
 #define OX_COMMAND                   513	
@@ -10,6 +10,13 @@
 #define   OX_DATA_OPENMATH_XML         523
 #define   OX_DATA_OPENMATH_BINARY      524
 #define   OX_DATA_MP                   525
+
+/* Internal binary expressions for efficient communications */
+#define OX_DATA_INTERNAL_BINARY_BASE   0x8000
+/* 
+#define OX_DATA_ASIR_BINARY_EXPRESSION OX_DATA_INTERNAL_BINARY_BASE+0
+*/
+#define OX_DATA_M2_BINARY_EXPRESSION   OX_DATA_INTERNAL_BINARY_BASE+1
 
 /* OX BYTE command */
 #define OX_BYTE_NETWORK_BYTE_ORDER    0

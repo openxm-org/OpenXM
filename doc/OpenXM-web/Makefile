@@ -1,9 +1,10 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.23 2000/09/09 16:46:37 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.24 2000/09/09 18:24:02 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
 OpenXM_doc=../.
 OpenXM_spec=../OpenXM-specs
+OpenXM_calc=../calc2000p
 DVIPS=dvips -f
 LATEX2HTML=jlatex2html -tmp /tmp
 
@@ -24,15 +25,34 @@ copy-doc :
 	mkdir $(WEBKOBE1)/doc
 	-(cd ../../doc ; cp -r Papers asir-contrib asir2000 kan96xx ox_math pari $(WEBKOBE1)/doc)
 
-copy-html :
-	/bin/rm -rf $(WEBKOBE1)/html
-	mkdir $(WEBKOBE1)/html
+copy-html: copy-html-spec copy-html-poster
+
+copy-html-spec: 
+	/bin/rm -rf $(WEBKOBE1)/html/OpenXM-en
+	/bin/rm -rf $(WEBKOBE1)/html/OpenXM-ja
+	-mkdir $(WEBKOBE1)/html
 	mkdir $(WEBKOBE1)/html/OpenXM-en
 	mkdir $(WEBKOBE1)/html/OpenXM-ja
 	-(cd $(OpenXM_spec) ; make ; cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM )
 	-(cd $(OpenXM_spec) ; cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM )
 	-(cd $(OpenXM_spec) ; cd tmpEN ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-en)
 	-(cd $(OpenXM_spec) ; cd tmpJA ; cp -rf OpenXM $(WEBKOBE1)/html/OpenXM-ja)
+copy-html-poster:
+	-mkdir $(WEBKOBE1)/html
+	/bin/rm -rf $(WEBKOBE1)/html/OpenXM-poster
+	mkdir $(WEBKOBE1)/html/OpenXM-poster
+	/bin/rm -rf tmp-poster
+	mkdir tmp-poster
+	-ln -s ../calc2000 .
+	cp $(OpenXM_calc)/rgb.sty tmp-poster
+	cp $(OpenXM_calc)/3k.ps tmp-poster
+	cp $(OpenXM_calc)/func1.tex tmp-poster
+	cp $(OpenXM_calc)/func2.tex tmp-poster
+	cp $(OpenXM_calc)/efficient.tex tmp-poster
+	-(cd tmp-poster ; latex func1 ; $(LATEX2HTML) func1 )
+	-(cd tmp-poster ; latex func2 ; $(LATEX2HTML) func2 )
+	-(cd tmp-poster ; latex efficient ; $(LATEX2HTML) efficient )
+	-(cd tmp-poster ; cp -rf func1 func2 efficient $(WEBKOBE1)/html/OpenXM-poster)
 
 ## Under construction.
 namagize-html: copy-html
@@ -123,6 +143,9 @@ copy-index-top :
 
 clean-web-kobe :
 	-rm $(WEBKOBE)/index.html $(WEBKOBE)/issac2000.ps $(WEBKOBE1)/cmotag.h $(WEBKOBE1)/oxMessageTag.h $(WEBKOBE1)/smCommand.h $(WEBKOBE1)/openxm-en.ps $(WEBKOBE1)/openxm-ja.ps
+
+clean:
+	/bin/rm -rf tmp-poster calc2000
 
 print:
 	$(PS) Makefile | $(LPR)
