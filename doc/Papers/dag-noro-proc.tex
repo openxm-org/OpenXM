@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.11 2002/02/25 01:02:14 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.12 2002/02/25 07:56:16 noro Exp $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This is a sample input file for your contribution to a multi-
 % author book to be published by Springer Verlag.
@@ -282,7 +282,7 @@ such that $HT(h)|HT(g)$ \}
 The input is homogenized to suppress intermediate coefficient swells
 of intermediate basis elements.  The homogenization may increase the
 number of normal forms reduced to zero, but they can be
-detected over by the computations over $GF(p)$. Finally, by
+detected by the computations over $GF(p)$. Finally, by
 dehomogenizing the candidate we can expect that lots of redundant
 elements are removed and the subsequent check are made easy.
 
@@ -342,13 +342,13 @@ $g_0$ with high accuracy. Then other components are easily computed.
 
 \subsection{Performances of Groebner basis computation}
 
-All the improvements in this sections have been implemented in
+We show timing data on Risa/Asir for Groebner basis computation.
+All the improvements in this section have been implemented in
 Risa/Asir. Besides we have a test implemention of $F_4$ algorithm
-\cite{noro:F4}, which is a new algorithm for computing Groebner basis
-by various methods.  We show timing data on Risa/Asir for Groebner
-basis computation.  The measurements were made on a PC with PentiumIII
+\cite{noro:F4}, which is a new algorithm for computing Groebner basis.
+The measurements were made on a PC with PentiumIII
 1GHz and 1Gbyte of main memory. Timings are given in seconds. In the
-tables `exhasut' means memory exhastion.  $C_n$ is the cyclic $n$
+tables `exhaust' means memory exhastion.  $C_n$ is the cyclic $n$
 system and $K_n$ is the Katsura $n$ system, both are famous bench mark
 problems \cite{noro:BENCH}.  $McKay$ \cite{noro:REPL} is a system
 whose Groebner basis is hard to compute over {\bf Q}.  The term order
