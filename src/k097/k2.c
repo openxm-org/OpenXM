@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/k2.c,v 1.2 2000/01/17 13:57:26 takayama Exp $ */
 /* k2.c main program of k. */
 
 #define DATE "1998,12/15"
@@ -20,7 +20,7 @@ extern int DebugMode;
 extern int K00_verbose;
 
 int Startupk2 = 1;
-int FactorA = 0;  /* sm1(" (aa) run "); does not work. */
+
 
 main(int argc,char *argv[]) {
   extern int Saki;
@@ -34,9 +34,6 @@ main(int argc,char *argv[]) {
       if (strcmp(argv[i],"-d") == 0) {
 	fprintf(stderr,"DebugCompiler = 1\n");
 	DebugCompiler = 1;
-      }else if (strcmp(argv[i],"-f") == 0) {
-	fprintf(stderr,"Loading factor-a.sm1\n");
-	FactorA = 1;
       }else if (strcmp(argv[i],"-nostartup") == 0) {
 	fprintf(stderr,"Do not load startup.k\n");
 	Startupk2 = 0;
@@ -47,9 +44,8 @@ main(int argc,char *argv[]) {
       }else{
 	fprintf(stderr,"Usage: 1: k\n");
 	fprintf(stderr,"       2: k -d  (DebugCompiler=1)\n");
-	fprintf(stderr,"       3: k -f  (load factor-a.sm1)\n");
-	fprintf(stderr,"       4: k -nostartup  (do not load startup.k)\n");
-	fprintf(stderr,"       5: k -v (verbose) or k -vv \n");
+	fprintf(stderr,"       3: k -nostartup  (do not load startup.k)\n");
+	fprintf(stderr,"       4: k -v (verbose) or k -vv \n");
 	exit(1);
       }
     }
@@ -75,7 +71,6 @@ main(int argc,char *argv[]) {
   execFile("var.sm1"); KSexecuteString(" strictMode ");
   execFile("incmac.sm1");
   execFile("slib.sm1");
-  if (FactorA) execFile("factor-b.sm1");
 
   printf("\n\nIn(1)=");
   s = "startup.k";

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.7 2001/01/04 12:29:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.8 2001/01/05 11:14:25 takayama Exp $ */
 if (K00_verbose)
   Println("help.k:  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -23,7 +23,7 @@ def Help(key) {
   }
   n = Length(Helplist);
   PSfor (i=0; i<n; i++) {
-    item = Helplist[i];
+    item = Helplist[i,1];
     if (item[0] == key) {
        if (IsArray(item[1])) {
          item1 = item[1];
@@ -48,7 +48,7 @@ def ShowKeyWords(ss) {
   n = Length(Helplist);
   keys = [" " ];  /* This is a gate keeper for shell. */
   PSfor (i=0; i< n; i++ ) {
-    keys = Append(keys,Helplist[i,0]);
+    keys = Append(keys,Helplist[i,1,0]);
   }
   keys = sm1(keys," shell ");
   n = Length(keys);
@@ -92,6 +92,7 @@ def ShowKeyWords(ss) {
   }
   Ln();
   Println("Type in Help(keyword);  to see a help message (string keyword).");
+  Println("A new help system can be used as man() or man(keyword).");
    
   /* Println(keys); */
 }
@@ -152,161 +153,425 @@ def ShowKeyWordsOfSm1(ss) {
   /* Println(keys); */
 }
 
-HelpAdd(["Help", "Help(key) shows an explanation on the key (string key)."]);
+/* Start of HelpAdd */
+HelpAdd(
+["Map",
+ ["Map(<<karg>>,<<func>>) applies the function <<func>> to the <<karg>> (string <<func>>).",
+  " Ex. Map([82,83,85],\"AsciiToString\"):"],
+ ["karg","func"],
+ null,
+ "apply a function to each element of a list."
+]);
+HelpAdd(["Position",
+ ["Position(<<list>>,<<elem>>) returns the position p of the element <<elem>> in",
+  " the array <<list>>. If <<elem>> is not in <<list>>, it return -1",
+  " (array <<list>>).",
+  "Ex. Position([1,34,2],34): "],
+ ["list","elem"],
+ null,
+ "find a position of an element in a list."
+]);
+HelpAdd(["StringToAsciiArray",
+ ["StringToAsciiArray(<<s>>) decomposes the string <<s>> into an array of ",
+  "ascii codes of <<s>>.",
+  "cf. AsciiToString."],
+ ["s"],
+ ["AsciiToString"],
+ "translate a string to an array of ascii codes."
+]);
+
+HelpAdd(["NewArray",
+ ["NewArray(<<n>>) returns an array of size integer <<n>>."],
+ ["n"],
+ ["NewMatrix"],
+ "it returns an array of a given size."
+]);
+HelpAdd(["GetEnv",
+ ["GetEnv(<<s>>) returns the value of the environmental variable string <<s>>."],
+ ["s"],
+ null,
+ "value of an environmental variable."
+]);
+HelpAdd(["Boundp",
+ ["Boundp(<<s>>) checks if the symbol <<s>> is bounded to a value or not (string <<s>>)."],
+ ["s"],
+ null,
+ "check if a symbol is assigned a value or not."
+]);
+HelpAdd(["Rest",
+ ["Rest(<<a>>) returns the rest (cdr) of  <<a>> (list <<a>>)."],
+ ["a"],
+ ["Append","Join"],
+ "it returns the rest of a given list."
+]);
+HelpAdd(["GetPathName",
+ ["GetPathName(<<s>>) checks if the file <<s>> exists in the current directory or",
+ "in LOAD_K_PATH. If there exists, it returns the path name (string <<s>>)."],
+ ["s"],
+ ["GetEnv"],
+ "find a file in the search path."
+]);
+HelpAdd(["Load_sm1",
+["Load_sm1(<<s>>,<<flag>>) loads a sm1 program from <<s>>[0], <<s>>[1], ....",
+ "If loading is succeeded, the already-loaded <<flag>> is set to true.",
+ "(list <<s>>, string <<flag>>)."],
+ ["s","flag"],
+ ["load"],
+ "load a sm1 program"
+]);
+HelpAdd(["ReParse",
+ ["Reparse(<<obj>>): ",
+ "It parses the given object <<obj>> in the current ring."],
+ ["obj"],
+ ["Mapto","RingD"],
+ "parses a given object in the current ring."
+]);
+HelpAdd(["Pmat",
+ ["Pmat(<<m>>): ",
+  "Print the array <<m>> in a pretty way."],
+ ["m"],
+ ["Println"],
+ "print an given array in a pretty way."
+]);
+HelpAdd(["Tag",
+["Tag(<<f>>) returns the datatype tag of <<f>> where",
+ "0: null, 5: string,  6: array, 9: polynomial, 15: integer(big-num),  ",
+ "16: rational, 18:double, 257: Error ",
+ "Ex. Tag([Poly(\"0\"), 0]):"],
+ ["f"],
+ ["Is*"],
+ "return the tag of a given object."
+]);
+HelpAdd(["Error",
+ ["Error(<<s>>) causes an error and outputs a message <<s>>."],
+ ["s"],
+ null,
+ "cause an error."
+]);
+
+HelpAdd(["Help", 
+ ["Help(<<key>>) or help(<<key>>) shows an explanation on the <<key>> (string <<key>>)."],
+ ["key"],
+ ["HelpAdd","help","man"],
+ "display a help message."
+]);
 HelpAdd(["HelpAdd", 
- ["HelpAdd([key,explanation]) (string key, string explanation)",
-  " or (string key, array explanation)."]]);
+ ["HelpAdd([<<key>>,<<explanation>>]) (string <<key>>, string <<explanation>>)",
+  " or (string <<key>>, array <<explanation>>).",
+  "   ",
+  "HelpAdd([<<key>>,<<explanation>>,<<category>>]) is used to specify ",
+  "the <<category>> of the topics."],
+  ["key","explanation"],
+  ["help","man"],
+  "Add a help message in the system."
+]);
+
 HelpAdd(["load", 
- ["load(fname) loads the file << fname >>(string fname).",
-  "load fname  loads the file << fname >>.",
-  "load[fname] loads the file << fname >> with the preprocessing by /lib/cpp."
-]]);
-HelpAdd(["Ln","Ln() newline."]);
-HelpAdd(["Println","Println(f) prints f and goes to the new line."]);
-HelpAdd(["Print","Print(f) prints f."]);
+ ["load(<<fname>>) loads the file << fname >>(string <<fname>>).",
+  "load <<fname>>  loads the file << fname >>.",
+  "load[<<fname>>] loads the file << fname >> with the preprocessing by /lib/cpp."
+], 
+["fname"],
+["Load_sm1"],
+"load a given file."]);
+
+HelpAdd(["Ln","Print newline.",
+[ ],
+["Print","Println"],
+"print newline."]);
+HelpAdd(["Println",
+ ["Println(<<f>>) prints <<f>> and goes to the new line."],
+ ["f"],
+ ["Ln","Print","Stderr."],
+ "display a given object with the newline."
+]);
+HelpAdd(["Print",
+ ["Print(<<f>>) prints <<f>> without the newline."],
+ ["f"],
+ ["Println"],
+ "display a given object."
+]);
 HelpAdd(["Poly",
- "Poly(name) returns the polynomial name in the current ring 
-  (string name)."]);
+ ["Poly(<<name>>) parses a given string <<name>> in the current ring ",
+  "and returns a polynomial."
+ ],
+ ["name"],
+ ["DC","PolyR","ReParse","RingD"],
+ "translate a string to a polynomial."
+]);
 HelpAdd(["PolyR",
- ["PolyR(name,r) returns the polynomial name in the ring r 
- (string name, ring r).",
- "Ex. r = RingD(\"x,y\"); y = PolyR(\"y\",r); "]]);
+ ["PolyR(<<name>>,<<r>>) parses a string <<name>> in the ring <<r>> ",
+ "Ex. r = RingD(\"x,y\"); y = PolyR(\"x+2*y\",r); "],
+ ["name","r"],
+ ["Poly"],
+ "translate a string to a polynomial in a given ring."
+]);
 HelpAdd(["RingD",
- ["RingD(names) defines a new ring (string names).", 
-  "RingD(names,weight_vector) defines a new ring with the weight vector",
-  "(string names, array weight_vector).", 
-  "RingD(names,weight_vector,characteristic)",
-  " Ex. RingD(\"x,y\",[[\"x\",2,\"y\",1]]) "]]);
-HelpAdd(["Reduction","Reduction(f,G) returns the remainder and sygygies when
-f is devided by G (polynomial f, array G)."]);
-HelpAdd(["AddString","AddString(list) returns the concatnated string (array list)."]);
-HelpAdd(["AsciiToString","AsciiToString(ascii_code) returns the string of which
-ascii code is ascii_code (integer ascii_code)."]);
-HelpAdd(["ToString","ToString(obj) transforms the <<obj>> to a string."]);
-HelpAdd(["Numerator","Numerator(f) returns the numerator of <<f>> (rational f)."]);
-HelpAdd(["Denominator","Denominator(f) returns the denominator of <<f>> (rational f)."]);
+ ["RingD(<<names>>) defines a new ring of differential operators (string <<names>>).", 
+  "RingD(<<names>>,<<weight_vector>>) defines a new ring with the weight vector",
+  "(string <<names>>, array <<weight_vector>>).", 
+  "RingD(<<names>>,<<weight_vector>>,<<characteristic>>)",
+  "Dx is the associated variable to x where Dx*x - x*Dx = 1 holds.",
+  " Ex. RingD(\"x,y\",[[\"x\",2,\"y\",1]]) "],
+  ["names","weight_vector"],
+  ["GetRing","PolyR","ReParse","SetRing"],
+  "define a new ring of differential operators."
+]);
+HelpAdd(["Reduction",
+ ["Reduction(<<f>>,<<G>>) returns the remainder and sygygies when
+   <<f>> is devided by <<G>> (polynomial <<f>>, array <<G>>)."],
+ ["f","g"],
+ ["Gb"],
+ "get the remainder and the quotients."
+]);
+HelpAdd(["AddString","AddString(<<list>>) returns the concatnated string (array <<list>>).",
+ ["list"],
+ null,
+ "concatenate strings."
+]);
+HelpAdd(["AsciiToString",
+ "AsciiToString(<<ascii_code>>) returns the string of which
+  ascii code is <<ascii_code>> (integer <<ascii_code>>).",
+ ["ascii_code"],
+ ["!ReservedNames","AddString","StringToAsciiArray"],
+ "translate from ascii code to a string."
+]);
+HelpAdd(["ToString",
+ "ToString(<<obj>>) transforms the <<obj>> to a string.",
+ ["obj"],
+ ["DC"],
+ "translate a given object to a string."
+]);
+HelpAdd(["Numerator",
+ "Numerator(<<f>>) returns the numerator of the rational <<f>>.",
+ ["f"],
+ ["Cancel","Denominator"],
+ "numerator"
+]);
+HelpAdd(["Denominator",
+ "Denominator(<<f>>) returns the denominator of the rational <<f>>.",
+ ["f"],
+ ["Cancel","Numerator"],
+ "denominator"
+]);
 HelpAdd(["Replace",
-  ["Replace(f,rule) (polynomial f, array rule).  ",
-   "Ex. Replace( (x+y)^3, [[x,Poly(\"1\")]])"]]);
+  ["Replace(<<f>>,<<rule>>) rewrites <<f>> by the <<rule>> (polynomial <<f>>, array <<rule>>).  ",
+   "Ex. RingD(\"x,y\"); Replace( (x+y)^3, [[x,Poly(\"1\")]])"],
+  ["f","rule"],
+  ["replace (sm1)"],
+  "substitute variables by given values"
+]);
 HelpAdd(["SetRingVariables",
- "SetRingVariables()
-  Set the generators of the current ring as global variables.
-  cf. RingD(), Poly(), PolyR()"]);
-HelpAdd(["Append","Append([f1,...,fn],g) returns the list [f1,...,fn,g]"]);
+ "Set the generators of the current ring as global variables.
+  You do not need explicitly call this function which is called from RingD.
+  cf. RingD(), Poly(), PolyR()",
+  [ ],
+  ["RingD"],
+  "  "
+]);
+HelpAdd(["Append",
+ "Append([<<f1>>,...,<<fn>>],<<g>>) returns the list [<<f1>>,...,<<fn>>,<<g>>]",
+ ["f1","fn","g"],
+ ["Join","NewArray","Rest"],
+ "append two lists or arrays."
+]);
 HelpAdd(["Join",
- "Join([f1,...,fn],[g1,...,gm]) returns the list
-  [f1,...,fn,g1,...,gm]"]);
+ "Join([<<f1>>,...,<<fn>>],[<<g1>>,...,<<gm>>]) returns the list
+  [<<f1>>,...,<<fn>>,<<g1>>,...,<<gm>>]",
+  ["f1","fn","g1","gm"],
+  ["Append","NewArray","Rest"],
+  "join two lists or arrays"
+]);
 
 HelpAdd(["!ReservedNames",
  ["The names k00*, K00*, sm1* , arg1,arg2,arg3,arg4,....," ,
   "Helplist, Arglist, FunctionValue,",
-  "@@@*, db.*, k.*, tmp002*, tmp00* are used for system functions."]]);
+  "@@*, db.*, k.*, tmp002*, tmp00* are used for system functions.",
+  "Percent, LeftBracket, RightBracket, Dollar, Newline are constants"],
+  null,
+  null,
+  "reserved symbols."
+]);
 
 HelpAdd(["IntegerToSm1Integer",
- "IntegerToSm1Integer(i) translates integer i
-  to sm1.integer (integer i)."]);
-HelpAdd(["true","true returns sm1.integer 1."]);
-HelpAdd(["false","false returns sm1.integer 0."]);
+ "IntegerToSm1Integer(<<i>>) translates integer <<i>>
+  to sm1 integer (integer <<i>>).",
+ ["i"],
+ null,
+ "translates integer to 32 bit integer (sm1 integer)"
+]);
+HelpAdd(["true","true returns sm1 integer 1.",null,null," "]);
+HelpAdd(["false","false returns sm1 integer 0.",null,null," "]);
 HelpAdd(["IsArray",
- ["If f is the array object, then IsArray(f) returns true,",
-  "else IsArray(f) returns false."]]);
-
-
+ ["If <<f>> is an array (or list) object, then IsArray(<<f>>) returns true,",
+  "else IsArray(<<f>>) returns false."],
+ ["f"],
+ ["Is*","Tag"],
+ "check if an given object is an array."
+]);
 
 HelpAdd(["Init_w",
- ["Init_w(f,vars,w) returns the initial terms with respect to the",
+ ["Init_w(<<f>>,<<vars>>,<<w>>) returns the initial terms with respect to the",
   "weight vector <<w>> (array of integer) of the polynomial <<f>>",
   "(polynomial).  Here, <<f>> is regarded as a polynomial with respect",
   "to the variables <<vars>> (array of polynomials).",
-  "Example: Init_w(x^2+y^2+x,[x,y],[1,1]):"]]);
+  "Ex. RingD(\"x,y\"); Init_w(x^2+y^2+x,[x,y],[1,1]):"],
+  ["f","vars","w"],
+  ["Gb","Init"],
+  "return the initial terms."
+]);
 
 
 HelpAdd(["Groebner",
- ["Groebner(input) returns Groebner basis of the left module (or ideal)",
+ ["Groebner(<<input>>) returns Groebner basis of the left ideal or the submodule",
   "defined by <<input>> (array of polynomials)",
   "The order is that of the ring to which each element of <<input>>",
   "belongs.",
   "The input is automatically homogenized.",
-  "Example: RingD(\"x,y\",[[\"x\", 10, \"y\", 1]]);",
-  "         Groebner([Poly(\" x^2+y^2-4\"),Poly(\" x*y-1 \")]):",
-  "cf. RingD, Homogenize"]]);
+  "Ex. RingD(\"x,y\",[[\"x\", 10, \"y\", 1]]);",
+  "          Groebner([Poly(\" x^2+y^2-4\"),Poly(\" x*y-1 \")]):",
+  "cf. RingD, Homogenize"],
+  ["input"],
+  ["Gb","Init_w","RingD","groebner (sm1)"],
+  "compute the Grobner basis."
+]);
 
 
 HelpAdd(["RingPoly",
- ["RingPoly(names) defines a Ring of Polyomials (string names).",
+ ["RingPoly(<<names>>) defines a ring of polyomials (string <<names>>).",
   "The names of variables of that ring are <<names>>  and ",
   "the homogenization variable h.",
   "cf. SetRingVariables, RingD",
-  "Example: R=RingPoly(\"x,y\");",
+  "Ex. R=RingPoly(\"x,y\");",
   "  ",
-  "RingPoly(names,weight_vector) defines a Ring of Polynomials",
-  "with the order defined by the << weight_vector >>",
-  "(string names, array of array weight_vector).",
-  "RingPoly(names,weight_vector,characteristic)",
+  "RingPoly(<<names>>,<<weight_vector>>) defines a ring of polynomials",
+  "with the order defined by the <<weight_vector>>",
+  "(string <<names>>, array of array <<weight_vector>>).",
+  "RingPoly(<<names>>,<<weight_vector>>,<<characteristic>>)",
   "Example: R=RingPoly(\"x,y\",[[\"x\",10,\"y\",1]]);",
-  "         (x+y)^10: "]]);
+  "         (x+y)^10: "],
+  ["names","weight_vector"],
+  ["GetRing","RingD","SetRing"],
+  "define a ring of polynomials."
+]);
 
 
 HelpAdd(["CancelNumber",
-["CancelNumber(rn) reduces the rational number <<rn>>",
- "(rational rn).",
- "Example: CancelNumber( 2/6 ) : "]]);
+["CancelNumber(<<rn>>) reduces the rational number <<rn>>",
+ "(rational <<rn>>).",
+ "Ex. CancelNumber( 2/6 ) : "],
+ ["rn"],
+ ["Cancel"],
+ "factor out the greatest common divisor."
+]);
 
 HelpAdd(["IsString",
-["IsString(obj) returns true if << obj >> is a string (object obj).",
- "Example:  if (IsString(\"abc\")) Println(\"Hello\"); ;"]]);
+["IsString(<<obj>>) returns true if << obj >> is a string (object <<obj>>).",
+ "Ex.  if (IsString(\"abc\")) Println(\"Hello\"); ;"],
+ ["obj"],
+ ["DC","Is*","Tag"],
+ "check if a given object is a string."
+]);
 
 HelpAdd(["IsRing",
-["IsRing(obj) returns true if << obj >> is a ring (object obj)."
-]]);
+ ["IsRing(<<obj>>) returns true if << obj >> is a ring (object <<obj>>)."
+ ],
+ ["obj"],
+ ["DC","Is*","Tag"],
+ "check if a given object is a ring."
+]);
 
 
 HelpAdd(["IsSm1Integer",
-["IsSm1Integer(obj) returns true if << obj >> is an integer of sm1(object obj)."]]);
+["IsSm1Integer(<<obj>>) returns true if << obj >> is an integer of sm1(object <<obj>>)."],
+ ["obj"],
+ ["DC","Is*","Tag"],
+ "check if a given object is a 32 bit integer."
+]);
 
 HelpAdd(["sm1",
-["sm1(arg1,arg2,...) is used to embed sm1 native code in the kxx program.",
- "Example: sm1( 2, 2, \" add print \"); ",
- "Example: def myadd(a,b) { sm1(a,b,\" add /FunctionValue set \"); }" ]]);
+["sm1(<<arg1>>,<<arg2>>,...) is used to embed sm1 native code in the kxx program.",
+ "Ex. sm1( 2, 2, \" add print \"); ",
+ "Ex. def myadd(a,b) { sm1(\" a b add /FunctionValue set \"); }" ],
+ ["arg1","arg2"],
+ ["usage (sm1)"],
+ "execute sm1 commands"
+]);
 
 HelpAdd(["DC",
-["DC(obj,key) converts << obj >> to a new object in the primitive",
- "class << key >> (object obj, string key)",
- "Example:  DC(\" (x+1)^10 \", \"polynomial\"): "]]);
+["DC(<<obj>>,<<key>>) converts << obj >> to a new object in the primitive",
+ "class << key >> (object <<obj>>, string <<key>>)",
+ "Ex.  DC(\" (x+1)^10 \", \"polynomial\"): "],
+ ["obj","key"],
+ ["ToString"],
+ "translate data types."
+]);
 
 HelpAdd(["Length",
-["Length(vec) returns the length of the array << vec >>",
- "(array vec)"]]);
+["Length(<<vec>>) returns the length of the array << vec >>",
+ "(array <<vec>>)"],
+ ["vec"],
+ null,
+ "length of a given array or a list."
+]);
 
 HelpAdd(["Transpose",
-["Transpose(m) return the transpose of the matrix << m >>",
- "(array of array m)."]]);
+ ["Transpose(<<m>.) return the transpose of the matrix << m >>",
+  "(array of array <<m>>)."],
+ ["m"],
+ ["NewMatrix"],
+ "transposition"
+]);
 
 HelpAdd(["Save",
-["Save(obj) appends << obj >> to the file sm1out.txt (object obj)."]]);
+ ["Save(<<obj>>) appends << obj >> to the file sm1out.txt (object <<obj>>)."],
+ ["obj"],
+ null,
+ "write a given object to a file."
+]);
 
 HelpAdd(["Coefficients",
-["Coefficients(f,v) returns [exponents, coefficients] of << f >>",
+["Coefficients(<<f>>,<<v>>) returns [exponents, coefficients] of << f >>",
  "with respect to the variable << v >>",
- "(polynomial f,v).",
- "Example: Coefficients(Poly(\"(x+1)^2\"),Poly(\"x\")): "]]);
+ "(polynomial <<f>>,<<v>>).",
+ "Ex.  Coefficients(Poly(\"(x+1)^2\"),Poly(\"x\")): "],
+ ["f","v"],
+ ["Exponent","Init","Init_w"],
+ "get the exponents and coefficients."
+]);
 
 HelpAdd(["System",
-["System(comm) executes the unix system command << comm >>",
- "(string comm)",
- "Example: System(\"ls\");"]]);
+["System(<<comm>>) executes the unix system command << comm >>",
+ "(string <<comm>>)",
+ "Ex. System(\"ls\");"],
+ ["comm"],
+ null,
+ "call the unix shell."
+]);
 
 HelpAdd(["Exponent",
- ["Expoent(f,vars) returns the vector of exponents of the polynomial f",
-  "Ex. Exponent( x^2*y-1,[x,y])"]]);
+ ["Expoent(<<f>>,<<vars>>) returns the vector of exponents of the polynomial <<f>>",
+  "Ex. Exponent( x^2*y-1,[x,y])"],
+ ["f","vars"],
+ ["Coefficients"],
+ "exponents of a given polynomial."
+]);
 
 HelpAdd(["Protect",
- ["Protect(name) protects the symbol <<name>> (string)",
-  "Protect(name,level) protects the symbol <<name>> (string) with ",
-  "<<level>> "]]);
+ ["Protect(<<name>>) protects the symbol <<name>> (string)",
+  "Protect(<<name>>,<<level>>) protects the symbol <<name>> (string) with ",
+  "<<level>> "],
+ ["name","level"],
+ ["extension (sm1)"],
+ "add read-only property for a given variable." 
+]);
 
 HelpAdd(["IsPolynomial",
- ["IsPolynomial(f) returns true if <<f>> (object) is a polynomial."]]);
+ ["IsPolynomial(<<f>>) returns true if <<f>> (object) is a polynomial."],
+ ["obj"],
+ ["DC","Is*","Tag"],
+ "check if a given object is a polynomial."
+]);
 
 
 
@@ -448,36 +713,45 @@ def Init(f) {
   }
 }
 HelpAdd(["Init",
- ["Init(f) returns the initial term of the polynomial <<f>> (polynomial)",
-  "Init(list) returns the array of initial terms of the array of polynomials",
-  "<< list >> (array)"]]);
+ ["Init(<<f>>) returns the initial term of the polynomial <<f>> (polynomial)",
+  "Init(<<list>>) returns the array of initial terms of the array of polynomials",
+  "<< list >> (array)"],
+  ["f"],
+  ["Init_w"],
+  "return the initial term."
+]);
 
 HelpAdd(["NewMatrix",
- ["NewMatrix(m,n) returns the (m,n)-matrix (array) with the entries 0."]]);
+ ["NewMatrix(<<m>>,<<n>>) returns the (<<m>>,<<n>>)-matrix (array) with the entries 0."],
+ ["m","n"],
+ ["NewArray"],
+ "generate a matrix of a given size."
+]);
 
 def Eliminatev(list,var)  /* [(x-y). (y-z).] [(z) ] */
 {
    sm1(list, var, " eliminatev /FunctionValue set ");
 }
 HelpAdd(["Eliminatev",
-["Eliminatev(list,var) prunes polynomials in << list >>(array of polynomials)",
+["Eliminatev(<<list>>,<<var>>) prunes polynomials in << list >>(array of polynomials)",
  "which contains the variables in << var >> ( array of strings )",
- "Example: Eliminatev([Poly(\" x+h \"),Poly(\" x \")],[ \"h\" ]): "]]);
+ "Ex. Eliminatev([Poly(\" x+h \"),Poly(\" x \")],[ \"h\" ]): "],
+ ["list","var"],
+ ["eliminatev (sm1)"],
+ "  "
+]);
 
 def ReducedBase(base) {
   sm1( base, " reducedBase /FunctionValue set ");
 }
 HelpAdd(["ReducedBase",
- ["ReducedBase[base] prunes redundant elements in the Grobner basis <<base>> (array)."
-]]);
+ ["ReducedBase(<<base>>) prunes redundant elements in the Grobner basis <<base>> (array)."
+],
+ ["base"],
+ ["Gb","Groebner"],
+ "remove unnecessary elements."
+]);
 
-
-def Ringp(f) {
-  sm1(f, " (ring) dc /FunctionValue set ");
-}
-HelpAdd(["Ringp",
- ["Ringp(f) ( polynomial f ) returns the ring to which the polynomial << f >>",
-  "belongs."]]);
 
 def Coefficients(f,v) {
   local ans,exp;
@@ -491,24 +765,36 @@ def IsInteger(a) {
   sm1(a , " isUniversalNumber /FunctionValue set ");
 }
 HelpAdd(["IsInteger",
-["IsInteger(a) returns true if << a >> is an integer (object a).",
+["IsInteger(<<a>>) returns true if << a >> is an integer (object <<a>>).",
  "It returns false if << a >> is not.",
- "cf. IsSm1Integer"]]);
+ "cf. IsSm1Integer"],
+ ["a"],
+ ["DC","Is*","Tag"],
+ "check if a given object is an integer."
+]);
 
 def IsRational(a) {
   sm1(a , " isRational /FunctionValue set ");
 }
 HelpAdd(["IsRational",
-["IsRational(a) returns true if << a >> is a rational (object a).",
- "It returns false if << a >> is not."]]);
+["IsRational(<<a>>) returns true if << a >> is a rational (object <<a>>).",
+ "It returns false if << a >> is not."],
+ ["a"],
+ ["DC","Is*","Tag"],
+ "check if a given object is a rational."
+]);
 
 
 def IsDouble(a) {
   sm1(a , " isDouble /FunctionValue set ");
 }
 HelpAdd(["IsDouble",
-["IsDouble(a) returns true if << a >> is a double (object a).",
- "It returns false if << a >> is not."]]);
+["IsDouble(<<a>>) returns true if << a >> is a double (object <<a>>).",
+ "It returns false if << a >> is not."],
+ ["a"],
+ ["DC","Is*","Tag"],
+ "check if a given object is double."
+]);
 
 
 sm1(" /cs { this  [ ] Cleards  } def ");
@@ -529,11 +815,15 @@ def Init_w(f,vars,weight) {
 }
 
 HelpAdd(["Mapto",
- ["Mapto(obj,ring) parses << obj >> as elements of the << ring >>.",
+ ["Mapto(<<obj>>,<<ring>>) parses << obj >> as elements of the << ring >>.",
   "(ring << ring >>, polynomial << obj >> or array of polynomial << obj >>).",
   "Ex. R = RingD(\"x,y\"); SetRingVariables();",
   "    f = (x+y)^2; R2 = RingD(\"x,y,z\",[[\"y\",1]]); ",
-  "    f2 = Mapto(f,R2); f2: "]]);
+  "    f2 = Mapto(f,R2); f2: "],
+  ["obj","ring"],
+  ["ReParse"],
+  "parse a polynomial in a given ring."
+]);
 
 def Mapto(obj,ring) {
    local ans,i,n;
@@ -552,9 +842,13 @@ def Mapto(obj,ring) {
 
 
 HelpAdd(["ToDouble",
- ["ToDouble(f) translates << f >> into double when it is possible",
+ ["ToDouble(<<f>>) translates << f >> into double when it is possible",
   "object << f >>.",
-  "Example: ToDouble([1,1/2,[5]]): "]]);
+  "Ex. ToDouble([1,1/2,[5]]): "],
+ ["f"],
+ ["DC","Is*","Tag"],
+ "translate a given object to double."
+]);
 def k00_toDouble(f) {   return(DC(f,"double")); }
 def ToDouble(f) {
   if (IsArray(f)) return(Map(f,"ToDouble"));
@@ -570,8 +864,12 @@ def Mod(f,n) {
    } else if (IsInteger(f)) { return( Gmp.Mod(f,n) ); }
 }
 HelpAdd(["Mod",
- ["Mod(f,p) returns f modulo n  where << f >> (polynomial) and",
-  " << p >> (integer). "]]);
+ ["Mod(<<f>>,<<p>>) returns f modulo <<n>>  where << f >> (polynomial) and",
+  " << p >> (integer). "],
+ ["f","p"],
+ ["gbext (sm1)"],
+ "modulo"
+]);
 
 
 
@@ -585,16 +883,23 @@ def Characteristic(ringp) {
   return(p);
 }
 HelpAdd(["Characteristic",
-["Characteristic(ring) returns the characteristic of the << ring >>."
-]]);
+ ["Characteristic(<<ring>>) returns the characteristic of the << ring >>."],
+ ["ring"],
+ ["GetRing","RingD","RingPoly","SetRing"],
+ "get the characteristic of a given ring."
+]);
 
 def IsConstant(f) {
   if (Length(f) > 1) return(false);
   sm1("[(isConstant) ", f," ] gbext /FunctionValue set ");
 }
 HelpAdd(["IsConstant",
-["IsConstant(f) returns true if the polynomial << f >> is a constant."
-]]);
+["IsConstant(<<f>>) returns true if the polynomial << f >> is a constant."
+],
+ ["f"],
+ ["DC","Is*","Tag"],
+ "check if a given object is a constant."
+]);
 
 Println("Default ring is Z[x,h]."); x = Poly("x"); h = Poly("h");
 
@@ -624,33 +929,28 @@ def Substitute(f,xx,g) {
   return(Cancel(coeff0*newex));
 }
 HelpAdd(["Substitute",
-["Substitute(f,xx,g) replaces << xx >> in << f >> by << g >>.",
+["Substitute(<<f>>,<<xx>>,<<g>>) replaces << xx >> in << f >> by << g >>.",
   "This function takes coeffients of << f >> with respect to << xx >>",
   "and returns the inner product of the vector of coefficients and the vector",
   "of which elements are g^(corresponding exponent).",
   "Note that it may cause an unexpected result in non-commutative rings."
-]]);
+],
+ ["f","xx","g"],
+ ["Replace"],
+ "  "
+]);
 
-def Tag(f) {
-  local ans;
-  if (IsArray(f)) {
-    return(Map(f,"Tag"));
-  }else {
-    ans = sm1(f," etag (universalNumber) dc ");
-    return(ans);
-  }
-}
-HelpAdd(["Tag",
-["Tag(f) returns the datatype tags of f where",
- "5: string,  9: polynomial, 15: integer(big-num), 16: rational, ",
- "18:double, 257: Error ",
- "Ex. Tag([Poly(\"0\"), 0]):"
-]]);
 
-def Error(s) {
-  sm1(" s error ");
-}
-HelpAdd(["Error",
-["Error(s) causes an error and outputs a message s."]]);
+HelpAdd(["OutputPrompt",
+ ["Output the prompt. Files should end with this command."],
+ null,
+ null,
+ "output the prompt."]);
+
+Protect("Percent");
+Protect("LeftBracket");
+Protect("RightBracket");
+Protect("Dollar");
+Protect("Newline");
 
 OutputPrompt ;

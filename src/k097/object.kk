@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/object.kk,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/object.kk,v 1.3 2001/01/05 11:14:25 takayama Exp $ */
 /* object.kk , 1997, 4/11. */
 Protect("showln",0);
 
@@ -22,7 +22,12 @@ def IsObject(a) {
   if (k00ecTag(a[0]) == k00ecTag(Object[0])) return(true);
   else return(false);
 }
-HelpAdd(["IsObject",["IsObject(a) return true if a is an Object."]]);
+HelpAdd(["IsObject",
+ ["IsObject(<<a>>) return true if a is an Object."],
+ ["a"],
+ ["Tag"],
+ "check if a given object is primitive or not."
+]);
 
 
 
@@ -63,5 +68,40 @@ HelpAdd(["Gmp.",
   "These methods call functions of GNU MP package.",
   "Note that there is no method to create an instance.",
   "Ex.  r = Gmp.Gcd(5,8); "
-  ]]);
+  ],
+  null,
+  null,
+  "class Gmp"
+]);
 
+class Stderr extends Object {
+  def Print(s) {
+     s = ToString(s);
+     if (!Boundp("Stderr_fd")) {
+        sm1(" [37 (string) dc (stderr)] cat (w) file /Stderr_fd set ");
+     }
+     sm1(" Stderr_fd s writestring ");
+  }
+  def Println(s) {
+     Print(s); Ln();
+  }
+  def Ln() {
+     if (!Boundp("Stderr_fd")) {
+        sm1(" [37 (string) dc (stderr)] cat (w) file /Stderr_fd set ");
+     }
+     sm1(" Stderr_fd 10 (string) dc writestring ");
+  }
+  def Flush() {
+     sm1(" [(flush)] extension ");
+  }
+}
+
+HelpAdd(["Stderr.",
+ ["Stderr is a class which supports printing to stderr.",
+  "Methods are Print, Println, Ln, Flush.",
+  "Stderr_fd is a global variable to save a file descriptor."
+  ],
+  null,
+  null,
+  "class Stderr"
+]);

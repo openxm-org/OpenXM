@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.18 2000/12/21 12:26:58 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.19 2000/12/25 14:14:34 takayama Exp $
 # targets
 # all 
 #     compile
@@ -38,12 +38,6 @@ KAN_HOME = $(KHOME)/Kan
 
 all : d0 k0 
 
-## Making a new Makefile
-new : 
-	touch Makefile.new
-	/bin/cp Makefile.new Trash
-	/bin/rm -f Makefile.new
-	sed -f new.sed <Makefile >Makefile.new
 
 d0 : simple.tab.o d.o dic.o dm.c 
 	$(CC) ${STATIC_LINK_FLAG} $(FLAG) $(DDD) -o d0 dm.c d.o dic.o simple.tab.o

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/slib.k,v 1.7 2001/01/04 12:29:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/slib.k,v 1.8 2001/01/05 11:14:25 takayama Exp $ */
 /*  slib.sm1, standard library. */
 /* April 26-- , 1996 */
 /* Don't use function names that is already used as a postscipt macro names*/
@@ -8,9 +8,60 @@
 if (K00_verbose) 
  sm1(" ( slib.k (slib.ccc): 8/17,1996, 3/4 -- 3/10,1997 ) message ");
 
+
+/*
+  Each Helplist[i] has the format
+   [ category, [ key, explanations, ( args ,) (refs ,) (short descriptions)]]
+     category : null or string
+     key      : string
+     explanations : string or array of string   (Ex. and << >> are key words)
+     args     : null or list of strings
+     refs     : null or list of strings
+     short descriptions : string
+*/
 Helplist = [ ];
-def void HelpAdd(s) {
+def void HelpAdd(s,category) {
+  local n;
+  n = Length(Arglist);
+  if (n <= 1) {
+    category = null;
+  }
+  if (true) {
+    /* Assert the args */
+    /* You can use functions only defined before using HelpAdd */
+    if (!(n == 1 || n == 2)) {
+      Println(s);
+      Error("HelpAdd: wrong argument length.");
+    }
+    if (!(Tag(category) == 0 || Tag(category) == 5)) {
+      Println(category);
+      Error("HelpAdd: wrong category.");
+    }
+    if (!(Tag(s) == 6)) {
+      Println(s);
+      Error("HelpAdd: s must be an array.");
+    }
+    if (! (Tag(s[0]) == 5)) {
+      Println(s);
+      Error("HelpAdd: s[0] must be a string.");
+    }
+    if (! (Tag(s[1]) == 5 || Tag(s[1]) == 6)) {
+      Println(s);
+      Error("HelpAdd: s[1] must be a string or an array.");
+    }
+    /* End of assert */
+  }
+  s = [category,s];
   Helplist = Append(Helplist,s);
+}
+
+def Tag(f) {
+  local ans;
+  ans = sm1(f," etag (universalNumber) dc ");
+  return(ans);
+}
+def Error(s) {
+  sm1(" s error ");
 }
 
 def Print(a) {                      /* print object without new line */
@@ -214,7 +265,7 @@ def SetRingVariables() {
 def k00AreThereLeftBrace(s) {
   local leftBrace, jj, slist;
   leftBrace = sm1(" $[$ (array) dc 0 get (universalNumber) dc ");
-  jj = Position(StringToIntegerArray(s),leftBrace);
+  jj = Position(StringToAsciiArray(s),leftBrace);
   if (jj != -1) return(true); else return(false);
 }
 
@@ -317,9 +368,6 @@ def Replace(f,rule) {
 def Map(karg,func) {
   sm1(karg," { [ 2 -1 roll ] this 2 -1 roll [(parse) ",func," ] extension pop } map /FunctionValue set");
 }
-HelpAdd(["Map",
- ["Map(karg,func) applies the function <<func>> to the <<karg>>(string func).",
-  " Ex. Map([82,83,85],\"AsciiToString\"):"]]);
 /* test Map
 def foo1(i) { return(i*2); }
 def foo() {
@@ -340,48 +388,27 @@ def Position(list,elem) {
   sm1(" /k00.label0 ");
   return(pos);
 }
-HelpAdd(["Position",
- ["Position(list,elem) returns the position p of the element <<elem>> in",
-  " the array <<list>>. If <<elem>> is not in <<list>>, it return -1",
-  " (array list).",
-  "Ex. Position([1,34,2],34): "]]);
 
-def StringToIntegerArray(s) {
+def StringToAsciiArray(s) {
   sm1(s," (array) dc { (universalNumber) dc } map /FunctionValue set ");
 }
-HelpAdd(["StringToIntegerArray",
- ["StringToIntegerArray(s) decomposes the string <<s>> into an array of",
-  "ascii codes of <<s>>  (string s).",
-  "cf. AsciiToString."]]);
-def StringToAsciiArray(s) { return(StringToIntegerArray(s)); }
-HelpAdd(["StringToAsciiArray",
- ["StringToAsciiArray(s) is StringToIntegerArray(s)."]]);
-
 
 def NewArray(n) {
  return(NewVector(n));
 }
-HelpAdd(["NewArray",
-["NewArray(n) returns an array of size n (integer n)."]]);
 
 def GetEnv(s) {
  sm1(" [(getenv) s] extension /FunctionValue set ");
 }
-HelpAdd(["GetEnv",
-["GetEnv(s) returns the value of the environmental variable s (string s)."]]);
 def Boundp(a) {
    local b;
    sm1("[(parse) [(/) ",a," ( load tag 0 eq 
                           { /FunctionValue 0 def }
                           { /FunctionValue 1 def } ifelse )] cat ] extension");
 }
-HelpAdd(["Boundp",
-["Boundp(s) checks if the symbol s is bounded to a value or not (string s)."]]);
 def Rest(a) {
   sm1(a," rest /FunctionValue set ");
 }
-HelpAdd(["Rest",
-["Rest(a) returns the rest (cdr) of  a (list a)."]]);
 def GetPathName(s) {
   local t,sss;
   sss = s;
@@ -398,9 +425,6 @@ def GetPathName(s) {
     return(s);
   }
 }
-HelpAdd(["GetPathName",
-["GetPathName(s) checks if the file s exists in the current directory or",
- "in LOAD_K_PATH. If there exists, it returns the path name (string s)."]]);
 
 def Load_sm1(fnames,flag) {
   local ppp,n,i,cmd;
@@ -419,10 +443,6 @@ def Load_sm1(fnames,flag) {
   }
 }
 
-HelpAdd(["Load_sm1",
-["Load_sm1(s,flag) loads a sm1 program from s[0], s[1], ....",
- "If loading is succeeded, the already-loaded flag is set to true.",
- "(list s, string flag)."]]);
 
 def GetRing(f) {
   sm1(" f getRing /FunctionValue set ");
@@ -441,15 +461,8 @@ def ReParse(a) {
   }
   return(c);
 }
-HelpAdd(["ReParse",
-["Reparse(obj): ",
- "It parses the given object in the current ring."
-]]);
 
 def void Pmat(a) {
    sm1(" a pmat ");
 }
-HelpAdd(["Pmat",
-["Pmat(m): ",
- "Print the array m in a pretty way."
-]]);
+

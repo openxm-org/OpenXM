@@ -1,0 +1,177 @@
+%% $OpenXM$
+/*&C
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@setfilename standard-suppl
+@settitle standard-suppl
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+
+*/
+
+//&C @title  Kan/k0   Standard library (supplement).
+//&ja @subtitle Kan/k0 Standard Library パッケージ (補足) User's Manual (日本語版)
+//&en @subtitle Kan/k0 Standard Library Package (supplement) User's Manual
+/*&C
+@subtitle Edition 1.1.3 for OpenXM/kan/k0
+@subtitle January 8, 2001.
+
+@author  by Nobuki Takayama
+@end titlepage
+
+@synindex vr fn
+
+@comment  node-name,  next,  previous,  up
+@node Top,, (dir), (dir)
+
+*/
+
+/*&ja
+
+@menu
+* 基本 函数::
+* 索引::
+@end menu
+
+*/
+/*&en
+
+@menu
+* Standard function::
+* index::
+@end menu
+
+*/
+
+@c --------------  Standard 基本 ----------------------
+@c  これらの基本関数は  slib.k,  help.k 等, starup.k より読み込まれる関数
+@c  であるが,  HelpAdd では書かれていない.
+/*&ja
+
+@node 基本 函数,,, Top
+@chapter 基本 函数
+@section 函数一覧
+*/
+/*&en
+
+@node Standard function,,, Top
+@chapter Standard function
+@section A list of functions
+*/
+/*&C
+@menu
+* GetRing::
+* SetRing::
+@end menu
+*/
+
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of GetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* GetRing::
+@end menu
+@node GetRing,,, 基本 函数
+@subsection @code{GetRing}
+@findex GetRing
+@table @t
+@item GetRing(@var{f})
+::  @var{f} の要素の属する環を戻す.
+@end table
+
+@table @var
+@item return
+環
+@item f
+オブジェクト
+@end table
+
+@itemize @bullet
+@item  @var{f} の要素または @var{f} 自身の属する環を戻す.
+環がないときは null を戻す.
+@end itemize
+
+@example
+In(16)= RingD("x,y");
+In(17)= r = GetRing([x^2,0,1]);
+@end example
+
+@table @t
+@item 参照
+    @code{SetRing},   @code{ChangeRing}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of GetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+/*&ja
+@c %%%%%%%%%%%%%%%%%%%%  start of SetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@menu
+* SetRing::
+@end menu
+@node SetRing,,, 基本 函数
+@subsection @code{SetRing}
+@findex SetRing
+@table @t
+@item SetRing(@var{r})
+::  Current ring を @var{r} に変更する.
+@end table
+
+@table @var
+@item return
+なし
+@item r
+環
+@end table
+
+@itemize @bullet
+@item  Current ring を @var{r} に変更する.
+@end itemize
+
+@example
+In(16)= RingD("x,y");
+In(17)= f=[x^2,0,1]; r = GetRing(f);
+In(19)= RingD("p,q");
+In(20)= SetRing(r);
+In(21)= f = DC(f,"polynomial");
+@end example
+
+@table @t
+@item 参照
+    @code{GetRing},   @code{ChangeRing}, @code{DC}. 
+@end table
+@c  %%%%%%%%%%%%%%%%%%%%  end of SetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*/
+
+
+/*&ja
+@node 索引,,, Top
+@unnumbered 索引
+*/
+/*&en
+@node index,,, Top
+@unnumbered index
+*/
+/*&C
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+*/
+

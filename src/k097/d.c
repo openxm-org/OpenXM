@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.5 2000/05/04 11:05:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.6 2000/12/10 02:21:45 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -33,6 +33,9 @@ int Debug2 = 0;
 */
 
 int Interactive = 1;
+
+static int isThereStdin();
+#define MARK_CHAR  3
 
 main2(int argc, char *argv[]) {
   FILE *f;
@@ -584,7 +587,13 @@ KCerror(char *s)   /* You need this function. Otherwise, you get core. */
 {
   K00recoverFromError();
   fprintf(stderr,"\nSyntax Error in the line %d:%s\n",Linenumber,s);
-  showStringBuff(Inop); return ;
+  showStringBuff(Inop);
+  /* Clean the junks. Try load("debug/buggy.k"); */
+  if (isThereStdin()) {
+	ungetc(MARK_CHAR,stdin);
+	while (fsgetc(Inop) > MARK_CHAR) ;
+  }
+  return ;
   longjmp(KCenvOfParser,2);
   exit(1); 
 }
@@ -875,6 +884,15 @@ static int popFile() {
   /* Saki = SakiStack[Stackp]; */
   Saki = '\n';
   return(Saki);
+}
+
+static int isThereStdin() {
+  if (Stackp > 1 && (InopStack[1])->tag == Sfile
+	  && (InopStack[1])->lc.file == stdin) {
+	return(1);
+  }else{
+	return(0);
+  }
 }
 
 int fsgetc(objectp op) {

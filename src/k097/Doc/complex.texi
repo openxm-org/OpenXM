@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/k097/Doc/complex.texi,v 1.1 2001/01/04 12:29:32 takayama Exp $
+%% $OpenXM: OpenXM/src/k097/Doc/complex.texi,v 1.2 2001/01/05 11:14:26 takayama Exp $
 /*&C
 \input texinfo
 @iftex
@@ -92,7 +92,7 @@
 @findex Res_solv
 @table @t
 @item Res_solv(@var{m},@var{d})
-::  一次不定方程式 u @var{m} =@var{d} の解をもとめる.
+::  一次不定方程式 u @var{m} =@var{d} の解をもとめる. 
 @item Res_solv(@var{m},@var{d},@var{r})
 ::  一次不定方程式 u @var{m} =@var{d} の解をもとめる. @var{r} は ring.
 @end table
@@ -218,14 +218,18 @@ In(5)= Res_solv([[1,2],[3,4]],[5,0],r):
 @table @t
 @item 参照
     @code{Res_solv_h}, @code{Kernel},  @code{GetRing}, @code{SetRing}.  
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
     @code{Res_solv_h}, @code{Kernel},  @code{GetRing}, @code{SetRing}.  
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -240,7 +244,7 @@ In(5)= Res_solv([[1,2],[3,4]],[5,0],r):
 @findex Res_solv2
 @table @t
 @item Res_solv2(@var{m},@var{v},@var{j})
-::  一次不定方程式 u @var{m} =@var{v} mod @var{j} の解をもとめる.
+::  一次不定方程式 u @var{m} =@var{v} mod @var{j} の解をもとめる. 
 @item Res_solv2(@var{m},@var{v},@var{j},@var{r})
 ::  一次不定方程式 u @var{m} =@var{v} mod @var{j} の解をもとめる. 
 @var{r} は ring.
@@ -258,7 +262,7 @@ In(5)= Res_solv([[1,2],[3,4]],[5,0],r):
 @table @t
 @item Res_solv2(@var{m},@var{v},@var{j})
 ::  Find a solution u of the linear indefinite equation u @var{m} =@var{v}
-    mod @var{j}.
+    mod @var{j}. 
 @item Res_solv2(@var{m},@var{v},@var{j},@var{r})
 ::  Find a solution u of the linear indefinite equation u @var{m} =@var{v}
 mod @var{j}.
@@ -363,14 +367,18 @@ The output implies that
 @table @t
 @item 参照
     @code{Res_solv2_h}, @code{Kernel2},  @code{GetRing}, @code{SetRing}.  
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
     @code{Res_solv2_h}, @code{Kernel2},  @code{GetRing}, @code{SetRing}.  
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Res_solv2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -502,14 +510,18 @@ In(5)= k=Kernel([[1,2],[2,4]],r); k[0]:
 @table @t
 @item 参照
     @code{Kernel_h}, @code{Res_solv}, @code{GetRing}, @code{SetRing}. 
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Kernel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
     @code{Kernel_h}, @code{Res_solv},  @code{GetRing}, @code{SetRing}. 
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Kernel %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -614,15 +626,19 @@ In(43)=Kernel2([[0,0,0],[0,0,0]],[],r):
 @item 参照
     @code{Kernel2_h}, @code{Res_solv2}, @code{GetRing}, @code{SetRing},
     @code{Kernel}. 
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Kernel2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
     @code{Kernel2_h}, @code{Res_solv2},  @code{GetRing}, @code{SetRing},
     @code{Kernel} 
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Kernel2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -743,15 +759,19 @@ In(13)= Gb(m,r):
 @item 参照
     @code{Gb_h}, @code{Kernel}, @code{Res_solv}, @code{RingD}, 
     @code{GetRing}, @code{SetRing}. 
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Gb %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
     @code{Gb_h}, @code{Kernel}, @code{Res_solv}, @code{RingD}, 
     @code{GetRing}, @code{SetRing}. 
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Gb %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -865,14 +885,18 @@ In(19)=Pmat(Substitute(k2[0],t,1));
 @table @t
 @item 参照
     @code{Gb}, (m,(u,v))-グレブナ基底
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Res_shiftMatrix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
    @code{Gb}, (m,(u,v))-Grobner basis
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Res_shiftMatrix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -895,8 +919,6 @@ In(19)=Pmat(Substitute(k2[0],t,1));
 /*&C
 @menu
 * ChangeRing::
-* GetRing::
-* SetRing::
 * Intersection::
 * Getxvars::
 * Firstn::
@@ -925,84 +947,14 @@ true か false
    RingD("p,q,r");
    ChangeRing(f);
 @end example
+
+@table @t
+@item Files
+    @code{lib/restriction/complex.k}
+@end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of ChangeRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 
-/*&ja
-@c %%%%%%%%%%%%%%%%%%%%  start of GetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-@menu
-* GetRing::
-@end menu
-@node GetRing,,, 基本 函数
-@subsection @code{GetRing}
-@findex GetRing
-@table @t
-@item GetRing(@var{f})
-::  @var{f} の要素の属する環を戻す.
-@end table
-
-@table @var
-@item return
-環
-@item f
-オブジェクト
-@end table
-
-@itemize @bullet
-@item  @var{f} の要素または @var{f} 自身の属する環を戻す.
-環がないときは null を戻す.
-@end itemize
-
-@example
-In(16)= RingD("x,y");
-In(17)= r = GetRing([x^2,0,1]);
-@end example
-
-@table @t
-@item 参照
-    @code{SetRing},   @code{ChangeRing}. 
-@end table
-@c  %%%%%%%%%%%%%%%%%%%%  end of GetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*/
-
-/*&ja
-@c %%%%%%%%%%%%%%%%%%%%  start of SetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-@menu
-* SetRing::
-@end menu
-@node SetRing,,, 基本 函数
-@subsection @code{SetRing}
-@findex SetRing
-@table @t
-@item SetRing(@var{r})
-::  Current ring を @var{r} に変更する.
-@end table
-
-@table @var
-@item return
-なし
-@item r
-環
-@end table
-
-@itemize @bullet
-@item  Current ring を @var{r} に変更する.
-@end itemize
-
-@example
-In(16)= RingD("x,y");
-In(17)= f=[x^2,0,1]; r = GetRing(f);
-In(19)= RingD("p,q");
-In(20)= SetRing(r);
-In(21)= f = DC(f,"polynomial");
-@end example
-
-@table @t
-@item 参照
-    @code{GetRing},   @code{ChangeRing}, @code{DC}. 
-@end table
-@c  %%%%%%%%%%%%%%%%%%%%  end of SetRing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*/
 
 /*&ja
 @c %%%%%%%%%%%%%%%%%%%%  start of Intersection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1043,7 +995,8 @@ In(33)=Intersection(mm,nn):
 
 @table @t
 @item 参照
-
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Intersection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -1108,15 +1061,17 @@ In(5)=Getxvars():
 
 @table @t
 @item 参照
-
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Getxvars %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
-
+@item See also
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Getxvars %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
@@ -1197,14 +1152,18 @@ In(17)= Firstn(mm,2):
 
 @table @t
 @item 参照
-
+@item Files
+    @code{lib/restriction/complex.k}
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 */
 /*&en
 
 @table @t
-@item Reference
+@item See also
+@item Files
+    @code{lib/restriction/complex.k}
+
 
 @end table
 @c  %%%%%%%%%%%%%%%%%%%%  end of Firstn %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -22,8 +22,8 @@ def diff0(f,x) {
   local dx,ans;
   if (!IsPolynomial(f)) return(Poly("0"));
   if (f == Poly("0")) return(f);
-  dx = PolyR(AddString(["D",ToString(x)]),Ringp(f));
-  ans = Replace(dx*f,[[dx,Poly("0")],[h,PolyR("1",Ringp(f))]]);
+  dx = PolyR(AddString(["D",ToString(x)]),GetRing(f));
+  ans = Replace(dx*f,[[dx,Poly("0")],[h,PolyR("1",GetRing(f))]]);
   return(ans);
 }
 

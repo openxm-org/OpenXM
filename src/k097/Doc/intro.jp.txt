@@ -183,3 +183,16 @@ A. 例で説明しましょう.
   sm1(PrimitiveObject," 0 get setcontext ");
   と入力して下さい.
 
+Q. 文字列のなかで % $ や ( ) が使えません.
+
+A. kan/k0 は入力を sm1 に変換してから実行されるため,
+   sm1 の予約シンボルである これらの記号を文字列中で利用できません.
+   これらの記号を表示するには, AsciiToString, AddString 等の函数を
+   利用して表示します.
+  
+   例:
+   Println(AddString(["You cannot use ",AsciiToString(37),
+           " in kan/k0 string"]));
+   を実行すると,
+   You cannot use % in kan/k0 string
+   と表示されます.

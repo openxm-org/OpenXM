@@ -224,7 +224,7 @@ def zindicial0(input,n,m) {
 def zrho(f,n) {
   local ans,i,top,w,rz;
   ans = 0;
-  rz = Ringp(f);
+  rz = GetRing(f);
   while(true) {
     if ( f == Poly("0")) sm1(" exit ");
     top = Init(f);

@@ -42,7 +42,7 @@ def Cancel(f)  {
   if (IsInteger(f)) return(f);
   if (IsPolynomial(f)) {
     if (f == Poly("0")) return(0);
-    if (Characteristic(Ringp(f)) != 0) return(f);
+    if (Characteristic(GetRing(f)) != 0) return(f);
     if (IsConstant(f)) return(DC(f,"integer"));
     return(f);
   }

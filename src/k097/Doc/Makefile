@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/k097/Doc/Makefile,v 1.1 2001/01/04 12:29:32 takayama Exp $
 # targets
 # all :   
 #      
@@ -18,14 +18,18 @@ OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 OXWEAVE=$(OpenXM_ROOT)/src/kxx/oxweave
 
-INFO=complex standard
-JPSRCS= complex-ja.texi standard-ja.texi
-ENSRCS= complex-en.texi standard-en.texi
+INFO=complex standard standard-suppl
+JPSRCS= complex-ja.texi standard-ja.texi standard-suppl-ja.texi
+ENSRCS= complex-en.texi standard-en.texi standard-suppl-en.texi
 # INFO=complex 
 # JPSRCS= complex-ja.texi 
 # ENSRCS= complex-en.texi 
 
-all : make_help_dir all-ja all-en
+all : make_help_dir build post-install
+build: all-ja all-en
+post-install:
+	-rm -rf $(HELP_JA)/*.texi $(HELP_JA)/complex $(HELP_JA)/standard $(HELP_JA)/standard-suppl
+	-rm -rf $(HELP_EN)/*.texi $(HELP_EN)/complex $(HELP_EN)/standard $(HELP_EN)/standard-suppl
 make_help_dir:
 	-mkdir $(HELP)
 all-ja: $(JPSRCS) $(ASIRDOC)/extract_func
@@ -43,7 +47,7 @@ all-en: $(ENSRCS) $(ASIRDOC)/extract_func
 
 standard.texi:
 	-rm -rf standard.texi
-	k0 <genhelp.k >standard.texi
+	k0 <genhelp.k >standard.texi 
 
 complex-ja.texi : complex.texi
 	/bin/rm -f complex-ja.texi
@@ -57,9 +61,18 @@ standard-ja.texi : standard.texi
 standard-en.texi : standard.texi
 	/bin/rm -f standard-en.texi
 	$(OXWEAVE) C en <standard.texi >standard-en.texi
+standard-suppl-ja.texi : standard-suppl.texi
+	/bin/rm -f standard-suppl-ja.texi
+	$(OXWEAVE) C ja <standard-suppl.texi >standard-suppl-ja.texi
+standard-suppl-en.texi : standard-suppl.texi
+	/bin/rm -f standard-suppl-en.texi
+	$(OXWEAVE) C en <standard-suppl.texi >standard-suppl-en.texi
 
 clean :
 	-/bin/rm -rf $(HELP)
 	-/bin/rm -f  *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr 
-	-/bin/rm -f complex-en.texi complex-ja.texi standard-en.texi standard-ja.texi standard.texi
+	-/bin/rm -f complex-en.texi complex-ja.texi standard-en.texi standard-ja.texi standard.texi standard-suppl-en.texi standard-suppl-ja.texi
 
+
+mybackup :
+	(cd ../.. ; rsync  -avz  -e "ssh -l taka" --exclude '*~' --exclude 'k0' --exclude 'd0' --exclude '*.o' --exclude 'help' k097 lemon.math.sci.kobe-u.ac.jp:tmp/tmp-backup)
