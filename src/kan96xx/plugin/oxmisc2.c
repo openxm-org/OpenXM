@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.20 2003/12/06 02:35:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.21 2004/03/01 07:19:45 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -224,6 +224,14 @@ int oxReq(oxclientp client,int func,struct object ob)
       return(-1);
     }
     oxReqExecuteFunction(client->datafp2,KopString(ob));
+    client->dstate = DSTATE_ANY;
+    break;
+  case SM_executeFunctionWithOptionalArgument:
+    if (ob.tag != Sdollar) {
+      errorOxmisc2("SM_executeFunctionWithOptionalArgument : the argument must be a string.");
+      return(-1);
+    }
+    oxReqExecuteFunctionWithOptionalArgument(client->datafp2,KopString(ob));
     client->dstate = DSTATE_ANY;
     break;
   case SM_popString:

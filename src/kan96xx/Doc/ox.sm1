@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.37 2004/03/03 06:09:29 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.38 2004/03/04 05:18:26 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -77,6 +77,7 @@ ox.version [(Version)] system_variable gt
 /SM_dupErrors 276  def
 
 /SM_pushCMOtag 277 def
+/SM_executeFunctionWithOptionalArgument 282 def
 
 /SM_control_kill 1024 def
 /SM_control_reset_connection  1030 def
@@ -90,6 +91,7 @@ ox.version [(Version)] system_variable gt
  (Example: oxsm1.ccc [1 2 3] oxpushcmo oxsm1.ccc oxpopcmo /ff set  ff :: ) 
  (  )
  (client ss oxexecutestring(oxsubmit) <<executeString>>, client ss oxexec <<executeFunction>>) 
+ (client ss oxexecWithOpt )
  
  (Example: oxsm1.ccc (0 1 10 { pop $Hello$ message } for) oxexecutestring ) 
  (Example: oxsm1.ccc (2).. oxpushcmo oxsm1.ccc (10).. oxpushcmo )
@@ -259,6 +261,23 @@ ox.verbose { oxhelp } {  } ifelse
    } {  } ifelse
   [(oxReq) arg2 SM_executeFunction arg1] extension pop
 } def
+/oxexecWithOpt {
+  /arg1 set
+  /arg2 set
+   ox.takelog { ox.log [(oxSerial)] extension ox.mod arg1 put
+                ox.log [(oxSerial)] extension 1 add ox.mod 
+               (executeFunctionWithOptionalArgument) put
+   } {  } ifelse
+  [(oxReq) arg2 SM_executeFunctionWithOptionalArgument arg1] extension pop
+} def
+[(oxexecWithOpt)
+ [
+  $Example: $
+  $oxsm1.ccc (/foo { message message message } def) oxsubmit ;$
+  $oxsm1.ccc (hello) oxpushcmo oxsm1.ccc 1 oxpushcmo oxsm1.ccc [[(opt) 0]] oxpushcmo ;$
+  $oxsm1.ccc (foo) oxexecWithOpt $
+ ]
+] putUsages
 /oxsubmit2 {
   oxexec
 } def

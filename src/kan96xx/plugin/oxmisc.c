@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.18 2003/11/19 01:02:39 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.19 2004/02/25 23:14:35 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -442,6 +442,15 @@ void oxReqExecuteFunction(ox_stream os,char *s)
   oxSendCmoString(os,s);
   oxSendOXheader(os,OX_COMMAND,SerialOX++);
   oxSendInt32(os,SM_executeFunction);
+  fp2fflush(os);
+}
+
+void oxReqExecuteFunctionWithOptionalArgument(ox_stream os,char *s)
+{
+  oxSendOXheader(os,OX_DATA,SerialOX++);
+  oxSendCmoString(os,s);
+  oxSendOXheader(os,OX_COMMAND,SerialOX++);
+  oxSendInt32(os,SM_executeFunctionWithOptionalArgument);
   fp2fflush(os);
 }
 
@@ -1070,6 +1079,8 @@ char *oxFIDtoStr(int id) {
     return "SM_executeStringByLocalParser"; break;
   case SM_executeFunction:
     return "SM_executeFunction"; break;
+  case SM_executeFunctionWithOptionalArgument:
+    return "SM_executeFunctionWithOptionalArgument"; break;
   case SM_popCMO:
     return "SM_popCMO"; break;
   case SM_popString:

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.7 2003/11/19 01:02:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxKan0.h,v 1.8 2004/02/23 09:03:43 takayama Exp $ */
 /* ox_kan0.h */
 
 #define mymalloc(n) sGC_malloc(n)
@@ -138,6 +138,7 @@ void oxReqSetName(ox_stream os,char *name);
 void oxReqEvalName(ox_stream os,char *name);
 void oxReqExecuteStringByLocalParser(ox_stream os,char *s);
 void oxReqExecuteFunction(ox_stream os,char *s);
+void oxReqExecuteFunctionWithOptionalArgument(ox_stream os,char *s);
 void oxReqPopString(ox_stream os);
 void oxReqPushString(ox_stream os,char *s);
 void oxReqPopCMO(ox_stream os);

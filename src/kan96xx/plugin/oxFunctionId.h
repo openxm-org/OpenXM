@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxFunctionId.h,v 1.3 2000/01/19 00:34:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxFunctionId.h,v 1.4 2000/02/02 02:03:43 takayama Exp $ */
 /* ox_function_id.h */
 /* If you add new SM_*,
    you also need to modify, KSmathcapByStruct(),
@@ -27,6 +27,8 @@ and OpenXM/doc/OpenXM-specs/communication-model.tex.
 #define SM_pushCMOtag 277
 
 #define SM_sync_ball 281
+
+#define SM_executeFunctionWithOptionalArgument 282
 
 #define SM_DUMMY_sendcmo  (SM_PRIVATE+1)
 

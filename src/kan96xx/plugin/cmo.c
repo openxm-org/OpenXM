@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.9 2001/09/01 01:37:49 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.10 2003/12/06 02:35:54 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -1456,7 +1456,8 @@ void *KSmathCapByStruct(void)
   mathcap->sm[9] = SM_getsp;
   mathcap->sm[10] = SM_dupErrors;
   mathcap->sm[11] = SM_pushCMOtag;
-  mathcap->smSize = 12;  
+  mathcap->sm[12] = SM_executeFunctionWithOptionalArgument;
+  mathcap->smSize = 13;  
 
   return((void *)mathcap);
 }

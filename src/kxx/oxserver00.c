@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.12 2003/11/19 01:02:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.13 2003/11/20 11:41:44 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -302,6 +302,20 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
     OxCritical = 1; signal(SIGUSR1,controlResetHandler);
     if (iresult < 0) {
       emsg = Sm1_popErrorMessage("executeFunction: ");
+      Sm1_pushError2(SerialCurrent,-1,emsg);
+      return(-1);
+    }
+    break;
+  case SM_executeFunctionWithOptionalArgument:
+    OxCritical = 0;
+	if (NoExecution) {
+	  iresult = 0;
+	}else{
+	  iresult = Sm1_executeStringByLocalParser();
+	}
+    OxCritical = 1; signal(SIGUSR1,controlResetHandler);
+    if (iresult < 0) {
+      emsg = Sm1_popErrorMessage("executeFunctionWithOptionalArgument: ");
       Sm1_pushError2(SerialCurrent,-1,emsg);
       return(-1);
     }
