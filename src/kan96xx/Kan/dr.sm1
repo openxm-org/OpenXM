@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.13 2003/05/16 08:58:52 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.14 2003/07/14 12:49:51 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3740,6 +3740,30 @@ $ [ff ff] fromVectors :: $
 /execve {
   /execve.arg set
   [(forkExec) execve.arg [ ] 1] extension
+} def
+
+[(beginEcart)
+ [  
+   (beginEcart)
+   (Set the environments for the ecart division algorithm.)
+ ] 
+] putUsages
+
+/beginEcart {
+  (red@) (ecart) switch_function
+  [(Ecart) 1] system_variable
+} def
+
+[(endEcart)
+ [  
+   (endEcart)
+   (End of using the ecart division algorithm.)
+ ] 
+] putUsages
+
+/endEcart {
+  (red@) (standard) switch_function
+  [(Ecart) 0] system_variable
 } def
 
 ;

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.4 2003/07/10 08:20:05 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -414,14 +414,14 @@ int uvGrade1(POLY f,int u[],int v[],int ds[],int dssize,int ei)
 	if ((t <dssize) && (t >= 0)) {
 	  r += ds[t];
 	}else{
-	  /* Warning! */
+	  /* Warning! ds[t] is assumed to be zero. */
 	}
   }else{
 	t = ei;
 	if ((t <dssize) && (t >= 0)) {
 	  r += ds[t];
 	}else{
-	  /* Warning! */
+	  /* Warning! ds[t] is assumed to be zero. */
 	}
   }
   return(r);

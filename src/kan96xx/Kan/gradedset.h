@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.3 2000/02/24 00:27:12 takayama Exp $ */
 /* gradedset.h */
 #define max(a,b) (a>b?a:b)
 
@@ -75,6 +75,10 @@ POLY reductionCdr_except_grd_i(POLY f,struct gradedPolySet *gset,
 			       int grd,int i, int *reduced);
  /* Polynomial at (grd,i) is not used for reduction.
     if del[j] == 1, then the attached polynomial is not used for reduction.*/
+
+/* ecart.c */
+POLY reduction_ecart(POLY f,struct gradedPolySet *gset,
+					 int needSyz,struct syz0 *syzp);
 
 /* constructor */
 POLY toSyzPoly(POLY cg,int grade,int index);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/switch.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/switch.c,v 1.3 2001/05/04 01:06:26 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -20,7 +20,7 @@ void print_switch_status(void) {
   printf("mmLarger [matrix,lexicographic,tower]          %s\n",F_mmLarger);
   printf("mpMult   [poly,diff,difference]                %s\n",F_mpMult);
   printf("monomialAdd [poly]                             %s\n",F_monomialAdd);
-  printf("red@      [standard,module1,module2,module1rev]\n");
+  printf("red@      [standard,module1,module2,module1rev,ecart]\n");
   printf("                                               %s\n",F_red);
   printf("isSameComponent [x,xd]                         %s\n",F_isSameComponent);
   printf("sp        [standard]                           %s\n",F_sp);
@@ -202,6 +202,19 @@ void switch_red(arg)
     lcm = lcm_module;
     switch_grade("standard");
     F_red = "module2";
+  }else if (strcmp(arg,"ecart") == 0) {
+    switch_sp("standard");
+    isReducible = isReducible_module;
+    reduction1 = reduction1_gen;
+    reduction = reduction_ecart;
+
+    isCdrReducible = isCdrReducible_gen;
+    reduction1Cdr = reduction1Cdr_gen;
+    reductionCdr = reductionCdr_gen;
+
+    lcm = lcm_module;
+    switch_grade("module1");
+    F_red = "ecart";
   }else if (strcmp(arg,"debug") == 0) {
     reduction1 = reduction1_gen_debug;
     F_red = "debug";
