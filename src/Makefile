@@ -1,6 +1,6 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.10 1999/11/20 21:33:09 maekawa Exp $
-all : all1 all2 all3  all4 pari asir all5 all6
+## $OpenXM: OpenXM/src/Makefile,v 1.11 1999/11/22 04:22:53 takayama Exp $
+all : all1 all3  all4 pari asir all2 all5 all6
 
 all1 :
 	(cd kan96xx ; make all )
