@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.24 2002/08/10 23:20:02 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.25 2002/08/15 00:03:28 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -12,10 +12,13 @@ WINASIR=c:/home/asir
 usage:
 	@echo "Targets: all build-tgz clean clean-work link-for-debug"
 	@echo "         remove-experimental gen-cd"
+	@echo "  The target all, gen-cd builds the directory OpenXM-win" 
 	@echo "Other targets: win-correction3, build-bat"  
+	@echo "               asir-book "
 
-clean:
-	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc
+clean: clean-OpenXM-win clean-asir-book
+clean-OpenXM-win:
+	-rm -rf OpenXM-win .copy-binary-done .copy-binary-asir-done .copy-binary-phc-done OpenXM-win.tgz .OpenXM-win.tgz.done oxasir-win.rr .copy-cygwin-dlls-done .build-binary-openxm-cygwin-done OpenXM-unix OpenXM-doc 
 
 clean-work:
 	-rm -rf work
@@ -166,3 +169,42 @@ gen-cd:
 	cp Readme-CD/readme-unix-en.html OpenXM-unix
 	(cd OpenXM-unix; wget ${WGET_HEAD} )
 	@echo "Copy OpenXM-unix and OpenXM-win to the CD."
+
+asir-book: mkdir-asir-book copy-to-asir-book
+clean-asir-book:
+	-rm -rf asir-book .copy-to-asir-book-asir-bin .copy-to-asir-book-prog .copy-to-asir-book-meadow
+
+mkdir-asir-book: 
+	-(mkdir asir-book)
+	-(mkdir asir-book/asir)
+	-(mkdir asir-book/Meadow)
+	-(mkdir asir-book/Prog)
+
+copy-to-asir-book:  copy-to-asir-book-asir-bin copy-to-asir-book-prog copy-to-asir-book-meadow asir-book/index.html
+
+copy-to-asir-book-asir-bin:  copy-binary-asir
+	if [ ! -f .copy-to-asir-book-asir-bin ] ; then  \
+	  -(cd asir-book ; tar xzvf ../work/asirwin-${ASIR_LANG}.tgz) ;\
+	fi
+	touch .copy-to-asir-book-asir-bin
+
+copy-to-asir-book-prog:
+	if [ ! -f .copy-to-asir-book-prog ] ; then \
+	  (cd work; cvs-asir-book checkout asir-book) ; \
+	  (cp work/asir-book/Prog/*.rr asir-book/Prog) ; \
+	fi
+	touch .copy-to-asir-book-prog
+
+MEADOW=meadow-xxx.exe
+WGET_MEADOW=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/${MEADOW}
+copy-to-asir-book-meadow:
+	if [ ! -f .copy-to-asir-book-meadow ] ; then \
+	 if [ ! -f work/${MEADOW} ] ; then \
+		(cd work ; wget ${WGET_MEADOW} ) ; \
+	 fi ; \
+	 (cd asir-book ; cp ../work/${MEADOW} asir-book/Meadow) ; \
+	fi
+	touch .copy-to-asir-book-meadow
+
+asir-book/index.html: Readme-CD/asir-book-index.html
+	cp Readme-CD/asir-book-index.html asir-book/index.html
