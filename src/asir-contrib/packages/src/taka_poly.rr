@@ -1,9 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.5 2001/08/21 02:07:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.6 2001/08/21 02:12:26 takayama Exp $ */
+#define NUMBER 1
 #define RPOLYNOMIAL 2
 #define RATIONAL 3
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
+#define STRING 7
 #define STRUCT 8
 
 def taka_poly_solve_poly1(F,V) {
@@ -133,6 +135,86 @@ def taka_poly_elimination_poly(F,V,VV) {
   }else{
      return 0;
   }
+}
+
+/*
+  taka_poly_weight_vector(W,V) returns "order".
+  cf. dp_ord().
+  Example:
+  taka_poly_weight_vector([1,0,0],[x,y,z]);
+  taka_poly_weight_vector([[1,1,1],[1,-1,0]],[x,y,z]);
+  taka_poly_weight_vector([x,1,y,1],[x,y,z]);
+*/
+def taka_poly_weight_vector(W,V) {
+  if (type(W) == VECTOR || type(W) == MATRIX) {
+     W = omatrix_mtol(W);
+  }else if (type(W) == NUMBER || type(W) == 0) {
+     return W;
+  }    
+  if (type(W[0]) == LIST) {
+    return taka_poly_weight_vectors(W,V);
+  }else{
+    return taka_poly_weight_vector1(W,V);
+  }
+  error("Invalid argument for taka_poly_weight_vector");
+}
+
+def taka_poly_weight_vector1(W,V) {
+  WW = taka_poly_weight_vector_parse(W,V);
+  N = length(V);
+  WW = newmat(N+1,N,[WW]);
+  for (I=1; I<N+1; I++) {
+    WW[I][N-I] = -1;
+  }
+  return WW;
+}
+
+def taka_poly_weight_vectors(W,V) {
+  L = length(W);
+  WW = [ ];
+  for (I=0; I<L; I++) {
+    WW = append(WW,[taka_poly_weight_vector_parse(W[I],V)]);
+  }
+  N = length(V);
+  M = N+L;
+  WW = newmat(M,N,WW);
+  J = 1;
+  for (I=L; I<M; I++) {
+    WW[I][N-J] = -1; J++;
+  }
+  return WW;
+}
+
+/* w = [1,0,0,1], or [x,1,y,1] */
+def taka_poly_weight_vector_parse(W,V) {
+  N = length(V);
+  M = length(W);
+  Ans = newvect(N);
+  Type = 0;
+  for (I=0; I<M; I++) {
+    if (type(W[I]) == STRING) {
+      W[I] = eval_str(W[I]);
+    }
+    if (type(W[I]) == RPOLYNOMIAL) {
+       Type = 1;
+       K = base_position(W[I],V);
+       if (K >=0 && K < N) {
+          Ans[K] = W[I+1];
+       }else{
+         print("W=",0); print(W);
+         print("V=",0); print(V);
+         error("weight vector format error.");
+       }
+    }else if (!Type) {
+       if (N != M) {
+         error("weight vector format error.");
+         print("W=",0); print(W);
+         print("V=",0); print(V);
+       }
+       Ans[I] = W[I];
+    }
+  }
+  return vtol(Ans);
 }
 
 Taka_poly_loaded = 1$

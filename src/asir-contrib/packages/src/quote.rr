@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.1 2001/08/21 06:25:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.2 2001/08/21 08:03:01 takayama Exp $ */
 #define NUMBER 1
 #define RPOLYNOMIAL 2
 #define RATIONAL 3
@@ -72,5 +72,41 @@ def quote_factored_list_to_quote(S) {
   }
   return Ans;
 }
+
+/*
+   V : list of variables.
+   W : weight vector or order number.
+*/
+def quote_sort_polynomial(F,V,W) {
+  if (type(F) != RPOLYNOMIAL) return quote_to_quote(F);
+  dp_ord(taka_poly_weight_vector(W,V));
+  F = dp_ptod(F,V);
+  if (F != 0) {
+    Ans="";
+  }else{
+    Ans=quote(0); return Ans;
+  }
+  C = 0;
+  while (F != 0) {
+     G = dp_hm(F);
+     F = dp_rest(F);
+
+     HC = "("+rtostr(dp_hc(G))+")"; 
+     HT = rtostr(dp_dtop(dp_ht(G),V));
+     if (HT != 1) {
+       HC = quote_to_quote(HC+"*"+HT);
+     }else{
+       HC = quote_to_quote(HC);
+     }
+     if (C == 0) {
+         Ans = HC;
+     }else{
+        Ans = Ans + HC;
+     }
+     if (C == 0) C = 1;
+  }
+  return Ans;
+}
+
 
 end$

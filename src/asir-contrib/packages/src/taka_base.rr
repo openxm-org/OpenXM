@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.9 2001/08/21 02:07:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.10 2001/08/21 02:12:26 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -95,6 +95,16 @@ def taka_base_memberq(A,S) {
     }
   }
   return 0;
+}
+
+def taka_base_position(A,S) {
+  N = length(S);
+  for (I=0; I<N; I++) {
+    if (type(A) == type(S[I])) {
+      if (A == S[I]) return I;
+    }
+  }
+  return -1;
 }
 
 def taka_base_subsetq(A,B) {

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.13 2001/08/21 06:25:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.14 2001/08/21 08:03:01 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -47,6 +47,10 @@ def base_intersection(A,B) {
 def base_memberq(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_memberq(A,S);
+}
+def base_position(A,S) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_position(A,S);
 }
 def base_prune(A,S) {
   /* Prune A from the set S */

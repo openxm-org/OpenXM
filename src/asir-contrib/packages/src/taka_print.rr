@@ -1,14 +1,21 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.5 2001/08/21 06:25:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.6 2001/08/21 08:03:01 takayama Exp $ */
 
 #define Number 1
+#define NUMBER 1
 #define RPolynomial 2
+#define RPOLYNOMIAL 2
 #define Rational 3
+#define RATIONAL 3
 #define List 4
+#define LIST 4
 #define Vector 5
+#define VECTOR 5
 #define Matrix 6
+#define MATRIX 6
 #define STRING 7
 #define STRUCT 8
 #define DPolynomial   9
+#define DPOLYNOMIAL   9
 #define QUOTE 17
 
 Taka_print_dp_vlist_vname="x"$
@@ -113,11 +120,37 @@ def taka_tex_form_dpolynomial(F) {
   while (F != 0) {
      G = dp_hm(F);
      F = dp_rest(F);
-     if (dp_hc(G)>0 && C != 0) {
-       Ans += "+";
+     if (type(dp_hc(G)) == NUMBER &&
+         dn(dp_hc(G)) == 1) {
+       if (dp_hc(G)>0 && C != 0) {
+         Ans += "+";
+       }
+       if (dp_hc(G) == 1) {
+       }else if (dp_hc(G) == -1) {
+         Ans += "-";
+       }else{
+         Ans += taka_tex_form(dp_hc(G));
+       }
+       if (dp_dtop(dp_ht(G),Vlist) != 1) {
+         Ans += " "+taka_tex_form(dp_dtop(dp_ht(G),Vlist));
+       }
+       if (dp_hc(G) == 1 && dp_dtop(dp_ht(G),Vlist) == 1) {
+         Ans += "1";
+       }
+       if (dp_hc(G) == -1 && dp_dtop(dp_ht(G),Vlist) == 1) {
+         Ans += "1";
+       }
+       if (C == 0) C = 1;
+     }else{
+       if (C != 0) {
+         Ans += "+";
+       }
+       Ans += "(" + taka_tex_form(dp_hc(G)) + ")";
+       if (dp_dtop(dp_ht(G),Vlist) != 1) {
+         Ans += " "+taka_tex_form(dp_dtop(dp_ht(G),Vlist));
+       }
+       if (C == 0) C = 1;
      }
-     Ans += taka_tex_form(dp_dtop(G,Vlist));
-     if (C == 0) C = 1;
   }
   return Ans;
 }
