@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.28 2000/09/27 23:17:11 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.29 2000/11/26 11:05:33 takayama Exp $
 #
 WEBKOBE=/home/web/OpenXM
 WEBKOBE1=/home/web/OpenXM/1.1.3
@@ -82,7 +82,7 @@ checkDir :
 	fi \
 
 
-install-web-kobe :  checkDir ${WEBKOBE}/index.html ${WEBKOBE1}/OpenXM-RFC.html ${WEBKOBE}/issac2000.ps ${WEBKOBE1}/cmotag.h ${WEBKOBE1}/oxMessageTag.h ${WEBKOBE1}/smCommand.h  ${WEBKOBE1}/install-en.txt ${WEBKOBE1}/install-ja.txt  ${WEBKOBE1}/ERRATA.html ${WEBKOBE1}/index-binary.html ${WEBKOBE1}/index-packages.html ${WEBKOBE1}/install-faq.txt ${WEBKOBE1}/OpenXM-FAQ-en.txt ${WEBKOBE1}/OpenXM-FAQ-ja.txt ${WEBKOBE1}/doc/index.html
+install-web-kobe :  checkDir ${WEBKOBE}/index.html ${WEBKOBE}/OpenXM-RFC.html ${WEBKOBE}/issac2000.ps ${WEBKOBE1}/cmotag.h ${WEBKOBE1}/oxMessageTag.h ${WEBKOBE1}/smCommand.h  ${WEBKOBE1}/install-en.txt ${WEBKOBE1}/install-ja.txt  ${WEBKOBE1}/ERRATA.html ${WEBKOBE1}/index-binary.html ${WEBKOBE1}/index-packages.html ${WEBKOBE1}/install-faq.txt ${WEBKOBE1}/OpenXM-FAQ-en.txt ${WEBKOBE1}/OpenXM-FAQ-ja.txt ${WEBKOBE1}/doc/index.html
 
 ${WEBKOBE}/index.html : index.html
 	cp -f index.html ${WEBKOBE}
@@ -91,8 +91,8 @@ ${WEBKOBE}/index.html : index.html
 ${WEBKOBE1}/index-binary.html : index-binary.html
 	cp -f index-binary.html ${WEBKOBE1}
 
-${WEBKOBE1}/OpenXM-RFC.html : OpenXM-RFC.html
-	cp -f OpenXM-RFC.html ${WEBKOBE1}
+${WEBKOBE}/OpenXM-RFC.html : OpenXM-RFC.html
+	cp -f OpenXM-RFC.html ${WEBKOBE}
 
 ${WEBKOBE1}/index-packages.html : index-packages.html
 	cp -f index-packages.html ${WEBKOBE1}
