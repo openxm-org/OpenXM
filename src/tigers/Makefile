@@ -1,37 +1,54 @@
-# $OpenXM: OpenXM/src/tigers/Makefile,v 1.2 2000/01/08 18:43:02 maekawa Exp $
+# $OpenXM: OpenXM/src/tigers/Makefile,v 1.3 2000/01/31 05:52:07 noro Exp $
+OpenXM_HOME=../..
+PREFIX=${OpenXM_HOME}
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+RM = /bin/rm
+RANLIB=ranlib
+INSTALL_PROGRAM=install -c -s
+DISTNAME=TiGERS_0.9
+PATCH_FILE=tigers.patch
+MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+DIST_SUFFIX=.taz
+DISTFILES=${DISTNAME}${DIST_SUFFIX}
 
-TIGERS = ../../../OpenXM_contrib/TiGERS_0.9
-CURDIR = ../../OpenXM/src/tigers
-BINDIR = ../../bin
+all: build 
 
-all: patch
-	@if [ ! -f ./.make_done ]; then \
-		(cd $(TIGERS) ; make all) \
+fetch:
+	-mkdir work
+	@if [ ! -f work/.fetch_done ]; then \
+		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+	fi 
+	@touch work/.fetch_done
+
+extract: fetch
+	@if [ ! -f work/.extract_done ]; then \
+	    cat ${DISTDIR}/${DISTFILES} | (cd work ; tar xzvf -) ; \
+	fi 
+	@touch work/.extract_done
+
+patch: extract
+	@if [ ! -f work/.patch_done ]; then \
+	    if [ -f "${PATCH_FILE}" ]; then \
+	        cat ${PATCH_FILE} | (cd work/${DISTNAME} ; patch -p1 ) ; \
+	    fi \
+	fi 
+	@touch work/.patch_done
+
+build: patch
+	@if [ ! -f work/.build_done ]; then \
+		(cd work/${DISTNAME}; ${MAKE} all) ; \
 	fi
-	@touch ./.make_done
+	@touch work/.build_done
 
-install: all
-	if test `uname` = "OSF1" ; then \
-		installbsd -c -s $(TIGERS)/tigers $(BINDIR)/tigers ; \
-	else \
-		install -c -s $(TIGERS)/tigers $(BINDIR)/tigers ; \
+install: build
+	-mkdir ${PREFIX}/bin
+	@if [ ! -f work/.install_done ]; then \
+		bindir=$$(cd ${PREFIX}/bin; pwd); \
+		(cd work/${DISTNAME}; ${INSTALL_PROGRAM} tigers $${bindir}); \
 	fi
+	@touch work/.install_done
 
-clean: patch-clean
-	(cd $(TIGERS) ; rm -f *.o tigers)
-	@rm -f ./.make_done
+clean:
+	-${RM} -rf work
 
-distclean:
-	rm -f $(BINDIR)/tigers
-
-patch:
-	@if [ ! -f ./.patch_done ]; then \
-		(cd $(TIGERS) ; patch < $(CURDIR)/tigers.patch) \
-	fi
-	@touch ./.patch_done
-
-patch-clean:
-	@if [ -f ./.patch_done ]; then \
-		(cd $(TIGERS) ; patch -R < $(CURDIR)/tigers.patch) \
-	fi
-	@rm -f ./.patch_done
+distclean: clean

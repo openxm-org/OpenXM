@@ -94,8 +94,8 @@ diff -urN TiGERS_0.9.orig/binomial.c TiGERS_0.9/binomial.c
  
  /*
 diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
---- TiGERS_0.9.orig/call.c	Sat Jan  8 07:42:43 2000
-+++ TiGERS_0.9/call.c	Sat Jan  8 07:43:41 2000
+--- TiGERS_0.9.orig/call.c	Sat Jun 12 07:05:52 1999
++++ TiGERS_0.9/call.c	Wed Dec 15 03:06:28 2004
 @@ -15,6 +15,8 @@
  #include "gset.h"
  #include "matrices.h"
@@ -105,6 +105,15 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
  /*
  ** write a description of program usage to stderr
  */
+@@ -68,7 +70,7 @@
+   exit(-1);
+ }
+ 
+-FILE *infile=stdin, *outfile=stdout;
++FILE *infile, *outfile;
+ extern int rsearch_cache;
+ extern int print_tree;
+ extern int  print_init;
 @@ -87,7 +89,7 @@
  
  #define MATFOUND 1
@@ -114,7 +123,18 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
   char *c,cc, *prog=argv[0], *ifname=0, *ofname=0;
   int tmp,acnt,stat=0,counter;
   gset G1=0,gset_toric_ideal();
-@@ -205,6 +207,29 @@
+@@ -100,6 +102,10 @@
+   print_tree=FALSE;
+   print_init=FALSE;
+ 
++  /* added by noro */
++  infile = stdin;
++  outfile = stdout;
++
+   /* parse command line */
+   while (--argc > 0 && (*++argv)[0] == '-'){
+     acnt=0;
+@@ -205,6 +211,29 @@
     }
    }
  
@@ -144,7 +164,7 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
    /* output first GB if desired */
    fprintf(outfile,"%% starting GB:\n");
    fprintf(outfile,"R: %d\n",ring_N);
-@@ -314,15 +339,119 @@
+@@ -314,15 +343,119 @@
      return 0;
      }
    }
@@ -203,20 +223,20 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +  
 +  return M;
 +}
- 
++
 +tiger_executeString_M(char *is) {
 +  char *c,cc, *prog="tigers", *ifname=0, *ofname=0;
 +  int tmp,acnt,stat=0,counter;
 +  gset G1=0,gset_toric_ideal();
 +  int **M=0,Mn,Mm;
 +  double tt;
- 
++
 +  /* initialize parameters */
 +  root_only=FALSE;
 +  rsearch_cache=TRUE;
 +  print_tree=FALSE;
 +  print_init=FALSE;
- 
++
 +  if ((M=imatrix_read_from_string(is,&Mm,&Mn))==0){
 +     fprintf(stderr,"%s: imatrix_read() failed\n",prog);
 +     exit(1);      
@@ -250,13 +270,13 @@ diff -urN TiGERS_0.9.orig/call.c TiGERS_0.9/call.c
 +      fprintf(outfile,"\n");
 +    }
 +  }
-+
+ 
 +  fprintf(outfile,"]\n");
 +  LP_free_space();
 +  if (G1!=0) gset_free(G1);
 +}
-+
-+
+ 
+ 
 +main(int argc, char *argv[]) { infile=stdin; outfile=stdout;
 +  if (argc > 1) {
 +    tiger_executeString_M(argv[1]);
