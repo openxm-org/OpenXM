@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.31 2001/12/20 08:54:53 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1,v 1.32 2001/12/20 09:38:04 takayama Exp $ */
 
 Sm1_ord_list = [ dz20, dz19, dz18, dz17, dz16, dz15, dz14, dz13, dz12, dz11, dz10, dz9, dz8, dz7, dz6, dz5, dz4, dz3, dz2, dz1, dz0, dy20, dy19, dy18, dy17, dy16, dy15, dy14, dy13, dy12, dy11, dy10, dy9, dy8, dy7, dy6, dy5, dy4, dy3, dy2, dy1, dy0, dx20, dx19, dx18, dx17, dx16, dx15, dx14, dx13, dx12, dx11, dx10, dx9, dx8, dx7, dx6, dx5, dx4, dx3, dx2, dx1, dx0, 
 dz, dy, dx, dw, dv, du, dt, ds, dr, dq, dp, dn, dm, dl, dk, dj, di, dh, dg, df, de, dc, db, da, 
@@ -77,13 +77,26 @@ def sm1_start_windows(U) {
           " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
     Com = "oxlog xterm -iconic -T ox_sm1 -n ox_sm1 -e "+ Com + "& ";
   }else{
-    OpenXM_HOME_WIN="c:\\cygwin\\home\\nobuki\\OpenXM";
-    OpenXM_HOME_WIN2="/home/nobuki/OpenXM";
-    Sm1_lib = OpenXM_HOME_WIN2+"/lib/sm1";
+    /* OpenXM_HOME_WIN="c:\\cygwin\\home\\nobuki\\OpenXM";
+       OpenXM_HOME_WIN2="/home/nobuki/OpenXM";
+       OpenXM_START_EXE = "c:/windows/command/start";
+    */
+    OpenXM_HOME_WIN = getenv("OpenXM_HOME_WIN");
+    OpenXM_START_EXE = getenv("OpenXM_START_EXE");
+    /* Sm1_lib = OpenXM_HOME_WIN2+"/lib/sm1"; */
+    Sm1_lib = OpenXM_HOME_WIN+"/lib/sm1"; 
+    Ox_sm1_forAsir = OpenXM_HOME_WIN+"\\lib\\sm1\\bin\\ox_sm1_forAsir.exe"; 
+    /* Ox_sm1_forAsir = OpenXM_HOME_WIN+"\\bin\\ox_sm1.exe";  for debug */
+    F = open_file(Ox_sm1_forAsir);
+    if (F < 0) {
+      error("ox_sm1_forAsir.exe is not existing.  Check your installation.");
+      return(-1);
+    }
+    close_file(F);
     Com = OpenXM_HOME_WIN+"\\bin\\ox -ox " + 
-          OpenXM_HOME_WIN2+"/bin/ox_sm1.exe " +
+          Ox_sm1_forAsir + " " +
           " -data "+ rtostr(SPort) +" -control "+ rtostr(CPort);
-    Com = "c:/windows/command/start "+Com ;
+    Com = OpenXM_START_EXE+" "+Com ;
   }
 
   print(Com +"\n");
