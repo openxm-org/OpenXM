@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.17 2001/08/22 06:33:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.18 2001/08/22 08:21:51 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -31,6 +31,9 @@ ox_loadfile(Loaded_taka_poly,"taka_poly.rr") $
 */
 
 #define OX_LOADFILE(A,B)   /* Do nothing. */
+
+Print_tex_form_fraction_format="auto"$  /* "frac" or "auto" or "/" */
+
 /* Base module */
 def base_cancel(S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");

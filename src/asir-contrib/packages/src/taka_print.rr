@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.11 2001/08/22 06:33:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.12 2001/08/22 08:21:52 takayama Exp $ */
 
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -21,6 +21,7 @@
 #define QUOTE 17
 
 Taka_print_dp_vlist_vname="x"$
+
 def taka_print_dp_vlist(N) {
   extern Taka_print_dp_vlist_vname;
   V = Taka_print_dp_vlist_vname+"_"+rtostr(N);
@@ -100,9 +101,27 @@ def taka_is_fractional(A) {
 }
 
 def taka_tex_form_frac(A) {
-  S = "\\frac{";
-  S += taka_tex_form(nm(A))+"}{";
-  S += taka_tex_form(dn(A))+"}";
+  extern Print_tex_form_fraction_format;
+  if (Print_tex_form_fraction_format == "frac") {
+    S = "\\frac{";
+    S += taka_tex_form(nm(A))+"}{";
+    S += taka_tex_form(dn(A))+"}";
+  }else if (Print_tex_form_fraction_format == "auto") {
+    N = taka_tex_form(nm(A));
+    D = taka_tex_form(dn(A));
+    if (str_len(N) > 120 || str_len(D) > 120) {
+      S += "("+taka_tex_form(nm(A))+")/";
+      S += "("+taka_tex_form(dn(A))+")";
+    }else {
+      S = "\\frac{";
+      S += taka_tex_form(nm(A))+"}{";
+      S += taka_tex_form(dn(A))+"}";
+    }
+  }else {
+    S += "("+taka_tex_form(nm(A))+")/";
+    S += "("+taka_tex_form(dn(A))+")";
+  } 
+
   return S;
 }
 
