@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.26 2003/11/03 10:24:33 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.27 2003/11/17 05:45:46 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -532,6 +532,7 @@ ox.verbose { oxhelp } {  } ifelse
   [
      /L [(oxGetClientList)] extension def
     (In ox103_reset...) message
+    (killall in oxshell...) message [(killall)] oxshell pop
      /n L length def
      0 1 n 1 sub {
        /i set

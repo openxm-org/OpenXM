@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxrfc103.sm1,v 1.1 2003/01/01 02:04:45 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxrfc103.sm1,v 1.2 2003/12/04 06:29:21 takayama Exp $
 (oxasir.sm1.loaded) boundp
 {  }
 {
@@ -6,7 +6,6 @@
 } ifelse
 
 /ctrlC-hook {
-  [(killall)] oxshell pop
   ox103_reset
 } def
 
@@ -19,6 +18,7 @@
   [
      /L [(oxGetClientList)] extension def
     (In ox103_reset...) message
+    (killall in oxshell...) message [(killall)] oxshell pop
      /n L length def
      0 1 n 1 sub {
        /i set

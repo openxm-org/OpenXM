@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.15 2003/12/04 05:27:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.16 2003/12/04 06:29:21 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -1110,7 +1110,10 @@ int oxKillAll(void) {
   int status;
   for (i=0; i<Myforkcp; i++) {
     pid = Myforkchildren[i];
-    signal(SIGKILL,myforkwait);
+	fprintf(stderr,"Sending signal to %d ... ",pid);
+    kill(pid,SIGKILL);
+	waitpid(pid,&status,0);
+	fprintf(stderr,"Gone.\n");
   }
   Myforkcp = 0;
   return(0);
