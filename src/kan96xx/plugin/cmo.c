@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.8 2001/05/04 01:06:29 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.9 2001/09/01 01:37:49 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -659,6 +659,12 @@ void cmoObjectToCmo00(struct object ob)
     break;
   case SuniversalNumber:
     cmoOutGMPCoeff(ob.lc.universalNumber->val.bigp);
+    break;
+  case SrationalFunction:
+    tmp[0] = htonl(CMO_RATIONAL);
+    cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
+	cmoObjectToCmo00(*(Knumerator(ob)));
+	cmoObjectToCmo00(*(Kdenominator(ob)));
     break;
   case Sdouble:
     if (sizeof(double) != 8) errorCmo("double is assumed to be 8 bytes.");
