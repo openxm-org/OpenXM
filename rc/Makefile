@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.10 2000/03/04 11:03:36 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.11 2000/03/05 06:54:00 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
@@ -36,7 +36,7 @@ openxm : dot.cshrc
 	./gen-shell-scripts
 	touch .done_gen-shell-scripts
 
-install : all
+install : all 
 	cp -f $(SHELL_SCRIPTS) ${INSTALL_DIR}
 
 install.man :

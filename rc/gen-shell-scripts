@@ -1,11 +1,12 @@
 #!/bin/sh
-# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.5 2000/03/04 11:03:36 takayama Exp $
+# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.6 2000/03/04 11:24:11 takayama Exp $
 
 #asir
 	rm -f asir
 	echo "#!/bin/csh" >asir
 	cat dot.cshrc >>asir
-	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $*' >>asir
+#	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $*' >>asir
+	echo 'exec $OpenXM_HOME/bin/asir $*' >>asir
 	chmod +x asir
 
 #sm1
