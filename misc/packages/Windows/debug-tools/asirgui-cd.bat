@@ -1,4 +1,4 @@
-rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/asirgui-cd.bat,v 1.4 2003/07/21 07:47:49 takayama Exp $
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/asirgui-cd.bat,v 1.5 2003/07/21 08:37:15 takayama Exp $
 rem
 rem
 rem  Authomatically set the path
@@ -15,6 +15,7 @@ rem Do not touch below
 rem 
 set OpenXM_START_EXE=start
 set WIN_ASIR_ROOT=%OpenXM_HOME_WIN%\asir
+set OpenXM_WIN_ROOT=%WIN_ASIR_ROOT%
 set PATH=%OpenXM_HOME_WIN%\bin;%PATH%
 set ASIR_LIBDIR=%OpenXM_HOME_WIN%\lib\asir;%WIN_ASIR_ROOT%\lib
 set ASIRLOADPATH=;%WIN_ASIR_ROOT%\lib;%OpenXM_HOME_WIN%\src\asir-contrib\packages\src;%OpenXM_HOME_WIN%\src\asir-contrib\packages\sample;%OpenXM_HOME_WIN%\lib\asir-contrib;.
