@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.9 2001/12/28 01:20:27 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.10 2002/05/02 03:08:28 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -334,14 +334,11 @@ restoreLockCtrlCForOx() { ; }
 static int findOxServer(char *server) {
   char *p;
   char *p2;
-  int fd;
   char *getenv(char *s);
   if (strlen(server) == 0) return(-1);
   /* fd = open(server,O_RDONLY); */
-  fd = access(server,X_OK&R_OK);
-  if (fd >= 0) {
+  if (access(server,X_OK&R_OK) == 0) {
     fprintf(stderr,"Starting OX server : %s\n",server);
-    close(fd);
     return(0);
   }
   if (server[0] == '/') {
@@ -357,15 +354,13 @@ static int findOxServer(char *server) {
   if (p2 == NULL) { fprintf(stderr,"No more memory.\n"); exit(10); }
   strcpy(p2,p); strcat(p2,"/bin/"); strcat(p2,server);
   /* fd = open(p2,O_RDONLY); */
-  fd = access(p2,X_OK&R_OK);
-  if (fd >= 0) {
+  if (access(p2,X_OK&R_OK) == 0) {
     fprintf(stderr,"Starting OX server : %s\n",p2);
     if (strlen(p2) < SERVERNAME_SIZE) strcpy(server,p2);
     else {
       couldNotFind("Too long ox server name.");
       return(-1);
     }
-    close(fd);
     return(0);
   }
   couldNotFind(p2);
