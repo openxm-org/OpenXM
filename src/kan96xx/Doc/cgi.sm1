@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.10 2004/11/23 02:19:16 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/cgi.sm1,v 1.11 2004/11/23 02:38:46 takayama Exp $
 %  OpenXM/src/polymake/cgi/cgi-polymake.sh
 %   is a shell script to call sm1/polymake as a CGI script.
 %  Override as /doPolymake {doPolymake.OoHG} def if you need.
@@ -41,7 +41,10 @@
    [[(URL),(/index.html)]
    ] /kv set
    [(cgiKeyValuePairToUrlEncodingString) kv] extension /sss set
-   [(GET ) , sss , ( HTTP/0.9) , nl , nl ] cat /sss2 set
+%   [(GET ) , sss , ( HTTP/0.9) , nl , nl ] cat /sss2 set
+   [(GET ) , sss , ( HTTP/0.9) ,  nl ,
+    (HOST: ) , url , nl
+    nl ] cat /sss2 set
    
    sss2 message
    [(sm1.socket) (connect) [80 url]] extension 0 get /goo set
@@ -241,6 +244,7 @@ def
      [(cgiKeyValuePairToUrlEncodingString) ff] extension /ff set
      [(POST ) , ff1 , ( HTTP/0.9) , nl , 
 %      (Connection: Keep-Alive) , nl ,
+      (HOST: ) cgiQueryPolymake.hostname , nl ,     
       (Content-length: ) , ff length (dollar) dc , nl , nl 
       ff nl] cat /sss2 set
 % step 2. Call the server and get the response in pp  
