@@ -1,7 +1,8 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yymain_polymake.c,v 1.1 2003/11/24 02:33:39 takayama Exp $ */
 #include <stdio.h>
 #include "yylex_polymake.h"
 #include "yy_polymake.tab.h"
+
 
 char *SS=NULL;
 main_t() {
@@ -34,12 +35,16 @@ main() {
 	pmPutstr(c);
   }
   SS = pmPutstr(0);
+#ifdef DEBUG
   printf("%s\n",SS);
+#endif
   pmSetS(SS);
   pmPreprocess();
+#ifdef DEBUG
   printf("--------------------------\n");
   printf("%s\n",SS);
   printf("--------------------------\n");
+#endif
   PMparse();
 }
 

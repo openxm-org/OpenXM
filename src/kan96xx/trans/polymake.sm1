@@ -1,0 +1,73 @@
+% $OpenXM$
+% It is a polymake interface
+
+/polymake.start {
+  (ox.k0.loaded) boundp {  }
+  { [(parse) (ox.sm1) pushfile] extension } ifelse
+  oxk0.ccc [ ] eq { 
+     k0connectr oxk0.ccc oxsetmathcap oxk0.ccc oxmathcap
+  } {  } ifelse
+  oxk0.ccc 0 get (closed) eq {
+     k0connectr oxk0.ccc oxsetmathcap oxk0.ccc oxmathcap
+  } {  } ifelse
+  [(which) (polymake)] oxshell tag 0 eq {
+     [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell
+     [(which) (polymake)] oxshell tag 0 eq {
+       (Polymake is not installed in this system.) error
+     } {  } ifelse
+  } {  } ifelse
+  [(which) (polymake2tfb)] oxshell tag 0 eq {
+     (polymake2tfb is not installed in this system.) error
+  } {  } ifelse
+} def
+
+%[(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,0,0]])))]
+% doPolymake
+% [ tfb-string tree error]
+[(doPolymake)
+[(It calls polymake to make several construction for polytopes.)
+ ([action data_in_polymake_tfb_format] doPolymake )
+ (         [result_in_tfb result_in_tree errors])
+ (polymake, polymake2tfb, ox_k0 must be installed.)
+ (Example:)
+% ( [(export) (PATH) (=) (/usr/local/polymake/bin:${PATH})] oxshell )
+ $ [(FACETS) (polymake.data(polymake.POINTS([[1,0,0],[1,1,0],[1,0,1],[1,0,0]])))]$
+ (         doPolymake /rr set )
+]] putUsages
+/doPolymake {
+  /arg1 set
+  [/in-doPolymake  /pAction /pData /pNative /ptree
+   /pResult  /pError
+  ] pushVariables
+  [
+    arg1 0 get /pAction set
+    arg1 1 get /pData set
+    polymake.start
+
+    /pError [ ] def
+%% step 1:  polymake tfb ===> polymake native data
+    oxk0.ccc ( polymake=Object; ) oxexecutestring 
+    oxk0.ccc ( QuoteMode(1); ) oxexecutestring 
+    oxk0.ccc [pData ( ;)] cat oxexecutestring 
+    oxk0.ccc oxpopcmo /ptree set 
+    oxk0.ccc ( QuoteMode(0); ) oxexecutestring 
+    [(treeToPolymake) ptree] extension /pNative set 
+%% step 2: calling the polymake
+    [(polymake) (stringInOut://pNative.poly) pAction] addStdoutStderr 
+    oxshell pop
+    pError [@@@stdout @@@stderr] append /pError set
+%% step 3: polymake native data to polymake tfb
+    [(polymake2tfb) (<) (stringIn://pNative) (>) (stringOut://pResult)
+     (2>) (stringOut://@@@stderr)] oxshell pop
+    pError [@@@stderr] append /pError set
+%% step 4: get also tree style data.
+    oxk0.ccc ( polymake=Object; ) oxexecutestring 
+    oxk0.ccc ( QuoteMode(1); ) oxexecutestring 
+    oxk0.ccc [pResult ( ;)] cat oxexecutestring 
+    oxk0.ccc oxpopcmo /ptree set 
+    oxk0.ccc ( QuoteMode(0); ) oxexecutestring 
+    [pResult ptree pError] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def

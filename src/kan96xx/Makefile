@@ -1,4 +1,4 @@
-#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.33 2003/11/24 08:16:13 takayama Exp $
+#  $OpenXM: OpenXM/src/kan96xx/Makefile,v 1.34 2003/11/24 23:16:02 takayama Exp $
 #
 # Building kan96xx depends on
 #   install-gmp, install-gc [install-asir-gc] 
@@ -45,6 +45,7 @@ configure_symbolic_links :
 install: install-exec install-man install-document
 install-exec: clean-for-install all-sm1
 	install Kan/sm1 ${OpenXM_bin}
+	install trans/polymake2tfb ${OpenXM_bin}
 install-man :  
 	-cp Doc/sm1.1 ${OpenXM_HOME}/man/man1
 install-document:  
@@ -52,8 +53,10 @@ install-document:
 install-for-debug : clean-for-install
 	if [ "`uname | sed -e 's/_.*$$//'`" = "CYGWIN" ]; then \
 	  ln -f -s ../src/kan96xx/Kan/sm1.exe ${OpenXM_bin}/sm1.exe ; \
+	  ln -f -s ../src/kan96xx/trans/polymake2tfb.exe ${OpenXM_bin}/polymake2tfb.exe ; \
 	else \
 	  ln -f -s ../src/kan96xx/Kan/sm1 ${OpenXM_bin}/sm1 ; \
+	  ln -f -s ../src/kan96xx/trans/polymake2tfb ${OpenXM_bin}/polymake2tfb ; \
 	fi
 
 

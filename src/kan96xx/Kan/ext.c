@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.18 2003/11/24 12:38:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.19 2003/12/03 01:21:43 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,7 +25,7 @@ static void mywait() {
   int status;
   int pid;
   int i,j;
-  signal(SIGCHLD,SIG_IGN);
+  /* signal(SIGCHLD,SIG_IGN); */
   pid = wait(&status);
   fprintf(stderr,"Child process %d is exiting.\n",pid);
   for (i=0; i<Mycp; i++) {
