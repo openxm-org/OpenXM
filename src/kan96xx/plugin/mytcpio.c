@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.5 2001/05/04 01:06:30 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.6 2002/02/24 10:27:20 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -23,6 +23,7 @@ jmp_buf MyEnv_oxmisc; /* may cause a trouble in Solaris. */
 #endif
 
 #define READBUFSIZE 10000
+#define MAX_LISTEN_QUEUE 3
 static void errorMsg1s(char *s) {
   fprintf(stderr,"%s\n",s);
 }
@@ -73,7 +74,7 @@ socketOpen(char *serverName,int portNumber) {
     return(-1);
   }
 
-  if (listen(s_waiting,1) < 0) {
+  if (listen(s_waiting,MAX_LISTEN_QUEUE) < 0) {
     errorMsg1s("Listen failed");
     return(-1);
   }

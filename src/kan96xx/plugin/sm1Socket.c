@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.4 2001/08/12 03:13:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.5 2002/10/17 13:40:29 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -15,6 +15,7 @@
 
 extern int Quiet;
 static void errorMsg1s(char *s);
+#define MAX_LISTEN_QUEUE 3
 
 /* [(sm1.socket) (open) [optional integer port, optional string name] ] extension ; */
 struct object KsocketOpen(struct object obj) {
@@ -78,7 +79,7 @@ struct object KsocketOpen(struct object obj) {
   }
 
   
-  if (listen(s_waiting,1) < 0) {
+  if (listen(s_waiting,MAX_LISTEN_QUEUE) < 0) {
     errorMsg1s("Listen failed");
   }
   /*  
