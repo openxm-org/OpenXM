@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.21 2001/08/26 09:50:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.22 2001/08/29 07:37:17 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 /* Include data type declaration. */
@@ -94,128 +94,54 @@ def number_binomial(P,Q) { NOT_YET; }
 def poly_elimination_ideal(I,VV) { 
   O = getopt(grobner_basis);
   V = getopt(v);
+  OL = [["grobner_basis",O],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(O) == -1 && type(V) == -1) {
-    return taka_poly_elimination_ideal(I,VV);
-  }
-  else if (type(O) != -1 && type(V) == -1) {
-    return taka_poly_elimination_ideal(I,VV|grobner_basis=O);
-  }
-  else if (type(O) == -1 && type(V) != -1) {
-    return taka_poly_elimination_ideal(I,VV|v=V);
-  }else if (type(O) != -1 && type(V) != -1) {
-    return taka_poly_elimination_ideal(I,VV|grobner_basis=O,v=V);
-  }
+  return taka_poly_elimination_ideal(I,VV|option_list=OL);
 }
 def poly_grobner_basis(I) {
   Or = getopt(order);
   V = getopt(v);
+  OL = [["order",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(Or) == -1 && type(V) == -1) {
-    return taka_poly_grobner_basis(I);
-  }
-  else if (type(Or) != -1 && type(V) == -1) {
-    return taka_poly_grobner_basis(I|order=Or);
-  }
-  else if (type(Or) == -1 && type(V) != -1) {
-    return taka_poly_grobner_basis(I|v=V);
-  }else if (type(Or) != -1 && type(V) != -1) {
-    return taka_poly_grobner_basis(I|order=Or,v=V);
-  }
+  return taka_poly_grobner_basis(I|option_list=OL);
 }
 def poly_hilbert_polynomial(I)  { 
   /* return(subst(hilbert_polynomial(I,V),h,S));  */
   S = getopt(s);
   V = getopt(v);
+  OL = [["s",S],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(S) == -1 && type(V) == -1) {
-    return taka_poly_hilbert_polynomial(I);
-  }
-  else if (type(S) != -1 && type(V) == -1) {
-    return taka_poly_hilbert_polynomial(I|s=S);
-  }
-  else if (type(S) == -1 && type(V) != -1) {
-    return taka_poly_hilbert_polynomial(I|v=V);
-  }else if (type(S) != -1 && type(V) != -1) {
-    return taka_poly_hilbert_polynomial(I|s=S,v=V);
-  }
+  return taka_poly_hilbert_polynomial(I|option_list=OL);
 }
 def poly_initial(I) {
   Or = getopt(order);
   V = getopt(v);
+  OL = [["order",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(Or) == -1 && type(V) == -1) {
-    return taka_poly_initial(I);
-  }
-  else if (type(Or) != -1 && type(V) == -1) {
-    return taka_poly_initial(I|order=Or);
-  }
-  else if (type(Or) == -1 && type(V) != -1) {
-    return taka_poly_initial(I|v=V);
-  }else if (type(Or) != -1 && type(V) != -1) {
-    return taka_poly_initial(I|order=Or,v=V);
-  }
+  return taka_poly_initial(I|option_list=OL);
 }
 
 def poly_initial_coefficients(I) {
   Or = getopt(order);
   V = getopt(v);
+  OL = [["order",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(Or) == -1 && type(V) == -1) {
-    return taka_poly_initial_coefficients(I);
-  }
-  else if (type(Or) != -1 && type(V) == -1) {
-    return taka_poly_initial_coefficients(I|order=Or);
-  }
-  else if (type(Or) == -1 && type(V) != -1) {
-    return taka_poly_initial_coefficients(I|v=V);
-  }else if (type(Or) != -1 && type(V) != -1) {
-    return taka_poly_initial_coefficients(I|order=Or,v=V);
-  }
+  return taka_poly_initial_coefficients(I | option_list=OL);
 }
 def poly_initial_term(F) {
   Or = getopt(order);
   V = getopt(v);
   Weight = getopt(weight);
+  OL = [["order",Or],["v",V],["weight",Weight]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(Or) == -1 && type(V) == -1 && type(Weight) == -1) {
-    return taka_poly_initial_term(F);
-  }
-  else if (type(Or) != -1 && type(V) == -1 && type(Weight) == -1) {
-    return taka_poly_initial_term(F|order=Or);
-  }
-  else if (type(Or) == -1 && type(V) != -1 && type(Weight) == -1) {
-    return taka_poly_initial_term(F|v=V);
-  }else if (type(Or) != -1 && type(V) != -1 && type(Weight) == -1) {
-    return taka_poly_initial_term(F|order=Or,v=V);
-  }
-  else if (type(Or) == -1 && type(V) == -1 && type(Weight) != -1) {
-    return taka_poly_initial_term(F|weight=Weight);
-  }
-  else if (type(Or) != -1 && type(V) == -1 && type(Weight) != -1) {
-    return taka_poly_initial_term(F|order=Or,weight=Weight);
-  }
-  else if (type(Or) == -1 && type(V) != -1 && type(Weight) != -1) {
-    return taka_poly_initial_term(F|v=V, weight=Weight);
-  }else if (type(Or) != -1 && type(V) != -1 && type(Weight) != -1) {
-    return taka_poly_initial_term(F|order=Or,v=V,weight=Weight);
-  }
+  return taka_poly_initial_term(F | option_list=OL);
 }
 def poly_degree(I) {
   Or = getopt(weight);
   V = getopt(v);
+  OL = [["weight",Or],["v",V]];
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
-  if (type(Or) == -1 && type(V) == -1) {
-    return taka_poly_degree(I);
-  }
-  else if (type(Or) != -1 && type(V) == -1) {
-    return taka_poly_degree(I|weight=Or);
-  }
-  else if (type(Or) == -1 && type(V) != -1) {
-    return taka_poly_degree(I|v=V);
-  }else if (type(Or) != -1 && type(V) != -1) {
-    return taka_poly_degree(I|weight=Or,v=V);
-  }
+  return taka_poly_degree(I | option_list=OL);
 }
 
 def poly_solve(Eqs,V) { NOT_YET; }
