@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.10 2000/03/11 06:22:32 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.11 2000/03/11 07:10:02 takayama Exp $
 
 VERSION=1.1.2
 TAG=HEAD
@@ -68,8 +68,8 @@ build-on-orange:
 # You should be a super user.
 build-on-pear:
 	cp ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tar.gz /usr/ports/distfiles
-	(cd /usr/ports/math ; tar xzvf ${TAR_WORK_EXPLICIT}/openxm-port.tar.gz)
-	(PATH=/usr/local/${JDK}/java ; export PATH ; cd FreeBSD/openxm-ports/openxm-${VERSION} ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
+	(cd /usr/ports/math ; /bin/rm -rf openxm ; tar xzvf ${TAR_WORK_EXPLICIT}/openxm-port.tar.gz)
+	(PATH=/usr/local/${JDK}/bin:$(PATH) ; export PATH ; cd /usr/ports/math/openxm ; make install ; make package ; make deinstall ; cp openxm-${VERSION}.tgz ${TAR_WORK_EXPLICIT} ; chown ${NAME} ${TAR_WORK_EXPLICIT}/openxm-${VERSION}.tgz)
 
 build-on-redhat:
 	(cd Generic/openxm ; make  TAG=${TAG} VERSION=${VERSION} binary-tar-ball)
