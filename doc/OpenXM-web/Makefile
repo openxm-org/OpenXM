@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.39 2003/03/25 11:30:10 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.40 2003/03/26 00:55:30 takayama Exp $
 #
 OXHOME=/home/web/OpenXM
 #OXHOME=/home/taka/afo/OpenXM    ## for test.
@@ -84,3 +84,12 @@ clean-everything: clean clean-top
 	-${RM} -rf ${CURRENT} ${STABLE} ${ASCM2001} ${CURRENT_DOC}
 	-${RM} -rf tmp-poster
 
+
+###
+### target for buggy latex2html
+###  (jlatex2html machine)% make
+###  (latex2html machine)%  make clean-en-html
+###  (latex2html machine)%  make 
+clean-en-html:
+	-(cd ../OpenXM-specs ; make clean-en-done)
+	-(make -f Makefile-intro ; make clean)

@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.11 2003/03/26 04:56:14 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.12 2003/03/26 06:19:04 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -56,23 +56,12 @@ OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 $(OXWEAVE) : $(OXWEAVE).c
 	(cd ../../src/kxx ; make oxweave)
 
-all-html: doc .all-html-100-en.done .all-html-101-en.done
-	if test ! -f .all-html-100-ja.done ; \
-	then \
-		(cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM) ; \
-		(cd tmpJA/OpenXM; ../../${OXREPLACE} --old iso-8859-1 --new euc-jp *.html) ; \
-		touch .all-html-100-ja.done ; \
-	fi
+all-html: all-html-ja all-html-en
+all-html-en: doc .all-html-100-en.done .all-html-101-en.done
 	if test ! -f .all-html-100-en.done ; \
 	then \
 		(cd tmpEN ; latex OpenXM; latex OpenXM ; $(LATEX2HTML) OpenXM ) ; \
 		touch .all-html-100-en.done ; \
-	fi
-	if test ! -f .all-html-101-ja.done ; \
-	then \
-		(cd tmp101JA; platex OX-RFC-101; platex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
-		(cd tmp101JA/OX-RFC-101; ../../${OXREPLACE} --old iso-8859-1 --new euc-jp *.html) ; \
-		touch .all-html-101-ja.done ; \
 	fi
 	if test ! -f .all-html-101-en.done ; \
 	then \
@@ -80,9 +69,27 @@ all-html: doc .all-html-100-en.done .all-html-101-en.done
 		touch .all-html-101-en.done ; \
 	fi
 
+all-html-ja: doc .all-html-100-ja.done .all-html-101-ja.done
+	if test ! -f .all-html-100-ja.done ; \
+	then \
+		(cd tmpJA; platex OpenXM; platex OpenXM ; $(LATEX2HTML) OpenXM) ; \
+		(cd tmpJA/OpenXM; ../../${OXREPLACE} --old iso-8859-1 --new euc-jp *.html) ; \
+		touch .all-html-100-ja.done ; \
+	fi
+	if test ! -f .all-html-101-ja.done ; \
+	then \
+		(cd tmp101JA; platex OX-RFC-101; platex OX-RFC-101 ; $(LATEX2HTML) OX-RFC-101 ) ; \
+		(cd tmp101JA/OX-RFC-101; ../../${OXREPLACE} --old iso-8859-1 --new euc-jp *.html) ; \
+		touch .all-html-101-ja.done ; \
+	fi
+
 .all-html-100-en.done: ${SRC}
 	make clean-done
 .all-html-101-en.done: ${SRC101}
+	make clean-done
+.all-html-100-ja.done: ${SRC}
+	make clean-done
+.all-html-101-ja.done: ${SRC101}
 	make clean-done
 
 install-web-all: all-html
@@ -107,5 +114,6 @@ clean : clean-done
 	/bin/rm -f OpenXM-en.dvi OpenXM-ja.dvi OX-RFC-101-en.dvi OX-RFC-101-ja.dvi
 clean-done:
 	/bin/rm -f .[a-z]*done
-
+clean-en-done:
+	/bin/rm -f .[a-z]*-en.done
 
