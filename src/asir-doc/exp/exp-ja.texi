@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.1 2004/03/17 07:48:31 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.2 2004/03/17 09:25:02 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -102,12 +102,14 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * quotetotex::
 * quotetotex_env::
 * objtoquote::
+* copyright::
 * string_to_tb::
 * tb_to_string::
 * write_to_tb::
+* dp_gr_main::
 @end menu
 
-@comment --- ◯◯◯◯  関数 syz_abc の説明 ◯◯◯◯ 
+@comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
 @node quotetotex quotetotex_env,,, 実験的仕様の関数
@@ -152,7 +154,7 @@ quotetotex は @var{q} を latex 形式で表現した文字列に変換する.
 conv_rule: 3 ビットを用いて変換ルールを指定する.
 0ビット目は symbol_table による変換を行うか,
 1ビット目は添字変換を行うか,
-2ビット目は d から始まる変数名を微分作用素と見なして処理するか,
+2ビット目は d から始まる変数名を微分作用素とみなして処理するか,
 を意味する.
 たとえば conv_rule として 3 を指定すると,
 0ビット目, 1 ビット目が 1 となるので
@@ -166,11 +168,11 @@ dp_vars_prefix: 分散表現多項式は
 @tex 
 $x_0, x_1, \cdots$
 @end tex 
-の多項式として表現されるがこの
+の多項式として latex 形式に変換されるがこの
 x の部分を変更する.
 @item
 dp_vars_hweyl: 分散表現多項式をワイル代数の元とみなして
-tex に変換する.
+latex 形式に変換する.
 偶数個変数があるときは 最初の半分を 
 @tex 
 $x_0, x_1, \cdots$
@@ -203,25 +205,347 @@ conv_func: ユーザ定義の変換関数をよぶ.
 @table @t
 @item 参照
 @ref{objtoquote}
+print_tex_form(contrib)
 @end table
 
 @comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
 @noindent
 ChangeLog
 @itemize @bullet
-@item この関数は 2004年2月末から3月にかけて asir を texmacs に対応させるために
-書かれた. Asir-contrib の print_tex_form がその原型であり, それを効率化しまた
+@item この関数は 2004年2月末から3月にかけて asir を 
+knoppix 版 texmacs に対応させるために書かれた. 
+Asir-contrib の print_tex_form がその原型であり, それを効率化しまた
 出力形式を改善した.
-@item 関連するソース.
+OpenXM/src/kxx/ox_texmacs.c, OpenXM/src/texmacs も参照.
+@item OpenXM/src/asir-contrib/packages/src/noro_print.rr 1.1--1.8, 
+noro_print_default.rr 1.1--1.3 も参照.
+@item 変更を受けたファイルは OpenXM_contrib2/asir2000 の下の次のファイル.
+  builtin/strobj.c 1.14--1.43,
+  include/ca.h 1.46, io/cexpr.c 1.18, io/pexpr.c 1.32, io.sexpr.c 1.29,
+  parse/arith.c 1.12, parse/parse.h 1.28--1.29,
+  parse/quote.c 1.7--1.8, 1.12.
+@item 
+  knoppix/math は 福岡大学の濱田さんが中心となり開発されている.
+@end itemize
+
+
+
+@comment --- ◯◯◯◯  関数 objtoquote の説明 ◯◯◯◯ 
+@node objtoquote,,, 実験的仕様の関数
+@subsection @code{objtoquote}
+@findex objtoquote
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item objtoquote(@var{ob})
+:: オブジェクトと quote 型のデータに変換する.
+@end table
+
+@table @var
+@item return
+quote
+@item ob
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+@code{objtoquote(ob)} は, @var{ob} を quote 型のデータに変換する.
+@end itemize
+
+@example
+[1150] quotetolist(quote(1+2));
+[b_op,+,[internal,1],[internal,2]]
+[1151] quotetolist(objtoquote(1+x));
+[b_op,+,[internal,x],[internal,1]]3
+@end example
+
+@table @t
+@item 参照
+@ref{quotetotex} @ref{quotetolist}
+@end table
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は quotetotex の前処理をするために書かれた.
+@item asir-contrib の関数 quote_to_quote も参照.
+@item OpenXM_contrib2/asir2000/builtin/print.c 1.16.
+@end itemize
+
+
+@comment --- ◯◯◯◯  関数 copyright の説明 ◯◯◯◯ 
+@node copyright,,, 実験的仕様の関数
+@subsection @code{copyright}
+@findex copyright
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item copyright()
+:: Risa/Asir の copyright 表示を文字列として戻す.
+@end table
+
+@table @var
+@item return
+文字列
+@end table
+
+@itemize @bullet
+@item
+Risa/Asir の copyright 表示を文字列として戻す.
+@end itemize
+
+@example
+[1150] copyright();
+This is Risa/Asir, Version 20040312 (Kobe Distribution).
+Copyright (C) 1994-2000, all rights reserved, FUJITSU LABORATORIES LIMITED.
+Copyright 2000-2003, Risa/Asir committers, http://www.openxm.org/.
+GC 6.2(alpha6) copyright 1988-2003, H-J. Boehm, A. J. Demers, Xerox, SGI, HP.
+PARI 2.0.17, copyright 1989-1999, C. Batut, K. Belabas, D. Bernardi,
+   H. Cohen and M. Olivier.
+@end example
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は texmacs 用に書かれた (2004-03).
+@item OpenXM_contrib2/asir2000 の下の以下のファイルをみよ. builtin/miscf.c 1.21,
+      parse/glob.c 1.47.
+@end itemize
+
+
+
+@comment --- ◯◯◯◯  関数 string_to_tb, ... の説明 ◯◯◯◯ 
+@comment --- 複数の関数をまとめて説明する例 ---
+@node string_to_tb tb_to_string write_to_tb,,, 実験的仕様の関数
+@subsection @code{string_to_tb}, @code{tb_to_string}, @code{write_to_tb}
+@findex string_to_tb
+@findex tb_to_string
+@findex write_to_tb
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item string_to_tb(@var{s})
+@itemx tb_to_string(@var{tb})
+@itemx write_to_tb(@var{s},@var{tb})
+:: 文字列可変長配列型(text buffer)のデータの処理
+@end table
+
+@table @var
+@item return
+文字列可変長配列型(string_to_tb), 文字列型(tb_to_string)
+@item s
+文字列
+@item tb
+文字列可変長配列型
+@end table
+
+@itemize @bullet
+@item
+@code{string_to_tb(@var{s})} は, 文字列 @var{s} をはじめの要素とする
+文字列可変長配列型オブジェクトを生成する.
+@item
+@code{tb_to_string_(@var{tb})} は,
+文字列可変長配列型オブジェクト @var{tb} から通常の文字列オブジェクトを生成する.
+@item
+@code{write_to_tb(@var{s},@var{tb})} は, 文字列 @var{s} を
+文字列可変長配列型オブジェクト @var{tb} へ書き出す.
+@item @var{SS} を文字列変数とするとき,
+@var{SS} += "文字列" で @var{SS} へ文字列を書き足していくことができるが,
+無駄なメモリを大量に消費する.
+代りに関数 @code{write_to_tb} を用いるべきである.
+文字列可変長配列型オブジェクトは文字列の可変長の配列でありメモリ管理に優しい
+データ構造である.
+@end itemize
+
+@example 
+[219] T=string_to_tb("");
+
+[220] write_to_tb("Hello",T);
+0
+[221] write_to_tb(" world!",T);
+0
+[222] tb_to_string(T);
+Hello world!
+@end example
+
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-3 に print_tex_form を効率化するために書かれた.
+@item OpenXM_contrib2/asir2000 の下の以下のファイルを見よ.
+io/ox_asir.c 1.52, builtin/strobj.c 1.12--1.13, 1.16,
+engine/str.c 1.5, parse/quote.c 1.9.
+@end itemize
+
+
+
+@comment --- ◯◯◯◯  関数 dp_gr_main の説明 ◯◯◯◯ 
+@comment --- 複数の関数をまとめて説明する例 ---
+@node dp_gr_main,,, 実験的仕様の関数
+@subsection @code{dp_gr_main}
+@findex dp_gr_main
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item dp_gr_main(@var{f} | v=@var{vv}, order=@var{oo}, homo=@var{n}, matrix=@var{m}, block=@var{b}, sugarweight=@var{sw})
+:: dp_gr_main の新しいインタフェース.
+@end table
+
+@table @var
+@item return
+リスト (グレブナ基底. 再帰表現多項式か分散表現多項式のリスト)
+@item f
+リスト  (入力多項式系. 再帰表現多項式か分散表現多項式のリスト)
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@item n
+0 か1 (homogenization をするか)
+@item m
+順序を matrix で表現する場合 (cf. dp_ord).
+@item b
+???
+@item sw
+Sugar strategy を適用するときの weight vector.
+@end table
+
+@itemize @bullet
+@item
+ @code{dp_gr_main(@var{f})} は, @var{f} のグレブナ基底を計算する.
+ グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
+ 系統だっていなかった. 
+ dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
+@comment  ~taka/this03/misc-2003/A2/dp
+@item 順序 order は次の文法で定義する.  @{, @} は 0 回以上の繰り返しを意味する.
+@verbatim
+  order         : '[' orderElement { ',' orderElement } ']'
+  orderElemnt   :  weightVec | builtinOrder
+  weightVec     : '[' weightElement { ',' weightElement } ']'
+  builtiniOrder : '[' orderName  ',' setOfVariables ']'
+  weightElement :   NUMBER | setOfVariables ',' NUMBER
+  setOfVariables:  V | range(V,V)
+  ornderName    : @grlex | @glex | @lex
+@end verbatim
+ここで @code{V} は 変数名, @code{NUMBER} は整数をあわらす.
+例1:  @code{v=[x,y,z,u,v], order=[[x,10,y,5,z,1],[@@grlex,range(x,v)]]}
+は @code{x},@code{y},@code{z} がそれぞれ weight 10, 5, 1 をもつ
+順序で比較したあと, @code{[x,y,z,u,v]} についての 
+graded reverse lexicographic order を tie-breaker として用いることを意味する.
+参考書: SST, S, 等.
+@item 
+  order の tie-breaker は grlex がデフォールト.
+@item 
+  分散表現多項式を引数としたときは結果も分散表現多項式として戻る.
+  order 指定にもちいるデフォールトの変数名はこのとき x0, x1, x2, ... となる.
+@end itemize
+
+@example
+[218] load("cyclic");
+[219] V=vars(cyclic(4));
+[c0,c1,c2,c3]
+[220]dp_gr_main(cyclic(4) | v=V, order=[[c0,10,c1,1],[c2,5],[@@grlex,range(c0,c3)]]);
+[ 10 1 0 0 ]
+[ 0 0 5 0 ]
+[ R R R R ]
+[(-c3^6+c3^2)*c2^2+c3^4-1,c3^2*c2^3+c3^3*c2^2-c2-c3,
+ (c3^4-1)*c1+c3^5-c3,(c2-c3)*c1+c3^4*c2^2+c3*c2-2*c3^2,-c1^2-2*c3*c1-c3^2,
+ c0+c1+c2+c3]
+
+[1151]  F=map(dp_ptod,katsura(4), vars(katsura(4)));
+[(1)*<<1,0,0,0,0>>+(2)*<<0,1,0,0,0>>+ ... ]
+[1152] dp_gr_main(F | order=[[range(x0,x3),1]]);
+[ 1 1 1 1 0 ]
+[ R R R R R ]
+[(47774098944)*<<0,0,0,0,13>>+ ... ]
+@end example
+
+@table @t
+@item 参照
+@ref{xyz_abc}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2003-12 から 2004-2 の始めに大きな修正が行われた.
+@item 
+ @code{setOfVariables}の表現のために range オブジェクトが導入された.
+@item 
+  グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
+  系統だっていなかった. 
+  dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
+@item 
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/gr.c 1.56--1.57,
+builtin/dp-supp.c 1.27--1.31 (create_composite_order_spec),
+builtin/dp.c 1.46--1.48 (parse_gr_option),
+engine/Fgfs.c 1.20,
+engine/dist.c 1.27--1.28
+engine/nd.c 1.89,
+include/ca.h 1.42--1.43,
+io/pexpr.c 1.28,
+io/sexpr.c 1.26,
+parse/arith.c 1.11,
+parse/glob.c 1.44-1.45,
+parse/lex.c 1.29,
+parse/parse.h 1.23--1.26
 @end itemize
 
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
 @comment --- 複数の関数をまとめて説明する例 ---
-@node xyz_pqr xyz_stu,,, 実験的仕様の関数
-@subsection @code{xyz_pqr}, @code{xyz_stu}
-@findex xyz_pqr
-@findex xyz_stu
+@node asir-install.sh,,, 実験的仕様の関数
+@subsection @code{asir-port.sh}, @code{asir-install.sh}
+@findex asir-port.sh
+@findex asir-install.sh
 
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item asir-install.sh
+@itemx asir-port.sh
+:: これは asir の内部コマンドではない. asir をネットワークからダウンロードかつ実行するシェルスクリプト
+@end table
+
+
+@itemize @bullet
+@item
+asir-port.sh は knoppix 専用である.
+このコマンドは asir のバイナリおよび FFL で配布できない部分を
+ ftp.math.kobe-u.ac.jp よりダウンロードして
+/home/knoppix/.asir-tmp へセーブして, 実行する.
+.asirrc および .TeXmacs/plugins/ox/progs/init-ox.scm もダウンロードする.
+@item
+asir-install.sh は Debian GNU Linux / openxm-binary*.deb 専用である.
+asir-install.sh は asir をダウンロードして /usr/local/OpenXM/bin および
+/usr/local/OpenXM/lib/asir へインストールする.
+@end itemize
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+ これらのシェルスクリプトは knoppix/math のために 2004/2, 3 月に書かれた.
+@item 
+  knoppix/math は福岡大学の濱田さんが中心となり開発されている.
+@item 
+  OpenXM/misc/packages/Linux/Debian の下の全てのファイル (2004-2-22 から
+  2004-3 の末まで). ( ~taka/this03/misc-2003/A3/knoppix-03-05 (プライベートファイル) も見よ.)
+  OpenXM/src/asir-port の下の次の各ファイル.
+  Makefile 1.1--1.8, asir-install.sh 1.1--1.2, asir-port.sh 1.1--1.6.
+@end itemize
+
+@comment 新しい関数の説明を書くためのテンプレートである. 消すな.
 @comment --- 関数の簡単な説明 ---
 @comment --- @itemx は複数に対して説明を一つつける場合に使う ---
 @table @t
@@ -240,6 +564,7 @@ ChangeLog
 @end table
 
 @itemize @bullet
+@item この項目は新しい関数の説明を書くためのテンプレートである. 消すな.
 @item
 @code{xyz_pqr()} は, @var{arg1}, @var{arg2} を pqr する.
 @item
@@ -263,7 +588,8 @@ ChangeLog
 @ref{xyz_abc}
 @end table
 
-@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
 @noindent
 ChangeLog
 @itemize @bullet
