@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/rc/fetch_asir_key.sm1,v 1.1 2000/03/09 12:53:34 takayama Exp $
+% $OpenXM: OpenXM/rc/fetch_asir_key.sm1,v 1.2 2000/03/10 01:21:17 takayama Exp $
 %% Usages:
 % ../bin/sm1 -f fetch_asir_key.sm1         
 %    Set the asir key automatically.
@@ -30,6 +30,9 @@
 } def
 
 /waitReply {
+  % Note that when you "su", $USER is not set to root, but set to your
+  % original login name.  The "From" field of your mail also seems to use
+  % $USER
   /MAIL [(/var/mail/) [(getenv) (USER)] extension ] cat def
   (/bin/rm -rf work/reply) system
   {
