@@ -1,0 +1,468 @@
+% $OpenXM$
+\setlength{\parskip}{10pt}
+
+\begin{slide}{}
+\fbox{計算機代数システム Risa/Asir}
+
+\begin{itemize}
+\item 多項式環における大規模高速計算を目指して開発
+
+\begin{itemize}
+\item C で記述
+\item メモリ管理は Boehm's conservative GC による
+\end{itemize}
+
+\item C 言語に似たユーザ言語インタフェースをもつ.
+
+\begin{itemize}
+\item 型宣言なし
+\item ユーザ言語デバッガが組み込み
+\end{itemize}
+
+\item オープンソース
+
+\begin{itemize}
+\item 2000 年まで富士通研で開発 $\Rightarrow$ 神戸 branch [Risa/Asir]
+がスタート
+
+CVS で最新版が入手可能 (入手方法は後述)
+\end{itemize}
+
+\item OpenXM ((Open message eXchange protocol for Mathematics) インタフェース
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{主な機能}
+
+\begin{itemize}
+\item 多項式の基本演算
+
+\begin{itemize}
+\item 加減乗除, GCD, 終結式 etc.
+representation
+\end{itemize}
+
+\item 多項式因数分解
+
+\begin{itemize}
+\item 一変数多項式 : 係数体は有理数体, 代数体, 種々の有限体
+
+\item 多変数多項式 : 係数体は有理数体
+\end{itemize}
+
+\item グレブナ基底計算
+
+\begin{itemize}
+\item Buchberger アルゴリズム, Fag\`ere $F_4$ [Faug\`ere] アルゴリズム
+
+多項式環および Weyl 代数
+
+\item 0 次元イデアルの change of ordering/RUR [Rouillier]
+
+\item 準素イデアル分解
+
+多変数代数方程式系の解の分解を与える
+
+\item 多項式の $b$-関数の計算 [Oaku]
+
+$b$-関数 : 多項式の零点である超曲面の不変量
+
+$D$-加群における計算の, 有限次元の線形代数への帰着に必要
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{主な機能 (つづき)}
+
+\begin{itemize}
+
+\item PARI [PARI] ライブラリインタフェース
+
+数論ライブラリ PARI をリンクしていて主な関数が呼べる
+
+bigfloat 計算, 超越関数の評価にも用いられる
+
+\item OpenXM の元での分散並列計算
+
+OpenXM による同種または異種の数学ソフトウェアの結合
+
+client-server 型分散並列計算が容易に実験できる
+
+\item 2 変数関数の零点の精密描画
+
+中間値の定理, Sturm 列の利用による, 2 変数関数の零点の精密描画
+
+OpenXM server として実現
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{開発の歴史 : ---1994}
+
+\begin{itemize}
+\item --1989
+
+Prolog のサブルーチンとして, いくつかの機能を開発
+
+\item 1989--1992
+
+\begin{itemize}
+\item parser および Boehm の GC [Boehm] とともに Risa/Asir がスタート
+
+\item 有理数体上一変数, 多変数多項式の因数分解を開発
+\end{itemize}
+
+\item 1992--1994
+
+\begin{itemize}
+\item Buchberger アルゴリズムの実装開始
+
+ユーザ言語で記述 $\Rightarrow$ C で書き直し (by 村尾@現在電通大)
+
+$\Rightarrow$ trace lifting [Traverso] の実装
+
+\item 代数体上の一変数多項式の因数分解
+
+逐次拡大および, 重複因子をもつノルムの組織的利用
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{開発の歴史 : 1994-1996}
+
+\begin{itemize}
+\item バイナリ版を富士通より公開
+
+\item 準素イデアル分解の実装
+
+\begin{itemize}
+\item 下山-横山アルゴリズム [SY]
+\end{itemize}
+
+\item Buchberger アルゴリズムの改良
+
+\begin{itemize}
+\item Trace lifting+斉次化
+
+\item compatible prime によるグレブナ基底チェックの省略
+
+\item Modular change of ordering, Modular RUR
+
+横山との共同研究 [NY]
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{開発の歴史 : 1996-1998}
+
+\begin{itemize}
+\item 分散計算機能の実装
+
+\begin{itemize}
+\item OpenXM のプロトタイプ
+\end{itemize}
+
+\item Buchberger アルゴリズムの改良
+
+\begin{itemize}
+\item 正規形計算中における係数の共通因子の効率的除去
+
+\item その並列化
+
+\item odd order replicable functions の計算 [Noro]
+
+Risa/Asir : DRL basis 計算({\it McKay}) に 5 日かかった
+
+Faug\`ere の FGb : この計算を 53 秒で実行
+\end{itemize}
+
+
+\item 大きな有限体上の一変数多項式の因数分解
+
+\begin{itemize}
+\item Schoof-Elkies-Atkin アルゴリズムの実装のため
+
+有限体上の楕円曲線の有理点個数計算用
+
+--- このプログラムはフリーではないが, 関係する関数
+はフリー
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{開発の歴史 : 1998-2000}
+\begin{itemize}
+\item OpenXM
+
+\begin{itemize}
+\item OpenXM 仕様書 : 野呂, 高山 [OpenXM]
+
+enconding, phrasebook に関するアイディアは OpenMath [OpenMath] から借用
+
+\item 分散計算関数は, OpenXM 仕様に書き直し
+\end{itemize}
+
+\item Risa/Asir on Windows
+
+\begin{itemize}
+\item 仕事上必要になった
+
+Visual C++ で記述
+\end{itemize}
+
+\item $F_4$ の試験実装
+
+\begin{itemize}
+\item [Faug\`ere]に準拠して記述
+
+\item $GF(p)$ 上 : なかなかよい
+
+\item 有理数体上 :{\it McKay} を除いてだめ
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{開発の歴史 : 2000-current}
+\begin{itemize}
+\item オープンソース化
+
+\begin{itemize}
+\item 野呂が富士通研より神戸大に移籍
+
+Started Kobe branch のスタート
+\end{itemize}
+
+\item OpenXM
+
+\begin{itemize}
+\item 仕様書 : OX-RFC100, 101, (102)
+
+\item OX-RFC102 (未完成) : MPI を用いたサーバ間通信
+\end{itemize}
+
+\item Weyl 代数
+
+\begin{itemize}
+\item Buchberger アルゴリズム [Takayama]
+
+\item $b$-関数
+
+$b$-関数を最小多項式としてモジュラ計算
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{性能 --- 因数分解}
+
+\begin{itemize}
+\item 10 年前
+
+REDUCE, Mathematica に比べて高性能だった
+
+\item 4 年前
+
+ノルムから生じる多項式の因数分解に対するトリックに
+より, 代数体上の分解は依然として優位だった
+
+\item 現在
+
+多変数 : まずまず
+
+有理数体上一変数 : M. van Hoeij の新アルゴリズムにより完全に負け
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{性能 --- グレブナ基底関連機能}
+
+\begin{itemize}
+\item 8 年前
+
+とりあえず動く程度の性能
+
+\item 7 年前
+
+Rather trace lifting により高性能だったが, Faug\`ere' の Gb には
+負けていた
+
+しかし, 斉次化との組合せにより, より広い範囲の入力に対してグレブナ
+基底が計算できるようになった
+
+\item 4 年前
+
+Modular RUR 計算は Rouillier の実装と比較して同等あるいは優位だった
+
+\item 現在
+
+FGb は Risa/Asir の $F_4$ 実装よりずいぶん高速のよう
+
+Singular [Singular] は多項式の効率よい表現により, Risa/Asir の数倍高速
+の場合もある. (係数が大きくなる場合はまだ Risa/Asir が優位)
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{大規模計算への対応}
+
+\begin{itemize}
+\item グレブナ基底計算中に生成された基底をディスクに保存
+
+\begin{itemize}
+\item 主記憶の有効利用
+
+\item 途中から計算を再開できる
+\end{itemize}
+
+\item OpenXM による分散計算
+
+\begin{itemize}
+\item 並列化による台数効果
+
+\item 複数のアルゴリズムの競争的実行が容易
+\end{itemize}
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}{}
+\fbox{応用事例}
+
+\begin{itemize}
+\item 楕円曲線暗号パラメタ生成
+
+有限体上の多項式因数分解の応用
+
+\item $D$-加群における種々の計算
+
+de Rham コホモロジ, 代数的局所コホモロジ, $D$-加群の制限, テンソル積
+計算において, 多項式因数分解, 準素分解, $b$-関数計算を担当 (OpenXM 経由)
+
+\item 代数方程式系の求解
+
+算法, 実装両面から大規模計算に対応
+
+未定係数法による可積分系の決定
+
+対話的システムのバックエンドで代数方程式求解
+
+\item アルゴリズム実装実験ツール
+
+浮動小数係数グレブナ基底計算, Wu の方法, 区間演算
+などのアルゴリズムの実装実験. ソースレベルでの
+改変も可能
+
+\end{itemize}
+
+\begin{slide}{}
+\fbox{現在開発中の機能}
+
+\begin{itemize}
+\item 有限体上の多変数多項式の因数分解, 有限体上の準素分解
+
+\begin{itemize}
+\item 代数幾何符号への応用を見込んだ有限体上の準素分解実装
+
+\item 標数が小さい場合特有の困難がある
+
+\item 基礎となる有限体上の多変数多項式の因数分解を実装中
+\end{itemize}
+
+\item より広範なデータの保持方法, 記述能力の向上
+
+\begin{itemize}
+\item 現状では, 可換多項式環以外のデータの自然な取り扱いが困難
+
+\item 異種システムとのデータ交換, ユーザによるデータ処理が可能なように
+内部表現を拡張中
+\end{itemize}
+
+\end{itemize}
+\end{slide}
+
+\end{slide}
+
+\begin{slide}{}
+\fbox{分散計算の例 --- $F_4$ vs. $Buchberger$ }
+
+\begin{verbatim}
+/* competitive Gbase computation over GF(M) */
+/* Cf. A.28 in SINGULAR Manual */
+/* Process list is specified as an option : grvsf4(...|proc=P) */
+def grvsf4(G,V,M,O)
+{
+  P = getopt(proc);
+  if ( type(P) == -1 ) return dp_f4_mod_main(G,V,M,O);
+  P0 = P[0]; P1 = P[1]; P = [P0,P1];
+  map(ox_reset,P);
+  ox_cmo_rpc(P0,"dp_f4_mod_main",G,V,M,O);
+  ox_cmo_rpc(P1,"dp_gr_mod_main",G,V,0,M,O);
+  map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
+  F = ox_select(P); R = ox_get(F[0]);
+  if ( F[0] == P0 ) { Win = "F4"; Lose = P1;}
+  else { Win = "Buchberger"; Lose = P0; }
+  ox_reset(Lose); /* simply resets the loser */
+  return [Win,R];
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}{}
+\fbox{参考文献}
+
+[Bernardin] L. Bernardin, On square-free factorization of 
+multivariate polynomials over a finite field, Theoretical
+Computer Science 187 (1997), 105-116.
+
+[Boehm] {\tt http://www.hpl.hp.com/personal/Hans\_Boehm/gc}
+
+[Faug\`ere] J.C. Faug\`ere,
+A new efficient algorithm for computing Groebner bases  ($F_4$),
+Journal of Pure and Applied Algebra (139) 1-3 (1999), 61-88.
+
+[Hoeij] M. van Heoij, Factoring polynomials and the knapsack problem,
+to appear in Journal of Number Theory (2000).
+
+[NY] M. Noro, K. Yokoyama, 
+A Modular Method to Compute the Rational Univariate
+Representation of Zero-Dimensional Ideals.
+J. Symb. Comp. {\bf 28}/1 (1999), 243-263.
+
+[Oaku] T. Oaku, Algorithms for $b$-functions, restrictions and algebraic
+local cohomology groups of $D$-modules.
+Advancees in Applied Mathematics, 19 (1997), 61-105.
+
+\end{slide}
+
+\begin{slide}{}
+[OpenMath] {\tt http://www.openmath.org}
+
+[OpenXM] {\tt http://www.openxm.org}
+
+[PARI] {\tt http://www.parigp-home.de}
+
+[Risa/Asir] {\tt http://www.math.kobe-u.ac.jp/Asir/asir.html}
+
+[Rouillier] F. Rouillier,
+R\'esolution des syst\`emes z\'ero-dimensionnels. 
+Doctoral Thesis(1996), University of Rennes I, France.
+
+[SY] T. Shimoyama, K. Yokoyama, Localization and Primary Decomposition of Polynomial Ideals.  J. Symb. Comp. {\bf 22} (1996), 247-277.
+
+[Singular] {\tt http://www.singular.uni-kl.de}
+
+[Traverso] C. Traverso, \gr trace algorithms. Proc. ISSAC '88 (LNCS 358), 125-138.
+
+\end{slide}

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dagb-noro.tex,v 1.1 2001/10/03 08:32:58 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dagb-noro.tex,v 1.2 2001/10/04 04:12:29 noro Exp $
 \setlength{\parskip}{10pt}
 
 \begin{slide}{}
@@ -228,12 +228,12 @@ Started Kobe branch [Risa/Asir]
 \item OX-RFC102 : communications between servers via MPI
 \end{itemize}
 
-\item Rings of differential operators
+\item Weyl algebra
 
 \begin{itemize}
 \item Buchberger algorithm [Takayama]
 
-\item $b$-function computation [OT]
+\item $b$-function computation [Oaku]
 
 Minimal polynomial computation by modular method
 \end{itemize}
@@ -290,7 +290,7 @@ Modular RUR was comparable with Rouillier's implementation.
 
 FGb seems much more efficient than our $F_4$ implementation.
 
-Singular's Groebner basis computation is also several times
+Singular [Singular] is also several times
 faster than Risa/Asir, because Singular seems to have efficient
 monomial and polynomial representation.
 
@@ -534,12 +534,17 @@ Journal of Pure and Applied Algebra (139) 1-3 (1999), 61-88.
 [Hoeij] M. van Heoij, Factoring polynomials and the knapsack problem,
 to appear in Journal of Number Theory (2000).
 
-[SY] T. Shimoyama, K. Yokoyama, Localization and Primary Decomposition of Polynomial Ideals.  J. Symb. Comp. {\bf 22} (1996), 247-277.
-
 [NY] M. Noro, K. Yokoyama, 
 A Modular Method to Compute the Rational Univariate
 Representation of Zero-Dimensional Ideals.
 J. Symb. Comp. {\bf 28}/1 (1999), 243-263.
+
+[Oaku] T. Oaku, Algorithms for $b$-functions, restrictions and algebraic
+local cohomology groups of $D$-modules.
+Advancees in Applied Mathematics, 19 (1997), 61-105.
+\end{slide}
+
+\begin{slide}{}
 
 [OpenMath] {\tt http://www.openmath.org}
 
@@ -552,6 +557,10 @@ J. Symb. Comp. {\bf 28}/1 (1999), 243-263.
 [Rouillier] F. Rouillier,
 R\'esolution des syst\`emes z\'ero-dimensionnels. 
 Doctoral Thesis(1996), University of Rennes I, France.
+
+[SY] T. Shimoyama, K. Yokoyama, Localization and Primary Decomposition of Polynomial Ideals.  J. Symb. Comp. {\bf 22} (1996), 247-277.
+
+[Singular] {\tt http://www.singular.uni-kl.de}
 
 [Traverso] C. Traverso, \gr trace algorithms. Proc. ISSAC '88 (LNCS 358), 125-138.
 
@@ -645,7 +654,7 @@ Guess of a groebner basis by detecting zero reduction by modular computation
 Homogenization+guess+dehomogenization+check
 \end{itemize}
 
-\item Rings of differential operators
+\item Weyl Algebra
 
 \begin{itemize}
 \item Groebner basis of a left ideal
@@ -730,7 +739,7 @@ An ideal whose radical is prime
 \begin{slide}{}
 \fbox{Computation of $b$-function}
 
-$D$ : the ring of differential operators
+$D=K\langle x,\partial \rangle$ : Weyl algebra
 
 $b(s)$ : a polynomial of the smallest degree s.t.
 there exists $P(s) \in D[s]$, $P(s)f^{s+1}=b(s)f^s$
