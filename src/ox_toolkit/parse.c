@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.5 2000/10/10 05:23:21 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.6 2000/12/03 16:15:03 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -577,6 +577,7 @@ static int mygetc()
 
 static void init_lex(char *s)
 {
+    c=' ';
     mygetc_ptr=s;
 }
 
