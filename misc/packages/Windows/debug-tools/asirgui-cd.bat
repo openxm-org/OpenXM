@@ -1,9 +1,9 @@
-rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/asirgui-cd.bat,v 1.3 2003/07/21 07:00:04 takayama Exp $
+rem $OpenXM: OpenXM/misc/packages/Windows/debug-tools/asirgui-cd.bat,v 1.4 2003/07/21 07:47:49 takayama Exp $
 rem
 rem
 rem  Authomatically set the path
 rem 
-gcwd >%TEMP%\OpenXM_SET_PATH.BAT
+\OpenXM-win\bin-windows\gcwd >%TEMP%\OpenXM_SET_PATH.BAT
 call %TEMP%\OpenXM_SET_PATH
 rem 
 rem Or, set the following values manually.
