@@ -1,4 +1,4 @@
-%% $OpenXM$
+%% $OpenXM: OpenXM/doc/ascm2001p/ohp.tex,v 1.1 2001/09/20 09:27:56 takayama Exp $
 \documentclass{slides}
 %%\documentclass[12pt]{article}
 \usepackage{color}
@@ -204,7 +204,8 @@ $$ {\color{blue} F(a,b,c;x)} = \sum_{n=1}^\infty
 $$
 where
 $$ (a)_n = a(a+1) \cdots (a+n-1). $$
-$$ F(?,?,?;x) = \log (1+x). $$
+$$ \log (1+x) = x F(1,1,2;-x) $$
+$$ \arcsin x = x F(1/2,1/2,3/2;x^2) $$
 
 \noindent
 Appell's $F_1$:
@@ -247,8 +248,39 @@ Implementation & partially done & NO \\ \hline
 \noindent
 Our ox servers
 {\tt ox\_asir}, {\tt ox\_sm1}, {\tt ox\_tigers}, {\tt ox\_gnuplot},
-{\tt ox\_mathematica}, {\tt OMproxy} {\tt ox\_m2}
+{\tt ox\_mathematica}, {\tt OMproxy} (JavaClasses), {\tt ox\_m2}
 are used to generate, verify and present formulas of type A
 for GKZ hypergeometric systems.
+
+\newpage
+\noindent
+{\color{green} Competitive Gr\"obner Basis Computation}
+\begin{verbatim}
+extern Proc1,Proc2$
+Proc1 = -1$ Proc2 = -1$
+/* G:set of polys; V:list of variables */
+/* Mod: the Ground field GF(Mod); O:type of order */
+def dgr(G,V,Mod,O)
+{
+  /* invoke servers if necessary */
+  if ( Proc1 == -1 ) Proc1 = ox_launch();
+  if ( Proc2 == -1 ) Proc2 = ox_launch();
+  P = [Proc1,Proc2];
+  map(ox_reset,P); /* reset servers */
+  /* P0 executes Buchberger algorithm over GF(Mod) */
+  ox_cmo_rpc(P[0],"dp_gr_mod_main",G,V,0,Mod,O);
+  /* P1 executes F4 algorithm over GF(Mod) */
+  ox_cmo_rpc(P[1],"dp_f4_mod_main",G,V,Mod,O);
+  map(ox_push_cmd,P,262); /* 262 = OX_popCMO */
+  F = ox_select(P); /* wait for data */
+  /* F[0] is a server's id which is ready */
+  R = ox_get(F[0]);
+  if ( F[0] == P[0] ) { Win = "Buchberger"; Lose = P[1]; }
+  else { Win = "F4"; Lose = P[0]; }
+  ox_reset(Lose); /* reset the loser */
+  return [Win,R];
+}
+\end{verbatim}
+\newpage
 
 \end{document}
