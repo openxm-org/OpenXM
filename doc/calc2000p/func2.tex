@@ -1,6 +1,7 @@
-% $OpenXM$
+% $OpenXM: OpenXM/doc/calc2000p/func2.tex,v 1.1 2000/07/20 04:43:55 takayama Exp $
 \documentclass[twocolumn]{article}
 \usepackage{color}
+\usepackage{epsfig}
 \title{\huge \color{blue} 4252 functions are available
 on our servers and libraries (continued)}
 \author{} \date{}
@@ -15,10 +16,13 @@ on our servers and libraries (continued)}
 {\color{red} syz} (syzygy),
 {\color{red} annfs} (Annhilating ideal of $f^s$),
 {\color{red} bfunction},
+{\color{red} schreyer} (free resolution by the Schreyer method),
 {\color{red} vMinRes} (V-minimal free resolution),
+{\color{red} characteristic} (Characteristic variety),
 {\color{red} restriction} in the derived category of $D$-modules,
 {\color{red} integration} in the derived category,
 {\color{red} tensor}  in the derived category,
+{\color{red} dual} (Dual as a D-module),
 {\color{red} slope}.
 
 \medbreak
@@ -40,8 +44,103 @@ and the ring of formal power series).
 Helping to derive and prove {\color{red} combinatorial} and
 {\color{red} special function identities},
 {\color{red} gkz} (GKZ hypergeometric differential equations),
+{\color{red} appell} (Appell's hypergeometric differential equations),
 {\color{red} indicial} (indicial equations),
+{\color{red} rank} (Holonomic rank),
+{\color{red} rrank} (Holonomic rank of regular holonomic systems),
 {\color{red} dsolv} (series solutions of holonomic systems).
 
+\medbreak
+\noindent
+\fbox{\huge 
+ {\color{green} OpenMATH support}}
+
+\noindent
+{\color{red} om\_xml} (CMO to OpenMATH XML),
+{\color{red} om\_xml\_to\_cmo} (OpenMATH XML to CMO).
+
+\medbreak
+\noindent
+\fbox{\huge 
+ {\color{green} Homotopy Method}}
+
+\noindent
+{\color{red} phc} (Solving systems of algebraic equations by 
+numerical and polyhedral homotopy methods).
+
+\medbreak
+\noindent
+\fbox{\huge 
+ {\color{green} Toric ideal}}
+
+\noindent
+{\color{red} tigers} (Enumerate all Gr\"obner basis of a toric ideal.
+Finding test sets for integer program),
+{\color{red} aDegree} (Arithmetic degree of a monomial ideal),
+{\color{red} stdPair} (Standard pair decomposition of a monomial ideal).
+
+\medbreak
+\noindent
+\fbox{\huge {\color{green} Communications}}
+
+\noindent
+{\color{red} ox\_launch} (starting a server), 
+{\color{red} ox\_launch\_nox}, 
+{\color{red} ox\_shutdown},
+{\color{red} ox\_launch\_generic}, 
+{\color{red} generate\_port}, 
+{\color{red} try\_bind\_listen}, 
+{\color{red} try\_connect}, 
+{\color{red} try\_accept}, 
+{\color{red} register\_server}, 
+{\color{red} ox\_rpc}, 
+{\color{red} ox\_cmo\_rpc}, 
+{\color{red} ox\_execute\_string}, 
+{\color{red} ox\_reset} (reset the server),
+{\color{red} ox\_intr},
+{\color{red} register\_handler}, 
+{\color{red} ox\_push\_cmo}, 
+{\color{red} ox\_push\_local},
+{\color{red} ox\_pop\_cmo}, 
+{\color{red} ox\_pop\_local}, 
+{\color{red} ox\_push\_cmd}, 
+{\color{red} ox\_sync},
+{\color{red} ox\_get}, 
+{\color{red} ox\_pops}, 
+{\color{red} ox\_select}, 
+{\color{red} ox\_flush},
+{\color{red} ox\_get\_serverinfo}
+
+\medbreak
+\noindent
+\fbox{\huge {\color{green} Examples}}
+{\footnotesize
+\begin{verbatim}
+[345] sm1_deRham([x^3-y^2*z^2,[x,y,z]]);
+[1,1,0,0]
+\end{verbatim}} 
+
+\noindent
+{\footnotesize \begin{verbatim}
+[287] phc(katsura(7));
+[290] B=map(first,Phc)$
+[291] gnuplot_plotDots([],0)$
+[292] gnuplot_plotDots(B,0)$
+\end{verbatim} }
+
+\epsfxsize=3cm
+\begin{center}
+\epsffile{../calc2000/katsura7.ps}
+\end{center}
+%%The first components of the solutions to the system of algebraic equations Katsura 7.
+
+\noindent
+
+
+\medbreak
+\noindent
+\fbox{ {\color{green} Authors}}
+Castro-Jim\'enez, Doltman, Hubert, Noro, Oaku, Okutani, 
+Sturm, Takayama, Tamura, Verschelde.
 
 \end{document}
