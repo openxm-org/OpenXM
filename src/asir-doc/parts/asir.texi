@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.14 2003/12/21 17:36:29 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/asir.texi,v 1.15 2004/07/03 15:50:34 ohara Exp $
 \BJP
 @node ユーザ言語 Asir,,, Top
 @chapter ユーザ言語 Asir
@@ -1456,13 +1456,31 @@ After @samp{|} one can append any number of options seperated by @samp{,}.
 @samp{,} で区切って渡す代わりに, 特別なキーワード @code{option_list}
 とオプションリスト @code{[["key1",value1],["key2",value2],...]}
 を用いて渡すことも可能である.
+\E
+\BEG
+Optinal arguments may be given as a list
+with the key word @code{option_list}
+as 
+@code{option_list=[["key1",value1],["key2",value2],...]}.
+It is equivalent to pass the optional arguments as
+@code{key1=value1,key2=value2,...}.
+\E
 
 @example
 [101] dp_gr_main([x^2+y^2-1,x*y-1]|option_list=[["v",[x,y]],["order",[[x,5,y,1]]]]); 
 @end example
 
+\BJP
 特に, 引数なしの @code{getopt()} はオプションリストを返すので,
 オプションをとる関数から, オプションをとる関数を呼び出すときには有用である.
+\E
+\BEG
+Since @code{getopt()} returns an option list,
+the optional argument @code{option_list=...} is useful when
+we call functions with optional arguments from
+a function with optional arguments to pass 
+the all optional parameters.
+\E
 
 @example
 % cat foo.rr
@@ -1478,7 +1496,6 @@ def foo(F)
 [4] foo(x^5-1|mod=11);
 [[1,1],[x+6,1],[x+2,1],[x+10,1],[x+7,1],[x+8,1]]
 @end example
-\E
 
 \BJP
 @node モジュール,,, ユーザ定義函数の書き方
