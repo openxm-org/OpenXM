@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.8 2004/03/16 03:26:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.9 2004/03/19 06:29:50 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -756,6 +756,9 @@ def noro_print_env(Mode) {
         quotetotex_env(0);
         load("noro_print_default.rr");
     }else if (Mode=="weyl") {
+        quotetotex_env("conv_rule",7);
+        quotetotex_env("dp_vars_hweyl",1);
+    }else if (Mode=="diff_ring") {
         quotetotex_env("conv_rule",7);
         quotetotex_env("dp_vars_prefix", "\\partial");
     }else if (Mode=="yang") {
