@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.14 2002/01/25 02:56:15 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.15 2002/07/28 06:31:01 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
-WGET_ARG=--pasive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
+WGET_ARG=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
 
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -37,16 +37,18 @@ copy-binary-openxm-cygwin: build-binary-openxm-cygwin
 	   touch .copy-binary-done ; \
 	fi 
 
-copy-binary-asir: copy-binary-asir-from-internet
+copy-binary-asir:
+	if [ ! -f .copy-binary-asir-done ] ; then \
+		make copy-binary-asir-from-internet ; \
+	fi
 
 copy-binary-asir-from-internet:
 	-mkdir OpenXM-win
 	if [ ! -d work ] ; then mkdir work ; fi
 	if [ ! -f work/asirwin-${ASIR_LANG}.tgz ] ; then \
 		(cd work ; wget ${WGET_ARG} ) ; \
-		(cd work ; mv ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz .) ; \
 	fi
-	(cd OpenXM-win ; tar xzvf ../../work/asirwin-${ASIR_LANG}.tgz)
+	(cd OpenXM-win ; tar xzvf ../work/asirwin-${ASIR_LANG}.tgz)
 	touch .copy-binary-asir-done
 
 copy-binary-asir-from-local-disk:
@@ -84,7 +86,7 @@ win-correction2: win-correction1
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/bin
 	cp OpenXM-win/lib/sm1/oxasir.asir OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/oxasir.asir OpenXM-win/bin
-	cp OpenXM-win/bin/ox_asir OpenXM-win/bin/ox_asir.exe
+	-cp OpenXM-win/bin/ox_asir OpenXM-win/bin/ox_asir.exe
 	cp oxasir-win.rr OpenXM-win/bin
 	cp oxasir-win.rr OpenXM-win/asir/bin
 	cp oxasir-win.rr OpenXM-win/lib/asir
