@@ -1,9 +1,10 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.23 2004/06/20 04:55:32 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.24 2004/06/20 05:29:43 takayama Exp $
 # make install-under-prefix  [ prefix=/home/hoge ]  ; Default is /usr/local
 prefix=/usr/local
 CC=gcc
 # SHELL_SCRIPTS=asir sm1 oxgp k0 oxmath oxMathematica ox
 SHELL_SCRIPTS=asir sm1 oxmath oxMathematica ox openxm webasir
+SHELL_SCRIPTS_FREE= sm1 oxmath oxMathematica ox openxm webasir
 INSTALL_DIR=${prefix}/bin
 MAN_DIR=../man/man1
 KDE_MENU_DIR=/usr/lib/menu
@@ -67,15 +68,19 @@ install-under-prefix: all-global-shell-scripts   install-free
 	make copy-non-free
 install-global-scripts: all-global-shell-scripts
 	(cd global ; install ${SHELL_SCRIPTS} ${INSTALL_DIR})
+install-global-scripts-non-free: all-global-shell-scripts
+	(cd global ; install asir ${INSTALL_DIR})
+install-global-scripts-free: all-global-shell-scripts
+	(cd global ; install ${SHELL_SCRIPTS_FREE} ${INSTALL_DIR})
 
 clean-under-prefix:
 	-(cd ${prefix} ; rm -rf ${prefix}/OpenXM )
 # Relocate only asir
 #    make install-non-free ;  make clean-under-prefix ; 
-#    make install-global-scripts ; make copy-non-free
+#    make install-global-scripts-non-free ; make copy-non-free
 # Relocate only free
 #    make install-free ; make clean-under-prefix ;
-#    make install-global-scripts ; make copy-free
+#    make install-global-scripts-free ; make copy-free
 #
 # junk-list is not a collection of real junk files. 
 # Files in it are not necessary for the binary package. They are important.
