@@ -1,8 +1,11 @@
 #
-# $OpenXM$
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.1.1.1 1999/11/02 11:52:34 tam Exp $
 
 make:
-	#javac -nowarn -O OMproxy.java
+	if test -d ../../lib/java-support
+	then
+		mkdir ../../lib/java-support
+	fi
 	javac -d ../../lib/java-support -O *.java
 
 clean:
@@ -20,4 +23,4 @@ dist-clean: #clean dist
 		-exec rm -f {} \;
 
 test:
-	javac -d . -deprecation -O *.java
+	javac -d . -deprecation -g *.java

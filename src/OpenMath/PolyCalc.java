@@ -1,3 +1,7 @@
+/**
+ * PolyCalc.java $OpenXM$
+ */
+
 import JP.ac.kobe_u.math.tam.OpenXM.*;
 import java.applet.*;
 import java.awt.*;
@@ -96,7 +100,7 @@ class PolyCalc extends Applet{
 		 +"("+ ControlPort +","+ DataPort +")\n");
 
     try{
-      oxm = new OpenXM("localhost",1200,1300);
+      oxm = new OpenXM(host,ControlPort,DataPort);
     }catch(java.io.IOException e){
       textarea.append("failed.\n");
       stop();
