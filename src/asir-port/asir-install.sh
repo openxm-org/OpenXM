@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.1 2004/02/27 00:12:22 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.2 2004/03/02 09:51:45 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $OpenXM_HOME/bin
 os=`uname -s`
@@ -19,9 +19,10 @@ asirlibname="asirlib-$os-$libmd.tar.gz"
 ot="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix/ox-texmacs-$os.tar.gz"
 otname="ox-texmacs-$os.tar.gz"
 
-ASIR_LIB_FILES=alph bfct bgk const cyclic defs.h dmul fctrdata fctrtest \
+ASIR_LIB_FILES="alph bfct bgk const cyclic defs.h dmul fctrdata fctrtest \
                fff gr ifplot katsura mat nf num primdec \
-               ratint robot solve sp sturm xm
+               ratint robot solve sp sturm xm"
+
 
 if [ $# = 1 ]; then
 if [ $1 = "--force" ]; then
@@ -53,6 +54,16 @@ _agree() {
 	_agree
 }
 
+_check_install_error() {
+  if [ ! -f $HOME/.asir-tmp/$asirnamegunzip ]; then
+     echo "Installation of Risa/Asir from the network seems to be failed."; \
+     echo "Please check if your computer is connected to the internet "; \
+     echo "  and you can download files from ftp.math.kobe-u.ac.jp  "; \
+     echo "  by passive ftp."; \
+     sleep 60 ; \
+     exit ; \
+  fi
+}
 
 if [ ! -f $HOME/.asir-tmp/$asirnamegunzip ]; then
 	_agree ; \
@@ -82,6 +93,7 @@ if [ ! -f $HOME/.asir-tmp/$otname ]; then
     fi
 fi
 
+_check_install_error
 
 echo "Installation is completed."
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.5 2004/03/02 09:51:45 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.6 2004/03/04 12:08:30 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -51,6 +51,15 @@ _agree() {
 	_agree
 }
 
+_check_install_error() {
+  if [ ! -f $HOME/.asir-tmp/$asirnamegunzip ]; then
+     echo "Installation of Risa/Asir from the network seems to be failed."; \
+     echo "Please check if your computer is connected to the internet "; \
+     echo "  and you can download files from ftp.math.kobe-u.ac.jp  "; \
+     echo "  by passive ftp."; \
+     sleep 60 ; \
+  fi
+}
 
 if [ ! -f $HOME/.asir-tmp/$asirnamegunzip ]; then
 	_agree ; \
@@ -79,6 +88,7 @@ if [ ! -f $HOME/.asir-tmp/$otname ]; then
     fi
 fi
 
+_check_install_error
 
 $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $*
 
