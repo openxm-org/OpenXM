@@ -1,11 +1,10 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2002-12-12-ja.tex,v 1.3 2002/12/06 09:32:29 noro Exp $
-% It was under misc-2002/12, 
-%Id: rims-2003-12.tex,v 1.10 2002/12/02 02:14:55 taka Exp $
-% Some .gif files are under misc-2002/12.
-%% OpenXM/doc/Papers $B$X0\F0(B.  rims-2002-12-12.tex 
+% $OpenXM: OpenXM/doc/Papers/rims-2002-12-12-ja.tex,v 1.4 2002/12/07 03:27:00 takayama Exp $
+% $Id$
+%% misc-2002/12/rims-2002-12-12.tex  --> rims-k-2002-12-12.tex
 \documentclass{jarticle}
+\usepackage{rims02}
 \title{\bf OpenXM 1.2.2 $B$N35MW(B}
-\author{ OpenXM $B3+H/%0%k!<%W(B }
+\author{ OpenXM $B3+H/%0%k!<%W(B \ename{OpenXM committers} }
 \date{2002$BG/(B12$B7n(B12$BF|(B}
 
 %% Private macros
@@ -47,19 +46,23 @@ Conglomerate $B2=(B\cite{solomon},
 \item OpenXM 1.2.1 (March 2, 2002): Cygwin (Windows) $B$X$NBP1~3+;O(B. 
        $B%^%K%e%"%k<+F0@8@.(B(gentexi)$B$J$I(B.
 \end{enumerate}
-$B$3$3$G$O$^$b$J$/$j!<%j!<%9$rM=Dj$7$F$$$k(B
+1.2 $B7ONs$G$O?75,%5!<%P$NF3F~$d?7%W%m%H%3%k$N$*$*$,$+$j$JF3F~$O;n$_$F(B
+$B$*$i$:(B, OX-RFC (OpenXM-RFC) 100, 101 $B%W%m%H%3%k$r$h$j0BDj$7$FF0:n$5$;$k$?$a$N(B
+$B2~NI(B, $B$5$^$6$^$J%W%i%C%H%[!<%`$X$NBP1~(B, $B8x<0=8%W%m%8%'%/%H$J$I$K$_$i$l$k$h$&$K(B
+OpenXM $B$N1~MQ$K=EE@$r$*$$$F$$$k(B.
+$B$3$3$G$O$A$+$8$+M=Dj$7$F$$$k(B
 1.2.2 $B7O$G$N?7$7$$5!G=$H@_7W$K$*$1$k=tLdBjE@$r5DO@$7$?$$(B.
 
 \section{ oxd $B%9!<%Q!<%5!<%P(B }
 
 OpenXM $B$G$O(B 1.2 $B7ONs$h$j(B Cygwin $B$rMQ$$$F(B Windows $B$K$bItJ,E*$KBP1~$7$F$-$?(B. 
 $B$^$?(B 1.1 $B7ONs$+$i(B OpenXM $BBP1~$N(B Java $B%/%i%9$rDs6!$7$F$-$?(B.
-$B$3$l$i$N3+H/$G7P83$7$?$3$H$O(B,
+$B$3$l$i$N3+H/$G7P83$7$?$3$H$O(B, OX-RFC 100 $B$K$h$k(B
 \underline{ $B%5!<%P$N5/F0$,HQ;((B }
 $B$H$$$&$3$H$G$"$k(B.
-$B$H$/$K(B C $B$H(B unix $B$NOHAH$r$O$:$l$k$H(B OpenXM $B%5!<%P$r5/F0(B
+$B$H$/$K(B C $B$H(B unix $B$NOHAH$r$O$:$l$k$H(B OpenXM $B%5!<%P$r%/%i%$%"%s%H$,5/F0(B
 $B$9$k$N$,$H$F$bLLE]$K$J$k(B. 
-$B$5$i$K5/F0$N$?$a$N%3!<%I$O(B OS $BKh$KJ,4t$5$;$kI,MW$,@8$8$k(B.
+$B$5$i$K%/%i%$%"%s%H$N%3!<%I$O(B OS $BKh$KJ,4t$5$;$kI,MW$,@8$8$k(B.
 $B$3$NHQ;($5$rHr$1$k(B
 $B2r7h:v$H$7$F$O0J2<$N$h$&$JJ}K!$,$"$k$G$"$m$&(B.
 \begin{enumerate}
@@ -250,12 +253,7 @@ OpenXM $B$N%9%m!<%,%s$G$"$k(B.
 
 $B%7%c!<%W$N%6%&%k%9(B SL-A300 
 $B$G(B Risa/Asir $B$,IT40A4$J$,$iF0:n$7$F$$$k(B.
-SL-A300 $B$O(B Intel $B$N(B Arm $B7O(B CPU Xscale(PXA210 200MHz)$B$rEk:\$7(B,
-Lineo $B$N(B Embedix $B$H$$$&L>A0$N(B OS (Linux $B7O(B) $B$r;}$D(B.
-$B%a%b%j$O(B 64MB $BEk:\$7$F$$$k$,(B, $B%+!<%M%k$N%3%s%U%#%0%l!<%7%g%s(B
-$B$K$h$C$F%W%m%0%i%`B&$+$iMxMQ2DG=$J$N$O(B 36MB $B$G(B, 
-$B;D$j(B 28MB $B$O%9%H%l!<%8MQ$K@_Dj$5$l$F$$$k(B.
-
+SL-A300 $B$G$O(BEmbedix $B$H$$$&(B Linux $B$rEk:\$7$F$$$k(B.
 GC $B$H@0?t7W;;$N$?$a$N%^%7%s8l%W%m%0%i%`$NItJ,$N0\?"$,LdBj$G$"$C$?$,(B,
 GC $B$K$D$$$F$O$9$G$K3+H/%0%k!<%W(B (H-J. Boehm, A. J. Demers)
 $B$,(B Xscale CPU $B$KBP1~$7$F$$$?(B.
@@ -263,32 +261,6 @@ GC $B$K$D$$$F$O$9$G$K3+H/%0%k!<%W(B (H-J. Boehm, A. J. Demers)
 $B%3!<%I(B \\ 
 {\tt OpenXM\_contrib2/asir2000/asm/asmalpha.c}
 $B$rMQ$$$?(B.
-$B<B:]$N%3%s%Q%$%k:n6H$O0J2<$N$h$&$K9T$C$?(B.
-\begin{enumerate}
-\item PC Linux $B>e$G(B Arm $BMQ$N%/%m%9%3%s%Q%$%k4D6-$r9=C[(B
-\item asir $B$N(B configure $B$,%/%m%9%3%s%Q%$%k4D6-$KBP1~$7$F$$$J$$$N$G(B,
-PC $BMQ$N(B Makefile $B$r:n@.8e(B, $B<jF0$G(B Arm $BMQ$K=$@5(B
-\item GC $B$O(B configure $B$b%/%m%9%3%s%Q%$%k4D6-$KBP1~$7$F$$$k$N$G$=$l$rMxMQ(B
-\item $B@0?t7W;;$O%"%;%s%V%i$r;H$o$:%]!<%?%V%k%3!<%I$rMxMQ$9$k$h$&=$@5(B
-\item char $B$,(B default $B$G(B unsigned char $B$J$N$G(B gcc $B$O(B -fsigned-char
-$B%*%W%7%g%s$r$D$1$F;HMQ(B
-\end{enumerate}
-
-$B;HMQ$7$F$_$?46A[$O0U30$KB.$$(B(Pentium 200MHz$B$/$i$$(B?).
-$BF~NO%U%m%s%H%(%s%I$N(B fep $B$b%3%s%Q%$%k$G$-MxMQ$G$-$F$$$k(B.
-$B%a%b%j$O>/$7Bg$-$J7W;;$@$HITB-$9$k$,(B, $B$3$l$O(B SD $B%+!<%I>e(B
-$B$K%9%o%C%W%U%!%$%k$r:n@.$9$k$3$H$GBP=h2DG=(B.
-$B%G%U%)%k%H$G$O(B cpp $B$,%$%s%9%H!<%k$5$l$F$$$J$$$?$a(B,
-$B%U%!%$%k$N(B load $B$,$G$-$J$$$,(B, 
-zgcc($B%6%&%k%9%;%k%U%3%s%Q%$%kMQ(B gcc)$B$NG[I[$K(B cpp $B$,F1:-(B
-$B$5$l$F$$$k$N$G(B, $B$=$l$rMxMQ$9$l$P$h$$(B.
-
-$B4{CN$NLdBj$H$7$F$O(B, $B%5%9%Z%s%I!&%l%8%e!<%`8e$K(BAsir$B$,(B
-$B5/F0IT2D$K$J$k$H$$$&8=>]$,5/$-$F$$$k(B.
-$B$7$+$7(B, $B$3$l$K$D$$$F$O(B Embedix $B%+!<%M%k$N%P%0(B
-(zero page $B$r%5%9%Z%s%I$N%o!<%/%(%j%"$K$7$F$7$^$&(B)
-$B$G$"$k$3$H$,$o$+$C$?$N$G(B, $B6/@)E*$K%<%m%/%j%"$9$k(B
-$BJd=u%W%m%0%i%`$r$3$A$i$G=`Hw$9$kM=Dj$G$"$k(B.
 
 \rightline{$B3+H/(B: $BF#K\(B}
 
@@ -349,12 +321,10 @@ sm1 $B$G$O(B {\tt ctrlC-hook } $B4X?t$GEPO?$9$k(B.
 \section{OpenXM $B$N%U%m%s%H%(%s%I(B}
 
 Infty Editor $B$O6e=#Bg3X$NNkLZ$i$,Cf?4$H$J$j3+H/$7$F$$$k(B
-$B<j=q$-$K$h$k?t<0F~NO5!G=$r$b$D(B Windows $BMQ%(%G%#%?!<$G$"$k(B.
-$B$3$N%(%G%#%?!<$+$i(B OpenXM $B%5!<%P$r8F$S=P$95!G=$,(B
+$B<j=q$-?t<0$NF~NO5!G=$b$b$D%(%G%#%?!<$G$"$k(B.
+$B$3$N%(%G%#%?!<$+$i(B OpenXM $B%5!<%P$r$h$S$@$95!G=$,(B
 $BF#K\$K$h$j@_7W<BAu$5$l$?(B.
-$B%(%G%#%?!<Fb$GF~NO$5$l$??t<0$N7W;;$@$1$G$J$/(B,
-Asir $B8@8l$b%5%]!<%H$7$F$$$k(B.
-$B>\$7$$Js9p$OK\8&5f=82q$NF#K\$N9V1i5Z$S(B\cite{fujimoto}$B$r;2>H(B.
+$B>\$7$$Js9p$O(B \cite{fujimoto}.
 
 \rightline{$B3+H/(B: $BF#K\(B}
 
@@ -372,62 +342,46 @@ OpenXM/Risa/Asir/Contrib $B%W%m%8%'%/%H$G$O(B, asir $B8@8l$G$+$+$l$?3F<o?t3X4
 $B8=:_$N4X?t0lMw$O0J2<$N$H$*$j(B.
 {\small
 \begin{verbatim}
-base_cancel             poly_factor
-base_choose             poly_gcd
-base_flatten            poly_grobner_basis
-base_intersection       poly_hilbert_polynomial
-base_memberq            poly_initial
-base_permutation        poly_initial_coefficients
-base_position           poly_initial_term
-base_prune              poly_solve_linear
-base_replace            print_dvi_form
-base_set_minus          print_em
-base_set_union          print_gif_form
-base_subsetq            print_input_form
-base_subsets_of_size    print_open_math_tfb_form
-dsolv_dual              print_open_math_xml_form
-dsolv_starting_term     print_output
-glib_line               print_ox_rfc100_xml_form
-glib_open               print_png_form
-glib_plot               print_terminal_form
-glib_print              print_tex_form
-glib_putpixel           print_tfb_form
-glib_tops               print_xdvi_form
-glib_window             print_xv_form
-gnuplot                 sm1
-gnuplot_heat            sm1_ahg
-gnuplot_output          sm1_appell1
-gnuplot_plot_dots       sm1_appell4
-gnuplot_plot_function   sm1_auto_reduce
-gnuplot_start           sm1_bfunction
-hilbert_polynomial      sm1_deRham
-m_rtostr                sm1_distraction
-m_start                 sm1_gb
-m_tree_to_string        sm1_generalized_bfunction
-matrix_clone            sm1_genericAnn
-matrix_det              sm1_gkz
-matrix_diagonal_matrix  sm1_hilbert
-matrix_eigenavalues     sm1_mul
-matrix_identity_matrix  sm1_push_int0
-matrix_inner_product    sm1_rank
-matrix_inverse          sm1_reduction
-matrix_kernel           sm1_restriction
-matrix_list_to_matrix   sm1_saturation
-matrix_matrix_to_list   sm1_slope
-matrix_rank             sm1_start
-matrix_solve_linear     sm1_syz
-matrix_submatrix        sm1_wTensor0
-matrix_transpose        sm1_xml_tree_to_prefix_string
-om_start                tigers
-om_xml                  util_filter
-om_xml_to_cmo           util_find_and_replace
-ox_check_errors2        util_find_substr
-ox_sm1_forAsir          util_load_file_as_a_string
-phc                     util_part
-phc_start               util_read_file_as_a_string
-plucker_relation        util_remove_cr
-poly_degree             util_write_string_to_a_file
-poly_elimination_ideal
+base_cancel                     matrix_list_to_matrix           print_tex_form
+base_choose                     matrix_matrix_to_list           print_tfb_form
+base_flatten                    matrix_rank                     print_xdvi_form
+base_intersection               matrix_solve_linear             print_xv_form
+base_memberq                    matrix_submatrix                sm1
+base_permutation                matrix_transpose                sm1_ahg
+base_position                   number_abs                      sm1_appell1
+base_prune                      number_ceiling                  sm1_appell4
+base_replace                    number_floor                    sm1_auto_reduce
+base_set_minus                  number_imaginary_part           sm1_bfunction
+base_set_union                  number_is_integer               sm1_deRham
+base_subsetq                    number_real_part                sm1_distraction
+base_subsets_of_size            om_start                        sm1_gb
+dsolv_dual                      om_xml                          sm1_generalized_bfunction
+dsolv_starting_term             om_xml_to_cmo                   sm1_genericAnn
+glib_line                       ox_check_errors2                sm1_gkz
+glib_open                       ox_sm1_forAsir                  sm1_hilbert
+glib_plot                       phc                             sm1_mul
+glib_print                      phc_start                       sm1_push_int0
+glib_putpixel                   plucker_relation                sm1_rank
+glib_tops                       poly_degree                     sm1_reduction
+glib_window                     poly_elimination_ideal          sm1_restriction
+gnuplot                         poly_factor                     sm1_saturation
+gnuplot_heat                    poly_gcd                        sm1_slope
+gnuplot_output                  poly_grobner_basis              sm1_start
+gnuplot_plot_dots               poly_hilbert_polynomial         sm1_syz
+gnuplot_plot_function           poly_initial                    sm1_wTensor0
+gnuplot_start                   poly_initial_coefficients       sm1_xml_tree_to_prefix_string
+hilbert_polynomial              poly_initial_term               tigers
+m_rtostr                        poly_solve_linear               util_filter
+m_start                         print_dvi_form                  util_find_and_replace
+m_tree_to_string                print_em                        util_find_substr
+matrix_clone                    print_gif_form                  util_index
+matrix_det                      print_input_form                util_load_file_as_a_string
+matrix_diagonal_matrix          print_open_math_tfb_form        util_part
+matrix_eigenavalues             print_open_math_xml_form        util_read_file_as_a_string
+matrix_identity_matrix          print_output                    util_remove_cr
+matrix_inner_product            print_ox_rfc100_xml_form        util_v
+matrix_inverse                  print_png_form                  util_write_string_to_a_file
+matrix_kernel                   print_terminal_form
 \end{verbatim}
 }
 $B3F4X?t$N%^%K%e%"%k$O(B \\
@@ -440,18 +394,16 @@ http://www.math.kobe-u.ac.jp/OpenXM/1.2.2/doc/asir-contrib/html-en/cman-en\_toc.
 \section{$B%5!<%P$N?7$7$$?t3X4X?t(B}
 
 1.2 $B7O$G$O$^$@?7$7$$%5!<%P$N@\B3:n6H$r$*$3$J$C$F$$$J$$(B.
-$B6a$$$&$A$KB?LLBN$N4v2?(B (polymake, cdd), 
-3D $B%0%i%U%#%C%/%94XO"$N%5!<%P(B (3D Java, JavaView)
+1.3 $B7O$N5!G=$K$J$k$H;W$&$,(B,
+$BB?LLBN$N4v2?(B (polymake, cdd), 3D $B%0%i%U%#%C%/%94XO"$N%5!<%P(B 
+(3D Java, JavaView, OpenGL $B$r$b$A$$$?<+A0$N%5!<%P(B)
 $B$N@\B3$rM=Dj$7$F$$$k(B.
 
 \noindent
-{\tt ox\_asir} $B$K$O<!$N?7$7$$?t3XE*5!G=$,2C$o$C$?(B($BLnO$(B).
+{\tt ox\_asir} $B$K$O<!$N?7$7$$?t3XE*5!G=$,2C$o$C$?(B($BLnO$(B, $B2#;3(B).
 \begin{enumerate}
-\item $B0L?t$N>.$5$$M-8BBN>e$G$NB?JQ?tB?9`<0$N0x?tJ,2r(B 
-
-({\tt sffctr},
-{\tt OpenXM\_contrib2/asir2000/engine/Fgfs.c}).
-
+\item $BM-8BBN$G$N0x?tJ,2r(B ({\tt OpenXM\_contrib2/asir2000/engine/Fgfs.c}).
+\item $BM-8BBN$G$N=`AG%$%G%"%kJ,2r(B
 \end{enumerate}
 
 \noindent
@@ -459,10 +411,10 @@ http://www.math.kobe-u.ac.jp/OpenXM/1.2.2/doc/asir-contrib/html-en/cman-en\_toc.
 \begin{enumerate}
 \item Granger-Oaku $B$N(B Tangent Cone $B%"%k%4%j%:%`$N<BAu$N$?$a(B
 $B2r@OE*HyJ,:nMQAG4D$K$*$1$kF1<!2=$r<BAu(B
-({\tt ring\_of\_differential\_operators, weightHomogenization},
+({ring\_of\_differential\_operators, weightHomogenization},
 {\tt OpenXM/src/kan96xx/Kan/poly3.c}).
 \item M.J.Ucha $B$N?7$7$$(B b-$B4X?t%"%k%4%j%:%`$N<BAu$N$?$a(B,
-$B$"$kHyJ,:9J,:nMQAG4D$r<BAu(B
+$B$"$kHyJ,:9J,:nMQAG4D$r<BAu(B \\
 ({\tt ring\_of\_differential\_difference\_operators}).
 \end{enumerate}
 
@@ -478,90 +430,99 @@ fb $B$O(B 1.2 $B7O$NL\6L$H$$$($k%b%8%e!<%k$G$"$k(B.
 $B$*$h$S$=$l$KE,$7$?%G!<%?9=B$$,8&5f$5$l$?(B.
 $B$5$i$K4dGH8x<0=8$r$b$H$K<B:]$N%G%8%?%k8x<0=8$r:n@.$7$?$,(B, 
 $BCx:n8"$NLdBj$,$"$j(B, $B8x3+$5$l$F$$$J$$(B.
-$B$3$NN.$l$r$/$_(B, $B$5$i$K(B OpenMath $B$N(B XML $B$G8x<0$rI=8=$9$k8&5f$,(B
+$B$3$NN.$l$r$/$_(B, $B$5$i$K(B OpenMath $B$N(B XML $B$G8x<0$rI=8=$78!:w$9$k8&5f$,(B
 $B?91J(B, $BB<>e(B, $BLnED(B \cite{noda-murakami} $B$K$h$j:G6a?JE8$7$F$$$k(B.
 
+
 OpenXM $B$N(B fb $B%W%m%8%'%/%H$G$O(B, 
-$B<!$N;kE@$+$i%G%8%?%k8x<0=8$N@_7W<BAu$r$*$3$J$C$F$$$k(B.
+$B>e$NN.$l$H$O0[$J$j(B, $B8!:w$J$I$NLdBj$r9M$($kA0$NCJ3,$NLdBj(B 
+``$B$$$+$K?t3X8x<0$r7W;;5!>e$KC_@Q$9$k$+(B?''
+$B$H$$$&LdBj0U<1$N$b$H(B, 
+$B<!$N$h$&$J5!G=$r$b$D%G%8%?%k8x<0=8$,M_$7$$$H$$$&4QE@$+$i(B
+$B@_7W<BAu$r$*$3$J$C$F$$$k(B.
 
 \begin{enumerate}
+%% \item Web $B%Y!<%9$N(B Interactive $B$J5!G=$NDs6!(B.
+\item $B$5$^$6$^$J?t3X35G0$K=@Fp$KBP1~$G$-$k8x<0=8(B.
 \item $B8x<0$N?t3XE*0UL#$d;29MJ88%$J$I$N>pJs$r5!3#2DFI7A<0$G(B
       $BJ];}$G$-$k8x<0=8(B.
-\item $B$5$^$6$^$J?t3X35G0$K=@Fp$KBP1~$G$-$k8x<0=8(B.
 \item XML $B$N5!G=$r%U%k$K@8$+$7$?8x<0=8(B.
-\item $B?t3X(B object $B$NF~NO$r87L)$K$+$DMF0W$K(B.
 \item $BCx:n8"$NLdBj$,$J$$8x<0=8(B.
-\item $BF~NO%_%9$NH/8+$rJd=u$9$k5!G=(B.
-\item Web $B%Y!<%9$N(B Interactive $B$J5!G=$NDs6!(B.
+\item $BF~NO%_%9$NH/8+$rJd=u$9$k5!G=$J$I(B.
 \end{enumerate}
 
-$B0J2<$K$o$l$o$l$N@_7W$N35MW$r5-$9(B.
+$B0J2<$K$o$l$o$l$N@_7W$H<BAu$N35MW$r5-$9(B.
 \begin{enumerate}
+\item OpenMath (www.openmath.org) 
+$B$O$5$^$6$^$J?t3X35G0$K=@Fp$KBP1~$G$-$k;EAH$_$G$"$k(B.
+OpenMath $B$r4pAC$K8x<0=8$r5-=R$9$k(B.
+{\tt functions.wolfram.com} $B$G$O(B Mathematica $B7A<0$G3JG<$5$l$?(B
+$BB??t$N?t3X8x<0$,Ds6!$5$l$F$$$k$,(B, OpenMath $B$rMxMQ$3$H$K$h$j(B,
+Mathematica $B$N@)Ls$r$&$1$J$$(B.
+%\item A.Cohen $B$i$N(B Interactive Math Book $B$N%?%0(B(Eindhoven tag library)
+%      $B$rMQ$$$F(B, Interactive $B$J5!G=$r5-=R$9$k(B \cite{cohen}.
+%      Interactive $B5!G=$O8x<0=8$K$H$j=EMW$G(B, 
+%      $B$?$H$($P8x<0$r;2>H$9$k$H$-$KJQ?t$NCV$-49$($OJXMx$G$"$k(B.
+\item OpenMath $B%*%V%8%'%/%H$rI=8=$9$k$?$a$N(B tfb $B$H$$$&8@8l$r3+H/$7$?(B.
+      OpenMath $B%W%m%8%'%/%H$G$O(B OpenMath $B%*%V%8%'%/%H(B $B$rF~NO$9$k$?$a$N(B
+      RIACA CD Editor($B%*%i%s%@(B) $B$d(B STAR/MathWriter (Stilo Technology)
+%%Pic: coq-starts.jpg 
+      $B$J$I$N%7%9%F%`$,8&5f$5$l$F$$$k(B.
+      $B$?$H$($P(B STAR/MathWriter $B$G$O(B semantic tex $B$H$$$&(B OpenMath XML $B$H$O(B
+      $B$"$k0UL#$G$+$1N%$l$?8@8l$r$b$A$$$F?t3X%*%V%8%'%/%H$rF~NO$9$k(B.
+      $B$3$N(B tfb $B$O(B
+      OpenMath $B%*%V%8%'%/%H$H$N(B 1$BBP(B1 $BBP1~$,$9$0$o$+$k7A<0$G$"$j(B, OpenMath 
+      $B%7%s%\%k$N3,AX9=B$$NH~$7$5$,$=$N$^$^8+$($k@_7W$K$J$C$F$$$k$N$rFCD'$H$9$k(B.
 \item DocBook \cite{docbook} $B$*$h$S(B OpenMath \cite{openmath}
      $B$N(B XML $B%?%0$r3HD%$7(B,
      formula $B$r(B $B%H%C%W%N!<%I$H$9$kFH<+$N%?%0$r$$$/$D$+Dj5A$7$?(B.
-     $B$3$l$i$r$^$H$a$F(B fb XML $B%?%0%;%C%H$H$h$s$G$$$k(B.
+     $B$3$l$i$r$^$H$a$F(B fb-formula document $B%?%0%;%C%H$H$h$s$G$$$k(B.
      $BD64v2?4X?t$K4XO"$9$k(B OpenMath Content Dictionary $B$,B8:_$7$J$$$?$a(B,
      $B<+J,C#$G(B CD hypergeo0, hypergeo1, hypergeo2, hypergeon0, hypergeon1,
      hypergeon2, weylalgebra1 $B$r3+H/$7$?(B
      (OpenMath CD $B$N(B contrib $B$r;2>H(B \cite{openmath}).  
      $B$3$l$K$h$j(B, $B8x<0$N?t3XE*0UL#$d;29MJ88%$J$I$N>pJs$r5!3#2DFI7A<0$G(B
-     $BJ];}$G$-$k$h$&$K$J$C$?(B \cite{tamura}.  
-     %A.Cohen $B$i$N(B Interactive Math Book $B$N%W%m%8%'%/%H$b(B
-     %DocBook $B$H(B OpenMath $B$N%?%0$r3HD%$9$k7A$G(B
-     %$B8&5f$7$F$$$k(B \cite{cohen}.
+     $BJ];}$G$-$k$h$&$K$J$C$?(B.
+     $B$J$*(B, A.Cohen $B$i$N(B Interactive Math Book $B$N%W%m%8%'%/%H$b(B
+     DocBook $B$H(B OpenMath $B$N%?%0$r3HD%$9$k7A$G(B
+     $B8&5f$7$F$$$k(B \cite{cohen}.
 \item OpenMath $B$N(B XML $B$H(B Content Dictionary $B$O(B
       $B$5$^$6$^$J?t3X35G0$K=@Fp$KBP1~$G$-$k;EAH$_$G$"$k(B.
-      $B$?$H$($P(B Sasaki \cite{sasaki} $B$i$,;XE&$7$F$$$k$h$&$K(B,
-      $B@QJ,O)$N5!3#2DFI7A<0$NF~NO$NLdBj$O$d$d$3$7$$(B.
       $B$?$H$($PA05-$N(B
       $BD64v2?4X?t$K4XO"$9$k(B Content Dictionary $B$r$b$H$K9b;3$O(B
-      1 $B<!85$N@QJ,O)$rI=8=$9$k(B Content Dictionary {\tt intpath1}
+      1 $B<!85$N@QJ,O)$rI=8=$9$k(B Content Dictionary intpath1 
       $B$rDj5A$7(B, $B$3$N(B Content Dictionary $B$OG$0U$N(B 1 $B<!85$N@QJ,O)$r(B
-      $BI=8=$G$-$k$3$H$r(B twisted (co)homology $B$NM}O@$rMQ$$$F<($7$?(B.
+      $BI=8=$G$-$k$3$H$r(B twisted (co)homology $B$NM}O@$rMQ$$$F>ZL@$7$?(B.
 \item fb $B$G$O(B DOM $B$d(B XSL $B$J$I(B XML $B$N5!G=$r%U%k$K@8$+$7(B
-      $B8x<0=8$r<BAu$7$?(B.  XML $B$N5!G=$,(B $B%G%8%?%k8x<0=8$K$b(B
+      $B8x<0=8$r<BAu$9$k(B.  XML $B$N5!G=$,(B $B%G%8%?%k8x<0=8$K$b(B
       $BM-8z$G$"$k$3$H$r3NG'$7$?(B.  $B?^(B \ref{figure:fbcom} $B$N(B
-      $B3F%3%^%s%I$O<g$K(B Java $B$G<BAu$5$l$F$$$k(B \cite{tamura}.
+      $B3F%3%^%s%I$O<g$K(B Java $B$G<BAu$5$l$F$$$k(B.
 %%Comment: $B$G$b?t<0$N3g8L$N>JN,$N=hM}$OLLE](B.
-\item fb $B$G$O(B tfb $B$H$$$&8@8l$r@_7W$7$?(B.
-      tfb $B$O(B OpenMath $B%*%V%8%'%/%H$rI=8=$9$k$?$a$N8@8l$G$"$k(B.
-      OpenMath $B%W%m%8%'%/%H$G$O(B OpenMath $B%*%V%8%'%/%H(B $B$rF~NO$9$k$?$a$N(B
-      RIACA CD Editor($B%*%i%s%@(B) $B$d(B STAR/MathWriter (Stilo Technology)
-%%Pic: coq-starts.jpg 
-      $B$J$I$N(BGUI $B7?$N%W%m%0%i%`$,8&5f$5$l$F$$$k(B.
-      $B$3$N(B tfb $B$O(B
-      OpenMath $B%*%V%8%'%/%H$N87L)$JF~NO$,MF0W$G$"$k$N$rFCD'$H$7$F$$$k(B
-      \cite{tamura}.
-\item $B$9$G$K=PHG$:$_$N8x<0=8$r$=$N$^$^F~NO$9$k$HCx:n8"$NLdBj$,@8$8$k(B.
-      fb $B$G$O(B 19$B@$5*(B, 20 $B@$5*$ND64v2?4X?t$N%*%j%8%J%kO@J8(B, $BK\$r$b$H$K(B 
-      $B<+J,C#$G8x<0=8$NJT=8$r$*$3$J$C$F$*$j(B, $BCx:n8"$O(B OpenXM/fb $B$,J];}$9$k(B.
+\item fb $B$G$O(B 19$B@$5*(B, 20 $B@$5*$ND64v2?4X?t$N%*%j%8%J%kO@J8$r$b$H$K(B 
+      tfb $B$H$$$&8@8l$r(B
+      $B$b$A$$$FF~NO$r$*$3$J$C$F$*$j(B, $BCx:n8"$NLdBj$,$J$$(B.
 \item $B8x<0$NF~NO$K$O%_%9$,$D$-$b$N$G$"$k(B.
-      fb $B$G$O(B, $B?tCM7W;;$r$b$A$$$FL@$i$+$J8m$j$r8!=P$9$k;EAH$_$rDs6!$7$F$$$k(B
-      ($B$o$l$o$l$O$3$l$r(B checker $B$H8F$s$G$$$k(B).
+      fb $B$G$O(B, $B?tCM7W;;$r$b$A$$$FL@$i$+$J8m$j$r8!=P$9$k;EAH$_$rDs6!$7$F$$$k(B.
       $B$3$N;EAH$_$G$O(B OpenXM $BHG$N(B mathematica $B$*$h$S(B asir $B%5!<%P(B
       $B$*$h$SA0=R$N(B OpenXM online $B$rMQ$$$F$$$k(B.
-      $B<B:]$K8x<0$NF~NO$r;O$a$F$_$F$o$+$C$?$3$H$G$"$k$,(B,
-      checker $B$N$*$+$2$G(B, $B8x<0F~NO:n6H$O3Z$7$/$+$D@53N$H$J$C$?(B \cite{tamura}.
-\item A.Cohen $B$i$N(B Interactive Math Book $B$N%?%0(B(Eindhoven tag library)
-      $B$rMQ$$$F(B, Interactive $B$J5!G=$r5-=R$9$k(B \cite{cohen}.
-      Interactive $B5!G=$O8x<0=8$K$H$j=EMW$G(B, 
-      $B$?$H$($P8x<0$r;2>H$9$k$H$-$KJQ?t$NCV$-49$($OJXMx$G$"$k(B.
+      $B$3$N(B checker $B$N<BAu$N$?$a$KB`2=@\B38x<0$rMQ$$$?(B
+      $B?7$7$$D64v2?4X?t$N?tCM7W;;%"%k%4%j%:%`$b(B
+      $B9M0F$5$l$?(B.
 \end{enumerate}
-$B$J$*(B, (1) $B!A(B (6) $B$O%G%8%?%k8x<0=8$H$7$F?7$7$$;n$_$G$"$k(B.
+
 
 \begin{figure}[tb]
 \begin{tabular}{|l|l|}
 \hline
-fb XML  & DocBook $B%?%0(B(Top), OpenMath $B%?%0(B, MathBook $B%?%0(B, 
+fbOM-DocBook document  & DocBook $B%?%0(B(Top), OpenMath $B%?%0(B, MathBook $B%?%0(B, 
               formula $B%?%0(B($BFH<+(B)  \\ \hline
-fb (tfb) XML  & 
+fb-DocBook document  & 
               DocBook $B%?%0(B(Top), tfb $B%?%0(B($BFH<+(B) , MathBook $B%?%0(B, 
               formula $B%?%0(B($BFH<+(B),         \\ \hline
-fb (formula) XML  & 
+fbOM-formula document  & 
               formula $B%?%0(B(Top, $BFH<+(B), OpenMath $B%?%0(B, 
               DocBook $B%?%0(B ($B0lIt(B) \\ \hline
-fb (formula,tfb) XML  & 
+fb-formula document  & 
               formula $B%?%0(B(Top, $BFH<+(B), tfb $B%?%0(B($BFH<+(B), 
               DocBook $B%?%0(B ($B0lIt(B) \\ \hline
 \end{tabular}
@@ -571,18 +532,18 @@ fb (formula,tfb) XML  &
 \begin{figure}[tb]
 \begin{tabular}{|l|l|}
 \hline
-{\tt tfb2fb.sh}  &  fb (tfb) XML $BJ8=q(B 
-                    $B$r(B fb XML $BJ8=q$XJQ49(B \\ \hline
-                 &  fb (formula,tfb) XML $BJ8=q(B 
-                    $B$r(B fb (formula) XML $BJ8=q$XJQ49(B \\ \hline
+{\tt tfb2fb.sh}  &  fb-formula $BJ8=q(B 
+                    $B$r(B fbOM-formula $BJ8=q$XJQ49(B \\ \hline
+                 &  fb-DocBook $BJ8=q(B 
+                    $B$r(B fbOM-DocBook $BJ8=q$XJQ49(B \\ \hline
 {\tt tfb2ocd.sh}  &  ($B8_49@-$N$?$a;D$7$F$"$k(B) \\ \hline
-{\tt fb2tex.sh}  &  fb XML $BJ8=q$h$j(B LaTeX $B$X$NJQ49(B \\ \hline
+{\tt fb2tex.sh}  &  fbOM-DocBook $BJ8=q$h$j(B LaTeX $B$X$NJQ49(B \\ \hline
 {\tt ocd2tex.sh}  &  ($B8_49@-$N$?$a;D$7$F$"$k(B) \\ \hline
-{\tt formula2tex.sh} & fb (formula) XML $BJ8=q$h$j(B LaTeX $B$X$NJQ49(B \\ \hline
+{\tt formula2tex.sh} & fbOM-formula XML $BJ8=q$h$j(B LaTeX $B$X$NJQ49(B \\ \hline
 {\tt asir2tfb.sh} &  asir $B7A<0$+$i(B tfb $B7A<0$X$NJQ49(B \\ \hline
-{\tt tfb2asir-check*.sh} & fb (formula,tfb) XML $BJ8=q(B $B$h$j(B 
+{\tt tfb2asir-check*.sh} & fb-formula $BJ8=q(B $B$h$j(B 
                            asir checker $B$X(B.\\ \hline
-{\tt tfb2math-check.sh} &  fb (formula,tfb) XML $BJ8=q(B $B$h$j(B
+{\tt tfb2math-check.sh} &  fb-formula XML $BJ8=q(B $B$h$j(B
                            Mathematica checker $B$X(B.\\ \hline
 \end{tabular}
 \caption{ fb $B$NJQ49%3%^%s%I(B($B0lIt(B)}
@@ -591,27 +552,26 @@ fb (formula,tfb) XML  &
 
 
 
-$B<!$O(B fb (formula,tfb) XML$BJ8=q$NNc(B ({\tt fb/formula/h21-0060.tfb}).
+$B<!$O(B fb-formula $BJ8=q$NNc(B ({\tt fb/formula/h21-0060.tfb}).
 {\small
 \begin{verbatim}
 <?xml version="1.0" encoding="ISO-2022-JP"?>
 <?xml-stylesheet type="text/xsl" href="fb.xsl"?>
 <formula>
-  <tfb>
-    2 ~arith1.times~ arith1.root(nums1.pi,2)
-      ~arith1.times~ hypergeo0.gamma(a ~arith1.plus~ b ~arith1.plus~
-        (1 ~arith1.divide~ 2))
-      ~arith1.divide~ hypergeo0.gamma(a ~arith1.plus~ (1 ~arith1.divide~ 2))
-      ~arith1.divide~ hypergeo0.gamma(b ~arith1.plus~ (1 ~arith1.divide~ 2))
-      ~arith1.times~ hypergeo1.hypergeometric2F1(a,b,1 ~arith1.divide~ 2,x)
-    ~relation1.eq~
-    (hypergeo1.hypergeometric2F1(2 ~arith1.times~ a, 2 ~arith1.times~ b,
-      a ~arith1.plus~ b ~arith1.plus~ (1 ~arith1.divide~ 2),
-      1 ~arith1.plus~ arith1.root(x,2) ~arith1.divide~ 2)
-      ~arith1.plus~
-      hypergeo1.hypergeometric2F1(2 ~arith1.times~ a, 2 ~arith1.times~ b,
-        a ~arith1.plus~ b ~arith1.plus~ (1 ~arith1.divide~ 2),
-        1 ~arith1.minus~ arith1.root(x,2) ~arith1.divide~ 2));
+  <tfb macroset="http://www.openxm.org/fb/hfb.txt">
+    2 * arith1.root(nums1.pi,2)
+      * hypergeo0.gamma(a + b + (1 / 2))
+      / hypergeo0.gamma(a + (1 / 2))
+      / hypergeo0.gamma(b + (1 / 2))
+      * hypergeo1.hypergeometric2F1(a,b,1 / 2,x)
+   =   
+    (hypergeo1.hypergeometric2F1(2 * a, 2 * b,
+                                 a + b + (1 / 2),
+                                 1 + arith1.root(x,2) / 2)
+    +
+     hypergeo1.hypergeometric2F1(2 * a, 2 * b,
+                                 a + b + (1 / 2),
+                                 1 - arith1.root(x,2) / 2));
   </tfb>
 
   <editor> Yasushi Tamura </editor>
@@ -620,9 +580,7 @@ fb (formula,tfb) XML  &
     Quadratic transformation of independent variable
   </description>
 
-  <reference>
-  <xref linkend="goursat1"  page="118"/>
-  </reference>
+  <reference linkend="goursat1"  page="118"/>
 
   <evidence checker="Mathematica">
     @@ /. {a->1/2,b->3/5,c->-2/11,x->0.2}
@@ -636,7 +594,7 @@ fb (formula,tfb) XML  &
 %%  tfb2fb.sh <../../formula/h21-0060.tfb-auto-tex.tfb | formula2tex.sh >t.tex
 %%  platex t
 $B$3$N8x<0$r(B
-\TeX $B$X$NJQ49%D!<%k$G%W%l%<%s%F!<%7%g%s7A<0$KJQ49$7$?$b$N$O(B
+TeX $B$X$NJQ49%D!<%k$G%W%l%<%s%F!<%7%g%s7A<0$KJQ49$7$?$b$N$O(B
 \begin{center}$ {\frac{2\,{\sqrt{\pi }}\,\Gamma ({\frac{1}{2}} + a + b)\,{}
 _2 F_1 (a,b,{\frac{1}{2}},x)}{\Gamma ({\frac{1}{2}} + a)\,\Gamma ({\frac{1}{2}} 
 + b)}} = {}_2 F_1 (2\,a,2\,b,{\frac{1}{2}} + a + b,{\frac{1 - {\sqrt{x}}}{2}}) +
@@ -651,7 +609,7 @@ _2 F_1 (a,b,{\frac{1}{2}},x)}{\Gamma ({\frac{1}{2}} + a)\,\Gamma ({\frac{1}{2}}
 
 \section{ OpenXM $B4XO"$N=PHGJ*(B }
 
-OpenXM 1.1.3 $B0J9_$K=PHG$5$l$?;qNA$N%j%9%H(B:
+OpenXM 1.2 $B0J9_$K=PHG$5$l$?;qNA$N%j%9%H(B:
 \begin{enumerate}
 \item \cite{noro} $B$G$O(B Risa/Asir $B$NFbIt9=B$$N35MW$d(B Risa/Asir $B$N(B OpenXM $B$X$N(B
 $BBP1~>u67$,2r@b$7$F$"$k(B.
@@ -664,8 +622,8 @@ OpenXM $B$rMQ$$$?4JC1$JJ,;67W;;$X$NF~Lg$N>O$,$"$k(B.
 
 $B0J>e(B OpenXM 1.2.2 $B$N?75!G=$r35@b$7$?(B.
 $B>\$7$/$O(B {\tt http://www.openxm.org} $B$N(B CVS-web $B$rMQ$$$F%=!<%9%3!<%I(B
-$B$NJQ99MzNr$*$h$S%3%_%C%H;~$N%3%a%s%H$r;2>H$5$l$?$$(B.
-
+$B$NJQ99MzNr(B
+$B$*$h$S%3%_%C%H;~$N%3%a%s%H$r;2>H$5$l$?$$(B.
 
 \begin{thebibliography}{99}
 \bibitem{cohen}
@@ -674,11 +632,6 @@ Interactive Mathematical Documents on the Web,
 edited by M.Joswig and N.Takayama:  
 {\it Algebra, Geometry and Software Systems}, Springer,
 289--308, 2003 (to appear).
-%
-\bibitem{digital-lib}
-Digital  Library of Mathematical Functions (Digital Abramowitz and Stegun)
-{\tt http://dlmf.nist.gov/}
-%
 %
 \bibitem{docbook}
 {\tt http://www.docbook.org}
@@ -710,8 +663,8 @@ Computer Mathematics, Proceedings of the Fifth Asian Symposium
 102--111, 2001.
 %
 \bibitem{noda-murakami}
-$B?91J(B, $BB<>e(B, $BLnED(B, $B?t3X8x<0%G!<%?%Y!<%9$H(B G $B4X?t(B,
-preprint.
+$B?91J(B, $BB<>e(B, $B?t3X8x<0%G!<%?%Y!<%9$H(B G $B4X?t(B,
+$B?t<0=hM}(B {\bf 9} No.2 (2002), 20--31.
 %
 \bibitem{noro}
 M.Noro
@@ -743,16 +696,6 @@ Conglomerate Mathematical Systems,
 edited by M.Joswig and N.Takayama:  
 {\it Algebra, Geometry and Software Systems}, Springer,
 309--326, 2003 (to appear).
-%
-\bibitem{tamura}
-Y.Tamura,
-Content Dictionaries and
-   an Electronic Formula Book for Hypergeometric Functions,
-preprint
-%
-\bibitem{wolfram}
-Wolfram Research's Mathematical Functions, \\
-{\tt http://functions.wolfram.com}
 \end{thebibliography}
 
 \end{document}
