@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.14 2003/10/19 04:57:00 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.15 2003/10/21 05:16:35 takayama Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -91,7 +91,7 @@ on の時, 函数の再定義時にメッセージを表示する.
 0 のときプロンプトを表示しない. 1 のとき標準プロンプトを表示.
 C スタイルのフォマット文字列をもちいるとユーザ定義のプロンプト.
 例(asirgui では不可): 
-@code{ ctrl("prompt",asciitostr([0x1b])+"[32m[%d]:= "+asciitostr([0x1b])+"[0m")}
+@code{ ctrl("prompt","\033[32m[%d]:= \033[0m")}
 @item hex
 1 のとき, 整数は 0x で始まる 16 進数として表示される. -1 のとき, 16 進数は, 
 間に @samp{|} をはさんで 8 桁ごとに区切って表示される. 
@@ -169,7 +169,8 @@ If the value is 0, then prompt is not output.
 If the value is 1, then the standard prompt is output.
 Asir prompt can be customized by giving a C-style format string.
 Example (for unix asir);
-@code{ ctrl("prompt",asciitostr([0x1b])+"[32m[%d]:= "+asciitostr([0x1b])+"[0m")}
+@code{ ctrl("prompt","\033[32m[%d]:= \033[0m")}
+
 @item hex
 If 1 is set, integers are displayed as hexadecimal numbers with prefix
 @code{0x}. if -1 is set, hexadecimal numbers are displayed with 
