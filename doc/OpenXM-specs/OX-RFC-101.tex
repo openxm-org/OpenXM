@@ -1,5 +1,5 @@
 %#!make OX-RFC-101-ja.dvi
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.1 2000/11/30 02:41:36 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.2 2000/11/30 08:46:23 ohara Exp $
 \documentclass{article}
 %%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \usepackage{html}
@@ -50,10 +50,10 @@ oxc の導入により、いままでのサーバの起動手順はコントロールサーバの起動と
 計算サーバの起動に分離される。コントロールサーバを起動するには次の手順を
 取る。まず、適当なオプション(後述)をつけて、コントロールサーバを起動する
 と、コントロールサーバはソケットを作成し、connect する。クライアントは、
-listen, accept する。接続後、バイトオーダを決定する。バイトオーダの決定
-方法については、従来のものと変更はない。
-OpenXM/doc/OpenXM-specs/control.tex を見よ。その後、コントロールサーバは
-待機状態にはいる。コントロールサーバは OpenXM スタックマシンであるから、
+listen, accept する。接続後、最初にバイトオーダを決定する。バイトオーダ
+の決定方法については、従来のものと変更はない
+(OpenXM/doc/OpenXM-specs/control.tex を見よ)。その後、コントロールサーバ
+は待機状態にはいる。コントロールサーバは OpenXM スタックマシンであるから、
 mathcap の交換などの手続きに入ってもよい。
 
 \subsection{OpenXM control stack machine}
@@ -66,7 +66,7 @@ mathcap の交換などの手続きに入ってもよい。
 \begin{verbatim}
 SM_control_spawn_server
 \end{verbatim}
-新たに計算サーバを起動する。サーバの起動に成功すると、その ID を返す。
+新たに計算サーバを起動する。計算サーバの起動に成功すると、その ID を返す。
 
 Request:
 \begin{tabular}{|c|c|}  \hline
@@ -164,11 +164,19 @@ Output: none.
 \subsection{A sample implementation}
 
 \subsubsection{Command Line Arguments}
-コントロールサーバの実行形式は getopt(1) に ``c:p:h:x'' で指定するオプショ
+コントロールサーバの実行形式は getopt(3) に ``c:p:h:x'' で指定するオプショ
 ンを持つ。すなわち、
 \begin{verbatim}
 oxc -c [password] -h [hostname] -p [portnumber] -x
 \end{verbatim}
+
+{\tt -h} では、クライアントのホスト名を指定する。クライアントはあらかじめ、
+hostname:port を開いて待ち受けなければならない。
+
+{\tt -x} オプションはなくてもよい。-x を指定し、かつ環境変数 DISPLAY が
+設定されていると、oxc は新たに端末(ウィンドウ)を作成して、メッセージをそ
+の端末に出力する。oxc の用いる端末の種類は環境変数OpenXM\_XTERM で指定す
+る。デフォルトは xterm である。
 
 \subsubsection{Local Functions}
 
