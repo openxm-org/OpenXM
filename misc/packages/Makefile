@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.3 2000/03/10 10:34:47 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.4 2000/03/10 14:21:43 takayama Exp $
 
 # Modify below for priting.
 PS=a2ps-j
@@ -10,7 +10,7 @@ usage :
 	@echo "  print "
 
 clean :
-	-(cd Generic/openxm ; make clean)
+	-(cd Generic/openxm ; make clean-work)
 	-(cd FreeBSD ; make clean)
 	-(cd Linux/RPM ; make clean)
 
