@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc,v 1.10 2002/08/11 08:39:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc,v 1.11 2002/08/23 08:16:15 takayama Exp $ */
 
 Phc_proc = -1$
 #define PHC_FIND_PROC(P)  P = getopt(proc);\
@@ -355,9 +355,9 @@ def phc(A) {
   ox_push_cmo(P,Fname);  sm1(P," /tmp.phc.out set ");
 
   B = map(rtostr,A);
-  sm1_push(P,B);
+  sm1.push(P,B);
   sm1(P," phc ");
-  C = sm1_pop(P);
+  C = sm1.pop(P);
   /* print(C); */
   load("./"+Fname);
   /* return(Phc); It does not work.*/

@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.42 2002/12/05 02:16:30 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.43 2003/05/18 00:13:15 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -232,13 +232,13 @@ oxphc-en.texi : $(CONTRIB)/phc Makefile
 	$(RM) -f oxphc-en.texi
 	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/phc >oxphc-en.texi
 
-oxgnuplot-ja.texi : $(CONTRIB)/gnuplot Makefile
+oxgnuplot-ja.texi : gnuplot.oxweave Makefile
 	$(RM) -f oxgnuplot-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/gnuplot >oxgnuplot-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <gnuplot.oxweave >oxgnuplot-ja.texi
 
-oxgnuplot-en.texi : $(CONTRIB)/gnuplot Makefile
+oxgnuplot-en.texi : gnuplot.oxweave Makefile
 	$(RM) -f oxgnuplot-en.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/gnuplot >oxgnuplot-en.texi
+	$(OXWEAVE) C-texi eg-texi  <gnuplot.oxweave >oxgnuplot-en.texi
 
 ###sm1
 oxsm1-ja.texi : sm1.oxweave Makefile sm1-auto-ja.texi

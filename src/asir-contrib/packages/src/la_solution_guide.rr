@@ -1,42 +1,62 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.4 2003/05/07 02:22:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.5 2003/05/08 03:45:37 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
-/* Suffix should be  lasg_ */
+
+/* ctrl("show_crossref",1)$ */
+/*
+  if (!Loaded_taka_print) load(FileName); else ;
+*/
+/*
+extern Loaded_taka_print$ 
+*/
+/* The next two lines cannot be in a module */
+/*
+ox_loadfile(Loaded_taka_print,"taka_print.rr")$ 
+ox_loadfile(Loaded_Matrix,"Matrix")$ 
+*/
+
+module lasg;
+
+localf matrix_to_dp, v, dp_to_matrix,
+       lasg_1, lasg_2, lt, gen_1, should_zero,
+       gen_1b, gen_rank_prob, print_matrix_list,
+       gen_eq_prob, gen_eq_nosol_prob,
+       make_dense, copy_matrix, reduced_form,
+       reduced_form_old, build_solution,
+       zero_row, kernel, gen_lineq_quiz,
+       test, gen_ans, gen_reduced_matrix;
 
 #define min(a,b) (a>b? b: a)
 #define MaxN 3
 #define Step 2
 #define MaxC 1
-Lasg_Seed0 = 1$
-Lasg_Dense = 1$
+print("Type in lasg.test();  Problems will be saved in hoge.tex")$
+static Seed0 $
+static Dense $
+static Lasg_test_data_1 $
 
+Seed0 = 1 $
+Dense = 1 $
 
-/*
-  if (!Loaded_taka_print) load(FileName); else ;
-*/
-/* extern Loaded_taka_print; */
-ox_loadfile(Loaded_taka_print,"taka_print.rr")$ 
-ox_loadfile(Loaded_Matrix,"Matrix")$ 
-
-def lasg_matrix_to_dp(M) {
+def matrix_to_dp(M) {
   S = size(M);
   Ans = [];
   for (I=0; I<S[0]; I++) {
     F = 0;
     for (J=0; J<S[1]; J++) {
-      F = F+M[I][J]*lasg_v(J,S[1]);
+      F = F+M[I][J]*v(J,S[1]);
     }
     Ans = append(Ans,[F]);
   }  
   return(Ans);
 }
 
-def lasg_v(I,N) {
+def v(I,N) {
   V = newvect(N);
   V[I] = 1;
   return(dp_vtoe(V));
 }
 
-def lasg_dp_to_matrix(FF,N) {
+def dp_to_matrix(FF,N) {
   M = length(FF);
   A = newmat(M,N);
   for (I=0; I<M; I++) {
@@ -75,7 +95,7 @@ def lasg_3(F,I,J,C) {
   return vtol(G);
 }
 
-def lasg_lt(A,B) {
+def lt(A,B) {
   N=size(A)[0];
   for (I=0; I<N; I++) {
    if (A[I] < B[I]) return(1);
@@ -84,7 +104,8 @@ def lasg_lt(A,B) {
   return(2);
 }
 
-def lasg_gen_1(M,N,Rank,Seed) {
+def gen_1(M,N,Rank,Seed) {
+  /**/ print([M,N,Rank,Seed]); 
   random(Seed);
   if (Rank > min(M,N)) Rank = min(M,N);
   A = newmat(M,N);
@@ -94,6 +115,7 @@ def lasg_gen_1(M,N,Rank,Seed) {
   for (I=0; I<Rank; I++) {
     while (1) {
       K = random()%N;
+      print(K);
       if (I == 0) K = 0;
       if (S[K] == 0) { S[K] =1 ; break; }
     }
@@ -108,7 +130,7 @@ def lasg_gen_1(M,N,Rank,Seed) {
   return A;
 }
 
-def lasg_should_zero(A,I0,J) {
+def should_zero(A,I0,J) {
   M = size(A)[0];
   for (I = I0+1; I<M; I++) {
     if (A[I][J]) return(1);
@@ -116,17 +138,17 @@ def lasg_should_zero(A,I0,J) {
   return(0);
 }
 
-def lasg_gen_1b(M,N,Rank,Seed) {
-   extern Lasg_Dense;
-   A = lasg_gen_1(M,N,Rank,Seed);
+def gen_1b(M,N,Rank,Seed) {
+   /* static Dense; */
+   A = gen_1(M,N,Rank,Seed);
    for (I=0; I<Rank; I++) {
      J=0;
      while (J < N ) {
        if ( A[I][J] ) {
          J++;
          while (J<N) {
-           if (!lasg_should_zero(A,I,J)) {
-             if (random() % 2 == 0 || Lasg_Dense) {
+           if (!should_zero(A,I,J)) {
+             if (random() % 2 == 0 || Dense) {
                A[I][J] = (random()%MaxN +1)*(-1)^(random() % N);
              }
            }
@@ -139,30 +161,31 @@ def lasg_gen_1b(M,N,Rank,Seed) {
    return A;
 }
 
-/*&usage begin: lasg_gen_rank_prob(M,N,Rank,P)
+/*&usage begin: lasg.gen_rank_prob(M,N,Rank,P)
  It returns problems to evaluate ranks of matrices.
  description:
   It returns {P} 
   {M} X {N} matrix of the rank {Rank}.
   The symbol {Step} is used to control the difficulty
-  and the global variable {Lasg_seed0} is a seed for random numbers.
- example: lasg_gen_rank_prob(3,4,2,2);
+  and the global variable {seed0} is a seed for random numbers.
+ example: lasg.gen_rank_prob(3,4,2,2);
 end: */
-def lasg_gen_rank_prob(M,N,Rank,P) {
-  extern Lasg_Seed0;
+def gen_rank_prob(M,N,Rank,P) {
+  /* static Seed0;  */
+  print(Seed0);
   Ans = [ ];
   for (K=0; K<P; K++) {
-    A = lasg_gen_1b(M,N,Rank,Lasg_Seed0);
+    A = gen_1b(M,N,Rank,Seed0);
     B = [A];
-    A = lasg_make_dense(A);
+    A = make_dense(A);
     B = append(B,[A]);
-    F = lasg_matrix_to_dp(A);
+    F = matrix_to_dp(A);
     for (R=0; R<Step; R++) {
       if (random()% (Step-1) == 0) {
          I = random()%M; J = random()%M;
          if (I != J) {
            F = lasg_1(F,I,J);
-           B = append(B,[[I,J],[lasg_dp_to_matrix(F,N)]]);
+           B = append(B,[[I,J],[dp_to_matrix(F,N)]]);
          }
       }
       I = J = 0;
@@ -171,19 +194,19 @@ def lasg_gen_rank_prob(M,N,Rank,P) {
         if (C == 0) C = 1;
         if (I != J) {
            F = lasg_3(F,I,J,C);
-           B = append(B,[[I,J,C],lasg_dp_to_matrix(F,N)]);
+           B = append(B,[[I,J,C],dp_to_matrix(F,N)]);
            break;
         }
       }
     }
-    lasg_print_matrix_list(B);
+    print_matrix_list(B);
     print("---------------------------------");
     Ans = append(Ans,[B]);
   }
   return Ans;
 }
 
-def lasg_print_matrix_list(B) {
+def print_matrix_list(B) {
   print("_____________________________________");
   N = length(B);
   for (I=0; I<N; I++) {
@@ -193,22 +216,22 @@ def lasg_print_matrix_list(B) {
   print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 }
 
-/*&usage begin: lasg_gen_eq_prob(M,Rank,N)
+/*&usage begin: lasg.gen_eq_prob(M,Rank,N)
  It returns problems to solve systems of linear equations.
  description:
   It returns {N} 
   {M} X {M} matrix of the rank {Rank}.
   The symbol {Step} is used to control the difficulty
-  and the global variable {Lasg_seed0} is a seed for random numbers.
- example: lasg_gen_eq_prob(4,3,2);
- ref: lasg_gen_lineq_quiz.
+  and the global variable {seed0} is a seed for random numbers.
+ example: lasg.gen_eq_prob(4,3,2);
+ ref: lasg.gen_lineq_quiz.
 end: */
-def lasg_gen_eq_prob(M,Rank,P) {
-  extern Lasg_Seed0;
+def gen_eq_prob(M,Rank,P) {
+  /* extern Seed0; */
   Ans = [ ];
   N = M+1;
   for (K=0; K<P; K++) {
-    A = lasg_gen_1b(M,M,Rank,Lasg_Seed0);
+    A = gen_1b(M,M,Rank,Seed0);
     AA = newmat(M,N);
     for (I=0; I<M; I++) {
       for (J=0; J<N-1; J++) {
@@ -220,15 +243,15 @@ def lasg_gen_eq_prob(M,Rank,P) {
     }
     A = AA;
     B = [A];
-    A = lasg_make_dense(A);
+    A = make_dense(A);
     B = append(B,[A]);
-    F = lasg_matrix_to_dp(A);
+    F = matrix_to_dp(A);
     for (R=0; R<Step; R++) {
       if (random()% (Step-1) == 0) {
          I = random()%M; J = random()%M;
          if (I != J) {
            F = lasg_1(F,I,J);
-           B = append(B,[[I,J],[lasg_dp_to_matrix(F,N)]]);
+           B = append(B,[[I,J],[dp_to_matrix(F,N)]]);
          }
       }
       I = J = 0;
@@ -237,25 +260,25 @@ def lasg_gen_eq_prob(M,Rank,P) {
         if (C == 0) C = 1;
         if (I != J) {
            F = lasg_3(F,I,J,C);
-           B = append(B,[[I,J,C],lasg_dp_to_matrix(F,N)]);
+           B = append(B,[[I,J,C],dp_to_matrix(F,N)]);
            break;
         }
       }
     }
-    lasg_print_matrix_list(B);
+    print_matrix_list(B);
     print("---------------------------------");
     Ans = append(Ans,[B]);
   }
   return Ans;
 }
 
-def lasg_gen_eq_nosol_prob(M,Rank,P) {
-  extern Lasg_Seed0;
+def gen_eq_nosol_prob(M,Rank,P) {
+  /* extern Seed0; */
   Ans = [ ];
   if (Rank >= M) error();
   N = M+1;
   for (K=0; K<P; K++) {
-    A = lasg_gen_1b(M,M,Rank,Lasg_Seed0);
+    A = gen_1b(M,M,Rank,Seed0);
     AA = newmat(M,N);
     for (I=0; I<M; I++) {
       for (J=0; J<N-1; J++) {
@@ -267,15 +290,15 @@ def lasg_gen_eq_nosol_prob(M,Rank,P) {
     }
     A = AA;
     B = [A];
-    A = lasg_make_dense(A);
+    A = make_dense(A);
     B = append(B,[A]);
-    F = lasg_matrix_to_dp(A);
+    F = matrix_to_dp(A);
     for (R=0; R<Step; R++) {
       if (random()% (Step-1) == 0) {
          I = random()%M; J = random()%M;
          if (I != J) {
            F = lasg_1(F,I,J);
-           B = append(B,[[I,J],[lasg_dp_to_matrix(F,N)]]);
+           B = append(B,[[I,J],[dp_to_matrix(F,N)]]);
          }
       }
       I = J = 0;
@@ -284,19 +307,19 @@ def lasg_gen_eq_nosol_prob(M,Rank,P) {
         if (C == 0) C = 1;
         if (I != J) {
            F = lasg_3(F,I,J,C);
-           B = append(B,[[I,J,C],lasg_dp_to_matrix(F,N)]);
+           B = append(B,[[I,J,C],dp_to_matrix(F,N)]);
            break;
         }
       }
     }
-    lasg_print_matrix_list(B);
+    print_matrix_list(B);
     print("---------------------------------");
     Ans = append(Ans,[B]);
   }
   return Ans;
 }
 
-def lasg_make_dense(A) {
+def make_dense(A) {
   M = size(A)[0];
   N = size(A)[1];
   AA = newmat(M,N);
@@ -314,7 +337,7 @@ def lasg_make_dense(A) {
 
 /* A = newmat(2,3,[[1,2,3],[0,1,2]])$ */
 
-def lasg_copy_matrix(A) {
+def copy_matrix(A) {
   M = size(A)[0];
   N = size(A)[1];
   AA = newmat(M,N);
@@ -326,15 +349,15 @@ def lasg_copy_matrix(A) {
   return AA;
 }
 
-/*&usage begin: lasg_reduced_form(A)
+/*&usage begin: lasg.reduced_form(A)
  It translates the matrix {A} into the reduced normal form
  by elementary transformations.
  The sequence of elementary transformations is also returned.
- example: lasg_reduced_form(newmat(2,3,[[2,3,8],[1,2,5]]));
+ example: lasg.reduced_form(newmat(2,3,[[2,3,8],[1,2,5]]));
  end:
 */
 Lasg_test_data_1=newmat(3,5,[[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]) $
-def lasg_reduced_form(A) {
+def reduced_form(A) {
   Ans = [ ];
   M = size(A)[0];
   N = size(A)[1];
@@ -350,7 +373,7 @@ def lasg_reduced_form(A) {
        if (AA[I][J] != 1) {
          Msg = "Multiplying the "+rtostr(I+1)+"th row by "+
                rtostr(1/AA[I][J]);
-         B = lasg_copy_matrix(AA);
+         B = copy_matrix(AA);
          for (JJ=0; JJ<N; JJ++) {
            B[I][JJ] = AA[I][JJ]/AA[I][J];
          }
@@ -360,7 +383,7 @@ def lasg_reduced_form(A) {
        if (I != Pivot) {
          Msg = "Exchanging the "+rtostr(I+1)+"th row and "+rtostr(Pivot+1)+
                "th row";
-         B = lasg_copy_matrix(AA);
+         B = copy_matrix(AA);
          for (JJ=0; JJ<N; JJ++) {
            B[I][JJ] = AA[Pivot][JJ];
            B[Pivot][JJ] = AA[I][JJ];
@@ -370,7 +393,7 @@ def lasg_reduced_form(A) {
        }
        Msg = "Eliminating the "+rtostr(J+1)+"th column by "+
                "("+rtostr(I+1)+","+rtostr(J+1)+")th entry" ;
-       B = lasg_copy_matrix(AA);
+       B = copy_matrix(AA);
        print(B); print("----------------");
        Changed = 0;
        for (II = 0; II<M; II++) {
@@ -396,7 +419,7 @@ def lasg_reduced_form(A) {
   return(Ans);
 }
 
-def lasg_reduced_form_old(A) {
+def reduced_form_old(A) {
   Ans = [ ];
   M = size(A)[0];
   N = size(A)[1];
@@ -409,7 +432,7 @@ def lasg_reduced_form_old(A) {
        if (AA[I][J] != 1) {
          Msg = "Multiplying the "+rtostr(I+1)+"th row by "+
                rtostr(1/AA[I][J]);
-         B = lasg_copy_matrix(AA);
+         B = copy_matrix(AA);
          for (JJ=0; JJ<N; JJ++) {
            B[I][JJ] = AA[I][JJ]/AA[I][J];
          }
@@ -418,7 +441,7 @@ def lasg_reduced_form_old(A) {
        }
        Msg = "Eliminating the "+rtostr(J+1)+"th column by "+
                "("+rtostr(I+1)+","+rtostr(J+1)+")th entry" ;
-       B = lasg_copy_matrix(AA);
+       B = copy_matrix(AA);
        print(B); print("----------------");
        Changed = 0;
        for (II = 0; II<M; II++) {
@@ -446,11 +469,11 @@ def lasg_reduced_form_old(A) {
 /* Construct solutions from a matrix of the normal form. 
    [ x1 x2 ... xn b ]
 */
-/* Test data for lasg_build_solution */
+/* Test data for build_solution */
 /* A = newmat(3,5,[[1,1,0,1,1],
                 [0,0,1,1,2],
                 [0,0,0,0,0]])$ */
-def lasg_build_solution(A) {
+def build_solution(A) {
   N =size(A);
   M = N[0]; N=N[1];
   B = newvect(M);
@@ -459,7 +482,7 @@ def lasg_build_solution(A) {
   }
   /* Check if there is a solution or not. */
   for (I=M-1; I>=0; I--) {
-    if (B[I] != 0 && lasg_zero_row(A,I)) {
+    if (B[I] != 0 && zero_row(A,I)) {
       return([]); /* No solution */
     }
   }
@@ -482,7 +505,7 @@ def lasg_build_solution(A) {
       AA[I][J] = A[I][J];
     }
   }
-  K = lasg_kernel(AA);
+  K = kernel(AA);
   SS = newvect(N-1);
   for (I=0; I<N-1; I++) {
     SS[I] = S[I];
@@ -490,7 +513,7 @@ def lasg_build_solution(A) {
   return([SS,K]);
 }
 
-def lasg_zero_row(A,I) {
+def zero_row(A,I) {
   N =size(A);
   M = N[0]; N=N[1];
   for (J=0; J<N-1; J++) {
@@ -499,7 +522,7 @@ def lasg_zero_row(A,I) {
   return 1;
 }
 
-def lasg_kernel(A) {
+def kernel(A) {
   K = omatrix_kernel(A);
   N = K[0];
   if (N == 0) { return [ ]; }
@@ -511,36 +534,36 @@ def lasg_kernel(A) {
   return Ans;
 }
 
-/*&usage begin: lasg_gen_lineq_quiz()
+/*&usage begin: lasg.gen_lineq_quiz()
  It returns a set of problems and answers 
  to solve systems of linear equations
  in the LaTeX format.
  description:
   Change parameters in the program
-    P = lasg_gen_eq_prob(M,R,N);
+    P = lasg.gen_eq_prob(M,R,N);
   where {M} X {M} is the size of the matrix, {R} is the rank, and 
   {N} is the number of problems.
   The symbol {Step} is used to control the difficulty
-  and the global variable {Lasg_seed0} is a seed for random numbers.
- Ref: lasg_gen_rank_prob, lasg_gen_eq_prob, lasg_build_solution, lasg_test.
+  and the global variable {seed0} is a seed for random numbers.
+ Ref: lasg.gen_rank_prob, lasg.gen_eq_prob, lasg.build_solution, lasg.test.
 end: */
-def lasg_gen_lineq_quiz() {
+def gen_lineq_quiz() {
    S = "\\documentclass{article} \\begin{document}\n";
    N = 2;  /* Number of questions */
-   P = lasg_gen_eq_prob(5,3,N);  /* size of matrix and rank */
+   P = gen_eq_prob(5,3,N);  /* size of matrix and rank */
    for (I=0; I<N; I++) {
      PP = P[I];
      PP = PP[length(PP)-1];
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
           "$$ (A|b) = "+taka_tex_form(PP) + "$$ ";
      S += "to solve a system of linear equations of the form $(A|b)$.\n \\medbreak \\noindent Answer:\n";
-     A = lasg_reduced_form(PP);
+     A = reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
        S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
      }
-     K = lasg_build_solution(A[M-1][1]);
+     K = build_solution(A[M-1][1]);
      if (length(K) == 0) {
        S += "There is no solution.\n";
      }else{
@@ -560,24 +583,23 @@ def lasg_gen_lineq_quiz() {
    return(S);
 }
 
-def lasg_test() {
-  S = lasg_gen_lineq_quiz();
+def test() {
+  S = gen_lineq_quiz();
   shell("rm hoge.tex");
   output("hoge.tex");
   print(S);
   output();
 }
 
-print("Type in lasg_test();  Problems will be saved in hoge.tex")$
 
-/*&uasge lasg_gen_ans(P)
+/*&uasge lasg.gen_ans(P)
  It generates an answer of the problem of solving linear equations
  given by {P} (extended matrix).
  The answer is returned as a string in LaTeX format.
- example:  lasg_gen_ans([[2,3,8],[1,2,5]]);
+ example:  lasg.gen_ans([[2,3,8],[1,2,5]]);
  end:
 */
-def lasg_gen_ans(PP) {
+def gen_ans(PP) {
      if (type(PP) == 4) {
        PP = matrix_list_to_matrix(PP);
      }
@@ -585,13 +607,13 @@ def lasg_gen_ans(PP) {
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
           "$$ (A|b) = "+taka_tex_form(PP) + "$$\n";
      S += "to solve a system of linear equations of the form $(A|b)$.\n \\medbreak \\noindent Answer:\n";
-     A = lasg_reduced_form(PP);
+     A = reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
        S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
      }
-     K = lasg_build_solution(A[M-1][1]);
+     K = build_solution(A[M-1][1]);
      if (length(K) == 0) {
        S += "There is no solution.\n";
      }else{
@@ -609,13 +631,13 @@ def lasg_gen_ans(PP) {
      return S;
 }
 
-/*&uasge lasg_gen_reduced_matrix(P)
+/*&uasge lasg.gen_reduced_matrix(P)
  It generates reduced_matrix for a given matrix {P}.
  The answer is returned as a string in LaTeX format.
- example:  lasg_gen_reduced_matrix([[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]);
+ example:  lasg.gen_reduced_matrix([[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]);
  end:
 */
-def lasg_gen_reduced_matrix(PP) {
+def gen_reduced_matrix(PP) {
      if (type(PP) == 4) {
        PP = matrix_list_to_matrix(PP);
      }
@@ -623,7 +645,7 @@ def lasg_gen_reduced_matrix(PP) {
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
           "$$ A = "+taka_tex_form(PP) + "$$\n";
      S += "to generate the reduced expression.\n \\medbreak \\noindent Answer:\n";
-     A = lasg_reduced_form(PP);
+     A = reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
@@ -633,5 +655,15 @@ def lasg_gen_reduced_matrix(PP) {
      return S;
 }
 
+endmodule;
+
+
+/*
+ example: lasg.gen_rank_prob(3,4,2,2);
+ example: lasg.gen_eq_prob(4,3,2);
+ example: lasg.reduced_form(newmat(2,3,[[2,3,8],[1,2,5]]));
+ example:  lasg.gen_ans([[2,3,8],[1,2,5]]);
+ example:  lasg.gen_reduced_matrix([[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]);
+*/
 
 end$

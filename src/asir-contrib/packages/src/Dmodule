@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.11 2001/06/24 01:14:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Dmodule,v 1.12 2002/07/31 01:59:43 takayama Exp $ */
 
 /*----------------------*/
 /* package for D-module */
@@ -15,7 +15,7 @@ def odmodule_sm1_start() {
 #if _DEBUG_Dmodule_
     print("starting ox_sm1_forAsir ...");
 #endif
-    Odmodule_sm1_PID = sm1_start();
+    Odmodule_sm1_PID = sm1.start();
 #if _DEBUG_Dmodule_
     print("sm1 process number: ", 0); print(Odmodule_sm1_PID);
 #endif
@@ -25,7 +25,7 @@ def odmodule_sm1_start() {
 
 def odmodule_sm1_restart() {
   extern Odmodule_sm1_PID;
-  Odmodule_sm1_PID = sm1_start();
+  Odmodule_sm1_PID = sm1.start();
   return Odmodule_sm1_PID;
 }
 
@@ -183,10 +183,10 @@ def odmodule_ch_ideal(D_ideal, V) {
   print("generic parameter: ", 0); print(Param);
 #endif
   D_ideal = odiff_op_tosm1(D_ideal, V);
-  Gb = sm1_gb([ D_ideal, odmodule_var_tosm1(append(V,Param)),
+  Gb = sm1.gb([ D_ideal, odmodule_var_tosm1(append(V,Param)),
                 [odmodule_order_filt(append(V,Param))] ]);
 #if _DEBUG_Dmodule_
-  print("sm1_gb: ", 0); print(Gb);
+  print("sm1.gb: ", 0); print(Gb);
 #endif
   return Gb[1];
 }
@@ -302,7 +302,7 @@ def odmodule_restriction_no_generic(D_ideal, V, Rest) {
   print("sm1 command string: ", 0); print(Cmd_str);
 #endif
   sm1(odmodule_sm1_start(), Cmd_str);
-  return sm1_pop(odmodule_sm1_start());
+  return sm1.pop(odmodule_sm1_start());
 }
 
 def odmodule_restriction_generic(D_ideal, Param, V, Rest) {
@@ -327,7 +327,7 @@ def odmodule_restriction_generic(D_ideal, Param, V, Rest) {
   print("sm1 command string: ", 0); print(Cmd_str);
 #endif
   sm1(odmodule_sm1_start(), Cmd_str);
-  return sm1_pop(odmodule_sm1_start());
+  return sm1.pop(odmodule_sm1_start());
 }
 
 def odmodule_restriction_appell1(A, B1, B2, C, V, Rest) {
@@ -442,7 +442,7 @@ def odmodule_elimination(D_ideal, V, Elim) {
 #if _DEBUG_Dmodule_
   print("D-ideal: ", 0); print(D_ideal);
 #endif
-  Gb1 = sm1_gb([ D_ideal, odmodule_var_tosm1(append(V, Param)),
+  Gb1 = sm1.gb([ D_ideal, odmodule_var_tosm1(append(V, Param)),
 	         odmodule_elimination_order(append(V, Param), Elim[0]) ]);
 #if _DEBUG_Dmodule_
   print("Gb1: ", 0); print(Gb1);
@@ -597,14 +597,14 @@ def odmodule_contiguity_generic_appell4(Param, V) {
 
   for (II = 0; II < length(D); II++) {
     F = append([D[II]],D_list);
-    G = sm1_syz([F,Var,Weight]);
+    G = sm1.syz([F,Var,Weight]);
     Gb = map(first,G[1][0]);
     Cont  = G[1][1];
     Ans = [ ];
     for (I=0; I<length(Gb); I++) {
       if (odmodule_contiguity_param_only(Gb[I],V) != 0) {
 	Ans = append(Ans,[ [Gb[I],Cont[I][0]] ]);
-	/* print(sm1_mul(C[I],F,[x,y,a,b,c,cp])); */ /* check ! */
+	/* print(sm1.mul(C[I],F,[x,y,a,b,c,cp])); */ /* check ! */
       }
     }
     Cont_list = append(Cont_list, [[D[II],Ans[0]]]);

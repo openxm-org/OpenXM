@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/asir-contrib/packages/src/fourier-0,v 1.1.1.1 1999/11/27 11:25:18 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/asir-contrib/packages/src/fourier-0,v 1.2 2002/07/28 05:20:43 takayama Exp $  */
 /* 
    Name: fourier-0
    Category: Education
@@ -9,8 +9,8 @@
 */
 /*
    Sample Log:
-      load("xm");
-      gnuplot_start();
+      load("names.rr");
+      gnuplot.start();
       load("./fourier-0");
       plotFourier_cos(2);  Displays graphs of the fourier transform of
                            cos(2*X) and the original cos(2*X).
@@ -21,13 +21,13 @@
 if (ox_getenv("LANG") == "ja_JP.ujis") {
   print("使用例 1:")$
   print("load(\"xm\")$")$
-  print("gnuplot_start()$")$
+  print("gnuplot.start()$")$
   print("plotFourier_cos(2)$ --- cos(2*X) の fourier 展開の近似と cos(2*X) を表示")$
 /*  print("NS = 8 であるが, この値を変えると fourier 展開の係数の計算の数値積分をよりこまかい mesh でおこなう.")$ */
 }else{
   print("Example 1:")$
   print("load(\"xm\")$")$
-  print("gnuplot_start()$")$
+  print("gnuplot.start()$")$
   print("plotFourier_cos(2)$ --- cos(2*X) の fourier 展開の近似と cos(2*X) を表示")$
 }$
 
@@ -77,7 +77,7 @@ def fourier_cos_kx(N,K) {
 /* Fourier expansion of cos(K*X) */
 def plotFourier_cos(K) {
 #ifdef USE_GNU_PLOT
-  gnuplot_plotDots(0,[ ],0);
+  gnuplot.plotDots(0,[ ],0);
 #endif
   G = [ ];
   Fcoeff = map(fourier_cos_kx,[0,1,2,3,4,5,6,7,8],K);
@@ -90,7 +90,7 @@ def plotFourier_cos(K) {
   print("Values of \sum a_k cos(k*X) : [[x,value at x], ...] ----------")$
   print(G);
 #ifdef USE_GNU_PLOT
-  gnuplot_plotDots(0,G,"lines");
+  gnuplot.plotDots(0,G,"lines");
   /*BUG: rtostr cannot convert bigfloat to a string.*/
 #endif
   G2 = [ ];
@@ -101,8 +101,8 @@ def plotFourier_cos(K) {
   print("Values of cos(P*X) : [[x,value at x], ...] ------------------")$
   print(G2);
 #ifdef USE_GNU_PLOT
-  gnuplot_plotDots(0,[ ],0);
-  gnuplot_plotDots(0,G2,"lines"); 
+  gnuplot.plotDots(0,[ ],0);
+  gnuplot.plotDots(0,G2,"lines"); 
 #endif
   G3 = [ ];
   for (I=0; I<NS; I++) {
