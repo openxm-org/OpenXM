@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.134 2004/02/22 06:39:09 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.135 2004/02/23 11:38:36 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -81,7 +81,7 @@ install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
-	 install-misc install-fep install-uuencoded  install-asir-port
+	 install-misc install-fep install-uuencoded  
 
 install-oxtags:
 	(cd ../doc/OpenXM-web ; make install-exec)
