@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.1 2003/07/17 09:10:54 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -72,7 +72,7 @@ static int ecartGetEll(POLY f,POLY g) {
     if (tf->e[i].D < tg->e[i].D) return(-1);
   }
   if (tf->e[0].D < tg->e[0].D) return(-1);  /*  h  */
-  p = tf->e[i].x - tg->e[i].x;  /* H,  s */
+  p = tf->e[0].x - tg->e[0].x;  /* H,  s */
   if (p >=0 ) return 0;
   else return(-p);
 }
@@ -131,14 +131,14 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
   while (grd < gset->maxGrade) {
     set = gset->polys[grd];
     for (i=0; i<set->size; i++) {
-      ell = ecartGetEll(r,set->g[i]);
-      if ((ell>=0) && (ell < ell1)) {
-        ell1 = ell;
-        minGrade = grd; minGseti=i;
-      }
       if (set->gh[i] == POLYNULL) {
         /* goHomogenize set->gh[i] */
         set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
+      }
+      ell = ecartGetEll(r,set->gh[i]);
+      if ((ell>=0) && (ell < ell1)) {
+        ell1 = ell;
+        minGrade = grd; minGseti=i;
       }
     }
     grd++;
@@ -207,7 +207,8 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
   }
 
   if (r != POLYNULL) {
-	if (! r->m->ringp->weightedHomogenization) {
+	rp = r->m->ringp;
+	if (! rp->weightedHomogenization) {
 	  errorKan1("%s\n","ecart.c: the given ring must be declared with [(weightedHomogenization) 1]");
 	}
   }
@@ -250,6 +251,8 @@ POLY reduction_ecart(r,gset,needSyz,syzp)
     syzp->syz = syz; /* syz is in the SyzRingp */
     /* BUG: dehomogenize the syzygy */
   }
+  /* 
   r = goDeHomogenizeS(r);
+  */
   return(r);
 }
