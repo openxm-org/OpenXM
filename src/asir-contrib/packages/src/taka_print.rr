@@ -1,8 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.22 2001/10/11 01:11:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.23 2001/10/11 05:38:00 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
 Taka_print_dp_vlist_vname="x"$
+Taka_print_warning=0$
 
 def taka_print_dp_vlist(N) {
   extern Taka_print_dp_vlist_vname;
@@ -660,7 +661,8 @@ def taka_input_form(S) {
     }else if (S->Tag == POLY_IDEAL) {
        A = taka_poly_input_form_poly_ideal(S);
     }else {
-      error("input_form() for this object has not yet been implemented.");
+       taka_print_warning("input_form() for this object has not yet been implemented.");
+       A = rtostr(S);
     }
   }else if (type(S) == LIST || type(S) == VECTOR || type(S) == MATRIX) {
     return rtostr(map(taka_input_form,S));
@@ -1067,5 +1069,11 @@ def taka_xml_basic_form_node_name_cd(S) {
   return "unknown";
 }
 
+def taka_print_warning(S) {
+  extern Taka_print_warning;
+  if (Taka_print_warning) {
+    print(S);
+  }
+}
 Loaded_taka_print=1$
 end$
