@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yylex_polymake.c,v 1.1 2003/11/20 00:06:07 takayama Exp $ */
 /* parser for polymake output */
 /* This program requires
 
@@ -194,10 +194,95 @@ pmObjectp pmCons(pmObjectp a,struct pmList *b) {
   t->right = b;
   return ob;
 }
+
+int pmListLength(struct pmList *list) {
+  struct pmList *t;
+  int n;
+  if (list == NULL) return 0;
+  n = 0;
+  t = list;
+  while (t != NULL) {
+	n++; t = t->right;
+  }
+  return n;
+}
+
+pmObjectp pmNewTreeObjecto(pmObjectp s)
+{
+  if ((s == NULL) || (s->tag != PMobject_str)) {
+	warning_yylex_polymake("Invalid argument for pmNewObjecto\n");
+	return pmNewTreeObject("?");
+  }
+  return pmNewTreeObject((char *)(s->body));
+}
+pmObjectp pmNewTreeObject(char *s) {
+  pmObjectp ob;
+  struct pmTree *aa;
+  ob = (pmObjectp) mymalloc(sizeof(struct pmObject));
+  if (ob == NULL) {
+	fprintf(stderr,"No more memory.\n");
+	exit(10);
+  }
+  aa= (struct pmTree *)mymalloc(sizeof(struct pmTree));
+  if (aa == NULL) {
+	fprintf(stderr,"No more memory.\n");
+	exit(10);
+  }
+  aa->nodeName = s;
+  aa->attrList = NULL;
+  aa->childs = NULL;
+  ob->tag = PMobject_tree;
+  ob->body = aa;
+  return ob;
+}
+
+pmObjectp pmAddAttr(pmObjectp c,pmObjectp a) {
+  struct pmTree *tree;
+  if (a->tag != PMobject_tree) {
+	warning_yylex_polymake("pmAddAttr: the argument is not tree object.\n");
+	return a;
+  }
+  tree = a->body;
+  if (tree->attrList == NULL) {
+	tree->attrList = pmNewListObject(c);
+  }else{
+	if (tree->attrList->tag == PMobject_list) {
+	  tree->attrList = pmCons(c,(struct pmList *)(tree->attrList->body));
+	}else{
+	  warning_yylex_polymake("pmAddAttr: the attrbute list is broken.\n");
+    }
+  }
+  return a;
+}
+
+/* Add c to the tree a */
+pmObjectp pmAddChild(pmObjectp c,pmObjectp a) {
+  struct pmTree *tree;
+  if (a->tag != PMobject_tree) {
+	warning_yylex_polymake("pmAddAttr: the argument is not tree object.\n");
+	return a;
+  }
+  tree = a->body;
+  if (tree->childs == NULL) {
+	tree->childs = pmNewListObject(c);
+  }else{
+	if (tree->childs->tag == PMobject_list) {
+	  tree->childs = pmCons(c,(struct pmList *)(tree->childs->body));
+	}else{
+	  warning_yylex_polymake("pmAddAttr: the child list is broken.\n");
+    }
+  }
+  return a;
+}
+
+warning_yylex_polymake(char *s) {
+  fprintf(stderr,"Warning: %s",s);
+}
 void pmPrintObject(FILE *fp,pmObjectp p) {
   int n,i;
   struct pmList *list;
   struct pmList *t;
+  struct pmTree *tree;
   if (p == NULL) {
 	/* fprintf(stderr,"NULL "); */
 	return;
@@ -210,11 +295,7 @@ void pmPrintObject(FILE *fp,pmObjectp p) {
   case PMobject_list:
 	list = (struct pmList *)(p->body);
 	if (list == NULL) break;
-	t = list; n = 0;
-	while (t != NULL) {
-	  n++;
-	  t = t->right;
-	}
+	n = pmListLength(list);
 	t = list;
 	fprintf(fp,"[");
 	for (i=0; i<n; i++) {
@@ -223,6 +304,22 @@ void pmPrintObject(FILE *fp,pmObjectp p) {
 	  if (t == NULL) break; else t = t->right;
 	}
 	fprintf(fp,"]");
+	break;
+  case PMobject_tree:
+	tree = p->body;
+	fprintf(fp,"polymake.%s(",tree->nodeName);
+	/* Ignore attribute list */
+	if (tree->childs == NULL) {n = 0; t = NULL; }
+	else {
+	  t = tree->childs->body;
+	  n = pmListLength(t);
+	}
+	for (i=0; i<n; i++) {
+	  pmPrintObject(fp,t->left);
+	  t = t->right;
+	  if (i != n-1) fprintf(fp,",");
+	}
+	fprintf(fp,")");
 	break;
   default:
 	fprintf(stderr,"Unknown object tag %d.\n",p->tag);

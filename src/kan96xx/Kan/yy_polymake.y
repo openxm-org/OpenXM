@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/yy_polymake.y,v 1.1 2003/11/20 00:06:07 takayama Exp $ */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y ; gcc yylex_polymake.c  yy_polymake.tab.c*/
 %{
@@ -11,11 +11,29 @@
 %token PM_number PM_newline
 
 %%
-
 program
 :
-pmdata
-| pmdata program
+programList {
+  pmPrintObject(stdout,$1);
+  fprintf(stdout,"\n");
+}
+;
+
+
+programList
+:
+pmdata {
+  pmObjectp ob;
+  ob = pmNewTreeObject("data");  
+  ob = pmAddChild($1,ob);
+  $$ = ob;
+}
+| pmdata programList {
+  pmObjectp ob;
+  ob = $2;
+  ob = pmAddChild($1,ob);
+  $$ = ob;
+}
 ;
 
 pmnumberList
@@ -66,15 +84,13 @@ pmline {
 pmdata
 :  
 PM_keyword   PM_newline pmemptyLine {
-  printf("polymake.");
-  pmPrintObject(stdout,$1);
-  printf("();\n");
+  $$=pmNewTreeObjecto($1);
 }
 | PM_keyword PM_newline pmlineList pmemptyLine {
-  printf("polymake.");
-  pmPrintObject(stdout,$1);
-  printf("(");
-  pmPrintObject(stdout,$3); printf(");\n");
+  pmObjectp ob;
+  ob = pmNewTreeObjecto($1);
+  ob = pmAddChild($3,ob);
+  $$=ob;
 }
 ;
 
