@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxx.h,v 1.6 2002/11/07 13:32:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxx.h,v 1.7 2002/11/07 23:52:20 takayama Exp $ */
 struct object KoxCreateClient(struct object ip,struct object portStream,
 			      struct object portControl);
 struct object KoxCloseClient(struct object client);
@@ -9,6 +9,8 @@ struct object KoxGet(struct object client);
 struct object KoxGetFromControl(struct object client);
 struct object KoxMultiSelect(struct object clients,struct object t);
 struct object KoxWatch(struct object client,struct object f);
+struct object KoxLog(struct object client,struct object in,struct object out);
+struct object KoxLogStop(struct object client);
 extern int SerialOX;
 struct object KoxGenPortFile(void);
 void KoxRemovePortFile(void);

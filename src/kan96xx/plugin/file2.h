@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
 /* file2.h */
 
 #define MAGIC2 "Buffered IO by FILE2"
@@ -17,6 +17,8 @@ typedef struct FILE2 {
   int watch;
   FILE *watchFile;
   void *mathcapList; /* pointer to struct object */
+  FILE *log_incomming;
+  FILE *log_outgoing;
 } FILE2 ;
 
 FILE2 *fp2open(int fd);
@@ -30,6 +32,8 @@ int fp2clearReadBuf(FILE2 *fp);
 int fp2write(FILE2 *fp,char *data,int size);
 int fp2watch(FILE2 *fp,FILE *log);
 int fp2stopWatch(FILE2 *fp);
+int fp2log(FILE2 *fp,FILE *incomming,FILE *outgoing);
+int fp2stopLog(FILE2 *fp);
 
 
 

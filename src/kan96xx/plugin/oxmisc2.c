@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.16 2002/11/08 02:54:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.17 2002/11/08 14:18:02 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -648,6 +648,62 @@ struct object KoxWatch(struct object client,struct object f)
   return(KpoInteger(ans));
 }
 
+struct object KoxLog(struct object client,struct object in,struct object out)
+{
+  int ans,k;
+  static oxclientp cc1 = NULL;
+  struct object rob;
+  rob.tag = Snull;
+  if (cc1 == NULL) {
+    cc1 = (oxclientp) mymalloc(sizeof(oxclient));
+    if (cc1 == NULL) {
+      errorOxmisc2("KoxLog(): no more memory.");
+      return(rob);
+    }
+    oxInitClient(cc1);
+  }
+
+  if (oxObjectToClient(client,cc1) == -1) return(rob);
+  if (cc1 == NULL) {
+    errorOxmisc2("KoxLog(): the first argument must be a client object.");
+    return(rob);
+  }
+
+  if (in.tag != Sfile) {
+	errorOxmisc2("KoxLog(): the second argument is not a file object.");
+	return rob;
+  }
+  if (out.tag != Sfile) {
+	errorOxmisc2("KoxLog(): the third argument is not a file object.");
+	return rob;
+  }
+  k = fp2log(cc1->datafp2,in.rc.file,out.rc.file);
+  /* synchronize cc1 and client. */
+  oxClientToObject(cc1,client);
+
+  return(KpoInteger(ans));
+}
+
+struct object KoxLogStop(struct object client) {
+  static oxclientp cc1 = NULL;
+  struct object rob;
+  rob.tag = Snull;
+  if (cc1 == NULL) {
+    cc1 = (oxclientp) mymalloc(sizeof(oxclient));
+    if (cc1 == NULL) {
+      errorOxmisc2("KoxLog(): no more memory.");
+      return(rob);
+    }
+    oxInitClient(cc1);
+  }
+
+  if (oxObjectToClient(client,cc1) == -1) return(rob);
+  if (cc1 == NULL) {
+    errorOxmisc2("KoxLog(): the first argument must be a client object.");
+    return(rob);
+  }
+  return(KpoInteger(fp2stopLog(cc1->datafp2)));  
+}
     
 struct object KoxCloseClient(struct object client) {
   oxclientp cc1 = NULL;

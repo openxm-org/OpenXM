@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.3 1999/11/18 23:57:19 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.4 2001/05/04 01:06:30 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -56,6 +56,8 @@ FILE2 *fp2open(int fd) {
   fp2->watch = 0;
   fp2->watchFile = NULL;
   fp2->mathcapList = NULL;
+  fp2->log_incomming = NULL;
+  fp2->log_outgoing = NULL;
   return(fp2);
 }
 
@@ -107,6 +109,7 @@ int fp2fputc(int c,FILE2 *fp2) {
     }
     fflush(NULL);
   }
+  if (fp2->log_outgoing != NULL) fputc(c,fp2->log_outgoing);
   if (checkfp2(fp2," fp2fputc ") == -1) return(-1);
   (fp2->writeBuf)[fp2->writepos] = c;
   (fp2->writepos)++;
@@ -136,6 +139,7 @@ int fp2fgetc(FILE2 *fp2) {
       }
       fflush(NULL);
     }
+    if (fp2->log_incomming != NULL) fputc(c,fp2->log_incomming);
     return(c); 
   }else{
     fp2->readpos = 0;
@@ -148,6 +152,7 @@ int fp2fgetc(FILE2 *fp2) {
         fprintf(fp," <%2x ",c);
         fflush(NULL);
       }
+      if (fp2->log_incomming != NULL) fputc(c,fp2->log_incomming);
       return(-1);
     }
     else {
@@ -271,3 +276,14 @@ int fp2stopWatch(FILE2 *fp2)
   }
 }
   
+int fp2log(FILE2 *fp,FILE *incomming,FILE *outgoing) {
+  fp->log_incomming = incomming;
+  fp->log_outgoing = outgoing;
+  return 0;
+}
+int fp2stopLog(FILE2 *fp) {
+  if (fp->log_incomming != NULL) fclose(fp->log_incomming);
+  if (fp->log_outgoing != NULL) fclose(fp->log_outgoing);
+  fp->log_incomming = fp->log_outgoing = NULL;
+  return 0;
+}

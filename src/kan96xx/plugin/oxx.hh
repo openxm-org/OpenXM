@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.7 2000/12/06 00:29:52 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.8 2002/11/07 23:52:20 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
   if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
@@ -47,6 +47,14 @@ else if (strcmp(key,"oxWatch") == 0) {
   }else {
 	rob = KoxWatch(KpoInteger(1),rob);
   }
+}
+else if (strcmp(key,"oxLog") == 0) {
+  if (size != 4) errorKan1("%s\n","[(oxLog) client file_in file_out] extension obj");
+	rob = KoxLog(getoa(obj,1),getoa(obj,2),getoa(obj,3)); 
+}
+else if (strcmp(key,"oxLogStop") == 0) {
+  if (size != 2) errorKan1("%s\n","[(oxLogStop) client] extension obj ");
+  rob = KoxLogStop(getoa(obj,1));
 }
 else if (strcmp(key,"oxCloseClient") == 0) {
   if (size != 2) errorKan1("%s\n","[(oxCloseClient) client] extension obj");

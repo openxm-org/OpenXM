@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.25 2003/07/21 13:36:40 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.26 2003/11/03 10:24:33 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -99,14 +99,36 @@ ox.version [(Version)] system_variable gt
  (   )
  (client oxgetsp --- get stack pointer,  client oxgeterrors --- get all errors)
  (cleint oxisData, client oxreset, client oxshutdown)
- (oxhelp for this message, [(oxWatch) client] extension to start a log.)
+ (oxhelp for this message)
+ ([(oxWatch) client] extension to start a log.)
+ $        ex 1.  (ox.sm1) run sm1connectr [(oxWatch) oxsm1.ccc] extension  $
+ $               oxsm1.ccc ( [(cmoLispLike) 0] extension ) oxsubmit $
+ $               oxsm1.ccc ( [(cmoLispLike) 1] extension ) oxsubmit $
  ([(oxSerial)] extension serial-number-of-out-going-ox-packet.)
  (oxpopcmo1, oxpopcmo2, sm1connectr ox_launch, ox_launch_nox)
  (oxNoX : set an environment to invoke oxlog without xterm and to call oxlog with >& /dev/null)
  $        ex 1.  (ox.sm1) run oxNoX sm1connectr $
  $        ex 2.  (ox.sm1) run oxNoX (x^2-1). fctr pmat ; $
+ $   $
+ $cf. extension-oxLog $
  ]
 ] putUsages
+
+[(extension-oxLog)
+[
+$Take the log of communication in files.$
+$[(oxLog) client logfile_for_incomming_data logfile_for_outgoing_data] extension $
+$Example:$
+$  [(parse) (ox.sm1) pushfile] extension$
+$  sm1connectr$
+$  (i.t) (w) file /ii set$
+$  (o.t) (w) file /oo set$
+$  [(oxLog) oxsm1.ccc ii oo] extension $
+$  [(oxWatch) oxsm1.ccc ] extension$
+$  oxsm1.ccc 1 oxpushcmo ;$
+$  oxsm1.ccc oxpopcmo ;$
+$  [(oxLogStop) oxsm1.ccc] extension$
+]] putUsages
 
 /oxconnect {
   /arg1 set

@@ -1,11 +1,11 @@
-% $OpenXM: OpenXM/src/kan96xx/plugin/cmo.sm1,v 1.2 2000/01/16 07:55:46 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/plugin/cmo.sm1,v 1.3 2003/11/17 00:28:13 takayama Exp $
 [(plugin-cmo)
-[  $Cmo is for supporting OpenXM protocol.$
+[  $Cmo extension is for supporting OpenXM cmo data.$
    $See http://www.openxm.org for the latest info.$
    $cmoObjectToCmo obj, cmoDumpCmo cmo-obj, cmoCmoToObject cmo-obj,$
    $cmoCmoToStream cmo-obj stream, cmoStreamToCmo stream, cmoToStream stream,$
    $cmoFromStrem stream, cmoMathCap, $
-   $cmoDebugCMO inteter,  cf. plugin-ox oxPrintMessage $
+   $cmoDebugCMO inteter,  cf. ox, plugin-ox, oxPrintMessage $
    $cmoOxSystem, cmoOxSystemVersion, cmoLispLike $
    $Example 1: [(cmoObjectToCmo) 3] extension /ff set ; $
    $           [(cmoDumpCmo) ff] extension ; $
@@ -13,4 +13,7 @@
    $           [(cmoObjectToCmo) 3] extension /ff set ; $
    $           [(cmoCmoToStream) ff fd] extension ; $
    $           fd closefile ; $
+   $Example 3: Execute the following command on ox_sm1 $
+   $           [(cmoLispLike) 1] extension  $
+   $           then the received cmo data will be displayed on the server window.$
 ]] putUsages
