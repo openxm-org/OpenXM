@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxd.sm1,v 1.1 2002/10/20 13:13:36 takayama Exp $
 [(parse) (oxasir.sm1) pushfile] extension
 % It has not yet been finished. 
 /asirconnectr {
@@ -10,7 +10,7 @@
   [(sm1.socket) (connect) [8089]] extension /oxd set
   [(sm1.socket) (select) [oxd 0 get -1]] extension
   [(sm1.socket) (read)  [oxd 0 get]] extension /ff set
-  /gg [(<login method="file"/>) nl ] cat def
+  /gg [(<login method="file">) nl ] cat def
   ff message gg message
   [(sm1.socket) (write) [oxd 0 get gg]] extension 
   [(flush)] extension
@@ -28,7 +28,7 @@
   /pass (hoge) def
   peer message
   [(ox -ox ox_asir ) ( -reverse )  ( -data ) data ( -control ) control  
-   ( -pass ) pass 
+   ( -pass ) pass  ( -finish )
   ] cat /comm set
 
   /gg [ (<done/>) nl ] cat def
@@ -43,6 +43,7 @@
   ff message gg message
   [(sm1.socket) (write) [oxd 0 get gg]] extension 
   
+  %% Check if the launching is successful or not.  Not yet written.
 
   [(oxCreateClient2) peer 0 pass] extension /oxasir set
                      %% 0 means connect from only localhost. 

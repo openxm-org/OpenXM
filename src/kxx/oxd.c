@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.3 2002/10/20 23:49:12 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.4 2002/10/27 10:39:33 takayama Exp $
 */
 
 #include <stdio.h>
@@ -136,6 +136,7 @@ childServerMain(int fd) {
   char ccc[SIZE*3];
   extern int Serial;
   char *openxm;
+  int resultCode;
   /* Starting oxd session */
   signal(SIGALRM,exitServer);
   alarm(60);
@@ -190,10 +191,25 @@ childServerMain(int fd) {
   openxm = getOpenXMpath();
   sprintf(ccc,"%s %s",openxm,body);
   fprintf(stderr,"Serial=%d : Executing command=%s\n",Serial,ccc);
+  /*  Old code.
   fprintf(fp,"<bye/>\n"); fflush(NULL);
-  fclose(fp); /* close the connection */
+  fclose(fp); 
   system(ccc);
   fprintf(stderr,"Serial=%d : The following command is finished : %s\n",Serial,ccc);
+   */
+  /* New code. It requires  ox with -finish option. */
+  resultCode = system(ccc);
+  fprintf(stderr,"Serial=%d : The following command is finished : %s, resultCode=%d\n",Serial,ccc,resultCode);
+  if (resultCode == 0) {
+	fprintf(fp,"<suceeded/>\n"); 
+  }else{
+	fprintf(fp,"<failed code=\"%d\"/>\n",resultCode); 
+  }
+
+  GET_COMMAND   /* expect <login/> */
+
+  fclose(fp); /* close the connection */
+  exit(0);
 }
 
 char *getOpenXMpath() {

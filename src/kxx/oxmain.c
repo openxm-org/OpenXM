@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.10 2002/05/02 03:08:28 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.11 2002/05/02 08:33:47 ohara Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -18,6 +18,7 @@
 
 int OxCritical = 0;
 int OxInterruptFlag = 0;
+int OxTerminateMode = 0;
 
 int SerialCurrentControl;
 
@@ -50,16 +51,17 @@ main(int argc, char *argv[]) {
   int reverse = 0;
   extern int OpenedSocket;
   char portfile[1024];
-  char *pass;
+  char *pass = NULL;
   int result;
   int sleepingTime = 0;
+  extern int OxTerminateMode;
 
   strcpy(sname,"localhost");
   strcpy(ServerName,SERVERNAME);
   i = 1;
   if (argc == 1) {
     oxmainUsage();
-    exit();
+    exit(10);
   }
   while (i<argc) {
     if (strcmp(argv[i],"-host") == 0) {
@@ -80,6 +82,8 @@ main(int argc, char *argv[]) {
       LocalMode = 0;
     }else if (strcmp(argv[i],"-reverse") == 0) {
       reverse = 1;
+    }else if (strcmp(argv[i],"-finish") == 0) {
+      OxTerminateMode = 1;
     }else if (strcmp(argv[i],"-portfile") == 0) {
       i++;
       if (i<argc) {
@@ -217,6 +221,7 @@ oxmainUsage() {
   fprintf(stderr,"Usage: \n");
   fprintf(stderr,"  ox [-ox serverprogram -host name -data portnum -control portnum -monitor]\n");
   fprintf(stderr," [-insecure -portfile fname -reverse -pass xxxyyyzzz]");
+  fprintf(stderr," [-finish]");
   fprintf(stderr,"\n");
   fprintf(stderr,"-reverse: ox server connects to the client.\n");
   fprintf(stderr,"          The client must give a one time password to ox server to connect to the client with -pass option.\n");
@@ -250,9 +255,20 @@ parentServerMain(int fdControl, int fdStream) {
   int r;
   int message = 1;
   int controlByteOrder;
-
+  extern OxTerminateMode;
   extern void myServerExit();
 
+  if (OxTerminateMode) {
+	/*
+	  OxTerminateMode cannot be used if you run ox by xterm -exec ox ...
+	 */
+	if (fork()) {
+	  close(fdControl); close(fdStream);
+	  /* Parent */
+	  exit(0);  /*Tell the caller that launching is successfully finished.*/
+	}
+  }
+  
   controlByteOrder = oxTellMyByteOrder(fdControl);
   /* Set the network byte order. */
   fprintf(stderr,"controlByteOrder=%x\n",controlByteOrder);
@@ -292,7 +308,7 @@ parentServerMain(int fdControl, int fdStream) {
 void myServerExit() {
   printf("Sending the kill signal to the child.\n");
   kill(MyServerPid,SIGKILL);
-  exit();
+  exit(0);
 }
 
 childServerMain(int fdControl, int fdStream) {

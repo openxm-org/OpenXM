@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/oxdStream.java,v 1.1 2002/10/27 10:39:32 takayama Exp $ */
 package ORG.openxm.tam;
 
 import java.io.* ;
@@ -148,9 +148,17 @@ public class oxdStream {
 		port2 = port+1;
 		
         s="<launch> ox -ox "+oxname+" -reverse -control "+port+" -data "+port2 
-		  +	" </launch> \n";
+		  +	" -finish </launch> \n";
 		System.err.println(s);
 		write(s);
+		ans = readUntil('?');
+		System.err.println(ans);
+		write("<login/>\n");
+		if (getTagName(ans).equals("suceeded")) {
+		  
+		}else{
+		  throw new IOException("OX server could not be started.");
+		}
 	}
 
   public static void main0(String[] argv) throws IOException {
