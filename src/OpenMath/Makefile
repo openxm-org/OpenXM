@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.33 2000/04/17 03:30:01 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.34 2000/06/13 14:04:19 tam Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -16,64 +16,62 @@ JAR = $(JAVABINDIR)jar
 TAR = tar
 
 PKGSRCS =	\
-	JP/ac/kobe_u/math/tam/OpenXM/CMO.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DATUM.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ZERO.java \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java \
-	JP/ac/kobe_u/math/tam/OpenXM/DebugInputStream.java \
-	JP/ac/kobe_u/math/tam/OpenXM/MathcapViolation.java \
-	JP/ac/kobe_u/math/tam/OpenXM/OXbody.java \
-	JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java \
-	JP/ac/kobe_u/math/tam/OpenXM/OpenXM.java \
-	JP/ac/kobe_u/math/tam/OpenXM/OpenXMserver.java \
-	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java \
-	JP/ac/kobe_u/math/tam/OpenXM/SM.java
-PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_BIGFLOAT.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DATUM.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DISTRIBUTED_POLYNOMIAL.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_DMS_GENERIC.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ERROR2.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_INDETERMINATE.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_INT32.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_MATHCAP.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_NULL.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_RATIONAL.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_RECURSIVE_POLYNOMIAL.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_STRING.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_TREE.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ZERO.class \
-	JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.class \
-	JP/ac/kobe_u/math/tam/OpenXM/DebugInputStream.class \
-	JP/ac/kobe_u/math/tam/OpenXM/MathcapViolation.class \
-	JP/ac/kobe_u/math/tam/OpenXM/OpenXM.class \
-	JP/ac/kobe_u/math/tam/OpenXM/OpenXMserver.class \
-	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.class \
-	JP/ac/kobe_u/math/tam/OpenXM/OXbody.class \
-	JP/ac/kobe_u/math/tam/OpenXM/OXmessage.class \
-	JP/ac/kobe_u/math/tam/OpenXM/SM.class
+	ORG/openxm/tam/CMO.java \
+	ORG/openxm/tam/CMO_BIGFLOAT.java \
+	ORG/openxm/tam/CMO_DATUM.java \
+	ORG/openxm/tam/CMO_DISTRIBUTED_POLYNOMIAL.java \
+	ORG/openxm/tam/CMO_DMS.java \
+	ORG/openxm/tam/CMO_DMS_GENERIC.java \
+	ORG/openxm/tam/CMO_ERROR2.java \
+	ORG/openxm/tam/CMO_INDETERMINATE.java \
+	ORG/openxm/tam/CMO_INT32.java \
+	ORG/openxm/tam/CMO_LIST.java \
+	ORG/openxm/tam/CMO_MATHCAP.java \
+	ORG/openxm/tam/CMO_MONOMIAL32.java \
+	ORG/openxm/tam/CMO_NULL.java \
+	ORG/openxm/tam/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java \
+	ORG/openxm/tam/CMO_QQ.java \
+	ORG/openxm/tam/CMO_RATIONAL.java \
+	ORG/openxm/tam/CMO_RECURSIVE_POLYNOMIAL.java \
+	ORG/openxm/tam/CMO_STRING.java \
+	ORG/openxm/tam/CMO_TREE.java \
+	ORG/openxm/tam/CMO_ZERO.java \
+	ORG/openxm/tam/CMO_ZZ.java \
+	ORG/openxm/tam/MathcapViolation.java \
+	ORG/openxm/tam/OXbody.java \
+	ORG/openxm/tam/OXmessage.java \
+	ORG/openxm/tam/OpenXM.java \
+	ORG/openxm/tam/OpenXMserver.java \
+	ORG/openxm/tam/OpenXMstream.java \
+	ORG/openxm/tam/SM.java
+PKGTARGETS =	ORG/openxm/tam/CMO.class \
+	ORG/openxm/tam/CMO_BIGFLOAT.class \
+	ORG/openxm/tam/CMO_DATUM.class \
+	ORG/openxm/tam/CMO_DISTRIBUTED_POLYNOMIAL.class \
+	ORG/openxm/tam/CMO_DMS.class \
+	ORG/openxm/tam/CMO_DMS_GENERIC.class \
+	ORG/openxm/tam/CMO_ERROR2.class \
+	ORG/openxm/tam/CMO_INDETERMINATE.class \
+	ORG/openxm/tam/CMO_INT32.class \
+	ORG/openxm/tam/CMO_LIST.class \
+	ORG/openxm/tam/CMO_MATHCAP.class \
+	ORG/openxm/tam/CMO_MONOMIAL32.class \
+	ORG/openxm/tam/CMO_NULL.class \
+	ORG/openxm/tam/CMO_POLYNOMIAL_IN_ONE_VARIABLE.class \
+	ORG/openxm/tam/CMO_QQ.class \
+	ORG/openxm/tam/CMO_RATIONAL.class \
+	ORG/openxm/tam/CMO_RECURSIVE_POLYNOMIAL.class \
+	ORG/openxm/tam/CMO_STRING.class \
+	ORG/openxm/tam/CMO_TREE.class \
+	ORG/openxm/tam/CMO_ZERO.class \
+	ORG/openxm/tam/CMO_ZZ.class \
+	ORG/openxm/tam/MathcapViolation.class \
+	ORG/openxm/tam/OpenXM.class \
+	ORG/openxm/tam/OpenXMserver.class \
+	ORG/openxm/tam/OpenXMstream.class \
+	ORG/openxm/tam/OXbody.class \
+	ORG/openxm/tam/OXmessage.class \
+	ORG/openxm/tam/SM.class
 
 
 TARGETS = OM2OXM.class OMproxy.class

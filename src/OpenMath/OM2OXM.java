@@ -1,6 +1,8 @@
+/*
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.24 2000/04/17 03:18:57 tam Exp $
+ */
+
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.23 2000/03/15 15:02:05 tam Exp $
- *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
  * immediate -> INTEGER
@@ -31,7 +33,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
-import JP.ac.kobe_u.math.tam.OpenXM.*;
+import ORG.openxm.tam.*;
 
 final class OM2OXM implements Runnable{
   private PushbackInputStream is;

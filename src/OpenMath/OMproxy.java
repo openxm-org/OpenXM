@@ -1,8 +1,8 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.38 2000/06/14 08:01:08 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.39 2000/07/03 05:57:43 tam Exp $
  */
 
-import JP.ac.kobe_u.math.tam.OpenXM.*;
+import ORG.openxm.tam.*;
 import java.util.Stack;
 import java.io.*;
 
@@ -15,7 +15,7 @@ public class OMproxy extends OpenXMserver{
     super(hostname,ControlPort,DataPort);
   }
 
-  public void computeProcess(OpenXMconnection stream){
+  public void computeProcess(OpenXMstream stream){
     OM2OXM P = new OM2OXM();
 
     debug("OMproxy started.");
@@ -68,7 +68,7 @@ public class OMproxy extends OpenXMserver{
   }
   */
 
-  private void SM_popCMO(OpenXMconnection stream) throws java.io.IOException{
+  private void SM_popCMO(OpenXMstream stream) throws java.io.IOException{
     try{
       if(stack.empty()){
 	stream.send(new CMO_NULL());
@@ -118,7 +118,7 @@ public class OMproxy extends OpenXMserver{
     return;
   }
 
-  private void SM_mathcap(OpenXMconnection stream) throws java.io.IOException{
+  private void SM_mathcap(OpenXMstream stream) throws java.io.IOException{
     CMO[] mathcap = new CMO[3];
 
     {
@@ -167,7 +167,7 @@ public class OMproxy extends OpenXMserver{
     debug("push: "+ stack.peek());
   }
 
-  private void SM_setMathCap(OpenXMconnection stream)
+  private void SM_setMathCap(OpenXMstream stream)
        throws java.io.IOException{
     Object mathcap = stack.pop();
 
@@ -177,7 +177,7 @@ public class OMproxy extends OpenXMserver{
     stream.setMathCap((CMO_MATHCAP)mathcap);
   }
 
-  private void StackMachine(SM mesg,OpenXMconnection stream)
+  private void StackMachine(SM mesg,OpenXMstream stream)
        throws java.io.IOException{
     debug("receive: "+mesg);
 
