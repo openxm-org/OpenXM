@@ -1,10 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.7 2001/08/21 02:07:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.8 2001/08/26 09:50:28 takayama Exp $ */
 /*&C-texi
 
 */
 /*&eg-texi 
 @node OpenMath Function Names,,, Top
-@chapter OpenMath Function Names
+@chapter OpenMath Function Names (Version in 1999)
 @menu
 * OpenMath Function Names::
 @end menu
@@ -15,14 +15,14 @@
 @item OpenMath Function Names
 ::     Asir/OpenXM supports 
    function names in function names following OpenMath
-   Content Dictionaries. 
+   Content Dictionaries (Version in 1999). 
 @end table
 
 */
 
 /*&jp-texi 
 @node OpenMath Function Names,,, Top
-@chapter OpenMath Function Names
+@chapter OpenMath Function Names (1999 版)
 @menu
 * OpenMath Functions Names::
 @end menu
@@ -32,7 +32,7 @@
 @table @t
 @item OpenMath Function Names
 ::   Asir/OpenXM (OpenXM 対応の asir) は
-    OpenMath の Content Dictionaries に対応した,
+    OpenMath の Content Dictionaries (1999 版) に対応した,
    以下の函数名をサポートする.
 @end table
  */
@@ -125,17 +125,18 @@ def poly_gcd(A,B)  { return(gcd(A,B)); }
 def poly_resultant(A,B,V) { return(res(V,A,B)); }
 def poly_groebner(O,P,V)  { return(gr(P,V,O)); }
 
-/*&eg-texi
+/*
+&eg-texi
 
 It is convinient to have function names without basic_ etc.
-*/
-/*&jp-texi
+
+&jp-texi
 
 basic_ などがつかないつぎのような函数名も登録してある.
 
-*/
 
-/*&C-texi
+
+&C-texi 
 
 @example
 
@@ -152,15 +153,19 @@ def hilbert_polynomial(G,V) @{
 @end example
 */
 
+/*
 def factor(F) { return(poly_factor(F)); }
 def cancel(F)  { return(red(F)); }
 def numerator(F) { return(nm(F)); }
 def denominator(F) { return(dn(F)); }
+*/
+
 def hilbert_polynomial(G,V) {
      A=gr(G,V,0); B=map(dp_ht,map(dp_ptod,A,V));
      C=map(dp_dtop,B,V);
      return(sm1_hilbert([C,V]));
 }
+
 
 /*&C-texi
 

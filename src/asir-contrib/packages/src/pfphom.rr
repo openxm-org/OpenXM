@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfphom.rr,v 1.1 2001/12/17 07:19:38 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/pfphom.rr,v 1.2 2002/02/09 08:50:50 takayama Exp $ */
 
 /* cycles
      C1 = [t,1] \otimes q_1
@@ -12,22 +12,21 @@
 begin: pfphom_intersection(P)
 description:  
    Computing intersection matrix of cycles associated to p F_(p-1). 
-   See "Ohara, Sugiki, Takayama, Quadratic Relations for Generalized
-     Hypergeometric Functions ${}_p F_{p-1}$"
-   for methematical details.
 
 
-   (1) In order to get the intersection matrix of homologies for 3 F 2,
-       you must put the following on asir console
+example:
          SS = pfphom_intersection(3)$
-       SS is a 3x3-matrix.
-   (2) In order to get monodromy matricies for 3F2,
-       you must put the following on asir console
-	     MP = pfphom_monodromy_pair_kyushu(3)$
-       MP is a list of 3x3-matricies.
+example_description:
+   You get the intersection matrix of homologies for 3 F 2.
+
+
+algorithm: Ohara, Sugiki, Takayama, Quadratic Relations for Generalized
+     Hypergeometric Functions ${}_p F_{p-1}$
+
 author: K.Ohara
 end:
 */
+
 
 extern Pfphom_RuleDual$
 extern Pfphom_RuleNormal$
@@ -50,6 +49,24 @@ def pfphom_monodromy_triple(P) {
     L3 = [C[3*P+1]*L2[0],L2[1],C[3*P+2]];
     return base_replace(L3,Pfphom_RuleNormal);
 }
+
+
+/*&usage 
+begin: pfphom_monodromy_pair_kyushu(P)
+description:  
+It returns the pair of monodromy matrices.
+
+example:
+	     MP = pfphom_monodromy_pair_kyushu(3)$
+example_description:
+ You get a pair of monodromy matricies for 3F2 standing for
+ two paths encircling 0 and 1.
+
+algorithm: Ohara, Kyushu J. Math. Vol.51 PP.123 (1997)
+
+end:
+*/
+
 
 /* Kyushu J. Math. Vol.51 PP.123 (1997) */
 def pfphom_monodromy_pair_kyushu(P) {
@@ -296,5 +313,88 @@ Ti0 = base_cancel(matrix_list_to_matrix(
 [ (-c5*c2+1)/(((c8-1)*c5-c8+1)*c2+(-c8+1)*c5+c8-1), (((-c7+1)*c4*c5^2+((-c7*c8+c7)*c4+c7^2*c8-c7)*c5)*c2+((c7*c8-1)*c4-c7*c8+c7)*c5+(-c7^2+c7)*c8)/((((-c7+1)*c8+c7-1)*c4*c5^2+(((c7-1)*c8-c7+1)*c4+(c7^2-c7)*c8-c7^2+c7)*c5+(-c7^2+c7)*c8+c7^2-c7)*c2+((c7-1)*c8-c7+1)*c4*c5^2+(((-c7+1)*c8+c7-1)*c4+(-c7^2+c7)*c8+c7^2-c7)*c5+(c7^2-c7)*c8-c7^2+c7), ((c7*c8-1)*c5)/(((-c7+1)*c8+c7-1)*c5+(c7-1)*c8-c7+1) ],
 [ (1)/((c8-1)*c5-c8+1), (c7*c8-1)/(((-c7+1)*c8+c7-1)*c5+(c7-1)*c8-c7+1), ((c7*c8-1)*c4*c5-c7*c8+1)/((((c7-1)*c8-c7+1)*c4+(-c7+1)*c8+c7-1)*c5+((-c7+1)*c8+c7-1)*c4+(c7-1)*c8-c7+1) ]]))$
 */
+
+
+/* ---------------------------------------------------- pfp functions ---*/
+/* taka_pfp from misc/200205/runge-kuttan.rr */
+/* (th{x}+cc[1])(th{x}+cc[2])(th{x}+cc[3])(th{x}+cc[4])(th{x}+cc[5])  
+     - x (th{x}+aa[1])(th{x}+aa[2])(th{x}+aa[3])(th{x}+aa[4])(th{x}+aa[5]) */
+/* 
+Taka_pfp_rule = [[cc[1],0],[cc[2],c1-1],[cc[3],c2-1],[cc[4],c3-1],[cc[5],c4-1],
+                 [aa[1],a1],[aa[2],a2],[aa[3],a3],[aa[4],a4],[aa[5],a5]]$
+*/
+def taka_pfp_rule(CC,Size) {
+  Rule = [[taka_pfp_iv(CC,1),0]];
+  for (I=2; I<=Size; I++) {
+    Rule = cons([taka_pfp_iv(CC,I),taka_pfp_iv(CC,I-1)-1],Rule);
+  }
+  return Rule;
+}
+
+def taka_pfp_iv(V,I) {
+  return strtov(rtostr(V)+rtostr(I));
+}
+
+/*&usage begin: pfp_omega(P)
+ It returns the Gauss-Manin connection {Omega} 
+ for the generalized hypergeometric function 
+  {P} F {P-1} (aa1,aa2, ...; cc1, cc2, ...;x) .
+ The vector valued function Y of which elements are 
+ generalized hypergeometric function f_1=F and
+ f_2=xdf_1/dx, f3=xd f_2/dx, ... satisfies  dY/dx={Omega} Y.
+ example: pfp_omega(3);
+end: */
+def pfp_omega(P) { return taka_pfp_omega(P); }
+/* Differential equation for p F p-1 is  dY/dx=omega[] Y       */
+def taka_pfp_omega(Size) {
+     Aaa = taka_pfp_fun(aa,Size); Ccc = taka_pfp_fun(cc,Size); 
+     Tmp = newvect(Size);
+     for (K=0; K<Size-1; K++) Tmp[K] = taka_pfp_nvec(K+1,Size);
+     Tmp[Size-1] = taka_pfp_nnvec(Aaa,Ccc,Size);
+     Tmp = map(vtol,Tmp);
+     Tmp = vtol(Tmp);
+     Tmp = newmat(Size,Size,Tmp);
+     return base_replace(Tmp,taka_pfp_rule(cc,Size));
+}
+
+def taka_pfp_fun(Bb,Size) {
+  Tmp = 1;
+  for (K=1; K<=Size; K++) {
+    Tmp = Tmp*(x+taka_pfp_iv(Bb,K));
+  }
+  Ans = newvect(Size);
+  for (K=0; K<Size; K++) {
+    Ans[K] = coef(Tmp,K,x);
+  }
+  return Ans;
+}
+
+def taka_pfp_nvec(K,Size) {
+  Tmp = newvect(Size);
+  Tmp[K] = 1/x;
+  return Tmp;
+}
+
+def taka_pfp_nnvec(Aaa,Ccc,Size) {
+  Tmp = newvect(Size);
+  for (K=0; K<Size; K++) {
+    Tmp[K] = (Aaa[K]*x-Ccc[K])/(x*(1-x));
+  }
+  return Tmp;
+}
+
+/*
+ Taka_pfp_rule1 
+=[[aa1,1/5], [aa2,1/5], [aa3,1/5], [aa4,1/5],[aa5,1],
+  [cc1,2/5], [cc2, 3/5],[cc3,4/5], [cc4,1]]
+*/
+def taka_pfp_1_omega() {
+   Taka_pfp_rule1 
+   =[[aa1,1/5], [aa2,1/5], [aa3,1/5], [aa4,1/5],
+     [cc1,2/5], [cc2,3/5], [cc3,4/5]]$
+   Omega = taka_pfp_omega(4);
+   Omega = base_replace(Omega, Taka_pfp_rule1);
+   return Omega;
+}
 
 end$

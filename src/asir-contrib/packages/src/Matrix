@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.12 2002/07/19 00:41:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.13 2002/07/19 00:42:34 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -230,6 +230,42 @@ def omatrix_adjugate(A) {
   return R;
 }
 
+/*&usage begin: omatrix_inverse(A)
+ It returns the inverse matrix of {A} by calling the asir native function
+  invmat.
+ example: omatrix_inverse([[1,1/(x+1)],[1,1/(x+1)^2]]);
+end: */
+def omatrix_inverse(A) {
+  if (type(A) == 4) {
+    A = omatrix_ltom(A);
+  }
+  if (type(A) != 6) {
+    error("parameter type is wrong.");
+  }
+  Size_A = size(A);
+  if (Size_A[0] != Size_A[1]) {
+    error("A is not NxN.");
+  }
+  Size = Size_A[0];
+
+  B = newmat(Size,Size);
+  D = 1;
+  for (I=0; I<Size; I++) {
+    for (J=0; J<Size; J++) {
+      D = red(D*dn(A[I][J])/(gcd(D,dn(A[I][J]))));
+    }
+  }
+  for (I=0; I<Size; I++) {
+    for (J=0; J<Size; J++) {
+      B[I][J] = red(A[I][J]*D);
+    }
+  }
+  C = invmat(B);
+  CM = C[0]; CD=C[1];
+  DD = red(D/CD);
+  return base_cancel(DD*CM);
+}
+
 /*&usage begin: omatrix_inverse2(A)
  It returns the inverse matrix of {A} by using adjunction matrix.
  example: omatrix_inverse2([[1,1/(x+1)],[1,1/(x+1)^2]]);
@@ -252,12 +288,12 @@ def omatrix_inverse2(A) {
   return omatrix_adjugate(A)/Det_A;
 }
 
-/*&usage begin: omatrix_inverse(A)
+/*&usage begin: omatrix_inverse3(A)
  It computes the inverse matrix of {A} by using the Gaussian elimination.
- example: omatrix_inverse([[1,1/(x+1)],[1,1/(x+1)^2]]);
+ example: omatrix_inverse3([[1,1/(x+1)],[1,1/(x+1)^2]]);
 end: */
 /* Written by Nakayama, 2002 */
-def omatrix_inverse(A)
+def omatrix_inverse3(A)
 {
   if (type(A) == 4) {
     A = omatrix_ltom(A);

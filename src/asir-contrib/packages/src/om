@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.18 2002/07/28 05:20:43 takayama Exp $*/
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/om,v 1.19 2002/08/03 13:14:20 takayama Exp $*/
 
 Om_proc = -1$
 #define OM_FIND_PROC(P)  P = getopt(proc);\
@@ -19,23 +19,22 @@ def om_find_proc() {
 
 /*&jp-texi
 @node OpenMath 函数,,, Top
-@chapter OpenMath 函数
+@chapter OpenMath 函数(1999版)
 
-この節の関数を使用するには, @code{om} をロードする必要がある.
+@file{om} にこの節の関数は定義されている.
 JAVA の実行環境が適切に設定されている必要がある.
 */
 /*&eg-texi
 @node OpenMath Functions,,, Top
-@chapter OpenMath Functions
+@chapter OpenMath Functions(Version 1999)
 
-In order to use functions in this section,
-you need to load @code{om} by the command @code{load("om");}
+The functions in this section is defined in the file@file{om}.
 */
 
 /*&C-texi
 
 @noindent
-Author of OMproxy : Yasushi Tamura , @code{tamura@math.kobe-u.ac.jp}
+Author of OMproxy : Yasushi Tamura , @code{tamura@@math.kobe-u.ac.jp}
 
 */
 
@@ -48,7 +47,7 @@ Author of OMproxy : Yasushi Tamura , @code{tamura@math.kobe-u.ac.jp}
 @findex om_start
 @table @t
 @item om_start()
-::  Start @code{OMproxy} server to make a translation between CMO and OpenMath XML expressions.
+::  Start @code{OMproxy} server to make a translation between CMO and OpenMath XML (CD's in 1999) expressions.
 @end table
 
 @table @var
@@ -139,7 +138,7 @@ def om_start_windows(S) {
 @findex om_xml
 @table @t
 @item om_xml(@var{s}|proc=@var{p})
-::  Translate CMO expression of  @var{s} to a XML expression of OpenMath.
+::  Translate CMO expression of  @var{s} to a XML expression of OpenMath(CD's in 1999).
 @end table
 
 @table @var
@@ -153,7 +152,7 @@ Object
 
 @itemize @bullet
 @item  
-Translate CMO @var{s} to a XML expression of OpenMath.
+Translate CMO @var{s} to a XML expression of OpenMath(CD's in 1999).
 @end itemize
 */
 /*&jp-texi
@@ -165,7 +164,7 @@ Translate CMO @var{s} to a XML expression of OpenMath.
 @findex om_xml
 @table @t
 @item om_xml(@var{s}|proc=@var{p})
-::  @var{s} の CMO 表現を OpenMath の XML expression 表現になおす.
+::  @var{s} の CMO 表現を OpenMath の XML (CD's in 1999) 表現になおす.
 @end table
 
 @table @var
@@ -178,7 +177,7 @@ Translate CMO @var{s} to a XML expression of OpenMath.
 @end table
 
 @itemize @bullet
-@item   @var{s} の CMO 表現を OpenMath の XML expression 表現になおす.
+@item   @var{s} の CMO 表現を OpenMath の XML (CD's in 1999) 表現になおす.
 @end itemize
 */
 /*&C-texi
@@ -210,7 +209,7 @@ def om_xml(F) {
 @findex om_xml_to_cmo
 @table @t
 @item om_xml_to_cmo(@var{s}|proc=@var{p})
-::  Translate XML expression @var{s} of OpenMath to a CMO.
+::  Translate XML expression (CD's in 1999) @var{s} of OpenMath to a CMO.
 @end table
 
 @table @var
@@ -224,7 +223,7 @@ String
 
 @itemize @bullet
 @item  
-Translate XML expression @var{s} of OpenMath to a CMO.
+Translate XML expression (CD's in 1999) @var{s} of OpenMath to a CMO.
 @end itemize
 */
 /*&jp-texi

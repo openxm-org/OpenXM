@@ -1,4 +1,4 @@
- /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.2 2002/01/27 08:18:52 takayama Exp $  */
+ /*  $OpenXM: OpenXM/src/asir-contrib/packages/doc/gentexi.c,v 1.3 2002/02/09 08:50:48 takayama Exp $  */
 
 #include <stdio.h>
 int Debug = 0;
@@ -15,6 +15,7 @@ struct item {
   char *optv[VMAX];
   char *shortDescription;
   char *description;
+  char *algorithm;
   char *examplev[VMAX];
   char *exampleDescv[VMAX];
   int examplec;
@@ -137,7 +138,7 @@ struct item * newItem(){
   }
   a->argc = 0; a->optc = 0; a->refc=0; a->examplec = 0;
   a->category = a->category2 = a->name = a->shortDescription
-    = a->description = a->author = NULL; 
+    = a->description = a->author = a->algorithm = NULL; 
   return a;
 }
   
@@ -195,6 +196,8 @@ printItem(struct item *it) {
     printf("shortDescription=%s\n",it->shortDescription);
   if (it->description != NULL)
     printf("description=%s\n",it->description);
+  if (it->algorithm != NULL)
+    printf("algorithm=%s\n",it->algorithm);
   for (i=0; i <it->examplec; i++) 
     printf("examplev[%d]=%s\n",i,it->examplev[i]);
   for (i=0; i <it->examplec; i++) 
@@ -329,6 +332,7 @@ struct item *getItem() {
     /* Get Description or Examples */
     if (strcmp(key,"end:") == 0) break;
     if (strcmp(key,"description:") == 0 ||
+        strcmp(key,"algorithm:") == 0 ||
         strcmp(key,"author:") == 0 ||
         strcmp(key,"example:") == 0 ||
 		strcmp(key,"example_description:") ==0 ) {
@@ -357,6 +361,9 @@ struct item *getItem() {
       }
       if (strcmp(key2,"author:") == 0) {
         it->author = str2(&(S[pp]),pOld-pp);
+      }
+      if (strcmp(key2,"algorithm:") == 0) {
+        it->algorithm = str2(&(S[pp]),pOld-pp);
       }
     }else if (strcmp(key,"ref:") == 0) {
       argc = 0;
@@ -464,6 +471,11 @@ printTexi(FILE *fp, struct item *it) {
   
   if (it->description != NULL) {
     fprintf(fp,"%s\n\n",it->description);
+  }
+
+  if (it->algorithm != NULL) {
+    fprintf(fp,"\n\n@noindent\nAlgorithm: \n");
+    fprintf(fp,"%s\n\n",it->algorithm);
   }
 
   if (it->examplec > 0) {

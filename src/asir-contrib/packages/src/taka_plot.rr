@@ -1,0 +1,78 @@
+/* $OpenXM$ */
+
+def taka_glib_plot(F,Opt) {
+  if (type(F) == LIST) {
+    taka_plot_auto(F);
+  }else if (type(F) == 17) {
+    taka_plot_quote(F,Opt)
+  }else {
+    plot(F);
+  }
+}
+
+/*&usage begin: taka_plot_auto(F)
+  It plots a table {F} on the glib canvas.
+  If the global variable {Taka_plot_auto_style} is set to 1 (default),
+  it connects points by lines.
+  If not, it plots only dots.
+  If the global variable {Taka_plot_coord} is set to 1 (default),
+  it prints the coordinates of the first point and the mid point in 
+  the table.
+  example: taka_plot_auto([[0,1],[0.1,0.9],[0.2,0.7],[0.3,0.5],[0.4,0.8]]);
+end: */
+/* From misc/200205/runge-kutta.rr */
+Taka_plot_auto_maxy = 10.0^10$ 
+Taka_plot_auto_style = 1$
+Taka_plot_coord = 1$
+def taka_plot_auto(T) {
+  extern Taka_plot_auto_maxy;
+  extern Taka_plot_auto_style;
+  extern Taka_plot_coord;
+  if (type(T) == 4) {
+    N = length(T);
+  }else{
+    N = size(T)[0];
+  }
+  if (N > 0) {
+    Xmax = T[0][0];  Xmin = Xmax;
+    Ymax = T[0][1];  Ymin = Ymax;
+  }
+  for (I=0; I<N; I++) {
+    if (T[I][0] > Xmax) Xmax = T[I][0];
+    if (T[I][0] < Xmin) Xmin = T[I][0];
+    if (T[I][1] > Ymax) Ymax = T[I][1];
+    if (T[I][1] < Ymin) Ymin = T[I][1];
+  }
+  if (Ymax-Ymin > Taka_plot_auto_maxy) {
+    Mid = (Ymax-Ymin)/2;
+    Ymax = Mid+Taka_plot_auto_maxy;
+    Ymin = Mid-Taka_plot_auto_maxy;
+    print("Warning: plot_auto, Ymax-Ymin is huge.");
+  }
+  print("Plot_auto: screen size is "+rtostr([Xmin,Ymin,Xmax,Ymax]));
+  if (Xmax-Xmin <= 0) Xmax = Xmin+1;
+  if (Ymax-Ymin <= 0) Ymax = Ymin+1;
+  Ymax = Ymax+(Ymax-Ymin)*0.1;
+  Ymin = Ymin-(Ymax-Ymin)*0.1;
+  glib_open();
+  glib_window(Xmin,Ymin,Xmax,Ymax);
+  if (Taka_plot_coord) {
+    glib_print(T[0][0],T[0][1],rtostr([T[0][0],T[0][1]])|color=0xff00ff);
+  }
+  if (Taka_plot_auto_style == 1) {
+    for (I=1; I<N; I++) {
+      glib_line(T[I-1][0],T[I-1][1],T[I][0],T[I][1]);
+    }
+  }else{
+    for (I=0; I<N; I++) {
+       glib_putpixel(T[I][0],T[I][1]);
+    }
+  }  
+  if (Taka_plot_coord) {
+    M = idiv(N-1,2);
+    glib_print(T[M][0],T[M][1],rtostr([deval(T[M][0]),deval(T[M][1])])|color=0xff0000);
+  }
+}
+
+end$
+

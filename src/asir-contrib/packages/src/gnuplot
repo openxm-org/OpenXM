@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.8 2000/02/07 04:46:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.9 2002/08/03 13:14:19 takayama Exp $ */
 
 Gnuplot_proc = -1$
 #define GNUPLOT_FIND_PROC(P)  P = getopt(proc);\
@@ -42,13 +42,7 @@ The file @file{gnuplot} is at @*
 */
 /*&C-texi
 @example
-[nobuki@@yama doc]$ asir
-This is Asir, Version 991116.
-Copyright (C) FUJITSU LABORATORIES LIMITED.
-3 March 1994. All rights reserved.
-[155] load("xm");
-1
-xm Version 19991109. ox_help(0); ox_help("keyword"); for help message 
+@include opening.texi
 [255] gnuplot_start();
 0
 [257] gnuplot("plot sin(x**2);");
@@ -57,7 +51,7 @@ xm Version 19991109. ox_help(0); ox_help("keyword"); for help message
 */
 /*&eg-texi
 The function
-@code{heat}(@var{dt},@var{step}) demonstrates our gnuplot interface.
+@code{gnuplot_heat}(@var{dt},@var{step}) demonstrates our gnuplot interface.
 It numerically solves the heat equation
 @tex
 $$   {{\partial u}\over{\partial t}} =  {{\partial^2 u}\over{\partial x^2}},
@@ -75,13 +69,13 @@ If the celebrated Courant-Friedrichs-Levi number
 then the explicit scheme is numerically stable.
 One can observe the instability by changing CFL number.
 @example
-  Heat_N=20; heat(0.001,30);   (CFL number is 0.4)
-  Heat_N=20; heat(0.003,30);   (CFL > 0.5 unstable)
+  Heat_N=20; gnuplot_heat(0.001,30);   (CFL number is 0.4)
+  Heat_N=20; gnuplot_heat(0.003,30);   (CFL > 0.5 unstable)
 @end example
 */
 /*&jp-texi
 関数
-@code{heat}(@var{dt},@var{step}) はわれわれの GNUPLOT インタフェース関数のデモ
+@code{gnuplot_heat}(@var{dt},@var{step}) はわれわれの GNUPLOT インタフェース関数のデモ
 である.
 この関数は熱伝導方程式
 @tex
@@ -101,8 +95,8 @@ $$
 陽的差分スキームは安定である.
 CFL を変えることにより, 不安定性が生じるのを観察できる.
 @example
-  Heat_N=20; heat(0.001,30);   (CFL number is 0.4)
-  Heat_N=20; heat(0.003,30);   (CFL > 0.5 unstable)
+  Heat_N=20; gnuplot_heat(0.001,30);   (CFL number is 0.4)
+  Heat_N=20; gnuplot_heat(0.003,30);   (CFL > 0.5 unstable)
 @end example
 */
 /*&C-texi
@@ -602,6 +596,78 @@ def gnuplot_demo2() {
 
 /** heat equation **/
 
+/*&eg-texi
+@menu
+* gnuplot_heat::
+@end menu
+@node gnuplot_heat,,, GNUPLOT Functions
+@subsection @code{gnuplot_heat}
+@findex gnuplot_heat
+@table @t
+@item gnuplot_heat(@var{dt},@var{step})
+::  It solves the heat equation numerical and plots solutions
+@end table
+
+@table @var
+@item return
+Void
+@item dt
+floating point number
+@item step
+Integer
+@end table
+
+@itemize @bullet
+@item It solves the heat equation
+ du/dt = d^2 u/dx^2,  u(t,0) = u(t,1) = 0
+with the initial condition
+ u(0,x) = x (0 <= x <= 0.5), u(0,x) = 1-x ( 0.5 <= x <= 1.0).
+@item Heat_N is the number of the meshes in the space.
+@item This function will be called @code{pde_heat_demo} in a future. 
+@end itemize
+
+@noindent
+Algorithm: NOT Written. (Difference scheme. Courant-Levi-Friedrichs conditions.)
+*/
+/*&jp-texi
+@menu
+* gnuplot_heat::
+@end menu
+@node gnuplot_heat,,, GNUPLOT 函数
+@subsection @code{gnuplot_heat}
+@findex gnuplot_heat
+@table @t
+@item gnuplot_heat(@var{dt},@var{step})
+::  熱伝導方程式を数値的に解く.
+@end table
+
+@table @var
+@item return
+なし
+@item dt
+浮動小数点数
+@item step
+整数
+@end table
+
+@itemize @bullet
+@item 熱伝導方程式
+ du/dt = d^2 u/dx^2,  u(t,0) = u(t,1) = 0
+を初期条件
+ u(0,x) = x (0 <= x <= 0.5), u(0,x) = 1-x ( 0.5 <= x <= 1.0)
+で解く.
+@item Heat_N は空間方向でのメッシュの数.
+@item この関数は将来 @code{pde_heat_demo} と呼ばれる予定.
+@end itemize
+*/
+/*&C-texi
+@example
+[232] Heat_N = 20$ 
+[233] gnuplot_heat(0.001,30)$
+@end example
+
+*/
+
 /*  Texts/text-96/A5/text/heat.asir */
 /*  1996, 4/20  熱伝導方程式を差分法で解く。   */
 /*   初期条件は  a(x) = x (0<x<0.5 の範囲),  1-x ( 0.5<x<1 の範囲).  */
@@ -609,11 +675,11 @@ def gnuplot_demo2() {
 Heat_N = 20$     /* Mesh 分割数, Heat_N=5 */
 /* K = 0.02;  時間差分 Kの例。 */
 /* M = 3;     時間ステップ数 M の例。 */
-/* heat(0.02,3); と実行する。*/
-/* Ex: Heat_N=20; heat(0.001,30);   CFL = 0.4 */
-/* Ex: Heat_N=20; heat(0.003,30);   CFL > 0.5 unstable */
+/* gnuplot_heat(0.02,3); と実行する。*/
+/* Ex: Heat_N=20; gnuplot_heat(0.001,30);   CFL = 0.4 */
+/* Ex: Heat_N=20; gnuplot_heat(0.003,30);   CFL > 0.5 unstable */
 
-def heat(K,M) {
+def gnuplot_heat(K,M) {
   extern Heat_N ;
   H = 1.0/Heat_N;   /* 空間差分 */
   print("時間差分K=",0); print(K);
