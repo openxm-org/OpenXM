@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.9 2002/08/13 07:44:06 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/process.texi,v 1.10 2002/08/14 03:26:36 noro Exp $
 \BJP
 @node 分散計算,,, Top
 @chapter 分散計算
@@ -1905,6 +1905,9 @@ identifier @var{id} is returned.
 @item plot(@var{func} [,@var{geometry}] [,@var{xrange}] [,@var{id}] [,@var{name}])
 \JP :: 1 変数関数のグラフを表示する. 
 \EG :: Displays the graph of a univariate function.
+@item polarplot(@var{func} [,@var{geometry}] [,@var{thetarange}] [,@var{id}] [,@var{name}])
+\JP :: 極形式で与えられた曲線を表示する. 
+\EG :: Displays the graph of a curve given in polar form.
 @item plotover(@var{func},@var{id},@var{number})
 \JP :: すでに存在しているウィンドウへ描画する. 
 \EG Plots on the existing window real zeros of a bivariate function.
@@ -1933,15 +1936,20 @@ identifier @var{id} is returned.
 @item
 @code{ifplot()} は, 2 変数関数 @var{func} の実数上での零点の
 グラフの表示を行う. @code{conplot()} は, 同様の引数に対し, 
-等高線の表示を行う. @code{plot()} は 1 変数関数の
-グラフの表示を行う.
+等高線の表示を行う. 
+@code{plot()} は 1 変数関数のグラフの表示を行う.
+@code{polarplot()} は 極形式 @var{r=f(theta)} で表された曲線のグラフの表示を行う.
 
 @item
 これらは OpenXM サーバとして実現されている. UNIX 上では
 @samp{ox_plot} が, Windows 上では @samp{engine} がこれらの機能
 を提供しており, これらは @b{Asir} の標準ライブラリディレクトリにある. 
-これらは @code{ox_launch()} または @code{ox_launch_nox()}
- により起動しておく必要がある. 
+アクティブな @samp{ox_plot} の id が @var{id} として指定された場合, 
+そのサーバが用いられる. id の指定がない場合には, 起動されて
+いるサーバのうち, @samp{ox_plot} があればそのサーバが用いられる. 
+@samp{ox_plot} が起動されていない場合には, 
+@code{ox_launch_nox()} が自動的に実行されて, @samp{ox_plot} が
+立ち上がり, それが用いられる. 
 
 @item
 引数の内, @var{func} は必須である. その他の引数はオプションである. 
@@ -2049,12 +2057,20 @@ Function @code{ifplot()} draws a graph of real zeros of a bi-variate
 function.
 Function @code{conplot()} plots the contour lines for a same argument. 
 Function @code{plot()} draws the graph of a uninivariate function.
+Function @code{polarplot()} draws the graph of a curve given in polar form
+@var{r=f(theta)}.
 
 @item
 The plotting functions are realized by an OpenXM server.
 On UNIX it is @samp{ox_plot} in @b{Asir} root directory.
 On Windows @samp{engine} acts as @samp{ox_plot}.
 Of course, it must be activated by @code{ox_launch()} @code{ox_launch_nox()}. 
+If the identifier of an active @samp{ox_plot} is specified as @var{id},
+the server is used for drawing pictures.
+If @var{id} is not specified, an available @samp{ox_plot} server 
+is used if it exists. If no @samp{ox_plot} server is available,
+then @code{ox_launch_nox()} is automatically executed to
+invoke @samp{ox_plot}.
 
 @item 
 Argument @var{func} is indispensable. Other arguments are optional. 
