@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.3 2003/11/18 11:08:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ox_k0.c,v 1.4 2003/11/19 00:11:02 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -75,6 +75,7 @@ nullserver(int fdStreamIn,int fdStreamOut) {
   extern jmp_buf EnvOfStackMachine;
 #endif
   int engineByteOrder;
+  extern int InSendmsg2;
 
   fflush(NULL);
   engineByteOrder = oxTellMyByteOrder(fdStreamOut,fdStreamIn);
@@ -119,6 +120,7 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     }
 	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
 	KSexecuteString(" (Computation is interrupted.) ");
+	InSendmsg2 = 0;
     signal(SIGUSR1,controlResetHandler); goto aaa;
   } else {  
     if (JmpMessage) fprintf(stderr,"Set EnvOfChildServer.\n");
@@ -151,6 +153,7 @@ nullserver(int fdStreamIn,int fdStreamOut) {
     Sm1_pushError2(SerialCurrent,-1,"Global jump by sm1 error");
 
 	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+    InSendmsg2=0;
     signal(SIGUSR1,controlResetHandler); goto aaa ;
   } else {
     if (JmpMessage) fprintf(stderr,"Set EnvOfStackMachine.\n"); 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.4 2002/02/24 10:27:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.5 2003/08/22 16:08:20 ohara Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -44,6 +44,7 @@ sendKan(int p) {
   extern int Interactive;
   struct object obj;
   int result;
+  extern int InSendmsg2;
   signal(SIGINT,SIG_IGN); /* Don't jump to ctrlC(). */
   if (p == 10) {printf("In(%d)= ",n++); return;}
   if (p == 0 && DebugCompiler) printf("sendKan[%s]\n",Kbuff); 
@@ -56,7 +57,7 @@ sendKan(int p) {
   }
   /* fprintf(stderr,"r=%d ",result); */
   if (result == -1) {
-    K00recoverFromError();
+    K00recoverFromError();  InSendmsg2 = 0;
     fprintf(stderr,"--- Engine error or interrupt : ");
     if (DebugMode) {
       signal(SIGINT,SIG_DFL);
@@ -78,6 +79,7 @@ sendKan(int p) {
 #define AFO
 #ifdef AFO
   if (SETJMP(KCenvOfParser)) {
+	InSendmsg2=0;
     fprintf(stderr,"Error: Goto the top level.\n");
     parseAfile(stdin);
     KCparse();  
