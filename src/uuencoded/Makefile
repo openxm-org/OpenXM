@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.1 2001/08/21 00:39:13 takayama Exp $
+# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.2 2002/09/03 01:05:28 takayama Exp $
 
 OPENXM=../../../OpenXM
 OPENXM_CONTRIB=../../../OpenXM_contrib
@@ -12,35 +12,35 @@ PHCFBSD=fbsd_phcv2p
 PHCLINUX=lin_phcv2p
 RM=rm
 
-configure:
-	@if [ -f .configure_done ] ; then \
-		echo "OpenXM/bin is already configured." ; \
+install:
+	@if [ -f .install_done ] ; then \
+		echo "OpenXM/bin is already installed." ; \
 	else \
 		rm -f $(OPENXM_BIN)/phc ; \
 		if [ "`uname`" = "FreeBSD" ]; then \
-			make configure-freebsd ; \
+			make install-freebsd ; \
 		fi ; \
 		if [ "`uname`" = "Linux" ]; then \
-			make configure-linux ; \
+			make install-linux ; \
 		fi ; \
 		(cd $(OPENXM_BIN) ; rm -f ox_asir ; ln -f -s ./asir ox_asir) ; \
-		touch ./.configure_done ; \
+		touch ./.install_done ; \
 	fi
 
 
-configure-freebsd:
+install-freebsd:
 	if [ -f $(OPENXM_UU)/${PHCFBSD}.gz.uuencoded ]; then \
 		uudecode -p $(OPENXM_UU)/${PHCFBSD}.gz.uuencoded | zcat - > $(OPENXM_BIN)/phc ; \
 		chmod +x $(OPENXM_BIN)/phc ; \
 	fi
 
-configure-linux:
+install-linux:
 	if [ -f $(OPENXM_UU)/${PHCLINUX}.gz.uuencoded ]; then \
 		uudecode -o /dev/stdout $(OPENXM_UU)/${PHCLINUX}.gz.uuencoded | zcat - > $(OPENXM_BIN)/phc ; \
 		chmod +x $(OPENXM_BIN)/phc ; \
 	fi
 
-configure-linux-phc-on-freebsd:
+install-linux-phc-on-freebsd:
 	if [ -f $(OPENXM_UU)/${PHCLINUX}.gz.uuencoded ]; then \
 		uudecode -p $(OPENXM_UU)/${PHCLINUX}.gz.uuencoded | zcat - > $(OPENXM_BIN)/phc ; \
 		chmod +x $(OPENXM_BIN)/phc ; \
@@ -50,7 +50,7 @@ configure-linux-phc-on-freebsd:
 
 distclean:
 	(cd $(OPENXM_BIN) ; rm -f asir ox_asir phc)
-	@rm -f .configure_done
+	@rm -f .install_done
 
 uuencode:
 	@if [ -f $(OPENXM_BIN)/$(PHC) ]; then \

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.15 2001/12/27 08:31:38 noro Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.16 2003/03/07 10:16:58 noro Exp $
 
 #PARI = ../../../OpenXM_contrib/pari-2.2
 PARI = ../../../OpenXM_contrib/pari
@@ -17,13 +17,16 @@ all: configure
 install: install-lib-bin
 
 install-lib-bin: all install-lib
-	(cd $(PARI)/O*-* ; make install-include)
+	if [ ! -f ./.install-lib-bin_done ]; then \
+	(cd $(PARI)/O*-* ; make install-include) ; \
 	if [ "`uname | sed -e 's/_.*$$//'`" != "CYGWIN" ]; then \
 		(cd $(PARI)/O*-* ; make install-lib-dyn);  \
 		(cd $(PARI)/O*-* ; make install-bin);  \
 		(cd $(PARI)/O*-* ; make install-misc);  \
 		(cd $(PARI)/O*-* ; make install-man);  \
 		(cd $(PARI)/O*-* ; make install-data);  \
+	fi ; \
+	touch ./.install-lib-bin_done ; \
 	fi
 
 
@@ -39,7 +42,7 @@ clean: patch-clean
 	@if [ -f ./.make_done ]; then \
 		(cd $(PARI) ; make clean) \
 	fi
-	@rm -f ./.make_done ./.configure_done
+	@rm -f ./.*_done
 
 distclean:
 	@cat BINARIES | xargs -t rm -rf
@@ -63,6 +66,8 @@ patch-clean:
 	@rm -f ./.patch_done
 
 install-lib: all
-	(cd $(PARI) ; make install-lib-sta)
-#	ranlib ../../lib/libpari-2.2.a
-	ranlib ../../lib/libpari.a
+	if [ ! -f ./.install-lib_done ]; then \
+	(cd $(PARI) ; make install-lib-sta) ; \
+	ranlib ../../lib/libpari.a ; \
+	touch ./.install-lib_done ; \
+	fi

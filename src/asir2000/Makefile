@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.21 2003/03/08 10:19:33 ohara Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.22 2003/03/25 06:25:58 takayama Exp $
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 ASIR_PARI = ../../../OpenXM_contrib2/asir2000-pari
 ASIR_SMALL = ../../../OpenXM_contrib2/asir2000-small
 PARI = ../pari
 
-all: configure
+all: configure install-pari
 	@if [ ! -f ./.make_done ]; then \
 		(cd $(ASIR) ; make all) \
 	fi
@@ -49,7 +49,7 @@ distclean: clean
 	@rm -rf $(ASIR_SMALL)
 	@cat BINARIES | xargs -t rm -rf
 
-configure: install-pari
+configure: 
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; \
             ./configure --enable-plot --with-pari --prefix="`cd ../../OpenXM; pwd`") \
@@ -74,7 +74,7 @@ configure-small: configure
 	fi
 	@touch ./.configure_small_done
 
-configure-xmkmf: install-pari
+configure-xmkmf: 
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; ./configure-xmkmf -plot -pari ) \
 	fi
