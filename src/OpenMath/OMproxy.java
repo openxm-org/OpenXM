@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.17 2000/01/18 07:59:19 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OMproxy.java,v 1.18 2000/01/18 12:47:03 tam Exp $
  */
 
 import JP.ac.kobe_u.math.tam.OpenXM.*;
@@ -227,8 +227,6 @@ class OMproxy implements Runnable{
     return ret;
   }
 
-  private static native void setNoInterrupt();
-
   public static void main(String argv[]){
     String host = "localhost";
     int DataPort = 1300, ControlPort = 1200;
@@ -244,9 +242,6 @@ class OMproxy implements Runnable{
       }else if(argv[i].equals("-control")){
 	ControlPort = Integer.valueOf(argv[++i]).intValue();
       }else if(argv[i].equals("-insecure")){
-      }else if(argv[i].equals("-nohup")){
-	System.loadLibrary("native");
-	setNoInterrupt();
       }else{
 	System.err.println("unknown option : "+ argv[i]);
 	System.err.print(usage());

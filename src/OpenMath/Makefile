@@ -1,5 +1,5 @@
 #
-# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.14 2000/01/18 07:59:19 tam Exp $
+# $OpenXM: OpenXM/src/OpenMath/Makefile,v 1.15 2000/01/19 06:18:50 noro Exp $
 
 OpenXM_HOME = ../..
 INSTALLDIR = $(OpenXM_HOME)/lib/java-support
@@ -66,7 +66,7 @@ PKGTARGETS =	JP/ac/kobe_u/math/tam/OpenXM/CMO.class \
 	JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.class \
 	JP/ac/kobe_u/math/tam/OpenXM/SM.class
 
-TARGETS = OpenXM.jar OM2OXM.class OMproxy.class libnative.so
+TARGETS = OpenXM.jar OM2OXM.class OMproxy.class
 
 
 all:	configure $(TARGETS)
@@ -76,7 +76,7 @@ configure:
 
 
 clean:
-	-rm -f *.so *.h *.jar *.class $(PKGTARGETS)
+	-rm -f *.jar *.class $(PKGTARGETS)
 
 
 distclean:	clean
@@ -98,7 +98,6 @@ install2:
 
 test:
 	$(JAVAC) -d . -deprecation -g *.java
-	make libnative.so
 
 
 .SUFFIXES:	.java .class
@@ -112,12 +111,3 @@ OpenXM.jar:	$(PKGSRCS)
 	$(JAVAC) -d . -O $?
 	@touch $@
 	-@#$(JAR) cf $@ $(PKGTARGETS)
-
-
-OMproxy.h:	OMproxy.class
-	-$(JAVAH) -jni $*
-
-
-libnative.so:	native.c OMproxy.h
-	-$(CC) -o libnative.so native.c \
-		-shared `find $(JAVAINCLUDEDIR) -type d | sed 's/^/-I/'`
