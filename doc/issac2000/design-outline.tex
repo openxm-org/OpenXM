@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.5 2000/01/11 05:35:48 noro Exp $
+% $OpenXM: OpenXM/doc/issac2000/design-outline.tex,v 1.6 2000/01/15 02:24:18 takayama Exp $
 
 \section{Design Outline} 
 
@@ -30,23 +30,23 @@ Although, data and control are orthogonal to each other,
 real world requires both.
 NetSolve \cite{netsolve}, OpenMath$+$MCP, MP$+$MCP \cite{iamc},
 and MathLink \cite{mathlink} provide both data and control integration.
-Each integration method has their own special features due to their
+Each integration method has their own features due to their
 own design goals and design motivations.
 OpenXM (Open message eXchange protocol for Mathematics)
 is a project aiming to integrate data, control and user interfaces
-with itw own set of design goals.
+with its own set of design goals.
 To explain our design outline, we start with a list of
 our motivations.
 \begin{enumerate}
 \item Noro has developed a general
 purpose computer algebra system Risa/Asir \cite{asir}.
-A set of functions for interactive distributed computations were introduced
+An interface for interactive distributed computations was introduced
 in Risa/Asir version 950831 released in 1995.
 The model of computation was RPC (remote procedure call)
-and it had its own serialization method for objects.
+and it had its own serialization.
 A robust interruption method was provided by having two communication channels
 like ftp.
-As an application of this robust and interactive distributed computation
+As an application of this robust and the interactive distributed computation
 system, speed-up was achieved for a huge Gr\"obner basis computation
 to determine all odd order replicable functions 
 by Noro and McKay \cite{noro-mckay}.
@@ -54,8 +54,7 @@ However, the protocol was closed in Asir and we thought that we should
 design an open protocol.
 \item Takayama has developed
 a special purpose computer algebra system Kan/sm1 \cite{kan},
-which is a Gr\"obner engine for the ring of differential operators $D$ and
-a package for computational algebraic geometry via D-module computations.
+which is a Gr\"obner engine for the ring of differential operators $D$. 
 In order to implement algorithms in D-modules due to Oaku 
 (see, e.g., \cite{sst-book}),
 factorizations and primary ideal decompositions were necessary.
@@ -69,23 +68,16 @@ for Risa/Asir to work as a server of factorization and primary ideal
 decomposition.
 \item The number of mathematical softwares is increasing rapidly in the last
 decade of the 20th century.
-These are usually ``expert'' systems for one area of mathematics
+These are usually ``expert'' systems in one area of mathematics
 such as ideals, groups, numbers, polytopes, and so on.
 They have their own interfaces and data formats.
-Interfaces are usually specialized to a specific field of mathematics
-or poor because developers do not have time for designing user interface
-languages.
+Interfaces are sometimes specialized to a specific field of mathematics
+or poor.
 It is fine for intensive and serious users of these systems.
-%% x2 stands for x^2, specialized for polynomial ring.
 However, for users who want to explore a new area of mathematics with these
 softwares or users who need these systems only occasionally,
 a unified system will be more convenient.
-For example, if we can call and use mathematical softwares
-like CoCoa, GAP, Macaulay2, Porta, Singular, Snapea, $\ldots$
-from Aldor, Asir, Axiom, Maple, Magma, muPAD, Mathematica, and so on,
-it will be wonderful in research and education
-of mathematics. This is an unification of user interfaces of mathematical
-softwares.
+
 \item  We believe that an open integrated system is a future of mathematical
 softwares.
 However, it might be just a dream without realizability.
@@ -117,9 +109,23 @@ interface.
 \item An output of the target must be understandable for computer programs;
 it should follow a grammar that can be parsed with other softwares.
 \end{enumerate}
+\item Any server may have a hybrid interface;
+it may accept and execute its original command sequences.
+For example,
+if we send the following string to ox\_asir server
+{\footnotesize
+\begin{verbatim}
+      " fctr(x^10-y^10); "
+\end{verbatim}
+}
+and call the stanck machine command
+SM\_executeStringByLocalParser,
+then the server executes the asir command
+\verb+ fctr(x^10-y^10); + 
+(factorize $x^10-y^10$ over ${\bf Q}$)
+and push the result on the stack.
 \end{enumerate}
-We are implementing a package, OpenXM package,  
-which aims to realize our wishes stated as motivations.
+We are implementing a package, OpenXM package.  
 It is based on above fundamental architecture.
 For example, the following is a command sequence to ask $1+1$ from
 the Asir client to the OX sm1 server:
@@ -132,7 +138,7 @@ The current system, OpenXM on TCP/IP,
 uses client-server model and the TCP/IP is used for interprocess
 communications.
 The OpenXM on MPI \cite{MPI} is currently running on Risa/Asir
-as we will see Section \ref{section:homog}.
+as we will see in Section \ref{section:homog}.
 However, we focus only on the system based on TCP/IP in this paper.
 
 
