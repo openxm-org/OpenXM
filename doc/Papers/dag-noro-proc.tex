@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.8 2001/11/30 02:08:46 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/dag-noro-proc.tex,v 1.9 2001/12/28 06:06:15 noro Exp $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This is a sample input file for your contribution to a multi-
 % author book to be published by Springer Verlag.
@@ -117,9 +117,11 @@ Risa/Asir is not only a standalone computer algebra system but also a
 main component in OpenXM package \cite{OPENXM}, which is a collection
 of various software compliant to OpenXM protocol specification.
 OpenXM is an infrastructure for exchanging mathematical data and
-Risa/Asir has three kinds of OpenXM interfaces : as a client, as a
-server, and as a subroutine library. Our goals of developing Risa/Asir
-are as follows:
+Risa/Asir has three kinds of OpenXM interfaces : 
+OpenXM API in the Risa/Asir user language, 
+OpenXM C language API in the Risa/Asir subroutine library, 
+and an OpenXM server. 
+Our goals of developing Risa/Asir are as follows:
 
 \begin{enumerate}
 \item Providing a platform for testing new algorithms
@@ -177,23 +179,22 @@ data on Groebner basis computation.
 \subsection{Polynomial factorization}
 
 Here we briefly review functions on polynomial factorization.  For
-univariate factorization over {\bf Q}, the classical
-Berlekamp-Zassenhaus algorithm is implemented.  Efficient algorithms
-recently proposed have not yet implemented.  For univariate
-factorization over algebraic number fields, Trager's algorithm
-\cite{TRAGER} is implemented with some modifications.  Its major
-applications are splitting field and Galois group computation of
-polynomials over {\bf Q} \cite{ANY}. For such purpose a tower of
-simple extensions are suitable because factors represented over a
-simple extension often have huge coefficients.  For univariate
-factorization over finite fields, equal degree factorization and
-Cantor-Zassenhaus algorithm are implemented. We can use various
-representation of finite fields: $GF(p)$ with a machine integer prime
-$p$, $GF(p)$ and $GF(p^n)$ with any odd prime $p$, $GF(2^n)$ with a
-bit-array representation of polynomials over $GF(2)$ and $GF(p^n)$
-with small $p^n$ represented by a primitive root.  For multivariate
-factorization over {\bf Q}, the classical EZ(Extended
-Zassenhaus) type algorithm is implemented.
+univariate factorization over {\bf Q}, the Berlekamp-Zassenhaus
+algorithm is implemented.  Efficient algorithms recently proposed have
+not yet implemented.  For univariate factorization over algebraic
+number fields, Trager's algorithm \cite{TRAGER} is implemented with
+some modifications.  Its major applications are splitting field and
+Galois group computation of polynomials over {\bf Q} \cite{ANY}. For
+such purpose a tower of simple extensions are suitable because factors
+represented over a simple extension often have huge coefficients.  For
+univariate factorization over finite fields, equal degree
+factorization and Cantor-Zassenhaus algorithm are implemented. We can
+use various representation of finite fields: $GF(p)$ with a machine
+integer prime $p$, $GF(p)$ and $GF(p^n)$ with any odd prime $p$,
+$GF(2^n)$ with a bit-array representation of polynomials over $GF(2)$
+and $GF(p^n)$ with small $p^n$ represented by a primitive root.  For
+multivariate factorization over {\bf Q}, the EZ(Extended Zassenhaus)
+type algorithm is implemented.
 
 \subsection{Other functions}
 By applying Groebner basis computation and polynomial factorization,
@@ -396,37 +397,41 @@ measured.
 \subsection{Groebner basis computation}
 
 Table \ref{gbmod} and Table \ref{gbq} show timing data for Groebner
-basis computation over $GF(32003)$ and over {\bf Q} respectively.
+basis computation over $GF(32003)$ and over {\bf Q} respectively.  In
+Table \ref{gbq} we compare the timing data under various configuration
+of algorithms: with/without trace lifting, homogenization and contents
+reduction.
 $C_n$ is the cyclic $n$ system and $K_n$ is the Katsura $n$ system,
 both are famous bench mark problems \cite{BENCH}.  We also measured
 the timing for $McKay$ system over {\bf Q} \cite{REPL}.  the term
-order is graded reverse lexicographic order.  In the both tables, the
-first three rows are timings for the Buchberger algorithm, and the
-last two rows are timings for $F_4$ algorithm. As to the Buchberger
-algorithm over $GF(32003)$, Singular\cite{SINGULAR} shows the best
-performance among the three systems. $F_4$ implementation in Risa/Asir
-is faster than the Buchberger algorithm implementation in Singular,
-but it is still several times slower than $F_4$ implementation in FGb
-\cite{FGB}.  In Table \ref{gbq}, Risa/Asir computed $C_7$ and $McKay$
-by the Buchberger algorithm with the methods described in Section
-\ref{gbhomo} and \ref{gbcont}.  It is obvious that $F_4$
-implementation in Risa/Asir over {\bf Q} is too immature. Nevertheless
-the timing of $McKay$ is greatly reduced.  Fig. \ref{f4vsbuch}
-explains why $F_4$ is efficient in this case.  The figure shows that
-the Buchberger algorithm produces normal forms with huge coefficients
-for S-polynomials after the 250-th one, which are the computations in
-degree 16.  However, we know that the reduced basis elements have much
-smaller coefficients after removing contents.  As $F_4$ algorithm
-automatically produces the reduced ones, the degree 16 computation is
-quite easy in $F_4$.
+order is graded reverse lexicographic order. 
+As to the Buchberger algorithm over $GF(32003)$,
+Singular\cite{SINGULAR}'s Buchberger algorithm implementation shows
+better performance than Risa/Asir. $F_4$ implementation in Risa/Asir
+is outperforms both of them, but it is still several times slower than
+$F_4$ implementation in FGb \cite{FGB}.
+
+Table \ref{gbq} shows that it is difficult or practically impossible
+to compute Groebner bases of $C_7$, $C_8$ and $McKay$ without
+the methods described in Section \ref{gbhomo} and \ref{gbcont}.
+
+Though $F_4$ implementation in Risa/Asir over {\bf Q} is still
+experimental, the timing of $McKay$ is greatly reduced.
+Fig. \ref{f4vsbuch} explains why $F_4$ is efficient in this case.  The
+figure shows that the Buchberger algorithm produces normal forms with
+huge coefficients for S-polynomials after the 250-th one, which are
+the computations in degree 16.  However, we know that the reduced
+basis elements have much smaller coefficients after removing contents.
+As $F_4$ algorithm automatically produces the reduced ones, the degree
+16 computation is quite easy in $F_4$.
 
 \begin{table}[hbtp]
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|c|c|} \hline
 		& $C_7$ & $C_8$ & $K_7$ & $K_8$ & $K_9$ & $K_{10}$ & $K_{11}$ \\ \hline
 Asir $Buchberger$	& 31 & 1687  & 2.6  & 27 & 294  & 4309 & --- \\ \hline
-Singular & 8.7 & 278 & 0.6 & 5.6 & 54 & 508 & 5510 \\ \hline
-CoCoA 4 & 241 & $>$ 5h & 3.8 & 35 & 402 &7021  & --- \\ \hline\hline
+%Singular & 8.7 & 278 & 0.6 & 5.6 & 54 & 508 & 5510 \\ \hline
+%CoCoA 4 & 241 & $>$ 5h & 3.8 & 35 & 402 &7021  & --- \\ \hline\hline
 Asir $F_4$	& 5.3 & 129 & 0.5  & 4.5 & 31  & 273 & 2641 \\ \hline
 FGb(estimated)	& 0.9 & 23 & 0.1 & 0.8 & 6 & 51 & 366 \\ \hline
 \end{tabular}
@@ -437,14 +442,18 @@ FGb(estimated)	& 0.9 & 23 & 0.1 & 0.8 & 6 & 51 & 366 \\ \hline
 
 \begin{table}[hbtp]
 \begin{center}
-\begin{tabular}{|c||c|c|c|c|c|c|} \hline
-		& $C_7$ & $Homog. C_7$ & $C_8$ & $K_7$ & $K_8$ & $McKay$ \\ \hline
-Asir $Buchberger$ 	& 389 & 594 & 54000 & 29 & 299 & 34950 \\ \hline
-Singular & --- & 15247 & --- & 7.6 & 79 & $>$ 20h \\ \hline
-CoCoA 4 & --- & 13227 & --- & 57 & 709 & --- \\ \hline\hline
-Asir $F_4$ 	&  989 & 456 & --- & 90 & 991 & 4939 \\ \hline
-FGb(estimated)	& 8 &11 & 288 &  0.6 & 5 & 10 \\ \hline
+\begin{tabular}{|c||c|c|c|c|c|} \hline
+		& $C_7$ & $C_8$ & $K_7$ & $K_8$ & $McKay$ \\ \hline
+TR+Homo,Cont & 389 & 54000 & 29 & 299 & 34950 \\ \hline
+TR+Homo & --- & --- & --- & --- & --- \\ \hline
+TR & --- & --- & --- & --- & --- \\ \hline
+%Singular & --- & 15247 & --- & 7.6 & 79 & $>$ 20h \\ \hline
+%CoCoA 4 & --- & 13227 & --- & 57 & 709 & --- \\ \hline\hline
+%Asir $F_4$ 	&  989 & 456 & --- & 90 & 991 & 4939 \\ \hline
+%FGb(estimated)	& 8 &11 & 288 &  0.6 & 5 & 10 \\ \hline
 \end{tabular}
+
+(TR : trace lifting; Homo : homogenization; Cont : contents reduction)
 \end{center}
 \caption{Groebner basis computation over {\bf Q}}
 \label{gbq}
@@ -461,17 +470,12 @@ FGb(estimated)	& 8 &11 & 288 &  0.6 & 5 & 10 \\ \hline
 \end{figure}
 
 Table \ref{minipoly} shows timing data for the minimal polynomial
-computation over {\bf Q}. Singular provides a function {\tt finduni}
-for computing the minimal polynomial in each variable in ${\bf
-Q}[x_1,\ldots,x_n]/I$ for zero dimensional ideal $I$. The modular
-method used in Asir is efficient when the resulting minimal
-polynomials have large coefficients and we can verify the fact from Table
-\ref{minipoly}.
+computations of all variables over {\bf Q} by the modular method.
 \begin{table}[hbtp]
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|} \hline
 		& $C_6$ & $C_7$ & $K_6$ & $K_7$ & $K_8$ \\ \hline
-Singular & 0.9 & 846 & 307 & 60880 & ---  \\ \hline
+%Singular & 0.9 & 846 & 307 & 60880 & ---  \\ \hline
 Asir & 1.5 & 182 & 12 & 164 & 3420  \\ \hline
 \end{tabular}
 \end{center}
@@ -505,14 +509,15 @@ Asir & 1.5 & 182 & 12 & 164 & 3420  \\ \hline
 %\label{unifac}
 %\end{table}
 
-Table \ref{multifac} shows timing data for multivariate
-factorization over {\bf Q}.
-$W_{i,j,k}$ is a product of three multivariate polynomials 
-$Wang[i]$, $Wang[j]$, $Wang[k]$ given in a data file
-{\tt fctrdata} in Asir library directory. It is also included
-in Risa/Asir source tree and located in {\tt asir2000/lib}.
-For these examples Risa/Asir shows reasonable performance
-compared with other famous systems. 
+Table \ref{multifac} shows timing data for multivariate factorization
+over {\bf Q}.  $W_{i,j,k}$ is a product of three multivariate
+polynomials $Wang[i]$, $Wang[j]$, $Wang[k]$ given in a data file {\tt
+fctrdata} in Asir library directory. It is also included in Risa/Asir
+source tree and located in {\tt asir2000/lib}.  These examples have
+leading coefficients of large degree which vanish at 0 which tend to
+cause so-called the leading coefficient problem the bad zero
+problem. Risa/Asir's implementation carefully treats such cases and it
+shows reasonable performance compared with other famous systems.
 \begin{table}[hbtp]
 \begin{center}
 \begin{tabular}{|c||c|c|c|c|c|} \hline
@@ -521,7 +526,7 @@ variables & 3 & 5 & 5 & 5 & 4 \\ \hline
 monomials & 905 & 41369 & 51940 & 30988 & 3344 \\ \hline\hline
 Asir 	& 0.2 & 4.7 & 14 & 17 & 0.4 \\ \hline
 %Singular& $>$15min 	& ---	& ---& ---& ---\\ \hline
-CoCoA 4 & 5.2 & $>$15min 	& $>$15min & $>$15min & 117 \\ \hline\hline
+%CoCoA 4 & 5.2 & $>$15min 	& $>$15min & $>$15min & 117 \\ \hline\hline
 Mathematica 4& 0.2 	& 16 	& 23 & 36 & 1.1 \\ \hline
 Maple 7& 0.5 	& 18 	& 967  & 48 & 1.3 \\ \hline
 \end{tabular}
@@ -529,13 +534,11 @@ Maple 7& 0.5 	& 18 	& 967  & 48 & 1.3 \\ \hline
 \caption{Multivariate factorization over {\bf Q}}
 \label{multifac}
 \end{table}
-As to univariate factorization over {\bf Q},
-the univariate factorizer implements only classical
-algorithms and its behavior is what one expects,
-that is, it shows average performance in cases
-where there are little extraneous factors, but
-shows poor performance for hard to factor polynomials with
-many extraneous factors.
+As to univariate factorization over {\bf Q}, the univariate factorizer
+implements old algorithms and its behavior is what one expects,
+that is, it shows average performance in cases where there are little
+extraneous factors, but shows poor performance for hard to factor
+polynomials with many extraneous factors.
 
 \section{OpenXM and Risa/Asir OpenXM interfaces}
 
@@ -565,7 +568,7 @@ the method to reset a server is carefully designed and it provides
 a robust way of using servers both for interactive and non-interactive
 purposes.
 
-\subsection{OpenXM client interface of {\tt asir}}
+\subsection{OpenXM API in Risa/Asir user language}
 
 Risa/Asir is a main client in OpenXM package.  The application {\tt
 asir} can access to OpenXM servers via several built-in interface
@@ -644,18 +647,19 @@ def gbcheck(B,V,O,Procs) {
 }
 \end{verbatim}
 
-\subsection{Asir OpenXM library {\tt libasir.a}}
+\subsection{OpenXM C language API in {\tt libasir.a}}
 
-Asir OpenXM library {\tt libasir.a} contains functions simulating the
-stack machine commands supported in {\tt ox\_asir}.  By linking {\tt
-libasir.a} an application can use the same functions as in {\tt
-ox\_asir} without accessing to {\tt ox\_asir} via TCP/IP. There is
-also a stack, which can be manipulated by the library functions. In
-order to make full use of this interface, one has to prepare
-conversion functions between CMO and the data structures proper to the
-application itself.  A function {\tt asir\_ox\_pop\_string()} is
-provided to convert CMO to a human readable form, which may be
-sufficient for a simple use of this interface.
+Risa/Asir subroutine library {\tt libasir.a} contains functions
+simulating the stack machine commands supported in {\tt ox\_asir}.  By
+linking {\tt libasir.a} an application can use the same functions as
+in {\tt ox\_asir} without accessing to {\tt ox\_asir} via
+TCP/IP. There is also a stack, which can be manipulated by the library
+functions. In order to make full use of this interface, one has to
+prepare conversion functions between CMO and the data structures
+proper to the application itself.  A function {\tt
+asir\_ox\_pop\_string()} is provided to convert CMO to a human
+readable form, which may be sufficient for a simple use of this
+interface.
 
 \section{Concluding remarks}
 We have shown the current status of Risa/Asir and its OpenXM
