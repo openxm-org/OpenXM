@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.18 2000/03/10 13:05:09 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.19 2000/03/11 02:01:41 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.2
 ## For debugging. 
@@ -48,11 +48,13 @@ BUILD_DEPENDS=  nkf:${PORTSDIR}/japanese/nkf \
                 dvips:${PORTSDIR}/japanese/dvipsk-vflib \
 				/usr/local/bin/perl:${PORTSDIR}/japanese/perl5 \
                 jlatex2html:${PORTSDIR}/japanese/latex2html \
-                makeinfo:${PORTSDIR}/japanese/texinfo \
+                jmakeinfo:${PORTSDIR}/japanese/texinfo \
 				texi2html:${PORTSDIR}/textproc/texi2html \
                 /usr/local/jdk1.1.8/bin/javac:${PORTSDIR}/java/jdk \
 				bash:${PORTSDIR}/shells/bash2 \
 			    autoconf:${PORTSDIR}/devel/autoconf \
+## I could not find a package for makeinfo.
+##                makeinfo:${PORTSDIR}/print/texinfo \
 ### Note:
 ### In order to make dvips work, you need to modify 
 ###  /usr/local/share/texmf/web2c/texmf.cnf. 
