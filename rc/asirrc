@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/rc/asirrc,v 1.10 2003/01/01 02:03:40 takayama Exp $*/
+/*$OpenXM: OpenXM/rc/asirrc,v 1.11 2003/05/18 00:13:14 takayama Exp $*/
 load("gr")$
 load("primdec")$
 load("katsura")$
@@ -7,7 +7,7 @@ load("names.rr")$
 load("oxrfc103.rr")$
 User_asirrc=which(getenv("HOME")+"/.asirrc")$
 if (type(User_asirrc)!=0) {
-   print("Loading ~/.asirrc")$
+   if (!ctrl("quiet_mode")) print("Loading ~/.asirrc")$
    load(User_asirrc)$
 }$
 end$
