@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.20 2000/08/22 05:34:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.21 2000/08/24 00:48:58 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -448,6 +448,7 @@ def test23() {
   Println([ aa[1]*aa[0], aa[2]*aa[1] ]);
   r= IsExact_h(aa,[x1,x2,x3]);
   Println(r);
+  test_if_v_strict(aa,w,"x1,x2,x3");
   /* sm1_pmat(aa); */
   return(aa);
 }
