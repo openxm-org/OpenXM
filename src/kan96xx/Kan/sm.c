@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.18 2002/11/07 23:35:23 takayama Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.19 2003/07/17 23:37:02 takayama Exp $ */
 #define DATE "2003/07/18"
 #define RELEASE "3.030718"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
@@ -77,13 +77,13 @@ main(argc,argv)
   if (!Quiet) {
     fprintf(Fstack,"\n");
     fprintf(Fstack,"Kan/StackMachine1");
-    fprintf(Fstack,"                         1991 April --- 2000.\n");
+    fprintf(Fstack,"                         1991 April --- 2003.\n");
     fprintf(Fstack,"                              Release %s (C) N. Takayama\n",
             RELEASE);
-    fprintf(Fstack,"gc 4.14 (C) Boehm, Demers, GNU MP 2.0.2 (C) Free Software Foundation,\n");
-    fprintf(Fstack,"OpenXM (C) OpenXM developing team. \n");
+    fprintf(Fstack,"gc 5.3 (C) Boehm, Demers, GNU MP 3.1.1 (C) Free Software Foundation,\n");
+    fprintf(Fstack,"OpenXM RFC100, 101, 103 (C) OpenXM developing team. \n");
     fprintf(Fstack,"This software may be freely distributed as is ");
-    fprintf(Fstack,"with no warranty expressed.\n");
+    fprintf(Fstack,"with no warranty expressed. \nSee OpenXM/Copyright/Copyright.generic\n");
     fprintf(Fstack,"Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp. ? for help.\n");
 #ifdef NOGC
     fprintf(Fstack,"No garbage collector is installed.\n");
