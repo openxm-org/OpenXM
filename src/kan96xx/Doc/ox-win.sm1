@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.11 2001/12/28 08:09:38 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.12 2001/12/28 08:18:23 takayama Exp $
 
 /ox-win.sm1.loaded 1 def
 (ox.sm1.loaded) boundp {
@@ -6,7 +6,7 @@
   [(parse) (ox.sm1) pushfile] extension pop
 } ifelse
 
-$ox-win.sm1, ---OpenXM protocol module for Microsoft Windows 08/22, 2001  (C) N.Takayama.$ message-quiet
+$ox-win.sm1, ---OpenXM protocol module for Microsoft Windows 1/9, 2002  (C) N.Takayama.$ message-quiet
 
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
@@ -21,17 +21,39 @@ OpenXM_HOME_WIN tag 0 eq {
   [(getenv) (OpenXM_HOME)] extension
   /OpenXM_HOME_WIN set
 } { } ifelse
+OpenXM_HOME_WIN tag 0 eq {
+  %% Hard encoding:
+  /OpenXM_HOME_WIN
+   (\OpenXM-win)
+%  (\cygwin\home\nobuki\OpenXM\misc\packages\Windows\OpenXM-win)    
+  def
+} { } ifelse
 
 %% This is used in asirconnectr_win
 /OX_LAUNCH (c:\home\asir\bin\ox_launch.exe) def
 %%%%%%%%%%%%%%% end configuration  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-/oxpath.ox (bin/ox.exe) def
-/oxpath.oxsm1 (bin/ox_sm1.exe) def
-/oxpath.oxlog (bin/oxlog.exe) def
-/oxpath.xterm (start ) def
-/oxpath.null  (  ) def
-/oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
-/oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
+%% Set constants for windows.
+[(getenv) (OSTYPE)] extension tag 0 eq {
+  /oxpath.ostype (native-windows) def
+}{
+  [(getenv) (OSTYPE)] extension /oxpath.ostype set
+} ifelse
+
+oxpath.ostype (cygwin) eq {
+ /oxpath.ox (bin/ox.exe) def
+ /oxpath.oxsm1 (bin/ox_sm1.exe) def
+ /oxpath.oxlog (bin/oxlog.exe) def
+ /oxpath.xterm (start ) def
+ /oxpath.null  (  ) def
+ /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
+ /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
+}{
+   /oxpath.ox
+  [ OpenXM_HOME_WIN
+    (\bin\ox.exe)
+  ] cat
+ def
+} ifelse
 
 /sm1connectr {
  [(getenv) (OSTYPE)] extension tag 0 eq {
