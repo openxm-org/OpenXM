@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.4 1999/11/14 22:57:45 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.5 1999/12/09 00:32:37 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -10,6 +10,10 @@ public class CMO_ZZ extends CMO{
   private BigInteger num;
 
   public CMO_ZZ(){}
+
+  public CMO_ZZ(BigInteger num){
+    this.num = num;
+  }
 
   public CMO_ZZ(String str) throws NumberFormatException{
     if(str.startsWith("+")){
