@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.8 1999/11/02 16:29:46 tam Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.9 1999/11/07 06:45:24 takayama Exp $
 all : all1 all2 all3
 
 all1 :
@@ -9,6 +9,7 @@ all1 :
 	(cd kxx ; make install2)
 all2 :
 	(cd gnuplot-diff ; make all)
+	(cd gnuplot-diff ; make install)
 	(cd Ti ; make all )
 	(cd phc ; make all )
 all3 :
