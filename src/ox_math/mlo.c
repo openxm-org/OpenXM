@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.17 2003/03/18 05:20:06 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.18 2003/03/23 21:56:11 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -88,11 +88,7 @@ mlo *receive_mlo_zz()
 
     MLGetString(stdlink, &s);
     ox_printf("%s", s);
-#if defined(WITH_GMP)
     m = (mlo *)new_cmo_zz_set_string(s);
-#else
-    m = (mlo *)new_cmo_int32(atoi(s));
-#endif /* WITH_GMP */
     MLDisownString(stdlink, s);
     return m;
 }
