@@ -1,0 +1,103 @@
+def random_mat(N,Bound)
+{
+	A = matrix(N,N);
+	for ( I = 0; I < N; I++ )
+		for ( J = 0; J < N; J++ )
+			A[I][J] = (random()%Bound)*(random()%2?-1:1);
+	return A;
+}
+
+def random_rmat(M,N,Bound)
+{
+	A = matrix(M,N);
+	for ( I = 0; I < M; I++ )
+		for ( J = 0; J < N; J++ )
+			A[I][J] = (random()%Bound)*(random()%2?-1:1);
+	return A;
+}
+
+def random_vect(N,Bound)
+{
+	A = vector(N);
+	for ( I = 0; I < N; I++ )
+		A[I] = (random()%Bound)*(random()%2?-1:1);
+	return A;
+}
+
+def dup_vector(A)
+{
+	S = size(A); R = S[0];
+	M = vector(R);
+	for( I = 0; I < R; I++ )
+		M[I] = A[I];
+	return M;
+}
+
+def zero_vector(A)
+{
+	S = size(A);
+	M = S[0];
+	for ( I = 0; I < M; I++ )
+		if ( A[I] ) return 0;
+	return 1;
+}
+
+def zero_mat(A)
+{
+	S = size(A);
+	M = S[0]; N = S[1];
+	for ( I = 0; I < M; I++ )
+		for ( J = 0; J < N; J++ )
+			if ( A[I][J] ) return 0;
+	return 1;
+}
+
+def const_term(F)
+{
+	V = var(F);
+	if ( V )
+		return const_term(coef(F,0,V));
+	else
+		return F;
+}
+
+def compute_kernel(A)
+{
+	B = getopt(rhs);
+	if ( type(B) == -1 || (type(B)==5 && zero_vector(B)) ) B = 0;
+	S = size(A);
+	M = S[0]; N = S[1];
+	V = vector(N);
+	for ( I = 0; I < N; I++ )
+		V[I] = strtov("x"+rtostr(I));
+	if ( B )
+		E = vtol(A*V+B);
+	else
+		E = vtol(A*V);
+	VL = reverse(vtol(V));
+	G = nd_gr(E,VL,0,2);
+	D = map(dp_ptod,G,VL);
+	for ( I = 0, LCM = 1, T = D; I < N; I++, T = cdr(T) )
+		LCM = ilcm(dp_hc(car(D)),LCM);
+	Sol = LCM*V;
+	for ( T = D; T != []; T = cdr(T) ) {
+		P = car(T);
+		H = dp_ht(P);
+		C = dp_hc(P);
+		EV = dp_etov(H);
+		for ( I = 0; !EV[I]; I++ );
+		Sol[N-I-1] = dp_dtop((-LCM/C)*dp_rest(P),VL);
+	}
+	PV = vars(Sol);
+	for ( T = PV, Ker = []; T != []; T = cdr(T) ) {
+		V0 = car(T);
+		Sol0 = map(coef,Sol,1,V0);
+		Ker = cons(Sol0,Ker);
+	}
+	if ( B ) {
+		Sol0 = map(const_term,Sol);
+		return [Sol0/(-LCM),Ker];
+	} else 
+		return Ker;
+}
+end$
