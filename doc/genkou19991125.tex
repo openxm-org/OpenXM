@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.72 1999/12/24 12:03:33 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.73 1999/12/24 15:42:24 ohara Exp $
 
 \usepackage{jssac}
 \title{
@@ -8,6 +8,7 @@
 3. せっかく fill しているのをいじらないでくれ。\\
 4. 田村が遊んでばかりでおればかり仕事をしているのはどう考えても不公平だ。
 なんで仕事をしないのか、いい加減仕事をしろ、田村。
+%↑すみません、家で御飯食べてました。
 }
 
 \author{奥 谷 　 行 央\affil{神戸大学大学院自然科学研究科}
@@ -23,7 +24,7 @@
   \and	前 川 　 将 秀\affil{神戸大学理学部}
 		\mail{maekawa@math.sci.kobe-u.ac.jp}
 }
-%\art{}
+\art{}
 
 \begin{document}
 \maketitle
@@ -131,7 +132,7 @@ OpenXM 規約での計算とはメッセージを交換することである。また、 OpenXM 規
 {\Huge 以下、書き直し}
 
 まとめると、クライアントがサーバへメッセージを送り、
-計算の結果を得るという手順を追っていくと次のようになる。
+計算の結果を得るという手順は以下のようになる。
 
 \begin{enumerate}
 \item
@@ -140,11 +141,11 @@ OpenXM 規約での計算とはメッセージを交換することである。また、 OpenXM 規
 \item
 クライアントがサーバに命令を送ると、サーバは必要なだけスタックからデータ
 を取り出し、実行した結果をスタックに積む。
-って書いてるけど、命令がSM\_popCMO とか SM\_shutdown の場合は?
+%って書いてるけど、命令がSM\_popCMO とか SM\_shutdown の場合は?
 \item
-最後に「スタックからデータを取り出し送信を行なう命令」をサーバへ送ると、
-サーバはスタックから計算結果の入っているデータを取り出し、クライアントへ
-送出する。
+最後に SM\_popCMO もしくは SM\_popString をサーバへ送ると、
+サーバはスタックから計算結果の入っているデータを取り出し、
+クライアントへ送出する。
 \end{enumerate}
 
 \section{OpenXM スタックマシン}\label{sec:oxsm}
@@ -197,8 +198,14 @@ OpenXM 規約ではサーバはスタックマシンであると定義している。以下、OpenXM
 #define SM_control_reset_connection              1030
 \end{verbatim}
 
-以下、どういうときに結果をスタックに積むかエラーの場合どうするかの説明が
-必要であろう。
+スタックマシンは命令の実行の結果がある場合、
+
+結果をスタックに積む。
+これは、たとえエラーが起こったとしても同じであり、
+この場合はエラーオブジェクトをスタックに積む。
+
+%以下、どういうときに結果をスタックに積むかエラーの場合どうするかの説明が
+%必要であろう。
 
 
 \section{CMO のデータ構造}\label{sec:cmo}
@@ -225,43 +232,43 @@ CMO では、タグによってボディの論理的構造が決定する。すなわち、タグはそれ
 定義されている。
 
 \begin{verbatim}
-#define CMO_ERROR2 0x7f000002
-#define CMO_NULL   1
-#define CMO_INT32  2
-#define CMO_DATUM  3
-#define CMO_STRING 4
+#define CMO_ERROR2  0x7f000002
+#define CMO_NULL    1
+#define CMO_INT32   2
+#define CMO_DATUM   3
+#define CMO_STRING  4
 #define CMO_MATHCAP 5
 
-#define CMO_START_SIGNATURE    0x7fabcd03     
-#define     CMO_ARRAY  16
-#define     CMO_LIST 17
-#define     CMO_ATOM 18
-#define     CMO_MONOMIAL32  19
-#define     CMO_ZZ          20
-#define     CMO_QQ          21
-#define     CMO_ZERO        22
-#define     CMO_DMS_GENERIC     24
-#define     CMO_DMS_OF_N_VARIABLES 25
-#define     CMO_RING_BY_NAME  26
-#define     CMO_RECURSIVE_POLYNOMIAL 27
-#define     CMO_LIST_R   28
+#define CMO_START_SIGNATURE      0x7fabcd03     
+#define CMO_ARRAY                16
+#define CMO_LIST                 17
+#define CMO_ATOM                 18
+#define CMO_MONOMIAL32           19
+#define CMO_ZZ                   20
+#define CMO_QQ                   21
+#define CMO_ZERO                 22
+#define CMO_DMS_GENERIC          24
+#define CMO_DMS_OF_N_VARIABLES   25
+#define CMO_RING_BY_NAME         26
+#define CMO_RECURSIVE_POLYNOMIAL 27
+#define CMO_LIST_R               28
 
-#define     CMO_INT32COEFF  30
-#define     CMO_DISTRIBUTED_POLYNOMIAL 31
-#define     CMO_POLYNOMIAL_IN_ONE_VARIABLE 33
-#define     CMO_RATIONAL 34
+#define CMO_INT32COEFF                 30
+#define CMO_DISTRIBUTED_POLYNOMIAL     31
+#define CMO_POLYNOMIAL_IN_ONE_VARIABLE 33
+#define CMO_RATIONAL                   34
 
-#define     CMO_64BIT_MACHINE_DOUBLE   40
-#define     CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  41
-#define     CMO_128BIT_MACHINE_DOUBLE   42
-#define     CMO_ARRAY_OF_128BIT_MACHINE_DOUBLE  43
+#define CMO_64BIT_MACHINE_DOUBLE           40
+#define CMO_ARRAY_OF_64BIT_MACHINE_DOUBLE  41
+#define CMO_128BIT_MACHINE_DOUBLE          42
+#define CMO_ARRAY_OF_128BIT_MACHINE_DOUBLE 43
 
-#define     CMO_BIGFLOAT    50
-#define     CMO_IEEE_DOUBLE_FLOAT 51
+#define CMO_BIGFLOAT          50
+#define CMO_IEEE_DOUBLE_FLOAT 51
 
-#define     CMO_INDETERMINATE  60
-#define     CMO_TREE           61
-#define     CMO_LAMBDA         62
+#define CMO_INDETERMINATE 60
+#define CMO_TREE          61
+#define CMO_LAMBDA        62
 \end{verbatim}
 
 この中で CMO\_INT32, ... で識別されるオブジェクトは最も基本的なオブジェ
@@ -293,7 +300,11 @@ CMO では、タグによってボディの論理的構造が決定する。すなわち、タグはそれ
 cmo\_int32 := (CMO\_INT32,  {\sl int32})
 \end{quote}
 
-{\Huge 同様に cmo\_string, cmo\_list などを定義!!}
+{\Huge 同様に cmo\_string, cmo\_list などを定義}
+
+cmo\_string := (CMO\_STRING, {\sl int32}, string)
+
+cmo\_list := (CMO\_LIST, {\sl int32},...
 
 % ここで 32 bit の整数の表現方法について触れておく。
 % OpenXM 規約ではバイトストリームで 32 bit の整数 20 を
