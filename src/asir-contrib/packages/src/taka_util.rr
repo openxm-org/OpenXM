@@ -1,13 +1,13 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.1 2002/11/13 13:22:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.2 2002/11/14 09:29:25 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
  end:
 */
 def taka_util_filter(Comm,InS,Opt) {
-  Commfile = ".openxm-tmp.util.filter.commfile";
-  Infile   = ".openxm-tmp.util.filter.infile";
-  Outfile  = ".openxm-tmp.util.filter.outfile";
+  Commfile = ".openxm-tmp.util.filter.commfile."+rtostr(get_pid());
+  Infile   = ".openxm-tmp.util.filter.infile."+rtostr(get_pid());
+  Outfile  = ".openxm-tmp.util.filter.outfile."+rtostr(get_pid());
   /* BUG: Opt is ignored for now.
       example:
      util_filter(Comm,InS|env=[["CLASSPATH","/usr/local/java/lib"]])
@@ -15,7 +15,7 @@ def taka_util_filter(Comm,InS,Opt) {
   C = "#!/bin/sh\n"+
       Comm+" <"+Infile+" "+
       " > "+Outfile+"\n";
-  print(C);
+  /* print(C); */
 
   Fp = open_file(Commfile,"w");
   if (Fp < 0) return 0;

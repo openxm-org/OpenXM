@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.55 2002/10/22 20:05:39 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.56 2002/11/14 09:29:25 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -705,17 +705,17 @@ def print_open_math_tfb_form(F) {
 end: */
 def util_load_file_as_a_string(F) { 
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
-  return(taka_load_file_as_a_string(F));
+  return(taka_util_load_file_as_a_string(F));
 }
 /*&usage begin: util_filter(Command,Input|env)
  It executes the filter program {Command} with the {Input}
  and returns the output of the filter as a string.
- example: util_filter("ls -lt","");
+ example: util_filter("sort","cat\ndog\ncentipede\n");
 end: */
-def util_filter(C,I) { 
+def util_filter(C,Input) { 
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
   Env = getopt();
-  return(taka_util_filter(Command,Input,Env));
+  return(taka_util_filter(C,Input,Env));
 }
 
 
