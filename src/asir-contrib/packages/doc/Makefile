@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.43 2003/05/18 00:13:15 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.44 2003/05/18 09:57:33 takayama Exp $
 # targets
 # all :   
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -216,21 +216,21 @@ oxrfc100-en.texi : oxrfc100.oxweave Makefile
 	$(RM) -f oxrfc100-en.texi
 	$(OXWEAVE) C-texi eg-texi  <oxrfc100.oxweave >oxrfc100-en.texi
 
-oxmath-ja.texi : $(CONTRIB)/m Makefile
+oxmath-ja.texi : m.oxweave Makefile
 	$(RM) -f oxmath-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/m >oxmath-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <m.oxweave >oxmath-ja.texi
 
-oxmath-en.texi : $(CONTRIB)/m Makefile
+oxmath-en.texi : m.oxweave Makefile
 	$(RM) -f oxmath-en.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/m >oxmath-en.texi
+	$(OXWEAVE) C-texi eg-texi  <m.oxweave >oxmath-en.texi
 
-oxphc-ja.texi : $(CONTRIB)/phc Makefile
+oxphc-ja.texi : phc.oxweave Makefile
 	$(RM) -f oxphc-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/phc >oxphc-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <phc.oxweave >oxphc-ja.texi
 
-oxphc-en.texi : $(CONTRIB)/phc Makefile
+oxphc-en.texi : phc.oxweave Makefile
 	$(RM) -f oxphc-en.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/phc >oxphc-en.texi
+	$(OXWEAVE) C-texi eg-texi  <phc.oxweave >oxphc-en.texi
 
 oxgnuplot-ja.texi : gnuplot.oxweave Makefile
 	$(RM) -f oxgnuplot-ja.texi
@@ -271,13 +271,13 @@ dsolv-en.texi : dsolv.oxweave Makefile
 	$(OXWEAVE) C-texi eg-texi  <dsolv.oxweave >dsolv-en.texi
 
 
-oxtigers-ja.texi : $(CONTRIB)/tigers Makefile
+oxtigers-ja.texi : tigers.oxweave Makefile
 	$(RM) -f oxtigers-ja.texi
-	$(OXWEAVE) C-texi jp-texi  <$(CONTRIB)/tigers >oxtigers-ja.texi
+	$(OXWEAVE) C-texi jp-texi  <tigers.oxweave >oxtigers-ja.texi
 
-oxtigers-en.texi : $(CONTRIB)/tigers Makefile
+oxtigers-en.texi : tigers.oxweave Makefile
 	$(RM) -f oxtigers-en.texi
-	$(OXWEAVE) C-texi eg-texi  <$(CONTRIB)/tigers >oxtigers-en.texi
+	$(OXWEAVE) C-texi eg-texi  <tigers.oxweave >oxtigers-en.texi
 
 ### windows
 windows-ja.texi : windows.oxweave Makefile
