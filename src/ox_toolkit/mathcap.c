@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.6 2000/11/27 09:57:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.7 2000/12/03 16:15:03 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
@@ -236,7 +236,7 @@ static cmo_list *sysinfo_get()
 
 static char *new_string(char *s)
 {
-    char *t = malloc(sizeof(s)+1);
+    char *t = malloc(strlen(s)+1);
     strcpy(t, s);
     return t;
 }
