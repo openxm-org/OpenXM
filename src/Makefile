@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.131 2003/09/11 00:46:18 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.132 2003/09/14 01:19:55 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -11,7 +11,7 @@ COPYRIGHTDIR=../Copyright
 all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep
 
-all-gc: 
+all-gc: install-util 
 	(cd gc; make all)
 
 all-gmp: configure-gmp
