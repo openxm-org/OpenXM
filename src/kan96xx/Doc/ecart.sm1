@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.20 2004/05/04 08:03:30 takayama Exp $ 
+% $OpenXM: OpenXM/src/kan96xx/Doc/ecart.sm1,v 1.21 2004/05/04 08:29:35 takayama Exp $ 
 %[(parse) (hol.sm1) pushfile] extension
 %[(parse) (appell.sm1) pushfile] extension
 
@@ -16,6 +16,13 @@
   [(EcartAutomaticHomogenization) 0] system_variable
 } def
 
+/ecart.message.quiet 0 def
+/ecart.message {
+  ecart.message.quiet { pop } { message } ifelse
+} def
+/ecart.messagen {
+  ecart.message.quiet { pop } { messagen } ifelse
+} def
 /ecart.setOpt {
   /arg1 set
   [/in-ecart.setOpt /opt /i /n /ans] pushVariables
@@ -210,6 +217,9 @@
 } def
 
 /ecart.gb {ecartd.gb}  def
+
+[(ecartd.gb)
+[(See ecart.gb)]] putUsages
 
 [(ecart.gb)
  [(a ecart.gb b)
@@ -836,7 +846,7 @@
     setarg { } { (ecart.gb : Argument mismatch) error } ifelse
     
     [(KanGBmessage) ecart.gb.verbose ] system_variable
-    $ecartd.gb dehomogenizes at each reduction step w.r.t. s (H).$ message
+    $ecartd.gb dehomogenizes at each reduction step w.r.t. s (H).$ ecart.message
 
     %%% Start of the preprocess
     v tag RingP eq {
@@ -854,7 +864,7 @@
         (Error in gb: Specify variables) error
       } {  } ifelse
       wv isInteger {        
-        (Give an weight vector such that x < 1) error
+        (Give a weight vector such that x < 1) error
       }{
        degreeShift isInteger {
          [v ring_of_differential_operators 
@@ -898,7 +908,7 @@
 
     ecartd.begin
 
-    ecart.gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
+    ecart.gb.verbose { (gb.options = ) ecart.messagen gb.options ecart.message } { } ifelse
 
     hdShift tag 1 eq {
      ecart.autoHomogenize not hdShift -1 eq  or {
@@ -906,7 +916,7 @@
        f { {. } map} map /f set   
      } {
 % Automatic h-homogenization without degreeShift
-       (ecartd.gb : Input polynomial or vectors are automatically homogenized without degreeShift) message
+       (ecartd.gb : Input polynomial or vectors are automatically homogenized without degreeShift) ecart.message
        f { {. ecart.dehomogenize} map} map /f set   
        f ecart.homogenize01 /f set
        f { { [[(H). (1).]] replace } map } map /f set
@@ -1667,6 +1677,104 @@
   $   (x,y) [[(Dx) 1 (Dy) 1] [(x) -1 (y) -1 (Dx) 1 (Dy) 1]]] /ggg set $
   $ (Dx+Dy) ggg ecartd.reduction :: $
 ]] putUsages
+
+/ecart.stdOrder {
+  /arg1 set
+  [/in-ecart.stdOrder /vv /tt /dvv /wv1 /wv2
+  ] pushVariables
+  [
+     /vv arg1 def
+     vv isString { [ vv to_records pop] /vv set }
+     { } ifelse
+     vv { toString} map /vv set
+
+     vv { /tt set [@@@.Dsymbol tt] cat } map /dvv set
+     dvv { 1 } map /wv1 set
+     vv { -1 } map dvv { 1 } map join /wv2 set
+     /arg1 [wv1 wv2 ] def
+  ] popVariables
+  arg1
+} def
+
+/ecartd.isSameIdeal_h {
+  /arg1 set
+  [/in-ecartd.isSameIdeal_h /aa /ii /jj /iigg /jjgg /vv /ans /k /n /f
+   /ecartd.isSameIdeal_h.opt
+   /save-ecart.autoHomogenize  /wv /save-ecart.message.quiet
+   ] pushVariables
+  [(CurrentRingp) (Homogenize_vec)] pushEnv
+  [
+    /aa arg1 def
+    gb.verbose { (Getting in ecartd.isSameIdeal_h) message } { } ifelse
+    %% comparison of hilbert series has not yet been implemented.
+    /save-ecart.message.quiet ecart.message.quiet def
+    aa length 3 eq {    }
+    { ([ii jj vv] ecartd.isSameIdeal_h) error } ifelse
+    /ii aa 0 get def
+    /jj aa 1 get def
+    /vv aa 2 get def
+    ii length 0 eq jj length 0 eq and 
+    { /ans 1 def /LLL.ecartd.isSame_h goto } {  } ifelse
+
+    vv ecart.stdOrder /wv set
+
+    /save-ecart.autoHomogenize ecart.autoHomogenize def
+    /ecart.autoHomogenize 0 def
+    [ii vv wv] ecartd.gb  /iigg set
+    [jj vv wv] ecartd.gb  /jjgg set
+    save-ecart.autoHomogenize /ecart.autoHomogenize set
+
+    iigg getRing ring_def
+
+    getOptions /ecartd.isSameIdeal_h.opt set
+
+    /ans 1 def
+    iigg 0 get /iigg set
+    jjgg 0 get /jjgg set
+    %%Bug: not implemented for the case of module.
+
+    /save-ecart.message.quiet ecart.message.quiet def
+    /ecart.message.quiet 1 def
+    gb.verbose { (Comparing) message iigg message (and) message jjgg message }
+    {  } ifelse
+    gb.verbose { ( ii < jj ?) messagen } {  } ifelse
+    iigg length /n set
+    0 1 n 1 sub {
+      /k set
+      iigg  k get 
+      [jjgg vv wv] ecartd.reduction 0 get
+      (0). eq not { /ans 0 def /LLL.ecartd.isSame_h goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    gb.verbose { ( jj < ii ?) messagen } {  } ifelse
+    jjgg length /n set
+    0 1 n 1 sub {
+      /k set
+      jjgg k get 
+      [iigg vv wv] ecartd.reduction 0 get
+      (0). eq not { /ans 0 def /LLL.ecartd.isSame_h goto} {  } ifelse
+      gb.verbose { (o) messagen } {  } ifelse
+    } for
+    /LLL.ecartd.isSame_h
+    gb.verbose { ( Done) message } {  } ifelse
+    save-ecart.message.quiet /ecart.message.quiet set
+    ecartd.isSameIdeal_h.opt restoreOptions 
+    /arg1 ans def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+(ecartd.isSameIdeal_h ) messagen-quiet
+
+[(ecartd.isSameIdeal_h)
+[([ii jj vv] ecartd.isSameIdeal_h bool)
+ (ii, jj : ideal, vv : variables)
+ $The ideals ii and jj will be compared in the ring h[0,1](D).$
+ $ii and jj are re-parsed.$
+ $Example 1: [ [((1-x) Dx + h)]  [((1-x)^2 Dx + h (1-x))] (x)] ecartd.isSameIdeal_h $
+]] putUsages
+
 
 
 ( ) message-quiet 
