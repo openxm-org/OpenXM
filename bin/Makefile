@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/bin/Makefile,v 1.5 2000/01/19 07:28:37 noro Exp $
+# $OpenXM: OpenXM/bin/Makefile,v 1.6 2000/01/19 09:43:53 takayama Exp $
 
 LIBDIR=../lib
 FEPLINUX=fep.linux
@@ -11,8 +11,18 @@ configure: $(FEPLINUX) $(FEPFBSD) $(PHC)
 		rm -f fep phc ; \
 		ln -f -s $(FEPLINUX) fep ; \
 		ln -f -s $(PHC) phc ; \
+	    echo "Linux binary generation: fep, phc" ; \
 	else \
-		echo "We have the binary of phc only for linux." ; \
+		echo "Not Linux" ; \
+	fi
+	-@if [ "`uname`" = "FreeBSD" ]; then \
+		rm -f fep phc ; \
+		ln -f -s $(FEPFBSD) fep ; \
+		ln -f -s $(PHC) phc ; \
+		brandelf -t Linux ./phc ; \
+		echo "FreeBSD binary generation: fep and phc. Linux Emulation is requied to execute phc." ; \
+	else \
+	     echo "Not FreeBSD" ; \
 	fi
 
 	rm -f asir
@@ -40,18 +50,18 @@ $(PHC) : $(PHC).gz.uuencoded
 	fi
 
 distclean:
-	rm -f asir fep fep.linux lin_phcv2p phc
+	rm -f asir fep fep.linux fep.fbsd lin_phcv2p phc
 
 uuencode:
 	@if [ -f $(FEPLINUX) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.5 2000/01/19 07:28:37 noro Exp $' > $(FEPLINUX).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.6 2000/01/19 09:43:53 takayama Exp $' > $(FEPLINUX).gz.uuencoded ; \
 		gzip -c $(FEPLINUX) | uuencode $(FEPLINUX).gz >> $(FEPLINUX).gz.uuencoded ; \
 	fi
 	@if [ -f $(FEPFBSD) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.5 2000/01/19 07:28:37 noro Exp $' > $(FEPFBSD).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.6 2000/01/19 09:43:53 takayama Exp $' > $(FEPFBSD).gz.uuencoded ; \
 		gzip -c $(FEPFBSD) | uuencode $(FEPFBSD).gz >> $(FEPFBSD).gz.uuencoded ; \
 	fi
 	@if [ -f $(PHC) ]; then \
-		echo '$OpenXM: OpenXM/bin/Makefile,v 1.5 2000/01/19 07:28:37 noro Exp $' > $(PHC).gz.uuencoded ; \
+		echo '$OpenXM: OpenXM/bin/Makefile,v 1.6 2000/01/19 09:43:53 takayama Exp $' > $(PHC).gz.uuencoded ; \
 		gzip -c $(PHC) | uuencode $(PHC).gz >> $(PHC).gz.uuencoded ; \
 	fi
