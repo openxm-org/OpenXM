@@ -1,34 +1,21 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.66 2003/01/16 00:54:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.67 2003/01/16 22:02:32 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
+load("oxrfc100.rr")$
 
-print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
+print("OpenXM/Risa/Asir-Contrib(20030518), Copyright 2000-2003, OpenXM.org")$
 print("help(\"keyword\"); ox_help(0); ox_help(\"keyword\"); ox_grep(\"keyword\");")$
 print("     for help messages (unix version only). ")$
 
-/* Utilities : it also defined in xm */
-def ox_getenv(S) {
-  A = getenv(S);
-  if (A == 0) {
-    if (type(S) != 7) S=rtostr(S); 
-    S2 = ox_toupper(S);
-    /* 
-    print("Warning: the environmental variable "+S+" does not have a value. checking "+S2);
-    */
-    A = getenv(S2);
-  }
-  return A;
-}
-def ox_toupper(S) {
-  R = [];  A = strtoascii(S);
-  for (I=0; I<length(A); I++) R=cons((A[I]>=97 && A[I]<=122?A[I]-32:A[I]),R);
-  return asciitostr(reverse(R));
-}
 
 /* Include data type declaration. */
 load("datatype.rr")$
 #include "tags.h"
 /* Include a standard library. It should be included
    in a different place in a future. */
+load("sm1")$
+load("gnuplot")$
+load("tigers")$
+load("phc")$
 load("quote.rr")$  
 load("misc.rr")$ 
 load("tex_symbols.rr")$

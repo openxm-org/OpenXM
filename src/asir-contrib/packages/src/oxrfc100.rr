@@ -1,0 +1,117 @@
+/* $OpenXM$ */
+
+/* The module xm is obsolete and it is moved to oxrfc100.rr */
+
+/* Utilities  */
+def ox_getenv(S) {
+  A = getenv(S);
+  if (A == 0) {
+    if (type(S) != 7) S=rtostr(S); 
+    S2 = ox_toupper(S);
+    /* 
+    print("Warning: the environmental variable "+S+" does not have a value. checking "+S2);
+    */
+    A = getenv(S2);
+  }
+  return A;
+}
+def ox_toupper(S) {
+  R = [];  A = strtoascii(S);
+  for (I=0; I<length(A); I++) R=cons((A[I]>=97 && A[I]<=122?A[I]-32:A[I]),R);
+  return asciitostr(reverse(R));
+}
+
+
+Xm_noX = 0$  
+/* 1 : using X-window system. 0 : not using X-window system. */
+/* TODO: db.restore should be called after sm1 error and interruption.
+         cf. var.sm1,  debugMode
+*/
+Xm_use_timer_to_start_server = 1$
+XM_debug=1$
+Xm_debug_on_win_1=0$
+
+
+Sm1_lib = ox_getenv("OpenXM_HOME")$
+if (Sm1_lib == 0) {
+  Sm1_lib = "/usr/local/lib/sm1"$
+} else {
+  Sm1_lib = Sm1_lib+"/lib/sm1"$
+}
+ToAsir_Debug = 0$
+
+def ox_help(A) {
+  if (type(A) == 0) {
+    shell("ls "+ox_getenv("OpenXM_HOME")+"/lib/asir/help/xm.help");
+  }else{
+    help("xm.help/"+A)$
+  }
+}
+
+
+def ox_get_errors(P) {
+  ox_push_cmd(P,276);
+  return(ox_pop_cmo(P));
+}
+def ox_check_errors(P) {
+  E = ox_get_errors(P);
+  if (E == [ ]) return(P);
+  else {
+    print("Error during the initialization : double check binary ox-files, library files and environmental variables.");
+    print(E);
+    debug;
+  }
+  return(P);
+}
+
+def ox_check_errors2(P) {
+  extern XM_debug;
+  E = ox_get_errors(P);
+  if (E == [ ]) return(P);
+  else {
+    print(E);
+    print("Error on the server of the process number = ",0)$
+    print(P);
+    if (XM_debug == 0) {
+       print("Automatically cleaning the stack (pop 100 data)....",0)$
+       ox_pops(P,100)$
+       print("done.")$
+       print("If you want to do it by hand, set XM_debug = 1.");
+    }else{
+       print("To clean the stack of the ox server,");
+       print("type in ox_pops(P,N) (P: process number, N: the number of data you need to pop) out of the debug mode");
+       print("If you like to automatically clean data on the server stack,");
+       print("set XM_debug=0;");
+       debug;
+    }
+  }
+  return(P);
+}
+
+def first(A) {return(A[0]);}
+
+
+def ox_grep(A) {
+  if (ox_getenv("LANG") == "ja_JP.EUC") {
+    F = get_rootdir()+"/help-jp/";
+  }else{
+    F = get_rootdir()+"/help-eg/";
+  }
+  Pager = ox_getenv("PAGER");
+  if (Pager == 0) Pager="more";
+  OF = F+"xm.help";
+
+  print("---------- Result of grep  (ox_grep) ---------------------")$
+  shell("(cd " + F + " ; " + " grep "+A+" * xm.help/* | "+Pager+" )");
+
+  print("---------- Possible help keyword  for help -------------")$
+  shell("ls "+F+" | grep "+A);
+  print("---------- Possible help keyword  for ox_help ----------")$
+  shell("ls "+OF+" | grep "+A);
+
+  return(0);
+}
+
+
+
+end$
