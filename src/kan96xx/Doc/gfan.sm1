@@ -1,0 +1,1979 @@
+% $OpenXM$
+% cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
+% $Id$
+% iso-2022-jp
+
+/cone.debug 1 def
+
+/ox.k0.loaded boundp {
+} { 
+ [(parse) (ox.sm1) pushfile] extension
+} ifelse
+
+% Global: cone.type
+% どの exponents を取り出すのか指定する.
+% cf. exponents, gbext  h や H も見るか?
+% 0 : x,y,Dx,Dy
+% 1 : x,y,Dx,Dy,h,H
+% 2 : x,y,Dx,Dy,h 
+/cone.type 2 def
+
+% Global: cone.local
+% cone.local: Local か?  1 なら local
+/cone.local 1 def
+
+% Global: cone.h0
+% cone.h0:  1 なら h の weight 0 での Grobner fan を計算する.
+/cone.h0 1 def
+
+% Global: cone.n (number of variables in GB)
+%         cone.m (freedom of the weight space. cf. cone.W)
+%         cone.d (pointed cones lies in this space. cf. cone.Lp)
+% These are set during getting the cone.startingCone
+
+
+%<
+% Usage:  wv g coneEq1
+% in(f) が monomial 専用.  in_w(f) = LT(f) となる weight w の満たす
+% 不等式制約を求める.
+%>
+/coneEq1 {
+  /arg1 set
+  [/g /eqs /gsize /i /j /n /f /exps /m  % Do not use "eq" as a variable
+   /expsTop
+  ] pushVariables
+  [
+    /g arg1 def  % Reduced Grobner basis
+    /eqs [ ] def % 不等式系の係数
+    /gsize g length def
+    0 1 gsize 1 sub {
+      /i set
+      g i get /f set  % f は i 番目の reduced Grobner basis の元
+      [(exponents) f cone.type] gbext /exps set % exps は f の exponent vector
+      exps length /m set
+      m 1 eq not {
+        /expsTop exps 0 get def % expsTop は f の先頭の exponent vector.
+        1 1 exps length 1 sub {
+           /j set
+           eqs [expsTop exps j get  sub] join /eqs set 
+           % exps[0]-exps[j] を eqs へ格納していくだけ.
+           % Cone の closure をだすので  >= で OK.
+        } for
+      } { } ifelse
+    } for
+    /arg1 eqs def   
+  ] pop
+  popVariables 
+  arg1
+} def
+
+%<
+% Usage: ww g coneEq
+% ww は [v1 w1 v2 w2 ... ] 形式. (v-w 形式) w1, w2 は univNumber でもいい. 
+% g は reduced Grobner basis
+% in(f) が monomial でない場合も扱う.
+% in_w(f) = in_ww(f) となる weight w の満たす
+% 不等式制約を求める.
+% ord_w, init (weightv) を用いる.
+%>
+/coneEq {
+  /arg2 set
+  /arg1 set
+  [/g /eqs /gsize /i /j /n /f /exps /m 
+   /expsTop /ww /ww2 /iterms
+  ] pushVariables
+  [
+    /g arg2 def  % Reduced Grobner basis
+    /ww arg1 def % weight vector. v-w 形式
+    ww to_int32 /ww set % univNum があれば int32 に直しておく.
+    /ww2 ww weightv def  % v-w 形式を 数字のベクトルに. (init 用)
+
+    /eqs [ ] def % 不等式系の係数
+    /gsize g length def
+    0 1 gsize 1 sub {
+      /i set
+      g i get /f set  % f は i 番目の reduced Grobner basis の元
+      [(exponents) f cone.type] gbext /exps set % exps は f の exponent vector
+      exps length /m set
+      m 1 eq not {
+        /expsTop exps 0 get def % expsTop は f の先頭の exponent vector.
+        /iterms f ww2 init length def % f の initial term の項の数.
+        % in_ww(f) > f_j となる項の処理.
+        iterms 1 exps length 1 sub {
+           /j set
+           eqs [expsTop exps j get  sub] join /eqs set 
+           % exps[0]-exps[j] を eqs へ格納していく.
+        } for
+        % in_ww(f) = f_j となる項の処理.
+        [(exponents) f ww2 init cone.type] gbext /exps set % exps は in(f)
+        1 1 iterms 1 sub {
+          /j set
+          eqs [exps j get expsTop sub] join /eqs set 
+          eqs [expsTop exps j get sub] join /eqs set 
+          % exps[j]-exps[0], exps[0]-exps[j] を格納. 
+          % 結果的に (exps[j]-exps[0]).w = 0 となる.  
+        }  for
+      } { } ifelse
+    } for
+    /arg1 eqs def   
+  ] pop
+  popVariables 
+  arg1
+} def
+
+%<
+% Usage: wv g coneEq genPo
+% polymake 形式の INEQUALITIES を生成する.  coneEq -> genPo と利用
+%>
+/genPo {
+  /arg1 set
+  [/outConeEq /rr /nn /ii /mm /jj /ee] pushVariables
+  [
+    /outConeEq arg1 def
+    /rr [(INEQUALITIES) nl] cat def % 文字列 rr に足していく.
+    outConeEq length /nn set
+    0 1 nn 1 sub {
+      /ii set
+      outConeEq ii get /ee set
+      [ rr 
+        (0 )    % 非せいじ用の 0 を加える.
+        0 1 ee length 1 sub {
+          /jj set
+          ee jj get toString ( )
+        } for
+        nl 
+      ] cat /rr set       
+    } for
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usage: wv g coneEq genPo2
+% doPolyamke 形式の INEQUALITIES を生成する.  coneEq -> genPo2 と利用
+% tfb 形式文字列.
+%>
+/genPo2 {
+  /arg1 set
+  [/outConeEq /rr /nn /ii /mm /jj /ee] pushVariables
+  [
+    /outConeEq arg1 def
+    /rr $polymake.data(polymake.INEQUALITIES([$ def 
+    % 文字列 rr に足していく.
+    outConeEq length /nn set
+    0 1 nn 1 sub {
+      /ii set
+      outConeEq ii get /ee set
+      [ rr 
+        ([0,)   % 非せいじ用の 0 を加える.
+        0 1 ee length 1 sub {
+          /jj set
+          ee jj get toString 
+          jj ee length 1 sub eq { } { (,) } ifelse
+        } for
+        (]) 
+        ii nn 1 sub eq { } { (,) } ifelse
+      ] cat /rr set       
+    } for
+    [rr $]))$ ] cat /rr set
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/test1 {
+  [(x,y) ring_of_differential_operators 0] define_ring
+  [ (x + y + Dx + Dy).
+    (x ^2 Dx^2 + y^2 Dy^2).
+    (x). 
+  ] /gg set
+  gg coneEq1 /ggc set
+  gg message
+  ggc pmat 
+
+  ggc genPo message
+} def
+
+/test2 {
+  [(parse) (dhecart.sm1) pushfile] extension
+  dh.test.p1 /ff set 
+  ff 0 get coneEq1 /ggc set
+  ggc message
+  ggc genPo /ss set
+  ss message
+  (Data is in ss) message
+} def
+
+
+/test3 {
+%  [(parse) (cohom.sm1) pushfile] extension
+  /ww [(Dx) 1 (Dy) 1] def
+  [(x,y) ring_of_differential_operators 
+   [ww] weight_vector
+   0] define_ring
+  [ (x Dx + y Dy -1).
+    (y^2 Dy^2 + 2 + y Dy ).
+  ] /gg set
+  gg {homogenize} map /gg set
+  [gg] groebner 0 get /gg set
+  ww message 
+  ww gg coneEq /ggc set
+  gg message
+  ggc pmat 
+
+  ggc genPo message
+} def
+
+%<
+% Usage: test3b
+% Grobner cone を決定して, polymake 用のデータを生成するテスト.
+% weight (0,0,1,1) だと max dim cone でない.
+%>
+/test3b {
+%  [(parse) (cohom.sm1) pushfile] extension
+  /ww [(Dx) 1 (Dy) 2] def
+  [(x,y) ring_of_differential_operators 
+   [ww] weight_vector
+   0] define_ring
+  [ (x Dx + y Dy -1).
+    (y^2 Dy^2 + 2 + y Dy ).
+  ] /gg set
+  gg {homogenize} map /gg set
+  [gg] groebner 0 get /gg set
+  ww message 
+  ww gg coneEq /ggc set
+  gg message
+  ggc pmat 
+
+%  ggc genPo /ggs set % INEQ を文字列形式で
+%  ggs message
+%  ggs output
+%  (mv sm1out.txt test3b.poly) system
+%  (Type in polymake-pear.sh test3b.poly FACETS) message
+
+   ggc genPo2 /ggs set % INEQ を文字列形式 for doPolymake
+   ggs message
+
+} def
+
+% commit (dr.sm1):  lcm, denominator, ngcd, to_univNum,  numerator, reduce 
+%  8/22,  changelog-ja まだ. 
+% to do : nnormalize_vec,  sort_vec --> shell で OK.
+% 8/27, getNode
+
+/test4 {
+ $polymake.data(polymake.INEQUALITIES([[0,1,0,0],[0,0,1,0]]))$ /ff set 
+ [(FACETS) ff] doPolymake /rr set
+
+ rr 1 get /rr1 set
+ rr1 getLinearitySubspace pmat
+
+} def
+
+%<
+% Usage: vv ineq isInLinearSpace
+%        vv が ineq[i] > 0 で定義される半空間のどれかにはいっているなら 0
+%        vv が 全ての i について ineq[i] = 0 にはいっていたら 1.
+%>
+/isInLinearSpace {
+  /arg2 set
+  /arg1 set
+  [/vv /ineq /ii /rr] pushVariables
+  [
+    /vv arg1 def
+    /ineq arg2 def
+    /rr 1 def
+    {
+       0 1 ineq length 1 sub {
+         /ii set
+         % vv . ineq[ii] != 0 なら vv は linearity space の元でない.
+         vv ineq ii get mul to_univNum isZero {
+         } { /rr 0 def exit} ifelse
+       } for
+       exit
+    } loop
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: doPolymakeObj getLinearitySubspace
+% INEQUALITIES と VERTICES から maximal linearity subspace
+% の生成ベクトルを求める.
+% 例: VERTICES [[0,1,0,0],[0,0,1,0],[0,0,0,-1],[0,0,0,1]]] 
+% 例: INEQUALITIES [[0,1,0,0],[0,0,1,0]]
+% 入力は polymake の tree (doPolymake の 1 get)
+%>
+/getLinearitySubspace {
+  /arg1 set
+  [/pdata /vv /ineq /rr /ii] pushVariables
+  [
+     /pdata arg1 def
+     {
+       /rr [ ] def
+       % POINTED なら max lin subspace は 0.
+       pdata (POINTED) getNode tag 0 eq { } { exit} ifelse 
+
+       pdata (INEQUALITIES) getNode 2 get 0 get /ineq set
+       pdata (VERTICES) getNode 2 get 0 get /vv set
+       0 1 vv length 1 sub {
+         /ii set
+         % -vv[ii] が ineq を満たすか調べる. 
+         vv ii get ineq  isInLinearSpace {
+            rr  [vv ii get] join /rr set 
+         } {  } ifelse
+       } for
+       exit
+     } loop
+     /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: mm asir_matrix_image
+% 生成元より線形空間の基底を得る.
+%>
+/asir_matrix_image {
+  /arg1 set
+  [/mm /rr] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /mm arg1 def
+    mm to_univNum /mm set
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+    {
+     oxasir.ccc [(matrix_image) mm] asir
+     /rr set
+     rr null_to_zero /rr set
+     exit
+
+     (asir_matrix_image: not implemented) error exit
+    } loop
+
+    rr numerator /rr set
+    /arg1 rr def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(asir_matrix_image)
+ [(Calling the function matrix_image of asir. It gets a reduced basis of a given matrix.)
+  (Example:  [[1 2 3] [2 4 6]] asir_matrix_image)
+]] putUsages
+
+%<
+% Usages: mm asir_matrix_kernel
+% 直交する空間の基底.
+%>
+/asir_matrix_kernel {
+  /arg1 set
+  [/mm /rr] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /mm arg1 def
+    mm to_univNum /mm set
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+    {
+     oxasir.ccc [(matrix_kernel) mm] asir
+     /rr set
+     rr null_to_zero /rr set
+     exit
+
+     (asir_matrix_image: not implemented) error exit
+    } loop
+    rr 1 get numerator /rr set  
+    /arg1 rr def
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+[(asir_matrix_kernel)
+ [(Calling the function matrix_kernel of asir.)
+  (It gets a reduced basis of the kernel of a given matrix.)
+  (Example:  [[1 2 3] [2 4 6]] asir_matrix_kernel)
+]] putUsages
+
+%<
+% Usages: v null_to_zero
+%>
+/null_to_zero {
+  /arg1 set
+  [/pp /rr] pushVariables
+  [
+    /pp arg1 def
+    {
+      /rr pp def
+      pp isArray {
+       pp {null_to_zero} map /rr set
+       exit
+      }{ } ifelse
+    
+      pp tag 0 eq {
+        /rr (0).. def
+        exit
+      }{  } ifelse
+      exit
+    } loop
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1 
+} def
+[(null_to_zero)
+[(obj null_to_zero rob)
+ $It translates null to (0)..$
+]] putUsages
+
+% [2 0] lcm は 0 をもどすがいいか? --> OK.
+
+%<
+% Usages: mm addZeroForPolymake
+% 以下の二つの関数は,  toQuotientSpace にも利用.
+% Polymake INEQUALITIES 用に 0 を始めに足す.
+% 入力は リストのリスト
+% [[1,2], [3,4],[5,6]] --> [[0,1,2],[0,3,4],[0,5,6]]
+%>
+/addZeroForPolymake {
+  /arg1 set
+  [/mm /rr] pushVariables
+  [
+    /mm arg1 def
+    mm to_univNum /mm set
+    mm { [(0)..] 2 1 roll join } map /mm set
+    /arg1 mm def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: mm cone.appendZero
+%>
+/cone.appendZero {
+  /arg1 set
+  [/mm /rr] pushVariables
+  [
+    /mm arg1 def
+    mm to_univNum /mm set
+    mm { [(0)..] join } map /mm set
+    /arg1 mm def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: mm removeFirstFromPolymake
+% 始めの 0 を取り除く.
+% 入力は リストのリスト
+% [[0,1,2],[0,3,4],[0,5,6]] ---> [[1,2], [3,4],[5,6]]
+%>
+/removeFirstFromPolymake {
+  /arg1 set
+  [/mm /rr] pushVariables
+  [
+    /mm arg1 def
+    mm to_univNum /mm set
+    mm {rest} map /mm set
+    /arg1 mm def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: mm genUnit
+% [1,0,0,...] を加えるために生成.
+% [[0,1,2], [0,3,4],[0,5,6]]--> [1,0,0]
+%>
+/genUnit {
+  /arg1 set
+  [/mm /rr /i] pushVariables
+  [
+    /mm arg1 def
+    mm 0 get length newVector /rr set
+    rr null_to_zero /rr set
+    rr 0 (1).. put
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: mm genUnitMatrix
+% [[0,1,2], [0,3,4],[0,5,6]]--> [[1,0,0],[0,1,0],[0,0,1]]
+%>
+/genUnitMatrix {
+  /arg1 set
+  [/mm /rr /nn /i] pushVariables
+  [
+    /mm arg1 def
+    mm 0 get length /nn set
+    [
+      0 1 nn 1 sub {
+        /i set
+        nn newVector null_to_zero /mm set 
+        mm i (1).. put
+        mm
+      } for
+    ]
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+%%note:  2004, 8/29 (sun)
+% toQuotientSpace : Linearity space で割る.
+% Usages: ineq mm toQuotientSpace
+% 入力は coneEq の出力 ineq  
+% および doPolymake --> getLinearitySubspace ==> L 
+%  [L,[1,0,0,...]] asir_matrix_kernel removeFirstFromPolymake で得られた mm
+% 出力から 0 ベクトルは削除.
+% 出力も coneEq 形式.  特に polymake 用に 0 を加えるのが必要.
+% ref: getUnit, removeFirstFromPolymake, addZeroForPolymake,
+%      asir_matrix_kernel, getLinearitySubspace
+%>
+/toQuotientSpace {
+  /arg2 set
+  /arg1 set
+  [/ineq /mm /rr] pushVariables
+  [
+    /ineq arg1 def
+    /mm arg2 def
+
+    ineq mm transpose mul /rr set
+
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/test5.data
+ $polymake.data(polymake.INEQUALITIES([[0,1,-1,1,-1,0],[0,0,-1,0,-1,2],[0,0,-1,0,-1,2],[0,0,-2,0,-2,4],[0,-1,0,-1,0,2],[0,-2,0,-2,0,4]]),polymake.VERTICES([[0,0,-1,0,0,0],[0,-1,-1,0,0,0],[0,1,0,-1,0,0],[0,-1,0,1,0,0],[0,0,1,0,-1,0],[0,0,-1,0,1,0],[0,-2,-2,0,0,-1],[0,2,2,0,0,1]]),polymake.FACETS([[0,1,-1,1,-1,0],[0,-1,0,-1,0,2]]),polymake.AFFINE_HULL(),polymake.FEASIBLE(),polymake.NOT__POINTED(),polymake.FAR_FACE([polymake._set([0,1,2,3,4,5,6,7])]),polymake.VERTICES_IN_INEQUALITIES([polymake._set([1,2,3,4,5,6,7]),polymake._set([2,3,4,5,6,7]),polymake._set([2,3,4,5,6,7]),polymake._set([2,3,4,5,6,7]),polymake._set([0,2,3,4,5,6,7]),polymake._set([0,2,3,4,5,6,7])]),polymake.DIM([[5]]),polymake.AMBIENT_DIM([[5]]))$
+def
+%<
+% Usages: test5
+%% getConeInfo を変更すれば polymake を呼ばずにテストできる.
+%>
+/test5 {
+  % test3b より
+  /ww [(Dx) 1 (Dy) 2] def
+%  /ww [(x) 1 (y) -2 (Dx) 3 (Dy) 6] def
+  [(x,y) ring_of_differential_operators 
+   [ww] weight_vector
+   0] define_ring
+  [ (x Dx + y Dy -1).
+    (y^2 Dy^2 + 2 + y Dy ).
+  ] /gg set
+  gg {homogenize} map /gg set
+  [(AutoReduce) 1] system_variable
+  [gg] groebner 0 get /gg set
+  ww message 
+
+  ww gg coneEq getConeInfo /rr set
+  (Type in rr 0 get :: ) message
+} def
+%[5, [[1,0,1,0,-2],[0,1,0,1,-2]], $NOT__POINTED$ ]
+% この場合は 2 次元まで落すと pointed cone になる.
+%  coneEq mmc transpose をもとに FACETS を計算すればよい.
+
+%<
+% Usage: ceq getConeInfo
+% vw は [v1 w1 v2 w2 ... ] 形式. (v-w 形式) w1, w2 は univNumber でもいい. 
+% g は reduced Grobner basis として vw g coneEq を計算. これを getConeInfo へ.
+% Grobner cone の 次元 cdim (DIM), 補空間 (linearity space ) への行列 mmc
+% linearity space 自体, pointed or not__pointed
+% つまり [cdim, L', L, PointedQ]
+% を計算して戻す.  (polymake 形式の余分な部分なし)
+% polymake 必要.
+% ref: coneEq
+% Global:
+% cone.getConeInfo.rr0, cone.getConeInfo.rr1 に polymake よりの戻り値がはいる.
+%>
+/getConeInfo {
+  /arg1 set
+  [/ww /g /ceq /ceq2 /cdim /mmc /mmL /rr /ineq /ppt] pushVariables
+  [
+     /ceq arg1 def 
+     ceq pruneZeroVector /ceq set
+     ceq genPo2 /ceq2 set
+     % ceq2 は polymake.data(polymake.INEQUALITIES(...)) 形式
+     % polymake で ceq2 の次元の計算.
+     /getConeInfo.ceq  ceq def /getConeInfo.ceq2 ceq2 def
+
+     cone.debug { (Calling polymake DIM.) message } { } ifelse
+     [(DIM) ceq2] doPolymake 1 get /rr set
+     cone.debug {(Done.) message } {  } ifelse
+% test5 には次のコメントとりさる. 上の行をコメントアウト.
+%     test5.data tfbToTree /rr set
+     /cone.getConeInfo.rr0 rr def
+
+     rr (DIM) getNode /cdim set
+     cdim 2 get 0 get 0 get 0 get to_univNum /cdim set
+     % polymake の DIM は一つ小さいので 1 足す.
+     cdim (1).. add /cdim set
+
+     rr (FACETS) getNode tag 0 eq {
+     % FACETS を持っていないなら再度計算する. 
+     % POINTED, NOT__POINTED も得られる
+       cone.debug { (Calling polymake FACETS.) message } { } ifelse
+       [(FACETS) ceq2] doPolymake 1 get /rr set
+       cone.debug { (Done.) message } { } ifelse
+   } {  } ifelse
+
+     rr (VERTICES) getNode tag 0 eq {
+       (internal error: VERTICES is not found.) error
+     } {  } ifelse
+
+     /cone.getConeInfo.rr1 rr def
+    
+     rr (NOT__POINTED) getNode tag 0 eq {
+       % cone が pointed の時は mmc は単位行列. genUnitMatrix を使う.
+       % VERTICES より一つ小さいサイズ.
+       /mmc 
+         [ rr (VERTICES) getNode 2 get 0 get 0 get rest]
+         genUnitMatrix 
+       def
+       /mmL [ ] def
+       /ppt (POINTED) def
+     } {
+       % pointed でない場合,
+       % cone の線形部分空間を計算.
+       rr getLinearitySubspace /mmL set
+       [mmL genUnit] mmL join /mmc set % [1,0,0,...] を足す.
+        mmc  asir_matrix_kernel  /mmc set % 補空間
+        mmc removeFirstFromPolymake /mmc set   % ひとつ小さいサイズに.
+
+       [mmL genUnit] mmL join asir_matrix_image 
+        removeFirstFromPolymake /mmL set
+        mmL asir_matrix_image /mmL set  % Linearity space を求める. rm 0vector
+        /ppt (NOT__POINTED) def
+     } ifelse
+     /arg1 [[cdim mmc mmL ppt] rr] def
+  ] pop
+  popVariables
+  arg1
+} def    
+
+
+/test.put {
+  /dog [(dog) [[(legs) 4] ] [1 2 3 ]] [(class) (tree)] dc def
+  /man [(man) [[(legs) 2] ] [1 2 3 ]] [(class) (tree)] dc def
+  /ma [(mammal) [ ] [man dog]] [(class) (tree)] dc def
+  /fan [ma 1 copy] def
+  ma (dog) getNode /dd set
+  dd 2 get /dd2 set
+  dd2 1 0 put
+  ma message
+
+  fan message
+} def
+
+/test6.data
+ $polymake.data(polymake.INEQUALITIES([[0,1,-1,1,-1,0],[0,0,-1,0,-1,2],[0,0,-1,0,-1,2],[0,0,-2,0,-2,4],[0,-1,0,-1,0,2],[0,-2,0,-2,0,4]]),polymake.VERTICES([[0,0,-1,0,0,0],[0,-1,-1,0,0,0],[0,1,0,-1,0,0],[0,-1,0,1,0,0],[0,0,1,0,-1,0],[0,0,-1,0,1,0],[0,-2,-2,0,0,-1],[0,2,2,0,0,1]]),polymake.FACETS([[0,1,-1,1,-1,0],[0,-1,0,-1,0,2]]),polymake.AFFINE_HULL(),polymake.FEASIBLE(),polymake.NOT__POINTED(),polymake.FAR_FACE([polymake._set([0,1,2,3,4,5,6,7])]),polymake.VERTICES_IN_INEQUALITIES([polymake._set([1,2,3,4,5,6,7]),polymake._set([2,3,4,5,6,7]),polymake._set([2,3,4,5,6,7]),polymake._set([2,3,4,5,6,7]),polymake._set([0,2,3,4,5,6,7]),polymake._set([0,2,3,4,5,6,7])]))$
+def
+% tfbToTree
+
+/arrayToTree { [(class) (tree)] dc } def
+
+%<
+% polymake より得られた TreeObject から TreeObject cone を生成する.
+% Usages: test6.data tfbToTree newCone で動作テスト
+%>
+/test6 {
+  test6.data tfbToTree /rr set
+  rr newCone /rr2 set
+} def
+
+%<
+% Usages: doPolymakeObj newCone
+%>
+/newCone {
+  /arg1 set
+  [/polydata /cone /facets /vertices /flipped /ineq 
+   /facetsv /rr] pushVariables
+  [
+    /polydata arg1 def
+    polydata (FACETS) getNode tag 0 eq {
+      (newCone : no FACETS data.) error
+    } {  } ifelse
+% facets は有理数の場合正規化する.  data/test11 で 有理数でる.
+    polydata (FACETS) getNode 2 get 0 get to_univNum 
+    { nnormalize_vec} map /facets set
+    [[ ] ] facets join shell rest removeFirstFromPolymake /facets set
+% vertices は cone の上にあるので整数倍 OK. 正規かする.
+    polydata (VERTICES) getNode 2 get 0 get to_univNum 
+    { nnormalize_vec} map /vertices set
+    [[ ] ] vertices join shell rest removeFirstFromPolymake /vertices set
+% inequalities は有理数の場合正規化する.
+    polydata (INEQUALITIES) getNode 2 get 0 get to_univNum 
+    { nnormalize_vec } map /ineq set
+    [[ ] ] ineq join shell rest removeFirstFromPolymake /ineq set
+
+    [(cone) [ ] 
+     [
+      [(facets) [ ] facets]  arrayToTree
+      [(flipped) [ ] facets length newVector null_to_zero] arrayToTree
+      [(facetsv) [ ] facets vertices newCone_facetsv] arrayToTree
+      [(vertices) [ ] vertices]  arrayToTree
+      [(inequalities) [ ] ineq] arrayToTree
+     ]
+    ] arrayToTree /cone set    
+    /arg1 cone def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: newCone_facetv
+% facet vertices newCone_facetv
+% facet にのっている vertices をすべて列挙.
+%>
+/newCone_facetv {
+  /arg2 set
+  /arg1 set
+  [/facet /vertices] pushVariables
+  [
+    /facet arg1 def /vertices arg2 def
+    [
+      0 1 vertices length 1 sub {
+         /ii set
+         facet vertices ii get mul isZero
+         { vertices ii get } {  } ifelse
+      } for
+    ]
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: newCone_facetsv
+% facets vertices newCone_facetv
+% facets にのっている vertices をすべて列挙. リストを作る.
+%>
+/newCone_facetsv {
+  /arg2 set
+  /arg1 set
+  [/facets /vertices] pushVariables
+  [
+    /facets arg1 def /vertices arg2 def
+    facets { vertices newCone_facetv } map
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: cone_random
+%>
+/cone_random.start  (2)..  def
+/cone_random {
+  [(tdiv_qr) 
+   cone_random.start  (1103515245).. mul
+   (12345).. add 
+
+   (2147483646)..
+  ] mpzext 1 get /cone_random.start set
+  cone_random.start
+} def
+
+/cone_random.limit 40 def
+/cone_random_vec {
+  /arg1 set
+  [/nn /rr] pushVariables
+  [
+    /nn arg1 def
+    [
+      0 1 nn 1 sub {
+        pop
+        [(tdiv_qr) cone_random  cone_random.limit] mpzext 1 get
+      } for
+    ] /arg1 set
+  ] pop
+  popVariables
+  arg1 
+} def
+
+%<
+% Usages: getNewRandomWeight
+%%  max dim の cone を生成するために, random な weight を生成する.
+%%  h, H  の処理も必要. 
+%% 制約条件 u+v >= 2t をみたす weight が必要. これをどのように作るのか?
+%>
+/getNewRandomWeight {
+  /arg1 set
+  [/vv /vvd /rr] pushVariables
+  [
+    /vv arg1 def
+    vv { (D) 2 1 roll 2 cat_n } map /vvd set
+  ] pop
+  popVariables
+  arg1
+} def
+
+% test7 : univNum の weight が正しく認識されるかのテスト
+% aux-cone.sm1
+
+%<
+% Usages: n d coneEqForSmallFan.2  (cone.type 2 専用:  x,y,Dx,Dy,h)
+%  n 変数の数,  d zero にしない変数の数.  d は max dim cone の次元となる.
+%  はじめから d 個の変数.
+% 4, 2 , s,t,x,y なら weight は s,t,Ds,Dt のみ.
+% u_i + v_i >= 0 ,  u_i = v_i = 0.
+% homog 変数の条件 u_i+v_i >= t, i.e, -t >= 0  も入れる.
+%  coneEq の結果と coneEqForSmallFan.2 の結果を join して
+%  getConeInfo or newCone
+% note-cone.sm1  2004.8.31 を見よ.  w_ineq あたり.
+% cone.local が設定されていると u_i <= 0 も条件に入る.
+%>
+/coneEqForSmallFan.2 {
+  /arg2 set
+  /arg1 set
+  [/n /d /nn /dd /ii /tt] pushVariables
+  [
+     /n arg1 def
+     /d arg2 def
+     n to_int32 /n set 
+     d to_int32 /d set
+     /dd n d add def
+     /nn n n add def
+
+     % 0 ~ d-1, n ~ dd-1  では u_i + v_i = 0
+     % d ~ n-1, dd ~ nn-1 では u_i=v+i = 0.
+     % -t >= 0
+     [
+     % d ~ n-1, dd ~ nn-1 では u_i=v+i = 0.
+       d 1 n 1 sub {
+         /ii set
+      % [ 0,0, ..., 0,1,0,... ; 0] を生成
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (1).. put
+         tt    
+      % [ 0,0, ..., 0,-1,0,... ; 0] を生成
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt
+       } for
+       dd 1 nn 1 sub {
+         /ii set
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (1).. put
+         tt    
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt
+       } for
+
+     % 0 ~ d-1, n ~ dd-1  では u_i + v_i = 0
+       0 1 d 1 sub {
+         /ii set
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (1).. put
+         tt ii n add (1).. put
+         tt
+
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt ii n add (-1).. put
+         tt
+
+       } for
+  
+     % -t >= 0
+      cone.h0 { 
+      % t = 0
+       nn 1 add newVector null_to_zero /tt set
+       tt nn (1).. put
+       tt
+       nn 1 add newVector null_to_zero /tt set
+       tt nn (-1).. put
+       tt
+      }
+      {
+      % -t >= 0
+       nn 1 add newVector null_to_zero /tt set
+       tt nn (-1).. put
+       tt
+      } ifelse
+
+     % cone.local が 1 の時
+     % 0 ~ d-1  では -u_i >= 0
+      cone.local {
+       0 1 d 1 sub {
+         /ii set
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt
+       } for
+      } {  } ifelse
+     ] /rr set
+     /arg1 rr to_univNum def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: n d coneEqForSmallFan.1  (cone.type 1 専用:  x,y,Dx,Dy,h,H)
+%                 cone.type 2 では x,y,Dx,Dy,h 
+%   coneEqForSmallFan.2 の結果を用いて生成.
+%   H の条件を加える.
+%>
+/coneEqForSmallFan.1 {
+  /arg2 set
+  /arg1 set
+  [/n /d /i /j /rr /tt /tt2] pushVariables
+  [
+    /n arg1 def /d arg2 def
+    n d coneEqForSmallFan.2 /rr set
+    rr cone.appendZero /rr set
+% H 用の 0 を加える.
+% とりあえず t' = 0 できめうち.
+    cone.h0 { } { (cone.h0 = 0 has not yet been implemented.) error } ifelse
+    n 2 mul 2 add newVector null_to_zero /tt set
+    tt n 2 mul 2 add 1 sub (-1).. put 
+    n 2 mul 2 add newVector null_to_zero /tt2 set
+    tt2 n 2 mul 2 add 1 sub (1).. put 
+    rr [tt tt2] join /rr set
+    /arg1 rr to_univNum def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: vv ineq toQuotientCone
+% weight space の パラメータつけのために使う.
+% cone.V を求めたい.  vv は doPolymakeObj (VERTICES) getNode 2 get 0 get で得る.
+% vertices の non-negative combination が cone.
+% vertice cone.w_ineq isInLinearSubspace なら取り除く.
+% つまり vertice*cone.w_ineq = 0 なら取り除く.
+%
+% これで正しい? 証明は? まだ途中.  cone.W を求めるのに使う.  (BUG)
+% cone.w_cone 1 get (VERTICES) getNode :: と比較せよ.
+%  この関数を呼んで cone.W を作るのは不要かも.
+%
+% Example:  cf. parametrizeSmallFan
+%   4 2 coneEqForSmallFan.2 /cone.w_ineq set cone.w_ineq getConeInfo /rr set 
+%   rr 1 get (VERTICES) getNode 2 get 0 get removeFirstFromPolymake /vv set
+%   vv cone.w_ineq toQuotientCone pmat 
+%>
+/toQuotientCone {
+  /arg2 set /arg1 set
+  [/vv /ineq /rr] pushVariables
+  [
+    /vv arg1 def /ineq arg2 def
+    vv {
+      dup
+      ineq isInLinearSpace 1 eq { pop }
+      {  } ifelse
+    } map /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages:  n d parametrizeSmallFan
+%  n : x 変数の数.
+%  d : 0 にしない weight の数.
+% 次の大域変数も設定される.
+% cone.W :  weight をパラメータづけするベクトルの組.
+% cone.Wpos : i が 0 ~ Wpos-1 の範囲のとき V[i] へは N の元を掛け算してよい,  
+%             i が Wpos ~ の範囲のとき V[i] へは Z の元を掛け算してよい.
+% cone.w_ineq :  weight space の不等式制約.  以後の計算で常に付加する.
+% cone.w_cone :  w_ineq を polymake で getConeInfo した結果.
+% Example: /cone.local 1 def ; 4 2 parametrizeSmallFan pmat
+% Example: /cone.local 0 def ; 4 2 parametrizeSmallFan pmat
+%>
+/parametrizeSmallFan {
+  /arg2 set /arg1 set
+  [/n /d /vv /coneray] pushVariables
+  [
+    /n arg1 def /d arg2 def
+    {
+      cone.type 1 eq {
+        n d coneEqForSmallFan.1 /cone.w_ineq set 
+        exit
+      } {  } ifelse
+      cone.type 2 eq {
+        n d coneEqForSmallFan.2 /cone.w_ineq set 
+        exit
+      } {  } ifelse
+      (This cone.type has not yet been implemented.) error
+    } loop
+    cone.w_ineq getConeInfo /cone.w_cone set 
+    cone.w_cone 1 get (VERTICES) getNode 2 get 0 get 
+      removeFirstFromPolymake /vv set
+
+    vv cone.w_ineq toQuotientCone  /coneray set
+    coneray length /cone.Wpos set
+
+    coneray cone.w_cone 0 get 2 get join /cone.W set
+    /arg1 cone.W def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: n d coneEqForTotalFan.2  (cone.type 2 専用:  x,y,Dx,Dy,h)
+%  n 変数の数,
+%  d 0 にしない変数.  
+% u_i + v_i >= 0 , 
+% homog 変数の条件 u_i+v_i >= 0, t = 0  も入れる.
+%  coneEq の結果と coneEqForSmallFan.2 の結果を join して
+%  getConeInfo or newCone
+% cone.local が設定されていると u_i <= 0 も条件に入る.
+%>
+/coneEqForTotalFan.2 {
+  /arg2 set
+  /arg1 set
+  [/n /nn /dd /ii /tt] pushVariables
+  [
+     /n arg1 def
+     /d arg2 def
+     n to_int32 /n set 
+     d to_int32 /d set 
+     /nn n n add def
+     /dd n d add def
+
+     % 0 ~ d-1, n ~ dd-1  では u_i + v_i >= 0
+     % d ~ n-1, dd ~ nn-1 では u_i=v+i = 0.
+     % t = 0
+     [
+     % d ~ n-1, dd ~ nn-1 では u_i=v+i = 0.
+       d 1 n 1 sub {
+         /ii set
+      % [ 0,0, ..., 0,1,0,... ; 0] を生成
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (1).. put
+         tt    
+      % [ 0,0, ..., 0,-1,0,... ; 0] を生成
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt
+       } for
+       dd 1 nn 1 sub {
+         /ii set
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (1).. put
+         tt    
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt
+       } for
+
+     % 0 ~ d-1, n ~ dd-1  では u_i + v_i >= 0
+       0 1 d 1 sub {
+         /ii set
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (1).. put
+         tt ii n add (1).. put
+         tt
+
+       } for
+  
+     % t = 0
+      cone.h0 { 
+      % t = 0
+       nn 1 add newVector null_to_zero /tt set
+       tt nn (1).. put
+       tt
+       nn 1 add newVector null_to_zero /tt set
+       tt nn (-1).. put
+       tt
+      }
+      {
+         (coneForTotalFan.2. Not implemented.) error 
+      } ifelse
+
+     % cone.local が 1 の時
+     % 0 ~ d-1  では -u_i >= 0
+      cone.local {
+       0 1 d 1 sub {
+         /ii set
+         nn 1 add newVector null_to_zero  /tt set
+         tt ii (-1).. put
+         tt
+       } for
+      } {  } ifelse
+     ] /rr set
+     /arg1 rr to_univNum def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages:  n d parametrizeTotalFan
+%  n : x 変数の数.
+%  d : 0 にしない数.
+% 次の大域変数も設定される.
+% cone.W :  weight をパラメータづけするベクトルの組.
+% cone.Wpos : i が 0 ~ Wpos-1 の範囲のとき V[i] へは N の元を掛け算してよい,  
+%             i が Wpos ~ の範囲のとき V[i] へは Z の元を掛け算してよい.
+% cone.w_ineq :  weight space の不等式制約.  以後の計算で常に付加する.
+% cone.w_ineq を getConeInfo した結果は cone.w_cone
+% Example: /cone.local 1 def ; 3 parametrizeSmallFan pmat
+% Example: /cone.local 0 def ; 3 parametrizeSmallFan pmat
+% local が 1 だと u_i <= 0 になる.
+%>
+/parametrizeTotalFan {
+  /arg2 set
+  /arg1 set
+  [/n /d /vv /coneray] pushVariables
+  [
+    /n arg1 def  /d arg2 def
+    {
+      cone.type 2 eq { n d coneEqForTotalFan.2 /cone.w_ineq set exit} 
+      { } ifelse
+      (This cone.type has not yet been implemented.) error
+    } loop
+    cone.w_ineq getConeInfo /cone.w_cone set 
+    cone.w_cone 1 get (VERTICES) getNode 2 get 0 get 
+     removeFirstFromPolymake /vv set
+
+    vv cone.w_ineq toQuotientCone  /coneray set
+    coneray length /cone.Wpos set
+
+    coneray cone.w_cone 0 get 2 get join /cone.W set
+    /arg1 cone.W def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: vlist wlist cone_wtowv
+% [x y Dx Dy h] [-1 0 1 0 0] ==> [(x) -1 (Dx) 1] を作る.
+%>
+/cone_wtowv {
+  /arg2 set /arg1 set
+  [/vlist /wlist /ii] pushVariables
+  [
+    /vlist arg1 def
+    /wlist arg2 def
+    wlist length vlist length eq {
+    } {  (cone_wtowv: length of the argument must be the same.) error} ifelse
+
+    wlist to_int32 /wlist set
+    [
+      0 1 wlist length 1 sub { 
+        /ii set
+        wlist ii get 0 eq { }
+        { vlist ii get wlist ii get } ifelse
+      } for
+    ] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages:  pruneZeroVector
+%    genPo, getConeInfo 等の前に使う.  0 ベクトルは意味のない制約なので除く.
+%>
+/pruneZeroVector {
+  /arg1 set
+  [/mm /ii /jj /tt] pushVariables
+  [
+    /mm arg1 def
+    mm to_univNum /mm set
+    [
+      0 1 mm length 1 sub {
+         /ii set
+         mm ii get /tt set
+         {
+          0 1 tt length 1 sub {
+             /jj set
+             tt jj get (0).. eq {  } 
+             { tt exit } ifelse
+          } for
+          exit
+         } loop
+      } for
+    ] /arg1 set
+  ] pop
+  arg1
+} def
+
+%<
+% Usages: a projectIneq v ,  dim(a) = n, dim(v) = d
+%  a*cone.Wt*cone.Lpt
+%>
+/projectIneq {
+  cone.Wt mul cone.Lpt mul
+} def
+
+%<
+% Usages: v liftWeight [w vw],  dim(v) = d, dim(w) = n, vw : vw 形式の weight
+%   v*cone.Lp*cone.W   cone.vlist w cone_wtowv
+%>
+/liftWeight {
+  /arg1 set
+  [/v /w /vw] pushVariables
+  [
+    /v arg1 def
+    v cone.Lp mul cone.W mul /w set
+    [w  cone.vlist w cone_wtowv] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usage: m isZero
+% dr.sm1 へ移す.
+%>
+/isZero {
+  /arg1 set
+  [/mm /ans /ii] pushVariables
+  [
+    /mm arg1 def
+    /ans 1 def
+    mm isArray {
+      0 1 mm length 1 sub {
+        /ii set
+        mm ii get isZero /ans set
+        ans 0 eq { exit } {  } ifelse
+      } for
+    } {
+      {
+        mm tag 1 eq {/ans mm 0 eq def exit} { } ifelse
+        mm isPolynomial { /ans mm (0). eq def exit } { } ifelse
+        mm isUniversalNumber { /ans mm (0).. eq def exit } { } ifelse
+        /ans 0 def exit
+      } loop
+    } ifelse    
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(isZero)
+[(m isZero bool)]] putUsages
+
+%<
+% Usage: m isNonNegative
+% dr.sm1 へ移す.
+%>
+/isNonNegative {
+  /arg1 set
+  [/mm /ans /ii] pushVariables
+  [
+    /mm arg1 def
+    /ans 1 def
+    mm isArray {
+      0 1 mm length 1 sub {
+        /ii set
+        mm ii get isNonNegative /ans set
+        ans 0 eq { exit } {  } ifelse
+      } for
+    } {
+      {
+        mm tag 1 eq {/ans mm 0 gt mm 0 eq or def exit} { } ifelse
+        mm isUniversalNumber { /ans mm (0).. gt mm (0).. eq or def exit } 
+        { } ifelse
+        mm isRational { mm (numerator) dc mm (denominator) dc mul /mm set
+          /ans mm (0).. gt mm (0).. eq or def exit } {  } ifelse
+        /ans 0 def exit
+      } loop
+    } ifelse    
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+[(isNonNegative)
+[(m isNonNegative bool)
+ (In case of matrix, m[i,j] >= 0 must hold for all i,j.)
+]] putUsages
+
+% Global variable:  cone.weightBorder
+% /cone.weightBorder null def  不要であろう.  getStartingCone で設定される.
+
+%<
+% Usages: cone i isOnWeigthBorder
+% cone の i 番目の facet が weight 空間の境界にあるか?
+% 大域変数  cone.weightBorder が設定されてること.
+% この変数は cone の facet ベクトルのリスト.
+% この変数は setWeightBorder で設定
+% cone.weightBorder[0] or cone.weightBorder[1] or ...
+% /ccone cone.startingCone def  ccone 0 isOnWeightBorder
+%                               ccone 1 isOnWeightBorder
+%> 
+/isOnWeightBorder {
+  /arg2 set /arg1 set
+  [/cone /facet_i /i /j /vv /co /ans] pushVariables
+  [
+    /cone arg1 def /facet_i arg2 def
+    facet_i to_int32 /facet_i set
+    /ans 0 def
+    cone (facetsv) getNode 2 get facet_i get /vv set % Facet を vertex 表現.
+    {
+      0 1 cone.weightBorder length 1 sub {
+         /i set
+         cone.weightBorder i get /co set % co に制約条件
+         vv cone.Lp mul  % vv を weight space へ lift.
+         co mul isZero 
+         { /ans 1 def exit }  {   } ifelse
+      } for
+      exit
+    } loop 
+    /arg1 ans def
+  ] pop 
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: cone i markFlipped
+% cone の i 番目の facet に flipped の印をつける. cone 自体が変更される.
+% cone は class-tree.  Constructor は newCone
+%> 
+/markFlipped {
+  /arg2 set /arg1 set
+  [/cone /facet_i /vv] pushVariables
+  [
+    /cone arg1 def /facet_i arg2 def
+    facet_i to_int32 /facet_i set
+    cone (flipped) getNode 2 get /vv set
+    vv facet_i (1).. put
+  ] pop 
+  popVariables
+} def
+
+
+
+%<
+% Usages: cone getNextFacet i
+% flipped の mark のない facet の index facet_i を戻す.
+% それがないときは null
+%> 
+/getNextFacet {
+  /arg1 set
+  [/cone /facet_i /vv /ii] pushVariables
+  [
+    /cone arg1 def 
+    /facet_i null def
+    cone (flipped) getNode 2 get /vv set
+    0 1 vv length 1 sub {
+       /ii set
+       vv ii get to_int32 0 eq { /facet_i ii def exit } 
+       {  } ifelse
+    } for
+    /arg1 facet_i def
+  ] pop 
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: cone i epsilon flipWeight
+% cone の i 番目の facet にかんして flip する.
+% 新しい weight を求める.  cf. liftWeight
+%> 
+/flipWeight {
+  /arg3 set /arg2 set /arg1 set
+  [/cone /facet_i /ep /vp /v /v /ii] pushVariables
+  [
+    /cone arg1 def /facet_i arg2 def
+    facet_i to_int32 /facet_i set
+    /ep arg3 def
+
+    ep to_univNum (1).. div /ep set 
+
+% note: 2004.9.2
+    cone (facetsv) getNode 2 get facet_i get /v set
+    cone (facets)  getNode 2 get facet_i get /f set
+    /vp v 0 get def
+    1 1 v length 1 sub {
+      /ii set
+      vp v ii get  add /vp set
+    } for
+    vp ep f mul sub /vp set
+    vp nnormalize_vec /vp set
+    /arg1 vp def
+  ] pop 
+  popVariables
+  arg1 
+} def
+
+%<
+% Usages: cone1 cone2 isSameCone bool
+% cone1 cone2 が等しいか? facet で比べる.
+% cone1, cone2 は pointed cone でないといけない.
+%> 
+/isSameCone {
+  /arg2 set /arg1 set
+  [/cone1 /cone2 /facets1 /facets2 /ans] pushVariables
+  [
+    /cone1 arg1 def 
+    /cone2 arg2 def
+    /facets1  cone1 (facets) getNode 2 get def
+    /facets2  cone2 (facets) getNode 2 get def
+    facets1 length facets2 length eq {
+      facets1 facets2 sub isZero /ans set
+    } {  
+      /ans 0 def
+    } ifelse
+    /arg1 ans def 
+  ] pop 
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: cone1 cone2 getCommonFacet list
+% cone1 の中で cone2 に含まれる facet のリスト
+% cone2 の中で cone1 に含まれる facet のリストをもどす.
+%  [1 [i] [j]] あるとき.  [0 [ ] [ ]] ないとき.
+% cone1 の facetsv[i] が cone2 に含まれるか調べる.
+% cone2 の facetsv[i] が cone1 に含まれるか調べる.
+% cone1, cone2 は pointed cone でないといけない.
+%> 
+/getCommonFacet {
+  /arg2 set /arg1 set
+  [/cone1 /cone2 /facets /ineq /ans1 /ans2 /i /tt] pushVariables
+  [
+    /cone1 arg1 def 
+    /cone2 arg2 def
+
+    /facets  cone1 (facetsv) getNode 2 get def
+    /ineq cone2 (inequalities) getNode 2 get def
+    /ans1 [
+      0 1 facets length 1 sub {
+        /i set
+        facets i get /tt set % facetsv[i] を tt へ.
+        ineq tt transpose mul isNonNegative {
+          i
+        } {  } ifelse
+      } for
+    ] def
+
+    /facets  cone2 (facetsv) getNode 2 get def
+    /ineq cone1 (inequalities) getNode 2 get def
+    /ans2 [
+      0 1 facets length 1 sub {
+        /i set
+        facets i get /tt set % facetsv[i] を tt へ.
+        ineq tt transpose mul isNonNegative {
+          i
+        } {  } ifelse
+      } for
+    ] def
+    ans1 length 1 gt ans2 length 1 gt or {
+      (getCommonFacet found more than 1 common facets.) error
+    } {  } ifelse
+% 共通 facet があれば 1, なければ 0.
+    ans1 length 1 eq ans2 length 1 eq and {
+      /tt 1 def
+    } {
+      /tt 0 def
+    } ifelse
+    /arg1 [tt ans1 ans2] def
+  ] pop 
+  popVariables
+  arg1
+} def
+
+%
+% -------------------------------------------------
+% test8 は aux-cone.sm1 へ移動.
+% 以下いよいよ一般のプログラムの作成開始.
+% -------------------------------------------------
+%
+
+%<
+% Usages: setWeightBorder
+%  cone.weightBorder (weight cone の facet ベクトルの集合) を設定する.
+%  あと副産物として  cone.w_cone_projectedWt (doPolymakeObj)
+%                    cone.w_ineq_projectedWt
+%  cone.m 次元のベクトル.
+%  cone.W, cone.Wt, cone.w_ineq がすでに計算ずみでないといけない.
+%> 
+/setWeightBorder {
+  [
+    (Entering setWeightBorder ) message
+    cone.w_ineq cone.Wt mul pruneZeroVector /cone.w_ineq_projectedWt set
+    {
+      cone.w_ineq_projectedWt length 0 eq { 
+% weight の空間に border がない場合.
+        /cone.weightBorder [ ] def
+        exit
+      } {  } ifelse
+% weight の空間に border がある場合.
+      cone.w_ineq_projectedWt getConeInfo /cone.w_cone_projectedWt set
+      cone.w_cone_projectedWt 0 get 0 get to_int32 cone.m to_int32 eq {
+      } {
+        (setWeightBorder : internal error.) message
+      } ifelse
+      cone.w_cone_projectedWt 1 get (FACETS) getNode 2 get 0 get
+      removeFirstFromPolymake /cone.weightBorder set
+      exit
+    } loop
+    (cone.weightBorder=) message
+    cone.weightBorder pmat
+  ] pop
+} def
+
+%
+% -------------------------------------------------
+% プログラムの流れ.
+% Global: cone.fan   cone を配列として格納する.
+%
+% ncone (next cone) が新規に得られた cone であるとする.
+% このとき次の操作をする.
+%  0. ncone が cone.fan にすでにないか調べる. あれば, internal error.
+%  1. ncone markBorder ; ncone の中の border 上の facet を mark
+%  2. cone.fan の中の cone と共通 facet がないか調べ (getCommonFacet),
+%     あればそれらを mark する.
+%     global: cone.incidence に 共通facet を持つ組みの情報を加える.
+%  3. ncone を cone.fan の最後に加える.
+%  以上の操作をまとめたものが  ncone updateFan
+%
+%  getNextFlip は cone.fan の中から flip してない cone と facet の組を戻す.
+%  なければ null を戻す.  null が戻ればプログラム終了.
+%
+%  getStargingCone は計算を出発すべき新規の cone を計算する. 大域変数 cone.Lt, cone.W
+%  などもこの中で設定する.
+%  変数リスト, weight space を生成する関数, 入力多項式, weight の候補 等は大域変数
+%  として入力しておく.
+%
+%  reduced gb は 関数 input weight cone.gb reduced_G で計算する.
+%
+%
+%  [ccone i] getNextCone ncone : flip により次の cone を得る.
+%
+%  1. clearGlobals ; 入力大域変数の設定.
+%  2. getStartingCone /ncone set  
+%  3. {  ncone updateFan
+%  4.    getNextFlip /cone.nextflip set
+%  6.    cone.nextflip isNull { exit } {  } ifelse
+%  7.    cone.nextflip getNextCone /ncone set
+%  8. } loop
+%  
+%
+% -------------------------------------------------
+%
+
+%<
+% Usages: input weight cone.gb_Dh reduced_G
+%  gb in h[1,1](D)
+%>
+/cone.gb_Dh {
+  /arg2 set /arg1 set
+  [/ff /ww /gg] pushVariables
+  [
+    /ff arg1 def
+    /ww arg2 def
+    [(AutoReduce) 1] system_variable
+    [cone.vv ring_of_differential_operators
+     [ww] weight_vector 0] define_ring
+    [ff {toString .} map] groebner 0 get /gg set
+    /cone.gb_Dh.g gg def
+    /arg1 gg def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: cone.boundp
+%
+/cone.boundp {
+   dup boundp 2 1 roll tag 0 eq not and
+} def
+
+%<
+% Usages: clearGlobals
+% cf. cone.boundp
+% polymake を再度呼ぶために global 変数をクリアする.
+% まだ途中.
+%>
+/clearGlobals {
+  /cone.W null def
+  /cone.Wt null def
+
+  /cone.cinit null def
+  /cone.weightBorder null def
+
+} def
+
+%<
+% Usages: getStartingCone ncone
+% getStargingCone は計算を出発すべき新規の cone を計算する.
+% 設定すべき大域変数は以下を見よ.
+%>
+
+/getStartingCone.test {
+%------------------Globals----------------------------------------
+% ---------------  入力データ用大域変数の設定 --------------------------
+%
+% cone.input : 入力多項式系
+/cone.input 
+  [(t1-x-y) (h*t2-x^2-y^2) (2*x*Dt2+h*Dt1+h*Dx) (2*y*Dt2+h*Dt1+h*Dy)]
+def
+
+% cone.vlist : 全変数のリスト
+/cone.vlist [(t1) (t2) (x) (y) (Dt1) (Dt2) (Dx) (Dy) (h)] def
+
+% cone.vv : define_ring 形式の変数リスト.
+% t1,t2, x,y   : t-space の Grobner fan (local) を求める.
+/cone.vv (t1,t2,x,y) def
+
+% cone.parametrizeWeightSpace : weight 空間を parametrize する関数. 
+%   大域変数 cone.W , cone.Wpos もきまる.
+/cone.parametrizeWeightSpace {
+  4 2 parametrizeSmallFan
+} def
+
+% cone.w_start : weight空間における weight の初期値. 
+% この値で max dim cone が得られないと random weight による サーチが始まる. 
+/cone.w_start
+  [ 1 4 ]
+def   
+
+% cone.gb : gb を計算する関数.
+/cone.gb {
+  cone.gb_Dh
+} def
+
+%
+% -----------------  おわり ---------------------------
+%
+} def  % end of getStartingCone.test
+
+/getStartingCone {
+ [/wv_start /w_start /reduced_G] pushVariables
+ [
+% cone.n は自動的にきめられる.
+%  cone.n は GB を計算する空間の次元.
+  /cone.n cone.vlist length def
+%[1]  cone.W, cone.Wpos を求める.   cone.m は cone.W より自動的にきまる.
+%  cone.m は weight 空間の自由度. cone.W で射影される先の次元.
+  /cone.W cone.boundp {
+    (Skip cone.parametrizeWeightSpace. cf. clearGlobals) message
+  } {
+    cone.parametrizeWeightSpace
+  } ifelse
+  (parametrizing weight space: cone.W = ) messagen cone.W message
+  /cone.Wt cone.W transpose def
+  /cone.m cone.W length def
+% WeightBorder の条件判定 facet を設定.
+  /cone.weightBorder cone.boundp {
+    (Skip setWeightBorder cf. clearGlobals) message
+  } {
+    setWeightBorder
+  } ifelse
+
+%[2] weight vector wv_start を生成する.
+% wv_start を設定.
+  cone.w_start tag 0 eq {
+% cone.w_start が null なら random に weight を設定.
+    /cone.w_start cone.m cone_random_vec def
+  } {  
+    cone.w_start length cone.m to_int32 eq {
+    } {
+      (Error: cone.w_start has wrong length.) error
+      /cone.w_start cone.m cone_random_vec def
+    } ifelse
+  } ifelse 
+  /w_start cone.w_start cone.W mul def 
+
+  {
+     cone.vlist w_start cone_wtowv /wv_start set
+     (Trying a starting weight vector : ) messagen
+     wv_start pmat
+%[3] reduced GB の計算.
+     cone.input wv_start cone.gb /reduced_G set
+     (Reduced GB : ) message
+     reduced_G pmat 
+
+%[4] 射影してから polytope のデータを計算.  
+     wv_start reduced_G coneEq /cone.g_ineq set
+     cone.g_ineq cone.w_ineq join  /cone.gw_ineq set
+     cone.gw_ineq  cone.Wt mul /cone.gw_ineq_projectedWt set % 射影
+     /cone.cinit cone.boundp {
+       (Skipping cone.gw_ineq_projectedWt getConeInfo. cf. clearGlobals) message
+     } {
+      cone.gw_ineq_projectedWt getConeInfo /cone.cinit set
+     } ifelse
+
+     (cone.cinit is --- the first number is the dim of cone.) messagen
+     cone.cinit 0 get pmat
+% Maximal dimensional cone かどうかの検査. 検査にパスすれば loop を exit
+% パスしない場合  w_start を cone_random_vec を用いて変更する.
+     cone.cinit 0 get 0 get to_int32 cone.m eq { exit }
+     {
+       (Failed to get the max dim cone. Updating the weight ...) messagen
+       /w_start  cone.m cone_random_vec cone.W mul def
+% cone.cinit を再度計算するために clear する.
+       /cone.cinit null def
+     } ifelse
+  } loop
+
+  (cone.m = ) messagen cone.m message
+  (Suceeded to get the maximal dimensional startingCone.) message
+
+% Linearity subspace の orth complement への射影行列. 
+% 大域変数 cone.Lp, cone.Lpt を設定
+  cone.cinit 0 get 1 get /cone.Lp set
+  cone.Lp transpose /cone.Lpt set
+% Linearity subspace の行列を設定. 
+% 大域変数 cone.L を設定
+  cone.cinit 0 get 2 get /cone.L set
+% cone.d は cone.W および Linearity space で割った後, cone を考えるときの次元.
+% 大域変数 cone.d の設定.
+  /cone.d cone.Lp length def
+
+  cone.m cone.d  eq {
+    (There is no linearity space) message
+  } {  
+    (Dim of the linearity space is ) messagen cone.m cone.d sub message
+    (cone.Lp = ) messagen cone.Lp pmat 
+  } ifelse
+
+%[5] cone.g_ineq * cone.Wt * cone.Lpt 
+%    cone.w_ineq * cone.Wt * cone.Lpt
+%   で制約を d 次元ベクトルに変換.
+% W (R^m) 空間の不等式制約を L' (R^d) 空間へ射影
+% cone.gw_ineq_projectedWtLpt 
+%  = cone.g_ineq*cone.Wt*cone.Lpt \/ cone.w_ineq*coneWt*cone.Lpt
+
+  /cone.gw_ineq_projectedWtLpt 
+     cone.gw_ineq_projectedWt cone.Lpt mul 
+  def
+
+  cone.m cone.d eq  {
+    /cone.cinit.d cone.cinit def
+  } {
+% cone.m > cone.d ならば, 再度 cone の計算が必要.
+% R^d の cone は cone.cinit.d へ入れる.
+    cone.gw_ineq_projectedWtLpt getConeInfo /cone.cinit.d set
+  } ifelse
+
+  cone.cinit.d 1 get newCone /cone.startingCone set
+
+  (cone.startingCone is ) message
+  cone.startingCone message
+ ] pop
+ popVariables
+ cone.startingCone
+} def
+
+%
+%  data/test9.sm1 の test9   1-simplex X 2-simplex
+% 
+%  data/test10.sm1   1-simplex X 3-simplex
+%  data/test11.sm1   SST, p.59
+%
+%  いよいよ, cone enumeration のプログラム書き開始
+% 
+
+%<
+% Usages: cone markBorder
+%   cone->facets[i] が weight space の border にあるとき    
+%   cone->flipped[i] = 2 とする.
+%   これを cone のすべての facet に対して計算.
+%>
+/markBorder {
+  /arg1 set
+  [/cone /facets_t /flipped_t /kk] pushVariables
+  [
+    /cone arg1 def
+    cone (facets) getNode 2 get /facets_t set
+    cone (flipped) getNode 2 get /flipped_t set
+    0 1 flipped_t length 1 sub {
+      /kk set
+      flipped_t kk get (0).. eq {
+         cone kk isOnWeightBorder {
+% Border の上にあるので flip 済のマークをつける.
+           flipped_t kk (2).. put
+         } {  } ifelse
+      } {  } ifelse
+    } for
+  ] pop
+  popVariables
+} def
+
+%<
+% Usages: ncone updateFan
+% グローバル変数 cone.fan を更新する.
+%>
+%
+% updateFan の debug は data/test8 でとりあえずやる.
+%  test8 /ncone set を実行してから  ncone updateFan
+
+% global: cone.fan
+/cone.fan [  ] def
+% global: cone.incidence
+/cone.incidence [ ] def
+
+/updateFan {
+  /arg1 set
+  [/ncone /kk /cfacet /ii /jj /tcone /flipped_t] pushVariables
+  [
+    /ncone arg1 def
+    /cone.fan.n  cone.fan length def
+% 0. ncone が cone.fan にすでにあればエラー
+    0 1 cone.fan.n 1 sub {
+      /kk set
+      ncone cone.fan kk get isSameCone { 
+         (Internal error updateFan: ncone is already in cone.fan) error
+      } {  } ifelse
+    } for
+
+% 1. ncone の中の border 上の facet をすべて mark.
+    ncone markBorder
+
+% 2. ncone /\ cone.fan[kk] があるか調べる. あれば Mark する. incidence graph に加える
+    0 1 cone.fan.n 1 sub {
+      /kk set
+      ncone cone.fan kk get getCommonFacet  /cfacet set
+      cfacet 0 get 
+      {
+% 共通 facet がある場合. [[cone番号 face番号] [cone番号 face番号]] の形式で格納. 
+         /ii cfacet 1 get  0 get def
+         /jj cfacet 2 get  0 get def
+         cone.incidence [ [[cone.fan.n ii] [kk jj]] ] join /cone.incidence set
+% flipped を mark する.
+         ncone ii markFlipped
+         cone.fan kk get /tcone set
+         tcone jj markFlipped
+      } {  } ifelse
+    } for
+% 3. ncone を加える.
+    cone.fan [ncone] join /cone.fan set
+  ] pop
+  popVariables
+} def
+
+%<
+% usages: getNextFlip [cone, k]
+% cone.fan を検索して まだ flip してない cone と facet の組を戻す.
+% もうないときには null を戻す.
+%>
+/getNextFlip {
+  [/tcone /ans /ii ] pushVariables
+  [ 
+    /ans null def
+    0 1 cone.fan length 1 sub {
+      /ii set
+      cone.fan  ii get /tcone set
+      tcone getNextFacet /ans set
+      ans tag 0 eq { } { exit } ifelse
+    } for
+    ans tag 0 eq { /arg1 null def }
+    { /arg1 [tcone ans] def } ifelse
+  ] pop 
+  popVariables
+  arg1 
+} def
+
+% global variable : cone.epsilon , cone.epsilon.limit
+%   flip の時の epsilon
+/cone.epsilon (1).. (10).. div def
+/cone.epsilon.limit (1).. (100).. div def
+
+%<
+%  Usages: result_getNextFlip getNextCone ncone
+%  flip して新しい ncone を得る.
+%>
+/getNextCone {
+ /arg1 set
+ [/ncone /ccone /kk /w /next_weight_w_wv] pushVariables
+ [ 
+  /ccone arg1 def
+  /ncone null def
+  /kk ccone 1 get def
+  ccone 0 get /ccone set
+  {
+   ccone tag 0 eq { exit } {  } ifelse
+
+% ccone の kk 番目の facet について flip する.
+   ccone kk cone.epsilon flipWeight  /w set
+   (Trying new weight is ) messagen w message
+   w liftWeight /next_weight_w_wv set
+   (Trying new weight [w,wv] is ) messagen next_weight_w_wv message
+
+   cone.input next_weight_w_wv 1 get cone.gb /cone.cgb set
+   next_weight_w_wv 1 get cone.cgb coneEq /cone.g_ineq set
+   cone.g_ineq cone.w_ineq join cone.Wt mul cone.Lpt mul 
+   pruneZeroVector /cone.gw_ineq_projectedWtLpt set
+
+   (cone.gw_ineq_projectedWtLpt is obtained.) message
+
+   cone.gw_ineq_projectedWtLpt getConeInfo /cone.nextConeInfo set
+% 次元を調べる.  だめなら retry
+   cone.nextConeInfo 0 get 0 get to_int32 cone.d eq {
+     cone.nextConeInfo 1 get newCone /ncone set
+     ccone ncone getCommonFacet 0 get {
+       (Flip succeeded.) message
+       exit
+     } { } ifelse
+   } { } ifelse
+% common face がなければ やはり epsilon を小さく.
+   cone.nextConeInfo 0 get 0 get to_int32 cone.d eq {
+    (ccone and ncone do not have a common facet.) message
+   } {  
+    (ncone is not maximal dimensional. ) message
+   } ifelse
+   (Decreasing epsilon to ) messagen
+   cone.epsilon (1).. (2).. div mul /cone.epsilon set
+     cone.epsilon cone.epsilon.limit sub numerator (0).. lt {
+       (Too small cone.epsilon ) error
+     }  {  } ifelse
+   cone.epsilon message
+  } loop
+  /arg1 ncone def
+ ] pop
+ popVariables
+ arg1
+} def
+
+%<
+% Usages: set globals and getGrobnerFan
+%  cf. clearGlobals
+% getStartingCone すると weightSpace とかの計算ができる. isOnWeightBorder が
+%  決められる.
+%>
+% とりあえず (data/test8.sm1) run してから getGrobnerFan
+/getGrobnerFan {
+  getStartingCone /cone.ncone set
+  {
+    cone.ncone updateFan
+    (  ) message
+    (----------------------------------------------------------) message
+    (getGrobnerFan #cone.fan=) messagen cone.fan length message
+    cone.ncone /cone.ccone set
+    getNextFlip /cone.nextflip set
+    cone.nextflip tag 0 eq { exit } { } ifelse
+    cone.nextflip getNextCone /cone.ncone set
+  } loop
+  (Construction  is completed. See cone.fan and cone.incidence.) message
+} def
