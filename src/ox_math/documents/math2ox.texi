@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.6 2000/03/14 14:59:39 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.7 2000/03/15 08:22:20 ohara Exp $
 
 \input texinfo
 @iftex
@@ -57,8 +57,11 @@ In order to execute @code{math2ox}, you need to type as follows:
 In[1]:= Install["math2ox"]
 @end example
 
-We recommend loading a Mathematica program @code{oxclient.m} instead of
-calling @code{Install[]} directly:
+The Mathematica program oxclient.m, which is used to load math2ox
+and set some global variables, is in the directory 
+@code{$OpenXM_HOME/lib/oxmath}.
+The standard value of @code{$OpenXM_HOME} is @code{/usr/local/OpenXM}.
+We recommend using @code{oxclient.m} instead of @code{Install[]}:
 @example
 In[1] := <<oxclient.m
 @end example
@@ -106,7 +109,7 @@ by ssh.  Of course, you are supposed to be able to login the remote
 machine by @code{ssh} and @code{$Remote_OpenXM_HOME/rc/cshrc} or
 @code{$Remote_OpenXM_HOME/rc/bashrc} are executed from the login shell
 of your remote machine.
-The function @code{OxStartRemoteSSH[]} does not request your password,
+The function @code{OxStartRemoteSSH[]} does not ask your password,
 that is, you need to be using @code{ssh-agent} before calling
 @code{OxStartRemoteSSH[]}.
 Then there will be no check of password.
@@ -114,8 +117,13 @@ Then there will be no check of password.
 @node Starting the X Window System with ssh-agent,,, Starting OX servers on a remote machine
 @subsection Starting the X Window System with ssh-agent
 
-If you use the @code{startx} command to boot the X Window System, then 
-we recommend you replace the command by @code{ssh-agent startx}.
+In this subsection, we will explain how to start ssh-agent
+and set your password by ssh-add
+for reader's convinience.  As to details, see ssh-agent (1)
+and ssh-add (1).
+If you start the X-windows system by @code{startx}, you can start
+ssh-agent by @code{ssh-agent startx}.
+
 @example
 bash$ ssh-agent startx
 @end example
@@ -127,15 +135,15 @@ exec ssh-agent .xinitrc
 @noindent 
 where @code{.xinitrc} is executable.
 
-After booting the X Window System, you need to type on suitable terminal
+After starting the X Window System, you need to type on suitable terminal
 emulator as follows:
 @example
 bash$ ssh-add
 @end example
 @noindent
-and input your passphrase.
-
-See ssh(1), ssh-agent(1), ssh-add(1), and ssh-keygen(1) for detail.
+and input your passphrase.  Once you set your passphrase by ssh-add, you
+no longer need to input your passphrase to access to other machines by
+ssh.
 
 @c  Description of OxStartRemoteSSH
 @menu
@@ -396,6 +404,14 @@ to get beta-nbc bases by calling @code{ox_asir}.
 @node Example,,, Top
 @chapter Example
 
+ In this section, we will present a simple OpenXM session
+on Mathematica to send a list 
+@example
+   ["Hello World", 0]
+@end example
+@noindent
+to a server and pops that list from the server.
+
 The @code{math2ox} has the following commands:
 
 @code{OxStart[], 
@@ -409,7 +425,7 @@ OxPopString[],
 OxClose[], 
 OxReset[]}.
 
-First, let us load the math2ox.
+First, let us load the @code{math2ox}.
 @example
 In[1]:= <<oxclient.m
 @end example
