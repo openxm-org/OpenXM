@@ -1,18 +1,29 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.2 2003/09/14 01:19:57 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.3 2004/02/13 00:47:12 takayama Exp $
 OpenXM_HOME=../..
 OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
 OpenXM_lib=${OpenXM_HOME}/lib
 OpenXM_include=${OpenXM_HOME}/include
 GMP=${OpenXM_contrib}/gmp
 RM=rm
-
-all: configure
+all:
+	@if [ ! -f ./.use_ports ]; then \
+		make all-l ; \
+	else \
+		make -f Makefile-ports all ; \
+	fi
+install:
+	@if [ ! -f ./.use_ports ]; then \
+		make install-l ; \
+	else \
+		make -f Makefile-ports install ; \
+	fi
+all-l: configure
 	-@if [ ! -f ./.make_done ]; then \
 		(cd ${GMP} ; make) ; \
 		touch ./.make_done ; \
 	fi
-install: install-exec
-install-exec: all
+install-l: install-exec-l
+install-exec-l: all-l
 	if [ ! -f ./.install_done ]; then \
 		(cd ${GMP}; make install-exec) ; \
 		cp ${GMP}/gmp.h ${OpenXM_include} ; \
