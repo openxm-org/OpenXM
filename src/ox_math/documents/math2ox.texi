@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.4 2000/03/14 05:46:09 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/math2ox.texi,v 1.5 2000/03/14 14:25:27 ohara Exp $
 
 \input texinfo
 @iftex
@@ -34,13 +34,33 @@
 @node Top,, (dir), (dir)
 
 @menu
+* Starting OX servers::
 * Mathematica Client Functions::
 * Sample Programs::
+* Example::
+* References::
 @end menu
 
 @node Starting OX servers,,, Top
-
 @chapter Starting OX servers
+
+@node Loading an OX Client on Mathematica,,, Starting OX servers
+@section Loading an OX Client on Mathematica
+
+The program @code{math2ox} is an external module for Mathematica
+to call OpenXM servers.
+The @code{math2ox} communicates with OpenXM servers by the OpenXM protocol
+and communicates with Mathematica by MathLink.
+
+@example
+In[1]:= Install["math2ox"]
+@end example
+
+We recommend loading a mathematica program @code{oxclient.m} instead of
+calling @code{Install[]} directly:
+@example
+In[1] := <<oxclient.m
+@end example
 
 @node Starting OX servers on the localhost,,, Starting OX servers
 @section Starting OX servers on the localhost
@@ -70,14 +90,10 @@ String
 @end itemize
 
 @example
-In[1]:= Install["math2ox"]
-In[2]:= pid = OxStart["ox_sm1"]
+In[1]:= pid = OxStart["ox_sm1"]
 @end example
 
 In this example, @code{ox_sm1} is started on the local machine.
-
-
-
 
 @node Starting OX servers on a remote machine,,, Top
 @section Starting OX servers on a remote machine
@@ -123,19 +139,13 @@ We note that the @code{OxStartRemoteSSH[]} is an experimental implementation.
 @end itemize
 
 @example
-In[2]:= pid = OxStartRemoteSSH["ox_sm1", "remotehost"]
+In[1]:= pid = OxStartRemoteSSH["ox_sm1", "remotehost"]
 @end example
 
 In this example, @code{ox_sm1} is started on the remote machine @code{remotehost}.
 
 @node Mathematica Client Functions,,, Top
-
 @chapter Mathematica Client Functions
-
-The program @code{math2ox} is an external module for Mathematica
-to call OpenXM servers.
-The @code{math2ox} communicates with OpenXM servers by the OpenXM protocol
-and communicates with Mathematica by MathLink.
 
 @c  Description of OxStart
 @menu
@@ -162,8 +172,7 @@ String
 @end itemize
 
 @example
-In[1]:= Install["math2ox"]
-In[2]:= pid = OxStart["ox_sm1"]
+In[1]:= pid = OxStart["ox_sm1"]
 @end example
 
 In this example, @code{ox_sm1} is started on the local machine.
@@ -391,7 +400,7 @@ We can send an OX message written in OX/CMO expressions.
 In[4] := OxSendMessage[pid, "(CMO_LIST, (CMO_STRING, "hello world"), (CMO_ZERO))"]
 In[5] := OxSendMessage[pid, "(OX_COMMAND, (SM_popCMO))"]
 @end example
-If the expression conains syntax errors, then nothing is sent.
+If the expression contains syntax errors, then nothing is sent.
 
 Remarks: if @code{SM_popCMO} is sent by the @code{OxSendMessage[]} function, then the
 OX stack machine returns the top of the stack to the @code{math2ox}.
