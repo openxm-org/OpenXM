@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/doc/calc2000p/calc2000.tex,v 1.1.1.1 2000/06/27 06:47:52 noro Exp $
+%$OpenXM: OpenXM/doc/calc2000p/calc2000.tex,v 1.2 2000/06/30 00:33:34 noro Exp $
 %% You need acmconf.cls and flushend.sty to compile this file.
 %% They may be obtained from 
 %%  http://riksun.riken.go.jp/archives/tex-archive/macros/latex/contrib/supported/acmconf/
@@ -108,15 +108,15 @@ the Asir client to the {\tt ox\_sm1} server:
   P = sm1_start(); ox_push_cmo(P,1); ox_push_cmo(P,1);
   ox_execute_string(P,"add"); ox_pop_cmo(P);
 \end{verbatim}
-The OpenXM package is implemented on the  OpenXM for TCP/IP, 
+The OpenXM package is currently implemented on TCP/IP, 
 which uses the client-server model.
 The OpenXM on MPI is currently tested on Risa/Asir,
 where collective operations such as broadcast and reduction
-are implemented to achieve a real speedup for massively parallel cases.
-A C library interface is available for some servers.
+are implemented to achieve a real speedup for massively parallel computation.
+C library interfaces are available for some servers.
 The source code and binary packages are distributed from
 {\tt http://www.openxm.org}.
 The current version is 1.1.2.
 Documents and a full paper including references are available
-from this cite, too.
+from this site, too.
 \end{document}
