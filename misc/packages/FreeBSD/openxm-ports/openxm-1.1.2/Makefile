@@ -1,14 +1,14 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.16 2000/03/06 04:29:01 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.17 2000/03/10 10:25:20 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.2
 ## For debugging. 
-TAR_WORK=$(HOME)/tmp
-DISTDIR=${TAR_WORK}
+#TAR_WORK=$(HOME)/tmp
+#DISTDIR=${TAR_WORK}
 
 ## OpenXM is put under  ${PREFIX}/OpenXM and ${PREFIX}/bin, man
 ## The default value of PREFIX is /usr/local
 ## The next is for debugging.  Do not forget to mkdir tmp2/bin.
-PREFIX=$(HOME)/tmp2
+#PREFIX=$(HOME)/tmp2
 
 ## How to update pkg/PLIST
 # (1) uncomment #PREFIX=, #DISTDIR. 
