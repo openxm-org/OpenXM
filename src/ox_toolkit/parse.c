@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.13 2003/03/30 08:05:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.14 2003/06/02 10:25:57 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -785,6 +785,7 @@ static int lex()
         yylval.sym = lex_quoted_string();
         return T_STRING;
     default:
+		;
     }
 
     if (isalpha(c)) {

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmolen.c,v 1.2 2003/03/23 20:17:34 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmolen.c,v 1.3 2003/03/30 08:05:22 ohara Exp $ */
 
 /* This module is needed by bconv.c */
 
@@ -104,6 +104,7 @@ int cmolen_cmo(cmo* c)
         size += cmolen_cmo_distributed_polynomial((cmo_distributed_polynomial *)c);
         break;
     default:
+		;
     }
     return size;
 }

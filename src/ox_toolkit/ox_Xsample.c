@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.5 2003/02/04 20:43:55 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.6 2004/06/28 11:53:00 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -172,6 +172,7 @@ int receive_and_execute_sm_command()
         pop();
         break;
     default:
+		;
     }
 }
 
@@ -188,6 +189,7 @@ int receive()
         receive_and_execute_sm_command();
         break;
     default:
+		;
     }
     return 0;
 }

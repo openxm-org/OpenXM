@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.3 2003/03/30 08:05:22 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/dump.c,v 1.4 2003/09/15 09:31:41 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -151,6 +151,7 @@ void dump_cmo(cmo* m)
         dump_cmo_distributed_polynomial((cmo_distributed_polynomial *)m);
         break;
     default:
+		;
     }
 }
 
