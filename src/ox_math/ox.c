@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.11 1999/11/06 21:39:36 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.12 1999/11/07 12:12:55 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -1235,13 +1235,19 @@ cmo* make_mathcap_object(int version, char *id_string)
 {
     char sysname[]   = "ox_math";
     cmo_list *li     = new_cmo_list();
-    cmo_list *li_ver = make_list_of_id(version, id_string, sysname);
+    cmo_list *li_1st = make_list_of_id(version, id_string, sysname);
+    cmo_list *li_2nd = make_list_of_tag(IS_SM);
+	cmo_list *li_3rd = new_cmo_list();
     cmo_list *li_cmo = make_list_of_tag(IS_CMO);
-    cmo_list *li_sm  = make_list_of_tag(IS_SM);
 
-    append_cmo_list(li, (cmo *)li_ver);
-    append_cmo_list(li, (cmo *)li_cmo);
-    append_cmo_list(li, (cmo *)li_sm);
+    cmo_list *li_ox  = new_cmo_list();
+	append_cmo_list(li_ox,  (cmo *)new_cmo_int32(OX_DATA));
+    append_cmo_list(li_3rd, (cmo *)li_ox);
+    append_cmo_list(li_3rd, (cmo *)li_cmo);
+
+    append_cmo_list(li, (cmo *)li_1st);
+    append_cmo_list(li, (cmo *)li_2nd);
+    append_cmo_list(li, (cmo *)li_3rd);
 
     return (cmo *)new_cmo_mathcap((cmo *)li);
 }
