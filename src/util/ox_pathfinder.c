@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.18 2004/02/28 12:27:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.19 2004/02/28 13:39:42 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -577,7 +577,9 @@ char **getServerEnv(char *oxServer) {
   int ostype;
   char *p;
   char *oxhome;
-  char *xterm;
+  char *oxterm;
+  int  oxtermType=0;
+  char *oxtermOpt;
   char *oxlog;
   char *load_sm1_path;
   char *load_k0_path;
@@ -620,19 +622,20 @@ char **getServerEnv(char *oxServer) {
   strcpy(oxServer,p);
 
   if ((ostype == 0) || (ostype == 2)) {
-    if (!NoX) {
-      xterm = "/usr/X11R6/bin/xterm";
-      if (getFileSize(xterm) == -1) {
-        msg_get_home(2,"xterm is not found. NoX is automatically set.");
-        NoX = 1;
-      }
-    }
     oxlog = get_oxlog_path();
-    xterm = "/usr/X11R6/bin/xterm -icon -e ";
+	if (!NoX) {
+	  oxterm = oxTermWhich_unix(&oxtermType);
+	  if (oxterm == NULL) {
+        msg_get_home(2,"oxterm, rxvt, xterm is not found. NoX is automatically set.");
+        NoX = 1;
+	  }
+	  if (oxtermType == T_XTERM) oxtermOpt = "-icon";
+	  else  oxtermOpt = "-iconic";
+	}
     argv[i] = oxlog; i++; argv[i] = NULL;
     if (!NoX) {
-      argv[i] = "/usr/X11R6/bin/xterm"; i++; argv[i] = NULL;
-      argv[i] = "-icon"; i++; argv[i] = NULL;
+      argv[i] = oxterm ; i++; argv[i] = NULL;
+      argv[i] = oxtermOpt; i++; argv[i] = NULL;
       argv[i] = "-e"; i++; argv[i] = NULL;
     }
     argv[i] = get_ox_path(); i++; argv[i] = NULL;
@@ -641,10 +644,10 @@ char **getServerEnv(char *oxServer) {
   }else{
     if (!NoX) {
       if (getFileSize("/cygdrive/c/winnt/system32/cmd.exe") >= 0) {
-        xterm = "/cygdrive/c/winnt/system32/cmd.exe /c start /min ";
+        oxterm = "/cygdrive/c/winnt/system32/cmd.exe /c start /min ";
         argv[i] = "/cygdrive/c/winnt/system32/cmd.exe"; i++; argv[i] = NULL;
       }else if (getFileSize("/cygdrive/c/windows/system32/cmd.exe") >= 0) {
-        xterm = "/cygdrive/c/windows/system32/cmd.exe  /c start /min ";
+        oxterm = "/cygdrive/c/windows/system32/cmd.exe  /c start /min ";
         argv[i] = "/cygdrive/c/windows/system32/cmd.exe"; i++; argv[i] = NULL;
       }else{
         msg_get_home(2,"cmd.exe is not found. NoX is automatically set.");
@@ -1123,4 +1126,20 @@ int oxKillAll(void) {
 void ox_pathfinder_quiet(void) {
   Verbose_get_home = 0;
   Verbose = 0;
+}
+
+char *oxTermWhich_unix(int *typep) {
+  char *s;
+  char *p;
+  p = (char *) getenv("PATH");
+  s = oxWhich("oxterm",p); *typep = T_OXTERM;
+  if (s != NULL) return s;
+
+  s = oxWhich("rxvt",p); *typep = T_RXVT;
+  if (s != NULL) return s;
+
+  s = oxWhich("xterm",p); *typep = T_XTERM;
+  if (s != NULL) return s;
+
+  return NULL;
 }

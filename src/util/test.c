@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/test.c,v 1.4 2003/12/01 03:15:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/test.c,v 1.5 2003/12/03 03:21:16 takayama Exp $ */
 #include <stdio.h>
 #include "ox_pathfinder.h"
 
@@ -9,6 +9,18 @@ sGC_malloc(int a) {
 /* which command */
 main(int argc,char *argv[]) {
   char *s;
+  char **a;
+  int i;
+
+  printf("hello\n"); fflush(NULL);
+  a = getServerEnv("bin/ox_sm1");
+  i = 0;
+  if (a == NULL) {fprintf(stderr,"Not found.\n"); exit(10);}
+  while (a[i] != NULL) {
+	printf("i=%d,  %s\n",i,a[i++]);
+  }
+  exit(0);
+
   if (argc != 2) {
 	fprintf(stderr,"test cmdname\n\n");
   }
