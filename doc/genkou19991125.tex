@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.116 1999/12/29 09:21:34 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.117 1999/12/30 14:21:34 ohara Exp $
 
 \usepackage{jssac}
 
@@ -444,12 +444,13 @@ http://www.openmath.org/omsoc/
 定義された表現は, 異なる種類の数式処理システムの間で情報を交換するときに
 利用することができる.  しかしながら, 数学システム同士の通信, 例えばある
 数学システムから別の数学システムを呼び出して計算させる方法などは, このプ
-ロジェクトの対象外である.
+ロジェクトの対象外である. OpenXM における共通データ形式と数学システム固
+有のオブジェクトとの変換は OpenMath 規約の Phrasebook と同じアイデアを用
+いている.
 
-OpenXM 規約の CMO 形式の定義は OpenMath 規約の content dictionary の概念
-に似ている(もちろん OpenMath の方がもっと大掛かりで厳密な規定である).
-また, 共通データ形式と数学システム固有のオブジェクトとの変換は OpenMath
-規約の Phrasebook と同じアイデアを用いている.
+% ここは書かなくてもいいように思えてきたので削除しました。
+%OpenXM 規約の CMO 形式の定義は OpenMath 規約の content dictionary の概念
+%に似ている(もちろん OpenMath の方がもっと大掛かりで厳密な規定である).
 
 
 \item NetSolve
@@ -471,7 +472,7 @@ http://symbolicnet.mcs.kent.edu/SN/areas/protocols/mp.html
 数学的なデータの共通表現を提供するプロジェクト.  MP の主な関心は, この
 共通表現の最適化である.  数学システム間で, 命令を送信したりデータを受
 け渡す仕組み(control integration)は, このプロジェクトの対象外である.
-MP は既存の contorl integration に対して補完的役割を果たす.
+MP は既存の control integration に対して補完的役割を果たす.
 
 MP では数式を構文木の一種(annotated syntax tree)と捉える.  annotated
 syntax tree には数学的な意味を保ったまま表現されているという特徴がある
@@ -490,9 +491,11 @@ C 言語による実装(MP-C ライブラリ)は上記のウェブページから収得可能である.
 
 http://horse.mcs.kent.edu/\~{}pwang/
 
-数学的な計算を行なうための HTTP に似たプロトコル.  クライアント・サー
-バモデルを採用している.  交換に用いられる数学データの表現方法について
-の規定はない. したがって数学的なデータの表現には MP や OpenMath で定め
+数学的な計算を行なうための HTTP に似たプロトコル.
+%クライアント・サーバモデルを採用している.
+MCP の視野は主に control integration であり,
+交換に用いられる数学データの表現方法については規定されていない.
+したがって数学的なデータの表現には MP や OpenMath で定め
 られたものを利用することができる.  実際, 数学データの表現に OpenMath 
 の XML 表現を用いた実装があり, GAP と Axiom の間で通信が行われている.
 この場合 MCP によって送信されるデータは, 本文に OpenMath 形式で数式を
