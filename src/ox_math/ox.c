@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.8 1999/11/04 18:13:47 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.9 1999/11/04 19:33:17 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -613,26 +613,33 @@ static char *create_otp()
 static int login_with_otp(int fd, char* passwd)
 {
     char buff[1024];
-    int n = read(fd, buff, 1024);
 	int len = strlen(passwd)+1;
-    if (n != len) {
+    int n = read(fd, buff, len);
+	if (strcmp(passwd, buff) != 0) {
         fprintf(stderr, "Socket#%d: Login incorrect.\n", fd);
-        fprintf(stderr, "password = (%s), length = (%d).\n", passwd, len);
-        fprintf(stderr, "received = (%d), length = (%d).\n", buff, n);
+        fprintf(stderr, "password = (%s), %d bytes.\n", passwd, len);
+        fprintf(stderr, "received = (%s), %d bytes.\n", buff, n);
 		fflush(stderr);
+		exit(1);
     }
+#ifdef DEBUG
+	fprintf(stderr, "Socket#%d: login!.\n", fd);
+	fprintf(stderr, "password = (%s), %d bytes.\n", passwd, len);
+	fprintf(stderr, "received = (%s), %d bytes.\n", buff, n);
+	fflush(stderr);
+#endif
 }
 
 /* 
    (-reverse 版の ox_start)
    ox_start は クライアントが呼び出すための関数である.
-   サーバでは使われない.  prog1 は コントロールサーバであり,
+   サーバでは使われない.  ctl_prog は コントロールサーバであり,
    -ox, -reverse, -data, -control, -pass, -host
-   というオプションを理解することを仮定する. prog2 は計算サーバである.
+   というオプションを理解することを仮定する. dat_prog は計算サーバである.
    接続時には, sv->control を先にオープンする.
 */
 
-ox_file_t ox_start(char* host, char* prog1, char* prog2)
+ox_file_t ox_start(char* host, char* ctl_prog, char* dat_prog)
 {
 	char *pass = create_otp();
     char ctl[16], dat[16];
@@ -648,7 +655,7 @@ ox_file_t ox_start(char* host, char* prog1, char* prog2)
     if (fork() == 0) {
         dup2(2, 1);
         dup2(open(DEFAULT_LOGFILE, O_RDWR|O_CREAT|O_TRUNC, 0644), 2);
-        execl(prog1, prog1, "-reverse", "-ox", prog2,
+        execl(ctl_prog, ctl_prog, "-reverse", "-ox", dat_prog,
               "-data", dat, "-control", ctl, "-pass", pass,
               "-host", host, NULL);
     }
