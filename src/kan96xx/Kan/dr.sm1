@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.42 2004/09/14 02:13:29 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.43 2004/09/14 10:50:49 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4271,9 +4271,7 @@ $ [ff ff] fromVectors :: $
 [(list listToArray a)
 ]] putUsages
 
-/makeInfix {
-  [(or_attr) 4   4 -1 roll ] extension
-} def
+% Body is moved to smacro.sm1
 [(makeInfix)
 [(literal makeInfix)
  (Change literal to an infix operator.)

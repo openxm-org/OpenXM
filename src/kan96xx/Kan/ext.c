@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.29 2004/09/12 01:32:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.30 2004/09/14 01:57:15 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -154,6 +154,13 @@ struct object Kextension(struct object obj)
 	/* if (!( m == 0 || m == PROTECT || m == ABSOLUTE_PROTECT || m == ATTR_INFIX))
 	   errorKan1("%s\n","The number must be 0, 1 or 2.");*/
     putUserDictionary2((char *)NULL,0,0,m | SET_ATTR_FOR_ALL_WORDS,
+                       CurrentContextp->userDictionary);
+  }else if (strcmp(key,"or_attrs")==0) {
+    if (size != 2) errorKan1("%s\n","[(or_attrs)  num] extension.");
+    obj1 = getoa(obj,1);
+    if (obj1.tag != Sinteger) errorKan1("%s\n","[(or_attrs)  num] extension.");
+    m = KopInteger(obj1);
+    putUserDictionary2((char *)NULL,0,0,m | OR_ATTR_FOR_ALL_WORDS,
                        CurrentContextp->userDictionary);
   }else if (strcmp(key,"keywords")==0) {
     if (size != 1) errorKan1("%s\n","[(keywords)] extension.");

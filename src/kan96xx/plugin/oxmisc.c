@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.19 2004/02/25 23:14:35 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.20 2004/03/08 08:24:42 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -878,14 +878,16 @@ char *oxGenPass(void) {
   static int seed = 0;
   long p;
   char *s;
-  int i;
+  int i,n;
   if (seed == 0) {
     seed = (int) time(NULL) + (int) &p;
     srandom((unsigned int) seed);
   }
-  for (i=0; i < ((int) &p) % 100 ; i++) random();
-  p = random();
   s = (char *)malloc(128*sizeof(char));
+  if (s == NULL) { fprintf(stderr,"No more memory.\n"); return(s); }
+  n = (((int) s) + (int) time(NULL)) % 100;
+  for (i=0; i < n ; i++) random();
+  p = random();
   sprintf(s,"%ld",p);
   return(s);
 }

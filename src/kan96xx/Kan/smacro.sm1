@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Kan/smacro.sm1,v 1.5 2004/09/09 03:14:46 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Kan/smacro.sm1,v 1.6 2004/09/10 13:20:23 takayama Exp $
 %%%%%% global control variables
 %%  /@@@.quiet 0 def  It is defined in scanner().
 /@@@.Dsymbol (D) def
@@ -12,6 +12,10 @@
 %%% pointer to the StandardContext.
 /StandardContextp [(CurrentContextp)] system_variable def
 /null 0 (null) data_conversion def
+
+/makeInfix {
+  [(or_attr) 4   4 -1 roll ] extension
+} def
 
 %%%%%%%%%%%%%%%%%%%%%%  usages %%%%%%%%%%%%%%%%%%%%
 /@.usages [[( ) [(gate keeper)]] ] def
@@ -72,7 +76,8 @@
 /?
 {
    show_systemdictionary
-   (-- ?? : to see macro dictionary --)
+   (-- ?? : to see macro dictionary  --)
+   (--  [(keyword in regular expression)] usages ::    --)
    message
    $-- (keyWord) usage  to see the usages. Data type of (xxxyyy) is string.--$
      message
@@ -95,7 +100,7 @@
    print  newline ;
 } def
 
-/. {expand} def
+/. { dup tag 3 eq { exec } {expand} ifelse } def
 
 
 /false 0 def

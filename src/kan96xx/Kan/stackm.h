@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.5 2004/09/11 23:49:34 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.6 2004/09/12 00:26:21 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -135,6 +135,7 @@ if ((ob).tag != Sarray) {fprintf(stderr,"Warning: PUTOA is for an array of objec
 
 /* For dictionary, flag bit */
 #define SET_ATTR_FOR_ALL_WORDS 0x10
+#define OR_ATTR_FOR_ALL_WORDS  0x20
 #define PROTECT 0x1
 #define ABSOLUTE_PROTECT 0x2
 #define ATTR_INFIX       0x4

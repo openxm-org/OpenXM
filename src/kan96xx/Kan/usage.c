@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.34 2004/09/12 01:32:08 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.35 2004/09/14 01:57:15 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -160,6 +160,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(newVector) m ] extension vec \n");
     fppp(fp,"  [(getUniqueFileName) path] extension newName \n");
     fppp(fp,"  [(or_attr) atr literal] extension new_value \n");
+    fppp(fp,"  [(or_attrs) atr ] extension result-obj \n");
     fppp(fp,"  [(outputObjectToFile) path obj] extension null \n");
     fppp(fp,"  [(ostype)] extension list \n");
     fppp(fp,"  [(regexec) regular_expression stringArray flags(opt)] extension list \n");
@@ -167,7 +168,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(traceClearStack)] extension null \n");
     fppp(fp,"  [(traceShowStack)] extension str \n");
     /* fppp(fp,"  [(asir0) string] extension result-object \n"); */
-    fppp(fp,"See also plugin-* in ??. \n");
+    fppp(fp,"See also plugin-* in ?? by [(plugin)] usages :: \n");
   }else if (strcmp(s,"file")==0) {
     fppp(fp,"<< filename mode file fd >>\n");
     fppp(fp,"string filename, mode; file fd;\n");

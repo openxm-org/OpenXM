@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.11 2003/11/20 09:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.12 2003/11/20 09:24:35 takayama Exp $ */
 if (K00_verbose)
   Println("help.k:  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -695,12 +695,12 @@ def void Protect(name,level) {
   n = Length(Arglist);
   if (n == 1) {
     level = 1;
-    str = AddString(["[(chattr) ",ToString(level)," /",name," ",
+    str = AddString(["[(or_attr) ",ToString(level)," /",name," ",
                      " ] extension pop "]);
     /* Println(str); */
     sm1(" [(parse) ",str ," ] extension pop ");
   } else if (n ==2) {
-    str = AddString(["[(chattr) ",ToString(level)," /",name," ",
+    str = AddString(["[(or_attr) ",ToString(level)," /",name," ",
                      " ] extension pop "]);
     /* Println(str); */
     sm1(" [(parse) ",str ," ] extension pop ");

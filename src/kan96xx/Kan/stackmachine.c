@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.25 2004/09/12 10:22:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.26 2004/09/16 02:22:03 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -292,6 +292,12 @@ int putUserDictionary2(str,h0,h1,attr,dic)
   if (SET_ATTR_FOR_ALL_WORDS & attr) {
     for (i=0; i<USER_DICTIONARY_SIZE; i++) {
       if ((dic[i]).key !=EMPTY) (dic[i]).attr = attr&(~SET_ATTR_FOR_ALL_WORDS);
+    }
+    return(0);
+  }
+  if (OR_ATTR_FOR_ALL_WORDS & attr) {
+    for (i=0; i<USER_DICTIONARY_SIZE; i++) {
+      if ((dic[i]).key !=EMPTY) (dic[i]).attr |= attr&(~OR_ATTR_FOR_ALL_WORDS);
     }
     return(0);
   }
