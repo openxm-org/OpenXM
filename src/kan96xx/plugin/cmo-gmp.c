@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.3 1999/11/18 00:54:17 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.4 1999/11/27 13:24:41 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -117,6 +117,18 @@ static int myfgetc(struct cmoBuffer *cb)
   }
   return(k);
 }
+#if BYTES_PER_MP_LIMB == 8
+static unsigned int getRawInt32(struct cmoBuffer *cb)
+{
+  char d[4];
+  int i;
+  int r;
+  for (i=0; i<4; i++) {
+    d[i] = myfgetc(cb);
+  }
+  return( ntohl(* ( (unsigned int *)d)));
+}
+#elif BYTES_PER_MP_LIMB == 4
 static int getRawInt32(struct cmoBuffer *cb)
 {
   char d[4];
@@ -127,6 +139,7 @@ static int getRawInt32(struct cmoBuffer *cb)
   }
   return( ntohl(* ( (int *)d)));
 }
+#endif
 
 cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb)
 {
@@ -137,6 +150,110 @@ cmoGetGMPCoeff_old(MP_INT *x, struct cmoBuffer *cb)
 /*****************************************************/
 /*****   new version for CMO_ZZ  *********************/
 /*****************************************************/
+#if BYTES_PER_MP_LIMB == 8
+size_t
+cmoOutGMPCoeff_new(mpz_srcptr x)
+{
+  int i;
+  mp_size_t s;
+  mp_size_t xsize = ABS (x->_mp_size);
+  mp_size_t xsize0;
+  mp_srcptr xp = x->_mp_d;
+  mp_size_t out_bytesize;
+  mp_limb_t hi_limb;
+  int n_bytes_in_hi_limb;
+  cmoint tmp[1];
+  tmp[0] = htonl(CMO_ZZ);
+  cmoOutputToBuf(CMOPUT,tmp,sizeof(cmoint));
+
+  if (BITS_PER_CHAR != 8) {
+    fprintf(stderr,"BITS_PER_CHAR = %d\n",BITS_PER_CHAR);
+    fprintf(stderr,"cmo-gmp.c does not work on this CPU.\n");
+    fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
+    exit(10);
+  }
+  
+  if (xsize == 0)
+    {
+      outRawInt32(0);
+      return  1;
+    }
+
+  xsize0 = xsize;
+  if ( (unsigned long)xp[xsize-1] < (unsigned long)0x100000000 )
+    xsize = xsize0*2-1;
+  else
+    xsize = xsize0*2;
+
+  if (x->_mp_size >= 0)
+    outRawInt32(xsize);
+  else
+    outRawInt32(-xsize);
+
+  for (s = 0; s < xsize0-1; s++)
+    {
+      outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
+      outRawInt32(((unsigned long)xp[s])>>32);
+    }
+    if ( !(xsize&1) ) {
+      outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
+      outRawInt32(((unsigned long)xp[s])>>32);
+    } else
+      outRawInt32(((unsigned long)xp[s])&(unsigned long)0xffffffff);
+  return ( ABS (xsize) );
+}
+
+cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
+{
+  int i;
+  mp_size_t s;
+  mp_size_t xsize;
+  mp_size_t xsize0;
+  mp_ptr xp;
+  unsigned int c;
+  mp_limb_t x_limb;
+  mp_size_t in_bytesize;
+  int neg_flag;
+
+  if (BITS_PER_CHAR != 8) {
+    fprintf(stderr,"BITS_PER_CHAR = %d\n",BITS_PER_CHAR);
+    fprintf(stderr,"cmo-gmp.c does not work on this CPU.\n");
+    fprintf(stderr,"Read the GMP source code and rewrite cmo-gmp.c.\n");
+    exit(10);
+  }
+
+  /* Read 4-byte size */
+
+  xsize = (int)getRawInt32(cb);
+  neg_flag = xsize < 0;
+  xsize = ABS(xsize);
+  
+  if (xsize == 0)
+    {
+      x->_mp_size = 0;
+      return 1;			/* we've read 4 bytes */
+    }
+
+  xsize0 = (xsize+1)/2;
+  if (x->_mp_alloc < xsize0)
+    _mpz_realloc (x, xsize0);
+  xp = x->_mp_d;
+
+  for (i=0; i<xsize0-1; i++) {
+    xp[i] = ((unsigned long)getRawInt32(cb))
+           |(((unsigned long)getRawInt32(cb))<<32);
+  }
+  if ( !(xsize&1) )
+    xp[i] = ((unsigned long)getRawInt32(cb))
+           |(((unsigned long)getRawInt32(cb))<<32);
+  else
+    xp[i] = (unsigned long)getRawInt32(cb);
+
+  MPN_NORMALIZE (xp, xsize0);
+  x->_mp_size = neg_flag ? -xsize0 : xsize0;
+  return( xsize0 ); 
+}
+#elif BYTES_PER_MP_LIMB == 4
 size_t
 cmoOutGMPCoeff_new(mpz_srcptr x)
 {
@@ -234,3 +351,4 @@ cmoGetGMPCoeff_new(MP_INT *x, struct cmoBuffer *cb)
   x->_mp_size = neg_flag ? -xsize : xsize;
   return( xsize ); 
 }
+#endif /* BYTES_PER_MP_LIMB */
