@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.4 2001/08/21 02:38:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.5 2001/08/21 06:25:59 takayama Exp $ */
 
 #define Number 1
 #define RPolynomial 2
@@ -7,6 +7,7 @@
 #define Vector 5
 #define Matrix 6
 #define STRING 7
+#define STRUCT 8
 #define DPolynomial   9
 #define QUOTE 17
 
@@ -32,6 +33,8 @@ def taka_tex_form(S) {
      return taka_tex_form_dpolynomial(S);
   }else if (type(S) == RPolynomial) {
      return taka_tex_form_rpolynomial(S);
+  }else if (type(S) == STRUCT) {
+     return taka_tex_form_struct(S);
   }else if (type(S) == QUOTE) {
      return taka_tex_form_quote(S);
   }else {
@@ -121,6 +124,16 @@ def taka_tex_form_dpolynomial(F) {
 
 def taka_tex_form_rpolynomial(S) {
   return taka_tex_form_quote(quote_to_quote(S));
+}
+
+/* Tentative code */
+def taka_tex_form_struct(S) {
+  if (S->Tag == "poly_factored_polynomial" || S->Tag == "poly_factored_rational") {
+     return taka_tex_form_quote( quote_factored_form_to_quote(S));
+  }else {
+     print("Unknown struct object for tex_form. Return ???");
+     return "???";
+  }
 }
 
 def taka_tex_form_quote(S) {
