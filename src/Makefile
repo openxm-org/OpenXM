@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.113 2002/09/03 01:05:28 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.114 2003/01/13 14:10:59 ohara Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -93,7 +93,7 @@ install: install-asir install-gnuplot install-k097 install-kan96xx \
 install-gc : all-gc
 	-@if test ! -f gc/.gc_installed ; \
 	then \
-		mkdir ../lib ; \
+		if test ! -d ../lib ; then mkdir ../lib ; fi ; \
 		cp gc/gc.a ../lib/libgc.a ; \
 	fi 
 	@touch gc/.gc_installed
