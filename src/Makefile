@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.139 2004/06/21 04:50:21 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.140 2004/06/24 12:45:15 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib=../../OpenXM_contrib
@@ -154,7 +154,7 @@ install-asir-contrib-asir-progs: install-asir install-util
 
 
 install-asir-doc: install-asir
-	-(cd asir-doc ; make install)
+	-(cd asir-doc ; ./make-configure; make install)
 
 install-misc:
 	(cd ../rc ; make install-man)
