@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.13 2004/03/04 06:29:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.14 2004/03/04 12:29:58 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -54,6 +54,9 @@ int TM_sm1Started  = 0;
 int TM_k0Started  = 0;
 int TM_do_not_print = 0;
 
+int Xm_noX = 0;
+int NoCopyright = 0;
+
 void ctrlC();
 struct object KpoString(char *s);
 char *KSpopString(void);
@@ -105,6 +108,10 @@ main(int argc,char *argv[]) {
     }else if (strcmp(argv[i],"--outputLimit") == 0) {
       i++;
       sscanf(argv[i],"%d",&OutputLimit_for_TeXmacs);
+    }else if (strcmp(argv[i],"--noLogWindow") == 0) {
+	  Xm_noX = 1;
+    }else if (strcmp(argv[i],"--noCopyright") == 0) {
+	  NoCopyright = 1;
 	}else{
 	  /* printv("Unknown option\n"); */
 	}
@@ -120,6 +127,7 @@ main(int argc,char *argv[]) {
   /* Load ox engine here */
   /* engine id should be set to ox.engine */
   KSexecuteString(" [(parse) (ox.sm1) pushfile] extension ");
+  if (Xm_noX) KSexecuteString(" /Xm_noX 1 def ");
   startEngine(TM_Engine," ");
 
   if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
@@ -336,10 +344,12 @@ static void printp(char *s) {
 }
 static void printCopyright(char *s) {
   printf("%s",DATA_BEGIN_V);
-  printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
-  printf(" under the BSD licence.  !asir; !sm1; !k0; !verbatim;\n");
-  printf("Type in      !reset;     when the engine gets confused. ");
-  printf("%s",s);
+  if (! NoCopyright) {
+    printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
+    printf(" under the BSD licence.  !asir; !sm1; !k0; !verbatim;\n");
+    printf("Type in      !reset;     when the engine gets confused. ");
+    printf("%s",s);
+  }
   printf("%s",DATA_END);
   fflush(NULL);
 }
@@ -356,11 +366,13 @@ static int startEngine(int type,char *msg) {
     KSexecuteString("  oxsm1.ccc ( ( ) message (------------- Message from sm1 ----------------)message ) oxsubmit ");
     TM_sm1Started = 1;
 	/* Welcome message.  BUG. Copyright should be returned by a function. */
-    printf("Kan/StackMachine1                         1991 April --- 2004.\n");
-    printf("This software may be freely distributed as is with no warranty expressed. \n");
-	printf("See OpenXM/Copyright/Copyright.generic\n");
-	printf("Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp.\n");
-	printf("0 usages to show a list of functions. \n(keyword) usages to see a short description\n");
+    if (! NoCopyright) {
+      printf("Kan/StackMachine1                         1991 April --- 2004.\n");
+      printf("This software may be freely distributed as is with no warranty expressed. \n");
+      printf("See OpenXM/Copyright/Copyright.generic\n");
+      printf("Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp.\n");
+      printf("0 usages to show a list of functions. \n(keyword) usages to see a short description\n");
+    }
     printf("%s\n",msg);
   }else if (type == K0) {
     if (!TM_k0Started) KSexecuteString(" k0connectr ");
@@ -372,10 +384,12 @@ static int startEngine(int type,char *msg) {
     KSexecuteString(" /ox.engine oxasir.ccc def ");
     TM_asirStarted = 1;
     printf("%s\n",msg);
-    KSexecuteString(" oxasir.ccc (copyright()+asir_contrib_copyright();) oxsubmit oxasir.ccc oxpopstring ");
-    ob = KSpop();
-    if (ob.tag == Sdollar) {
-      printf("%s",ob.lc.str);
+    if ( ! NoCopyright) {
+      KSexecuteString(" oxasir.ccc (copyright()+asir_contrib_copyright();) oxsubmit oxasir.ccc oxpopstring ");
+      ob = KSpop();
+      if (ob.tag == Sdollar) {
+        printf("%s",ob.lc.str);
+      }
     }
     /* Initialize the setting of asir. */
     KSexecuteString(" oxasir.ccc (if(1) {  Xm_server_mode = 1; Xm_helpdir = \"help-eg\";  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
