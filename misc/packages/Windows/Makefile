@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.11 2002/01/10 03:55:10 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.12 2002/01/13 07:10:15 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -76,10 +76,14 @@ oxasir-win.rr : oxapp oxpp oxpp2
 	./oxpp2 oxasir-win.tmp >oxasir-win.rr
 #	rm -f oxasir-win.tmp oxasir-win.tmp2 oxasir-win.tmp3 oxpp2.tmp1 oxpp2.tmp2
 
-build-bat:
+crlf :  debug-tools/crlf.c
+
+	gcc -o crlf debug-tools/crlf.c
+build-bat: crlf
 	-mkdir OpenXM-win/bin-windows
-	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirguid-cd.bat)
-	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat)
-	(cd debug-tools; sed -f dist.sed <websm1.bat >../OpenXM-win/bin-windows/websm1.bat)
+	(cd debug-tools; sed -f dist.sed <asirgui-cd.bat >../OpenXM-win/bin-windows/asirgui-cd.bat ; ./crlf ../OpenXM-win/bin-windows/asirgui-cd.bat)
+	(cd debug-tools; sed -f dist.sed <webasir.bat >../OpenXM-win/bin-windows/webasir.bat ; ./crlf ../OpenXM-win/bin-windows/webasir.bat)
+	(cd debug-tools; sed -f dist.sed <websm1.bat >../OpenXM-win/bin-windows/websm1.bat ; ./crlf ../OpenXM-win/bin-windows/websm1.bat)
+	(rm -f ../OpenXM-win/bin-windows/*.BAK ../OpenXM-win/bin-windows/*.bak)
 	cp OpenXM-win/bin-windows/asirgui-cd.bat OpenXM-win/asir/bin
 

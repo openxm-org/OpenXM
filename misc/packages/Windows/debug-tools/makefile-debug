@@ -1,9 +1,9 @@
-# $OpenXM: OpenXM/misc/packages/Windows/debug-tools/makefile-debug,v 1.1 2002/01/13 07:27:47 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/debug-tools/makefile-debug,v 1.2 2002/01/16 06:52:23 takayama Exp $
 
 usage :
 	echo "tgz-modified"
 
-tgz-modified:
+tgz-modified:  crlf
 	rm -rf tmp
 	-mkdir tmp
 	-mkdir tmp/bin-windows
@@ -14,12 +14,20 @@ tgz-modified:
 	cp ../OpenXM-win/bin/httpd-asir.sm1 tmp
 	cp ../OpenXM-win/bin/oxasir-win.rr tmp
 	cp ../OpenXM-win/bin-windows/*.bat tmp/bin-windows
-	echo "copy * bin" >tmp/mycp.bat
-	echo "copy * asir\\bin" >>tmp/mycp.bat
-	echo "copy * lib\\sm1" >>tmp/mycp.bat
-	echo "copy bin-windows\\* bin-windows" >>tmp/mycp.bat
+	echo "copy * ..\\bin" >tmp/mycp.bat
+	echo "copy * ..\\asir\\bin" >>tmp/mycp.bat
+	echo "copy * ..\\lib\\sm1" >>tmp/mycp.bat
+	echo "copy bin-windows\\*.bat bin-windows" >>tmp/mycp.bat
+	echo "del ..\\bin\\mycp.bat" >>tmp/mycp.bat
+	echo "del ..\\asir\\bin\\mycp.bat" >>tmp/mycp.bat
+	echo "del ..\\lib\\sm1\\mycp.bat" >>tmp/mycp.bat
+	./crlf mycp.bat
 	tar czvf tmp.tgz tmp
 
+crlf :
+	gcc -o crlf crlf.c
+
 clean:
-	-rm -rf tmp tmp.tgz
+	-rm -rf tmp tmp.tgz crlf *~  *.BAK
+
 
