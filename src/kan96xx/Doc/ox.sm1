@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.28 2003/12/04 10:35:24 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.29 2003/12/08 05:50:31 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1444,6 +1444,79 @@ oxasir.verbose {
   popVariables
   arg1 
 } def
+/verbose.wgr  1 def
+%[ ff vv ww ] asir.wgb [gb  init]
+/asir.wgr {
+  /arg1 set
+  [/in-asir.gb  /ff /vv /ww /vvx /vvd /avv /comm /wvec /i] pushVariables
+  [
+    /ff arg1 0 get def
+    /vv arg1 1 get def
+    /ww arg1 2 get def
+
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+
+    vv isArray {
+      vv from_records /vv set
+    } {  } ifelse
+    oxasir.ccc [(dp_gr_print) (2)..] asir
+    [vv to_records pop] /vvx set 
+    vvx { toString (D) 2 1 roll 2 cat_n  } map /vvd set
+
+    [ 
+      0 1 vvx length 1 sub {
+        /i set
+       vvx i get
+       0 ww i get  sub
+       vvd i get
+       ww i get 
+      } for
+     ] /wvec set
+
+    [vv ring_of_differential_operators 
+     [wvec] weight_vector
+    0] define_ring
+
+    ff { . dehomogenize homogenize } map /ff set
+    vvx { . } map /vvx set %%ex  [x,y] 
+    vvd { . } map /vvd set %%ex  [Dx,Dy]
+    vvx vvd join [(h).] join /avv set
+
+    verbose.wgr {
+    (Asir (-w,w) gb in the Weyl algebra) message
+    (wvec=) messagen wvec message
+    (ff=) messagen ff message
+    (avv=) messagen avv message
+    } {  } ifelse
+
+    [$dp_weyl_set_weight(newvect($  avv length toString $,$
+     ww toString $));$ ] cat /comm set
+
+    verbose.wgr {
+      comm message
+    } { } ifelse
+
+    oxasir.ccc comm oxsubmit ;
+
+    oxasir.ccc [(dp_weyl_gr_main) ff avv (0).. (1).. (11)..] asir
+    /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+[(asir.wgr)
+[([ ff vv ww ] asir.wgr g)
+ $It computes the (-ww,ww) Grobner basis of ff in the homogenized Wel algebra.$
+ (Homogenization is automatically done.)
+ $Example 1: $
+ $ [ [(x*Dx+y*Dy-1)  (Dx*Dy)] $
+ $   (x,y)  $
+ $   [1 2 ] ] asir.wgr   $
+]] putUsages
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% functions to start ox_asir
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
