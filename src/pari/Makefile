@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.12 2001/10/03 01:47:29 noro Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.13 2001/12/27 07:10:38 noro Exp $
 
 PARI = ../../../OpenXM_contrib/pari-2.2
 OpenXM_ROOT = ../../../OpenXM
@@ -44,13 +44,13 @@ configure: patch
 
 patch: 
 	@if [ ! -f ./.patch_done ]; then \
-		(cd $(PARI)/config ; patch < $(CURDIR)/Makefile.SH.diff) \
+		(cd $(PARI)/config ; patch < ../../../OpenXM/src/pari/Makefile.SH.diff) \
 	fi
 	@touch ./.patch_done
 
 patch-clean: 
 	@if [ -f ./.patch_done ]; then \
-		(cd $(PARI)/config ; patch -R < $(CURDIR)/Makefile.SH.diff) \
+		(cd $(PARI)/config ; patch -R < ../../../OpenXM/src/pari/Makefile.SH.diff) \
 	fi
 	@rm -f ./.patch_done
 
