@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.65 2002/12/05 02:16:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.66 2003/01/16 00:54:26 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 
 print("OpenXM/Risa/Asir-Contrib(20020922), Copyright 2000-2002, OpenXM.org")$
@@ -314,15 +314,16 @@ def poly_initial_coefficients(I) {
   return taka_poly_initial_coefficients(I | option_list=OL);
 }
 
-/*&usage begin: poly_initial_term(I|weight,order,v)
- It returns the initial ideal of {I} with respect to the given weight vector.
+/*&usage begin: poly_initial_term(F|weight,order,v)
+ It returns the initial term of a polynomial {F} 
+ with respect to the given weight vector.
  description:
  The weight is given by the optional variable weight w.
  It returns
 @tex
-${\rm in}_w (I)$
+${\rm in}_w (F)$
 @end tex
- example: poly_initial_term([x^2+y^2-4,x*y-1]|weight=[100,1],v=[x,y]);
+ example: poly_initial_term( x^2+y^2-4 |weight=[100,1],v=[x,y]);
 end: */
 def poly_initial_term(F) {
   Or = getopt(order);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.10 2001/08/29 07:37:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.11 2002/01/22 06:18:44 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -507,9 +507,9 @@ def taka_poly_initial_term(F) {
   if (Weight == 0) {
      dp_ord(Order);
      G = dp_ptod(F,V);
-     T = dp_ht(G);
-     C = dp_hc(G);
-     return [ C, dp_dtop(T,V)];
+     T = dp_hm(G);
+
+     return [dp_dtop(T,V)];
   }else {
      dp_ord(taka_poly_weight_vector(Weight,V));
      G = dp_ptod(F,V);
@@ -519,11 +519,10 @@ def taka_poly_initial_term(F) {
      while (G != 0) {
        H = dp_ht(G);
        if (D > taka_poly_degree(H|weight=Weight,v=V)) break;
-       C += dp_hc(G);
-       T += dp_ht(G);
+       T += dp_hm(G);
        G = G-dp_hm(G);
      }
-     return [C,dp_dtop(T,V)];
+     return [dp_dtop(T,V),D];
   }
 }
 
