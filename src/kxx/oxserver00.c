@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.7 2002/02/24 10:27:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.8 2002/11/04 10:53:57 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -118,6 +118,8 @@ nullserver(int fdStream) {
     if (OxInterruptFlag == 0) {
       fprintf(stderr," ?! \n"); fflush(NULL);
     }
+	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+	KSexecuteString(" (Computation is interrupted.) ");
     signal(SIGUSR1,controlResetHandler); goto aaa;
   } else {  
     if (JmpMessage) fprintf(stderr,"Set EnvOfChildServer.\n");
@@ -128,7 +130,7 @@ nullserver(int fdStream) {
 #else  
   if (setjmp(EnvOfStackMachine)) {
 #endif
-    fprintf(stderr,"childServerMain: jump here by EnvOfStackMachine.\n");
+    fprintf(stderr,"childServerMain: jump here by EnvOfStackMachine or timeout.\n");
     if (OxInterruptFlag == 0) {
       fprintf(stderr," ?! \n"); fflush(NULL);
     }
@@ -142,6 +144,7 @@ nullserver(int fdStream) {
     */
     Sm1_pushError2(SerialCurrent,-1,"Global jump by sm1 error");
 
+	KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
     signal(SIGUSR1,controlResetHandler); goto aaa ;
   } else {
     if (JmpMessage) fprintf(stderr,"Set EnvOfStackMachine.\n"); 
