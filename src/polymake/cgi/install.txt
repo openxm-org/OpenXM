@@ -1,0 +1,45 @@
+$OpenXM$
+Installing and testing cgi-polymake.sh
+
+0.  Install OpenXM.
+    Double check that the directory permission should be rwxr-xr-x
+1.  Install  polymake under /usr/local/polymake
+    polymake will be under /usr/local/polymake/bin
+2.  Install apache (or equivalent) and make enable the use of CGI's.
+    Suppose that the CGI directory is under /var/www/cgi-bin
+3.  Copy cgi-polymake.sh under /var/www/cgi-bin
+4.  Replace OpenXM_HOME in cgi-polymake.sh by the absolute path of 
+    OpenXM of your installation.
+
+Checking the installation.
+    cd /var/www/cgi-bin
+    Type in
+
+    env env QUERY_STRING='oxMessageBody=FACETS+POINTS%0A1+0+0%0A1+1+0%0A1+0+1%0A1+1+1%0A%0A%0A%0A%0A%0A%0A' ./cgi-polymake.sh
+
+    The answer should be
+
+Content-Type: text/plain
+oxshell-stdout: FACETS%0A0+0+1%0A0+1+0%0A1+0+-1%0A1+-1+0%0A%0A
+oxshell-stderr: 
+
+POINTS
+1 0 0
+1 1 0
+1 0 1
+1 1 1
+
+FACETS
+0 0 1
+0 1 0
+1 0 -1
+1 -1 0
+
+AFFINE_HULL
+
+
+_version 2.0
+_application polytope
+
+
+

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.2 2004/09/24 08:35:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.3 2004/09/27 01:20:46 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -35,6 +35,7 @@ struct object cgiUrlEncodingToKeyValuePair(char *s) {
   for (i=0; i<n; i++) {
     if (s[i] == '?') { start=i+1; break;}
   }
+  if (start == -1) start=0;
   for (k=0; k<2; k++) {
     /* k==0 path one. Count nOfPairs. */
     /* k==1 path two. generate array. */
