@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.47 2000/01/09 16:10:08 maekawa Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.48 2000/01/09 16:15:05 maekawa Exp $
 
 all: configure all-kan96xx all-kxx all-tigers all-phc all-k097 \
      all-pari all-asir all-gnuplot all-openmath all-oxmath
@@ -10,14 +10,14 @@ all-asir: configure-asir
 all-gnuplot: configure-gnuplot
 	(cd gnuplot ; make all ; make install)
 
+all-k097: configure-k097
+	(cd k097 ; make all ; make install)
+
 all-kan96xx: configure-kan96xx
 	(cd kan96xx ; make all)
 
 all-kxx: configure-kxx
 	(cd kxx ; make all ; make install2)
-
-all-k097: configure-k097
-	(cd k097 ; make all ; make install)
 
 all-openmath:
 	@if ../misc/which.pl -s javac ; then \
