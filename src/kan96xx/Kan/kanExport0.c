@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.39 2004/09/20 02:26:56 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.40 2004/09/23 12:20:52 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1522,7 +1522,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
         ob4 = Order matrix
         ob5 = [(keyword) value (keyword) value ....]
      */
-#define RP_LIMIT 500
+#define RP_LIMIT 5000
 {
   int i;
   struct object ob;
