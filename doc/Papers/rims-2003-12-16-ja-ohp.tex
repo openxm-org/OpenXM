@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.4 2003/12/12 01:09:50 takayama Exp $
+% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.5 2003/12/12 01:30:45 takayama Exp $
 %% xdvi -paper a4r rims-2003-12-16-ja-ohp
 %% dvips -f -t landscape  rims-2003-12-16-ja-ohp| psnup -8 -r | lpr -Pxerox6
 %% dvipdfm -l rims-2003-12-16-ja-ohp
@@ -324,8 +324,6 @@ value}{\tt )}
 \pagetitle{4. {\color{blue} OX-RFC 102 --- $BK\3JE*$J%5!<%P4VDL?.$rMQ$$$?J,;67W;;(B}}
 \parskip 5pt
 
-\rightline{$B3+H/(B: $BLnO$(B}
-
 OX-RFC-100, 101 : master-server $B4VDL?.$rMQ$$$?J,;67W;;(B
 
 OX-RFC-102 : server-server $B4VDL?.(B
@@ -408,19 +406,75 @@ broadcast $B$9$k(B. $B3F(B server $B$N%9%?%C%/$K(B broadcast $B$5$l$?%G!<
 \noindent
 \pagetitle{broadcast $B$N<jB3$-(B}
 
-{SM\_bcast\_102} $B$N<B9T(B : $root=0$ $B$G(B, $B<1JL;R$,(B $b2^k$ ($b$ $B$O4q?t(B) $B$N(B server $B$N>l9g(B
+{SM\_bcast\_102} $B$N<B9T(B 
 
-\begin{enumerate}
-\item $B<1JL;R$,(B $(b-1)2^k$ $B$G$"$k(B server $B$+$i%G!<%?$r<u?.(B.
-\item $B<1JL;R$,(B $b2^k+2^i$ ($i=k-1,\ldots,0$) $B$N(B server $B$K=g$K%G!<%?$rAw?.(B.
-\end{enumerate}
+$root=0$ $B$G(B, $B<1JL;R$,(B $b2^k$ ($b$ $B$O4q?t(B) $B$N(B server $B$NF0:n(B
 
+\vskip\baselineskip
+\begin{tabbing}
+$data \leftarrow$ $B<1JL;R$,(B $(b-1)2^k$ $B$N(B server $B$+$i$N%G!<%?(B\\
+for \= $i=k-1$ down to $0$\\
+    \> $B<1JL;R$,(B $b2^k+2^i$ $B$N(B server $B$K(B $data$ $B$rAw?.(B\\
+end for
+\end{tabbing}
+\vskip\baselineskip
 2 $B$G3d$j@Z$l$k2s?t$,B?$$<1JL;R$r;}$D(B server $B$,@h$K%G!<%?Aw?.(B
 
 $\Rightarrow$ $B%G%C%I%m%C%/$K$J$i$J$$(B
 
 $BFHN)$J%Z%"$I$&$7$NDL?.$,F1;~$K9T$($k$J$i!"9b!9(B $\lceil \log_2 N\rceil$ $B%9%F%C%W(B
 ($N$ $B$O(B server $B$NAm?t(B) $B$G(B broadcast $B40N;(B.
+
+\newpage
+
+\noindent
+\pagetitle{reduction $B$N<jB3$-(B}
+
+{SM\_reduce\_102} $B$N<B9T(B 
+
+server $B?t(B $N$, $root=0$ $B$G(B, $B<1JL;R$,(B $b$ $B$N(B server $B$NF0:n(B
+
+$B<j;}$A$N%G!<%?$r(B $data$ $B$H$9$k(B
+
+\vskip\baselineskip
+\begin{tabbing}
+for \= $i=0$ to $\lfloor \log_2 N \rfloor$\\
+    \> if \= ( $b$ $B$K(B $2^i$ $B$N(B bit $B$,$"$k(B) then\\
+    \>    \> $B<1JL;R(B $b-2^i$ $B$N(B server $B$K(B $data$ $B$rAw?.$7$F=*N;(B\\
+    \> else if ( $b+2^i < N$ ) then \\
+    \>     \> $data_0 \leftarrow$ $B<1JL;R(B $b+2^i$ $B$N(B server $B$+$i$N%G!<%?(B\\
+    \>      \> $data \leftarrow data$ $B$H(B $data_0$ $B$NFs9`1i;;7k2L(B \\
+    \> end if\\
+end for
+\end{tabbing}
+\vskip\baselineskip
+
+$B$3$N>l9g$b(B, $BFHN)$J%Z%"$I$&$7$NDL?.$,F1;~$K9T$($k$J$i!"9b!9(B $\lceil \log_2 N\rceil$ $B%9%F%C%W(B
+($N$ $B$O(B server $B$NAm?t(B) $B$G(B reduction $B40N;(B. $B7k2L$O(B root $B$K;D$k(B.
+\newpage
+
+\noindent
+\pagetitle{broadcast $B;~$N%G!<%?$NN.$l(B}
+
+
+$N=16$, $root=0$ $B$N>l9g(B
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+step 1 & step 2 & step 3 & step 4 \\ \hline
+$0\rightarrow 8$&$0\rightarrow 4$ &$0\rightarrow 2$  &$0\rightarrow 1$ \\
+                &$8\rightarrow 12$&$8\rightarrow 10$  &$8\rightarrow 9$ \\
+                &                 &$4\rightarrow 6$ &$4\rightarrow 5$ \\
+                &                 &$12\rightarrow 14$&$12\rightarrow 13$ \\
+                &                 &                  &$2\rightarrow 3$ \\
+                &                 &                  &$10\rightarrow 11$ \\
+                &                 &                  &$6\rightarrow 7$ \\
+                &                 &                  &$14\rightarrow 15$
+\end{tabular}
+\end{center}
+
+reduction $B$N>l9g(B, $B%G!<%?$NN.$l$O5U$K$J$k(B (step 4 $\rightarrow$ step 1,
+$BLp0u$,5U(B)
 \newpage
 
 \noindent
@@ -511,6 +565,8 @@ $Data$ $B$,;XDj$5$l$?>l9g(B, $B%9%?%C%/$K%W%C%7%e$7$F$+$i>e5-$NA`:n$r(B
 
 \noindent
 \pagetitle{$B%Q%U%)!<%^%s%9(B}
+
+\rightline{$B3+H/(B: $BLnO$(B}
 
 \end{document}
 
