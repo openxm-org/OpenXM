@@ -1,4 +1,5 @@
-# $OpenXM$
+# $OpenXM: OpenXM/rc/Makefile,v 1.1 2000/01/18 09:38:58 takayama Exp $
+CC=gcc
 all :  dot.bashrc  dot.cshrc  openxm 
 
 dot.bashrc : bashrc repl
