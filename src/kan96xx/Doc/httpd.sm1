@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.7 2002/10/21 01:59:15 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.8 2002/10/21 02:25:51 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -343,14 +343,14 @@ def
 
          [
           << tname length 1 sub  >> -1
-          << tname length nnn sub >> {
+          << tname length nnn sub >> dup 0 ge { } { pop 0 } ifelse 
+          {
              /i set
              tname i get
           } for
-         ] reverse /tname set
+         ] reverse /tname set 
          (GET /?) (array) dc tname join /tname set
 
-         tname message
          httpd.textarea.name.aaa message
          tname httpd.textarea.name.aaa eq {
            /httpd.textarea.valid 1 def
