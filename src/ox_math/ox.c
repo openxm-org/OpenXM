@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.6 1999/11/04 03:05:50 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.7 1999/11/04 06:21:58 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -87,7 +87,6 @@ static int          send_cmo_error2(int fd, cmo_error2* c);
 static int          send_mpz(int fd, mpz_ptr mpz);
 static int          send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c);
 
-
 /* エラーハンドリングのため */
 static int current_received_serial = 0;
 
@@ -143,13 +142,12 @@ int send_ox_tag(int fd, int tag)
     return send_int32(fd, next_serial());
 }
 
-
 /* CMO_LIST 関係の関数群 */
-cell* new_cell(cmo* newcmo)
+cell* new_cell()
 {
     cell* h = malloc(sizeof(cell));
     h->next = NULL;
-    h->cmo  = newcmo;
+    h->cmo  = NULL;
     return h;
 }
 
@@ -158,26 +156,26 @@ cell* next_cell(cell* this)
     return this->next;
 }
 
-static cell* *tailp(cmo_list* this) {
-    cell **cp = &this->head;
-    while (*cp != NULL) {
-        cp = &((*cp)->next);
+static cell *tail(cmo_list* this) {
+    cell *cp = this->head;
+    while (cp->next != NULL) {
+        cp = cp->next;
     }
     return cp;
+}
+
+int append_cmo_list(cmo_list* this, cmo* newcmo)
+{
+    cell *cp = tail(this);
+	cp->cmo  = newcmo;
+    cp->next = new_cell();
+    this->length++;
+    return 0;
 }
 
 int length_cmo_list(cmo_list* this)
 {
     return this->length;
-}
-
-int append_cmo_list(cmo_list* this, cmo* newcmo)
-{
-    /* リストの最後尾のNULLを保持している変数へのポインタ */
-    cell **cp = tailp(this);
-    *cp = new_cell(newcmo);
-    this->length++;
-    return 0;
 }
 
 /** receive_cmo_XXX 関数群 **/
@@ -397,7 +395,7 @@ cmo_list* new_cmo_list()
     cmo_list* c = malloc(sizeof(cmo_list));
     c->tag    = CMO_LIST;
     c->length = 0;
-    c->head   = NULL;
+    c->head->next = NULL;
     return c;
 }
 
@@ -489,7 +487,7 @@ cmo_distributed_polynomial* new_cmo_distributed_polynomial()
     cmo_distributed_polynomial* c = malloc(sizeof(cmo_distributed_polynomial));
     c->tag     = CMO_DISTRIBUTED_POLYNOMIAL;
     c->length  = 0;
-    c->head    = NULL;
+    c->head->next = NULL;
 	c->ringdef = NULL;
     return c;
 }
@@ -565,7 +563,7 @@ void ox_close(ox_file_t sv)
     send_ox_command(sv->control, SM_control_kill);
 #if DEBUG
     sleep(2); /* OpenXM server の終了を待つ. あまり意味はない. */
-    fprintf(stderr, "I have closed an Open XM server.\n");
+    fprintf(stderr, "I have closed the connection to an Open XM server.\n");
 #endif
 }
 
@@ -731,10 +729,10 @@ static int cmolen_cmo_mathcap(cmo_mathcap* c)
 
 static int cmolen_cmo_list(cmo_list* c)
 {
-    int size = sizeof(c->head);
+    int size = sizeof(int);
     cell* cp = c->head;
 
-    while(cp != NULL) {
+    while(cp->next != NULL) {
         size += cmolen_cmo(cp->cmo);
         cp = cp->next;
     }
@@ -777,6 +775,7 @@ int cmolen_cmo(cmo* c)
         break;
     case CMO_MATHCAP:
     case CMO_RING_BY_NAME:
+    case CMO_INDETERMINATE:
     case CMO_ERROR2:
         size += cmolen_cmo_mathcap((cmo_mathcap *)c);
         break;
@@ -834,7 +833,7 @@ static int dump_cmo_list(cmo_list* m)
     int len = length_cmo_list(m);
     dump_integer(len);
 
-    while(cp != NULL) {
+    while(cp->next != NULL) {
         dump_cmo(cp->cmo);
         cp = cp->next;
     }
@@ -886,6 +885,7 @@ int dump_cmo(cmo* m)
 		break;
     case CMO_MATHCAP:
     case CMO_RING_BY_NAME:
+    case CMO_INDETERMINATE:
     case CMO_ERROR2:
         dump_cmo_mathcap((cmo_mathcap *)m);
 		break;
@@ -1001,7 +1001,7 @@ static int send_cmo_list(int fd, cmo_list* c)
     int len = length_cmo_list(c);
     send_int32(fd, len);
 
-    while(cp != NULL) {
+    while(cp->next != NULL) {
         send_cmo(fd, cp->cmo);
         cp = cp->next;
     }
@@ -1015,7 +1015,7 @@ static int send_cmo_distributed_polynomial(int fd, cmo_distributed_polynomial* c
     send_int32(fd, len);
 	send_cmo(fd, c->ringdef);
 
-    while(cp != NULL) {
+    while(cp->next != NULL) {
         send_cmo(fd, cp->cmo);
         cp = cp->next;
     }
@@ -1180,6 +1180,7 @@ void setCmotypeDisable(int type)
     int i = funcs(type);
     known_types[i] = -1;
 }
+
 #if 0
 cmo* (*received_funcs[])(int fd) = {
     NULL,  /* gate keeper */

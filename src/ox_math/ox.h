@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.4 1999/11/02 21:15:02 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.5 1999/11/03 10:56:40 ohara Exp $ */
 
 #ifndef _OX_H_
 
@@ -103,8 +103,9 @@ typedef struct cell {
 typedef struct {
     int tag;
     int length;   /* リストの長さ(必要??) */
-    cell *head;
+    cell head[1];
 } cmo_list;
+
 
 typedef struct {
 	int tag;
@@ -127,8 +128,8 @@ typedef struct {
 /* cmo_list の派生. append_cmo_list を使ってよい. */
 typedef struct {
     int tag;
-    int length;  /* number of monomials */
-    cell *head;  /* a list of monomials */
+    int length;    /* number of monomials */
+    cell head[1];  /* a list of monomials */
 	cmo *ringdef;
 } cmo_distributed_polynomial;
 
@@ -144,7 +145,6 @@ typedef struct {
     cmo *cmo;
 } ox_data;
 
-cell*         new_cell(cmo* newcmo);
 cmo_null*     new_cmo_null();
 cmo_int32*    new_cmo_int32(int i);
 cmo_string*   new_cmo_string(char* s);
@@ -157,6 +157,7 @@ cmo_zz*       new_cmo_zz_size(int size);
 cmo_zz*       new_cmo_zz_set_si(int integer);
 cmo_zz*       new_cmo_zz_noinit();
 cmo_zero*     new_cmo_zero();
+cmo_distributed_polynomial* new_cmo_distributed_polynomial();
 cmo_dms_generic* new_cmo_dms_generic();
 cmo_ring_by_name* new_cmo_ring_by_name(cmo* ob);
 cmo_indeterminate* new_cmo_indeterminate(cmo* ob);
