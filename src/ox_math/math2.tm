@@ -1,15 +1,23 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2.tm,v 1.3 1999/11/04 17:53:04 ohara Exp $ */
 /* $Id$ */
 
 /* サーバとの通信路を開く */
 int OX_start P((const char *));
-
 :Begin:
 :Function: OX_start
 :Pattern: OxStart[s_String]
 :Arguments: {s}
 :ArgumentTypes: {String}
+:ReturnType: Integer
+:End:
+
+int OX_start_insecure P ((const char *, int, int));
+:Begin:
+:Function: OX_start_insecure
+:Pattern: OxStartInsecure[host_String, ctl_Integer, dat_Integer]
+:Arguments: {host, ctl, dat}
+:ArgumentTypes: {String, Integer, Integer}
 :ReturnType: Integer
 :End:
 

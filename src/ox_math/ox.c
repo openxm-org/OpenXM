@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.7 1999/11/04 06:21:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.8 1999/11/04 18:13:47 ohara Exp $ */
 
 /*
 関数の名前付け規約(その2):
@@ -679,9 +679,14 @@ ox_file_t ox_start_insecure_nonreverse(char* host, short portControl, short port
     ox_file_t sv = malloc(sizeof(__ox_file_struct));
 
 	sv->control = mysocketOpen(host, portControl);
+#if 0
+	/* ox は insecure のとき byte order の決定が正しくできないようだ... */
+    decideByteOrderClient(sv->control, 0);
+#endif
 	/* 10マイクロ秒, 時間稼ぎする. */
 	usleep(10);
 	sv->stream  = mysocketOpen(host, portStream);
+    decideByteOrderClient(sv->stream, 0);
 	return sv;
 }
 

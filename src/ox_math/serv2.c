@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.3 1999/11/03 10:56:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv2.c,v 1.4 1999/11/04 03:05:51 ohara Exp $ */
 
 /* Open Mathematica サーバ */
 /* ファイルディスクリプタ 3, 4 は open されていると仮定して動作する. */
@@ -29,7 +29,7 @@ typedef cmo_zz mlo_zz;
 typedef struct {
 	int tag;
 	int length;
-	cell *head;
+	cell head[1];
 	char *function;
 } mlo_function;
 
@@ -39,6 +39,7 @@ mlo *receive_mlo_zz()
 	char *s;
 	mlo  *m;
 
+	fprintf(stderr, "--debug: MLO == MLTKINT.\n");
 	MLGetString(lp, &s);
  	fprintf(stderr, "--debug: zz = %s.\n", s);
 	m = (mlo *)new_cmo_zz_set_string(s);
@@ -50,11 +51,53 @@ mlo *receive_mlo_string()
 {
 	char *s;
 	mlo  *m;
+	fprintf(stderr, "--debug: MLO == MLTKSTR.\n");
 	MLGetString(lp, &s);
+ 	fprintf(stderr, "--debug: string = \"%s\".\n", s);
 	m = (cmo *)new_cmo_string(s);
 	MLDisownString(lp, s);
 	return m;
 }
+
+cmo *receive_mlo_function()
+{
+	char *s;
+	cmo *m;
+    cmo  *ob;
+    int  i,n;
+
+	fprintf(stderr, "--debug: MLO == MLTKFUNC.\n");
+	MLGetFunction(lp, &s, &n);
+	fprintf(stderr, "--debug: Function = \"%s\", # of args = %d\n", s, n);
+	m = new_cmo_list();
+	append_cmo_list(m, new_cmo_string(s));
+
+	for (i=0; i<n; i++) {
+		fprintf(stderr, "--debug: arg[%d]\n", i);
+		fflush(stderr);
+		ob = receive_mlo();
+		append_cmo_list(m, ob);
+	}
+
+	MLDisownString(lp, s);
+	return m;
+}
+
+cmo *receive_mlo_symbol()
+{
+	cmo *ob;
+	char *s;
+
+	fprintf(stderr, "--debug: MLO == MLTKSYM.\n");
+	MLGetSymbol(lp, &s);
+	fprintf(stderr, "--debug: Symbol \"%s\".\n", s);
+
+	ob = new_cmo_indeterminate(new_cmo_string(s)); 
+
+	MLDisownString(lp, s);
+	return ob;
+}
+
 
 /* Mathematica を起動する. */
 int MATH_init()
@@ -62,13 +105,12 @@ int MATH_init()
     int argc = 2;
     char *argv[] = {"-linkname", "math -mathlink"};
 
-    if(MLInitialize(NULL) != NULL) {
-        lp = MLOpen(argc, argv);
-        if(lp != NULL) {
-            return 0;
-        }
+    if(MLInitialize(NULL) == NULL 
+	   || (lp = MLOpen(argc, argv)) == NULL) {
+		fprintf(stderr, "Mathematica Kernel not found.\n");
+		exit(1);
     }
-    exit(1);
+	return 0;
 }
 
 int MATH_exit()
@@ -78,32 +120,6 @@ int MATH_exit()
     MLClose(lp);
 }
 
-char *MATH_getObject()
-{
-    char *s;
-
-    /* skip any packets before the first ReturnPacket */
-    while (MLNextPacket(lp) != RETURNPKT) {
-        usleep(10);
-        MLNewPacket(lp);
-    }
-    /* いまはタイプにかかわらず文字列を取得する. */
-    switch(MLGetNext(lp)) {
-    case MLTKINT:
-        fprintf(stderr, "type is INTEGER.\n");
-        MLGetString(lp, &s);
-        break;
-    case MLTKSTR:
-        fprintf(stderr, "type is STRING.\n");
-        MLGetString(lp, &s);
-        break;
-    default:
-        MLGetString(lp, &s);
-    }
-    return s;
-}
-
-
 cmo *MATH_getObject2()
 {
     /* skip any packets before the first ReturnPacket */
@@ -111,83 +127,93 @@ cmo *MATH_getObject2()
         usleep(10);
         MLNewPacket(lp);
     }
-    /* いまはタイプにかかわらず文字列を取得する. */
-	return MATH_getObject3();
+	return receive_mlo();
 }
 
-cmo *MATH_getObject3()
+cmo *receive_mlo()
 {
     char *s;
-    cmo  *m;
-    cmo  *ob;
-    int  i,n;
 	int type;
 
-    /* いまはタイプにかかわらず文字列を取得する. */
-	type = MLGetNext(lp);
-    switch(type) {
+    switch(type = MLGetNext(lp)) {
     case MLTKINT:
-        fprintf(stderr, "--debug: MLO == MLTKINT.\n");
-		m = receive_mlo_zz();
-        break;
+		return receive_mlo_zz();
     case MLTKSTR:
-        fprintf(stderr, "--debug: MLO == MLTKSTR.\n");
-		m = receive_mlo_string();
-        break;
-#if 0
+		return receive_mlo_string();
     case MLTKREAL:
-        fprintf(stderr, "MLTKREAL is not supported: we use MLTKSTR.\n");
+		/* double はまだ... */
+        fprintf(stderr, "--debug: MLO == MLTKREAL.\n");
         MLGetString(lp, &s);
-        m = (cmo *)new_cmo_string(s);
-        break;
+        return new_cmo_string(s);
+    case MLTKSYM:
+        return receive_mlo_symbol();
+    case MLTKFUNC:
+		return receive_mlo_function();
     case MLTKERR:
         fprintf(stderr, "--debug: MLO == MLTKERR.\n");
-        m = (cmo *)gen_error_object(MATH_ERROR);
-        break;
-#endif
-    case MLTKSYM:
-		fprintf(stderr, "--debug: MLO == MLTKSYM.\n");
-		/* この部分に問題がある. */
-        MLGetSymbol(lp, &s);
-		fprintf(stderr, "--debug: Symbol \"%s\".\n", s);
-        m = (cmo *)new_cmo_string(s);
-        break;
-    case MLTKFUNC:
-        fprintf(stderr, "--debug: MLO == MLTKFUNC.\n");
-        MLGetFunction(lp, &s, &n);
-        fprintf(stderr, "--debug: Function = \"%s\", # of args = %d\n", s, n);
-		m = new_cmo_list();
-		append_cmo_list(m, new_cmo_string(s));
-		fflush(stderr);
-        for (i=0; i<n; i++) {
-            fprintf(stderr, "--debug: arg[%d]\n", i);
-			fflush(stderr);
-			ob = MATH_getObject3();
-			append_cmo_list(m, ob);
-        }
-        break;
+        return gen_error_object(MATH_ERROR);
     default:
-        fprintf(stderr, "--debug: MLO(%d) != MLTKINT, MLTKSTR.\n", type);
-        fprintf(stderr, "--debug: MLTKFUNC(%d), MLTKSYM(%d).\n", MLTKFUNC, MLTKSYM);
-
+        fprintf(stderr, "--debug: MLO(%d) is unknown.\n", type);
         MLGetString(lp, &s);
 		fprintf(stderr, "--debug: \"%s\"\n", s);
-        m = (cmo *)new_cmo_string(s);
+        return new_cmo_string(s);
     }
-    return m;
+}
+
+
+int send_mlo_int32(cmo *m)
+{
+	MLPutInteger(lp, ((cmo_int32 *)m)->i);
+}
+
+int send_mlo_string(cmo *m)
+{
+	char *s = ((cmo_string *)m)->s;
+	MLPutString(lp, s);
+	fprintf(stderr, "ox_math:: put %s.", s);
+}
+
+int send_mlo_zz(cmo *m)
+{
+	char *s;
+	MLPutFunction(lp, "ToExpression", 1);
+	s = convert_cmo_to_string(m);
+	MLPutString(lp, s);
+	fprintf(stderr, "put %s.", s);
+}
+
+int send_mlo_list(cmo *c)
+{
+	char *s;
+	cell *cp = ((cmo_list *)c)->head;
+	int len = length_cmo_list((cmo_list *)c);
+
+	fprintf(stderr, "ox_math:: put List with %d args.\n", len);
+	MLPutFunction(lp, "List", len);
+	while(cp->next != NULL) {
+		send_mlo(cp->cmo);
+		cp = cp->next;
+	}
 }
 
 int MATH_sendObject(cmo *m)
 {
+	send_mlo(m);
+	MLEndPacket(lp);
+}
+
+int send_mlo(cmo *m)
+{
     char *s;
     switch(m->tag) {
     case CMO_INT32:
-        MLPutInteger(lp, ((cmo_int32 *)m)->i);
+		send_mlo_int32(m);
         break;
     case CMO_STRING:
-        s = ((cmo_string *)m)->s;
-        MLPutString(lp, s);
-        fprintf(stderr, "put %s.", s);
+		send_mlo_string(m);
+        break;
+	case CMO_LIST:
+		send_mlo_list(m);
         break;
     default:
         MLPutFunction(lp, "ToExpression", 1);
@@ -210,7 +236,7 @@ int MATH_executeFunction(char *function, int argc, cmo *argv[])
     int i;
     MLPutFunction(lp, function, argc);
     for (i=0; i<argc; i++) {
-        MATH_sendObject(argv[i]);
+        send_mlo(argv[i]);
     }
     MLEndPacket(lp);
 }
@@ -230,16 +256,17 @@ int initialize_stack()
 int push(cmo* m)
 {
 #if DEBUG
-    fprintf(stderr, "server:: a cmo is pushed: tag == %d.\n", m->tag);
     if (m->tag == CMO_STRING) {
-        fprintf(stderr, "server:: %s\n", ((cmo_string *)m)->s);
-    }
+        fprintf(stderr, "ox_math:: a cmo_string(%s) was pushed.\n", ((cmo_string *)m)->s);
+    }else {
+		fprintf(stderr, "ox_math:: a cmo(%d) was pushed.\n", m->tag);
+	}
 #endif
     Operand_Stack[Stack_Pointer] = m;
     Stack_Pointer++;
     if (Stack_Pointer >= SIZE_OPERAND_STACK) {
         fprintf(stderr, "stack over flow.\n");
-        exit(1);
+        exit(1); /* 手抜き */
     }
 }
 
@@ -267,7 +294,7 @@ int sm_popCMO(int fd_write)
 {
     cmo* m = pop();
 
-    fprintf(stderr, "code: SM_popCMO.\n");
+    fprintf(stderr, "ox_math:: opecode = SM_popCMO. (tag = %d)\n", m->tag);
     if (m != NULL) {
         send_ox_cmo(fd_write, m);
         return 0;
@@ -292,7 +319,7 @@ int sm_popString(int fd_write)
     cmo*  m;
 
 #ifdef DEBUG
-    fprintf(stderr, "code: SM_popString.\n");
+    fprintf(stderr, "ox_math:: opecode = SM_popString.\n");
 #endif
 
     if ((m = pop()) != NULL && (s = convert_cmo_to_string(m)) != NULL) {
@@ -307,7 +334,7 @@ int sm_executeStringByLocalParser(int fd_write)
 {
     cmo* m = NULL;
 #ifdef DEBUG
-    fprintf(stderr, "code: SM_executeStringByLocalParser.\n");
+    fprintf(stderr, "ox_math:: opecode = SM_executeStringByLocalParser.\n");
 #endif
     if ((m = pop()) != NULL && m->tag == CMO_STRING) {
         /* for mathematica */

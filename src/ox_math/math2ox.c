@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.3 1999/11/04 17:53:04 ohara Exp $ */
 /* $Id$ */
 
 #include <sys/types.h>
@@ -70,6 +70,23 @@ int OX_start(char* s)
     }
     sv = ox_start(host, ctlserv, oxprog);
     fprintf(stderr, "open (%s)\n", "localhost");
+    return 0;
+}
+
+int OX_start_insecure(char *host, int portCtl, int portDat)
+{
+    if (host != NULL || host[0] == '\0') {
+        host = "localhost";
+    }
+	if (portCtl == 0) {
+		portCtl = 1200;
+	}
+	if (portDat == 0) {
+		portDat = 1300;
+	}
+	
+	sv = ox_start_insecure_nonreverse(host, portCtl, portDat);
+    fprintf(stderr, "math2ox :: connect to \"%s\" with (ctl, dat) = (%d, %d)\n", host, portCtl, portDat);
     return 0;
 }
 
