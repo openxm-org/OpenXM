@@ -1,14 +1,16 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/gmp_fake.h,v 1.1 2003/03/30 08:10:57 ohara Exp $ */
 
 #ifndef __GMP_FAKE_H__
 #define __GMP_FAKE_H__
+
+#include <stddef.h>
 
 typedef unsigned mp_limb_t;
 typedef int mp_size_t;
 
 typedef struct {
-/*  int _mp_alloc; */
+    int _mp_alloc;
     int _mp_size;
     mp_limb_t *_mp_d;
 } __mpz_struct; 
