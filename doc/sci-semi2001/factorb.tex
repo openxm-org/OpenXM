@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/sci-semi2001/factorb.tex,v 1.2 2001/07/24 08:02:47 noro Exp $
+% $OpenXM: OpenXM/doc/sci-semi2001/factorb.tex,v 1.3 2001/07/24 09:35:54 noro Exp $
 
 \Large
 \parskip 0pt
@@ -187,11 +187,19 @@ $\Rightarrow$ {\ec 根を探す方法は適用困難}
 
 \vskip 1cm
 
-\underline{\uc コンピュータには力技(繰り返し)が似合う}
+\underline{\uc コンピュータに合った方法は?}
+
+\begin{itemize}
+\item {\eec 「近似」}をうまく使う
 
 {\eec 中間値の定理} = {\eec 実数における近似} の利用
 
 別の近似 $\Rightarrow$ {\ec 割った余り}に注目
+
+\item コンピュータは{\eec 繰り返し}が得意
+
+近似を繰り返して精度を上げる 
+\end{itemize}
 \end{slide}
 
 \begin{slide}{}
@@ -211,7 +219,7 @@ $\Rightarrow$ {\ec 根を探す方法は適用困難}
 $h_1$ を見つける. 
 
 \item $f(x)-g_k(x)h_k(x)$ の係数が $p^k$ で割り切れるように $g_k$, $h_k$ を
-作っていく ($k=1,2,\ldots$)
+順次作っていく ($k=2,3,\ldots$)
 
 \item $g_1$, $h_1$ が正解に対応していれば, 適当な $k$ のところでほんとに割り切れるだろう. 
 \end{enumerate}}
@@ -238,21 +246,24 @@ $h_1$ を見つける.
 \begin{slide}{}
 \underline{\uc 記号 $a \equiv b \bmod M$}
 
-$M$ を整数とする. {\eec $a \equiv b \bmod M$} とは
+$M$ を整数とする.
 
 \begin{itemize}
 \item $a,b$ が整数のとき, 
 
-{\eec $a-b$ が $M$ で割り切れる}こと
+{\eec $a \equiv b \bmod M$} $\Leftrightarrow$
+{\eec $a-b$ が $M$ で割り切れる}
 
 \item $a,b$ が整数係数多項式のとき
 
-{\eec $a-b$ の各係数が $M$ で割り切れる}こと
+{\eec $a \equiv b \bmod M$} $\Leftrightarrow$
+{\eec $a-b$ の各係数が $M$ で割り切れる}
+
+\item {\eec $a$ を $M$ で割った余り} も {\eec $a \bmod M$} と書く
+
+\item $\equiv$ で結ばれた式 : {\eec 等式と同様に扱える}
 \end{itemize}
 
-\vskip 1cm
-
-\underline{\uc $a$ を $M$ で割った余りも $a \bmod M$ と書く}
 \end{slide}
 
 \begin{slide}{}
@@ -321,22 +332,24 @@ $q$, $r$, $s$, $t$ に 0, 1, 2 の値を入れてみれば
 
 {\eec $(q,r,s,t) = (0,1,1,2), (1,2,0,1)$}
 
-一方が $b_0$, 他方が $c_0$ $\Rightarrow$ これらは同じもの
+($b_0$,$c_0$) のペアとしてはこれらは同じもの
 \end{slide}
 
 \begin{slide}{}
-\underline{\uc 二次因子つづき --- $b_1$, $c_1$ が満たす性質}
+\underline{\uc 二次因子つづき --- $b_1$, $c_1$ が満たす条件}
 
 {\Large\parskip 0pt
 {\eec $b_0 = x^2+1$}, 
 {\eec $c_0 = x^2+x+2$} とすると
 
-\centerline{\eec $f-b_0c_0 \equiv 0 \bmod 3$}
+\centerline{\eec $f \equiv b_0c_0 \bmod 3$}
 
-$f-gh \equiv a_0-b_0c_0+p(a_1-$
+$gh \equiv (b_0+3${\ec $b_1$}$)(c_0+3${\ec$c_1$}$) \bmod 3^2$ より
+
+$f-gh \equiv a_0-b_0c_0+3(a_1-$
 $(b_0${\ec$c_1$}$+c_0${\ec$b_1$}$))\bmod 3^2$
 
-より, 両辺を 3 で割って
+両辺を 3 で割って
 
 ${{f-gh}\over 3} \equiv {{a_0-b_0c_0}\over 3}+(a_1-$
 $(b_0${\ec$c_1$}$+c_0${\ec$b_1$}$))\bmod 3$
@@ -386,9 +399,10 @@ $2r+t \equiv 0 \bmod 3$}
 
 以下同様に, 
 
-\centerline{\ec $b_k = qx+r, c_k = sx+t$}
+\centerline{\ec $b_i = qx+r, c_i = sx+t$}
 
-とおいて, $(q,r,s,t)$ の連立一次方程式を解けば
+($i=2,3,\ldots$) とおいて, $(q,r,s,t)$ の連立一次方程式を順次
+解いていけば
 
 \centerline{\eec $f \equiv (b_0+\ldots+3^{k-1}b_{k-1})(c_0+\ldots+3^{k-1}c_{k-1}) \bmod 3^k$}
 
@@ -427,12 +441,12 @@ $k$ & $g_k$ & $h_k$ \\ \hline
 
 表で見ると, {\eec $k=12 \rightarrow 13$ で変化がない}
 
-$\Rightarrow$ {\ec $f-g_{13}h_{13}$ を計算してみると 0!}
+$\Rightarrow$ {\ec $f-g_{13}h_{13}$ を計算してみると 0}
 
 {\eec
-$f(x) = (x^2+7821x+89347) \times$
+$f(x) =$
 
-$(x^2+9235x+342527)$}
+$ (x^2+7821x+89347)(x^2+9235x+342527)$}
 
 \underline{\uc 実際には...}
 
@@ -444,7 +458,7 @@ $(x^2+9235x+342527)$}
 \end{slide}
 
 \begin{slide}{}
-\underline{\uc $\bmod p$ での分解が一番大切}
+\underline{\uc $\bmod p$ での分解が問題}
 
 各ステップで出て来る係数の方程式
 
@@ -586,7 +600,7 @@ $\Rightarrow$ 計算機のパワーだけではダメ.
 \begin{enumerate}
 \item $0 < s_A < p$ なる整数 {\eec $s_A$} (秘密) を作る. 
 \item $w_A =$ {\eec $g^{s_A} \bmod p$} を B さんに送る.
-\item $s =$ {\eec $w_B^{s_A} \bmod p$} を作る. 
+\item 受け取った $w_B$ から $s =$ {\eec $w_B^{s_A} \bmod p$} を作る. 
 \end{enumerate}
 
 \item {\eec B さんの仕事}
@@ -594,7 +608,7 @@ $\Rightarrow$ 計算機のパワーだけではダメ.
 \begin{enumerate}
 \item $0 < s_B < p$ なる整数 {\eec $s_B$} (秘密) を作る.
 \item $w_B =$ {\eec $g^{s_B} \bmod p$} を A さんに送る.
-\item $s =$ {\eec $w_A^{s_B} \bmod p$} を作る. 
+\item 受け取った $w_A$ から $s =$ {\eec $w_A^{s_B} \bmod p$} を作る. 
 \end{enumerate}
 
 \end{itemize}}
@@ -608,7 +622,7 @@ $\Rightarrow$ 計算機のパワーだけではダメ.
 
 これで鍵が共有できた
 
-\item {\eec $w_A$, $w_B$ は暗号化されない}
+\item {\eec $w_A$, $w_B$ は暗号化の必要なし}
 
 $g^{s_A} \bmod p$ から $s_A$ を求めるのは難しい
 
