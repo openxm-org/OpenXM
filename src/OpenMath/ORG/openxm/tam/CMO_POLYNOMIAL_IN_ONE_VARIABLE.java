@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.1 2000/09/12 07:05:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.2 2000/09/13 06:32:43 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -47,6 +47,18 @@ final public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
   public int DISCRIMINATOR(){
     return CMO.POLYNOMIAL_IN_ONE_VARIABLE;
   }
+
+    public boolean allowQ (int[] datacap) {
+		if(CMO.allowQ_tag(datacap, DISCRIMINATOR())) {
+			for (int j=0; j < coefficients.length; j++) {
+				if (!coefficients[j].allowQ(datacap)) {
+					return false;
+				}
+			}
+			return true;
+        }
+        return false;
+    }
 
   protected void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{

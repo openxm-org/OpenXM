@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_TREE.java,v 1.1 2000/09/12 07:05:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_TREE.java,v 1.2 2000/09/13 06:32:43 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -48,6 +48,11 @@ final public class CMO_TREE extends CMO{
   public int DISCRIMINATOR(){
     return CMO.TREE;
   }
+
+    public boolean allowQ (int[] datacap) {
+		return CMO.allowQ_tag(datacap, DISCRIMINATOR()) 
+			&& leaves.allowQ(datacap);
+    }
 
   public void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.1 2000/09/12 07:05:05 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_DISTRIBUTED_POLYNOMIAL.java,v 1.2 2000/09/13 06:32:42 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -23,6 +23,20 @@ final public class CMO_DISTRIBUTED_POLYNOMIAL extends CMO{
   public int DISCRIMINATOR(){
     return CMO.DISTRIBUTED_POLYNOMIAL;
   }
+
+    public boolean allowQ (int[] datacap) {
+		if(CMO.allowQ_tag(datacap, DISCRIMINATOR())) {
+			if (ring.allowQ(datacap)) {
+				for (int j=0; j < monomials.length; j++) {
+					if (!monomials[j].allowQ(datacap)) {
+						return false;
+					}
+				}
+				return true;
+			}
+        }
+        return false;
+    }
 
   public void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_QQ.java,v 1.1 2000/09/12 07:05:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_QQ.java,v 1.2 2000/09/13 06:32:43 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -38,6 +38,10 @@ final public class CMO_QQ extends CMO{
   public int DISCRIMINATOR(){
     return CMO.QQ;
   }
+
+    public boolean allowQ (int[] datacap) {
+		return CMO.allowQ_tag(datacap, DISCRIMINATOR()) && a.allowQ(datacap);
+    }
 
   private int sign(int a){
     if(a>0){

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_RECURSIVE_POLYNOMIAL.java,v 1.1 2000/09/12 07:05:06 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_RECURSIVE_POLYNOMIAL.java,v 1.2 2000/09/13 06:32:43 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -38,6 +38,12 @@ final public class CMO_RECURSIVE_POLYNOMIAL extends CMO{
   public int DISCRIMINATOR(){
     return CMO.RECURSIVE_POLYNOMIAL;
   }
+
+    public boolean allowQ (int[] datacap) {
+		return CMO.allowQ_tag(datacap, DISCRIMINATOR()) 
+			&& variables.allowQ(datacap)
+			&& polynomial.allowQ(datacap);
+    }
 
   protected void sendByObject(OpenXMstream os)
        throws IOException,MathcapViolation{

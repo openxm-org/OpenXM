@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO.java,v 1.1 2000/09/09 11:54:08 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO.java,v 1.2 2000/09/13 06:32:42 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -53,6 +53,19 @@ abstract public class CMO extends OXbody{
   public int getDISCRIMINATOR(){
     return this.DISCRIMINATOR();
   }
+
+    public static boolean allowQ_tag (int[] datacap, int tag) {
+        for(int i=0; i<datacap.length; i++) {
+            if (datacap[i] == tag) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean allowQ (int[] datacap) {
+		return allowQ_tag(datacap, DISCRIMINATOR());
+    }
 
   abstract protected void sendByObject(OpenXMstream stream)
        throws IOException,MathcapViolation;

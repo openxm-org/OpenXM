@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_BIGFLOAT.java,v 1.1 2000/09/12 07:05:05 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/CMO_BIGFLOAT.java,v 1.2 2000/09/13 06:32:42 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -23,6 +23,10 @@ final public class CMO_BIGFLOAT extends CMO{
   public int DISCRIMINATOR(){
     return CMO.BIGFLOAT;
   }
+
+    public boolean allowQ (int[] datacap) {
+		return CMO.allowQ_tag(datacap, DISCRIMINATOR()) && a.allowQ(datacap);
+    }
 
   public void sendByObject(OpenXMstream os) throws IOException{
     a.sendByObject(os);
