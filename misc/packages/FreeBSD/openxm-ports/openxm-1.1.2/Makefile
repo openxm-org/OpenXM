@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.20 2000/03/17 15:05:39 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/Makefile,v 1.21 2000/03/17 15:35:47 takayama Exp $
 
 ## The name of this directory should be changed to openxm from openxm-1.1.2
 ## For debugging. 
@@ -72,7 +72,7 @@ RUN_DEPENDS=/compat/linux/usr/i486-linux-libc5/lib/libc.so.5:${PORTSDIR}/emulato
 			 
 
 pre-install:
-	-/bin/rm -rf ${PREFIX}/OpenXM
+	-${RM} -rf ${PREFIX}/OpenXM
 
 
 OpenXM_MANPAGES=${PREFIX}/OpenXM/man/man1/sm1.1 ${PREFIX}/OpenXM/man/man1/openxm.1
@@ -82,9 +82,9 @@ post-install :
 #    Modify pkg/INSTALL, too.
 	(cd ${PREFIX}/OpenXM/rc ; make clean ; make install PREFIX=${PREFIX})
 #
-	-cp $(OpenXM_MANPAGES) ${PREFIX}/man/man1
-	-gzip -f ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
-	-cat pkg/MESSAGE
+	-${CP} $(OpenXM_MANPAGES) ${PREFIX}/man/man1
+	-${GZIP_CMD} ${PREFIX}/man/man1/sm1.1 ${PREFIX}/man/man1/openxm.1
+	-${CAT} pkg/MESSAGE
 
 ## see /usr/share/mk/bsd.port.mk ==> /usr/ports/Mk/bsd.port/mk
 ## make -d A
