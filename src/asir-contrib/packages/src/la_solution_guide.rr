@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.2 2001/07/16 07:33:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.3 2002/08/11 11:20:36 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 /* Suffix should be  lasg_ */
 
@@ -326,6 +326,13 @@ def lasg_copy_matrix(A) {
   return AA;
 }
 
+/*&usage begin: lasg_reduced_form(A)
+ It translates the matrix {A} into the reduced normal form
+ by elementary transformations.
+ The sequence of elementary transformations is also returned.
+ example: lasg_reduced_form(newmat(2,3,[[2,3,8],[1,2,5]]));
+ end:
+*/
 def lasg_reduced_form(A) {
   Ans = [ ];
   M = size(A)[0];
@@ -499,5 +506,70 @@ def lasg_test() {
 }
 
 print("Type in lasg_test();  Problems will be saved in hoge.tex")$
+
+/*&uasge lasg_gen_ans(P)
+ It generates an answer of the problem of solving linear equations
+ given by {P} (extended matrix).
+ The answer is returned as a string in LaTeX format.
+ example:  lasg_gen_ans([[2,3,8],[1,2,5]]);
+ end:
+*/
+def lasg_gen_ans(PP) {
+     if (type(PP) == 4) {
+       PP = matrix_list_to_matrix(PP);
+     }
+     S = "% problem. \n";
+     S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
+          "$$ (A|b) = "+taka_tex_form(PP) + "$$\n";
+     S += "to solve a system of linear equations of the form $(A|b)$.\n \\medbreak \\noindent Answer:\n";
+     A = lasg_reduced_form(PP);
+     M = length(A);
+     for (J=0; J<M; J++) {
+       S += A[J][0]+", we get \\\\ \n";
+       S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
+     }
+     K = lasg_build_solution(A[M-1][1]);
+     if (length(K) == 0) {
+       S += "There is no solution.\n";
+     }else{
+       S += "The solutions of the system of linear equations are \n";
+       S += "$$ "+taka_tex_form(K[0]);
+       for (J=0; J < length(K[1]); J++) {
+          S += "+ c_{"+rtostr(J+1)+"}" + taka_tex_form(K[1][J]);
+       }
+       S += " $$\n";
+       if (length(K[1])>0) {
+         S += "where $c_i$ are arbitrary constants. ";
+       }
+     }
+     S += "\n\n";
+     return S;
+}
+
+/*&uasge lasg_gen_reduced_matrix(P)
+ It generates reduced_matrix for a given matrix {P}.
+ The answer is returned as a string in LaTeX format.
+ example:  lasg_gen_reduced_matrix([[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]);
+ end:
+*/
+def lasg_gen_reduced_matrix(PP) {
+     if (type(PP) == 4) {
+       PP = matrix_list_to_matrix(PP);
+     }
+     S = "% problem. \n";
+     S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
+          "$$ A = "+taka_tex_form(PP) + "$$\n";
+     S += "to generate the reduced expression$.\n \\medbreak \\noindent Answer:\n";
+     A = lasg_reduced_form(PP);
+     M = length(A);
+     for (J=0; J<M; J++) {
+       S += A[J][0]+", we get \\\\ \n";
+       S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
+     }
+     S += "BUG: the coding has not yet been completed.";
+     S += "\n\n";
+     return S;
+}
+
 
 end$
