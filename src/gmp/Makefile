@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.1 2003/09/02 14:24:43 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.2 2003/09/14 01:19:57 takayama Exp $
 OpenXM_HOME=../..
 OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
 OpenXM_lib=${OpenXM_HOME}/lib
@@ -24,12 +24,12 @@ configure:
 		touch ./.configure_done ; \
 	fi
 clean: 
-	${RM} -f ./.*done
 	@if [ -f ./.make_done ]; then \
 		(cd ${GMP} ; make clean) \
 	fi
-distclean: 
 	${RM} -f ./.*done
+distclean: 
 	-@if [ -f ./.make_done ]; then \
 		(cd ${GMP} ; make distclean) \
 	fi
+	${RM} -f ./.*done

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.3 2003/11/10 11:42:59 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.4 2003/11/10 23:13:38 takayama Exp $
 OpenXM_HOME=../..
 OpenXM_contrib=${OpenXM_HOME}/../OpenXM_contrib
 OpenXM_lib=${OpenXM_HOME}/lib
@@ -33,12 +33,12 @@ install-l: all-l
 		touch ./.install_done ; \
 	fi
 clean: 
-	${RM} -f ./.*done
 	@if [ -f ./.make_done ]; then \
 		(cd ${GC} ; make clean) \
 	fi
+	${RM} -f ./.*done
 distclean: 
-	${RM} -f ./.*done ./.use_ports
 	-@if [ -f ./.make_done ]; then \
 		(cd ${GC} ; make distclean) \
 	fi
+	${RM} -f ./.*done ./.use_ports
