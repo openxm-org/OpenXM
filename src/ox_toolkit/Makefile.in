@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.15 2003/06/02 20:38:41 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/Makefile.in,v 1.16 2004/02/28 23:39:38 ohara Exp $
 
 OpenXM_HOME = ../..
 OXWEAVE     = ${OpenXM_HOME}/bin/oxweave
@@ -7,20 +7,35 @@ CC          = @CC@
 DEFS        = @DEFS@
 CFLAGS      = -g -Wall -O2 ${DEFS} -I${OpenXM_HOME}/include -finline-functions
 OBJS        = ox.o cmo.o parse.o mysocket.o mathcap.o dump.o cmolen.o print.o oxf.o oxf_old.o @USE_GMP@ gmp_fake.o
+LOBJS		= ${OBJS:.o=.lo}
 BINARIES    = bconv testclient sample1 sample2 zclient
 DOCUMENTS   = readme-en.txt readme-ja.txt bnf-en.txt bnf-ja.txt
 X11INC      = @X_CFLAGS@
 X11LIB      = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@
 RANLIB      = @RANLIB@
 GMPLIB      = @GMPLIB@
-LIBS        = @LIBS@ -L${OpenXM_HOME}/lib ${GMPLIB} libox.a -lgc
+LIBS_PRE    = @LIBS@ -L${OpenXM_HOME}/lib ${GMPLIB}
+LIBS_POST   = -L${OpenXM_HOME}/lib -lgc
+LIBS        = ${LIBS_PRE} libox.a ${LIBS_POST}
 INSTALL     = @INSTALL@
 INSTALL_DATA= @INSTALL_DATA@
 OXOBJS      = ${OBJS} bconv.o testclinet.o ox_Xsample.o sample1.o sample2.o
+PICFLAGS    = -fpic -fPIC
+
+.SUFFIXES: .c .lo
+
+.c.lo:
+	${CC} ${CFLAGS} ${PICFLAGS} -o $@ -c $<
 
 all: libox.a ${BINARIES} ${DOCUMENTS}
 
 all2: all ox_Xsample
+
+all3: libox.so all
+
+libox.so:  ${LOBJS}
+	-rm -f $@
+	${CC} -shared ${CFLAGS} -o $@ ${LOBJS} ${LIBS_PRE} ${LIBS_POST}
 
 ox.o mysocket.o: mysocket.h
 ox.o parse.o:    parse.h
@@ -89,7 +104,7 @@ clean-document:
 	-rm -f ${DOCUMENTS}
 
 clean-binary:
-	-rm -f *.o *~ libox.a ${BINARIES} ox_Xsample core a.out
+	-rm -f *.o *.lo *~ libox.a libox.so ${BINARIES} ox_Xsample core a.out
 
 clean: clean-document clean-binary
 
