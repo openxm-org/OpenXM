@@ -1,40 +1,40 @@
-# $OpenXM: OpenXM/src/util/Makefile.in,v 1.1 2004/06/14 09:07:32 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile.in,v 1.2 2004/06/23 22:49:17 takayama Exp $
 #OpenXM_ROOT=../../../OpenXM
-OpenXM_ROOT=@prefix@
-OpenXM_bin=$(OpenXM_ROOT)/bin
-OpenXM_lib=$(OpenXM_ROOT)/lib
-OpenXM_include=$(OpenXM_ROOT)/include
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+includedir=@includedir@
 
 CC=@CC@
+CFLAGS=@CFLAGS@ -D_BSD_SOURCE -D_POSIX_C_SOURCE
 RANLIB=@RANLIB@
 
 all : oxweave oxreplace libox_pathfinder.a
 
-oxweave : oxweave.c
-	${CC}    -D_BSD_SOURCE -o oxweave -g oxweave.c
-	rm -f .install_done
-oxreplace : oxreplace.c
-	${CC}    -D_BSD_SOURCE -o oxreplace -g oxreplace.c
-	rm -f .install_done
+oxweave : oxweave.o
+	${CC} -o $@ oxweave.o
+
+oxreplace : oxreplace.o
+	${CC} -o $@ oxreplace.o
+
 libox_pathfinder.a : ox_pathfinder.o
 	ar ru libox_pathfinder.a ox_pathfinder.o
 	${RANLIB} libox_pathfinder.a
-	rm -f .install_done
-ox_pathfinder.o : ox_pathfinder.c ox_pathfinder.h
-	${CC} -D_BSD_SOURCE -D_POSIX_C_SOURCE -c ox_pathfinder.c
 
-test: ox_pathfinder.o test.c
-	${CC} -o test -D_BSD_SOURCE -D_POSIX_C_SOURCE test.c ox_pathfinder.o -L${OpenXM_lib} -lgc
+ox_pathfinder.o : ox_pathfinder.h
+
+test: ox_pathfinder.o test.o
+	${CC} -o $@ test.o ox_pathfinder.o -L${libdir} -lgc
 
 install: all
 	@if [ ! -f ./.install_done ] ; then \
 	echo "Installing oxweave, oxreplace, libox_pathfinder.a, ox_pathfinder.h oxfetch.sh" ; \
-	install -c -s oxweave oxreplace ${OpenXM_bin} ; \
-	install -c -s oxweave ${OpenXM_ROOT}/src/kxx ; \
-	cp -f libox_pathfinder.a ${OpenXM_lib}  ; \
-	cp -f ox_pathfinder.h ${OpenXM_include} ; \
-	install -c lndir.sh ${OpenXM_bin} ; \
-	install -c oxfetch.sh ${OpenXM_bin} ; \
+	install -c lndir.sh oxfetch.sh ${bindir} ; \
+	install -c -s oxweave oxreplace ${bindir} ; \
+	install -c -s oxweave ${prefix}/src/kxx ; \
+	install -c libox_pathfinder.a ${libdir}  ; \
+	install -c ox_pathfinder.h ${includedir} ; \
 	touch ./.install_done ; \
 	fi
 
