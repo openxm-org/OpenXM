@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.101 2000/12/21 07:29:39 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.102 2000/12/21 08:20:09 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -308,10 +308,17 @@ install-all-asir-lib:
 
 binary-dist : all-Copyright clean-rc all all-misc post-install-correction install-all-asir-lib
 
+## Targets for debugging
+install-for-debug:
+	(cd kan96xx; make install-for-debug)
+	(cd kxx; make install-for-debug)
+	(cd k097 ; make install-for-debug)
+
+
 ##  Sub binary packages
 ##  1: asir: asir only.   target:  all-asir install-asir
 
-##  2: k0-ox: k0 and sm1 with  OpenXM.  target: all-k0-ox install-k0-ox
+##  2: k0-ox: k0 and sm1 with ox_asir.  target: all-k0-ox install-k0-ox
 configure-all-k0-ox :  configure-links configure-include  configure-asir \
                        configure-kan96xx configure-kxx configure-k097 \
                        configure-oxc
