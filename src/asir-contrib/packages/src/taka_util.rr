@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.8 2003/01/16 00:54:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.9 2003/01/20 03:16:39 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -102,6 +102,7 @@ def taka_util_remove_cr(S) {
   example: taka_util_find_and_replace1([1,2],[2,2,2,2,1,2],[22,23,24],0); 
   example: taka_util_find_and_replace1([1,2],[3,4,1,2,5,6],[],0); 
 */
+/* It is slow, because of append. It is no longer used. */
 def taka_util_find_and_replace1(W,S,Snew,StartIndex) {
   N1 = length(W); N2 = length(S);
   for (J=StartIndex; J<N2-N1+1; J++) {
@@ -121,7 +122,8 @@ def taka_util_find_and_replace1(W,S,Snew,StartIndex) {
 /*
   example: taka_util_find_and_replace([1,2],[5,1,2,5,1,2,1,2],[22,23,24]); 
 */
-def taka_util_find_and_replace(W,S,Snew) {
+/* It is slow, because of append. It is no longer used. */
+def taka_util_find_and_replace_old1(W,S,Snew) {
   J = 0;
   T = [-1,S];
   while (J < length(T[1])) {
@@ -161,6 +163,59 @@ def taka_util_index(V) {
   Name = reverse(Name);
   Name = asciitostr(Name);
   return [Name,newvect(length(Id),reverse(Id))];
+}
+
+/*
+  example: taka_util_find_and_replace_new([1,2],[5,1,2,5,1,2,1,2],[22,23,24]); 
+*/
+def taka_util_find_and_replace(Old,S,Snew) {
+  N = length(S);
+  Nold = length(Old); 
+  Nnew = length(Snew);
+  NewSize = N*2+1;
+  New = newvect(NewSize);
+  K = 0;
+  for (I=0; I<N; I++) {
+    Found = 0;
+    for (J=I; J<Nold+I; J++) {
+      if (S[J] != Old[J-I]) {
+         break;
+      }
+      if (J-I == Nold-1) {
+        Found = 1;
+      }
+    }
+    if (Found) {
+      /* print("Found at I="+rtostr(I)); */
+      I += Nold-1;
+      for (P=0; P<Nnew; P++) {
+        New[K] = Snew[P];
+        K++;
+        if (K > NewSize-1) {
+           New2 = newvect(NewSize*2);
+           for (Q=0; Q<NewSize; Q++) {
+             New2[Q] = New[Q];
+           }
+           New = New2; NewSize *= 2;
+        }
+      }
+    }else{
+        New[K] = S[I]; 
+        K++;
+        if (K > NewSize-1) {
+           New2 = newvect(NewSize*2);
+           for (Q=0; Q<NewSize; Q++) {
+             New2[Q] = New[Q];
+           }
+           New = New2; NewSize *= 2;
+        }
+    }    
+  }
+  Ans = newvect(K);
+  for (I=0; I<K; I++) {
+    Ans[I] = New[I];
+  }
+  return vtol(Ans);
 }
 
 Loaded_taka_util=1$
