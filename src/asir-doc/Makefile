@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.12 2002/08/13 07:44:03 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile,v 1.13 2003/04/19 10:36:27 noro Exp $
 
 WHICH=../../misc/which.pl
 
@@ -169,6 +169,11 @@ html-internal-ja: tmp-internal-JAhtml
 	-mkdir html-internal-ja
 	-(cd html-internal-ja; texi2html ../tmp-internal-JAhtml/internal.texi)
 
+internal-jp.dvi: tmp-internal-JAhtml
+	-rm internal-jp.dvi
+	-(cd tmp-internal-JAhtml; ptex internal.texi; ../jtexindex/C/texindex internal.??; ptex internal.texi)
+	-mv tmp-internal-JAhtml/internal.dvi internal-jp.dvi
+	-touch internal-jp.dvi
 extract_func: extract_func.c
 	gcc -o extract_func extract_func.c
 
@@ -187,6 +192,7 @@ targzuu: help-eg help-jp html-eg html-jp
 clean:
 	(cd jtexindex/C; make clean)
 	-rm -f man*.dvi man-jp.dvi extract_man extract_func gen_hh
+	-rm -f internal-jp.dvi
 	-rm -rf tmp*
 	-rm -rf help-*
 	-rm -rf html-*
