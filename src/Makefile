@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.103 2000/12/21 09:13:05 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.104 2000/12/21 09:25:23 takayama Exp $
 
 OpenXM_HOME=../../OpenXM
 OPENXM_CONTRIB=../../OpenXM_contrib
@@ -160,7 +160,7 @@ install-asir-contrib: install-asir install-kxx
 	(cd asir-contrib ; make install)
 
 install-asir-doc: install-asir
-	(cd asir-doc ; make install)
+	-(cd asir-doc ; make install)
 
 install-misc:
 	(cd ../rc ; make install.man)
@@ -319,15 +319,20 @@ install-for-debug:
 	(cd kan96xx; make install-for-debug)
 	(cd kxx; make install-for-debug)
 	(cd k097 ; make install-for-debug)
+	(cd ../bin ; rm -f asir ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
 
 
 ##  Sub binary packages
-##  1: asir: asir only.   target:  all-asir install-asir
+##  1: asir: asir only.   target:  all-asir install-asir install-asir-doc
 
-##  2: k0-ox: k0 and sm1 with ox_asir.  target: all-k0-ox install-k0-ox
-configure-all-k0-ox :  configure-links configure-include  configure-asir \
+##  2: kan-ox: k0 and sm1 with ox_asir.  target: all-kan-ox install-kan-ox
+configure-all-kan-ox :  configure-links configure-include  configure-asir \
                        configure-kan96xx configure-kxx configure-k097 \
                        configure-oxc
-all-k0-ox:  configure-all-k0-ox all-asir all-kan96xx all-kxx all-k097 all-oxc
-install-k0-ox: all-k0-ox  install-asir install-kan96xx install-kxx \
-               install-k097 install-oxc
+all-kan-ox:  configure-all-kan-ox all-asir all-kan96xx all-kxx all-k097 all-oxc
+install-kan-ox: all-kan-ox  install-asir install-kan96xx install-kxx \
+               install-k097 install-oxc install-asir-doc \
+               post-install-kan-ox
+post-install-kan-ox:
+	(cd ../bin ; /bin/rm -f ox_asir; ln -s ./asir ox_asir)
+

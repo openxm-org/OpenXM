@@ -1,15 +1,18 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.24 2000/09/19 08:42:16 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.25 2000/09/25 07:12:43 takayama Exp $
 
 VERSION=1.1.3
 TAG=HEAD
 ## TAG=RELEASE_1_1_3
 
+### Configure below.
 TAR_WORK=$(HOME)/tmp
 NAME=taka
+WHO=taka@orange
 # It must be equal to TAR_WORK. To work as a super user. Used in build-on-pear-root.
 TAR_WORK_EXPLICIT=/home/${NAME}/tmp
 JDK=jdk1.1.8
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
+FTP_AREA_HEAD=/export/home01/ftp/pub/OpenXM/Head
 ## TAG for the CVS server.
 
 # Modify below for priting.
@@ -32,11 +35,13 @@ usage :
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
+	@echo "7.  copy-head-tar-ball-to-ftp-area "
 
 clean :
 	-(cd Generic/openxm ; make clean-work)
 	-(cd FreeBSD ; make clean)
 	-(cd Linux/RPM ; make clean)
+	/bin/rm -rf work
 
 print:
 	$(PS) Makefile | $(LPR)	
@@ -110,3 +115,12 @@ copy-to-ftp-area:
 	-cp ${TAR_WORK}/openxm-${VERSION}.tgz ${FTP_AREA}
 	-cp ${TAR_WORK}/openxm-port.tar.gz ${FTP_AREA}
 	ls -l ${FTP_AREA}
+
+copy-head-tar-ball-to-ftp-area:
+	-mkdir ${TAR_WORK}
+	-mkdir work
+	(cd work ; /bin/rm -rf *)
+	(cd work ; rcvs checkout OpenXM OpenXM_contrib OpenXM_contrib2)
+	(cd work ; tar czvf ${TAR_WORK}/openxm-head.tar.gz OpenXM OpenXM_contrib OpenXM_contrib2)
+	/bin/rm -rf work
+	-scp ${TAR_WORK}/openxm-head.tar.gz ${WHO}:${FTP_AREA_HEAD}

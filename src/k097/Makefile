@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/k097/Makefile,v 1.16 2000/12/10 02:25:31 takayama Exp $
+# $OpenXM: OpenXM/src/k097/Makefile,v 1.17 2000/12/10 03:12:19 takayama Exp $
 # targets
 # all 
 #     compile
@@ -172,6 +172,7 @@ install0 : all
 	echo "Set the environment variable in $(HOME)/bin/mklib"
 
 install : all install-lib
+	/bin/rm -f ../../bin/k0 ../../bin/d0
 	cp -f k0 d0 ../../bin
 
 install-for-debug : all install-lib-for-debug
