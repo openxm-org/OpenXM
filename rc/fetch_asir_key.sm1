@@ -1,0 +1,71 @@
+% $OpenXM$
+% ../bin/sm1 -f fetch_asir_key.sm1 to set the asir key automatically.
+
+/fetchSeed {
+  [/in-fetchSeed /size] pushVariables
+  [
+   (/bin/rm -rf work) system
+   (mkdir work) system
+   (echo "quit;" >work/asir_key.in) system
+   (../bin/asir <work/asir_key.in 2> work/asir_key.out0 ) system
+   (grep ASIR work/asir_key.out0 >work/asir_key.out) system
+   [(stat) (work/asir_key.out)] extension 1 get 0 get /size set
+   /arg1 size def
+  ] pop
+  popVariables
+  arg1
+} def
+
+/sendMail {
+  /MAILADDRESS ( risa@sec.flab.fujitsu.co.jp )def
+  [(Sending a mail to ) MAILADDRESS ] cat message
+  [(mail ) MAILADDRESS ( < ) (work/asir_key.out)] cat system
+} def
+
+/waitReply {
+  /MAIL [(/var/mail/) [(getenv) (USER)] extension ] cat def
+  {
+    [(Waiting a reply in ) MAIL] cat message
+    (/bin/rm -rf work/reply) system
+    [(grep risa@sec.flab.fujitsu.co.jp ) MAIL (>work/reply)] cat system
+    [(stat) (work/reply)] extension 1 get 0 get 0 eq not {
+      exit
+    }{  } ifelse
+    (Sleep 5) system
+  } loop
+  (Got a key) message    
+} def
+
+/setAsirKey {
+  /MAIL [(/var/mail/) [(getenv) (USER)] extension ] cat def
+  (/bin/rm -rf work/key) system
+  [ (egrep '[0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z] [0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z] [0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z]' ) MAIL ( >work/key) ]
+  cat system
+  cat work/key >>../lib/asir/asir_key
+} def
+
+/fetch {
+  [(This script sets OpenXM/lib/asir/asir_key for your machine,)
+   (if your system can receive a mail at /var/mail on this machine.)
+  ] { message } map
+  (  ) message 
+  (  ) message 
+  (Cheching if you have a correct asir_key.) message
+  (   ) message
+  (   ) message
+  fetchSeed 0 eq {
+    (  ) message
+    (  ) message
+    (You already have a correct asir_key.) message
+    (  ) message
+    quit
+ }{
+   sendMail
+   waitReply
+   setAsirKey
+ } ifelse
+} def
+
+
+fetch
+quit
