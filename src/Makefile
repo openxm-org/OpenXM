@@ -12,6 +12,9 @@ all2 :
 	(cd phc ; make all )
 all3 :
 	(cd k097 ; make all ; cp k0 ../../bin)
+all4 :
+	(cd JavaSupport ; make )
+	   
 
 clean :
 	/bin/rm -rf ../*~  *~
