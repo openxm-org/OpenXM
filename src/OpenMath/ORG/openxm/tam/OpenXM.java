@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/ORG/openxm/tam/OpenXM.java,v 1.1 2000/09/07 10:41:34 tam Exp $
  */
 package ORG.openxm.tam;
 
@@ -8,7 +8,7 @@ import java.net.*;
 
 
 /**
- * OpenXM サーバとの接続を行なう抽象クラス
+ * OpenXM サーバとの接続を行なう抽象クラス.
  * クライアント側が使用する.
  */
 public class OpenXM{
@@ -41,6 +41,7 @@ public class OpenXM{
   /**
    * OpenXM メッセージを送信する. ただし、このメソッドは
    * ボディの部分だけでよい. ヘッダの部分は自動で付加される.
+   */
   public void send(OXbody object) throws IOException,MathcapViolation{
     stream.send(object);
   }
