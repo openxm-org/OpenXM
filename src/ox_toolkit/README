@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.11 2000/10/10 05:23:19 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.12 2000/10/10 06:52:13 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -571,12 +571,57 @@ then the parser returns NULL.
 */
 /*&ja
 
-7. 付属プログラムについて
+7. Mathcap データベース
+
+7.1. メソッド
+
+Mathcap データベースは mathcap.c で実装されている。ユーザは次の関数を
+介して、Mathcap データベースにアクセスすることができる。
+
+void mathcap_sysinfo_set(int version, char *id, char *sysname);
+
+Mathcap データベースの(一部)を初期化する。クライアントおよびサーバは
+プログラム開始のときにこの関数を呼ばなければならない。
+
+cmo_mathcap *mathcap_get();
+
+Mathcap データベースから cmo_mathcap オブジェクトを得る。
+
+cmo_list *mathcap_cmo_get_allow_all();
+cmo_list *mathcap_sm_get_all();
+cmo_list *mathcap_sysinfo_get_all();
+
+これらは cmo_mathcap *mathcap_get() の内部で呼ばれている関数である。
+
+int mathcap_cmo_isallow_cmo(cmo *ob);
+
+与えられた cmo が送信許可されているかを調べる。
+
+void mathcap_cmo_allow(int tag);
+void mathcap_cmo_deny(int tag);
+void mathcap_cmo_deny_all();
+void mathcap_cmo_allow_all();
+
+cmo の送信制御。
+
+7.2. ox_toolkit における実装の問題点
+
+現在はシステム全体で一つの Mathcap データベースしかもたないような実装
+になっている。ところが、OpenXM クライアントは複数の計算サーバと同時に
+接続されることが許されている。これらの計算サーバは同種あるいは異種であ
+るが、異種の場合、それら OX サーバの許容する CMO の範囲は異なる。した
+がって、計算サーバごとに Mathcap データベースをもつ必要がある。具体的
+には OXFILE クラスの(static ではない)メンバになるような実装でなければ
+ならない。
+*/
+/*&ja
+
+8. 付属プログラムについて
 
 */
 /*&en
 
-7. Sample programs.
+8. Sample programs.
 
 */
 /*&common
@@ -617,9 +662,9 @@ GUI 表示する OpenXM サーバのサンプル。
 
 */
 /*&ja
-8. 付録
+9. 付録
 
-8.1 ox.c における関数の命名規則
+9.1 ox.c における関数の命名規則
 
 (1) receive_cmo 関数はCMOタグとデータ本体を受信する. この関数は CMOタ
 グの値が事前に分からないときに使用する. 返り値として、cmo へのポインタ
