@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/k097/Doc/Makefile,v 1.1 2001/01/04 12:29:32 takayama Exp $
+#$OpenXM: OpenXM/src/k097/Doc/Makefile,v 1.2 2001/01/08 05:26:50 takayama Exp $
 # targets
 # all :   
 #      
@@ -17,10 +17,11 @@ HELP_EN=$(HELP)/help-en
 OpenXM_doc=$(OpenXM_ROOT)/doc
 DVIPS=dvips -f
 OXWEAVE=$(OpenXM_ROOT)/src/kxx/oxweave
+TEXI2HTML=texi2html -menu -split_node
 
 INFO=complex standard standard-suppl
-JPSRCS= complex-ja.texi standard-ja.texi standard-suppl-ja.texi
-ENSRCS= complex-en.texi standard-en.texi standard-suppl-en.texi
+JPSRCS= k0-man-ja.texi complex-ja.texi standard-ja.texi standard-suppl-ja.texi
+ENSRCS= k0-man-en.texi complex-en.texi standard-en.texi standard-suppl-en.texi
 # INFO=complex 
 # JPSRCS= complex-ja.texi 
 # ENSRCS= complex-en.texi 
@@ -44,6 +45,25 @@ all-en: $(ENSRCS) $(ASIRDOC)/extract_func
 	for i in $(ENSRCS); do nkf -e $$i > $(HELP_EN)/$$i; done
 	-for i in $(ENSRCS); do (cd $(HELP_EN); makeinfo --force $$i); done
 	(cd $(HELP_EN); for i in $(INFO); do $(ASIRDOC)/extract_func -j $$i; done)
+
+html-en: all-en
+	-rm -rf html-en
+	-mkdir html-en
+	-cp $(HELP_EN)/*.texi html-en
+	-(cd html-en; ${TEXI2HTML} k0-man-en.texi)
+
+html-ja: all-ja
+	-mkdir html-ja
+	-cp $(HELP_JA)/*.texi html-ja
+	-(cd html-ja; ${TEXI2HTML} k0-man-ja.texi)
+
+k0-man-ja.texi: k0-man.texi
+	/bin/rm -f k0-man-ja.texi
+	$(OXWEAVE) C ja <k0-man.texi >k0-man-ja.texi
+
+k0-man-en.texi: k0-man.texi
+	/bin/rm -f k0-man-en.texi
+	$(OXWEAVE) C en <k0-man.texi >k0-man-en.texi
 
 standard.texi:
 	-rm -rf standard.texi
@@ -71,7 +91,8 @@ standard-suppl-en.texi : standard-suppl.texi
 clean :
 	-/bin/rm -rf $(HELP)
 	-/bin/rm -f  *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr 
-	-/bin/rm -f complex-en.texi complex-ja.texi standard-en.texi standard-ja.texi standard.texi standard-suppl-en.texi standard-suppl-ja.texi
+	-/bin/rm -f complex-en.texi complex-ja.texi standard-en.texi standard-ja.texi standard.texi standard-suppl-en.texi standard-suppl-ja.texi k0-man-en.texi k0-man-ja.texi
+	-/bin/rm -rf html-en html-ja
 
 
 mybackup :

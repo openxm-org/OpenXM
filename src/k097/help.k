@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/help.k,v 1.8 2001/01/05 11:14:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/help.k,v 1.9 2001/01/08 05:26:48 takayama Exp $ */
 if (K00_verbose)
   Println("help.k:  8/6, 1996 --- 8/7, 1996. 3/6, 1997 --- 12/21, 1997.");
 
@@ -516,7 +516,7 @@ HelpAdd(["Length",
 ]);
 
 HelpAdd(["Transpose",
- ["Transpose(<<m>.) return the transpose of the matrix << m >>",
+ ["Transpose(<<m>>.) return the transpose of the matrix << m >>",
   "(array of array <<m>>)."],
  ["m"],
  ["NewMatrix"],
