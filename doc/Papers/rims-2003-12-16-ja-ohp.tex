@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.6 2003/12/12 01:54:05 noro Exp $
+% $OpenXM: OpenXM/doc/Papers/rims-2003-12-16-ja-ohp.tex,v 1.7 2003/12/12 06:05:21 noro Exp $
 %% xdvi -paper a4r rims-2003-12-16-ja-ohp
 %% dvips -f -t landscape  rims-2003-12-16-ja-ohp| psnup -8 -r | lpr -Pxerox6
 %% dvipdfm -l rims-2003-12-16-ja-ohp
@@ -570,6 +570,8 @@ $Data$ が指定された場合, スタックにプッシュしてから上記の操作を
 def d_mul(F1,F2)
 {
     Procs = getopt(proc);
+    /* process 指定がない場合には, 自分で計算 */
+    if ( type(Procs) == -1 ) return umul(F1,F2);
     if ( !var(F1) || !var(F2) ) return F1*F2;
     NP = length(Procs);
     /* 引数を server 0 に送る */
