@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.13 2003/05/20 07:47:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot,v 1.14 2003/09/28 01:31:18 takayama Exp $ */
 
 module gnuplot;
 
@@ -7,6 +7,7 @@ localf get_Gnuplot_proc$
 localf set_Gnuplot_proc$
 localf find_proc $
 localf start $
+localf stop $
 localf flush $
 localf start_unix $
 localf start_windows $
@@ -117,6 +118,7 @@ def start_windows(S) {
 
 def isAlive(P) {
   /*! extern Gnuplot_pid; */
+  if (Gnuplot_pid[P] == -2) return(1);
   if (Gnuplot_pid[P] == -1) return(0);
   sm1.sm1(P," [(getchild)] extension ");
   Gnuplot_pidList = sm1.pop(P);
@@ -129,7 +131,10 @@ def isAlive(P) {
   }
 }
 
-
+def stop() {
+  GNUPLOTL_FIND_PROC(P) ;
+  sm1.sm1(P," plotstop.aux ");
+}
 
 def gnuplot(S) {
   /*! extern Gnuplot_pid; */
