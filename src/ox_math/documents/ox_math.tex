@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.5 2000/01/20 15:09:24 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.6 2000/01/20 15:18:31 ohara Exp $
 
 \documentclass{jarticle}
 \title{Mathematica の Open XM 化について
@@ -12,6 +12,25 @@
 
 \begin{document}
 \maketitle
+
+\noindent
+{\bf 
+注意 (2002.04.17):
+この文書は, 古いインタフェースをもとに記述してあるので,
+例はこのままでは動作しないので注意.
+math2ox.texi が最新のインタフェースのマニュアルである.
+一番の変更点は, {\tt OxStart} が pid (ox process id) を戻すようになり,
+{\tt OxParse} など多くの関数が, pid を引数として求めるようになったことで
+ある.
+たとえば, この文書の {\tt OxParse} を用いる例は, 次のように変更しないと
+いけない.}
+\begin{verbatim}
+Install["math2ox"]
+pid = OxStart["ox_sm1"]
+OxParse[pid,"(CMO_ZERO)"]
+OxPopCMO[pid]
+\end{verbatim}
+
 
 \section{我々が提供するもの}
 
