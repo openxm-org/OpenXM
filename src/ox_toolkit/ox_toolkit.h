@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.27 2003/11/12 15:20:18 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.28 2005/03/03 04:40:51 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -51,7 +51,7 @@ typedef struct OXFILE{
     int wbuf_size;
     int wbuf_count;
     int (*send_double)(struct OXFILE *oxfp, double int64);
-    int (*receive_double)(struct OXFILE *oxfp);
+    double (*receive_double)(struct OXFILE *oxfp);
 } OXFILE;
 
 typedef struct cmo {

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.18 2003/09/15 09:31:42 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf.c,v 1.19 2005/03/03 04:40:51 ohara Exp $ */
 
 /*
    This module includes functions for sending/receiveng CMO's.
@@ -41,8 +41,8 @@ static int receive_int32_nbo(OXFILE *oxfp);
 
 static int send_int64_nbo_le(OXFILE *oxfp, double int64);
 static int send_int64_lbo(OXFILE *oxfp, double int64);
-static int receive_int64_nbo_le(OXFILE *oxfp);
-static int receive_int64_lbo(OXFILE *oxfp);
+static double receive_int64_nbo_le(OXFILE *oxfp);
+static double receive_int64_lbo(OXFILE *oxfp);
 
 static void pipe_send_info(int fd, char *hostname, int port, char *password);
 
@@ -111,7 +111,7 @@ static int send_int64_lbo(OXFILE *oxfp, double int64)
 }
 
 /* receiving an object of int64 type with Network Byte Order. */
-static int receive_int64_nbo_le(OXFILE *oxfp)
+static double receive_int64_nbo_le(OXFILE *oxfp)
 {
     int tag;
     oxf_read(&tag, sizeof(double), 1, oxfp);
@@ -119,7 +119,7 @@ static int receive_int64_nbo_le(OXFILE *oxfp)
 }
 
 /* receiving an object of int64 type with Local Byte Order. */
-static int receive_int64_lbo(OXFILE *oxfp)
+static double receive_int64_lbo(OXFILE *oxfp)
 {
     int tag;
     oxf_read(&tag, sizeof(double), 1, oxfp);
