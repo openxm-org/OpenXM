@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.11 2001/01/10 06:54:36 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.12 2003/05/07 04:00:30 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,6 +182,7 @@ int main(int argc, char *argv[])
             delay = atoi(optarg);
             break;            
         default:
+            ;
         }
     }
     argc -= optind;
