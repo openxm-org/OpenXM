@@ -1,12 +1,13 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.11 2004/03/31 01:06:10 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.12 2004/04/14 03:04:04 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME    = gnuplot-3.7.3
+DISTNAME    = gnuplot-4.0.0
 DISTFILES   = ${DISTNAME}.tar.gz
 DISTDIR     = ${OpenXM_HOME}/../OpenXM_dist
 WRKSRC      = work/${DISTNAME}
-PATCHES     = configure.diff plot.c.diff
+PATCH_FILES = gnuplot-v4.diff
+INSTALL_PROGRAM = install -c -s
 
 all: build
 
@@ -25,7 +26,7 @@ extract: fetch
 
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
-		for i in ${PATCHES}; do cat $$i | (cd ${WRKSRC}; patch -p0); done ; \
+		for i in ${PATCH_FILES}; do cat $$i | (cd ${WRKSRC}; patch -p1); done;\
 	fi
 	@touch work/.patch_done
 
@@ -38,13 +39,17 @@ configure: patch
 
 build: configure
 	@if [ ! -f work/.build_done ]; then \
-	    (cd ${WRKSRC} ; ${MAKE} ) ; \
+	    (cd ${WRKSRC}/src; ${MAKE}) ; \
 	fi
 	@touch work/.build_done
 
 install: build
 	@if [ ! -f work/.install_done ]; then \
-		(cd ${WRKSRC} ; ${MAKE} install) ; \
+		prefix=`cd ${OpenXM_HOME}; pwd`; \
+		mkdir -p $${prefix}/libexec/gnuplot/4.0; \
+		(cd ${WRKSRC}/src; \
+		 ${INSTALL_PROGRAM} gnuplot     $${prefix}/bin/gnuplot4ox ; \
+		 ${INSTALL_PROGRAM} gnuplot_x11 $${prefix}/libexec/gnuplot/4.0) ; \
 	fi
 	@touch work/.install_done
 
