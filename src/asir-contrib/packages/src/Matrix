@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.15 2002/10/04 03:04:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.16 2003/10/19 07:16:59 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -597,6 +597,53 @@ def omatrix_float(A) {
     return 0;
   }
   return 0;
+}
+
+def omatrix_image(A) {
+  if (type(A) == 4) {
+    A = omatrix_ltom(A);
+  }
+
+  Size_A = size(A);
+
+  X = newvect(Size_A[1]);
+  for (I = 0; I < Size_A[1]; I++) {
+    X[I] = uc();
+  }
+  /* ord(reverse(vtol(X))); */
+
+  Z = A*X;
+  Size_Z = size(Z);
+  F = [];
+  for (I = 0; I < Size_Z[0]; I++) {
+    if (Z[I] != 0) {
+      F = append(F, [Z[I]]);
+    }
+  }
+
+  if (F == []) {
+    return [[]];
+  }
+
+  G = gr(F, reverse(vtol(X)), 2);
+#if _DEBUG_Matrix_
+  print("G = ", 0);print(G);
+#endif
+
+  if (G[0] == 1 || G[0] == -1) {
+    error("omatrix_image: internal error."); 
+    return [[]];
+  }
+
+  Sol = newvect(length(G));
+  for (I = 0; I < length(Sol); I++) {
+    T = newvect(length(X));
+    for (J=0; J<length(X); J++) {
+      T[J] = coef(G[I],1,X[J]);
+    }
+    Sol[I] = T;
+  }
+  return omatrix_mtol(map(omatrix_mtol,Sol));
 }
 
 Loaded_Matrix = 1 $
