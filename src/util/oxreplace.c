@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.1 2003/03/26 04:45:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.2 2003/03/26 04:56:44 takayama Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <time.h>
@@ -38,6 +38,39 @@ matches(char *word,char *s,int j) {
   }
   return 1;
 }
+
+isHexc(int c) {
+  if ((c >= '0') && (c<='9')) return 1;
+  if ((c >= 'A') && (c<='F')) return 1;
+  if ((c >= 'a') && (c<='f')) return 1;
+  return 0;
+}
+char *hex2str(char hstr[]) {
+  int i,n,c,k;
+  char *s;
+  char ts[3];
+  /* printf("%s\n",hstr); */
+  n = strlen(hstr); 
+  s = (char *) malloc(n/2+2);
+  if (s == NULL) {fprintf(stderr,"Memory exhausted.\n"); exit(10);}
+  k = 0; i = 0;
+  s[k] = 0;
+  while (i<n) {
+	while ((!isHexc(hstr[i])) && (i<n)) i++;
+    if (isHexc(hstr[i]) && (i<n)) ts[0] = hstr[i]; else ts[0] = 0; 
+    i++;
+	while ((!isHexc(hstr[i])) && (i<n)) i++;
+    if (isHexc(hstr[i]) && (i<n)) ts[1] = hstr[i]; else ts[1] = 0; 
+    i++; ts[2] = 0;
+    if (ts[0] != 0) {
+	  sscanf(ts,"%xd",&c);
+      s[k] = c; k++; s[k] = 0;
+	}
+  }
+  if (strcmp(s,"") == 0) return NULL;
+  else return s;
+}
+
 main(int argc, char *argv[]) {
   int i;
   char *old = NULL;
@@ -48,6 +81,10 @@ main(int argc, char *argv[]) {
 	  old = argv[i+1]; i++;
 	} else if (strcmp(argv[i],"--new") == 0) {
 	  new = argv[i+1]; i++;
+	} else if (strcmp(argv[i],"--oldx") == 0) {
+	  old = hex2str(argv[i+1]); i++;
+	} else if (strcmp(argv[i],"--newx") == 0) {
+	  new = hex2str(argv[i+1]); i++;
 	} else if (strcmp(argv[i],"--f") == 0) {
 	  fprintf(stderr,"--f option (rule file) has not yet been implemented.\n");
 	  exit(10);
@@ -112,5 +149,6 @@ replaceOneWord(char *fname,char *old, char *new) {
 usage() {
   fprintf(stderr,"oxreplace [--old oword --new nword --f rule_file_name] \n");
   fprintf(stderr,"          [file1 file2 ... ] \n");
+  fprintf(stderr,"    Use --oldx or --newx to give a word in hexadeciam codes\n");
 }
 
