@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.13 2003/07/22 07:39:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.14 2004/06/16 02:40:10 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -1090,7 +1090,7 @@ void loadFileWithCpp(objectp op)
   /* printf("%s\n",outfile); */
   if ((char *)strstr(cpp,"/asir/bin/cpp.exe") == NULL) {
 #if defined(__APPLE_CC__)
-    sprintf(tmpName,"cpp -P %s | sed -e 's/^\\#.*//g' >%s",sfile,outfile);
+    sprintf(tmpName,"gcc -E -P %s | sed -e 's/^#.*//g' >%s",sfile,outfile);
 #else
 	argv[0] = cpp;
 	argv[1] = "-P";
