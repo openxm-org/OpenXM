@@ -46,6 +46,9 @@ intw.version [(Version)] system_variable gt
   (THE THIRD ARGUMENTS. INTEGRAL VARIABLES MUST APPEAR FIRST.)
   $Example 1: [[(x-y) (Dx+Dy)] [(y) (x)] [(y) -1 (Dy) 1] 1] integral-k1$
   $Example 2: [[(x (x-1)) (x)] annfs 0 get [(x)] [(x) -1 (Dx) 1] 1] integral-k1$
+  $Example 3: [[ (Dt- (2 t x1 + x2)) (Dx1 - t^2) (Dx2 - t) ] $
+  $            [(t) (x1) (x2)] [(t) -1 (Dt) 1] 0] integral-k1 $
+  $           The resulting ideal annihilates f(x1,x2)=int(x1*t^2+x2*t,dt) $
  ]
 ] putUsages (integral-k1 ) messagen
 /integral-k1 {
