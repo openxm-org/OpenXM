@@ -1,0 +1,45 @@
+/* $OpenXM$ */
+/* dsolv */
+
+def dsolv_consw(V,W) {
+  N = length(V);
+  Ans = [ ];
+  for (I=0; I<N; I++) {
+    Ans = append(Ans,[V[I],-W[I]]);
+  }
+  for (I=0; I<N; I++) {
+    Ans = append(Ans,[strtov("d"+rtostr(V[I])),W[I]]);
+  }
+  return([Ans]);
+}
+
+def sm1_d(X) {
+  return(strtov("d"+rtostr(X)));
+}
+
+def dsolv_initial(S) {
+  F=S[0];
+  V=S[1];  
+  DV=map(sm1_d,V);
+  W=S[2];
+  N = length(V);
+  G = sm1_gb([F,V,dsolv_consw(V,W)]);
+  In = G[1]; 
+  In = map(subst,In,h,1);
+  print("Initial ideal is ",0)$ print(In)$
+  print([In,V,V,DV,V]);
+  Ans = [ ];
+  for (I=0; I<length(In); I++) {
+    D = sm1_distraction([In[I],V,V,DV,V]);
+    Ans = append(Ans,[D]);
+  }
+  return(Ans);
+}
+
+def test() {
+  F = sm1_appell1([1/2,1,1,1/3]);
+  A = dsolv_initial(append(F, [ [1,3] ]));
+  return(A);
+}
+
+end$
