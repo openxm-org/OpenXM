@@ -1,4 +1,4 @@
-/* The original file is at Texts/text-92/glib.c */
+/* $OpenXM$ */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <stdio.h>
