@@ -1,12 +1,14 @@
-# $OpenXM: OpenXM/src/gmp/Makefile-ports,v 1.1 2004/02/22 08:28:20 takayama Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile-ports,v 1.2 2004/02/22 09:06:25 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm -rf
 MASTER_CITES=ftp.math.kobe-u.ac.jp
 # MASTER_CITES2 = 
-DISTFILES=gmp-3.1.1.tar.gz
-GMP=gmp-3.1.1
+#DISTFILES=gmp-3.1.1.tar.gz
+#GMP=gmp-3.1.1
+DISTFILES=gmp-4.1.2.tar.gz
+GMP=gmp-4.1.2
 
 all : build 
 install : post-install
@@ -38,9 +40,10 @@ build : patch
 post-install: build
 	@if test ! -f .post-install_done ; \
 	then \
-		-mkdir ${PREFIX}/lib ${PREFIX}/bin ; \
+		if [ ! -d ${PREFIX}/lib ]; then mkdir ${PREFIX}/lib ; fi ; \
+		if [ ! -d ${PREFIX}/bin ]; then mkdir ${PREFIX}/bin ; fi ; \
 		(cd work/${GMP} ; make install) ; \
-		(cd work/${GMP} ; cp gmp-impl.h config.h gmp-mparam.h ${OpenXM_HOME}/include)
+		(cd work/${GMP} ; cp gmp-impl.h config.h gmp-mparam.h ../../${OpenXM_HOME}/include) ; \
 	fi
 	@touch .post-install_done
 
