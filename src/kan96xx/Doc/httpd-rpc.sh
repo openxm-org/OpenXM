@@ -1,5 +1,5 @@
 #! /bin/sh
-# $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sh,v 1.5 2002/11/03 12:43:02 takayama Exp $
+# $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sh,v 1.6 2002/11/04 05:40:40 takayama Exp $
 # OpenXM/rc/dot.bashrc must be read before execution of this script.
 # source ${OpenXM_HOME}/rc/dot.bashrc
 #
@@ -21,6 +21,14 @@ export OXWEB_PORT
 # OXWEB_HTTPD_RPC=httpd-rpc-${OXWEB_PORT}.sm1  
 OXWEB_HTTPD_RPC=httpd-rpc.sm1
 export OXWEB_HTTPD_RPC
+#
+# If OXWEB_HTTPD_ROOT is set, file transfer will be allowed.
+#   Example:  export OXWEB_HTTPD_ROOT=/usr/local/www/data/
+#   Do not forget the last /
+# Set 
+#
+# OXWEB_HTTPD_ROOT=/usr/local/www/data
+# export OXWEB_HTTPD_ROOT
 #
 #
 #LOGFILE=httpd-rpc-${OXWEB_PORT}.log

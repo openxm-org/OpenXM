@@ -1,7 +1,15 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.10 2002/11/03 12:43:03 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.11 2002/11/04 05:40:40 takayama Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
+
+/httpd_action {  
+   httpd_action_allow_file_transfer  
+        %% If OXWEB_HTTPD_ROOT is set, file transfer will be allowed.
+        %% Example:  export OXWEB_HTTPD_ROOT=/usr/local/www/data/
+        %% Do not forget the last /
+%  httpd_action_rpc_only    %% old
+} def
 %% keyword for rpc
 /httpd.textarea.name (rpc) def
 /httpd.textarea.name.aaa
@@ -85,7 +93,7 @@ oxNoX
 } def
 
 
-/httpd_action {
+/httpd_action_rpc_only {
   [/in-httpd /ff /httpd.com /httpd.result /sss
    /sss.engine /sss.web /err
    /oxserver.vname /scheck
@@ -187,6 +195,131 @@ oxNoX
 } def
 
 
+/httpd_action_allow_file_transfer {
+  [/in-httpd /ff /httpd.com /httpd.result /sss
+   /sss.engine /sss.web /err
+   /oxserver.vname /scheck /ff2
+  ] pushVariables
+  [
+   (httpd_action_allow_file_transfer: ) message
+  {
+       [(sm1.socket) (select) [httpd.server.fd 0 get -1]] extension 
+       %%     wait for ever
+        [(sm1.socket) (readHTTP) [httpd.server.fd 0 get ]] extension /ff set
+        ff tag 0 eq {
+           (connection is closed.) message exit
+        }
+        {
+          (------------  start ----------------------) message
+             ff message
+          (-----------------------------------------) message
+             ff httpd.parse /ff2 set
+             ff2 message
+             /httpd.textarea.valid 0 def /httpd.com ( ) def
+             ff2 0 get (GET-file) eq {
+                ff2 length 1 eq httpd.root tag 0 eq {
+                  send-page-usage
+                  exit
+                } {  } ifelse
+                ff2 httpd_sendfile exit
+             } {  } ifelse
+             ff2 0 get (GET) eq ff2 0 get (POST) eq or {
+              ff2 1 get tag 6 eq 
+              ff2 1 get length 2 eq and
+              {  % list 
+                ff2 1 get 0 get httpd.textarea.name eq {
+                  /httpd.textarea.valid 1 def
+                  /httpd.com ff2 1 get 1 get def
+                }{ } ifelse
+                ff2 1 get 0 get (msg) eq { %% meta command
+                  /httpd.textarea.valid 0 def
+                  /httpd.com ff2 1 get 1 get def
+                }{ } ifelse
+              } { } ifelse
+             }{  } ifelse
+             %% ff removeGET webstringToAscii /httpd.com set
+             [(httpd.com=) httpd.com] cat message
+          (------------  end ----------------------) message
+          (   ) message
+
+          httpd.com metaCommand {
+            httpd.textarea.valid {
+
+              %%% Security check
+              [(regionMatches) httpd.com 
+               httpd.refusedCommands] extension /scheck set
+              scheck 0 get -1 eq {
+              }{ 
+                httpd.refusedCommands scheck 2 get get message
+                (Command is refused.) message
+                [
+                 httpd.refusedCommands scheck 2 get get
+                 httpd.com
+                ]
+                 send-page-refused exit
+              } ifelse
+
+              %%%  Executing command, here.
+              oxasir.ccc 
+              httpd.com cookedCommand 
+              oxexecutestring ;
+
+            }{
+              send-page-usage  exit
+            } ifelse
+
+            [(oxReq) oxasir.ccc SM_dupErrors ] extension pop
+
+            [(oxReq) oxasir.ccc SM_popCMO ] extension pop
+            [(oxReq) oxasir.ccc SM_popString ] extension pop
+
+            [(flush)] extension pop
+            %% Select inputs for interruption.
+            %% Wait by the spin lock.
+            {
+              [(oxMultiSelect) [oxasir.ccc] 1] extension 1 get 0 get
+              /sss.engine set
+              [(sm1.socket) (mselect)
+                [[httpd.server.fd 0 get] 1]
+              ] extension 0 get /sss.web set
+              /sss [sss.engine sss.web] def
+              sss.engine { exit } { } ifelse
+              sss.web    { exit } { } ifelse
+            } loop
+            sss message
+
+            sss 0 get {
+                [(oxGet) oxasir.ccc] extension  /err          set
+                [(oxGet) oxasir.ccc] extension  /httpd.result set
+            } {
+                oxasir.ccc oxreset
+                oxasir.ccc ("computation is interrupted.";) oxexecutestring ;
+                oxasir.ccc oxpopstring
+                /httpd.result set 
+                exit
+            } ifelse
+            (------------- result -------------) message
+            httpd.result message
+            (----------------------------------) message
+            (  ) message
+            
+            (----------- error -------------) message
+            err message
+            (-------------------------------) message
+            err [ ] eq  { 
+            } {
+              oxasir.ccc cleanErrors
+              [httpd.result 10 (string) dc err toString] cat
+              /httpd.result set
+            } ifelse
+
+            httpd.result send-page-result  exit  %% exit the loop LOOP-A
+          } { exit } ifelse  %% metaCommand
+        } ifelse
+  } loop  %% LOOP-A
+  ] pop
+  popVariables
+} def
 
 
 /metaCommand {

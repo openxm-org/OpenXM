@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.13 2002/11/03 12:43:03 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpdsm1,v 1.14 2002/11/09 12:42:25 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -82,6 +82,7 @@ def
   /httpd.serial 0 def
   /httpd.history [ ] def
   /httpd.result.history [ 0 ] def
+  [(nobody)] extension pop
   {
     httpd_startserver ;
     httpd_action ;
@@ -629,6 +630,17 @@ def
        tname s i0 get append /tname set
      } for 
 
+     %% Remove space and cr/lf from the key word.
+     [
+       0 1 tname length 1 sub {
+         /j set
+         tname j get 36 le {
+         } {
+           tname j get 
+         } ifelse
+      } for
+     ] /tname set
+
      /j 0 def
      i0 1 s length 1 sub {
        /i set
@@ -686,6 +698,7 @@ def
            /fname (index.html) def
        }{  
            /fname msg 1 get def
+           (fname=) messagen fname (array) dc message
            fname tag 5 eq not {
              [(MSG) (<h1> Invalid file name. </h1>)]
              httpd_sendfile
@@ -693,9 +706,7 @@ def
            } {  } ifelse
            fname (array) dc /fname set
            fname length 1 lt {
-             [(MSG) (<h1> Invalid file name. </h1>)]
-             httpd_sendfile
-             /httpd_sendfile.L1 /httpd_sendfile.L1 goto
+             /fname (index.html) (array) dc def
            } {  } ifelse
 
            fname [47] eq {
@@ -712,6 +723,10 @@ def
        /fname2 fname def
        [httpd.root fname2] cat /fname set
        [(fname=) fname] cat message
+       fname httpd.check_name {
+         [(MSG) (Warning:  invalid file name.)] httpd_sendfile
+         /httpd_sendfile.L1 /httpd_sendfile.L1 goto
+       } {  } ifelse  
        [(stat) fname] extension 0 get tag 0 eq {
          [(MSG) (Warning (sendfile): the file )  fname2 ( is not found.) ]
           httpd_sendfile
@@ -781,4 +796,32 @@ def
   ] pop
   popVariables
   arg1  
+} def
+
+/httpd.check_name {
+ /arg1 set
+ [/in-httpd.check_name /fname /invalid] pushVariables
+ [
+   /fname arg1 def
+   /invalid 0 def
+   [(regionMatches) fname [(..) (/.)]] extension 0 get -1 eq 
+   {
+   } { 
+     (The file name contains .. or /. ) message
+     /invalid 1 def /httpd.check_name.L1 /httpd.check_name.L1  goto 
+   } ifelse
+   fname length 0 eq {
+     (Warning: empty file name.)
+     /invalid 1 def /httpd.check_name.L1 /httpd.check_name.L1  goto 
+   }{ } ifelse
+   fname (array) dc 0 get 47 eq {
+   }{
+     (Warning: The first letter is not /) message
+     /invalid 1 def /httpd.check_name.L1 /httpd.check_name.L1  goto 
+   } ifelse
+   /httpd.check_name.L1 
+   /arg1 invalid def
+ ] pop
+ popVariables
+ arg1
 } def

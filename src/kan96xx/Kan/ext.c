@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.11 2002/08/03 03:35:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.12 2002/10/24 05:19:50 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -87,7 +87,7 @@ struct object Kextension(struct object obj)
   struct object keyo;
   struct object rob = NullObject;
   struct object obj1,obj2,obj3,obj4;
-  int m,i,pid;
+  int m,i,pid, uid;
   int argListc, fdListc;
   char *abc;
   char *abc2;
@@ -288,6 +288,18 @@ struct object Kextension(struct object obj)
   }else if (strcmp(key,"hilbert")==0) {
     if (size != 3) errorKan1("%s\n","[(hilbert) obgb obvlist] extension.");
     rob = hilberto(getoa(obj,1),getoa(obj,2));
+  }else if (strcmp(key,"nobody") == 0) {
+      uid = getuid();
+	  if (uid == 0) {
+#define NOBODY 65534
+		/* If I'm a super user, then change uid to nobody. */
+		if (setuid(NOBODY) != 0) {
+		  fprintf(stderr,"Failed to change uid to nobody (%d)\n",NOBODY);
+		  exit(10);
+		}
+		fprintf(stderr,"uid is changed to nobody (%d).\n",NOBODY);
+		rob.tag = Snull;
+	  }
   }else if (strcmp(key,"chattr")==0) {
     if (size != 3) errorKan1("%s\n","[(chattr)  num symbol] extension.");
     obj1 = getoa(obj,1);
