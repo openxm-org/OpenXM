@@ -1,7 +1,8 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.6 2001/04/22 00:34:01 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.7 2001/04/22 01:02:27 takayama Exp $
 %% http server by sm1
 
 /httpd.port 1200 def
+
 /httpd.initialization
 %% Put initialization codes here.
  [
@@ -9,6 +10,7 @@
    " Risa/Asir oxasir version "+rtostr(version());)
  ] cat
 def
+
 [(parse) (oxasir.sm1) pushfile] extension 
 (oxasir.started) boundp { 
 } {
@@ -104,9 +106,13 @@ def
             /httpd.com  httpd.initialization def 
           } { } ifelse
           httpd.com metaCommand {
-            oxasir.ccc 
-             [(if (1) {)  httpd.com  (};)] cat
-            oxexecutestring ;
+            httpd.textarea.valid {
+              oxasir.ccc 
+               [(if (1) {)  httpd.com  (; };)] cat
+              oxexecutestring ;
+            }{
+              send-page-warning  exit
+            } ifelse
             [(oxReq) oxasir.ccc SM_dupErrors ] extension pop
 
             [(oxReq) oxasir.ccc SM_popCMO ] extension pop
@@ -150,6 +156,7 @@ def
                  (/**** ) httpd.serial toString ( ****/) 
                  10 (string) dc
                   httpd.com 
+                 (;)  %% add extra ;
                  ] cat
                 append 
               def
@@ -224,7 +231,8 @@ def
    result sendln
    (<FORM NAME="myFORM">) sendln
    (<INPUT TYPE=submit VALUE="submit">) sendln
-   (<textarea name=msg rows=10 cols="80" wrap="soft"></textarea>) sendln
+   [(<textarea name=) httpd.textarea.name 
+    ( rows=10 cols="80" wrap="soft"></textarea>)] cat sendln
    (</FORM>) sendln
    send-menu-1
    0 sendln
@@ -270,19 +278,16 @@ def
  [
    (HTTP/0.9 200 OK) sendln
    (Connection: close) sendln
-   (Content-Type: text/html) sendln
+   (Content-Type: text/plain) sendln
    0 sendln
-   (<html> <body>) sendln
-   (/* Saved the following to sm1out.txt */<br>) sendln
-   (/* Save the following by your browser as a text file. */<br>) sendln
+   (/* Saved the following to sm1out.txt */) sendln
+   (/* Save the following by your browser as a text file. */) sendln
    
-   (<pre>) sendln
    0 1 httpd.history length 1 sub {
      /i set
      httpd.history i get sendln
    } for
-   (</pre>) sendln
-   (</body> </html>) sendln
+   ( end$) sendln
    0 sendln
    [(flush)] extension
    [(PrintDollar) 1] system_variable
@@ -292,6 +297,15 @@ def
  popVariables
 } def
 
+/send-page-warning {
+   (HTTP/0.9 200 OK) sendln
+   (Connection: close) sendln
+   (Content-Type: text/html) sendln
+   0 sendln
+   (You cannot execute oxasir without a session key! <br>) sendln
+   0 sendln
+   [(flush)] extension
+} def
 
 /stopclient {
   [(sm1.socket) (close) [client.fdAndPort 0 get] ] extension message
@@ -343,21 +357,63 @@ def
   arg1
 } def
 
+/randomName {
+  [/in-randomName /sss /rrr ] pushVariables
+  [
+    %% Seed name
+    /sss [ 97 97 97 97 97 97 97 97 97 97 ] def  %% 97 == 'a'
+    %% This procedure to generate port number might fail.
+    sss {
+      [
+        [(oxGenPass)] extension .. /rrr set
+        [(tdiv_qr) rrr (26)..] mpzext 1 get /rrr set
+      ] pop
+      rrr (integer) dc add 
+    } map
+    /sss set
+    sss {(string) dc} map cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+(httpd.textarea.name) boundp { }
+ {
+    /httpd.textarea.name  randomName def
+    /httpd.textarea.name.aaa
+       [(GET /?) httpd.textarea.name] cat
+       (array) dc
+    def
+ } ifelse
+
 %% remove GET /?msg=
 /removeGET {
   /arg1 set
-  [/in-removeGET /s /s2 /i /j /i0] pushVariables
+  [/in-removeGET /s /s2 /i /j /i0
+   /tname
+  ] pushVariables
   [
      /s arg1 def
+     /httpd.textarea.valid 1 def
      s 1 copy /s2 set
      s (array) dc /s set
 
+     /tname  [  ] def
      0 1 s length 1 sub {
        /i0 set
        s i0 get 61 eq {  %% 61 is = 
          i0 1 add /i0 set
+         tname message
+         httpd.textarea.name.aaa message
+         tname httpd.textarea.name.aaa eq {
+           /httpd.textarea.valid 1 def
+         } {
+           /httpd.textarea.valid 0 def
+           (Warning: got an invalid name for the text field.) message
+         } ifelse
          exit
        } { } ifelse
+       tname s i0 get append /tname set
      } for 
 
      /j 0 def
@@ -418,6 +474,7 @@ def
     /msg arg1 def
     /result 1 def
     msg (httpdAsirMeta quit) eq {
+       oxasir.ccc oxshutdown
        send-page-bye
        quit
        /result 0 def
