@@ -1,6 +1,6 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.20 2000/01/07 18:38:12 maekawa Exp $
-all : all1 all3  all4 all-pari all-asir all-gnuplot all5 all6
+## $OpenXM: OpenXM/src/Makefile,v 1.21 2000/01/07 18:46:19 maekawa Exp $
+all : all1 all-tigers all-phc all4 all-pari all-asir all-gnuplot all5 all6
 
 all1 :
 	(cd kan96xx ; make all )
@@ -11,9 +11,12 @@ all1 :
 all-gnuplot:
 	(cd gnuplot ; make all ; make install)
 
-all3:
+all-phc:
+	(cd phc ; make all ; make install)
+
+all-tigers:
 	(cd Ti ; make all ; make install)
-	(cd phc ; make all ; make install )
+
 all4 :
 	(cd k097 ; make all ; make install)
 all5 :
