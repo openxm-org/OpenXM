@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.11 2000/08/01 06:26:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal-test.k,v 1.12 2000/08/01 08:51:02 takayama Exp $ */
 load["minimal.k"];
 def sm1_resol1(p) {
   sm1(" p resol1 /FunctionValue set ");
@@ -256,6 +256,8 @@ def test17() {
 def test_if_v_strict(resmat,w,v) {
    local b,c,g;
    Sweyl(v,[w]); b = Reparse(resmat);
+   Println("Degree shifts ");
+   Println(SgetShifts(b,w));
    c=Sinit_w(b,w); 
    Println("Resolution (b)----");
    sm1_pmat(b);
@@ -301,6 +303,8 @@ def test19() {
   return(a);
 }
 
+/* Need more than 100M memory. 291, 845, 1266, 1116, 592 : Schreyer frame.
+   I've not yet tried to finish the computation. */
 def test20() {
   w = ["Dx1",1,"Dx2",1,"Dx3",1,"Dx4",1,"x1",-1,"x2",-1,"x3",-1,"x4",-1];
   ans2 = GKZ([[1,1,1,1],[0,1,3,4]],[0,0]);  
@@ -323,4 +327,21 @@ def test20b() {
   /* test_if_v_strict(b,w,"x1,x2,x3,x4"); */
   return(a);
 }
+
+def test21() {
+   a=Sannfs3("x^3-y^2*z^2+y^2+z^2");
+   /* a=Sannfs3("x^3-y-z");  for debug */
+   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
+   test_if_v_strict(b,w,"x,y,z");
+   Println("Degree shifts of Schreyer resolution ----");
+   Println(SgetShifts(Reparse(a[4,0]),w));
+   return(a);
+}          
+def test22() {
+   a=Sannfs3("x^3+y^3+z^3");
+   b=a[0]; w = ["x",-1,"y",-1,"z",-1,"Dx",1,"Dy",1,"Dz",1];
+   test_if_v_strict(b,w,"x,y,z");
+   return(a);
+}          
+
 

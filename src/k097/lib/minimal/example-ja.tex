@@ -1,0 +1,261 @@
+% $OpenXM$
+\documentclass[12pt]{jarticle}
+\newtheorem{example}{Example}
+\def\pd#1{ \partial_{#1} }
+%% [2] should be replaced by \cite{....}
+
+\begin{document}
+\section{例}
+我々が $(u,v)$-極小自由分解の構成に興味をもった動機の
+一つは, $D$ 加群 $M$ の制限コホモロジの計算の効率化である.
+[2] では, $M$ の Schreyer resolution が $(-{\bf 1},{\bf 1})$
+に適合した $M$ の自由分解であることを証明し,
+これを用いた制限コホモロジの計算法を与えた.
+この方法を適用するには
+$(-w,w)$ に適合した $M$ の自由分解ならなんでもよく,
+Schreyer resolution をとる必然性はない.
+[2] の方法では, 1 点への制限を計算するのに次元
+$$O\left( (\mbox{ 自由分解の betti 数}) \times 
+  \left(\mbox{$b$関数の最大整数根}\right)^n\right)$$
+のベクトル空間の複体の ${\rm Ker}/{\rm Im}$ を
+計算する必要が生じる.
+( 部分多様体への制限には $D_m$, $(m < n)$ 自由加群の複体
+のコホモロジを計算する必要がある.)
+したがって, betti 数が大きくなると, 計算すべき ベクトル空間の次元が
+大きくなり, メモリ不足をまねいていた.
+$(-w,w)$-極小自由分解の betti 数は Schreyer resolution の betti 数に
+比較してかなり小さくいままで制限が計算できなかった例も計算できるように
+なった.
+
+Schreyer resolution の betti 数と $(-w,w)$-極小自由分解の betti 数を
+いくつかの例について比較してみよう.
+
+比較の前にいくつか記号と予備知識を導入する.
+\begin{enumerate}
+\item Schreyer resolution の betti 数は $(-w,w)$ だけでなく
+tie-breaking order にも依存する.
+以下 tie-breaking order として, graded reverse lexicographic order
+を用いる.
+\item 多項式 $f$ の $b$-関数の最小整数根を $-r$ とするとき
+${\rm Ann}(D f^{-1})$ で
+$1/f^r$ を零化する $D$ のイデアルのある生成元の集合をあらわす.
+下の実例では関数 {\tt Sannfs(f,v)} の出力をあらわす.
+\item $F(G)$ で $G$ の formal Laplace 変換をあらわす.
+\item $F^h(G)$ で $G$ の formal Laplace 変換を homogenize したものをあらわす.
+\item Grothendieck の比較定理によれば 
+$I = F({\rm Ann} D f^{-1})$ とおくとき $D/I$ の原点への制限コホモロジ
+が空間 $ {\bf C}^n \setminus V(f)$ の ${\bf C}$-係数コホモロジ群に一致する.
+( "An algorithm for de Rham cohomology groups of the
+complement of an affine variety via D-module computation", 
+Journal of pure and applied algebra, 139 (1999), 201--233. を参照)
+\end{enumerate}
+
+\begin{example} \rm
+%Prog: minimal-test.k    test18()
+$I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3-y^2} \right) \right]$
+の場合.
+イデアル $I$ は     
+$$ -2x\pd{x}-3y\pd{y}+h^2 ,  -3y\pd{x}^2+2x\pd{y}h $$
+で生成される.
+
+\begin{tabular}{|l|l|}
+\hline
+Resolution type &  Betti numbers          \\ \hline
+Schreyer &                        2, 1    \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &    4, 4, 1 \\ \hline
+minimal &                         2, 1    \\
+\hline
+\end{tabular}
+
+\noindent
+$(-{\bf 1},{\bf 1})$-minimal resolution
+{\footnotesize \begin{verbatim}
+ [ 
+  [ 
+    [    -2*x*Dx-3*y*Dy+h^2 ] 
+    [    -3*y*Dx^2+2*x*Dy*h ] 
+  ]
+  [ 
+    [    -3*y*Dx^2+2*x*Dy*h , 2*x*Dx+3*y*Dy ] 
+  ]
+ ]
+Degree shifts 
+[    [    0 ]  , [    0 , 1 ]  ] 
+\end{verbatim}}
+Schreyer Resolution  %%Prog: a=test18();  sm1_pmat(a[3]);
+{\footnotesize \begin{verbatim}
+ [ 
+  [ 
+    [    -2*x*Dx-3*y*Dy+h^2 ] 
+    [    -3*y*Dx^2+2*x*Dy*h ] 
+    [    9*y^2*Dx*Dy+3*y*Dx*h^2+4*x^2*Dy*h ] 
+    [    27*y^3*Dy^2+27*y^2*Dy*h^2-3*y*h^4-8*x^3*Dy*h ] 
+  ]
+  [ 
+    [    9*y^2*Dy+3*y*h^2 , 0 , 2*x , 1 ] 
+    [    -4*x^2*Dy*h , 0 , -3*y*Dy+4*h^2 , Dx ] 
+    [    2*x*Dy*h , 3*y*Dy-2*h^2 , Dx , 0 ] 
+    [    3*y*Dx , -2*x , 1 , 0 ] 
+  ]
+  [ 
+    [    -Dx , 1 , 2*x , 3*y*Dy-2*h^2 ] 
+  ]
+ ]
+\end{verbatim}}
+\end{example}
+
+\begin{example} \rm
+%Prog: minimal-test.k    test17b()
+$I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3-y^2z^2} \right) \right]$
+の場合.
+
+\begin{tabular}{|l|l|}
+\hline
+Resolution type &  Betti numbers          \\ \hline
+Schreyer &                        4, 5, 2    \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &    8, 16, 11, 2 \\ \hline
+minimal &                         4, 5,  2    \\
+\hline
+\end{tabular}
+
+\noindent
+$(-{\bf 1},{\bf 1})$-minimal resolution
+{\footnotesize \begin{verbatim}
+ [ 
+  [ 
+    [    y*Dy-z*Dz ] 
+    [    -2*x*Dx-3*z*Dz+h^2 ] 
+    [    2*x*Dy*Dz^2-3*y*Dx^2*h ] 
+    [    2*x*Dy^2*Dz-3*z*Dx^2*h ] 
+  ]
+  [ 
+    [    0 , 2*x*Dy^2*Dz-3*z*Dx^2*h , 0 , 2*x*Dx+3*z*Dz ] 
+    [    2*x*Dx+3*z*Dz-h^2 , y*Dy-z*Dz , 0 , 0 ] 
+    [    3*Dx^2*h , 0 , Dy , -Dz ] 
+    [    6*x*Dy*Dz^2-9*y*Dx^2*h , -2*x*Dy*Dz^2+3*y*Dx^2*h , -2*x*Dx-3*y*Dy , 0 ] 
+    [    2*x*Dy*Dz , 0 , z , -y ] 
+  ]
+  [ 
+    [    y , -2*x*Dy*Dz , 3*y*z , z , 2*x*Dx ] 
+    [    Dz , -3*Dx^2*h , 2*x*Dx+3*y*Dy+3*z*Dz+6*h^2 , Dy , -3*Dy*Dz ] 
+  ]
+ ]
+Degree shifts 
+[    [    0 ]  , [    0 , 0 , 2 , 2 ]  , [    2 , 0 , 3 , 2 , 1 ]  ] 
+\end{verbatim}}
+\end{example}
+
+\begin{example} \rm
+%Prog: minimal-test.k    test22();
+$I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3+y^3+z^3} \right) \right]$
+の場合.
+
+%% Uli Walther の 論文 (MEGA 2000) の例と betti 数を比較せよ.
+\begin{tabular}{|l|l|}
+\hline
+Resolution type &  Betti numbers          \\ \hline
+Schreyer &                            \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &     \\ \hline
+minimal &                             \\
+\hline
+\end{tabular}
+
+\noindent
+$(-{\bf 1},{\bf 1})$-minimal resolution
+{\footnotesize \begin{verbatim}
+
+\end{verbatim}}
+\end{example}
+
+
+\begin{example} \rm
+%Prog: minimal-test.k    test21();
+$I = F^h\left[{\rm Ann}\left( D \frac{1}{x^3-y^2z^2+y^2+z^2} \right) \right]$
+の場合.
+
+\begin{tabular}{|l|l|}
+\hline
+Resolution type &  Betti numbers          \\ \hline
+Schreyer &                            \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &     \\ \hline
+minimal &                             \\
+\hline
+\end{tabular}
+
+\noindent
+$(-{\bf 1},{\bf 1})$-minimal resolution
+{\footnotesize \begin{verbatim}
+
+\end{verbatim}}
+コホモロジ群は ... となる.
+考える線形空間の複体の次元は, ...
+Schreyer resolution からスタートして,
+線形空間の複体を考えると, その次元は
+... となる.
+\end{example}
+
+\begin{example} \rm
+%Prog: minimal-test.k    test20()
+$I = D\cdot\{  x_1*\pd{1}+2x_2\pd{2}+3x_3\pd{3} ,
+    \pd{1}^2-\pd{2}*h,
+    -\pd{1}\pd{2}+\pd{3}*h,
+    \pd{2}^2-\pd{1}\pd{3} \}
+$ の場合.
+これは $A=(1,2,3)$, $\beta=0$ に付随する GKZ 超幾何系の
+homogenization.
+
+\begin{tabular}{|l|l|}
+\hline
+Resolution type &  Betti numbers          \\ \hline
+Schreyer &                        4, 5, 2    \\ \hline
+$(-{\bf 1},{\bf 1})$-minimal &    10, 25, 23, 8, 1   \\ \hline
+minimal &                         4, 5,  2    \\
+\hline
+\end{tabular}
+
+\noindent
+$(-{\bf 1},{\bf 1})$-minimal resolution
+{\footnotesize \begin{verbatim}
+ [ 
+  [ 
+    [    x1*Dx1+2*x2*Dx2+3*x3*Dx3 ] 
+    [    Dx1^2-Dx2*h ] 
+    [    -Dx1*Dx2+Dx3*h ] 
+    [    Dx2^2-Dx1*Dx3 ] 
+  ]
+  [ 
+    [    Dx1*Dx2-Dx3*h , -x1*Dx2 , 2*x2*Dx2+3*x3*Dx3+3*h^2 , -x1*h ] 
+    [    Dx1^2-Dx2*h , -x1*Dx1-3*x3*Dx3-2*h^2 , 2*x2*Dx1 , 2*x2*h ] 
+    [    Dx2^2-Dx1*Dx3 , x1*Dx3 , x1*Dx2 , -2*x2*Dx2-3*x3*Dx3-4*h^2 ] 
+    [    0 , Dx3 , Dx2 , Dx1 ] 
+    [    0 , -Dx2 , -Dx1 , -h ] 
+  ]
+  [ 
+    [    Dx2 , -Dx3 , -Dx1 , -2*x2*Dx2-3*x3*Dx3-4*h^2 , -x1*Dx2-2*x2*Dx3 ] 
+    [    -Dx1 , Dx2 , h , -x1*h , -3*x3*Dx3-h^2 ] 
+  ]
+ ]
+Degree shifts 
+[    [    0 ]  , [    0 , 2 , 2 , 2 ]  , [    2 , 2 , 2 , 3 , 3 ]  ] 
+\end{verbatim}}
+%% この resolution は実は, toric の resolution の Koszul complex になってる
+%% はず.
+\end{example}
+
+
+
+
+$(-w,w)$-極小自由分解と 極小自由分解がことなる例をさがしているが
+これはまだ見つかっていない.
+
+\section{実装}
+ここでは
+\begin{verbatim}
+/* OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 
+   1.23 2000/08/01 08:51:03 takayama Exp  */
+\end{verbatim}
+版の {\tt minimal.k} に準拠して実装の概略を解説する.
+
+まだ書いてない.
+	
+\end{document}

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.22 2000/08/01 06:26:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.23 2000/08/01 08:51:03 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -965,7 +965,7 @@ HelpAdd(["Sminimal",
 def Sminimal(g,opt) {
   local r, freeRes, redundantTable, reducer, maxLevel,
         minRes, seq, maxSeq, level, betti, q, bases, dr,
-        betti_levelplus, newbases, i, j,qq, tminRes,bettiTable;
+        betti_levelplus, newbases, i, j,qq, tminRes,bettiTable, ansSminimal;
   if (Length(Arglist) < 2) {
      opt = null;
   }
@@ -1034,8 +1034,20 @@ def Sminimal(g,opt) {
     }
    }
    tminRes = Stetris(minRes,redundantTable);
-   return([SpruneZeroRow(tminRes), tminRes,
-          [ minRes, redundantTable, reducer,r[3],r[4]],r[0],r[5]]);
+   ansSminimal = [SpruneZeroRow(tminRes), tminRes,
+                  [ minRes, redundantTable, reducer,r[3],r[4]],r[0],r[5]];
+   Println("------------ Note -----------------------------");
+   Println("To get shift vectors, use Reparse and SgetShifts(resmat,w)");
+   Println("To get initial of the complex, use Reparse and Sinit_w(resmat,w)");
+   Println("0: minimal resolution, 3: Schreyer resolution ");
+   Println("------------ Resolution Summary  --------------");
+   Print("Betti numbers : "); 
+   Println(Map(ansSminimal[0],"Length"));
+   Print("Betti numbers of the Schreyer frame: ");
+   Println(Map(ansSminimal[3],"Length"));
+   Println("-----------------------------------------------");
+
+   return(ansSminimal);
   /* r[4] is the redundantTable_ordinary */
   /* r[0] is the freeResolution */
   /* r[5] is the skelton */
