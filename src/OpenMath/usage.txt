@@ -24,18 +24,26 @@ Byte order for control process is network byte order.
 Byte order for engine process is network byte order.
 ===== =====
 
-3, send (CMO_ZZ,123)
+3, send '123' of CMO_ZZ format
+ & trancerate to OpenMath XML encoding
 
 =====sm1=====
 sm1>ox (123).. oxsendcmo ::
 %[null]
-===== =====
-
-4, trancerate CMO to OpenMath XML encoding
-
-=====sm1=====
 sm1>ox (CMO2OMXML) oxexec ::
 %[null]
 sm1>ox oxpopcmo ::
 $<OMI>123</OMI>$
+===== =====
+
+4, send (CMO_ZZ,5) of OpenMath XML encoding word
+ & trancerate to CMO format
+
+=====sm1======
+sm1>ox (<OMOBJ><OMI>5</OMI></OMOBJ>) oxsendcmo ::
+%[null]
+sm1>ox (OMXML2CMO) oxexec ::
+%[null]
+sm1>ox oxpopcmo ::
+5
 ===== =====
