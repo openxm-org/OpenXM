@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.12 2003/12/27 11:52:07 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.13 2004/09/13 09:23:30 noro Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1069,7 +1069,7 @@ beforehand, and some heuristic trial may be inevitable.
 より一般的なものとなる. 
 \E
 \BEG
-Term orders introduced in the previous section can be generalized
+Term orderings introduced in the previous section can be generalized
 by setting a weight for each variable.
 \E
 @example
@@ -1097,9 +1097,9 @@ In this example, the weights for the first, the second and the third
 variable are set to 1, 2 and 3 respectively.
 Therefore the total degree of @code{<<1,1,1>>} under this weight,
 which is called the weight of the monomial, is @code{1*1+1*2+1*3=6}.
-By setting weights, different term orders can be set under a term
-order type. For example, a polynomial can be made weighted homogeneous
-by setting an appropriate weight.
+By setting weights, different term orderings can be set under a type of
+term ordeing. In some case a polynomial can 
+be made weighted homogeneous by setting an appropriate weight.
 \E
 
 \BJP
@@ -1131,7 +1131,62 @@ is also considered as a refinement of comparison by weight vectors.
 It compares two terms by using a weight vector whose elements
 corresponding to variables in a block is 1 and 0 otherwise,
 then it applies a tie breaker.
+\E
 
+\BJP
+weight vector の設定は @code{dp_set_weight()} で行うことができる
+が, 項順序を指定する際の他のパラメタ (項順序型, 変数順序) と
+まとめて設定できることが望ましい. このため, 次のような形でも
+項順序が指定できる.
+\E
+\BEG
+A weight vector can be set by using @code{dp_set_weight()}.
+However it is more preferable if a weight vector can be set
+together with other parapmeters such as a type of term ordering
+and a variable order. This is realized as follows.
+\E
+
+@example
+[64] B=[x+y+z-6,x*y+y*z+z*x-11,x*y*z-6]$
+[65] dp_gr_main(B|v=[x,y,z],sugarweight=[3,2,1],order=0);
+[z^3-6*z^2+11*z-6,x+y+z-6,-y^2+(-z+6)*y-z^2+6*z-11]
+[66] dp_gr_main(B|v=[y,z,x],order=[[1,1,0],[0,1,0],[0,0,1]]);
+[x^3-6*x^2+11*x-6,x+y+z-6,-x^2+(-y+6)*x-y^2+6*y-11]
+[67] dp_gr_main(B|v=[y,z,x],order=[[x,1,y,2,z,3]]);
+[x+y+z-6,x^3-6*x^2+11*x-6,-x^2+(-y+6)*x-y^2+6*y-11]
+@end example
+
+\BJP
+いずれの例においても, 項順序は option として指定されている.
+最初の例では @code{v} により変数順序を, @code{sugarweight} により
+sugar weight vector を, @code{order}により項順序型を指定している.
+二つ目の例における @code{order} の指定は matrix order と同様である.
+すなわち, 指定された weight vector を左から順に使って weight の比較
+を行う. 三つ目の例も同様であるが, ここでは weight vector の要素を
+変数毎に指定している. 指定がないものは 0 となる. 三つ目の例では,
+@code{order} による指定では項順序が決定しない. この場合には,
+tie breaker として全次数逆辞書式順序が自動的に設定される.
+この指定方法は, @code{dp_gr_main}, @code{dp_gr_mod_main} など
+の組み込み関数でのみ可能であり, @code{gr} などのユーザ定義関数
+では未対応である.
+\E
+\BEG
+In each example, a term ordering is specified as options.
+In the first example, a variable order, a sugar weight vector
+and a type of term ordering are specified by options @code{v}, 
+@code{sugarweight} and @code{order} respectively.
+In the second example, an option @code{order} is used
+to set a matrix ordering. That is, the specified weight vectors
+are used from left to right for comparing terms.
+The third example shows a variant of specifying a weight vector,
+where each component of a weight vector is specified variable by variable,
+and unspecified components are set to zero. In this example,
+a term order is not determined only by the specified weight vector.
+In such a case a tie breaker by the graded reverse lexicographic ordering
+is set automatically.
+This type of a term ordering specification can be applied only to builtin
+functions such as @code{dp_gr_main()}, @code{dp_gr_mod_main()}, not to
+user defined functions such as @code{gr()}.
 \E
 
 \BJP
