@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.3 2003/11/17 05:45:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/file2.h,v 1.4 2003/11/23 13:16:30 takayama Exp $ */
 /* file2.h */
 
 #define MAGIC2 "Buffered IO by FILE2"
@@ -26,6 +26,7 @@ int fp2fflush(FILE2 *fp);
 int fp2fclose(FILE2 *fp);
 char *fp2fcloseInString(FILE2 *fp2, int *sizep);
 int fp2fputc(int c,FILE2 *fp);
+int fp2fputs(char *s,FILE2 *fp);
 int fp2fgetc(FILE2 *fp);
 int fp2select(FILE2 *fp2, int t);
 int fp2dumpBuffer(FILE2 *fp);

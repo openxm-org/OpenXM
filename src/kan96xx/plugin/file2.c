@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.6 2003/11/18 11:08:27 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.7 2003/11/23 13:16:30 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -356,6 +356,15 @@ char *fp2fcloseInString(FILE2 *fp2, int *sizep)
   }else{
 	fprintf(stderr,"fp2fcloseInString is called for a file stream that is not associated to a string.\n");
   }
+}
+
+int fp2fputs(char *s,FILE2 *fp) {
+  int i,n;
+  n = strlen(s);
+  for (i=0; i<n; i++) {
+	if (fp2fputc(s[i],fp) < 0) return(-1);
+  }
+  return(0);
 }
 
 /* Sample program  FORSTRING

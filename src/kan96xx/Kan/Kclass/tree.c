@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.2 2003/11/24 02:13:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.3 2003/11/24 06:50:16 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -115,8 +115,11 @@ struct object KtreeGetDocumentElement(struct object to) {
   if (to.tag != Sclass) errorKan1("%s\n","KtreeGetDocumentElement");
   if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetDocumentElement");
   ob = KopTree(to);
-  if (ob.tag != Sdollar) errorKan1("%s\n","KtreeGetDocumentElement: element name is not a string.");
-  return getoa(ob,0);
+  if (ob.tag != Sarray) errorKan1("%s\n","KtreeGetDocumentElement: not an array.");
+  if (getoaSize(ob) != 3) errorKan1("%s\n","KtreeGetDocumentElement: array is broken.");
+  ob=getoa(ob,0);
+  if (ob.tag != Sdollar) errorKan1("%s\n","KtreeGetDocumentElement: element must be a string");
+  return ob;
 }
 
 struct object KtreeGetAttributes(struct object to) {
@@ -126,6 +129,7 @@ struct object KtreeGetAttributes(struct object to) {
   if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetAttributes:");
   ob = KopTree(to);
   if (ob.tag != Sarray) errorKan1("%s\n","KtreeGetAttributes: not an array.");
+  if (getoaSize(ob) != 3) errorKan1("%s\n","KtreeGetAttributes: array is broken.");
   return getoa(ob,1);
 }
 
@@ -136,6 +140,7 @@ struct object KtreeGetChildNodes(struct object to) {
   if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetChildNodes:");
   ob = KopTree(to);
   if (ob.tag != Sarray) errorKan1("%s\n","KtreeGetChildNodes: not an array.");
+  if (getoaSize(ob) != 3) errorKan1("%s\n","KtreeGetChildNodes: array is broken.");
   return getoa(ob,2);
 }
 
