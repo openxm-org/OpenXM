@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.7 2001/08/20 00:14:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.8 2001/08/20 06:40:34 takayama Exp $ */
 #define LIST 4
 #define VECTOR 5
 #define MATRIX 6
@@ -10,34 +10,8 @@ def taka_base_rule_name(I) {
 }
 
 def taka_base_cancel(S) {
-  if (type(S) == LIST) {
-    N = length(S);
-    Ans = newvect(N);
-    for (I=0; I<N; I++) {
-      Ans[I] = taka_base_cancel(S[I]);
-    }
-    return vtol(Ans);
-  }
-  if (type(S) == MATRIX || type(S) == VECTOR) {
-    S1 = matrix_clone(S);  
-    
-    if (type(S1) == VECTOR) {
-       N = size(S1)[0];
-       for (I=0; I<N; I++) {
-         S1[I] = taka_base_cancel(S1[I]);
-       }
-       return(S1);
-    }else if (type(S1) == MATRIX) {
-       M = size(S1)[0]; N = size(S1)[1];
-       for (I=0; I<M; I++) {
-         for (J=0; J<N; J++) {
-           S1[I][J] = taka_base_cancel(S1[I][J]);
-         }
-       }
-       return(S1);
-    }else {
-       print(S1); error("internal error: matrix_clone is not working properly.");
-    }
+  if (type(S) == LIST || type(S) == MATRIX || type(S) == VECTOR) {
+    return(recmap(taka_base_cancel,S));
   }
   if (type(S) == 3) {
     return red(S);
@@ -85,34 +59,8 @@ def taka_base_flatten(S) {
 }
 
 def taka_base_replace(S,Rule) {
-  if (type(S) == LIST) {
-    N = length(S);
-    Ans = newvect(N);
-    for (I=0; I<N; I++) {
-      Ans[I] = taka_base_replace(S[I],Rule);
-    }
-    return vtol(Ans);
-  }
-  if (type(S) == MATRIX || type(S) == VECTOR) {
-    S1 = matrix_clone(S);  
-    
-    if (type(S1) == VECTOR) {
-       N = size(S1)[0];
-       for (I=0; I<N; I++) {
-         S1[I] = taka_base_replace(S1[I],Rule);
-       }
-       return(S1);
-    }else if (type(S1) == MATRIX) {
-       M = size(S1)[0]; N = size(S1)[1];
-       for (I=0; I<M; I++) {
-         for (J=0; J<N; J++) {
-           S1[I][J] = taka_base_replace(S1[I][J],Rule);
-         }
-       }
-       return(S1);
-    }else {
-       print(S1); error("internal error: matrix_clone is not working properly.");
-    }
+  if (type(S) == LIST || type(S) == MATRIX || type(S) == VECTOR) {
+     return(recmap(taka_base_replace,S,Rule));
   }
   if (type(Rule) == STRUCT) {  /* cf. datatype.rr  struct base_rule*/
     Rule = Rule->Rule;
@@ -126,6 +74,7 @@ def taka_base_replace(S,Rule) {
   }
   return S;
 }
+
 
 def taka_base_set_minus(A,B) {
   Ans = [ ];
