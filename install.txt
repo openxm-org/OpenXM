@@ -1,3 +1,4 @@
+%%  $OpenXM$    
 OpenXM/install.txt    in Japanese
 As to English version see install.eg.txt
 
@@ -9,14 +10,16 @@ As to English version see install.eg.txt
 
 
 ★ OpenXM パッケージの利用方法
+OpenXM をホームの直下に展開した場合,
+[3]で解説した .asirrc をかけば, あとは
+bash の場合なら,  source OpenXM/rc/bashrc
+csh  の場合なら,  source OpenXM/rccshrc
+を実行すればすべての環境設定が終了します.
+以上.  以下の使用例へ進んで下さい.
+
+そうでない場合は以下のように設定する必要があります.
+
 [1] 環境変数 OpenXM_HOME の設定.  
-      ( rc の下にテンプレートあり. これを正しく編集して source コマンド
-        で読み込めばよろしい. 
-        現在は, ホームディレクトリの下に,  openXM を置いたと仮定してる.
-        bash の場合なら,  cd rc ; source bashrc
-        csh  の場合なら,  cd rc ; source cshrc
-        これを実行した場合 [4] は不要.        
-       )
 setenv OpenXM_HOME  OpenXMへのパス      (Cシェル, tcsh の場合)
 または
 OpenXM_HOME = OpenXMへのパス            (sh, bash の場合)
@@ -27,10 +30,6 @@ export OpenXM_HOME
   export OpenXM_HOME
 
 [2]
-cd $OpenXM_HOME
-cd src
-make all
-ですべてのバイナリをソースより生成します. phc, ox_asir はバイナリ配布です.
 
 [3]
 ~/.asirrc に
@@ -77,8 +76,11 @@ Linux 以外の場合はバイナリを入れ換える必要があります.
 
 ---------------  インストール完了 ---------------------------
 
+★使用例
+
 OpenXM は X-window 上でしか動作しません. 
 
+----------------  Asir クライアントの使いかた.
 ----------------   例 : asir に kan/sm1  を組み込む.
 asir
 load("xm");
@@ -112,21 +114,29 @@ x1 x3 - x2^2, x1 x4 - x2 x3, x2 x4 - x3^2
 x1 x3 , x1 x4 , x2 x4 
 で生成されています.
 
+----------------------------------
+sm1
+(oxasir.sm1) run  ;
+(x^20-1). fctr pmat ;       sm1 より ox_asir を呼び出して因数分解させる.
+
 
 
 [著作権表示] (現在テスト版のため情報が完備してません)
+このソフトウエアは動作およびその結果につき, 一切の保証をしません.
+ライセンス形態については現在検討中であります. 
+
 OpenXM : url http://www.math.kobe-u.ac.jp/openXM
          cvs cite : kerberos.kobe-u.ac.jp
 sm1 :  作者 Nobuki Takayama, url http://www.math.kobe-u.ac.jp/KAN, 
-       ライセンス形態   ??
+       ライセンス形態   GPL
 asir :    作者  url
-         ライセンス形態   
+         ライセンス形態   ??
 gnuplot : 作者  url
          ライセンス形態   GPL
 phc : 作者 Jan Verschelde,  url
-         ライセンス形態   
+         ライセンス形態   ??
 tigers : 作者 Birk Hubert,  url
-         ライセンス形態   
+         ライセンス形態   ??
 
 
 [OpenXM_HOME 下のファイルの構成]
@@ -169,28 +179,20 @@ asir が ox_sm1_gnuplot を利用するのに必要なファイル:
 
 ----------------------------------------
 [開発者用メモ]
-openXM ディレクトリ配布版の作成方法.  (yama, 300CT 上で)
-cd SSkan ; make dist
-cd kxx   ; make dist
-cd asir-xx ; make dist 
-cd k0 ; make dist
-操作チェックは dc1 などの他のマシンで行います.
-(これを一気にやるには yama では makeOpenXMDist : あとで説明)
+<<  openXM ディレクトリ配布版の作成方法.  >>
+cd OpenXM/src
+make clean
+OpenXM 全体を tar すればよろしい.
 
-openXM/src で make clean の後,
-mount-unkei-dc1
-backupdir5b openXM
-で dc1:/export/taka/tmp へ openXM がコピーされます.
-
-(yama の上では, bin/makeOpenXMDist で上の作業をすべて自動でやります.)
-
-yama では, 開発用に 
-  /usr/local/lib/sm1 は /home/nobuki/SSkan/lib への symbolic link,
-  /usr/local/lib/asir は /home/nobuki/openXM/lib/asir への symbolic link,
-となっています.
-  xm は /home/nobuki/asir-xx/xm で開発されています.
-  gnuplot_forox, gnuplot_x11, phc, tigers は 
-   /home/nobuki/openXM/bin の下の物が使用されます.
-
-
+<< sm1, ox_sm1, ox, oxlog の debug >>
+binary file は各 directory の make install により
+OpenXM/bin にコピーされますが,
+debug 用にいちいちコピーするのは面倒なので,
+OpenXM/src/kan96xx で make install2
+OpenXM/src/kxx で make install2
+を実行すると, 
+OpenXM/bin/sm1, ox, ox_sm1, oxlog より,
+OpenXM/src/kan96xx/Kan/sm1
+OpenXM/src/kxx/ox, OpenXM/src/kxx/ox_sm1, OpenXM/src/kxx/oxlog
+へのシンボリックリンクが作成されます.
 
