@@ -1,6 +1,6 @@
 # Author: 小原功任 @ 金沢大学理学部計算科学教室
 # URI:    http://omega.s.kanazawa-u.ac.jp/ohara/
-# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.6 1999/12/22 11:29:15 ohara Exp $
+# $OpenXM: OpenXM/src/ox_toolkit/README,v 1.7 2000/01/14 10:23:34 ohara Exp $
 
 /*&ja ox_toolkit ユーザガイド
 
@@ -520,3 +520,29 @@ ox_Xsample
 GUI 表示する OpenXM サーバのサンプル。
 
 */
+/*&ja
+8. 付録
+
+8.1 ox.c における関数の命名規則
+
+(1) receive_cmo 関数はCMOタグとデータ本体を受信する. この関数は CMOタ
+グの値が事前に分からないときに使用する. 返り値として、cmo へのポインタ
+を返す.
+(2) receive_cmo_X 関数は, CMOタグを親の関数で受信してから呼び出される
+関数で、データ本体のみを受信し、cmo_X へのポインタを返す.  しかも、関
+数内部で new_cmo_X 関数を呼び出す.
+(3) send_cmo 関数はCMOタグとデータ本体を送信する.
+(4) send_cmo_X 関数はCMOタグを親の関数で送信してから呼び出される関数で、
+データ本体のみを送信する.
+(5) ただし receive_ox_tag を除いて, receive_ox_X 関数は作らない.
+receive_cmo を利用する.
+(6) send_ox_X 関数は OX タグを含めて送信する.
+(7) ox_X 関数は一連の送受信を含むより抽象的な操作を表現する.  ox_X 関
+数は、第一引数として、ox_file_t型の変数 sv をとる.
+(8) Y_cmo 関数と Y_cmo_X 関数の関係は次の通り:
+まず Y_cmo 関数で cmo のタグを処理し、タグを除いた残りの部分をY_cmo_X 
+関数が処理する.  cmo の内部に cmo_Z へのポインタがあるときには、その種
+類によらずに Y_cmo 関数を呼び出す.
+
+*/
+
