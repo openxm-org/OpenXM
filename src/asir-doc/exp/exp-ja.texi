@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.6 2004/04/16 01:57:51 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.7 2004/04/16 02:28:40 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -116,6 +116,8 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * dp_initial_term::
 * dp_order::
 * dp_weyl_gr_main::
+* list::
+* mapat::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -884,6 +886,105 @@ builtin/dp-supp.c 1.32
 builtin/dp.c 1.49
 @end itemize
 
+
+@comment  mapat
+@node mapat,,, 実験的仕様の関数
+@subsection @code{mapat}
+@findex mapat
+
+@table @t
+@item mapat(@var{fname},@var{pos}[,@var{arg0}, @var{arg1}, ...])
+:: @var{pos} に対する map 関数
+@end table
+
+@table @var
+@item return
+オブジェクト
+@item pos
+整数
+@item arg0, arg1, arg2, ...
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+@code{map} 関数は 0 番目の引数に対してしか動作しないが, @code{mapat}
+関数は指定した番号の引数に対して @code{map} 関数を実行する.
+@item
+@code{mapat(fname,0,A0,A1,...)} は
+@code{map(fname,A0,A1,...)} に等価である.
+@item
+次の副作用がある. まだ書いてない.
+@end itemize
+
+@example
+[219] mapat(deg,1,x^2+y^3+x+y,[x,y]);
+[2,3]
+[220] mapat(subst,1,x+y+z,[x,y,z],2) 
+[y+z+1,x+z+1,x+y+1]
+@end example
+
+@table @t
+@item 参照
+@ref{map}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-6-22 にコミットされた.
+ 変更をうけたソースコードは builtin/pf.c, subst.c である.
+@end itemize
+
+@comment  list
+@node list,,, 実験的仕様の関数
+@subsection @code{list}
+@findex list
+
+@table @t
+@item list([@var{arg0}, @var{arg1}, ...])
+:: list を生成する.
+@end table
+
+@table @var
+@item return
+リスト
+@item arg0, arg1, arg2, ...
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+@var{arg0}, @var{arg1}, ... を要素とするリストを生成する.
+@end itemize
+
+@example
+[219] list(1,2,3);
+[1,2,3]
+[220] list(1,2,[3,4]);
+[1,2,[3,4]]
+@end example
+
+@table @t
+@item 参照
+@ref{cons}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-6-22 にコミットされた.
+ 変更をうけたソースコードは builtin/list.c である.
+@end itemize
+
+
+
+@comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
+
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
 @comment --- 複数の関数をまとめて説明する例 ---
@@ -944,11 +1045,6 @@ ChangeLog
  変更をうけたソースコードは xxxyy.rr, ppp.c である.
 @item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
 @end itemize
-
-
-
-@comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
-
 
 @comment --- おまじない ---
 @node Index,,, Top
