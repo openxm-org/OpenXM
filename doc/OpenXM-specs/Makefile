@@ -3,11 +3,13 @@ all : doc
 
 OXWEAVE=../../src/kxx/oxweave
 OXWEAVEFLAG=--recursive --plain
-doc:  $(OXWEAVE) OpenXM.tex
+doc: doc-jp doc-eg
+doc-eg: $(OXWEAVE) OpenXM.tex
 	-rm -rf tmpEG
 	-mkdir tmpEG
 	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C eg < $$i >tmpEG/$$i; done
 	(cd tmpEG; ln -s ../reset.eps .; platex OpenXM)
+doc-jp: $(OXWEAVE) OpenXM.tex
 	-rm -rf tmpJP
 	-mkdir tmpJP
 	-for i in *.tex; do $(OXWEAVE) $(OXWEAVEFLAG) C jp < $$i >tmpJP/$$i; done
