@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.8 2001/12/19 23:39:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.9 2002/02/24 10:27:18 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -816,6 +816,7 @@ void scanner() {
         fprintf(Fstack,"\nscanner> ");
       }
       KSexecuteString(" ctrlC-hook "); /* Execute User Defined functions. */
+      KSexecuteString(" (Computation is interrupted.) ");
       continue ;
     } else {  }
     if (DebugStack >= 1) { printOperandStack(); }
@@ -837,11 +838,15 @@ void ctrlC(sig)
   
   signal(sig,SIG_IGN);
   /* see 133p */
+  cancelAlarm();
+  if (sig == SIGALRM) {
+    fprintf(stderr,"ctrlC by SIGALRM\n");
+  }
 
   if (SGClock) {
     UserCtrlC = 1;
     fprintf(stderr,"ctrl-c is locked because of gc.\n");
-    signal(SIGINT,ctrlC);
+    signal(sig,ctrlC);  if (sig == SIGALRM) alarm((unsigned int)10);
     return;
   }
   if (OXlock) {
@@ -854,7 +859,7 @@ void ctrlC(sig)
       unlockCtrlCForOx();
     }
     fprintf(stderr,"ctrl-c is locked because of ox lock %d.\n",UserCtrlC);
-    signal(SIGINT,ctrlC);
+    signal(sig,ctrlC);  if (sig == SIGALRM) alarm((unsigned int)10);
     return;
   }
   if (ErrorMessageMode != 1) {
@@ -1004,6 +1009,7 @@ errorStackmachine(str)
   char message0[1024];
   char *message;
   extern int ErrorMessageMode;
+  cancelAlarm();
   if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
     pushErrorStack(KnewErrorPacket(SerialCurrent,-1,str));
   }
@@ -1470,4 +1476,8 @@ struct object KSdupErrors() {
   }
   return(rob);
 }
-  
+
+void cancelAlarm() {
+  alarm((unsigned int) 0);
+  signal(SIGALRM,SIG_DFL);
+}

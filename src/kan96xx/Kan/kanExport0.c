@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.8 2002/02/24 10:27:18 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.9 2002/09/08 10:49:49 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -2681,6 +2681,7 @@ errorKan1(str,message)
   extern int GotoP;
   extern int ErrorMessageMode;
   char tmpc[1024];
+  cancelAlarm();
   if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
     sprintf(tmpc,"\nERROR(kanExport[0|1].c): ");
     if (strlen(message) < 900) {

@@ -300,4 +300,5 @@ int Sm1_pushError2(int serial,int no,char *s)
 /* These are dummy.  It is defined in stackmachine.c */
 unlockCtrlCForOx() { ; }
 restoreLockCtrlCForOx() { ; }
+void cancelAlarm() { ; }
 

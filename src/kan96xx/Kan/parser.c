@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.4 2002/02/24 10:27:18 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -568,6 +568,7 @@ static void errorParser(s) char s[]; {
   extern int ErrorMessageMode;
   int j;
   char tmpc[1024];
+  cancelAlarm();
   if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
     sprintf(tmpc,"\nError(parser.c): ");
     if (strlen(s) < 1000-strlen(tmpc)) {

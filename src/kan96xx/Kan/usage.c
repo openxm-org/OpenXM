@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.8 2001/08/21 14:12:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.9 2002/10/24 05:19:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -466,6 +466,10 @@ void Kusage2(fp,s)
     fppp(fp,"                              The 4th differential operator.\n");
     fppp(fp,"         [(PrintDollar) 0] system_variable\n");
     fppp(fp,"                          Set the global variable PrintDollar to 0\n");
+  }else if (strcmp(s,"tlimit")==0) {
+    fppp(fp,"<< { ... } t tlimit results >>\n");
+    fppp(fp,"Limit the execution time to t seconds.\n");
+    fppp(fp,"When t is not positive, tlimit pushes the execution time.\n");
   }else if (strcmp(s,"to_records")==0) {
     fppp(fp,"<< ({arg1,arg2,...,argn})  to_records (arg1) ... (argn) n >>\n");
     fppp(fp,"Example: ({x,y2}) to_records ===> (x) (y2) 2\n");

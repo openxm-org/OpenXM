@@ -1,8 +1,9 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.3 2000/02/24 12:33:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.4 2001/05/04 01:06:25 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
 #include <stdio.h>
+#include <signal.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -120,6 +121,7 @@ static char *operatorType(type)
 #define Ssupmsg2 98
 #define Scclass 99
 #define Scoeff2 100
+#define Stlimit 101
 /***********************************************/
 void printObject(ob,nl,fp) 
      struct object ob;
@@ -372,6 +374,7 @@ void  KdefinePrimitiveFunctions() {
   putPrimitiveFunction("system",Ssystem);
   putPrimitiveFunction("system_variable",Ssystem_variable);
   putPrimitiveFunction("test",Stest);
+  putPrimitiveFunction("tlimit",Stlimit);
   putPrimitiveFunction("map",Smap);
   putPrimitiveFunction("to_records",Sto_records);
   putPrimitiveFunction("Usage",Susage);
@@ -1671,6 +1674,48 @@ int executePrimitive(ob)
       }
     */
     break;
+
+  case Stlimit:
+    /* {   } time tlimit */
+    ob2 = Kpop();
+    ob1 = Kpop();
+    switch(ob2.tag) {
+	case Sinteger: break;
+	default: errorStackmachine("Usage:tlimit"); break;
+	}
+    switch(ob1.tag) {
+    case SexecutableArray: break;
+    default:
+      errorStackmachine("Usage:tlimit");
+      break;
+    }
+    tokenArray = ob1.lc.tokenArray;
+    size = ob1.rc.ival;
+	n = ob2.lc.ival;
+    i = 0;
+	if (n > 0) {
+	  signal(SIGALRM,ctrlC); alarm((unsigned int) n);
+	  for (i=0; i<size; i++) {
+		token = tokenArray[i];
+		status = executeToken(token);
+	  }
+	  cancelAlarm();
+	}else{
+      before_real = time(&before_real);
+      times(&before);
+	  for (i=0; i<size; i++) {
+		token = tokenArray[i];
+		status = executeToken(token);
+	  }
+      times(&after);
+      after_real = time(&after_real);
+	  ob1 = newObjectArray(3);
+	  putoa(ob1,0,KpoInteger((int) after.tms_utime - before.tms_utime));
+	  putoa(ob1,1,KpoInteger((int) after.tms_stime - before.tms_stime));
+	  putoa(ob1,2,KpoInteger((int) (after_real-before_real)));
+	  Kpush(ob1);
+    }
+	break;
     
     
   default:

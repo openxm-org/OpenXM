@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.5 2002/02/24 10:27:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.6 2002/10/24 05:19:50 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -65,6 +65,7 @@ void printObjectArray(struct object ob,int nl,FILE *fp);
 /* stackmachine.c  misc*/
 void scanner(void);
 void ctrlC(int sig);
+void cancelAlarm();
 int executeToken(struct tokens token);
 int executePrimitive(struct object ob);
 int isLiteral(char *str);

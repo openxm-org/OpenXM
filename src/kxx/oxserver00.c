@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.6 2001/12/21 02:32:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.7 2002/02/24 10:27:21 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -327,6 +327,7 @@ void controlResetHandler(sig)
      int sig;
 {
   signal(sig,SIG_IGN);
+  cancelAlarm();
   fprintf(stderr,"From controlResetHandler. OxCritical = %d\n",OxCritical);
   OxInterruptFlag = 1;
   if (OxCritical) {
