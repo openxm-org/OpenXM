@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.2 2000/02/28 10:47:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/longname,v 1.3 2000/02/29 08:27:41 takayama Exp $ */
 /*&C-texi
 
 */
@@ -55,8 +55,30 @@ def basic_not(A)   @{ return(! A); @}
 def basic_IntegerQuotient(A,B) @{ return(idiv(A,B)); @}
 def basic_IntegerRemainder(A,B) @{ return(irem(A,B)); @}
 def basic_IntegerGcd(A,B)  @{ return(igcd(A,B)); @}
-
+def basic_exp(A)           @{ return(exp(A)); @}
+def basic_ln(A)            @{ return(log(A)); @}
+def basic_sin(A)           @{ return(sin(A)); @}
+def basic_cos(A)           @{ return(cos(A)); @}
+def basic_tan(A)           @{ return(tan(A)); @}
+def basic_diff(A,B)        @{ return(diff(A,B)); @}
+def basic_equal(A,B)       @{ return( A == B); @}
+def basic_unequal(A,B)     @{ return( A != B); @}
+def basic_less(A,B)        @{ return( A < B); @}
+def basic_lessequal(A,B)        @{ return( A <= B); @}
+def basic_greater(A,B)        @{ return( A > B); @}
+def basic_greaterequal(A,B)        @{ return( A >= B); @}
+def basic_select(A,B)         @{ return(A[B]); @}
+def basic_length(A)           @{ if (type(A)==4) return(length(A)); 
+                                else return(size(A)[0]); @}
+Poly_lexicogrpahic = 2$
+Poly_gradedLexicographic = 1$
+Poly_gradedReverseLexicographic = 0$
+def poly_degreeWrt(A,B)       @{ return(deg(A,B)); @}
 def poly_factor(A) @{ return(fctr(A)); @}
+def poly_gcd(A,B)  @{ return(gcd(A,B)); @}
+def poly_resultant(A,B,V) @{ return(res(V,A,B)); @}
+def poly_groebner(O,P,V)  @{ return(gr(P,V,O)); @}
+
 @end example
 */
 
@@ -76,24 +98,56 @@ def basic_not(A)   { return(! A); }
 def basic_IntegerQuotient(A,B) { return(idiv(A,B)); }
 def basic_IntegerRemainder(A,B) { return(irem(A,B)); }
 def basic_IntegerGcd(A,B)  { return(igcd(A,B)); }
-
-
+def basic_exp(A)           { return(exp(A)); }
+def basic_ln(A)            { return(log(A)); }
+def basic_sin(A)           { return(sin(A)); }
+def basic_cos(A)           { return(cos(A)); }
+def basic_tan(A)           { return(tan(A)); }
+def basic_diff(A,B)        { return(diff(A,B)); }
+/* basic_int(A,B), basic_defint(A,B) have not been implemented. */
+def basic_equal(A,B)       { return( A == B); }
+def basic_unequal(A,B)     { return( A != B); }
+def basic_less(A,B)        { return( A < B); }
+def basic_lessequal(A,B)        { return( A <= B); }
+def basic_greater(A,B)        { return( A > B); }
+def basic_greaterequal(A,B)        { return( A >= B); }
+def basic_select(A,B)         { return(A[B]); }
+def basic_length(A)           { if (type(A)==4) return(length(A)); 
+                                else return(size(A)[0]); }
+Poly_lexicogrpahic = 2$
+Poly_gradedLexicographic = 1$
+Poly_gradedReverseLexicographic = 0$
+def poly_degreeWrt(A,B)       { return(deg(A,B)); }
 def poly_factor(A) { return(fctr(A)); }
+def poly_gcd(A,B)  { return(gcd(A,B)); }
+/* poly_lcm(A,B) */
+def poly_resultant(A,B,V) { return(res(V,A,B)); }
+def poly_groebner(O,P,V)  { return(gr(P,V,O)); }
 
 /*&eg-texi
 
-It is convinient to have function names without Basic_ etc.
+It is convinient to have function names without basic_ etc.
 */
 /*&jp-texi
 
-Basic_ などがつかないつぎのような函数名も登録してある.
+basic_ などがつかないつぎのような函数名も登録してある.
 
 */
 
 /*&C-texi
 
 @example
-factor, cancel, numerator, denominator
+
+def factor(F) @{ return(poly_factor(F)); @}
+def cancel(F)  @{ return(red(F)); @}
+def numerator(F) @{ return(nm(F)); @}
+def denominator(F) @{ return(dn(F)); @}
+def hilbert_polynomial(G,V) @{
+     A=gr(G,V,0); B=map(dp_ht,map(dp_ptod,A,V));
+     C=map(dp_dtop,B,V);
+     return(sm1_hilbert([C,V]));
+@}
+
 @end example
 */
 
@@ -101,7 +155,11 @@ def factor(F) { return(poly_factor(F)); }
 def cancel(F)  { return(red(F)); }
 def numerator(F) { return(nm(F)); }
 def denominator(F) { return(dn(F)); }
-
+def hilbert_polynomial(G,V) {
+     A=gr(G,V,0); B=map(dp_ht,map(dp_ptod,A,V));
+     C=map(dp_dtop,B,V);
+     return(sm1_hilbert([C,V]));
+}
 
 /*&C-texi
 
