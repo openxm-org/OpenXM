@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.15 2003/05/31 06:38:55 takayama Exp $
+#$OpenXM: OpenXM/doc/OpenXM-specs/Makefile,v 1.16 2003/08/22 23:56:27 takayama Exp $
 all : doc
 
 LATEX2HTML=latex2html -tmp /tmp
@@ -9,6 +9,7 @@ CURRENT=/home/web/OpenXM/Current
 NKF=nkf -e
 
 OXWEAVE=../../bin/oxweave
+OXWEAVE_C=../../src/util/oxweave.c
 OXWEAVEFLAG=--recursive --plain
 OXREPLACE=../../src/util/oxreplace
 SRC= OpenXM.tex cmo-basic0.tex cmo-basic1.tex\
@@ -54,8 +55,8 @@ OX-RFC-101-ja.dvi: $(OXWEAVE) $(SRC101)
 	-mv tmp101JA/OX-RFC-101.dvi OX-RFC-101-ja.dvi
 	touch OX-RFC-101-ja.dvi
 
-$(OXWEAVE) : $(OXWEAVE).c
-	(cd ../../src/kxx ; make oxweave)
+$(OXWEAVE) : $(OXWEAVE_C)
+	(cd ../../src/util ; make oxweave)
 
 all-html: all-html-ja all-html-en
 all-html-en: doc
