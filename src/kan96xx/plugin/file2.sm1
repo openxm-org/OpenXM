@@ -1,4 +1,4 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/plugin/file2.sm1,v 1.2 2000/01/16 07:55:47 takayama Exp $
 [(plugin-file2)
 [ $[(fp2fdopen) fd-num] extension file-fp2$  
   $[(fp2fflush) file-fp2] extension result$  
@@ -8,6 +8,7 @@
   $[(fp2dumpBuffer) file-fp2] extension c$  
   $[(fp2openForRead) name] extension fd-num$  
   $[(fp2openForWrite) name] extension fd-num$  
+  $[(fp2pushfile) name] extension array-of-int$
   $[(fp2clearReadBuf) file-fp2] extension c$  
 ]] putUsages
 

@@ -1,14 +1,17 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.1 2001/08/09 13:05:49 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.2 2001/08/10 08:33:03 takayama Exp $
 %% http server by sm1
+%% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
 %%   (1) Visit the menu  
 %%     tool / internet option / connection / LAN configuration
-%%   (2) Add localhost to the list of not using the proxy server.
+%%   (2) Add localhost to the list of hosts which are not accessed via
+%%        the proxy server.
 %% (B) You need to have the "start.exe" at  c:\windows\command\start.exe
-%% (C) cygwin1.dll should be by sm1.exe and ox.exe
+%% (C) cygwin1.dll should be by sm1.exe, ox_sm1.exe and ox.exe
 
 
-
+/httpd.image.name (kobeuniv2.jpg) def
+/httpd.image.type (jpeg) def
 /httpd.port 1200 def
 
 /httpd.initialization
@@ -20,11 +23,27 @@
  ] cat
 def
 
-[(parse) (ox-win.sm1) pushfile] extension 
+[(getenv) (OSTYPE)] extension
+tag 0 eq {
+  [(parse) (ox-win.sm1) pushfile] extension 
+}{ 
+  [(getenv) (OSTYPE)] extension
+  (cygwin) eq {
+    [(parse) (ox-win.sm1) pushfile] extension 
+  }{
+    [(parse) (ox.sm1) pushfile] extension
+  } ifelse
+} ifelse
+
 (ox_sm1.started) boundp { 
 } {
-  %% Initialize oxasir.
-  sm1connectr_win
+  %% Initialize ox_sm1
+  [(getenv) (OSTYPE)] extension
+  tag 0 eq {
+     sm1connectr_win  %% Assume that it is native Windows.
+  }{
+     sm1connectr      %% cygwin or unix.
+  } ifelse
   ox.ccc oxmathcap
   ox.ccc oxsetmathcap
 } ifelse
@@ -83,10 +102,33 @@ def
     10 (string) dc /mmm set
   } ifelse
   [(sm1.socket) (select) [httpd.server.fd 0 get 0]] extension {
-    (Warning: your peer closed the connection. Do not send the data.) message
+    (Warning (sendln): your peer closed the connection. Do not send the data.) message
   } {
     [(sm1.socket) (write) [httpd.server.fd 0 get mmm]] extension message
   } ifelse
+ ] pop
+ popVariables
+} def
+
+/sendBinaryFile {
+ /arg1 set
+ [/in-sendln /fname /fd /c /cdata] pushVariables
+ [ arg1 /fname set
+   [(sendBinaryFile: sending data) ] cat message
+   [(fp2openForRead) fname] extension /fd set  fd message
+   fd 0 lt {
+      [(Error: sendBinaryFile: file ) fname ( is not found.)] cat message
+      /aaaa goto
+   } {  } ifelse
+   [(fp2pushfile) fname] extension /cdata set
+   [(sm1.socket) (select) [httpd.server.fd 0 get 0]] extension {
+       (Warning (sendBinaryFile): your peer closed the connection. Do not send the data.) 
+       message
+       exit
+   } {
+       [(sm1.socket) (writeByte) [httpd.server.fd 0 get cdata]] extension pop
+   } ifelse
+   /aaaa 
  ] pop
  popVariables
 } def
@@ -105,7 +147,7 @@ def
 
 /httpd_action {
   [/in-httpd /ff /httpd.com /httpd.result /sss
-   /sss.engine /sss.web /err
+   /sss.engine /sss.web /err /httpd.sendFile
   ] pushVariables
   [
   {
@@ -119,13 +161,24 @@ def
           (------------  start ----------------------) message
              ff message
           (-----------------------------------------) message
-             ff removeGET webstringToAscii /httpd.com set 
-             httpd.com message
+             ff 1 copy askToSendFile /httpd.sendFile set
+             httpd.sendFile tag 0 eq {
+               ff removeGET webstringToAscii /httpd.com set 
+             } {
+               /httpd.com (NONE) def
+             } ifelse
+             [(httpd.com=) httpd.com] cat message
+             (httpd.sendFile=) messagen httpd.sendFile message
           (------------  end ----------------------) message
           (   ) message
           httpd.serial 0 eq {
             /httpd.com  httpd.initialization def 
           } { } ifelse
+          httpd.sendFile tag 0 eq { }
+          {
+            httpd.sendFile httpd.image.type send-image
+            exit  %% exit the loop LOOP-A
+          } ifelse
           httpd.com metaCommand {
             httpd.textarea.valid {
               ox.ccc 
@@ -195,12 +248,13 @@ def
               } ifelse
              (<font color="green"> Output-) httpd.serial toString
              (: </font> ) 
+             (<a href=") httpd.image.name ("> (in pretty format) </a>) %%test
               httpd.result preformatHTML
             ] cat
-            send-page-3  exit
+            send-page-3  exit  %% exit the loop LOOP-A
           } { exit } ifelse  %% metaCommand
         } ifelse
-  } loop
+  } loop %% LOOP-A
   ] pop
   popVariables
 } def
@@ -250,6 +304,10 @@ def
    0 sendln
 %%   (<FORM NAME="myFORM" METHOD="POST">) sendln
    result sendln
+
+   %%(<img src="hoge.jpeg"> <img>) sendln %%test.  It does not work always?!
+   %%(<a href="hoge.jpeg"> Pretty format </a>) sendln %%test. It works.
+
    (<FORM NAME="myFORM">) sendln
    (<INPUT TYPE=submit VALUE="submit">) sendln
    [(<textarea name=) httpd.textarea.name 
@@ -258,6 +316,35 @@ def
    send-menu-1
    0 sendln
    [(flush)] extension
+  ] pop
+  popVariables
+} def
+
+/send-image {
+  /arg2 set
+  /arg1 set
+  [/in-send-jpeg /fname /imagetype /ff /fsize] pushVariables
+  [
+     /fname arg1 def % set the jpeg file name.
+     /imagetype arg2 def %  jpeg or gif
+    [(stat) fname] extension 0 get tag 0 eq {
+       (Warning (send-image): the file ) messagen fname messagen ( is not found.) message
+       /notFound goto
+    }{  }ifelse
+    [(stat) fname] extension 1 get 0 get toString /fsize set
+    (HTTP/1.1 200 OK) dup message sendln
+    (Server: httpd_sm1) dup message sendln
+    %% (ETag: "2197-bf6c-3b2d6541") sendln ???
+    (Accept-Ranges: bytes) dup message sendln
+    [(Content-Length: ) fsize] cat dup message sendln
+    (Connection: close) dup message sendln
+    [(Content-Type: image/) imagetype] cat dup message sendln
+    [(flush)] extension 
+    0 sendln
+    fname sendBinaryFile
+    0 sendln
+    [(flush)] extension
+    /notFound
   ] pop
   popVariables
 } def
@@ -407,6 +494,56 @@ def
        (array) dc
     def
  } ifelse
+
+
+%% Decompose into tokens separated by a space.
+%% (GET /hoge.jpeg ???) ---> [(GET) (/hoge.jpeg) (???)]
+/toTokensBySpace {
+  /arg1 set
+  [/in-toTokesBySpace /ss /ss2 /i] pushVariables
+  [
+    /ss arg1 def
+    ss 1 copy /ss set
+    ss (array) dc /ss2 set
+    0 1 ss2 length 1 sub {
+      /i set
+      ss2 i get 32 eq { %% equal to space
+        ss i (,) put
+      } {  } ifelse
+    } for
+    ss message
+    [ ss to_records pop] /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/askToSendFile {
+  /arg1 set
+  [/in-askToSendFile /ss /fname] pushVariables
+  [
+    /ss arg1 def
+    /fname null def
+    ss toTokensBySpace /ss set
+    ss 0 get (GET) eq {
+      ss 1 get length 1 gt {
+        ss 1 get (array) dc 1 get 63 eq { %% See if /?
+          /fname null def
+        }{
+          /fname ss 1 get def % set the file name.
+          fname (array) dc rest /fname set % remove /
+          fname { (string) dc } map cat /fname set
+        } ifelse
+      }{ /fname null def } ifelse
+    }{ 
+      /fname null def
+    } ifelse
+    (::::) messagen  ss message fname message
+    /arg1 fname def
+  ] pop
+  popVariables
+  arg1
+} def
 
 %% remove GET /?msg=
 /removeGET {

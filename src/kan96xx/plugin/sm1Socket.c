@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.3 2001/05/04 01:06:30 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -476,25 +476,53 @@ struct object KsocketWriteByte(struct object obj) {
   struct object ob1;
   struct object ob2;
   int socketid;
-  int r;
-  char data[2];
+  int r,i,n,kk,r0;
+#define DATA_SIZE 1024
+  char data[DATA_SIZE];
   if (obj.tag != Sarray) {
-    errorMsg1s("KsocketWriteByte([integer socketid, int])");
+    errorMsg1s("KsocketWriteByte([integer socketid, int | array of int])");
   }
   if (getoaSize(obj) < 2) {
-    errorMsg1s("KsocketWriteByte([integer socketid, int])");
+    errorMsg1s("KsocketWriteByte([integer socketid, int | array of int])");
   }
   ob1 = getoa(obj,0);
   ob2 = getoa(obj,1);
   if (ob1.tag != Sinteger) {
-    errorMsg1s("KsocketWriteByte([integer socketid, int]) : the first argument must be an integer.");
+    errorMsg1s("KsocketWriteByte([integer socketid, int | array of int]) : the first argument must be an integer.");
   }
   socketid = KopInteger(ob1);
-  if (ob2.tag != Sinteger) {
-    errorMsg1s("KsocketWriteByte([integer socketid, int]) : the second argument must be a string.");
+  if (ob2.tag != Sinteger && ob2.tag != Sarray) {
+    errorMsg1s("KsocketWriteByte([integer socketid, int | array of int]) : the second argument must be an integer or an array of integers.");
   }
-  data[0] = KopInteger(ob2);
-  r = write(socketid,data, 1);
+  if (ob2.tag == Sinteger) {
+    data[0] = KopInteger(ob2);
+    r = write(socketid,data, 1);
+  }else{
+    n = getoaSize(ob2); kk = 0; r = 0;
+    for (i=0; i<n; i++) {
+      if (getoa(ob2,i).tag != Sinteger)
+	    errorMsg1s("KsocketWriteByte([integer socketid, int | array of int]) : elements of the second argument must be integers.");
+      data[kk] = KopInteger(getoa(ob2,i));
+      kk++;
+      if (kk >= DATA_SIZE) {
+	r0 = write(socketid,data,kk);
+	if (r0 != kk) {
+	  fprintf(stderr,"Warning: Could not write to the socket.\n");
+	  return(KpoInteger(r+r0));
+	}
+        r += r0;
+	kk = 0;
+      }
+    }
+    if (kk > 0) {
+      r0 = write(socketid,data,kk);
+      if (r0 != kk) {
+	fprintf(stderr,"Warning: Could not write to the socket.\n");
+	return(KpoInteger(r+r0));
+      }
+      r += r0;
+    }
+  }
   return(KpoInteger(r));
 }
 

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.4 2001/08/10 08:33:03 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.5 2001/08/10 13:48:40 takayama Exp $
 %%%%%%%%%%%% Configuration: Specify your server path
 %%%%% ox, ox_sm1, oxlog are contained in kxx.tgz
 %%%%% These should be under /usr/local/lib/sm1 or LOAD_SM1_PATH
@@ -8,6 +8,10 @@
 %% See  kan96xx/win/websm1.bat
 [(getenv) (OPENXMHOMEWIN)] extension
 /OpenXM_HOME_WIN set
+OpenXM_HOME_WIN tag 0 eq {
+  [(getenv) (OpenXM_HOME)] extension
+  /OpenXM_HOME_WIN set
+} { } ifelse
 
 %% This is used in asirconnectr_win
 /OX_LAUNCH (c:\home\asir\bin\ox_launch.exe) def
