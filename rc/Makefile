@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/rc/Makefile,v 1.15 2001/08/29 11:18:58 takayama Exp $
+# $OpenXM: OpenXM/rc/Makefile,v 1.16 2001/09/18 05:30:55 takayama Exp $
 # make repl
 # make all
 # make install  [ PREFIX=/home/hoge ]  ; Default is /usr/local
 CC=gcc
 # SHELL_SCRIPTS=asir sm1 oxgp k0 oxmath oxMathematica ox
-SHELL_SCRIPTS=asir sm1 oxgp oxmath oxMathematica ox openxm
+SHELL_SCRIPTS=asir sm1 oxgp oxmath oxMathematica ox openxm webasir
 PREFIX=/usr/local
 INSTALL_DIR=${PREFIX}/bin
 MAN_DIR=../man/man1
@@ -46,6 +46,9 @@ install.man :
 
 install.asir_key:
 	-../bin/sm1 -f fetch_asir_key.sm1
+
+install-bin :
+	cp -f webasir ../bin
 
 clean :
 	rm -rf dot.bashrc dot.cshrc repl openxm $(SHELL_SCRIPTS) .gen-shell-scripts work

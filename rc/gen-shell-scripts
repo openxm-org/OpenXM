@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.8 2000/03/06 09:16:08 takayama Exp $
+# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.9 2001/09/18 05:30:55 takayama Exp $
 
 #asir
 	rm -f asir
@@ -8,6 +8,13 @@
 #	echo 'exec $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $*' >>asir
 	echo 'exec $OpenXM_HOME/bin/asir $*' >>asir
 	chmod +x asir
+
+#webasir
+	rm -f webasir
+	echo "#!/bin/sh" >webasir
+	cat dot.bashrc >>webasir
+	echo 'exec $OpenXM_HOME/bin/sm1 -s "[(parse) (httpd-asir.sm1) pushfile] extension ; asirweb " ' >>webasir
+	chmod +x webasir
 
 #sm1
 	rm -f sm1
