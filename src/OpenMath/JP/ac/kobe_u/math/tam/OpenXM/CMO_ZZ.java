@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.8 2000/03/15 17:58:07 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_ZZ.java,v 1.9 2000/03/16 09:51:32 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -65,7 +65,7 @@ final public class CMO_ZZ extends CMO{
 
     len = is.readInt();
     for(int i=0;i<Math.abs(len);i++){
-      a.add(new BigInteger("4294967296").pow(i).multiply(new BigInteger(""+is.readInt())));
+      a = a.add(new BigInteger("4294967296").pow(i).multiply(new BigInteger(""+is.readInt())));
     }
 
     if(len<0){
