@@ -1,0 +1,60 @@
+%  oxmath.sm1  : An interface to Open Mathematica Server. (ox_math)
+%  $OpenXM$
+%% This package requires ox.sm1
+[(parse) (ox.sm1) pushfile] extension
+%%%%%%%%%%%%%  Configure path for ox and ox_math on your remote machine.
+/oxpath.oxlog.xterm-ssh  (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def
+/oxpath.oxmath-ssh (/home/taka/OpenXM/src/ox_math/ox_math) def
+/oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def
+/myhostname-ssh   (dc1.math.kobe-u.ac.jp) def
+
+/oxmathconnectr-ssh {
+ /arg1 set
+ [/in-oxmathconnectr /pass /peer /data /control /name /machine
+  /your-peer /comm
+ ] pushVariables
+ [
+ /machine arg1 0 get def
+ /name arg1 1 get def
+
+ /pass [(oxGenPass)] extension def
+ /peer [(oxGetPort) myhostname-ssh] extension def
+ /data peer 1 get toString def
+ /control peer 3 get toString def
+ peer message
+ [(ssh -f ) machine ( -l ) name ( ")
+  oxpath.oxlog.xterm-ssh  oxpath.ox-ssh ( -reverse -ox ) oxpath.oxmath-ssh
+  ( -host ) myhostname-ssh
+  ( -data ) data ( -control ) control  ( -pass ) pass 
+  oxpath.null
+  ( ")
+ ] cat /comm set
+ (Executing the command : ) messagen comm message message
+  comm system
+ (sleep 5) system
+ [(oxCreateClient2) peer 1 pass] extension /your-peer set
+%% /@@@.oxmath your-peer def
+%% (ox_math is set to @@@.oxmath) message
+ /arg1 your-peer def
+ ] pop
+ popVariables
+ arg1
+} def
+[(oxmathconnectr-ssh)
+[([hostname login-name] oxmathconnectr-ssh client)
+ (Starting oxpath.oxmath-ssh by the launcher oxpath.ox-ssh on the "hostname".)
+ (Set the following varialbes at the beginning of oxmath.sm1 )
+ (to appropriate values:)
+ (oxpath.oxlog.xterm-ssh  oxpath.oxmath-ssh  oxpath.ox-ssh myhostname-ssh )
+ $Example 1: $
+ $  *** Path names on the remote machine tau.math.kobe-u.ac.jp $
+ $    /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def $
+ $    /oxpath.oxmath-ssh (/home/taka/OpenXM/src/ox_math/ox_math) def $
+ $    /oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def $
+ $  *** The machine name on which you are running sm1. $
+ $    /myhostname-ssh   (dc1.math.kobe-u.ac.jp) def $
+ $         [(tau.math.kobe-u.ac.jp) (taka)] oxmathconnectr-ssh /@@@.oxmath set  $
+]] putUsages
+
+
+
