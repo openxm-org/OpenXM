@@ -2,6 +2,7 @@
 #include "ox_kan.h"
 #include "serversm.h"
 #include <setjmp.h>
+#include <errno.h>
 jmp_buf EnvOfStackMachine;  /* dummy data. */
 
 int SerialCurrent = -1;
@@ -269,7 +270,6 @@ int Sm1_pushCMO(ox_stream ostream) /* old one went to junk.c */
 int Sm1_popCMO(ox_stream os,int serial)
 {
   FILE *fp2;
-  extern int errno;
   int c;
   int p;
   char data[1000];

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.14 2003/11/20 07:18:41 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.15 2004/02/23 09:03:43 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -36,9 +36,6 @@ int Do_not_use_control_stream_to_tell_no_server = 1;
 static void errorToStartEngine(void);
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
-#if defined(__CYGWIN__)
-int errno;
-#endif
 /*  gcc -v -c hoge.c */
 
 void *sGC_malloc(int n) {

@@ -1,5 +1,5 @@
 /*
- $OpenXM$
+ $OpenXM: OpenXM/src/kxx/oxd-thread.c,v 1.1 2002/11/10 12:15:48 takayama Exp $
 */
 
 #include <stdio.h>
@@ -34,9 +34,6 @@ int Serial = 0;
 int LocalMode = 1;
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
-#if defined(__CYGWIN__)
-int errno;
-#endif
 #define NOBODY 65534
 
 struct threadList {

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.11 2003/07/20 07:23:31 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.12 2003/09/16 02:57:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <setjmp.h>
+#include <errno.h>
 /* -lnsl -lsocket /usr/ucblib/libucb.a */
 #include "ox_kan.h"
 /* 
@@ -38,7 +39,6 @@ socketOpen(char *serverName,int portNumber) {
   static struct sockaddr_in me;
   static int s_waiting;
   static int on;
-  extern int errno;
   int tt;
 
   SET_TCPIOERROR;
@@ -194,7 +194,6 @@ int oxSocketSelect0(int fd,int t) {
   fd_set readfds;
   struct timeval timeout;
   int debug = 0;
-  extern int errno;
   SET_TCPIOERROR;
   FD_ZERO(&readfds);
   FD_SET(fd,&readfds);
@@ -226,7 +225,6 @@ oxSocketMultiSelect(int sid[],int size,int t,int result[])
   fd_set readfds;
   struct timeval timeout;
   int isdata = 0;
-  extern errno;
 
   SET_TCPIOERROR;
   FD_ZERO(&readfds);

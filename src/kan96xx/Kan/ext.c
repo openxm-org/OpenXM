@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.20 2003/12/04 07:49:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.21 2003/12/06 02:49:22 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -14,6 +14,7 @@
 #include "plugin.h"
 #include "kclass.h"
 #include <ctype.h>
+#include <errno.h>
 #include "ox_pathfinder.h"
 
 extern char **environ;
@@ -103,7 +104,6 @@ struct object Kextension(struct object obj)
 #endif
   extern void ctrlC();
   extern int SigIgn;
-  extern errno;
   extern int DebugCMO;
   extern int OXprintMessage;
   struct stat buf;

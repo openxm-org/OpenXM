@@ -1,5 +1,5 @@
 /*
- $OpenXM: OpenXM/src/kxx/oxd.c,v 1.5 2002/10/28 00:38:32 takayama Exp $
+ $OpenXM: OpenXM/src/kxx/oxd.c,v 1.6 2002/10/28 08:57:28 takayama Exp $
 */
 
 #include <stdio.h>
@@ -33,9 +33,6 @@ int Serial = 0;
 int LocalMode = 1;
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
-#if defined(__CYGWIN__)
-int errno;
-#endif
 #define NOBODY 65534
 
 main(int argc, char *argv[]) {

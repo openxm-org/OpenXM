@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.17 2003/11/18 11:08:27 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.18 2003/11/19 01:02:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <setjmp.h>
+#include <errno.h>
 #define SET_MYERROROUT { if (MyErrorOut == NULL) MyErrorOut=stdout; }
 /* It is also defined in oxmisc2.c */
 FILE *MyErrorOut = NULL;
@@ -500,7 +501,6 @@ int oxclientMultiSelect(oxclientp clients[],int dataready[],
   int humanfd = 0;
   fd_set readfds;
   struct timeval timeout;
-  extern int errno;
 
   SET_MYERROROUT;
   /** printf("(1)"); fflush(NULL); */

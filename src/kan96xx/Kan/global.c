@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.27 2003/11/20 09:20:36 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.28 2004/02/23 04:54:45 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -127,10 +127,6 @@ sigjmp_buf EnvOfStackMachine;
 #else
 jmp_buf EnvOfStackMachine;
 #endif
-#endif
-
-#if defined(__CYGWIN__)
-int errno;
 #endif
 
 struct object NullObject;

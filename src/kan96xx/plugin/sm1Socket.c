@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.15 2003/09/16 02:57:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.16 2004/02/23 09:03:43 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <errno.h>
 
 
 #include "datatype.h"
@@ -30,7 +31,6 @@ struct object KsocketOpen(struct object obj) {
   int s_waiting;
   int on;
   int tt;
-  extern int errno;
   extern int Post_debug;
 
   if ((char *)getenv("OXWEB_DEBUG") != NULL) {
@@ -236,7 +236,6 @@ struct object KsocketAccept2(struct object obj) {
 int KsocketSelect0(int fd,int t) {
   fd_set readfds;
   struct timeval timeout;
-  extern int errno;
   FD_ZERO(&readfds);
   FD_SET(fd,&readfds);
   timeout.tv_sec = 0;
@@ -302,7 +301,6 @@ struct object KsocketSelectMulti(struct object obj)
   int size,i,fd,p,t;
   fd_set readfds;
   struct timeval timeout;
-  extern errno;
   if (obj.tag != Sarray) {
     errorMsg1s("KsocketSelectMulti([[sid1, sid2,...] optional integer timeout default 0]");
   }

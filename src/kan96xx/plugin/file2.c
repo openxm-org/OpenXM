@@ -1,8 +1,9 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.8 2003/11/24 08:16:13 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.9 2004/02/23 09:03:43 takayama Exp $ */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 #include "file2.h"
 
 /* If you use file2 standalone to output string,  
@@ -224,7 +225,6 @@ int fp2dumpBuffer(FILE2 *fp2) {
 int fp2clearReadBuf(FILE2 *fp2) {
   fd_set readfds;
   struct timeval timeout;
-  extern int errno;
   int fd;
 #define TMP00SIZE  2000
   char tmp00[TMP00SIZE];
