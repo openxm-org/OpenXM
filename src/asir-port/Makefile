@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.2 2004/02/22 06:39:09 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.3 2004/02/23 00:24:09 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix. 
 KNOPPIX_HOME=/home/knoppix
@@ -15,7 +15,7 @@ all:
 install: all
 	@echo "Installing scripts for portaging asir by downloading."
 	-install -m 755 asir-port.sh ../../bin
-	if [ -f ./for_knoppix ]; then make install-for-knoppix ; make copy-for-knoppix ; fi
+	if [ -f ./for_knoppix ]; then make install-for-knoppix ; echo "do make copy-for-knoppix by hand" ; fi
 
 # Remove files under FLL.
 install-for-knoppix:
