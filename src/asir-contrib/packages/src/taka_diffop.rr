@@ -1,0 +1,139 @@
+/* $OpenXM$ */
+#define ANK_SIZE 20
+/*
+#define ANK              Taka_diffop1_ANK
+#define diff2(F,G,K)     taka_diffop1_diff2(F,G,K)
+#define dr_mult(F,G)     taka_diffop1_dr_mult(F,G)
+#define dr_exp(F)        taka_diffop1_dr_exp(F)
+#define dr_in(F)         taka_diffop1_dr_in(F)
+#define dr_division(F,G) taka_diffop1_dr_division(F,G)
+#define dr_gcd(F,G)      taka_diffop1_dr_gcd(F,G)
+#define initANK()        taka_diffop_initANK()
+#define thetapower2diff(J,X,D) taka_diffop_thetapower2diff(J,X,D)
+#define euler2diff(F,Xlist,Tlist,Dlist) taka_diffop_euler2diff(F,Xlist,Tlist,Dlist) 
+*/
+
+extern ANK $
+ANK = newmat(ANK_SIZE+1,ANK_SIZE+1) $
+
+/* --------------------------------------------------------------------
+   Ring of differential operators with rational functions coefficients
+   in one variables.
+   R_1 = K < x, dx >
+   ---------------------------------------------------------------------
+*/
+
+/* cf. d_gcd.rr */
+def dr_mult(F,G){
+	N=deg(F,dx);
+	A=0;
+	for(K=0;K<=N;K++){
+		A=A+(1/fac(K))*diff2(F,dx,K)*diff2(G,x,K);
+	}
+	return red(A);
+}
+def diff2(F,G,K){
+    for(I=0;I<K;I++){
+      F=diff(F,G);
+	}
+    return F;
+}
+
+
+def dr_in(F) {
+  Dn = dn(F); F=nm(F);
+  D = deg(F,dx);
+  C = coef(F,D,dx);
+  return( red(C*dx^D/Dn) );
+}
+
+def dr_division(F,G) {
+   Q = 0; R = F;
+   while ((R != 0) && (deg(nm(R),dx) >= deg(nm(G),dx))) {
+      D = red(dr_in(R)/dr_in(G));
+      Q = red(Q+D);
+      R = red(R-dr_mult(D,G));
+   }
+   return([Q,R]);
+}
+
+
+def dr_gcd(F,G) {
+   S = 1; T = 0; SS=0; TT=1;
+   if (deg(F,dx) > deg(G,dx)) {
+     Changed = 0;
+   }else {
+     T=F; F=G; G=T; Changed = 1;
+   }
+   do {
+     D=dr_division(F,G);
+     Q = D[0]; R = D[1];
+     SSS = S-Q*SS; TTT = T-Q*TT;
+     F = G; G = R;
+     S = SS; T = TT; SS = SSS; TT = TTT;
+   } while ( R != 0);
+   if (Changed) {
+     return [F,T,S];
+   }else {
+     return [F,S,T];
+   }
+}
+
+/* --------------------------------------------------------
+   euler operators
+   --------------------------------------------------------
+*/
+
+def initANK() {  /* Note, 2/22, 2003 */
+  extern ANK ;
+  ANK[1][1] = 1;
+  for (NN=2; NN<ANK_SIZE; NN++) {
+    for (KK=1; KK<=NN; KK++) {
+      if ((NN-1 < 1) || (KK > NN-1)) A = 0;
+      else A = (ANK[NN-1][KK])*KK;
+      if (KK-1 < 1) B = 0;
+      else B = ANK[NN-1][KK-1];
+      ANK[NN][KK] = A+B;
+    }
+  }
+}
+
+def ank(N,K) {
+  extern ANK ;
+  if (!ANK[1][1]) {
+    initANK();
+  }
+  if ( N < 1 ) error("ank() out of index.");
+  if ( K > N ) return 0;
+  if ( K <= 0 ) return 0;
+  if (N < ANK_SIZE) return ANK[N][K];
+  return ank(N-1,K)*K+ank(N-1,K-1);
+}
+
+/*  Expand (X D)^J in X and D */
+def thetapower2diff(J,X,D) {
+  if (J < 0) error("thetapower2diff() out of index.");
+  if (J == 0) return 1;
+  R = 0;
+  for (I = 1; I <= J; I++) {
+    R += ank(J,I)*X^I*D^I;
+  }
+  return R;
+}
+
+def euler2diff(F,Xlist,Tlist,Dlist) {
+  DN =dn(F);
+  F = nm(F);
+  for (I=0; I < length(Xlist); I++) {
+    T = Tlist[I]; X = Xlist[I]; D = Dlist[I];
+    Deg = deg(F,T); R = 0;
+    for (J=0; J<=Deg; J++) {
+      C = coef(F,J,T);
+      R += C*thetapower2diff(J,X,D);
+    }
+    F = R;
+  }
+  return red(F/DN);
+}
+
+end$
