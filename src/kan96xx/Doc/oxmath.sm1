@@ -1,5 +1,5 @@
 %  oxmath.sm1  : An interface to Open Mathematica Server. (ox_math)
-%  $OpenXM: OpenXM/src/kan96xx/Doc/oxmath.sm1,v 1.1 1999/11/04 02:42:11 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/oxmath.sm1,v 1.2 1999/11/04 12:08:44 takayama Exp $
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
 (oxmathconnectr-ssh ) message
@@ -56,4 +56,78 @@
  $    /myhostname-ssh   (dc1.math.kobe-u.ac.jp) def $
  $         [(tau.math.kobe-u.ac.jp) (taka)] oxmathconnectr-ssh /@@@.oxmath set  $
 ]] putUsages
+
+
+/o_aux {
+  /arg1 set
+  [/in-t_aux /ob /r /r2] pushVariables
+  [
+     /ob arg1 def
+     (_______________________________________) message
+     (tag = ) messagen ob tag messagen (, ) messagen
+     (Sending object :) messagen ob message
+     @@@.oxmath ob oxpushcmo 
+     @@@.oxmath oxpopcmo /r set 
+     (Returned expression is:) messagen 
+     (tag = ) messagen r tag messagen (, ) messagen
+     r message
+     (~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~) message
+  ] pop
+  popVariables
+} def
+
+/o_aux2 {
+  /arg1 set
+  [/in-t_aux /ob /r /r2] pushVariables
+  [
+     /ob arg1 def
+     (_______________________________________) message
+     (Evaluating object :) messagen ob message
+     @@@.oxmath ob oxexecutestring
+     @@@.oxmath oxpopcmo /r set 
+     (Returned cmo expression is:) messagen 
+     (tag = ) messagen r tag messagen (, ) messagen
+     r message
+     (Evaluating object :) messagen ob message
+     @@@.oxmath ob oxexecutestring
+     @@@.oxmath oxpopstring /r set 
+     (popstring of the result is:) messagen 
+     (tag = ) messagen r tag messagen (, ) messagen
+     r message
+     (~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~) message
+  ] pop
+  popVariables
+} def
+
+%% Just type in oxmath-testsuits1
+/oxmath-testsuits1 {
+%% Configure below.
+  /oxpath.oxlog.xterm-ssh (/home/taka/OpenXM/bin/oxlog /usr/X11R6/bin/xterm -icon -e ) def 
+  /oxpath.oxmath-ssh (/home/taka/OpenXM/src/ox_math/ox_math) def 
+  /oxpath.ox-ssh    (/home/taka/OpenXM/bin/ox) def 
+%%  *** The machine name on which you are running sm1. 
+  /myhostname-ssh   (dc4.math.kobe-u.ac.jp) def 
+ [(tau.math.kobe-u.ac.jp) (taka)] oxmathconnectr-ssh /@@@.oxmath set  
+%% End of configuration.
+  
+%%  @@@.oxmath oxmathcap
+%%  (Mathcap is ) messagen @@@.oxmath message
+
+  null o_aux
+  123  o_aux
+  (Hello World) o_aux 
+  [1 2 3] o_aux 
+  (123123).. o_aux
+%  (-12).. (12345).. div o_aux  %% not supported in sm1.
+%  (x^2-1). o_aux  %% It cause a hang of the communication line.
+
+  (------------ test of oxExecuteString and oxpopcmo ----------------)
+  (1+2) o_aux2
+  (Eigenvalues[{{1,2},{3,4}}]) o_aux2
+  (Factor[x^10-1]) o_aux2
+  (Eigenvalues[{{1,2},"Hello"}]) o_aux2
+
+  (End) message
+} def
+
 
