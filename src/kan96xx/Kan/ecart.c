@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.18 2003/09/12 02:52:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.19 2003/09/20 09:57:29 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -165,6 +165,7 @@ static struct ecartPolyArray *ecartPutPolyInG(POLY g,struct ecartPolyArray *epar
   return eparray;
 }
 
+#ifndef EXPERIMENT
 static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
                                             struct ecartPolyArray *epa)
 {
@@ -213,35 +214,6 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
   if ((DebugReductionRed&1) || (DebugReductionEcart&1)) {
     printf("ecartFindReducer(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d\n",ell1,ell2,minGrade,minGseti,minGgi);
   }
-  if (Sugar) {  /* experimental */
-	if (ell1 <= ell2) {
-	  if (ell1 == LARGE) {
-		er.ell = -1;
-		return er;
-	  }else{
-		int new_s;
-		er.ell = ell1;
-		er.first = 1;
-		er.grade = minGrade;
-		er.gseti = minGseti;
-		/* reduce if and only if Ecart_sugarGrade does not increase. */
-		new_s = grade_gen(r)-grade_gen(gset->polys[minGrade]->gh[minGseti]);
-		if (new_s + minGrade <= Ecart_sugarGrade) {
-		  return er;
-		}else{
-		  printf("new_s=%d, minGrade=%d, sugarGrade=%d\n",new_s,minGrade,
-				 Ecart_sugarGrade);
-		  er.ell = -1;
-		  return er;
-		}
-	  }
-	}else{
-      er.ell = ell2;
-      er.first = 0;
-      er.ggi = minGgi;
-	  return er;
-	}
-  }
 
   if (ell1 <= ell2) {
     if (ell1 == LARGE) {
@@ -261,6 +233,7 @@ static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
       return er;
   }
 }
+#endif
 
 static POLY  ecartCheckSyz0(POLY cf,POLY r_0,POLY syz,
                            struct gradedPolySet *gg,POLY r)
@@ -396,7 +369,7 @@ static POLY reduction_ecart0(r,gset,needSyz,syzp)
 
   if (DoCancel && (r != POLYNULL)) shouldReduceContent(r,1);
 
-  if (DebugReductionEcart&1) printf("--------------------------------------\n");
+  if (DebugReductionEcart&1) printf("reduction_ecart0--------------------------------------\n");
   do {
     if (DebugReductionRed&1) printf("r=%s\n",POLYToString(r,'*',1));
     if (DebugReductionEcart & 1) printf("r=%s+...\n",POLYToString(head(r),'*',1));
@@ -541,7 +514,7 @@ static POLY reduction_ecart1(r,gset,needSyz,syzp)
   /* 1 means homogenize only s */
   if (DoCancel && (r != POLYNULL)) shouldReduceContent(r,1);
 
-  if (DebugReductionEcart&1) printf("=======================================\n");
+  if (DebugReductionEcart&1) printf("reduction_ecart1=======================================\n");
   do {
     if (DebugReductionRed & 1) printf("(ecart1(d)) r=%s\n",POLYToString(r,'*',1));
     if (DebugReductionEcart & 1) printf("r=%s+,,,\n",POLYToString(head(r),'*',1));
@@ -843,4 +816,189 @@ static POLY reduction_ecart1_mod(r,gset)
 
   return(r);
 }
+
+#ifdef EXPERIMENT
+static struct ecartReducer ecartFindReducer(POLY r,struct gradedPolySet *gset,
+                                            struct ecartPolyArray *epa)
+{
+  int grd;
+  struct polySet *set;
+  int minGrade = 0;
+  int minGseti = 0;
+  int minGgi   = 0;
+  int ell1 = LARGE;
+  int ell2 = LARGE;
+  int ell;
+  int i;
+  struct ecartReducer er;
+  int ellmin ;
+  ell1 = ell2 = ellmin = LARGE;
+  /* Try to find a reducer in gset; */
+  grd = 0;
+  while (grd < gset->maxGrade) {
+    set = gset->polys[grd];
+    for (i=0; i<set->size; i++) {
+      if (set->gh[i] == POLYNULL) {
+        /* goHomogenize set->gh[i] */
+          if (EcartAutomaticHomogenization) {
+              set->gh[i] = goHomogenize11(set->g[i],DegreeShifto_vec,DegreeShifto_size,-1,1);
+          }else{
+              set->gh[i] = set->g[i];
+          }
+      }
+      ell = ecartGetEll(r,set->gh[i]);
+      if ((ell>=0) && (ell < ell1)) {
+        ell1 = ell;
+        minGrade = grd; minGseti=i;
+      }
+    }
+    grd++;
+  }
+  if (epa != NULL) {
+    /* Try to find in the second group. */
+    for (i=0; i< epa->size; i++) {
+      ell = ecartGetEll(r,(epa->pa)[i]);
+      if ((ell>=0) && (ell < ell2)) {
+        ell2 = ell;
+        minGgi = i;
+      }
+    }
+  }
+
+  if ((DebugReductionRed&1) || (DebugReductionEcart&1)) {
+    printf("ecartFindReducer(): ell1=%d, ell2=%d, minGrade=%d, minGseti=%d, minGgi=%d\n",ell1,ell2,minGrade,minGseti,minGgi);
+  }
+
+#ifdef EXPERIMENTAL1
+  if (Sugar) {  /* experimental */
+	if (ell1 <= ell2) {
+	  if (ell1 == LARGE) {
+		er.ell = -1;
+		return er;
+	  }else{
+		int new_s;
+		er.ell = ell1;
+		er.first = 1;
+		er.grade = minGrade;
+		er.gseti = minGseti;
+		/* reduce if and only if Ecart_sugarGrade does not increase. */
+		new_s = grade_gen(r)-grade_gen(gset->polys[minGrade]->gh[minGseti]);
+		if (new_s + minGrade <= Ecart_sugarGrade+1) {
+		  return er;
+		}else{
+		  printf("new_s=%d, minGrade=%d, sugarGrade=%d\n",new_s,minGrade,
+				 Ecart_sugarGrade);
+		  er.ell = -1;
+		  return er;
+		}
+	  }
+	}else{
+      er.ell = ell2;
+      er.first = 0;
+      er.ggi = minGgi;
+	  return er;
+	}
+  }
+#endif
+
+  if ((ell1 == LARGE) &&  (ell2 == LARGE)) {
+	er.ell = -1;
+	return er;
+  }
+
+  if (ell1 < ell2) {
+	ellmin = ell1;
+  }else{
+	ellmin = ell2;
+  }
+  {
+#define M 100
+	int aminGrade[M];
+	int aminGseti[M];
+	int aminGgi[M];
+	int sp1,sp2;
+	int i;
+	int gmin;
+	int gtmp;
+	sp1 = sp2 = 0;
+
+	if (ell1 == ellmin) {
+	  grd = 0;
+	  while (grd < gset->maxGrade) {
+		set = gset->polys[grd];
+		for (i=0; i<set->size; i++) {
+		  ell = ecartGetEll(r,set->gh[i]);
+		  if (ell == ellmin) {
+			aminGrade[sp1] = grd; aminGseti[sp1]=i;
+			sp1++;
+			if (sp1 >= M) {
+			  fprintf(stderr,"aminGrade, buffer overflow. sp1 is set to 1.\n");
+			  sp1 = 1;
+			}
+		  }
+		}
+		grd++;
+	  }
+	}
+	if (ell2 == ellmin) {
+	  if (epa != NULL) {
+		for (i=0; i< epa->size; i++) {
+		  ell = ecartGetEll(r,(epa->pa)[i]);
+		  if (ell == ellmin) { 
+			aminGgi[sp2] = i;
+			sp2++; 
+			if (sp2 >= M) {
+			  fprintf(stderr,"aminGgi, buffer overflow. sp2 is set to 1.\n");
+			  sp2 = 1;
+			}
+		  }
+		}
+	  }
+	}
+	/* print summary */
+	printf("summary -----------------------\n");
+	for (i=0; i<sp1; i++) {
+	  printf("i=%d: minGrade=%d, minGseti=%d,",i,aminGrade[i],aminGseti[i]);
+	  printf("grade=%d\n",grade_gen(gset->polys[aminGrade[i]]->gh[aminGseti[i]]));
+	}
+	gmin = LARGE;
+	for (i=0; i<sp2; i++) {
+	  printf("i=%d: minGgi=%d,",i,aminGgi[i]);
+	  gtmp = grade_gen((epa->pa)[aminGgi[i]]);
+	  printf("grade=%d\n",gtmp);
+	  if (gtmp < gmin) {
+		gmin = gtmp;
+		minGgi = aminGgi[i];
+	  }
+	}
+
+	if (ell1 <= ell2) {
+      er.ell = ell1;
+      er.first = 1;
+      er.grade = minGrade;
+      er.gseti = minGseti;
+      return er;
+	}else{
+      er.ell = ell2;
+      er.first = 0;
+      er.ggi = minGgi;
+      return er;
+	}
+
+  }
+
+  if (ell1 <= ell2) {
+      er.ell = ell1;
+      er.first = 1;
+      er.grade = minGrade;
+      er.gseti = minGseti;
+      return er;
+  }else{
+      er.ell = ell2;
+      er.first = 0;
+      er.ggi = minGgi;
+      return er;
+  }
+}
+#endif
 
