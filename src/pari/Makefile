@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/pari/Makefile,v 1.7 2000/01/08 20:31:47 maekawa Exp $
+# $OpenXM: OpenXM/src/pari/Makefile,v 1.8 2000/01/08 20:54:08 maekawa Exp $
 
 PARI = ../../../OpenXM_contrib/pari
 
@@ -27,4 +27,5 @@ configure:
 	@touch ./.configure_done
 
 install-lib: all
-	(cd $(PARI) ; make install-lib-sta ; ranlib ../../lib/libpari.a)
+	(cd $(PARI) ; make install-lib-sta)
+	ranlib ../../lib/libpari.a
