@@ -1,12 +1,15 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.32 2000/04/10 02:29:40 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.33 2000/09/05 08:24:34 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
 OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
+              http://www.openxm.org
 Consult firstly the ERRATA section for your release on this web cite
 for troubles.
 
 OpenXM package : Getting started.
+
+This document is for OpenXM version 1.1.3.  (Draft)
 
 */
 /*&jp
@@ -190,6 +193,16 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
    インストール終了後のメッセージにしたがい, 必要な設定を
    おこなって下さい.
 
+   jdk は /usr/ports/lang/jdk よりインストールできます.
+   Linux emulation を有効にするには,
+    /etc/rc.conf に
+    linux_enable="YES"
+   と書き, 
+   /usr/ports/emulators/linux_base を用いて, linux 用の共有ライブラリ等を
+   インストールしておきます.
+     (FreeBSD 3.x, 4.x)
+    
+
    /usr/local にインストールしなかった場合は,
    (2) を実行して下さい.
 
@@ -214,7 +227,15 @@ A. Add the following line to .Xdefaults or a file you read by xrdb.
      set path=(/usr/local/jdk1.1.8 $path) 
      rehash
    Following the message of pkg_add after the installation,
-   set asir_key and path.
+   set path.
+
+   jdk can be installed by /usr/ports/lang/jdk.
+   Add the line
+    linux_enable="YES"
+   to /etc/rc.conf and install shared libraries for linux
+   by /usr/ports/emulators/linux_base.
+   Then, you can emulate linux.
+
    If you do not install under /usr/local,
    goto (2).
 
@@ -308,7 +329,7 @@ csh を利用している場合, .cshrc で
 set path=(/usr/local/jdk1.1.8/bin $path)
 として, jdk の java, javac をサーチパスにいれます.
 
-jdk の入手先:  FreeBSD  --- package lang の下にあります.
+jdk の入手先:  FreeBSD  --- /usr/ports/java/jdk を見てください.
                Linux    --- 
 
 注意:
@@ -328,7 +349,7 @@ PATH=/usr/local/jdk1.1.8/bin:$PATH
 export PATH
 
 
-Where can I get jdk? :  FreeBSD --- jdk is under the package/lang
+Where can I get jdk? :  FreeBSD --- see /usr/ports/java/jdk
                         Linux   --- 
 
 Remark:
@@ -353,7 +374,7 @@ So, it cannot be used for the OpenMath module.
 */
 /*&C
 
-OS:  FreeBSD 3.3 (Intel CPU),  
+OS:  FreeBSD 3.3, 3.4, 4.x (Intel CPU),  
      Linux systems (Intel CPU):
          Most Linux with libc5 and with libc6 (glibc 2.x).  
 
