@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/simple.y,v 1.4 2002/11/28 01:25:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/simple.y,v 1.5 2002/11/29 06:20:02 takayama Exp $ */
 /* simple.y 1996, 1/1 --- 1/6 */
 /* simple.y.ccc,  1996, 4/1 --- */
 %{
@@ -148,12 +148,11 @@ for
                  pkkan(" 2 1 roll] {exec} map pop\n} loop %%end of for\n"); }
 ;
 PSfor_prefix
-  : PSFOR '(' ID '=' exp ';'
-     { pkkan("%%PSfor initvalue.\n (integer) data_conversion \n");
+  : PSFOR '(' ID '=' exp ';'  ID '<' exp ';' ID INCREMENT  ')' 
+     { 
+       pkkan("%%PSfor initvalue.\n (integer) data_conversion \n");
        ips($3); 
-     }
-    ID '<' exp ';' ID INCREMENT  ')' 
-     { ips($7); ips($10); 
+       ips($7); ips($11); 
        /* They must be equal id, but it is not checked. */
        pkkan(" (1).. sub  (integer) data_conversion  1  2 -1 roll \n");
        pkkan("{ %% for body\n (universalNumber) data_conversion ");
