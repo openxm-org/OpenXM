@@ -1,0 +1,33 @@
+$OpenXM$ 
+2004/02/23 by Takayama
+
+deb package の生成の仕方:
+[1] make -f Makefile-knoppix build
+   FLL-free な部分のみを work へ Debian package 化.
+   具体的には OpenXM/bin/asir と OpenXM/lib/asir/... 以外.
+
+[2] cd work/openxm-head/OpenXM/src/asir-port
+    make copy-for-knoppix
+   FLL の部分を ftp サーバへコピー.
+
+
+asir (OpenXM 版) の使い方:
+[1] openxm asir-port.sh     < asir の起動 >
+
+    $HOME/.asir-tmp に asir および ライブラリ等が存在しなければ
+    ftp.math.kobe-u.ac.jp/pub/asir/knoppix よりダウンロード.
+    そのあと asir を起動.
+    
+    注意:
+    /usr/local/bin/asir は /home/knoppix/.asir-tmp/asir への
+    symbolic link なので, knoppix 以外の Debian のシステムでは,
+
+    mkdir /home/knoppix
+    ln -s $HOME/.asir-tmp /home/knoppix/.asir-tmp
+
+    を実行しておく必要がある.  
+
+
+インストール方法:
+  dpkg --install openxm-shared*.deb
+  dpkg --install openxm-binary*.deb
