@@ -62,10 +62,15 @@ install: build
 	sed 's/^OpenXM_HOME=$$HOME/OpenXM_HOME=\/usr\/local/' <${INST_PREFIX}/OpenXM/rc/bashrc >${INST_PREFIX}/OpenXM/rc/dot.bashrc
 	mkdir ${INST_PREFIX}/bin
 	(cd ${INST_PREFIX}/OpenXM/rc ; make openxm ; ./gen-shell-scripts ; cp ${SHELL_SCRIPTS} ../../bin )
+# copying icons for KDE.
 	mkdir -p ${INST_PREFIX}/../../usr/lib/menu
 	mkdir -p ${INST_PREFIX}/../../usr/share/pixmaps
 	cp ${INST_PREFIX}/OpenXM/rc/kde/openxm-binary-knoppix ${INST_PREFIX}/../../usr/lib/menu/openxm-binary
 	cp ${INST_PREFIX}/OpenXM/doc/OpenXM-web/hopo_std_color.xpm ${INST_PREFIX}/OpenXM/doc/OpenXM-web/logo-openxm2-color.xpm  ${INST_PREFIX}/../../usr/share/pixmaps
+# Do the final cleaning of /usr/local/OpenXM for knoppix package.
+	cp delete-files-knoppix.sh ${INST_PREFIX}/../../
+	(cd ${INST_PREFIX} ; ./delete-files-knoppix.sh )
+	rm -f ${INST_PREFIX}/../../delete-files-knoppix.sh
 	#dh_movefiles
 
 # Build architecture-independent files here.
