@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.7 2000/01/24 12:32:49 noro Exp $
+%% $OpenXM: OpenXM/doc/OpenXM-specs/cmo-basic1.tex,v 1.8 2000/02/28 14:10:27 takayama Exp $
 //&jp \section{ 数, 多項式 の  CMO 表現 }
 //&eg \section{ CMOexpressions for numbers and polynomials }
 \label{sec:basic1}
@@ -64,9 +64,11 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- ユニバーサルな ゼロを表す. } \\
 \mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots
-{\sl byte}\, \mbox{a[m]} ) \\
+{\sl byte}\, \mbox{a[$|$f$|$]} ) \\
 &:& \mbox{ --- bignum をあらわす. a[i] についてはあとで説明}\\
-\mbox{QQ}        &:& ({\tt CMO\_QQ}, {\sl ZZ}\, {\rm a}, {\sl ZZ}\, {\rm b}) \\
+\mbox{QQ}        &:& ({\tt CMO\_QQ}, 
+                      {\sl int32}\, {\rm m}, {\sl byte}\, \mbox{a[1]}, \ldots, {\sl byte}\, \mbox{a[$|$m$|$]},
+                      {\sl int32}\, {\rm n}, {\sl byte}\, \mbox{b[1]}, \ldots, {\sl byte}\, \mbox{b[$|$n$|$]})\\
 & & \mbox{ --- 有理数 $a/b$ を表す. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  $a/b$ を表す. } \\
@@ -84,9 +86,11 @@ ZZ, QQ, Zero, Rational, Indeterminate,$\in$ CMObject/Basic. \\
 \mbox{Zero} &:& ({\tt CMO\_ZERO}) \\ 
 & & \mbox{ --- Universal zero } \\
 \mbox{ZZ}         &:& ({\tt CMO\_ZZ},{\sl int32}\, {\rm f}, {\sl byte}\, \mbox{a[1]}, \ldots
-{\sl byte}\, \mbox{a[m]} ) \\
+{\sl byte}\, \mbox{a[$|$m$|$]} ) \\
 &:& \mbox{ --- bignum. The meaning of a[i] will be explained later.}\\
-\mbox{QQ}        &:& ({\tt CMO\_QQ}, {\sl ZZ}\, {\rm a}, {\sl ZZ}\, {\rm b}) \\
+\mbox{QQ}        &:& ({\tt CMO\_QQ}, 
+                      {\sl int32}\, {\rm m}, {\sl byte}\, \mbox{a[1]}, \ldots, {\sl byte}\, \mbox{a[$|$m$|$]},
+                      {\sl int32}\, {\rm n}, {\sl byte}\, \mbox{b[1]}, \ldots, {\sl byte}\, \mbox{b[$|$n$|$]})\\
 & & \mbox{ --- Rational number $a/b$. } \\
 \mbox{Rational}        &:& ({\tt CMO\_RATIONAL}, {\sl CMObject}\, {\rm a}, {\sl CMObject}\, {\rm b}) \\
 & & \mbox{ ---  Rational expression $a/b$. } \\
