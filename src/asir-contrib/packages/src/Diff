@@ -1,10 +1,20 @@
-/* $OpenXM: OpenXM/src/asir99/lib/contrib/packages/src/Diff,v 1.9 1999/11/24 23:39:44 okutani Exp $ */
+/* $OpenXM$ */
 
 /*------------------------------------*/
 /* Package for differential equations */
 /*------------------------------------*/
 
 #define _DEBUG_Diff_ 0
+#define _OPTIMIZE_Diff_ 1
+
+/* [[[F,V] DF],...] */
+/* DF: vector with vector elements */
+/*     [ [F Dv1(F) ... Dv1^N(F)]
+         [Dv0(F) Dv1Dv0(F) ... Dv1^(N-1)Dv0(F)]
+         ...
+         [Dv0^N(F)] ] */
+
+Diff_ActList2 = [ newvect(2,[[x,[x,y]],newvect(1,[newvect(1,[x])])]) ]$
 
 /*---------*/
 /* Utility */
@@ -35,6 +45,59 @@ def diff_is_neg0_int(N) {
 /*-------------------------------*/
 /* In the case of many variables */
 /*-------------------------------*/
+def diff2_act(L, F, V) {
+  if (length(V) != 2) {
+    error("a length of list V is wrong.");
+  }
+  extern Diff_ActList2;
+  /* search list. */
+  for (I = 0; I < length(Diff_ActList2); I++) {
+    if (Diff_ActList2[I][0] == [F, V]) {
+      break;
+    }
+  }
+  N = I;
+  if (N == length(Diff_ActList2)) {
+    /* make Diff_ActList2[N]. */
+    Diff_ActList2 = append(Diff_ActList2,
+			   [ newvect(2,[[F, V],newvect(1,[newvect(1,[F])])]) ]);
+  }
+  Table = Diff_ActList2[N];  /* a vetor of size 2 */
+  /* calculate order of L. */
+  MaxOrd = 0;
+  for (I = 0; I < length(L); I++) {
+    if (MaxOrd < L[I][1][0] + L[I][1][1]) {
+      MaxOrd = L[I][1][0] + L[I][1][1];
+    }
+  }
+  /* if MaxOrd >= length(Diff_ActList2[N][1][0]), extend Diff_ActList2[N][1]. */
+  if (MaxOrd >= size(Table[1])[0]) {
+    NewTable = newvect(MaxOrd+1);
+    for (I = 0; I <= MaxOrd; I++) {
+      if (I < size(Table[1])[0]) {
+	NewTable[I] = newvect(MaxOrd + 1 - I, vtol(Table[1][I]));
+	for (J = size(Table[1][I])[0]; J <= MaxOrd - I; J++) {
+	  NewTable[I][J] = red(diff(NewTable[I][J-1], V[1]));
+	}
+      }
+      else {
+	NewTable[I] = newvect(MaxOrd + 1 - I, [red(diff(NewTable[I-1][0], V[0]))]);
+	for (J = 1; J <= MaxOrd - I; J++) {
+	  NewTable[I][J] = red(diff(NewTable[I][J-1], V[1]));
+	}
+      }
+    }
+    Table[1] = NewTable;
+  }
+  /* action L. */
+  Lf = 0;
+  for (I = length(L) - 1; I >= 0; I--) {
+    Df = Table[1][L[I][1][0]][L[I][1][1]];
+    Lf += L[I][0]*Df;
+    Lf = red(Lf);
+  }
+  return Lf;
+}
 
 /* D: list, [a1,...,an] */
 /* F: rational expr */
@@ -52,7 +115,14 @@ def diff_act_mono(D, F, V) {
 /* L: [ [fa(V),[a1,...,an]],... ] */
 /* F: rational expr */
 /* V: list, [x1,...,xn] */
+/* the return value of this function is reduced by using 'red()'. */
 def diff_act(L, F, V) {
+#if _OPTIMIZE_Diff_
+  if (length(V) == 2) {
+    return diff2_act(L, F, V);
+  }
+#endif
+
   Lf = 0;
   for (I = 0; I < length(L); I++) {
     Lf += L[I][0]*diff_act_mono(L[I][1], F, V);
@@ -63,7 +133,7 @@ def diff_act(L, F, V) {
 def diff_acts(L_list, F, V) {
   Lf_list = [];
   for (I = 0; I < length(L_list); I++) {
-    Lf_list = append(Lf_list,[diff_act(L_list[I],F,V)]);
+    Lf_list = append(Lf_list, [diff_act(L_list[I], F, V)]);
   }
   return Lf_list;
 }
@@ -134,21 +204,7 @@ def diff_assign_uc(Sol,Value) {
   error("parameter type error");
 }
 
-def diff1_rat_solve(L_list,Dn,N,V) {
-  if (length(V) != 1) {
-    error("a length of list V is wrong.");
-  }
-  return [U, UC];
-}
-
-def diff2_rat_solve(L_list,Dn,N,V) {
-  if (length(V) != 2) {
-    error("a length of list V is wrong.");
-  }
-  return [U, UC];
-}
-
-def diff_rat_solve(L_list,Dn,N,V) {
+def diff_rat_solve(L_list, Dn, N, V) {
   /* OK: calculate the degree of U */
   Deg_U = N;
 #if _DEBUG_Diff_
@@ -186,9 +242,10 @@ def diff_rat_solve(L_list,Dn,N,V) {
 #endif
 
   /* OK: calculate Lu_list */
+  List = diff_acts(L_list, U/Dn, V);
   Lu_list = [];
-  for (I = 0; I < length(L_list); I++) {
-    Lu_list = append(Lu_list, [nm(red(diff_act(L_list[I], U/Dn, V)))]);
+  for (I = 0; I < length(List); I++) {
+    Lu_list = append(Lu_list, [nm(List[I])]);
   }
 #if _DEBUG_Diff_
   print("Lu_list: ", 0); print(Lu_list);
@@ -266,7 +323,6 @@ def diff_rat_solve(L_list,Dn,N,V) {
   print("U: ", 0); print(U);
 #endif
 
-  /* this part may be deleted. */
   /* unknown coefficient */
   Vars_U = vars(U);
   UC = [];
@@ -520,6 +576,10 @@ def diff_poly_solve_appell4_check(Sol,A,B,C1,C2,V) {
   return 1;
 }
 
+def diff_rat_solve_appell4(A,B,C1,C2,Dn,N,V) {
+  return diff_rat_solve(diff_op_appell4(A,B,C1,C2,V),Dn,N,V);
+}
+
 /* selberg2 */
 def diff_op_selberg2(A,B,C,S,V) {
   if (length(V) != 2) {
@@ -644,7 +704,9 @@ def diff_lookup(X, List) {
   return 0;
 }
 
+/*---------------------------*/
 /* GKZ hypergeometric system */
+/*---------------------------*/
 /* return generators of toric ideal I_{A} */
 /* [[u1,v1],[u2,v2],...] <- { x^u1-x^v1, x^u2-x^v2,...} */
 def diff_toric_ideal(A) {

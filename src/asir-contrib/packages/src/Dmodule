@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir99/lib/contrib/packages/src/Dmodule,v 1.11 1999/11/23 05:56:05 okutani Exp $ */
+/* $OpenXM$ */
 
 /*----------------------*/
 /* package for D-module */
@@ -7,6 +7,7 @@
 #define _DEBUG_Dmodule_ 0
 
 Dmodule_sm1_PID = -1$
+Dmodule_Euler2D = [[1],[0,1],[0,1,1]]$
 
 def dmod_sm1_start() {
   extern Dmodule_sm1_PID;
@@ -558,6 +559,71 @@ def dmod_elimination_selberg2_1(A, B, K1, K2, V, Elim) {
 def dmod_elimination_gkz(A, B, V, Elim) {
   D_ideal_str = dmod_d_op_tosm1(diff_op_gkz(A, B, V), V);
   return dmod_elimination(D_ideal_str, V, Elim);
+}
+
+/* (V[0] dV[0])^N -> V[0]^N dV[0]^N + ... */
+def dmod_euler2d(N, V) {
+  extern Dmodule_Euler2D;
+  if (N < 0) {
+    error("parameter range error.");
+  }
+
+  if (N >= length(Dmodule_Euler2D)) {
+    for (I = length(Dmodule_Euler2D); I <= N; I++) {
+      List = [0];
+      for (J = 1; J < I; J++) {
+	List = append(List, [Dmodule_Euler2D[I-1][J-1]+J*Dmodule_Euler2D[I-1][J]]);
+      }
+      List = append(List, [Dmodule_Euler2D[I-1][I-1]]);
+      Dmodule_Euler2D = append(Dmodule_Euler2D, [List]);
+    }
+  }
+
+  Coef = Dmodule_Euler2D[N];
+  Dv = dmod_make_dv(V);
+  D = 0;
+  for (I = 0; I < length(Coef); I++) {
+    D += Coef[I]*V[0]^I*Dv[0]^I;
+  }
+  return D;
+}
+/* a -> a+n, b -> b+n, c1 -> c1+n, c2 -> c2+n */
+/* Param: List, [a,b,c1,c2] */
+/* Ns: List, [na,nb,nc1,nc2] */
+def dmod_contiguity_appell4(Param, Ns, F, V) {
+  if (length(V) != 2) {
+    error("a length of List V is wrong.");
+  }
+  if (Ns[0] < 0 || Ns[1] < 0 || Ns[2] > 0 || Ns[3] > 0) {
+    error("this case is undefined.");
+  }
+
+  Tx = uc(); Ty = uc();
+  L = 1;
+  for (I = 0; I < Ns[0]; I++) {
+    L *= Tx + Ty + Param[0] + I;
+  }
+  for (I = 0; I < Ns[1]; I++) {
+    L *= Tx + Ty + Param[1] + I;
+  }
+  for (I = 0; I < -Ns[2]; I++) {
+    L *= Tx + Param[2] - I - 1;
+  }
+  for (I = 0; I < -Ns[3]; I++) {
+    L *= Ty + Param[3] - I - 1;
+  }
+
+  Dp_L = dp_ptod(L, [Tx,Ty]);
+  L = 0;
+  while (Dp_L != 0) {
+    Hm = dp_hm(Dp_L);
+    He = vtol(dp_etov(Hm));
+    L += dp_hc(Hm)*dmod_euler2d(He[0], [V[0]])*dmod_euler2d(He[1], [V[1]]);
+    Dp_L -= Hm;
+  }
+
+  L_list = dmod_d_op_fromasir([L], V);
+  return diff_act(L_list[0], F, V);
 }
 
 end$
