@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.6 2001/12/24 05:11:47 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.7 2001/12/28 03:24:35 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 STARTEXE=c:/windows/command/start.exe
 WINASIR=c:/home/asir
@@ -51,6 +51,7 @@ win-correction2: win-correction1
 	cp OpenXM-win/lib/sm1/*.sm1 OpenXM-win/bin
 	cp OpenXM-win/lib/sm1/oxasir.asir OpenXM-win/asir/bin
 	cp OpenXM-win/lib/sm1/oxasir.asir OpenXM-win/bin
+	cp OpenXM-win/bin/ox_asir OpenXM-win/bin/ox_asir.exe
 win-correction-clean:
 	-find OpenXM-win -name '*~' -print | xargs rm
 	-rm OpenXM-win/lib/sm1/*.jpeg OpenXM-win/lib/sm1/*.jpg
