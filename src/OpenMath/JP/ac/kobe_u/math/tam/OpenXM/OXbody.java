@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXbody.java,v 1.1 2000/02/02 11:48:32 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXbody.java,v 1.2 2000/02/03 11:04:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -11,7 +11,7 @@ public abstract class OXbody{
 
   //public OXbody(DataInputStream is) throws IOException{}
 
-  public abstract void write(DataOutputStream os) throws IOException,MathcapViolation;
+  public abstract void write(OpenXMconnection os) throws IOException,MathcapViolation;
 
   //public abstract static OX read(DataInputStream is) throws IOException;
 

@@ -1,25 +1,11 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.7 1999/11/21 20:38:41 tam Exp $
- *
- * abstract protected int DISCRIMINATOR(); - 各 CMO の cmo_tag を返す.
- * abstract protected void sendByObject(DataOutputStream os)
- *   - 各 CMO 用のエンコードを行って出力する.
- * public void send(DataOutputStream os)
- *   - cmo_tag を出力し, sendByObject() を呼び出す.
- * abstract protected CMO receiveByObject(DataInputStream is)
- *   - 各 CMO 用のデコードで入力を受け取る.
- * public static CMO receive(DataInputStream is)
- *   - 入力から cmo_tag を受け取り, receiveByObject() を呼び出す.
- * abstract protected String toCMOexpressionByObject();
- *   - 各 CMO 用の CMOexpression を返す.
- * public String toCMOexpression() - toCMOexpressionByObject() を呼び出す.
- * public String toString() - toCMOexpression() を呼び出す.
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO.java,v 1.8 2000/01/20 18:14:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
 import java.io.*;
 
-abstract public class CMO{
+abstract public class CMO extends OXbody{
   public static int[] mathcap = null;
 
   final public static int LARGEID     = 0x7f000000;
@@ -63,7 +49,7 @@ abstract public class CMO{
 
   public CMO(){}
 
-  public CMO(InputStream is){
+  public CMO(InputStream is) throws IOException{
     //DataInputStream is;
   }
 
@@ -76,7 +62,13 @@ abstract public class CMO{
   abstract protected void sendByObject(DataOutputStream os)
        throws IOException,MathcapViolation;
 
-  public void send(DataOutputStream os) throws IOException,MathcapViolation{
+  final public void write(OpenXMconnection os)
+       throws IOException,MathcapViolation{
+    write(new DataOutputStream(os.os));
+  }
+
+  final protected void write(DataOutputStream os)
+       throws IOException,MathcapViolation{
     if(mathcap != null){ // check mathcap
       int i=0;
 
@@ -96,7 +88,9 @@ abstract public class CMO{
   abstract protected CMO receiveByObject(DataInputStream is)
        throws IOException;
 
-  public static CMO receive(DataInputStream is) throws IOException{
+  //public abstract static OX read(DataInputStream is) throws IOException;
+
+  final public static CMO receive(DataInputStream is) throws IOException{
     int a = 0;
 
     a = is.readInt();
@@ -173,11 +167,15 @@ abstract public class CMO{
 
   abstract protected String toCMOexpressionByObject();
 
-  public String toCMOexpression(){
+  final public String toOXexpression(){
+    return toCMOexpression();
+  }
+
+  final public String toCMOexpression(){
     return "("+ this.toCMOexpressionByObject() +")";
   }
 
-  public String toString(){
+  final public String toString(){
     return this.toCMOexpression();
   }
 }

@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.4 1999/11/18 15:13:02 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_POLYNOMIAL_IN_ONE_VARIABLE.java,v 1.5 2000/01/20 18:14:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -54,11 +54,11 @@ public class CMO_POLYNOMIAL_IN_ONE_VARIABLE extends CMO{
        throws IOException,MathcapViolation{
     int m = degrees.length;
 
-    new CMO_INT32(m).send(os);
-    new CMO_INT32(variable).send(os);
+    new CMO_INT32(m).write(os);
+    new CMO_INT32(variable).write(os);
     for(int i=0;i<m;i++){
-      new CMO_INT32(degrees[i]).send(os);
-      coefficients[i].send(os);
+      new CMO_INT32(degrees[i]).write(os);
+      coefficients[i].write(os);
     }
   }
 

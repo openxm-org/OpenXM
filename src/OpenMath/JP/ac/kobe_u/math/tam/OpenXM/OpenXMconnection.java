@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.9 2000/01/20 18:14:34 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OpenXMconnection.java,v 1.10 2000/01/20 18:55:22 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -65,12 +65,20 @@ class OpenXMconnection{
     socket.close();
   }
 
+  public void writeByte(int b) throws IOException{
+    os.write(b);
+  }
+
+  public void writeInt(int i) throws IOException{
+    new DataOutputStream(os).writeInt(i);
+  }
+
   public void sendSM(SM code) throws IOException{
     DataOutputStream dos = new DataOutputStream(os);
 
     dos.writeInt(OX_COMMAND);
     dos.writeInt(serial_num);
-    code.send(dos);
+    code.write(this);
     os.flush();
   }
 
@@ -98,7 +106,7 @@ class OpenXMconnection{
 
     dos.writeInt(OX_DATA);
     dos.writeInt(serial_num);
-    object.send(dos);
+    object.write(dos);
     dos.flush();
     bos.writeTo(os);
   }

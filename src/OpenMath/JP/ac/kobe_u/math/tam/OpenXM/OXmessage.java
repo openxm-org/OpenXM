@@ -1,5 +1,5 @@
 /**
- * $OpenXM$
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/OXmessage.java,v 1.1 2000/02/02 11:48:32 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -25,6 +25,11 @@ public class OXmessage{
     serial = is.readInt();
   }
 
+  public OXmessage(OpenXMconnection is) throws IOException{
+    tag    = is.readInt();
+    serial = is.readInt();
+  }
+
   public int getTag(){
     return this.tag;
   }
@@ -32,6 +37,14 @@ public class OXmessage{
   public void write(DataOutputStream os) throws IOException,MathcapViolation{
     os.writeInt(this.tag);
     os.writeInt(this.serial);
+    body.write(os);
+    return;
+  }
+
+  public void write(OpenXMconnection os) throws IOException,MathcapViolation{
+    os.writeInt(this.tag);
+    os.writeInt(this.serial);
+    body.write(os);
     return;
   }
 

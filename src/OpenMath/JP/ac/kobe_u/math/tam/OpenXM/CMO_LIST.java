@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.5 2000/01/20 13:58:48 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_LIST.java,v 1.6 2000/01/20 18:14:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -27,7 +27,7 @@ public class CMO_LIST extends CMO{
     os.writeInt(ob.length);
 
     for(int i=0;i<ob.length;i++){
-      ob[i].send(os);
+      ob[i].write(os);
     }
   }
 

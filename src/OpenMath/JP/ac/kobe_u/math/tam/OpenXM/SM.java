@@ -1,5 +1,5 @@
 /*
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/SM.java,v 1.2 1999/11/07 21:22:04 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/SM.java,v 1.3 2000/02/03 11:04:35 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -32,15 +32,15 @@ final public class SM extends OXbody{
     SMcode = code;
   }
 
-  public SM(java.io.DataInputStream is) throws java.io.IOException{
-    SMcode = is.readInt();
+  public SM(java.io.InputStream is) throws java.io.IOException{
+    SMcode = new java.io.DataInputStream(is).readInt();
   }
 
   public int getCode(){
 	return SMcode;
   }
 
-  public void write(java.io.DataOutputStream os) throws java.io.IOException{
+  public void write(OpenXMconnection os) throws java.io.IOException{
     os.writeInt(SMcode);
   }
 
