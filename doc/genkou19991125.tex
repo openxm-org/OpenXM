@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.62 1999/12/23 19:59:51 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.63 1999/12/23 21:04:10 tam Exp $
 
 \usepackage{jssac}
 \title{タイのトル}
@@ -359,13 +359,20 @@ $A$ の部分は
 CMO 形式の 32 ビット整数、文字列、 mathcap 、リスト構造のみが
 受け取れるときには、 $C$ の部分は
 
-\begin{tabular}{|c|c|} \hline
-	OX\_DATA & \vspace{1mm}
-	\begin{tabular}{|c|c|c|c|} \hline
-	CMO\_INT32 & CMO\_STRING & CMO\_MATHCAP & CMO\_LIST \\ \hline
-	\end{tabular} \\ \hline
+\begin{tabular}{|c|} \hline
+	\\[-5mm]
+	\begin{tabular}{|c|c|} \hline
+		& \\[-5mm]
+		OX\_DATA &
+		\begin{tabular}{|c|c|c|c|} \hline
+		CMO\_INT32 & CMO\_STRING & CMO\_MATHCAP & CMO\_LIST \\ \hline
+		\end{tabular} \\[1mm] \hline
+	\end{tabular} \\[1mm] \hline
 \end{tabular}
 
+となる。
+CMO\_ZZ がないので、このサーバは多倍長整数が
+送られてこないことを期待している。
 
 なお、データが受け取れることと、
 データの論理構造が理解できることとはまったく別物であるので
