@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.4 2000/10/10 05:23:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mysocket.c,v 1.5 2000/11/30 16:07:35 ohara Exp $ */
 /*
 Q: How to get a local port number?
 A: You do setsockopt() to set options and do socket(), bind().
@@ -32,7 +32,7 @@ typedef struct ox_sockopt {
     int       level;
     int       option_name;
     void*     option_value;
-    socklen_t option_len;
+    int       option_len;
 } ox_sockopt;
 
 static int getsocket(struct sockaddr_in *mp, char *host, int port)
