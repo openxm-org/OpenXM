@@ -1,4 +1,4 @@
-/*$OpenXM$ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.1 2003/12/04 10:40:02 takayama Exp $ */
 
 module oxshell;
 
@@ -6,6 +6,7 @@ module oxshell;
 localf oxshell$
 localf get_value$
 localf set_value$
+localf tfb_to_tree$
 localf get_Sm1_proc$
 localf set_Sm1_proc$
 localf find_proc$
@@ -75,6 +76,12 @@ def get_value(V) {
   SM1L_FIND_PROC(P);
   sm1(P," "+rtostr(V)+" ");
   return(ox_pop_cmo(P));  
+}
+
+def tfb_to_tree(S) {
+  SM1L_FIND_PROC(P);
+  sm1(P," ("+rtostr(S)+") tfbToTree ");
+  return(ox_pop_cmo(P));
 }
 
 def find_proc() {
