@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.10 2000/01/16 06:02:41 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/openxm-stackmachines.tex,v 1.11 2000/01/16 06:39:39 takayama Exp $
 
 \section{OpenXM Stack machines}\label{sec:ox-stackmachines}
 
@@ -72,7 +72,7 @@ For example, the following code factorizes $x^{100}-1$ by calling
 \begin{verbatim}
 P = ox_launch(); 
 ox_push_cmo(P,x^100-1); ox_push_cmo(P,ntoint32(1));
-ox_push_cmd(P,269); 
+ox_push_cmo(P,"fctr");  ox_push_cmd(P,269); 
 Ans = ox_pop_cmo(P);
 \end{verbatim}
 
