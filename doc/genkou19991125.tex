@@ -1,6 +1,6 @@
 \documentclass{jarticle}
 
-%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.75 1999/12/24 17:59:42 tam Exp $
+%% $OpenXM: OpenXM/doc/genkou19991125.tex,v 1.76 1999/12/24 19:01:00 tam Exp $
 
 \usepackage{jssac}
 \title{
@@ -307,18 +307,23 @@ CMO\_MATHCAP, CMO\_LIST で識別されるオブジェクトは最も基本的なオブジェ
 cmo\_int32 := (CMO\_INT32,  {\sl int32} $a$)
 \end{quote}
 
-これは 32 ビット整数 $a$ の cmo を表す。
+%{\Huge 同様に cmo\_string, cmo\_list などを定義}
+
+これは cmo の 32 ビット整数 $a$ を表す。
 他のオブジェクトを定義するために、
 以後 ``{\sl string} $s$'' を文字列 $s$ 、
 ``{\sl cmo} $ob$'' を cmo のオブジェクト $ob$ とする。
 これを用いて、 cmo\_string, cmo\_list を定義する。
 
+\begin{quote}
+cmo\_string := (CMO\_STRING, {\sl int32} $len$, {\sl string} $str$) \\
+cmo\_list := (CMO\_LIST, {\sl int32} $n$, {\sl cmo} $ob_1$,
+		{\sl cmo} $ob_2$, $\cdots$,{\sl cmo} $ob_n$)
+\end{quote}
 
-{\Huge 同様に cmo\_string, cmo\_list などを定義}
+これはそれぞれ長さ $len$ の文字列 $str$ と、
+$ob_1$, $ob_2$, $\cdots$, $ob_n$ からなる長さ $n$ のリストを表す。
 
-cmo\_string := (CMO\_STRING, {\sl int32}, string)
-
-cmo\_list := (CMO\_LIST, {\sl int32},...
 
 % ここで 32 bit の整数の表現方法について触れておく。
 % OpenXM 規約ではバイトストリームで 32 bit の整数 20 を
@@ -403,12 +408,16 @@ OpenXM 規約では、通信時に用いられるメッセージの種類を各ソフトウェアが制
 送付する。クライアントはそのオブジェクトを解析して、制限をかける。
 
 次に mathcap のデータ構造について説明する。
-mathcap は CMO の一種であるので、すでに説明したように
-\begin{verbatim}
-ヘッダ     ボディ
-\end{verbatim}
+mathcap は CMO の一種であるので、すでに説明したように \\
+\begin{tabular}{|c|c|} \hline
+ヘッダ        & \hspace{10mm} ボディ \hspace{10mm} \\ \hline
+\end{tabular} \\
 の構造を持ちヘッダの値は 5 である(\ref{sec:cmo} 節を参照のこと)。
 ボディは cmo\_list オブジェクトでなければならない。
+
+%\begin{quote}
+%	cmo\_mathcap := (CMO\_MATHCAP,{\sl cmo} obj)
+%\end{quote}
 
 さて、mathcap オブジェクトのボディの cmo\_list オブジェクトは以下の条件を
 満たすことを要求される。
@@ -416,35 +425,51 @@ mathcap は CMO の一種であるので、すでに説明したように
 まず、その cmo\_list オブジェクトは少なくともリスト長が 3 以上でなければ
 ならない。
 
-\[	\begin{tabular}{|c|c|c|} \hline
-	$A$ & $B$ & $C$	\\ \hline
-	\end{tabular}	\]
+\begin{quote}
+	(CMO\_LIST, {\sl int32} $3$,
+		{\sl cmo} $A$, {\sl cmo} $B$, {\sl cmo} $C$)
+\end{quote}
+%\[	\begin{tabular}{|c|c|c|} \hline
+%	$A$ & $B$ & $C$	\\ \hline
+%	\end{tabular}	\]
 
 第一要素 $A$ はまた cmo\_list であり、リスト長は 4 以上、
 $a_1$ は 32 ビット整数でバージョンナンバーを、
 $a_2$ は文字列でシステムの名前を表すことになっている。
-
-\[	\begin{tabular}{|c|c|} \hline
-	$a_1$ & $a_2$	\\ \hline
-	\end{tabular}	\]
+\begin{quote}
+	(CMO\_LIST, {\sl int32} $4$,
+		{\sl cmo\_int32} $a_1$, {\sl cmo\_string} $a_2$,
+		{\sl cmo} $a_3$, {\sl cmo} $a_4$)
+\end{quote}
+%\[	\begin{tabular}{|c|c|} \hline
+%	$a_1$ & $a_2$	\\ \hline
+%	\end{tabular}	\]
 
 2 番目の要素 $B$ の部分は次のようなリスト構造をしている。
 この $b_1$, $b_2$, $\cdots$, $b_n$ はすべて 32 ビットの整数である。
 スタックマシンへの命令はすべて 32 ビットの整数で表しており、
 各 $b_i$ は利用可能な命令に対応する 32 ビットの整数となっている。
-
-\[	\begin{tabular}{|c|c|c|c|} \hline
-	$b_1$ & $b_2$ & $\cdots$ & $b_n$	\\ \hline
-	\end{tabular}	\]
+\begin{quote}
+	(CMO\_LIST, {\sl int32} $n$,
+		{\sl cmo\_int32} $b_1$, {\sl cmo\_int32} $b_2$,
+		$\cdots$, {\sl cmo\_int32} $b_n$)
+\end{quote}
+%\[	\begin{tabular}{|c|c|c|c|} \hline
+%	$b_1$ & $b_2$ & $\cdots$ & $b_n$	\\ \hline
+%	\end{tabular}	\]
 
 3 番目の要素 $C$ は以下のようなリスト構造をしている。
-\[  \overbrace{
-	\begin{tabular}{|c|c|c|c|} \hline
-	$c_1$ & $c_2$ & $\cdots$ & $c_n$	\\ \hline
-	\end{tabular}
-   }^{C}	\]
-%$n$ は OX\_COMMAND 以外の受け取れるメッセージのタグの種類の数に等しい。
-%要素数は 1 でももちろん構わない。
+\begin{quote}
+	(CMO\_LIST, {\sl int32} $n$,
+		{\sl cmo} $c_1$, {\sl cmo} $c_2$, $\cdots$, {\sl cmo} $c_n$)
+\end{quote}
+%\[  \overbrace{
+%	\begin{tabular}{|c|c|c|c|} \hline
+%	$c_1$ & $c_2$ & $\cdots$ & $c_n$	\\ \hline
+%	\end{tabular}
+%   }^{C}	\]
+%%$n$ は OX\_COMMAND 以外の受け取れるメッセージのタグの種類の数に等しい。
+%%要素数は 1 でももちろん構わない。
 各 $c_i$ もまた以下のようなリスト構造となっており、
 どの $c_i$ も最初の要素が 32 ビットの整数となっている。
 \[  \overbrace{
