@@ -1,5 +1,5 @@
 %#!make OX-RFC-101-ja.dvi
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.3 2000/11/30 10:15:24 ohara Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-101.tex,v 1.4 2000/12/01 08:03:48 ohara Exp $
 \documentclass{article}
 %%\IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
 \usepackage{html}
@@ -76,7 +76,7 @@ Request:
 
 Stack before the request: 
 \begin{tabular}{|c|c|}  \hline
-{\sl Integer32} Port & {\sl String} ServerName \\
+{\sl List} Argument \\
 \hline
 \end{tabular}
 
@@ -87,6 +87,18 @@ Stack after the request:
 \end{tabular}
 
 Output: none.
+
+Argument:	 
+\begin{tabular}{|c|c|c|}  \hline
+{\sl List} Ports & {\sl String} ServerName & ...\\
+\hline
+\end{tabular}
+
+Ports:
+\begin{tabular}{|c|c|}  \hline
+{\sl Integer32} Port & ... \\
+\hline
+\end{tabular}
 
 \item
 \begin{verbatim}
@@ -161,6 +173,9 @@ Output: none.
 \bigskip
 \bigskip
 
+\subsection{OpenXM reset protocol}
+OX-RFC-100 に準拠する。
+
 \subsection{A sample implementation}
 
 \subsubsection{Command Line Arguments}
@@ -232,14 +247,14 @@ fork(2) で子プロセスを生成し、子プロセスは dup2(fd1, 0) を実行する。
 
 ここでは、oxc のローカル関数 spawn について説明しよう。
 
-spawn は計算サーバを起動し、少なくとも 2 個の引数を持つ。すなわち、
-\begin{verbatim}
-spawn(計算サーバ名, ポート番号, モード, ...)
-\end{verbatim}
-という形式である。「モード」はなくてもよい。ここで、「計算サーバ名」は 
-CMO\_STRING 型のオブジェクト、「ポート番号」、「モード」は CMO\_INT32型
-のオブジェクトである。ローカル関数の実行は SM\_executeFunction による。
-すなわち各引数を順にスタックに積み、最後にSM\_executeFunction を実行する。
+spawn は計算サーバを起動し、少なくとも 1 個の引数を持つ。この引数は
+SM_control_spawn_server で用いられる {\sl List} Argument と同一の形式で
+ある。すなわち、スタックに(右がトップ)
+\begin{tabular}{|c|c|c|}  \hline
+{\sl List} Argument & {\sl Integer32} 1 & {\sl String} ``spawn'' \\
+\hline
+\end{tabular}
+を積み、SM\_executeFunction をコントローラに送る。
 SM\_executeStringByLocalParser は利用できないので注意する。
 
 spawn は、計算サーバの起動に成功したら (CMO\_INT32, サーバID) を、失
@@ -247,10 +262,6 @@ spawn は、計算サーバの起動に成功したら (CMO\_INT32, サーバID) を、失
 かった場合にはエラーオブジェクトを積むことになる。コントロールサーバは 
 access(2) を用いて PATH から計算サーバを探す。もし見つからなければ、fork 
 をせずに、エラーオブジェクトをスタックに積む。
-
-
-
-
 */
 
 /*&eg
