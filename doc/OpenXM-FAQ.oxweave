@@ -1,4 +1,26 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.18 2003/05/09 08:11:10 noro Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.19 2003/11/11 10:56:02 takayama Exp $
+
+//&C Nov 15, 2003 (For developpers)
+//&ja Q. The -m option for cvs commit does not work well.
+//&en Q. Cvs で commit するとき -m option がうまく動きません.
+
+/*&ja
+  次のような shell ファイルで cvs を呼び出しているとしたら,
+   cvs -d abc.openxm.org:/usr/cvs $*
+  次のようにかえます.
+   cvs -d abc.openxm.org:/usr/cvs "$@"
+ 
+  参考文献: 砂原ほか, 「プロフェッショナルシェルプログラミング」, アスキー出版局
+
+*/
+
+/*&en
+ If you use cvs by the following shell file
+   cvs -d abc.openxm.org:/usr/cvs $*
+ change it as follows
+   cvs -d abc.openxm.org:/usr/cvs "$@"
+*/
+
 
 //&C Nov 11, 2003
 //&ja Q. RedHat 8.0 でコンパイルできません.
