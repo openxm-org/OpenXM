@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.2 1999/11/02 06:11:58 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.h,v 1.3 1999/11/02 18:58:25 ohara Exp $ */
 /* $Id$ */
 
 #ifndef _OX_H_
@@ -183,9 +183,10 @@ cmo*          ox_pop_cmo(ox_file_t sv, int fd);
 void          ox_reset(ox_file_t sv);
 ox_file_t     ox_start(char* host, char* prog1, char* prog2);
 
-char*         dump_cmo(char* array, cmo* m);
-char*         dump_ox_command(char* array, ox_command* m);
-char*         dump_ox_data(char* array, ox_data* m);
+int           init_dump_buff(char *buff);
+int           dump_cmo(cmo* m);
+int           dump_ox_command(ox_command* m);
+int           dump_ox_data(ox_data* m);
 
 int           print_cmo(cmo* c);
 int           print_cmo_int32(cmo_int32* c);

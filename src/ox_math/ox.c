@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/ox.c,v 1.3 1999/11/02 18:58:25 ohara Exp $ */
 /* $Id$ */
 
 /*
@@ -45,15 +45,16 @@ static int          cmolen_cmo_string(cmo_string* c);
 static int          cmolen_cmo_zz(cmo_zz* c);
 static int          cmolen_cmo_monomial32(cmo_monomial32* c);
 
-static char*        dump_cmo_int32(char* array, cmo_int32* m);
-static char*        dump_cmo_list(char* array, cmo_list* m);
-static char*        dump_cmo_mathcap(char* array, cmo_mathcap* m);
-static char*        dump_cmo_null(char* array, cmo_null* m);
-static char*        dump_cmo_string(char* array, cmo_string* m);
-static char*        dump_cmo_monomial32(char* array, cmo_monomial32* c);
-static char*        dump_cmo_zz(char* array, cmo_zz* c);
-static char*        dump_integer(char* array, int x);
-static char*        dump_mpz(char* array, mpz_ptr mpz);
+static int          dump_cmo_int32(cmo_int32* m);
+static int          dump_cmo_list(cmo_list* m);
+static int          dump_cmo_mathcap(cmo_mathcap* m);
+static int          dump_cmo_null(cmo_null* m);
+static int          dump_cmo_string(cmo_string* m);
+static int          dump_cmo_monomial32(cmo_monomial32* c);
+static int          dump_cmo_zz(cmo_zz* c);
+static int          dump_string(char *s, int len);
+static int          dump_integer(int x);
+static int          dump_mpz(mpz_ptr mpz);
 
 static int          funcs(int cmo_type);
 
@@ -708,120 +709,150 @@ int cmolen_cmo(cmo* c)
     return size;
 }
 
-static char* dump_cmo_null(char* array, cmo_null* m)
+static int  d_ptr;
+static char *d_buf;
+
+int init_dump_buffer(char *s)
 {
-    return array;
+	d_buf = s;
+	d_ptr = 0;
 }
 
-static char* dump_cmo_int32(char* array, cmo_int32* m)
+static int dump_cmo_null(cmo_null* m)
 {
-    return dump_integer(array, m->i);
+	return 0;
 }
 
-static char* dump_cmo_string(char* array, cmo_string* m)
+static int dump_cmo_int32(cmo_int32* m)
+{
+    dump_integer(m->i);
+}
+
+static int dump_cmo_string(cmo_string* m)
 {
     int len = strlen(m->s);
-    array = dump_integer(array, len);
-    memcpy(array, m->s, len);
-    return array + len;
+    dump_integer(len);
+	dump_string(m->s, len);
 }
 
-static char* dump_cmo_mathcap(char* array, cmo_mathcap* c)
+static int dump_cmo_mathcap(cmo_mathcap* c)
 {
-    return dump_cmo(array, c->ob);
+    dump_cmo(c->ob);
 }
 
-static char* dump_cmo_list(char* array, cmo_list* m)
+static int dump_cmo_list(cmo_list* m)
 {
     cell* cp = m->head;
     int len = length_cmo_list(m);
-    array = dump_integer(array, len);
+    dump_integer(len);
 
     while(cp != NULL) {
-        array = dump_cmo(array, cp->cmo);
+        dump_cmo(cp->cmo);
         cp = cp->next;
     }
-    return array;
 }
 
-static char* dump_cmo_monomial32(char* array, cmo_monomial32* c)
+static int dump_cmo_monomial32(cmo_monomial32* c)
 {
 	int i;
 	int length = c->length;
-	array = dump_integer(array, c->length);
+	dump_integer(c->length);
 	for(i=0; i<length; i++) {
-		array = dump_integer(array, c->exps[i]);
+		dump_integer(c->exps[i]);
 	}
-	array = dump_cmo(array, c->coef);
-	return array;	
+	dump_cmo(c->coef);
 }
 
-static char* dump_cmo_zz(char* array, cmo_zz* c)
+static int dump_cmo_zz(cmo_zz* c)
 {
-    return dump_mpz(array, c->mpz);
+    dump_mpz(c->mpz);
 }
 
-static char* dump_cmo_distributed_polynomial(char* array, cmo_distributed_polynomial* m)
+static int dump_cmo_distributed_polynomial(cmo_distributed_polynomial* m)
 {
     cell* cp = m->head;
-    int len = length_cmo_list(m);
-    array = dump_integer(array, len);
-	array = dump_cmo(array, m->ringdef);
+    int len = length_cmo_list((cmo_list *)m);
+    dump_integer(len);
+	dump_cmo(m->ringdef);
     while(cp != NULL) {
-        array = dump_cmo(array, cp->cmo);
+        dump_cmo(cp->cmo);
         cp = cp->next;
     }
-    return array;
 }
 
 /* タグを書き出してから、各関数を呼び出す */
-char* dump_cmo(char* array, cmo* m)
+int dump_cmo(cmo* m)
 {
-    array = dump_integer(array, m->tag);
+    dump_integer(m->tag);
     switch(m->tag) {
     case CMO_NULL:
     case CMO_ZERO:
     case CMO_DMS_GENERIC:
-        return dump_cmo_null(array, m);
+        dump_cmo_null(m);
+		break;
     case CMO_INT32:
-        return dump_cmo_int32(array, (cmo_int32 *)m);
+        dump_cmo_int32((cmo_int32 *)m);
+		break;
     case CMO_STRING:
-        return dump_cmo_string(array, (cmo_string *)m);
+        dump_cmo_string((cmo_string *)m);
+		break;
     case CMO_MATHCAP:
     case CMO_RING_BY_NAME:
     case CMO_ERROR2:
-        return dump_cmo_mathcap(array, (cmo_mathcap *)m);
+        dump_cmo_mathcap((cmo_mathcap *)m);
+		break;
     case CMO_LIST:
-        return dump_cmo_list(array, (cmo_list *)m);
+        dump_cmo_list((cmo_list *)m);
+		break;
     case CMO_MONOMIAL32:
-        return dump_cmo_monomial32(array, (cmo_monomial32 *)m);
+        dump_cmo_monomial32((cmo_monomial32 *)m);
+		break;
     case CMO_ZZ:
-        return dump_cmo_zz(array, (cmo_zz *)m);
+        dump_cmo_zz((cmo_zz *)m);
+		break;
     case CMO_DISTRIBUTED_POLYNOMIAL:
-        return dump_cmo_distributed_polynomial(array, (cmo_distributed_polynomial *)m);
+        dump_cmo_distributed_polynomial((cmo_distributed_polynomial *)m);
+		break;
     default:
-        return NULL;
     }
 }
 
-static char* dump_integer(char* array, int x)
-{
-    int nx = htonl(x);
-    memcpy(array, &nx, sizeof(int));
-    return array + sizeof(int);
-}
-
-static char* dump_mpz(char* array, mpz_ptr mpz)
+static int dump_mpz(mpz_ptr mpz)
 {
     int i;
     int len = abs(mpz->_mp_size);
-    array = dump_integer(array, mpz->_mp_size);
+    dump_integer(mpz->_mp_size);
     for(i=0; i<len; i++) {
-        array = dump_integer(array, mpz->_mp_d[i]);
+        dump_integer(mpz->_mp_d[i]);
     }
-    return array;
+    return;
 }
 
+static int dump_string(char *s, int len)
+{
+    memcpy(&d_buf[d_ptr], s, len);
+    d_ptr += len;
+}
+
+static int dump_integer(int x)
+{
+    int nx = htonl(x);
+	dump_string((char *)&nx, sizeof(int));
+}
+
+int dump_ox_data(ox_data* m)
+{
+    dump_integer(OX_DATA);
+    dump_integer(-1);
+    dump_cmo(m->cmo);
+}
+
+int dump_ox_command(ox_command* m)
+{
+    dump_integer(OX_COMMAND);
+    dump_integer(-1);
+    dump_integer(m->command);
+}
 
 int send_ox(ox_file_t s, ox *m)
 {
@@ -957,20 +988,6 @@ ox_command* new_ox_command(int sm_code)
     m->tag = OX_COMMAND;
     m->command = sm_code;
     return m;
-}
-
-char* dump_ox_data(char* array, ox_data* m)
-{
-    array = dump_integer(array, OX_DATA);
-    array = dump_integer(array, -1);
-    return dump_cmo(array, m->cmo);
-}
-
-char* dump_ox_command(char* array, ox_command* m)
-{
-    array = dump_integer(array, OX_COMMAND);
-    array = dump_integer(array, -1);
-    return dump_integer(array, m->command);
 }
 
 #define  MAX_TYPES  8

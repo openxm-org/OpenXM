@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_math/bconv.c,v 1.2 1999/11/02 06:11:57 ohara Exp $ */
 /* $Id$ */
 /* 
 OX  expression -> バイト列
@@ -12,50 +12,54 @@ CMO expression -> バイト列
 #include "ox.h"
 #include "parse.h"
 
-char* dump_ox_data(char* array, ox_data* m);
-char* dump_ox_command(char* array, ox_command* m);
-
-int display(ox *m)
+static int display(ox *m)
 {
     int i;
     int len = 0;
-    unsigned char* array;
-    
+    unsigned char* d_buff;
+
     switch(m->tag) {
     case OX_DATA:
         len = sizeof(int) + sizeof(int) + cmolen_cmo(((ox_data *)m)->cmo);
-        array = malloc(len);
-        dump_ox_data(array, (ox_data *)m);
+        d_buff = malloc(len);
+		init_dump_buffer(d_buff);
+        dump_ox_data((ox_data *)m);
         break;
     case OX_COMMAND:
         len = sizeof(int) + sizeof(int) + sizeof(int);
-        array = malloc(len);
-        dump_ox_command(array, (ox_command *)m);
+        d_buff = malloc(len);
+		init_dump_buffer(d_buff);
+        dump_ox_command((ox_command *)m);
         break;
     default:
-        len = cmolen_cmo(m);
-        array = malloc(len);
-        dump_cmo(array, m);
+        len = cmolen_cmo((cmo *)m);
+        d_buff = malloc(len);
+		init_dump_buffer(d_buff);
+        dump_cmo((cmo *)m);
     }
 
     for(i=0; i<len; i++) {
-        fprintf(stdout, "%02x ", array[i]);
-        if(i%20==19) {
+        fprintf(stdout, "%02x ", d_buff[i]);
+        if(i%20 == 19) {
             fprintf(stdout, "\n");
         }
     }
-    fprintf(stdout, "\n");
+	if(i%20 != 19) {
+		fprintf(stdout, "\n");
+	}
+	free(d_buff);
 }
 
-#define SIZE_CMDLINE  4096
+#define SIZE_CMDLINE  8192
 
-char cmdline[SIZE_CMDLINE];
+static int  size = SIZE_CMDLINE;
+static char cmdline[SIZE_CMDLINE];
 
-int prompt(char* s, int size)
+static int prompt()
 {
     fprintf(stdout, "> ");
-    fgets(s, size, stdin);
-    setmode_mygetc(s, size);
+    fgets(cmdline, size, stdin);
+    setmode_mygetc(cmdline, size);
 }
 
 int main()
@@ -67,11 +71,7 @@ int main()
 	setflag_parse(PFLAG_ADDREV);
     setgetc(mygetc);
 
-    while(1) {
-        prompt(cmdline, SIZE_CMDLINE);
-        if ((m = parse()) == NULL) {
-            break;
-        }
+    for(prompt(); (m = parse()) != NULL; prompt()) {
         display(m);
     }
     return 0;
