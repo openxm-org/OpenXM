@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.7 2000/01/15 06:11:17 takayama Exp $
+% $OpenXM: OpenXM/doc/issac2000/homogeneous-network.tex,v 1.8 2000/01/16 03:15:49 noro Exp $
 
 \subsection{Distributed computation with homogeneous servers}
 \label{section:homog}
@@ -60,14 +60,14 @@ and we can expect better results in such a case.
 
 \subsubsection{Competitive distributed computation by various strategies}
 
-Singular \cite{Singular} implements {\tt MP} interface for distributed
+SINGULAR \cite{Singular} implements {\tt MP} interface for distributed
 computation and a competitive Gr\"obner basis computation is
 illustrated as an example of distributed computation.
 Such a distributed computation is also possible on OpenXM.
 The following Risa/Asir function computes a Gr\"obner basis by
 starting the computations simultaneously from the homogenized input and
 the input itself.  The client watches the streams by {\tt ox\_select()}
-and The result which is returned first is taken. Then the remaining
+and the result which is returned first is taken. Then the remaining
 server is reset.
 
 \begin{verbatim}
