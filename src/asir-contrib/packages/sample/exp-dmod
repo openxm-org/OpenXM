@@ -1,0 +1,119 @@
+/* $OpenXM: OpenXM/src/asir99/lib/contrib/packages/sample/exp-dmod,v 1.1 1999/11/10 12:01:02 takayama Exp $ */
+/* exp-dmod,  1999/ 9/27 */
+/* From 1999/Int/exp.asir */
+/*  Computing exponents of holonomic system along f=0 */
+
+/* In order to use #define in k0, use load["exp.asir"] */
+print("load xm , sm1_start, init0 for initialization. extest2();");
+def init0() {
+  extern Xm_noX;
+  sm1(0,"[(parse) (oxasir.sm1) pushfile] extension");
+  if (Xm_noX == 1) {
+    sm1(0," oxNoX ");
+  }
+  sm1(0,"[(parse) (intw.sm1) pushfile] extension");
+  ox_check_errors2(0);
+}
+
+def sm1reset() {
+  ox_reset(0);   
+  print("Restoring sm1 local variables.")$
+  sm1(0," db.restore ");
+  ox_check_errors2(0);
+}
+register_handler(sm1reset);
+
+def extest2() {
+  F = x;
+  A = [t-F, dx+diff(F,x)*dt, dy+diff(F,y)*dt];
+  EEE = ["dx (2 x dx + 3) - (x dx + y dy + 10) (2 x dx -6)",
+         "dy (y dy - 8) - (x dx + y dy + 10) (y dy +2)","dt"]; 
+  EEE2 = ["dx (x dx-4) - (x dx + y dy + 10) ( x dx -6)",
+          "dy (y dy - 8) - (x dx + y dy + 10) (y dy +2)","dt"]; 
+  B=sm1_wTensor0(0,[A,EEE,
+                     "t,x,y",[1,2,3]]);
+  print(["Tensor Product is ", B])$
+  G = sm1_wbf(0,[B,[t,x,y],[t,-1,dt,1]]);
+  return(G);
+  
+}
+
+def extest3() {
+  print("This example seems to be hard!");
+  F = x*s-y*z;
+  A = [t-F, dx+diff(F,x)*dt, dy+diff(F,y)*dt,
+            dz+diff(F,z)*dt, ds+diff(F,s)*dt];
+  EEE = [x*dx+y*dy+z*dz+s*ds-2/3,
+              y*dy     +s*ds+1/5,
+                   z*dz+s*dx-3/2,
+         dx*ds-dy*dz, 
+         dt];
+  EEE = sm1_rat_to_p(EEE); EEE = EEE[0];
+  print(["Numerator: ",EEE]);
+  B=sm1_wTensor0(0,[A,EEE,
+                     "t,x,y,z,s",[1,2,3,4,5]]);
+  print(["Tensor Product is ", B])$
+  G = sm1_wbf(0,[B,[t,x,y,z,s],[t,-1,dt,1]]);
+  return(G);
+  
+}
+
+def extest4() {
+  F = 1-x-y;
+  A = [t-F, dx+diff(F,x)*dt, dy+diff(F,y)*dt];
+  EEE = ["dx (2 x dx + 3) - (x dx + y dy + 10) (2 x dx -6)",
+         "dy (y dy - 8) - (x dx + y dy + 10) (y dy +2)","dt"]; 
+  B=sm1_wTensor0(0,[A,EEE,
+                     "t,x,y",[1,2,3]]);
+  print(["Tensor Product is ", B])$
+  G = sm1_wbf(0,[B,[t,x,y],[t,-1,dt,1]]);
+  return(G);
+  /* 0 and -27/2 */  
+}
+
+def extest4a() {
+   A = 10; B = -3; Bp = -2; C=5/2;Cp=-7;
+   print([Cp-A-Bp+C-B,Cp-A-Bp]);
+}
+def nody(F) {
+  if (deg(F,dy) == 0) return(F);
+  else return(0);
+}
+
+def extest4b() {
+  EEE = ["dx (2 x dx + 3) - (x dx + y dy + 10) (2 x dx -6)",
+         "dy (y dy - 8) - (x dx + y dy + 10) (y dy +2)"]; 
+  G = sm1_gb(0,[EEE,"x,y",[[dy,1]]]);
+  G = G[0];
+  print(["GB is ",G]);
+  H = map(nody,G);
+  H = map(subst,H,y,2);
+  J = sm1_gb(0,[H,"x"]);
+  print(["GB of ode is ",J]);
+  K = map(subst,J[0],x,x-1);
+  G = sm1_wbf(0,[K,[x],[x,-1,dx,1]]);
+  return(G);
+}
+
+def extest5() {
+  EEE = ["dx (x dx + 3) - (x dx + y dy + 10) (x dx +y dy -6)",
+         "dy (y dy - 8) - (x dx + y dy + 10) (x dx + y dy -6)"];
+/* Compute the singular locus
+  G = sm1_ch(0,[EEE,[x,y]]);
+  G = G[0];
+  print(["characteristic variety is ",G]);
+  H = sm1_saturation(0,[G,[dx,dy],[x,y,dx,dy]]);
+  return(gr(H,[dx,dy,x,y],2));
+*/
+  EEE = sm1_mul(0,1,EEE,[x,y]);
+  F = -x^2+(2*y+2)*x-y^2+2*y-1;
+  A = [t-F, dx+diff(F,x)*dt, dy+diff(F,y)*dt];
+  B=sm1_wTensor0(0,[A,EEE,
+                     "t,x,y",[3,2,1]]);
+  print(["Tensor Product is ", B])$
+  G = sm1_wbf(0,[B,[t,x,y],[t,-1,dt,1]]);
+  return(G);
+}
+
+end$
+

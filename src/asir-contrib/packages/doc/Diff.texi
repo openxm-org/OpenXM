@@ -1,0 +1,159 @@
+@c $OpenXM: OpenXM/src/asir99/lib/contrib/packages/doc/Diff.texi,v 1.4 1999/11/24 10:24:36 okutani Exp $
+@node Differential equations,,, その他の函数
+@section Differential equations
+ファイル @file{gr}, @file{Matrix} が必要です.
+
+@tex
+この節で紹介される関数では微分作用素は次のようなリストで表現します.
+$$ [ [f_{\alpha},[\alpha_{1},\ldots,\alpha_{n}]],\ldots ] $$
+これは
+$$ \sum_{\alpha}f_{\alpha}\partial^{\alpha} $$
+という意味です. 線型偏微分方程式系
+$$ (\sum_{\alpha^{(i)}}f_{\alpha^{(i)}}\partial^{\alpha^{(i)}})\bullet u = 0 \quad (i = 1,\ldots,s) $$
+などのように複数の微分作用素を表現するときは微分作用素のリストを使います.
+$$ [ [ [f_{\alpha^{(1)}},[\alpha_{1}^{(1)},\ldots,\alpha_{n}^{(1)}]],\ldots ],\ldots,[ [f_{\alpha^{(s)}},[\alpha_{1}^{(s)},\ldots,\alpha_{n}^{(s)}]],\ldots ] ] $$
+例えば微分作用素$x dx + y dy + 1$の場合は
+$$ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ] $$
+となります. また微分作用素のリストで$x dx + y dy + 1, dx^2 + dy^2$を表すと
+$$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
+となります.
+@end tex
+@menu
+@c * diff_op_hg1::
+@c * diff_op_appell1::
+@c * diff_op_appell2::
+@c * diff_op_appell3::
+* diff_op_appell4::
+@c * diff_op_selberg2::
+@c * diff_op_gkz::
+* diff_act::
+@c * diff_act_hg1::
+@c * diff_act_appell1::
+@c * diff_act_appell2::
+@c * diff_act_appell3::
+* diff_act_appell4::
+@c * diff_act_selberg2::
+@c * diff_act_gkz::
+* diff_poly_solve::
+@c * diff_poly_solve_hg1::
+@c * diff_poly_solve_appell1::
+@c * diff_poly_solve_appell2::
+@c * diff_poly_solve_appell3::
+@c * diff_poly_solve_appell4::
+@c * diff_poly_solve_selberg2::
+@c * diff_poly_solve_gkz::
+@end menu
+
+@node diff_op_appell4,,, Differential equations
+@subsection @code{diff_op_appell4}
+@findex diff_op_appell4
+@table @t
+@item diff_op_appell4(@var{a},@var{b},@var{c1},@var{c2},@var{V})
+::  appell の F_4 を零化する微分作用素を生成します.
+@end table
+@table @var
+@item return
+リスト
+@item a, b, c1, c2
+有理式
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_op_appell4}の例.
+@end itemize
+@example
+[298] diff_op_appell4(a,b,c1,c2,[x,y]);
+[ [ [-x^2+x,[2,0]], [-2*y*x,[1,1]], [-y^2,[0,2]],
+    [(-a-b-1)*x+c1,[1,0]], [(-a-b-1)*y,[0,1]], [-b*a,[0,0]] ],
+  [ [-y^2+y,[0,2]], [-2*y*x,[1,1]], [-x^2,[2,0]],
+    [(-a-b-1)*y+c2,[0,1]], [(-a-b-1)*x,[1,0]], [-b*a,[0,0]] ] ]
+@end example
+
+@node diff_act,,, Differential equations
+@subsection @code{diff_act}
+@findex diff_act
+@table @t
+@item diff_act(@var{L},@var{F},@var{V})
+::  微分作用素 @var{L} を有理式 @var{F} に作用させる. @var{V} は変数リスト.
+@end table
+@table @var
+@item return
+有理式
+@item L
+リスト
+@item F
+有理式
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_act}の例
+@end itemize
+@example
+[302] diff_act([[1,[2]]],x^3+x^2+x+1,[x]);
+6*x+2
+
+[303] diff_act([[1,[1,0]],[1,[0,1]]],x^2+y^2,[x,y]);
+2*x+2*y
+@end example
+
+@node diff_act_appell4,,, Differential equations
+@subsection @code{diff_act_appell4}
+@findex diff_act_appell4
+@table @t
+@item diff_act_appell4(@var{a},@var{b},@var{c1},@var{c2},@var{F},@var{V})
+::  微分作用素 @code{diff_op_appell4} を有理式 @var{F} に作用させる.
+@end table
+@table @var
+@item return
+リスト
+@item a, b, c1, c2
+有理式
+@item F
+有理式
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_act_appell4}の例
+@end itemize
+@example
+[303] diff_act_appell4(1,0,1,1,x^2+y^2,[x,y]);
+[-6*x^2+4*x-6*y^2,-6*x^2-6*y^2+4*y]
+
+[304] diff_act_appell4(0,0,1,1,x^2+y^2,[x,y]);
+[-4*x^2+4*x-4*y^2,-4*x^2-4*y^2+4*y]
+
+[305] diff_act_appell4(-2,-2,-1,-1,x^2+y^2,[x,y]);
+[0,0]
+@end example
+
+@node diff_poly_solve,,, Differential equations
+@subsection @code{diff_poly_solve}
+@findex diff_poly_solve
+@table @t
+@item diff_poly_solve(@var{LL},@var{N},@var{V})
+::  与えられた線型微分方程式系の @var{N} 次以下の多項式解を求める.
+@end table
+@table @var
+@item return
+リスト
+@item LL
+リスト
+@item N
+整数
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_poly_solve}の例.
+@end itemize
+@example
+[297] diff_poly_solve([[[x,[1,0]],[-1,[0,0]]],[[y,[0,1]],[-1,[0,0]]]],5,[x,y]);
+[_4*y*x,[_4]]
+
+[298] diff_poly_solve([[[x,[1,0]],[-2,[0,0]]],[[y,[0,1]],[-2,[0,0]]]],5,[x,y]);
+[_33*y^2*x^2,[_33]]
+@end example
+

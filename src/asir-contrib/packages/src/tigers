@@ -1,0 +1,28 @@
+/* $OpenXM: OpenXM/src/asir99/lib/contrib/packages/src/tigers,v 1.1 1999/11/17 05:31:18 takayama Exp $ */
+
+/*  tigers */
+def tigers_start() {
+  extern Xm_noX;
+  if (Xm_noX) {
+    P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_tigers"); 
+  }else{
+    P = ox_launch(0,Sm1_lib+"/bin/ox_sm1_tigers"); 
+  }
+  ox_check_errors(P);
+  return(P);
+}
+
+def tigers(P,A) {
+  sm1(P," [(getpid)] extension (universalNumber) dc ");
+  Pid = ox_pop_cmo(P);
+  Fname = "tmp.tigers.out."+rtostr(Pid);
+  ox_push_cmo(P,Fname);  sm1(P," /tmp.tigers.out set ");
+
+  sm1_push_int0(P,A);
+  sm1(P," tigers ");
+  return(sm1_pop(P));
+}
+  
+
+end$
+

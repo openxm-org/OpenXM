@@ -1,0 +1,178 @@
+@c $OpenXM: OpenXM/src/asir99/lib/contrib/packages/doc/Matrix.texi,v 1.2 1999/11/21 10:58:55 okutani Exp $
+@node Matrix operations,,, その他の函数
+@section Matrix operations
+ファイル @file{gr} が必要です.
+@menu
+* mat_1::
+* mat_diag::
+* mat_trans::
+* mat_inverse::
+* mat_solve::
+* mat_kernel::
+@end menu
+
+@node mat_1,,, Matrix operations
+@subsection @code{mat_1}
+@findex mat_1
+@table @t
+@item mat_1(@var{N})
+::  @var{N} 次単位行列を生成します.
+@end table
+@table @var
+@item return
+行列
+@item N
+整数
+@end table
+@itemize @bullet
+@item  @code{mat_1}の例.
+@end itemize
+@example
+[297] mat_1(1);
+[ 1 ]
+
+[298] mat_1(2);
+[ 1 0 ]
+[ 0 1 ]
+
+[299] mat_1(3);
+[ 1 0 0 ]
+[ 0 1 0 ]
+[ 0 0 1 ]
+@end example
+
+@node mat_diag,,, Matrix operations
+@subsection @code{mat_diag}
+@findex mat_diag
+@table @t
+@item mat_diag(@var{L})
+::  リスト @var{L} の要素を対角成分とする対角行列を生成します.
+@end table
+@table @var
+@item return
+行列
+@item L
+リスト
+@end table
+@itemize @bullet
+@item  @code{mat_diag}の例.
+@end itemize
+@example
+[301] mat_diag([1,2,3]);
+[ 1 0 0 ]
+[ 0 2 0 ]
+[ 0 0 3 ]
+
+[302] mat_diag([a,b,c]);
+[ a 0 0 ]
+[ 0 b 0 ]
+[ 0 0 c ]
+@end example
+
+@node mat_trans,,, Matrix operations
+@subsection @code{mat_trans}
+@findex mat_trans
+@table @t
+@item mat_trans(@var{A})
+::  行列 @var{A} の転置行列を求めます.
+@end table
+@table @var
+@item return
+行列
+@item A
+行列 or リスト
+@end table
+@itemize @bullet
+@item  @code{mat_trans}の例.
+@end itemize
+@example
+[303] mat_trans([[a,b],[c,d]]);
+[ a c ]
+[ b d ]
+
+[304] mat_trans([[1,2,3],[4,5,6],[7,8,9]]);
+[ 1 4 7 ]
+[ 2 5 8 ]
+[ 3 6 9 ]
+@end example
+
+@node mat_inverse,,, Matrix operations
+@subsection @code{mat_inverse}
+@findex mat_inverse
+@table @t
+@item mat_inverse(@var{A})
+::  行列 @var{A} の逆行列を求めます.
+@end table
+@table @var
+@item return
+行列
+@item A
+行列 or リスト
+@end table
+@itemize @bullet
+@item 行列 @var{A} の成分は有理数 or 多項式.
+@item @code{mat_inverse}の例.
+@end itemize
+@example
+[309] mat_inverse([[1,1],[1,2]]);
+[ 2 -1 ]
+[ -1 1 ]
+
+[310] mat_inverse([[a,b],[c,d]]);
+[ (d)/(d*a-c*b) (-b)/(d*a-c*b) ]
+[ (-c)/(d*a-c*b) (a)/(d*a-c*b) ]
+@end example
+
+@node mat_solve,,, Matrix operations
+@subsection @code{mat_solve}
+@findex mat_solve
+@table @t
+@item mat_solve(@var{A},@var{X},@var{Y})
+::  @code{mat_solve}は方程式 A*X=Y の解を求めます.
+@end table
+@table @var
+@item return
+リスト
+@item A
+行列 or リスト
+@item X
+ベクトル or リスト
+@item Y
+ベクトル or リスト
+@end table
+@itemize @bullet
+@item 行列 @var{A} の成分は有理数 or 多項式.
+@item  @code{mat_solve}の例.
+@end itemize
+@example
+[376] mat_solve([[1,-1],[2,3]],[x,y],[1,1]);
+[[x,4/5],[y,-1/5]]
+
+[377] mat_solve([[a,b],[c,d]],[x,y],[1,1]);
+[[x,(-b+d)/(d*a-c*b)],[y,(a-c)/(d*a-c*b)]]
+@end example
+
+@node mat_kernel,,, Matrix operations
+@subsection @code{mat_kernel}
+@findex mat_kernel
+@table @t
+@item mat_kernel(@var{A})
+::  @code{mat_kernel}は行列 A の kernel の基底を求めます.
+@end table
+@table @var
+@item return
+リスト
+@item A
+行列 or リスト
+@end table
+@itemize @bullet
+@item 行列 @var{A} の成分は有理数 or 多項式.
+@item  @code{mat_kernel}の例.
+@end itemize
+@example
+[383] mat_kernel([[1,2,3,4],[1,0,1,0]]);
+[2,[[1,0,-1,1/2],[0,1,0,-1/2]]]
+
+[384] mat_kernel([[1,2,3,4],[1,0,1,0],[0,0,0,1]]);
+[1,[[1,1,-1,0]]]
+@end example
