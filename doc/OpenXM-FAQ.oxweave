@@ -1,4 +1,34 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.15 2002/10/23 01:18:49 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.16 2003/03/06 23:31:37 takayama Exp $
+
+//&C April 23, 2003
+//&ja Q. OpenXM サーバが立ち上がらない. (ウィンドウが一瞬現れて消える.)
+//&en Q. OpenXM servers cannot be invoked. (An window appears but vanishes immediately.)
+
+/*&ja
+
+A. XFree86 4.3.0 の xterm の国際化対応が不完全なせいです. 以下のいずれか
+を試してみて下さい.
+
+1. .Xdefaults, .Xresources などに次の行を追加する.
+
+XTerm*locale:false
+
+2. LANG, LC_CTYPE, LC_ALL などの環境変数を消す.
+
+
+*/
+/*&en
+
+A. This is caused by an incomplete implementation of i18n of xterm 
+in XFree86 4.3.0. Try one of the following:
+
+1. Add the following line to your .Xdefaults, .Xresources etc.
+
+XTerm*locale:false
+
+2. Remove environment variables such as LANG, LC_CTYPE, LC_ALL etc.
+
+*/
 
 //&C March 7, 2003 (for developers)
 //&ja Q. asir2000 用の configure が新しい OS に対応していない.
