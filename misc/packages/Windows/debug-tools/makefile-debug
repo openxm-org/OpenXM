@@ -1,0 +1,22 @@
+# $OpenXM$
+
+usage :
+	echo "tgz-modified"
+
+tgz-modified:
+	rm -rf tmp
+	-mkdir tmp
+	cp ../OpenXM-win/bin/oxasir.sm1 tmp
+	cp ../OpenXM-win/bin/oxasir-win.sm1 tmp
+	cp ../OpenXM-win/bin/ox.sm1 tmp
+	cp ../OpenXM-win/bin/ox-win.sm1 tmp
+	cp ../OpenXM-win/bin/httpd-asir.sm1 tmp
+	cp ../OpenXM-win/bin/oxasir-win.rr tmp
+	echo "copy * bin" >tmp/mycp.bat
+	echo "copy * asir\\bin" >>tmp/mycp.bat
+	echo "copy * lib\\sm1" >>tmp/mycp.bat
+	tar czvf tmp.tgz tmp
+
+clean:
+	-rm -rf tmp tmp.tgz
+
