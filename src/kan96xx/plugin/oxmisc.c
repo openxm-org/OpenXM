@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.16 2003/07/20 07:18:45 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.17 2003/11/18 11:08:27 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1048,3 +1048,39 @@ int oxGetClientID() {
   }
 }
 
+char *oxFIDtoStr(int id) {
+  switch( id ) {
+  case SM_mathcap:
+    return "SM_mathcap"; break;
+  case SM_setMathCap:
+    return "SM_setMathCap"; break;
+  case SM_pops:
+    return "SM_pops"; break;
+  case SM_getsp:
+    return "SM_getsp"; break;
+  case SM_dupErrors:
+    return "SM_dupErrors"; break;
+  case SM_pushCMOtag:
+    return "SM_pushCMOtag"; break;
+  case SM_setName:
+    return "SM_setName"; break;
+  case SM_evalName:
+    return "SM_evalName"; break;
+  case SM_executeStringByLocalParser:
+    return "SM_executeStringByLocalParser"; break;
+  case SM_executeFunction:
+    return "SM_executeFunction"; break;
+  case SM_popCMO:
+    return "SM_popCMO"; break;
+  case SM_popString:
+    return "SM_popString"; break;
+  case SM_shutdown:
+    return "SM_shutdown"; break;
+  case SM_beginBlock:
+    return "SM_beginBlock"; break;
+  case SM_endBlock:
+    return "SM_endBlock"; break;
+  default:
+    return "Unknown to oxFIDtoStr"; break;
+  }
+}

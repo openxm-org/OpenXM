@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.10 2003/08/22 16:08:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.11 2003/11/18 11:08:27 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -27,6 +27,7 @@ jmp_buf EnvOfChildServer;
 #endif
 
 int JmpMessage = 0;
+extern int Lisplike;
 
 static char *getSuffix(char *s);
 main(int argc, char *argv[]) {
@@ -43,6 +44,9 @@ main(int argc, char *argv[]) {
     if (strcmp(argv[1],"-monitor")==0) {
       fprintf(stderr,"Taking the packet monitor.\n");
       PacketMonitor = 1;
+    }else if (strcmp(argv[1],"-lispLike")==0) {
+      fprintf(stderr,"Output lispLike expression.\n");
+      Lisplike = 1;
     }else{
       fprintf(stderr,"Unknown option. Possible options are -monitor\n");
     }
@@ -96,8 +100,8 @@ nullserver(int fdStreamIn,int fdStreamOut) {
 #endif
   int engineByteOrder;
 
-  /* for debug */
-  PacketMonitor = 1;
+  /* for debug,  use -monitor
+	 PacketMonitor = 1;  */
 
   fflush(NULL);
   engineByteOrder = oxTellMyByteOrder(fdStreamOut,fdStreamIn);
@@ -237,7 +241,7 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   message = OXprintMessage;  
   /* message_body */
   id = oxGetInt32(ostreamIn);   /* get the function_id */
-  if (message) {fprintf(stderr,"\nfunction_id is %d\n",id);}
+  if (message) {fprintf(stderr,"\nfunction_id is %d; %s\n",id,oxFIDtoStr(id));}
   switch( id ) {
   case SM_mathcap:
     if (message) fprintf(stderr," mathcap\n");
