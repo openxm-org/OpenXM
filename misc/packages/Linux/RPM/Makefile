@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.10 2000/03/16 09:36:13 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Linux/RPM/Makefile,v 1.11 2000/03/24 08:44:18 takayama Exp $
 # *If you do not like to use /usr/src/redhat area to put *rpm files, 
 #  do as follows.
 # 0. Generate ~/.rpmrc and set the TopDir for the work.
@@ -63,7 +63,7 @@ build-rpm: openxm-spec
 make-directory: clean
 	mkdir work
 	mkdir work/SOURCES work/SPECS work/BUILD work/RPMS 
-	mkdir work/RPMS/i386 work/RPMS/noarch work/SPRMS work/RPMS/ppc work/RPMS/sparc
+	mkdir work/RPMS/i386 work/RPMS/noarch work/SPRMS work/RPMS/ppc work/RPMS/sparc work/RPMS/alpha
 	mkdir ${RPM_BUILD_BINARY_ROOT}
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr
 	mkdir ${RPM_BUILD_BINARY_ROOT}/usr/local
