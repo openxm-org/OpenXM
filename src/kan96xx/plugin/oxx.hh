@@ -1,8 +1,12 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.8 2002/11/07 23:52:20 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/oxx.hh,v 1.9 2003/11/17 05:45:47 takayama Exp $*/
 else if (strcmp(key,"oxCreateClient") == 0) {
-  if (size != 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport] extension client.");
+  if (size < 4) errorKan1("%s\n","[(oxCreateClient) ip dataport controlport (optional pass)] extension client.");
   if (SecureMode) errorKan1("%s\n","Security violation for oxCreateClient.");
-  rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3));
+  if (size == 4) {
+    rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3));
+  }else if (size == 5) {
+    rob = KoxCreateClient(getoa(obj,1),getoa(obj,2),getoa(obj,3),getoa(obj,4));
+  }
 }
 else if (strcmp(key,"oxCreateClientFile") == 0) {
   if (size != 3) errorKan1("%s\n","[(oxCreateClientFile) fname mode] extension client.");

@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.21 2004/09/16 23:53:45 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.22 2004/09/17 07:27:28 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -618,7 +618,8 @@ int oxIsThereErrorClient(oxclientp client) {
   return(0);
 }
 
-oxclientp oxCreateClient(char *sname,int portStream,int portControl)
+oxclientp oxCreateClient(char *sname,int portStream,int portControl,
+                         char *passControl, char *passData)
      /* you also need to change oxCreateClient2. */
 {
   int v = 0;
@@ -640,6 +641,23 @@ oxclientp oxCreateClient(char *sname,int portStream,int portControl)
   if (fdStream == -1 || fdControl == -1) {
     fprintf(stderr,"\nOpen error in oxCreateClient.\n");
     return(NULL);
+  }
+
+  if (passControl != NULL) {
+    if (v) fprintf(stderr,"Sending password %s for the control channel.\n",
+                   passControl);
+    if (write(fdControl,passControl,strlen(passControl)+1) < 0) {
+      fprintf(stderr,"oxCreateClient(): failed to send passControl.\n");
+      return(NULL);
+    }
+  }
+  if (passData != NULL) {
+    if (v) fprintf(stderr,"Sending password %s for the data channel.\n",
+                   passData);
+    if (write(fdStream,passData,strlen(passData)+1) < 0) {
+      fprintf(stderr,"oxCreateClient(): failed to send passData.\n");
+      return(NULL);
+    }
   }
 
   controlByteOrder = oxSetByteOrder(fdControl);

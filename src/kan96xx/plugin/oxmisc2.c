@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.22 2004/03/08 08:24:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.23 2004/09/17 07:27:28 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -277,10 +277,13 @@ int oxReq(oxclientp client,int func,struct object ob)
 
 struct object KoxCreateClient(struct object ip,
                               struct object portStream,
-                              struct object portControl)
+                              struct object portControl,struct object pass)
 {
   struct object rob;
   oxclientp client;
+  char *passControl; char *passData;
+  struct object tob;
+  passControl = NULL; passData = NULL;
   rob.tag = Snull;
   if (ip.tag != Sdollar) {
     errorOxmisc2("KoxCreateClient(): The first argument must be a hostname given by a string.");
@@ -306,7 +309,25 @@ struct object KoxCreateClient(struct object ip,
     errorOxmisc2("KoxCreateClient(): The third argument must be a port number given in an integer.");
     return(rob);
   }
-  client = oxCreateClient(KopString(ip),KopInteger(portStream),KopInteger(portControl));
+  if (pass.tag == Sarray) {
+    if (getoaSize(pass) < 2) {
+	  errorOxmisc2("KoxCreateClient(): the fourth argument --- pass must be an array of strings.");
+	  return rob;
+	}
+    tob = getoa(pass,0);
+	if (tob.tag != Sdollar) {
+	  errorOxmisc2("KoxCreateClient(): the fourth argument --- pass must be an array of strings.");
+	  return rob;
+	}
+    passControl = KopString(tob);
+    tob = getoa(pass,1);
+	if (tob.tag != Sdollar) {
+	  errorOxmisc2("KoxCreateClient(): the fourth argument --- pass must be an array of strings.");
+	  return rob;
+	}
+    passData = KopString(tob);
+  }
+  client = oxCreateClient(KopString(ip),KopInteger(portStream),KopInteger(portControl),passControl,passData);
   if (client == NULL) {
     errorOxmisc2("KoxCreateClient(): Open error.");
     return(rob);

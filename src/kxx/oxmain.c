@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.17 2004/03/03 02:31:50 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.18 2004/09/17 07:27:28 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -146,6 +146,8 @@ main(int argc, char *argv[]) {
     passControl = pass;
   }
 
+  /* Decrypt passControl and passData, here. Lookup cryptmethod. */
+
   if (reverse) {
     /* The order is very important. */
     fdControl = socketConnectWithPass(sname,portControl,passControl);
@@ -215,6 +217,37 @@ main(int argc, char *argv[]) {
     }
   }
 
+  if (passControl != NULL) {
+	char *s; int mm;
+	fprintf(stderr,"passControl\n");
+	mm = strlen(passControl);
+	s = (char *) malloc(mm+1);
+    if (s == NULL) {fprintf(stderr,"No more memory.\n"); exit(1); }
+	if (read(fdControl,s,mm+1) < 0) {
+	  fprintf(stderr,"Read error to read passControl\n"); sleep(5); exit(1);
+	}
+    s[mm] = 0;
+	if (strcmp(s,passControl) != 0) {
+	  fprintf(stderr,"s=%s and passControl=%s  do not match.\n",s,passControl); sleep(5); exit(1);
+	}
+	free(s);
+  }
+  if (passData != NULL) {
+	char *s; int mm;
+	mm = strlen(passData);
+	fprintf(stderr,"passData\n");
+	s = (char *) malloc(mm+1);
+    if (s == NULL) {fprintf(stderr,"No more memory.\n"); exit(1); }
+	if (read(fdStream,s,mm+1) < 0) {
+	  fprintf(stderr,"Read error to read passData\n");
+	  errorToStartEngine();
+	}
+	if (strcmp(s,passData) != 0) {
+	  fprintf(stderr,"s=%s and passData=%s  do not match.\n",s,passData); 
+	  errorToStartEngine();
+	}
+    free(s);
+  }
 
   result = 0;
   if (portControl != -1) {

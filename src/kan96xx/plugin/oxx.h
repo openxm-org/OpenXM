@@ -1,6 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxx.h,v 1.7 2002/11/07 23:52:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxx.h,v 1.8 2003/11/17 05:45:47 takayama Exp $ */
 struct object KoxCreateClient(struct object ip,struct object portStream,
-			      struct object portControl);
+			      struct object portControl,struct object pass);
 struct object KoxCloseClient(struct object client);
 struct object KoxIsThereErrorClient(struct object ob);
 struct object KoxReq(struct object client,struct object func,
