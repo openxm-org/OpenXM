@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.6 2004/09/30 07:39:42 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.7 2004/09/30 07:45:04 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -243,18 +243,16 @@ dhcone.printGrobnerFan
 
 % If you use local polymake, then comment out.
 % If you use the cgi/polymake on the net, then uncomment out.
-%/doPolymake {doPolymake.OoHG} def
-
-% My setting.
-[(getenv) (HOST)] extension /cone.hostname set
-cone.hostname tag 0 eq { /cone.hostname (?) def }  { } ifelse
-cone.hostname (orange2.math.sci.kobe-u.ac.jp) eq
-cone.hostname (orange2-clone.math.sci.kobe-u.ac.jp) eq 
-or
-{ 
-   (Using doPolymake.OoHG ) message 
-   /doPolymake {doPolymake.OoHG} def
-} {  } ifelse
+%/doPolymake {doPolymake.OoHG} def    (Using doPolymake.OoHG ) message 
+%/polymake.start {polymake.start.OoHG} def (Using polymake.start.OoHG ) message 
+%% Choose it automatically.
+[(which) (polymake)] oxshell tag 0 eq {
+  (Polymake is not installed in this system.)  message
+  /doPolymake {doPolymake.OoHG} def    
+  (Using doPolymake.OoHG ) message 
+  /polymake.start {polymake.start.OoHG} def 
+  (Using polymake.start.OoHG ) message 
+} { (Local polymake will be used.) message } ifelse
 
 /cone.debug 1 def
 
@@ -267,10 +265,12 @@ or
  /cone.loaded boundp { }
  {
   [(parse) (cohom.sm1) pushfile] extension
-%  [(parse) (cone.sm1) pushfile] extension
+%  [(parse) (cone.sm1) pushfile] extension   % BUG? cone.sm1 overrides a global
+                                             % in cohom.sm1?
   [(parse) (dhecart.sm1) pushfile] extension
   /cone.loaded 1 def
-  oxNoX polymake.start  (  ) message
+  oxNoX 
+  polymake.start  (  ) message
  } ifelse
 } def
 
