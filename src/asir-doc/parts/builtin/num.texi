@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.5 2002/07/19 02:23:32 takayama Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/num.texi,v 1.6 2002/08/08 05:24:37 noro Exp $
 \BJP
 @node 数の演算,,, 組み込み函数
 @section 数の演算
@@ -727,7 +727,7 @@ These functions works also for polynomials with complex coefficients.
 @code{deval} は倍精度浮動小数を結果として 
 @code{eval} の場合, 有理数はそのまま残る. 
 @item
-@code{eval} においては, 計算は @b{PARI} (@xref{pari}) が行う. 
+@code{eval} においては, 計算は @b{PARI} (@ref{pari}) が行う. 
 @code{deval} においては, 計算は C 数学ライブラリの関数を用いて行う. 
 @item
 @code{deval} は複素数は扱えない. 
@@ -735,7 +735,7 @@ These functions works also for polynomials with complex coefficients.
 @code{eval} においては, 
 @var{prec} を指定した場合, 計算は, 10 進 @var{prec} 桁程度で行われる. 
 @var{prec} の指定がない場合, 現在設定されている精度で行われる. 
-(@xref{setprec})
+(@xref{setprec}.)
 @item
 @table @t
 @item 扱える函数は, 次の通り. 
@@ -770,7 +770,7 @@ possible.
 double float. Rational numbers remain unchanged in results from @code{eval}.
 @item
 In @code{eval} the computation is done 
-by @b{PARI} (@xref{pari}). In @code{deval} the computation is
+by @b{PARI}. (@xref{pari}.) In @code{deval} the computation is
 done by the C math library.
 @item
 @code{deval} cannot handle complex numbers.
@@ -778,7 +778,7 @@ done by the C math library.
 When @var{prec} is specified, computation will be performed with a
 precision of about @var{prec}-digits.
 If @var{prec} is not specified, computation is performed with the
-precision set currently. (@xref{setprec})
+precision set currently. (@xref{setprec}.)
 @item
 Currently available numerical functions are listed below.
 Note they are only a small part of whole @b{PARI} functions.
@@ -1097,7 +1097,7 @@ We will improve @b{Asir} so that it can provide more functions of
 引数がある場合, @b{bigfloat} の桁数を @var{n} 桁に設定する. 
 引数のあるなしにかかわらず, 以前に設定されていた値を返す. 
 @item
-@b{bigfloat} の計算は @b{PARI} (@xref{pari}) によって行われる. 
+@b{bigfloat} の計算は @b{PARI} (@ref{pari}) によって行われる. 
 @item
 @b{bigfloat} での計算に対し有効である. 
 @b{bigfloat} の flag を on にする方法は, @code{ctrl} を参照. 
@@ -1113,7 +1113,7 @@ The return value is always the previous precision in digits regardless of
 the existence of an argument.
 
 @item
-@b{Bigfloat} operations are done by @b{PARI}. (@xref{pari})
+@b{Bigfloat} operations are done by @b{PARI}. (@xref{pari}.)
 @item
 This is effective for computations in @b{bigfloat}.
 Refer to @code{ctrl()} for turning on the `@b{bigfloat} flag.'

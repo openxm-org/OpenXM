@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/poly.texi,v 1.2 1999/12/21 02:47:34 noro Exp $
 \BJP
 @node 多項式および有理式の演算,,, 組み込み函数
 @section 多項式, 有理式の演算
@@ -63,7 +63,7 @@
 \E
 \BEG
 @item
-@xref{Types in Asir} for main variable.
+See @ref{Types in Asir} for main variable.
 @item
 Indeterminates (variables) are ordered by default as follows.
  
@@ -171,7 +171,7 @@ Lists variables according to the variable ordering.
 @code{strtov()} を用いる. 
 @item
 @code{uc()} で生成された不定元の不定元としての型 (@code{vtype}) は 1 である. 
-(@xref{不定元の型})
+(@xref{不定元の型}.)
 \E
 \BEG
 @item
@@ -363,7 +363,7 @@ Variable @var{var} must be specified.
 @item
 有理式の場合は, 分子と分母の項数の和が返される. 
 @item
-函数形式 (@xref{不定元の型}) は, 引数が何であっても単項とみなされる. (1 個の不定元と同じ. )
+函数形式 (@ref{不定元の型}) は, 引数が何であっても単項とみなされる. (1 個の不定元と同じ. )
 \E
 \BEG
 @item
@@ -1060,7 +1060,7 @@ multiples of @var{hint}.
 各既約因子の次数が @var{hint} の倍数であることがわかっている場合に
 @var{poly} の既約因子分解を @code{fctr()} より効率良く行う. 
 @var{poly} が, @var{d} 次の拡大体上における
-ある多項式のノルム (@xref{代数的数に関する演算}) で無平方である場合, 
+ある多項式のノルム (@ref{代数的数に関する演算}) で無平方である場合, 
 各既約因子の次数は @var{d} の倍数となる. このような場合に
 用いられる. 
 \E
@@ -1073,7 +1073,7 @@ more efficiently by the knowledge than @code{fctr()}.
 When @var{hint} is 1, @code{ufctrhint()} is the same as @code{fctr()} for
 uni-variate polynomials.
 An typical application where @code{ufctrhint()} is effective:
-Consider the case where @var{poly} is a norm (@xref{Algebraic numbers})
+Consider the case where @var{poly} is a norm (@ref{Algebraic numbers})
 of a certain polynomial over an extension field with its extension
 degree @var{d}, and it is square free;  Then, every irreducible factor
 has a degree that is a multiple of @var{d}.
