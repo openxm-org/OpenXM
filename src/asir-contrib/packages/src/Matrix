@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.14 2002/08/08 08:56:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Matrix,v 1.15 2002/10/04 03:04:50 takayama Exp $ */
 
 /*-------------------------------*/
 /* Package for matrix operations */
@@ -232,7 +232,8 @@ def omatrix_adjugate(A) {
 
 /*&usage begin: omatrix_inverse(A)
  It returns the inverse matrix of {A} by calling the asir native function
-  invmat.
+  invmat.  bug -- matrix of polynomial with complex coef, matrix of complex
+  floating coef.
  example: omatrix_inverse([[1,1/(x+1)],[1,1/(x+1)^2]]);
 end: */
 def omatrix_inverse(A) {
@@ -247,6 +248,12 @@ def omatrix_inverse(A) {
     error("A is not NxN.");
   }
   Size = Size_A[0];
+
+  if (omatrix_float(A)) {
+    C=invmat(A);
+    CM = C[0]; CD=C[1];
+    return CM*(1/CD);
+  }
 
   B = newmat(Size,Size);
   D = 1;
@@ -567,6 +574,29 @@ def omatrix_submatrix(M,Ind) {
   }else{
     return R;
   }
+}
+
+def omatrix_float(A) {
+  if (type(A)<=1) {
+    if ((ntype(A) == 1) || (ntype(A) == 3)) return 1;
+    else return 0;
+    /* BUG: case of complex numbers */
+  }
+  if (type(A) == 4) {
+    for (I=0; I<length(A);  I++) {
+      if (omatrix_float(A[I])) return 1;
+    }
+    return 0;
+  }
+  if (type(A) == 6 || type(A) == 5) {
+    S = size(A);
+    if (length(S) == 0) return 0;
+    for (I=0; I<S[0]; I++) {
+      if (omatrix_float(A[I])) return 1;
+    }
+    return 0;
+  }
+  return 0;
 }
 
 Loaded_Matrix = 1 $
