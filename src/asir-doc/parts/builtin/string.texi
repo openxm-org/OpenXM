@@ -1,4 +1,4 @@
-@comment $OpenXM$
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/string.texi,v 1.3 1999/12/21 02:47:34 noro Exp $
 \BJP
 @node 文字列に関する演算,,, 組み込み函数
 @section 文字列に関する演算
@@ -12,6 +12,7 @@
 * rtostr::
 * strtov::
 * eval_str::
+* strtoascii asciitostr::
 @end menu
 
 \JP @node rtostr,,, 文字列に関する演算
@@ -187,3 +188,56 @@ This functions is the inversion function of @code{rtostr()}.
 @fref{rtostr}
 @end table
 
+\JP @node strtoascii asciitostr,,, 文字列に関する演算
+\EG @node strtoascii asciitostr,,, Strings
+@subsection @code{strtoascii}, @code{asciitostr}
+@findex strtoascii
+@findex asciitostr
+
+@table @t
+@item strtoascii(@var{str})
+\JP :: 文字列をアスキーコードで表す. 
+\EG :: Converts a string into a sequence of ASCII codes.
+@item asciitostr(@var{list})
+\JP :: アスキーコードの列を文字列に変換する. 
+\EG :: Converts a sequence of ASCII codes into a string.
+@end table
+
+@table @var
+@item return
+\JP @code{strtoascii()}:リスト; @code{asciitostr()}:文字列
+\EG @code{strtoascii()}:list; @code{asciitostr()}:string
+@item str
+\JP 文字列
+\EG string
+@item list
+\JP 1 以上 256 未満の整数からなるリスト
+\EG list containing positive integers less than 256.
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@code{strtoascii()} は文字列を整数のリストに変換する. 各
+整数は文字列のアスキーコードを表す. 
+@item
+@code{asciitostr()} は @code{asciitostr()} の逆関数である. 
+\E
+\BEG
+@item
+@code{strtoascii()} converts a string into a list of integers
+which is a representation of the string by the ASCII code.
+@item
+@code{asciitostr()} is the inverse of @code{asciitostr()}.
+\E
+@end itemize
+
+@example
+[0] strtoascii("abcxyz");
+[97,98,99,120,121,122]
+[1] asciitostr(@@);
+abcxyz
+[2] asciitostr([256]);
+asciitostr : argument out of range
+return to toplevel
+@end example

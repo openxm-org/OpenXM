@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.4 1999/12/24 04:38:06 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/misc.texi,v 1.5 2000/01/31 05:52:05 noro Exp $
 \BJP
 @node その他,,, 組み込み函数
 @section その他
@@ -86,6 +86,10 @@ on の時, 函数の再定義時にメッセージを表示する.
 @item hex
 1 のとき, 整数は 0x で始まる 16 進数として表示される. -1 のとき, 16 進数は, 
 間に @samp{|} をはさんで 8 桁ごとに区切って表示される. 
+@item fortran_output
+1 のとき, 多項式の表示が FORTRAN スタイルになる. すなわち冪が
+@samp{^} の代わりに @samp{**} で表される. 
+(デフォルト値は 0.)
 @item ox_batch
 1 のとき, 送信バッファがいっぱいになった時のみ自動的に flush.
 0 のとき, データ, コマンド送信毎に flush. (デフォルト値は 0.)
@@ -149,6 +153,10 @@ If `on' a warning messages is displayed when a function is redefined.
 If 1 is set, integers are displayed as hexadecimal numbers with prefix
 @code{0x}. if -1 is set, hexadecimal numbers are desplayed with 
 @samp{|} inserted at every 8 hexadecimal digits.
+@item fortran_output
+If `on' polynomials are displayed in FORTRAN style. That is, a power
+is represented by @samp{**} instead of @samp{^}.
+The default value is 'off.
 @item ox_batch
 If 'on', the OpenXM send buffer is flushed only when the buffer is full.
 If 'off', the buffer is always flushed at each sending of data or command.
