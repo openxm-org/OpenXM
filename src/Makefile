@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.74 2000/01/25 02:52:23 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.75 2000/02/01 04:24:18 takayama Exp $
 
 OPENXM_CONTRIB=../../OpenXM_contrib
 LIBDIR=../lib
@@ -101,7 +101,7 @@ install-phc: all-phc
 install-tigers: all-tigers
 	(cd tigers ; make install)
 
-install-asir-contrib: install-asir
+install-asir-contrib: install-asir install-kxx
 	(cd asir-contrib ; make install)
 
 install-asir-doc: install-asir
