@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.4 2004/07/06 07:09:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.5 2004/07/07 09:04:03 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -73,7 +73,7 @@ localf partial_to_euler, partial_to_euler_term;
 localf a2k, sigma, gen_gamma, pochhammer, eval_gamma, gamma1, gamma2;
 localf vector_to_rat;
 localf series, series1, series2;
-localf pattern, pattern_weight, all_integers;
+localf pattern, pattern_full, pattern_weight, all_integers;
 localf 'std_+', 'std_*', 'std_=';
 localf list_incr, list_sum, list_second, list_add_prefix;
 localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
@@ -1428,6 +1428,7 @@ def gamma2(L)
 }
 
 /* GKZ = [A,B] */
+/* gm/series.tex: Algorithm 1 */
 def series(MaxDeg, GKZ, W, AT) {
     LenAT = length(AT);
     Index = sigma(AT, GKZ[1]);
@@ -1435,15 +1436,13 @@ def series(MaxDeg, GKZ, W, AT) {
     U = a2k(GKZ[0], AT, Index);
     K = U[1]; U = U[0];
     F = [];
-    for(D=0; D<MaxDeg; D++) {
-        for(Ks = pattern(D, LenIndex); Ks != []; Ks = cdr(Ks)) {
-            K0 = car(Ks);
-            U0 = ltov(base_replace(U, assoc(K, K0)));
-            IP = vector_inner_product(U0, W);
-            if(IP >= 0 && all_integers(U0)) {
-                C = gen_gamma(AT,U0);
-                F = cons([C, U0], F);
-            }
+    for(Ks = pattern_full(MaxDeg, LenIndex); Ks != []; Ks = cdr(Ks)) {
+        K0 = car(Ks);
+        U0 = ltov(base_replace(U, assoc(K, K0)));
+        IP = vector_inner_product(U0, W);
+        if(IP >= 0 && all_integers(U0)) {
+            C = gen_gamma(AT,U0);
+            F = cons([C, U0], F);
         }
     }
     return reverse(F); /* HG Series == (1/Gamma(AT))*x^AT * ( F + ... ) */
@@ -1494,9 +1493,25 @@ def pattern(M, N)
     return reverse(L);
 }
 
-/* [Length, Max,Pattern, Max] */
+def pattern_full(M, N)
+"Example: pattern_full(3,2) => \
+[[0,0],[0,1],[1,0],[0,2],[1,1],[2,0],[0,3],[1,2],[2,1],[3,0]]"
+{
+    V = list_add_prefix("u",list_incr(0,N));
+    G = list_sum(V);
+    for(F = 0, I = 0; I <= M; I++) {
+        F += G^I;
+    }
+    for(L = [], F = dp_ptod(F, V); F != 0; F = dp_rest(F)) {
+        L = cons(vtol(dp_etov(dp_ht(F))), L);
+    }
+    return L;
+}
+
 static PatternCache;
 /* 
+PatternCache is used by pattern_weight() and has a structure as
+[Length, Max,Pattern, Max].
 If M=4 and C=[3,2,1], then PatternCache is the following list:
 [3,4,[[[4,0,0],12],[[3,1,0],11],[[2,2,0],10],[[1,3,0],9],[[0,4,0],8],[[3,0,1],10],[[2,1,1],9],[[1,2,1],8],[[0,3,1],7],[[2,0,2],8],[[1,1,2],7],[[0,2,2],6],[[1,0,3],6],[[0,1,3],5],[[0,0,4],4],[[3,0,0],9],[[2,1,0],8],[[1,2,0],7],[[0,3,0],6],[[2,0,1],7],[[1,1,1],6],[[0,2,1],5],[[1,0,2],5],[[0,1,2],4],[[0,0,3],3],[[2,0,0],6],[[1,1,0],5],[[0,2,0],4],[[1,0,1],4],[[0,1,1],3],[[0,0,2],2],[[1,0,0],3],[[0,1,0],2],[[0,0,1],1],[[0,0,0],0]]]
 */
