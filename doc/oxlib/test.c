@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/doc/oxlib/test.c,v 1.1 2002/02/25 07:09:01 noro Exp $ */
+/* $OpenXM: OpenXM/doc/oxlib/test.c,v 1.2 2002/02/25 07:14:44 noro Exp $ */
 #include <asir/ox.h>
 
 main() {
@@ -11,6 +11,7 @@ main() {
 	len0 = BUFSIZ;
 	obuf = (char *)malloc(len0);
 	while ( 1 ) {
+		printf("Input> ");
 		fgets(ibuf,BUFSIZ,stdin);
 		if ( !strncmp(ibuf,"bye",3) )
 			exit(0);
@@ -21,7 +22,7 @@ main() {
 			obuf = (char *)realloc(obuf,len0);
 		}
 		asir_ox_pop_string(obuf,len0);
-		printf("%s\n",obuf);
+		printf("Output> %s\n",obuf);
 	}
 }
 
