@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.1.1.1 2000/03/02 10:32:39 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,6 +20,14 @@ main() {
   struct stat sb;
   int p;
 
+  /* Initial data */
+  printf("bin/asir\n");
+  printf("bin/sm1\n");
+  printf("bin/oxMathematica\n");
+  printf("bin/oxmath\n");
+  printf("bin/ox\n");
+  printf("bin/gp\n");
+  
   while (fgets(s0,512,stdin) != NULL) {
 	n = strlen(s0);
 	if (n <= 1) goto LLL;
@@ -58,6 +66,7 @@ main() {
 	if (isExclude(s,"doc/OpenXM-web")) goto LLL;
 	if (isExclude(s,"doc/Makefile")) goto LLL;
 	if (isExclude(s,"doc/install")) goto LLL;
+	if (isExclude(s,"doc/compalg")) goto LLL;
 
 	
 	if (lstat(s,&sb) < 0) fprintf(stderr,"The file %s is not found.\n",s);

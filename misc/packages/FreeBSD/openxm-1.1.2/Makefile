@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.1.1.1 2000/03/02 10:32:39 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-1.1.2/Makefile,v 1.2 2000/03/03 05:13:26 takayama Exp $
 
 # Modify this.
 OpenXM_TOP=$(HOME)
@@ -48,6 +48,9 @@ make-tar-ball :
 	rm -f *~
 	echo "Creating a tar ball under ~/tmp/"
 	(cd .. ; tar czf $(HOME)/tmp/openxm-1.1.2.tar.gz openxm-1.1.2)
+	rm -rf openxm
+	mv OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2 openxm
+	tar czf $(HOME)/tmp/openxm-port.tar.gz openxm
 
 make-tar-ball-from-local-OpenXM :
 	rm -rf OpenXM OpenXM_contrib OpenXM_contrib2
