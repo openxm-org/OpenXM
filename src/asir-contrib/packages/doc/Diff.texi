@@ -1,4 +1,4 @@
-@c $OpenXM: OpenXM/src/asir-contrib/packages/doc/Diff.texi,v 1.3 2000/01/03 09:15:53 okutani Exp $
+@c $OpenXM: OpenXM/src/asir-contrib/packages/doc/Diff.texi,v 1.4 2000/01/21 12:54:39 okutani Exp $
 @node Differential equations,,, その他の函数
 @section Differential equations
 ファイル @file{gr}, @file{Matrix} が必要です.
@@ -35,7 +35,7 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 @c * diff_act_selberg2::
 @c * diff_act_gkz::
 * diff_poly_solve::
-@c * diff_poly_solve_hg1::
+* diff_poly_solve_hg1::
 @c * diff_poly_solve_appell1::
 @c * diff_poly_solve_appell2::
 @c * diff_poly_solve_appell3::
@@ -159,20 +159,44 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 [_33*y^2*x^2,[_33]]
 @end example
 
+@node diff_poly_solve_hg1,,, Differential equations
+@subsection @code{diff_poly_solve_hg1}
+@findex diff_poly_solve_hg1
+@table @t
+@item diff_poly_solve_hg1(@var{a},@var{b},@var{c},@var{V})
+::  ガウスの超幾何微分方程式の多項式解を求める.
+@end table
+@table @var
+@item return
+リスト
+@item a, b, c
+有理式
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @code{diff_poly_solve_hg1}の例.
+@end itemize
+@example
+[334] diff_poly_solve_hg1(-3,-6,-5,[x]);
+[_1*x^6-2*_0*x^3+9/2*_0*x^2-18/5*_0*x+_0,[_0,_1]]
+
+[335] diff_poly_solve_hg1(-3,-6,-7,[x]);
+[-4/7*_2*x^3+15/7*_2*x^2-18/7*_2*x+_2,[_2]]
+@end example
+
 @node diff_poly_solve_appell4,,, Differential equations
 @subsection @code{diff_poly_solve_appell4}
 @findex diff_poly_solve_appell4
 @table @t
-@item diff_poly_solve_appell4(@var{a},@var{b},@var{c1},@var{c2},@var{N},@var{V})
-::  F_4がみたす線型微分方程式系の @var{N} 次以下の多項式解を求める.
+@item diff_poly_solve_appell4(@var{a},@var{b},@var{c1},@var{c2},@var{V})
+::  F_4がみたす線型微分方程式系の多項式解を求める.
 @end table
 @table @var
 @item return
 リスト
 @item a, b, c1, c2
 有理式
-@item N
-整数
 @item V
 リスト
 @end table
@@ -180,10 +204,10 @@ $$ [ [ [x,[1,0]],[y,[0,1]],[1,[0,0]] ],[ [1,[2,0]],[1,[0,2]] ] ] $$
 @item  @code{diff_poly_solve_appell4}の例.
 @end itemize
 @example
-[299] diff_poly_solve_appell4(-3,1,-1,-1,5,[x,y]);
+[299] diff_poly_solve_appell4(-3,1,-1,-1,[x,y]);
 [-_26*x^3+(3*_26*y+_26)*x^2+3*_24*y^2*x-_24*y^3+_24*y^2,[_24,_26]]
 
-[300] diff_poly_solve_appell4(-3,1,1,-1,5,[x,y]);
+[300] diff_poly_solve_appell4(-3,1,1,-1,[x,y]);
 [-3*_45*y^2*x-_45*y^3+_45*y^2,[_45]]
 @end example
 
