@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.3 1999/11/18 23:57:19 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.4 1999/11/27 01:41:11 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -1389,6 +1389,7 @@ void *KSmathCapByStruct(void)
   putoa(ob,1,KpoString(sys));
   putoa(ob,2,KpoString(sysVersion));
   s1 = getenv("HOSTTYPE");
+  if (s1 == NULL) s1="unknown";
   s2 = (char *)sGC_malloc(strlen(s1)+2+strlen("HOSTTYPE="));
   strcpy(s2,"HOSTTYPE=");
   strcat(s2,s1);
