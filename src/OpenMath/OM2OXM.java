@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.15 2000/01/20 13:58:48 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/OM2OXM.java,v 1.16 2000/01/20 18:14:32 tam Exp $
  *
  * このクラスでは以下の BNF で表される構文解析を実装している
  * expr -> stag [expr | immediate]* etag
@@ -363,10 +363,18 @@ final class OM2OXM implements Runnable{
       if(name.equals("DMP")){
 	ret = parse_symb_DMP();
 	debug("poly: "+ret);
-      }else if(name.equals("list")){
-	ret = parse_objects();
       }else{
-	ret = new CMO_TREE(name,"Basic",parse_objects());
+	CMO[] leaves = parse_objects();
+
+	if(name.equals("list")){
+	  ret = new CMO_LIST(leaves);
+	}else if(name.equals("over") && leaves.length==2
+		 && leaves[0] instanceof CMO_ZZ
+		 && leaves[1] instanceof CMO_ZZ){
+	  ret = new CMO_QQ((CMO_ZZ)leaves[0],(CMO_ZZ)leaves[1]);
+	}else{
+	  ret = new CMO_TREE(name,"Basic",new CMO_LIST(leaves));
+	}
       }
 
       exceptTokenTypeInParse(TT_EndTag);
@@ -374,7 +382,7 @@ final class OM2OXM implements Runnable{
 	parse_error("We expect '</OMA>'.");
       }
     }else{
-      parse_error("???");
+      parse_error("We expect '<OMI> or '<OMA>' or '<OMV>'.");
       ret = null;
     }
 
@@ -459,6 +467,7 @@ final class OM2OXM implements Runnable{
 
   private CMO_MONOMIAL32 parse_symb_Monom() throws IOException{
     Vector degree = new Vector();
+    CMO coefficient;
     int[] array;
 
     exceptTokenTypeInParse(TT_StartTag);
@@ -470,6 +479,14 @@ final class OM2OXM implements Runnable{
       parse_error("We expect '<Monom>'");
     }
 
+    coefficient = parse_object();
+    if(!(coefficient instanceof CMO_ZZ
+	 || coefficient instanceof CMO_QQ
+	 || coefficient instanceof CMO_INT32
+	 || coefficient instanceof CMO_ZERO)){
+      parse_error("the coefficient of Monomials must be integer or rational.");
+    }
+
     while(readNextToken() != TT_EndTag){
       pushbackLex();
       degree.addElement(parse_OMI());
@@ -479,17 +496,16 @@ final class OM2OXM implements Runnable{
       parse_error("We expect '<OMA>'.");
     }
 
-    array = new int[degree.size()-1];
+    array = new int[degree.size()];
     for(int i=0;i<array.length;i++){
-      array[i] = ((CMO_ZZ)degree.elementAt(i+1)).intValue();
+      array[i] = ((CMO_ZZ)degree.elementAt(i)).intValue();
     }
 
-    //debug("monom: "+ new CMO_MONOMIAL32(array,(CMO_ZZ)degree.elementAt(0)));
-    return new CMO_MONOMIAL32(array,(CMO_ZZ)degree.elementAt(0));
+    //debug("monom: "+ new CMO_MONOMIAL32(array,coefficient));
+    return new CMO_MONOMIAL32(array,coefficient);
   }
 
-  private CMO_LIST parse_objects() throws IOException{
-    // 解析された object を LIST で返す
+  private CMO[] parse_objects() throws IOException{
     Vector objects = new Vector();
     CMO[] array;
 
@@ -504,7 +520,7 @@ final class OM2OXM implements Runnable{
     objects.copyInto((Object[])array);
 
     debug("debug :"+ new CMO_LIST(array));
-    return new CMO_LIST(array);
+    return array;
   }
 
   private String parse_symbol() throws IOException{
@@ -716,9 +732,9 @@ final class OM2OXM implements Runnable{
     String ret;
 
     ret = mesg +"\n";
-    ret += "error occuered near :";
+    ret += "error occuered before that :";
     try{
-      for(int i=0;i<10;i++){
+      for(int i=0;i<40;i++){
 	ret += (char)is.read();
       }
     }catch(IOException e){}

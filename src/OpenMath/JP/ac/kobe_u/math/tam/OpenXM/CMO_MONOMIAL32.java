@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java,v 1.3 1999/11/14 22:57:45 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_MONOMIAL32.java,v 1.4 2000/01/20 18:14:33 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -12,7 +12,7 @@ public class CMO_MONOMIAL32 extends CMO{
 
   public CMO_MONOMIAL32(){}
 
-  public CMO_MONOMIAL32(int[] degree,CMO_ZZ coefficient){
+  public CMO_MONOMIAL32(int[] degree,CMO coefficient){
     this.degree = degree;
     this.coefficient = coefficient;
   }

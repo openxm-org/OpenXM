@@ -1,5 +1,5 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.4 2000/01/18 16:54:21 tam Exp $
+ * $OpenXM: OpenXM/src/OpenMath/JP/ac/kobe_u/math/tam/OpenXM/CMO_QQ.java,v 1.5 2000/01/19 13:25:17 tam Exp $
  */
 package JP.ac.kobe_u.math.tam.OpenXM;
 
@@ -11,9 +11,9 @@ public class CMO_QQ extends CMO{
 
   CMO_QQ(){}
 
-  CMO_QQ(CMO_ZZ src_a,CMO_ZZ src_b){
-    a = src_a;
-    b = src_b;
+  public CMO_QQ(CMO_ZZ a,CMO_ZZ b){
+    this.a = a;
+    this.b = b;
   }
 
   public CMO_ZZ getBunshi(){
