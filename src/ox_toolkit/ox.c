@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.27 2003/09/15 09:31:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.28 2003/09/18 12:46:08 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -250,6 +250,12 @@ static cmo_polynomial_in_one_variable* receive_cmo_polynomial_in_one_variable(OX
     return c;
 }
 
+static cmo_indeterminate* receive_cmo_indeterminate(OXFILE *oxfp)
+{
+    cmo* ob = receive_cmo(oxfp);
+    return new_cmo_indeterminate(ob);
+}
+
 static cmo_tree* receive_cmo_tree(OXFILE *oxfp)
 {
     cmo_string* name = (cmo_string *)receive_cmo(oxfp);
@@ -320,6 +326,9 @@ cmo *receive_cmo_tag(OXFILE *oxfp, int tag)
         break;
     case CMO_POLYNOMIAL_IN_ONE_VARIABLE:
         m = (cmo *)receive_cmo_polynomial_in_one_variable(oxfp);
+        break;
+    case CMO_INDETERMINATE:
+        m = (cmo *)receive_cmo_indeterminate(oxfp);
         break;
     case CMO_TREE:
         m = (cmo *)receive_cmo_tree(oxfp);
