@@ -1,0 +1,137 @@
+$OpenXM$
+
+/*&ja
+CMO と OX メッセージの形式的定義.
+
+トークンの集合:
+トークンは  (  )  , + - の5つか, あるいは「大文字で表された文法記号」である.
+「大文字で表された文法記号」の定義は parse.h の TOKEN(*) あるいは T_*による.
+
+*/
+/*&en
+We explain a formal definition of CMO's and OX data/command messages.
+The definition is used in parse.c.
+
+Tokens are the followings:
+'(', ')', ',', '+', '-', or symbols written by capitals.
+Symbols are defined in parse.h by TOKEN(*) or T_*.
+
+*/
+/*&ja
+文法規則:
+省略記法を許すのはフラグが立っているときだけ.
+開始記号は startsymbol である.  トークンの境界は空白で分けてある.
+-> | はBNFの記号である.  また {}* は 0 個以上の繰り返しを表す拡張BNFの
+記号である.
+
+*/
+/*&common
+The following BNFs define the grammer of Common Math Objects:
+
+startsymbol
+  -> ox \n
+   | cmo \n
+   | \n
+
+ox
+  -> ( OX_COMMAND , sm )
+   | ( OX_DATA , cmo )
+
+sm
+  -> ( SM_COMMAND )
+
+cmo
+  -> ( cmo_null )
+   | ( cmo_int32 )
+   | ( cmo_string )
+   | ( cmo_mathcap )
+   | ( cmo_list )
+   | ( cmo_zero )
+   | ( cmo_zz )
+   | ( cmo_monomial32 )
+   | ( cmo_dms_generic )
+   | ( cmo_ring_by_name )
+   | ( cmo_distributed_polynomial )
+   | ( cmo_error2 )
+
+cmo_null
+  -> CMO_NULL
+
+cmo_int32
+  -> CMO_INT32 , integer
+
+cmo_string
+  -> CMO_STRING , integer , STRING
+   | CMO_STRING , STRING
+*/
+/*&en
+second rule is external rule
+*/
+/*&common
+
+cmo_mathcap
+  -> CMO_MATHCAP , cmo
+
+cmo_list
+  -> CMO_LIST , integer  { , cmo }*
+   | CMO_LIST { , cmo }*
+*/
+/*&en
+second rule is external rule
+*/
+/*&common
+
+cmo_monomial32
+  -> CMO_MONOMIAL32 , integer { , integer }* , coef
+
+cmo_zz
+  -> CMO_ZZ , integer { , integer }*
+   | CMO_ZZ , integer
+*/
+/*&en
+second rule is external rule
+*/
+/*&common
+
+cmo_zero
+  -> CMO_ZERO
+
+cmo_dms_generic
+  -> CMO_DMS_GENERIC
+
+cmo_ring_by_name
+  -> CMO_RING_BY_NAME , ( cmo_string )
+
+cmo_distributed_polynomial
+  -> CMO_DISTRIBUTED_POLYNOMIAL , integer , ringdefinition { , monomial }*
+   | CMO_DISTRIBUTED_POLYNOMIAL , ringdefinition  { , monomial }*
+*/
+/*&en
+second rule is external rule
+*/
+/*&ja
+        # リストの各要素は monomial である. 空リストの場合もOK?
+        # 省略記法
+*/
+/*&common
+
+cmo_error2
+  -> CMO_ERROR2 , cmo
+
+monomial
+  -> ( cmo_zero )
+   | ( cmo_monomial32 )
+
+ringdefinition
+  -> ( cmo_dms_generic )
+   | ( cmo_ring_by_name )
+
+coef
+  -> ( cmo_zz )
+   | ( cmo_int32 )
+
+integer
+  -> DIGIT
+   | + DIGIT
+   | - DIGIT
+*/
