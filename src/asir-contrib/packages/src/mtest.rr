@@ -1,23 +1,30 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/mtest.rr,v 1.1 2003/05/14 08:12:25 takayama Exp $ */
 
 /* A reasonable size program to test the new module structure. */
 
-module lasg {
+/*
+  if (!Loaded_taka_print) load(FileName); else ;
+*/
+/*
+extern Loaded_taka_print$ 
+*/
+/* The next two lines cannot be in a module */
+ox_loadfile(Loaded_taka_print,"taka_print.rr")$ 
+ox_loadfile(Loaded_Matrix,"Matrix")$ 
+
+module lasg;
 
 #define min(a,b) (a>b? b: a)
 #define MaxN 3
 #define Step 2
 #define MaxC 1
-Seed0 = 1$
-Dense = 1$
+print("Type in test();  Problems will be saved in hoge.tex")$
+static Seed0 $
+static Dense $
+static Lasg_test_data_1 $
 
-
-/*
-  if (!Loaded_taka_print) load(FileName); else ;
-*/
-/* extern Loaded_taka_print; */
-ox_loadfile(Loaded_taka_print,"taka_print.rr")$ 
-ox_loadfile(Loaded_Matrix,"Matrix")$ 
+Seed0 = 1 $
+Dense = 1 $
 
 def matrix_to_dp(M) {
   S = size(M);
@@ -109,7 +116,6 @@ def gen_1(M,N,Rank,Seed) {
       else { K++; if (K >= N) break;}
     }
   }
-  /**/ print("Hoge");
   return A;
 }
 
@@ -154,7 +160,7 @@ def gen_1b(M,N,Rank,Seed) {
  example: lasg.gen_rank_prob(3,4,2,2);
 end: */
 def gen_rank_prob(M,N,Rank,P) {
-  extern Seed0;
+  extern Seed0; 
   print(Seed0);
   Ans = [ ];
   for (K=0; K<P; K++) {
@@ -574,7 +580,6 @@ def test() {
   output();
 }
 
-print("Type in test();  Problems will be saved in hoge.tex")$
 
 /*&uasge lasg.gen_ans(P)
  It generates an answer of the problem of solving linear equations
@@ -639,13 +644,15 @@ def gen_reduced_matrix(PP) {
      return S;
 }
 
-} /* end of module lasg */
+endmodule;
 
 
-module afo {
-   static Seed;
-   Seed = 1;
+module afo;
+   static Seed$
+   Seed = 1$
    def foo() {
+      /* extern Seed;  Do not add this line. */
+      afo.foo2();
       random(Seed);
       while(1) {
         A = random()%5;
@@ -653,11 +660,14 @@ module afo {
         if (A == 1) return;
       }
    }
+   def foo2() {
+     print("hello world!");     
+   }
 
-}
+endmodule;
 
-extern Seed2;
-Seed2 = 1;
+extern Seed2 $
+Seed2 = 1 $
 def foo() {
     random(Seed2);
     while(1) {
@@ -675,5 +685,8 @@ def foo() {
  example:  lasg.gen_ans([[2,3,8],[1,2,5]]);
  example:  lasg.gen_reduced_matrix([[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]);
 */
+
+/*----------------------------------------------------*/
+
 
 end$
