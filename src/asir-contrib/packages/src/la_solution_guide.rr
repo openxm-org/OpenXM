@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.3 2002/08/11 11:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.4 2003/05/07 02:22:07 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 /* Suffix should be  lasg_ */
 
@@ -333,7 +333,70 @@ def lasg_copy_matrix(A) {
  example: lasg_reduced_form(newmat(2,3,[[2,3,8],[1,2,5]]));
  end:
 */
+Lasg_test_data_1=newmat(3,5,[[0,0,0,1,1],[0,0,1,0,-2],[1,3,0,0,2]]) $
 def lasg_reduced_form(A) {
+  Ans = [ ];
+  M = size(A)[0];
+  N = size(A)[1];
+  AA = A;
+  Pivot = 0;
+  J = 0;
+  while (J < N) {
+    I = Pivot;
+    AllZero = 1;
+    while (I < M) {
+      if (AA[I][J] != 0) {
+       AllZero = 0;
+       if (AA[I][J] != 1) {
+         Msg = "Multiplying the "+rtostr(I+1)+"th row by "+
+               rtostr(1/AA[I][J]);
+         B = lasg_copy_matrix(AA);
+         for (JJ=0; JJ<N; JJ++) {
+           B[I][JJ] = AA[I][JJ]/AA[I][J];
+         }
+         Ans = append(Ans,[[Msg,B]]);
+         AA = B;
+       }
+       if (I != Pivot) {
+         Msg = "Exchanging the "+rtostr(I+1)+"th row and "+rtostr(Pivot+1)+
+               "th row";
+         B = lasg_copy_matrix(AA);
+         for (JJ=0; JJ<N; JJ++) {
+           B[I][JJ] = AA[Pivot][JJ];
+           B[Pivot][JJ] = AA[I][JJ];
+         }
+         Ans = append(Ans,[[Msg,B]]);
+         AA = B;
+       }
+       Msg = "Eliminating the "+rtostr(J+1)+"th column by "+
+               "("+rtostr(I+1)+","+rtostr(J+1)+")th entry" ;
+       B = lasg_copy_matrix(AA);
+       print(B); print("----------------");
+       Changed = 0;
+       for (II = 0; II<M; II++) {
+         if (II != Pivot && B[II][J] != 0) {
+           C = B[II][J];  Changed = 1;
+           for (JJ=0; JJ<N; JJ++) {
+             B[II][JJ] = B[II][JJ] - B[Pivot][JJ]*C;
+           }
+         }
+       }
+       if (Changed) {
+         Ans = append(Ans,[[Msg,B]]);
+         print(B); print("---------------");
+       }
+       AA = B;
+       break; /* break J loop */
+      }
+      I++;
+    }
+    if (!AllZero) Pivot++;
+    J++;
+  }
+  return(Ans);
+}
+
+def lasg_reduced_form_old(A) {
   Ans = [ ];
   M = size(A)[0];
   N = size(A)[1];
@@ -559,14 +622,13 @@ def lasg_gen_reduced_matrix(PP) {
      S = "% problem. \n";
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
           "$$ A = "+taka_tex_form(PP) + "$$\n";
-     S += "to generate the reduced expression$.\n \\medbreak \\noindent Answer:\n";
+     S += "to generate the reduced expression.\n \\medbreak \\noindent Answer:\n";
      A = lasg_reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
        S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
      }
-     S += "BUG: the coding has not yet been completed.";
      S += "\n\n";
      return S;
 }
