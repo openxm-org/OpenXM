@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.11 2003/11/18 11:08:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/oxserver00.c,v 1.12 2003/11/19 01:02:40 takayama Exp $ */
 /* nullserver01 */
 #include <stdio.h>
 #include <sys/types.h>
@@ -15,6 +15,7 @@
 int OxCritical = 0;
 int OxInterruptFlag = 0;
 int PacketMonitor = 0;
+int NoExecution = 0;
 
 extern int SerialOX;  /* Serial number of the packets sent. */
 extern int SerialCurrent;  /* Current Serial number of the recieved packet. */
@@ -47,6 +48,9 @@ main(int argc, char *argv[]) {
     }else if (strcmp(argv[1],"-lispLike")==0) {
       fprintf(stderr,"Output lispLike expression.\n");
       Lisplike = 1;
+    }else if (strcmp(argv[1],"-noexec")==0) {
+      fprintf(stderr,"I do not execute commands.\n");
+      NoExecution = 1;
     }else{
       fprintf(stderr,"Unknown option. Possible options are -monitor\n");
     }
@@ -244,48 +248,43 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
   if (message) {fprintf(stderr,"\nfunction_id is %d; %s\n",id,oxFIDtoStr(id));}
   switch( id ) {
   case SM_mathcap:
-    if (message) fprintf(stderr," mathcap\n");
     mathresult = (struct mathCap *)Sm1_mathcap();
     oxPushMathCap(mathresult);
     break;
   case SM_setMathCap:
-    if (message) fprintf(stderr," setMathCap\n");
     Sm1_setMathCap(ostreamOut);
     break;
   case SM_pops:
-    if (message) fprintf(stderr," pops \n");
     Sm1_pops();
     break;
   case SM_getsp:
-    if (message) fprintf(stderr," getsp \n");
     Sm1_getsp();
     break;
   case SM_dupErrors:
-    if (message) fprintf(stderr," dupErrors \n");
     Sm1_dupErrors();
     break;
   case SM_pushCMOtag:
-    if (message) fprintf(stderr," pushCMOtag \n");
     Sm1_pushCMOtag(SerialCurrent);
     break;
   case SM_setName:
-    if (message) fprintf(stderr," setName \n");
     iresult = Sm1_setName();
     if (iresult < 0) {
       Sm1_pushError2(SerialCurrent,-1,"setName");
     }
     break;
   case SM_evalName:
-    if (message) fprintf(stderr," evalName \n");
     iresult = Sm1_evalName();
     if (iresult < 0) {
       Sm1_pushError2(SerialCurrent,-1,"evalName");
     }
     break;
   case SM_executeStringByLocalParser:
-    if (message) fprintf(stderr," executeStringByLocalParser\n");
     OxCritical = 0;
-    iresult = Sm1_executeStringByLocalParser();
+	if (NoExecution) {
+	  iresult = 0;
+	}else{
+	  iresult = Sm1_executeStringByLocalParser();
+	}
     OxCritical = 1; signal(SIGUSR1,controlResetHandler);
     if (iresult < 0) {
       emsg = Sm1_popErrorMessage("executeString: ");
@@ -294,9 +293,12 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
     }
     break;
   case SM_executeFunction:
-    if (message) fprintf(stderr," executeFunction\n");
     OxCritical = 0;
-    iresult = Sm1_executeStringByLocalParser();
+	if (NoExecution) {
+	  iresult = 0;
+	}else{
+	  iresult = Sm1_executeStringByLocalParser();
+	}
     OxCritical = 1; signal(SIGUSR1,controlResetHandler);
     if (iresult < 0) {
       emsg = Sm1_popErrorMessage("executeFunction: ");
@@ -305,13 +307,11 @@ nullserverCommand(ox_stream ostreamIn,ox_stream ostreamOut) {
     }
     break;
   case SM_popCMO:
-    if (message) fprintf(stderr,"popCMO.  Start to sending data.\n",n);
     oxSendOXheader(ostreamOut,OX_DATA,SerialOX++);
     n=Sm1_popCMO(ostreamOut,SerialCurrent);
     if (message) fprintf(stderr,"Done.\n"); 
     break;
   case SM_popString:
-    if (message) fprintf(stderr,"popString. send data from the stack.\n",n);
     oxSendOXheader(ostreamOut,OX_DATA,SerialOX++);
     oxSendCmoString(ostreamOut,Sm1_popString());
     if (message) fprintf(stderr,"Done.\n");

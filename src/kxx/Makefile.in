@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.25 2003/09/08 01:22:56 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.26 2003/09/08 01:34:27 takayama Exp $
 #
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
@@ -112,7 +112,7 @@ testclient2.o: testclient.c ox_kan.h
 clean-done: 
 	-${RM} -f .configure_done
 clean: clean-done
-	-${RM} -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex ox100start
+	-${RM} -f ox testclient ox_null ox_sm1 testclient2 core *.o a.out *.dvi *.aux openxxx.log  ox_sm1 oxlog *~ openxm-eg.tex openxm-jp.tex ox100start .prog.ox100bin* .in.ox100bin*
 distclean : clean clean-for-install
 	/bin/rm -f config.status config.cache config.log
 
