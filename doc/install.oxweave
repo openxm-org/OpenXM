@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.23 2000/03/09 11:30:36 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.24 2000/03/11 08:07:16 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -178,11 +178,13 @@ If you use only OpenXM clients, skip (3) and (3').
 /*&C
 
 ***** QUALITY:
-  the following modules and functions have still experimental qualities:
+ Experimental:
    OpenXM/bin/k0,  OpenXM/bin/d0
-   OpenXM/bin/ox_math,  OpenXM/bin/math2ox
-   OpenXM/lib/java-support/ *
    Asir client functions:   m_* (Mathematica)  ,  om_*  (OpenMath)
+ 70%
+   OpenXM/bin/ox_math,  OpenXM/bin/math2ox
+   Asir client functions:   om_*  (OpenMath)
+   OpenXM/lib/java-support/ *
    OpenXM/bin/sm1, ox_sm1 on Linux libc6.
 */
 /*&C
@@ -319,6 +321,15 @@ The installation is completed.
   を見て下さい.
   ps の付くファイルは, ghostview で見ることができます.
 
+  Mathematica client については, OpenXM/doc/ox_math を御覧ください.
+  sm1 client については, OpenXM/doc/kan96xx を御覧ください.
+  asir は, 多項式処理用のライブラリとしてリンクできます.
+  これについては, OpenXM/doc/oxlib を御覧ください. 
+
+  OpenXM 対応の, サーバ を作成するには, OpenXM/src/ox_toolkit
+  が参考になるかもしれません. Java のクラスについては 
+  OpenXM/src/OpenMath が参考になるかもしれません.
+
 */
 /*&eg
 ***** DOCUMENTS
@@ -338,6 +349,15 @@ The installation is completed.
 
   Dvi files can be previewed by xdvi and
   ps files  can be previewed by ghostview.
+
+  As to Mathematica client, see OpenXM/doc/ox_math.
+  As to sm1 client, see OpenXM/doc/kan96xx.
+  The asir can be used as a C library for polynomial manupulation.
+  See OpenXM/doc/oxlib.
+
+  If you are interested in writing a server for OpenXM, please refer to
+  OpenXM/src/ox_toolkit and OpenXM/src/OpenMath.
+
 */
 
 
