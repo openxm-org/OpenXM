@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.11 2003/01/13 12:03:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.12 2003/01/17 06:49:53 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -224,7 +224,7 @@ symbol_t lookup_by_symbol(char *key);
 symbol_t lookup_by_token(int tok);
 symbol_t lookup_by_tag(int tag);
 symbol_t lookup(int i);
-char *symbol_get_key(symbol_t sp);
+char*    get_symbol_by_tag(int tag);
 
 /* for mathcap database */
 mathcap *new_mathcap();

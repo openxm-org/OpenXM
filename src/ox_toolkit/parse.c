@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.8 2003/01/11 11:42:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.9 2003/01/13 12:03:12 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -685,9 +685,10 @@ symbol_t lookup(int i)
     return &symbol_list[i];
 }
 
-char *symbol_get_key(symbol_t sp)
+char *get_symbol_by_tag(int tag)
 {
-    return sp->key;
+    symbol_t symp = lookup_by_tag(tag);
+    return (symp != NULL)? symp->key: NULL;
 }
 
 /* no measure for buffer overflow */

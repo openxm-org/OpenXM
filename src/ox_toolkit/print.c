@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.3 2003/01/11 11:42:32 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.4 2003/01/13 12:03:12 ohara Exp $ */
 
 /*
 Functions in this module print a given CMO to console.
@@ -19,10 +19,9 @@ static void print_cmo_string(cmo_string* c);
 void print_cmo(cmo* c)
 {
     int tag = c->tag;
-
-    symbol_t symp = lookup_by_tag(tag);
-    if (symp != NULL) {
-        ox_printf("(%s", symp->key);
+    char *s = get_symbol_by_tag(tag);
+    if (s != NULL) {
+        ox_printf("(%s", s);
     }else {     
         ox_printf("(%d", tag);
     }
