@@ -1,5 +1,5 @@
 ## Type in make configure and make all to build all
-## $OpenXM: OpenXM/src/Makefile,v 1.13 1999/11/23 01:38:32 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.14 1999/11/23 02:08:16 ohara Exp $
 all : all1 all3  all4 pari asir all2 all5 all6
 
 all1 :
@@ -30,7 +30,7 @@ all6 :
 pari :
 	(cd pari-2.0.17.beta ; make install ; make install-lib-sta ; ranlib ../../lib/libpari.a)
 asir :
-	(cd asir99; xmkmf -a; make; make install ; make install2)
+	(cd asir2000; xmkmf -a; make; make install ; make install2)
 
 
 clean :
@@ -43,6 +43,7 @@ clean :
 	(cd phc ; make clean )
 	(cd k097 ; make clean )
 	(cd asir99 ; make clean )
+	(cd asir2000 ; make clean )
 #	(cd ox_math ; make clean )
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6 bin/tigers bin/k0 bin/oxweave bin/gp-2.0 bin/gphelp bin/fep.linux bin/lin_phcv2p
 
@@ -56,6 +57,7 @@ distclean :
 	(cd phc ; make clean )
 	(cd k097 ; make clean )
 	(cd asir99 ; make clean )
+	(cd asir2000 ; make clean )
 #	(cd ox_math ; make clean )
 	/bin/rm -rf bin/sm1 bin/ox bin/oxlog bin/ox_sm1 bin/phc6 bin/tigers bin/k0 bin/oxweave bin/gp-2.0 bin/gphelp bin/fep.linux bin/lin_phcv2p
 
@@ -66,7 +68,7 @@ configure :
 	(cd kxx ; make configure )
 	(cd kan96xx ; make configure )
 	(cd pari-2.0.17.beta; ./Configure --prefix=../../..)
-	(cd asir99; ./configure)
+	(cd asir2000; ./configure)
 	(cd ox_math; ./configure)
 
 
