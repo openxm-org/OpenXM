@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.1 1999/11/03 09:24:33 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/xml.sm1,v 1.2 1999/11/08 11:12:06 takayama Exp $
 %% xml.sm1  XML support for sm1.
 %% This package requires ox.sm1
 [(parse) (ox.sm1) pushfile] extension
@@ -22,10 +22,13 @@ tag 0 eq {
   [(tdiv_qr) control .. (2000)..] mpzext 1 get (integer) dc 1025 add /control set
 
  [$($ ( cd ) oxpath.java-support ( ; )
+%% (/bin/csh -c ")
   ( java OMproxy )
   ( -data ) data ( -control ) control 
-  $)$
 %%  ( >& /dev/null )   %%  Syntax error: Bad fd 
+    ( > /dev/null )
+%% (")
+  $)$
   ( & )
  ] cat /com set
   (Executing the command ) messagen com message
@@ -81,4 +84,39 @@ tag 0 eq {
  $   aa xml_to_cmo :: $
 ]] putUsages
 
+
+/t_aux {
+  /arg1 set
+  [/in-t_aux /ob /r /r2] pushVariables
+  [
+     /ob arg1 def
+     (_______________________________________) message
+     (tag = ) messagen ob tag messagen (, ) messagen
+     (Sending object :) messagen ob message
+     ob xml /r set 
+     (XML expression is:) messagen r message
+     r xml_to_cmo /r2 set 
+     (XML to CMO :) messagen r2 message
+     (~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~) message
+  ] pop
+  popVariables
+} def
+
+%% Just type in OMproxy-testsuits1
+/OMproxy-testsuits1 {
+  xmlconnect
+  
+  @@@.xml oxmathcap
+  (Mathcap is ) messagen @@@.xml message
+
+  null t_aux
+  123  t_aux
+%  (Hello World) t_aux  %% error in XML to CMO.
+%  [1 2 3] t_aux  %% not supported.
+  (123123).. t_aux
+%  (-12).. (12345).. div t_aux  %% not supported in sm1.
+%  (x^2-1). t_aux %% not supported.  CMO_DMS_GENERIC??
+
+  (End) message
+} def
 
