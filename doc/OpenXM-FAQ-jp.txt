@@ -1,1 +1,24 @@
-%  $OpenXM$
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ-jp.txt,v 1.1 1999/11/07 06:45:23 takayama Exp $
+
+Q.  1999, 11/10: 
+    " (file) run  " を ox_sm1 に送って executeStringByLocalParser しても
+    ファイルをロードしてくれません.  
+
+A.  "[(parse) (file) pushfile] extension " で読み込んでください.
+    ox_asir も load("file") を executeStringByLocalParser しても
+    だめです.  "file", 1, "load" をスタックへ積んでから execute します.
+    ox_math も "<< file"  executeStringByLocalParser しても
+    だめです.
+
+Q. 1999, 11/10: 
+    OX サーバを起動しようとしても起動しません.
+    asir を起動したあと, ox_launch したら, segmentation fault した.
+
+A. OpenXM は home directory の直下にあり, また OpenXM/rc/bashrc で環境
+   変数を正しく設定しましたか？
+
+Q. 1999, 11/10: 
+   sm1 は * をつかえないのですか？  
+
+A. *もつかえます.  x*y も x y も同じいみです.
+
