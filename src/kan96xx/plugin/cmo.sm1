@@ -1,11 +1,16 @@
-% $OpenXM$
+% $OpenXM: OpenXM/src/kan96xx/plugin/cmo.sm1,v 1.2 2000/01/16 07:55:46 takayama Exp $
 [(plugin-cmo)
-[  $Cmo is for supporting Open XM communication protocol.$
-   $See http://www.math.kobe-u.ac.jp/openxxx for the latest info.$
-   $This document is incomplete. See lib/ox.sm1.$
+[  $Cmo is for supporting OpenXM protocol.$
+   $See http://www.openxm.org for the latest info.$
    $cmoObjectToCmo obj, cmoDumpCmo cmo-obj, cmoCmoToObject cmo-obj,$
    $cmoCmoToStream cmo-obj stream, cmoStreamToCmo stream, cmoToStream stream,$
    $cmoFromStrem stream, cmoMathCap, $
    $cmoDebugCMO inteter,  cf. plugin-ox oxPrintMessage $
    $cmoOxSystem, cmoOxSystemVersion, cmoLispLike $
+   $Example 1: [(cmoObjectToCmo) 3] extension /ff set ; $
+   $           [(cmoDumpCmo) ff] extension ; $
+   $Example 2: (t.t) (w) file /fd set ; $
+   $           [(cmoObjectToCmo) 3] extension /ff set ; $
+   $           [(cmoCmoToStream) ff fd] extension ; $
+   $           fd closefile ; $
 ]] putUsages

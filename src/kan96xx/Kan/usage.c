@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.22 2003/08/26 12:46:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.23 2003/09/12 02:52:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -68,6 +68,7 @@ void Kusage2(fp,s)
   }else if (strcmp(s,"closefile")==0) {
     fppp(fp,"<< fd closefile >>\n");
     fppp(fp,"file fd;\n");
+    fppp(fp,"cf. file (open a file)\n");
   }else if (strcmp(s,"coefficients")==0 || strcmp(s,"coeff")==0) {
     fppp(fp,"<< f v coeff [exponents coefficients] >>\n");
     fppp(fp,"poly f,v; list of integers exponents; list of poly coefficients;\n");
@@ -166,6 +167,7 @@ void Kusage2(fp,s)
     fppp(fp,"It opens the <<filename>> with the <<mode>>. <<fd>> is the\n");
     fppp(fp,"file descripter and is used in writestring and closefile.\n");
     fppp(fp,"If filename part is an integer, it calls fdopen() and returns the file descripter.\n");
+    fppp(fp,"cf. closefile, writestring, pushfile \n");
   }else if (strcmp(s,"for")==0) {
     fppp(fp,"<<init inc limit {executable array} for >>\n");
     fppp(fp,"integer init inc limit;\n");
