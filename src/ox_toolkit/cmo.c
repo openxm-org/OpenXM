@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.2 2000/10/12 15:50:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.3 2000/12/14 01:39:31 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -333,7 +333,7 @@ char *new_string_set_cmo(cmo *m)
     default:
 #ifdef DEBUG
         symp = lookup_by_tag(m->tag);
-        fprintf(stderr, "I do not know how to convert %s to a string.\n", symp->key);
+        fprintf(ox_stderr, "I do not know how to convert %s to a string.\n", symp->key);
 #endif
         /* yet not implemented. */
         return NULL;

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.2 2000/03/10 12:24:38 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_Xsample.c,v 1.3 2000/10/10 05:23:20 ohara Exp $ */
 
 #include <stdio.h>
 #include "ox_toolkit.h"
@@ -193,6 +193,7 @@ int receive()
 
 int main()
 {
+    ox_stderr_init(NULL);
     initialize_stack();
 
 	fd_rw = oxf_open(3);

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.2 2000/03/10 12:24:39 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample1.c,v 1.3 2000/10/10 05:23:21 ohara Exp $ */
 
 /*
    This sample program explains how to construct
@@ -22,6 +22,7 @@ int main()
     OXFILE *s;
     cmo_list *c;
 
+    ox_stderr_init(NULL);
     /* starting an OpenXM server */
     s = ox_start("localhost", "ox", "ox_sm1"); 
 

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.7 2000/11/27 09:57:10 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.8 2000/11/28 04:24:12 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -21,14 +21,14 @@ int dumpx(OXFILE *oxfp, int n)
     int i;
     int len = oxf_read(buff, 1, n, oxfp);
 
-    fprintf(stderr, "I have read %d byte from socket(%d).\n", len, oxfp->fd);
+    fprintf(ox_stderr, "I have read %d byte from socket(%d).\n", len, oxfp->fd);
     for(i = 0; i < len; i++) {
-        fprintf(stderr, "%02x ", buff[i]);
+        fprintf(ox_stderr, "%02x ", buff[i]);
         if (i%20 == 19) {
-            fprintf(stderr, "\n");
+            fprintf(ox_stderr, "\n");
         }
     }
-    fprintf(stderr, "\n");
+    fprintf(ox_stderr, "\n");
     return len;
 }
 
@@ -51,14 +51,14 @@ int test_0()
 {
     cmo* c = NULL;
 #ifdef DEBUG
-    fprintf(stderr, "testclient:: calling ox_mathcap().\n");
+    fprintf(ox_stderr, "testclient:: calling ox_mathcap().\n");
     c = ox_mathcap(sv);
-    fprintf(stderr, "testclient:: cmo received.(%p)\n", c);
+    fprintf(ox_stderr, "testclient:: cmo received.(%p)\n", c);
 #else
     c = (cmo *)ox_mathcap(sv);
 #endif
     print_cmo(c);
-    fflush(stderr);
+    fflush(ox_stderr);
 
     mathcap_init(VERSION, ID_STRING, "testclient", NULL, NULL);
     send_ox_cmo(sv, oxf_cmo_mathcap(sv));
@@ -69,7 +69,7 @@ int test_0()
     send_ox_command(sv, SM_popCMO);
     receive_ox_tag(sv);
     c = receive_cmo(sv);
-    fprintf(stderr, "testclient:: cmo received.\n");
+    fprintf(ox_stderr, "testclient:: cmo received.\n");
     print_cmo(c);
 }
 
@@ -79,14 +79,14 @@ int test_1()
 
 	mathcap_init(1000, "test!", "testclient", NULL, NULL);
 	m = oxf_cmo_mathcap(sv);
-    fprintf(stderr, "testclient:: test cmo_mathcap.\n");
+    fprintf(ox_stderr, "testclient:: test cmo_mathcap.\n");
     send_ox_cmo(sv, m);
     send_ox_command(sv, SM_popCMO);
     receive_ox_tag(sv);
     c = receive_cmo(sv);
-    fprintf(stderr, "testclient:: cmo received.(%p)\n", c);
+    fprintf(ox_stderr, "testclient:: cmo received.(%p)\n", c);
     print_cmo(c);
-    fputc('\n', stderr);
+    fputc('\n', ox_stderr);
 }
 
 /*  Example:
@@ -102,15 +102,16 @@ int main(int argc, char* argv[])
     int code;
     char *server = "ox_sm1";
 
-    setbuf(stderr, NULL);
+    ox_stderr_init(NULL);
+    setbuf(ox_stderr, NULL);
 
     if (argc>1) {
         server = argv[1];
     }
-    fprintf(stderr, "testclient:: I use %s as an OX server.\n", server);
+    fprintf(ox_stderr, "testclient:: I use %s as an OX server.\n", server);
 /*    sv = ox_start("localhost", "ox", server);  */
     if (sv == NULL) {
-        fprintf(stderr, "testclient:: I cannot connect to servers.\n");
+        fprintf(ox_stderr, "testclient:: I cannot connect to servers.\n");
         exit(1);
     }
 
@@ -129,16 +130,16 @@ int main(int argc, char* argv[])
             }else if (code == SM_popCMO || code == SM_popString) {
                 receive_ox_tag(sv);
                 c = receive_cmo(sv);
-                fprintf(stderr, "testclient:: cmo received.\n");
+                fprintf(ox_stderr, "testclient:: cmo received.\n");
                 print_cmo(c);
             }
         }
     }
 
     ox_reset(sv);
-    fprintf(stderr, "The testclient resets.\n");
+    fprintf(ox_stderr, "The testclient resets.\n");
     ox_close(sv);
-    fprintf(stderr, "The testclient halts.\n");
+    fprintf(ox_stderr, "The testclient halts.\n");
 
     return 0;
 }

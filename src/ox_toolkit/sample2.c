@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.2 2000/03/10 12:24:40 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/sample2.c,v 1.3 2000/10/10 05:23:21 ohara Exp $ */
 
 /*
   This program explains how to get
@@ -67,6 +67,7 @@ int main()
     cmo_list *c;
     cmo *d;
 
+	ox_stderr_init(NULL);
     /* starting an OpenXM server */
     s = ox_start("localhost", "ox", "ox_sm1"); 
 

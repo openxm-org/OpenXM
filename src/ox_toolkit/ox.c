@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.17 2000/12/03 16:15:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.18 2000/12/05 08:30:25 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -271,7 +271,7 @@ cmo* receive_cmo(OXFILE *oxfp)
     case CMO_QQ:
     default:
         m = NULL;
-        fprintf(stderr, "the CMO (%d) is not implemented.\n", tag);
+        fprintf(ox_stderr, "the CMO (%d) is not implemented.\n", tag);
     }
     return m;
 }
@@ -301,7 +301,7 @@ void ox_close(OXFILE *sv)
 #ifdef DEBUG
     sleep(2);
     /* We wait thar an OpenXM server terminates. */
-    fprintf(stderr, "I have closed the connection to an Open XM server.\n");
+    fprintf(ox_stderr, "I have closed the connection to an Open XM server.\n");
 #endif
 }
 
@@ -384,7 +384,7 @@ void ox_reset(OXFILE *sv)
 
     send_ox_tag(sv, OX_SYNC_BALL);
 #ifdef DEBUG
-    fprintf(stderr, "I have reset an Open XM server.\n");
+    fprintf(ox_stderr, "I have reset an Open XM server.\n");
 #endif
 }
 
@@ -562,4 +562,10 @@ ox_sync_ball* new_ox_sync_ball()
     ox_sync_ball *m = malloc(sizeof(ox_sync_ball));
     m->tag = OX_SYNC_BALL;
     return m;
+}
+
+int ox_stderr_init(FILE *fp)
+{
+    ox_stderr = (fp != NULL)? fp: (stderr);
+    setbuf(ox_stderr, NULL);
 }

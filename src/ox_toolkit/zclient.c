@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/zclient.c,v 1.1 2000/10/10 06:51:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/zclient.c,v 1.2 2000/10/12 15:30:32 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -28,7 +28,7 @@ OXFILE *open_server(char *remote_host)
 
     if ((listen = oxf_listen(&port)) != -1) {
         if (oxc_start(remote_host, port, passwd) != 0) {
-            fprintf(stderr, "zclient:: remotehost = %s.\n", remote_host);
+            fprintf(ox_stderr, "zclient:: remotehost = %s.\n", remote_host);
             return connection(listen, passwd);
         }
     }
@@ -40,10 +40,11 @@ int main(int argc, char* argv[])
     OXFILE *oxfp;
 	char *remote, *cmd;
 
-    setbuf(stderr, NULL);
+    ox_stderr_init(NULL);
+    setbuf(ox_stderr, NULL);
 	if (argc < 3) {
-		fprintf(stderr, "we have a few argument.\n");
-		fprintf(stderr, "Usage:\n  %s [remotehost] [command]\n", argv[0]);
+        fprintf(ox_stderr, "we have a few argument.\n");
+        fprintf(ox_stderr, "Usage:\n  %s [remotehost] [command]\n", argv[0]);
 		return 0;
 	}
 
@@ -51,16 +52,16 @@ int main(int argc, char* argv[])
 	cmd    = argv[2];
 
     if ((oxfp = open_server(remote)) == NULL) {
-        fprintf(stderr, "zclient:: I cannot open a server.\n");
+        fprintf(ox_stderr, "zclient:: I cannot open a server.\n");
         exit(1);
     }
-    fprintf(stderr, "zclient:: I succeed to open an OX server.\n");
+    fprintf(ox_stderr, "zclient:: I succeed to open an OX server.\n");
 
 	if(oxf_execute_cmd(oxfp, cmd) != NULL) {
-		fprintf(stderr, "zclient:: I succeed to connect a calc server!!\n");
+        fprintf(ox_stderr, "zclient:: I succeed to connect a calc server!!\n");
 	}
 
 	oxf_close(oxfp);
-    fprintf(stderr, "zclient:: closed.\n");
+    fprintf(ox_stderr, "zclient:: closed.\n");
     return 0;
 }

@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.8 2000/11/28 04:24:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.9 2000/11/28 22:11:14 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -14,6 +14,8 @@
 #if !defined(__GNUC__) && !defined(__inline__)
 #define __inline__
 #endif
+
+FILE *ox_stderr;
 
 /* Mathcap Local Database */
 typedef struct {
@@ -252,4 +254,5 @@ void oxf_mathcap_update(OXFILE *oxfp, cmo_mathcap *ob);
 char *which(char *exe, const char *env);
 char *generate_otp();
 
+int ox_stderr_init(FILE *fp);
 #endif /* _OX_TOOLKIT_H_ */

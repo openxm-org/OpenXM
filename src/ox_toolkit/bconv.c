@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.3 2000/03/10 12:24:38 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/bconv.c,v 1.4 2000/10/10 05:23:20 ohara Exp $ */
 
 /* bconv can convert an OX expression or a CMO expression to a byte stream. */
 /* Any expressions, as a string, must have shorter length than 8192.*/
@@ -61,7 +61,7 @@ static void prompt()
 int main()
 {
     cmo *m;
-    setbuf(stderr, NULL);
+    ox_stderr_init(NULL);
     setbuf(stdout, NULL);
 
     setflag_parse(PFLAG_ADDREV);

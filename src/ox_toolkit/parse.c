@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.6 2000/12/03 16:15:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.7 2002/05/02 10:32:08 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -96,7 +96,7 @@ static jmp_buf env_parse;
 /* This is a parsing fault. */
 static void parse_error(char *s)
 {
-    fprintf(stderr, "syntax error: %s\n", s);
+    fprintf(ox_stderr, "syntax error: %s\n", s);
     longjmp(env_parse, 1);
 }
 
@@ -711,7 +711,7 @@ static char *lex_quoted_string()
         }
         buffer[i]=c;
     }
-    fprintf(stderr, "buffer overflow!\n");
+    fprintf(ox_stderr, "buffer overflow!\n");
     exit(1);
     /* return NULL; */
 }
@@ -724,7 +724,7 @@ static int token_of_symbol(char *key)
         return symp->token;
     }
 #if DEBUG
-    fprintf(stderr, "lex error:: \"%s\" is unknown symbol.\n", key);
+    fprintf(ox_stderr, "lex error:: \"%s\" is unknown symbol.\n", key);
 #endif
     return 0;
 }
@@ -740,7 +740,7 @@ static int lex_symbol()
         buffer[i]=c;
         c = mygetc();
     }
-    fprintf(stderr, "buffer overflow!\n");
+    fprintf(ox_stderr, "buffer overflow!\n");
     return 0;
 }
 

@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.1 2000/10/10 05:23:21 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/print.c,v 1.2 2000/11/18 05:46:10 ohara Exp $ */
 
 /*
 Functions in this module print a given CMO to console.
@@ -22,9 +22,9 @@ void print_cmo(cmo* c)
 
     symbol_t symp = lookup_by_tag(tag);
     if (symp != NULL) {
-        fprintf(stderr, "(%s", symp->key);
+        fprintf(ox_stderr, "(%s", symp->key);
     }else {     
-        fprintf(stderr, "(%d", tag);
+        fprintf(ox_stderr, "(%d", tag);
     }
 
     switch(tag) {
@@ -46,39 +46,39 @@ void print_cmo(cmo* c)
     case CMO_NULL:
     case CMO_ZERO:
     case CMO_DMS_GENERIC:
-        fprintf(stderr, ")");
+        fprintf(ox_stderr, ")");
         break;
     default:
-        fprintf(stderr, "\nprint_cmo() does not know how to print cmo of type %d.\n", tag);
+        fprintf(ox_stderr, "\nprint_cmo() does not know how to print cmo of type %d.\n", tag);
     }
 }
 
 static void print_cmo_int32(cmo_int32* c)
 {
-    fprintf(stderr, ", %d)", c->i);
+    fprintf(ox_stderr, ", %d)", c->i);
 }
 
 static void print_cmo_list(cmo_list* this)
 {
     cell* cp = list_first(this);
-	fprintf(stderr, "[%d]", list_length(this));
+    fprintf(ox_stderr, "[%d]", list_length(this));
     while(!list_endof(this, cp)) {
-        fprintf(stderr, ", ");
+        fprintf(ox_stderr, ", ");
         print_cmo(cp->cmo);
         cp=list_next(cp);
     }
-    fprintf(stderr, ")");
+    fprintf(ox_stderr, ")");
 }
 
 static void print_cmo_mathcap(cmo_mathcap* c)
 {
-    fprintf(stderr, ", ");
+    fprintf(ox_stderr, ", ");
     print_cmo(c->ob);
-    fprintf(stderr, ")");
+    fprintf(ox_stderr, ")");
 }
 
 static void print_cmo_string(cmo_string* c)
 {
-    fprintf(stderr, ", \"%s\")", c->s);
+    fprintf(ox_stderr, ", \"%s\")", c->s);
 }
 
