@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/tigers/Makefile,v 1.3 2000/01/31 05:52:07 noro Exp $
+# $OpenXM: OpenXM/src/tigers/Makefile,v 1.4 2004/12/14 18:31:46 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -29,7 +29,10 @@ extract: fetch
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
 	    if [ -f "${PATCH_FILE}" ]; then \
-	        cat ${PATCH_FILE} | (cd work/${DISTNAME} ; patch -p1 ) ; \
+	        for i in NOTE.txt README.change memo.txt; do \
+	            touch work/${DISTNAME}/$$i ; \
+	        done ; \
+	        cat ${PATCH_FILE} | (cd work/${DISTNAME} ; patch -p1 -f) ; \
 	    fi \
 	fi 
 	@touch work/.patch_done
