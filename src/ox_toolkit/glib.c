@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_toolkit/glib.c,v 1.2 1999/12/16 12:22:47 ohara Exp $ */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <stdio.h>
@@ -41,7 +41,7 @@ int gopen()
 {
 	glib_d = XOpenDisplay(NULL);
 	glib_w = XCreateSimpleWindow(glib_d,RootWindow(glib_d,0),100,100,
-								 XSIZE,YSIZE,2,0,1);
+								 XSIZE,YSIZE,2,0,BlackPixel(glib_d,0));
 	glib_a.override_redirect = 1;
 	XChangeWindowAttributes(glib_d,glib_w,CWOverrideRedirect, &glib_a);
 	XMapWindow(glib_d,glib_w);
