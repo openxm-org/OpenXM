@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.15 2004/12/17 07:47:03 ohara Exp $
+# $OpenXM: OpenXM/src/gnuplot/Makefile,v 1.16 2004/12/17 14:14:08 ohara Exp $
 
 OpenXM_HOME = ../..
 MASTER_SITE = ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
@@ -7,6 +7,7 @@ DISTFILES   = ${DISTNAME}.tar.gz
 DISTDIR     = ${OpenXM_HOME}/../OpenXM_dist
 WRKSRC      = work/${DISTNAME}
 #PATCH_FILES = gnuplot-v4.diff
+PATCH_FILES = gnuplot4_interix.diff
 INSTALL_PROGRAM = install -c -s
 
 all: build
