@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.3 2003/11/16 13:48:08 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntlconv.cpp,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
 
 #include <NTL/ZZX.h>
 #include <NTL/mat_ZZ.h>
@@ -222,7 +222,6 @@ cmo_list *
 mat_zz_to_cmo(mat_ZZ &mat)
 {
 	cmo_list *list;
-	int ret;
 
 	cmo_zz *zz;
 	int row, col;
@@ -315,12 +314,6 @@ cmo_to_mat_zz(mat_ZZ &mat, cmo *m)
 
 
 
-
-
-
-
-
-
 /****************************************************************************
  * convert cmo to ZZX which is polynomial in Z[x]
  *
@@ -392,6 +385,8 @@ cmo_to_ZZX(ZZX &f, cmo *m, cmo_indeterminate *&x)
 	}
 	return (NTL_SUCCESS);
 }
+
+
 
 /****************************************************************************
  * convert polynomial in Z[x] to cmo_recursive_polynomial
