@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.4 2000/01/03 09:15:54 okutani Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/Diff,v 1.5 2000/01/21 11:45:43 okutani Exp $ */
 
 /*------------------------------------*/
 /* Package for differential equations */
@@ -481,25 +481,96 @@ def diff_act_hg1(A,B,C,F,V) {
   return diff_acts(diff_op_hg1(A,B,C,V),F,V);
 }
 
-def diff_poly_solve_hg1(A,B,C,N,V) {
-  return diff_poly_solve(diff_op_hg1(A,B,C,V),N,V);
+def diff_sol_hg1_type1(Deg,A,B,C,I,V) {
+  for (Sol = 0, M = 0; M <= Deg; M++) {
+    A_m = diff_pochhammer(A, M);
+    B_m = diff_pochhammer(B, M);
+    C_m = diff_pochhammer(C, M);
+    I_m = diff_pochhammer(I, M);
+    Sol += (A_m*B_m)/(C_m*I_m)*V[0]^M;
+  }
+  return Sol;
 }
 
-def diff_poly_solve_hg1s(R_A,R_B,R_C,N,V) {
-  Sols = [];
-  for (I = R_C[0]; I <= R_C[1]; I += R_C[2]) {
-    for (J = R_A[0]; J <= R_A[1]; J += R_A[2]) {
-      for (K = R_B[0]; K <= R_B[1]; K += R_B[2]) {
-	Sols = append(Sols, [[J,K,I,diff_poly_solve_hg1(J,K,I,N,V)]]);
-      }
+def diff_poly_solve_hg1(A,B,C,V) {
+  A_is_neg0_int = diff_is_neg0_int(A);
+  B_is_neg0_int = diff_is_neg0_int(B);
+  /* polynomial solution does not exist. */
+  if (!(A_is_neg0_int || B_is_neg0_int)) {
+    return [0,[]];
+  }
+  /* polynomial solution exists. */
+  if (!diff_is_neg0_int(C)) {
+    if (A_is_neg0_int && B_is_neg0_int) {
+      Max = (-A <= -B) ? (-A):(-B);
+      Sol = diff_sol_hg1_type1(Max,A,B,C,1,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (A_is_neg0_int && !B_is_neg0_int) {
+      Sol = diff_sol_hg1_type1(-A,A,B,C,1,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (!A_is_neg0_int && B_is_neg0_int) {
+      Sol = diff_sol_hg1_type1(-B,A,B,C,1,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
     }
   }
-  return Sols;
+  else {
+    if (!A_is_neg0_int && C <= B && B <= 0) {
+      Sol = diff_sol_hg1_type1(-B,A,B,C,1,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (!A_is_neg0_int && B <= C-1) {
+      Sol = V[0]^(1-C)*diff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (C <= A && A <= 0 && !B_is_neg0_int) {
+      Sol = diff_sol_hg1_type1(-A,A,B,C,1,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (C <= A && A <= 0 && C <= B && B <= 0) {
+      Max = (-A <= -B) ? (-A):(-B);
+      Sol = diff_sol_hg1_type1(Max,A,B,C,1,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (C <= A && A <= 0 && B <= C-1) {
+      Sol1 = diff_sol_hg1_type1(-A,A,B,C,1,V);
+      Sol2 = V[0]^(1-C)*diff_sol_hg1_type1(-B+C-1,A-C+1,B-C+1,1,2-C,V);
+      UC1 = uc(); UC2 = uc();
+      return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+    }
+    if (A <= C-1 && !B_is_neg0_int) {
+      Sol = V[0]^(1-C)*diff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (A <= C-1 && C <= B && B <= 0) {
+      Sol1 = diff_sol_hg1_type1(-B,A,B,C,1,V);
+      Sol2 = V[0]^(1-C)*diff_sol_hg1_type1(-A+C-1,A-C+1,B-C+1,1,2-C,V);
+      UC1 = uc(); UC2 = uc();
+      return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+    }
+    if (A <= C-1 && B <= C-1) {
+      Max = (-A <= -B) ? (-A):(-B);
+      Sol = V[0]^(1-C)*diff_sol_hg1_type1(Max+C-1,A-C+1,B-C+1,1,2-C,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+  }
+  /* return diff_poly_solve(diff_op_hg1(A,B,C,V),N,V); */
 }
 
-def diff_poly_solve_hg1_check(Sol,A,B,C,V) {
-  L_list = diff_op_hg1(A,B,C,V);
-  if (diff_act(L_list[0],Sol[0],V) != 0) {
+def diff_poly_solve_hg1_check(A,B,C,V) {
+  Sol = diff_poly_solve_hg1(A,B,C,V);
+  if (diff_act_hg1(A,B,C,Sol[0],V) != [0]) {
+    error("diff_poly_solve_hg1 contains bugs.");
     return 0;
   }
   return 1;
@@ -522,6 +593,11 @@ def diff_act_hg1_rat(A,B,C,K1,K2,F,V) {
 }
 
 def diff_rat_solve_hg1(A,B,C,K1,K2,N,V) {
+  A_is_int = diff_is_int(A);
+  B_is_int = diff_is_int(B);
+  if (!(A_is_int || B_is_int)) {
+    return [0,[]];
+  }
   L_list = diff_op_hg1_rat(A,B,C,K1,K2,V);
   Sol = diff_poly_solve(L_list,N,V);
   return [red(Sol[0]/(V[0]^K1*(1-V[0])^K2)), Sol[1]];
@@ -698,14 +774,374 @@ def diff_act_appell4(A,B,C1,C2,F,V) {
   return diff_acts(diff_op_appell4(A,B,C1,C2,V),F,V);
 }
 
-def diff_poly_solve_appell4(A,B,C1,C2,N,V) {
-  return diff_poly_solve(diff_op_appell4(A,B,C1,C2,V),N,V);
+def diff_sol_appell4_type1(Deg,A,B,C1,C2,V) {
+  Basis = diff_make_basis(2, Deg);
+  for (Sol = 0, I = 0; I < length(Basis); I++) {
+    for (J = 0; J < length(Basis[I]); J++) {
+      A_mn = diff_pochhammer(A, Basis[I][J][0]+Basis[I][J][1]);
+      B_mn = diff_pochhammer(B, Basis[I][J][0]+Basis[I][J][1]);
+      C1_m = diff_pochhammer(C1, Basis[I][J][0]);
+      C2_n = diff_pochhammer(C2, Basis[I][J][1]);
+      N1_m = diff_pochhammer(1, Basis[I][J][0]);
+      N2_n = diff_pochhammer(1, Basis[I][J][1]);
+      Sol += (A_mn*B_mn)/(C1_m*C2_n*N1_m*N2_n)*V[0]^Basis[I][J][0]*V[1]^Basis[I][J][1];
+    }
+  }
+  return Sol;
 }
 
-def diff_poly_solve_appell4_check(Sol,A,B,C1,C2,V) {
+def diff_poly_solve_appell4(A,B,C1,C2,V) {
+  A_is_neg0_int = diff_is_neg0_int(A);
+  B_is_neg0_int = diff_is_neg0_int(B);
+  C1_is_neg0_int = diff_is_neg0_int(C1);
+  C2_is_neg0_int = diff_is_neg0_int(C2);
+  if (!(A_is_neg0_int || B_is_neg0_int)) {
+    return [0,[]];
+  }
+  if (!C1_is_neg0_int && !C2_is_neg0_int) {
+    if (A_is_neg0_int && !B_is_neg0_int) {
+      Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (!A_is_neg0_int && B_is_neg0_int) {
+      Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+    if (A_is_neg0_int && B_is_neg0_int) {
+      Max = (-A <= -B) ? (-A):(-B);
+      Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+      UC = uc();
+      return [UC*Sol,[UC]];
+    }
+  }
+  if (C1_is_neg0_int && !C2_is_neg0_int) {
+    if (!A_is_neg0_int) {
+      if (C1 <= B && B <= 0) {
+	Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (B <= C1-1) {
+	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+    }
+    if (C1 <= A && A <= 0) {
+      if (!B_is_neg0_int) {
+	Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1 <= B && B <= 0) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (B <= C1-1) {
+	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+    }
+    if (A <= C1-1) {
+      if (!B_is_neg0_int) {
+	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1 <= B && B <= 0) {
+	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (B <= C1-1) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+    }
+  }
+  if (!C1_is_neg0_int && C2_is_neg0_int) {
+    if (!A_is_neg0_int) {
+      if (C2 <= B && B <= 0) {
+	Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (B <= C2-1) {
+	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+    }
+    if (C2 <= A && A <= 0) {
+      if (!B_is_neg0_int) {
+	Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C2 <= B && B <= 0) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (B <= C2-1) {
+	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+    }
+    if (A <= C2-1) {
+      if (!B_is_neg0_int) {
+	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C2 <= B && B <= 0) {
+	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (B <= C2-1) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+    }
+  }
+  if (C1_is_neg0_int && C2_is_neg0_int) {
+    Min_C = (C1 < C2) ? C1:C2;
+    Max_C = (C1 > C2) ? C1:C2;
+    if (!A_is_neg0_int) {
+      if (Max_C <= B && B <= 0) {
+	Sol = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1 > C2 && C2 <= B && B <= C1-1) {
+	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1 < C2 && C1 <= B && B <= C2-1) {
+	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1+C2-1 <= B && B <= Min_C-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (B <= C1+C2-2) {
+	Sol = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+    }
+    if (Max_C <= A && A <= 0) {
+      if (!B_is_neg0_int) {
+	Sol = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (Max_C <= B && B <= 0) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = diff_sol_appell4_type1(Max,A,B,C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1 > C2 && C2 <= B && B <= C1-1) {
+	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1 < C2 && C1 <= B && B <= C2-1) {
+	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1+C2-1 <= B && B <= Min_C-1) {
+	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol3 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc(); UC3 = uc();
+	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
+      }
+      if (B <= C1+C2-2) {
+	Sol1 = diff_sol_appell4_type1(-A,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+    }
+    if (C1 > C2 && C2 <= A && A <= C1-1) {
+      if (!B_is_neg0_int) {
+	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (Max_C <= B && B <= 0) {
+	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1 > C2 && C2 <= B && B <= C1-1) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = V[0]^(1-C1)*diff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1+C2-1 <= B && B <= Min_C-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (B <= C1+C2-2) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+    }
+    if (C1 < C2 && C1 <= A && A <= C2-1) {
+      if (!B_is_neg0_int) {
+	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (Max_C <= B && B <= 0) {
+	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1 < C2 && C1 <= B && B <= C2-1) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = V[1]^(1-C2)*diff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (C1+C2-1 <= B && B <= Min_C-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (B <= C1+C2-2) {
+	Sol1 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+    }
+    if (C1+C2-1 <= A && A <= Min_C-1) {
+      if (!B_is_neg0_int) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (Max_C <= B && B <= 0) {
+	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol3 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc(); UC3 = uc();
+	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
+      }
+      if (C1 > C2 && C2 <= B && B <= C1-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1 < C2 && C1 <= B && B <= C2-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1+C2-1 <= B && B <= Min_C-1) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(Max+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(Max+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (B <= C1+C2-2) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-A+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-A+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol3 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-B+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc(); UC3 = uc();
+	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
+      }
+    }
+    if (A <= C1+C2-2) {
+      if (!B_is_neg0_int) {
+	Sol = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+      if (Max_C <= B && B <= 0) {
+	Sol1 = diff_sol_appell4_type1(-B,A,B,C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1 > C2 && C2 <= B && B <= C1-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1 < C2 && C1 <= B && B <= C2-1) {
+	Sol1 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol2 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc();
+	return [UC1*Sol1+UC2*Sol2,[UC1,UC2]];
+      }
+      if (C1+C2-1 <= B && B <= Min_C-1) {
+	Sol1 = V[0]^(1-C1)*diff_sol_appell4_type1(-B+C1-1,A-C1+1,B-C1+1,2-C1,C2,V);
+	Sol2 = V[1]^(1-C2)*diff_sol_appell4_type1(-B+C2-1,A-C2+1,B-C2+1,C1,2-C2,V);
+	Sol3 = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(-A+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC1 = uc(); UC2 = uc(); UC3 = uc();
+	return [UC1*Sol1+UC2*Sol2+UC3*Sol3,[UC1,UC2,UC3]];
+      }
+      if (B <= C1+C2-2) {
+	Max = (-A <= -B) ? (-A):(-B);
+	Sol = V[0]^(1-C1)*V[1]^(1-C2)*diff_sol_appell4_type1(Max+C1+C2-2,A-C1-C2+2,B-C1-C2+2,2-C1,2-C2,V);
+	UC = uc();
+	return [UC*Sol,[UC]];
+      }
+    }
+  }
+
+  error("diff_poly_solve_appell4 contains bugs. parameter is "+rtostr([A,B,C1,C2])+".");
+}
+
+def diff_poly_solve_appell4_check(A,B,C1,C2,V) {
+  Sol = diff_poly_solve_appell4(A,B,C1,C2,V);
   Lf_list = diff_act_appell4(A,B,C1,C2,Sol[0],V);
   for (I = 0; I < length(Lf_list); I++) {
     if (Lf_list[I] != 0) {
+      error("diff_poly_solve_appell4 contains bugs."
+            +"the parameter is "+rtostr([A,B,C1,C2])+".");
       return 0;
     }
   }
