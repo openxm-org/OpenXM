@@ -1,0 +1,140 @@
+/* $OpenXM$ */
+#include "tags.h"
+
+/* CMO defined in OpenXM-RFC 100 */
+Cmo100_add_nl = 1$
+def taka_cmo100_xml_form(S) {
+  extern Cmo100_add_nl;
+  A = "";
+  A = taka_cmo100_indent(A);
+  if (type(S) == LIST) {
+    A += taka_cmo100_start("list");
+    SS = map(taka_cmo100_xml_form,S);
+    A += taka_cmo100_start_int32("length",length(SS));
+    A += taka_cmo100_end("int32");
+    for (I=0; I<length(SS); I++) {
+      A += SS[I];
+    }
+    A += taka_cmo100_end("list");
+    return A;
+  }else if (type(S) == NUMBER && dn(S) == 1) {
+    A += taka_cmo100_start("zz");
+    A += rtostr(S);
+    A += taka_cmo100_end("zz");
+  }else if (type(S) == NUMBER && dn(S) != 1) {
+    A += taka_cmo100_start("qq");
+    A += rtostr(nm(S)); A+=", ";
+    A += rtostr(dn(S));
+    A += taka_cmo100_end("qq");
+  }else if (type(S) == RATIONAL) {
+    A += taka_cmo100_start("rational");
+    A += taka_cmo100_xml_form(nm(S));
+    A += taka_cmo100_xml_form(dn(S));
+  }else if (type(S) == STRING) {
+    A += taka_cmo100_start("string");
+    A += "\""+S+"\"";
+    A += taka_cmo100_end("string");
+  }else if (type(S) == DPOLYNOMIAL) {
+    A += taka_cmo100_start("distributed_polynomial");
+    if (Cmo100_add_nl) A += "\n";
+    A = taka_cmo100_indent(A);
+    A += taka_cmo100_start("dms_generic");
+    if (Cmo100_add_nl) A += "\n";
+    while (S != 0) {
+       T = dp_hm(S);
+       E = dp_etov(T);
+       N = size(E)[0];
+       A = taka_cmo100_indent(A);
+       A += taka_cmo100_start("monomial32");
+       A += taka_cmo100_start_int32("number of variables",N);
+       A += taka_cmo100_end("int32");
+       for (I=0; I<N; I++) {
+         A += taka_cmo100_start("int32");
+         A += rtostr(E[I]);
+         A += taka_cmo100_end("int32");
+       }
+       A += taka_cmo100_xml_form(dp_hc(T));
+       A += taka_cmo100_end("monomial32");
+       A = taka_cmo100_end_indent(A);
+       S = S-T;
+    }
+    A = taka_cmo100_end_indent(A);
+    A += taka_cmo100_end("distributed_polynomial");
+  }else if (type(S) == RPOLYNOMIAL) {
+    A += taka_cmo100_start("recursive_polynomial");
+    A = taka_cmo100_nl(A);
+    A = taka_cmo100_indent(A);
+    V = vars(S);  VV = map(rtostr,V);
+    A += taka_cmo100_xml_form(VV);
+    A = taka_cmo100_nl(A);
+    A += taka_cmo100_xml_polynomial_in_one_variable(S,0);
+    A = taka_cmo100_end_indent(A);
+    A += taka_cmo100_end("recursive_polynomial");
+  }else{
+    A += "(cmo100_xml_form) Not Yet Implemented";
+  }
+  A = taka_cmo100_end_indent(A);
+  return A;
+}
+
+def taka_cmo100_xml_polynomial_in_one_variable(S,Id) {
+  A = "";
+  if (type(S) != RPOLYNOMIAL) {
+    return taka_cmo100_xml_form(S);
+  }
+  V = vars(S)[0];  /* main variable which has the index Id. */
+  A += taka_cmo100_start("polynomial_in_one_variable");
+  D = deg(S,V);
+  C = [];
+  for (I=D; I>=0; I--) {
+    if (coef(S,I) != 0) C = append(C,[[I,coef(S,I)]]);
+  }
+  N = length(C);
+  A += taka_cmo100_start_int32("number of terms",N);
+  A += taka_cmo100_end("int32");
+  A += taka_cmo100_start_int32("variable name",Id);
+  A += taka_cmo100_end("int32");
+  for (I=0; I<N; I++) {
+    A = taka_cmo100_nl(A);  A = taka_cmo100_indent(A);
+    A += taka_cmo100_start_int32("exponent",C[I][0]);
+    A += taka_cmo100_end("int32");
+    A += taka_cmo100_xml_polynomial_in_one_variable(C[I][1],Id+1);
+    A = taka_cmo100_end_indent(A);
+  }
+  A += taka_cmo100_end("polynomial_in_one_variable");
+  return A;
+}
+
+def taka_cmo100_indent(A) {
+  extern Cmo100_add_nl;
+  if (Cmo100_add_nl) {
+    for (I=0; I<Cmo100_add_nl-1; I++) A += " "; /* indent */
+    Cmo100_add_nl++;
+  }
+  return A;
+}
+def taka_cmo100_end_indent(A) {
+  extern Cmo100_add_nl;
+  if (Cmo100_add_nl) A += "\n";
+  if (Cmo100_add_nl) {
+    Cmo100_add_nl--;
+    if (Cmo100_add_nl <= 0) Cmo100_add_nl = 1;
+  }
+  return A;
+}
+def taka_cmo100_nl(A) {
+  if (Cmo100_add_nl) A += "\n";
+  return A;
+}
+def taka_cmo100_start(S) {
+  return "<cmo_"+S+">";
+}
+def taka_cmo100_start_int32(Reason,V) {
+  return "<cmo_int32 for=\""+Reason+"\">"+rtostr(V);
+}
+def taka_cmo100_end(S) {
+  return "</cmo_"+S+"> "; 
+}
+
+Loaded_taka_print_cmo100=1$
+end$

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.20 2001/09/07 12:01:51 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_print.rr,v 1.21 2001/10/09 12:42:21 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -1066,84 +1066,6 @@ def taka_xml_basic_form_node_name_cd(S) {
   }
   return "unknown";
 }
-
-/* CMO defined in OpenXM-RFC 100 */
-Cmo100_add_nl = 1$
-def taka_cmo100_xml_form(S) {
-  extern Cmo100_add_nl;
-  A = "";
-  if (Cmo100_add_nl) {
-    for (I=0; I<Cmo100_add_nl-1; I++) A += " "; /* indent */
-    Cmo100_add_nl++;
-  }
-  if (type(S) == LIST) {
-    A += taka_cmo100_start("list");
-    SS = map(taka_cmo100_xml_form,S);
-    A += taka_cmo100_start_int32("length",length(SS));
-    A += taka_cmo100_end("int32");
-    for (I=0; I<length(SS); I++) {
-      A += SS[I];
-    }
-    A += taka_cmo100_end("list");
-    return A;
-  }else if (type(S) == NUMBER && dn(S) == 1) {
-    A += taka_cmo100_start("zz");
-    A += rtostr(S);
-    A += taka_cmo100_end("zz");
-  }else if (type(S) == NUMBER && dn(S) != 1) {
-    A += taka_cmo100_start("qq");
-    A += rtostr(nm(S)); A+=", ";
-    A += rtostr(dn(S));
-    A += taka_cmo100_end("qq");
-  }else if (type(S) == RATIONAL) {
-    A += taka_cmo100_start("rational");
-    A += taka_cmo100_xml_form(nm(S));
-    A += taka_cmo100_xml_form(dn(S));
-  }else if (type(S) == STRING) {
-    A += taka_cmo100_start("string");
-    A += "\""+S+"\"";
-    A += taka_cmo100_end("string");
-  }else if (type(S) == DPOLYNOMIAL) {
-    A += taka_cmo100_start("distributed_polynomial");
-    A += taka_cmo100_start("dms_generic");
-    while (S != 0) {
-       T = dp_hm(S);
-       E = dp_etov(T);
-       N = size(E)[0];
-       A += taka_cmo100_start("monomial32");
-       A += taka_cmo100_start_int32("number of variables",N);
-       A += taka_cmo100_end("int32");
-       for (I=0; I<N; I++) {
-         A += taka_cmo100_start("int32");
-         A += rtostr(E[I]);
-         A += taka_cmo100_end("int32");
-       }
-       A += taka_cmo100_xml_form(dp_hc(T));
-       A += taka_cmo100_end("monomial32");
-       S = S-T;
-    }
-    A += taka_cmo100_end("distributed_polynomial");
-  }else{
-    A += rtostr(S);
-  }
-  if (Cmo100_add_nl) A += "\n";
-  if (Cmo100_add_nl) {
-    Cmo100_add_nl--;
-    if (Cmo100_add_nl <= 0) Cmo100_add_nl = 1;
-  }
-  return A;
-}
-
-def taka_cmo100_start(S) {
-  return "<cmo_"+S+">";
-}
-def taka_cmo100_start_int32(Reason,V) {
-  return "<cmo_int32 for=\""+Reason+"\">"+rtostr(V);
-}
-def taka_cmo100_end(S) {
-  return "</cmo_"+S+"> "; 
-}
-
 
 Loaded_taka_print=1$
 end$
