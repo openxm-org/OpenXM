@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.5 2002/12/05 02:39:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_pfp.rr,v 1.6 2003/01/01 20:22:35 ohara Exp $ */
 
 /* Table. It should be moved to ??? in a fugure. Experimental */
 #define Xm_eval_in_quote  0
@@ -108,6 +108,35 @@ def taka_pfp(A,B,Z,N) {
      R = R+P*Z^I;
   }
   return(R);
+}
+
+/*&usage  pfp_euler_derivates(A,B,Z,N,M)
+  It returns
+  (F,T F, T^2 F, ..., T^M F) where T is the euler operator z d/dz.
+ example: taka_pfp_euler_derivatives([1/12,5/12],[1/2],0.4,20,2);
+ example: taka_pfp_euler_derivatives([1/12,5/12],[1/2],
+             eval(exp(0)*1323/1331),300,2);
+*/
+/*  test data.
+z*D[z*D[ Hypergeometric2F1[1/12,5/12,1/2,z],z],z] /. z->0.4
+--> 0.07856325931358881
+z*D[z*D[ Hypergeometric2F1[1/12,5/12,1/2,z],z],z] /. z->1323/1331
+--> 1992.8936...  (The error is about 1992-1073.)
+*/
+def taka_pfp_euler_derivatives(A,B,Z,N,M) {
+  Ans = newvect(M+1);
+  for (I=0; I<=M; I++) Ans[I] = 0;
+  P = 1;
+  for (I=0; I<N; I++) {
+     P = taka_pfp_poch2(A,B,I,P);
+     Zi = Z^I;
+     C = 1;
+     for (J=0; J<=M; J++) {
+       Ans[J] += P*Zi*C;  /* C = I^J */
+       C   *= I;  
+     }
+  }
+  return(vtol(Ans));
 }
 
 def taka_pfp_series(A,B,Z,N) {
