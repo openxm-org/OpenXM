@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.24 2004/08/22 02:00:24 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.25 2004/08/22 12:52:34 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -797,6 +797,21 @@ struct object KooGreater(obj1,obj2)
     if ( KopDouble(obj1) > KopDouble(obj2) ) return(KpoInteger(1));
     else return(KpoInteger(0));
     break;
+  case Sarray:
+  {
+    int i,m1,m2;
+    struct object rr;
+    m1 = getoaSize(obj1); m2 = getoaSize(obj2);
+    for (i=0; i< (m1>m2?m2:m1); i++) {
+      rr=KooGreater(getoa(obj1,i),getoa(obj2,i));
+      if (KopInteger(rr) == 1) return rr;
+      rr=KooGreater(getoa(obj2,i),getoa(obj1,i));
+      if (KopInteger(rr) == 1) return KpoInteger(0);
+    }
+    if (m1 > m2) return KpoInteger(1);
+    else return KpoInteger(0);
+  }
+  break;
   default:
     errorKan1("%s\n","KooGreater() has not supported these objects yet.");
     break;
@@ -838,6 +853,21 @@ struct object KooLess(obj1,obj2)
     if ( KopDouble(obj1) < KopDouble(obj2) ) return(KpoInteger(1));
     else return(KpoInteger(0));
     break;
+  case Sarray:
+  {
+    int i,m1,m2;
+    struct object rr;
+    m1 = getoaSize(obj1); m2 = getoaSize(obj2);
+    for (i=0; i< (m1>m2?m2:m1); i++) {
+      rr=KooLess(getoa(obj1,i),getoa(obj2,i));
+      if (KopInteger(rr) == 1) return rr;
+      rr=KooLess(getoa(obj2,i),getoa(obj1,i));
+      if (KopInteger(rr) == 1) return KpoInteger(0);
+    }
+    if (m1 < m2) return KpoInteger(1);
+    else return KpoInteger(0);
+  }
+  break;
   default:
     errorKan1("%s\n","KooLess() has not supported these objects yet.");
     break;

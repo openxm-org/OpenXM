@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.28 2004/05/13 05:33:10 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.29 2004/08/22 12:52:34 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -3954,6 +3954,7 @@ $ [ff ff] fromVectors :: $
  [ ([a b c ...] denominator r)
    ( a denominator r )
    (cf. dc, numerator)
+   (Output is Z or a polynomial.)
  ]
 ] putUsages
 % test data.
@@ -3964,6 +3965,7 @@ $ [ff ff] fromVectors :: $
   [/pp /dd /ii /rr] pushVariables
   [
     /pp arg1 def
+    pp to_univNum /pp set
     {
       pp isArray {
         pp { denominator } map /dd set        
@@ -3986,6 +3988,7 @@ $ [ff ff] fromVectors :: $
  [ ([a b c ...] numerator r)
    ( a numerator r )
    (cf. dc, denominator)
+   (Output is a list of Z or polynomials.)
  ]
 ] putUsages
 % test data.
@@ -3994,11 +3997,12 @@ $ [ff ff] fromVectors :: $
   [/pp /dd /ii /rr] pushVariables
   [
     /pp arg1 def
+    pp to_univNum /pp set
     {
       pp isArray {
         pp denominator /dd set        
         pp dd mul /rr set
-        rr reduce /rr set
+        rr cancel /rr set
         exit
       } {  } ifelse
 
@@ -4012,7 +4016,7 @@ $ [ff ff] fromVectors :: $
   arg1
 } def 
 
-/reduce.Q {
+/cancel.Q {
   /arg1 set
   [/aa /rr /nn /dd /gg]  pushVariables
   [
@@ -4039,7 +4043,7 @@ $ [ff ff] fromVectors :: $
   arg1
 } def 
 
-/reduce.one {
+/cancel.one {
   /arg1 set
   [/aa /rr /nn /dd /gg]  pushVariables
   [
@@ -4049,9 +4053,9 @@ $ [ff ff] fromVectors :: $
         aa (numerator) dc /nn set
         aa (denominator) dc /dd set
         nn isUniversalNumber dd isUniversalNumber and {
-          /rr aa reduce.Q def
+          /rr aa cancel.Q def
           exit
-        } { (reduce: not implemented) error } ifelse
+        } { (cancel: not implemented) error } ifelse
       } { } ifelse
 
       /rr aa def
@@ -4063,26 +4067,50 @@ $ [ff ff] fromVectors :: $
   arg1
 } def 
 
-[(reduce)
- [ (obj reduce r)
+[(cancel)
+ [ (obj cancel r)
    (Cancel numerators and denominators)
    (The implementation has not yet been completed. It works only for Q.) 
 ]] putUsages
-/reduce {
+/cancel {
   /arg1 set
   [/aa /rr] pushVariables
   [ 
     /aa arg1 def
     aa isArray {
-      aa {reduce} map /rr set
+      aa {cancel} map /rr set
     } { 
-      aa reduce.one /rr set
+      aa cancel.one /rr set
     } ifelse
     /arg1 rr def
   ] pop
   popVariables
   arg1
 } def
+
+/nnormalize_vec {
+  /arg1 set
+  [/pp /rr /dd ] pushVariables
+  [
+    /pp arg1 def
+    pp denominator /dd set
+    dd (0).. lt { (nnormalize_vec: internal error) error } { } ifelse
+    pp numerator dd mul cancel /pp set
+    /@@@.nnormalize_vec_c dd def
+    pp gcd /dd set
+    dd (0).. lt { (nnormalize_vec: internal error) error } { } ifelse
+    pp (1).. dd div mul cancel /rr set
+    @@@.nnormalize_vec_c dd div cancel /@@@.nnormalize_vec_c set
+    /arg1 rr def
+  ] pop
+  popVariables
+  arg1
+} def
+[(nnormalize_vec)
+[(pp nnormalize_vec npp)
+ (It normalizes a given vector of Q into a vector of Z with relatively prime)
+ (entries by multiplying a postive number.)
+]] putUsages
 
 /usages {
   /arg1 set
