@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.8 2001/08/31 12:58:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.9 2001/08/31 23:23:33 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -247,32 +247,41 @@ def quote_input_form_quote_list_internal(S) {
    A must be quotelist.
 */ 
 def quote_replace(F,X,A) {
+  NoBracket = 0;
   if (type(F) == QUOTE) {
     F = quotetolist(F);
   }
   if (type(A) != LIST) {
     A = quotetolist(A);
   }
-  B = quote_replace_(F,X,A);
+  if (length(A) == 2) {
+    if (A[0] == "internal") 
+       NoBracket = 1;
+  }
+  B = quote_replace_(F,X,A,NoBracket);
   return eval_str("quote("+quote_input_form_quote_list(B)+")");
 }
 
-def quote_replace_(F,X,A) {
+def quote_replace_(F,X,A,NoBracket) {
   P = car(F);
   Q = cdr(F);
   if (type(P) == STRING) {
     if (P == "internal" && type(Q[0]) == RPOLYNOMIAL) {
       if (Q[0] == X) {
-        return(["u_op","()",A]);
+        if (NoBracket) {
+          return A;
+        }else {
+          return(["u_op","()",A]);
+        }
       }
     }
   }else if (type(P) == LIST) {
     if (P != []) {
-      P = quote_replace_(P,x,A);
+      P = quote_replace_(P,X,A,NoBracket);
     }
   }
   if (Q != []) {
-    return cons(P,quote_replace_(Q,X,A));
+    return cons(P,quote_replace_(Q,X,A,NoBracket));
   }else{
     return cons(P,Q);
   }
