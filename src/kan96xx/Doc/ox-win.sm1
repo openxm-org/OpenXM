@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.12 2001/12/28 08:18:23 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox-win.sm1,v 1.13 2002/01/09 11:32:01 takayama Exp $
 
 /ox-win.sm1.loaded 1 def
 (ox.sm1.loaded) boundp {
@@ -34,12 +34,12 @@ OpenXM_HOME_WIN tag 0 eq {
 %%%%%%%%%%%%%%% end configuration  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Set constants for windows.
 [(getenv) (OSTYPE)] extension tag 0 eq {
-  /oxpath.ostype (native-windows) def
+  /ox.ostype (native-windows) def
 }{
-  [(getenv) (OSTYPE)] extension /oxpath.ostype set
+  [(getenv) (OSTYPE)] extension /ox.ostype set
 } ifelse
 
-oxpath.ostype (cygwin) eq {
+ox.ostype (cygwin) eq {
  /oxpath.ox (bin/ox.exe) def
  /oxpath.oxsm1 (bin/ox_sm1.exe) def
  /oxpath.oxlog (bin/oxlog.exe) def
@@ -48,7 +48,7 @@ oxpath.ostype (cygwin) eq {
  /oxpath.null00  ( >& /dev/null ) def  %%cf. oxNoX
  /oxpath.null00-pure-sh ( 2>&1 >/dev/null) def %%TODO:It does not work in our case
 }{
-   /oxpath.ox
+  /oxpath.ox
   [ OpenXM_HOME_WIN
     (\bin\ox.exe)
   ] cat
@@ -100,8 +100,10 @@ oxpath.ostype (cygwin) eq {
  /control peer 3 get toString def
  peer message
  [(forkExec) [
-    (c:/windows/command/start)
-    [OpenXM_HOME_WIN  (\bin\ox)] cat
+    %%(c:/windows/command/start)
+    (start)
+    %%[OpenXM_HOME_WIN  (\bin\ox)] cat
+    oxpath.ox
     (-reverse)
     (-ox)
     [OpenXM_HOME_WIN (\bin\ox_sm1.exe)] cat

@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.9 2002/01/09 11:08:02 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/oxasir-win.sm1,v 1.10 2002/01/09 11:19:25 takayama Exp $
 % It is empty for now.
 %
 /oxasir.sm1.loaded 1 def
@@ -21,12 +21,12 @@ OpenXM_HOME_WIN tag 0 eq {
 
 %% Set constants for windows.
 [(getenv) (OSTYPE)] extension tag 0 eq {
-  /oxasirpath.ostype (native-windows) def
+  /oxasir.ostype (native-windows) def
 }{
-  [(getenv) (OSTYPE)] extension /oxasirpath.ostype set
+  [(getenv) (OSTYPE)] extension /oxasir.ostype set
 } ifelse
 
-oxasirpath.ostype (cygwin) eq {
+oxasir.ostype (cygwin) eq {
 /oxasirpath.oxasir  
   [ [(getenv) (OpenXM_HOME)] extension
     (/bin/ox_asir) ] cat
