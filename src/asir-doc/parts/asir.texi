@@ -108,6 +108,11 @@ end$
 
 構造体を用いるまでもない要素の集合体を, リストで表すことができ, 
 C で直接書く場合に比較してプログラムが短く, 読みやすく書ける. 
+
+@item
+ユーザ定義函数におけるオプション指定. 
+
+これに関しては, @xref{オプション指定}.
 @end itemize
 
 @node ユーザ定義函数の書き方,,, ユーザ言語 Asir
@@ -124,6 +129,7 @@ C で直接書く場合に比較してプログラムが短く, 読みやすく書ける.
 * ループ break return continue::
 * さまざまな式::
 * プリプロセッサ::
+* オプション指定::
 @end menu
 
 @node ユーザ定義函数,,, ユーザ定義函数の書き方
@@ -631,4 +637,57 @@ A--  値は元の A の値, A = A-1
 #define TS(a) car(cdr(car(a)))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 @end example
+
+
+@node オプション指定,,, ユーザ定義函数の書き方
+@subsection オプション指定
+
+ユーザ定義関数が @var{N} 変数で宣言された場合, その関数は, @var{N}
+変数での呼び出しのみが許される. 
+
+@example
+[0] def factor(A) @{ return fctr(A); @}
+[1] factor(x^5-1,3);
+evalf : argument mismatch in factor()
+return to toplevel
+@end example
+
+不定個引数の関数をユーザ言語で記述したい場合, リスト, 配列を用いることで
+可能となるが, 次のようなより分かりやすい方法も可能である. 
+
+@example
+% cat factor
+def factor(F)
+@{
+    Mod = getopt(mod);
+    ModType = type(Mod);
+    if ( ModType == 1 ) /* 'mod' is not specified. */   
+        return fctr(F);
+    else if ( ModType == 0 ) /* 'mod' is a number */
+        return modfctr(F,Mod);
+@}  
+@end example
+
+@example
+[0] load("factor")$
+[1] factor(x^5-1);
+[[1,1],[x-1,1],[x^4+x^3+x^2+x+1,1]]
+[2] factor(x^5-1|mod=11);
+[[1,1],[x+6,1],[x+2,1],[x+10,1],[x+7,1],[x+8,1]]
+@end example
+
+2 番目の @code{factor()} の呼び出しにおいて, 関数定義の際に宣言された引
+数 @var{x^5-1}の後ろに @var{|mod=11} が置かれている. これは, 関数実行時
+に, @var{mod} という keyword に対して @var{11} という値を割り当てること
+を指定している. これをオプション指定と呼ぶことにする. この値は 
+@code{getopt(mod)} で取り出すことができる. 1 番目の呼び出しのように 
+@var{mod} に対するオプション指定がない場合には, @code{getopt(mod)} は型
+識別子 -1 のオブジェクトを返す. これにより, 指定がない場合の動作を if 文
+により記述できる. @samp{|} の後ろには, 任意個のオプションを, @samp{,}
+で区切って指定することができる. 
+
+@example
+[100] xxx(1,2,x^2-1,[1,2,3]|proc=1,index=5);
+@end example
+
 

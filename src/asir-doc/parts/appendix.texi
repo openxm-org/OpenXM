@@ -27,6 +27,7 @@
     @samp{!} <式>
     <式> @samp{?} <式> @samp{:} <式>
     <函数> @samp{(} <式並び> @samp{)}
+    <函数> @samp{(} <式並び> @samp{|} <オプション並び> @samp{)}
     <文字列>
     <指数ベクトル>
     <アトム>
@@ -54,6 +55,18 @@
     <空>
     <式> [@samp{,} <式>]*
 @end example
+
+@example
+<オプション>:
+    alphabet で始まる文字列 @samp{=} 式
+@end example
+
+@example
+<オプション並び>:
+    <オプション>
+    <オプション> [@samp{,} <オプション>]*
+@end example
+
 
 @example
 <リスト>:

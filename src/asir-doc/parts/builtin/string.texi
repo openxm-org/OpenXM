@@ -4,6 +4,7 @@
 @menu
 * rtostr::
 * strtov::
+* eval_str::
 @end menu
 
 @node rtostr,,, 文字列に関する演算
@@ -89,5 +90,42 @@ afo
 @table @t
 @item 参照
 @fref{rtostr}, @fref{type}, @fref{uc}.
+@end table
+
+@node eval_str,,, 文字列に関する演算
+@subsection @code{eval_str}
+@findex eval_str
+
+@table @t
+@item eval_str(@var{str})
+:: @var{str} (文字列) を評価する. 
+@end table
+
+@table @var
+@item return
+オブジェクト
+@item str
+@b{Asir} の parser が受理可能な文字列
+@end table
+
+@itemize @bullet
+@item
+@b{Asir} の parser が受理可能な文字列を評価してその結果を返す. 
+@item
+評価可能な文字列は, 式を表すものに限る. 
+@item
+論理的には @code{rtostr()} の逆関数となる. 
+@end itemize
+
+@example
+[0] eval_str("1+2");
+3
+[1] fctr(eval_str(rtostr((x+y)^10)));
+[[1,1],[x+y,10]]
+@end example
+
+@table @t
+@item 参照
+@fref{rtostr}
 @end table
 

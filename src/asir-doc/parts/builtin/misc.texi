@@ -15,6 +15,7 @@
 * flist::
 * delete_history::
 * get_rootdir::
+* getopt::
 @end menu
 
 @node ctrl,,, その他
@@ -573,6 +574,49 @@ Windows 版の場合, @samp{asirgui.exe} のあるディレクトリ (@samp{bin} 
 この関数が返すディレクトリ名を基準とした相対パス名を指定することにより, インストール
 された場所によらないファイル読み込みプログラムを書くことができる. 
 @end itemize
+
+
+@node getopt,,, その他
+@subsection @code{getopt}
+@findex getopt
+
+@table @t
+@item getopt(@var{key})
+:: オプションの値を返す. 
+@end table
+
+@table @var
+@item return
+任意
+@end table
+
+@itemize @bullet
+@item
+ユーザ定義関数は, 固定個数引数でしか宣言できない. ユーザ定義関数で
+可変個引数を実現する方法の一つとして, オプションによる引数の指定
+がある (@pxref{オプション指定}). 指定されたオプションを関数内で
+受け取るためにこの関数を用いる. 
+@item
+関数呼び出しの際に @var{key} がオプションとして指定されている
+場合には, その値を返す. もし指定がない場合には, VOID 型オブジェクト
+(型識別子 -1) を返す. @code{getopt()} が返した値の型を @code{type()}
+で調べることで, そのオプションが指定されたかどうか調べることができる. 
+@item
+関数呼び出しにおけるオプションの指定は, 正規の引数ならびの後ろに, 
+
+@example
+xxx(A,B,C,D|x=X,y=Y,z=Z)
+@end example
+
+という風に, @samp{|} に続く, @var{key=value} の @samp{,} で区切られた
+並びを置くことで行う. 
+@end itemize
+
+@table @t
+@item 参照
+@fref{オプション指定}, @fref{type}.
+@end table
+
 
 
 

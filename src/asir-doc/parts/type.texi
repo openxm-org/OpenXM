@@ -19,15 +19,13 @@
 示す. 
 
 @table @code
-@item 0
-@b{0}
+@item 0 @b{0}
 
 実際には 0 を識別子にもつ対象は存在しない. 0 は, C における 0 ポインタに
 より表現されている. しかし, 便宜上 @b{Asir} の @code{type(0)} は
 値 0 を返す. 
 
-@item 1
-@b{数}
+@item 1 @b{数}
 
 @example
 1 2/3  14.5  3+2*@@i 
@@ -35,8 +33,7 @@
 
 数は, さらにいくつかの型に分けられる. これについては下で述べる. 
 
-@item 2
-@b{多項式} (数でない)
+@item 2 @b{多項式} (数でない)
 
 @example
 x  afo  (2.3*x+y)^10
@@ -46,8 +43,7 @@ x  afo  (2.3*x+y)^10
 1 変数多項式として降冪の順に整理される (@xref{分散表現多項式}). 
 この時, その多項式に現れる順序最大の変数を @b{主変数} と呼ぶ. 
 
-@item 3
-@b{有理式} (多項式でない)
+@item 3 @b{有理式} (多項式でない)
 
 @example
 (x+1)/(y^2-y-x)  x/x
@@ -57,8 +53,7 @@ x  afo  (2.3*x+y)^10
 限り約分は行われない. これは, 多項式の GCD 演算が極めて重い演算である
 ためで, 有理式の演算は注意が必要である. 
 
-@item 4
-@b{リスト}
+@item 4 @b{リスト}
 
 @example
 []  [1,2,[3,4],[x,y]]
@@ -80,8 +75,7 @@ x  afo  (2.3*x+y)^10
 結局は先頭からポインタをたどることに相当するため, 配列に対する操作に
 比較して大きなリストでは時間がかかる場合があるということである. 
 
-@item 5
-@b{ベクトル}
+@item 5 @b{ベクトル}
 
 @example
 newvect(3)  newvect(2,[a,1])
@@ -108,8 +102,7 @@ newvect(3)  newvect(2,[a,1])
 [ 0 0 0 ]
 @end example
 
-@item 6
-@b{行列}
+@item 6 @b{行列}
 
 @example
 newmat(2,2)  newmat(2,3,[[x,y],[z]])
@@ -131,8 +124,7 @@ newmat(2,2)  newmat(2,3,[[x,y],[z]])
 5
 @end example
 
-@item 7
-@b{文字列}
+@item 7 @b{文字列}
 
 @example
 ""  "afo"
@@ -145,8 +137,8 @@ newmat(2,2)  newmat(2,3,[[x,y],[z]])
 [0] "afo"+"take";
 afotake
 @end example
-@item 8
-@b{構造体}
+
+@item 8 @b{構造体}
 
 @example
 newstruct(afo)
@@ -154,8 +146,7 @@ newstruct(afo)
 
 構造体に関しては, 章を改めて解説する予定である. 
 
-@item 9
-@b{分散表現多項式}
+@item 9 @b{分散表現多項式}
 
 @example
 2*<<0,1,2,3>>-3*<<1,2,3,4>>
@@ -166,29 +157,28 @@ newstruct(afo)
 で書かれているため, ユーザが操作できるよう独立した型として  @b{Asir}
 で使用できるようにしてある. これについては @xref{グレブナ基底の計算}.
 
-@item 10
-@b{符号なしマシン 32bit 整数}
+@item 10 @b{符号なしマシン 32bit 整数}
 
-@item 11
-@b{エラーオブジェクト}
+@item 11 @b{エラーオブジェクト}
 
 以上二つは, Open XM において用いられる特殊オブジェクトである. 
 
-@item 12
-@b{GF(2) 上の行列}
+@item 12 @b{GF(2) 上の行列}
 
 現在, 標数 2 の有限体における基底変換のためのオブジェクトとして用いられ
 る. 
 
-@item 13
-@b{MATHCAP オブジェクト}
+@item 13 @b{MATHCAP オブジェクト}
 
 Open XM において, 実装されている機能を送受信するためのオブジェクトである. 
 
-@item 14
-@b{first order formula}
+@item 14 @b{first order formula}
 
 quantifier elimination で用いられる一階述語論理式. 
+
+@item -1 @b{VOID オブジェクト}
+
+型識別子 -1 をもつオブジェクトは関数の戻り値などが無効であることを示す.
 @end table
 
 @node 数の型,,, 型
