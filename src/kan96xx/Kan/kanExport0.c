@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.9 2002/09/08 10:49:49 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.10 2002/11/04 10:53:55 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -1538,6 +1538,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   newRingp->gbListTower = NULL;
   newRingp->outputOrder = outputVars;
   newRingp->weightedHomogenization = 0;
+  newRingp->degreeShiftSize = 0;
 
   if (ob5.tag != Sarray || (getoaSize(ob5) % 2) != 0) {
     errorKan1("%s\n","[(keyword) value (keyword) value ....] should be given.");
@@ -1588,7 +1589,27 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
         if (getoa(ob5,i+1).tag != Sinteger) {
           errorKan1("%s\n","A integer should be given. (weightedHomogenization)");
         }
-		newRingp->weightedHomogenization = KopInteger(getoa(ob5,i+1));
+        newRingp->weightedHomogenization = KopInteger(getoa(ob5,i+1));
+      } else if (strcmp(KopString(getoa(ob5,i)),"degreeShift") == 0) {
+        if (getoa(ob5,i+1).tag != Sarray) {
+          errorKan1("%s\n","An array should be given. (degreeShift)");
+        }
+        {
+          struct object ods;
+          int dssize,k;
+          ods=getoa(ob5,i+1);
+          dssize = getoaSize(ods);
+          newRingp->degreeShiftSize = dssize;
+          newRingp->degreeShift = (int *) sGC_malloc(sizeof(int)*(dssize+1));
+          if (newRingp->degreeShift == NULL) errorKan1("%s\n","No more memory.");
+          for (k=0; k<dssize; k++) {
+            if (getoa(ods,k).tag == SuniversalNumber) {
+              (newRingp->degreeShift)[k] = coeffToInt(getoa(ods,k).lc.universalNumber);
+            }else{
+              (newRingp->degreeShift)[k] = KopInteger(getoa(ods,k));
+            }
+          }
+        }
       } else {
         errorKan1("%s\n","Unknown keyword to set_up_ring@");
       }

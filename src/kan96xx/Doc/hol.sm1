@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.9 2000/12/29 07:19:37 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.10 2001/01/04 12:29:33 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -276,6 +276,7 @@ message-quiet
   /arg1 set
   [/in-gb /aa /typev /setarg /f /v 
    /gg /wv /termorder /vec /ans /rr /mm
+   /degreeShift
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
@@ -284,6 +285,7 @@ message-quiet
     aa isArray { } { ( << array >> gb) error } ifelse
     /setarg 0 def
     /wv 0 def
+    /degreeShift 0 def
     aa { tag } map /typev set
     typev [ ArrayP ] eq
     {  /f aa 0 get def
@@ -317,6 +319,20 @@ message-quiet
        /wv aa 2 get def
        /setarg 1 def
     } { } ifelse
+    typev [ArrayP StringP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /setarg 1 def
+    } { } ifelse
+    typev [ArrayP ArrayP ArrayP ArrayP] eq
+    {  /f aa 0 get def
+       /v aa 1 get from_records def
+       /wv aa 2 get def
+       /degreeShift aa 3 get def
+       /setarg 1 def
+    } { } ifelse
 
     setarg { } { (gb : Argument mismatch) error } ifelse
     
@@ -342,10 +358,19 @@ message-quiet
         0] define_ring
         /termorder 1 def
       }{
-        [v ring_of_differential_operators 
-         wv weight_vector
-        0] define_ring
-        wv gb.isTermOrder /termorder set
+       degreeShift isInteger {
+         [v ring_of_differential_operators 
+          wv weight_vector
+         0] define_ring
+         wv gb.isTermOrder /termorder set
+       }{
+         [v ring_of_differential_operators 
+          wv weight_vector
+          0
+          [(degreeShift) degreeShift]
+          ] define_ring
+         wv gb.isTermOrder /termorder set
+       } ifelse
       } ifelse
     } {
       %% Use the ring structre given by the input.
@@ -723,6 +748,8 @@ message-quiet
   (a : [f ];    array f;  f is a set of generators of an ideal in a ring.)
   (a : [f v];   array f; string v;  v is the variables. )
   (a : [f v w]; array f; string v; array of array w; w is the weight matirx.)
+  (a : [f v w ds]; array f; string v; array of array w; w is the weight matirx.)
+  (                array ds; ds is the degree shift )
   (  )
   $Example 1: [ [( (x Dx)^2 + (y Dy)^2 -1) ( x y Dx Dy -1)] (x,y) $
   $             [ [ (Dx) 1 ] ] ] gb pmat ; $

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.5 2002/02/09 06:21:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.6 2002/09/08 10:49:50 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -180,7 +180,17 @@ void showRing(level,ringp)
     printObjectList((struct object *)(ringp->gbListTower));
     fprintf(fp,"\n");
   }
-
+  if (ringp->degreeShiftSize) {
+    fprintf(fp,"degreeShift vector = [");
+    {
+      int i;
+      for (i=0; i<ringp->degreeShiftSize; i++) {
+        fprintf(fp," %d ",ringp->degreeShift[i]);
+      }
+    }
+    fprintf(fp,"]\n");
+  }
+  fprintf(fp,"---  weight vectors ---\n");
   if (level) printOrder(ringp);
   
   if (ringp->next != (struct ring *)NULL) {
@@ -336,6 +346,8 @@ int mmLarger_matrix(ff,gg)
   int in2;
   int *from, *to;
   int omsize;
+  int dssize;
+  int *degreeShiftVector;
   
   if (ff == POLYNULL ) {
     if (gg == POLYNULL) return( 2 );
@@ -353,6 +365,9 @@ int mmLarger_matrix(ff,gg)
   from = rp->from;
   to = rp->to;
   omsize = rp->orderMatrixSize;
+  if (dssize = rp->degreeShiftSize) {
+	degreeShiftVector = rp->degreeShift;  /* Note. 2003.06.26 */
+  }
  
   flag = 1;
   for (i=N-1,k=0; i>=0; i--,k++) {
@@ -369,6 +384,15 @@ int mmLarger_matrix(ff,gg)
     sum = 0; in2 = i*2*N;
     /* for (k=0; k<2*N; k++) sum += exp[k]*Order[in2+k]; */
     for (k=from[i]; k<to[i]; k++) sum += exp[k]*Order[in2+k];
+    if (dssize && ( i == 0)) { /* Note, 2003.06.26 */
+      if ((f->e[N-1].x < dssize) && (f->e[N-1].x >= 0) &&
+          (g->e[N-1].x < dssize) && (g->e[N-1].x >= 0)) {
+        sum += degreeShiftVector[f->e[N-1].x]
+              -degreeShiftVector[g->e[N-1].x];
+      }else{
+        warningOrder("Size mismatch in the degree shift vector. It is ignored.");
+      }
+    }
     if (sum > 0) return(1);
     if (sum < 0) return(0);
   }
