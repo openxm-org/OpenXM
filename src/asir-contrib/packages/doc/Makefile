@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.2 1999/12/10 01:58:02 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile,v 1.3 1999/12/10 05:05:39 noro Exp $
 JPSRCS= oxxm.texi oxmath.texi oxphc.texi oxgnuplot.texi oxsm1.texi oxom.texi
 EGSRCS= oxxm-eg.texi oxmath-eg.texi oxphc-eg.texi oxgnuplot-eg.texi oxsm1-eg.texi oxom-eg.texi
 all : $(JPSRCS) $(EGSRCS)
@@ -70,6 +70,11 @@ help-jp: $(JPSRCS) $(ASIRDOC)/extract_func
 	(cd help-jp; for i in ../tmp/asir-contrib*; do $(ASIRDOC)/extract_func $$i; done)
 
 help: help-eg help-jp
+
+install-help: help
+	/bin/rm -f $(OpenXM_HOME)/lib/asir/help-jp/xm.help
+	mkdir $(OpenXM_HOME)/lib/asir/help-jp/xm.help
+	cp -f help-jp/* $(OpenXM_HOME)/lib/asir/help-jp/xm.help
 
 clean :
 	/bin/rm -f oxxm.texi oxxm-eg.texi oxmath.texi *~ *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr oxmath-eg.texi oxphc.texi oxphc-eg.texi oxgnuplot.texi oxgnuplot-eg.texi oxsm1.texi oxsm1-eg.texi oxom-eg.texi oxom.texi
