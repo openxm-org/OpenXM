@@ -1,4 +1,34 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.20 2003/11/15 12:24:46 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.21 2003/12/31 06:30:53 ohara Exp $
+
+//&C Feb 7, 2004 
+//&ja Q. Solaris 5.5.1 で make すると kan96xx の make で __register_frame_info がないといってコンパイルがとまる.
+//&en Q. On Solaris 5.5.1, the make of kan96xx stops with the error undefined symbol __register_frame_info
+
+/*&ja
+
+A. OpenXM_contrib/gmp (version 4.1.2) をつぎのようにして version 3.1.1 に置き換えるとうまくいきます.
+rm -rf OpenXM_contrib/gmp
+cvs -d :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvsroot/openxm checkout -D '2002-01-01 0:00' OpenXM_contrib/gmp
+
+匿名 cvs については
+http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/anonymous.html
+を御覧ください.
+
+*/
+
+/*&en
+
+A. Repalce OpenXM_contrib/gmp (version 4.1.2) by the gmp version 3.1.1 
+as follows.
+
+rm -rf OpenXM_contrib/gmp
+cvs -d :pserver:anoncvs@kerberos.math.kobe-u.ac.jp:/home/cvsroot/openxm checkout -D '2002-01-01 0:00' OpenXM_contrib/gmp
+
+As to anonymous cvs, see
+http://www.math.sci.kobe-u.ac.jp/OpenXM/Current/anonymous.html
+
+*/
+
 
 //&C Nov 15, 2003 (For developpers)
 //&ja Q. Cvs で commit するとき -m option がうまく動きません.
