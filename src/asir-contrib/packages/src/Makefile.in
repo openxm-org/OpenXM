@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.2 2005/02/10 01:45:49 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.3 2005/04/08 05:29:37 takayama Exp $
 # targets
 # all : 
 #     do nothing
@@ -9,20 +9,16 @@
 OpenXM_ROOT=@prefix@
 OpenXM_lib=$(OpenXM_ROOT)/lib
 ## If you add a new source to be installed, add in the list below.
-SOURCE=fourier-0 m   sets  bench-1   gnuplot   om     sm1  beta   igraph    phc    tigers longname dsolv
-SOURCE2=*.rr *.h hg21 
-## SOURCE: documents are embedded.
-## SOURCE2: documents are NOT embedded.
-
-
+SOURCE0=fourier-0 sets  bench-1 beta   igraph 
+SOURCE=*.rr *.h hg21 
 
 all :
 
 clean :
 	-rm -rf config.log config.status autom4te.cache
 install : clean-for-install
+	cp $(SOURCE0)  $(OpenXM_lib)/asir-contrib		
 	cp $(SOURCE)  $(OpenXM_lib)/asir-contrib		
-	cp $(SOURCE2)  $(OpenXM_lib)/asir-contrib		
 # Installation of libraries in directories. Todo: write a better method.
 	mkdir -p $(OpenXM_lib)/asir-contrib/todo_parametrize		
 	cp -r todo_parametrize/*.rr  $(OpenXM_lib)/asir-contrib/todo_parametrize		
