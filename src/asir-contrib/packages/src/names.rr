@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.83 2004/07/07 02:58:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.84 2004/08/28 11:35:56 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -53,7 +53,7 @@ ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_noro_print,"noro_print.rr")$
 ox_loadfile_(Loaded_noro_print_default,"noro_print_default.rr")$
 ox_loadfile_(Loaded_om,"om")$
-ox_loadfile_(Loaded_Matrix,"Matrix")$
+ox_loadfile_(Loaded_ok_matrix,"ok_matrix.rr")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
 ox_loadfile_(Loaded_glib,"glib")$
@@ -414,7 +414,7 @@ def series_limit(F,A) { NOT_YET; }
  example: matrix_clone(matrix_list_to_matrix([[1,1],[0,1]]));
 end: */
 def matrix_clone(M) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_clone(M);
 }
 
@@ -425,7 +425,7 @@ def matrix_clone(M) {
  ref: matrix_kernel
 end: */
 def matrix_image(M) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_image(M);
 }
 
@@ -434,7 +434,7 @@ def matrix_image(M) {
  ref: matrix_list_to_matrix
 end: */
 def matrix_matrix_to_list(M) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_mtol(M);
 }
 
@@ -444,7 +444,7 @@ def matrix_matrix_to_list(M) {
  ref: matrix_matrix_to_list
 end: */
 def matrix_list_to_matrix(M) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_ltom(M);
 }
 
@@ -454,7 +454,7 @@ def matrix_list_to_matrix(M) {
  ref: matrix_list_to_matrix
 end: */
 def matrix_diagonal_matrix(L) { 
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_diag(L);
 }
 
@@ -464,7 +464,7 @@ def matrix_diagonal_matrix(L) {
  ref: matrix_diagonal_matrix
 end: */
 def matrix_identity_matrix(N) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_1(N);
 }
 
@@ -473,7 +473,7 @@ def matrix_identity_matrix(N) {
  example: matrix_inner_product([1,2],[x,y]);
 end: */
 def matrix_inner_product(A,B) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_inner_product(A,B);
 }
 
@@ -482,7 +482,7 @@ def matrix_inner_product(A,B) {
  ref: matrix_list_to_matrix
 end: */
 def matrix_transpose(M) {
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_trans(M);
 }
 def matrix_submatrix(M,R,C) { NOT_YET; } 
@@ -493,7 +493,7 @@ def matrix_dimensions(M) { NOT_YET; }
  example: matrix_inverse([[1,2],[0,1]]);
 end: */
 def matrix_inverse(M) {  
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_inverse(M);
 }
 
@@ -502,7 +502,7 @@ def matrix_inverse(M) {
  example: poly_factor(matrix_det([[1,x,x^2],[1,y,y^2],[1,z,z^2]]));
 end: */
 def matrix_det(M) { 
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_det(M);
 }
 def matrix_minors(M,K) { NOT_YET; }
@@ -513,7 +513,7 @@ def matrix_trace(M) { NOT_YET; }
  example: matrix_solve_linear([[1,2],[0,1]],[x,y],[1,2]);
 end: */
 def matrix_solve_linear(M,X,B) {  
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_solve(M,X,B);
 }  /* LinearSolve[ ] */
 /*&usage begin: matrix_submatrix(M,Ind)
@@ -521,7 +521,7 @@ def matrix_solve_linear(M,X,B) {
  example: matrix_submatrix([[0,1],[2,3],[4,5]],[1,2]);
 end: */
 def matrix_submatrix(M,Ind) {  
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_submatrix(M,Ind);
 }  
 
@@ -530,7 +530,7 @@ def matrix_submatrix(M,Ind) {
  example: matrix_kernel([[1,1,1,1],[0,1,3,4]]);
 end: */
 def matrix_kernel(M) {  
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_kernel(M);
 }          /* NullSpace[ ] */
 
@@ -539,7 +539,7 @@ def matrix_kernel(M) {
  example: matrix_eigenvalues([[x,1],[0,y]]);
 end: */
 def matrix_eigenvalues(M) { 
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_eigenvalues(M);
 }
 def matrix_eigenvectors(M) { NOT_YET; }
@@ -549,7 +549,7 @@ def matrix_eigenvectors(M) { NOT_YET; }
  example: matrix_rank([[1,1,1,1],[0,1,3,4]]);
 end: */
 def matrix_rank(M) { 
-  OX_LOADFILE(Loaded_Matrix,"Matrix");
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
   return omatrix_rank(M);
 }
 
