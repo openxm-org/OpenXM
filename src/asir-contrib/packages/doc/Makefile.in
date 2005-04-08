@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.4 2005/03/24 05:51:51 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.5 2005/03/24 08:50:02 takayama Exp $
 # targets
 # all :
 #     Extracts all tex-info files from ../src/* and generate *.texi files.
@@ -101,12 +101,12 @@ install2 : install-help
 gentexi : gentexi.c
 	gcc -o gentexi gentexi.c
 
-oxom.ja : ${CONTRIB}/om
+oxom.ja : ${CONTRIB}/om.rr
 	${RM} -f oxom.ja
-	${OXWEAVE} C ja  <${CONTRIB}/om >oxom.ja
-oxom.en : ${CONTRIB}/om
+	${OXWEAVE} C ja  <${CONTRIB}/om.rr >oxom.ja
+oxom.en : ${CONTRIB}/om.rr
 	${RM} -f oxom.en
-	${OXWEAVE} C en  <${CONTRIB}/om >oxom.en
+	${OXWEAVE} C en  <${CONTRIB}/om.rr >oxom.en
 
 ### base
 base-auto.en : ${CONTRIB}/names.rr gentexi
@@ -156,12 +156,12 @@ poly-auto.ja : ${CONTRIB}/names.rr gentexi
 	${RM} -f poly-auto.ja
 	${OXWEAVE} usage  <${CONTRIB}/names.rr | ./gentexi --category poly --ja --upnode "Polynomials (Standard Mathematical Functions)" ${OPTGENTEXI} >poly-auto.ja
 ### sm1
-sm1-auto.en : ${CONTRIB}/sm1 gentexi
+sm1-auto.en : ${CONTRIB}/sm1.rr gentexi
 	${RM} -f sm1-auto.en
-	${OXWEAVE} usage  <${CONTRIB}/sm1 | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto.en
-sm1-auto.ja : ${CONTRIB}/sm1 gentexi
+	${OXWEAVE} usage  <${CONTRIB}/sm1.rr | ./gentexi --category sm1 --en --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto.en
+sm1-auto.ja : ${CONTRIB}/sm1.rr gentexi
 	${RM} -f sm1-auto.ja
-	${OXWEAVE} usage  <${CONTRIB}/sm1 | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto.ja
+	${OXWEAVE} usage  <${CONTRIB}/sm1.rr | ./gentexi --category sm1 --ja --upnode "SM1 Functions" ${OPTGENTEXI} >sm1-auto.ja
 
 ### glib
 glib-auto.en : ${ASIRLIB}/glib gentexi
