@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.1 2005/04/09 05:47:41 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.2 2005/04/09 05:49:24 takayama Exp $
 # Targets
 # gen-texi-en, gen-texi-ja : generating texi files.
 # gen-html-en,  gen-html-ja :
@@ -205,29 +205,29 @@ install-help-en: gen-help-en
 	mkdir ${INSTALL_lib}/asir/help-eg/xm.help
 	-cp -r -f help-en/* ${INSTALL_lib}/asir/help-eg/xm.help
 install-html-ja: gen-html-ja
-	-mkdir ${INSTALL_doc}/asir-contrib
-	-( tar cf - html-ja | (cd ${INSTALL_doc}/asir-contrib ; tar xf - ; mv help-ja cman-html-ja))
+	-mkdir -p ${INSTALL_doc}/asir-contrib/ja
+	-( tar cf - html-ja | (cd ${INSTALL_doc}/asir-contrib/ja ; tar xf - ; mv help-ja cman-html))
 install-html-en: gen-html-en
-	-mkdir ${INSTALL_doc}/asir-contrib
-	-( tar cf - html-en | (cd ${INSTALL_doc}/asir-contrib ; tar xf - ; mv help-en cman-html-en))
+	-mkdir -p ${INSTALL_doc}/asir-contrib/en
+	-( tar cf - html-en | (cd ${INSTALL_doc}/asir-contrib/en ; tar xf - ; mv help-en cman-html))
 install-dvi-ja: gen-dvi-ja
-	-mkdir ${INSTALL_lib}/asir-contrib
-	-cp cman-ja.dvi ${INSTALL_doc}/asir-contrib/cman-ja.dvi
+	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
+	-cp cman-ja.dvi ${INSTALL_doc}/asir-contrib/ja/cman-ja.dvi
 install-dvi-en: gen-dvi-en
-	-mkdir ${INSTALL_lib}/asir-contrib
-	-cp cman-en.dvi ${INSTALL_doc}/asir-contrib/cman-en.dvi
+	-mkdir -p ${INSTALL_lib}/asir-contrib/en
+	-cp cman-en.dvi ${INSTALL_doc}/asir-contrib/en/cman-en.dvi
 install-ps-ja: gen-ps-ja
-	-mkdir ${INSTALL_lib}/asir-contrib
-	-cp cman-ja.ps ${INSTALL_doc}/asir-contrib/cman-ja.ps
+	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
+	-cp cman-ja.ps ${INSTALL_doc}/asir-contrib/ja/cman-ja.ps
 install-ps-en: gen-ps-en
-	-mkdir ${INSTALL_lib}/asir-contrib
-	-cp cman-en.ps ${INSTALL_doc}/asir-contrib/cman-en.ps
+	-mkdir -p ${INSTALL_lib}/asir-contrib/en
+	-cp cman-en.ps ${INSTALL_doc}/asir-contrib/en/cman-en.ps
 install-pdf-ja: gen-pdf-ja
-	-mkdir ${INSTALL_lib}/asir-contrib
-	-cp cman-ja.pdf ${INSTALL_doc}/asir-contrib/cman-ja.pdf
+	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
+	-cp cman-ja.pdf ${INSTALL_doc}/asir-contrib/ja/cman-ja.pdf
 install-pdf-en: gen-pdf-en
-	-mkdir ${INSTALL_lib}/asir-contrib
-	-cp cman-en.pdf ${INSTALL_doc}/asir-contrib/cman-en.pdf
+	-mkdir -p ${INSTALL_lib}/asir-contrib/en
+	-cp cman-en.pdf ${INSTALL_doc}/asir-contrib/en/cman-en.pdf
 
 clean:
 	${RM} -f ${JAAUTO} ${ENAUTO} gentexi-in.tmp gentexi-out.tmp
