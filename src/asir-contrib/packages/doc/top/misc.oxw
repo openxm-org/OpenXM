@@ -1,0 +1,92 @@
+@c $OpenXM$
+/*&C
+@node Misc,,, Top
+*/
+/*&ja
+
+@chapter その他のマニュアル
+
+この節では asir-contrib のその他のマニュアルを紹介する.
+
+それからまだ分類がおわっていない関数を解説する.
+これらの関数は将来は別の独立した節へ移す予定である.
+
+
+*/
+
+/*&en 
+
+@chapter Other Manuals
+This section introduces other manuals in the asir-contrib project.
+
+This section also describes functions that have not yet been classifed.
+These will be moved to independent sections in a future.
+
+*/
+
+
+/*&C
+
+@subsection dsolv (Solving the initial ideal for holonomic systems) 
+  dsolv/dsolv_toc
+@subsection ok_diff (Okutani's library for differential operators)
+  ok_diff/ok_diff_toc
+@subsection ok_dmodule (Okutani's library for D-modules)
+  ok_dmodule/ok_dmodule_toc
+@subsection plucker (Plucker relations)
+  plucker/plucker
+@subsection pfpcoh (Ohara's library for cohomology groups for p F q )
+  ok_pfpcoh/ok_pfpcoh_toc
+@subsection gnuplot (gnuplot server for graphics)
+  gnuplot/gnuplot_toc
+@subsection mathematica (Mathematica (TM) server)
+  mathematica/mathematica_toc
+@subsection om (om (java) server for translating CMO and OpenMath)
+  om/om_toc
+@subsection phc (PHC server for solving systems of algebraic equations by the homotopy method)
+  phc/phc_toc
+@subsection sm1 (Kan/sm1 server for the ring of differential operators)
+  sm1/sm1_toc
+@subsection tigers (tigers server for toric universal Grobner bases)
+  tigers/tigers_toc
+
+*/
+
+/*&ja
+
+@subsection todo_parametrize
+   todo_parametrize/todo_parametrize_toc
+
+パッケージ @code{todo_parametrize/todo_parametrize.rr} をロードすることにより,
+有理曲線のパラメータ表示を見付ける関数である,
+@code{paramerize} が利用できるようになる.
+詳しくは @xref{関数簡易マニュアル,概要,概要,todo_parametrize_ja.texi,Risa/Asir 代数曲線論用パッケージ説明書} を見よ
+(@uref{http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/asir-contrib/html-ja/todo_parametrize/todo_parametrize_ja_toc.html, Web 版 Risa/Asir 代数曲線論用パッケージ説明書}).
+このパッケージのマニュアルへの統合はまだできていない.
+このパッケージはまだ module 構造を利用していないので, 既存のライブラリと
+名前の衝突の可能性がある.
+*/
+
+/*&en
+
+@subsection todo_parametrize
+   todo_parametrize/todo_parametrize_toc
+
+With loading the file @code{todo_parametrize/todo_parametrize.rr}
+the function @code{paramerize} is installed.
+The function finds a parametric expression of a given rational curve.
+As to details, see
+@xref{,,,todo_parametrize_ja, A package for algebraic curves} (in Japanese).
+
+*/
+
+/*&C
+@example
+[1205] load("todo_parametrize/todo_parametrize.rr");
+1
+[1425] parametrize(y^2-x^3);
+[155*t^2+20*t+1,720*t^4+1044*t^3+580*t^2,155*t^4+20*t^3+t^2,(-x)/(y)]
+[1426] parametrize(y^2+x^3);
+[-t,1,t^3,(-x)/(y)]
+@end example
+*/
