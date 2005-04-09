@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.1 2005/04/09 05:47:41 takayama Exp $
 # Targets
 # gen-texi-en, gen-texi-ja : generating texi files.
 # gen-html-en,  gen-html-ja :
@@ -39,7 +39,7 @@ INSTALL_lib=${OpenXM_HOME}/lib
 OXWEAVE=${OpenXM_HOME}/bin/oxweave
 OXGENTEXI=${OpenXM_HOME}/bin/oxgentexi
 #
-OpenXM_ROOT=../../../../../OpenXM
+OpenXM_ROOT=../../../../../../OpenXM
 ASIRDOC=${OpenXM_ROOT}/src/asir-doc
 ASIRLIB=${OpenXM_ROOT}/../OpenXM_contrib2/asir2000/lib
 CONTRIB=${OpenXM_ROOT}/src/asir-contrib/packages/src
