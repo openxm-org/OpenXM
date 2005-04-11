@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.5 2005/04/06 05:08:11 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.6 2005/04/06 09:26:29 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
@@ -41,6 +41,7 @@ int GenExample = 0;
 int DebugItem = 0;
 char *Title = NULL;
 char *Author = NULL;
+char *InfoName = NULL;
 int NoSorting = 0;
 
 main(int argc,char *argv[]) {
@@ -71,6 +72,8 @@ main(int argc,char *argv[]) {
       DebugItem = 1;
     }else if (strcmp(argv[i],"--title") == 0) {
       i++; Title = str(argv[i]);
+    }else if (strcmp(argv[i],"--infoName") == 0) {
+      i++; InfoName = str(argv[i]);
     }else if (strcmp(argv[i],"--author") == 0) {
       i++; Author = str(argv[i]);
     }else if (strcmp(argv[i],"--noSorting") == 0) {
@@ -125,7 +128,7 @@ main(int argc,char *argv[]) {
 	exit(0);
   }
 
-  if (Title) printTitlePage(Title,Author);
+  if (Title) printTitlePage(Title,Author,InfoName);
 
   printMenu(stdout,items,n);
 
@@ -662,7 +665,7 @@ outputOfExample(char *com) {
   putchar('\n');
 }
 
-printTitlePage(char *title, char *author) {
+printTitlePage(char *title, char *author,char *infoName) {
   printf("\\input texinfo\n");
   printf("@def@colon{:}\n\n");
   printf("@iftex\n");
@@ -672,7 +675,7 @@ printTitlePage(char *title, char *author) {
   printf("@end iftex\n");
   printf("@overfullrule=0pt\n");
 
-  printf("@setfilename %s\n",Title);
+  if (infoName != NULL) printf("@setfilename %s\n",infoName);
   printf("@settitle %s\n",Title);
 
   printf("@titlepage\n");
@@ -685,6 +688,15 @@ printTitlePage(char *title, char *author) {
 }
 
 printBye() {
+  printf("@node Index,,, Top\n");
+  printf("@unnumbered Index\n");
+  printf("@printindex fn\n");
+  printf("@printindex cp\n");
+  printf("@iftex\n");
+  printf("@vfill @eject\n");
+  printf("@end iftex\n");
+  printf("@summarycontents\n");
+  printf("@contents\n");
   printf("\n@bye\n");
 }
 /* Old file was OpenXM/src/asir-contrib/packages/doc/gentexi.c */
