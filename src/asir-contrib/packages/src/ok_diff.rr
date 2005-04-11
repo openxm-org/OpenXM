@@ -1,4 +1,4 @@
-/* $OpenXM$ 
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_diff.rr,v 1.1 2005/04/08 05:29:37 takayama Exp $ 
   Old: Diff
 */
 
@@ -66,7 +66,7 @@ def odiff_op_toasir(L_list, V) {
     L = L_list[I];
     L_asir = 0;
     for (J = 0; J < length(L); J++) {
-      L_asir += L[J][0]*dp_dtop(dp_vtoe(matrix_ltov(L[J][1])), Dv);
+      L_asir += L[J][0]*dp_dtop(dp_vtoe(omatrix_ltov(L[J][1])), Dv);
     }
     L_list_asir = append(L_list_asir, [L_asir]);
   }
@@ -501,7 +501,7 @@ def odiff_rat_solve(L_list, Dn, N, V) {
   U = 0;
   for (I = 0; I <= Deg_U; I++) {
     for (J = 0; J < length(Basis_U[I]); J++) {
-      U += Coef_U[I][J]*dp_dtop(dp_vtoe(matrix_ltov(Basis_U[I][J])), V);
+      U += Coef_U[I][J]*dp_dtop(dp_vtoe(omatrix_ltov(Basis_U[I][J])), V);
     }
   }
 #if _DEBUG_Odiff_
@@ -571,7 +571,7 @@ def odiff_rat_solve(L_list, Dn, N, V) {
 #endif
 
   /* OK: solve A*X = 0 */
-  Sol = matrix_solve(A, X, newvect(Size_Row));
+  Sol = omatrix_solve(A, X, newvect(Size_Row));
 #if _DEBUG_Odiff_
   print("Sol: ", 0); print(Sol);
 #endif
@@ -964,7 +964,7 @@ def odiff_pseries_appell4(A,B,C1,C2,N,V) {
       C1_M = odiff_pochhammer(C1, Basis[I][J][0]);
       C2_N = odiff_pochhammer(C2, Basis[I][J][1]);
       Coef = A_K*B_K/(C1_M*C2_N*fac(Basis[I][J][0])*fac(Basis[I][J][1]));
-      Pseries += red(Coef)*dp_dtop(dp_vtoe(matrix_ltov(Basis[I][J])), V);
+      Pseries += red(Coef)*dp_dtop(dp_vtoe(omatrix_ltov(Basis[I][J])), V);
     }
   }
   return Pseries;
@@ -1580,13 +1580,13 @@ def odiff_lookup(X, List) {
 /* [[u1,v1],[u2,v2],...] <- { x^u1-x^v1, x^u2-x^v2,...} */
 def odiff_toric_ideal(A) {
   if (type(A) == 6) {
-    A = matrix_mtol(A);
+    A = omatrix_mtol(A);
   }
   if (type(A) != 4) {
     error("parameter type error.");
   }
 
-  A = matrix_mtol(matrix_trans(A));
+  A = omatrix_mtol(omatrix_trans(A));
 
   Vx = [];
   for (I = 0; I < length(A); I++) {
@@ -1674,7 +1674,7 @@ def odiff_toric_ideal(A) {
 /* B: vetor or list */
 def odiff_op_gkz(A, B, V) {
   if (type(A) == 6) {
-    A = matrix_mtol(A);
+    A = omatrix_mtol(A);
   }
   if (type(B) == 5) {
     B = vtol(B);
