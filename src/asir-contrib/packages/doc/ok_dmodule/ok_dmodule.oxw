@@ -1,0 +1,275 @@
+/*&en
+
+We need to load the files
+@file{gr}, @file{xm}, @file{ok_matrix.rr}, @file{ok_diff.rr}, 
+@file{ok_diff.rr}
+to call functions in this manual.
+
+The document has not yet been written. 
+
+Here are examples.
+@example
+[344] odmodule_ch_ideal([x*dx+y*dy+a,dx^2+dy^2],[x,y]);
+[x*dx+y*dy,dx^2+dy^2,y*dy*dx-x*dy^2,(x^2+y^2)*dy^2]
+
+[348] odmodule_ch_ideal(odiff_op_appell4(a,b,c1,c2,[x,y]),[x,y]);
+[-x*dx^2+y*dy^2,2*y*x*dy*dx+(y*x+y^2-y)*dy^2,
+ (2*y^2-2*y)*dy^2*dx+(-y*x+3*y^2+y)*dy^3,
+ 2*y*x*dy^2*dx+(y*x^2+(-2*y^2-y)*x+y^3-y^2)*dy^3]
+@end example
+
+*/
+
+/*&ja
+@c $OpenXM$
+@node D-module (library by Okutani),,, Top
+@chapter D-module (library by Okutani)
+ファイル @file{gr}, @file{xm}, @file{ok_matrix.rr}, @file{ok_diff.rr}, 
+@file{ok_diff.rr}
+が必要です.
+
+OpenXM/Risa/Asir での利用にあたっては,
+@example
+load("ok_diff.rr")$ load("ok_dmodule.rr")$
+@end example
+が始めに必要.
+
+Yukio Okutani 氏による D-加群計算用の sm1 サーバとのインタフェース
+ライブラリです. すべての関数名は odmodule_ で始まります. 
+
+@menu
+@c * odmodule_make_dv::
+* odmodule_d_op_tosm1::
+* odmodule_d_op_toasir::
+* odmodule_d_op_fromasir::
+* odmodule_ch_ideal::
+* odmodule_singular_locus::
+@c * odmodule_ch_ideal_appell1::
+@c * odmodule_ch_ideal_appell2::
+@c * odmodule_ch_ideal_appell3::
+@c * odmodule_ch_ideal_appell4::
+@c * odmodule_ch_ideal_selberg2::
+@c * odmodule_ch_ideal_gkz::
+* odmodule_restriction::
+@c * odmodule_restriction_appell1::
+@c * odmodule_restriction_appell2::
+@c * odmodule_restriction_appell3::
+@c * odmodule_restriction_appell4::
+@c * odmodule_restriction_selberg2::
+@c * odmodule_restriction_gkz::
+* odmodule_elimination::
+@c * odmodule_elimination_appell1::
+@c * odmodule_elimination_appell2::
+@c * odmodule_elimination_appell3::
+@c * odmodule_elimination_appell4::
+@c * odmodule_elimination_selberg2::
+@c * odmodule_elimination_gkz::
+@end menu
+
+@node odmodule_d_op_tosm1,,, D-module (library by Okutani)
+@subsection @code{odmodule_d_op_tosm1}
+@findex odmodule_d_op_tosm1
+@table @t
+@item odmodule_d_op_tosm1(@var{LL},@var{V})
+::  リスト形式の微分作用素リストを sm1 形式に変換します.
+@end table
+@table @var
+@item return
+リスト
+@item LL
+リスト
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  微分作用素の係数は整数多項式に変換されます.
+@item  この関数は@code{odiff_op_tosm1}と等価です.
+@item  @code{odmodule_d_op_tosm1}の例
+@end itemize
+@example
+[299] odmodule_d_op_tosm1([[[x,[2,0]],[-1,[0,0]]],
+                          [[y,[0,2]],[-1,[0,0]]]],[x,y]);
+[ + ( + (1) x) dx^2 + ( + (-1)), + ( + (1) y) dy^2 + ( + (-1))]
+
+[300] odmodule_d_op_tosm1([[[x,[1,0]],[y,[0,1]],[1,[0,0]]],
+                          [[1,[2,0]],[1,[0,2]]]],[x,y]);
+[ + ( + (1) x) dx + ( + (1) y) dy + ( + (1)), + ( + (1)) dx^2 + ( + (1)) dy^2]
+
+[301] odmodule_d_op_tosm1([[[1/2,[1,0]],[1,[0,0]]],
+                          [[1/3,[0,1]],[1/4,[0,0]]]],[x,y]);
+[ + ( + (6)) dx + ( + (12)), + ( + (4)) dy + ( + (3))]
+
+[302] odmodule_d_op_tosm1([[[1/2*x,[1,0]],[1,[0,0]]],
+                          [[1/3*y,[0,1]],[1/4,[0,0]]]],[x,y]);
+[ + ( + (6) x) dx + ( + (12)), + ( + (4) y) dy + ( + (3))]
+@end example
+
+@node odmodule_d_op_toasir,,, D-module (library by Okutani)
+@subsection @code{odmodule_d_op_toasir}
+@findex odmodule_d_op_toasir
+@table @t
+@item odmodule_d_op_toasir(@var{LL},@var{V})
+::  リスト形式の微分作用素リスト @var{LL} を @code{asir} の多項式に変換します.
+@end table
+@table @var
+@item return
+リスト
+@item LL
+リスト
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  この関数は@code{odiff_op_toasir}と等価です.
+@item  @code{odmodule_d_op_toasir}の例
+@end itemize
+@example
+[303] odmodule_d_op_toasir([[[1/2*x,[1,0]],[1,[0,0]]],
+                           [[1/3*y,[0,1]],[1/4,[0,0]]]],[x,y]);
+[1/2*x*dx+1,1/3*y*dy+1/4]
+
+[304] odmodule_d_op_toasir([[[x,[1,0]],[y,[0,1]],[1,[0,0]]],
+                           [[1,[2,0]],[1,[0,2]]]],[x,y]);
+[x*dx+y*dy+1,dx^2+dy^2]
+@end example
+
+@node odmodule_d_op_fromasir,,, D-module (library by Okutani)
+@subsection @code{odmodule_d_op_fromasir}
+@findex odmodule_d_op_fromasir
+@table @t
+@item odmodule_d_op_fromasir(@var{D_list},@var{V})
+::  @code{asir} の多項式からリスト形式の微分作用素リストに変換します.
+@end table
+@table @var
+@item return
+リスト
+@item D_list
+リスト
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  この関数は@code{odiff_op_fromasir}と等価です.
+@item  @code{odmodule_d_op_fromasir}の例
+@end itemize
+@example
+[305] odmodule_d_op_fromasir([1/2*x*dx+1,1/3*y*dy+1/4],[x,y]);
+[[[1/2*x,[1,0]],[1,[0,0]]],[[1/3*y,[0,1]],[1/4,[0,0]]]]
+
+[306] odmodule_d_op_fromasir([x*dx+y*dy+1,dx^2+dy^2],[x,y]);
+[[[x,[1,0]],[y,[0,1]],[1,[0,0]]],[[1,[2,0]],[1,[0,2]]]]
+@end example
+
+@node odmodule_ch_ideal,,, D-module (library by Okutani)
+@subsection @code{odmodule_ch_ideal}
+@findex odmodule_ch_ideal
+@table @t
+@item odmodule_ch_ideal(@var{D_ideal},@var{V})
+::  @var{D_ideal}のcharacteristic idealを求めます.
+@end table
+@table @var
+@item return
+リスト
+@item D_ideal
+リスト
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @var{D_ideal}はgeneric parameterを含むことができます.
+@item  @code{odmodule_ch_ideal}の例
+@end itemize
+@example
+[344] odmodule_ch_ideal([x*dx+y*dy+a,dx^2+dy^2],[x,y]);
+[x*dx+y*dy,dx^2+dy^2,y*dy*dx-x*dy^2,(x^2+y^2)*dy^2]
+
+[348] odmodule_ch_ideal(odiff_op_appell4(a,b,c1,c2,[x,y]),[x,y]);
+[-x*dx^2+y*dy^2,2*y*x*dy*dx+(y*x+y^2-y)*dy^2,
+ (2*y^2-2*y)*dy^2*dx+(-y*x+3*y^2+y)*dy^3,
+ 2*y*x*dy^2*dx+(y*x^2+(-2*y^2-y)*x+y^3-y^2)*dy^3]
+@end example
+
+@node odmodule_singular_locus,,, D-module (library by Okutani)
+@subsection @code{odmodule_singular_locus}
+@findex odmodule_singular_locus
+@table @t
+@item odmodule_singular_locus(@var{D_ideal},@var{V})
+::  @var{D_ideal}のsingular locusを求めます.
+@end table
+@table @var
+@item return
+リスト
+@item D_ideal
+リスト
+@item V
+リスト
+@end table
+@itemize @bullet
+@item  @var{D_ideal}はgeneric parameterを含むことができます.
+@item  @code{odmodule_singular_locus}の例
+@end itemize
+@example
+[356] D = odiff_op_appell4(a,b,c1,c2,[x,y])$
+[357] odmodule_singular_locus(D,[x,y]);
+[-y*x^3+(2*y^2+2*y)*x^2+(-y^3+2*y^2-y)*x]
+
+[358] D = odiff_op_hg1(a,b,c,[x])$
+[359] odmodule_singular_locus(D,[x]);
+[x^2-x]
+@end example
+
+@node odmodule_restriction,,, D-module (library by Okutani)
+@subsection @code{odmodule_restriction}
+@findex odmodule_restriction
+@table @t
+@item odmodule_restriction(@var{D_ideal},@var{V},@var{Rest})
+::  @var{D_ideal}の 0 次のrestrictionを求めます.
+@end table
+@table @var
+@item return
+リスト
+@item @var{D_ideal}
+リスト
+@item @var{V}
+リスト
+@item @var{Rest}
+リスト
+@end table
+@itemize @bullet
+@item  @var{D_ideal}はgeneric parameterを含むことができます.
+@item  @code{odmodule_restriction}の例.
+@end itemize
+@example
+[345] odmodule_restriction([x*dx+y*dy+a,dx^2+dy^2],[x,y],[y]);
+[[2,[-x*dx-a,-e0*x*dx-e0*a-e0]]]
+@end example
+
+@node odmodule_elimination,,, D-module (library by Okutani)
+@subsection @code{odmodule_elimination}
+@findex odmodule_elimination
+@table @t
+@item odmodule_elimination(@var{D_ideal},@var{V},@var{Elim})
+::  @var{D_ideal}のelimination idealを求めます.
+@end table
+@table @var
+@item return
+リスト
+@item @var{D_ideal}
+リスト
+@item @var{V}
+リスト
+@item @var{Elim}
+リスト
+@end table
+@itemize @bullet
+@item  @var{D_ideal}はgeneric parameterを含むことができます.
+@item  @code{odmodule_elimination}の例.
+@end itemize
+@example
+[346] odmodule_elimination([x*dx+y*dy+a,dx^2+dy^2],[x,y],[[y],[0]]);
+[x^2*dx^2+(2*a+2)*x*dx+a^2+a]
+
+[347] odmodule_elimination([x*dx+y*dy+a,dx^2+dy^2],[x,y],[[y],[b]]);
+[(x^2+b^2)*dx^2+(2*a+2)*x*dx+a^2+a]
+@end example
+*/

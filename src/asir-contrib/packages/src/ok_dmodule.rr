@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/ok_dmodule.rr,v 1.1 2005/04/08 05:29:37 takayama Exp $ */
 /* Old: Dmodule */
 
 /*----------------------*/
@@ -302,7 +302,7 @@ def odmodule_restriction_no_generic(D_ideal, V, Rest) {
 #if _DEBUG_Dmodule_
   print("sm1 command string: ", 0); print(Cmd_str);
 #endif
-  sm1(odmodule_sm1_start(), Cmd_str);
+  sm1.sm1(odmodule_sm1_start(), Cmd_str);
   return sm1.pop(odmodule_sm1_start());
 }
 
@@ -327,7 +327,7 @@ def odmodule_restriction_generic(D_ideal, Param, V, Rest) {
 #if _DEBUG_Dmodule_
   print("sm1 command string: ", 0); print(Cmd_str);
 #endif
-  sm1(odmodule_sm1_start(), Cmd_str);
+  sm1.sm1(odmodule_sm1_start(), Cmd_str);
   return sm1.pop(odmodule_sm1_start());
 }
 
