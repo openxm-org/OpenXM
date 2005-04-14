@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.9 2003/10/19 10:06:52 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.10 2004/03/02 07:43:56 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -54,7 +54,8 @@ ToAsir_Debug = 0$
 
 Xm_helpdir="help-eg"$
 if (getenv("LANG") == "ja_JP.eucJP" ||
-    getenv("LANG") == "ja_JP.EUC") {
+    getenv("LANG") == "ja_JP.EUC"   ||
+    getenv("LANG") == "ja_JP.ujis") {
   Xm_helpdir="help-jp"$
 }else { }$
 Xm_server_mode = 0$

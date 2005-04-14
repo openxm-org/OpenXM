@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.common,v 1.1 2005/04/11 11:13:32 takayama Exp $
 # Targets
 # gen-texi-en, gen-texi-ja : generating texi files.
 # gen-html-en,  gen-html-ja :
@@ -120,12 +120,10 @@ ${MYNAME}-en.ps: ${MYNAME}-en.ps
 	-${DVIPS} ${MYNAME}-en >${MYNAME}-en.ps
 
 install-help-ja: gen-help-ja
-	${RM} -rf ${INSTALL_lib}/asir/help-jp/xm.help
-	mkdir ${INSTALL_lib}/asir/help-jp/xm.help
+	-mkdir ${INSTALL_lib}/asir/help-jp/xm.help
 	-cp -r -f help-ja/* ${INSTALL_lib}/asir/help-jp/xm.help
 install-help-en: gen-help-en
-	${RM} -rf ${INSTALL_lib}/asir/help-eg/xm.help
-	mkdir ${INSTALL_lib}/asir/help-eg/xm.help
+	-mkdir ${INSTALL_lib}/asir/help-eg/xm.help
 	-cp -r -f help-en/* ${INSTALL_lib}/asir/help-eg/xm.help
 install-html-ja: gen-html-ja
 	-mkdir -p ${INSTALL_doc}/asir-contrib/ja
@@ -133,6 +131,9 @@ install-html-ja: gen-html-ja
 install-html-en: gen-html-en
 	-mkdir -p ${INSTALL_doc}/asir-contrib/en
 	-( tar cf - html-en | (cd ${INSTALL_doc}/asir-contrib/en ; tar xf - ; mv html-en ${MYNAME}-html))
+
+install-dvi-ps-pdf-ja: install-dvi-ja install-ps-ja install-pdf-ja
+install-dvi-ps-pdf-en: install-dvi-en install-ps-en install-pdf-en
 install-dvi-ja: gen-dvi-ja
 	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
 	-cp ${MYNAME}-ja.dvi ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-ja.dvi
