@@ -1,10 +1,11 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.6 2005/04/08 06:32:07 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.7 2005/04/14 04:40:23 takayama Exp $
 RM=rm
 
 INSTALL_doc=@prefix@/doc
 INSTALL_lib=@prefix@/lib
 OXWEAVE=@prefix@/bin/oxweave
 OXGENTEXI=@prefix@/bin/oxgentexi
+OXREPLACE=@prefix@/bin/oxreplace
 
 SUBDIRS=dsolv gnuplot mathematica ok_diff ok_dmodule om \
    pfpcoh phc plucker sm1 tigers \
@@ -22,7 +23,9 @@ install :
 install-help: install-help-en install-help-ja
 install-document : 
 	@if [ ! -f ./.install_document_done ] ; then \
+		${RM} -rf ${INSTALL_lib}/asir-contrib ; \
 	    make install-html-doc ; \
+		make fix-links ; \
 	    make install-dvi-ps-pdf-doc ; \
 	    touch ./.install_document_done ; \
 	else \
@@ -50,6 +53,14 @@ install-dvi-ps-pdf-doc-en:
 
 install-dvi-ps-pdf-doc-ja: 
 	-for i in ${SUBDIRS}; do (cd $$i; make INSTALL_doc='${INSTALL_doc}' INSTALL_lib='${INSTALL_lib}' OXWEAVE='${OXWEAVE}' OXGENTEXI='${OXGENTEXI}' install-dvi-ps-pdf-ja); done
+
+fix-links: fix-links-en fix-links-ja
+fix-links-ja:
+	cp top/fix-link.sh ${INSTALL_doc}/asir-contrib/ja/cman-html
+	(cd ${INSTALL_doc}/asir-contrib/ja/cman-html; sh ./fix-link.sh ja ${OXREPLACE})
+fix-links-en:
+	cp top/fix-link.sh ${INSTALL_doc}/asir-contrib/en/cman-html
+	(cd ${INSTALL_doc}/asir-contrib/en/cman-html; sh ./fix-link.sh en ${OXREPLACE})
 
 clean:
 	-${RM} -rf ./.*done config.log config.status autom4te.cache

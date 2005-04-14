@@ -1,7 +1,9 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.2 2003/03/26 04:56:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.3 2003/05/31 03:05:00 takayama Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <time.h>
+int ReplaceLine=0;
+
 char *readAsString(FILE *fp) {
   static char *s = NULL;
   static int size= 102400;
@@ -85,7 +87,9 @@ main(int argc, char *argv[]) {
 	  old = hex2str(argv[i+1]); i++;
 	} else if (strcmp(argv[i],"--newx") == 0) {
 	  new = hex2str(argv[i+1]); i++;
-	} else if (strcmp(argv[i],"--f") == 0) {
+    } else if (strcmp(argv[i],"--replaceLine") == 0) {
+      ReplaceLine = 1;
+    } else if (strcmp(argv[i],"--f") == 0) {
 	  fprintf(stderr,"--f option (rule file) has not yet been implemented.\n");
 	  exit(10);
 	}else {
@@ -109,9 +113,9 @@ replaceOneWord(char *fname,char *old, char *new) {
   char *s;
   char *fnameBackup;
   char *comm;
-  int i;
+  int i,j,mm;
 #ifdef DEBUG
-  fprintf(stderr,"fname=%s, old=%s, new=%s\n",fname,old,new);
+  fprintf(stderr,"fname=%s, old=%s, new=%s, ReplaceLine=%d\n",fname,old,new,ReplaceLine);
 #endif
   fp = fopen(fname,"r");
   if (fp == NULL) {
@@ -132,13 +136,33 @@ replaceOneWord(char *fname,char *old, char *new) {
   fpOrig = fopen(fnameBackup,"r");
   fp = fopen(fname,"w");
   s = readAsString(fpOrig);
-  for (i=0; i<strlen(s); i++) {
-    if (!matches(old,s+i,strlen(old))) {
-      fputc(s[i],fp);
-	}else{
-	  fprintf(fp,"%s",new);
-	  i += strlen(old)-1;
+  if (ReplaceLine) {
+    for (i=0; i<strlen(s); i++) {
+      /* Look for \n */
+      mm = 0;
+	  for (j = i; j<strlen(s); j++) {
+        if (matches(old,s+j,strlen(old))) mm = 1;
+		if (s[j] == '\n') { break;}
+      }
+      if (mm) {
+		i = j;
+		fprintf(fp,"%s\n",new);
+	  }else{
+		for ( ; i < j; i++) {
+		  putc(s[i],fp);
+		}
+		putc('\n',fp);
+	  }
 	}
+  }else{
+    for (i=0; i<strlen(s); i++) {
+      if (!matches(old,s+i,strlen(old))) {
+        fputc(s[i],fp);
+      }else{
+        fprintf(fp,"%s",new);
+        i += strlen(old)-1;
+      }
+    }
   }
   fclose(fp); fclose(fpOrig);
   free(comm); free(fnameBackup);
@@ -147,8 +171,8 @@ replaceOneWord(char *fname,char *old, char *new) {
 
 
 usage() {
-  fprintf(stderr,"oxreplace [--old oword --new nword --f rule_file_name] \n");
+  fprintf(stderr,"oxreplace [--old oword --new nword --f rule_file_name --replaceLine] \n");
   fprintf(stderr,"          [file1 file2 ... ] \n");
-  fprintf(stderr,"    Use --oldx or --newx to give a word in hexadeciam codes\n");
+  fprintf(stderr,"    Use --oldx or --newx to give a word in hexadecimal codes\n");
 }
 
