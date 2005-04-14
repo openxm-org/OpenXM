@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.45 2004/05/16 10:18:16 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.46 2004/06/20 11:03:16 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -19,7 +19,9 @@ OW_FLAG=--recursive
 RSYNC=rsync -Cavz 
 RM=rm
 
-CURRENT_FILES=index.html OpenXM-RFC.html cmotag.h oxMessageTag.h smCommand.h \
+CURRENT_FILES=index.html index-ja.html index-spec.html index-spec-ja.html \
+              OpenXM-RFC.html \
+              cmotag.h oxMessageTag.h smCommand.h \
               anonymous.html ERRATA.html
 
 OXWEAVE_FILES_in_doc=install-en.txt install-ja.txt OpenXM-FAQ-en.txt OpenXM-FAQ-ja.txt
@@ -61,6 +63,8 @@ all-current: configure-dir
 	(cd ${OpenXM_doc} ; ${RSYNC} ${OXWEAVE_FILES_in_doc} ${CURRENT})
 	${RSYNC} ${CURRENT_FILES} ${CURRENT}
 	cp index-doc.html ${CURRENT_DOC}/index-doc.html
+	cp index-doc-ja.html ${CURRENT_DOC}/index-doc-ja.html
+	cp index-license.html ${CURRENT_DOC}/index-license.html
 	@echo "***************************************************"
 	@echo "*  Have you done (cd OpenXM/src ; make install)   *"
 	@echo "*                (cd OpenXM/src ; make install-document) "
@@ -73,6 +77,8 @@ all-current-spec: configure-dir
 
 all-top: configure-dir
 	cp top.html ${OXHOME}/index.html
+	cp top-ja.html ${OXHOME}/index-ja.html
+	cp inobuta-ja.html ${OXHOME}/inobuta-ja.html
 	cp ../../Copyright/contrib-and-hist-ja.txt ${OXHOME}
 	${RSYNC} people.html ${OXHOME}
 	${RSYNC} ${LOGOS} ${STABLE}
