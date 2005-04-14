@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.6 2005/04/06 09:26:29 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.7 2005/04/11 11:13:32 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
@@ -676,6 +676,7 @@ printTitlePage(char *title, char *author,char *infoName) {
   printf("@overfullrule=0pt\n");
 
   if (infoName != NULL) printf("@setfilename %s\n",infoName);
+  else printf("@setfilename asir-contrib-infoName-is-not-set\n");
   printf("@settitle %s\n",Title);
 
   printf("@titlepage\n");
