@@ -1,5 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
+# $OpenXM$
 LLL=$1
 OXREPLACE=$2
 
