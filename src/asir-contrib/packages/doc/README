@@ -1,21 +1,38 @@
-%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.1.1.1 1999/11/27 11:25:18 takayama Exp $
+%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.2 1999/12/11 13:51:18 takayama Exp $
 
-* How to generate OpenXM-contrib document:
+* How to generate the OpenXM-contrib documents:
 
-make
+make install-document
 
-tex cman.texi   for English document
+You will get html, dvi, ps, pdf documents  under the directories
+${OpenXM_HOME}/doc/asir-contrib/en
+and
+${OpenXM_HOME}/doc/asir-contrib/ja
 
-ptex cman.texi  for Japansese document
+------------------------------------------------------
+* How to generate the OpenXM-contrib online helps:
 
-Note that Japanese document is encoded in iso-2022-jp (JIS code).
+make install
+
+You will have online helps under the directories
+${OpenXM_HOME}/lib/asir/help-eg/xm.help
+and
+${OpenXM_HOME}/lib/asir/help-jp/xm.help
+
+------------------------------------------------------
+* In order to get a document in the directory xxx,
+  cd xxx
+  make              ( generating texinfo files)
+  make gen-dvi-ja   ( generating dvi (ja) documents)
+  make gen-dvi-en   ( generating dvi (en) documents)
+  make gen-html-ja  ( generating html (ja) documents)
+  make gen-html-en  ( generating html (en) documents)
 
 
-* How to generate OpenXM-contrib online help:
+---------------------------------------------------------
+* How to write a new document for your package.
 
-make help
-You will have online helps in the directory  help-jp and help-eg.
-
+  Please read oxgentexi/readme-ja.txt
 
 
 
