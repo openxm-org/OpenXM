@@ -1,0 +1,146 @@
+/* $OpenXM$
+
+
+/*&C
+@node TIGERS Functions,,, Top
+*/
+/*&en
+@chapter TIGERS Functions
+
+This chapter describes  interface functions for
+tigers ox server @code{ox_sm1_tigers}.
+*/
+/*&ja
+@chapter TIGERS 函数
+
+この章では, 
+tigers ox server @code{ox_sm1_tigers}
+にたいするインタフェース函数を説明する.
+*/
+
+/*&en
+@menu
+* tigers.tigers::
+@end menu
+@node tigers.tigers,,, TIGERS Functions
+@subsection @code{tigers.tigers}
+@findex tigers.tigers
+@table @t
+@item tigers.tigers(@var{a}|proc=@var{a})
+::   It asks the @code{tigers} server of the descriptor number @var{p}
+to enumerate all Grobner bases associated to the toric variaty
+defined by the matrix @var{a}.
+@end table
+
+@table @var
+@item return
+List
+@item p
+Number
+@item a
+List
+@end table
+
+@itemize @bullet
+@item  It asks the @code{tigers} server of the descriptor number @var{p}
+to enumerate all Grobner bases associated to the toric variaty
+defined by the matrix @var{a}.
+@item
+The system tigers is an expert system to enumerate
+all Gr\"obner bases of affine toric ideals.
+In other words, it can be used to determine the state polytope
+of a given affine toric ideal.
+As to a theoretical background, see the book @*
+B.Sturmfels, Grobner bases and Convex Polytopes. @*
+The original tigers is written by Birk Hubert.
+The algorithm used in explained in the paper @*
+B.Huber and R.Thomas, Computing Grobner Fans of Toric Ideals.
+@end itemize
+*/
+
+/*&ja
+@menu
+* tigers.tigers::
+@end menu
+@node tigers.tigers,,, TIGERS Functions
+@subsection @code{tigers.tigers}
+@findex tigers.tigers
+@table @t
+@item tigers.tigers(@var{a}|proc=@var{a})
+::   この函数は識別子 @var{p} の tigers サーバに
+行列 @var{a} に付随したトーリックイデアルのすべてのグレブナ基底を
+計算してくれるようにたのむ.
+@end table
+
+@table @var
+@item 戻り値
+リスト
+@item p
+数
+@item a
+リスト
+@end table
+
+@itemize @bullet
+@item  
+ この函数は識別子 @var{p} の tigers サーバに
+行列 @var{a} に付随したトーリックイデアルのすべてのグレブナ基底を
+計算してくれるようにたのむ.
+@item
+Tigers は アフィントーリックイデアルの reduced グレブナ基底を
+すべて数えあげるための専用のプログラムである.
+このプログラムは, アフィントーリックイデアルの state polytope
+をきめるために使える.
+理論的なバックグラウンドについては,
+本 @*
+B.Sturmfels, Grobner bases and Convex Polytopes @*
+を見よ.
+Tigers は Birk Hubert が作者である.
+このプログラムの利用しているアルゴリズムは @*
+B.Huber and R.Thomas, Computing Grobner Fans of Toric Ideals @*
+に説明されている.
+@end itemize
+*/
+
+/*&C
+
+@example
+[395] A=[[1,1,1,1],[0,1,2,3]]$
+[306] S=tigers.tigers(A)$
+[307] length(S);
+8
+[308] S[0];
+[[[1,0,1,0],[0,2,0,0]],[[1,0,0,1],[0,1,1,0]],[[0,1,0,1],[0,0,2,0]]]
+[309] S[1];
+[[[1,0,0,1],[0,1,1,0]],[[0,2,0,0],[1,0,1,0]],[[0,1,0,1],[0,0,2,0]]]
+
+@end example
+
+*/
+
+/*&en
+In this example, all reduced Grobner bases for the toric ideal
+associated to the matrix @var{A} are stored in @var{S}.
+There are eight distinct Grobner bases of @var{A}.
+[[i_1, i_2, ...],[j_1, j_2, ...]] is a set of exponents of
+two monomials and stands for a binomial.
+For example,
+the S[0] consists of @*
+  x1 x3 - x2^2,   x1 x4 - x2 x3, x2 x4 - x3^2.  @*
+<x1 x3, x1 x4, x2 x4> is the initial ideal of S[0].
+
+*/
+/*&ja
+この例では, @var{A} に付随したアフィントーリックイデアルの
+すべてのグレブナ基底が @var{S} に格納される.
+この例では, 8 個のグレブナ基底がある.
+[[i_1, i_2, ...],[j_1, j_2, ...]] は二つのモノミアルの
+exponent をならべたものであり, 2 項式をあらわす.
+たとえば,
+S[0] は次の多項式の集合 @*
+  x1 x3 - x2^2,   x1 x4 - x2 x3, x2 x4 - x3^2  @*
+であり,
+<x1 x3, x1 x4, x2 x4> がその initial ideal である.
+
+*/
+
