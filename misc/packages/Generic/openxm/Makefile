@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.22 2004/02/22 09:17:11 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Generic/openxm/Makefile,v 1.23 2004/02/23 00:09:30 takayama Exp $
 # The FIRST part is a Makefile FOR COMMITTERS: it is used 
 # to generate source and binary distributions of
 # the OpenXM package on various operating systems.
@@ -23,6 +23,8 @@ PREFIX=/usr/local
 VERSION=head
 TAG=HEAD
 FTP_AREA=/export/home01/ftp/pub/OpenXM/${VERSION}
+
+OpenXM_contrib_files=OpenXM_contrib/uuencoded OpenXM_contrib/pari
 
 RELEASE=
 ## If you like to have a release name as a part of tar ball, then uncomment
@@ -155,7 +157,7 @@ clean-installed-openxm:
 fetch :
 	@if [ ! -f ./.fetch_done ]; then \
 		/bin/rm -rf work ; mkdir work ; mkdir ${WORK} ; \
-		( cd ${WORK} ; ${RCVS} export -r${TAG} OpenXM OpenXM_contrib OpenXM_contrib2) ; \
+		( cd ${WORK} ; ${RCVS} export -r${TAG} OpenXM ${OpenXM_contrib_files} OpenXM_contrib2) ; \
 		cp Makefile ${WORK}/Makefile ; \
 	fi
 	@touch ./.fetch_done
