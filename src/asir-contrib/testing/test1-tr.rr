@@ -1,5 +1,5 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/test1-tr.rr,v 1.3 2005/04/03 11:05:21 takayama Exp $ */
 /* $Id$ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/test1-tr.rr,v 1.4 2005/04/06 09:26:28 takayama Exp $ */
 
 load("tr.rr")$
 
@@ -138,17 +138,22 @@ def tr_rp_flag(F,P,Q) {
   return [Flag,Ans];
 }
 
+extern Debug2$
+Debug2=0$
 /* 書き換え flag 付きの tr_apply_rule_flag */
 def tr_apply_rule1_flag(Obj,L,R) {
   Flag = 0;
-  dprint("--------  start of tr_apply_rule1_flag ------------ ");
+  if (Debug2) 
+   print("--------  start of tr_apply_rule1_flag ------------ ");
+  if (Debug2) print(print_input_form(Obj));
   Obj = quotetolist(Obj);
   L = quotetolist(L);
   R = tr_rp_flag(Obj,L,R);
   Flag=R[0]; R=R[1];
   if (type(R) == 17) R=quotetolist(R);
   RR = "quote("+listtoquote_str(R)+")";
-  dprint("--------  end of tr_apply_rule1_flag ------------ ");
+  if (Debug2) {print("==> "+RR+"  by  "); print(listtoquote_str(L));}
+  if (Debug2) print("--------  end of tr_apply_rule1_flag ------------ ");
   return [Flag,eval_str(RR)];  
 }
 
@@ -183,4 +188,112 @@ def test5() {
   return R;
 }
 
+/* 微分環の計算 */
+/* x に依存してるか?  u, u_0, u_1, u_2, ... は x に依存してる.*/
+def to_quote(L) {
+  return eval_str("quote("+listtoquote_str(L)+")");
+}
+def dep6(Q) {
+  if (type(Q) == 4) {
+    Q = to_quote(Q);
+  }  
+  if (qt_is_dependent(Q,x)) return 1;
+  if (qt_is_dependent(Q,u)) return 1;
+  /* とりあえず 10 次までの f. --> なんとかせよ. */
+  for (I=0; I<10; I++) {  
+    if (qt_is_dependent(Q,idxtov(u,I))) return 1;
+  }
+  return 0;
+}
+def diff_lin(F,G) {
+  if (type(F) == 4) F=to_quote(F);
+  if (type(G) == 4) G=to_quote(G);
+  return qt_replace(quote(diff(f)+diff(g)),[[f,F],[g,G]]);
+}
+def diff_mul(F,G) {
+  F1 = dep6(F); G1 = dep6(G);
+  if (type(F) == 4) F=to_quote(F);
+  if (type(G) == 4) G=to_quote(G);
+  if (F1 && G1)
+    return qt_replace(quote(diff(f)*g+f*diff(g)),[[f,F],[g,G]]);
+  if ((F1 == 1) &&  (G1 == 0)) 
+    return qt_replace(quote(diff(f)*g),[[f,F],[g,G]]);
+  if ((F1 == 0) &&  (G1 == 1)) 
+    return qt_replace(quote(f*diff(g)),[[f,F],[g,G]]);
+  if ((F1 == 0) && (G1 == 0))
+    return qt_zero();
+}
+def qt_one() {
+  return quote(1);
+}
+def diff_x_n(N) {
+  N = eval_quote(N);
+  N1=N-1;
+  if (N1 == 0)  return qt_one();
+  if (N1 == 1)  return quote(2*x);
+  if (N1 > 1) return eval_str("quote("+rtostr(N)+"*x^"+rtostr(N1)+")");
+}
+/* F が u とか u_0, u_1, ... なら 1 を戻す. */
+/* debug 用の入力.
+  tr_check_pn(quote(u_1),quote(pn(x,is_u_variable(x))));
+*/
+def is_u_variable(F) {
+  /* 述語の前の check point も debugger に欲しい. */
+  /* print("is_u_variable: ",0); print(print_input_form(F)); */
+  if (type(F) == 17) F=quotetolist(F);
+  if (rtostr(F[0]) == "internal") {
+    V = eval_str(rtostr(F[1]));
+    if (vtoidx(V)[0] == "u") return 1;
+  }
+  return 0;
+}
+/*  u_i^n の微分をする.  n*u_{i+1}*u_i^{n-1} 
+   Todo: もっと簡潔に quote を書けないか?
+*/
+def diff_u_n(F,N) {
+  F = eval_quote(F);
+  I = vtoidx(F); 
+  if (length(I) == 1) I = 0; else I=I[1];
+  N = eval_quote(N);
+  N1=N-1;
+  NextU = "u_"+rtostr(I+1);
+  if (I == 0) U = "u"; else U = "u_"+rtostr(I);
+
+  NN = objtoquote(N);
+  NN1 = objtoquote(N1);
+  NextU = objtoquote(eval_str(NextU));
+  U = objtoquote(eval_str(U));
+
+  if (N1 == 0)  return NextU;
+  if (N1 == 1)  return qt_replace(quote(2*up*uu),[[up,NextU],[uu,U]]);
+  if (N1 > 1) return qt_replace(quote(n*up*uu^m),[[up,NextU],[uu,U],
+     [n,NN],[m,NN1]]);
+}
+
+def test6b() {
+  T1=[quote(diff(x)),[qt_one]];
+  T2=[quote(diff(x^pn(n))),[diff_x_n,n]];  /* is_poly? が欲しい. */
+  R1=[quote(diff(pn(f)+pn(g))),[diff_lin,f,g]];
+  R2=[quote(diff(pn(f)*pn(g))),[diff_mul,f,g]];
+
+  A = quote(diff(2*4*x^3+x));
+  print(print_input_form(A));
+  R=tr_apply_or_rules(A,[R1,R2,T1,T2]);
+  return R;
+}
+
+/* Use Debug2=1; は debug にとても有益. */
+def test6() {
+  T1=[quote(diff(x)),[qt_one]];
+  T2=[quote(diff(x^pn(n))),[diff_x_n,n]];  /* is_poly? が欲しい. */
+  T3=[quote(diff(pn(f,is_u_variable(f))^pn(n))),[diff_u_n,f,n]]; 
+  R1=[quote(diff(pn(f)+pn(g))),[diff_lin,f,g]];
+  R2=[quote(diff(pn(f)*pn(g))),[diff_mul,f,g]];
+
+  /* A = quote(diff(2*x^3+x));*/
+  A = quote(diff(2*u^3+x)); 
+  print(print_input_form(A));
+  R=tr_apply_or_rules(A,[R1,R2,T1,T2,T3]);
+  return R;
+}
 end$

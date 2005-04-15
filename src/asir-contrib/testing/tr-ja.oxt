@@ -1,7 +1,5 @@
-/*&generate-prologue
-*/
 $Id$
-$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.4 2005/04/03 11:05:21 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.5 2005/04/06 09:26:28 takayama Exp $
 
 注意: testing/tr.rr では quote を quotetolist で list に変換して扱うため,
       下の仕様とはことなり, list 型でデータを戻す場合も多い.
@@ -71,9 +69,9 @@ begin: qt_is_integer(Q)
  example: qt_is_integer(quote(0))     
 end:
 
-begin: qt_depend(Q,x)
+begin: qt_is_dependent(Q,x)
  quote データ {Q} が不定元 {x} を含むと 1, 含まないと 0.
- example: qt_depend(quote(1+1/x),x)
+ example: qt_is_dependent(quote(1+1/x),x)
 end:
 
 begin: qt_is_function(Q)
@@ -400,18 +398,45 @@ begin: new-functions|
 
   qt_ltor, qt_rtol ; 木の構造の変換; 例 (x*y)*z --> x*(y*z)
 
+end:
+
+begin: idx|
 
 @subsection Index つき変数
 
-  idxtov(x,i)  x_i を生成.  x_i の index (idx) 属性 を i に. 
-                                    base_name 属性を  x に.
-  idxtov(x,[i,j])  x_i_j を生成.  x_i_i の index (idx) 属性 を [i,j] に. 
-  vtoidx(x_i) は i を戻す. 属性の検索なので高速. idx 属性が無い場合は i を設定.
+end:
 
-  idxtov 関数は 関数名にも使えるようにする --> 微分環対応.
+begin: idxtov(X,I)
+  idxtov({X},{I}) は変数 {X}_{I} を戻す.
+  {I} はスカラーかリスト.
+ example:
+  idxtov(x,i)  は x_i を戻す. 
+ description:
+  idxtov(x,[i,j])  は x_i_j を生成.  x_i_i の index (idx) 属性 を [i,j] に. 
+
+  @code{util_v()} とほぼ同じ.
+
+  x_i の index (idx) 属性 を i に. 
+  base_name 属性を  x に.
+  不定元の属性を利用することにより高速に index をとりだせて index つき変数の
+  代りができる.
+
+end:
+
+begin: vtoidx(X)
+  vtoidx(x_i) は [x,i] を戻す. 
+description:
+  @code{util_index()} とほぼ同様.
+  
+ 属性の検索なので高速. idx 属性が無い場合は i を設定.
+
+  idxtov 関数は 関数名にも使えるようにする? --> 微分環対応.
 
   qt_function(名前, 引数) --> quote(名前(引数)) を生成.  
    index 付き関数は微分環の取扱に必要.
+end:
+
+begin: powerSeries|
 
 @subsection 冪級数, dp の pretty print.
 
@@ -424,5 +449,33 @@ begin: new-functions|
 
 end:
 
-/*&generate-epilogue
-*/
+begin: MonomialSimplifier|
+
+@subsection モノミアルを標準形へ (builtinで?)
+
+example:
+  x^1 --> x   
+  (x*y)*(z*t) --> x*y*z*t
+  x*2*y*4     --> 8*x*y      (指定した変数以外は可換とする)
+  x*x^3       --> x^4
+  x*(-y)*z    --> -x*y*z
+  ((x))       --> x   これは noro_simplify.rr noro_simplify.remove_paren() が対応
+ 
+
+end:
+
+4/15 夜.  実装は明日講義の準備の終了後か?
+begin: qt.gtlex(f,g)
+{f} は {g} より quote tree の lex order で大きい.
+description:
+  quote tree の lex order は次のように決める.  
+  @itemize
+  @item 不定元は不定元の順序.
+  @item 不定元より +, - , *, /, ^ 等の node は大きい.
+        たとえば x < power(x,2)  (power(x,2) は x^2 の意味)
+  @item あとは再帰的. times(x,y) < power(x,y) だが,
+        times(x,y) と times(p,q) は x と p の比較,  これできまらないなら,
+        y, q の比較.
+  @end itemize
+
+end:

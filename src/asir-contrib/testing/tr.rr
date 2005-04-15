@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.3 2005/04/03 11:05:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.4 2005/04/06 09:26:28 takayama Exp $ */
 /* $Id$ */
 
 /*  
@@ -170,7 +170,9 @@ def tr_apply_function0(Q,BindTable) {
   }
   R = R+")";
   dprint0("R="); dprint(R);
-  return eval_str(R);
+  V=eval_str(R);
+  if (type(V) == 17) return quotetolist(V);
+  else return V;
 }
 
 
@@ -280,9 +282,9 @@ def qt_replace(F,Rule) {
 }
 
 /*  F の中に不定元 X が含まれているか? 
-    qt_dependent(quotetolist(quote(1+1/x)),x)
+    qt_is_dependent(quotetolist(quote(1+1/x)),x)
 */
-def qt_dependent(F,X) {
+def qt_is_dependent(F,X) {
   if (type(F) == 17) F = quotetolist(F);
   Node = qt_node(F);
   if ((F[0] == "internal") && (rtostr(F[1]) == rtostr(X))) {
@@ -291,7 +293,7 @@ def qt_dependent(F,X) {
      N = qt_nchild(F);
      for (I=0; I<N;I++) {
        C = qt_child(F,I);
-       if (qt_dependent(C,X)) return 1;
+       if (qt_is_dependent(C,X)) return 1;
      }
      return 0;
   }
@@ -340,6 +342,21 @@ def qt_map_arg(F,Q) {
   dprint0("qt_map_arg:T="); dprint(T);
   T = listtoquote_str(T);
   return eval_str("quote("+T+")");
+}
+
+/* Index 付き変数を実現する */
+def idxtov(V,I) {
+  if (type(I) == 5) I=vtol(I); 
+  if (type(I) != 4) I=[I];
+  if (type(V) != 2) V=rtostr(V);
+  return util_v(V,I);
+}
+
+def vtoidx(V) {
+  A = util_index(V);
+  if (length(A[1]) == 0) return [A[0]];
+  if (length(A[1]) == 1) return [A[0],A[1][0]];
+  return A;
 }
 
 /* これら以外のテストプログラムは test1-tr.rr を 
