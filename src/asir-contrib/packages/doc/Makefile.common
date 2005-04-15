@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.common,v 1.1 2005/04/11 11:13:32 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.common,v 1.2 2005/04/14 04:40:23 takayama Exp $
 # Targets
 # gen-texi-en, gen-texi-ja : generating texi files.
 # gen-html-en,  gen-html-ja :
@@ -84,14 +84,16 @@ gen-help-ja: ${JASRCS} ${ASIRDOC}/extract_func ${JAAUTO} ${MYNAME}-ja.texi
 	-(cd tmp-ja; makeinfo --force ${MYNAME}-ja.texi)
 	(cd help-ja; for i in ../tmp-ja/asir-contrib*; do ../${ASIRDOC}/extract_func -j $$i; done)
 
-gen-html-en: gen-help-en
+gen-html-en: html-en/${MYNAME}-en_toc.html gen-help-en
+html-en/${MYNAME}-en_toc.html: ${ENSRCS} ${ENAUTO} ${MYNAME}-en.texi
 	-${RM} -rf html-en
 	-mkdir html-en
 	-cp tmp-en/*.texi tmp-en/*.en html-en
 	-(cd html-en; ${TEXI2HTML} ${MYNAME}-en.texi)
 	-(cd html-en; rm -f *.en ${MYNAME}-en.texi)
 
-gen-html-ja: gen-help-ja
+gen-html-ja: html-ja/${MYNAME}-ja_toc.html gen-help-ja
+html-ja/${MYNAME}-ja_toc.html: ${JASRCS} ${JAAUTO} ${MYNAME}-ja.texi
 	-mkdir html-ja
 	-cp tmp-ja/*.texi tmp-ja/*.ja html-ja
 	-cp tmp-ja/${MYNAME}-ja.texi html-ja/${MYNAME}-ja.texi
@@ -125,10 +127,16 @@ install-help-ja: gen-help-ja
 install-help-en: gen-help-en
 	-mkdir ${INSTALL_lib}/asir/help-eg/xm.help
 	-cp -r -f help-en/* ${INSTALL_lib}/asir/help-eg/xm.help
-install-html-ja: gen-html-ja
+
+install-html-ja: gen-html-ja ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-html/${MYNAME}-ja_toc.html
+${INSTALL_doc}/asir-contrib/ja/${MYNAME}-html/${MYNAME}-ja_toc.html: html-ja/${MYNAME}-ja_toc.html
+	-${RM} -rf ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-html
 	-mkdir -p ${INSTALL_doc}/asir-contrib/ja
 	-( tar cf - html-ja | (cd ${INSTALL_doc}/asir-contrib/ja ; tar xf - ; mv html-ja ${MYNAME}-html))
-install-html-en: gen-html-en
+
+install-html-en: gen-html-en ${INSTALL_doc}/asir-contrib/en/${MYNAME}-html/${MYNAME}-en_toc.html 
+${INSTALL_doc}/asir-contrib/en/${MYNAME}-html/${MYNAME}-en_toc.html: html-en/${MYNAME}-en_toc.html
+	-${RM} -rf ${INSTALL_doc}/asir-contrib/en/${MYNAME}-html
 	-mkdir -p ${INSTALL_doc}/asir-contrib/en
 	-( tar cf - html-en | (cd ${INSTALL_doc}/asir-contrib/en ; tar xf - ; mv html-en ${MYNAME}-html))
 
