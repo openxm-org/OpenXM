@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.85 2005/04/08 05:29:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.86 2005/04/08 05:56:47 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -52,7 +52,7 @@ def ox_loadfile(Tag,FileName) {
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_noro_print,"noro_print.rr")$
 ox_loadfile_(Loaded_noro_print_default,"noro_print_default.rr")$
-ox_loadfile_(Loaded_om,"om")$
+ox_loadfile_(Loaded_om,"om.rr")$
 ox_loadfile_(Loaded_ok_matrix,"ok_matrix.rr")$
 ox_loadfile_(Loaded_taka_base,"taka_base.rr")$
 ox_loadfile_(Loaded_taka_poly,"taka_poly.rr")$
@@ -610,7 +610,7 @@ def print_input_form(F) {
  ref: www.openmath.org
 end: */
 def print_open_math_xml_form(F) { 
-  OX_LOADFILE(Loaded_om,"om");
+  OX_LOADFILE(Loaded_om,"om.rr");
   return(om_xml(F)); 
 }
 
