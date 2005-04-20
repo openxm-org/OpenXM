@@ -1,7 +1,6 @@
-$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.7 2005/03/24 23:41:16 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/guideline.txt,v 1.8 2005/03/26 23:25:46 takayama Exp $
 
 How to commit your asir program to asir-contrib? [2005, 3/24]
-
    1.  The name of your source code should be 
             yourname_xyz.rr
        if xyz is a general name like matrix, prime, resultant, etc.
@@ -31,16 +30,18 @@ How to commit your asir program to asir-contrib? [2005, 3/24]
        Example: nmora  where "p" is "n" and "xxxx" is "mora".
 
     
-   3.  Manuals should be written by the texinfo in English and/or Japanese.
+   3.  Manuals should be written by the texinfo (gentexi, oxweave)
+       in English and/or Japanese.
        They are put under the directory 
        asir-contrib/packagers/doc/'yourname_xyz'
        The Makefile asir-contrib/packagers/doc/'yourname_xyz'/Makefile
        is also necessary.
-       Example: asir-contrib/packages/doc/todo_parametrize/Makefile
+       Example 1: asir-contrib/packages/doc/todo_parametrize/Makefile
           asir-contrib/packages/doc/todo_parametrize/todo_parametrize_ja.texi
+       Example 2: asir-contrib/packages/doc/plucker
 
-   4. If you want to embed your manual in the source, you are welcome
-      to use "oxweave & gentexi" or "gdoc" (see http://texinfo.org).
+   4. You are welcome to use "oxweave & gentexi" to generate texinfo manual.
+      Example: asir-contrib/packages/doc/plucker/*.oxg, *.oxw
 
    5. Please refer to papers that explain algorithms in your package
       from your texinfo manual.
@@ -69,5 +70,5 @@ How to commit your asir program to asir-contrib? [2005, 3/24]
     lib/asir/help-jp/'modulename.functionname'
 
    HTML manual (ja)
-    doc/asir-contrib/help-ja/cman-ja_toc.html
-    doc/asir-contrib/help-ja/'yourname_xyz'/'yourname_xyz'_ja_toc.html
+    doc/asir-contrib/ja/cman-html/cman-ja_toc.html
+    doc/asir-contrib/ja/'yourname_xyz'-html/'yourname_xyz'_ja_toc.html
