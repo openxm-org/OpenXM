@@ -1,5 +1,5 @@
 /* $Id$ */
-/* $OpenXM: OpenXM/src/asir-contrib/testing/test1-tr.rr,v 1.4 2005/04/06 09:26:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/test1-tr.rr,v 1.5 2005/04/15 12:47:14 takayama Exp $ */
 
 load("tr.rr")$
 
@@ -185,6 +185,36 @@ def test5() {
   R=tr_apply_rule1_flag(R0,Rule1[0],Rule1[1]);
   print([R[0],print_input_form(R[1])]);
   R=tr_apply_or_rules(R0,[Rule1,Rule2,Rule3,Rule4,Rule5,Rule6]);
+  return R;
+}
+
+def qt_one() {
+  return quote(1);
+}
+def tr_simp_sin(R0) {
+  Rule1=[quote(sin(pn(x)*@pi)),[qt_sin_int,x]]; /* sin(整数*@pi) --> 0 */
+  Rule2=[quote(0*pn(y)),       [qt_zero]];       /* 0*any --> 0 */
+  Rule3=[quote(pn(y)*0),       [qt_zero]];       /* any*0 --> 0 */
+  Rule4=[quote(pn(y)+0),       [qt_id,y]];       /* any+0 --> any */
+  Rule5=[quote(0+pn(y)),       [qt_id,y]];       /* 0+any --> any */
+  Rule6=[quote(sin(0)),        [qt_zero]];       /* sin(0) --> 0 */
+  Rule7=[quote(cos(0)),        [qt_one]];         /* cos(0) --> 1 */
+  /* print(print_input_form(R0)); */
+  R=tr_apply_rule1_flag(R0,Rule1[0],Rule1[1]);
+  /* print([R[0],print_input_form(R[1])]); */
+  R=tr_apply_or_rules(R0,[Rule1,Rule2,Rule3,Rule4,Rule5,Rule6,Rule7]);
+  return R;
+}
+
+/* 0+any, 0*any になる quote を 0 にする. 必須. cf. taka_series.expand1 */
+def tr_simp_zero(R0) {
+  Rule1=[quote(0*pn(y)),       [qt_zero]];       /* 0*any --> 0 */
+  Rule2=[quote(pn(y)*0),       [qt_zero]];       /* any*0 --> 0 */
+  Rule3=[quote(0/pn(y)),       [qt_zero]];       /* 0/any --> 0 */
+  Rule4=[quote(pn(y)+0),       [qt_id,y]];       /* any+0 --> any */
+  Rule5=[quote(0+pn(y)),       [qt_id,y]];       /* 0+any --> any */
+  Rule6=[quote(-0),            [qt_zero,y]];       /* -0 --> 0 */
+  R=tr_apply_or_rules(R0,[Rule1,Rule2,Rule3,Rule4,Rule5, Rule6]);
   return R;
 }
 

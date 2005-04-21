@@ -1,5 +1,5 @@
 $Id$
-$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.5 2005/04/06 09:26:28 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/testing/tr-ja.oxt,v 1.6 2005/04/15 12:47:14 takayama Exp $
 
 注意: testing/tr.rr では quote を quotetolist で list に変換して扱うため,
       下の仕様とはことなり, list 型でデータを戻す場合も多い.
@@ -478,4 +478,25 @@ description:
         y, q の比較.
   @end itemize
 
+end:
+
+begin: qt.dtoq(F,V)
+分散表現多項式 {F} を quote に変換する.
+{V} は変数リスト.
+description:
+ 変数リストが空のときは x_1, x_2, ... を用いる.
+example:
+  F=dp_ptod((x-y-z)^3,[x,y]);
+  qt.dtoq(F,[]);
+  quote(x_1^3+-3*x_1^2*x_2+3*x_1*x_2^2-x_2^3+-3*z*x_1^2+6*z*x_1*x_2
+        +-3*z*x_2^2+3*z^2*x_1+-3*z^2*x_2+-z^3)
+ref: qt.qtod 
+end:
+
+begin: qt.qtod(F,V)
+quote {F} を 分散表現多項式に変換する.
+{V} は変数リスト.
+description:
+ 変数リストが空のときは x_1, x_2, ... を用いる.
+ref: qt.qtod 
 end:

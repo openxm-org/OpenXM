@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.4 2005/04/06 09:26:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.5 2005/04/15 12:47:14 takayama Exp $ */
 /* $Id$ */
 
 /*  
@@ -361,5 +361,68 @@ def vtoidx(V) {
 
 /* これら以外のテストプログラムは test1-tr.rr を 
 */
+
+module qt;
+localf dtoq$  
+localf qtod$  /* it has not yet been implemented. /
+localf etoq$
+
+/* Distributed polynomial to quote
+   qt.dtoq(dp_ptod((x-y)^3,[x,y]),[]);
+*/
+def dtoq(F,V) {
+  if (F == 0) return quote(0);
+  N = length(dp_etov(F));
+  if (N > length(V)) {
+    for (I=length(V); I<N; I++) {
+      V = append(V,[util_v("x",[I+1])]);
+    }
+  }
+  R = 0;
+  while (F != 0) {
+    T = dp_hm(F); 
+    F = dp_rest(F);
+    C = objtoquote(dp_hc(T));
+    E = dp_etov(T);
+    Mq = etoq(E,V);
+    if (Mq == quote(1)) {
+      R = R+C;
+    }else{  
+      if (C == quote(1)) R = R+Mq;
+      else if (C == quote(-1)) R = R-Mq;
+      else R = R+C*Mq;
+    }
+  }
+  return R;
+}
+/* bug: +-3*x should be -3*x */
+
+def etoq(E,V) {
+  N = length(E);
+  if (N > length(V)) {
+    for (I=length(V); I<N; I++) {
+      V = append(V,[util_v("x",[I+1])]);
+    }
+  }
+  II = -1;
+  for (I=0; I<N; I++) {
+    if (E[I] != 0) { II=I; break; }
+  }
+  if (II == -1) return quote(1);
+  if (E[II] == 1) R=objtoquote(V[II]);
+  else {
+    R=objtoquote(V[II])^objtoquote(E[II]);
+  }
+  for (I=II+1; I<N; I++) {
+    if (E[I] != 0) {
+      if (E[I] == 1) Rt=objtoquote(V[I]);
+      else Rt=objtoquote(V[I])^objtoquote(E[I]);
+      R = R*Rt;
+    }
+  }
+  return R;
+}
+
+endmodule;
 
 end$
