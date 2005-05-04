@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.17 2004/11/23 12:41:12 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.18 2004/11/24 23:00:23 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2004 年 7 月
+@subtitle 2005 年 5 月
 
 @author  by Risa/Asir committers
 @page
@@ -124,6 +124,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * sprintf::
 * quote_to_funargs::
 * funargs_to_quote::
+* get_function_name::
 * remove_paren::
 * set_secure_mode::
 * set_secure_flag::
@@ -1262,6 +1263,8 @@ ChangeLog
 ::  quote を funarg 形式(リスト) へ.
 @item funargs_to_quote(@var{f})
 ::  funarg 形式を quote へ.
+@item get_function_name(@var{f})
+::  funarg 形式の op を文字列へ.
 @item remove_paren(@var{q})
 ::  上の関数を用いて書かれた余分な括弧を取り去る simplifier (asir-contrib マニュアルへ: todo)
 @end table
@@ -1282,13 +1285,32 @@ quote への復元可能な形でリストへ変換する.
 @code{quotetolist} は quote をリストへ変換するが, 一部の情報を捨てるため
 もとの quote の復元はできない.
 @item
- @code{quote_to_funargs} の戻り値は [fid, op, arg1, arg2] なる形式をしている.
-ここで op はなにか謎 (Todo)
+ @code{quote_to_funargs} の戻り値は [fid, op, arg1, arg2, ...] 
+なる形式をしている.
+ここで op は node の名前であり,
+関数 @code{get_function_name} を用いて人間が読める形式
+で取りだせる.
+たとえば @code{get_function_name(quote_to_funargs(quote(1+2))[1])}
+は "+" を戻す.
+@item 
+ 名前@code{get_function_name} はそのうち変更されるだろう.
 @item
  下の例で
  quote_to_funargs(FA[2]);
 [34,[b_op,+,[internal,x],[internal,1]]]
-となるが, この 34 も謎 (Todo).
+となる. 
+34 は @code{I_PAREN} を意味する. 
+数と意味の対応表は @code{OpenXM/src/asir-contrib/packages/src/noro_simplify.rr}
+または @code{OpenXM_contrib2/asir2000/parse/parse.h} を見よ.
+以下の fid が 0, 1, 2, ... に対応づけられている.
+        I_BOP, I_COP, I_AND, I_OR, I_NOT, I_CE,
+        I_PRESELF, I_POSTSELF,
+        I_FUNC, I_FUNC_OPT, I_IFUNC, I_MAP, I_RECMAP, I_PFDERIV,
+        I_ANS, I_PVAR, I_ASSPVAR, 
+        I_FORMULA, I_LIST, I_STR, I_NEWCOMP, I_CAR, I_CDR, I_CAST,
+        I_INDEX, I_EV, I_TIMER, I_GF2NGEN, I_GFPNGEN, I_GFSNGEN,
+        I_LOP, I_OPT, I_GETOPT, I_POINT, I_PAREN, I_MINUS,
+        I_NARYOP
 @end itemize
 
 次の例では (x+1)+(x+2) の括弧をはずして x+1+x+2 に変換している.
@@ -1323,6 +1345,17 @@ quote への復元可能な形でリストへ変換する.
 quote(f(1-x))
 @end example
 
+funargs_to_quote を用いて既存の quote の子供を置き換えて
+新しい quote をつくり出せる.
+@example
+[1184] R=quote_to_funargs(quote(a+(b+c)));
+[0,<...quoted...>,<...quoted...>,<...quoted...>]
+[1185] T=quote_to_funargs(quote(1+2));
+[0,<...quoted...>,<...quoted...>,<...quoted...>]
+[1186] funargs_to_quote([0,R[1],R[2],T[2]]);
+quote(a+1)
+@end example
+
 @table @t
 @item 参照
 @ref{quotetolist}
@@ -1333,8 +1366,6 @@ quote(f(1-x))
 ChangeLog
 @itemize @bullet
 @item 
- このマニュアルは覚え書きである. 開発者が本格的なのを書くだろう.
-@item 
  これらの関数は 2004-7-8 から開発のはじまっている quote の simplification 関連
  の実験的関数である.
  変更をうけたソースコードは多岐にわたるのでまだ書かない.
@@ -1343,6 +1374,8 @@ ChangeLog
 @item 
  2004-6-26 の計算代数セミナーにおいて, 中川さんが simplifier についていろいろ問題提起
 をした (計算代数セミナービデオ参照).
+@item parse/quote.c の {\tt strcut fid_spec fid_spec_tab[] }
+の部分に書いてある形式に @code{funargs_to_quote} は変換する.
 @end itemize
 
 @node set_secure_flag,,, 実験的仕様の関数
@@ -1437,8 +1470,8 @@ cgi-asir.sh では
   1.33      OpenXM_contrib2/asir2000/parse/parse.h
 @end itemize
 
+@comment ****************************************************************
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
-
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
 @comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
 @comment --- 複数の関数をまとめて説明する例 ---
@@ -1499,6 +1532,7 @@ ChangeLog
  変更をうけたソースコードは xxxyy.rr, ppp.c である.
 @item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
 @end itemize
+@comment ****************************************************************
 
 @comment --- おまじない ---
 @node Index,,, Top
