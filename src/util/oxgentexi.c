@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.7 2005/04/11 11:13:32 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.8 2005/04/14 02:21:49 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
@@ -16,6 +16,7 @@ struct item {
   char *shortDescription;
   char *description;
   char *algorithm;
+  char *changelog;
   char *examplev[VMAX];
   char *exampleDescv[VMAX];
   int examplec;
@@ -236,6 +237,8 @@ printItem(struct item *it) {
     printf("examplev[%d]=%s\n",i,it->examplev[i]);
   for (i=0; i <it->examplec; i++) 
     printf("exampleDescv[%d]=%s\n",i,it->exampleDescv[i]);
+  if (it->changelog != NULL)
+    printf("changelog=%s\n",it->changelog);
   for (i=0; i<it->refc; i++)
     printf("  refv[%d]=%s\n",i,it->refv[i]);
   if (it->author != NULL)
@@ -375,6 +378,7 @@ struct item *getItem() {
     if (strcmp(key,"description:") == 0 ||
         strcmp(key,"algorithm:") == 0 ||
         strcmp(key,"author:") == 0 ||
+        strcmp(key,"changelog:") == 0 ||
         strcmp(key,"sortKey:") == 0 ||
         strcmp(key,"example:") == 0 ||
         strcmp(key,"example_description:") ==0 ) {
@@ -413,6 +417,9 @@ struct item *getItem() {
       }
       if (strcmp(key2,"algorithm:") == 0) {
         it->algorithm = str2(&(S[pp]),pOld-pp);
+      }
+      if (strcmp(key2,"changelog:") == 0) {
+        it->changelog = str2(&(S[pp]),pOld-pp);
       }
     }else if (strcmp(key,"ref:") == 0) {
       argc = 0;
@@ -483,8 +490,8 @@ printTexi_common(FILE *fp,struct item *it) {
   }
 
   if (it->algorithm != NULL) {
-    fprintf(fp,"\n\n@noindent\nAlgorithm: \n");
-    fprintf(fp,"%s\n\n",it->algorithm);
+    fprintf(fp,"\n\n@noindent\nAlgorithm: \n@quotation\n");
+    fprintf(fp,"%s\n@end quotation\n",it->algorithm);
   }
 
   if (it->examplec > 0) {
@@ -508,14 +515,17 @@ printTexi_common(FILE *fp,struct item *it) {
   if (it->author != NULL) {
     fprintf(fp,"Author : %s\n\n",it->author);
   }
+  if (it->changelog != NULL) {
+    fprintf(fp,"\n\nChange Log:\n@quotation\n");
+    fprintf(fp,"%s\n@end quotation\n",it->changelog);
+  }
   if (it->refc > 0) {
-    fprintf(fp,"@table @t\n");
-    fprintf(fp,"@item References\n");
+    fprintf(fp,"\n\nReferences:\n@quotation\n");
     for (i=0; i <it->refc; i++) {
-      fprintf(fp,"@code{%s} ",it->refv[i]);
-      if (i != it->refc-1) fprintf(fp,", ");
+      fprintf(fp," @code{%s} ",it->refv[i]);
+      if (i != it->refc-1) fprintf(fp,", \n");
     }
-    fprintf(fp,"\n@end table\n");
+    fprintf(fp,"\n@end quotation\n");
   }
   fprintf(fp,"\n");
 }
