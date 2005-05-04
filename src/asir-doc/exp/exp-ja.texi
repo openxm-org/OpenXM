@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.18 2004/11/24 23:00:23 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.19 2005/05/04 00:08:38 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -1082,13 +1082,13 @@ ChangeLog
 @end itemize
 
 
-@node quote_flatten,,, 実験的仕様の関数
-@subsection @code{quote_flatten}
-@findex quote_flatten
+@node flatten_quote,,, 実験的仕様の関数
+@subsection @code{flatten_quote}
+@findex flatten_quote
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item quote_flatten(@var{q},@var{op})
+@item flatten_quote(@var{q},@var{op})
 :: quote の括弧をとりさる.
 @end table
 
@@ -1111,8 +1111,11 @@ Quote 型のデータは木構造をしている
 たとえば (1+2)+(3+4) という表現を 1+2+3+4 に変換する.
 @item 
  現在の実装では n-ary の演算子は定義されていないので,
- 1+2+3 は実は (1+2)+3 と表現されている.
- つまり + 演算子は左結合的である.
+ 1+2+3 は実は 1+(2+3) と表現されている.
+ つまり + 演算子は右結合的である.
+@item  R=0; for (I=0; I<N; I++) R = R+ P[I]; なる足し算を繰り返すと,
+  + は左結合的になる. 右結合的に変換するには flatten_quote を呼ぶ.
+@item 名前は quote_flatten でなく flatten_quote である.
 @end itemize
 
 @example
