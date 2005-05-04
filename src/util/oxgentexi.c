@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.8 2005/04/14 02:21:49 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.9 2005/05/04 10:32:36 takayama Exp $ */
 
 #include <stdio.h>
 int Debug = 0;
@@ -485,8 +485,16 @@ printTexi(FILE *fp, struct item *it) {
 
 printTexi_common(FILE *fp,struct item *it) {
   int i;
-  if (it->description != NULL) {
-    fprintf(fp,"%s\n\n",it->description);
+  if ((it->shortDescription != NULL) || (it->refc >0)
+      || (it->examplec > 0)) {
+    if (it->description != NULL) { 
+      fprintf(fp,"\nDescription:");
+      fprintf(fp,"@quotation\n%s\n@end quotation\n\n",it->description);
+    }
+  }else {
+    if (it->description != NULL) { 
+      fprintf(fp,"%s\n\n",it->description);
+    }
   }
 
   if (it->algorithm != NULL) {
