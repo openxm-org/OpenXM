@@ -1,111 +1,520 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.5 2005/04/15 12:47:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.6 2005/04/21 10:54:50 takayama Exp $ */
 /* $Id$ */
 
 /*  
   OpenXM版の Risa/Asir で実行のこと. OpenXM 版の関数を用いるため.
 */
-/* $Id$
+/* 
   このファイルは quotetolist でリストに変換したデータに対して
   パターンマッチおよびそれを応用した変形を行う.
   tr.oxt の仕様とことなり quotetolist で変換したものを扱う.
   テストプログラムのため効率は無視.   (append の多用, 無駄な2重呼び出し, など))
 */
 
+
 extern Debug$
 Debug=0$
+extern Debug2$  /* For tr.apply_or_rules. とても便利. */
+Debug2=0$
 def dprint(X) {
   if (Debug) print(X);
 }
 def dprint0(X) {
   if (Debug) print(X,0);
 }
+extern Debug2$
+Debug2=0$
 
 /* quotetolist の逆関数. ただし文字列で */
 def listtoquote_str(L) {
   return quote_input_form_quote_list(L);
 }
+/* quotetolist の逆関数. quote を戻す */
+def listtoquote(L) {
+  return eval_str("quote("+quote_input_form_quote_list(L)+")");
+}
 
-def qt_node(F) {
-   if (type(F) == 17) F=quotetolist(F);
+/* unix の uniq に同じ */
+def uniq(L) {
+  N = length(L);
+  if (N > 0) A = [L[0]]; else A=[];
+  for (I=1; I<N; I++) {
+    if (A[0] != L[I]) A=cons(L[I],A);
+  }
+  return reverse(A);
+}
+/* Global rules */ 
+extern Rule_test2$
+/* " " と付けてもつけなくてもよい. 内部で rtostr してる. 
+   . が付いたら付けるしかない.
+*/
+/* Rule_test2=[quote(sin(pn("x")*@pi)),["qt.sin_int2","x"]]$ */
+Rule_test2=[quote(sin(pn(x)*@pi)),["qt.sin_int2",x]]$
+
+/* Object id */
+#define O_N 1
+#define O_P 2
+#define O_R 3
+#define O_LIST 4
+#define O_VECT 5
+#define O_MAT 6
+#define O_STR 7
+#define O_COMP 8
+#define O_DP 9
+#define O_USINT 10
+#define O_ERR 11
+#define O_GF2MAT 12
+#define O_MATHCAP 13
+#define O_F 14
+#define O_GFMMAT 15
+#define O_BYTEARRAY 16
+#define O_QUOTE 17
+#define O_OPTLIST 18
+#define O_SYMBOL 19
+#define O_RANGE 20
+#define O_TB 21
+#define O_DPV 22
+#define O_QUOTEARG 23
+#define O_VOID -1
+
+/* Numbers for the first element of quote_to_funargs */
+#define I_BOP 0
+#define I_COP 1 
+#define I_AND 2 
+#define I_OR 3 
+#define I_NOT 4 
+#define I_CE 5
+#define I_PRESELF 6 
+#define I_POSTSELF 7
+#define I_FUNC 8 
+#define I_FUNC_OPT 9 
+#define I_IFUNC 10
+#define I_MAP 11 
+#define I_RECMAP 12
+#define I_PFDERIV 13
+#define I_ANS 14
+#define I_PVAR 15
+#define I_ASSPVAR 16
+#define I_FORMULA 17 
+#define I_LIST 18 
+#define I_STR 19 
+#define I_NEWCOMP 20 
+#define I_CAR 21 
+#define I_CDR 22 
+#define I_CAST 23
+#define I_INDEX 24 
+#define I_EV 25 
+#define I_TIMER 26 
+#define I_GF2NGEN 27 
+#define I_GFPNGEN 28 
+#define I_GFSNGEN 29
+#define I_LOP 30 
+#define I_OPT 31 
+#define I_GETOPT 32 
+#define I_POINT 33 
+#define I_PAREN 34 
+#define I_MINUS 35
+#define I_NARYOP 36
+
+module qt;
+localf node $
+localf nchild $
+localf child $
+localf is_integer $
+localf replace $
+localf is_dependent $
+localf is_function $
+localf map_arg $
+
+localf zero $
+localf id $
+localf one $
+localf plus $
+localf minus $
+localf sin_int $
+localf sin_int2 $
+localf is_rational $
+localf cancel_number $  
+/*  2/4 が入ってるならば 1/2 に変更するなど. tkseries.expand1(1/(1-x),...) */
+localf is_minus $  /* 先頭に - があるか形式的にみる. */
+localf add_paren0 $ 
+localf add_paren $ /* +- 等に ( ) を加える. */
+localf vars $
+localf etov_pair$
+
+def node(F) {
+   if (type(F) == O_QUOTE) F=quotetolist(F);
    return [rtostr(F[0]),rtostr(F[1])];
 }
 /* Number of  child */
-def qt_nchild(F) {
-   if (type(F) == 17) F=quotetolist(F);
+def nchild(F) {
+   if (type(F) == O_QUOTE) F=quotetolist(F);
    return length(F)-2;
 }
-def qt_child(F,K) {
-   if (type(F) == 17) F=quotetolist(F);
+def child(F,K) {
+   if (type(F) == O_QUOTE) F=quotetolist(F);
    return F[K+2];
 }
+
+/* quote に対する 述語 */
+def is_integer(Qlist) {
+  if (type(Qlist) == O_QUOTE) Qlist=quotetolist(Qlist);
+  if ((rtostr(Qlist[0]) == "u_op")  && (rtostr(Qlist[1]) == "-")) {
+    return qt.is_integer(cdr(cdr(Qlist))[0]);
+  }
+  if (Qlist[0] == "internal") {
+     Z = eval_str(rtostr(Qlist[1]));
+  }else{ 
+     return 0;
+  }
+  if (type(Z) == 0) return 1;
+  if ((type(Z) == 1) && (ntype(Z) == 0)) return 1;
+  return 0;
+}
+
+/* quote の生成 */
+/* 右規則関数.   0 を戻す. */
+def zero() {
+  return quotetolist(quote(0));
+}
+
+/* 右規則関数.   恒等式 */
+def id(X) {
+  if (type(X) == O_QUOTE) return quotetolist(X);
+  else return X;
+}
+
+def one() {
+  return quote(1);
+}
+
+def plus(X,Y) {
+  if ((type(X) == O_QUOTE) && (type(Y) == O_QUOTE)) return X+Y;
+  return ["b_op","+",X,Y];
+}
+
+def minus(X,Y) {
+  if ((type(X) == O_QUOTE) && (type(Y) == O_QUOTE)) return X-Y;
+  return ["b_op","-",X,Y];
+}
+
+
+/* 右規則関数.  sin(整数*@pi) を 0 に */
+def sin_int(X) {
+  /* いま X は quote 型 */
+  Y = quotetolist(X);
+  /* Todo: このようなものを作る機能は組み込みで欲しい. */
+  R = "quote(sin("+listtoquote_str(Y)+"*@pi))";
+  print(R);
+  R = eval_str(R);
+  /* Todo: X が 数字かどうか調べる機能も組み込みで欲しい.
+  */
+  if (Y[0] == "internal") {
+     Z = eval_str(rtostr(Y[1]));
+  }else{ 
+    return quotetolist(R);
+  }
+  if (type(Z) == 0) return quotetolist(quote(0));
+  if ((type(Z) == 1) &&   (ntype(Z) == 0)) return quotetolist(quote(0));
+  return quotetolist(R);
+}
+
+/* 右規則関数.  sin(整数*@pi) を 0 に. 深さ優先用 */
+def sin_int2(X) {
+  /* tr.apply_rule1 を再帰的によぶ. この方法で構文解析もかける. */
+  X = tr.apply_rule1(X,Rule_test2[0],Rule_test2[1]);
+  Y = quotetolist(X);
+  R = "quote(sin("+listtoquote_str(Y)+"*@pi))";
+  print(R);
+  R = eval_str(R);
+  if (qt.is_integer(Y)) return quotetolist(quote(0));
+  else return quotetolist(R);
+}
+
+def replace(F,Rule) {
+  return base_replace(F,Rule);
+}
+
+/*  F の中に不定元 X が含まれているか? 
+    qt.is_dependent(quotetolist(quote(1+1/x)),x)
+*/
+def is_dependent(F,X) {
+  if (type(F) == O_QUOTE) F = quotetolist(F);
+  Node = qt.node(F);
+  if ((F[0] == "internal") && (rtostr(F[1]) == rtostr(X))) {
+    return 1;
+  }else{
+     N = qt.nchild(F);
+     for (I=0; I<N;I++) {
+       C = qt.child(F,I);
+       if (qt.is_dependent(C,X)) return 1;
+     }
+     return 0;
+  }
+}
+
+/* 注意: @pi  も関数扱い. */
+def is_function(X) {
+  if (type(X) == O_QUOTE) X=quotetolist(X);
+  if (rtostr(X[0]) == "function") return 1;
+  else return 0;
+}
+
+/* qt.map_arg(nn,quote(f(x,y)))  --> nn(f(nn(x),nn(y))) 
+   qt.map_arg(nn,quote(1/4+f(x)))     --> 
+   テストは test4().
+*/
+def map_arg(F,Q) {
+  F = rtostr(F);
+  if (type(Q) == O_QUOTE) Q=quotetolist(Q);
+  if (rtostr(Q[0]) == "internal") {
+     T = listtoquote_str(Q);
+     return eval_str( "quote("+F+"("+T+"))" );
+  }
+  /* node の子供を F で評価する. */
+  N = qt.nchild(Q);
+  L = [];
+  for (I=0; I<N; I++) {
+    L = append(L,[quotetolist(qt.map_arg(F,qt.child(Q,I)))]);
+  }
+  dprint0("qt.map_arg:L="); dprint(L);
+  T = [Q[0],Q[1]];
+  for (I=0; I<N; I++) {
+    T = append(T,[L[I]]);
+  }
+  /* 最後に子供を親 Q[0],Q[1] で評価してから F で評価 */
+  T = ["function",F,T];
+  dprint0("qt.map_arg:T="); dprint(T);
+  T = listtoquote_str(T);
+  return eval_str("quote("+T+")");
+}
+
+/* (形式的に) Q に属する quote か? */
+def is_rational(X) {
+  if (type(X) == O_LIST)  X=listtoquote(X);
+  A = quote_to_funargs(X);
+  if (A[0] == I_FORMULA) {  /* 1, x */
+   if (type(A[1]) <= O_N) return 1;
+   else return 0;
+  }
+  if (A[0] == I_BOP) {  /* 2+3, 2/x */
+    Op = get_function_name(A[1]);
+    if ((Op == "+") || (Op == "-") || (Op == "*") || (Op == "/")
+        || (Op == "^")) {
+       if (qt.is_rational(A[2]) && qt.is_rational(A[3])) return 1;
+       else return 0;
+    }
+  }
+  if (A[0] == I_PAREN) {
+    if (qt.is_rational(A[1])) return 1;
+    else return 0;
+  }
+  if (A[0] == I_MINUS) {
+    if (qt.is_rational(A[1])) return 1;
+    else return 0;
+  }
+  return 0;
+}
+
+/* 2/4 --> 1/2 へ   
+   この実装は効率は悪い.
+*/
+def cancel_number(Q) {
+  if (type(Q) == O_LIST)  Q=listtoquote(Q);
+  if (qt.is_rational(Q)) {
+    Ans = eval_quote(Q);
+    return objtoquote(Ans);
+  }
+  A = quote_to_funargs(Q);
+  N = length(A); R=[];
+  for (I=N-1; I>= 0; I--) {
+    if (type(A[I]) == O_QUOTE) 
+      R = cons(qt.cancel_number(A[I]),R);
+    else
+      R = cons(A[I],R);
+  }
+  return funargs_to_quote(R);
+}
+
+/* 先頭に - があるか形式的にみる. 
+   -a+b
+   -3
+   -34/y 等.
+*/
+def is_minus(Q) {
+  if (type(Q) == O_LIST)  Q=listtoquote(Q);
+  A = quote_to_funargs(Q);
+  if (A[0] == I_MINUS) return 1;
+  if (A[0] == I_BOP) {
+    if (qt.is_minus(A[2])) return 1;
+    else return 0;
+  }
+  return 0;
+}
+/* 無条件に ( ) を加える. */
+def add_paren0(Q) {
+  A = [I_PAREN,Q];
+  return funargs_to_quote(A);
+}
+/* +- 等に ( ) を加える. 
+   動作が不審なので bug があるかも.
+*/
+def add_paren(Q) {
+  if (type(Q) == O_LIST)  Q=listtoquote(Q);
+  A = quote_to_funargs(Q);
+  /* この処理は毎度使うのでまとめた方がいいのでは? */
+  N = length(A); R=[];
+  for (I=N-1; I>= 0; I--) {
+    if (type(A[I]) == O_QUOTE) 
+      R = cons(qt.add_paren(A[I]),R);
+    else
+      R = cons(A[I],R);
+  }
+  A = R;
+  if (A[0] == I_BOP) {
+     if (get_function_name(A[1]) == "+") {
+        if (qt.is_minus(A[3])) {  /* x+-y ==> x+(-y) */
+           A2 = [I_BOP,A[1],
+                  qt.add_paren(A[2]),
+                  qt.add_paren0(A[3])];
+           return funargs_to_quote(A2);
+        }  
+     }else if (get_function_name(A[1]) == "*" || 
+               get_function_name(A[1]) == "/") 
+     {
+        if (qt.is_minus(A[2])) {  /* -x*y ==> (-x)*y */
+           A2 = [I_BOP,A[1],
+                  qt.add_paren0(A[2]),
+                  qt.add_paren(A[3])];
+           return funargs_to_quote(A2);
+        }  
+     }
+  }
+  return funargs_to_quote(A);
+}
+
+/* vars の真似.
+   この関数も 変数の出現回数分のリストを作るので効率わるい.
+ */
+def vars(Q) {
+  R = [ ];
+  if (type(Q) == O_LIST)  Q=listtoquote(Q);
+  A = quote_to_funargs(Q);
+  if (A[0] == I_FORMULA) {
+    if (type(A[1]) == O_P) {
+       R = cons(A[1],R);
+    }
+  }
+  /* この処理は毎度使うのでまとめた方がいいのでは? */
+  N = length(A); 
+  for (I=1; I<N; I++) {
+    if (type(A[I]) == O_QUOTE) 
+      R = append(qt.vars(A[I]),R);
+  }
+  R=qsort(R);
+  R=uniq(R);
+  return reverse(R);
+}
+
+/* p^q を再帰で探して [p,q] を戻す. */
+def etov_pair(Q) {
+  R = [ ];
+  if (type(Q) == O_LIST)  Q=listtoquote(Q);
+  A = quote_to_funargs(Q);
+  if (A[0] == I_BOP) {
+    if (get_function_name(A[1]) == "^") {
+       R=[[A[2],A[3]]];
+    }
+  }
+  /* この処理は毎度使うのでまとめた方がいいのでは? */
+  N = length(A); 
+  for (I=1; I<N; I++) {
+    if (type(A[I]) == O_QUOTE) 
+      R = append(qt.etov_pair(A[I]),R);
+  }
+  return R;
+}
+
+endmodule$
+
+module tr;
+localf match0$
+localf check_pn$
+localf make_binding$
+localf rp$
+localf apply_function0$
+localf apply_rule1$
+localf rp_flag$
+localf apply_rule1_flag$
+localf apply_or_rules$
 
 /* 
    リスト F が リスト P に(先頭からの比較で)マッチしたら 1.
    そうでないから 0.  幅優先探索.
     Todo: P に任意関数を含む仕組みはまだ実装してない.  
 */
-def tr_match0(F,P)  {
-  dprint0("tr_match0: F="); dprint(F);
-  dprint0("tr_match0: P="); dprint(P);  
+def match0(F,P)  {
+  dprint0("tr.match0: F="); dprint(F);
+  dprint0("tr.match0: P="); dprint(P);  
 
   if (type(F) != type(P)) return 0;
-  if (type(F) != 4) {
+  if (type(F) != O_LIST) {
     if (F == P) return 1;
     else return 0;
   }
-  Node = qt_node(F);
-  Node2 = qt_node(P);
+  Node = qt.node(F);
+  Node2 = qt.node(P);
   /* pn に何の制約もなければ 2 を戻す. */
-  if (Node2 == ["function","pn"]) return tr_check_pn(F,P);
+  if (Node2 == ["function","pn"]) return tr.check_pn(F,P);
   if (Node != Node2) return 0;
-  N = qt_nchild(F);
-  if (N != qt_nchild(P)) return 0;
+  N = qt.nchild(F);
+  if (N != qt.nchild(P)) return 0;
   for (I=0; I<N; I++) {
-     C = qt_child(F,I);
-     C2 = qt_child(P,I);
-     if (!tr_match0(C,C2)) return 0;
+     C = qt.child(F,I);
+     C2 = qt.child(P,I);
+     if (!tr.match0(C,C2)) return 0;
   }
   return 1;
 }
 
 /* 
-   P の例: P = pn("x");  P=pn("x",qt_is_integer(x));
+   P の例: P = pn("x");  P=pn("x",qt.is_integer(x));
    P は [function,pn,[internal,x],[function,is_int,[internal,x]]]
    FF は ["is_int","x"]
    テストデータ.
- tr_check_pn(quote(1/2),quote(pn("x",qt_is_integer(x))));
+ tr.check_pn(quote(1/2),quote(pn("x",qt.is_integer(x))));
 */
-def tr_check_pn(F,P) {
-  if (type(F) ==17) F=quotetolist(F);
-  if (type(P) == 17) P=quotetolist(P); 
-  N=qt_nchild(P);
+def check_pn(F,P) {
+  if (type(F) ==O_QUOTE) F=quotetolist(F);
+  if (type(P) == O_QUOTE) P=quotetolist(P); 
+  N=qt.nchild(P);
   if (N == 1) return 2;
-  X = rtostr(qt_child(P,0)[1]);
+  X = rtostr(qt.child(P,0)[1]);
   BindingTable = [[X,F]];
-  FF = [rtostr(qt_child(P,1)[1]),rtostr(qt_child(P,1)[2][1])];
-  R = tr_apply_function0(FF,BindingTable);
+  FF = [rtostr(qt.child(P,1)[1]),rtostr(qt.child(P,1)[2][1])];
+  R = tr.apply_function0(FF,BindingTable);
   return R;
 }
 
-/* F と P が tr_match0 するとき  bindingTable をもどす.
+/* F と P が tr.match0 するとき  bindingTable をもどす.
   [[変数の名前(文字列), 値(list)], ...]
 */
-def tr_make_binding(F,P) {
+def make_binding(F,P) {
   Ans = [ ];
   if (F == P) return Ans;
 
-  Node = qt_node(F);
-  Node2 = qt_node(P);
+  Node = qt.node(F);
+  Node2 = qt.node(P);
 
   if (Node2 == ["function", "pn"]) {
      Ans = append(Ans,[[rtostr(P[2][1]),F]]);
      return Ans;
   }
-  N = qt_nchild(F);
+  N = qt.nchild(F);
   for (I=0; I<N; I++) {
-     C = qt_child(F,I);
-     C2 = qt_child(P,I);
-     Ans = append(Ans,tr_make_binding(C,C2));
+     C = qt.child(F,I);
+     C2 = qt.child(P,I);
+     Ans = append(Ans,tr.make_binding(C,C2));
   }
   return Ans;
 }
@@ -117,21 +526,21 @@ def tr_make_binding(F,P) {
    深さ優先探索にした --> action 関数の中で再帰的に呼べば深さ優先となる.
    Todo: 書き換えがおこったかのフラグ.
 */
-def tr_rp(F,P,Q) {
-  dprint0("tr_rp, F="); dprint(F);
-  dprint0("tr_rp, P="); dprint(P);
-  dprint0("tr_rp, Q="); dprint(Q);
-  if (tr_match0(F,P)) {
-     BindTable = tr_make_binding(F,P);
+def rp(F,P,Q) {
+  dprint0("tr.rp, F="); dprint(F);
+  dprint0("tr.rp, P="); dprint(P);
+  dprint0("tr.rp, Q="); dprint(Q);
+  if (tr.match0(F,P)) {
+     BindTable = tr.make_binding(F,P);
      dprint0("BindTable="); dprint(BindTable);
-     return tr_apply_function0(Q,BindTable);
+     return tr.apply_function0(Q,BindTable);
   }
-  if (type(F) != 4) return F;
-  Node = qt_node(F);
-  N = qt_nchild(F);
+  if (type(F) != O_LIST) return F;
+  Node = qt.node(F);
+  N = qt.nchild(F);
   Ans = Node;
   for (I=0; I<N; I++) {
-    T = tr_rp(qt_child(F,I),P,Q);
+    T = tr.rp(qt.child(F,I),P,Q);
     Ans = append(Ans,[T]); 
   }
   return Ans;
@@ -140,14 +549,14 @@ def tr_rp(F,P,Q) {
 /* ["f","x"],[["x",[internal,3]]]  の時は
    f(3) を計算する.
 */
-def tr_apply_function0(Q,BindTable) {
+def apply_function0(Q,BindTable) {
   B = [ ];
   N = length(BindTable);
   /* BindTable の右辺値を quote(...) なる文字列に */
   for (I=0; I<N; I++) {
     B = append(B,[[BindTable[I][0],"quote("+listtoquote_str(BindTable[I][1])+")"]]);
   } 
-  dprint0("tr_apply_function0: "); dprint(B);
+  dprint0("tr.apply_function0: "); dprint(B);
   N = length(Q)-1; /* 引数の数 */
   M = length(B);   /*  binding table のサイズ */
   R = rtostr(Q[0])+"(";
@@ -171,7 +580,7 @@ def tr_apply_function0(Q,BindTable) {
   R = R+")";
   dprint0("R="); dprint(R);
   V=eval_str(R);
-  if (type(V) == 17) return quotetolist(V);
+  if (type(V) == O_QUOTE) return quotetolist(V);
   else return V;
 }
 
@@ -179,175 +588,180 @@ def tr_apply_function0(Q,BindTable) {
 /* L が左規則. R が右規則.  幅優先探索.
    書き換えをするためのトップレベルの関数 (のひとつ).
   例: 
-    tr_apply_rule1(quote(1+sin(3*@pi)*sin(@pi/2)),
+    tr.apply_rule1(quote(1+sin(3*@pi)*sin(@pi/2)),
                 quote(sin(pn("x")*@pi)),
-                ["qt_sin_int","x"]);
+                ["qt.sin_int","x"]);
 */
-def tr_apply_rule1(Obj,L,R) {
-  dprint("--------  start of tr_apply_rule1 ------------ ");
+def apply_rule1(Obj,L,R) {
+  dprint("--------  start of tr.apply_rule1 ------------ ");
   Obj = quotetolist(Obj);
   L = quotetolist(L);
-  R = tr_rp(Obj,L,R);
-  if (type(R) == 17) R=quotetolist(R);
+  R = tr.rp(Obj,L,R);
+  if (type(R) == O_QUOTE) R=quotetolist(R);
   RR = "quote("+listtoquote_str(R)+")";
-  dprint("--------  end of tr_apply_rule1 ------------ ");
+  dprint("--------  end of tr.apply_rule1 ------------ ");
   return eval_str(RR);  
 }
 
-/* quote に対する 述語 */
-def qt_is_integer(Qlist) {
-  if (type(Qlist) == 17) Qlist=quotetolist(Qlist);
-  if ((rtostr(Qlist[0]) == "u_op")  && (rtostr(Qlist[1]) == "-")) {
-    return qt_is_integer(cdr(cdr(Qlist))[0]);
+/* Flag 付き の tr.rp. 属性がないのでこれでやる. */
+def rp_flag(F,P,Q) {
+  Flag = 0; 
+  dprint0("tr.rp, F="); dprint(F);
+  dprint0("tr.rp, P="); dprint(P);
+  dprint0("tr.rp, Q="); dprint(Q);
+  if (tr.match0(F,P)) {
+     BindTable = tr.make_binding(F,P);
+     dprint0("BindTable="); dprint(BindTable);
+     return [1,tr.apply_function0(Q,BindTable)];
   }
-  if (Qlist[0] == "internal") {
-     Z = eval_str(rtostr(Qlist[1]));
-  }else{ 
-     return 0;
+  if (type(F) != O_LIST) return F;
+  Node = qt.node(F);
+  N = qt.nchild(F);
+  Ans = Node;
+  for (I=0; I<N; I++) {
+    T = tr.rp_flag(qt.child(F,I),P,Q);
+    if (T[0] == 1) Flag = 1;
+    Ans = append(Ans,[T[1]]); 
   }
-  if (type(Z) == 0) return 1;
-  if ((type(Z) == 1) && (ntype(Z) == 0)) return 1;
-  return 0;
+  return [Flag,Ans];
 }
 
-/* quote の生成 */
-/* 右規則関数.   0 を戻す. */
-def qt_zero() {
-  return quotetolist(quote(0));
+/* 書き換え flag 付きの tr.apply_rule_flag */
+def apply_rule1_flag(Obj,L,R) {
+  Flag = 0;
+  if (Debug2) 
+   print("--------  start of tr.apply_rule1_flag ------------ ");
+  if (Debug2) print(print_input_form(Obj));
+  Obj = quotetolist(Obj);
+  L = quotetolist(L);
+  R = tr.rp_flag(Obj,L,R);
+  Flag=R[0]; R=R[1];
+  if (type(R) == O_QUOTE) R=quotetolist(R);
+  RR = "quote("+listtoquote_str(R)+")";
+  if (Debug2) {print("==> "+RR+"  by  "); print(listtoquote_str(L));}
+  if (Debug2) print("--------  end of tr.apply_rule1_flag ------------ ");
+  return [Flag,eval_str(RR)];  
 }
 
-/* 右規則関数.   恒等式 */
-def qt_id(X) {
-  if (type(X) == 17) return quotetolist(X);
-  else return X;
+def apply_or_rules(Q,R) {
+  Flag = 1;
+  N = length(R);
+  while (Flag) {
+   Flag = 0;
+   for (I=0; I<N; I++) {  
+     Q = tr.apply_rule1_flag(Q,R[I][0],R[I][1]);
+     if (Q[0]) {
+       Flag = 1;
+       dprint("Applied the rule "+rtostr(I));
+     }
+     Q = Q[1];
+   }
+  }
+  return Q;
 }
 
+endmodule$
+
+
+/* tr の書き換えルール */
+module tr;
+localf simp_zero$
+localf simp_unary$
+localf simp_sin$ 
+/* 0+any, 0*any になる quote を 0 にする. 必須. cf. taka_series.expand1 
+   test_0();  でテストする.
+*/
+def simp_zero(R0) {
+  Rule1=[quote(0*pn(y)),       ["qt.zero"]];       /* 0*any --> 0 */
+  Rule2=[quote(pn(y)*0),       ["qt.zero"]];       /* any*0 --> 0 */
+  Rule3=[quote(0/pn(y)),       ["qt.zero"]];       /* 0/any --> 0 */
+  Rule4=[quote(pn(y)+0),       ["qt.id",y]];       /* any+0 --> any */
+  Rule5=[quote(0+pn(y)),       ["qt.id",y]];       /* 0+any --> any */
+  Rule6=[quote(-0),            ["qt.zero",y]];       /* -0 --> 0 */
+  Rule7=[quote((0)),            ["qt.zero",y]];       /* (0) --> 0 */
+  Rule8=[quote(1*pn(y)),       ["qt.id",y]];       /* 1*any --> any */
+  Rule9=[quote(pn(y)*1),       ["qt.id",y]];       /* any*1 --> any */
+  R=tr.apply_or_rules(R0,[Rule1,Rule2,Rule3,Rule4,Rule5, Rule6,Rule7,
+                          Rule8, Rule9]);
+  return R;
+}
+
+def simp_unary(R0) {
+  Rule1=[quote(pn(x))+quote(-pn(y)), ["qt.minus",x,y]];  /* x+-y -> x-y */
+  Rule2=[quote(-(-pn(x))), ["qt.id",x]];  /* -(-x) --> x */
+  Rule3=[quote(pn(x)-(-pn(y))), ["qt.plus",x,y]];  /* x-(-y) --> x+y */
+  R=tr.apply_or_rules(R0,[Rule1,Rule2,Rule3]);
+  return R;
+}
+
+/*
+  test_1() はサンプルテスト.
+*/
+def simp_sin(R0) {
+  Rule1=[quote(sin(pn(x)*@pi)),["qt.sin_int",x]]; /* sin(整数*@pi) --> 0 */
+  Rule2=[quote(0*pn(y)),       ["qt.zero"]];       /* 0*any --> 0 */
+  Rule3=[quote(pn(y)*0),       ["qt.zero"]];       /* any*0 --> 0 */
+  Rule4=[quote(pn(y)+0),       ["qt.id",y]];       /* any+0 --> any */
+  Rule5=[quote(0+pn(y)),       ["qt.id",y]];       /* 0+any --> any */
+  Rule6=[quote(sin(0)),        ["qt.zero"]];       /* sin(0) --> 0 */
+  Rule7=[quote(cos(0)),        ["qt.one"]];         /* cos(0) --> 1 */
+  /* print(print_input_form(R0)); */
+  R=tr.apply_rule1_flag(R0,Rule1[0],Rule1[1]);
+  /* print([R[0],print_input_form(R[1])]); */
+  R=tr.apply_or_rules(R0,[Rule1,Rule2,Rule3,Rule4,Rule5,Rule6,Rule7]);
+  return R;
+}
+
+endmodule$
 /* ------------  test --------------------------- */
-extern Rule_test2$
-/* " " と付けてもつけなくてもよい. 内部で rtostr してる. */
-/* Rule_test2=[quote(sin(pn("x")*@pi)),["qt_sin_int2","x"]]$ */
-Rule_test2=[quote(sin(pn(x)*@pi)),[qt_sin_int2,x]]$
+
 
 
 def test2() {
   /* 幅優先探索の場合, R0 は simplify できず.  */
-  Rule1=[quote(sin(pn("x")*@pi)),["qt_sin_int","x"]];
+  Rule1=[quote(sin(pn("x")*@pi)),["qt.sin_int","x"]];
   R0 = quote(1+sin(sin(2*@pi)*@pi)*sin(@pi/2));
   print(print_input_form(R0));
-  R=tr_apply_rule1(R0,Rule1[0],Rule1[1]);
+  R=tr.apply_rule1(R0,Rule1[0],Rule1[1]);
   print(print_input_form(R));
   print("-----------------------");
   /* 次のように書くと深さ優先で書ける */
   R0 = quote(1+sin(sin(2*@pi)*@pi)*sin(@pi/2));
   print(print_input_form(R0));
-  R=tr_apply_rule1(R0,Rule_test2[0],Rule_test2[1]);
+  R=tr.apply_rule1(R0,Rule_test2[0],Rule_test2[1]);
   print(print_input_form(R));
 }
 
-/* 右規則関数.  sin(整数*@pi) を 0 に */
-def qt_sin_int(X) {
-  /* いま X は quote 型 */
-  Y = quotetolist(X);
-  /* Todo: このようなものを作る機能は組み込みで欲しい. */
-  R = "quote(sin("+listtoquote_str(Y)+"*@pi))";
-  print(R);
-  R = eval_str(R);
-  /* Todo: X が 数字かどうか調べる機能も組み込みで欲しい.
-  */
-  if (Y[0] == "internal") {
-     Z = eval_str(rtostr(Y[1]));
-  }else{ 
-    return quotetolist(R);
-  }
-  if (type(Z) == 0) return quotetolist(quote(0));
-  if ((type(Z) == 1) &&   (ntype(Z) == 0)) return quotetolist(quote(0));
-  return quotetolist(R);
-}
 
-/* 右規則関数.  sin(整数*@pi) を 0 に. 深さ優先用 */
-def qt_sin_int2(X) {
-  /* tr_apply_rule1 を再帰的によぶ. この方法で構文解析もかける. */
-  X = tr_apply_rule1(X,Rule_test2[0],Rule_test2[1]);
-  Y = quotetolist(X);
-  R = "quote(sin("+listtoquote_str(Y)+"*@pi))";
-  print(R);
-  R = eval_str(R);
-  if (qt_is_integer(Y)) return quotetolist(quote(0));
-  else return quotetolist(R);
-}
-
-/* --------------- end test -----------------------*/
-def qt_replace(F,Rule) {
-  return base_replace(F,Rule);
-}
-
-/*  F の中に不定元 X が含まれているか? 
-    qt_is_dependent(quotetolist(quote(1+1/x)),x)
-*/
-def qt_is_dependent(F,X) {
-  if (type(F) == 17) F = quotetolist(F);
-  Node = qt_node(F);
-  if ((F[0] == "internal") && (rtostr(F[1]) == rtostr(X))) {
-    return 1;
-  }else{
-     N = qt_nchild(F);
-     for (I=0; I<N;I++) {
-       C = qt_child(F,I);
-       if (qt_is_dependent(C,X)) return 1;
-     }
-     return 0;
-  }
-}
-
-/* tr_check_pn の動作テスト */
+/* tr.check_pn の動作テスト */
 def test2b() {
-  Rule=[quote(sin(pn(x,qt_is_integer(x))*@pi)),[qt_zero]]$
+  Rule=[quote(sin(pn(x,qt.is_integer(x))*@pi)),["qt.zero"]]$
   R0 = quote(1+sin(2*@pi)*sin(a*@pi));;
   print(print_input_form(R0));
-  R=tr_apply_rule1(R0,Rule[0],Rule[1]);
+  R=tr.apply_rule1(R0,Rule[0],Rule[1]);
   return R;
 }
 
-/* 注意: @pi  も関数扱い. */
-def qt_is_function(X) {
-  if (type(X) == 17) X=quotetolist(X);
-  if (rtostr(X[0]) == "function") return 1;
-  else return 0;
+/* tr.simp_zero のテスト */
+def test_0() {
+  F = quote(x+(0*x+0));
+  print(quote_input_form(F));
+  return tr.simp_zero(F);
 }
 
-/* qt_map_arg(nn,quote(f(x,y)))  --> nn(f(nn(x),nn(y))) 
-   qt_map_arg(nn,quote(1/4+f(x)))     --> 
-   テストは test4().
-*/
-def qt_map_arg(F,Q) {
-  F = rtostr(F);
-  if (type(Q) == 17) Q=quotetolist(Q);
-  if (rtostr(Q[0]) == "internal") {
-     T = listtoquote_str(Q);
-     return eval_str( "quote("+F+"("+T+"))" );
-  }
-  /* node の子供を F で評価する. */
-  N = qt_nchild(Q);
-  L = [];
-  for (I=0; I<N; I++) {
-    L = append(L,[quotetolist(qt_map_arg(F,qt_child(Q,I)))]);
-  }
-  dprint0("qt_map_arg:L="); dprint(L);
-  T = [Q[0],Q[1]];
-  for (I=0; I<N; I++) {
-    T = append(T,[L[I]]);
-  }
-  /* 最後に子供を親 Q[0],Q[1] で評価してから F で評価 */
-  T = ["function",F,T];
-  dprint0("qt_map_arg:T="); dprint(T);
-  T = listtoquote_str(T);
-  return eval_str("quote("+T+")");
+/* tr.simp_sin のテスト */
+def test_1() {
+  F = quote(sin(sin(0))+sin(0));
+  print(quote_input_form(F));
+  return tr.simp_sin(F);
 }
+
+/* ------------------------------------------------ */
 
 /* Index 付き変数を実現する */
 def idxtov(V,I) {
   if (type(I) == 5) I=vtol(I); 
-  if (type(I) != 4) I=[I];
+  if (type(I) != O_LIST) I=[I];
   if (type(V) != 2) V=rtostr(V);
   return util_v(V,I);
 }
@@ -364,7 +778,7 @@ def vtoidx(V) {
 
 module qt;
 localf dtoq$  
-localf qtod$  /* it has not yet been implemented. /
+localf qtod$  /* it has not yet been implemented. */
 localf etoq$
 
 /* Distributed polynomial to quote
@@ -383,6 +797,9 @@ def dtoq(F,V) {
     T = dp_hm(F); 
     F = dp_rest(F);
     C = objtoquote(dp_hc(T));
+    if (qt.is_minus(C)) {
+      C = qt.add_paren0(C);
+    }
     E = dp_etov(T);
     Mq = etoq(E,V);
     if (Mq == quote(1)) {
@@ -395,7 +812,6 @@ def dtoq(F,V) {
   }
   return R;
 }
-/* bug: +-3*x should be -3*x */
 
 def etoq(E,V) {
   N = length(E);
