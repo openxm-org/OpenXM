@@ -120,7 +120,7 @@ char **argv;
 {
 	DIR *d;
 	struct dirent *dent;
-	int i,n,n1;
+	int i,n,n1,len;
 	char *ptr,*ptr1;
 	char *indir,*outdir;
 	char in[BUFSIZ],out[BUFSIZ],name[BUFSIZ],prefix_[BUFSIZ];
@@ -130,6 +130,7 @@ char **argv;
 	outdir = argv[2];
 	prefix = argv[3];
 	lang = argv[4];
+	len = strlen(prefix);
 	sprintf(in,"%s/%s-%s_toc.html",indir,prefix,lang);
 	sprintf(out,"%s/%shelp-%s.hhc",outdir,prefix,lang);
 	sprintf(prefix_,"%s-%s_",prefix,lang);
@@ -138,7 +139,8 @@ char **argv;
 	n = 0;
 	while ( dent = readdir(d) ) {
 		strcpy(name,dent->d_name);
-		ptr = strchr(name,'_');
+		ptr = name+len;
+		ptr = strchr(ptr,'_');
 		if ( !ptr )
 			continue;
 		ptr++;
