@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/taka_series.rr,v 1.1 2005/05/04 05:47:03 takayama Exp $ */
 
 module tkseries;
 
@@ -88,9 +88,10 @@ def expand1(F,X,C,N) {
      Po = objtoquote(X-C)^objtoquote(I);
      R = R + tr.simp_zero(Cn*Po);
      R = tr.simp_zero(R);
+     R = flatten_quote(R,"+");
   }
   Rem = eval_str("quote(oO("+rtostr(X)+","+rtostr(N+1)+"))");
-  return R+Rem;
+  return flatten_quote(R+Rem,"+");
 }
 
 

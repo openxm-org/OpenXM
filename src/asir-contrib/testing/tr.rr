@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.6 2005/04/21 10:54:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/tr.rr,v 1.7 2005/05/04 05:47:03 takayama Exp $ */
 /* $Id$ */
 
 /*  
@@ -43,13 +43,7 @@ def uniq(L) {
   }
   return reverse(A);
 }
-/* Global rules */ 
-extern Rule_test2$
-/* " " と付けてもつけなくてもよい. 内部で rtostr してる. 
-   . が付いたら付けるしかない.
-*/
-/* Rule_test2=[quote(sin(pn("x")*@pi)),["qt.sin_int2","x"]]$ */
-Rule_test2=[quote(sin(pn(x)*@pi)),["qt.sin_int2",x]]$
+
 
 /* Object id */
 #define O_N 1
@@ -141,6 +135,10 @@ localf add_paren0 $
 localf add_paren $ /* +- 等に ( ) を加える. */
 localf vars $
 localf etov_pair$
+localf hm $
+localf rest $
+localf hop $
+localf input_form $
 
 def node(F) {
    if (type(F) == O_QUOTE) F=quotetolist(F);
@@ -212,11 +210,11 @@ def sin_int(X) {
   if (Y[0] == "internal") {
      Z = eval_str(rtostr(Y[1]));
   }else{ 
-    return quotetolist(R);
+    return R;
   }
-  if (type(Z) == 0) return quotetolist(quote(0));
-  if ((type(Z) == 1) &&   (ntype(Z) == 0)) return quotetolist(quote(0));
-  return quotetolist(R);
+  if (type(Z) == 0) return quote(0);
+  if ((type(Z) == 1) &&   (ntype(Z) == 0)) return quote(0);
+  return R;
 }
 
 /* 右規則関数.  sin(整数*@pi) を 0 に. 深さ優先用 */
@@ -227,8 +225,8 @@ def sin_int2(X) {
   R = "quote(sin("+listtoquote_str(Y)+"*@pi))";
   print(R);
   R = eval_str(R);
-  if (qt.is_integer(Y)) return quotetolist(quote(0));
-  else return quotetolist(R);
+  if (qt.is_integer(Y)) return quote(0);
+  else return R;
 }
 
 def replace(F,Rule) {
@@ -435,6 +433,74 @@ def etov_pair(Q) {
   return R;
 }
 
+/* dp_hm + dp_rest のアナロジー. 
+   ただし * 等 binary operator で常に動作. 
+   例:  Q=h*r*r2  --> hm(Q)=h, rest(Q)=r*r2, hop(Q)="*".
+   ただし rest で quote は 左結合的に変更. flatten_quote().
+*/
+def hm(Q) {
+  if (type(Q) == O_LIST) Q = listtoquote(Q);
+  A=quote_to_funargs(Q);
+  if (A[0] == I_BOP) { 
+    Op = get_function_name(A[1]);
+    if (Op == "+") {
+      return A[2];
+    }else if (Op == "-") {
+      return A[2];
+    }else if (Op == "*") {
+      return A[2];
+    }else if (Op == "/") {
+      return A[2];
+    }else if (Op == "^") {
+      return A[2];
+    }
+  }
+  return Q;
+}
+
+def rest(Q) {
+  if (type(Q) == O_LIST) Q = listtoquote(Q);
+  A=quote_to_funargs(Q);
+  if (A[0] == I_BOP) { 
+    Op = get_function_name(A[1]);
+    if (Op == "+") {
+      return flatten_quote(A[3],"+");
+    }else if (Op == "-") {
+      return "not implented to return -A[3]";
+    }else if (Op == "*") {
+      return flatten_quote(A[3],"*");
+    }else if (Op == "/") {
+      return flatten_quote(A[3],"/");
+    }else if (Op == "^") {
+      return flatten_quote(A[3],"^");
+    }else return 0;
+  }
+  return 0;
+}
+
+def hop(Q) {
+  if (type(Q) == O_LIST) Q = listtoquote(Q);
+  A=quote_to_funargs(Q);
+  if (A[0] == I_BOP) return get_function_name(A[1]);
+  return 0; 
+}
+
+def input_form(Q) {
+  T = type(Q);
+  if ((T == O_VECT) || (T == O_MAT)) {
+     Q = matrix_matrix_to_list(Q);
+  }
+  if (type(Q) == O_LIST) {
+    A = [];
+    for (I=length(Q)-1; I>=0; I--) {
+       A = cons(qt.input_form(Q[I]),A);
+    }
+    if ((T == O_VECT) || (T == O_MAT)) { A = matrix_list_to_matrix(A); }
+    return A;
+  }
+  if (T == O_QUOTE) return quote_input_form(Q);
+  return rtostr(Q);
+}
 endmodule$
 
 module tr;
@@ -448,6 +514,13 @@ localf rp_flag$
 localf apply_rule1_flag$
 localf apply_or_rules$
 
+static Rule_test2$   /* int_sin2 が利用 */
+/* " " と付けてもつけなくてもよい. 内部で rtostr してる. 
+   . が付いたら付けるしかない.
+*/
+/* Rule_test2=[quote(sin(pn("x")*@pi)),["qt.sin_int2","x"]]$ */
+Rule_test2=[quote(sin(pn(x)*@pi)),["qt.sin_int2",x]]$
+
 /* 
    リスト F が リスト P に(先頭からの比較で)マッチしたら 1.
    そうでないから 0.  幅優先探索.
@@ -458,6 +531,7 @@ def match0(F,P)  {
   dprint0("tr.match0: P="); dprint(P);  
 
   if (type(F) != type(P)) return 0;
+  if (type(F) == O_QUOTE) {F=quotetolist(F); P=quotetolist(P);}
   if (type(F) != O_LIST) {
     if (F == P) return 1;
     else return 0;
@@ -482,16 +556,23 @@ def match0(F,P)  {
    P は [function,pn,[internal,x],[function,is_int,[internal,x]]]
    FF は ["is_int","x"]
    テストデータ.
- tr.check_pn(quote(1/2),quote(pn("x",qt.is_integer(x))));
+   tr.check_pn(quote(1/2),quote(pn("x",qt.is_integer(x))));
 */
 def check_pn(F,P) {
   if (type(F) ==O_QUOTE) F=quotetolist(F);
   if (type(P) == O_QUOTE) P=quotetolist(P); 
+  /* print(F);print(P); */
   N=qt.nchild(P);
   if (N == 1) return 2;
   X = rtostr(qt.child(P,0)[1]);
   BindingTable = [[X,F]];
-  FF = [rtostr(qt.child(P,1)[1]),rtostr(qt.child(P,1)[2][1])];
+  /* FF = [rtostr(qt.child(P,1)[1]),rtostr(qt.child(P,1)[2][1])]; */
+  FF = [rtostr(qt.child(P,1)[1])];
+  M = length(qt.child(P,1));
+  for (I=2; I<M; I++) { 
+    FF = append(FF,[rtostr(qt.child(P,1)[I][1])]);
+  }
+  /* print(FF); print(BindingTable); */
   R = tr.apply_function0(FF,BindingTable);
   return R;
 }
@@ -773,13 +854,14 @@ def vtoidx(V) {
   return A;
 }
 
-/* これら以外のテストプログラムは test1-tr.rr を 
+/* これら以外のテストプログラムは test1-tr.rr を見よ. 
 */
 
 module qt;
 localf dtoq$  
 localf qtod$  /* it has not yet been implemented. */
 localf etoq$
+localf hc_etov$
 
 /* Distributed polynomial to quote
    qt.dtoq(dp_ptod((x-y)^3,[x,y]),[]);
@@ -810,7 +892,7 @@ def dtoq(F,V) {
       else R = R+C*Mq;
     }
   }
-  return R;
+  return flatten_quote(R,"+");
 }
 
 def etoq(E,V) {
@@ -836,9 +918,51 @@ def etoq(E,V) {
       R = R*Rt;
     }
   }
-  return R;
+  return flatten_quote(R,"*");
+}
+
+def hc_etov(Q,V) {
+  HC=quote(1); 
+  N = length(V);
+  E = newvect(N);
+  while (type(Q) != 0) {
+    Q = flatten_quote(Q,"*");
+    A = quote_to_funargs(Q);
+    Sign = 1;
+    if (A[0] == I_MINUS) {
+      Sign = -1;
+      Q = A[1];
+    }
+    Q = flatten_quote(Q,"*");
+    Op=qt.hop(Q);
+    if (Op != "*") {
+      F=Q; if (Sign == -1) F = quote((-1))*F; 
+      Q=0;
+    }else{
+      F=qt.hm(Q); if (Sign == -1) F = quote((-1))*F; 
+      Q=qt.rest(Q);
+    }
+  
+    print(quote_input_form(F));
+    print(Op);
+    print(quote_input_form(Q));
+    Const = 1;
+    for (I=0; I<N; I++) {
+      if (qt.is_dependent(F,V[I])) {
+        Const = 0; 
+        EE=qt.etov_pair(F);
+        if (EE != []) E[I] = EE[0][1];
+        else E[I] = quote(1);
+      }
+    }
+    if (Const) HC=HC*F;
+  }
+  return [HC,E];
 }
 
 endmodule;
+
+
+
 
 end$
