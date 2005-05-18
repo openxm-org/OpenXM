@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.3 2005/04/09 05:53:56 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.4 2005/04/11 11:13:32 takayama Exp $
 
 # Name of this document.
 MYNAME=cman
@@ -8,7 +8,7 @@ SRC = base.oxw calculus.oxw complex.oxw \
       intro.oxw matrix.oxw misc.oxw names.oxw \
       number.oxw oxrfc100.oxw \
       poly.oxw print.oxw series.oxw \
-      util.oxw windows.oxw oxshell.oxw
+      util.oxw windows.oxw oxshell.oxw load.oxw
 
 ENSRCS = ${SRC:.oxw=.en} 
 JASRCS = ${SRC:.oxw=.ja} 

@@ -1,0 +1,61 @@
+@c $OpenXM$
+/*&C
+@node Loading Asir/Contrib,,, Top
+*/
+/*&ja
+@chapter Asir/Contrib のロード方法.
+
+@file{OpenXM/rc/asirrc}
+をロードすることにより Asir/Contrib の主な関数が利用可能となる.
+OpenXM/Risa/Asir では @code{ASIR_CONFIG} 環境変数により
+このファイルを起動時に読みこんでいる.
+@file{names.rr} が Asir/Contrib のトップレベルのファイルである.
+このファイルよりその他のファイルが読み込まれている.
+一部のパッケージは @file{names.rr} からは読み込まれないので,
+明示的に読み込む必要がある.
+
+
+*/
+
+/*&en
+
+@chapter How to load Asir/Contrib
+
+With loading @file{OpenXM/rc/asirrc}, we can use most functions
+in Asir/Contrib.
+The OpenXM/Risa/Asir reads this file, which is specified by
+the @code{ASIR_CONFIG} environmental variable, when it starts.
+The file @file{names.rr} is the top level file of the Asir/Contrib.
+Most other files are loaded from @file{names.rr}.
+Some packages are not loaded from @file{names.rr} and they must be
+loaded individually.
+
+*/
+
+/*&C
+
+A sample of @file{asirrc} to use Asir/Contrib.
+
+@example
+load("gr")$
+load("primdec")$
+load("katsura")$
+load("bfct")$
+load("names.rr")$
+load("oxrfc103.rr")$
+User_asirrc=which(getenv("HOME")+"/.asirrc")$
+if (type(User_asirrc)!=0) {
+   if (!ctrl("quiet_mode")) print("Loading ~/.asirrc")$
+   load(User_asirrc)$
+}else{ }$
+end$
+@end example
+
+@page
+
+*/
+
+
+
+
+
