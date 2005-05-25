@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.2 2005/05/25 05:06:06 noro Exp $
+# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.3 2005/05/25 06:43:44 noro Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -120,12 +120,15 @@ extract: fetch
 	@touch work/.extract_done
 
 patch: extract
+	@if [ ! -f work/.patch_done ]; then \
+		cd work/${CDD}; patch < ../../cddlib.patch ; \
+	fi
 	@touch work/.patch_done
 
 configure: patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd work/${CDD} ; ./configure CXX=cc --prefix="$$prefix" ) ; \
+		(cd work/${CDD} ; ./configure CXX=cc LDFLAGS=-L$$prefix/lib --prefix="$$prefix" ) ; \
 	fi
 	@touch work/.configure_done
 
