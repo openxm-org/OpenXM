@@ -1,0 +1,363 @@
+/*	$OpenXM$	*/
+
+module cdd;
+
+static Cdd_Path$
+static Cddgmp_Path$
+
+localf find_proc$
+localf start$
+localf float$
+localf gmp$
+localf conv$
+localf redcheck$
+localf support$
+localf np$
+localf msum$
+localf msum_sub1$
+localf msum_sub2$
+localf msum_sub3$
+localf debug$
+localf exit$
+
+
+static Cdd_proc$
+static Float_proc$
+static Gmp_proc$
+Cdd_proc = -1$
+Float_proc = -1$
+Gmp_proc = -1$
+
+
+def find_proc()
+{
+	if( Cdd_proc == -1 ){
+		Cdd_proc = start( 0 );
+	}
+	return(Cdd_proc);
+}
+
+def start( N )
+{
+	/*	if "N" is 1 then this function starts new process "Cddgmp_Path",
+		else starts new process "Cdd_Path".
+	*/
+
+	if( N == 1 ){
+		P = Gmp_proc = ox_launch( 0, "ox_cddgmp" );
+	} else {
+		P = Float_proc = ox_launch( 0, "ox_cdd" );
+	}
+
+	if( P == -1 ){
+		print("Cdd.start : error");
+		debug;
+	}
+
+	Cdd_proc = P;
+	return P;
+}
+
+def float()
+{
+	if( Float_proc == -1 ){
+		Float_proc = start( 0 );
+	}
+
+	Cdd_proc = Float_proc;
+}
+
+def gmp()
+{
+	if( Gmp_proc == -1 ){
+		Gmp_proc = start( 1 );
+	}
+
+	Cdd_proc = Gmp_proc;
+}
+
+def conv(List)
+{
+	/*	This function is for culcutating convex hull.
+		conv( [ [1,1],[0,0],[0,2],[2,0],[2,2] ] ) returns [ [0,0],[0,2],[2,0],[2,2] ] .	*/
+
+	if( type(List) != 4 ){
+		print("Cdd.conv : invalid argument");
+		return;
+	}
+
+	M = [];
+	L = List;
+	LL = length( L[0] );	/* Length of List  */
+
+	while( L != [] ){
+		T = car(L);
+		if( type( T ) != 4 ){
+			print("Cdd.conv : invalid argument");
+			return;
+		}
+		if( length(T) != LL ){
+			print("Cdd.conv : length of List must be same");
+		}
+
+		M = cons( cons(1,T), M );
+		L = cdr(L);
+	}
+
+	R = redcheck( M );
+
+	Result = [];
+	while( R != [] ){
+		Result = cons( cdr( car(R) ), Result );
+		R = cdr( R );
+	}
+
+	return Result;
+}
+
+def redcheck( List )
+{
+	/*	This function is subroutine of the function "conv".
+		this calls cddlib's redcheck. so, "List" should be cddlib's style.	*/
+
+	if( type(List) != 4 ){
+		print("Cdd.redcheck : invalid argument");
+		return;
+	}
+
+	L = List;
+	LL = length( L[0] );	/* Length of List  */
+
+	while( L != [] ){
+		T = car( L );
+		if( type( T ) != 4 ){
+			print("Cdd.redcheck : invalid argument");
+			return;
+		}
+		if( length(T) != LL ){
+			print("Cdd.redcheck : length of List must be same");
+		}
+		if( T[0] != 1 ){
+			print("Cdd.redcheck : first element must be 1");
+			return;
+		}
+		L = cdr(L);
+	}
+
+	Rowsize = length( List );
+	Colsize = LL;
+
+	Proc = find_proc();
+	ox_cmo_rpc(Proc,"redcheck",Rowsize,Colsize,List);
+
+	return ox_pop_cmo(Proc);
+}
+
+def support( Equation, Vars )
+{
+	/*	This function returns support polytope for "Equation".
+		"Vars" is variable for "Equation".
+		support( x^2 + x*y + y^2, [x,y] ) returns [ [0,2],[1,1],[2,0] ] .	*/
+
+	F = dp_ptod( Equation, Vars );
+
+	CL = [];
+	while( F != 0 ){
+		CL = cons( vtol( dp_etov( F ) ), CL );
+		F = dp_rest( F );
+	}
+
+	return CL;
+}
+
+def np( Equation, Vars ){
+	return conv( support( Equation, Vars ) );
+}
+
+def msum( Polytopes )
+{
+	/*	This function returns the all lattice points in Minkowski sum of "Polytopes".
+		msum( [ [[0,0],[1,0],[0,1]], [[0,0],[1,0],[0,1],[1,1]] ] ) returns [ [0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1] ] .	*/
+
+	T = [];	/*	this variable is for result	*/
+	K = 0;
+	P = [];	/*	vector of known coordinates	*/
+
+	M = length( Polytopes );
+	N = length( Polytopes[0][0] );
+
+	T = msum_sub1( Polytopes, [], 0 );
+	K++;
+
+	while( K < N ){
+
+		B = [];
+		while( T != [] ){
+			P = car(T);
+			A = msum_sub1( Polytopes, P, K );
+			B = append( B, A );
+			T = cdr( T );
+		}
+		T = B;
+		K++;
+
+	}
+
+	Opt = getopt( conv );
+	if( Opt == 1 ){
+		return conv(T);
+	} else {
+		return T;
+	}
+}
+
+def msum_sub1( Polytopes, P, K )
+{
+	/*	This function finds the minimum and maximum K-th coordinates in the Minkowski sum of input Polytopes when the first K-1 coordinates are fixed to the coordinates in P.	*/
+
+	R = [];
+	N = length( Polytopes );
+
+	if( K == 0 ){
+		for(I=0;I<N;I++){
+			A = msum_sub2( Polytopes[I] );
+			MN += A[0];
+			MX += A[1];
+		}
+
+	} else {
+		A = msum_sub3( Polytopes, P, K );	/*	make LP data.	*/
+
+		Rowsize = A[0];
+		Colsize = A[1];
+		Matrix = A[2];
+		Objvect = A[3];
+
+		Proc = find_proc();
+		ox_cmo_rpc(Proc,"ilpmaxmin",Rowsize,Colsize,Matrix,Objvect);
+		Result = ox_pop_cmo(Proc);
+
+		MN = Result[0];
+		MX = Result[1];
+	}
+
+	for(J=MX;J>=MN;J--){
+		R = cons( append( P, [J] ), R );
+	}
+
+	return R;
+}
+
+def msum_sub2( Q )
+{
+	/*	This function finds the minimum and maximum 0th coordinates in Q.
+		therefore,  msum_sub2( [ [0,0],[1,0],[1,1],[2,1] ] ) returns [0,2].	*/
+
+	MN = MX = Q[0][0];
+
+	T = cdr( Q );
+	while( T != [] ){
+		A = car( T )[0];
+
+		if( A < MN ){
+			MN = A;
+		}
+		if( A > MX ){
+			MX = A;
+		}
+		T = cdr( T );
+	}
+
+	return [MN,MX];
+}
+
+def msum_sub3( Polytopes, P, K )
+{
+	N = length( Polytopes );
+
+	Matrix = [];
+	Rowsize = K*2 + N*2;
+	Colsize = 1;
+
+	Vv = newvect( N );
+
+	for(I=0;I<N;I++){
+		Vv[I] = length( Polytopes[I] );
+		Rowsize += Vv[I];
+		Colsize += Vv[I];
+	}
+
+	V = newvect( Colsize );
+
+	for(I=Colsize-1;I>0;V[I]=0,I--){
+		V[I] = 1;
+		Matrix = cons( vtol( V ), Matrix );
+	}
+
+	for(I=N-1;I>=0;I--){
+		E = F = [];
+		for(J=N-1;J>=0;J--){
+			if(I==J){
+				for(M=0;M<Vv[I];M++){
+					E = cons( -1, E );
+					F = cons( 1, F );
+				}
+			} else {
+				for(M=0;M<Vv[J];M++){
+					E = cons( 0, E );
+					F = cons( 0, F );
+				}
+			}
+		}
+
+		E = cons( 1, E );
+		F = cons( -1, F );
+		Matrix = cons( F, cons( E, Matrix ) );
+	}
+
+
+	for(I=0;I<K;I++){
+
+		V[0] = P[I];
+		for(J1=1,J2=J3=0;J1<Colsize;J1++,J2++){
+			if( J2==Vv[J3] ){
+				J3++;
+				J2 = 0;
+			}
+			V[J1] = -Polytopes[J3][J2][I];
+		}
+		Matrix = cons( vtol( V ), Matrix );
+
+		for(J=0;J<Colsize;J++) V[J] = -V[J];
+		Matrix = cons( vtol( V ), Matrix );
+
+	}
+
+	/*	For Object row.	*/
+	V[0] = 0;
+	for(J1=1,J2=J3=0;J1<Colsize;J1++,J2++){
+		if( J2==Vv[J3] ){
+			J3++;
+			J2 = 0;
+		}
+		V[J1] = Polytopes[J3][J2][K];
+	}
+	Obj = vtol( V );
+
+	return [Rowsize,Colsize,Matrix,Obj];
+}
+
+def debug(N)
+{
+	Proc = find_proc();
+	ox_cmo_rpc(Proc,"debugprint",N);
+}	
+
+def exit()
+{
+	Proc = find_proc();
+	ox_cmo_rpc(Proc,"exit");
+	return 0;
+}
+
+end$

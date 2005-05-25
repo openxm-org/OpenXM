@@ -1,0 +1,23 @@
+/*	$Id$	*/
+
+def bres( Equations, Vars )
+{
+	Last = Equations;
+	Next = [];
+
+	while( Vars != [] ){
+		Base = Last[0];
+		Next = [];
+
+		for(I=1;I<length(Last);I++){
+			Next = cons( res( Vars[0], Base, Last[I] ), Next );
+		}
+
+		Last = Next;
+		Vars = cdr( Vars );
+	}
+
+	return Next[0];
+}
+
+end$

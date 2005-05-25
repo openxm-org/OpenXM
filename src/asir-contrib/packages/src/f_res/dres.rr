@@ -1,0 +1,168 @@
+/*	$Id$	*/
+
+def dres( Equations, Vars )
+{
+	Prim = getopt(p);
+	Sub = getopt(sub);
+	Norsc = getopt(norsc);
+	Rowidx = getopt(rowidx);
+	Colidx = getopt(colidx);
+
+	Submatrix = dresM( Equations, Vars |p=Prim,sub=Sub,norsc=Norsc,rowidx=Rowidx,colidx=Colidx );
+
+	print("Determinant",0);print(size(Submatrix),0);print("...",2);
+	if( indexof( "nd_det", flist() ) >= 0 ){
+		R = nd_det( Submatrix );
+	} else {
+		R = det( Submatrix );
+	}
+	print("done");
+
+	gauger.check();
+	return R;
+}
+
+def dresM( Equations, Vars )
+{
+	Prim = getopt(p);
+	Sub = getopt(sub);
+	Norsc = getopt(norsc);
+	Rowidx = getopt(rowidx);
+	Colidx = getopt(colidx);
+
+	print("Dixon polynomial...",2);
+	gauger.check();
+	Tmp = dixonpolynomial( Equations, Vars );
+	print("done");
+	gauger.check();
+
+	Dpoly = Tmp[0];
+	UC = Tmp[1];
+
+	print("Matrix decomposition...",2);
+	Matrix =  matrixdecomp( Dpoly, UC, Vars );
+	print("done");
+	gauger.check();
+
+	if( Norsc != 1 ){
+		print("Rank Submatrix Construction",0);print(size(Matrix[1]),0);print("...",2);
+		Submatrix = submatrix( Matrix[1] |p=Prim,sub=Sub,rowidx=Rowidx,colidx=Colidx );
+		print("done");
+	} else {
+		Submatrix = Matrix[1];
+	}
+	gauger.check();
+
+	return Submatrix;
+}
+
+def dixonpolynomial( Equations, Vars )
+{
+	/*	This function returns dixonpolynomial and new variable:
+		It returns [ Dixonpolynomial, vector of new variable ].
+	*/
+
+	N = length( Vars );
+
+	if( length( Equations ) != N+1 ){
+		print("dixonpolynomial : length of Vars is not correct");
+		return;
+	}
+
+	UC = newvect( N );
+	for(I=0;I<N;I++){
+		UC[I] = uc();
+	}
+
+	M = newmat( N+1, N+1 );
+
+	for(J=0;J<=N;J++){
+		M[0][J] = Equations[J];
+	}
+
+	for(I=1;I<=N;I++){
+		Equations = subst( Equations, Vars[I-1], UC[I-1] ); 
+		for(J=0;J<=N;J++){
+			M[I][J] = Equations[J];
+		}
+	}
+
+	if( indexof( "nd_det", flist() ) >= 0 ){
+		Dpoly = nd_det( M );
+	} else {
+		Dpoly = det( M );
+	}
+
+	for(I=0;I<N;I++){
+		Dpoly = sdiv( Dpoly, ( Vars[I] - UC[I] ) );
+	}
+
+	return [ Dpoly, UC ];
+}
+
+def matrixdecomp( Dpoly, UC_, Vars )
+{
+	/*	This function decomposes Dixonpolynomial to WDV. where,
+		V is column vector of all monomials in "Vars" which appear in "Dpoly".
+		V is row vector of all monomials in "UC" which appear in "Dpoly".
+		remark : "Dpoly" is polynomial, "UC" is vector and "Vars" is list.
+	*/
+
+	UC = vtol(UC_);
+	Dpoly2 = dp_ptod( Dpoly, UC );
+
+	RowList = RowVect = [];
+	while( Dpoly2 != 0 ){
+		RowList = cons( dp_hc( Dpoly2 ), RowList );
+		RowVect = cons( dp_etov( Dpoly2 ), RowVect );
+		Dpoly2 = dp_rest( Dpoly2 );
+	}
+	MaxRow = length( RowList );
+
+	M = newvect( MaxRow );
+
+	ColVect = [];
+	for(I=0;I<MaxRow;I++){
+		ThisRow = [];
+		Obj = dp_ptod( RowList[I], Vars );
+		while( Obj != 0 ){
+			HT = dp_etov( Obj );
+			T = indexof( HT, ColVect );
+			if( T == (-1) ){
+				T = length( ColVect );
+				ColVect = append( ColVect, [ HT ] );
+			}
+			ThisRow = cons( [ T, dp_hc( Obj ) ], ThisRow );
+			Obj = dp_rest( Obj );
+		}
+		M[I] = newvect( length( ColVect ) );
+		while( ThisRow != [] ){
+			Tmp = car( ThisRow );
+			M[I][ Tmp[0] ] = Tmp[1];
+			ThisRow = cdr( ThisRow );
+		}
+	}
+	MaxCol = length( ColVect );
+
+	Matrix = newmat( MaxRow, MaxCol );
+	for(I=0;I<MaxRow;I++){
+		JM = length( M[I] );
+		for(J=0;J<JM;J++){
+			Matrix[I][J] = M[I][J];
+		}
+	}
+
+	V = newvect( MaxRow );
+	for(I=0;I<MaxRow;I++){
+		V[I] = dp_dtop( dp_vtoe( RowVect[I] ), UC );
+	}
+
+	W = newvect( MaxCol );
+	for(I=0;I<MaxCol;I++){
+		W[I] = dp_dtop( dp_vtoe( ColVect[I] ), Vars );
+	}
+
+	return [ V, Matrix, W ];
+}
+
+end$
