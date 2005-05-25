@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.1 2005/05/25 04:42:20 noro Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -111,7 +111,9 @@ configure: patch
 build : configure components
 
 install: 
-	cp ox_cdd ox_cddgmp ${PREFIX}/bin
+	cp $(PROG) $(PROGGMP) $(PREFIX)/bin
+	-mkdir $(PREFIX)/lib/asir
+	-ln -s $(PREFIX)/bin/$(PROG) $(PREFIX)/bin/$(PROGGMP) $(PREFIX)/lib/asir
 	@touch work/.install_done
 
 clean:
