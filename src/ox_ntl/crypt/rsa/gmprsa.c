@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/gmprsa.c,v 1.1 2004/08/16 03:59:58 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/gmprsa.c,v 1.2 2004/09/20 00:10:24 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,8 +12,16 @@
 #define STR_PRT(STR, N)   do { int _xxx; printf(#STR "[%d]=", N); for (_xxx = 0; _xxx < (N); _xxx++) printf("%02x", STR[_xxx]); printf("\n"); fflush(stdout); } while (0)
 
 
+#ifndef RSA_KEY_PRINT
 #define RSA_KEY_PRINT 0
+#endif
 
+/*
+ * '*' prime test
+ * '#' sgen prime at genprime_strong
+ * '+' loop
+ * '@' keygen
+ */
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*
  * CONV
@@ -130,7 +138,6 @@ __RETRY:
 
 		for (k = 0; k <= n; k++) {
 			mpz_add_ui(s1, seed, offset + c + k);
-
 			str = mpz_get_str(NULL, 16, s1);
 			shalen = strlen(str);
 			sha1(sha, str, shalen);
@@ -144,7 +151,6 @@ __RETRY:
 
 			offset += n + 1;
 		}
-
 
 		mpz_setbit(prime, 0);
 		mpz_setbit(prime, len - 1);
@@ -160,11 +166,11 @@ __RETRY:
 			break;
 	}
 
-#if RSA_KEY_PRINT
-	fprintf(stderr, "+"); fflush(stderr);
-#endif
 
 	if (c == LOOP) {
+#if RSA_KEY_PRINT
+		fprintf(stderr, "+"); fflush(stderr);
+#endif
 		offset += c + 13;
 		goto __RETRY;
 	}
@@ -176,19 +182,147 @@ __RETRY:
 }
 
 
+/****************************************************************************
+ * generate prime value
+ *
+ * INPUT : (O) prime : prime number
+ *       : (I) len   : bit-length of prime number
+ *       : (I) seed  : seed
+ *       : (I) rep   :
+ * @see rsa_genprime
+ * @see gmp#mpz_probab_prime_p
+ ****************************************************************************/
+void
+rsa_genprime_strong(mpz_ptr prime, int len, const mpz_ptr seed, int rep)
+{
+	mpz_t p, q, t, s, r;
+	int i, j;
+	const int N = 1000;
+
+/* prime     NONE     NONE     NONE      ALL     PART10   30         100
+ * 3500 -->                  17.46.09
+ * 3000 -->                  15:55.25
+ * 2500 -->                  16.15.25
+ * 2000 --> 2.05.57  2.04.47 18.07.85  4.09.51
+ * 1500 --> 2.27.44  2.22.61 22.16.35  3.33.73  1.34.42
+ * 1000 --> 1.32.73  2.11.29 19.42.53  2.53.34  1.30.22  57.46.47  1:06:19
+ *  500 --> 2.07.46  1.53.18 19.36.95  2.11.15  1.25.22  1.22.51
+ */
+
+	mpz_init(s);
+	mpz_init_set_ui(p, 0);
+	mpz_init(q);
+	mpz_init(r);
+	mpz_init(t);
+
+	for (i = 0;; i++) {
+#if RSA_KEY_PRINT
+		fprintf(stderr, "#"); fflush(stderr);
+#endif
+		mpz_add(s, seed, p);
+		rsa_genprime(prime, len, s, rep);
+
+
+		if (len < 100) {
+			break;
+		}
+
+		/* for p-1 method */
+		mpz_set(p, prime);
+
+		/* remove factor 2 */
+		for (j = 1;; j++) {
+			if (mpz_tstbit(p, j)) {
+				mpz_tdiv_q_2exp(p, p, j);
+				break;
+			}
+		}
+
+		/* remove small factor */
+		for (mpz_set_ui(q, 3); mpz_cmp_ui(q, N) < 0; mpz_nextprime(q, q)) {
+			for (;;) {
+				mpz_tdiv_qr(t, r, p, q);
+				if (mpz_cmp_ui(r, 0) != 0)
+					break;
+
+				mpz_swap(t, p);
+			}
+
+			if (mpz_cmp_ui(p, 1) == 0)
+				break;
+		}
+
+		/* check */
+		if (mpz_sizeinbase(p, 2) < 20) {
+			continue;
+		}
+
+		if (mpz_probab_prime_p(p, rep))
+			break;
+	}
+
+	mpz_clear(p);
+	mpz_clear(q);
+	mpz_clear(r);
+	mpz_clear(s);
+	mpz_clear(t);
+}
+
+
+
 static int
 rsa_get_block_size(const mpz_ptr n)
 {
 	return ((mpz_sizeinbase(n, 16) + 1) / 2);
 }
 
+/****************************************************************************
+ * weak key check.
+ *
+ * |p - q| >> 0  for fermat factorizing method
+ *
+ * INPUT : (I) p     : prime number
+ *       : (I) q     : prime number
+ *       : (I) bit   : bit-length of prime number $p and $q
+ * OUTPUT:
+ ****************************************************************************/
+static int
+check_rsakey_strength(const mpz_ptr p, const mpz_ptr q, int bit)
+{
+	mpz_t diff;
+	int b;
 
-/*
+	mpz_init(diff);
+
+
+	/*
+	 * for fermat factorizing method
+	 *  |p-q| >> 0
+	 * && compare p != q
+	 */
+	mpz_sub(diff, p, q);
+	if (bit > 200) {
+		b = bit - 40;
+	} else {
+		b = bit / 3;
+	}
+
+	for (; b < bit / 2 + 1; b++) {
+		if (mpz_tstbit(diff, b))
+			break;
+	}
+	mpz_clear(diff);
+
+	return (b != bit / 2 + 1);
+}
+
+/****************************************************************************
+ * generate ras key pair.
  *
  * bit >= 96 must
  * rep >= 80 should
  *
- */
+ ****************************************************************************/
 int
 rsa_keygen(
     rsa_key *rsa,
@@ -216,25 +350,33 @@ rsa_keygen(
 	mpz_init_set(seed2, _seed2);
 
 	for (;;) {
+#if RSA_KEY_PRINT
+		fprintf(stderr, "@"); fflush(stderr);
+#endif
+
 		if (mpz_cmp(seed1, seed2) == 0)
 			goto _NEXT;
 
-		rsa_genprime(rsa->p, bitp, seed1, rep);
-		rsa_genprime(rsa->q, bitq, seed2, rep);
+		rsa_genprime_strong(rsa->p, bitp, seed1, rep);
+
+		for (;;) {
+			rsa_genprime_strong(rsa->q, bitq, seed2, rep);
+			if (check_rsakey_strength(rsa->p, rsa->q, bit)) {
+				break;
+			}
+			mpz_add_ui(seed2, seed2, 0x1234567);
+		}
 
 		mpz_clrbit(rsa->p, 0);
 		mpz_clrbit(rsa->q, 0);
 
+		/* phi = (p - 1) * (q - 1) */
 		mpz_mul(phi, rsa->p, rsa->q);
 
+		/* gcd = \gcd(public_key, phi) */
 		mpz_gcd(gcd, rsa->public_key, phi);
-#if RSA_KEY_PRINT
-		fprintf(stderr, "@"); fflush(stderr);
-#endif
-		if (mpz_cmp_ui(gcd, 1) != 0)
-			goto _NEXT;
 
-		if (mpz_cmp(rsa->p, rsa->q) == 0)
+		if (mpz_cmp_ui(gcd, 1) != 0)
 			goto _NEXT;
 
 		break;

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/gmprsa.h,v 1.1 2004/08/16 03:59:58 iwane Exp $ */
 
 #ifndef __GMP_RSA_H__
 #define __GMP_RSA_H__
@@ -36,6 +36,7 @@ void rsa_clear(rsa_key *r);
  * see mpz_probab_prime_p(GMP)
  */
 void rsa_genprime(mpz_ptr prime, int len, const mpz_ptr seed, int rep);
+void rsa_genprime_strong(mpz_ptr prime, int len, const mpz_ptr seed, int rep);
 
 /*
  * bit >= 96 (MUST)

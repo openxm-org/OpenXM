@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/rsa/gmprsatest.c,v 1.1 2004/08/16 03:59:58 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,7 +80,7 @@ rsa_set_memory_functions(void)
 int
 main(int argc, char *argv[])
 {
-	mpz_t a, b;
+	mpz_t a, b, c;
 	int add = 1024;
 	rsa_key rsa;
 
@@ -91,7 +91,7 @@ main(int argc, char *argv[])
 	unsigned char eb[9024], *ebp = eb;
 	unsigned char db[9024], *dbp = db;
 	int x;
-	int a1, a2;
+	int a1, a2 = 1;
 
 	if (argc >= 2)
 		add = atoi(argv[1]);
@@ -100,13 +100,21 @@ main(int argc, char *argv[])
 
 	mpz_init(a);
 	mpz_init(b);
+	mpz_init(c);
+
+	mpz_fac_ui(a, 120);
 
 	rsa_init(&rsa);
 
-	x = rsa_keygen(&rsa, a, b, 1024, 10);
-	printf("\nkeygen = %d\n", x); fflush(stdout);
+printf("keygen\n"); fflush(stdout);
+	for (a1 = 0; a1 < a2; a1++) {
+		x = rsa_keygen(&rsa, a, b, 1024, 80);
+		printf("\nkeygen = %d, a1=%d\n", x, a1); fflush(stdout);
+		mpz_add_ui(a, a, a1);
+		mpz_sub_ui(b, b, a1);
+	}
 
-#if 0
+#if 1
 	gmp_printf("n=%Zx\n", rsa.mod);
 	gmp_printf("p=%Zx\n", rsa.p);
 	gmp_printf("q=%Zx\n", rsa.q);
@@ -142,8 +150,10 @@ main(int argc, char *argv[])
 #endif
 
 printf("a2 = %d: x = %d\n", a2, x);
-		if (a2 < 0)
+		if (a2 < 0) {
+			printf("decode failed\n");
 			exit(0);
+		}
 
 		dbp += a2;
 		ebp += rsa.k;
@@ -153,10 +163,11 @@ printf("a2 = %d: x = %d\n", a2, x);
 
 	mpz_clear(a);
 	mpz_clear(b);
+	mpz_clear(c);
 
 	rsa_clear(&rsa);
 
-	printf("%d, %d -- %d\n", __GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, rsa_alloc_cnt(0));
+	printf("gmp_info: %d, %d -- leak = %d\n", __GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, rsa_alloc_cnt(0));
 
 	return (0);
 }
