@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.28 2004/09/17 02:42:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.29 2004/09/19 00:47:47 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -95,6 +95,7 @@ struct object * newObject()
   r->tag = 0;
   (r->lc).ival = 0;
   (r->rc).ival = 0;
+  r->attr = NULL;
   return(r);
 }
 

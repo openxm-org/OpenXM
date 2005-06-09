@@ -36,6 +36,7 @@ struct object{
   int tag;                /* class identifier */
   union cell lc;          /* left cell */
   union cell rc;          /* right cell */
+  struct object *attr;
 };
 /********** macros to use Sarray **********************/
 /* put to Object Array */

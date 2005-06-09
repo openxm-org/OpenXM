@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.h,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.h,v 1.3 2000/12/10 02:21:45 takayama Exp $ */
 /* d.h;*/
 /*  from stackm.h */
 
@@ -47,12 +47,14 @@ struct Object{
   int tag;                /* class identifier */
   union cell lc;          /* left cell */
   union cell rc;          /* right cell */
+  struct object *attr;
 };
 
 struct object{         /* must be compatible with stackm.h */
   int tag;                /* class identifier */
   union cell lc;          /* left cell */
   union cell rc;          /* right cell */
+  struct object *attr;
 };
 
 typedef struct Object * objectp;   /* cf. 65p of Schreiner. */

@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.31 2004/09/17 02:42:57 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.32 2004/09/21 05:46:15 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -168,9 +168,11 @@ stackmachine_init() {
   /* initialize null object */
   NullObject.tag = 0;
   NullObject.lc.op = NullObject.rc.op = (struct object *)NULL;
+  NullObject.attr = (struct object *)NULL;
   /* findUserdictionary returns NoObject if it cannot find the key.*/
   NoObject.tag = -1;
   NoObject.lc.op = NoObject.rc.op = (struct object *)NULL;
+  NoObject.attr = (struct object *)NULL;
   /* Initalize lookup table */
   for (i=0; i<TYPES; i++) {
     for (j=0; j<TYPES; j++)
