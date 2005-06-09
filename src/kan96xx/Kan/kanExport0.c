@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.40 2004/09/23 12:20:52 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.41 2004/11/15 08:27:27 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -3148,6 +3148,7 @@ struct object newByteArrayFromStr(char *s,int size) {
   }
   return(rob);
 }
+
 struct object byteArrayToArray(struct object obj) {
   int n,i; unsigned char *ba;
   struct object rob;
@@ -3159,8 +3160,84 @@ struct object byteArrayToArray(struct object obj) {
   return rob;
 }
 
+struct object KgetAttributeList(struct object ob){
+  struct object rob;
+  if (ob.attr != NULL) rob = *(ob.attr);
+  else rob = NullObject;
+  return rob;
+}
+struct object  KputAttributeList(struct object ob,struct object attr) {
+  ob.attr = newObject();
+  *(ob.attr) = attr;
+  return ob;
+}
+struct object KgetAttribute(struct object ob,struct object key) {
+  struct object rob;
+  struct object alist;
+  int n,i;
+  struct object tob;
+  char *s;
+  rob = NullObject;
+  if (ob.attr == NULL) return rob;
+  alist = *(ob.attr);
+  if (alist.tag != Sarray) return rob;
+  if (key.tag != Sdollar) return rob;
+  s = KopString(key);
+  n = getoaSize(alist);
+  for (i = 0; i < n; i += 2) {
+    tob = getoa(alist,i);
+    if (tob.tag == Sdollar) {
+      if (strcmp(KopString(tob),s) == 0) {
+        if (i+1 < n) rob = getoa(alist,i+1);
+        return rob;
+      }
+    }
+  }
+  return rob;
+}
+/*  ob (key) (value) putAttribute /ob set. They are not destructive. */
+struct object KputAttribute(struct object ob,struct object key,struct object value) {
+  struct object rob;
+  struct object alist;
+  int n,i;
+  char *s = "";
+  struct object tob;
+  rob = ob;
+  if (ob.attr == NULL) {
+    rob.attr = newObject();
+    *(rob.attr) = newObjectArray(2);
+    putoa((*(rob.attr)),0,key);
+    putoa((*(rob.attr)),1,value);
+    return rob;
+  }
+  alist = *(ob.attr);
+  if (alist.tag != Sarray) return rob;
+  if (key.tag != Sdollar) {
+    s = KopString(key);
+  }
+  n = getoaSize(alist);
+  for (i = 0; i < n; i += 2) {
+    tob = getoa(alist,i);
+    if (tob.tag == Sdollar) {
+      if (strcmp(KopString(tob),s) == 0) {
+        if (i+1 < n) putoa(alist,i+1,value);
+        return rob;
+      }
+    }
+  }
+
+  rob.attr = newObject();
+  *(rob.attr) = newObjectArray(n+2);
+  for (i=0; i<n; i++) {
+    putoa((*(rob.attr)),i,getoa((*(ob.attr)),i));
+  }
+  putoa((*(rob.attr)),n,key);
+  putoa((*(rob.attr)),n+1,value);
+  return rob;
+}
+
 /******************************************************************
-     error handler
+     Error handler
 ******************************************************************/
 
 errorKan1(str,message)

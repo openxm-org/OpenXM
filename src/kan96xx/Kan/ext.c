@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.33 2004/11/23 01:37:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.34 2004/12/21 03:25:04 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -312,6 +312,18 @@ struct object Kextension(struct object obj)
     printObject(obj2,0,fp);
     fclose(fp);
     rob = NullObject;
+  }else if (strcmp(key,"getAttributeList")==0) {
+    if (size != 2) errorKan1("%s\n","[(getAttributeList) ob] extension rob");
+    rob = KgetAttributeList(getoa(obj,1));
+  }else if (strcmp(key,"putAttributeList")==0) {
+    if (size != 3) errorKan1("%s\n","[(putAttributeList) ob attrlist] extension rob");
+    rob = KputAttributeList(getoa(obj,1), getoa(obj,2));
+  }else if (strcmp(key,"getAttribute")==0) {
+    if (size != 3) errorKan1("%s\n","[(getAttribute) ob key] extension rob");
+    rob = KgetAttribute(getoa(obj,1),getoa(obj,2));
+  }else if (strcmp(key,"putAttribute")==0) {
+    if (size != 4) errorKan1("%s\n","[(putAttributeList) ob key value] extension rob");
+    rob = KputAttribute(getoa(obj,1), getoa(obj,2),getoa(obj,3));
   }else if (strcmp(key,"hilbert")==0) {
     if (size != 3) errorKan1("%s\n","[(hilbert) obgb obvlist] extension.");
     rob = hilberto(getoa(obj,1),getoa(obj,2));
