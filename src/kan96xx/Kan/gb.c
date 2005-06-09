@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.7 2003/07/30 09:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.8 2003/08/19 08:02:09 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -162,13 +162,14 @@ struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
   return(grD);
 }
 
-struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReduction)
+struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly)
      struct arrayOfPOLY *f;
      int needBack;
      int needSyz;
      struct pair **grP;  /* if (needSyz), it is set. */
      int countDown;
      int forceReduction;
+     int reduceOnly;
 {
   int r;
   struct gradedPolySet *g;
@@ -196,6 +197,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
   struct ring *rp;
   int first;
   int statisticsPL, statisticsCount;
+
 
   if (Statistics) {
     for (i=0; i<DMAX; i++) MaxLength[i] = SpNumber[i] = 0;
@@ -269,7 +271,8 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
     gj = g->polys[jg]->g[ji];
 
     Spairs++;
-    h = (*sp)(gi,gj);
+	if (reduceOnly && (!needSyz) && (!needBack)) h = spZero(); /* rd = 0 */
+	else h = (*sp)(gi,gj);
     rd = ppAddv(ppMult(h.a,gi),ppMult(h.b,gj));
 
     if (Statistics) {
@@ -409,7 +412,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
     printf("\n");
   }
 
-  if (AutoReduce) {
+  if (AutoReduce || reduceOnly) {
     toReducedBasis(g,needBack,needSyz);
   }
   

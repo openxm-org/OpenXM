@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.15 2004/08/31 05:30:20 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.16 2004/09/05 07:42:43 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -85,6 +85,7 @@ struct object Kgroebner(ob)
   extern int StopDegree;
   int sdflag = 0;
   int forceReduction = 0;
+  int reduceOnly = 0;
 
   int ob1Size, ob2Size, noZeroEntry;
   int *ob1ToOb2;
@@ -130,6 +131,8 @@ struct object Kgroebner(ob)
           needSyz = needBack = 1;
         }else if (strcmp(ob2c.lc.str,"forceReduction")==0) {
           forceReduction = 1;
+        }else if (strcmp(ob2c.lc.str,"reduceOnly")==0) {
+          reduceOnly = 1;
         }else if (strcmp(ob2c.lc.str,"countDown")==0) {
           countDown = 1; cdflag = 1;
           if (needSyz) {
@@ -251,7 +254,7 @@ struct object Kgroebner(ob)
   }
 
   a = arrayToArrayOfPOLY(ob2);
-  grG = (*groebner)(a,needBack,needSyz,&grP,countDown,forceReduction);
+  grG = (*groebner)(a,needBack,needSyz,&grP,countDown,forceReduction,reduceOnly);
 
   if (strcmp(F_groebner,"gm") == 0 && (needBack || needSyz)) {
     warningKan("The options needBack and needSyz are ignored.");

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.5 2003/07/30 09:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.6 2003/08/19 08:02:09 takayama Exp $ */
 /* gradedset.h */
 #define max(a,b) (a>b?a:b)
 
@@ -42,6 +42,7 @@ int clearGmod(struct gradedPolySet *g);
 
 /* red.c */
 struct spValue (*sp)(POLY f,POLY g);
+struct spValue spZero(void);
 int (*isReducible)(POLY f,POLY g);
 POLY (*reduction1)(POLY f,POLY g,int needSyz,POLY *cc,POLY *cg);
 /*  if needSyz, then  result = *cc f + *cg g. */
@@ -91,11 +92,11 @@ void initSyzRingp(void);
 struct gradedPolySet *(*groebner)(struct arrayOfPOLY *f,
 				  int needBack,
 				  int needSyz, struct pair **grP,
-				  int countDown,int forceReduction);
+				  int countDown,int forceReduction,int reduceOnly);
 struct gradedPolySet *groebner_gen(struct arrayOfPOLY *f,
 				  int needBack,
 				  int needSyz, struct pair **grP,
-				  int countDown,int forceReduction);
+				  int countDown,int forceReduction,int reduceOnly);
 struct gradedPairs *updatePairs(struct gradedPairs *grD, POLY gt,
 				int gtGrade, int t,
 				struct gradedPolySet *grG);
@@ -107,7 +108,7 @@ void toReducedBasis(struct gradedPolySet *grP,int needBack, int needSyz);
 struct gradedPolySet *groebner_gm(struct arrayOfPOLY *f,
 				  int needBack,
 				  int needSyz, struct pair **grP,
-				  int countDown,int forceReduction);
+				  int countDown,int forceReduction,int reduceOnly);
 
 /* syz0 */
 void simplifyBT(int grd,int index, struct gradedPolySet *grG);

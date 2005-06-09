@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.8 2003/09/12 02:52:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/red.c,v 1.9 2004/09/13 11:24:11 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -10,6 +10,12 @@ int DebugReductionRed = 0;
 int DebugContentReduction = 0;
 extern int Sugar;
 
+struct spValue spZero(void) {
+  struct spValue r;
+  r.a = ZERO;
+  r.b = ZERO;
+  return r;
+}
 struct spValue sp_gen(f,g)
      POLY f;
      POLY g;

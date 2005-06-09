@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.39 2004/11/23 01:37:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.40 2004/12/21 03:25:04 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -237,8 +237,10 @@ void Kusage2(fp,s)
     fppp(fp,"poly f1, ..., fn; poly g1, ..., gm;\n");
     fppp(fp,"optional return value: matrix of poly backward-transformation, syzygy;\n");  
     fppp(fp,"Computation of the Groebner basis of f1,...,fn. The basis is {g1,...,gm}.\n");
-    fppp(fp,"Options:  << (needBack), (needSyz), (countDown) number (StopDegree) number, (forceReduction)>>\n");
+    fppp(fp,"Options: << (needBack), (needSyz), (reduceOnly),\n");
+    fppp(fp,"            (countDown) number (StopDegree) number, (forceReduction)>>\n");
     fppp(fp,"Flags:<< [(ReduceLowerTerms) 1] system_variable >>\n");
+    fppp(fp,"      << [(AutoReduce) 0]          system_variable >>\n");
     fppp(fp,"      << [(UseCriterion1) 0]    system_variable >>\n");
     fppp(fp,"      << [(UseCriterion2B) 0]   system_variable >>\n");
     fppp(fp,"      << [(Sugar) 0]            system_variable >>\n");
