@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.8 2005/02/03 06:42:40 takayama Exp $ 
+$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.9 2005/02/03 07:31:55 takayama Exp $ 
 2004/02/23 by Takayama
 2005/02/03 Revised.
 
@@ -45,7 +45,15 @@ uninstall
 
 注意.  make install-document すると asir がもう一度 install されるので
        cd asir-port ; make install して symbolic link にする.  cf. debian/rule
+----------------------------------------
+dpkg-scanpackages /home/ftp/pub/asir/knoppix-all/knoppix-2005-02 . >Packages
+cd /home/ftp/pub/asir/knoppix-all/knoppix-2005-02 ; gzip Packages
+このファイルは apt-get が必要とする.
+/etc/apt/sources.list には
+deb ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2005-02 /
+が必要.
 
+----------------------------------------
 高山の個人メモ.
        rm ~/tmp/openxm-head.tar.gz しとく?
        mango での生成は,  cd /private/taka  へ OpenXM を checkout してやる.
