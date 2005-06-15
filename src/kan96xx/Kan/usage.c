@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.40 2004/12/21 03:25:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.41 2005/06/09 04:09:22 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -147,6 +147,8 @@ void Kusage2(fp,s)
     fppp(fp,"  [(chattrs) num ] extension result-object \n");
     fppp(fp,"  [(defaultPolyRing) num ] extension result-object \n");
     fppp(fp,"  [(flush) ] extension null \n");
+    fppp(fp,"  [(getAttribute) obj key] extension value \n");
+    fppp(fp,"  [(getAttributeList) obj] extension attrList \n");
     fppp(fp,"  [(getpid) ] extension result-integer \n");
     fppp(fp,"  [(getenv) envName] extension valueOfEnvName \n");
     fppp(fp,"  [(gethostname) ] extension myhostname \n");
@@ -164,6 +166,8 @@ void Kusage2(fp,s)
     fppp(fp,"  [(or_attrs) atr ] extension result-obj \n");
     fppp(fp,"  [(outputObjectToFile) path obj] extension null \n");
     fppp(fp,"  [(ostype)] extension list \n");
+    fppp(fp,"  [(putAttribute) obj key value] extension new-attributed-obj \n");
+    fppp(fp,"  [(putAttributeList) obj attrList] extension new-attributed-obj \n");
     fppp(fp,"  [(read) fd size] extension string \n");
     fppp(fp,"  [(regexec) regular_expression stringArray flags(opt)] extension list \n");
     fppp(fp,"  [(regionMatches) string stringArray] extension list \n");
@@ -172,6 +176,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(unlink) fname] extension r\n");
     /* fppp(fp,"  [(asir0) string] extension result-object \n"); */
     fppp(fp,"See also plugin-* in ?? by [(plugin)] usages :: \n");
+    fppp(fp,"See also (extension-examples) usage :: \n");
   }else if (strcmp(s,"file")==0) {
     fppp(fp,"<< filename mode file fd >>\n");
     fppp(fp,"string filename, mode; file fd;\n");
