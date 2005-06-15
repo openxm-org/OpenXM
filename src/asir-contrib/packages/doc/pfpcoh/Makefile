@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/pfpcoh/Makefile,v 1.1 2005/04/13 11:45:27 takayama Exp $
 
 # Name of this document.
 MYNAME=pfpcoh
@@ -26,8 +26,8 @@ ${MYNAME}-en.texi: ${MYNAME}.oxg
 
 ${MYNAME}-auto.en: ${CONTRIB}/pfpcoh.rr ${CONTRIB}/pfphom.rr
 	${RM} -f pfp-auto.en
-	cat ${CONTRIB}/pfpcoh.rr ${CONTRIB}/pfphom.rr | ${OXWEAVE} usage  | ${OXGENTEXI} --category pfp --en --upnode "Pfpcohom" ${OPTGENTEXI} >${MYNAME}-auto.en
+	cat ${CONTRIB}/pfpcoh.rr ${CONTRIB}/pfphom.rr | ${OXWEAVE} usage  | ${OXGENTEXI} --en --upnode "Pfpcohom" ${OPTGENTEXI} >${MYNAME}-auto.en
 
 ${MYNAME}-auto.ja: ${CONTRIB}/pfpcoh.rr ${CONTRIB}/pfphom.rr
 	${RM} -f pfp-auto.ja
-	cat ${CONTRIB}/pfpcoh.rr ${CONTRIB}/pfphom.rr | ${OXWEAVE} usage  | ${OXGENTEXI} --category pfp --en --upnode "Pfpcohom" ${OPTGENTEXI} >${MYNAME}-auto.ja
+	cat ${CONTRIB}/pfpcoh.rr ${CONTRIB}/pfphom.rr | ${OXWEAVE} usage  | ${OXGENTEXI} --en --upnode "Pfpcohom" ${OPTGENTEXI} >${MYNAME}-auto.ja
