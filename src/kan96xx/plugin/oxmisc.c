@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.22 2004/09/17 07:27:28 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.23 2004/09/17 08:46:10 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -344,7 +344,7 @@ void oxSendResultOfControl(int fd)
 void oxSendMathCap(ox_stream os,struct mathCap *mathcap)
 {
   int i,n,infosize,ncmo;
-  struct object mathinfo;
+  struct object mathinfo = OINIT;
   /* printf("ox sending mathcap\n"); fflush(stdout); */
   mathinfo = *((struct object *)(mathcap->infop));
   infosize = getoaSize(mathinfo);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.23 2004/09/17 07:27:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.24 2004/09/17 08:46:10 takayama Exp $ */
 #include <stdio.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
@@ -23,7 +23,7 @@ int oxGet(oxclientp client, struct object *op,int *isObj)
   int ans;
   ox_stream os;
   int m;
-  struct object rob;
+  struct object rob = OINIT;
   int sss;  /* Serial number of the recieved packet. */
   *isObj = 0;
   op->tag = Snull;
@@ -140,13 +140,13 @@ int oxReq(oxclientp client,int func,struct object ob)
        ob3         ob2 */
     /*     oxtags      [[OX_DATA, [cmo numbers]],[OX_DATA_LOCAL,[opt]],...]*/
     {
-      struct object ob1;
-      struct object ob2;
-      struct object ob3;
-      struct object obm;
-      struct object smtags;
-      struct object oxtags;
-      struct object ox;
+      struct object ob1 = OINIT;
+      struct object ob2 = OINIT;
+      struct object ob3 = OINIT;
+      struct object obm = OINIT;
+      struct object smtags = OINIT;
+      struct object oxtags = OINIT;
+      struct object ox = OINIT;
       int n,i;
       struct mathCap mathcap;
 
@@ -279,10 +279,10 @@ struct object KoxCreateClient(struct object ip,
                               struct object portStream,
                               struct object portControl,struct object pass)
 {
-  struct object rob;
+  struct object rob = OINIT;
   oxclientp client;
   char *passControl; char *passData;
-  struct object tob;
+  struct object tob = OINIT;
   passControl = NULL; passData = NULL;
   rob.tag = Snull;
   if (ip.tag != Sdollar) {
@@ -366,7 +366,7 @@ static int isItClientObject(struct object ob)
 
 struct object KoxIsThereErrorClient(struct object ob)
 {
-  struct object rob;
+  struct object rob = OINIT;
   int ans;
   int size;
   oxclient cc;
@@ -382,7 +382,7 @@ struct object KoxIsThereErrorClient(struct object ob)
 
 int oxClientToObject(oxclientp client,struct object rob)
 {
-  struct object ob;
+  struct object ob = OINIT;
   if (client == NULL) return;
   /* rob = newObjectArray(N_OF_CLIENT_FIELDS); */
   if (rob.tag != Sarray) {
@@ -421,7 +421,7 @@ int oxClientToObject(oxclientp client,struct object rob)
 
 int oxObjectToClient(struct object ob,oxclientp cp)
 {
-  struct object ob1;
+  struct object ob1 = OINIT;
   struct object *obp;
   if (cp == NULL) {
     errorOxmisc2("oxObjectToClient(): the second argument is NULL");
@@ -486,7 +486,7 @@ struct object KoxReq(struct object client,
 {
   int ans;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -517,7 +517,7 @@ struct object KoxGet(struct object client)
 {
   int ans,k;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -548,7 +548,7 @@ struct object KoxGetFromControl(struct object client)
 {
   int ans;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -578,12 +578,12 @@ struct object KoxMultiSelect(struct object oclients,struct object t)
   static int csize = 0;
   static oxclientp *clients = NULL;
   oxclientp cc1;
-  struct object rob;
+  struct object rob = OINIT;
   int i;
   int tt;
-  struct object ob1;
-  struct object ob2;
-  struct object ob0;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob0 = OINIT;
   int size;
   int ans;
   int dataready[1024];
@@ -648,7 +648,7 @@ struct object KoxWatch(struct object client,struct object f)
 {
   int ans,k;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   extern int WatchStream;
   rob.tag = Snull;
   if (client.tag == Sinteger) {
@@ -685,7 +685,7 @@ struct object KoxLog(struct object client,struct object in,struct object out)
 {
   int ans,k;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -720,7 +720,7 @@ struct object KoxLog(struct object client,struct object in,struct object out)
 
 struct object KoxLogStop(struct object client) {
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -742,7 +742,7 @@ struct object KoxLogStop(struct object client) {
 struct object KoxCloseClient(struct object client) {
   oxclientp cc1 = NULL;
   oxclient cc;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   cc1  = &cc;
   if (oxObjectToClient(client,cc1) == -1) return(rob);
@@ -851,13 +851,13 @@ static int cmoCheck00(struct object obj,int cmo[], int n) {
     
 int cmoCheckMathCap(struct object obj, struct object *obp)
 {
-  struct object mathcap;
-  struct object cmolist;
-  struct object mathcapMain;
-  struct object mathcapThird;
-  struct object ox;
-  struct object oxtag;
-  struct object ob0;
+  struct object mathcap = OINIT;
+  struct object cmolist = OINIT;
+  struct object mathcapMain = OINIT;
+  struct object mathcapThird = OINIT;
+  struct object ox = OINIT;
+  struct object oxtag = OINIT;
+  struct object ob0 = OINIT;
   int oxsize;
   int n;
   int i;
@@ -969,7 +969,7 @@ int cmoCheckMathCap(struct object obj, struct object *obp)
     
              
 struct object KoxGenPortFile(void) {
-  struct object ob;
+  struct object ob = OINIT;
   ob = KpoString(oxGenPortFile());
   return(ob);
 }
@@ -979,20 +979,20 @@ void KoxRemovePortFile(void) {
 
 void oxPushMathCap(struct mathCap *mathcap)
 {
-  struct object rob;
+  struct object rob = OINIT;
   rob = newMathCap(mathcap); 
   Kpush(rob);
 }
 
 struct object KoxGenPass(void) {
-  struct object rob;
+  struct object rob = OINIT;
   rob = KpoString(oxGenPass());
   return(rob);
 }
 
 struct object KoxGetPort(struct object host)
 {
-  struct object rob;
+  struct object rob = OINIT;
   int fdStream, fdControl;
   int portStream, portControl;
   extern int OpenedSocket;
@@ -1016,7 +1016,7 @@ struct object KoxGetPort(struct object host)
 }
 struct object KoxGetPort1(struct object host)
 {
-  struct object rob;
+  struct object rob = OINIT;
   int fdStream;
   int portStream;
   extern int OpenedSocket;
@@ -1039,12 +1039,13 @@ struct object KoxCreateClient2(struct object peer,
                                struct object ipmask,
                                struct object pass)
 {
-  struct object rob;
+  struct object rob = OINIT;
   oxclientp client;
   int fdStream, portStream, fdControl, portControl;
   int i;
-  struct object ob1;
-  struct object opassControl, opassData;
+  struct object ob1 = OINIT;
+  struct object opassControl = OINIT;
+  struct object opassData = OINIT;
   rob.tag = Snull;
   if (peer.tag != Sarray) {
     errorOxmisc2("KoxCreateClient2(): The first argument must be an array [fdStream, portStream, fdControl, portControl]");
@@ -1109,7 +1110,7 @@ errorOxmisc2(char *s) {
 struct object KoxPushCMD(struct object client,struct object cmd) {
   int ans;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -1140,7 +1141,7 @@ struct object KoxPushCMD(struct object client,struct object cmd) {
 struct object KoxPushCMO(struct object client,struct object ob) {
   int ans;
   static oxclientp cc1 = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Snull;
   if (cc1 == NULL) {
     cc1 = (oxclientp) mymalloc(sizeof(oxclient));
@@ -1178,11 +1179,11 @@ oxclientp oxCreateControl_RFC_101(int fdstream,int portStream,
                                   int ipmask,char *pass);
 struct object KoxCreateControl_RFC_101(struct object peer,struct object ipmask,struct object pass) 
 {
-  struct object rob;
+  struct object rob = OINIT;
   oxclientp client;
   int fdStream, portStream;
   int i;
-  struct object ob1;
+  struct object ob1 = OINIT;
   rob.tag = Snull;
   if (peer.tag != Sarray) {
     errorOxmisc2("KoxCreateControl_RFC_101(): The first argument must be an array [fdStream, portStream]");
@@ -1293,11 +1294,11 @@ oxclientp oxCreateEngine_RFC_101(int fdstream,int portStream,
                                  int ipmask,char *pass, int engineID);
 struct object KoxCreateEngine_RFC_101(struct object peer,struct object ipmask,struct object pass, struct object engineID) 
 {
-  struct object rob;
+  struct object rob = OINIT;
   oxclientp client;
   int fdStream, portStream;
   int i;
-  struct object ob1;
+  struct object ob1 = OINIT;
   rob.tag = Snull;
   if (peer.tag != Sarray) {
     errorOxmisc2("KoxCreateEngine_RFC_101(): The first argument must be an array [fdStream, portStream]");
@@ -1435,7 +1436,7 @@ static void KoxCleanClientList() {
   extern int OxClientListn;
   extern struct object OxClientList[];
   int i,j,n;
-  struct object ob;
+  struct object ob = OINIT;
   n = 0;
   for (i=0; i<OxClientListn; i++) {
 	if ((OxClientList[i]).tag != Snull) {
@@ -1449,7 +1450,7 @@ struct object KoxGetClientList() {
   extern int OxClientListn;
   extern struct object OxClientList[];
   int i,j,n;
-  struct object rob;
+  struct object rob = OINIT;
   KoxCleanClientList();
   n = 0;
   for (i=0; i<OxClientListn; i++) {

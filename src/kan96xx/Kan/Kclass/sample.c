@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/sample.c,v 1.2 2000/01/16 07:55:45 takayama Exp $ */
 /* Kclass/sample.c   sample new class. */
 /* How to add a new class to sm1. 
    1. create a new file Kclass/newclass-name.c and change
@@ -20,7 +20,7 @@
 
 /* Data conversion function : see KclassDataConversion*/
 struct object KpoSampleClass(struct object *obp) {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *newobp;
   rob.tag = Sclass;
   rob.lc.ival = CLASSNAME_sampleClass;

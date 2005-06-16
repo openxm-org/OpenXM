@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.9 2005/06/09 04:47:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackm.h,v 1.10 2005/06/15 02:22:51 takayama Exp $ */
 #define LOAD_SM1_PATH "/usr/local/lib/sm1/"
 /* Do not forget to put / at the tail.
    "/usr/local/lib/sm1" does not work.
@@ -73,6 +73,8 @@ struct object{
   struct object *attr;    /* Attribute list. See misc-2005/06/gfan/test1.sm1
                              as to performance test. */
 };
+
+#define OINIT  { .attr = NULL}
 
 struct dictionary {
   char *key;

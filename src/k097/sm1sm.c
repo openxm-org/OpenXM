@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/k097/sm1sm.c,v 1.1 2003/05/14 07:09:48 takayama Exp $ */
 /* This is imported from kxx/sm1stackmachine.c */
 #include <stdio.h>
 #include <setjmp.h>
@@ -20,8 +20,8 @@ int Sm1_setMathCap(ox_stream os) {
   /* Set the mathcap data of the client in the server. */
   /*  sm1 <====== ox_sm1  mathcap is set in ox_stream = FILE2 * */
   /* The mathcap data is on the stack. */
-  struct object ob;
-  struct object ob2;
+  struct object ob = OINIT;
+  struct object ob2 = OINIT;
   int n,i;
   ob = KSpop();
   KSpush(ob);  KSexecuteString(" (mathcap data is ) message message ");
@@ -56,7 +56,7 @@ char *Sm1_popString(void) {
 int Sm1_setName(void)
 {
   char *s;
-  struct object ob;
+  struct object ob = OINIT;
   s = Sm1_popString();
   if (s == NULL) {
     printf("NULL argument for setName.\n");
@@ -72,7 +72,7 @@ int Sm1_setName(void)
 int Sm1_evalName(void)
 {
   char *s;
-  struct object ob;
+  struct object ob = OINIT;
   s = Sm1_popString();
   if (s == NULL) {
     printf("NULL argument for evalName.\n");
@@ -100,7 +100,7 @@ int Sm1_popCMO(ox_stream fp,int serial)
 
 int Sm1_pushError2(int serial, int no, char *s)
 {
-  struct object ob;
+  struct object ob = OINIT;
   ob = KnewErrorPacket(serial,no,s);
   KSpush(ob);
 }
@@ -140,7 +140,7 @@ void Sm1_dupErrors(void) {
 }
 
 void Sm1_pushCMOtag(int serial) {
-  struct object obj;
+  struct object obj = OINIT;
   int t;
   obj = KSpeek(0);
   t = KgetCmoTagOfObject(obj);

@@ -1,8 +1,8 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/test.c,v 1.2 2000/01/16 07:55:42 takayama Exp $ */
 struct object test2(ob)  /* test2 */
 struct object ob;
 {
-  struct object rob;
+  struct object rob = OINIT;
   int k;
   static POLY f0;
   static POLY f1;
@@ -50,7 +50,7 @@ struct object ob;
 struct object test1(ob)
 struct object ob;
 {
-  struct object rob;
+  struct object rob = OINIT;
   int k;
   static POLY f0;
   static POLY f1;

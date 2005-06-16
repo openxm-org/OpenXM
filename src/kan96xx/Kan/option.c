@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.14 2003/11/20 09:20:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.15 2004/09/17 02:42:57 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -60,7 +60,10 @@ struct object KsystemVariable(ob)
   extern int RestrictedMode, RestrictedMode_saved;
 
   int n,i;
-  struct object ob1,ob2,ob3,ob4;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
+  struct object ob4 = OINIT;
   struct object rob = NullObject;
   switch (getoaSize(ob)) {
   case 1:   /* get the value */

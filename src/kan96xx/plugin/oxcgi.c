@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.7 2004/11/23 01:37:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.8 2005/02/27 05:28:06 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -28,8 +28,8 @@ struct object cgiUrlEncodingToKeyValuePair(char *s) {
   int vstart,vend; /* start of value, end of value */
   int state;
   int nOfPairs;
-  struct object rob;
-  struct object ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   int k;
   n = strlen(s); start = -1;
   for (i=0; i<n; i++) {
@@ -180,7 +180,7 @@ struct object urlEncodedStringToObj(char *s,int vstart,int vend,int mode)
         [ not implemented yet. ]
       */
 {
-  struct object rob;
+  struct object rob = OINIT;
   char *ts;
   char *ts2;
   int i,j;
@@ -241,7 +241,7 @@ static test1() {
 }
 static test2() {
   char s[1000];
-  struct object ob;
+  struct object ob = OINIT;
   ob=cgiUrlEncodingToKeyValuePair("http://hoge.hoge?name=1231232&hoge=asdfsdf&foo=asdfasdf");
   printObject(ob,1,stdout);
   ob=cgiUrlEncodingToKeyValuePair("http://hoge.hoge?name=1231232&hoge=&foo=asdfasdf&hoge=A%41+%42%62y%21");
@@ -253,7 +253,7 @@ static test2() {
 
 static test4() {
   char s[1000];
-  struct object ob;
+  struct object ob = OINIT;
   char *ts;
   int size;
   ob=cgiUrlEncodingToKeyValuePair("http://hoge.hoge?name=1231232&hoge=&foo=asdfasdf&hoge=A%41+%42%62y%21");
@@ -283,7 +283,9 @@ char *cgiKeyValuePairToUrlEncoding(struct object ob) {
 }
 int checkKeyValuePairFormat(struct object ob,char *msg) {
   int i,n;
-  struct object eob,eob0,eob1;
+  struct object eob = OINIT;
+  struct object eob0 = OINIT;
+  struct object eob1 = OINIT;
   static char *fmt = NULL;
   int size;
   char *ss;
@@ -309,7 +311,9 @@ int checkKeyValuePairFormat(struct object ob,char *msg) {
 
 int cgiKeyValuePairToUrlEncodingFile2(struct object ob,FILE2 *fp) {
   int n,i;
-  struct object eob,eob0,eob1;
+  struct object eob = OINIT;
+  struct object eob0 = OINIT;
+  struct object eob1 = OINIT;
   char *key, *s;
   checkKeyValuePairFormat(ob,"cgiKeyValuePairToUrlEncodingFile2");
   n = getoaSize(ob);
@@ -340,7 +344,7 @@ int cgiKeyValuePairToUrlEncodingFile2(struct object ob,FILE2 *fp) {
 
 static struct object rStringToObj(char *s,int vstart,int vend,int mode) {
   /* mode has not yet been used. */
-  struct object rob;
+  struct object rob = OINIT;
   char *sss; int i;
   int bytearray;
   bytearray=0;
@@ -372,7 +376,8 @@ struct object cgiHttpToKeyValuePair(char *s,int size) {
   int ssize,i,j,k;
   int nOfPairs, startbody,state, kstart,kend,vstart, vend,startline,endline;
   int nextstart,path;
-  struct object rob,ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   ssize = strlen(s);
   nOfPairs = 0; startbody = -1;
   /* state==0 :  readline and set startline and endline; state = 1;
@@ -455,7 +460,9 @@ char *cgiKeyValuePairToHttp(struct object ob,int *sizep) {
 
 int cgiKeyValuePairToHttpFile2(struct object ob,FILE2 *fp) {
   int n,i;
-  struct object eob,eob0,eob1;
+  struct object eob = OINIT;
+  struct object eob0 = OINIT;
+  struct object eob1 = OINIT;
   char *key, *s;
   checkKeyValuePairFormat(ob,"cgiKeyValuePairToHttpFile2");
   n = getoaSize(ob);
@@ -491,7 +498,7 @@ int cgiKeyValuePairToHttpFile2(struct object ob,FILE2 *fp) {
 
 static test3() {
   char *s;
-  struct object ob;
+  struct object ob = OINIT;
   s = "Pragma: no-cache\nContent-Length:  2915\nContent-Type: text/html\nConnection: close\n\n                <DIV class=Section1> \n    <P class=MsoNormal \n   style=\"mso-list: none; mso-list-ins: \" 19991102T2025\">&nbsp;\n      </P> ";
 
   ob=cgiHttpToKeyValuePair(s,strlen(s)); 
@@ -558,7 +565,7 @@ static struct object toTokens(char *s,int *sep,int nsep) {
   /* s is the input, and sep are the separators. */
   /* -1 means <=' ' are separators */
   int nOfTokens,n,i,done,k,start,sav;
-  struct object rob;
+  struct object rob = OINIT;
   char *t;
 
   rob = NullObject;

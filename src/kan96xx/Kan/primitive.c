@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.18 2004/09/17 02:42:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.19 2004/09/20 02:11:22 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
@@ -422,12 +422,12 @@ void  KdefinePrimitiveFunctions() {
 int executePrimitive(ob) 
      struct object ob;
 {
-  struct object ob1;
-  struct object ob2;
-  struct object ob3;
-  struct object ob4;
-  struct object ob5;
-  struct object rob;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
+  struct object ob4 = OINIT;
+  struct object ob5 = OINIT;
+  struct object rob = OINIT;
   struct object obArray[OB_ARRAY_MAX];
   struct object obArray2[OB_ARRAY_MAX];
   int size;
@@ -440,11 +440,11 @@ int executePrimitive(ob)
   FILE *fp;
   char *fname;
   int rank;
-  struct object oMat;
+  struct object oMat = OINIT;
   static int timerStart = 1;
   static struct tms before, after;
   static time_t before_real, after_real;
-  struct object oInput;
+  struct object oInput = OINIT;
   char *str;
   int ccflag = 0;
   extern int KeepInput;
@@ -1581,9 +1581,9 @@ int executePrimitive(ob)
 
       if (QuoteMode && (status & DO_QUOTE)) {
         /* generate tree object, for kan/k0 */
-        struct object qob;
-        struct object qattr;
-        struct object qattr2;
+        struct object qob = OINIT;
+        struct object qattr = OINIT;
+        struct object qattr2 = OINIT;
         if (i==0) { Kpop(); Kpop();}
         qob = newObjectArray(3);
         qattr = newObjectArray(1);

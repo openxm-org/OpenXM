@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/hilbert.c,v 1.2 2000/01/16 07:55:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/hilbert.c,v 1.3 2001/05/04 01:06:23 takayama Exp $ */
 /*   hilbert.c
      1992/06/16
      1992/06/18
@@ -41,7 +41,7 @@ struct object hilberto(struct object obgb,struct object obv)
   int n; /* number of variables */
   int i,j,k;
   int n0; /* number of the variables for the polynomials in base. */
-  struct object obf;
+  struct object obf = OINIT;
   struct ring *rp;
   struct ring *rr = (struct ring *)NULL;
   POLY *base;
@@ -50,8 +50,8 @@ struct object hilberto(struct object obgb,struct object obv)
   int debug = 0;
   POLY f;
   POLY g;
-  struct object rob;
-  struct object ccc;
+  struct object rob = OINIT;
+  struct object ccc = OINIT;
   extern struct ring SmallRing;
   int worg;
   extern int WarningNoVectorVariable;

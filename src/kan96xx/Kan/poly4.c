@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.13 2004/06/12 07:29:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.14 2004/07/29 08:13:42 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -41,7 +41,7 @@ struct matrixOfPOLY *parts(f,v)
   int *ev;
   struct object *evList;
   struct object *list;
-  struct object ob;
+  struct object ob = OINIT;
   POLY ans;
   POLY h;
   extern struct ring *CurrentRingp;
@@ -128,11 +128,13 @@ struct object parts2(f,v)
   int *ev;
   struct object *evList;
   struct object *list;
-  struct object ob;
+  struct object ob = OINIT;
   POLY ans;
   POLY h;
   POLY ft;
-  struct object ob1,ob2,rob;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object rob = OINIT;
 
   
   if (f ISZERO || v ISZERO) {

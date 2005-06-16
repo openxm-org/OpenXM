@@ -38,6 +38,8 @@ struct object{
   union cell rc;          /* right cell */
   struct object *attr;
 };
+#define OINIT  { .attr = NULL }
+
 /********** macros to use Sarray **********************/
 /* put to Object Array */
 #define putoa(ob,i,cc) {\

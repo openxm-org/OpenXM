@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.17 2004/02/25 23:14:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.18 2004/11/23 00:02:55 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -162,9 +162,9 @@ struct object KsocketConnect(struct object obj) {
 /* [ integer socketid ]
    [ integer newsocketid ] */
 struct object KsocketAccept(struct object obj) {
-  struct object obj1;
-  struct object obj2;
-  struct object robj;
+  struct object obj1 = OINIT;
+  struct object obj2 = OINIT;
+  struct object robj = OINIT;
   int s, news;
     
   if (obj.tag != Sarray) {
@@ -202,9 +202,9 @@ struct object KsocketAccept(struct object obj) {
    ....
    */
 struct object KsocketAccept2(struct object obj) {
-  struct object obj1;
-  struct object obj2;
-  struct object robj;
+  struct object obj1 = OINIT;
+  struct object obj2 = OINIT;
+  struct object robj = OINIT;
   int s, news;
     
   if (obj.tag != Sarray) {
@@ -262,9 +262,9 @@ int KsocketSelect0(int fd,int t) {
    integer true or false
 */
 struct object KsocketSelect(struct object obj) {
-  struct object robj;
-  struct object ob1;
-  struct object ob2;
+  struct object robj = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
   if (obj.tag != Sarray) {
     errorMsg1s("KsocketSelect([ integer socketid optional integer timeout default 0]");
   }
@@ -294,10 +294,10 @@ struct object KsocketSelectMulti(struct object obj)
    [ result1, result2, ....]
 */
 {
-  struct object robj;
-  struct object ob1;
-  struct object ob2;
-  struct object ob3;
+  struct object robj = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
   int size,i,fd,p,t;
   fd_set readfds;
   struct timeval timeout;
@@ -373,7 +373,7 @@ static char Data00[1024];
    string data 
 */
 struct object KsocketRead(struct object obj) {
-  struct object ob1;
+  struct object ob1 = OINIT;
   struct object robj = NullObject;
   static int datasize = 1024;
   static char *data = Data00;
@@ -435,8 +435,8 @@ struct object KsocketRead(struct object obj) {
 /* [ integer socketid, string data ]
    integer  */
 struct object KsocketWrite(struct object obj) {
-  struct object ob1;
-  struct object ob2;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
   int socketid;
   int r;
   int k,k0;
@@ -472,7 +472,7 @@ struct object KsocketWrite(struct object obj) {
 }
 struct object KsocketClose(struct object obj) {
   int socketid;
-  struct object ob1;
+  struct object ob1 = OINIT;
   if (obj.tag != Sarray) {
     errorMsg1s("KsocketClose([ integer socketid ])");
   }
@@ -499,7 +499,7 @@ struct object KsocketReadByte(struct object obj);
 struct object KsocketWriteByte(struct object obj);
 
 struct object KsocketReadByte(struct object obj) {
-  struct object ob1;
+  struct object ob1 = OINIT;
   struct object robj = NullObject;
   char data[2];
   char *tmp;
@@ -540,8 +540,8 @@ struct object KsocketReadByte(struct object obj) {
 /* [ integer socketid, int ]
    integer  */
 struct object KsocketWriteByte(struct object obj) {
-  struct object ob1;
-  struct object ob2;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
   int socketid;
   int r,i,n,kk,r0;
 #define DATA_SIZE 1024
@@ -600,9 +600,9 @@ struct object KsocketWriteByte(struct object obj) {
 
 struct object KsocketReadHTTP(struct object socketObj) {
   /* Read until two empty line appears. */
-  struct object ob;
-  struct object ob1;
-  struct object nob;
+  struct object ob = OINIT;
+  struct object ob1 = OINIT;
+  struct object nob = OINIT;
   char *s;
   char *sss;
   char *tmp;

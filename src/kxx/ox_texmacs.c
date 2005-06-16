@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.19 2004/09/05 00:51:18 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.20 2004/09/17 02:42:58 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -83,7 +83,7 @@ main(int argc,char *argv[]) {
   char *s;
   char *r;
   char *sys;
-  struct object ob;
+  struct object ob = OINIT;
   int irt=0;
   int vmode=1;
   char *openxm_home;
@@ -250,7 +250,7 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   int i;
   int m;
   int start;
-  struct object ob;
+  struct object ob = OINIT;
   if (limit == 0) {
     limit = 1024;
     s = (char *)sGC_malloc(limit);
@@ -388,7 +388,7 @@ static void printCopyright(char *s) {
 }
 
 static int startEngine(int type,char *msg) {
-  struct object ob;
+  struct object ob = OINIT;
   printf("%s",DATA_BEGIN_V);
   if (type == SM1) {
     if (!TM_sm1Started) KSexecuteString(" sm1connectr ");

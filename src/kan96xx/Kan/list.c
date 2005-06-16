@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.4 2004/09/09 11:42:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.5 2004/09/11 01:00:42 takayama Exp $ */
 /* list.c */
 #include <stdio.h>
 #include "datatype.h"
@@ -27,6 +27,7 @@ struct object *newList(objp)
   /* Warning!! Make a copy of the object. It is important. */
   *(op->lc.op) = *(objp);
   op->rc.op = (struct object *)NULL;
+  op->attr = NULL;
   return(op);
 }
 
@@ -48,7 +49,7 @@ struct object listToArray(objp)
      /* This function copies only the top level of the list */
 {
   int n;
-  struct object ans;
+  struct object ans = OINIT;
   int i;
   if (objp->tag != Slist) {
     warningList("use objectListToObjectArray() for object-list.");
@@ -189,7 +190,7 @@ static warningList(str)
 }
 
 struct object KvJoin(struct object listo1,struct object listo2) {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *op1,*op2;
   if (listo1.tag == Snull) return listo2;
   if (listo2.tag == Snull) return listo1;
@@ -214,7 +215,7 @@ struct object Kcar(struct object listo) {
 }
 struct object Kcdr(struct object listo) {
   struct object *op;
-  struct object rob;
+  struct object rob = OINIT;
   if (listo.tag == Snull) return listo;
   if (listo.tag == Slist) {
     op = cdr(&listo);

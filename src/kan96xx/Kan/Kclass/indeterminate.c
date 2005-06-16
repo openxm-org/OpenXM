@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.6 2001/09/01 01:37:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/indeterminate.c,v 1.7 2003/11/21 02:10:37 takayama Exp $ */
 /* Kclass/indeterminate.c    */
 /* This file handles   indeterminate, recursivePolynomial,
     polynomialInOneVariable
@@ -14,7 +14,7 @@
 
 /* Data conversion function : see KclassDataConversion*/
 struct object KpoIndeterminate(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *newobp;
   rob.tag = Sclass;
   rob.lc.ival = CLASSNAME_indeterminate;
@@ -30,7 +30,7 @@ struct object KpoIndeterminate(struct object ob) {
 
 /* The second constructor. */
 struct object KnewIndeterminate(char *s) {
-  struct object ob;
+  struct object ob = OINIT;
 
   ob = KpoString(s);  /* We do not clone s */
   return(KpoIndeterminate(ob));
@@ -47,7 +47,7 @@ void fprintIndeterminate(FILE *fp,struct object op)
 /* ---------------------------------------------------- */
 
 struct object KpoRecursivePolynomial(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *newobp;
   rob.tag = Sclass;
   rob.lc.ival = CLASSNAME_recursivePolynomial;
@@ -111,9 +111,9 @@ void fprintRecursivePolynomial(FILE *fp,struct object op)
   /* old  code 
      printObject(KopRecursivePolynomial(op),0,fp); return;
   */
-  struct object ob;
-  struct object vlist;
-  struct object body;
+  struct object ob = OINIT;
+  struct object vlist = OINIT;
+  struct object body = OINIT;
   ob = KopRecursivePolynomial(op);
   if (ob.tag != Sarray) {
     printObject(ob,0,fp); return;
@@ -130,7 +130,7 @@ void fprintRecursivePolynomial(FILE *fp,struct object op)
 /*------------------------------------------*/
 
 struct object KpoPolynomialInOneVariable(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *newobp;
   rob.tag = Sclass;
   rob.lc.ival = CLASSNAME_polynomialInOneVariable;
@@ -154,8 +154,12 @@ struct object polyToRecursivePoly(struct object p) {
   int vx[N0], vd[N0];
   int i,j,k,n,count;
   POLY f;
-  struct object vlist,vlist2;
-  struct object ob1,ob2,ob3,ob4;
+  struct object vlist = OINIT;
+  struct object vlist2 = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
+  struct object ob4 = OINIT;
   int vn;
 
   if (p.tag != Spoly) return(rob);
@@ -227,9 +231,9 @@ struct object polyToRecursivePoly2(struct object p,struct object vlist, int vn) 
   struct object rob = NullObject;
   POLY f;
   POLY vv;
-  struct object v;
-  struct object c;
-  struct object e;
+  struct object v = OINIT;
+  struct object c = OINIT;
+  struct object e = OINIT;
   int i;
 
 
@@ -262,7 +266,7 @@ struct object polyToRecursivePoly2(struct object p,struct object vlist, int vn) 
 
 static int isRecursivePolynomial2a(struct object ob2, int n) {
   char *s = "Format error (isRecursivePolynomial2a) : ";
-  struct object tmp;
+  struct object tmp = OINIT;
   int i;
   if (ectag(ob2) == CLASSNAME_polynomialInOneVariable) {
     ob2 = KopPolynomialInOneVariable(ob2);
@@ -316,7 +320,9 @@ static int isRecursivePolynomial2a(struct object ob2, int n) {
 int isRecursivePolynomial2(struct object ob) {
   /* This checks only the top level */
   char *s = "Format error (isRecursivePolynomial2) : ";
-  struct object ob1, ob2,tmp;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object tmp = OINIT;
   int i;
   int n;
   if (ob.tag != Sclass) return(0);
@@ -390,7 +396,10 @@ struct object KrvtReplace(struct object rp_o,struct object v_o, struct object t_
      v_o  : variable name (indeterminate).
      t_o  : tree.
   */
-  struct object rp, vlist, newvlist, newrp;
+  struct object rp = OINIT;
+  struct object vlist = OINIT;
+  struct object newvlist = OINIT;
+  struct object newrp = OINIT;
   int i,m;
   /* Check the data types. */
   if (ectag(rp_o) != CLASSNAME_recursivePolynomial) {
@@ -428,10 +437,11 @@ struct object KrvtReplace(struct object rp_o,struct object v_o, struct object t_
 
 
 struct object KreplaceRecursivePolynomial(struct object of,struct object rule) {
-  struct object rob,f;
+  struct object rob = OINIT;
+  struct object f = OINIT;
   int i;
   int n;
-  struct object trule;
+  struct object trule = OINIT;
   
 
   if (rule.tag != Sarray) {

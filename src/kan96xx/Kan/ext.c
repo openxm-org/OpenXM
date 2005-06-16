@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.34 2004/12/21 03:25:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.35 2005/06/09 05:46:57 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -94,9 +94,12 @@ struct object Kextension(struct object obj)
 {
   char *key;
   int size;
-  struct object keyo;
+  struct object keyo = OINIT;
   struct object rob = NullObject;
-  struct object obj1,obj2,obj3,obj4;
+  struct object obj1 = OINIT;
+  struct object obj2 = OINIT;
+  struct object obj3 = OINIT;
+  struct object obj4 = OINIT;
   int m,i,pid, uid;
   int argListc, fdListc;
   char *abc;
@@ -500,7 +503,7 @@ struct object Kextension(struct object obj)
 
 struct object KregionMatches(struct object sobj, struct object keyArray)
 {
-  struct object rob;
+  struct object rob = OINIT;
   int n,i,j,m,keyn;
   char *s,*key;
   rob = newObjectArray(3);
@@ -534,8 +537,8 @@ struct object KregionMatches(struct object sobj, struct object keyArray)
 }
 
 static struct object oregexec(struct object oregex,struct object ostrArray,struct object oflag) {
-  struct object rob;
-  struct object ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   int n,i,j,m,keyn,cflag,eflag,er;
   char *regex;
   regex_t preg;

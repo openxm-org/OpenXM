@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.11 2004/03/08 08:24:42 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo.c,v 1.12 2004/08/28 12:50:06 takayama Exp $*/
 #include <stdio.h>
 #include <string.h>
 /* #include <netinet/in.h> */
@@ -47,7 +47,7 @@ extern struct ring *CurrentRingp;
 extern struct ring *SmallRingp;
 extern int CmoDMSOutputOption;
 
-struct object NullObjectInCmo;
+struct object NullObjectInCmo = OINIT;
 
 extern int SerialCurrent;
 extern int DebugCMO;
@@ -213,7 +213,7 @@ struct object streamToCmo(struct object of)
 {
   int c;
   unsigned char s[1];
-  struct object ob;
+  struct object ob = OINIT;
   int file2 = 0;
   if (of.tag == Sfile) {
 
@@ -625,13 +625,14 @@ POLY cmoGetMonomial32(struct cmoBuffer *cb)
 /* ------------------------------------- */
 void cmoObjectToCmo00(struct object ob)
 {
-  struct object rob;
+  struct object rob = OINIT;
   cmoint tmp[16];
   char tmpc[16];
   int i,size;
-  struct object vlist, vlist0;
+  struct object vlist = OINIT;
+  struct object vlist0 = OINIT;
   int m;
-  struct object ob2;
+  struct object ob2 = OINIT;
 
   /* NO initialization */
   switch(ob.tag) {
@@ -777,7 +778,7 @@ void cmoObjectToCmo00(struct object ob)
 
 struct object cmoObjectToCmo(struct object ob)
 {
-  struct object rob;
+  struct object rob = OINIT;
   if (DebugCMO) {
     fprintf(stderr,"cmoObjectToCmo: ");
     printObject(ob,1,stderr);
@@ -805,19 +806,20 @@ int Lisplike = 0;
 
 struct object cmoCmoToObject00(struct cmoBuffer *cb)
 {
-  struct object rob;
-  struct object ob1;
-  struct object ob2;
+  struct object rob = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
   int tt,ival;
   int i,size;
   MP_INT *mi;
   MP_INT *mi2;
   struct ring *oldringp;
   char tmpc[16];
-  struct object vlist, vlist0;
+  struct object vlist = OINIT;
+  struct object vlist0 = OINIT;
   int k;
   int m;
-  struct object ob;
+  struct object ob = OINIT;
 
 
   tt = cmoGetIntFromBuf(CMOGET,cb); /* read the tag */
@@ -1064,8 +1066,8 @@ struct object cmoCmoToObject00(struct cmoBuffer *cb)
     
 struct object cmoCmoToObject(struct object ob)
 {
-  struct object rob;
-  struct object ob0;
+  struct object rob = OINIT;
+  struct object ob0 = OINIT;
   struct cmoBuffer *cb;
   if (!(ob.tag == Sclass && ob.lc.ival == CMO)) {
     rob.tag = Snull;
@@ -1089,8 +1091,8 @@ struct object cmoCmoToObject(struct object ob)
 }
 
 struct object cmoListToPoly(struct object ob) {
-  struct object ob0;
-  struct object rob;
+  struct object ob0 = OINIT;
+  struct object rob = OINIT;
   int i,n;
   if (ob.tag == Sarray) {
     n = getoaSize(ob);
@@ -1116,7 +1118,8 @@ struct object cmoListToPoly(struct object ob) {
 struct object cmoListToPoly2(struct object ob) 
 {
   int size,i;
-  struct object ob0,ob1;
+  struct object ob0 = OINIT;
+  struct object ob1 = OINIT;
   POLY f;
   /*
     printf("<<");printObject(ob,0,stdout); printf(">>\n"); fflush(stdout);
@@ -1157,7 +1160,8 @@ main() {
 POLY cmoListToPOLY(struct object ob) 
 {
   int size,i;
-  struct object ob0,ob1;
+  struct object ob0 = OINIT;
+  struct object ob1 = OINIT;
   POLY f;
   /*
     printf("<<");printObject(ob,0,stdout); printf(">>\n"); fflush(stdout);
@@ -1196,7 +1200,7 @@ POLY cmoListToPOLY(struct object ob)
 int Kan_PushBinary(int size,void *data)
 {
   struct cmoBuffer cb;
-  struct object ob;
+  struct object ob = OINIT;
   cb.pos = size;
   cb.rpos = 0;
   cb.buf = data;
@@ -1209,7 +1213,7 @@ int Kan_PushBinary(int size,void *data)
 
 void *Kan_PopBinary(int *sizep)
 {
-  struct object ob;
+  struct object ob = OINIT;
   struct cmoBuffer *cb;
   ob = KSpop();
   ob = cmoObjectToCmo(ob);
@@ -1228,7 +1232,7 @@ void *Kan_PopBinary(int *sizep)
 struct object cmoObjectFromStream(struct object obStream)
 {
   struct cmoBuffer cb;
-  struct object rob;
+  struct object rob = OINIT;
   extern DebugCMO;
   if (obStream.tag != Sfile) {
     errorCmo("cmoObjectFromStream: Argument must be of type file.");
@@ -1246,7 +1250,7 @@ struct object cmoObjectFromStream(struct object obStream)
 struct object cmoObjectFromStream2(FILE2 *fp2)
 {
   struct cmoBuffer cb;
-  struct object rob;
+  struct object rob = OINIT;
   cb.isStream=1; cb.fp = fp2;
   cmoGetIntFromBuf(CMOINITSTREAM,&cb);
   rob = cmoCmoToObject00(&cb);
@@ -1261,7 +1265,7 @@ struct object cmoObjectFromStream2(FILE2 *fp2)
 
 struct object cmoObjectToStream(struct object ob, struct object obStream)
 {
-  struct object rob;
+  struct object rob = OINIT;
   extern int DebugCMO;
   if (obStream.tag != Sfile) {
     errorCmo("cmoObjectToStream: Argument must be of type file.");
@@ -1278,7 +1282,7 @@ struct object cmoObjectToStream(struct object ob, struct object obStream)
 
 struct object cmoObjectToStream2(struct object ob, FILE2 *fp2)
 {
-  struct object rob;
+  struct object rob = OINIT;
   cmoOutputToBuf(CMOINITSTREAM,(void *)fp2,0);
   if (DebugCMO) {
     fprintf(stderr,"cmoObjectToStream2: ");
@@ -1292,8 +1296,8 @@ struct object cmoObjectToStream2(struct object ob, FILE2 *fp2)
 
 int Kan_pushCMOFromStream(FILE2 *fp)
 {
-  struct object ob;
-  struct object rob;
+  struct object ob = OINIT;
+  struct object rob = OINIT;
   ob.tag = Sfile; ob.rc.voidp = (void *)fp; ob.lc.str = MAGIC2;
   rob = cmoObjectFromStream(ob);
   KSpush(rob);
@@ -1302,8 +1306,8 @@ int Kan_pushCMOFromStream(FILE2 *fp)
 
 int Kan_popCMOToStream(FILE2 *fp,int serial)
 {
-  struct object ob;
-  struct object sob;
+  struct object ob = OINIT;
+  struct object sob = OINIT;
   sob.tag = Sfile; sob.rc.file = (void *)fp; sob.lc.str = MAGIC2;
   ob = Kpop();
   /*outfp2(fp);*/ /* outfp2 is for debugging. see develop/97feb.. 1999, 1/19*/
@@ -1326,16 +1330,16 @@ int Kan_setMathCapToStream(FILE2 *fp,struct object ob) {
 
 /* It is declared in oxmisc2.h, too. */
 struct object newMathCap(struct mathCap *mathcap){
-  struct object rob;
-  struct object ob1;
-  struct object ob2;
-  struct object ob3;
-  struct object obOx;
-  struct object obSm;
-  struct object ob3tmp;
+  struct object rob = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
+  struct object obOx = OINIT;
+  struct object obSm = OINIT;
+  struct object ob3tmp = OINIT;
   struct object *obp;
   int i,j;
-  struct object mathinfo;
+  struct object mathinfo = OINIT;
 
   rob = newObjectArray(3);
 
@@ -1379,7 +1383,7 @@ void *KSmathCapByStruct(void)
      /* Return the math cap of kan/sm1 with cmo.c as a mathcap classObject*/
 {
   struct mathCap *mathcap;
-  struct object ob;
+  struct object ob = OINIT;
   char *s1,*s2;
   struct object *mathinfo;
   char *sys;

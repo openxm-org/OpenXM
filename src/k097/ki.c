@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/ki.c,v 1.5 2003/08/22 16:08:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/k097/ki.c,v 1.6 2003/12/05 14:02:23 takayama Exp $ */
 /* ki.c    ( kx interpreter )  */
 
 #include <stdio.h>
@@ -42,7 +42,7 @@ extern int DebugMode;
 sendKan(int p) {
   static int n = 2;
   extern int Interactive;
-  struct object obj;
+  struct object obj = OINIT;
   int result;
   extern int InSendmsg2;
   signal(SIGINT,SIG_IGN); /* Don't jump to ctrlC(). */

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.c,v 1.14 2004/06/16 02:40:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.c,v 1.15 2004/06/30 08:00:18 takayama Exp $ */
 /* simple.c,  1996, 1/1 --- 1/5 */
 #include <stdio.h>
 #include <ctype.h>
@@ -181,7 +181,7 @@ objectp newObject_d() {
     fprintf(stderr,"Error: No more memory in newObject_d().\n");
     exit(10);
   }
-  obj->tag = Snull;
+  obj->tag = Snull;  obj->attr = NULL;
   return(obj);
 }
 

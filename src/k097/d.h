@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/d.h,v 1.3 2000/12/10 02:21:45 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/d.h,v 1.4 2005/06/09 04:47:16 takayama Exp $ */
 /* d.h;*/
 /*  from stackm.h */
 
@@ -56,6 +56,8 @@ struct object{         /* must be compatible with stackm.h */
   union cell rc;          /* right cell */
   struct object *attr;
 };
+
+#define OINIT { .attr = NULL }
 
 typedef struct Object * objectp;   /* cf. 65p of Schreiner. */
 #define YYSTYPE objectp

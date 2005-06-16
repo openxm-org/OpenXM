@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.11 2004/02/23 09:03:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.12 2004/10/14 10:08:09 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -108,7 +108,7 @@ void KoxShellHelp(char *key,FILE *fp) {
 
 static struct object KoxShell_test1(struct object ob) {
   /* A simple shell. It does not implement a parser. */
-  struct object rob;
+  struct object rob = OINIT;
   char *cmd;
   char *arg1,*arg2;
   int i,n;
@@ -159,7 +159,7 @@ static struct object KoxShell_test1(struct object ob) {
 
 /* Functions for ox_shell */
 struct object KoxWhich(struct object cmdo,struct object patho) {
-  struct object rob;
+  struct object rob = OINIT;
   char *sss;
   rob = NullObject;
   if (cmdo.tag != Sdollar) errorKan1("%s\n","KoxWhich(str-obj,str-obj)");
@@ -201,7 +201,7 @@ static myunsetenv(char *name) {
 
 /* Example. [(export)  (PATH)  (=)  (/usr/new/bin:$PATH)] */
 static struct object oxsSetenv(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   int i,n;
   char *envp;
   char *new;
@@ -375,9 +375,9 @@ char *oxsURIgetFileName(char *s) {
 
 
 static struct object testmain(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   char *s;
-  struct object ot;
+  struct object ot = OINIT;
   char **av;
   int i;
   rob = NullObject;
@@ -406,7 +406,7 @@ char *oxsVarToFile(char *v,char *ext,char *command,int usetmp) {
   FILE *fp;
   int n,i,prevc,c;
   char *prog;
-  struct object vv;
+  struct object vv = OINIT;
 
   /*bug; winname must be automatically set by looking at command.
     If command is win32-native-application, then winname=1; else winname=0.
@@ -488,7 +488,7 @@ static char **oxsBuildArgv(struct object ob) {
   char *ext, *v;
   int usetmp=1;
   int win=0;
-  struct object ocmd;
+  struct object ocmd = OINIT;
 
   /* bug: win variable must be properly set on windows native. */
 

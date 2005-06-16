@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sample.c,v 1.2 2000/01/16 07:55:48 takayama Exp $ */
 #include <stdio.h>
 #include "../Kan/datatype.h"
 #include "../Kan/stackm.h"
@@ -17,7 +17,7 @@ PLUGIN_LINKFLAG =
 */
 
 static struct operandStack *SharedStack = NULL;
-static struct object Kplugin_NullObject;
+static struct object Kplugin_NullObject = OINIT;
 
 /*  Sample is a very simple stack machine.
     There are only one operation "add" on the shared stack.
@@ -29,7 +29,9 @@ static struct object Kplugin_NullObject;
    
 int Kplugin_sample(int opcode, struct object obj) {
   /* obj is assumed to be an array. */
-  struct object ob1,ob2,ob3;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
   static initialized = 0;
   if (opcode != KPLUGIN_SAMPLE_INIT && !initialized) {
     errorSample("This component is not initialized.");

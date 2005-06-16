@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.4 2003/08/20 01:39:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly2.c,v 1.5 2003/08/21 02:30:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -694,7 +694,7 @@ POLY modulo0(f,ringp)
 struct object test(ob)  /* test3 */
 	 struct object ob;
 {
-  struct object rob;
+  struct object rob = OINIT;
   int k;
   static POLY f0;
   static POLY f1;

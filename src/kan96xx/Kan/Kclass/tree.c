@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.6 2003/12/05 23:14:14 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/Kclass/tree.c,v 1.7 2003/12/06 02:49:22 takayama Exp $ */
 #include <stdio.h>
 #include "../datatype.h"
 #include "../stackm.h"
@@ -11,8 +11,10 @@
 
 /* Data conversion function : see KclassDataConversion*/
 struct object KpoTree(struct object ob) {
-  struct object rob;
-  struct object ob1,ob2,ob3;
+  struct object rob = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
   struct object *newobp;
   rob.tag = Sclass;
   rob.lc.ival = CLASSNAME_tree;
@@ -41,7 +43,7 @@ void fprintTree(FILE *fp,struct object op)
 }
 
 int isTreeAdd(struct object ob) {
-  struct object name;
+  struct object name = OINIT;
   if (ob.tag != Sclass) {
     return(0);
   }
@@ -65,11 +67,13 @@ int isTreeAdd(struct object ob) {
 
 struct object addTree(struct object ob1, struct object ob2)
 {
-  struct object rob,aob;
-  struct object ob3,ob4;
-  struct object attr;
-  struct object keyValue;
-  struct object to;
+  struct object rob = OINIT;
+  struct object aob = OINIT;
+  struct object ob3 = OINIT;
+  struct object ob4 = OINIT;
+  struct object attr = OINIT;
+  struct object keyValue = OINIT;
+  struct object to = OINIT;
   int i;
   to = ob2; ob2=ob1; ob1=to; /* Exchange ob1 and ob2 */
   if (isTreeAdd(ob1) && !isTreeAdd(ob2)) {
@@ -117,10 +121,11 @@ struct object addTree(struct object ob1, struct object ob2)
   return(KpoTree(rob));
 }
 struct object minusTree(struct object ob1,struct object ob2) {
-  struct object rob,aob;
-  struct object attr;
-  struct object keyValue;
-  struct object to;
+  struct object rob = OINIT;
+  struct object aob = OINIT;
+  struct object attr = OINIT;
+  struct object keyValue = OINIT;
+  struct object to = OINIT;
 
   rob = NullObject;
   attr = newObjectArray(1);
@@ -139,10 +144,11 @@ struct object minusTree(struct object ob1,struct object ob2) {
   return(rob);
 }
 struct object timesTree(struct object ob1,struct object ob2) {
-  struct object rob,aob;
-  struct object attr;
-  struct object keyValue;
-  struct object to;
+  struct object rob = OINIT;
+  struct object aob = OINIT;
+  struct object attr = OINIT;
+  struct object keyValue = OINIT;
+  struct object to = OINIT;
 
   rob = NullObject;
   attr = newObjectArray(1);
@@ -161,10 +167,11 @@ struct object timesTree(struct object ob1,struct object ob2) {
   return(rob);
 }
 struct object divideTree(struct object ob1,struct object ob2) {
-  struct object rob,aob;
-  struct object attr;
-  struct object keyValue;
-  struct object to;
+  struct object rob = OINIT;
+  struct object aob = OINIT;
+  struct object attr = OINIT;
+  struct object keyValue = OINIT;
+  struct object to = OINIT;
 
   rob = NullObject;
   attr = newObjectArray(1);
@@ -183,10 +190,11 @@ struct object divideTree(struct object ob1,struct object ob2) {
   return(rob);
 }
 struct object powerTree(struct object ob1,struct object ob2) {
-  struct object rob,aob;
-  struct object attr;
-  struct object keyValue;
-  struct object to;
+  struct object rob = OINIT;
+  struct object aob = OINIT;
+  struct object attr = OINIT;
+  struct object keyValue = OINIT;
+  struct object to = OINIT;
 
   rob = NullObject;
   attr = newObjectArray(1);
@@ -205,10 +213,11 @@ struct object powerTree(struct object ob1,struct object ob2) {
   return(rob);
 }
 struct object unaryminusTree(struct object ob1) {
-  struct object rob,aob;
-  struct object attr;
-  struct object keyValue;
-  struct object to;
+  struct object rob = OINIT;
+  struct object aob = OINIT;
+  struct object attr = OINIT;
+  struct object keyValue = OINIT;
+  struct object to = OINIT;
 
   rob = NullObject;
   attr = newObjectArray(1);
@@ -228,8 +237,8 @@ struct object unaryminusTree(struct object ob1) {
 
 /* XML DOM-like interfaces */
 struct object KtreeGetDocumentElement(struct object to) {
-  struct object rob;
-  struct object ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   if (to.tag != Sclass) errorKan1("%s\n","KtreeGetDocumentElement");
   if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetDocumentElement");
   ob = KopTree(to);
@@ -241,8 +250,8 @@ struct object KtreeGetDocumentElement(struct object to) {
 }
 
 struct object KtreeGetAttributes(struct object to) {
-  struct object rob;
-  struct object ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   if (to.tag != Sclass) errorKan1("%s\n","KtreeGetAttributes:");
   if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetAttributes:");
   ob = KopTree(to);
@@ -252,8 +261,8 @@ struct object KtreeGetAttributes(struct object to) {
 }
 
 struct object KtreeGetChildNodes(struct object to) {
-  struct object rob;
-  struct object ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   if (to.tag != Sclass) errorKan1("%s\n","KtreeGetChildNodes:");
   if (ectag(to) != CLASSNAME_tree) errorKan1("%s\n","KtreeGetChildNodes:");
   ob = KopTree(to);
@@ -263,7 +272,7 @@ struct object KtreeGetChildNodes(struct object to) {
 }
 
 struct object KtreeCreateElement(struct object ostr) {
-  struct object ob;
+  struct object ob = OINIT;
   if (ostr.tag != Sdollar) errorKan1("%s\n","KtreeCreateElement: not a string.");
   ob = newObjectArray(3);
   getoa(ob,0)=ostr;

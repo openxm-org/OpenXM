@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.6 2004/05/13 10:37:30 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.7 2004/09/17 02:42:57 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
@@ -486,7 +486,7 @@ static void factor() {
 
 static void monom() {
   union valObject utmp;
-  struct object obj;
+  struct object obj = OINIT;
   POLY f;
   extern struct context *CurrentContextp;
   if (Symbol == 'x' || Symbol == 'd') {

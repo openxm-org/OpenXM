@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.16 2004/09/05 07:42:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.17 2005/06/09 04:09:22 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -12,10 +12,10 @@
 static int Message = 1;
 extern int KanGBmessage;
   
-struct object DegreeShifto;
+struct object DegreeShifto = OINIT;
 int DegreeShifto_size = 0;
 int *DegreeShifto_vec = NULL;
-struct object DegreeShiftD;
+struct object DegreeShiftD = OINIT;
 int DegreeShiftD_size = 0;
 int *DegreeShiftD_vec = NULL;
 
@@ -27,7 +27,7 @@ struct object Kreduction(f,set)
   POLY r;
   struct gradedPolySet *grG;
   struct syz0 syz;
-  struct object rob;
+  struct object rob = OINIT;
   int flag;
   extern int ReduceLowerTerms;
   
@@ -70,16 +70,18 @@ struct object Kgroebner(ob)
   int needInput = 0;
   int countDown = 0;
   int cdflag = 0;
-  struct object ob1,ob2,ob2c;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob2c = OINIT;
   int i;
   struct gradedPolySet *grG;
   struct pair *grP;
   struct arrayOfPOLY *a;
-  struct object rob;
+  struct object rob = OINIT;
   struct gradedPolySet *grBases;
   struct matrixOfPOLY *mp;
   struct matrixOfPOLY *backwardMat;
-  struct object ob1New;
+  struct object ob1New = OINIT;
   extern char *F_groebner;
   extern int CheckHomogenization;
   extern int StopDegree;
@@ -92,15 +94,15 @@ struct object Kgroebner(ob)
   int *ob1ZeroPos;
   int method;
   int j,k;
-  struct object rob2;
-  struct object rob3;
-  struct object rob4;
+  struct object rob2 = OINIT;
+  struct object rob3 = OINIT;
+  struct object rob4 = OINIT;
   struct ring *myring;
   POLY f;
-  struct object orgB;
-  struct object newB;
-  struct object orgC;
-  struct object newC;
+  struct object orgB = OINIT;
+  struct object newB = OINIT;
+  struct object orgC = OINIT;
+  struct object newC = OINIT;
   static struct object paddingVector(struct object ob, int table[], int m);
   static struct object unitVector(int pos, int size,struct ring *r);
   extern struct ring *CurrentRingp;
@@ -345,7 +347,7 @@ struct object Kgroebner(ob)
 
 static struct object paddingVector(struct object ob, int table[], int m)
 {
-  struct object rob;
+  struct object rob = OINIT;
   int i;
   rob = newObjectArray(m);
   for (i=0; i<m; i++) {
@@ -360,7 +362,7 @@ static struct object paddingVector(struct object ob, int table[], int m)
   
 static struct object unitVector(int pos, int size,struct ring *r)
 {
-  struct object rob;
+  struct object rob = OINIT;
   int i;
   POLY one;
   rob = newObjectArray(size);
@@ -415,7 +417,7 @@ struct object polySetToArray(ps,keepRedundant)
      int keepRedundant;
 {
   int n,i,j;
-  struct object ob;
+  struct object ob = OINIT;
   if (ps == (struct polySet *)NULL) return(newObjectArray(0));
   n = 0;
   if (keepRedundant) {
@@ -441,7 +443,8 @@ struct object gradedPolySetToGradedArray(gps,keepRedundant)
      struct gradedPolySet *gps;
      int keepRedundant;
 {
-  struct object ob,vec;
+  struct object ob = OINIT;
+  struct object vec = OINIT;
   int i;
   if (gps == (struct gradedPolySet *)NULL) return(NullObject);
   ob = newObjectArray(gps->maxGrade +1);
@@ -459,7 +462,8 @@ struct object gradedPolySetToArray(gps,keepRedundant)
      struct gradedPolySet *gps;
      int keepRedundant;
 {
-  struct object ob,vec;
+  struct object ob = OINIT;
+  struct object vec = OINIT;
   struct polySet *ps;
   int k;
   int i,j;
@@ -498,7 +502,7 @@ struct object syzPolyToArray(size,f,grG)
      POLY f;
      struct gradedPolySet *grG;
 {
-  struct object ob;
+  struct object ob = OINIT;
   int i,g0,i0,serial;
 
   ob = newObjectArray(size);
@@ -528,7 +532,7 @@ struct object getBackwardArray(grG)
   /* use serial, del.  cf. getBackwardTransformation(). */
   int inputSize,outputSize;
   int i,j,k;
-  struct object ob;
+  struct object ob = OINIT;
   struct polySet *ps;
   
   inputSize = 0; outputSize = 0;
@@ -559,7 +563,7 @@ POLY arrayToPOLY(ob)
      struct object ob;
 {
   int size,i;
-  struct object f;
+  struct object f = OINIT;
   POLY r;
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
@@ -608,7 +612,7 @@ struct object POLYToArray(ff)
   int k,i,matn,size;
   struct matrixOfPOLY *mat;
   POLY ex,sizep;
-  struct object ob;
+  struct object ob = OINIT;
 
   if (ff != ZERO) {
     tf = ff->m;
@@ -668,7 +672,8 @@ struct object homogenizeObject(ob,gradep)
      struct object ob;
      int *gradep;
 {
-  struct object rob,ob1;
+  struct object rob = OINIT;
+  struct object ob1 = OINIT;
   int maxg;
   int gr,flag,i,d,size;
   struct ring *rp;
@@ -734,7 +739,8 @@ struct object homogenizeObject_vec(ob,gradep)
      struct object ob;
      int *gradep;
 {
-  struct object rob,ob1;
+  struct object rob = OINIT;
+  struct object ob1 = OINIT;
   int maxg;
   int gr,i,size;
   POLY f;
@@ -789,12 +795,12 @@ void KresetDegreeShift() {
 
 struct object homogenizeObject_go(struct object ob,int *gradep) {
   int size,i,dssize,j;
-  struct object ob0;
-  struct object ob1;
-  struct object ob2;
-  struct object rob;
-  struct object tob;
-  struct object ob1t;
+  struct object ob0 = OINIT;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object rob = OINIT;
+  struct object tob = OINIT;
+  struct object ob1t = OINIT;
   int *ds;
   POLY f;
   int onlyS; 
@@ -968,7 +974,7 @@ struct object oPrincipalPart(ob)
      struct object ob;
 {
   POLY f;
-  struct object rob;
+  struct object rob = OINIT;
 
   switch(ob.tag) {
   case Spoly:
@@ -985,12 +991,12 @@ struct object oInitW(ob,oWeight)
      struct object oWeight;
 {
   POLY f;
-  struct object rob;
+  struct object rob = OINIT;
   int w[2*N0];
   int n,i;
-  struct object ow;
+  struct object ow = OINIT;
   int shiftvec;
-  struct object oShift;
+  struct object oShift = OINIT;
   int *s;
   int ssize,m;
 
@@ -1104,7 +1110,7 @@ POLY objArrayToPOLY(struct object ob) {
 }
 
 struct object POLYtoObjArray(POLY f,int size) {
-  struct object rob;
+  struct object rob = OINIT;
   POLY *pa;
   int d,n,i;
   POLY t;
@@ -1140,12 +1146,12 @@ struct object KordWsAll(ob,oWeight)
      struct object oWeight;
 {
   POLY f;
-  struct object rob;
+  struct object rob = OINIT;
   int w[2*N0];
   int n,i;
-  struct object ow;
+  struct object ow = OINIT;
   int shiftvec;
-  struct object oShift;
+  struct object oShift = OINIT;
   int *s;
   int ssize,m;
 
@@ -1255,8 +1261,8 @@ int validOutputOrder(int ord[],int n) {
 struct object KsetOutputOrder(struct object ob, struct ring *rp)
 {
   int n,i;
-  struct object ox;
-  struct object otmp;
+  struct object ox = OINIT;
+  struct object otmp = OINIT;
   int *xxx;
   int *ddd;
   if (ob.tag  != Sarray) {
@@ -1287,10 +1293,10 @@ struct object KsetOutputOrder(struct object ob, struct ring *rp)
 
 struct object KschreyerSkelton(struct object g)
 {
-  struct object rob;
-  struct object ij;
-  struct object ab;
-  struct object tt;
+  struct object rob = OINIT;
+  struct object ij = OINIT;
+  struct object ab = OINIT;
+  struct object tt = OINIT;
   struct arrayOfPOLY *ap;
   struct arrayOfMonomialSyz ans;
   int k;
@@ -1336,7 +1342,7 @@ struct object KvectorToSchreyer_es(struct object obarray)
   int nn;
   POLY f;
   POLY g;
-  struct object ob;
+  struct object ob = OINIT;
   struct ring *rp;
   if (obarray.tag != Sarray) {
     errorKan1("%s\n","KvectorToSchreyer_es(): argument must be an array of polynomials.");
@@ -1378,8 +1384,8 @@ struct object KgetExponents(struct object obPoly,struct object otype) {
   POLY f;
   POLY ff;
   MONOMIAL tf;
-  struct object rob;
-  struct object tob;
+  struct object rob = OINIT;
+  struct object tob = OINIT;
   static int nn,mm,ll,cc,n,m,l,c;
   static struct ring *cr = (struct ring *)NULL;
   extern struct ring *CurrentRingp;

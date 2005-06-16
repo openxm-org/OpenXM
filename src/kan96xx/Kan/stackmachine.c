@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.29 2004/09/19 00:47:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.30 2005/06/09 04:47:16 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -52,7 +52,7 @@ struct context *CurrentContextp = &StandardContext;
 struct context *PrimitiveContextp = &StandardContext;
 
 
-static struct object ObjTmp; /* for poor compiler */
+static struct object ObjTmp = OINIT; /* for poor compiler */
 
 int Calling_ctrlC_hook = 0;
 
@@ -102,7 +102,7 @@ struct object * newObject()
 struct object newObjectArray(size) 
      int size;
 {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *op;
   if (size < 0) return(NullObject);
   if (size > 0) {
@@ -324,7 +324,7 @@ int putPrimitiveFunction(str,number)
      char *str;
      int number;
 {
-  struct object ob;
+  struct object ob = OINIT;
   ob.tag = Soperator;
   ob.lc.ival = number;
   return(putSystemDictionary(str,ob));
@@ -468,7 +468,7 @@ struct object peek(k)
 
 static int isThereExecutableArray(struct object ob) {
   int n,i;
-  struct object otmp;
+  struct object otmp = OINIT;
   if (ob.tag == SexecutableArray) return(1);
   if (ob.tag == Sarray) {
     n = getoaSize(ob);
@@ -484,7 +484,7 @@ static int isThereExecutableArray(struct object ob) {
 }
 static int isThereExecutableArrayOnStack(int n) {
   int i;
-  struct object ob;
+  struct object ob = OINIT;
   for (i=0; i<n; i++) {
     if (Osp-i-1 < 0) return(0);
     ob = peek(i);
@@ -496,7 +496,7 @@ static int isThereExecutableArrayOnStack(int n) {
 struct object newOperandStack(int size)
 {
   struct operandStack *os ;
-  struct object ob;
+  struct object ob = OINIT;
   os = (struct operandStack *)sGC_malloc(sizeof(struct operandStack));
   if (os == (void *)NULL) errorStackmachine("No more memory.");
   if (size <= 0) errorStackmachine("Size of stack must be more than 1.");
@@ -577,7 +577,7 @@ void KsetContext(struct object contextObj)  {
 
 
 struct object getSuperContext(struct object contextObj) {
-  struct object rob;
+  struct object rob = OINIT;
   struct context *cp;
   if (contextObj.tag != Sclass) {
     errorStackmachine("Usage:supercontext");
@@ -643,7 +643,7 @@ int isLiteral(str)
 
 void printOperandStack() {
   int i;
-  struct object ob;
+  struct object ob = OINIT;
   int vs;
   vs = VerboseStack; VerboseStack = 2;
   for (i=Osp-1; i>=0; i--) {
@@ -679,7 +679,7 @@ struct object showSystemDictionary(int f) {
   int maxl;
   char format[1000];
   int nl;
-  struct object rob;
+  struct object rob = OINIT;
   rob = NullObject;
   if (f != 0) {
     rob = newObjectArray(Sdp);
@@ -752,7 +752,7 @@ static struct object executableStringToExecutableArray(s)
      char *s;
 {
   struct tokens *tokenArray;
-  struct object ob;
+  struct object ob = OINIT;
   int i;
   int size;
   tokenArray = decomposeToTokens(s,&size);
@@ -771,7 +771,7 @@ static struct object executableStringToExecutableArray(s)
 /****************  stack machine **************************/
 void scanner() {
   struct tokens token;
-  struct object ob;
+  struct object ob = OINIT;
   extern int Quiet;
   extern void ctrlC();
   int tmp, status;
@@ -957,7 +957,7 @@ void ctrlC(sig)
 int executeToken(token)
      struct tokens token;
 {      
-  struct object ob;
+  struct object ob = OINIT;
   int primitive;
   int size;
   int status;
@@ -1180,7 +1180,7 @@ KSexecuteString(s)
      char *s;
 {
   struct tokens token;
-  struct object ob;
+  struct object ob = OINIT;
   int tmp;
   extern int CatchCtrlC;
   int jval;
@@ -1272,7 +1272,7 @@ KSexecuteString(s)
 KSdefineMacros() {
   struct tokens token;
   int tmp;
-  struct object ob;
+  struct object ob = OINIT;
 
   if (StandardMacros && (strlen(SMacros))) {
     token.kind = EXECUTABLE_STRING; token.tflag = 0;
@@ -1293,7 +1293,7 @@ KSdefineMacros() {
 void KSstart() {
   struct tokens token;
   int tmp;
-  struct object ob;
+  struct object ob = OINIT;
   extern int Quiet;
 
   stackmachine_init(); KinitKan();
@@ -1347,7 +1347,7 @@ struct object KSpeek(k) {
 
 char *KSstringPop() {
   /* pop a string */
-  struct object rob;
+  struct object rob = OINIT;
   rob = Kpop();
   if (rob.tag == Sdollar) {
     return(rob.lc.str);
@@ -1417,8 +1417,8 @@ struct object popErrorStack(void) {
 }
 
 char *popErrorStackByString(void) {
-  struct object obj;
-  struct object eobj;
+  struct object obj = OINIT;
+  struct object eobj = OINIT;
   eobj = popErrorStack();
   if (ectag(eobj) != CLASSNAME_ERROR_PACKET) {
     return(NULL);
@@ -1447,7 +1447,7 @@ int KScheckErrorStack(void)
 
 struct object KnewErrorPacket(int serial,int no,char *message)
 {
-  struct object obj;
+  struct object obj = OINIT;
   struct object *myop;
   char *s;
   /* Set extended tag. */
@@ -1469,7 +1469,7 @@ struct object KnewErrorPacket(int serial,int no,char *message)
 
 struct object KnewErrorPacketObj(struct object ob1)
 {
-  struct object obj;
+  struct object obj = OINIT;
   struct object *myop;
   char *s;
   /* Set extended tag. */
@@ -1568,8 +1568,8 @@ int KSstackPointer() {
 }
 
 struct object KSdupErrors() {
-  struct object rob;
-  struct object ob;
+  struct object rob = OINIT;
+  struct object ob = OINIT;
   int i;
   int n;
   int m;

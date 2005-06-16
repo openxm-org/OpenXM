@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/rat.c,v 1.2 2000/01/16 07:55:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/rat.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
 
 /* rat.c: rational functions */
 #include <stdio.h>
@@ -14,7 +14,7 @@ struct object KnewRationalFunction0(op1,op2)
      objectp op1;
      objectp op2;
 {
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = SrationalFunction;
   Knumerator(rob) = op1;
   Kdenominator(rob) = op2;

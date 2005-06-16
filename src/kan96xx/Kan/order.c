@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.12 2004/05/15 12:00:48 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/order.c,v 1.13 2004/09/13 11:24:11 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -326,7 +326,8 @@ void printOrder(ringp)
 
 struct object oGetOrderMatrix(struct ring *ringp)
 {
-  struct object rob,ob2;
+  struct object rob = OINIT;
+  struct object ob2 = OINIT;
   int n,i,j,m;
   int *om;
   n = ringp->n;
@@ -631,7 +632,7 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
   int n,fv,gv,t,r,nn;
   POLY fm;
   POLY gm;
-  struct object gb;
+  struct object gb = OINIT;
 
   if (f == POLYNULL) {
     if (g == POLYNULL)  return(2);
@@ -688,8 +689,8 @@ int mmLarger_tower3(POLY f,POLY g,struct object *gbList)
 
 static struct object auxPruneZeroRow(struct object ob) {
   int i,m,size;
-  struct object obt;
-  struct object rob;
+  struct object obt = OINIT;
+  struct object rob = OINIT;
   m = getoaSize(ob);
   size=0;
   for (i=0; i<m; i++) {
@@ -708,11 +709,12 @@ static struct object auxPruneZeroRow(struct object ob) {
 }  
 static struct object oRingToOXringStructure_long(struct ring *ringp)
 {
-  struct object rob,ob2;
-  struct object obMat;
-  struct object obV;
-  struct object obShift;
-  struct object obt;
+  struct object rob = OINIT;
+  struct object ob2 = OINIT;
+  struct object obMat = OINIT;
+  struct object obV = OINIT;
+  struct object obShift = OINIT;
+  struct object obt = OINIT;
   char **TransX; char **TransD;
   int n,i,j,m,p,nonzero;
   int *om;
@@ -810,11 +812,12 @@ static int auxEffectiveVar(int idx,int n) {
  */
 static struct object oRingToOXringStructure_short(struct ring *ringp)
 {
-  struct object rob,ob2;
-  struct object obMat;
-  struct object obV;
-  struct object obShift;
-  struct object obt;
+  struct object rob = OINIT;
+  struct object ob2 = OINIT;
+  struct object obMat = OINIT;
+  struct object obV = OINIT;
+  struct object obShift = OINIT;
+  struct object obt = OINIT;
   char **TransX; char **TransD;
   int n,i,j,m,p,nonzero;
   int *om;
@@ -896,8 +899,8 @@ static struct object oRingToOXringStructure_short(struct ring *ringp)
 }
 struct object oRingToOXringStructure(struct ring *ringp)
 {
-  struct object rob;
-  struct object tob;
+  struct object rob = OINIT;
+  struct object tob = OINIT;
   rob = newObjectArray(2);
   tob = oRingToOXringStructure_short(ringp);
   putoa(rob,0,tob);

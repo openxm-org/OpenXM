@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.3 2001/04/12 06:48:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.4 2001/05/04 01:06:24 takayama Exp $ */
 /* kclass.c,  1997, 3/1
    This module handles class data base.
    This is a top level and provides an interface for sm1 for Sclass objects.
@@ -160,7 +160,7 @@ void fprintMathCap(FILE *fp,struct object *op)
 }
 
 struct object KpoMathCap(struct object *obp) {
-  struct object rob;
+  struct object rob = OINIT;
   struct object *newobp;
 
   newobp = (struct object *) sGC_malloc(sizeof(struct object));
@@ -188,10 +188,10 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
   */
   struct object rob = NullObject;
   int method ;
-  struct object ff0;
-  struct object ff1;
-  struct object ob3;  /* for work.*/
-  struct object ob4;
+  struct object ff0 = OINIT;
+  struct object ff1 = OINIT;
+  struct object ob3 = OINIT;  /* for work.*/
+  struct object ob4 = OINIT;
   char *ccc;
   char *key;
 

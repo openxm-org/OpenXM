@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/dm.c,v 1.2 2000/01/21 03:01:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/dm.c,v 1.3 2003/07/21 12:41:22 takayama Exp $ */
 #include <stdio.h>
 #include "d.h"
 
@@ -58,7 +58,7 @@ void testNewFunction(objectp op)
 }
 
 struct object KSpop() {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = 0;
   fprintf(stderr," Do not use Test.\n");
   return(obj);

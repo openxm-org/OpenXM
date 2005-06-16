@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.41 2004/11/15 08:27:27 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.42 2005/06/09 05:46:57 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -30,7 +30,8 @@ struct object KooAdd(ob1,ob2)
   POLY r;
   int s,i;
   objectp f1,f2,g1,g2;
-  struct object nn,dd;
+  struct object nn = OINIT;
+  struct object dd = OINIT;
   
   switch (Lookup[ob1.tag][ob2.tag]) {
   case SintegerSinteger:
@@ -161,7 +162,8 @@ struct object KooSub(ob1,ob2)
   int s,i;
   objectp f1,f2,g1,g2;
   extern struct coeff *UniversalZero;
-  struct object nn,dd;
+  struct object nn = OINIT;
+  struct object dd = OINIT;
   
   switch (Lookup[ob1.tag][ob2.tag]) {
   case SintegerSinteger:
@@ -292,7 +294,8 @@ struct object KooMult(ob1,ob2)
   POLY r;
   int i,s;
   objectp f1,f2,g1,g2;
-  struct object dd,nn;
+  struct object dd = OINIT;
+  struct object nn = OINIT;
 
   
   switch (Lookup[ob1.tag][ob2.tag]) {
@@ -438,7 +441,7 @@ struct object KoNegate(obj)
 {
   struct object rob = NullObject;
   extern struct ring SmallRing;
-  struct object tob;
+  struct object tob = OINIT;
   switch(obj.tag) {
   case Sinteger:
     rob = obj;
@@ -480,7 +483,7 @@ struct object KoInverse(obj)
   struct object rob = NullObject;
   extern struct coeff *UniversalOne;
   objectp onep;
-  struct object tob;
+  struct object tob = OINIT;
   switch(obj.tag) {
   case Spoly:
     tob.tag = SuniversalNumber;
@@ -546,11 +549,11 @@ struct object KaoMult(aa,bb)
   POLY tmp;
   POLY fik;
   POLY gkj;
-  struct object rob;
+  struct object rob = OINIT;
   int r1,r2;
   int rsize;
-  struct object tob;
-  struct object ob1;
+  struct object tob = OINIT;
+  struct object ob1 = OINIT;
   extern struct ring SmallRing;
 
   m = getoaSize(aa); m2 = getoaSize(bb);
@@ -610,7 +613,9 @@ struct object KaoMult(aa,bb)
   r1 = isMatrix(aa,m,n); r2 = isMatrix(bb,m2,n2);
   if (r1 == -1 || r2 == -1) {
     /* Object multiplication. Elements are not polynomials. */
-    struct object ofik,ogkj,otmp;
+    struct object ofik = OINIT;
+	struct object ogkj = OINIT;
+	struct object otmp = OINIT;
     rob = newObjectArray(m);
     for (i=0; i<m; i++) {
       getoa(rob,i) = newObjectArray(n2);
@@ -685,7 +690,7 @@ KooEqualQ(obj1,obj2)
      struct object obj1;
      struct object obj2;
 {
-  struct object ob;
+  struct object ob = OINIT;
   int i;
   extern int Verbose;
   if (obj1.tag != obj2.tag) {
@@ -774,7 +779,7 @@ struct object KooGreater(obj1,obj2)
      struct object obj1;
      struct object obj2;
 {
-  struct object ob;
+  struct object ob = OINIT;
   int tt;
   if (obj1.tag != obj2.tag) {
     errorKan1("%s\n","You cannot compare different kinds of objects.");
@@ -808,7 +813,7 @@ struct object KooGreater(obj1,obj2)
   case Sarray:
   {
     int i,m1,m2;
-    struct object rr;
+    struct object rr = OINIT;
     m1 = getoaSize(obj1); m2 = getoaSize(obj2);
     for (i=0; i< (m1>m2?m2:m1); i++) {
       rr=KooGreater(getoa(obj1,i),getoa(obj2,i));
@@ -864,7 +869,7 @@ struct object KooLess(obj1,obj2)
   case Sarray:
   {
     int i,m1,m2;
-    struct object rr;
+    struct object rr = OINIT;
     m1 = getoaSize(obj1); m2 = getoaSize(obj2);
     for (i=0; i< (m1>m2?m2:m1); i++) {
       rr=KooLess(getoa(obj1,i),getoa(obj2,i));
@@ -890,11 +895,12 @@ struct object KdataConversion(obj,key)
 {
   char tmps[128]; /* Assume that double is not more than 128 digits */
   char intstr[100]; /* Assume that int is not more than 100 digits */
-  struct object rob;
+  struct object rob = OINIT;
   extern struct ring *CurrentRingp;
   extern struct ring SmallRing;
   int flag;
-  struct object rob1,rob2;
+  struct object rob1 = OINIT;
+  struct object rob2 = OINIT;
   char *s;
   int i;
   double f;
@@ -1238,8 +1244,8 @@ struct object KdataConversion(obj,key)
 /* cf. macro to_int32 */
 struct object Kto_int32(struct object ob) {
   int n,i;
-  struct object otmp;
-  struct object rob;
+  struct object otmp = OINIT;
+  struct object rob = OINIT;
   if (ob.tag == SuniversalNumber) return KdataConversion(ob,"integer");
   if (ob.tag == Sarray) {
 	n = getoaSize(ob);
@@ -1257,7 +1263,7 @@ struct object Kto_int32(struct object ob) {
 struct object KpoInteger(k)
      int k;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = Sinteger;
   obj.lc.ival = k; obj.rc.ival = 0;
   return(obj);
@@ -1265,7 +1271,7 @@ struct object KpoInteger(k)
 struct object KpoString(s)
      char *s;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = Sdollar;
   obj.lc.str = s; obj.rc.ival = 0;
   return(obj);
@@ -1273,7 +1279,7 @@ struct object KpoString(s)
 struct object KpoPOLY(f)
      POLY f;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = Spoly;
   obj.lc.poly = f; obj.rc.ival = 0;
   return(obj);
@@ -1281,7 +1287,7 @@ struct object KpoPOLY(f)
 struct object KpoArrayOfPOLY(ap)
      struct arrayOfPOLY *ap ;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = SarrayOfPOLY;
   obj.lc.arrayp = ap; obj.rc.ival = 0;
   return(obj);
@@ -1290,7 +1296,7 @@ struct object KpoArrayOfPOLY(ap)
 struct object KpoMatrixOfPOLY(mp)
      struct matrixOfPOLY *mp ;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = SmatrixOfPOLY;
   obj.lc.matrixp = mp; obj.rc.ival = 0;
   return(obj);
@@ -1299,7 +1305,7 @@ struct object KpoMatrixOfPOLY(mp)
 struct object KpoRingp(ringp)
      struct ring *ringp;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = Sring;
   obj.lc.ringp = ringp;
   return(obj);
@@ -1308,7 +1314,7 @@ struct object KpoRingp(ringp)
 struct object KpoUniversalNumber(u)
      struct coeff *u;
 {
-  struct object obj;
+  struct object obj = OINIT;
   obj.tag = SuniversalNumber;
   obj.lc.universalNumber = u;
   return(obj);
@@ -1316,7 +1322,7 @@ struct object KpoUniversalNumber(u)
 struct object KintToUniversalNumber(n)
 	 int n;
 {
-  struct object rob;
+  struct object rob = OINIT;
   extern struct ring SmallRing;
   rob.tag = SuniversalNumber;
   rob.lc.universalNumber = intToCoeff(n,&SmallRing);
@@ -1329,9 +1335,9 @@ struct object arrayOfPOLYToArray(aa)
 {
   POLY *a;
   int size;
-  struct object r;
+  struct object r = OINIT;
   int j;
-  struct object tmp;
+  struct object tmp = OINIT;
 
   size = aa->n; a = aa->array;
   r = newObjectArray(size);
@@ -1346,8 +1352,8 @@ struct object arrayOfPOLYToArray(aa)
 struct object matrixOfPOLYToArray(pmat)
      struct matrixOfPOLY *pmat;
 {
-  struct object r;
-  struct object tmp;
+  struct object r = OINIT;
+  struct object tmp = OINIT;
   int i,j;
   int m,n;
   POLY *mat;
@@ -1370,7 +1376,7 @@ struct arrayOfPOLY *arrayToArrayOfPOLY(oa)
   POLY *a;
   int size;
   int i;
-  struct object tmp;
+  struct object tmp = OINIT;
   struct arrayOfPOLY *ap;
   
   if (oa.tag != Sarray) errorKan1("KarrayToArrayOfPOLY(): %s",
@@ -1398,7 +1404,8 @@ struct matrixOfPOLY *arrayToMatrixOfPOLY(oa)
   int i,j;
   struct matrixOfPOLY *ma;
 
-  struct object tmp,tmp2;
+  struct object tmp = OINIT;
+  struct object tmp2 = OINIT;
   if (oa.tag != Sarray) errorKan1("KarrayToMatrixOfPOLY(): %s",
                                   "Argument is not array\n");
   m = getoaSize(oa);
@@ -1436,8 +1443,8 @@ int objArrayToOrderMatrix(oA,order,n,oasize)
 {
   int size;
   int k,j;
-  struct object tmpOa;
-  struct object obj;
+  struct object tmpOa = OINIT;
+  struct object obj = OINIT;
   if (oA.tag != Sarray) {
     warningKan("The argument should be of the form [ [...] [...] ... [...]].");
     return(-1);
@@ -1525,7 +1532,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
 #define RP_LIMIT 5000
 {
   int i;
-  struct object ob;
+  struct object ob = OINIT;
   int c,l,m,n;
   int cc,ll,mm,nn;
   int p;
@@ -1548,7 +1555,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   extern char *F_mpMult;
   char *fmp_mult_saved;
   char *mpMultName = NULL;
-  struct object rob;
+  struct object rob = OINIT;
   struct ring *savedCurrentRingp;
 
   /* To get the ring structure. */
@@ -1723,8 +1730,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
           errorKan1("%s\n","An array of array should be given. (degreeShift)");
         }
         {
-          struct object ods;
-          struct object ods2;
+          struct object ods = OINIT;
+          struct object ods2 = OINIT;
           int dssize,k,j,nn;
           ods=getoa(ob5,i+1);
           if ((getoaSize(ods) < 1) || (getoa(ods,0).tag != Sarray)) {
@@ -1752,8 +1759,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
           errorKan1("%s\n","An array of array should be given. (partialEcart)");
         }
         {
-          struct object odv;
-          struct object ovv;
+          struct object odv = OINIT;
+          struct object ovv = OINIT;
           int k,j,nn;
           char *vname;
           odv=getoa(ob5,i+1);
@@ -1831,8 +1838,8 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
 struct object KsetVariableNames(struct object ob,struct ring *rp)
 {
   int n,i;
-  struct object ox;
-  struct object otmp;
+  struct object ox = OINIT;
+  struct object otmp = OINIT;
   char **xvars;
   char **dvars;
   if (ob.tag  != Sarray) {
@@ -1877,7 +1884,7 @@ struct object KswitchFunction(ob1,ob2)
      struct object ob1,ob2;
 {
   char *ans ;
-  struct object rob;
+  struct object rob = OINIT;
   int needWarningForAvoidTheSameRing = 0;
   extern int AvoidTheSameRing;
   if ((ob1.tag != Sdollar) || (ob2.tag != Sdollar)) {
@@ -1919,14 +1926,14 @@ struct object KoReplace(of,rule)
      struct object of;
      struct object rule;
 {
-  struct object rob;
+  struct object rob = OINIT;
   POLY f;
   POLY lRule[N0*2];
   POLY rRule[N0*2];
   POLY r;
   int i;
   int n;
-  struct object trule;
+  struct object trule = OINIT;
   
 
   if (rule.tag != Sarray) {
@@ -1982,7 +1989,7 @@ struct object Kparts(f,v)
 {
   POLY ff;
   POLY vv;
-  struct object obj;
+  struct object obj = OINIT;
   struct matrixOfPOLY *co;
   /* check the data type */
   if (f.tag != Spoly || v.tag != Spoly)
@@ -1999,7 +2006,7 @@ struct object Kparts2(f,v)
 {
   POLY ff;
   POLY vv;
-  struct object obj;
+  struct object obj = OINIT;
   struct matrixOfPOLY *co;
   /* check the data type */
   if (f.tag != Spoly || v.tag != Spoly)
@@ -2047,7 +2054,8 @@ struct object Ksp(ob1,ob2)
      struct object ob1,ob2;
 {
   struct spValue sv;
-  struct object rob,cob;
+  struct object rob = OINIT;
+  struct object cob = OINIT;
   POLY f;
   if (ob1.tag != Spoly || ob2.tag != Spoly)
     errorKan1("%s\n","Ksp(): The arguments must be polynomials.");
@@ -2077,7 +2085,7 @@ struct object Keval(obj)
 {
   char *key;
   int size;
-  struct object rob;
+  struct object rob = OINIT;
   rob = NullObject;
   
   if (obj.tag != Sarray)
@@ -2122,8 +2130,8 @@ char *KremoveSpace(str)
 struct object KtoRecords(ob)
      struct object ob;
 {
-  struct object obj;
-  struct object tmp;
+  struct object obj = OINIT;
+  struct object tmp = OINIT;
   int i;
   int size;
   char **argv;
@@ -2219,7 +2227,7 @@ int KtoArgvbyCurryBrace(str,argv,limit)
 }
 
 struct object KstringToArgv(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   char *s;
   int n,wc,i,inblank;
   char **argv;
@@ -2281,7 +2289,7 @@ static void checkDuplicateName(xvars,dvars,n)
 }
 
 struct object KooPower(struct object ob1,struct object ob2) {
-  struct object rob;
+  struct object rob = OINIT;
   /* Bug. It has not yet been implemented. */
   if (QuoteMode) {
     rob = powerTree(ob1,ob2);
@@ -2403,9 +2411,11 @@ struct object KgbExtension(struct object obj)
 {
   char *key;
   int size;
-  struct object keyo;
+  struct object keyo = OINIT;
   struct object rob = NullObject;
-  struct object obj1,obj2,obj3;
+  struct object obj1 = OINIT;
+  struct object obj2 = OINIT;
+  struct object obj3 = OINIT;
   POLY f1;
   POLY f2;
   POLY f3;
@@ -2574,9 +2584,12 @@ struct object KmpzExtension(struct object obj)
 {
   char *key;
   int size;
-  struct object keyo;
+  struct object keyo = OINIT;
   struct object rob = NullObject;
-  struct object obj0,obj1,obj2,obj3;
+  struct object obj0 = OINIT;
+  struct object obj1 = OINIT;
+  struct object obj2 = OINIT;
+  struct object obj3 = OINIT;
   MP_INT *f;
   MP_INT *g;
   MP_INT *h;
@@ -2805,7 +2818,7 @@ struct object KmpzExtension(struct object obj)
 /** : context   */
 struct object KnewContext(struct object superObj,char *name) {
   struct context *cp;
-  struct object ob;
+  struct object ob = OINIT;
   if (superObj.tag != Sclass) {
     errorKan1("%s\n","The argument of KnewContext must be a Class.Context");
   }
@@ -2824,10 +2837,10 @@ struct object KcreateClassIncetance(struct object ob1,
                                     struct object ob3)
 {
   /* [class-tag super-obj] size [class-tag]  cclass */
-  struct object ob4;
+  struct object ob4 = OINIT;
   int size,size2,i;
-  struct object ob5;
-  struct object rob;
+  struct object ob5 = OINIT;
+  struct object rob = OINIT;
   
   if (ob1.tag != Sarray)
     errorKan1("%s\n","cclass: The first argument must be an array.");
@@ -2880,8 +2893,8 @@ struct object KpoDouble(double a) {
 double toDouble0(struct object ob) {
   double r;
   int r3;
-  struct object ob2;
-  struct object ob3;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
   switch(ob.tag) {
   case Sinteger:
     return( (double) (KopInteger(ob)) );
@@ -2910,7 +2923,7 @@ double toDouble0(struct object ob) {
 }
 
 struct object KpoGradedPolySet(struct gradedPolySet *grD) {
-  struct object rob;
+  struct object rob = OINIT;
   rob.tag = Sclass;
   rob.lc.ival = CLASSNAME_GradedPolySet;
   rob.rc.voidp = (void *) grD;
@@ -2927,10 +2940,14 @@ static char *getspace0(int a) {
   return(s);
 }
 struct object KdefaultPolyRing(struct object ob) {
-  struct object rob;
+  struct object rob = OINIT;
   int i,j,k,n;
-  struct object ob1,ob2,ob3,ob4,ob5;
-  struct object t1;
+  struct object ob1 = OINIT;
+  struct object ob2 = OINIT;
+  struct object ob3 = OINIT;
+  struct object ob4 = OINIT;
+  struct object ob5 = OINIT;
+  struct object t1 = OINIT;
   char *s1;
   extern struct ring *CurrentRingp;
   static struct ring *a[N0];
@@ -3020,7 +3037,7 @@ struct object Krest(struct object ob) {
   }
 }
 struct object Kjoin(struct object ob1, struct object ob2) {
-  struct object rob;
+  struct object rob = OINIT;
   int n1,n2,i;
   if ((ob1.tag == Sarray) &&  (ob2.tag == Sarray)) {
     n1 = getoaSize(ob1); n2 = getoaSize(ob2);
@@ -3044,8 +3061,8 @@ struct object Kjoin(struct object ob1, struct object ob2) {
 }
   
 struct object Kget(struct object ob1, struct object ob2) {
-  struct object rob;
-  struct object tob;
+  struct object rob = OINIT;
+  struct object tob = OINIT;
   int i,j,size,n;
   if (ob2.tag == Sinteger) {
     i =ob2.lc.ival;
@@ -3102,7 +3119,8 @@ struct object Kget(struct object ob1, struct object ob2) {
 struct object newByteArray(int size,struct object obj) {
   unsigned char *ba;
   unsigned char *ba2;
-  struct object rob,tob;
+  struct object rob = OINIT;
+  struct object tob = OINIT;
   int i,n;
   ba = NULL;
   if (size > 0) {
@@ -3135,7 +3153,7 @@ struct object newByteArray(int size,struct object obj) {
 }
 struct object newByteArrayFromStr(char *s,int size) {
   unsigned char *ba;
-  struct object rob;
+  struct object rob = OINIT;
   int i;
   ba = NULL;
   if (size > 0) {
@@ -3151,7 +3169,7 @@ struct object newByteArrayFromStr(char *s,int size) {
 
 struct object byteArrayToArray(struct object obj) {
   int n,i; unsigned char *ba;
-  struct object rob;
+  struct object rob = OINIT;
   if (obj.tag != SbyteArray) errorKan1("%s\n","byteArrayToArray: argument is not an byteArray.");
   n = getByteArraySize(obj);
   rob = newObjectArray(n);
@@ -3161,7 +3179,7 @@ struct object byteArrayToArray(struct object obj) {
 }
 
 struct object KgetAttributeList(struct object ob){
-  struct object rob;
+  struct object rob = OINIT;
   if (ob.attr != NULL) rob = *(ob.attr);
   else rob = NullObject;
   return rob;
@@ -3172,10 +3190,10 @@ struct object  KputAttributeList(struct object ob,struct object attr) {
   return ob;
 }
 struct object KgetAttribute(struct object ob,struct object key) {
-  struct object rob;
-  struct object alist;
+  struct object rob = OINIT;
+  struct object alist = OINIT;
   int n,i;
-  struct object tob;
+  struct object tob = OINIT;
   char *s;
   rob = NullObject;
   if (ob.attr == NULL) return rob;
@@ -3197,11 +3215,11 @@ struct object KgetAttribute(struct object ob,struct object key) {
 }
 /*  ob (key) (value) putAttribute /ob set. They are not destructive. */
 struct object KputAttribute(struct object ob,struct object key,struct object value) {
-  struct object rob;
-  struct object alist;
+  struct object rob = OINIT;
+  struct object alist = OINIT;
   int n,i;
   char *s = "";
-  struct object tob;
+  struct object tob = OINIT;
   rob = ob;
   if (ob.attr == NULL) {
     rob.attr = newObject();
