@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.30 2004/09/23 12:20:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.31 2005/06/09 05:46:57 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -254,10 +254,10 @@ int KtoArgvbyCurryBrace(char *str,char *argv[],int limit);
 
 /** Attribute */
 struct object KgetAttributeList(struct object ob);
-struct object  KputAttributeList(struct object ob,struct object attr);
+struct object  KsetAttributeList(struct object ob,struct object attr);
 struct object KgetAttribute(struct object ob,struct object key);
-struct object KputAttribute(struct object ob,struct object key,struct object value); 
-/*  ob (key) (value) putAttribute /ob set. They are not destructive. */
+struct object KsetAttribute(struct object ob,struct object key,struct object value); 
+/*  ob (key) (value) setAttribute /ob set. They are not destructive. */
 
 
 

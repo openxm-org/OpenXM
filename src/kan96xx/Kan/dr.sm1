@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.47 2004/09/20 02:11:22 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.48 2005/02/27 05:28:06 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4390,6 +4390,55 @@ $ [ff ff] fromVectors :: $
 [(toTokensBySpace)
 [
  ( string toTokensBySpace token_array )
+]] putUsages
+
+/setAttributeList {
+  /arg2 set
+  /arg1 set
+  [
+    [(setAttributeList) arg1 arg2] extension /arg1 set
+  ] pop
+  arg1
+} def
+/getAttributeList {
+  /arg1 set
+  [(getAttributeList) arg1] extension 
+} def
+/setAttribute {
+  /arg3 set
+  /arg2 set
+  /arg1 set
+  [
+    [(setAttribute) arg1 arg2 arg3] extension /arg1 set
+  ] pop
+  arg1
+} def
+/getAttribute {
+  /arg2 set
+  /arg1 set
+  [(getAttribute) arg1 arg2] extension 
+} def
+[(setAttributeList)
+[
+ (ob attr setAttributeList new-obj )
+ (Example: [(x-1) (y-1)] [(gb) 1] setAttributeList /ff set )
+]] putUsages
+[(setAttribute)
+[
+ (ob key value setAttribute new-obj )
+ (Example: [(x-1) (y-1)] (gb) 1 setAttribute /ff set )
+]] putUsages
+[(getAttributeList)
+[
+ (ob getAttributeList attr-obj )
+ (Example: [(x-1) (y-1)] [(gb) 1] setAttributeList /ff set )
+ (         ff getAttributeList :: )
+]] putUsages
+[(getAttribute)
+[
+ (ob key getAttribute value )
+ (Example: [(x-1) (y-1)] (gb) 1 setAttribute /ff set )
+ (         ff (gb) getAttribute :: )
 ]] putUsages
 ;
 

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.42 2005/06/09 05:46:57 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.43 2005/06/16 05:07:23 takayama Exp $  */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -3184,7 +3184,7 @@ struct object KgetAttributeList(struct object ob){
   else rob = NullObject;
   return rob;
 }
-struct object  KputAttributeList(struct object ob,struct object attr) {
+struct object  KsetAttributeList(struct object ob,struct object attr) {
   ob.attr = newObject();
   *(ob.attr) = attr;
   return ob;
@@ -3213,8 +3213,8 @@ struct object KgetAttribute(struct object ob,struct object key) {
   }
   return rob;
 }
-/*  ob (key) (value) putAttribute /ob set. They are not destructive. */
-struct object KputAttribute(struct object ob,struct object key,struct object value) {
+/*  ob (key) (value) setAttribute /ob set. They are not destructive. */
+struct object KsetAttribute(struct object ob,struct object key,struct object value) {
   struct object rob = OINIT;
   struct object alist = OINIT;
   int n,i;

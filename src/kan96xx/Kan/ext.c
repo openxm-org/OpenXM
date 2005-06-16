@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.35 2005/06/09 05:46:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.36 2005/06/16 05:07:23 takayama Exp $ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -318,15 +318,15 @@ struct object Kextension(struct object obj)
   }else if (strcmp(key,"getAttributeList")==0) {
     if (size != 2) errorKan1("%s\n","[(getAttributeList) ob] extension rob");
     rob = KgetAttributeList(getoa(obj,1));
-  }else if (strcmp(key,"putAttributeList")==0) {
-    if (size != 3) errorKan1("%s\n","[(putAttributeList) ob attrlist] extension rob");
-    rob = KputAttributeList(getoa(obj,1), getoa(obj,2));
+  }else if (strcmp(key,"setAttributeList")==0) {
+    if (size != 3) errorKan1("%s\n","[(setAttributeList) ob attrlist] extension rob");
+    rob = KsetAttributeList(getoa(obj,1), getoa(obj,2));
   }else if (strcmp(key,"getAttribute")==0) {
     if (size != 3) errorKan1("%s\n","[(getAttribute) ob key] extension rob");
     rob = KgetAttribute(getoa(obj,1),getoa(obj,2));
-  }else if (strcmp(key,"putAttribute")==0) {
-    if (size != 4) errorKan1("%s\n","[(putAttributeList) ob key value] extension rob");
-    rob = KputAttribute(getoa(obj,1), getoa(obj,2),getoa(obj,3));
+  }else if (strcmp(key,"setAttribute")==0) {
+    if (size != 4) errorKan1("%s\n","[(setAttributeList) ob key value] extension rob");
+    rob = KsetAttribute(getoa(obj,1), getoa(obj,2),getoa(obj,3));
   }else if (strcmp(key,"hilbert")==0) {
     if (size != 3) errorKan1("%s\n","[(hilbert) obgb obvlist] extension.");
     rob = hilberto(getoa(obj,1),getoa(obj,2));
