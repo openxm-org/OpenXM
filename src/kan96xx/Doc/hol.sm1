@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.21 2004/07/29 08:13:42 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.22 2004/09/10 13:20:22 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -270,6 +270,27 @@ message-quiet
 ] putUsages
 (rrank ) messagen-quiet
 
+
+% Take the value of arg1 in prior.
+/mergeGroebnerOptions {
+  /arg2 set
+  /arg1 set
+  [/loc /glo /ans] pushVariables
+  [
+    /loc arg1 def
+    /glo arg2 def
+    /ans [ ] def
+    {
+      loc tag 0 eq { /ans glo def exit } { } ifelse
+      /ans glo loc join def
+      exit
+    } loop 
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
 /gb.v 1 def
 /gb.verbose 0 def
 /gb.options [ ] def
@@ -280,13 +301,14 @@ message-quiet
   /arg1 set
   [/in-gb /aa /typev /setarg /f /v 
    /gg /wv /termorder /vec /ans /rr /mm
-   /degreeShift  /env2
+   /degreeShift  /env2 /groebnerOptions
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage)] pushEnv
   [
 
     /aa arg1 def
     aa isArray { } { ( << array >> gb) error } ifelse
+    aa getAttributeList configureGroebnerOption /groebnerOptions set
     /setarg 0 def
     /wv 0 def
     /degreeShift 0 def
@@ -393,16 +415,17 @@ message-quiet
     }{
      /gb.homogenized 1 def
     } ifelse
-    gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
+    groebnerOptions gb.options mergeGroebnerOptions /groebnerOptions set
+    gb.verbose { (groebnerOptions = ) messagen groebnerOptions message } { } ifelse
     termorder {
       f { {___ dehomogenize} map } map /f set
-      [f gb.options] groebner_sugar 0 get /gg set
+      [f groebnerOptions] groebner_sugar 0 get /gg set
     }{
       f { {___ dehomogenize} map} map /f set
       gb.autoHomogenize {
         f fromVectors { homogenize } map /f set
       } {  } ifelse
-      [f gb.options] groebner 0 get /gg set
+      [f groebnerOptions] groebner 0 get /gg set
     }ifelse
     wv isInteger {
       /ans [gg gg {init} map] def
@@ -417,6 +440,8 @@ message-quiet
     }{ }
     ifelse
     ans getRing (oxRingStructure) dc /gb.oxRingStructure set
+    %% gg getAttributeList message
+    ans gg getAttributeList setAttributeList /ans set
     %% 
     env1 restoreOptions  %% degreeShift changes "grade"
 
@@ -432,12 +457,14 @@ message-quiet
   /arg1 set
   [/in-pgb /aa /typev /setarg /f /v 
    /gg /wv /termorder /vec /ans /rr /mm
+   /groebnerOptions
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage) (UseCriterion1)] pushEnv
   [
 
     /aa arg1 def
     aa isArray { } { (<< array >> pgb) error } ifelse
+    aa getAttributeList configureGroebnerOption /groebnerOptions set
     /setarg 0 def
     /wv 0 def
     aa { tag } map /typev set
@@ -507,17 +534,18 @@ message-quiet
     } ifelse
     %%% Enf of the preprocess
 
-    gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
+    groebnerOptions gb.options mergeGroebnerOptions /groebnerOptions set
+    gb.verbose { (groenberOptions = ) messagen groebnerOptions message } { } ifelse
     termorder {
       f { {. dehomogenize} map } map /f set
       [(UseCriterion1) 1] system_variable
-      [f gb.options] groebner_sugar 0 get /gg set
+      [f groenberOptions] groebner_sugar 0 get /gg set
       [(UseCriterion1) 0] system_variable
     }{
       f { {. dehomogenize} map} map /f set
       f fromVectors { homogenize } map /f set
       [(UseCriterion1) 1] system_variable
-      [f gb.options] groebner 0 get /gg set
+      [f groebnerOptions] groebner 0 get /gg set
       [(UseCriterion1) 0] system_variable
     }ifelse
     wv isInteger {
@@ -533,6 +561,7 @@ message-quiet
     }{ }
     ifelse
     %% 
+    ans gg getAttributeList setAttributeList /ans set
 
     /arg1 ans def
   ] pop
@@ -781,6 +810,12 @@ message-quiet
   (  )
   $Example 5: [[ [(x^2) (y+x)] [(x+y) (y^3)] [(2 x^2+x y) (y+x+x y^3)]] (x,y) $
   $             [ [ (x) -1 (y) -1] ]  [[0 1] [-3 1] ] ] gb pmat ; $
+  ( )
+  $Example 6: [ [( (x Dx)^2 + (y Dy)^2 - x y Dx Dy + 1) ( x y Dx Dy -1)] (x,y) $
+  $             [ [ (Dx) 1 ] ] ] [(reduceOnly) 1] setAttributeList gb pmat ; $
+  ( )
+  $Example 7: [ [( (x Dx)^2 + (y Dy)^2 + 1) ( x y Dx Dy -1)] (x,y) $
+  $     [ [ (Dx) 1 ] ] ] [(gbCheck) 1] setAttributeList gb getAttributeList ::$
   (  )
   (cf. gb, groebner, groebner_sugar, syz. )
 ]] putUsages
@@ -798,6 +833,8 @@ message-quiet
   $Example 1: [(x,y) ring_of_polynomials 0] define_ring $
   $           [ [(x^2+y^2-4). (x y -1).] ] pgb :: $
   $Example 2: [ [(x^2+y^2) (x y)]   (x,y)  [ [(x) -1 (y) -1] ] ] pgb :: $
+  $Example 3: [ [(x^2+y^2 + x y ) (x y)]   (x,y)  [ [(x) -1 (y) -1] ] ]  $
+  $           [(reduceOnly)] setAttributeList pgb :: $
   (cf. gb, groebner, groebner_sugar, syz. )
 ]] putUsages
 
@@ -1375,7 +1412,7 @@ message-quiet
   /arg1 set
   [/in-gb_h /aa /typev /setarg /f /v 
    /gg /wv /termorder /vec /ans /rr /mm
-   /gb_h.opt
+   /gb_h.opt  /groebnerOptions
   ] pushVariables 
   [(CurrentRingp) (KanGBmessage) (Homogenize_vec)] pushEnv
   [
@@ -1383,6 +1420,7 @@ message-quiet
     /aa arg1 def
     gb.verbose { (Getting in gb_h) message } {  } ifelse
     aa isArray { } { ( << array >> gb_h) error } ifelse
+    aa getAttributeList configureGroebnerOption /groebnerOptions set
     /setarg 0 def
     /wv 0 def
     aa { tag } map /typev set
@@ -1464,14 +1502,15 @@ message-quiet
     [(Homogenize_vec) 0] system_variable
     %%% End of the preprocess
 
-    gb.verbose { (gb.options = ) messagen gb.options message } { } ifelse
+    groebnerOptions gb.options mergeGroebnerOptions /groebnerOptions set
+    gb.verbose { (groebnerOptions = ) messagen groebnerOptions message } { } ifelse
     termorder {
       f { {. } map } map /f set
-      [f gb.options] groebner 0 get /gg set %% Do not use sugar.
+      [f groebnerOptions] groebner 0 get /gg set %% Do not use sugar.
     }{
       f { {. } map} map /f set
       f fromVectors /f set
-      [f gb.options] groebner 0 get /gg set
+      [f groebnerOptions] groebner 0 get /gg set
     }ifelse
     wv isInteger {
       /ans [gg gg {init} map] def
@@ -1485,6 +1524,7 @@ message-quiet
       /ans set
     }{ }
     ifelse
+    ans gg getAttributeList setAttributeList /ans set
     gb_h.opt restoreOptions 
     gb.verbose { (Getting out of gb_h) message } {  } ifelse
     %% 
@@ -1525,6 +1565,8 @@ message-quiet
   $              [(2 x^5+x y^4) (y h^3 +x h^3 +x y^3)]] (x,y) $
   $             [ [ (x) -1 (y) -1] ] ] gb_h pmat ; $
   $  This is fine because grade(v_1) = grade(v_2)+1 for all vectors. $
+  $Example 5: [ [[(h+x) (x^3 + 2 h^3 + 2 x h^2)] [(x) (x)]] (x)] $
+  $            [(reduceOnly)] setAttributeList gb_h pmat $
   (  )
   (cf. gb, groebner, syz_h. )
 ]] putUsages

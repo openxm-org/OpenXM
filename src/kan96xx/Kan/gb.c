@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.9 2005/06/09 04:09:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.10 2005/06/16 06:54:55 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -217,6 +217,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
   Spairs = Criterion1 = Criterion2B = Criterion2F = Criterion2M = 0;
   
   g = newGradedPolySet(INITGRADE); g->gb = 1;
+  if (reduceOnly) g->gb = 2; /* unknown */
   d = newGradedPairs(INITGRADE*2);
   for (i=0; i<g->lim; i++) {
     g->polys[i] = newPolySet(INITSIZE);

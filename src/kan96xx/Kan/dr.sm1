@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.48 2005/02/27 05:28:06 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.49 2005/06/16 06:21:21 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4440,6 +4440,36 @@ $ [ff ff] fromVectors :: $
  (Example: [(x-1) (y-1)] (gb) 1 setAttribute /ff set )
  (         ff (gb) getAttribute :: )
 ]] putUsages
+
+% [(gbCheck) 1 (needSyz) 1 (countDown) 100]  (attribute format)
+% --> [(gbCheck) (needSyz) (countDown) 100]  (groebner option format)
+% cf. gb
+/configureGroebnerOption {
+  /arg1 set
+  [/opt /i] pushVariables
+  [
+    /opt arg1 def
+    opt tag 0 eq {
+     /arg1 null def
+    } { 
+     [
+      0 2 opt length 1 sub {
+        /i set
+        opt i get
+        opt i get (countDown) eq {
+           opt i 1 add get
+        } { } ifelse
+        opt i get (stopDegree) eq {
+           opt i 1 add get
+        } { } ifelse
+      } for
+     ] /arg1 set
+    } ifelse
+  ] pop
+  popVariables
+  arg1
+} def
+
 ;
 
 

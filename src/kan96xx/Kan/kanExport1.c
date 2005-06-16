@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.18 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.19 2005/06/16 06:54:55 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -88,7 +88,7 @@ struct object Kgroebner(ob)
   int sdflag = 0;
   int forceReduction = 0;
   int reduceOnly = 0;
-  int gbCheck = 0;
+  int gbCheck = 0;  /* see @s/2005/06/16-note.pdf */
 
   int ob1Size, ob2Size, noZeroEntry;
   int *ob1ToOb2;
@@ -122,6 +122,7 @@ struct object Kgroebner(ob)
     if (ob2.tag != Sarray) {
       errorKan1("%s\n","Kgroebner(): The options must be given by an array.");
     }
+    /* Note: If you add a new option, change /configureGroebnerOption, too */
     for (i=0; i<getoaSize(ob2); i++) {
       ob2c = getoa(ob2,i);
       if (ob2c.tag == Sdollar) {
@@ -304,14 +305,14 @@ struct object Kgroebner(ob)
   }
 
   /* To handle zero entries in the input. */
+  rob=KsetAttribute(rob,KpoString("gb"),KpoInteger(grG->gb));
+  putoa(rob,0,KsetAttribute(getoa(rob,0),KpoString("gb"),KpoInteger(grG->gb)));
   if (noZeroEntry) {
-    rob=KsetAttribute(rob,KpoString("gb"),KpoInteger(grG->gb));
     return(rob);
   }
   method = getoaSize(rob);
   switch(method) {
   case 1:
-    rob=KsetAttribute(rob,KpoString("gb"),KpoInteger(grG->gb));
     return(rob);
     break;
   case 2:
