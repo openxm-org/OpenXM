@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.6 2003/08/19 08:02:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.h,v 1.7 2005/06/09 04:09:22 takayama Exp $ */
 /* gradedset.h */
 #define max(a,b) (a>b?a:b)
 
@@ -92,11 +92,11 @@ void initSyzRingp(void);
 struct gradedPolySet *(*groebner)(struct arrayOfPOLY *f,
 				  int needBack,
 				  int needSyz, struct pair **grP,
-				  int countDown,int forceReduction,int reduceOnly);
+				  int countDown,int forceReduction,int reduceOnly,int gbCheck);
 struct gradedPolySet *groebner_gen(struct arrayOfPOLY *f,
 				  int needBack,
 				  int needSyz, struct pair **grP,
-				  int countDown,int forceReduction,int reduceOnly);
+				  int countDown,int forceReduction,int reduceOnly,int gbCheck);
 struct gradedPairs *updatePairs(struct gradedPairs *grD, POLY gt,
 				int gtGrade, int t,
 				struct gradedPolySet *grG);
@@ -108,7 +108,7 @@ void toReducedBasis(struct gradedPolySet *grP,int needBack, int needSyz);
 struct gradedPolySet *groebner_gm(struct arrayOfPOLY *f,
 				  int needBack,
 				  int needSyz, struct pair **grP,
-				  int countDown,int forceReduction,int reduceOnly);
+				  int countDown,int forceReduction,int reduceOnly,int gbCheck);
 
 /* syz0 */
 void simplifyBT(int grd,int index, struct gradedPolySet *grG);

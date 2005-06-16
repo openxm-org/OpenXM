@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.17 2005/06/09 04:09:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.18 2005/06/16 05:07:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -88,6 +88,7 @@ struct object Kgroebner(ob)
   int sdflag = 0;
   int forceReduction = 0;
   int reduceOnly = 0;
+  int gbCheck = 0;
 
   int ob1Size, ob2Size, noZeroEntry;
   int *ob1ToOb2;
@@ -135,6 +136,8 @@ struct object Kgroebner(ob)
           forceReduction = 1;
         }else if (strcmp(ob2c.lc.str,"reduceOnly")==0) {
           reduceOnly = 1;
+        }else if (strcmp(ob2c.lc.str,"gbCheck")==0) {
+          gbCheck = 1;
         }else if (strcmp(ob2c.lc.str,"countDown")==0) {
           countDown = 1; cdflag = 1;
           if (needSyz) {
@@ -256,7 +259,7 @@ struct object Kgroebner(ob)
   }
 
   a = arrayToArrayOfPOLY(ob2);
-  grG = (*groebner)(a,needBack,needSyz,&grP,countDown,forceReduction,reduceOnly);
+  grG = (*groebner)(a,needBack,needSyz,&grP,countDown,forceReduction,reduceOnly,gbCheck);
 
   if (strcmp(F_groebner,"gm") == 0 && (needBack || needSyz)) {
     warningKan("The options needBack and needSyz are ignored.");
@@ -302,11 +305,13 @@ struct object Kgroebner(ob)
 
   /* To handle zero entries in the input. */
   if (noZeroEntry) {
+    rob=KsetAttribute(rob,KpoString("gb"),KpoInteger(grG->gb));
     return(rob);
   }
   method = getoaSize(rob);
   switch(method) {
   case 1:
+    rob=KsetAttribute(rob,KpoString("gb"),KpoInteger(grG->gb));
     return(rob);
     break;
   case 2:
@@ -318,6 +323,7 @@ struct object Kgroebner(ob)
     rob2 = newObjectArray(2);
     putoa(rob2,0,getoa(rob,0));
     putoa(rob2,1,newB);
+    rob2=KsetAttribute(rob2,KpoString("gb"),KpoInteger(grG->gb));
     return(rob2);
     break;
   case 3:
@@ -338,6 +344,7 @@ struct object Kgroebner(ob)
     putoa(rob2,0,getoa(rob,0));
     putoa(rob2,1,newB);
     putoa(rob2,2,newC);
+    rob2=KsetAttribute(rob2,KpoString("gb"),KpoInteger(grG->gb));
     return(rob2);
     break;
   default:

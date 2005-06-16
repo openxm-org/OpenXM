@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gbGM.c,v 1.3 2001/05/04 01:06:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gbGM.c,v 1.4 2005/06/09 04:09:22 takayama Exp $ */
 /* gbGM.c  GM=Gebauer and Moller
  */
 
@@ -340,7 +340,7 @@ struct polySet_gm markRedundant_gm(g,j)
 
 
 
-struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly)
+struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly,gbCheck)
      struct arrayOfPOLY *f;
      int needBack;
      int needSyz;
@@ -348,6 +348,7 @@ struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReductio
      int countDown;
      int forceReduction;
      int reduceOnly;
+     int gbCheck;
 {
   int r;
   struct pair_gm top;
@@ -366,8 +367,8 @@ struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReductio
   if (needBack || needSyz) {
     fprintf(stderr,"Warning: groebner_gm() does not compute the backward transformation and syzygies.\n");
   }
-  if (reduceOnly) {
-    fprintf(stderr,"Warning: groebner_gm() does not implement reduceOnly.\n");
+  if (reduceOnly || gbCheck) {
+    fprintf(stderr,"Warning: groebner_gm() does not implement reduceOnly/gbCheck.\n");
   }
   
 #ifdef STATISTICS
@@ -447,6 +448,7 @@ struct gradedPolySet *groebner_gm(f,needBack,needSyz,grP,countDown,forceReductio
 #endif
 
   ans = newGradedPolySet(1);
+  ans->gb = 1;
   for (i=0; i<ans->lim; i++) {
     ans->polys[i] = newPolySet(1);
   }

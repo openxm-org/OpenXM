@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.9 2003/08/19 08:02:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.10 2004/09/13 11:24:11 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -187,6 +187,8 @@ struct gradedPolySet {
   struct polySet **polys;  /* polys[0]: grade=0, polys[1]:grade=1, ... */
   int maxGrade;            /* maximal grade in this set */
   int lim;
+  int gb;  /* it is gb or not. */
+  int reduced; /* it is reduced gb or not. */
 };
 
 struct gradedPairs {

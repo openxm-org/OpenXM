@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.5 2003/07/30 09:00:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.6 2003/08/19 08:02:09 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -62,6 +62,8 @@ struct gradedPolySet *newGradedPolySet(n)
     errorGradedSet("No more memory.");
   g->maxGrade = 0;
   g->lim = n;
+  g->gb = 0;
+  g->reduced = 0;
   return(g);
 }
 

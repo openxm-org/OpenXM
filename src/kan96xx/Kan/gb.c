@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.8 2003/08/19 08:02:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.9 2005/06/09 04:09:22 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -162,7 +162,7 @@ struct gradedPairs *updatePairs(grD,gt,gtGrade,t,grG)
   return(grD);
 }
 
-struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly)
+struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReduction,reduceOnly,gbCheck)
      struct arrayOfPOLY *f;
      int needBack;
      int needSyz;
@@ -170,6 +170,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
      int countDown;
      int forceReduction;
      int reduceOnly;
+     int gbCheck;
 {
   int r;
   struct gradedPolySet *g;
@@ -215,7 +216,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
 
   Spairs = Criterion1 = Criterion2B = Criterion2F = Criterion2M = 0;
   
-  g = newGradedPolySet(INITGRADE);
+  g = newGradedPolySet(INITGRADE); g->gb = 1;
   d = newGradedPairs(INITGRADE*2);
   for (i=0; i<g->lim; i++) {
     g->polys[i] = newPolySet(INITSIZE);
@@ -317,6 +318,15 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
     }
 
     if (!(rd ISZERO)) {
+      if (gbCheck) {
+		/* Abort the calculation. */
+		g->gb = 0;
+		if (KanGBmessage) {
+		  printf("gbCheck failed. \n");
+		  printf("Note that the result is NOT groebner basis.\n");
+		}
+		break;
+      }
       if (needBack || needSyz) {
         syzp = newSyz0();
         syzp->cf = syzCf; /* no meaning */
@@ -356,6 +366,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
           if (countDown == 0) {
             printf("\nThe computation of the Groebner basis is suspended because of countDown==0.\n");
             printf("Note that the result is NOT groebner basis.\n");
+            g->gb = 0;
             break;
           }
         }
@@ -377,6 +388,7 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
         printf("Computation of the Groebner basis is suspended bacause of StopDegree < computing grade.\n");
         printf("Note that the result is NOT groebner basis.\n");
       }
+      g->gb = 0;
       break;
     }
   }
@@ -509,6 +521,7 @@ void toReducedBasis(struct gradedPolySet *grP,int needBack, int needSyz)
   if (KanGBmessage) {
     printf("Done(reduced basis)\n");
   }
+  grP->reduced = 1;
 }
 
 
