@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.12 2005/01/23 02:41:16 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.13 2005/02/28 12:53:43 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -363,6 +363,57 @@ SIGPIPE で クライアントが終了してしまうバグ.
 まだ完全に解決してない. 
 ox texmacs が正しく動作するのか要テスト.
 \end{enumerate}
+
+\section{2005-06-9, 16, attribute, options.}
+\begin{enumerate}
+\item  全ての object に attr (attribute field) をつけた.
+効率に関する調査は {\tt misc-2005/06/gfan/test1.sm1} (taka).
+時間的効率についてはあまり問題ない.
+\item 構造体の {\tt attr} フィールドを初期化するため {\tt OINIT} マクロを
+加えた. {\tt stackm.h}
+初期化がないと segfault する場合も.
+\item {\tt @s/2005/06/16-note.pdf} (taka) に開発メモあり.
+\item {\tt attr} を {\tt groebner}, {\tt gb} 等で活用する.
+\end{enumerate}
+
+ソースの変更は多岐にわたるので一部のみ記す.
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Kan/dr.sm1} 1.49,  {\tt setAttribute} 等のマクロ.
+\item {\tt OpenXM/src/kan96xx/kan/gb.c} 1.10,11, {\tt groebner} が attr で gb かどうかの情報を戻す.
+\item {\tt OpenXM/src/kan96xx/Doc/hol.sm1} 1.23,  gb, pgb, gb\_h が option を attr で受け取れるようにする変更.
+\end{enumerate}
+
+例:
+{\footnotesize
+\begin{verbatim}
+  ob key getAttribute value
+  Example: [(x-1) (y-1)] (gb) 1 setAttribute /ff set
+           ff (gb) getAttribute ::
+  
+  ob getAttributeList attr-obj
+  Example: [(x-1) (y-1)] [(gb) 1] setAttributeList /ff set
+           ff getAttributeList ::
+
+  sm1> [(x0,x1) ring_of_polynomials 0] define_ring
+           [(x0^2+x1^2-h^2). (x0 x1 -4 h^2).] /ff set ;
+  sm1>[ff [(gbCheck)]] groebner /gg set ;
+   3.gbCheck failed.
+  Note that the result is NOT groebner basis.
+  
+  Completed.
+  sm1>gg getAttributeList ::
+  [    $gb$ , 0 ]
+
+
+   [ [( (x Dx)^2 + (y Dy)^2 + 1) ( x y Dx Dy -1)] (x,y)
+       [ [ (Dx) 1 ] ] ] [(gbCheck) 1] setAttributeList gb getAttributeList ::
+  
+   [ [[(h+x) (x^3 + 2 h^3 + 2 x h^2)] [(x) (x)]] (x)]
+              [(reduceOnly)] setAttributeList gb_h pmat
+
+
+\end{verbatim}
+}
 
 \end{document}
 
