@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des.c,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des.c,v 1.2 2004/09/20 00:10:24 iwane Exp $ */
 /*
  * FIPS PUB 46-3
  *   DATA ENCRYPTION STANDARD
@@ -394,7 +394,7 @@ f_(uint32_t r, uint32_t kl, uint32_t kr)
 }
 
 /*===========================================================*
- * BASE CRIPTO
+ * BASE CRYPTO
  *===========================================================*/
 void
 des_dec_i(
@@ -520,7 +520,7 @@ des_dec_c(const des_key *key, const unsigned char *enc, unsigned char *data)
 }
 
 /*===========================================================*
- * CRIPTO: length of input data is "64 * n" byte
+ * CRYPTO: length of input data is "64 * n" byte
  *===========================================================*/
 static int
 des_prm_chk(int datalen, int buflen)
