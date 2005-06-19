@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des.h,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des.h,v 1.2 2004/09/20 00:10:24 iwane Exp $ */
 /*
  * FIPS PUB 46-3
  *   DATA ENCRYPTION STANDARD
@@ -31,8 +31,8 @@ int	des_dec_c(const des_key *, const unsigned char *, unsigned char *);
 int	des_enc_ecb(const des_key *, int len, const unsigned char *, unsigned char *);
 int	des_dec_ecb(const des_key *, int len, const unsigned char *, unsigned char *);
 
-int	des_enc_cbc(const des_key *, const unsigned char *, int len, const unsigned char *, unsigned char *);
-int	des_dec_cbc(const des_key *, const unsigned char *, int len, const unsigned char *, unsigned char *);
+int	des_enc_cbc(const des_key *, unsigned char *, int len, const unsigned char *, unsigned char *);
+int	des_dec_cbc(const des_key *, unsigned char *, int len, const unsigned char *, unsigned char *);
 
 int	des_enc_cfb(const des_key *, int bit, const unsigned char *iv, int len, const unsigned char *, unsigned char *);
 int	des_dec_cfb(const des_key *, int bit, const unsigned char *iv, int len, const unsigned char *, unsigned char *);

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des3.h,v 1.1 2005/06/19 15:30:01 iwane Exp $ */
 /*
  * Triple-DES
  */
@@ -29,7 +29,7 @@ int	des3_dec_c(const des3_key *, const unsigned char *, unsigned char *);
 int	des3_enc_ecb(const des3_key *, int len, const unsigned char *, unsigned char *);
 int	des3_dec_ecb(const des3_key *, int len, const unsigned char *, unsigned char *);
 
-int	des3_enc_cbc(const des3_key *, const unsigned char *, int len, const unsigned char *, unsigned char *);
+int	des3_enc_cbc(const des3_key *, unsigned char *, int len, const unsigned char *, unsigned char *);
 int	des3_dec_cbc(const des3_key *, unsigned char *, int len, const unsigned char *, unsigned char *);
 
 int	des3_enc_cfb(const des3_key *, int bit, const unsigned char *iv, int len, const unsigned char *, unsigned char *);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/destest.c,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/destest.c,v 1.2 2005/06/19 15:30:01 iwane Exp $ */
 /*
  * FIPS 81 - Des Modes of Operation
  */
@@ -16,7 +16,8 @@ main()
 	des3_key dkey3;
 	unsigned char key[] = "\x01\x23\x45\x67\x89\xab\xcd\xef"; /* secret key */
 	unsigned char key3[3 * 8];
-	unsigned char *iv = (unsigned char *)"\x12\x34\x56\x78\x90\xab\xcd\xef";   /* initial vector */
+	unsigned char *ivp = (unsigned char *)"\x12\x34\x56\x78\x90\xab\xcd\xef";   /* initial vector */
+	unsigned char iv[8];
 	unsigned char enc[N], dec[N];
 	int i, k;
 	int ret;
@@ -109,6 +110,8 @@ _CBC:
 		int ks[] = {24, 32};
 		const unsigned char *d[] = {plain, plain2};
 
+		memcpy(iv, ivp, 8);
+
 		k = ks[i];
 		p = d[i];
 
@@ -119,6 +122,8 @@ _CBC:
 			goto _CFB;
 		}
 	
+		memcpy(iv, ivp, 8);
+
 		ret = des_dec_cbc(&dkey, iv, k, enc, dec);
 		if (memcmp(p, dec, k)) {
 			printf("CBC dec failed.\n");
@@ -126,12 +131,16 @@ _CBC:
 			goto _CFB;
 		}
 
+		memcpy(iv, ivp, 8);
+
 		ret = des3_enc_cbc(&dkey3, iv, k, p, enc);
 		if (memcmp(ci[i], enc, k)) {
 			printf("CBC enc failed. [des3]\n");
 			printf("ret = %d, i = %d\n", ret, i);
 			goto _CFB;
 		}
+
+		memcpy(iv, ivp, 8);
 
 		ret = des3_dec_cbc(&dkey3, iv, k, enc, dec);
 		if (memcmp(p, dec, k)) {
@@ -153,6 +162,7 @@ _CFB:
 		int ks[] = {24, 24, 24, 24, 24, 28};
 		const unsigned char *d[] = {plain, plain, plain, plain, plain, plain2};
 
+		memcpy(iv, ivp, 8);
 
 		k = ks[i];
 		p = d[i];
@@ -180,6 +190,8 @@ _OFB:
 		const unsigned char *ci[] = {ofb8, ofb64};
 		int ks[] = {10, 24};
 		const unsigned char *d[] = {plain, plain};
+
+		memcpy(iv, ivp, 8);
 
 		k = ks[i];
 		p = d[i];

@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/block.c,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,7 +33,7 @@ crypt_ecb(void *key, int block, int len,
 
 
 int
-crypt_enc_cbc(void *key, int block, const unsigned char *iv, int len,
+crypt_enc_cbc(void *key, int block, unsigned char *iv, int len,
     const unsigned char *data, unsigned char *buf, void *func)
 {
 	int i, j, ret;
@@ -56,12 +56,14 @@ crypt_enc_cbc(void *key, int block, const unsigned char *iv, int len,
 		ivp = buf + i;
 	}
 
+	memcpy(iv, ivp, block);
+
 	return (0);
 }
 
 
 int
-crypt_dec_cbc(void *key, int block, const unsigned char *iv, int len,
+crypt_dec_cbc(void *key, int block, unsigned char *iv, int len,
     const unsigned char *enc,
     unsigned char *buf,
     void *func)
@@ -86,6 +88,8 @@ crypt_dec_cbc(void *key, int block, const unsigned char *iv, int len,
 		}
 		ivp = enc + i;
 	}
+
+	memcpy(iv, ivp, block);
 
 	return (0);
 }
