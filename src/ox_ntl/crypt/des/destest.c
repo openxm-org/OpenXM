@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/destest.c,v 1.1 2004/07/11 00:32:17 iwane Exp $ */
 /*
  * FIPS 81 - Des Modes of Operation
  */
@@ -6,14 +6,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "des.h"
+#include "des3.h"
 #define N 4096
 
 int
 main()
 {
 	des_key dkey;
+	des3_key dkey3;
 	unsigned char key[] = "\x01\x23\x45\x67\x89\xab\xcd\xef"; /* secret key */
+	unsigned char key3[3 * 8];
 	unsigned char *iv = (unsigned char *)"\x12\x34\x56\x78\x90\xab\xcd\xef";   /* initial vector */
 	unsigned char enc[N], dec[N];
 	int i, k;
@@ -75,7 +77,12 @@ main()
 	const unsigned char *plain2 = (unsigned char *)"7654321 Now is the time for \0\0\0\0\0\0\0\0";
 	const unsigned char *p;
 
+	for (i = 0; i < 3; i++) {
+		memcpy(key3 + 8 * i, key, 8);
+	}
+
 	des_keyset(key, &dkey);
+	des3_keyset(key3, &dkey3);
 
 	k = 24;
 	ret = des_enc_ecb(&dkey, k, plain, enc);
@@ -118,6 +125,22 @@ _CBC:
 			printf("ret = %d, i = %d\n", ret, i);
 			goto _CFB;
 		}
+
+		ret = des3_enc_cbc(&dkey3, iv, k, p, enc);
+		if (memcmp(ci[i], enc, k)) {
+			printf("CBC enc failed. [des3]\n");
+			printf("ret = %d, i = %d\n", ret, i);
+			goto _CFB;
+		}
+
+		ret = des3_dec_cbc(&dkey3, iv, k, enc, dec);
+		if (memcmp(p, dec, k)) {
+			printf("CBC dec failed. [des3]\n");
+			printf("ret = %d, i = %d\n", ret, i);
+			goto _CFB;
+		}
+
+
 	}
 
 	printf("CBC ok.\n");

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/crypt/des/Makefile,v 1.1 2004/07/11 00:32:17 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/crypt/des/Makefile,v 1.2 2004/09/20 00:10:24 iwane Exp $
 
 OpenXM_HOME ?= ${PWD}/../../../..
 PREFIX=$(OpenXM_HOME)
@@ -14,7 +14,7 @@ CFLAGS   += -Wall -g -DHAVE_CONFIG_H
 CPPFLAGS  = -I$(PREFIX)/include -I../..
 
 
-SRCS=block.c des.c destest.c
+SRCS=block.c des.c des3.c destest.c
 
 OBJC=$(SRCS:.c=.o)
 
