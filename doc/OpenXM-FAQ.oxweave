@@ -1,8 +1,8 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.22 2004/02/07 10:45:27 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.23 2004/09/01 23:07:37 takayama Exp $
 
-//&C Sep 2, 2004
-//&ja Q. MacOS X で OpenXM package を make するにはどうしますか?
-//&en Q. How to make OpenXM package on MacOS X?
+//&C Sep 2, 2004, Update for tigers (10.4) June 23, 2005.
+//&ja Q. MacOS X (10.3, panther)で OpenXM package を make するにはどうしますか?
+//&en Q. How to make OpenXM package on MacOS X (10.3, panther)?
 
 /*&ja
 [1] fink をインストールしてなければインストールします.
@@ -24,6 +24,23 @@
     マニュアル等を正しく処理するには, tex, ptex, nkf 等のインストール
     も必要です.  とりあえず実行形式を得るためには不要.
 
+Mac OS X 10.4 (tiger) のためのノート.
+[A] 
+   XcodeTools 2.1 をインストールすると, gcc version 4.0 が標準でインストール
+   される.  現在のところgcc-4.0 のもとではいろいろと問題が生じる.
+   したがって gcc-4.0 の代わりに gcc-3.3 を使う.
+      (たとえば
+             mkdir ~/bin ; ln -s /usr/bin/gcc-3.3 ~/bin/gcc
+             export PATH=~/bin:$PATH 
+       とすればよい)
+
+<note-1> GC の版 (OpenXM/src/gc) は 6.5 (or later).
+<note-2> wget がない場合は次ぎのようにする.
+          cd OpenXM ; mkdir ../OpenXM_dist ; cd ../OpenXM_dist
+          ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/ の全てのファイルを
+          OpenXM_dist へ make の前にコピーしておく.
+<note-3> DYLD_LIBRARY_PATH 環境変数は使用しない. cf. OpenXM/rc/dot.bashrc
+
 */
 /*&en
 [1] If you have not yet installed fink, install the fink system.
@@ -37,6 +54,22 @@
     by the ftp.
     In order to build documents properly, you need tex, ptex, and nkf.
     If you need only binary executables, you do not need these.
+
+Note for Mac OS X 10.4 (tiger)
+[A] 
+   When you install XcodeTools 2.1, gcc version 4.0 will be installed.
+   There are several troubles when you build the OpenXM package with gcc-4.0.
+   So, we need to use gcc-3.3 instead of gcc-4.0
+      (e.g., mkdir ~/bin ; ln -s /usr/bin/gcc-3.3 ~/bin/gcc
+             export PATH=~/bin:$PATH )
+
+<note-1> The version of OpenXM/src/gc must be 6.5 (or later).
+<note-2> If you do not have "wget", do as follows.
+          cd OpenXM ; mkdir ../OpenXM_dist ; cd ../OpenXM_dist
+          Copy all files in ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+          to OpenXM_dist before make.
+<note-3> The environmental variable DYLD_LIBRARY_PATH must not be set. 
+          cf. OpenXM/rc/dot.bashrc
 
 */
 

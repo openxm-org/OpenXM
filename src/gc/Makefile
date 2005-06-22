@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.11 2004/04/21 11:32:07 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.12 2004/12/15 15:37:35 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTNAME=gc6.3
+DISTNAME=gc6.5
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}
 PATCH_INTERIX = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc_interix.diff
