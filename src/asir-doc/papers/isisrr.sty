@@ -1,0 +1,208 @@
+% isisrr.sty --- a style file for research report/memorandum of ISIS
+% Release 1.0
+%
+%	Originally written by T. Ohtani	Jan. 1991
+%
+% a	Revised by Y. Takada	6 Feb. 1991
+%	  Acknowledge: I would like to thank my colleagues, H. Yamanaka, H. Sugano, and K. Misue
+%			for their helpful suggestion.
+% b	Revised by Y. Takada	18 Feb. 1991
+%	  Now the user does not have to define the abstract and the keyword list.
+%	  If so, it type out warnings.
+%% Declaration for memoranda
+\newif\if@isismemo
+\def\isismemo{\@isismemotrue}
+
+%% Support the draft mode.
+\newif\if@rrdraft
+\def\rrdraft{\@rrdrafttrue\def\@oddfoot{{\bf Draft Copy}: \today \hfil\thepage\hfil {\sl Do not circulate!!}}\let\@evenfoot\@oddfoot\reversemarginpar}
+
+%%% Pagestyle for the draft mode
+\def\ps@rrdraft{\let\@mkboth\@gobbletwo
+\def\@oddfoot{\hfil\thepage\hfil}
+ \let\@evenfoot\@oddfoot}
+\let\pagestyle\relax
+\def\pagestyle#1{\if@rrdraft\else\@nameuse{ps@#1}\fi}
+
+%%% Nice stuffs for the draft mode
+%%
+%% for the cross reference
+%%  \bf is used for \label
+%%  \it is used for \ref
+%%  \sl is used for \pageref
+\let\label\relax \let\ref\relax \let\pageref\relax
+\def\label#1{\@bsphack\if@filesw {\let\thepage\relax
+\def\protect{\noexpand\noexpand\noexpand}%
+\xdef\@gtempa{\write\@auxout{\string\newlabel{#1}{{\@currentlabel}{\thepage}}}}}\@gtempa%
+\if@nobreak \ifvmode\nobreak\fi\fi\fi\@esphack\if@rrdraft{\@rrmarginnote{\scriptsize\bf #1}}\fi}
+\def\ref#1{\@ifundefined{r@#1}{{\bf ??}\@warning
+ {Reference `#1' on page \thepage \space undefined}}
+ {\edef\@tempa{\@nameuse{r@#1}}\expandafter
+ \@car\@tempa \@nil\null}\if@rrdraft{\@rrmarginnote{\scriptsize\it #1}}\fi}
+\def\pageref#1{\@ifundefined{r@#1}{{\bf ??}\@warning
+ {Reference `#1' on page \thepage \space undefined}}
+ {\edef\@tempa{\@nameuse{r@#1}}\expandafter
+ \@cdr\@tempa\@nil\null}\if@rrdraft{\@rrmarginnote{\scriptsize\sl #1}}\fi}
+
+%%% Nice stuffs for the bibliography
+\let\@citex\relax
+\def\@citex[#1]#2{\if@filesw\immediate\write\@auxout{\string\citation{#2}}\fi
+ \def\@citea{}\@cite{\@for\@citeb:=#2\do
+   {\@citea\def\@citea{,\penalty\@m\ }\@ifundefined
+   {b@\@citeb}{{\bf ?}\@warning
+   {Citation `\@citeb' on page \thepage \space undefined}}%
+ \hbox{\csname b@\@citeb\endcsname}}}{#1}\if@rrdraft{\@rrmarginnote{\scriptsize\tt #2}}\fi}
+\let\nocite\relax
+\def\nocite#1{\@bsphack
+ \if@filesw\immediate\write\@auxout{\string\citation{#1}}\fi
+ \@esphack\if@rrdraft{\@rrmarginnote{\scriptsize\tt #1}}\fi}
+\let\@lbibitem\relax \let\@bibitem\relax
+\def\@lbibitem[#1]#2{\item[\@biblabel{#1}]\if@filesw 
+ { \def\protect##1{\string ##1\space}\immediate
+ \write\@auxout{\string\bibcite{#2}{#1}}}\fi\ignorespaces\if@rrdraft{\@rrrowmargin{\scriptsize\tt #2}}\fi}
+\def\@bibitem#1{\item\if@filesw \immediate\write\@auxout
+ {\string\bibcite{#1}{\the\c@enumi}}\fi\ignorespaces\if@rrdraft{\@rrrowmargin{\scriptsize\tt #1}}\fi}
+
+\newif\if@rrfnin
+\def\@rrmarginnote#1{\ifinner\@rrrowmargin{#1}\else\if@rrfnin\@rrrowmargin{#1}\else\marginpar{#1}\fi\fi}
+%\newbox\rr@marbox
+%\setbox\rr@marbox=\hbox{\vrule height0pt depth0pt width0pt}
+%\def\rr@mar{\relax\ifmmode\copy\rr@marbox\else\unhcopy\rr@marbox\fi}
+%\def\@rrrowmargin#1{\rr@mar{\vadjust{\kern-0pt{
+% \vtop to 0pt{\vss{\hbox to 0pt{\hss #1 \hskip 5pt}}\null}}}}}
+\def\rr@strutdepth{\dp\strutbox}
+\def\@rrrowmargin#1{\strut{\vadjust{\kern-\rr@strutdepth{
+ \vtop to \rr@strutdepth{
+   \baselineskip\rr@strutdepth\vss{\hbox to 0pt{\hss #1 \hskip 5pt}}\null}
+}}}}
+
+\long\def\@makefntext#1{%
+\@rrfnintrue\parindent 1em\noindent\hbox to 1.8em{\hss$^{\@thefnmark}$}#1\@rrfninfalse}
+
+%% Switch for the address of Tokyo branch
+\newif\if@tokyo
+\def\tokyo{\@tokyotrue}
+
+%% The argument of \rrno should look like {RR-91-1E}
+\def\rrno#1{\gdef\@rrno{#1}}
+\gdef\@rrno{??}
+%% The argument of \Email should look like {yuji} or {\{yuji,ohtani\}}
+\def\Email#1{\gdef\@Email{#1}}
+\gdef\@Email{isis}
+\def\abstract#1{\gdef\@abstract{#1}}
+\def\keywords#1{\gdef\@keywords{#1}}
+
+\def\maketitle{\@windowpage\@maketitle\setcounter{footnote}{0}\def\thefootnote{\arabic{footnote}}
+\gdef\@title{}\gdef\@author{}\gdef\@date{}
+\gdef\@rrno{}\gdef\@Email{}\gdef\@abstract{}\gdef\@thanks{}
+\let\rrno\relax \let\Email\relax \let\abstract\relax \let\keywords\relax
+\let\maketitle\relax}
+
+\def\maintitle{
+ \@windowpage
+ \setcounter{footnote}{0}
+ \def\thefootnote{\arabic{footnote}}
+ \gdef\@title{}\gdef\@author{}\gdef\@date{}
+ \gdef\@rrno{}\gdef\@Email{}\gdef\@abstract{}\gdef\@thanks{}
+ \let\rrno\relax \let\Email\relax \let\abstract\relax \let\keywords\relax
+ \let\maketitle\relax
+ \let\windowpage\relax}
+
+\def\@windowpage{\par
+ \def\thefootnote{\fnsymbol{footnote}}
+ \def\@makefnmark{\hbox to 0pt{$^{\@thefnmark}$\hss}}
+ \setcounter{footnote}{0}
+ \setcounter{page}{-1}
+ \thispagestyle{empty}
+ \null
+ \vskip 6.57cm
+ \if@rrdraft
+   \hskip 0.98cm
+   \setlength{\unitlength}{1cm}
+   \begin{picture}(13,7.5)
+%\thicklines
+   \put(0,0){\framebox(13,7.5){\@titlewindow}}
+   \end{picture}
+ \else
+   \hskip 0.65cm
+   \@titlewindow
+ \fi
+ \vfill
+ \if@rrdraft
+   \centerline{\large{\bf Draft Copy} --- \today --- {\sl Do not circulate!!}}
+   \vfill
+   \vskip 1em
+ \fi
+ \begin{center}
+ Institute for Social Information Science ({\sl ISIS\/}), \par
+ {\sf FUJITSU LABORATORIES LIMITED.} \\[1.5em]
+ Numazu office \\
+ 140 Miyamoto, Numazu-shi, Shizuoka 410-03, Japan \\
+ Telephone: (Numazu) 0559-23-2222 Telex: 3922508J Fax: 0559-24-6180 \\[1.5em]
+ Tokyo office \\
+ 1-9-3, Nakase, Mihama-ku, Chiba-shi, Chiba 261, Japan \\
+ Telephone: (Chiba) 043-299-3211 Fax: 043-299-3075 \\
+ \end{center}
+ \null\newpage
+ \let\@windowpage\relax}
+
+\def\@maketitle{
+ \gdef\@thanks{}
+ \setcounter{page}{0}
+ \setcounter{footnote}{0}
+ \thispagestyle{empty}
+ \null
+ \begin{center}
+ {\LARGE \@title \par} \vskip 3em
+ {\Large \lineskip .75em \begin{tabular}[t]{c} \@author \end{tabular}\par} 
+ \vskip 2em
+ Institute for
+ Social Information Science ({\sl ISIS\/}), \\[.5em]
+ {\sf FUJITSU LABORATORIES LIMITED.} \\[3em]
+ \if@tokyo
+	1-9-3, Nakase, Mihama-ku, Chiba-shi, Chiba 261, Japan \\[.5em]
+ \else
+	140 Miyamoto, Numazu-shi, Shizuoka 410-03, Japan \\[.5em]
+ \fi
+ Email: {\tt \@Email @iias.flab.fujitsu.co.jp} \\[3em]
+ \end{center}
+\@ifundefined{@abstract}{\typeout{ISIS-RR Warning: no abstract}}
+{\centerline{\large\bf Abstract}\par
+ \begin{quotation}
+ \@abstract
+ \end{quotation}} %\else\typeout{ISIS-RR Warning: no abstract.}\fi \par\vskip 1.5em
+\@ifundefined{@keywords}{\typeout{ISIS-RR Warning: no keywords list}}
+{\begin{quotation}
+ \begin{list}{{\bf Key words}:}{}\item\@keywords\end{list}
+ \end{quotation}} %\else\typeout{ISIS-RR Warning: no keywords list}\fi % \par\vskip 1.5em
+ \vfil
+ \@thanks
+ \null\newpage
+ \let\@maketitle\relax}
+
+\def\@titlewindow{
+ \vbox to 7.5cm{\hsize=14cm
+ \vfil \hskip -0.18cm %\hskip -0.65cm
+ \parbox{13cm}{
+ \centering
+  \if@isismemo
+    {\large\sc Research Memorandum ISIS-RM-\@rrno \par}
+  \else
+    {\large\sc Research Report ISIS-RR-\@rrno \par}
+  \fi \vskip 1.5em
+ {\Large\bf \@title \par} \vskip 2em
+ {\large \lineskip .75em \begin{tabular}[t]{c} \@author \end{tabular}\par}
+ \vskip 1.5em {\large @date \par}}
+ \vfil}
+ \let\@titlewindow\relax }
+
+%% The size of papers
+\textwidth=16.5cm
+\textheight=23cm	% Nice for a previewer
+\oddsidemargin=-0.4cm
+\evensidemargin=-0.4cm
+\topmargin=-0.5cm  % for dvi2ps
+\marginparwidth=1.5cm
+\marginparsep=2pt
+
+\def\@oddhead{}\def\@evenhead{}\def\@oddhead{}\def\@evenhead{} \ps@rrdraft

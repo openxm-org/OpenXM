@@ -1,0 +1,637 @@
+\documentstyle[12pt,psfig,amssymb,isisrr]{article}
+\newcommand{\msub}{/\kern-3pt/}
+\rrno{5E}
+\isismemo
+\Email{sturm}
+\abstract{Weispfenning has shown how to use test term methods for quantifier
+elimination in linear and quadratic first-order formulas over real
+closed fields. This paper describes the state of the implementation of
+such methods in the computer algebra system Risa/Asir. The package
+described here is entirely written in the C programming language. We
+point on possible extensions of the package and give examples for
+automatic quantifier eliminations performed by Risa/Asir.}
+\keywords{real quantifier elimination, parametric constraint solving,
+implementation, Asir package}
+\begin{document}
+\title{Real Quadratic Quantifier Elimination\\ in Risa/Asir}
+\author{Thomas Sturm\thanks{Visiting researcher. Original affiliation: 
+Fakult\"at f\"ur Mathematik und Informatik, Universit\"at Passau,
+D-94030 Passau, Germany. Email: sturm@fmi.uni-passau.de.}}
+\maketitle
+%
+\section{Introduction}
+A {\em quantifier elimination procedure} is an algorithm that, given a
+first order formula, computes an equivalent quantifier-free formula. A
+quantifier elimination procedure for the reals has been given already
+by Tarski~\cite{Tarski:48}. Due to the enormous power of such
+algorithms efforts to implement them have been made from the very
+beginning on. In fact the US RAND Corporation had soon tried to
+implement the original Tarski procedure, which certainly failed at
+those days.
+
+The first complete implementation by Arnon was finished in 1981
+\cite{Arnon:81}. It used the cylindrical algebraic decomposition
+method by Collins~\cite{Collins:75}. This implementation of quantifier
+elimination triggered the development of one of the first computer
+algebra systems: SAC, now SAC-II/ALDES. Important improvements of the
+CAD method have been made by Collins and Hong~\cite{CollinsHong:91}
+resulting in the {\em partial} CAD implemented in Hong's QEPCAD
+package~\cite{Hong:93}.
+
+Weispfenning introduced an alternative approach to quantifier
+elimination first for linear formulas \cite{Weispfenning:88}. This
+could be extended to arbitrary degrees
+\cite{LoosWeispfenning:93,Weispfenning:96,Weispfenning:94}. For
+degrees $1$ and $2$, the methods have been successfully implemented in
+the REDUCE package REDLOG written by the author and others
+\cite{DolzmannSturm:95a,DolzmannSturm:96}. Despite the bad theoretical
+complexity~\cite{Weispfenning:88,Davenport:88} and the degree
+restrictions REDLOG turned out suitable for solving a number of
+practical problems \cite{Weispfenning:95b,Weispfenning:96b}. Meanwhile
+it is used commercially as part of an error diagnosis system for
+physical networks.
+
+We have now started a second implementation of the test term method in
+the C language using the Risa/Asir computer algebra system
+\cite{NoroTakeshima:92}. The aim of this reimplementation is twofold.
+On one hand, we may expect to achieve a gain in efficiency due to both
+the C language and the efficient polynomial algorithms present in
+Risa. On the other hand we wish to make the methods available to
+interested parties in industry where C is still the most widespread
+programming language.
+
+The purpose of this report is to summarize the state of the
+reimplementation after an initial phase of eight weeks. We further
+point on features to be added. All these features are already part of
+the REDLOG package.
+%
+\section{Description of the implementation}
+In the sequel, we assume the reader to be familiar with the theory of
+quantifier elimination by test term methods as it has been described
+by Weispfenning \cite{LoosWeispfenning:93,Weispfenning:96}.
+Figure~\ref{modstruct} shows the module structure of the packege.
+\begin{figure}
+\centerline{\psfig{figure=qe2.eps,width=0.8\textwidth}}
+\caption{Visualisation of the module interaction\label{modstruct}}
+\end{figure}
+\subsection{Functionality}
+The current implementation can eliminate existential and universal
+quantifiers from prenex first-order formulas, subject to the
+restriction that with the elimination of each variable the latter
+occurs at most quadratically within the quantified {\em matrix}
+formula. This includes the technique described in
+\cite{Weispfenning:96} where in a situation as
+$$
+\exists x\bigl(a_2x^2+a_1x+a_0=0\land\varphi\bigr)
+$$
+at least one of $a_2$, $a_1$, $a_0$ is a non-zero number. The
+quantified variable $x$ may then occur with arbitrary degree in
+$\varphi$. We refer to this special case as {\em Gauss elimination}
+treated in Subsection~\ref{gaussnow}.
+
+Furthermore, there are some minor tool functions operating on formulas
+available. All functions are listed and described briefly in the
+Appendix~\ref{doku}.
+
+\subsection{Toplevel elimination}
+The quantifier elimination routine is called with a prenex first-order
+formula. This formula is simplified, and then turned into {\em
+negation normal form}, i.e., a prenex formula the matrix of which
+contains only $\land$ and $\lor$ as first-order operators. Next the
+formula is split into a list of quantifier block and its matrix.
+
+The elimination of universal quantifiers blocks is reduced to that of
+existential ones using the equivalence $\forall
+x\varphi\longleftrightarrow \lnot\exists x\lnot\varphi$. We shall
+restrict our attention to existential quantifiers from now on.
+
+For each block, beginning with the innermost, there is a routine
+called that is designed to eliminate one prenex existential quantifier
+block.
+%
+\subsection{Quantifier blocks}
+A block of quantifiers $\exists x_n\ldots\exists x_1$ is eliminated
+successesively beginning with the innermost quantifier. Let $E_1$ be
+an elimination set for the innermost quantifier $\exists x_1$ we
+obtain a formula
+$$
+\exists x_n\ldots\exists x_2\bigvee_{t\in E_1}\varphi[x\msub t].
+$$
+The remaining quantifiers can be moved inside the disjunction. The
+branches obtained are eliminated independently decreasing the overall
+complexity from doubly to singly exponential.
+
+This technique is implemented by processing a {\em queue} of {\em
+subproblems}. A subproblem is a pair $(V_{ij},\psi_{ij})$ consisting
+of an (existentially quantified) variable list $V_{ij}$ and a matrix
+formula $\psi_{ij}$. With the substitution of an elimination set for a
+certain variable we do not construct a disjuntion but instead add the
+results still containing quantified variables as new subproblems to a
+problem queue called {\em container}. The completely eliminated
+subproblems ($V_{nj}=\emptyset$) are, in contrast, added to a {\em
+result box}.
+
+The subproblems obtained this way form a tree by branching from each
+subproblem to its child problems until its leafs eventually enter the
+result box. The depth of this {\em elimination tree} is the number of
+variables in the initial $V_{11}$. Its width at each level is the sum
+of the sizes of the elimination sets obtained from the nodes of the
+parent level.
+
+Choosing a queue for storing subproblems amounts to computing the
+elimination tree in a {\em breadth first search} (BFS) manner. The
+advantage of BFS is that equal sibling nodes can be detected when
+adding to the container. This prevents the recomputation of identical
+subtrees.
+
+The procedure terminates when the container gets empty. This happens
+after finitely many steps according to K\"onig's Lemma. Finally a
+disjunction is constructed from the content of the result box.
+
+A subproblem $(V_{ij},\psi_{ij})$ is processed by first trying Gauss
+elimination for $V_{ij}$ and $\psi_{ij}$. If this succeeds, an
+elimination set is obtained from the Gauss elimination routine. Else a
+translation is computed for the first (innermost) variable of $V_{ij}$
+and the matrix $\psi_{ij}$. This translation is turned into an
+elimination set by yet another routine. Elimination sets are
+substituted elementwise. Each substitution result is simplified and
+becomes a new subproblem with one variable less.
+
+Notice that our container technique allows to eliminate the variables
+in a different order for each branch of the tree. The Gauss
+elimination already makes use of this feature.
+%
+\subsection{Gauss elimination}\label{gaussnow}
+The Gauss elimination routine first checks alle variables trying to
+find a possibility for a linear Gauss step, i.e. one in which the
+coefficient $a_2$ of $x_2$ is zero. Such an elimination does not
+increase the degree of the other variables. If this fails, it checks
+for a quadratic Gauss. If the Gauss routine detects a Gauss situation,
+it returns an elimination set to be substituted by the block
+elimination routine. Else it signals its failure.
+%
+\subsection{Translation stage}
+The test term technique ist based on testing endpoints of intervals
+including $\pm\infty$ and possibly adding or subtracting some
+infinitesimal $\epsilon$. In the translation phase all endpoint
+candidates are collected and classified wrt.~their {\em bounding type}
+and their {\em infinity type}.
+
+The bounding type encodes the relevant information on the constraint
+that has delivered the point. Table~\ref{bttab} collects the bounding
+types currently used.
+%
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{ll}
+\hline
+BTEQUAL & Equation: $p$\\
+BTNEQ & Inequality: ${\Bbb R}\setminus\{p\}$\\
+BTLEQ & Weak upper bound: $]-\infty,p]$\\
+BTGEQ & Weak lower bound: $[p,\infty[$\\
+BTLESSP & Strict upper bound: $]-\infty,p[$\\
+BTGREATERP & Strict lower bound: $]p,\infty[$\\
+BTWO & Weak ordering: Weak lower or upper bound\\
+BTSO & Strict ordering: Strict lower or upper bound\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Interpretation of an endpoint $p$ according to its bounding
+type.\label{bttab}}
+\end{table}
+%
+By the way of example, consider $4x-7\geq0$, which contributes $7/4$
+as a lower bound on $x$, i.e., BTGEQ. In contrast, $ax-7\geq0$ does
+not contribute a lower bound; for $a<0$ it is an upper bound. Thus the
+bounding type for $7/a$ in the latter example is BTWO.
+
+Table~\ref{ittab} collects the infinity types and their relation to
+the bounding types.
+%
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{lll}
+\hline
+infinity type & occurs with & interpretation\\
+\hline
+STD & BTEQUAL & $p$\\
+EPS & BTSO, BTNEQ & $p$ plus {\em or} minus $\epsilon$\\
+MEPS & BTLESSP & $p-\epsilon$\\
+PEPS & BTGREATERP & $p+\epsilon$\\
+PINF & --- & $\infty$\\
+MINF & --- & $-\infty$\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Interpretation of an endpoint $p$ according to its infinity
+type. Infinity types are related to bounding types.\label{ittab}}
+\end{table}
+%
+Points of infinity type $\epsilon$ are {\em unspecified}, all others
+are {\em specified}. The types PINF and MINF are not used at the
+translation stage.
+
+Taking a point labeled with its infinity type and adding conditions
+for its existence and its relevance yields a {\em guarded point}. 
+Solutions $-c/b$ of linear contraints are guarded by $b\neq 0$. 
+Solutions $(-b\pm\sqrt{b^2-4ac})/2a$ of quadratic contraints are
+guarded by $a\neq0\land b^2-4ac\geq0$.
+
+Finally, for a fixed variable a {\em translation} is an array, indexed
+by bounding types, of sets of guarded points obtained from the
+constraints in the matrix formula.
+
+Actually, the endpoints are not stored as explicit terms but in the
+form of minimal polynomials. Consequently, one point can stand for
+several roots in case of quadratic constraint. Notice that all the
+roots are assigned both the same infinity type and bounding type.
+
+On the other hand, one constraint can in fact produce several guarded
+points. For instance, consider the contraint $ax^2+5x+c\geq0$. This
+yields a two-root guarded point
+$$
+\bigl(a\neq0\land 25-4ac\geq0,(ax^2+5x+c,\mbox{STD})\bigr)
+$$
+of bounding type BTWO. On the other hand, for $a=0$ it is a hidden
+linear constraint. Hence we additionally obatin
+$(5\neq0,(5x+c,\mbox{STD}))$ of bounding type BTGEQ.
+
+The translation array is the input to the elimination set computation
+routine.
+%
+\subsection{Elimination set computation}
+An elimination set is a single set of guarded points non of which is
+unspecified wrt.~its infinity type. Given a translation there are thus
+three tasks to be performed.
+\begin{enumerate}
+\item Choose a small selection of guarded points for obtaining an
+elimination set.
+\item Specify each unspecified guarded point (of infinity type EPS) in
+this selection to either PEPS or MEPS.
+\item Add elements that are not induced by isolated contraints to the
+elimination set.
+\end{enumerate}
+%
+The current implementation decides between either taking all upper
+bounds or all lower bounds depending on the number of such bounds
+present. Accordingly, EPS is sepcified to either MEPS or PEPS, and
+either $(0=0,(0,\mbox{PINF}))$ or $(0=0,(0,\mbox{MINF}))$ is added. If
+there are no orderings at all, $(0=0,(x,\mbox{STD}))$, i.e., ``$0$''
+is added instead of an infinite value. Mind that at least one point
+has to be substituted for the case that none of the guards holds.
+
+Summarizing, the bounding type provides information concerning the
+selection of a proper subset of the translation. The infinity type
+provides information concerning the substitution. The infinity type
+cannot always be completely determined at the translation stage.
+%
+\subsection{Substitution}
+In an object oriented style, there is one procedure that can
+substitute a guarded point into a formula. The sustitution module
+includes substitution of infinite and infinitesimal symbols and
+substitution of root expressions within the language of ordered rings. 
+The methods used are that described in \cite{Weispfenning:96}. We make
+use of our minimal polynomial representation for the roots by
+performing pseudo divison before symbolically substituting.
+%
+\subsection{Simplification}\label{currentsimpl}
+Currently, the following simplification strategies are applied:
+\begin{itemize}
+\item
+Evaluation of variable-free atomic formulas.
+\item
+Replacing equation and inequality right hand sides by their squarefree
+part. Corresponding treatment of ordering atomic formulas: Here
+factors of even multiplicity have to enter squared.
+\item
+Removing \verb!true! from conjunctions, \verb!false! from
+disjunctions. Conjunctions containing \verb!false! and disjunctions
+containing \verb!true! are replaced by the respective truth value.
+Truth values are treated appropriately also with all other first-order
+operators. 
+\item
+Removing equal subformulas from conjunctions and disjunctions. Atomic
+subformulas are ordered canonically and placed before their complex
+siblings. The order of atomic formulas is first wrt.~their left hand
+side polynomial, and then wrt.~the order of relations as in
+Table~\ref{atoptab}.
+\end{itemize}
+%
+\section{Possible Extensions}\label{genopt}
+We point on possible extension of the Asir quantifier elimination
+code. All options mentioned here are already part of the REDLOG
+package~\cite{DolzmannSturm:95a,DolzmannSturm:96}. They have been
+extensively tested for their relevance.
+\subsection{Functionality}
+For many practical applications, it is necessary to add an option for
+{\em extended quantifier elimination:} This variant keeps track of the
+test points substituted. With the elimination of an existential
+quantifier block, it provides instead of a disjunction
+$\bigvee_{i=1}^n \psi_i$ a set of {\em guarded points}
+$$
+\bigl\{(\psi_1,S_1),\dots,(\psi_n,S_n)\bigr\}
+$$
+such that whenever an interpretation of the parameters satisfies some
+$\psi_i$, the original $\exists$-quantified formula holds for this
+interpretation, and $S_i$ provides some sample values for the
+quantified variables possibly containing $\pm\epsilon$ or $\pm\infty$.
+
+The extension of the package to {\em generic quantifier
+elimination}~\cite{DSW:96} is of the same importance. There, the
+quantifier elimination procedure is allowed to make certain assumption
+of the form $t\neq0$ for parameter term $t$. These assumptions support
+the elimination process leading to a much smaller result, which is
+correct under~the assumptions. Of course, the list of assumptions made
+is also returned to the caller. It has turned out that for the
+majority of practical applications, the assumptions made are
+``harmless''. They describe some degenerate cases, which are actually
+not relevant.
+
+Finally, the package should not be restricted to quantifier
+elimination itself but also include other useful algorithms on
+formulas such as CNF/DNF computation or advanced simplifiers for final
+results.
+%
+\subsection{Toplevel elimination}
+There should be code added for making formulas prenex such that the
+quantifier elimination can be called with arbitrary formulas.
+%
+\subsection{Quantifier blocks}\label{blockopt}
+There should be an option added to use a stack instead of a queue as
+container. This amounts to a DFS computation of the elimination tree.
+The advantage is that with (wlog.~existential) decision problems, one
+has a good chance to detect a ``true'' leaf early. Computation can be
+aborted then. For the elimination of several blocks in a decision
+problem it is useful to switch dynamically from BFS to DFS.
+
+A variable selection strategy has to be added. For instance, linear
+variables have to be preferred because their elimination does not
+increase the degree of the other variables.
+
+Some techniques for reducing the degree of the quantified variables
+take into account the whole formula \cite{DSW:96}. They should be
+applied at this stage.
+%
+\subsection{Gauss elimination}
+The Gauss elimination code already prefers linear variables. It should
+check all possibilities yet more closely: among linear equations,
+e.g., $x=0$ should be preferred to $ax+1=0$ since the former does not
+introduce a guarding condition.
+
+One should try to factorize polynomials of a degree greater than $2$.
+%
+\subsection{Translation stage}
+At the translation stage, one also should try to factorize polynomials
+of a degree greater than $2$. The current implementation aborts with
+an error in such a case. Even if factorization fails, the computation
+should be continued. The result can be requantified, and with an
+(wlog.~existential) decision problem, one still has the chance to find
+``true''.
+%
+\subsection{Elimination set computation}
+There are numerous sophisticated techniques for constructing small
+elimination sets from a translation.
+%
+\subsection{Simplification}
+Due to the doubly exponential explosion in the number of atomic
+fomulas, simplification plays an extremely important role with this
+method. Appropriate simplifications are described in detail in
+\cite{DolzmannSturm:95}.
+%
+\section{Computation examples}
+All the following examples have been computed on a SUN Sparc-20.
+\subsection{The Davenport--Heintz Example}
+This example is taken from \cite{CollinsHong:91}, p.\,325. The formula
+$$
+\exists c \forall a \forall b(a=d \land b=c) \lor (a=c \land b=1)
+\longrightarrow a^2=b))
+$$
+is a special case of more general formula used by Davenport and Heintz
+\cite{Davenport:88} in order to show the time complexity of real
+quantifier elimination. It is equivalent to $d=1\lor d=-1$. Asir
+yields after $0.03$\,s the equivalent result
+$$
+\vbox{\hsize=0.9\textwidth\noindent$d^{4} - 1 = 0 \land d \neq 0 \land
+(d = 0 \lor d \neq 0) \land (d= 0 \lor d \neq 0 \land (d^{2} - 1 \neq
+0 \lor d \neq 0)) \land (d^{3} - d = 0 \lor d^{2}- d \neq 0 \land
+d^{2} - 1 \neq 0) \land (d^{2} - 1 \neq 0 \lor d \neq 0) \land (d^{2} -
+1 = 0 \lor d^{2} - d \neq 0 \land d^{2} - 1 \neq 0)$}
+$$
+The REDLOG standard simplifier can simplify this to $d \neq 0 \land (d
++ 1= 0 \lor d - 1 = 0)$. This points on the necessity of more
+sophisticated simplification strategies.
+%
+\subsection{Transportation problem}
+An example which should not suffer from missing simplification is the
+2-dimensional planar $3\times 3$ transportation problem taken from
+\cite{LoosWeispfenning:93}, pp.\,459/460. The input formula
+$$
+\exists x_{11}\exists x_{12}\exists x_{13}\exists x_{21}\exists
+x_{22}\exists x_{23}\exists x_{31}\exists x_{32}\exists x_{33}\biggl(
+\bigwedge_{i=1}^3\bigwedge_{j=1}^3 x_{ij}\geq0\land
+\bigwedge_{k=1}^3\Bigl(\sum_{j=1}^3 x_{kj}=a_k\land \sum_{i=1}^3
+x_{ik}=b_k\Bigr) \biggr)
+$$
+is known to be equivalent to $\sigma\equiv\bigwedge_i (a_i\geq0) \land
+\bigwedge_j (b_j\geq0) \land \sum_i a_i=\sum_j b_j$. After $0.31$\,s
+Asir yields a quantifier-free equivalent $\rho$ containing $84$ atomic
+formulas. So does REDLOG. We automatically check $\forall a_1\forall
+a_2\forall a_3\forall b_1\forall b_2 \forall
+b_3(\rho\longleftrightarrow\sigma)$ obtaining ``true'' after
+$47.83$\,s plus $36.04$\,s GC time.
+%
+\subsection{Kahan's Problem}
+Write down conditions such that the ellipse $E(x,y)=0$ with
+$$
+E(x,y)=(x-c)^2/a^2+(y-d)^2/b^2-1
+$$
+is inside the circle $C(x,y)=0$ with $C(x,y)=x^2+y^2-1$
+\cite{Lazard:88}. We treat the special case $d=0$. Eliminating
+$$
+\forall a\forall b\bigl(b^2 (x-c)^2+a^2 y^2-a^2 b^2 \neq 0 \lor
+x^2+y^2-1 \leq 0\bigr)
+$$
+we obtain after $1.21$\,s plus $0.14$\,s GC time a quantifier-free formula 
+containing $136$ atomic formulas. REDLOG obtains only $59$ atomic
+formulas due degree decreasing techniques, better simplification, and
+more sophisticated elimination set computation ($2.9$\,s).
+%
+\subsection{Operation amplifier}
+This is a problem very close to practice taken from \cite{Henning:91}. 
+\begin{figure}
+\centerline{\psfig{figure=db15.ps}}
+\caption{An inverting operation amplifier circuit\label{opampfig}}
+\end{figure}
+For the operation amplifier circuit shown in Figure~\ref{opampfig}, we
+want to determine the output voltage $\rm V_{OUT}=v1$ as a function of
+the input voltage $\rm V_{IN}=v\_3$. We obtain the following algebraic
+formulation $\omega$ of the circuit:
+$$\vbox{\hsize=0.9\textwidth\noindent$\rm -v\_2+v\_1+i\_v0\cdot r1=0
+\land -v\_3\cdot r1+v\_2\cdot r1+v\_2\cdot r2-v\_1\cdot
+r2-i\_pm\_op1\cdot r1\cdot r2=0 \land v\_3-v\_2+i\_og\_op1\cdot r2=0
+\land v\_1=v1 \land v\_3-v\_og\_op1=0 \land - v\_pm\_op1-v\_2=0 \land
+vs^2\cdot x\_op1^2+a\cdot v\_og\_op1^2=a\cdot vs^2 \land
+v\_og\_op1=v\_pm\_op1\cdot x\_op1^2 \land i\_pm\_op1=0$}
+$$
+The variables to be (existentially) eliminated are
+$$\rm
+V:=\{i\_og\_op1, v\_2, i\_pm\_op1, v\_1, i\_v0, v\_pm\_op1, v\_og\_op1 ,
+x\_op1\}
+$$
+For the values $\rm a=1000$, $\rm vs=10$, $\rm r1=1000$, and $\rm
+r2=10000$ the translation $\omega$ specializes to the following
+$\omega'$:
+$$\vbox{\hsize=0.9\textwidth\noindent$\rm
+10000\cdot i\_og\_op1 - v\_2 + v\_3 = 0 \land 10000\cdot i\_pm\_op1 +
+10\cdot v\_1 - 11\cdot v\_2 + v\_3 = 0 \land i\_pm\_op1 = 0 \land
+1000\cdot i\_v0 + v\_1 - v\_2 = 0 \land v1 - v\_1 = 0 \land v\_2 +
+v\_pm\_op1 = 0 \land v\_3 - v\_og\_op1 = 0 \land 10\cdot v\_og\_op1^2
++ x\_op1^2 - 1000 = 0 \land v\_og\_op1 - v\_pm\_op1\cdot x\_op1^2 =
+0$}
+$$
+A symbolic method usually used for eliminating the variables is the
+computation of an {\em elimination ideal basis} wrt.~the variables. 
+Using this method, we obtain by using Asir
+$$\rm
+f:=10\cdot v\_3^3+100\cdot v1\cdot v\_3^2-1011\cdot v\_3-10000\cdot v1
+$$
+as implicit description of our function.
+\begin{figure}
+\centerline{\psfig{figure=parsol.ps,width=0.8\textwidth}}
+\caption{The operation amplifier's behaviour including parasitic
+solutions for $\rm |v\_3|>10$.\label{solfig}}
+\end{figure}
+Figure~\ref{solfig} displays the set of {\em real} zeroes of $f$. 
+However, only the part of the curve for $\rm -10\leq v\_3\leq10$ is
+the correct solution. The other parts are {\em parasitic solutions}
+caused by the fact that the elimination ideal is computed over an
+algebraically closed field, such as $\Bbb C$ for our case. In general, 
+it is a problem to distinguish between proper and parasitic solutions.
+
+Since our quantifier elimination is a {\em real} method, we may expect
+to get the correct result. The current Asir version is not able to
+eliminate $\exists V(\omega')$. It would obtain a degree violation
+when eliminating $\rm x\_op1$ as the final variable. Its degree will
+be greater than $2$ then. We can, however, apply a special case of the
+degree decreasing methods mentioned in Subsection~\ref{blockopt} by
+hand: $\rm x\_op1$ occurs only quadratically. We replace $\rm
+x\_op1^2$ by a new variable $z$ in $\omega'$ obtaining $\omega_z'$. 
+Similarly we replace $\rm x\_op1$ by $z$ in $V$ yielding $V_z$. Then
+we have the equivalence
+$$
+\exists V(\omega')\longleftrightarrow\exists V_z(\omega_z'\land
+z\geq0),
+$$
+the right hand side of which can be eliminated. The result obtained
+after $0.03$\,s contains the correct contraint on the range of $\rm
+v\_3$ to exclude the parasitic solutions:
+$$\rm \underbrace{10\cdot v\_3^3+100\cdot v1\cdot v\_3^2-1011\cdot
+v\_3-10000\cdot v1}_{\mathit f}=0 \land v\_3^2-100 \leq 0.
+$$
+
+Inspection of this example shows that there is actually only Gauss
+elimination performed, which is a little disappointing. For
+demonstrating the power of the method, we show how to solve the
+original parametric problem with REDLOG: For $\exists V(\omega)$, we
+obtain $604$ atomic formulas after $2.69$\,s. A result of this size
+might be useful for further automatic processing but it does not
+immediately contribute to understanding the network.
+
+We thus apply {\em generic quantifier elimination} as proposed in
+Subsection~\ref{genopt}. The result obtained for $\exists V(\omega)$
+after $0.27$\,s is:
+$$\vbox{\hsize=0.9\textwidth\noindent$\rm
+a\cdot r1\cdot v\_3^3 - a\cdot r1\cdot v\_3\cdot vs^2 + a\cdot r2\cdot
+v1\cdot v\_3^2 - a\cdot r2\cdot v1\cdot vs^2 - r1\cdot v\_3\cdot vs^2 -
+r2\cdot v\_3\cdot vs^2 = 0 \land a\cdot v\_3^2 - a\cdot vs^2 \leq 0 \land
+vs \neq 0$},
+$$
+valid under the following conditions:
+$$\rm
+a \neq 0,\quad r1 \neq 0,\quad r2 \neq 0,\quad v_3 + vs \neq 0,\quad
+v_3 - vs \neq 0,\quad v_3 \neq 0.
+$$
+None of the conditions is a problem: $\rm a$ is the amplification
+factor, $\rm r1$ and $\rm r2$ are resistors, the absolute value of the 
+output voltage $\rm v\_3$ can certainly never get equal to the supply
+power $\rm vs$.
+%
+\begin{appendix}
+\section{The Asir user interface}\label{doku}
+\subsection{The formula data type}
+For the purpose of quantifier-elimination formulas have been
+introduced to Asir as a new data type. The numerical value
+corresponding to formulas is $10$. Atomic formula operators are
+collected in Table~\ref{atoptab}.
+\begin{table}
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+$=$ & $\neq$ & $\leq$ & $<$ & $\geq$ & $>$\\
+\hline
+\verb"@==" (\verb"@=") & \verb"@!=" & \verb"@<=" & \verb"@<" &
+\verb"@>=" & \verb"@>"\\
+\end{tabular}
+\caption{Infix operators for the input of atomic formulas
+(abbreviations for input).\label{atoptab}}
+\end{center}
+\end{table}
+The First-order operators are displayed in Table~\ref{coptab}.
+\begin{table}
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c|c|c}
+$\land$ & $\lor$ & $\lnot$ & $\longrightarrow$ & $\longleftarrow$ &
+$\longleftrightarrow$ & $\exists x\ldots$ & $\forall x\ldots$\\
+\hline
+\verb"@&&" & \verb"@||" & \verb"@!" & \verb"@impl" & \verb"@repl" &
+\verb"@equiv" & \verb"ex(x,...)" & \verb"all(x,...)" \\
+(\verb"@&") & (\verb"@|") & & & & & &\\
+\end{tabular}
+\caption{Binary and infix operators for the input of first-order
+formulas (abbreviations for input).\label{coptab}}
+\end{center}
+\end{table}
+
+We illustrate by example the input of formulas:
+\begin{small}
+\begin{verbatim}
+[1] F = m*x+b@==0 @&& 0@<=x @&& x@<100;
+(m*x+b @== 0) @&& (-x @<= 0) @&& (x-100 @< 0)
+[2] all(x,F @impl x@<50);
+all(x,((m*x+b @== 0) @&& (-x @<= 0) @&& (x-100 @< 0) @impl x-50 @< 0))
+[3] ex([x,m],F);
+ex(x,ex(m,(m*x+b @== 0) @&& (-x @<= 0) @&& (x-100 @< 0)))
+[4] all(@@);
+all(b,ex(x,ex(m,(m*x+b @== 0) @&& (-x @<= 0) @&& (x-100 @< 0))))
+\end{verbatim}
+\end{small}
+In atomic formulas, all right hand sides are subtracted to the left
+hand sides at the parsing stage. Notice that the quantifier operators
+accept also lists of variables. If no variables at all are given, the
+existential or universal closure of the formula is constructed resp.,
+i.e., all free variables are quantified.
+\subsection{Functions for formulas}
+\begin{description}
+\item[simpl({\sl f})] A simplified equivalent of {\sl f}. The
+simplification strategy is described in Subsection~\ref{currentsimpl}.
+\item[qe({\sl f})] A quantifier-free formula equivalent to {\sl f}. 
+The argument formulas has to obey certain degree restrictions:
+Quantified variables must not occur with a degree greater than $2$. 
+Notice that with the elimination of each quantifier, the degree in the
+other variables may increase. It thus cannot be determined by
+inspection of the input whether quantifier elimination will succeed.
+\item[atnum({\sl f})] The number of atomic formulas contained in {\sl
+f}.
+\item[atl({\sl f})] The set of atomic formulas contained in {\sl f} as
+a list.
+\item[nnf({\sl f})] A negation normal form of {\sl f}. This is a
+formula equivalent to {\sl f} which contains only \verb!ex!,
+\verb!all!, \verb!@&&!, and \verb!@||! as first-order operators.
+\item[subf({\sl f},{\sl x},{\sl t})] Substitute all ocurrences of
+variable {\sl x} in formula {\sl f} by polynomial {\sl t}. This works
+for quantifier-free formulas. Quantified variables are not yet treated
+appropriately.
+\end{description}
+\end{appendix}
+\bibliographystyle{alpha}
+\bibliography{adts}
+\end{document}

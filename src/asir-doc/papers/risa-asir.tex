@@ -1,0 +1,429 @@
+\documentclass[12pt]{article}
+\textheight 9.5in
+\textwidth 6.5in
+\topmargin -0.5in
+\oddsidemargin -0.2in
+\evensidemargin -0.2in
+\usepackage{makeidx}  % allows index generation
+\usepackage{graphicx} % standard LaTeX graphics tool
+                      % for including eps-figure files
+\usepackage{subeqnar} % subnumbers individual equations
+                      % within an array
+\usepackage{multicol} % used for the two-column index
+\usepackage{cropmark} % cropmarks for pages without
+                      % pagenumbers
+\usepackage{math}     % placeholder for figures
+\makeindex            % used for the subject index
+                      % please use the style sprmidx.sty with
+                      % your makeindex program
+
+%upright Greek letters (example below: upright "mu")
+\newcommand{\euler}[1]{{\usefont{U}{eur}{m}{n}#1}}
+\newcommand{\eulerbold}[1]{{\usefont{U}{eur}{b}{n}#1}}
+\newcommand{\umu}{\mbox{\euler{\char22}}}
+\newcommand{\umub}{\mbox{\eulerbold{\char22}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\twocolumn
+%OPTIONAL%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%\usepackage{amstex}   % useful for coding complex math
+%\mathindent\parindent % needed in case "Amstex" is used
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%AUTHOR_STYLES_AND_DEFINITIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%Please reduce your own definitions and macros to an absolute
+%minimum since otherwise the editor will find it rather
+%strenuous to compile all individual contributions to a
+%single book file
+\usepackage{epsfig}
+\def\cont{{\rm cont}}
+\def\GCD{{\rm GCD}}
+\def\Q{{\bf Q}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+%
+%\title*{A Computer Algebra System : Risa/Asir}
+%
+%
+\title{A Computer Algebra System : Risa/Asir \footnote{This article is
+a summary of two papers\cite{NORO}\cite{MAEKAWA}.}}
+% allows explicit linebreak for the table of content
+%
+%
+%\titlerunning{Risa/Asir}
+% allows abbreviation of title, if the full title is too long
+% to fit in the running head
+%
+\author{Masayuki Noro}
+\date{}
+%Kobe University, Rokko, Kobe 657-8501, Japan\\
+%E-mail:noro@math.kobe-u.ac.jp}
+%
+%\authorrunning{Masayuki Noro}
+% if there are more than two authors,
+% please abbreviate author list for running head
+%
+%
+%\institute{Kobe University, Rokko, Kobe 657-8501, Japan\\
+%E-mail:noro@math.kobe-u.ac.jp}
+
+\maketitle              % typesets the title of the contribution
+
+
+\section{An overview of Risa/Asir}
+
+Risa/Asir is a tool for performing various computations in
+mathematics and engineering applications. 
+The development of Risa/Asir started in 1989 at FUJITSU
+and now the source code is also available at no cost.
+Currently, Kobe distribution
+is the most active branch in the development of Risa/Asir. 
+Risa/Asir is characterized as follows:
+
+\begin{enumerate}
+\item An environment for large scale and efficient polynomial computation.
+
+Risa/Asir consists of the Risa engine for performing operations on
+mathematical objects and an interpreter for programs written in
+the Asir user language. In Risa/Asir, polynomials are
+represented in two different internal forms: 
+the recursive representation and the distributed representation.
+Polynomial factorization and GCD are based on the former representation,
+and computations related to the Gr\"obner basis are based on the latter
+representation.
+%Ground fields of polynomial rings can be composed of the field of rationals,
+%algebraic number fields and finite fields.
+Ground fields of polynomial rings can be composed of 
+The field of rationals, algebraic number fields and finite fields
+are available as ground fields of polynomial rings.
+
+\item A platform for parallel and distributed computation.
+
+In order to  combine mathematical software systems,
+we previously proposed the OpenXM 
+(Open Message eXchange for Mathematics) 
+protocol.
+Risa/Asir acts as both an OpenXM client and an OpenXM server.
+The Risa/Asir OpenXM client API provides a way to call 
+functions in external OpenXM servers.
+Using multiple Risa/Asir OpenXM servers,
+one can perform parallel and distributed computation 
+in an attempt to achieve linear speedup.
+Conversely, other OpenXM clients can call functions in the Risa/Asir 
+server. 
+
+\item Open source software.
+
+The source code of Risa/Asir is completely open, and algorithms and
+implementations can be verified if necessary. The addition of new
+codes is simple. 
+\end{enumerate}
+
+Risa/Asir runs on various platforms such as Linux, FreeBSD, Sun and
+Windows. The whole source code is available from
+{\tt http://www.math.kobe-u.ac.jp/OpenXM}.
+The on-line help is available from the Risa/Asir command line or
+from the menu bar on Windows. Manuals are located at 
+{\tt http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc.html}.
+
+\section{Functionality of Risa/Asir}
+
+Among various functions on algebraic computation,
+we explain the implementations of two main functions: polynomial
+factorization and Gr\"obner basis computation over various ground
+fields.
+
+\subsection{Operations over fields of characteristic 0}
+
+Polynomial arithmetics, polynomial GCD and factorization are
+implemented over our own implementation of integer and rational number
+arithmetics.  In multivariate factorization, we implemented a
+simplified version of Wang method to estimate the leading coefficient
+of a factor to avoid the leading coefficient problem.
+
+Risa/Asir provides a univariate factorization over algebraic number
+fields represented by a successive extension.  As an application, the
+splitting field computation of a univariate polynomial is implemented.
+The impelented algorithm is an improvement of the algorithm proposed
+by Trager. In the present algorithm, we utilize non square-free norms
+to obtain partial (not necessarily irreducible) factorization. The
+algorithm finally requires univariate factorization of a polynomial
+over the rationals, however this factorization is often difficult
+because the polynomial contains many spurious factors.  At present,
+Risa/Asir is not optimized to factor polynomials of this type.  In
+this case, a factorization in the PARI library implementing the
+knapsack factorization algorithm can be used, and the splitting field
+can be computed efficiently even in such cases
+\footnote{A special configure option is required for linking the new version
+of PARI library.}.
+
+\subsection{Computation over finite fields}
+
+In Risa/Asir finite fields are represented in several ways.
+\begin{enumerate}
+\item $GF(p)$ ($p$: a prime $p < 2^{29})$
+\item $GF(p)$ ($p$: an arbitrary prime)
+\item $GF(2^n)$ ($n$: small)
+\item $GF(p^n)$ ($p$: an arbitrary prime, $n$: small integer)
+\item $GF(p^s)$ ($p$: a small prime, $p^s < 2^{16})$
+\end{enumerate}
+The type 1 is used internally in various modular algorithms.  The type
+2, 3 and 4 are general purpose representations.  Multiplication in
+$GF(2^n)$ is implemented using Karatsuba algorithm extensively.  The
+type 5 has been introduced for efficient implementation of
+multivariate factorization over finite fields of small characteristic.
+When we attempt to factor a polynomial over such a field, we often
+have insufficient evaluation points.  In this case we have to extend
+the ground field.  If the ground field and its extension are both
+represented by a type 5 representation, we can expect that field
+arithmetics are performed efficiently in both fields.  We presented a
+new polynomial time algorithm to factor bivariate polynomials over a
+finite field is presented. A combination of the Berlekamp-Hensel
+method and the new algorithm under a type 5 representation enables us
+to efficiently factor a certain class of polynomials, including
+hard-to-factor polynomials.
+
+\subsection{Gr\"obner basis computation}
+
+We have incorporated various algorithms and improvements for Gr\"obner
+basis computation. For the Buchberger algorithm, we have implemented
+well-known criteria to detect unnecessary pairs, the sugar strategy,
+trace algorithms by modular computation, stabilization of strategy by
+combining homogenization and the trace algorithm, and efficient
+content reduction during normal form computation.  We also have an
+experimental implementation of $F_4$ algorithm.  Furthermore, we
+implemented several types of change of ordering algorithms.  Among
+these, {\tt tolex()} implements a modular FGLM algorithm, which avoids
+intermediate coefficient swells during the ordinary FGLM algorithm and
+realizes efficient computation of lexicographic Gr\"obner bases for
+zero-dimensional ideals.
+
+By supplying an option {\tt Demand} with a directory name, generated
+basis elements are placed in the directory. Although this requires
+additional cost in order to read the basis elements required for
+normal form computations, the total amount of memory is smaller than
+the case in which all basis elements are placed in memory, which may
+enable a very large computation, generating numerous intermediate
+basis elements.
+
+As an application of Gr\"obner basis computation and polynomial
+factorization, we implemented primary ideal decomposition and prime
+decomposition of the radical of an ideal.  These functions can be used
+to decompose solutions of systems of algebraic equations into
+irreducible components. 
+
+We implemented fundamental arithmetics, the Buchberger algorithm and
+the minimal polynomial computation over Weyl algebra, the ring of
+differential operators having polynomial coefficients.  Using these
+arithmetics we implemented an efficient algorithm for computing the
+$b$-function of a polynomial.
+
+\subsection{Parallel and distributed computation via OpenXM}
+
+Risa/Asir provides OpenXM API for executing funtions on other
+mathematical software. In OpenXM, mathematical software systems are
+wrapped as server stack machines. As an OpenXM client, Risa/Asir
+dispatches a request to a server and receives the result. Inputs and
+outputs are represented as CMO (Common Mathematical Object format)
+objects.  The set of stack machine commands also contains various
+control operations, such as server invocation, termination,
+interruption and restarting.  Usually, each mathematical software
+system has its own user language. OpenXM provides stack machine
+commands for executing a command string and receiving a result as a
+human readable character string, thus wrapping a mathematical software
+system as an OpenXM server is relatively easy.  OpenXM protocol is
+completely open, and any program can implement the protocol.  OpenXM
+specifies a procedure for robust interruption and restarting of
+execution, which enables clients to be reset safely from any state.
+
+Communication between an OpenXM server and a client can be realized by various
+methods: files, TCP/IP, MPI, PVM, RPC and linking a subroutine library.
+The Risa/Asir subroutine library {\tt libasir.a} contains functions
+simulating the stack machine commands supported in {\tt ox\_asir},
+the OpenXM asir server.
+
+\subsection{Integration of Risa/Asir and other OpenXM servers}
+
+Asir OpenXM contrib (asir-contrib) is a collection of wrappers of
+functions in external OpenXM servers. Using asir-contrib,
+an external function can be called 
+from Asir without knowing that the function is located in
+an external server. Currently, the following functions (including
+Asir built-in functions) are provided
+in OpenXM:
+
+\begin{itemize}
+\item Operations on Integers
+
+{\tt idiv},{\tt irem} (division with remainder),
+{\tt ishift} (bit shifting),
+{\tt iand},{\tt ior},{\tt ixor} (logical operations),
+{\tt igcd},(GCD by various methods such as Euclid's algorithm and
+the accelerated GCD algorithm),
+{\tt fac} (factorial),
+{\tt inv} (inverse modulo an integer),
+{\tt random} (random number generator by the Mersenne twister algorithm).
+
+\item Ground Fields
+
+Arithmetics on various fields: the rationals,
+${\bf Q}(\alpha_1,\alpha_2,\ldots,\alpha_n)$
+($\alpha_i$ is algebraic over ${\bf Q}(\alpha_1,\ldots,\alpha_{\tt i-1})$),
+$GF(p)$ ($p$ is a prime of arbitrary size), $GF(2^n)$.
+
+\item Operations on Polynomials
+
+{\tt sdiv }, {\tt srem } (division with remainder),
+{\tt ptozp } (removal of the integer content),
+{\tt diff } (differentiation),
+{\tt gcd } (GCD over the rationals),
+{\tt res } (resultant),
+{\tt subst } (substitution),
+{\tt umul} (fast multiplication of dense univariate polynomials
+by a hybrid method with Karatsuba and FFT+Chinese remainder),
+{\tt urembymul\_precomp} (fast dense univariate polynomial
+division with remainder by the fast multiplication and
+the precomputed inverse of a divisor),
+
+\item Polynomial Factorization
+{\tt fctr } (factorization over the rationals),
+{\tt fctr\_ff } (univariate factorization over finite fields),
+{\tt af } (univariate factorization over algebraic number fields),
+{\tt sp} (splitting field computation).
+
+\item Groebner basis
+
+{\tt dp\_gr\_main }, {\tt nd\_gr\_trace} (Groebner basis computation of a polynomial ideal
+over the rationals by the trace lifting),
+{\tt dp\_gr\_mod\_main }, {\tt nd\_gr} (Groebner basis over small finite fields),
+{\tt tolex } (Modular change of ordering for a zero-dimensional ideal),
+{\tt tolex\_gsl } (Modular rational univariate representation
+for a zero-dimensional ideal),
+{\tt dp\_f4\_main}, {\tt dp\_f4\_mod\_main}, {\tt nd\_f4} 
+($F_4$ over the rationals and small finite fields).
+
+\item Ideal Decomposition
+
+{\tt primedec}, {\tt primedec\_mod} (Prime decomposition of the radical),
+{\tt primadec} (Primary decomposition of ideals by Shimoyama/Yokoyama algorithm).
+
+\item Quantifier Elimination
+
+{\tt qe} (real quantifier elimination in a linear and
+quadratic first-order formula),
+{\tt simpl} (heuristic simplification of a first-order formula).
+
+\item Visualization of curves
+
+{\tt plot} (plotting of a univariate function),
+{\tt ifplot} (plotting zeros of a bivariate polynomial),
+{\tt conplot} (contour plotting of a bivariate polynomial function).
+
+\item Miscellaneous functions
+
+{\tt det} (determinant),
+{\tt qsort} (sorting of an array by the quick sort algorithm),
+{\tt eval} (evaluation of a formula containing transcendental functions
+such as
+{\tt sin}, {\tt cos}, {\tt tan}, {\tt exp},
+{\tt log})
+{\tt roots} (finding all roots of a univariate polynomial),
+{\tt lll} (computation of an LLL-reduced basis of a lattice).
+
+\item $D$-modules ($D$ is the Weyl algebra)
+
+{\tt gb } (Gr\"obner basis),
+{\tt syz} (syzygy),
+{\tt annfs} (Annhilating ideal of $f^s$),
+{\tt bfunction},\\
+{\tt schreyer} (free resolution by the Schreyer method),
+{\tt vMinRes} (V-minimal free resolution),\\
+{\tt characteristic} (Characteristic variety),
+{\tt restriction} in the derived category of $D$-modules,
+{\tt integration} in the derived category,
+{\tt tensor}  in the derived category,
+{\tt dual} (Dual as a D-module),
+{\tt slope}.
+
+\item Cohomology groups
+
+{\tt deRham} (The de Rham cohomology groups of
+${\bf C}^n \setminus V(f)$,
+{\tt ext} (Ext modules for a holonomic $D$-module $M$
+and the ring of formal power series).
+
+\item Differential equations
+
+Helping to derive and prove {\tt combinatorial} and
+{special function identities},
+{\tt gkz} (GKZ hypergeometric differential equations),
+{\tt appell} (Appell's hypergeometric differential equations),
+{\tt indicial} (indicial equations),
+{\tt rank} (Holonomic rank),
+{\tt rrank} (Holonomic rank of regular holonomic systems),
+{\tt dsolv} (series solutions of holonomic systems).
+
+\item OpenMATH support
+
+{\tt om\_xml} (CMO to OpenMATH XML),
+{\tt om\_xml\_to\_cmo} (OpenMATH XML to CMO).
+
+\item Homotopy Method
+
+{\tt phc} (Solving systems of algebraic equations by
+numerical and polyhedral homotopy methods).
+
+\item Toric ideal
+
+{\tt tigers} (Enumerate all Gr\"obner basis of a toric ideal.
+Finding test sets for integer program),
+{\tt arithDeg} (Arithmetic degree of a monomial ideal),
+{\tt stdPair} (Standard pair decomposition of a monomial ideal).
+
+\item Communications
+
+{\tt ox\_launch} (starting a server),
+{\tt ox\_launch\_nox},
+{\tt ox\_shutdown},
+{\tt ox\_launch\_generic},\\
+{\tt generate\_port},
+{\tt try\_bind\_listen},
+{\tt try\_connect},
+{\tt try\_accept},
+{\tt register\_server},\\
+{\tt ox\_rpc},
+{\tt ox\_cmo\_rpc},
+{\tt ox\_execute\_string},
+{\tt ox\_reset} (reset the server),
+{\tt ox\_intr},\\
+{\tt register\_handler},
+{\tt ox\_push\_cmo},
+{\tt ox\_push\_local},
+{\tt ox\_pop\_cmo},
+{\tt ox\_pop\_local},\\
+{\tt ox\_push\_cmd},
+{\tt ox\_sync},
+{\tt ox\_get},
+{\tt ox\_pops},
+{\tt ox\_select},
+{\tt ox\_flush},
+{\tt ox\_get\_serverinfo}
+
+\end{itemize}
+
+\begin{thebibliography}{99}
+\bibitem{NORO}
+M. Noro,  A Computer Algebra System Risa/Asir.  Algebra, Geometry and Software, M. Joswig and N. Takayama (eds.), Springer, 147-162 (2002).
+\bibitem{MAEKAWA}
+M. Maekawa, M. Noro, N. Takayama and Y. Tamura
+The Design and Implementation of OpenXM-RFC 100 and 101.
+Computer Mathematics (Proc. ASCM2001), World Scientific, 102-111 (2001).
+\end{thebibliography}
+
+\end{document}
