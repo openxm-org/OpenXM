@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.49 2005/06/16 06:21:21 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.50 2005/06/16 08:40:04 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -845,7 +845,7 @@
   (one may use the command )
   (          f (ring) data_conversion /R set)
   (cf. define_ring, define_qring, system_variable, poly (ring) data_conversion)
-  (cf. << __ >>)
+  (cf. << __ >>, getRing)
  ]
 ] putUsages
 
@@ -3463,11 +3463,12 @@ newline
 } def
 [(getRing)
 [(obj getRing rr)
- (ring rr;)
+ (ring rr; )
  (getRing obtains the ring structure from obj.)
  (If obj is a polynomial, it returns the ring structure associated to)
  (the polynomial.)
  (If obj is an array, it recursively looks for the ring structure.)
+ (cf. ring_def)
 ]] putUsages
 /toVectors {
   /arg1 set
