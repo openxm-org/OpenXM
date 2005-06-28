@@ -293,7 +293,7 @@ the precomputed inverse of a divisor),
 
 \item Polynomial Factorization
 {\tt fctr } (factorization over the rationals),
-{\tt fctr\_ff } (univariate factorization over finite fields),
+{\tt modfctr}, {\tt fctr\_ff } (univariate factorization over finite fields),
 {\tt af } (univariate factorization over algebraic number fields),
 {\tt sp} (splitting field computation).
 
@@ -329,27 +329,28 @@ quadratic first-order formula),
 
 {\tt det} (determinant),
 {\tt qsort} (sorting of an array by the quick sort algorithm),
-{\tt eval} (evaluation of a formula containing transcendental functions
+{\tt eval}, {\tt deval} (evaluation of a formula containing transcendental functions
 such as
 {\tt sin}, {\tt cos}, {\tt tan}, {\tt exp},
 {\tt log})
-{\tt roots} (finding all roots of a univariate polynomial),
-{\tt lll} (computation of an LLL-reduced basis of a lattice).
+{\tt pari(roots)} (finding all roots of a univariate polynomial),
+{\tt pari(lll)} (computation of an LLL-reduced basis of a lattice).
 
 \item $D$-modules ($D$ is the Weyl algebra)
 
-{\tt gb } (Gr\"obner basis),
-{\tt syz} (syzygy),
-{\tt annfs} (Annhilating ideal of $f^s$),
-{\tt bfunction},\\
-{\tt schreyer} (free resolution by the Schreyer method),
-{\tt vMinRes} (V-minimal free resolution),\\
-{\tt characteristic} (Characteristic variety),
-{\tt restriction} in the derived category of $D$-modules,
-{\tt integration} in the derived category,
-{\tt tensor}  in the derived category,
-{\tt dual} (Dual as a D-module),
-{\tt slope}.
+{\tt sm1.gb } (Gr\"obner basis),
+{\tt sm1.syz} (syzygy),
+%{\tt annfs} (Annhilating ideal of $f^s$),
+{\tt ann} (Annhilating ideal of $f^s$),\\
+{\tt sm1.bfunction},{\tt bfunction} (the global $b$-function of a polynomial)\\
+%{\tt schreyer} (free resolution by the Schreyer method),
+%{\tt vMinRes} (V-minimal free resolution),\\
+%{\tt characteristic} (Characteristic variety),
+{\tt sm1.restriction} in the derived category of $D$-modules,
+%{\tt integration} in the derived category,
+%{\tt tensor}  in the derived category,
+%{\tt dual} (Dual as a D-module),
+{\tt sm1.slope}.
 
 \item Cohomology groups
 
@@ -362,12 +363,14 @@ and the ring of formal power series).
 
 Helping to derive and prove {\tt combinatorial} and
 {special function identities},
-{\tt gkz} (GKZ hypergeometric differential equations),
-{\tt appell} (Appell's hypergeometric differential equations),
-{\tt indicial} (indicial equations),
-{\tt rank} (Holonomic rank),
-{\tt rrank} (Holonomic rank of regular holonomic systems),
-{\tt dsolv} (series solutions of holonomic systems).
+{\tt sm1.gkz} (GKZ hypergeometric differential equations),
+{\tt sm1.appell1}, {\tt sm1.appell4} (Appell's hypergeometric differential equations),
+%{\tt indicial} (indicial equations),
+{\tt sm1.generalized\_bfunction} (indicial equations),
+{\tt sm1.rank} (Holonomic rank),
+{\tt sm1.rrank} (Holonomic rank of regular holonomic systems),
+%{\tt dsolv} (series solutions of holonomic systems).
+{\tt dsolv\_dual}, {\tt dsolv\_starting\_terms} (series solutions of holonomic systems).
 
 \item OpenMATH support
 
@@ -376,15 +379,15 @@ Helping to derive and prove {\tt combinatorial} and
 
 \item Homotopy Method
 
-{\tt phc} (Solving systems of algebraic equations by
+{\tt phc.phc} (Solving systems of algebraic equations by
 numerical and polyhedral homotopy methods).
 
 \item Toric ideal
 
-{\tt tigers} (Enumerate all Gr\"obner basis of a toric ideal.
+{\tt tigers.tigers} (Enumerate all Gr\"obner basis of a toric ideal.
 Finding test sets for integer program),
-{\tt arithDeg} (Arithmetic degree of a monomial ideal),
-{\tt stdPair} (Standard pair decomposition of a monomial ideal).
+%{\tt arithDeg} (Arithmetic degree of a monomial ideal),
+%{\tt stdPair} (Standard pair decomposition of a monomial ideal).
 
 \item Communications
 
