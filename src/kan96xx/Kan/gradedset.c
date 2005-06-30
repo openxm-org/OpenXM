@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.6 2003/08/19 08:02:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gradedset.c,v 1.7 2005/06/16 06:54:55 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "extern2.h"
@@ -253,6 +253,7 @@ struct gradedPolySet *putPolyInG(g,fi,grade,index,syz,mark,serial)
       gnew->polys[i] = newPolySet(INITSIZE);
     }
     gnew->maxGrade = g->maxGrade;
+    gnew->gb = g->gb; gnew->reduced = g->reduced;
     g = gnew;
   }
 
