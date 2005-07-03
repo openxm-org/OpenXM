@@ -15,9 +15,15 @@
 \section{前書き}
 */
 /* OpenXM: OpenXM/src/kxx/oxweave.c,v 1.7 2001/05/06 07:53:01 takayama Exp 
-   $OpenXM: OpenXM/src/util/oxweave.c,v 1.1 2002/04/05 01:12:09 takayama Exp $
+   $OpenXM: OpenXM/src/util/oxweave.c,v 1.2 2003/08/22 16:08:23 ohara Exp $
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void usage();
+void findEndTag(int tagc,char *tagv[],int rule);
+void skipToEndTag(int tagc,char *tagv[],int rule);
 
 /* Modify here to change the begin tag and EndComment. Less than 9 characters.
 */
@@ -59,14 +65,11 @@ int OutputNoTaggedSegment = 0;
 int OutputtingTaggedSegment = 0;
 int BeginVerbatim = 0;
 
-
 /*&jp \section{プログラム本体} */
 main(int argc,char *argv[]) {
-  extern char *BeginTag;
   extern char *EndComment0;
   extern char *EndComment1;
   extern int Plain;
-  int c;
   int tagc,i;
   char *tagv[VSIZE];
   int tagc2;
@@ -145,7 +148,7 @@ main(int argc,char *argv[]) {
 }
 
 /*&jp \noindent 次の関数は利用法を表示する. */
-usage() {
+void usage() {
 #include "oxweaveUsage.h"
 }
 
@@ -249,7 +252,7 @@ findNextTag(int tagc, char *tagv[],int tagc2,char *tagv2[]) {
        ( これは, EndComment0 の値を変えると変更可能. )
       {\tt / /} で始まる場合は, 0xa がおわり. 
 */
-findEndTag(int tagc,char *tagv[],int rule) {
+void findEndTag(int tagc,char *tagv[],int rule) {
   int i;
   int c;
   /* We are in the state 1. */
@@ -285,7 +288,7 @@ findEndTag(int tagc,char *tagv[],int rule) {
   irregularExit();
 }
 
-skipToEndTag(int tagc,char *tagv[],int rule) {
+void skipToEndTag(int tagc,char *tagv[],int rule) {
   int i;
   int c;
   extern char *EndComment0;

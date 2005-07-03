@@ -1,6 +1,8 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.3 2003/05/31 03:05:00 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.4 2005/04/14 07:11:58 takayama Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 int ReplaceLine=0;
 

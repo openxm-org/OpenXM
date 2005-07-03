@@ -1,6 +1,8 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.10 2005/05/04 22:02:08 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.11 2005/06/15 02:38:01 takayama Exp $ */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 int Debug = 0;
 #define VMAX 20
 #define LIMIT   65536
