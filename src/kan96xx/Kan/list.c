@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.5 2004/09/11 01:00:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/list.c,v 1.6 2005/06/16 05:07:23 takayama Exp $ */
 /* list.c */
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

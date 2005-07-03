@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.19 2005/06/16 06:54:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport1.c,v 1.20 2005/06/16 08:40:04 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -18,6 +18,9 @@ int *DegreeShifto_vec = NULL;
 struct object DegreeShiftD = OINIT;
 int DegreeShiftD_size = 0;
 int *DegreeShiftD_vec = NULL;
+
+static struct object paddingVector(struct object ob, int table[], int m);
+static struct object unitVector(int pos, int size,struct ring *r);
 
 /** :kan, :ring */
 struct object Kreduction(f,set)
@@ -104,8 +107,8 @@ struct object Kgroebner(ob)
   struct object newB = OINIT;
   struct object orgC = OINIT;
   struct object newC = OINIT;
-  static struct object paddingVector(struct object ob, int table[], int m);
-  static struct object unitVector(int pos, int size,struct ring *r);
+  struct object paddingVector(struct object ob, int table[], int m);
+  struct object unitVector(int pos, int size,struct ring *r);
   extern struct ring *CurrentRingp;
   
   StopDegree = 0x7fff;

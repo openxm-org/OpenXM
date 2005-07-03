@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/switch.c,v 1.3 2001/05/04 01:06:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/switch.c,v 1.4 2003/07/17 09:10:54 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "extern2.h"
 #include "gradedset.h"

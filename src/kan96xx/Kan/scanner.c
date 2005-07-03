@@ -1,10 +1,12 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.6 2004/09/10 22:21:27 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.7 2004/09/12 00:26:21 takayama Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
    files: none
 */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 struct tokens lookupTokens(struct tokens t);
@@ -402,7 +404,7 @@ main() {
 char *getLOAD_SM1_PATH() {
   char *p;
   char *p2;
-  char *getenv(char *s);
+  char *getenv(const char *s);
   p = getenv("LOAD_SM1_PATH");
   if (p == NULL) {
     p = getenv("OpenXM_HOME");

@@ -1,9 +1,11 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.6 2004/09/12 00:26:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.7 2005/01/23 02:41:17 takayama Exp $ */
 /*  scanner2.c (SM StackMachine) */
 /* export: struct tokens decompostToTokens(char *str,int *sizep);
    scanner2.c is for getting tokens from a string.
 */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 struct tokens lookupTokens(struct tokens t);

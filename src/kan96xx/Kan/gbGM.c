@@ -1,8 +1,9 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gbGM.c,v 1.4 2005/06/09 04:09:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gbGM.c,v 1.5 2005/06/16 06:54:55 takayama Exp $ */
 /* gbGM.c  GM=Gebauer and Moller
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "extern2.h"
 #include "matrix.h"

@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.24 2004/09/17 08:46:10 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc2.c,v 1.25 2005/06/16 05:07:24 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "ox_kan.h"
 #include "oxmisc2.h"   /* This file requires sm1 object description. */
 #include "cmo.h"

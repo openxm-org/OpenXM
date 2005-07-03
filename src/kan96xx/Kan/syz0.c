@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/syz0.c,v 1.3 2001/05/04 01:06:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/syz0.c,v 1.4 2003/08/27 03:11:12 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "extern2.h"
 #include "matrix.h"

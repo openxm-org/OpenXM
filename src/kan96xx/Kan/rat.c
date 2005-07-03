@@ -1,7 +1,8 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/rat.c,v 1.3 2001/05/04 01:06:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/rat.c,v 1.4 2005/06/16 05:07:23 takayama Exp $ */
 
 /* rat.c: rational functions */
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

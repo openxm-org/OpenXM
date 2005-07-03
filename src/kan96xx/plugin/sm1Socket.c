@@ -1,6 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.18 2004/11/23 00:02:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/sm1Socket.c,v 1.19 2005/06/16 05:07:24 takayama Exp $ */
 /* msg0s.c */
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>

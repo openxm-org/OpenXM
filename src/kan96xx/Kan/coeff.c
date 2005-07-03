@@ -1,5 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/coeff.c,v 1.2 2000/01/16 07:55:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/coeff.c,v 1.3 2001/05/04 01:06:23 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

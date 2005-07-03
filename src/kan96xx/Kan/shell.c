@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.12 2004/10/14 10:08:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/shell.c,v 1.13 2005/06/16 05:07:23 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

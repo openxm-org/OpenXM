@@ -1,5 +1,6 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.14 2004/02/28 13:39:42 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/mytcpio.c,v 1.15 2004/11/23 05:28:19 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>

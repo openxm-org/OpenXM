@@ -1,5 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.8 2005/02/27 05:28:06 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/oxcgi.c,v 1.9 2005/06/16 05:07:24 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

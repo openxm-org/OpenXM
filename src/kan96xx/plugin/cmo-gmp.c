@@ -1,5 +1,6 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.7 2003/08/26 05:04:41 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/cmo-gmp.c,v 1.8 2003/09/02 03:24:50 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 /* #include <netinet/in.h> */
 #include <limits.h>

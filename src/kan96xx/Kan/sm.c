@@ -1,4 +1,4 @@
-/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.25 2004/09/21 05:46:15 takayama Exp $ */
+/* sm.c   $OpenXM: OpenXM/src/kan96xx/Kan/sm.c,v 1.26 2005/06/15 02:22:51 takayama Exp $ */
 #define DATE "2005/06/15"
 #define RELEASE "3.050615"    /* This "string" must be an increasing seq.*/
 /* You should write the same string in global.c
@@ -7,6 +7,7 @@
                  if you install new openXM protocol.*/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

@@ -1,5 +1,6 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/tree2polymake.c,v 1.1 2003/11/24 08:16:13 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "../Kan/datatype.h"
 #include "../Kan/stackm.h"
 #include "../Kan/extern.h"

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.2 2000/01/16 07:55:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parserpass0.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
 /* parserpass0.c */
 /*  In this preprocessor, for example, the expression
       x^2+y^2-4+x y;
@@ -7,6 +7,8 @@
 */
 /*  1992/03/05 */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "extern2.h"
 

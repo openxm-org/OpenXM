@@ -1,5 +1,6 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.11 2004/12/16 08:42:14 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.12 2005/02/28 12:53:44 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>

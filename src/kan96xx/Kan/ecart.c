@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.20 2003/09/21 02:19:43 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ecart.c,v 1.21 2004/09/13 11:24:11 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "extern2.h"
 #include "gradedset.h"

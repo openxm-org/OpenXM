@@ -1,8 +1,10 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.19 2004/09/20 02:11:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/primitive.c,v 1.20 2005/06/16 05:07:23 takayama Exp $ */
 /*   primitive.c */
 /*  The functions in this module were in stackmachine.c */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <signal.h>
 #include "datatype.h"
 #include "stackm.h"

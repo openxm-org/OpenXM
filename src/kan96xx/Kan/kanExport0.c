@@ -1,5 +1,7 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.43 2005/06/16 05:07:23 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.44 2005/06/16 06:21:21 takayama Exp $  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

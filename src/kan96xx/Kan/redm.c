@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.5 2003/07/17 09:10:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/redm.c,v 1.6 2003/08/24 05:19:43 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "extern2.h"
 #include "gradedset.h"

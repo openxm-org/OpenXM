@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.14 2004/07/29 08:13:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly4.c,v 1.15 2005/06/16 05:07:23 takayama Exp $ */
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

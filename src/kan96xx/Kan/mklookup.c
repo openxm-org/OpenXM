@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/mklookup.c,v 1.3 2001/05/04 01:06:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/mklookup.c,v 1.4 2004/09/20 02:11:22 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
 #include "datatype.h"
 #include "stackm.h"
 

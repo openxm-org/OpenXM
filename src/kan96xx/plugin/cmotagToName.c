@@ -1,5 +1,6 @@
-/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotagToName.c,v 1.2 2000/01/16 07:55:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/plugin/cmotagToName.c,v 1.3 2001/05/04 01:06:30 takayama Exp $ */
 #include <stdio.h>
+#include <stdlib.h>
 #include "cmotag.h"
 #define BSIZE 1024
 

@@ -1,7 +1,9 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.30 2005/06/09 04:47:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.31 2005/06/16 05:07:23 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"

@@ -1,9 +1,10 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.7 2004/09/17 02:42:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/parser.c,v 1.8 2005/06/16 05:07:23 takayama Exp $ */
 /*
   parser.c   parser for poly.c
 */
 
 #include <stdio.h>
+#include <string.h>
 #include "datatype.h"
 #include "setjmp.h"
 #include "stackm.h"
