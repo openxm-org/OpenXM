@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.9 2005/06/30 08:39:39 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.10 2005/07/07 01:31:21 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -17,6 +17,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /cone.sample {
   cone.load.cohom
+  /cone.ckmFlip  1 def
 % write a comment about the problem.  "nl" means new line.  
 /cone.comment [
   (Toric ideal for 1-simplex x 2-simplex, in k[x]) nl
@@ -129,6 +130,7 @@ printGrobnerFan
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /cone.sample2 {
   cone.load.cohom
+  /cone.ckmFlip  1 def
 % write a comment about the problem.  "nl" means new line.  
 /cone.comment [
   (BS for y and y-(x-1)^2, t1, t2 space, in doubly homogenized Weyl algebra.) nl
@@ -2384,7 +2386,7 @@ def
 %  Usages: result_getNextFlip getNextCone ncone
 %  flip して新しい ncone を得る.
 %>
-/getNextCone {
+/getNextCone.orig {
  /arg1 set
  [/ncone /ccone /kk /w /next_weight_w_wv] pushVariables
  [ 
@@ -3453,6 +3455,7 @@ def
 %  gb の check をやるので, それに失敗したら null を戻す.
 %  weight はすべて vw 形式で. vw 形式 = variable weight の繰り返しの形式
 %  reducedGb は文字列のリストではなく多項式の形式のこと.
+%   理由は reducedGb より ring の構造を読むため.
 %>
 /ckmFlip {
   /arg1 set
@@ -3499,6 +3502,12 @@ def
 % 例. [(x) -1 (Dx) 1 (y) -1 (Dy) 2] ==> [(x) -1 (Dx) 1 (y) -1 (y') 2]
     facetWeight { dup isString { . rTable replace toString }
                                { } ifelse } map /facetWeight_gr set
+
+% newWeight も 新しい環 gr_ww  の weight に変換.
+% 例. [(x) -1 (Dx) 1 (y) -1 (Dy) 2] ==> [(x) -1 (Dx) 1 (y) -1 (y') 2]
+    newWeight { dup isString { . rTable replace toString }
+                               { } ifelse } map /newWeight_gr set
+
 % Dx x = x Dx + h H  or Dx x = x Dx + h^2 で計算.  
 % どちらをとるかは cone.gb_gr で区別するしかなし
     %% [ch1 vlist_gr oldWeight_gr] /ttt set 
@@ -3507,10 +3516,6 @@ def
     ch1 {toString .} map  /ch1 set
 %% ここまででとりあえずテストをしよう.
 %%    ch1 /arg1 set
-% newWeight も 新しい環 gr_ww  の weight に変換.
-% 例. [(x) -1 (Dx) 1 (y) -1 (Dy) 2] ==> [(x) -1 (Dx) 1 (y) -1 (y') 2]
-    newWeight { dup isString { . rTable replace toString }
-                               { } ifelse } map /newWeight_gr set
     [ch1 { toString } map vlist_gr newWeight_gr] cone.gb_gr /ch2 set
 
 % Dx x = x Dx + h H  or Dx x = x Dx + h^2 で計算.  
@@ -3625,17 +3630,22 @@ def
 %>
 /cone.gb_gr_Dh {
   /arg1 set
-  [/ff /ww /vv] pushVariables
+  [/ff /ww /vv /gg /envtmp] pushVariables
   [
      /ff arg1 0 get def
      /vv arg1 1 get def
      /ww arg1 2 get def
-     /gb.verbose 1 def
-     /gb.autoHomogenize 0 def
+
+     [(AutoReduce) (KanGBmessage)] pushEnv /envtmp set
      [(AutoReduce) 1] system_variable
-     [ff { toString } map vv
-      [ww vv generateD1_1]] gb 0 get /arg1 set
-     /gb.autoHomogenize 1 def
+     [(KanGBmessage) 1] system_variable
+     [vv ring_of_differential_operators
+     [ww] weight_vector 0] define_ring
+     [ff {toString .} map] ff getAttributeList setAttributeList 
+     groebner 0 get /gg set
+     envtmp popEnv
+
+     /arg1 gg def
   ] pop
   popVariables
   arg1 
@@ -3710,4 +3720,108 @@ def
  [ff (t1,t2,x,y) wOld wFacet wNew] ckmFlip /ff2 set
  (See ff and ff2) message  
 
+} def
+
+%<
+% Usages: cone i getaVectorOnFacet
+% cone の i 番目の facet の上の vector を求める.
+% cf. liftWeight
+%> 
+/getaVectorOnFacet {
+  /arg2 set /arg1 set
+  [/cone /facet_i /ep /vp /v /v /ii] pushVariables
+  [
+    /cone arg1 def /facet_i arg2 def
+    facet_i to_int32 /facet_i set
+  
+    cone (facetsv) getNode 2 get facet_i get /v set
+    /vp v 0 get def
+    1 1 v length 1 sub {
+      /ii set
+      vp v ii get  add /vp set
+    } for
+    vp nnormalize_vec /vp set
+    /arg1 vp def
+  ] pop 
+  popVariables
+  arg1 
+} def
+
+/getNextCone {
+  getNextCone_ckm
+} def
+
+%<
+%  Usages: result_getNextFlip getNextCone_ckm ncone
+%  flip して新しい ncone を得る.  Collar-Kalkbrener-Moll のアルゴリズムを使う
+%  if (cone.ckmFlip == 0) 普通の計算 else CKM.
+%>
+/getNextCone_ckm {
+ /arg1 set
+ [/ncone /ccone /kk /w /next_weight_w_wv /cid /ttt] pushVariables
+ [ 
+  /ccone arg1 def
+  /ncone null def
+  /kk ccone 1 get def  % kk は cid 番目の cone の kk 番目の facet を表す.
+  /cid ccone 2 get def % cid は cone の 番号.
+  ccone 0 get /ccone set
+  {
+   ccone tag 0 eq { exit } {  } ifelse
+
+% ccone の kk 番目の facet について flip する.
+   ccone kk cone.epsilon flipWeight  /w set
+   (Trying new weight is ) messagen w message
+   w liftWeight /next_weight_w_wv set
+   (Trying new weight [w,wv] is ) messagen next_weight_w_wv message
+
+   cone.ckmFlip {
+    [ 
+     cone.gblist cid get (grobnerBasis) getNode 2 get % reduce gb
+     cone.vv
+     cone.gblist cid get (weight) getNode [2 0 2] get % weight
+     ccone kk getaVectorOnFacet liftWeight 1 get  % weight on facet
+     next_weight_w_wv 1 get  % new weight  
+    ] /ttt set
+     ttt message
+     ttt ckmFlip /cone.cgb set
+   }{ 
+     cone.input next_weight_w_wv 1 get cone.gb /cone.cgb set
+   } ifelse
+
+  cone.cgb tag 0 eq not {
+   [w] next_weight_w_wv join /cone.cgb_weight set
+   next_weight_w_wv 1 get cone.cgb coneEq /cone.g_ineq set
+   cone.g_ineq cone.w_ineq join cone.Wt mul cone.Lpt mul 
+   pruneZeroVector /cone.gw_ineq_projectedWtLpt set
+
+   (cone.gw_ineq_projectedWtLpt is obtained.) message
+
+   cone.gw_ineq_projectedWtLpt getConeInfo /cone.nextConeInfo set
+% 次元を調べる.  だめなら retry
+   cone.nextConeInfo 0 get 0 get to_int32 cone.d eq {
+     cone.nextConeInfo 1 get newCone /ncone set
+     ccone ncone getCommonFacet 0 get {
+       (Flip succeeded.) message
+       exit
+     } { } ifelse
+   } { } ifelse
+% common face がなければ やはり epsilon を小さく.
+   cone.nextConeInfo 0 get 0 get to_int32 cone.d eq {
+    (ccone and ncone do not have a common facet.) message
+   } {  
+    (ncone is not maximal dimensional. ) message
+   } ifelse
+  }{ } ifelse
+
+   (Decreasing epsilon to ) messagen
+   cone.epsilon (1).. (2).. div mul /cone.epsilon set
+     cone.epsilon cone.epsilon.limit sub numerator (0).. lt {
+       (Too small cone.epsilon ) error
+     }  {  } ifelse
+   cone.epsilon message
+  } loop
+  /arg1 ncone def
+ ] pop
+ popVariables
+ arg1
 } def
