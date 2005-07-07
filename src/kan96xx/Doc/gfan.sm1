@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.8 2004/10/13 23:36:52 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.9 2005/06/30 08:39:39 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -76,6 +76,7 @@ def
   ]
 def
 
+/cone.DhH  0 def
 % Set a function to compute Grobner basis.
 %  cone.gb_Dh   : For computing in Homogenized Weyl algebra h[1,1](D).
 %  cone.gb_DhH  : For computing in doubly homogenized Weyl algebra. 
@@ -194,6 +195,7 @@ def
   cone.input { . homogenize toString } map /cone.input set
   dh.end
 
+/cone.DhH  1 def
 % Set a function to compute Grobner basis.
 %  cone.gb_Dh   : For computing in Homogenized Weyl algebra h[1,1](D).
 %  cone.gb_DhH  : For computing in doubly homogenized Weyl algebra. 
@@ -398,6 +400,27 @@ cone.comment message
 %         cone.d (pointed cones lies in this space. cf. cone.Lp)
 % These are set during getting the cone.startingCone
 
+%<
+% global
+%cone.ckmFlip. Collar-Kalkbrener-Mall の flip アルゴリズムを使わない 0. 使う 1.
+%  Default は 0.
+%> 
+/cone.ckmFlip 0 def
+
+%<
+% global
+% cone.DhH  dx x = x dx + h H なら 1. dx x = x dx + h^2 なら 0. Default 0.
+%>
+/cone.DhH  0 def
+
+% Default の cone.gb の定義. 各プログラムで再度定義してもよい.
+/cone.gb {
+  cone.DhH { 
+     cone.gb_DhH
+  } {
+     cone.gb_Dh
+  } ifelse
+} def
 
 %<
 % Usage:  wv g coneEq1
@@ -3505,13 +3528,14 @@ def
     ccf { 2 get {toString  . rTable2 replace toString} map } map /ccf2 set
     %% ccf2 は gr でない ring の元.
     gOld getRing ring_def
-    cone.beginH  % Hh か h^2 か.
+    cone.DhH { cone.begin_DhH } {  } ifelse % Hh か h^2 か.
     ccf2 { {.} map gOld mul } map /gNew set
     gNew { toString } map /gNew set
-    cone.endH
+    cone.DhH { cone.end_DhH } {  } ifelse % Hh か h^2 か.
     % gNew /arg1 set
     %gNew が newWeight での GB か check. Yes なら reduced basis へ.
     %No なら null を戻す. 
+%%Ref: note @s/2005/06/30-note-gfan.pdf
     gNew [(gbCheck) 1] setAttributeList newWeight 
        cone.gb (gb) getAttribute 
     1 eq {
@@ -3524,29 +3548,116 @@ def
 
 %<
 % Usages: f gbasis cone.reduction_DhH
+%       dx x = x dx + h H での reduction. 
 %>
 /cone.reduction_DhH {
   /arg2 set /arg1 set
   [/ff /ggbasis /eenv /ans] pushVariables
   [  
     /ff arg1 def /ggbasis arg2 def
-    cone.beginH
+    cone.begin_DhH
     ff ggbasis reduction /ans set
-    cone.endH
+    cone.end_DhH
     /arg1 ans def
   ] pop
   popVariables
   arg1
 } def
 
+%<
+% Usages: f gbasis cone.reduction_Dh
+%       dx x = x dx + h^2 での reduction. 
+%>
+/cone.reduction_Dh {
+  /arg2 set /arg1 set
+  [/ff /ggbasis /eenv /ans] pushVariables
+  [  
+    /ff arg1 def /ggbasis arg2 def
+    ff ggbasis reduction /ans set
+    /arg1 ans def
+  ] pop
+  popVariables
+  arg1
+} def
+
+%<
+% Usages: cone.begin_DhH   dx x = x dx + h H を開始.
+%>
 /cone.begin_DhH {
   [(Homogenize) (AutoReduce) (KanGBmessage)] pushEnv /cone.eenv set
   [(Homogenize) 3] system_variable
 } def
 
+%<
+% Usages: cone.begin_DhH   dx x = x dx + h H を終了.
+%>
 /cone.end_DhH {
   cone.eenv popEnv
 } def
+
+%<
+% Usages: ff vv ww cone.gb_gr_DhH   dx x = x dx + h H で計算.
+%   dh.gb は dhecart.sm1 で定義されており, dx x = x dx + h H での計算.
+%   gr をとっても, -w,w の場合は 微分作用素環のままであり, これが必要.
+%   bug? cone.gb で十分?
+%>
+/cone.gb_gr_DhH {
+  /arg1 set
+  [/ff /ww /vv] pushVariables
+  [
+     /ff arg1 0 get def
+     /vv arg1 1 get def
+     /ww arg1 2 get def
+     /dh.gb.verbose 1 def
+     /dh.autoHomogenize 0 def
+     [(AutoReduce) 1] system_variable
+     [ff { toString } map vv
+      [ww vv generateD1_1]] dh.gb 0 get /arg1 set
+  ] pop
+  popVariables
+  arg1 
+} def
+%<
+% Usages: ff vv ww cone.gb_gr_Dh   dx x = x dx + h^2 で計算.
+%   gb は dhecart.sm1 で定義されており, dx x = x dx + h^2 での計算.
+%   gr をとっても, -w,w の場合は 微分作用素環のままであり, これが必要.
+%   bug? cone.gb で十分?
+%>
+/cone.gb_gr_Dh {
+  /arg1 set
+  [/ff /ww /vv] pushVariables
+  [
+     /ff arg1 0 get def
+     /vv arg1 1 get def
+     /ww arg1 2 get def
+     /gb.verbose 1 def
+     /gb.autoHomogenize 0 def
+     [(AutoReduce) 1] system_variable
+     [ff { toString } map vv
+      [ww vv generateD1_1]] gb 0 get /arg1 set
+     /gb.autoHomogenize 1 def
+  ] pop
+  popVariables
+  arg1 
+} def
+
+
+% これらは cone.ckmFlip 1 の時しか使わず.
+/cone.reduction {
+  cone.DhH {
+    cone.reduction_DhH
+  }{
+    cone.reduction_Dh
+  } ifelse
+} def
+/cone.gb_gr {
+  cone.DhH {
+    cone.gb_gr_DhH
+  }{
+    cone.gb_gr_Dh
+  } ifelse
+} def
+
 
 /test1.ckmFlip {
  % cf. cone.sample2
@@ -3561,6 +3672,10 @@ def
  /cone.parametrizeWeightSpace {
    4 2 parametrizeSmallFan
  } def
+
+ /cone.DhH 1 def
+ /cone.ckmFlip 1 def
+
  /cone.local 1 def	
  /cone.w_start  null def   
  /cone.h0 1 def
@@ -3579,38 +3694,8 @@ def
    cone.input { . homogenize toString } map /cone.input set
    dh.end
 
- /cone.gb {
-   cone.gb_DhH
- } def
 
- /cone.reduction {
-   cone.reduction_DhH
- } def
-
- /cone.beginH {
-   cone.begin_DhH
- } def
- /cone.endH {
-   cone.end_DhH
- } def
 % テストを開始する.
- /cone.gb_gr {
-  /arg1 set
-  [/ff /ww /vv] pushVariables
-  [
-     /ff arg1 0 get def
-     /vv arg1 1 get def
-     /ww arg1 2 get def
-     /dh.gb.verbose 1 def
-     /dh.autoHomogenize 0 def
-     [(AutoReduce) 1] system_variable
-     [ff { toString } map vv
-      [ww vv generateD1_1]] dh.gb 0 get /arg1 set
-  ] pop
-  popVariables
-  arg1 
- } def
-
 % getStartingCone /cone.ncone set
 % cone.ncone updateFan 
 % cone.gblist 0 get message
