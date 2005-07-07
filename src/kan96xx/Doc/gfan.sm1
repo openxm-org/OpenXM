@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.10 2005/07/07 01:31:21 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.11 2005/07/07 06:07:46 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -414,6 +414,13 @@ cone.comment message
 % cone.DhH  dx x = x dx + h H なら 1. dx x = x dx + h^2 なら 0. Default 0.
 %>
 /cone.DhH  0 def
+
+%<
+% Global
+% gbCheck をするか? しないと結果はあやふや. しかしメモリ exhaust は防げる.
+% 使うときは /cone.epsilon,  /cone.epsilon.limit を十分小さくしておく.
+%>
+/cone.do_gbCheck 1 def
 
 % Default の cone.gb の定義. 各プログラムで再度定義してもよい.
 /cone.gb {
@@ -2048,15 +2055,20 @@ def
 %>
 /cone.gb_Dh {
   /arg2 set /arg1 set
-  [/ff /ww /gg] pushVariables
+  [/ff /ww /gg /gbopt] pushVariables
   [
     /ff arg1 def
     /ww arg2 def
     [(AutoReduce) 1] system_variable
     [cone.vv ring_of_differential_operators
      [ww] weight_vector 0] define_ring
-    [ff {toString .} map] ff getAttributeList setAttributeList 
-    groebner 0 get /gg set
+    %(---) messagen ff getAttributeList message
+    ff getAttributeList tag 0 eq {/gbopt [ ] def }
+    {
+       /gbopt ff getAttributeList def
+    } ifelse
+   [ff {toString .} map gbopt] 
+    groebner 0 get /gg set   %% groenber は attribute を受け付けない.
     /cone.gb_Dh.g gg def
     /arg1 gg def
   ] pop
@@ -3541,8 +3553,15 @@ def
     %gNew が newWeight での GB か check. Yes なら reduced basis へ.
     %No なら null を戻す. 
 %%Ref: note @s/2005/06/30-note-gfan.pdf
-    gNew [(gbCheck) 1] setAttributeList newWeight 
-       cone.gb (gb) getAttribute 
+    cone.do_gbCheck not { 
+       (Warning! gbCheck is skipped.) message
+    } { 
+       (Doing gbCheck.) message
+    } ifelse
+    cone.do_gbCheck {
+     gNew [(gbCheck) 1] setAttributeList newWeight 
+        cone.gb (gb) getAttribute 
+    } { 1 } ifelse
     1 eq {
      gNew [(reduceOnly) 1] setAttributeList newWeight cone.gb /arg1 set
     }{ /arg1 null def } ifelse
