@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.11 2005/06/16 08:40:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/gb.c,v 1.12 2005/06/30 08:35:07 takayama Exp $ */
 /*  untabify on May 4, 2001 */
 #include <stdio.h>
 #include "datatype.h"
@@ -195,13 +195,14 @@ struct gradedPolySet *groebner_gen(f,needBack,needSyz,grP,countDown,forceReducti
   extern int StopDegree;
   extern struct ring *CurrentRingp;
   extern char *F_mpMult;
+  extern int Homogenize;
   struct ring *rp;
   int first;
   int statisticsPL, statisticsCount;
 
   if (KanGBmessage) {
-	printf("countDown=%d, forceReduction=%d, reduceOnly=%d, gbCheck=%d\n",
-		   countDown, forceReduction, reduceOnly, gbCheck); 
+	printf("Homogenize=%d, countDown=%d, forceReduction=%d, reduceOnly=%d, gbCheck=%d\n",
+		   Homogenize,countDown, forceReduction, reduceOnly, gbCheck); 
   }
   if (Statistics) {
     for (i=0; i<DMAX; i++) MaxLength[i] = SpNumber[i] = 0;
