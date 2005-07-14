@@ -1,4 +1,12 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.22 2003/03/25 06:25:58 takayama Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.23 2003/09/02 14:26:07 takayama Exp $
+
+OpenXM_HOME=../..
+PREFIX=${OpenXM_HOME}
+DISTDIR=${OpenXM_HOME}/../OpenXM_dist
+MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
+# Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
+DISTNAME=gc6.5
+DISTFILES=${DISTNAME}.tar.gz
 
 ASIR = ../../../OpenXM_contrib2/asir2000
 ASIR_PARI = ../../../OpenXM_contrib2/asir2000-pari
@@ -42,14 +50,20 @@ clean:
 	(cd $(ASIR) ; make clean)
 	-@if [ -d $(ASIR_PARI) ]; then (cd $(ASIR_PARI) ; make clean)  fi
 	-@if [ -d $(ASIR_SMALL) ]; then (cd $(ASIR_SMALL) ; make clean)  fi
-	@rm -f ./.make_* ./.configure_* ./.install-*
+	@rm -f ./.make_* ./.configure_* ./.install-* ./.fetch*
 
 distclean: clean
 	@rm -rf $(ASIR_PARI)
 	@rm -rf $(ASIR_SMALL)
 	@cat BINARIES | xargs -t rm -rf
 
-configure: 
+fetch:
+	@if [ ! -f .fetch_done ]; then \
+		${OpenXM_HOME}/bin/oxfetch.sh ${MASTER_SITE}${DISTFILES} ${DISTDIR}; \
+	fi
+	@touch .fetch_done
+
+configure: fetch
 	@if [ ! -f ./.configure_done ]; then \
 		(cd $(ASIR) ; \
             ./configure --enable-plot --with-pari --prefix="`cd ../../OpenXM; pwd`") \
