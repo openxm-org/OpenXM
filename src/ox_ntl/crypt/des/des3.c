@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des3.c,v 1.1 2005/06/19 15:30:00 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/crypt/des/des3.c,v 1.2 2005/06/19 15:45:38 iwane Exp $ */
 /*
  * Triple-DES
  *   see des.c
@@ -15,6 +15,7 @@
 
 #define BLOCK 8
 
+#define PRT(x) printf("%5s: %02x%02x%02x%02x %02x%02x%02x%02x\n", #x, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])
 
 /*===========================================================*
  * KEY STRUCT
@@ -75,9 +76,9 @@ des3_dec_c(const des3_key *key, const unsigned char *enc, unsigned char *data)
 	unsigned char b1[8];
 	unsigned char b2[8];
 
-	des_dec_c(key->key + 0, enc, b1);
+	des_dec_c(key->key + 2, enc, b1);
 	des_enc_c(key->key + 1, b1, b2);
-	des_dec_c(key->key + 2, b2, data);
+	des_dec_c(key->key + 0, b2, data);
 
 	return (0);
 }
