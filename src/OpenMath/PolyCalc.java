@@ -1,5 +1,13 @@
 /**
- * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.11 2000/10/11 08:32:13 ohara Exp $
+ * $OpenXM: OpenXM/src/OpenMath/PolyCalc.java,v 1.12 2000/10/11 09:34:06 ohara Exp $
+ */
+
+/*
+   How to try.
+    ox -ox ox_sm1
+    java PolyCalc
+    Input two polynomials in x and y  and Press the grobner base button.
+    Actions for other buttons have not yet been implemented. 
  */
 
 import ORG.openxm.tam.*;
@@ -121,7 +129,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
       while(true){
         OXmessage tmp = oxm.receive();
 
-	textarea.append("=> "+ tmp +"\n");
+	textarea.append("=> "+ tmp.getBody() +"\n");
         Thread.yield();
       }
     }catch(java.io.IOException e){}
@@ -170,7 +178,7 @@ class PolyCalc extends Applet implements ActionListener,Runnable{
 	*/
       oxm = new OpenXM(host,ControlPort,DataPort);
       textarea.append("Connected.\n");
-      oxm.send(new CMO_STRING("(cohom.sm1) run ;\n"));
+      oxm.send(new CMO_STRING("[(parse) (cohom.sm1) pushfile] extension ;\n"));
       oxm.send(new SM(SM.SM_executeStringByLocalParser));
 
       thread = new Thread(this);
