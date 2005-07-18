@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.31 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.32 2005/07/03 11:08:54 ohara Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -88,6 +88,9 @@ int OXlockSaved = 0;
 
 char *UD_str;
 int  UD_attr;
+
+char *MsgStackTrace = NULL;
+char *MsgSourceTrace = NULL;
 
 struct object * newObject() 
 {
@@ -1111,6 +1114,8 @@ errorStackmachine(str)
   extern int RestrictedMode, RestrictedMode_saved;
   RestrictedMode = RestrictedMode_saved;
   cancelAlarm();
+  MsgStackTrace = NULL;
+  MsgSourceTrace = NULL;
   if (ErrorMessageMode == 1 || ErrorMessageMode == 2) {
     pushErrorStack(KnewErrorPacket(SerialCurrent,-1,str));
   }
@@ -1144,7 +1149,8 @@ errorStackmachine(str)
       fprintf(stderr,str);
     }
     fprintf(stderr,"\n");
-    (void) traceShowStack(); 
+    MsgStackTrace = traceShowStack(); 
+    MsgSourceTrace = traceShowScannerBuf();
   }
   traceClearStack();
   if (GotoP) {

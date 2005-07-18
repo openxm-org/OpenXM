@@ -3,6 +3,8 @@
 #include "ox_kan.h"
 #include "serversm.h"
 extern int OXprintMessage;
+extern char *MsgStackTrace;
+extern char *MsgSourceTrace;
 
 /*  server stack machine */
 
@@ -138,7 +140,38 @@ int Sm1_popCMO(ox_stream fp,int serial)
 int Sm1_pushError2(int serial, int no, char *s)
 {
   struct object ob = OINIT;
-  ob = KnewErrorPacket(serial,no,s);
+  char *ss;
+  char *error_message="<ox103:error_message>";
+  char *message="<ox103:message>";
+  char *stack_trace="<ox103:stack_trace>";
+  char *source_trace="<ox103:source_trace>";
+  char *error_message2="</ox103:error_message>";
+  char *message2="</ox103:message>";
+  char *stack_trace2="</ox103:stack_trace>";
+  char *source_trace2="</ox103:source_trace>";
+  ss = (char *) sGC_malloc(strlen(s)+strlen(MsgStackTrace)+
+                           strlen(MsgSourceTrace)+
+                           strlen(error_message)+strlen(error_message2)+
+                           strlen(message)+strlen(message2)+
+                           strlen(stack_trace)+strlen(stack_trace2)+
+                           strlen(source_trace)+strlen(source_trace2)+2);
+
+  strcat(ss,error_message);
+  strcat(ss,message);
+  strcat(ss,s);
+  strcat(ss,message2);
+  if (MsgStackTrace != NULL) {
+	strcat(ss,stack_trace);
+	strcat(ss,MsgStackTrace);
+	strcat(ss,stack_trace2);
+  }
+  if (MsgSourceTrace != NULL) {
+	strcat(ss,source_trace);
+	strcat(ss,MsgSourceTrace);
+	strcat(ss,source_trace2);
+  }
+  strcat(ss,error_message2);
+  ob = KnewErrorPacket(serial,no,ss);
   KSpush(ob);
 }
 

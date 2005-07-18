@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.31 2005/06/09 05:46:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.32 2005/06/16 06:21:21 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -19,7 +19,7 @@ struct tokens *decomposeToTokens(char *str,int *size);*/
 struct tokens getokenSM();
 struct tokens *decomposeToTokens();
 char *getLOAD_SM1_PATH();
-
+char *traceShowScannerBuf();
 
 /* stackmachine.c  object */
 struct object *newObject(void);

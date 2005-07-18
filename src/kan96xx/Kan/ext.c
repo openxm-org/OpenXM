@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.37 2005/06/16 06:21:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.38 2005/07/03 11:08:53 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -21,6 +21,7 @@
 
 extern int Quiet;
 extern char **environ;
+extern char *MsgSourceTrace;
 
 #define MYCP_SIZE 100
 static int Mychildren[MYCP_SIZE];
@@ -471,6 +472,14 @@ struct object Kextension(struct object obj)
   }else if (strcmp(key,"traceShowStack")==0) {
     char *ssst;
     ssst = traceShowStack();
+    if (ssst != NULL) {
+      rob = KpoString(ssst);
+    }else{
+      rob = NullObject;
+    }
+  }else if (strcmp(key,"traceShowScannerBuf")==0) {
+    char *ssst;
+    ssst = MsgSourceTrace;
     if (ssst != NULL) {
       rob = KpoString(ssst);
     }else{

@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.7 2004/09/12 00:26:21 takayama Exp $*/
+/*$OpenXM: OpenXM/src/kan96xx/Kan/scanner.c,v 1.8 2005/07/03 11:08:54 ohara Exp $*/
 /*  scanner.c (SM StackMachine) */
 /* export: struct tokens getokenSM(actionType kind,char *str);
    scanner.c is used to get tokens from streams.
@@ -72,18 +72,26 @@ static isSymbolSM();
 static mygetchar();
 static myungetchar();
 
+int ScannerWhich = 0;
+unsigned char ScannerBuf[SCANNERBUF_SIZE];
+int ScannerPt = 0;
 
 /*
 static mygetchar()
 {
+
   return( getc(Cfp) );
 }
 */
 
 static mygetchar()
 { int c;
+  c = getc(Cfp);
+  if (c > 0) { /* ungetchar is ignored */
+    ScannerPt++; if (ScannerPt >= SCANNERBUF_SIZE) ScannerPt = 0;
+    ScannerBuf[ScannerPt] = c;
+  }
  if (EchoInScanner) {
-   c = getc(Cfp);
    if (c==EOF) {
      printf("\n%% EOF of file %x\n",(int) Cfp);
    }else{
@@ -91,7 +99,7 @@ static mygetchar()
    }
    return( c );
  }else{
-   return( getc(Cfp) );
+   return( c );
  }
 }
 
@@ -219,6 +227,10 @@ struct tokens getokenSM(kind,str)
   char fname[1024];
   
   if (kind == INIT) {
+    ScannerWhich = 2;
+    ScannerPt = 0;
+    ScannerBuf[0] = 0;
+
     StrpSM = 0;
     ExistSM = 0;
     
@@ -430,4 +442,39 @@ char *getLOAD_SM1_PATH() {
     strcpy(p2,p); strcat(p2,"/");
     return(p2);
   }
+}
+
+char *traceShowScannerBuf() {
+  char *s;
+  int i,k;
+  s = NULL;
+  /*
+  printf("ScannerPt=%d\n",ScannerPt);
+  for (i=0; i<SCANNERBUF_SIZE; i++) {
+	printf("%x ",(int) (ScannerBuf[i]));
+  }
+  printf("\n");  fflush(NULL); sleep(10);
+  */
+  if ((ScannerPt == 0) && (ScannerBuf[0] == 0)) {
+    s = sGC_malloc(1); s[0] = 0;
+    return s;
+  }
+  if ((ScannerPt > 0) && (ScannerBuf[0] == 0)) {
+    s = sGC_malloc(ScannerPt+1);
+    for (i=1; i<=ScannerPt; i++) {
+      s[i-1] = ScannerBuf[i]; s[i] = 0;
+    }
+    return s;
+  }
+  if (ScannerBuf[0] != 0) {
+    s = sGC_malloc(SCANNERBUF_SIZE+1);
+    k = ScannerPt+1;
+    if (k >= SCANNERBUF_SIZE) k = 0;
+    for (i=0; i<SCANNERBUF_SIZE; i++) {
+      s[i] = ScannerBuf[k]; s[i+1] = 0;
+      k++; if (k >= SCANNERBUF_SIZE) k = 0;
+    }
+    return s;
+  }
+  return s;
 }

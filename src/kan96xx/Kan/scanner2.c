@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.7 2005/01/23 02:41:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/scanner2.c,v 1.8 2005/07/03 11:08:54 ohara Exp $ */
 /*  scanner2.c (SM StackMachine) */
 /* export: struct tokens decompostToTokens(char *str,int *sizep);
    scanner2.c is for getting tokens from a string.
@@ -58,6 +58,10 @@ static isKakkoSM();
 static isSymbolSM();
 static struct tokens getokenSM2();
 
+extern int ScannerWhich;
+extern unsigned char ScannerBuf[];
+extern int ScannerPt;
+
 /****************  code part of lexical analizer ********************/
 
 struct tokens *decomposeToTokens(str,sizep)
@@ -109,6 +113,10 @@ static int getSM()
   }
 
   c = (unsigned char) StringSM[StrpSM++];
+  if (c != 0) {
+    ScannerPt++; if (ScannerPt >= SCANNERBUF_SIZE) ScannerPt = 0;
+    ScannerBuf[ScannerPt] = c;
+  }
   if (c == '\0') {
     StrpSM--;return(EOF);
   } else return(c);
@@ -210,6 +218,10 @@ static struct tokens getokenSM2(kind,str)
   int level;
   
   if (kind == INIT) {
+    ScannerWhich = 2;
+    ScannerPt = 0;
+    ScannerBuf[0] = 0;
+
     StrpSM = 0;
     ExistSM = 0;
     

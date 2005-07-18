@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.14 2005/06/17 03:50:34 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.15 2005/07/07 06:07:46 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -431,5 +431,24 @@ ox texmacs が正しく動作するのか要テスト.
 \item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.10, 1.11.
 \end{enumerate}
 
+\section{2005-07-18, Error Message}
+\begin{enumerate}
+\item  サーバはエラーの位置およびエラーの位置での読み込みデータを
+XML 形式で送る.
+\begin{verbatim}
+ (ox.sm1) run  sm1connectr
+ oxsm1.ccc (1 shell) oxsubmit 
+ oxsm1.ccc oxpopcmo  ::
+\end{verbatim}
+\item {\tt scanner.c}, {\tt scanner2.c} で {\tt ScannerBuf} に
+ 読み込んだデータを書き込む.
+\item {\tt stackmachineError()} で 
+ 大域変数 {\tt MsgStackTrace}, {\tt MsgSourceTrace} に書き込んでおく.
+\item {\tt kxx/sm1stackmachine.c} の {\tt Sm1\_pushError2} で,
+上の大域変数に設定されたメッセージをもとに,  error package
+の文字列に XML 形式で error message を書く.
+\item \verb@ [(traceShowScannerBuf)] extension :: @
+\item Todo: {\tt executeToken} の中までみないと, すでに定義された関数のどの位置でエラーを起こしたのかがわからない.
+\end{enumerate}
 \end{document}
 
