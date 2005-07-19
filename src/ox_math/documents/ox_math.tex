@@ -1,5 +1,5 @@
 %#!platex
-%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.6 2000/01/20 15:18:31 ohara Exp $
+%% $OpenXM: OpenXM/src/ox_math/documents/ox_math.tex,v 1.7 2002/04/17 01:09:23 takayama Exp $
 
 \documentclass{jarticle}
 \title{Mathematica の Open XM 化について
@@ -7,8 +7,12 @@
 }
 %\date{January 19, 1999}
 %\date{July 12, 1999}
-\date{November 25, 1999}
+\date{November 25, 1999\\
+(Revised July 20, 2005)
+}
 \author{小原功任}
+
+\def\oxmath{{\tt ox\_math}}
 
 \begin{document}
 \maketitle
@@ -35,24 +39,27 @@ OxPopCMO[pid]
 \section{我々が提供するもの}
 
 我々が提供するのは二つのプログラムとそのソースである。一つ目は 
-{\tt ox\_math} プログラムであり、これは OpenXM サーバの一種である。二つ
+\oxmath プログラムであり、これは OpenXM サーバの一種である。二つ
 目は {\tt math2ox} であり、OpenXM クライアントである。
 
+動作環境は Solaris, Linux および Windows、対象としている Mathematica の
+バージョンは、3.0 〜 4.2 までである。バージョン 5.x については、我々が所
+有していないため調査していない。
+
+Windows 上では \oxmath は、cygwin のもとで動作する。\oxmath の Windows 
+対応は藤本さんによる(2002年4月)。ありがとう。
 
 \section{Open Mathematica サーバの構成}
 
-Open Mathmatica サーバはOpen XM クライアントおよびmathematica カーネルと
-通信する。Open Mathmatica サーバは起動直後にmathematica カーネルを起動し、
-mathematica カーネルと協調して動作する。mathematica カーネルとは 
-MathLink ライブラリを利用して通信する。Open Mathmatica サーバはMathLink 
+Open Mathmatica サーバ(\oxmath)はOpen XM クライアントおよび Mathematica
+Kernel と通信する。\oxmath は起動直後に Mathematica Kernel を起動し、
+Mathematica Kernel と協調して動作する。Mathematica Kernel とは MathLink 
+ライブラリを利用して通信する。つまり \oxmath は MathLink
 のラッパだと思ってよい。Open XM クライアントとの間はソケットを利用して通
-信する。Open Mathmatica サーバはファイルディスクリプタ 3,4 が既にオープ
+信する。\oxmath はファイルディスクリプタ 3,4 が既にオープ
 ンされていると思って, 3 から読み込み、4 に書き出す。
 
-さらに、Open Mathmatica サーバはコントロールプロセスからシグナルを受け取
-る場合がある。シグナルを受け取った場合には,相応の動作が必要であるが、現
-在は実装していない.  SIGUSR1 (SM\_control\_reset\_connection) は計算が全
-て終わってからOX\_SYNC\_BALL を投げるので、実際には意味がない。
+さらに \oxmath には計算中断機能が必要であるが、この機能は 2003年のはじめに実装された。
 
 \section{OX スタックマシン}
 スタックのオブジェクトは cmo 型の変数、あるいはその派生クラスである.
@@ -66,6 +73,76 @@ MathLink ライブラリを利用して通信する。Open Mathmatica サーバはMathLink
 
 サーバの各関数は cmo* を受け取り、タグをみて実際のクラスが何であるかを
 知り、動作を決定する.
+
+\section{MathLink プログラミングの基礎知識}
+
+ここでは、MathLink についての基礎的事項を説明する。概ね、Mathematica
+Book~\cite{Wolfram-1996} や宮地~\cite{miyachi-1998} などを参照すればよい
+が、必ずしもこれらの書籍に明確に書かれているわけではない(探せば見つかる
+が)。
+
+まず MathLink とは、Wolfram が提供するライブラリであり、Mathematica のネッ
+トワーク対応部分に相当する。Mathematica Kernel と通信するプログラムを書
+こうとするならば、MathLink を利用する必要がある。MathLink の内部構成は明
+らかにされていないが、{\bf 大部分はネットワーク透過的}である(例外はある)。
+
+まず、MathLink の通信路で交換されるデータが何なのか、ということを理解す
+る必要がある。答は{\bf Mathematicaの式}である。これは自明ではない。
+次のような式がその例である。
+\begin{verbatim}
+    EvaluatePacket[Sin[\$VersionNumber]]
+    ReturnPacket[Sin[x]]
+    InputNamePacket["In[1]:= "]
+    MenuPacket[1,"Interrupt> "]
+\end{verbatim}
+このような *Packet[] を \cite{Wolfram-1996}ではパケットと呼んでいる.
+MathLink を用いて、確実なプログラミングをするためには、これらのパケット
+を正しく扱う必要がある。
+
+さて、Mathematica Kernel の起動および通信路の確立については省略する。
+いったん、通信路が確立されたら、
+\begin{enumerate}
+\item Mathematica Kernel に式を送る。
+\item Mathematica Kernel から式を受け取る。
+\end{enumerate}
+を繰り返すのが MathLink でのプログラミングである。
+
+\oxmath は Mathematica と以下のような意味で{\bf 文字列ベース}で通信して
+いる。まず Mathematica Kernel に評価させたい式が、C 言語の文字列で与えら
+れているとして、link で指し示すMathematica Kernel に
+\begin{verbatim}
+int ml_evaluateStringByLocalParser(char *str)
+{
+    MLPutFunction(link, "EvaluatePacket", 1);
+    MLPutFunction(link, "ToExpression", 1);
+    MLPutString(link, str);
+    MLEndPacket(link);
+}
+\end{verbatim}
+として送信する。パケットは、
+EvaluatePacket[ToExpression[{\it str}]] である。
+
+評価された結果を配列 str に格納するには、単純には次のようになる。
+\begin{verbatim}
+int receive_sample(char str[])
+{
+    while (MLNextPacket(link) != RETURNPKT) 
+        MLNewPacket(link);
+    switch(MLGetNext(link)) {
+    MLTKSTR:
+        MLGetString(link, &str);
+        ...
+    MLTKINT:
+        ...
+    }
+    MLNewPacket(link);
+}
+\end{verbatim}
+この例では ReturnPacket[] 以外を無視しているが、実際にはこんなに単純には
+書けない。\oxmath の実装では、mlo.c の
+ml\_next\_packet(), ml\_new\_packet(), ml\_read\_packet(), 
+ml\_read\_returnpacket(), ml\_read\_menupacket(), ml\_read\_textpacket()
+などを見てほしい。
 
 \section{Mathematica との通信(MathLink) について}
 
@@ -157,6 +234,47 @@ Mathematica から受け取ったデータは基本的に CMO\_STRINGとしてスタックに積
 SM\_popCMO, SM\_popString, SM\_pops, SM\_executeFunction,
 SM\_executeStringByLocalParser, SM\_mathcap, SM\_setMathcap(受け取るだけ
 で何もしない)である。
+
+\section{\oxmath への計算中断機能の実装}
+
+\noindent
+{\bf 注意: {\tt ox\_math\_interruption.tex} 
+に Risa/Asir Conference (2003) での講演原稿がある.}
+
+OpenXM プロトコルは、エンジンに対して、計算中断機能を要求する。\oxmath 
+のような wrapper プログラムでは、そのような機能を実装するのは一般には難
+しいが、MathLink には Mathematica Book~\cite{Wolfram-1996} に書かれてい
+ない機能があり(\cite{MathSource-Google1}, \cite{MathSource-Google2},
+\cite{Math-Output1})、そのひとつを用いて、\oxmath に計算中断機能を実装し
+た。この節では、その実装について説明する。
+
+Mathematica Kernel に対する割り込みは、
+\begin{enumerate}
+\item MLPutMessage で Mathematica Kernel に MLInterruptMessage を送る。
+\item 通信路の後始末を行い、最終的に ReturnPacket[\$Aborted] を受け取る。
+\end{enumerate}
+ことでなされる。
+MLPutMessage は MathLink の非公開関数でネットワーク透過性はない。
+Unix と Windows では異なるが、Unix の場合、MLInterruptMessage の実体は
+SIGINT である。
+通信路の後始末には、{\bf Mathematica Kernel のバージョン依存性がある}ので、
+それを回避すると、結局、次の手順になる。
+\begin{enumerate}
+\item MLPutMessage(link, MLInterruptMessage) 
+\item MenuPacket[1,"Interrupt> "] を受け取れば計算が中断されている
+\item MLPutString(link, "$\backslash$n")
+\item MenuPacket[0,"Interrupt> "] を受け取る
+\item MLPutString(link, "a")
+\item TextPacket["..."] を受け取る
+\item EvaluatePacket[0] を送って、ReturnPacket[...] をふたつ受け取る。
+最初のものが ReturnPacket[\$Aborted] である。
+\end{enumerate}
+
+最後の手順を説明する。
+ここで、ReturnPacket[\$Aborted] が素直に返ってくればいいのであるが、
+バージョン 3.x では返ってくるのに、バージョン4.xでは、何故か、
+返ってこず、次の計算を行うとき、ふたつまとめて返ってくる。
+よって、ダミーにEvaluatePacket[0] を送るのである。
 
 \section{Mathematica を OX のクライアントに}
 
@@ -250,7 +368,7 @@ typedef unsigned long int mp_limb_t;
 \bibitem{Openxxx-1998}
 野呂正行, 高山信毅.
 {Open XM の設計と実装 --- Open message eXchange protocol for Mathematics},
-1999/11/22
+November 22, 1999, Revised March 4, 2005.
 \bibitem{Ohara-Takayama-Noro-1999}
 小原功任, 高山信毅, 野呂正行.
 {Open asir 入門}, 1999, 数式処理, Vol 7, No 2, 2--17. (ISBN4-87243-086-7, SEG 出版, Tokyo).
@@ -262,12 +380,20 @@ typedef unsigned long int mp_limb_t;
 Stephen Wolfram.
 {The Mathematica Book}, Third edition,
 Wolfram Media/Cambridge University Press, 1996.
-
 \bibitem{miyachi-1998}
 宮地力.
 {Mathematica によるネットワークプログラミング},
 岩波コンピュータサイエンス,
 岩波書店, 1998.
+\bibitem{MathSource-Google1}
+Todd Gayley.
+[mg17015] in MathArchive,
+1999 April.
+\bibitem{MathSource-Google2}
+昔の MathLink にあった MLSignal の解説.
+(以前、Google のキャッシュにあったが、もうない)
+\bibitem{Math-Output1}
+mathlink.h, libMLa のシンボル表, mprep の生成するソース.
 \end{thebibliography}
 
 \end{document}
