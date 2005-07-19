@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.39 2004/10/14 07:57:42 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.40 2004/12/17 00:13:09 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
@@ -138,7 +138,7 @@ copy-to-orange: build-tgz
 	scp OpenXM-win.tgz taka@orange:tmp3
 copy-to-ftp-area: build-tgz
 	if [ ! -f .OpenXM-win.tgz.copy.done ]; then \
-	  scp OpenXM-win.tgz taka@orange:/export/home01/ftp/pub/OpenXM/Head/OpenXM-win-${ASIR_LANG}.tgz ; \
+	  scp OpenXM-win.tgz taka@orange2:/home/ftp/pub/OpenXM/Head/OpenXM-win-${ASIR_LANG}.tgz ; \
 	fi
 	touch .OpenXM-win.tgz.copy.done
 copy-to-ftp-area-stable: build-tgz
