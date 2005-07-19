@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.18 2003/03/23 21:56:11 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/mlo.c,v 1.19 2003/03/30 08:07:10 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -381,6 +381,7 @@ int ml_read_packet()
         ox_printf("RESUMEPKT[]");
         break;
     default:
+        ;
     }
     ox_printf("\n");
     return pkt;
