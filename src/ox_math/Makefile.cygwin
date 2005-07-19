@@ -1,5 +1,5 @@
 # -*- mode: Makefile -*-
-# $OpenXM: OpenXM/src/ox_math/Makefile.cygwin,v 1.5 2003/02/04 14:21:17 ohara Exp $
+# $OpenXM: OpenXM/src/ox_math/Makefile.cygwin,v 1.6 2003/09/10 20:04:58 ohara Exp $
 
 OpenXM_HOME=../..
 
@@ -12,7 +12,7 @@ LN        = ln -s
 CC        = gcc
 DEFS      = -DDEBUG -mwindows -DWIN32_MATHLINK
 CFLAGS    = -g -O2 ${DEFS} -I${ADDONSDIR} -I${OpenXM_HOME}/include
-LIBS      = -L. -L${OpenXM_HOME}/lib -L${ADDONSDIR} -lox -lgc -lml32i1 -lml32i2 -lm
+LIBS      = -L. -L${OpenXM_HOME}/lib -L${ADDONSDIR} -lox -lgc -lgmp -lml32i1 -lml32i2 -lm
 STATIC_LINK_FLAGS = -e _mainCRTStartup
 
 BINARIES  = ox_math math2ox test1 test2
