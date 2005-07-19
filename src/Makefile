@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.147 2004/12/14 17:11:25 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.148 2004/12/16 16:19:15 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -196,7 +196,7 @@ configure-util:
 configure-gmp: install-util
 	(cd gmp; ${MAKE} configure)
 
-configure-asir: 
+configure-asir: install-util 
 	(cd asir2000; ${MAKE} configure) 
 
 configure-asir-contrib: 
