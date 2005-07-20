@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.29 2005/03/03 06:21:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.30 2005/03/03 07:25:17 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -180,6 +180,8 @@ cmo_int32*         new_cmo_int32(int i);
 cmo_string*        new_cmo_string(char* s);
 cmo_mathcap*       new_cmo_mathcap(cmo* ob);
 cmo_list*          new_cmo_list();
+cmo_list*          new_cmo_list_array(void *a[], int n);
+cmo_list*          new_cmo_list_array_map(void *a[], int n, void *(* mapf)(void *));
 cmo_monomial32*    new_cmo_monomial32();
 cmo_monomial32*    new_cmo_monomial32_size(int size);
 cmo_zz*            new_cmo_zz();
@@ -210,6 +212,8 @@ ox_sync_ball*      new_ox_sync_ball();
 char*              new_string_set_cmo(cmo* m);
 
 cmo_error2*        make_error_object(int err_code, cmo* ob);
+
+cmo*               ox_parse_lisp(char *s);
 
 /* Low level API */
 cmo*               receive_cmo(OXFILE *fp);
@@ -269,10 +273,6 @@ int add_hook_after_send_cmo(hook_t func);
 #define PFLAG_ADDREV   1
 
 typedef struct symbol *symbol_t;
-
-void setflag_parse(int flag);
-cmo *parse();
-void init_parser(char *s);
 
 symbol_t lookup_by_symbol(char *key);
 symbol_t lookup_by_token(int tok);

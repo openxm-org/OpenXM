@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.14 2003/06/02 10:25:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/parse.c,v 1.15 2004/12/01 17:32:26 ohara Exp $ */
 
 /* 
    This module is a parser for OX/CMO expressions.
@@ -48,6 +48,8 @@ static union{
 static int pflag_cmo_addrev = 1;
 
 /* definitions of local functions */
+static void  init_parser(char *s);
+static cmo  *parse();
 static void parse_error(char *s);
 static void parse_right_parenthesis();
 static void parse_left_parenthesis();
@@ -76,6 +78,11 @@ static ox   *parse_ox_data();
 static void init_lex(char *s);
 static int  lex();
 
+/* Parsing a Lisp-style expression of CMO. */
+cmo *ox_parse_lisp(char *s)
+{
+    return (s != NULL && strlen(s) > 0)? init_parser(s), parse(): NULL;
+}
 
 static int is_token_cmo(int token)
 {
@@ -101,39 +108,34 @@ static void parse_error(char *s)
     longjmp(env_parse, 1);
 }
 
-void setflag_parse(int flag)
+static void setflag_parse(int flag)
 {
     pflag_cmo_addrev = flag;
 }
 
-void init_parser(char *s)
+static void init_parser(char *s)
 {
     setflag_parse(PFLAG_ADDREV);
     init_lex(s);
 }
 
-cmo *parse()
+static cmo *parse()
 {
-    cmo *m;
-
-    if (setjmp(env_parse) != 0) {
-        return NULL;
-        /* This is an error. */
-    }
-
-    token = lex();
-    if (token == '(') {
+    cmo *m = NULL;
+    if (setjmp(env_parse) == 0) {
         token = lex();
-        if (is_token_cmo(token)) {
-            m = parse_cmo();
-        }else if(is_token_ox(token)) {
-            m = parse_ox();
-        }else {
-            parse_error("invalid symbol.");
+        if (token == '(') {
+            token = lex();
+            if (is_token_cmo(token)) {
+                m = parse_cmo();
+            }else if(is_token_ox(token)) {
+                m = parse_ox();
+            }else {
+                parse_error("invalid symbol.");
+            }
         }
-        return m;
     }
-    return NULL;
+    return m;
 }
 
 static ox *parse_ox()

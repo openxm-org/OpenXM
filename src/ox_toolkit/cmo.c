@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.17 2003/11/02 03:09:16 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.18 2005/03/03 07:25:17 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -162,6 +162,26 @@ cmo_list* new_cmo_list()
     c->length = 0;
     c->head->next = c->head;
     c->head->prev = c->head;
+    return c;
+}
+
+cmo_list* new_cmo_list_array(void *array[], int n)
+{
+    int i;
+    cmo_list* c = new_cmo_list();
+    for(i=0; i<n; i++) {
+        list_append(c, array[i]);
+    }
+    return c;
+}
+
+cmo_list* new_cmo_list_array_map(void *array[], int n, void *(* mapf)(void *))
+{
+    int i;
+    cmo_list* c = new_cmo_list();
+    for(i=0; i<n; i++) {
+        list_append(c, (cmo *)mapf(array[i]));
+    }
     return c;
 }
 

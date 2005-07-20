@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.21 2003/01/13 12:04:53 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/math2ox.c,v 1.22 2003/02/04 14:22:04 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -85,18 +85,9 @@ int OX_parse(int id, char *s)
    the function send the message to the OX server id. */
 int OX_sendMessage(int id, char *s)
 {
-    cmo *m;
-    int len = strlen(s);
-    init_parser(s);
-
-    if(s != NULL && len > 0 && (m = parse()) != NULL) {
-        if (m->tag == OX_DATA) {
-            send_ox_cmo(ss[id], ((ox_data *)m)->cmo);
-        }else if (m->tag == OX_COMMAND) {
-            send_ox_command(ss[id], ((ox_command *)m)->command);
-        }else {
-            send_ox_cmo(ss[id], m);     
-        }
+    cmo *m = ox_parse_lisp(s);
+    if(m != NULL) {
+        send_ox(ss[id], m);
         return 0;
     }
     return -1; /* if we failed. */
@@ -191,9 +182,7 @@ int main(int argc, char *argv[])
 {
     ox_stderr_init(NULL);
 
-    /* setting the OX parser */
-    setflag_parse(PFLAG_ADDREV);
-	ss = new_sstack(20);
+    ss = new_sstack(20);
     mathcap_init(VERSION, ID_STRING, "math2ox", NULL, NULL);
     
     MLMain(argc, argv);

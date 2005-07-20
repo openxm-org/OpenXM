@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.12 2003/03/23 20:17:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/testclient.c,v 1.13 2003/09/15 09:31:42 ohara Exp $ */
 
 /* A sample implementation of an OpenXM client with OpenXM C library */
 
@@ -41,7 +41,6 @@ static void prompt()
 {
     fprintf(stdout, "> ");
     fgets(cmdline, size, stdin);
-    init_parser(cmdline);
 }
 
 #define VERSION 0x11121500
@@ -113,9 +112,7 @@ int main(int argc, char* argv[])
         test_1();
     }
 
-    setflag_parse(PFLAG_ADDREV);
-
-    while(prompt(), (m = parse()) != NULL) {
+    while(prompt(), (m = ox_parse_lisp(cmdline)) != NULL) {
         send_ox(sv, m);
         if (m->tag == OX_COMMAND) {
             code = ((ox_command *)m)->command;
