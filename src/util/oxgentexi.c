@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.11 2005/06/15 02:38:01 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.12 2005/07/03 08:27:38 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -642,6 +642,12 @@ printTexi1(FILE *fp, struct item *it) {
 
 outputExample(FILE *fp,char *s) {
   int i;
+  /* Remove unnecessary spaces at the tail. */
+  for (i=strlen(s)-1; i>=0; i--) {
+	if (s[i] == '\n') break;
+	else if (s[i] <= ' ') {s[i] = 0;}
+	else break;
+  }
   for (i=0; s[i] != 0; i++) {
 	if (s[i] == '@') {
 	  if (s[i+1] == '{') {fprintf(fp,"%s","@{"); i += 1;}
