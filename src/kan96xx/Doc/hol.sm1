@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.23 2005/06/16 08:40:04 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/hol.sm1,v 1.24 2005/06/23 03:23:26 takayama Exp $
 %% hol.sm1, 1998, 11/8, 11/10, 11/14, 11/25, 1999, 5/18, 6/5. 2000, 6/8
 %% rank, rrank, characteristic
 %% This file is error clean.
@@ -535,11 +535,11 @@ message-quiet
     %%% Enf of the preprocess
 
     groebnerOptions gb.options mergeGroebnerOptions /groebnerOptions set
-    gb.verbose { (groenberOptions = ) messagen groebnerOptions message } { } ifelse
+    gb.verbose { (groebnerOptions = ) messagen groebnerOptions message } { } ifelse
     termorder {
       f { {. dehomogenize} map } map /f set
       [(UseCriterion1) 1] system_variable
-      [f groenberOptions] groebner_sugar 0 get /gg set
+      [f groebnerOptions] groebner_sugar 0 get /gg set
       [(UseCriterion1) 0] system_variable
     }{
       f { {. dehomogenize} map} map /f set
