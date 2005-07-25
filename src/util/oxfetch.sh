@@ -1,11 +1,11 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.3 2003/11/16 17:20:54 ohara Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.4 2004/06/30 10:14:10 ohara Exp $
 
 MASTER_SITES="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/"
 fetch="wget --no-directories --passive-ftp --timestamping"
 url=$1
 distdir=${2:-.}
-distinfo=$3
+distinfo=${3:-./distinfo}
 distfile=`basename "$url"`
 
 _usage () {
@@ -25,25 +25,35 @@ _fetch () {
     fi
 }
 
-# usage: cat distinfo | _md5 gc6.2.tar.gz
-_md5 () {
+# usage: _md5grep gc6.2.tar.gz distinfo
+_md5grep () {
     if [ $# -gt 0 ]; then
-        grep "^MD5 ($1) =" | sed -e "s/^MD5 ($1) = //"
+        awk '/^MD5 \('"$1"'\) =/{print $NF}' $2
+    fi
+}
+
+_md5sum () {
+    if [ "`which md5`" ]; then
+        md5 "$1" | awk '{print $NF}'
+    elif [ "`which md5sum`" ]; then
+        md5sum "$1" | awk '{print $1}'
     fi
 }
 
 _check () {
     if [ ! -f "$distdir/$distfile" ]; then
-        echo "Not found."
+        echo "Error: ${distfile} not found."
         exit 1
     fi
     if [ -f "$distinfo" ]; then
-        key1=`(cd $distdir; md5 "$distfile" ) | _md5 $distfile`
-        key2=`cat $distinfo | _md5 "$distfile"`
+        key1=`_md5sum  "${distdir}/${distfile}"`
+        key2=`_md5grep "${distfile}" ${distinfo}`
         if [ "$key1" = "$key2" ] ; then
             echo "Checksum OK for $distfile".
+        elif [ -z "$key1" ]; then 
+            echo "Warnig: no md5 checker."
         else
-            echo "Checksum mismatch for $distfile".
+            echo "Error: checksum mismatch for $distfile".
             exit 1
         fi
     fi
