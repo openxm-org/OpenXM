@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.30 2005/03/03 07:25:17 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.31 2005/07/20 17:48:03 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -16,6 +16,9 @@ extern "C" {
 #include <ox/smCommand.h>
 #include <gc/gc.h>
 
+#define OX_PROTOCOL_VERSION     20050304
+#define OX_TOOLKIT_VERSION      "ox_toolkit version 2005.7.20"
+
 #define MALLOC(x) GC_MALLOC((x))
 #define MALLOC_ATOMIC(x) GC_MALLOC_ATOMIC((x))
 #define ALLOCA(x) alloca((x))
@@ -28,13 +31,8 @@ extern "C" {
 
 /* Mathcap Local Database */
 typedef struct {
-    int tag;
-    int flag;
-} table;
-
-typedef struct mathcap {
-    table *cmotbl;
-    table *smtbl;
+	int  *cmd;
+	int  *cmo;
 } mathcap;
 
 /* OpenXM File Descripter */
@@ -180,8 +178,8 @@ cmo_int32*         new_cmo_int32(int i);
 cmo_string*        new_cmo_string(char* s);
 cmo_mathcap*       new_cmo_mathcap(cmo* ob);
 cmo_list*          new_cmo_list();
-cmo_list*          new_cmo_list_array(void *a[], int n);
-cmo_list*          new_cmo_list_array_map(void *a[], int n, void *(* mapf)(void *));
+cmo_list*          new_cmo_list_set(void *a[], int n);
+cmo_list*          new_cmo_list_map(void *a[], int n, void *(* mapf)(void *));
 cmo_monomial32*    new_cmo_monomial32();
 cmo_monomial32*    new_cmo_monomial32_size(int size);
 cmo_zz*            new_cmo_zz();
@@ -253,6 +251,8 @@ cmo_list*          list_append_monomial(cmo_list* , cmo* coef, int exp);
 cmo_list*          list_appendl(cmo_list*, ...);
 int                list_length(cmo_list* );
 cmo*               list_nth(cmo_list* , int n);
+void**             list_to_array(cmo_list *c);
+void**             list_to_array_map(cmo_list *c, void *(* mapf)(void *));
 
 int                cmolen_cmo(cmo* m);
 void               dump_buffer_init(char *s);
@@ -282,10 +282,9 @@ char*    get_symbol_by_tag(int tag);
 
 /* for mathcap database */
 mathcap *new_mathcap();
-void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[]);
+void mathcap_init(char *version, char *sysname);
 cmo_mathcap* mathcap_get(mathcap *);
 mathcap *mathcap_update(mathcap *, cmo_mathcap *mc);
-int mathcap_allowQ_cmo(mathcap *, cmo *ob);
 
 int oxf_read(void *buffer, size_t size, size_t num, OXFILE *oxfp);
 int oxf_write(void *buffer, size_t size, size_t num, OXFILE *oxfp);

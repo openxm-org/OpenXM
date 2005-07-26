@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.21 2003/02/12 08:28:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_math/serv1.c,v 1.22 2003/02/13 01:29:38 ohara Exp $ */
 
 /* 
    Copyright (C) Katsuyoshi OHARA, 2000.
@@ -42,8 +42,7 @@ int shutdown()
 }
 
 /* (Heisei)15/02/01 */
-#define VERSION     0x15020100
-#define ID_STRING  "2003/02/01"
+#define VERSION  "2003/02/01"
 
 int main()
 {
@@ -51,7 +50,7 @@ int main()
 
     ox_stderr_init(stderr);
     ml_init();
-    mathcap_init(VERSION, ID_STRING, "ox_math", NULL, NULL);
+    mathcap_init(VERSION, "ox_math");
 
     sv = oxf_open(3);
     oxf_determine_byteorder_server(sv);
