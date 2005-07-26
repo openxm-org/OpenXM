@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.6 2004/04/25 06:49:12 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/oxshell.rr,v 1.7 2004/07/15 05:39:08 takayama Exp $ */
 
 module oxshell;
 
@@ -23,7 +23,11 @@ localf keep_tmp$
 
 /*  ------------ static variables ---------------- */
 static Sm1_proc$
-Sm1_proc = -1$
+localf init_Sm1_proc $
+def init_Sm1_proc() {
+  Sm1_proc = -1$
+}
+init_Sm1_proc() $
 
 static V_sm1_pop$
 

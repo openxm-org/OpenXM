@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot.rr,v 1.1 2005/04/08 05:56:47 takayama Exp $ */
 /* Old: gnuplot. See Attic */
 
 module gnuplot;
@@ -36,6 +36,15 @@ localf setenv $
 
 #define PROCESS_MAX  20
 
+localf init_Gnuplot_proc $
+localf init_Gnuplot_proc$
+localf init_Gnuplot_pid$
+localf init_FileIsOpenInSm1$
+localf init_Gnuplot_Roots$
+localf init_Heat_N $  
+localf init_Gnuplot_callingMethod$
+localf init_Plot_gnuplotexec$
+
 /* static variables */
 static Gnuplot_proc$
 static Gnuplot_pid$
@@ -44,14 +53,37 @@ static Gnuplot_Roots$
 static Heat_N $     /* Mesh 分割数, Heat_N=5 */
 static Gnuplot_callingMethod$
 static Plot_gnuplotexec$
-Gnuplot_proc = -1$
-Gnuplot_pid = newvect(20) $
-FileIsOpenInSm1 = newvect(PROCESS_MAX)$
-Gnuplot_callingMethod = -1$
-Plot_gnuplotexec = ""$
+
+def init_Gnuplot_proc() {
+ Gnuplot_proc = -1$
+}
+init_Gnuplot_proc() $
+
+def  init_Gnuplot_pid() {
+ Gnuplot_pid = newvect(20) $
+}
+init_Gnuplot_pid() $
+
+def init_FileIsOpenInSm1() {
+ FileIsOpenInSm1 = newvect(PROCESS_MAX)$
+}
+init_FileIsOpenInSm1() $
+
+def init_Gnuplot_callingMethod() {
+ Gnuplot_callingMethod = -1$
+}
+init_Gnuplot_callingMethod() $
+
+def init_Plot_gnuplotexec() {
+  Plot_gnuplotexec = ""$
+}
+init_Plot_gnuplotexec() $
 
 /* For heat() */
-Heat_N = 20$     /* Mesh 分割数, Heat_N=5 */
+def init_Heat_N() {
+  Heat_N = 20$     /* Mesh 分割数, Heat_N=5 */
+}
+init_Heat_N() $
 
 #define GNUPLOTL_FIND_PROC(P)  P = getopt(proc);\
                           if (type(P) == -1) {\
