@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.20 2005/05/04 11:06:55 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.21 2005/07/25 12:23:05 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -128,7 +128,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * remove_paren::
 * set_secure_mode::
 * set_secure_flag::
-* double_quote::
+* initialize_static_variable::
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -1474,63 +1474,22 @@ cgi-asir.sh では
   1.33      OpenXM_contrib2/asir2000/parse/parse.h
 @end itemize
 
-@node double_quote,,, 実験的仕様の関数
-@subsection @code{double_quote}
-@findex double_quote
+@node initialize_static_variable,,, 実験的仕様の関数
+@subsection @code{initialize_static_variable}
+@findex initialize_static_variable
 
 
 @comment --- 説明 ---
 @table @t
-@item double_quote,  double quote の取扱や static 変数の初期化の問題点. 
+@item static 変数の初期化の問題点. 初期化の時に segmentation fault がおきる.
 @end table
 
 
 @itemize @bullet
-@item double quote の取扱.  下のようなプログラムで parse error が生じる.
-野呂曰く: "TeXmacs 用に, 添字の自動変換などをやっているときに, ox_asir が受け取った
-文字列のバックスラッシュが1 個の場合に 2 個に増やすという関数が追加
-されています. 試しにこれを外すと OK のようです. でもきっと他でおかしな
-ことが起きるでしょうね.
-思い出してきました. TeX を送るときに, バックスラッシュだらけに
-なるのを避けるためだったような... "
 @item static 変数の取扱.
 下の例を参照のこと.
 @end itemize
 
-@example
-if (1) @{
-  S="\"hoge\"";
-  print(S);
-@}else@{ @};
-を ファイル t.rr に格納.
-
-[1207] S=util_read_file_as_a_string("/home/nobuki/t.rr");
-if (1) @{
-  S="\"hoge\"";
-  print(S);
-@}else@{ @};
-
-[1208] eval_str(S);
-exprparse : parse error
-0
-
-t.rr を
-if (1) @{
-  S=" "+asciitostr([34])+"hoge"+asciitostr([34])+" ";
-  print(S);
-@}else@{ @};
-と変更.  S に読み込む.
-[1212] eval_str(S);
-exprparse : parse error
-0
-S="" がなくても if (1) だとエラーのようだ.
-
-[1213] ox_launch(0,"ox_asir");
-0
-[1214] ox_execute_string(0,S);
-0   しかしこちらは正しく動作.
-
-@end example
 
 @example
 if (1) @{
@@ -1573,6 +1532,7 @@ end$
 ChangeLog
 @itemize @bullet
 @item  oxasir-win.rr の取扱で問題点として浮上.  2005.07.25.
+@item  oxasir-win.rr の取扱で double quote の取り扱いに問題があったが, これは asir2000/io/ox_asir.c, 1.58, で問題点解決.
 @item ox_asir に計算を依頼する時は if (1) @{ ... @}で囲む.
 @end itemize
 

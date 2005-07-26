@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.87 2005/04/15 01:39:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.88 2005/07/25 12:23:05 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -816,13 +816,6 @@ end: */
 def util_remove_cr(S) {
   OX_LOADFILE(Loaded_taka_util,"taka_util.rr");
   return(taka_util_remove_cr(S));
-}
-/*&usage begin: util_double_quote()
- It returns the double quote.
- It is used to avoid to use \".
-end: */
-def util_double_quote() {
-  return(asciitostr([34]));
 }
 /* --------- util for poly --------------- */
 /*&usage begin: util_index(V)
