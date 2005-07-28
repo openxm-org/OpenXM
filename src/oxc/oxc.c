@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.12 2003/05/07 04:00:30 ohara Exp $ */
+/* $OpenXM: OpenXM/src/oxc/oxc.c,v 1.13 2004/12/01 17:42:46 ohara Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -127,17 +127,6 @@ static char **makeargs(char **oldargs)
     return newargs;
 }
 
-static int basic0[] =  {
-    CMO_ERROR2,
-    CMO_NULL,
-    CMO_INT32,
-    CMO_DATUM,
-    CMO_STRING,
-    CMO_MATHCAP,
-    CMO_LIST,
-    0
-}; 
-
 /* We assume that data has the following format:
    LENGTH hostname '\0' port '\0' password '\0'
    where LENGTH is an integer with network byte order and its value
@@ -209,7 +198,7 @@ int main(int argc, char *argv[])
     usleep(delay);
     if ((oxfp = connection()) != NULL) {
         ox_printf("oxc: oxfp = %p, fd = %d\n", oxfp, oxfp->fd);
-        mathcap_init(20001006, "v2000.10.06", "oxc", basic0, NULL);
+        mathcap_init("v2000.10.06", "oxc");
         sm(oxfp);
     }
     return 0;
