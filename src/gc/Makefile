@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.13 2005/06/22 12:40:41 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.14 2005/06/22 12:42:46 takayama Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -8,7 +8,7 @@ MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=gc6.5
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}
-PATCH_INTERIX = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc_interix.diff
+PATCHFILES = ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/gc_interix.diff gc6_amd64.diff
 
 all : build
 
@@ -27,7 +27,9 @@ extract: fetch
 
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
-	    cat ${PATCH_INTERIX} | (cd ${WRKSRC}; patch -p0) ; \
+        for i in ${PATCHFILES} ; do \
+	        cat $$i | (cd ${WRKSRC}; patch -p0) ; \
+        done ; \
 	fi
 	@touch work/.patch_done
 
