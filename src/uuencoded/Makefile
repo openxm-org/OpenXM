@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.4 2005/08/04 09:58:23 ohara Exp $
+# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.5 2005/08/04 10:00:26 ohara Exp $
 
 OPENXM=../../../OpenXM
 OPENXM_CONTRIB=../../../OpenXM_contrib
@@ -16,8 +16,7 @@ install:
 	@if [ ! -f .install_done ] ; then \
 		rm -f $(OPENXM_BIN)/phc ; \
 		if [ "`which gnatmake`" ]; then \
-			(cd ${OPENXM_CONTRIB}/PHC/Objects; mkdir tmp; ${MAKE} phc; strip tmp/phc); \
-			cp -p ${OPENXM_CONTRIB}/PHC/Objects/tmp/phc ${OPENXM_BIN}/phc; \
+			(cd ${OPENXM_CONTRIB}/PHC/Objects; {MAKE} install); \
 		elif [ "`uname`" = "FreeBSD" ]; then \
 			make install-freebsd ; \
 		elif [ "`uname`" = "Linux" ]; then \
