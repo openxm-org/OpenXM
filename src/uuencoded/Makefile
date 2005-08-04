@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.2 2002/09/03 01:05:28 takayama Exp $
+# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.3 2003/09/02 14:26:06 takayama Exp $
 
 OPENXM=../../../OpenXM
 OPENXM_CONTRIB=../../../OpenXM_contrib
@@ -13,20 +13,19 @@ PHCLINUX=lin_phcv2p
 RM=rm
 
 install:
-	@if [ -f .install_done ] ; then \
-		echo "OpenXM/bin is already installed." ; \
-	else \
+	@if [ ! -f .install_done ] ; then \
 		rm -f $(OPENXM_BIN)/phc ; \
-		if [ "`uname`" = "FreeBSD" ]; then \
+		if [ "`which gnatmake`" ]; then \
+			(cd ${OPENXM_CONTRIB}/PHC/Objects; mkdir tmp; ${MAKE} phc; strip tmp/phc); \
+			cp -p ${OPENXM_CONTRIB}/PHC/Objects/tmp/phc ${OPENXM_BIN}/phc; \
+		elif [ "`uname`" = "FreeBSD" ]; then \
 			make install-freebsd ; \
-		fi ; \
-		if [ "`uname`" = "Linux" ]; then \
+		elif [ "`uname`" = "Linux" ]; then \
 			make install-linux ; \
 		fi ; \
 		(cd $(OPENXM_BIN) ; rm -f ox_asir ; ln -f -s ./asir ox_asir) ; \
 		touch ./.install_done ; \
 	fi
-
 
 install-freebsd:
 	if [ -f $(OPENXM_UU)/${PHCFBSD}.gz.uuencoded ]; then \
