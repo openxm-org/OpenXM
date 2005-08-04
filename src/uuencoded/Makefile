@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.3 2003/09/02 14:26:06 takayama Exp $
+# $OpenXM: OpenXM/src/uuencoded/Makefile,v 1.4 2005/08/04 09:58:23 ohara Exp $
 
 OPENXM=../../../OpenXM
 OPENXM_CONTRIB=../../../OpenXM_contrib
