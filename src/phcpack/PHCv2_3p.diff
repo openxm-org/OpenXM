@@ -1,0 +1,18 @@
+# $OpenXM$
+--- makefile.orig	Mon Jul  4 11:05:52 2005
++++ makefile	Sat Aug  6 03:43:19 2005
+@@ -7,6 +7,14 @@
+ MAKEFILE = makefile_unix
+ # MAKEFILE = makefile_windows
+ 
++OpenXM_HOME=../../../../../../OpenXM
++
++all: phc
++
++install: phc
++	cp -pf ../bin/phc ${OpenXM_HOME}/bin/phc
++	strip ${OpenXM_HOME}/bin/phc
++
+ # Notice that executables with MPI are placed here.
+ # how to make the executables with MPI:
+ 
