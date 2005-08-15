@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.11 2004/11/09 08:32:28 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.12 2005/03/28 13:55:35 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -31,7 +31,7 @@ Naming rule of functions of this module.
 
 #include <defs.h>
 
-load("noro_matrix.rr") $ /* for linalg.{binomial_coef,compute_kernel}() */
+load("yang_lib.rr") $
 
 #define EULER        0
 #define DIFFERENCE   1
@@ -59,10 +59,8 @@ localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
 localf dp_ltom, pfaffian, check_pfaffian;
 localf check_frac_expansion_before, check_frac_expansion_after;
 localf frac_expansion, sing_point, residue;
-localf extract_denom, extract_denom_poly, mtriple, mpair;
-localf listlist_merge, matrix_to_list, matrices_to_list, matrix_to_coef_matrix;
-localf pfaffian_to_coef_matrices;
-localf ispoly_of_vars, matrix_column_nth, matrix_row_nth;
+localf extract_denom_poly, matrix_to_coef_matrix, pfaffian_to_coef_matrices;
+localf ispoly_of_vars;
 localf gkz_ring, define_gkz_ring, gkz, gkz_D, gkz_E;
 localf compute_toric_kernel, gkz_toric_partial, gkz_toric;
 localf gkz_toric_partial_sm1, gkz_toric_sm1;
@@ -77,10 +75,6 @@ localf vector_to_rat;
 localf series, series_term, series_generic, series_algorithm1, series_algorithm2, series_algorithm3, series1, series1_5, series2, series3;
 localf compare_algorithm2;
 localf pattern, pattern_full, pattern_weight, all_integers;
-localf 'std_+', 'std_*', 'std_=';
-localf list_incr, list_sum, list_second, list_add_prefix;
-localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
-localf vector_const, vector_split;
 localf order_by_weight, terms_of_given_order;
 localf head_sum;
 
@@ -113,6 +107,7 @@ if (RingStack == 0) {
    yang.define_ring(["euler",[x,y],"difference",[p,q],"euler",[z]]);
 */
 def define_ring(RingDef) {
+    push_ring();
     Vars = []; VarF = []; VarDiff = []; Ring = RingDef;
     if (islist(RingDef)) {
         if (!isstr(RingDef[0])) {
@@ -445,7 +440,7 @@ def operator_shift(P,E)
 {
     E = islist(E)? ltov(E): E;
     N = ring_size();
-    T = list_add_prefix("_t", list_incr(0,N));
+    T = list_indefinite("_t",0,N);
     Q = dp_dtop(P, T);
     Q = base_replace(Q, assoc(T, vtol(ltov(T)+E)));
     return dp_ptod(Q, T);
@@ -979,21 +974,6 @@ def residue(F, H, V) {
     return [R,H];
 }
 
-/* by Noro */
-def extract_denom(M) {
-    S = size(M);
-    Row = S[0]; Col = S[1];
-    LCM = 1;
-    R = newmat(Row,Col);
-    for ( I = 0; I < Row; I++ )
-        for ( J = 0; J < Col; J++ )
-            LCM = dn(M[I][J]) * sdiv(LCM,gcd(dn(M[I][J]),LCM));
-    for ( I = 0; I < Row; I++ )
-        for ( J = 0; J < Col; J++ )
-            R[I][J] = nm(M[I][J])*sdiv(LCM,dn(M[I][J]));
-    return [R,LCM];
-}
-
 /* 多項式の係数を整数化する */
 def extract_denom_poly(P) {
     V=vars(P);
@@ -1002,33 +982,6 @@ def extract_denom_poly(P) {
         LCM = ilcm(LCM, dn(dp_hc(DP)));
     }
     return [LCM*P,LCM];
-}
-
-def mtriple(P,S,Q) {
-    return P*S+S*matrix_transpose(Q);
-}
-
-def mpair(P,S,Rule) {
-    return P*S+S*matrix_transpose(base_replace(P,Rule));
-}
-
-/* [[a,b],[c,d]] -> [a,b,c,d] */
-def listlist_merge(LL) {
-    for(L=[]; LL != []; LL=cdr(LL)) {
-        L = append(L, car(LL));
-    }
-    return L;
-}
-
-def matrix_to_list(M) {
-    LL = matrix_matrix_to_list(M);
-    return listlist_merge(LL);
-}
-
-/* ML: a list */
-def matrices_to_list(ML) {
-    L = map(matrix_matrix_to_list, ML)$
-    return listlist_merge(listlist_merge(L));
 }
 
 /* 行列 M の各成分は VSet の変数の斉次一次式  */
@@ -1057,31 +1010,12 @@ def ispoly_of_vars(P, V)
     return C != 0 && vector_sum(dp_etov(dp_ht(C))) != 0;
 }
 
-def matrix_column_nth(A,N) {
-    if (islist(A) && islist(A[0])) {
-        Row = length(A); Col = length(A[0]);
-        A=newmat(Row,Col,A);
-    }else if (ismat(A)) {
-        Size = size(A); Row = Size[0]; Col = Size[1];
-    }
-    V = newvect(Row);
-    for(I=0; I<Row; I++) {
-        V[I] = A[I][N];
-    }
-    return V;
-}
-
-def matrix_row_nth(A,N) {
-    V=A[N];
-    return (islist(V))? ltov(V): V;
-}
-
 /* --------------------------------
    Following functions for A-Hypergeometric Differntial-Difference systems
    -------------------------------- */
 
 def gkz_ring(GKZ) {
-    DX = list_add_prefix("x", list_incr(1, length(GKZ[0][0])+1));
+    DX = list_indefinite("x",1,length(GKZ[0][0]));
     DB = assoc(GKZ[1],[-1]);
     return ["euler",DX,"difference",DB];
 }
@@ -1141,8 +1075,8 @@ compute_toric_kernel(GKZ) => [[-_x0^4+_x2,_x2*_x0-_x1^2],[_x0,_x1,_x2,_t1]]"
 {
     A=GKZ[0];
     D=length(A); N=length(A[0]);
-    X = list_add_prefix("_x", list_incr(0,N));
-    T = list_add_prefix("_t", list_incr(0,D+1));
+    X = list_indefinite("_x",0,N);
+    T = list_indefinite("_t",0,D+1);
     for (P = 1, F = T; F != []; F = cdr(F)) {
         P *= car(F);
     }
@@ -1194,7 +1128,7 @@ def gkz_toric_partial_sm1(GKZ)
         Toric = cdr(Toric);
     }
     N = length(GKZ[0][0]) + length(GKZ[1]);
-    return map(dp_ptod, Toric, list_add_prefix("dx", list_incr(1,N+1)));
+    return map(dp_ptod, Toric, list_indefinite("dx",1,N));
 }
 
 def gkz_toric_sm1(GKZ)
@@ -1226,7 +1160,7 @@ def gkz_distraction(GKZ)
     A=GKZ[0];
     N=length(A[0]);
     D=length(A);
-    V  = list_add_prefix("x", list_incr(0,N+D));
+    V  = list_indefinite("x",0,N+D);
     if(isvoid(W=getopt(weight))) {
         W = vtol(vector_const(N,1));
     }
@@ -1396,8 +1330,8 @@ yang.a2k(A,AT,Index) => [ [1/2*_k0,-_k0,1/2*_k0], [_k0] ]
 */
 
 def a2k(A, AT, Index) {
-    K  = list_add_prefix("k", list_incr(0,length(Index)));
-    U  = list_add_prefix("__", list_incr(0,length(AT)));
+    K  = list_indefinite("k",0,length(Index));
+    U  = list_indefinite("__",0,length(AT));
     Eq = vtol(matrix_list_to_matrix(A)*ltov(U));
     for(KK=K; KK != []; KK=cdr(KK),Index=cdr(Index)) {
         I  = car(Index);
@@ -1562,7 +1496,7 @@ def series1(Series) {
     Series = Series[1];
 /*	Series = cddr(Series); */
     N = length(car(Series)[1]);
-    V = list_add_prefix("x", list_incr(1,N+1));
+    V = list_indefinite("x",1,N);
     for(L = []; Series != []; Series = cdr(Series)) {
         C = car(Series);
         G = red(gamma1(C[0])); E = C[1];
@@ -1581,7 +1515,7 @@ def series1_5(Series) {
     Series = Series[1];
 /*	Series = cddr(Series); */
     N = length(car(Series)[1]);
-    V = list_add_prefix("x", list_incr(1,N+1)); /* !!! */
+    V = list_indefinite("x",1,N); /* !!! */
     for(L = []; Series != []; Series = cdr(Series)) {
         C = car(Series);
         G = red(gamma1(C[0])); E = C[1];
@@ -1598,7 +1532,7 @@ def series2(Series) {
     AT = Series[0];
     Series = Series[1];
     N = length(car(Series)[1]);
-    V = list_add_prefix("x", list_incr(1,N+1));
+    V = list_indefinite("x",1,N);
     for(L = []; Series != []; Series = cdr(Series)) {
         C = car(Series);
         G = red(gamma2(C[0])); E = C[1];
@@ -1616,7 +1550,7 @@ def series3(Series) {
     AT = Series[0];
     Series = Series[1];
     N = length(car(Series)[1]);
-    V = list_add_prefix("x", list_incr(1,N+1));
+    V = list_indefinite("x",1,N);
     for(L = []; Series != []; Series = cdr(Series)) {
         C = car(Series);
         G = red(gamma3(C[0])); E = C[1];
@@ -1632,7 +1566,7 @@ def series3(Series) {
 def pattern(M, N)
 "Example: pattern(3,2) => [[3,0],[2,1],[1,2],[0,3]]"
 {
-    V = list_add_prefix("u",list_incr(0,N));
+    V = list_indefinite("u",0,N);
     for(L = [], F = dp_ptod(list_sum(V)^M, V); F != 0; F = dp_rest(F)) {
         L = cons(vtol(dp_etov(dp_ht(F))), L);
     }
@@ -1643,7 +1577,7 @@ def pattern_full(M, N)
 "Example: pattern_full(3,2) => \
 [[0,0],[0,1],[1,0],[0,2],[1,1],[2,0],[0,3],[1,2],[2,1],[3,0]]"
 {
-    V = list_add_prefix("u",list_incr(0,N));
+    V = list_indefinite("u",0,N);
     G = list_sum(V);
     for(F = 0, I = 0; I <= M; I++) {
         F += G^I;
@@ -1697,105 +1631,6 @@ def all_integers(V) {
         }
     }
     return 1;
-}
-
-/* --------------------------------
-   Following functions are imported from ohara_std.rr
-   -------------------------------- */
-
-def 'std_+'(A,B) {
-    return A+B;
-}
-
-def 'std_*'(A,B) {
-    return A*B;
-}
-
-def 'std_='(Null, Val) {
-    return Val;
-}
-
-def list_incr(Start,Max) {
-    L = [];
-    for(I=Max-1; I>=Start; I--) {
-        L = cons(I, L);
-    }
-    return L;
-}
-
-def list_sum(L) {
-    Sum = 0;
-    for( ; L != []; L = cdr(L)) {
-        Sum += car(L);
-    }
-    return Sum;
-}
-
-def list_second(L) {
-    return SECOND(L);
-}
-
-def list_add_prefix(P,L)  {
-
-	return map(strtov, mapat('std_+', 1, P, map(rtostr, L)));
-}
-
-def vector_unit(N, I) {
-    V = newvect(N);
-    V[I] = 1;
-    return V;
-}
-
-def vector_sum(V) {
-    N = length(V);
-    Sum = 0;
-    for(I=0; I<N; I++) {
-        Sum += V[I];
-    }
-    return Sum;
-}
-
-def vector_inner_product(U,V)
-"(U,V) ==> inner_product as vector."
-{
-    N = length(U);
-    Sum = 0;
-    for(I=0; I<N; I++) {
-        Sum += U[I]*V[I];
-    }
-    return Sum;
-}
-
-def vector_shorten(N,V)
-"Shorten the size of a vector V to N."
-{
-	U = newvect(N);
-	for(I = 0; I < N; I++) {
-		U[I] = V[I];
-	}
-    return U;
-}
-
-def vector_const(Len,Value) {
-    V = newvect(Len);
-    for(I=0; I<Len; I++) {
-        V[I] = Value;
-    }
-    return V;
-}
-
-def vector_split(V)
-"Splits a vector V to positive and negative parts."
-{
-    N=length(V); Pos=newvect(N); Neg=newvect(N);
-    for(I=0; I<N; I++) {
-        if (V[I]>0) {
-            Pos[I] = V[I];
-        }else {
-            Neg[I] = V[I];
-        }
-    }
-    return [Pos, Neg];
 }
 
 def order_by_weight(P,W,V) {
@@ -1957,7 +1792,7 @@ def make_tree(Depth,Dim) {
 
 def series_to_sym(S) {
     H=S[0]; N=length(H);
-    V=yang.list_add_prefix("x", yang.list_incr(1,N+1));
+    V=list_indefinite("x",1,N);
     H=dp_dtop(dp_vtoe(H),V);
     for(S=S[1],L=[]; S!=[]; S=cdr(S)) {
         T=car(S);

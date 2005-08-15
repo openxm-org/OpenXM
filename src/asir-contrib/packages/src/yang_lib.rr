@@ -1,0 +1,210 @@
+/* -*- mode: C -*- */
+/* $OpenXM$ */
+
+/* library functions of yang. */
+
+#include <defs.h>
+#define isList(A)    (islist(A)||isvect(A))
+
+load("noro_matrix.rr") $ /* for linalg.{binomial_coef,compute_kernel}() */
+
+module yang;
+
+localf extract_denom, mtriple, mpair;
+localf listlist_merge, matrix_to_list, matrices_to_list;
+localf matrix_column_nth, matrix_row_nth;
+localf 'std_+', 'std_*', 'std_=';
+localf mat_incr, list_incr, list_sum, list_second, list_add_prefix;
+localf list_indefinite, matrix_indefinite;
+localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
+localf vector_const, vector_split;
+
+/* by Noro */
+def extract_denom(M) {
+    S = size(M);
+    Row = S[0]; Col = S[1];
+    LCM = 1;
+    R = newmat(Row,Col);
+    for ( I = 0; I < Row; I++ )
+        for ( J = 0; J < Col; J++ )
+            LCM = dn(M[I][J]) * sdiv(LCM,gcd(dn(M[I][J]),LCM));
+    for ( I = 0; I < Row; I++ )
+        for ( J = 0; J < Col; J++ )
+            R[I][J] = nm(M[I][J])*sdiv(LCM,dn(M[I][J]));
+    return [R,LCM];
+}
+
+def mtriple(P,S,Q) {
+    return P*S+S*matrix_transpose(Q);
+}
+
+def mpair(P,S,Rule) {
+    return P*S+S*matrix_transpose(base_replace(P,Rule));
+}
+
+/* [[a,b],[c,d]] -> [a,b,c,d] */
+def listlist_merge(LL) {
+    for(L=[]; LL != []; LL=cdr(LL)) {
+        L = append(L, car(LL));
+    }
+    return L;
+}
+
+def matrix_to_list(M) {
+    LL = matrix_matrix_to_list(M);
+    return listlist_merge(LL);
+}
+
+/* ML: a list */
+def matrices_to_list(ML) {
+    L = map(matrix_matrix_to_list, ML)$
+    return listlist_merge(listlist_merge(L));
+}
+
+def matrix_column_nth(A,N) {
+    if (islist(A) && islist(A[0])) {
+        Row = length(A); Col = length(A[0]);
+        A=newmat(Row,Col,A);
+    }else if (ismat(A)) {
+        Size = size(A); Row = Size[0]; Col = Size[1];
+    }
+    V = newvect(Row);
+    for(I=0; I<Row; I++) {
+        V[I] = A[I][N];
+    }
+    return V;
+}
+
+def matrix_row_nth(A,N) {
+    V=A[N];
+    return (islist(V))? ltov(V): V;
+}
+
+/* --------------------------------
+   Following functions are imported from ohara_std.rr
+   -------------------------------- */
+
+def 'std_+'(A,B) {
+    return A+B;
+}
+
+def 'std_*'(A,B) {
+    return A*B;
+}
+
+def 'std_='(Null, Val) {
+    return Val;
+}
+
+def mat_incr(Start, N, M) {
+    Mat = newmat(N,M);
+    for(K=Start, I=0; I<N; I++) {
+        for(J=0; J<M; J++) {
+            Mat[I][J] = K;
+            K++;
+        }
+    }
+    return Mat;
+}
+
+def list_incr(Start,N) {
+    L = [];
+    for(I=N+Start-1; I>=Start; I--) {
+        L = cons(I, L);
+    }
+    return L;
+}
+
+def list_sum(L) {
+	Sum = 0;
+	if(islist(L)) {
+		for( ; L != []; L = cdr(L)) {
+			Sum += car(L);
+		}
+	}else if (isvect(L)) {
+		N = length(L);
+		for(I=0; I<N; I++) {
+			Sum += L[I];
+		}
+	}
+    return Sum;
+}
+
+def list_second(L) {
+    return SECOND(L);
+}
+
+def list_add_prefix(P,L)  {
+    return map(strtov, mapat('std_+', 1, P, map(rtostr, L)));
+}
+
+def list_indefinite(Prefix,Start,N) {
+    return list_add_prefix(Prefix, list_incr(Start,N));
+}
+
+def matrix_indefinite(Prefix,Start,N,M) {
+    return list_add_prefix(Prefix, mat_incr(Start,N,M));
+}
+
+def vector_unit(N, I) {
+    V = newvect(N);
+    V[I] = 1;
+    return V;
+}
+
+def vector_sum(V) {
+    N = length(V);
+    Sum = 0;
+    for(I=0; I<N; I++) {
+        Sum += V[I];
+    }
+    return Sum;
+}
+
+def vector_inner_product(U,V)
+"(U,V) ==> inner_product as vector."
+{
+    N = length(U);
+    Sum = 0;
+    for(I=0; I<N; I++) {
+        Sum += U[I]*V[I];
+    }
+    return Sum;
+}
+
+def vector_shorten(N,V)
+"Shorten the size of a vector V to N."
+{
+    U = newvect(N);
+    for(I = 0; I < N; I++) {
+        U[I] = V[I];
+    }
+    return U;
+}
+
+def vector_const(Len,Value) {
+    V = newvect(Len);
+    for(I=0; I<Len; I++) {
+        V[I] = Value;
+    }
+    return V;
+}
+
+def vector_split(V)
+"Splits a vector V to positive and negative parts."
+{
+    N=length(V); Pos=newvect(N); Neg=newvect(N);
+    for(I=0; I<N; I++) {
+        if (V[I]>0) {
+            Pos[I] = V[I];
+        }else {
+            Neg[I] = V[I];
+        }
+    }
+    return [Pos, Neg];
+}
+
+endmodule;
+
+end$
+
