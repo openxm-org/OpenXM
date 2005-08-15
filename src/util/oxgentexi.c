@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.12 2005/07/03 08:27:38 ohara Exp $ */
+/*  $OpenXM: OpenXM/src/util/oxgentexi.c,v 1.13 2005/07/21 11:29:16 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -172,10 +172,7 @@ struct item * newItem(){
     fprintf(stderr,"newItem: No more memory.\n");
     exit(20);
   }
-  a->argc = 0; a->optc = 0; a->refc=0; a->examplec = 0;
-  a->type=0;
-  a->category = a->category2 = a->name = a->shortDescription
-    = a->description = a->author = a->algorithm = a->sortKey = NULL; 
+  memset(a, 0, sizeof(struct item));
   return a;
 }
   
