@@ -1,0 +1,69 @@
+/* -*- mode: C -*- */
+/* $OpenXM$ */
+
+/* For detail, see [1] p.42. Theorem 1.5.1.
+   References.
+   [1] Matsumoto-Sasaki-Yoshida,
+       The monodromy group of the period map of a 4-parameter
+       family of K3 surface and the hypergeometric function of type $(3,6)$,
+       Int. J. of Math., (3) 1992, 1-164.
+*/
+
+load("yang_D.rr")$
+
+/* [1] Theorem 1.5.1
+   Reduced system of E(k,n) with parameters a2,a3,...,aN.
+*/
+
+def ekn_reduced_system(K,N) {
+    NN = N-1; N = N-K-1; K=K-1;
+    A = yang.list_indefinite("a",2,NN);
+    X = yang.matrix_indefinite("x",1,K,N);
+    V = yang.matrix_to_list(X);
+    yang.define_ring(V);
+    S = map(yang.operator,X);
+    U = newvect(N);
+    B = newvect(K);
+	AA = yang.list_sum(A);
+    for(I=0; I<K;I++) {
+		T = yang.list_sum(S[I]);
+        SS  += T;
+        B[I] = T+A[I];
+    }
+    SS += AA-1;
+    for(J=0; J<N; J++) {
+        for(I=0; I<K;I++) {
+            U[J] += S[I][J];
+        }
+        U[J] += 1-A[J];
+    }
+    L = [];
+    for(J=0; J<K; J++) {
+        for(Q=0; Q<N; Q++) {
+            /* 1st eq. of (1.5.1) */
+            L = cons(yang.multi(SS,S[J][Q])
+                      -X[J][Q]*yang.multi(U[Q],B[J]),L);
+            for(P=0; P<Q; P++) {
+                /* 2nd eq. of (1.5.1) */
+                L = cons(X[J][P]*yang.multi(U[P],S[J][Q])
+                          -X[J][Q]*yang.multi(U[Q],S[J][P]),L);
+                for(I=0; I<J; I++) {
+                    /* 4th eq. of (1.5.1) */
+                    L = cons(X[I][Q]*X[J][P]*S[I][P]*S[J][Q]
+                             -X[I][P]*X[J][Q]*S[I][Q]*S[J][P],L);
+                }
+            }
+            for(I=0; I<J; I++) {
+                /* 3rd eq. of (1.5.1) */
+                L = cons(X[I][Q]*yang.multi(B[I],S[J][Q])
+                         -X[J][Q]*yang.multi(B[J],S[I][Q]),L);
+            }
+        }
+    }
+    DX = yang.list_indefinite("dx",1,K*N);
+    L  = map(dp_dtop,L,DX);
+    yang.pop_ring();
+    return [L,V,DX,A];
+}
+
+end$
