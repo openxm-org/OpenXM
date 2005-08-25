@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.12 2005/03/28 13:55:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.13 2005/08/15 06:03:49 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -66,7 +66,7 @@ localf compute_toric_kernel, gkz_toric_partial, gkz_toric;
 localf gkz_toric_partial_sm1, gkz_toric_sm1;
 localf initial_term_weight, check_gkz_generic_weight, gkz_distraction;
 localf action_monomial_DE, action_DE, action;
-localf dp_dtol, dp_ptol;
+localf dp_length, dp_dtol, dp_ptol;
 localf partial_to_euler_i, partial_to_euler_term_i;
 localf partial_to_euler, partial_to_euler_term;
 localf a2k, sigma, gen_gamma, pochhammer, eval_gamma, gamma1, gamma2;
@@ -1227,6 +1227,14 @@ def action_DE(P, F) {
 
 def action(P,F) {
     return action_DE(P,F);
+}
+
+/* 分散多項式の長さ */
+def dp_length(P) {
+	local I;
+    for(I = 0; P != 0; P = dp_rest(P), I++) {
+    }
+    return I;
 }
 
 /* 分散多項式を associated list に変換 */
