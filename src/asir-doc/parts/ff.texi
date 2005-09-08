@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/ff.texi,v 1.6 2003/04/20 08:01:25 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/ff.texi,v 1.7 2003/04/21 03:07:32 noro Exp $
 \BJP
 @node $BM-8BBN$K4X$9$k1i;;(B,,, Top
 @chapter $BM-8BBN$K4X$9$k1i;;(B
@@ -346,8 +346,9 @@ one to obtain the affine coordinate.
 @findex setmod_ff
 
 @table @t
-@item setmod_ff([@var{prime}|@var{poly}])
-@itemx setmod_ff(@var{prime},@var{n}])
+@item setmod_ff([@var{p}|@var{defpoly2}])
+@itemx setmod_ff([@var{defpolyp},@var{p}])
+@itemx setmod_ff([@var{p},@var{n}])
 \JP :: $BM-8BBN$N@_Dj(B, $B@_Dj$5$l$F$$$kM-8BBN$NK!(B, $BDj5AB?9`<0$NI=<((B
 \EG :: Sets/Gets the current base fields.
 @end table
@@ -356,12 +357,15 @@ one to obtain the affine coordinate.
 @item return
 \JP $B?t$^$?$OB?9`<0(B
 \EG number or polynomial
-@item prime
+@item p
 \JP $BAG?t(B
 \EG prime
-@item poly
+@item defpoly2
 \JP GF(2) $B>e4{Ls$J(B 1 $BJQ?tB?9`<0(B
 \EG univariate polynomial irreducible over GF(2)
+@item defpolyp
+\JP GF(@var{p}) $B>e4{Ls$J(B 1 $BJQ?tB?9`<0(B
+\EG univariate polynomial irreducible over GF(@var{p})
 @item n
 \JP $B3HBg<!?t(B
 \EG the extension degree
@@ -370,23 +374,28 @@ one to obtain the affine coordinate.
 @itemize @bullet
 \BJP
 @item
-$B0z?t$,@5@0?t(B @var{prime} $B$N;~(B, GF(@var{prime}) $B$r4pACBN$H$7$F@_Dj$9$k(B. 
+$B0z?t$,@5@0?t(B @var{p} $B$N;~(B, GF(@var{p}) $B$r4pACBN$H$7$F@_Dj$9$k(B. 
 @item
-$B0z?t$,B?9`<0(B @var{poly} $B$N;~(B, 
-GF(2^deg(@var{poly} mod 2)) = GF(2)[t]/(@var{poly}(t) mod 2)
+$B0z?t$,B?9`<0(B @var{defpoly2} $B$N;~(B, 
+GF(2^deg(@var{defpoly2} mod 2)) = GF(2)[t]/(@var{defpoly2}(t) mod 2)
 $B$r4pACBN$H$7$F@_Dj$9$k(B.
+@item
+$B0z?t$,(B @var{defpolyp} $B$H(B @var{p} $B$N;~(B, 
+GF(@var{p^deg(defpolyp)}) $B$r4pACBN$H$7$F@_Dj$9$k(B.
 @item
 $B0z?t$,(B @var{p} $B$H(B @var{n} $B$N;~(B, 
 GF(@var{p^n}) $B$r4pACBN$H$7$F@_Dj$9$k(B. @var{p^n} $B$O(B @var{2^29} $BL$K~$G(B
 $B$J$1$l$P$J$i$J$$(B. $B$^$?(B, @var{p} $B$,(B @var{2^14} $B0J>e$N$H$-(B, 
 @var{n} $B$O(B 1 $B$G$J$1$l$P$J$i$J$$(B. 
 @item
-$BL50z?t$N;~(B, $B@_Dj$5$l$F$$$k4pACBN$,(B GF(@var{prime})$B$N>l9g(B @var{prime},
+$BL50z?t$N;~(B, $B@_Dj$5$l$F$$$k4pACBN$,(B GF(@var{p})$B$N>l9g(B @var{p},
 GF(2^@var{n}) $B$N>l9gDj5AB?9`<0$rJV$9(B. 
-$B4pACBN$,(B GF(p^@var{n}) 
-(@var{p^n} $B$,(B @var{2^14} $BL$K~(B) $B$N>l9g(B,
+$B4pACBN$,(B @code{setmod_ff(@var{defpoly},@var{p})} $B$GDj5A$5$l$?(B
+GF(@var{p}^@var{n}) $B$N>l9g(B, [@var{defpoly},@var{p}] $B$rJV$9(B.
+$B4pACBN$,(B @code{setmod_ff(@var{p},@var{n})} $B$GDj5A$5$l$?(B
+GF(p^@var{n}) $B$N>l9g(B,
 [@var{p},@var{defpoly},@var{prim_elem}] $B$rJV$9(B. $B$3$3$G(B, @var{defpoly}
-$B$O(B, @var{n} $B<!3HBg$NDj5AB?9`<0(B, @var{prim_elem} $B$O(B, GF(@var{p^n})
+$B$O(B, @var{n} $B<!3HBg$NDj5AB?9`<0(B, @var{prim_elem} $B$O(B, GF(@var{p^n})$B$N(B
 $B>hK!72$N@8@.85$r0UL#$9$k(B.
 @item
 GF(2^@var{n}) $B$NDj5AB?9`<0$O(B, GF(2) $B>e(B n $B<!4{Ls$J$i$J$s$G$bNI$$$,(B, $B8zN($K(B
@@ -394,11 +403,15 @@ GF(2^@var{n}) $B$NDj5AB?9`<0$O(B, GF(2) $B>e(B n $B<!4{Ls$J$i$J$s$G$bNI$$$,
 \E
 \BEG
 @item
-If the argument is a non-negative integer @var{prime}, GF(@var{prime})
+If the argument is a non-negative integer @var{p}, GF(@var{p})
 is set as the current base field.
 @item
-If the argument is a polynomial @var{poly},
-GF(2^deg(@var{poly} mod 2)) = GF(2)[t]/(@var{poly}(t) mod2)
+If the argument is a polynomial @var{defpoly2},
+GF(2^deg(@var{defpoly2} mod 2)) = GF(2)[t]/(@var{defpoly2}(t) mod2)
+is set as the current base field.
+@item
+If the arguments are a polynomial @var{defpolyp} and a prime @var{p},
+GF(@var{p}^deg(@var{defpolyp})) = GF(@var{p})[t]/(@var{defpolyp}(t))
 is set as the current base field.
 @item
 If the arguments are a prime @var{p} and an extension degree @var{n},
@@ -407,9 +420,11 @@ less than @var{2^29} and if @var{p} is greater than or equal to @var{2^14},
 then @var{n} must be equal to 1.
 @item
 If no argument is specified, the modulus indicating the current base field
-is returned. If the current base field is GF(@var{prime}), @var{prime} is
+is returned. If the current base field is GF(@var{p}), @var{p} is
 returned. If it is GF(2^@var{n}), the defining polynomial is returned.
-If it is GF(@var{p^n}), where @var{p^n} is less than @var{2^14},
+If it is GF(@var{p^n}) defined by @code{setmod_ff(@var{defpoly},@var{p})},
+[@var{defpolyp},@var{p}] is returned.
+If it is GF(@var{p^n}) defined by @code{setmod_ff(@var{p},@var{n})},
 [@var{p},@var{defpoly},@var{prim_elem}] is returned. Here, @var{defpoly}
 is the defining polynomial of the @var{n}-th extension,
 and @var{prim_elem} is the generator of the multiplicative group
@@ -428,7 +443,9 @@ x^100+x^15+1
 x^100+x^15+1
 [176] setmod_ff();
 x^100+x^15+1
-[177] setmod_ff(2,5);
+[177] setmod_ff(x^4+x+1,547);
+[1*x^4+1*x+1,547]
+[178] setmod_ff(2,5);
 [2,x^5+x^2+1,x]
 @end example
 
