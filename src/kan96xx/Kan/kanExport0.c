@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.44 2005/06/16 06:21:21 takayama Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.45 2005/07/03 11:08:53 ohara Exp $  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2257,6 +2257,56 @@ struct object KstringToArgv(struct object ob) {
     }else if ((inblank == 0) && (s[i] <= ' ')) {
       inblank = 1; s[i] = 0;
     }else if (inblank && (s[i] <= ' ')) {
+      s[i] = 0;
+    }
+  }
+
+  rob = newObjectArray(wc);
+  for (i=0; i<wc; i++) {
+    putoa(rob,i,KpoString(argv[i]));
+    /* printf("%s\n",argv[i]); */
+  }
+  return(rob);
+}
+
+struct object KstringToArgv2(struct object ob,struct object oseparator) {
+  struct object rob = OINIT;
+  char *s;
+  int n,wc,i,inblank;
+  char **argv;
+  int separator;
+  if (ob.tag != Sdollar)
+    errorKan1("%s\n","KstringToArgv2(): the argument must be a string.");
+  if (oseparator.tag == Sinteger) {
+	separator = KopInteger(oseparator);
+  }else if (oseparator.tag == Sdollar) {
+	s = KopString(oseparator);
+	separator=s[0];
+  }else {
+    errorKan1("%s\n","KstringToArgv2(ob,separator):the argument must be strings.");
+  }
+  n = strlen(KopString(ob));
+  s = (char *) sGC_malloc(sizeof(char)*(n+2));
+  if (s == NULL) errorKan1("%s\n","KstringToArgv(): No memory.");
+  strcpy(s,KopString(ob));
+  inblank = 1;  wc = 0; 
+  for (i=0; i<n; i++) {
+    if (inblank && (s[i] != separator)) {
+      wc++; inblank = 0;
+    }else if ((!inblank) && (s[i] == separator)) {
+      inblank = 1;
+    }
+  }
+  argv = (char **) sGC_malloc(sizeof(char *)*(wc+2));
+  argv[0] = NULL;
+  inblank = 1;  wc = 0; 
+  for (i=0; i<n; i++) {
+    if (inblank && (s[i] != separator)) {
+      argv[wc] = &(s[i]); argv[wc+1]=NULL;
+      wc++; inblank = 0;
+    }else if ((inblank == 0) && (s[i] == separator)) {
+      inblank = 1; s[i] = 0;
+    }else if (inblank && (s[i] == separator)) {
       s[i] = 0;
     }
   }

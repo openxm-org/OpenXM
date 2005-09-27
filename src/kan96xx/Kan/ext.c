@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.39 2005/07/18 10:55:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.40 2005/09/27 05:46:50 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -471,6 +471,11 @@ struct object Kextension(struct object obj)
 	obj1 = getoa(obj,1);
 	if (obj1.tag != Sdollar) errorKan1("%s\n","[(stringToArgv) a ] extension b,  a must be a string.");
     rob = KstringToArgv(obj1);
+  }else if (strcmp(key,"stringToArgv2")==0) {
+    if (size != 3) errorKan1("%s\n","[(stringToArgv2) str separator] extension b");
+	obj1 = getoa(obj,1);
+	obj2 = getoa(obj,2);
+    rob = KstringToArgv2(obj1,obj2);
   }else if (strcmp(key,"traceClearStack")==0) {
     traceClearStack();
     rob = NullObject;
