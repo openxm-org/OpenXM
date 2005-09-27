@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.44 2005/06/16 06:54:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/usage.c,v 1.45 2005/07/18 10:55:16 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -168,6 +168,7 @@ void Kusage2(fp,s)
     fppp(fp,"  [(ostype)] extension list \n");
     fppp(fp,"  [(setAttribute) obj key value] extension new-attributed-obj \n");
     fppp(fp,"  [(setAttributeList) obj attrList] extension new-attributed-obj \n");
+    fppp(fp,"  [(stringToArgv) sobj] extension decomposed_str  cf. to_records \n");
     fppp(fp,"  [(read) fd size] extension string \n");
     fppp(fp,"  [(regexec) regular_expression stringArray flags(opt)] extension list \n");
     fppp(fp,"  [(regionMatches) string stringArray] extension list \n");
@@ -548,6 +549,7 @@ void Kusage2(fp,s)
     fppp(fp,"Example: ({x,y2}) to_records ===> (x) (y2) 2\n");
     fppp(fp,"Example: (x,y2)   to_records ===> (x) (y2) 2\n");
     fppp(fp,"Example: [(x,y2) to_records pop] ===> [(x) (y2)]\n");
+    fppp(fp,"cf. [(stringToArgv) str] extension \n");
   }else if (strcmp(s,"writestring") == 0) {
     fppp(fp,"<< fd s writestring >>\n"); /*:*/
     fppp(fp,"file fd; string s;\n");
