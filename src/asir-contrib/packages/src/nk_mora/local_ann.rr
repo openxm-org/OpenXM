@@ -1,0 +1,191 @@
+/* $OpenXM$ */
+/* $Id$ */
+/* for computing \Ann_{\mathcal{D}[s]}f^s */
+#define DEBUG_MYANN
+
+extern VL_Ann1;
+extern Ord_Ann1;
+extern OrdS_Ann1;
+extern V_Ann1;
+extern VT_Ann1;
+extern VL_Ann2;
+extern Ord_Ann2;
+extern OrdS_Ann2;
+extern V_Ann2;
+extern VT_Ann2;
+extern VL_Ann3;
+extern Ord_Ann3;
+extern OrdS_Ann3;
+extern V_Ann3;
+extern VT_Ann3;
+
+extern AnnUseGBAlgo;
+/* 0 : tangentcone_gr2, 1 : mora_gr */
+AnnUseGBAlgo = 1$ 
+
+VL_Ann1 = [x,t,u,v,s,dx,dt,du,dv,ds]$
+Ord_Ann1= newmat(10, 10,
+[
+[ 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[-1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+])$
+OrdS_Ann1= newmat(10, 10, 
+[
+[ 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[-1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+])$
+V_Ann1=[-1,0,0,0,-1,1,0,0,0,0]$
+VT_Ann1=[0,-1,0,0,0,0,1,0,0,0]$
+
+VL_Ann2 = [x,y,t,u,v,s,dx,dy,dt,du,dv,ds]$
+Ord_Ann2= newmat(12, 12,
+[
+[ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+[-1, -1,0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+])$
+OrdS_Ann2= newmat(12, 12, 
+[
+[ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+[-1, -1,0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+])$
+V_Ann2=[-1,-1,0,0,0,-1,1,1,0,0,0,0]$
+VT_Ann2=[0,0,-1,0,0,0,0,0,1,0,0,0]$
+
+VL_Ann3 = [x,y,z,t,u,v,s,dx,dy,dz,dt,du,dv,ds]$
+Ord_Ann3= newmat(14, 14,
+[
+[ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+])$
+OrdS_Ann3= newmat(14, 14, 
+[
+[ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+[ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+[-1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+[ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+])$
+V_Ann3=[-1,-1,-1,0,0,0,-1,1,1,1,0,0,0,0]$
+VT_Ann3=[0,0,0,-1,0,0,0,0,0,0,1,0,0,0]$
+
+/* F : poly, VL : [x_1, \cdots, x_n]                        */
+/* return [t - F, dx_1 + F_1 * dt, \cdots, dx_n + F_n * dt] */ 
+def ideal_f(F, VL)
+{
+	Id = [t - F];
+	N = length(VL);
+	for (I = 0; I < N; I++) {
+		DF = diff(F, VL[I]);
+		DD = strtov("d" + rtostr(VL[I]));
+		Id = cons(DD + DF * dt, Id);
+	}
+	return reverse(Id);
+}
+
+/* t -> u * t, dt -> v * dt and add 1-u*v */
+def uv_homo(Id)
+{
+	HId = [];
+	N = length(Id);
+	for (I = 0; I < N; I++) {
+		Ele = subst(Id[I], t, u * t);
+		Ele = subst(Ele, dt, v * dt); 
+		HId = cons(Ele, HId);
+	}
+	HId = cons(1 - u * v, HId);
+	return reverse(HId);
+}
+
+/*
+ * F : poly, FVL : x_1, \cdots, x_n
+ * VL : VL_Ann*, OrdS : OrdS_Ann*, V : V_Ann*
+ * return generators of left ideal Ann_{\widehat{\mathcal{D}}}F^s 
+ */
+def local_ann(F, FVL, VL, Ord, OrdS, V, VT)
+{
+	I = ideal_f(F, FVL);
+	HI = uv_homo(I);
+	print("I : "); print(I);
+
+	if (AnnUseGBAlgo == 0)
+		G = tangentcone_gr2(HI, VL, OrdS, V);
+	else if (AnnUseGBAlgo == 1)
+		G = mora_gr(HI, VL, Ord, OrdS, V);
+	else 
+		G = tangentcone_gr2(HI, VL, OrdS, V);
+
+	print("Gr : "); print(G);
+	Vars = [x,y,z,w,t,dx,dy,dz,dw,dt];
+	GG = pick_term_vars(G, Vars)[0];
+	print("Gen : "); print(GG);
+	return map(phi, GG, VL, VT);
+}
+
+def lann1(F)
+{
+	return local_ann(F,[x],VL_Ann1,Ord_Ann1,OrdS_Ann1,V_Ann1,VT_Ann1);
+}
+
+def lann2(F)
+{
+	return local_ann(F,[x,y],VL_Ann2,Ord_Ann2,OrdS_Ann2,V_Ann2,VT_Ann2);
+}
+
+def lann3(F)
+{
+	return local_ann(F,[x,y,z],VL_Ann3,Ord_Ann3,OrdS_Ann3,V_Ann3,VT_Ann3);
+}
+
+def phi(P, VL, W)
+{
+        In = in_w(P, VL, W);
+        K = ord_w(P, VL, W);
+        if (K > 0) {
+                In = weyl_mul(t^K, In, VL);
+        } else if (K < 0) {
+                In = weyl_mul(dt^(-K), In, VL);
+        }
+        return trans_s(In);
+}
+
+end$

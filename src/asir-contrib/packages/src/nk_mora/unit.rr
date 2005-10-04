@@ -1,0 +1,89 @@
+/* $OpenXM$ */
+/* $Id$ */
+
+extern GlobalVL;
+GlobalVL = [u,v,ss,t,dx,dy,dz,dt];
+
+/*
+ * F : poly
+ * return the factor u of F s.t. u(0) \neq 0 
+ */
+def pickup_unit(F)
+{
+	L = fctr(F);
+	N = length(L);
+	U = 1;
+	Rest = L[0][0];
+	for (I = 1; I < N; I++) {
+		Factor = L[I][0];
+		if (subst_0(Factor) != 0)
+			U *= Factor^L[I][1];
+		else
+			Rest *= Factor^L[I][1];
+	}
+	return [U,Rest];
+}
+
+/*
+ * P : differential operator
+ * return the factor u of P s.t. u(0) \neq 0
+ */
+def weyl_pickup_unit(P)
+{
+	DP = dp_ptod(P, GlobalVL);
+	L = [];
+	while (DP != 0) {
+		C = dp_hc(DP);
+		DP = dp_rest(DP);
+		L = cons(C, L);
+	}
+	if (L != [])
+		G = gcdlist(L);
+	else 
+		G = 1;
+	LL = pickup_unit(G);
+	U = LL[0];
+	Rest = red(P/U);
+	return [U, Rest];
+}
+
+def dp_weyl_pickup_unit(DP, VL)
+{
+	P = dp_dtop(DP, VL);
+	L = weyl_pickup_unit(P);
+	return map(dp_ptod, L, VL);
+}
+
+def subst_0(F)
+{
+        VL = vars(F);
+	N = length(VL);
+        for (I = 0, S = F; I < N; I++)
+                S = subst(S, VL[I], 0);
+        return S;
+}
+
+/* dp_weyl_reduce with dp_weyl_pickup_unit */
+def dp_weyl_reduce_u(DF, DG, VL)
+{
+	M = dp_subd(DF, DG);
+	C = red(dp_hc(DF) / dp_hc(DG));
+	T = dp_weyl_mul(C * M, DG);
+	DR = DF - T;		
+	L = dp_weyl_pickup_unit(DR, VL);
+	return L[1];
+}
+
+def weyl_reduce_u(F, G, VL, Ord)
+{
+	Tmp = dp_ord();
+	dp_ord(Ord);
+	DF = dp_ptod(F, VL);
+	DG = dp_ptod(G, VL);	
+	DR = dp_weyl_reduce_u(DF, DG, VL);	
+	R = dp_dtop(DR, VL);
+	dp_ord(Tmp);
+	return R;
+}
+
+end$
