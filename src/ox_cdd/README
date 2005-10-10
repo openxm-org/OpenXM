@@ -3,3 +3,12 @@
            Only tested on debian.
 		   'make install' installs ox_cdd, ox_cddgmp, ox_sres and ox_sresgmp
 		   in OpenXM_HOME/lib and creates s-link from lib/asir.
+
+2005/10/10 BUG: The new mathcap implementation of the ox_toolkit is 
+                not compatible with ox_cdd. Checkout the old version.
+           rm -rf OpenXM/src/ox_toolkit
+           rcvs checkout -D 'July 20 0:0:0 2005' OpenXM/src/ox_toolkit
+           (cd OpenXM/src ; make install-oxtoolkit)
+           (cd OpenXM/src/ox_cdd; make install)
+
+           As to asir library files, see OpenXM/src/asir-contrib/s_res
