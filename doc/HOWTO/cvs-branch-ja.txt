@@ -20,6 +20,11 @@ A. 原則 1. Branch の作成はなるだけ避ける.
    OpenXM/src/ox_branch/cmo.c を変更した.
    rcvs commit
         commit message には TAG: test1-branch が自動的に入る.
+
+◯ branchman2 さんも test1-branch の作成に参加
+    cd OpenXM/src/ox_branch
+    rcvs update -r test1-branch
+    変更および commit.
  
 ◯ 翌日の trunkman さんは test1-branch を HEAD へマージしようと試みる.
    cd OpenXM/src/ox_branch
@@ -36,5 +41,5 @@ A. 原則 1. Branch の作成はなるだけ避ける.
   rcvs update -A     (sticky tag を全部消して, branch を head へ戻す)
 
 
-$OpenXM$
+$OpenXM: OpenXM/doc/HOWTO/cvs-branch-ja.txt,v 1.1 2005/10/11 00:54:33 takayama Exp $
 
