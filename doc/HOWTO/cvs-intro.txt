@@ -1,19 +1,19 @@
-$OpenXM: OpenXM/doc/HOWTO/cvs-intro.txt,v 1.1 2005/03/30 11:37:12 takayama Exp $
+$OpenXM: OpenXM/doc/HOWTO/cvs-intro.txt,v 1.2 2005/04/01 02:40:14 takayama Exp $
 
 committer のための cvs 入門
 
 [1] BASH の場合 (user 名は xxx.yyy.org のものと同じと仮定).
 
     export CVS_RSH=ssh
-    cvs -d xxx.yyy.org:/usr/cvs  やることを書く.
+    cvs -d xxx.yyy.org:/home/cvsroot/openxm  やることを書く.
 
 
     たとえば OpenXM のソースを全て download するには
-    cvs -d xxx.yyy.org:/usr/cvs  checkout OpenXM OpenXM_contrib OpenXM_contrib2
+    cvs -d xxx.yyy.org:/home/cvsroot/openxm  checkout OpenXM OpenXM_contrib OpenXM_contrib2
 
     たとえば 新しく abc.rr を commit するには
-    cvs -d xxx.yyy.org:/usr/cvs  add abc.rr
-    cvs -d xxx.yyy.org:/usr/cvs  commit
+    cvs -d xxx.yyy.org:/home/cvsroot/openxm  add abc.rr
+    cvs -d xxx.yyy.org:/home/cvsroot/openxm  commit
 
     vi が立ち上がるのでコメントを英語で短く書く.
     (a) i  で input mode に.
@@ -21,7 +21,7 @@ committer のための cvs 入門
     (c) esc : wq  で 書き込み終了.
 
     abc.rr を修正したら,
-    cvs -d xxx.yyy.org:/usr/cvs  commit
+    cvs -d xxx.yyy.org:/home/cvsroot/openxm  commit
     
 
 [2] Import の利用は特に必要な場合を除き控えて, 
