@@ -1,192 +1,334 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.11 2005/03/04 06:29:46 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.12 2005/07/26 12:52:05 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "ox_toolkit.h"
 
-#define MATHCAP_1ST_FORMAT "(CMO_LIST (CMO_INT32 %d) (CMO_STRING \"%s\") (CMO_STRING \"%s\") (CMO_STRING \"%s\"))"
+#define MATHCAP_FLAG_DENY   0
+#define MATHCAP_FLAG_ALLOW  1
 
-static int default_cmd[] = { 
-    SM_popCMO,
-    SM_popString,
-    SM_mathcap,
-    SM_pops,
-    SM_executeStringByLocalParser,
-    SM_executeFunction,
-    SM_control_kill,
-    SM_control_reset_connection,
-    0 };
-static int default_cmo[] = { 
+static void table_init(table *m, int key);
+static table *new_table(int *src);
+static table *table_lookup(table *tbl, int tag);
+static void table_ctl(table *tbl, int tag, int flag);
+static void table_ctl_all(table *tbl, int flag);
+static cmo_list *table_get_all(table *tbl);
+static void table_allow(table *tbl, int tag);
+static void table_deny(table *tbl, int tag);
+static void table_update(table *cmotbl, cmo_list* types);
+static int table_allowQ_tag(table *tbl, int tag);
+static int table_allowQ_cmo_list(table *cmotbl, cmo_list *ob);
+static int table_allowQ_cmo_monomial32(table *cmotbl, cmo_monomial32 *ob);
+static int table_allowQ_cmo_mathcap(table *cmotbl, cmo_mathcap *ob);
+static int table_allowQ_cmo(table *cmotbl, cmo *ob);
+static cmo_list *sysinfo_get();
+static char *new_string(char *s);
+static int *new_int_array(int *array);
+static cmo_list *get_messagetypes(cmo_list *ob, int type);
+static cmo_list *cmo_mathcap_get_cmotypes(cmo_mathcap *mc);
+
+static int cmotbl_a[] = {
     CMO_NULL,
     CMO_INT32,
+    CMO_DATUM,
     CMO_STRING,
     CMO_MATHCAP,
     CMO_LIST,
     CMO_MONOMIAL32,
     CMO_ZZ,
     CMO_QQ,
+    CMO_IEEE_DOUBLE_FLOAT,
     CMO_ZERO,
     CMO_DMS_GENERIC,
     CMO_RING_BY_NAME,
-    CMO_RECURSIVE_POLYNOMIAL,
-    CMO_DISTRIBUTED_POLYNOMIAL,
-    CMO_POLYNOMIAL_IN_ONE_VARIABLE,
-    CMO_64BIT_MACHINE_DOUBLE, 
-    CMO_IEEE_DOUBLE_FLOAT,
     CMO_INDETERMINATE,
-    CMO_TREE,
-    CMO_LAMBDA,
+    CMO_DISTRIBUTED_POLYNOMIAL,
     CMO_ERROR2,
-    0 };
-static int default_oxtag[] = { OX_DATA, 0 };
+    0,
+};
+
+static int smtbl_a[] = {
+    SM_popCMO,
+    SM_popString,
+    SM_mathcap,
+    SM_pops,
+    SM_executeStringByLocalParser,
+    SM_executeFunction,
+    SM_setMathCap,
+    SM_shutdown,
+    SM_control_kill,
+    SM_control_reset_connection,
+    SM_control_spawn_server,
+    SM_control_terminate_server,
+    0,
+};
 
 static struct {
-    int  ox_version;
+    int  version;
+    char *version_string;
     char *sysname;
-    char *version;
     char *hosttype;
-} sysinfo = {OX_PROTOCOL_VERSION, "ox_toolkit", OX_TOOLKIT_VERSION, "generic"};
+    int  *cmo_tags;
+    int  *sm_cmds;
+} sysinfo = {0, "NO VERSION", "NONAME", "UNKNOWN", cmotbl_a, smtbl_a};
 
-mathcap default_mathcap = {default_cmd, default_cmo};
-
-static int ilen(int a[]);
-static int *icopy(int s[]);
-static int *icopyn(int s[], int n);
-static int cmo_int32_to_int(cmo_int32* m);
-static int *imerge(int *base, int *diff);
-static mathcap *mathcap_merge_io(mathcap *this, mathcap *diff);
-
-mathcap *new_mathcap()
+__inline__
+static void table_init(table *m, int key)
 {
-    mathcap *mcap = MALLOC(sizeof(mathcap));
-    mcap->cmo = icopy(default_cmo);
-    mcap->cmd = icopy(default_cmd);
-    return mcap;
+    m->tag  = key;
+    m->flag = MATHCAP_FLAG_ALLOW;
 }
 
-mathcap *new_mathcap_set(int *cmd, int *cmo)
+static table *new_table(int *src)
 {
-    mathcap *mcap  = MALLOC(sizeof(mathcap));
-	mcap->cmd = (cmd)? cmd: icopy(default_cmd);
-	mcap->cmo = (cmo)? cmo: icopy(default_cmo);
-    return mcap;
+    table *new;
+    int len=0;
+    int i;
+    while (src[len++] != 0) {
+    }
+    new = MALLOC(sizeof(table)*len);
+    for(i=0; i<len; i++) {
+        table_init(new+i, src[i]);
+    }
+    return new;
 }
 
-cmo_list *cmo_mathcap_1st() 
+/* looking for an item of the tag */
+static table *table_lookup(table *tbl, int tag)
 {
-    char buffer[BUFSIZ];
-    static char format[] = MATHCAP_1ST_FORMAT;
-    int len = sizeof(format) + 32
-		+ strlen(sysinfo.sysname)
-		+ strlen(sysinfo.version)
-		+ strlen(sysinfo.hosttype);
-    if (len < BUFSIZ) {
-        sprintf(buffer, format, sysinfo.ox_version, sysinfo.sysname, 
-				sysinfo.version, sysinfo.hosttype);
-        return (cmo_list *)ox_parse_lisp(buffer);
+    while (tbl->tag != 0) {
+        if (tbl->tag == tag) {
+            return tbl;
+        }
+        tbl++;
     }
     return NULL;
 }
 
-/* 0: terminator of array of integer. */
-static int ilen(int a[])
+/* controller about a cmo identified by the tag */
+static void table_ctl(table *tbl, int tag, int flag)
 {
-    int i=0;
-    if (a != NULL) {
-        for( ; a[i] !=0; i++) {
-        }
+    table *e = table_lookup(tbl, tag);
+    if (e != NULL) {
+        e->flag = flag;
     }
-    return i;
 }
 
-static int *icopy(int s[])
+/* controller about all CMObjects */
+static void table_ctl_all(table *tbl, int flag)
 {
-    int n = sizeof(int)*(ilen(s)+1);
-    int *d = MALLOC(n);
-    memcpy(d,s,n);
-    return d;
+    while (tbl->tag != 0) {
+        tbl->flag = flag;
+        tbl++;
+    }
 }
 
-static int *icopyn(int s[], int n)
+/* getting the list of tags of all allowed objects */
+static cmo_list *table_get_all(table *tbl)
 {
-    int *d = MALLOC((n = sizeof(int)*(n+1)));
-    memcpy(d,s,n);
-    return d;
+    cmo_list *list = new_cmo_list();
+    while (tbl->tag != 0) {
+        if (tbl->flag == MATHCAP_FLAG_ALLOW) {
+            list_append(list, (cmo *)new_cmo_int32(tbl->tag));
+        }
+        tbl++;
+    }
+    return list;
 }
 
-cmo_mathcap *new_cmo_mathcap_by_mathcap(mathcap *mcap)
+/* giving a permssion to send objects identified by the tag. */
+__inline__
+static void table_allow(table *tbl, int tag)
 {
-    cmo_list *cap1, *cap2, *cap3, *cap4;
-    cap1 = cmo_mathcap_1st();
-    cap2 = new_cmo_list_map(mcap->cmd, ilen(mcap->cmd), new_cmo_int32);
-    cap3 = new_cmo_list_map(default_oxtag,
-                            ilen(default_oxtag),
-                            new_cmo_int32);
-    cap4 = new_cmo_list_map(mcap->cmo, ilen(mcap->cmo), new_cmo_int32);
-    /* new_cmo_mathcap([cap1, cap2, [cap3, cap4]]) */
-    return new_cmo_mathcap(
-        (cmo *)list_appendl(NULL, cap1, cap2, list_appendl(NULL, cap3, cap4, NULL)));
+    table_ctl(tbl, tag, MATHCAP_FLAG_ALLOW);
 }
 
-static int cmo_int32_to_int(cmo_int32* m)
+/* taking a permssion to send objects identified by the tag. */
+__inline__
+static void table_deny(table *tbl, int tag)
 {
-    return m->i;
+    table_ctl(tbl, tag, MATHCAP_FLAG_DENY);
 }
 
-mathcap *new_mathcap_by_cmo_mathcap(cmo_mathcap *cap)
+static void table_update(table *cmotbl, cmo_list* types)
 {
-    int *cmd = list_to_array_map(list_nth(cap->ob, 1), cmo_int32_to_int);
-    int *cmo = list_to_array_map(list_nth(list_nth(cap->ob, 2), 1), 
-                                 cmo_int32_to_int);
-    return new_mathcap_set(cmd, cmo);
+    cell *el = list_first(types);
+    cmo_int32 *ob;
+    while(!list_endof(types, el)) {
+        ob = (cmo_int32 *)el->cmo;
+        if (ob->tag == CMO_INT32) {
+            table_allow(cmotbl, ob->i);
+        }
+        el = list_next(el);
+    }
 }
 
-/* if base is unsorted. */
-static int *imerge(int *base, int *diff)
+/* getting a permission to send objects identified by the tag. */
+static int table_allowQ_tag(table *tbl, int tag)
 {
-    int i,j,k;
-    int n = ilen(base);
-    int m = ilen(diff);
-    int *t = ALLOCA(sizeof(int)*(n+1));
-    int *ret;
-    for(i=0,j=0; i<n; i++) {
-        for(k=0; k<m; k++) {
-            if (base[i] == diff[k]) {
-                t[j++] = base[i];
-                break;
+    while (tbl->tag != 0 && tbl->tag != tag) {
+        tbl++;
+    }
+    return tbl->flag;
+}
+
+static int table_allowQ_cmo_list(table *cmotbl, cmo_list *ob)
+{
+    cell *el;
+    if (table_allowQ_tag(cmotbl, ob->tag)) {
+        el = list_first(ob);
+        while (!list_endof(ob, el)) {
+            if (!table_allowQ_cmo(cmotbl, el->cmo)) {
+                return MATHCAP_FLAG_DENY;
             }
+            el = list_next(el);
         }
+        return MATHCAP_FLAG_ALLOW;
     }
-    t[j] = 0;
-    ret = icopyn(t,j);
-    return ret;
+    return MATHCAP_FLAG_DENY;
 }
 
-static mathcap *mathcap_merge_io(mathcap *this, mathcap *diff)
+__inline__
+static int table_allowQ_cmo_monomial32(table *cmotbl, cmo_monomial32 *ob)
 {
-    int *tmp;
-    tmp = imerge(this->cmo, diff->cmo);
-    FREE(this->cmo); 
-    this->cmo = tmp;
+    return table_allowQ_tag(cmotbl, ob->tag)
+        && table_allowQ_cmo(cmotbl, ob->coef);
+}
+
+__inline__
+static int table_allowQ_cmo_mathcap(table *cmotbl, cmo_mathcap *ob)
+{
+    return table_allowQ_tag(cmotbl, ob->tag)
+        && table_allowQ_cmo(cmotbl, ob->ob);
+}
+
+/* getting a permission to send the following object. */
+static int table_allowQ_cmo(table *cmotbl, cmo *ob)
+{
+    int tag = ob->tag;
+    switch(tag) {
+    case CMO_LIST:
+    case CMO_DISTRIBUTED_POLYNOMIAL:
+        return table_allowQ_cmo_list(cmotbl, (cmo_list *)ob);
+    case CMO_MATHCAP:
+    case CMO_ERROR2:
+    case CMO_RING_BY_NAME:
+    case CMO_INDETERMINATE:
+        return table_allowQ_cmo_mathcap(cmotbl, (cmo_mathcap *)ob);
+    case CMO_MONOMIAL32:
+        return table_allowQ_cmo_monomial32(cmotbl, (cmo_monomial32 *)ob);
+    default:
+        return table_allowQ_tag(cmotbl, tag);
+    }
+}
+
+/* getting the System Information */
+static cmo_list *sysinfo_get()
+{
+    cmo_list *syslist = new_cmo_list();
+    cmo_int32 *ver    = new_cmo_int32(sysinfo.version);
+    cmo_string *vers  = new_cmo_string(sysinfo.version_string);
+    cmo_string *host  = new_cmo_string(sysinfo.hosttype);
+    cmo_string *sname = new_cmo_string(sysinfo.sysname);
+    return list_appendl(syslist, ver, sname, vers, host, NULL);
+}
+
+static char *new_string(char *s)
+{
+    char *t = MALLOC(strlen(s)+1);
+    strcpy(t, s);
+    return t;
+}
+
+static int *new_int_array(int *array)
+{
+    int *new_array;
+    int length = 0;
+    while(array[length++] != 0)
+        ;
+    new_array = MALLOC(sizeof(int)*length);
+    return memcpy(new_array, array, sizeof(int)*length);
+}
+
+void mathcap_init(int ver, char *vstr, char *sysname, int cmos[], int sms[])
+{
+    char *host = getenv("HOSTTYPE");
+    sysinfo.hosttype = (host != NULL)? new_string(host): "UNKNOWN";
+    sysinfo.sysname  = new_string(sysname);
+    sysinfo.version_string = new_string(vstr);
+    sysinfo.version  = ver;
+    if (cmos != NULL) {
+        sysinfo.cmo_tags = new_int_array(cmos);
+    }
+    if (sms != NULL) {
+        sysinfo.sm_cmds = new_int_array(sms);
+    }
+}
+
+mathcap *new_mathcap()
+{
+    mathcap *new = MALLOC(sizeof(mathcap));
+    new->cmotbl = new_table(sysinfo.cmo_tags);
+    new->smtbl  = new_table(sysinfo.sm_cmds);
+    return new;
+}
+
+/* generating a cmo_mathcap by a local database. */
+cmo_mathcap* mathcap_get(mathcap *this)
+{
+    cmo_list *mc = new_cmo_list();
+    cmo_list *l3 = new_cmo_list();
+    list_append(l3, (cmo *)list_appendl(new_cmo_list(),
+                                 new_cmo_int32(OX_DATA),
+                                 table_get_all(this->cmotbl), NULL));
+    list_appendl(mc, (cmo *)sysinfo_get(),
+                 (cmo *)table_get_all(this->smtbl), (cmo *)l3, NULL);
+    return new_cmo_mathcap((cmo *)mc);
+}
+
+/* ( ..., ( type, (...) ), (cmo_int32, (...) ), ... )  */
+/*                ^^^^^ Here!                          */
+static cmo_list *get_messagetypes(cmo_list *ob, int type)
+{
+    cmo_list  *c;
+    cell *el;
+
+    for (el = list_first(ob); !list_endof(ob, el); el = list_next(el)) {
+        c = (cmo_list *)el->cmo;
+        if (((cmo_int32 *)list_nth(c, 0))->i == type) {
+            return (cmo_list *)list_nth(c, 1);
+        }
+    }
+    return NULL;
+}
+
+/* cmo_mathcap->ob = ( (...), (...), ( ( cmo_int32, (...) ), ...), ...) */
+/*                                              ^^^^^ Here!         */
+__inline__
+static cmo_list *cmo_mathcap_get_cmotypes(cmo_mathcap *mc)
+{
+    cmo_list *ob = (cmo_list *)list_nth((cmo_list *)mc->ob, 2);
+    return get_messagetypes(ob, OX_DATA);
+}
+
+/* The mathcap_update integrates received cmo_mathcap into the mathcap
+   database. If this == NULL, then an instance of mathcap is generated. */
+mathcap *mathcap_update(mathcap *this, cmo_mathcap *mc)
+{
+    cmo_list *types;
+    types = cmo_mathcap_get_cmotypes(mc);
+    if (types != NULL) {
+        table_ctl_all(this->cmotbl, MATHCAP_FLAG_DENY);
+        table_update(this->cmotbl, types);
+    }
+
     return this;
 }
 
-/* for compatibility */
-void mathcap_init(char *version, char *sysname)
+int mathcap_allowQ_cmo(mathcap *this, cmo *ob)
 {
-    sysinfo.hosttype = getenv("HOSTTYPE");
-    sysinfo.version  = version;
-    sysinfo.sysname  = sysname;
-}
-cmo_mathcap* mathcap_get(mathcap *this)
-{
-    return new_cmo_mathcap_by_mathcap(this);
-}
-mathcap *mathcap_update(mathcap *this, cmo_mathcap *m)
-{
-    return mathcap_merge_io(this, new_mathcap_by_cmo_mathcap(m));
+    return table_allowQ_cmo(this->cmotbl, ob);
 }

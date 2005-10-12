@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.19 2005/07/20 17:48:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.20 2005/07/26 12:52:04 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -110,30 +110,6 @@ cmo *list_nth(cmo_list* this, int n)
     return NULL;
 }
 
-void **list_to_array(cmo_list *c)
-{
-	int i;
-	int n = list_length(c);
-	void **array = MALLOC(sizeof(void *)*(n+1));
-	for(i=0; i<n; i++) {
-		array[i] = list_nth(c, i);
-	}
-	array[n] = NULL;
-	return array;
-}
-
-void **list_to_array_map(cmo_list *c, void *(* mapf)(void *))
-{
-	int i;
-	int n = list_length(c);
-	void **array = MALLOC(sizeof(void *)*(n+1));
-	for(i=0; i<n; i++) {
-		array[i] = mapf(list_nth(c, i));
-	}
-	array[n] = NULL;
-	return array;
-}
-
 /* for GNU mpz */
 void resize_mpz(mpz_ptr mpz, int size)
 {
@@ -189,7 +165,7 @@ cmo_list* new_cmo_list()
     return c;
 }
 
-cmo_list* new_cmo_list_set(void *array[], int n)
+cmo_list* new_cmo_list_array(void *array[], int n)
 {
     int i;
     cmo_list* c = new_cmo_list();
@@ -199,7 +175,7 @@ cmo_list* new_cmo_list_set(void *array[], int n)
     return c;
 }
 
-cmo_list* new_cmo_list_map(void *array[], int n, void *(* mapf)(void *))
+cmo_list* new_cmo_list_array_map(void *array[], int n, void *(* mapf)(void *))
 {
     int i;
     cmo_list* c = new_cmo_list();
