@@ -1,7 +1,8 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.11 2005/03/04 06:29:46 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/mathcap.c,v 1.12 2005/07/26 12:52:05 ohara Exp $ */
 
 /* This module includes functions for handling mathcap databases. */
+/* This version will be in the new-mathcap-branch. */
 
 #include <stdio.h>
 #include <stdlib.h>
