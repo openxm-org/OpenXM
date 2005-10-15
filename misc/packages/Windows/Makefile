@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.40 2004/12/17 00:13:09 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Windows/Makefile,v 1.41 2005/07/19 10:27:11 takayama Exp $
 OpenXM_TOP=../../../../OpenXM
 ASIR_LANG=ja
 #ASIR_LANG=en
-VERSION=1.2.2
+VERSION=1.2.3
 WGET_ARG=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/asir/asirwin-${ASIR_LANG}.tgz
 WGET_PHC=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/1.2.2/phc.exe
 WGET_HEAD=--passive-ftp ftp://ftp:${USER}.openxm.org@ftp.math.kobe-u.ac.jp/pub/OpenXM/Head/openxm-head.tar.gz

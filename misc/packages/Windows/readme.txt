@@ -1,10 +1,18 @@
-$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.4 2002/10/01 00:05:54 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Windows/readme.txt,v 1.5 2002/10/02 00:55:21 takayama Exp $
 
 
 THIS IS A NOTE FOR DEVELOPPERS.
 
 In order to build asir on cygwin, set the following path.
     export PATH=/usr/X11R6/bin:$PATH
+
+Set OpenXM_HOME for oxpp.
+
+For Java (in case of jdk1.4)
+export PATH=/cygdrive/c/j2sdk1.4.2_08/bin:$PATH
+export CLASSPATH='.;c:\j2sdk1.4.2_08\lib\tools.jar'
+export JAVA_HOME='c:\j2sdk1.4.2_08'
+   
 
 <1> Type in 
       make clean
