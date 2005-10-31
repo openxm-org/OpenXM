@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.12 2005/02/28 12:53:44 takayama Exp $ */
+/*$OpenXM: OpenXM/src/kan96xx/plugin/file2.c,v 1.13 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
@@ -285,7 +285,7 @@ int fp2clearReadBuf(FILE2 *fp2) {
 int fp2write(FILE2 *os, char *data, int size) {
   int i,r;
   for (i=0; i<size; i++) {
-    r = fp2fputc(data[i],os);
+    r = fp2fputc((unsigned char)(data[i]),os);
   }
   return(r);
 }
@@ -382,7 +382,7 @@ int fp2fputs(char *s,FILE2 *fp) {
   int i,n;
   n = strlen(s);
   for (i=0; i<n; i++) {
-	if (fp2fputc(s[i],fp) < 0) return(-1);
+	if (fp2fputc((unsigned char)(s[i]),fp) < 0) return(-1);
   }
   return(0);
 }
