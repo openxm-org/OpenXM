@@ -1,0 +1,116 @@
+%$OpenXM$
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx,psfrag}
+
+\title{The usage of ``dualgraph" by examples}
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+\item Download Risa/Asir from {\tt http://www.math.kobe-u.ac.jp/Asir/}\\
+\item Install Risa/Asir according to manual.\\
+\item Carry out Asir.
+\end{enumerate}
+
+The package is the file {\tt dualgraph.rr} in the directory 'asir-contrib/fj\_curve'.
+
+Attention: The file ``{\tt dualgraph.rr}" contains Japanese jis code.
+
+\begin{verbatim}
+This is Risa/Asir, Version 20051106 (Kobe Distribution).
+Copyright (C) 1994-2000, all rights reserved, FUJITSU LABORATORIES LIMITED.
+Copyright 2000-2005, Risa/Asir committers, http://www.openxm.org/.
+GC 6.5 Copyright 1988-2005, H-J. Boehm, A. J. Demers, Xerox, SGI, HP.
+PARI 2.0.17, copyright 1989-1999, C. Batut, K. Belabas, D. Bernardi,
+   H. Cohen and M. Olivier.
+Debug windows of ox servers will not be opened. Set Xm_noX=0 to open it.
+OpenXM/Risa/Asir-Contrib(20040302), Copyright 2000-2004, OpenXM.org committers
+ox_help(0); ox_help("keyword"); ox_grep("keyword");
+     for help messages (unix version only).
+http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc.html
+[1217] load("gr")$
+[1323] load("sp")$
+[1425] load("fj_curve/dualgraph.rr")$
+[1479] dual_graph((y^2-x^3)^2-y^7)$
+*** Newton Polygon ***
+[[0,4],[6,0]]
+[[0,2],[9,0]]
+***** Dual Graph *****
+[3,[2,b1],2]
+b1:[2,2,2,3,[1,b2],2]
+b2:*
+[1480]
+\end{verbatim}
+
+This result means following dual graph.
+
+ \psfrag{-1}{$-1$}
+ \psfrag{-2}{$-2$}
+ \psfrag{-3}{$-3$}
+ \psfrag{-5}{$-5$}
+ \psfrag{*}{$*$}
+ \centerline{
+  \includegraphics*[height=5cm]{g-dual1.eps}
+ }
+
+\begin{verbatim}
+[194] F=((x^2-y^5)^2-x^5)*((-x^2+y^3)^2-y^9)
+*((x^2+y^3)^2-x^7)*(x^4+y^5)$
+[195] dual_graph(F)$
+*** Newton Polygon ***
+[[0,27],[4,17],[12,5],[16,0]]
+[[0,2],[5,0]]
+[[0,2],[6,0]]
+[[0,2],[9,0]]
+***** Dual graph *****
+[2,[2,b1],4,[4,b2,b3],2,[1,b4],5]
+b1:[2,3,[1,b5],2]
+b5:*
+b2:[2,2,[1,b6,b7]]
+b6:*
+b7:*
+b3:[2,2,2,3,[1,b8],2]
+b8:*
+b4:*
+\end{verbatim}
+
+``b1,b2,b3,b4" mean another branches from these verticies.
+
+\begin{center}
+{\large [2,[2,b1],4,[4,b2,b3],2,[1,b4],5]}
+\end{center}
+$$\big\Updownarrow$$
+ \psfrag{b1}{b1}
+ \psfrag{b2}{b2}
+ \psfrag{b3}{b3}
+ \psfrag{b4}{b4}
+ \centerline{
+  \includegraphics*[height=3.5cm]{ex2dual1.eps}
+ }
+\vspace*{6pt}
+
+The list "b1:..." means the dual graph of the branch "b1".
+
+\begin{center}
+{\large b1:[2,3,[1,b5],2]}
+\end{center}
+$$\big\Updownarrow$$
+ \psfrag{b1}{b1}
+ \psfrag{b5}{b5}
+ \centerline{
+  \includegraphics*[height=4cm]{ex2dual2.eps}
+ }
+
+Therefor we get following dual graph.
+
+ \psfrag{1}{$-1$}
+ \psfrag{2}{$-2$}
+ \psfrag{3}{$-3$}
+ \psfrag{4}{$-4$}
+ \psfrag{5}{$-5$}
+ \centerline{
+  \includegraphics*[width=11cm]{dualex2.eps}
+ }
+
+\end{document}
