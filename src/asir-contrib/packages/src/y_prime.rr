@@ -1,0 +1,193 @@
+/*==========================================================================*
+ *                                                                          *
+ *  yprime : 素数に関するモジュール                                         *
+ *                                                          (version 1.30)  *
+ *                                                                          *
+ * [作成者] 本田光太郎 (hondako@k06.itscom.net)                             *
+ *          篠原直行   (shnhr@math.kyushu-u.ac.jp)                          *
+ *                                                                          *
+ * [作成日] 2003/02/13 (ver. 0.80)                                          *
+ * [更新日] 2005/11/08 (ver. 1.30)                                          *
+ *                                                                          *
+ * [現在の関数一覧] (内部関数を除く)                                        *
+ *                                                                          *
+ *  yprime.nthprime      : N番目の素数を出力 (prime関数を32bit版に拡張)     *
+ *  yprime.primelist     : 区間[L,R]間の素数をリスト出力                    *
+ *  yprime.primelist_mod : [L,R]間の素数Pで、P=A mod Mを満たすものを出力    *
+ *  yprime.isprime       : Nの素数判定/証明 (Algでアルゴリズム選択)         *
+ *  yprime.geneprime     : bit長Bの素数を生成 (Algで素数判定/証明を切替)    *
+ *  yprime.version       : モジュールのバージョン・著作権情報を表示         *
+ *                                                                          *
+ * [今後実装予定の関数] ([]内は実装予定者、仕様は変更の可能性あり)          *
+ *                                                                          *
+ *  yprime.nextprime : [本田] N以上で最小の素数を出力                       *
+ *  yprime.prevprime : [本田] N未満で最大の素数を出力                       *
+ *                                                                          *
+ * [主な更新履歴] (括弧はバージョン)                                        *
+ *                                                                          *
+ *  2005/11/08 (1.30) : yprime.primelist_mod()の追加                        *
+ *  2005/03/26 (1.20) : モジュール名をyprimeに変更＋LGPLライセンスの適用等  *
+ *  2005/03/19 (1.10) : 篠原担当の関数(isprime,geneprime)を実装             *
+ *  2005/03/15 (1.00) : peek,pokeの廃止及びモジュール化による大幅仕様変更   *
+ *  2004/08/22 (0.94) : 高速化と素数表の拡張に着手。但し全くの未検証状態    *
+ *  2003/02/14 (0.90) : ライブラリ・マニュアル双方を更新                    *
+ *  2003/02/13 (0.80) : 動作検証版                                          *
+ *                                                                          *
+ * [このライブラリの著作権・改変・再配布について]                           *
+ *                                                                          *
+ * LGPL(GNU Lesser General Public)ライセンスを適用しています。              *
+ *                                                                          *
+ * This and included files are Risa/Asir library about prime numbers.       *
+ * Copyright (C) 2003-2005, K. Honda and N. Shinohara.                      *
+ *                                                                          *
+ * This library is free software; you can redistribute it and/or            *
+ * modify it under the terms of the GNU Lesser General Public               *
+ * License as published by the Free Software Foundation; either             *
+ * version 2.1 of the License, or (at your option) any later version.       *
+ *                                                                          *
+ * This library is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        *
+ * Lesser General Public License for more details.                          *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with this library; if not, write to the Free Software      *
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA *
+ *                                                                          *
+ * LGPLについては以下のサイトに説明があるので、このライブラリの改変・再配布 *
+ * を考えている方は必ず一度は目を通しておいてください。                     *
+ *                                                                          *
+ *   about LGPL : http://www.gnu.org/copyleft/lesser.html                   *
+ *   邦訳サイト : http://www.opensource.jp/lesser/lgpl.ja.html              *
+ *                                                                          *
+ *==========================================================================*/
+
+/*==========================================================================*
+ *                                                                          *
+ * 外部モジュールのロード                                                   *
+ *                                                                          *
+ *==========================================================================*/
+
+if (!module_definedp("fff")) load("fff")$ else {}$
+if (!module_definedp("hstring")) load("y_prime/h_string.rr")$ else {}$
+
+module yprime$
+
+/*==========================================================================*
+ *                                                                          *
+ * [宣言部] static, localf宣言を行う                                        *
+ *                                                                          *
+ * これらはアルファベット順であり、関数横のコメントはどこのファイルで利用、 *
+ * もしくは実装を行うのかを書く。例えば、実装部ファイル名に各開発者名を含め *
+ * ている場合(例："honda_prime")は実装者の名前を書けば十分である。          *
+ *                                                                          *
+ * ※関数の追加方法                                                         *
+ *                                                                          *
+ *  (1) 関数の名前を考え、宣言部を眺めて重複しないかをチェックする          *
+ *  (2) 重複が無ければ、宣言部にその定義したい関数の名前を追加              *
+ *  (3) 後は適宜、各自に割り当てられた実装部ファイルで実装する              *
+ *                                                                          *
+ *==========================================================================*/
+
+/*==========================================================================*
+ *                                                                          *
+ * static宣言一覧 (ローカル変数と区別するためにすべてSで始まる)             *
+ *                                                                          *
+ * ※static変数の初期化はcommonのものを除き各自の実装部で行っています       *
+ *                                                                          *
+ *==========================================================================*/
+
+static
+	SByteInfo,       /* honda : 0..255の各数の2進数表現に何個1があるか   */
+    SDCHL,           /* shnhr */
+    Sfbttimes,       /* shnhr */
+    SFileIndex,      /* honda : 現在開いているファイルのインデックス値   */
+    SLenPrimeIndex,  /* honda : SPrimeIndexの長さ                        */
+    SMaxPrime,       /* honda : 素数表で利用可能な素数の最大値           */
+    SMaxPrimeIndex,  /* honda : 素数表で利用可能な素数indexの最大値      */
+    Smillertimes,    /* shnhr */
+    SOddPrimes,      /* honda : 篩に用いる奇素数表                       */
+    SOffsets,        /* honda : 各素数に対応するoffsetの配列             */
+    SPdataPath,      /* honda : 32bit素数表フォルダ"pdata"のパス         */
+    SPrimeData,      /* honda : 現在読み込まれている素数表データ         */
+    SPrimeIndex,     /* honda : nthprime関数で用いる素数indexのリスト    */
+    Ssdflag,         /* shnhr */
+    SSieveStatus,    /* honda : 篩の状態。計算中(-1)またはoffsetの左端値 */
+    S2bsmooth$       /* shnhr */
+
+/*==========================================================================*
+ *                                                                          *
+ * localf宣言一覧                                                           *
+ *                                                                          *
+ *==========================================================================*/
+
+localf
+	addmo,            /* shnhr */
+    atkmor7,          /* shnhr */
+    binaryl,          /* shnhr */
+    binarysearch2,    /* honda */
+    blocksieve,       /* honda */
+    doublemo,         /* shnhr */
+    ecpp_atmr,        /* shnhr */
+    emultimo,         /* shnhr */
+    fbtest2,          /* shnhr */
+    findpotaf1,       /* shnhr */
+    firstsieve,       /* honda */
+    geneprime,        /* shnhr */
+    inttostr5,        /* honda */
+    isprime,          /* shnhr */
+    jsymbol,          /* shnhr */
+    lchainB,          /* shnhr */
+    makebyteinfo,     /* honda */
+    makeprimetable,   /* honda */
+    mdfcrnsm,         /* shnhr */
+    millerrabin,      /* shnhr */
+    motoaf,           /* shnhr */
+    negmo,            /* shnhr */
+    nextprime,        /* honda (not implemented) */
+    nonsing1,         /* shnhr */
+    nthprime,         /* honda */
+    nthprimesub,      /* honda */
+    ordfctr3,         /* shnhr */
+    powm,             /* shnhr */
+    prevprime,        /* honda (not implemented) */
+    primelist,        /* honda */
+    primelist2,       /* honda */
+    primelist_mod,    /* honda */
+    renewprimeindex,  /* honda */
+    resetoffsetlist,  /* honda */
+    sdflag,           /* shnhr */
+    setoffset,        /* honda */
+    setpdatapath,     /* honda */
+    spowm,            /* shnhr */
+    sqrtgf,           /* shnhr */
+    strongpt,         /* shnhr */
+    submo,            /* shnhr */
+    s2bsmooth,        /* shnhr */
+    version$          /* honda */
+
+/*==========================================================================*
+ *                                                                          *
+ * [実装部] 関数の実装部分は各自の書いたファイルをloadする                  *
+ *                                                                          *
+ *==========================================================================*/
+
+load("y_prime/honda_prime.rr")$
+load("y_prime/shnhr_prime.rr")$
+
+/*==========================================================================*
+ *                                                                          *
+ * 全体を通して有効にしたい前処理などがあれば以下に記述                     *
+ * (但し、前処理はなるべく各自のライブラリの末尾で書くようにしてください)   *
+ *                                                                          *
+ *==========================================================================*/
+
+/*==========================================================================*
+ *                                                                          *
+ * 前処理記述：ここまで                                                     *
+ *                                                                          *
+ *==========================================================================*/
+
+endmodule$
+
+end$

@@ -1,0 +1,1318 @@
+/*==========================================================================*
+ *                                                                          *
+ *  yprime : 篠原担当分                                                     *
+ *                                                                          *
+ *==========================================================================*/
+
+/*==========================================================================*
+ *                                                                          *
+ *  以下、関数の実装部                                                      *
+ *                                                                          *
+ *==========================================================================*/
+
+/*===================================================================*
+ * [geneprime] Gnerate prime                                         *
+ *  2005.03.18                                                       *
+ * [Input]                                                           *
+ *  B : A natural number, B>1                                        *
+ *  ALG : 0 ---> Primality test (Frobeniu test)                      *
+ *        1 ---> Primality proving (ECPP;Atkin-Morain method)        *
+ * [Output]                                                          *
+ *  A B-bit prime                                                    *
+ * [Sub]                                                             *
+ *  isprime : 2005.03.18                                             *
+ * [Example]                                                         *
+ *  geneprime(312319717,1);                                          *
+ *                                                                   *
+ *  If you input AGL=1, then this function generates a B-bit prime.  *
+ * If you input AGL=0, then it generates either a B-bit prime or     *
+ * a B-bit Frobenius pseudoprime.                                    *
+ *===================================================================*/
+
+def geneprime(B,ALG){
+	if(B<2){
+		error("geneprime : B<2.");
+	}
+	while(TEST!=1){
+		N=lrandom(B);
+		TEST=isprime(N,ALG);
+	}
+	return(N);
+}
+
+
+/*===================================================================*
+ * [isprime] Primality proving/test                                  *
+ *  2005.03.18                                                       *
+ * [Input]                                                           *
+ *  N : A positive number, N>1                                       *
+ *  ALG : 0 ---> Primality test (Frobeniu test)                      *
+ *        1 ---> Primality proving (ECPP;Atkin-Morain method)        *
+ * [Output]                                                          *
+ *  0 or 1                                                           *
+ * [Sub]                                                             *
+ *  ecpp_atmr : 2005.03.18                                           *
+ *  fbtest2 : 2005.03.18                                             *
+ * [Example]                                                         *
+ *  isprime(312319717,1);                                            *
+ *                                                                   *
+ *  If you input ALG=0, then this function performs primality test.  *
+ * If 0 is returned, then N is composite. If 1 is returned, then N   *
+ * is prime or Frobenius pseudoprime.                                *
+ *  If you input ALG=1, then it performs primality proving. If 0 is  *
+ * returned, then N is composite. If 1 is returned, then N is prime. *
+ *===================================================================*/
+
+def isprime(N,ALG){
+	if(N<2){
+		error("isprime: N<2.");
+	}
+	if(N==2 ||N==3){
+		return(1);
+	}
+	if(ALG==1){
+		TEST=ecpp_atmr(N);
+	}
+	if(ALG==0){
+		J=0;
+		B=1;
+		D=-3;
+		while(J!=-1){
+			B=B+1;
+			D=D-4;
+			J=jsymbol(D,N);
+			if(B==10){
+				break;
+			}
+		}
+		TEST=fbtest2(N,1,B);
+	}
+	if(TEST==1){
+		return(1);
+	}
+	return(0);
+}
+
+
+
+
+
+
+	/*================*
+	 *                *
+	 * Frobenius test *
+	 *                *
+	 *================*/
+
+
+
+
+
+/*====================================================*
+ * [fbtest2] : Frobenius probable prime test 2        *
+ * 2005.03.18                                         *
+ * <Algorithm 3.5.9> : Prime Numbers                  *
+ * [Input]                                            *
+ *  N : A positive number, N>1                        *
+ *  A,B : Integers s.t. D=A^2-4*B is not a square     *
+ * [Output]                                           *
+ *  0 or 1                                            *
+ * [Sub]                                              *
+ *  jsymbol : 2003.10.5                               *
+ *  lchainB : 2005.02.16                              *
+ *  powm : 2003.10.10                                 *
+ * [Example]                                          *
+ *  fbtest(1234567,3,5);                              *
+ *                                                    *
+ *  This function returns 1 if N is either prime or   *
+ * a Frobenius pseudoprime with respect to x^2-A*x+B. *
+ * Otherwise, it returns 0.                           *
+ *====================================================*/
+
+def fbtest2(N,A,B){
+	if(N<2){
+		error("N<2");
+	}
+	if(N==2){
+		return(1);
+	}
+    D=A^2-4*B;
+    if(D==0){
+		error("fbtest : A^2-4*B=0");
+	}
+    K=length(fctr(x^2-D));
+    if(K==3){
+        error("fbtest : D is a square");
+    }
+    
+    /* Now, D is not a square */
+    
+    if(igcd(N,2*A*B*D)>1){
+	    return(0);
+	}
+	
+	/* 1. Auxiliary parameters */
+	
+	/* C=B^(-1) (mod N) */
+	C=inv(B,N); 
+	AA=C*(A^2)-2;
+	AA=AA%N;
+	J=jsymbol(D,N);
+	M=(N-J)/2;
+	
+	/* 2. Binary Lucas chain */
+	
+	VL=lchainB(M,AA,N);
+	VM=VL[0];
+	VN=VL[1];
+	
+	/* 3. Declaration */
+	
+	BB=powm(B,(N-1)/2,N);
+	if(irem(AA*VM,N)==irem(2*VN,N) && irem(BB*VM,N)==2){
+		return(1);
+	}
+	 else{
+		return(0);
+	}
+}
+
+
+
+
+
+		/*============================*
+		 *                            *
+		 * ECPP ; Atkin-Morain method *
+		 *                            *
+		 *============================*/
+
+
+
+
+/*========================================================*
+ * [ecpp_atmr] ECPP ; Atkin-Morain method                 *
+ *  2005.03.18                                            *
+ * [Input]                                                *
+ *  N : A positive number, N>1                            *
+ * [Output]                                               *
+ *  0 or 1                                                *
+ * [Sub]                                                  *
+ *  millerrabin : 2003.10.27                              *
+ *  atkmor7 : 2005.03.05                                  *
+ * [Example]                                              *
+ *  ecpp_atmr(312319717);                                 *
+ *                                                        *
+ *  This function attempts to decide wheter N is prime or *
+ * composite. If 0 is returned, then N is composite. If 1 *
+ * is returned, then N is prime.                          *
+ *========================================================*/
+
+def ecpp_atmr(N){
+	TEST=millerrabin(N,Smillertimes);
+	if(TEST==0){
+		return(0);
+	}
+	BPL=primelist(2,2^S2bsmooth);
+	DCHL=SDCHL;
+	RCL1=[];
+	FFF=1;
+	RCL2=[N,0,-1];
+	while(N!=1){
+		AML=atkmor7(RCL2,DCHL,BPL);
+		N=AML[0];
+		if(Ssdflag==1){
+			print(" ");
+			print(N);
+		}
+		if(N==1){
+			return(1);
+		}
+		if(FFF==1){
+			if(N==0){
+				return(0);
+			}
+			if(N==-1){
+				error("atmrfnl3 : Give more Hilbert class polynomials.");
+			}
+		}
+		if(N==0){
+			return(-1);
+		}
+		if(N==-1){
+			if(length(RCL1)==0){
+				error("atmrfnl3 : Give more Hilbert class polynomials.");
+			}
+			RCL2=RCL1[0];
+			RCL1=cdr(RCL1);
+		}
+		else{
+			RCL2=[N,0,-1];
+			RCL1=cons(AML[1],RCL1);
+		}
+		FFF=0;
+	}
+}
+
+/*=================================*
+ * [setdebugflag] : Set debug flag *
+ *  2005.03.18                     *
+ * [Input]                         *
+ *  0 ---> No indication           *
+ *  1 ---> Indicate                *
+ *=================================*/
+
+def sdflag(SDF){
+	Ssdflag=SDF;
+	return(SDF);
+}
+
+/*===================================================*
+ * [atkmor7] : Atkin-Morain primality test           *
+ * 2005.03.05                                        *
+ * <Algorithm 7.6.3> : Prime Numbers                 *
+ * [Input]                                           *
+ *  N : A nonsquare integer, N>2^32, gcd(N,6)=1      *
+ *      (N has already passed a probable prime test) *
+ *  DHL : A list of fundamental discriminant         *
+ *  BPL : The list of primes less than 2^16          *
+ * [Output]                                          *
+ *                                                   *
+ * [Sub]                                             *
+ *  mdfcrnsm : 2004.01.05                            *
+ *  millerrabin : 2003.10.27                         *
+ *                                                   *
+ *===================================================*/
+
+def atkmor7(RCL2,DCHALL,BPL){
+	
+	setprec(200);
+	
+	MM=Smillertimes;
+	
+	N=RCL2[0];
+	if(igcd(N,6)!=1){
+		print("gcd(N,6)!=1");
+		return([0,0]);
+	}
+	if(N<=2^32){
+		BPLL=length(BPL);
+		while(BPLL>0){
+			P=BPL[0];
+			if(N%P==0){
+				return([0,0]);
+			}
+			BPL=cdr(BPL);
+			BPLL=BPLL-1;
+		}
+		return([1,1]);
+	}
+	
+	/* 0.[Calculate nonresidue] */
+	
+	NPA1_3=N%3;
+	while(1){
+		G=random()%N;
+		JSY=jsymbol(G,N);
+		if(JSY==-1){
+			if(NPA1_3!=1){
+				break;
+			}
+			else{
+				if(powm(G,(N-1)/3,N)!=1){
+					break;
+				}
+			}
+		}
+	}
+	
+	/* 1.[Choose an order] */
+	
+	BPLL=length(BPL);
+	N412=pari(ceil,eval((N^(1/4)+1)^2));
+	
+	RCL_1=RCL2[1];
+	FFF=0;
+	FFFFF=0;
+	for(I=RCL_1;I<12;I++){
+		if(Ssdflag==1){
+			print("*",2);
+		}
+		DCHL=DCHALL[I];
+		if(I==RCL_1){
+			RCL_2=RCL2[2];
+			if(RCL_2!=-1){
+				while(RCL_2>=0){
+					DCHL=cdr(DCHL);
+					RCL_2=RCL_2-1;
+					FFFFF=FFFFF+1;
+				}
+			}
+		}
+		DCHLL=length(DCHL);
+		DJ=FFFFF;
+		while(DCHLL>0){
+			D=DCHL[0][0];
+			CL=DCHL[0][1];
+			H=DCHL[0][2];
+			UVL=mdfcrnsm(D,N);
+			if(length(UVL)!=0){
+				U=UVL[0];
+				V=UVL[1];
+				if(D==-4){
+					ORDL=[N+1+U,N+1-U,N+1+2*V,N+1-2*V];
+				}
+				if(D==-3){
+					ORDL=[N+1+U,N+1-U,N+1+(U+3*V)/2,N+1+(U-3*V)/2,N+1-(U+3*V)/2,N+1-(U-3*V)/2];
+				}
+				if(D<-4){
+					ORDL=[N+1+U,N+1-U];
+				}
+				ORDLL=length(ORDL);
+				while(ORDLL>0){
+					M=ORDL[0];
+					Q=ordfctr3(M,BPL,BPLL,MM);
+					if(M!=Q){
+						if(Q>N412){
+							FFF=1;
+							break;
+						}
+					}
+					ORDL=cdr(ORDL);
+					ORDLL=ORDLL-1;
+				}
+			}
+			if(FFF==1){
+				break;
+			}
+			DCHL=cdr(DCHL);
+			DCHLL=DCHLL-1;
+			DJ=DJ+1;
+		}
+		if(FFF==1){
+			break;
+		}
+		if(I==11){
+			return([-1,-1]);
+		}
+	}
+	
+	RCL=[N,I,DJ];
+	
+	/* Parameter */
+	
+	if(D==-4){
+		PARAL=[[N-1,0],[N-G,0],[N-powm(G,2,N),0],[N-powm(G,3,N),0]];
+	}
+	if(D==-3){
+		PARAL=[[0,N-1],[0,N-G],[0,N-powm(G,2,N)],[0,N-powm(G,3,N)],[0,N-powm(G,4,N)],[0,N-powm(G,5,N)]];
+	}
+	if(D<-4){
+		
+		/* D<-4 */
+		
+		S=H%N;
+		setmod_ff(N);
+		FL=fctr_ff(S);
+		FLL=length(FL);
+		if(FLL!=CL){
+			error("cmmethod : HDL is maybe wrong");
+		}
+		HTX=lmptop(FL[0][0]);
+		if(deg(HTX,x)!=1){
+			error("cmmethod : deg(HTX,x)!=1");
+		}
+		JIN=(-srem(HTX,x))%N;
+		C=JIN*inv(JIN-1728,N)%N;
+		A=(-3*C)%N;
+		B=2*C%N;
+		PARAL=[[A,B],[A*G^2%N,B*G^3%N]];
+	}
+	
+	/* Check the parameter */
+	
+	if(D==-3){
+		PARALL=6;
+	}
+	if(D==-4){
+		PARALL=4;
+	}
+	if(D<-4){
+		PARALL=2;
+	}
+	while(1){
+		DMYL=[];
+		while(PARALL>0){
+			A=PARAL[0][0];
+			B=PARAL[0][1];
+			JSY=-1;
+			while(JSY==-1){
+				X=random()%N;
+				QQ=((X^2+A)*X+B)%N;
+				JSY=jsymbol(QQ,N);
+				if(JSY==0){
+					if(Ssdflag==1){
+						print("1");
+					}
+					return([0,0]);
+				}
+			}
+			Y=sqrtgf(QQ,N);
+			if(Y^2%N!=QQ){
+				print("2");
+				return([0,0]);
+			}
+			PT=newvect(3,[X,Y,1]);
+			MPT=emultimo(PT,N,A,B,M);
+			if(MPT[2]==0){
+				DMYL=cons([A,B],DMYL);
+			}
+			PARAL=cdr(PARAL);
+			PARALL=PARALL-1;
+		}
+		PARAL=DMYL;
+		PARALL=length(PARAL);
+		if(PARALL==1){
+			PARAL=PARAL[0];
+			break;
+		}
+		if(PARALL==0){
+			print(D);
+			print("2.1");
+			return([0,0]);
+		}
+	}
+	
+	/* Operate on point */
+	
+	A=PARAL[0];
+	B=PARAL[1];
+	MQ=M/Q;
+	while(1){
+		FFF3=1;
+		while(1){
+			X=random()%N;
+			QQ=((X^2+A)*X+B)%N;
+			if(jsymbol(QQ,N)==1){
+				break;
+			}
+		}
+		Y=sqrtgf(QQ,N);
+		if(Y^2%N!=QQ){
+			print("8");
+			return([0,0]);
+		}
+		PT=newvect(3,[X,Y,1]);
+		UT=emultimo(PT,N,A,B,MQ);
+		if(UT[2]==0){
+			FFF3=0;
+		}
+		VT=emultimo(UT,N,A,B,Q);
+		if(VT[2]!=0){
+			print("7");
+			return([0,0]);
+		}
+		if(FFF3==1){
+			break;
+		}
+	}
+	return([Q,RCL]);
+}
+
+
+
+
+
+		/*=====================*
+		 *                     *
+		 * Elliptic arithnetic *
+		 *                     *
+		 *=====================*/
+
+
+
+
+
+/*=========================================================*
+ * [nonsing1] : Deciding nonsingular 1                     *
+ * 2003.11.4                                               *
+ * [Input]                                                 *
+ *  P : A prime, P>3                                       *
+ *  A, B : Elements in F_P                                 *
+ * [Output]                                                *
+ *  0 or 1                                                 *
+ * [Example]                                               *
+ *  nonsing1(3,1,7);                                       *
+ *                                                         *
+ *  This program decides whether the cubic (y^2=x^3+A*x+B) *
+ * is nonsingular or not. If the cubic is nonsingular,     *
+ * then it returns 1.                                      *
+ *=========================================================*/
+
+def nonsing1(A,B,P){
+	A=A%P;
+	B=B%P;
+	D=(4*A^3+27*B^2) %P;
+	if(D==0){
+		/* Thie cubic is singular. */
+		return(0);
+	}
+	return(1);
+}
+
+/*============================================================*
+ * [findpotaf1] : Finding a point on given elliptic curve 1   *
+ * 2003.11.4                                                  *
+ * <Algorithm 7.2.1> : Prime Numbers                          *
+ * [Input]                                                    *
+ *  P : A prime, P>3                                          *
+ *  A, B : Elements in F_P                                    *
+ * [Output]                                                   *
+ *  A Vector                                                  *
+ * [Sub]                                                      *
+ *  nonsing1 : 2003.11.4                                      *
+ *  jsymbol : 2003.10.5                                       *
+ *  sqrtgf : 2003.10.11                                       *
+ * [Example]                                                  *
+ *  findpotaf1(3,1,7)                                         *
+ *                                                            *
+ *  This function returns a point (x,y) on E(F_P) whose cubic *
+ * is y^2=x^3+A*x+B.                                          *
+ *============================================================*/
+
+def findpotaf1(A,B,P){
+	A=A%P;
+	B=B%P;
+	EC=nonsing1(A,B,P);
+	if(EC==0){
+		error("findpotaf1 : This cubic is singular.");
+	}
+	while(S!=1){
+		X=random()%P;
+		T=(X*(X^2+A)+B)%P;
+		S=jsymbol(T,P);
+	}
+	T2=sqrtgf(T,P);
+	return(newvect(3,[X,T2,1]));
+}
+
+/*==========================================================================*
+ * Elliptic arithmetic for modifeid projective coordinates                  *
+ * (The cubic is y^2=x^3+A*x+B.)                                            *
+ * 2003.11.6                                                                *
+ * <Algorithm 7.2.3> : Prime Numbers                                        *
+ * [Input]                                                                  *
+ *  P : An odd prime, P>3                                                   *
+ *  A, B : Elements of FP                                                   *
+ *  PT=[X,Y,Z] : A vector that means a point of E(F_P)                      *
+ *                (If Z=1, then [X,Y] lise on the affine curve.             *
+ *                 If Z=0, then PT is the point at infinity.)               *
+ * [Output]                                                                 *
+ *  A vector                                                                *
+ *                                                                          *
+ *  This algorithm provides functions for point negation, doubling,         *
+ * addition, and subtraction.                                               *
+ *==========================================================================*/
+
+/*====================================*
+ * [negmo] : Elliptic negate function *
+ * 2003.11.06                         *
+ *====================================*/
+
+def negmo(PT,P){
+	Y=(-1*PT[1])%P;
+	return(newvect(3,[PT[0],Y,PT[2]]));
+}
+
+/*=======================================*
+ * [doublemo] : Elliptic double function *
+ * 2003.11.6                             *
+ *=======================================*/
+
+def doublemo(PT,P,A){
+	A=A %P;
+	if(PT[1]==0 || PT[2]==0){
+		/* The point at infinity. */
+		return(newvect(3,[0,1,0]));
+	}
+	M=(3*PT[0]^2+A*PT[2]^4)%P;
+	Y_2=PT[1]^2 %P;
+	S=4*PT[0]*Y_2 %P;
+	X2=(M^2-2*S) %P;
+	Y2=(M*(S-X2)-8*Y_2^2) %P;
+	Z2=2*PT[1]*PT[2] %P;
+	return(newvect(3,[X2,Y2,Z2]));
+}
+
+/*=================================*
+ * [addmo] : Elliptic add function *
+ * 2003.11.6                       *
+ *=================================*/
+
+def addmo(PT1,PT2,P,A){
+	A=A %P;
+	if(PT1[2]==0){
+		/* PT1 is the point at infinity. */
+		return(PT2);
+	}
+	if(PT2[2]==0){
+		/* PT2 is the point at infinity. */
+		return(PT1);
+	}
+	Z1_2=PT1[2]^2 %P;
+	Z2_2=PT2[2]^2 %P;
+	U1=PT2[0]*Z1_2 %P;
+	U2=PT1[0]*Z2_2 %P;
+	S1=PT2[1]*Z1_2*PT1[2] %P;
+	S2=PT1[1]*Z2_2*PT2[2] %P;
+	W=(U1-U2) %P;
+	R=(S1-S2) %P;
+	if(W==0){
+		/* x-coodinates match. */
+		if(R==0){
+			return(doublemo(PT1,P,A));
+		}
+		return(newvect(3,[0,1,0]));
+	}
+	T=(U1+U2) %P;
+	M=(S1+S2) %P;
+	W_2=W^2 %P;
+	X3=(R^2-T*W_2) %P;
+	C2=inv(2,P);
+	/* C2 is 2^(-1) over FP. */
+	TW_2=T*W_2 %P;
+	Y3=C2*((TW_2-2*X3)*R-M*W*W_2) %P;
+	Z3=PT1[2]*PT2[2]*W %P;
+	return(newvect(3,[X3,Y3,Z3]));
+}
+
+/*======================================*
+ * [submo] : Elliptic subtract function *
+ * 2003.11.6                            *
+ *======================================*/
+
+def submo(PT1,PT2,P,A){
+	A=A %P;
+	return(addmo(PT1,negmo(PT2,P),P,A));
+}
+
+/*==========================================================================*
+ * [emultimo] : Elliptic multiplication for modified projective coordinates *
+ *              (Addition-subtraction ladder)                               *
+ * 2003.11.6                                                                *
+ * <Algorithm 7.2.4> : Prime Numbers                                        *
+ * [Input]                                                                  *
+ *  P : An odd prime, P>3                                                   *
+ *  N : A nonnegative integer                                               *
+ *  A, B : Elements in F_P                                                  *
+ *  PT : A vector that means a point of E(F_P)                              *
+ * [Output]                                                                 *
+ *  A vector                                                                *
+ * [Sub]                                                                    *
+ *  negmo : 2003.11.6                                                       *
+ *  doublemo : 2003.11.6                                                    *
+ *  addmo : 2003.11.6                                                       *
+ *  submo : 2003.11.6                                                       *
+ *  binaryl : 2003.11.6                                                     *
+ * [Example]                                                                *
+ *  emultimo(PT,11,3,1,5)                                                   *
+ *                                                                          *
+ *  This function assumes functions doublemo(), addmo(), submo() from       *
+ * <Alg.7.2.3>, and performs the elliptic multiplication [N]PT for          *
+ * nonnegative integer N and point PT is an element of E(F_P). We assume a  *
+ * B-bit representation (N_j) for N (which representation is zero-ppadded   *
+ * on the left to B bits), with B=0 for N=0 understood.                     *
+ *==========================================================================*/
+
+def emultimo(PT,P,A,B,N){
+	
+	/* 1.[Initialize] */
+	
+	if(N==0){
+		/* Point at infinity. */
+		return(newvect(3,[0,1,0]));
+	}
+	Q=PT;
+	
+	/* 2.[Compare bits of 3*N, N.] */
+	
+	MBL=binaryl(3*N);
+	MBLL=length(MBL);
+	NBL=binaryl(N);
+	NBLL=length(NBL);
+	G=MBLL-NBLL;
+	while(G!=0){
+		NBL=cons(0,NBL);
+		G=G-1;
+	}
+	for(I=1;I<MBLL-1;I++){
+		Q=doublemo(Q,P,A);
+		if(MBL[I]==1 && NBL[I]==0){
+			Q=addmo(Q,PT,P,A);
+		}
+		if(MBL[I]==0 && NBL[I]==1){
+			Q=submo(Q,PT,P,A);
+		}
+	}
+	return(Q);
+}
+
+/*===========================================================================*
+ * [motoaf] : Transform modifide projective coordinates                      *
+ *            into affine coordinates                                        *
+ * 2003.11.6                                                                 *
+ * [Input]                                                                   *
+ *  P : An odd prime, P>3                                                    *
+ *  PT : A vector that means a point of E(F_P)                               *
+ *       whose representation is modified projective coordinates             *
+ * [Output]                                                                  *
+ *  A vector                                                                 *
+ *                                                                           *
+ *  This program changes modified projective coordinates into affine         *
+ * coordinates.                                                              *
+ *===========================================================================*/
+
+def motoaf(PT,P){
+	if(PT[2]==0){
+		return(newvect(3,[0,1,0]));
+	}
+	CC=inv(PT[2],P);
+	X=PT[0]*CC^2 %P;
+	Y=PT[1]*CC^3 %P;
+	return(newvect(3,[X,Y,1]));
+}
+
+
+
+
+
+		/*==========================*
+		 *                          *
+ 		 * Number Theoretical Tools *
+ 		 *                          *
+		 *==========================*/
+
+
+
+
+
+/*=============================================*
+ * [jsymbol] : Jacobi symbol                   *
+ * 2003.10.5                                   *
+ * <Algorithm 2.3.5> : Prime Numbers           *
+ * [Input]                                     *
+ *  A: An integer                              *
+ *  M: An odd natural number                   *
+ * [Output]                                    *
+ *  0, 1, or -1                                *
+ * [Example]                                   *
+ *  jsymbol(3,5);                              *
+ *                                             *
+ *  This function returns Jacobi symbol (A/M). *
+ *=============================================*/
+
+def jsymbol(A,M){
+	if(M%2==0){
+		error("jsymbol : M is even.");
+	}
+	if(M<0){
+		error("jsymbol : M<0");
+	}
+	if(M==1){
+		return(1);
+	}
+	F1=0;
+	A=A%M;
+    T=1;
+    while(A!=0){
+		/* Second supplementary law */
+		M8=M%8;
+		while(irem(A,2)==0){
+			A/=2;
+			if(M8==3 || M8==5){
+				T=-T;
+			}
+		}
+		/* Reciprocity law */
+        B=A;
+        A=M;
+        M=B;
+        if(irem(A,4)==3 && irem(M,4)==3){
+			T=-T;
+		}
+		A=irem(A,M);
+	}
+	if(M==1){
+		return(T);
+	}
+	return(0);
+}
+
+/*=============================================*
+ * [spowm] : Recursive powering algorithm 2    *
+ * 2003.10.11                                  *
+ * [Input]                                     *
+ *  M : A nonnegative integer                  *
+ *  N : A natural number                       *
+ *  GX : An element of Z[x]                    *
+ *  FX : An element of Z[x], deg(FX)>0, monic  *
+ * [Output]                                    *
+ *  An element of Z[x]                         *
+ * [Example]                                   *
+ *  spowm(x+1,5,x^5+3,17)                      *
+ *                                             *
+ *  This function calculates GX^M (mod(FX,N)). *
+ *=============================================*/
+
+def spowm(GX,M,FX,N){
+	DFX=deg(FX,x);
+	if(DFX<=0){
+		error("spowm : deg(FX,x)<=0");
+	}
+	if(coef(FX,DFX)!=1){
+		error("spowm : FX is not monic.");
+	}
+	if(M<0 || N<=0){
+		error("spowm : M<0 or N<=0");
+	}
+	T=1;
+	G=GX;
+	while(M>0){
+		if(iand(M,1)==1){
+			T=srem(T*G,FX)%N;
+		}
+		M=ishift(M,1);
+		G=srem(G^2,FX)%N;
+	}
+	return(T%N);
+}
+
+/*=======================================================*
+ * [sqrtgf] : Square roots (mod P) via F_P^2 arithmetic  *
+ * 2003.10.11                                            *
+ * <Algorithm 2.3.9> : Pirme Numbers                     *
+ * [Input]                                               *
+ *  P : An odd prime                                     *
+ *  A : A quadratic residue modulo P                     *
+ * [Output]                                              *
+ *  A nonnegative integer                                *
+ * [Sub]                                                 *
+ *  jsymbol : 2003.10.5                                  *
+ *  spowm : 2003.10.11                                   *
+ * [Example]                                             *
+ *  sqrtgf(2,17)                                         *
+ *                                                       *
+ *  This functons returns X that is one of the solutions *
+ * to X^2%P=A.                                           *
+ *=======================================================*/
+
+def sqrtgf(A,P){
+	R=jsymbol(A,P);
+	if(R!=1){
+		error(" sqrtgf : A is a quadratic nonresidue.");
+	}
+	S=1;
+	T=0;
+	while(S!=-1){
+		J=T^2-A;
+		S=jsymbol(J,P);
+		T=T+1;
+		if(T==P){
+			error("sqrtgf : This case cann't occur.");
+		}
+	}
+	F=x^2-J;
+	T=T-1;
+	X=spowm(T+x,(P+1)/2,F,P);
+	return(X);
+}
+
+/*=====================================*
+ * [binaryl] : Binary rpresentation    *
+ * 2003.11.6                           *
+ * [Input]                             *
+ *  N : A nonnegative integer          *
+ * [Output]                            *
+ *  A list                             *
+ * [Example]                           *
+ *  binaryl(14)                        *
+ *                                     *
+ *  This function returns B-bit binary *
+ * representation of N.                *
+ *=====================================*/
+
+def binaryl(N){
+	L=[];
+	if(N==0){
+		return([0]);
+	}
+	if(N<0){
+		error("binaryl : N<0");
+	}
+	while(N!=0){
+		if(iand(N,1)==1){
+			L=cons(1,L);
+		}
+		else{
+			L=cons(0,L);
+		}
+		N=ishift(N,1);
+	}
+	return(L);
+}
+
+/*===============================================*
+ * [mdfcrnsm] : Represent 4*P as X^2+|D|Y^2      *
+ *              (modified Cornacchia-Smith)      *
+ * 2004.01.05                                    *
+ * <Algorithm 2.3.13> : Prime Numbers            *
+ * [Input]                                       *
+ *  P : A prime                                  *
+ *  D : A negative integer, -4*P<D<0, D%4=0 or 1 *
+ * [Output]                                      *
+ *  A list                                       *
+ * [Sub]                                         *
+ *  jsymbol : 2003.10.5                          *
+ *  spowm : 2003.10.11                           *
+ *  sqrtgf : 2003.10.11                          *
+ * [Example]                                     *
+ *  mdfcrnsm(-3,19)                              *
+ *                                               *
+ *  This function returns a solution [X,Y]       *
+ * or [] (i.e. reports that no solution exists). *
+ *===============================================*/
+
+def mdfcrnsm(D,P){
+	
+	if(D>=0 || D<=-4*P){
+		error("mdfcrnsm : D>=0 or D<=-4*P");
+	}
+	D4=D%4;
+	if(D4!=0 && D4!=1){
+		error("mdfcrnsm : D%4!=0 and D%4!=1");
+	}
+	
+	/* 1.[Case P=2] */
+	if(P==2){
+		FX=x^2-(D+8);
+		FLX=fctr(Fx);
+		FXLL=length(FFX);
+		if(FXLL==3){
+			/* Now, D+8 is a square. */
+			RD8=srem(FLX[1][0]);
+			if(RD8<0){
+				return([-RD8,1]);
+			}
+			return([RD8,1]);
+		}
+		/* Return empty : no solution */
+		return([]);
+	}
+	
+	/* 2.[Test for solvability] */
+	
+	JS=jsymbol(D,P);
+	if(JS<1){
+		/* Return empty */
+		return([]);
+	}
+	
+	/* 3.[Initial square root] */
+	
+	X0=sqrtgf(D,P);  /* Via <Alg. 2.3.9> */
+	if(X0%2!=D%2){
+		/* Ensure X0^2===D (mod 4*P). */
+		X0=P-X0;
+	}
+	
+	/* 4.[Initialize Euclid chain] */
+	
+	A=2*P;
+	B=X0;
+	/*
+	C=pari(floor,eval(2*P^(1/2)));
+	*/
+	PSQRT2=2*isqrt(P);
+	P4=P*4;
+	while(PSQRT2^2<=P4){
+		PSQRT2=PSQRT2+1;
+	}
+	C=PSQRT2-1;
+	
+	/* 5.[Euclid chain] */
+	
+	while(B>C){
+		A2=A;
+		A=B;
+		B=A2%B;
+	}
+	
+	/* 6.[Final reprot] */
+	
+	T=4*P-B^2;
+	if(T%(-D)!=0){
+		return([]);
+	}
+	TD=T/(-D);
+	FTD=x^2-TD;
+	FTDL=fctr(FTD);
+	FTDLL=length(FTDL);
+	if(FTDLL==2){
+		/* T/|D| is not a square. */
+		return([]);
+	}
+	RTD=srem(FTDL[1][0],x);
+	if(RTD>0){
+		return([B,RTD]);
+	}
+	return([B,-RTD]);
+}
+
+/*=======================================*
+ * [powm] : Recursive powering algorithm *
+ * 2003.10.10                            *
+ * [Input]                               *
+ *  M : A nonnegative integer            *
+ *  N : A natural number                 *
+ *  G : An integer                       *
+ * [Output]                              *
+ *  A nonnegative integer                *
+ * [example]                             *
+ *  powm(3,5,11);                        *
+ *                                       *
+ *  This function returns G^M (mod N).   *
+ *=======================================*/
+
+def powm(G,M,N){
+	if(M<0 || N<=0){
+		error("powm : M<0 || N<=0");
+	}
+	T=1;
+	G1=G;
+	while(M>0){
+		if(iand(M,1)==1){
+			T=T*G1%N;
+		}
+		G1=G1^2%N;
+		M=ishift(M,1);
+	}
+	return(T%N);
+}
+
+/*===============================================*
+ * [strongpt] : Strong probable prime test       *
+ * 2003.11.14                                    *
+ * <Algorithm 3.4.2> : Prime Numbers             *
+ * [Input]                                       *
+ *  N : A natural number, N>3                    *
+ *  A : A natural number in the interval [2,N-1] *
+ * [Output]                                      *
+ *  0 or 1                                       *
+ * [Sub]                                         *
+ *  powm : 2003.10.10                            *
+ * [Example]                                     *
+ *  strongpt(3,17)                               *
+ *                                               *
+ *  This function returns 0, if N is composite.  *
+ *===============================================*/
+
+def strongpt(A,N){
+	/*
+	if(N<=3){
+		error("strongpt : N<=3");
+	}
+	if(A<=1 || N-1<=A){
+		error("strongpt : A<=1 or N-1<=A");
+	}
+	if(N%2==0){
+		return(0);
+	}
+	*/
+	T=N-1;
+	S=0;
+	while(iand(T,1)==0){
+		T=ishift(T,1);
+		S=S+1;
+	}
+	
+	/* 1.[Odd part of N-1] */
+	
+	B=powm(A,T,N);
+	/* B=A^T mod(N) */
+	if(B==1 || B==N-1){
+		return(1);
+	}
+	
+	/* 2.[Power pf 2 in N-1] */
+	
+	J=1;
+	while(J<=S-1){
+		B=B^2%N;
+		if(B==N-1){
+			/* B=A^(T*2J) (mod N) */
+			return(1);
+		}
+		J=J+1;
+	}
+	return(0);
+}
+
+/*==================================================*
+ * [millerrabin] : Miller-Rabin test                *
+ * 2005.03.18                                       *
+ * Prime Numbers                                    *
+ * [Input]                                          *
+ *  N : A natural number,                           *
+ *  M : A natural number                            *
+ * [Output]                                         *
+ *  0 or 1                                          *
+ * [Sub]                                            *
+ *  strongpt : 2003.11.14                           *
+ * [Example]                                        *
+ *  millerrabin(561,20)                             *
+ *                                                  *
+ *  This function performs M times "strongpt" and   *
+ * returns 0 or 1. If 0 if returned, then N is      *
+ * composite.                                       *
+ *==================================================*/
+
+def millerrabin(N,M){
+	if(N<=1){
+		error("millerrabin : N<=1");
+	}
+	if(N==2){
+		return(1);
+	}
+	if(M<1){
+		error("millerrabin : M<1");
+	}
+	if(irem(N,2)==0){
+		return(0);
+	}
+	J=1;
+	while(J<=M){
+		A=random()%N;
+		if(A!=0){
+			K=strongpt(A,N);
+			if(K==0){
+				return(0);
+			}
+		}
+		J=J+1;
+	}
+    return(1);
+}
+
+/*================================================*
+ * [ordfctr3] : Partial traial division about #E  *
+ * 2005.03.05                                     *
+ * [Input]                                        *
+ *  M : A natural number                          *
+ *  BPL : A prime list                            *
+ *  BPLL=length(BPL)                              *
+ *  MM : The number of times of Miller-Rabin test *
+ * [Output]                                       *
+ *  0 or 1                                        *
+ *================================================*/
+
+def ordfctr3(M,BPL,BPLL,MM){
+	while(BPLL>0){
+		BP=BPL[0];
+		if(M%BP==0){
+			while(M%BP==0){
+				M=M/BP;
+			}
+		}
+		BPL=cdr(BPL);
+		BPLL=BPLL-1;
+	}
+	if(M!=1){
+		if(millerrabin(M,MM)==1){
+			return(M);
+		}
+		return(0);
+	}
+	return(1);
+}
+
+/*==============================================*
+ * [lchainB] : Lucas chain for Frobenius test 2 *
+ * 2005.02.16                                   *
+ * <Algorithm 3.5.7> : Prime Numbers            *
+ * [Input]                                      *
+ *  A : An integer with not equal to 2          *
+ *  M : A nonnegative integer                   *
+ *  N : A natural number                        *
+ * [Output]                                     *
+ *  A list                                      *
+ * [Example]                                    *
+ *  lchainB(5,3,7)                              *
+ *                                              *
+ *  Let V_I be the sequence with                *
+ *  V_I=A*V_(I-1)-V_(I-2), V_0=2, V_1=A.        *
+ * This function returns V_M (mod N).           *
+ *==============================================*/
+
+def lchainB(M,A,N){
+	if(A==2){
+		error("lchainA : A=2");
+	}
+	A=A%N;
+	if(M<0){
+		error("lchainA : M<0");
+	}
+	if(M==0){
+		return(2);
+	}
+	if(M==1){
+		return(A);
+	}
+	W=pari(binary,M);
+	B=size(W)[0];
+	S=2;
+	T=A;
+	for(J=0;J<B;J++){
+		if(W[J]==1){
+			S=irem(S*T-A,N)%N;
+			T=irem(T^2-2,N)%N;
+		}
+		else{
+			T=irem(S*T-A,N)%N;
+			S=irem(S^2-2,N)%N;
+		}
+	}
+	return([S,T]);
+}
+
+/*===============================================*
+ * [s2bsmooth] : The parameter of trial division *
+ *  2005.03.22                                   *
+ * [Input]                                       *
+ *  BIT : A natural number                       *
+ *===============================================*/
+
+def s2bsmooth(BIT){
+	S2bsmooth=BIT;
+	return(S2bsmooth);
+}
+
+/*==========================================================================*
+ *                                                                          *
+ * 前処理などがあれば以下に記述                                             *
+ *                                                                          *
+ *==========================================================================*/
+
+S2bsmooth=18$
+Smillertimes=4$
+Sfbttimes=10$
+SDCHL=bload(SPdataPath+"dch-3-10000")$
+Ssdflag=0$
+
+/*==========================================================================*
+ *                                                                          *
+ * 前処理記述：ここまで                                                     *
+ *                                                                          *
+ *==========================================================================*/
+
+
+end$

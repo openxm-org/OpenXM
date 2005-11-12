@@ -1,0 +1,1032 @@
+/*==========================================================================*
+ *                                                                          *
+ *  yprime : 本田担当分                                                     *
+ *                                                                          *
+ *==========================================================================*/
+
+#define MODULE_VERSION  "1.10"
+#define BOUNDPRIME  (2^32)
+#define FILENUM     1024
+#define BLOCKNUM    16
+
+/*==========================================================================*
+ *                                                                          *
+ *  MODULE_VERSION : モジュールの現在のバージョン                           *
+ *  BOUNDPRIME     : 素数表の上限値。32bit素数表では2^32に設定              *
+ *  FILENUM        : 素数表ファイルの総数                                   *
+ *  BLOCKNUM       : 1つのファイルが持つ素数表ブロックの総数                *
+ *                                                                          *
+ * 特にFILENUM=1024, BLOCKNUM=16の時、32bit素数表の生成・格納・利用が可能に *
+ * なる。その構成は1024個の素数表ファイルで、各ファイルは16個のブロックから *
+ * 構成される。実装者以外には仕様が分かりにくいので、基本的に値を弄らない方 *
+ * が無難。                                                                 *
+ *                                                                          *
+ * ※ 注意 : irem(BOUNDPRIME,FILENUM*BLOCKNUM) == 0となるように設定する事!  *
+ *                                                                          *
+ *==========================================================================*/
+
+/*==========================================================================*
+ *                                                                          *
+ *  以下、関数の実装部                                                      *
+ *                                                                          *
+ *==========================================================================*/
+
+/*==========================================================================*
+ *                                                                          *
+ *  yprime.nthprime(N) : N番目の素数を出力 (prime関数を32bit版に拡張)       *
+ *                                                                          *
+ * [最終更新日]                                                             *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                     *
+ *                                                                          *
+ * [入力]                                                                   *
+ *  N : 非負の整数 (その他の型ではエラー)                                   *
+ *                                                                          *
+ * [出力]                                                                   *
+ *  素数。但し、Nが素数表の範囲を超えた場合は0を返す。                      *
+ *                                                                          *
+ * [内部関数]                                                               *
+ *  yprime.binarysearch2                                                    *
+ *  yprime.nthprimesub                                                      *
+ *                                                                          *
+ * [使用例]                                                                 *
+ *  yprime.nthprime(200000);  // 結果は2750161                              *
+ *                                                                          *
+ * [説明]                                                                   *
+ *  (2を0番目と数えて)N番目の素数を返す。即ち、組み込み関数primeの拡張版。  *
+ *  素数の探索は素数表に付加されているindex情報(SPrimeIndex)を用いて行う。  *
+ *  N < 1900の場合は、内部でprime関数を呼び出している。                     *
+ *                                                                          *
+ *==========================================================================*/
+
+def nthprime(N)  /* N番目の素数を素数表から取得し、出力する */
+{
+	/* 例外処理(Nが数でない場合は除外) */
+
+	if (type(N) > 1) error("yprime.nthprime : invarid argument");
+
+	/* 1900番目の素数までは組み込み関数primeで済ませる */
+
+	if (N < 1900) return prime(N);
+
+	M = length(SPrimeIndex);
+	B = idiv(M,2);
+	K = binarysearch2(SPrimeIndex,N-1);
+	if (K != -1) return nthprimesub(N-SPrimeIndex[K],K);
+	return 0;  /* out of range */
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.nthprimesub(N,K) : prime.nthprimeのサブルーチン                    *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  N : 非負の整数                                                            *
+ *  K : 非負の整数                                                            *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  素数。この値はメインルーチンであるyprime.nthprimeに渡される。             *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  素数表K番目のブロックにおいて、N番目の素数を返す。(1つのファイルあたりの  *
+ *  ブロック数はBLOCKNUM個である事に注意) なお、現バージョン(1.10)では不適切  *
+ *  な値に対して無限ループに陥る可能性があるので、その辺の改良が今後の課題。  *
+ *                                                                            *
+ *============================================================================*/
+
+def nthprimesub(N,K)  /* K番目のブロックからN個目の素数を見つける */
+{
+	FileIndex = idiv(K,BLOCKNUM);
+	ListIndex = irem(K,BLOCKNUM);
+
+	if (FileIndex != SFileIndex) {
+		SPrimeData = bload(SPdataPath+"p"+inttostr5(FileIndex));
+		SFileIndex = FileIndex;
+	}
+
+	I = J = 0;
+	D = SPrimeData[ListIndex];
+
+	/* speed up */
+	while (1)
+	{
+		S = SByteInfo[D[I]];
+		if (N <= S) break;
+		N -= S;
+		I++;
+	}
+
+	B = D[I];
+
+	while (1)
+	{
+		if (iand(B,1)) N--;
+		if (N == 0) break;
+		B = ishift(B,1);
+		J++;
+	}
+
+	Q = K*idiv(BOUNDPRIME,FILENUM*BLOCKNUM);
+	R = [1,7,11,13,17,19,23,29];
+	P = Q-irem(Q,30)+I*30+R[J];
+	return P;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.primelist(L,R) : 区間[L,R]間の素数をリスト出力                     *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  L,R : L <= R を満たすような非負の整数 (その他の場合はエラー)              *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  [L,R]間にある素数が昇順に並べられたリスト。                               *
+ *                                                                            *
+ * [使用例]                                                                   *
+ *  yprime.primelist(100,120);  // 結果は[101,103,107,109,113]                *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  L以上R以下の素数を素数表から探し出してリスト形式で返す。但し、素数表に含  *
+ *  まれない部分に対しては何の値も返さない点に注意する必要がある。            *
+ *                                                                            *
+ *============================================================================*/
+
+def primelist(L,R) {
+
+	PrimeList = [];
+	if (type(L) > 1) error("yprime.primelist : invarid argument");
+	if (type(R) > 1) error("yprime.primelist : invarid argument");
+	if (L < 0) L = 0;
+	if (L > R) error("yprime.primelist : left boundary is greater than right boundary.");
+	if ((L <= 2) && (R >= 2)) PrimeList = cons(2,PrimeList);
+	if ((L <= 3) && (R >= 3)) PrimeList = cons(3,PrimeList);
+	if ((L <= 5) && (R >= 5)) PrimeList = cons(5,PrimeList);
+
+	BlockWidth = idiv(BOUNDPRIME,FILENUM*BLOCKNUM);
+	BlockByteWidth = idiv(BlockWidth,30)+1;
+
+	Rem     = irem(L,30);
+	LL      = L-Rem;
+	BlockL  = L-irem(L,BlockWidth);  /* Lを含むblockの左端に対応する値 */
+	BlockLL = BlockL-irem(BlockL,30);
+	Pos     = idiv(LL-BlockLL,30);  /* block内のLLの位置 */
+
+	FileIndex  = idiv(L,idiv(BOUNDPRIME,FILENUM));
+	BlockIndex = idiv(L,BlockWidth);
+	ListIndex  = irem(BlockIndex,BLOCKNUM);
+
+	RR  = [1,7,11,13,17,19,23,29];
+	K = 0;  while (RR[K] < Rem) K++;
+
+	while (FileIndex < FILENUM)
+	{
+		if (FileIndex != SFileIndex)
+		{
+			SPrimeData = bload(SPdataPath+"p"+inttostr5(FileIndex));
+			SFileIndex = FileIndex;
+		}
+		while (ListIndex < BLOCKNUM)
+		{
+			A = SPrimeData[ListIndex];
+			while (Pos < BlockByteWidth)
+			{
+				Byte = A[Pos];
+				if (K != 0) Byte = ishift(Byte,K);
+				while (Byte > 0) {
+					if (iand(Byte,1))
+					{
+						P = LL+RR[K];
+						if (P == SMaxPrime)
+						{
+							PrimeList = cons(P,PrimeList);
+							return reverse(PrimeList);
+						}
+						if (P > R) return reverse(PrimeList);
+						else PrimeList = cons(P,PrimeList);
+					}
+					Byte = ishift(Byte,1); K++;
+				}
+				LL += 30;
+				K = 0;
+				Pos++;
+			}
+			while ((LL % 2^18 < 60) && (LL % 2^18 > 0)) LL -= 30;
+			ListIndex++;
+			Pos = 0;
+		}
+		FileIndex++;
+		ListIndex = 0;
+	}
+	return reverse(PrimeList);
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.primelist2(L,R) : 区間[L,R]間の素数をリスト出力(PARI版)            *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  L,R : L <= R を満たすような非負の整数 (その他の場合はエラー)              *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  [L,R]間にある素数が昇順に並べられたリスト。                               *
+ *                                                                            *
+ * [使用例]                                                                   *
+ *  yprime.primelist2(100,120);  // 結果は[101,103,107,109,113]               *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  L以上R以下の素数を素数表から探し出してリスト形式で返す。内部ではPARI-GPの *
+ *  nextprime関数を繰り返し呼び出しており、任意の範囲で利用できるが素数判定を *
+ *  繰り返し行うため少し遅い。元々、yprime.primelistの検証用に作った関数。    *
+ *                                                                            *
+ *============================================================================*/
+
+def primelist2(L,R)  /* PARI-GP version */
+{
+	PrimeList = [];
+	if (type(L) > 1) error("yprime.primelist2 : invarid argument");
+	if (type(R) > 1) error("yprime.primelist2 : invarid argument");
+	if (L > R) error("yprime.primelist2 : left boundary is greater than right boundary.");
+	while (1)
+	{
+		L = pari(nextprime,L);
+		if (L > R) return reverse(PrimeList);
+		PrimeList = cons(L,PrimeList);
+		L++;
+	}
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.primelist_mod(L,R,A,M) : 区間[L,R]間の素数をリスト出力(PARI版)     *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/11/08 (ver 1.30) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  L,R : L <= R を満たすような非負の整数 (その他の場合はエラー)              *
+ *  A : 0 <= A < Mを満たす整数                                                *
+ *  M : 法となる非負の整数                                                    *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  説明文の条件を満たす素数が昇順に並べられたリスト。                        *
+ *                                                                            *
+ * [使用例]                                                                   *
+ *  yprime.primelist_mod(100,120,3,10);  // 結果は[103,113]                   *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  L以上R以下の素数Pのうち、A = P mod Mを満たすもののみをリスト形式で返す。  *
+ *  Mがあまり大きくない場合を想定しており、Mが大きい時は A+N*M (N=0,1,2,…)A  *
+ *  に対して順に素数判定を行ったほうが早いと思われるので、使いどころに注意。  *
+ *                                                                            *
+ * [NOTE]                                                                     *
+ *  現時点では間に合わせの実装であり、関数の最適化を全く行っていない。        *
+ *                                                                            *
+ *============================================================================*/
+
+def primelist_mod(L,R,A,M)
+{
+	PrimeList = primelist(L,R);
+	PrimeListModM = [];
+	for (PrimeListModM=[];length(PrimeList)>0;PrimeList=cdr(PrimeList))
+	{
+		P = car(PrimeList);
+		if (irem(P,M) == A) PrimeListModM = cons(P,PrimeListModM);
+	}
+	return reverse(PrimeListModM);
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.makebyteinfo() : SByteInfoデータの作成                             *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  無し                                                                      *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  このモジュールの前処理用関数で、static変数SByteInfoに 0..255 を2進数表示  *
+ *  した際の1の個数を配列で格納する。この配列は、yprime.nthprimeにて素数探索  *
+ *  を高速に行うために利用される。                                            *
+ *                                                                            *
+ *============================================================================*/
+
+def makebyteinfo() {
+
+	V = newbytearray(256);
+
+	for (I=0;I<256;I++)
+	{
+		N = I;
+		J = 0;
+		while (N != 0) {
+			if (iand(N,1)) J++;
+			N = ishift(N,1);
+		}
+		V[I] = J;
+	}
+
+	SByteInfo = V;
+	return 1;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.binarysearch2(A,V) : 二分探索                                      *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  A : 成分が狭義単調増加なリスト (または配列)                               *
+ *  V : 値 (Asirは型が異なっても大小比較可能なので、多分何でも良い)           *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  非負の整数、もしくは-1                                                    *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  リスト A から値 V の大まかな位置を二分探索で探して、配列のindex値を返す。 *
+ *  具体的には、A[I] <= V < A[I+1] を満たす I の値が出力される。              *
+ *                                                                            *
+ *  (例)  A = [0,3,5,6,8], V = 4 → A[1] <= V < A[2] なので 1 を出力          *
+ *                                                                            *
+ *  Aの成分が単調増加でない場合は、qsort関数で事前にソートしておけば良い。    *
+ *  ちなみにAの成分が狭義単調増加であるかのチェックは行われない。また、条件を *
+ *  満たす値がリスト内に存在しない場合は-1を返す。                            *
+ *                                                                            *
+ *============================================================================*/
+
+def binarysearch2(A,V)
+{
+	N = length(A);
+	L = 0;
+	R = N-1;
+
+	/* 例外処理 */
+
+	if ((V < A[L]) || (A[R] <= V)) return -1;
+
+	/* A[L] <= V < A[R] を満たしたまま[L,R]の幅を狭めていく */
+	/* L == R+1 となったとき L の値を返して終了 */
+
+	do {
+		I = idiv(L+R,2);
+		if (A[I] <= V) L = I;
+		else R = I; 
+	} while (R-L != 1);
+
+	return L;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.firstsieve() : 最初の素数表ファイル"pdata/p00000"の生成            *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  無し                                                                      *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  最初の素数表ファイル"pdata/p00000"を生成する。"p00000"はBLOCKNUM個のブロ  *
+ *  ックで構成されるが、最初のブロックで素数Pが自分自身を篩わないようにする   *
+ *  必要があり、その辺が主に実装されている。(この辺はyprime.blocksieveと殆ど  *
+ *  同じである)                                                               *
+ *                                                                            *
+ *============================================================================*/
+
+def firstsieve() {
+
+	/*=== Step1 : 初期化 =====================================================*
+	 *                                                                        *
+	 * 素数表区間[L,R]を設定し、篩の計算に用いる各初期値を計算する。          *
+	 * その際各初期値は素数の上限値、ファイル・ブロックの総数から計算される。 *
+	 *                                                                        *
+	 * (1) 各種変数について                                                   *
+	 *                                                                        *
+	 *  L  : 素数表の区間[L,R]の左端。偶数, L<R<=L^2でなければならない。      *
+	 *  R  : 素数表の区間[L,R]の左端。偶数でなければならない。                *
+	 *  W  : [L,R]の幅。つまりR-L。                                           *
+	 *  LL : [L,R]を30の倍数を両端とする区間[LL,RR]に拡張した時の左端の値。   *
+	 *  RR : [L,R]を30の倍数の両端とする区間[LL,RR]に拡張した時の右端の値。   *
+	 *  B1 : 篩区間を示す配列(bytearray型)。各成分は素数フラグで、0か1のみ。  *
+	 *       特に0の場合がprime, 1の場合がnot primeなので注意が必要。         *
+	 *  B2 : 素数表用配列(bytearray型)。各bitは30*I+{1,7,11,13,17,19,23,29}型 *
+	 *       の8個の数の素数フラグに対応し、これで1つの成分(1byte)を成す。    *
+	 *  L1 : 配列B1の長さ。但し、実際の長さはout of range対策でL1+30である。  *
+	 *  L2 : 配列B2の長さ。                                                   *
+	 *                                                                        *
+	 * (2) B1,B2について                                                      *
+	 *                                                                        *
+	 *  B1,B2 の各成分と数の対応は以下の通りである。                          *
+	 *                                                                        *
+	 *  B1 = [L+1, L+3, …, R-3, R-1]    (1つの数が1つの成分に入っている)     *
+	 *  B2 = [1～30, 31～60, 61～90, …] (8つの数が1つの成分に入っている)     *
+	 *                                                                        *
+	 *  ※B2の8つの数とは、30*I+{1,7,11,13,17,19,23,29}型のものに限定される   *
+	 *                                                                        *
+	 *  B1は最終的に成分が0のものが素数であり、一方B2は成分が1のものが素数。  *
+	 *  篩のアルゴリズムの都合上、B1は敢えてこのような仕様にしてある。        *
+	 *  ちなみにこの素数表は予め2,3,5の倍数を除いてあるため、2,3,5自身は格納  *
+	 *  されていない事に注意されたい。                                        *
+	 *                                                                        *
+	 *========================================================================*/
+
+	L  = 0;
+	R  = idiv(BOUNDPRIME,FILENUM*BLOCKNUM);
+	W  = R-L;
+	LL = L-irem(L,30);
+	RR = (irem(R,30) == 0) ? R : R+(30-irem(R,30));
+	L1 = idiv( R- L, 2);
+	L2 = idiv(RR-LL,30);
+	B1 = newbytearray(L1+30);
+	B2 = newbytearray(L2);
+
+	/*=== Step2 : 篩 =========================================================*
+	 *                                                                        *
+	 * 篩の準備及び計算を行う。具体的な手順は、以下の通り。                   *
+	 *                                                                        *
+	 * (1) 篩の準備(offsetの初期化, 素数表PLの用意等)                         *
+	 * (2) 篩のメイン計算                                                     *
+	 *                                                                        *
+	 * 篩は奇素数に対してのみ行われる。つまり2は予め除外しておく。            *
+	 * また特に、最初の区間(L=0)の篩では素数P自身を誤って篩にかけてしまわない *
+	 * ように注意する必要がある。                                             *
+	 *                                                                        *
+	 *========================================================================*/
+
+	/* 2-(1) 篩の準備(offsetの初期化, 素数表PLの用意等) */
+
+	resetoffsetlist();
+	print("offsets are initialized.");
+	PL  = SOddPrimes;
+	Len = length(PL);  /* 奇素数表PLの長さ */
+	SqR = isqrt(R);    /* Rの平方根 */
+
+	/* B1の余分な成分に1(not prime)を設定しておく。 */
+
+	B1[0] = 1;  /* 1 は素数ではないので除外 */
+	for (I=0;I<30;I++) B1[I+L1] = 1;  /* out of range 対策で拡張した部分 */
+
+	SSieveStatus = -1;  /* 篩中はSSieveStatusを-1(計算中)に設定 */
+
+	/* 2-(2) 篩のメイン計算 */
+
+	for (I=0;I<Len;I++)
+	{
+		P = car(PL);  PL = cdr(PL);
+		if (P > SqR) break;  /* P^2<Rとなる所まで篩を行えば十分 */
+		setoffset(L,I);
+		for (J=SOffsets[I]+P;J<L1;J+=P) B1[J] = 1;  /* 最初のoffsetはP自身なので */
+		SOffsets[I] = J-L1;  /* offsetの更新 */
+	}
+
+	SSieveStatus = R;   /* 現在、何に対するoffsetを格納しているか */
+
+	/*=== Step3 : block構築 ==================================================*
+	 *                                                                        *
+	 * 素数フラグ情報B1を整理し、素数表block B2を構築する。                   *
+	 *                                                                        *
+	 * (1) 各種変数について                                                   *
+	 *                                                                        *
+	 *  S  : B2の各bitに対応した数(mod 30)。直接用いる事はない。              *
+	 *  T  : idiv(S[I],2)の値。offsetの調整用。                               *
+	 *  U  : bit mask                                                         *
+	 *  Q  : B2における左端の値Lの開始bit位置を調整するための値。             *
+	 *  I  : 汎用ループ変数。B2の現在のindex値。                              *
+	 *  J  : 汎用ループ変数。現在のbit位置。(0:一番左～7:一番右)              *
+	 *  K  : 汎用ループ変数。B1とB2を対応付けるためのもの。                   *
+	 *  PI : B2全体に含まれる素数の個数。つまりbitが1となっている所の数。     *
+	 *                                                                        *
+	 *========================================================================*/
+
+	S = [  1,  7, 11, 13, 17, 19, 23, 29];
+	T = [  0,  3,  5,  6,  8,  9, 11, 14];
+	U = [  1,  2,  4,  8, 16, 32, 64,128];
+	Q = irem(ishift(L,1),15);
+	J = 0;  while (Q > T[J]) J++;
+	K = -Q;
+
+	/* block構築のメインルーチン */
+
+	for (I=PI=0;I<L2;I++)
+	{
+		while (J < 8)
+		{
+			if (!B1[K+T[J]]) B2[I] += U[J];
+			J++;
+		}
+		J = 0;
+		PI += SByteInfo[B2[I]];
+		K += 15;
+	}
+
+	/*=== Step4 : 残りのblock構築とファイル出力 ==============================*
+	 *                                                                        *
+	 * 残りBLOCKNUM-1個のblockをyprime.blocksieve関数で構築し、それらを収集し *
+	 * 素数表ファイル"p00000"と対応するindex情報ファイル"i00000"を出力する。  *
+	 * 処理自体は簡単なので説明は省略。                                       *
+	 *                                                                        *
+	 *========================================================================*/
+
+	BinaryDataList = [B2];
+	PrimeIndexList = [PI];
+	print(".",2);
+
+	for (L=R,J=1;J<16;J++)
+	{
+		BlockData      = blocksieve(L,L+W);
+		BinaryDataList = cons(BlockData[0],BinaryDataList);
+		PrimeIndexList = cons(BlockData[1],PrimeIndexList);
+		L += W;
+		print(".",2);
+	}
+
+	PrimeFile = SPdataPath+"p00000";
+	IndexFile = SPdataPath+"i00000";
+	bsave(reverse(BinaryDataList),PrimeFile);
+	bsave(reverse(PrimeIndexList),IndexFile);
+	print("primetable 'p00000' computation is finished.");
+	return 1;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.blocksieve(L,R) : [L,R]間の篩と素数表ブロック生成                  *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  L,R : 非負の偶数 (但し、篩に使う素数リストSOddPrimesを含まない範囲)       *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  長さ2のリスト [BlockData,PrimeIndex]                                      *
+ *  BlockData  : [L,R]に対応する素数表ブロック                                *
+ *  PrimeIndex : [L,R]間に存在する素数の個数                                  *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  区間[L,R]に対する篩を行い、結果をブロック情報とindex情報に整形して出力す  *
+ *  る。素数表ファイルではこれらの情報がセーブ・ロードされている。            *
+ *                                                                            *
+ *============================================================================*/
+
+def blocksieve(L,R)
+{
+	/*=== Step1 : 初期化 =====================================================*
+	 *                                                                        *
+	 * 素数表区間[L,R]を設定し、篩の計算に用いる各初期値を計算する。          *
+	 * その際各初期値は素数の上限値、ファイル・ブロックの総数から計算される。 *
+	 *                                                                        *
+	 * (1) 各種変数について                                                   *
+	 *                                                                        *
+	 *  L  : 素数表の区間[L,R]の左端。偶数, L<R<=L^2でなければならない。      *
+	 *  R  : 素数表の区間[L,R]の左端。偶数でなければならない。                *
+	 *  W  : [L,R]の幅。つまりR-L。                                           *
+	 *  LL : [L,R]を30の倍数を両端とする区間[LL,RR]に拡張した時の左端の値。   *
+	 *  RR : [L,R]を30の倍数の両端とする区間[LL,RR]に拡張した時の右端の値。   *
+	 *  B1 : 篩区間を示す配列(bytearray型)。各成分は素数フラグで、0か1のみ。  *
+	 *       特に0の場合がprime, 1の場合がnot primeなので注意が必要。         *
+	 *  B2 : 素数表用配列(bytearray型)。各bitは30*I+{1,7,11,13,17,19,23,29}型 *
+	 *       の8個の数の素数フラグに対応し、これで1つの成分(1byte)を成す。    *
+	 *  L1 : 配列B1の長さ。但し、実際の長さはout of range対策でL1+30である。  *
+	 *  L2 : 配列B2の長さ。                                                   *
+	 *                                                                        *
+	 * (2) B1,B2について                                                      *
+	 *                                                                        *
+	 *  B1,B2 の各成分と数の対応は以下の通りである。                          *
+	 *                                                                        *
+	 *  B1 = [L+1, L+3, …, R-3, R-1]    (1つの数が1つの成分に入っている)     *
+	 *  B2 = [1～30, 31～60, 61～90, …] (8つの数が1つの成分に入っている)     *
+	 *                                                                        *
+	 *  ※B2の8つの数とは、30*I+{1,7,11,13,17,19,23,29}型のものに限定される   *
+	 *                                                                        *
+	 *  B1は最終的に成分が0のものが素数であり、一方B2は成分が1のものが素数。  *
+	 *  篩のアルゴリズムの都合上、B1は敢えてこのような仕様にしてある。        *
+	 *  ちなみにこの素数表は予め2,3,5の倍数を除いてあるため、2,3,5自身は格納  *
+	 *  されていない事に注意されたい。                                        *
+	 *                                                                        *
+	 *========================================================================*/
+
+	W  = R-L;
+	LL = L-irem(L,30);
+	RR = (irem(R,30) == 0) ? R : R+(30-irem(R,30));
+	L1 = idiv( R- L, 2);
+	L2 = idiv(RR-LL,30);
+	B1 = newbytearray(L1+30);
+	B2 = newbytearray(L2);
+
+	/*=== Step2 : 篩 =========================================================*
+	 *                                                                        *
+	 * 篩の準備及び計算を行う。具体的な手順は、以下の通り。                   *
+	 *                                                                        *
+	 * (1) 篩の準備(offsetの初期化, 素数表PLの用意等)                         *
+	 * (2) 篩のメイン計算                                                     *
+	 *                                                                        *
+	 * 篩は奇素数に対してのみ行われる。つまり2は予め除外しておく。            *
+	 * また特に、最初の区間(L=0)の篩では素数P自身を誤って篩にかけてしまわない *
+	 * ように注意する必要がある。                                             *
+	 *                                                                        *
+	 *========================================================================*/
+
+	/* 2-(1) 篩の準備(offsetの初期化, 素数表PLの用意等) */
+
+	if (SSieveStatus != L) {
+		resetoffsetlist();
+		print("offsets are initialized.");
+	}
+	PL  = SOddPrimes;
+	Len = length(PL);  /* 奇素数表PLの長さ */
+	SqR = isqrt(R);    /* Rの平方根 */
+
+	/* B1の余分な成分に1(not prime)を設定しておく。 */
+
+	for (I=0;I<30;I++) B1[I+L1] = 1;  /* out of range 対策で拡張した部分 */
+
+	SSieveStatus = -1;  /* 篩中はSSieveStatusを-1(計算中)に設定 */
+
+	/* 2-(2) 篩のメイン計算 */
+
+	for (I=0;I<Len;I++) {
+		P = car(PL);  PL = cdr(PL);
+		if (P > SqR) break;  /* P^2<Rとなる所まで篩を行えば十分 */
+		setoffset(L,I);
+		for (J=SOffsets[I];J<L1;J+=P) B1[J] = 1;  /* 最初のoffsetはP自身なので */
+		SOffsets[I] = J-L1;  /* offsetの更新 */
+	}
+
+	SSieveStatus = R;   /* 現在、何に対するoffsetを格納しているか */
+
+	/*=== Step3 : block構築 ==================================================*
+	 *                                                                        *
+	 * 素数フラグ情報B1を整理し、素数表block B2を構築する。                   *
+	 *                                                                        *
+	 * (1) 各種変数について                                                   *
+	 *                                                                        *
+	 *  S  : B2の各bitに対応した数(mod 30)。直接用いる事はない。              *
+	 *  T  : idiv(S[I],2)の値。offsetの調整用。                               *
+	 *  U  : bit mask                                                         *
+	 *  Q  : B2における左端の値Lの開始bit位置を調整するための値。             *
+	 *  I  : 汎用ループ変数。B2の現在のindex値。                              *
+	 *  J  : 汎用ループ変数。現在のbit位置。(0:一番左～7:一番右)              *
+	 *  K  : 汎用ループ変数。B1とB2を対応付けるためのもの。                   *
+	 *  PI : B2全体に含まれる素数の個数。つまりbitが1となっている所の数。     *
+	 *                                                                        *
+	 *========================================================================*/
+
+	S = [  1,  7, 11, 13, 17, 19, 23, 29];
+	T = [  0,  3,  5,  6,  8,  9, 11, 14];
+	U = [  1,  2,  4,  8, 16, 32, 64,128];
+	Q = irem(ishift(L,1),15);
+	J = 0;  while (Q > T[J]) J++;
+	K = -Q;
+
+	/* block構築のメインルーチン */
+
+	for (I=PI=0;I<L2;I++) {
+		while (J < 8) {
+			if (!B1[K+T[J]]) B2[I] += U[J];
+			J++;
+		}
+		J = 0;
+		PI += SByteInfo[B2[I]];
+		K += 15;
+	}
+
+	return [B2,PI];
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.makeprimetable(Left,Right) : 素数表ファイルの生成                  *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  Left,Right : Left <= Rightを満たすような非負の整数 (FILENUM未満)          *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [内部関数]                                                                 *
+ *  yprime.firstsieve                                                         *
+ *  yprime.blocksieve                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  Left番目の素数表ファイルからRight番目の素数表ファイルまでを生成。つまり、 *
+ *  "p00000"+Left～"p00000"+Right までのファイルが生成される。同時にそれらに  *
+ *  対応したindexファイル("i00000"～)も生成される。                           *
+ *                                                                            *
+ *============================================================================*/
+
+def makeprimetable(Left,Right) {  /* 素数表ファイルの生成 */
+
+	if (Left < 0) error("yprime.makeprimetable : 1st parameter must be non-negative. ");
+	if (Right >= FILENUM) error("yprime.makeprimetable : 2nd parameter must be less than "+rtostr(FILENUM));
+	if (Left == 0) {
+		firstsieve();
+		Left++;
+	}
+
+	W = idiv(BOUNDPRIME,FILENUM*BLOCKNUM);  /* width of 1 block */
+
+	for (I=Left;I<=Right;I++) {
+		BinaryDataList = [];
+		PrimeIndexList = [];
+		for (J=0;J<BLOCKNUM;J++) {
+			L = (BLOCKNUM*I+J)*W;
+			BlockData      = blocksieve(L,L+W);
+			BinaryDataList = cons(BlockData[0],BinaryDataList);
+			PrimeIndexList = cons(BlockData[1],PrimeIndexList);
+			print(".",2);
+		}
+		PrimeFile = SPdataPath+"p"+inttostr5(I);
+		IndexFile = SPdataPath+"i"+inttostr5(I);
+		bsave(reverse(BinaryDataList),PrimeFile);
+		bsave(reverse(PrimeIndexList),IndexFile);
+		print("primetable 'p"+inttostr5(I)+"' computation is finished.");
+	}
+
+	return 1;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.resetoffsetlist() : offsetの値の初期化                             *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  無し                                                                      *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  offset情報を扱うstatic型配列SOffsetsの各成分に-1を設定して初期化する。    *
+ *                                                                            *
+ *============================================================================*/
+
+def resetoffsetlist() {  /* 各素数に対応したoffsetの値を全てリセットする */
+
+	N = length(SOddPrimes);
+	SOffsets = newvect(N);
+	for (I=0;I<N;I++) SOffsets[I] = -1;
+	return 1;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.setoffset() : offsetの値を設定                                     *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  L : 非負の整数                                                            *
+ *  I : 非負の整数 (SOffsetsのindex値)                                        *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  SOffsets[I]のoffset情報をLに対するoffsetに更新する。                      *
+ *                                                                            *
+ *============================================================================*/
+
+def setoffset(L,I) {  /* I番目の素数の左端Lに対応したoffsetを計算する */
+
+	P = SOddPrimes[I];
+	K = irem(-ishift(L+1+P,1),P);
+	if (K < 0) K += P;
+	SOffsets[I] = K;
+	return 1;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.inttostr5(N) : 整数を長さ5の文字列形式で出力                       *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  N : 整数                                                                  *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  文字列                                                                    *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  整数の先頭に0を付けて長さ5の文字列にする。(例 : 321 -> "00321") これらは  *
+ *  素数表ファイル名"p*****","i*****"の生成時に用いられる。                   *
+ *                                                                            *
+ *============================================================================*/
+
+def inttostr5(N) {  /* 正の整数Nに0を付加して長さ5の文字列にする */
+
+	S = rtostr(N);
+	while (str_len(S) < 5) S = "0"+S;
+	return S;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.renewprimeindex(N) : 素数表index情報の更新                         *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  N : 非負の整数 (FILENUM未満)                                              *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  0番目のindexファイル"i00000"からN番目のファイルまでの情報を収集整理し     *
+ *  "pindex"ファイルを生成する。これはyprime.nthprime関数で用いられる。       *
+ *                                                                            *
+ *============================================================================*/
+
+def renewprimeindex(N)
+{
+	Sum = 2;  /* 2,3,5は事前に数える(prime(0)=2に注意) */
+	L = [Sum];
+	for (I=0;I<=N;I++)
+	{
+		IndexList = bload(SPdataPath+"i"+inttostr5(I));
+		for (J=0;J<16;J++)
+		{
+			Sum += IndexList[J];
+			L = cons(Sum,L);
+		}
+	}
+	SPrimeIndex    = reverse(L);
+	SMaxPrimeIndex = L[0];
+	bsave(SPrimeIndex,SPdataPath+"pindex");
+	return 1;
+
+}
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.version() : モジュールのバージョン情報を表示                       *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/03/19 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  無し                                                                      *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  yprimeモジュールの著作権・バージョン情報などを表示する。                  *
+ *                                                                            *
+ *============================================================================*/
+
+def version()
+{
+	print("The name of this module is \'prime\', ver. "+MODULE_VERSION+".");
+	print("Copyright (C) 2003-2005, K. Honda and N. Shinohara.");
+	print("The the maximum prime number of this prime table is ",2);
+	print(rtostr(yprime.nthprime(SMaxPrimeIndex))+",");
+	print("this is "+rtostr(SMaxPrimeIndex)+"th prime number.");
+	return 1;
+}
+
+
+/*============================================================================*
+ *                                                                            *
+ *  yprime.setpdatapath() : モジュールのパス設定                              *
+ *                                                                            *
+ * [最終更新日]                                                               *
+ *  2005/11/07 (ver 1.10) by 本田光太郎                                       *
+ *                                                                            *
+ * [入力]                                                                     *
+ *  無し                                                                      *
+ *                                                                            *
+ * [出力]                                                                     *
+ *  1                                                                         *
+ *                                                                            *
+ * [説明]                                                                     *
+ *  yprimeモジュールのデータフォルダ"pdata"のパス設定を行う。                 *
+ *                                                                            *
+ *============================================================================*/
+
+def setpdatapath()
+{
+	AsirLoadPath = getenv("ASIRLOADPATH");
+
+	/****** 環境変数ASIRLOADPATHが設定されている場合 ******/
+	if (AsirLoadPath != 0)
+	{
+		/* Windowsでは";"をパスの区切り記号, "\"をエスケープ記号と考える */
+		L = hstring.str_split(AsirLoadPath,";","\\");
+		for (I=0;I<L[0];I++)
+		{
+			Path = L[1][I]+"/y_prime/pdata/";
+			if (!access(Path)) continue;
+			SPdataPath = Path;
+			return 1;
+		}
+
+		/* UNIX系OSでは":"をパスの区切り記号, "\\"をエスケープ記号と考える */
+		L = hstring.str_split(AsirLoadPath,":","\\");
+		for (I=0;I<L[0];I++)
+		{
+			Path = L[1][I]+"/y_prime/pdata/";
+			if (!access(Path)) continue;
+			SPdataPath = Path;
+			return 1;
+		}
+	}
+
+	/* Windowsではget_rootdir()がasirgui.exeの場所なのでこれを利用 */
+	Path = get_rootdir()+"/lib-asir-contrib/y_prime/pdata/";
+	if (access(Path))
+	{
+		SPdataPath = Path;
+		return 1;
+	}
+
+	/* UNIX系OSではget_rootdir()が/usr/local/lib/asirの場所なのでこれを利用 */
+	Path = hstring.get_parentdir(get_rootdir())+"/asir-contrib/y_prime/pdata/";
+	if (access(Path))
+	{
+		SPdataPath = Path;
+		return 1;
+	}
+
+	error("yprime.setpdatapath : ASIRLOADPATH is not set.");
+
+} 
+
+/*============================================================================*
+ *                                                                            *
+ * 前処理(static変数の初期化など)があれば以下に記述                           *
+ *                                                                            *
+ *============================================================================*/
+setpdatapath()$  /* パスの設定 */
+
+SFileIndex      = -1$  /* 最初は何も読み込まれていない */
+SOddPrimes      = cdr(bload(SPdataPath+"prime16"))$
+SPrimeIndex     = bload(SPdataPath+"pindex")$
+SLenPrimeIndex  = length(SPrimeIndex)$
+SMaxPrimeIndex  = SPrimeIndex[SLenPrimeIndex-1]$
+
+/*==========================================================================*
+ *                                                                          *
+ * SPrimeIndexは、N番目の素数を素早く探すために利用されるindex情報で、      *
+ * 長さFILENUM*BLOCKNUMのベクトルで構成される（つまりブロックの総数）       *
+ * 各成分は配列の各indexに対応した素数表ファイル"p*****"(*****は5桁の数字)  *
+ * が示す最後の素数が何番目の素数かを格納しており、これを用いる事でN番目の  *
+ * 素数どのファイルに相当するのかを素早く調べる事が出来る。                 *
+ *                                                                          *
+ * SByteInfoは長さ256のベクトルであり、1byte範囲(0..255)の各値が            *
+ * 何個のbitを立てているかの情報を各成分に格納している。                    *
+ * (例：135=0b10000111で1が4つあるので、byteinfo[135]=4が格納される。)      *
+ *                                                                          *
+ *==========================================================================*/
+
+makebyteinfo()$
+resetoffsetlist()$
+
+SMaxPrime = nthprime(SMaxPrimeIndex)$
+
+/*============================================================================*
+ *                                                                            *
+ * 前処理記述：ここまで                                                       *
+ *                                                                            *
+ *============================================================================*/
+
+end$
