@@ -1,10 +1,11 @@
-/* $OpenXM$
+/* $OpenXM: OpenXM/doc/oxlib/test1-tcp-rev.c,v 1.1 2005/11/12 02:38:01 takayama Exp $
 /* A sample code to explain how to use ox_asir by TCP/IP and
    OpenXM control protocol. ox_asir is called by the -revese option.
    It computes the gcd of 12 and 8 by calling ox_asir server.
    */
 
 #include <stdio.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -51,7 +52,7 @@ main() {
   if (fdStream == -1 || fdControl == -1) {
     fprintf(stderr,"\nOpen error in oxCreateClient2.\n");
     fprintf(stderr,"fdStream=%d, fdControl=%d\n",fdStream,fdControl);
-    return(NULL);
+    return(0);
   }
 
   /* Authentication by password. */
@@ -64,7 +65,7 @@ main() {
       fprintf(stderr,"s=%s, passControl=%s\n",s,passControl);
       fprintf(stderr,"password authentication failed for control channel.\n");
       close(fdControl);
-      return(NULL);
+      return(0);
     }
     m = strlen(passData); s[0] = 0;
     read(fdStream,s,m+1); s[m] = '\0';
@@ -72,7 +73,7 @@ main() {
       fprintf(stderr,"s=%s, passData=%s\n",s,passData);
       fprintf(stderr,"password authentication failed for data channel.\n");
       close(fdStream);
-      return(NULL);
+      return(0);
     }
   }
 
@@ -185,7 +186,6 @@ hoge(int dataPort) {
 #define SET_TCPIOERROR  { if (TcpioError == NULL) TcpioError = stdout; }
 FILE *TcpioError = NULL;
 int Quiet = 0;
-extern int errno;
 errorMsg1s(char *s) { fprintf(stderr,"%s\n",s); }
 socketAcceptLocal(int snum) {
   int s, news;
