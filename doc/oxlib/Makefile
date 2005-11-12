@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.6 2002/02/25 07:09:01 noro Exp $
+# $OpenXM: OpenXM/doc/oxlib/Makefile,v 1.7 2003/03/08 07:49:59 takayama Exp $
 all : install-lib
 	make all-samples
 all-samples : test test1 test2 test3
@@ -34,7 +34,8 @@ test3 : test3.o
 ## test : test.o  
 test : test.o 
 	gcc -o test test.o $(ASIR_LIB) $(GC) $(EXTRALIB) -lm
-
+test1-tcp-rev: test1-tcp-rev.c
+	gcc -o test1-tcp-rev test1-tcp-rev.c 
 
 .c.o :
 	${CC} $(CFLAGS) -I$(INCLUDE) -c -g $<
