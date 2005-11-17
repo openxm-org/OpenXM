@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.23 2004/09/01 23:07:37 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.24 2005/06/22 12:40:41 takayama Exp $
 
 //&C Sep 2, 2004, Update for tigers (10.4) June 23, 2005.
 //&ja Q. MacOS X (10.3, panther)で OpenXM package を make するにはどうしますか?
@@ -30,8 +30,7 @@ Mac OS X 10.4 (tiger) のためのノート.
    される.  現在のところgcc-4.0 のもとではいろいろと問題が生じる.
    したがって gcc-4.0 の代わりに gcc-3.3 を使う.
       (たとえば
-             mkdir ~/bin ; ln -s /usr/bin/gcc-3.3 ~/bin/gcc
-             export PATH=~/bin:$PATH 
+           sudo gcc_select 3.3
        とすればよい)
 
 <note-1> GC の版 (OpenXM/src/gc) は 6.5 (or later).
@@ -60,8 +59,8 @@ Note for Mac OS X 10.4 (tiger)
    When you install XcodeTools 2.1, gcc version 4.0 will be installed.
    There are several troubles when you build the OpenXM package with gcc-4.0.
    So, we need to use gcc-3.3 instead of gcc-4.0
-      (e.g., mkdir ~/bin ; ln -s /usr/bin/gcc-3.3 ~/bin/gcc
-             export PATH=~/bin:$PATH )
+      (e.g., sudo gcc_select 3.3 )
+
 
 <note-1> The version of OpenXM/src/gc must be 6.5 (or later).
 <note-2> If you do not have "wget", do as follows.
