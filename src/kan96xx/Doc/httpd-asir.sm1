@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.24 2002/10/24 02:30:15 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.25 2003/09/14 01:59:56 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -47,7 +47,7 @@ def
 
 /webasir { asirweb } def
 /asirweb {
- [/rrr ] pushVariables
+ [/rrr /cmd] pushVariables
  [
   %% This procedure to generate port number might fail.
   [(oxGenPass)] extension . (integer) dc  /rrr set
@@ -73,8 +73,7 @@ def
       3] extension
    }{
       %% On unix.
-      [(sleep 3 ; netscape http://localhost:) httpd.port toString ( & ) ] cat
-      system
+      httpd.port httpd.startBrowserUnix
    } ifelse
 
    httpd ;

@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.16 2002/10/24 02:30:16 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-sm1.sm1,v 1.17 2003/09/14 01:59:56 takayama Exp $
 %% http server by sm1
 %% Note to run on the Windows (TM).
 %% (A) You need to set IE (internet explorer) as follows:
@@ -89,8 +89,7 @@ def
       3] extension
    }{
       %% On unix.
-      [(sleep 3 ; netscape http://localhost:) httpd.port toString ( & ) ] cat
-      system
+      httpd.port httpd.startBrowserUnix
    } ifelse
    httpd ;
   ] pop

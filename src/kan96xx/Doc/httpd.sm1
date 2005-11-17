@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.15 2002/11/10 07:00:03 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.16 2005/02/27 05:28:05 takayama Exp $
 %% common modules for httpd on sm1.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
@@ -433,6 +433,7 @@ def
   [/in-preformatHTML /sss /c] pushVariables
   [
      /sss arg1 def
+     sss toString /sss set
      sss (array) dc /sss set
      sss {
        /c set
@@ -803,4 +804,44 @@ def
  ] pop
  popVariables
  arg1
+} def
+
+/httpd.startBrowserUnix {
+  /arg1 set
+  [/portnum /browser /cmd /fd /msg /htmlfn] pushVariables
+  [
+     arg1 /portnum set
+     portnum toString /portnum set
+     [(getenv) (OX_BROWSER)]  extension /browser set
+     {
+      browser tag 0 eq {
+        [(sleep 3 ; netscape http://localhost:) portnum ( & ) ] cat
+        /cmd set cmd message
+        cmd system
+        exit
+       }{ } ifelse
+       browser (mac) eq, browser (MAC) eq, or {
+         (.sm1.httpd.startBrowserUnix.html) /htmlfn set
+         htmlfn (w) file /fd set
+         fd tag 0 eq { (httpd.startBrowserUnix fails to open a file.) error }
+         { } ifelse
+         [(<html><body>) nl 
+          (<a href="http://localhost:) portnum (">)
+          (Click here to connect to the ox server)
+          (</a>) nl
+          (</body></html>) nl
+         ] cat /msg set
+         fd msg writestring  fd closefile
+         [(sleep 3 ; open ) htmlfn ( &) ] cat
+         /cmd set cmd message
+         cmd system
+         exit   
+       }{ } ifelse
+       [(sleep 3 ; ) browser ( http://localhost:) portnum ( & ) ] cat
+       /cmd set cmd message
+       cmd system
+       exit
+     } loop
+  ] pop
+  popVariables
 } def
