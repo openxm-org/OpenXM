@@ -1,10 +1,18 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.17 2005/11/17 08:15:51 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.18 2005/11/21 09:12:22 takayama Exp $
 %% common modules for httpd on sm1.
 % [(Strict) 1] system_variable  % for debugging.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
   [(getenv) (OpenXM_PSTOIMG_TYPE)] extension
 def
+
+/httpd_sm1.cookie 
+ [(oxGenPass)] extension 
+def
+/httpd.set-cookie {
+  [(Set-Cookie: httpd_sm1=) httpd_sm1.cookie] cat 
+} def
+
 
 [(getenv) (OXWEB_DEBUG)] extension tag 0 eq {
    /httpd.debug 0 def
@@ -135,6 +143,7 @@ def
    (HTTP/0.9 200 OK) sendln
    (Connection: close) sendln
    (Content-Type: text/html) sendln
+   httpd.set-cookie sendln
    0 sendln
 %%   (<FORM NAME="myFORM" METHOD="POST">) sendln
    result sendln
