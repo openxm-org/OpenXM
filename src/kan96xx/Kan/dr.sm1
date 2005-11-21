@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.50 2005/06/16 08:40:04 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.51 2005/06/23 03:23:27 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4470,6 +4470,23 @@ $ [ff ff] fromVectors :: $
   popVariables
   arg1
 } def
+
+[(getFileType)
+[
+ (string getFileType type)
+ $Example: (/www/prog/cohom.sm1) getFileType ==> (sm1)$
+]] putUsages
+/getFileType {
+  /arg1 set
+  [/ss ] pushVariables
+  [ /ss arg1 def
+    [(stringToArgv2) ss (.)] extension /ss set
+    ss, ss length 1 sub, get /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
 
 ;
 

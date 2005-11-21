@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.25 2003/09/14 01:59:56 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.26 2005/11/17 08:15:51 takayama Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -281,7 +281,7 @@ def
       msg2 0 get (httpdAsirMeta) eq 
       msg2 1 get (Pretty) eq and
       {
-        httpd.image.type null eq {
+        httpd.image.type tag 0 eq {
           send-page-warning-image
           /skip-image goto
         } {  } ifelse

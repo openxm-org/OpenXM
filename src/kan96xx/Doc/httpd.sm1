@@ -1,5 +1,6 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.16 2005/02/27 05:28:05 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.17 2005/11/17 08:15:51 takayama Exp $
 %% common modules for httpd on sm1.
+% [(Strict) 1] system_variable  % for debugging.
 /Oxserver_history_variable (Oxserver_history_variable_) def
 /httpd.image.type  
   [(getenv) (OpenXM_PSTOIMG_TYPE)] extension
@@ -742,18 +743,9 @@ def
   [/in-httpd_type /fname /ftype /i /ans] pushVariables
   [
     /fname arg1 def
-    fname (array) dc /fname set
-    fname reverse /fname set
-    [
-     0 1 fname length 1 sub {
-       /i set
-       fname i get 46 eq {   % '.'
-         exit
-       } { fname i get } ifelse
-     } for
-    ] /ftype set
-    ftype reverse {(string) dc} map cat /ftype set
-    /ans (text/plain) def
+    fname getFileType /ftype set
+
+    /ans (text/plain) def  % .txt, .jar, 
     ftype (gif) eq {
       /ans (image/gif) def
     }{ } ifelse
@@ -769,9 +761,12 @@ def
     ftype (html) eq ftype (htm) eq or {
       /ans (text/html) def
     } {  } ifelse
-    ftype (txt) eq {
-      /ans (text/html) def
-    } {  } ifelse
+    ftype (wav) eq {
+      /ans (audio/x-wav) def
+    } { } ifelse
+    ftype (class) eq {
+      /ans (application/octet-stream) def
+    } { } ifelse
     /arg1 ans def
   ] pop
   popVariables
