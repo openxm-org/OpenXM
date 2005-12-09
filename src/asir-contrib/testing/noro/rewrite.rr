@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/rewrite.rr,v 1.1 2005/11/30 05:39:34 noro Exp $ */
 
 /*
  * test functions for rewriting by rules 
@@ -10,36 +10,36 @@
 
 
 /* commutativity */
-Rc0=[`_X*_Y,`!quote_is_number(_X) && nquote_comp(_X,_Y)<0,`_Y*_X]$
+Rc0=[`_X*_Y,`!qt_is_number(_X) && nqt_comp(_X,_Y)<0,`_Y*_X]$
 Rcomm = [Rc0]$
 
 /* simplifier of exp() */
 Re1=[`exp(_X)*exp(_Y),`exp(_X+_Y)]$
 Re2=[`exp(_X)^_K,`exp(_K*_X)]$
 Re3=[`exp(0),`1]$
-Re4=[`exp(_N*p*i),`quote_is_integer(_N) && eval_quote(_N)%2==0,`1]$
+Re4=[`exp(_N*p*i),`qt_is_integer(_N) && eval_quote(_N)%2==0,`1]$
 Rexp = [Re1,Re2,Re3,Re4]$
 
 R5=[`(_V^_N)^_M,`_V^(_N*_M)]$
 
 /* integration */
 Ri1=[`int(_F+_G,_X),`int(_F,_X)+int(_G,_X)]$
-Ri2=[`int(_N*_F,_X),`quote_is_number(_N),`_N*int(_F,_X)]$
-Ri3=[`int(_F,_X),`quote_is_number(_F), `_F*_X]$
-Ri4=[`int(_X^_N,_X),`quote_is_number(_N) && eval_quote(_N)!=-1,`_X^(_N+1)/(_N+1)]$
+Ri2=[`int(_N*_F,_X),`qt_is_number(_N),`_N*int(_F,_X)]$
+Ri3=[`int(_F,_X),`qt_is_number(_F), `_F*_X]$
+Ri4=[`int(_X^_N,_X),`qt_is_number(_N) && eval_quote(_N)!=-1,`_X^(_N+1)/(_N+1)]$
 Ri5=[`int(_X^(-1),_X),`log(_X)]$
 Ri6=[`int((_A*_X+_B)^(-1),_X),`1/_A*log(_A*_X+_B)]$
 Rint = [Ri1,Ri2,Ri3,Ri4,Ri5,Ri6]$
 
 /* derivation */
-Rd0=[`d(_N*_X),`quote_is_number(_N),`_N*d(_X)]$
+Rd0=[`d(_N*_X),`qt_is_number(_N),`_N*d(_X)]$
 Rd1=[`d(X+Y),`d(X)+d(Y)]$
 Rd2=[`d(X*Y),`d(X)*Y+X*d(Y)]$
-Rd3=[`d(_N),`quote_is_number(_N),`0]$
+Rd3=[`d(_N),`qt_is_number(_N),`0]$
 Rd=[Rd0,Rd1,Rd2,Rd3]$
 
 /* representing an expression as a polynomial w.r.t. x */
-/* T = rewrite(rewrite(Expr,[Ru0],1),[Ru1],0) */
+/* T = qt_rewrite(qt_rewrite(Expr,[Ru0],1),[Ru1],0) */
 Ru0=[`x^_N*_X,`_X*x^_N]$
 Ru1=[`_F*x^_N+_G*x^_N,`(_F+_G)*x^_N]$
 
@@ -50,47 +50,47 @@ ctrl("print_quote",2)$
 def rec_rewrite(F,Rules,Expand)
 {
 	while ( 1 ) {
-		F1 = rewrite(F,Rules,Expand);
+		F1 = qt_rewrite(F,Rules,Expand);
 		if ( F1 != F ) F = F1;
 		else return F;
 	}
 }
 
-def rewrite(F,Rules,Expand)
+def qt_rewrite(F,Rules,Expand)
 {
-	F = quote_normalize(F,Expand);
+	F = qt_normalize(F,Expand);
 	Rules = map(normalize_rule,Rules,Expand);
-	return rewrite_main(F,Rules,Expand);
+	return qt_rewrite_main(F,Rules,Expand);
 }
 
-def quote_match_rewrite1(F,Pat,Cond,Action,Expand)
+def qt_match_rewrite1(F,Pat,Cond,Action,Expand)
 {
-	R = nquote_match(F,Pat,0);
+	R = nqt_match(F,Pat,0);
 	if ( !R ) {
-		R = nquote_match(F,Pat,1);
+		R = nqt_match(F,Pat,1);
 		if ( !R ) {
-			R = nquote_match(F,Pat,2);
-			if ( !R ) return quote_match_rewrite(`1,`0);
+			R = nqt_match(F,Pat,2);
+			if ( !R ) return qt_match_rewrite(`1,`0);
 		}
 	}
-	R = quote_normalize(R,Expand);
+	R = qt_normalize(R,Expand);
 	C = eval_quote(Cond);
 	if ( C ) {
 		return eval_quote(Action,1);
 	} else {
-		return quote_match_rewrite(`1,`0);
+		return qt_match_rewrite(`1,`0);
 	}
 }
 
 def normalize_rule(R,Expand)
 {
-	return map(quote_normalize,R,Expand);
+	return map(qt_normalize,R,Expand);
 }
 
 #define O_LIST 4
 #define O_QUOTE 17
 
-def rewrite_main(F,Rules,Expand)
+def qt_rewrite_main(F,Rules,Expand)
 {
 	/* rewrite chidren */
 	F00 = F0 = F;
@@ -99,31 +99,31 @@ def rewrite_main(F,Rules,Expand)
 		for ( R = [FA[0]], T = cdr(FA); T != []; T = cdr(T) ) {
 			E = car(T); TE = type(E);
 			if ( TE == O_QUOTE )
-				E1 = rewrite(E,Rules,Expand);
+				E1 = qt_rewrite(E,Rules,Expand);
 			else if ( TE == O_LIST )
-				E1 = map(rewrite,E,Rules,Expand);
+				E1 = map(qt_rewrite,E,Rules,Expand);
 			else
 				E1 = E;
 			R = cons(E1,R);
 		}
-		F = quote_normalize(funargs_to_quote(reverse(R)),Expand);
+		F = qt_normalize(funargs_to_quote(reverse(R)),Expand);
 		if ( F == F0 ) break;
 		else F0 = F;
 	}
 	F0 = F;
 	while ( 1 ) {
 		for ( T = Rules; T != []; T = cdr(T) )
-			F = quote_submatch_rewrite(F,car(T),Expand);
+			F = qt_submatch_rewrite(F,car(T),Expand);
 		if ( F == F0 ) break;
 		else F0 = F;
 	}
 	if ( F00 == F ) return F;
-	else return quote_normalize(rewrite(F,Rules,Expand),Expand);
+	else return qt_normalize(qt_rewrite(F,Rules,Expand),Expand);
 }
 
 #define I_NARYOP 36
 
-def quote_submatch_rewrite(F,Rule,Expand)
+def qt_submatch_rewrite(F,Rule,Expand)
 {
 	Pat = Rule[0];
 	if ( length(Rule) == 3 ) {
@@ -140,19 +140,19 @@ def quote_submatch_rewrite(F,Rule,Expand)
 			Arg = FA[2];
 			for ( T = Arg, H = []; T != []; H = cons(car(T),H), T = cdr(T) ) {
 				/* F0 = Pat ? */
-				if ( Op == "*" && quote_is_number(car(T)) ) continue;
+				if ( Op == "*" && qt_is_number(car(T)) ) continue;
 				FF = funargs_to_quote([FA[0],FA[1],T]);
-				F1 = quote_match_rewrite1(FF,Pat,Cond,Action,Expand);
+				F1 = qt_match_rewrite1(FF,Pat,Cond,Action,Expand);
 				if ( type(F1) == -1 ) {
 					/* FF = Pat op Any ? */
 					if ( Op == "+" ) {
-						Pat1 = quote_normalize(Pat+`_Any,Expand);
-						F1 = quote_match_rewrite1(FF,Pat1,Cond,Action+`_Any,Expand);
-						F1 = quote_normalize(F1,Expand);
+						Pat1 = qt_normalize(Pat+`_Any,Expand);
+						F1 = qt_match_rewrite1(FF,Pat1,Cond,Action+`_Any,Expand);
+						F1 = qt_normalize(F1,Expand);
 					} else {
-						Pat1 = quote_normalize(Pat*`_Any,Expand);
-						F1 = quote_match_rewrite1(FF,Pat1,Cond,Action*`_Any,Expand);
-						F1 = quote_normalize(F1,Expand);
+						Pat1 = qt_normalize(Pat*`_Any,Expand);
+						F1 = qt_match_rewrite1(FF,Pat1,Cond,Action*`_Any,Expand);
+						F1 = qt_normalize(F1,Expand);
 					}
 				}
 				if ( type(F1) != -1 ) {
@@ -160,17 +160,17 @@ def quote_submatch_rewrite(F,Rule,Expand)
 					else {
 						H = reverse(cons(F1,H));
 						HF0 = funargs_to_quote([FA[0],FA[1],H]);
-						F = quote_normalize(HF0,Expand);
+						F = qt_normalize(HF0,Expand);
 					}
 					break;
 				}
 			}
 		} else {
-			F1 = quote_match_rewrite1(F,Pat,Cond,Action,Expand);
+			F1 = qt_match_rewrite1(F,Pat,Cond,Action,Expand);
 			if ( type(F1) != -1 )
 				F = F1;
 		}
-		F = quote_normalize(F,Expand);
+		F = qt_normalize(F,Expand);
 		if ( F == F0 ) break;
 		else F0 = F;
 	}
