@@ -274,7 +274,7 @@ $Condition$ および $Action$ にはユーザ定義関数を含めることができる.
 にあるが, ここでは深入りはしない. ここでは, 無限ループに陥らないような
 実用的な指針として, \FN に対する順序づけおよび weight の使用を提案する.  
 この方法は後述するように多項式環や微分作用素環で用いられる weight
-ベクトルの考え型の自然な一般化であり, 理論的にも興味深い.
+ベクトルの考え方の自然な一般化であり, 理論的にも興味深い.
 
 例として, 可換性を定義する場合を考える. 数学的には, 任意の $X$, $Y$ に
 対し $XY=YX$ でよいが, たとえばこのまま $[`X*Y,`Y*X]$ という書き換え
@@ -378,8 +378,10 @@ $ \{ L_i \rightarrow R_i \} $
 これらの条件により書き換えが停止性をもつことが分かる. さらに
 次の命題が成り立つ.
 %%<hyperlink|G-algebra|http://www.singular.uni-kl.de/Manual/latest/sing_407.htm>
+%% z_j z_i \rightarrow c_{ij} z_i z_j + d_{ij}, i<j, c_{ij} \in K^*
+%% {\rm deg}_w(d_{ij}) \leq w_i + w_j
 \begin{proposition}\rm
-G-algebra \cite{LEV} の条件のうち, 
+$G$-algebra \cite{LEV} の条件のうち, 
 well order の存在条件を仮定しなくても,
 適当な同次化weightベクトル, 有効 weight ベクトルが存在するならば,
 $h$ を加える斉次化,
@@ -522,6 +524,10 @@ $G$-algebra より広い範囲の algebra を扱うことが可能となる.
 一般的な枠組みの応用として, 将来的には $D$-加群のアルゴリズムを拡張し,
 Calderon-Moreno 等の導入した algebra を局所的に扱うなどの応用が見込ま
 れる.
+
+また, \FN をユーザ言語より操作する関数を用いることにより,
+入力, 出力のユーザインタフェースを大幅に改善できることにも
+注意しておきたい.
 
 
 \begin{thebibliography}{99}
