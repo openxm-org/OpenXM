@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.27 2004/08/12 12:11:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.28 2004/10/14 10:08:09 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -1020,7 +1020,7 @@ char *getCommandPath(char *cmdname)
     if (getFileSize(cmdname) >= 0) { /* Todo: isExecutableFile() */
     }else{
       msg = (char *)mymalloc(strlen(cmdname)+30);
-      sprintf(msg,"getCommandPath: %s is not found.");
+      sprintf(msg,"getCommandPath: %s is not found.",cmdname);
       errorPathFinder(msg);
       return NULL;
     }
