@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.20 2004/09/17 02:42:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.21 2005/06/16 05:07:24 takayama Exp $ */
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -36,9 +36,10 @@
 #endif
 
 /*
-#define END_OF_INPUT  '#'
+#define TEXMACS_END_OF_INPUT  '#'
 */
-#define END_OF_INPUT '\n'
+#define TEXMACS_END_OF_INPUT '\n'
+#define CFEP_END_OF_INPUT 0x5
 
 /* Table for the engine type. */
 #define ASIR          1
@@ -51,6 +52,11 @@ extern int Calling_ctrlC_hook;
 extern int RestrictedMode, RestrictedMode_saved;
 int Format=1;  /* 1 : latex mode */
 int OutputLimit_for_TeXmacs = (1024*10);
+
+/* Type of View part (user interface engine) */
+#define  V_TEXMACS    1
+#define  V_CFEP       2
+int View       = V_TEXMACS ;
 
 int TM_Engine  = ASIR ;
 int TM_asirStarted = 0;
@@ -73,6 +79,8 @@ static void printps(char *s);
 static void printCopyright(char *s);
 static int startEngine(int type,char *msg);
 static int isPS(char *s);
+static int end_of_input(int c);
+static void setDefaultParameterForCfep();
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -105,22 +113,31 @@ main(int argc,char *argv[]) {
   /* Set consts */
   Quiet = 1;
   for (i=1; i<argc; i++) {
-	if (strcmp(argv[i],"--sm1") == 0) {
-	  TM_Engine = SM1;
-	}else if (strcmp(argv[i],"--asir") == 0) {
-	  TM_Engine = ASIR;
-	}else if (strcmp(argv[i],"--k0") == 0) {
-	  TM_Engine = K0;
+    if (strcmp(argv[i],"--view") == 0) {
+      i++;
+      if (strcmp(argv[i],"texmacs") == 0) {
+        View = V_TEXMACS;
+      }else if (strcmp(argv[i],"cfep")==0) {
+        View = V_CFEP; setDefaultParameterForCfep();
+      }else{
+        /* printv("Unknown view type.\n"); */
+      }
+    } else if (strcmp(argv[i],"--sm1") == 0) {
+      TM_Engine = SM1;
+    }else if (strcmp(argv[i],"--asir") == 0) {
+      TM_Engine = ASIR;
+    }else if (strcmp(argv[i],"--k0") == 0) {
+      TM_Engine = K0;
     }else if (strcmp(argv[i],"--outputLimit") == 0) {
       i++;
       sscanf(argv[i],"%d",&OutputLimit_for_TeXmacs);
     }else if (strcmp(argv[i],"--noLogWindow") == 0) {
-	  Xm_noX = 1;
+      Xm_noX = 1;
     }else if (strcmp(argv[i],"--noCopyright") == 0) {
-	  NoCopyright = 1;
-	}else{
-	  /* printv("Unknown option\n"); */
-	}
+      NoCopyright = 1;
+    }else{
+      /* printv("Unknown option\n"); */
+    }
   }
 
   /* Initialize kanlib (gc is also initialized) */
@@ -269,7 +286,7 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
 #ifdef DEBUG2
     fprintf(Dfp,"[%x] ",c); fflush(Dfp); 
 #endif
-    if (c == END_OF_INPUT) {
+    if (end_of_input(c)) {
       /* If there remains data in the stream,
          read the remaining data. */
 	  /*
@@ -337,6 +354,25 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     INC_BUF ;
   }
   return s;
+}
+
+static int end_of_input(int c) {
+  switch(View) {
+  case V_TEXMACS:
+    if (c == TEXMACS_END_OF_INPUT) return 1;
+    else 0;
+    break;
+  case V_CFEP:
+    if (c == CFEP_END_OF_INPUT) return 1;
+    else 0;
+    break;
+  default:
+    if (c == '\n') return 1;
+    else 0;
+  }
+}
+static void setDefaultParameterForCfep() {
+  Format = 0;
 }
 
 static void printv(char *s) {
