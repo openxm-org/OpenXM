@@ -1,6 +1,8 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.21 2005/06/16 05:07:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.22 2006/01/19 12:24:15 takayama Exp $ */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <setjmp.h>
 #include <signal.h>
 #include "ox_kan.h"
@@ -21,19 +23,38 @@
 */
 /* #define DEBUG2 */
 
-#ifdef DEBUG
-#define DATA_BEGIN_V  "<S type=verbatim>"     /* "\002verbatim:" */
-#define DATA_BEGIN_L  "<S type=latex>"        /* "\002latex:" */
-#define DATA_BEGIN_P  "<S type=prompt>"        /* "\002channel:prompt " */
-#define DATA_BEGIN_PS  "<S type=postscript>"        /* "\002ps: " */
-#define DATA_END      "</S>"    /* "\005" */
-#else
-#define DATA_BEGIN_V  "\002verbatim:"
-#define DATA_BEGIN_L  "\002latex:"
-#define DATA_BEGIN_P  "\002prompt:"
-#define DATA_BEGIN_PS  "\002ps:"
-#define DATA_END      "\005" 
-#endif
+/* Type of View part (user interface engine) */
+#define  GENERIC      0   /* DEBUG, xml */
+#define  V_TEXMACS    1
+#define  V_CFEP       2
+int View       = V_TEXMACS ;
+
+char *Data_begin_v[] = {
+  "<S type=verbatim>",
+  "\002verbatim:",
+  "\002",
+};
+char *Data_begin_l[] = {
+  "<S type=latex>",
+  "\002latex:",
+  "\002latex:"
+};
+char *Data_begin_p[] = {
+  "<S type=prompt>",
+  "\002prompt:",
+  "\002prompt:"
+};
+char *Data_begin_ps[] = {
+  "<S type=postscript>",
+  "\002ps:",
+  "\002ps:"
+};
+char *Data_end[] = {
+  "</S>",
+  "\005",
+  "\n\005"
+};
+
 
 /*
 #define TEXMACS_END_OF_INPUT  '#'
@@ -53,10 +74,6 @@ extern int RestrictedMode, RestrictedMode_saved;
 int Format=1;  /* 1 : latex mode */
 int OutputLimit_for_TeXmacs = (1024*10);
 
-/* Type of View part (user interface engine) */
-#define  V_TEXMACS    1
-#define  V_CFEP       2
-int View       = V_TEXMACS ;
 
 int TM_Engine  = ASIR ;
 int TM_asirStarted = 0;
@@ -98,12 +115,6 @@ main(int argc,char *argv[]) {
   char *asir_config;
   int i;
 
-  openxm_home = (char *) getenv("OpenXM_HOME");
-  asir_config = (char *) getenv("ASIR_CONFIG");
-  if (openxm_home == NULL || asir_config == NULL) {
-    printv("The environmental variables OpenXM_HOME/ASIR_CONFIG are not set.\nStart the texmacs with openxm texmacs or ox_texmacs by openxm ox_texmacs\nBye...");
-    exit(10);
-  }
 
   
 #ifdef DEBUG2
@@ -140,12 +151,25 @@ main(int argc,char *argv[]) {
     }
   }
 
+  openxm_home = (char *) getenv("OpenXM_HOME");
+  asir_config = (char *) getenv("ASIR_CONFIG");
+  if (openxm_home == NULL)  {
+    printv("Error. The environmental variable OpenXM_HOME is not set.\nStart the texmacs with openxm texmacs or ox_texmacs by openxm ox_texmacs\nBye...");
+    exit(10);
+  }
+
   /* Initialize kanlib (gc is also initialized) */
   KSstart();
 
   /* Main loop */
-  printf("%s",DATA_BEGIN_V);
+  printf("%s",Data_begin_v[View]);
+  if ((asir_config == NULL) && (View == V_TEXMACS)) {
+    printf("Warning. The environmental variable ASIR_CONFIG is not set.\nStart the texmacs with openxm texmacs or ox_texmacs by openxm ox_texmacs.\nOtherwise, tex translation will not be performed\n");
+    
+  }
+
   printCopyright("");
+
 
   /* Load ox engine here */
   /* engine id should be set to ox.engine */
@@ -174,7 +198,7 @@ main(int argc,char *argv[]) {
       continue;
     } else {  }
     if (!irt) {
-      printf("%s",DATA_END); fflush(stdout);
+      printf("%s",Data_end[View]); fflush(stdout);
     }
     irt = 0;
 
@@ -188,7 +212,7 @@ main(int argc,char *argv[]) {
     }
 
     if (s == NULL) { irt = 1; continue; }
-    if (!irt) printf("%s",DATA_BEGIN_V);
+    if (!irt) printf("%s",Data_begin_v[View]);
     /* Evaluate the input on the engine */
     KSexecuteString(" ox.engine ");
     ob = KpoString(s);  
@@ -335,10 +359,10 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     return NULL;
   }
   if (strcmp(&(s[start]),"!reset;") == 0) {
-	printf("%s",DATA_BEGIN_V);
+	printf("%s",Data_begin_v[View]);
     KSexecuteString(" ox.engine oxreset ox.engine oxpopcmo ");
 	ob = KSpop();
-	printf("%s",DATA_END); fflush(stdout);
+	printf("%s",Data_end[View]); fflush(stdout);
     return NULL;
   }
 
@@ -373,22 +397,23 @@ static int end_of_input(int c) {
 }
 static void setDefaultParameterForCfep() {
   Format = 0;
+  NoCopyright = 1;
 }
 
 static void printv(char *s) {
   int i;
-  printf("%s",DATA_BEGIN_V);
+  printf("%s",Data_begin_v[View]);
   printf("%s",s);
-  printf("%s",DATA_END);
+  printf("%s",Data_end[View]);
 #ifdef DEBUG2
   fprintf(Dfp,"<%s>",s); fflush(Dfp);
 #endif
   fflush(NULL);
 }
 static void printl(char *s) {
-  printf("%s",DATA_BEGIN_L);
+  printf("%s",Data_begin_l[View]);
   printf(" $ %s $ ",s);
-  printf("%s",DATA_END);
+  printf("%s",Data_end[View]);
   fflush(NULL);
 }
 static int isPS(char *s) {
@@ -400,32 +425,32 @@ static int isPS(char *s) {
   return 1;
 }
 static void printps(char *s) {
-  printf("%s",DATA_BEGIN_PS);
+  printf("%s",Data_begin_ps[View]);
   printf("%s",s);
-  printf("%s",DATA_END);
+  printf("%s",Data_end[View]);
   fflush(NULL);
 }
 static void printp(char *s) {
-  printf("%s",DATA_BEGIN_P);
-  printf("%s",DATA_END);
+  printf("%s",Data_begin_p[View]);
+  printf("%s",Data_end[View]);
   printf("%s] ",s);
   fflush(NULL);
 }
 static void printCopyright(char *s) {
-  printf("%s",DATA_BEGIN_V);
+  printf("%s",Data_begin_v[View]);
   if (! NoCopyright) {
     printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
     printf(" under the BSD license.  !asir; !sm1; !k0; !verbatim;\n");
     printf("Type in      !reset;     when the engine gets confused. ");
     printf("%s",s);
   }
-  printf("%s",DATA_END);
+  printf("%s",Data_end[View]);
   fflush(NULL);
 }
 
 static int startEngine(int type,char *msg) {
   struct object ob = OINIT;
-  printf("%s",DATA_BEGIN_V);
+  printf("%s",Data_begin_v[View]);
   if (type == SM1) {
     if (!TM_sm1Started) KSexecuteString(" sm1connectr ");
     KSexecuteString(" /ox.engine oxsm1.ccc def ");
@@ -467,7 +492,7 @@ static int startEngine(int type,char *msg) {
        not work. */
     KSexecuteString(" oxasir.ccc (print(\"----------- Messages from asir ------------------------------\")$ ) oxsubmit oxasir.ccc oxpopcmo ");
   }
-  printf("%s",DATA_END);
+  printf("%s",Data_end[View]);
   fflush(NULL);
 }
 
