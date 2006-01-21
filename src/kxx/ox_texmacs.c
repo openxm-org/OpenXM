@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.22 2006/01/19 12:24:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.23 2006/01/21 12:04:47 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -397,7 +397,6 @@ static int end_of_input(int c) {
 }
 static void setDefaultParameterForCfep() {
   Format = 0;
-  NoCopyright = 1;
 }
 
 static void printv(char *s) {
@@ -439,8 +438,8 @@ static void printp(char *s) {
 static void printCopyright(char *s) {
   printf("%s",Data_begin_v[View]);
   if (! NoCopyright) {
-    printf("OpenXM engine (ox engine) interface for TeXmacs\n2004 (C) openxm.org");
-    printf(" under the BSD license.  !asir; !sm1; !k0; !verbatim;\n");
+    printf("OpenXM engine (ox engine) interface with TeXmacs protocol.\n2004 (C) openxm.org");
+    printf(" under the BSD license.  !asir; !sm1; !k0; !verbatim; !quit;\n");
     printf("Type in      !reset;     when the engine gets confused. ");
     printf("%s",s);
   }
@@ -478,8 +477,14 @@ static int startEngine(int type,char *msg) {
     KSexecuteString(" /ox.engine oxasir.ccc def ");
     TM_asirStarted = 1;
     printf("%s\n",msg);
-    if ( ! NoCopyright) {
+    if ((!NoCopyright) && ((char *)getenv("ASIR_CONFIG") != NULL)) {
       KSexecuteString(" oxasir.ccc (copyright()+asir_contrib_copyright();) oxsubmit oxasir.ccc oxpopstring ");
+      ob = KSpop();
+      if (ob.tag == Sdollar) {
+        printf("%s",ob.lc.str);
+      }
+    }else if ((!NoCopyright) && ((char *)getenv("ASIR_CONFIG") == NULL)) {
+      KSexecuteString(" oxasir.ccc (copyright();) oxsubmit oxasir.ccc oxpopstring ");
       ob = KSpop();
       if (ob.tag == Sdollar) {
         printf("%s",ob.lc.str);
