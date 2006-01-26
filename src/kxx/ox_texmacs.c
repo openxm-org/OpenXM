@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.24 2006/01/21 12:23:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.25 2006/01/26 07:38:32 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -183,6 +183,7 @@ main(int argc,char *argv[]) {
   /* engine id should be set to ox.engine */
   KSexecuteString(" [(parse) (ox.sm1) pushfile] extension ");
   if (Xm_noX) KSexecuteString(" /Xm_noX 1 def ");
+  if (EngineLogToStdout) KSexecuteString(" /Xm_engineLogToStdout 1 def ");
   startEngine(TM_Engine," ");
 
   if (signal(SIGINT,SIG_IGN) != SIG_IGN) {

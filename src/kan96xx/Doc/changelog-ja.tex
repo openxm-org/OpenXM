@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.15 2005/07/07 06:07:46 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.16 2005/07/18 10:55:15 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -450,5 +450,30 @@ XML 形式で送る.
 \item \verb@ [(traceShowScannerBuf)] extension :: @
 \item Todo: {\tt executeToken} の中までみないと, すでに定義された関数のどの位置でエラーを起こしたのかがわからない.
 \end{enumerate}
+
+\section{2006-01-26, -engineLogToStdout}
+\begin{enumerate}
+\item   engine を xterm 内部で動かさないで呼び出したプログラム
+の標準出力へつないだまま動かす.
+\begin{verbatim}
+ (ox.sm1) run 
+ /Xm_engineLogToStdout 1 def
+ asirconnectr 
+ ((x-2)^2). fctr ::
+\end{verbatim}
+\item   cfep への対応.
+\begin{verbatim}
+  ox_texmacs --view cfep --engineLogToStdout
+  ox_texmacs --view debug --engineLogToStdout
+\end{verbatim}
+\end{enumerate}
+
+ソースの変更.
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.46
+\item {\tt OpenXM/src/kxx/ox_texmacs.c} 1.26
+\item {\tt OpenXM/src/kxx/ox100start.c}  1.7
+\item {\tt OpenXM/src/util/ox_pathfinder.c, h} 1.30
+
 \end{document}
 
