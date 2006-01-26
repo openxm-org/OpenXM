@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.44 2004/09/17 11:05:56 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.45 2004/09/17 12:32:11 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -48,6 +48,7 @@ ox.version [(Version)] system_variable gt
   /@@@.Xm_noX Xm_noX def
 }{  } ifelse
 /Xm_noX @@@.Xm_noX def
+/Xm_engineLogToStdout 0 def
 
 /oxNoX {
    /Xm_noX 1 def
@@ -684,6 +685,7 @@ ox.verbose { oxhelp } {  } ifelse
   oxstart100
   @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
+  Xm_engineLogToStdout { ( -nox -engineLogToStdout ) } { } ifelse %bug.onlyForsm1
   ( -oxserver bin/ox_sm1 -e ) ( -reverse )
   ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
@@ -1728,6 +1730,7 @@ oxasir.verbose {
   oxstart100
   @@@.quiet { ( -quiet ) } {  } ifelse
   Xm_noX { ( -nox ) } {  } ifelse
+  Xm_engineLogToStdout { ( -nox -engineLogToStdout ) } { } ifelse %bug.onlyForasir
   ( -oxserver bin/ox_asir -e ) ( -reverse )
   ( -data ) data ( -control ) control   pass [1 2] get  
   ( )] cat execve
