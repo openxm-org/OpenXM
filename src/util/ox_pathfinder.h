@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.13 2004/08/12 12:11:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.h,v 1.14 2004/10/14 10:08:09 takayama Exp $ */
 char **catArgv(char **argv1,char **argv2);
 char *getOStypes();
 char *getOpenXM_HOME();
@@ -30,6 +30,7 @@ char *oxTermWhich_unix(int *typep);
 int oxpSendStringAsFile(char *user,char *hostname, char *filename, char *str);
 char *oxpReadOneTimePasswordFromFile(char *filename);
 void pathFinderErrorVerbose(int k);
+int ox_pathfinderEngineLogToStdout(int state); 
 #define T_OXTERM 2
 #define T_RXVT   1
 #define T_XTERM  0

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.28 2004/10/14 10:08:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.29 2006/01/10 11:52:56 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -38,6 +38,7 @@ static int Verbose_get_home = 0;
 static int Verbose = 1;
 static int NoX = 0;
 static int ErrorVerbose = 1;
+static int EngineLogToStdout = 0;
 
 #define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
 #define mymalloc(a)  sGC_malloc(a)
@@ -170,7 +171,7 @@ int oxForkExec(char **argv) {
        sigaddset(&sss,SIGINT);
        sigprocmask(SIG_BLOCK,&sss,NULL);
     }
-    if (NoX) {
+    if (NoX && (!EngineLogToStdout)) {
       FILE *null;
       null = fopen("/dev/null","wb");
       if (OX_P_stdout >= 0) dup2(OX_P_stdout,1); else dup2(fileno(null),1);
@@ -215,7 +216,7 @@ int oxForkExecBlocked(char **argv) {
        sigaddset(&sss,SIGINT);
        sigprocmask(SIG_BLOCK,&sss,NULL);
     }
-    if (NoX) {
+    if (NoX && (!EngineLogToStdout)) {
       FILE *null;
       null = fopen("/dev/null","wb");
       if (OX_P_stdout >= 0) dup2(OX_P_stdout,1); else dup2(fileno(null),1);
@@ -1204,3 +1205,7 @@ int oxpSendStringAsFile(char *user,char *hostname, char *filename, char *str)
 
 char *oxpReadOneTimePasswordFromFile(char *filename) {
 }
+
+int ox_pathfinderEngineLogToStdout(int state) {
+  EngineLogToStdout = state;
+} 

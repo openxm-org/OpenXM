@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.5 2003/11/20 07:18:41 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox100start.c,v 1.6 2004/02/28 12:27:15 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 #include <stdio.h>
 #include <sys/types.h>
@@ -18,6 +18,7 @@ void *sGC_malloc(int size) {
 }
 
 int Quiet = 0;
+static int EngineLogToStdout = 0;
 extern char **environ;
 
 main(int argc,char *argv[]) {
@@ -59,6 +60,9 @@ main(int argc,char *argv[]) {
 	  aaa = getServerEnv(serverName);
 	}else if (strcmp(argv[i],"-nox")==0) {
 	  ox_pathfinderNoX(1);
+	}else if (strcmp(argv[i],"-engineLogToStdout")==0) {
+	  ox_pathfinderEngineLogToStdout(1);
+	  EngineLogToStdout = 1; 
 	}else if (strcmp(argv[i],"-quiet")==0) {
 	  Quiet = 1;  ox_pathfinder_quiet();
 	}else{
@@ -93,9 +97,11 @@ static void myforkwait() {
 }
 
 static void usage() {
-  fprintf(stderr,"oxstart100 -oxserver xxx [-e args]\n");
+  fprintf(stderr,"ox100start -oxserver xxx [-e args]\n");
   fprintf(stderr,"Examples: \n");
-  fprintf(stderr,"    oxstart100 -oxserver bin/ox_sm1 -e -reverse -data 3010 --control 3012 -pass 1121343432434 \n");
+  fprintf(stderr,"    ox100start -oxserver bin/ox_sm1 -e -reverse -data 3010 --control 3012 -pass 1121343432434 \n");
+  fprintf(stderr,"     ox100start -nox -engineLogToStdout -oxserver bin/ox_sm1 -e -data 3010 \n");
+
 }
 
 static int forkExec(char **argv) {
@@ -125,7 +131,7 @@ static int forkExec(char **argv) {
        sigaddset(&sss,SIGINT);
        sigprocmask(SIG_BLOCK,&sss,NULL);
 	}
-	if (ox_pathfinderNoX(-1)) {
+	if (ox_pathfinderNoX(-1) && (!EngineLogToStdout)) {
 	  FILE *null;
 	  null = fopen("/dev/null","wb");
 	  dup2(fileno(null),1);
