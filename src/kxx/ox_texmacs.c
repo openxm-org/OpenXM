@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.23 2006/01/21 12:04:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.24 2006/01/21 12:23:15 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,15 +52,16 @@ char *Data_begin_ps[] = {
 char *Data_end[] = {
   "</S>",
   "\005",
-  "\n\005"
+  "\n\005"    /* \n is not a part of the protocol. */
 };
 
+/* todo:  start_of_input */
 
-/*
-#define TEXMACS_END_OF_INPUT  '#'
-*/
-#define TEXMACS_END_OF_INPUT '\n'
-#define CFEP_END_OF_INPUT 0x5
+char End_of_input[] = {
+  0x5,              /* Use ^E and Return to end the input. */
+  '\n',  /* TEXMACS_END_OF_INPUT. 0xd should be used for multiple lines. */
+  0x5    /* CFEP_END_OF_INPUT    */
+};
 
 /* Table for the engine type. */
 #define ASIR          1
@@ -83,6 +84,8 @@ int TM_do_not_print = 0;
 
 int Xm_noX = 0;
 int NoCopyright = 0;
+int Cpp = 0;                 /* Use cpp before sending to the engine. */ 
+int EngineLogToStdout = 0;   /* Do not run the ox engine inside xterm. */
 
 void ctrlC();
 struct object KpoString(char *s);
@@ -131,6 +134,7 @@ main(int argc,char *argv[]) {
       }else if (strcmp(argv[i],"cfep")==0) {
         View = V_CFEP; setDefaultParameterForCfep();
       }else{
+        View = GENERIC;
         /* printv("Unknown view type.\n"); */
       }
     } else if (strcmp(argv[i],"--sm1") == 0) {
@@ -146,6 +150,10 @@ main(int argc,char *argv[]) {
       Xm_noX = 1;
     }else if (strcmp(argv[i],"--noCopyright") == 0) {
       NoCopyright = 1;
+    }else if (strcmp(argv[i],"--cpp") == 0) {
+      Cpp = 1;
+    }else if (strcmp(argv[i],"--engineLogToStdout") == 0) {
+      EngineLogToStdout = 1;
     }else{
       /* printv("Unknown option\n"); */
     }
@@ -312,7 +320,7 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
 #endif
     if (end_of_input(c)) {
       /* If there remains data in the stream,
-         read the remaining data. */
+         read the remaining data. (for debug) */
 	  /*
       if (oxSocketSelect0(0,1)) {
         if (c == '\n') c=' ';
@@ -381,20 +389,10 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
 }
 
 static int end_of_input(int c) {
-  switch(View) {
-  case V_TEXMACS:
-    if (c == TEXMACS_END_OF_INPUT) return 1;
-    else 0;
-    break;
-  case V_CFEP:
-    if (c == CFEP_END_OF_INPUT) return 1;
-    else 0;
-    break;
-  default:
-    if (c == '\n') return 1;
-    else 0;
-  }
+  if (c == End_of_input[View]) return 1;
+  else return 0;
 }
+
 static void setDefaultParameterForCfep() {
   Format = 0;
 }
