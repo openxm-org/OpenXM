@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.16 2005/07/18 10:55:15 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.17 2006/01/26 10:24:55 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -474,6 +474,20 @@ XML 形式で送る.
 \item {\tt OpenXM/src/kxx/ox_texmacs.c} 1.26
 \item {\tt OpenXM/src/kxx/ox100start.c}  1.7
 \item {\tt OpenXM/src/util/ox_pathfinder.c, h} 1.30
+\end{enumerate}
+
+\section{2006-01-30, class の body を得る.}
+\begin{verbatim}
+[1,2,3] (error) dc /ff set  %%CLASSNAME_ERROR_PACKET を生成. bodyは[1,2,3]
+ff (body) dc   %% [classのタグ番号, class の body object] を戻す.
+--> [1,2,3]
+\end{verbatim}
+関連. {\tt KnewErrorPacketObj()}
+
+ソースの変更.
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Kan/kclass.c} 1.6
+\end{enumerate}
 
 \end{document}
 
