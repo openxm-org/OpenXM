@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.4 2001/05/04 01:06:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kclass.c,v 1.5 2005/06/16 05:07:23 takayama Exp $ */
 /* kclass.c,  1997, 3/1
    This module handles class data base.
    This is a top level and provides an interface for sm1 for Sclass objects.
@@ -185,6 +185,9 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
       ob1(with class tag) [(class) (class-name)]  dc  :  method=2
       ob1(with class tag) (usual flag)            dc  :  method=3
       It also create a new class object.
+      ob1 (error) dc --> ErrorObject with the contents ob1
+
+      ob1(with class tag) (body) dc --> [left tag, right body of ob1.]
   */
   struct object rob = NullObject;
   int method ;
@@ -281,6 +284,13 @@ struct object KclassDataConversion(struct object ob1,struct object ob2)
       }else if (strcmp(key,"error")==0) {
         rob = KnewErrorPacketObj(ob1);
         return(rob);
+      }
+    }else if (key[0] == 'b') {
+      if (strcmp(key,"body") == 0) {
+        rob = newObjectArray(2);
+        putoa(rob,0,KpoInteger(ectag(ob1)));
+        putoa(rob,1,*((struct object *)(ecbody(ob1))));
+        return rob;
       }
     }
 
