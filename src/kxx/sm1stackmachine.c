@@ -5,6 +5,7 @@
 extern int OXprintMessage;
 extern char *MsgStackTrace;
 extern char *MsgSourceTrace;
+extern struct object *MsgStackTraceInArrayp;
 
 /*  server stack machine */
 
@@ -140,6 +141,8 @@ int Sm1_popCMO(ox_stream fp,int serial)
 int Sm1_pushError2(int serial, int no, char *s)
 {
   struct object ob = OINIT;
+  struct object core = OINIT; 
+  struct object core1 = OINIT; 
   char *ss;
   char *error_message="<ox103:error_message>";
   char *message="<ox103:message>";
@@ -171,7 +174,26 @@ int Sm1_pushError2(int serial, int no, char *s)
 	strcat(ss,source_trace2);
   }
   strcat(ss,error_message2);
-  ob = KnewErrorPacket(serial,no,ss);
+
+  if (MsgStackTraceInArrayp != NULL) {
+	core = KSnewObjectArray(2);
+	core1 = KSnewObjectArray(2);
+	putoa(core1,0,KpoString("where"));  /* keyword */
+	putoa(core1,1,(*MsgStackTraceInArrayp));
+    putoa(core,0,core1);
+    core1 = KSnewObjectArray(2);
+	putoa(core1,0,KpoString("reason_of_error")); /* keyword */
+	putoa(core1,1,KpoString(s));
+	putoa(core,1,core1);
+  }else{
+	core = KSnewObjectArray(0);
+  }
+  ob = KSnewObjectArray(4);
+  putoa(ob,0,KpoInteger(serial)); putoa(ob,1,KpoInteger(no));
+  putoa(ob,2,KpoString(ss));
+  putoa(ob,3,core);
+
+  ob = KnewErrorPacketObj(ob);
   KSpush(ob);
 }
 

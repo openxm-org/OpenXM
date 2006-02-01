@@ -1,16 +1,19 @@
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.4 2004/09/18 11:40:16 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.5 2004/09/19 12:17:40 takayama Exp $
 /*&C
 
 OX-RFC: 103                                   OpenXM committers
                                            
                                               December 9, 2003, 
                                               September 19, 2004
+                                              February 1, 2006
 
 */
 //&en  Supplement to OX-RFC-100 
 //&en     --- Broadcasting in process trees and engine authentication
+//&en     --- Structure of error packets.
 //&ja  OX-RFC-100 への追加機能 
 //&ja     ---  プロセス木構造での同報とエンジン認証
+//&ja     --- エラーパケットの構造.
 
 /*&C 
 
@@ -19,7 +22,7 @@ Status of this memo
   Distribution of this memo is unlimited.
 
 Copyright Notice
-  OpenXM.org, 2003, 2004
+  OpenXM.org, 2003, 2004, 2006
 
 */
 
@@ -347,6 +350,63 @@ TCP/IP 接続での Accept 側はタイムアウト動作をすること.
 岩根が設計, 実装, 評価を行った.
 RSA のキー生成, DES 等の OpenXM crypt ライブラリの実装は岩根がおこなっている.
 OpenXM/src/ox_ntl/crypt をみよ.
+*/
+
+//&ja @@エラーパケットの構造.
+//&en @@Structure of error packets
+
+/*&en
+  English translation has not been done.
+*/
+
+/*&ja
+Error packet は CMO_ARRAY を body 部分とする CMO であるが,
+ここではその body 部分の array の構造を定義する.
+0 番目の成分は CMO_INT32 である. 意味はサーバ依存.
+1 番目の成分は CMO_INT32 である.  意味はサーバ依存.
+2 番目の成分は CMO_STRING でありエラーメッセージを格納する.
+3 番目の成分(optional) が ox-rfc-103 で新しく定義する部分である.
+3 番目の成分のデータ型は CMO_ARRAY である. 
+Array の各要素はまた長さ 2 の CMO_ARRAY であり,
+第一成分が CMO_STRING, 第2成分は CMO オブジェクトである.
+第一成分はキーワードが格納され, 第2成分はその値である.
+キーワードとして現在次のものを ox-rfc-103 として提案している.
+なおサーバは全てのキーワードの値を戻す必要はない.
+  reason_of_error,  (CMO_STRING)実行時エラーの理由
+  where,   (CMO_ARRAY) 実行時エラーの場所をあらわす CMO_STRING のarray.
+  lines,    (CMO_ARRAY) 実行時エラーを起こした行番号(CMO_INT32) のarray.
+                        -1 は不明を表す.
+  locals,  (CMO_ARRAY) 実行時エラーの時の局所変数の名前と値の 
+                       pair(長さ2のarray) の array
+  parse_error_at,      (CMO_INT32) parse エラーをおこした行番号.
+  reason_of_parse_error,  (CMO_STRING) parse エラーの理由.
+*/
+
+/*&C
+
+Example 1.
+  [["parse_error_at", 3 ],
+   ["reason_of_parse_error","parse error after (x-)"], 
+  ]
+
+Example 2.
+  [["reason_of_error", "invalid argument"],
+   ["where",["shell","length"]],
+   ["lines", [15,-1]]
+  ]
+
+*/
+
+/*&ja
+例2の補足.
+   ["where",["shell","length"]],
+   ["lines", [15,-1]]
+の lines の意味は解説を要するであろう.
+[15,-1] の 15 は executeString に与えられた文字列の 15 行目に出現している
+関数 shell でエラーが起こったことを意味している.
+関数 shell の中から呼ばれている length 関数でエラーが起きているのであるが,
+-1 はその行(shell 関数の定義中での相対的な行番号)は不明であるということを
+意味している.
 */
 
 //&ja @@参考文献

@@ -61,10 +61,12 @@ void KSpush(struct object ob);
 struct object KfindUserDictionary(char *s);
 struct object KputUserDictionary(char *s,struct object ob);
 struct object KnewErrorPacket(int serial,int no,char *s);
+struct object KnewErrorPacketObj(struct object);
 struct object KSmathCap(void);  /* defined plugin/cmo.c */
 void *KSmathCapByStruct(void);  /* defined plugin/cmo.c */
 char *popErrorStackByString(void);
 struct object KSdupErrors(void);
 struct object KpoInteger(int i);
+struct object KpoString(char *s);
 struct object KSpeek(int k);
-
+struct object KSnewObjectArray(int k);

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.33 2005/07/18 10:55:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern.h,v 1.34 2005/09/27 06:10:43 takayama Exp $ */
 /*********** global variables for module stackmachine***************/
 extern int VerboseStack;
 extern int DebugStack;
@@ -82,6 +82,7 @@ char * KSstringPop(void);
 int KSstackPointer(void);
 struct object KSdupErrors(void);
 struct object KSpeek(int k);
+struct object KSnewObjectArray(int k);
 
 /* stackmachine.c context */
 struct context *newContext0(struct context *super,char *name);
@@ -96,6 +97,7 @@ void tracePushName(char *s);
 void traceClearStack(void);
 char *tracePopName(void);
 char *traceShowStack(void); 
+struct object *traceNameStackToArrayp(void);
 
 /* kclass.c */
 int initClassDataBase();

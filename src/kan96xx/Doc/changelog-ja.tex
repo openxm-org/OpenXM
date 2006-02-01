@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.17 2006/01/26 10:24:55 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.18 2006/01/30 10:41:39 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -471,9 +471,9 @@ XML 形式で送る.
 ソースの変更.
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.46
-\item {\tt OpenXM/src/kxx/ox_texmacs.c} 1.26
+\item {\tt OpenXM/src/kxx/ox\_texmacs.c} 1.26
 \item {\tt OpenXM/src/kxx/ox100start.c}  1.7
-\item {\tt OpenXM/src/util/ox_pathfinder.c, h} 1.30
+\item {\tt OpenXM/src/util/ox\_pathfinder.c, h} 1.30
 \end{enumerate}
 
 \section{2006-01-30, class の body を得る.}
@@ -487,6 +487,26 @@ ff (body) dc   %% [classのタグ番号, class の body object] を戻す
 $Bソースの変更.
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Kan/kclass.c} 1.6
+\end{enumerate}
+
+\section{2006-02-01, 新しい error packet}
+\begin{verbatim}
+(ox.sm1) run
+sm1connectr
+oxsm1.ccc (1 shell) oxsubmit
+oxsm1.ccc oxpopcmo ::
+\end{verbatim}
+\verb@ errorPacket (body) dc 3 get  @ が
+リスト(キーワード,値)となる. 場所(where)や理由(reason),
+処理系によっては, line や parse error の場所.
+関連事項: misc-2005/A1/cfep.
+
+
+ソースの変更.
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Kan/stackmachine.c} 1.34
+\item {\tt OpenXM/src/kxx/sm1stackmachine.c}   1.6
+\item {\tt OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw} 1.6
 \end{enumerate}
 
 \end{document}

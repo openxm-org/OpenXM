@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.32 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.33 2005/07/18 10:55:16 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -89,6 +89,7 @@ int OXlockSaved = 0;
 char *UD_str;
 int  UD_attr;
 
+struct object *MsgStackTraceInArrayp = NULL;
 char *MsgStackTrace = NULL;
 char *MsgSourceTrace = NULL;
 
@@ -1149,6 +1150,7 @@ errorStackmachine(str)
       fprintf(stderr,str);
     }
     fprintf(stderr,"\n");
+	MsgStackTraceInArrayp = traceNameStackToArrayp();
     MsgStackTrace = traceShowStack(); 
     MsgSourceTrace = traceShowScannerBuf();
   }
@@ -1395,6 +1397,10 @@ char *KSpopBinary(int *size) {
   return((char *)NULL);
 }
 
+struct object KSnewObjectArray(int k) {
+   return newObjectArray(k);
+}
+
 int pushErrorStack(struct object obj)
 {
   if (CurrentOperandStack == &ErrorStack) {
@@ -1633,6 +1639,17 @@ void traceClearStack(void) {
 char *tracePopName(void) {
   if (TraceNameStackp <= 0) return (char *) NULL;
   return TraceNameStack[--TraceNameStackp];
+}
+struct object *traceNameStackToArrayp(void) {
+  int n,i;
+  struct object *op;
+  op = sGC_malloc(sizeof(struct object));
+  n = TraceNameStackp; if (n < 0) n = 0;
+  *op = newObjectArray(n);
+  for (i=0; i<n; i++) {
+	putoa((*op),i, KpoString(TraceNameStack[i]));
+  }
+  return op;
 }
 #define TRACE_MSG_SIZE 320
 char *traceShowStack(void) {
