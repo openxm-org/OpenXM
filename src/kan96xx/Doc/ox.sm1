@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.45 2004/09/17 12:32:11 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.46 2006/01/26 08:42:33 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -104,6 +104,7 @@ ox.version [(Version)] system_variable gt
  (client oxpushcmotag)
  (   )
  (client oxgetsp --- get stack pointer,  client oxgeterrors --- get all errors)
+ (client oxclearstack --- clear the stack of the ox server.)
  (cleint oxisData, client oxreset, client oxshutdown)
  (oxhelp for this message)
  ([(oxWatch) client] extension to start a log.)
@@ -1842,4 +1843,82 @@ oxasir.verbose {
   ] pop
   popVariables
   arg1
+} def
+
+[[(lines),[10,-1]],
+ [(where),[(shell), (length)]],
+ [(reason_of_error), (invalid argument)]]
+/i1 set
+%% /translateErrorForCfep.sampleInput  set
+
+[(translateErrorForCfep)
+[
+ (translate the error packet defined in ox-rfc-103 into series of commands for cfep.)
+]
+] putUsages
+/translateErrorForCfep {
+  /arg1 set
+  [/ee /ans /tt] pushVariables
+  [
+   /ee arg1 def
+   {
+    ee etag 257 eq {
+      ee (body) dc 1 get /ee set
+      ee length 3 gt {
+        ee 3 get /ee set
+      }{ /ee [ ] def } ifelse
+    }{ } ifelse
+    ee etag 6 eq not { /ans [ ] def exit } { } ifelse
+    /ans [ ] def
+
+    ee (lines) getNode  /tt set
+    tt tag 0 eq { 
+      ee (parse_error_at) getNode /tt set
+    } { } ifelse
+    tt isArray {
+      tt length 0 gt { 
+         ans
+         [(gotoLine, ) tt 0 get toString nl ] join /ans set
+      }{ } ifelse
+    } { } ifelse
+    tt isInteger {
+      [(gotoLine, ) tt toString nl ] join /ans set
+    } { } ifelse
+
+    ee (where) getNode  /tt set
+    tt isArray {
+      tt length 0 gt { 
+         ans
+         [(findAndSelect, ) tt 0 get (string) dc nl ] join /ans set
+      }{ } ifelse
+    } { } ifelse
+
+    ee (reason_of_error) getNode  /tt set
+    tt tag 0 eq { 
+      ee (reason_of_parse_error) getNode /tt set
+    } { } ifelse
+    tt tag 0 eq not {
+      ans [(printErrorMessage, ) tt (string) dc nl] join /ans set
+                            %% translation and encoding is necessary.
+    }{ } ifelse
+
+    exit
+   } loop
+   ans cat /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/oxclearstack {
+  /arg1 set
+  [/cl /n] pushVariables
+  [
+    /cl arg1 def 
+    cl oxgetsp /n set
+    n tag 0 eq { /n 0 def } { } ifelse
+    n tag 15 eq { n (integer) dc /n set } { } ifelse
+    cl n oxpops pop
+  ] pop
+  popVariables
 } def
