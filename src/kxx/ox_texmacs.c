@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.25 2006/01/26 07:38:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.26 2006/01/26 10:24:55 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,6 +101,12 @@ static int startEngine(int type,char *msg);
 static int isPS(char *s);
 static int end_of_input(int c);
 static void setDefaultParameterForCfep();
+
+static void myEncoder(int c);
+static void myEncoderS(unsigned char *s);
+static void myEncoderSn(unsigned char *s,int n);
+static void outputStringToTunnel0(int channel, unsigned char *s, int size, int view);
+static void outputStringToTunnel(int channel, unsigned char *s,  int view);
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -223,12 +229,38 @@ main(int argc,char *argv[]) {
     if (s == NULL) { irt = 1; continue; }
     if (!irt) printf("%s",Data_begin_v[View]);
     /* Evaluate the input on the engine */
+    KSexecuteString(" ox.engine oxclearstack ");
     KSexecuteString(" ox.engine ");
     ob = KpoString(s);  
     KSpush(ob);
     KSexecuteString(" oxsubmit ");
     
-    /* Get the result in string. */
+    /* Get the result in string for cfep. */
+    if (View != V_TEXMACS) {
+      KSexecuteString(" ox.engine oxgeterrors "); 
+      ob = KSpop();
+      if (ob.tag == Sarray) {
+        if (getoaSize(ob) > 0) {
+          ob = getoa(ob,0);
+          KSpush(ob);
+          KSexecuteString(" translateErrorForCfep ");
+          r = KSpopString();
+          outputStringToTunnel(0,(unsigned char *)r,View);
+        }
+      }
+      if (!TM_do_not_print) {
+        KSexecuteString(" ox.engine oxpopstring ");
+        r = KSpopString();
+        printv(r);
+      }else{
+        KSexecuteString(" ox.engine 1 oxpops ");
+        KSexecuteString(" ox.engine 0 oxpushcmo ox.engine oxpopcmo ");
+        ob = KSpop();
+        printv("");
+      }
+      continue;
+    }
+    /* Get the result in string for texmacs  */
     if (Format == 1 && (! TM_do_not_print)) {
       /* translate to latex form */
       KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
@@ -276,6 +308,7 @@ main(int argc,char *argv[]) {
         printv("");
       }
     }
+    /* note that there is continue above. */
   }
 }
 
@@ -513,6 +546,48 @@ static int startEngine(int type,char *msg) {
 4.  print("hello"); shift+return print("afo");
 
 */
+
+static void myEncoder(int c) {
+  putchar(0xf8 | (0x3 & (c >> 6)));
+  putchar(0xf0 | (0x7 & (c >> 3)));
+  putchar(0xf0 | (0x7 & c));
+}
+static void myEncoderS(unsigned char *s) {
+  int i,n;
+  n = strlen(s);
+  for (i = 0; i<n ; i++) myEncoder(s[i]);
+}
+static void myEncoderSn(unsigned char *s,int n) {
+  int i;
+  for (i = 0; i<n ; i++) myEncoder(s[i]);
+}
+static void outputStringToTunnel0(int channel, unsigned char *s, int n,int view) {
+  unsigned char ts[128];
+  int i;
+  if (view == GENERIC) {
+    printf("{%d<%d ",channel,n+1);
+    for (i=0; i<n; i++) putchar(s[i]);
+    printf("%c>}",0);
+  }else if (view == V_CFEP) {
+    sprintf(ts,"{%d<%d ",channel,n+1);
+    myEncoderS(ts);
+    myEncoderSn(s,n); myEncoder(0); 
+    myEncoderS(">}");
+  }
+  fflush(stdout);
+}
+static void outputStringToTunnel(int channel, unsigned char *s, int view) {
+  int start, i;
+  start = i = 0;
+  while (s[i] != 0) {
+	if (s[i] == '\n') {
+	  outputStringToTunnel0(channel,&(s[start]),i+1-start,view);
+	  start = i+1;
+	}
+	i++;
+  }
+}
+
 
 
   

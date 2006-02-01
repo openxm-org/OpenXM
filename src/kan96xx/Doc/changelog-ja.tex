@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.18 2006/01/30 10:41:39 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.19 2006/02/01 00:30:05 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -500,12 +500,23 @@ oxsm1.ccc oxpopcmo ::
 リスト(キーワード,値)となる. 場所(where)や理由(reason),
 処理系によっては, line や parse error の場所.
 関連事項: misc-2005/A1/cfep.
+{\tt oxclearstack}. 
+
+ox\_texmacs で tunnel channel 0 へ cfep 用のエラー命令を送る.
+({\tt outputStringToTunnel()})
+\begin{verbatim}
+ox_texmacs --view debug
+!sm1;^E
+1 shell ^E
+\end{verbatim}
 
 
 ソースの変更.
 \begin{enumerate}
 \item {\tt OpenXM/src/kan96xx/Kan/stackmachine.c} 1.34
+\item {\tt OpenXM/src/kan96xx/Doc/ox.sm1}  1.48
 \item {\tt OpenXM/src/kxx/sm1stackmachine.c}   1.6
+\item {\tt OpenXM/src/kxx/ox\_texmacs.c}   1.27
 \item {\tt OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw} 1.6
 \end{enumerate}
 
