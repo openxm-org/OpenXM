@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.26 2006/01/26 10:24:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.27 2006/02/01 04:16:54 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -576,12 +576,13 @@ static void outputStringToTunnel0(int channel, unsigned char *s, int n,int view)
   }
   fflush(stdout);
 }
+#define LINE_FEED 0xc   /* ^L */
 static void outputStringToTunnel(int channel, unsigned char *s, int view) {
   int start, i;
   start = i = 0;
   while (s[i] != 0) {
-	if (s[i] == '\n') {
-	  outputStringToTunnel0(channel,&(s[start]),i+1-start,view);
+	if (s[i] == LINE_FEED) {
+	  outputStringToTunnel0(channel,&(s[start]),i-start,view);
 	  start = i+1;
 	}
 	i++;

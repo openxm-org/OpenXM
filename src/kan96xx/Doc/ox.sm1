@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.48 2006/02/02 04:16:49 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.49 2006/02/02 05:15:45 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1870,7 +1870,7 @@ oxasir.verbose {
     }{ } ifelse
     ee etag 6 eq not { /ans [ ] def exit } { } ifelse
     /ans [ ] def
-    /lf 12 (string) dc def  % line feed.  it is not necessary. 
+    /lf 12 (string) dc def  % line feed.
 
     ee (lines) getNode  /tt set
     tt tag 0 eq { 
@@ -1879,18 +1879,18 @@ oxasir.verbose {
     tt isArray {
       tt length 0 gt { 
          ans
-         [(gotoLine, ) tt 0 get toString  nl] join /ans set
+         [(gotoLine, ) tt 0 get toString  nl lf] join /ans set
       }{ } ifelse
     } { } ifelse
     tt isInteger {
-      [(gotoLine, ) tt toString  nl] join /ans set
+      [(gotoLine, ) tt toString  nl lf] join /ans set
     } { } ifelse
 
     ee (where) getNode  /tt set
     tt isArray {
       tt length 0 gt { 
          ans
-         [(findAndSelect, ) tt 0 get (string) dc  nl] join /ans set
+         [(findAndSelect, ) tt 0 get (string) dc  nl lf] join /ans set
       }{ } ifelse
     } { } ifelse
 
@@ -1899,7 +1899,7 @@ oxasir.verbose {
       ee (reason_of_parse_error) getNode /tt set
     } { } ifelse
     tt tag 0 eq not {
-      ans [(printErrorMessage, ) tt (string) dc  nl] join /ans set
+      ans [(printErrorMessage, ) tt (string) dc  nl lf] join /ans set
                             %% translation and encoding is necessary.
     }{ } ifelse
 
