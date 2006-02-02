@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.33 2005/07/18 10:55:16 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.34 2006/02/01 00:30:05 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -1065,21 +1065,23 @@ int executeToken(token)
             return(0); /* normal exit.*/
           }
 		}
-        if (WarningMessageMode == 1 || WarningMessageMode == 2) {
+        {    
           char tmpc[1024];
           if (strlen(token.token) < 900) {
             sprintf(tmpc,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
-          }else {strcpy(tmpc,"Warning: identifier is not in the dictionaries.");}
-          pushErrorStack(KnewErrorPacket(SerialCurrent,-1,tmpc));
+          }else {strcpy(tmpc,"\n%%Warning: identifier is not in the dictionaries.\n");}
+          if (WarningMessageMode == 1 || WarningMessageMode == 2) {
+            pushErrorStack(KnewErrorPacket(SerialCurrent,-1,tmpc));
+          }
+          if (WarningMessageMode != 1) {
+            fprintf(Fstack,"%s",tmpc);
+            /*fprintf(Fstack,"(%d,%d)\n",h0,h1);*/
+          }
+          if (Strict) {
+            errorStackmachine(tmpc);
+          }
+          Kpush(NullObject); 
         }
-        if (WarningMessageMode != 1) {
-          fprintf(Fstack,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
-          /*fprintf(Fstack,"(%d,%d)\n",h0,h1);*/
-        }
-        if (Strict) {
-          errorStackmachine("Warning: identifier is not in the dictionaries");
-        }
-        Kpush(NullObject); 
       }
     }
   } else if (token.kind == EXECUTABLE_STRING) {

@@ -144,6 +144,10 @@ int Sm1_pushError2(int serial, int no, char *s)
   struct object core = OINIT; 
   struct object core1 = OINIT; 
   char *ss;
+
+  ss = (char *)sGC_malloc(strlen(s)+1);
+  strcpy(ss,s);
+  /*
   char *error_message="<ox103:error_message>";
   char *message="<ox103:message>";
   char *stack_trace="<ox103:stack_trace>";
@@ -174,6 +178,7 @@ int Sm1_pushError2(int serial, int no, char *s)
 	strcat(ss,source_trace2);
   }
   strcat(ss,error_message2);
+  */
 
   if (MsgStackTraceInArrayp != NULL) {
 	core = KSnewObjectArray(2);
