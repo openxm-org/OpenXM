@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.34 2006/02/01 00:30:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/stackmachine.c,v 1.35 2006/02/02 04:16:49 takayama Exp $ */
 /*   stackmachin.c */
 
 #include <stdio.h>
@@ -1068,8 +1068,9 @@ int executeToken(token)
         {    
           char tmpc[1024];
           if (strlen(token.token) < 900) {
-            sprintf(tmpc,"\n%%Warning: The identifier <<%s>> is not in the system dictionary\n%%   nor in the user dictionaries. Push NullObject.\n",token.token);
-          }else {strcpy(tmpc,"\n%%Warning: identifier is not in the dictionaries.\n");}
+            sprintf(tmpc,"\n>>Warning: The identifier <<%s>> is not in the system dictionary\n>>   nor in the user dictionaries. Push NullObject.\n",token.token);
+          }else {strcpy(tmpc,"\n>>Warning: identifier is not in the dictionaries.\n");}  
+          /* do not use %% in a string. tmpc will be used as  fprintf(stderr,tmpc); */
           if (WarningMessageMode == 1 || WarningMessageMode == 2) {
             pushErrorStack(KnewErrorPacket(SerialCurrent,-1,tmpc));
           }
