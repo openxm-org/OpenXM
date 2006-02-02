@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.49 2006/02/02 05:15:45 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.50 2006/02/02 07:07:22 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1858,7 +1858,7 @@ oxasir.verbose {
 ] putUsages
 /translateErrorForCfep {
   /arg1 set
-  [/ee /ans /tt /lf] pushVariables
+  [/ee /ans /tt /lf /i] pushVariables
   [
    /ee arg1 def
    {
@@ -1871,6 +1871,7 @@ oxasir.verbose {
     ee etag 6 eq not { /ans [ ] def exit } { } ifelse
     /ans [ ] def
     /lf 12 (string) dc def  % line feed.
+    ans [(Begin) nl lf] join /ans set
 
     ee (lines) getNode  /tt set
     tt tag 0 eq { 
@@ -1892,6 +1893,11 @@ oxasir.verbose {
          ans
          [(findAndSelect, ) tt 0 get (string) dc  nl lf] join /ans set
       }{ } ifelse
+      1 1, tt length 1 sub {
+        /i set
+         ans
+         [(findAndShow, ) tt i get (string) dc  nl lf] join /ans set
+      } for
     } { } ifelse
 
     ee (reason_of_error) getNode  /tt set
@@ -1905,6 +1911,7 @@ oxasir.verbose {
 
     exit
    } loop
+   ans [(End) nl lf] join /ans set
    ans cat /arg1 set
   ] pop
   popVariables
