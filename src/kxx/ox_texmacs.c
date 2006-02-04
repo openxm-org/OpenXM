@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.27 2006/02/01 04:16:54 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.28 2006/02/02 07:07:22 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,6 +87,8 @@ int NoCopyright = 0;
 int Cpp = 0;                 /* Use cpp before sending to the engine. */ 
 int EngineLogToStdout = 0;   /* Do not run the ox engine inside xterm. */
 
+char *LanguageResource = NULL;
+
 void ctrlC();
 struct object KpoString(char *s);
 char *KSpopString(void);
@@ -160,6 +162,11 @@ main(int argc,char *argv[]) {
       Cpp = 1;
     }else if (strcmp(argv[i],"--engineLogToStdout") == 0) {
       EngineLogToStdout = 1;
+    }else if (strcmp(argv[i],"--languageResource") == 0) {
+      i++;
+      LanguageResource = (char *)sGC_malloc(strlen(argv[i])+80);
+      sprintf(LanguageResource,
+			  " /localizedString.file (%s) def localizedString.load ",argv[i]);
     }else{
       /* printv("Unknown option\n"); */
     }
@@ -190,6 +197,7 @@ main(int argc,char *argv[]) {
   KSexecuteString(" [(parse) (ox.sm1) pushfile] extension ");
   if (Xm_noX) KSexecuteString(" /Xm_noX 1 def ");
   if (EngineLogToStdout) KSexecuteString(" /Xm_engineLogToStdout 1 def ");
+  if (LanguageResource != NULL) KSexecuteString(LanguageResource);
   startEngine(TM_Engine," ");
 
   if (signal(SIGINT,SIG_IGN) != SIG_IGN) {
