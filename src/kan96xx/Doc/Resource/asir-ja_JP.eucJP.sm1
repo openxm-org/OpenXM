@@ -1,27 +1,30 @@
 % localizedString for asir.  ja_JP.eucJP.
 [
- [(evalf : hoge undefined)
-  ( hoge が定義されていません)
- ]
  [(parse error), 
   [(文法エラーです. キャレットの位置の周辺を見直してください.) nl 
    ({ } ボタンでエラーがみつかることもあります.)
   ] cat
  ]
  [(eval : invalid assignment), 
-  [(エラー. この代入はできません.) nl
+  [(この代入はできません.) nl
    (原因例: X=1 はできるが x=1 はできない.  大文字ではじまる英数字の列が変数です.) ] cat
   ]
  [(segmentation fault), 
-  [(エラー. segmentation fault です.) nl  
+  [(segmentation fault です.) nl  
    (原因例: 関数の引数の誤りなど.) ] cat
- ]
- [( : invalid argument), 
-  [(エラー. このデータ型の引数はつかえません.)   nl
-   (原因例: リストが引数であるべきだがそれが整数である.)] cat
  ]
 ] /localizedString.dic set
 
+/localizedString.mydic 
+ [
+   %% No. 0 
+   %% Try input  length(1);
+   (.*: invalid argument)
+   %% No. 1 
+   %% Try input  length(); 
+   (evalf : argument mismatch .*)
+ ]
+def
 
 /localizedString.local {
   /arg1 set
@@ -34,7 +37,25 @@
       [(regexec) (evalf : .* undefined) [ss]] extension /pp set
       pp length 0 gt {
         [(stringToArgv2) ss ( )] extension /pp2 set
-        /ans [(エラー: ) pp2 2 get ( が定義されていません.)] cat def
+        /ans [ pp2 2 get ( が定義されていません.)] cat def
+        exit 
+      }{ } ifelse
+
+      % No. 0 
+      [(regexec) localizedString.mydic 0 get [ss]] extension /pp set
+      pp length 0 gt {
+        [(stringToArgv2) ss ( )] extension /pp2 set
+        /ans [pp2 0 get ( に対してこのデータ型の引数はつかえません.) nl
+              (原因例: リストが引数であるべきだがそれが整数である.)
+             ] cat def
+        exit 
+      }{ } ifelse
+
+      % No. 1 
+      [(regexec) localizedString.mydic 1 get [ss]] extension /pp set
+      pp length 0 gt {
+        [(stringToArgv2) ss ( )] extension /pp2 set
+        /ans [pp2 5 get ( : 引数の数が違います. )] cat def
         exit 
       }{ } ifelse
 
