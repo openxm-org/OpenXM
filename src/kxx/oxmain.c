@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.20 2004/09/17 12:32:11 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.21 2005/02/28 12:53:44 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -60,6 +60,9 @@ main(int argc, char *argv[]) {
   char *passData = NULL;
   int result;
   int sleepingTime = 0;
+  int authEncoding=0;
+  FILE *fp;
+  char *stmp;
   extern int OxTerminateMode;
 
   signal(SIGHUP,SIG_IGN);  /* ignore x of xterm */
@@ -119,6 +122,14 @@ main(int argc, char *argv[]) {
       if (i<argc) {
         sscanf(argv[i],"%d",&sleepingTime);
       }
+    }else if (strcmp(argv[i],"-authEncoding") == 0) {
+      i++;
+      if (strcmp(argv[i],"file") == 0) {
+        authEncoding = 1;
+      }else{
+        fprintf(stderr,"Unknown -authEncoding %s.\n",argv[i]);
+        oxmainUsage(); exit(10);
+      }
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
       oxmainUsage(); exit(10);
@@ -148,6 +159,21 @@ main(int argc, char *argv[]) {
   }
 
   /* Decrypt passControl and passData, here. Lookup cryptmethod. */
+  if (authEncoding == 1) {
+	stmp = (char *)sGC_malloc(strlen(getenv("HOME"))+strlen(passControl)+
+							  strlen(passData)+128);
+	sprintf(stmp,"%s/.openxm/tmp.opt/%s",(char *)getenv("HOME"),passControl);
+	fp = fopen(stmp,"r");
+	if (fp == NULL) { fprintf(stderr,"passControl file %s is not found.\n",stmp); exit(1);}
+	fgets(stmp,127,fp); passControl = stmp; fclose(fp);
+
+	stmp = (char *)sGC_malloc(strlen(getenv("HOME"))+strlen(passControl)+
+							  strlen(passData)+128);
+	sprintf(stmp,"%s/.openxm/tmp.opt/%s",(char *)getenv("HOME"),passData);
+	fp = fopen(stmp,"r");
+	if (fp == NULL) { fprintf(stderr,"passData file %s is not found.\n",stmp); exit(1);}
+	fgets(stmp,127,fp); passData = stmp; fclose(fp);
+  }
 
   if (reverse) {
     /* The order is very important. */

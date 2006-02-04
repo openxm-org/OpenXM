@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.20 2006/02/01 04:16:54 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.21 2006/02/04 02:44:39 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -542,6 +542,30 @@ e1 translateErrorForCfep message  %% エラー obj の翻訳
 \item {\tt OpenXM/src/kan96xx/Doc/Resource}  翻訳のためのリソース.
 \item {\tt OpenXM/src/kxx/Makefile.in} 1.36, Resource をコピー.
 \end{enumerate}
+
+\section{2006-02-04, {\tt -authEncoding file} の実装}
+
+OX-RFC-104 の {\tt -authEncoding file} を実装.
+\begin{verbatim}
+~/.openxm/tmp.opt/c.txt   -->  1435  (Do not put the newline character.)
+~/.openxm/tmp.opt/d.txt   -->  1234
+chmod 700 ~/.openxm/tmp.opt
+ox -ox ox_sm1 -authEncoding file -passControl c.txt -passData d.txt
+[(oxCreateClient) (localhost) 1300 1200 [(1435) (1234)]] extension ;
+                              data ctrl  ctrl    data
+\end{verbatim}
+
+cfep で MyOpenGLView の event 入力用の delegate ox server ``ox\_nextevent''
+は ox\_asir  のサーバである.
+``ox\_nextevent'' は 
+MyOpenGLView から NSPipe, NSTask を用いて MyOpenGLView の出力を
+stdin で受信できる状態でないといけない.
+MyOpenGLView は {\tt ox} を用いて{\tt ox\_asir} よりの順方向接続をまつ予定.
+\begin{enumerate}
+\item {\tt OpenXM/src/kxx/oxmain.c} 1.22
+\end{enumerate}
+
+	
 
 \end{document}
 

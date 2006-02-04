@@ -1,11 +1,11 @@
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.5 2004/09/19 12:17:40 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.6 2006/02/01 00:30:04 takayama Exp $
 /*&C
 
 OX-RFC: 103                                   OpenXM committers
                                            
                                               December 9, 2003, 
                                               September 19, 2004
-                                              February 1, 2006
+                                              February 4, 2006
 
 */
 //&en  Supplement to OX-RFC-100 
@@ -362,8 +362,10 @@ OpenXM/src/ox_ntl/crypt をみよ.
 /*&ja
 Error packet は CMO_ARRAY を body 部分とする CMO であるが,
 ここではその body 部分の array の構造を定義する.
-0 番目の成分は CMO_INT32 である. 意味はサーバ依存.
-1 番目の成分は CMO_INT32 である.  意味はサーバ依存.
+0 番目の成分は CMO_INT32 である.  エラー発生の原因となったパケット番号.
+                                  わからないときは -1.
+1 番目の成分は CMO_INT32 である.  CMO_ERROR2 共通エラー番号.
+                                  わからないときは -1.
 2 番目の成分は CMO_STRING でありエラーメッセージを格納する.
 3 番目の成分(optional) が ox-rfc-103 で新しく定義する部分である.
 3 番目の成分のデータ型は CMO_ARRAY である. 
