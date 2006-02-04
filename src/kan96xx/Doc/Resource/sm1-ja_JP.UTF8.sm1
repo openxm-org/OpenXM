@@ -1,0 +1,56 @@
+[
+  [(gateKeeperOfLocalizedString.dic)
+   (LocalizedString.dicの門番)
+  ]
+  %% Try input (1*-2).
+  [
+    [(executeString: ) nl
+     (ERROR(kanExport[0|1].c):  parser.c : Syntax error in the input polynomial.) 
+    ] cat
+    (エラー(kanExport[0|1].c): parser.c 入力多項式の文法エラー)
+   ]
+] /localizedString.dic set
+
+/localizedString.mydic 
+ [
+   %% No. 0 (executeString: ) nl
+   %% Try input  hoge
+   (>>Warning: The identifier .* is not in the system dictionary) 
+   %% No. 2 
+   %% Try input  1 length
+   (.*Usage:length)
+ ]
+def
+
+/localizedString.local {
+  /arg1 set
+  [/ss /ans /pp /pp2] pushVariables
+  [
+    arg1 /ss set
+    /ans ss def
+    {
+      % No. 0 
+      [(regexec) localizedString.mydic 0 get [ss]] extension /pp set
+      pp length 0 gt {
+        [(stringToArgv2) ss ( )] extension /pp2 set
+        /ans [(エラー: ) pp2 4 get ( が定義されていません.)] cat def
+        exit 
+      }{ } ifelse
+
+      % No. 1 
+      [(regexec) localizedString.mydic 0 get [ss]] extension /pp set
+      pp length 0 gt {
+        [(stringToArgv2) ss ( )] extension /pp2 set
+        /ans (エラー(sm):  length の引数が範囲外です.) def
+        exit 
+      }{ } ifelse
+
+      exit
+    } loop
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+

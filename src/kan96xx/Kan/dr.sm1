@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.51 2005/06/23 03:23:27 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Kan/dr.sm1,v 1.52 2005/11/21 09:12:22 takayama Exp $
 %% dr.sm1 (Define Ring) 1994/9/25, 26
 %% This file is error clean.
 
@@ -4487,6 +4487,45 @@ $ [ff ff] fromVectors :: $
   arg1
 } def
 
+% Default initial value.
+/localizedString.file null def  
+/localizedString.dic [ ] def
+/localizedString.local { } def
+
+% Clear and load
+/localizedString.load {
+  /localizedString.dic [ ] def
+  /localizedString.local { } def
+  localizedString.file tag 0 eq { }
+  { [(parse) localizedString.file pushfile] extension pop  } ifelse
+} def
+
+
+[(localizedString)
+ [
+  (string localizedString translatedString)
+  (It returns localizedString if localizedString.dic [array] and)
+  (localizedString.local [function] are set.)
+ ]
+] putUsages
+/localizedString {
+  /arg1 set
+  [/ss /ans /tt] pushVariables
+  [
+    arg1 /ss set
+    /ans ss def
+    {
+      localizedString.dic length 0  eq { exit } { } ifelse
+      localizedString.dic ss getNode /tt set
+      tt tag 0 eq {  } { tt /ans set exit } ifelse
+      ss localizedString.local /ans set
+      exit
+    } loop
+    ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
 
 ;
 

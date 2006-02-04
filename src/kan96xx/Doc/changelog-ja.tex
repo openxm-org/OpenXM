@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.19 2006/02/01 00:30:05 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.20 2006/02/01 04:16:54 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -518,6 +518,29 @@ ox_texmacs --view debug
 \item {\tt OpenXM/src/kxx/sm1stackmachine.c}   1.6
 \item {\tt OpenXM/src/kxx/ox\_texmacs.c}   1.27
 \item {\tt OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw} 1.6
+\end{enumerate}
+
+\section{2006-02-04, メッセージの localization (ox用)}
+オリジナル {\tt misc-2005/A1/cfep/packages/misc}.
+\begin{verbatim}
+/localizedString.file (Resource/sm1-ja_JP.eucJP.sm1) def
+localizedString.load              %% 辞書をロードする.
+[(parse) (ox.sm1) pushfile] extension
+sm1connectr 
+oxsm1.ccc ( hoge ) oxsubmit 
+oxsm1.ccc oxpopcmo /e1 set
+e1 translateErrorForCfep message  %% エラー obj の翻訳
+\end{verbatim}
+エラー object の構造.
+[serial, 共通エラー番号, message, core]
+空欄のときは, $-1$ か null object.
+
+ソースの変更.
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Kan/dr.sm1} 1.53,  localizedString を追加.
+\item {\tt OpenXM/src/kan96xx/Doc/ox.sm1} 1.52,  translateErrorForCfep を修正
+\item {\tt OpenXM/src/kan96xx/Doc/Resource}  翻訳のためのリソース.
+\item {\tt OpenXM/src/kxx/Makefile.in} 1.36, Resource をコピー.
 \end{enumerate}
 
 \end{document}

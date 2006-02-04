@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.50 2006/02/02 07:07:22 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.51 2006/02/02 10:53:08 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1858,7 +1858,7 @@ oxasir.verbose {
 ] putUsages
 /translateErrorForCfep {
   /arg1 set
-  [/ee /ans /tt /lf /i] pushVariables
+  [/ee /ans /tt /lf /i /nn] pushVariables
   [
    /ee arg1 def
    {
@@ -1866,7 +1866,13 @@ oxasir.verbose {
       ee (body) dc 1 get /ee set
       ee length 3 gt {
         ee 3 get /ee set
-      }{ /ee [ ] def } ifelse
+      }{ 
+        %% nn should be 2, [serial, common error no, short message]
+        ee length /nn set
+        nn 0 gt {
+          /ee [(reason_of_error) ee nn 1 sub get toString ] def
+        } {  /ee [ ] def } ifelse
+      } ifelse
     }{ } ifelse
     ee etag 6 eq not { /ans [ ] def exit } { } ifelse
     /ans [ ] def
@@ -1905,8 +1911,9 @@ oxasir.verbose {
       ee (reason_of_parse_error) getNode /tt set
     } { } ifelse
     tt tag 0 eq not {
-      ans [(printErrorMessage, ) tt (string) dc  nl lf] join /ans set
-                            %% translation and encoding is necessary.
+      ans [(printErrorMessage, ) 
+           tt (string) dc localizedString  % for translation.
+           nl lf] join /ans set
     }{ } ifelse
 
     exit
