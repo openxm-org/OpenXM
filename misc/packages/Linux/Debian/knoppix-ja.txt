@@ -1,4 +1,4 @@
-$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.11 2005/06/11 04:53:24 takayama Exp $ 
+$OpenXM: OpenXM/misc/packages/Linux/Debian/knoppix-ja.txt,v 1.12 2006/02/07 00:39:59 takayama Exp $ 
 2004/02/23 by Takayama
 2005/02/03 Revised.
 
@@ -101,16 +101,38 @@ hamada>が決められているようです。
 hamada>http://plaza25.mbn.or.jp/~efialtes/docs/menu_ja.html/ch3.html
 
 ---------------------------------------
-changelog は直接書き換えるか, debchange を用いる.
-minior version の変更を忘れずに.
-
+Q.  changelog でパースエラーがでました. [2006-02-07]
+A. 
+822-date (RFC822) 形式の日付を用いないと parse error をおこす.
 changelog のチェックの方法.
 cd OpenXM/misc/packages/Linux/Debian
 dpkg-parsechangelog
-注意: 822-date (RFC822) 形式の日付を用いないと parse error をおこす.
+
+changelog は直接書き換えるか, debchange を用いる.
+minior version の変更を忘れずに.
+
+--------------------------------------------
+Q. ソースの tarball を再度生成するには?
+A. make -f Makefile-knoppix clean
+   (cd ../../Generic/openxm ; rm .*done ; rm -rf work)
+   make -f Makefile-knoppix build
+
+Q. パスの設定例?
+A.
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/X11R6/bin:/home/taka/bin:.
+export OpenXM_HOME=/private/taka/OpenXM
+export LD_LIBRARY_PATH=/private/taka/OpenXM/lib
+( /private/taka/OpenXM/lib には build したものをおいておくこと.
+  さもないと shared lib がなくて, document 生成で sm1 が動かず.
+  source OpenXM/rc/dot.bashrc をやると楽.) 
+
+Q. patch に失敗します. (knoppix/math 上での build) [2006-02-07]
+A. mkdir -p /usr/tmp/tmp ; chmod 777 /usr/tmp ; chmod 777 /usr/tmp/tmp
 
 =========================
 高山の個人ノート:  参照  計算ノート 2004-3-10, 
                          ~taka/this03/misc-2003/A3/knoppix-03-05
                          ~taka/this04/misc-2004/A2/knoppix-02
+                         ~taka/this05/misc-2005/A2/knoppix-2006 の memo.txt
+                            と Makefile にパッケージの配布手順.
                    
