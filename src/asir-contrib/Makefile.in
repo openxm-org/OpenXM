@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.1 2004/07/02 07:48:47 takayama Exp $
 
 # targets:
 # all
@@ -31,3 +31,7 @@ configure: Makefile
 
 Makefile: Makefile.in
 	(rm -f .*done ; ./make-configure )
+
+install-for-debug:
+	-(rm -rf ../../lib/asir-contrib)
+	(cd ../../lib ; ln -s ../src/asir-contrib/packages/src asir-contrib)
