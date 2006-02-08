@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.7 2005/04/14 04:40:23 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.8 2005/04/14 07:11:58 takayama Exp $
 RM=rm
 
 INSTALL_doc=@prefix@/doc
@@ -23,7 +23,8 @@ install :
 install-help: install-help-en install-help-ja
 install-document : 
 	@if [ ! -f ./.install_document_done ] ; then \
-		${RM} -rf ${INSTALL_lib}/asir-contrib ; \
+		${RM} -rf ${INSTALL_lib}/asir-contrib/ja ; \
+		${RM} -rf ${INSTALL_lib}/asir-contrib/en ; \
 	    make install-html-doc ; \
 		make fix-links ; \
 	    make install-dvi-ps-pdf-doc ; \
