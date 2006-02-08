@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/misc/packages/FreeBSD/openxm-ports/openxm-1.1.2/files/gen-plist.c,v 1.6 2000/03/10 15:09:39 takayama Exp $ */
+/* $OpenXM$ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,19 +20,6 @@ main() {
   struct stat sb;
   int p;
 
-  /* Initial data */
-  system("grep \'$OpenXM\' ../pkg/PLIST");
-  system("grep \'$OpenXM\' ../../pkg/PLIST");
-  printf("bin/asir\n");
-  printf("bin/sm1\n");
-  printf("bin/oxMathematica\n");
-  printf("bin/oxmath\n");
-  printf("bin/ox\n");
-  printf("bin/oxgp\n");
-  printf("bin/openxm\n");
-  printf("man/man1/sm1.1.gz\n");
-  printf("man/man1/openxm.1.gz\n");
-  
   while (fgets(s0,512,stdin) != NULL) {
 	n = strlen(s0);
 	if (n <= 1) goto LLL;
@@ -71,7 +58,6 @@ main() {
 	if (isExclude(s,"doc/OpenXM-web")) goto LLL;
 	if (isExclude(s,"doc/Makefile")) goto LLL;
 	if (isExclude(s,"doc/install")) goto LLL;
-	if (isExclude(s,"doc/compalg")) goto LLL;
 
 	
 	if (lstat(s,&sb) < 0) fprintf(stderr,"The file %s is not found.\n",s);
@@ -90,7 +76,6 @@ main() {
   LLL: ;
 
   }
-  printf("@dirrm OpenXM\n");
 }
 
 isExclude(char *s,char *pattern) {
