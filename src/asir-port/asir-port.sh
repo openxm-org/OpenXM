@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.9 2006/02/06 04:54:13 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.10 2006/02/08 02:06:52 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -8,7 +8,7 @@
 version=`cat $OpenXM_HOME/lib/version.txt`
 os=`uname -s`
 md=`cat $OpenXM_HOME/lib/asir/distinfo-asir.md5`
-libmd=`cat $OpenXM_HOME/lib/asir/distinfo-lib.md5`
+libmd=`cat $OpenXM_HOME/lib/asir/distinfo-asirlib.md5`
 # For testing
 #asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/gzip.exe"
 #asirname="gzip.exe"
