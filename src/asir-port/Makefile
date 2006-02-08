@@ -1,6 +1,9 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.9 2005/02/03 05:17:33 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.10 2006/02/06 04:51:51 takayama Exp $
 # touch for_knoppix ; make install
-# to generate a distribution for knoppix. 
+# to generate a distribution for knoppix.
+#### Do not add extra spaces after the VERSION.
+VERSION=1.2.3-4
+
 KNOPPIX_HOME=/home/knoppix
 LIBS=alpi bfct bgk const cyclic defs.h dmul fctrdata fctrtest fff \
      gr ifplot katsura mat nf num primdec ratint robot solve sp \
@@ -10,7 +13,8 @@ MD5=md5sum
 OS=`uname -s`
 OpenXM_HOME_=../..
 RSYNC=rsync -avz -e ssh
-FTP_DIR=/home/ftp/pub/asir/knoppix-all/knoppix-2006-02
+FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
+OpenXM_HOME=../../../OpenXM
 
 all:
 install: all
@@ -26,19 +30,20 @@ install-for-knoppix:
 	for i in ${LIBS} ; do \
 		(cd ${OpenXM_HOME_}/lib/asir ; rm -f $$i ; ln -s ${KNOPPIX_HOME}/.asir-tmp/$$i .) ; \
 	done
+	echo -n ${VERSION} >${OpenXM_HOME}/lib/version.txt
 
 #The environmental variable OpenXM_HOME must be set for uninstall-for-knoppix
 # Recover files under FLL.
 uninstall-for-knoppix:
 	rm -f ../../bin/asir
-	ln -s ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/asir ${OpenXM_HOME}/bin/asir
+	(cd ../../bin ; ln -s ../../OpenXM_contrib2/asir2000/asir .)
 	for i in ${LIBS} ; do \
-		(cd ${OpenXM_HOME}/lib/asir ; rm -f $$i ; cp ${OpenXM_HOME}/../OpenXM_contrib2/asir2000/lib/$$i .) ; \
+		(cd ${OpenXM_HOME}/lib/asir ; rm -f $$i ; cp ../../../OpenXM_contrib2/asir2000/lib/$$i .) ; \
 	done
 
-# Generating asir-Linux-85....
-#      and   asirlib-Linux-c3....tar.gz  under work
-# Copy md5 checksum files distinfo-? under OpenXM/lib/asir
+# Generating asir-Linux-...
+#      and   asirlib-Linux-....tar.gz  under work
+# Copy md5 checksum files distinfo-*.md5 under OpenXM/lib/asir
 gentar-for-knoppix:
 	-mkdir work
 	(cd work ; rm -rf *)
@@ -47,17 +52,17 @@ gentar-for-knoppix:
 	(cd work ; for i in ${LIBS} ; do \
 		cp ../${OpenXM_HOME_}/../OpenXM_contrib2/asir2000/lib/$$i . ; \
 	done )
-	(cd work ; ${MD5} asir.gz | awk '{print $$1}' >distinfo-asir)
-	(cd work ; mv asir.gz "asir-${OS}-`cat distinfo-asir`.gz")
+	(cd work ; mv asir.gz "asir-${OS}-${VERSION}.gz")
+	(cd work ; ${MD5} "asir-${OS}-${VERSION}.gz" | awk '{print $$1}' >distinfo-asir.md5)
 	(cd work ; tar czf asirlib.tar.gz ${LIBS})
 	(cd work ; for i in ${LIBS} ; do rm -f $$i ; done )
-	(cd work ; ${MD5} asirlib.tar.gz | awk '{print $$1}' >distinfo-lib)
-	(cd work ; mv asirlib.tar.gz "asirlib-${OS}-`cat distinfo-lib`.tar.gz")
-	(cd work ; cp distinfo-asir distinfo-lib ../${OpenXM_HOME_}/lib/asir)
+	(cd work ; mv asirlib.tar.gz "asirlib-${OS}-${VERSION}.tar.gz")
+	(cd work ; ${MD5} "asirlib-${OS}-${VERSION}.tar.gz" | awk '{print $$1}' >distinfo-asirlib.md5)
+	(cd work ; cp distinfo-asir.md5 distinfo-asirlib.md5 ../${OpenXM_HOME}/lib/asir)
 
 copy-for-knoppix:
 	if [ ! -d work ]; then make gentar-for-knoppix ; fi
-	(cd work ; ${RSYNC} "asir-${OS}-`cat distinfo-asir`.gz" "asirlib-${OS}-`cat distinfo-lib`.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
+	(cd work ; ${RSYNC} "asir-${OS}-${VERSION}.gz" "asirlib-${OS}-${VERSION}.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 
 clean:
 	rm -rf for_knoppix work

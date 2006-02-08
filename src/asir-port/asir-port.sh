@@ -1,25 +1,26 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.8 2005/02/03 07:31:55 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.9 2006/02/06 04:54:13 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
 # in the distribution of FLL-free distribution.
 # Starting script of Risa/Asir may call this shell script.
+version=`cat $OpenXM_HOME/lib/version.txt`
 os=`uname -s`
-md=`cat $OpenXM_HOME/lib/asir/distinfo-asir`
-libmd=`cat $OpenXM_HOME/lib/asir/distinfo-lib`
+md=`cat $OpenXM_HOME/lib/asir/distinfo-asir.md5`
+libmd=`cat $OpenXM_HOME/lib/asir/distinfo-lib.md5`
 # For testing
 #asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/gzip.exe"
 #asirname="gzip.exe"
 #asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/tar.exe"
 #asirlibname="tar.exe"
 # 
-asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2006-02/asir-$os-$md.gz"
-asirnamegunzip="asir-$os-$md"
-asirname="asir-$os-$md.gz"
-asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2006-02/asirlib-$os-$libmd.tar.gz"
-asirlibname="asirlib-$os-$libmd.tar.gz"
-ot="ftp://ftp.math.kobe-u.ac.jp/pub/asir/knoppix-all/knoppix-2006-02/ox-texmacs-$os.tar.gz"
+asir="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asir-$os-$version.gz"
+asirnamegunzip="asir-$os-$version"
+asirname="asir-$os-$version.gz"
+asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
+asirlibname="asirlib-$os-$version.tar.gz"
+ot="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os.tar.gz"
 otname="ox-texmacs-$os.tar.gz"
 
 if [ $# = 1 ]; then
@@ -40,7 +41,7 @@ _agree() {
 		return
 	fi
 	if [ $ans = "n" ]; then
-		echo "Aborting the installation." ; \
+		echo "Aborting the installation of asir." ; \
 		exit 
     fi
 	if [ $ans = "v" ]; then
