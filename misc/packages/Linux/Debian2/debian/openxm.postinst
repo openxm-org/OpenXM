@@ -6,10 +6,13 @@ fi
 OpenXM_HOME=/usr/local/OpenXM /usr/local/OpenXM/download/openxm-install.sh
 rm -rf /root/OpenXM_tmp
 #
-echo "--------------------------------------------------------------------------"
-echo "If you will install asir now under /usr/local/OpenXM/bin, please answer y."
-echo "If not (e.g., installing this package for commercial system,) "
-echo "please answer n."
-echo "--------------------------------------------------------------------------"
-(export OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh)
+if [ -f /usr/local/bin/openxm ] ; then
+ echo "--------------------------------------------------------------------------" ;
+ echo "If you will install asir now under /usr/local/OpenXM/bin, please answer y." ;
+ echo "If not (e.g., installing this package for commercial system,) "             ;
+ echo "please answer n."                                                           ;
+ echo "--------------------------------------------------------------------------" ;
+ (export OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh) ;
+fi
+
 
