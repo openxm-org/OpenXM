@@ -10,7 +10,12 @@ OS=`uname -s`
 RSYNC=rsync -avz -e ssh
 FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
 
-build-package: fetch  make-tar-ball-2
+build-package: fetch  make-tar-ball-2 
+	fakeroot debian/rules build
+	fakeroot debian/rules install
+	fakeroot dpkg-buildpackage
+
+build-deb:
 	fakeroot debian/rules build
 	fakeroot debian/rules install
 	fakeroot dpkg-buildpackage

@@ -1,0 +1,99 @@
+Todo: Makefile-fix,  cf. misc-2005/A2/knoppix-2006/Makefile-asir,  .TeXmacs 関連.
+ 
+Q. パッケージを新しくしたい.
+A. 
+   1. すべての作業は 
+       source dot.bashrc 
+      をしてから. (一部高山用)
+   2. debian/changelog を修正.  date は rfc822 format を守る事.
+        ( dpkg-parsechangelog  で check.
+          署名するには, mail address を pgp のものと同一に.)
+   3. Makefile の VERSION を変更. コメントにある他のファイルの VERSION も変更.
+   4. make clean
+   5. make
+   6. make copy-tar-ball-and-asir
+   (7. orange2 で /root/bin/mirror.ftp)
+
+Q. 各ステップでは何をやっていますか? 注意事項は?
+A. 
+   1. source dot.bashrc 
+   2. debian/changelog を修正.  date は rfc822 format を守る事.
+   3. Makefile の VERSION を変更. コメントにある他のファイルの VERSION も変更.
+         VERSION は OpenXM/download/version.txt としてコピーされる.
+         文末の空白等加えないように.
+         version は ダウンロードするファイル名に反映される.
+   4. make clean
+   5. make
+        fetch : work/OpenXM, work/OpenXM_contrib2
+        build: work/OpenXM で標準的な OpenXM を make install
+        build-knoppix: OpenXM/bin/asir が /home/knoppix/.asir-tmp/asir への symbolic link に.
+                    OpenXM/lib/asir/FLL のライブラリも.
+                    asir-port.sh, asir-install.sh をインストール.
+                    tar を作成. md5 を work/OpenXM/lib/asir へ.
+        make-tar-ball-2: 
+            work/OpenXM を tar ball に.
+            tar する directory は Makefile をみよ.
+            exclude-files.txt に除くファイルが.
+            md5 を OpenXM/download へ.
+        build: deb を生成.
+            このプロセスは, OpenXM/download/*.md5 が与えれていれば他とは独立. 
+   6. make copy-tar-ball-and-asir
+
+            openxm*.deb,
+            openxm-binary*.tar.gz  (本体)
+            asir*
+     を ftp サーバへコピーする.
+
+   (7. orange2 で /root/bin/mirror.ftp)
+ 
+
+Q. openxm-binary*.tar.gz をインストールする仕組みは?
+A. OpenXM/download/openxm-install.sh (OpenXM/bin/opennxm-install.sh)
+   が oxfetch.sh で openxm-binary*.tar.gz  をネットワークインストールします.
+   $HOME/OpenXM_tmp (/root/OpenXM_tmp ) に openxm-binary*tar.gz が一時おかれます.
+   このスクリプトは,  Debian/openxm.postinst より起動されています.
+
+Q. OpenXM 部分の修正のみがあります.
+A. 
+   rm -f .fetch_done
+   work/OpenXM 以下を修正.  (必要があれば kerberos へ commit)
+   make
+   make copy-tar-ball-and-asir
+   
+   md5 を無視する場合は openxm*deb の修正は不要.
+
+   openxm*deb は oxfetch.sh, openxm-install.sh (と  OpenXM/download/*md5 )
+  の修正の時のみ修正.
+
+Q. openxm*deb のみ修正したい.
+A. make build-deb
+
+
+Q. パッケージのテスト.  (開発者の環境では iyokan-6 )
+A. 
+  インストール.
+   ln -s 書き込める場所  /home/knoppix/.asir-tmp
+   rm -rf /home/knoppix/.asir-tmp/*
+   sudo dpkg --install openxm*.deb
+
+  実行.
+   openxm asir-port.sh
+
+  削除.
+   sudo dpkg --remove openxm
+
+
+ なお package のインストールで始めの質問に no と答えた場合,
+ openxm-binary*.tar.gz がインストールされません. 
+ インストールするには,
+    sudo update-menus
+    sudo OpenXM_HOME=/usr/local/OpenXM /usr/local/OpenXM/download/openxm-install.sh
+    sudo OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh
+
+
+$OpenXM$
+
+   
+
+
+ 
