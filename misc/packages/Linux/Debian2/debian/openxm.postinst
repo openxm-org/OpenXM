@@ -12,7 +12,11 @@ if [ -f /usr/local/bin/openxm ] ; then
  echo "If not (e.g., installing this package for commercial system,) "             ;
  echo "please answer n."                                                           ;
  echo "--------------------------------------------------------------------------" ;
+ echo "Note. If you are not asked, there may be a junk folder /home/knoppix/.asir-tmp" ;
+ echo "      In this case, please do  dpkg --remove openxm ; rm -rf /home/knoppix/.asir-tmp" ;
+ echo "      and install again." ;
+ echo "--------------------------------------------------------------------------" ;
  (export OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh) ;
 fi
-
+echo "Installation of the package of openxm is completed."
 

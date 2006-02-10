@@ -69,7 +69,8 @@ Q. openxm*deb のみ修正したい.
 A. make build-deb
 
 
-Q. パッケージのテスト.  (開発者の環境では iyokan-6 )
+Q. パッケージのテスト.  
+  (開発者の環境では iyokan-6. source dot.bashrc してから export OpenXM_HOME= )
 A. 
   インストール.
    ln -s 書き込める場所  /home/knoppix/.asir-tmp
@@ -90,8 +91,36 @@ A.
     sudo OpenXM_HOME=/usr/local/OpenXM /usr/local/OpenXM/download/openxm-install.sh
     sudo OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh
 
+Q. kde の menu を /usr/lib/menu/openxm-binary から /usr/lib/menu/openxm に変更したい.
+A. 
+   work/OpenXM 以下にはすでに package build をしたコンパイル済みのソースが展開されていると仮定.
 
-$OpenXM$
+  OpenXM/rc/kde/openxm-binary-knoppix を debian/rules の install ターゲットで deb パッケージに
+  コピーしている.
+  work/OpenXM/rc/kde/openxm-knoppix を加えて. cvs でadd.
+
+ (1) debian/changelog, Makefile, OpenXM/deoanload/Makefile work/OpenXM/src/asir-port/Makefile
+     の minior version を上げる.
+ (2) debian/rules で openxm を /usr/lib/menu へコピーするように設定変更.
+ (3) Binary file やインストールされるライブラリには変更ないので, Full build は必要ない.
+     Knoppix 独自の変更なので, 
+
+     rm .build-knoppix_done .make-tar-ball*done
+
+     make  で OK.
+
+ (4) make copy-tar-ball-and-asir   (orange2 で /root/bin/mirror.ftp)
+
+ あとはテスト. うまくいかないときは, 修正のあと (3) にもどって繰り返す.
+
+ (5) この directory で commit
+     cd work/OpenXM で必要なものを commit.  
+
+ (*) OpenXM/download/version.txt は work/OpenXM/src/asir-port の Makefile で生成される.
+
+
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.1 2006/02/09 07:43:01 takayama Exp $
 
    
 

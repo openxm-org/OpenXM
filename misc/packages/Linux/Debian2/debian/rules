@@ -44,7 +44,7 @@ install: build
 	tar cf - --exclude CVS OpenXM | (cd ${INST_PREFIX} ; tar xf -)
 	install OpenXM/bin/oxfetch.sh ${INST_PREFIX}/bin
 # copying icons for KDE.
-	cp ${OpenXM_HOME}/rc/kde/openxm-binary-knoppix ${INST_PREFIX}/../../usr/lib/menu/openxm-binary
+	cp ${OpenXM_HOME}/rc/kde/openxm-knoppix ${INST_PREFIX}/../../usr/lib/menu/openxm
 	cp ${OpenXM_HOME}/doc/OpenXM-web/hopo_std_color.xpm ${OpenXM_HOME}/doc/OpenXM-web/logo-openxm2-color.xpm  ${INST_PREFIX}/../../usr/share/pixmaps
 	#dh_movefiles
 
