@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.8 2006/02/08 02:06:52 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.9 2006/02/08 08:16:10 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems
 # under $HOME/.asir-tmp and installs asir to $OpenXM_HOME/bin
 #
@@ -52,7 +52,7 @@ _agree() {
 		return
 	fi
 	if [ $ans = "n" ]; then
-		echo "Aborting the installation." ; \
+		echo "Aborting the installation of asir." ; \
 		exit 
     fi
 	if [ $ans = "v" ]; then
