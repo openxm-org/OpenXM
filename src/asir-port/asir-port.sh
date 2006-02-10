@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.10 2006/02/08 02:06:52 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.11 2006/02/08 08:16:10 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -25,8 +25,13 @@ otname="ox-texmacs-$os.tar.gz"
 
 if [ $# = 1 ]; then
 if [ $1 = "--install" ]; then
- rm -rf $HOME/.asir-tmp
+ rm -rf $HOME/.asir-tmp ;
+ rm -f /usr/local/OpenXM/bin/asir ;
 fi
+fi
+
+if [ -f /usr/local/OpenXM/bin/asir ]; then
+  $OpenXM_HOME/bin/fep $OpenXM_HOME/bin/asir $* ; exit ;
 fi
 
 _agree() {
