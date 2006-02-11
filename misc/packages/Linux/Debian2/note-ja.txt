@@ -123,7 +123,19 @@ A.
    dpkg-deb --extract xxxyyy.deb  tmp-any
    dpkg-deb --control xxxyyy.deb
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.2 2006/02/10 01:56:58 takayama Exp $
+Q. rm -f .build* .make* ; make で asir を work/OpenXM/bin へコピーするところで,
+  エラーをおこします. [2006-02-11]
+A. work/OpenXM/bin/asir が /home/knoppix/.asir-tmp へのリンクとなってるのが原因で
+   しょう.
+   まず
+   (cd work/OpenXM/asir/asir-port ; make uninstall-for-knoppix)
+   をして下さい.
+
+Q.  work/OpenXM/src/asir-contrib/packages/doc を更新しました.
+A.  まず rm work/OpenXM/asir/asir-contrib/packages/doc/.*done してから make して下さい.
+
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.3 2006/02/10 12:17:00 takayama Exp $
 
    
 
