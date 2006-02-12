@@ -146,7 +146,13 @@ A. rm .build*done .make*done
   #(cd work/OpenXM/src/asir-port ; make uninstall-for-knoppix)
   #(cd work/OpenXM/rc ; make ; source dot.bashrc ; openxm asir など)
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.4 2006/02/11 02:51:39 takayama Exp $
+Q. openxm asir-port.sh  --> ファイルがないといわれます.
+A. /usr/local/bin/openxm が正しく生成されていないからであろう.
+  (cd work/OpenXM/rc ; make clean) してから, tar ball を生成.
+  [ Makefile もそのように更新した. 
+    rm .make*tar*done  ; make ; make copy-tar-ball-and-asir ]
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.5 2006/02/12 11:04:43 takayama Exp $
 
    
 

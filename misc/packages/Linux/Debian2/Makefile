@@ -68,6 +68,7 @@ FILES=OpenXM/Copyright OpenXM/bin OpenXM/include \
 make-tar-ball-2: make-tar-ball-1
 	if [ ! -f .make-tar-ball-2_done ]; then \
 	  (cd work/OpenXM/bin ; for i in ${BINARY_FILES} ; do strip $$i ; done ) ;\
+	  (cd work/OpenXM/rc ; make clean ) ;\
 	  (cd work; tar czvf openxm-binary-${OS}-${VERSION}.tar.gz ${EXCLUDE_FILES} ${FILES}) ; \
 	  (cd work ; ${MD5} "openxm-binary-${OS}-${VERSION}.tar.gz" | awk '{print $$1}' >distinfo-openxm-binary.md5) ;\
 	  (cp work/distinfo-openxm-binary.md5 OpenXM/download) ; \
