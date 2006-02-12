@@ -135,7 +135,18 @@ Q.  work/OpenXM/src/asir-contrib/packages/doc を更新しました.
 A.  まず rm work/OpenXM/asir/asir-contrib/packages/doc/.*done してから make して下さい.
 
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.3 2006/02/10 12:17:00 takayama Exp $
+Q. work/OpenXM/src/asir-doc/extract_func.c が更新された.
+   work/OpenXM_contrib2/asir2000/ が更新された.
+A. rm .build*done .make*done
+   (cd work/OpenXM/src/asir2000 ; rm .make*done .install*done)
+   (cd work/OpenXM/src/asir-contrib/packages/doc ; rm .install*done)
+   make 
+   make copy-tar-ball-and-asir
+  # テストは以下のようにしてもできる.
+  #(cd work/OpenXM/src/asir-port ; make uninstall-for-knoppix)
+  #(cd work/OpenXM/rc ; make ; source dot.bashrc ; openxm asir など)
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.4 2006/02/11 02:51:39 takayama Exp $
 
    
 
