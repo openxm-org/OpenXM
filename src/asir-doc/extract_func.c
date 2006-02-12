@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.2 2000/01/20 03:26:22 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.3 2005/02/09 03:25:50 noro Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -99,12 +99,16 @@ char *buf;
 char **name;
 {
 	int i,len;
-	char *quote,*bquote,*comma;
+	char *quote,*bquote,*comma,*space,*p;
 
-	/* XXX */
-	if ( *buf != '`' )
-		return 0;
-
+	if ( *buf != '`' ) {
+		/* skip X.X.X if exists */
+		space = index(buf,' ');
+		if ( !space ) return 0;
+		for ( p = buf; p < space; p++ )
+			if ( !isdigit(*p) && *p != '.' ) return 0;
+		buf = space+1;
+	}
 	i = 0;
 	while ( 1 ) {
 		/* search a back quote */
