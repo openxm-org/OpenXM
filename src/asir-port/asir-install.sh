@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.9 2006/02/08 08:16:10 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.10 2006/02/10 01:57:23 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems
 # under $HOME/.asir-tmp and installs asir to $OpenXM_HOME/bin
 #
@@ -25,8 +25,8 @@ asirnamegunzip="asir-$os-$version"
 asirname="asir-$os-$version.gz"
 asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
 asirlibname="asirlib-$os-$version.tar.gz"
-ot="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os.tar.gz"
-otname="ox-texmacs-$os.tar.gz"
+ot="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os-$version.tar.gz"
+otname="ox-texmacs-$os-$version.tar.gz"
 
 ASIR_LIB_FILES="alph bfct bgk const cyclic defs.h dmul fctrdata fctrtest \
                fff gr ifplot katsura mat nf num primdec \

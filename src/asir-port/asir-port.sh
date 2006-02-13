@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.11 2006/02/08 08:16:10 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.12 2006/02/10 06:01:19 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -20,8 +20,8 @@ asirnamegunzip="asir-$os-$version"
 asirname="asir-$os-$version.gz"
 asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
 asirlibname="asirlib-$os-$version.tar.gz"
-ot="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os.tar.gz"
-otname="ox-texmacs-$os.tar.gz"
+ot="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os-$version.tar.gz"
+otname="ox-texmacs-$os-$version.tar.gz"
 
 if [ $# = 1 ]; then
 if [ $1 = "--install" ]; then
