@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.16 2006/02/13 09:21:08 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.17 2006/02/13 10:00:05 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -58,9 +58,9 @@
   (menu-extend texmacs-extra-menu
     (if (in-openxm?)
       (=> "OpenXM"
-        (-> "Select engines"
-          ("Risa/Asir" (insert-string "!asir;"))
-          ("Kan/sm1"   (insert-string "!sm1;")))
+;         (-> "Select engines"
+;           ("Risa/Asir" (insert-string "!asir;"))
+;           ("Kan/sm1"   (insert-string "!sm1;")))
 ;         (-> "Select display style"
 ;           ("LaTeX"     (openxm-eval "!latex;"))
 ;           ("verbatim"  (openxm-eval "!verbatim;")))
@@ -80,7 +80,7 @@
 ;           ("Weyl algebra"   (openxm-eval "noro_print_env(\"weyl\");"))
 ;           ("Euler OPs"      (openxm-eval "noro_print_env(\"yang\");"))
 ;           )
-        ---
+;         ---
         (-> "Manuals"
           ("Risa/Asir manual"
            (w3m-search manual-asir2000))
