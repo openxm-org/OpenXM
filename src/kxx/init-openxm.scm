@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.13 2004/04/16 07:50:22 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.14 2005/01/23 09:55:29 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -49,11 +49,11 @@
   (w3m (openxm-path t)))
 
 (define (openxm-initialize)
-  (menu-extend texmacs-session-help-icons
-    (if (in-openxm?)
-    |
-    ((balloon (icon "tm_help.xpm") "Risa/Asir manual")
-     (w3m-search manual-asir2000))))
+;   (menu-extend texmacs-session-help-icons
+;     (if (in-openxm?)
+;     |
+;     ((balloon (icon "tm_help.xpm") "Risa/Asir manual")
+;      (w3m-search manual-asir2000))))
   (menu-extend texmacs-extra-menu
     (if (in-openxm?)
       (=> "OpenXM"
@@ -92,7 +92,7 @@
 )
 
 (define (openxm-serialize lan t)
-  (import-from (texmacs plugin plugin-cmd))
+  (import-from (utils plugin plugin-cmd))
   (with u (pre-serialize lan t)
     (with s (texmacs->verbatim (stree->tree u))
       (string-append (string-replace s "\n" "\v") "\n")
