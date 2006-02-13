@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.14 2005/01/23 09:55:29 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.15 2006/02/13 06:14:22 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -13,13 +13,14 @@
   (alist-search
    '(("C"  . "doc/asir-contrib/html-en/cman-en_toc.html") ("ja" . "doc/asir-contrib/html-ja/cman-ja_toc.html"))))
 
-(define (openxm-eval t)
-  (import-from (texmacs plugin plugin-cmd))
-  (import-from (texmacs plugin plugin-convert))
-  (plugin-eval "openxm" "default" (object->tree t)))
+(define openxm-eval script-apply)
+; (define (openxm-eval t)
+;   (import-from (texmacs plugin plugin-cmd))
+;   (import-from (texmacs plugin plugin-convert))
+;   (plugin-eval "openxm" "default" (object->tree t)))
 
-(define (openxm-eval-paste t)
-  (insert-tree (object->tree (openxm-eval t))))
+; (define (openxm-eval-paste t)
+;   (insert-tree (object->tree (openxm-eval t))))
 
 (define (openxm-path t)
   (if (string? t)
