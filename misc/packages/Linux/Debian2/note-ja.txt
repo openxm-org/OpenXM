@@ -152,7 +152,15 @@ A. /usr/local/bin/openxm が正しく生成されていないからであろう.
   [ Makefile もそのように更新した. 
     rm .make*tar*done  ; make ; make copy-tar-ball-and-asir ]
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.5 2006/02/12 11:04:43 takayama Exp $
+Q. asir のソースコードに変更があった.
+A. rm -f work/OpenXM/src/asir2000/.make_done
+   (cd work; rcvs update OpenXM_contrib2/asir2000)
+   rm -f .build*done  .make-tar*
+   make
+   make copy-tar-ball-and-asir
+
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.6 2006/02/12 12:25:42 takayama Exp $
 
    
 
