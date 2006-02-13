@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.1 2004/07/02 07:48:47 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.2 2006/02/07 05:21:58 takayama Exp $
 
 # targets:
 # all
@@ -10,6 +10,7 @@ all :  Makefile
 	(cd packages/doc ; make all)
 
 install : Makefile
+	-(cd testing ; make link-to-src)
 	(cd packages/src ; make install)
 	-(cd packages/doc ; make install)
 
