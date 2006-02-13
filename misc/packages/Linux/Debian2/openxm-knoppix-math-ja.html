@@ -1,0 +1,136 @@
+<html>
+<!--  -->
+<title>
+ OpenXM/Risa/Asir, etc 
+</title>
+<body bgcolor=#ffffff text=#000000>
+<h1> OpenXM 
+               <img src="file:///usr/share/pixmaps/logo-openxm2-color.xpm" />
+  数学ソフトパッケージ </h1>
+
+
+<p>
+<a href="http://www.openxm.org"> OpenXM プロジェクト  </a>
+では各種の数学ソフトウエアシステムを OpenXM プロトコル (Open message eXchange for
+Mathematics) で相互接続して, パッケージとして提供しています.
+
+国産数式処理システム
+<a href="http://www.math.kobe-u.ac.jp/Asir/index-ja.html">
+Risa/Asir  </a>
+<img src="file:///usr/share/pixmaps/hopo_std_color.xpm"/>
+がメインのクライアントであり, この asir よりパッケージに含まれる数学ソフトウエアを
+利用することが可能です.
+</p>
+
+<h2> <font color="red"> Asir の起動方法 </font> </h2>
+KDE のメニューから <br>
+<font color="green"> アプリケーション </font>
+--> 
+<font color="green"> Math </font>
+--> 
+<font color="green"> Asir(OpenXM) <img src="file:///usr/share/pixmaps/hopo_std_color.xpm"/> 
+</font>
+<br>
+で起動します. <br>
+<font color="cyan">
+Asir の一部分は利用許諾の問題から CD に含めることができませんので利用許諾に同意したあと
+ネットワークからダウンロードします.
+サイズは 2M 以内ですのでブロードバンド環境ならば 1 分以内にダウンロードが終了します.
+ダウンロードしたものは ホームディレクトリの下に名前
+.asir-tmp, .TeXmacs, .asirrc でセーブされますので,
+たとえば KDE のメニューから <br>
+knoppix --> configure --> 継続的なホームの作成 <br>
+で USB メモリ等に書き込んでおけば再度ダウンロードする必要はありません.
+詳しくは knoppix の解説をご覧下さい.
+</font>
+<br>
+なお一旦ダウンロードしたら TeXmacs から利用することも可能です.
+TeXmacs メニューで <br>
+<font color="gree"> Insert  </font>
+-->
+<font color="gree"> session </font>
+-->
+<font color="gree"> OpenXM </font> [asir,sm1] <br>
+を選択すると asir(OpenXM) を 起動できます.
+これはまだ実験的な試みですが, 画面は 
+<a href="http://www.math.kobe-u.ac.jp/Asir/texmacs-oxasir-1.png"> 
+こんな感じ </a> になります.
+
+
+<h2> <font color="red"> Asir でどんな計算ができますか? </font> </h2>
+例をいくつかあげておきます.
+<ol>
+<li>  <font color="blue"> fctr(x^100-1);   </font> 
+   x <sup> 100 </sup> - 1  の因数分解.
+<li>  <font color="blue">
+     ifplot(x^3-y^2);
+    </font>
+  x <sup> 3 </sup> - y <sup> 2 </sup> = 0 の描画.
+<li>  <font color="blue">
+     gnuplot.heat(0.0001,100);
+    </font>
+    差分陽解法で熱伝導方程式の解のグラフを書くデモ. 時間幅は 0.0001.
+<li>  <font color="blue">
+   dp_gr_main([x^2+y^2-4,x*y-1] | v=[x,y], order=[[x,1]]);
+     </font>
+   <br>
+   x <sup> 2 </sup> +y <sup> 2 </sup> -4, x y -1   の
+   x の重み 1, y の重み 0 でのグレブナ基底の計算.  
+<li> <font color="blue">
+ F=[x^2+y^2-4,x*y-1]; V=[x,y]; 
+ dp_gr_main(map(dp_ptod,F,V) | v=V, order=[[x,1]]);
+</font>
+同じ問題で結果を分散表現多項式で得たいとき.
+</ol>
+その他, 新しい高速グレブナ基底計算の実装 (nd_gr_main), 
+準素イデアル分解 (primadec), 代数拡大体での因数分解,
+微分作用素環での計算, pari による整数論関連の計算, など.
+
+
+<h2> <font color="red"> Asir の参考書にどのようなものがありますか? </font> </h2>
+<ol>
+<li> 
+    <font color="green"> 野呂正行, 高山信毅 著:  Risa/Asir ドリル, 2003 
+    </font>, 
+ <a href="http://www.math.kobe-u.ac.jp/~taka/asir-book-html/main/index.html"> (HTML 版, online. 日本語latex2html の不都合により不完全です) </a>,
+ <a href="http://fe.math.kobe-u.ac.jp/nobuki/t.pdf"> (PDF 版, online) </a>,
+ <a href="file:///usr/share/doc/???"> (PDF 版, このCDに含まれてるもの) </a>,
+ Risa/Asir を用いた(数学)プログラミングの入門書です. 配布, 複製は自由です.
+ 講義, セミナー等でご利用の際は印刷製本(Windows 版 Asir CD付き)したものを
+ 実費配布しますので, <font color="blue">  takayama@openxm.org </font>
+ まで御相談ください (返品可, 1500 円). <br>
+<li> 
+  <a href="http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc-ja.html"> 
+     Asirやそのライブラリのマニュアル (HTML 版, online) </a>
+オンラインのマニュアルは asir  の中から <pre> help("fctr"); </pre> とか
+<pre> ox_help("gnuplot"); </pre> と入力すると読めます.
+<li> 斎藤, 竹島, 平野著. 日本で生まれた数式処理ソフト リサ アジール ガイドブック, SEG 出版
+<li> 斎藤, 竹島, 平野著. グレブナ基底の計算, 実践編, 東大出版会
+<li> 野呂, 横山著. グレブナ基底の計算, 理論編, 東大出版会
+<li> <a href="http://www.math.kobe-u.ac.jp/Asir/ca.pdf"> 野呂正行 著: 計算代数入門 (PDF版). </a> Asir が用いているアルゴリズムについての解説書です. 
+</ol>
+
+<h2> Asir からよべる OpenXM クライアントにはどのようなものがありますか? </h2>
+<ol>
+<li> kan/sm1 : 微分作用素環のための専用システム.  openxm sm1 で単体でも起動可能.
+<li> phc :  ホモトピー法による代数方程式系の数値求解. openxm phc で単体でも起動可能.
+<li> gnuplot : グラフ描画ソフト.
+<li> その他.
+</ol> 
+詳しくは  
+<a href="http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc-ja.html"> 
+OpenXM/asir-contribのマニュアルや kan/sm1 のマニュアル等 
+</a> を見て下さい.
+
+
+<h2>  OpenXM ソースの CVS Repositry  (開発者向け).
+</h2>
+<a href="http://www.math.sci.kobe-u.ac.jp/cgi/cvsweb.cgi/">cvsweb </a>
+ (Risa/Asir は OpenXM_contrib2/asir2000 の下にあります. sm1 は OpenXM/src の下.)
+
+<br>
+<br>
+
+$OpenXM$
+</body>
+</html>
