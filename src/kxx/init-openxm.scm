@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.15 2006/02/13 06:14:22 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.16 2006/02/13 09:21:08 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -13,7 +13,6 @@
   (alist-search
    '(("C"  . "doc/asir-contrib/html-en/cman-en_toc.html") ("ja" . "doc/asir-contrib/html-ja/cman-ja_toc.html"))))
 
-(define openxm-eval script-apply)
 ; (define (openxm-eval t)
 ;   (import-from (texmacs plugin plugin-cmd))
 ;   (import-from (texmacs plugin plugin-convert))
@@ -37,6 +36,7 @@
           ((url-exists-in-path? "kterm") "kterm -g 100x50 -e w3m")
           ((url-exists-in-path? "xterm") "xterm -g 100x50 -e w3m")
           (else #f)))
+   ((url-exists-in-path? "firefox" ) "firefox" )
    ((url-exists-in-path? "mozilla" ) "mozilla" )
    ((url-exists-in-path? "netscape") "netscape")
    ((url-exists-in-path? "iexplore") "iexplore")
@@ -61,25 +61,25 @@
         (-> "Select engines"
           ("Risa/Asir" (insert-string "!asir;"))
           ("Kan/sm1"   (insert-string "!sm1;")))
-        (-> "Select display style"
-          ("LaTeX"     (openxm-eval "!latex;"))
-          ("verbatim"  (openxm-eval "!verbatim;")))
-        (-> "Load Modules (Asir)"
-          ("ccurve"    (openxm-eval "load(\"ccurve.rr\");"))
-          ("dsolv"     (openxm-eval "load(\"dsolv\");"))
-          ("ratint"    (openxm-eval "load(\"ratint\");"))
-          ("solv"      (openxm-eval "load(\"solv\");"))
-          ("sp"        (openxm-eval "load(\"sp\");"))
-          ("sturm"     (openxm-eval "load(\"sturm\");"))
-          ("sym"       (openxm-eval "load(\"sym\");"))
-          ("weight"    (openxm-eval "load(\"weight\");"))
-          ("yang"      (openxm-eval "load(\"yang.rr\");"))
-          )
-        (-> "Display Configuration (Asir)"
-          ("Load default"   (openxm-eval "noro_print_env(0);"))
-          ("Weyl algebra"   (openxm-eval "noro_print_env(\"weyl\");"))
-          ("Euler OPs"      (openxm-eval "noro_print_env(\"yang\");"))
-          )
+;         (-> "Select display style"
+;           ("LaTeX"     (openxm-eval "!latex;"))
+;           ("verbatim"  (openxm-eval "!verbatim;")))
+;         (-> "Load Modules (Asir)"
+;           ("ccurve"    (openxm-eval "load(\"ccurve.rr\");"))
+;           ("dsolv"     (openxm-eval "load(\"dsolv\");"))
+;           ("ratint"    (openxm-eval "load(\"ratint\");"))
+;           ("solv"      (openxm-eval "load(\"solv\");"))
+;           ("sp"        (openxm-eval "load(\"sp\");"))
+;           ("sturm"     (openxm-eval "load(\"sturm\");"))
+;           ("sym"       (openxm-eval "load(\"sym\");"))
+;           ("weight"    (openxm-eval "load(\"weight\");"))
+;           ("yang"      (openxm-eval "load(\"yang.rr\");"))
+;           )
+;         (-> "Display Configuration (Asir)"
+;           ("Load default"   (openxm-eval "noro_print_env(0);"))
+;           ("Weyl algebra"   (openxm-eval "noro_print_env(\"weyl\");"))
+;           ("Euler OPs"      (openxm-eval "noro_print_env(\"yang\");"))
+;           )
         ---
         (-> "Manuals"
           ("Risa/Asir manual"
@@ -93,7 +93,7 @@
 )
 
 (define (openxm-serialize lan t)
-  (import-from (utils plugin plugin-cmd))
+  (import-from (utils plugins plugin-cmd))
   (with u (pre-serialize lan t)
     (with s (texmacs->verbatim (stree->tree u))
       (string-append (string-replace s "\n" "\v") "\n")
