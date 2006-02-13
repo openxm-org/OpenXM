@@ -9,8 +9,9 @@ MD5=md5sum
 OS=`uname -s`
 RSYNC=rsync -avz -e ssh
 FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
+TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 
-build-package: fetch  make-tar-ball-2 
+build-package: fetch  make-tar-ball-2  make-tar-ball-3
 	fakeroot debian/rules build
 	fakeroot debian/rules install
 	fakeroot dpkg-buildpackage
@@ -76,9 +77,22 @@ make-tar-ball-2: make-tar-ball-1
 	fi
 	touch .make-tar-ball-2_done
 
-copy-tar-ball-and-asir: make-tar-ball-2
+##cf.misc-2004/A2/knoppix-2005/Makefile. There is no fix on .asirrc this time.
+make-tar-ball-3:
+	if [ ! -f .make-tar-ball-3_done ]; then \
+	  rm -rf .TeXmacs ;\
+	  mkdir -p .TeXmacs/plugins/ox/progs ;\
+	  mkdir -p .TeXmacs/progs ;\
+	  cp ${TM_OX} .TeXmacs/plugins/ox/progs/init-ox.scm ;\
+	  touch .TeXmacs/progs/my-init-texmacs.scm ;\
+	  tar czvf work/ox-texmacs-${OS}-${VERSION}.tar.gz ./.TeXmacs  ;\
+	fi
+	touch .make-tar-ball-3_done
+ 
+copy-tar-ball-and-asir: make-tar-ball-2 make-tar-ball-3
 	(cd work/OpenXM/src/asir-port ; make copy-for-knoppix)
 	(cd work ;  ${RSYNC} "openxm-binary-${OS}-${VERSION}.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
+	(cd work ;  ${RSYNC} "ox-texmacs-${OS}-${VERSION}.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 	(cp ../openxm*deb . ;  ${RSYNC} "openxm_${VERSION}_i386.deb" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 
 clean: clean-tilde
