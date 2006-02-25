@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.21 2005/02/28 12:53:44 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.22 2006/02/04 10:44:22 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/resource.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <signal.h>
@@ -409,6 +410,7 @@ void myServerExit() {
 
 childServerMain(int fdControl, int fdStream) {
   int i;
+  struct rlimit res;
   close(fdControl);   /* close(0); dup(fdStream); */
   dup2(fdStream,3);
   dup2(fdStream,4);  
@@ -448,7 +450,12 @@ childServerMain(int fdControl, int fdStream) {
 	  putenv(s);
 	}
   }
-
+  getrlimit(RLIMIT_STACK,&res);
+  if (res.rlim_cur < 65536000) {
+    fprintf(stderr,"RLIMIT_STACK is increased to 65Mbytes by setrlimit.\n");
+	res.rlim_cur = 65536000;
+	setrlimit(RLIMIT_STACK,&res);
+  }
   if (PacketMonitor) {
     if (execle(ServerName,ServerName,"-monitor",NULL,environ)) {
       fprintf(stderr,"%s cannot be executed with -monitor.\n",ServerName);

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.51 2006/02/02 10:53:08 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.52 2006/02/04 02:44:39 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1858,14 +1858,15 @@ oxasir.verbose {
 ] putUsages
 /translateErrorForCfep {
   /arg1 set
-  [/ee /ans /tt /lf /i /nn] pushVariables
+  [/ee /ans /tt /lf /i /nn /ee.orig] pushVariables
   [
    /ee arg1 def
    {
     ee etag 257 eq {
-      ee (body) dc 1 get /ee set
+      ee (body) dc 1 get /ee set  ee /ee.orig set
       ee length 3 gt {
         ee 3 get /ee set
+        ee [[(reason_of_error) ee.orig 2 get toString ]] join /ee set
       }{ 
         %% nn should be 2, [serial, common error no, short message]
         ee length /nn set
@@ -1915,6 +1916,12 @@ oxasir.verbose {
            tt (string) dc localizedString  % for translation.
            nl lf] join /ans set
     }{ } ifelse
+
+%% Keyword from asir.  A temporary implementation.
+    ee (toplevel) getNode  /tt set
+    tt isInteger, tt tag 15 eq, or {
+      ans [(gotoLine, ) tt toString  nl lf] join /ans set
+    } { } ifelse
 
     exit
    } loop
