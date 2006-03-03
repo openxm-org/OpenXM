@@ -1,9 +1,0 @@
-:
-echo $*
-for i in $* ; do \
-echo $i ; \
-sed -e "s/\/\*\*/\/\*/g" <$i >hoge.tmp ; \
-rm $i ; \
-sed -e "s/\/\*&ja/\/\*\*/g" <hoge.tmp >$i ; \
-done
-
