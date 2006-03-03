@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.52 2006/02/04 02:44:39 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.53 2006/02/25 09:11:10 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1847,7 +1847,9 @@ oxasir.verbose {
 
 [[(lines),[10,-1]],
  [(where),[(shell), (length)]],
- [(reason_of_error), (invalid argument)]]
+ [(reason_of_error), (invalid argument)],
+ [(asir_where),[[(toplevel),10],[(string),(foo),3],[(string),(hoge),-1]]
+]
 /i1 set
 %% /translateErrorForCfep.sampleInput  set
 
@@ -1858,7 +1860,7 @@ oxasir.verbose {
 ] putUsages
 /translateErrorForCfep {
   /arg1 set
-  [/ee /ans /tt /lf /i /nn /ee.orig] pushVariables
+  [/ee /ans /tt /lf /i /nn /ee.orig /tt2] pushVariables
   [
    /ee arg1 def
    {
@@ -1917,11 +1919,30 @@ oxasir.verbose {
            nl lf] join /ans set
     }{ } ifelse
 
-%% Keyword from asir.  A temporary implementation.
-    ee (toplevel) getNode  /tt set
-    tt isInteger, tt tag 15 eq, or {
-      ans [(gotoLine, ) tt toString  nl lf] join /ans set
+%% Keyword from asir.  [(asir_where) [[(toplevel),3],[(string),(foo),3],[(filename),(func),4]]]
+    ee (asir_where) getNode  /tt set
+    tt (toplevel) getNode /tt2 set
+    tt2 isInteger, tt2 tag 15 eq, or {
+      ans [(gotoLine, ) tt2 toString  nl lf] join /ans set
     } { } ifelse
+    tt isArray {
+      0 1 tt length 1 sub {
+         /i set
+        tt i get /tt2 set
+        tt2 (string) getNode tag 0 eq { }
+        {  
+           tt2 length 2 gt {
+              tt2 2 get /tt2 set
+              tt2 isInteger, tt2 tag 15 eq, or {
+                tt2 toString .. /tt2 set
+                tt2 (-1).. gt, tt2 (4294967295).. lt, and { 
+                  ans [(gotoLine, ) tt2 toString  nl lf] join /ans set
+                } { } ifelse
+              } { } ifelse
+           }{ } ifelse
+        } ifelse
+      } for 
+    }{ } ifelse
 
     exit
    } loop

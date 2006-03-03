@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.6 2006/02/01 00:30:04 takayama Exp $
+% $OpenXM: OpenXM/doc/OpenXM-specs/OX-RFC-103.oxw,v 1.7 2006/02/04 10:44:22 takayama Exp $
 /*&C
 
 OX-RFC: 103                                   OpenXM committers
@@ -374,6 +374,9 @@ Array の各要素はまた長さ 2 の CMO_ARRAY であり,
 第一成分はキーワードが格納され, 第2成分はその値である.
 キーワードとして現在次のものを ox-rfc-103 として提案している.
 なおサーバは全てのキーワードの値を戻す必要はない.
+エラー情報は言語の仕様に依存するため asir_where の用に asir 言語に依存した
+形式のエラー情報のわたしかたもある. 今後何通りかの方法に収束していくと予想している.
+
   reason_of_error,  (CMO_STRING)実行時エラーの理由
   where,   (CMO_ARRAY) 実行時エラーの場所をあらわす CMO_STRING のarray.
   lines,    (CMO_ARRAY) 実行時エラーを起こした行番号(CMO_INT32) のarray.
@@ -382,6 +385,9 @@ Array の各要素はまた長さ 2 の CMO_ARRAY であり,
                        pair(長さ2のarray) の array
   parse_error_at,      (CMO_INT32) parse エラーをおこした行番号.
   reason_of_parse_error,  (CMO_STRING) parse エラーの理由.
+  asir_where, (CMO_ARRAY) asir形式のエラー位置情報.
+       [場所,関数名,行番号] または [場所,行番号] のリスト.
+       負の行番号は意味のない情報でありクライアントは無視すべきである.
 */
 
 /*&C
@@ -396,6 +402,14 @@ Example 2.
    ["where",["shell","length"]],
    ["lines", [15,-1]]
   ]
+
+Example 3.
+ ["asir_where"
+  [["toplevel", 10],
+   ["string","foo",3],          // string は execute_string で渡された string 内を意味する.
+   ["/usr/local/lib/OpenXM/asir/lib/afo.rr","abc",4]
+  ]
+ ]
 
 */
 
