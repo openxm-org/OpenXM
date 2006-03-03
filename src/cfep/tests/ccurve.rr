@@ -1,0 +1,32 @@
+/*!ox_asir_use_output */
+/* From OpenXM: OpenXM/src/asir-contrib/packages/src/ccurve.rr,v 1.1 2004/03/11 12:25:20 takayama Exp  */
+/* From asir-book/Prog/ccurve */
+load("glib")$
+def cCurve(P) {
+  if (length(P) < 2) return(0);
+  A = P[0][0];
+  B = P[0][1];
+  C = P[1][0];
+  D = P[1][1];
+  Tmp = [[A,B],[(A+D+C-B)/2,(B+A+D-C)/2],
+         [(A+D+C-B)/2,(B+A+D-C)/2],[C,D]];
+  return(append2(Tmp,cCurve(cdr(cdr(P)))));
+}
+def append2(A,B) {
+  if (type(B) == 0) return A;
+  else return append(A,B);
+}
+def ccurve(N) {
+   Tmp = [[0,0],[1,0]];
+   for (I=0; I<N; I++) {
+      Tmp = cCurve(Tmp);
+      print(Tmp);
+   }
+   glib_window(-1,-1,2,0.5);
+   for (I=0; I<length(Tmp)-1; I++) {
+     glib_line(Tmp[I][0],Tmp[I][1],Tmp[I+1][0],Tmp[I+1][1]);
+   }
+}
+ccurve(6); glib_flush();
+"Type in, for example,  ccurve(8);";
+

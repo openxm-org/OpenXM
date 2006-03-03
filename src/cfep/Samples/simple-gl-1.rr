@@ -1,0 +1,83 @@
+/*
+  使い方:
+  ファイル全体を実行したあと test4(); を呼び出す.
+                                         test(); を呼び出す.
+*/
+def test4() {
+    glib_init_send("0;[glib3_std_scene0]");
+  glib_init_send("0;[glib_flush]");
+  glib_send("0; [glib3_bounding_box, 1.2]");
+  glib_send("0; [glColor4f, 1.0, 0.0, 0.0, 1.0]");
+  glib_send("0;[glBegin, (int) 4]");  /* GL_TRIANGLES */
+  glib_send("0;[glVertex3f,0s,0,0]");
+  glib_send("0;[glVertex3f,0,1,0]");
+  glib_send("0;[glVertex3f,1,0,0.2]");
+  glib_send("0;[glEnd]");
+  glib_send("0;[glib_flush]");
+}
+def test() {
+  /* gid; commands */
+  glib_init_send("0;[glColor4f,1.0,0.8,1.0,1.0]");
+  glib_send("0;[glColor4f, 1.0, 0.0, 0.0, 0.0, 1.0]");
+  glib_send("0;[glRectf,-0.3, -0.3, 0.3, 0.3]");
+  glib_send("0;[glib_flush]");
+  glib_init_send("1; [glColor4f, 1.0,0.0,0.0,0.3]");
+  glib_init_send("1; [glRectf, -0.1,-0.1,0.1,0.1]");
+  glib_init_send("1; [glib_flush]");
+  glib_send("1; [glib_line,0.0,0.0,0.5,0.5,(int)255]");
+  glib_send("1; [glib_flush]");
+}
+/* test1(); */
+def test1() {
+  for (I= 0; I<1.0; I += 0.05) {
+     myline(0,0,0.6,I, [random()%256,random()%256,random()%256]);
+ }  /* bug なぜか線の色が黒になる.  color が全部0. 2006.02.22*/
+ glib_send("1;[glib_flush]");
+}
+def myline(X,Y,X2,Y2,C) {
+  X = rtostr(deval(X)); Y = rtostr(deval(Y)); 
+  X2 = rtostr(deval(X2)); Y2=rtostr(deval(Y2));
+  CC = C[0]*(256*256)+C[1]*256+C[0];
+  CC=rtostr(CC); print(C,0); print(CC);
+  glib_send("1; [glib_line,"+X+","+Y+","+X2+","+Y2+","+CC+"]");
+}
+def t_encode1(X) {
+  return [
+     ior(0xf8,iand(0x3,ishift(X,6))),
+     ior(0xf0,iand(0x7,ishift(X,3))),
+     ior(0xf0,iand(0x7,X))];
+}
+def t_encode_str(S) {
+  Ans = [ ];
+  Codes = strtoascii(S);
+  N = length(Codes);
+  for (I=0; I<N; I++) {
+     T = t_encode1(Codes[I]);
+     Ans = cons(T[0],Ans);
+     Ans = cons(T[1],Ans);
+     Ans = cons(T[2],Ans);
+  }
+  return reverse(Ans);
+}
+def t_encode(S) {
+  return asciitostr(t_encode_str(S));
+}
+def glib_send(S) {
+   S=S+"\n";
+   N=length(strtoascii(S))+1;
+   C=t_encode("{1<"+rtostr(N)+" "+S+" >}");
+   ctrl("hex",1); 
+   output(); ctrl("hex",0);
+   print(C); output(); /* channel 1 にコマンドを送る */
+}  
+def glib_init_send(S) {
+   S=S+"\n";
+   N=length(strtoascii(S))+1;
+   C=t_encode("{2<"+rtostr(N)+" "+S+" >}");
+   ctrl("hex",1); 
+   output(); ctrl("hex",0);
+   print(C); output(); /* channel 2 にコマンドを送る. OpenGL 初期化 */
+}  
+
+
+

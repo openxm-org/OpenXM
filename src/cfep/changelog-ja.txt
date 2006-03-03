@@ -1,0 +1,78 @@
+<html>
+<META http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<body>
+<pre>
+
+-------  Note
+-------  Todo
+ 2006-01-23 19:26:53.568 cfep[340] oxEvalluateString Caught NSFileHandleOperationException: *** -[NSConcreteFileHandle writeData:]: Broken pipe
+ child が sig segv を発信したときの対策.
+ NSBrokenPipeNotification なんてあるの?
+-------  Done
+2006-03-03 20:20. [myDocument setDebugMyTunnel sender], [MyUtil setDebugMyUtil], 実行メニューから tunnel debub data の出力の on, off.  glib 改訂でtests/ccurve.rrが実行可能に。
+2006-03-03  9:28. gotoNextError, gotoLine, clearLines, addLine, nextLine, asirのエラー処理に対応. ox.sm1 も.
+2006-03-02 21:28. notebookMode で illegal character が正しく動くようにする.
+2006-03-02 20:27. notebookMode. すこし汚い実装だがとりあえず動く. getOutOfOutputCell, insertInputCell, getContentsOfInputCell, prepareOutputCell, doInsertInputCell, notebookMode.
+2006-03-02 11:59. mainMenu に実行を加える. menuExec.
+2006-02-27 21:02. notebookMode =1; の実験.
+2006-02-25.  The first release.
+2006-02-24 21:46. 新しいコマンド. glBegin, glEnd, glVertex3f, glib3_bounding_box. X11 で X11 でのテスト可能に. 
+2006-02-24 14:31. glib3_ray (demo) is installed. glib3_std_scene0, glib3_icosahedron.
+2006-02-24 13:49. resizing. setFrameSize.  depth buffer を有効に. cf. glut3/note-ja.txt.
+2006-02-22 14:02. OpenGL の初期化も asir からできるようになった.
+2006-02-22 11:53. OpenGL interpreter is now works. Try gtest1.rr. OpenGL のコマンド追加は午後やろう。
+2006-02-22 10:58. [MyUtil arrayOfStringFrom: ...] が [NSString,MyFloat,MyFloat, ...] みたいな NSArray を戻すように変更.
+2006-02-21 20:58. [MyUtil arrayOfStringFrom: @"[glColor4f,1.0,1.0,0.5,1.0]"] みたいに変更.
+2006-02-20 21:47. MyUtil arrayOfStringFrom (list のパース). MyFloat, MyInt. OpenGL 関数の引数をbyte compileする準備. 
+2006-02-19 17:43. +myOpenGLControllerOwnedBy: with: , +addOglComm: to: from: など MyOpenGLの管理関数を作る. まだgtest1.rr から window を生成する関数は作成していない.
+2006-02-19 16:42. tests/gtest1.rr, channel 1 へデータを送る glib_send 関数を作成.
+2006-02-19 11:14. initGL, drawOglComm と描画を分離. MyOpenGL.nib, mymessage追加. size. window delegate outlet 接続.
+2006-02-18 20:39. MyOpenGLCommand へ compile を加える. oglComm[i] を順番に実行.
+2006-02-18 17:24. openxm-1.2.3-6.deb のための中断おわり. MyOpenGL* を追加.  ノートも参照. WindowController を加える方法は 本の p.298. MyOpenGLController を files Owner のカスタムクラスに. CutomView は MyOpenGLView のカスタムクラスに.
+2006-02-06 16:06. bashの起動のバグを修正. Engine is not responding. を表示.
+2006-02-05 15:25. selected area がないときは行を全部選択するように変更. outputWindow にprintをつける.  bash の起動がうまくいかないが, 原因はあとで考えよう.->解決.
+2006-02-04 15:48. ox_texmacs --languageResource asir-ja_JP.UTF8.sm1 の利用.
+2006-02-02 19:51. errorActionFor: の改善. tests/error1.sm1.rr, rEncode.rtfd をデバッグ用に用いる. ox.sm1  も変更. Begin, End で囲む.
+2006-02-02 17:33. errorActionFor: の実装. tEncode.rtfd をデバッグ用に使う. !sm1 1 shell も.  findAndSelect と gotoLine は onlySelected の時排他的でないといけない. この問題はまたあとで. 
+2006-01-29 17:02. myDecoder の最初の実装. tests/tEncode.rtfd でデータが送れるかテスト. 消去ボタンをつける. 
+2006-01-28 17:34. checkSelectedArea アクションを追加. 括弧の対応とか全角文字などを検出できる.
+2006-01-28 15:46. selectIllegalCharacter (全角の不正な文字の検出)
+2006-01-28 10:33.  UTF8 の文字列の受信.
+2006-01-26 19:32.  --engineLogToStdout 対応. cf. OpenXM/src/kan96xx/Doc/changelog-ja.tex
+2006-01-26 16:05.  peerEndEvaluateMark を \005\n --> 005 へ. ox_texmacs 側は変更いらない.
+2006-01-26  8:06.  MyOutputWindowController がほぼ安定動作. いまから使ってみて不具合を探す.
+2006-01-25 17:27.  MyOutputWindowController を作成. 異常動作の場合は 12:18 に undo すること.
+2006-01-25 12:18.  rr, txt, rtf, rtfd (pinfo の取り扱いをきちんとした.)
+2006-01-24 21:30.  File type を rtfd (rtf with graphics), txt, rr に限定.
+2006-01-24 14:07.  NSProgressIndicator の実装.
+2006-01-24 11:24.  XAUTHORITY の設定. X11が動いてないときのメッセージ.
+2006-01-23 21:32.  restart を可能にするために, 構造を大幅に変更. openMyModel, closeMyModel. しばらくテストの必要あり.
+2006-01-23 19:57.  MyEnvironment に initFor: を導入.
+2006-01-23 19:28.  Broken pipe のあとの処理.
+2006-01-23 17:04.  terminateProcess のコードを加える. tests/dyld.rr-rtf に ox_asir のバグと cfep への影響の記事.
+2006-01-22 19:33.  Added signal(SIGPIPE,SIG_IGN); (BUG. non a way of cocoa).
+2006-01-22 18:50.  MyEnvironment.m を加える. instance を生成するも, 利用はしない. dealloc, release  でのcrashの原因を探るためとりあえずcommit.
+2006-01-21 19:47.  日本語版をまず作る. cf. note-ja.txt
+2006-01-21 15:24.  NSLocalizedString を利用. 英語の resource に日本語のメッセージをとりあえずいれる. 後でコピーしよう.
+2006-01-21 14:26.  input window は太らない, output window が太るように変更.
+2006-01-21 11:36.  appending to the textViewOut.  
+2006-01-21 10:31.
+   Q.NSLog, EXC_BAD_ACCESS, CFStringAppendFormatAndArgumentsAux でクラッシュします.
+   A. NSLog は % を含むと引数をさらに探します.
+     したがって NSLog[@"%@", string]; と利用するのが安全です.  詳しくは note-ja.txt
+2006-01-21 10:01. oxEvalute, oxEvaluteString, oxEvaluteRegisteredString, peerEndEvaluateMark などを加える. cfep-test1, test-hexdump.rr-rtf でテスト.
+2006-01-19 21:22. ox_texmacs --view cfep を作成. cfep-test1 でテスト.
+2006-01-19 17:21. /Users/nobuki/OX4/OpenXM/openxm ox_asir でもテスト.
+2006-01-19 16:45. nib からつくりなおし, cfepOnSimpleRTFEdit の .m, .h をもってくる. きちんと動く.
+2006-01-19 14:03. cfepOnSimpleRTFEdit とほぼ同様に変更したにもかかわらず, segfault する. nib ファイルの生成で失敗?
+2006-01-19 7:53.  相変わらず /usr/bin/hexcump -C /Users/nobuki/Wu-thesis-new.pdf \n を何度かやると seg fault.
+                  NSTextField の drawrect あたり.  Cocoa 入門の本のサンプルコードに埋め込んでためす.
+2006-01-18 19:44. setStandardInput: NSFileHandle * を設定しても黙って動作.  NSPipe * を設定しないといけない.
+                  SIGPIPE の処理をまだ書いていない.
+2006-01-18 Initial based on SimpleOX.
+
+
+</pre>
+</body>
+</html>
+

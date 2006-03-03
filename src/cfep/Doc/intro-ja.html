@@ -1,0 +1,84 @@
+<html>
+<META http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<body>
+<h3> cfepの概要 </h3>
+cfep は
+"10進ベーシック" のユーザインタフェースを参考にして作成した
+ OpenXM ユーザインタフェースです (MacOS X 10.4 以上用). <br>
+入力窓にプログラムなどを入力して <font color="brown">始め</font> ボタン (または
+apple+enter キー)をおすとプログラムの実行や計算を開始し, 
+その結果(最後の文の評価値)を出力窓へ表示します. 
+<a href="fctr.png"> 実行例 </a>
+<br>
+入力窓のプログラムはリッチテキストファイル(rtf, rtfd)としても保存できます.
+出力窓の内容は保存されません. <br>
+始めボタンのよこのチェックボックスにチェックをつけておくと, 選択した範囲のみを
+評価（計算やプログラムの実行)をします. <br>
+
+デフォールトの計算エンジンは計算代数システム
+<a href="http://www.math.kobe-u.ac.jp/Asir/index-ja.html"> Risa/Asir </a>
+です.
+
+<h3> cfep の特徴 </h3>
+<ol>
+<li> Editorと計算エンジンの統合環境.
+<li> OpenGL仕様の一部分を実現した OpenGL インタプリターを内蔵 (実験的).
+   <a href="ray.png"> OpenGL実行例 </a>   <br>
+   Samples フォルダの ファイル ray, icosahedron, simple-gl-1 等を御覧ください.
+</ol>
+
+<h3> cfep のインストール </h3>
+インストーラーは不要です.
+<a href="http://www.math.kobe-u.ac.jp/HOME/taka/2005/cfep/cfep.dmg.gz">
+cfep のディスクイメージ </a> をダウンロードし, これを開いて "いのぶたくん" のアイコン
+<img src="inobuta.png"/> を好きな場所にコピーするだけ.  
+システムからの削除は "いのぶたくん" をゴミ箱へいれるだけ.
+
+<h3> 入門 </h3> (まだ書いてない)
+
+<h3> <a href="http://www.math.kobe-u.ac.jp/OpenXM/Current/doc/index-doc-ja.html"> 
+Asir マニュアル, Asir-contrib, 実験的関数マニュアルも含むより詳しい関数一覧  </a> 
+(ネットワーク)</h3>
+
+<h3> <a href="http://www.math.kobe-u.ac.jp/~taka/asir-book-html/main/index.html">
+     Risa/Asirドリル2003 </a> 本格的入門書 (ネットワーク)</h3>
+
+<h3> <font color="red"> 良くある質問 初級編 </font> </h3>
+
+<h4> Q. リッチテキストで保存したファイル (rtf, rtfd ファイル) が Windows 版や unix 版の
+asir で実行できません. </h4>
+
+rr 形式か txt 形式 (テキスト形式)でセーブしてください.
+cfep の漢字コードは UTF-8 です.
+したがって漢字コードの変換が必要な場合もあります.
+
+<h4> Q. #include や #define がつかえません. </h4>
+おまちください.
+
+<h4> Q. スペルチェツカーの赤い線をなくしたい </h4>
+編集,  スペルチェツカー, 自動スペルチェック を順番に選択してオフにします.
+
+<h4> Q. OpenGLのグラフィック画面を印刷できません </h4>
+まだ実装していません. とりあえずは "shift" と "コマンド" と "3" を一緒におす事により
+スクリーンのコピーがデスクトップにファイルとして保存されますのでそれを使ってください.
+"shift" と "コマンド" と "4" を一緒におす事で マウスでドラッグした範囲のみをファイルに保存できます.
+コマンドラインからは screencapture コマンドを用います.
+
+<h3> <font color="magenta"> 良くある質問 上級編 </font> </h3>
+
+<h4> Q. asir 以外の計算エンジンは接続できますか? </h4>
+OpenXM 100, 103 プロトコルをサポートしている計算エンジンなら接続可能です.
+計算エンジンとは ox_texmacs を介して接続しています.
+起動スクリプトはリソースになっています.
+
+<h4> Q. cfep はどのような言語で書かれていますか? </h4>
+Cocoa ツールキットを用いて objective C で書かれています.
+
+<h4> Q.  コマンドライン版 asir は含まれていますか? </h4>
+cfep.app/OpenXM/bin にあります.
+cfep.app/OpenXM/rc の下で make を動かして openxm スクリプトを生成してください.
+環境変数を自動設定します.
+openxm asir で OpenXM版の asir が起動します.
+
+</body>
+</html>
