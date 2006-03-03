@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.30 2006/03/03 02:30:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.31 2006/03/03 02:47:28 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,6 +87,8 @@ int NoCopyright = 0;
 int Cpp = 0;                 /* Use cpp before sending to the engine. */ 
 int EngineLogToStdout = 0;   /* Do not run the ox engine inside xterm. */
 
+unsigned char *AsirInitFile = NULL;
+
 char *LanguageResource = NULL;
 
 void ctrlC();
@@ -169,6 +171,10 @@ main(int argc,char *argv[]) {
       LanguageResource = (char *)sGC_malloc(strlen(argv[i])+80);
       sprintf(LanguageResource,
 			  " /localizedString.file (%s) def localizedString.load ",argv[i]);
+    }else if (strcmp(argv[i],"--asirInitFile") == 0) {
+      i++;
+      AsirInitFile = (unsigned char *)sGC_malloc(strlen(argv[i])+80);
+      sprintf(AsirInitFile,"%s",argv[i]);
     }else{
       /* printv("Unknown option\n"); */
     }
@@ -420,6 +426,18 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
     return NULL;
   }
 
+  /* remove end$ or end; */
+  if (TM_Engine == ASIR) {
+    for (i=n-1; i>=4; i--) {
+	  if ((s[i-4]=='\n') && (s[i-3]=='e') && (s[i-2]=='n') && (s[i-1]=='d') && (s[i]=='$')) {
+        s[i-3] = s[i-2] = s[i-1] = s[i] = ' '; break;
+      }
+	  if ((s[i-4]=='\n') && (s[i-3]=='e') && (s[i-2]=='n') && (s[i-1]=='d') && (s[i]==';')) {
+        s[i-3] = s[i-2] = s[i-1] = s[i] = ' '; break;
+      }
+    }
+  }
+
   /* Set TM_do_no_print */
   if (s[n-1] == '$' && TM_Engine == ASIR) {
 	TM_do_not_print = 1; s[n-1] = ' ';
@@ -539,6 +557,13 @@ static int startEngine(int type,char *msg) {
       }
     }
     /* Initialize the setting of asir. */
+    if (AsirInitFile) {  /* cf. asir-contrib/packages/src/cfep-init.rr */
+	  unsigned char *ss;
+	  ss = (unsigned char *)GC_malloc(strlen(AsirInitFile)+256);
+	  sprintf(ss," oxasir.ccc (load(\"%s\");) oxsubmit oxasir.ccc oxgeterrors length 0 gt { (Error in loading asirInitFile) message} { } ifelse ",AsirInitFile);
+	  /* printf("Loading --asirInitFile %s\n",AsirInitFile); */
+	  KSexecuteString(ss);
+    }
     KSexecuteString(" oxasir.ccc (if(1) {  Xm_server_mode = 1; Xm_helpdir = \"help-eg\";  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
     KSexecuteString(" oxasir.ccc (if(1) {  ctrl(\"message\",0);  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
     /* bug; if ctrl is written with Xm_helpdir = ... without oxpopcmo, then it does

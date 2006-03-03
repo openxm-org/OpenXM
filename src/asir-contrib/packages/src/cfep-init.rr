@@ -1,0 +1,156 @@
+
+load("oxrfc103.rr"); 
+
+module cfep;
+localf initStatic$
+localf setup$
+localf test0$
+localf test2$
+localf t_encode$
+localf t_encode1$
+localf t_encode_str$
+localf glib_send$
+localf glib_init_send$
+
+localf open_canvas$
+localf open_canvas2$
+localf draw_obj$
+localf draw_obj2$
+localf draw_string$
+localf draw_string2$
+localf draw_flush$
+localf x11toGLx$
+localf x11toGLy$
+
+static Glib_canvas;
+static Glib_canvas_x;
+static Glib_canvas_y;
+def initStatic() {
+  Glib_canvas = 0;  /* gid */
+  Glib_canvas_x = 400;
+  Glib_canvas_y = 400;
+}
+initStatic()$
+def setup() {
+  ctrl("debug_window",0);
+} 
+
+/* Example */
+def test0() {
+  /* gid; commands */
+  glib_init_send("0; [glColor4f, 1.0,0.0,0.0,0.3]");
+  glib_init_send("0; [glRectf, -0.1,-0.1,0.1,0.1]");
+  glib_init_send("0; [glib_flush]");
+  glib_send("0; [glib_line,0.0,0.0,0.5,0.5,(int)255]");
+  glib_send("0; [glib_flush]");
+}
+def test2() {
+  glib_init_send("0;[glib3_ray_init]");
+  glib_init_send("0;[glib_flush]");
+  glib_send("0;[glib3_ray]");
+  glib_send("0;[glib_flush]");
+}
+
+def open_canvas(S) {
+  Glib_canvas++;
+  if (S[0] != 0) Glib_canvas_x = S[0];
+ else error("The fisrst argument of cfep.open_canvas is 0.");
+  if (S[1] != 0) Glib_canvas_y = S[1];
+ else error("The first argument of cfep.open_canvas is 0.");
+  return Glib_canvas;
+}
+def open_canvas2(P,S) {
+  return open_canvas(S);
+}
+
+def draw_obj(P,Canvas,S) {
+   draw_obj2(P,Canvas,S,0);
+}
+
+
+def x11toGLx(X) { return (-1.0+2*X/Glib_canvas_x); }
+def x11toGLy(Y) { return (1.0-2*Y/Glib_canvas_y); }
+def draw_obj2(P,Canvas,S,Color) {
+  if (length(S) == 4) { /* line */
+     X = rtostr(x11toGLx(S[0])); Y = rtostr(x11toGLy(S[1]));
+     X2 = rtostr(x11toGLx(S[2])); Y2 = rtostr(x11toGLy(S[3]));
+    CC="(int)"+rtostr(Color);
+    glib_send(rtostr(Canvas)+"; [glib_line,"+X+","+Y+","+X2+","+Y2+","+CC+"]");
+  }else if (length(S) == 2) { /* point */
+     X = rtostr(x11toGLx(S[0])); Y = rtostr(x11toGLy(S[1]));
+    CC="(int)"+rtostr(Color);
+     glib_send(rtostr(Canvas)+"; [glib_putpixel,"+X+","+Y+","+CC+"]");
+  }
+}  /* cfep.draw_obj2(0,0,[100,100],0xff0000);  cfep.draw_flush(); */
+
+def draw_string(P,C,Pos,Text) {
+  draw_string2(P,C,Pos,Text,0);
+}
+def draw_string2(P,C,Pos,Test,Color) {
+  print("cfep.draw_string2() has not been implemented.");
+}
+def draw_flush(Canvas) {
+  glib_send(rtostr(Canvas)+"; [glib_flush]");
+}
+
+def t_encode1(X) {
+  return [
+     ior(0xf8,iand(0x3,ishift(X,6))),
+     ior(0xf0,iand(0x7,ishift(X,3))),
+     ior(0xf0,iand(0x7,X))];
+}
+def t_encode_str(S) {
+  Ans = [ ];
+  Codes = strtoascii(S);
+  N = length(Codes);
+  for (I=0; I<N; I++) {
+     T = t_encode1(Codes[I]);
+     Ans = cons(T[0],Ans);
+     Ans = cons(T[1],Ans);
+     Ans = cons(T[2],Ans);
+  }
+  return reverse(Ans);
+}
+def t_encode(S) {
+  return asciitostr(t_encode_str(S));
+}
+def glib_send(S) {
+   S=S+"\n";
+   N=length(strtoascii(S))+1;
+   C=t_encode("{1<"+rtostr(N)+" "+S+" >}");
+   ctrl("hex",1); 
+   output(); ctrl("hex",0);
+   print(C); output(); /* channel 1 is for OpenGL redraw. */
+}  
+def glib_init_send(S) {
+   S=S+"\n";
+   N=length(strtoascii(S))+1;
+   C=t_encode("{2<"+rtostr(N)+" "+S+" >}");
+   ctrl("hex",1); 
+   output(); ctrl("hex",0);
+   print(C); output(); /* channel 2 is for OpenGL init. */
+}  
+
+endmodule;
+
+Cfep_loaded = 1$
+
+cfep.setup()$
+/*
+cfep.draw_obj2(0,0,[0,0,400,400],0x0000ff);
+cfep.draw_obj(0,0,[0,0,200,100]);
+cfep.draw_flush(0);
+*/
+
+/* Initialization file for cfep.
+   This file is loaded after ASIRRC and ./.asirrc is executed from ox_texmacs.
+   cf. ox_texmacs --asirInitFile filename,    MyEnvironment.m of cfep.
+
+   module_definedp("cfep");
+#define x11toGLx(x) (-1.0+2*x/Glib_canvas_x)
+#define x11toGLy(y) (1.0-2*y/Glib_canvas_y)
+*/
+/* $OpenXM$ */
+
+
+end$
