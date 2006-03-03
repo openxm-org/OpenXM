@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.28 2006/02/02 07:07:22 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.29 2006/02/04 02:56:49 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -496,7 +496,7 @@ static int startEngine(int type,char *msg) {
     /* Initialize the setting of sm1. */
     KSexecuteString("  oxsm1.ccc ( [(cmoLispLike) 0] extension ) oxsubmit ");
     KSexecuteString("  oxsm1.ccc ( ox_server_mode ) oxsubmit ");
-    KSexecuteString("  oxsm1.ccc ( ( ) message (------------- Message from sm1 ----------------)message ) oxsubmit ");
+    KSexecuteString("  oxsm1.ccc ( ( ) message (------------- Message from sm1 ----------------)message ) oxsubmit [(flush)] extension pop ");
     TM_sm1Started = 1;
 	/* Welcome message.  BUG. Copyright should be returned by a function. */
     if (! NoCopyright) {
@@ -506,7 +506,7 @@ static int startEngine(int type,char *msg) {
       printf("Info: http://www.math.kobe-u.ac.jp/KAN, kan@math.kobe-u.ac.jp.\n");
       printf("0 usages to show a list of functions. \n(keyword) usages to see a short description\n");
     }
-    printf("%s\n",msg);
+    printf("%s\n",msg); fflush(NULL);
   }else if (type == K0) {
     if (!TM_k0Started) KSexecuteString(" k0connectr ");
     KSexecuteString(" /ox.engine oxk0.ccc def ");
