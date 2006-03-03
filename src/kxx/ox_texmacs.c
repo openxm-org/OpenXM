@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.29 2006/02/04 02:56:49 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.30 2006/03/03 02:30:09 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -109,6 +109,8 @@ static void myEncoderS(unsigned char *s);
 static void myEncoderSn(unsigned char *s,int n);
 static void outputStringToTunnel0(int channel, unsigned char *s, int size, int view);
 static void outputStringToTunnel(int channel, unsigned char *s,  int view);
+
+static void flushSm1();
 
 /* tail -f /tmp/debug-texmacs.txt 
    Debug output to understand the timing problem of pipe interface.
@@ -242,6 +244,8 @@ main(int argc,char *argv[]) {
     ob = KpoString(s);  
     KSpush(ob);
     KSexecuteString(" oxsubmit ");
+
+	if (TM_Engine == SM1) flushSm1();
     
     /* Get the result in string for cfep. */
     if (View != V_TEXMACS) {
@@ -487,6 +491,9 @@ static void printCopyright(char *s) {
   fflush(NULL);
 }
 
+static void flushSm1() {
+  KSexecuteString(" oxsm1.ccc ( [(flush)] extension pop ) oxsubmit ");
+}
 static int startEngine(int type,char *msg) {
   struct object ob = OINIT;
   printf("%s",Data_begin_v[View]);
@@ -496,7 +503,8 @@ static int startEngine(int type,char *msg) {
     /* Initialize the setting of sm1. */
     KSexecuteString("  oxsm1.ccc ( [(cmoLispLike) 0] extension ) oxsubmit ");
     KSexecuteString("  oxsm1.ccc ( ox_server_mode ) oxsubmit ");
-    KSexecuteString("  oxsm1.ccc ( ( ) message (------------- Message from sm1 ----------------)message ) oxsubmit [(flush)] extension pop ");
+    KSexecuteString("  oxsm1.ccc ( ( ) message (------------- Message from sm1 ----------------)message ) oxsubmit ");
+	flushSm1();
     TM_sm1Started = 1;
 	/* Welcome message.  BUG. Copyright should be returned by a function. */
     if (! NoCopyright) {
