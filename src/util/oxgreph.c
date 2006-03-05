@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxgreph.c,v 1.1 2006/03/04 07:48:12 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxgreph.c,v 1.2 2006/03/04 10:43:38 takayama Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,10 +11,13 @@
    It greps files and outputs an html file to browse the files.
    Keyword should be given in euc or utf-8 depending on the coding system of the files. 
    It does not add meta section  of html file.
+   Locale must be "C" to use this program or use -f option to read keyword.
 
    Example:
+   export LC_ALL="C"
    s.txt contains "insubunkai"
-   oxgreph --sjis `cat s.txt` $OpenXM_HOME/doc/cfep/html-ja_JP.sjis/html-jp/*.html >t.html
+   oxgreph  "`nkf -w s.txt`" $OpenXM_HOME/doc/cfep/html-ja_JP.utf8/html-jp/*.html >t.html
+   oxgreph --sjis "`nkf -s s.txt`" $OpenXM_HOME/doc/cfep/html-ja_JP.sjis/html-jp/*.html >t.html
 */
 
 int Sjis = 0;
@@ -29,6 +32,14 @@ main(int argc, char *argv[]) {
   FILE *fp;
   m = 256;
   pid = getpid();
+  if (argc < 2) {
+	fprintf(stderr,"oxgreph [--leaveTag] args_to_grep \n");
+	fprintf(stderr,"Note: LC_ALL should be C on some systems or use -f to give the pattern.\n");
+	fprintf(stderr,"Example 1:  oxgreph \"`nkf -w s.txt`\" $OpenXM_HOME/doc/cfep/html-ja_JP.utf8/*.html >t.html\n");
+	fprintf(stderr,"Example 2:  oxgreph -f s.txt $OpenXM_HOME/doc/cfep/html-ja_JP.utf8/*.html >t.html\n");
+	fprintf(stderr,"  The keyword is stored in s.txt.\n");
+	exit(0);
+  }
   for (i=1; i<argc; i++) {
     m += strlen(argv[i])+1;
   }
