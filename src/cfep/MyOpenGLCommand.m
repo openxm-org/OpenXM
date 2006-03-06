@@ -280,4 +280,47 @@ static int debugMyUtil = 0;
    NSLog(@"mytest=%@\n",[MyUtil arrayOfStringFrom: @"[[1],2,[[3,[4]]],5]"]); // There is a bug. Output is 1,2,...
 */
 
++(NSString *)pruneThings: (NSString *)ss {
+  int n,i, start,end;
+  unichar c;
+  unichar s[SMAX];
+  NSString *ans;
+  n = [ss length];
+  if (n >= SMAX-1) {
+    NSLog(@"Too big string for pruneThings.\n");
+    return nil;
+  }	
+  start = 0; end = n-1;
+  for (i=0; i<n; i++) {
+    c = [ss characterAtIndex: i];
+	start = i;
+	if (c > 0x20) break;
+  }
+  for (i=n-1; i>=0; i--) {
+    c = [ss characterAtIndex: i];
+    end = i;
+	if (c > 0x20) break;
+  }
+  if (start > end) return nil;
+  for (i=0; i<= end-start ;  i++) {
+    s[i] = [ss characterAtIndex: (start+i)];
+	s[i+1] =0;
+  }
+  ans = [NSString stringWithCharacters: s length: (end-start+1)];
+  return ans;
+}
+
++(id)attributedStringWithPath: (NSString *)path {
+   NSFileWrapper *theWrapper;
+   NSTextAttachment *theAttachment;
+   NSAttributedString *aStr;
+   theWrapper = [[NSFileWrapper alloc] initWithPath:  path];
+   if (!theWrapper) NSLog(@"theWrapper is nil. Path=[%@]\n",path);
+   if (!theWrapper) return nil;
+   theAttachment = [[NSTextAttachment alloc] initWithFileWrapper:theWrapper];
+   aStr = [NSAttributedString attributedStringWithAttachment:theAttachment];
+   return aStr;   // How should I do autorelease?
+}
+
+
 @end

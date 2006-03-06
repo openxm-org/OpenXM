@@ -64,10 +64,15 @@
   NSMenuItem *menuItemRisaAsir;
   NSMenuItem *menuItemKanSm1;
   NSMenuItem *menuItemOutputDebugMessages;  //cf. debugMyTunnel;
+  NSMenuItem *menuItemPrettyPrint; //cf. prettyPrint;
   // For error handling.
   NSMutableArray *errorLines;
   // For debug the tunnel
   int debugMyTunnel;
+  // asir-contrib is loaded or not.
+  int asir_contrib;
+  // pretty printing
+  int prettyPrint;
   //////////
   NSTask *task;
   NSPipe *inboundPipe;
@@ -147,6 +152,8 @@
 // managing OpenGL messages. (channel 1 and 2)
 -(int) openGLActionFor: (NSString *)cmd;
 -(int) openGLInitActionFor: (NSString *)cmd;
+// managing png messages. (channel 10)
+-(void) pngActionFor: (NSString *)cmd;
 // notebookMode
 -(void) insertInputCell;
 -(NSString *)getContentsOfInputCell;
@@ -164,6 +171,9 @@
 -(void) setEngineRisaAsir: (id) sender;
 -(void) setEngineKanSm1: (id) sender;
 -(void) setDebugMyTunnel: (id) sender;
+-(void) loadAsirContrib: (id) sender;
+-(NSMenuItem *) menuItemLoadLibrary: (int) oxengine;
+-(void) setPrettyPrint: (id) sender;
 -(void) mytest: (id) sender;
 
 @end

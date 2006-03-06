@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.31 2006/03/03 02:47:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.32 2006/03/03 10:55:33 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +7,7 @@
 #include <signal.h>
 #include "ox_kan.h"
 #include "serversm.h"
+#include "ox_pathfinder.h"
 
 #if defined(__CYGWIN__)
 #define JMP_BUF sigjmp_buf
@@ -72,7 +73,7 @@ extern int Quiet;
 extern JMP_BUF EnvOfStackMachine;
 extern int Calling_ctrlC_hook;
 extern int RestrictedMode, RestrictedMode_saved;
-int Format=1;  /* 1 : latex mode */
+int Format=1;  /* 1 : latex mode, 2: cfep_png */
 int OutputLimit_for_TeXmacs = (1024*10);
 
 
@@ -87,7 +88,7 @@ int NoCopyright = 0;
 int Cpp = 0;                 /* Use cpp before sending to the engine. */ 
 int EngineLogToStdout = 0;   /* Do not run the ox engine inside xterm. */
 
-unsigned char *AsirInitFile = NULL;
+char *AsirInitFile = NULL;
 
 char *LanguageResource = NULL;
 
@@ -112,6 +113,11 @@ static void myEncoderSn(unsigned char *s,int n);
 static void outputStringToTunnel0(int channel, unsigned char *s, int size, int view);
 static void outputStringToTunnel(int channel, unsigned char *s,  int view);
 
+static void pngSendFile(char *path);
+static int pngCheck(void);
+static void pngNotAvailable(void);
+static char *pngGetResult();
+
 static void flushSm1();
 
 /* tail -f /tmp/debug-texmacs.txt 
@@ -128,6 +134,7 @@ main(int argc,char *argv[]) {
   int vmode=1;
   char *openxm_home;
   char *asir_config;
+  char *path;
   int i;
 
 
@@ -173,7 +180,7 @@ main(int argc,char *argv[]) {
 			  " /localizedString.file (%s) def localizedString.load ",argv[i]);
     }else if (strcmp(argv[i],"--asirInitFile") == 0) {
       i++;
-      AsirInitFile = (unsigned char *)sGC_malloc(strlen(argv[i])+80);
+      AsirInitFile = (char *)sGC_malloc(strlen(argv[i])+80);
       sprintf(AsirInitFile,"%s",argv[i]);
     }else{
       /* printv("Unknown option\n"); */
@@ -267,8 +274,12 @@ main(int argc,char *argv[]) {
         }
       }
       if (!TM_do_not_print) {
-        KSexecuteString(" ox.engine oxpopstring ");
-        r = KSpopString();
+        if (Format == 2) { /* png mode */
+          r = pngGetResult();
+        }else{
+          KSexecuteString(" ox.engine oxpopstring ");
+          r = KSpopString();
+        }
         printv(r);
       }else{
         KSexecuteString(" ox.engine 1 oxpops ");
@@ -279,7 +290,7 @@ main(int argc,char *argv[]) {
       continue;
     }
     /* Get the result in string for texmacs  */
-    if (Format == 1 && (! TM_do_not_print)) {
+    if ((Format == 1) && (! TM_do_not_print)) {
       /* translate to latex form */
       KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
       ob = KSpop();
@@ -328,6 +339,41 @@ main(int argc,char *argv[]) {
     }
     /* note that there is continue above. */
   }
+}
+
+static char *pngGetResult(void) {
+  struct object ob;
+  int vmode;
+  char *r;
+  char *path;
+
+  /* translate to latex form */
+  KSexecuteString(" ox.engine oxpushcmotag ox.engine oxpopcmo ");
+  ob = KSpop();
+  vmode = 0;
+  /* printf("id=%d\n",ob.tag); bug: matrix return 17 instead of Sinteger
+     or error. */
+  if (ob.tag == Sinteger) {
+    /* printf("cmotag=%d\n",ob.lc.ival);*/
+    if (ob.lc.ival == CMO_ERROR2) {
+      vmode = 1;
+    }
+    if (ob.lc.ival == CMO_STRING) {
+      vmode = 1;
+    }
+  }
+  if (vmode) {
+    KSexecuteString(" ox.engine oxpopstring ");
+    r = KSpopString();
+  }else{
+    KSexecuteString(" ox.engine 1 oxpushcmo ox.engine (print_png_form2) oxexec  ");
+    KSexecuteString(" ox.engine oxpopcmo /tmp_ox_texmacs set tmp_ox_texmacs 0 get ");
+    r = KSpopString();  /* input form */
+    KSexecuteString(" tmp_ox_texmacs 1 get ");
+    path = KSpopString(); /* path name of the png file. */
+    pngSendFile(path);
+  }
+  return r;
 }
 
 #define SB_SIZE 1024
@@ -394,13 +440,20 @@ static char *readString(FILE *fp, char *prolog, char *epilog) {
   }
   /* Check the escape sequence to change the global env. */
   if (strcmp(&(s[start]),"!verbatim;") == 0) {
-    printv("Output mode is changed to verbatim mode.");
+    if (View != V_CFEP) printv("Output mode is changed to verbatim mode.");
     Format=0;
     return NULL;
   }
   if (strcmp(&(s[start]),"!latex;") == 0) {
     printv("Output mode is changed to latex/verbose.");
     Format = 1;
+    return NULL;
+  }
+  if (strcmp(&(s[start]),"!cfep_png;") == 0) {
+	if (pngCheck()) {
+	  if (View != V_CFEP) printv("Output mode is changed to cfep_png/verbose.");
+      Format = 2;
+    } else pngNotAvailable();
     return NULL;
   }
   if (strcmp(&(s[start]),"!asir;") == 0) {
@@ -560,7 +613,7 @@ static int startEngine(int type,char *msg) {
     if (AsirInitFile) {  /* cf. asir-contrib/packages/src/cfep-init.rr */
 	  unsigned char *ss;
 	  ss = (unsigned char *)GC_malloc(strlen(AsirInitFile)+256);
-	  sprintf(ss," oxasir.ccc (load(\"%s\");) oxsubmit oxasir.ccc oxgeterrors length 0 gt { (Error in loading asirInitFile) message} { } ifelse ",AsirInitFile);
+	  sprintf((char *)ss," oxasir.ccc (load(\"%s\");) oxsubmit oxasir.ccc oxgeterrors length 0 gt { (Error in loading asirInitFile) message} { } ifelse ",AsirInitFile);
 	  /* printf("Loading --asirInitFile %s\n",AsirInitFile); */
 	  KSexecuteString(ss);
     }
@@ -595,7 +648,7 @@ static void myEncoder(int c) {
 }
 static void myEncoderS(unsigned char *s) {
   int i,n;
-  n = strlen(s);
+  n = strlen((char *)s);
   for (i = 0; i<n ; i++) myEncoder(s[i]);
 }
 static void myEncoderSn(unsigned char *s,int n) {
@@ -610,10 +663,10 @@ static void outputStringToTunnel0(int channel, unsigned char *s, int n,int view)
     for (i=0; i<n; i++) putchar(s[i]);
     printf("%c>}",0);
   }else if (view == V_CFEP) {
-    sprintf(ts,"{%d<%d ",channel,n+1);
+    sprintf((char *)ts,"{%d<%d ",channel,n+1);
     myEncoderS(ts);
     myEncoderSn(s,n); myEncoder(0); 
-    myEncoderS(">}");
+    myEncoderS((unsigned char *)">}");
   }
   fflush(stdout);
 }
@@ -631,5 +684,27 @@ static void outputStringToTunnel(int channel, unsigned char *s, int view) {
 }
 
 
-
+static void pngSendFile(char *path) {
+  char s[1024];
+  if (strlen(path) > 1000) return;
+  sprintf(s,"showFile,%s",path);
+  outputStringToTunnel0(10,(unsigned char *)s,strlen(s),View);
+  printf("\n");
+  fflush(NULL);
+}
+static int pngCheck(void) {
+  static int checked = 0;
+  static int ans = 0;
+  if (checked) return ans;
+  checked = 1;
+  if (!getCommandPath("latex")) return 0;
+  if (!getCommandPath("dvips")) return 0;
+  if (!getCommandPath("pstoimg")) return 0;
+  ans = 1;  return 1;
+}
+static void pngNotAvailable(void) {
+  char *s = "notAvailable";
+  outputStringToTunnel0(10,(unsigned char *)s,strlen(s),View);
+  fflush(NULL);
+}
   

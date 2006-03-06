@@ -76,6 +76,10 @@
   [textViewOut replaceCharactersInRange: myRange withString: msg];
   [textViewOut scrollRangeToVisible: NSMakeRange([[textViewOut textStorage] length],0)];
 }
+-(void)insertText: (id) text {
+  [textViewOut insertText: text];
+  [textViewOut scrollRangeToVisible: NSMakeRange([[textViewOut textStorage] length],0)];
+}
 
 -(void)printErrorMessageToOutputWindow:(NSString *)msg {
   int oldEnd;

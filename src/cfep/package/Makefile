@@ -20,29 +20,35 @@ setup-cfep:
 	mkdir -p ${BUILD}/Default/cfep.app
 	(cd ${BUILD}/Default/cfep.app ; ln -s ~/OX4/OpenXM .)
 	make setup-cfep-fix
+# To debug html intro at ../doc
+	(cd ../doc ; ln -s ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8 .)
+	cp `which nkf` ~/OX4/OpenXM/bin
 setup-cfep-fix:
-	(cd ~/OX4/OpenXM/lib/asir ; ln -s ~/OX4/OpenXM/src/asir-contrib/packages/src/cfep-init.rr .)
+	(rm -f ~/OX4/OpenXM/lib/asir/cfep-init.rr ; cd ~/OX4/OpenXM/lib/asir ; ln -s ~/OX4/OpenXM/src/asir-contrib/packages/src/cfep-init.rr .)
 
-install:
+install:  cfep-grep
 	mkdir -p ${OpenXM_HOME}/doc/cfep
 	mkdir -p ${OpenXM_HOME}/lib/cfep
 	cp ../Doc/intro-ja.html ${OpenXM_HOME}/doc/cfep
 	cp ../Doc/intro-en.html ${OpenXM_HOME}/doc/cfep
 	cp ../Doc/*.png ${OpenXM_HOME}/doc/cfep
 	cp cfep.init ${OpenXM_HOME}/lib/cfep
+	cp cfep-grep ${OpenXM_HOME}/bin
+	cp `which nkf` ~/OX4/OpenXM/bin
 
 clean:
-	rm -f tmp-*
+	rm -f tmp-* gendoc cfep-grep
 dist-cfep: gentar install
 	rm -rf work
 	mkdir work
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
-		  tar cf - OpenXM/lib/libgc* OpenXM/lib/libgmp* \
+		  tar cf - OpenXM/lib/libgc* OpenXM/lib/libgmp* OpenXM/rc \
 		    OpenXM/bin/ox OpenXM/bin/ox_asir OpenXM/bin/asir \
 			OpenXM/lib/cfep OpenXM/lib/sm1/bin \
 			OpenXM/doc/cfep )  | tar xvf -)
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
 		  tar cf - --exclude help --exclude help-jp --exclude help-eg  OpenXM/lib/asir  )  | tar xvf -)
+	(cd work/OpenXM/rc ; make clean)
 	rm -rf work/OpenXM/lib/asir/help* work/OpenXM/lib/asir/cfep-init.rr
 	mkdir work/OpenXM/lib/asir-contrib
 	(cd work/OpenXM/lib/asir-contrib ; (cd ${OpenXM_HOME}/src/asir-contrib/packages/src ; tar cf - * )  | tar xvf -)
@@ -56,6 +62,8 @@ dist-cfep: gentar install
 	(cp ${OpenXM_HOME}/bin/ox100start work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/ox work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/oxlog work/OpenXM/bin)
+	(cp ${OpenXM_HOME}/bin/oxgreph work/OpenXM/bin)
+	(cp ${OpenXM_HOME}/bin/nkf work/OpenXM/bin)
 	(mkdir -p work/OpenXM/lib/sm1 ; cp -r ${OpenXM_HOME}/lib/sm1/*.sm1 work/OpenXM/lib/sm1)
 	(cp ${OpenXM_HOME}/lib/sm1/*.asir work/OpenXM/lib/sm1)
 	(cp -r ${OpenXM_HOME}/lib/sm1/Resource work/OpenXM/lib/sm1)
@@ -93,5 +101,9 @@ copy-intro-ja:
 	scp ../Doc/*.png taka@lemon.math.kobe-u.ac.jp:/home/web/HOME/taka/2005/cfep
 
 
+gendoc: gendoc.c
+	gcc -o gendoc gendoc.c
 
+cfep-grep: cfep-grep.c
+	gcc -o cfep-grep -I${OpenXM_HOME}/include cfep-grep.c -L${OpenXM_HOME}/lib -lox_pathfinder
 

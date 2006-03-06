@@ -62,6 +62,8 @@
 }
 +(void) setDebugMyUtil;
 +(NSMutableArray *) arrayOfStringFrom: (NSString *)args;
++(NSString *) pruneThings: (NSString *)ss;
++(id) attributedStringWithPath: (NSString *)path;
 @end
 
 @interface MyOpenGLCommand : NSObject {

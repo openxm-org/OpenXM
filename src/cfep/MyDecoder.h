@@ -6,6 +6,13 @@
 //  Copyright 2006 OpenXM.org. All rights reserved.
 //
 
+// channel allocation
+//  0  error
+//  1  OpenGL redraw
+//  2  OpenGL init
+//  3~9  OpenGL reserved
+// 10  png   
+
 #import <Cocoa/Cocoa.h>
 #define OX_PACKET_START '{'
 #define OX_PACKET_END   '}'

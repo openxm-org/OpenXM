@@ -127,6 +127,26 @@
     }else{ 
       [myUnixEnvironment setObject: s forKey: @"DYLD_LIBRARY_PATH"];
     }  
+
+    s = NSHomeDirectory();
+    [myUnixEnvironment setObject: s forKey: @"HOME"];
+
+    s = NSLocalizedString(@"PATH",nil); 
+    if ([s compare: @"PATH"] == NSOrderedSame) { 
+      char *path;
+	  NSString *defaultPath;
+	  defaultPath=@"/usr/bin:/bin:/usr/sbin:/sbin:/usr/X11R6/bin:/sw/bin:/sw/sbin:/usr/local/bin";
+	  path = getenv("PATH");
+	  if (!path) {
+	    s = [NSString stringWithCString: path length: strlen(path)];
+		s = [s stringByAppendingString: @":"];
+		s = [s stringByAppendingString: defaultPath];
+		[myUnixEnvironment setObject: s forKey: @"PATH"];
+       } else [myUnixEnvironment setObject: defaultPath forKey: @"PATH"];
+    } else {
+	   [myUnixEnvironment setObject: s forKey: @"PATH"];
+    }
+
 	
     myDefaultTypingAttributes=
       [NSDictionary dictionaryWithObject: [NSFont fontWithName: @"Courier" size: 12] forKey: @"NSFont"];

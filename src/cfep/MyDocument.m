@@ -63,6 +63,7 @@ static int myDocumentSaidTheMessageAboutX = 0;
 	}
     [self addMenuExec]; // adding the execution menu. 
     [textViewIn setAllowsUndo:YES];
+	if ([textViewIn isContinuousSpellCheckingEnabled]) [textViewIn toggleContinuousSpellChecking: self]; // Turn off the spell checking.
 	[self sayTheMessageAboutX];
 	[self initAux]; 
 }
@@ -481,7 +482,7 @@ static int myDocumentSaidTheMessageAboutX = 0;
    //bug. temporary.   
    path = [OpenXM_HOME stringByAppendingString: @"/doc/cfep/intro-ja.html"]; 
 
-   ans = [[NSWorkspace sharedWorkspace] openFile:path withApplication: @"Help Viewer"];
+   ans = [[NSWorkspace sharedWorkspace] openFile:path withApplication: @"Safari"]; //We do not use Help Viewer
    if (ans != YES) {
       [self messageDialog: NSLocalizedString(@"Help file is not found at cfep.app/OpenXM/doc/cfep",nil) with: 0];
    }
@@ -575,8 +576,10 @@ int debugInbound = 0;
 		  if (debugMyTunnel) [self outputErrorString: act]; // for debug.
           channel = [myDecoder getChannel];
           if (channel == 0) [self errorActionFor: act];
+		  // cf. MyDecode.h for the list of channel numbers.
 		  else if (channel == 1) [self openGLActionFor: act];
 		  else if (channel == 2) [self openGLInitActionFor: act];
+		  else if (channel == 10) [self pngActionFor: act];
         }
         state = 0; break;
       default:
@@ -1024,6 +1027,42 @@ int debugInbound = 0;
   return 0;
 }
 
+-(void) pngActionFor: (NSString *)act {
+  NSArray *a;
+  id typesetExpression;
+  MyOutputWindowController *mowc;
+  NSString *path;
+  int n;
+  a=[act componentsSeparatedByString: @","];
+  n = [a count];
+  if (n < 1) {
+    [self printErrorMessage: @"Invalid format in pngActionFor: \n"];
+	return;
+  }	
+  // NSLog(@"%@",a);
+  if ([[a objectAtIndex: 0]  hasPrefix: @"notAvailable"]) {
+    [self messageDialog: 
+	  NSLocalizedString(@"Typeset the output by TeX is not available. latex, dvips, and pstoimg must be installed.",nil)  with: 0];
+	prettyPrint = 1; [self setPrettyPrint: nil];
+	return;
+  }	else if ([[a objectAtIndex: 0]  compare: @"showFile"] == NSOrderedSame) {
+    if (n < 2) [self printErrorMessage: @"showFile,filename  filename is missing.\n"];
+	path = [MyUtil pruneThings: [a objectAtIndex: 1]]; // for buggy componentsSeparatedByString
+	typesetExpression = [MyUtil attributedStringWithPath: path];
+	if (typesetExpression) {
+       if (notebookMode) [textViewIn insertText: typesetExpression];
+	   else {
+        mowc = [MyOutputWindowController sharedMyOutputWindowController: self];
+		[mowc insertText: typesetExpression];
+	   }
+	}
+	return;
+  } else {
+    NSLog(@"pngActionFor: %@\n",act);
+    [self printErrorMessage: @"Unknown command for pngActionFor:\n"];
+  }
+}
+
 -(void) setBasicStyle: (id) sender {
   notebookMode = 0;
   [self updateInterfaceStyleMenu];
@@ -1075,11 +1114,66 @@ int debugInbound = 0;
   }	
   [MyUtil setDebugMyUtil];
 }
+-(void) setPrettyPrint: (id) sender {
+  if (prettyPrint) {
+    prettyPrint = 0;
+	[self oxEvaluateString: @"!verbatim;" withMark: TRUE];
+	if (menuItemPrettyPrint) [menuItemPrettyPrint setState: NSOffState];
+  } else {
+    prettyPrint = 1;
+	if (!asir_contrib) [self loadAsirContrib: nil];
+	[self oxEvaluateString: @"!cfep_png;" withMark: TRUE];
+	if (menuItemPrettyPrint) [menuItemPrettyPrint setState: NSOnState];
+  }	
+}
+
+-(void) loadAsirContrib: (id) sender {
+  NSString *com;
+  if (inEvaluation) {    
+    [self messageDialog: NSLocalizedString(@"Evaluating...",nil) with: 0];
+    return;
+  }
+  asir_contrib = 1;
+  com = [@"load(\"" stringByAppendingString: OpenXM_HOME];
+  com = [com stringByAppendingString: @"/rc/asirrc\")$"];
+  if (notebookMode) { doInsertNewInputCell=0; [self getContentsOfInputCell]; [self prepareOutputCell];}
+  [self oxEvaluateString: com withMark: TRUE];
+}
 -(void) mytest: (id) sender {
-  // Add code here for testing.
-  int n;
-  n=[self gotoNextError: nil];
-  NSLog(@"error line=%d\n",n);
+  // Add any code here for testing.
+  id typesetExpression;
+  typesetExpression = [MyUtil attributedStringWithPath: @"/Users/nobuki/OpenXM_tmp/1/work1.png"];
+  if (typesetExpression) [textViewIn insertText: typesetExpression];
+  else NSLog(@"typesetExpression is nil.\n");
+}
+
+-(NSMenuItem *) menuItemLoadLibrary: (int) oxengine {
+  NSMenuItem *menuItemAsirContrib;
+  NSMenuItem *menuItemCohom;
+  NSMenu *submenuLoadLibrary = [[[NSMenu alloc] init] autorelease];
+  switch(oxengine) {
+  case 0: /* asir */
+    menuItemAsirContrib = [[[NSMenuItem alloc] init] autorelease];
+	[menuItemAsirContrib setTitle: NSLocalizedString(@"Load asir-contrib",nil)];
+	[menuItemAsirContrib setAction: @selector(loadAsirContrib:)];
+	[menuItemAsirContrib setTarget: [[NSApp mainWindow] document]];
+	[submenuLoadLibrary addItem: menuItemAsirContrib];
+	break;
+  case 1: /* sm1 */
+    menuItemCohom = [[[NSMenuItem alloc] init] autorelease];
+	[menuItemCohom setTitle: NSLocalizedString(@"Load cohom.sm1",nil)];
+	[menuItemCohom setAction: @selector(loadCohom:)];
+	[menuItemCohom setTarget: [[NSApp mainWindow] document]];
+	[submenuLoadLibrary addItem: menuItemCohom];
+    break;
+  default:
+    break;
+  }			
+
+  NSMenuItem *menuItemLoadLibrary = [[[NSMenuItem alloc] init] autorelease];
+  [menuItemLoadLibrary setTitle: NSLocalizedString(@"Load library",nil)];
+  [menuItemLoadLibrary setSubmenu: submenuLoadLibrary];
+  return menuItemLoadLibrary;
 }
 -(void) addMenuExec {
   static int done=0;
@@ -1091,6 +1185,7 @@ int debugInbound = 0;
   NSMenuItem *menuItemSelectEngine;
   NSMenuItem *menuItemGotoNextError;
   NSMenuItem *menuItemForTest;
+  NSMenuItem *menuItemLoadLibrary;
   if (done) return;
   done = 1;
   // oxEvalute
@@ -1117,13 +1212,23 @@ int debugInbound = 0;
   [menuItemGotoNextError setTarget: [[NSApp mainWindow] document]]; 
   [menuExec addItem: menuItemGotoNextError];
 
-  // gotoNextError
+  // outputDebugMessage
   menuItemOutputDebugMessages = [[[NSMenuItem alloc] init] autorelease];
   [menuItemOutputDebugMessages setTitle: NSLocalizedString(@"Output debug messages",nil)];
   [menuItemOutputDebugMessages setAction: @selector(setDebugMyTunnel:)];
   [menuItemOutputDebugMessages setTarget: [[NSApp mainWindow] document]]; 
   [menuExec addItem: menuItemOutputDebugMessages];
 
+  // pretty print
+  menuItemPrettyPrint = [[[NSMenuItem alloc] init] autorelease];
+  [menuItemPrettyPrint setTitle: NSLocalizedString(@"Typeset the output by TeX",nil)];
+  [menuItemPrettyPrint setAction: @selector(setPrettyPrint:)];
+  [menuItemPrettyPrint setTarget: [[NSApp mainWindow] document]]; 
+  [menuExec addItem: menuItemPrettyPrint];
+
+  // loadLibrary
+  [menuExec addItem: [self menuItemLoadLibrary: oxEngine]]; //bug. dynamic change. 
+  
   // interface style
   NSMenu *submenuInterfaceItem = [[[NSMenu alloc] init] autorelease];
     // basic-like

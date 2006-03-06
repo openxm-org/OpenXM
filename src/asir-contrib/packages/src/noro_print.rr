@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.9 2004/03/19 06:29:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.10 2004/03/19 07:42:37 ohara Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -239,6 +239,37 @@ def taka_png_form(S) {
   /* BUG: it does not work for now. We need png, too */
   shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scale 2 "+File0+".ps ) ");
   return [File0+".png",F[1],F[2],F[3]];
+}
+
+def taka_dvi_form2(S,Opt) {
+  S = taka_tex_form_top(S,Opt);
+  File0 = ox_work_dir()+"/"+ox_new_file_name();
+  File = File0+".tex";
+  shell("rm -f "+File);
+  output(File);
+  S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\begin{document}\n"+
+      "$"+
+      S + "$ \n \\end{document}\n";
+  print(S);
+  output();
+  shell(" (cd "+ox_work_dir()+" ; latex "+File0+" >>/dev/null) >/dev/null ");
+  return [File0+".dvi",File0,File,ox_work_dir()];
+         /* (0) .dvi, (1) no extension, (2) .tex, (3) workding dir */
+}
+def taka_ps_form2(S,Opt) {
+  F = taka_dvi_form2(S,Opt);
+  File0 = F[1];
+  Work_dir = F[3];
+  shell(" (cd "+Work_dir+" ; dvips -f "+File0+" >"+File0+".ps ) > /dev/null 2>&1");
+  return [File0+".ps",F[1],F[2],F[3]];
+}
+def taka_png_form2(S) {
+  F = taka_ps_form2(S,[]);
+  File0 = F[1];
+  File = F[0];
+  /* BUG: it does not work for now. We need png, too */
+  shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scale 2 "+File0+".ps ) >/dev/null");
+  return [taka_input_form(S),File0+".png",F[1],F[2],F[3]];
 }
 
 def taka_gif_form(S,Opt) {
