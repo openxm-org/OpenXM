@@ -19,6 +19,7 @@ localf draw_obj2$
 localf draw_string$
 localf draw_string2$
 localf draw_flush$
+localf getGlib_canvas$
 localf x11toGLx$
 localf x11toGLy$
 
@@ -35,6 +36,9 @@ def setup() {
   ctrl("debug_window",0);
 } 
 
+def getGlib_canvas() {
+  return Glib_canvas;
+}
 /* Example */
 def test0() {
   /* gid; commands */
@@ -150,7 +154,7 @@ cfep.draw_flush(0);
 #define x11toGLx(x) (-1.0+2*x/Glib_canvas_x)
 #define x11toGLy(y) (1.0-2*y/Glib_canvas_y)
 */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.1 2006/03/03 10:55:32 takayama Exp $ */
 
 
 end$
