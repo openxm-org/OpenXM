@@ -30,6 +30,7 @@ enum actionType { FIND, REMOVE} ;
 
 -(void)changeWindowTitle: (NSString *)msg; 
 -(void)outputStringToOutputWindow:(NSString *)msg;  
+-(void)outputStringToOutputWindow:(NSString *)msg withColor: (NSColor *)color;  
 -(void)insertText: (id) text;
 -(void)clearOutputWindow;
 -(void)printErrorMessageToOutputWindow:(NSString *)msg;  

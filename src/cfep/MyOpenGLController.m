@@ -115,6 +115,8 @@ static int Gid=0;
 
 -(void) windowDidLoad {
   [super windowDidLoad];
+  [myogl setGid: gid]; 
+  // [self showCount];
 }
 
 -(void) dealloc {
@@ -141,6 +143,25 @@ static int Gid=0;
 -(void) addOglInitComm: (NSString *)comm {
   [myogl addOglInitComm: comm by: self];
 }
+
+-(int) countOfOglComm {return [myogl countOfOglComm];}
+-(int) countOfOglInitComm {return [myogl countOfOglInitComm];}
+-(int) removeLastOfOglComm {return [myogl removeLastOfOglComm];}
+-(int) removeLastOfOglInitComm {return [myogl removeLastOfOglInitComm];}
+-(int) removeAllOfOglComm { return [myogl removeAllOfOglComm];}
+-(int) removeAllOfOglInitComm {return [myogl removeAllOfOglInitComm];}
+-(NSMutableArray *) getListOfOglComm { return [myogl getListOfOglComm];}
+-(NSMutableArray *) getListOfOglInitComm { return [myogl getListOfOglInitComm]; } 
+-(void) showEyeX: (float) x Y: (float) y Z: (float) z {
+  [self clearOutput];
+  [self output: [NSString stringWithFormat: @"gid=%d, n=%d, position of your eye:(%1.2f,%1.2f,%1.2f)",gid,[self countOfOglComm],x,y,z]];
+}
+-(void) showCount {
+  [self clearOutput];
+  [self output: [NSString stringWithFormat: @"gid=%d, number of OpenGL commands=%d, init=%d",
+                                               gid, [self countOfOglComm], [self countOfOglInitComm]]];
+}
+-(void) clearOutput { [mymessage setBackgroundColor: [NSColor whiteColor]]; } //does it work? 
 -(void) output: (NSString *)msg {
   [mymessage setStringValue: msg];
 }

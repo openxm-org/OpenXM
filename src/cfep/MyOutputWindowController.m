@@ -71,12 +71,23 @@
 }
 
 -(void)outputStringToOutputWindow:(NSString *)msg {
+  [self outputStringToOutputWindow: msg withColor: [NSColor blackColor]];
+}
+-(void)outputStringToOutputWindow:(NSString *)msg withColor: (NSColor *) color {
+  int oldEnd, newEnd;
   NSRange myRange = NSMakeRange([[textViewOut textStorage] length],0);
+  oldEnd = myRange.location;
   // NSLog(@"<MyOutputWindowController> outputStringToOutputWindow\n");  
   [textViewOut replaceCharactersInRange: myRange withString: msg];
-  [textViewOut scrollRangeToVisible: NSMakeRange([[textViewOut textStorage] length],0)];
+  myRange = NSMakeRange([[textViewOut textStorage] length],0);
+  newEnd = myRange.location;
+  [textViewOut setTextColor: color range: NSMakeRange(oldEnd,newEnd-oldEnd)];
+  [textViewOut scrollRangeToVisible: myRange];
 }
+
 -(void)insertText: (id) text {
+  NSRange myRange = NSMakeRange([[textViewOut textStorage] length],0);
+  [textViewOut replaceCharactersInRange: myRange withString: @""];  // goto the end of output window.
   [textViewOut insertText: text];
   [textViewOut scrollRangeToVisible: NSMakeRange([[textViewOut textStorage] length],0)];
 }

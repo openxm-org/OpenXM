@@ -58,14 +58,7 @@
   int ox_texmacs_level;
   // For select engine menu.
   int oxEngine;  // cf. peer_type. temporal.
-  // OnState or OffState in the execution menu
-  NSMenuItem *menuItemNotebookMode;
-  NSMenuItem *menuItemBasicMode;
-  NSMenuItem *menuItemRisaAsir;
-  NSMenuItem *menuItemKanSm1;
-  NSMenuItem *menuItemOutputDebugMessages;  //cf. debugMyTunnel;
-  NSMenuItem *menuItemPrettyPrint; //cf. prettyPrint;
-  // For error handling.
+   // For error handling.
   NSMutableArray *errorLines;
   // For debug the tunnel
   int debugMyTunnel;
@@ -152,6 +145,8 @@
 // managing OpenGL messages. (channel 1 and 2)
 -(int) openGLActionFor: (NSString *)cmd;
 -(int) openGLInitActionFor: (NSString *)cmd;
+-(void) showListOfOglComm: (int) gid;
+-(void) openGLMeta: (NSString *) cmd to: (int) gid;
 // managing png messages. (channel 10)
 -(void) pngActionFor: (NSString *)cmd;
 // notebookMode

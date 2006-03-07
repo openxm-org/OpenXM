@@ -1,7 +1,6 @@
-/*!ox_asir_use_output */
 /* From OpenXM: OpenXM/src/asir-contrib/packages/src/ccurve.rr,v 1.1 2004/03/11 12:25:20 takayama Exp  */
 /* From asir-book/Prog/ccurve */
-load("glib")$
+import("glib")$
 def cCurve(P) {
   if (length(P) < 2) return(0);
   A = P[0][0];
@@ -24,7 +23,7 @@ def ccurve(N) {
    }
    glib_window(-1,-1,2,0.5);
    for (I=0; I<length(Tmp)-1; I++) {
-     glib_line(Tmp[I][0],Tmp[I][1],Tmp[I+1][0],Tmp[I+1][1]);
+     glib_line(Tmp[I][0],Tmp[I][1],Tmp[I+1][0],Tmp[I+1][1]); glib_flush();
    }
 }
 ccurve(6); glib_flush();

@@ -18,6 +18,14 @@ static int myDocumentSaidTheMessageAboutX = 0;
 
 
 @implementation MyDocument
+// For OnState or OffState in the execution menu
+static NSMenuItem *menuItemNotebookMode = nil;
+static NSMenuItem *menuItemBasicMode = nil;
+static  NSMenuItem *menuItemRisaAsir = nil;
+static  NSMenuItem *menuItemKanSm1 = nil;
+static  NSMenuItem *menuItemOutputDebugMessages = nil;  //cf. debugMyTunnel;
+static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
+
 
 - (void)dealloc {
     MyOutputWindowController *mowc;
@@ -140,6 +148,7 @@ static int myDocumentSaidTheMessageAboutX = 0;
 	myDecoder = [[MyDecoder alloc] init]; [myDecoder retain];
 
 	[self openMyModel: myEnvironment ];
+	[MyOpenGLController initMyOpenGLController]; // For the second execution, it will do nothing.
 }
 -(int) getMyDocumentKey { return myDocumentKey; }
 
@@ -388,7 +397,8 @@ static int myDocumentSaidTheMessageAboutX = 0;
   else {
     MyOutputWindowController *mc;
     mc = [MyOutputWindowController sharedMyOutputWindowController: self];
-    [mc outputStringToOutputWindow: amt];
+    if (prettyPrint) [mc outputStringToOutputWindow: amt withColor: [NSColor blueColor]];
+	else [mc outputStringToOutputWindow: amt];
   }	
 }
 - (void) outputErrorString: (NSString *) amt {
@@ -976,6 +986,8 @@ int debugInbound = 0;
 	  NSRange r;
 	  NSRange r3;
 	  int currentLine,i;
+	  [self outputErrorString: NSLocalizedString(@"Move to the line ",nil)];
+	  [self outputErrorString: [NSString stringWithFormat: @"%d\n",line]];
 	  // move the selection to the line line.   
 	  s = [textViewIn string];
 	  if (onlySelectedArea || notebookMode) r = [textViewIn selectedRange];
@@ -996,6 +1008,8 @@ int debugInbound = 0;
 }
 -(int) gotoNextError: (id) sender{
   int n;
+  if (onlySelectedArea || notebookMode) 
+    [self outputErrorString: NSLocalizedString(@"The next error action will not work properly in this mode.\n",nil)];
   n = [self nextLine: 0];
   if (n >= 0) { [self gotoLine: n]; return n;}
   else return -1;
@@ -1011,6 +1025,7 @@ int debugInbound = 0;
 	return -1;
   }
   gid = [[a objectAtIndex: 0] intValue];
+  if ([[a objectAtIndex: 1] hasPrefix: @"meta"]) {[self openGLMeta: [a objectAtIndex: 1] to: gid]; return; }
   [MyOpenGLController addOglComm: [a objectAtIndex: 1] to: gid from: self];
   return 0;
 }
@@ -1026,6 +1041,50 @@ int debugInbound = 0;
   [MyOpenGLController addOglInitComm: [a objectAtIndex: 1] to: gid from: self];
   return 0;
 }
+-(void)openGLMeta: (NSString *) cmd to: (int) gid{
+  MyOpenGLController *oglc;
+  oglc = [MyOpenGLController getOglWindow: gid];
+  if (!oglc) {[self outputErrorString: [NSString stringWithFormat: @"Invalid gid %d in openGLMeta\n",gid]]; return; }
+  if ([cmd hasPrefix: @"meta_showListOfOglComm"]) {
+    [self showListOfOglComm: gid]; return ;
+  }else if ([cmd hasPrefix: @"meta_removeAll"]) {
+    [oglc removeAllOfOglComm]; 
+  }else if ([cmd hasPrefix: @"meta_removeLast"]) {
+    [oglc removeLastOfOglComm]; 
+  }else if ([cmd hasPrefix: @"meta_removeAllInit"]) {
+    [oglc removeAllOfOglInitComm]; 
+  }else if ([cmd hasPrefix: @"meta_removeLastInit"]) {
+    [oglc removeLastOfOglInitComm]; 
+  }else{
+    [self outputErrorString: [NSString stringWithFormat: @"Unknown OpenGL meta command %@\n",cmd]];
+  }
+}
+-(void) showListOfOglComm: (int) gid {
+  MyDocument *md;
+  MyOpenGLController *oglc;
+  NSMutableArray *comm; 
+  int i,n;
+  md = self;
+  oglc = [MyOpenGLController getOglWindow: gid];
+  if (!oglc) {[self outputErrorString: @"Invalid gid in showListOfOglComm\n"]; return; }
+  comm = [oglc getListOfOglInitComm];
+  n = [comm count];
+  [md outputString: NSLocalizedString(@"OpenGL init commands\n",nil)];
+  for (i=0; i<n; i++) {
+    [md outputString: [NSString stringWithFormat: @"%04d: ",i]];
+    [md outputString: [[comm objectAtIndex: i] toString]];
+	[md outputString: @"\n"];
+  }
+  comm = [oglc getListOfOglComm];
+  n = [comm count];
+  [md outputString: NSLocalizedString(@"OpenGL redraw commands\n",nil)];
+  for (i=0; i<n; i++) {
+    [md outputString: [NSString stringWithFormat: @"%04d: ",i]];
+    [md outputString: [[comm objectAtIndex: i] toString]];
+	[md outputString: @"\n"];
+  }
+}
+
 
 -(void) pngActionFor: (NSString *)act {
   NSArray *a;
@@ -1093,6 +1152,7 @@ int debugInbound = 0;
   [self updateSelectEngineMenu];
   [self oxEvaluateString: @"!sm1;" withMark: TRUE];
 }
+// BUG: update* must be called when the focus is changed to "setState:"
 -(void) updateSelectEngineMenu {
   if (!menuItemRisaAsir) return;
   if (!menuItemKanSm1) return;
@@ -1114,6 +1174,8 @@ int debugInbound = 0;
   }	
   [MyUtil setDebugMyUtil];
 }
+
+//BUG: [self setPrettyPrint: nil] or update must be called when focus is changed to "setState:" 
 -(void) setPrettyPrint: (id) sender {
   if (prettyPrint) {
     prettyPrint = 0;
@@ -1213,14 +1275,14 @@ int debugInbound = 0;
   [menuExec addItem: menuItemGotoNextError];
 
   // outputDebugMessage
-  menuItemOutputDebugMessages = [[[NSMenuItem alloc] init] autorelease];
+  menuItemOutputDebugMessages = [[[NSMenuItem alloc] init] autorelease]; [menuItemOutputDebugMessages retain];
   [menuItemOutputDebugMessages setTitle: NSLocalizedString(@"Output debug messages",nil)];
   [menuItemOutputDebugMessages setAction: @selector(setDebugMyTunnel:)];
   [menuItemOutputDebugMessages setTarget: [[NSApp mainWindow] document]]; 
   [menuExec addItem: menuItemOutputDebugMessages];
 
   // pretty print
-  menuItemPrettyPrint = [[[NSMenuItem alloc] init] autorelease];
+  menuItemPrettyPrint = [[[NSMenuItem alloc] init] autorelease];  [menuItemPrettyPrint retain]; // it is the static variable.
   [menuItemPrettyPrint setTitle: NSLocalizedString(@"Typeset the output by TeX",nil)];
   [menuItemPrettyPrint setAction: @selector(setPrettyPrint:)];
   [menuItemPrettyPrint setTarget: [[NSApp mainWindow] document]]; 
@@ -1236,14 +1298,14 @@ int debugInbound = 0;
   [menuItemBasicLike setTitle: NSLocalizedString(@"BASIC-like",nil)];
   [menuItemBasicLike setAction: @selector(setBasicStyle:)];
   [menuItemBasicLike setTarget: [[NSApp mainWindow] document]];
-  menuItemBasicMode = menuItemBasicLike;
+  menuItemBasicMode = menuItemBasicLike;  [menuItemBasicMode retain];
   [submenuInterfaceItem addItem: menuItemBasicLike];
     // notebook-like
   NSMenuItem *menuItemNotebookLike = [[[NSMenuItem alloc] init] autorelease];
   [menuItemNotebookLike setTitle: NSLocalizedString(@"Notebook-like",nil)];
   [menuItemNotebookLike setAction: @selector(setNotebookStyle:)];
   [menuItemNotebookLike setTarget: [[NSApp mainWindow] document]];
-  menuItemNotebookMode = menuItemNotebookLike;
+  menuItemNotebookMode = menuItemNotebookLike; [menuItemNotebookMode retain];
   [submenuInterfaceItem addItem: menuItemNotebookLike];
   
   menuItemInterfaceStyle = [[[NSMenuItem alloc] init] autorelease];
@@ -1255,13 +1317,13 @@ int debugInbound = 0;
     // select engine
   NSMenu *submenuSelectEngineItem = [[[NSMenu alloc] init] autorelease];
     // asir
-  menuItemRisaAsir = [[[NSMenuItem alloc] init] autorelease];
+  menuItemRisaAsir = [[[NSMenuItem alloc] init] autorelease];  [menuItemRisaAsir retain];
   [menuItemRisaAsir setTitle: NSLocalizedString(@"Risa/Asir",nil)];
   [menuItemRisaAsir setAction: @selector(setEngineRisaAsir:)];
   [menuItemRisaAsir setTarget: [[NSApp mainWindow] document]];
   [submenuSelectEngineItem addItem: menuItemRisaAsir];
     // notebook-like
-  menuItemKanSm1 = [[[NSMenuItem alloc] init] autorelease];
+  menuItemKanSm1 = [[[NSMenuItem alloc] init] autorelease];  [menuItemKanSm1 retain];
   [menuItemKanSm1 setTitle: NSLocalizedString(@"Kan/sm1",nil)];
   [menuItemKanSm1 setAction: @selector(setEngineKanSm1:)];
   [menuItemKanSm1 setTarget: [[NSApp mainWindow] document]];

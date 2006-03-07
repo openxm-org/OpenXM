@@ -34,9 +34,14 @@
 // 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86  gl primitives
 #define CFEPglBegin         6201       
 #define CFEPglColor4f       6301
-#define CFEPglEnd           6501       
+#define CFEPglClear         6302
+#define CFEPglClearColor    6303
+#define CFEPglClearDepth    6304
+#define CFEPglEnd           6501 
+#define CFEPglFlush         6601      
 #define CFEPglLineStipple   7201       //
 #define CFEPglLineWidth     7202       //
+#define CFEPglPointSize     7601
 #define CFEPglRectf         7801
 #define CFEPglVertex3f      8201       
 
@@ -80,6 +85,7 @@
 -(id)init;
 -(void) dealloc;
 -(void)print;
+-(NSString *)toString;
 -(MyOpenGLCommand *) compile: (NSString *)cmd by: (id) sender;
 -(int) getOpCode;
 -(double *)getF4;

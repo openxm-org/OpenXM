@@ -16,16 +16,29 @@
   int oglCommSize;
   NSMutableArray *oglInitComm;
   int oglInitCommSize;
+  int gid;
 }
 -(id) initWithFrame: (NSRect) frameRect;
 -(void) drawRectSimple: (NSRect) rect withColor: (double)c;
 -(void) drawRect: (NSRect) rect ;
+-(void) showEyePos ;
 -(IBAction) setXeye: (id) sender;
 -(IBAction) setYeye: (id) sender;
 -(IBAction) setZeye: (id) sender;
+-(void) setGid: (int) gid;
 -(void) addOglComm: (NSString *) comm by: (id) sender;
 -(void) drawOglComm ;
 -(void) addOglInitComm: (NSString *) comm by: (id) sender;
+
+-(NSMutableArray *)getListOfOglComm;
+-(NSMutableArray *)getListOfOglInitComm;
+-(int) countOfOglComm ;
+-(int) countOfOglInitComm;
+-(int) removeLastOfOglComm;
+-(int) removeLastOfOglInitComm;
+-(int) removeAllOfOglComm;
+-(int) removeAllOfOglInitComm;
+
 -(void) drawOglInitComm ;
 -(void) execute: (MyOpenGLCommand *)gc;
 -(void) initGL ;

@@ -7,6 +7,7 @@
 //
 
 #import "MyOpenGLView.h"
+#import "MyOpenGLController.h"
 #include "mygl.h"
 
 @implementation MyOpenGLView
@@ -36,15 +37,18 @@
   return self;
 }
 
+-(void) showEyePos {[[MyOpenGLController getOglWindow: gid] showEyeX: xeye Y: yeye Z: zeye];}
 -(IBAction) setXeye: (id) sender {
    xeye=([sender floatValue]-50)*0.1; initGl = 1;
    NSLog(@"xeye=%f\n",xeye);
+   [self showEyePos];
    [self setNeedsDisplay: YES];
 }
 -(IBAction) setYeye: (id) sender {
    float y;
    y=([sender floatValue]-50)*0.1; initGl = 1;
    yeye=y; 
+   [self showEyePos];
    //NSLog(@"yeye=%f\n",yeye);
    [self setNeedsDisplay: YES];
 }
@@ -52,6 +56,7 @@
    float z;
    z=([sender floatValue]-50)*0.1+2.0; initGl = 1;
    zeye=z; 
+   [self showEyePos];
    //NSLog(@"zeye=%f\n",zeye);
    [self setNeedsDisplay: YES];
 }
@@ -67,6 +72,9 @@
   initGl=1;
   [self setNeedsDisplay: YES];
 }
+-(void) setGid: (int) p{
+  gid = p;
+} 
 -(void) initGL {
   // Initialization codes are here.
   glClearColor(1.0,1.0,1.0,1.0);
@@ -106,10 +114,20 @@
 		if ([oc isEndGroup] == YES) oglCommSize=[oglComm count];
 	}
 	if ([oc getOpCode] == CFEPglib_flush) [self setNeedsDisplay: YES]; 
+	else if ([oc getOpCode] == CFEPglFlush) [self setNeedsDisplay: YES];
 	// If oc is glib_flush, then call drawRect. (Generate an event.)
 	// Calling [self drawOglComm] directly is not safe, because the window might not be ready.
    }
 }
+
+-(NSMutableArray *)getListOfOglComm { return oglComm; }
+-(NSMutableArray *)getListOfOglInitComm { return oglInitComm; }
+-(int) countOfOglComm { return [oglComm count]; }
+-(int) countOfOglInitComm { return [oglInitComm count];}
+-(int) removeLastOfOglComm { if ([oglComm count]>0) [oglComm removeLastObject]; return [self countOfOglComm];}
+-(int) removeLastOfOglInitComm {if ([oglInitComm count]>0) [oglInitComm removeLastObject]; return [self countOfOglInitComm];}
+-(int) removeAllOfOglComm { if ([oglComm count]>0) [oglComm removeAllObjects]; return 0; }
+-(int) removeAllOfOglInitComm {if ([oglInitComm count]>0) [oglInitComm removeAllObjects]; return 0; }
 
 -(void) drawOglInitComm {
   int i,n;
@@ -130,7 +148,9 @@
 	@synchronized(self) {
 		if ([oc isEndGroup] == YES) oglInitCommSize=[oglInitComm count];
 	}
-	if ([oc getOpCode] == CFEPglib_flush) { initGl = 1; [self setNeedsDisplay: YES]; }
+	initGl = 1;
+	if ([oc getOpCode] == CFEPglib_flush) { [self setNeedsDisplay: YES]; }
+	else if ([oc getOpCode] == CFEPglFlush) [self setNeedsDisplay: YES];
    }
 }
 
@@ -151,10 +171,20 @@
   case CFEPglBegin:
     glBegin(p);
 	break;
+  case CFEPglClear:
+    glClear(p); break;
+  case CFEPglClearColor:
+    glClearColor(x,y,z,c); break;
+  case CFEPglClearDepth:
+    glClearDepth(x); break;
   case CFEPglColor4f:
     glColor4f(x,y,z,c); break;
   case CFEPglEnd:
     glEnd(); break;	
+  case CFEPglFlush:
+    glFlush(); [self setNeedsDisplay: YES]; break;
+  case CFEPglPointSize:
+    glPointSize(x); break;
   case CFEPglRectf:
 	glRectf(x,y,z,c); break;
   case CFEPglVertex3f:
@@ -165,7 +195,9 @@
   case CFEPglib_putpixel:
     glib_putpixel(x,y,p); break;	
   case CFEPglib_flush:
-	[self setNeedsDisplay: YES]; break;
+	[self setNeedsDisplay: YES]; 
+	// [[MyOpenGLController getOglWindow: gid] showCount];
+	break;
 
   case CFEPglib3_bounding_box:
 	glib3_bounding_box(x); break;

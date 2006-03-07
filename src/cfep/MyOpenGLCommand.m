@@ -25,12 +25,15 @@
 }
 -(void)print {
   int i;
-  NSLog(@"command=%s, opCode=%d, [",command,opCode);
+  NSLog(@"command=%@s, opCode=%d, [",command,opCode);
   for (i=0; i<4; i++) NSLog(@"%f,",f4[i]);
   NSLog(@"; ");
   for (i=0; i<4; i++) NSLog(@"%d,",i4[i]);
   NSLog(@"]\n"); 
 } 
+-(NSString *)toString {
+  return [NSString stringWithFormat: @"%@[%d], %f, %f, %f, %f; %d, %d, %d, %d",command,opCode,f4[0],f4[1],f4[2],f4[3],i4[0],i4[1],i4[2],i4[3]];
+}
 +(MyOpenGLCommand *)allocAndCompile: (NSString *)cmd by: (id) sender {
   MyOpenGLCommand *c;
   c=[[MyOpenGLCommand alloc] init];
@@ -69,8 +72,23 @@
    }else if ([s compare: @"glColor4f"] == NSOrderedSame) {
 	opCode = CFEPglColor4f;  fargc = 4; iargc = 0;  endGroup = NO;
 
+   }else if ([s compare: @"glClear"] == NSOrderedSame) {
+	opCode = CFEPglClear;  fargc = 0; iargc = 1;  endGroup = YES;
+
+   }else if ([s compare: @"glClearColor"] == NSOrderedSame) {
+	opCode = CFEPglClearColor;  fargc = 4; iargc = 0;  endGroup = YES;
+
+   }else if ([s compare: @"glClearDepth"] == NSOrderedSame) {
+	opCode = CFEPglClearDepth;  fargc = 1; iargc = 0;  endGroup = YES;
+
    }else if ([s compare: @"glEnd"] == NSOrderedSame) {
 	opCode = CFEPglEnd;  fargc = 0; iargc = 0;  endGroup = YES;
+
+   }else if ([s compare: @"glFlush"] == NSOrderedSame) {
+	opCode = CFEPglFlush;  fargc = 0; iargc = 0;  endGroup = YES;
+
+   }else if ([s compare: @"glPointSize"] == NSOrderedSame) {
+	opCode = CFEPglPointSize;    fargc = 1; iargc = 0; endGroup = NO;
 
    }else if ([s compare: @"glRectf"] == NSOrderedSame) {
 	opCode = CFEPglRectf;    fargc = 4; iargc = 0; endGroup = YES;
@@ -115,6 +133,8 @@
     return nil;
    }
    // Format glxxxpfqi  fargc=p, iargc=q.  Example: glxxx4f1i, 0.1,0.2,0.3,0.4,34
+   command = s;
+   [command retain]; // bug. How to release?
    if (fargc > 0) {
 	for (i=1; i< min(n,fargc+1); i++) {
 	    x = [a objectAtIndex: i];

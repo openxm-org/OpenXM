@@ -38,5 +38,16 @@
 -(BOOL) windowShouldClose: (NSWindow *)sender ;
 -(void) addOglComm: (NSString *)comm ;   // Adding a OpenGL command.
 -(void) addOglInitComm: (NSString *)comm ;   // Adding a OpenGL initialization command.
+-(int) countOfOglComm ;
+-(int) countOfOglInitComm;
+-(int) removeLastOfOglComm;
+-(int) removeLastOfOglInitComm;
+-(int) removeAllOfOglComm;
+-(int) removeAllOfOglInitComm;
+-(NSMutableArray *) getListOfOglComm;
+-(NSMutableArray *) getListOfOglInitComm; 
+-(void) showCount;
+-(void) showEyeX: (float) x Y: (float) y Z: (float) z ;
+-(void) clearOutput;
 -(void) output: (NSString *)msg;
 @end
