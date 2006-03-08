@@ -43,8 +43,13 @@ cfep $B$N%G%#%9%/%$%a!<%8(B </a> $B$r%@%&%s%m!<%I$7(B, $B$3$l$r3+$$$F(B "
 
 <hr>
 <h3 id="changelog" name="changelog">
-     cfep 1.1 $B$NFCD'(B </h3>
-<h3> cfep 1.0 $B$NFCD'(B </h3>
+     cfep 1.1 $B$NFCD'(B (2006.03.12.$BM=Dj(B)</h3>
+<ol>
+<li> $B%X%k%W$N=<<B(B.
+<li> $B=PNO$r(B TeX $B$G%?%$%W%;%C%H$9$k%b!<%I(B, $B%N!<%H%V%C%/Iw%$%s%?%U%'!<%9(B ($B<B83E*(B).
+ <img src="typesetByTeX.png" width="100" height="100" hspace="10"/> 
+</ol>
+<h3> cfep 1.0 $B$NFCD'(B (2006.02.25) </h3>
 <ol>
 <li> Editor$B$H7W;;%(%s%8%s$NE}9g4D6-(B.
 <li> OpenGL$B;EMM$N0lItJ,$r<B8=$7$?(B OpenGL $B%$%s%?%W%j%?!<$rFbB"(B ($B<B83E*(B).
@@ -84,6 +89,7 @@ Asir $B%^%K%e%"%k(B, Asir-contrib, $B<B83E*4X?t%^%K%e%"%k$b4^$`$h$j>\$7$$4X?t
 <li> <a href="#q1"> $B%j%C%A%F%-%9%H$GJ]B8$7$?%U%!%$%k(B (rtf, rtfd $B%U%!%$%k(B) $B$,(B Windows $BHG$d(B unix $BHG$N(Basir $B$G<B9T$G$-$^$;$s(B.  </a>
 <li> <a href="#q2">  #include $B$d(B #define $B$,$D$+$($^$;$s(B. </a>
 <li> <a href="#q3">  OpenGL$B$N%0%i%U%#%C%/2hLL$r0u:~$G$-$^$;$s(B </a>
+<li> <a href="#q4">  $B%0%i%U%#%C%/$,I=<($5$l$^$;$s(B </a>
 </ul>
 
 <h4 id="q1" name="q1"> Q. $B%j%C%A%F%-%9%H$GJ]B8$7$?%U%!%$%k(B (rtf, rtfd $B%U%!%$%k(B) $B$,(B Windows $BHG$d(B unix $BHG$N(B
@@ -102,21 +108,47 @@ cfep $B$N4A;z%3!<%I$O(B UTF-8 $B$G$9(B.
 "shift" $B$H(B "$B%3%^%s%I(B" $B$H(B "4" $B$r0l=o$K$*$9;v$G(B $B%^%&%9$G%I%i%C%0$7$?HO0O$N$_$r%U%!%$%k$KJ]B8$G$-$^$9(B.
 $B%3%^%s%I%i%$%s$+$i$O(B screencapture $B%3%^%s%I$rMQ$$$^$9(B.
 
+<h4 id="q4" name="q4"> Q. $B%0%i%U%#%C%/$,I=<($5$l$^$;$s(B </h4>
+$B860x$O$$$m$$$mA[Dj$5$l$^$9$,(B, $B0lHV$h$/$"$k$N$O(B flush $B7O$NL?Na$,<B9T$5$l$F(B
+$B$$$J$$>uBV$G$9(B.
+glib_flush $B$^$?$O(B OpenGL $B$N(B glFlush $B%3%^%s%I$,<B9T$5$l$k$^$G(B,
+$B<B:]$NI=<($O$5$l$^$;$s(B.
+OpenGL$B$N(B Window $B$rF0$+$7$?$j$9$k$H(B, $B$3$l$i$N%3%^%s%I$r<B9T$7$?$N$H6a$$>uBV$K$J$k$N$G(B,
+$BI=<($5$l$k$3$H$,$"$j$^$9(B.
+
 <h3> <font color="magenta"> $BNI$/$"$k<ALd(B $B>e5iJT(B </font> </h3>
 
 <h4> Q. asir $B0J30$N7W;;%(%s%8%s$O@\B3$G$-$^$9$+(B? </h4>
 OpenXM 100, 103 $B%W%m%H%3%k$r%5%]!<%H$7$F$$$k7W;;%(%s%8%s$J$i@\B32DG=$G$9(B.
 $B7W;;%(%s%8%s$H$O(B ox_texmacs $B$r2p$7$F@\B3$7$F$$$^$9(B.
 $B5/F0%9%/%j%W%H$O%j%=!<%9$K$J$C$F$$$^$9(B.
+1.1 $B0J9_$O(B kan/sm1 $B$N5/F0$b%a%K%e!<$KAH$_9~$^$l$F$$$^$9(B.
 
 <h4> Q. cfep $B$O$I$N$h$&$J8@8l$G=q$+$l$F$$$^$9$+(B? </h4>
 Cocoa $B%D!<%k%-%C%H$rMQ$$$F(B objective C $B$G=q$+$l$F$$$^$9(B.
+$B%=!<%9%3!<%I$O(B 
+<a href="http://www.math.kobe-u.ac.jp/cgi/cvsweb.cgi"> 
+OpenXM $B$N(B cvsweb </a> $B$N(B OpenXM/src/cfep $B$r8fMw$/$@$5$$(B.
 
 <h4> Q.  $B%3%^%s%I%i%$%sHG(B asir $B$O4^$^$l$F$$$^$9$+(B? </h4>
 cfep.app/OpenXM/bin $B$K$"$j$^$9(B.
 cfep.app/OpenXM/rc $B$N2<$G(B make $B$rF0$+$7$F(B openxm $B%9%/%j%W%H$r@8@.$7$F$/$@$5$$(B.
 $B4D6-JQ?t$r<+F0@_Dj$7$^$9(B.
 openxm asir $B$G(B OpenXM$BHG$N(B asir $B$,5/F0$7$^$9(B.
+
+<h4> Q.  Asir-contrib $B$G%m!<%I$5$l$k%U%!%$%k$rJQ99$7$?$$(B. </h4>
+cfep.app/OpenXM/rc/asirrc $B$rJT=8(B.
+
+<h4> Q. OpenXM $B%5!<%P$,<B9T$5$l$k;~$N(B PATH $B4D6-JQ?t$NCM$rJQ$($?$$(B.</h4>
+$B$A$g$C$HN"5;$G$9$,(B, $B8@8lKh$N%j%=!<%9$G(B PATH $B$NCM$r@_Dj$9$k$3$H$GJQ99$7$^$9(B.
+$BF|K\8l4D6-$J$i(B
+cfep.app/Contents/Resource/Japanese.lproj/Localizable.strings
+$B$K(B utf16 $B$G(B "PATH"="PATH$B4D6-JQ?t$NCM(B";  $B$r2C$($^$9(B.
+(Prefererece $B$GJQ$($k$3$H$,$G$-$k$h$&$K$9$kM=Dj(B).
+$B;2>H(B: cfep/MyEnvironment.m,  initFor:
+
+<h4> Q. TeX $B$r%$%s%9%H!<%k$7$F$"$k$N$K(B tex $B$G%?%$%W%;%C%H$G$-$^$;$s(B</h4>
+cfep $B$O(B /sw/bin (fink) $B$K(B tex $B$,B8:_$7$F$$$k$H2>Dj$7$F$^$9(B.
 
 </body>
 </html>

@@ -18,6 +18,8 @@ static int myDocumentSaidTheMessageAboutX = 0;
 
 
 @implementation MyDocument
+static int NoEngine = 0; // experimental.
+static NSMenuItem *menuItemNoEngine = nil;  // NoEngine
 // For OnState or OffState in the execution menu
 static NSMenuItem *menuItemNotebookMode = nil;
 static NSMenuItem *menuItemBasicMode = nil;
@@ -165,6 +167,8 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
 	[peerEndEvaluteMark retain];
  
 	[self stopIndicator];
+    if (NoEngine && (!restartMode)) { task = nil; return; }
+
 	// Initialization to call /bin/bash
     outboundPipe = [NSPipe pipe];  // since autorelease is called in pipe.
 	inboundPipe   = [NSPipe pipe];
@@ -227,6 +231,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
 
 -(id) restartMyModel: (enum peer_type)  peerType {
     MyEnvironment *myEnvironment;
+	restartMode = 1;
     [self closeMyModel]; 
 	myEnvironment = [[MyEnvironment alloc] initFor: peerType];  //BUG. leak memory?
 	[myEnvironment retain];
@@ -251,6 +256,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
   NSMutableString *cmd;
   NSRange r;
 
+  if (!task) return;
   if (inEvaluation) {
 	 NSLog(@"In evaluatioin. ");
      [self messageDialog: NSLocalizedString(@"Evaluating...",nil) with: 0];
@@ -313,7 +319,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
   [alert release];
 								 
   fprintf(stderr,"Trying to interrupt.\n");
-  [task interrupt];
+  if (task) [task interrupt];
   inputCounter = outputCounter = 0;
   [self stopIndicator];
   [myDecoder reset];
@@ -370,6 +376,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
   NSLog(@"Evaluating...  ");
   NSLog(@"%@",cmd);
   // Evaluation is here.
+  if (!task) return -1;
   cmdInData = [cmd dataUsingEncoding: NSUTF8StringEncoding];
   @try { 
     //todo  if (yes) [outboundFileHandle writeData: peerStartEvaluateMark];
@@ -1047,14 +1054,14 @@ int debugInbound = 0;
   if (!oglc) {[self outputErrorString: [NSString stringWithFormat: @"Invalid gid %d in openGLMeta\n",gid]]; return; }
   if ([cmd hasPrefix: @"meta_showListOfOglComm"]) {
     [self showListOfOglComm: gid]; return ;
+  }else if ([cmd hasPrefix: @"meta_removeAllInit"]) { // longer command must come first, because we use prefix.
+    [oglc removeAllOfOglInitComm]; 
+  }else if ([cmd hasPrefix: @"meta_removeLastInit"]) {
+    [oglc removeLastOfOglInitComm]; 
   }else if ([cmd hasPrefix: @"meta_removeAll"]) {
     [oglc removeAllOfOglComm]; 
   }else if ([cmd hasPrefix: @"meta_removeLast"]) {
     [oglc removeLastOfOglComm]; 
-  }else if ([cmd hasPrefix: @"meta_removeAllInit"]) {
-    [oglc removeAllOfOglInitComm]; 
-  }else if ([cmd hasPrefix: @"meta_removeLastInit"]) {
-    [oglc removeLastOfOglInitComm]; 
   }else{
     [self outputErrorString: [NSString stringWithFormat: @"Unknown OpenGL meta command %@\n",cmd]];
   }
@@ -1188,6 +1195,15 @@ int debugInbound = 0;
 	if (menuItemPrettyPrint) [menuItemPrettyPrint setState: NSOnState];
   }	
 }
+-(void) setNoEngine: (id) sender {
+  if (NoEngine) {
+    NoEngine = 0;
+	if (menuItemNoEngine) [menuItemNoEngine setState: NSOffState];
+  } else {
+    NoEngine = 1;
+	if (menuItemNoEngine) [menuItemNoEngine setState: NSOnState];
+  }	
+}
 
 -(void) loadAsirContrib: (id) sender {
   NSString *com;
@@ -1274,13 +1290,6 @@ int debugInbound = 0;
   [menuItemGotoNextError setTarget: [[NSApp mainWindow] document]]; 
   [menuExec addItem: menuItemGotoNextError];
 
-  // outputDebugMessage
-  menuItemOutputDebugMessages = [[[NSMenuItem alloc] init] autorelease]; [menuItemOutputDebugMessages retain];
-  [menuItemOutputDebugMessages setTitle: NSLocalizedString(@"Output debug messages",nil)];
-  [menuItemOutputDebugMessages setAction: @selector(setDebugMyTunnel:)];
-  [menuItemOutputDebugMessages setTarget: [[NSApp mainWindow] document]]; 
-  [menuExec addItem: menuItemOutputDebugMessages];
-
   // pretty print
   menuItemPrettyPrint = [[[NSMenuItem alloc] init] autorelease];  [menuItemPrettyPrint retain]; // it is the static variable.
   [menuItemPrettyPrint setTitle: NSLocalizedString(@"Typeset the output by TeX",nil)];
@@ -1335,6 +1344,19 @@ int debugInbound = 0;
   [menuExec addItem: menuItemSelectEngine];
   [self updateSelectEngineMenu];
 
+  // outputDebugMessage
+  menuItemOutputDebugMessages = [[[NSMenuItem alloc] init] autorelease]; [menuItemOutputDebugMessages retain];
+  [menuItemOutputDebugMessages setTitle: NSLocalizedString(@"Output debug messages",nil)];
+  [menuItemOutputDebugMessages setAction: @selector(setDebugMyTunnel:)];
+  [menuItemOutputDebugMessages setTarget: [[NSApp mainWindow] document]]; 
+  [menuExec addItem: menuItemOutputDebugMessages];
+
+  // NoEngine
+  menuItemNoEngine = [[[NSMenuItem alloc] init] autorelease];  [menuItemNoEngine retain]; // it is the static variable.
+  [menuItemNoEngine setTitle: NSLocalizedString(@"Do not start engine at startup",nil)];
+  [menuItemNoEngine setAction: @selector(setNoEngine:)];
+  [menuItemNoEngine setTarget: [[NSApp mainWindow] document]]; 
+  [menuExec addItem: menuItemNoEngine];
 
   // test
   menuItemForTest = [[[NSMenuItem alloc] init] autorelease];

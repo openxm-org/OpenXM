@@ -26,6 +26,9 @@
 -(IBAction) setYeye: (id) sender;
 -(IBAction) setZeye: (id) sender;
 -(void) setGid: (int) gid;
+-(void) setInitGL: (id) sender;
+-(int) getOglCommSize;
+-(int) getOglInitCommSize;
 -(void) addOglComm: (NSString *) comm by: (id) sender;
 -(void) drawOglComm ;
 -(void) addOglInitComm: (NSString *) comm by: (id) sender;

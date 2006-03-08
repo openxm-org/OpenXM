@@ -22,6 +22,10 @@ localf draw_flush$
 localf getGlib_canvas$
 localf x11toGLx$
 localf x11toGLy$
+localf glib_clear$
+localf glib_remove_last$
+localf glib_set_pixel_size$
+
 
 static Glib_canvas;
 static Glib_canvas_x;
@@ -72,8 +76,8 @@ def draw_obj(P,Canvas,S) {
 }
 
 
-def x11toGLx(X) { return (-1.0+2*X/Glib_canvas_x); }
-def x11toGLy(Y) { return (1.0-2*Y/Glib_canvas_y); }
+def x11toGLx(X) { X=deval(X); return (-1.0+2*X/Glib_canvas_x); }
+def x11toGLy(Y) { Y=deval(Y); return (1.0-2*Y/Glib_canvas_y); }
 def draw_obj2(P,Canvas,S,Color) {
   if (length(S) == 4) { /* line */
      X = rtostr(x11toGLx(S[0])); Y = rtostr(x11toGLy(S[1]));
@@ -135,6 +139,30 @@ def glib_init_send(S) {
    print(C); output(); /* channel 2 is for OpenGL init. */
 }  
 
+/*  glib_line(0,0,100,100);  glib_flush();
+    cfep.glib_clear();
+*/
+def glib_clear() {
+    Glib_canvas =  cfep.getGlib_canvas();
+    glib_send(rtostr(Glib_canvas)+";meta_removeAllInit");
+    glib_send(rtostr(Glib_canvas)+";meta_removeAll");
+    glib_init_send(rtostr(Glib_canvas)+"; [glClearColor,1.0,1.0,1.0,1.0]");
+    /* GL_COLOR_BUFFER_BIT 0x4000,  = 16384 */
+    glib_init_send(rtostr(Glib_canvas)+"; [glClear,(int)16384]");
+    glib_flush();
+}
+
+def glib_remove_last() {
+    Glib_canvas =  cfep.getGlib_canvas();
+    glib_send(rtostr(Glib_canvas)+";meta_removeLast");
+}
+
+def glib_set_pixel_size(P) {
+    Glib_canvas =  cfep.getGlib_canvas();
+   P = deval(P);
+   glib_send(rtostr(Glib_canvas)+"; [glPointSize,"+rtostr(P)+"]");
+}
+
 endmodule;
 
 Cfep_loaded = 1$
@@ -154,7 +182,13 @@ cfep.draw_flush(0);
 #define x11toGLx(x) (-1.0+2*x/Glib_canvas_x)
 #define x11toGLy(y) (1.0-2*y/Glib_canvas_y)
 */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.1 2006/03/03 10:55:32 takayama Exp $ */
+
+/* Should be moved to the buildin function. */
+def radian(D) {
+  return (D/180)*@pi;
+}
+
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.2 2006/03/07 11:25:09 takayama Exp $ */
 
 
 end$

@@ -66,6 +66,8 @@
   int asir_contrib;
   // pretty printing
   int prettyPrint;
+  //  cf. NoEngine
+  int restartMode;
   //////////
   NSTask *task;
   NSPipe *inboundPipe;

@@ -165,7 +165,6 @@
 -(int *) getI4 { return i4; }
 -(NSArray *)getArgv { return argv; }
 
-
 @end
 
 /* Code to test MyFloat put in compile:

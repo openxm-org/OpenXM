@@ -154,7 +154,7 @@ static int Gid=0;
 -(NSMutableArray *) getListOfOglInitComm { return [myogl getListOfOglInitComm]; } 
 -(void) showEyeX: (float) x Y: (float) y Z: (float) z {
   [self clearOutput];
-  [self output: [NSString stringWithFormat: @"gid=%d, n=%d, position of your eye:(%1.2f,%1.2f,%1.2f)",gid,[self countOfOglComm],x,y,z]];
+  [self output: [NSString stringWithFormat: @"gid=%d, n=%d, position of your eye:(%1.2f,%1.2f,%1.2f), nc=%d, ni=%d",gid,[self countOfOglComm],x,y,z,[myogl getOglCommSize],[myogl getOglInitCommSize]]];
 }
 -(void) showCount {
   [self clearOutput];

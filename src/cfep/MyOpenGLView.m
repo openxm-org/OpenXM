@@ -81,6 +81,7 @@
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   [self drawOglInitComm];
 }
+-(void) setInitGL: (id) sender { initGl = 1; }
 // It was for a test.
 -(void) drawRectSimple: (NSRect) rect withColor: (double) c {
   glClearColor(1.0,1.0,1.0,1.0);
@@ -122,12 +123,34 @@
 
 -(NSMutableArray *)getListOfOglComm { return oglComm; }
 -(NSMutableArray *)getListOfOglInitComm { return oglInitComm; }
+-(int) getOglCommSize { return oglCommSize; }
+-(int) getOglInitCommSize { return oglInitCommSize; }
 -(int) countOfOglComm { return [oglComm count]; }
 -(int) countOfOglInitComm { return [oglInitComm count];}
--(int) removeLastOfOglComm { if ([oglComm count]>0) [oglComm removeLastObject]; return [self countOfOglComm];}
--(int) removeLastOfOglInitComm {if ([oglInitComm count]>0) [oglInitComm removeLastObject]; return [self countOfOglInitComm];}
--(int) removeAllOfOglComm { if ([oglComm count]>0) [oglComm removeAllObjects]; return 0; }
--(int) removeAllOfOglInitComm {if ([oglInitComm count]>0) [oglInitComm removeAllObjects]; return 0; }
+-(int) removeLastOfOglComm { if ([oglComm count]>0) [oglComm removeLastObject]; [self updateOglCommSize]; return [self countOfOglComm];}
+-(int) removeLastOfOglInitComm {if ([oglInitComm count]>0) [oglInitComm removeLastObject]; [self updateOglInitCommSize]; return [self countOfOglInitComm];}
+-(int) removeAllOfOglComm { if ([oglComm count]>0) [oglComm removeAllObjects]; oglCommSize = 0; return 0; }
+-(int) removeAllOfOglInitComm {if ([oglInitComm count]>0) [oglInitComm removeAllObjects]; oglInitCommSize = 0; return 0; }
+-(void) updateOglCommSize {
+  int n,i;
+  MyOpenGLCommand *cc;
+  n = [oglComm count];
+  for (i=n-1; i>=0; i--)  { 
+    cc = [oglComm objectAtIndex: i]; 
+	if ([cc isEndGroup]) { oglCommSize = i+1; return ; }
+  }
+  oglCommSize = 0;
+}
+-(void) updateOglInitCommSize {
+  int n,i;
+  MyOpenGLCommand *cc;
+  n = [oglInitComm count];
+  for (i=n-1; i>=0; i--)  { 
+    cc = [oglInitComm objectAtIndex: i]; 
+	if ([cc isEndGroup]) { oglInitCommSize = i+1; return ; }
+  }
+  oglInitCommSize = 0;
+}
 
 -(void) drawOglInitComm {
   int i,n;
@@ -182,7 +205,7 @@
   case CFEPglEnd:
     glEnd(); break;	
   case CFEPglFlush:
-    glFlush(); [self setNeedsDisplay: YES]; break;
+    glFlush(); [self setInitGL: nil]; [self setNeedsDisplay: YES]; break;
   case CFEPglPointSize:
     glPointSize(x); break;
   case CFEPglRectf:
@@ -195,7 +218,7 @@
   case CFEPglib_putpixel:
     glib_putpixel(x,y,p); break;	
   case CFEPglib_flush:
-	[self setNeedsDisplay: YES]; 
+	[self setInitGL: nil]; [self setNeedsDisplay: YES]; 
 	// [[MyOpenGLController getOglWindow: gid] showCount];
 	break;
 
