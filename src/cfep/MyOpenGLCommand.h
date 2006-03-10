@@ -37,10 +37,13 @@
 #define CFEPglClear         6302
 #define CFEPglClearColor    6303
 #define CFEPglClearDepth    6304
-#define CFEPglEnd           6501 
+#define CFEPglDisable       6401
+#define CFEPglEnd           6501
+#define CFEPglEnable        6502 
 #define CFEPglFlush         6601      
-#define CFEPglLineStipple   7201       //
-#define CFEPglLineWidth     7202       //
+#define CFEPglLineStipple   7201
+#define CFEPglLineWidth     7202
+#define CFEPglNormal3f      7401
 #define CFEPglPointSize     7601
 #define CFEPglRectf         7801
 #define CFEPglVertex3f      8201       

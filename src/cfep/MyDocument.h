@@ -120,6 +120,7 @@
 -(void)outputStringInNotebookMode: (NSString *)msg;
 -(void)outputErrorStringInNotebookMode: (NSString *)msg;
 -(void)outputStringInNotebookMode: (NSString *)msg withColor: (NSColor *)color;
+-(void)outputBorderLine: (NSColor *)color;
 
 - (void)messageDialog:(NSString *)msg with:(int) no;
 -(void) printDocument: (id) sender;

@@ -81,11 +81,26 @@
    }else if ([s compare: @"glClearDepth"] == NSOrderedSame) {
 	opCode = CFEPglClearDepth;  fargc = 1; iargc = 0;  endGroup = YES;
 
+   }else if ([s compare: @"glDisable"] == NSOrderedSame) {
+	opCode = CFEPglDisable;  fargc = 0; iargc = 1;  endGroup = YES;
+
+   }else if ([s compare: @"glEnable"] == NSOrderedSame) {
+	opCode = CFEPglEnable;  fargc = 0; iargc = 1;  endGroup = YES;
+
    }else if ([s compare: @"glEnd"] == NSOrderedSame) {
 	opCode = CFEPglEnd;  fargc = 0; iargc = 0;  endGroup = YES;
 
    }else if ([s compare: @"glFlush"] == NSOrderedSame) {
 	opCode = CFEPglFlush;  fargc = 0; iargc = 0;  endGroup = YES;
+
+   }else if ([s compare: @"glLineStipple"] == NSOrderedSame) {
+	opCode = CFEPglLineStipple;  fargc = 0; iargc = 2;  endGroup = YES;
+
+   }else if ([s compare: @"glLineWidth"] == NSOrderedSame) {
+	opCode = CFEPglLineWidth;  fargc = 1; iargc = 0;  endGroup = YES;
+
+   }else if ([s compare: @"glNormal3f"] == NSOrderedSame) {
+	opCode = CFEPglNormal3f;  fargc = 3; iargc = 0;  endGroup = YES;
 
    }else if ([s compare: @"glPointSize"] == NSOrderedSame) {
 	opCode = CFEPglPointSize;    fargc = 1; iargc = 0; endGroup = NO;

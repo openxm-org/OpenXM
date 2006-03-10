@@ -17,6 +17,7 @@
   NSMutableArray *oglInitComm;
   int oglInitCommSize;
   int gid;
+  NSFont *myfont;
 }
 -(id) initWithFrame: (NSRect) frameRect;
 -(void) drawRectSimple: (NSRect) rect withColor: (double)c;

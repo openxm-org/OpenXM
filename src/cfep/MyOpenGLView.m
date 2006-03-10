@@ -21,7 +21,7 @@
   yeye = 0.0;
   zeye = 2.0;
   initGl = 1;
-
+  myfont = [ NSFont systemFontOfSize: 10];
   [super initWithFrame: frame];
   if (self) {
     NSOpenGLPixelFormatAttribute attributes[]={
@@ -202,10 +202,20 @@
     glClearDepth(x); break;
   case CFEPglColor4f:
     glColor4f(x,y,z,c); break;
+  case CFEPglDisable:
+    glDisable(p); break;
+  case CFEPglEnable:
+    glEnable(p); break;
   case CFEPglEnd:
     glEnd(); break;	
   case CFEPglFlush:
     glFlush(); [self setInitGL: nil]; [self setNeedsDisplay: YES]; break;
+  case CFEPglLineStipple:
+    glLineStipple(p,q); break;
+  case CFEPglLineWidth:
+    glLineWidth(x); break;
+  case CFEPglNormal3f:
+    glNormal3f(x,y,z); break;
   case CFEPglPointSize:
     glPointSize(x); break;
   case CFEPglRectf:

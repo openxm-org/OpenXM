@@ -245,8 +245,11 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
   NSLog(@"myDocumentSaidTheMessageAboutX=%d\n",myDocumentSaidTheMessageAboutX);
   if (!myDocumentSaidTheMessageAboutX) {
     if ([MyEnvironment checkX] != 1) 
-	   [self messageDialog: 
-	     NSLocalizedString(@"A few commands (plot, ...) cannot be used, because X11 is not running.",nil) with: 0];
+	  // [self messageDialog: 
+	  //    NSLocalizedString(@"A few commands (plot, ...) cannot be used, because X11 is not running.",nil) with: 0];
+	  [self changeOutputCounterFieldWithString:
+	    [NSLocalizedString(@"Output mini-view: ",nil) stringByAppendingString:  
+		 NSLocalizedString(@"A few commands (plot, ...) cannot be used, because X11 is not running.",nil)]];
 	myDocumentSaidTheMessageAboutX = 1;
   }
 }
@@ -273,6 +276,7 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
     cmd0 = [self getContentsOfInputCell];
 	[self prepareOutputCell];
   }else if (onlySelectedArea) {	
+    [self outputBorderLine: [NSColor yellowColor]];
     r = [textViewIn selectedRange];
 	// NSLog(@"r=(%d,%d)\n",r.location,r.length);
     cmd0 = [textViewIn string]; 
@@ -407,6 +411,11 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
     if (prettyPrint) [mc outputStringToOutputWindow: amt withColor: [NSColor blueColor]];
 	else [mc outputStringToOutputWindow: amt];
   }	
+}
+-(void)outputBorderLine: (NSColor *)color {
+    MyOutputWindowController *mc;
+    mc = [MyOutputWindowController sharedMyOutputWindowController: self];
+    [mc outputStringToOutputWindow: @"----------------------------------------\n" withColor: color];
 }
 - (void) outputErrorString: (NSString *) amt {
   int oldEnd;
@@ -1051,7 +1060,8 @@ int debugInbound = 0;
 -(void)openGLMeta: (NSString *) cmd to: (int) gid{
   MyOpenGLController *oglc;
   oglc = [MyOpenGLController getOglWindow: gid];
-  if (!oglc) {[self outputErrorString: [NSString stringWithFormat: @"Invalid gid %d in openGLMeta\n",gid]]; return; }
+  if (!oglc) {[self printErrorMessage: 
+     [NSString stringWithFormat: @"Invalid gid %d in openGLMeta command %@\n",gid,cmd]]; return; }
   if ([cmd hasPrefix: @"meta_showListOfOglComm"]) {
     [self showListOfOglComm: gid]; return ;
   }else if ([cmd hasPrefix: @"meta_removeAllInit"]) { // longer command must come first, because we use prefix.
@@ -1063,7 +1073,7 @@ int debugInbound = 0;
   }else if ([cmd hasPrefix: @"meta_removeLast"]) {
     [oglc removeLastOfOglComm]; 
   }else{
-    [self outputErrorString: [NSString stringWithFormat: @"Unknown OpenGL meta command %@\n",cmd]];
+    [self printErrorMessage: [NSString stringWithFormat: @"Unknown OpenGL meta command %@\n",cmd]];
   }
 }
 -(void) showListOfOglComm: (int) gid {

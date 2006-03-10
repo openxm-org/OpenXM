@@ -10,6 +10,7 @@ localf t_encode$
 localf t_encode1$
 localf t_encode_str$
 localf glib_send$
+localf glib_send2$
 localf glib_init_send$
 
 localf open_canvas$
@@ -31,6 +32,7 @@ static Glib_canvas;
 static Glib_canvas_x;
 static Glib_canvas_y;
 def initStatic() {
+  ctrl("double_output",1);
   Glib_canvas = 0;  /* gid */
   Glib_canvas_x = 400;
   Glib_canvas_y = 400;
@@ -138,6 +140,16 @@ def glib_init_send(S) {
    output(); ctrl("hex",0);
    print(C); output(); /* channel 2 is for OpenGL init. */
 }  
+def glib_send2(Channel,S) {
+   S=S+"\n";
+   if (Channel==1) Channel="1"; /* regular */
+  else Channel="2";                         /* init */
+   N=length(strtoascii(S))+1;
+   C=t_encode("{"+Channel+"<"+rtostr(N)+" "+S+" >}");
+   ctrl("hex",1); 
+   output(); ctrl("hex",0);
+   print(C); output(); /* channel 2 is for OpenGL init. */
+}  
 
 /*  glib_line(0,0,100,100);  glib_flush();
     cfep.glib_clear();
@@ -188,7 +200,7 @@ def radian(D) {
   return (D/180)*@pi;
 }
 
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.2 2006/03/07 11:25:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.3 2006/03/08 04:58:15 takayama Exp $ */
 
 
 end$
