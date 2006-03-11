@@ -222,6 +222,8 @@
 	glRectf(x,y,z,c); break;
   case CFEPglVertex3f:
     glVertex3f(x,y,z); break;	
+  case CFEPglVertex2f:
+    glVertex2f(x,y); break;	
 
   case CFEPglib_line:
     glib_line(x,y,z,c,p); break;

@@ -34,6 +34,7 @@ install:  cfep-grep
 	cp ../Doc/*.png ${OpenXM_HOME}/doc/cfep
 	cp cfep.init ${OpenXM_HOME}/lib/cfep
 	cp cfep-grep ${OpenXM_HOME}/bin
+	cp ../tests/cfep-opengl.rr ${OpenXM_HOME}/lib/asir-contrib
 	cp `which nkf` ~/OX4/OpenXM/bin
 
 clean:

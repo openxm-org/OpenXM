@@ -43,7 +43,7 @@ cfep $B$N%G%#%9%/%$%a!<%8(B </a> $B$r%@%&%s%m!<%I$7(B, $B$3$l$r3+$$$F(B "
 
 <hr>
 <h3 id="changelog" name="changelog">
-     cfep 1.1 $B$NFCD'(B (2006.03.12.$BM=Dj(B)</h3>
+     cfep 1.1 $B$NFCD'(B (2006.03.12.)</h3>
 <ol>
 <li> $B%X%k%W$N=<<B(B.
 <li> $B=PNO$r(B TeX $B$G%?%$%W%;%C%H$9$k%b!<%I(B, $B%N!<%H%V%C%/Iw%$%s%?%U%'!<%9(B ($B<B83E*(B).
@@ -58,7 +58,13 @@ cfep $B$N%G%#%9%/%$%a!<%8(B </a> $B$r%@%&%s%m!<%I$7(B, $B$3$l$r3+$$$F(B "
 </ol>
 
 <hr>
-<h3 id="intro" name="intro"> $BF~Lg(B </h3> ($B$^$@=q$$$F$J$$(B)
+<h3 id="intro" name="intro"> $BF~Lg(B </h3> 
+  <a href="pdf/next2.pdf"> Cfep/asir $BD6F~Lg(B (pdf/next2.pdf) </a> <br>
+  ($BFbMF(B: $BEEBn$H$7$F$NMxMQ(B. cfep $B$NA`:nJ}K!(B. 
+    $B%(%i!<%a%C%;!<%8(B. $BJQ?t$H%W%m%0%i%`(B. $B%(%s%8%s$N:F5/F0(B.
+   $B%X%k%W$NMxMQ(B. $B%0%i%U%#%C%/(B.  For $BJ8$K$h$k?tNs$N7W;;(B. cfep $B%$%s%?%U%'!<%9>e5iJT(B.
+   $BA*BrHO0O$N$_<B9T(B. OpenGL)
+
 <h3> <a href="http://www.math.kobe-u.ac.jp/~taka/asir-book-html/main/index.html">
      Risa/Asir$B%I%j%k(B2003 </a> $BK\3JE*F~Lg=q(B ($B%M%C%H%o!<%/(B) </h3>
 
@@ -73,7 +79,8 @@ cfep $B$N%G%#%9%/%$%a!<%8(B </a> $B$r%@%&%s%m!<%I$7(B, $B$3$l$r3+$$$F(B "
   <font color="red"> $B8!:w$7$?$$8@MU$r%9%]%C%H%i%$%H$NAk$XF~NO(B </font>. <br>
   $B8!:w$N%R%s%H(B: PDF$BJ8=q$N$_$+$i8!:w$7$?$$>l9g$O(B "$B8!:w8l(B  kind:pdf" $B$HF~NO(B.
   </table>
-<li> cfep $B$NA`:n@bL@(B ($B$^$@=q$$$F$J$$(B)
+<li> cfep $B$NA`:n@bL@(B. <a href="#intro"> $BF~Lg(B </a> $B$*$h$S(B
+    <a href="#QandAadvanced"> $B$h$/$"$k<ALd(B $B>e5iJT(B</a> $B$r;2>H(B.
 <li> <a href="html-ja_JP.utf8/html-jp/man_toc.html">
   Risa/Asir $B%^%K%e%"%k(B </a> 
 <li> <a href="html-ja_JP.utf8/html-exp-ja/exp-ja_toc.html">
@@ -90,6 +97,9 @@ Asir $B%^%K%e%"%k(B, Asir-contrib, $B<B83E*4X?t%^%K%e%"%k$b4^$`$h$j>\$7$$4X?t
 <li> <a href="#q2">  #include $B$d(B #define $B$,$D$+$($^$;$s(B. </a>
 <li> <a href="#q3">  OpenGL$B$N%0%i%U%#%C%/2hLL$r0u:~$G$-$^$;$s(B </a>
 <li> <a href="#q4">  $B%0%i%U%#%C%/$,I=<($5$l$^$;$s(B </a>
+<li> <a href="#q5">  $B%0%i%U%#%C%/$NI=<($,$@$s$@$sCY$/$J$j$^$9(B </a>
+<li> <a href="#q6">  Basic $B$N(B input $BJ8$K$"$?$kL?Na$O$"$j$^$9$+(B? </a>
+<li> <a href="#q7"> Graphic $B2hLL$KJ8;z$r$I$N$h$&$K=q$-$^$9$+(B? </a>
 </ul>
 
 <h4 id="q1" name="q1"> Q. $B%j%C%A%F%-%9%H$GJ]B8$7$?%U%!%$%k(B (rtf, rtfd $B%U%!%$%k(B) $B$,(B Windows $BHG$d(B unix $BHG$N(B
@@ -116,30 +126,68 @@ glib_flush $B$^$?$O(B OpenGL $B$N(B glFlush $B%3%^%s%I$,<B9T$5$l$k$^$G(B,
 OpenGL$B$N(B Window $B$rF0$+$7$?$j$9$k$H(B, $B$3$l$i$N%3%^%s%I$r<B9T$7$?$N$H6a$$>uBV$K$J$k$N$G(B,
 $BI=<($5$l$k$3$H$,$"$j$^$9(B.
 
-<h3> <font color="magenta"> $BNI$/$"$k<ALd(B $B>e5iJT(B </font> </h3>
+<h4 id="q5" name="q5">  $B%0%i%U%#%C%/$NI=<($,$@$s$@$sCY$/$J$j$^$9(B. </h4>
+$B$?$/$5$s$NE@$r$&$C$?$j$9$k$H(B OpenGL $B%$%s%?%W%j%?$N9=B$>e$NFC@-$+$i%a%b%j$rO2Hq$7(B,
+$BF0:nB.EY$NDc2<$r$^$M$-$^$9(B.
+$BITI,MW$J(B OpenGL $B%0%i%U%#%C%/%*%V%8%'%/%H$r>C$7$F$*$/$N$,8zN(E*MxMQ$K$OI,MW$G$9(B.
+glib $B7O$G$O(B glib_remove_last(); $B%3%^%s%I$,0l$DA0$N(B OpenGL $B%0%i%U%#%C%/%*%V%8%'%/%H$r>C$7$^$9(B.
 
-<h4> Q. asir $B0J30$N7W;;%(%s%8%s$O@\B3$G$-$^$9$+(B? </h4>
+<h4 id="q6" name="q6">  Basic $B$N(B input $BJ8$K$"$?$kL?Na$O$"$j$^$9$+(B? </h4>
+$B=`HwCf$G$9(B. 
+$B0J2<$N$h$&$J%W%m%0%i%`$G$"$kDxEY$NBeMQ$K$K$J$k$+$b$7$l$^$;$s$,HK;($G$9$M(B.
+<pre>
+for (I=0; I<5; I++) {
+ print("xterm $B$K?t$rF~NO$7$F$/$@$5$$(B");
+ shell("/usr/X11R6/bin/xterm -exec pico /tmp/abc.txt");
+ F=open_file("/tmp/abc.txt","r");
+ S=get_line(F);
+ V=eval_str(S);
+ print(V,0); print(" $B$rF~NO$7$^$7$?$M(B.");
+ close_file(F);
+ shell("rm -f /tmp/abc.txt");
+}
+</pre>
+      
+
+<h4 id="q7" name="q7"> Graphic $B2hLL$KJ8;z$r$I$N$h$&$K=q$-$^$9$+(B? </h4>
+$B$3$N5!G=$b=`HwCf$G$9(B. $B$H$j$"$($:$O(B line $BL?Na$rAH$_9g$o$;$F=q$/$7$+$J$$$G$9(B.
+
+<h3 id="QandAadvanced" name="QnadAadvanced"> 
+<font color="magenta"> $BNI$/$"$k<ALd(B $B>e5iJT(B </font> </h3>
+
+<ul>
+<li> <a href="#aq1"> asir $B0J30$N7W;;%(%s%8%s$O@\B3$G$-$^$9$+(B? </a>
+<li> <a href="#aq2">  cfep $B$O$I$N$h$&$J8@8l$G=q$+$l$F$$$^$9$+(B? </a>
+<li> <a href="#aq3">  $B%3%^%s%I%i%$%sHG(B asir $B$O4^$^$l$F$$$^$9$+(B? </a>
+<li> <a href="#aq4">  Asir-contrib $B$G%m!<%I$5$l$k%U%!%$%k$rJQ99$7$?$$(B. </a>
+<li> <a href="#aq5"> OpenXM $B%5!<%P$,<B9T$5$l$k;~$N(B PATH $B4D6-JQ?t$NCM$rJQ$($?$$(B.</a>
+<li> <a href="#aq6"> TeX $B$r%$%s%9%H!<%k$7$F$"$k$N$K(B tex $B$G%?%$%W%;%C%H$G$-$^$;$s(B</a>
+<li> <a href="#aq-2006-03-11-debug-window"> debug window $B$rI=<($7$F%(%i!<$,H/@8$7$?;~$NJQ?t$rD4$Y$?$$$N$G$9$,(B.</a>
+<li> <a href="#aq-2006-03-11-a"> glib $B$G(B OpenGL $B$G$J$/(B X11 $B$r;H$$$?$$(B. </a>
+</ul>
+
+<h4 id="aq1" name="aq1"> Q. asir $B0J30$N7W;;%(%s%8%s$O@\B3$G$-$^$9$+(B? </h4>
 OpenXM 100, 103 $B%W%m%H%3%k$r%5%]!<%H$7$F$$$k7W;;%(%s%8%s$J$i@\B32DG=$G$9(B.
 $B7W;;%(%s%8%s$H$O(B ox_texmacs $B$r2p$7$F@\B3$7$F$$$^$9(B.
 $B5/F0%9%/%j%W%H$O%j%=!<%9$K$J$C$F$$$^$9(B.
 1.1 $B0J9_$O(B kan/sm1 $B$N5/F0$b%a%K%e!<$KAH$_9~$^$l$F$$$^$9(B.
 
-<h4> Q. cfep $B$O$I$N$h$&$J8@8l$G=q$+$l$F$$$^$9$+(B? </h4>
+<h4 id="aq2" name="aq2"> Q. cfep $B$O$I$N$h$&$J8@8l$G=q$+$l$F$$$^$9$+(B? </h4>
 Cocoa $B%D!<%k%-%C%H$rMQ$$$F(B objective C $B$G=q$+$l$F$$$^$9(B.
 $B%=!<%9%3!<%I$O(B 
 <a href="http://www.math.kobe-u.ac.jp/cgi/cvsweb.cgi"> 
 OpenXM $B$N(B cvsweb </a> $B$N(B OpenXM/src/cfep $B$r8fMw$/$@$5$$(B.
 
-<h4> Q.  $B%3%^%s%I%i%$%sHG(B asir $B$O4^$^$l$F$$$^$9$+(B? </h4>
+<h4 id="aq3" name="aq3"> Q.  $B%3%^%s%I%i%$%sHG(B asir $B$O4^$^$l$F$$$^$9$+(B? </h4>
 cfep.app/OpenXM/bin $B$K$"$j$^$9(B.
 cfep.app/OpenXM/rc $B$N2<$G(B make $B$rF0$+$7$F(B openxm $B%9%/%j%W%H$r@8@.$7$F$/$@$5$$(B.
 $B4D6-JQ?t$r<+F0@_Dj$7$^$9(B.
 openxm asir $B$G(B OpenXM$BHG$N(B asir $B$,5/F0$7$^$9(B.
 
-<h4> Q.  Asir-contrib $B$G%m!<%I$5$l$k%U%!%$%k$rJQ99$7$?$$(B. </h4>
+<h4 id="aq4" name="aq4"> Q.  Asir-contrib $B$G%m!<%I$5$l$k%U%!%$%k$rJQ99$7$?$$(B. </h4>
 cfep.app/OpenXM/rc/asirrc $B$rJT=8(B.
 
-<h4> Q. OpenXM $B%5!<%P$,<B9T$5$l$k;~$N(B PATH $B4D6-JQ?t$NCM$rJQ$($?$$(B.</h4>
+<h4 id="aq5" name="aq5"> Q. OpenXM $B%5!<%P$,<B9T$5$l$k;~$N(B PATH $B4D6-JQ?t$NCM$rJQ$($?$$(B.</h4>
 $B$A$g$C$HN"5;$G$9$,(B, $B8@8lKh$N%j%=!<%9$G(B PATH $B$NCM$r@_Dj$9$k$3$H$GJQ99$7$^$9(B.
 $BF|K\8l4D6-$J$i(B
 cfep.app/Contents/Resource/Japanese.lproj/Localizable.strings
@@ -147,8 +195,41 @@ cfep.app/Contents/Resource/Japanese.lproj/Localizable.strings
 (Prefererece $B$GJQ$($k$3$H$,$G$-$k$h$&$K$9$kM=Dj(B).
 $B;2>H(B: cfep/MyEnvironment.m,  initFor:
 
-<h4> Q. TeX $B$r%$%s%9%H!<%k$7$F$"$k$N$K(B tex $B$G%?%$%W%;%C%H$G$-$^$;$s(B</h4>
+<h4 id="aq6" name="aq6"> Q. TeX $B$r%$%s%9%H!<%k$7$F$"$k$N$K(B tex $B$G%?%$%W%;%C%H$G$-$^$;$s(B</h4>
 cfep $B$O(B /sw/bin (fink) $B$K(B tex $B$,B8:_$7$F$$$k$H2>Dj$7$F$^$9(B.
+$B>\$7$/$O(B cfep/MyEnvironment.m, initFor: $B$r$_$F$/$@$5$$(B.
+
+<h4 id="aq-2006-03-11-debug-window" name="aq-2006-03-11-debug-window"> 
+ Q.  debug window $B$rI=<($7$F%(%i!<$,H/@8$7$?;~$NJQ?t$rD4$Y$?$$$N$G$9$,(B.</h4>
+<pre>
+debug window $B$rI=<($5$;$k$?$a(B, X11 $B$,F0:n$7$F$$$k$3$H$,BgA0Ds$G$9(B.
+$BNc(B 
+ctrl("debug_window",1);
+import("glib3.rr");
+glib_line("hoge",1,1,1);
+
+list
+print X
+$B$J$I$r(B debug window 
+  <img src="debug_window.png"/> 
+$B$XF~NO$9$k$H(B, $B=PNO>.Ak$K%W%m%0%i%`%j%9%H$dCM$,I=<($5$l$^$9(B.  debug window $B$rI=<($5$;$J$$$h$&$K$9$k$K$O(B,
+
+    ctrl("debug_window",0);
+
+$B$r<B9T$7$^$9(B.  
+$B$J$*$3$l$ON"5;E*5!G=$G$9(B. $B>-MhE*$K$O(B OpenXM $B$N(B error packet $B$K$h$j(B, cfep $B$HM;9g$7$?7A$G=hM}$9$kM=Dj$G$9(B.
+</pre>
+
+<h4 id="aq-2006-03-11-a" name="aq-2006-03-11-a"> glib $B$G(B OpenGL $B$G$J$/(B X11 $B$r;H$$$?$$(B. </h4>
+$BN"5;E*J}K!$G$9$,(B,
+<pre>
+Cfep_loaded = 0;
+</pre>
+$B$H$7$F$*$/$H(B, X11 $B$GIA2h$5$l$^$9(B.
+$BBgNL$NE@$r%W%m%C%H$9$k>l9g(B OpenGL $B%$%s%?%W%j%?$N9=B$>e%a%b%j$rO2Hq$9$k$N$G(B, 
+$B$3$N$h$&$J>l9g$O(B X11 $B$GIA2h$9$k$Y$-$G$7$g$&(B.
+
+
 
 </body>
 </html>

@@ -46,7 +46,8 @@
 #define CFEPglNormal3f      7401
 #define CFEPglPointSize     7601
 #define CFEPglRectf         7801
-#define CFEPglVertex3f      8201       
+#define CFEPglVertex3f      8201
+#define CFEPglVertex2f      8202
 
 @interface MyFloat: NSObject {
   float fValue;

@@ -111,6 +111,9 @@
    }else if ([s compare: @"glVertex3f"] == NSOrderedSame) {
 	opCode = CFEPglVertex3f;    fargc = 3; iargc = 0; endGroup = NO;
 
+   }else if ([s compare: @"glVertex2f"] == NSOrderedSame) {
+	opCode = CFEPglVertex2f;    fargc = 2; iargc = 0; endGroup = NO;
+
    }else if ([s compare: @"glib_line"] == NSOrderedSame) {
 	opCode = CFEPglib_line;    fargc = 4; iargc = 1; endGroup = YES;
 
