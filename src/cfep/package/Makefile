@@ -55,6 +55,7 @@ dist-cfep: gentar install
 	(cd work/OpenXM/lib/asir-contrib ; (cd ${OpenXM_HOME}/src/asir-contrib/packages/src ; tar cf - * )  | tar xvf -)
 	rm -f work/OpenXM/lib/asir-contrib/noro_rewrite.rr
 	(cp ${OpenXM_HOME}/src/asir-contrib/testing/noro/new_rewrite.rr work/OpenXM/lib/asir-contrib/noro_rewrite.rr)
+	(cp ../tests/cfep-opengl.rr work/OpenXM/lib/asir-contrib)
 	rm -f work/OpenXM/bin/ox work/OpenXM/bin/asir
 	(cp ${OpenXM_HOME}/bin/ox work/OpenXM/bin)
 	(cp ${OpenXM_HOME}/bin/asir work/OpenXM/bin)
