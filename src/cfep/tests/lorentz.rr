@@ -1,0 +1,45 @@
+import("glib");
+
+def lorentz() {
+  glib_window(-25,-25,25,25);
+  A=10; B=20; C=2.66;
+  P1=0; P2 = 3; P3 = 0;
+  Dt = 0.004; T = 0;
+  while (T <50) {
+      Q1=P1+Dt*(-A*P1+A*P2);
+      Q2=P2+Dt*(-P1*P3+B*P1-P2);
+      Q3=P3+Dt*(P1*P2-C*P3);
+      glib_putpixel(Q1,Q2); glib_flush();
+      T=T+Dt;
+      P1=Q1; P2=Q2; P3=Q3;
+  }
+}
+
+ /* glib_clear();  glib_flush(); */
+
+/*  こちらは軌跡ではなく, 点が移動する.  wait をいれてなくてもいいのが
+遅い. もうすこし早くできるといいが... */
+def lorentz2() {
+  glib_window(-25,-25,25,25);
+  glib_clear();
+  glib_line(0,0,25,0 | color=0x0000ff);
+  glib_line(0,0,0,25 | color=0x0000ff);
+  glib_set_pixel_size(4.0);
+  A=10; B=20; C=2.66;
+  P1=0; P2 = 3; P3 = 0;
+  Dt = 0.004; T = 0;
+  glib_flush(); glib_flush(); /* two dummy */
+  while (T <50) {
+     glib_remove_last(); glib_remove_last();
+      Q1=P1+Dt*(-A*P1+A*P2);
+      Q2=P2+Dt*(-P1*P3+B*P1-P2);
+      Q3=P3+Dt*(P1*P2-C*P3);
+      glib_putpixel(Q1,Q2 | color=0xff0000); glib_flush();
+      T=T+Dt;
+      P1=Q1; P2=Q2; P3=Q3;
+  }
+}
+
+end$
+
+

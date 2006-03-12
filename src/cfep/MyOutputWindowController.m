@@ -87,7 +87,7 @@
 
 -(void)insertText: (id) text {
   NSRange myRange = NSMakeRange([[textViewOut textStorage] length],0);
-  [textViewOut replaceCharactersInRange: myRange withString: @""];  // goto the end of output window.
+  [textViewOut setSelectedRange: myRange]; // goto the end of output window.
   [textViewOut insertText: text];
   [textViewOut scrollRangeToVisible: NSMakeRange([[textViewOut textStorage] length],0)];
 }

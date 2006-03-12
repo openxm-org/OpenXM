@@ -1,0 +1,243 @@
+extern GL_COLOR_BUFFER_BIT$
+extern GL_DEPTH_BUFFER_BIT$
+extern GL_LINES $
+extern GL_LINE_STIPPLE $
+extern GL_LINE_STIPPLE_PATTERN$
+extern GL_LINE_STIPPLE_REPEAT $
+extern GL_LINE_WIDTH $
+extern GL_LINE  $ 
+extern GL_POINTS $
+extern GL_POINT_SIZE $
+extern GL_POLYGON $
+extern GL_TRIANGLES $
+
+GL_COLOR_BUFFER_BIT= 0x00004000$
+GL_DEPTH_BUFFER_BIT= 0x00000100$
+GL_LINES                             = 0x0001$
+GL_LINE_STIPPLE             = 0x0B24$
+GL_LINE_STIPPLE_PATTERN= 0x0B25$
+GL_LINE_STIPPLE_REPEAT  =  0x0B26$
+GL_LINE_WIDTH                       =   0x0B21$
+GL_LINE                                      = 0x1B01$
+GL_POINTS                                = 0x0000$
+GL_POINT_SIZE                        = 0x0B11$
+GL_POLYGON                           = 0x0009 $
+GL_TRIANGLES=3$
+
+
+
+module opengl;
+localf initStatic$
+
+localf setCanvas$
+localf init$
+localf redraw$
+localf metaRemoveAll$
+localf metaShowListOfOpenGLCommands$
+
+localf glBegin$
+localf glClear$
+localf glClearColor$
+localf glColor4f$
+localf glEnable$
+localf glEnd$
+localf glFlush$
+localf glLineStipple$
+localf glLineWidth $
+localf glNormal3f $
+localf glRectf$
+localf glVertex3f$
+localf glVertex2f$
+
+localf glib3DefaultScene$
+
+localf test2$
+
+static Canvas$
+static Channel$
+def initStatic() {
+  ctrl("double_output",1);
+  Canvas="0;";
+  Channel=0;
+}
+initStatic()$
+
+def setCanvas(N) {
+  if ((N>=0) && (type(N) <= 1)) Canvas=rtostr(N)+";";
+}
+def init() {
+  Channel = 0;
+}
+def redraw() {
+  opengl.glFlush();
+  Channel=1;
+}
+def metaShowListOfOpenGLCommands() { 
+  cfep.glib_send2(Channel,Canvas+"meta_showListOfOglComm");
+}
+def metaRemoveAll() { 
+  cfep.glib_send2(Channel,Canvas+"meta_removeAllInit");
+  cfep.glib_send2(Channel,Canvas+"meta_removeAll");
+}
+
+/*
+    opengl.glib3DefaultScene("mesa demo/ray");
+    opengl.glib3DefaultScene("cfep demo/icosahedron");
+
+      opengl.metaRemoveAll();
+      opengl.init();      
+      opengl.glib3DefaultScene(0);
+      opengl.redraw(); 
+      opengl.glColor4f(0.0,0.0,1.0,0.3);  
+      opengl.glBegin(GL_POLYGON); Y=0.1;
+      opengl.glVertex3f(-1.0, Y, 0.5);
+      opengl.glVertex3f(-1.0, Y, -0.5);
+      opengl.glVertex3f(1.0, Y, -0.5);
+      opengl.glVertex3f(1.0, Y, 0.5);
+      opengl.glEnd();
+
+      opengl.glColor4f(1.0,0.0,0.0,0.5); 
+      opengl.glBegin(GL_POLYGON);
+      opengl.glVertex3f(0.0, 0.5, 0.0);
+      opengl.glVertex3f(0.0, 0.5, -0.4);
+      opengl.glVertex3f(0.5, -0.2, -0.4);
+      opengl.glVertex3f(0.5, -0.2, 0.0);
+      opengl.glEnd();
+      opengl.glFlush() ; 
+      opengl.metaShowListOfOpenGLCommands();
+
+*/
+def glib3DefaultScene(Type) {
+  if (type(Type) == 7) {
+    if (Type=="mesa demo/ray") {
+        init(); 
+        cfep.glib_send2(Channel,Canvas+"[glib3_ray_init]");
+        redraw();
+        cfep.glib_send2(Channel,Canvas+"[glib3_ray]");
+        glFlush();
+        return;
+    }else if (Type =="cfep demo/icosahedron") {
+        init(); 
+        cfep.glib_send2(Channel,Canvas+"[glib3_std_scene0]");
+        redraw();
+        cfep.glib_send2(Channel,Canvas+"[glib3_icosahedron]");
+        glFlush();
+        return;
+    }else{ Type = 0; }
+  }
+  if (Type == 0) {
+    cfep.glib_send2(Channel,Canvas+"[glib3_std_scene0]");
+    return;
+  }
+   cfep.glib_send2(Channel,Canvas+"[glib3_std_scene0]");
+}
+
+def glBegin(M) {
+  cfep.glib_send2(Channel,Canvas+"[glBegin,(int)"+rtostr(eval(M))+"]");
+}
+
+def glClear(M) {
+  cfep.glib_send2(Channel,Canvas+"[glClear,(int)"+rtostr(eval(M))+"]");
+}
+def glClearColor(R,G,B,A) {
+  cfep.glib_send2(Channel,Canvas+"[glClearColor,"+
+    rtostr(deval(R))+","+
+    rtostr(deval(G))+","+
+    rtostr(deval(B))+","+
+    rtostr(deval(A))+"]");
+}
+def glColor4f(R,G,B,A) { 
+  cfep.glib_send2(Channel,Canvas+"[glColor4f,"+
+    rtostr(deval(R))+","+
+    rtostr(deval(G))+","+
+    rtostr(deval(B))+","+
+    rtostr(deval(A))+"]");
+}  /* 
+      opengl.metaRemoveAll();
+      opengl.init();      
+      opengl.glClearColor(1.0,1.0,1.0,1.0); 
+      opengl.glClear(GL_COLOR_BUFFER_BIT);
+      opengl.redraw(); 
+      opengl.glColor4f(1.0,0.0,0.0,0.3);  
+      opengl.glRectf(-0.2,-0.2,0.2,0.2);   
+      opengl.glFlush() ; 
+      opengl.metaShowListOfOpenGLCommands();
+*/
+def glEnable(M) {
+  cfep.glib_send2(Channel,Canvas+"[glEnable,(int)"+rtostr(eval(M))+"]");
+}
+
+def glEnd() {
+  cfep.glib_send2(Channel,Canvas+"[glEnd]");
+}
+
+def glFlush() {
+  cfep.glib_send2(Channel,Canvas+"[glFlush]");
+}
+
+def glLineStipple(R,P) { 
+  cfep.glib_send2(Channel,Canvas+"[glLineStipple,(int)"+
+    rtostr(eval(R))+",(int)"+
+    rtostr(eval(P))+"]");
+}  
+
+def glLineWidth(W) { 
+  cfep.glib_send2(Channel,Canvas+"[glLineWidth,"+
+    rtostr(deval(W))+"]");
+}  /* 
+      opengl.metaRemoveAll();
+      opengl.init();      
+      opengl.redraw(); 
+      opengl.glColor4f(1.0,0.0,1.0,0.3);  
+      opengl.glLineWidth(1.0);
+      opengl.glEnable(GL_LINE_STIPPLE);
+      opengl.glLineStipple(1,0xaaaa);
+      opengl.glBegin(GL_LINES);
+      opengl.glVertex2f(0.0, 0.0);
+      opengl.glVertex2f(1.0, 0.0);
+      opengl.glVertex2f(0.0, 1.0);
+      opengl.glVertex2f(-0.2, 0.5);
+      opengl.glEnd();
+      opengl.glFlush() ; 
+      opengl.metaShowListOfOpenGLCommands();
+*/
+def glNormal3f(X,Y,Z) {  /* left bottom, right top */
+  cfep.glib_send2(Channel,Canvas+"[glNormal3f,"+
+    rtostr(deval(X))+","+
+    rtostr(deval(Y))+","+
+    rtostr(deval(Z))+"]");
+}  
+
+
+def glRectf(Xlb,Ylb,Xrt,Yrt) {  /* left bottom, right top */
+  cfep.glib_send2(Channel,Canvas+"[glRectf,"+
+    rtostr(deval(Xlb))+","+
+    rtostr(deval(Ylb))+","+
+    rtostr(deval(Xrt))+","+
+    rtostr(deval(Yrt))+"]");
+}  
+
+def glVertex3f(X,Y,Z) { 
+  cfep.glib_send2(Channel,Canvas+"[glVertex3f,"+
+    rtostr(deval(X))+","+
+    rtostr(deval(Y))+","+
+    rtostr(deval(Z))+"]");
+}  
+def glVertex2f(X,Y) { 
+  cfep.glib_send2(Channel,Canvas+"[glVertex2f,"+
+    rtostr(deval(X))+","+
+    rtostr(deval(Y))+"]");
+}  
+
+def test2() {
+  cfep.glib_init_send("0;[glib3_ray_init]");
+  cfep.glib_init_send("0;[glib_flush]");
+  cfep.glib_send("0;[glib3_ray]");
+  cfep.glib_send("0;[glib_flush]");
+}
+
+endmodule;
+/* opengl.test2(); */
+/* 最終的には asir-contrib へ移動 */
+/* $OpenXM$ */
+end$

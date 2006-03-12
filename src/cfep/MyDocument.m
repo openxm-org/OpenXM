@@ -276,7 +276,6 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
     cmd0 = [self getContentsOfInputCell];
 	[self prepareOutputCell];
   }else if (onlySelectedArea) {	
-    [self outputBorderLine: [NSColor yellowColor]];
     r = [textViewIn selectedRange];
 	// NSLog(@"r=(%d,%d)\n",r.location,r.length);
     cmd0 = [textViewIn string]; 
@@ -293,7 +292,13 @@ static NSMenuItem *menuItemPrettyPrint = nil;  // prettyPrint.
           [textViewIn replaceCharactersInRange: NSMakeRange(pos,0) withString: @"\n"];
 		}
 		cmd0 = [cmd0 substringWithRange:r ]; 
-	}	
+	}
+	[self outputBorderLine: [NSColor magentaColor]];
+	[self outputString: cmd0];
+	if ([cmd0 length] > 0) {
+      if ([cmd0 characterAtIndex: ([cmd0 length]-1)] != 0xa) [self outputString: @"\n"];
+    }	  
+    [self outputBorderLine: [NSColor yellowColor]];
   }else{
     cmd0 = [textViewIn string];
     MyOutputWindowController *mc;

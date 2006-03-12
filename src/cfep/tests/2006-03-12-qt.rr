@@ -1,0 +1,83 @@
+ctrl("print_quote",2);
+A=quote((x-1)^2+(x-1)+3);
+eval_quote(A);
+print_input_form(A);
+
+ctrl("print_quote",2);
+A=quote((x-y)*(x+y));
+nqt_match(A,quote(P*Q));
+[P,Q];
+
+nqt_match(A,quote(P*Q),1);
+qt_normalize(A,1);
+qt_normalize(A,2);
+
+nqt_match_rewrite(`x*y*z,[`X*Y,`X+Y],1);
+A=`x*x;
+nqt_match_rewrite(A,[`X*Y,`X+Y],2);
+quotetolist(qt_normalize(`x*x,0));
+quotetolist(qt_normalize(`x*x,1));
+quotetolist(qt_normalize(`x*x,2));
+
+ctrl("print_quote",2);
+A=quote((x-y)*(x+y));
+B=qt_normalize(A,0);
+quotetolist(B);
+B=qt_normalize(A,1);
+quotetolist(B);
+qt_normalize(A,2);
+quotetolist(B);
+
+qt_normalize(`x^2,2);
+
+qt_set_coef([a,b]);
+B=qt_normalize(quote((a*x+1/a)^2),2);
+qt_normalize(B+B,2);
+
+qt_normalize(quote(x+y),2);
+qt_set_ord([y,x]);
+qt_normalize(quote(x+y),2);
+
+qt_set_weight([[x,-1],[y,-1]]);
+qt_normalize(quote( 1+(x+y)+(x+y)^2),1);
+[nqt_comp(`x,`y), nqt_comp(`y,`x), nqt_comp(`x,`x)];
+
+[qt_is_var(quote(x)), qt_is_var(quote(3/2))];
+
+import("noro_rewrite.rr");
+R=[[`X*Y,`nqt_comp(Y*X,X*Y)>0, `Y*X]];
+qt_rewrite(`(x-y)^2,R,2);
+
+import("noro_rewrite.rr");
+Rext0=[quote(X*Y),quote(qt_is_var(X) && qt_is_var(Y) && nqt_comp(Y,X)>0),
+                  quote(-Y*X)];
+Rext1=[quote(X^N),quote(eval_quote(N)>=2),quote(0)];
+Rext2=[quote(X*X),quote(0)];
+Rext=[Rext0,Rext1,Rext2];
+qt_rewrite(quote( (x+2*y)*(x+4*y) ), Rext,1);
+
+qt_set_coef([a,b,c,d]);
+qt_rewrite(quote((a*x+b*y)*(c*x+d*y)), Rext,1);
+
+/* 微分 */
+import("noro_rewrite.rr");
+qt_set_coef([a,b]);
+Rd1=[`d(X+Y), `d(X)+d(Y)];
+Rd2=[`d(X*Y),`d(X)*Y+X*d(Y)];
+Rd3=[`d(N), `qt_is_coef(N), `0];
+Rd4=[`d(x),`1];
+Rd=[Rd1,Rd2,Rd3,Rd4];
+B=qt_rewrite( `d( (a*x+b)^3),Rd,2);
+
+fctr(eval_quote(B));
+
+ctrl("print_quote",2);
+A=quote((x-1)^2+(x-1)+3);
+eval_quote(A);
+print_input_form(A);    
+
+qt_normalize(`(x+y)^2);
+
+
+
+
