@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.21 2005/07/25 12:23:05 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.22 2005/07/26 05:31:52 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2005 年 5 月
+@subtitle 2006 年 3 月
 
 @author  by Risa/Asir committers
 @page
@@ -129,6 +129,18 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * set_secure_mode::
 * set_secure_flag::
 * initialize_static_variable::
+* eval_quote::
+* nqt_match::
+* nqt_match_rewrite::
+* qt_normalize::
+* qt_set_coef::
+* qt_set_ord::
+* qt_set_weight::
+* nqt_comp::
+* qt_is_var::
+* qt_is_ceof::
+* qt_rewrite:: 
+
 @end menu
 
 @comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
@@ -1536,7 +1548,642 @@ ChangeLog
 @item ox_asir に計算を依頼する時は if (1) @{ ... @}で囲む.
 @end itemize
 
+@node eval_quote,,, 実験的仕様の関数
+@subsection @code{eval_quote}
+@findex eval_quote
 
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item eval_quote(@var{Q});
+:: quote 型データ @var{Q} を asir のオブジェクトに変換する.
+@end table
+
+@table @var
+@item return
+オブジェクト
+@item Q
+quote型
+@end table
+
+@itemize @bullet
+@item quote 型データ @var{Q} を asir のオブジェクトに変換する.
+@item 逆関数は @code{objtoquote}
+@end itemize
+
+@example
+ctrl("print_quote",2);
+A=quote((x-1)^2+(x-1)+3);
+     出力: ((((x)-(1))^(2))+((x)-(1)))+(3)
+eval_quote(A);
+     出力: x^2-x+3
+print_input_form(A);     /* asir-contrib */
+     出力: quote((x-1)^2+(x-1)+3)
+@end example
+
+@table @t
+@item 参照
+@ref{objtoquote}, @ref{quotetolist}, @ref{eval_string},
+@ref{quote_to_funargs}, @ref{funargs_to_quote}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item  -----まだ書いてない.
+@end itemize
+
+
+@node nqt_match,,, 実験的仕様の関数
+@subsection @code{nqt_match}
+@findex nqt_match
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item nqt_match(@var{Expr},@var{Pattern}[,@var{Mode}])
+:: @var{Expr} が @var{Pattern} にマッチ(適合)すると 1 を戻す. しないと 0 を戻す. 
+@end table
+
+@table @var
+@item return
+整数
+@item Expr
+quote型
+@item Pattern
+quote型
+@item Mode
+整数
+@end table
+
+@itemize @bullet
+@item  @var{Expr} が @var{Pattern} にマッチ(適合)すると 1 を戻す. しないと 0 を戻す. 
+@item 適合した場合, 副作用として, @var{Pattern} に含まれるプログラム変数(大文字ではじまる変数)に適合した値が代入される.
+@item nqt は normalized quote の略であり fnode標準形に変換してから適合検査をする.  fnode標準形については @ref{qt_normalize} を見よ.
+@item @var{Mode} により展開方法を指定し, その展開方法により得られた @var{Expr} の 
+fnode標準形と @var{Pattern} を比較する.
+@end itemize
+
+@example
+ctrl("print_quote",2);
+A=quote((x-y)*(x+y));
+nqt_match(A,quote(P*Q));
+[P,Q]
+    出力:  [x-y, x+y]
+nqt_match(A,quote(P*Q),1);
+    マッチしない.
+nqt_match(A,quote(P*Q),2);
+    マッチしない.
+qt_normalize(A,1);
+    出力:  ((x)^(2))+((x)*(y))+((-1)*((y)^(2)))+((-1)*(y)*(x))
+qt_normalize(A,2);
+    出力:  ((x)*(x))+((x)*(y))+((-1)*(y)*(x))+((-1)*(y)*(y))
+@end example
+
+@table @t
+@item 参照
+@ref{nqt_match_rewrite}, 
+@ref{qt_rewrite} 
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item  ----- まだ書いてない.
+@end itemize
+
+
+@node nqt_match_rewrite,,, 実験的仕様の関数
+@subsection @code{nqt_match_rewrite}
+@findex nqt_match_rewrite
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item nqt_match_rewrite(@var{Expr},@var{Rule},@var{Mode})
+:: @var{Expr} を @var{Rule} に従い書き換える.
+@end table
+
+@table @var
+@item return
+quote型
+@item Expr
+quote型
+@item Rule
+[@var{Pattern},@var{Action}] かまたは
+[@var{Pattern},@var{Condition},@var{Action}].
+これらの要素はすべて quote型.
+@item Mode
+整数
+@end table
+
+@itemize @bullet
+@item @var{Expr} を @var{Rule} に従い書き換える. @var{Pattern} に適合しない場合は
+@var{Exprt} 自体を戻す.
+@item nqt は normalized quote の略であり fnode標準形に変換してから適合検査をする.  fnode標準形については @ref{qt_normalize} を見よ.
+@end itemize
+
+@comment %%Doc: cfep/tests/2006-03-12-qt.rr
+@example
+ctrl("print_quote",2);
+nqt_match_rewrite(`x*y*z,[`X*Y,`X+Y],1);
+   出力: (x)+((y)*(z))
+A=`x*x;
+nqt_match_rewrite(A,[`X*Y,`X+Y],1);
+   出力: x^2   (マッチしていない)
+nqt_match_rewrite(A,[`X*Y,`X+Y],2);
+   出力: 2*x
+
+適合についてのモードの違いを理解するために次の例および fnode標準形(qt_normalize) を参照.
+quotetolist(qt_normalize(`x*x,0));
+    出力:  [b_op,^,[internal,x],[internal,2]]
+quotetolist(qt_normalize(`x*x,1));
+    出力:  [b_op,^,[internal,x],[internal,2]]
+quotetolist(qt_normalize(`x*x,2));
+    出力:  [n_op,*,[internal,x],[internal,x]]
+@end example
+
+@table @t
+@item 参照
+@ref{nqt_match},
+@ref{qt_rewrite},
+@ref{qt_normalize}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item   -----まだ書いてない.
+@end itemize
+
+
+
+@node qt_normalize,,, 実験的仕様の関数
+@subsection @code{qt_normalize}
+@findex qt_normalize
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item qt_normalize(@var{Expr}[,@var{Mode}])
+:: @var{Expr} を fnode標準形に変換する. @var{Mode}により標準形への展開アルゴリズムを指定できる.
+@end table
+
+@table @var
+@item return
+quote型
+@item Expr
+quote型
+@item Mode
+整数
+@end table
+
+fnodeは quote型の実体である.
+fnode は木であり, 型 id および子供からなる.
+型および子供を取り出す関数が funargs_to_quote である.
+また fnode をリストに変換する関数が quotetolist である.
+
+fnode の標準形はパターンマッチング, 書き換えを容易におこなうために導入された.
+fnode の標準形を fn と書くとき, 標準形の BNF風表現での定義は以下のとおり.
+@example
+ fn           = formula | functor(nf [,...]) | sum_of_monom
+     fnode の標準形.  functor は関数よびだしみたいなもの.
+ sum_of_monom = monom [+ ...]
+     モノミアルの和
+ monom        = [formula *] nfpow [* ...]
+     モノミアル
+ nfpow        = nf | nf^(nf)
+     冪乗部分の標準形
+ formula      = Risa object
+@end example
+
+
+@itemize @bullet
+@item  @var{Expr} を fnode標準形に変換する. @var{Mode}により標準形への展開アルゴリズムを指定できる.
+@item 展開は再帰的である.
+@item 入力が fnode に変換された初期状態では + や * は子供が2人の binary operator
+(b_op) であるが, qt_normalize を作用させることにより, + や * は任意人数の
+子供を持てる n-ary operator に変換される.
+@item n-ary operator を基礎とした fnode標準形を用いることにより, パターンマッチ用のパターンの数を減らせることが経験的にわかっている.
+@item @var{Mode}=0. 展開しない. これが既定の動作.
+@item @var{Mode}=1. 展開する. ただし x*x 等を x^2 等に変換
+@item @var{Mode}=2. 展開する. ただし x*x 等を x^2 等に変換しない.
+@end itemize
+
+@var{Mode} の違いについては以下の例も参考に.
+@comment %%cfep/tests/2006-03-12-qt.rr
+@example
+ctrl("print_quote",2);
+A=quote((x-y)*(x+y));
+   出力:  ((x)-(y))*((x)+(y))
+B=qt_normalize(A,0);
+   出力: ((x)+((-1)*(y)))*((x)+(y))  Mode=0. 展開はされない. +, * は n_op (nary-op) へ.
+quotetolist(B);
+   出力: [n_op,*,[n_op,+,[internal,x],[n_op,*,[internal,-1],[internal,y]]],[n_op,+,[internal,x],[internal,y]]]
+
+B=qt_normalize(A,1);
+   出力: ((x)^(2))+((x)*(y))+((-1)*((y)^(2)))+((-1)*(y)*(x))
+           Mode=1. 展開する. +, * は n_op (nary-op) へ. 巾をまとめる. 
+quotetolist(B);
+   出力: [n_op,+,[b_op,^,[internal,x],[internal,2]],[n_op,*,[internal,x],[internal,y]],[n_op,*,[internal,-1],[b_op,^,[internal,y],[internal,2]]],[n_op,*,[internal,-1],[internal,y],[internal,x]]]
+
+qt_normalize(A,2);
+   出力: ((x)*(x))+((x)*(y))+((-1)*(y)*(x))+((-1)*(y)*(y))
+           Mode=2. 展開する. +, * は n_op (nary-op) へ. 巾は使わない.
+quotetolist(B);
+   出力: [n_op,+,[b_op,^,[internal,x],[internal,2]],[n_op,*,[internal,x],[internal,y]],[n_op,*,[internal,-1],[b_op,^,[internal,y],[internal,2]]],[n_op,*,[internal,-1],[internal,y],[internal,x]]]
+
+qt_normalize(`x^2,2);
+   出力: (x)*(x)
+       Mode=2. 巾は使わない. n-ary の * へ.
+@end example
+
+@table @t
+@item 参照
+@ref{nqt_match},
+@ref{nqt_match_rewrite},
+@ref{quotetolist},
+@ref{quote_to_funargs}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+@end itemize
+
+
+@node qt_set_coef,,, 実験的仕様の関数
+@subsection @code{qt_set_coef}
+@findex qt_set_coef
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item qt_set_coef(@var{ParamList})
+:: 以下 @var{ParamList} に現れる多項式変数を変数とする有理関数体を係数とする
+非可換多項式を扱う.
+@end table
+
+@table @var
+@item return
+リスト
+@item  ParamList
+リスト
+@end table
+
+@itemize @bullet
+@item 以下 @var{ParamList} に現れる多項式変数を変数とする有理関数体を係数とする
+非可換多項式を扱う.
+@item この宣言をしないと係数体を数とする非可換多項式として計算する.
+@item qt_normalize およびその機能を用いる関数がこの機能の影響を受ける.
+@item qt_comp 関数がこの機能の影響を受ける.
+@end itemize
+
+@example
+ctrl("print_quote",2);
+qt_set_coef([a]);
+B=qt_normalize(quote((a*x+a)^2),2);
+     出力: ((a^2)*(x)*(x))+((2*a^2)*(x))+(a^2)
+qt_normalize(B+B,2);
+     出力: ((2*a^2)*(x)*(x))+((4*a^2)*(x))+(2*a^2)
+@end example
+
+@table @t
+@item 参照
+@ref{qt_normalize}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item -----まだ書いてない.
+@end itemize
+
+
+@node qt_set_ord,,, 実験的仕様の関数
+@subsection @code{qt_set_ord}
+@findex qt_set_ord
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item qt_set_ord(@var{VarList})
+:: @var{VarList} を変数順序とする.
+@end table
+
+@table @var
+@item return
+リスト
+@item VarList
+リスト
+@end table
+
+@itemize @bullet
+@item @var{VarList} を辞書式に用いた変数順序を以下使用する.
+@item この宣言をしないとある不定元についての既定の辞書式順序-----まだ書いてない---を用いて項を比較する.
+@var{VarList} に現れない変数についてはこの順序が適用される.
+@item qt_normalize およびその機能を用いる関数がこの機能の影響を受ける.
+@item qt_comp 関数がこの機能の影響を受ける.
+@end itemize
+
+@example
+ctrl("print_quote",2);
+qt_normalize(quote(x+y),2);
+     出力: (x)+(y)
+qt_set_ord([y,x]);
+     出力: [y,x,z,u,v,w,p,q,r,s,t,a,b,c,d,e,f,g, 以下省略 ]
+qt_normalize(quote(x+y),2);
+     出力: (y)+(x)
+@end example
+
+@table @t
+@item 参照
+@ref{qt_normalize},
+@ref{nqt_comp}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item -----まだ書いてない.
+@end itemize
+
+
+@node qt_set_weight,,, 実験的仕様の関数
+@subsection @code{qt_set_weight}
+@findex qt_set_weight
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item qt_set_weight(@var{WeightVector})
+:: 変数について weight ベクトルを設定する.
+@end table
+
+@table @var
+@item return
+リスト
+@item WeightVector
+リスト
+@end table
+
+fnode f の weight w(f) は次の式で計算する.
+@example
+ f が葉の場合は原則 0. qt_weight_vector で weight が与えられている不定元に
+ ついてはその値.
+
+ f がnodeの場合は次の規則で再帰的にきめる.
+   w(f+g) = max(w(f),w(g))
+   w(f g) = w(f) + w(g)
+   w(f^n) = n w(f)
+   関数については? -----まだ書いてない.
+@end example
+
+@itemize @bullet 
+@item @var{WeightVector} でまず順序の比較をして, それから qt_set_order による順序, 最後に既定の順序で比較する.
+@var{WeightVector} に現れない変数についての weight は 0 となる.
+@item qt_normalize およびその機能を用いる関数がこの機能の影響を受ける.
+qt_normalize での展開では, この順序を用いて項がソートされる.
+@item qt_comp およびその機能を用いる関数がこの機能の影響を受ける.
+@item weight ベクトルによる順序比較についてはグレブナ基底の節@ref{dp_gr_main}も参照.
+@end itemize
+
+@example
+ctrl("print_quote",2);
+qt_set_weight([[x,-1],[y,-1]]);
+     結果: [[x,-1],[y,-1]]
+qt_normalize(quote( 1+(x+y)+(x+y)^2),1);
+     結果: (1)+(y)+(x)+((y)^(2))+((y)*(x))+((x)^(2))+((x)*(y))
+@end example
+
+@table @t
+@item 参照
+@ref{qt_normalize},
+@ref{qt_set_ord},
+@ref{qt_set_weight},
+@ref{dp_gr_main}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+@end itemize
+
+
+@node nqt_comp,,, 実験的仕様の関数
+@subsection @code{nqt_comp}
+@findex nqt_comp
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item nqt_cmp(@var{Expr1},@var{Exprt2})
+:: @var{Expr1} と @var{Expr2} の順序を比較する.
+@end table
+
+@table @var
+@item return
+整数
+@item Expr1, Expr2
+quote型
+@end table
+
+@itemize @bullet
+@item @var{Expr1} と @var{Expr2} の順序を比較する.
+@item @var{Expr1} > @var{Exprt2} なら 1.
+@item @var{Expr1} < @var{Exprt2} なら -1.
+@item @var{Expr1} = @var{Exprt2} (おなじ順序) なら 0.
+@end itemize
+
+@example
+ctrl("print_quote",2);
+qt_set_ord([y,x]); qt_set_weight([[x,-1],[y,-1]]);
+[nqt_comp(`x,`y), nqt_comp(`y,`x), nqt_comp(`x,`x)];
+     出力: [-1,1,0]
+@end example
+
+@table @t
+@item 参照
+@ref{qt_normalize},
+@ref{qt_set_ord},
+@ref{qt_set_weight}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item まだ書いてない.
+@end itemize
+@comment ****************************************************************
+
+@node qt_is_var,,, 実験的仕様の関数
+@subsection @code{qt_is_var}, @code{qt_is_coef}
+@findex qt_is_var
+@findex qt_is_coef
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item qt_is_var(@var{Expr})
+:: @var{Expr} が不定元に対応する quote なら 1 を戻す.
+@item qt_is_coef(@var{Expr})
+:: @var{Expr} が係数の有理関数体に属するとき 1 を戻す.
+@end table
+
+@table @var
+@item return
+整数
+@item Expr
+quote型
+@end table
+
+@itemize @bullet
+@item  @var{Expr} が不定元に対応する quote なら 1 を戻す. 
+そうでないとき 0 を戻す.
+@end itemize
+
+@example
+[qt_is_var(quote(x)), qt_is_var(quote(3/2))];
+     出力: [1,0]
+@end example
+
+@table @t
+@item 参照
+@ref{qt_rewrite},
+@ref{nqt_match_rewrite}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item -----まだ書いてない.
+@end itemize
+@comment ****************************************************************
+
+@node qt_rewrite,,, 実験的仕様の関数
+@subsection @code{qt_rewrite}
+@findex qt_rewrite
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item qt_rewrite(@var{Expr},@var{Rules},@var{Mode})
+:: @var{Expr} を規則集合 @var{Rules} を用いて書き換える.
+@end table
+
+@table @var
+@item return
+quote型
+@item Expr
+quote型
+@item Rules
+リスト
+@item Mode
+整数
+@end table
+
+@itemize @bullet
+@item ユーザ言語を用いて定義された関数.
+@code{import("noro_rewrite.rr")}  しておくこと.
+(noro_rewrite.rr が OpenXM/lib/asir-contrib に存在しない場合
+ソースの OpenXM/src/asir-contrib/testing/noro/new_rewrite.rr をコピー)
+@item @var{Expr} を規則集合 @var{Rules} を用いて書き換える.
+@item 規則の適用は fnode木に対して再帰的である.
+ 一方 @code{nqt_match_rewrite} ではトップレベルのみに規則が適用される.
+@item 規則集合 @var{Rules} の各要素の書き方は @code{nqt_match()} の 
+@var{Pattern} と同じ書き方.
+つまり [パターン, 書き換え結果] または
+[パターン, 条件, 書き換え結果].
+@item @var{Mode} の意味は @ref{qt_normalize} の @var{Mode} と同様.
+パターンマッチ, 書き換えは @var{Mode} で @code{qt_normalize()} 
+されてから遂行される.
+@end itemize
+
+注意: 数学的には X*Y=Y*X が可換性を与える規則だが, これをそのまま規則として
+           与えると書き換えが停止しない. 次の例では, 上の例のように順序比較し, たとえば,
+           順序が大きくなる場合のみに書き換えるべきである.
+@example
+import("noro_rewrite.rr");
+R=[[`X*Y,`nqt_comp(Y*X,X*Y)>0, `Y*X]];
+qt_rewrite(`(x-y)^2,R,2);
+     出力: quote(x*x+-2*x*y+y*y)
+@end example
+
+外積代数の計算 (asir-contrib をロードした状態).
+@example
+import("noro_rewrite.rr");
+Rext0=[quote(X*Y),quote(qt_is_var(X) && qt_is_var(Y) && nqt_comp(Y,X)>0),
+                  quote(-Y*X)];
+Rext1=[quote(X^N),quote(eval_quote(N)>=2),quote(0)];
+Rext2=[quote(X*X),quote(0)];
+Rext=[Rext0,Rext1,Rext2];
+qt_rewrite(quote( (x+2*y)*(x+4*y) ), Rext,1);
+     出力: 2*x*y
+
+qt_set_coef([a,b,c,d]);
+qt_rewrite(quote((a*x+b*y)*(c*x+d*y)), Rext,1);
+     出力: (d*a-c*b)*x*y
+
+@end example
+
+微分の計算 (asir-contrib をロードした状態).
+@example
+import("noro_rewrite.rr");
+qt_set_coef([a,b]);
+Rd1=[`d(X+Y), `d(X)+d(Y)];
+Rd2=[`d(X*Y),`d(X)*Y+X*d(Y)];
+Rd3=[`d(N), `qt_is_coef(N), `0];
+Rd4=[`d(x),`1];
+Rd=[Rd1,Rd2,Rd3,Rd4];
+B=qt_rewrite( `d( (a*x+b)^3),Rd,2);
+     出力: quote(3*a^3*x*x+6*b*a^2*x+3*b^2*a)
+fctr(eval_quote(B));
+     出力: [[3,1],[a,1],[a*x+b,2]]
+@end example
+
+@table @t
+@item 参照
+@ref{nqt_match},
+@ref{nqt_match_rewrite},
+@ref{qt_normalize}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item qt 系の関数の原型は OpenXM/src/asir-contrib/testing/tr.rr である.
+このユーザ言語による開発が 2005年の春まで行われ, そのあと組み込み関数主体の
+qt 系の関数が開発された.
+@item qt 系の関数についてのその他の参考文献:
+  OpenXM/doc/Papers/2005-rims-noro.tex および 
+  OpenXM/doc/Papers/2005-rims-noro.tm (TeXmacsの記事). 
+@item Todo: qt 系の関数を用いたおもしろい計算を Risa/Asir ジャーナルの記事として書く.
+@end itemize
+@comment ****************************************************************
+
+@comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
