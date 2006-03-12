@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_rewrite.rr,v 1.1 2005/12/11 07:24:30 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_rewrite.rr,v 1.2 2005/12/16 23:49:26 noro Exp $ */
 
 /*
  * test functions for rewriting by rules 
@@ -9,9 +9,9 @@
 
 /* commutativity */
 #if 0
-Rc0=[`_X*_Y,`!qt_is_number(_X) && nqt_comp(_X,_Y)<0,`_Y*_X]$
+Rc0=[`X*Y,`!qt_is_number(X) && nqt_comp(X,Y)<0,`Y*X]$
 #else
-Rc0=[`_X*_Y,`nqt_comp(_Y*_X,_X*_Y)>0,`_Y*_X]$
+Rc0=[`X*Y,`nqt_comp(Y*X,X*Y)>0,`Y*X]$
 #endif
 Rcomm = [Rc0]$
 
@@ -22,34 +22,34 @@ Ra2=[`X*X,`0]$
 Ralt = [Ra0,Ra1,Ra2]$
 
 /* simplifier of exp() */
-Re1=[`exp(_X)*exp(_Y),`exp(_X+_Y)]$
-Re2=[`exp(_X)^_K,`exp(_K*_X)]$
+Re1=[`exp(X)*exp(Y),`exp(X+Y)]$
+Re2=[`exp(X)^K,`exp(K*X)]$
 Re3=[`exp(0),`1]$
-Re4=[`exp(_N*p*i),`qt_is_integer(_N) && eval_quote(_N)%2==0,`1]$
+Re4=[`exp(N*p*i),`qt_is_integer(N) && eval_quote(N)%2==0,`1]$
 Rexp = [Re1,Re2,Re3,Re4]$
 
-R5=[`(_V^_N)^_M,`_V^(_N*_M)]$
+R5=[`(V^N)^M,`V^(N*M)]$
 
 /* integration */
-Ri1=[`int(_F+_G,_X),`int(_F,_X)+int(_G,_X)]$
-Ri2=[`int(_N*_F,_X),`qt_is_number(_N),`_N*int(_F,_X)]$
-Ri3=[`int(_F,_X),`qt_is_number(_F), `_F*_X]$
-Ri4=[`int(_X^_N,_X),`qt_is_number(_N) && eval_quote(_N)!=-1,`_X^(_N+1)/(_N+1)]$
-Ri5=[`int(_X^(-1),_X),`log(_X)]$
-Ri6=[`int((_A*_X+_B)^(-1),_X),`1/_A*log(_A*_X+_B)]$
+Ri1=[`int(F+G,X),`int(F,X)+int(G,X)]$
+Ri2=[`int(N*F,X),`qt_is_number(N),`N*int(F,X)]$
+Ri3=[`int(F,X),`qt_is_number(F), `F*X]$
+Ri4=[`int(X^N,X),`qt_is_number(N) && eval_quote(N)!=-1,`X^(N+1)/(N+1)]$
+Ri5=[`int(X^(-1),X),`log(X)]$
+Ri6=[`int((A*X+B)^(-1),X),`1/A*log(A*X+B)]$
 Rint = [Ri1,Ri2,Ri3,Ri4,Ri5,Ri6]$
 
 /* derivation */
-Rd0=[`d(_N*_X),`qt_is_number(_N),`_N*d(_X)]$
+Rd0=[`d(N*X),`qt_is_number(N),`N*d(X)]$
 Rd1=[`d(X+Y),`d(X)+d(Y)]$
 Rd2=[`d(X*Y),`d(X)*Y+X*d(Y)]$
-Rd3=[`d(_N),`qt_is_number(_N),`0]$
-Rd=[Rd0,Rd1,Rd2,Rd3]$
+Rd3=[`d(N),`qt_is_number(N),`0]$
+Rd=[Rd1,Rd2,Rd3]$
 
 /* representing an expression as a polynomial w.r.t. x */
 /* T = qt_rewrite(qt_rewrite(Expr,[Ru0],1),[Ru1],0) */
-Ru0=[`x^_N*_X,`_X*x^_N]$
-Ru1=[`_F*x^_N+_G*x^_N,`(_F+_G)*x^_N]$
+Ru0=[`x^N*X,`X*x^N]$
+Ru1=[`F*x^N+G*x^N,`(F+G)*x^N]$
 #define O_LIST 4
 #define O_QUOTE 17
 
