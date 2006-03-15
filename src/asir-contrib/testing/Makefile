@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/testing/Makefile,v 1.1 2005/05/21 10:21:26 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/testing/Makefile,v 1.2 2006/02/13 01:26:01 takayama Exp $
 all: t.texi
 
 t.texi: tr-ja.oxt
@@ -9,3 +9,4 @@ t.texi: tr-ja.oxt
 
 link-to-src:
 	-(cd ../packages/src ; ln -s ../../testing/noro/new_rewrite.rr noro_rewrite.rr)
+	-(cd ../packages/src ; ln -s ../../testing/noro/de.rr noro_de.rr)
