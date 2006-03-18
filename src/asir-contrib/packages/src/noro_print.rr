@@ -1,6 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.10 2004/03/19 07:42:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.11 2006/03/06 08:55:32 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
+
+extern Taka_png_form_res$
+Taka_png_form_res=150$
 
 def taka_tex_form_top(S,Argv) {
   PrevSymTab = quotetotex_env("symbol_table");
@@ -227,6 +230,19 @@ def taka_ps_form(S,Opt) {
   Work_dir = F[3];
   shell(" (cd "+Work_dir+" ; dvips -f "+File0+" >"+File0+".ps ) ");
   return [File0+".ps",F[1],F[2],F[3]];
+}
+
+/* memo. dvipng should be installed.
+   Ref.  imgtex
+   dvipng -q -D $res -T tight -M -pp 1 --noghostscript t.dvi -o t%03d.png > /dev/null 2>&1
+*/
+def taka_png_form3(S) {
+  F = taka_dvi_form(S,[]);
+  File0 = F[1];
+  Work_dir = F[3];
+  shell(" (cd "+Work_dir+" ; dvipng -q -D "+rtostr(Taka_png_form_res)+
+        " -T tight -M -pp 1 --noghostscript "+File0+" -o "+File0+".png >/dev/null 2>&1 ) ");
+  return [File0+".png",F[1],F[2],F[3]];
 }
 
 /* memo: pstoimg should be installed from the source code of
