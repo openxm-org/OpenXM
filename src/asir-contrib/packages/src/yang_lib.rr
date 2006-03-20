@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang_lib.rr,v 1.1 2005/08/15 06:03:49 ohara Exp $ */
 
 /* library functions of yang. */
 
@@ -10,6 +10,8 @@ load("noro_matrix.rr") $ /* for linalg.{binomial_coef,compute_kernel}() */
 
 module yang;
 
+struct yang_ring {ringdef, v, f, d, op}$
+
 localf extract_denom, mtriple, mpair;
 localf listlist_merge, matrix_to_list, matrices_to_list;
 localf matrix_column_nth, matrix_row_nth;
@@ -18,6 +20,17 @@ localf mat_incr, list_incr, list_sum, list_second, list_add_prefix;
 localf list_indefinite, matrix_indefinite;
 localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
 localf vector_const, vector_split;
+localf element_of;
+
+def element_of(E, S) {
+    N = length(S);
+    for(I=0; I<N; I++) {
+        if(S[I]==E) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 /* by Noro */
 def extract_denom(M) {

@@ -1,21 +1,18 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.13 2005/08/15 06:03:49 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.14 2005/08/25 06:22:35 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
       [1175] load("yang.rr");
       [1522] yang.define_ring(["euler",[x],"difference",[[p,-1]]]);
+      [[x,p],[0,1],[0,-1],[dx,dp]]
    2. Computation.
-      [1523] OP1 = yang.operator(x);
-      (1)*<<1,0>>
-      [1524] OP2 = yang.operator(p);
-      (1)*<<0,1>>
-      [1525] L1 = (x^2-p)*yang.multiL([OP1,OP1-1,OP2]);
-      (x^2-p)*<<2,1>>+(-x^2+p)*<<1,1>>
-      [1526] yang.multi(OP2,L1);
-      (x^2-p+1)*<<2,2>>+(-x^2+p-1)*<<1,2>>
-      [1527] yang.multi(OP1,L1);
-      (x^2-p)*<<3,1>>+(x^2+p)*<<2,1>>+(-2*x^2)*<<1,1>>
+      [1523] L1 = (x^2-p)*yang.mulL([dx,dx-1,dp]);
+      (x^2-p)*dp*dx^2+(-x^2+p)*dp*dx
+      [1524] yang.mul(dp,L1);
+      (x^2-p+1)*dp^2*dx^2+(-x^2+p-1)*dp^2*dx
+      [1525] yang.mul(dx,L1);
+      (x^2-p)*dp*dx^3+(x^2+p)*dp*dx^2-2*x^2*dp*dx
  */
 
 /*
@@ -31,7 +28,7 @@ Naming rule of functions of this module.
 
 #include <defs.h>
 
-load("yang_lib.rr") $
+import("yang_lib.rr") $
 
 #define EULER        0
 #define DIFFERENCE   1
@@ -45,6 +42,8 @@ module yang;
 
 localf push_ring, pop_ring, define_ring, parse_ringdef, print_ring, ring_size;
 localf op_type, op_diff, op_var, op_match, op_nomatch;
+localf op_register, op, opr; 
+localf set_ring, new_ring;
 localf constant, operator_id, operator;
 localf modulo, modulo_list, left, right;
 localf verbose, quiet, message;
@@ -52,11 +51,13 @@ localf spair_lcm, spair_compare, spair_sugar;
 localf euler_diff, euler_diff_list, euler_diff_dp_list, euler_diff_dp;
 localf operator_shift;
 localf act_theta_D, act_theta_DE, act_difference;
+localf mul, mulL;
 localf multi, multi_D, multi_DE, multiL;
 localf dp_coef_gcd, red1, red2, reducible, division, division_D, division_DE;
 localf nf, reduction, add, spolynomial, spolynomial_D, spolynomial_DE;
 localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
 localf dp_ltom, pfaffian, check_pfaffian;
+localf pf;
 localf check_frac_expansion_before, check_frac_expansion_after;
 localf frac_expansion, sing_point, residue;
 localf extract_denom_poly, matrix_to_coef_matrix, pfaffian_to_coef_matrices;
@@ -84,7 +85,7 @@ localf toric_list;
 
 function ggamma(x);
 
-static Verbose, Ring, Vars, VarF, VarDiff, RingStack;
+static Verbose, Ring, RingStack;
 if (RingStack == 0) {
     RingStack = [];
 }else {
@@ -93,13 +94,8 @@ if (RingStack == 0) {
 /* --------------------------------
    If RingDef is given by
       ["euler",[x,y],"difference",[[a,1],[a,-1]], "q-difference", [[z,q]]],
-   then parameters is set as follows:
-      Vars == [x,y,a,a,z],
-      VarF == [0,0,1,1,2],
-      VarDiff == [0,0,1,-1,q]
-   Vars: a list of variables
-   VarF: a list of operator types
-   VarF: a list of differences
+   then the variable Ring is set as
+      {[euler,[x,y],difference,[[a,1],[a,-1]],q-difference,[[z,q]]],[x,y,a,a,z],[0,0,1,1,2],[0,0,1,-1,q],[dx,dy,da,da_,dz]}.
    -------------------------------- */
 
 /* Example:
@@ -107,17 +103,33 @@ if (RingStack == 0) {
    yang.define_ring(["euler",[x,y],"difference",[p,q],"euler",[z]]);
 */
 def define_ring(RingDef) {
+    if (!islist(RingDef)) {
+        print("invalid ring data.\n");
+        return [];
+    }
+    if (!isstr(RingDef[0])) {
+        RingDef = ["euler", RingDef]; /* all operators are euler */
+    }
     push_ring();
-    Vars = []; VarF = []; VarDiff = []; Ring = RingDef;
-    if (islist(RingDef)) {
-        if (!isstr(RingDef[0])) {
-            RingDef = ["euler", RingDef]; /* all operators are euler */
-        }
-        while(RingDef!=[]) {
-            RingDef = parse_ringdef(RingDef);
-        }
+    Ring = new_ring(RingDef);
+    while(RingDef!=[]) {
+        RingDef = parse_ringdef(RingDef);
     }
     return print_ring();
+}
+
+def set_ring(R, L) 
+{
+    R->ringdef = L[0];
+    R->v  = L[1];
+    R->f  = L[2];
+    R->d  = L[3];
+    R->op = L[4];
+    return R;
+}
+
+def new_ring(RingDef) {
+    return set_ring(newstruct(yang_ring), [RingDef, [], [], [], []]);
 }
 
 /*
@@ -143,53 +155,51 @@ def parse_ringdef(RingDef) {
     }else {
         error("yang.define_ring(): invalid ring definition.");
     }
-    Vars = append(Vars, map(left, VSet));
-    VarF = append(VarF, F);
-    VarDiff = append(VarDiff, D);
+    Ring->v  = append(Ring->v, map(left, VSet));
+    Ring->f  = append(Ring->f, F);
+    Ring->d  = append(Ring->d, D);
+    Ring->op = op_register(Ring->op, VSet);
     return cddr(RingDef);
 }
 
 def print_ring()
 "Print the inner structure of the ring."
 {
-    return [Vars, VarF, VarDiff];
+    return Ring;
 }
 
 def ring_size()
 "Get a number of operators of the ring."
 {
-    return length(Vars);
+    return length(Ring->v);
 }
 
 def push_ring()
 "Push the current ring definition to the stack."
 {
-    CurrentRing = [Ring, Vars, VarF, VarDiff];
-    RingStack = cons(CurrentRing, RingStack);
-    return map('car', RingStack);
+    RingStack = cons(Ring, RingStack);
 }
 
 def pop_ring()
 "Pop a ring definition from the stack."
 {
-    if ((C = car(RingStack)) != [] && islist(C) && length(C) == 4) {
-        Ring = C[0]; Vars = C[1]; VarF = C[2]; VarDiff = C[3];
+    if ((C = car(RingStack)) != []) {
+        Ring = C;
         RingStack = cdr(RingStack);
-        return C[0];
     }
-    return C;
+    return Ring;
 }
 
 def op_type(I)  {
-    return VarF[I];
+    return Ring->f[I];
 }
 
 def op_diff(I)  {
-    return VarDiff[I];
+    return Ring->d[I];
 }
 
 def op_var(I)  {
-    return Vars[I];
+    return Ring->v[I];
 }
 
 /* ある Type の作用素のみを取り出す */
@@ -208,7 +218,7 @@ def op_match(P,Type) {
 }
 
 /* ある Type でない作用素のみを取り出す.
-   Example: VarF == [0,0,1,2] のとき、
+   Example: Ring->f == [0,0,1,2] のとき、
    yang.op_nomatch(<<2,1,1,4>>,EULER) == <<0,0,1,4>>
 */
 def op_nomatch(P,Type) {
@@ -237,15 +247,62 @@ def operator_id(OP) {
     return (I<N)? I: -1;
 }
 
+def op_register(L, S) 
+"op_register([dx,dy],[z,z,u,v]) => [dx,dy,dz,dz_,du,dv]"
+{
+    if(isList(S[0])) {
+        S = map('car',S);
+    }
+    S = list_add_prefix("d", S);
+    L = reverse(L);
+    N = length(S);
+    for(I=0; I<N; I++) {
+        V = S[I];
+        while(element_of(V,L)) {
+            V = strtov(rtostr(V)+"_");
+        }
+        L = cons(V,L);
+    }
+    reverse(L);
+}
+
 def operator(OP) {
     N = ring_size();
     I = operator_id(OP);
     return dp_vtoe(vector_unit(N,I));
 }
 
+def op(P)
+"op(dx1*dx2) => <<1,1>>, op([dx1*dx2,2]) => [<<1,1>>,2]"
+{
+    if (isList(P)) {
+        return cons(op(car(P)),cdr(P));
+    }
+    if (isdpoly(P)) {
+        return P;
+    }else if (israt(P)) {
+        return [dp_ptod(nm(P),Ring->op),dn(P)];
+    }else {
+        return dp_ptod(P,Ring->op);
+    }
+}
+
+def opr(P) 
+"opr(<<1,1>>) => dx1*dx2, opr([<<1,1>>,2]) => (dx1*dx2)/2"
+{
+    if (isList(P)) {
+        DN = P[1]; NM = P[0];
+        return isdpoly(NM)? dp_dtop(NM,Ring->op)/DN: NM/DN;
+    }else if (isdpoly(P)) {
+        return dp_dtop(P,Ring->op);
+    }else {
+        return P;
+    }
+}
+
 /* 下位互換性のため */
 def constant(A) {
-    return A*dp_vtoe(newvect(ring_size()));
+    return op(A);
 }
 
 def modulo(OP1, OP2) {
@@ -430,8 +487,8 @@ def act_difference(DE,P) {
 }
 
 /* 作用素の積 x^(-E) P(theta) x^E == P(theta+E) を求める。
-   ベクトル E の長さは yang の内部変数 Vars の長さと一致しなければならない。
-   また、x = x1 x2 ...も Vars と一致しなければならない。
+   ベクトル E の長さは yang の内部変数 Ring->v の長さと一致しなければならない。
+   また、x = x1 x2 ...も Ring->v と一致しなければならない。
    したがってこの関数を用いるユーザは、
    事前に yang の内部データ構造を確認していると仮定する。
 */
@@ -444,6 +501,15 @@ def operator_shift(P,E)
     Q = dp_dtop(P, T);
     Q = base_replace(Q, assoc(T, vtol(ltov(T)+E)));
     return dp_ptod(Q, T);
+}
+
+/* Leibnitz rule: P,Q */
+def mul(P,Q) {
+    return opr(multi(op(P),op(Q)));
+}
+
+def mulL(L) {
+    return opr(multiL(map(op, L)));
 }
 
 /* Leibnitz rule: P,Q: 分散表現多項式 */
@@ -577,9 +643,9 @@ def division_DE(P,Q) {
     return R;
 }
 
-/* 正規形を求める(別名) */
+/* 正規形を求める */
 def nf(F,Gr) {
-    return reduction(F,Gr);
+    return opr(reduction(op(F),map(op,Gr)));
 }
 
 /* 分散表現多項式 F を 集合 G で簡約する */
@@ -739,7 +805,7 @@ hilbert=H (ヒルベルト多項式がHに到達したら計算を打ち切る)
 weight=[W1,W2,...] (ウエイトベクトル, 未実装)
 */
 /* from Asir-Book */
-def buchberger(F) {
+def buchberger(G) {
     UseSM1 = 0;
     if (!isvoid(O=getopt(sm1))) {
         UseSM1 = 1;
@@ -750,8 +816,7 @@ def buchberger(F) {
         Hilbert = OPTS;
     }
     MaxSugar=0;
-    N = length(F);
-    G = F;
+    N = length(G);
     Pairs = [];
     for(J=N-1; J>=0; J--) {
         for(I=J-1; I>=0; I--) {
@@ -770,8 +835,8 @@ def buchberger(F) {
             message(" "+rtostr(MaxSugar)+" ");
         }
         if (UseSM1) {
-            IN = map(dp_dtop,in(G),Vars);
-            Sm1_hilbert = sm1.hilbert([IN,Vars]);
+            IN = map(dp_dtop,in(G),Ring->v);
+            Sm1_hilbert = sm1.hilbert([IN,Ring->v]);
             message("<"+rtostr(Sm1_hilbert)+">");
             if (Sm1_hilbert == Hilbert) {
                 break;
@@ -800,7 +865,7 @@ def buchberger(F) {
 
 def gr(F) {
     OPTS=getopt();
-    return buchberger(F|option_list=OPTS);
+    return map(opr,buchberger(map(op,F)|option_list=OPTS));
 }
 
 /* it returns in(G) */
@@ -820,7 +885,7 @@ def in(Gr) {
 def stdmon(Gr)
 "Get standard monomial of a Groebner base."
 {
-    return dp_mbase(in(Gr));
+    return map(opr, dp_mbase(in(map(op, Gr))));
 }
 
 /* --------------------------------
@@ -862,6 +927,12 @@ def dp_ltom(LP, LM) {
     return Mat;
 }
 
+def pf(Base,Gr) {
+    Base = map(op,Base);
+    Gr   = map(op,Gr);
+    return pfaffian(Base,Gr);
+}
+
 /* Let Gr be a reduced Groebner basis and Base a set of monomials.
    Then the return value L gives a Pfaffian system
    {d - (L[0]*dVSet[0] + ... + L[M-1]*dVSet[M-1])} U = 0,
@@ -869,16 +940,16 @@ def dp_ltom(LP, LM) {
 /* Base: Pfaffian を計算したいモノミアル(空のとき標準モノミアルを使う)
    Gr: グレブナ基底 */
 def pfaffian(Base,Gr) {
-    StdMon = stdmon(Gr);
+    StdMon = dp_mbase(in(Gr)); /* see yang.stdmon() */
     if (Base==[]) {
         Base = StdMon;
     }
-    S = matrix_inverse(dp_ltom(map(nf,Base,Gr),StdMon));
+    S = matrix_inverse(dp_ltom(map(reduction,Base,Gr),StdMon));
     M = ring_size();
     L = newvect(M);
     for(J=0; J<M; J++) {
         P = dp_vtoe(vector_unit(M, J));
-        P = map(nf,map('std_*',Base,P),Gr);
+        P = map(reduction,map('std_*',Base,P),Gr);
         L[J] = map(red,((op_type(J)==EULER)? (1/op_var(J)): 1)*dp_ltom(P, StdMon)*S);
     }
     return L;
@@ -1231,7 +1302,7 @@ def action(P,F) {
 
 /* 分散多項式の長さ */
 def dp_length(P) {
-	local I;
+    local I;
     for(I = 0; P != 0; P = dp_rest(P), I++) {
     }
     return I;
@@ -1249,16 +1320,16 @@ def dp_dtol(P) {
 def dp_ptol(P,V)
 "dp_ptol(x+y/t,[x,y]) => [[1,[1 0]],[1/t,[0 1]]]"
 {
-	Dn = dp_ptod(dn(P),V);
-	C = dp_hc(Dn);
-	DnE = dp_etov(Dn);
-	if (dp_rest(Dn) != 0) {
-		error("illeagal argument.");
-	}
-	for(L = [], P = dp_ptod(nm(P),V); P != 0; P = dp_rest(P)) {
-		L = cons([red(dp_hc(P)/C), dp_etov(P)-DnE],L);
-	}
-	return reverse(L);
+    Dn = dp_ptod(dn(P),V);
+    C = dp_hc(Dn);
+    DnE = dp_etov(Dn);
+    if (dp_rest(Dn) != 0) {
+        error("illeagal argument.");
+    }
+    for(L = [], P = dp_ptod(nm(P),V); P != 0; P = dp_rest(P)) {
+        L = cons([red(dp_hc(P)/C), dp_etov(P)-DnE],L);
+    }
+    return reverse(L);
 }
 
 /* --------------------------------
@@ -1502,7 +1573,7 @@ def vector_to_rat(E,V,N) {
 def series1(Series) {
     AT = Series[0];
     Series = Series[1];
-/*	Series = cddr(Series); */
+/*  Series = cddr(Series); */
     N = length(car(Series)[1]);
     V = list_indefinite("x",1,N);
     for(L = []; Series != []; Series = cdr(Series)) {
@@ -1521,7 +1592,7 @@ def series1(Series) {
 def series1_5(Series) {
     AT = Series[0];
     Series = Series[1];
-/*	Series = cddr(Series); */
+/*  Series = cddr(Series); */
     N = length(car(Series)[1]);
     V = list_indefinite("x",1,N); /* !!! */
     for(L = []; Series != []; Series = cdr(Series)) {
@@ -1656,15 +1727,15 @@ def order_by_weight(P,W,V) {
 }
 
 def terms_of_given_order(P,Order,W,V) {
-	Q = [];
-	for(P = dp_ptol(P,V); P != []; P = cdr(P)) {
-		H = car(P)[1];
-		I = vector_inner_product(H,W);
-		if (I==Order) {
-			Q = cons(car(P),Q);
-		}
-	}
-	return Q;
+    Q = [];
+    for(P = dp_ptol(P,V); P != []; P = cdr(P)) {
+        H = car(P)[1];
+        I = vector_inner_product(H,W);
+        if (I==Order) {
+            Q = cons(car(P),Q);
+        }
+    }
+    return Q;
 }
 
 /* from sr.rr */
@@ -1810,7 +1881,7 @@ def series_to_sym(S) {
 }
 
 def s2poly(S) {
-	S=series_to_sym(S);
+    S=series_to_sym(S);
     H=S[0]; T=0;
     for(S=S[1]; S!=[]; S=cdr(S)){
         Term=car(S);
