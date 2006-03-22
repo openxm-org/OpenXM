@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.11 2006/03/06 08:55:32 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.12 2006/03/18 07:55:24 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -279,13 +279,16 @@ def taka_ps_form2(S,Opt) {
   shell(" (cd "+Work_dir+" ; dvips -f "+File0+" >"+File0+".ps ) > /dev/null 2>&1");
   return [File0+".ps",F[1],F[2],F[3]];
 }
-def taka_png_form2(S) {
+def taka_png_form2_old(S) {
   F = taka_ps_form2(S,[]);
   File0 = F[1];
   File = F[0];
   /* BUG: it does not work for now. We need png, too */
   shell(" (cd "+Work_dir+" ; pstoimg -type png -crop a -scale 2 "+File0+".ps ) >/dev/null");
   return [taka_input_form(S),File0+".png",F[1],F[2],F[3]];
+}
+def taka_png_form2(S) {
+  return cons(taka_input_form(S),taka_png_form3(S));
 }
 
 def taka_gif_form(S,Opt) {

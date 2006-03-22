@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.32 2006/03/03 10:55:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.33 2006/03/06 08:55:31 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -698,8 +698,7 @@ static int pngCheck(void) {
   if (checked) return ans;
   checked = 1;
   if (!getCommandPath("latex")) return 0;
-  if (!getCommandPath("dvips")) return 0;
-  if (!getCommandPath("pstoimg")) return 0;
+  if (!getCommandPath("dvipng")) return 0;
   ans = 1;  return 1;
 }
 static void pngNotAvailable(void) {
