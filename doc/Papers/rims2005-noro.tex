@@ -1,10 +1,10 @@
 \documentclass{jarticle}
 %\usepackage[FVerb,theorem]{rims02}
 \topmargin -0.5in
-\oddsidemargin -0in
-\evensidemargin -0in
+\oddsidemargin -0.1in
+\evensidemargin -0.1in
 \textheight 9.5in
-\textwidth 6in
+\textwidth 6.4in
 \IfFileExists{my.sty}{\usepackage{my}}{}
 \IfFileExists{graphicx.sty}{\usepackage{graphicx}}{}
 \IfFileExists{epsfig.sty}{\usepackage{epsfig}}{}
@@ -284,7 +284,7 @@ $Condition$ および $Action$ にはユーザ定義関数を含めることができる.
 \FN 間に全順序を入れて, 書き換えた場合に順序が大きく(小さく)なる
 場合にのみ書き換えを行うという方法である. この場合, 積を構成する有限個
 の \FN の並べ変えの中で最も順序が上(下)のものに到達すると停止する. 
-もちろん, $Action$ が複雑な場合にはこのように簡単には行かないが, 
+$Action$ が複雑な場合にはこのように簡単には行かないが, 
 書き換えの方向性を示すものとして全順序を与えることは有効であろう.
 よって, 書き換え規則に応じて, 全順序をどう選ぶかが問題である.
 
@@ -314,29 +314,28 @@ $Condition$ および $Action$ にはユーザ定義関数を含めることができる.
 に応用することを考える.
 
 係数環を $K$ の上で $ z_1, \ldots, z_n, h $
-で生成される自由結合代数 $A$ を
-$$ K \langle z_1, \ldots, z_n, h \rangle  $$
+で生成される自由結合代数 $A$ を $ K \langle z_1, \ldots, z_n, h \rangle  $
 と書く.
 $h$ を必要に応じて $z_{n+1}$ と書くこともある.
 \begin{definition}\rm
 $A$ での書き換え規則(または関係式, 左辺は必ず単項式)
-$$ L_1 \rightarrow R_1, \ldots,  L_m \rightarrow R_m  $$
+$ L_1 \rightarrow R_1, \ldots,  L_m \rightarrow R_m  $
 が, 同次化 weight ベクトル $H$ について,
 同次的書き換え規則であるとは, 
 $R_i$ が $0$ であるかまたは,
-$$ {\rm deg}_H(L_i) = {\rm deg}_H(R_i \mbox{の任意の項}) $$
+$ {\rm deg}_H(L_i) = {\rm deg}_H(R_i \mbox{の任意の項}) $
 が成立することである.
 \end{definition}
 ここで ${\rm deg}_H(\prod z_i^{e_i})$ は
 $\prod z_i^{e_i}$ の weight $H$ についての(非可換性を無視した)次数である.
 つまり
-$${\rm deg}_H(\prod z_i^{e_i}) = \sum e_i H_i $$
+${\rm deg}_H(\prod z_i^{e_i}) = \sum e_i H_i $
 と定義する ($i$ は重複してあらわれることもある).  
 
 \begin{example} \rm
-$$ z_2 z_1 \rightarrow z_1 z_2 + h^2 , 
+$ z_2 z_1 \rightarrow z_1 z_2 + h^2 , 
  h z_i \rightarrow z_i h
-$$
+$
 は $H=(1,1,1)$ についての同次的書き換え規則である. 
 この例は $x=z_1, \partial = z_2$ とした
 1 変数の同次化 Weyl 代数にほかならない.
@@ -350,11 +349,11 @@ well order $\succ$ を以下ひとつ固定する.
 
 \begin{example} \rm
 前の例の書き換え規則
-$$ z_2 z_1 \rightarrow z_1 z_2 + h^2 , 
+$ z_2 z_1 \rightarrow z_1 z_2 + h^2 , 
  h z_i \rightarrow z_i h
-$$
+$
 にさらに
-$$ z_2^{p+1} \rightarrow 0, z_1 z_2 \rightarrow p h^2 $$
+$ z_2^{p+1} \rightarrow 0, z_1 z_2 \rightarrow p h^2 $
 を加えた規則の集合を $R_p$ と書く. ここで $p$ は自然数である.
 $R_p$  は $H=(1,1,1)$ についての同次的書き換え規則である.
 \end{example}
@@ -523,7 +522,6 @@ $G$-algebra より広い範囲の algebra を扱うことが可能となる.
 一般的な枠組みの応用として, 将来的には $D$-加群のアルゴリズムを拡張し,
 Calderon-Moreno 等の導入した algebra を局所的に扱うなどの応用が見込ま
 れる.
-
 また, \FN をユーザ言語より操作する関数を用いることにより,
 入力, 出力のユーザインタフェースを大幅に改善できることにも
 注意しておきたい.
