@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.24 2005/06/16 05:07:24 takayama Exp $ */
+/*  $OpenXM: OpenXM/src/kan96xx/plugin/oxmisc.c,v 1.25 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -179,6 +179,9 @@ int oxWaitSyncBall(ox_stream ostream)
     fprintf(stderr,"Looking for the next message tag. mtag=%d\n",mtag);
     /* or stdout */
     fflush(NULL);
+	if (mtag == -1) {
+	  fprintf(stderr,"Your peer seems to be dead.\n"); return;
+	}
   }
 }
 
