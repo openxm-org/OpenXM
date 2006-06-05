@@ -1,4 +1,4 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.22 2006/02/04 10:44:22 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.23 2006/02/25 09:11:10 takayama Exp $  */
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -34,6 +34,7 @@ int Quiet = 0;
 int LocalMode = 1;
 int NotifyPortnumber = 0;
 int Do_not_use_control_stream_to_tell_no_server = 1;
+int IgnoreSIGINT = 1;
 static void errorToStartEngine(void);
 static int findOxServer(char *server);
 static void couldNotFind(char *s);
@@ -130,6 +131,11 @@ main(int argc, char *argv[]) {
       }else{
         fprintf(stderr,"Unknown -authEncoding %s.\n",argv[i]);
         oxmainUsage(); exit(10);
+      }
+    }else if (strcmp(argv[i],"-ignoreSIGINT") == 0) {
+      i++;
+      if (i<argc) {
+        IgnoreSIGINT = argv[i];
       }
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
@@ -316,7 +322,8 @@ oxmainUsage() {
   fprintf(stderr,"Usage: \n");
   fprintf(stderr,"  ox [-ox serverprogram -host name -data portnum -control portnum -monitor]\n");
   fprintf(stderr," [-insecure -portfile fname -reverse -passControl xxxyyyzzz -passData pppqqqrrr]");
-  fprintf(stderr," [-finish]");
+  fprintf(stderr," [-finish]  [-wait seconds] [-authEncoding [file]]");
+  fprintf(stderr," [-ignoreSIGINT [1|0]]");
   fprintf(stderr,"\n");
   fprintf(stderr,"-reverse: ox server connects to the client.\n");
   fprintf(stderr,"          The client must give a one time password to ox server to connect to the client with -pass* option.\n");
@@ -456,6 +463,9 @@ childServerMain(int fdControl, int fdStream) {
 	res.rlim_cur = 65536000;
 	setrlimit(RLIMIT_STACK,&res);
   }
+
+  if (IgnoreSIGINT) signal(SIGINT, SIG_IGN);
+
   if (PacketMonitor) {
     if (execle(ServerName,ServerName,"-monitor",NULL,environ)) {
       fprintf(stderr,"%s cannot be executed with -monitor.\n",ServerName);
