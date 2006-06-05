@@ -1,4 +1,12 @@
-/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.23 2006/02/25 09:11:10 takayama Exp $  */
+/*  $OpenXM: OpenXM/src/kxx/oxmain.c,v 1.24 2006/06/05 00:25:50 takayama Exp $  */
+/*  Note on IntelMac. [2006.06.05]
+    SIGINT does not seem to be blocked on the rosetta emulator of ppc
+    on the IntelMac's. "ox" should be universal binary.
+   A dirty hack to generate a universal binary of ox is as follows.
+   (1) Add -arch ppc -arch i386 to CFLAGS in src/kxx/Makefile
+       and src/kan96xx/plugin/Makefile
+   (2) Build ox
+*/
 /* nullserver01 */
 #include <stdio.h>
 #include <fcntl.h>
@@ -135,7 +143,7 @@ main(int argc, char *argv[]) {
     }else if (strcmp(argv[i],"-ignoreSIGINT") == 0) {
       i++;
       if (i<argc) {
-        IgnoreSIGINT = argv[i];
+        sscanf(argv[i],"%d",&IgnoreSIGINT);
       }
     }else {
       fprintf(stderr,"Unknown option %s.\n",argv[i]);
@@ -464,7 +472,7 @@ childServerMain(int fdControl, int fdStream) {
 	setrlimit(RLIMIT_STACK,&res);
   }
 
-  if (IgnoreSIGINT) signal(SIGINT, SIG_IGN);
+  if (IgnoreSIGINT) { signal(SIGINT, SIG_IGN); fprintf(stderr,"SIGING\n");}
 
   if (PacketMonitor) {
     if (execle(ServerName,ServerName,"-monitor",NULL,environ)) {
