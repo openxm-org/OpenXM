@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.12 2006/02/10 06:01:19 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.13 2006/02/13 04:37:36 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -10,17 +10,17 @@ os=`uname -s`
 md=`cat $OpenXM_HOME/lib/asir/distinfo-asir.md5`
 libmd=`cat $OpenXM_HOME/lib/asir/distinfo-asirlib.md5`
 # For testing
-#asir="ftp://ftp.math.kobe-u.ac.jp/pub/asir/gzip.exe"
+#asir="http://www.math.kobe-u.ac.jp/pub/asir/gzip.exe"
 #asirname="gzip.exe"
-#asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/asir/tar.exe"
+#asirlib="http://www.math.kobe-u.ac.jp/pub/asir/tar.exe"
 #asirlibname="tar.exe"
 # 
-asir="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asir-$os-$version.gz"
+asir="http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asir-$os-$version.gz"
 asirnamegunzip="asir-$os-$version"
 asirname="asir-$os-$version.gz"
-asirlib="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
+asirlib="http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/asirlib-$os-$version.tar.gz"
 asirlibname="asirlib-$os-$version.tar.gz"
-ot="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os-$version.tar.gz"
+ot="http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix/ox-texmacs-$os-$version.tar.gz"
 otname="ox-texmacs-$os-$version.tar.gz"
 
 if [ $# = 1 ]; then
