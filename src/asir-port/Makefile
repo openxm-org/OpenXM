@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.14 2006/02/13 06:34:10 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.15 2006/06/28 11:50:28 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix.
 #### Do not add extra spaces after the VERSION.
@@ -13,7 +13,8 @@ MD5=md5sum
 OS=`uname -s`
 OpenXM_HOME_=../..
 RSYNC=rsync -avz -e ssh
-FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
+#FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
+FTP_DIR=/home/web/pub/OpenXM/head/knoppix
 OpenXM_HOME=../../../OpenXM
 
 all:
