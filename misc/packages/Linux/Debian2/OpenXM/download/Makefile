@@ -1,8 +1,9 @@
-VERSION=1.2.3-6
+VERSION=1.2.3-7
 OpenXMBinaryTGZ=openxm-binary-Linux-${VERSION}.tar.gz
 AsirBinaryTGZ=asir-binary-Linux-${VERSION}.tar.gz
 DISTDIR=${HOME}/OpenXM_tmp
-MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix
+#MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix
+MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix
 
 install-small:
 	mkdir -p ../bin

@@ -1,14 +1,16 @@
 # Do source dot.bashrc before doing something.
 
-VERSION=1.2.3-6
+VERSION=1.2.3-7
 # This VERSION must be compatible with debian/control ver. 
 #                                OpenXM/download/Makefile
 #                                work/OpenXM/src/asir-port/Makefile
+#                                    (OpenXM/src/asir-port/Makefile)
 
 MD5=md5sum
 OS=`uname -s`
 RSYNC=rsync -avz -e ssh
-FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
+#FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
+FTP_DIR=/home/web/pub/OpenXM/head/knoppix
 TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 
 build-package: fetch  make-tar-ball-2  make-tar-ball-3
