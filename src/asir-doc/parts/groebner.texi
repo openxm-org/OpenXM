@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.15 2004/09/14 02:28:20 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/groebner.texi,v 1.16 2004/10/20 00:30:55 fujiwara Exp $
 \BJP
 @node グレブナ基底の計算,,, Top
 @chapter グレブナ基底の計算
@@ -1464,7 +1464,7 @@ Computation of the global b function is implemented as an application.
 * tolexm minipolym::
 * dp_gr_main dp_gr_mod_main dp_gr_f_main dp_weyl_gr_main dp_weyl_gr_mod_main dp_weyl_gr_f_main::
 * dp_f4_main dp_f4_mod_main dp_weyl_f4_main dp_weyl_f4_mod_main::
-* nd_gr nd_gr_trace nd_f4 nd_weyl_gr nd_weyl_gr_trace::
+* nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace::
 * dp_gr_flags dp_gr_print::
 * dp_ord::
 * dp_ptod::
@@ -2304,12 +2304,13 @@ except for lack of the argument for controlling homogenization.
 \EG @fref{Controlling Groebner basis computations}
 @end table
 
-\JP @node nd_gr nd_gr_trace nd_f4 nd_weyl_gr nd_weyl_gr_trace,,, グレブナ基底に関する函数
-\EG @node nd_gr nd_gr_trace nd_f4 nd_weyl_gr nd_weyl_gr_trace,,, Functions for Groebner basis computation
-@subsection @code{nd_gr}, @code{nd_gr_trace}, @code{nd_f4}, @code{nd_weyl_gr}, @code{nd_weyl_gr_trace}
+\JP @node nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace,,, グレブナ基底に関する函数
+\EG @node nd_gr nd_gr_trace nd_f4 nd_f4_trace nd_weyl_gr nd_weyl_gr_trace,,, Functions for Groebner basis computation
+@subsection @code{nd_gr}, @code{nd_gr_trace}, @code{nd_f4}, @code{nd_f4_trace}, @code{nd_weyl_gr}, @code{nd_weyl_gr_trace}
 @findex nd_gr
 @findex nd_gr_trace
 @findex nd_f4
+@findex nd_f4_trace
 @findex nd_weyl_gr
 @findex nd_weyl_gr_trace
 
@@ -2317,6 +2318,7 @@ except for lack of the argument for controlling homogenization.
 @item nd_gr(@var{plist},@var{vlist},@var{p},@var{order})
 @itemx nd_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
 @itemx nd_f4(@var{plist},@var{vlist},@var{modular},@var{order})
+@itemx nd_f4_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
 @item nd_weyl_gr(@var{plist},@var{vlist},@var{p},@var{order})
 @itemx nd_weyl_gr_trace(@var{plist},@var{vlist},@var{homo},@var{p},@var{order})
 \JP :: グレブナ基底の計算 (組み込み函数)
@@ -2348,15 +2350,22 @@ except for lack of the argument for controlling homogenization.
 @item @code{nd_gr} は, @code{p} が 0 のとき有理数体上の Buchberger
 アルゴリズムを実行する. @code{p} が 2 以上の自然数のとき, GF(p) 上の
 Buchberger アルゴリズムを実行する.
-@item @code{nd_gr_trace} は有理数体上で trace アルゴリズムを実行する.
+@item @code{nd_gr_trace} および @code{nd_f4_trace}
+は有理数体上で trace アルゴリズムを実行する.
 @code{p} が 0 または 1 のとき, 自動的に選ばれた素数を用いて, 成功する
 まで trace アルゴリズムを実行する.
 @code{p} が 2 以上のとき, trace はGF(p) 上で計算される. trace アルゴリズム
 が失敗した場合 0 が返される. @code{p} が負の場合, グレブナ基底チェックは
 行わない. この場合, @code{p} が -1 ならば自動的に選ばれた素数が,
-それ以外は指定された素数を用いてグレブナ基底候補の計算が行われる.
+それ以外は指定された素数を用いてグレブナ基底候補の計算が行われる. 
+@code{nd_f4_trace} は, 各全次数について, ある有限体上で F4 アルゴリズム
+で行った結果をもとに, その有限体上で 0 でない基底を与える S-多項式のみを
+用いて行列生成を行い, その全次数における基底を生成する方法である. 得られる
+多項式集合はやはりグレブナ基底候補であり, @code{nd_gr_trace} と同様の
+チェックが行われる.
 @item
-@code{nd_f4} は, 有限体上の F4 アルゴリズムを実行する.
+@code{nd_f4} は @code{modular} が 0 のとき有理数体上の, @code{modular} が
+マシンサイズ素数のとき有限体上の F4 アルゴリズムを実行する.
 @item
 @code{nd_weyl_gr}, @code{nd_weyl_gr_trace} は Weyl 代数用である.
 @item
@@ -2384,8 +2393,16 @@ the Groebner basis check and ideal-membership check are omitted.
 In this case, an automatically chosen prime if @code{p} is 1,
 otherwise the specified prime is used to compute a Groebner basis
 candidate.
+Execution of @code{nd_f4_trace} is done as follows:
+For each total degree, an F4-reduction of S-polynomials over a finite field
+is done, and S-polynomials which give non-zero basis elements are gathered.
+Then F4-reduction over Q is done for the gathered S-polynomials.
+The obtained polynomial set is a Groebner basis candidate and the same
+check procedure as in the case of @code{nd_gr_trace} is done.
 @item
-@code{nd_f4} executes F4 algorithm over a finite field.
+@code{nd_f4} executes F4 algorithm over Q if @code{modular} is equal to 0,
+or over a finite field GF(@code{modular}) 
+if @code{modular} is a prime number of machine size (<2^29).
 @item
 @code{nd_weyl_gr}, @code{nd_weyl_gr_trace} are for Weyl algebra computation.
 @item
