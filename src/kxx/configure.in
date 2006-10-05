@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/kxx/configure.in,v 1.4 2003/11/11 04:20:33 takayama Exp $
+dnl  $OpenXM: OpenXM/src/kxx/configure.in,v 1.5 2006/10/05 20:44:58 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
@@ -20,6 +20,7 @@ if test "$ac_cv_func_dlopen" = no ; then
 fi
 
 AC_CHECK_HEADER(sys/appleapiopts.h,AC_SUBST(CFLAG2,[" -arch ppc -arch i386"]),AC_SUBST(CFLAG2,[" "]))
+AC_CHECK_HEADER(sys/appleapiopts.h,AC_SUBST(CFLAG2p,[" -march=ppc -march=i386"]),AC_SUBST(CFLAG2p,[" "]))
 
 
 AC_OUTPUT(Makefile)
