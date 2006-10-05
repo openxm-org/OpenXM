@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.16 2004/08/09 07:36:05 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.17 2005/11/21 08:20:31 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -72,23 +72,43 @@ def quote_factored_list_to_quote(S) {
   return Ans;
 }
 
+def quote_sort_polynomial(F,V,W) {
+  if (type(F) != RPOLYNOMIAL) return quote_to_quote(F);
+  return quote_sort_polynomial2(F,V,W,-1);
+}
+
 /*
    V : list of variables.
    W : weight vector or order number.
+   TermN : number of max terms.
 */
-def quote_sort_polynomial(F,V,W) {
-  if (type(F) != RPOLYNOMIAL) return quote_to_quote(F);
-  dp_ord(taka_poly_weight_vector(W,V));
-  F = dp_ptod(F,V);
+def quote_sort_polynomial2(F,V,W,TermN) {
+  if (type(F) == RATIONAL) {
+    A = quote_sort_polynomial2(nm(F),V,W,TermN);
+    B = quote_sort_polynomial2(dn(F),V,W,TermN);
+    return(A/B);
+  }
+  if ((type(F) == LIST) || (type(F)==VECTOR) || (type(F)==MATRIX)) {
+    return map(quote_sort_polynomial2,F,V,W,TermN);
+  }
+  if (type(F) == DPOLYNOMIAL) {
+  } else if (type(F) == RPOLYNOMIAL) {
+    dp_ord(taka_poly_weight_vector(W,V));
+    F = dp_ptod(F,V);
+  } else {
+    return quote_to_quote(F);
+  }
+
   if (F != 0) {
     Ans="";
   }else{
     Ans=quote(0); return Ans;
   }
-  C = 0;
+  C = 0; TN = 0;
   while (F != 0) {
      G = dp_hm(F);
      F = dp_rest(F);
+     TN++;
 
      HC = "("+rtostr(dp_hc(G))+")"; 
      HT = rtostr(dp_dtop(dp_ht(G),V));
@@ -107,10 +127,32 @@ def quote_sort_polynomial(F,V,W) {
         Ans = Ans + HC;
      }
      if (C == 0) C = 1;
+
+     /* Truncation */
+     if (TermN > 0) {
+       if ((TN >= TermN) && (F != 0)) {
+         Ans += quote_to_quote(rtostr(uc())); break;
+       } 
+     }
+
   }
   return Ans;
 }
 
+def taka_quote_sort(F) {
+  Opt = getopt();
+  if (type(Opt) == -1) {
+    V=vars(F);
+    W=0;
+    TermN = -1;
+  }else {
+    V=getopt(v); W=getopt(w); TermN=getopt(truncate);
+    if (type(V) == -1) V=vars(F);
+    if (type(W) == -1) W=0;
+    if (type(TermN) == -1) TermN = -1;
+  }
+  return quote_sort_polynomial2(F,V,W,TermN);
+}
 
 def quote_terminal_form(S) {
   if (type(S) != QUOTE) return rtostr(S);
