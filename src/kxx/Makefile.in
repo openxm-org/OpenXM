@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.35 2004/09/17 03:28:21 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.36 2006/02/04 02:44:39 takayama Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -33,6 +33,7 @@ CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@ 
 CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE
+CFLAG2 = @CFLAG2@
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
 RM=rm
@@ -58,7 +59,7 @@ configure-old : Makefile.in configure.in
 #	.error  "Run ./make-configure"
 
 .c.o:
-	${CC}  ${CFLAGS} -I${OpenXM_include} -c  $<
+	${CC}  ${CFLAGS} ${CFLAG2} -I${OpenXM_include} -c  $<
 ox.a: ${Kan96xx}/plugin/ox.a
 	/bin/rm -f ox.a
 	ln -s ${Kan96xx}/plugin/ox.a ox.a
@@ -67,7 +68,7 @@ ox_kan.h: ${Kan96xx}/plugin/ox_kan.h
 	ln -s ${Kan96xx}/plugin/ox_kan.h ox_kan.h
 
 ox: oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o
-	${CC} ${STATIC_LINK_FLAG} ${CFLAGS} oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o ox  ${LIBS}
+	${CC} ${STATIC_LINK_FLAG} ${CFLAGS} ${CFLAG2} oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o ox  ${LIBS}
 oxmain.o: oxmain.c ox_kan.h serversm.h
 
 oxd: oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o 
@@ -94,7 +95,7 @@ ox100start : ox100start.o  ${OpenXM_lib}/libox_pathfinder.a
 ox100start.o: ox100start.c
 
 file2.o: ${Kan96xx}/plugin/file2.c  ${Kan96xx}/plugin/file2.h
-	${CC} $(CFLAGS) -DKXX=1 -I${Kan96xx}/plugin -c ${Kan96xx}/plugin/file2.c 
+	${CC} $(CFLAGS) ${CFLAG2} -DKXX=1 -I${Kan96xx}/plugin -c ${Kan96xx}/plugin/file2.c 
 
 nullstackmachine.o: nullstackmachine.c ox_kan.h
 sm1stackmachine.o: sm1stackmachine.c  ox_kan.h
