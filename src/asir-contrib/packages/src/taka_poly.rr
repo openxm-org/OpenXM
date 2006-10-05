@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.15 2004/03/11 01:57:39 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.16 2004/03/11 12:36:53 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -670,6 +670,26 @@ def taka_poly_weight_vector_parse(W,V) {
     }
   }
   return vtol(Ans);
+}
+
+/* V=[x,y], W=[1,1] --> [[x,1,y,1]] */
+def taka_poly_weight_list(V,W) {
+  L = [];
+  N = length(V);
+  for (I=0; I<N; I++) {
+    L = cons(V[I],L);
+    L = cons(W[I],L);
+  }
+  return [reverse(L)];
+}
+/* V=[x,y], W=[1,1] --> [[x,1],[y,1]] */
+def taka_poly_weight_list2(V,W) {
+  L = [];
+  N = length(V);
+  for (I=0; I<N; I++) {
+    L = cons([V[I],W[I]],L);
+  }
+  return reverse(L);
 }
 
 Taka_poly_loaded = 1$

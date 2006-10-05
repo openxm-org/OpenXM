@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.91 2006/03/18 07:55:24 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.92 2006/10/05 08:30:36 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -252,6 +252,16 @@ def poly_elimination_ideal(I,VV) {
   OX_LOADFILE(Loaded_taka_base,"taka_poly.rr");
   return taka_poly_elimination_ideal(I,VV|option_list=OL);
 }
+
+/*&usage begin: poly_expand(F)
+  This is an alias of poly_sort.
+  ref: poly_sort
+end: */
+def poly_expand(F) {
+  Opt = getopt();
+  return poly_sort(F | option_list=Opt);
+}
+
 /*&usage begin: poly_grobner_basis(I|order,v)
  It returns the Grobner basis of {I}.
  description:

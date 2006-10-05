@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.17 2005/11/21 08:20:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.18 2006/10/05 08:30:36 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -90,6 +90,12 @@ def quote_sort_polynomial2(F,V,W,TermN) {
   }
   if ((type(F) == LIST) || (type(F)==VECTOR) || (type(F)==MATRIX)) {
     return map(quote_sort_polynomial2,F,V,W,TermN);
+  }
+  if (type(F) == QUOTE) {
+    qt_set_ord(V); qt_set_weight(taka_poly_weight_list2(V,W));
+    return qt_normalize(F,1);
+    /* Bug: Commutative rules have not been set. */
+    /* Todo: TermN is ignored. */
   }
   if (type(F) == DPOLYNOMIAL) {
   } else if (type(F) == RPOLYNOMIAL) {
