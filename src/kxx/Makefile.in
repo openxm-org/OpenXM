@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.37 2006/10/05 20:44:58 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.38 2006/10/05 21:14:23 takayama Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -35,6 +35,7 @@ LIBS=@LIBS@
 CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE
 CFLAG2 = @CFLAG2@
 CFLAG2p = @CFLAG2p@
+# Or use "lipo -create ox-i386 ox-ppc -output ox"
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
 RM=rm
