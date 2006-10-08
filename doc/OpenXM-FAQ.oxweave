@@ -1,4 +1,23 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.24 2005/06/22 12:40:41 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.25 2005/11/17 07:02:13 takayama Exp $
+
+//&C Oct 9, 2006. Generating universal binaries for MacOS X.
+
+/*&ja
+  Reference: http://macwiki.sourceforge.jp/cgi-bin/wiki.cgi?UniversalBinary
+  PPC では -arch i386 -arch ppc の他に -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+  option が必要. Xcode の Package の中の, Cross-Developement.mpkg を忘れない.
+  別々の architecture で生成して, lipo でくっつける方法の方が推奨らしい.
+  cf. 
+*/
+/*&C
+ Example:
+  gcc -arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk ox.c -o ox
+ or 
+  gcc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk ox.c -o ox-i386
+  gcc -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk ox.c -o ox-ppc
+  lipo -create ox-i386 ox-ppc -output ox
+*/
+ 
 
 //&C Sep 2, 2004, Update for tigers (10.4) June 23, 2005.
 //&ja Q. MacOS X (10.3, panther)で OpenXM package を make するにはどうしますか?
