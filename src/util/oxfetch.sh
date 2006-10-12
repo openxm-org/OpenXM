@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.4 2004/06/30 10:14:10 ohara Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.5 2005/07/25 19:04:18 ohara Exp $
 
 MASTER_SITES="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/"
 fetch="wget --no-directories --passive-ftp --timestamping"
@@ -40,7 +40,11 @@ _md5sum () {
     fi
 }
 
-_check () {
+_check() {
+   echo "Check is skipped."
+}
+
+_check_orig () {
     if [ ! -f "$distdir/$distfile" ]; then
         echo "Error: ${distfile} not found."
         exit 1
