@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/util/Makefile.in,v 1.4 2005/04/04 12:38:32 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile.in,v 1.5 2006/03/04 07:48:12 takayama Exp $
 #OpenXM_ROOT=../../../OpenXM
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -35,8 +35,8 @@ test: ox_pathfinder.o test.o
 
 install: all
 	@if [ ! -f ./.install_done ] ; then \
-	echo "Installing oxweave, oxreplace, oxgentexi, oxgreph, libox_pathfinder.a, ox_pathfinder.h oxfetch.sh" ; \
-	install -c lndir.sh oxfetch.sh ${bindir} ; \
+	echo "Installing oxweave, oxreplace, oxgentexi, oxgreph, libox_pathfinder.a, ox_pathfinder.h oxfetch.sh md5.sh" ; \
+	install -c lndir.sh oxfetch.sh md5.sh ${bindir} ; \
 	install -c -s oxweave oxreplace oxgentexi oxgreph ${bindir} ; \
 	install -c -s oxweave ${prefix}/src/kxx ; \
 	install -c libox_pathfinder.a ${libdir}  ; \

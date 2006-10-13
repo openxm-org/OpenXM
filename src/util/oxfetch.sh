@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.5 2005/07/25 19:04:18 ohara Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.6 2006/10/12 10:45:37 takayama Exp $
 
 MASTER_SITES="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/"
 fetch="wget --no-directories --passive-ftp --timestamping"
@@ -33,18 +33,10 @@ _md5grep () {
 }
 
 _md5sum () {
-    if [ "`which md5`" ]; then
-        md5 "$1" | awk '{print $NF}'
-    elif [ "`which md5sum`" ]; then
-        md5sum "$1" | awk '{print $1}'
-    fi
+	md5.sh "$1" | awk '{print $NF}'
 }
 
 _check() {
-   echo "Check is skipped."
-}
-
-_check_orig () {
     if [ ! -f "$distdir/$distfile" ]; then
         echo "Error: ${distfile} not found."
         exit 1
