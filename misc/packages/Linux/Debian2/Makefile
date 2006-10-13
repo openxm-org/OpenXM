@@ -1,6 +1,6 @@
 # Do source dot.bashrc before doing something.
 
-VERSION=1.2.3-7
+VERSION=1.2.3-8
 # This VERSION must be compatible with debian/control ver. 
 #                                OpenXM/download/Makefile
 #                                work/OpenXM/src/asir-port/Makefile
