@@ -1,0 +1,19 @@
+#!/bin/sh
+no_file() {
+  if [ ! -f asir-texmacs.tm ]; then 
+	cp /usr/share/asir-texmacs/lib/asir-texmacs.tm . ; 
+  fi ;
+  texmacs asir-texmacs.tm
+}
+check_asir() {
+  if [ ! -f /usr/local/OpenXM/bin/asir ]; then
+     if [ ! -d $HOME/.asir-tmp ]; then  
+        konsole -e /usr/local/bin/openxm asir-install.sh ; 
+     fi ;
+  fi
+}
+
+check_asir
+[ $# -lt 1 ] && no_file && exit 0
+texmacs $*
+
