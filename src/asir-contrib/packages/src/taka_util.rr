@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.12 2004/03/11 22:15:42 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.13 2004/04/30 08:24:07 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -50,6 +50,7 @@ def taka_util_load_file_as_a_string(Fname) {
   while ((C=get_byte(Fp)) > 0) {
     Str=cons(C,Str);
   }
+  close_file(Fp);
   Str = reverse(Str);
   return asciitostr(Str);
 }
