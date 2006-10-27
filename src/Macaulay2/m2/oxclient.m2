@@ -1,4 +1,4 @@
-ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.3 2000/12/14 05:28:05 takayama Exp $ "
+ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.4 2000/12/17 08:31:39 takayama Exp $ "
 
 load "oxcommon.m2"
 
@@ -208,7 +208,7 @@ oxPrimDecomp = method()
 oxPrimDecomp(OXSESSION, Ideal) := (F, I) -> (
      -- translate to asir notation
      s := toString I;
-     s = "[" | substring(s,6,#s-7) | "]";
+     s = "[" | substring(s,7,#s-8) | "]";
      v = toString gens ring I;
      v = "[" | substring(v,1,#v-2) | "]";
      s = "primadec(" | s | "," | v | ");";
@@ -221,7 +221,7 @@ oxPrimDecomp(OXSESSION, Ideal) := (F, I) -> (
 oxPrimDecomp(OXSESSION, Ideal) := (F, I) -> (
      -- translate to asir notation
      s := toString I;
-     s = "[" | substring(s,6,#s-7) | "]";
+     s = "[" | substring(s,7,#s-8) | "]";
      v = toString gens ring I;
      v = "[" | substring(v,1,#v-2) | "]";
      s = "primadec(" | s | "," | v | ");";
