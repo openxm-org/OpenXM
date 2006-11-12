@@ -27,6 +27,9 @@ localf glib_clear$
 localf glib_remove_last$
 localf glib_set_pixel_size$
 
+localf png_send$
+localf png_form$
+
 
 static Glib_canvas;
 static Glib_canvas_x;
@@ -175,6 +178,24 @@ def glib_set_pixel_size(P) {
    glib_send(rtostr(Glib_canvas)+"; [glPointSize,"+rtostr(P)+"]");
 }
 
+/* png_send("showFile, /Users/nobuki/OpenXM_tmp/1/work0.png"); */
+def png_send(S) {
+   /* S=S+"\n";    do not add \n */
+   N=length(strtoascii(S))+1;
+   C=cfep.t_encode("{10<"+rtostr(N)+" "+S+" >}");
+   ctrl("hex",1); 
+   output(); ctrl("hex",0);
+   print(C); output(); /* channel 10 is for  png. cf. MyDecoder.h */
+}  
+
+def png_form(Obj) {
+  R = print_png_form2(Obj);  /* asir-contrib must be loaded */
+  if (length(R) <2) error("The png file is not generated.");
+  S="showFile, "+R[1];
+  png_send(S);
+}
+
+
 endmodule;
 
 Cfep_loaded = 1$
@@ -200,7 +221,7 @@ def radian(D) {
   return (D/180)*@pi;
 }
 
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.4 2006/03/10 11:48:02 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/cfep-init.rr,v 1.5 2006/11/04 20:35:16 takayama Exp $ */
 
 
 end$
