@@ -1,5 +1,6 @@
-ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.4 2000/12/17 08:31:39 takayama Exp $ "
+ID=" $OpenXM: OpenXM/src/Macaulay2/m2/oxclient.m2,v 1.5 2006/10/27 01:38:17 takayama Exp $ "
 
+-- This is configured for Macaulay2 0.9.95
 load "oxcommon.m2"
 
 oxSession = method()
@@ -58,8 +59,9 @@ oxStartSession = (s) -> (
      comm = toString "xterm -geometry 80x25-0-0 -e  ox -ox " | s | " -data " |
                       dPort | " -control " | cPort |
 		      " -reverse -host localhost" | " -pass " | PASS | " &" ;
-     comm = makeLaunchCommand(true,"localhost",getenv("USER"),"localhost",
+     comm = makeLaunchCommand(false,"localhost",getenv("USER"),"localhost",
 	                      s,dPort,cPort,PASS);
+     -- true : connection by ssh, false: only for the local host.
      print comm;
      if (run (comm) != 0) 
        then error "Couldn't start the ox server " | s;
@@ -207,29 +209,19 @@ oxPopMathcap(OXSESSION) := (F) ->(
 oxPrimDecomp = method()
 oxPrimDecomp(OXSESSION, Ideal) := (F, I) -> (
      -- translate to asir notation
-     s := toString I;
-     s = "[" | substring(s,7,#s-8) | "]";
+     s := toString flatten entries gens I;
+     s = replace("\\{","[",s);   -- substring(2,5,s) 
+     s = replace ("\\}","]",s);
      v = toString gens ring I;
-     v = "[" | substring(v,1,#v-2) | "]";
+     v = replace("\\{","[",v);
+     v = replace("\\}","]",v);
      s = "primadec(" | s | "," | v | ");";
      << "sending" << s << endl;
      oxData(F, s);
      oxExecuteStringByLocalParser(F);
      str = oxPopString(F);
+     -- BUG: oxPopCMO(F) is still buggy.     
      toList apply(value str, i -> {ideal(toList(i#0)), ideal(toList(i#1))})
-     )
-oxPrimDecomp(OXSESSION, Ideal) := (F, I) -> (
-     -- translate to asir notation
-     s := toString I;
-     s = "[" | substring(s,7,#s-8) | "]";
-     v = toString gens ring I;
-     v = "[" | substring(v,1,#v-2) | "]";
-     s = "primadec(" | s | "," | v | ");";
-     << "sending" << s << endl;
-     oxData(F, s);
-     oxExecuteStringByLocalParser(F);
-     --str = oxPopString(F);
-     --toList apply(value str, i -> {ideal(toList(i#0)), ideal(toList(i#1))})
      )
 
 -- makeLaunchCommand generates an argument of run.

@@ -1,4 +1,4 @@
-$OpenXM$
+$OpenXM: OpenXM/src/Macaulay2/m2/README,v 1.1 2000/12/14 06:12:27 takayama Exp $
 
 -----------------------------------
 This module is under development.
@@ -10,7 +10,7 @@ i1 : load "oxclient.m2"
 --loaded oxcommon.m2
 --loaded oxclient.m2
 
-i2 : a=oxasir();
+i2 : asir=oxasir();
 F = $:2255 and  G = $:4616
 ssh -f -l taka localhost ' xterm -geometry 80x25-0-0  -e ox -ox ox_asir -data 4616 -control 2255 -reverse  -host localhost -pass M2  '  >/dev/null 
 Warning: Cannot allocate colormap entry for "yellow3"
@@ -34,9 +34,41 @@ o4 = ideal (x  - 1, y  - 1)
 
 o4 : Ideal of QQ [x, y]
 
-i5 : oxPrimDecomp(a,o4)
+i5 : oxPrimDecomp(asir,o4)
 sendingprimadec([x^2-1,y^2-1],[x, y]);
-i6 : oxPopCMO(a)
-o6 = {{{y - 1, x - 1}, {y - 1, x - 1}}, {{y - 1, x + 1}, {y - 1, x + 1}}, {{y + 1, x - 1}, {y + 1, x - 1}}, {{y + 1, x + 1}, {y + 1, x + 1}}}
+o5 = {{ideal {y - 1, x - 1}, ideal {y - 1, x - 1}}, 
+     {ideal {y - 1, x + 1}, ideal {y - 1, x + 1}}, 
+     {ideal {y + 1, x - 1}, ideal {y + 1, x - 1}}, 
+     {ideal {y + 1, x + 1}, ideal {y + 1, x + 1}}}
 
 o6 : List
+
+
+------------------
+
+Trouble shoot when ox sever window (xterm) does not show up.
+
+1. On knoppix/math, start M2 with 
+       openxm M2
+
+2. If you suspect the locale is not properly set,
+   add 
+      XTerm*locale:false
+   to .Xdefaults or .Xresources and load them by
+      xrdb .Xdefaults
+
+   "xterm" crashes if the locale is not properly set.
+
+3. asir_1, asir_2, ... cannot be used as polynomial variabes.
+
+------ For developer.
+-- Test data (large) by Anton Leykin (2006.12.07) to find a copy trouble
+-- of readMoreData (oxcommon.m2).
+load "oxclient.m2"
+QQ[x_1..x_4,a_1..a_4]
+I =
+ideal(3*x_1*a_1+2*x_2*a_2-x_4*a_4,x_2*x_3-x_1*x_4,x_2^2*a_1+x_1*x_3*a_2+x_2*x_4*a_3+x_3^2*a_4,3*x_3^3*a_1+x_2*x_4^2*a_1+3*x_3^2*x_4*a_2+x_4^3*a_3,x_3^3-x_2*x_4^2);
+asir = oxasir();
+ans=oxPrimDecomp(asir,I)
+
+

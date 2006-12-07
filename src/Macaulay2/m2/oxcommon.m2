@@ -1,4 +1,4 @@
-ID = "$OpenXM$"
+ID = "$OpenXM: OpenXM/src/Macaulay2/m2/oxcommon.m2,v 1.1 2000/09/21 09:20:53 takayama Exp $"
 --- class INT32
 INT32 = new SelfInitializingType of BasicList
 new INT32 from ZZ := (a,n) -> {n}
@@ -142,31 +142,37 @@ makeOXINPUT = (F) -> (
 
 readMoreData = (OX) -> (
      -- OX is an OXINPUT
+     --stderr <<"before read: "<<OX.loc << ascii OX.buffer <<endl << flush;
+     --OX.buffer = copy(OX.buffer); --copy it because "read" distroy it.
+     OX.buffer = ascii(ascii(OX.buffer)); --copy by a dirty trick. BUG
      newstring := read (OX.F);
      stderr << "Read " << #newstring << " bytes: " << ascii newstring 
             << endl << flush;
      left := #OX.buffer - OX.loc;
+     --stderr <<"before: "<<OX.loc << ascii OX.buffer <<endl << flush;	
      if left > 0 then
         OX.buffer = substring(OX.buffer, OX.loc, left)
                     | newstring
      else
         OX.buffer = newstring;
+     --stderr <<"after: "<<ascii OX.buffer <<endl << flush;	
      OX.loc = 0;
      )
 
 get32bits = (OX) -> (
      -- OX is an OXINPUT
-     if #OX.buffer < OX.loc + 4
-       then readMoreData OX;
+     while  #OX.buffer < OX.loc + 4 do (
+       readMoreData OX; );
      result := fromNetwork(substring(OX.buffer, OX.loc, 4));
-     OX.loc = OX.loc + 4;
+     OX.loc = OX.loc + 4;  
+     --debug: stderr << "get32bits" << ascii OX.buffer <<endl <<flush; 
      result
      )
 
 getBytes = (OX,n) -> (
      -- OX is an OXINPUT
-     if #OX.buffer < OX.loc + n
-       then readMoreData OX;
+     while #OX.buffer < OX.loc + n  do (
+       readMoreData OX; );
      result := substring(OX.buffer, OX.loc, n);
      OX.loc = OX.loc + n;
      result)
