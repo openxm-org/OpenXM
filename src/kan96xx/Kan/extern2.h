@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.9 2003/08/22 11:47:03 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/extern2.h,v 1.10 2003/08/26 12:46:05 takayama Exp $ */
 /* poly.c */
 void KinitKan(void);
 MONOMIAL newMonomial(struct ring *ringp);
@@ -132,6 +132,8 @@ int isConstant(POLY f);
 int isConstantAll(POLY f);
 void errorOutput(char *s);
 int validOutputOrder(int w[],int n);
+char **makeDsmall(char **dvars,int n);
+
 
 /* order.c */
 void setOrderByMatrix(int order[],int n,int c, int l,int omsize);

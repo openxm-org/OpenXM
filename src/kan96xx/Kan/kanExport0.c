@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.45 2005/07/03 11:08:53 ohara Exp $  */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/kanExport0.c,v 1.46 2005/09/27 06:10:43 takayama Exp $  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1659,6 +1659,7 @@ int KsetUpRing(ob1,ob2,ob3,ob4,ob5)
   newRingp->cc = cc;
   newRingp->x = xvars;
   newRingp->D = dvars;
+  newRingp->Dsmall = makeDsmall(dvars,n);
   /* You don't need to set order and orderMatrixSize here.
      It was set by setOrder(). */
   setFromTo(newRingp);

@@ -1,4 +1,4 @@
-%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.54 2006/03/03 00:43:02 takayama Exp $
+%%%%%%%%%%%  $OpenXM: OpenXM/src/kan96xx/Doc/ox.sm1,v 1.55 2006/03/03 02:30:09 takayama Exp $
 
 /ox.sm1.myname (ox-new.sm1) def
 
@@ -1712,6 +1712,52 @@ oxasir.verbose {
  $   [1 2 ] ] asir.wgr   $
 ]] putUsages
 
+/print_tex_form.aux {
+  /arg1 set
+  [/f /ans] pushVariables
+  [
+     arg1 /f set
+     [(UseDsmall)] system_variable /vv set
+     [(UseDsmall) 1] system_variable
+     f isArray {
+       f { print_tex_form.aux } map /ans set
+     }{  
+       [$quote($, f toString, $) $] cat /ans set
+     } ifelse
+    [(UseDsmall) vv] system_variable
+     ans /arg1 set
+  ] pop
+  popVariables
+  arg1
+} def
+
+/print_tex_form {
+  /arg1 set
+  [/f /comm /vv] pushVariables
+  [(CurrentRingp)] pushEnv
+  [
+    /f arg1 def
+    oxasir.ccc [ ] eq {
+       (Starting ox_asir server.) message
+        ox_asirConnectMethod
+    } {  } ifelse
+
+    oxasir.ccc ( quotetotex_env("conv_rule",7); ) oxsubmit 
+    oxasir.ccc oxpopcmo ;
+
+    f print_tex_form.aux /f set 
+    [$ print_tex_form($,  f $); $] cat /comm set
+    oxasir.ccc comm oxsubmit 
+    oxasir.ccc oxpopcmo /arg1 set
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+[(print_tex_form)
+[ (obj print_tex_form str)
+]] putUsages
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% functions to start ox_asir
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

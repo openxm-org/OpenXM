@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.10 2004/09/13 11:24:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.11 2005/06/16 06:54:55 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
@@ -64,6 +64,7 @@ struct ring {
   int cc;
   char **x;
   char **D;
+  char **Dsmall;
   int *order;   /* [i][j] ---> [i*2*N+j] */
   int orderMatrixSize;
   int *from;

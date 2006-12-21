@@ -1,7 +1,8 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.4 2003/08/26 12:46:05 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.5 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "datatype.h"
 #include "stackm.h"
 #include "extern.h"
@@ -58,6 +59,7 @@ char *POLYToString(f,multSym,brace)
      int brace;
 {
   extern int Wrap;
+  extern int UseDsmall;
   int i,j,jj,fi;
   int printed = 0;
   int vi; /* index for variables */
@@ -86,7 +88,9 @@ char *POLYToString(f,multSym,brace)
     printed = 1;
     xnames = dnames = (char **)NULL;
   }else{
-    ringp = f->m->ringp; xnames = f->m->ringp->x; dnames = f->m->ringp->D;
+    ringp = f->m->ringp; xnames = f->m->ringp->x; 
+    if (UseDsmall) dnames = f->m->ringp->Dsmall;
+    else dnames = f->m->ringp->D;
     n = ringp->n;
     xout = ringp->outputOrder;
   }
@@ -276,4 +280,17 @@ void errorOutput(s)
 {
   fprintf(stderr,"Error(output.c):%s\n",s);
   exit(15);
+}
+
+char **makeDsmall(char **dvars,int n) {
+  char **ans;
+  int i;
+  ans = (char **) sGC_malloc(sizeof(char *)*(n+1));
+  for (i=0; i<n; i++) {
+	ans[i] =  (char *) sGC_malloc(sizeof(char)*(strlen(dvars[i])+1));
+	strcpy(ans[i],dvars[i]);
+	ans[i][0] = tolower(ans[i][0]);
+  }
+  ans[n] = NULL;
+  return ans;
 }

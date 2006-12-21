@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.15 2004/09/17 02:42:57 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.16 2005/06/16 05:07:23 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -58,6 +58,7 @@ struct object KsystemVariable(ob)
   extern int DebugContentReduction;
   extern int QuoteMode;
   extern int RestrictedMode, RestrictedMode_saved;
+  extern int UseDsmall;
 
   int n,i;
   struct object ob1 = OINIT;
@@ -202,6 +203,8 @@ struct object KsystemVariable(ob)
         rob = KpoInteger(DebugContentReduction);
       }else if (strcmp(ob1.lc.str,"QuoteMode")==0) {
         rob = KpoInteger(QuoteMode);
+      }else if (strcmp(ob1.lc.str,"UseDsmall")==0) {
+        rob = KpoInteger(UseDsmall);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
       }
@@ -346,6 +349,9 @@ struct object KsystemVariable(ob)
       }else if (strcmp(ob1.lc.str,"QuoteMode") == 0) {
         QuoteMode = KopInteger(ob2);
         rob = KpoInteger(QuoteMode);
+      }else if (strcmp(ob1.lc.str,"UseDsmall") == 0) {
+        UseDsmall = KopInteger(ob2);
+        rob = KpoInteger(UseDsmall);
       }else{
         warningKan("KsystemVariable():Unknown key word.\n");
       }
