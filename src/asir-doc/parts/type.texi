@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.11 2003/04/19 15:44:57 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/type.texi,v 1.12 2003/04/20 08:01:27 noro Exp $
 \BJP
 @node 型,,, Top
 @chapter 型
@@ -667,7 +667,7 @@ GF(@var{p^n}) の乗法群の生成元を固定すること
 \BEG
 A finite field of order @var{p^n}, where @var{p^n} must be less than
 @var{2^29} and @var{n} must be equal to 1 if @var{p} is greater or
-equal to @var{2^14}@, 
+equal to @var{2^14}, 
 is set by @code{setmod_ff}
 by specifying its characteristic @var{p} the extension degree
 @var{n}. If @var{p} is less than @var{2^14}, each non-zero element 
@@ -679,6 +679,39 @@ This specification is useful for treating both cases in a single
 program.
 \E
 
+@item 10
+\JP @b{位数 @var{p^n} の小位数有限体の代数拡大の元}
+\EG @b{element of a finite field which is an algebraic extension of a small finite field of characteristic @var{p^n}}
+
+\BJP
+前項の, 位数が @var{p^n} の小位数有限体の @var{m} 次拡大の元である.
+標数 @var{p} および拡大次数 @var{n}, @var{m} 
+を @code{setmod_ff} により指定することにより設定する. 基礎体上の @var{m}
+次既約多項式が自動生成され, その代数拡大の生成元の定義多項式として用いられる.
+生成元は @code{@@s} である.
+
+\E
+\BEG
+An extension field @var{K} of the small finite field @var{F} of order @var{p^n}
+is set by @code{setmod_ff}
+by specifying its characteristic @var{p} the extension degree
+@var{n} and @var{m}=[@var{K}:@var{F}]. An irreducible polynomial of degree @var{m}
+over @var{K} is automatically generated and used as the defining polynomial of
+the generator of the extension @var{K/F}. The generator is denoted by @code{@@s}.
+\E
+
+@item 11
+\JP @b{分散表現の代数的数}
+\EG @b{algebraic number represented by a distributed polynomial}
+@*
+\JP @xref{代数的数に関する演算}.
+\EG @xref{Algebraic numbers}.
+
+\BJP
+
+\E
+\BEG
+\E
 @end table
 
 \BJP
