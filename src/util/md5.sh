@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/md5.sh,v 1.1 2006/10/13 11:51:25 ohara Exp $
+# $OpenXM: OpenXM/src/util/md5.sh,v 1.2 2006/10/14 08:30:26 ohara Exp $
 
 _freebsd () {
 	if [ "`which md5`" ]; then
@@ -22,7 +22,7 @@ _other () {
 }
 
 case "`uname`" in
-*BSD)  _freebsd "$@" ;;
+*BSD|Darwin)  _freebsd "$@" ;;
 Linux) _linux   "$@" ;;
 *)     _other   "$@" ;;
 esac
