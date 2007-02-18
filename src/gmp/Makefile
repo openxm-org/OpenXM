@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.11 2004/03/31 01:06:10 ohara Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.12 2004/12/01 07:06:19 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTFILES=gmp-4.1.4.tar.gz
-GMP=gmp-4.1.4
+DISTFILES=gmp-4.2.1.tar.gz
+GMP=gmp-4.2.1
 
 all : build 
 
@@ -42,7 +42,7 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		(cd work/${GMP} ; ${MAKE} install) ; \
-		for i in config.h gmp-impl.h gmp-mparam.h; do \
+		for i in config.h gmp-impl.h gmp-mparam.h fib_table.h mp_bases.h; do \
 			cp work/${GMP}/$$i ${OpenXM_HOME}/include ; \
 		done ; \
 	fi
