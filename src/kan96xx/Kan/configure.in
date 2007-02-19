@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/kan96xx/Kan/configure.in,v 1.1 2003/09/02 03:24:49 takayama Exp $
+dnl  $OpenXM: OpenXM/src/kan96xx/Kan/configure.in,v 1.2 2003/11/10 12:08:03 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
@@ -18,6 +18,11 @@ AC_CHECK_FUNC(dlopen)
 if test "$ac_cv_func_dlopen" = no ; then
   AC_CHECK_LIB(dl,dlopen)
 fi
+
+
+AC_CHECK_HEADER(sys/appleapiopts.h,AC_SUBST(CFLAG2,[" -arch ppc -arch i386"]),AC_SUBST(CFLAG2,[" "]))
+AC_CHECK_HEADER(sys/appleapiopts.h,AC_SUBST(CFLAG2p,[" -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk "]),AC_SUBST(CFLAG2p,[" "]))
+AC_CHECK_HEADER(sys/appleapiopts.h,AC_SUBST(AR,["libtool"]),AC_SUBST(AR,["ar"]))
 
 
 AC_OUTPUT(Makefile)

@@ -1,4 +1,4 @@
-###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.20 2004/06/25 04:37:54 takayama Exp $
+###  $OpenXM: OpenXM/src/kan96xx/Kan/Makefile.in,v 1.21 2004/09/24 07:10:06 takayama Exp $
 #
 #   depends on install-gmp, install-gc [install-asir-gc] 
 #              ( cd ../plugin ; make )
@@ -14,6 +14,7 @@ OpenXM_HOME_debug=../../..
 OpenXM_include_debug=${OpenXM_HOME_debug}/include
 OpenXM_lib_debug=${OpenXM_HOME_debug}/lib
 
+AR=@AR@
 CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@ 
@@ -112,7 +113,11 @@ $(kanlibS4) : $(HEADERS) gradedset.h
 kanlib.a : $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) kanlib.o ${OpenXM_lib}/libox_pathfinder.a
 	(cd plugin-tmp; /bin/rm -f *.o; ../ar-decomp $(PLUGIN_LIB) ; cp ../kanlib.o .)
 	(cd plugin-tmp; ../ar-decomp2 ${OpenXM_lib}/libox_pathfinder.a)
-	ar ru kanlib.a $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) plugin-tmp/*.o
+	if [ ${AR} = ar ]; then \
+	ar ru kanlib.a $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) plugin-tmp/*.o ; \
+	else \
+	libtool -static -o kanlib.a $(kanlibS1) $(kanlibS2) $(kanlibS3) $(kanlibS4) $(kanlibP) $(kanlibK) $(kanlibK2) $(kanlibKclass) $(PLUGIN_LIB) ${OpenXM_lib}/libox_pathfinder.a ; \
+	fi
 	${RANLIB} kanlib.a
 
 ############ smacro.h  and lookup.h
