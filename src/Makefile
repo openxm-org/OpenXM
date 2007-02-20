@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.149 2005/07/19 03:37:49 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.150 2005/11/10 05:56:50 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -61,7 +61,7 @@ all-phc:
 	(cd phc; ${MAKE} all)
 
 all-phcpack:
-	-@if [ "`which gnatmake`" ]; then \
+	-@if ../misc/which.pl -s gnatmake; then \
 		(cd phcpack; ${MAKE} all) ; \
 	fi
 
@@ -146,7 +146,7 @@ install-phc: all-phc
 	(cd phc; ${MAKE} install)
 
 install-phcpack: all-phcpack
-	-@if [ "`which gnatmake`" ]; then \
+	-@if ../misc/which.pl gnatmake; then \
 		(cd phcpack; ${MAKE} install) ; \
 	fi
 
