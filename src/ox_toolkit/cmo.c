@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.20 2005/07/26 12:52:04 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/cmo.c,v 1.21 2005/10/12 04:03:37 takayama Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -245,27 +245,26 @@ cmo_zz* new_cmo_zz_size(int size)
     return c;
 }
 
-cmo_qq* new_cmo_qq_noinit()
+cmo_qq* new_cmo_qq()
 {
     cmo_qq* c = MALLOC(sizeof(cmo_qq));
     c->tag  = CMO_QQ;
-    c->num  = c->den = NULL;
+    mpq_init(c->mpq);
     return c;
 }
 
 cmo_qq* new_cmo_qq_set_mpq(mpq_ptr q)
 {
-    cmo_qq* c = new_cmo_qq_noinit();
-    c->num = new_cmo_zz_set_mpz(mpq_numref(q));
-    c->den = new_cmo_zz_set_mpz(mpq_denref(q));
+    cmo_qq* c = new_cmo_qq();
+    mpq_set(c->mpq, q);
     return c;
 }
 
 cmo_qq* new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den)
 {
-    cmo_qq* c = new_cmo_qq_noinit();
-    c->num = new_cmo_zz_set_mpz(num);
-    c->den = new_cmo_zz_set_mpz(den);
+    cmo_qq* c = new_cmo_qq();
+    mpq_set_num(c->mpq, num);
+    mpq_set_den(c->mpq, den);
     return c;
 }
 

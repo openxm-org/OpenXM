@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.32 2005/03/03 06:38:15 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox.c,v 1.33 2005/03/03 07:25:17 ohara Exp $ */
 
 /* 
    This module includes functions for sending/receiveng CMO's.
@@ -210,10 +210,12 @@ static cmo_zz* receive_cmo_zz(OXFILE *oxfp)
 
 static cmo_qq* receive_cmo_qq(OXFILE *oxfp)
 {
-    cmo_qq* c = new_cmo_qq_noinit();
-    c->num = receive_cmo(oxfp);
-    c->den = receive_cmo(oxfp);
-    return c;
+    mpz_t num, den;
+    mpz_init(num);
+    mpz_init(den);
+    receive_mpz(oxfp, num);
+    receive_mpz(oxfp, den);
+    return new_cmo_qq_set_mpz(num, den);
 }
 
 static cmo_zero* receive_cmo_zero(OXFILE *oxfp)
@@ -605,8 +607,8 @@ static int send_cmo_zz(OXFILE *oxfp, cmo_zz* c)
 
 static int send_cmo_qq(OXFILE *oxfp, cmo_qq* c)
 {
-    send_cmo(oxfp, c->num);
-    send_cmo(oxfp, c->den);
+    send_mpz(oxfp, mpq_numref(c->mpq));
+    send_mpz(oxfp, mpq_denref(c->mpq));
     return 0;
 }
 

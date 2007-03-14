@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.32 2005/07/26 12:52:05 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.33 2005/10/12 04:03:37 takayama Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
 
@@ -115,8 +115,7 @@ typedef struct {
 
 typedef struct {
     int tag;
-    cmo *num;  /* Bunshi (cmo_zz) */
-    cmo *den;  /* Bunbo (cmo_zz) */
+    mpq_t mpq;
 } cmo_qq;
 
 typedef struct {
@@ -190,7 +189,7 @@ cmo_zz*            new_cmo_zz_set_si(int integer);
 cmo_zz*            new_cmo_zz_set_mpz(mpz_ptr z);
 cmo_zz*            new_cmo_zz_noinit();
 cmo_zz*            new_cmo_zz_set_string(char* s);
-cmo_qq*            new_cmo_qq_noinit();
+cmo_qq*            new_cmo_qq();
 cmo_qq*            new_cmo_qq_set_mpq(mpq_ptr q);
 cmo_qq*            new_cmo_qq_set_mpz(mpz_ptr num, mpz_ptr den);
 cmo_zero*          new_cmo_zero();
