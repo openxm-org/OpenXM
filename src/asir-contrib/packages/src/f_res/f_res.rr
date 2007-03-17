@@ -1,4 +1,4 @@
-/*	$Id$	*/
+/*	$OpenXM$ */
 
 F1 = c11 + c12*x*y + c13*x^2*y + c14*x$
 F2 = c21*y + c22*x^2*y^2 + c23*x^2*y + c24*x$
@@ -7,13 +7,42 @@ Q1 = [[0,0],[1,0],[1,1],[2,1]]$
 Q2 = [[0,1],[1,0],[2,1],[2,2]]$
 Q3 = [[0,0],[0,1],[1,0],[1,1]]$
 
-module sres;
+module f_res$
 
 static Sres_Path$
 static Gmp_Path$
-Sres_Path = "/home/fujiwara/work/ox_sres/ox_sres/ox_sres"$
-Gmp_Path = "/home/fujiwara/work/ox_sres/ox_sres/ox_sres.g"$
+Sres_Path = "ox_sres"$
+Gmp_Path = "ox_sresgmp"$
+static Time;
+Time = []$
+static Sres_proc$
+static Float_proc$
+static Gmp_proc$
+Sres_proc = -1$
+Float_proc = -1$
+Gmp_proc = -1$
 
+/* from common.rr */
+localf check$
+localf clear$
+localf gettime$
+localf diff$
+localf submatrix$
+
+/* from mres.rr */
+localf mres$
+localf mresM$
+localf mhrM$
+
+/* from dres.rr */
+localf dres$
+localf dresM$
+localf dixonpolynomial$
+localf matrixdecomp$
+localf dmono$
+
+/* from sres.rr */
+localf sres$
 localf sample$
 localf help$
 localf find_proc$
@@ -36,21 +65,15 @@ localf mayan_pyramid$
 localf msum_sub1i$
 localf msum_sub1i2$
 localf mvol$
-localf sres$
 localf sort_vdist$
 localf cnthdr$
+localf listadd$
+localf indexof$
 localf debug$
 localf exit$
 localf sres_main$
 localf setvect$
 localf nextuse$
-
-static Sres_proc$
-static Float_proc$
-static Gmp_proc$
-Sres_proc = -1$
-Float_proc = -1$
-Gmp_proc = -1$
 
 def sample()
 {
@@ -58,10 +81,10 @@ def sample()
 	print("F1 = c11 + c12*x*y + c13*x^2*y + c14*x$");
 	print("F2 = c21*y + c22*x^2*y^2 + c23*x^2*y + c24*x$");
 	print("F3 = c31 + c32*y + c33*x*y + c34*x$\n");
-	print("F=(x+y+z)^3;\nNP=sres.np( F, [x,y,z] );\n");
-	print("T1=sres.msum([Q2,Q3]);\nV1=sres.vdist(T1,[Q2,Q3],[20,11]);\n");
-	print("Sres=sres.sres( [F1,F2,F3], [x,y] |v=[20,11] )$");
-	print("Sres2=sres.sres( [a1*x+a2*y+a3,b1*x+b2*y+b3,c1*x^2+c2*y^2+c3+c4*x*y+c5*x+c6*y], [x,y]|v=[13,17])$");
+	print("F=(x+y+z)^3;\nNP=f_res.np( F, [x,y,z] );\n");
+	print("T1=f_res.msum([Q2,Q3]);\nV1=f_res.vdist(T1,[Q2,Q3],[20,11]);\n");
+	print("Sres=f_res.sres( [F1,F2,F3], [x,y] |v=[20,11] )$");
+	print("Sres2=f_res.sres( [a1*x+a2*y+a3,b1*x+b2*y+b3,c1*x^2+c2*y^2+c3+c4*x*y+c5*x+c6*y], [x,y]|v=[13,17])$");
 	return "";
 }
 
@@ -69,7 +92,7 @@ def help()
 {
 	print("start: start ox_sres");
 	print("float: use floating ox_sres");
-	print("gmp: use gmp ox_sres(ox_sres.g)");
+	print("gmp: use gmp ox_sres(ox_f_res.g)");
 	print("conv: culcutate convex hull");
 	print("support: change polynomial to support polytopes");
 	print("np: change polynomial to Newton polytopes");
@@ -86,7 +109,7 @@ def find_proc()
 	if( Sres_proc == -1 ){
 		Sres_proc = start( 0 );
 	}
-	return(Sres_proc);
+	return (Sres_proc);
 }
 
 def start( N )
@@ -102,7 +125,7 @@ def start( N )
 	}
 
 	if( P == -1 ){
-		print("sres.start : error");
+		print("f_res.start : error");
 		debug;
 	}
 
@@ -117,6 +140,7 @@ def float()
 	}
 
 	Sres_proc = Float_proc;
+	return Sres_proc;
 }
 
 def gmp()
@@ -126,6 +150,7 @@ def gmp()
 	}
 
 	Sres_proc = Gmp_proc;
+	return Sres_proc;
 }
 
 def conv(List)
@@ -134,7 +159,7 @@ def conv(List)
 		conv( [ [1,1],[0,0],[0,2],[2,0],[2,2] ] ) returns [ [0,0],[0,2],[2,0],[2,2] ] .	*/
 
 	if( type(List) != 4 ){
-		print("sres.conv : invalid argument");
+		print("f_res.conv : invalid argument");
 		return;
 	}
 
@@ -145,11 +170,11 @@ def conv(List)
 	while( L != [] ){
 		T = car(L);
 		if( type( T ) != 4 ){
-			print("sres.conv : invalid argument");
+			print("f_res.conv : invalid argument");
 			return;
 		}
 		if( length(T) != LL ){
-			print("sres.conv : length of List must be same");
+			print("f_res.conv : length of List must be same");
 		}
 
 		M = cons( cons(1,T), M );
@@ -173,7 +198,7 @@ def redcheck( List )
 		this calls cddlib's redcheck. so, "List" should be cddlib's style.	*/
 
 	if( type(List) != 4 ){
-		print("sres.redcheck : invalid argument");
+		print("f_res.redcheck : invalid argument");
 		return;
 	}
 
@@ -183,14 +208,14 @@ def redcheck( List )
 	while( L != [] ){
 		T = car( L );
 		if( type( T ) != 4 ){
-			print("sres.redcheck : invalid argument");
+			print("f_res.redcheck : invalid argument");
 			return;
 		}
 		if( length(T) != LL ){
-			print("sres.redcheck : length of List must be same");
+			print("f_res.redcheck : length of List must be same");
 		}
 		if( T[0] != 1 ){
-			print("sres.redcheck : first element must be 1");
+			print("f_res.redcheck : first element must be 1");
 			return;
 		}
 		L = cdr(L);
@@ -422,7 +447,7 @@ def vdist( Points, Polytopes, V )
 	Result = [];
 
 	if( type( Points ) != 4 ){
-		print("sres.vdist : invalid argument");
+		print("f_res.vdist : invalid argument");
 		return;
 	}
 
@@ -712,28 +737,30 @@ def sres( Equations, Vars )
 
 
 	if( type( Equations ) != 4 || type( Vars ) != 4 ){
-		print("sres.sres : invalid argument");
+		print("f_res.sres : invalid argument");
 		return;
 	}
 
 	N = length( Equations );
 
 	if( length( Vars ) != N-1 ){
-		print("sres.sres : length of Vars is not correct");
+		print("f_res.sres : length of Vars is not correct");
 		return;
 	}
 
 	if( length( Vars ) != length( V ) ){
-		print("sres.sres : length of V list is not correct");
+		print("f_res.sres : length of V list is not correct");
 		return;
 	}
 
-	gauger.check();
-	print("Newton polytopes...");
+	check();
+	print("Newton polytopes...",2);
 	Qs = map( np, Equations, Vars );
+	print("done");
 
-	gauger.check();
-	print("Mixed sum and v-dist...");
+	check();
+
+	print("Minkowski sum and v-dist...",2);
 	Q_i = Vi = [];
 	for(I=N-1;I>=0;I--){
 		Q_i = cons( cnthdr( I, Qs ), Q_i );
@@ -744,31 +771,25 @@ def sres( Equations, Vars )
 			Vi = cons( vdist( Ti, car( Q_i ), V ), Vi );
 		}
 	}
+	print("done");
+
 
 
 	Vdata = sort_vdist( Vi );
 
-	gauger.check();
+	check();
+
 	print("Mixed volume...",0);
 	MV = map( mvol, Q_i );
 	MVi = ltov( MV );
-	print(MV);
+	print("done",0);print(MV);
 
-	gauger.check();
-	print("Constructing Matrix...",0);
+	check();
+
 	Eql = map( support2, Equations, Vars );
-	Submatrix = sres_main( Eql, Vdata, MV );
-	print(size(Submatrix));
+	R = sres_main( Eql, Vdata, MV |p=P,sub=Sub );
 
-	gauger.check();
-	print("Determinant...");
-	if( indexof( "nd_det", flist() ) >= 0 ){
-		R = nd_det( Submatrix );
-	} else {
-		R = det( Submatrix );
-	}
-
-	gauger.check();
+	check();
 	return R;
 }
 
@@ -826,7 +847,7 @@ def cnthdr( N, List )
 		cnthdr( 2, [1,2,3,4] ) returns [1,2,4] .	*/
 
 	if( type( List ) != 4 || length( List ) <= N || N < 0 ){
-		print("sres.cnthdr : invalid argument");
+		print("f_res.cnthdr : invalid argument");
 		return;
 	}
 
@@ -839,6 +860,34 @@ def cnthdr( N, List )
 	List = cdr( List );
 
 	return append( reverse( Tmp ), List );
+}
+
+def listadd( A, B )
+{
+	/*	addtion of list like vector.
+		listadd( [1,2,3], [2,2,2] ) returns [3,4,5] .
+	*/
+	A = ltov( A );
+	B = ltov( B );
+
+	return vtol( A+B );
+}
+
+def indexof( List, Lists )
+{
+	/*	Find the first "List" in "Lists", and return the index.
+		if "List" is not found, return (-1). 	*/
+
+	N = 0;
+	while( Lists != [] ){
+		if( List == car( Lists ) ){
+			return N;
+		}
+		Lists = cdr( Lists );
+		N++;
+	}
+
+	return (-1);
 }
 
 def debug(N)
@@ -856,7 +905,31 @@ def exit()
 
 def sres_main( Eql, Vdata, MV )
 {
+	Prim = getopt(p);
+	Sub = getopt(sub);
+
 	N = length( Eql );
+	CVar = vars( Eql );
+
+	if( type(Prim) != 1 ){
+		Prim = 65521;
+	}
+
+	if( type(Sub) != 4 ){
+		Sub = [];
+		for(I=0;I<length(CVar);I++){
+			Sub = cons( prime(15+I) % Prim , Sub );
+		}
+	}
+
+	print("Matrix construction...",2);
+
+	Eqlp = Eql;
+	while( CVar != [] ){
+		Eqlp = subst( Eqlp, car(CVar), car(Sub) );
+		CVar = cdr( CVar );
+		Sub = cdr( Sub );
+	}
 
 	for(I=0;I<N;I++){
 		MaxRow += length( Vdata[I] );
@@ -864,14 +937,15 @@ def sres_main( Eql, Vdata, MV )
 
 	Matrix = newvect( MaxRow );
 	MatLen = newvect( MaxRow );
+	MatCor = newvect( MaxRow );
 	Monolist = [];
 
 	for(I=MatRow=0;I<N;I++){
-		SumMV += MV[I];
 		for(J=0;J<MV[I];J++){
-			Tmp = setvect( Eql[I], Vdata[I][J][1], Monolist );
+			Tmp = setvect( Eqlp[I], Vdata[I][J][1], Monolist );
 			Matrix[MatRow] = Tmp[0];
 			MatLen[MatRow] = Tmp[1];
+			MatCor[MatRow] = [I,J];
 			Monolist = Tmp[2];
 			MatRow++;
 		}
@@ -879,47 +953,156 @@ def sres_main( Eql, Vdata, MV )
 
 	MatCol = MatLen[MatRow-1];
 	Used = newvect( N, MV );
-	Times = 1;
+
+	/*	Initialize for fraction-Free Gaussian Elimination	*/
+	Divisor = 1;
+	InvDivisor = 1;
+	R = 0;
+	K = 0;
+	F = 0;
 
 	while( 1 ){
+
 		if( MatRow >= MatCol ){
-		
-			M = newmat( MatRow, MatCol );
-			for(I=0;I<MatRow;I++){
-				for(J=0;J<MatLen[I];J++){
-					M[I][J] = Matrix[I][J];
+
+			/* do FFGE to added rows.	*/
+			D = 1;
+			InvD = 1;
+			for(L=0;L<K;L++){
+
+				for(I=F;I<MatRow;I++){
+					if( MatLen[L] > MatLen[I] ){
+						Tmp = newvect( MatLen[L] );
+						for(J=L+1;J<MatLen[I];J++){
+							Tmp[J] = ( ( Matrix[L][L]*Matrix[I][J] - Matrix[L][J]*Matrix[I][L] ) * InvD ) % Prim;
+						}
+						for(;J<MatLen[L];J++){
+							Tmp[J] = ( Matrix[L][J]*Matrix[I][L] * InvD ) % Prim;
+						}
+						Matrix[I] = Tmp;
+						MatLen[I] = MatLen[L];
+					} else {
+						for(J=L+1;J<MatLen[L];J++){
+							Matrix[I][J] = ( ( Matrix[L][L]*Matrix[I][J] - Matrix[L][J]*Matrix[I][L] ) * InvD ) % Prim;
+						}
+						for(;J<MatLen[I];J++){
+							Matrix[I][J] = ( Matrix[L][L]*Matrix[I][J] * InvD ) % Prim;
+						}
+						Matrix[I][L] = 0;
+					}
 				}
+
+				D = Matrix[L][L];
+				InvD = inv( D, Prim );
 			}
 
-			print("Constructing Rank Matrix[",0);print(Times++,0);print("]...");
-			Submatrix = submatrix( M );
-			Size = size( Submatrix );
-	
-			if( Size[0] >= SumMV ){
-				gauger.check();
-				return Submatrix;
+			F = MatRow;
+
+			/*	Fraction-Free Gaussian Elimination	*/
+			/*	Eliminate below row R, with pivot in column K.	*/
+			for(;K<MatCol;K++){
+				/*	Find a nonzero pivot.	*/
+				for(P=R;P<MatRow;P++){
+					if( MatLen[P] > K && Matrix[P][K] != 0 ){
+						break;
+					}
+				}
+				if( P == MatRow ){
+					/* Make Matrix, again.	*/
+
+					break;
+				}
+
+				/*	Pivot is in row P, so swith rows P and R.	*/
+				if( P != R ){
+					Tmp = Matrix[P];
+					Matrix[P] = Matrix[R];
+					Matrix[R] = Tmp;
+					Tmp = MatLen[P];
+					MatLen[P] = MatLen[R];
+					MatLen[R] = Tmp;
+					Tmp = MatCor[P];
+					MatCor[P] = MatCor[R];
+					MatCor[R] = Tmp;
+				}
+
+				for(I=R+1;I<MatRow;I++){
+					if( MatLen[R] > MatLen[I] ){
+						Tmp = newvect( MatLen[R] );
+						for(J=K+1;J<MatLen[I];J++){
+							Tmp[J] = ( ( Matrix[R][K]*Matrix[I][J] - Matrix[R][J]*Matrix[I][K] ) * InvDivisor ) % Prim;
+						}
+						for(;J<MatLen[R];J++){
+							Tmp[J] = ( Matrix[R][J]*Matrix[I][K] * InvDivisor ) % Prim;
+						}
+						Matrix[I] = Tmp;
+						MatLen[I] = MatLen[R];
+
+					} else {
+						for(J=K+1;J<MatLen[R];J++){
+							Matrix[I][J] = ( ( Matrix[R][K]*Matrix[I][J] - Matrix[R][J]*Matrix[I][K] ) * InvDivisor ) % Prim;
+						}
+						for(;J<MatLen[I];J++){
+							Matrix[I][J] = ( Matrix[R][K]*Matrix[I][J] * InvDivisor ) % Prim;
+						}
+						Matrix[I][K] = 0;
+					}
+				}
+
+				Divisor = Matrix[R][K];
+				InvDivisor = inv( Divisor, Prim );
+				R++;
+			}
+
+			if( R == MatCol ){
+				print("done");
+				print("Determinant[",0);print(MatRow,0);print(",",0);print(MatCol,0);print("](",0);print(MatCol,0);print("*",0);print(MatCol,0);print(")...",2);
+
+				M = newmat( MatCol, MatCol );
+				for(Im=0;Im<MatCol;Im++){
+					I = MatCor[Im][0];
+					J = MatCor[Im][1];
+					V = setvect( Eql[I], Vdata[I][J][1], Monolist )[0];
+					for(Jm=0;Jm<MatCol;Jm++){
+						M[Im][Jm] = V[Jm];
+					}
+				}
+
+				check();
+				if( indexof( "nd_det", flist() ) >= 0 ){
+					R = nd_det( M );
+				} else {
+					R = det( M );
+				}
+				print("done");
+				return R;
 			}
 		}
 
 		Next = nextuse( N, Vdata, Used );
 		if( Next == [] ){
+			print("");
+			check();
 			return (-1);
 		}
 
 		while( Next != [] ){
 			I = car(Next)[0];
 			J = car(Next)[1];
-			Tmp = setvect( Eql[I], Vdata[I][J][1], Monolist );
+			Tmp = setvect( Eqlp[I], Vdata[I][J][1], Monolist );
 			Matrix[MatRow] = Tmp[0];
 			MatLen[MatRow] = Tmp[1];
+			MatCor[MatRow] = [I,J];
 			Monolist = Tmp[2];
 			MatRow++;
+
 			Next = cdr( Next );
 		}
 		MatCol = MatLen[MatRow-1];
+
 	}
 
-	return M;
+	/*	Never comes here	*/
 }
 
 def setvect( BaseEquation, Monomial, Monolist )
@@ -995,21 +1178,448 @@ def nextuse( N, Vdata, Used )
 	return Result;
 }
 
-endmodule;
-
-
-def sres( Equations, Vars ){
-	ND = getopt(nd);
-	Imp = getopt(imp);
-	Beta = getopt(beta);
-	Lambda = getopt(lambda);
-	C = getopt(c);
-	P = getopt(p);
+def mres( Equations, Vars )
+{
+	Rsc = getopt(rsc);
+	Prim = getopt(p);
 	Sub = getopt(sub);
-	V = getopt(v);
+	Rowidx = getopt( rowidx );
+	Colidx = getopt( colidx );
 
-	return sres.sres( Equations, Vars | nd=ND,imp=Imp,beta=Beta,lambda=Lambda,
-		c=C,p=P,sub=Sub,v=V );
+	M = mresM( Equations, Vars | rsc=Rsc,p=Prim,sub=Sub,rowidx=Rowidx,colidx=Colidx );
+
+	check();
+	print("Determinant",0);print(size(M),0);print("...",2);
+	if( indexof( "nd_det", flist() ) >= 0 ){
+		R = nd_det( M );
+	} else {
+		R = det( M );
+	}
+	print("done");
+
+	check();
+	return R;
 }
+
+def mresM( Equations, Vars )
+{
+	Rsc = getopt(rsc);
+	Prim = getopt(p);
+	Sub = getopt(sub);
+	Rowidx = getopt( rowidx );
+	Colidx = getopt( colidx );
+
+	check();
+	print("Matrix construction...",2);
+	P1 = map( dp_ptod, Equations, Vars );
+	P2 = map( dp_homo, P1 );
+	W = append( Vars, [uc()] );
+	P3 = map( dp_dtop, P2, W );
+	M = mhrM( P3, W );
+	print("done");
+
+	if( type(Rsc) != -1 && Rsc == 1 ){
+		check();
+		print("Rank Matrix Construction",0);print(size(M),0);print("...",2);
+		Submatrix = submatrix( M | p=Prim,sub=Sub,rowidx=Rowidx,colidx=Colidx );
+		print("done");
+	} else {
+		Submatrix = M;
+	}
+
+	return Submatrix;
+}
+
+def mhrM( Equations, Vars )
+{
+	N = length(Vars) - 1;
+
+	Di = newvect(N+1);
+
+	/*	Computing d = \sum_{i=0}^n d_i-n	*/
+	for(I=0;I<=N;I++){
+		Di[I] = dp_td( dp_ptod( Equations[I], Vars ) );
+		D += Di[I];
+	}
+	D = D - N;
+
+	Mono = dmono( D, N+1 );
+	check();
+
+	S = newvect( N+1 );
+	for(I=0;I<=N;I++){
+		S[I] = [];
+	}
+
+	Work = Mono;
+	while( Work != [] ){
+		for(I=0;I<=N;I++){
+			T = car( Work );
+			if( T[I] >= Di[I] ){
+				S[I] = cons( T, S[I] );
+				break;
+			}
+		}
+		Work = cdr( Work );
+	}
+
+	L = length( Mono );
+	M = newmat( L, L );
+
+	for(I=K=0;I<=N;I++){
+		T = S[I];
+		while( T != [] ){
+			DF = dp_ptod( Equations[I], Vars );
+			A = ltov(car(T));
+			A[I] = A[I] - Di[I];
+			A = vtol( A );
+
+			while( DF != 0 ){
+				C = dp_hc( DF );
+				V = vtol( dp_etov( DF ) );
+				Idx = indexof( listadd( V, A ), Mono );
+				M[K][Idx] = C;
+				DF = dp_rest( DF );
+			}
+			T = cdr( T );
+			K++;
+		}
+	}
+
+	return M;
+}
+
+
+def dmono( D, N )
+{
+	/*	N : number of variable.
+		D : total degree.
+		return : all monomial of total degree D for N variable.
+		dmono( 2, 2 ) returns [ [0,2], [1,1], [2,0] ] .
+	*/
+
+	if( N == 1 ){
+		return [ [D] ];
+	}
+
+	R = [];
+	for(I=0;I<=D;I++){
+		Last = dmono( I, N-1 );
+
+		while( Last != [] ){
+			R = cons( cons( D-I, car(Last) ), R );
+			Last = cdr( Last );
+		}
+	}
+
+	return R;
+}
+
+def dres( Equations, Vars )
+{
+	Prim = getopt(p);
+	Sub = getopt(sub);
+	Norsc = getopt(norsc);
+	Rowidx = getopt(rowidx);
+	Colidx = getopt(colidx);
+
+	Submatrix = dresM( Equations, Vars |p=Prim,sub=Sub,norsc=Norsc,rowidx=Rowidx,colidx=Colidx );
+
+	print("Determinant",0);print(size(Submatrix),0);print("...",2);
+	if( indexof( "nd_det", flist() ) >= 0 ){
+		R = nd_det( Submatrix );
+	} else {
+		R = det( Submatrix );
+	}
+	print("done");
+
+	check();
+	return R;
+}
+
+def dresM( Equations, Vars )
+{
+	Prim = getopt(p);
+	Sub = getopt(sub);
+	Norsc = getopt(norsc);
+	Rowidx = getopt(rowidx);
+	Colidx = getopt(colidx);
+
+	print("Dixon polynomial...",2);
+	check();
+	Tmp = dixonpolynomial( Equations, Vars );
+	print("done");
+	check();
+
+	Dpoly = Tmp[0];
+	UC = Tmp[1];
+
+	print("Matrix decomposition...",2);
+	Matrix =  matrixdecomp( Dpoly, UC, Vars );
+	print("done");
+	check();
+
+	if( Norsc != 1 ){
+		print("Rank Submatrix Construction",0);print(size(Matrix[1]),0);print("...",2);
+		Submatrix = submatrix( Matrix[1] |p=Prim,sub=Sub,rowidx=Rowidx,colidx=Colidx );
+		print("done");
+	} else {
+		Submatrix = Matrix[1];
+	}
+	check();
+
+	return Submatrix;
+}
+
+def dixonpolynomial( Equations, Vars )
+{
+	/*	This function returns dixonpolynomial and new variable:
+		It returns [ Dixonpolynomial, vector of new variable ].
+	*/
+
+	N = length( Vars );
+
+	if( length( Equations ) != N+1 ){
+		print("dixonpolynomial : length of Vars is not correct");
+		return;
+	}
+
+	UC = newvect( N );
+	for(I=0;I<N;I++){
+		UC[I] = uc();
+	}
+
+	M = newmat( N+1, N+1 );
+
+	for(J=0;J<=N;J++){
+		M[0][J] = Equations[J];
+	}
+
+	for(I=1;I<=N;I++){
+		Equations = subst( Equations, Vars[I-1], UC[I-1] ); 
+		for(J=0;J<=N;J++){
+			M[I][J] = Equations[J];
+		}
+	}
+
+	if( indexof( "nd_det", flist() ) >= 0 ){
+		Dpoly = nd_det( M );
+	} else {
+		Dpoly = det( M );
+	}
+
+	for(I=0;I<N;I++){
+		Dpoly = sdiv( Dpoly, ( Vars[I] - UC[I] ) );
+	}
+
+	return [ Dpoly, UC ];
+}
+
+def matrixdecomp( Dpoly, UC_, Vars )
+{
+	/*	This function decomposes Dixonpolynomial to WDV. where,
+		V is column vector of all monomials in "Vars" which appear in "Dpoly".
+		V is row vector of all monomials in "UC" which appear in "Dpoly".
+		remark : "Dpoly" is polynomial, "UC" is vector and "Vars" is list.
+	*/
+
+	UC = vtol(UC_);
+	Dpoly2 = dp_ptod( Dpoly, UC );
+
+	RowList = RowVect = [];
+	while( Dpoly2 != 0 ){
+		RowList = cons( dp_hc( Dpoly2 ), RowList );
+		RowVect = cons( dp_etov( Dpoly2 ), RowVect );
+		Dpoly2 = dp_rest( Dpoly2 );
+	}
+	MaxRow = length( RowList );
+
+	M = newvect( MaxRow );
+
+	ColVect = [];
+	for(I=0;I<MaxRow;I++){
+		ThisRow = [];
+		Obj = dp_ptod( RowList[I], Vars );
+		while( Obj != 0 ){
+			HT = dp_etov( Obj );
+			T = indexof( HT, ColVect );
+			if( T == (-1) ){
+				T = length( ColVect );
+				ColVect = append( ColVect, [ HT ] );
+			}
+			ThisRow = cons( [ T, dp_hc( Obj ) ], ThisRow );
+			Obj = dp_rest( Obj );
+		}
+		M[I] = newvect( length( ColVect ) );
+		while( ThisRow != [] ){
+			Tmp = car( ThisRow );
+			M[I][ Tmp[0] ] = Tmp[1];
+			ThisRow = cdr( ThisRow );
+		}
+	}
+	MaxCol = length( ColVect );
+
+	Matrix = newmat( MaxRow, MaxCol );
+	for(I=0;I<MaxRow;I++){
+		JM = length( M[I] );
+		for(J=0;J<JM;J++){
+			Matrix[I][J] = M[I][J];
+		}
+	}
+
+	V = newvect( MaxRow );
+	for(I=0;I<MaxRow;I++){
+		V[I] = dp_dtop( dp_vtoe( RowVect[I] ), UC );
+	}
+
+	W = newvect( MaxCol );
+	for(I=0;I<MaxCol;I++){
+		W[I] = dp_dtop( dp_vtoe( ColVect[I] ), Vars );
+	}
+
+	return [ V, Matrix, W ];
+}
+
+def check()
+{
+	Time = cons( time(), Time );
+}
+
+def clear()
+{
+	Time = [];
+}
+
+def gettime()
+{
+	return Time;
+}
+
+def diff( A, B )
+{
+	return [ B[0]-A[0], B[1]-A[1], B[2]-A[2], B[3]-A[3] ];
+}
+
+
+def submatrix( Matrix )
+{
+	/*	This function returns full-rank submatrix of "Matrix".	*/
+
+	MatRow = size( Matrix )[0];
+	MatCol = size( Matrix )[1];
+
+	RowIdx = getopt(rowidx);
+	ColIdx = getopt(colidx);
+
+	if( type(RowIdx) != 5 || length(RowIdx) != MatRow ){
+		RowIdx = newvect( MatRow );
+		for(I=0;I<MatRow;I++){
+			RowIdx[I] = I;
+		}
+	}
+	if( type(ColIdx) != 5 || length(ColIdx) != MatCol ){
+		ColIdx = newvect( MatCol );
+		for(I=0;I<MatCol;I++){
+			ColIdx[I] = I;
+		}
+	}
+
+	M = newmat( MatRow, MatCol );
+	for(I=0;I<MatRow;I++){
+		for(J=0;J<MatCol;J++){
+			M[I][J] = Matrix[ RowIdx[I] ][ ColIdx[J] ];
+		}
+	}
+
+	Prim = getopt(p);
+	Sub = getopt(sub);
+
+	CVar = vars( M );
+
+	if( type(Prim) != 1 ){
+		Prim = 65521;
+	}
+
+	if( type(Sub) != 4 ){
+		Sub = [];
+		for(I=0;I<length(CVar);I++){
+			Sub = cons( prime(15+2*I) % Prim , Sub );
+		}
+	}
+
+	while( CVar != [] ){
+		M = subst( M, car(CVar), car(Sub) );
+		CVar = cdr( CVar );
+		Sub = cdr( Sub );
+	}
+
+
+	/*	Initialize for Fraction-Free Gaussian Elimination	*/
+	InvDivisor = 1;
+
+	/*	Fraction-Free Gaussian Elimination	*/
+	/*	Eliminate below row R, with pivot in column K.	*/
+	for(K=R=0;K<MatCol&&R<MatRow;K++,R++){
+
+		/*	Find a nonzero pivot.	*/
+		for(P=R;P<MatRow;P++){
+			if( M[P][K] != 0 ){
+				break;
+			}
+		}
+		if( P == MatRow ){
+			if( R == MatRow-1 ){
+				MatCol--;
+				break;
+			}
+
+			/*	swith columns K and MatCol-1	*/
+			for(I=R;I<MatRow;I++){
+				Tmp = M[I][MatCol-1];
+				M[I][MatCol-1] = M[I][K];
+				M[I][K] = Tmp;
+			}
+			ColIdx[K] = ColIdx[MatCol-1];
+			MatCol--;			
+
+			/*	do again	*/
+			R--;
+			K--;
+			continue;
+		}
+
+		/*	Pivot is in row P, so swith rows P and R.	*/
+		if( P != R ){
+			for(J=K;J<MatCol;J++){
+				Tmp = M[P][J];
+				M[P][J] = M[R][J];
+				M[R][J] = Tmp;
+			}
+			Tmp = RowIdx[P];
+			RowIdx[P] = RowIdx[R];
+			RowIdx[R] = Tmp;
+		}
+
+		for(I=R+1;I<MatRow;I++){
+			for(J=K+1;J<MatCol;J++){
+				M[I][J] = ( ( M[R][K]*M[I][J] - M[R][J]*M[I][K] ) * InvDivisor ) % Prim;
+			}
+			M[I][K] = 0;
+		}
+
+		Divisor = M[R][K];
+		InvDivisor = inv( Divisor, Prim );
+	}
+
+	Submatrix = newmat( R, R );
+	for(I=0;I<R;I++){
+		for(J=0;J<R;J++){
+			Submatrix[I][J] = Matrix[ RowIdx[I] ][ ColIdx[J] ];
+		}
+	}
+
+	return Submatrix;
+}
+endmodule$
 
 end$
