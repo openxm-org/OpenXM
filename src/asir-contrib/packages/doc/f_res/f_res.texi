@@ -1,0 +1,827 @@
+\input texinfo
+@comment $OpenXM$
+@comment    Copyright (c)  2005, Kenji Fujiwara,
+@comment    Permission is granted to copy, distribute and/or modify this document
+@comment    under the terms of the GNU Free Documentation License, Version 1.1
+@comment    or any later version published by the Free Software Foundation;
+@comment    with the Invariant Sections being LIST THEIR TITLES, with the
+@comment    Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+@comment    A copy of the license is included in the section entitled "GNU
+@comment    Free Documentation License".
+@comment
+@comment \input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-f_res
+
+@comment --- タイトル ---
+@settitle Risa/Asir 終結式計算パッケージ @code{f_res}
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title Risa/Asir 終結式計算パッケージ @code{f_res} 説明書
+@subtitle 利用説明書
+@subtitle 1.0 版
+@subtitle 2005 年 6 月
+
+@author  by Kenji Fujiwara and Masayuki Noro
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Risa/Asir committers
+2001. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@menu
+* 関数マニュアル::
+* Index::
+@end menu
+
+@node 関数マニュアル,,, Top
+@chapter 関数マニュアル
+
+@menu
+* 概要::
+* Notation::
+* 主な関数::
+@end menu
+
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node 概要,,, 関数マニュアル
+@section 概要
+
+@code{f_res} パッケージは, 多変数多項式集合に対し, dense な係数をもつ
+としてmultipolynomial resultant を計算する @code{f_res.mres}, 
+sparse な係数を持つ
+場合に sparse resultant を計算する @code{f_res.sres}, Dixon の方法により
+resultant を計算する @code{f_res.dres} および, 付随する関数を実装している. 
+実際には, これらは真の resultant の多項式倍を返す場合があるが, 消去イデアル
+に属する多項式を一つ求めたい場合には, グレブナー基底による消去に比較して
+効率がよい場合がある. 
+
+これらの方法においては, 線形計画法, 凸包, mixed volume の計算などが
+必要となるが, これらについてはフリーソフト
+である @code{cddlib} および @code{MixedVol} を利用した. これらは
+OpenXM サーバ @code{ox_sres} としてまとめられている. これは, 
+ソースディストリビューションでは, 自動的には make されないが,
+@samp{OpenXM/src/ox_cdd} において  make, make install することにより,
+asir のライブラリディレクトリにインストールされる. これを利用して
+上で述べた resultant を計算する asir 関数が, 
+@samp{OpenXM/src/asir-contrib/packages/f_res/f_res.rr} にある. 
+これを load することで, 次節以降で述べる機能が使えるようになる.
+なお, 線形計画法および凸包計算は, @code{gmp} による
+厳密計算を行うものと, 浮動小数による近似計算で行うものの 2 通りが
+用意されている. 後者の方が高速だが, 誤差が生ずる場合がある.
+この選択は, @code{f_res.gmp()}, @code{f_res.float()} を呼び出す
+ことで行う. 
+
+
+
+@node Notation,,,関数マニュアル
+@section Notation
+
+このマニュアルでは点をリストで, support や polytope をリストのリストで
+表す. つまり, 点 (1,1) はリスト @code{[1,1]} で表し, 点 @{(0,0),
+(1,0), (0,1) @} からなる polytope をリストのリスト 
+@code{[[0,0],[1,0],[0,1] ]} で表す.
+@node 主な関数,,, 関数マニュアル
+@section 主な関数
+
+@menu
+* f_res.mres f_res.mresM::
+* f_res.indexof::
+* f_res.listadd::
+* f_res.start::
+* f_res.float::
+* f_res.gmp::
+* f_res.conv::
+* f_res.support::
+* f_res.np::
+* f_res.msum::
+* f_res.mvol::
+* f_res.sres::
+* f_res.dresM::
+* f_res.dixonpolynomial::
+* f_res.matrixdecomp::
+* f_res.submatrix::
+@end menu
+
+@node intersect,,, 主な関数
+
+@node f_res.mres f_res.mresM,,, 主な関数
+@subsection @code{f_res.mres}, @code{f_res.mresM}
+@findex f_res.mres
+@findex f_res.mresM
+
+@table @t
+@item f_res.mres(@var{Equations}, @var{Vars} )
+:: Multipolynomial resultant の多項式倍を返す
+@item f_res.mresM(@var{Equations}, @var{Vars} )
+:: 行列式が @code{f_res.mres} が返す値になるような行列を返す
+@end table
+
+@table @var
+@item return
+@table @t
+ @item f_res.mres
+ 多項式もしくは 0
+ @item f_res.mresM
+ 行列
+@end table
+@item Equaitons
+多項式のリスト
+@item Vars
+変数のリスト.
+@item オプション
+@table @t
+ @item rsc
+ 任意
+ @item rowidx
+ 配列
+ @item colidx
+ 配列
+ @item p
+ 素数
+ @item sub
+ リスト
+@end table
+@end table
+
+@itemize @bullet
+@item @var{Equations} の成分の多項式による不定元を @var{Vars} 
+としたとき斉次多項式の場合の方法で @code{f_res.mres} は resultant の多項式倍
+を, @code{f_res.mresM} は resultant の多項式倍を行列式にもつ行列を返す.
+
+@item @var{Equations} の成分の多項式は内部で自動的に斉次化されているから,斉次多項式である必要はない.
+
+@item Rank Submatrix Construction を行ないたいときは
+オプション @code{rsc} を 1 に設定する.  その場合,この関数は内部で関数 
+@code{f_res.submatrix} を呼び出しているので, そのためのオプションはす
+べて受け付ける.
+@end itemize
+
+@example
+[0] F0 = a1*x + a2*y + a3$
+[1] F1 = b1*x + b2*y + b3$
+[2] F2 = c1*x^2 + c2*y^2 + c3 + c4*x*y + c5*x + c6*y$
+[3] f_res.mresM( [F0,F1,F2], [x,y] );
+[ 0 0 0 a2 a3 a1 ]
+[ 0 a2 a3 0 a1 0 ]
+[ a2 a3 0 a1 0 0 ]
+[ 0 b2 b3 0 b1 0 ]
+[ b2 b3 0 b1 0 0 ]
+[ c2 c6 c3 c4 c5 c1 ]
+[4] R = f_res.mres( [F0,F1,F2], [x,y] );
+(-c3*b2^2+c6*b3*b2-c2*b3^2)*a1^3+(((2*c3*b2-c6*b3)*b1-c5*b3*b2+c4*b3^2)*a2+((-c
+6*b2+2*c2*b3)*b1+c5*b2^2-c4*b3*b2)*a3)*a1^2+((-c3*b1^2+c5*b3*b1-c1*b3^2)*a2^2+(
+c6*b1^2+(-c5*b2-c4*b3)*b1+2*c1*b3*b2)*a3*a2+(-c2*b1^2+c4*b2*b1-c1*b2^2)*a3^2)*a
+1
+[5] fctr( R );
+[[-1,1],[a1,1],[(c3*b2^2-c6*b3*b2+c2*b3^2)*a1^2+(((-2*c3*b2+c6*b3)*b1+c5*b3*b2-
+c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b
+3^2)*a2^2+(-c6*b1^2+(c5*b2+c4*b3)*b1-2*c1*b3*b2)*a3*a2+(c2*b1^2-c4*b2*b1+c1*b2^
+2)*a3^2,1]]
+@end example
+
+
+@node f_res.indexof,,, 主な関数
+@subsection @code{f_res.indexof}
+@findex f_res.indexof
+
+@table @t
+@item f_res.indexof(@var{Element}, @var{List} )
+:: リスト中に要素が最初に現れる位置を返す
+@end table
+
+@table @var
+@item Element
+検索したい要素
+@item List
+検索対象のリスト
+@item return
+@var{List} で最初に現れる @var{Element} のインデックス番号.
+@var{List} に @var{Element} が現れない場合は整数 -1.
+@end table
+
+@itemize @bullet
+@item @var{List} で最初に現れる @var{Element} のインデックス番号を返す.
+@var{List} に @var{Element} が現れない場合は -1 を返す.
+
+@item @var{Element} の型は何であっても構わない.
+
+@item 関数 @code{flist} と組み合わせると,ある関数が Asir に
+入っているかが分かる.
+@end itemize
+
+@example
+[0] f_res.indexof( 2, [1,2,3] );
+1
+[1] f_res.indexof( 4, [1,2,3] );
+-1
+[2] f_res.indexof( "nd_det", flist() );
+31
+[3] f_res.indexof( "nd_Det", flist() );
+-1
+@end example
+
+@node f_res.listadd,,, 主な関数
+@subsection @code{f_res.listadd}
+@findex f_res.listadd
+
+@table @t
+@item f_res.listadd(@var{A}, @var{B} )
+:: リストをベクトルと見て和を求める
+@end table
+
+@table @var
+@item A
+@itemx B
+リスト
+@item return
+リスト
+@end table
+
+@itemize @bullet
+@item ベクトルの和のようにリスト@var{A} とリスト@var{B} の和を求める.
+@item リスト @var{A} とリスト @var{B} の長さは等しくなくてはいけない.
+@end itemize
+
+@example
+[0] f_res.listadd( [1,2,3], [4,5,6] );
+[5,7,9]
+[1] f_res.listadd( [a,b,c], [d,e,f] );
+[a+d,b+e,c+f]
+@end example
+
+
+
+
+
+
+
+
+
+
+
+
+@node f_res.start,,, 主な関数
+@subsection @code{f_res.start}
+@findex f_res.start
+
+@table @t
+@item f_res.start(@var{N})
+:: @code{ox_sres} を起動する
+@end table
+
+@table @var
+@item N
+任意
+@item return
+整数
+@end table
+
+@itemize @bullet
+@item パラメータ @var{N} が 1 のときは GMP版, それ以外のときは浮動小数版の新しい OpenXM サーバ @code{ox_sres} を起動し,
+他の関数で使われるサーバに設定する.
+@item 実行ファイルが見つからないときはデバッグモードに入る.
+@item 返される整数は通信のための識別子	.
+@end itemize
+
+@node f_res.float,,, 主な関数
+@subsection @code{f_res.float}
+@findex f_res.float
+
+@table @t
+@item f_res.float()
+:: @code{ox_sres} を起動する
+@end table
+
+@table @var
+@item return
+整数
+@end table
+
+@itemize @bullet
+@item 浮動小数版の OpenXM サーバ @code{ox_sres} が存在しないときは起動し,
+他の関数で使われるサーバに設定する.
+@item 実行ファイルが見つからないときはデバッグモードに入る.
+@item すでに存在している場合は他の関数で使われるサーバに設定するだけで新たに起動はしない.
+@item 返される整数は通信のための識別子	.
+@end itemize
+
+@node f_res.gmp,,, 主な関数
+@subsection @code{f_res.gmp}
+@findex f_res.gmp
+
+@table @t
+@item f_res.gmp()
+:: @code{ox_sres} を起動する
+@end table
+
+@table @var
+@item return
+整数
+@end table
+
+@itemize @bullet
+@item GMP 版の OpenXM サーバ @code{ox_sres} が存在しないときは起動し,
+他の関数で使われるサーバに設定する.
+@item 実行ファイルが見つからないときはデバッグモードに入る.
+@item すでに存在している場合は他の関数で使われるサーバに設定するだけで新たに起動はしない.
+@item 返される整数は通信のための識別子.
+@end itemize
+
+@node f_res.conv,,, 主な関数
+@subsection @code{f_res.conv}
+@findex f_res.conv
+
+@table @t
+@item f_res.conv(@var{List})
+:: polytope の凸閉包を求める
+@end table
+
+@table @var
+@item return
+リストのリスト
+@item List
+点を表すリストのリスト
+@end table
+
+@itemize @bullet
+@item @var{List} で与えられる polytope の凸閉包を求める.
+@item OpenXM サーバ @code{ox_sres} が存在しないときは浮動小数版を起動する.
+@item 点の座標は整数しか受け付けない.
+@end itemize
+
+@example
+[0] f_res.conv( [ [1,1],[0,0],[0,2],[2,0],[2,2] ] );
+[[0,0],[0,2],[2,0],[2,2]]
+@end example
+
+@node f_res.support,,, 主な関数
+@subsection @code{f_res.support}
+@findex f_res.support
+
+@table @t
+@item f_res.support(@var{Equation},@var{Vars})
+::  多項式の support を返す
+@end table
+
+@table @var
+@item return
+リストのリスト
+@item Equation
+多項式
+@item Vars
+不定元のリスト
+@end table
+
+@itemize @bullet
+@item 不定元を @var{Vars} としたときの多項式 @var{Equation} の support をリストのリストとして返す.
+@end itemize
+
+@example
+[0] f_res.support( x^2 + x*y + y^2, [x,y] );
+[[0,2],[1,1],[2,0]]
+[1] f_res.support( x^2 + x*y + y^2, [x,y,z] );
+[[0,2,0],[1,1,0],[2,0,0]]
+@end example
+
+@node f_res.np,,, 主な関数
+@subsection @code{f_res.np}
+@findex f_res.np
+
+@table @t
+@item f_res.np(@var{Equation},@var{Vars})
+:: Newton polytope を返す
+@end table
+
+@table @var
+@item return
+リストのリスト
+@item Equation
+多項式
+@item Vars
+不定元のリスト
+@end table
+
+@itemize @bullet
+@item 不定元を @var{Vars} としたときの多項式 @var{Equation} の Newton polytope をリストのリストとして返す.
+@item OpenXM サーバ @code{ox_sres} が存在しないときは浮動小数版を起動する.
+@end itemize
+
+
+@example
+[0] f_res.np( x^2 + x*y + y^2, [x,y] );
+[[0,2],[2,0]]
+[1] f_res.np( x^2 + x*y + y^2, [x,y,z] );
+[[0,2,0],[2,0,0]]
+@end example
+
+
+@node f_res.msum,,, 主な関数
+@subsection @code{f_res.msum}
+@findex f_res.msum
+
+@table @t
+@item f_res.msum(@var{Polytopes})
+:: polytope たちの Minkowski sum を返す
+@end table
+
+@table @var
+@item return
+リストのリスト
+@item Polytopes
+リストのリストのリスト
+@item オプション
+@table @var
+ @item conv
+ 任意.
+@end table
+@end table
+
+@itemize @bullet
+@item @var{Polytopes} の成分である polytope による 
+Minkowski sum 内のすべての lattice points を求める.
+@item @var{conv} が 1 のときは Minkowski sum の凸閉包を返す.
+OpenXM サーバ @code{ox_sres} が存在しないときは浮動小数版を起動する.
+@end itemize
+
+@example
+[0] Q1 = [[0,0],[1,0],[0,1]]$
+[1] Q2 = [[0,0],[1,0],[0,1],[1,1]]$
+[2] f_res.msum( [Q1,Q1] );
+[[0,0],[0,1],[0,2],[1,0],[1,1],[2,0]]
+[3] f_res.msum( [Q1,Q1] | conv=1 );
+[[0,0],[0,2],[2,0]]
+[4] f_res.msum( [Q1,Q1,Q1] | conv=1 );
+[[0,0],[0,3],[3,0]]
+[5] f_res.msum( [Q1,Q2] );
+[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1]]
+[6] f_res.msum( [Q1,Q2] | conv=1 );
+[[0,0],[0,2],[1,2],[2,0],[2,1]]
+@end example
+
+
+@node f_res.mvol,,, 主な関数
+@subsection @code{f_res.mvol}
+@findex f_res.mvol
+
+@table @t
+@item f_res.mvol(@var{Polytopes})
+:: polytope たちの mixed volume を求める
+@end table
+
+@table @var
+@item return
+整数
+@item Polytopes
+リストのリストのリスト
+@end table
+
+@itemize @bullet
+@item var{Polytopes} の成分である polytope による mixed volume を求める.
+@item Mixed volume の定義から polytope の次元と数は等しい必要がある.
+@item OpenXM サーバ @code{ox_sres} が存在しないときは浮動小数版を起動する.
+@end itemize
+
+@example
+[0] Q1 = [[0,0],[1,0],[0,1]]$
+[1] Q2 = [[0,0],[1,0],[0,1],[1,1]]$
+[2] f_res.mvol( [Q1,Q1] );
+1
+[3] f_res.mvol( [Q1,Q2] );
+2
+[4] f_res.mvol( [Q2,Q2] );
+2
+@end example
+
+
+@node sres f_res.sres,,, 主な関数
+@subsection @code{sres}, @code{f_res.sres}
+@findex sres
+@findex f_res.sres
+
+@table @t
+@item f_res.sres(@var{Equations},@var{Vars})
+:: sparse resultant の多項式倍を返す
+@end table
+
+@table @var
+@item return
+多項式
+@item Equations
+多項式のリスト
+@item Vars
+不定元のリスト
+@item オプション
+@table @var
+ @item v
+ リスト
+ @item p
+ 素数
+ @item sub
+ リスト
+@end table
+@end table
+
+@itemize @bullet
+@item @var{Equations} の成分の多項式による不定元を @var{Vars} としたとき Incremental algorithm で計算した resultant の多項式倍を返す.
+
+@item オプション @var{v} は v-distance を表すリストで, 定義されていない場合は 
+[11,12,13,@dots{}]$ が使われる.
+
+@item 行列の rank の計算は GF(@var{p}) 上で行なわれ,
+行列の中の不定元にはオプションで @var{sub} で指定される
+リストの要素が前から順に代入され評価される.
+ここで @var{p} はオプションの @var{p} である.
+素数 @var{p} が指定されていない場合は 65521 が使われ,
+リスト @var{sub} が指定されていない場合は 53,59,@dots{} の素数が使われる.
+
+@item OpenXM サーバ @code{ox_sres} が存在しないときは浮動小数版を起動する.
+@end itemize
+
+@example
+[0] F0 = a1*x + a2*y + a3$
+[1] F1 = b1*x + b2*y + b3$
+[2] F2 = c1*x^2 + c2*y^2 + c3 + c4*x*y + c5*x + c6*y$
+[3] R = f_res.sres( [F0,F1,F2], [x,y] );
+(c3*b2^3-c6*b3*b2^2+c2*b3^2*b2)*a1^2+(((-2*c3*b2^2+c6*b3*b2)*b1+c5*b3*b2^2-c4*b
+3^2*b2)*a2+((c6*b2^2-2*c2*b3*b2)*b1-c5*b2^3+c4*b3*b2^2)*a3)*a1+(c3*b2*b1^2-c5*b
+3*b2*b1+c1*b3^2*b2)*a2^2+(-c6*b2*b1^2+(c5*b2^2+c4*b3*b2)*b1-2*c1*b3*b2^2)*a3*a2
++(c2*b2*b1^2-c4*b2^2*b1+c1*b2^3)*a3^2
+[4] fctr( R );
+[[1,1],[b2,1],[(c3*b2^2-c6*b3*b2+c2*b3^2)*a1^2+(((-2*c3*b2+c6*b3)*b1+c5*b3*b2-c
+4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1+(c3*b1^2-c5*b3*b1+c1*b3
+^2)*a2^2+(-c6*b1^2+(c5*b2+c4*b3)*b1-2*c1*b3*b2)*a3*a2+(c2*b1^2-c4*b2*b1+c1*b2^2
+)*a3^2,1]]
+@end example
+
+@node f_res.dres f_res.dresM,,, 主な関数
+@subsection @code{f_res.dres}, @code{f_res.dresM}
+@findex f_res.dres
+@findex f_res.dresM
+
+@table @t 
+@item f_res.dres(@var{Equations},@var{Vars})
+:: Dixon resultant を返す
+@item f_res.dresM(@var{Equations},@var{Vars})
+:: 行列式が Dixon resultant になるような行列を返す
+@end table
+
+@table @var
+@item return
+@table @t
+ @item f_res.dres
+ 多項式
+ @item f_res.dresM
+ 行列
+@end table
+@item Equaitons
+多項式のリスト
+@item Vars
+不定元のリスト
+@item オプション
+@table @var
+ @item norsc
+ 任意
+ @item rowidx
+ 配列
+ @item colidx
+ 配列
+ @item p
+ 素数
+ @item sub
+ リスト
+@end table
+@end table
+
+
+@itemize @bullet
+@item @var{Equations} の 成分の多項式による不定元を @var{Vars} 
+としたとき Dixon の方法で @code{f_res.dres} は resultant の多項式倍を,
+@code{f_res.dresM} は resultant の多項式倍を行列式にもつ行列を返す.
+
+@item Rank Submatrix Construction を行ないたくないときは
+オプション @var{norsc} を 1 に設定する.
+
+@item この関数は内部で関数 @code{f_res.submatrix} を呼び出しているので,
+そのためのオプションはすべて受け付ける.
+@end itemize
+
+@example
+[0] F0 = a1*x + a2*y + a3$
+[1] F1 = b1*x + b2*y + b3$
+[2] F2 = c1*x^2 + c2*y^2 + c3 + c4*x*y + c5*x + c6*y$
+[3] f_res.dresM( [F0,F1,F2], [x,y] );
+[ c1*b3*a2-c1*b2*a3 -c2*b3*a1+c4*b3*a2+(c2*b1-c4*b2)*a3 (c3*b2-c6*b3)*a1+(-c3*b
+1+c5*b3)*a2+(c6*b1-c5*b2)*a3 ]
+[ 0 -c2*b2*a1+c2*b1*a2 -c2*b3*a1+c2*b1*a3 ]
+[ -c1*b2*a1+c1*b1*a2 -c4*b2*a1+c4*b1*a2 -c4*b3*a1+c1*b3*a2+(c4*b1-c1*b2)*a3 ]
+[4] R = dres( [F0,F1,F2], [x,y] );
+(-c3*c2*c1*b2^3+c6*c2*c1*b3*b2^2-c2^2*c1*b3^2*b2)*a1^3+(((3*c3*c2*c1*b2^2-2*c6*
+c2*c1*b3*b2+c2^2*c1*b3^2)*b1-c5*c2*c1*b3*b2^2+c4*c2*c1*b3^2*b2)*a2+((-c6*c2*c1*
+b2^2+2*c2^2*c1*b3*b2)*b1+c5*c2*c1*b2^3-c4*c2*c1*b3*b2^2)*a3)*a1^2+(((-3*c3*c2*c
+1*b2+c6*c2*c1*b3)*b1^2+(2*c5*c2*c1*b3*b2-c4*c2*c1*b3^2)*b1-c2*c1^2*b3^2*b2)*a2^
+2+((2*c6*c2*c1*b2-2*c2^2*c1*b3)*b1^2-2*c5*c2*c1*b2^2*b1+2*c2*c1^2*b3*b2^2)*a3*a
+2+(-c2^2*c1*b2*b1^2+c4*c2*c1*b2^2*b1-c2*c1^2*b2^3)*a3^2)*a1+(c3*c2*c1*b1^3-c5*c
+2*c1*b3*b1^2+c2*c1^2*b3^2*b1)*a2^3+(-c6*c2*c1*b1^3+(c5*c2*c1*b2+c4*c2*c1*b3)*b1
+^2-2*c2*c1^2*b3*b2*b1)*a3*a2^2+(c2^2*c1*b1^3-c4*c2*c1*b2*b1^2+c2*c1^2*b2^2*b1)*
+a3^2*a2
+[5] fctr(R);
+[[-1,1],[c2,1],[c1,1],[b2*a1-b1*a2,1],[(c3*b2^2-c6*b3*b2+c2*b3^2)*a1^2+(((-2*c3
+*b2+c6*b3)*b1+c5*b3*b2-c4*b3^2)*a2+((c6*b2-2*c2*b3)*b1-c5*b2^2+c4*b3*b2)*a3)*a1
++(c3*b1^2-c5*b3*b1+c1*b3^2)*a2^2+(-c6*b1^2+(c5*b2+c4*b3)*b1-2*c1*b3*b2)*a3*a2+(
+c2*b1^2-c4*b2*b1+c1*b2^2)*a3^2,1]]
+@end example
+
+
+@node f_res.dixonpolynomial,,, 主な関数
+@subsection @code{f_res.dixonpolynomial}
+@findex f_res.dixonpolynomial
+
+@table @t
+@item f_res.dixonpolynomial(@var{Equations},@var{Vars})
+:: Dixon polynomial を返す
+@end table
+
+@table @var
+@item return
+リスト
+@item Equaitons
+多項式のリスト
+@item Vars
+不定元のリスト
+@end table
+
+@itemize @bullet
+@var{Equations} の 成分の多項式による不定元を @var{Vars} 
+としたときの Dixon polynomial を計算し,
+@code{[ (Dixon polynomial), (新しい変数の配列) ]} というリストを返す.
+新しい変数は関数 @code{uc} によって生成された不定元である.
+多項式の数は変数の数よりも一つ多い必要がある.
+@end itemize
+
+@example
+[0] F0 = a1*x + a2*y + a3$
+[1] F1 = b1*x + b2*y + b3$
+[2] F2 = c1*x^2 + c2*y^2 + c3 + c4*x*y + c5*x + c6*y$
+[3] f_res.dixonpolynomial( [F0,F1,F2], [x,y] );
+[(-_0*c1*b2*a1+(_0*c1*b1+c1*b3)*a2-c1*b2*a3)*x+(((-_1*c2-_0*c4)*b2-c2*b3)*a1+((
+_1*c2+_0*c4)*b1+c4*b3)*a2+(c2*b1-c4*b2)*a3)*y+(c3*b2+(-_1*c2-_0*c4-c6)*b3)*a1+(
+-c3*b1+(_0*c1+c5)*b3)*a2+((_1*c2+_0*c4+c6)*b1+(-_0*c1-c5)*b2)*a3,[ _0 _1 ]]
+@end example
+
+
+@node f_res.matrixdecomp,,, 主な関数
+@subsection @code{f_res.matrixdecomp}
+@findex f_res.matrixdecomp
+
+@table @t
+@item f_res.matrixdecomp( @var{Dpoly}, @var{UC}, @var{Vars} )
+:: Dixon polynomial を行列に分解する.
+@end table
+
+@table @var
+@item return
+リスト
+@item Dpoly
+多項式
+@item UC
+配列
+@item Vars
+リスト
+@end table
+
+@itemize @bullet
+@item dixonpolynomial @var{Dpoly} を行が @var{UC} の monomial,
+列が @var{Vars} の monomial で添字付けられる行列に分解する.
+@item 戻り値は, 
+@code{[ (@var{UC} の monomial の配列),(行列),(@var{Vars} の monomial の配列) ]}
+という形で,それぞれ@var{sigma_P = V D_P W} の @var{V}, @var{D_P}, @var{W} を表す.
+@end itemize
+
+@example
+[0] F0 = a1*x + a2*y + a3$
+[1] F1 = b1*x + b2*y + b3$
+[2] F2 = c1*x^2 + c2*y^2 + c3 + c4*x*y + c5*x + c6*y$
+[3] D = f_res.dixonpolynomial( [F0,F1,F2], [x,y] )$
+[4] M = f_res.matrixdecomp( D[0], D[1], [x,y] );
+[[ 1 _1 _0 ],[ c1*b3*a2-c1*b2*a3 -c2*b3*a1+c4*b3*a2+(c2*b1-c4*b2)*a3 (c3*b2-c6*
+b3)*a1+(-c3*b1+c5*b3)*a2+(c6*b1-c5*b2)*a3 ]
+[ 0 -c2*b2*a1+c2*b1*a2 -c2*b3*a1+c2*b1*a3 ]
+[ -c1*b2*a1+c1*b1*a2 -c4*b2*a1+c4*b1*a2 -c4*b3*a1+c1*b3*a2+(c4*b1-c1*b2)*a3 ],[
+ x y 1 ]]
+[5] V = M[0]*M[1]$
+[6] D[0] == V[0]*M[2][0]+V[1]*M[2][1]+V[2]*M[2][2];
+1
+@end example
+
+
+@node f_res.submatrix,,, 主な関数
+@subsection @code{f_res.submatrix}
+@findex f_res.submatrix
+
+@table @t
+@item f_res.submatrix( @var{Matrix} )
+:: 引数である行列の rank を持つ部分行列を返す.
+@end table
+
+@table @var
+@item return
+行列
+@item Matrix
+行列
+@item オプション
+@table @var
+ @item rowidx
+ 配列
+ @item colidx
+ 配列
+ @item p
+ 素数
+ @item sub
+ リスト
+@end table
+@end table
+
+@itemize @bullet
+@item 行列 @var{Matrix} の rank を持つ部分行列を返す.
+
+@item 行列の rank の計算で行列の中の不定元にはリスト @var{sub} 
+の値が前から順に代入され GF(@var{p}) で評価される.
+ここで @var{p} はオプションの @var{p} が使われる.
+
+@item 与えられた行列が正則ではないとき部分行列は一意に定まらない.
+そこでどの行列を指定するかというのを配列 @var{rowidx,colidx} で行なう.
+実際には行列 @var{Matrix}の (i,j) 成分を (@var{rowidx}[i],@var{colidx}[j])
+ 成分と入れ換えているだけである.
+
+@item 素数 @var{p} が指定されていない場合は 65521 が使われ,
+リスト @var{sub} が指定されていない場合は 53,59,dots{} の素数が使われる.
+@end itemize
+
+@example
+[0] M = newmat( 3, 3, [[1,0,0],[0,a,0],[0,b,0]] );
+[ 1 0 0 ]
+[ 0 a 0 ]
+[ 0 b 0 ]
+[1] f_res.submatrix( M );
+[ 1 0 ]
+[ 0 a ]
+[2] f_res.submatrix( M | rowidx=ltov([0,2,1]) );
+[ 1 0 ]
+[ 0 b ]
+@end example
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
