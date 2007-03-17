@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.150 2005/11/10 05:56:50 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.151 2007/02/20 02:37:18 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -9,7 +9,7 @@ RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
 all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
-     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack
+     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd
 
 all-gc: install-util 
 	(cd gc; ${MAKE} all)
@@ -81,11 +81,14 @@ all-rc:
 all-util: configure-util
 	(cd util; ${MAKE} all)
 
+all-oxcdd: install-oxtoolkit
+	(cd ox_cdd; ${MAKE} all)
+
 install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
-	 install-misc install-fep install-phcpack
+	 install-misc install-fep install-phcpack install-oxcdd
 
 install-oxtags:
 	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
@@ -175,6 +178,9 @@ install-rc: all-rc
 
 install-asir-port:
 	(cd asir-port; ${MAKE} install)
+
+install-oxcdd: all-oxcdd
+	(cd ox_cdd; ${MAKE} install)
 
 clean:
 	-rm ./.configure-links-done
