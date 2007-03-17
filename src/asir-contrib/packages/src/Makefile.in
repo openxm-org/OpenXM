@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.5 2005/04/08 06:25:12 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.6 2006/02/07 05:21:58 takayama Exp $
 # targets
 # all : 
 #     do nothing
@@ -26,6 +26,8 @@ install : clean-for-install
 	cp -r nk_mora/*.rr $(OpenXM_lib)/asir-contrib/nk_mora
 	mkdir -p $(OpenXM_lib)/asir-contrib/fj_curve
 	cp -r fj_curve/*.rr $(OpenXM_lib)/asir-contrib/fj_curve
+	mkdir -p $(OpenXM_lib)/asir-contrib/f_res
+	cp -r f_res/*.rr $(OpenXM_lib)/asir-contrib/f_res
 
 clean-for-install :
 	/bin/rm -rf $(OpenXM_lib)/asir-contrib
