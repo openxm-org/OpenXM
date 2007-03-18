@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.151 2007/02/20 02:37:18 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.152 2007/03/17 09:19:55 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -82,7 +82,7 @@ all-util: configure-util
 	(cd util; ${MAKE} all)
 
 all-oxcdd: install-oxtoolkit
-	(cd ox_cdd; ${MAKE} all)
+	-(cd ox_cdd; ${MAKE} all)
 
 install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
@@ -180,7 +180,7 @@ install-asir-port:
 	(cd asir-port; ${MAKE} install)
 
 install-oxcdd: all-oxcdd
-	(cd ox_cdd; ${MAKE} install)
+	-(cd ox_cdd; ${MAKE} install)
 
 clean:
 	-rm ./.configure-links-done
