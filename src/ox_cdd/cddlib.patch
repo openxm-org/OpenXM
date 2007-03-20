@@ -1,19 +1,132 @@
-*** Makefile.in.orig	Wed May 25 17:31:24 2005
---- Makefile.in	Wed May 25 17:30:36 2005
+diff -cbBr Makefile.am.orig Makefile.am
+*** Makefile.am.orig	Sun Nov  9 19:37:30 2003
+--- Makefile.am	Tue Mar 20 10:50:47 2007
 ***************
-*** 404,410 ****
-  # where is gmp?
-  #---------------------------------------------
-  # export gmpdir := $(PWD)/../gmp-4.1
-! export gmpdir := /usr/local
-  #---------------------------------------------
-  # where is gmp lib?
-  export gmplibdir = $(gmpdir)/lib
---- 404,410 ----
-  # where is gmp?
-  #---------------------------------------------
-  # export gmpdir := $(PWD)/../gmp-4.1
-! export gmpdir := $(PWD)/../../../..
-  #---------------------------------------------
-  # where is gmp lib?
-  export gmplibdir = $(gmpdir)/lib
+*** 1,20 ****
+- ##############################################
+- # Site customizations:
+- #---------------------------------------------
+- # where is gmp?
+- #---------------------------------------------
+- # export gmpdir := $(PWD)/../gmp-4.1
+- export gmpdir := /usr/local
+- #---------------------------------------------
+- # where is gmp lib?
+- export gmplibdir = $(gmpdir)/lib
+- #---------------------------------------------
+- # where is gmp include?
+- #---------------------------------------------
+- # export gmpincludedir = $(gmpdir)
+- export gmpincludedir = $(gmpdir)/include
+- #---------------------------------------------
+- # End of site customization.
+- ##############################################
+  SUBDIRS      = lib-src src lib-src-gmp src-gmp
+  EXTRA_DIST   = examples/*.* examples-ine/*.* examples-ine3d/*.* examples-ml/*.* examples-ext/*.*
+--- 1,2 ----
+diff -cbBr Makefile.in.orig Makefile.in
+*** Makefile.in.orig	Mon Feb 12 20:33:31 2007
+--- Makefile.in	Tue Mar 20 10:50:38 2007
+***************
+*** 398,418 ****
+  	uninstall-info-recursive uninstall-recursive
+  
+  
+- ##############################################
+- # Site customizations:
+- #---------------------------------------------
+- # where is gmp?
+- #---------------------------------------------
+- # export gmpdir := $(PWD)/../gmp-4.1
+- export gmpdir := /usr/local
+- #---------------------------------------------
+- # where is gmp lib?
+- export gmplibdir = $(gmpdir)/lib
+- #---------------------------------------------
+- # where is gmp include?
+- #---------------------------------------------
+- # export gmpincludedir = $(gmpdir)
+- export gmpincludedir = $(gmpdir)/include
+  # Tell versions [3.59,3.63) of GNU make to not export all variables.
+  # Otherwise a system limit (for SysV at least) may be exceeded.
+  .NOEXPORT:
+--- 398,403 ----
+diff -cbBr lib-src-gmp/Makefile.am.orig lib-src-gmp/Makefile.am
+*** lib-src-gmp/Makefile.am.orig	Mon Jul 14 16:55:11 2003
+--- lib-src-gmp/Makefile.am	Tue Mar 20 10:49:27 2007
+***************
+*** 27,31 ****
+  CC       = $(CXX)
+  CPPFLAGS = -DGMPRATIONAL
+  CXXFLAGS = -O3
+! INCLUDES = -I$(gmpincludedir)
+  
+--- 27,31 ----
+  CC       = $(CXX)
+  CPPFLAGS = -DGMPRATIONAL
+  CXXFLAGS = -O3
+! INCLUDES = -I$(prefix)/include
+  
+diff -cbBr lib-src-gmp/Makefile.in.orig lib-src-gmp/Makefile.in
+*** lib-src-gmp/Makefile.in.orig	Mon Feb 12 20:33:32 2007
+--- lib-src-gmp/Makefile.in	Tue Mar 20 10:51:25 2007
+***************
+*** 106,112 ****
+  
+  CPPFLAGS = -DGMPRATIONAL
+  CXXFLAGS = -O3
+! INCLUDES = -I$(gmpincludedir)
+  subdir = lib-src-gmp
+  mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+  CONFIG_CLEAN_FILES =
+--- 106,112 ----
+  
+  CPPFLAGS = -DGMPRATIONAL
+  CXXFLAGS = -O3
+! INCLUDES = -I$(prefix)/include
+  subdir = lib-src-gmp
+  mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+  CONFIG_CLEAN_FILES =
+diff -cbBr src-gmp/Makefile.am.orig src-gmp/Makefile.am
+*** src-gmp/Makefile.am.orig	Fri Jul 29 03:32:51 2005
+--- src-gmp/Makefile.am	Tue Mar 20 10:46:19 2007
+***************
+*** 31,38 ****
+  
+  CC           = $(CXX)
+  LDADD        = ../lib-src-gmp/libcddgmp.a
+! LDFLAGS      = -L$(gmplibdir)
+! INCLUDES     = -I../lib-src-gmp
+! INCLUDES    += -I$(gmpincludedir)
+  CPPFLAGS     = -DGMPRATIONAL
+  CXXFLAGS     = -O2
+--- 31,37 ----
+  
+  CC           = $(CXX)
+  LDADD        = ../lib-src-gmp/libcddgmp.a
+! LDFLAGS      = -L$(prefix)/lib
+! INCLUDES     = -I../lib-src-gmp -I$(prefix)/include
+  CPPFLAGS     = -DGMPRATIONAL
+  CXXFLAGS     = -O2
+diff -cbBr src-gmp/Makefile.in.orig src-gmp/Makefile.in
+*** src-gmp/Makefile.in.orig	Mon Feb 12 20:33:32 2007
+--- src-gmp/Makefile.in	Tue Mar 20 10:51:30 2007
+***************
+*** 109,116 ****
+  testlp2_gmp_SOURCES = testlp2.c
+  testlp3_gmp_SOURCES = testlp3.c
+  LDADD = ../lib-src-gmp/libcddgmp.a
+! LDFLAGS = -L$(gmplibdir)
+! INCLUDES = -I../lib-src-gmp -I$(gmpincludedir)
+  CPPFLAGS = -DGMPRATIONAL
+  CXXFLAGS = -O2
+  subdir = src-gmp
+--- 109,116 ----
+  testlp2_gmp_SOURCES = testlp2.c
+  testlp3_gmp_SOURCES = testlp3.c
+  LDADD = ../lib-src-gmp/libcddgmp.a
+! LDFLAGS = -L$(prefix)/lib
+! INCLUDES = -I../lib-src-gmp -I$(prefix)/include
+  CPPFLAGS = -DGMPRATIONAL
+  CXXFLAGS = -O2
+  subdir = src-gmp

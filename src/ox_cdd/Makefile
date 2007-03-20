@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.3 2005/05/25 06:43:44 noro Exp $
+# $OpenXM: OpenXM/src/ox_cdd/Makefile,v 1.4 2005/05/25 08:39:07 noro Exp $
 
 OpenXM_HOME=../..
 OpenXM_LIBDIR=../../lib
@@ -8,14 +8,14 @@ PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
-CDDLIB_TB=cddlib-093d.tar.gz
 MVOL_TB=MixedVol.tar.gz
 CFLAGS = -g -Wall -finline-functions
 MVOLINCLUDE=work/MixedVol/SRC
 
 GMPDEF = -DGMPRATIONAL
 
-CDD=cddlib-093d
+CDD=cddlib-094d
+CDDLIB_TB=$(CDD).tar.gz
 CDD_HOME= work/$(CDD)
 
 CDD_LIB = -lcdd
@@ -50,19 +50,19 @@ ox_cdd.o : ox_cdd.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 ox_cddgmp.o : ox_cdd.c
-	$(CC) -o ox_cddgmp.o $(CFLAGS) $(GMPDEF) $(INCLUDES) -c $<
+	$(CC) -o ox_cddgmp.o $(CFLAGS) $(GMPDEF) $(INCLUDES) -c ox_cdd.c
 
 ox_sres.o : ox_sres.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 ox_sresgmp.o : ox_sres.c
-	$(CC) -o ox_sresgmp.o $(CFLAGS) $(GMPDEF) $(INCLUDES) -c $<
+	$(CC) -o ox_sresgmp.o $(CFLAGS) $(GMPDEF) $(INCLUDES) -c ox_sres.c
 
 cddlib.o : cddlib.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 cddlibgmp.o : cddlib.c
-	$(CC) -o cddlibgmp.o  $(CFLAGS) $(GMPDEF) $(INCLUDES) -c $<
+	$(CC) -o cddlibgmp.o  $(CFLAGS) $(GMPDEF) $(INCLUDES) -c cddlib.c
 
 mvol.o : mvol.cpp
 	g++ $(CFLAGS) -I$(MVOLINCLUDE) -c $<
@@ -121,7 +121,7 @@ extract: fetch
 
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
-		cd work/${CDD}; patch < ../../cddlib.patch ; \
+		cd work/${CDD}; patch -p0 < ../../cddlib.patch ; \
 	fi
 	@touch work/.patch_done
 
