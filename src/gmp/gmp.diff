@@ -1,0 +1,65 @@
+# $OpenXM$
+diff -ubB mpn/generic/addsub_n.c.orig mpn/generic/addsub_n.c
+--- mpn/generic/addsub_n.c.orig	2006-03-15 00:57:54.000000000 +0900
++++ mpn/generic/addsub_n.c	2007-04-04 01:20:05.000000000 +0900
+@@ -58,13 +58,13 @@
+       for (off = 0; off < n; off += PART_SIZE)
+ 	{
+ 	  this_n = MIN (n - off, PART_SIZE);
+-#if HAVE_NATIVE_mpn_add_nc || !HAVE_NATIVE_mpn_add_n
++#if HAVE_NATIVE_mpn_add_nc
+ 	  acyo = mpn_add_nc (r1p + off, s1p + off, s2p + off, this_n, acyo);
+ #else
+ 	  acyn = mpn_add_n (r1p + off, s1p + off, s2p + off, this_n);
+ 	  acyo = acyn + mpn_add_1 (r1p + off, r1p + off, this_n, acyo);
+ #endif
+-#if HAVE_NATIVE_mpn_sub_nc || !HAVE_NATIVE_mpn_sub_n
++#if HAVE_NATIVE_mpn_sub_nc
+ 	  scyo = mpn_sub_nc (r2p + off, s1p + off, s2p + off, this_n, scyo);
+ #else
+ 	  scyn = mpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
+@@ -81,13 +81,13 @@
+       for (off = 0; off < n; off += PART_SIZE)
+ 	{
+ 	  this_n = MIN (n - off, PART_SIZE);
+-#if HAVE_NATIVE_mpn_sub_nc || !HAVE_NATIVE_mpn_sub_n
++#if HAVE_NATIVE_mpn_sub_nc
+ 	  scyo = mpn_sub_nc (r2p + off, s1p + off, s2p + off, this_n, scyo);
+ #else
+ 	  scyn = mpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
+ 	  scyo = scyn + mpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
+ #endif
+-#if HAVE_NATIVE_mpn_add_nc || !HAVE_NATIVE_mpn_add_n
++#if HAVE_NATIVE_mpn_add_nc
+ 	  acyo = mpn_add_nc (r1p + off, s1p + off, s2p + off, this_n, acyo);
+ #else
+ 	  acyn = mpn_add_n (r1p + off, s1p + off, s2p + off, this_n);
+@@ -105,13 +105,13 @@
+       for (off = 0; off < n; off += PART_SIZE)
+ 	{
+ 	  this_n = MIN (n - off, PART_SIZE);
+-#if HAVE_NATIVE_mpn_add_nc || !HAVE_NATIVE_mpn_add_n
++#if HAVE_NATIVE_mpn_add_nc
+ 	  acyo = mpn_add_nc (tp, s1p + off, s2p + off, this_n, acyo);
+ #else
+ 	  acyn = mpn_add_n (tp, s1p + off, s2p + off, this_n);
+ 	  acyo = acyn + mpn_add_1 (tp, tp, this_n, acyo);
+ #endif
+-#if HAVE_NATIVE_mpn_sub_nc || !HAVE_NATIVE_mpn_sub_n
++#if HAVE_NATIVE_mpn_sub_nc
+ 	  scyo = mpn_sub_nc (r2p + off, s1p + off, s2p + off, this_n, scyo);
+ #else
+ 	  scyn = mpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
+diff -ubB mpz/set_d.c.orig mpz/set_d.c
+--- mpz/set_d.c.orig	2006-03-15 00:57:54.000000000 +0900
++++ mpz/set_d.c	2007-04-04 01:19:53.000000000 +0900
+@@ -56,6 +56,9 @@
+   if (ALLOC(r) < rn)
+     _mpz_realloc (r, rn);
+ 
++  if (rn <= 0)
++    rn = 0;
++
+   rp = PTR (r);
+ 
+   switch (rn)
