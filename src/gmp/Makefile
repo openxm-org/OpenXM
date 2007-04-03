@@ -1,11 +1,13 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.12 2004/12/01 07:06:19 ohara Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.13 2007/02/18 05:31:58 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
-DISTFILES=gmp-4.2.1.tar.gz
-GMP=gmp-4.2.1
+DISTNAME=gmp-4.2.1
+DISTFILES=${DISTNAME}.tar.gz
+WRKSRC=work/${DISTNAME}
+PATCHFILES = gmp.diff
 
 all : build 
 
@@ -23,32 +25,40 @@ extract: fetch
 	@touch work/.extract_done
 
 patch: extract
+	@if [ ! -f work/.patch_done ]; then \
+        for i in ${PATCHFILES} ; do \
+	        cat $$i | (cd ${WRKSRC}; patch -p0) ; \
+        done ; \
+        if [ `uname` = Darwin -a `uname -m` = i386 ]; then \
+            (cd ${WRKSRC}/mpn/x86; ${RM} *dive_1* */*dive_1* */*/*dive_1* */*mode1o* */*/*mode1o*) ; \
+        fi ; \
+	fi
 	@touch work/.patch_done
 
 configure: patch
 	@if [ ! -f work/.configure_done ]; then \
 		prefix=`cd ${OpenXM_HOME}; pwd` ; \
-		(cd work/${GMP} ; ./configure --prefix="$$prefix" ) ; \
+		(cd ${WRKSRC} ; CC=${CC} ./configure --prefix="$$prefix" --enable-cxx) ; \
 	fi
 	@touch work/.configure_done
 
 build : configure
 	@if [ ! -f work/.build_done ]; then \
-		(cd work/${GMP} ; ${MAKE}) ; \
+		(cd ${WRKSRC} ; ${MAKE} CC=${CC}) ; \
 	fi
 	@touch work/.build_done
 
 install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
-		(cd work/${GMP} ; ${MAKE} install) ; \
+		(cd ${WRKSRC} ; ${MAKE} install) ; \
 		for i in config.h gmp-impl.h gmp-mparam.h fib_table.h mp_bases.h; do \
-			cp work/${GMP}/$$i ${OpenXM_HOME}/include ; \
+			cp ${WRKSRC}/$$i ${OpenXM_HOME}/include ; \
 		done ; \
 	fi
 	@touch work/.install_done
 
 clean:
-	-$(RM) -rf work
+	-${RM} -rf work
 
 distclean: clean
