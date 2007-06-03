@@ -1,12 +1,12 @@
-%% gkz.sm1, 1998, 11/6, 11/8
-/gkz.version (2.981108) def
+%% gkz.sm1, 1998, 11/6, 11/8,  2007-06-03
+/gkz.version (3.000000) def
 gkz.version [(Version)] system_variable gt
 { (This package requires the latest version of kan/sm1) message
   (Please get it from http://www.math.kobe-u.ac.jp/KAN) message
   error
 } { } ifelse
 
-$gkz.sm1 generates gkz systems (C) N.Takayama, 1998, 11/8, cf. rrank in hol.sm1 $ message-quiet
+$gkz.sm1 generates gkz, mgkz systems (C) N.Takayama, 1998-2007, cf. rrank in hol.sm1 $ message-quiet
 /gkz.verbose 0 def
 /gkz.A [[1 1 1 1] [0 1 2 3]] def
 /gkz.b [3 5] def
@@ -143,5 +143,128 @@ $gkz.sm1 generates gkz systems (C) N.Takayama, 1998, 11/8, cf. rrank in hol.sm1 
   (Example 2: [ [[1 1 1 1] [0 1 3 4]] [0 0]] gkz rrank :: )
  ]
 ] putUsages
+
+
+/mgkz.A [[1 1 1 1] [0 1 2 3]] def
+/mgkz.w  [4 0 0 2] def
+/mgkz.b [3 5] def
+
+
+/mgkz {
+  /arg1 set
+  [/in-mgkz /aa /typev /setarg /A /b /vx /vy /vyi /w /n /k
+   /vvv /www /At /i /ff /ttt /vxd /ttt2 /ttt /i /vxrule
+   /w /mrulex /mruled
+  ] pushVariables 
+  [(CurrentRingp) (KanGBmessage)] pushEnv  %% push current global environment.
+  [
+    /aa arg1 def
+    aa isArray { } { (array mgkz) message (mgkz) usage error } ifelse
+    /setarg 0 def
+    aa { tag } map /typev set
+    typev [ ArrayP ArrayP ArrayP] eq
+    {  /A aa 0 get def
+       /w aa 1 get def
+       /b aa 2 get  def
+       /setarg 1 def
+    } { } ifelse
+    typev [ ] eq
+    {
+       /A mgkz.A def
+       /w mgkz.w def
+       /b mgkz.b def
+       /setarg 1 def
+    } { } ifelse
+    setarg { } { (Argument mismatch) message error } ifelse
+
+    b [0] join /b set
+    [(KanGBmessage) gkz.verbose] system_variable
+    b length /k set
+    A w append /A set
+    A transpose , [ 2 1 k { pop 0 } for 1] append /A set
+    A transpose /A set 
+    A 0 get length /n set
+
+   %% vy = [ (y1) (y2) (y3)] , vyi = [(yi1) (yi2) (yi3)], 
+   %% vx = [(x1) (x2) (x3) (x4) (x5)]
+   [ 1 1 k { } for ] { (y) 2 1 roll gensym } map /vy   set
+   [ 1 1 k { } for ] { (yi) 2 1 roll gensym } map /vyi set
+   [ 1 1 n { } for ] { (x) 2 1 roll gensym } map /vx   set
+
+   %% vvv = [(y1) (y2) (y3) (yi1) (yi2) (yi3) (x1) (x2) (x3) (x4) (x5)]
+   /vvv vy vyi join vx join def
+   %% www = [(y1) 1 (y2) 1 (y3) 1 (yi1) 1 (yi2) 1 (yi3) 1]
+   /www vy vyi join { 1 } map def
+   [ vvv from_records  ring_of_polynomials
+     [www] weight_vector 0] define_ring
+
+   /At A transpose def
+   %% Apply an algorithm to get the toric ideal. 
+   %% Negative components are accepted.  yi1=y1^(-1), ...
+   [
+    1 1 n {
+      /i set
+      (x) i gensym .   vy vyi << At i 1 sub get >> gkz.prod sub
+    } for
+    1 1 k {
+      /i set
+      (1). (y) i gensym . (yi) i gensym . mul sub %% 1- y_i yi_i
+    } for
+   ] /ff set
+   gkz.verbose { ff message } { } ifelse
+   [ff] groebner_sugar 0 get 
+   vy vyi join eliminatev /ttt set
+   ttt { toString } map /ttt set
+   %%% ttt <== toric ideal
+
+   [ vx from_records ring_of_differential_operators 0] define_ring
+%%D-clean  /vvv  [ 1 1 n { /i set [(x) i gensym . (Dx) i gensym . mul] } for ] def
+   /vvv  [ 1 1 n { /i set [(x) i gensym . [@@@.Dsymbol (x)] cat i gensym . mul] } for ] def
+   A { {(universalNumber) dc} map } map vvv mul transpose 0 get /ff set
+
+   ff b {(universalNumber) dc} map sub /ff set
+
+   /mrulex vx , n 1 sub , get . /mrulex set
+   [[mrulex , (0). mrulex sub]] /mrulex set
+   %%% [[(x5). (-x5).]] mrulex
+   ff {mrulex replace} map  {toString} map /ff set
+   %%% ff <== linear equations.
+
+   %%% vxd = [(Dx1) ... (Dx4) (Dx5)] 
+   /vxd vx {@@@.Dsymbol 2 1 roll 2 cat_n} map def
+
+  [[vxd , n 1 sub , get . 
+    vx  , n 1 sub , get .]] /mruled set
+
+   %% fix 1999, 3/3 for non-homogeneous toric ideal.
+   /vxrule [ 0 1 vx length 1 sub {
+      /i set
+      [vx i get . vxd i get .] } for
+   ] def
+%%   ttt { . vx vxd join laplace0 toString } map  /ttt2 set
+   ttt { . vxrule replace , mruled replace , toString } map  /ttt2 set
+
+   /arg1 [ << ff ttt2 join >> vx ] def  
+  ] pop
+  popEnv
+  popVariables
+  arg1
+} def
+
+[(mgkz)
+ [([A w b] gkz [eq v])
+  ([    ] gkz [eq v]) 
+  (array of array of integer A; array of integer w, b;)
+  (eq is the modified GKZ system defined by the matrix A, weight w, )
+  (and the parameter b.)
+  (v is the list of variables. The last variable is the deformation variable.)
+  (Default values of A and b are in gkz.A and gkz.b)
+  (For details, see a paper Modified A-hypergeometric system, N.Takayama --- private note.)
+  (Example : [ [[1 2 3]] [1 2 1] [0]] mgkz rank :: )
+  (Example : [ [[1 2 3]] [0]] gkz rank :: )
+  (Example : [ [[1 1 1] [1 2 3]] [1 2 1] [1 0]] mgkz message )
+ ]
+] putUsages
+
 
 ( ) message-quiet ;
