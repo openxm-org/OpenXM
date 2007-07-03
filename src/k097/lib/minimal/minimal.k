@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.34 2001/01/05 11:14:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.35 2007/07/03 22:05:46 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -1009,7 +1009,10 @@ HelpAdd(["Sminimal",
  "         Sweyl(\"x,y\",[[\"x\",-1,\"y\",-1,\"Dx\",1,\"Dy\",1]]);", 
  "         b = ReParse(a[0]); sm1_pmat(b); ",
  "         IsExact_h(b,[x,y]):",
- "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution."]]);
+ "Note:  a[0] is the V-minimal resolution. a[3] is the Schreyer resolution.",
+ " ---> D^{m_3} --b[2]--> D^{m_2} --b[1]--> D^{m_1} --b[0]--> D^{m_0} ",
+ "  Here D^{m_i} are the set of row vectors. "
+ ]]);
 
 def Sminimal(g,opt) {
   local r, freeRes, redundantTable, reducer, maxLevel,
