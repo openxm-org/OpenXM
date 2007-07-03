@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.33 2000/12/29 07:19:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/k097/lib/minimal/minimal.k,v 1.34 2001/01/05 11:14:28 takayama Exp $ */
 #define DEBUG 1 
 Sordinary = false;
 /* If you run this program on openxm version 1.1.2 (FreeBSD),
@@ -246,9 +246,9 @@ def StoTower() {
 }
 
 def SsetTower(tower) {
-sm1(" [(AvoidTheSameRing)] pushEnv 
-      [ [(AvoidTheSameRing) 0] system_variable 
-        [(gbListTower) tower (list) dc] system_variable
+sm1(" [(AvoidTheSameRing)] pushEnv \
+      [ [(AvoidTheSameRing) 0] system_variable \
+        [(gbListTower) tower (list) dc] system_variable \
       ] pop popEnv ");
       /* sm1("(hoge) message show_ring "); */
 }
@@ -358,13 +358,13 @@ def NewPolynomialVector(size) {
 }
 
 def  SturnOffHomogenization() {
-  sm1("
-    [(Homogenize)] system_variable 1 eq
-    { Sverbose {
-      (Warning: Homogenization and ReduceLowerTerms options are automatically turned off.) message } { } ifelse
-      [(Homogenize) 0] system_variable
-      [(ReduceLowerTerms) 0] system_variable
-    } {  } ifelse
+  sm1(" \
+    [(Homogenize)] system_variable 1 eq \
+    { Sverbose { \
+      (Warning: Homogenization and ReduceLowerTerms options are automatically turned off.) message } { } ifelse \
+      [(Homogenize) 0] system_variable \
+      [(ReduceLowerTerms) 0] system_variable \
+    } {  } ifelse \
   ");
 }
 /* NOTE!!!  Be careful these changes of global environmental variables.
@@ -372,13 +372,13 @@ def  SturnOffHomogenization() {
    after computation and interruption.  August 15, 2000.
 */
 def  SturnOnHomogenization() {
-  sm1("
-    [(Homogenize)] system_variable 0 eq
-    { Sverbose {
-        (Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.) message } {  } ifelse
-      [(Homogenize) 1] system_variable
-      [(ReduceLowerTerms) 1] system_variable
-    } {  } ifelse
+  sm1(" \
+    [(Homogenize)] system_variable 0 eq \
+    { Sverbose { \
+        (Warning: Homogenization and ReduceLowerTerms options are automatically turned ON.) message } {  } ifelse \
+      [(Homogenize) 1] system_variable \
+      [(ReduceLowerTerms) 1] system_variable \
+    } {  } ifelse \
   ");
 }
 
