@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc.rr,v 1.1 2005/04/08 05:56:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/phc.rr,v 1.2 2005/07/26 05:52:50 takayama Exp $ */
 /* Old: phc, see Attic */
 
 module phc;
@@ -128,11 +128,11 @@ def phc(A) {
   sm1.sm1(P," phc ");
   C = sm1.pop(P);
   /* print(C); */
-  load("./"+Fname);
+  /* load("./"+Fname); it does not work. */
   /* return(Phc); It does not work.*/
   print("The detailed output is in the file tmp.output.*")$
-  print("The answer is in the variable Phc.")$
-  return(0);
+  print("The answer is obtained by load(@@); Phc; ");
+  return Fname;
 }
 
 def demo1() {
