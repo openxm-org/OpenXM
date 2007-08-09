@@ -12,6 +12,7 @@ OS=`uname -s`
 RSYNC=rsync -avz -e ssh
 #FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
 FTP_DIR=/home/web/pub/OpenXM/head/knoppix
+APT_DIR=/usr/local/www/data/nobuki/DVD3
 TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 
 build-package: fetch  make-tar-ball-2  make-tar-ball-3
@@ -67,7 +68,13 @@ BINARY_FILES=d0 fep k0 ox ox100start ox_k0 ox_sm1 ox_texmacs oxc \
 EXCLUDE_FILES=--exclude CVS --exclude .keep_me \
               --exclude-from ../exclude-files.txt
 FILES=OpenXM/Copyright OpenXM/bin OpenXM/include \
-      OpenXM/lib OpenXM/man OpenXM/rc
+      OpenXM/lib OpenXM/man OpenXM/rc \
+      OpenXM/doc/asir-contrib \
+      OpenXM/doc/kan96xx \
+      OpenXM/doc/asir2000 \
+      OpenXM/doc/ox_toolkit \
+      OpenXM/doc/oxlib \
+      OpenXM/doc/OpenXM-specs
       
 make-tar-ball-2: make-tar-ball-1
 	if [ ! -f .make-tar-ball-2_done ]; then \
@@ -97,6 +104,7 @@ copy-tar-ball-and-asir: make-tar-ball-2 make-tar-ball-3
 	(cd work ;  ${RSYNC} "openxm-binary-${OS}-${VERSION}.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 	(cd work ;  ${RSYNC} "ox-texmacs-${OS}-${VERSION}.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 	(cp ../openxm*deb . ;  ${RSYNC} "openxm_${VERSION}_i386.deb" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
+	(cp ../openxm*deb . ;  ${RSYNC} "openxm_${VERSION}_i386.deb" ${USER}@fe.math.kobe-u.ac.jp:${APT_DIR})
 
 clean: clean-tilde
 	rm -rf debian/tmp build-stamp work .*done openxm*.deb
