@@ -191,7 +191,17 @@ A. license 関連で特殊な構造のため, apt-get upgrade はできません.
    はうまくいきません.
 
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.14 2007/08/09 06:58:49 takayama Exp $
+   To update package, please do as follows.
+   (a) sudo dpkg --purge openxm 
+   (b) (sudo)  rm -rf ~/OpenXM_tmp  ~/.asir-tmp
+
+   (c) sudo apt-get update
+   (d) sudo apt-get install openxm
+
+   "apt-get update openxm" will not work, because of a special structure
+   of the package due to a license restriction.
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.15 2007/08/09 07:24:13 takayama Exp $
 
    
 
