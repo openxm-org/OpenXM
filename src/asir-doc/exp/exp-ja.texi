@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.22 2005/07/26 05:31:52 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.23 2006/03/12 07:05:41 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2006 年 3 月
+@subtitle 2007 年 8 月
 
 @author  by Risa/Asir committers
 @page
@@ -140,6 +140,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * qt_is_var::
 * qt_is_ceof::
 * qt_rewrite:: 
+* asirgui.hnd::
 
 @end menu
 
@@ -2183,6 +2184,100 @@ qt 系の関数が開発された.
 @end itemize
 @comment ****************************************************************
 
+
+@comment ****************************************************************
+@node asirgui.hnd,,, 実験的仕様の関数
+@subsection @code{asirgui.hnd}
+@findex asirgui.hnd
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item asirguid.hnd
+:: asirgui の main window のハンドル番号を保持するファイル
+@end table
+
+
+@itemize @bullet
+@item asirgui (Windows 版) を起動すると asirgui.exe のあるフォルダおよび 環境変数 TEMP が定義されていればこのファイルが作成される.
+@item 中身は１０進整数で, asirgui の main winodw のハンドルである. このハンドルあてに PostMessage をすれば, asuirgui にキーボードから入力したのと同様な効果が得られる.
+@item text editor で作成, 保存したファイルを text editor 側から asirgui に読み込ませたりするために利用可能.
+@end itemize
+
+@example
+// Visual C++ 用のテストプログラム. 標準入力を asirgui へ送り込む.
+// test.cpp : コンソール アプリケーション用のエントリ ポイントの定義
+//
+
+#include "stdafx.h"
+#include "test.h"
+#include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <process.h>
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+// 唯一のアプリケーション オブジェクト
+
+CWinApp theApp;
+
+using namespace std;
+
+int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+{
+	int nRetCode = 0;
+
+	// MFC の初期化および初期化失敗時のエラーの出力
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		// TODO: 必要に応じてエラー コードを変更してください。
+		cerr << _T("Fatal Error: MFC initialization failed") << endl;
+		nRetCode = 1;
+	}
+	else
+	{
+		// TODO: この位置にアプリケーションの動作を記述してください。
+		CString strHello;
+		strHello.LoadString(IDS_HELLO);
+		cout << (LPCTSTR)strHello << endl;
+	}
+	HWND hnd;
+	FILE *fp = fopen("c:/Program Files/asir/bin/asirgui.hnd","r");
+	fscanf(fp,"%d",&hnd);
+	fclose(fp);
+	while (1) {
+		int c;
+		c = getchar();
+		if ( c == '#' ) break;
+		PostMessage(hnd,WM_CHAR,c,1);
+	}
+	return nRetCode;
+}
+@end example
+
+@table @t
+@item 参照
+@ref{xyz_abc}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この機能は 2006-12-5, 2007-02-13 に加えられた.
+@item @code{OpenXM_contrib2/windows/asir32gui/asir32gui.clw} 1.11
+@item @code{OpenXM_contrib2/windows/asir32gui/asir32guiview.cpp}  1.15, 1.1.6
+@end itemize
+@comment ****************************************************************
+
 @comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
 @comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
@@ -2246,7 +2341,6 @@ ChangeLog
  変更をうけたソースコードは xxxyy.rr, ppp.c である.
 @item この関数は 2000 頃にはじめてのバージョンが書かれた. ソースは ppp.c である.
 @end itemize
-@comment ****************************************************************
 
 @comment --- おまじない ---
 @node Index,,, Top
