@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.23 2003/09/02 14:26:07 takayama Exp $
+# $OpenXM: OpenXM/src/asir2000/Makefile,v 1.24 2005/07/14 02:56:52 takayama Exp $
 
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 # Original. http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/
-DISTNAME=gc6.5
+DISTNAME=gc6.8
 DISTFILES=${DISTNAME}.tar.gz
 
 ASIR = ../../../OpenXM_contrib2/asir2000
