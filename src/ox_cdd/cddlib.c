@@ -1,4 +1,4 @@
-/*	$OpenXM$	*/
+/*	$OpenXM: OpenXM/src/ox_cdd/cddlib.c,v 1.1 2005/05/25 04:42:20 noro Exp $	*/
 
 /*	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -206,4 +206,41 @@ mytype *lpsolve(dd_LPObjectiveType type,int row,int col,int **matrix,int *obj)
 _L99:
 	if (error!=dd_NoError) dd_WriteErrorMessages(stdout, error);
 	return &result;
+}
+
+mytype *lpintpt(int row,int col,int **matrix,mytype *ptp)
+{
+	dd_ErrorType error=dd_NoError;
+	dd_rowset ImL, Lbasis;
+	dd_LPSolutionPtr lps1;
+
+	dd_MatrixPtr A;
+	dd_ErrorType err;
+	int i,j;
+	mytype *ret;
+
+	A = dd_CreateMatrix( row, col );
+	for(i=0;i<row;i++){
+		for(j=0;j<col;j++){
+			dd_set_si(A->matrix[i][j],matrix[i][j]);
+		}
+	}
+
+	dd_FindRelativeInterior(A,&ImL,&Lbasis,&lps1,&error);
+	if (error!=dd_NoError) goto _L99;
+	if ( dd_Positive(lps1->optvalue) ) {
+		ret = (mytype *)MALLOC(lps1->d*sizeof(mytype));
+		for ( i = 0; i < lps1->d; i++ ) {
+			dd_init(ret[i]);
+			dd_set(ret[i],lps1->sol[i]);
+		}
+	} else {
+		ret = 0;
+	}
+	dd_FreeLPSolution(lps1);
+	set_free(ImL);
+	set_free(Lbasis);
+_L99:
+	if (error!=dd_NoError) dd_WriteErrorMessages(stdout, error);
+	return ret;
 }

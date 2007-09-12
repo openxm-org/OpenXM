@@ -1,4 +1,4 @@
-/*	$OpenXM$	*/
+/*	$OpenXM: OpenXM/src/ox_cdd/ox_cdd.c,v 1.1 2005/05/25 04:42:20 noro Exp $	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +37,8 @@ extern int debug_print;
 void init_cdd(void);
 int **redcheck(int row,int col,int **matrix,int *presult_row);
 mytype *lpsolve(dd_LPObjectiveType type,int row,int col,int **matrix,int *obj);
+mytype *lpintpt(int row, int col, int **matrix);
+
 
 void dprint( int level, char *string )
 {
@@ -51,6 +53,7 @@ void dprint( int level, char *string )
 #define LP_MAX 0
 #define LP_MIN 1
 #define LP_MAXMIN 2
+#define LP_INTPT 3
 
 int initialize_stack()
 {
@@ -184,6 +187,27 @@ cmo *matrix2cmo( int **matrix, int row, int col )
 	return (cmo *)result;
 }
 
+cmo_qq* new_cmo_qq_set_mpq(mpq_ptr q);
+
+cmo *vector2cmo( mytype *vector, int len)
+{
+	cmo_list *result;
+	cmo *tmp;
+	int j;
+
+	result = new_cmo_list();
+	for(j=0;j<len;j++){
+		if( vector[j] != 0 ){
+			tmp = (cmo*) new_cmo_qq_set_mpq( (mpq_ptr)vector[j] );
+		} else {
+			tmp = (cmo*) new_cmo_zero();
+		}
+		result = list_append( result, tmp );
+	}
+
+	return (cmo *)result;
+}
+
 int mytype2int( mytype a, int i )
 {
 #if defined GMPRATIONAL
@@ -263,7 +287,7 @@ void my_lpsolve( int resulttype, int index )
 	int **matrix,*object;
 	int lpmax,lpmin;
 	mytype *tmp;
-	cmo *cmomin,*cmomax;
+	cmo *cmomin,*cmomax,*cmoint;
 
 	pop();	/*	for argc	*/
 	row = get_i();	/*	row size	*/
@@ -285,14 +309,16 @@ void my_lpsolve( int resulttype, int index )
 		}
 	}
 
-	/*	For object	*/
-	object = MALLOC( col * sizeof(int) );
-	a = pop();
-
-	for(i=0;i<col;i++){
-		c = list_nth( (cmo_list*)a, i );
-
-		object[i] = cmo2int( c );
+	if ( index != LP_INTPT ) {
+		/*	For object	*/
+		object = MALLOC( col * sizeof(int) );
+		a = pop();
+	
+		for(i=0;i<col;i++){
+			c = list_nth( (cmo_list*)a, i );
+	
+			object[i] = cmo2int( c );
+		}
 	}
 
 	if( index == LP_MAX ){
@@ -301,6 +327,8 @@ void my_lpsolve( int resulttype, int index )
 		dprint( 1, "lpsolve(min)...");
 	} else if( LP_MAXMIN ){
 		dprint( 1, "lpsolve(maxmin)...");
+	} else if( LP_INTPT ){
+		dprint( 1, "lpsolve(intpt)...");
 	}
 
 	if( index == LP_MAX || index == LP_MAXMIN ){
@@ -354,6 +382,16 @@ void my_lpsolve( int resulttype, int index )
 
 	}
 
+	if( index == LP_INTPT ) {
+		tmp = lpintpt(row, col, matrix);
+		if ( tmp )
+			cmoint = vector2cmo(tmp,col);
+		else
+			cmoint = new_cmo_zero();
+		for ( i = 0; i < col; i++ )
+			mpq_clear( (mpq_ptr)tmp[i] );
+	}
+
 	if( index == LP_MAX ){
 		push( cmomax );
 	} else if( index == LP_MIN ){
@@ -363,8 +401,8 @@ void my_lpsolve( int resulttype, int index )
 		ret = list_append( ret, cmomin );
 		ret = list_append( ret, cmomax );
 		push( (cmo*) ret );
-	}
-
+	} else if ( index == LP_INTPT )
+		push( cmoint );
 }
 
 int sm_executeFunction()
@@ -397,6 +435,11 @@ int sm_executeFunction()
 	} else if( strcmp( func->s, "lpmaxmin" ) == 0 ){
 		my_lpsolve(LP_Q,LP_MAXMIN);
 		return 0;
+#if defined GMPRATIONAL
+	} else if( strcmp( func->s, "intpt" ) == 0 ){
+		my_lpsolve(LP_Q,LP_INTPT);
+		return 0;
+#endif
 	} else if( strcmp( func->s, "debugprint" ) == 0 ){
 		pop();
 		debug_print = get_i();
