@@ -1,4 +1,4 @@
-/*	$OpenXM: OpenXM/src/ox_cdd/ox_cdd.c,v 1.1 2005/05/25 04:42:20 noro Exp $	*/
+/*	$OpenXM: OpenXM/src/ox_cdd/ox_cdd.c,v 1.2 2007/09/12 07:07:36 noro Exp $	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -278,6 +278,8 @@ void my_redcheck(void)
 	push( matrix2cmo(result,result_row,col) );
 }
 
+cmo_qq* new_cmo_qq_set_mpq(mpq_ptr q);
+
 void my_lpsolve( int resulttype, int index )
 {
 	int row,col;
@@ -384,12 +386,26 @@ void my_lpsolve( int resulttype, int index )
 
 	if( index == LP_INTPT ) {
 		tmp = lpintpt(row, col, matrix);
-		if ( tmp )
-			cmoint = vector2cmo(tmp,col);
-		else
+		if ( tmp ) {
+			cmoint = (cmo *)new_cmo_list();
+			for(j=0;j < col;j++){
+				if( tmp[j] != 0 ){
+#if defined GMPRATIONAL
+					a = (cmo*) new_cmo_qq_set_mpq( (mpq_ptr)tmp[j] );
+#else
+					a = (cmo*) new_cmo_double( *tmp[j] );
+#endif
+				} else {
+					a = (cmo*) new_cmo_zero();
+				}
+				cmoint = (cmo *)list_append( (cmo_list *) cmoint, a );
+			}
+		} else
 			cmoint = new_cmo_zero();
+#if defined GMPRATIONAL
 		for ( i = 0; i < col; i++ )
 			mpq_clear( (mpq_ptr)tmp[i] );
+#endif
 	}
 
 	if( index == LP_MAX ){
@@ -435,11 +451,9 @@ int sm_executeFunction()
 	} else if( strcmp( func->s, "lpmaxmin" ) == 0 ){
 		my_lpsolve(LP_Q,LP_MAXMIN);
 		return 0;
-#if defined GMPRATIONAL
 	} else if( strcmp( func->s, "intpt" ) == 0 ){
 		my_lpsolve(LP_Q,LP_INTPT);
 		return 0;
-#endif
 	} else if( strcmp( func->s, "debugprint" ) == 0 ){
 		pop();
 		debug_print = get_i();
