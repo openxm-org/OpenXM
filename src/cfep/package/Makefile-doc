@@ -23,8 +23,10 @@ build-documents:
 		(cd ${OpenXM_HOME}/src/asir-contrib/packages/doc ; make install-document) ; \
 	touch .build-documents_done ; \
 	fi 
+gendoc: gendoc.c
+	gcc -o gendoc gendoc.c
 
-build-utf8-asir: build-documents
+build-utf8-asir: gendoc build-documents
 	./gendoc ${OpenXM_HOME}/doc/asir2000/html-jp
 	./gendoc ${OpenXM_HOME}/doc/asir2000/html-exp-ja
 # copy png files if necessary.
@@ -34,13 +36,14 @@ build-utf8-asir: build-documents
 #build-utf8-asir-contrib: not yet
 
 install-pdf-to-cfep:  install-pdf-to-cfep2
-	mkdir -p ${OpenXM_HOME}/doc/cfep/pdf
 	cp ../Doc/Intro/next2.pdf ${OpenXM_HOME}/doc/cfep/pdf
 	-cp ${OpenXM_HOME}/doc/asir-contrib/ja/*.pdf ${OpenXM_HOME}/doc/cfep/pdf
 #########  Collect pdf document from the nextwork.  Update this before distribution.
 	-scp taka@lemon.math.kobe-u.ac.jp:this05/asir-book/main.pdf ${OpenXM_HOME}/doc/cfep/pdf/asir-book.pdf
 
 install-pdf-to-cfep2:
+	rm -rf ${OpenXM_HOME}/doc/cfep/pdf		      
+	mkdir -p ${OpenXM_HOME}/doc/cfep/pdf
 	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/asir-contrib/ja/yang_tutorial-ja.pdf ${OpenXM_HOME}/doc/cfep/pdf
 	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/asir-contrib/en/dualgraph-manual.pdf ${OpenXM_HOME}/doc/cfep/pdf
 	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/raj/Papers/002.pdf ${OpenXM_HOME}/doc/cfep/pdf/nk_mora.pdf

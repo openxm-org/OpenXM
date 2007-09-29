@@ -35,7 +35,7 @@ install:  cfep-grep
 	cp cfep.init ${OpenXM_HOME}/lib/cfep
 	cp cfep-grep ${OpenXM_HOME}/bin
 	cp ../tests/cfep-opengl.rr ${OpenXM_HOME}/lib/asir-contrib
-	cp `which nkf` ~/OX4/OpenXM/bin
+	-cp `which nkf` ~/OX4/OpenXM/bin
 
 clean:
 	rm -f tmp-* gendoc cfep-grep ../doc/html-ja_JP.utf8
