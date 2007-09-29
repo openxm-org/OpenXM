@@ -1,0 +1,78 @@
+\newenvironment{FRAME}{\begin{trivlist}\item[]
+  \hrule
+  \hbox to \linewidth\bgroup
+  \advance\linewidth by -30pt
+  \hsize=\linewidth
+  \vrule\hfill
+  \vbox\bgroup
+    \vskip15pt
+    \def\thempfootnote{\arabic{mpfootnote}}
+    \begin{minipage}{\linewidth}}{%
+    \end{minipage}\vskip15pt
+  \egroup\hfill\vrule
+ \egroup\hrule
+\end{trivlist}}
+
+\newcommand{\yenn}{{\ooalign{Y\crcr\hss=\hss}}}
+\def\blskip{\vskip\baselineskip}
+
+%%%%%%%%%%%%%%%%%  macro definitions %%%%%%%%%%%%%%%%%%%%%
+\def\QQQ{\fbox{{\bf 質問}}}
+\def\AAA{{\fbox{\bf 答え}}}
+\def\HHH{{\fbox{\bf 発展学習}}}
+\newtheorem{problem}{\fbox{問題}}[chapter]
+\newtheorem{answer}{答え}[chapter]
+\newtheorem{program}{プログラム}[chapter]
+\newtheorem{experiment}{実験}[chapter]
+\newtheorem{example}{\fbox{例}}[chapter]
+\newtheorem{exampleOutput}{出力例}[chapter]
+\newtheorem{exampleInput}{入力例}[chapter]
+\newtheorem{exampleInputOutput}{入出力例}[chapter]
+\newtheorem{question}{疑問}[chapter]
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{remark}{注意}[chapter]
+\newtheorem{algorithm}{アルゴリズム}[chapter]
+\def\Begin{
+  \rm
+}
+\def\END{
+  \par \bigbreak
+} 
+\def\command#1{
+ \fbox{\tt ALT}{\tt +}\fbox{\tt #1}
+}
+\def\alt#1{
+ \fbox{\tt ALT}{\tt +}\fbox{\tt #1}
+}
+\def\shift#1{
+ \fbox{\tt SHIFT}{\tt +}\fbox{\tt #1}
+}
+\def\command#1{
+ \fbox{\tt COMMAND}{\tt +}\fbox{\tt #1}
+}
+\def\ctrl#1{
+ \fbox{\tt CTRL}{\tt +}\fbox{\tt #1}
+}
+\def\esc#1{
+ \fbox{\tt esc} \fbox{\tt #1}
+}
+\def\return{
+ \fbox{\tt RETURN}
+}
+\def\expr{
+ {\it expr}
+}
+\def\poly{
+ {\it poly}
+}
+\def\f{
+ {\it f}
+}
+\def\range{
+ {\it \{ x, xmin, xmax \}}
+}
+\def\power{
+\verb+^+}
+\def\file{
+ ファイル名
+}
