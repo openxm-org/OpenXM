@@ -1,0 +1,56 @@
+usage:
+	@echo "************************  Preparation ****************************"
+	@echo "  export PATH=/sw/bin:/sw/sbin:$PATH  "
+	@echo "     to use ptex, dvipdfm(x), dvips, texi2html, (latex2html) "
+	@echo "          (latex, dvips, pstoimg --- for print_png_form)"
+	@echo "  export LC_ALL=\"C\" "
+	@echo "     to avoid strange behavior of the translation of argv (see misc/argtest)"
+	@echo "     See  also oxgentexi --title name_by_euc_code "
+	@echo "  source ~/OX4/OpenXM/rc/dot.bashrc "
+	@echo "*******************************************************************"
+	@echo "Or source ~/bin/dot.finkrc;source ~/OX4/OpenXM/rc/dot.bashrc;export LC_ALL=C"
+	@echo "*******************************************************************"
+
+OpenXM_HOME=${HOME}/OX4/OpenXM
+
+#Build the following html files.
+#${OpenXM_HOME}/doc/asir2000/html-jp/*.html
+#${OpenXM_HOME}/doc/asir2000/html-exp-ja/*.html
+#${OpenXM_HOME}/doc/asir-contrib/ja/*-html/*.html
+build-documents:
+	if test ! -f .build-documents_done ; then \
+		(cd ${OpenXM_HOME}/src/asir-doc ; make install) ; \
+		(cd ${OpenXM_HOME}/src/asir-contrib/packages/doc ; make install-document) ; \
+	touch .build-documents_done ; \
+	fi 
+
+build-utf8-asir: build-documents
+	./gendoc ${OpenXM_HOME}/doc/asir2000/html-jp
+	./gendoc ${OpenXM_HOME}/doc/asir2000/html-exp-ja
+# copy png files if necessary.
+	@echo "--------------------------------------------------------------------------"
+	@echo "utf8 documents are generated under ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8"
+	@echo "--------------------------------------------------------------------------"
+#build-utf8-asir-contrib: not yet
+
+install-pdf-to-cfep:  install-pdf-to-cfep2
+	mkdir -p ${OpenXM_HOME}/doc/cfep/pdf
+	cp ../Doc/Intro/next2.pdf ${OpenXM_HOME}/doc/cfep/pdf
+	-cp ${OpenXM_HOME}/doc/asir-contrib/ja/*.pdf ${OpenXM_HOME}/doc/cfep/pdf
+#########  Collect pdf document from the nextwork.  Update this before distribution.
+	-scp taka@lemon.math.kobe-u.ac.jp:this05/asir-book/main.pdf ${OpenXM_HOME}/doc/cfep/pdf/asir-book.pdf
+
+install-pdf-to-cfep2:
+	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/asir-contrib/ja/yang_tutorial-ja.pdf ${OpenXM_HOME}/doc/cfep/pdf
+	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/OpenXM/Current/doc/asir-contrib/en/dualgraph-manual.pdf ${OpenXM_HOME}/doc/cfep/pdf
+	-scp taka@lemon.math.kobe-u.ac.jp:/home/web/raj/Papers/002.pdf ${OpenXM_HOME}/doc/cfep/pdf/nk_mora.pdf
+## copy ../Doc/Intro
+
+clean:
+	rm -f .*done
+
+clean-OpenXM: clean
+	(cd ${OpenXM_HOME}/src/asir-doc ; make clean ; ./make-configure)
+	(cd ${OpenXM_HOME}/src/asir-contrib ; make clean ; ./make-configure)
+	
+
