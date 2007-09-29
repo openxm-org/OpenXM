@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/todo_parametrize/Makefile,v 1.1 2005/03/24 08:50:02 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/todo_parametrize/Makefile,v 1.2 2005/04/14 02:21:49 takayama Exp $
 
 # Name of this document.
 MYNAME=todo_parametrize
@@ -10,7 +10,7 @@ JASRCS = ${SRC:.oxw=.ja}
 ENAUTO= 
 JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
-include ../Makefile.common
+include ../M/Makefile
 
 clean_private: 
 	${RM} -f todo_parametrize-en.texi 

@@ -1,4 +1,7 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.common,v 1.2 2005/04/14 04:40:23 takayama Exp $
+# $OpenXM$
+PTEX=@PTEX@
+DVIPDF=@DVIPDF@
+# Original file was ../Makefile.common
 # Targets
 # gen-texi-en, gen-texi-ja : generating texi files.
 # gen-html-en,  gen-html-ja :
@@ -49,7 +52,6 @@ OPTGENTEXI= --include
 DVIPS=dvips -f
 TEXI2HTML=texi2html -menu -split_node
 RM=rm
-DVIPDF=dvipdfm
 NKF=nkf
 
 .SUFFIXES: .en .ja .oxw .dvi .pdf
@@ -107,8 +109,8 @@ gen-pdf-en:  ${MYNAME}-en.pdf
 gen-ps-ja:  ${MYNAME}-ja.ps
 gen-ps-en:  ${MYNAME}-en.ps
 ${MYNAME}-ja.dvi: ${JASRCS} ${JAAUTO}  ${MYNAME}-ja.texi
-	-ptex ${MYNAME}-ja.texi
-	-ptex ${MYNAME}-ja.texi
+	-${PTEX} ${MYNAME}-ja.texi
+	-${PTEX} ${MYNAME}-ja.texi
 ${MYNAME}-en.dvi: ${ENSRCS} ${ENAUTO} ${MYNAME}-en.texi
 	-tex ${MYNAME}-en.texi
 	-tex ${MYNAME}-en.texi

@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/gnuplot/Makefile,v 1.1 2005/04/13 22:23:41 takayama Exp $
 
 # Name of this document.
 MYNAME=gnuplot
@@ -10,7 +10,7 @@ JASRCS = ${SRC:.oxw=.ja}
 ENAUTO= 
 JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
-include ../Makefile.common
+include ../M/Makefile
 
 clean_private: 
 	${RM} -f ${MYNAME}-ja.texi ${MYNAME}-en.texi

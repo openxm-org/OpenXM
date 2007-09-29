@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.2 2006/02/07 05:21:58 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.3 2006/02/13 01:26:01 takayama Exp $
 
 # targets:
 # all
@@ -27,6 +27,7 @@ configure: Makefile
 	then \
 	(cd packages/src; sh ./configure --prefix=@prefix@) ; \
 	(cd packages/doc; sh ./configure --prefix=@prefix@) ; \
+        (cd packages/doc/M; sh ./configure --prefix=@prefix@) ; \
 	fi
 	@touch ./.configure_sub_done
 

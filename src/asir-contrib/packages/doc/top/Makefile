@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.4 2005/04/11 11:13:32 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/top/Makefile,v 1.5 2005/05/18 05:48:45 takayama Exp $
 
 # Name of this document.
 MYNAME=cman
@@ -17,7 +17,7 @@ ENAUTO=  base-auto.en glib-auto.en matrix-auto.en number-auto.en \
          oxshell-auto.en
 JAAUTO=${ENAUTO:.en=.ja}
 
-include ../Makefile.common
+include ../M/Makefile
 clean_private:
 ### base
 base-auto.en : ${CONTRIB}/names.rr 

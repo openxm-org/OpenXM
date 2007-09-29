@@ -1,4 +1,4 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/sm1/Makefile,v 1.1 2005/04/13 23:50:17 takayama Exp $
 
 # Name of this document.
 MYNAME=sm1
@@ -10,7 +10,7 @@ JASRCS = ${SRC:.oxw=.ja}
 ENAUTO= ${MYNAME}-auto.en
 JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
-include ../Makefile.common
+include ../M/Makefile
 
 clean_private: 
 	${RM} -f ${MYNAME}-ja.texi ${MYNAME}-en.texi

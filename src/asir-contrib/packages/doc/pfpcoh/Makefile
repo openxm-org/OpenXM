@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/pfpcoh/Makefile,v 1.1 2005/04/13 11:45:27 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/pfpcoh/Makefile,v 1.2 2005/06/15 02:53:41 takayama Exp $
 
 # Name of this document.
 MYNAME=pfpcoh
@@ -10,7 +10,7 @@ JASRCS = ${SRC:.oxw=.ja}
 ENAUTO= pfpcoh-auto.en
 JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
-include ../Makefile.common
+include ../M/Makefile
 
 clean_private: 
 	${RM} -f ${MYNAME}-ja.texi ${MYNAME}-en.texi
