@@ -1,9 +1,10 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.3 2004/06/30 22:42:32 takayama Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.4 2004/09/10 08:24:02 noro Exp $
 OpenXM_HOME=@prefix@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
 OpenXM_man=${OpenXM_HOME}/man/man1
 CC=@CC@
+PTEX=@PTEX@
 DVIPDF=dvipdfmx
 
 all: update-makefile
@@ -134,7 +135,7 @@ tmp-internal-JAhtml: $(INTERNAL_SRCS)
 
 man-jp.dvi: tmpJP
 	-rm man-jp.dvi
-	-(cd tmpJP; ptex man.texi; ../jtexindex/C/texindex man.??; ptex man.texi)
+	-(cd tmpJP; ${PTEX} man.texi; ../jtexindex/C/texindex man.??; ${PTEX} man.texi)
 	-mv tmpJP/man.dvi man-jp.dvi
 	-touch man-jp.dvi
 
@@ -197,7 +198,7 @@ html-exp-ja: exp/exp-ja.texi
 
 internal-jp.dvi: tmp-internal-JAhtml
 	-rm internal-jp.dvi
-	-(cd tmp-internal-JAhtml; ptex internal.texi; ../jtexindex/C/texindex internal.??; ptex internal.texi)
+	-(cd tmp-internal-JAhtml; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
 	-mv tmp-internal-JAhtml/internal.dvi internal-jp.dvi
 	-touch internal-jp.dvi
 extract_func: extract_func.c
