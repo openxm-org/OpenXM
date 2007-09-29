@@ -1,6 +1,7 @@
 開発 debug 環境.
+   0. OpenXM は ${HOME}/OX4 の下にあると仮定している. cf. Makefile
    1. OpenXM/src で make install (debug install でも OK).
-   2. make cfep-setup
+   2. make setup-cfep
      ( OpenXM home が build/debug 等の下へ link されるように)
    3. make install
       ( cfep 用ツールを OpenXM 以下 へインストール.)
