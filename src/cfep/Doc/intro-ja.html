@@ -2,10 +2,12 @@
 <META http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
 <body>
 
+<a href="intro-en.html"> Help in English </a> (under construction) <br>
+
 <img src="opening1.png" align="left" width="30%" height="50%" 
      hspace="30" vspace="10"/>
 <ul>
-<li> <a href="#changelog"> cfep 1.1 の新機能 </a> 
+<li> <a href="#changelog"> cfep 1.1b の新機能 </a> 
 <li> <a href="#whatIsCfep"> cfepについて </a> 
 <li> <a href="#intro"> 入門 </a> 
 <li> <a href="#faq"> 問題を解決する </a> 
@@ -39,11 +41,23 @@ command+enter キー)をおすとプログラムの実行や計算を開始し,
 <a href="http://www.math.kobe-u.ac.jp/HOME/taka/2005/cfep/cfep.dmg.gz">
 cfep のディスクイメージ </a> をダウンロードし, これを開いて "いのぶたくん" のアイコン
 <img src="inobuta.png" width="30" height="30"/> を好きな場所にコピーするだけ.  
-システムからの削除は "いのぶたくん" をゴミ箱へいれるだけ.
+システムからの削除は "いのぶたくん" をゴミ箱へいれるだけ.  
+<ul>
+<li> cfep の計算エンジンである asir は cpp を利用します. 
+もし cpp や gcc を含む xcode がインストールしてない場合は, 
+Mac OS X Tiger の DVD から xcode をインストールしておいて下さい.
+DVD 内の Xcode Tools フォルダを開き "XcodeTools.mpkg"という段ボール箱をダブルクリックし
+xdode をインストールします.
+<li> cfep の計算エンジンである asir は(利用しなくても) X11 のライブラリを要求します.
+もし X11 がインストールしてない場合は, Mac OS X Tiger の DVD から X11 をインストール
+しておいて下さい.
+DVD 内の "Optional Installs"という段ボール箱をダブルクリックし、"Applications"の中の "X11"を選んでinstallします。  
+</ul>
+
 
 <hr>
 <h3 id="changelog" name="changelog">
-     cfep 1.1 の特徴 (2006.03.12.)</h3>
+     cfep 1.1b の特徴 (2006.03.12., 05.04)</h3>
 <ol>
 <li> ヘルプの充実.
 <li> 出力を TeX でタイプセットするモード, ノートブック風インタフェース (実験的).
@@ -174,6 +188,7 @@ for (I=0; I<5; I++) {
 <li> <a href="#aq6"> TeX をインストールしてあるのに tex でタイプセットできません</a>
 <li> <a href="#aq-2006-03-11-debug-window"> debug window を表示してエラーが発生した時の変数を調べたいのですが.</a>
 <li> <a href="#aq-2006-03-11-a"> glib で OpenGL でなく X11 を使いたい. </a>
+<li> <a href="#aq-2006-11-12-a"> TeX でタイプセットした数式をプログラムの中から印刷したい.  </a>
 </ul>
 
 <h4 id="aq1" name="aq1"> Q. asir 以外の計算エンジンは接続できますか? </h4>
@@ -206,7 +221,7 @@ cfep.app/Contents/Resource/Japanese.lproj/Localizable.strings
 参照: cfep/MyEnvironment.m,  initFor:
 
 <h4 id="aq6" name="aq6"> Q. TeX をインストールしてあるのに tex でタイプセットできません</h4>
-cfep は /sw/bin (fink) に tex が存在していると仮定してます.
+cfep は /sw/bin (fink) または /usr/local/bin に latex, dvipng が存在していると仮定してます.
 詳しくは cfep/MyEnvironment.m, initFor: をみてください.
 
 <h4 id="aq-2006-03-11-debug-window" name="aq-2006-03-11-debug-window"> 
@@ -231,13 +246,22 @@ print X
 </pre>
 
 <h4 id="aq-2006-03-11-a" name="aq-2006-03-11-a"> glib で OpenGL でなく X11 を使いたい. </h4>
-裏技的方法ですが,
+裏技的方法ですが, import("glib3.rr"); の後で
 <pre>
 Cfep_loaded = 0;
 </pre>
 としておくと, X11 で描画されます.
 大量の点をプロットする場合 OpenGL インタプリタの構造上メモリを浪費するので, 
 このような場合は X11 で描画するべきでしょう.
+
+
+<h4 id="aq-2006-11-12-a" name="aq-2006-11-12-a"> TeX でタイプセットした数式をプログラムの中から印刷したい.  </h4>
+
+<pre>
+例:
+ import("names.rr");   または asir-contrib を読み込んでおいてもよい.
+ for (I=4; I<10; I++)  cfep.png_form(poly_factor(x^I-1));
+</pre>
 
 
 

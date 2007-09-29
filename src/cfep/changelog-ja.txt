@@ -4,12 +4,49 @@
 <pre>
 
 -------  Note
+パッケージの build には package/readme-ja.txt を読むこと.
+misc-2006/05/cfep-i から OpenXM/src/cfep へ移行. 
+note-ja.txt などないファイルはこちらを参照. 
 -------  Todo
  2006-01-23 19:26:53.568 cfep[340] oxEvalluateString Caught NSFileHandleOperationException: *** -[NSConcreteFileHandle writeData:]: Broken pipe
  child が sig segv を発信したときの対策.
  NSBrokenPipeNotification なんてあるの?
 -------  Done
-2006-03-12 14:53. bug fix of pngActionFor: png の挿入.
+2007-09-29.  misc-2006/05/cfep-i をやめて, OpenXM/src/cfep へメンテを移行.
+2006-11-12.
+    cfep.png_form(Obj) を加える.   cfep-inint.rr (cf. OpenXM/src/asir-contrib)
+    import("names.rr");
+    for (I=4; I<10; I++) {
+      cfep.png_form(poly_factor(x^I-1));
+      print("--------------");
+    } 
+    HTML help に加える.
+;;
+2006-11-05.  cfep-init.rr  glib_send の print(C) を print(C,0) へ変更.
+  この変更がないと output window に無意味に newline がたくさん出力される.
+     配布版の変更まだ. cfep-init.rr は OpenXM/lib/asir, lib/asir-contrib
+     両方にあるかもしれないので要注意.
+     ---> Done.  cfep-20061105.dmg.gz
+2006-10-09.  OpenXM/src/kxx/configure.in ( universal binary ox). OpenXM/doc/OpenXM-FAQ.oxweave.
+2006-06-05.  cfep20060605.dmg.gz 英語版.  cf. misc-2006/06/06-d.txt
+  cfep.app/OpenXM/doc/cfep へ asir2000/html-eg をコピーしておく.
+  intro-ja.html だけでなく intro-en.html もおく. 
+  結局 ox は universal にしないとうまく動かず on intelmac. test by interrupting sm1.deRham-march ppc -march i386 を
+  src/kxx/Makefile と src/kan96xx/plugin/Makefile の CFLAGS に加える. 
+2006-05-04.   cf. misc-2006/05/05-d.txt.
+  3. cfep/changelog-ja.txt へ cfep.app の変更点をまとめる. (まだコピーしてない.)
+         (a) OpenXM/lib/sm1/bin のリンクを直す.
+         (b) OpenXM/lib/k097 をコピー.
+         (c) OpenXM/bin/k0, d0, oxc
+         (d) misc-2005/A1/cfep/Doc/intro-ja.html  -> OpenXM/doc/cfep/intro-ja.html ->Done
+       cfep-20060504.dmg を作成.
+         cfep/tests   より *circle-dda.rr, circle-func.rr, ccurve.rr, lorentz.rr
+         を Sample へコピーする.
+
+2006-03-23 07:53. dvipng  がつかえない訳は ox_texmacs  と noro_print.rr にあり. message, help を変更. 1.1.2 の dmgは昨日なんちゃって変更/testずみ.
+2006-03-21 17:58. Release 1.1.2.
+2006-03-18 17:08. dvipng を使う. imgtex を参考に.
+2006-03-12 14:53. bug fix of pngActionFor: png の挿入.  <oxcommit> for the cfep release 1.1.
 2006-03-12 11:18. onlySelected. outputBorderLine: [NSColor mangentaColor]. 入力も表示.
 2006-03-11 21:55. <oxcommit>
 2006-03-11 21:00.  glVertex2fを加えた.  Set to cfep version 1.1

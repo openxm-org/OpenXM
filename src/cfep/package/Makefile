@@ -13,18 +13,18 @@ setup-cfep:
 	rm -f ${BUILD}/Debug/cfep.app/OpenXM
 	rm -rf ${BUILD}/Release/cfep.app/OpenXM
 	mkdir -p ${BUILD}/Debug/cfep.app
-	(cd ${BUILD}/Debug/cfep.app ; ln -s ${OpenXM_HOME} .)
+	(cd ${BUILD}/Debug/cfep.app ; ln -s ~/OX4/OpenXM .)
 	mkdir -p ${BUILD}/Release/cfep.app
-	(cd ${BUILD}/Release/cfep.app ; ln -s ${OpenXM_HOME} .)
+	(cd ${BUILD}/Release/cfep.app ; ln -s ~/OX4/OpenXM .)
 	rm -f ${BUILD}/Default/cfep.app/OpenXM
 	mkdir -p ${BUILD}/Default/cfep.app
-	(cd ${BUILD}/Default/cfep.app ; ln -s ${OpenXM_HOME} .)
+	(cd ${BUILD}/Default/cfep.app ; ln -s ~/OX4/OpenXM .)
 	make setup-cfep-fix
 # To debug html intro at ../doc
 	(cd ../doc ; ln -s ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8 .)
-	cp `which nkf` ${OpenXM_HOME}/bin
+	cp `which nkf` ~/OX4/OpenXM/bin
 setup-cfep-fix:
-	(rm -f ${OpenXM_HOME}/lib/asir/cfep-init.rr ; cd ${OpenXM_HOME}/lib/asir ; ln -s ${OpenXM_HOME}/src/asir-contrib/packages/src/cfep-init.rr .)
+	(rm -f ~/OX4/OpenXM/lib/asir/cfep-init.rr ; cd ~/OX4/OpenXM/lib/asir ; ln -s ~/OX4/OpenXM/src/asir-contrib/packages/src/cfep-init.rr .)
 
 install:  cfep-grep
 	mkdir -p ${OpenXM_HOME}/doc/cfep
@@ -38,7 +38,8 @@ install:  cfep-grep
 	cp `which nkf` ~/OX4/OpenXM/bin
 
 clean:
-	rm -f tmp-* gendoc cfep-grep
+	rm -f tmp-* gendoc cfep-grep ../doc/html-ja_JP.utf8
+
 dist-cfep: gentar install
 	rm -rf work
 	mkdir work

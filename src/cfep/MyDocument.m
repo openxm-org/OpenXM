@@ -1123,7 +1123,7 @@ int debugInbound = 0;
   // NSLog(@"%@",a);
   if ([[a objectAtIndex: 0]  hasPrefix: @"notAvailable"]) {
     [self messageDialog: 
-	  NSLocalizedString(@"Typeset the output by TeX is not available. latex, dvips, and pstoimg must be installed.",nil)  with: 0];
+	  NSLocalizedString(@"Typeset the output by TeX is not available. latex and dvipng must be installed.",nil)  with: 0];
 	prettyPrint = 1; [self setPrettyPrint: nil];
 	return;
   }	else if ([[a objectAtIndex: 0]  compare: @"showFile"] == NSOrderedSame) {
