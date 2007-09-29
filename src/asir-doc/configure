@@ -2185,10 +2185,12 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-main() {
+#include "stdlib.h"
+            main() {
               int r;
               r=system("ptex -kanji=euc -version");
-              return(r);
+              printf("ptex status=%d\n",r);
+              if (r == 0) exit(0); else exit(-1);
            }
 _ACEOF
 rm -f conftest$ac_exeext

@@ -1,14 +1,16 @@
-dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.1 2004/06/30 12:13:05 takayama Exp $
+dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.2 2007/09/29 05:17:08 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 
 AC_INIT(extract_func.c)
 AC_PROG_CC
 
-AC_TRY_RUN([main() {
+AC_TRY_RUN([#include "stdlib.h"
+            main() {
               int r;
               r=system("ptex -kanji=euc -version");
-              return(r);
+              printf("ptex status=%d\n",r);
+              if (r == 0) exit(0); else exit(-1);
            }],
  AC_SUBST(PTEX,["ptex -kanji=euc"]),
  AC_SUBST(PTEX,["ptex"]),
