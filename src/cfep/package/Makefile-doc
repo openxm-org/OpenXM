@@ -26,7 +26,7 @@ build-documents:
 gendoc: gendoc.c
 	gcc -o gendoc gendoc.c
 
-build-utf8-asir: gendoc build-documents
+build-utf8-asir: gendoc build-documents install-html-en-to-cfep
 	./gendoc ${OpenXM_HOME}/doc/asir2000/html-jp
 	./gendoc ${OpenXM_HOME}/doc/asir2000/html-exp-ja
 # copy png files if necessary.
@@ -34,6 +34,10 @@ build-utf8-asir: gendoc build-documents
 	@echo "utf8 documents are generated under ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8"
 	@echo "--------------------------------------------------------------------------"
 #build-utf8-asir-contrib: not yet
+
+install-html-en-to-cfep:
+	mkdir -p ${OpenXM_HOME}/doc/cfep
+	rsync -avz ${OpenXM_HOME}/doc/asir2000/html-eg ${OpenXM_HOME}/doc/cfep
 
 install-pdf-to-cfep:  install-pdf-to-cfep2
 	cp ../Doc/Intro/next2.pdf ${OpenXM_HOME}/doc/cfep/pdf

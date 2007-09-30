@@ -1,0 +1,15 @@
+import("glib3.rr");
+Glib_math_coordinate=1;
+glib_window(-2,-2, 2,2);
+glib_clear();
+E = 0.1;   
+C1 = 1.0; C2=1.0;
+S1 = 0.0; S2=E; 
+for (T=0; T<=deval(2*@pi); T = T+E) {
+    C3 = 2*C2-C1-E*E*C2;
+    S3 = 2*S2-S1-E*E*S2;
+    glib_line(C1,S1, C2,S2); 
+    C1=C2; S1=S2;
+    C2=C3; S2=S3;
+    glib_flush(); 
+}

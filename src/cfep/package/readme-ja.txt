@@ -1,3 +1,6 @@
+X11, Xcodeが必要.  nkf, wget が パスの中に必要. (fink は必須でない)
+ptex環境: /usr/local/bin/ に Mac 用の ptex_package_2005v2.1.dmg でOK.
+
 開発 debug 環境.
    0. OpenXM は ${HOME}/OX4 の下にあると仮定している. cf. Makefile
    1. OpenXM/src で make install (debug install でも OK).

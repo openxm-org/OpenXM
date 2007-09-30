@@ -22,7 +22,7 @@ setup-cfep:
 	make setup-cfep-fix
 # To debug html intro at ../doc
 	(cd ../doc ; ln -s ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8 .)
-	cp `which nkf` ~/OX4/OpenXM/bin
+	-cp `which nkf` ~/OX4/OpenXM/bin
 setup-cfep-fix:
 	(rm -f ~/OX4/OpenXM/lib/asir/cfep-init.rr ; cd ~/OX4/OpenXM/lib/asir ; ln -s ~/OX4/OpenXM/src/asir-contrib/packages/src/cfep-init.rr .)
 

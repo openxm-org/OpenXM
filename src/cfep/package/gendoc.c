@@ -47,7 +47,7 @@ main(int argc, char *argv[]) {
   for (i=1; i<argc; i++) {
 	translate(argv[i],workdir);
   }
-
+  exit(0);
 }
 
 int translate(char *dir,char *outputdirTop) {
