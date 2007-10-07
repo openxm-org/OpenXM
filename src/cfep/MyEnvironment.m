@@ -215,6 +215,17 @@
 -(NSDictionary *)getMyDefaultTypingAttributes {
   return myDefaultTypingAttributes;
 }
++(int) isX11Installed {
+  NSFileManager *manager = [NSFileManager defaultManager];
+  if ([manager fileExistsAtPath: @"/usr/X11R6/bin/X"]) return 1;
+  else return 0;
+}
++(int) isGccInstalled {
+  NSFileManager *manager = [NSFileManager defaultManager];
+  if ([manager fileExistsAtPath: @"/usr/bin/gcc"]) return 1;
+  else return 0;
+}
+
 
 
 @end

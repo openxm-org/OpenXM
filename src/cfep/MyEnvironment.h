@@ -34,6 +34,8 @@ enum peer_type {
 -(MyEnvironment *) initFor: (enum peer_type) myPeerType ;
 -(void) dealloc;
 +(int) checkX;
++(int) isX11Installed;
++(int) isGccInstalled;
 -(void) showForDebug;
 -(NSMutableDictionary *) getMyUnixEnvironment;
 -(enum peer_type) getPeer;
