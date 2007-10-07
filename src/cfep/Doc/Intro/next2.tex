@@ -18,7 +18,7 @@
 
 \title{ {\bf 超入門 Cfep/asir (MacOS X)} }
 \author{  高山信毅 }
-\date{ 2006年(平成18年), 3月12日版(cfep 1.1): コメントは \\ takayama@math.kobe-u.ac.jp まで}
+\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2007-10-09 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
 \makeindex
 
 \begin{document}
@@ -1397,8 +1397,10 @@ for (T=0; T<=deval(2*@pi); T = T+E) {
 %%Doc: cfep/tests/2006-03-06
 出力をTeXでタイプセットするには 
 ``実行'' メニューから ``出力をTeXでタイプセット'' を選択する.
-fink を用いて, {\tt latex}, {\tt dvips}, {\tt pstoimg} がインストールされてい
+{\tt latex}, {\tt dvipng} がインストールされてい
 ないと動作しない.
+これらはたとえば {\tt fink}  から \TeX をインストールしたり,
+{\tt ptex\_package\_2005v2.1.dmg} などで Mac 用の pTeX をインストールしておけばよい.
 \TeX を用いた仕上り例は図\ref{fig:sl2}を見よ. 
 なお, \TeX でタイプセットする場合ホームの下に
 \verb@OpenXM_tmp@ なる作業用のフォルダが作成される.
@@ -1564,7 +1566,7 @@ opengl.glib3DefaultScene("mesa demo/ray");
 \begin{screen}
 \begin{verbatim}
 import("cfep-opengl.rr");
-opengl.glib3DefaultScene("dfep demo/icosahedron");
+opengl.glib3DefaultScene("cfep demo/icosahedron");
 \end{verbatim}
 \end{screen}
 
