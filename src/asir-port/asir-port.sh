@@ -1,5 +1,5 @@
-#!/bin/sh
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.14 2006/06/28 11:41:11 takayama Exp $
+#!/bin/bash
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.15 2006/06/28 12:13:54 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
