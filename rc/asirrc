@@ -1,15 +1,15 @@
-/*$OpenXM: OpenXM/rc/asirrc,v 1.13 2003/12/12 03:04:22 takayama Exp $*/
-load("contrib-setord.rr")$
-load("gr")$
-load("primdec")$
-load("katsura")$
-load("bfct")$
-load("names.rr")$
-load("oxrfc103.rr")$
+/*$OpenXM: OpenXM/rc/asirrc,v 1.14 2005/07/29 07:44:53 takayama Exp $*/
+import("contrib-setord.rr")$
+import("gr")$
+import("primdec")$
+import("katsura")$
+import("bfct")$
+import("names.rr")$
+import("oxrfc103.rr")$
 User_asirrc=which(getenv("HOME")+"/.asirrc")$
 if (type(User_asirrc)!=0) {
    if (!ctrl("quiet_mode")) print("Loading ~/.asirrc")$
-   load(User_asirrc)$
+   import(User_asirrc)$
 }else{ }$
 end$
 
