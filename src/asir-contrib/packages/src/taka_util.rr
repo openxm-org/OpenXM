@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.13 2004/04/30 08:24:07 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_util.rr,v 1.14 2006/10/15 02:40:35 takayama Exp $ */
 
 /*&usage begin: util_filter(Comm,InS)
  example: util_filter("java Http unkei:8091","Sqrt[2]");
@@ -74,12 +74,18 @@ def taka_util_find_substr(W,S) {
 }
 
 def taka_util_part(S,P,Q) {
+  N=length(S)-1; if(N<Q) Q=N;
   if (Q < P) return [];
   R = newvect(Q-P+1);
   for (I=0; I<=Q-P; I++) {
     R[I] = S[I+P];
   }
   return vtol(R);
+}
+
+def taka_util_split(L,N) {
+  Len=length(L);
+  return [taka_util_part(L,0,N-1),taka_util_part(L,N,Len-1)];
 }
 
 def taka_util_remove_cr(S) {
