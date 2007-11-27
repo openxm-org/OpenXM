@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/bashrc,v 1.12 2004/02/25 06:58:22 takayama Exp $
+# $OpenXM: OpenXM/rc/bashrc,v 1.13 2004/03/04 05:13:39 takayama Exp $
 OpenXM_HOME=$HOME/OpenXM
 export OpenXM_HOME
 PATH=$OpenXM_HOME/bin:$PATH
@@ -8,8 +8,10 @@ ASIRLOADPATH=$OpenXM_HOME/src/asir-contrib/packages/src:$OpenXM_HOME/src/asir-co
 export ASIRLOADPATH
 ASIR_CONFIG=$OpenXM_HOME/rc/asirrc
 export ASIR_CONFIG
+if [ "$ASIR_RSH" = "" ]; then
 ASIR_RSH='ssh -f -X -A '
 export ASIR_RSH
+fi
 LOAD_SM1_PATH=$OpenXM_HOME/lib/sm1
 export LOAD_SM1_PATH
 LOAD_K_PATH=$OpenXM_HOME/lib/k097
