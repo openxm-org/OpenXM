@@ -1,0 +1,1976 @@
+load("gr");
+load("sp");
+
+module taji_alc;
+
+localf cpfd$
+localf snoether$
+localf laurent_expansion$
+localf residue$
+localf invpow$
+localf rem_formula$
+localf solve_ode_cp$
+localf solve_ode_cp_ps$
+localf fbt$
+localf invfbt$
+
+localf multiply_for_f_adic_poly$
+
+localf snoether_s$
+localf snoether_m$
+
+localf residue_s$
+localf residue_m$
+
+localf small_invpow$
+localf via_minipoly$
+localf invpoly$
+localf invpoly2$
+localf invpow2$
+
+localf rem_formula_s$
+localf rem_formula_m$
+localf h1$
+localf h2$
+
+localf crt_newton$
+localf crt_newton_2$
+localf crt_newton_n$
+
+localf residue_s_for_solve_ode_cp$
+localf residue_m_for_solve_ode_cp$
+localf diff_rat$
+localf diff_rat2$
+localf solve_ode_cp2$
+localf solve_ode_cp_ps2$
+localf unite_fctr_list$
+
+
+
+/* 有理関数の部分分数分解を求めるプログラム */
+
+/* 第1引数 NUM : 多項式 */
+
+/* 第2引数 DEN : 多項式 or リスト */
+/* (注意) リストで入力する場合, 既約チェック, 有理式の約分, 整数係数化は行わない. */
+
+/* オプション指定 switch
+case 0   : cpfd 分子は有理数係数多項式
+case 1   : cpfd 分子は整数係数化リスト
+case 2   : cpfd キーデータを表示
+case 10  : pfd 分子は有理数係数多項式
+case 11  : pfd 分子は整数係数化リスト
+case 21  : cpfdのタイミングデータ
+case 22  : pfdのタイミングデータ
+case "t" : タイミングデータ
+default  : case 0
+*/
+
+/* 2007.05.17 invpowを実装, 戻り値を選択式にする. */
+/* 2007.06.02 switchをオプション指定にした. */
+/* 2007.06.19 戻り値のリストをreverseした. */
+/* 2007.11.05 戻り値を[分子,[分母の因子,重複度]]と表現することにした. */
+
+def cpfd(NUM,DEN){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!=2&&Sw!=10&&Sw!=11&&Sw!=21&&Sw!=22&&Sw!="t") Sw=0;
+
+	igcdcntl(3);
+
+T0=time();
+
+	/* 簡約化 */
+	if(type(DEN)==4){
+		Num=NUM;
+		D=cons([1,1],DEN);
+	}else{
+		Gcd=gcd(NUM,DEN);
+		Num=sdiv(NUM,Gcd);
+		Den=sdiv(DEN,Gcd);
+		D=fctr(Den);
+	}
+
+	X=var(D[1][0]);
+	Len=length(D);
+	Ans=[];
+
+	AA=1;for(I=1;I<Len;I++) AA*=D[I][0];
+
+if(Sw>20){T1=time();print(T1[0]-T0[0]);}
+
+	for(II=1;II<Len;II++){
+
+if(Sw>20){print("========== PFD of "+rtostr(D[II])+" ==========");T2=time();}
+
+		F=D[II][0];
+		L=D[II][1];
+		DF=diff(F,X);
+
+		B=0;
+		for(I=1;I<Len;I++)
+			if(I!=II){
+				T=D[I][1];
+				for(J=1;J<Len;J++) if(J!=II) T*=(I==J)?diff(D[J][0],X):D[J][0];
+				B+=T;
+			}
+
+		InvDF=invpow(DF,F,1|switch=1);
+
+		A=sdiv(AA,F);
+		InvA=invpow(srem(A,F),F,1|switch=1);
+
+		InvG=1;InvGD=1;
+		for(I=1;I<Len;I++)
+			if(I!=II){
+				GP=invpow(D[I][0],F,D[I][1]|switch=1);
+				InvG=srem(InvG*GP[0],F);
+				InvGD*=GP[1];
+			}
+		G1=gcdz(InvGD,InvG);if(G1!=1){InvG/=G1;InvGD/=G1;}
+
+		ADF=sqr(A*DF,F);
+
+		IR=srem(InvA[0]*InvDF[0],F);
+		IRD=InvA[1];
+
+		/* ここでの約分はしない方が効率的かもしれない */
+		/*GcdIR=gcdz(IR,IRD);if(GcdIR!=1){IR/=GcdIR;IRD/=GcdIR;}*/
+
+		U=newvect(L);
+		U[0]=InvG;
+
+if(Sw>20){T3=time();print(T3[0]-T2[0]);}
+
+		P=[0,0];
+		for(I=0;I<L-1;I++){
+			Tmp=U[I];
+			P=sqr(A*diff(Tmp,X)+(B+I*ADF[0])*Tmp+sdiv(I*ADF[1]*Tmp,F)+IRD*P[0],F);
+			U[I+1]=-srem(IR*P[1],F)/(InvDF[1]*(I+1));
+		}
+
+if(Sw>20){T4=time();print(T4[0]-T3[0]);}
+
+		/* ========== CPFD ========== */
+		if(Sw==0||Sw==1||Sw==2||Sw==21){
+			U=multiply_for_f_adic_poly(U,Num,F,IRD);
+
+if(Sw==21){T5=time();print(T5[0]-T4[0]);}
+
+			if(Sw==0){
+				UU=newvect(L);
+				T=1;for(I=0;I<L;I++){UU[I]=U[I]/(InvGD*T);T*=IRD;}
+				AL=[];for(I=D[II][1];I>0;I--) AL=cons([UU[D[II][1]-I],[F,I]],AL);
+				AL=reverse(AL);
+				Ans=cons(AL,Ans);
+
+			}else if(Sw==1){
+				UD=newvect(L);
+				T=1;
+				AL=[];
+				for(I=0;I<L;I++){
+					UD[I]=InvGD*T;
+					T*=IRD;
+
+					/* GCDの出どころを突き止める必要あり(2007.5.17) */
+					GCD=gcdz(UD[I],U[I]);
+					if(GCD!=1){UD[I]/=GCD;U[I]/=GCD;}
+
+					AL=cons([[U[I],UD[I]],[F,D[II][1]-I]],AL);
+				}
+				AL=reverse(AL);
+				Ans=cons(AL,Ans);
+
+			}else if(Sw==2){
+				Ans=cons([D[II][0],InvGD,IRD,vtol(U)],Ans);
+			}
+
+if(Sw==21){T6=time();print(T6[0]-T5[0]);}
+		}
+
+		/* ========== PFD ========== */
+		if(Sw==10||Sw==11||Sw==22){
+			/* ホーナー法 */
+			T=1;A=U[L-1];for(I=1;I<L;I++){T*=IRD;A=A*F+U[L-1-I]*T;}
+
+if(Sw==22){T5=time();print(T5[0]-T4[0]);}
+
+			A=srem(A*Num,F^L);
+
+if(Sw==22){T6=time();print(T6[0]-T5[0]);}
+
+			T*=InvGD;
+			/* GCDの出どころを突き止める必要あり(2007.5.17) */
+			GCD=gcdz(T,A);
+			if(GCD!=1){T/=GCD;A/=GCD;}
+
+			CO=(Sw==11||Sw==22)?[A,T]:A/T;
+			Ans=cons([CO,[D[II][0],D[II][1]]],Ans);
+
+if(Sw==22){T7=time();print(T7[0]-T6[0]);}
+		}
+	}
+
+	igcdcntl(0);
+
+if(Sw>20){print("========== total time ==========");EndT=time();return EndT[0]-T0[0];}
+
+	return Ans;
+}
+
+/* 分子多項式の処理 */
+def multiply_for_f_adic_poly(Alist,B,F,IRD){
+
+	if(type(B)<2) return Alist*B;
+
+	LenA=length(Alist);
+	Blist=[];
+	T=1;
+	for(I=0;I<LenA;I++){
+		Temp=sqr(B,F);
+		Blist=cons(Temp[1]*T,Blist);
+		B=Temp[0];
+		if(B==0) break;
+		T*=IRD;
+	}
+	Blist=reverse(Blist);
+	LenB=length(Blist);
+
+	Ans=newvect(LenA);
+	for(I=0;I<LenA;I++)
+		for(J=0;J<LenB&&I+J<LenA;J++){
+			T=sqr(Alist[I]*Blist[J],F);
+			Ans[I+J]+=T[1];
+			if(I+J+1<LenA) Ans[I+J+1]+=T[0]*IRD;
+		}
+	return Ans;
+}
+
+
+
+/* 有理関数が定める代数的局所コホモロジー類のネーター作用素を求めるプログラム */
+
+/* オプション指定 switch
+case 0   : ネーター作用素の各係数は有理数係数多項式
+case 1   : ネーター作用素の各係数は整数係数化リスト
+case 10  : ネーター作用素の各係数全体を整数係数化
+case 20  : ネーター作用素の各係数をfac(L-1)でくくり個別に整数係数化
+case "t" : タイミングデータ
+default  : case 0
+*/
+
+/* case10はプログラムで扱いやすい, case20は数学的構造が綺麗に出る. */
+
+/* 2007.05.16 invpowの実装など. */
+/* 2007.05.19 分母が多因子の場合にも対応させた. */
+/* 2007.05.20 戻り値の種類を増やした. */
+/* 2007.06.02 switchをオプション指定にした. */
+/* 2007.06.10 switchの項目を増やした. */
+/* 2007.06.19 戻り値のリストをreverseした. */
+/* 2007.06.30 ローラン展開用にオプションlaurent_expansion_flagをつけた. */
+/* 2007.11.06 switchの番号を変えた. */
+
+def snoether(NUM,DEN){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!=10&&Sw!=20&&Sw!="t") Sw=0;
+
+	/* laurent_expansion_flagのdefaultの設定 */
+	Le=getopt(laurent_expansion_flag);
+	if(Le!=1) Le=0;
+
+	igcdcntl(3);
+
+	/* 簡約化 */
+	if(type(DEN)==4){
+		Num=NUM;
+		D=cons([1,1],DEN);
+	}else{
+		Gcd=gcd(NUM,DEN);
+		Num=sdiv(NUM,Gcd);
+		Den=sdiv(DEN,Gcd);
+		D=fctr(Den);
+		Num*=1/(D[0][0]^D[0][1]);/* 分母の共通整数は分子に送る */
+	}
+
+	X=var(D[1][0]);
+	Len=length(D);
+
+	if(Len==2){snoether_s(D[1][0],D[1][1],Num,Sw,Le);}
+	else snoether_m(Num,D,X,Len,Sw,Le);
+}
+
+
+/* 分母が一因子 */
+def snoether_s(F,L,H,Sw,Le){
+
+T0=time();
+
+	X=var(F);
+	M=(L<deg(F,X)+1)?L:deg(F,X)+1;
+	N=(L<deg(H,X)+1)?L:deg(H,X)+1;
+
+	DF=newvect(M+1,[F]);for(I=1;I<M+1;I++) DF[I]=diff(DF[I-1],X)/I;
+	DFP=newvect(L,[1]);for(I=1;I<L;I++) DFP[I]=srem(DFP[I-1]*DF[1],F);
+	CO=newvect(M,[1]);for(I=1;I<M;I++) CO[I]=srem(DF[I+1]*DFP[I-1],F);
+
+	C=newvect(L,[1]);
+	for(I=1;I<L;I++){
+		K=L-1-I;C1=1;
+		for(J=1;J<I+1&&J<M;J++){
+			C1*=K+J;
+			C[I]+=C1*(L*J+I-J)*CO[J]*C[I-J];
+		}
+		C[I]=-srem(C[I],F)/I;
+	}
+
+	InvDFP=invpow(DF[1],F,2*L-1|switch=1);
+
+	for(I=0;I<L;I++) C[I]=srem(C[I]*DFP[L-1-I],F);
+
+	if(type(H)==1||type(H)==0){
+		C*=H;
+	}else{
+		DH=newvect(N,[H]);
+		for(I=1;I<N;I++) DH[I]=diff(DH[I-1],X)/I;
+		DH=map(srem,DH,F);
+		LC=newvect(L,[C[0]*DH[0]]);
+		for(I=1;I<L;I++){
+			U=C[I]*DH[0];K=L-1-I;C1=1;
+			for(J=1;J<I+1&&J<N;J++){
+				C1*=K+J;
+				U+=C1*C[I-J]*DH[J];
+			}
+			LC[I]=srem(U,F);
+		}
+		C=LC;
+	}
+
+	UD=InvDFP[1];
+	C=map(srem,C*InvDFP[0],F);
+
+	if(Le==1){
+		T=1;
+		for(I=1;I<L;I++){T*=I;C[L-1-I]*=T;}
+	}
+
+	if(Sw==1){
+		Noether=[];
+		Tmp=fac(L-1)*UD;
+		for(I=0;I<L;I++){
+			UD2=Tmp;
+			GCD=gcdz(UD2,C[I]);
+			if(GCD!=1){UD2/=GCD;C[I]/=GCD;}
+			Noether=cons([C[I],UD2],Noether);
+		}
+		Noether=reverse(Noether);
+
+	}else if(Sw==10||Sw=="t"){
+		Noether=[vtol(C),fac(L-1)*UD];
+
+	}else if(Sw==20){
+		Noether=[];
+		for(I=0;I<L;I++){
+			UD2=UD;
+			GCD=gcdz(UD,C[I]);
+			if(GCD!=1){UD2/=GCD;C[I]/=GCD;}
+			Noether=cons([C[I],UD2],Noether);
+		}
+		Noether=reverse(Noether);
+		Noether=[Noether,fac(L-1)];
+
+	}else{
+		Noether=vtol(C/(fac(L-1)*UD));
+	}
+
+if(Sw=="t"){T1=time();return (T1[0]-T0[0]);}
+
+	return [[F,Noether]];
+}
+
+
+/* 分母が多因子 */
+def snoether_m(Num,D,X,Len,Sw,Le){
+
+T0=time();
+
+	/* step0 準備 */
+
+	Ans=[];/* 戻り値格納用 */
+
+	P=-1;Q=0;
+	for(I=1;I<Len;I++){
+		P*=D[I][0];
+		Tmp=D[I][1];
+		for(J=1;J<Len;J++) Tmp*=(I==J)?diff(D[J][0],X):D[J][0];
+		Q+=Tmp;
+	}
+
+	DegP=deg(P,X);
+
+	MaxL=0;for(I=1;I<Len;I++) if(MaxL<D[I][1]) MaxL=D[I][1];
+
+	M=(DegP<MaxL)?DegP:MaxL;
+
+	DP=newvect(M+1,[P]);for(I=1;I<M+1;I++) DP[I]=diff(DP[I-1],X)/I;
+	DQ=newvect(M,[Q]);for(I=1;I<M;I++) DQ[I]=diff(DQ[I-1],X)/I;
+
+	H=Num;DegH=deg(H,X)+1;
+
+	N=(MaxL<DegH)?MaxL:DegH;
+	DH=newvect(N,[H]);
+	for(I=1;I<N;I++) DH[I]=diff(DH[I-1],X)/I;
+
+if(Sw=="t"){T1=time();print("step0 : "+rtostr(T1[0]-T0[0]));}
+
+	for(II=1;II<Len;II++){
+
+if(Sw=="t"){T2=time();print("* noether operator of "+rtostr(D[II])+" *");}
+
+		/* step1 ネーター作用素の計算 */
+
+		F=D[II][0];
+		L=D[II][1];
+		DF=diff(F,X);
+
+		M2=(DegP<L)?DegP:L;
+
+		if(coef(F,deg(F,X))!=1){
+
+			Alg = newalg(F);
+			AlgV = algptorat(Alg);
+			set_field([Alg]);
+
+			R=algtodalg(subst(DF*sdiv(-P,F),X,Alg));
+			RP=newvect(L,[algtodalg(1)]);for(I=1;I<L;I++) RP[I]=RP[I-1]*R;
+
+			DP2=newvect(M2+1);for(I=1;I<M2;I++) DP2[I+1]=algtodalg(subst(DP[I+1],X,Alg));
+			DQ2=newvect(M2);for(I=1;I<M2;I++) DQ2[I]=algtodalg(subst(DQ[I],X,Alg));
+
+			C=newvect(L,[algtodalg(1)]);
+			for(I=1;I<L;I++){
+				K=L-1-I;KK=L-I;C1=1;
+				for(J=1;J<I+1&&J<M2;J++){
+					C1*=K+J;
+					C[I]+=C1*((KK+J)*DP2[J+1]+DQ2[J])*RP[J-1]*C[I-J];
+				}
+				C[I]=-C[I]/I;
+			}
+
+			for(I=0;I<L;I++){
+				C[I] = subst(algptorat(dalgtoalg(C[I])),AlgV,X);
+				RP[I] = subst(algptorat(dalgtoalg(RP[I])),AlgV,X);
+			}
+
+		}else{
+
+			R=srem(DF*sdiv(-P,F),F);
+			RP=newvect(L,[1]);for(I=1;I<L;I++) RP[I]=srem(RP[I-1]*R,F);
+
+			DP2=newvect(M2+1);for(I=1;I<M2;I++) DP2[I+1]=srem(srem(DP[I+1],F)*RP[I-1],F);
+			DQ2=newvect(M2);for(I=1;I<M2;I++) DQ2[I]=srem(srem(DQ[I],F)*RP[I-1],F);
+
+			C=newvect(L,[1]);
+			for(I=1;I<L;I++){
+				K=L-1-I;KK=L-I;C1=1;
+				for(J=1;J<I+1&&J<M2;J++){
+					C1*=K+J;
+					C[I]+=C1*((KK+J)*DP2[J+1]+DQ2[J])*C[I-J];
+				}
+				C[I]=-srem(C[I],F)/I;
+			}
+
+		}
+
+if(Sw=="t"){T3=time();print("step1 : "+rtostr(T3[0]-T2[0]));}
+
+		/* step2 逆冪計算 */
+
+		InvDFP=invpow(DF,F,2*L-1|switch=1);
+
+		A=1;
+		for(I=1;I<Len;I++) if(I!=II) A=srem(A*D[I][0],F);
+		InvAP=invpow(A,F,L-1|switch=1);
+
+		InvG=1;InvGD=1;
+		for(I=1;I<Len;I++)
+			if(I!=II){
+				GP=invpow(D[I][0],F,D[I][1]|switch=1);
+				InvG=srem(InvG*GP[0],F);
+				InvGD*=GP[1];
+			}
+		G1=gcdz(InvGD,InvG);if(G1!=1){InvG/=G1;InvGD/=G1;}
+
+if(Sw=="t"){T4=time();print("step2 : "+rtostr(T4[0]-T3[0]));}
+
+		/* step3 ネーター作用素に分子の情報を混ぜる計算 */
+
+		for(I=0;I<L;I++) C[I]=srem(C[I]*RP[L-1-I],F);
+
+		if(type(H)==1||type(H)==0){
+			C*=H;
+		}else{
+			N=(L<DegH)?L:DegH;
+			DH2=map(srem,DH,F);
+			LC=newvect(L,[C[0]*DH2[0]]);
+			for(I=1;I<L;I++){
+				U=C[I]*DH2[0];K=L-1-I;C1=1;
+				for(J=1;J<I+1&&J<N;J++){
+					C1*=K+J;
+					U+=C1*C[I-J]*DH2[J];
+				}
+				LC[I]=srem(U,F);
+			}
+			C=LC;
+		}
+
+if(Sw=="t"){T5=time();print("step3 : "+rtostr(T5[0]-T4[0]));}
+
+		/* step4 併合計算 */
+
+		UD=InvDFP[1]*InvAP[1]*InvGD;
+
+		C=map(srem,C*InvDFP[0],F);
+		C=map(srem,C*InvAP[0],F);
+		C=map(srem,C*InvG,F);
+
+		GCD=UD;
+		for(I=0;I<L;I++) GCD=gcdz(GCD,C[I]);if(GCD!=1){UD/=GCD;C/=GCD;}
+
+		if(Le==1){
+			T=1;
+			for(I=1;I<L;I++){T*=I;C[L-1-I]*=T;}
+		}
+
+		if(Sw==1){
+			Noether=[];
+			Tmp=fac(L-1)*UD;
+			for(I=0;I<L;I++){
+				UD2=Tmp;
+				GCD=gcdz(UD2,C[I]);
+				if(GCD!=1){UD2/=GCD;C[I]/=GCD;}
+				Noether=cons([C[I],UD2],Noether);
+			}
+			Noether=reverse(Noether);
+
+		}else if(Sw==10||Sw=="t"){
+			Noether=[vtol(C),fac(L-1)*UD];
+
+		}else if(Sw==20){
+			Noether=[];
+			for(I=0;I<L;I++){
+				UD2=UD;
+				GCD=gcdz(UD,C[I]);
+				if(GCD!=1){UD2/=GCD;C[I]/=GCD;}
+				Noether=cons([C[I],UD2],Noether);
+			}
+			Noether=reverse(Noether);
+			Noether=[Noether,fac(L-1)];
+
+		}else{
+			Noether=vtol(C/(fac(L-1)*UD));
+		}
+
+if(Sw=="t"){T6=time();print("step4 : "+rtostr(T6[0]-T5[0]));}
+
+		Ans=cons([F,Noether],Ans);
+	}
+
+	igcdcntl(0);
+
+if(Sw=="t"){T8=time();return T8[0]-T0[0];}
+
+	return Ans;
+}
+
+
+
+
+/* 有理関数の極におけるローラン展開の主要部の係数を求めるプログラム */
+
+def laurent_expansion(NUM,DEN){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!=10&&Sw!=20&&Sw!="t") Sw=0;
+
+	return snoether(NUM,DEN|switch=Sw,laurent_expansion_flag=1);
+}
+
+
+
+
+/* 有理関数の極における留数を求めるプログラム */
+
+/* 第1引数 NUM : 多項式 */
+
+/* 第2引数 DEN : 多項式 or リスト */
+/* (注意) リストで入力する場合, 既約チェック, 有理式の約分, 整数係数化は行わない. */
+
+/* オプション
+switch
+case 0   : 有理数係数の多項式で返す
+case 1   : 整数係数化リストで返す
+case "t" : タイミングデータ
+default  : case 0
+*/
+
+/* オプション
+pole : 多項式
+多因子のとき特定の因子のみの留数が欲しい場合に指定する
+*/
+
+/* オプション
+fourier_borel_var : 不定元
+フーリエボレル変換を行う(有理形関数の留数計算)
+*/
+
+/* 戻り値 : [[因子,留数],..] */
+
+/* 2006.08.05 一因子用residueと多因子用residue_gを1つにまとめた. */
+/* 2006.09.14 一因子の逆冪計算にinvpowを採用. */
+/* 2006.11.01 rsを擬剰余 + 約分つきにした. */
+/* 2006.11.08 コーシー問題用に拡張対応させたresidue_CPを作成. */
+/* 2007.02.22 多因子の非モニック用にDalgを装填. */
+/* 2007.03.24 residueとresidue_CPを1つにまとめた. */
+/* 2007.05.06 多因子の方で配列や漸化式の上限を制限. */
+/* 2007.05.07 多因子の逆冪計算にinvpowを採用. rsは御役御免. */
+/* 2007.05.10 多因子の漸化式で小細工. */
+/* 2007.05.17 戻り値をSwで選択できるようにし, defaultを有理数係数多項式とした. */
+/* 2007.06.02 switchとpoleをオプション指定にした. */
+/* 2007.06.12 poleをオプションリストにした. */
+/* 2007.06.19 戻り値のリストをreverseした. */
+/* 2007.07.09 フーリエボレル変換のオプションをつけた. */
+/* 2007.10.12 モニックでない多項式による割り算の副作用を軽減する細工を入れた. */
+
+def residue(NUM,DEN){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!="t") Sw=0;
+
+	Pole=getopt(pole);
+
+	/* ZとFbのdefaultの設定 */
+	Z=getopt(fourier_borel_var);
+	Fb=(type(Z)==-1)?0:1;/* void は -1 */
+
+	/* gcd計算は Euclid互除法 ではなく accelerated integer GCD を使う */
+	igcdcntl(3);
+
+	/* 簡約化 */
+	if(type(DEN)==4){
+		Num=NUM;
+		D=cons([1,1],DEN);
+	}else{
+		Gcd=gcd(NUM,DEN);
+		Num=sdiv(NUM,Gcd);
+		Den=sdiv(DEN,Gcd);
+		D=fctr(Den);
+		Num*=1/(D[0][0]^D[0][1]);/* 分母の共通整数は分子に渡す */
+	}
+
+	X=var(D[1][0]);
+	Len=length(D);
+
+	if(Len==2){residue_s(D[1][0],D[1][1],Num,Sw,Fb,Z);}
+	else residue_m(Num,D,X,Len,Sw,Pole,Fb,Z);
+}
+
+
+/* 分母が一因子 */
+def residue_s(F,L,H,Sw,Fb,Z){
+
+T0=time();
+
+	/* step1 ネーター作用素の計算 */
+
+	X=var(F);
+	M=(L<deg(F,X)+1)?L:deg(F,X)+1;
+
+	DF=newvect(M+1,[F]);for(I=1;I<M+1;I++) DF[I]=diff(DF[I-1],X)/I;
+	DFP=newvect(L,[1]);for(I=1;I<L;I++) DFP[I]=srem(DFP[I-1]*DF[1],F);
+	CO=newvect(M,[1]);for(I=1;I<M;I++) CO[I]=srem(DF[I+1]*DFP[I-1],F);
+
+	C=newvect(L,[1]);
+	for(I=1;I<L;I++){
+		K=L-1-I;C1=1;
+		for(J=1;J<I+1&&J<M;J++){
+			C1*=K+J;
+			C[I]+=C1*(L*J+I-J)*CO[J]*C[I-J];
+		}
+		C[I]=-srem(C[I],F)/I;
+	}
+
+if(Sw=="t"){T1=time();print("residue step1 : "+rtostr(T1[0]-T0[0]));}
+
+	/* step2 逆冪計算 */
+
+	InvDFP=invpow(DF[1],F,2*L-1|switch=1);
+
+if(Sw=="t"){T2=time();print("residue step2 : "+rtostr(T2[0]-T1[0]));}
+
+	/* step3 ネーター作用素の随伴作用素を分子に施す計算 */
+
+	S=DFP[0]*H*C[L-1];
+	if(Fb==1){
+		for(I=1;I<L;I++){H=diff(H,X)+Z*H;S+=DFP[I]*H*C[L-1-I];}
+	}else{
+		N=(L<deg(H,X)+1)?L:deg(H,X)+1;
+		for(I=1;I<N;I++){H=diff(H,X);S+=DFP[I]*H*C[L-1-I];}
+	}
+	S=srem(S,F);
+
+if(Sw=="t"){T3=time();print("residue step3 : "+rtostr(T3[0]-T2[0]));}
+
+	/* step4 併合計算 */
+
+	RN=srem(InvDFP[0]*S,F);
+	RD=fac(L-1)*InvDFP[1];
+
+	GCD=gcdz(RN,RD);
+	if(GCD!=1){RN/=GCD;RD/=GCD;}
+
+	Res=(Sw==1||Sw=="t")?[RN,RD]:RN/RD;
+
+	igcdcntl(0);
+
+if(Sw=="t"){T4=time();print("residue step4 : "+rtostr(T4[0]-T3[0]));return (T4[0]-T0[0]);}
+
+	return [[F,Res]];
+}
+
+
+/* 分母が多因子 */
+def residue_m(Num,D,X,Len,Sw,Pole,Fb,Z){
+
+T0=time();
+
+	/* step0 準備 */
+
+	Ans=[];/* 戻り値格納用 */
+
+	/* pole指定の処理 */
+	if(type(Pole)!=-1){
+		if(type(Pole)!=4) return 0;/* 入力がリストじゃなかった場合return */
+		Pmflag=0;
+		for(I=1;I<Len;I++)
+			for(J=0;J<length(Pole);J++)
+				if(D[I][0]==Pole[J]){Pmflag=1;break;}
+		if(Pmflag==0) return 0;/* 指定した極がなかった場合return */
+	}
+
+	P=-1;Q=0;
+	for(I=1;I<Len;I++){
+		P*=D[I][0];
+		Tmp=D[I][1];
+		for(J=1;J<Len;J++) Tmp*=(I==J)?diff(D[J][0],X):D[J][0];
+		Q+=Tmp;
+	}
+
+	DegP=deg(P,X);
+
+	MaxL=0;for(I=1;I<Len;I++) if(MaxL<D[I][1]) MaxL=D[I][1];
+
+	M=(DegP<MaxL)?DegP:MaxL;
+
+	DP=newvect(M+1,[P]);for(I=1;I<M+1;I++) DP[I]=diff(DP[I-1],X)/I;
+	DQ=newvect(M,[Q]);for(I=1;I<M;I++) DQ[I]=diff(DQ[I-1],X)/I;
+
+	H=Num;DegH=deg(H,X)+1;
+
+	if(Fb==1){
+		DH=newvect(MaxL,[H]);
+		for(I=1;I<MaxL;I++) DH[I]=diff(DH[I-1],X)+Z*DH[I-1];
+	}else{
+		N=(MaxL<DegH)?MaxL:DegH;
+		DH=newvect(N,[H]);
+		for(I=1;I<N;I++) DH[I]=diff(DH[I-1],X);
+	}
+
+if(Sw=="t"){T1=time();print("step0 : "+rtostr(T1[0]-T0[0]));}
+
+	for(II=1;II<Len;II++){
+
+if(Sw=="t"){T2=time();print("* Residue of "+rtostr(D[II])+" *");}
+
+		/* pole指定がある場合, 注目する因子D[II][0]が指定されたpoleでなかったらskipする. */
+		if(Pmflag==1){
+			Skip=1;
+			for(I=0;I<length(Pole);I++) if(D[II][0]==Pole[I]) Skip=0;
+			if(Skip==1) continue;
+		}
+
+		/* step1 ネーター作用素の計算 */
+
+		F=D[II][0];
+		L=D[II][1];
+		DF=diff(F,X);
+
+		M2=(DegP<L)?DegP:L;
+
+		/* トップの係数 */
+		CF=coef(F,deg(F,X));
+
+		/* モニックでないときの副作用を軽減する細工 */
+		if(CF!=1){
+
+			MI=(DegP-2);
+			if(MI<1) MI=1;
+			CFP=CF^MI;
+
+			R=srem(DF*sdiv(-P,F)*CFP,F);
+			RP=newvect(L,[1]);for(I=1;I<L;I++) RP[I]=srem(RP[I-1]*R,F);
+
+			DP2=newvect(M2+1);for(I=1;I<M2;I++) DP2[I+1]=srem(srem(DP[I+1]*CFP,F)*RP[I-1],F);
+			DQ2=newvect(M2);for(I=1;I<M2;I++) DQ2[I]=srem(srem(DQ[I]*CFP,F)*RP[I-1],F);
+
+		}else{
+
+			R=srem(DF*sdiv(-P,F),F);
+			RP=newvect(L,[1]);for(I=1;I<L;I++) RP[I]=srem(RP[I-1]*R,F);
+
+			DP2=newvect(M2+1);for(I=1;I<M2;I++) DP2[I+1]=srem(srem(DP[I+1],F)*RP[I-1],F);
+			DQ2=newvect(M2);for(I=1;I<M2;I++) DQ2[I]=srem(srem(DQ[I],F)*RP[I-1],F);
+
+		}
+
+		C=newvect(L,[1]);
+		for(I=1;I<L;I++){
+			K=L-1-I;KK=L-I;C1=1;
+			for(J=1;J<I+1&&J<M2;J++){
+				C1*=K+J;
+				C[I]+=C1*((KK+J)*DP2[J+1]+DQ2[J])*C[I-J];
+			}
+			C[I]=-srem(C[I],F)/I;
+		}
+
+if(Sw=="t"){T3=time();print("step1 : "+rtostr(T3[0]-T2[0]));}
+
+		/* step2 逆冪計算 */
+
+		InvDFP=invpow(DF,F,2*L-1|switch=1);
+
+		A=1;
+		for(I=1;I<Len;I++) if(I!=II) A=srem(A*D[I][0],F);
+		InvAP=invpow(A,F,L-1|switch=1);
+
+		InvG=1;InvGD=1;
+		for(I=1;I<Len;I++)
+			if(I!=II){
+				GP=invpow(D[I][0],F,D[I][1]|switch=1);
+				InvG=srem(InvG*GP[0],F);
+				InvGD*=GP[1];
+			}
+		G1=gcdz(InvGD,InvG);if(G1!=1){InvG/=G1;InvGD/=G1;}
+
+if(Sw=="t"){T4=time();print("step2 : "+rtostr(T4[0]-T3[0]));}
+
+		/* step3 ネーター作用素の随伴作用素を分子に施す計算 */
+
+		S=0;
+		if(Fb==1){
+			for(I=0;I<L;I++) S+=RP[I]*DH[I]*C[L-1-I];
+		}else{
+			N=(L<DegH)?L:DegH;
+			for(I=0;I<N;I++) S+=RP[I]*DH[I]*C[L-1-I];
+		}
+		S=srem(S,F);
+
+if(Sw=="t"){T5=time();print("step3 : "+rtostr(T5[0]-T4[0]));}
+
+		/* step4 併合計算 */
+
+		RN=srem(srem(srem(InvDFP[0]*InvAP[0],F)*InvG,F)*S,F);
+		RD=fac(L-1)*InvDFP[1]*InvAP[1]*InvGD;
+
+		if(CF!=1) RD*=CFP^(L-1);
+
+		GCD=gcdz(RN,RD);
+		if(GCD!=1){RN/=GCD;RD/=GCD;}
+
+		Res=(Sw==1||Sw=="t")?[RN,RD]:RN/RD;
+
+if(Sw=="t"){T6=time();print("step4 : "+rtostr(T6[0]-T5[0]));}
+
+		Ans=cons([F,Res],Ans);
+	}
+
+	igcdcntl(0);
+
+if(Sw=="t"){T8=time();return T8[0]-T0[0];}
+
+	return Ans;
+}
+
+
+
+/* 剰余体 K[x]/<F> における Poly の逆冪(逆元のM乗)を求めるプログラム */
+
+/* オプション指定 switch
+case 0   : 有理数係数の多項式で返す
+case 1   : 整数係数化リストで返す
+case "t" : タイミングデータ
+default  : case 0
+*/
+
+/* 戻り値 : 逆冪 */
+
+/* 2006.10.31 small_invpowを改良(擬剰余+約分)詳しくはa1 */
+/* 2006.11.22 u^Rのところの計算法を変更 */
+/* 2007.05.10 関数名変更 inversePolyn → invpoly */
+/* 2007.05.10 invpolyの戻り値をリストにする. */
+/* 2007.05.10 最初にPolyの共通整数をくくりだしておく処理を追加. */
+/* 2007.05.19 戻り値を選択式にした. */
+/* 2007.06.02 switchをオプション指定にした. */
+/* 2007.06.19 戻り値のリストをreverseした. */
+/* 2007.06.28 途中計算での戻り値の型のミスマッチのバグ修正 */
+
+def invpow(Poly,F,M){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!="t") Sw=0;
+
+	if(M==1){return invpoly(Poly,F,Sw);}
+	else if(M<deg(F,var(F))){return small_invpow(Poly,F,M,Sw);}
+	else return via_minipoly(Poly,F,M,Sw);
+}
+
+def small_invpow(Poly,F,M,Sw){
+	X=var(F);
+
+	/* 原始多項式化 */
+	PolyN=ptozp(Poly);
+	PolyD=sdiv(Poly,PolyN);
+
+	Q=invpoly(PolyN,F,1);/* 第3引数は1を指定(07.06.28) */
+	QN=Q[0];
+	QD=Q[1];
+
+	MM=1;
+	AN=QN;AD=QD;
+	UN=1;UD=1;
+	ZD=1;
+	Flag=M;
+	while(1){
+		if(Flag%2==1){
+			Z=p_true_nf(UN*AN,[F],[X],2);
+			UN=Z[0];
+			ZD*=Z[1]*MM;
+			UD*=AD;
+		}
+		Flag=idiv(Flag,2);if(Flag==0) break;
+
+		B=p_true_nf(AN*AN,[F],[X],2);
+		AN=B[0];
+		MM=B[1]*MM*MM;/* 実際にはB[1]には何も入らない */
+		AD*=AD;
+
+		/* 約分 */
+		GCD=gcdz(QD,sdiv(B[0],ptozp(B[0])));
+		AN/=GCD;AD/=GCD;
+	}
+	UD*=ZD*PolyD^M;
+
+	/* 稀にたまたま約分できる場合がある. gcdは重いのでここで必要かどうか判断が難しい. */
+	GCD=gcdz(UD,UN);
+	if(GCD!=1){UD/=GCD;UN/=GCD;}
+
+	IP=(Sw==1||Sw=="t")?[UN,UD]:UN/UD;
+
+	return IP;
+}
+
+def via_minipoly(Poly,F,M,Sw){
+
+T0=time();
+
+	PolyN=ptozp(Poly);
+	PolyD=sdiv(Poly,PolyN);
+
+	/* ETAを利用してKAIを求める. */
+	X=var(F);
+	U=u;V=v;
+	ETA=minipoly([F],[X],0,PolyN,V);
+	D=deg(ETA,V);
+	KAI=coef(ETA,D,V);
+	for(I=1;I<D+1;I++) KAI+=coef(ETA,D-I,V)*U^I;
+
+if(Sw=="t"){T1=time();print("invpow step1 : "+rtostr(T1[0]-T0[0]));}
+
+	DK=deg(KAI,U);
+	CF=coef(KAI,DK,U);
+	Up=-KAI+CF*U^DK;
+
+	R=irem(M,DK);
+	Q=idiv(M,DK);
+
+	MM=1;
+	UpQ=1; /* 答え格納用 srem(Up^Q,KAI) */
+	PP=Up; /* Upを作業用変数に入れ動かす */
+	DD=1;  /* CF^Q */
+	ZD=1;  /* 擬剰余分 */
+	CC=CF;
+	while(1){
+		if(Q%2==1){
+			UNf=p_true_nf(UpQ*PP,[KAI],[U],2);
+			UpQ=UNf[0];
+			ZD*=UNf[1]*MM;
+			DD*=CC;
+		}
+		Q=idiv(Q,2);if(Q==0) break;
+		Nf=p_true_nf(PP*PP,[KAI],[U],2);
+		PP=Nf[0];
+		MM=Nf[1]*MM*MM;
+		CC*=CC;
+	}
+
+if(Sw=="t"){T2=time();print("invpow step2 : "+rtostr(T2[0]-T1[0]));}
+
+	UNf=p_true_nf(UpQ*U^R,[KAI],[U],2);
+
+	UpQ=UNf[0];
+	T=ZD*DD*UNf[1];
+
+	DU=deg(UpQ,U);
+	RR=0;Tmp=1;
+	/* ホーナー法でPolyNを代入 */
+	for(I=0;I<DU+1;I++){
+		RR+=coef(UpQ,DU-I,U)*Tmp;
+		Tmp=srem(Tmp*PolyN,F);
+	}
+
+if(Sw=="t"){T3=time();print("invpow step3 : "+rtostr(T3[0]-T2[0]));}
+
+	G=small_invpow(PolyN,F,DU,1);/* 第4引数には1を指定(07.06.28) */
+	G=ltov(G);
+
+	/*RR=srem(G[0]*RR,F);*/
+	RR=srem(umul(G[0],RR),F);
+
+	/* 2007.5.7 RRとG[1]とでキャンセレーションが起きる. */
+	/* ここでのgcdは重い(RRの方がネック)が仕方がない. */
+	/* 上流でigcdcntl(3)をセットしておくと大分速くなる. */
+
+	G1=gcdz(G[1],RR);
+	if(G1!=1){G[1]/=G1;RR/=G1;}
+
+	T*=G[1]*PolyD^M;
+
+if(Sw=="t"){T4=time();print("invpow step4 : "+rtostr(T4[0]-T3[0]));}
+
+/*
+return T4[0]-T0[0];
+*/
+
+	if(T<0){T*=-1;RR*=-1;}
+
+	IP=(Sw==1||Sw=="t")?[RR,T]:RR/T;
+
+	return IP;
+}
+
+
+/* 剰余体 K[x]/<F> における Poly の逆元計算 */
+def invpoly(Poly,F,Sw){
+	X=var(F);
+	Alg=newalg(F);
+	Inv=simpalg(1/subst(Poly,X,Alg));
+	InvR=algtorat(Inv);
+	if(var(InvR)!=0) InvR=subst(InvR,var(InvR),X);
+
+	if(Sw==1||Sw=="t"){
+		InvRN=ptozp(InvR);
+		InvRD=sdiv(InvRN,InvR);
+		return [InvRN,InvRD];
+	}else{
+		return InvR;
+	}
+}
+
+/* 剰余体 K[x]/<F> における Poly の逆元計算 */
+/* invpolyと同じ機能であるがアルゴリズムが違う(一長一短) */
+def invpoly2(Poly,F,Sw){
+	X=var(F);
+	Alg=newalg(F);
+	set_field([Alg]);
+	Inv=dalgtoalg(1/algtodalg(subst(Poly,X,Alg)));
+	InvR=algtorat(Inv);
+	if(var(InvR)!=0) InvR=subst(InvR,var(InvR),X);
+
+	if(Sw==1||Sw=="t"){
+		InvRN=ptozp(InvR);
+		InvRD=sdiv(InvRN,InvR);
+		return [InvRN,InvRD];
+	}else{
+		return InvR;
+	}
+}
+
+/* 検算用 */
+def invpow2(Poly,F,LP){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!="t") Sw=0;
+
+T0=time();
+
+	Q=invpoly(Poly,F,Sw);
+	A=Q[0];LL=LP;M=1;UN=1;ZD=1;
+	while(1){
+		if(LP%2==1){Z=srem(UN*A,F);UN=ptozp(Z);ZD*=sdiv(UN,Z)*M;}
+		LP=idiv(LP,2);if(LP==0) break;
+		B=srem(A*A,F);A=ptozp(B);M=sdiv(A,B)*M*M;
+	}
+	UD=Q[1]^LL*ZD;
+
+if(Sw=="t"){T1=time();return(T1[0]-T0[0]);}
+
+	if(Sw==1){
+		return [UN,UD];
+	}else{
+		return UN/UD;
+	}
+}
+
+
+
+
+/* Fxを与えたときの剰余公式を求めるプログラム */
+
+/* 引数 Fx : 既約分解されたリスト */
+/* リストで入力する場合は, D=[[既約因子,重複度,零点の記号],..]] */
+/* 入力例 rem_formula([[x^2+1,2,z1],[x^3-x-1,2,z2]]); */
+
+/* f(x)の冪で展開は一因子用である. 多因子の場合は, 自動的にxで整理される */
+
+/* オプション指定 switch
+case 0   : xの冪で整理	& list
+case 10  : f(x)の冪で展開 & list
+case 20  : xの冪で整理	& symbolic
+case "t" : タイミングデータ
+default  : case 0
+*/
+
+/* 2007.05.16 hermite_rem と hermite_rem_g を一つにまとめた. */
+/* 2007.05.30 関数名変更 hermite_rem → rem_formula */
+/* 2007.06.02 switchをオプション指定にした. */
+/* 2007.11.05 symbolicな戻り値のオプションの番号を 1 → 20 に変更. */
+
+def rem_formula(Fx){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=10&&Sw!=20&&Sw!="t") Sw=0;
+
+	/* 展開 */
+	D=Fx;
+	X=var(D[0][0]);
+	Len=length(D);
+	Fx=1;for(I=0;I<Len;I++) Fx*=D[I][0]^D[I][1];
+
+/*
+	D=fctr(Fx);
+	A=car(D);AA=A[0]^A[1];
+	D=cdr(D);
+	X=var(Fx);
+	Len=length(D);
+*/
+
+	if(Len==1){rem_formula_s(D[0][0],D[0][1],D[0][2],Sw);}
+	else rem_formula_m(Fx,D,X,Len,Sw);
+}
+
+
+
+/* 一因子用 */
+def rem_formula_s(Fx,L,Z,Sw){
+	DegFx=deg(Fx,var(Fx));
+
+	/* xの冪で整理 */
+	if(Sw==0||Sw==20){
+		if(DegFx==1 && L==1) return 1;
+		A=h1(Fx,L,Z,Sw);
+
+	/* f(x)の冪で整理 */
+	}else if(Sw==10){
+		if(DegFx==1 && L==1) return [1];
+		A=h2(Fx,L,Z,Sw);
+	}
+
+	return A;
+}
+
+
+/* xの冪で整理 */
+def h1(Fx,L,Z,Sw){
+
+T0=time();
+
+	X=var(Fx);
+	Fz=subst(Fx,X,Z);
+	Deg=deg(Fx,X);
+	Num=sdiv(Fx^L-Fz^L,X-Z);
+
+if(Sw=="t"){T1=time();print(T1[0]-T0[0]);}
+
+	A=snoether(Num,[[Fz,L]]|switch=10);
+	A=car(cdr(car(A)));/* 07.05.20 */
+
+if(Sw=="t"){T2=time();print(T2[0]-T1[0]);}
+
+	ANS=newvect(L);for(I=0;I<L;I++) ANS[I]=A[0][I]/A[1];
+
+if(Sw=="t"){T3=time();print(T3[0]-T2[0]);}
+
+	ANS=vtol(ANS);
+
+	/* 戻り値がsymbolicな場合 */
+	if(Sw==20){
+		Ans=0;
+		for(I=0;I<L;I++){
+			P=strtov("p^("+rtostr(L-1-I)+")("+rtostr(Z)+")");
+			Ans+=ANS[I]*P;
+		}
+		ANS=Ans;
+	}else{
+		ANS=[ANS];
+	}
+
+if(Sw=="t"){T4=time();print(T4[0]-T3[0]);}
+
+	return ANS;
+}
+
+
+/* f(x)の冪で展開 */
+def h2(Fx,L,Z,Sw){
+
+T0=time();
+
+	X=var(Fx);
+	Fz=subst(Fx,X,Z);
+	Deg=deg(Fx,X);
+	Num=sdiv(Fx-Fz,X-Z);
+
+if(Sw=="t"){T1=time();print(T1[0]-T0[0]);}
+
+	ANS=[];
+	for(I=0;I<L;I++){
+		A=snoether(Num,[[Fz,I+1]]|switch=10);
+		A=car(cdr(car(A)));/* 07.05.20 */
+		B=newvect(I+1);
+		for(J=0;J<I+1;J++) B[J]=A[0][J]/A[1];
+		ANS=cons(vtol(B),ANS);
+	}
+			
+if(Sw=="t"){T2=time();print(T2[0]-T1[0]);}
+
+/*Ans=vtol(ANS);for(I=0;I<L*Deg;I++) Ans=cons(map(coef,ANS,I,X),Ans);*/
+
+	return [ANS];
+}
+
+
+
+/* 多因子用 */
+def rem_formula_m(Fx,D,X,Len,Sw){
+
+T0=time();
+
+	Z=z;
+	Fz=subst(Fx,X,Z);
+	Deg=deg(Fx,X);
+
+	if(Deg==1){
+		ANS=[1];
+	}else{
+		Num=sdiv(Fx-Fz,X-Z);
+
+if(Sw=="t"){T1=time();print(T1[0]-T0[0]);}
+
+		D=subst(D,X,Z);
+		PFD=cpfd(Num,D|switch=10);/* 10:pfd */
+		PFD=reverse(PFD);
+
+if(Sw=="t"){T2=time();print(T2[0]-T1[0]);}
+
+		Noether=[];
+		for(I=0;I<Len;I++){
+			T=snoether(PFD[I][0],[[PFD[I][1][0],PFD[I][1][1]]]|switch=10);
+			T=subst(T,Z,D[I][2]);
+			T=car(cdr(car(T)));/* 07.05.20 */
+			Noether=cons(T,Noether);
+		}
+		Noether=reverse(Noether);
+
+if(Sw=="t"){T3=time();print(T3[0]-T2[0]);}
+
+		ANS=newvect(Len);
+		for(I=0;I<Len;I++){
+			L=length(Noether[I][0]);
+			Tmp=newvect(L);
+			for(J=0;J<L;J++) Tmp[J]=Noether[I][0][J]/Noether[I][1];
+			ANS[I]=vtol(Tmp);
+		}
+		ANS=vtol(ANS);
+	}
+
+	/* 戻り値がsymbolicな場合 */
+	if(Sw==20){
+		Ans=0;
+		for(I=0;I<length(ANS);I++)
+			for(J=0;J<length(ANS[I]);J++){
+				P=strtov("p^("+rtostr(length(ANS[I])-1-J)+")("+rtostr(D[I][2])+")");
+				Ans+=ANS[I][J]*P;
+			}
+		ANS=Ans;
+	}
+
+if(Sw=="t"){T4=time();print(T4[0]-T3[0]);}
+
+	return ANS;
+}
+
+
+
+
+/* hermiteの補間剰余の検算用として作成 */
+/* 急いで大雑把に作ったのでバグがあるかもしれない */
+
+/* Chinese Remainder Theorem */
+/* 計算法はNewton補間 */
+/* [[既約因子,重複度,零点の記号],..] の形 */
+
+/* 一般の剰余公式 (剰余が不確定の場合) */
+/* まず, rem_formulaで剰余を計算する. */
+def crt_newton(D){
+	if(type(D)!=4){return;}
+	Len=length(D);
+	DD=[];
+	for(I=0;I<Len;I++){
+		T=rem_formula([[D[I][0],D[I][1],D[I][2]]]|switch=1);/* 1:x-symbolic */
+		DD=cons([D[I][0],D[I][1],T],DD);
+	}
+	Ans=crt_newton_n(DD);
+	return Ans;
+}
+
+/* n因子 */
+/* [[既約因子,重複度,剰余,零点の記号],..] の形 */
+def crt_newton_n(D){
+	if(type(D)!=4){return;}
+	Len=length(D);
+	M=D[0][0]^D[0][1];
+	R=srem(D[0][2],M);
+	for(I=1;I<Len;I++){
+		FL=D[I][0]^D[I][1];
+		R=crt_newton_2(R,D[I][2],M,FL);
+		M*=FL;
+	}
+	return R;
+}
+
+/* 2因子に注目 */
+def crt_newton_2(R1,R2,M1,M2){
+	C=invpoly(M1,M2,0);
+	R1=srem(R1,M1);
+	R=R1+srem((R2-R1)*C,M2)*M1;
+	return R;
+}
+
+
+
+
+/* 有理数係数の線形常微分方程式のコーシー問題の解を求めるプログラム */
+
+/* 引数 */
+/* P:有理数係数の多項式, EP:指数多項式リスト, Z:関数の独立変数 */
+
+/* オプション
+switch
+case 0   : 有理数係数の多項式で返す
+case 1   : 整数係数化リストで返す
+case "t" : タイミングデータ
+default  : case 0
+*/
+
+/* オプション
+data
+[c0,c1,...]
+*/
+
+/* 2007.05.27 この時点でのresidueを利用. */
+/* 2007.05.28 コーシーデータの代入機能を追加. */
+/* 2007.05.29 特殊解に対応させた. */
+/* 2007.06.02 switchをオプション指定にした. */
+/* 2007.06.09 指数多項式変換と, 有理関数の微分を関数にした. */
+/* 2007.06.12 簡単な形の特殊解を出力させる機能をつけた. */
+/* 2007.06.19 戻り値のリストをreverseした. */
+/* 2007.10.15 指数関数で整理するプログラムを整備. */
+/* 2007.10.15 引数を増やし関数の独立変数を入力することとした. */
+/* 2007.10.26 留数計算におけるモニックでないときの副作用を軽減する細工を入れた. */
+
+
+/* ネーター作用素と逆冪の計算を1回だけ行いそのデータを使いまわす方法 */
+def solve_ode_cp(P,Z,EP){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!="t") Sw=0;
+
+	/* コーシーデータのオプションを拾う & 初期化 */
+	Data=getopt(data);
+	if(type(Data)==-1) Data=0;/* void は -1 */
+
+	igcdcntl(3);
+
+	/* 前処理 */
+	if(type(P)==4){
+		D=cons([1,1],P);
+		X=var(D[1][0]);
+		Len=length(D);
+		P=1;for(I=0;I<Len;I++) P*=D[I][0]^D[I][1];
+	}else{
+		D=fctr(P);
+		X=var(P);
+		Len=length(D);
+	}
+
+	/* ネーター作用素と逆冪を求めておく */
+	if(Len==2){
+		NData=residue_s_for_solve_ode_cp(D[1][0],D[1][1],Sw);
+	}else{
+		NData=residue_m_for_solve_ode_cp(D,X,Len,Sw);
+	}
+
+	Ans=[];
+
+	DegP=deg(P,X);
+	HH=P;
+
+	/* 指数関数で整理するときの格納用配列(コーシーデータ代入用) */
+	if(Data!=0){
+		ExpS0=newvect(Len-1);/* 因子 */
+		ExpS1=newvect(Len-1);/* 係数の整数多項式 */
+		ExpS2=newvect(Len-1);/* 係数の分母整数 */
+	}
+
+	/* コーシー問題の基本解の計算 */
+
+	/* 基本解に対するループ */
+	for(II=0;II<DegP;II++){
+
+		HH=red((HH-coef(HH,0))/X);
+		H=HH;
+		Res=[];
+
+		/* 分母の各既約因子に対するループ */
+		for(J=0;J<Len-1;J++){
+
+			F=NData[J][0];
+			L=NData[J][1];
+			C=ltov(NData[J][2]);
+			RP=ltov(NData[J][3]);
+			Inv=ltov(NData[J][4]);
+
+			S=RP[0]*H*C[L-1];
+			for(I=1;I<L;I++){
+				H=diff(H,X)+Z*H;
+				S+=RP[I]*H*C[L-1-I];
+			}
+			S=srem(S,F);
+
+			RN=srem(Inv[0]*S,F);
+			RD=Inv[1];
+
+			if(Data==0){
+				GCD=gcdz(RN,RD);
+				if(GCD!=1){RN/=GCD;RD/=GCD;}
+
+				RR=(Sw==1||Sw=="t")?[RN,RD]:RN/RD;
+				Res=cons([F,RR],Res);
+			}else{
+				/* Dataがある場合は約分はしない(2007.10.15) */
+				/* コーシーデータの代入 */
+				ExpS0[J]=F;
+				ExpS1[J]+=RN*Data[II];
+				ExpS2[J]=RD;/* RNとRDを約分してないのでRDは同じだから通分は考えなくてよい */
+			}
+
+		}
+
+		Ans=cons(Res,Ans);
+
+	}
+
+	/* コーシー問題の特殊解の計算 */
+	if(EP!=0){
+
+		if(Data==0){
+			PS=solve_ode_cp_ps(P,Z,EP|switch=Sw);
+			Ans=cons(PS,Ans);
+
+		/* 指数関数で整理しなおす(やってることは単純だがリスト処理が面倒でプログラムは長い) */
+		}else{
+
+			PS=solve_ode_cp_ps(P,Z,EP|switch=1);
+			Ans=cons(PS,Ans);
+
+			Len1=length(PS);
+			Len2=length(ExpS0);
+
+			ExpS_PS=[];/* 基本解にはない因子の集まり */
+
+			for(I=0;I<Len1;I++){
+				Flag=0;
+				for(J=0;J<Len2;J++){
+					if(PS[I][0]==ExpS0[J]){
+						LCM=ilcm(PS[I][1][1],ExpS2[J]);/* 通分 */
+						ExpS1[J]=(LCM/ExpS2[J])*ExpS1[J]+(LCM/PS[I][1][1])*PS[I][1][0];
+						Flag=1;
+					}
+				}
+				/* 同じ因子がなかった場合 */
+				if(Flag!=1) ExpS_PS=cons([PS[I][0],[PS[I][1][0],PS[I][1][1]]],ExpS_PS);
+			}
+		}
+	}
+
+	Ans=reverse(Ans);
+
+	/* 再整理 */
+	if(Data!=0){
+
+		Ans=[];
+		for(J=0;J<Len-1;J++){
+
+			/* 約分処理を追加(2007.10.12) */
+			GCD=gcdz(ExpS1[J],ExpS2[J]);
+			if(GCD!=1){ExpS1[J]/=GCD;ExpS2[J]/=GCD;}
+
+			RR=(Sw==1||Sw=="t")?[ExpS1[J],ExpS2[J]]:ExpS1[J]/ExpS2[J];
+			Ans=cons([ExpS0[J],RR],Ans);
+		}
+
+		if(EP!=0){
+			for(J=0;J<length(ExpS_PS);J++){
+				A=car(ExpS_PS);
+				ExpS_PS=cdr(ExpS_PS);
+				Ans=cons(A,Ans);
+			}
+		}
+
+	}
+
+	igcdcntl(0);
+
+	return Ans;
+}
+
+
+/* 分母が一因子 */
+def residue_s_for_solve_ode_cp(F,L,Sw){
+	X=var(F);
+	M=(L<deg(F,X)+1)?L:deg(F,X)+1;
+
+	DF=newvect(M+1,[F]);for(I=1;I<M+1;I++) DF[I]=diff(DF[I-1],X)/I;
+	DFP=newvect(L,[1]);for(I=1;I<L;I++) DFP[I]=srem(DFP[I-1]*DF[1],F);
+	CO=newvect(M,[1]);for(I=1;I<M;I++) CO[I]=srem(DF[I+1]*DFP[I-1],F);
+
+	C=newvect(L,[1]);
+	for(I=1;I<L;I++){
+		K=L-1-I;C1=1;
+		for(J=1;J<I+1&&J<M;J++){
+			C1*=K+J;
+			C[I]+=C1*(L*J+I-J)*CO[J]*C[I-J];
+		}
+		C[I]=-srem(C[I],F)/I;
+	}
+
+	InvDFP=invpow(DF[1],F,2*L-1|switch=1);
+	Inv=[InvDFP[0],fac(L-1)*InvDFP[1]];
+
+	return [[F,L,vtol(C),vtol(DFP),Inv]];
+}
+
+
+/* 分母が多因子 */
+def residue_m_for_solve_ode_cp(D,X,Len,Sw){
+
+	Ans=[];/* 戻り値格納用 */
+
+	P=-1;Q=0;
+	for(I=1;I<Len;I++){
+		P*=D[I][0];
+		Tmp=D[I][1];
+		for(J=1;J<Len;J++) Tmp*=(I==J)?diff(D[J][0],X):D[J][0];
+		Q+=Tmp;
+	}
+
+	DegP=deg(P,X);
+
+	MaxL=0;for(I=1;I<Len;I++) if(MaxL<D[I][1]) MaxL=D[I][1];
+
+	M=(DegP<MaxL)?DegP:MaxL;
+
+	DP=newvect(M+1,[P]);for(I=1;I<M+1;I++) DP[I]=diff(DP[I-1],X)/I;
+	DQ=newvect(M,[Q]);for(I=1;I<M;I++) DQ[I]=diff(DQ[I-1],X)/I;
+
+	for(II=1;II<Len;II++){
+
+		F=D[II][0];
+		L=D[II][1];
+		DF=diff(F,X);
+
+		M2=(DegP<L)?DegP:L;
+
+		/* トップの係数 */
+		CF=coef(F,deg(F,X));
+
+		/* モニックでないときの副作用を軽減する細工(2007.10.26) */
+		if(CF!=1){
+
+			MI=(DegP-2);
+			if(MI<1) MI=1;
+			CFP=CF^MI;
+
+			R=srem(DF*sdiv(-P,F)*CFP,F);
+			RP=newvect(L,[1]);for(I=1;I<L;I++) RP[I]=srem(RP[I-1]*R,F);
+
+			DP2=newvect(M2+1);for(I=1;I<M2;I++) DP2[I+1]=srem(srem(DP[I+1]*CFP,F)*RP[I-1],F);
+			DQ2=newvect(M2);for(I=1;I<M2;I++) DQ2[I]=srem(srem(DQ[I]*CFP,F)*RP[I-1],F);
+
+		}else{
+
+			R=srem(DF*sdiv(-P,F),F);
+			RP=newvect(L,[1]);for(I=1;I<L;I++) RP[I]=srem(RP[I-1]*R,F);
+
+			DP2=newvect(M2+1);for(I=1;I<M2;I++) DP2[I+1]=srem(srem(DP[I+1],F)*RP[I-1],F);
+			DQ2=newvect(M2);for(I=1;I<M2;I++) DQ2[I]=srem(srem(DQ[I],F)*RP[I-1],F);
+
+		}
+
+		C=newvect(L,[1]);
+		for(I=1;I<L;I++){
+			K=L-1-I;KK=L-I;C1=1;
+			for(J=1;J<I+1&&J<M2;J++){
+				C1*=K+J;
+				C[I]+=C1*((KK+J)*DP2[J+1]+DQ2[J])*C[I-J];
+			}
+			C[I]=-srem(C[I],F)/I;
+		}
+
+		InvDFP=invpow(DF,F,2*L-1|switch=1);
+
+		A=1;
+		for(I=1;I<Len;I++) if(I!=II) A=srem(A*D[I][0],F);
+		InvAP=invpow(A,F,L-1|switch=1);
+
+		InvG=1;InvGD=1;
+		for(I=1;I<Len;I++)
+			if(I!=II){
+				GP=invpow(D[I][0],F,D[I][1]|switch=1);
+				InvG=srem(InvG*GP[0],F);
+				InvGD*=GP[1];
+			}
+		G1=gcdz(InvGD,InvG);if(G1!=1){InvG/=G1;InvGD/=G1;}
+
+		Tmp=(CF!=1)?CFP^(L-1):1;
+
+		Inv=[srem(srem(InvDFP[0]*InvAP[0],F)*InvG,F),fac(L-1)*InvDFP[1]*InvAP[1]*InvGD*Tmp];
+
+		Ans=cons([F,L,vtol(C),vtol(RP),Inv],Ans);
+	}
+
+	return reverse(Ans);
+}
+
+/* コーシー問題の特殊解計算 */
+/* invfbtを内部に組み込む */
+
+/* 2007.10.29 完成. こっちをメインに. */
+
+def solve_ode_cp_ps(P,Z,EP){
+	Sw=getopt(switch);
+	if(Sw!=1) Sw=0;
+
+	Sw2=getopt(switch2);
+	if(Sw2!=1) Sw2=0;
+
+	X=var(EP[0][0]);
+
+	/* PをQ[x]上で既約分解してリスト化 */
+	if(type(P)==4){
+		D=P;
+	}else{
+		N2=1;
+		D=fctr(P);
+		N2*=1/(D[0][0]^D[0][1]);
+		D=cdr(D);
+	}
+
+	/* 最終的な代数的局所コホモロジー類の格納用変数 */
+	NUM=0;
+	DEN=[];
+
+	DD=1;/* 作業用変数 */
+
+	LenEP=length(EP);
+
+	/* 逆フーリエボレル変換 */
+	/* ネーター作用素表示から代数的局所コホモロジー類へ */
+	/* 因子ごとのループ */
+	for(I=0;I<LenEP;I++){
+		DA=diff(EP[I][0],X);
+		DegB=deg(EP[I][1],Z);
+		Noether_operator=newvect(DegB+1);
+		for(J=0;J<=DegB;J++){
+			Noether_operator[DegB-J]=coef(EP[I][1],J,Z);
+			if(CO==0) continue;
+		}
+
+		/* 2007.07.23 ここまで開発した */
+
+		/* 2007.10.23 開発再開 */
+
+		/* f'(x)をかける */
+		for(J=0;J<=DegB;J++) Noether_operator[J]=srem(Noether_operator[J]*DA,EP[I][0]);
+
+		/* 微分を作用 */
+		for(J=1;J<=DegB;J++){
+			/* 分母は同じだから効率化できるかもしれない */
+			A=diff_rat(Noether_operator[DegB-J],EP[I][0],J|switch=1);
+			Noether_operator[DegB-J]=(-1)^J*A[0];
+		}
+
+		/* ネーター作用素を施し終えた代数的局所コホモロジー類の通分 */
+		Num=0;T=1;
+		for(J=0;J<=DegB;J++){
+			Num+=Noether_operator[J]*T;
+			T*=EP[I][0];
+		}
+
+		/* 各因子ごとの通分 */
+		Tmp=EP[I][0]^(DegB+1);
+		NUM=NUM*Tmp+DD*Num;
+		DD*=Tmp;
+		DEN=cons([EP[I][0],DegB+1],DEN);
+
+	}
+
+	NUM*=N2;
+	DEN=unite_fctr_list(D,DEN);
+
+	/* フーリエボレル変換 */
+	if(Sw2==0){
+		Res=fbt(NUM,DEN,Z|switch=Sw);
+	}else{
+		Pole=[];
+		for(I=0;I<length(EP);I++) Pole=cons(EP[I][0],Pole);
+		Res=fbt(NUM,DEN,Z|switch=Sw,pole=Pole);
+	}
+
+	return Res;
+}
+
+
+/* コーシー問題の特殊解計算(検算用) */
+/* invfbt,fbtを呼び出して使う. */
+def solve_ode_cp_ps2(P,Z,EP){
+	Sw=getopt(switch);
+	if(Sw!=1) Sw=0;
+
+	Sw2=getopt(switch2);
+	if(Sw2!=1) Sw2=0;
+
+	/* 逆フーリエボレル変換 */
+	RAT=invfbt(EP,Z|switch=1);/* リストで返せ */
+	NUM=RAT[0];
+	DEN=RAT[1];
+
+	/* PをQ上で既約分解してリスト化 */
+	if(type(P)==4){
+		D=P;
+	}else{
+		D=fctr(P);
+		NUM*=1/(D[0][0]^D[0][1]);
+		D=cdr(D);
+	}
+
+	/* DEN*=P; の計算をリストで行う */
+	DEN=unite_fctr_list(D,DEN);
+
+	/* フーリエボレル変換 */
+	if(Sw2==0){
+		Res=fbt(NUM,DEN,Z|switch=Sw);
+	}else{
+		Pole=[];
+		for(I=0;I<length(EP);I++) Pole=cons(EP[I][0],Pole);
+		Res=fbt(NUM,DEN,Z|switch=Sw,pole=Pole);
+	}
+	return Res;
+}
+
+
+/* 既約分解されたリスト同士を結合するプログラム */
+/* 因数分解してある多項式同士の積に使う. 同じ因子がある場合は重複度を加算する. */
+/* やってることは単純だがリストの処理が面倒でプログラムは長い. */
+
+/*
+[103] unite_fctr_list([[x+1,4],[x^3-x-1,3],[x^4+1,1]],[[x+1,2],[x^2+1,2],[x^3-x-1,1]]);
+[[x+1,6],[x^3-x-1,4],[x^4+1,1],[x^2+1,2]]
+*/
+def unite_fctr_list(L1,L2){
+	/* 因子の種類を数える */
+	Factor=[];
+	for(I=0;I<length(L1);I++)
+		Factor=cons(L1[I][0],Factor);
+	for(I=0;I<length(L2);I++){
+		Flag=0;
+		for(J=0;J<length(Factor);J++)
+			if(Factor[J]==L2[I][0]) Flag=1;
+		if(Flag==0) Factor=cons(L2[I][0],Factor);
+	}
+
+	/* 重複度の加算 */
+	Multiplicity=newvect(length(Factor));
+	for(I=0;I<length(L1);I++)
+		for(J=0;J<length(Factor);J++)
+			if(Factor[J]==L1[I][0]) Multiplicity[J]+=L1[I][1];
+	for(I=0;I<length(L2);I++)
+		for(J=0;J<length(Factor);J++)
+			if(Factor[J]==L2[I][0]) Multiplicity[J]+=L2[I][1];
+
+	/* 答え格納用のリストを作成 */
+	Ans=[];
+	for(I=0;I<length(Factor);I++)
+		Ans=cons([Factor[I],Multiplicity[I]],Ans);
+
+	return Ans;
+}
+
+
+/* 素直にn回留数計算を行う(検算用) */
+/* プログラムは短いけど遅い */
+def solve_ode_cp2(P,EP){
+
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!="t") Sw=0;
+
+	Data=getopt(data);
+	if(type(Data)==-1) Data=0;/* void は -1 */
+
+	Ans=[];
+	Deg=deg(P,var(P));
+	H=P;
+
+	/* コーシー問題の基本解の計算 */
+	for(I=0;I<Deg;I++){
+		H=red((H-coef(H,0))/var(P));
+		Res=fbt(H,P,Z|switch=Sw);
+		Ans=cons(Res,Ans);
+	}
+	Ans=reverse(Ans);
+
+	/* コーシー問題の特殊解の計算 */
+	if(EP!=0){
+		PS=solve_ode_cp_ps(P,EP|switch=Sw);
+		Ans=cons(PS,Ans);
+		Ans=reverse(Ans);
+	}
+
+	/* 初期値の代入(書いてない) */
+	if(Data){
+		Len=length(Data);
+		for(I=0;I<Len;I++){}
+	}
+
+	return Ans;
+}
+
+
+
+
+/* 有理形関数のフーリエボレル変換 */
+
+/* 第1引数 NUM : 多項式 */
+
+/* 第2引数 DEN : 多項式 or リスト */
+/* (注意) リストで入力する場合, 既約チェック, 有理式の約分, 整数係数化は行わない. */
+
+def fbt(NUM,DEN,Z){
+	/* Swのdefaultの設定 */
+	Sw=getopt(switch);
+	if(Sw!=1&&Sw!=10&&Sw!=11&&Sw!="t") Sw=0;
+
+	Pole=getopt(pole);
+
+	return residue(NUM,DEN|switch=Sw,pole=Pole,fourier_borel_var=Z);
+}
+
+/* 逆フーリエボレル変換 */
+/* 有理関数を実際に展開して計算するから遅い. (検算用)になるかも. */
+def invfbt(EP,Z){
+	X=var(EP[0][0]);
+	LenEP=length(EP);
+	RAT=0;
+	for(I=0;I<LenEP;I++){
+		DA=diff(EP[I][0],X);
+		DegB=deg(EP[I][1],Z);
+		for(J=0;J<=DegB;J++){
+			CO=coef(EP[I][1],J,Z);
+			if(CO==0) continue;
+			NUM=srem(DA*CO,EP[I][0]);
+			RAT+=(-1)^J*diff_rat(NUM,EP[I][0],J);
+		}
+	}
+
+	RAT=red(RAT);
+
+	Sw=getopt(switch);
+	if(Sw!=1) Sw=0;
+
+	if(Sw==1){
+		NM=nm(RAT);
+		DN=dn(RAT);
+		D=fctr(DN);
+		NM*=1/D[0][0]^D[0][1];
+		D=cdr(D);
+		RAT=[NM,D];
+	}
+
+	return RAT;
+}
+
+/* 有理関数N/DのJ階の導関数を返す */
+def diff_rat(N,D,J){
+	Sw=getopt(switch);
+	if(Sw!=1) Sw=0;
+
+	X=var(D);
+	T=N;
+	DD=diff(D,X);
+	for(I=0;I<J;I++) T=-D*diff(T,X)+(I+1)*DD*T;
+
+	T*=(-1)^J;
+
+	if(Sw==0){return T/(D^(J+1));}else return [T,[D,J+1]];
+}
+
+/* 有理関数N/DのJ階の導関数を返す(検算用) */
+def diff_rat2(N,D,J){
+	X=var(D);
+	T=N/D;
+	for(I=0;I<J;I++){T=diff(T,X);T=red(T);}
+	return T;
+}
+
+
+endmodule;
+end$
