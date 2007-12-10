@@ -1,5 +1,5 @@
 #!/bin/sh
-# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.6 2006/10/12 10:45:37 takayama Exp $
+# $OpenXM: OpenXM/src/util/oxfetch.sh,v 1.7 2006/10/13 11:51:25 ohara Exp $
 
 MASTER_SITES="ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/"
 fetch="wget --no-directories --passive-ftp --timestamping"
@@ -20,7 +20,7 @@ _mkdir () {
 }
 
 _fetch () {
-    if [ "distfile" != "" -a ! -f "$distdir/$distfile" ]; then
+    if [ "$distfile" != "" -a ! -f "$distdir/$distfile" ]; then
         (cd $distdir; $fetch $url)
     fi
 }
