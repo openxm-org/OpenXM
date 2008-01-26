@@ -105,6 +105,7 @@ copy-tar-ball-and-asir: make-tar-ball-2 make-tar-ball-3
 	(cd work ;  ${RSYNC} "ox-texmacs-${OS}-${VERSION}.tar.gz" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 	(cp ../openxm*deb . ;  ${RSYNC} "openxm_${VERSION}_i386.deb" ${USER}@lemon.math.kobe-u.ac.jp:${FTP_DIR})
 	(cp ../openxm*deb . ;  ${RSYNC} "openxm_${VERSION}_i386.deb" ${USER}@fe.math.kobe-u.ac.jp:${APT_DIR})
+	(cp ../openxm*dsc . ;  ${RSYNC} "openxm_${VERSION}.dsc" ${USER}@fe.math.kobe-u.ac.jp:${APT_DIR})
 
 clean: clean-tilde
 	rm -rf debian/tmp build-stamp work .*done openxm*.deb
