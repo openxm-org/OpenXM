@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.23 2006/03/12 07:05:41 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.24 2007/08/09 04:46:44 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2007 年 8 月
+@subtitle 2008 年 1 月
 
 @author  by Risa/Asir committers
 @page
@@ -141,6 +141,8 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * qt_is_ceof::
 * qt_rewrite:: 
 * asirgui.hnd::
+* noro_matrix.rr:
+* fres::
 
 @end menu
 
@@ -2277,6 +2279,76 @@ ChangeLog
 @item @code{OpenXM_contrib2/windows/asir32gui/asir32guiview.cpp}  1.15, 1.1.6
 @end itemize
 @comment ****************************************************************
+
+@node noro_matrix.rr,,, 実験的仕様の関数
+@subsection @code{noro_matrix.rr}
+@findex noro_matrix.rr
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item linalg.unit_mat(@var{arg1})
+@item linalg.random_rmat(@var{arg1}, @var{arg2}, @var{arg3})
+@item linalg.minipoly_mat(@var{arg1})
+@item linalg.compute_kernel(@var{arg1})
+@item linalg.compute_image(@var{arg1})
+@item linalg.jordan_canonical_form(@var{arg1})
+@end table
+
+
+@itemize @bullet
+@item 簡単な解説および実例は http://www.math.kobe-u.ac.jp/HOME/taka/2007/knx/noro_matrix-ja.txt を参照.
+@end itemize
+
+@example
+load("noro_matrix.rr");
+A=newmat(4,4,[[2,0,0,0],[3,5,1,0],[-9,-9,-1,0],[-5,0,0,1]]);
+B=linalg.jordan_canonical_form(A);
+@end example
+
+@table @t
+@item 参照
+@ref{invmat}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-04 頃から線形代数III の講義をしながら書かれた.
+@item ソース:  OpenXM/src/asir-contrib/packages/src/noro_matrix.rr
+@end itemize
+
+
+@node fres,,, 実験的仕様の関数
+@subsection @code{fres}
+@findex fres
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item fres
+@end table
+
+
+@itemize @bullet
+@item fres は各種の終結式を計算するモジュールである. ox_grep("fres"); で online manual を閲覧可能である.
+@end itemize
+
+@table @t
+@item 参照
+@ref{}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item このモジュールは Fujiwara 君の修士論文が元になり, それを改造したものである.
+@item OpenXM/src/ox_fres
+@end itemize
+
 
 @comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
