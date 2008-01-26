@@ -3,7 +3,7 @@ Todo: Makefile-fix,  cf. misc-2005/A2/knoppix-2006/Makefile-asir,  .TeXmacs $B4
 Q. $B%Q%C%1!<%8$r?7$7$/$7$?$$(B.
 A. 
    0.  [knoppix/math $B$G$O(B apt-get install sun-java5-jdk (unstable) $B$r$7$F$*$/(B
-        dpkg-dev, debhelper $B$bI,MW(B. 
+        dpkg-dev, debhelper, fakeroot $B$bI,MW(B. 
         dpkg  --list | grep sun-java $BEy$GD4$Y$k(B.
         nkf, texinfo $BEy$O(B knoppix/math $B$J$i(BOK $B$@$,G0$N$?$a3NG'(B.
                dpkg --list | grep texinfo
@@ -14,11 +14,15 @@ A.
                       e-mail address $B$N80$r:n@.$7$F$*$/(B. 
          ~/.gnupg $B$r(B orange2 $BEy$+$i%3%T!<$7$F$*$/(B.
        ]
-       << Etch: waiting for lock on .... random_seed ==> dpkg-buildpackage -uc -us (add option of no signature) >>
+       << Etch: waiting for lock on .... random_seed ==> dpkg-buildpackage -uc -us (add option of no signature) 
+       $BKt$O(B export GNUPGHOME=nfs $B$G$J$$(B directory $B$N(B .gnupg $B$7$F(B,
+       debian@math.kobe-u.ac.jp $B$G%5%$%s(B. -uc -us $B$O$H$k(B.>>
  
    1. $B$9$Y$F$N:n6H$O(B 
        source ./dot.bashrc      (./$B$rIU$1$k$N$r$o$9$l$J$$$3$H(B)
       $B$r$7$F$+$i(B. ($B0lIt9b;3MQ(B)
+      export GNUPGHOME=/private/taka/.gnupg $BEy$bK:$l$:$K(B.
+
    2. debian/changelog $B$r=$@5(B.  date $B$O(B rfc822 format $B$r<i$k;v(B.
         ( dpkg-parsechangelog  $B$G(B check.
           $B=pL>$9$k$K$O(B, mail address $B$r(B gnupg $B$N$b$N$HF10l$K(B.)
@@ -30,6 +34,7 @@ A.
    6. make copy-tar-ball-and-asir
      [knoppix/math:  make USER=taka copy-tar-ball-and-asir]
    (7. orange2 $B$G(B /root/bin/mirror-pub
+       http://fe.math.kobe-u.ac.jp/KnoppixMath $B$N8E$$(B deb $B$r(B Attic $B$X(B.
        KnoppixMath $B$G(B Update-apt.sh (http://fe.math.kobe-u.ac.jp/KnoppixMath)
    )
 
@@ -203,7 +208,7 @@ A. license $B4XO"$GFC<l$J9=B$$N$?$a(B, apt-get upgrade $B$O$G$-$^$;$s(B.
    "apt-get update openxm" will not work, because of a special structure
    of the package due to a license restriction.
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.16 2007/08/09 07:36:32 takayama Exp $
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.17 2007/08/23 08:32:26 takayama Exp $
 
    
 
