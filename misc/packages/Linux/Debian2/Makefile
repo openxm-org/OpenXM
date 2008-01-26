@@ -1,6 +1,6 @@
 # Do source dot.bashrc before doing something.
 
-VERSION=1.2.3-9
+VERSION=1.2.3-10
 # This VERSION must be compatible with debian/control ver. 
 #   use "make update-version" to update these values.
 #                                OpenXM/download/Makefile
@@ -18,12 +18,12 @@ TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 build-package: fetch  make-tar-ball-2  make-tar-ball-3
 	fakeroot debian/rules build
 	fakeroot debian/rules install
-	fakeroot dpkg-buildpackage -uc -us
+	fakeroot dpkg-buildpackage
 
 build-deb:
 	fakeroot debian/rules build
 	fakeroot debian/rules install
-	fakeroot dpkg-buildpackage -uc -us
+	fakeroot dpkg-buildpackage
 
 fetch:
 	if [ ! -f .fetch_done ]; then \
@@ -112,6 +112,6 @@ clean-tilde:
 	rm -rf *~
 
 update-version:
-	oxreplace --old VERSION=1.2.3-8 --new VERSION=1.2.3-9 OpenXM/download/Makefile
-	oxreplace --old VERSION=1.2.3-8 --new VERSION=1.2.3-9 ../../../../src/asir-port/Makefile
+	../../../../bin/oxreplace --old VERSION=1.2.3-9 --new VERSION=1.2.3-10 OpenXM/download/Makefile
+	../../../../bin/oxreplace --old VERSION=1.2.3-9 --new VERSION=1.2.3-10 ../../../../src/asir-port/Makefile
 	echo "make commit under OpenXM/src/asir-port and here"
