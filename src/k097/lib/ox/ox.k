@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.11 2001/01/26 12:24:57 takayama Exp $  */
+/* $OpenXM: OpenXM/src/k097/lib/ox/ox.k,v 1.12 2002/11/08 02:54:12 takayama Exp $  */
 
 /* Load_sm1(["ox.sm1",AddString([GetEnv("OpenXM_HOME"),"/lib/sm1/ox.sm1"])],
          "ox.sm1.loaded"); */
@@ -98,7 +98,7 @@ class OXcontrol extends Object {
        "/bin/oxc", 
        " -c ", pass, " -h "," localhost ", " -p ", data, xopt,
        " & "]);
-    sm1(" [ (/bin/csh -c \") s (\") ] cat /stmp set ");
+    sm1(" [ (/bin/sh -c \") s (\") ] cat /stmp set ");
     sm1(" stmp message ");
     sm1(" stmp system  ");
     sm1(" [(oxCreateControl_RFC_101) peer 0 pass] extension /c set ");
