@@ -1,13 +1,15 @@
-$OpenXM: OpenXM/doc/OpenXM-web/readme-ja.txt,v 1.1 2005/02/10 12:56:36 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/readme-ja.txt,v 1.2 2005/02/10 23:22:43 takayama Exp $
 http://www.openxm.org 
 (http://www.math.kobe-u.ac.jp/OpenXM)
 の更新方法.
 
 OpenXM/src で make install
+(rm OpenXM/src/asir-contrib/packages/doc/.*done)
 OpenXM/src で make install-document
 して, OpenXM/lib, OpenXM/doc 等を最新版にする必要がある.
-[ bug: (cd OpenXM/src/asir-contrib/packages/doc ;  make install-html-help)
+[ bug: (cd OpenXM/src/asir-contrib/packages/doc ;  make install-html-doc)
    しないと asir-contrib の html マニュアルが更新されない. ]
+  << OpenXM/doc/asir-contrib/ja の下にファイルができてるか確認 >>
 
 また index.html 等を更新する必要がある.
 
