@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/install.txt,v 1.28 2004/03/25 02:01:15 takayama Exp $    
+%%  $OpenXM: OpenXM/install.txt,v 1.29 2004/03/31 01:42:58 takayama Exp $    
 
 The OpenXM package is a package of mathematical software systems.
 They are integrated with the OpenXM protocols.
@@ -22,6 +22,13 @@ that we understand that once an user starts our system, he/she agrees
 with our licence.
 
 -------- An instruction for a quick installation from the source code ---
+During the installation, some library souces are automatically  downloaded
+by the wget command.  If you are in a firewall and cannot use even the passive
+ftp, the environmental variable ftp_proxy may help you.
+See the document of wget.  All necessary library sources are downloaded in
+OpenXM_dist at the same level of OpenXM. If you are offline, please put
+all library sources necessary in this directory by hand.
+
 (cd OpenXM/src ; make install)
              You will get binaries, libraries, and documents under
              OpenXM/bin, OpenXM/lib, OpenXM/doc

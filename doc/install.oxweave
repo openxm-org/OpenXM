@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/doc/install.oxweave,v 1.48 2004/02/03 23:36:09 takayama Exp $
+%% $OpenXM: OpenXM/doc/install.oxweave,v 1.49 2005/04/15 00:50:54 takayama Exp $
 OpenXM/doc/install.oxweave
 
 /*&C
@@ -11,6 +11,7 @@ OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
 /*&jp
 
 ------------ ソースからコンパイルしてインストールする方法 ----
+
 (cd OpenXM/src ; make install)
              バイナリとライブラリとドキュメント類は
              OpenXM/bin, OpenXM/lib, OpenXM/doc
@@ -22,8 +23,17 @@ OpenXM URL :  http://www.math.kobe-u.ac.jp/OpenXM
              この部分は root で実行してください.
 
 なお一部のソースは ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc より
-OpenXM_dist に make 中にダウンロードされます.  したがって, make するときは
+OpenXM_dist に make 中に wget コマンドでダウンロードされます.  
+したがって, make するときは
 インターネットに接続されている必要があります.
+
+ファイアウオール内でもし passive ftp が使えない場合は,
+環境変数 ftp_proxy を正しく設定すればうまくいく場合があるかもしれません.
+詳しくは wget のマニュアルを見てください.
+ダウンロードしたライブラリのソースは
+OpenXM_dist ( OpenXM と並列した場所です ) に格納されます.
+ここに手動で必要なライブラリのソースをおいとけば,  offline でも
+コンパイル可能です.
 
 */
 
@@ -33,6 +43,7 @@ OpenXM package : Getting started.
 
 
 ----------- An instruction for a quick installation from the source code ---
+
 (cd OpenXM/src ;  make install)
              You will get binaries, libraries, and documents under
              OpenXM/bin, OpenXM/lib, OpenXM/doc
@@ -43,8 +54,14 @@ OpenXM package : Getting started.
 
 
 Some sources are downloaded from ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc
-to OpenXM_dist during the make. So, your machine must be accessible to 
-the internet. 
+to OpenXM_dist during the make by the wget command. 
+So, your machine must be accessible to the internet. 
+
+If you are in a firewall and cannot use even the passive
+ftp, the environmental variable ftp_proxy may help you.
+See the document of wget.  All necessary library sources are downloaded in
+OpenXM_dist at the same level of OpenXM. If you are offline, please put
+all library sources necessary in this directory by hand.
 
 */
 
