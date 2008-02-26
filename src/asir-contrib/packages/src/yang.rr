@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.14 2005/08/25 06:22:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.15 2006/03/20 14:14:04 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -55,6 +55,8 @@ localf mul, mulL;
 localf multi, multi_D, multi_DE, multiL;
 localf dp_coef_gcd, red1, red2, reducible, division, division_D, division_DE;
 localf nf, reduction, add, spolynomial, spolynomial_D, spolynomial_DE;
+localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger;
+localf initial_term, in, stdmon;
 localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
 localf dp_ltom, pfaffian, check_pfaffian;
 localf pf;
@@ -835,7 +837,7 @@ def buchberger(G) {
             message(" "+rtostr(MaxSugar)+" ");
         }
         if (UseSM1) {
-            IN = map(dp_dtop,in(G),Ring->v);
+            IN = map(dp_dtop,initial_term(G),Ring->v);
             Sm1_hilbert = sm1.hilbert([IN,Ring->v]);
             message("<"+rtostr(Sm1_hilbert)+">");
             if (Sm1_hilbert == Hilbert) {
@@ -869,7 +871,7 @@ def gr(F) {
 }
 
 /* it returns in(G) */
-def in(Gr) {
+def initial_term(Gr) {
     L = [];
     N = length(Gr);
     for(I=0; I<N; I++) {
@@ -882,10 +884,17 @@ def in(Gr) {
     return L;
 }
 
+/* it returns in(G) */
+def in(Gr)
+"Get initial terms of a Groebner base."
+{
+	return map(opr, initial_term(map(op,Gr)));
+}
+
 def stdmon(Gr)
 "Get standard monomial of a Groebner base."
 {
-    return map(opr, dp_mbase(in(map(op, Gr))));
+    return map(opr, dp_mbase(initial_term(map(op, Gr))));
 }
 
 /* --------------------------------
@@ -940,7 +949,7 @@ def pf(Base,Gr) {
 /* Base: Pfaffian を計算したいモノミアル(空のとき標準モノミアルを使う)
    Gr: グレブナ基底 */
 def pfaffian(Base,Gr) {
-    StdMon = dp_mbase(in(Gr)); /* see yang.stdmon() */
+    StdMon = dp_mbase(initial_term(Gr)); /* see yang.stdmon() */
     if (Base==[]) {
         Base = StdMon;
     }
