@@ -546,38 +546,6 @@ def gw_mod(G,V,O1,O2,Mod)
 	return R;
 }
 
-def tolex_gw(G,V,O1)
-{
-
-	dp_ord(O1);
-	D1 = ltov(map(dp_ptod,G,V));
-	H1 = map(dp_ht,D1);
-	W1 = compute_compat_weight_gmp(D1,H1);
-
-	if ( zero_dim(G,V,O1) )
-		G2M = tolexm(G,V,O1,V,31991);
-	else {
-		GH = map(homogenize,G,V,hhh);
-		VH = append(V,[hhh]);
-		G2M = nd_gr(GH,VH,31991,1);
-		G2M = map(subst,G2M,hhh,1);
-		G2M = nd_gr_postproc(G2M,V,31991,2,0);
-	}
-	dp_ord(2);
-	D2 = ltov(map(dp_ptod,G2M,V));
-	H2 = map(dp_ht,D2);
-	W2 = compute_compat_weight_gmp(D2,H2);
-	
-	N = length(V);
-	M1 = create_order_mat(N,0);
-	for ( I = 0; I < N; I++ ) M1[0][I] = W1[I];
-	M2 = create_order_mat(N,0);
-	for ( I = 0; I < N; I++ ) M2[0][I] = W2[I];
-	dp_set_top_weight(0);
-	R = generic_walk(G,V,M1,M2);
-	dp_set_top_weight(0);
-	return R;
-}
 endmodule$
 
 end$
