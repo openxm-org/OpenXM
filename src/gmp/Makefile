@@ -1,11 +1,11 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.14 2007/04/03 17:53:28 ohara Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.15 2008/02/13 10:46:40 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
 RM = /bin/rm
 MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=gmp-4.2.2
-DISTFILES=${DISTNAME}.tar.gz
+DISTFILES=${DISTNAME}-core2.tgz
 WRKSRC=work/${DISTNAME}
 #PATCHFILES = gmp.diff
 PATCHFILES = 
