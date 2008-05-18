@@ -1,0 +1,581 @@
+%comment $OpenXM$
+%comment --- おまじない ---
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-noro_matrix
+
+@comment --- タイトル ---
+@settitle noro_matrix
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title noro_matrix
+@subtitle noro_matrix User's Manual
+@subtitle Edition 1.0
+@subtitle May 2008
+
+@author  by Masayuki Noro
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Masayuki Noro
+2008. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@menu
+* 行列演算パッケージ noro_matrix.rr::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に ---
+@node 行列演算パッケージ noro_matrix.rr,,, Top
+@chapter 行列演算パッケージ noro_matrix.rr
+
+@comment --- section 名を正確に並べる ---
+@menu
+* 行列に関する函数::
+@end menu
+
+このマニュアルでは, asir-contrib パッケージに収録されている,
+行列演算パッケージ @samp{noro_matrix.rr} について解説する.
+このパッケージを使うには, まず @samp{noro_matrix.rr} をロードする.
+@example
+[1831] load("noro_matrix.rr");
+[2014] 
+@end example
+このパッケージの函数を呼び出すには, 全て @code{linalg.} を先頭につける.
+@example
+[2014] linalg.random_mat(3,5);
+[ 0 -1 -1 ]
+[ -1 3 0 ]
+[ -2 -2 4 ]
+@end example
+このマニュアルでは, 関連する組込み函数についても解説する.
+
+@comment --- section の開始 ---
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node 行列に関する函数,,, 行列演算パッケージ noro_matrix.rr
+@section 行列に関する函数
+
+@menu
+* matrix vector linalg.unit_mat::
+* linalg.random_mat linalg.random_rmat linalg.random_vect::
+* invmat::
+* det nd_det::
+* generic_gauss_elim::
+* linalg.compute_kernel linalg.compute_image::
+* linalg.minipoly_mat::
+* linalg.jordan_canonical_form linalg.sample_mat::
+@end menu
+
+@node matrix vector linalg.unit_mat,,, 行列に関する函数
+@subsection @code{matrix},@code{vector},@code{linalg.unit_mat}
+@findex matrix
+@findex vector
+@findex linalg.unit_mat
+
+@table @t
+@item matrix(@var{m},@var{n}[,@var{listoflist}]) :: @var{m}行@var{n}列の行列を生成する.
+@itemx vector(@var{size}[,@var{list}]) :: サイズが @var{size} のベクトルを生成する.
+@itemx linalg.unit_mat(@var{size}) :: サイズが @var{size} の単位行列を生成する.
+@end table
+
+@table @var
+@item return
+行列
+@item size
+@itemx m
+@itemx n
+正整数
+@item listoflist
+リストのリスト
+@item list
+リスト
+@end table
+
+@itemize @bullet
+@item
+@code{matrix}, @code{vector} は組込み, @code{linalg.unit_mat} は @samp{noro_matrix.rr}
+で定義されている.
+@item
+@code{matrix}, @code{vector} は, @var{listoflist}, @var{list} が
+ない場合には零行列, 零ベクトルを生成する.
+@item
+@var{listoflist} は @var{[[1,2,3],[3,4,5]]} のようにリストからなるリストで
+ある. これが引数として与えられた場合, 要素であるリストを使って
+行列の各行が順に初期化される.
+@item
+@var{list} は @var{[1,2,3]} のようなリストである.
+これが引数として与えられた場合, このリストの要素によりベクトルの各
+成分が初期化される.
+@end itemize
+
+@example
+[1559] matrix(2,3);
+[ 0 0 0 ]
+[ 0 0 0 ]
+[1560] vector(3);
+[ 0 0 0 ]
+[1561] linalg.unit_mat(3);
+[ 1 0 0 ]
+[ 0 1 0 ]
+[ 0 0 1 ]
+[1559] matrix(2,3,[[1,2,3],[4,5,6]]);
+[ 1 2 3 ]
+[ 4 5 6 ]
+@end example
+
+
+@node linalg.random_mat linalg.random_rmat linalg.random_vect,,, 行列に関する函数
+@subsection @code{linalg.random_mat}, @code{linalg.random_rmat}, @code{linalg.random_vect}
+@findex linalg.random_mat
+@findex linalg.random_rmat
+@findex linalg.random_vect
+
+@table @t
+@item linalg.random_mat(@var{size},@var{bound}) :: 正方整数行列をランダム生成する.
+@itemx linalg.random_rmat(@var{m},@var{n},@var{bound}) :: @var{m} 行 @var{n} 列の整数行列をランダム生成する.
+@itemx linalg.random_vect(@var{size},@var{bound}) :: 整数ベクトルをランダム生成する.
+@end table
+
+@table @var
+@item return
+整数
+@item number
+整数
+@end table
+
+@itemize @bullet
+@item linalg.random_mat(@var{size},@var{bound}) は, サイズ @var{size}, 
+要素が@var{bound}未満の
+正方整数行列をランダム生成する.
+@item
+@item linalg.random_rmat(@var{m},@var{n},@var{bound}) は
+@var{m} 行 @var{n} 列の,
+要素が@var{bound}未満の整数行列をランダム生成する.
+@item linalg.random_vect(@var{size},@var{bound}) は長さ @var{size}の,
+要素が@var{bound}未満の整数ベクトルをランダム生成する.
+@end itemize
+
+@example
+[1579] linalg.random_mat(3,4);
+[ 2 1 -2 ]
+[ 0 -2 1 ]
+[ 3 1 -2 ]
+[1580] linalg.random_rmat(3,5,2);
+[ 0 -1 0 0 0 ]
+[ 0 -1 0 1 0 ]
+[ -1 0 0 -1 1 ]
+[1581] linalg.random_vect(3,6); 
+[ -3 2 3 ]
+@end example
+
+@node invmat,,, 行列に関する函数
+@subsection @code{invmat}
+@findex invmat
+
+@table @t
+@item invmat(@var{mat}) 
+:: @var{mat} の逆行列を計算する.
+@end table
+
+@table @var
+@item return
+リスト
+@item mat
+正方行列
+@end table
+
+@itemize @bullet
+@item
+正方行列 @var{mat} の逆行列を計算する.
+@item
+結果は @var{[invmat,denom]} なるリストである. ここで, @var{invmat} は
+行列, @var{denom} は分母を表す式であり, @var{invmat/denom} が逆行列を表す.
+@item
+@var{mat}が整数行列, あるいは多項式行列の場合, @var{invmat} は
+それぞれ整数行列, あるいは多項式となる. この仕様は, 無駄な分数, 有理式
+計算を省くために定められているが, 使いにくい場合もある.
+@end itemize
+
+@example
+[1575] A=linalg.random_mat(4,5);
+[ 2 4 3 3 ]
+[ 3 0 0 0 ]
+[ 0 2 3 -2 ]
+[ 2 0 -4 3 ]
+[1576] L=invmat(A);
+[[ 0 38 0 0 ]
+[ -3 -28 63 45 ]
+[ 18 16 -36 -42 ]
+[ 24 -4 -48 -18 ],114]
+[1577] AI=L[0]/L[1]$ AI*A;
+[1578] [ 1 0 0 0 ]
+[ 0 1 0 0 ]
+[ 0 0 1 0 ]
+[ 0 0 0 1 ]
+@end example
+
+@node det nd_det,,, 行列に関する函数
+@subsection @code{det},@code{nd_det}
+@findex det
+@findex nd_det
+
+@table @t
+@item det(@var{mat}[,@var{mod}])
+@itemx nd_det(@var{mat}[,@var{mod}])
+:: @var{mat} の行列式を求める. 
+@end table
+
+@table @var
+@item return
+式
+@item mat
+行列
+@item mod
+素数
+@end table
+
+@itemize @bullet
+@item
+@code{det} および @code{nd_det} は行列 @var{mat} の行列式を求める. 
+@item
+引数 @var{mod} がある時, GF(@var{mod}) 上での行列式を求める. 
+@item
+分数なしのガウス消去法によっているため, 多変数多項式を成分とする
+行列に対しては小行列式展開による方法のほうが効率がよい場合もある. 
+@item
+@code{nd_det} は有理数または有限体上の多項式行列の行列式
+計算専用である. アルゴリズムはやはり分数なしのガウス消去法だが,
+データ構造および乗除算の工夫により, 一般に @code{det} より高速に
+計算できる.
+@end itemize
+
+@example
+[91] A=matrix(5,5)$                         
+[92] V=[x,y,z,u,v];
+[x,y,z,u,v]
+[93] for(I=0;I<5;I++)for(J=0,B=A[I],W=V[I];J<5;J++)B[J]=W^J;
+[94] A;
+[ 1 x x^2 x^3 x^4 ]
+[ 1 y y^2 y^3 y^4 ]
+[ 1 z z^2 z^3 z^4 ]
+[ 1 u u^2 u^3 u^4 ]
+[ 1 v v^2 v^3 v^4 ]
+[95] fctr(det(A));
+[[1,1],[u-v,1],[-z+v,1],[-z+u,1],[-y+u,1],[y-v,1],[-y+z,1],[-x+u,1],
+[-x+z,1],[-x+v,1],[-x+y,1]]
+@end example
+
+@node generic_gauss_elim,,, 行列に関する函数
+@subsection @code{generic_gauss_elim}
+@findex generic_gauss_elim
+
+@table @t
+@item generic_gauss_elim(@var{mat}) 
+:: 整数行列を簡約する.
+@end table
+
+@table @var
+@item return
+リスト
+@item mat
+整数行列
+@end table
+
+@itemize @bullet
+@item
+整数行列 @var{mat} の簡約階段形 (reduced row echelon form; rref) を計算し,
+それを構成するデータをリストとして返す.
+@item
+出力は @var{[B,D,J,K]} の形のリストである. 入力 @var{mat} が @var{m} 行
+@var{n} 列とし, そのランクが @var{r} とすれば, @var{B} は @var{r} 行
+@var{n-r} 列の行列である. @var{D} は整数, @var{J} は長さ @var{r},
+@var{K} は長さ @var{n-r} の整数ベクトルである.
+@item
+出力データは @var{mat} の rref をエンコードしている.
+rref の第 @var{J[l]} 列は @var{l} 行目のみが @var{D}, それ以外は 0 の
+列ベクトル, rref の 第 @var{K[l]} 列は @var{B} の第 @var{l} 列を, 上から
+詰めたものとなる.
+@item
+このような形式で出力する理由は, 入力行列のランクが大きい場合に,
+rref は 0 が多い疎な行列となり, メモリを多く消費することと,
+この形の方が, プログラム上でデータを利用しやすいことによる.
+@end itemize
+
+@example
+[1600] A=linalg.random_rmat(3,5,2);
+[ 0 -1 -1 0 -1 ]
+[ 1 0 1 -1 0 ]
+[ 1 1 0 0 0 ]
+[1601] L=generic_gauss_elim(A);
+[[ -1 -1 ]
+[ 1 1 ]
+[ -1 1 ],2,[ 0 1 2 ],[ 3 4 ]]
+@end example
+
+例えば, rref を計算する函数は次のように書ける.
+@example
+def my_rref(A)
+@{
+    S = size(A); M = S[0]; N = S[1];
+    L = generic_gauss_elim(A);
+    B = L[0]; D = L[1]; J = L[2]; K = L[3];
+    R = length(J); NR = N-R;
+    A1 = matrix(M,N);
+    for ( I = 0; I < R; I++ ) @{
+        A1[I][J[I]] = D;
+        for ( L = 0; L < NR; L++ ) A1[I][K[L]] = B[I][L];
+    @}
+    return A1;
+@}
+@end example
+
+
+@table @t
+@item 参照
+@fref{matrix vector linalg.unit_mat}
+@end table
+
+@node linalg.compute_kernel linalg.compute_image,,, 行列に関する函数
+@subsection @code{linalg.compute_kernel}, @code{linalg.compute_image}
+@findex linalg.compute_kernel
+@findex linalg.compute_image
+
+@table @t
+@item linalg.compute_kernel(@var{mat}[|rhs=@var{vect}]) 
+:: 有理数行列の核の基底を計算する.
+@itemx linalg.compute_image(@var{mat})
+:: 有理数行列の像の基底を計算する.
+@end table
+
+@table @var
+@item return
+リスト
+@item mat
+有理数行列
+@item vect
+有理数ベクトル
+@end table
+
+@itemize @bullet
+@item
+@var{m} 行 @var{n} 列の行列を, 列ベクトルに左から掛けることにより
+@var{n} 次元ベクトル空間から
+@var{m} 次元ベクトル空間への線形写像とみなす.
+@item
+@code{linalg.compute_kernel} は有理数行列 @var{mat} の核の基底を計算する.
+@item
+@code{linalg.compute_kernel} の出力は @var{[[v1,pos1],@dots{},[vl,posl]]} の形のリストである. ここで,
+@var{vi} は基底ベクトル, @var{posi} は, @var{vi} の主成分位置, すなわち
+最小のインデックスを持つ成分の位置を表す. @var{posi} は全て異なること
+が保証される.
+@item
+オプション @var{vect} が指定された場合, 結果は
+@var{[@var{sol},[[v1,pos1],@dots{},[vl,posl]]]} なるリストとなる.
+ここで @var{sol} は @var{mat sol = vect} を満たすベクトル (特殊解),
+のこりは核の基底である.
+@item
+解が存在しないような @var{vect} を指定するとエラーを起こす.
+@item
+@code{linalg.compute_image} は有理数行列 @var{mat} の像の基底を計算する.
+@item
+@code{linalg.compute_image} の出力は, @var{[v1,pos1,hist1],@dots{},[vl,posl,histl]} の形のリストである.
+ここで, @var{vi} は基底ベクトル, @var{posi} は, @var{vi} の主成分位置, すなわち
+最小のインデックスを持つ成分の位置を表す. @var{posi} は全て異なること
+が保証される. @var{histi} は, @var{vi} が, @var{mat} の列からどのように
+作られるかを示すデータである. 分散多項式で表現されており, 指数が行インデックス,
+係数が, 一次結合の係数を表す. このデータにより作られるベクトルは, 定数倍を
+除いて @var{vi} に等しい.
+@end itemize
+
+@example
+[1643] A=linalg.random_rmat(3,5,3);
+[ 2 1 0 1 -1 ]
+[ 2 -2 1 0 1 ]
+[ 2 1 -1 -1 -1 ]
+[1644] linalg.compute_kernel(A);            
+[[[ 1 0 -8 4 6 ],0],[[ 0 1 2 -1 0 ],1]]
+[1645] linalg.compute_kernel(A|rhs=vector(3,[1,2,3]));
+[[ 0 0 8 -5 -6 ],[[[ 1 0 -8 4 6 ],0],[[ 0 1 2 -1 0 ],1]]]
+[1646] linalg.compute_image(A);  
+[[[ 1 1 1 ],0,(1)*<<0>>],[[ 0 -3 0 ],1,(1)*<<1>>+(-1)*<<0>>],
+[[ 0 0 3 ],2,(-3)*<<2>>+(-1)*<<1>>+(1)*<<0>>]]
+@end example
+
+@node linalg.minipoly_mat,,, 行列に関する函数
+@subsection @code{linalg.minipoly_mat}
+@findex linalg.minipoly_mat
+
+@table @t
+@item linalg.minipoly_mat(@var{mat}) 
+:: 有理数行列 @var{mat} の最小多項式を計算する.
+@end table
+
+@table @var
+@item return
+一変数多項式
+@item mat
+有理数行列
+@end table
+
+@itemize @bullet
+@item
+有理数行列 @var{mat} の最小多項式を計算し, 変数 @var{x} の一変数多項式として
+返す.
+@end itemize
+
+@example
+[1682] A=linalg.random_mat(3,3);
+[ -2 2 -2 ]
+[ 0 1 -1 ]
+[ 1 -2 -1 ]
+[1683] linalg.minipoly_mat(A);  
+x^3+2*x^2-x-6
+[1684] A^3+2*A^2-A-6*linalg.unit_mat(3);
+[ 0 0 0 ]
+[ 0 0 0 ]
+[ 0 0 0 ]
+@end example
+
+@node linalg.jordan_canonical_form linalg.sample_mat,,, 行列に関する函数
+@subsection @code{linalg.jordan_canonical_form},@code{linalg.sample_mat}
+@findex linalg.jordan_canonical_form
+
+@table @t
+@item linalg.jordan_canonical_form(@var{mat}) 
+:: 有理数正方行列のジョルダン標準形を計算する.
+@itemx linalg.sample_mat(@var{list}) 
+:: 指定されたジョルダン標準形を持つ有理数正方行列を生成する.
+@end table
+
+@table @var
+@item return
+リスト
+@item mat
+有理数正方行列
+@item list
+ジョルダンブロックのリスト
+@end table
+
+@itemize @bullet
+@item
+@code{linalg.jordan_canonical_form(@var{mat})} は
+有理数正方行列 @var{mat} のジョルダン標準形を計算する.
+@item
+出力は @var{[P,[[e1,s1,n1],@dots{},[el,sl,nl]],defideal]} という形のリスト
+である. ここで, @var{P} は変換行列, すなわち @var{P^(-1)AP} がジョルダン
+標準形となる正則行列, @var{[ei,si,ni]} は, 固有値 @var{ei}, サイズ @var{si}
+のジョルダンブロックが @var{ni} 個並ぶことを意味する.
+@item
+一般に, 出力は @var{a0}, @dots{}, @var{am} の形のパラメタを含む. これらは
+実際には, ある有理数体上既約な多項式の根である. これらを定義する
+方程式として, @var{defideal} が与えられる. @var{deflideal} はリストのリスト
+であり, 各要素であるリストは, 一組の共役な根全体を定義するイデアルを
+表す. 実際には, 対応する一変数多項式の根を, 根と係数の関係により表した
+ものである.
+@item
+@code{linalg.sample_mat(@var{list})} は指定されたジョルダン標準形を
+持つような行列を生成する. @var{list} は @var{[[e1,s1],@dots{},[el,sl]]}
+の形のリストで, @var{[ei,s1]} は固有値 @var{ei}, サイズ @var{si} の
+ジョルダンブロックを表す. 同じサイズのジョルダンブロックはいくつあって
+もよい.
+@end itemize
+
+@example
+[ 1 -2 0 ]
+[ -1 2 1 ]
+[ 0 -2 1 ]
+[1807] L=linalg.jordan_canonical_form(A);
+[[ 2 -2 0 ]
+[ -1 0 1 ]
+[ 2 -2 -1 ],[[2,1,1],[1,2,1]],[]]
+[1808] P=L[0]$T=invmat(P)$PI=T[0]/T[1]$  
+[1809] [1810] [1811] PI*A*P;
+[ 2 0 0 ]
+[ 0 1 1 ]
+[ 0 0 1 ]
+[1810] A=linalg.sample_mat([[1,2],[1,1],[2,3],[2,1],[2,1]]);
+[ 2 0 2 113 14 678 0 0 ]
+[ -1 1 -2 -120 -14 -720 0 0 ]
+[ -7 0 -13 -840 -105 -5040 0 0 ]
+[ 54 54 0 380 0 2268 -54 0 ]
+[ 1 0 2 112 16 672 0 0 ]
+[ -9 -9 0 -63 0 -376 9 0 ]
+[ 1 1 0 7 0 42 1 0 ]
+[ 1 1 0 7 0 42 0 2 ]
+[1811] L=linalg.jordan_canonical_form(A);
+[[ 0 -6 42 0 0 0 2 2 ]
+[ 0 6 0 0 0 0 0 -2 ]
+[ 42 -294 0 0 0 0 -1 -1 ]
+[ 0 0 0 6 0 108 0 0 ]
+[ -6 42 48 0 0 0 0 0 ]
+[ 0 0 -1 -1 0 -18 0 0 ]
+[ 0 0 0 0 0 2 0 0 ]
+[ 0 0 0 0 1 0 -2 0 ],[[2,3,1],[2,1,2],[1,2,1],[1,1,1]],[]]
+@end example
+
+@table @t
+@item 参照
+@fref{linalg.minipoly_mat}
+@end table
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
+* linalg.reduce_vect::
+* linalg.partial_fraction::
+* linalg.power_mat linalg.exp_mat::
+
