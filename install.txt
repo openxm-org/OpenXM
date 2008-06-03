@@ -1,4 +1,4 @@
-%%  $OpenXM: OpenXM/install.txt,v 1.29 2004/03/31 01:42:58 takayama Exp $    
+%%  $OpenXM: OpenXM/install.txt,v 1.30 2008/02/18 06:36:12 takayama Exp $    
 
 The OpenXM package is a package of mathematical software systems.
 They are integrated with the OpenXM protocols.
@@ -32,12 +32,17 @@ all library sources necessary in this directory by hand.
 (cd OpenXM/src ; make install)
              You will get binaries, libraries, and documents under
              OpenXM/bin, OpenXM/lib, OpenXM/doc
-(cd OpenXM/rc ; make install)
+(cd OpenXM/rc ; make install)   
              Shell scripts to start "asir", "sm1", ... will be copied to
-             /usr/local/bin
+             /usr/local/bin  [You need do "make install" as a super user.]
 or (cd OpenXM/rc ; make )
    and include dot.bashrc or dot.cshrc generated from your .bashrc or .cshrc
    by the command source;  source dot.bashrc  or source dot.cshrc.
+
+   If you do not like to change your .bashrc or .cshrc, use the command
+   /usr/local/bin/openxm to start our program. For example,
+     openxm asir
+   starts the asir under the OpenXM environement.
 
 ------- If you need only asir and kan,
 (cd OpenXM/src ; make install-asir2000 ; make install-k097 )
