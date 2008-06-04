@@ -1,4 +1,4 @@
-/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.2 2005/07/26 05:52:50 takayama Exp $ */
+/*$OpenXM: OpenXM/src/asir-contrib/packages/src/sm1.rr,v 1.3 2005/07/29 07:44:53 takayama Exp $ */
 /* Old: sm1, see Attic */ 
 
 
@@ -80,6 +80,7 @@ localf sm1l_ntoint32$
 localf to_ascii_array$
 localf from_ascii_array$
 localf gkz$
+localf mgkz$
 localf appell1$
 localf sm1aux_dx$
 localf sm1aux_x$
@@ -1077,6 +1078,40 @@ def gkz(S) {
   push_int0(P,AA);
   push_int0(P,BB);
   sm1(P," ] gkz ");
+  ox_check_errors2(P);
+  R = pop(P);
+  RR0 = map(eval_str,R[0]);
+  RR1 = map(eval_str,R[1]);
+  RR3 = [ ];
+  for (I=0; I<length(B); I++) {
+    RR3 = append(RR3,[ rat_to_p(RR0[I]-B[I])[0] ]);
+  }
+  for (I=length(B); I<length(RR0); I++) {
+    RR3 = append(RR3,[RR0[I]]);
+  }
+  return([RR3,RR1]);
+}
+
+def mgkz(S) {
+  SM1L_FIND_PROC(P);
+  A = S[0];
+  W = S[1];
+  B = S[2];
+  AA = [ ];
+  WW = [ ];
+  BB = [ ];
+  for (I=0; I<length(A); I++) {
+    AA = append(AA,[map(ntoint32,A[I])]);
+    BB = append(BB,[ntoint32(0)]);
+  }
+  for (I=0; I<length(W); I++) {
+    WW = append(WW,[map(ntoint32,W[I])]);
+  }
+  sm1(P,"[ ");
+  push_int0(P,AA);
+  push_int0(P,WW);
+  push_int0(P,BB);
+  sm1(P," ] mgkz ");
   ox_check_errors2(P);
   R = pop(P);
   RR0 = map(eval_str,R[0]);
