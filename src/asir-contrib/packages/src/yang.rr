@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.15 2006/03/20 14:14:04 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.16 2008/02/26 10:16:20 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -70,8 +70,8 @@ localf gkz_toric_partial_sm1, gkz_toric_sm1;
 localf initial_term_weight, check_gkz_generic_weight, gkz_distraction;
 localf action_monomial_DE, action_DE, action;
 localf dp_length, dp_dtol, dp_ptol;
-localf partial_to_euler_i, partial_to_euler_term_i;
-localf partial_to_euler, partial_to_euler_term;
+localf dp_partial_to_euler_i, dp_partial_to_euler_term_i;
+localf dp_partial_to_euler, dp_partial_to_euler_term;
 localf a2k, sigma, gen_gamma, pochhammer, eval_gamma, gamma1, gamma2;
 localf gamma3;
 localf vector_to_rat;
@@ -84,6 +84,8 @@ localf head_sum;
 localf bin_to_pair, coef_deriv, determine_term, gkz_series, make_terms; 
 localf make_tree, s2poly, search_parent, series_to_sym, terms_to_series;
 localf toric_list;
+
+localf util_pd_to_euler;
 
 function ggamma(x);
 
@@ -1195,7 +1197,7 @@ def gkz_toric_partial(GKZ)
 def gkz_toric(GKZ)
 "gkz_toric([A,B]) computes toric forms of A-hg system defined by [A,B]."
 {
-    T = map(partial_to_euler, gkz_toric_partial(GKZ));
+    T = map(dp_partial_to_euler, gkz_toric_partial(GKZ));
     return map('car', T);
 }
 
@@ -1214,7 +1216,7 @@ def gkz_toric_partial_sm1(GKZ)
 def gkz_toric_sm1(GKZ)
 "Using sm1 engine, gkz_toric([A,B]) computes toric forms of A-hg system defined by [A,B]."
 {
-    T = map(partial_to_euler, gkz_toric_partial_sm1(GKZ));
+    T = map(dp_partial_to_euler, gkz_toric_partial_sm1(GKZ));
     return map('car', T);
 }
 
@@ -1245,7 +1247,7 @@ def gkz_distraction(GKZ)
         W = vtol(vector_const(N,1));
     }
     IN_P  = initial_term_weight(gkz_toric_partial(GKZ), W);
-    IN_E  = map('car', map(partial_to_euler, IN_P));
+    IN_E  = map('car', map(dp_partial_to_euler, IN_P));
     GKZ_D = gkz_D(GKZ);
     Eq    = map(dp_dtop, append(IN_E, GKZ_D), V);
     V     = vtol(vector_shorten(N,V));
@@ -1345,21 +1347,36 @@ def dp_ptol(P,V)
    偏微分作用素をオイラー作用素に変換する
    -------------------------------- */
 
+def util_pd_to_euler(L,V)
+"Example: yang.util_pd_to_euler([dx^2+x^2, dx+dy], [x,y]);"
+{
+	N = length(L);
+	define_ring(V);
+	Ret = newvect(N);
+	for(I=0; I<N; I++) {
+		DP=op(L[I]); Nm=NM(DP); Dn=DN(DP);
+		Ret[I]=red(opr(dp_partial_to_euler(Nm))/Dn);
+	}
+	Ret=vtol(Ret);
+	pop_ring();
+	return Ret;
+}
+
 /* I 番目の作用素を変換.  F: 分散多項式 */
-def partial_to_euler_i(F,I)
+def dp_partial_to_euler_i(F,I)
 "Example: if [op_var(0),op_type(0)] == [x,EULER], then \n \
-yang.partial_to_euler_i(<<2,0>>+<<0,2>>,0) ==> \
+yang.dp_partial_to_euler_i(<<2,0>>+<<0,2>>,0) ==> \
 [<<2,0>>-<<1,0>>+(x^2)*<<0,2>>,x^2]"
 {
     R = 0;
     for( ; F != 0; F = dp_rest(F)) {
-        H = partial_to_euler_term_i(dp_hm(F),I);
+        H = dp_partial_to_euler_term_i(dp_hm(F),I);
         R = add(R,H);
     }
     return R;
 }
 
-def partial_to_euler_term_i(T,I)
+def dp_partial_to_euler_term_i(T,I)
 {
     E = dp_etov(T);
     N = E[I];
@@ -1376,16 +1393,16 @@ def partial_to_euler_term_i(T,I)
 }
 
 /* 全ての作用素を変換.  F: 分散多項式 */
-def partial_to_euler(F) {
+def dp_partial_to_euler(F) {
     R = 0;
     for( ; F != 0; F = dp_rest(F)) {
-        H = partial_to_euler_term(dp_hm(F));
+        H = dp_partial_to_euler_term(dp_hm(F));
         R = add(R,H);
     }
     return R;
 }
 
-def partial_to_euler_term(T) {
+def dp_partial_to_euler_term(T) {
     B = op_nomatch(T,EULER);
     E = dp_etov(op_match(T,EULER));
     Len = length(E);
