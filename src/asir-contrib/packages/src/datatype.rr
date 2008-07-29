@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/datatype.rr,v 1.5 2001/08/26 09:50:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/datatype.rr,v 1.6 2002/01/22 06:18:44 takayama Exp $ */
 
 #include "tags.h"
 
@@ -101,7 +101,8 @@ def new__poly_factored_rational(F,G) {
 struct poly_ideal {
   Ring,
   Generators,  /* List of native poly or dpoly. */
-  Grobner      /* 1 or 0,  is it already Grobner basis? */
+  Grobner,      /* 1 or 0,  is it already Grobner basis? */
+  Weyl         /* 1 or 0(commutative) */ 
 }$
 
 def new_poly_ideal() {
@@ -121,6 +122,7 @@ def new__poly_ideal(R,F,G) {
     A->Generators = F;
   }
   A->Grobner = G;
+  A->Weyl = 0; /* it is a polynomial ring */
   return A;
 }
 
