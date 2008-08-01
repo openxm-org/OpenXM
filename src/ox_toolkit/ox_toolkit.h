@@ -1,13 +1,9 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.33 2005/10/12 04:03:37 takayama Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/ox_toolkit.h,v 1.34 2007/03/14 10:30:54 ohara Exp $ */
 
 #ifndef _OX_TOOLKIT_H_
-
 #define _OX_TOOLKIT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdio.h>
 #include <gmp.h>
@@ -21,6 +17,10 @@ extern "C" {
 #define ALLOCA(x) alloca((x))
 /* #define FREE(x)   free((x)) */
 #define FREE(x)   
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if !defined(__GNUC__) && !defined(__inline__)
 #define __inline__
