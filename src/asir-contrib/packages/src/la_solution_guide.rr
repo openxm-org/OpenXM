@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.8 2004/03/11 12:36:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/la_solution_guide.rr,v 1.9 2005/04/08 05:29:37 takayama Exp $ */
 /* The file name should be la_solution_guide.rr (la = linear algebra) */
 
 /* ctrl("show_crossref",1)$ */
@@ -13,6 +13,12 @@ extern Loaded_noro_print$
 ox_loadfile(Loaded_noro_print,"noro_print.rr")$ 
 ox_loadfile(Loaded_ok_matrix,"ok_matrix.rr")$ 
 */
+
+def taka_tex_form_old(Ob)  {
+   Tb = string_to_tb("");
+   taka_tex_form(Ob,Tb);
+   return tb_to_string(Tb);
+}
 
 module lasg;
 
@@ -562,22 +568,22 @@ def gen_lineq_quiz() {
      PP = P[I];
      PP = PP[length(PP)-1];
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
-          "$$ (A|b) = "+taka_tex_form(PP) + "$$ ";
+          "$$ (A|b) = "+taka_tex_form_old(PP) + "$$ ";
      S += "to solve a system of linear equations of the form $(A|b)$.\n \\medbreak \\noindent Answer:\n";
      A = reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
-       S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
+       S += "$$ "+taka_tex_form_old(A[J][1])+" $$\n";
      }
      K = build_solution(A[M-1][1]);
      if (length(K) == 0) {
        S += "There is no solution.\n";
      }else{
        S += "The solutions of the system of linear equations are \n";
-       S += "$$ "+taka_tex_form(K[0]);
+       S += "$$ "+taka_tex_form_old(K[0]);
        for (J=0; J < length(K[1]); J++) {
-          S += "+ c_{"+rtostr(J+1)+"}" + taka_tex_form(K[1][J]);
+          S += "+ c_{"+rtostr(J+1)+"}" + taka_tex_form_old(K[1][J]);
        }
        S += " $$\n";
        if (length(K[1])>0) {
@@ -612,22 +618,22 @@ def gen_ans(PP) {
      }
      S = "% problem. \n";
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
-          "$$ (A|b) = "+taka_tex_form(PP) + "$$\n";
+          "$$ (A|b) = "+taka_tex_form_old(PP) + "$$\n";
      S += "to solve a system of linear equations of the form $(A|b)$.\n \\medbreak \\noindent Answer:\n";
      A = reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
-       S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
+       S += "$$ "+taka_tex_form_old(A[J][1])+" $$\n";
      }
      K = build_solution(A[M-1][1]);
      if (length(K) == 0) {
        S += "There is no solution.\n";
      }else{
        S += "The solutions of the system of linear equations are \n";
-       S += "$$ "+taka_tex_form(K[0]);
+       S += "$$ "+taka_tex_form_old(K[0]);
        for (J=0; J < length(K[1]); J++) {
-          S += "+ c_{"+rtostr(J+1)+"}" + taka_tex_form(K[1][J]);
+          S += "+ c_{"+rtostr(J+1)+"}" + taka_tex_form_old(K[1][J]);
        }
        S += " $$\n";
        if (length(K[1])>0) {
@@ -650,13 +656,13 @@ def gen_reduced_matrix(PP) {
      }
      S = "% problem. \n";
      S += "\\noindent $\\bullet$ Make elementary transformations for \n"+
-          "$$ A = "+taka_tex_form(PP) + "$$\n";
+          "$$ A = "+taka_tex_form_old(PP) + "$$\n";
      S += "to generate the reduced expression.\n \\medbreak \\noindent Answer:\n";
      A = reduced_form(PP);
      M = length(A);
      for (J=0; J<M; J++) {
        S += A[J][0]+", we get \\\\ \n";
-       S += "$$ "+taka_tex_form(A[J][1])+" $$\n";
+       S += "$$ "+taka_tex_form_old(A[J][1])+" $$\n";
      }
      S += "\n\n";
      return S;
