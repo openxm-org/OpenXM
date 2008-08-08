@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.152 2007/03/17 09:19:55 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.153 2007/03/18 04:52:38 noro Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -252,9 +252,6 @@ clean-rc:
 
 all-Copyright:
 	(cd $(COPYRIGHTDIR); ${MAKE} all)
-
-install-all-asir-lib:
-	(cd asir2000; ${MAKE} install-lib-small)
 
 install-document: install-document-kan96xx install-document-asir-contrib
 
