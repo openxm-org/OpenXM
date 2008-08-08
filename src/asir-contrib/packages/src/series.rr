@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/series.rr,v 1.1 2008/08/08 10:50:15 ohara Exp $ */
 
 module series;
 
@@ -42,8 +42,8 @@ def pade_approximant(F,Z,N,M) {
     for(I=0; I<=M+N; I++) {
         L = cons(coef(McNm,I,Z),L);
     }
-    Sol = poly_solve_linear(L,TS)
-        if (Sol==[]) {
+    Sol = poly_solve_linear(L,TS);
+    if (Sol==[]) {
             Sol = pade_solver2(L,TS);
         }
     R = base_cancel(base_replace(Nm/Dn,Sol));
