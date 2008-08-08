@@ -1,0 +1,82 @@
+/* $OpenXM$ */
+
+module series;
+
+localf taylor_expansion;
+localf pade_approximant, pade_solver2;
+localf test;
+
+/* taylor expansion at the origin for 1 variable function. */
+/* example: series.taylor_expansion(1/(1-x),[x],10); */
+def taylor_expansion(F,V,N) {
+    Pat1 = [[V[0],0]];  /* at the origin */ 
+    Pat2 = [[exp(0),1],[log(1),0],
+            [sin(0),0],[cos(0),1],[tan(0),1],
+            [sinh(0),0],[cosh(0),1],[tanh(0),1]];
+    G = base_replace(base_replace(F,Pat1),Pat2);
+    for(I=1; I<=N; I++) {
+        F = call(diff,cons(F,V))/I;
+        C = base_replace(base_replace(F,Pat1),Pat2);
+        G += C*V[0]^I;
+    }
+    return G;
+}
+
+def pade_approximant(F,Z,N,M) {
+    TS = []; Nm = 0; Dn = 1;
+    for(I=M; I>0; I--) {
+        C = util_v("_s",[I]);
+        Dn += C*Z^I;
+        TS = cons(C,TS);
+    }
+    for(I=N; I>=0; I--) {
+        C = util_v("_t",[I]);
+        Nm += C*Z^I;
+        TS = cons(C,TS);
+    }
+    /* important! TS = [_t_0, ..., _t_N _s_1, ..., _s_M] */
+
+    Mc = taylor_expansion(F*Dn-Nm,[Z],M+N);
+    L = [];
+    McNm = nm(Mc);
+    for(I=0; I<=M+N; I++) {
+        L = cons(coef(McNm,I,Z),L);
+    }
+    Sol = poly_solve_linear(L,TS)
+        if (Sol==[]) {
+            Sol = pade_solver2(L,TS);
+        }
+    R = base_cancel(base_replace(Nm/Dn,Sol));
+    R = base_replace(R,assoc(TS,[0])); /* 自由変数を強制的に消去 */
+    return R;
+}
+
+/* 低次の項から決定 */
+def pade_solver2(L,TS) {
+    L = reverse(L);
+    N = length(L);
+    Sol = [];
+    for(I=0; I<N; I++) {
+        F = base_replace(L[I],Sol);
+        Sol = append(poly_solve_linear([F],TS),Sol);
+    }
+    return Sol;
+}
+
+def test() {
+    L = [ 1+a*x+a^2*x^2+a^3*x^3+a^4*x^4+a^5*x^5+a^6*x^6,
+          exp(x), log(1-x), tan(x), sin(x), cos(x)];
+    N = 3; M = 3;
+    for( ; L!=[]; L=cdr(L)) {
+        F = car(L);
+        G = taylor_expansion(F,[x],M+N);
+        printf("mac {%a   }: %a -> %a\n", M+N,F,G);
+        G = pade_approximant(F,x,N,M);
+        printf("pade{%a,%a}: %a -> %a\n", N,M,F,G);
+        printf("\n");
+    }
+}
+
+endmodule;
+
+end$
