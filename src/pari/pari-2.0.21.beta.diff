@@ -67,3 +67,17 @@ diff -ubBr pari-2.0.21.beta.orig/src/headers/paricom.h pari-2.0.21.beta/src/head
    ENDEXTERN
  #endif
  
+diff -ubBr pari-2.0.21.beta.orig/src/kernel/ix86/level0.h pari-2.0.21.beta/src/kernel/ix86/level0.h
+--- pari-2.0.21.beta.orig/src/kernel/ix86/level0.h	2000-09-15 19:52:10.000000000 +0900
++++ pari-2.0.21.beta/src/kernel/ix86/level0.h	2008-08-12 04:38:59.000000000 +0900
+@@ -159,8 +159,8 @@
+ #define divll(a,b) \
+ ({ ulong __value, __arg1 = (a), __arg2 = (b); \
+    __asm__ ("divl %4" \
+-        : "=a" /* %eax */ (__value), "=d" /* %edx */ (hiremainder) \
+-        : "0" /* %eax */ (__arg1), "1" /* %edx */ (hiremainder), "g" (__arg2)); \
++        : "=a" /* %eax */ (__value), "=&d" /* %edx */ (hiremainder) \
++        : "0" /* %eax */ (__arg1), "1" /* %edx */ (hiremainder), "mr" (__arg2)); \
+    __value; \
+ })
+ 
