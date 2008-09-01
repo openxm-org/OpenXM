@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.16 2008/02/26 10:16:20 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.17 2008/07/02 11:21:15 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -262,7 +262,7 @@ def op_register(L, S)
     N = length(S);
     for(I=0; I<N; I++) {
         V = S[I];
-        while(element_of(V,L)) {
+        while(base_memberq(V,L)) {
             V = strtov(rtostr(V)+"_");
         }
         L = cons(V,L);
@@ -1072,7 +1072,7 @@ def matrix_to_coef_matrix(M,VSet) {
     N = length(VSet);
     LL = [];
     for (I=0; I<N; I++) {
-        LL = append(LL,[matrix_to_list(map(coef,L[0],1,VSet[I]))]);
+        LL = append(LL,[base_flatten(map(coef,L[0],1,VSet[I]))]);
     }
     LL = (1/L[1])*matrix_transpose(matrix_list_to_matrix(LL));
     LL = map(red, LL);
@@ -1081,8 +1081,7 @@ def matrix_to_coef_matrix(M,VSet) {
 
 def pfaffian_to_coef_matrices(Pfaffian, S, Rule) {
     LL = map(mpair,Pfaffian,S,Rule);
-    VS = matrix_to_list(S);
-    return map(matrix_to_coef_matrix,LL,VS);
+    return map(matrix_to_coef_matrix,LL,base_flatten(S));
 }
 
 /* 多項式 P がリスト V の不定元を含めば 1, それ以外で 0. */
@@ -1173,7 +1172,7 @@ compute_toric_kernel(GKZ) => [[-_x0^4+_x2,_x2*_x0-_x1^2],[_x0,_x1,_x2,_t1]]"
         L = cons(Pos-Neg, L);
     }
     V = append(T,X);
-    O = [ listlist_merge(assoc(T,[100])), listlist_merge(assoc(X,[1])) ];
+    O = [ base_flatten(assoc(T,[100])), base_flatten(assoc(X,[1])) ];
     Gr = dp_gr_main(L | v=V,order=O);
 
     for(L = []; Gr != []; Gr = cdr(Gr)) {
@@ -1565,7 +1564,7 @@ def series_generic(MaxDeg, GKZ, W, AT, Strategy) {
     for(Ks = pattern_full(MaxDeg, LenIndex); Ks != []; Ks = cdr(Ks)) {
         K0 = car(Ks);
         U0 = ltov(base_replace(U, assoc(K, K0)));
-        IP = vector_inner_product(U0, W);
+        IP = matrix_inner_product(U0, W);
         if(IP >= 0 && all_integers(U0)) {
             C = gen_gamma(AT,U0);
             F = cons([K0, IP, C, U0], F);
@@ -1706,13 +1705,13 @@ def pattern_weight(M,C) {
     if (!islist(PatternCache) || PatternCache[0] != N) {
         for(P=[],I=0; I<=M; I++) {
             Pat = pattern(I,N);
-            P = append(assoc(Pat,map(vector_inner_product,Pat,C)),P);
+            P = append(assoc(Pat,map(matrix_inner_product,Pat,C)),P);
         }
         PatternCache = [N,M,P];
     }else if (PatternCache[1] < M) {
         for(P=PatternCache[2],I=PatternCache[1]+1; I<=M; I++) {
             Pat = pattern(I,N);
-            P = append(assoc(Pat,map(vector_inner_product,Pat,C)),P);
+            P = append(assoc(Pat,map(matrix_inner_product,Pat,C)),P);
         }
         PatternCache = [N,M,P];
     }
@@ -1743,10 +1742,10 @@ def order_by_weight(P,W,V) {
     W = isvect(W)? W: ltov(W);
     P = dp_ptol(P,V);
     H = car(P)[1];
-    Min = vector_inner_product(H,W);
+    Min = matrix_inner_product(H,W);
     for (P = cdr(P); P != []; P = cdr(P)) {
         H = car(P)[1];
-        Cur = vector_inner_product(H,W);
+        Cur = matrix_inner_product(H,W);
         Min = MIN(Min,Cur);
     }
     return Min;
@@ -1756,7 +1755,7 @@ def terms_of_given_order(P,Order,W,V) {
     Q = [];
     for(P = dp_ptol(P,V); P != []; P = cdr(P)) {
         H = car(P)[1];
-        I = vector_inner_product(H,W);
+        I = matrix_inner_product(H,W);
         if (I==Order) {
             Q = cons(car(P),Q);
         }
@@ -1802,8 +1801,8 @@ def bin_to_pair(Bin,V,W) {
     A = dp_etov(dp_ht(DP)); AC = dp_hc(DP); DP = dp_rest(DP);
     B = dp_etov(dp_ht(DP)); BC = dp_hc(DP); DP = dp_rest(DP);
     if (DP == 0) {
-        AW=yang.vector_inner_product(A,W);
-        BW=yang.vector_inner_product(B,W);
+        AW=matrix_inner_product(A,W);
+        BW=matrix_inner_product(B,W);
         return (AW>BW)? [A,B]: [B,A];
     }
     return 0;

@@ -1,36 +1,24 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang_lib.rr,v 1.1 2005/08/15 06:03:49 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang_lib.rr,v 1.2 2006/03/20 14:14:04 ohara Exp $ */
 
 /* library functions of yang. */
 
 #include <defs.h>
-#define isList(A)    (islist(A)||isvect(A))
 
 load("noro_matrix.rr") $ /* for linalg.{binomial_coef,compute_kernel}() */
+load("oh_base.rr") $
 
 module yang;
 
 struct yang_ring {ringdef, v, f, d, op}$
 
 localf extract_denom, mtriple, mpair;
-localf listlist_merge, matrix_to_list, matrices_to_list;
 localf matrix_column_nth, matrix_row_nth;
 localf 'std_+', 'std_*', 'std_=';
 localf mat_incr, list_incr, list_sum, list_second, list_add_prefix;
 localf list_indefinite, matrix_indefinite;
-localf vector_unit, vector_sum, vector_inner_product, vector_shorten;
+localf vector_unit, vector_sum, vector_shorten;
 localf vector_const, vector_split;
-localf element_of;
-
-def element_of(E, S) {
-    N = length(S);
-    for(I=0; I<N; I++) {
-        if(S[I]==E) {
-            return 1;
-        }
-    }
-    return 0;
-}
 
 /* by Noro */
 def extract_denom(M) {
@@ -53,25 +41,6 @@ def mtriple(P,S,Q) {
 
 def mpair(P,S,Rule) {
     return P*S+S*matrix_transpose(base_replace(P,Rule));
-}
-
-/* [[a,b],[c,d]] -> [a,b,c,d] */
-def listlist_merge(LL) {
-    for(L=[]; LL != []; LL=cdr(LL)) {
-        L = append(L, car(LL));
-    }
-    return L;
-}
-
-def matrix_to_list(M) {
-    LL = matrix_matrix_to_list(M);
-    return listlist_merge(LL);
-}
-
-/* ML: a list */
-def matrices_to_list(ML) {
-    L = map(matrix_matrix_to_list, ML)$
-    return listlist_merge(listlist_merge(L));
 }
 
 def matrix_column_nth(A,N) {
@@ -121,26 +90,11 @@ def mat_incr(Start, N, M) {
 }
 
 def list_incr(Start,N) {
-    L = [];
-    for(I=N+Start-1; I>=Start; I--) {
-        L = cons(I, L);
-    }
-    return L;
+	return oh_base.range(Start,Start+N-1);
 }
 
 def list_sum(L) {
-	Sum = 0;
-	if(islist(L)) {
-		for( ; L != []; L = cdr(L)) {
-			Sum += car(L);
-		}
-	}else if (isvect(L)) {
-		N = length(L);
-		for(I=0; I<N; I++) {
-			Sum += L[I];
-		}
-	}
-    return Sum;
+	return oh_base.sum(L);
 }
 
 def list_second(L) {
@@ -170,17 +124,6 @@ def vector_sum(V) {
     Sum = 0;
     for(I=0; I<N; I++) {
         Sum += V[I];
-    }
-    return Sum;
-}
-
-def vector_inner_product(U,V)
-"(U,V) ==> inner_product as vector."
-{
-    N = length(U);
-    Sum = 0;
-    for(I=0; I<N; I++) {
-        Sum += U[I]*V[I];
     }
     return Sum;
 }
@@ -220,4 +163,3 @@ def vector_split(V)
 endmodule;
 
 end$
-

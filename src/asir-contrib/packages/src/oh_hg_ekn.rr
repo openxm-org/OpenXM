@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_hg_ekn.rr,v 1.1 2005/08/15 06:10:42 ohara Exp $ */
 
 /* For detail, see [1] p.42. Theorem 1.5.1.
    References.
@@ -19,7 +19,7 @@ def ekn_reduced_system(K,N) {
     NN = N-1; N = N-K-1; K=K-1;
     A = yang.list_indefinite("a",2,NN);
     X = yang.matrix_indefinite("x",1,K,N);
-    V = yang.matrix_to_list(X);
+    V = base_flatten(X);
     yang.define_ring(V);
     S = map(yang.operator,X);
     U = newvect(N);
