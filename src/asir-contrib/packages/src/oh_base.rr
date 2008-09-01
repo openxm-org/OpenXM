@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.1 2008/08/27 16:37:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.2 2008/09/01 06:46:29 ohara Exp $ */
 
 module oh_base;
 
@@ -19,10 +19,10 @@ c
 x
 */
 def nth(L,I) {
-	Alt=getopt(alt);
-	if (type(Alt) >= 0) {
-		return (0<=I && I<::length(L))? L[I]: Alt;
-	}
+    Alt=getopt(alt);
+    if (type(Alt) >= 0) {
+        return (0<=I && I<::length(L))? L[I]: Alt;
+    }
     return L[I];
 }
 
@@ -59,18 +59,18 @@ Example:
 */
 
 def max2(A,B) {
-	Comp=getopt(comp);
-	if (type(Comp) >= 0) {
-		return ((*Comp)(A,B))? A: B;
-	}
+    Comp=getopt(comp);
+    if (type(Comp) >= 0) {
+        return ((*Comp)(A,B))? A: B;
+    }
     return (A>B)? A: B;
 }
 
 def min2(A,B) {
-	Comp=getopt(comp);
-	if (type(Comp) >= 0) {
-		return ((*Comp)(A,B))? B: A;
-	}
+    Comp=getopt(comp);
+    if (type(Comp) >= 0) {
+        return ((*Comp)(A,B))? B: A;
+    }
     return (A>B)? B: A;
 }
 
@@ -95,10 +95,14 @@ a+b
 a+b+c+d+e
 */
 def iterate(Op2,L) {
-	OPTS=getopt();
-    A=car(L);
-    for(L=cdr(L); L!=[]; L=cdr(L)) {
-        A=(*Op2)(A,car(L)|option_list=OPTS);
+    N=length(L);
+    if(N==0) {
+        return [];
+    }
+    OPTS=getopt();
+    A=L[0];
+    for(I=1; I<N; I++) {
+        A=(*Op2)(A,L[I]|option_list=OPTS);
     }
     return A;
 }
@@ -113,22 +117,22 @@ Example:
 -4
 */
 def max(L) {
-	OPTS=getopt();
+    OPTS=getopt();
     return iterate(max2,L|option_list=OPTS);
 }
 
 def min(L) {
-	OPTS=getopt();
+    OPTS=getopt();
     return iterate(min2,L|option_list=OPTS);
 }
 
 def sum(L) {
-	OPTS=getopt();
+    OPTS=getopt();
     return iterate(sum2,L|option_list=OPTS);
 }
 
 def mul(L) {
-	OPTS=getopt();
+    OPTS=getopt();
     return iterate(mul2,L|option_list=OPTS);
 }
 
