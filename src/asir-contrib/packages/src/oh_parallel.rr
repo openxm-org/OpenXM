@@ -1,0 +1,116 @@
+/* $OpenXM$ */
+/* A support library for parallel computation */
+
+module oh_parallel;
+
+localf open, close;
+localf load_library, load_string;
+localf set_env, get_env;
+localf load_env, save_env;
+localf execute_function;
+localf compute;
+
+/*
+  Example: open(Node|cd=no,x=yes)
+*/
+def open(Node) {
+    local IdSet, Launch, I;
+    IdSet=newvect(Node);
+    Launch = (type(getopt(x))>=0)? ox_launch: ox_launch_nox;
+    for(I=0; I<Node; I++) {
+        IdSet[I] = (*Launch)();
+    }
+    if (getopt(cd)!=no) {
+        map(ox_rpc,IdSet,"chdir",::pwd());
+        map(ox_pop_local,IdSet);
+    }
+    return vtol(IdSet);
+}
+
+def close(IdSet) {
+    map(ox_shutdown, IdSet);
+}
+
+def load_library(IdSet,Lib) {
+    map(ox_rpc,IdSet,"load",Lib);
+    map(ox_pop_local,IdSet);
+}
+
+def load_string(IdSet,String) {
+    map(ox_execute_string,IdSet,String);
+    map(ox_pop_local,IdSet);
+}
+
+def execute_function(IdSet,Func,Args) {
+    Node=length(IdSet);
+    for(I=0; I<Node; I++) {
+        call(ox_rpc, append([IdSet[I],Func],Args));
+    }
+}
+
+def set_env(IdSet,EnvName,Env) {
+    map(ox_execute_string,IdSet,"extern "+EnvName+";");
+    map(ox_push_local,IdSet,Env);
+    map(ox_setname,IdSet,EnvName);
+}
+
+def get_env(IdSet,EnvName) {
+    map(ox_execute_string,IdSet,EnvName+";");
+    return map(ox_pop_local,IdSet);
+}
+
+/* load_env([1,2,3],'Env',"A"); */
+def load_env(IdSet,Env,ValName) {
+    local File;
+    File = sprintf("%a.sav", Env);
+    map(ox_rpc,IdSet,"bload",File);
+    map(ox_setname,IdSet,ValName);
+    map(ox_pop_local,IdSet);
+}
+
+/* load_env('Env',A); */
+def save_env(Env,Data) {
+    local File;
+    File = sprintf("%a.sav", Env);
+    bsave(Data,File);
+}
+
+def compute(IdSet,TagSet,Func,Args) {
+    local Ret, Node, Unused, Running, Id, Recv, Tag, FuncArgs, Pos, Debug;
+    Debug = (getopt(verbose)==yes)? 1: 0; /* for debug */
+    Ret = newvect(length(TagSet));
+    Node = length(IdSet); /* Node == #(servers) */
+    Running=[];           /* the list of identities of running servers */
+    Unused = TagSet;
+    while(Unused!=[] || Running!=[]) {
+        if (Unused!=[]) {
+            Tag=car(Unused); Unused=cdr(Unused);
+            Id = base_set_minus(IdSet,Running)[0]; /* Unused server */
+            FuncArgs = append([Id,Func,Tag],Args);
+            if(Debug) {
+                printf("oh_parallel.compute(%a): ox_rpc<%a,%a>\n",Func,Id,Tag);
+            }
+            call(ox_rpc, FuncArgs);
+            ox_push_cmd(Id,258); /* SM_popSerializedLocalObject */
+            Running=cons(Id,Running);
+        }
+        if (length(Running)>=Node || Unused==[]) {
+            Id=ox_select(Running)[0];
+            Recv=ox_get(Id); /* Recv == [Tag, ReturnValue] */
+            if(Debug) {
+                printf("oh_parallel.compute(%a): Recv<%a>=%a\n",Func,Id,Recv);
+            }
+            Pos = base_position(Recv[0],TagSet);
+            if(Debug) {
+                printf("oh_parallel.compute(%a): Pos=%a,Tag=%a,TagSet=%a\n",Func,Pos,Recv[0],TagSet);
+            }
+            Ret[Pos]=Recv[1];
+            Running=base_prune(Id,Running);
+        }
+    }
+    return vtol(Ret);
+}
+
+endmodule;
+
+end$
