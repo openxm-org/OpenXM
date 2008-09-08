@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_parallel.rr,v 1.1 2008/09/07 19:47:02 ohara Exp $ */
 /* A support library for parallel computation */
 
 module oh_parallel;
@@ -41,10 +41,10 @@ def load_string(IdSet,String) {
     map(ox_pop_local,IdSet);
 }
 
-def execute_function(IdSet,Func,Args) {
+def execute_function(IdSet,FuncArgs) {
     Node=length(IdSet);
     for(I=0; I<Node; I++) {
-        call(ox_rpc, append([IdSet[I],Func],Args));
+        call(ox_rpc, cons(IdSet[I], FuncArgs));
     }
 }
 
@@ -75,12 +75,28 @@ def save_env(Env,Data) {
     bsave(Data,File);
 }
 
+/* We assume that the identity number of an openxm server is preserved! */
+def ox_restart(Id) {
+    ox_shutdown(Id);
+    return open(1|option_list=getopt())[0]; 
+}
+
+/* 
+oh.parallel.compute(IdSet,TagSet,"foo",[Arg1,Arg2,...]
+  |debug=yes,  (for printing messages)
+   restart=yes,initf=["bar",a,b] (servers will restart and be initilized by bar(a,b))
+   );
+*/
 def compute(IdSet,TagSet,Func,Args) {
     local Ret, Node, Unused, Running, Id, Recv, Tag, FuncArgs, Pos, Debug;
-    Debug = (getopt(verbose)==yes)? 1: 0; /* for debug */
+    local Restart, InitFuncArgs, Opts;
+    Opts=getopt();
+    Restart = (getopt(restart)==yes)? 1: 0;
+    InitFuncArgs = getopt(initf);
+    Debug = (getopt(debug)==yes)? 1: 0; /* for debug */
     Ret = newvect(length(TagSet));
     Node = length(IdSet); /* Node == #(servers) */
-    Running=[];           /* the list of identities of running servers */
+    Running=[];     /* the list of identity numbers of running servers */
     Unused = TagSet;
     while(Unused!=[] || Running!=[]) {
         if (Unused!=[]) {
@@ -106,6 +122,12 @@ def compute(IdSet,TagSet,Func,Args) {
             }
             Ret[Pos]=Recv[1];
             Running=base_prune(Id,Running);
+            if(Restart) { /* Restarting server */
+                ox_restart(Id|option_list=Opts);
+                if(type(InitFuncArgs)==4) {
+                    execute_function([Id],InitFuncArgs);
+                }
+            }
         }
     }
     return vtol(Ret);
