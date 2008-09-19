@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxstack.h,v 1.1 2003/11/08 12:34:01 iwane Exp $ */
 
 #ifndef __OX_STACK_H__
 #define __OX_STACK_H__
@@ -15,14 +15,24 @@
 extern "C" {
 #endif
 
+typedef struct oxstack_node_t {
+	int tag;
+	int user;
+	int reserve;
+	cmo *c;
+	void *p; /* user node */
+} oxstack_node;
+
 int	 oxstack_init_stack	(void);
 int	 oxstack_extend_stack	(void);
 void	 oxstack_dest		(void);
 
-int	 oxstack_push	(cmo *);
-cmo	*oxstack_pop	(void);
-cmo	*oxstack_get	(int);
-cmo	*oxstack_peek	(void);
+oxstack_node	*oxstack_node_init(cmo *);
+int	 oxstack_push	(oxstack_node *);
+int	 oxstack_push_cmo	(cmo *);
+oxstack_node	*oxstack_pop	(void);
+oxstack_node	*oxstack_get	(int);
+oxstack_node	*oxstack_peek	(void);
 
 int	 oxstack_get_stack_pointer	(void);
 

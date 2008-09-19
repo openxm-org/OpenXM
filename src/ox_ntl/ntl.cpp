@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.cpp,v 1.5 2004/07/04 02:31:51 iwane Exp $ */
 
 #include <NTL/ZZXFactoring.h>
 #include <NTL/LLL.h>
@@ -24,22 +24,28 @@
          : [2,[[x-1,1],[x^4+x^3+x^2+x+1,1],[x+1,2],[x^2-x+1,2]]]
  *
  ****************************************************************************/
-cmo *
-ntl_fctr(cmo **arg, int argc)
+oxstack_node *
+ntl_fctr(oxstack_node **arg, int argc)
 {
-	cmo *poly = arg[0];
+	oxstack_node *p = arg[0];
+	cmo *poly = p->c;
 	cmo_indeterminate *x;
+	cmo *err;
 	ZZX f;
 	int ret;
 
 	if (argc != 1) {
-		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
+		err = ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
+		p = oxstack_node_init(err);
+		return (p);
 	}
 
 	ret = cmo_to_ZZX(f, poly, x);
 	if (ret != NTL_SUCCESS) {
 		/* format error */
-		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(type)")));
+		err = (cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(type)"));
+		p = oxstack_node_init(err);
+		return (p);
 	}
 
 #if __NTL_PRINT
@@ -55,8 +61,10 @@ ntl_fctr(cmo **arg, int argc)
 	cout << "fctr : " << *factors->f << endl;
 #endif
 
+	p = oxstack_node_init(NULL);
+	p->p = factors;
 
-	return ((cmo *)factors);
+	return (p);
 }
 
 /****************************************************************************
@@ -71,23 +79,29 @@ ntl_fctr(cmo **arg, int argc)
          : [2,[[x-1,1],[x^4+x^3+x^2+x+1,1],[x+1,2],[x^2-x+1,2]]]
  *
  ****************************************************************************/
-cmo *
-ntl_lll(cmo **arg, int argc)
+oxstack_node *
+ntl_lll(oxstack_node **arg, int argc)
 {
+	oxstack_node *p = arg[0];
+	cmo *err;
 	ZZX f;
 	int ret;
 	cmon_mat_zz_t *mat;
 
 	if (argc != 1) {
-		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
+		err = ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(#)")));
+		p = oxstack_node_init(err);
+		return (p);
 	}
 
 	mat = new_cmon_mat_zz();
-	ret = cmo_to_mat_zz(*mat->mat, arg[0]);
+	ret = cmo_to_mat_zz(*mat->mat, p->c);
 	if (ret != NTL_SUCCESS) {
 		delete_cmon_mat_zz(mat);
 		/* format error */
-		return ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(type)")));
+		err = ((cmo *)new_cmo_error2((cmo *)new_cmo_string("Invalid Parameter(type)")));
+		p = oxstack_node_init(err);
+		return (p);
 	}
 
 #if __NTL_PRINT
@@ -96,14 +110,15 @@ ntl_lll(cmo **arg, int argc)
 
 	ZZ det2;
 	mat_ZZ U;
-	long rd = LLL(det2, *mat->mat, U);
 
 #if __NTL_PRINT
 	cout << "output: " << (*mat->mat) << endl;
 	cout << U << endl;
 #endif
 
-	return ((cmo *)mat);
+	p = oxstack_node_init(NULL);
+	p->p = mat;
+	return (p);
 }
 
 

@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.3 2004/07/04 11:38:42 iwane Exp $
+# $OpenXM: OpenXM/src/ox_ntl/Makefile.in,v 1.4 2004/07/11 00:32:17 iwane Exp $
 # @configure_input@ ###
 
 #
@@ -11,17 +11,23 @@
 
 PROG=ox_ntl
 
+PROGL=oxsv
+PROGL2=liboxsv.so
+
 OpenXM_HOME=$(PWD)/../..
 PREFIX=$(OpenXM_HOME)
 
 CXX=@CXX@
 CC =@CC@
 
+#install_sh = @install_sh@
+install_sh = $(OpenXM_HOME)/src/ox_toolkit/install-sh
+
+
 RM ?= /bin/rm
 CP ?= /bin/cp
 MAKE ?= make
 LINT ?= lint
-
 
 CFLAGS=@OPTFLAG@ @CFLAGS@ @CPPFLAGS@
 CXXFLAGS=@OPTFLAG@ @CXXFLAGS@
@@ -37,8 +43,8 @@ MASTER_CITES=ftp.math.sci.kobe-u.ac.jp
 NTL_LIBDIR=$(PREFIX)/lib/NTL
 LIBDIR=$(PREFIX)/lib 
 
-LIBS=-L$(LIBDIR) -L$(NTL_LIBDIR) -lntl -lgmp -lox -lgc @LIBS@
-LDFLAGS=@LDFLAGS@
+LIBS=-lgmp -lox -lgc @LIBS@
+LDFLAGS=@LDFLAGS@ -L$(LIBDIR) -L$(NTL_LIBDIR) -L.
 
 DISTDIR=$(OpenXM_HOME)/../OpenXM_dist
 DISTFILEDIR=ntl-5.3.1
@@ -58,15 +64,17 @@ LINTFLAGS=-I$(PREFIX)/include
 SRCC=oxserv.c oxstack.c
 SRCP=main.cpp ntl.cpp ntlconv.cpp cmon.cpp
 
-OBJC=$(SRCC:.c=.o) $(SRCP:.cpp=.o)
-
+OBJCC=$(SRCC:.c=.o)
+OBJCP=$(SRCP:.cpp=.o)
 
 all: $(PROG)
 
+$(PROG): $(OBJCP) $(PROGL2)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJCP) -o $@ -l$(PROGL) -lntl 
 
-$(PROG): $(OBJC)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJC) -o $@ $(LIBS)
-
+$(PROGL2): $(OBJCC)
+	$(CC) -shared $(LDFLAGS) $(OBJCC) -o $@ $(LIBS)
+	strip $(PROGL2)
 
 oxserv.c: oxserv.h oxstack.h
 
@@ -88,9 +96,11 @@ ntlconv.cpp: ntl.h
 
 install: all
 	$(CP) $(PROG) $(PREFIX)/bin
+	$(CP) $(PROGL2) $(PREFIX)/lib
 
 clean:
-	-$(RM) -f $(OBJC) $(PROG) ox_ntl_debug oxserv_debug
+	-$(RM) -f $(OBJC) $(OBJCC) $(OBJCP)
+	-$(RM) -f $(PROG) $(PROGL2) ox_ntl_debug oxserv_debug
 	-$(RM) -fr $(WORK)
 	@-$(RM) -f .*-ntl-done
 

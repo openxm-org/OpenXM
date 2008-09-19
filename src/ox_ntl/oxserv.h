@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.5 2004/07/05 10:08:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.h,v 1.6 2004/07/11 00:32:17 iwane Exp $ */
 
 #ifndef __OX_SERVE_H__
 #define __OX_SERVE_H__
@@ -49,6 +49,7 @@ int	 oxserv_set	(int mode, void *, void *);
 #define OXSERV_SET_CONVERT_CMO                  (0x03)
 #define OXSERV_SET_DELETE_CMO                   (0x04)
 #define OXSERV_SET_GET_CMOTAG                   (0x05)
+#define OXSERV_SET_CONVERT_STR                  (0x06)
 
 #ifdef __cplusplus
 }

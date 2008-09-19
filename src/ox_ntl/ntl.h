@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/ntl.h,v 1.3 2003/11/15 09:06:20 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/ntl.h,v 1.4 2003/11/17 12:04:20 iwane Exp $ */
 
 #ifndef __NTL_H__
 #define __NTL_H__
@@ -7,6 +7,7 @@
 #include <NTL/mat_ZZ.h>
 #include "ox_toolkit.h"
 #include "oxserv.h"	/* for block interrupt input */
+#include "oxstack.h"
 
 #define NTL_FAILURE	(-1)
 #define NTL_SUCCESS	( 0)
@@ -96,7 +97,7 @@ cmo_list	*mat_zz_to_cmo	(mat_ZZ &);
 /*===========================================================================*
  * NTL
  *===========================================================================*/
-cmo	*ntl_fctr	(cmo **, int);
-cmo	*ntl_lll 	(cmo **, int);
+oxstack_node	*ntl_fctr	(oxstack_node **, int);
+oxstack_node	*ntl_lll 	(oxstack_node **, int);
 
 #endif /* !__NTL_H__*/

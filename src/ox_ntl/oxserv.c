@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.6 2004/07/04 11:38:42 iwane Exp $ */
+/* $OpenXM: OpenXM/src/ox_ntl/oxserv.c,v 1.7 2004/07/11 00:32:17 iwane Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,13 +19,24 @@
 #define EPRINTF(x)	fprintf x; (void)fflush(FP)
 
 
+
 /*===========================================================================*
  * MACRO
  *===========================================================================*/
-#define oxserv_get_cmo_tag(m)	((G_getCmoTag == NULL) ? m->tag : G_getCmoTag(m))
+#define oxserv_get_cmo_tag(m)	((G_getCmoTag == NULL) ? (m)->tag : G_getCmoTag(m))
 
 
-#define oxserv_delete_cmo(c)         \
+#define oxserv_delete_cmo(C)         \
+do {                                 \
+        if (C != NULL) {             \
+		if ((C)->c) { FREE((C)->c); } \
+		oxserv_delete_cmo_usr(((C)->p)); \
+		free(C);             \
+		C = NULL;            \
+	}                            \
+} while (0)
+
+#define oxserv_delete_cmo_usr(c)         \
 do {                                 \
         if (c != NULL) {             \
             if (G_DeleteCmo != NULL) \
@@ -49,10 +60,11 @@ int		G_oxserv_sigusr1cnt = 0;
 static jmp_buf  G_jmpbuf;
 
 /* User Function */
-static void (*G_userExecuteFunction)(const char *, cmo **, int) = NULL;
+static void (*G_userExecuteFunction)(const char *, oxstack_node **, int) = NULL;
 static void (*G_userExecuteStringParser)(const char *) = NULL;
 
-static cmo *(*G_convertCmo)(cmo *) = NULL; /* convert user object ==> cmo */
+static cmo  *(*G_convertCmo)(void *) = NULL; /* convert user object ==> cmo */
+static char *(*G_convertStr)(void *) = NULL; /* convert user object ==> string */
 
 static void (*G_DeleteCmo)(cmo *) = NULL;
 
@@ -69,7 +81,7 @@ static void
 oxserv_push_errormes(char *msg)
 {
 	EPRINTF((FP, "%s\n", msg));
-	oxstack_push((cmo *)new_cmo_error2_string(msg));
+	oxstack_push_cmo((cmo *)new_cmo_error2_string(msg));
 }
 
 /*===========================================================================*
@@ -122,22 +134,49 @@ oxserv_realloc(void *org, size_t old, size_t size)
 static void
 oxserv_sm_popCMO(OXFILE *fd)
 {
-	cmo *m, *n;
-	m = oxstack_pop();
-	if (m == NULL) {
+	cmo *m;
+	oxstack_node *p;
+	int flag = 0;
+	p = oxstack_pop();
+	if (p == NULL) {
 		EPRINTF((FP, "stack underflow in popCMO\n"));
 		m = new_cmo_null();
-	} else if (G_convertCmo) {
-		n = G_convertCmo(m);
-		if (m != n) {
-			oxserv_delete_cmo(m);
-			m = n;
+		/* asir の動きに従う */
+	} else {
+		if (p->c != NULL) {
+			m = p->c;
+		} else if (p->p != NULL) {
+			if (G_convertCmo) {
+				m = G_convertCmo(p->p);
+			} else {
+				m = NULL;
+			}
+			if (m == NULL) {
+				m = (cmo *)new_cmo_error2((cmo *)new_cmo_string("convert failed"));
+				flag = 1;
+
+			}
+		} else {
+			EPRINTF((FP, "converter not defined\n"));
+			m = (cmo *)new_cmo_error2((cmo *)new_cmo_string("converter not defined"));
+			flag = 1;
+		}
+
+		if (flag) {
+			/* 
+			 * せっかく結果があるのに消してしまうのは
+			 * もったいないので残すことにする.
+			 */
+			oxstack_push(p);
+		} else {
+			oxserv_delete_cmo(p);
 		}
 	}
 
+
 	send_ox_cmo(fd, m);
 
-	oxserv_delete_cmo(m);
+	FREE(m);
 }
 
 /*****************************************************************************
@@ -152,22 +191,53 @@ static void
 oxserv_sm_popString(OXFILE *fd)
 {
 	char *str;
-	cmo *m = oxstack_pop();
+	oxstack_node *p;
+	cmo *m;
 	cmo_string *m_str;
 
-	if (m == NULL) {
-		EPRINTF((FP, "stack underflow in popString\n"));
+	p = oxstack_pop();
+	if (p == NULL) {
+		/* @@TODO
+		 * http://www.math.kobe-u.ac.jp/OpenXM/1.2.1/html/OpenXM-ja/OpenXM/node12.html
+		 * スタックが空の場合には (char *)NULL を返す.
+		 * CMO の用語で書かれていないから何を返すべきかわからない.
+		 */
 		m = new_cmo_null();
-	}
+		str = new_string_set_cmo(m);
+	} else {
+		if (p->c) {
+			m = NULL;
+			str = new_string_set_cmo(p->c);
+		} else if (p->p) {
+			if (G_convertStr) {
+				str = G_convertStr(p->p);
+				m = NULL;
+			} else {
+				if (G_convertCmo) {
+					m = G_convertCmo(p->p);
+				} else {
+					/* @@TODO
+					 * 変換できない場合は...  CMO_ERROR2 を戻すべきである?
+					 * そのときの stack の状態はどうすべき？
+					 */
+					m = NULL;
+				}
+				str = new_string_set_cmo(m);
+			}
+		} else {
+			m = new_cmo_null();
+			str = new_string_set_cmo(m);
+		}
 
-	str = new_string_set_cmo(m);
+		oxserv_delete_cmo(p);
+	}
 
 	m_str = new_cmo_string(str);
 
 	send_ox_cmo(fd, (cmo *)m_str);
 
-	oxserv_delete_cmo(m);
-	oxserv_delete_cmo(m_str);
+	FREE(m);
+	FREE(m_str);
 
 	/* free(str); */
 }
@@ -182,12 +252,18 @@ oxserv_sm_popString(OXFILE *fd)
 static void
 oxserv_sm_pops()
 {
+	oxstack_node *p, *m;
 	cmo_int32 *c;
-	cmo *m;
 	int n;
 	int i;
 
-	c = (cmo_int32 *)oxstack_pop(); /* suppose */
+	p = oxstack_pop();
+	if (p == NULL) {
+		EPRINTF((FP, "stack underflow in pops\n"));
+		return ;
+	}
+
+	c = (cmo_int32 *)p->c; /* suppose */
 	if (c == NULL) {
 		EPRINTF((FP, "stack underflow in pops\n"));
 		return ;
@@ -202,7 +278,7 @@ oxserv_sm_pops()
 		oxserv_delete_cmo(m);
 	}
 		
-	oxserv_delete_cmo(c);
+	oxserv_delete_cmo(p);
 
 }
 
@@ -217,7 +293,7 @@ static void
 oxserv_sm_getsp()
 {
 	cmo_int32 *m = new_cmo_int32(oxstack_get_stack_pointer());
-	oxstack_push((cmo *)m);
+	oxstack_push_cmo((cmo *)m);
 }
 
 /*****************************************************************************
@@ -303,7 +379,9 @@ oxserv_mathcap_init(int ver, char *vstr, char *sysname, int *cmos, int *sms)
 
 	mathcap_init(ver, vstr, sysname, cmos, sms);
 
-	oxserv_delete_cmo(G_oxserv_mathcap);
+	if (G_oxserv_mathcap) {
+		FREE(G_oxserv_mathcap);
+	}
 
 	G_oxserv_mathcap = mathcap_get(new_mathcap());
 }
@@ -322,7 +400,7 @@ oxserv_sm_mathcap()
 		oxserv_mathcap_init(0, "", "oxserv", NULL, NULL);
 	}
 
-	oxstack_push((cmo *)G_oxserv_mathcap);
+	oxstack_push_cmo((cmo *)G_oxserv_mathcap);
 }
 
 /*****************************************************************************
@@ -336,7 +414,16 @@ oxserv_sm_mathcap()
 static void
 oxserv_sm_executeStringByLocalParserInBatchMode(void)
 {
-	cmo_string *str = (cmo_string *)oxstack_peek();
+	oxstack_node *p;
+	cmo_string *str;
+
+	p = oxstack_peek();
+	if (p == NULL) {
+		oxserv_push_errormes("stack underflow in executeStringByLocalParserInBatchMode");
+		return ;
+	}
+
+	str = (cmo_string *)p->c;
 	if (str == NULL) {
 		oxserv_push_errormes("stack underflow in executeStringByLocalParserInBatchMode");
 		return ;
@@ -355,12 +442,22 @@ oxserv_sm_executeStringByLocalParserInBatchMode(void)
 static void
 oxserv_sm_executeStringByLocalParser(void)
 {
-	cmo_string *str = (cmo_string *)oxstack_pop();
+	oxstack_node *p;
+	cmo_string *str;
+
+	p = oxstack_pop();
+	if (p == NULL) {
+		oxserv_push_errormes("stack underflow in executeStringByLocalParserInBatchMode");
+		return ;
+	}
+
+	str = (cmo_string *)p->c;
 	if (str == NULL) {
 		oxserv_push_errormes("stack underflow in executeStringByLocalParser");
 		return ;
 	}
 	G_userExecuteStringParser(str->s);
+	oxserv_delete_cmo(p);
 }
 
 
@@ -379,18 +476,51 @@ static void
 oxserv_sm_executeFunction(void)
 {
 	int i;
-	cmo_string *name = (cmo_string *)oxstack_pop();
-	cmo_int32 *cnt = (cmo_int32 *)oxstack_pop();
-	cmo **arg;
+	oxstack_node *p1, *p2;
+	cmo_string *name;
+	cmo_int32 *cnt;
+	int total;
+	oxstack_node **arg;
 
 
-	if (name == NULL || cnt == NULL) {
-		oxserv_push_errormes("stack underflow in executeFunction");
+	if (G_userExecuteFunction == NULL) {
+		oxserv_push_errormes("G_userExecuteFunction not defined");
 		return ;
 	}
 
-	arg = (cmo **)malloc(cnt->i * sizeof(cmo *));
-	for (i = 0; i < cnt->i; i++) {
+
+	p1 = oxstack_pop();
+	p2 = oxstack_pop();
+
+	name = (cmo_string *)p1->c;
+	cnt = (cmo_int32 *)p2->c;
+
+
+
+	if (name == NULL || cnt == NULL) {
+		oxserv_push_errormes("stack underflow in executeFunction[name,cnt]");
+		return ;
+	}
+	if (name->tag != CMO_STRING) {
+		oxstack_push(p2);
+		oxstack_push(p1);
+		oxserv_push_errormes("invalid parameter #1 not cmo_string");
+		return ;
+	}
+
+	if (cnt->tag != CMO_INT32) {
+		oxstack_push(p2);
+		oxstack_push(p1);
+printf("command name=%s\n", name->s);
+		oxserv_push_errormes("invalid parameter #2 not cmo_int32");
+		return ;
+	}
+
+	total = cnt->i;
+
+printf("command name=%s, i=%d\n", name->s, total);
+	arg = (oxstack_node **)malloc(total * sizeof(oxstack_node *));
+	for (i = 0; i < total; i++) {
 		arg[i] = oxstack_pop();
 		if (arg[i] == NULL) {
 			oxserv_push_errormes("stack underflow in executeFunction");
@@ -403,16 +533,15 @@ oxserv_sm_executeFunction(void)
 	}
 
 	/* user function */
-	G_userExecuteFunction(name->s, arg, cnt->i);
+	G_userExecuteFunction(name->s, arg, total);
 
 
-	for (i = 0; i < cnt->i; i++) {
+	for (i = 0; i < total; i++) {
 		oxserv_delete_cmo(arg[i]);
 	}
 
-	oxserv_delete_cmo(name);
-	oxserv_delete_cmo(cnt);
-
+	oxserv_delete_cmo(p1);
+	oxserv_delete_cmo(p2);
 	free(arg);
 }
 
@@ -420,15 +549,30 @@ oxserv_sm_executeFunction(void)
  * -- SM_pushCMOtag --
  * push the CMO tag of the top object on the stack.
  *
+ *
+ *
  * PARAM : NONE
  * RETURN: NONE
  *****************************************************************************/
 static void
 oxserv_sm_pushCMOtag()
 {
-	cmo *c = oxstack_peek();
-	cmo_int32 *tag = new_cmo_int32(oxserv_get_cmo_tag(c));
-	oxstack_push((cmo *)tag);
+	oxstack_node *p = oxstack_peek();
+	cmo *c = p->c;
+	cmo_int32 *tag;
+
+	if (c == NULL) {
+		if (p->p != NULL && G_convertCmo) {
+			c = p->c = G_convertCmo(p->p);
+		}
+	}
+
+	if (c == NULL) {
+		tag = new_cmo_int32(oxserv_get_cmo_tag(c));
+	} else {
+		tag = (cmo_int32 *)new_cmo_error2_string("convert from MathObj to CMO failed");
+	}
+	oxstack_push_cmo((cmo *)tag);
 }
 
 
@@ -441,20 +585,20 @@ oxserv_sm_pushCMOtag()
 static void
 oxserv_sm_dupErrors()
 {
+	oxstack_node *p;
 	cmo_list *list;
-	cmo *c;
 	int i;
 
 	list = new_cmo_list();
 
 	for (i = 0; i < oxstack_get_stack_pointer(); i++) {
-		c = oxstack_get(i);
-		if (c->tag == CMO_ERROR2) {
-			list_append(list, c);
+		p = oxstack_get(i);
+		if (p->c && p->c->tag == CMO_ERROR2) {
+			list_append(list, p->c);
 		}
 	}
 
-	oxstack_push((cmo *)list);
+	oxstack_push_cmo((cmo *)list);
 }
 
 
@@ -586,6 +730,7 @@ oxserv_ox_receive(OXFILE *fd)
 	int code;
 
 	tag = receive_ox_tag(fd);
+printf("get ox=[%d=0x%x]\n", tag, tag); fflush(stdout);
 
 	switch (tag) {
 	case OX_DATA:
@@ -593,7 +738,7 @@ oxserv_ox_receive(OXFILE *fd)
 		c = receive_cmo(fd);
 		UNBLOCK_INPUT();
 		DPRINTF(("[CMO:%d=0x%x]", c->tag, c->tag));
-		oxstack_push(c);
+		oxstack_push_cmo(c);
 		break;
 
 	case OX_COMMAND:
@@ -615,6 +760,11 @@ oxserv_receive(OXFILE *fd)
 	int i = 0;
 	int ret;
 
+
+	/*-----------------------------------------*
+	 * initialize
+	 *-----------------------------------------*/
+
 	ret = setjmp(G_jmpbuf);
 	if (ret == 0) {
 		DPRINTF(("setjmp first time -- %d\n", ret));
@@ -622,11 +772,15 @@ oxserv_receive(OXFILE *fd)
 		DPRINTF(("setjmp return from longjmp() -- %d -- \n", ret));
 	}
 
+	/*-----------------------------------------*
+	 * main loop
+	 *-----------------------------------------*/
 	for (;; i++) {
 		ret = oxserv_ox_receive(fd);
 		if (ret != OXSERV_SUCCESS)
 			break;
 	}
+
 	return (ret);
 }
 
@@ -683,13 +837,16 @@ oxserv_set(int mode, void *ptr, void *rsv)
 {
 	switch (mode) {
 	case OXSERV_SET_EXECUTE_FUNCTION:
-		G_userExecuteFunction = (void (*)(const char *, cmo **, int))ptr;
+		G_userExecuteFunction = (void (*)(const char *, oxstack_node **, int))ptr;
 		break;
 	case OXSERV_SET_EXECUTE_STRING_PARSER:
 		G_userExecuteStringParser = (void (*)(const char *))ptr;
 		break;
 	case OXSERV_SET_CONVERT_CMO:
-		G_convertCmo = (cmo *(*)(cmo *))ptr;
+		G_convertCmo = (cmo *(*)(void *))ptr;
+		break;
+	case OXSERV_SET_CONVERT_STR:
+		G_convertStr = (char *(*)(void *))ptr;
 		break;
 	case OXSERV_SET_DELETE_CMO:
 		G_DeleteCmo = (void (*)(cmo *))ptr;
@@ -715,8 +872,7 @@ oxserv_set(int mode, void *ptr, void *rsv)
 void
 oxserv_dest()
 {
-	oxserv_delete_cmo(G_oxserv_mathcap);
-
+	FREE(G_oxserv_mathcap);
 	oxstack_dest();
 }
 	
@@ -747,21 +903,27 @@ oxserv_executeFunction(const char *func, cmo **arg, int argc)
  * PARAM : NONE
  * RETURN: NONE
  *****************************************************************************/
+static FILE *dfp = NULL;
 int
 main(int argc, char *argv[])
 {
-	int fd = 3;
+	int fd = 10;
 	int i;
 	int ret;
 
+	dfp = fopen("/tmp/oxserv,log", "w");
 	OXFILE *oxfp = oxf_open(fd);
 
-	ox_stderr_init(stderr);
+	fprintf(dfp, "stderr.init start\n"); fflush(dfp);
+	ox_stderr_init(dfp);
 
+	fprintf(dfp, "set start\n"); fflush(dfp);
         oxserv_set(OXSERV_SET_EXECUTE_FUNCTION, oxserv_executeFunction, NULL);
 
+	fprintf(df10p, "init start\n"); fflush(dfp);
 	oxserv_init(oxfp, 0, "$Date$", "oxserv", NULL, NULL);
 
+	fprintf(dfp, "recv start\n"); fflush(dfp);
 	ret = oxserv_receive(oxfp);
 
 	oxserv_dest();
