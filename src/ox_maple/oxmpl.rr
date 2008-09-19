@@ -1,0 +1,48 @@
+/* $OpenXM$ */
+/*
+ * OpenXM Maple Server
+ *
+ * [1215] PID = ox_launch(0, "$OpenXM/src/ox_maple/ox_maple");
+ * 0
+ * [1216] ox_cmo_rpc(PID, "func", "resultant", x^2+a*x+b, 2*x+a, x);
+ * 0
+ * [1217] maple.whattype(PID);
+ * `+`
+ * [1218] ox_pop_cmo(PID);
+ * -a^2+4*b
+ * [1219] maple.resultant(PID, x^2+a*x+b, 2*x+a, x);
+ * -a^2+4*b
+ * [1220] ox_cmo_rpc(PID, "sleep", 10);
+ * 0
+ * [1221] ox_execute_string(PID, "resultant(x^2+a*x+b, 2*x+a, x);");
+ * 0
+ * [1222] ox_pop_cmo(PID);
+ * -a^2+4*b
+ *
+ */
+
+
+module maple;
+
+localf resultant$
+localf whattype$
+
+
+def resultant(PID, F1, F2, X) {
+	ox_cmo_rpc(PID, "func", "resultant", F1, F2, X);
+	return (ox_pop_cmo(PID));
+}
+
+
+def whattype(PID) {
+	ox_push_cmo(PID, ntoint32(1));
+	ox_push_cmo(PID, "whattype");
+	ox_push_cmd(PID, 269);  /* executeFunction */
+	return (ox_pop_cmo(PID));
+}
+
+
+
+endmodule;
+
+end$
