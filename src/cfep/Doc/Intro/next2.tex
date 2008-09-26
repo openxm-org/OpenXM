@@ -18,7 +18,7 @@
 
 \title{ {\bf 超入門 Cfep/asir (MacOS X)} }
 \author{  高山信毅 }
-\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2007-10-09 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
+\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
 \makeindex
 
 \begin{document}
@@ -488,6 +488,9 @@ error([41,4294967295,parse error,[asir_where,[[toplevel,1]]]])
 \verb@print( deval(2^(1/2)));@
 が正しい入力である.
 エラー行の3行目にキャレットが自動的に移動しているはずである.
+なおプログラムの入力ウインドー内でマウスをクリックすると, せっかく自動移動した
+キャレットの位置が変ってしまう. 
+プログラムの入力ウインドーのタイトルバーでクリックするとよい.
 なおこの例では 
 \begin{center}
 \scalebox{0.05}{\includegraphics{Figs/buttonBracket.eps}}
@@ -1569,6 +1572,18 @@ import("cfep-opengl.rr");
 opengl.glib3DefaultScene("cfep demo/icosahedron");
 \end{verbatim}
 \end{screen}
+
+\section{asir 以外の計算エンジンの利用}
+
+cfepから asir 以外の OpenXM 準拠の計算エンジンも利用できます.
+たとえば, 実行, 計算エンジンの選択で, kan/sm1 を利用することも可能です.
+cfep, {\tt ox\_texmacs}, {\tt ox\_sm1} が相互に通信しながら計算しています.
+
+なお kan/sm1 の {\tt run} コマンドは使えません.
+\begin{verbatim}
+[(parse) (ファイル名)  pushfile] extension 
+\end{verbatim}
+で代用して下さい.
 
 \cleardoublepage
 \flushbottom
