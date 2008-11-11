@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.25 2008/01/26 00:59:47 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.26 2008/01/29 05:42:05 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -121,6 +121,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * set_print_function::
 * small_jacobi::
 * flatten_quote::
+* printf::
 * sprintf::
 * quote_to_funargs::
 * funargs_to_quote::
@@ -143,6 +144,10 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * asirgui.hnd::
 * noro_matrix.rr:
 * f_res::
+* chdir::
+* pwd::
+* dcurrenttime::
+
 
 @end menu
 
@@ -1223,17 +1228,18 @@ ChangeLog
 
 
 @node sprintf,,, 実験的仕様の関数
-@subsection @code{sprintf}
+@subsection @code{printf}, @code{sprintf}
 @findex sprintf
 
 @table @t
+@item printf(@var{format}[,@var{args}])
 @item sprintf(@var{format}[,@var{args}])
 :: C に似たプリント関数
 @end table
 
 @table @var
 @item return
-文字列
+整数(printf), 文字列(sprintf)
 @item format
 文字列
 @item args
@@ -1242,15 +1248,20 @@ ChangeLog
 
 @itemize @bullet
 @item
-フォーマット文字列 @var{format } にしたがい @var{args} を文字列に変換する.
+@code{printf} は書式文字列 @var{format } にしたがい, オブジェクト @var{args} を標準出力に書き出す.
 @item
-フォーマット文字列の中に @code{%a} (any) が利用可能.
-@var{args} の個数はフォーマット文字列の中の @code{%a} の個数に等しくすること.
+@code{sprintf} は結果を文字列で返し, 標準出力には書き出さない.
+@item
+書式文字列の中で @code{%a} (any) が利用可能.
+@var{args} の個数は書式文字列の中の @code{%a} の個数に等しくすること.
 @end itemize
 
 @example
-[0] sprintf("%a: rat = %a",10,x^2-1);
-  10: rat = x^2-1
+[0] printf("%a: rat = %a\n",10,x^2-1)$
+10: rat = x^2-1
+[1] S=sprintf("%a: rat = %a",20,x^2-1)$
+[2] S;
+20: rat = x^2-1
 @end example
 
 @table @t
@@ -1264,8 +1275,11 @@ ChangeLog
 ChangeLog
 @itemize @bullet
 @item 
- この関数は 2004-7-13 にコミットされた.
+ 関数 sprintfは 2004-7-13 にコミットされた.
  変更をうけたソースコードは builtin/strobj (1.50) である.
+@item 
+ 関数 printfは 2007-11-8 にコミットされた.
+ 変更をうけたソースコードは builtin/print.c (1.23) である.
 @item 
  @code{%a} は Maple の sprintf の真似か.
 @end itemize
@@ -2349,6 +2363,98 @@ ChangeLog
 @item OpenXM/src/ox_cdd, OpenXM/src/asir-contrib/packages/src/f_res.rr
 @end itemize
 
+
+@node chdir,,, 実験的仕様の関数
+@subsection @code{chdir}, @code{pwd} 
+@findex chdir
+@findex pwd
+
+@comment --- ディレクトリ操作 ---
+@table @t
+@item chdir(@var{directory})
+@item  pwd()
+:: シェルコマンド cd と pwd に対応する操作.
+@end table
+
+@table @var
+@item return
+文字列(@code{pwd}), 整数(@code{chdir})
+@item dirctory
+文字列
+@end table
+
+@itemize @bullet
+@item
+@code{pwd} はカレントディレクトリを文字列で返す.
+@item
+@code{chdir} はカレントディレクトリを @var{directory} に変更する.  成功すれば 0 を失敗すれば -1 を返す.
+@item
+これらの関数は UNIX 版にのみ実装されている.
+@end itemize
+
+@example
+[0] S=pwd();
+/home/ohara
+[1] chdir(".../taka");
+-1
+[2] chdir("/usr/bin");
+0
+@end example
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+これらの関数は 2008-8-27 にコミットされた.
+変更をうけたソースコードは builtin/miscf.c (1.27) である.
+@end itemize
+
+
+@node dcurrenttime,,, 実験的仕様の関数
+@subsection @code{dcurrenttime} 
+@findex dcurrenttime
+
+@comment --- 現在時刻を取得 ---
+@table @t
+@item  dcurrenttime()
+:: 現在時刻を取得.
+@end table
+
+@table @var
+@item return
+浮動小数点数
+@end table
+
+@itemize @bullet
+@item
+返り値は1970年1月1日0時0分0秒からの経過秒数である.
+@end itemize
+
+@example
+[0] ctrl("real_digit", 16);
+16
+[1] dcurrenttime();
+1226390851.34476
+[2] currenttime();
+1226390854
+@end example
+
+@table @t
+@item 参照
+@ref{currenttime}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+この関数は 2008-9-12 にコミットされた.
+変更をうけたソースコードは builtin/time.c (1.6) である.
+@end itemize
 
 @comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
