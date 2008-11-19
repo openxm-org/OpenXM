@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.26 2008/01/29 05:42:05 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.27 2008/11/11 08:18:50 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -122,6 +122,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * small_jacobi::
 * flatten_quote::
 * printf::
+* fprintf::
 * sprintf::
 * quote_to_funargs::
 * funargs_to_quote::
@@ -1228,20 +1229,23 @@ ChangeLog
 
 
 @node sprintf,,, 実験的仕様の関数
-@subsection @code{printf}, @code{sprintf}
+@subsection @code{printf}, @code{fprintf}, @code{sprintf}
 @findex sprintf
 
 @table @t
 @item printf(@var{format}[,@var{args}])
+@item fprintf(@var{fd},@var{format}[,@var{args}])
 @item sprintf(@var{format}[,@var{args}])
 :: C に似たプリント関数
 @end table
 
 @table @var
 @item return
-整数(printf), 文字列(sprintf)
+整数(printf,fprintf), 文字列(sprintf)
 @item format
 文字列
+@item fd
+非負整数(ファイル記述子)
 @item args
 オブジェクト
 @end table
@@ -1250,10 +1254,14 @@ ChangeLog
 @item
 @code{printf} は書式文字列 @var{format } にしたがい, オブジェクト @var{args} を標準出力に書き出す.
 @item
+@code{fprintf} は結果を, ファイル記述子 @var{fd} の指すファイルに書き出す.
+@item
 @code{sprintf} は結果を文字列で返し, 標準出力には書き出さない.
 @item
 書式文字列の中で @code{%a} (any) が利用可能.
 @var{args} の個数は書式文字列の中の @code{%a} の個数に等しくすること.
+@item
+ファイル記述子は, @code{open_file} 関数を用いて得ること.
 @end itemize
 
 @example
@@ -1262,11 +1270,19 @@ ChangeLog
 [1] S=sprintf("%a: rat = %a",20,x^2-1)$
 [2] S;
 20: rat = x^2-1
+[3] Fd=open_file("hoge.txt","w");
+0
+[4] fprintf(Fd,"Poly=%a\n",(x-1)^3)$
+[5] close_file(Fd)$
+[6] quit;
+
+$ cat hoge.txt
+Poly=x^3-3*x^2+3*x-1
 @end example
 
 @table @t
 @item 参照
-@ref{rtostr}
+@ref{rtostr},@ref{open_file},@ref{close_file}
 @end table
 
 @comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -1280,6 +1296,9 @@ ChangeLog
 @item 
  関数 printfは 2007-11-8 にコミットされた.
  変更をうけたソースコードは builtin/print.c (1.23) である.
+@item 
+ 関数 fprintfは 2008-11-18 にコミットされた.
+ 変更をうけたソースコードは builtin/file.c (1.25) である.
 @item 
  @code{%a} は Maple の sprintf の真似か.
 @end itemize
