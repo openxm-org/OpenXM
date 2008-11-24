@@ -1,7 +1,7 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_parallel.rr,v 1.2 2008/09/08 14:02:35 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_parallel.rr,v 1.3 2008/09/10 09:30:09 ohara Exp $ */
 /* A support library for parallel computation */
 
-module oh_parallel;
+module oh_parallel$
 
 localf open, close;
 localf load_library, load_string;
@@ -91,10 +91,13 @@ oh.parallel.compute(IdSet,TagSet,"foo",[Arg1,Arg2,...]
 def compute(IdSet,TagSet,Func,Args) {
     local Ret, Node, Unused, Running, Id, Recv, Tag, FuncArgs, Pos, Debug;
     local Restart, InitFuncArgs, Opts;
+    local DivFunc, MergeFunc;
     Opts=getopt();
     Restart = (getopt(restart)==yes)? 1: 0;
     InitFuncArgs = getopt(initf);
     Debug = (getopt(debug)==yes)? 1: 0; /* for debug */
+    DivFunc = getopt(div);
+    MergeFunc  = getopt(merge);
     Ret = newvect(length(TagSet));
     Node = length(IdSet); /* Node == #(servers) */
     Running=[];     /* the list of identity numbers of running servers */
@@ -103,6 +106,9 @@ def compute(IdSet,TagSet,Func,Args) {
         if (Unused!=[]) {
             Tag=car(Unused); Unused=cdr(Unused);
             Id = base_set_minus(IdSet,Running)[0]; /* Unused server */
+            if (type(DivFunc)==2) {
+                Args = (*DivFunc)(Tag,TagSet,Args);
+            }
             FuncArgs = append([Id,Func,Tag],Args);
             if(Debug) {
                 printf("oh_parallel.compute(%a): ox_rpc<%a,%a>\n",Func,Id,Tag);
@@ -131,9 +137,12 @@ def compute(IdSet,TagSet,Func,Args) {
             }
         }
     }
+    if(type(MergeFunc)==2) {
+        Ret=(*MergeFunc)(Ret);
+    }
     return vtol(Ret);
 }
 
-endmodule;
+endmodule$
 
 end$
