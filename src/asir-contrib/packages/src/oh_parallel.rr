@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_parallel.rr,v 1.3 2008/09/10 09:30:09 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_parallel.rr,v 1.4 2008/11/24 17:11:53 ohara Exp $ */
 /* A support library for parallel computation */
 
 module oh_parallel$
@@ -91,7 +91,7 @@ oh.parallel.compute(IdSet,TagSet,"foo",[Arg1,Arg2,...]
 def compute(IdSet,TagSet,Func,Args) {
     local Ret, Node, Unused, Running, Id, Recv, Tag, FuncArgs, Pos, Debug;
     local Restart, InitFuncArgs, Opts;
-    local DivFunc, MergeFunc;
+    local DivFunc, MergeFunc, A;
     Opts=getopt();
     Restart = (getopt(restart)==yes)? 1: 0;
     InitFuncArgs = getopt(initf);
@@ -107,9 +107,11 @@ def compute(IdSet,TagSet,Func,Args) {
             Tag=car(Unused); Unused=cdr(Unused);
             Id = base_set_minus(IdSet,Running)[0]; /* Unused server */
             if (type(DivFunc)==2) {
-                Args = (*DivFunc)(Tag,TagSet,Args);
+                A = (*DivFunc)(Tag,TagSet,Args);
+            }else {
+                A = Args;
             }
-            FuncArgs = append([Id,Func,Tag],Args);
+            FuncArgs = append([Id,Func,Tag],A);
             if(Debug) {
                 printf("oh_parallel.compute(%a): ox_rpc<%a,%a>\n",Func,Id,Tag);
             }
