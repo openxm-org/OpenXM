@@ -12,6 +12,14 @@ note-ja.txt などないファイルはこちらを参照.
  child が sig segv を発信したときの対策.
  NSBrokenPipeNotification なんてあるの?
 -------  Done
+2008-11-24
+  目標: mouse によるモデルの回転.
+  Framework を右クリック. 追加, 既存のフレームワークで /Developer/SDKs/MacOSX10.4u.sdk/System/Library/FrameWorks/GLUT.frameworks
+  を追加.  GLUT/glut.h をインポート. MyOpenGLView.m   CoCoA frame では glutMouseFunc ではマウスの動きをとられられない.
+  GLUT 単独の例は, Examples/OpenGL/GLUT/Decal
+  cf. Examples/OpenGL/CoCoA/UnderlaySurface の例がマウスの動きをとらえる, sample. GLView.mm
+  mouseDown:  mouseDragged:  mouseUp:   theEvent に座標などが入るのだろう.
+;;
 2008-01-12
   Leopard で kxx 以下の universal binary のコンパイルがうまくいかない.
   universal binary 対応を廃止.

@@ -6,9 +6,16 @@
 //  Copyright 2006 OpenXM.org. All rights reserved.
 //
 
+#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
+#import <GLUT/glut.h>
+
 #import "MyOpenGLView.h"
 #import "MyOpenGLController.h"
 #include "mygl.h"
+
+
 
 @implementation MyOpenGLView
 -(id) initWithFrame: (NSRect) frame {
@@ -260,7 +267,9 @@
 -(void) glib3_std_scene0 {
   glib3_std_scene0(xeye,yeye,zeye);
 }
-
+-(void) mouseDown: (NSEvent *) theEvent {
+  NSLog(@"Mouse is down\n");
+}
 @end
 
 // Original glib functions

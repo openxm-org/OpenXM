@@ -25,6 +25,7 @@
 		729C9ABE0982069D00DB1E2B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 729C9ABC0982069D00DB1E2B /* Localizable.strings */; };
 		72D366F6098250BC00D24377 /* intro-faq-ja.html in Resources */ = {isa = PBXBuildFile; fileRef = 72D366F5098250BC00D24377 /* intro-faq-ja.html */; };
 		72E69905098C91CE00846D88 /* MyDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 72E69904098C91CE00846D88 /* MyDecoder.m */; };
+		72F19C4D0EDA81A900F13571 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72F19C4C0EDA81A900F13571 /* GLUT.framework */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
@@ -91,6 +92,7 @@
 		72D366F5098250BC00D24377 /* intro-faq-ja.html */ = {isa = PBXFileReference; fileEncoding = 21; lastKnownFileType = text.html; name = "intro-faq-ja.html"; path = "package/intro-faq-ja.html"; sourceTree = "<group>"; };
 		72E69903098C91CE00846D88 /* MyDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDecoder.h; sourceTree = "<group>"; };
 		72E69904098C91CE00846D88 /* MyDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDecoder.m; sourceTree = "<group>"; };
+		72F19C4C0EDA81A900F13571 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* cfep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = cfep.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -102,6 +104,7 @@
 			files = (
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				1C80530909A9791600DC2AC6 /* OpenGL.framework in Frameworks */,
+				72F19C4D0EDA81A900F13571 /* GLUT.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,6 +206,7 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				72F19C4C0EDA81A900F13571 /* GLUT.framework */,
 				1C80530809A9791600DC2AC6 /* OpenGL.framework */,
 				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
@@ -365,6 +369,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS)",
+					"$(SYSTEM_DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -383,6 +391,10 @@
 				ARCHS = (
 					ppc,
 					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS)",
+					"$(SYSTEM_DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks",
 				);
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
