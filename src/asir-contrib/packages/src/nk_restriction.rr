@@ -103,9 +103,12 @@ def restriction(Id, VL, DVL, W)
 	/* b-function が非負整数根を持たない場合([SST, Cor5.2.7]) */
 	if (S0 == [] || S0 < 0) 
 		return 0;
-	
-	for (M = 0; W[M] > 0; M++) 
-		;
+	print("S0 : " + rtostr(S0), 1);
+	for (M = 0; M < length(W); M++) {
+		if (W[M] <= 0)
+			break;
+	}
+
 	/* W の正の要素の部分だけとりだしたもの WW */
 	WW = newvect(M);
 	for (I = 0; I < M; I++)
@@ -113,6 +116,7 @@ def restriction(Id, VL, DVL, W)
 	WW = vtol(WW);
 	/* B_{S0} の生成 */
 	Base = gen(WW, S0);
+	print("B_{S0} length : " + rtostr(length(Base)),1); 
 
 	V = newvect(length(W), W); 
 	MinusW = vtol(-V);
@@ -244,6 +248,13 @@ def weyl_mul(P, Q, VL)
 /* restriction のよい計算例はないか... */
 def test_restriction()
 {
+	L = [x*dx-1, y*dy-1];
+	print("restriction");
+	R1 = restriction(L, [x,y], [dx,dy], [1,0]);
+	print(R1);
+	print("sm1.restriction");
+	R2 = sm1.restriction(L, [x,y], [x]);
+	print(R2);
 }
 
 end$
