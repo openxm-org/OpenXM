@@ -1,0 +1,249 @@
+load("bfct");
+
+/* source from lib/bfct generic_bfct */
+/* generic b-fucntion に加えて F の <_(-W,W) についての GB を返す */ 
+/* F : ideal, V : var list(x), DV : var list(dx), W : weight vect */
+def generic_bfct_and_gr(F,V,DV,W)
+{
+	N = length(V);
+	N2 = N*2;
+
+	/* If W is a list, convert it to a vector */
+	if ( type(W) == 4 )
+		W = newvect(length(W),W);
+
+	/* dp_weyl_set_weight とは...? */
+	dp_weyl_set_weight(W);
+
+	/* create a term order M in D<x,d> (DRL) */
+	M = newmat(N2,N2);
+	for ( J = 0; J < N2; J++ )
+		M[0][J] = 1;
+	for ( I = 1; I < N2; I++ )
+		M[I][N2-I] = -1;
+	
+	VDV = append(V,DV);
+
+	/* create a non-term order MW in D<x,d> */
+	MW = newmat(N2+1,N2);
+	for ( J = 0; J < N; J++ )
+		MW[0][J] = -W[J];
+	for ( ; J < N2; J++ )
+		MW[0][J] = W[J-N];
+	for ( I = 1; I <= N2; I++ )
+		for ( J = 0; J < N2; J++ )
+			MW[I][J] = M[I-1][J];
+
+	/* create a homogenized term order MWH in D<x,d,h> */
+	MWH = newmat(N2+2,N2+1);
+	for ( J = 0; J <= N2; J++ )
+		MWH[0][J] = 1;
+	for ( I = 1; I <= N2+1; I++ )
+		for ( J = 0; J < N2; J++ )
+			MWH[I][J] = MW[I-1][J];
+
+	/* homogenize F */
+	VDVH = append(VDV,[h]);
+	FH = map(dp_dtop,map(dp_homo,map(dp_ptod,F,VDV)),VDVH);
+	
+	/* compute a groebner basis of FH w.r.t. MWH */
+	dp_gr_flags(["Top",1,"NoRA",1]);
+	GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
+	dp_gr_flags(["Top",0,"NoRA",0]);
+
+	/* dehomigenize GH */
+	G = map(subst,GH,h,1);
+
+	/* G is a groebner basis w.r.t. a non term order MW */
+	/* take the initial part w.r.t. (-W,W) */
+	GIN = map(initial_part,G,VDV,MW,W);
+
+	/* GIN is a groebner basis w.r.t. a term order M */
+	/* As -W+W=0, gr_(-W,W)(D<x,d>) = D<x,d> */
+	
+	/* find b(W1*x1*d1+...+WN*xN*dN) in Id(GIN) */
+	for ( I = 0, T = 0; I < N; I++ )
+		T += W[I]*V[I]*DV[I];
+	B = weyl_minipoly(GIN,VDV,0,T); /* M represents DRL order */
+	return [B, G];
+}
+
+/*
+ * restriction module の計算([SST, Alg5.2.8])
+ * Id : ideal
+ * VL : var list (x)
+ * DVL: var list (dx)
+ * W  : weight vector
+ *      VL と長さは同じ
+ *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ */
+def restriction(Id, VL, DVL, W)
+{
+	Result = generic_bfct_and_gr(Id, VL, DVL, W);
+	BF = Result[0];
+	GB = Result[1];
+
+	/* BF の最大整数根 S0 を取り出す */
+	L = fctr(BF);
+	/* L の最初の要素は係数なので捨てる */
+	L = cdr(L);
+	N = length(L);
+	S0 = [];
+	for (I = 0; I < N; I++) {
+		T = L[I][0];
+		Root = -coef(T, 0, s) / coef(T, 1, s);
+		if (dn(Root) == 1) {
+			if (S0 == []) {
+				S0 = Root;
+			} else if (Root > S0) {
+				S0 = Root;
+			} 
+		}
+	}
+	/* b-function が非負整数根を持たない場合([SST, Cor5.2.7]) */
+	if (S0 == [] || S0 < 0) 
+		return 0;
+	
+	for (M = 0; W[M] > 0; M++) 
+		;
+	/* W の正の要素の部分だけとりだしたもの WW */
+	WW = newvect(M);
+	for (I = 0; I < M; I++)
+		WW[I] = W[I];
+	WW = vtol(WW);
+	/* B_{S0} の生成 */
+	Base = gen(WW, S0);
+
+	V = newvect(length(W), W); 
+	MinusW = vtol(-V);
+	WVect = append(MinusW, W);
+	VarL  = append(VL, DVL);
+	NN = length(GB);
+	OrderGB = newvect(NN);	
+	for (I = 0; I < NN; I++) 
+		OrderGB[I] = ord_w(GB[I], VarL, WVect); 
+	Generator = [];
+	for (I = 0; I < NN; I++) {
+		/* 
+		 * B_{S0 - OrderGB[I]} 
+		 * i.e. WW[0]*I[0]+...+WW[M-1]*I[M-1] <= 
+                 * S0 - OrderGB[I] なる (I[0],...,I[M-1]) の生成 
+		 */
+		B = gen(WW, S0 - OrderGB[I]);
+		while (B != []) {
+			Index = car(B);
+			D = 1;
+			for (J = 0; J < M; J++) 
+				D *= DVL[J]^Index[J];
+			P = weyl_mul(D, GB[I], VarL);
+			for (J = 0; J < M; J++)
+				P = subst(P, VL[J], 0);	
+			Generator = cons(P, Generator);
+			B = cdr(B);
+		}
+	}
+	return [Generator, Base];
+}
+
+/* F は s の多項式 */
+/* ただし F は Q 上 1 次式に因数分解できるものとする */
+def max_int_root(F)
+{
+	L = fctr(F);
+	/* L の最初の要素は係数なので捨てる */
+	L = cdr(L);
+	N = length(L);
+	S0 = [];
+	for (I = 0; I < N; I++) {
+		T = L[I][0];
+		Root = -coef(T, 0, s) / coef(T, 1, s);
+		if (dn(Root) == 1) {
+			if (S0 == []) {
+				S0 = Root;
+			} else if (Root > S0) {
+				S0 = Root;
+			} 
+		}
+	}
+	return S0;
+}
+
+def test_max_int_root()
+{
+	print(max_int_root(3*(s+3)^2*(s+1)^3));
+	print(max_int_root((s+1/2)*(s+1/3)*(s+3)^2*(s+1)^3));
+	print(max_int_root((s+1/2)*(s+1/3)*(s+1/5)^2*(s+1/10)^3));
+}
+
+/* 
+ * I[0]*W[0] + ... + I[M-1]*W[M-1] <= S0 なる 
+ * [I[0], ..., I[M-1]] を返す
+ */ 
+def gen(W, S0)
+{
+	if (W == []) 
+		return [[]];
+	Weight = car(W);
+	LL = [];
+	for (I = 0; I <= S0 / Weight; I++) {
+		L = gen(cdr(W), S0 - Weight * I);
+		L = map(cons_rev, L, I); 
+		LL = append(L, LL);
+	}
+	return LL;
+}
+
+/* map 適用のため */
+def cons_rev(L, I)
+{
+	return cons(I, L);
+}
+
+def test_gen()
+{
+	print(gen([1],3));
+	print(gen([1,1,1],3));
+	print(gen([1,1,1],5));
+	print(gen([1,2,3],5));
+}
+
+/* from localb.rr */
+def ord_w(P, VL, W)
+{
+        if (P == 0) {
+                print("ord_w(0)");
+                return;
+        }
+
+        N = length(VL);
+        DP = dp_ptod(P, VL);
+
+        V = dp_etov(DP);
+        DP = dp_rest(DP);       
+        for (Max = 0, I = 0; I < N; I++)
+                Max += V[I] * W[I];     
+        while (DP != 0) {
+                V = dp_etov(DP);
+                DP = dp_rest(DP);       
+                for (Weight = 0, I = 0; I < N; I++)
+                        Weight += V[I] * W[I];  
+                if (Max < Weight)
+                        Max = Weight;
+        }
+        return Max;
+}
+
+/* from localb.rr */
+def weyl_mul(P, Q, VL)
+{
+        DP = dp_ptod(P, VL);
+        DQ = dp_ptod(Q, VL);
+        return dp_dtop(dp_weyl_mul(DP, DQ), VL);
+}
+
+/* restriction のよい計算例はないか... */
+def test_restriction()
+{
+}
+
+end$
