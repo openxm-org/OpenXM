@@ -142,7 +142,8 @@ def restriction(Id, VL, DVL, W)
 			P = weyl_mul(D, GB[I], VarL);
 			for (J = 0; J < M; J++)
 				P = subst(P, VL[J], 0);	
-			Generator = cons(P, Generator);
+			if (P != 0)  
+				Generator = cons(P, Generator);
 			B = cdr(B);
 		}
 	}
@@ -255,6 +256,135 @@ def test_restriction()
 	print("sm1.restriction");
 	R2 = sm1.restriction(L, [x,y], [x]);
 	print(R2);
+}
+
+def test_restriction2()
+{
+	/* from [SST, p202] */
+	L = [dx^2, dy^2];
+	print("restriction");
+	R1 = restriction(L, [x,y], [dx,dy], [1,0]);
+	print(R1);
+	print("sm1.restriction");
+	R2 = sm1.restriction(L, [x,y], [x]);
+	print(R2);
+}
+
+def test_restriction3()
+{
+	/* Appell F_1 */
+	L = [x*(1-x)*dx^2+y*(1-x)*dx*dy+(c-(a+b+1)*x)*dx-b*y*dy-a*b,
+	     y*(1-y)*dy^2+x*(1-y)*dx*dy+(c-(a+bb+1)*y)*dy-bb*x*dx-a*bb];
+	/* parameter つきでは無理なので特定の値で */
+}
+
+/*
+ * restriction ideal の計算 [SST, Alg5.2.12] 
+ * Id : D-ideal
+ * VL : var list (x)
+ * DVL: var list (dx)
+ * W  : weight vector
+ *      VL と長さは同じ
+ *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ */
+def restriction_ideal(Id, VL, DVL, W)
+{
+	L = restriction(Id, VL, DVL, W);
+	print("restriction :");
+	print(L);
+	GG = restriction_ideal_internal(L, VL, DVL, W);
+	return GG;
+}
+
+/* L : result of restriction */
+def restriction_ideal_internal(L, VL, DVL, W)
+{
+	/* 
+	 * restriction module の結果をベクトル表示に直す       
+	 * Base と同じ順に dx^Base[I] の係数を I 成分に格納   
+	 * restriction の結果の Base は最後の要素が [0,...,0]  
+	 * だからベクトル表示した場合、最後の成分が 1 の係数  
+	 */
+	Gen = L[0];
+	Base = L[1];
+
+	M = 0;
+	for (M = 0; M < length(W); M++)
+		if (W[M] <= 0)
+			break;
+
+	N = length(Base);
+	P = length(Gen);
+	GenV = newvect(P);
+	for (I = 0; I < P; I++) {
+		T = Gen[I];
+		V = newvect(N);
+		for (J = 0; J < N; J++) {
+			Exp = Base[J];
+			/* T の dx_1^Exp[0] .. dx_M-1^Exp[M-1] の係数 を求める */
+			C = T;
+			print([C,Exp]);
+			for (K = 0; K < M; K++) {
+				C = coef(C, Exp[K], DVL[K]);	
+				print(C);
+			}
+			V[J] = C;	
+		}
+		GenV[I] = vtol(V);
+	}	
+	print("Generators :");
+	print(GenV);
+	
+	NN = length(VL) - M;
+	VLY = newvect(NN * 2);
+	for (I = 0; I < NN; I++) {
+		VLY[I] = VL[I + M];
+		VLY[I + NN] = DVL[I + M];
+		
+	}
+	VLY = vtol(VLY);
+	GenV = vtol(GenV);
+	/* GenV の要素はリストでないと nd_weyl_gr で internal error */
+	G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
+	print("GB :");
+	print(G);
+
+	/* G の元の中で、最後の成分(i.e. 1 の係数) のみ 0 でないものを取り出す */
+	Len = length(G);
+	GG = [];
+	for (I = 0; I < Len; I++) {
+		T = G[I];
+		for (J = 0; J < N - 1; J++) 
+			if (T[J] != 0) 
+				break;
+		if (J == N - 1 && T[N - 1] != 0) 
+			GG = cons(T[N - 1], GG);		
+	}
+	print("GG :");
+	print(GG);
+
+	return GG;
+}
+
+def test_restriction_ideal_internal()
+{
+	L = restriction([x*dx-1,y*dy-1],VL=[x,y],DVL=[dx,dy],W=[1,0]);
+	print(L);
+	restriction_ideal_internal(L, VL, DVL, W);
+}
+
+def test_nd_weyl_gr()
+{
+	/* internal error 
+	nd_weyl_gr([newvect(2,[1,x]),newvect(2,[x,y])], [x,y,dx,dy],0,[1,0]);
+	*/
+
+	/* invarid argument 
+	nd_weyl_gr(newvect(2,[[1,x],[x,y]]), [x,y,dx,dy], 0, [1,0]);
+	*/
+	
+	/* correct */
+	nd_weyl_gr([[1,x],[x,y]],[x,y,dx,dy],0,[1,0]);
 }
 
 end$
