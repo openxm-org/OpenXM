@@ -1,11 +1,17 @@
+pari(allocatemem,10^8)$
 extern Tb$
 extern NN$
+extern Fmax$
+extern Trans$
+
 #define MTSIZE 15
-#define ZMAX 100
 
 def plot3d(F) {
   extern Tb;
   extern NN;
+  extern Fmax;
+  extern Trans;
+
   P = setprec(5);
 
   Tb=string_to_tb("")$
@@ -16,6 +22,16 @@ def plot3d(F) {
   Xmin=D[0][0]; Xmax=D[0][1];
   Ymin=D[1][0]; Ymax=D[1][1];
   printf("domain=%a: Xmin=%a,Xmax=%a, Ymin=%a, Ymax=%a\n",D,Xmin,Xmax,Ymin,Ymax);
+  if ((Xmin >= Xmax) || (Ymin >=Ymax)) error("Invalid domain.");
+  /* (MTSIZE*2/(Xmax-Xmin))*(x-Xmin)-MTSIZE =a*x-b */
+  /* (MTSIZE*2/(Ymax-Ymin))*(y-Ymin)-MTSIZE =c*y-d */
+  Trans=newmat(2,2);  /* [[a,b],[c,d]] */
+  Trans[0][0] = eval(exp(0)*MTSIZE*2/(Xmax-Xmin));
+  Trans[0][1] = eval(-Xmin*exp(0)*MTSIZE*2/(Xmax-Xmin)-MTSIZE);
+  Trans[1][0] = eval(exp(0)*MTSIZE*2/(Ymax-Ymin));
+  Trans[1][1] = eval(-Ymin*exp(0)*MTSIZE*2/(Ymax-Ymin)-MTSIZE);
+  print(Trans);
+
   NN=getopt(mesh);
   if (type(NN) < 0) {
     NN=10;
@@ -25,10 +41,12 @@ def plot3d(F) {
   Xstep = eval(exp(0)*(Xmax-Xmin)/NN);
   Ystep = eval(exp(0)*(Ymax-Ymin)/NN);
 
-  Fmax = subst(F,x,Xmin,y,Ymin);
+  /* Find the maximun of F */
+  Fmax = ueval(F,Xmin,Ymin);  if (Fmax < 0) Fmax = -Fmax;
+  Fmax_x = Xmin; Fmax_y = Ymin;
   for (X=Xmin; X<Xmax; X += Xstep) {
     for (Y=Ymin; Y<Ymax; Y += Ystep) {
-      Z = subst(F,x,X,y,Y);
+      Z = ueval(F,X,Y);
       if (Z < 0)
         Z = -Z;
       if (Fmax < Z) {
@@ -38,10 +56,7 @@ def plot3d(F) {
       }
     }
   }
-  while(Fmax > ZMAX) {
-    F /= 2;
-    Fmax = subst(F,x,Fmax_x,y,Fmax_y);
-  }
+  printf("Fmax is %a\n",Fmax);
 
   for (X=Xmin; X<Xmax; X += Xstep) {
     for (Y=Ymin; Y<Ymax; Y += Ystep) {
@@ -62,11 +77,31 @@ def plot3d(F) {
   setprec(P);
 }
 
+def ueval(F,X,Y) {
+  if (type(F) == 17) { /* quote */
+     Z = base_replace(F,[[x,X],[y,Y]]);
+     Z = eval_quote(Z);
+     return eval(exp(0)*Z);
+  }else{
+     Z = subst(F,x,X,y,Y);
+     return eval(exp(0)*Z);
+  }
+}
 def outxyz(F,X,Y) {
   extern Tb;
-  /* evaluator. Quote has not yet been supported. */
-  Z = subst(F,x,X,y,Y);
-  Z = eval(exp(0)*Z);
+  Z = ueval(F,X,Y);
+  /* scaling */
+  Z = Z*MTSIZE*0.8/Fmax;
+  X = Trans[0][0]*X+Trans[0][1];
+  Y = Trans[1][0]*Y+Trans[1][1];
+
+  /* BUG: to avoid the expression like -8.1234 E-19
+     It shoud be done by sprintf().
+  */
+  if ((X < 0.01) && (X > -0.01)) X = 0;  
+  if ((Y < 0.01) && (Y > -0.01)) Y = 0;  
+  if ((Z < 0.01) && (Z > -0.01)) Z = 0;  
+
   S=sprintf(" %a %a %a ",X,Y,Z);
   write_to_tb(S,Tb);
 }
@@ -74,6 +109,12 @@ def outxyz(F,X,Y) {
 def test1() {
   shell("rm tmp.txt");
   plot3d((x^2+y^2)/30);
+  shell("./graph tmp.txt &");
+}
+
+def test2() {
+  shell("rm tmp.txt");
+  plot3d(cos((x^2+y^2)^(1/2))+cos(3*(x^2+y^2)^(1/2)) | domain=[[-3,3],[-3,3]], mesh=12);
   shell("./graph tmp.txt &");
 }
 
