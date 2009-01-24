@@ -3,8 +3,12 @@ extern Tb$
 extern NN$
 extern Fmax$
 extern Trans$
+extern LevelMax$
+extern Slope$
+LevelMax = -1$  /* -1, no recursion.  1 --> buggy */
+Slope = 0.1$
 
-#define MTSIZE 15
+#define MTSIZE 10
 
 def plot3d(F) {
   extern Tb;
@@ -56,17 +60,12 @@ def plot3d(F) {
       }
     }
   }
+  if (Fmax == 0.0) Fmax = 0.1;
   printf("Fmax is %a\n",Fmax);
 
   for (X=Xmin; X<Xmax; X += Xstep) {
     for (Y=Ymin; Y<Ymax; Y += Ystep) {
-      write_to_tb("t ",Tb);      
-      outxyz(F,X,Y); outxyz(F,X+Xstep,Y); outxyz(F,X,Y+Ystep);
-      write_to_tb(" \n",Tb);
-
-      write_to_tb("t ",Tb);      
-      outxyz(F,X,Y+Ystep); outxyz(F,X+Xstep,Y); outxyz(F,X+Xstep,Y+Ystep);
-      write_to_tb(" \n",Tb);
+      adaptive_outxyz(F,X,Y,Xstep,Ystep,0,0);
     }
   }
   S=tb_to_string(Tb);
@@ -75,6 +74,39 @@ def plot3d(F) {
   output()$
 
   setprec(P);
+}
+
+def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
+  extern LevelMax;
+  extern Slope;
+  extern Fmax;
+  Xslope = (ueval(F,X,Y)-ueval(F,X+Xstep,Y))/Fmax; 
+  if (Xslope < 0) Xslope = -Xslope;
+  Yslope = (ueval(F,X,Y)-ueval(F,X,Y+Ystep))/Fmax; 
+  if (Yslope < 0) Yslope = -Yslope;
+
+  if ((Xlevel > LevelMax) || (Ylevel > LevelMax) || 
+      ((Xslope < Slope) && (Yslope < Slope))) {
+   for (I = 0; I < 2^Xlevel ; I++) {
+    for (J = 0; J < 2^Ylevel ; J++) {
+      write_to_tb("t ",Tb);      
+      outxyz(F,X,Y); outxyz(F,X+Xstep,Y); outxyz(F,X,Y+Ystep);
+      write_to_tb(" \n",Tb);
+
+      write_to_tb("t ",Tb);      
+      outxyz(F,X,Y+Ystep); outxyz(F,X+Xstep,Y); outxyz(F,X+Xstep,Y+Ystep);
+      write_to_tb(" \n",Tb);
+      Y += Ystep;
+    }
+    X += Xstep;
+   }
+  }else if ((Xslope >= Slope) && (Yslope >= Slope)) {
+    adaptive_outxyz(F,X,Y,Xstep/2,Ystep/2,Xlevel+1,Ylevel+1);
+  }else if ((Xslope < Slope) && (Yslope >= Slope)) {
+    adaptive_outxyz(F,X,Y,Xstep,Ystep/2,Xlevel,Ylevel+1);
+  }else if ((Xslope >= Slope) && (Yslope < Slope)) {
+    adaptive_outxyz(F,X,Y,Xstep/2,Ystep,Xlevel+1,Ylevel);
+  }else error("This case must not reached.");
 }
 
 def ueval(F,X,Y) {
@@ -90,6 +122,7 @@ def ueval(F,X,Y) {
 def outxyz(F,X,Y) {
   extern Tb;
   Z = ueval(F,X,Y);
+
   /* scaling */
   Z = Z*MTSIZE*0.8/Fmax;
   X = Trans[0][0]*X+Trans[0][1];
@@ -101,6 +134,15 @@ def outxyz(F,X,Y) {
   if ((X < 0.01) && (X > -0.01)) X = 0;  
   if ((Y < 0.01) && (Y > -0.01)) Y = 0;  
   if ((Z < 0.01) && (Z > -0.01)) Z = 0;  
+  /*
+  if (X > MTSIZE*2) X = MTSIZE*2;
+  if (Y > MTSIZE*2) Y = MTSIZE*2;
+  if (X < -MTSIZE*2) X = -MTSIZE*2;
+  if (Y < -MTSIZE*2) Y = -MTSIZE*2;
+  */
+  if (Z > MTSIZE*2) Z = MTSIZE*2;
+  if (Z < -MTSIZE*2) Z=-MTSIZE*2;
+
 
   S=sprintf(" %a %a %a ",X,Y,Z);
   write_to_tb(S,Tb);
@@ -118,4 +160,9 @@ def test2() {
   shell("./graph tmp.txt &");
 }
 
+def test3() {
+  shell("rm tmp.txt");
+  plot3d(quote(sin(x)));
+  shell("./graph tmp.txt &");
+}
 end$
