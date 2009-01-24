@@ -1,0 +1,80 @@
+extern Tb$
+extern NN$
+#define MTSIZE 15
+#define ZMAX 100
+
+def plot3d(F) {
+  extern Tb;
+  extern NN;
+  P = setprec(5);
+
+  Tb=string_to_tb("")$
+  D=getopt(domain);
+  if (type(D) <0) {
+    D=[[-MTSIZE,MTSIZE],[-MTSIZE,MTSIZE]];
+  }
+  Xmin=D[0][0]; Xmax=D[0][1];
+  Ymin=D[1][0]; Ymax=D[1][1];
+  printf("domain=%a: Xmin=%a,Xmax=%a, Ymin=%a, Ymax=%a\n",D,Xmin,Xmax,Ymin,Ymax);
+  NN=getopt(mesh);
+  if (type(NN) < 0) {
+    NN=10;
+  }
+  printf("Mesh size is %a x %a. mesh=%a\n",NN,NN,NN);
+  
+  Xstep = eval(exp(0)*(Xmax-Xmin)/NN);
+  Ystep = eval(exp(0)*(Ymax-Ymin)/NN);
+
+  Fmax = subst(F,x,Xmin,y,Ymin);
+  for (X=Xmin; X<Xmax; X += Xstep) {
+    for (Y=Ymin; Y<Ymax; Y += Ystep) {
+      Z = subst(F,x,X,y,Y);
+      if (Z < 0)
+        Z = -Z;
+      if (Fmax < Z) {
+        Fmax = Z;
+        Fmax_x = X;
+        Fmax_y = Y;
+      }
+    }
+  }
+  while(Fmax > ZMAX) {
+    F /= 2;
+    Fmax = subst(F,x,Fmax_x,y,Fmax_y);
+  }
+
+  for (X=Xmin; X<Xmax; X += Xstep) {
+    for (Y=Ymin; Y<Ymax; Y += Ystep) {
+      write_to_tb("t ",Tb);      
+      outxyz(F,X,Y); outxyz(F,X+Xstep,Y); outxyz(F,X,Y+Ystep);
+      write_to_tb(" \n",Tb);
+
+      write_to_tb("t ",Tb);      
+      outxyz(F,X,Y+Ystep); outxyz(F,X+Xstep,Y); outxyz(F,X+Xstep,Y+Ystep);
+      write_to_tb(" \n",Tb);
+    }
+  }
+  S=tb_to_string(Tb);
+  output("tmp.txt")$
+  printf("%a",S)$
+  output()$
+
+  setprec(P);
+}
+
+def outxyz(F,X,Y) {
+  extern Tb;
+  /* evaluator. Quote has not yet been supported. */
+  Z = subst(F,x,X,y,Y);
+  Z = eval(exp(0)*Z);
+  S=sprintf(" %a %a %a ",X,Y,Z);
+  write_to_tb(S,Tb);
+}
+
+def test1() {
+  shell("rm tmp.txt");
+  plot3d((x^2+y^2)/30);
+  shell("./graph tmp.txt &");
+}
+
+end$
