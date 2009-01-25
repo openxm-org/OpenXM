@@ -1,3 +1,4 @@
+import("glib3.rr")$
 pari(allocatemem,10^8)$
 extern Tb$
 extern NN$
@@ -5,7 +6,7 @@ extern Fmax$
 extern Trans$
 extern LevelMax$
 extern Slope$
-LevelMax = -1$  /* -1, no recursion.  1 --> buggy */
+LevelMax = 0$  /* -1, no recursion.  1 --> buggy */
 Slope = 0.1$
 
 #define MTSIZE 10
@@ -87,8 +88,10 @@ def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
 
   if ((Xlevel > LevelMax) || (Ylevel > LevelMax) || 
       ((Xslope < Slope) && (Yslope < Slope))) {
-   for (I = 0; I < 2^Xlevel ; I++) {
-    for (J = 0; J < 2^Ylevel ; J++) {
+   Ystart=Y;
+   for (I = 0; I < 2^Xlevel ; I++, X += Xstep) {
+    for (J = 0, Y=Ystart; J < 2^Ylevel ; J++, Y += Ystep) {
+      /* debug_mesh(X,Y,Xstep,Ystep); */
       write_to_tb("t ",Tb);      
       outxyz(F,X,Y); outxyz(F,X+Xstep,Y); outxyz(F,X,Y+Ystep);
       write_to_tb(" \n",Tb);
@@ -96,9 +99,7 @@ def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
       write_to_tb("t ",Tb);      
       outxyz(F,X,Y+Ystep); outxyz(F,X+Xstep,Y); outxyz(F,X+Xstep,Y+Ystep);
       write_to_tb(" \n",Tb);
-      Y += Ystep;
     }
-    X += Xstep;
    }
   }else if ((Xslope >= Slope) && (Yslope >= Slope)) {
     adaptive_outxyz(F,X,Y,Xstep/2,Ystep/2,Xlevel+1,Ylevel+1);
@@ -143,10 +144,29 @@ def outxyz(F,X,Y) {
   if (Z > MTSIZE*2) Z = MTSIZE*2;
   if (Z < -MTSIZE*2) Z=-MTSIZE*2;
 
-
   S=sprintf(" %a %a %a ",X,Y,Z);
   write_to_tb(S,Tb);
 }
+
+def debug_mesh_init(X,Y) {
+   glib_window(-X,-Y,X,Y);
+   glib_clear();
+}
+/* Sample input. 
+   test2();  
+   LevelMax = 0;
+   adaptive_outxyz(x,0.0, 0.0, 1.0, 1.0, 1,1);
+*/
+def debug_mesh(X,Y,Xstep,Ystep) {
+   glib_line(X,Y,X+Xstep,Y);
+   glib_line(X+Xstep,Y,X,Y+Ystep);
+   glib_line(X,Y+Ystep,X,Y);
+
+   glib_line(X,Y+Ystep,X+Xstep,Y);
+   glib_line(X+Xstep,Y,X+Xstep,Y+Ystep);
+   glib_line(X+Xstep,Y+Ystep,X,Y+Ystep);
+   glib_flush();
+} 
 
 def test1() {
   shell("rm tmp.txt");
@@ -155,6 +175,7 @@ def test1() {
 }
 
 def test2() {
+  /* debug_mesh_init(3,3); */
   shell("rm tmp.txt");
   plot3d(cos((x^2+y^2)^(1/2))+cos(3*(x^2+y^2)^(1/2)) | domain=[[-3,3],[-3,3]], mesh=12);
   shell("./graph tmp.txt &");
