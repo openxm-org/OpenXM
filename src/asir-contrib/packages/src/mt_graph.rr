@@ -10,7 +10,7 @@ extern Ymax$
 extern Trans$
 extern LevelMax$
 extern Slope$
-LevelMax = 0$  /* -1, no recursion.  1 --> buggy */
+LevelMax = 0$  /* -1, no recursion */ 
 Slope = 0.1$
 
 #define MTSIZE 10
@@ -21,7 +21,6 @@ def plot3d(F) {
   extern Fmax;
   extern Trans;
 
-  P = setprec(5);
 
   Tb=string_to_tb("")$
   Tb2 = string_to_tb("")$
@@ -79,8 +78,6 @@ def plot3d(F) {
   output("tmp.txt")$
   printf("%a",S)$
   output()$
-
-  setprec(P);
 }
 
 def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
@@ -143,22 +140,13 @@ def outxyz(F,X,Y) {
   X = Trans[0][0]*X+Trans[0][1];
   Y = Trans[1][0]*Y+Trans[1][1];
 
-  /* BUG: to avoid the expression like -8.1234 E-19
-     It shoud be done by sprintf().
-  */
-  if ((X < 0.01) && (X > -0.01)) X = 0;  
-  if ((Y < 0.01) && (Y > -0.01)) Y = 0;  
-  if ((Z < 0.01) && (Z > -0.01)) Z = 0;  
-  /*
-  if (X > MTSIZE*2) X = MTSIZE*2;
-  if (Y > MTSIZE*2) Y = MTSIZE*2;
-  if (X < -MTSIZE*2) X = -MTSIZE*2;
-  if (Y < -MTSIZE*2) Y = -MTSIZE*2;
-  */
+  /* Truncate Z */
   if (Z > MTSIZE*2) Z = MTSIZE*2;
   if (Z < -MTSIZE*2) Z=-MTSIZE*2;
 
-  S=sprintf(" %a %a %a ",X,Y,Z);
+  /* deval is used to avoid the expression like -8.1234 E-19 by Pari
+  */
+  S=sprintf(" %a %a %a ",deval(X),deval(Y),deval(Z));
   write_to_tb(S,Tb);
 }
 
@@ -176,7 +164,7 @@ def outtexcoords(X,Y) {
   if ((X < 0.01) && (X > -0.01)) X = 0;  
   if ((Y < 0.01) && (Y > -0.01)) Y = 0;  
 
-  S = sprintf(" %a %a ",(X-Xmin)/(Xmax-Xmin)/N, (Y-Ymin)/(Ymax-Ymin)/N);
+  S = sprintf(" %a %a ",deval((X-Xmin)/(Xmax-Xmin)/N), deval((Y-Ymin)/(Ymax-Ymin)/N));
   write_to_tb(S,Tb);
 }
 
