@@ -10,10 +10,48 @@ extern Ymax$
 extern Trans$
 extern LevelMax$
 extern Slope$
+
+extern MZvalues$  /* value table of functions */
+extern Msize$     /* size of Mvmat */
+extern MXtoI$     /* (X-Xmin)*MXtoI --> index I */
+extern MYtoJ$     /* (Y-Ymin)*MYtoJ --> index J */
+extern MXfromI$
+extern MYfromJ$
+
 LevelMax = 0$  /* -1, no recursion */ 
 Slope = 0.1$
 
 #define MTSIZE 10
+
+def plot3dInitTable() {
+  extern MZvalues$
+  extern Msize$   
+  extern MXtoI$   
+  extern MYtoJ$   
+  extern MXfromI$
+  extern MYfromJ$
+
+  extern LevelMax$
+  extern NN$
+  extern Xmax$
+  extern Xmin$
+  extern Ymax$
+  extern Ymin$
+
+  if (LevalMax >= 0) {
+    Msize = (NN+1)*(2^(LevelMax+1));
+    MM = 2^(LevalMax+1);
+  }
+  else {
+    Msize = (NN+1);
+    MM = 1;
+  }
+  MZvalues=newmat(Msize,Msize);
+  MXtoI = eval(exp(0)*NN*MM/(Xmax-Xmin));
+  MYtoJ = eval(exp(0)*NN*MM/(Ymax-Ymin));
+  MXfromI = 1/MXtoI;
+  MYfromJ = 1/MYtoJ;
+}
 
 def plot3d(F) {
   extern Tb;
@@ -50,12 +88,14 @@ def plot3d(F) {
   Xstep = eval(exp(0)*(Xmax-Xmin)/NN);
   Ystep = eval(exp(0)*(Ymax-Ymin)/NN);
 
+  plot3dInitTable();
+
   /* Find the maximun of F */
-  Fmax = ueval(F,Xmin,Ymin);  if (Fmax < 0) Fmax = -Fmax;
+  Fmax = ueval(F,Xmin,Ymin,-1,-1);  if (Fmax < 0) Fmax = -Fmax;
   Fmax_x = Xmin; Fmax_y = Ymin;
   for (X=Xmin; X<Xmax; X += Xstep) {
     for (Y=Ymin; Y<Ymax; Y += Ystep) {
-      Z = ueval(F,X,Y);
+      Z = ueval(F,X,Y,-1,-1);
       if (Z < 0)
         Z = -Z;
       if (Fmax < Z) {
@@ -84,9 +124,9 @@ def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
   extern LevelMax;
   extern Slope;
   extern Fmax;
-  Xslope = (ueval(F,X,Y)-ueval(F,X+Xstep,Y))/Fmax; 
+  Xslope = (ueval(F,X,Y,-1,-1)-ueval(F,X+Xstep,Y,-1,-1))/Fmax; 
   if (Xslope < 0) Xslope = -Xslope;
-  Yslope = (ueval(F,X,Y)-ueval(F,X,Y+Ystep))/Fmax; 
+  Yslope = (ueval(F,X,Y,-1,-1)-ueval(F,X,Y+Ystep,-1,-1))/Fmax; 
   if (Yslope < 0) Yslope = -Yslope;
 
   if ((Xlevel > LevelMax) || (Ylevel > LevelMax) || 
@@ -120,20 +160,48 @@ def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
   }else error("This case must not reached.");
 }
 
-def ueval(F,X,Y) {
+def ueval(F,X,Y,I,J) {
+  extern MZvalues$
+  extern Msize$   
+  extern MXtoI$   
+  extern MYtoJ$   
+  extern MXfromI$
+  extern MYfromJ$
+
+  extern Xmax$
+  extern Xmin$
+  extern Ymax$
+  extern Ymin$
+  /* Table lookup */
+  if ((I >= 0) && (type(MZvalues[I][J]) != 0)) return MZvalues[I][J];
+
+  if (I < 0) {
+    I = pari(round,(X-Xmin)*MXtoI);
+    J = pari(round,(Y-Ymin)*MYtoJ);
+  } 
+  if (type(MZvalues[I][J]) != 0) return MZvalues[I][J];
+
   if (type(F) == 17) { /* quote */
      Z = base_replace(F,[[x,X],[y,Y]]);
      Z = eval_quote(Z);
-     return eval(exp(0)*Z);
   }else{
      Z = subst(F,x,X,y,Y);
-     return eval(exp(0)*Z);
   }
+  Z = eval(exp(0)*Z);
+  MZvalues[I][J] = Z;
+  return Z;
 }
 def outxyz(F,X,Y) {
   extern Tb;
   extern Trans;
-  Z = ueval(F,X,Y);
+  extern Xmin;
+  extern Ymin;
+  extern MXtoI;
+  extern MYtoJ;
+  extern MXfromI;
+  extern MYfromJ;
+
+  Z = ueval(F,X,Y,-1,-1);
 
   /* scaling */
   Z = Z*MTSIZE*0.8/Fmax;
@@ -143,6 +211,10 @@ def outxyz(F,X,Y) {
   /* Truncate Z */
   if (Z > MTSIZE*2) Z = MTSIZE*2;
   if (Z < -MTSIZE*2) Z=-MTSIZE*2;
+
+  /* Adjust numerical errors of X,Y */
+  X = Xmin+pari(round,(X-Xmin)*MXtoI)*MXfromI;
+  Y = Ymin+pari(round,(Y-Ymin)*MYtoJ)*MYfromJ;
 
   /* deval is used to avoid the expression like -8.1234 E-19 by Pari
   */
