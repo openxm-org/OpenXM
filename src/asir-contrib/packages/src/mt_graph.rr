@@ -18,7 +18,7 @@ extern MYtoJ$     /* (Y-Ymin)*MYtoJ --> index J */
 extern MXfromI$
 extern MYfromJ$
 
-LevelMax = 0$  /* -1, no recursion */ 
+LevelMax = -1$  /* -1, no recursion */ 
 Slope = 0.1$
 
 #define MTSIZE 10
@@ -38,12 +38,12 @@ def plot3dInitTable() {
   extern Ymax$
   extern Ymin$
 
-  if (LevalMax >= 0) {
-    Msize = (NN+1)*(2^(LevelMax+1));
-    MM = 2^(LevalMax+1);
+  if (LevelMax >= 0) {
+    Msize = (NN+2)*(2^(LevelMax+1));
+    MM = 2^(LevelMax+1);
   }
   else {
-    Msize = (NN+1);
+    Msize = (NN+2);
     MM = 1;
   }
   MZvalues=newmat(Msize,Msize);
@@ -81,7 +81,7 @@ def plot3d(F) {
 
   NN=getopt(mesh);
   if (type(NN) < 0) {
-    NN=10;
+    NN=20;
   }
   printf("Mesh size is %a x %a. mesh=%a\n",NN,NN,NN);
   
@@ -172,6 +172,7 @@ def ueval(F,X,Y,I,J) {
   extern Xmin$
   extern Ymax$
   extern Ymin$
+
   /* Table lookup */
   if ((I >= 0) && (type(MZvalues[I][J]) != 0)) return MZvalues[I][J];
 
@@ -233,8 +234,6 @@ def outtexcoords(X,Y) {
   N = NN/(Xmax-Xmin)*2;
   X = Trans[0][0]*X+Trans[0][1];
   Y = Trans[1][0]*Y+Trans[1][1];
-  if ((X < 0.01) && (X > -0.01)) X = 0;  
-  if ((Y < 0.01) && (Y > -0.01)) Y = 0;  
 
   S = sprintf(" %a %a ",deval((X-Xmin)/(Xmax-Xmin)/N), deval((Y-Ymin)/(Ymax-Ymin)/N));
   write_to_tb(S,Tb);
@@ -269,7 +268,7 @@ def test1() {
 def test2() {
   /* debug_mesh_init(3,3); */
   shell("rm tmp.txt");
-  plot3d(cos((x^2+y^2)^(1/2))+cos(3*(x^2+y^2)^(1/2)) | domain=[[-3,3],[-3,3]], mesh=12);
+  plot3d(cos((x^2+y^2)^(1/2))+cos(3*(x^2+y^2)^(1/2)) | domain=[[-3,3],[-3,3]], mesh=30);
   shell("./graph tmp.txt &");
 }
 
