@@ -85,6 +85,7 @@ def restriction(Id, VL, DVL, W)
 
 	/* BF の最大整数根 S0 を取り出す */
 	L = fctr(BF);
+	BFF = L;
 	/* L の最初の要素は係数なので捨てる */
 	L = cdr(L);
 	N = length(L);
@@ -103,11 +104,11 @@ def restriction(Id, VL, DVL, W)
 	/* b-function が非負整数根を持たない場合([SST, Cor5.2.7]) */
 	if (S0 == [] || S0 < 0) 
 		return 0;
+	print("generic bfct : " + rtostr(BFF), 1);
 	print("S0 : " + rtostr(S0), 1);
-	for (M = 0; M < length(W); M++) {
+	for (M = 0; M < length(W); M++) 
 		if (W[M] <= 0)
 			break;
-	}
 
 	/* W の正の要素の部分だけとりだしたもの WW */
 	WW = newvect(M);
@@ -323,10 +324,8 @@ def restriction_ideal_internal(L, VL, DVL, W)
 			Exp = Base[J];
 			/* T の dx_1^Exp[0] .. dx_M-1^Exp[M-1] の係数 を求める */
 			C = T;
-			print([C,Exp]);
 			for (K = 0; K < M; K++) {
 				C = coef(C, Exp[K], DVL[K]);	
-				print(C);
 			}
 			V[J] = C;	
 		}
@@ -385,6 +384,280 @@ def test_nd_weyl_gr()
 	
 	/* correct */
 	nd_weyl_gr([[1,x],[x,y]],[x,y,dx,dy],0,[1,0]);
+}
+
+/* 微分作用素 P(x,dx) を Fourier 変換したものを返す */ 
+/* i.e. x_i -> - dx_i, dx_i -> x_i                  */
+def fourier_trans(P, VL, DVL)
+{
+	N = length(VL);
+	VLL = append(VL, DVL);
+	DP = dp_ptod(P, VLL);
+	S = 0;
+	VE = newvect(2 * N);
+	while (DP != 0) {
+		C = dp_hc(DP);
+		V = dp_etov(DP);
+
+		/* x^a -> (-1)^|a| dx^a に変換(dp で) */
+		M = 0;	
+		for (I = 0; I < N; I++) 
+			VE[I] = 0;
+		for (I = 0; I < N; I++) {
+			VE[N + I] = V[I];
+			M += V[I];	
+		}
+		DPD = dp_vtoe(VE);
+		if (M % 2 == 1) 
+			DPD = -DPD;
+
+		/* dx^a -> x^a に変換 */
+		for (I = 0; I < N; I++) 
+			VE[I] = V[N + I];
+		for (I = 0; I < N; I++) 
+			VE[N + I] = 0;
+		DPX = dp_vtoe(VE);
+
+		T = C * dp_weyl_mul(DPD, DPX);
+		S += T;
+		DP = dp_rest(DP);
+	}
+	return dp_dtop(S, VLL);
+}
+
+def test_fourier_trans()
+{
+	print(fourier_trans(x*dx, [x], [dx]));
+	print(fourier_trans(x^2*dx^2, [x], [dx]));
+	print(fourier_trans(x*dx*y+1, [x], [dx]));
+}
+
+/* 微分作用素 P(x,dx) を Fourier 変換したものを返す */ 
+/* i.e. x_i -> dx_i, dx_i -> - x_i                  */
+def inv_fourier_trans(P, VL, DVL)
+{
+	N = length(VL);
+	VLL = append(VL, DVL);
+	DP = dp_ptod(P, VLL);
+	S = 0;
+	VE = newvect(2 * N);
+	while (DP != 0) {
+		C = dp_hc(DP);
+		V = dp_etov(DP);
+
+		/* x^a -> dx^a に変換(dp で) */
+		M = 0;	
+		for (I = 0; I < N; I++) 
+			VE[I] = 0;
+		for (I = 0; I < N; I++) 
+			VE[N + I] = V[I];
+		DPD = dp_vtoe(VE);
+
+		/* dx^a -> (-1)^|a| x^a に変換 */
+		for (I = 0; I < N; I++) {
+			VE[I] = V[N + I];
+			M += V[N + I];	
+		}
+		for (I = 0; I < N; I++) 
+			VE[N + I] = 0;
+		DPX = dp_vtoe(VE);
+		if (M % 2 == 1) 
+			DPX = -DPX;
+
+		T = C * dp_weyl_mul(DPD, DPX);
+		S += T;
+		DP = dp_rest(DP);
+	}
+	return dp_dtop(S, VLL);
+}
+
+def test_inv_fourier_trans()
+{
+	print(inv_fourier_trans(fourier_trans(x^2*dx^2*y+x*dx*dy+y, [x], [dx]),[x],[dx]));
+}
+
+/*
+ * integration module の計算([SST, Alg5.5.4])
+ * Id : ideal
+ * VL : var list (x)
+ * DVL: var list (dx)
+ * W  : weight vector
+ *      VL と長さは同じ
+ *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ */
+def integration(Id, VL, DVL, W)
+{
+	for (M = 0; M < length(W); M++) 
+		if (W[M] <= 0)
+			break;
+	VLM = newvect(M);
+	DVLM = newvect(M);
+	for (I = 0; I < M; I++) {
+		VLM[I]  = VL[I];
+		DVLM[I] = DVL[I];	
+	}
+	VLM = vtol(VLM);
+	DVLM = vtol(DVLM);
+	
+	FId = map(fourier_trans, Id, VLM, DVLM);
+	R = restriction(FId, VL, DVL, W);
+	print("restriction of FId :");
+	print(R); 
+	Generator = map(inv_fourier_trans, R[0], VLM, DVLM);
+	return [Generator, R[1]];
+}
+
+def test_integration()
+{
+	/* [SST, Ex5.5.2, 5.5.6] */
+	/* integration of the annihilating ideal of 1/(t^2-x) w.r.t. t */
+	Id = [2*t*dx+dt, t*dt+2*x*dx+2];
+	print(integration(Id, [t,x],[dt,dx],[1,0]));
+}
+
+def test_integration2()
+{
+	/* [SST, Ex5.6.13] */
+	/* integration of the annihilating ideal of e^(t^3-x*t) w.r.t. t */
+	Id = [dt - (3*t^2-x), dx + t];
+	print(integration(Id, [t,x],[dt,dx],[1,0]));
+}
+
+def test_integration3()
+{
+	/* [SST, Ex5.5.9]     */
+	/* 計算が合わない??   */
+	F = x^3+t1^3+t2^3;
+	Ann = ann(F);
+	Ann0 = map(subst, Ann, s, -2);
+	Int = integration(Ann0, [t1,t2,x],[dt1,dt2,dx],[1,1,0]);
+	return Int;
+}
+
+def test_integration4()
+{
+	/* [SST, Ex5.5.16]     */
+	/* test_integration3 と同じイデアルだが、重みベクトルが異なる */
+	F = x1^3+x2^3+x3^3;
+	Ann = ann(F);
+	Ann0 = map(subst, Ann, s, -2);
+	Int = integration(Ann0, [x1,x2,x3],[dx1,dx2,dx3],[1,2,3]);
+	return Int;
+}
+
+/*
+ * integration ideal の計算 [SST, Alg5.5.4] 
+ * Id : D-ideal
+ * VL : var list (x)
+ * DVL: var list (dx)
+ * W  : weight vector
+ *      VL と長さは同じ
+ *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ */
+def integration_ideal(Id, VL, DVL, W)
+{
+	L = integration(Id, VL, DVL, W);
+	print("integration :");
+	print(L);
+	GG = integration_ideal_internal(L, VL, DVL, W);
+	return GG;
+}
+
+/* L : result of integration */
+def integration_ideal_internal(L, VL, DVL, W)
+{
+	/* 
+	 * integration module の結果をベクトル表示に直す       
+	 * Base と同じ順に x^Base[I] の係数を I 成分に格納   
+	 * restriction の結果の Base は最後の要素が [0,...,0]  
+	 * だからベクトル表示した場合、最後の成分が 1 の係数  
+	 */
+	Gen = L[0];
+	Base = L[1];
+
+	M = 0;
+	for (M = 0; M < length(W); M++)
+		if (W[M] <= 0)
+			break;
+
+	N = length(Base);
+	P = length(Gen);
+	GenV = newvect(P);
+	for (I = 0; I < P; I++) {
+		T = Gen[I];
+		V = newvect(N);
+		for (J = 0; J < N; J++) {
+			Exp = Base[J];
+			/* T の x_1^Exp[0] .. x_M-1^Exp[M-1] の係数 を求める */
+			C = T;
+			for (K = 0; K < M; K++) {
+				C = coef(C, Exp[K], VL[K]);	
+			}
+			V[J] = C;	
+		}
+		GenV[I] = vtol(V);
+	}	
+	print("Generators :");
+	print(GenV);
+	
+	NN = length(VL) - M;
+	VLY = newvect(NN * 2);
+	for (I = 0; I < NN; I++) {
+		VLY[I] = VL[I + M];
+		VLY[I + NN] = DVL[I + M];
+		
+	}
+	VLY = vtol(VLY);
+	GenV = vtol(GenV);
+	/* GenV の要素はリストでないと nd_weyl_gr で internal error */
+	G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
+	print("GB :");
+	print(G);
+
+	/* G の元の中で、最後の成分(i.e. 1 の係数) のみ 0 でないものを取り出す */
+	Len = length(G);
+	GG = [];
+	for (I = 0; I < Len; I++) {
+		T = G[I];
+		for (J = 0; J < N - 1; J++) 
+			if (T[J] != 0) 
+				break;
+		if (J == N - 1 && T[N - 1] != 0) 
+			GG = cons(T[N - 1], GG);		
+	}
+	print("GG :");
+	print(GG);
+
+	return GG;
+}
+
+def test_integration_ideal()
+{
+	/* [SST, Ex5.5.2, 5.5.6] */
+	/* integration of the annihilating ideal of 1/(t^2-x) w.r.t. t */
+	Id = [2*t*dx+dt, t*dt+2*x*dx+2];
+	L = integration(Id, VL=[t,x],DVL=[dt,dx],W=[1,0]);
+	print("integration module :");
+	print(L);
+	R = integration_ideal_internal(L, VL, DVL, W);
+	print("integration ideal :");
+	print(R);
+}
+
+def test_integration_ideal2()
+{
+	/* [SST, Ex5.5.7] */
+	F = (x1+x2*t+x3*t^2+x4*t^3)*t^2;
+	BF = bfct(F);
+	print("BF :");
+	print(BF); 
+	Ann = ann(F);
+	Ann0 = map(subst, Ann, s, -1/5);
+	print("Ann(F^s)|s=(-1/5) :");
+	print(Ann0);
+	print("integration ideal :");
+	Int = integration_ideal(Ann0, [t,x1,x2,x3,x4],[dt,dx1,dx2,dx3,dx4],[1,0,0,0,0]);
+	print(Int);
 }
 
 end$
