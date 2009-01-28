@@ -1,0 +1,229 @@
+/* parametric_plot3d */
+pari(allocatemem,10^8)$
+
+extern Tb$
+extern NN$     /* mesh */
+extern Smin$
+extern Tmin$
+extern Smax$
+extern Tmax$
+
+extern Sxvalues$  /* value table of functions */
+extern Syvalues$  
+extern Szvalues$  
+extern Sevaluated$
+
+extern Pxmin$
+extern Pxmax$
+extern Pymin$
+extern Pymax$
+extern Pzmin$
+extern Pzmax$
+
+#define MTSIZE 10    /* size of graph.c  [-MSIZE,MSIZE] */
+
+def parametric_plot3d_init() {
+  extern NN$     /* mesh */
+
+  extern Sxvalues$  /* value table of functions */
+  extern Syvalues$  
+  extern Szvalues$  
+  extern Sevaluated$
+  Sxvalues=newmat(NN+2,NN+2);
+  Syvalues=newmat(NN+2,NN+2);
+  Szvalues=newmat(NN+2,NN+2);
+  Sevaluated=newmat(NN+2,NN+2);
+}
+
+def parametric_plot3d(F) {
+  extern Tb;
+  extern NN;
+
+  extern Smin$
+  extern Tmin$
+  extern Smax$
+  extern Tmax$
+
+  extern Pxmin$
+  extern Pxmax$
+  extern Pymin$
+  extern Pymax$
+  extern Pzmin$
+  extern Pzmax$
+
+  Tb=string_to_tb("")$
+  D=getopt(domain);
+  if (type(D) <0) {
+    D=[[-MTSIZE,MTSIZE],[-MTSIZE,MTSIZE]];
+  }
+  Smin=D[0][0]; Smax=D[0][1];
+  Tmin=D[1][0]; Tmax=D[1][1];
+  printf("domain=%a: Smin=%a,Smax=%a, Tmin=%a, Tmax=%a\n",D,Smin,Smax,Tmin,Tmax);
+  if ((Smin >= Smax) || (Tmin >=Tmax)) error("Invalid domain.");
+
+  NN=getopt(mesh);
+  if (type(NN) < 0) {
+    NN=20;
+  }
+  printf("Mesh size is %a x %a. mesh=%a\n",NN,NN,NN);
+  
+  Sstep = eval(exp(0)*(Smax-Smin)/NN);
+  Tstep = eval(exp(0)*(Tmax-Tmin)/NN);
+
+  parametric_plot3d_init();
+
+  /* Finding the bounding box */
+  V = u3eval(F,Smin,Tmin);
+  Pxmin = V[0]; Pxmax = V[0];
+  Pymin = V[1]; Pymax = V[1];
+  Pzmin = V[2]; Pzmax = V[2];
+  for (S=Smin; S<Smax; S += Sstep) {
+    for (T=Tmin; T<Tmax; T += Tstep) {
+      V = u3eval(F,S,T);
+      if (V[0] < Pxmin) Pxmin=V[0];
+      if (V[1] < Pymin) Pymin=V[1];
+      if (V[2] < Pzmin) Pzmin=V[2];
+      if (V[0] > Pxmax) Pxmax=V[0];
+      if (V[1] > Pymax) Pymax=V[1];
+      if (V[2] > Pzmax) Pzmax=V[2];
+    }
+  }
+  printf("xmin=%a, xmax=%a\n",Pxmin,Pxmax);
+  printf("ymin=%a, ymax=%a\n",Pymin,Pymax);
+  printf("zmin=%a, zmax=%a\n",Pzmin,Pzmax);
+
+  for (S=Smin; S<Smax; S += Sstep) {
+    for (T=Tmin; T<Tmax; T += Tstep) {
+      p_outxyz(F,S,T,Sstep,Tstep);
+    }
+  }
+  SS=tb_to_string(Tb);
+  output("tmpp.txt")$
+  printf("%a",SS)$
+  output()$
+}
+
+def p_outxyz(F,S,T,Sstep,Tstep) { 
+  extern Tb$
+  extern Smin$
+  extern Tmin$
+  extern Smax$
+  extern Tmax$
+
+  write_to_tb("t ",Tb);      
+  outxyz3(F,S,T); outxyz3(F,S+Sstep,T); outxyz3(F,S,T+Tstep);
+  write_to_tb(" \n",Tb);
+
+  write_to_tb("t ",Tb);      
+  outxyz3(F,S,T+Tstep); outxyz3(F,S+Sstep,T); outxyz3(F,S+Sstep,T+Tstep);
+  write_to_tb(" \n",Tb);
+}
+
+def myeval(Z) {
+  return( eval(exp(0)*Z) ); 
+}
+
+def u3eval(F,S,T) {
+
+  extern NN$     /* mesh */
+  extern Smin$
+  extern Tmin$
+  extern Smax$
+  extern Tmax$
+
+  extern Sxvalues$  /* value table of functions */
+  extern Syvalues$  
+  extern Szvalues$  
+  extern Sevaluated$
+
+  I = pari(round,(S-Smin)*NN/(Smax-Smin));
+  J = pari(round,(T-Tmin)*NN/(Tmax-Tmin));
+
+  if (type(Sevaluated[I][J]) != 0) 
+   return [Sxvalues[I][J],Syvalues[I][J],Szvalues[I][J]];
+
+  if (type(F[0]) == 17) { /* quote */
+     Z = map(base_replace,F,[[s,S],[t,T]]);
+     Z = map(eval_quote, Z);
+  }else{
+     Z = map(subst,F,s,S,t,T);
+  }
+  Z = map(myeval,Z);
+  Sevaluated[I][J] = 1;
+  Sxvalues[I][J] = Z[0]; 
+  Syvalues[I][J] = Z[1]; 
+  Szvalues[I][J] = Z[2]; 
+  return Z;
+}
+def outxyz3(F,S,T) {
+  extern Tb;
+  extern Smin;
+  extern Tmin;
+  extern NN;
+
+  extern Pxmin$
+  extern Pxmax$
+  extern Pymin$
+  extern Pymax$
+  extern Pzmin$
+  extern Pzmax$
+
+  V = u3eval(F,S,T);
+
+  /* scaling */
+  X = (V[0]-Pxmin)*MTSIZE*2/(Pxmax-Pxmin)-MTSIZE;
+  Y = (V[1]-Pymin)*MTSIZE*2/(Pymax-Pymin)-MTSIZE;
+  Z = (V[2]-Pzmin)*MTSIZE*2/(Pzmax-Pzmin)-MTSIZE;
+
+  /* deval is used to avoid the expression like -8.1234 E-19 by Pari
+  */
+  S=sprintf(" %a %a %a ",deval(X),deval(Y),deval(Z));
+  write_to_tb(S,Tb);
+}
+
+
+def test1() {
+  shell("rm tmpp.txt");
+  parametric_plot3d([s,t,s^2+t^2]);
+  shell("./graph tmpp.txt &"); 
+}
+
+/* Sphere */
+def test2() {
+  shell("rm tmpp.txt");
+  parametric_plot3d([sin(s)*cos(t),sin(s)*sin(t),cos(s)] | domain=[[0,3.14],[0,3.14*2]]);
+  shell("./graph tmpp.txt &"); 
+}
+
+/* Mobius ring */
+def test3() {
+  shell("rm tmpp.txt");
+  parametric_plot3d([(2+t*cos(s/2))*cos(s),
+                     (2+t*cos(s/2))*sin(s),
+                     t*sin(s/2)] | domain=[[0,2*3.14],[-1,1]]);
+  shell("./graph tmpp.txt &"); 
+}
+
+/* Torus */
+def test4() {
+  shell("rm tmpp.txt");
+  parametric_plot3d([(2+cos(t))*cos(s),
+                     (2+cos(t))*sin(s),
+                     sin(t)] | domain=[[0,2*3.14],[0,2*3.14]]);
+  shell("./graph tmpp.txt &"); 
+}
+
+/* Klein Bottle,  Wikipedia, Figure 8 immersion*/
+def test5() {
+  shell("rm tmpp.txt");
+  L=    [5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0)-10.0,
+         -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0),
+         5*(-sin(x/2)*cos(y)+cos(x/2)*sin(2*y))];
+  L = map(subst,L,x,s,y,t);
+  parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14,3.14]]);
+  shell("./graph tmpp.txt &"); 
+}
+
+
+
+end$
