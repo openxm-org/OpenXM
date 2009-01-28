@@ -67,6 +67,11 @@ def parametric_plot3d(F) {
   }
   printf("Mesh size is %a x %a. mesh=%a\n",NN,NN,NN);
   
+  Fitting=getopt(fitting);
+  if (type(Fitting) < 0) {
+    Fitting=1;
+  }
+
   Sstep = eval(exp(0)*(Smax-Smin)/NN);
   Tstep = eval(exp(0)*(Tmax-Tmin)/NN);
 
@@ -88,6 +93,19 @@ def parametric_plot3d(F) {
       if (V[2] > Pzmax) Pzmax=V[2];
     }
   }
+
+  if (type(Fitting) == 0) {
+    if (Pymin < Pxmin) Pxmin = Pymin;
+    if (Pzmin < Pxmin) Pxmin = Pzmin; 
+    if (Pymax > Pxmax) Pxmax = Pymax; 
+    if (Pzmax > Pxmax) Pxmax = Pzmax;
+    if (Pxmin < 0) Pxmin = - Pxmin;
+    if (Pxmax < 0) Pxmax = - Pxmax;
+    if (Pxmax < Pxmin) Pxmax = Pxmin;
+    Pxmin = Pymin = Pzmin =  - Pxmax;
+    Pxmax = Pymax = Pzmax =  Pxmax;
+  }
+
   printf("xmin=%a, xmax=%a\n",Pxmin,Pxmax);
   printf("ymin=%a, ymax=%a\n",Pymin,Pymax);
   printf("zmin=%a, zmax=%a\n",Pzmin,Pzmax);
@@ -205,7 +223,8 @@ def test3() {
   shell("rm tmpp.txt");
   parametric_plot3d([(2+t*cos(s/2))*cos(s),
                      (2+t*cos(s/2))*sin(s),
-                     t*sin(s/2)] | domain=[[0,2*3.14],[-1,1]]);
+                     t*sin(s/2)] | domain=[[0,2*3.14],[-1,1]],
+                                   fitting=0);
   shell("./graph tmpp.txt &"); 
 }
 
@@ -214,7 +233,8 @@ def test4() {
   shell("rm tmpp.txt");
   parametric_plot3d([(2+cos(t))*cos(s),
                      (2+cos(t))*sin(s),
-                     sin(t)] | domain=[[0,2*3.14],[0,2*3.14]]);
+                     sin(t)] | domain=[[0,2*3.14],[0,2*3.14]],
+                               fitting=0);
   shell("./graph tmpp.txt &"); 
 }
 
@@ -225,7 +245,7 @@ def test5() {
          -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0),
          5*(-sin(x/2)*cos(y)+cos(x/2)*sin(2*y))];
   L = map(subst,L,x,s,y,t);
-  parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14,3.14]]);
+  parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14,3.14]], fitting=0);
   shell("./graph tmpp.txt &"); 
 }
 
@@ -235,8 +255,8 @@ def test6() {
          sin(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
          (-1)*sin(x/2)*(2^(1/2)+cos(y))+cos(x/2)*sin(y)*cos(y)];
   L = map(subst,L,x,s,y,t);
-  parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14/2,3.14/2]]);
-  shell("./graph tmpp.txt "); 
+  parametric_plot3d(L | domain=[[2*3.14/3,5*3.14/3],[-3.14/2,3.14/2]]);
+  shell("./graph tmpp.txt &"); 
 }
 
 
