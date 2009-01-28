@@ -92,6 +92,11 @@ def parametric_plot3d(F) {
   printf("ymin=%a, ymax=%a\n",Pymin,Pymax);
   printf("zmin=%a, zmax=%a\n",Pzmin,Pzmax);
 
+  /* cf. outxyz3() */
+  Vdollar = (5+MTSIZE)*(Pxmax-Pymin)/(2*MTSIZE) + Pxmin;
+  Vat =     (5+MTSIZE)*(Pzmax-Pzmin)/(2*MTSIZE) + Pzmin;
+  printf("$=%a, @=%a\n",Vdollar,Vat);
+
   for (S=Smin; S<Smax; S += Sstep) {
     for (T=Tmin; T<Tmax; T += Tstep) {
       p_outxyz(F,S,T,Sstep,Tstep);
@@ -224,6 +229,15 @@ def test5() {
   shell("./graph tmpp.txt &"); 
 }
 
+def test6() {
+  shell("rm tmpp.txt");
+  L=    [cos(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
+         sin(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
+         (-1)*sin(x/2)*(2^(1/2)+cos(y))+cos(x/2)*sin(y)*cos(y)];
+  L = map(subst,L,x,s,y,t);
+  parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14/2,3.14/2]]);
+  shell("./graph tmpp.txt "); 
+}
 
 
 end$

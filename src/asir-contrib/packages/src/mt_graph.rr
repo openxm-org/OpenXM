@@ -76,7 +76,7 @@ def plot3d(F) {
   Trans[0][1] = eval(-Xmin*exp(0)*MTSIZE*2/(Xmax-Xmin)-MTSIZE);
   Trans[1][0] = eval(exp(0)*MTSIZE*2/(Ymax-Ymin));
   Trans[1][1] = eval(-Ymin*exp(0)*MTSIZE*2/(Ymax-Ymin)-MTSIZE);
-  print(Trans);
+  /* print(Trans); */
 
   NN=getopt(mesh);
   if (type(NN) < 0) {
@@ -88,6 +88,7 @@ def plot3d(F) {
   Ystep = eval(exp(0)*(Ymax-Ymin)/NN);
 
   plot3dInitTable();
+
 
   /* Find the maximun of F */
   Fmax = ueval(F,Xmin,Ymin,-1,-1);  if (Fmax < 0) Fmax = -Fmax;
@@ -106,6 +107,10 @@ def plot3d(F) {
   }
   if (Fmax == 0.0) Fmax = 0.1;
   printf("Fmax is %a\n",Fmax);
+
+  Vdollar = eval(exp(0)*(5-Trans[0][1])/Trans[0][0]); /* X coordinate */ 
+  Vat = 5*Fmax/(MTSIZE*0.8);  /* Z coordinate.  outxyz() */ 
+  printf("$=%a, @=%a\n",Vdollar,Vat);
 
   for (X=Xmin; X<Xmax; X += Xstep) {
     for (Y=Ymin; Y<Ymax; Y += Ystep) {
