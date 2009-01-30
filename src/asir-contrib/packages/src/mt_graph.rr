@@ -1,29 +1,44 @@
 import("glib3.rr")$
 pari(allocatemem,10^8)$
-extern Tb$
-extern NN$
-extern Fmax$
-extern Xmin$
-extern Ymin$
-extern Xmax$
-extern Ymax$
-extern Trans$
-extern LevelMax$
-extern Slope$
 
-extern MZvalues$  /* value table of functions */
-extern Msize$     /* size of Mvmat */
-extern MXtoI$     /* (X-Xmin)*MXtoI --> index I */
-extern MYtoJ$     /* (Y-Ymin)*MYtoJ --> index J */
-extern MXfromI$
-extern MYfromJ$
+module mtg;
+static Tb$
+static NN$
+static Fmax$
+static Xmin$
+static Ymin$
+static Xmax$
+static Ymax$
+static Trans$
+static LevelMax$
+static Slope$
+
+static MZvalues$  /* value table of functions */
+static Msize$     /* size of Mvmat */
+static MXtoI$     /* (X-Xmin)*MXtoI --> index I */
+static MYtoJ$     /* (Y-Ymin)*MYtoJ --> index J */
+static MXfromI$
+static MYfromJ$
 
 LevelMax = -1$  /* -1, no recursion */ 
 Slope = 0.1$
 
 #define MTSIZE 10
 
+localf  plot3dInitTable;
+localf  plot3d;
+localf  adaptive_outxyz;
+localf  ueval;
+localf  outxyz;
+localf  outtexcoords;
+localf  debug_mesh_init;
+localf  debug_mesh;
+localf  test1;
+localf  test2;
+localf  test3;
+
 def plot3dInitTable() {
+/*
   extern MZvalues$
   extern Msize$   
   extern MXtoI$   
@@ -37,6 +52,7 @@ def plot3dInitTable() {
   extern Xmin$
   extern Ymax$
   extern Ymin$
+*/
 
   if (LevelMax >= 0) {
     Msize = (NN+2)*(2^(LevelMax+1));
@@ -54,11 +70,12 @@ def plot3dInitTable() {
 }
 
 def plot3d(F) {
+/*
   extern Tb;
   extern NN;
   extern Fmax;
   extern Trans;
-
+*/
 
   Tb=string_to_tb("")$
   D=getopt(domain);
@@ -125,9 +142,11 @@ def plot3d(F) {
 }
 
 def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
+/*
   extern LevelMax;
   extern Slope;
   extern Fmax;
+*/
   Xslope = (ueval(F,X,Y,-1,-1)-ueval(F,X+Xstep,Y,-1,-1))/Fmax; 
   if (Xslope < 0) Xslope = -Xslope;
   Yslope = (ueval(F,X,Y,-1,-1)-ueval(F,X,Y+Ystep,-1,-1))/Fmax; 
@@ -165,6 +184,7 @@ def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
 }
 
 def ueval(F,X,Y,I,J) {
+/*
   extern MZvalues$
   extern Msize$   
   extern MXtoI$   
@@ -176,6 +196,7 @@ def ueval(F,X,Y,I,J) {
   extern Xmin$
   extern Ymax$
   extern Ymin$
+*/
 
   /* Table lookup */
   if ((I >= 0) && (type(MZvalues[I][J]) != 0)) return MZvalues[I][J];
@@ -197,6 +218,7 @@ def ueval(F,X,Y,I,J) {
   return Z;
 }
 def outxyz(F,X,Y) {
+/*
   extern Tb;
   extern Trans;
   extern Xmin;
@@ -205,7 +227,7 @@ def outxyz(F,X,Y) {
   extern MYtoJ;
   extern MXfromI;
   extern MYfromJ;
-
+*/
   Z = ueval(F,X,Y,-1,-1);
 
   /* scaling */
@@ -228,6 +250,7 @@ def outxyz(F,X,Y) {
 }
 
 def outtexcoords(X,Y) {
+/*
   extern Tb$
   extern NN$
   extern Trans$
@@ -235,6 +258,7 @@ def outtexcoords(X,Y) {
   extern Ymin$
   extern Xmax$
   extern Ymax$ 
+*/
   N = NN/(Xmax-Xmin)*2;
   X = Trans[0][0]*X+Trans[0][1];
   Y = Trans[1][0]*Y+Trans[1][1];
@@ -281,4 +305,6 @@ def test3() {
   plot3d(quote(sin(x)));
   shell("./graph tmp.txt &");
 }
+endmodule;
+
 end$

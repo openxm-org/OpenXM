@@ -1,34 +1,50 @@
 /* parametric_plot3d */
 pari(allocatemem,10^8)$
 
-extern Tb$
-extern NN$     /* mesh */
-extern Smin$
-extern Tmin$
-extern Smax$
-extern Tmax$
+module mtp;
+static Tb$
+static NN$     /* mesh */
+static Smin$
+static Tmin$
+static Smax$
+static Tmax$
 
-extern Sxvalues$  /* value table of functions */
-extern Syvalues$  
-extern Szvalues$  
-extern Sevaluated$
+static Sxvalues$  /* value table of functions */
+static Syvalues$  
+static Szvalues$  
+static Sevaluated$
 
-extern Pxmin$
-extern Pxmax$
-extern Pymin$
-extern Pymax$
-extern Pzmin$
-extern Pzmax$
+static Pxmin$
+static Pxmax$
+static Pymin$
+static Pymax$
+static Pzmin$
+static Pzmax$
 
 #define MTSIZE 10    /* size of graph.c  [-MSIZE,MSIZE] */
 
-def parametric_plot3d_init() {
-  extern NN$     /* mesh */
+localf parametric_plot3d_init;
+localf parametric_plot3d;
+localf p_outxyz;
+localf myeval;
+localf u3eval;
+localf outxyz3;
+localf test1;
+localf test2;
+localf test3;
+localf test4;
+localf test5;
+localf test6;
 
-  extern Sxvalues$  /* value table of functions */
+def parametric_plot3d_init() {
+/*
+  extern NN$     
+
+  extern Sxvalues$ 
   extern Syvalues$  
   extern Szvalues$  
   extern Sevaluated$
+*/
   Sxvalues=newmat(NN+2,NN+2);
   Syvalues=newmat(NN+2,NN+2);
   Szvalues=newmat(NN+2,NN+2);
@@ -36,6 +52,7 @@ def parametric_plot3d_init() {
 }
 
 def parametric_plot3d(F) {
+/*
   extern Tb;
   extern NN;
 
@@ -50,6 +67,7 @@ def parametric_plot3d(F) {
   extern Pymax$
   extern Pzmin$
   extern Pzmax$
+*/
 
   Tb=string_to_tb("")$
   D=getopt(domain);
@@ -127,12 +145,13 @@ def parametric_plot3d(F) {
 }
 
 def p_outxyz(F,S,T,Sstep,Tstep) { 
+/*
   extern Tb$
   extern Smin$
   extern Tmin$
   extern Smax$
   extern Tmax$
-
+*/
   write_to_tb("t ",Tb);      
   outxyz3(F,S,T); outxyz3(F,S+Sstep,T); outxyz3(F,S,T+Tstep);
   write_to_tb(" \n",Tb);
@@ -147,18 +166,18 @@ def myeval(Z) {
 }
 
 def u3eval(F,S,T) {
-
-  extern NN$     /* mesh */
+/*
+  extern NN$    
   extern Smin$
   extern Tmin$
   extern Smax$
   extern Tmax$
 
-  extern Sxvalues$  /* value table of functions */
+  extern Sxvalues$ 
   extern Syvalues$  
   extern Szvalues$  
   extern Sevaluated$
-
+*/
   I = pari(round,(S-Smin)*NN/(Smax-Smin));
   J = pari(round,(T-Tmin)*NN/(Tmax-Tmin));
 
@@ -179,6 +198,7 @@ def u3eval(F,S,T) {
   return Z;
 }
 def outxyz3(F,S,T) {
+/*
   extern Tb;
   extern Smin;
   extern Tmin;
@@ -190,7 +210,7 @@ def outxyz3(F,S,T) {
   extern Pymax$
   extern Pzmin$
   extern Pzmax$
-
+*/
   V = u3eval(F,S,T);
 
   /* scaling */
@@ -259,5 +279,6 @@ def test6() {
   shell("./graph tmpp.txt &"); 
 }
 
+endmodule;
 
 end$
