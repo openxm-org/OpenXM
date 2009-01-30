@@ -137,9 +137,16 @@ def plot3d(F) {
     }
   }
   S=tb_to_string(Tb);
-  output("tmp.txt")$
+
+  Fname0 = "/tmp/oxm-"+getenv("USER")+"-";
+  Fname = Fname0+rtostr(get_pid())+".txt";
+  shell("rm -f "+Fname);
+  output(Fname)$
   printf("%a",S)$
   output()$
+  shell("oxmgraph "+Fname+" &");
+  return [F,[["xmin",Xmin],["xmax",Xmax],["ymin",Ymin],["ymax",Ymax],
+             ["mesh",NN],["fmax",Fmax]]];
 }
 
 def adaptive_outxyz(F,X,Y,Xstep,Ystep,Xlevel,Ylevel) {
@@ -289,22 +296,16 @@ def debug_mesh(X,Y,Xstep,Ystep) {
 } 
 
 def test1() {
-  shell("rm tmp.txt");
   plot3d((x^2+y^2)/30);
-  shell("./graph tmp.txt &");
 }
 
 def test2() {
   /* debug_mesh_init(3,3); */
-  shell("rm tmp.txt");
   plot3d(cos((x^2+y^2)^(1/2))+cos(3*(x^2+y^2)^(1/2)) | domain=[[-3,3],[-3,3]], mesh=30);
-  shell("./graph tmp.txt &");
 }
 
 def test3() {
-  shell("rm tmp.txt");
   plot3d(quote(sin(x)));
-  shell("./graph tmp.txt &");
 }
 endmodule;
 
@@ -343,6 +344,7 @@ localf test3;
 localf test4;
 localf test5;
 localf test6;
+localf test7;
 
 def parametric_plot3d_init() {
 /*
@@ -447,9 +449,16 @@ def parametric_plot3d(F) {
     }
   }
   SS=tb_to_string(Tb);
-  output("tmpp.txt")$
+  Fname0 = "/tmp/oxm-"+getenv("USER")+"-";
+  Fname = Fname0+rtostr(get_pid())+".txt";
+  shell("rm -f "+Fname);
+  output(Fname)$
   printf("%a",SS)$
   output()$
+  shell("oxmgraph "+Fname+" &");
+  return [F,[["xmin",Pxmin],["xmax",Pxmax],["ymin",Pymin],["ymax",Pymax],
+             ["zmin",Pzmin],["zmax",Pzmax],
+             ["mesh",NN],["dollar",Vdollar],["at",Vat]]];
 }
 
 def p_outxyz(F,S,T,Sstep,Tstep) { 
@@ -534,57 +543,49 @@ def outxyz3(F,S,T) {
 
 
 def test1() {
-  shell("rm tmpp.txt");
   parametric_plot3d([s,t,s^2+t^2]);
-  shell("./graph tmpp.txt &"); 
 }
 
 /* Sphere */
 def test2() {
-  shell("rm tmpp.txt");
   parametric_plot3d([sin(s)*cos(t),sin(s)*sin(t),cos(s)] | domain=[[0,3.14],[0,3.14*2]]);
-  shell("./graph tmpp.txt &"); 
 }
 
 /* Mobius ring */
 def test3() {
-  shell("rm tmpp.txt");
   parametric_plot3d([(2+t*cos(s/2))*cos(s),
                      (2+t*cos(s/2))*sin(s),
                      t*sin(s/2)] | domain=[[0,2*3.14],[-1,1]],
                                    fitting=0);
-  shell("./graph tmpp.txt &"); 
 }
 
 /* Torus */
 def test4() {
-  shell("rm tmpp.txt");
   parametric_plot3d([(2+cos(t))*cos(s),
                      (2+cos(t))*sin(s),
                      sin(t)] | domain=[[0,2*3.14],[0,2*3.14]],
                                fitting=0);
-  shell("./graph tmpp.txt &"); 
 }
 
 /* Klein Bottle,  Wikipedia, Figure 8 immersion*/
 def test5() {
-  shell("rm tmpp.txt");
   L=    [5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0)-10.0,
          -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0),
          5*(-sin(x/2)*cos(y)+cos(x/2)*sin(2*y))];
   L = map(subst,L,x,s,y,t);
   parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14,3.14]], fitting=0);
-  shell("./graph tmpp.txt &"); 
 }
 
 def test6() {
-  shell("rm tmpp.txt");
   L=    [cos(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
          sin(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
          (-1)*sin(x/2)*(2^(1/2)+cos(y))+cos(x/2)*sin(y)*cos(y)];
   L = map(subst,L,x,s,y,t);
   parametric_plot3d(L | domain=[[2*3.14/3,5*3.14/3],[-3.14/2,3.14/2]]);
-  shell("./graph tmpp.txt &"); 
+}
+
+def test7() {
+   parametric_plot3d([s,s^2+t/10, s^3+t/10]);
 }
 
 endmodule;
