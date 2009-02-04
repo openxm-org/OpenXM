@@ -1,5 +1,9 @@
 load("bfct");
 
+/*
+#define DEBUG_RESTRICTION
+*/
+
 /* source from lib/bfct generic_bfct */
 /* generic b-fucntion に加えて F の <_(-W,W) についての GB を返す */ 
 /* F : ideal, V : var list(x), DV : var list(dx), W : weight vect */
@@ -79,10 +83,14 @@ def generic_bfct_and_gr(F,V,DV,W)
  */
 def restriction(Id, VL, DVL, W)
 {
+tstart();
 	Result = generic_bfct_and_gr(Id, VL, DVL, W);
+print("-- generic_bfct_and_gr :",2);
+tstop();
 	BF = Result[0];
 	GB = Result[1];
 
+tstart();
 	/* BF の最大整数根 S0 を取り出す */
 	L = fctr(BF);
 	BFF = L;
@@ -148,6 +156,8 @@ def restriction(Id, VL, DVL, W)
 			B = cdr(B);
 		}
 	}
+print("-- fctr(BF) + base :", 2);
+tstop();
 	return [Generator, Base];
 }
 
@@ -291,9 +301,14 @@ def test_restriction3()
 def restriction_ideal(Id, VL, DVL, W)
 {
 	L = restriction(Id, VL, DVL, W);
+#ifdef DEBUG_RESTRICTION
 	print("restriction :");
 	print(L);
+#endif
+tstart();
 	GG = restriction_ideal_internal(L, VL, DVL, W);
+print("-- restriction_ideal_internal :", 2);
+tstop();
 	return GG;
 }
 
@@ -331,8 +346,10 @@ def restriction_ideal_internal(L, VL, DVL, W)
 		}
 		GenV[I] = vtol(V);
 	}	
+#ifdef DEBUG_RESTRICTION
 	print("Generators :");
 	print(GenV);
+#endif
 	
 	NN = length(VL) - M;
 	VLY = newvect(NN * 2);
@@ -345,8 +362,10 @@ def restriction_ideal_internal(L, VL, DVL, W)
 	GenV = vtol(GenV);
 	/* GenV の要素はリストでないと nd_weyl_gr で internal error */
 	G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
+#ifdef DEBUG_RESTRICTION
 	print("GB :");
 	print(G);
+#endif
 
 	/* G の元の中で、最後の成分(i.e. 1 の係数) のみ 0 でないものを取り出す */
 	Len = length(G);
@@ -359,8 +378,10 @@ def restriction_ideal_internal(L, VL, DVL, W)
 		if (J == N - 1 && T[N - 1] != 0) 
 			GG = cons(T[N - 1], GG);		
 	}
+#ifdef DEBUG_RESTRICTION
 	print("GG :");
 	print(GG);
+#endif
 
 	return GG;
 }
@@ -501,8 +522,10 @@ def integration(Id, VL, DVL, W)
 	
 	FId = map(fourier_trans, Id, VLM, DVLM);
 	R = restriction(FId, VL, DVL, W);
+#ifdef DEBUG_RESTRICTION
 	print("restriction of FId :");
 	print(R); 
+#endif
 	Generator = map(inv_fourier_trans, R[0], VLM, DVLM);
 	return [Generator, R[1]];
 }
@@ -512,7 +535,7 @@ def test_integration()
 	/* [SST, Ex5.5.2, 5.5.6] */
 	/* integration of the annihilating ideal of 1/(t^2-x) w.r.t. t */
 	Id = [2*t*dx+dt, t*dt+2*x*dx+2];
-	print(integration(Id, [t,x],[dt,dx],[1,0]));
+	return integration(Id, [t,x],[dt,dx],[1,0]);
 }
 
 def test_integration2()
@@ -520,7 +543,7 @@ def test_integration2()
 	/* [SST, Ex5.6.13] */
 	/* integration of the annihilating ideal of e^(t^3-x*t) w.r.t. t */
 	Id = [dt - (3*t^2-x), dx + t];
-	print(integration(Id, [t,x],[dt,dx],[1,0]));
+	return integration(Id, [t,x],[dt,dx],[1,0]);
 }
 
 def test_integration3()
@@ -545,6 +568,17 @@ def test_integration4()
 	return Int;
 }
 
+def test_integration5()
+{
+	/* [SST, Ex5.6.4] */
+	G = x1*t1^2*t2+x2*t1^2*t2^2+x3*t1*t2^2+x4+x5*t1*t2;
+	Ann = ann(G);
+	/* G の bfct は s + 1 */
+	Ann0 = map(subst, Ann, s, -1);	
+	Int = integration(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]);
+	return Int;
+}	
+
 /*
  * integration ideal の計算 [SST, Alg5.5.4] 
  * Id : D-ideal
@@ -557,9 +591,14 @@ def test_integration4()
 def integration_ideal(Id, VL, DVL, W)
 {
 	L = integration(Id, VL, DVL, W);
+#ifdef DEBUG_RESTRICTION
 	print("integration :");
 	print(L);
+#endif
+tstart();
 	GG = integration_ideal_internal(L, VL, DVL, W);
+print("-- integration_ideal_internal :", 2);
+tstop();
 	return GG;
 }
 
@@ -597,8 +636,10 @@ def integration_ideal_internal(L, VL, DVL, W)
 		}
 		GenV[I] = vtol(V);
 	}	
+#ifdef DEBUG_RESTRICTION
 	print("Generators :");
 	print(GenV);
+#endif
 	
 	NN = length(VL) - M;
 	VLY = newvect(NN * 2);
@@ -611,8 +652,10 @@ def integration_ideal_internal(L, VL, DVL, W)
 	GenV = vtol(GenV);
 	/* GenV の要素はリストでないと nd_weyl_gr で internal error */
 	G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
+#ifdef DEBUG_RESTRICTION
 	print("GB :");
 	print(G);
+#endif
 
 	/* G の元の中で、最後の成分(i.e. 1 の係数) のみ 0 でないものを取り出す */
 	Len = length(G);
@@ -625,10 +668,73 @@ def integration_ideal_internal(L, VL, DVL, W)
 		if (J == N - 1 && T[N - 1] != 0) 
 			GG = cons(T[N - 1], GG);		
 	}
+#ifdef DEBUG_RESTRICTION
 	print("GG :");
 	print(GG);
+#endif
 
 	return GG;
+}
+
+/* nd_weyl_gr を実行せず、加群の生成元を返す */
+/* 計算は完了していない                      */
+def integration_ideal_(Id, VL, DVL, W)
+{
+	L = integration(Id, VL, DVL, W);
+	LL = integration_ideal_internal_(L, VL, DVL, W);
+	return LL;
+}
+
+/* nd_weyl_gr を実行せず、加群の生成元を返す */
+def integration_ideal_internal_(L, VL, DVL, W)
+{
+	/* 
+	 * integration module の結果をベクトル表示に直す       
+	 * Base と同じ順に x^Base[I] の係数を I 成分に格納   
+	 * restriction の結果の Base は最後の要素が [0,...,0]  
+	 * だからベクトル表示した場合、最後の成分が 1 の係数  
+	 */
+	Gen = L[0];
+	Base = L[1];
+
+	M = 0;
+	for (M = 0; M < length(W); M++)
+		if (W[M] <= 0)
+			break;
+
+	N = length(Base);
+	P = length(Gen);
+	GenV = newvect(P);
+	for (I = 0; I < P; I++) {
+		T = Gen[I];
+		V = newvect(N);
+		for (J = 0; J < N; J++) {
+			Exp = Base[J];
+			/* T の x_1^Exp[0] .. x_M-1^Exp[M-1] の係数 を求める */
+			C = T;
+			for (K = 0; K < M; K++) {
+				C = coef(C, Exp[K], VL[K]);	
+			}
+			V[J] = C;	
+		}
+		GenV[I] = vtol(V);
+	}	
+#ifdef DEBUG_RESTRICTION
+	print("Generators :");
+	print(GenV);
+#endif
+	
+	NN = length(VL) - M;
+	VLY = newvect(NN * 2);
+	for (I = 0; I < NN; I++) {
+		VLY[I] = VL[I + M];
+		VLY[I + NN] = DVL[I + M];
+		
+	}
+	VLY = vtol(VLY);
+	GenV = vtol(GenV);
+
+	return [GenV, VLY];
 }
 
 def test_integration_ideal()
@@ -658,6 +764,222 @@ def test_integration_ideal2()
 	print("integration ideal :");
 	Int = integration_ideal(Ann0, [t,x1,x2,x3,x4],[dt,dx1,dx2,dx3,dx4],[1,0,0,0,0]);
 	print(Int);
+}
+
+def test_integration_ideal5()
+{
+	/* [SST, Ex5.6.4] */
+	G = x1*t1^2*t2+x2*t1^2*t2^2+x3*t1*t2^2+x4+x5*t1*t2;
+	Ann = ann(G);
+	/* G の bfct は s + 1 */
+	Ann0 = map(subst, Ann, s, -1);	
+	/* 計算終わらず */
+	Int = integration_ideal(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]);
+	return Int;
+}
+
+def test_integration_ideal5_()
+{
+	/* [SST, Ex5.6.4] */
+	G = x1*t1^2*t2+x2*t1^2*t2^2+x3*t1*t2^2+x4+x5*t1*t2;
+	Ann = ann(G);
+	/* G の bfct は s + 1 */
+	Ann0 = map(subst, Ann, s, -1);	
+	Int = integration_ideal_(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]);
+	return Int;
+}
+
+/*----------------------------------------------------------------- */
+/*-------------- test data for integration ideal ------------------ */
+/*----------------------------------------------------------------- */
+
+/*
+#define DEBUG_FANO
+*/
+
+def fano2(I)
+{
+	Fano2 = [
+		[[-1,0],[0,1],[1,-1]],
+		[[-1,0],[0,-1],[0,1],[1,0]],
+		[[-1,0],[-1,1],[0,1],[1,-1]],
+		[[-1,0],[-1,1],[0,-1],[0,1],[1,-1]],
+		[[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0]]];
+	return Fano2[I];
+}
+
+def fano3(I)
+{
+	Fano3 = [
+		[[-1,0,0],[0,0,1],[0,1,0],[1,-1,1]],
+		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1]],
+		[[-1,0,0],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1]],
+		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1]],
+		[[-1,0,0],[-1,0,1],[0,0,1],[0,1,0],[1,-1,-1]],
+		[[-1,0,0],[0,-1,1],[0,0,-1],[0,0,1],[0,1,-1],[1,0,0]],
+		[[-1,0,0],[-1,1,0],[-1,1,1],[0,0,1],[0,1,1],[1,-1,-1]],
+		[[-1,0,0],[0,-1,1],[0,0,-1],[0,0,1],[0,1,0],[1,0,-1]],
+		[[-1,0,0],[-1,1,1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1]],
+		[[-1,0,0],[-1,0,-1],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1]],
+		[[-1,0,0],[-1,0,-1],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1]],
+		[[-1,0,0],[-1,1,1],[0,-1,-1],[0,0,1],[0,1,0],[1,-1,-1]],
+		[[-1,0,0],[-1,1,1],[0,-1,-1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1]],
+		[[-1,0,0],[-1,1,0],[-1,1,1],[0,-1,-1],[0,0,1],[0,1,1],[1,-1,-1]],
+		[[-1,0,0],[-1,0,1],[0,-1,1],[0,0,-1],[0,0,1],[0,1,0],[1,0,-1]],
+		[[-1,0,0],[-1,0,1],[-1,1,1],[0,-1,0],[0,0,1],[0,1,0],[1,-1,-1]],
+		[[-1,0,0],[-1,1,1],[1,-1,-1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[1,0,0]],
+		[[-1,0,0],[-1,0,1],[-1,1,1],[0,-1,0],[0,0,1],[0,1,0],[1,-1,-1],[1,0,-1]]];
+	return Fano3[I];
+}
+
+/* L : 点データのリスト ex. fano2, fano3 の返り値 */
+def p_to_mat(L)
+{
+	N = length(L);
+	M = length(L[0]);
+	A = newmat(M + 1, N);
+	for (J = 0; J < N; J++)
+		A[0][J] = 1;
+	for (J = 0; J < N; J++) 
+		for (I = 0; I < M; I++) 
+			A[I + 1][J] = L[J][I];
+	return A;
+}
+
+def test_p_to_mat()
+{
+	L = fano2(0);
+	print(L);
+	print(p_to_mat(L));
+
+	L = fano3(10);
+	print(L);
+	print(p_to_mat(L));
+}
+
+/* fano polytope に付随する GKZ 系の行列 A を返す                 */
+/* D : dimension (2 or 3), I : data index (0--4(D=2), 0--17(D=3)) */
+def fano_polytope_a(D, I)
+{
+	if (D == 2) {
+		L = fano2(I);
+	} else if (D == 3) {
+		L = fano3(I);
+	} else {
+		print("D is 2 or 3");
+		return;
+	}
+	return p_to_mat(L);
+}
+
+def test_fano_polytope_a()
+{
+	print(fano_polytope_a(2, 0));
+	print(fano_polytope_a(3, 11));
+}
+
+def fano_polytope(D, I)
+{
+	A = fano_polytope_a(D, I);
+	P = a_to_poly(A);
+	return append([A], P);
+}
+
+/* 
+ * 行列 A から多項式を生成               
+ * p_to_mat(fano*(I)) が A 
+ * ex. A = [[1,1,1],[-1,0,1],[0,1,-1]]
+ *     F = x1*t1^-1 + x2*t2 + x3*t1*t2^-1 
+ *     t1*t2*F = x1*t2  x2*t1*t2^2 + x3*t1^2 <-- これを返す
+ */ 
+def a_to_poly(A)
+{
+	M = size(A)[0];
+	N = size(A)[1];
+	XV = var_list("x", 1, N);
+	TV = var_list("t", 1, M-1);	
+	S = 0;
+	V = newvect(M - 1);
+	for (J = 0; J < N; J++) {
+		for (I = 0; I < M - 1; I++) {
+			V[I] = A[I + 1][J];
+			V[I]++;
+		}
+		DPE = dp_vtoe(V);	
+		E = dp_dtop(DPE, TV);
+		S += E * XV[J];
+	}
+	VL = append(TV, XV);
+	DXV = map(d_var, XV);
+	DTV = map(d_var, TV);
+	DVL = append(DTV, DXV);
+	return [S, VL, DVL];
+}
+
+def test_a_to_poly()
+{
+	A = newmat(3,3,[[1,1,1],[-1,0,1],[0,1,-1]]);
+	print(A);
+	print(a_to_poly(A));
+	
+	A = p_to_mat(fano3(10));
+	print(A);
+	print(a_to_poly(A));
+}
+
+def var_list(Str, From, To)
+{
+	L = [];
+	for (I = From; I <= To; I++) 
+		L = cons(strtov(Str + rtostr(I)), L);
+	return reverse(L);
+}
+
+def test_var_list()
+{
+	print(var_list("a", 1, 11));
+	print(var_list("tt", 0, 5));
+}
+
+/* 不定元 Var に "d" を追加した不定元を生成 */
+def d_var(Var)
+{
+	return strtov("d" + rtostr(Var));
+}
+
+def int_fano(D, I)
+{
+	L = fano_polytope(D, I);
+	F = L[1];
+	VL = L[2];
+	DVL = L[3];
+	
+	W = newvect(length(VL));
+	for (I = 0; I < D; I++)
+		W[I] = 1;
+	W = vtol(W);
+
+	print("F :");
+	print(F);
+tstart();
+	Id = ann(F);
+print("-- ann :", 2);
+tstop();
+
+#ifdef DEBUG_FANO
+	/* b　関数の計算が重たいので skip */
+tstart();
+	BF = bfunction(F);
+print("-- bfunction :", 2);
+tstop();
+	print("bfct : ");
+	print(fctr(BF));
+#endif
+	Id0 = map(subst, Id, s, -1);
+	print("Ann F^(-1) : ");
+	print(Id0);
+	J = integration_ideal(Id0, VL, DVL, W);
+	return J;
 }
 
 end$
