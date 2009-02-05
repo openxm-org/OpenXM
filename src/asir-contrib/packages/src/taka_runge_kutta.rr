@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.5 2003/09/11 06:26:25 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.6 2003/09/11 12:32:52 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -291,4 +291,80 @@ def taka_runge_kutta_complex_gt(A,B) {
 }
 
 Loaded_taka_runge_kutta=1$
+
+/* cf. misc-2003/09/neval/ellip.*  */
+/* runge_kutta_4 is still buggy for complex numbers */
+
+import("taka_plot.rr")$
+pari(allocatemem,10^7)$
+module rktest;
+localf re$
+localf re2$
+localf im$
+localf im2$
+localf tryA$
+localf tryA2$
+localf geq$
+localf test1$
+
+def re(L) {
+  return map(re2,L);
+}
+def re2(P) {
+  return map(number_real_part,P);
+}
+def im(L) {
+  return map(im2,L);
+}
+def im2(P) {
+  return map(number_imaginary_part,P);
+}
+
+def geq() {
+  L=x*(1-x)*dx^2-(c-(a+b+1)*x)*dx-a*b;
+  L=base_replace(L,[[a,1/2],[b,1/2],[c,1]]);
+
+  L2 = -(-(c-(a+b+1)*x)*y2-a*b)/(x*(1-x));
+  L2=base_replace(L2,[[a,1/2],[b,1/2],[c,1]]);
+  return [ y2, L2];
+}
+def tryA() {
+  LL = geq();
+  A = taka_runge_kutta_4_adaptive(
+       LL,
+       x,[y1,y2],
+       0.5+0.5*@i,[-6.78383-1.28991*@i, -1.51159-1.7935*@i],
+       (3-@i)*0.0005, 2.0);
+  taka_plot_auto(re(A));
+  return A;
+}
+def tryA2() {
+  LL = geq();
+  A = taka_runge_kutta_4(
+       LL,
+       x,[y1,y2],
+       0.5+0.5*@i,[-6.78383-1.28991*@i, -1.51159-1.7935*@i],
+       (3-@i)*0.0005, 1.0);
+  taka_plot_auto(re(A));
+  return A;
+}
+
+def test1() {
+  A=tryA2();
+  B=A[100];
+  print(B);
+/* cf. misc-2009/A2/misc/ellip2.m
+  p2 = 0.5+0.5*I --> [-6.78383-1.28991*@i, -1.51159-1.7935*@i].
+  p2 = 0.8495+0.3825*I;
+Print["-------------------"];
+Print[p2];
+Print[N[-2*Gamma[1/2]^2*Hypergeometric2F1[1/2,1/2,1,z] /. {z->p2}]]
+Print[N[D[-2*Gamma[1/2]^2*Hypergeometric2F1[1/2,1/2,1,z],z] /. {z->p2}]]
+*/
+ print("math:  [0.8495+0.3825*I,  -7.64494 - 2.07874*I, -1.17087 - 4.1558*I] ");
+ print("Buggy tryA2() and tryA().");
+}
+
+endmodule;
+
 end$
