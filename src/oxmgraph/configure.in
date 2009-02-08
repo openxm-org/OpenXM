@@ -1,0 +1,28 @@
+dnl  If you change this file, do not forget to run autoconf and rm .configure_done
+
+
+AC_INIT(graph.c)
+AC_PROG_CC
+AC_PROG_RANLIB
+
+AC_CHECK_HEADER(GL/glut.h,AC_SUBST(MYTARGET,["oxmgraph"]),AC_SUBST(MYTARGET,[""]))
+AC_CHECK_HEADER(GL/glut.h,AC_SUBST(MYTARGET2,["install2"]),AC_SUBST(MYTARGET2,[""]))
+
+
+AC_CANONICAL_SYSTEM
+case $target_os in
+darwin*)
+  AC_SUBST(CFLAG2,["-DMAC_OS_X"])
+  AC_SUBST(LFLAG2,["-framework GLUT -framework OpenGL"])
+  AC_SUBST(MYTARGET,["oxmgraph"])
+  AC_SUBST(MYTARGET2,["install2"])
+;;
+*)
+  AC_SUBST(CFLAG2,[""])
+  AC_SUBST(LFLAG2,["-lglut"])
+;;
+esac
+
+
+
+AC_OUTPUT(Makefile)

@@ -1,0 +1,30 @@
+OpenXM_HOME = @prefix@
+CFLAGS = @CFLAGS@
+CFLAG2 = @CFLAG2@
+LFLAG2 = @LFLAG2@
+MYTARGET = @MYTARGET@
+MYTARGET2 = @MYTARGET2@
+CC = @CC@
+all: ${MYTARGET}
+
+${MYTARGET}: graph.c
+	${CC} ${CFLAGS} ${CFLAG2} graph.c ${LFLAG2} -o ${MYTARGET}
+
+install: ${MYTARGET2}
+install2: ${MYTARGET}
+	install  ${MYTARGET} ${OpenXM_HOME}/bin
+
+install-for-debug:
+	ln -s `pwd`/graph  ${OpenXM_HOME}/bin/oxmgraph
+
+clean:
+	rm -rf ${MYTARGET} *.o *~ config.log config.status
+dist-clean: clean
+	rm -f Makefile
+
+# for cvs in OpenXM
+copy-to-ox:
+	cp mt_graph.rr ${HOME}/OX4/OpenXM/src/asir-contrib/packages/src
+	@echo "-------------------------------------"
+	@echo "commit mt_graph.rr under ~/OX4/OpenXM"
+	@echo "-------------------------------------"
