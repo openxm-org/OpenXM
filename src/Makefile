@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.153 2007/03/18 04:52:38 noro Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.154 2008/08/08 05:41:26 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -9,7 +9,8 @@ RCDIR=../rc
 COPYRIGHTDIR=../Copyright
 
 all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
-     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd
+     all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
+	all-oxmgraph
 
 all-gc: install-util 
 	(cd gc; ${MAKE} all)
@@ -83,12 +84,15 @@ all-util: configure-util
 
 all-oxcdd: install-oxtoolkit
 	-(cd ox_cdd; ${MAKE} all)
+all-oxmgraph: configure-oxmgraph
+	-(cd oxmgraph; ${MAKE} all)
 
 install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
-	 install-misc install-fep install-phcpack install-oxcdd
+	 install-misc install-fep install-phcpack install-oxcdd \
+     install-oxmgraph
 
 install-oxtags:
 	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
@@ -182,17 +186,21 @@ install-asir-port:
 install-oxcdd: all-oxcdd
 	-(cd ox_cdd; ${MAKE} install)
 
+install-oxmgraph: all-oxmgraph
+	-(cd oxmgraph; ${MAKE} install)
+
 clean:
 	-rm ./.configure-links-done
 	-@for i in OpenMath asir-contrib asir-doc asir2000 gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc phcpack tigers \
+               oxmgraph \
 	           util ${OpenXM_contrib2}/fep ; do \
 		(cd $$i; ${MAKE} clean); \
 	done
 
 distclean: clean
 	-@for i in OpenMath asir2000 gc gmp gnuplot kan96xx kxx ox_math \
-	           ox_toolkit oxc pari phc phcpack tigers ; do \
+	           ox_toolkit oxc pari phc phcpack tigers oxmgraph ; do \
 		(cd $$i; ${MAKE} distclean); \
 	done
 	-(cd ${BINDIR} && rm -f  d0 k0 ox ox_sm1 oxlog oxweave sm1)
@@ -201,7 +209,8 @@ distclean: clean
 configure: configure-util configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
-	   configure-pari configure-gmp configure-asir-doc configure-asir-contrib
+	   configure-pari configure-gmp configure-asir-doc configure-asir-contrib \
+       configure-oxmgraph
 
 configure-util:
 	(cd util; ./make-configure)
@@ -246,6 +255,9 @@ configure-oxmath:
 
 configure-pari: install-util
 	(cd pari; ${MAKE} configure)
+
+configure-oxmgraph: 
+	-(cd oxmgraph; ./make-configure)
 
 clean-rc:
 	(cd $(RCDIR); ${MAKE} clean)

@@ -19,12 +19,6 @@ install-for-debug:
 
 clean:
 	rm -rf ${MYTARGET} *.o *~ config.log config.status
-dist-clean: clean
+distclean: clean
 	rm -f Makefile
 
-# for cvs in OpenXM
-copy-to-ox:
-	cp mt_graph.rr ${HOME}/OX4/OpenXM/src/asir-contrib/packages/src
-	@echo "-------------------------------------"
-	@echo "commit mt_graph.rr under ~/OX4/OpenXM"
-	@echo "-------------------------------------"
