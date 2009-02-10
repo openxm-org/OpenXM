@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.7 2009/02/05 08:36:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.8 2009/02/05 08:43:59 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -69,6 +69,7 @@ def taka_runge_kutta_replace(V,F,Y,N,X,Xk,Rule_vector) {
     for (J=0; J<N; J++) {
       V[I] = subst(V[I],Y[J],Rule_vector[J]);    
     }
+    V[I] = eval(V[I]*exp(0));
   }
 }
 
