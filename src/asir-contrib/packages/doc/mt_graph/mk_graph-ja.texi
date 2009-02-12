@@ -1,0 +1,226 @@
+\input texinfo
+@comment $OpenXM$
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-f_res
+
+@comment --- タイトル ---
+@settitle Risa/Asir mt_graph パッケージ @code{mt_graph}
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title Risa/Asir @code{mt_graph} 説明書
+@subtitle 利用説明書
+@subtitle 1.0 版
+@subtitle 2009.02.12
+
+@author  by OpenXM.org
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} OpenXM.org
+All rights reserved.  (GFL)
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@menu
+* 関数マニュアル::
+* Index::
+@end menu
+
+@node 関数マニュアル,,, Top
+@chapter 関数マニュアル
+
+@menu
+* 概要::
+* Notation::
+* 主な関数::
+@end menu
+
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node 概要,,, 関数マニュアル
+@section 概要
+
+@code{mt_graph.rr} に含まれる パッケージ @code{mtg}, @code{mtp} は
+@code{oxmgraph} を利用してグラフの三次元表示をおこなう関数の集合体.
+
+
+
+@node Notation,,,関数マニュアル
+@section Notation
+
+@node 主な関数,,, 関数マニュアル
+@section 主な関数
+
+@menu
+* mtg.plot3d::
+* mtp.parametric_plot3d::
+@end menu
+
+@node intersect,,, 主な関数
+
+@node mtg.plot3d,,, 主な関数
+@subsection @code{mtg.plot3d}
+@findex mtg.plot3d
+
+@table @t
+@item mtg.plot3d(@var{formula})
+:: @var{formula} のグラフを描画する.
+@item mtg.plot3d(@var{formula} | @var{options})
+:: @var{formula} のグラフを描画する. @var{options} で描画範囲なのを指定する.
+@end table
+
+@table @var
+@item return
+ リスト
+@item formula
+式 または quote 型データ.  @code{x}, @code{y} の関数.
+@item オプション
+@table @t
+ @item domain
+ リスト.  [[xmin,xmax],[ymin,ymax]] 
+ @item mesh
+ 自然数. メッシュの分割数.
+@end table
+@end table
+
+@itemize @bullet
+@item 左ボタンをおしたままドラッグすると回転できる.
+@item グラフが表示されたら右クリックすることで表示形式を変更するためのメニューが表示される.
+@item short cut の M が便利 (拡大).
+@item Box に自動的にグラフを配置するので, 座標軸の原点が 0 とは限らない.
+at マークと, dollar マークの座標は戻値の中に書かれている.
+@item 特異点の回避は自動ではない. よって特異点を含むグラフは不正確な可能性が高い.
+@end itemize
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtg.test2();
+@end example
+
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtg.plot3d(x^2-y^2);
+@end example
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtg.plot3d(x^2-y^2 | domain=[[-1,1],[1,1]]);
+@end example
+
+@example
+[1210] import("mt_graph.rr");
+[1211] def myfunc(X,Y) { if (X*Y < 0) return 0; else 1;}
+[1212] mtg.plot3d(quote(myfunc(x,y)*x*y));
+@end example
+
+
+
+
+@node mtp.parametric_plot3d,,, 主な関数
+@subsection @code{mtp.parametric_plot3d}
+@findex mtp.parametric_plot3d
+
+@table @t
+@item mtp.parametric_plot3d(@var{formula})
+:: @var{formula} のグラフを描画する.
+@item mtp.parametric_plot3d(@var{formula} | @var{options})
+:: @var{formula} のグラフを描画する. @var{options} で描画範囲なのを指定する.
+@end table
+
+@table @var
+@item return
+ リスト
+@item formula
+式 または quote 型データのリスト.  @code{s}, @code{t} の関数.
+@item オプション
+@table @t
+ @item domain
+ リスト.  [[xmin,xmax],[ymin,ymax]] 
+ @item mesh
+ 自然数. メッシュの分割数.
+ @item fitting
+ 値を 0 とすることで, z 方向の縮尺の自動調整をしない.
+@end table
+@end table
+
+@itemize @bullet
+@item 左ボタンをおしたままドラッグすると回転できる.
+@item グラフが表示されたら右クリックすることで表示形式を変更するためのメニューが表示される.
+@item short cut の M が便利 (拡大).
+@item Box に自動的にグラフを配置するので, 座標軸の原点が 0 とは限らない.
+at マークと, dollar マークの座標は戻値の中に書かれている.
+@item 特異点の回避は自動ではない. よって特異点を含むグラフは不正確な可能性が高い.
+@end itemize
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtp.test5();   /*  Klein bottle (8 figure) */
+@end example
+
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtp.parametric_plot3d([s,t,s^2-t^2]);
+@end example
+
+
+@example
+[1210] import("mt_graph.rr");
+[1211] def myfunc(X,Y) { if (X*Y < 0) return 0; else 1;}
+[1212] mtp.parametric_plot3d([s,t,quote(myfunc(s,t)*s*t) | fitting=0);
+@end example
+
+
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+

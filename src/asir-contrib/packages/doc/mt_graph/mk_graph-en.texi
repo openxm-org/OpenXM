@@ -1,0 +1,169 @@
+\input texinfo
+@def@colon{:}
+
+@iftex
+@catcode`@#=6
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@setfilename asir-contrib-mk_graph
+@settitle mk_graph Manual
+@titlepage
+@title mk_graph Manual
+@subtitle Edition : 2009.02.12
+@author OpenXM.org
+@end titlepage
+
+@synindex vr fn
+@node Top,, (dir), (dir)
+
+@menu
+* Function Manual::
+* Index::
+@end menu
+
+@node Function Manual,,, Top
+@chapter Function Manual
+
+@menu
+* Outline::
+* Notation::
+* Functions::
+@end menu
+
+@node Outline,,, Function Manual
+@section Outline
+
+
+
+@node Notation,,,Function Manual
+@section Notation
+
+@node Functions,,, Function Manual
+@section Functions
+
+@menu
+* mtg.plot3d::
+* mtp.parametric_plot3d::
+@end menu
+
+@node intersect,,, Functions
+
+@node mtg.plot3d,,, Functions
+@subsection @code{mtg.plot3d}
+@findex mtg.plot3d
+
+@table @t
+@item mtg.plot3d(@var{formula})
+:: Draw a graph of @var{formula} 
+@item mtg.plot3d(@var{formula} | @var{options})
+:: Draw a graph of @var{formula}. Optional arguments are described below.
+@end table
+
+@table @var
+@item return
+ List
+@item formula
+Expression or quote data. It should be a function in @code{x}, @code{y}.
+@item optinal arguments
+@table @t
+ @item domain
+ List.  [[xmin,xmax],[ymin,ymax]] 
+ @item mesh
+ Natural number. Division number to mesh the region. 
+@end table
+@end table
+
+@itemize @bullet
+@item  Details have not been written. See examples.
+@end itemize
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtg.test2();
+@end example
+
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtg.plot3d(x^2-y^2);
+@end example
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtg.plot3d(x^2-y^2 | domain=[[-1,1],[1,1]]);
+@end example
+
+@example
+[1210] import("mt_graph.rr");
+[1211] def myfunc(X,Y) { if (X*Y < 0) return 0; else 1;}
+[1212] mtg.plot3d(quote(myfunc(x,y)*x*y));
+@end example
+
+
+
+
+@node mtp.parametric_plot3d,,, Functions
+@subsection @code{mtp.parametric_plot3d}
+@findex mtp.parametric_plot3d
+
+@table @t
+@item mtp.parametric_plot3d(@var{formula})
+:: Draw a graph of @var{formula}
+@item mtp.parametric_plot3d(@var{formula} | @var{options})
+:: Draw a graph of @var{formula}. Optinal arguments are described below.
+@end table
+
+@table @var
+@item return
+ List
+@item formula
+Expression or quote data. It should be a function in @code{s}, @code{t}.
+@item optinal arguments
+@table @t
+ @item domain
+ List.  [[xmin,xmax],[ymin,ymax]] 
+ @item mesh
+ Natural number. Division number to mesh the region. 
+ @item fitting
+ If it is set to 0, then automatic fitting to the z-direction is not done.
+@end table
+@end table
+
+@itemize @bullet
+@item  Details have not been written. See examples.
+@end itemize
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtp.test5();   /*  Klein bottle (8 figure) */
+@end example
+
+
+@example
+[1210] import("mt_graph.rr");
+[1211] mtp.parametric_plot3d([s,t,s^2-t^2]);
+@end example
+
+
+@example
+[1210] import("mt_graph.rr");
+[1211] def myfunc(X,Y) { if (X*Y < 0) return 0; else 1;}
+[1212] mtp.parametric_plot3d([s,t,quote(myfunc(s,t)*s*t) | fitting=0);
+@end example
+
+
+
+
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+
+@bye

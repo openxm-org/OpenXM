@@ -1,6 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
-# $OpenXM$
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.2 2005/04/14 07:12:52 takayama Exp $
 LLL=$1
 OXREPLACE=$2
 
@@ -62,6 +62,11 @@ ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> $
 NEW0="[[todo_parametrize]]"
 NEW1="todo_parametrize-html/todo_parametrize-${LLL}_toc.html"
 NEW2="todo_parametrize (Todo library for parametrizing algebraic curves)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}_toc.html
+
+NEW0="[[mt_graph]]"
+NEW1="mt_graph-html/mt_graph-${LLL}_toc.html"
+NEW2="mt_graph (mt_graph 3D grapher)"
 ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}_toc.html
 
 rm -f cman-ja_toc*.old
