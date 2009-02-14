@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.4 2005/04/14 07:15:08 takayama Exp $
+%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.5 2008/01/23 03:18:27 takayama Exp $
 
 cd OpenXM/src/util; make install
 cd OpenXM/src/asir-doc; make install
@@ -47,8 +47,21 @@ ${OpenXM_HOME}/lib/asir/help-jp/xm.help
 How to add new documents?
 Edit Makefile.in
 Edit top/misc.oxw
+Edit top/fix-links.sh
 
 See todo_parametrize as an example.
+See also f_res and mt_graph.
 
-If it is not written in texinfo style, please only refer to top/misc.oxw
+If it is not written in texinfo style, please only refer in top/misc.oxw
  
+
+------------------
+How to check links to subdocuments.  (2009.02.14,  for texi2html 1.76 on Debian/Etch)
+cd asir-contrib
+rm .*done
+./make-configure
+cd packages/doc
+make install-html-doc
+make fix-links
+cd ${OpenXM_HOME}/doc/asir-contrib/ja
+and open cman-html/cman-ja/cman-ja_toc.html
