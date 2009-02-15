@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.4 2005/04/14 07:11:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.5 2005/07/03 08:27:38 ohara Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +116,7 @@ replaceOneWord(char *fname,char *old, char *new) {
   char *fnameBackup;
   char *comm;
   int i,j,mm;
+  int ns,nold;
 #ifdef DEBUG
   fprintf(stderr,"fname=%s, old=%s, new=%s, ReplaceLine=%d\n",fname,old,new,ReplaceLine);
 #endif
@@ -138,12 +139,13 @@ replaceOneWord(char *fname,char *old, char *new) {
   fpOrig = fopen(fnameBackup,"r");
   fp = fopen(fname,"w");
   s = readAsString(fpOrig);
+  ns = strlen(s); nold=strlen(old);
   if (ReplaceLine) {
-    for (i=0; i<strlen(s); i++) {
+    for (i=0; i<ns; i++) {
       /* Look for \n */
       mm = 0;
-	  for (j = i; j<strlen(s); j++) {
-        if (matches(old,s+j,strlen(old))) mm = 1;
+	  for (j = i; j<ns; j++) {
+        if (matches(old,s+j,nold)) mm = 1;
 		if (s[j] == '\n') { break;}
       }
       if (mm) {
@@ -157,8 +159,8 @@ replaceOneWord(char *fname,char *old, char *new) {
 	  }
 	}
   }else{
-    for (i=0; i<strlen(s); i++) {
-      if (!matches(old,s+i,strlen(old))) {
+    for (i=0; i<ns; i++) {
+      if (!matches(old,s+i,nold)) {
         fputc(s[i],fp);
       }else{
         fprintf(fp,"%s",new);
