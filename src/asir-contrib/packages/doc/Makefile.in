@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.14 2009/02/12 08:12:58 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.15 2009/02/14 08:34:38 takayama Exp $
 RM=rm
 
 INSTALL_doc=@prefix@/doc
@@ -57,11 +57,11 @@ install-dvi-ps-pdf-doc-ja:
 
 fix-links: fix-links-en fix-links-ja
 fix-links-ja:
-	cp top/fix-link.sh ${INSTALL_doc}/asir-contrib/ja/cman-html/cman-ja
-	(cd ${INSTALL_doc}/asir-contrib/ja/cman-html/cman-ja; sh ./fix-link.sh ja ${OXREPLACE})
+	cp top/fix-link.sh ${INSTALL_doc}/asir-contrib/ja/cman-html
+	(cd ${INSTALL_doc}/asir-contrib/ja/cman-html; sh ./fix-link.sh ja ${OXREPLACE})
 fix-links-en:
-	cp top/fix-link.sh ${INSTALL_doc}/asir-contrib/en/cman-html/cman-en
-	(cd ${INSTALL_doc}/asir-contrib/en/cman-html/cman-en; sh ./fix-link.sh en ${OXREPLACE})
+	cp top/fix-link.sh ${INSTALL_doc}/asir-contrib/en/cman-html
+	(cd ${INSTALL_doc}/asir-contrib/en/cman-html; sh ./fix-link.sh en ${OXREPLACE})
 
 clean:
 	-${RM} -rf ./.*done config.log config.status autom4te.cache
