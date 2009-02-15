@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.1 2007/09/29 07:29:29 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.2 2009/02/15 01:51:12 takayama Exp $
 PTEX=@PTEX@
 DVIPDF=@DVIPDF@
 # Original file was ../Makefile.common
@@ -41,6 +41,7 @@ INSTALL_doc=${OpenXM_HOME}/doc
 INSTALL_lib=${OpenXM_HOME}/lib
 OXWEAVE=${OpenXM_HOME}/bin/oxweave
 OXGENTEXI=${OpenXM_HOME}/bin/oxgentexi
+OXREPLACE=${OpenXM_HOME}/bin/oxreplace
 #
 OpenXM_ROOT=../../../../../../OpenXM
 ASIRDOC=${OpenXM_ROOT}/src/asir-doc
@@ -100,7 +101,8 @@ html-ja/${MYNAME}-ja.html: ${JASRCS} ${JAAUTO} ${MYNAME}-ja.texi
 	-cp tmp-ja/*.texi tmp-ja/*.ja html-ja
 	-cp tmp-ja/${MYNAME}-ja.texi html-ja/${MYNAME}-ja.texi
 	-(cd html-ja; ${TEXI2HTML} ${MYNAME}-ja.texi)
-	-(cd html-ja; rm -f *.ja ${MYNAME}-ja.texi)
+	-(cd html-ja; ${OXREPLACE} --old '<html>' --new '<html> <meta http-equiv="Content-Type" content="text/html; charset=euc-jp">' ${MYNAME}-ja.html)
+	-(cd html-ja; rm -f *.ja ${MYNAME}-ja.texi ${MYNAME}*.old)
 
 gen-dvi-ja:  ${MYNAME}-ja.dvi
 gen-dvi-en:  ${MYNAME}-en.dvi
