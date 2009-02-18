@@ -1,19 +1,30 @@
-$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows,v 1.4 2001/04/04 02:06:51 noro Exp $
+$OpenXM: OpenXM/doc/HOWTO/asir2000-on-Windows,v 1.5 2004/01/04 17:35:30 ohara Exp $
 
 Windows 上で asir2000 を make する方法
 
 0. 準備
 
 OpenXM_contrib2 全部と OpenXM/src/asir-doc が最低限必要です. 
-また, コンパイラは Visual C++ 6.0 です. 通常 c:\program files
-に microsoft visual studio としてインストールされますが, 
+ソースの改行コードは CR+LF でなければビルドできませんので,
+http://www.math.kobe-u.ac.jp/OpenXM/Current/ に置かれている HEAD ブラン
+チのソースはそのままでは利用できません.  改行コードを変換するか,
+Windows 用の CVS クライアントで取得してください.
+
+コンパイラは Visual C++ 6.0 です. 通常 c:\program files
+に microsoft visual studio としてインストールされますが,
 
 ....\microsoft visual studio\common\msdev98\bin
 
 が環境変数 Path に登録されていることを確認して下さい. また, Visual
-Studio6.0 Service Pack (3 以上) のインストールおよびHTML help のインス
-トール (Service Pack の中にある jpn\support\htmlhelp.exeを実行) を
-忘れずに行って下さい. 
+Studio6.0 Service Pack (3 以上) のインストールを忘れないでください.
+
+asir のヘルプファイルを生成するためには, HTML help (1.2以上) と
+jperl for MS-Windows が最低限必要です.
+
+HTML help をインストールするには, Visual Studio 6.0 Service Pack 3 の
+中にある jpn\support\htmlhelp.exeを実行してください.  HTML help の
+Path は手動で追加設定してください.  通常は
+c:\Program Files\HTML Help Workshop です.
 
 1. jperl for MS-Windows のインストール
 
@@ -25,20 +36,18 @@ logoff -> logon が必要な場合があります.
 
 2. make
 
-コマンドプロンプト (DOS プロンプト) を開き, ディレクトリ 
+自動で行うには, Cygwin が必要です.  またビルドを開始する前に
+asir-contrib ドキュメントを生成しておく必要があります.
+Cygwin プロンプトを開き, ディレクトリ
 OpenXM_contrib2 に cd して make2000.bat を実行して下さい.
-
-日本語版の make は
-
-make2000 JP
-
-英語版の make は
-
-make2000 EG
-
-です. 
+バッチファイル中で UNIX コマンドを用いていますので,
+コマンドプロンプト(DOS プロンプト)では実行できません.
 
 3. install
 
-コマンドプロンプト (DOS プロンプト) を開き, ディレクトリ 
+Cygwin プロンプトを開き, ディレクトリ 
 OpenXM_contrib2 に cd して inst2000.bat を実行して下さい.
+
+4. asir-contrib ドキュメントの生成方法
+
+(準備中)
