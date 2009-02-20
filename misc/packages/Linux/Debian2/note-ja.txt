@@ -23,6 +23,7 @@ A.
        source ./dot.bashrc      (./を付けるのをわすれないこと)
       をしてから. (一部高山用)
       export GNUPGHOME=/private/taka/.gnupg 等も忘れずに.
+      cvs-passwd/gpg-debian.txt.asc
 
    2. debian/changelog を修正.  date は rfc822 format を守る事.
         ( dpkg-parsechangelog  で check.
@@ -209,7 +210,13 @@ A. license 関連で特殊な構造のため, apt-get upgrade はできません.
    "apt-get update openxm" will not work, because of a special structure
    of the package due to a license restriction.
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.18 2008/01/26 02:48:00 takayama Exp $
+Q. tar が file changed as we read it. というエラーを出力して止まります.
+A. もう一度 make して下さい. (途中からもう一度始めるとうまくいきます.)
+
+Q. emacs の中で make するとうまくいきません.
+A. make fetch のみ, 普通の shell でやって下さい.
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.19 2008/01/26 05:29:42 takayama Exp $
 
    
 
