@@ -1,8 +1,59 @@
-load("bfct");
+load("bfct")$
 
 /*
 #define DEBUG_RESTRICTION
 */
+
+module nk_restriction;
+
+localf generic_bfct_and_gr;
+localf initial_ideal;
+localf restriction;
+localf max_int_root;
+localf test_max_int_root;
+localf gen;
+localf cons_rev;
+localf test_gen;
+localf ord_w;
+localf weyl_mul;
+localf test_restriction;
+localf test_restriction2;
+localf test_restriction3;
+localf restriction_ideal;
+localf restriction_ideal_internal;
+localf test_restriction_ideal_internal;
+localf test_nd_weyl_gr;
+localf fourier_trans;
+localf test_fourier_trans;
+localf inv_fourier_trans;
+localf test_inv_fourier_trans;
+localf integration;
+localf test_integration;
+localf test_integration2;
+localf test_integration3;
+localf test_integration4;
+localf test_integration5;
+localf integration_ideal;
+localf integration_ideal_internal;
+localf integration_ideal_;
+localf integration_ideal_internal_;
+localf test_integration_ideal;
+localf test_integration_ideal2;
+localf test_integration_ideal5;
+localf test_integration_ideal5_;
+localf fano2;
+localf fano3;
+localf p_to_mat;
+localf test_p_to_mat;
+localf fano_polytope_a;
+localf test_fano_polytope_a;
+localf fano_polytope;
+localf a_to_poly;
+localf test_a_to_poly;
+localf var_list;
+localf test_var_list;
+localf d_var;
+localf int_fano;
 
 /* source from lib/bfct generic_bfct */
 /* generic b-fucntion に加えて F の <_(-W,W) についての GB を返す */ 
@@ -70,6 +121,70 @@ def generic_bfct_and_gr(F,V,DV,W)
 		T += W[I]*V[I]*DV[I];
 	B = weyl_minipoly(GIN,VDV,0,T); /* M represents DRL order */
 	return [B, G];
+}
+
+/* source from lib/bfct generic_bfct */
+/* F の <_(-W,W) についての GB とその initial part を返す */ 
+/* F : ideal, V : var list(x), DV : var list(dx), W : weight vect */
+def initial_ideal(F,V,DV,W)
+{
+	N = length(V);
+	N2 = N*2;
+
+	/* If W is a list, convert it to a vector */
+	if ( type(W) == 4 )
+		W = newvect(length(W),W);
+
+	/* dp_weyl_set_weight とは...? */
+	dp_weyl_set_weight(W);
+
+	/* create a term order M in D<x,d> (DRL) */
+	M = newmat(N2,N2);
+	for ( J = 0; J < N2; J++ )
+		M[0][J] = 1;
+	for ( I = 1; I < N2; I++ )
+		M[I][N2-I] = -1;
+	
+	VDV = append(V,DV);
+
+	/* create a non-term order MW in D<x,d> */
+	MW = newmat(N2+1,N2);
+	for ( J = 0; J < N; J++ )
+		MW[0][J] = -W[J];
+	for ( ; J < N2; J++ )
+		MW[0][J] = W[J-N];
+	for ( I = 1; I <= N2; I++ )
+		for ( J = 0; J < N2; J++ )
+			MW[I][J] = M[I-1][J];
+
+	/* create a homogenized term order MWH in D<x,d,h> */
+	MWH = newmat(N2+2,N2+1);
+	for ( J = 0; J <= N2; J++ )
+		MWH[0][J] = 1;
+	for ( I = 1; I <= N2+1; I++ )
+		for ( J = 0; J < N2; J++ )
+			MWH[I][J] = MW[I-1][J];
+
+	/* homogenize F */
+	VDVH = append(VDV,[h]);
+	FH = map(dp_dtop,map(dp_homo,map(dp_ptod,F,VDV)),VDVH);
+	
+	/* compute a groebner basis of FH w.r.t. MWH */
+	dp_gr_flags(["Top",1,"NoRA",1]);
+	GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
+	dp_gr_flags(["Top",0,"NoRA",0]);
+
+	/* dehomigenize GH */
+	G = map(subst,GH,h,1);
+
+	/* G is a groebner basis w.r.t. a non term order MW */
+	/* take the initial part w.r.t. (-W,W) */
+	GIN = map(initial_part,G,VDV,MW,W);
+
+	/* GIN is a groebner basis w.r.t. a term order M */
+	/* As -W+W=0, gr_(-W,W)(D<x,d>) = D<x,d> */
+	
+	return [G, GIN];
 }
 
 /*
@@ -797,38 +912,40 @@ def test_integration_ideal5_()
 #define DEBUG_FANO
 */
 
+/* 2 次元 Fano 多面体で頂点の座標が 0,1,-1 のいづれかのもの + 原点 */
 def fano2(I)
 {
 	Fano2 = [
-		[[-1,0],[0,1],[1,-1]],
-		[[-1,0],[0,-1],[0,1],[1,0]],
-		[[-1,0],[-1,1],[0,1],[1,-1]],
-		[[-1,0],[-1,1],[0,-1],[0,1],[1,-1]],
-		[[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0]]];
+		[[-1,0],[0,1],[1,-1],[0,0]],
+		[[-1,0],[0,-1],[0,1],[1,0],[0,0]],
+		[[-1,0],[-1,1],[0,1],[1,-1],[0,0]],
+		[[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[0,0]],
+		[[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[0,0]]];
 	return Fano2[I];
 }
 
+/* 3 次元 Fano 多面体で頂点の座標が 0,1,-1 のいづれかのもの + 原点 */
 def fano3(I)
 {
 	Fano3 = [
-		[[-1,0,0],[0,0,1],[0,1,0],[1,-1,1]],
-		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1]],
-		[[-1,0,0],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1]],
-		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1]],
-		[[-1,0,0],[-1,0,1],[0,0,1],[0,1,0],[1,-1,-1]],
-		[[-1,0,0],[0,-1,1],[0,0,-1],[0,0,1],[0,1,-1],[1,0,0]],
-		[[-1,0,0],[-1,1,0],[-1,1,1],[0,0,1],[0,1,1],[1,-1,-1]],
-		[[-1,0,0],[0,-1,1],[0,0,-1],[0,0,1],[0,1,0],[1,0,-1]],
-		[[-1,0,0],[-1,1,1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1]],
-		[[-1,0,0],[-1,0,-1],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1]],
-		[[-1,0,0],[-1,0,-1],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1]],
-		[[-1,0,0],[-1,1,1],[0,-1,-1],[0,0,1],[0,1,0],[1,-1,-1]],
-		[[-1,0,0],[-1,1,1],[0,-1,-1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1]],
-		[[-1,0,0],[-1,1,0],[-1,1,1],[0,-1,-1],[0,0,1],[0,1,1],[1,-1,-1]],
-		[[-1,0,0],[-1,0,1],[0,-1,1],[0,0,-1],[0,0,1],[0,1,0],[1,0,-1]],
-		[[-1,0,0],[-1,0,1],[-1,1,1],[0,-1,0],[0,0,1],[0,1,0],[1,-1,-1]],
-		[[-1,0,0],[-1,1,1],[1,-1,-1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[1,0,0]],
-		[[-1,0,0],[-1,0,1],[-1,1,1],[0,-1,0],[0,0,1],[0,1,0],[1,-1,-1],[1,0,-1]]];
+		[[-1,0,0],[0,0,1],[0,1,0],[1,-1,1],[0,0,0]],
+		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,0,1],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[0,-1,1],[0,0,-1],[0,0,1],[0,1,-1],[1,0,0],[0,0,0]],
+		[[-1,0,0],[-1,1,0],[-1,1,1],[0,0,1],[0,1,1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[0,-1,1],[0,0,-1],[0,0,1],[0,1,0],[1,0,-1],[0,0,0]],
+		[[-1,0,0],[-1,1,1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,0,-1],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,0,-1],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,1,1],[0,-1,-1],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,1,1],[0,-1,-1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,1,0],[-1,1,1],[0,-1,-1],[0,0,1],[0,1,1],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,0,1],[0,-1,1],[0,0,-1],[0,0,1],[0,1,0],[1,0,-1],[0,0,0]],
+		[[-1,0,0],[-1,0,1],[-1,1,1],[0,-1,0],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
+		[[-1,0,0],[-1,1,1],[1,-1,-1],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[1,0,0],[0,0,0]],
+		[[-1,0,0],[-1,0,1],[-1,1,1],[0,-1,0],[0,0,1],[0,1,0],[1,-1,-1],[1,0,-1],[0,0,0]]];
 	return Fano3[I];
 }
 
@@ -959,12 +1076,14 @@ def int_fano(D, I)
 		W[I] = 1;
 	W = vtol(W);
 
-	print("F :");
-	print(F);
+	print("F :", 2);
+	print(F, 2);
 tstart();
 	Id = ann(F);
 print("-- ann :", 2);
 tstop();
+	print("Ann F^s : ", 2);
+	print(Id, 2);
 
 #ifdef DEBUG_FANO
 	/* b　関数の計算が重たいので skip */
@@ -976,10 +1095,10 @@ tstop();
 	print(fctr(BF));
 #endif
 	Id0 = map(subst, Id, s, -1);
-	print("Ann F^(-1) : ");
-	print(Id0);
+	print("Ann F^(-1) : ", 2);
+	print(Id0, 2);
 	J = integration_ideal(Id0, VL, DVL, W);
 	return J;
 }
-
+endmodule$
 end$
