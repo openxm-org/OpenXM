@@ -1,23 +1,19 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/f_res/Makefile,v 1.1 2007/03/17 10:18:54 noro Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/f_res/Makefile,v 1.2 2007/09/29 07:29:29 takayama Exp $
 
 # Name of this document.
 MYNAME=f_res
 
-SRC = 
+TITLE = "Resultant Manual"
 
-ENSRCS = ${SRC:.oxw=.en} 
-JASRCS = ${SRC:.oxw=.ja} 
-ENAUTO= 
-JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
 include ../M/Makefile
 
 clean_private: 
-	${RM} -f f_res-en.texi 
+	${RM} f_res-en.texi 
+
+${MYNAME}.en ${MYNAME}.ja:
 
 f_res-en.texi : 
-	@echo "begin: plain|" >auto.en
-	@echo "English manual has not yet been written." >>auto.en
-	@echo "end:" >>auto.en
-	${OXGENTEXI} ${GENTEXI_OPT} --title "Resultant Manual" <auto.en >${MYNAME}-en.texi
+	@printf "begin: plain|\nEnglish manual has not yet been written.\nend:" \
+    | ${OXGENTEXI} ${GENTEXI_OPT} --title ${TITLE} > $@
 

@@ -1,23 +1,19 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/taji_alc/Makefile,v 1.1 2008/01/26 05:20:16 takayama Exp $
 
 # Name of this document.
 MYNAME=taji_alc
 
-SRC = 
+TITLE = "Algebraic Local Cohomology in One Variable Manual"
 
-ENSRCS = ${SRC:.oxw=.en} 
-JASRCS = ${SRC:.oxw=.ja} 
-ENAUTO= 
-JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
 include ../M/Makefile
 
 clean_private: 
-	${RM} -f taji_alc-en.texi 
+	${RM} taji_alc-en.texi 
 
-taji_alc-en.texi : 
-	@echo "begin: plain|" >auto.en
-	@echo "English manual has not yet been written." >>auto.en
-	@echo "end:" >>auto.en
-	${OXGENTEXI} ${GENTEXI_OPT} --title "Algebraic Local Cohomology in One Variable Manual" <auto.en >${MYNAME}-en.texi
+${MYNAME}.en ${MYNAME}.ja:
+
+taji_alc-en.texi: 
+	@printf "begin: plain|\nEnglish manual has not yet been written.\nend:" \
+    | ${OXGENTEXI} ${GENTEXI_OPT} --title ${TITLE} > $@
 

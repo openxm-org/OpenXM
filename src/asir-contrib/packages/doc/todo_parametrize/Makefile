@@ -1,23 +1,21 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/todo_parametrize/Makefile,v 1.2 2005/04/14 02:21:49 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/todo_parametrize/Makefile,v 1.3 2007/09/29 07:29:31 takayama Exp $
 
 # Name of this document.
 MYNAME=todo_parametrize
 
-SRC = 
+TITLE = "Parametrize Manual"
 
-ENSRCS = ${SRC:.oxw=.en} 
-JASRCS = ${SRC:.oxw=.ja} 
-ENAUTO= 
-JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
 include ../M/Makefile
 
-clean_private: 
-	${RM} -f todo_parametrize-en.texi 
+clean_private:
+	${RM} todo_parametrize-en.texi
 
-todo_parametrize-en.texi : 
-	@echo "begin: plain|" >auto.en
-	@echo "English manual has not yet been written." >>auto.en
-	@echo "end:" >>auto.en
-	${OXGENTEXI} ${GENTEXI_OPT} --title "Parametrize Manual" <auto.en >${MYNAME}-en.texi
+${MYNAME}.en ${MYNAME}.ja:
+
+todo_parametrize-en.texi:
+	@printf "begin: plain|\nEnglish manual has not yet been written.\nend:" \
+    | ${OXGENTEXI} ${GENTEXI_OPT} --title ${TITLE} > $@
+
+
 

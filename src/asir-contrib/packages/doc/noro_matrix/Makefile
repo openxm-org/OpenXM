@@ -1,23 +1,19 @@
-#$OpenXM$
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_matrix/Makefile,v 1.1 2008/05/18 07:37:43 noro Exp $
 
 # Name of this document.
 MYNAME=noro_matrix
 
-SRC = 
+TITLE = "noro_matrix Manual"
 
-ENSRCS = ${SRC:.oxw=.en} 
-JASRCS = ${SRC:.oxw=.ja} 
-ENAUTO= 
-JAAUTO=${ENAUTO:.en=.ja}
 GENTEXI_OPT=--noSorting --author "OpenXM.org" --infoName asir-contrib-${MYNAME}
 include ../M/Makefile
 
 clean_private: 
-	${RM} -f f_res-en.texi 
+	${RM} noro_matrix-en.texi
 
-noro_matrix-en.texi : 
-	@echo "begin: plain|" >auto.en
-	@echo "English manual has not yet been written." >>auto.en
-	@echo "end:" >>auto.en
-	${OXGENTEXI} ${GENTEXI_OPT} --title "noro_matrix Manual" <auto.en >${MYNAME}-en.texi
+${MYNAME}.en ${MYNAME}.ja:
+
+noro_matrix-en.texi: 
+	@printf "begin: plain|\nEnglish manual has not yet been written.\nend:" \
+    | ${OXGENTEXI} ${GENTEXI_OPT} --title ${TITLE} > $@
 

@@ -1,24 +1,16 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.4 2009/02/15 09:42:27 takayama Exp $
-PTEX=@PTEX@
-DVIPDF=@DVIPDF@
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.5 2009/02/20 03:05:26 takayama Exp $
 # Original file was ../Makefile.common
 # Targets
-# gen-texi-en, gen-texi-ja : generating texi files.
-# gen-html-en,  gen-html-ja :
-#        Generate HTML documents under html-en and html-ja
-# gen-help-en,  gen-help-ja :
-#        Generate online help files under help-en, help-ja
-# gen-dvi-en, gen-dvi-ja : generating dvi, ps, pdf files here.
-# gen-ps-en,  gen-ps-ja  :
-# gen-pdf-en, gen-pdf-ja :
+# gen-texi : generating texi files.
+# gen-html : generating HTML documents under html-{ja,en}
+# gen-help : generating online help files under help-{ja,en}
+# gen-pdf  : generating dvi, ps, pdf files here.
 #
-# install-help-en, -ja 
-#        Installing online help to OpenXM/lib/asir/help-eg/xm.help
-#        Installing online help to OpenXM/lib/asir/help-jp/xm.help
-# install-html-en, -ja
-#        Copy html help to OpenXM/doc/asir-contrib/ja, en
-# install-dvi-en, -ja; install-ps-en, -ja; install-pdf-en, -ja;
-#        Copy the documents in dvi and ps to OpenXM/doc/asir-contrib/ja, en
+# install-help
+#        Installing online help to OpenXM/lib/asir/help-{ja,en}/xm.help
+# install-document
+#        Copy html help and the documents in dvi, ps and pdf
+#        to OpenXM/doc/asir-contrib/{ja,en}/
 #
 # NOTE: install-help should be executed after installing asir2000.
 ########################################################################
@@ -36,139 +28,119 @@ DVIPDF=@DVIPDF@
 #     and cman-en.texi
 #  cf.  glib*  base*
 ########################################################################
-# They are configured and set by the upper level Makefile
-INSTALL_doc=@prefix@/doc
-INSTALL_lib=@prefix@/lib
-OXWEAVE=@prefix@/bin/oxweave
-OXGENTEXI=@prefix@/bin/oxgentexi
-OXREPLACE=@prefix@/bin/oxreplace
-#
-OpenXM_ROOT=../../../../../../OpenXM
+LANGUAGES = en ja
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+
+bindir=@prefix@/bin
+LIBDIR=@prefix@/lib/asir
+DOCDIR=@prefix@/doc/asir-contrib
+OXWEAVE=${bindir}/oxweave
+OXGENTEXI=${bindir}/oxgentexi
+OXREPLACE=${bindir}/oxreplace
+OpenXM_ROOT=@OpenXM_ROOT@
 ASIRDOC=${OpenXM_ROOT}/src/asir-doc
 ASIRLIB=${OpenXM_ROOT}/../OpenXM_contrib2/asir2000/lib
 CONTRIB=${OpenXM_ROOT}/src/asir-contrib/packages/src
+EXTRACT_FUNC=${ASIRDOC}/extract_func
+PTEX=@PTEX@ -kanji=euc
+DVIPDF=@DVIPDF@
+MAKEINFO=@MAKEINFO@
+#
 OPTGENTEXI= --include
 #OPTGENTEXI= --include --example
 ## PS documents are installed under ${OpenXM_doc}/asir-contrib
 DVIPS=dvips -f
 TEXI2HTML=texi2html -menu
-RM=rm
+RM=rm -f
 NKF=nkf
 
-.SUFFIXES: .en .ja .oxw .dvi .pdf
+# source files
+SRC_TEXI = ${MYNAME}-en.texi ${MYNAME}-ja.texi
+SRC_LANG = ${MYNAME}.en ${MYNAME}.ja
+
+.SUFFIXES: .en .ja .oxw .texi .dvi .pdf .ps
 
 .oxw.en:
-	${RM} -f ${<:.oxw=.en}
 	${OXWEAVE} C en < $< > ${<:.oxw=.en}
 
 .oxw.ja:
-	${RM} -f ${<:.oxw=.ja}
-	${OXWEAVE} C ja < $< > ${<:.oxw=.ja}
+	${OXWEAVE} C ja < $< | ${NKF} -e > ${<:.oxw=.ja}
 
 .dvi.pdf:
 	${DVIPDF} $<
 
-gen-texi: gen-texi-ja gen-texi-en
-gen-texi-ja: ${JASRCS} ${JAAUTO} ${MYNAME}-ja.texi
-gen-texi-en: ${ENSRCS} ${ENAUTO} ${MYNAME}-en.texi
+.dvi.ps:
+	${DVIPS} $< > ${<:.dvi=.ps}
 
-### Generating online manual.  gen-help
-gen-help-en: ${ENSRCS} ${ASIRDOC}/extract_func ${ENAUTO} ${MYNAME}-en.texi
-	-${RM} -rf tmp-en help-en
-	mkdir help-en tmp-en
-	cp ${MYNAME}-en.texi ${ENSRCS} ${ENAUTO} tmp-en
-	-(cd tmp-en; makeinfo --force ${MYNAME}-en.texi)
-	(cd help-en; for i in ../tmp-en/asir-contrib*; do ../${ASIRDOC}/extract_func $$i; done)
+.texi.dvi:
+	${PTEX} $<
+	${PTEX} $<
 
-gen-help-ja: ${JASRCS} ${ASIRDOC}/extract_func ${JAAUTO} ${MYNAME}-ja.texi
-	-${RM} -rf tmp-ja help-ja
-	mkdir help-ja tmp-ja
-	for i in ${MYNAME}-ja.texi ${JASRCS} ${JAAUTO}; do nkf -e $$i > tmp-ja/$$i; done
-	-(cd tmp-ja; makeinfo --force ${MYNAME}-ja.texi)
-	(cd help-ja; for i in ../tmp-ja/asir-contrib*; do ../${ASIRDOC}/extract_func -j $$i; done)
+all: gen-document
 
-gen-html-en: html-en/${MYNAME}-en.html gen-help-en
-html-en/${MYNAME}-en.html: ${ENSRCS} ${ENAUTO} ${MYNAME}-en.texi
-	-${RM} -rf html-en
-	-mkdir html-en
-	-cp tmp-en/*.texi tmp-en/*.en html-en
-	-(cd html-en; ${TEXI2HTML} ${MYNAME}-en.texi)
-	-(cd html-en; rm -f *.en ${MYNAME}-en.texi)
+${MYNAME}-ja.dvi: ${MYNAME}.ja
+${MYNAME}-en.dvi: ${MYNAME}.en
 
-gen-html-ja: html-ja/${MYNAME}-ja.html gen-help-ja
-html-ja/${MYNAME}-ja.html: ${JASRCS} ${JAAUTO} ${MYNAME}-ja.texi
-	-mkdir html-ja
-	-cp tmp-ja/*.texi tmp-ja/*.ja html-ja
-	-cp tmp-ja/${MYNAME}-ja.texi html-ja/${MYNAME}-ja.texi
-	-(cd html-ja; ${TEXI2HTML} ${MYNAME}-ja.texi)
-	-(cd html-ja; ${OXREPLACE} --old '<html>' --new '<html> <meta http-equiv="Content-Type" content="text/html; charset=euc-jp">' ${MYNAME}-ja.html)
-	-(cd html-ja; ${OXREPLACE} --old '<HTML>' --new '<HTML> <meta http-equiv="Content-Type" content="text/html; charset=euc-jp">' ${MYNAME}-ja.html)
-	-(cd html-ja; rm -f *.ja ${MYNAME}-ja.texi ${MYNAME}*.old)
+gen-document: gen-html
+	-if [ ! -f ./.build_doc_done ]; then \
+		${MAKE} ${SRC_TEXI:.texi=.pdf} ; \
+		touch ./.build_doc_done ; \
+	fi
 
-gen-dvi-ja:  ${MYNAME}-ja.dvi
-gen-dvi-en:  ${MYNAME}-en.dvi
-gen-pdf-ja:  ${MYNAME}-ja.pdf
-gen-pdf-en:  ${MYNAME}-en.pdf
-gen-ps-ja:  ${MYNAME}-ja.ps
-gen-ps-en:  ${MYNAME}-en.ps
-${MYNAME}-ja.dvi: ${JASRCS} ${JAAUTO}  ${MYNAME}-ja.texi
-	-${PTEX} ${MYNAME}-ja.texi
-	-${PTEX} ${MYNAME}-ja.texi
-${MYNAME}-en.dvi: ${ENSRCS} ${ENAUTO} ${MYNAME}-en.texi
-	-tex ${MYNAME}-en.texi
-	-tex ${MYNAME}-en.texi
-${MYNAME}-ja.pdf: ${MYNAME}-ja.dvi
-	-${DVIPDF} ${MYNAME}-ja
-${MYNAME}-en.pdf: ${MYNAME}-en.dvi
-	-${DVIPDF} ${MYNAME}-en
-${MYNAME}-ja.ps: ${MYNAME}-ja.dvi
-	-${DVIPS} ${MYNAME}-ja >${MYNAME}-ja.ps
-${MYNAME}-en.ps: ${MYNAME}-en.ps 
-	-${DVIPS} ${MYNAME}-en >${MYNAME}-en.ps
+gen-texi: ${SRC_LANG} ${SRC_TEXI}
+gen-help: gen-texi ${EXTRACT_FUNC}
+	-if [ ! -f ./.build_help_done ]; then \
+		for j in ${LANGUAGES} ; do \
+			mkdir -p help-$$j tmp-$$j ; \
+			for f in ${MYNAME}-$$j.texi *.$$j ; do \
+				if [ -f $$f ]; then cp $$f tmp-$$j/ ; fi ; \
+			done ; \
+			(cd tmp-$$j; ${MAKEINFO} --force ${MYNAME}-$$j.texi) ; \
+			(cd help-$$j; for i in ../tmp-$$j/asir-contrib*; do ${EXTRACT_FUNC} $$i; done) ; \
+		done ; \
+		touch ./.build_help_done ; \
+	fi
 
-install-help-ja: gen-help-ja
-	-mkdir ${INSTALL_lib}/asir/help-jp/xm.help
-	-cp -r -f help-ja/* ${INSTALL_lib}/asir/help-jp/xm.help
-install-help-en: gen-help-en
-	-mkdir ${INSTALL_lib}/asir/help-eg/xm.help
-	-cp -r -f help-en/* ${INSTALL_lib}/asir/help-eg/xm.help
+gen-html: gen-help
+	-if [ ! -f ./.build_html_done ]; then \
+		for j in ${LANGUAGES} ; do \
+			mkdir -p html-$$j ; \
+			for f in tmp-$$j/*.texi tmp-$$j/*.$$j ; do \
+				if [ -f $$f ]; then cp $$f html-$$j/ ; fi ; \
+			done ; \
+			(cd html-$$j; ${TEXI2HTML} ${MYNAME}-$$j.texi ; \
+			${RM} *.$$j ${MYNAME}-$$j.texi) ; \
+		done ;\
+		touch ./.build_html_done ; \
+	fi
 
-install-html-ja: gen-html-ja ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-html/${MYNAME}-ja.html
-${INSTALL_doc}/asir-contrib/ja/${MYNAME}-html/${MYNAME}-ja.html: html-ja/${MYNAME}-ja.html
-	-${RM} -rf ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-html
-	-mkdir -p ${INSTALL_doc}/asir-contrib/ja
-	-( tar cf - html-ja | (cd ${INSTALL_doc}/asir-contrib/ja ; tar xf - ; mv html-ja ${MYNAME}-html))
+install-help: gen-help
+	-if [ ! -f ./.install_help_done ]; then \
+		for j in ${LANGUAGES} ; do \
+			mkdir -p ${LIBDIR}/help-$$j/xm.help ; \
+			${INSTALL_DATA} help-$$j/* ${LIBDIR}/help-$$j/xm.help/ ; \
+		done ;\
+		touch ./.install_help_done ; \
+	fi
 
-install-html-en: gen-html-en ${INSTALL_doc}/asir-contrib/en/${MYNAME}-html/${MYNAME}-en.html 
-${INSTALL_doc}/asir-contrib/en/${MYNAME}-html/${MYNAME}-en.html: html-en/${MYNAME}-en.html
-	-${RM} -rf ${INSTALL_doc}/asir-contrib/en/${MYNAME}-html
-	-mkdir -p ${INSTALL_doc}/asir-contrib/en
-	-( tar cf - html-en | (cd ${INSTALL_doc}/asir-contrib/en ; tar xf - ; mv html-en ${MYNAME}-html))
-
-install-dvi-ps-pdf-ja: install-dvi-ja install-ps-ja install-pdf-ja
-install-dvi-ps-pdf-en: install-dvi-en install-ps-en install-pdf-en
-install-dvi-ja: gen-dvi-ja
-	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
-	-cp ${MYNAME}-ja.dvi ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-ja.dvi
-install-dvi-en: gen-dvi-en
-	-mkdir -p ${INSTALL_lib}/asir-contrib/en
-	-cp ${MYNAME}-en.dvi ${INSTALL_doc}/asir-contrib/en/${MYNAME}-en.dvi
-install-ps-ja: gen-ps-ja
-	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
-	-cp ${MYNAME}-ja.ps ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-ja.ps
-install-ps-en: gen-ps-en
-	-mkdir -p ${INSTALL_lib}/asir-contrib/en
-	-cp ${MYNAME}-en.ps ${INSTALL_doc}/asir-contrib/en/${MYNAME}-en.ps
-install-pdf-ja: gen-pdf-ja
-	-mkdir -p ${INSTALL_lib}/asir-contrib/ja
-	-cp ${MYNAME}-ja.pdf ${INSTALL_doc}/asir-contrib/ja/${MYNAME}-ja.pdf
-install-pdf-en: gen-pdf-en
-	-mkdir -p ${INSTALL_lib}/asir-contrib/en
-	-cp ${MYNAME}-en.pdf ${INSTALL_doc}/asir-contrib/en/${MYNAME}-en.pdf
+install-document: gen-document
+	-if [ ! -f ./.install_doc_done ]; then \
+		for j in ${LANGUAGES} ; do \
+			mkdir -p "${DOCDIR}/$$j/${MYNAME}-html" ; \
+			(cd html-$$j; tar cf - .) | (cd "${DOCDIR}/$$j/${MYNAME}-html" ; tar xf -) ; \
+			${INSTALL_DATA} ${MYNAME}-$$j.dvi ${MYNAME}-$$j.ps ${MYNAME}-$$j.pdf ${DOCDIR}/$$j/ ; \
+		done ; \
+		touch ./.install_doc_done ; \
+	fi
 
 clean: clean_private
-	${RM} -f ${JAAUTO} ${ENAUTO} gentexi-in.tmp gentexi-out.tmp
-	${RM} -f *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr *~
-	${RM} -f  *.en *.ja
-	${RM} -f ${MYNAME}-en.ps ${MYNAME}-ja.ps ${MYNAME}-en.pdf ${MYNAME}-ja.pdf
-	${RM} -rf help-ja help-en tmp-en tmp-ja html-en html-ja
+	${RM} gentexi-in.tmp gentexi-out.tmp
+	${RM} *.aux *.cp *.dvi *.fn *.ky *.log *.pg *.toc *.tp *.vr *~
+	${RM} *.en *.ja
+	${RM} .build_* .install_*
+	-for j in ${LANGUAGES} ; do \
+		${RM} -r help-$$j tmp-$$j html-$$j ; \
+		${RM} ${MYNAME}-$$j.ps ${MYNAME}-$$j.pdf ${MYNAME}-$$j.dvi ; \
+	done

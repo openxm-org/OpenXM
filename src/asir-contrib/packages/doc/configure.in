@@ -1,9 +1,26 @@
-dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.1 2004/07/02 07:48:47 takayama Exp $
+dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.2 2005/04/14 05:17:56 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
+AC_INIT
+AC_PREREQ(2.61)
+AC_PROG_INSTALL
 
-AC_INIT(README)
-AC_PROG_CC
-AC_PROG_RANLIB
+AC_PATH_PROGS([MAKEINFO],[jmakeinfo makeinfo])
+AC_SUBST([MAKEINFO])
+AC_PATH_PROGS([DVIPDF],[dvipdfmx dvipdfm divpdf])
+AC_SUBST([DVIPDF])
+AC_PATH_PROG([PTEX],[ptex])
+AC_SUBST([PTEX])
+dnl AC_RUN_IFELSE(AC_LANG_SOURCE([[#include "stdlib.h"
+dnl int main(){exit(system("ptex -kanji=euc -version"));}]]),
+dnl AC_SUBST([PTEX_OPTS],["-kanji=euc"]),
+dnl AC_SUBST([PTEX_OPTS],[""]),
+dnl AC_SUBST([PTEX_OPTS],[""])
+dnl )
+dnl rm -f test-ja.dvi test-ja.log
 
-AC_OUTPUT(Makefile)
+OpenXM_ROOT=`cd ../../../..; pwd`
+AC_SUBST(OpenXM_ROOT)
+
+AC_CONFIG_FILES([Makefile M/Makefile])
+AC_OUTPUT
