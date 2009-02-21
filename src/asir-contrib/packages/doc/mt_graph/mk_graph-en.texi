@@ -97,7 +97,7 @@ Expression or quote data. It should be a function in @code{x}, @code{y}.
 
 @example
 [1210] import("mt_graph.rr");
-[1211] def myfunc(X,Y) { if (X*Y < 0) return 0; else 1;}
+[1211] def myfunc(X,Y) @{ if (X*Y < 0) return 0; else 1;@}
 [1212] mtg.plot3d(quote(myfunc(x,y)*x*y));
 @end example
 
@@ -149,7 +149,7 @@ Expression or quote data. It should be a function in @code{s}, @code{t}.
 
 @example
 [1210] import("mt_graph.rr");
-[1211] def myfunc(X,Y) { if (X*Y < 0) return 0; else 1;}
+[1211] def myfunc(X,Y) @{ if (X*Y < 0) return 0; else 1;@}
 [1212] mtp.parametric_plot3d([s,t,quote(myfunc(s,t)*s*t) | fitting=0);
 @end example
 
