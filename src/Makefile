@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.154 2008/08/08 05:41:26 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.155 2009/02/08 05:05:35 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -86,6 +86,9 @@ all-oxcdd: install-oxtoolkit
 	-(cd ox_cdd; ${MAKE} all)
 all-oxmgraph: configure-oxmgraph
 	-(cd oxmgraph; ${MAKE} all)
+
+all-document-asir-contrib: configure-document-asir-contrib
+	(cd asir-contrib/packages/doc; ${MAKE} all)
 
 install: install-oxtags install-util install-asir install-gnuplot \
 	 install-k097 install-kan96xx \
@@ -259,6 +262,9 @@ configure-pari: install-util
 configure-oxmgraph: 
 	-(cd oxmgraph; ./make-configure)
 
+configure-document-asir-contrib: install-util install-asir-doc
+	(cd asir-contrib/packages/doc; ./make-configure)
+
 clean-rc:
 	(cd $(RCDIR); ${MAKE} clean)
 
@@ -270,8 +276,8 @@ install-document: install-document-kan96xx install-document-asir-contrib
 install-document-kan96xx: install-kan96xx
 	(cd kan96xx; ${MAKE} install-document)
 
-install-document-asir-contrib: install-asir-contrib
-	(cd asir-contrib; ${MAKE} install-document)
+install-document-asir-contrib: all-document-asir-contrib
+	(cd asir-contrib/packages/doc; ${MAKE} install)
 
 ## Targets for debugging
 install-for-debug:
