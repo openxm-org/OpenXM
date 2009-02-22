@@ -1,8 +1,16 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.3 2005/02/09 03:25:50 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.4 2006/02/12 08:55:26 noro Exp $ */
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <sys/stat.h>
 
+void create_dir(char *);
+int fname(char *,char **);
+
+int
 main(argc,argv)
 int argc;
 char **argv;
@@ -67,7 +75,7 @@ char **argv;
 				} else
 					fputs(buf1,fp);
 			}
-		} else if ( fp )
+		} else if ( fp ) {
 			if ( buf[0] == 0x1f ) {
 				fclose(fp); fp = 0;
 				if ( jis ) {
@@ -75,12 +83,14 @@ char **argv;
 						fn,fn,fn,fn,fn);
 					system(cmd);
 				}
-			} else
+			} else {
 				fputs(buf,fp);
+			}
+		}
 	}
 }
 
-int create_dir(char *fname)
+void create_dir(char *fname)
 {
 	char *p;
 
