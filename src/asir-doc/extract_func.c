@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.4 2006/02/12 08:55:26 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_func.c,v 1.5 2009/02/22 17:59:25 ohara Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +6,11 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/stat.h>
+
+#if defined(__MINGW32__)
+#include <io.h>
+#define mkdir(d,m)   ((mkdir)((d)))
+#endif
 
 void create_dir(char *);
 int fname(char *,char **);
@@ -113,7 +118,7 @@ char **name;
 
 	if ( *buf != '`' ) {
 		/* skip X.X.X if exists */
-		space = index(buf,' ');
+		space = strchr(buf,' ');
 		if ( !space ) return 0;
 		for ( p = buf; p < space; p++ )
 			if ( !isdigit(*p) && *p != '.' ) return 0;
@@ -122,13 +127,13 @@ char **name;
 	i = 0;
 	while ( 1 ) {
 		/* search a back quote */
-		bquote = index(buf,'`' );
+		bquote = strchr(buf,'`' );
 		if ( !bquote )
 			return 0;
 		buf = bquote+1;
 
 		/* buf points to a function; search a quote */
-		quote = index(buf,'\'');
+		quote = strchr(buf,'\'');
 		if ( !quote )
 			return 0;
 		len = quote-buf;
@@ -138,7 +143,7 @@ char **name;
 		i++;
 		buf = quote+1;
 		/* buf points to ',' or a space char; search a comma */
-		comma = index(buf,',');
+		comma = strchr(buf,',');
 		if ( !comma ) {
 			/* if the rest chars include a non-space char, then return 0 */
 			while ( *buf && isspace(*buf) ) buf++;
