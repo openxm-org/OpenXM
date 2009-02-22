@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_man.c,v 1.1 1999/12/21 02:47:29 noro Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -14,14 +14,14 @@ char **argv;
 
 	if ( argc != 3 )
 		goto usage;
-	if ( !strcmp(argv[1],"JP") ) {
+	if ( !strcmp(argv[1],"ja") || !strcmp(argv[1],"JP") ) {
 		ok = "\\JP";
 		bok = "\\BJP";
 		eok = "\\E";
 		ng = "\\EG";
 		bng = "\\BEG";
 		eng = "\\E";
-	} else if ( !strcmp(argv[1],"EG") ) {
+	} else if ( !strcmp(argv[1],"en") || !strcmp(argv[1],"EG") ) {
 		ok = "\\EG";
 		bok = "\\BEG";
 		eok = "\\E";

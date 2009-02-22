@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.33 2006/03/06 08:55:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kxx/ox_texmacs.c,v 1.34 2006/03/22 00:52:55 takayama Exp $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -617,7 +617,7 @@ static int startEngine(int type,char *msg) {
 	  /* printf("Loading --asirInitFile %s\n",AsirInitFile); */
 	  KSexecuteString(ss);
     }
-    KSexecuteString(" oxasir.ccc (if(1) {  Xm_server_mode = 1; Xm_helpdir = \"help-eg\";  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
+    KSexecuteString(" oxasir.ccc (if(1) {  Xm_server_mode = 1; Xm_helpdir = \"help-en\";  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
     KSexecuteString(" oxasir.ccc (if(1) {  ctrl(\"message\",0);  } else { ; } ;) oxsubmit oxasir.ccc oxpopcmo ");
     /* bug; if ctrl is written with Xm_helpdir = ... without oxpopcmo, then it does
        not work. */

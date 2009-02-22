@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.12 2009/02/15 02:33:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oxrfc100.rr,v 1.13 2009/02/22 09:35:57 takayama Exp $ */
 
 /* The module xm is obsolete and it is moved to oxrfc100.rr */
 
@@ -52,18 +52,18 @@ if (Sm1_lib == 0) {
 
 ToAsir_Debug = 0$
 
-Xm_helpdir="help-eg"$
+Xm_helpdir="help-en"$
 if (getenv("LANG") == "ja_JP.eucJP" ||
     getenv("LANG") == "ja_JP.EUC"   ||
     getenv("LANG") == "ja_JP.UTF-8"   ||
     getenv("LANG") == "ja_JP.ujis") {
-  Xm_helpdir="help-jp"$
+  Xm_helpdir="help-ja"$
 }else { }$
 Xm_server_mode = 0$
 
 def helph() { 
   extern Xm_helpdir ;
-  if (Xm_helpdir == "help-jp") {Lang="ja";} else {Lang="en";}
+  if (Xm_helpdir == "help-ja") {Lang="ja";} else {Lang="en";}
   Oxhome = ox_getenv("OpenXM_HOME");
   if (type(Oxhome) == 0) Oxhome="/usr/local/OpenXM";
   Cmd = Oxhome+"/bin/oxhtmlhelp "+

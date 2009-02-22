@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.4 2004/09/10 08:24:02 noro Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.5 2007/09/29 05:17:08 takayama Exp $
 OpenXM_HOME=@prefix@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -12,27 +12,27 @@ all: update-makefile
 install:
 	if [ ! -f .install_done ] ; then make install2 ; touch .install_done ; fi
 
-all2: all-eg all-jp
-install2: install-eg install-jp install-man-pages
+all2: all-en all-ja
+install2: install-en install-ja install-man-pages
 
-all-eg: texindex extract_man extract_func man-eg.dvi help-eg html-eg
-all-jp: texindex extract_man extract_func man-jp.dvi help-jp html-jp html-internal-ja html-exp-ja
+all-en: texindex extract_man extract_func man-en.dvi help-en html-en
+all-ja: texindex extract_man extract_func man-ja.dvi help-ja html-ja html-internal-ja html-exp-ja
 
-install-eg: all-eg
-	-rm -r -f ${OpenXM_lib_asir}/help-eg
-	-tar cf - help-eg | (cd ${OpenXM_lib_asir}; tar xf - )
+install-en: all-en
+	-rm -r -f ${OpenXM_lib_asir}/help-en
+	-tar cf - help-en | (cd ${OpenXM_lib_asir}; tar xf - )
 	-mkdir ${OpenXM_doc_asir2000}
-	-rm -r -f ${OpenXM_doc_asir2000}/html-eg
-	-tar cf - html-eg | ( cd ${OpenXM_doc_asir2000}; tar xf - )
-	-cp man-eg.dvi ${OpenXM_doc_asir2000}
+	-rm -r -f ${OpenXM_doc_asir2000}/html-en
+	-tar cf - html-en | ( cd ${OpenXM_doc_asir2000}; tar xf - )
+	-cp man-en.dvi ${OpenXM_doc_asir2000}
 
-install-jp: all-jp
-	-rm -r -f ${OpenXM_lib_asir}/help-jp
-	-tar cf - help-jp | (cd ${OpenXM_lib_asir}; tar xf - )
+install-ja: all-ja
+	-rm -r -f ${OpenXM_lib_asir}/help-ja
+	-tar cf - help-ja | (cd ${OpenXM_lib_asir}; tar xf - )
 	-mkdir ${OpenXM_doc_asir2000}
-	-rm -r -f ${OpenXM_doc_asir2000}/html-jp
-	-tar cf - html-jp | ( cd ${OpenXM_doc_asir2000}; tar xf - )
-	-cp man-jp.dvi ${OpenXM_doc_asir2000}
+	-rm -r -f ${OpenXM_doc_asir2000}/html-ja
+	-tar cf - html-ja | ( cd ${OpenXM_doc_asir2000}; tar xf - )
+	-cp man-ja.dvi ${OpenXM_doc_asir2000}
 	-tar cf - html-internal-ja | ( cd ${OpenXM_doc_asir2000}; tar xf - )
 	-tar cf - html-exp-ja | ( cd ${OpenXM_doc_asir2000}; tar xf - )
 
@@ -89,106 +89,106 @@ INTERNAL_SRCS=internal.texi int-parts/datatype.texi int-parts/gc.texi\
     int-parts/datatype/string.texi\
     int-parts/datatype/vect.texi
 
-tmpJP: $(SRCS)
-	-rm -rf tmpJP
-	-mkdir tmpJP tmpJP/parts tmpJP/parts/builtin
-	-cp texinfo.* txi*tex tmpJP
-	-for i in ${SRCS}; do ./extract_man JP $$i > tmpJP/$$i; done
+tmp-ja: ${SRCS}
+	-rm -rf tmp-ja
+	-mkdir tmp-ja tmp-ja/parts tmp-ja/parts/builtin
+	-cp texinfo.* txi*tex tmp-ja
+	-for i in ${SRCS}; do ./extract_man ja $$i > tmp-ja/$$i; done
 
-tmpJPeuc: $(SRCS)
-	-rm -rf tmpJPeuc
-	-mkdir tmpJPeuc tmpJPeuc/parts tmpJPeuc/parts/builtin
-	-cp texinfo.* txi*tex tmpJPeuc
+tmp-ja_euc: ${SRCS}
+	-rm -rf tmp-ja_euc
+	-mkdir tmp-ja_euc tmp-ja_euc/parts tmp-ja_euc/parts/builtin
+	-cp texinfo.* txi*tex tmp-ja_euc
 	-for i in ${SRCS}; do \
-	  ./extract_man JP $$i | nkf -e > tmpJPeuc/$$i; \
+	  ./extract_man ja $$i | nkf -e > tmp-ja_euc/$$i; \
 	done
 
-tmpJPhtml: $(SRCS)
-	-rm -rf tmpJPhtml
-	-mkdir tmpJPhtml tmpJPhtml/parts tmpJPhtml/parts/builtin
-	-cp texinfo.* txi*tex tmpJPhtml
+tmp-html-ja: ${SRCS}
+	-rm -rf tmp-html-ja
+	-mkdir tmp-html-ja tmp-html-ja/parts tmp-html-ja/parts/builtin
+	-cp texinfo.* txi*tex tmp-html-ja
 	-for i in ${SRCS}; do \
-	  ./extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmpJPhtml/$$i; \
+	  ./extract_man ja $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmp-html-ja/$$i; \
 	done 
 
-tmpEG: $(SRCS)
-	-rm -rf tmpEG
-	-mkdir tmpEG tmpEG/parts tmpEG/parts/builtin
-	-cp texinfo.* txi*tex tmpEG
-	-for i in ${SRCS}; do ./extract_man EG $$i > tmpEG/$$i; done
+tmp-en: ${SRCS}
+	-rm -rf tmp-en
+	-mkdir tmp-en tmp-en/parts tmp-en/parts/builtin
+	-cp texinfo.* txi*tex tmp-en
+	-for i in ${SRCS}; do ./extract_man en $$i > tmp-en/$$i; done
 
-tmpEGhtml: $(SRCS)
-	-rm -rf tmpEGhtml
-	-mkdir tmpEGhtml tmpEGhtml/parts tmpEGhtml/parts/builtin
-	-cp texinfo.* txi*tex tmpEG
+tmp-html-en: ${SRCS}
+	-rm -rf tmp-html-en
+	-mkdir tmp-html-en tmp-html-en/parts tmp-html-en/parts/builtin
+	-cp texinfo.* txi*tex tmp-en
 	-for i in ${SRCS}; do \
-		./extract_man EG $$i | sed -e "s/@fref/@ref/g" > tmpEGhtml/$$i;\
+		./extract_man en $$i | sed -e "s/@fref/@ref/g" > tmp-html-en/$$i;\
 	done
 
-tmp-internal-JAhtml: $(INTERNAL_SRCS)
-	-rm -rf tmp-internal-JAhtml
-	-mkdir tmp-internal-JAhtml tmp-internal-JAhtml/int-parts tmp-internal-JAhtml/int-parts/datatype
-	-cp texinfo.* txi*tex tmp-internal-JAhtml
+tmp-html-internal-ja: ${INTERNAL_SRCS}
+	-rm -rf tmp-html-internal-ja
+	-mkdir tmp-html-internal-ja tmp-html-internal-ja/int-parts tmp-html-internal-ja/int-parts/datatype
+	-cp texinfo.* txi*tex tmp-html-internal-ja
 	-for i in ${INTERNAL_SRCS}; do \
-	  ./extract_man JP $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmp-internal-JAhtml/$$i; \
+	  ./extract_man ja $$i | nkf -e | sed -e "s/@fref/@ref/g" > tmp-html-internal-ja/$$i; \
 	done 
 
-man-jp.dvi: tmpJP
-	-rm man-jp.dvi
-	-(cd tmpJP; ${PTEX} man.texi; ../jtexindex/C/texindex man.??; ${PTEX} man.texi)
-	-mv tmpJP/man.dvi man-jp.dvi
-	-touch man-jp.dvi
+man-ja.dvi: tmp-ja
+	-rm man-ja.dvi
+	-(cd tmp-ja; ${PTEX} man.texi; ../jtexindex/C/texindex man.??; ${PTEX} man.texi)
+	-mv tmp-ja/man.dvi man-ja.dvi
+	-touch man-ja.dvi
 
-man-eg.dvi: tmpEG
-	-rm man-eg.dvi
-	-(cd tmpEG; tex man.texi; ../jtexindex/C/texindex man.??; tex man.texi)
-	-(cd tmpEG; makeinfo man.texi)
-	-mv tmpEG/man.dvi man-eg.dvi
-	-touch man-eg.dvi
+man-en.dvi: tmp-en
+	-rm man-en.dvi
+	-(cd tmp-en; tex man.texi; ../jtexindex/C/texindex man.??; tex man.texi)
+	-(cd tmp-en; makeinfo man.texi)
+	-mv tmp-en/man.dvi man-en.dvi
+	-touch man-en.dvi
 
-man-jp.pdf: man-jp.dvi
-	${DVIPDF} man-jp.dvi
+man-ja.pdf: man-ja.dvi
+	${DVIPDF} man-ja.dvi
 
-man-eg.pdf: man-eg.dvi
-	${DVIPDF} man-eg.dvi
+man-en.pdf: man-en.dvi
+	${DVIPDF} man-en.dvi
 
-help-jp: tmpJPeuc man-jp.dvi
-	-rm -rf help-jp
-	-mkdir help-jp
-	-(cd tmpJPeuc; makeinfo man.texi)
-	-(cd help-jp; for i in ../tmpJPeuc/risaman*; do ../extract_func -j $$i; done)
+help-ja: tmp-ja_euc man-ja.dvi
+	-rm -rf help-ja
+	-mkdir help-ja
+	-(cd tmp-ja_euc; makeinfo man.texi)
+	-(cd help-ja; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
 
-help-eg: tmpEG man-eg.dvi
-	-rm -rf help-eg
-	-mkdir help-eg
-	-(cd help-eg; for i in ../tmpEG/risaman*; do ../extract_func $$i; done)
+help-en: tmp-en man-en.dvi
+	-rm -rf help-en
+	-mkdir help-en
+	-(cd help-en; for i in ../tmp-en/risaman*; do ../extract_func $$i; done)
 
-html-jp: tmpJPhtml
-	-rm -rf html-jp
-	-mkdir html-jp
-	-(cd html-jp; ../texi2html -menu -split_node ../tmpJPhtml/man.texi)
+html-ja: tmp-html-ja
+	-rm -rf html-ja
+	-mkdir html-ja
+	-(cd html-ja; ../texi2html -menu -split_node ../tmp-html-ja/man.texi)
 
-html-eg: tmpEGhtml
-	-rm -rf html-eg
-	-mkdir html-eg
-	-(cd html-eg; ../texi2html -menu -split_node ../tmpEGhtml/man.texi)
+html-en: tmp-html-en
+	-rm -rf html-en
+	-mkdir html-en
+	-(cd html-en; ../texi2html -menu -split_node ../tmp-html-en/man.texi)
 
-html-win: html-jp gen_hh
+html-win: html-ja gen_hh
 	-rm -rf html-win
 	-mkdir html-win
-	(cd html-jp; for i in *; do nkf -s $$i > ../html-win/$$i; done)
+	(cd html-ja; for i in *; do nkf -s $$i > ../html-win/$$i; done)
 	gen_hh html-win html-win
 
-html-win-eg: html-eg gen_hh
-	-rm -rf html-win-eg
-	-mkdir html-win-eg
-	(cd html-eg; for i in *; do nkf -s $$i > ../html-win-eg/$$i; done)
-	gen_hh html-win-eg html-win-eg
+html-win-en: html-en gen_hh
+	-rm -rf html-win-en
+	-mkdir html-win-en
+	(cd html-en; for i in *; do nkf -s $$i > ../html-win-en/$$i; done)
+	gen_hh html-win-en html-win-en
 
-html-internal-ja: tmp-internal-JAhtml
+html-internal-ja: tmp-html-internal-ja
 	-rm -rf html-internal-ja
 	-mkdir html-internal-ja
-	-(cd html-internal-ja; ../texi2html ../tmp-internal-JAhtml/internal.texi)
+	-(cd html-internal-ja; ../texi2html ../tmp-html-internal-ja/internal.texi)
 
 html-exp-ja: exp/exp-ja.texi
 	-rm -rf html-exp-ja
@@ -196,11 +196,12 @@ html-exp-ja: exp/exp-ja.texi
 	-nkf -e <exp/exp-ja.texi >html-exp-ja/exp-ja.texi
 	-(cd html-exp-ja; ../texi2html -menu -split_node exp-ja.texi)
 
-internal-jp.dvi: tmp-internal-JAhtml
-	-rm internal-jp.dvi
-	-(cd tmp-internal-JAhtml; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
-	-mv tmp-internal-JAhtml/internal.dvi internal-jp.dvi
-	-touch internal-jp.dvi
+internal-ja.dvi: tmp-html-internal-ja
+	-rm internal-ja.dvi
+	-(cd tmp-html-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
+	-mv tmp-html-internal-ja/internal.dvi internal-ja.dvi
+	-touch internal-ja.dvi
+
 extract_func: extract_func.c
 	${CC} -o extract_func extract_func.c
 
@@ -210,16 +211,16 @@ extract_man: extract_man.c
 gen_hh: html_tools/gen_hh.c
 	${CC} -o gen_hh html_tools/gen_hh.c
 
-targzuu: help-eg help-jp html-eg html-jp
-	-tar cf - help-eg | gzip -9 | uuencode help-eg.tgz > help-eg.uu
-	-tar cf - help-jp | gzip -9 | uuencode help-jp.tgz > help-jp.uu
-	-tar cf - html-eg | gzip -9 | uuencode html-eg.tgz > html-eg.uu
-	-tar cf - html-jp | gzip -9 | uuencode html-jp.tgz > html-jp.uu
+targzuu: help-en help-ja html-en html-ja
+	-tar cf - help-en | gzip -9 | uuencode help-en.tgz > help-en.uu
+	-tar cf - help-ja | gzip -9 | uuencode help-ja.tgz > help-ja.uu
+	-tar cf - html-en | gzip -9 | uuencode html-en.tgz > html-en.uu
+	-tar cf - html-ja | gzip -9 | uuencode html-ja.tgz > html-ja.uu
 
 clean:
 	(cd jtexindex/C; make clean)
 	-rm -f man*.dvi man*.pdf extract_man extract_func gen_hh .*done
-	-rm -f internal-jp.dvi
+	-rm -f internal-ja.dvi
 	-rm -rf tmp*
 	-rm -rf help-*
 	-rm -rf html-*

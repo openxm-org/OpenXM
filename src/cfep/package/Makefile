@@ -49,7 +49,7 @@ dist-cfep: gentar install
 			OpenXM/lib/cfep OpenXM/lib/sm1/bin \
 			OpenXM/doc/cfep )  | tar xvf -)
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
-		  tar cf - --exclude help --exclude help-jp --exclude help-eg  OpenXM/lib/asir  )  | tar xvf -)
+		  tar cf - --exclude help --exclude help-ja --exclude help-en  OpenXM/lib/asir  )  | tar xvf -)
 	(cd work/OpenXM/rc ; make clean)
 	rm -rf work/OpenXM/lib/asir/help* work/OpenXM/lib/asir/cfep-init.rr
 	mkdir work/OpenXM/lib/asir-contrib
