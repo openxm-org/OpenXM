@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.2 2005/04/14 05:17:56 takayama Exp $
+dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.3 2009/02/21 22:09:11 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT
@@ -11,16 +11,14 @@ AC_PATH_PROGS([DVIPDF],[dvipdfmx dvipdfm divpdf])
 AC_SUBST([DVIPDF])
 AC_PATH_PROG([PTEX],[ptex])
 AC_SUBST([PTEX])
-dnl AC_RUN_IFELSE(AC_LANG_SOURCE([[#include "stdlib.h"
-dnl int main(){exit(system("ptex -kanji=euc -version"));}]]),
-dnl AC_SUBST([PTEX_OPTS],["-kanji=euc"]),
-dnl AC_SUBST([PTEX_OPTS],[""]),
-dnl AC_SUBST([PTEX_OPTS],[""])
-dnl )
-dnl rm -f test-ja.dvi test-ja.log
+AC_RUN_IFELSE(AC_LANG_SOURCE([[#include "stdlib.h"
+int main(){exit(system("ptex -kanji=euc -version"));}]]),
+[PTEXFLAGS="-kanji=euc"],[],[])
+AC_SUBST([PTEXFLAGS])
+rm -f test-ja.dvi test-ja.log
 
 OpenXM_ROOT=`cd ../../../..; pwd`
-AC_SUBST(OpenXM_ROOT)
+AC_SUBST([OpenXM_ROOT])
 
 AC_CONFIG_FILES([Makefile M/Makefile])
 AC_OUTPUT

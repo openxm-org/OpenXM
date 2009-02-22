@@ -1,16 +1,11 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.17 2009/02/21 22:09:11 ohara Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.18 2009/02/22 02:51:44 ohara Exp $
 RM=rm -f
 
 LANGUAGES = en ja
 
-INSTALL=@INSTALL@
-INSTALL_SCRIPT=@INSTALL_SCRIPT@
-
-#top_srcdir=@top_srcdir@
 bindir=@prefix@/bin
 LIBDIR=@prefix@/lib/asir
 DOCDIR=@prefix@/doc/asir-contrib
-OXREPLACE=${bindir}/oxreplace
 
 SUBDIRS=dsolv gnuplot mathematica ok_diff ok_dmodule om \
    pfpcoh phc plucker sm1 tigers \
@@ -34,14 +29,10 @@ install-help: all
 
 install-document: all
 	@if [ ! -f ./.install_doc_done ] ; then \
-		for i in ${SUBDIRS}; do (cd $$i; ${MAKE} install-document); done ; \
-		for j in ${LANGUAGES}; do \
-			${INSTALL_SCRIPT} top/fix-link.sh ${DOCDIR}/$$j/cman-html ; \
-			(cd ${DOCDIR}/$$j/cman-html; sh ./fix-link.sh $$j ${OXREPLACE}) ; \
-		done ; \
+		for i in ${SUBDIRS}; do (cd $$i && ${MAKE} install-document); done ; \
 	    touch ./.install_doc_done ; \
 	else \
-	    echo "NOTE: Installation of document is already done. Remove .install_document_done for a new installation." ; \
+	    echo "NOTE: Installation of document is already done. Remove .install_doc_done for a new installation." ; \
 	fi
 
 clean:

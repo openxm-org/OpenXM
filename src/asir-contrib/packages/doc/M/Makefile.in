@@ -1,10 +1,10 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.5 2009/02/20 03:05:26 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/M/Makefile.in,v 1.6 2009/02/21 22:09:11 ohara Exp $
 # Original file was ../Makefile.common
 # Targets
 # gen-texi : generating texi files.
 # gen-html : generating HTML documents under html-{ja,en}
 # gen-help : generating online help files under help-{ja,en}
-# gen-pdf  : generating dvi, ps, pdf files here.
+# gen-pdf  : generating dvi and pdf files here.
 #
 # install-help
 #        Installing online help to OpenXM/lib/asir/help-{ja,en}/xm.help
@@ -44,7 +44,7 @@ ASIRDOC=${OpenXM_ROOT}/src/asir-doc
 ASIRLIB=${OpenXM_ROOT}/../OpenXM_contrib2/asir2000/lib
 CONTRIB=${OpenXM_ROOT}/src/asir-contrib/packages/src
 EXTRACT_FUNC=${ASIRDOC}/extract_func
-PTEX=@PTEX@ -kanji=euc
+PTEX=@PTEX@ @PTEXFLAGS@
 DVIPDF=@DVIPDF@
 MAKEINFO=@MAKEINFO@
 #
@@ -52,7 +52,7 @@ OPTGENTEXI= --include
 #OPTGENTEXI= --include --example
 ## PS documents are installed under ${OpenXM_doc}/asir-contrib
 DVIPS=dvips -f
-TEXI2HTML=texi2html -menu
+TEXI2HTML=${ASIRDOC}/texi2html -menu
 RM=rm -f
 NKF=nkf
 
@@ -82,6 +82,8 @@ all: gen-document
 
 ${MYNAME}-ja.dvi: ${MYNAME}.ja
 ${MYNAME}-en.dvi: ${MYNAME}.en
+
+gen-pdf: ${SRC_TEXI:.texi=.pdf}
 
 gen-document: gen-html
 	-if [ ! -f ./.build_doc_done ]; then \
@@ -130,7 +132,7 @@ install-document: gen-document
 		for j in ${LANGUAGES} ; do \
 			mkdir -p "${DOCDIR}/$$j/${MYNAME}-html" ; \
 			(cd html-$$j; tar cf - .) | (cd "${DOCDIR}/$$j/${MYNAME}-html" ; tar xf -) ; \
-			${INSTALL_DATA} ${MYNAME}-$$j.dvi ${MYNAME}-$$j.ps ${MYNAME}-$$j.pdf ${DOCDIR}/$$j/ ; \
+			${INSTALL_DATA} ${MYNAME}-$$j.dvi ${MYNAME}-$$j.pdf ${DOCDIR}/$$j/ ; \
 		done ; \
 		touch ./.install_doc_done ; \
 	fi
