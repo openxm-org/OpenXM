@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.16 2009/02/15 01:51:12 takayama Exp $
+#$OpenXM: OpenXM/src/asir-contrib/packages/doc/Makefile.in,v 1.17 2009/02/21 22:09:11 ohara Exp $
 RM=rm -f
 
 LANGUAGES = en ja
@@ -22,7 +22,7 @@ all :
 	    touch ./.build_done ; \
 	fi
 
-install: install-help
+install: install-help install-document
 
 install-help: all
 	@if [ ! -f ./.install_help_done ] ; then \
