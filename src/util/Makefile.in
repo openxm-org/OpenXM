@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/util/Makefile.in,v 1.5 2006/03/04 07:48:12 takayama Exp $
+# $OpenXM: OpenXM/src/util/Makefile.in,v 1.6 2006/10/13 11:51:25 ohara Exp $
 #OpenXM_ROOT=../../../OpenXM
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -10,7 +10,7 @@ CC=@CC@
 CFLAGS=@CFLAGS@ -D_BSD_SOURCE -D_POSIX_C_SOURCE
 RANLIB=@RANLIB@
 
-all : oxweave oxreplace oxgentexi oxgreph libox_pathfinder.a
+all : oxweave oxreplace oxgentexi oxgreph libox_pathfinder.a oxhtmlhelp
 
 oxweave : oxweave.o
 	${CC} -o $@ oxweave.o
@@ -24,6 +24,9 @@ oxgentexi : oxgentexi.o
 oxgreph : oxgreph.o
 	${CC} -o $@ oxgreph.o
 
+oxhtmlhelp : oxhtmlhelp.o
+	${CC} -o $@ oxhtmlhelp.o
+
 libox_pathfinder.a : ox_pathfinder.o
 	ar ru libox_pathfinder.a ox_pathfinder.o
 	${RANLIB} libox_pathfinder.a
@@ -35,9 +38,9 @@ test: ox_pathfinder.o test.o
 
 install: all
 	@if [ ! -f ./.install_done ] ; then \
-	echo "Installing oxweave, oxreplace, oxgentexi, oxgreph, libox_pathfinder.a, ox_pathfinder.h oxfetch.sh md5.sh" ; \
+	echo "Installing oxweave, oxreplace, oxgentexi, oxgreph, oxhtmlhelp libox_pathfinder.a, ox_pathfinder.h oxfetch.sh md5.sh" ; \
 	install -c lndir.sh oxfetch.sh md5.sh ${bindir} ; \
-	install -c -s oxweave oxreplace oxgentexi oxgreph ${bindir} ; \
+	install -c -s oxweave oxreplace oxgentexi oxgreph oxhtmlhelp ${bindir} ; \
 	install -c -s oxweave ${prefix}/src/kxx ; \
 	install -c libox_pathfinder.a ${libdir}  ; \
 	install -c ox_pathfinder.h ${includedir} ; \
