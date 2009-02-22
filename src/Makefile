@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.155 2009/02/08 05:05:35 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.156 2009/02/21 22:12:30 ohara Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -79,8 +79,14 @@ all-misc: install-util
 
 all-rc:
 	(cd ${RCDIR}; ${MAKE})
-all-util: configure-util
-	(cd util; ${MAKE} all)
+
+all-util: all-util-bin all-util-lib
+
+all-util-bin: configure-util
+	(cd util; ${MAKE} all-bin)
+
+all-util-lib: configure-util
+	(cd util; ${MAKE} all-lib)
 
 all-oxcdd: install-oxtoolkit
 	-(cd ox_cdd; ${MAKE} all)
@@ -100,8 +106,13 @@ install: install-oxtags install-util install-asir install-gnuplot \
 install-oxtags:
 	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
 
-install-util: all-util
-	(cd util; ${MAKE} install)
+install-util-bin: all-util-bin
+	(cd util; ${MAKE} install-bin)
+
+install-util-lib: all-util-lib
+	(cd util; ${MAKE} install-lib)
+
+install-util: install-util-bin install-util-lib
 
 install-gc: all-gc
 	(cd gc; ${MAKE} install)
@@ -262,7 +273,7 @@ configure-pari: install-util
 configure-oxmgraph: 
 	-(cd oxmgraph; ./make-configure)
 
-configure-document-asir-contrib: install-util install-asir-doc
+configure-document-asir-contrib: install-util-bin install-asir-doc
 	(cd asir-contrib/packages/doc; ./make-configure)
 
 clean-rc:
