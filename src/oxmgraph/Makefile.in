@@ -13,6 +13,8 @@ ${MYTARGET}: graph.c
 install: ${MYTARGET2}
 install2: ${MYTARGET}
 	install  ${MYTARGET} ${OpenXM_HOME}/bin
+	mkdir -p ${OpenXM_HOME}/share/oxmgraph
+	install share/inobuta.tga ${OpenXM_HOME}/share/oxmgraph
 
 install-for-debug:
 	ln -s `pwd`/graph  ${OpenXM_HOME}/bin/oxmgraph

@@ -158,12 +158,22 @@ int str_position = 500;
 void makeTexture(void)
 {
   FILE *fp; 
-  int x, z; 
+  int x, z;
+  char *oxhome;
+  char fname[1024];
 
   /* texture file open (file name is "inobuta.tga")*/
-  if((fp=fopen("inobuta.tga", "rb"))==NULL){
-    fprintf(stderr, "texture file cannot be open\n");
-    return;
+  oxhome = getenv("OpenXM_HOME");
+  if (oxhome != NULL) {
+	sprintf(fname,"%s/share/oxmgraph/inobuta.tga",oxhome);
+  }else{
+	sprintf(fname,"/usr/local/share/oxmgraph/inobuta.tgz");
+  }
+  if((fp=fopen(fname, "rb"))==NULL){
+	if ((fp = fopen("inobuta.tgz","rb")) == NULL) {
+	  fprintf(stderr, "texture file cannot be open\n");
+	  return;
+	}
   }
   fseek(fp, 18, SEEK_SET);
   for (x=0; x<TEX_HEIGHT; x++) {
