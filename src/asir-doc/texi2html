@@ -336,6 +336,7 @@ To convert a Texinfo file to HMTL: $0 [options] file
     -usage         : print usage instructions
     -verbose       : verbose output
 To check converted files: $0 -check [-verbose] files
+It accepts only ja_JP.EUC and ascii files. 
 EOT
 
 while (@ARGV && $ARGV[0] =~ /^-/) {
@@ -1883,6 +1884,7 @@ sub print_header {
     }
     print FILE <<EOT;
 <HTML>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-jp">
 <HEAD>
 $header
 <TITLE>$_</TITLE>
