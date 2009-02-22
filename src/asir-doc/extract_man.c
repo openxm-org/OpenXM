@@ -1,8 +1,10 @@
-/* $OpenXM: OpenXM/src/asir-doc/extract_man.c,v 1.1 1999/12/21 02:47:29 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-doc/extract_man.c,v 1.2 2009/02/22 16:40:05 ohara Exp $ */
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
+int
 main(argc,argv)
 int argc;
 char **argv;
