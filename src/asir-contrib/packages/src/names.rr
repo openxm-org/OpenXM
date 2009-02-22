@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.92 2006/10/05 08:30:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.93 2006/10/05 20:12:15 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib(20040302), Copyright 2000-2004, OpenXM.org committers\n"+
-  "ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
+  "OpenXM/Risa/Asir-Contrib(20090222), Copyright 2000-2009, OpenXM.org committers\n"+
+  "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
   return S;
@@ -41,6 +41,7 @@ load("taka_weyl.rr")$
 load("plucker.rr")$
 load("oxshell.rr")$
 load("taka_ahg.rr")$
+load("mt_graph.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
