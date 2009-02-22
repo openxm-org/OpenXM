@@ -9,7 +9,7 @@
   cfep-grep --folder folderName (default folder 以外の検索)
 
   grep の default folder は  プログラム中に 定数文字列の配列として埋め込んである.
-    ${OpenXM_HOME}/doc/cfep/html-ja_JP.eucJP/html-jp
+    ${OpenXM_HOME}/doc/cfep/html-ja_JP.eucJP/html-ja
     ${OpenXM_HOME}/doc/cfep/html-ja_JP.eucJP/html-exp-ja
   spotlight の default folder は
     ${OpenXM_HOME}/doc/cfep

@@ -97,7 +97,7 @@ gentar:
 # Do it at orange2
 gentar-html:
 	@if [ ! -f tmp-OpenXM-html.tar.gz ]; then \
-		(cd /home/web/OpenXM/Current ; tar czvf - doc/asir2000/html-jp) >tmp-OpenXM-html.tar.gz ; \
+		(cd /home/web/OpenXM/Current ; tar czvf - doc/asir2000/html-ja) >tmp-OpenXM-html.tar.gz ; \
 	fi 
 
 copy-intro-ja:

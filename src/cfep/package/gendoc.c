@@ -28,7 +28,7 @@ main(int argc, char *argv[]) {
 	if (Sjis) fprintf(stderr,"  output to ${OpenXM_HOME}/doc/cfep/html-ja_JP.sjis\n");
 	else fprintf(stderr,"  output to ${OpenXM_HOME}/doc/cfep/html-ja_JP.utf8\n");
 	fprintf(stderr,"nkf is used.\n");
-	fprintf(stderr,"Example: gendoc ~/OX4/OpenXM/src/asir-doc/html-jp\n");
+	fprintf(stderr,"Example: gendoc ~/OX4/OpenXM/src/asir-doc/html-ja\n");
 	exit(0);
   }
   setlocale(LC_ALL,"C");

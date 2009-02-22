@@ -14,7 +14,7 @@ usage:
 OpenXM_HOME=${HOME}/OX4/OpenXM
 
 #Build the following html files.
-#${OpenXM_HOME}/doc/asir2000/html-jp/*.html
+#${OpenXM_HOME}/doc/asir2000/html-ja/*.html
 #${OpenXM_HOME}/doc/asir2000/html-exp-ja/*.html
 #${OpenXM_HOME}/doc/asir-contrib/ja/*-html/*.html
 build-documents:
@@ -27,7 +27,7 @@ gendoc: gendoc.c
 	gcc -o gendoc gendoc.c
 
 build-utf8-asir: gendoc build-documents install-html-en-to-cfep
-	./gendoc ${OpenXM_HOME}/doc/asir2000/html-jp
+	./gendoc ${OpenXM_HOME}/doc/asir2000/html-ja
 	./gendoc ${OpenXM_HOME}/doc/asir2000/html-exp-ja
 # copy png files if necessary.
 	@echo "--------------------------------------------------------------------------"
@@ -37,7 +37,7 @@ build-utf8-asir: gendoc build-documents install-html-en-to-cfep
 
 install-html-en-to-cfep:
 	mkdir -p ${OpenXM_HOME}/doc/cfep
-	rsync -avz ${OpenXM_HOME}/doc/asir2000/html-eg ${OpenXM_HOME}/doc/cfep
+	rsync -avz ${OpenXM_HOME}/doc/asir2000/html-en ${OpenXM_HOME}/doc/cfep
 
 install-pdf-to-cfep:  install-pdf-to-cfep2
 	cp ../Doc/Intro/next2.pdf ${OpenXM_HOME}/doc/cfep/pdf

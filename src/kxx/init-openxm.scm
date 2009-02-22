@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.17 2006/02/13 10:00:05 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.18 2006/02/13 12:30:08 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -7,7 +7,7 @@
 
 (define manual-asir2000 
   (alist-search
-   '(("C"  . "doc/asir2000/html-eg/man_toc.html") ("ja" . "doc/asir2000/html-jp/man_toc.html"))))
+   '(("C"  . "doc/asir2000/html-en/man_toc.html") ("ja" . "doc/asir2000/html-ja/man_toc.html"))))
 
 (define manual-asir-contrib
   (alist-search

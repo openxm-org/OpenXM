@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/OpenMath/doc/Makefile,v 1.2 2001/11/04 09:58:14 takayama Exp $
 SRC = man.texi omproxy.texi
 
 all : OpenXM_javadoc  OpenXM_javadoc_ja
@@ -31,7 +31,7 @@ JP:
 		    /^\\../	{next;}	\
 		    {print;}' $$i > tmp/$$i;\
 	done
-	(cd tmp; ptex man.texi; cp man.dvi ../man-jp.dvi)
+	(cd tmp; ptex man.texi; cp man.dvi ../man-ja.dvi)
 
 EG:
 	-rm -rf tmp
@@ -49,7 +49,7 @@ EG:
 		    /^\\../	{next;}	\
 		    {print;}' $$i > tmp/$$i;\
 	done
-	(cd tmp; tex man.texi; cp man.dvi ../man-eg.dvi)
+	(cd tmp; tex man.texi; cp man.dvi ../man-en.dvi)
 
 
 clean:

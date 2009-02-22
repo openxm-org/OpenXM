@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/oxgreph.c,v 1.2 2006/03/04 10:43:38 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/oxgreph.c,v 1.3 2006/03/05 04:01:17 takayama Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,8 +16,8 @@
    Example:
    export LC_ALL="C"
    s.txt contains "insubunkai"
-   oxgreph  "`nkf -w s.txt`" $OpenXM_HOME/doc/cfep/html-ja_JP.utf8/html-jp/*.html >t.html
-   oxgreph --sjis "`nkf -s s.txt`" $OpenXM_HOME/doc/cfep/html-ja_JP.sjis/html-jp/*.html >t.html
+   oxgreph  "`nkf -w s.txt`" $OpenXM_HOME/doc/cfep/html-ja_JP.utf8/html-ja/*.html >t.html
+   oxgreph --sjis "`nkf -s s.txt`" $OpenXM_HOME/doc/cfep/html-ja_JP.sjis/html-ja/*.html >t.html
 */
 
 int Sjis = 0;
