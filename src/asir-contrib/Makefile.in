@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.3 2006/02/13 01:26:01 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/Makefile.in,v 1.4 2007/09/29 07:29:29 takayama Exp $
 
 # targets:
 # all
@@ -6,34 +6,24 @@
 # install-document
 # clean
 
-all :  Makefile
-	(cd packages/doc ; make all)
+RM   = rm -f
+LN_S = @LN_S@
 
-install : Makefile
-	-(cd testing ; make link-to-src)
-	(cd packages/src ; make install)
-	-(cd packages/doc ; make install)
+all : 
+configure:
 
-install-document: Makefile
-	-(cd packages/doc ; make install-document)
+install :
+	-(cd testing ; ${MAKE} link-to-src)
+	(cd packages/src ; ${MAKE} install)
 
 clean :
-	-rm -rf .*done packages/src/.*done packages/doc/.*done config.log config.status autom4te.cache
-	-(cd packages/src ; make clean)
-	-(cd packages/doc ; make clean)
+	-${RM} -r .*done packages/src/.*done config.log config.status autom4te.cache
+	-(cd packages/src ; ${MAKE} clean)
 
-configure: Makefile
-	if test ! -f ./.configure_sub_done  ; \
-	then \
-	(cd packages/src; sh ./configure --prefix=@prefix@) ; \
-	(cd packages/doc; sh ./configure --prefix=@prefix@) ; \
-        (cd packages/doc/M; sh ./configure --prefix=@prefix@) ; \
-	fi
-	@touch ./.configure_sub_done
-
-Makefile: Makefile.in
-	(rm -f .*done ; ./make-configure )
+distclean: clean
+	-(cd packages/src ; ${MAKE} distclean)
+	-${RM} Makefile
 
 install-for-debug:
 	-(rm -rf ../../lib/asir-contrib)
-	(cd ../../lib ; ln -s ../src/asir-contrib/packages/src asir-contrib)
+	(cd ../../lib ; ${LN_S} ../src/asir-contrib/packages/src asir-contrib)
