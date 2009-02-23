@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.157 2009/02/22 15:20:17 ohara Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.158 2009/02/23 01:34:51 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -288,7 +288,7 @@ install-document-kan96xx: install-kan96xx
 	(cd kan96xx; ${MAKE} install-document)
 
 install-document-asir-contrib: all-document-asir-contrib
-	(cd asir-contrib/packages/doc; ${MAKE} install-document)
+	(cd asir-contrib/packages/doc; ${MAKE} install ; ${MAKE} install-document)
 
 ## Targets for debugging
 install-for-debug:
