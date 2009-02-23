@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.29 2009/02/23 03:41:26 nakayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.30 2009/02/23 04:00:53 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -148,6 +148,8 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * chdir::
 * pwd::
 * dcurrenttime::
+* node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module)::
+* node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option)::
 
 
 @end menu
@@ -2694,7 +2696,135 @@ ChangeLog
 @item  これらの関数は OpenXM/src/asir-contrib/packages/src/nk_restriction.rr で定義されている. nk_restriction.rr, 1.1--1.6 を見よ.
 @end itemize
 
+@node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module),,, 実験的仕様の関数
+@subsection @code{nd_gr}, @code{nd_gr_trace} (加群)
+@findex nd_gr (module)
+@findex nd_gr_trace (module)
+@findex nd_weyl_gr (module)
+@findex nd_weyl_gr_trace (module)
 
+@comment --- nd_gr, nd_gr_trace における加群のグレブナー基底計算 ---
+@table @t
+@item  nd_gr(@var{gen},@var{vars},@var{char},@var{ord})
+@itemx  nd_gr_trace(@var{gen},@var{vars},@var{homo},@var{char},@var{ord})
+@item  nd_weyl_gr(@var{gen},@var{vars},@var{char},@var{ord})
+@itemx  nd_weyl_gr_trace(@var{gen},@var{vars},@var{homo},@var{char},@var{ord})
+:: 部分加群のグレブナー基底の計算
+@end table
+
+@table @var
+@item gen
+リストのリスト
+@item ord
+@var{[IsPOT,Ord]} なるリスト
+@item return
+リストのリスト
+@end table
+
+@itemize @bullet
+@item 多項式環あるいはワイル代数上の自由加群の部分加群のグレブナー基底
+を計算する. 結果はリストのリストである. 各要素リストは, 自由加群の
+元であるベクトルとみなす.
+@item @var{ord} として @var{[IsPOT,Ord]} という2要素リストが指定された
+場合, 加群のグレブナー基底計算を実行する. この場合, @var{gen} は, 多項式
+のリストのリストとして与える必要がある.
+@item @var{IsPOT} が 1 の場合, POT (position over term), 0 の
+場合 TOP (term over position) で比較する. 基礎環での項比較は @var{Ord}
+で行う.
+@item 説明されていない引数は, イデアルの場合の解説を参照のこと.
+@end itemize
+
+@example
+[0] Gen=[[x,y,z],[y^2+x,x^2,z],[y^2,z^3+x,x+z]]; 
+[[x,y,z],[x+y^2,x^2,z],[y^2,x+z^3,x+z]]
+[1]  nd_gr(Gen,[x,y,z],0,[0,0]);
+[[x,y,z],[y^2,x^2-y,0],[y^2,x+z^3,x+z],[y^3+z^3*y^2,y^3*x-y^3,
+-x^3-z*x^2+(z*y^2+y)*x-z*y^2+z*y],[0,0,x^4+z*x^3+(-z*y^2-y)*x^2
++(-y^3+z*y^2-z*y)*x+z^4*y^2]]
+@end example
+
+@table @t
+@item 参照
+@ref{nd_gr}, @ref{nd_gr_trace}
+@end table
+
+@node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option),,, 実験的仕様の関数
+@subsection @code{nd_gr}, @code{nd_gr_trace} (option)
+@findex nd_gr (option)
+@findex nd_gr_trace (option)
+@findex nd_weyl_gr (option)
+@findex nd_weyl_gr_trace (option)
+
+@comment --- nd_gr, nd_gr_trace のオプション ---
+
+@table @t
+@item  nd_gr(@var{...}[|@var{opt},@var{opt},@dots{}])
+@itemx  nd_gr_trace(@var{...}[|@var{opt},@var{opt},@dots{}])
+@itemx  nd_weyl_gr(@var{...}[|@var{opt},@var{opt},@dots{}])
+@itemx  nd_weyl_gr_trace(@var{...}[|@var{opt},@var{opt},@dots{}])
+:: グレブナー基底計算に関する種々のオプションの説明
+@end table
+
+@table @var
+@item opt
+@var{key=value} なるオプション設定
+@item return
+オプションにより異なる
+@end table
+
+@itemize @bullet
+@item グレブナー基底計算をオプションにより制御する.
+@item 現状では次の 3 つのオプションを受け付ける.
+
+@table @var
+@item gentrace
+@var{value} が 0 でないとき, グレブナー基底の計算経過情報を出力する.
+@item gentsyz
+@var{value} が 0 でないとき, 計算されたグレブナー基底に対する syzygy の生成系を出力する.
+@item nora
+@var{value} が 0 でないとき, 最終ステップで相互簡約を行わない.
+@end table
+
+@item @var{gentrace} が指定された場合, 出力は, 
+@var{[GB,Homo,Trace,IntRed,Ind,InputRed,SpairTrace]} なるリストである. 各要素の意味は
+次の通りである.
+@table @var
+@item GB
+グレブナー基底
+@item Homo
+中間基底が斉次化されている場合 1, そうでない場合 0.
+@item Trace
+全中間基底に対する計算経過情報
+@item IntRed
+相互簡約に対する計算経過情報
+@item Ind
+簡約グレブナー基底の各要素の, 全中間基底のにおけるインデックス
+@item InputRed
+各入力多項式をグレブナー基底で簡約して剰余 0 を得るまでの計算経過情報
+(@var{gensyz} が指定された場合)
+@item SpairTrace
+簡約グレブナー基底に対する S 多項式を簡約して剰余 0 を得るまでの計算経過情報
+(syzygy 加群の生成系の要素のみ; @var{gensyz} が指定された場合)
+@end table
+@item 詳細は, 入力多項式集合とグレブナー基底の相互変換行列, および syzygy 計算
+関数の項で説明する予定.
+@end itemize
+
+@example
+[0] C=[c3*c2*c1*c0-1,((c2+c3)*c1+c3*c2)*c0+c3*c2*c1,...]
+[1] D=nd_gr_trace(C,[c0,c1,c2,c3,c4],0,1,0|gentrace=1,gensyz=1)$
+[2] D[0];
+[c0+c1+c2+c3,-c1^2-2*c3*c1-c3^2,...]
+[3] D[2];
+[[[0,0,1],[1,1,1],[2,2,1],[3,3,1]],[4,[[1,2,(1)*<<0,0,0,0>>,1],...]
+[4] D[6];
+[[-1,[[1,0,(1)*<<0,0,2,4>>,1],[1,6,(-1)*<<1,0,0,0>>,1],...]
+@end example
+
+@table @t
+@item 参照
+@ref{nd_gr}, @ref{nd_gr_trace}
+@end table
 
 @comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
