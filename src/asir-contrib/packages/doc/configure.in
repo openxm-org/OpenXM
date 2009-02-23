@@ -1,4 +1,4 @@
-dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.3 2009/02/21 22:09:11 ohara Exp $
+dnl  $OpenXM: OpenXM/src/asir-contrib/packages/doc/configure.in,v 1.4 2009/02/22 06:51:12 ohara Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
 AC_INIT
@@ -12,7 +12,7 @@ AC_SUBST([DVIPDF])
 AC_PATH_PROG([PTEX],[ptex])
 AC_SUBST([PTEX])
 AC_RUN_IFELSE(AC_LANG_SOURCE([[#include "stdlib.h"
-int main(){exit(system("ptex -kanji=euc -version"));}]]),
+int main(){exit(system("ptex -kanji=euc M/test-ja.tex"));}]]),
 [PTEXFLAGS="-kanji=euc"],[],[])
 AC_SUBST([PTEXFLAGS])
 rm -f test-ja.dvi test-ja.log
