@@ -1,4 +1,4 @@
-; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.18 2006/02/13 12:30:08 ohara Exp $
+; $OpenXM: OpenXM/src/kxx/init-openxm.scm,v 1.19 2009/02/22 17:30:03 ohara Exp $
 
 (define (alist-search alist)
   (let* ((lang (or (getenv "LANG") "C"))
@@ -11,7 +11,7 @@
 
 (define manual-asir-contrib
   (alist-search
-   '(("C"  . "doc/asir-contrib/html-en/cman-en_toc.html") ("ja" . "doc/asir-contrib/html-ja/cman-ja_toc.html"))))
+   '(("C"  . "doc/asir-contrib/en/cman-html/cman-en_toc.html") ("ja" . "doc/asir-contrib/ja/cman-html/cman-ja_toc.html"))))
 
 ; (define (openxm-eval t)
 ;   (import-from (texmacs plugin plugin-cmd))
