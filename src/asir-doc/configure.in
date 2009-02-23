@@ -1,22 +1,22 @@
-dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.2 2007/09/29 05:17:08 takayama Exp $
+dnl  $OpenXM: OpenXM/src/asir-doc/configure.in,v 1.3 2007/09/29 05:29:10 takayama Exp $
 dnl  If you change this file, do not forget to run autoconf and rm .configure_done
 
-
-AC_INIT(extract_func.c)
+AC_INIT
+AC_PREREQ(2.61)
 AC_PROG_CC
 
-AC_TRY_RUN([#include "stdlib.h"
-            main() {
-              int r;
-              r=system("ptex -kanji=euc -version");
-              printf("ptex status=%d\n",r);
-              if (r == 0) exit(0); else exit(-1);
-           }],
- AC_SUBST(PTEX,["ptex -kanji=euc"]),
- AC_SUBST(PTEX,["ptex"]),
- AC_SUBST(PTEX,["ptex"])
-)
+AC_PATH_PROGS([MAKEINFO],[jmakeinfo makeinfo])
+AC_SUBST([MAKEINFO])
+AC_PATH_PROGS([DVIPDF],[dvipdfmx dvipdfm divpdf])
+AC_SUBST([DVIPDF])
+AC_PATH_PROG([PTEX],[ptex])
+if ${PTEX} -kanji=euc -version; then
+   PTEX="${PTEX} -kanji=euc"
+fi
+AC_SUBST([PTEX])
 
-AC_OUTPUT(Makefile)
+OpenXM_HOME=`cd ../..; pwd`
+AC_SUBST([OpenXM_HOME])
 
-make configure
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

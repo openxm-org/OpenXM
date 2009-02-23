@@ -1,11 +1,13 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.6 2009/02/22 16:40:05 ohara Exp $
-OpenXM_HOME=@prefix@
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.7 2009/02/22 23:35:12 ohara Exp $
+OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
 OpenXM_man=${OpenXM_HOME}/man/man1
 CC=@CC@
+TEX=tex
 PTEX=@PTEX@
-DVIPDF=dvipdfmx
+DVIPDF=@DVIPDF@
+MAKEINFO=@MAKEINFO@
 LANGUAGES = en ja
 INSTALL = cp -f
 
@@ -14,14 +16,14 @@ INSTALL = cp -f
 .dvi.pdf:
 	${DVIPDF} $<
 
-all: update-makefile
+all:
 	if [ ! -f .make_done ]; then ${MAKE} all2 ; touch .make_done ; fi
 
-all2: help-en html-en help-ja html-ja html-internal-ja html-exp-ja
+all2: help-en html-en help-ja html-ja html-internal-ja html-exp-ja man
 
 install: all
-	if [ ! -f .install_done ] ; then \
-		mkdir ${OpenXM_doc_asir2000} ; \
+	-if [ ! -f .install_done ] ; then \
+		test -d  ${OpenXM_doc_asir2000} || mkdir -p ${OpenXM_doc_asir2000} ; \
 		for j in ${LANGUAGES}; do \
 			rm -rf ${OpenXM_lib_asir}/help-$$j ; \
 			rm -rf ${OpenXM_doc_asir2000}/html-$$j ; \
@@ -29,7 +31,7 @@ install: all
 		for j in ${LANGUAGES}; do \
 			tar cf - help-$$j | (cd ${OpenXM_lib_asir}; tar xf -) ; \
 			tar cf - html-$$j | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
-			${INSTALL} man-$$j.dvi ${OpenXM_doc_asir2000} ; \
+			${INSTALL} man-$$j.dvi man-$$j.pdf ${OpenXM_doc_asir2000} ; \
 		done ; \
 		tar cf - html-internal-ja | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
 		tar cf - html-exp-ja      | (cd ${OpenXM_doc_asir2000}; tar xf -) ; \
@@ -37,18 +39,14 @@ install: all
 		touch .install_done ; \
 	fi
 
-update-makefile: Makefile
-Makefile: Makefile.in
-	(rm -f .configure_done ; ./make-configure)
+configure-texindex:
+	if [ ! -f .configure_sub_done ]; then \
+		(cd jtexindex/C; ./configure; ${MAKE} clean); \
+		touch .configure_sub_done ; \
+	fi
 
-configure:
-	(cd jtexindex/C; ./configure; ${MAKE} clean)
-
-texindex:
+texindex: configure-texindex
 	(cd jtexindex/C; ${MAKE})
-
-nkf:
-	(cd nkf-1.7; ${MAKE})
 
 BUILTINS=\
 	parts/builtin/array.texi parts/builtin/bit.texi\
@@ -141,18 +139,17 @@ man-ja.dvi: tmp-ja
 	-touch $@
 
 man-en.dvi: tmp-en
-	-(cd tmp-en; tex man.texi; ../jtexindex/C/texindex man.??; tex man.texi)
-	-(cd tmp-en; makeinfo man.texi)
+	-(cd tmp-en; ${TEX} man.texi; ../jtexindex/C/texindex man.??; ${TEX} man.texi)
+	-(cd tmp-en; ${MAKEINFO} man.texi)
 	-mv -f tmp-en/man.dvi $@
 	-touch $@
 
-man-ja.pdf: man-ja.dvi
-man-en.pdf: man-en.dvi
+man: man-ja.pdf man-en.pdf
 
 help-ja: tmp-ja_euc man-ja.dvi
 	-rm -rf $@
 	-mkdir -p $@
-	-(cd tmp-ja_euc; makeinfo man.texi)
+	-(cd tmp-ja_euc; ${MAKEINFO} man.texi)
 	-(cd $@; for i in ../tmp-ja_euc/risaman*; do ../extract_func -j $$i; done)
 
 help-en: tmp-en man-en.dvi
@@ -215,8 +212,12 @@ targzuu: help-en help-ja html-en html-ja
 
 clean:
 	(cd jtexindex/C; ${MAKE} clean)
-	-rm -f man*.dvi man*.pdf *.o extract_man extract_func gen_hh .*done
+	-rm -f man*.dvi man*.pdf *.o extract_man extract_func gen_hh
 	-rm -f internal-ja.dvi
 	-rm -rf tmp*
 	-rm -rf help-*
 	-rm -rf html-*
+
+distclean: clean
+	-rm -rf autom4te.cache config.log config.status Makefile
+	-rm -f .configure*_done .make_done .install_done
