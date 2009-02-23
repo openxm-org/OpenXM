@@ -75,7 +75,8 @@ FILES=OpenXM/Copyright OpenXM/bin OpenXM/include \
       OpenXM/doc/ox_toolkit \
       OpenXM/doc/oxlib \
       OpenXM/doc/OpenXM-specs \
-      OpenXM/doc/index
+      OpenXM/doc/index \
+      OpenXM/share
       
 make-tar-ball-2: make-tar-ball-1
 	if [ ! -f .make-tar-ball-2_done ]; then \
