@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.27 2008/11/11 08:18:50 ohara Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.28 2008/11/19 03:25:38 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -2474,6 +2474,221 @@ ChangeLog
 この関数は 2008-9-12 にコミットされた.
 変更をうけたソースコードは builtin/time.c (1.6) である.
 @end itemize
+
+@node nk_restriction.restriction,,, 実験的仕様の関数
+@subsection @code{nk_restriction.restriction}
+@comment --- 索引用キーワード
+@findex nk_restriction.restriction
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.restriction(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+:: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての制限加群を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+イデアルの生成元のリスト
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@itemize @bullet
+@item
+@var{W} の要素は非負整数で、0 番目の要素から連続して正の整数が入らなければならない。
+(すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
+@item
+正の重みを持つ変数についての制限を行う。
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
+x,y について制限を行う。 
+@end itemize
+
+以下は、イデアル 
+@tex 
+$I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $
+@end tex 
+の
+@tex $x$ @end tex  
+についての制限加群を計算した例である。
+@example
+[1432] nk_restriction.restriction([x*dx-1,y*dy-1],[x,y],[dx,dy],[1,0]);
+-- generic_bfct_and_gr :0.001sec(0.001629sec)
+generic bfct : [[1,1],[s-1,1]]
+S0 : 1
+B_{S0} length : 2
+-- fctr(BF) + base :0.000999sec(0.0005109sec)
+[[y*dy-1,(y*dy-1)*dx,-1],[[1],[0]]]
+[1433] 
+@end example
+
+@node nk_restriction.restriction_ideal,,, D 加群の制限に関する関数
+@subsection @code{nk_restriction.restriction_ideal}
+@comment --- 索引用キーワード
+@findex nk_restriction.restriction_ideal
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.restriction_ideal(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+:: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての制限イデアルを返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+イデアルの生成元のリスト
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@itemize @bullet
+@item
+@var{W} の要素は非負整数で、0 番目の要素から連続して正の整数が入らなければならない。
+(すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
+@item
+正の重みを持つ変数についての制限を行う。
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
+x,y について制限を行う。 
+@end itemize
+
+以下は、イデアル 
+@tex 
+$I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $
+@end tex 
+の
+@tex $x$ @end tex  
+についての制限イデアルを計算した例である。
+@example
+[1346] nk_restriction.restriction_ideal([x*dx-1,y*dy-1],[x,y],[dx,dy],[1,0]);
+-- generic_bfct_and_gr :0.002sec(0.001652sec)
+generic bfct : [[1,1],[s-1,1]]
+S0 : 1
+B_{S0} length : 2
+-- fctr(BF) + base :0sec(0.000566sec)
+-- restriction_ideal_internal :0.001sec(0.0007441sec)
+[-1]
+[1347] 
+@end example
+
+@node nk_restriction.integration,,, 実験的仕様の関数
+@subsection @code{nk_restriction.integration}
+@comment --- 索引用キーワード
+@findex nk_restriction.integration
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.integration(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+:: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての積分加群を返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+イデアルの生成元のリスト
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+@var{W} の要素は非負整数で、0 番目の要素から連続して正の整数が入らなければならない。
+(すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
+@item
+正の重みを持つ変数についての積分を行う。
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
+x,y について積分を行う。 
+@end itemize
+
+以下は、イデアル 
+@tex 
+$I = D \cdot \{2 t \partial_x + \partial_t, t \partial_t + 2 x \partial_x + 2\} $
+@end tex 
+の
+@tex $t$ @end tex  
+についての積分イデアルを計算した例である。([SST, Ex5.5.2, Ex5.5.6])
+@example
+[1351] nk_restriction.integration([2*t*dx+dt,2*x*dx+t*dt+2],[t,x],
+[dt,dx],[1,0]);
+-- generic_bfct_and_gr :0.001sec(0.001796sec)
+generic bfct : [[1,1],[s,1],[s-1,1]]
+S0 : 1
+B_{S0} length : 2
+-- fctr(BF) + base :0.001sec(0.0006731sec)
+[[4*x*dx^2+6*dx,-4*t*x*dx^2-6*t*dx,2*x*dx+1,-2*t*x*dx,2*t*dx],[[1],[0]]]
+@end example
+
+@node nk_restriction.integration_ideal,,, 実験的仕様の関数
+@subsection @code{nk_restriction.integration_ideal}
+@comment --- 索引用キーワード
+@findex nk_restriction.integration_ideal
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.integration_ideal(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+:: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての積分イデアルを返す。
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+イデアルの生成元のリスト
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item
+@var{W} の要素は非負整数で、0 番目の要素から連続して正の整数が入らなければならない。
+(すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
+@item
+正の重みを持つ変数についての積分を行う。
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
+x,y について積分を行う。 
+@end itemize
+
+以下は、イデアル 
+@tex 
+$I = D \cdot \{2 t \partial_x + \partial_t, t \partial_t + 2 x \partial_x + 2\} $
+@end tex 
+の
+@tex $t$ @end tex  
+についての積分イデアルを計算した例である。([SST, Ex5.5.2, Ex5.5.6])
+@example
+[1431]  nk_restriction.integration_ideal([2*t*dx+dt,t*dt+2*x*dx+2],[t,x],
+[dt,dx],[1,0]);
+-- generic_bfct_and_gr :0.002999sec(0.002623sec)
+generic bfct : [[1,1],[s,1],[s-1,1]]
+S0 : 1
+B_{S0} length : 2
+-- fctr(BF) + base :0.001sec(0.001091sec)
+-- integration_ideal_internal :0.002sec(0.001879sec)
+[2*x*dx+1]
+[1432]
+@end example
+
+
 
 @comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
