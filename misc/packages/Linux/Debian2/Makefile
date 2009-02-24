@@ -97,7 +97,8 @@ make-tar-ball-3:
 	  mkdir -p .TeXmacs/progs ;\
 	  cp ${TM_OX} .TeXmacs/plugins/ox/progs/init-ox.scm ;\
 	  touch .TeXmacs/progs/my-init-texmacs.scm ;\
-	  tar czvf work/ox-texmacs-${OS}-${VERSION}.tar.gz ./.TeXmacs  ;\
+	  cp work/OpenXM_contrib2/fep/feprc.sample .feprc.sample ;\
+	  tar czvf work/ox-texmacs-${OS}-${VERSION}.tar.gz ./.TeXmacs ./.feprc.sample ;\
 	fi
 	touch .make-tar-ball-3_done
  
