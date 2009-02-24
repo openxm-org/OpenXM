@@ -26,14 +26,25 @@
 <h2> ニュース </h2>
 
 <ul>
-<li> Debian パッケージ opexm (Debian Etch 用)は 
+<li> Debian パッケージ openxm-1.2.3-12 (Debian Etch/Lenny 用)は 
   <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath"> こちらから </a>
   入手できます. 
   <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath/readme-ja.html">
   こちらに </a> 注意事項が書いてありますのでご覧下さい.
-  (apt-get update が使えないのでご注意)
-  (Jan 30, 2008. openxm-1.2.3-10) <br>
-  問題点: (1) gcc がインストールしてない場合(etch の標準デスクトップ環境など) "apt-get  install gcc" で gcc をインストールして下さい.
+  (Feb 24, 2009. openxm-1.2.3-12) <br>
+  種々の bug fix や改良の他に,
+  実験的機能として, 3D graphics, 加群のGB, D加群の積分などが追加されています.
+  fres(resultant), taji_alc(algebraic local cohomology) などのパッケージとマニュアルが加わりました. 詳しくは helph() 関数でマニュアルをご覧下さい. <br>
+  apt-get update が使えないのでご注意. 必ず下記のようにインストールして下さい. 
+  <pre>
+     dpkg --purge openxm
+     apt-get install openxm
+  </pre>
+  TeXmacs インタフェースのユーザディレクトリへのコピーは
+  <pre>
+    cp -r /root/.TeXmacs  ~/.
+  </pre>
+  です.
 <li> <a href="news-o-ja.html"> 過去のニュース </a>
 </ul>
 
@@ -106,7 +117,7 @@ http://www.openxm.org
 openxm2005@math.Xkobe-u.Xac.Xjp  (".X" を "." で置き換えて下さい)
 
 <pre>
-$OpenXM: OpenXM/doc/OpenXM-web/top-ja.html,v 1.11 2009/02/15 09:58:30 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/top-ja.html,v 1.12 2009/02/15 22:18:01 takayama Exp $
 </pre>
 
 </BODY>
