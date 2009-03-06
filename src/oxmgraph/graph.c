@@ -152,9 +152,6 @@ GLboolean lightSwitch = GL_FALSE;
 GLboolean textureSwitch = GL_FALSE;
 GLboolean blendSwitch = GL_FALSE;
 
-/* for bitfont */
-int str_position = 500;
-
 void makeTexture(void)
 {
   FILE *fp; 
@@ -258,7 +255,12 @@ static void graph(void)
 	glEnd();
 	
 	if ( exNet ) {
-	  glColor3f(0.0,0.0,0.0);
+	  glColor3f(1.0,1.0,1.0);
+	  if(!blendSwitch) {
+	    glDisable(GL_LIGHTING);
+	    glDisable(GL_TEXTURE_2D);
+	    glColor3f(0.0,0.0,0.0);
+	  }
 	  glBegin(GL_LINE_LOOP);
 	    glVertex3f(x, y, polynomial(x,y));
 	    glVertex3f(x+DIV, y, polynomial(x+DIV, y));
@@ -269,6 +271,10 @@ static void graph(void)
 	    glVertex3f(x, y, polynomial(x, y));
 	    glVertex3f(x+DIV, y+DIV, polynomial(x+DIV, y+DIV));
 	  glEnd();
+	  if(lightSwitch)
+	    glEnable(GL_LIGHTING);
+	  if(textureSwitch) 
+	    glEnable(GL_TEXTURE_2D); 
       	}
       }
     }
@@ -324,12 +330,21 @@ void triangle(void)
 	glEnd();
 
 	if( exNet ) {
-	glColor3f(0.0,0.0,0.0);
-	glBegin(GL_LINE_LOOP);
-	  glVertex3f(triangles[j][0],triangles[j][1],triangles[j][2]);
-	  glVertex3f(triangles[j][3],triangles[j][4],triangles[j][5]);
-	  glVertex3f(triangles[j][6],triangles[j][7],triangles[j][8]);
-	glEnd();
+	  glColor3f(1.0,1.0,1.0);
+	  if(!blendSwitch) {
+	    glDisable(GL_LIGHTING);
+	    glDisable(GL_TEXTURE_2D);
+	    glColor3f(0.0,0.0,0.0);
+	  }
+	  glBegin(GL_LINE_LOOP);
+	    glVertex3f(triangles[j][0],triangles[j][1],triangles[j][2]);
+	    glVertex3f(triangles[j][3],triangles[j][4],triangles[j][5]);
+	    glVertex3f(triangles[j][6],triangles[j][7],triangles[j][8]);
+	  glEnd();
+	  if(lightSwitch)
+	    glEnable(GL_LIGHTING);
+	  if(textureSwitch) 
+	    glEnable(GL_TEXTURE_2D); 
 	}
       }
   }
@@ -400,7 +415,6 @@ static void box(void)
 static void axis(void)
 {
   double i;
-  /*  glLineWidth(2.0); */
   glBegin(GL_LINES);
   glColor3f(1.0, 0.0, 0.0);
   glVertex3f(-size, 0, 0);  glVertex3f(size, 0, 0);
@@ -424,10 +438,6 @@ static void axis(void)
   glColor3f(1.0, 1.0, 0.0);
   glRasterPos3i(0,0,size+1);
   glBitmap (10, 12, 0.0, 0.0, 11.0, 0.0, raster_Z);
-
-  /*  glColor3f(1.0, 1.0, 1.0);
-  glRasterPos3i(5,1,0);
-  glBitmap (10, 12, 0.0, 0.0, 11.0, 0.0, raster_5);*/
 
   glColor3f(1.0, 1.0, 1.0);
   glRasterPos3i(5,1,0);
@@ -484,12 +494,10 @@ static void recalcGraph(void)
   triangle();
   glEndList();
 
-  /* Axis and Box */
-  /*  theWhole = glGenLists(1);
-      glNewList(theWhole, GL_COMPILE); */
-      glCallList(theAxis);
-      glCallList(theBox);
-      /*  glEndList(); */
+
+  glCallList(theAxis);
+  glCallList(theBox);
+
   newGraph = 0;
 }
 
@@ -501,7 +509,7 @@ static void init(void)
   glClearColor(0.2, 0.2, 0.2, 0.0);
   glShadeModel(GL_FLAT);
   glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
-  /*  
+  /* 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
   */
   glMatrixMode(GL_PROJECTION);
@@ -580,7 +588,6 @@ void display(void)
 
 void reshape(int w, int h)
 {
-  str_position = h;
   glViewport(0,0, (GLsizei)w, (GLsizei)h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -705,6 +712,7 @@ void controlExpression(int value)
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);  
     newModel = 1;
+    newGraph = 1;
     glutPostRedisplay();
     break;
   case 2:
@@ -713,6 +721,7 @@ void controlExpression(int value)
     glEnable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     newModel = 1;
+    newGraph = 1;
     glutPostRedisplay();
     break;
   case 3:
@@ -721,6 +730,7 @@ void controlExpression(int value)
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
     newModel = 1;
+    newGraph = 1;
     glutPostRedisplay();
    break;
   case 4:
@@ -733,6 +743,7 @@ void controlExpression(int value)
       glDisable(GL_BLEND);
       glEnable(GL_DEPTH_TEST);
     }
+    newGraph = 1;
     break;
   case 5:
     exAxis = !exAxis;
@@ -835,6 +846,7 @@ int main(int argc, char** argv)
     triSwitch = 0;
     exTex = 1;
     exSample = 0;
+    printf("$=5.0, @=5.0\n"); 
   }
   else if (argc != 2) {
     fprintf(stderr,"Usage: graph filename\n");
@@ -974,16 +986,7 @@ int main(int argc, char** argv)
   
   glEnable(GL_LIGHT0); 
   glEnable(GL_LIGHT1);
-  /*
-  glEnable(GL_STENCIL_TEST);
-  glEnable(GL_AUTO_NORMAL);
-  */
-  /* 
-  glEnable(GL_LIGHT2);
-    glEnable(GL_LIGHT3);
-  glEnable(GL_LIGHT4);
-  glEnable(GL_LIGHT5);
-  */
+
   glutMainLoop();
   return 0;
 }

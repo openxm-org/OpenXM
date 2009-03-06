@@ -567,7 +567,7 @@ def test4() {
                                fitting=0);
 }
 
-/* Klein Bottle,  Wikipedia, Figure 8 immersion*/
+/* Klein Bottle2,  Wikipedia, Figure 8 immersion*/
 def test5() {
   L=    [5*cos(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0)-10.0,
          -5*sin(x)*(cos(x/2)*cos(y)+sin(x/2)*sin(2*y)+3.0),
@@ -576,12 +576,17 @@ def test5() {
   parametric_plot3d(L | domain=[[-3.14,3.14],[-3.14,3.14]], fitting=0);
 }
 
+/* Klein Bottle, k3dsurf 'Klein demo' */
 def test6() {
-  L=    [cos(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
-         sin(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),
-         (-1)*sin(x/2)*(2^(1/2)+cos(y))+cos(x/2)*sin(y)*cos(y)];
+  L=    [(3*(1+sin(y)) + 2*(1-cos(y)/2)*cos(x))*cos(y),
+	/*cos(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),*/
+	(4+2*(1-cos(y)/2)*cos(x))*sin(y),
+	/*sin(x)*(cos(x/2)*(2^(1/2)+cos(y))+sin(x/2)*sin(y)*cos(y)),*/
+	-2*(1-cos(y)/2) * sin(x)
+	/*(-1)*sin(x/2)*(2^(1/2)+cos(y))+cos(x/2)*sin(y)*cos(y)*/
+	];
   L = map(subst,L,x,s,y,t);
-  parametric_plot3d(L | domain=[[2*3.14/3,5*3.14/3],[-3.14/2,3.14/2]]);
+  parametric_plot3d(L | domain=[[0.0,2*3.14],[0.0,2*3.14]]);
 }
 
 def test7() {
