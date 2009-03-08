@@ -144,7 +144,7 @@ def plot3d(F) {
   output(Fname)$
   printf("%a",S)$
   output()$
-  shell("oxmgraph "+Fname+" &");
+  shell(getenv("OpenXM_HOME")+"/bin/oxmgraph "+Fname+" &");
   return [F,[["xmin",Xmin],["xmax",Xmax],["ymin",Ymin],["ymax",Ymax],
              ["mesh",NN],["fmax",Fmax]]];
 }
@@ -455,7 +455,7 @@ def parametric_plot3d(F) {
   output(Fname)$
   printf("%a",SS)$
   output()$
-  shell("oxmgraph "+Fname+" &");
+  shell(getenv("OpenXM_HOME")+"/bin/oxmgraph "+Fname+" &");
   return [F,[["xmin",Pxmin],["xmax",Pxmax],["ymin",Pymin],["ymax",Pymax],
              ["zmin",Pzmin],["zmax",Pzmax],
              ["mesh",NN],["dollar",Vdollar],["at",Vat]]];
