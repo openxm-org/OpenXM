@@ -1,0 +1,33 @@
+$OpenXM$
+
+Risa/Asir for Windows Vista x64 のビルド方法
+
+0. 必要な物
+
+・Windows Vista Business x64 Edition
+・Visual Studio 2008 professional
+・Cygwin
+
+1. ソースの取得
+
+CVS クライアントを用いて、OpenXM_contrib2 を checkout する.
+
+2. gc-7.1 ソースの準備
+
+OpenXM_contrib2/windows/ に gc-7.1 のソースを展開し, 差分
+OpenXM_contrib2/asir2000/gc-7.0-risa.diff をソースに当てる.
+
+この作業を補助するためにスクリプトが用意されている.
+OpenXM_contrib2/../OpenXM_dist に gc-7.1.tar.gz を置き,
+Cygwin プロンプトから次のように入力する.
+
+$ cd OpenXM_contrib2/windows
+$ ./extract_gc.sh
+
+3. ビルド
+
+「Visual Studio 2008 x64 Win64 コマンドプロンプト」から
+次のように入力する.
+
+C> cd OpenXM_contrib2\windows
+C> makebin64
