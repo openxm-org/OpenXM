@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_maple/simple.c,v 1.1 2004/06/21 12:46:04 takayama Exp $ */
 
 /* A sample implementation for maple 
    of an OpenXM client with OpenXM C library */
@@ -33,6 +33,23 @@ int ml_start_asir()
     }
 	return 0;
 }
+
+int ml_start_maple()
+{
+    char *server = "ox_maple";
+
+	ml_init();
+
+    sv = ox_start("localhost", "ox", server);  
+    if (sv == NULL) {
+        ox_printf("simple:: I cannot connect to servers.\n");
+        return -1;
+    }
+	return 0;
+}
+
+
+
 
 int ml_push_int(int i) {
   if (sv == NULL) ml_start_asir();

@@ -1,4 +1,9 @@
-# $OpenXM: OpenXM/src/ox_maple/simple.ml,v 1.1 2004/06/21 12:46:04 takayama Exp $
+# $OpenXM: OpenXM/src/ox_maple/simple.ml,v 1.2 2004/06/21 13:10:40 takayama Exp $
+ox_start_maple:=define_external(
+   'ml_start_maple',
+   'RETURN'::integer[4],
+   'LIB'="libsimple.so");
+
 ox_start_sm1:=define_external(
    'ml_start_asir',
    'RETURN'::integer[4],

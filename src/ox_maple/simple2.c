@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/ox_maple/simple2.c,v 1.1 2004/07/02 13:10:43 takayama Exp $ */
 
 /* Example:
    maple
@@ -74,6 +74,18 @@ int ml_init() {
   In_ox = 0;
 }
 
+int ml_start_maple()
+{
+    char *server = "ox_maple";
+	ml_init();
+
+    sv = ox_start("localhost", "ox", server);  
+    if (sv == NULL) {
+        ox_printf("simple:: I cannot connect to servers.\n");
+        return -1;
+    }
+	return 0;
+}
 int ml_start_asir()
 {
     char *server = "ox_asir";
