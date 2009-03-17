@@ -1,0 +1,22 @@
+# $OpenXM$
+
+Windows版の作成方法
+
+1.  Microsoft Windows SDK v6 をインストールする.
+    (Visual Studio 2008 Professional ed. に付属しています)
+
+    以下、c:/Program Files/Microsoft SDKs/Windows/v6.0A に
+    インストールされたものとする.
+
+2.  http://www.xmission.com/~nate/glut.html から
+    glut-3.7.6-bin.zip をダウンロードし, 展開する.
+
+    含まれていたファイルを次のように置く.
+    glut.h -> c:/Program Files/Microsoft SDKs/Windows/v6.0A/include/gl/
+    glut32.lib -> c:/Program Files/Microsoft SDKs/Windows/v6.0A/lib/
+    glut32.dll -> c:/windows/system32/
+
+3. ビルド
+   nmake -f Makefile.vc
+
+Good Luck!

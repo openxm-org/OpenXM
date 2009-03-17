@@ -1,0 +1,11 @@
+# $OpenXM$
+
+CFLAGS=-nologo -MT -Ox -I . 
+
+all: graph.exe
+
+graph.exe: graph.c
+	$(CC) $(CFLAGS) -o $@ graph.c
+
+clean:
+	-@del graph.exe
