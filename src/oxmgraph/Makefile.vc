@@ -1,11 +1,14 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/oxmgraph/Makefile.vc,v 1.1 2009/03/17 17:04:14 ohara Exp $
 
 CFLAGS=-nologo -MT -Ox -I . 
+LD=link
+LDFLAGS=-nologo
 
-all: graph.exe
+all: oxmgraph.exe
 
-graph.exe: graph.c
-	$(CC) $(CFLAGS) -o $@ graph.c
+oxmgraph.exe: graph.obj
+	$(LD) $(LDFLAGS) -out:$@ $**
 
 clean:
-	-@del graph.exe
+	-@del oxmgraph.exe
+	-@del *.obj
