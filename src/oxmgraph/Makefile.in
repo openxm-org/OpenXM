@@ -1,26 +1,31 @@
-OpenXM_HOME = @prefix@
-CFLAGS = @CFLAGS@
-CFLAG2 = @CFLAG2@
-LFLAG2 = @LFLAG2@
-MYTARGET = @MYTARGET@
-MYTARGET2 = @MYTARGET2@
+prefix = @prefix@
+CFLAGS = @CFLAGS@ -I /usr/local/include
+LIBS = @LIBS@
+LN_S = @LN_S@
+TARGET = @TARGET@
 CC = @CC@
-all: ${MYTARGET}
 
-${MYTARGET}: graph.c
-	${CC} ${CFLAGS} ${CFLAG2} graph.c ${LFLAG2} -o ${MYTARGET}
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
 
-install: ${MYTARGET2}
-install2: ${MYTARGET}
-	install  ${MYTARGET} ${OpenXM_HOME}/bin
-	mkdir -p ${OpenXM_HOME}/share/oxmgraph
-	install share/inobuta.tga ${OpenXM_HOME}/share/oxmgraph
+all: ${TARGET}
+
+oxmgraph: graph.c
+	${CC} ${CFLAGS} -o $@ graph.c ${LIBS}
+
+install: all
+	@if [ ! -z "${TARGET}" ]; then \
+		${INSTALL_PROGRAM} oxmgraph ${prefix}/bin ; \
+		mkdir -p ${prefix}/share/oxmgraph ; \
+		${INSTALL_DATA} share/inobuta.tga ${prefix}/share/oxmgraph ;\
+	fi
 
 install-for-debug:
-	ln -s `pwd`/graph  ${OpenXM_HOME}/bin/oxmgraph
+	${LN_S} `pwd`/oxmgraph ${prefix}/bin/oxmgraph
 
 clean:
-	rm -rf ${MYTARGET} *.o *~ config.log config.status
-distclean: clean
-	rm -f Makefile
+	rm -rf oxmgraph *.o *~ config.log config.status autom4te.cache
 
+distclean: clean
+	rm -f Makefile .configure_done

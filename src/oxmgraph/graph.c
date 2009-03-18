@@ -5,14 +5,12 @@ License: This software is distributed under the 2-cluases BSD license
 (http://en.wikipedia.org/wiki/BSD_licenses)
 */
 
-#ifdef MAC_OS_X
-#include <GLUT/glut.h>
-#else
 #if defined (_MSC_VER)
 #include <windows.h>
 #endif
-#include<GL/gl.h>
-#include<GL/glu.h>
+#if defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
 #include<GL/glut.h>
 #endif
 
@@ -939,7 +937,7 @@ int main(int argc, char** argv)
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DOUBLE |
 		      GLUT_DEPTH | GLUT_MULTISAMPLE);
-#ifdef MAC_OS_X
+#if defined(__APPLE__)
   glutInitWindowSize(512, 512);
 #else
   glutInitWindowSize(500, 500);
