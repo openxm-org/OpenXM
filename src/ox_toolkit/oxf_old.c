@@ -1,5 +1,5 @@
 /* -*- mode: C; coding: euc-japan -*- */
-/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.6 2003/06/02 10:25:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/ox_toolkit/oxf_old.c,v 1.7 2003/09/15 09:31:42 ohara Exp $ */
 
 /* このモジュールは互換性のためのものです。*/
 
@@ -186,16 +186,25 @@ OXFILE *ox_start_insecure(char* host, short portControl, short portStream)
 /* ssh -f host oxlog xterm -e ox -ox ox_asir ... */
 void ssh_ox_server(char *remote_host, char *ctl_prog, char *dat_prog, short portControl, short portStream)
 {
+    char buf[2][10];
+/*
     ctl_prog = concat_openxm_home_bin(ctl_prog);
     dat_prog = concat_openxm_home_bin(dat_prog);
+*/
 
     if (fork() == 0) {
+
+        sprintf(buf[0], "%hd", portStream);
+        sprintf(buf[1], "%hd", portControl);
+
         execlp("ssh", "ssh", "-f", remote_host, "oxlog", "xterm", "-icon",
               "-e", ctl_prog, "-insecure", "-ox", dat_prog,
-              "-data", portStream, "-control", portControl,
+              "-data", buf[0], "-control", buf[1],
               "-host", remote_host, NULL);
         exit(1);
     }
+
+    sleep(1); /* wait ssh */
 }
 
 OXFILE *ox_start_remote_with_ssh(char *dat_prog, char* remote_host)
