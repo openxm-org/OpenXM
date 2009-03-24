@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.10 2005/02/10 04:59:21 noro Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.11 2009/03/24 08:00:50 ohara Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -14,6 +14,7 @@
 * vtol::
 * newbytearray::
 * newmat matrix::
+* mat matr matc::
 * size::
 * det nd_det invmat::
 
@@ -167,7 +168,7 @@ separated simply by a `blank space', while those of a list by a `comma.'
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newmat}, @fref{size}, @fref{ltov}, @fref{vtol}.
+@fref{newmat matrix}, @fref{size}, @fref{ltov}, @fref{vtol}.
 @end table
 
 \JP @node ltov,,, 配列
@@ -213,7 +214,7 @@ See also @code{newvect()}.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newvect}, @fref{vtol}.
+@fref{newvect vector vect}, @fref{vtol}.
 @end table
 
 \JP @node vtol,,, 配列
@@ -263,7 +264,7 @@ A conversion from a list to a vector is done by @code{newvect()}.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newvect}, @fref{ltov}.
+@fref{newvect vector vect}, @fref{ltov}.
 @end table
 
 \JP @node newbytearray,,, 配列
@@ -319,7 +320,7 @@ similar to that of @code{newvect}.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newvect}.
+@fref{newvect vector vect}.
 @end table
 
 \JP @node newmat matrix,,, 配列
@@ -412,7 +413,68 @@ return to toplevel
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newvect}, @fref{size}, @fref{det nd_det invmat}.
+@fref{newvect vector vect}, @fref{size}, @fref{det nd_det invmat}.
+@end table
+
+\JP @node mat matr matc,,, 配列
+\EG @node mat matr matc,,, Arrays
+@subsection @code{mat}, @code{matr}, @code{matc}
+@findex mat
+@findex matr
+@findex matc
+
+@table @t
+@item mat(@var{vector}[,...])
+@item matr(@var{vector}[,...])
+\JP :: 行ベクトルの並びから行列を生成する. 
+\EG :: Creates a new matrix by list of row vectors.
+@item matc(@var{vector}[,...])
+\JP :: 列ベクトルの並びから行列を生成する. 
+\EG :: Creates a new matrix by list of column vectors.
+@end table
+
+@table @var
+@item return
+\JP 行列
+\EG matrix
+@item @var{vector}
+\JP 配列またはリスト
+\EG array or list
+@end table
+
+@itemize @bullet
+\BJP
+@item
+@code{mat} は @code{matr} の別名である.
+@item
+引数の各ベクトルは同じ長さをもつ.
+各要素は, 先頭から順に使われ, 足りない分は 0 が埋められる. 
+\E
+\BEG
+@item
+@code{mat} is an alias of @code{matr}.
+@item 
+Each vector has same length.
+Elements are used from the first through the last.
+If the list is short, 0's are filled in the remaining matrix elements.
+\E
+@end itemize
+
+@example
+[0] matr([1,2,3],[4,5,6],[7,8]);
+[ 1 2 3 ]
+[ 4 5 6 ]
+[ 7 8 0 ]
+[1] matc([1,2,3],[4,5,6],[7,8]);
+[ 1 4 7 ]
+[ 2 5 8 ]
+[ 3 6 0 ]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newmat matrix}
 @end table
 
 \JP @node size,,, 配列
@@ -587,7 +649,7 @@ and it computes the determinant faster than @code{det}.
 @table @t
 \JP @item 参照
 \EG @item References
-@fref{newmat}.
+@fref{newmat matrix}.
 @end table
 
 \JP @node qsort,,, 配列
