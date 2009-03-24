@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.9 2003/12/18 10:26:20 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.10 2005/02/10 04:59:21 noro Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -9,26 +9,32 @@
 \E
 
 @menu
-* newvect::
+* newvect vector vect::
 * ltov::
 * vtol::
 * newbytearray::
-* newmat::
+* newmat matrix::
 * size::
 * det nd_det invmat::
 
 * qsort::
 @end menu
 
-\JP @node newvect,,, 配列
-\EG @node newvect,,, Arrays
-@subsection @code{newvect}
+\JP @node newvect vector vect,,, 配列
+\EG @node newvect vector vect,,, Arrays
+@subsection @code{newvect}, @code{vector}, @code{vect}
 @findex newvect
+@findex vector
+@findex vect
 
 @table @t
 @item newvect(@var{len}[,@var{list}])
+@item vector(@var{len}[,@var{list}])
 \JP :: 長さ @var{len} のベクトルを生成する. 
 \EG :: Creates a new vector object with its length @var{len}.
+@item vect([@var{elements}])
+\JP :: @var{elements} を要素とするベクトルを生成する.
+\EG :: Creates a new vector object by @var{elements}.
 @end table
 
 @table @var
@@ -41,12 +47,19 @@
 @item list
 \JP リスト
 \EG list
+@item elements
+\JP 要素の並び
+\EG elements of the vector
 @end table
 
 @itemize @bullet
 \BJP
 @item
-長さ @var{len} のベクトルを生成する. 第 2 引数がない場合, 
+@code{vect} は要素の並びからベクトルを生成する.
+@item
+@code{vector} は @code{newvect} の別名である.
+@item
+@code{newvect} は長さ @var{len} のベクトルを生成する. 第 2 引数がない場合, 
 各成分は 0 に初期化される. 第 2 引数がある場合, 
 インデックスの小さい成分から, リストの
 各要素により初期化される. 各要素は, 先頭から順に
@@ -72,8 +85,12 @@
 を書き換えることができる. 
 \E
 \BEG
+@item
+@code{vect} creates a new vector object by its elements.
+@item
+@code{vector} is an alias of @code{newvect}.
 @item 
-Creates a new vector object with its length @var{len} and its elements
+@code{newvect} creates a new vector object with its length @var{len} and its elements
 all cleared to value 0.
 If the second argument, a list, is given, the vector is initialized by
 the list elements.
@@ -137,9 +154,13 @@ separated simply by a `blank space', while those of a list by a `comma.'
 [5,6]
 [4] size(A);
 [5]
-[5] def afo(V) @{ V[0] = x; @}
-[6] afo(A)$
-[7] A;
+[5] length(A);
+5
+[6] vect(1,2,3,4,[5,6]);
+[ 1 2 3 4 [5,6] ]
+[7] def afo(V) @{ V[0] = x; @}
+[8] afo(A)$
+[9] A;
 [ x 2 3 4 [5,6] ]
 @end example
 
@@ -301,13 +322,15 @@ similar to that of @code{newvect}.
 @fref{newvect}.
 @end table
 
-\JP @node newmat,,, 配列
-\EG @node newmat,,, Arrays
-@subsection @code{newmat}
+\JP @node newmat matrix,,, 配列
+\EG @node newmat matrix,,, Arrays
+@subsection @code{newmat}, @code{matrix}
 @findex newmat
+@findex matrix
 
 @table @t
 @item newmat(@var{row},@var{col} [,[[@var{a},@var{b},...],[@var{c},@var{d},...],...]])
+@item matrix(@var{row},@var{col} [,[[@var{a},@var{b},...],[@var{c},@var{d},...],...]])
 \JP :: @var{row} 行 @var{col} 列の行列を生成する. 
 \EG :: Creates a new matrix with @var{row} rows and @var{col} columns.
 @end table
@@ -327,6 +350,8 @@ similar to that of @code{newvect}.
 @itemize @bullet
 \BJP
 @item
+@code{matrix} は @code{newmat} の別名である.
+@item
 @var{row} 行 @var{col} 列の行列を生成する. 第 3 引数がない場合, 
 各成分は 0 に初期化される. 第 3 引数がある場合, 
 インデックスの小さい成分から, 各行が, リストの
@@ -343,6 +368,8 @@ similar to that of @code{newvect}.
 を書き換えることができる. 
 \E
 \BEG
+@item
+@code{matrix} is an alias of @code{newmat}.
 @item 
 If the third argument, a list, is given, the newly created matrix
 is initialized so that each element of the list (again a list)
@@ -459,8 +486,9 @@ in a rational expression.
 
 \JP @node det nd_det invmat,,, 配列
 \EG @node det nd_det invmat,,, Arrays
-@subsection @code{det},@code{invmat}
+@subsection @code{det}, @code{nd_det}, @code{invmat}
 @findex det
+@findex nd_det
 @findex invmat
 
 @table @t
