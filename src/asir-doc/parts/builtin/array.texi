@@ -1,4 +1,4 @@
-@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.11 2009/03/24 08:00:50 ohara Exp $
+@comment $OpenXM: OpenXM/src/asir-doc/parts/builtin/array.texi,v 1.12 2009/03/24 08:21:45 ohara Exp $
 \BJP
 @node 配列,,, 組み込み函数
 @section 配列
@@ -17,6 +17,7 @@
 * mat matr matc::
 * size::
 * det nd_det invmat::
+* rowx rowm rowa colx colm cola::
 
 * qsort::
 @end menu
@@ -718,4 +719,86 @@ are exchanged.
 \JP @item 参照
 \EG @item References
 @fref{ord}, @fref{vars}.
+@end table
+
+\JP @node rowx rowm rowa colx colm cola,,, 配列
+\EG @node rowx rowm rowa colx colm cola,,, Arrays
+@subsection @code{rowx}, @code{rowm}, @code{rowa}, @code{colx}, @code{colm}, @code{cola}
+@findex rowx
+@findex rowm
+@findex rowa
+@findex colx
+@findex colm
+@findex cola
+
+@table @t
+@item rowx(@var{matrix},@var{i},@var{j})
+\JP :: 第 @var{i} 行と第 @var{j} 行を交換する.
+\EG :: Exchanges the @var{i}-th and @var{j}-th rows.
+@item rowm(@var{matrix},@var{i},@var{c})
+\JP :: 第 @var{i} 行を @var{c} 倍する.
+\EG :: Multiplies the @var{i}-th row by @var{c}.
+@item rowa(@var{matrix},@var{i},@var{c})
+\JP :: 第 @var{i} 行に第 @var{i} 行の @var{c} 倍を加える.
+\EG :: Appends @var{c} times the @var{j}-th row to the @var{j}-th row.
+@item colx(@var{matrix},@var{i},@var{j})
+\JP :: 第 @var{i} 行と第 @var{j} 行を交換する.
+\EG :: Exchanges the @var{i}-th and @var{j}-th columns.
+@item colm(@var{matrix},@var{i},@var{c})
+\JP :: 第 @var{i} 行を @var{c} 倍する.
+\EG :: Multiplies the @var{i}-th column by @var{c}.
+@item cola(@var{matrix},@var{i},@var{c})
+\JP :: 第 @var{i} 行に第 @var{i} 行の @var{c} 倍を加える.
+\EG :: Appends @var{c} times the @var{j}-th column to the @var{j}-th column.
+@end table
+
+@table @var
+@item return
+\JP 行列
+\EG matrix
+@item @var{i}, @var{j}
+\JP 整数
+\EG integers
+@item @var{c}
+\JP 係数
+\EG coefficient
+@end table
+
+@itemize @bullet
+\BJP
+@item
+行列の基本変形を行うための関数である.
+@item
+行列が破壊されることに注意する.
+\E
+\BEG
+@item
+These operations are destructive for the matrix.
+\E
+@end itemize
+
+@example
+[0] A=newmat(3,3,[[1,2,3],[4,5,6],[7,8,9]]);
+[ 1 2 3 ]
+[ 4 5 6 ]
+[ 7 8 9 ]
+[1] rowx(A,1,2)$
+[2] A;
+[ 1 2 3 ]
+[ 7 8 9 ]
+[ 4 5 6 ]
+[3] rowm(A,2,x);
+[ 1 2 3 ]
+[ 7 8 9 ]
+[ 4*x 5*x 6*x ]
+[4] rowa(A,0,1,z);
+[ 7*z+1 8*z+2 9*z+3 ]
+[ 7 8 9 ]
+[ 4*x 5*x 6*x ]
+@end example
+
+@table @t
+\JP @item 参照
+\EG @item References
+@fref{newmat matrix}
 @end table
