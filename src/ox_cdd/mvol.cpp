@@ -12,6 +12,7 @@ MixedVol: Polynomial system mixed volume calculation program.
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <limits.h>
 
 #include "GetOption/getopt.h"
 #include "PolyReader/PolynomialSystemReader.h"
