@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.17 2008/07/02 11:21:15 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.18 2008/09/01 15:23:22 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -49,10 +49,13 @@ localf modulo, modulo_list, left, right;
 localf verbose, quiet, message;
 localf spair_lcm, spair_compare, spair_sugar;
 localf euler_diff, euler_diff_list, euler_diff_dp_list, euler_diff_dp;
+localf euler_diff_list_r, euler_diff_dp_list_r;
 localf operator_shift;
 localf act_theta_D, act_theta_DE, act_difference;
+localf actr_theta_D, actr_theta_DE;
 localf mul, mulL;
 localf multi, multi_D, multi_DE, multiL;
+localf mulr, multir, multir_D, multir_DE;
 localf dp_coef_gcd, red1, red2, reducible, division, division_D, division_DE;
 localf nf, reduction, add, spolynomial, spolynomial_D, spolynomial_DE;
 localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger;
@@ -410,6 +413,19 @@ def euler_diff_list(P, V, N) {
     return L;
 }
 
+/* P: 有理式 */
+/* 返値: [vector, den] */
+/* vector[I]/den == euler_diff(P,V,I) */
+def euler_diff_list_r(P, V, N) {
+    L = newvect(N+1);
+    L[0] = P;
+    for (I=0; I<N; I++) {
+        L[I+1] = euler_diff(L[I], V, 1);
+    }
+    Dn = dn(red(L[N])); /* 共通分母 */
+    return [base_cancel(Dn*L), Dn];
+}
+
 /* 分散表現多項式の係数を 0...N 回 オイラー微分したものの配列(長さN+1)を返す */
 def euler_diff_dp_list(P, V, N) {
     if (isdpoly(P)) {
@@ -420,6 +436,26 @@ def euler_diff_dp_list(P, V, N) {
         }
     }else {
         Q=euler_diff_list(P, V, N);
+    }
+    return Q;
+}
+
+/* P: [分散表現多項式, 分母] */
+/* 返値: [vector, den] */
+/* vector[I]/den == euler_diff(P,V,I) */
+def euler_diff_dp_list_r(P, V, N) {
+    Dn = DN(P);
+    P  = NM(P);
+    if (isdpoly(P)) {
+        Q = [0,1]; // Q = [ newvect(N+1), 0 ]; 
+        while(P!=0) {
+            L = euler_diff_list_r(dp_hc(P)/Dn,V,N); /* vector */
+            L = [dp_ht(P)*L[0],L[1]];
+            Q = add(Q,L);
+            P = dp_rest(P);
+        }
+    }else {
+        Q=euler_diff_list_r(P/Dn, V, N);
     }
     return Q;
 }
@@ -490,6 +526,59 @@ def act_difference(DE,P) {
     return dp_hc(act_theta_DE(DE, P));
 }
 
+/* 微分作用素(単項式) E と有理係数微分作用素 Q の積 */
+def actr_theta_D(E,Q) {
+    E = dp_etov(E);
+    N = length(E);
+    T = newvect(N);
+    for (I=0; I<N; I++) {
+        F=0;
+        LC = euler_diff_dp_list_r(Q,op_var(I),E[I]);
+		Dn = LC[1];
+		LC = LC[0];
+        for (K=0; K<=E[I]; K++) {
+            T[I]=K;
+            G = linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+			F = add(F,[G,Dn]);
+        }
+        Q=F;
+        T[I]=0;
+    }
+    return Q;
+}
+
+/* 微分/差分作用素(単項式) E と有理係数微分/差分作用素 Q の積 */
+def actr_theta_DE(E,Q) {
+    E = dp_etov(E);
+    N = length(E);
+    T = newvect(N);
+    for (I=0; I<N; I++) {
+        if (op_type(I)==EULER) { /* 微分 */
+			F=0;
+			LC = euler_diff_dp_list_r(Q,op_var(I),E[I]);
+			Dn = LC[1];
+			LC = LC[0];
+			for (K=0; K<=E[I]; K++) {
+				T[I]=K;
+				G = linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+				F = add(F,[G,Dn]);
+			}
+			Q=F;
+        }else if (op_type(I)==DIFFERENCE) { /* 差分 */
+            T[I]=E[I];
+            V=op_var(I); D = op_diff(I);
+            Q=base_replace(Q,[[V,V+D*E[I]]]);
+			Q=[NM(Q)*dp_vtoe(T),DN(Q)];
+        }else if (op_type(I)==Q_DIFFERENCE) { /* q-差分 */
+            T[I]=E[I];
+            V=op_var(I); D = op_diff(I);
+            Q=base_replace(Q,[[V,V*D^E[I]]]);
+			Q=[NM(Q)*dp_vtoe(T),DN(Q)];
+        }
+        T[I]=0;
+    }
+    return Q;
+}
 /* 作用素の積 x^(-E) P(theta) x^E == P(theta+E) を求める。
    ベクトル E の長さは yang の内部変数 Ring->v の長さと一致しなければならない。
    また、x = x1 x2 ...も Ring->v と一致しなければならない。
@@ -509,7 +598,12 @@ def operator_shift(P,E)
 
 /* Leibnitz rule: P,Q */
 def mul(P,Q) {
-    return opr(multi(op(P),op(Q)));
+    return israt(Q)? mulr(P,Q): red(opr(multi(op(nm(P)),op(Q)))/dn(P));
+}
+
+/* P: 有理式, Q: 有理式 */
+def mulr(P,Q) {
+    return red(opr(multir(op(nm(P)),op(Q)))/dn(P));
 }
 
 def mulL(L) {
@@ -519,6 +613,10 @@ def mulL(L) {
 /* Leibnitz rule: P,Q: 分散表現多項式 */
 def multi(P,Q) {
     return multi_DE(P,Q);
+}
+
+def multir(P,Q) {
+    return multir_DE(P,Q);
 }
 
 def multi_D(P,Q) {
@@ -544,6 +642,40 @@ def multi_DE(P,Q) {
         }
     }else {
         R=P*Q;
+    }
+    return R;
+}
+
+def multir_D(P,Q) {
+    Dn = DN(P);
+    P  = NM(P);
+    if (isdpoly(P)) {
+        R=0;
+        while(P!=0) {
+            G = actr_theta_D(dp_ht(P),Q);
+            R = add(R,[dp_hc(P)*G[0],G[1]]);
+            P = dp_rest(P);
+        }
+        R = [R[0],Dn*R[1]];
+    }else {
+        R = [P*NM(Q),Dn*DN(Q)];
+    }
+    return R;
+}
+
+def multir_DE(P,Q) {
+    Dn = DN(P);
+    P  = NM(P);
+    if (isdpoly(P)) {
+        R=0;
+        while(P!=0) {
+            G = actr_theta_DE(dp_ht(P),Q);
+            R = add(R,[dp_hc(P)*G[0],G[1]]);
+            P = dp_rest(P);
+        }
+        R = [NM(R),Dn*DN(R)];
+    }else {
+        R = [P*NM(Q),Dn*DN(Q)];
     }
     return R;
 }
