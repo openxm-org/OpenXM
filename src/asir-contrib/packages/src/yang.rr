@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.18 2008/09/01 15:23:22 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.19 2009/04/07 22:25:32 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -41,7 +41,7 @@ import("yang_lib.rr") $
 module yang;
 
 localf push_ring, pop_ring, define_ring, parse_ringdef, print_ring, ring_size;
-localf op_type, op_diff, op_var, op_match, op_nomatch;
+localf op_type, op_diff, op_var, op_match, op_nomatch, op_i;
 localf op_register, op, opr; 
 localf set_ring, new_ring;
 localf constant, operator_id, operator;
@@ -273,10 +273,14 @@ def op_register(L, S)
     reverse(L);
 }
 
+def op_i(N,I) {
+    return dp_vtoe(vector_unit(N,I));
+}
+
 def operator(OP) {
     N = ring_size();
     I = operator_id(OP);
-    return dp_vtoe(vector_unit(N,I));
+    return op_i(N,I);
 }
 
 def op(P)
@@ -423,6 +427,9 @@ def euler_diff_list_r(P, V, N) {
         L[I+1] = euler_diff(L[I], V, 1);
     }
     Dn = dn(red(L[N])); /* 共通分母 */
+    if (Dn==1) { /* L[N] == 0 の場合にはこちらが共通分母 */
+        Dn=dn(red(L[0]));
+    }
     return [base_cancel(Dn*L), Dn];
 }
 
@@ -447,7 +454,7 @@ def euler_diff_dp_list_r(P, V, N) {
     Dn = DN(P);
     P  = NM(P);
     if (isdpoly(P)) {
-        Q = [0,1]; // Q = [ newvect(N+1), 0 ]; 
+        Q = [0,1]; /* Q = [ newvect(N+1), 0 ]; */
         while(P!=0) {
             L = euler_diff_list_r(dp_hc(P)/Dn,V,N); /* vector */
             L = [dp_ht(P)*L[0],L[1]];
@@ -1034,16 +1041,16 @@ def stdmon(Gr)
 /* --------------------------------
    Following functions for computing of pfaffian forms
 
-/*  分散多項式のリストLPを行列に変換する。LMはベース。
+/*  分散有理式(正規形)のリストLPを行列に変換する。LMは標準モノミアルのリスト。
     Example:
-    [12] LP=[<<1,0>>+a*<<0,0>>,<<0,1>>,<<0,0>>];
-    [(1)*<<1,0>>+(a)*<<0,0>>,(1)*<<0,1>>,(1)*<<0,0>>]
+    [12] LP=[[<<1,0>>+a*<<0,0>>,b],<<0,1>>,[<<0,0>>,c]];
+    [[(1)*<<1,0>>+(a)*<<0,0>>,b],(1)*<<0,1>>,[(1)*<<0,0>>,c]]
     [13] LM=[<<1,0>>,<<0,1>>,<<0,0>>];
     [(1)*<<1,0>>,(1)*<<0,1>>,(1)*<<0,0>>]
     [14] dp_ltom(LP,LM);
-    [ 1 0 a ]
+    [ (1)/(b) 0 (a)/(b) ]
     [ 0 1 0 ]
-    [ 0 0 1 ]
+    [ 0 0 (1)/(c) ]
 */
 
 def dp_ltom(LP, LM) {
@@ -1087,13 +1094,17 @@ def pfaffian(Base,Gr) {
     if (Base==[]) {
         Base = StdMon;
     }
-    S = matrix_inverse(dp_ltom(map(reduction,Base,Gr),StdMon));
+    Nf= map(reduction,Base,Gr); /* normal form of Base. */
+    S = dp_ltom(Nf,StdMon); /* 行列表現 */
+    S = matrix_inverse(S); 
     M = ring_size();
     L = newvect(M);
     for(J=0; J<M; J++) {
-        P = dp_vtoe(vector_unit(M, J));
-        P = map(reduction,map('std_*',Base,P),Gr);
-        L[J] = map(red,((op_type(J)==EULER)? (1/op_var(J)): 1)*dp_ltom(P, StdMon)*S);
+        P = mapat(multir,1,op_i(M,J),Base); /* op_i(M,J)*Base */
+        P = map(reduction,P,Gr); /* normal form */
+        P = dp_ltom(P,StdMon);   /* 行列表現 */
+        C = (op_type(J)==EULER)? 1/op_var(J): 1; /* 偏微分への変換 */
+        L[J] = base_cancel(C*(P*S));
     }
     return L;
 }
@@ -1257,7 +1268,7 @@ def gkz_D(GKZ) {
     for(I=0; I<Col; I++) {
         L[I]=0;
         for(J=0; J<Row; J++) {
-            L[I] += A[I][J]*dp_vtoe(vector_unit(N,J));
+            L[I] += A[I][J]*op_i(N,J);
         }
         L[I] -= B[I];
     }
@@ -1275,7 +1286,7 @@ def gkz_E(GKZ) {
         for(I=0; I<Col; I++) {
             E[operator_id(B[I])] = A[I][J];
         }
-        L[J] = dp_vtoe(vector_unit(Size,J))-op_var(J)*dp_vtoe(E);
+        L[J] = op_i(Size,J)-op_var(J)*dp_vtoe(E);
     }
     return vtol(L);
 }
@@ -1515,7 +1526,7 @@ def dp_partial_to_euler_term_i(T,I)
         return [T,1];
     }
     R = red(dp_hc(T)/(op_var(I)^N));
-    M = dp_vtoe(vector_unit(length(E),I));
+    M = op_i(length(E),I);
     for(S=1, J=0; J<N; J++) {
         S = multi(S, M-J);
     }
@@ -1543,7 +1554,7 @@ def dp_partial_to_euler_term(T) {
     for(I=0; I<Len; I++) {
         N = E[I];
         if (N != 0) {
-            M = dp_vtoe(vector_unit(Len,I));
+            M = op_i(Len,I);
             for(J=0; J<N; J++) {
                 S = multi(S, M-J);
             }
