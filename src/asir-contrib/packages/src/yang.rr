@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.19 2009/04/07 22:25:32 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.20 2009/04/08 07:20:05 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -61,6 +61,7 @@ localf nf, reduction, add, spolynomial, spolynomial_D, spolynomial_DE;
 localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger;
 localf initial_term, in, stdmon;
 localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
+localf dp_matrix_form, matrix_form;
 localf dp_ltom, pfaffian, check_pfaffian;
 localf pf;
 localf check_frac_expansion_before, check_frac_expansion_after;
@@ -1100,13 +1101,39 @@ def pfaffian(Base,Gr) {
     M = ring_size();
     L = newvect(M);
     for(J=0; J<M; J++) {
-        P = mapat(multir,1,op_i(M,J),Base); /* op_i(M,J)*Base */
+		OP = [op_i(M,J), (op_type(J)==EULER)? op_var(J): 1]; /* 偏微分作用素 */
+        P = mapat(multir,1,OP,Base); 
         P = map(reduction,P,Gr); /* normal form */
         P = dp_ltom(P,StdMon);   /* 行列表現 */
-        C = (op_type(J)==EULER)? 1/op_var(J): 1; /* 偏微分への変換 */
-        L[J] = base_cancel(C*(P*S));
+        L[J] = base_cancel(P*S);
     }
     return L;
+}
+
+/* 行列表現を求める */
+def dp_matrix_form(L,Gr)
+"usage: yang.dp_matrix_form([<<1,0,1>>, [<<0,1,1>>,x*z]],Gr|base=B);"
+{
+	StdMon=dp_mbase(initial_term(Gr));
+	L = map(reduction,L,Gr); /* normal form */
+    M = dp_ltom(L,StdMon);   /* 行列表現 */
+	if (!isvoid(B=getopt(base))) {
+		B = map(reduction,B,Gr); /* normal form */
+		T = dp_ltom(B,StdMon);   /* 行列表現 */
+		M = base_cancel(M*matrix_inverse(T));
+	}
+	return M;
+}
+
+def matrix_form(L,Gr)
+"usage: yang.matrix_form([dx^2, dx/(x)],Gr|base=[1,dx]);"
+{
+    L  = map(op,L); Gr = map(op,Gr);
+	if (!isvoid(B=getopt(base))) {
+		B=map(op,B);
+		return dp_matrix_form(L,Gr|base=B);
+	}
+	return dp_matrix_form(L,Gr);
 }
 
 /* length(Pf) == length(VSet) */
