@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.32 2009/02/23 06:10:42 noro Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.33 2009/05/16 03:13:07 ohara Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -52,7 +52,7 @@ Copyright @copyright{} Risa/Asir committers
 @comment --- おまじない終り ---
 
 @comment --- @node は GNU info, HTML 用 ---
-@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@comment --- @node  の引数は node-name,  next,  previous,  up ---
 @node Top,, (dir), (dir)
 
 @comment --- @menu は GNU info, HTML 用 ---
@@ -60,30 +60,15 @@ Copyright @copyright{} Risa/Asir committers
 @comment --- この文書では chapter XYZ, Chapter Index がある.
 @comment ---  Chapter XYZ には section XYZについて, section XYZに関する関数がある.
 @menu
-* Experimental Functions::
+* 実験的仕様の関数説明書について::
+* 実験的仕様の関数::
 * Index::
 @end menu
 
 @comment --- chapter の開始 ---
 @comment --- 親 chapter 名を正確に. 親がない場合は Top ---
-@node 実験的仕様の関数,,, Top
-@chapter 実験的仕様の関数
-
-@comment --- section 名を正確に並べる.  ---
-@menu
-* 実験的仕様の関数説明書について::
-* 実験的仕様の関数::
-@end menu
-
-@comment --- section ``XYZについて'' の開始 ---  section XYZについての親は chapter XYZ
-@node 実験的仕様の関数説明書について,,, XYZ
-@section 実験的仕様の関数説明書について
-
-@comment --- 書体指定について ---
-@comment --- @code{} はタイプライタ体表示 ---
-@comment --- @var{} は斜字体表示 ---
-@comment --- @b{} はボールド表示 ---
-@comment --- @samp{} はファイル名などの表示 ---
+@node 実験的仕様の関数説明書について,,, Top
+@chapter 実験的仕様の関数説明書について
 
 この説明書では
 @b{Asir} に導入された実験的仕様の関数について説明する.
@@ -92,11 +77,10 @@ Copyright @copyright{} Risa/Asir committers
 ChangeLog の項目は www.openxm.org の cvsweb で
 ソースコードを読む時の助けになる情報が書かれている.
 
-@comment --- section ``実験的関数'' の開始 --- 
-@node 実験的仕様の関数,,, 実験的仕様の関数
-@section 実験的仕様の関数
+@node 実験的仕様の関数,,, Top
+@chapter 実験的仕様の関数
 
-@comment --- section ``実験的関数'' の subsection xyz_abc 
+@comment --- section ``実験的関数'' の subsection xyz_abc
 @comment --- subsection xyz_pqr xyz_stu がある.
 @menu
 * quotetotex::
@@ -141,23 +125,24 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * nqt_comp::
 * qt_is_var::
 * qt_is_ceof::
-* qt_rewrite:: 
+* qt_rewrite::
 * asirgui.hnd::
 * noro_matrix.rr:
 * f_res::
 * chdir::
 * pwd::
 * dcurrenttime::
-* node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module)::
-* node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option)::
-
-
+* nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module)::
+* nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option)::
 @end menu
 
-@comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯ 
+@node クオート,,, 実験的仕様の関数
+@section クオート
+
+@comment --- ◯◯◯◯  関数 quotetotex, quotetotex_env の説明 ◯◯◯◯
 @comment --- 個々の関数の説明の開始 ---
 @comment --- section 名を正確に ---
-@node quotetotex quotetotex_env,,, 実験的仕様の関数
+@node quotetotex quotetotex_env,,, クオート
 @subsection @code{quotetotex}, @code{quotetotex_env}
 @comment --- 索引用キーワード
 @findex quotetotex
@@ -165,7 +150,7 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item quotetotex(@var{q}) 
+@item quotetotex(@var{q})
 :: @var{q} を latex 形式で表現した文字列に変換する.
 @item quotetotex_env(@var{key},@var{value})
 :: quotetotex の動作を制御するパラメータを変更する.
@@ -193,9 +178,9 @@ quote
 @itemize @bullet
 @item
 quotetotex は @var{q} を latex 形式で表現した文字列に変換する.
-@item 
+@item
 以下 quotetotex_env のパラメータの意味を説明する.
-@item 
+@item
 conv_rule: 3 ビットを用いて変換ルールを指定する.
 0ビット目は symbol_table による変換を行うか,
 1ビット目は添字変換を行うか,
@@ -208,28 +193,37 @@ symbol_table による変換を行い, 添字変換をおこなう.
 symbol_table による変換が最初に適用される.
 alpha, beta, 等は自動的をギリシャ文字に変換するテーブルは
 内蔵ずみ.
-@item 
+@item
   dp_vars_prefix: 分散表現多項式は
-  @tex 
+  @iftex
+  @tex
   $x_0, x_1, \cdots$
-  @end tex 
+  @end tex
+  @end iftex
+  @ifinfo
+  x0, x1, ...
+  @end ifinfo
   の多項式として latex 形式に変換されるがこの
   x の部分を変更する.
-@item 
+@item
   dp_vars_origin: インデックスの始まりの値を指定する.
   デフォールトは 0.
 @item
 dp_vars_hweyl: 分散表現多項式をワイル代数の元とみなして
 latex 形式に変換する.
-偶数個変数があるときは 最初の半分を 
-@tex 
+偶数個変数があるときは 最初の半分を
+@iftex
+@tex
 $x_0, x_1, \cdots$
-@end tex 
-に
-後半の半分を
-@tex 
+@end tex
+に後半の半分を
+@tex
 $\partial_0, \partial_1, \cdots$
-@end tex 
+@end tex
+@end iftex
+@ifinfo
+x0, x1, ... に後半の半分を dx0, dx1, ...
+@end ifinfo
 に変換する.
 奇数個の場合は最後の変数が同時化変数として h で表示される.
 @item
@@ -237,7 +231,7 @@ $\partial_0, \partial_1, \cdots$
   デフォールトは @tex $\partial$ @end tex
 @item
   dp_dvars_origin: dp_vars_hweyl が 1 の時のインデックスの始まりの値.
-@item 
+@item
 conv_func: ユーザ定義の変換関数をよぶ.
 @end itemize
 
@@ -263,24 +257,24 @@ print_tex_form(contrib)
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
- この関数は 2004年2月末から3月にかけて asir を 
- knoppix 版 texmacs に対応させるために書かれた. 
+@item
+ この関数は 2004年2月末から3月にかけて asir を
+ knoppix 版 texmacs に対応させるために書かれた.
  Asir-contrib の print_tex_form がその原型であり, それを効率化しまた
  出力形式を改善した.
  OpenXM/src/kxx/ox_texmacs.c, OpenXM/src/texmacs も参照.
-@item 
- OpenXM/src/asir-contrib/packages/src/noro_print.rr 1.1--1.8, 
+@item
+ OpenXM/src/asir-contrib/packages/src/noro_print.rr 1.1--1.8,
  noro_print_default.rr 1.1--1.3 も参照.
-@item 
+@item
  変更を受けたファイルは OpenXM_contrib2/asir2000 の下の次のファイル.
   builtin/strobj.c 1.14--1.43,
   include/ca.h 1.46, io/cexpr.c 1.18, io/pexpr.c 1.32, io.sexpr.c 1.29,
   parse/arith.c 1.12, parse/parse.h 1.28--1.29,
   parse/quote.c 1.7--1.8, 1.12.
-@item 
+@item
   knoppix/math は 福岡大学の濱田さんが中心となり開発されている.
-@item 
+@item
   dp_dvars_prefix, *_origin は builtin/strobj.c 1.46 で導入された.
 @item
   Todo: quotetoterminalform (分散表現多項式の見易い出力).
@@ -288,8 +282,8 @@ ChangeLog
 
 
 
-@comment --- ◯◯◯◯  関数 objtoquote の説明 ◯◯◯◯ 
-@node objtoquote,,, 実験的仕様の関数
+@comment --- ◯◯◯◯  関数 objtoquote の説明 ◯◯◯◯
+@node objtoquote,,, クオート
 @subsection @code{objtoquote}
 @findex objtoquote
 
@@ -333,778 +327,7 @@ ChangeLog
 @end itemize
 
 
-@comment --- ◯◯◯◯  関数 copyright の説明 ◯◯◯◯ 
-@node copyright,,, 実験的仕様の関数
-@subsection @code{copyright}
-@findex copyright
-
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item copyright()
-:: Risa/Asir の copyright 表示を文字列として戻す.
-@end table
-
-@table @var
-@item return
-文字列
-@end table
-
-@itemize @bullet
-@item
-Risa/Asir の copyright 表示を文字列として戻す.
-@end itemize
-
-@example
-[1150] copyright();
-This is Risa/Asir, Version 20040312 (Kobe Distribution).
-Copyright (C) 1994-2000, all rights reserved, FUJITSU LABORATORIES LIMITED.
-Copyright 2000-2003, Risa/Asir committers, http://www.openxm.org/.
-GC 6.2(alpha6) copyright 1988-2003, H-J. Boehm, A. J. Demers, Xerox, SGI, HP.
-PARI 2.0.17, copyright 1989-1999, C. Batut, K. Belabas, D. Bernardi,
-   H. Cohen and M. Olivier.
-@end example
-
-@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数は texmacs 用に書かれた (2004-03).
-@item OpenXM_contrib2/asir2000 の下の以下のファイルをみよ. builtin/miscf.c 1.21,
-      parse/glob.c 1.47.
-@end itemize
-
-
-
-@comment --- ◯◯◯◯  関数 string_to_tb, ... の説明 ◯◯◯◯ 
-@comment --- 複数の関数をまとめて説明する例 ---
-@node string_to_tb tb_to_string write_to_tb,,, 実験的仕様の関数
-@subsection @code{string_to_tb}, @code{tb_to_string}, @code{write_to_tb}
-@findex string_to_tb
-@findex tb_to_string
-@findex write_to_tb
-
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item string_to_tb(@var{s})
-@itemx tb_to_string(@var{tb})
-@itemx write_to_tb(@var{s},@var{tb})
-:: 文字列可変長配列型(text buffer)のデータの処理
-@end table
-
-@table @var
-@item return
-文字列可変長配列型(string_to_tb), 文字列型(tb_to_string)
-@item s
-文字列
-@item tb
-文字列可変長配列型
-@end table
-
-@itemize @bullet
-@item
-@code{string_to_tb(@var{s})} は, 文字列 @var{s} をはじめの要素とする
-文字列可変長配列型オブジェクトを生成する.
-@item
-@code{tb_to_string_(@var{tb})} は,
-文字列可変長配列型オブジェクト @var{tb} から通常の文字列オブジェクトを生成する.
-@item
-@code{write_to_tb(@var{s},@var{tb})} は, 文字列 @var{s} を
-文字列可変長配列型オブジェクト @var{tb} へ書き出す.
-@item @var{SS} を文字列変数とするとき,
-@var{SS} += "文字列" で @var{SS} へ文字列を書き足していくことができるが,
-無駄なメモリを大量に消費する.
-代りに関数 @code{write_to_tb} を用いるべきである.
-文字列可変長配列型オブジェクトは文字列の可変長の配列でありメモリ管理に優しい
-データ構造である.
-@end itemize
-
-@example 
-[219] T=string_to_tb("");
-
-[220] write_to_tb("Hello",T);
-0
-[221] write_to_tb(" world!",T);
-0
-[222] tb_to_string(T);
-Hello world!
-@end example
-
-
-@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item 
- この関数は 2004-3 に print_tex_form を効率化するために書かれた.
-@item 
- OpenXM_contrib2/asir2000 の下の以下のファイルを見よ.
-io/ox_asir.c 1.52, builtin/strobj.c 1.12--1.13, 1.16,
-engine/str.c 1.5, parse/quote.c 1.9.
-@item 
- rtostr が text buffer 型のデータに関しておそかった. 速度の改善は
- asir2000/io/pexpr_body.c 1.2, asir2000/parse/lex.c 1.32.
-@end itemize
-
-
-
-@comment --- ◯◯◯◯  関数 dp_gr_main の説明 ◯◯◯◯ 
-@comment --- 複数の関数をまとめて説明する例 ---
-@node dp_gr_main,,, 実験的仕様の関数
-@subsection @code{dp_gr_main}
-@findex dp_gr_main
-
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item dp_gr_main(@var{f} | v=@var{vv}, order=@var{oo}, homo=@var{n}, matrix=@var{m}, block=@var{b}, sugarweight=@var{sw})
-:: dp_gr_main の新しいインタフェース.
-@end table
-
-@table @var
-@item return
-リスト (グレブナ基底. 再帰表現多項式か分散表現多項式のリスト)
-@item f
-リスト  (入力多項式系. 再帰表現多項式か分散表現多項式のリスト)
-@item vv
-リスト  (変数のリスト)
-@item oo
-リスト  (順序をあらわすリスト)
-@item n
-0 か1 (homogenization をするか)
-@item m
-順序を matrix で表現する場合 (cf. dp_ord).
-@item b
-???
-@item sw
-Sugar strategy を適用するときの weight vector. 全ての要素は非負.
-@end table
-
-@itemize @bullet
-@item
- @code{dp_gr_main(@var{f})} は, @var{f} のグレブナ基底を計算する.
- グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
- 系統だっていなかった. 
- dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
-@comment  ~taka/this03/misc-2003/A2/dp
-@item 順序 order は次の文法で定義する.  @{, @} は 0 回以上の繰り返しを意味する.
-@example
-  order         : '[' orderElement @{ ',' orderElement @} ']'
-  orderElement   :  weightVec | builtinOrder
-  weightVec     : '[' weightElement @{ ',' weightElement @} ']'
-  builtiniOrder : '[' orderName  ',' setOfVariables ']'
-  weightElement :   NUMBER | setOfVariables ',' NUMBER
-  setOfVariables:  V | range(V,V)
-  orderName    : @@grlex | @@glex | @@lex
-@end example
-ここで @code{V} は 変数名, @code{NUMBER} は整数をあわらす.
-例1:  @code{v=[x,y,z,u,v], order=[[x,10,y,5,z,1],[@@grlex,range(x,v)]]}
-は @code{x},@code{y},@code{z} がそれぞれ weight 10, 5, 1 をもつ
-順序で比較したあと, @code{[x,y,z,u,v]} についての 
-graded reverse lexicographic order を tie-breaker として用いることを意味する.
-参考書: B.Sturmfels: Gr\"obner Bases and Convex Polytopes (1995).
-M.Saito, B.Sturmfels, N.Takayama:
-Gr\"obner Deformations of Hypergeometric Differential Equations (2000).
-@item
-  順序要素 (orderElement) の指定方法は 
- (1) 変数名または rangeで指定された変数の集合と重みの値の繰り返し
- (2) 重みの値を変数リストの順番に並べる方法
- (3) 変数名または rangeで指定された変数の集合と順序名の組
- の三通りの基礎的方法がある.
- 似た指定方法が Macaulay, Singular, CoCoA, Kan/sm1 等の環論システムで 
- 使用されていた. Risa/Asir の指定方法はこれらのシステムの指定方法を参考に
- さらに改良を加えたもので柔軟性が高い.
-@item 
-  order の tie-breaker は grlex がデフォールト.
-@item 
-  分散表現多項式を引数としたときは結果も分散表現多項式として戻る.
-  order 指定にもちいるデフォールトの変数名はこのとき x0, x1, x2, ... となる.
-@item
-  オプションの値は option_list キーワードを用いてリストで与えてもよい.
-  下の例を参照.
-@end itemize
-
-@example
-[218] load("cyclic");
-[219] V=vars(cyclic(4));
-[c0,c1,c2,c3]
-[220]dp_gr_main(cyclic(4) | v=V, order=[[c0,10,c1,1],[c2,5],[@@grlex,range(c0,c3)]]);
-[ 10 1 0 0 ]
-[ 0 0 5 0 ]
-[ R R R R ]
-[(-c3^6+c3^2)*c2^2+c3^4-1,c3^2*c2^3+c3^3*c2^2-c2-c3,
- (c3^4-1)*c1+c3^5-c3,(c2-c3)*c1+c3^4*c2^2+c3*c2-2*c3^2,-c1^2-2*c3*c1-c3^2,
- c0+c1+c2+c3]
-
-[1151]  F=map(dp_ptod,katsura(4), vars(katsura(4)));
-[(1)*<<1,0,0,0,0>>+(2)*<<0,1,0,0,0>>+ ... ]
-[1152] dp_gr_main(F | order=[[range(x0,x3),1]]);
-[ 1 1 1 1 0 ]
-[ R R R R R ]
-[(47774098944)*<<0,0,0,0,13>>+ ... ]
-
-[1153] Opt=[["v",[x,y]], ["order",[[x,5,y,1]]]];  
-[[v,[x,y]],[order,[[x,5,y,1]]]]
-[1154]  dp_gr_main([x^2+y^2-1,x*y-1] | option_list=Opt);
-[ 5 1 ]
-[ R R ]
-[-y^4+y^2-1,x+y^3-y]
-@end example
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数は 2003-12 から 2004-2 の始めに大きな修正が行われた.
-@item 
- @code{setOfVariables}の表現のために range オブジェクトが導入された.
-@item 
-  グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
-  系統だっていなかった. 
-  dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
-@item 
-  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
-builtin/gr.c 1.56--1.57,
-builtin/dp-supp.c 1.27--1.31 (create_composite_order_spec),
-builtin/dp.c 1.46--1.48 (parse_gr_option),
-engine/Fgfs.c 1.20,
-engine/dist.c 1.27--1.28
-engine/nd.c 1.89,
-include/ca.h 1.42--1.43,
-io/pexpr.c 1.28,
-io/sexpr.c 1.26,
-parse/arith.c 1.11,
-parse/glob.c 1.44-1.45,
-parse/lex.c 1.29,
-parse/parse.h 1.23--1.26
-@item
- Todo: return キーワードで戻り値のデータを quote のリストにできるように.
-  attribute, ring 構造体.
-@end itemize
-
-@comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
-@comment --- 複数の関数をまとめて説明する例 ---
-@node asir-install.sh,,, 実験的仕様の関数
-@subsection @code{asir-port.sh}, @code{asir-install.sh}
-@findex asir-port.sh
-@findex asir-install.sh
-
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item asir-install.sh
-@itemx asir-port.sh
-:: これは asir の内部コマンドではない. asir をネットワークからダウンロードかつ実行するシェルスクリプト
-@end table
-
-
-@itemize @bullet
-@item
-asir-port.sh は knoppix 専用である.
-このコマンドは asir のバイナリおよび FLL で配布できない部分を
- ftp.math.kobe-u.ac.jp よりダウンロードして
-/home/knoppix/.asir-tmp へセーブして, 実行する.
-.asirrc および .TeXmacs/plugins/ox/progs/init-ox.scm もダウンロードする.
-@item
-asir-install.sh は Debian GNU Linux / openxm-binary*.deb 専用である.
-asir-install.sh は asir をダウンロードして /usr/local/OpenXM/bin および
-/usr/local/OpenXM/lib/asir へインストールする.
-@end itemize
-
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item 
- これらのシェルスクリプトは knoppix/math のために 2004/2, 3 月に書かれた.
-@item 
-  knoppix/math は福岡大学の濱田さんが中心となり開発されている.
-@item 
-  OpenXM/misc/packages/Linux/Debian の下の全てのファイル (2004-2-22 から
-  2004-3 の末まで). ( ~taka/this03/misc-2003/A3/knoppix-03-05 (プライベートファイル) も見よ.)
-  OpenXM/src/asir-port の下の次の各ファイル.
-  Makefile 1.1--1.8, asir-install.sh 1.1--1.2, asir-port.sh 1.1--1.6.
-@end itemize
-
-
-@node get_struct_name,,, 実験的仕様の関数
-@subsection @code{get_struct_name}, @code{get_element_names}, @code{get_element_at}, @code{put_element_at}
-@findex get_struct_name
-@findex get_element_names
-@findex get_element_at
-@findex put_element_at
-
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item get_struct_name(@var{s})
-@itemx get_element_names(@var{s})
-@itemx get_element_at(@var{s},@var{key})
-@itemx put_element_at(@var{s},@var{key},@var{obj})
-:: 構造体 @var{s} に対する操作
-@end table
-
-@table @var
-@item return
-文字列 (get_struct_name),
-文字列のリスト (get_element_names),
-オブジェクト (get_element_at),
-オブジェクト (put_element_at)
-@item s
-構造体
-@item key
-文字列
-@item obj
-オブジェクト
-@end table
-
-@itemize @bullet
-@item
- @code{get_struct_name(s)} は, 構造体 @var{s} の名前を戻す.
-@item
- @code{get_element_names(s)} は, 構造体のメンバーの名前のリストを戻す. 
-@item
- @code{get_element_at(s,key)} は構造体 s のメンバー key の値を戻す.
-@item
- @code{put_element_at(s,key,obj)} は構造体 s のメンバー key の値を obj に設定する.
-@end itemize
-
-@example
-[219]  struct point @{ x, y, color@};
-[220]  P = newstruct(point);
-@{0,0,0@}
-[221]  P->x = 10$ P->y=5$ P->color="red"$
-[222]  get_element_names(P);
-[x,y,color]
-[223] put_element_at(P,"color","blue");
-blue
-[224] P->color;
-bule
-@end example
-
-@table @t
-@item 参照
-@ref{newstruct}, @ref{struct}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
-@noindent
-ChangeLog
-@itemize @bullet
-@item  構造体の定義を知らずに構造体を扱うユーザ関数を書くときに便利.
-       asir-contrib の noro_print.rr を見よ.
-@item  OpenXM_contrib2/asir2000/builtin/compobj.c 1.8.
-@end itemize
-
-@comment --- ◯◯◯◯  関数 dp_gr_main の説明 ◯◯◯◯ 
-@node dp_weyl_gr_main,,, 実験的仕様の関数
-@subsection @code{dp_weyl_gr_main}
-@findex dp_weyl_gr_main
-
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item dp_weyl_gr_main(@var{f} | v=@var{vv}, order=@var{oo}, homo=@var{n}, matrix=@var{m}, block=@var{b}, sugarweight=@var{sw})
-:: dp_weyl_gr_main の新しいインタフェース.  dp_gr_main と同じ形式である.
-@end table
-
-@table @var
-@item return
-リスト (グレブナ基底. 再帰表現多項式か分散表現多項式のリスト)
-@item f
-リスト  (入力多項式系. 再帰表現多項式か分散表現多項式のリスト)
-@item vv
-リスト  (変数のリスト)
-@item oo
-リスト  (順序をあらわすリスト)
-@item n
-0 か1 (homogenization をするか). [テストまだ]
-@item m
-順序を matrix で表現する場合 (cf. dp_ord). [テストまだ]
-@item b
-???
-@item sw
-Sugar strategy を適用するときの weight vector. 全ての要素は非負. [テストまだ]
-@end table
-
-@itemize @bullet
-@item
- @code{dp_weyl_gr_main(@var{f})} は, @var{f} のグレブナ基底を計算する.
- グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
- 系統だっていなかった. 
- dp_weyl_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
- 指定方法については dp_gr_main のマニュアルを参照.
-@item 
- 分散表現多項式の各モノミアルの長さが偶数のときはワイル代数
- K[x_1, ..., x_n, d_1, ..., d_n]
-で計算がおこなわれる. ワイル代数では x_i と d_i は非可換な掛け算規則 
- d_i x_i = x_i d_i +1 をみたし, x_i と x_j や d_i と d_j は可換である.
- また i と j が異なる場合は x_i と d_j も可換である.
-@item 
- 分散表現多項式の各モノミアルの長さが奇数のときは同次化ワイル代数
- K[x_1, ..., x_n, d_1, ..., d_n, h]
-で計算がおこなわれる. 同次化ワイル代数では x_i と d_i は非可換な掛け算規則 
- d_i x_i = x_i d_i + h^2 
-をみたし, h は任意の元と可換, その他の変数もワイル代数と同様な可換性の規則をみたす.
- 詳しくは dp_gr_main で参照した Saito, Sturmfels, Takayama の教科書をみよ.
-@end itemize
-
-@example
-[1220] F=sm1.gkz([ [[1,1,1,1],[0,1,3,4]], [0,0]]);  /* Command in asir-contrib*/
-[[x4*dx4+x3*dx3+x2*dx2+x1*dx1,4*x4*dx4+3*x3*dx3+x2*dx2,-dx1*dx4+dx2*dx3,-dx2^2*dx4+dx1*dx3^2,dx1^2*dx3-dx2^3,-dx2*dx4^2+dx3^3],[x1,x2,x3,x4]]
-[1221] V=[x1,x2,x3,x4,dx1,dx2,dx3,dx4]$
-[1222] dp_weyl_gr_main(F[0] | v=V, order=[[dx1,1,dx2,1,dx3,1,dx4,1]]);
-...
-[1238] FF=map(dp_ptod,F[0],V);
-[(1)*<<1,0,0,0,1,0,0,0>>+(1)*<<0,1,0,0,0,1,0,0>>+(1)*<<0,0,1,0,0,0,1,0>>+(1)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,1,0,0,0,1,0,0>>+(3)*<<0,0,1,0,0,0,1,0>>+(4)*<<0,0,0,1,0,0,0,1>>,0,0,0,0]
-
-[1244] FF=map(dp_ptod,F[0],V);
-[(1)*<<1,0,0,0,1,0,0,0>>+(1)*<<0,1,0,0,0,1,0,0>>+(1)*<<0,0,1,0,0,0,1,0>>+(1)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,1,0,0,0,1,0,0>>+(3)*<<0,0,1,0,0,0,1,0>>+(4)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,0,0,0,0,1,1,0>>+(-1)*<<0,0,0,0,1,0,0,1>>,(1)*<<0,0,0,0,1,0,2,0>>+(-1)*<<0,0,0,0,0,2,0,1>>,(-1)*<<0,0,0,0,0,3,0,0>>+(1)*<<0,0,0,0,2,0,1,0>>,(1)*<<0,0,0,0,0,0,3,0>>+(-1)*<<0,0,0,0,0,1,0,2>>]
-
-dp_weyl_gr_main(FF | v=V, order=[[0,0,0,0,1,1,1,1]]);
-
-[1246] dp_weyl_gr_main(FF | v=V, order=[[dx1,1,dx2,1,dx3,1,dx4,1]]);
-[ 0 0 0 0 1 1 1 1 ]
-[ R R R R R R R R ]
- ...
-
-@end example
-
-@table @t
-@item 参照
-@ref{dp_gr_main}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item dp_gr_main のインタフェースが dp_weyl_gr_main へも導入された.
-@item 
-  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
-builtin/dp-supp.c 1.32--1.33
-builtin/dp.c 1.49--1.50
-@end itemize
-
-@comment --- ◯◯◯◯  関数 dp_initial_term の説明 ◯◯◯◯ 
-@node dp_initial_term,,, 実験的仕様の関数
-@subsection @code{dp_initial_term}
-@findex dp_initial_term
-
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item dp_initial_term(@var{f} | v=@var{vv}, order=@var{oo})
-:: dp_initial_term は与えられた weight に対する先頭項の和を戻す.
-@end table
-
-@table @var
-@item return
-分散表現多項式または分散表現多項式のリスト.
-@item f
-分散表現多項式か分散表現多項式のリスト.
-@item vv
-リスト  (変数のリスト)
-@item oo
-リスト  (順序をあらわすリスト)
-@end table
-
-@itemize @bullet
-@item
- dp_initial_term は与えられた weight w に対する先頭項の和を戻す.
- これは多くの教科書で @tex ${\rm in}_w(f)$ @end tex 
- と書かれている.
-@item
- 順序を表すリストは dp_gr_main で定義した文法に従う.
- このリストの先頭が weight vector で無い場合はエラーとなる.
- たとえば order=[[@@lex,...]] はエラーとなる.
-@item 
- 結果は与えられた順序に関してソートされてるわけではない.
-@end itemize
-
-@example
-[1220] F=<<2,0,0>>+<<1,1,0>>+<<0,0,1>>;
-(1)*<<2,0,0>>+(1)*<<1,1,0>>+(1)*<<0,0,1>>
-[1220] dp_initial_term(F | order=[[1,1,1]]);
-[ 1 1 1 ]
-[ R R R ]
-(1)*<<2,0,0>>+(1)*<<1,1,0>>
-[1221] dp_initial_term(F | v=[x,y,z], order=[[x,1]]);
-[ 1 0 0 ]
-[ R R R ]
-(1)*<<2,0,0>>
-@end example
-
-@table @t
-@item 参照
-@ref{dp_gr_main}, @ref{dp_weyl_gr_main}, @ref{dp_order}, @ref{dp_hm}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item 
-  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
-builtin/dp-supp.c 1.32
-builtin/dp.c 1.49
-@end itemize
-
-@comment --- ◯◯◯◯  関数 dp_order の説明 ◯◯◯◯ 
-@node dp_order,,, 実験的仕様の関数
-@subsection @code{dp_order}
-@findex dp_order
-
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item dp_order(@var{f} | v=@var{vv}, order=@var{oo})
-:: dp_order は与えられた weight に対する次数の最大値を戻す.
-@end table
-
-@table @var
-@item return
-数か数のリスト
-@item f
-分散表現多項式か分散表現多項式のリスト.
-@item vv
-リスト  (変数のリスト)
-@item oo
-リスト  (順序をあらわすリスト)
-@end table
-
-@itemize @bullet
-@item
- 順序を表すリストは dp_gr_main で定義した文法に従う.
- このリストの先頭が weight vector で無い場合はエラーとなる.
- たとえば order=[[@@lex,...]] はエラーとなる.
-@item
- dp_order は与えられた weight w に対する次数の最大値を戻す.
- これを @tex ${\rm ord}_w(f)$ @end tex 
- と書く論文や教科書もある.
-@item 
- 引数がリストの場合各要素の次数が計算される.
-@end itemize
-
-@example
-[1220] F=<<2,0,0>>+<<1,1,0>>+<<0,0,1>>;
-(1)*<<2,0,0>>+(1)*<<1,1,0>>+(1)*<<0,0,1>>
-[1222] dp_order(F | order=[[1,1,1]]);
-[ 1 1 1 ]
-[ R R R ]
-2
-[1223] dp_order(F | v=[x,y,z], order=[[x,1]]);
-[ 1 0 0 ]
-[ R R R ]
-@end example
-
-@table @t
-@item 参照
-@ref{dp_gr_main}, @ref{dp_weyl_gr_main}, @ref{dp_initial_term}, @ref{dp_hm}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item 
-  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
-builtin/dp-supp.c 1.32
-builtin/dp.c 1.49
-@end itemize
-
-
-@comment  mapat
-@node mapat,,, 実験的仕様の関数
-@subsection @code{mapat}
-@findex mapat
-
-@table @t
-@item mapat(@var{fname},@var{pos}[,@var{arg0}, @var{arg1}, ...])
-:: @var{pos} に対する map 関数
-@end table
-
-@table @var
-@item return
-オブジェクト
-@item pos
-整数
-@item arg0, arg1, arg2, ...
-オブジェクト
-@end table
-
-@itemize @bullet
-@item
-@code{map} 関数は 0 番目の引数に対してしか動作しないが, @code{mapat}
-関数は指定した番号の引数に対して @code{map} 関数を実行する.
-@item
-@code{mapat(fname,0,A0,A1,...)} は
-@code{map(fname,A0,A1,...)} に等価である.
-@item
-次の副作用がある. まだ書いてない.
-@end itemize
-
-@example
-[219] mapat(deg,1,x^2+y^3+x+y,[x,y]);
-[2,3]
-[220] mapat(subst,1,x+y+z,[x,y,z],2);
-[y+z+2,x+z+2,x+y+2]
-@end example
-
-@table @t
-@item 参照
-@ref{map}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数は 2004-6-22 にコミットされた.
- 変更をうけたソースコードは builtin/pf.c, subst.c である.
-@end itemize
-
-@comment  list
-@node list,,, 実験的仕様の関数
-@subsection @code{list}
-@findex list
-
-@table @t
-@item list([@var{arg0}, @var{arg1}, ...])
-:: list を生成する.
-@end table
-
-@table @var
-@item return
-リスト
-@item arg0, arg1, arg2, ...
-オブジェクト
-@end table
-
-@itemize @bullet
-@item
-@var{arg0}, @var{arg1}, ... を要素とするリストを生成する.
-@end itemize
-
-@example
-[219] list(1,2,3);
-[1,2,3]
-[220] list(1,2,[3,4]);
-[1,2,[3,4]]
-@end example
-
-@table @t
-@item 参照
-@ref{cons}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数は 2004-6-22 にコミットされた.
- 変更をうけたソースコードは builtin/list.c である.
-@end itemize
-
-
-@node set_print_function,,, 実験的仕様の関数
-@subsection @code{set_print_function}
-@findex set_print_function
-
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item set_print_function([@var{fname}])
-:: 画面表示用の関数を登録
-@end table
-
-@table @var
-@item return
-整数
-@item fname
-文字列
-@end table
-
-@itemize @bullet
-@item
-@code{set_print_function} は @code{fname(F)} を通常の画面表示関数の代わりによぶ.
-@code 引数がない場合は画面表示関数をデフォールトへ戻す.
-@code Asir-contrib はこの関数を用いて出力関数を Asir-contrib 用に変更している.
-@end itemize
-
-@example
-[219] def my_output(F) @{  
-           print("Out: ",0); print(rtostr(F));
-      @}
-[220] set_print_function("my_output");
-Out: 0
-[221]  1+2;
-Out: 3
-@end example
-
-@table @t
-@item 参照
-@ref{rtostr}
-@end table
-
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数は 2001-9-4 に asir-contrib のために導入された.
- 変更をうけたソースコードは builtin/print.c 1.11 である.
-@end itemize
-
-
-@node small_jacobi,,, 実験的仕様の関数
-@subsection @code{small_jacobi}
-@findex small_jacobi
-
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item small_jacobi(@var{a},@var{m})
-:: Jacobi 記号の計算
-@end table
-
-@table @var
-@item return
-整数
-@item arg1, arg2
-整数
-@end table
-
-@itemize @bullet
-@item 
- @var{m} が素数のときは Legendre 記号とよばれ,
- x^2 = @var{a} mod @var{m} に解があるとき 1, 解がないとき -1 をもどす.
-@item
-Jacobi 記号は Legendre 記号の積で定義される (初等整数論の本参照).
-@item
- この関数は machine int の範囲で jacobi 記号を計算する.
-@end itemize
-
-@example
-[1286] small_jacobi(2,3);
--1
-[1287] small_jacobi(2,7);
-1
-@end example
-
-@table @t
-@item 参照
-http://members.jcom.home.ne.jp/yokolabo/asirlib/  
-も見てね.
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数の由来は不明.
-@end itemize
-
-
-@node flatten_quote,,, 実験的仕様の関数
+@node flatten_quote,,, クオート
 @subsection @code{flatten_quote}
 @findex flatten_quote
 
@@ -1127,11 +350,11 @@ Quote
 @item
 Quote 型のデータは木構造をしている
 ( quotetolist 参照 ).
-@code{quote_flatten()} は, @var{q} の中にあられる演算子 @var{op} 
+@code{quote_flatten()} は, @var{q} の中にあられる演算子 @var{op}
 の子供ノードを平等にする.
 つまり演算子 @var{op} に関する括弧づけがあった場合それをすべてとりさる.
 たとえば (1+2)+(3+4) という表現を 1+2+3+4 に変換する.
-@item 
+@item
  現在の実装では n-ary の演算子は定義されていないので,
  1+2+3 は実は 1+(2+3) と表現されている.
  つまり + 演算子は右結合的である.
@@ -1158,153 +381,21 @@ quote(x*y*p*3-x*y*z)
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
+@item
  この関数は 2004-7-7 から 2004-7-8 にかけて
  quote に関する操作を研究するために実験的に書かれた.
  OpenXM/fb で蓄積された公式の不要な括弧をとりはずし, tex 形式に変換するのに
  応用.
 @item
- 変更をうけたソースコードは 
+ 変更をうけたソースコードは
  builtin/strobj.c 1.47,
  parse/eval.c 1.35,
  parse/parse.h 1.31,
  parse/quote.c 1.14--1.16.
 @end itemize
 
-@node assoc,,, 実験的仕様の関数
-@subsection @code{assoc}
-@findex assoc
 
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item assoc(@var{a},@var{b})
-:: 連想リストをつくる
-@end table
-
-@table @var
-@item return
-List
-@item a
-List
-@item b
-List
-@end table
-
-@itemize @bullet
-@item リスト @var{a}, @var{b} より
-[[@var{a}[0],@var{b}[0]], [@var{a}[1],@var{b}[1]], ...]
-なる新しいリストを生成する.
-@end itemize
-
-下の例では @code{A} に動物の名前が,
-@code{B} に足の本数が入っている.
-@code{assoc(A,B)} で動物と足の本数をペアにしたリストを生成する.
-
-@example
-[1192]  A=["dog","cat","snake"];
-[dog,cat,snake]
-[1193] B=[4,4,0];
-[4,4,0]
-[1194] assoc(A,B);
-[[dog,4],[cat,4],[snake,0]]
-@end example
-
-@table @t
-@item 参照
-@ref{cons}, @ref{append}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@noindent
-ChangeLog
-@itemize @bullet
-@item 
- この関数は 2004-6-28 に書かれた.
- 変更をうけたソースコードは 
- builtin/list.c 1.9
- parse/eval.c 1.35,
- parse/parse.h 1.31,
- parse/quote.c 1.14--1.16.
-@end itemize
-
-
-@node sprintf,,, 実験的仕様の関数
-@subsection @code{printf}, @code{fprintf}, @code{sprintf}
-@findex sprintf
-
-@table @t
-@item printf(@var{format}[,@var{args}])
-@item fprintf(@var{fd},@var{format}[,@var{args}])
-@item sprintf(@var{format}[,@var{args}])
-:: C に似たプリント関数
-@end table
-
-@table @var
-@item return
-整数(printf,fprintf), 文字列(sprintf)
-@item format
-文字列
-@item fd
-非負整数(ファイル記述子)
-@item args
-オブジェクト
-@end table
-
-@itemize @bullet
-@item
-@code{printf} は書式文字列 @var{format } にしたがい, オブジェクト @var{args} を標準出力に書き出す.
-@item
-@code{fprintf} は結果を, ファイル記述子 @var{fd} の指すファイルに書き出す.
-@item
-@code{sprintf} は結果を文字列で返し, 標準出力には書き出さない.
-@item
-書式文字列の中で @code{%a} (any) が利用可能.
-@var{args} の個数は書式文字列の中の @code{%a} の個数に等しくすること.
-@item
-ファイル記述子は, @code{open_file} 関数を用いて得ること.
-@end itemize
-
-@example
-[0] printf("%a: rat = %a\n",10,x^2-1)$
-10: rat = x^2-1
-[1] S=sprintf("%a: rat = %a",20,x^2-1)$
-[2] S;
-20: rat = x^2-1
-[3] Fd=open_file("hoge.txt","w");
-0
-[4] fprintf(Fd,"Poly=%a\n",(x-1)^3)$
-[5] close_file(Fd)$
-[6] quit;
-
-$ cat hoge.txt
-Poly=x^3-3*x^2+3*x-1
-@end example
-
-@table @t
-@item 参照
-@ref{rtostr},@ref{open_file},@ref{close_file}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
-@noindent
-ChangeLog
-@itemize @bullet
-@item 
- 関数 sprintfは 2004-7-13 にコミットされた.
- 変更をうけたソースコードは builtin/strobj (1.50) である.
-@item 
- 関数 printfは 2007-11-8 にコミットされた.
- 変更をうけたソースコードは builtin/print.c (1.23) である.
-@item 
- 関数 fprintfは 2008-11-18 にコミットされた.
- 変更をうけたソースコードは builtin/file.c (1.25) である.
-@item 
- @code{%a} は Maple の sprintf の真似か.
-@end itemize
-
-
-@node quote_to_funargs,,, 実験的仕様の関数
+@node quote_to_funargs,,, クオート
 @subsection @code{quote_to_funargs}, @code{funargs_to_quote}, @code{remove_paren}
 @findex quote_to_funargs
 @findex funargs_to_quote
@@ -1327,7 +418,7 @@ quote(funargs_to_quote, remove_paren) か リスト(quote_to_funargs)
 @item q
 quote
 @item f
-リスト 
+リスト
 @end table
 
 @itemize @bullet
@@ -1337,28 +428,28 @@ quote への復元可能な形でリストへ変換する.
 @code{quotetolist} は quote をリストへ変換するが, 一部の情報を捨てるため
 もとの quote の復元はできない.
 @item
- @code{quote_to_funargs} の戻り値は [fid, op, arg1, arg2, ...] 
+ @code{quote_to_funargs} の戻り値は [fid, op, arg1, arg2, ...]
 なる形式をしている.
 ここで op は node の名前であり,
 関数 @code{get_function_name} を用いて人間が読める形式
 で取りだせる.
 たとえば @code{get_function_name(quote_to_funargs(quote(1+2))[1])}
 は "+" を戻す.
-@item 
+@item
  名前@code{get_function_name} はそのうち変更されるだろう.
 @item
  下の例で
  quote_to_funargs(FA[2]);
 [34,[b_op,+,[internal,x],[internal,1]]]
-となる. 
-34 は @code{I_PAREN} を意味する. 
+となる.
+34 は @code{I_PAREN} を意味する.
 数と意味の対応表は @code{OpenXM/src/asir-contrib/packages/src/noro_simplify.rr}
 または @code{OpenXM_contrib2/asir2000/parse/parse.h} を見よ.
 以下の fid が 0, 1, 2, ... に対応づけられている.
         I_BOP, I_COP, I_AND, I_OR, I_NOT, I_CE,
         I_PRESELF, I_POSTSELF,
         I_FUNC, I_FUNC_OPT, I_IFUNC, I_MAP, I_RECMAP, I_PFDERIV,
-        I_ANS, I_PVAR, I_ASSPVAR, 
+        I_ANS, I_PVAR, I_ASSPVAR,
         I_FORMULA, I_LIST, I_STR, I_NEWCOMP, I_CAR, I_CDR, I_CAST,
         I_INDEX, I_EV, I_TIMER, I_GF2NGEN, I_GFPNGEN, I_GFSNGEN,
         I_LOP, I_OPT, I_GETOPT, I_POINT, I_PAREN, I_MINUS,
@@ -1417,174 +508,21 @@ quote(a+1)
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
+@item
  これらの関数は 2004-7-8 から開発のはじまっている quote の simplification 関連
  の実験的関数である.
  変更をうけたソースコードは多岐にわたるのでまだ書かない.
-@item 
+@item
  括弧を取り去る問題は OpenXM/fb が蓄えている公式を tex で綺麗に表示するのが動機の一つ.
-@item 
+@item
  2004-6-26 の計算代数セミナーにおいて, 中川さんが simplifier についていろいろ問題提起
 をした (計算代数セミナービデオ参照).
 @item parse/quote.c の {\tt strcut fid_spec fid_spec_tab[] }
 の部分に書いてある形式に @code{funargs_to_quote} は変換する.
 @end itemize
 
-@node set_secure_flag,,, 実験的仕様の関数
-@subsection @code{set_secure_flag}, @code{set_secure_mode}
-@findex set_secure_flag
-@findex set_secure_mode
 
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item set_secure_flag(@var{fname},@var{m})
-@itemx set_secure_mode(@var{m})
-:: 関数の実行権限を設定する.  (web サービス用)
-@end table
-
-@table @var
-@item return
-整数
-@item fname
-文字列
-@item m
-整数
-@end table
-
-@itemize @bullet
-@item @code{set_secure_flag}, @code{set_secure_mode} は 
-asir を web サーバ等で公開するために加えられた関数. 
-@code{set_secure_flag} で公開する関数を指定する.
-@code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
-関数しか実行できない.
-関数の実行途中では @code{secure_mode} が 0 となっているので,
-任意の関数を実行できる.
-またエラーの時等は, @code{secure_mode} は 1 に自動的に復帰する.
-ただし @code{def} は実行できない. 
-公開する関数では, その処理中は任意の関数が実行できるので,
-security に十分注意した実装をする必要がある.
-@item
-@code{set_secure_flag} は, @var{fname} の secure flag を @var{m} 
-にする.
-公開する命令は 1 に設定する.
-@item
-@var{set_secure_mode(1)} で @code{secure_mode} が 1 となり,
-公開された関数しか実行できなくなる.
-quit 等も実行できないので注意.
-@item  @code{ timer } の引数として secure_flag を設定していない関数を
-指定して実行してもエラーが表示されない.
-このときは, @code{ ctrl("error_in_timer",1) } を実行しておく.
-@end itemize
-
-@example
-[1194] set_secure_flag("print_input_form_",1);
-1
-[1195] set_secure_flag("fctr",1);
-1
-[220] set_secure_mode(1);
-1
-[1197] fctr((x-1)^3);
-[[1,1],[x-1,3]]
-[1198] fctr(shell("ls"));
-evalf : shell not permitted
-return to toplevel
-@end example
-
-@table @t
-@item 参照
-@ref{timer}
-@end table
-
-@noindent
-ChangeLog
-@itemize @bullet
-@item @code{set_secure_flag}, @code{set_secure_mode} は asir を 
-web サーバ等で公開するために加えられた関数. 
-sm1 の同様な関数 RestrictedMode で採用された方法を用いている. 
-つまり, @code{set_secure_flag} で公開する関数を指定する.
-@code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
-関数しか実行できない.
-v関数の実行途中では @code{secure_mode} が 0 となっているので,
-任意の関数を実行できる.
-@item この関数は 2004-10-27 から 2004-11-22 にかけて開発された.
-@item cgiasir.sm1, cgi-asir.sh と組み合わせて cgi サービスを提供するために
-利用する.
-cgi-asir.sh では
-@code{CGI_ASIR_ALLOW} 環境変数で公開するコマンドを指定する.
-@item  
-  1.24--1.25      OpenXM_contrib2/asir2000/builtin/miscf.c 
-@item
-  1.36--1.38      OpenXM_contrib2/asir2000/parse/eval.c 
-@item
-  1.6--1.7       OpenXM_contrib2/asir2000/parse/function.c 
-@item
-  1.33      OpenXM_contrib2/asir2000/parse/parse.h
-@end itemize
-
-@node initialize_static_variable,,, 実験的仕様の関数
-@subsection @code{initialize_static_variable}
-@findex initialize_static_variable
-
-
-@comment --- 説明 ---
-@table @t
-@item static 変数の初期化の問題点. 初期化の時に segmentation fault がおきる.
-@end table
-
-
-@itemize @bullet
-@item static 変数の取扱.
-下の例を参照のこと.
-@end itemize
-
-
-@example
-if (1) @{
- module abc;
- static A;
- A=1;
- endmodule;
-@} else @{ @};
-
-end$
-を t.rr とするとき, 
-
-[6] load("./t.rr");
-1
-internal error (SEGV)
-となる.
-
-t.rr を
-if (1) @{
- module abc;
- static A;
- localf initA;
- localf foo;
- def initA() @{
-   A=1;
- @}
- initA();
- def foo() @{
-   return A;
- @}
- endmodule;
-@} else @{ @};
-
-end$
-とすると正しく初期化される.
-@end example
-
-@comment --- ChangeLog 
-@noindent
-ChangeLog
-@itemize @bullet
-@item  oxasir-win.rr の取扱で問題点として浮上.  2005.07.25.
-@item  oxasir-win.rr の取扱で double quote の取り扱いに問題があったが, これは asir2000/io/ox_asir.c, 1.58, で問題点解決.
-@item ox_asir に計算を依頼する時は if (1) @{ ... @}で囲む.
-@end itemize
-
-@node eval_quote,,, 実験的仕様の関数
+@node eval_quote,,, クオート
 @subsection @code{eval_quote}
 @findex eval_quote
 
@@ -1632,7 +570,7 @@ ChangeLog
 @end itemize
 
 
-@node nqt_match,,, 実験的仕様の関数
+@node nqt_match,,, クオート
 @subsection @code{nqt_match}
 @findex nqt_match
 
@@ -1640,7 +578,7 @@ ChangeLog
 @comment --- @itemx は複数に対して説明を一つつける場合に使う ---
 @table @t
 @item nqt_match(@var{Expr},@var{Pattern}[,@var{Mode}])
-:: @var{Expr} が @var{Pattern} にマッチ(適合)すると 1 を戻す. しないと 0 を戻す. 
+:: @var{Expr} が @var{Pattern} にマッチ(適合)すると 1 を戻す. しないと 0 を戻す.
 @end table
 
 @table @var
@@ -1655,10 +593,10 @@ quote型
 @end table
 
 @itemize @bullet
-@item  @var{Expr} が @var{Pattern} にマッチ(適合)すると 1 を戻す. しないと 0 を戻す. 
+@item  @var{Expr} が @var{Pattern} にマッチ(適合)すると 1 を戻す. しないと 0 を戻す.
 @item 適合した場合, 副作用として, @var{Pattern} に含まれるプログラム変数(大文字ではじまる変数)に適合した値が代入される.
 @item nqt は normalized quote の略であり fnode標準形に変換してから適合検査をする.  fnode標準形については @ref{qt_normalize} を見よ.
-@item @var{Mode} により展開方法を指定し, その展開方法により得られた @var{Expr} の 
+@item @var{Mode} により展開方法を指定し, その展開方法により得られた @var{Expr} の
 fnode標準形と @var{Pattern} を比較する.
 @end itemize
 
@@ -1680,8 +618,8 @@ qt_normalize(A,2);
 
 @table @t
 @item 参照
-@ref{nqt_match_rewrite}, 
-@ref{qt_rewrite} 
+@ref{nqt_match_rewrite},
+@ref{qt_rewrite}
 @end table
 
 @comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
@@ -1693,7 +631,7 @@ ChangeLog
 @end itemize
 
 
-@node nqt_match_rewrite,,, 実験的仕様の関数
+@node nqt_match_rewrite,,, クオート
 @subsection @code{nqt_match_rewrite}
 @findex nqt_match_rewrite
 
@@ -1760,7 +698,7 @@ ChangeLog
 
 
 
-@node qt_normalize,,, 実験的仕様の関数
+@node qt_normalize,,, クオート
 @subsection @code{qt_normalize}
 @findex qt_normalize
 
@@ -1825,7 +763,7 @@ quotetolist(B);
 
 B=qt_normalize(A,1);
    出力: ((x)^(2))+((x)*(y))+((-1)*((y)^(2)))+((-1)*(y)*(x))
-           Mode=1. 展開する. +, * は n_op (nary-op) へ. 巾をまとめる. 
+           Mode=1. 展開する. +, * は n_op (nary-op) へ. 巾をまとめる.
 quotetolist(B);
    出力: [n_op,+,[b_op,^,[internal,x],[internal,2]],[n_op,*,[internal,x],[internal,y]],[n_op,*,[internal,-1],[b_op,^,[internal,y],[internal,2]]],[n_op,*,[internal,-1],[internal,y],[internal,x]]]
 
@@ -1857,7 +795,7 @@ ChangeLog
 @end itemize
 
 
-@node qt_set_coef,,, 実験的仕様の関数
+@node qt_set_coef,,, クオート
 @subsection @code{qt_set_coef}
 @findex qt_set_coef
 
@@ -1907,7 +845,7 @@ ChangeLog
 @end itemize
 
 
-@node qt_set_ord,,, 実験的仕様の関数
+@node qt_set_ord,,, クオート
 @subsection @code{qt_set_ord}
 @findex qt_set_ord
 
@@ -1958,7 +896,7 @@ ChangeLog
 @end itemize
 
 
-@node qt_set_weight,,, 実験的仕様の関数
+@node qt_set_weight,,, クオート
 @subsection @code{qt_set_weight}
 @findex qt_set_weight
 
@@ -1988,7 +926,7 @@ fnode f の weight w(f) は次の式で計算する.
    関数については? -----まだ書いてない.
 @end example
 
-@itemize @bullet 
+@itemize @bullet
 @item @var{WeightVector} でまず順序の比較をして, それから qt_set_order による順序, 最後に既定の順序で比較する.
 @var{WeightVector} に現れない変数についての weight は 0 となる.
 @item qt_normalize およびその機能を用いる関数がこの機能の影響を受ける.
@@ -2022,7 +960,7 @@ ChangeLog
 @end itemize
 
 
-@node nqt_comp,,, 実験的仕様の関数
+@node nqt_comp,,, クオート
 @subsection @code{nqt_comp}
 @findex nqt_comp
 
@@ -2070,7 +1008,7 @@ ChangeLog
 @end itemize
 @comment ****************************************************************
 
-@node qt_is_var,,, 実験的仕様の関数
+@node qt_is_var,,, クオート
 @subsection @code{qt_is_var}, @code{qt_is_coef}
 @findex qt_is_var
 @findex qt_is_coef
@@ -2092,7 +1030,7 @@ quote型
 @end table
 
 @itemize @bullet
-@item  @var{Expr} が不定元に対応する quote なら 1 を戻す. 
+@item  @var{Expr} が不定元に対応する quote なら 1 を戻す.
 そうでないとき 0 を戻す.
 @end itemize
 
@@ -2116,7 +1054,7 @@ ChangeLog
 @end itemize
 @comment ****************************************************************
 
-@node qt_rewrite,,, 実験的仕様の関数
+@node qt_rewrite,,, クオート
 @subsection @code{qt_rewrite}
 @findex qt_rewrite
 
@@ -2146,12 +1084,12 @@ quote型
 @item @var{Expr} を規則集合 @var{Rules} を用いて書き換える.
 @item 規則の適用は fnode木に対して再帰的である.
  一方 @code{nqt_match_rewrite} ではトップレベルのみに規則が適用される.
-@item 規則集合 @var{Rules} の各要素の書き方は @code{nqt_match()} の 
+@item 規則集合 @var{Rules} の各要素の書き方は @code{nqt_match()} の
 @var{Pattern} と同じ書き方.
 つまり [パターン, 書き換え結果] または
 [パターン, 条件, 書き換え結果].
 @item @var{Mode} の意味は @ref{qt_normalize} の @var{Mode} と同様.
-パターンマッチ, 書き換えは @var{Mode} で @code{qt_normalize()} 
+パターンマッチ, 書き換えは @var{Mode} で @code{qt_normalize()}
 されてから遂行される.
 @end itemize
 
@@ -2213,15 +1151,787 @@ ChangeLog
 このユーザ言語による開発が 2005年の春まで行われ, そのあと組み込み関数主体の
 qt 系の関数が開発された.
 @item qt 系の関数についてのその他の参考文献:
-  OpenXM/doc/Papers/2005-rims-noro.tex および 
-  OpenXM/doc/Papers/2005-rims-noro.tm (TeXmacsの記事). 
+  OpenXM/doc/Papers/2005-rims-noro.tex および
+  OpenXM/doc/Papers/2005-rims-noro.tm (TeXmacsの記事).
 @item Todo: qt 系の関数を用いたおもしろい計算を Risa/Asir ジャーナルの記事として書く.
 @end itemize
-@comment ****************************************************************
-
 
 @comment ****************************************************************
-@node asirgui.hnd,,, 実験的仕様の関数
+
+@node 文字列処理,,, 実験的仕様の関数
+@section 文字列処理
+
+@comment --- ◯◯◯◯  関数 copyright の説明 ◯◯◯◯
+@node copyright,,, 文字列処理
+@subsection @code{copyright}
+@findex copyright
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item copyright()
+:: Risa/Asir の copyright 表示を文字列として戻す.
+@end table
+
+@table @var
+@item return
+文字列
+@end table
+
+@itemize @bullet
+@item
+Risa/Asir の copyright 表示を文字列として戻す.
+@end itemize
+
+@example
+[1150] copyright();
+This is Risa/Asir, Version 20040312 (Kobe Distribution).
+Copyright (C) 1994-2000, all rights reserved, FUJITSU LABORATORIES LIMITED.
+Copyright 2000-2003, Risa/Asir committers, http://www.openxm.org/.
+GC 6.2(alpha6) copyright 1988-2003, H-J. Boehm, A. J. Demers, Xerox, SGI, HP.
+PARI 2.0.17, copyright 1989-1999, C. Batut, K. Belabas, D. Bernardi,
+   H. Cohen and M. Olivier.
+@end example
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は texmacs 用に書かれた (2004-03).
+@item OpenXM_contrib2/asir2000 の下の以下のファイルをみよ. builtin/miscf.c 1.21,
+      parse/glob.c 1.47.
+@end itemize
+
+
+
+@comment --- ◯◯◯◯  関数 string_to_tb, ... の説明 ◯◯◯◯
+@comment --- 複数の関数をまとめて説明する例 ---
+@node string_to_tb tb_to_string write_to_tb,,, 文字列処理
+@subsection @code{string_to_tb}, @code{tb_to_string}, @code{write_to_tb}
+@findex string_to_tb
+@findex tb_to_string
+@findex write_to_tb
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item string_to_tb(@var{s})
+@itemx tb_to_string(@var{tb})
+@itemx write_to_tb(@var{s},@var{tb})
+:: 文字列可変長配列型(text buffer)のデータの処理
+@end table
+
+@table @var
+@item return
+文字列可変長配列型(string_to_tb), 文字列型(tb_to_string)
+@item s
+文字列
+@item tb
+文字列可変長配列型
+@end table
+
+@itemize @bullet
+@item
+@code{string_to_tb(@var{s})} は, 文字列 @var{s} をはじめの要素とする
+文字列可変長配列型オブジェクトを生成する.
+@item
+@code{tb_to_string_(@var{tb})} は,
+文字列可変長配列型オブジェクト @var{tb} から通常の文字列オブジェクトを生成する.
+@item
+@code{write_to_tb(@var{s},@var{tb})} は, 文字列 @var{s} を
+文字列可変長配列型オブジェクト @var{tb} へ書き出す.
+@item @var{SS} を文字列変数とするとき,
+@var{SS} += "文字列" で @var{SS} へ文字列を書き足していくことができるが,
+無駄なメモリを大量に消費する.
+代りに関数 @code{write_to_tb} を用いるべきである.
+文字列可変長配列型オブジェクトは文字列の可変長の配列でありメモリ管理に優しい
+データ構造である.
+@end itemize
+
+@example
+[219] T=string_to_tb("");
+
+[220] write_to_tb("Hello",T);
+0
+[221] write_to_tb(" world!",T);
+0
+[222] tb_to_string(T);
+Hello world!
+@end example
+
+
+@comment --- ChangeLog を書く. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ この関数は 2004-3 に print_tex_form を効率化するために書かれた.
+@item
+ OpenXM_contrib2/asir2000 の下の以下のファイルを見よ.
+io/ox_asir.c 1.52, builtin/strobj.c 1.12--1.13, 1.16,
+engine/str.c 1.5, parse/quote.c 1.9.
+@item
+ rtostr が text buffer 型のデータに関しておそかった. 速度の改善は
+ asir2000/io/pexpr_body.c 1.2, asir2000/parse/lex.c 1.32.
+@end itemize
+
+
+@node set_print_function,,, 文字列処理
+@subsection @code{set_print_function}
+@findex set_print_function
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item set_print_function([@var{fname}])
+:: 画面表示用の関数を登録
+@end table
+
+@table @var
+@item return
+整数
+@item fname
+文字列
+@end table
+
+@itemize @bullet
+@item
+@code{set_print_function} は @code{fname(F)} を通常の画面表示関数の代わりによぶ.
+@code 引数がない場合は画面表示関数をデフォールトへ戻す.
+@code Asir-contrib はこの関数を用いて出力関数を Asir-contrib 用に変更している.
+@end itemize
+
+@example
+[219] def my_output(F) @{
+           print("Out: ",0); print(rtostr(F));
+      @}
+[220] set_print_function("my_output");
+Out: 0
+[221]  1+2;
+Out: 3
+@end example
+
+@table @t
+@item 参照
+@ref{rtostr}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2001-9-4 に asir-contrib のために導入された.
+ 変更をうけたソースコードは builtin/print.c 1.11 である.
+@end itemize
+
+
+@node sprintf,,, 文字列処理
+@subsection @code{printf}, @code{fprintf}, @code{sprintf}
+@findex sprintf
+
+@table @t
+@item printf(@var{format}[,@var{args}])
+@item fprintf(@var{fd},@var{format}[,@var{args}])
+@item sprintf(@var{format}[,@var{args}])
+:: C に似たプリント関数
+@end table
+
+@table @var
+@item return
+整数(printf,fprintf), 文字列(sprintf)
+@item format
+文字列
+@item fd
+非負整数(ファイル記述子)
+@item args
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+@code{printf} は書式文字列 @var{format } にしたがい, オブジェクト @var{args} を標準出力に書き出す.
+@item
+@code{fprintf} は結果を, ファイル記述子 @var{fd} の指すファイルに書き出す.
+@item
+@code{sprintf} は結果を文字列で返し, 標準出力には書き出さない.
+@item
+書式文字列の中で @code{%a} (any) が利用可能.
+@var{args} の個数は書式文字列の中の @code{%a} の個数に等しくすること.
+@item
+ファイル記述子は, @code{open_file} 関数を用いて得ること.
+@end itemize
+
+@example
+[0] printf("%a: rat = %a\n",10,x^2-1)$
+10: rat = x^2-1
+[1] S=sprintf("%a: rat = %a",20,x^2-1)$
+[2] S;
+20: rat = x^2-1
+[3] Fd=open_file("hoge.txt","w");
+0
+[4] fprintf(Fd,"Poly=%a\n",(x-1)^3)$
+[5] close_file(Fd)$
+[6] quit;
+
+$ cat hoge.txt
+Poly=x^3-3*x^2+3*x-1
+@end example
+
+@table @t
+@item 参照
+@ref{rtostr},@ref{open_file},@ref{close_file}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ 関数 sprintfは 2004-7-13 にコミットされた.
+ 変更をうけたソースコードは builtin/strobj (1.50) である.
+@item
+ 関数 printfは 2007-11-8 にコミットされた.
+ 変更をうけたソースコードは builtin/print.c (1.23) である.
+@item
+ 関数 fprintfは 2008-11-18 にコミットされた.
+ 変更をうけたソースコードは builtin/file.c (1.25) である.
+@item
+ @code{%a} は Maple の sprintf の真似か.
+@end itemize
+
+
+@node グレブナー基底,,, 実験的仕様の関数
+@section グレブナー基底
+
+@comment --- ◯◯◯◯  関数 dp_gr_main の説明 ◯◯◯◯
+@comment --- 複数の関数をまとめて説明する例 ---
+@node dp_gr_main,,, グレブナー基底
+@subsection @code{dp_gr_main}
+@findex dp_gr_main
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item dp_gr_main(@var{f} | v=@var{vv}, order=@var{oo}, homo=@var{n}, matrix=@var{m}, block=@var{b}, sugarweight=@var{sw})
+:: dp_gr_main の新しいインタフェース.
+@end table
+
+@table @var
+@item return
+リスト (グレブナ基底. 再帰表現多項式か分散表現多項式のリスト)
+@item f
+リスト  (入力多項式系. 再帰表現多項式か分散表現多項式のリスト)
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@item n
+0 か1 (homogenization をするか)
+@item m
+順序を matrix で表現する場合 (cf. dp_ord).
+@item b
+???
+@item sw
+Sugar strategy を適用するときの weight vector. 全ての要素は非負.
+@end table
+
+@itemize @bullet
+@item
+ @code{dp_gr_main(@var{f})} は, @var{f} のグレブナ基底を計算する.
+ グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
+ 系統だっていなかった.
+ dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
+@comment  ~taka/this03/misc-2003/A2/dp
+@item 順序 order は次の文法で定義する.  @{, @} は 0 回以上の繰り返しを意味する.
+@example
+  order         : '[' orderElement @{ ',' orderElement @} ']'
+  orderElement   :  weightVec | builtinOrder
+  weightVec     : '[' weightElement @{ ',' weightElement @} ']'
+  builtiniOrder : '[' orderName  ',' setOfVariables ']'
+  weightElement :   NUMBER | setOfVariables ',' NUMBER
+  setOfVariables:  V | range(V,V)
+  orderName    : @@grlex | @@glex | @@lex
+@end example
+ここで @code{V} は 変数名, @code{NUMBER} は整数をあわらす.
+例1:  @code{v=[x,y,z,u,v], order=[[x,10,y,5,z,1],[@@grlex,range(x,v)]]}
+は @code{x},@code{y},@code{z} がそれぞれ weight 10, 5, 1 をもつ
+順序で比較したあと, @code{[x,y,z,u,v]} についての
+graded reverse lexicographic order を tie-breaker として用いることを意味する.
+参考書: B.Sturmfels: Gr\"obner Bases and Convex Polytopes (1995).
+M.Saito, B.Sturmfels, N.Takayama:
+Gr\"obner Deformations of Hypergeometric Differential Equations (2000).
+@item
+  順序要素 (orderElement) の指定方法は
+ (1) 変数名または rangeで指定された変数の集合と重みの値の繰り返し
+ (2) 重みの値を変数リストの順番に並べる方法
+ (3) 変数名または rangeで指定された変数の集合と順序名の組
+ の三通りの基礎的方法がある.
+ 似た指定方法が Macaulay, Singular, CoCoA, Kan/sm1 等の環論システムで
+ 使用されていた. Risa/Asir の指定方法はこれらのシステムの指定方法を参考に
+ さらに改良を加えたもので柔軟性が高い.
+@item
+  order の tie-breaker は grlex がデフォールト.
+@item
+  分散表現多項式を引数としたときは結果も分散表現多項式として戻る.
+  order 指定にもちいるデフォールトの変数名はこのとき x0, x1, x2, ... となる.
+@item
+  オプションの値は option_list キーワードを用いてリストで与えてもよい.
+  下の例を参照.
+@end itemize
+
+@example
+[218] load("cyclic");
+[219] V=vars(cyclic(4));
+[c0,c1,c2,c3]
+[220]dp_gr_main(cyclic(4) | v=V, order=[[c0,10,c1,1],[c2,5],[@@grlex,range(c0,c3)]]);
+[ 10 1 0 0 ]
+[ 0 0 5 0 ]
+[ R R R R ]
+[(-c3^6+c3^2)*c2^2+c3^4-1,c3^2*c2^3+c3^3*c2^2-c2-c3,
+ (c3^4-1)*c1+c3^5-c3,(c2-c3)*c1+c3^4*c2^2+c3*c2-2*c3^2,-c1^2-2*c3*c1-c3^2,
+ c0+c1+c2+c3]
+
+[1151]  F=map(dp_ptod,katsura(4), vars(katsura(4)));
+[(1)*<<1,0,0,0,0>>+(2)*<<0,1,0,0,0>>+ ... ]
+[1152] dp_gr_main(F | order=[[range(x0,x3),1]]);
+[ 1 1 1 1 0 ]
+[ R R R R R ]
+[(47774098944)*<<0,0,0,0,13>>+ ... ]
+
+[1153] Opt=[["v",[x,y]], ["order",[[x,5,y,1]]]];
+[[v,[x,y]],[order,[[x,5,y,1]]]]
+[1154]  dp_gr_main([x^2+y^2-1,x*y-1] | option_list=Opt);
+[ 5 1 ]
+[ R R ]
+[-y^4+y^2-1,x+y^3-y]
+@end example
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2003-12 から 2004-2 の始めに大きな修正が行われた.
+@item
+ @code{setOfVariables}の表現のために range オブジェクトが導入された.
+@item
+  グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
+  系統だっていなかった.
+  dp_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
+@item
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/gr.c 1.56--1.57,
+builtin/dp-supp.c 1.27--1.31 (create_composite_order_spec),
+builtin/dp.c 1.46--1.48 (parse_gr_option),
+engine/Fgfs.c 1.20,
+engine/dist.c 1.27--1.28
+engine/nd.c 1.89,
+include/ca.h 1.42--1.43,
+io/pexpr.c 1.28,
+io/sexpr.c 1.26,
+parse/arith.c 1.11,
+parse/glob.c 1.44-1.45,
+parse/lex.c 1.29,
+parse/parse.h 1.23--1.26
+@item
+ Todo: return キーワードで戻り値のデータを quote のリストにできるように.
+  attribute, ring 構造体.
+@end itemize
+
+@comment --- ◯◯◯◯  関数 dp_gr_main の説明 ◯◯◯◯
+@node dp_weyl_gr_main,,, グレブナー基底
+@subsection @code{dp_weyl_gr_main}
+@findex dp_weyl_gr_main
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item dp_weyl_gr_main(@var{f} | v=@var{vv}, order=@var{oo}, homo=@var{n}, matrix=@var{m}, block=@var{b}, sugarweight=@var{sw})
+:: dp_weyl_gr_main の新しいインタフェース.  dp_gr_main と同じ形式である.
+@end table
+
+@table @var
+@item return
+リスト (グレブナ基底. 再帰表現多項式か分散表現多項式のリスト)
+@item f
+リスト  (入力多項式系. 再帰表現多項式か分散表現多項式のリスト)
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@item n
+0 か1 (homogenization をするか). [テストまだ]
+@item m
+順序を matrix で表現する場合 (cf. dp_ord). [テストまだ]
+@item b
+???
+@item sw
+Sugar strategy を適用するときの weight vector. 全ての要素は非負. [テストまだ]
+@end table
+
+@itemize @bullet
+@item
+ @code{dp_weyl_gr_main(@var{f})} は, @var{f} のグレブナ基底を計算する.
+ グレブナ基底は順序を変えるとその形が変わる.   asir ではいままで順序の指定方法が
+ 系統だっていなかった.
+ dp_weyl_gr_main の新しいインタフェースでは順序をある文法に従い指定する.
+ 指定方法については dp_gr_main のマニュアルを参照.
+@item
+ 分散表現多項式の各モノミアルの長さが偶数のときはワイル代数
+ K[x_1, ..., x_n, d_1, ..., d_n]
+で計算がおこなわれる. ワイル代数では x_i と d_i は非可換な掛け算規則
+ d_i x_i = x_i d_i +1 をみたし, x_i と x_j や d_i と d_j は可換である.
+ また i と j が異なる場合は x_i と d_j も可換である.
+@item
+ 分散表現多項式の各モノミアルの長さが奇数のときは同次化ワイル代数
+ K[x_1, ..., x_n, d_1, ..., d_n, h]
+で計算がおこなわれる. 同次化ワイル代数では x_i と d_i は非可換な掛け算規則
+ d_i x_i = x_i d_i + h^2
+をみたし, h は任意の元と可換, その他の変数もワイル代数と同様な可換性の規則をみたす.
+ 詳しくは dp_gr_main で参照した Saito, Sturmfels, Takayama の教科書をみよ.
+@end itemize
+
+@example
+[1220] F=sm1.gkz([ [[1,1,1,1],[0,1,3,4]], [0,0]]);  /* Command in asir-contrib*/
+[[x4*dx4+x3*dx3+x2*dx2+x1*dx1,4*x4*dx4+3*x3*dx3+x2*dx2,-dx1*dx4+dx2*dx3,-dx2^2*dx4+dx1*dx3^2,dx1^2*dx3-dx2^3,-dx2*dx4^2+dx3^3],[x1,x2,x3,x4]]
+[1221] V=[x1,x2,x3,x4,dx1,dx2,dx3,dx4]$
+[1222] dp_weyl_gr_main(F[0] | v=V, order=[[dx1,1,dx2,1,dx3,1,dx4,1]]);
+...
+[1238] FF=map(dp_ptod,F[0],V);
+[(1)*<<1,0,0,0,1,0,0,0>>+(1)*<<0,1,0,0,0,1,0,0>>+(1)*<<0,0,1,0,0,0,1,0>>+(1)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,1,0,0,0,1,0,0>>+(3)*<<0,0,1,0,0,0,1,0>>+(4)*<<0,0,0,1,0,0,0,1>>,0,0,0,0]
+
+[1244] FF=map(dp_ptod,F[0],V);
+[(1)*<<1,0,0,0,1,0,0,0>>+(1)*<<0,1,0,0,0,1,0,0>>+(1)*<<0,0,1,0,0,0,1,0>>+(1)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,1,0,0,0,1,0,0>>+(3)*<<0,0,1,0,0,0,1,0>>+(4)*<<0,0,0,1,0,0,0,1>>,(1)*<<0,0,0,0,0,1,1,0>>+(-1)*<<0,0,0,0,1,0,0,1>>,(1)*<<0,0,0,0,1,0,2,0>>+(-1)*<<0,0,0,0,0,2,0,1>>,(-1)*<<0,0,0,0,0,3,0,0>>+(1)*<<0,0,0,0,2,0,1,0>>,(1)*<<0,0,0,0,0,0,3,0>>+(-1)*<<0,0,0,0,0,1,0,2>>]
+
+dp_weyl_gr_main(FF | v=V, order=[[0,0,0,0,1,1,1,1]]);
+
+[1246] dp_weyl_gr_main(FF | v=V, order=[[dx1,1,dx2,1,dx3,1,dx4,1]]);
+[ 0 0 0 0 1 1 1 1 ]
+[ R R R R R R R R ]
+ ...
+
+@end example
+
+@table @t
+@item 参照
+@ref{dp_gr_main}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item dp_gr_main のインタフェースが dp_weyl_gr_main へも導入された.
+@item
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/dp-supp.c 1.32--1.33
+builtin/dp.c 1.49--1.50
+@end itemize
+
+@comment --- ◯◯◯◯  関数 dp_initial_term の説明 ◯◯◯◯
+@node dp_initial_term,,, グレブナー基底
+@subsection @code{dp_initial_term}
+@findex dp_initial_term
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item dp_initial_term(@var{f} | v=@var{vv}, order=@var{oo})
+:: dp_initial_term は与えられた weight に対する先頭項の和を戻す.
+@end table
+
+@table @var
+@item return
+分散表現多項式または分散表現多項式のリスト.
+@item f
+分散表現多項式か分散表現多項式のリスト.
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@end table
+
+@itemize @bullet
+@item
+ dp_initial_term は与えられた weight w に対する先頭項の和を戻す.
+ これは多くの教科書で @tex ${\rm in}_w(f)$ @end tex
+ と書かれている.
+@item
+ 順序を表すリストは dp_gr_main で定義した文法に従う.
+ このリストの先頭が weight vector で無い場合はエラーとなる.
+ たとえば order=[[@@lex,...]] はエラーとなる.
+@item
+ 結果は与えられた順序に関してソートされてるわけではない.
+@end itemize
+
+@example
+[1220] F=<<2,0,0>>+<<1,1,0>>+<<0,0,1>>;
+(1)*<<2,0,0>>+(1)*<<1,1,0>>+(1)*<<0,0,1>>
+[1220] dp_initial_term(F | order=[[1,1,1]]);
+[ 1 1 1 ]
+[ R R R ]
+(1)*<<2,0,0>>+(1)*<<1,1,0>>
+[1221] dp_initial_term(F | v=[x,y,z], order=[[x,1]]);
+[ 1 0 0 ]
+[ R R R ]
+(1)*<<2,0,0>>
+@end example
+
+@table @t
+@item 参照
+@ref{dp_gr_main}, @ref{dp_weyl_gr_main}, @ref{dp_order}, @ref{dp_hm}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/dp-supp.c 1.32
+builtin/dp.c 1.49
+@end itemize
+
+@comment --- ◯◯◯◯  関数 dp_order の説明 ◯◯◯◯
+@node dp_order,,, グレブナー基底
+@subsection @code{dp_order}
+@findex dp_order
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item dp_order(@var{f} | v=@var{vv}, order=@var{oo})
+:: dp_order は与えられた weight に対する次数の最大値を戻す.
+@end table
+
+@table @var
+@item return
+数か数のリスト
+@item f
+分散表現多項式か分散表現多項式のリスト.
+@item vv
+リスト  (変数のリスト)
+@item oo
+リスト  (順序をあらわすリスト)
+@end table
+
+@itemize @bullet
+@item
+ 順序を表すリストは dp_gr_main で定義した文法に従う.
+ このリストの先頭が weight vector で無い場合はエラーとなる.
+ たとえば order=[[@@lex,...]] はエラーとなる.
+@item
+ dp_order は与えられた weight w に対する次数の最大値を戻す.
+ これを @tex ${\rm ord}_w(f)$ @end tex
+ と書く論文や教科書もある.
+@item
+ 引数がリストの場合各要素の次数が計算される.
+@end itemize
+
+@example
+[1220] F=<<2,0,0>>+<<1,1,0>>+<<0,0,1>>;
+(1)*<<2,0,0>>+(1)*<<1,1,0>>+(1)*<<0,0,1>>
+[1222] dp_order(F | order=[[1,1,1]]);
+[ 1 1 1 ]
+[ R R R ]
+2
+[1223] dp_order(F | v=[x,y,z], order=[[x,1]]);
+[ 1 0 0 ]
+[ R R R ]
+@end example
+
+@table @t
+@item 参照
+@ref{dp_gr_main}, @ref{dp_weyl_gr_main}, @ref{dp_initial_term}, @ref{dp_hm}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+  OpenXM_contrib2/asir2000 の下の次の各ファイルが修正をうけた.
+builtin/dp-supp.c 1.32
+builtin/dp.c 1.49
+@end itemize
+
+
+@node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module),,, グレブナー基底
+@subsection @code{nd_gr}, @code{nd_gr_trace} (加群)
+@findex nd_gr (module)
+@findex nd_gr_trace (module)
+@findex nd_weyl_gr (module)
+@findex nd_weyl_gr_trace (module)
+
+@comment --- nd_gr, nd_gr_trace における加群のグレブナー基底計算 ---
+@table @t
+@item  nd_gr(@var{gen},@var{vars},@var{char},@var{ord})
+@itemx  nd_gr_trace(@var{gen},@var{vars},@var{homo},@var{char},@var{ord})
+@item  nd_weyl_gr(@var{gen},@var{vars},@var{char},@var{ord})
+@itemx  nd_weyl_gr_trace(@var{gen},@var{vars},@var{homo},@var{char},@var{ord})
+:: 部分加群のグレブナー基底の計算
+@end table
+
+@table @var
+@item gen
+リストのリスト
+@item ord
+@var{[IsPOT,Ord]} なるリスト
+@item return
+リストのリスト
+@end table
+
+@itemize @bullet
+@item 多項式環あるいはワイル代数上の自由加群の部分加群のグレブナー基底
+を計算する. 結果はリストのリストである. 各要素リストは, 自由加群の
+元であるベクトルとみなす.
+@item @var{ord} として @var{[IsPOT,Ord]} という2要素リストが指定された
+場合, 加群のグレブナー基底計算を実行する. この場合, @var{gen} は, 多項式
+のリストのリストとして与える必要がある.
+@item @var{IsPOT} が 1 の場合, POT (position over term), 0 の
+場合 TOP (term over position) で比較する. 基礎環での項比較は @var{Ord}
+で行う.
+@item 説明されていない引数は, イデアルの場合の解説を参照のこと.
+@end itemize
+
+@example
+[0] Gen=[[x,y,z],[y^2+x,x^2,z],[y^2,z^3+x,x+z]];
+[[x,y,z],[x+y^2,x^2,z],[y^2,x+z^3,x+z]]
+[1]  nd_gr(Gen,[x,y,z],0,[0,0]);
+[[x,y,z],[y^2,x^2-y,0],[y^2,x+z^3,x+z],[y^3+z^3*y^2,y^3*x-y^3,
+-x^3-z*x^2+(z*y^2+y)*x-z*y^2+z*y],[0,0,x^4+z*x^3+(-z*y^2-y)*x^2
++(-y^3+z*y^2-z*y)*x+z^4*y^2]]
+@end example
+
+@table @t
+@item 参照
+@ref{nd_gr}, @ref{nd_gr_trace}
+@end table
+
+@node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option),,, グレブナー基底
+@subsection @code{nd_gr}, @code{nd_gr_trace} (option)
+@findex nd_gr (option)
+@findex nd_gr_trace (option)
+@findex nd_weyl_gr (option)
+@findex nd_weyl_gr_trace (option)
+
+@comment --- nd_gr, nd_gr_trace のオプション ---
+
+@table @t
+@item  nd_gr(@var{...}[|@var{opt},@var{opt},@dots{}])
+@itemx  nd_gr_trace(@var{...}[|@var{opt},@var{opt},@dots{}])
+@itemx  nd_weyl_gr(@var{...}[|@var{opt},@var{opt},@dots{}])
+@itemx  nd_weyl_gr_trace(@var{...}[|@var{opt},@var{opt},@dots{}])
+:: グレブナー基底計算に関する種々のオプションの説明
+@end table
+
+@table @var
+@item opt
+@var{key=value} なるオプション設定
+@item return
+オプションにより異なる
+@end table
+
+@itemize @bullet
+@item グレブナー基底計算をオプションにより制御する.
+@item 現状では次の 3 つのオプションを受け付ける.
+
+@table @var
+@item gentrace
+@var{value} が 0 でないとき, グレブナー基底の計算経過情報を出力する.
+@item gentsyz
+@var{value} が 0 でないとき, 計算されたグレブナー基底に対する syzygy の生成系を出力する.
+@item nora
+@var{value} が 0 でないとき, 最終ステップで相互簡約を行わない.
+@end table
+
+@item @var{gentrace} が指定された場合, 出力は,
+@var{[GB,Homo,Trace,IntRed,Ind,InputRed,SpairTrace]} なるリストである. 各要素の意味は
+次の通りである.
+@table @var
+@item GB
+グレブナー基底
+@item Homo
+中間基底が斉次化されている場合 1, そうでない場合 0.
+@item Trace
+全中間基底に対する計算経過情報
+@item IntRed
+相互簡約に対する計算経過情報
+@item Ind
+簡約グレブナー基底の各要素の, 全中間基底のにおけるインデックス
+@item InputRed
+各入力多項式をグレブナー基底で簡約して剰余 0 を得るまでの計算経過情報
+(@var{gensyz} が指定された場合)
+@item SpairTrace
+簡約グレブナー基底に対する S 多項式を簡約して剰余 0 を得るまでの計算経過情報
+(syzygy 加群の生成系の要素のみ; @var{gensyz} が指定された場合)
+@end table
+@item 詳細は, 入力多項式集合とグレブナー基底の相互変換行列, および syzygy 計算
+関数の項で説明する予定.
+@end itemize
+
+@example
+[0] C=[c3*c2*c1*c0-1,((c2+c3)*c1+c3*c2)*c0+c3*c2*c1,...]
+[1] D=nd_gr_trace(C,[c0,c1,c2,c3,c4],0,1,0|gentrace=1,gensyz=1)$
+[2] D[0];
+[c0+c1+c2+c3,-c1^2-2*c3*c1-c3^2,...]
+[3] D[2];
+[[[0,0,1],[1,1,1],[2,2,1],[3,3,1]],[4,[[1,2,(1)*<<0,0,0,0>>,1],...]
+[4] D[6];
+[[-1,[[1,0,(1)*<<0,0,2,4>>,1],[1,6,(-1)*<<1,0,0,0>>,1],...]
+@end example
+
+@table @t
+@item 参照
+@ref{nd_gr}, @ref{nd_gr_trace}
+@end table
+
+
+@node システム,,, 実験的仕様の関数
+@section システム
+
+@comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯
+@comment --- 複数の関数をまとめて説明する例 ---
+@node asir-install.sh,,, システム
+@subsection @code{asir-port.sh}, @code{asir-install.sh}
+@findex asir-port.sh
+@findex asir-install.sh
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item asir-install.sh
+@itemx asir-port.sh
+:: これは asir の内部コマンドではない. asir をネットワークからダウンロードかつ実行するシェルスクリプト
+@end table
+
+
+@itemize @bullet
+@item
+asir-port.sh は knoppix 専用である.
+このコマンドは asir のバイナリおよび FLL で配布できない部分を
+ ftp.math.kobe-u.ac.jp よりダウンロードして
+/home/knoppix/.asir-tmp へセーブして, 実行する.
+.asirrc および .TeXmacs/plugins/ox/progs/init-ox.scm もダウンロードする.
+@item
+asir-install.sh は Debian GNU Linux / openxm-binary*.deb 専用である.
+asir-install.sh は asir をダウンロードして /usr/local/OpenXM/bin および
+/usr/local/OpenXM/lib/asir へインストールする.
+@end itemize
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ これらのシェルスクリプトは knoppix/math のために 2004/2, 3 月に書かれた.
+@item
+  knoppix/math は福岡大学の濱田さんが中心となり開発されている.
+@item
+  OpenXM/misc/packages/Linux/Debian の下の全てのファイル (2004-2-22 から
+  2004-3 の末まで). ( ~taka/this03/misc-2003/A3/knoppix-03-05 (プライベートファイル) も見よ.)
+  OpenXM/src/asir-port の下の次の各ファイル.
+  Makefile 1.1--1.8, asir-install.sh 1.1--1.2, asir-port.sh 1.1--1.6.
+@end itemize
+
+
+@node asirgui.hnd,,, システム
 @subsection @code{asirgui.hnd}
 @findex asirgui.hnd
 
@@ -2232,6 +1942,7 @@ qt 系の関数が開発された.
 :: asirgui の main window のハンドル番号を保持するファイル
 @end table
 
+@comment ****************************************************************
 
 @itemize @bullet
 @item asirgui (Windows 版) を起動すると asirgui.exe のあるフォルダおよび 環境変数 TEMP が定義されていればこのファイルが作成される.
@@ -2278,80 +1989,12 @@ ChangeLog
 @item @code{OpenXM_contrib2/windows/asir32gui/asir32gui.clw} 1.11
 @item @code{OpenXM_contrib2/windows/asir32gui/asir32guiview.cpp}  1.15, 1.1.6
 @end itemize
+
+
 @comment ****************************************************************
 
-@node noro_matrix.rr,,, 実験的仕様の関数
-@subsection @code{noro_matrix.rr}
-@findex noro_matrix.rr
-
-@comment --- 関数の簡単な説明 ---
-@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
-@table @t
-@item linalg.unit_mat(@var{arg1})
-@item linalg.random_rmat(@var{arg1}, @var{arg2}, @var{arg3})
-@item linalg.minipoly_mat(@var{arg1})
-@item linalg.compute_kernel(@var{arg1})
-@item linalg.compute_image(@var{arg1})
-@item linalg.jordan_canonical_form(@var{arg1})
-@end table
-
-
-@itemize @bullet
-@item 簡単な解説および実例は http://www.math.kobe-u.ac.jp/HOME/taka/2007/knx/noro_matrix-ja.txt を参照.
-@end itemize
-
-@example
-load("noro_matrix.rr");
-A=newmat(4,4,[[2,0,0,0],[3,5,1,0],[-9,-9,-1,0],[-5,0,0,1]]);
-B=linalg.jordan_canonical_form(A);
-@end example
-
-@table @t
-@item 参照
-@ref{invmat}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
-@noindent
-ChangeLog
-@itemize @bullet
-@item この関数は 2004-04 頃から線形代数III の講義をしながら書かれた.
-@item ソース:  OpenXM/src/asir-contrib/packages/src/noro_matrix.rr
-@end itemize
-
-
-@node f_res,,, 実験的仕様の関数
-@subsection @code{f_res}
-@findex f_res
-
-@comment --- 関数の簡単な説明 ---
-@table @t
-@item f_res
-@end table
-
-
-@itemize @bullet
-@item f_res は各種の終結式を計算するモジュールである. ox_grep("f_res"); で online manual を閲覧可能である.
-@end itemize
-
-@table @t
-@item 参照
-@ref{}
-@end table
-
-@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
-@comment --- openxm の外部からの寄与も述べる. Credit.
-@noindent
-ChangeLog
-@itemize @bullet
-@item このモジュールは Fujiwara 君の修士論文が元になり, それを改造したものである.
-@item OpenXM/src/ox_cdd, OpenXM/src/asir-contrib/packages/src/f_res.rr
-@end itemize
-
-
-@node chdir,,, 実験的仕様の関数
-@subsection @code{chdir}, @code{pwd} 
+@node chdir,,, システム
+@subsection @code{chdir}, @code{pwd}
 @findex chdir
 @findex pwd
 
@@ -2392,14 +2035,14 @@ ChangeLog
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
+@item
 これらの関数は 2008-8-27 にコミットされた.
 変更をうけたソースコードは builtin/miscf.c (1.27) である.
 @end itemize
 
 
-@node dcurrenttime,,, 実験的仕様の関数
-@subsection @code{dcurrenttime} 
+@node dcurrenttime,,, システム
+@subsection @code{dcurrenttime}
 @findex dcurrenttime
 
 @comment --- 現在時刻を取得 ---
@@ -2437,19 +2080,531 @@ ChangeLog
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
+@item
 この関数は 2008-9-12 にコミットされた.
 変更をうけたソースコードは builtin/time.c (1.6) である.
 @end itemize
 
-@node nk_restriction.restriction,,, 実験的仕様の関数
+
+@comment ****************************************************************
+
+
+@node 言語,,, 実験的仕様の関数
+@section 言語
+
+@node get_struct_name,,, 言語
+@subsection @code{get_struct_name}, @code{get_element_names}, @code{get_element_at}, @code{put_element_at}
+@findex get_struct_name
+@findex get_element_names
+@findex get_element_at
+@findex put_element_at
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item get_struct_name(@var{s})
+@itemx get_element_names(@var{s})
+@itemx get_element_at(@var{s},@var{key})
+@itemx put_element_at(@var{s},@var{key},@var{obj})
+:: 構造体 @var{s} に対する操作
+@end table
+
+@table @var
+@item return
+文字列 (get_struct_name),
+文字列のリスト (get_element_names),
+オブジェクト (get_element_at),
+オブジェクト (put_element_at)
+@item s
+構造体
+@item key
+文字列
+@item obj
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+ @code{get_struct_name(s)} は, 構造体 @var{s} の名前を戻す.
+@item
+ @code{get_element_names(s)} は, 構造体のメンバーの名前のリストを戻す.
+@item
+ @code{get_element_at(s,key)} は構造体 s のメンバー key の値を戻す.
+@item
+ @code{put_element_at(s,key,obj)} は構造体 s のメンバー key の値を obj に設定する.
+@end itemize
+
+@example
+[219]  struct point @{ x, y, color@};
+[220]  P = newstruct(point);
+@{0,0,0@}
+[221]  P->x = 10$ P->y=5$ P->color="red"$
+[222]  get_element_names(P);
+[x,y,color]
+[223] put_element_at(P,"color","blue");
+blue
+[224] P->color;
+bule
+@end example
+
+@table @t
+@item 参照
+@ref{newstruct}, @ref{struct}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item  構造体の定義を知らずに構造体を扱うユーザ関数を書くときに便利.
+       asir-contrib の noro_print.rr を見よ.
+@item  OpenXM_contrib2/asir2000/builtin/compobj.c 1.8.
+@end itemize
+
+
+@comment  mapat
+@node mapat,,, 言語
+@subsection @code{mapat}
+@findex mapat
+
+@table @t
+@item mapat(@var{fname},@var{pos}[,@var{arg0}, @var{arg1}, ...])
+:: @var{pos} に対する map 関数
+@end table
+
+@table @var
+@item return
+オブジェクト
+@item pos
+整数
+@item arg0, arg1, arg2, ...
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+@code{map} 関数は 0 番目の引数に対してしか動作しないが, @code{mapat}
+関数は指定した番号の引数に対して @code{map} 関数を実行する.
+@item
+@code{mapat(fname,0,A0,A1,...)} は
+@code{map(fname,A0,A1,...)} に等価である.
+@item
+次の副作用がある. まだ書いてない.
+@end itemize
+
+@example
+[219] mapat(deg,1,x^2+y^3+x+y,[x,y]);
+[2,3]
+[220] mapat(subst,1,x+y+z,[x,y,z],2);
+[y+z+2,x+z+2,x+y+2]
+@end example
+
+@table @t
+@item 参照
+@ref{map}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-6-22 にコミットされた.
+ 変更をうけたソースコードは builtin/pf.c, subst.c である.
+@end itemize
+
+@comment  list
+@node list,,, 言語
+@subsection @code{list}
+@findex list
+
+@table @t
+@item list([@var{arg0}, @var{arg1}, ...])
+:: list を生成する.
+@end table
+
+@table @var
+@item return
+リスト
+@item arg0, arg1, arg2, ...
+オブジェクト
+@end table
+
+@itemize @bullet
+@item
+@var{arg0}, @var{arg1}, ... を要素とするリストを生成する.
+@end itemize
+
+@example
+[219] list(1,2,3);
+[1,2,3]
+[220] list(1,2,[3,4]);
+[1,2,[3,4]]
+@end example
+
+@table @t
+@item 参照
+@ref{cons}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-6-22 にコミットされた.
+ 変更をうけたソースコードは builtin/list.c である.
+@end itemize
+
+
+@node assoc,,, 言語
+@subsection @code{assoc}
+@findex assoc
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item assoc(@var{a},@var{b})
+:: 連想リストをつくる
+@end table
+
+@table @var
+@item return
+List
+@item a
+List
+@item b
+List
+@end table
+
+@itemize @bullet
+@item リスト @var{a}, @var{b} より
+[[@var{a}[0],@var{b}[0]], [@var{a}[1],@var{b}[1]], ...]
+なる新しいリストを生成する.
+@end itemize
+
+下の例では @code{A} に動物の名前が,
+@code{B} に足の本数が入っている.
+@code{assoc(A,B)} で動物と足の本数をペアにしたリストを生成する.
+
+@example
+[1192]  A=["dog","cat","snake"];
+[dog,cat,snake]
+[1193] B=[4,4,0];
+[4,4,0]
+[1194] assoc(A,B);
+[[dog,4],[cat,4],[snake,0]]
+@end example
+
+@table @t
+@item 参照
+@ref{cons}, @ref{append}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item
+ この関数は 2004-6-28 に書かれた.
+ 変更をうけたソースコードは
+ builtin/list.c 1.9
+ parse/eval.c 1.35,
+ parse/parse.h 1.31,
+ parse/quote.c 1.14--1.16.
+@end itemize
+
+
+@node set_secure_flag,,, 言語
+@subsection @code{set_secure_flag}, @code{set_secure_mode}
+@findex set_secure_flag
+@findex set_secure_mode
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item set_secure_flag(@var{fname},@var{m})
+@itemx set_secure_mode(@var{m})
+:: 関数の実行権限を設定する.  (web サービス用)
+@end table
+
+@table @var
+@item return
+整数
+@item fname
+文字列
+@item m
+整数
+@end table
+
+@itemize @bullet
+@item @code{set_secure_flag}, @code{set_secure_mode} は
+asir を web サーバ等で公開するために加えられた関数.
+@code{set_secure_flag} で公開する関数を指定する.
+@code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
+関数しか実行できない.
+関数の実行途中では @code{secure_mode} が 0 となっているので,
+任意の関数を実行できる.
+またエラーの時等は, @code{secure_mode} は 1 に自動的に復帰する.
+ただし @code{def} は実行できない.
+公開する関数では, その処理中は任意の関数が実行できるので,
+security に十分注意した実装をする必要がある.
+@item
+@code{set_secure_flag} は, @var{fname} の secure flag を @var{m}
+にする.
+公開する命令は 1 に設定する.
+@item
+@var{set_secure_mode(1)} で @code{secure_mode} が 1 となり,
+公開された関数しか実行できなくなる.
+quit 等も実行できないので注意.
+@item  @code{ timer } の引数として secure_flag を設定していない関数を
+指定して実行してもエラーが表示されない.
+このときは, @code{ ctrl("error_in_timer",1) } を実行しておく.
+@end itemize
+
+@example
+[1194] set_secure_flag("print_input_form_",1);
+1
+[1195] set_secure_flag("fctr",1);
+1
+[220] set_secure_mode(1);
+1
+[1197] fctr((x-1)^3);
+[[1,1],[x-1,3]]
+[1198] fctr(shell("ls"));
+evalf : shell not permitted
+return to toplevel
+@end example
+
+@table @t
+@item 参照
+@ref{timer}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item @code{set_secure_flag}, @code{set_secure_mode} は asir を
+web サーバ等で公開するために加えられた関数.
+sm1 の同様な関数 RestrictedMode で採用された方法を用いている.
+つまり, @code{set_secure_flag} で公開する関数を指定する.
+@code{secure_mode} が 1 の場合は @code{set_secure_flag} で指定された
+関数しか実行できない.
+v関数の実行途中では @code{secure_mode} が 0 となっているので,
+任意の関数を実行できる.
+@item この関数は 2004-10-27 から 2004-11-22 にかけて開発された.
+@item cgiasir.sm1, cgi-asir.sh と組み合わせて cgi サービスを提供するために
+利用する.
+cgi-asir.sh では
+@code{CGI_ASIR_ALLOW} 環境変数で公開するコマンドを指定する.
+@item
+  1.24--1.25      OpenXM_contrib2/asir2000/builtin/miscf.c
+@item
+  1.36--1.38      OpenXM_contrib2/asir2000/parse/eval.c
+@item
+  1.6--1.7       OpenXM_contrib2/asir2000/parse/function.c
+@item
+  1.33      OpenXM_contrib2/asir2000/parse/parse.h
+@end itemize
+
+@node initialize_static_variable,,, 言語
+@subsection @code{initialize_static_variable}
+@findex initialize_static_variable
+
+
+@comment --- 説明 ---
+@table @t
+@item static 変数の初期化の問題点. 初期化の時に segmentation fault がおきる.
+@end table
+
+
+@itemize @bullet
+@item static 変数の取扱.
+下の例を参照のこと.
+@end itemize
+
+
+@example
+if (1) @{
+ module abc;
+ static A;
+ A=1;
+ endmodule;
+@} else @{ @};
+
+end$
+を t.rr とするとき,
+
+[6] load("./t.rr");
+1
+internal error (SEGV)
+となる.
+
+t.rr を
+if (1) @{
+ module abc;
+ static A;
+ localf initA;
+ localf foo;
+ def initA() @{
+   A=1;
+ @}
+ initA();
+ def foo() @{
+   return A;
+ @}
+ endmodule;
+@} else @{ @};
+
+end$
+とすると正しく初期化される.
+@end example
+
+@comment --- ChangeLog
+@noindent
+ChangeLog
+@itemize @bullet
+@item  oxasir-win.rr の取扱で問題点として浮上.  2005.07.25.
+@item  oxasir-win.rr の取扱で double quote の取り扱いに問題があったが, これは asir2000/io/ox_asir.c, 1.58, で問題点解決.
+@item ox_asir に計算を依頼する時は if (1) @{ ... @}で囲む.
+@end itemize
+
+@comment ****************************************************************
+
+@node 数論・代数,,, 実験的仕様の関数
+@section 数論・代数
+
+
+@node small_jacobi,,, 数論・代数
+@subsection @code{small_jacobi}
+@findex small_jacobi
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item small_jacobi(@var{a},@var{m})
+:: Jacobi 記号の計算
+@end table
+
+@table @var
+@item return
+整数
+@item arg1, arg2
+整数
+@end table
+
+@itemize @bullet
+@item
+ @var{m} が素数のときは Legendre 記号とよばれ,
+ x^2 = @var{a} mod @var{m} に解があるとき 1, 解がないとき -1 をもどす.
+@item
+Jacobi 記号は Legendre 記号の積で定義される (初等整数論の本参照).
+@item
+ この関数は machine int の範囲で jacobi 記号を計算する.
+@end itemize
+
+@example
+[1286] small_jacobi(2,3);
+-1
+[1287] small_jacobi(2,7);
+1
+@end example
+
+@table @t
+@item 参照
+http://members.jcom.home.ne.jp/yokolabo/asirlib/
+も見てね.
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数の由来は不明.
+@end itemize
+
+
+@node noro_matrix.rr,,, 数論・代数
+@subsection @code{noro_matrix.rr}
+@findex noro_matrix.rr
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item linalg.unit_mat(@var{arg1})
+@item linalg.random_rmat(@var{arg1}, @var{arg2}, @var{arg3})
+@item linalg.minipoly_mat(@var{arg1})
+@item linalg.compute_kernel(@var{arg1})
+@item linalg.compute_image(@var{arg1})
+@item linalg.jordan_canonical_form(@var{arg1})
+@end table
+
+
+@itemize @bullet
+@item 簡単な解説および実例は http://www.math.kobe-u.ac.jp/HOME/taka/2007/knx/noro_matrix-ja.txt を参照.
+@end itemize
+
+@example
+load("noro_matrix.rr");
+A=newmat(4,4,[[2,0,0,0],[3,5,1,0],[-9,-9,-1,0],[-5,0,0,1]]);
+B=linalg.jordan_canonical_form(A);
+@end example
+
+@table @t
+@item 参照
+@ref{invmat}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2004-04 頃から線形代数III の講義をしながら書かれた.
+@item ソース:  OpenXM/src/asir-contrib/packages/src/noro_matrix.rr
+@end itemize
+
+
+@node f_res,,, 数論・代数
+@subsection @code{f_res}
+@findex f_res
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item f_res
+@end table
+
+
+@itemize @bullet
+@item f_res は各種の終結式を計算するモジュールである. ox_grep("f_res"); で online manual を閲覧可能である.
+@end itemize
+
+@table @t
+@item 参照
+@ref{}
+@end table
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item このモジュールは Fujiwara 君の修士論文が元になり, それを改造したものである.
+@item OpenXM/src/ox_cdd, OpenXM/src/asir-contrib/packages/src/f_res.rr
+@end itemize
+
+
+@node D 加群の制限に関する関数,,, 実験的仕様の関数
+@section D 加群の制限に関する関数
+
+
+@node nk_restriction.restriction,,, D 加群の制限に関する関数
 @subsection @code{nk_restriction.restriction}
 @comment --- 索引用キーワード
 @findex nk_restriction.restriction
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item nk_restriction.restriction(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+@item nk_restriction.restriction(@var{Id}, @var{VL}, @var{DVL}, @var{W})
 :: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての制限加群を返す。
 @end table
 
@@ -2471,16 +2626,23 @@ ChangeLog
 (すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
 @item
 正の重みを持つ変数についての制限を行う。
-例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
-x,y について制限を行う。 
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば
+x,y について制限を行う。
 @end itemize
 
 以下は、イデアル 
+@iftex
 @tex 
-$I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $
-@end tex 
+$I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $ 
+@end tex
 の
-@tex $x$ @end tex  
+@tex
+$x$
+@end tex
+@end iftex
+@ifinfo
+I = D . @{ x dx -1, y dy - 1 @} の x
+@end ifinfo
 についての制限加群を計算した例である。
 @example
 [1432] nk_restriction.restriction([x*dx-1,y*dy-1],[x,y],[dx,dy],[1,0]);
@@ -2490,8 +2652,8 @@ S0 : 1
 B_@{S0@} length : 2
 -- fctr(BF) + base :0.000999sec(0.0005109sec)
 [[y*dy-1,(y*dy-1)*dx,-1],[[1],[0]]]
-[1433] 
 @end example
+
 
 @node nk_restriction.restriction_ideal,,, D 加群の制限に関する関数
 @subsection @code{nk_restriction.restriction_ideal}
@@ -2500,7 +2662,7 @@ B_@{S0@} length : 2
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item nk_restriction.restriction_ideal(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+@item nk_restriction.restriction_ideal(@var{Id}, @var{VL}, @var{DVL}, @var{W})
 :: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての制限イデアルを返す。
 @end table
 
@@ -2522,16 +2684,23 @@ B_@{S0@} length : 2
 (すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
 @item
 正の重みを持つ変数についての制限を行う。
-例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
-x,y について制限を行う。 
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば
+x,y について制限を行う。
 @end itemize
 
-以下は、イデアル 
+以下は、イデアル
+@iftex
 @tex 
-$I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $
-@end tex 
+$I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $ 
+@end tex
 の
-@tex $x$ @end tex  
+@tex
+$x$
+@end tex
+@end iftex
+@ifinfo
+I = D . @{ x dx -1, y dy - 1 @} の x
+@end ifinfo
 についての制限イデアルを計算した例である。
 @example
 [1346] nk_restriction.restriction_ideal([x*dx-1,y*dy-1],[x,y],[dx,dy],[1,0]);
@@ -2542,17 +2711,16 @@ B_@{S0@} length : 2
 -- fctr(BF) + base :0sec(0.000566sec)
 -- restriction_ideal_internal :0.001sec(0.0007441sec)
 [-1]
-[1347] 
 @end example
 
-@node nk_restriction.integration,,, 実験的仕様の関数
+@node nk_restriction.integration,,, D 加群の制限に関する関数
 @subsection @code{nk_restriction.integration}
 @comment --- 索引用キーワード
 @findex nk_restriction.integration
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item nk_restriction.integration(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+@item nk_restriction.integration(@var{Id}, @var{VL}, @var{DVL}, @var{W})
 :: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての積分加群を返す。
 @end table
 
@@ -2577,16 +2745,23 @@ B_@{S0@} length : 2
 (すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
 @item
 正の重みを持つ変数についての積分を行う。
-例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
-x,y について積分を行う。 
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば
+x,y について積分を行う。
 @end itemize
 
-以下は、イデアル 
-@tex 
+以下は、イデアル
+@iftex
+@tex
 $I = D \cdot \{2 t \partial_x + \partial_t, t \partial_t + 2 x \partial_x + 2\} $
-@end tex 
+@end tex
 の
-@tex $t$ @end tex  
+@tex
+$t$
+@end tex
+@end iftex
+@ifinfo
+I = D . @{2 t dx + dt, t dt + 2 x dx + 2 @} の t
+@end ifinfo
 についての積分イデアルを計算した例である。([SST, Ex5.5.2, Ex5.5.6])
 @example
 [1351] nk_restriction.integration([2*t*dx+dt,2*x*dx+t*dt+2],[t,x],
@@ -2599,14 +2774,14 @@ B_@{S0@} length : 2
 [[4*x*dx^2+6*dx,-4*t*x*dx^2-6*t*dx,2*x*dx+1,-2*t*x*dx,2*t*dx],[[1],[0]]]
 @end example
 
-@node nk_restriction.integration_ideal,,, 実験的仕様の関数
+@node nk_restriction.integration_ideal,,, D 加群の制限に関する関数
 @subsection @code{nk_restriction.integration_ideal}
 @comment --- 索引用キーワード
 @findex nk_restriction.integration_ideal
 
 @comment --- 関数の簡単な説明 ---
 @table @t
-@item nk_restriction.integration_ideal(@var{Id}, @var{VL}, @var{DVL}, @var{W}) 
+@item nk_restriction.integration_ideal(@var{Id}, @var{VL}, @var{DVL}, @var{W})
 :: ホロノミック D イデアル @var{Id} を重みベクトル @var{W} についての積分イデアルを返す。
 @end table
 
@@ -2631,17 +2806,23 @@ B_@{S0@} length : 2
 (すなわち、@code{[1,1,0,0,0]} は OK だが、 @code{[1,0,1,0,0]} はダメ)
 @item
 正の重みを持つ変数についての積分を行う。
-例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば 
-x,y について積分を行う。 
+例えば、@var{VL} @code{=[x,y,z]}, @var{W} @code{=[1,1,0]} であれば
+x,y について積分を行う。
 @end itemize
 
-以下は、イデアル 
-@tex 
+以下は、イデアル
+@iftex
+@tex
 $I = D \cdot \{2 t \partial_x + \partial_t, t \partial_t + 2 x \partial_x + 2\} $
-@end tex 
+@end tex
 の
-@tex $t$
-@end tex  
+@tex
+$t$
+@end tex
+@end iftex
+@ifinfo
+I = D . @{2 t dx + dt, t dt + 2 x dx + 2 @} の t
+@end ifinfo
 についての積分イデアルを計算した例である。([SST, Ex5.5.2, Ex5.5.6])
 @example
 [1431]  nk_restriction.integration_ideal([2*t*dx+dt,t*dt+2*x*dx+2],[t,x],
@@ -2662,141 +2843,14 @@ ChangeLog
 @item  これらの関数は OpenXM/src/asir-contrib/packages/src/nk_restriction.rr で定義されている. nk_restriction.rr, 1.1--1.6 を見よ.
 @end itemize
 
-@node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module),,, 実験的仕様の関数
-@subsection @code{nd_gr}, @code{nd_gr_trace} (加群)
-@findex nd_gr (module)
-@findex nd_gr_trace (module)
-@findex nd_weyl_gr (module)
-@findex nd_weyl_gr_trace (module)
-
-@comment --- nd_gr, nd_gr_trace における加群のグレブナー基底計算 ---
-@table @t
-@item  nd_gr(@var{gen},@var{vars},@var{char},@var{ord})
-@itemx  nd_gr_trace(@var{gen},@var{vars},@var{homo},@var{char},@var{ord})
-@item  nd_weyl_gr(@var{gen},@var{vars},@var{char},@var{ord})
-@itemx  nd_weyl_gr_trace(@var{gen},@var{vars},@var{homo},@var{char},@var{ord})
-:: 部分加群のグレブナー基底の計算
-@end table
-
-@table @var
-@item gen
-リストのリスト
-@item ord
-@var{[IsPOT,Ord]} なるリスト
-@item return
-リストのリスト
-@end table
-
-@itemize @bullet
-@item 多項式環あるいはワイル代数上の自由加群の部分加群のグレブナー基底
-を計算する. 結果はリストのリストである. 各要素リストは, 自由加群の
-元であるベクトルとみなす.
-@item @var{ord} として @var{[IsPOT,Ord]} という2要素リストが指定された
-場合, 加群のグレブナー基底計算を実行する. この場合, @var{gen} は, 多項式
-のリストのリストとして与える必要がある.
-@item @var{IsPOT} が 1 の場合, POT (position over term), 0 の
-場合 TOP (term over position) で比較する. 基礎環での項比較は @var{Ord}
-で行う.
-@item 説明されていない引数は, イデアルの場合の解説を参照のこと.
-@end itemize
-
-@example
-[0] Gen=[[x,y,z],[y^2+x,x^2,z],[y^2,z^3+x,x+z]]; 
-[[x,y,z],[x+y^2,x^2,z],[y^2,x+z^3,x+z]]
-[1]  nd_gr(Gen,[x,y,z],0,[0,0]);
-[[x,y,z],[y^2,x^2-y,0],[y^2,x+z^3,x+z],[y^3+z^3*y^2,y^3*x-y^3,
--x^3-z*x^2+(z*y^2+y)*x-z*y^2+z*y],[0,0,x^4+z*x^3+(-z*y^2-y)*x^2
-+(-y^3+z*y^2-z*y)*x+z^4*y^2]]
-@end example
-
-@table @t
-@item 参照
-@ref{nd_gr}, @ref{nd_gr_trace}
-@end table
-
-@node nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option),,, 実験的仕様の関数
-@subsection @code{nd_gr}, @code{nd_gr_trace} (option)
-@findex nd_gr (option)
-@findex nd_gr_trace (option)
-@findex nd_weyl_gr (option)
-@findex nd_weyl_gr_trace (option)
-
-@comment --- nd_gr, nd_gr_trace のオプション ---
-
-@table @t
-@item  nd_gr(@var{...}[|@var{opt},@var{opt},@dots{}])
-@itemx  nd_gr_trace(@var{...}[|@var{opt},@var{opt},@dots{}])
-@itemx  nd_weyl_gr(@var{...}[|@var{opt},@var{opt},@dots{}])
-@itemx  nd_weyl_gr_trace(@var{...}[|@var{opt},@var{opt},@dots{}])
-:: グレブナー基底計算に関する種々のオプションの説明
-@end table
-
-@table @var
-@item opt
-@var{key=value} なるオプション設定
-@item return
-オプションにより異なる
-@end table
-
-@itemize @bullet
-@item グレブナー基底計算をオプションにより制御する.
-@item 現状では次の 3 つのオプションを受け付ける.
-
-@table @var
-@item gentrace
-@var{value} が 0 でないとき, グレブナー基底の計算経過情報を出力する.
-@item gentsyz
-@var{value} が 0 でないとき, 計算されたグレブナー基底に対する syzygy の生成系を出力する.
-@item nora
-@var{value} が 0 でないとき, 最終ステップで相互簡約を行わない.
-@end table
-
-@item @var{gentrace} が指定された場合, 出力は, 
-@var{[GB,Homo,Trace,IntRed,Ind,InputRed,SpairTrace]} なるリストである. 各要素の意味は
-次の通りである.
-@table @var
-@item GB
-グレブナー基底
-@item Homo
-中間基底が斉次化されている場合 1, そうでない場合 0.
-@item Trace
-全中間基底に対する計算経過情報
-@item IntRed
-相互簡約に対する計算経過情報
-@item Ind
-簡約グレブナー基底の各要素の, 全中間基底のにおけるインデックス
-@item InputRed
-各入力多項式をグレブナー基底で簡約して剰余 0 を得るまでの計算経過情報
-(@var{gensyz} が指定された場合)
-@item SpairTrace
-簡約グレブナー基底に対する S 多項式を簡約して剰余 0 を得るまでの計算経過情報
-(syzygy 加群の生成系の要素のみ; @var{gensyz} が指定された場合)
-@end table
-@item 詳細は, 入力多項式集合とグレブナー基底の相互変換行列, および syzygy 計算
-関数の項で説明する予定.
-@end itemize
-
-@example
-[0] C=[c3*c2*c1*c0-1,((c2+c3)*c1+c3*c2)*c0+c3*c2*c1,...]
-[1] D=nd_gr_trace(C,[c0,c1,c2,c3,c4],0,1,0|gentrace=1,gensyz=1)$
-[2] D[0];
-[c0+c1+c2+c3,-c1^2-2*c3*c1-c3^2,...]
-[3] D[2];
-[[[0,0,1],[1,1,1],[2,2,1],[3,3,1]],[4,[[1,2,(1)*<<0,0,0,0>>,1],...]
-[4] D[6];
-[[-1,[[1,0,(1)*<<0,0,2,4>>,1],[1,6,(-1)*<<1,0,0,0>>,1],...]
-@end example
-
-@table @t
-@item 参照
-@ref{nd_gr}, @ref{nd_gr_trace}
-@end table
+@node その他,,, 実験的仕様の関数
+@section その他
 
 @comment -----------  以下は見本. 消すな.
 @comment ****************************************************************
-@comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯ 
+@comment --- ◯◯◯◯  以下他の関数について真似して記述する. ◯◯◯◯
 @comment 新しい関数の説明を書くためのテンプレートである. 消すな.
-@comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯ 
+@comment --- ◯◯◯◯  関数 syz_pqr, xyz_stu の説明 ◯◯◯◯
 @comment --- 複数の関数をまとめて説明する例 ---
 @node xyz_pqr,,, 実験的仕様の関数
 @subsection @code{xyz_pqr}, @code{syz_stu}
