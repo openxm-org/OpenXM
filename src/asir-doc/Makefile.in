@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.7 2009/02/22 23:35:12 ohara Exp $
+# $OpenXM: OpenXM/src/asir-doc/Makefile.in,v 1.8 2009/02/23 06:56:46 ohara Exp $
 OpenXM_HOME=@OpenXM_HOME@
 OpenXM_doc_asir2000=${OpenXM_HOME}/doc/asir2000
 OpenXM_lib_asir=${OpenXM_HOME}/lib/asir
@@ -188,7 +188,7 @@ html-exp-ja: exp/exp-ja.texi
 	-rm -rf $@
 	-mkdir -p $@
 	-nkf -e exp/exp-ja.texi > $@/exp-ja.texi
-	-(cd $@; ../texi2html -menu -split_node exp-ja.texi)
+	-(cd $@; ../texi2html -expandinfo -menu -split_node exp-ja.texi)
 
 internal-ja.dvi: tmp-html-internal-ja
 	-(cd tmp-html-internal-ja; ${PTEX} internal.texi; ../jtexindex/C/texindex internal.??; ${PTEX} internal.texi)
