@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.31 2009/02/23 05:51:23 noro Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.32 2009/02/23 06:10:42 noro Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -239,8 +239,6 @@ $\partial_0, \partial_1, \cdots$
   dp_dvars_origin: dp_vars_hweyl が 1 の時のインデックスの始まりの値.
 @item 
 conv_func: ユーザ定義の変換関数をよぶ.
-@item 
-
 @end itemize
 
 @comment --- @example〜@end example は実行例の表示 ---
@@ -491,9 +489,9 @@ Sugar strategy を適用するときの weight vector. 全ての要素は非負.
 @comment  ~taka/this03/misc-2003/A2/dp
 @item 順序 order は次の文法で定義する.  @{, @} は 0 回以上の繰り返しを意味する.
 @example
-  order         : '[' orderElement { ',' orderElement } ']'
+  order         : '[' orderElement @{ ',' orderElement @} ']'
   orderElement   :  weightVec | builtinOrder
-  weightVec     : '[' weightElement { ',' weightElement } ']'
+  weightVec     : '[' weightElement @{ ',' weightElement @} ']'
   builtiniOrder : '[' orderName  ',' setOfVariables ']'
   weightElement :   NUMBER | setOfVariables ',' NUMBER
   setOfVariables:  V | range(V,V)
@@ -673,9 +671,9 @@ ChangeLog
 @end itemize
 
 @example
-[219]  struct point { x, y, color};
+[219]  struct point @{ x, y, color@};
 [220]  P = newstruct(point);
-{0,0,0}
+@{0,0,0@}
 [221]  P->x = 10$ P->y=5$ P->color="red"$
 [222]  get_element_names(P);
 [x,y,color]
@@ -1036,9 +1034,9 @@ ChangeLog
 @end itemize
 
 @example
-[219] def my_output(F) {  
+[219] def my_output(F) @{  
            print("Out: ",0); print(rtostr(F));
-      }
+      @}
 [220] set_print_function("my_output");
 Out: 0
 [221]  1+2;
@@ -1855,7 +1853,7 @@ qt_normalize(`x^2,2);
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
+@item -----まだ書いてない.
 @end itemize
 
 
@@ -2020,7 +2018,7 @@ qt_normalize(quote( 1+(x+y)+(x+y)^2),1);
 @noindent
 ChangeLog
 @itemize @bullet
-@item 
+@item -----まだ書いてない.
 @end itemize
 
 
@@ -2242,61 +2240,28 @@ qt 系の関数が開発された.
 @end itemize
 
 @example
-// Visual C++ 用のテストプログラム. 標準入力を asirgui へ送り込む.
-// test.cpp : コンソール アプリケーション用のエントリ ポイントの定義
-//
+// cl test.c user32.lib
 
-#include "stdafx.h"
-#include "test.h"
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <process.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+int main()
+@{
 
-/////////////////////////////////////////////////////////////////////////////
-// 唯一のアプリケーション オブジェクト
-
-CWinApp theApp;
-
-using namespace std;
-
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
-{
-	int nRetCode = 0;
-
-	// MFC の初期化および初期化失敗時のエラーの出力
-	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
-	{
-		// TODO: 必要に応じてエラー コードを変更してください。
-		cerr << _T("Fatal Error: MFC initialization failed") << endl;
-		nRetCode = 1;
-	}
-	else
-	{
-		// TODO: この位置にアプリケーションの動作を記述してください。
-		CString strHello;
-		strHello.LoadString(IDS_HELLO);
-		cout << (LPCTSTR)strHello << endl;
-	}
 	HWND hnd;
 	FILE *fp = fopen("c:/Program Files/asir/bin/asirgui.hnd","r");
 	fscanf(fp,"%d",&hnd);
 	fclose(fp);
-	while (1) {
+	while (1) @{
 		int c;
 		c = getchar();
 		if ( c == '#' ) break;
 		PostMessage(hnd,WM_CHAR,c,1);
-	}
-	return nRetCode;
-}
+	@}
+	return 0;
+@}
 @end example
 
 @table @t
@@ -2522,7 +2487,7 @@ $I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $
 -- generic_bfct_and_gr :0.001sec(0.001629sec)
 generic bfct : [[1,1],[s-1,1]]
 S0 : 1
-B_{S0} length : 2
+B_@{S0@} length : 2
 -- fctr(BF) + base :0.000999sec(0.0005109sec)
 [[y*dy-1,(y*dy-1)*dx,-1],[[1],[0]]]
 [1433] 
@@ -2573,7 +2538,7 @@ $I = D \cdot \{x \partial_x -1, y \partial_y - 1\} $
 -- generic_bfct_and_gr :0.002sec(0.001652sec)
 generic bfct : [[1,1],[s-1,1]]
 S0 : 1
-B_{S0} length : 2
+B_@{S0@} length : 2
 -- fctr(BF) + base :0sec(0.000566sec)
 -- restriction_ideal_internal :0.001sec(0.0007441sec)
 [-1]
@@ -2629,7 +2594,7 @@ $I = D \cdot \{2 t \partial_x + \partial_t, t \partial_t + 2 x \partial_x + 2\} 
 -- generic_bfct_and_gr :0.001sec(0.001796sec)
 generic bfct : [[1,1],[s,1],[s-1,1]]
 S0 : 1
-B_{S0} length : 2
+B_@{S0@} length : 2
 -- fctr(BF) + base :0.001sec(0.0006731sec)
 [[4*x*dx^2+6*dx,-4*t*x*dx^2-6*t*dx,2*x*dx+1,-2*t*x*dx,2*t*dx],[[1],[0]]]
 @end example
@@ -2684,7 +2649,7 @@ $I = D \cdot \{2 t \partial_x + \partial_t, t \partial_t + 2 x \partial_x + 2\} 
 -- generic_bfct_and_gr :0.002999sec(0.002623sec)
 generic bfct : [[1,1],[s,1],[s-1,1]]
 S0 : 1
-B_{S0} length : 2
+B_@{S0@} length : 2
 -- fctr(BF) + base :0.001sec(0.001091sec)
 -- integration_ideal_internal :0.002sec(0.001879sec)
 [2*x*dx+1]
