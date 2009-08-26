@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.12 2005/07/07 07:53:37 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.13 2009/08/26 04:54:17 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -1626,7 +1626,7 @@ def
     /vlist arg1 def
     /wlist arg2 def
     wlist length vlist length eq {
-    } {  (cone_wtowv: length of the argument must be the same.) error} ifelse
+    } {  (cone_wtowv: length of the argument must be the same. Please check the values of cone.vlist cone.vv cone.type parametrizeWeightSpace) error} ifelse
 
     wlist to_int32 /wlist set
     [
