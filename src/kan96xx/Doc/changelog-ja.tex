@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.24 2007/06/03 01:35:47 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.25 2007/06/03 01:46:52 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -596,6 +596,16 @@ printhelp.sm1 に キーワード mgkz を追加.
 \verb@ (  ) error @ をプログラムの各部分に入れながら,
 [ ] mgkz を実行して, debug.
 すると変数の値を観察できて簡単.
+
+\section{2009-8-26,  gfan}
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.13 
+\end{enumerate}
+
+Grobner cone で 線型空間を除いたものの
+次元が $1$ or $0$ の時は正しく動作しない.
+この時に エラーメッセージを出す.
+(cf. taka: i-hg/crest09/Prog/fan1.sm1, fan2.sm1)
 
 \end{document}
 
