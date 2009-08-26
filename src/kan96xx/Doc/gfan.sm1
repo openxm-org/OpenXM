@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.11 2005/07/07 06:07:46 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.12 2005/07/07 07:53:37 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -1024,6 +1024,11 @@ def
   [
      /ceq arg1 def 
      ceq pruneZeroVector /ceq set
+
+     ceq length 0 eq {
+       (Monomial ideal is not accepted as an input.) cone_ir_input
+     } { } ifelse
+
      ceq genPo2 /ceq2 set
      % ceq2 は polymake.data(polymake.INEQUALITIES(...)) 形式
      % polymake で ceq2 の次元の計算.
@@ -1878,6 +1883,11 @@ def
 % note: 2004.9.2
     cone (facetsv) getNode 2 get facet_i get /v set
     cone (facets)  getNode 2 get facet_i get /f set
+
+    v length 0 eq {
+       (The codimension of the linarity space of the Grobner cone seems to be 1 or 0.) cone_ir_input
+     } { } ifelse
+
     /vp v 0 get def
     1 1 v length 1 sub {
       /ii set
@@ -3843,4 +3853,21 @@ def
  ] pop
  popVariables
  arg1
+} def
+
+%%change
+/cone_ir_input {
+  /arg1 set 
+  [/msg ] pushVariables
+  [
+    /msg arg1 def
+    (---------------) message
+    msg message
+    (  ) message 
+    (Please also refer to the value of the variables cone.getConeInfo.rr0) message
+    ( cone.getConeInfo.rr1 cone.Lp cone.cinit) message 
+    $ cone.cinit (FACETS) getNode ::  $  message
+    (We are sorry that we cannot accept this input.) error
+  ] pop
+  popVariables
 } def
