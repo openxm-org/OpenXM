@@ -1,4 +1,4 @@
-% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.25 2007/06/03 01:46:52 takayama Exp $
+% $OpenXM: OpenXM/src/kan96xx/Doc/changelog-ja.tex,v 1.26 2009/08/26 04:54:40 takayama Exp $
 \documentclass{jarticle}
 \title{ChangeLog \\ ---kan96xx, kxx, k097}
 \author{Nobuki Takayama}
@@ -606,6 +606,52 @@ Grobner cone で 線型空間を除いたものの
 次元が $1$ or $0$ の時は正しく動作しない.
 この時に エラーメッセージを出す.
 (cf. taka: i-hg/crest09/Prog/fan1.sm1, fan2.sm1)
+
+\section{2009-9-4,  gfan}
+\begin{enumerate}
+\item {\tt OpenXM/src/kan96xx/Doc/gfan.sm1} 1.17
+\item {\tt OpenXM/src/kan96xx/trans/yy\_polymake.y} 1.5
+\item {\tt OpenXM/src/kan96xx/trans/yylex\_polymake.c} 1.5
+\item {\tt OpenXM/src/kan96xx/trans/data} 
+\end{enumerate}
+
+gfan.sm1 package は polymake 2.0 の出力に対しては正しく動作する.
+しかし 2.2, 2.3 に対して動作しない.
+{\tt trans/data/data1b.txt} は 2.0 の出力,
+{\tt trans/data/data1.txt} は 2.3 の出力,
+入力 property は INEQUALITIES で FACETS を 出力 property としている.
+
+{\tt trans/data/data2.txt} は簡単な例.
+
+2.3 では VERTICES が UNDEF となる. これを正しく parse するように polymake2tfb を
+変更した.
+\begin{verbatim}
+ ./polymake2tfb <data/data1.txt
+\end{verbatim}
+VERTICES の出力がないので, gfan.sm1 で使えない.
+gfan は web service を default と呼ぶようにした.
+
+\verb@ (gfan) usage ; @ が gfan についての説明を出力するようにした.
+
+debug 用に便利なコマンド.
+\begin{verbatim}
+ oxshell.facets([[1,0,0],[1,2,0],[1,0,3],[1,1,1]]); 
+ sm1.sm1(0,"/doPolymake load message ");   OoHG を読んでいるか, いないか?
+
+ [(keep_tmp_files) (1) ] oxshell   作業ファイルを /tmp  or $TMP に保存.
+ rr (UNDEF) getNode ::
+ i-hg/crest09/Prog/fan*.sm1 (private)
+\end{verbatim}
+
+関係あるfiles.
+Doc/cgi.sm1, trans/, 
+
+oxshell で polymake を実行. 出力を tfb に変換. これを sm1 object に
+k0 server で変換 ({\tt QuoteMode(1); }.
+
+trans/polymake.sm1 は, 組み込みマクロとなる.
+doPolymake は local のものを呼ぶ.
+
 
 \end{document}
 
