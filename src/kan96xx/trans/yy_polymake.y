@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.3 2004/07/15 07:50:40 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/trans/yy_polymake.y,v 1.4 2004/08/21 10:55:28 takayama Exp $ */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y */
 /* yacc -d -b yy_polymake -p PM yy_polymake.y ; gcc yylex_polymake.c  yy_polymake.tab.c*/
 %{
@@ -7,7 +7,7 @@
 %}
 
 
-%token PM_emptyLine PM_keyword PM_LCurryBrace PM_RCurryBrace PM_LAngle PM_RAngle PM_LBracket PM_RBracket PM_colon PM_LBrace PM_RBrace
+%token PM_emptyLine PM_keyword PM_LCurryBrace PM_RCurryBrace PM_LAngle PM_RAngle PM_LBracket PM_RBracket PM_colon PM_LBrace PM_RBrace PM_eq
 %token PM_number PM_newline
 
 %%
@@ -113,6 +113,9 @@ dataUnit
 }
 | PM_LBrace PM_RBrace {
   $$=pmNewTreeObject("_tuple");
+}
+| PM_eq PM_eq PM_keyword PM_eq PM_eq {
+  $$=pmNewTreeObjecto($3);
 }
 ;
 
