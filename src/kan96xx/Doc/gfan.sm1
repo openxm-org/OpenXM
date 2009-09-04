@@ -1,4 +1,4 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.13 2009/08/26 04:54:17 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.14 2009/08/26 05:03:49 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
@@ -1020,7 +1020,7 @@ def
 %>
 /getConeInfo {
   /arg1 set
-  [/ww /g /ceq /ceq2 /cdim /mmc /mmL /rr /ineq /ppt] pushVariables
+  [/ww /g /ceq /ceq2 /cdim /mmc /mmL /rr /ineq /ppt /rr0 /mm0 /mm1] pushVariables
   [
      /ceq arg1 def 
      ceq pruneZeroVector /ceq set
@@ -1029,13 +1029,22 @@ def
        (Monomial ideal is not accepted as an input.) cone_ir_input
      } { } ifelse
 
+    /mm1
+     ( Use [(keep_tmp_files) 1] oxshell to check the input to polymake2tfb. See /tmp or $TMP )
+    def
+
      ceq genPo2 /ceq2 set
      % ceq2 は polymake.data(polymake.INEQUALITIES(...)) 形式
      % polymake で ceq2 の次元の計算.
      /getConeInfo.ceq  ceq def /getConeInfo.ceq2 ceq2 def
 
      cone.debug { (Calling polymake DIM.) message } { } ifelse
-     [(DIM) ceq2] doPolymake 1 get /rr set
+     [(DIM) ceq2] doPolymake /rr0 set
+     % rr0 2 get message
+     rr0 2 get 1 get 0 get /mm0 set 
+     mm0 length 0 eq { }
+     { [mm0 mm1] cat error } ifelse
+     rr0 1 get /rr set
      cone.debug {(Done.) message } {  } ifelse
 % test5 には次のコメントとりさる. 上の行をコメントアウト.
 %     test5.data tfbToTree /rr set
@@ -1050,7 +1059,14 @@ def
      % FACETS を持っていないなら再度計算する. 
      % POINTED, NOT__POINTED も得られる
        cone.debug { (Calling polymake FACETS.) message } { } ifelse
-       [(FACETS) ceq2] doPolymake 1 get /rr set
+       [(FACETS) ceq2] doPolymake /rr0 set
+
+     % rr0 2 get message
+     rr0 2 get 1 get 0 get /mm0 set
+     mm0 length 0 eq { }
+     { [mm0 mm1] cat error } ifelse
+
+       rr0 1 get /rr set
        cone.debug { (Done.) message } { } ifelse
    } {  } ifelse
 
