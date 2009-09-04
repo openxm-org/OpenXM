@@ -1,8 +1,10 @@
-%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.14 2009/08/26 05:03:49 takayama Exp $
+%  $OpenXM: OpenXM/src/kan96xx/Doc/gfan.sm1,v 1.15 2009/09/04 00:53:48 takayama Exp $
 % cp cone.sm1 $OpenXM_HOME/src/kan96xx/Doc/gfan.sm1
 % $Id$
 % iso-2022-jp
 %%Ref:  @s/2004/08/21-note.pdf
+
+%% gfan.sm1 works only for polymake 2.0  Use webservice of 2.0.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Two examples are given below to get a global Grobner fan and 
@@ -250,9 +252,13 @@ dhcone.printGrobnerFan
 % If you use the cgi/polymake on the net, then uncomment out.
 %/doPolymake {doPolymake.OoHG} def    (Using doPolymake.OoHG ) message 
 %/polymake.start {polymake.start.OoHG} def (Using polymake.start.OoHG ) message 
+/@@@polymake.web 1 def
 %% Choose it automatically.
-[(which) (polymake)] oxshell tag 0 eq {
-  (Polymake is not installed in this system.)  message
+[(which) (polymake)] oxshell tag 0 eq 
+@@@polymake.web 1 eq
+or
+{
+  (Polymake is not installed in this system or @@@polymake.web is set.)  message
   /doPolymake {doPolymake.OoHG} def    
   (Using doPolymake.OoHG ) message 
   /polymake.start {polymake.start.OoHG} def 
@@ -1072,7 +1078,11 @@ def
 
      rr (VERTICES) getNode tag 0 eq {
        (internal error: VERTICES is not found.) error
-     } {  } ifelse
+     } {  
+        rr (VERTICES) getNode 
+        (UNDEF) getNode tag 0 eq {  }
+        { (internal error: VERTICES is UNDEF. See rr. Set /@@@polymake.web 1 def)  error } ifelse
+     } ifelse
 
      /cone.getConeInfo.rr1 rr def
     
