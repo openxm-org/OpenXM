@@ -1,4 +1,47 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.25 2005/11/17 07:02:13 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.26 2006/10/08 23:56:16 takayama Exp $
+
+//&C Sep 13, 2009. Installing openxm*.deb on Ubuntu 9.04
+//&ja Q. Ubuntu 9.04 で openxm deb パッケージのインストールに失敗します.
+//&en Q. I got an error on Ubuntu 9.04 when I tried to install the openxm debian package.
+//&C 47  Illegal option -e , [: 47 :=: unexpected op.
+
+/*&ja
+  まず ctrl-C で install script を停止して下さい.
+
+   /usr/local/OpenXM/bin/asir-install.sh and /usr/local/OpenXM/bin/asir-port.sh は /bin/bash の上でうごきます.
+  #!/bin/bash とスクリプトの先頭に書いてありますが, Ubuntu 9.04 ではなぜか /bin/sh でこの script が実行されるようです
+  (理由調査中).
+  下のようにインストール中だけ /bin/sh を /bin/bash に変更しておけば大丈夫です.
+*/
+/*&en
+  Please stop the install script by ctrl-C.
+  The scripts /usr/local/OpenXM/bin/asir-install.sh and /usr/local/OpenXM/bin/asir-port.sh work on /bin/bash
+  #!/bin/bash is written at the beginning of the script, but /bin/sh seems to be used on Ubuntu 9.04
+  (Why? If you find the reason, please kindly tell us).
+  Please change /bin/sh to /bin/bash during the installation as below.
+*/
+/*&C
+
+   sudo su -
+   cd /bin
+   cp sh sh.orig
+   ln -s /bin/bash sh
+
+   [Installing OpenXM package]
+
+   rm /bin/sh
+   cp /bin/sh.orig /bin/sh
+
+*/
+
+//&C Sep 12, 2009.  "sudo apt-get install openxm" generates files owned by root
+
+/*&C
+
+  cd ~
+  sudo chown -R $USER  OpenXM_tmp  .TeXmacs
+
+*/
 
 //&C Oct 9, 2006. Generating universal binaries for MacOS X.
 
