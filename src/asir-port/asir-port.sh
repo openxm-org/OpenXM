@@ -1,5 +1,5 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.16 2007/11/18 01:56:25 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.17 2009/02/24 10:21:52 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
@@ -41,7 +41,7 @@ _agree() {
 	echo "Do you agree with the licenses under $OpenXM_HOME/Copyright?"
 	echo "------------------------------------------------------------------"
 	echo "y: agree, n: do not agree, v: read the detail of the asir license."
-	read -e -p "(y/n/v)" ans
+	read  -p "(y/n/v)" ans
 	if [ $ans = "y" ]; then
 		return
 	fi
