@@ -18,7 +18,7 @@
 
 \title{ {\bf 超入門 Cfep/asir (MacOS X)} }
 \author{  高山信毅 }
-\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
+\date{ 2006年(平成18年), 3月12日版(cfep 1.1). 2008-09-26, 2009-09-19 修正 \\ コメントは takayama@math.kobe-u.ac.jp まで}
 \makeindex
 
 \begin{document}
@@ -759,9 +759,6 @@ for ループと呼ばれる.
 %en A similar expression
 %en ``{\tt K>=N}'' implies that ``${\tt K} \geq {\tt N}$ holds''
 %en The expression ``{\tt K<N}'' means that ``${\tt K} < {\tt N}$''.
-\item \verb@ ++K @ や \verb@ K++ @ は {\tt K} を 1 増やせという意味である.
-\verb@ K = K+1 @ と書いてもよい.
-同じく, \verb@ --K @ や \verb@ K-- @ は {\tt K} を 1 減らせという意味である.
 %en \item The expressions \verb@ ++K @ and \verb@ K++ @ mean increasing 
 %en {\tt K} by $1$.
 %en In this example, it has the same meaning with \verb@ K = K+1 @.
@@ -1141,6 +1138,20 @@ $y$座標は画面が下へいくほど大きくなる.
 16進数については ``asir ドリル'' を参照.
 この例では, R 成分が ff なので, 赤の線をひくこととなる.
 なお, 関数 {\tt glib\_putpixel} も同じようにして, 色を指定できる.
+16進数を知らない人用に, 色とその16進数による表現の対応表をあげておく.
+
+\begin{tabular}{|l|l|}
+\hline 
+0xffffff  & 白 \\ \hline 
+0xffff00  & 黄 \\ \hline
+0xff0000  & 赤 \\ \hline
+0x00ff00  & 緑 \\ \hline 
+0x0000ff  & 青 \\ \hline 
+0x000000  & 黒 \\ \hline 
+\end{tabular}
+
+\noindent
+(あとは試して下さい)
 
 さて, 図 \ref{figure:cond:coord} で見たようにコンピュータプログラムの
 世界では, 画面の左上を原点にして, 下へいくに従い, $y$ 座標が増えるような
@@ -1208,7 +1219,7 @@ for (T=0; T<=deval(2*@pi); T = T+E) {
 \end{screen}
 -----プログラムの解説はまだ書いてない.
 
-上のプログラムでは $cos$, $sin$ を用いて円を描いている.
+上のプログラムでは $\cos$, $\sin$ を用いて円を描いている.
 中心, 半径を変更したり, 色を変更したりしながらたくさんの円を描くには,
 どのようにすればよいであろうか?
 ``関数'' を用いるとそれが容易にできる.
@@ -1303,7 +1314,7 @@ $a$ を正の数とするとき,
 \end{eqnarray*}
 できまる数列 $x_0, x_1, x_2, \ldots $ 
 は $\sqrt{a}$ にどんどん近付くこと(収束すること)が知られている.
-$a=2$ の時, $x_1, x_2, \ldots, x_4$ を計算するプログラムを書いてみよう.
+$a=2$ の時, $x_1, x_2, \ldots, x_4, x_5$ を計算するプログラムを書いてみよう.
 %%Prog: cfep/tests/2006-03-11-sqrt.rr
 \begin{screen}
 \begin{verbatim}
@@ -1354,6 +1365,18 @@ $$  \mbox{{\bf 変数名}} {\tt = }  \mbox{{\bf 式}} {\tt  ;} $$
 これがはっきり理解でき, 応用問題が自由に解けるようになった, 超入門卒業である.
 \index{だいにゅう@代入}
 
+\begin{problem} \rm
+変数 {\tt I}, {\tt X}, {\tt Y} の値は {\tt for} ループ内でどのように
+変化するか?
+{\tt Y= (X+A/X)/2} の行が実行される前のこれらの変数の値を表にして
+まとめよ.  {\tt print([I,X,Y])} をはさむことによりこの表が正しいことを
+たしかめよ.
+\end{problem}
+
+\begin{problem} \rm
+プログラムのバグ(bug)とはなにか? 
+\end{problem}
+
 \section{円を描く数列}
 
 数列の計算を用いると, $\cos$ や $\sin$ の計算をやらずに円を描くことが
@@ -1389,10 +1412,20 @@ for (T=0; T<=deval(2*@pi); T = T+E) {
 
 -----プログラムの解説まだ書いてない.
 
+ヒント: 
+微分方程式 $d^2 x/dt^2 = -x, d^2 y/dt^2 = -y$ を $t$ をラジアンとして
+差分法で近似的に解いている.
+
 この話題は, 数列の計算と差分方程式によるシミュレーションに続く.
 これについてはまた稿をあらためて書いてみたい.
 
 以上で超入門は終了である.  続きは ``Asir ドリル'' を読んでね. 
+特に配列と関数をマスターすると数学プログラムには重宝する.
+
+\begin{problem} \rm
+(レポート問題の例) \\
+なにか図を描くプログラムを書きなさい. (定番ドラエモンでもよい)
+\end{problem}
 
 \chapter{cfep 上級編}
 
