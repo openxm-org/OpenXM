@@ -28,6 +28,7 @@ localf weyl_minipolym, weyl_minipoly, weyl_nf, weyl_nf_quo_check$
 localf weyl_nf_quo, weyl_nf_mod, b_subst, v_factorial, w_tdeg$
 localf replace_vars_f, replace_vars_v, replace_var$
 localf action_on_gfs, action_on_gfs_1$
+localf nd_gb_candidate$
 
 /* stratification */
 
@@ -65,6 +66,7 @@ def bfunction(F)
 
 def in_ww(F)
 {
+	F = ptozp(F);
 	V = vars(F);
 	N = length(V);
 	D = newvect(N);
@@ -203,17 +205,16 @@ def in_ww_main(F,VW1,VW2)
 	VDVH = append(VDV,[TMP_H]);
 	FH = map(dp_dtop,map(dp_homo,map(dp_ptod,F,VDV)),VDVH);
 	
-	/* compute a groebner basis of FH w.r.t. MWH */
+/* 
+ * FH is a GB w.r.t. any term order s.t. LT(FH)=[t,dx1,...,dxn]
+ * Compute a groebner basis of FH w.r.t. MWH by modular change of
+ * ordering.
+ * Since F is Z-coef, LC(FH)=[1,...,1] and we can use any prime p
+ * for trace algorithm.
+ */
 /*	dp_gr_flags(["Top",1,"NoRA",1]); */
-#if 0
-	GH = dp_weyl_gr_main(FH,VDVH,0,0,11);
-#else
-#if 0
-	GH = dp_weyl_gr_main(FH,VDVH,0,-1,11);
-#else
-	GH = nd_weyl_gr_trace(FH,VDVH,0,-1,11);
-#endif
-#endif
+	for ( I = 0, HC=[]; I <= N; I++ ) HC = cons(1,HC);
+	GH = nd_gb_candidate(FH,VDVH,11,0,HC,1);
 /*	dp_gr_flags(["Top",0,"NoRA",0]); */
 
 	/* dehomigenize GH */
@@ -232,10 +233,13 @@ def in_ww_main(F,VW1,VW2)
 
 	AllData = [G,GIN,VDV,W,T,WtV];
 	if ( VW2 ) {
+		/* take LC(GIN) w.r.t. DRL */
+        dp_set_weight(WtV); dp_ord(0);
+        HC = map(dp_hc,map(dp_ptod,GIN,VDV));
 		V2 = VW2[0]; DV2 = VW2[1]; WtV2 = VW2[2];
 		VDV2 = append(V2,DV2);
 		dp_set_weight(WtV2);
-    	GIN2 = nd_weyl_gr_trace(GIN,VDV2,0,-1,0);
+		GIN2 = nd_gb_candidate(GIN,VDV2,0,0,HC,1);
 		InData = [GIN2,VDV2,V2,DV2,WtV2];
 	} else {
 		if ( 0 ) {
@@ -1304,12 +1308,13 @@ def bf_strat_stage2(L)
 		M = elim_mat(VDV,DVRV);
 		for ( K = 0; K < N; K++ )
 			M[1][K] = W[K];
-		dp_ord(0); H1 = map(dp_ht,map(dp_ptod,G1,VDV));
+		dp_ord(0); D1 = map(dp_ptod,G1,VDV);
+		H1 = map(dp_ht,D1); HC1 = map(dp_hc,D1);
 		dp_ord(M); H2 = map(dp_ht,map(dp_ptod,G1,VDV));
 		if ( H1 == H2 )
 			G2 = G1;
 		else
-			G2 = nd_weyl_gr_trace(G1,VDV,0,-1,M);
+			G2 = nd_gb_candidate(G1,VDV,M,0,HC1,1);
 		G1 = elimination(G2,DVRV);
 	}
 	T1 = time();
@@ -1332,9 +1337,11 @@ def bf_strat_stage3(L)
 	QQ = L[0]; V0 = L[2]; B = L[3]; BF = L[4]; W0 = L[5];
 	NF = length(BF);
 	Data = vector(NF);
+	W1 = W0? cons(1,append(W0,[1])) : 0;
 	for ( I = J = 0; I < NF; I++ ) {
 		DI = tower_in_p(QQ,B,BF[I],V0,W0);
 		NDI = length(DI);
+		dp_set_weight(W1);
 		for ( K = 0; K < J; K++ ) {
 			if ( length(DK=Data[K]) == NDI ) {
 				for ( L = 0; L < NDI; L++ ) {
@@ -1345,6 +1352,7 @@ def bf_strat_stage3(L)
 				if ( L == NDI ) break;
 			}
 		}
+		dp_set_weight(0);
 		if ( K < J ) {
 			for ( L = 0, T = []; L < NDI; L++ )
 				T = cons([[DK[L][0][0]*DI[L][0][0],DK[L][0][1]],
@@ -1357,7 +1365,7 @@ def bf_strat_stage3(L)
 	for ( I = 0; I < J; I++ )
 		Data1[I] = Data[I];
 	T1 = time();
-	Str = stratify_bf(Data1,V0);
+	Str = stratify_bf(Data1,V0,W0);
 	T2 = time();
 	print(["tower",(T1[0]+T1[1])-(T0[0]+T0[1])]);
 	print(["strat",(T2[0]+T2[1])-(T1[0]+T1[1])]);
@@ -1453,7 +1461,9 @@ def conv_tdt(P,F,V0,DV0,T,DT)
 	return subst(R,T,s);
 }
 
-def merge_tower(Str,Tower,V)
+/* W1=[W,1], W2=[1,W,1] */
+
+def merge_tower(Str,Tower,V,W1,W2)
 {
 	Prev = car(Tower); T = cdr(Tower);
 	Str1 = [];
@@ -1468,7 +1478,7 @@ def merge_tower(Str,Tower,V)
 	U = [];
 	for ( T = Str; T != []; T = cdr(T) ) {
 		for ( S = Str1; S != []; S = cdr(S) ) {
-			Int = int_cons(T[0],S[0],V);
+			Int = int_cons(T[0],S[0],V,W1,W2);
 			if ( Int[0] != [1] )
 				U = cons(append(Int,[append(T[0][2],S[0][2])]),U);
 		}
@@ -1477,12 +1487,17 @@ def merge_tower(Str,Tower,V)
 	return U;
 }
 
-def stratify_bf(Data,V)
+def stratify_bf(Data,V,W)
 {
 	N = length(Data);
 	R = [];
+	if ( W ) {
+		W1 = append(W,[1]);
+		W2 = cons(1,W1);
+	} else
+		W1 = W2 = 0;
 	for ( I = 0; I < N; I++ )
-		R = merge_tower(R,Data[I],V);
+		R = merge_tower(R,Data[I],V,W1,W2);
 	return R;
 }
 
@@ -1588,7 +1603,7 @@ def zero_inclusion(A,B,V)
 	NV = ttttt;
 	for ( T = A; T != []; T = cdr(T) ) {
 		F = car(T);
-		G = nd_gr_trace(cons(NV*F-1,B),cons(NV,V),1,-1,0);
+		G = nd_gr_trace(cons(NV*F-1,B),cons(NV,V),1,1,0);
 		if ( type(car(G)) != 1 ) return 0;
 	}
 	return 1;
@@ -1622,13 +1637,17 @@ def elim_mat(V,W)
    =(P cap R)-(Q cup S)
 */
 
-def int_cons(A,B,V)
+def int_cons(A,B,V,W1,W2)
 {
 	AZ = A[0]; AN = A[1];
 	BZ = B[0]; BN = B[1];
+	if ( W1 ) dp_set_weight(W1);
 	CZ = nd_gr_trace(append(AZ,BZ),V,1,1,0);
+	if ( W2 ) dp_set_weight(W2);
 	CN = ideal_intersection(AN,BN,V,0);
-	if ( zero_inclusion(CN,CZ,V) )
+	ZI = zero_inclusion(CN,CZ,V);
+	dp_set_weight(0);
+	if ( ZI )
 		return [[1],[]];
 	else
 		return [CZ,CN];
@@ -1641,6 +1660,24 @@ def ideal_intersection(A,B,V,Ord)
 		cons(T,V),1,1,[[0,1],[Ord,length(V)]]);
 	return elimination(G,V);
 }
+
+def nd_gb_candidate(G,V,Ord,Homo,HC,Weyl)
+{
+	Ind = 0;
+	N = length(HC);
+	while ( 1 ) {
+		P = lprime(Ind++);
+		for ( I = 0; I < N; I++ )
+			if ( !(HC[I]%P) ) break;
+		if ( I < N ) continue;
+		if ( Weyl )
+			G = nd_weyl_gr_trace(G,V,Homo,-P,Ord);
+		else
+			G = nd_gr_trace(G,V,Homo,-P,Ord);
+		if ( G ) return G;
+	}
+}
+
 endmodule $
 end$
 
