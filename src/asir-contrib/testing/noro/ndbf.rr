@@ -1382,6 +1382,7 @@ def bf_local(F,P)
 	if ( type(Heu=getopt(heuristic)) == -1 ) Heu = 0;
 	if ( type(Vord=getopt(vord)) == -1 || type(Vord) != 4 ) Vord = 0;
 	if ( type(Wt=getopt(weight)) == -1 ) Wt = 0;
+	if ( type(Op=getopt(op)) == -1 ) Op = 0;
 	L = in_ww(F|weight=Wt,heuristic=Heu,vord=Vord);
 	InData = L[0]; AllData = L[1]; VData = L[2];
 	G = InData[0]; VDV = InData[1];  
@@ -1415,8 +1416,14 @@ def bf_local(F,P)
 			break;
 	if ( List == [] ) error("bf_local : inconsitent intersection");		
 	Ax = car(List);
-	for ( BPT = 1, List = BP; List != []; List = cdr(List) )
+	LB = [];
+	for ( BPT = 1, List = BP; List != []; List = cdr(List) ) {
 		BPT *= car(List)[0]^car(List)[1];
+		LB = cons([subst(car(List)[0],s,-s-1),car(List)[1]],LB);
+	}
+	LB = reverse(LB);
+	if ( !Op ) return LB;
+
 	BPT = weyl_subst(BPT,T*DT,VDV);
 
 	/* computation using G0,GIN0,VDV0 */
@@ -1436,7 +1443,7 @@ def bf_local(F,P)
 	CR = conv_tdt(R,F,V0,DV0,T,DT);
 
 	dp_set_weight(0);
-	return [BP,Ax,CR];
+	return [LB,Ax,CR];
 }
 
 /* t^(l+k)*dt^l (k>l) -> (s-k)(s-k-1)...(s-(k+l-1))t^k */
