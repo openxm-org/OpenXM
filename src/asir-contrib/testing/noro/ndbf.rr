@@ -263,15 +263,30 @@ def ann(F)
 {
 	if ( member(s,vars(F)) )
 		error("ann : the variable 's' is reserved.");
+	F = ptozp(F);
 	V = vars(F);
 	N = length(V);
 	D = newvect(N);
+	if ( type(Wt=getopt(weight)) == -1 )
+		for ( I = N-1, Wt = []; I >= 0; I-- ) Wt = append([V[I],1],Wt);
 
-	for ( I = 0; I < N; I++ )
-		D[I] = [deg(F,V[I]),V[I]];
+	Wt1 = vector(N);
+	for ( I = 0, F1 =F; I < N; I++ ) {
+		VI = Wt[2*I]; WI = Wt[2*I+1];
+		for ( J = 0; J < N; J++ )
+			if ( VI == V[J] ) break;
+		F1 = subst(F1,VI,VI^WI);
+	}
+	for ( I = 0; I < N; I++ ) D[I] = [deg(F1,V[I]),V[I]];
 	qsort(D,compare_first);
-	for ( V = [], I = N-1; I >= 0; I-- )
-		V = cons(D[I][1],V);
+	for ( V = [], I = 0; I < N; I++ ) V = cons(D[I][1],V);
+	V = reverse(V); 
+	for ( I = 0; I < N; I++ ) {
+		VI = Wt[2*I]; WI = Wt[2*I+1];
+		for ( J = 0; J < N; J++ ) if ( VI == V[J] ) break;
+		Wt1[J] = WI;
+	}
+	Wt = vtol(Wt1);
 
 	for ( I = N-1, DV = []; I >= 0; I-- )
 		DV = cons(strtov("d"+rtostr(V[I])),DV);
@@ -284,9 +299,23 @@ def ann(F)
 		B = cons(DV[I]+TMP_Y1*diff(F,V[I])*TMP_DT,B);
 	}
 
-	/* homogenized (heuristics) */
-	dp_nelim(2);
-	G0 = nd_weyl_gr(B,append(W,DW),0,[[0,2],[0,length(W)*2-2]]);
+	Tdeg = w_tdeg(F,V,Wt);
+	/* y1*y2-1, t-y1*f, dx1+y1*df/dx1*dt ... */
+	/* weight for [y1,y2,t,   x1,...,xn,  dy1,dy2, dt,dx1,...,dxn,   h]   */
+	/*              0  1 2    3      N3-1 N3  N3+1 N3+2              2*N3 */
+	/*              1  1 D+1  1      1    1   1    1  D       D      1    */
+	N3 = N+3;
+	WtV = newvect(2*N3+1);
+	WtV[0] = WtV[1] = 1; WtV[2] = Tdeg+1; 
+	for ( I = 3; I <= N3+2; I++ ) WtV[I] = 1;
+	for ( ; I < 2*N3; I++ ) WtV[I] = Tdeg;
+	WtV[2*N3] = 1;
+
+	/* B is already a GB => modular change of ordering can be applied */
+	/* any prime is available => HC=[1] */
+	dp_set_weight(WtV);
+	G0 = nd_gb_candidate(B,append(W,DW),[[0,2],[0,length(W)*2-2]],0,[1],1);
+	dp_set_weight(0);
 	G1 = [];
 	for ( T = G0; T != []; T = cdr(T) ) {
 		E = car(T); VL = vars(E);
@@ -335,7 +364,11 @@ def ann_n(F)
 	VA = append(U,append(W,V));
 	DVA = append(DU,append(DW,DV));
 	VDV = append(VA,DVA);
+#if 0
 	G0 = nd_weyl_gr(B,VDV,0,[[0,2*L],[0,length(VDV)-2*L]]);
+#else
+	G0 = nd_gb_candidate(B,VDV,[[0,2*L],[0,length(VDV)-2*L]],0,[1],1);
+#endif
 	G1 = [];
 	for ( T = G0; T != []; T = cdr(T) ) {
 		E = car(T); VL = vars(E);
