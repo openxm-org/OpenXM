@@ -1,0 +1,145 @@
+module newsyz;
+
+localf module_syz, module_fres, module_minres;
+localf simplify_syz, icont, mod, remove_cont;
+
+/* F : a list of (lists or polynomials), 
+   V : a variable list, H >1=> over GF(H), H=0,1=> over Q 
+   O : term order
+   return: [GS,G]
+   GS : a GB of syz(F) wrt [1,O] (POT), G: a GB of F wrt [1,O]
+*/
+
+def module_syz(F,V,H,O)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	K = length(F);
+	if ( type(F[0]) <= 2 ) {
+		for ( T = [], S = F; S != []; S = cdr(S) )
+			T = cons([car(S)],T);
+		F = reverse(T);
+	}
+	N = length(F[0]);
+	B = [];
+	for ( I = 0; I < K; I++ ) {
+		E = vector(N+K);
+		for ( J = 0; J < N; J++ ) E[J] = F[I][J];
+		E[N+I] = 1;
+		B = cons(vtol(E),B);
+	}
+	B = reverse(B);
+	if ( H >= 2 ) {
+		if ( Weyl )
+			G = nd_weyl_gr(B,V,H,[1,O]);
+		else
+			G = nd_gr(B,V,H,[1,O]);
+	} else {
+		if ( Weyl )
+			G = nd_weyl_gr_trace(B,V,H,-1,[1,O]);
+		else
+			G = nd_gr_trace(B,V,H,-1,[1,O]);
+	}
+	G0 = []; S0 = []; Gen0 = [];
+	for ( T = G; T != []; T = cdr(T) ) {
+		H = car(T);
+		for ( J = 0; J < N; J++ ) if ( H[J] ) break;
+		if ( J == N ) {
+			H1 = vector(K);
+			for ( J = 0; J < K; J++ ) H1[J] = H[N+J];
+			S0 = cons(vtol(H1),S0);
+		} else {
+			H1 = vector(N);
+			for ( J = 0; J < N; J++ ) H1[J] = H[J];
+			G0 = cons(vtol(H1),G0);
+			H1 = vector(K);
+			for ( J = 0; J < K; J++ ) H1[J] = H[N+J];
+			Gen0 = cons(vtol(H1),Gen0);
+		}
+	}
+	return [S0,G0,Gen0];
+}
+
+def module_fres(F,V,H,O)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	R = [F];
+	while ( 1 ) {
+		if ( Weyl )
+			L = module_syz(car(R),V,H,O|weyl=1);
+		else
+			L = module_syz(car(R),V,H,O);
+		if ( L[0] == [] ) return R;
+		else R = cons(L[0],R);
+	}
+}
+
+def module_minres(F,V,H,O)
+{
+	Weyl = type(getopt(weyl)) != -1 ? 1 : 0;
+	R = [F];
+	while ( 1 ) {
+		if ( Weyl )
+			L = module_syz(car(R),V,H,O|weyl=1);
+		else
+			L = module_syz(car(R),V,H,O);
+		if ( L[0] == [] ) return R;
+		S = simplify_syz(L[0],R[0],H);
+		R = append(S,cdr(R));	
+		if ( R[0] == [] ) return cdr(R);
+	}
+}
+
+/* M1 = syz(M2)
+   return [M1',M2'] (simplified ones)
+*/
+def simplify_syz(M1,M2,Mod)
+{
+	while ( 1 ) {
+		for ( T = M1, I = 0; T != []; T = cdr(T), I++ ) {
+			for ( S = car(T), J = 0; S != []; S = cdr(S), J++ )
+				if ( type(car(S))==1 ) break;
+			if ( S != [] ) break;
+		}
+		if ( T == [] ) return [M1,M2];
+		M1i = ltov(car(T)); H = M1i[J];
+		N = length(M1i);
+		for ( T = M1, K = 0, R1 = []; T != []; T = cdr(T), K++ ) {
+			if ( K != I ) {
+				M1k = ltov(car(T));
+				if ( M1k[J] )
+					M1k = remove_cont(H*M1k-M1k[J]*M1i,Mod);
+				for ( S = [], L = N-1; L >= 0; L-- )
+					if ( L != J ) S = cons(M1k[L],S);
+				R1 = cons(S,R1);
+			}
+		}
+		M1 = reverse(R1);
+		for ( R2 = [], T = M2, K = 0; T != []; T = cdr(T), K++ )
+			if ( K != J ) R2 = cons(car(T),R2);
+		M2 = reverse(R2);
+	}
+}
+
+def icont(P)
+{
+	P1 = ptozp(P);
+	return sdiv(P,P1);
+}
+
+def mod(F,Mod)
+{
+	return F%Mod;
+}
+
+def remove_cont(V,Mod)
+{
+	if ( Mod >= 2 ) return map(mod,V,Mod);
+	N = length(V);
+	for ( I = 0; I < N; I++ ) if ( V[I] ) break;
+	if ( I == N ) return V;
+	for ( C = icont(V[I]), I = 1; I < N; I++ )
+		if ( V[I] ) C = igcd(icont(V[I]),C);
+	return V/C;
+}
+endmodule;
+end$
