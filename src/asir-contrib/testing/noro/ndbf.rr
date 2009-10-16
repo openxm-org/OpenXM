@@ -1412,6 +1412,8 @@ def bf_strat_stage3(L)
 
 def bf_local(F,P)
 {
+	/* F -> F/Fcont */
+	F1 = ptozp(F); Fcont = sdiv(F,F1); F = F1;
 	if ( type(Heu=getopt(heuristic)) == -1 ) Heu = 0;
 	if ( type(Vord=getopt(vord)) == -1 || type(Vord) != 4 ) Vord = 0;
 	if ( type(Wt=getopt(weight)) == -1 ) Wt = 0;
@@ -1476,9 +1478,10 @@ def bf_local(F,P)
 	CR = conv_tdt(R,F,V0,DV0,T,DT);
 
 	dp_set_weight(0);
-	Cont = cont(CR);
+	Cont = cont(CR); CR /= Cont; 
+	Cont *= dn(Fcont); Den *= nm(Fcont);
 	Gcd = igcd(Den,Cont);
-	return [LB,(Den/Gcd)*Ax,CR/Gcd];
+	return [LB,(Den/Gcd)*Ax,(Cont/Gcd)*CR];
 }
 
 /* t^(l+k)*dt^l (k>l) -> (s-k)(s-k-1)...(s-(k+l-1))t^k */
