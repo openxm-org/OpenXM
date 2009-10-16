@@ -1476,7 +1476,9 @@ def bf_local(F,P)
 	CR = conv_tdt(R,F,V0,DV0,T,DT);
 
 	dp_set_weight(0);
-	return [LB,Ax,CR];
+	Cont = cont(CR);
+	Gcd = igcd(Den,Cont);
+	return [LB,(Den/Gcd)*Ax,CR/Gcd];
 }
 
 /* t^(l+k)*dt^l (k>l) -> (s-k)(s-k-1)...(s-(k+l-1))t^k */
