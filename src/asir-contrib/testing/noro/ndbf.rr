@@ -303,11 +303,12 @@ def ann(F)
 	/* y1*y2-1, t-y1*f, dx1+y1*df/dx1*dt ... */
 	/* weight for [y1,y2,t,   x1,...,xn,  dy1,dy2, dt,dx1,...,dxn,   h]   */
 	/*              0  1 2    3      N3-1 N3  N3+1 N3+2              2*N3 */
-	/*              1  1 D+1  1      1    1   1    1  D       D      1    */
+	/*              1  1 D+1  w1     wn    1   1    1  D       D      1    */
 	N3 = N+3;
 	WtV = newvect(2*N3+1);
 	WtV[0] = WtV[1] = 1; WtV[2] = Tdeg+1; 
-	for ( I = 3; I <= N3+2; I++ ) WtV[I] = 1;
+	for ( I = 3; I < N3; I++ ) WtV[I] = Wt[I-3];
+	for ( ; I <= N3+2; I++ ) WtV[I] = 1;
 	for ( ; I < 2*N3; I++ ) WtV[I] = Tdeg;
 	WtV[2*N3] = 1;
 
@@ -325,6 +326,67 @@ def ann(F)
 	G2 = map(psi,G1,TMP_T,TMP_DT);
 	G3 = map(subst,G2,TMP_T,-1-s);
 	return G3;
+}
+
+def in_gb_oaku(F)
+{
+	if ( member(s,vars(F)) )
+		error("ann : the variable 's' is reserved.");
+	F = ptozp(F);
+	V = vars(F);
+	N = length(V);
+	D = newvect(N);
+	if ( type(Wt=getopt(weight)) == -1 )
+		for ( I = N-1, Wt = []; I >= 0; I-- ) Wt = append([V[I],1],Wt);
+
+	Wt1 = vector(N);
+	for ( I = 0, F1 =F; I < N; I++ ) {
+		VI = Wt[2*I]; WI = Wt[2*I+1];
+		for ( J = 0; J < N; J++ )
+			if ( VI == V[J] ) break;
+		F1 = subst(F1,VI,VI^WI);
+	}
+	for ( I = 0; I < N; I++ ) D[I] = [deg(F1,V[I]),V[I]];
+	qsort(D,compare_first);
+	for ( V = [], I = 0; I < N; I++ ) V = cons(D[I][1],V);
+	V = reverse(V); 
+	for ( I = 0; I < N; I++ ) {
+		VI = Wt[2*I]; WI = Wt[2*I+1];
+		for ( J = 0; J < N; J++ ) if ( VI == V[J] ) break;
+		Wt1[J] = WI;
+	}
+	Wt = vtol(Wt1);
+
+	for ( I = N-1, DV = []; I >= 0; I-- )
+		DV = cons(strtov("d"+rtostr(V[I])),DV);
+
+	W = append([TMP_Y1,TMP_Y2,TMP_T],V);
+	DW = append([TMP_DY1,TMP_DY2,TMP_DT],DV);
+
+	B = [TMP_T-TMP_Y1*F];
+	for ( I = 0; I < N; I++ ) {
+		B = cons(DV[I]+TMP_Y1*diff(F,V[I])*TMP_DT,B);
+	}
+
+	Tdeg = w_tdeg(F,V,Wt);
+	/* y1*y2-1, t-y1*f, dx1+y1*df/dx1*dt ... */
+	/* weight for [y1,y2,t,   x1,...,xn,  dy1,dy2, dt,dx1,...,dxn,   h]   */
+	/*              0  1 2    3      N3-1 N3  N3+1 N3+2              2*N3 */
+	/*              1  1 D+1  1      1    1   1    1  D       D      1    */
+	N3 = N+3;
+	WtV = newvect(2*N3+1);
+	WtV[0] = WtV[1] = 1; WtV[2] = Tdeg+1; 
+	for ( I = 3; I <= N3+2; I++ ) WtV[I] = 1;
+	for ( ; I < 2*N3; I++ ) WtV[I] = Tdeg;
+	WtV[2*N3] = 1;
+
+	/* B is already a GB => modular change of ordering can be applied */
+	/* any prime is available => HC=[1] */
+	dp_set_weight(WtV);
+	G0 = nd_gb_candidate(B,append(W,DW),[[0,2],[0,length(W)*2-2]],0,[1],1);
+	dp_set_weight(0);
+	G1 = map(subst,G0,TMP_Y1,1);
+	return [G1,append(V,DV)];
 }
 
 /* F = [F0,F1,...] */

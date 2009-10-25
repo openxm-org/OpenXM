@@ -1,0 +1,198 @@
+/*
+ F=y^2-x*(x-1)*(x-t)$
+ F=y^2-(x^3+t^7)$
+ F=y^2-(x^3+t*(t^10+1))$
+ F=y^2-(x^3+t^11+1)$
+ F=(y^2+72*x*y-10*t^2*y)-(x^3+60*x^2*t-15*x*t^3+t^5)$
+*/
+/* 6A1fibre2a.txt */
+A1=y^2-(x^3+(2*t^2+18)*x^2+(t^4-82*t^2+81)*x)$
+/* A2try3d.txt */
+A2=y^2-(x^3-x+t^2)$
+/* A8fibre2.txt */
+A8=y^2-(x^3+t^2*x^2-8*t*x+16)$
+/* D8fibre1.txt */
+D8=y^2-(x^3-3*(t^2-1)*x-2*t^3+3*t)$
+/* E7A1fibre1.txt */
+E7=y^2-(x^3+t*x)$
+/* F5ss1new2.txt */
+F5=y^2-(x^3+t^11-t)$
+/* F6ss1new2.txt */
+F6=y^2-(x^3+t^12-1)$
+import("gr")$
+module mwl$
+localf generate_coef_ideal$
+localf pdecomp,pdecomp_main,ideal_intersection,ldim$
+localf pdecomp_ff,pdecomp_ff_main,ideal_intersection_ff,ldim_ff$
+localf ideal_elimination,gbcheck,f4$
+static GBCheck,F4$
+#define Tmp ttttt
+
+def gbcheck(A)
+{
+	if ( A ) GBCheck = 1;
+	else GBCheck = -1;
+}
+
+def f4(A)
+{
+	if ( A ) F4 = 1;
+	else F4 = 0;
+}
+
+def generate_coef_ideal(F)
+{
+	A1 = coef(coef(F,1,x),1,y);
+	A2 = -coef(coef(F,2,x),0,y);
+	A3 = coef(coef(F,0,x),1,y);
+	A4 = -coef(coef(F,1,x),0,y);
+	A6 = -coef(coef(F,0,x),0,y);
+	D = vector(5,
+		[deg(A1,t)/1,deg(A2,t)/2,deg(A3,t)/3,deg(A4,t)/4,deg(A6,t)/6]);
+	D = map(ceil,D);
+	for ( K = D[0], I = 1; I < 5; I++ ) if ( K < D[I] ) K = D[I];
+	F1 = (y^2+A1*x*y+A3*y)-(x^3+A2*x^2+A4*x+A6);
+	VX = [];
+	for ( I = 0, X = 0; I <= 2*K; I++ ) {
+		V = strtov("a"+rtostr(I));
+		X += V*t^I;
+		VX = cons(V,VX);
+	}
+	VY = [];
+	for ( I = 0, Y = 0; I <= 3*K; I++ ) {
+		V = strtov("b"+rtostr(I));
+		Y += V*t^I;
+		VY = cons(V,VY);
+	}
+	S = subst(F,x,X,y,Y);
+	N = deg(S,t);
+	for ( R = [], I = 0; I <= N; I++ ) R = cons(coef(S,I,t),R);
+	return [R,append((VY),(VX))];
+}
+
+def pdecomp(B,V) {
+	if ( F4 ) G0 = nd_f4_trace(B,V,1,GBCheck,0);
+	else G0 = nd_gr_trace(B,V,1,GBCheck,0);
+	G=[G0];
+	for ( T = reverse(V); T !=[]; T = cdr(T) ) {
+		G1 = [];
+		X = car(T);
+		for ( S = G; S != []; S = cdr(S) ) {
+			GX = pdecomp_main(car(S),V,0,X);
+			G1 = append(GX,G1);
+		}
+		G = G1;
+	}
+	return [G,G0];
+}
+
+def pdecomp_ff(B,V,Mod) {
+	if ( F4 ) G0 = nd_f4(B,V,Mod,0);
+	else G0 = nd_gr(B,V,Mod,0);
+	G=[G0];
+	for ( T = reverse(V); T !=[]; T = cdr(T) ) {
+		G1 = [];
+		X = car(T);
+		for ( S = G; S != []; S = cdr(S) ) {
+			GX = pdecomp_ff_main(car(S),V,0,X,Mod);
+			G1 = append(GX,G1);
+		}
+		G = G1;
+	}
+	return [G,G0];
+}
+
+def pdecomp_main(G,V,Ord,X) {
+	M = minipoly(G,V,Ord,X,Tmp);
+	M = subst(M,Tmp,X);
+	FM = cdr(fctr(M));
+	if ( length(FM) == 1 ) return [G];
+	G2 = [];
+	for ( T = FM; T != []; T = cdr(T) ) {
+		F1 = car(T); 
+		for ( I = 0, N = F1[1], NF=1; I < N; I++ )
+			NF = p_nf(NF*F1[0],G,V,Ord);
+		if ( F4 ) G1 = nd_f4_trace(cons(NF,G),V,1,GBCheck,Ord);
+		else G1 = nd_gr_trace(cons(NF,G),V,1,GBCheck,Ord);
+		G2 =cons(G1,G2);
+	}
+	return G2;
+}
+
+def pdecomp_ff_main(G,V,Ord,X,Mod) {
+	M = minipolym(G,V,Ord,X,Tmp,Mod);
+	M = subst(M,Tmp,X);
+	FM = cdr(modfctr(M,Mod));
+	if ( length(FM) == 1 ) return [G];
+	G2 = [];
+	for ( T = FM; T != []; T = cdr(T) ) {
+		F1 = car(T); 
+		for ( I = 0, N = F1[1], NF=1; I < N; I++ )
+			NF = p_nf_mod(NF*F1[0],G,V,Ord,Mod);
+		if ( F4 ) G1 = nd_f4(cons(NF,G),V,Mod,Ord);
+		else G1 = nd_gr(cons(NF,G),V,Mod,Ord);
+		G2 =cons(G1,G2);
+	}
+	return G2;
+}
+
+def ideal_intersection(L,V,Ord)
+{
+	N = length(L);
+	if ( N == 1 ) return L[0];
+	N2 = idiv(N,2);
+	for ( I = 0, L1 = []; I < N2; I++, L = cdr(L) ) L1 = cons(car(L),L1);
+	L1 = reverse(L1);
+	J = ideal_intersection(L,V,Ord);
+	J1 = ideal_intersection(L1,V,Ord);
+	R = append(vtol(ltov(J)*Tmp),vtol(ltov(J1)*(1-Tmp)));
+	if ( F4 ) G = nd_f4_trace(R,cons(Tmp,V),1,GBCheck,[[0,1],[Ord,length(V)]]);
+	else G = nd_gr_trace(R,cons(Tmp,V),1,GBCheck,[[0,1],[Ord,length(V)]]);
+	G = ideal_elimination(G,V);
+	return G;
+}
+
+def ideal_intersection_ff(L,V,Ord,Mod)
+{
+	N = length(L);
+	if ( N == 1 ) return L[0];
+	N2 = idiv(N,2);
+	for ( I = 0, L1 = []; I < N2; I++, L = cdr(L) ) L1 = cons(car(L),L1);
+	L1 = reverse(L1);
+	J = ideal_intersection_ff(L,V,Ord,Mod);
+	J1 = ideal_intersection_ff(L1,V,Ord,Mod);
+	R = append(vtol(ltov(J)*Tmp),vtol(ltov(J1)*(1-Tmp)));
+	if ( F4 ) G = nd_f4(R,cons(Tmp,V),Mod,[[0,1],[Ord,length(V)]]);
+	else G = nd_gr(R,cons(Tmp,V),Mod,[[0,1],[Ord,length(V)]]);
+	G = ideal_elimination(G,V);
+	return G;
+}
+
+def ideal_elimination(G,V)
+{
+	ANS=[];
+	NG=length(G);
+
+	for (I=NG-1;I>=0;I--) {
+		VSet=vars(G[I]);
+		DIFF=setminus(VSet,V);
+		if ( DIFF ==[] ) ANS=cons(G[I],ANS);
+	}
+	return ANS;
+}
+
+def ldim(G,V)
+{
+	G = nd_gr_trace(G,V,1,1,0);
+	if ( ! zero_dim(G,V,0) ) error("<G> is not zero-dimensional");
+	return length(dp_mbase(map(dp_ptod,G,V)));
+}
+
+def ldim_ff(G,V,Mod)
+{
+	G = nd_gr(G,V,Mod,0);
+	if ( ! zero_dim(G,V,0) ) error("<G> is not zero-dimensional");
+	return length(dp_mbase(map(dp_ptod,G,V)));
+}
+endmodule$
+end$
