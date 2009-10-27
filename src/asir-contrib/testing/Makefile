@@ -1,4 +1,4 @@
-#$OpenXM: OpenXM/src/asir-contrib/testing/Makefile,v 1.7 2009/10/14 07:00:56 noro Exp $
+#$OpenXM: OpenXM/src/asir-contrib/testing/Makefile,v 1.8 2009/10/15 06:39:58 noro Exp $
 all: t.texi
 
 t.texi: tr-ja.oxt
@@ -8,8 +8,9 @@ t.texi: tr-ja.oxt
 	@echo "--------------------------------------------------"
 
 link-to-src:
-	-(cd ../packages/src ; ln -s ../../testing/noro/new_rewrite.rr noro_rewrite.rr)
-	-(cd ../packages/src ; ln -s ../../testing/noro/de.rr noro_de.rr)
-	-(cd ../packages/src ; ln -s ../../testing/noro/gw.rr noro_gw.rr)
-	-(cd ../packages/src ; ln -s ../../testing/noro/ndbf.rr nn_ndbf.rr)
-	-(cd ../packages/src ; ln -s ../../testing/noro/module_syz.rr noro_module_syz.rr)
+	-(cd ../packages/src ; rm -f noro_rewrite.rr; cp ../../testing/noro/new_rewrite.rr noro_rewrite.rr)
+	-(cd ../packages/src ; rm -f noro_de.rr; cp ../../testing/noro/de.rr noro_de.rr)
+	-(cd ../packages/src ; rm -f noro_gw.rr; cp ../../testing/noro/gw.rr noro_gw.rr)
+	-(cd ../packages/src ; rm -f nn_ndbf.rr; cp ../../testing/noro/ndbf.rr nn_ndbf.rr)
+	-(cd ../packages/src ; rm -f noro_module_syz.rr; cp ../../testing/noro/module_syz.rr noro_module_syz.rr)
+	-(cd ../packages/src ; rm -f noro_mwl.rr; cp ../../testing/noro/mwl.rr noro_mwl.rr)
