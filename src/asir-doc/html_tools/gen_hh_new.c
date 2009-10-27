@@ -20,7 +20,7 @@ char *prefix,*lang;
 	fprintf(outf,"Index file=%shelp-%s.hhk\n",prefix,lang);
 	fprintf(outf,"Language=0x411 “ú–{Œê\n\n\n[FILES]\n");
 
-	fprintf(outf,"html\\%s-%s_toc.html\n",prefix);
+	fprintf(outf,"html\\%s-%s_toc.html\n",prefix,lang);
 	for ( i = 1; i <= n; i++ )
 		fprintf(outf,"html\\%s-%s_%d.html\n",prefix,lang,i);
 
