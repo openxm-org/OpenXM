@@ -19,6 +19,8 @@ E7=y^2-(x^3+t*x)$
 F5=y^2-(x^3+t^11-t)$
 /* F6ss1new2.txt */
 F6=y^2-(x^3+t^12-1)$
+/* OS8split4 */
+OS8=y^2-240*x*y-300*t^2*y-x^3+476*t*x^2+65*t^3*x-t^5$
 import("gr")$
 module mwl$
 localf generate_coef_ideal$
@@ -40,8 +42,12 @@ def f4(A)
 	else F4 = 0;
 }
 
+/* if option simp=1 is given, we try simplifying the output ideal. */
+/* Remove an^3-bm^2 and an -> v^2, bm -> v^3                       */
+
 def generate_coef_ideal(F)
 {
+	if ( type(Simp=getopt(simp)) == -1 ) Simp = 0;
 	A1 = coef(coef(F,1,x),1,y);
 	A2 = -coef(coef(F,2,x),0,y);
 	A3 = coef(coef(F,0,x),1,y);
@@ -51,7 +57,6 @@ def generate_coef_ideal(F)
 		[deg(A1,t)/1,deg(A2,t)/2,deg(A3,t)/3,deg(A4,t)/4,deg(A6,t)/6]);
 	D = map(ceil,D);
 	for ( K = D[0], I = 1; I < 5; I++ ) if ( K < D[I] ) K = D[I];
-	F1 = (y^2+A1*x*y+A3*y)-(x^3+A2*x^2+A4*x+A6);
 	VX = [];
 	for ( I = 0, X = 0; I <= 2*K; I++ ) {
 		V = strtov("a"+rtostr(I));
@@ -67,7 +72,17 @@ def generate_coef_ideal(F)
 	S = subst(F,x,X,y,Y);
 	N = deg(S,t);
 	for ( R = [], I = 0; I <= N; I++ ) R = cons(coef(S,I,t),R);
-	return [R,append((VY),(VX))];
+	if ( Simp ) {
+		R0 = car(R); R = cdr(R);
+		VX0 = car(VX); VX = cdr(VX);
+		VY0 = car(VY); VY = cdr(VY);
+		if ( subst(R0,VX0,v^2,VY0,v^3)==0 ) {
+			R = subst(R,VX0,v^2,VY0,v^3);
+			return [R,append(append(VY,VX),[v])];
+		} else
+			error("The output ideal cannot be simplified");
+	} else
+		return [R,append((VY),(VX))];
 }
 
 def pdecomp(B,V) {
