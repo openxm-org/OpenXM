@@ -1,0 +1,203 @@
+%comment $OpenXM$
+%comment --- おまじない ---
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-noro_mwl
+
+@comment --- タイトル ---
+@settitle noro_mwl
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title noro_mwl
+@subtitle noro_mwl User's Manual
+@subtitle Edition 1.0
+@subtitle Nov 2009
+
+@author  by Masayuki Noro
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Masayuki Noro
+2009. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@menu
+* MWL 関連計算パッケージ noro_mwl.rr::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に ---
+@node MWL 関連計算パッケージ noro_mwl.rr,,, Top
+@chapter MWL 関連計算パッケージ noro_mwl.rr
+
+@comment --- section 名を正確に並べる ---
+@menu
+* MWL 関連計算::
+@end menu
+
+このマニュアルでは, asir-contrib パッケージに収録されている,
+MWL 関連計算パッケージ @samp{noro_mwl.rr} について解説する.
+このパッケージを使うには, まず @samp{noro_mwl.rr} をロードする.
+@example
+[1518] load("noro_mwl.rr");
+@end example
+このパッケージの函数を呼び出すには, 全て @code{mwl.} を先頭につける.
+@example
+
+@end example
+
+@comment --- section の開始 ---
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node MWL 関連計算,,, MWL 関連計算パッケージ noro_mwl.rr
+@section MWL 関連計算
+
+@menu
+* mwl.pdecomp::
+@end menu
+
+@node mwl.pdecomp mwl.pdecomp_ff,,, MWL 関連計算
+
+@subsection @code{mwl.pdecomp}, @code{mwl.pdecomp_ff}
+@findex mwl.pdecomp
+@findex mwl.pdecomp_ff
+
+@table @t
+@item mwl.pdecomp(@var{ideal},@var{varlist}[|gbcheck=@var{yesno},f4=@var{yesno}])
+@itemx mwl.pdecomp_ff(@var{ideal},@var{varlist},@var{mod}[|gbcheck=@var{yesno},f4=@var{yesno}]) :: 0 次元イデアル @var{ideal} をいくつかのイデアルの共通部分として表す.
+@end table
+
+@table @var
+@item return
+多項式リストのリスト
+@item ideal
+多項式リスト
+@item varlist
+変数リスト
+@item mod
+素数
+@item yesno
+0 または 1
+@end table
+
+@itemize @bullet
+@item
+0 次元イデアル @var{ideal} の各変数の最小多項式を既約分解し, 各既約
+成分を重複度つきで @var{ideal} に添加することを繰り返して得られた
+イデアルのリストを返す.
+@item
+@code{mwl.pdecomp} は有理数体上, @code{mwl.pdecomp_ff} は
+GF(@var{mod}) (位数 @var{mod} の有限体) 上での分解を行う.
+@item
+出力リストの要素であるイデアルは, 必ずしも準素とは限らないが,
+各変数の最小多項式が既約多項式のべきとなっているので, 準素に
+近いことが期待される. これを準素分解の入力とすることで, もとの
+イデアルをそのまま準素分解するより効率よく準素分解できることが
+期待される.
+@item
+デフォルトでは, グレブナー基底計算には @code{nd_gr_trace} が
+用いられるが, オプション @code{f4=1} を指定すると @code{nd_f4_trace}
+が用いられる.
+@item
+オプション @code{gbcheck=0} を指定すると, グレブナー基底計算における
+チェックが省かれる. この場合, 大変小さい確率で正しい結果が出力されない
+ことが有り得るが, ほとんどの場合は正しいので, 予備的な実験を繰り返す場合
+に有用である.
+出力されたイデアルリストの全ての共通部分が入力
+と一致すれば, 出力が入力イデアルの分解になっていることは保証される.
+@end itemize
+@example
+
+@end example
+
+@subsection @code{mwl.generate_coef_ideal}
+@findex mwl.generate_coef_ideal
+
+@table @t
+@item mwl.generate_coef_ideal(@var{f}[|simp=@var{yesno}])
+:: x, y, t の多項式 @var{f} の多項式零点 (x(t),y(t)) の係数の満たす
+方程式のイデアルを生成する
+@end table
+
+@table @var
+@item return
+多項式リストと変数リストのペアからなるリスト
+@item f
+多項式
+@item yesno
+0 または 1
+@end table
+
+@itemize @bullet
+@item
+@var{f(x,y,t)=(y^2+c1(t)xy+c3(t)y)-(x^3+c2(t)x^2+c4(t)x+c6(t))} に対し,
+@var{x=am t^m+...+a0},
+@var{y=bn t^n+...+b0} (@var{ai, bj} は未定係数)
+を @var{f} に代入したときの, 各 @var{t}のべきの係数
+を並べたリスト @var{ideal} および, 未定係数のリスト
+@var{vlist=[b0,...,bn,a0,...,am]} のペア @var{[ideal,vlist]} を返す.
+@item
+各 @var{x}, @var{y} の次数は, @var{f} から自動的に決定される.
+@item
+オプション @var{simp=1} が指定された場合, @var{am^3-bn^2} が @var{ideal}
+に含まれている場合には, 新しい変数 @var{v} を導入し,
+@var{am=v^2}, @var{bn=v^3} により @var{am,bn} を消去した結果を返す.
+@end itemize
+@example
+
+@end example
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
