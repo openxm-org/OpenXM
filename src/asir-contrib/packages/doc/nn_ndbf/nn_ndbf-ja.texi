@@ -1,0 +1,300 @@
+%comment $OpenXM$
+%comment --- おまじない ---
+\input texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-nn_ndbf
+
+@comment --- タイトル ---
+@settitle nn_ndbf
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title nn_ndbf
+@subtitle nn_ndbf User's Manual
+@subtitle Edition 1.0
+@subtitle Nov 2009
+
+@author  by Masayuki Noro and Kenta Nishiyama
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
+2009. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@menu
+* 新 b 関数パッケージ nn_ndbf.rr::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に ---
+@node 新 b 関数パッケージ nn_ndbf.rr,,, Top
+@chapter 新 b 関数パッケージ nn_ndbf.rr
+
+@comment --- section 名を正確に並べる ---
+@menu
+* b 関数計算::
+* Annihilator 計算::
+@end menu
+
+このマニュアルでは, asir-contrib パッケージに収録されている,
+新 b 関数パッケージ @samp{nn_ndbf.rr} について解説する.
+このパッケージを使うには, まず @samp{nn_ndbf.rr} をロードする.
+@example
+[1518] load("nn_ndbf.rr");
+@end example
+このパッケージの函数を呼び出すには, 全て @code{ndbf.} を先頭につける.
+@example
+[1601] ndbf.bfunction(x^3-y^2*z^2);
+-11664*s^7-93312*s^6-316872*s^5-592272*s^4-658233*s^3-435060*s^2-158375*s-24500
+@end example
+このマニュアルでは, 関連する組込み関数についても解説する.
+
+@comment --- section の開始 ---
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node b 関数計算,,, 新 b 関数パッケージ nn_ndbf.rr
+@section b 関数計算
+
+@menu
+* ndbf.bfunction::
+* ndbf.bf_local::
+* ndbf.bf_strat::
+@end menu
+
+@node ndbf.bfunction,,, b 関数計算
+@subsection @code{ndbf.bfunction}
+@findex ndbf.bfunction
+
+@table @t
+@item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v}]) :: 多項式 @var{f} の
+大域 b 関数を計算する.
+@end table
+
+@table @var
+@item return
+多項式
+@item f
+多項式
+@item w
+@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+@item yesno
+0 または 1
+@item v
+変数のリスト
+@end table
+
+@itemize @bullet
+@item
+多項式 @var{f} の大域 b 関数 (global b-function) を計算する. 出力は
+変数 @var{s} の多項式である. 
+@item
+オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
+変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
+を設定して計算が行われる. このオプションは, @var{f} が @var{(w1,...,wn)}
+に関して weighted homogeneous の場合に有効に働く.
+@item
+オプション @code{heuristic=1} が指定された場合, あるイデアルのグレブナー
+基底を別の項順序に変換してから消去計算を行う. この方法により全体の計算が
+高速化する場合がある.
+@item
+デフォルトでは, 内部で用いられる変数順序は自動的に決定されるが, 
+オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
+@end itemize
+@example
+
+@end example
+
+@node ndbf.bf_local,,, b 関数計算
+@subsection @code{ndbf.bf_local}
+@findex ndbf.bf_local
+
+@table @t
+@item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: 多項式 @var{f} の
+点 @var{p} における局所 b 関数を計算する.
+@end table
+
+@table @var
+@item return
+多項式
+@item f
+多項式
+@item p
+@code{[@var{v1,a1,...,vn,an}]} なるリスト
+@item w
+@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+@item yesno
+0 または 1
+@item v
+変数のリスト
+@end table
+
+@itemize @bullet
+@item
+多項式 @var{f} の @var{(v1,...,vn)=(a1,...,an)} における
+局所 b 関数 (global b-function) を計算する. 出力は変数 @var{s} の多項式である. 
+@item
+デフォルトでは局所 b 関数のみが出力されるが, オプション @code{op=1} が指定
+された場合, 局所 b 関数 @var{b} と, それを実現する微分作用素 @var{P} の
+ペア @var{[b,P]} を返す. これらは 
+@var{Pf^(s+1)}=b(s)f^s
+を満たす. 微分作用素は @var{v1,...,vn,dv1,...,dvn} の可換多項式として
+表現されている. この表現においては, 微分を表す d のついた変数も単なる
+不定元として扱われているため, 係数多項式環の変数の前に表示されることも
+ありうるが, 多項式係数を左に置く正規表現として理解する必要がある.
+
+@item
+オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
+変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
+を設定して計算が行われる. このオプションは, @var{f} が @var{(w1,...,wn)}
+に関して weighted homogeneous の場合に有効に働く.
+@item
+オプション @code{heuristic=1} が指定された場合, あるイデアルのグレブナー
+基底を別の項順序に変換してから消去計算を行う. この方法により全体の計算が
+高速化する場合がある.
+@item
+デフォルトでは, 内部で用いられる変数順序は自動的に決定されるが, 
+オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
+@end itemize
+@example
+
+@end example
+
+@node ndbf.bf_strat,,, b 関数計算
+@subsection @code{ndbf.bf_strat}
+@findex ndbf.bf_strat
+
+@table @t
+@item ndbf.bf_strat(@var{f}[|weight=@var{w},heruristic=@var{h},vord=@var{v}]) :: 多項式 @var{f} の
+大域 b 関数を計算する.
+@end table
+
+@table @var
+@item return
+多項式
+@item f
+多項式
+@item w
+@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+@item h
+0 または 1
+@item v
+変数のリスト
+@end table
+
+@itemize @bullet
+@item
+多項式 @var{f} に対し, 局所 b 関数に付随する滑層分割 (stratification) を計算する. 出力は
+変数 @var{[s1,...sl]} なるリストである. 各 @var{si} は @var{[l1,l2,bi]}
+なるリストである. @var{l1}, @var{l2} はイデアルを表す多項式リストで,
+V(@var{l1})-V(@var{l2}) 上で局所 b 関数が一定値 @var{bi} となることを示す.
+@item
+オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
+変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
+を設定して計算が行われる. このオプションは, @var{f} が @var{(w1,...,wn)}
+に関して weighted homogeneous の場合に有効に働く.
+@item
+オプション @code{heuristic=1} が指定された場合, あるイデアルのグレブナー
+基底を別の項順序に変換してから消去計算を行う. この方法により全体の計算が
+高速化する場合がある.
+@item
+デフォルトでは, 内部で用いられる変数順序は自動的に決定されるが, 
+オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
+@end itemize
+@example
+
+@end example
+
+@node Annihilator 計算,,, 新 b 関数パッケージ nn_ndbf.rr
+@section Annihilator 計算
+
+@menu
+* ndbf.ann::
+@end menu
+
+@node ndbf.ann,,, Annihilator 計算
+@subsection @code{ndbf.ann}
+@findex ndbf.ann
+
+@table @t
+@item ndbf.ann(@var{f}[|weight=@var{w}]) :: 多項式 @var{f} に対し @var{f^s} の
+annihilator ideal を計算する.
+@end table
+
+@table @var
+@item return
+微分作用素のリスト
+@item f
+多項式
+@item w
+@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+@end table
+
+@itemize @bullet
+@item
+多項式 @var{f} に対し, @var{f^s} の annihilator ideal を計算する.
+出力は, @var{s} を係数に含む微分作用素のリストである.
+@item
+オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
+変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
+を設定して計算が行われる. このオプションは, @var{f} が @var{(w1,...,wn)}
+に関して weighted homogeneous の場合に有効に働く.
+@end itemize
+@example
+
+@end example
+
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
