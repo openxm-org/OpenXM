@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.9 2009/02/10 23:51:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.10 2009/11/05 05:01:27 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -135,7 +135,7 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
       Ans = cons(cons(Xk,vtol(Yk)),Ans);
     }
     if (OneStep) {
-       return([ [Xk,vtol(Yk)],[Xk+H,vtol(Yk1)]]);
+       return([ cons(Xk,vtol(Yk)),cons(Xk+H,vtol(Yk1))]);
     }
     if (Taka_Runge_kutta_graphic0) glib_line(Xk,Yk[0],Xk+H,Yk1[0]);
     if (Taka_Runge_kutta_adapted0 && 
