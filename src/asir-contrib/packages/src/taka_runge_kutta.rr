@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.8 2009/02/05 08:43:59 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.9 2009/02/10 23:51:19 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -99,6 +99,9 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
          Taka_Runge_kutta_graphic0, Taka_Runge_kutta_yrange,
          Taka_Runge_kutta_save_data;
 
+  OneStep = getopt(onestep);
+  if (type(OneStep) <= 0) OneStep = 0; else OneStep = 1;
+  if (OneStep) X1=X0+2*H;
   Ans = [];
   if (Taka_Runge_kutta_graphic0) {
      glib_open();
@@ -130,6 +133,9 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
     print([Xk,Yk[0]]);
     if (Taka_Runge_kutta_save_data) {
       Ans = cons(cons(Xk,vtol(Yk)),Ans);
+    }
+    if (OneStep) {
+       return([ [Xk,vtol(Yk)],[Xk+H,vtol(Yk1)]]);
     }
     if (Taka_Runge_kutta_graphic0) glib_line(Xk,Yk[0],Xk+H,Yk1[0]);
     if (Taka_Runge_kutta_adapted0 && 
@@ -354,7 +360,7 @@ def test1() {
   A=tryA2();
   B=A[100];
   print(B);
-/* cf. misc-2009/A2/misc/ellip2.m
+/* cf. misc-2008/A2/misc/ellip2.m
   p2 = 0.5+0.5*I --> [-6.78383-1.28991*@i, -1.51159-1.7935*@i].
   p2 = 0.8495+0.3835*I;
 Print["-------------------"];
@@ -363,7 +369,7 @@ Print[N[-2*Gamma[1/2]^2*Hypergeometric2F1[1/2,1/2,1,z] /. {z->p2}]]
 Print[N[D[-2*Gamma[1/2]^2*Hypergeometric2F1[1/2,1/2,1,z],z] /. {z->p2}]]
 */
  print("math:  [0.8495+0.3835*I, -7.64079 - 2.0799*I, -1.16364 - 4.14709*I] ");
- print("Buggy tryA2() and tryA().");
+ print("It was Buggy tryA2() and tryA() --> fixed. see log of 1.8");
 }
 
 endmodule;
