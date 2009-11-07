@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gmp/Makefile,v 1.15 2008/02/13 10:46:40 ohara Exp $
+# $OpenXM: OpenXM/src/gmp/Makefile,v 1.16 2008/04/01 12:13:39 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -27,8 +27,10 @@ extract: fetch
 
 patch: extract
 	@if [ ! -f work/.patch_done ]; then \
-        for i in ${PATCHFILES} ; do \
-	        cat $$i | (cd ${WRKSRC}; patch -p0) ; \
+        for i in ${PATCHFILES} "" ; do \
+            if [ -f "$$i" ]; then \
+	            cat $$i | (cd ${WRKSRC}; patch -p0) ; \
+            fi ; \
         done ; \
         if [ `uname` = Darwin -a `uname -m` = i386 ]; then \
             (cd ${WRKSRC}/mpn/x86; ${RM} *dive_1* */*dive_1* */*/*dive_1* */*mode1o* */*/*mode1o*) ; \
