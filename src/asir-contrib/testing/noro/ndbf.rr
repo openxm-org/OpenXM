@@ -1450,9 +1450,15 @@ def bf_strat_stage3(L)
 		}
 		dp_set_weight(0);
 		if ( K < J ) {
-			for ( L = 0, T = []; L < NDI; L++ )
+			for ( L = 0, T = []; L < NDI; L++ ) {
+#if 0
+				NewId = DK[L][1];
+#else
+				NewId = ideal_intersection(DK[L][1],DI[L][1],V0,0);
+#endif
 				T = cons([[DK[L][0][0]*DI[L][0][0],DK[L][0][1]],
-					DK[L][1],DK[L][2]],T);
+					NewId,DK[L][2]],T);
+			}
 			Data[K] = reverse(T);
 		} else
 			Data[J++] = DI;

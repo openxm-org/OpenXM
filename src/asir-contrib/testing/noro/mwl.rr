@@ -27,6 +27,7 @@ localf generate_coef_ideal$
 localf pdecomp,pdecomp_main,ideal_intersection,ldim$
 localf pdecomp_ff,pdecomp_ff_main,ideal_intersection_ff,ldim_ff$
 localf ideal_elimination,gbcheck,f4$
+localf pdecomp_de,pdecomp_de_main,split,zcolon$
 static GBCheck,F4$
 #define Tmp ttttt
 
@@ -149,6 +150,106 @@ def pdecomp_ff_main(G,V,Ord,X,Mod) {
 		G2 =cons(G1,G2);
 	}
 	return G2;
+}
+
+def pdecomp_de(B,V) {
+	if ( F4 ) G0 = nd_f4_trace(B,V,1,GBCheck,0);
+	else G0 = nd_gr_trace(B,V,1,GBCheck,0);
+	G=[G0];
+	for ( T = reverse(V); T !=[]; T = cdr(T) ) {
+		G1 = [];
+		X = car(T);
+		for ( S = G; S != []; S = cdr(S) ) {
+			GX = pdecomp_de_main(car(S),V,0,X);
+			G1 = append(GX,G1);
+		}
+		G = G1;
+	}
+	return [G,G0];
+}
+
+#if 1
+def pdecomp_de_main(G,V,Ord,X) {
+	M = minipoly(G,V,Ord,X,Tmp);
+	M = subst(M,Tmp,X);
+	FM = cdr(fctr(M));
+	if ( length(FM) == 1 ) return [G];
+	G2 = [];
+	G1 = G;
+	for ( T = FM; length(T) > 1; T = cdr(T) ) {
+		F1 = car(T); 
+		for ( I = 0, N = F1[1], NF=1; I < N; I++ )
+			NF = p_nf(NF*F1[0],G1,V,Ord);
+		C = split(V,G1,NF,Ord);
+		/* C = [G1:NF,G1+NF] */
+		G1 = C[0]; G2 =cons(C[1],G2);
+	}
+	G2 = cons(G1,G2);
+	return G2;
+}
+#else
+def pdecomp_de_main(G,V,Ord,X) {
+	M = minipoly(G,V,Ord,X,Tmp);
+	M = subst(M,Tmp,X);
+	FM = cdr(fctr(M));
+	if ( length(FM) == 1 ) return [G];
+	G2 = [];
+	G1 = G;
+	NFM = length(FM);
+	A = vector(NFM);
+	for ( J = 0; J < NFM; J++ ) {
+		FJ = FM[J];
+		for ( I = 0, N = FJ[1], NF=1; I < N; I++ )
+			NF = p_nf(NF*FJ[0],G1,V,Ord);
+		A[J] = NF;
+	}
+	for ( T = FM, J = 0; J < NFM; J++ ) {
+		for ( I = 0, NF=1; I < NFM; I++ )
+			if ( I != J )
+				NF = p_nf(NF*A[I],G,V,Ord);
+		C = zcolon(V,G1,NF,Ord);
+		G2 =cons(C,G2);
+	}
+	return G2;
+}
+#endif
+
+/* from de.rr */
+
+def split(V,Id,F,Ord)
+{
+	Id = map(ptozp,Id);
+	N = length(V);
+	dp_ord(Ord);
+	set_field(Id,V,Ord);
+	DF = dptodalg(dp_ptod(F,V));
+	Ret = inv_or_split_dalg(DF);
+	/* Ret = GB(Id:F) */
+	/* compute GB(Id+<f>) */
+	Gquo = append(map(ptozp,map(dp_dtop,Ret,V)),Id);
+	/* inter-reduction */
+	Gquo = nd_gr_postproc(Gquo,V,0,Ord,0);
+	B = cons(F,Id);
+	if ( F4 ) Grem = nd_f4_trace(B,V,1,GBCheck,Ord);
+	else Grem = nd_gr_trace(B,V,1,GBCheck,Ord);
+	return [map(ptozp,Gquo),map(ptozp,Grem)];
+}
+
+/* Id:F for zero-dim. ideal Id */
+
+def zcolon(V,Id,F,Ord)
+{
+	Id = map(ptozp,Id);
+	N = length(V);
+	dp_ord(Ord);
+	set_field(Id,V,Ord);
+	DF = dptodalg(dp_ptod(F,V));
+	Ret = inv_or_split_dalg(DF);
+	/* Ret = GB(Id:F) */
+	/* compute GB(Id+<f>) */
+	Gquo = append(map(ptozp,map(dp_dtop,Ret,V)),Id);
+	Gquo = nd_gr_postproc(Gquo,V,0,Ord,0);
+	return map(ptozp,Gquo);
 }
 
 def ideal_intersection(L,V,Ord)
