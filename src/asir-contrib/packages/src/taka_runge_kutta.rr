@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.10 2009/11/05 05:01:27 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.11 2009/11/05 06:42:35 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -13,7 +13,7 @@ Taka_Runge_kutta_graphic0 = 0$  /* load("glib"); */
 Taka_Runge_kutta_yrange = 10$
 
 Taka_Runge_kutta_save_data = 1$
-
+Taka_Runge_kutta_debug = 1$
 
 def taka_runge_kutta_2(F,X,Y,X0,Y0,H,X1) {
   extern Taka_Runge_kutta_graphic0, Taka_Runge_kutta_yrange, Taka_Runge_kutta_save_data;
@@ -97,7 +97,7 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
 /* N : rank of the ODE. */
   extern Taka_Runge_kutta_adapted0, Taka_Runge_kutta_epsilon,
          Taka_Runge_kutta_graphic0, Taka_Runge_kutta_yrange,
-         Taka_Runge_kutta_save_data;
+         Taka_Runge_kutta_save_data, Taka_Runge_kutta_debug;
 
   OneStep = getopt(onestep);
   if (type(OneStep) <= 0) OneStep = 0; else OneStep = 1;
@@ -107,6 +107,7 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
      glib_open();
      glib_window(X0,Y0[0]-Taka_Runge_kutta_yrange,X1,Y0[0]+Taka_Runge_kutta_yrange);
   }
+  if (X0==X1) return([cons(X0,Y0)]);
 
   if (type(F) == 5) {
     N = size(F)[0];
@@ -130,12 +131,12 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
     taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H);
     taka_runge_kutta_replace(K4,F,Y,N,X,Xk+H,Yk+K3*H);
     Yk1 = Yk+H*(K1/6+K2/3+K3/3+K4/6);
-    print([Xk,Yk[0]]);
+    if (Taka_Runge_kutta_debug) print([Xk,Yk[0]]);
     if (Taka_Runge_kutta_save_data) {
       Ans = cons(cons(Xk,vtol(Yk)),Ans);
     }
     if (OneStep) {
-       return([ cons(Xk,vtol(Yk)),cons(Xk+H,vtol(Yk1))]);
+       return([cons(Xk+H,vtol(Yk1)), cons(Xk,vtol(Yk))]);
     }
     if (Taka_Runge_kutta_graphic0) glib_line(Xk,Yk[0],Xk+H,Yk1[0]);
     if (Taka_Runge_kutta_adapted0 && 
