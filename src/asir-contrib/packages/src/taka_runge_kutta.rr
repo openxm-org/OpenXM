@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.11 2009/11/05 06:42:35 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.12 2009/11/12 04:56:21 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -262,7 +262,7 @@ def taka_runge_kutta_4_a_test() {
    Y = [y1];
    T = taka_runge_kutta_4_adaptive(F,x,Y,0,[1],0.1,5);
    taka_plot_auto(T);
-   print("Eval by eval(exp(??)) : ",0); print([T[0][0],eval(exp(T[0][0]))]);
+   print("Eval by eval(exp(?)) : ",0); print([T[0][0],eval(exp(T[0][0]))]);
 }
 
 def taka_runge_kutta_4_a2_test() {
@@ -271,7 +271,7 @@ def taka_runge_kutta_4_a2_test() {
    Y = [y1,y2];
    T = taka_runge_kutta_4_adaptive(F,x,Y,0,[1,0],0.1,15);
    taka_plot_auto(T);
-   print("Eval by eval((??)) : ",0); print([T[0][0],eval(cos(T[0][0]))]);
+   print("Eval by eval((?)) : ",0); print([T[0][0],eval(cos(T[0][0]))]);
 }
 
 def taka_runge_kutta_4_test() {
