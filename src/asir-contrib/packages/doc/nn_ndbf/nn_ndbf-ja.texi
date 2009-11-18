@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf-ja.texi,v 1.1 2009/11/01 07:44:54 noro Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf-ja.texi,v 1.2 2009/11/03 02:43:36 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -81,10 +81,6 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 [1518] load("nn_ndbf.rr");
 @end example
 このパッケージの函数を呼び出すには, 全て @code{ndbf.} を先頭につける.
-@example
-[1601] ndbf.bfunction(x^3-y^2*z^2);
--11664*s^7-93312*s^6-316872*s^5-592272*s^4-658233*s^3-435060*s^2-158375*s-24500
-@end example
 このマニュアルでは, 関連する組込み関数についても解説する.
 
 @comment --- section の開始 ---
@@ -143,7 +139,13 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
 @end itemize
 @example
-
+[1602] ndbf.bfunction(x^3-y^2*z^2);
+-11664*s^7-93312*s^6-316872*s^5-592272*s^4-658233*s^3-435060*s^2
+-158375*s-24500
+[1603] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
+-4*u3^3*u2^2$
+[1604] ndbf.bfunction(F|weight=[u3,2,u2,3,u1,4]);
+576*s^6+3456*s^5+8588*s^4+11312*s^3+8329*s^2+3250*s+525
 @end example
 
 @node ndbf.bf_local,,, b 関数計算
@@ -157,7 +159,7 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 
 @table @var
 @item return
-多項式
+リスト
 @item f
 多項式
 @item p
@@ -173,7 +175,7 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 @itemize @bullet
 @item
 多項式 @var{f} の @var{(v1,...,vn)=(a1,...,an)} における
-局所 b 関数 (global b-function) を計算する. 出力は変数 @var{s} の多項式である. 
+局所 b 関数 (global b-function) を計算する. 出力は局所 $b$ 関数の因子, 重複度のペアのリストである. 
 @item
 デフォルトでは局所 b 関数のみが出力されるが, オプション @code{op=1} が指定
 された場合, 局所 b 関数 @var{b} と, それを実現する微分作用素 @var{P} の
@@ -198,7 +200,13 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
 @end itemize
 @example
-
+[1610] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]);
+[[-s-1,2]]
+[1611] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]|op=1);
+[[[-s-1,2]],12*x^3+36*y^2*x-36*y^2,(32*y*x^2+56*y*x)*dx^2
++((-8*x^3-2*x^2+(128*y^2-6)*x+112*y^2)*dy+288*y*x+(-240*s-128)*y)*dx
++(32*y*x^2-6*y*x+128*y^3-9*y)*dy^2+(32*x^2+6*s*x+640*y^2+39*s+30)*dy
++(-1152*s^2-3840*s-2688)*y]
 @end example
 
 @node ndbf.bf_strat,,, b 関数計算
@@ -243,7 +251,14 @@ V(@var{l1})-V(@var{l2}) 上で局所 b 関数が一定値 @var{bi} となることを示す.
 オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
 @end itemize
 @example
-
+[1620] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
+-4*u3^3*u2^2$
+[1621] ndbf.bf_strat(F);
+[[u3^2,-u1,-u2],[-1],[[-s-1,2],[16*s^2+32*s+15,1],[36*s^2+72*s+35,1]]]
+[[-4*u1+u3^2,-u2],[96*u1^2+40*u3^2*u1-9*u3*u2^2,...],[[-s-1,2]]]
+[[...],[-u3*u2,u2*u1,...],[[-s-1,1],...]]]
+[[-256*u1^3+128*u3^2*u1^2+...],[...],[[-s-1,1]]]
+[[],[-256*u1^3+128*u3^2*u1^2+...],[]]
 @end example
 
 @node Annihilator 計算,,, 新 b 関数パッケージ nn_ndbf.rr
@@ -274,7 +289,8 @@ annihilator ideal を計算する.
 @itemize @bullet
 @item
 多項式 @var{f} に対し, @var{f^s} の annihilator ideal を計算する.
-出力は, @var{s} を係数に含む微分作用素のリストである.
+出力は, @var{s} を係数に含む微分作用素のリストである. 微分作用素の
+表現方法は, @code{ndbf.bf_local} と同様である.
 @item
 オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
 変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
@@ -282,7 +298,12 @@ annihilator ideal を計算する.
 に関して weighted homogeneous の場合に有効に働く.
 @end itemize
 @example
-
+[1625] ndbf.ann(x*y*z*(x^3-y^2*z^2));
+[(-x^4*dy^2+3*z^4*x*dz^2+12*z^3*x*dz+6*z^2*x)*dx+4*z*x^3*dz*dy^2
+-z^5*dz^3-6*z^4*dz^2-6*z^3*dz,
+(x^4*dy-3*z^3*y*x*dz-6*z^2*y*x)*dx-4*z*x^3*dz*dy+z^4*y*dz^2+3*z^3*y*dz,
+(-x^4+3*z^2*y^2*x)*dx+(4*z*x^3-z^3*y^2)*dz,2*x*dx+3*z*dz-11*s,
+-y*dy+z*dz]
 @end example
 
 @comment --- おまじない ---
