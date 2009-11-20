@@ -1,5 +1,5 @@
 /*
-$OpenXM$
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.2 2009/11/19 22:40:34 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
@@ -348,10 +348,16 @@ def test3() {
   Tt=[t0,t1];  target point.
   H step
   Ts < Tt  (This condition is not necessary for rk2x and rk2y.)
+
+  options  mesh  H/mesh is used for the steps in rk2x and rk2y. The data for these finer steps are discarded.
+                Increase H and Mesh to get smaller list size as the return of rk2().
+           eps   eps is used for workaround of the case that number_floor(2) < 2 holds.
 */
 def rk2(A,T,F,Ts,Fs,Tt,H) {
-  Eps=0.0001;
-  Mesh=5;
+  Mesh = getopt(mesh);
+  if (type(Mesh)<0) Mesh=5;
+  Eps = getopt(eps);
+  if (type(Eps)<0) Eps=0.0001;
   X=T[0]; Y=T[1];
   Sx=Ts[0]; Sy=Ts[1];
   Tx=Tt[0]; Ty=Tt[1];
