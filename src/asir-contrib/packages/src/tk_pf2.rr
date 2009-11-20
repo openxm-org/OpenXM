@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.2 2009/11/19 22:40:34 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.3 2009/11/20 02:42:21 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
@@ -176,7 +176,7 @@ def test6a() {
 
 
 def test6b() {
-  A=test6(10);  
+  A=tk_pf2.test6(10);  
   mtg.plot3d(quote(f_gtable(x,y)) | domain=[[1,2.5],[1,2.5]]);
 }
 
