@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plot.rr,v 1.2 2002/11/16 08:09:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_plot.rr,v 1.3 2002/12/22 05:25:09 takayama Exp $ */
 
 def taka_glib_plot(F,Opt) {
   if (type(F) == LIST) {
@@ -28,6 +28,11 @@ def taka_plot_auto(T) {
   extern Taka_plot_auto_maxy;
   extern Taka_plot_auto_style;
   extern Taka_plot_coord;
+  Color=getopt(color);
+  if (type(Color)<0) Color=0;
+  PlotOver=getopt(plotover);
+  if (type(PlotOver)<0) PlotOver=0;
+  else PlotOver=1;
   if (type(T) == 4) {
     N = length(T);
   }else{
@@ -49,23 +54,26 @@ def taka_plot_auto(T) {
     Ymin = Mid-Taka_plot_auto_maxy;
     print("Warning: plot_auto, Ymax-Ymin is huge.");
   }
-  print("Plot_auto: screen size is "+rtostr([Xmin,Ymin,Xmax,Ymax]));
+  if (!PlotOver) 
+    print("Plot_auto: screen size is "+rtostr([Xmin,Ymin,Xmax,Ymax]));
   if (Xmax-Xmin <= 0) Xmax = Xmin+1;
   if (Ymax-Ymin <= 0) Ymax = Ymin+1;
   Ymax = Ymax+(Ymax-Ymin)*0.1;
   Ymin = Ymin-(Ymax-Ymin)*0.1;
-  glib_open();
-  glib_window(Xmin,Ymin,Xmax,Ymax);
+  if (!PlotOver) {
+    glib_open();
+    glib_window(Xmin,Ymin,Xmax,Ymax);
+  }
   if (Taka_plot_coord) {
     glib_print(T[0][0],T[0][1],rtostr([T[0][0],T[0][1]])|color=0xff00ff);
   }
   if (Taka_plot_auto_style == 1) {
     for (I=1; I<N; I++) {
-      glib_line(T[I-1][0],T[I-1][1],T[I][0],T[I][1]);
+      glib_line(T[I-1][0],T[I-1][1],T[I][0],T[I][1] | color=Color);
     }
   }else{
     for (I=0; I<N; I++) {
-       glib_putpixel(T[I][0],T[I][1]);
+       glib_putpixel(T[I][0],T[I][1] | color=Color);
     }
   }  
   if (Taka_plot_coord) {
