@@ -8,6 +8,7 @@ localf membership_test;
 localf dp_chrem,intdptoratdp,intdpltoratdpl;
 localf comp_by_ht,dp_gr_mod,gr_chrem;
 localf construct_sqfrbasis;
+localf split;
 
 /*
  * G : a 0-dim lex gb, reduced
@@ -69,6 +70,27 @@ def inverse_or_split(V,Id,F)
 		Grem = gr_chrem(B,V,2|dim=Drem);
 		return [map(ptozp,Gquo),map(ptozp,Grem)];
 	}
+}
+
+def split(V,Id,F,Ord)
+{
+	Id = map(ptozp,Id);
+	N = length(V);
+	dp_ord(Ord);
+	set_field(Id,V,Ord);
+	DF = dptodalg(dp_ptod(F,V));
+	Ret = inv_or_split_dalg(DF);
+	/* Ret = GB(Id:F) */
+	/* compute GB(Id+<f>) */
+	Gquo = append(map(ptozp,map(dp_dtop,Ret,V)),Id);
+	/* inter-reduction */
+	Gquo = nd_gr_postproc(Gquo,V,0,Ord,0);
+	DTotal = linear_dim(Id,V,Ord);
+	Dquo = linear_dim(Gquo,V,Ord);
+	Drem = DTotal-Dquo;
+	B = cons(F,Id);
+	Grem = gr_chrem(B,V,Ord|dim=Drem);
+	return [map(ptozp,Gquo),map(ptozp,Grem)];
 }
 
 /* add F(X,V) to Id(B) */
