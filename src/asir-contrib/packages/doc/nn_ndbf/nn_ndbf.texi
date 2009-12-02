@@ -1,10 +1,11 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf-ja.texi,v 1.2 2009/11/03 02:43:36 noro Exp $
+%comment $OpenXM$
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
 @catcode`@#=6
 @def@fref#1{@xrefX[#1,,@code{#1},,,]}
-@def@b#1{{@bf@gt #1}}
+\JP @def@b#1{{@bf@gt #1}}
+\EG @def@b#1{{@bf #1}}
 @catcode`@#=@other
 @end iftex
 @overfullrule=0pt
@@ -14,6 +15,7 @@
 
 @comment --- GNU info ファイルの名前 ---
 @setfilename asir-contrib-nn_ndbf
+@comment @documentlanguage ja
 
 @comment --- タイトル ---
 @settitle nn_ndbf
@@ -59,30 +61,45 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 @comment --- @menu は GNU info, HTML 用 ---
 @comment --- chapter 名を正確に並べる ---
 @menu
-* 新 b 関数パッケージ nn_ndbf.rr::
+\JP * 新 b 関数パッケージ nn_ndbf.rr::
+\EG * New b-function package nn_ndbf.rr::
 * Index::
 @end menu
 
 @comment --- chapter の開始 ---
 @comment --- 親 chapter 名を正確に ---
-@node 新 b 関数パッケージ nn_ndbf.rr,,, Top
-@chapter 新 b 関数パッケージ nn_ndbf.rr
+\JP @node 新 b 関数パッケージ nn_ndbf.rr,,, Top
+\EG @node New b-function package nn_ndbf.rr,,, Top
+\JP @chapter New b-function package nn_ndbf.rr
 
 @comment --- section 名を正確に並べる ---
 @menu
-* b 関数計算::
-* Annihilator 計算::
+\JP * b 関数計算::
+\EG * Computation of b-function::
+\JP * Annihilator イデアル計算::
+\EG * Computation of annihilator ideal::
 @end menu
 
+\BJP
 このマニュアルでは, asir-contrib パッケージに収録されている,
 新 b 関数パッケージ @samp{nn_ndbf.rr} について解説する.
 このパッケージを使うには, まず @samp{nn_ndbf.rr} をロードする.
+\E
+\BEG
+In this manual we explain about a new b-function package @samp{nn_ndbf.rr}
+in asir-contrib. To use this package one has to load @samp{nn_ndbf.rr}.
+\E
 @example
 [1518] load("nn_ndbf.rr");
 @end example
+\BJP
 このパッケージの函数を呼び出すには, 全て @code{ndbf.} を先頭につける.
 このマニュアルでは, 関連する組込み関数についても解説する.
-
+\E
+\BEG
+A prefix @code{ndbf.} is necessary to call the functions in this package. 
+In this manual we also explain about some related built-in functions.
+\E
 @comment --- section の開始 ---
 @comment --- 書体指定について ---
 @comment --- @code{} はタイプライタ体表示 ---
@@ -90,8 +107,10 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 @comment --- @b{} はボールド表示 ---
 @comment --- @samp{} はファイル名などの表示 ---
 
-@node b 関数計算,,, 新 b 関数パッケージ nn_ndbf.rr
-@section b 関数計算
+\JP @node b 関数計算,,, 新 b 関数パッケージ nn_ndbf.rr
+\EG @node Computation of b-function,,, New b-function package nn_ndbf.rr
+\JP @section b 関数計算
+\EG @section Computation of b-function
 
 @menu
 * ndbf.bfunction::
@@ -99,29 +118,36 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 * ndbf.bf_strat::
 @end menu
 
-@node ndbf.bfunction,,, b 関数計算
+\JP @node ndbf.bfunction,,, b 関数計算
+\EG @node ndbf.bfunction,,, Computation of b-function
 @subsection @code{ndbf.bfunction}
 @findex ndbf.bfunction
 
 @table @t
-@item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v}]) :: 多項式 @var{f} の
-大域 b 関数を計算する.
+\JP @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v}]) :: 多項式 @var{f} の大域 b 関数を計算する.
+\EG @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v}]) :: computes the global b-function of a polynomial @var{f}
 @end table
 
 @table @var
 @item return
-多項式
+\JP 多項式
+\EG a polynomial
 @item f
-多項式
+\JP 多項式
+\EG a polynomial
 @item w
-@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\JP @code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\EG a list @code{[@var{v1,w1,...,vn,wn}]}
 @item yesno
-0 または 1
+\JP 0 または 1
+\EG 0 or 1
 @item v
-変数のリスト
+\JP 変数のリスト
+\EG a list of variables
 @end table
 
 @itemize @bullet
+\BJP
 @item
 多項式 @var{f} の大域 b 関数 (global b-function) を計算する. 出力は
 変数 @var{s} の多項式である. 
@@ -137,6 +163,23 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 @item
 デフォルトでは, 内部で用いられる変数順序は自動的に決定されるが, 
 オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
+\E
+\BEG
+@item
+This function computes the global b-function of a polynomial @var{f}.
+The output is a polynomial in @var{s}.
+@item
+If an option @code{weight=[@var{v1,w1,...,vn,wn}]} is given,
+the computation is done with a weight @var{(w1,...,wn)} for @var{(v1,...,vn)}.
+This option is useful when @var{f} is weighted homogeneous with respect to @var{(w1,...,wn)}.
+@item
+If an option @code{heuristic=1} is given
+a change of ordering is done before entering elimination.
+In some cases this improves the total efficiencty.
+@item
+The variable order used in the whole computation is automatically set by default.
+If an option @code{vord=@var{v}} is given, a variable order @var{v} is used istead.
+\E
 @end itemize
 @example
 [1602] ndbf.bfunction(x^3-y^2*z^2);
@@ -148,39 +191,47 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 576*s^6+3456*s^5+8588*s^4+11312*s^3+8329*s^2+3250*s+525
 @end example
 
-@node ndbf.bf_local,,, b 関数計算
+\JP @node ndbf.bf_local,,, b 関数計算
+\EG @node ndbf.bf_local,,, Computation of b-function
 @subsection @code{ndbf.bf_local}
 @findex ndbf.bf_local
 
 @table @t
-@item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: 多項式 @var{f} の
-点 @var{p} における局所 b 関数を計算する.
+\JP @item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: 多項式 @var{f} の点 @var{p} における局所 b 関数を計算する.
+\EG @item ndbf.bf_local(@var{f},@var{p}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: computes the local b-function of a polynomial @var{f} at @var{p}.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG a list
 @item f
-多項式
+\JP 多項式
+\EG a polynomail
 @item p
-@code{[@var{v1,a1,...,vn,an}]} なるリスト
+\JP @code{[@var{v1,a1,...,vn,an}]} なるリスト
+\JP a list @code{[@var{v1,a1,...,vn,an}]}
 @item w
-@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\JP @code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\EG a list @code{[@var{v1,w1,...,vn,wn}]}
 @item yesno
-0 または 1
+\JP 0 または 1
+\EG 0 or 1
 @item v
-変数のリスト
+\JP 変数のリスト
+\EG a list of variables
 @end table
 
+\BJP
 @itemize @bullet
 @item
 多項式 @var{f} の @var{(v1,...,vn)=(a1,...,an)} における
-局所 b 関数 (global b-function) を計算する. 出力は局所 $b$ 関数の因子, 重複度のペアのリストである. 
+局所 b 関数 (local b-function) を計算する. 出力は局所 $b$ 関数の因子, 重複度のペアのリストである. 
 @item
 デフォルトでは局所 b 関数のみが出力されるが, オプション @code{op=1} が指定
 された場合, 局所 b 関数 @var{b} と, それを実現する微分作用素 @var{P} の
 ペア @var{[b,P]} を返す. これらは 
-@var{Pf^(s+1)}=b(s)f^s
+@var{Pf^(s+1)=b(s)f^s}
 を満たす. 微分作用素は @var{v1,...,vn,dv1,...,dvn} の可換多項式として
 表現されている. この表現においては, 微分を表す d のついた変数も単なる
 不定元として扱われているため, 係数多項式環の変数の前に表示されることも
@@ -199,6 +250,36 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 デフォルトでは, 内部で用いられる変数順序は自動的に決定されるが, 
 オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
 @end itemize
+\E
+
+\BEG
+@itemize @bullet
+@item
+This function computes the local b-function of a polynomial @var{f} at a point @var{(v1,...,vn)=(a1,...,an)}.
+The output is a list of pairs of each factor of the local b-function and its multiplicity.
+@item
+By default only the local b-function is returned. If an option @code{op=1} is given,
+a pair @var{[b,P]} of the local b-function and a differential operator satisfying
+@var{Pf^(s+1)=b(s)f^s}. The operator P is represented as a commutative polynomial
+of variables @var{v1,...,vn,dv1,...,dvn}. Although the d-variables 
+are treated as commutative indeterminates in this representation,
+it should be regarded as a canonical representation with each polynomial coefficient
+placed at the left of d-variables.
+@item
+If an option @code{weight=[@var{v1,w1,...,vn,wn}]} is given,
+the computation is done with a weight @var{(w1,...,wn)} for @var{(v1,...,vn)}.
+This option is useful when @var{f} is weighted homogeneous with respect to @var{
+(w1,...,wn)}.
+@item
+If an option @code{heuristic=1} is given
+a change of ordering is done before entering elimination.
+In some cases this improves the total efficiencty.
+@item
+The variable order used in the whole computation is automatically set by default.
+If an option @code{vord=@var{v}} is given, a variable order @var{v} is used istead.
+@end itemize
+\E
+
 @example
 [1610] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]);
 [[-s-1,2]]
@@ -209,34 +290,40 @@ Copyright @copyright{} Masayuki Noro and Kenta Nishiyama
 +(-1152*s^2-3840*s-2688)*y]
 @end example
 
-@node ndbf.bf_strat,,, b 関数計算
+\JP @node ndbf.bf_strat,,, b 関数計算
+\EG @node ndbf.bf_strat,,, Computation of b-function
 @subsection @code{ndbf.bf_strat}
 @findex ndbf.bf_strat
 
 @table @t
 @item ndbf.bf_strat(@var{f}[|weight=@var{w},heruristic=@var{h},vord=@var{v}]) 
-:: 多項式 @var{f} の, 局所 b 関数に付随する滑層分割 (stratification) を計算する.
+\JP :: 多項式 @var{f} の, 局所 b 関数に付随する滑層分割 (stratification) を計算する.
+\EG :: computes a stratification associated with local b-function of a polynomial @var{f}.
 @end table
 
 @table @var
 @item return
-リスト
+\JP リスト
+\EG a list
 @item f
-多項式
+\JP 多項式
+\EG a polynomial
 @item w
-@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\JP @code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\EG a list @code{[@var{v1,w1,...,vn,wn}]}
 @item h
-0 または 1
+\JP 0 または 1
+\EG 0 or 1
 @item v
-変数のリスト
+\JP 変数のリスト
+\EG li ist of variables
 @end table
 
+\BJP
 @itemize @bullet
 @item
-多項式 @var{f} に対し, 局所 b 関数に付随する滑層分割 (stratification) を計算する. 出力は
-変数 @var{[s1,...sl]} なるリストである. 各 @var{si} は @var{[l1,l2,bi]}
-なるリストである. @var{l1}, @var{l2} はイデアルを表す多項式リストで,
-V(@var{l1})-V(@var{l2}) 上で局所 b 関数が一定値 @var{bi} となることを示す.
+多項式 @var{f} の大域 b 関数 (global b-function) を計算する. 出力は
+変数 @var{s} の多項式である. 
 @item
 オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
 変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
@@ -250,6 +337,30 @@ V(@var{l1})-V(@var{l2}) 上で局所 b 関数が一定値 @var{bi} となることを示す.
 デフォルトでは, 内部で用いられる変数順序は自動的に決定されるが, 
 オプション @code{vord=@var{v}} が指定された場合その変数順序が使われる.
 @end itemize
+\E
+
+\BEG
+@itemize @bullet
+@item
+This function computes a stratification assoficated with local b-function of a polynomial @var{f}.
+The output is a list @var{[s1,...sl]} where each @var{si} is a list @var{[l1,l2,bi]}.
+In this list, @var{l1} and @var{l2} is generators of ideals and they represents
+the local b-function is @var{bi} over V(@var{l1})-V(@var{l2}).
+@item
+If an option @code{weight=[@var{v1,w1,...,vn,wn}]} is given,
+the computation is done with a weight @var{(w1,...,wn)} for @var{(v1,...,vn)}.
+This option is useful when @var{f} is weighted homogeneous with respect to @var{
+(w1,...,wn)}.
+@item
+If an option @code{heuristic=1} is given
+a change of ordering is done before entering elimination.
+In some cases this improves the total efficiencty.
+@item
+The variable order used in the whole computation is automatically set by default.
+If an option @code{vord=@var{v}} is given, a variable order @var{v} is used istead.
+@end itemize
+\E
+
 @example
 [1620] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
 -4*u3^3*u2^2$
@@ -261,31 +372,38 @@ V(@var{l1})-V(@var{l2}) 上で局所 b 関数が一定値 @var{bi} となることを示す.
 [[],[-256*u1^3+128*u3^2*u1^2+...],[]]
 @end example
 
-@node Annihilator 計算,,, 新 b 関数パッケージ nn_ndbf.rr
-@section Annihilator 計算
+\JP @node Annihilator 計算,,, 新 b 関数パッケージ nn_ndbf.rr
+\EG @node Computation of annihilator ideal,,, New b-function package nn_ndbf.rr
+\JP @section Annihilator 計算
+\EG @section Computation of annihilator ideal
 
 @menu
 * ndbf.ann::
 @end menu
 
-@node ndbf.ann,,, Annihilator 計算
+\JP @node ndbf.ann,,, Annihilator イデアル計算
+\EG @node ndbf.ann,,, Computation of annihilator ideal
 @subsection @code{ndbf.ann}
 @findex ndbf.ann
 
 @table @t
-@item ndbf.ann(@var{f}[|weight=@var{w}]) :: 多項式 @var{f} に対し @var{f^s} の
-annihilator ideal を計算する.
+\JP @item ndbf.ann(@var{f}[|weight=@var{w}]) :: 多項式 @var{f} に対し @var{f^s} の annihilator ideal を計算する.
+\EG @item ndbf.ann(@var{f}[|weight=@var{w}]) :: computes the annihilator ideal of @var{f^s} for a polynomial @var{f}.
 @end table
 
 @table @var
 @item return
-微分作用素のリスト
+\JP 微分作用素のリスト
+\EG a list of differential operators
 @item f
-多項式
+\JP 多項式
+\EG a polynomial
 @item w
-@code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\JP @code{[@var{v1,w1,...,vn,wn}]} なるリスト
+\EG a list @code{[@var{v0,w1,...,vn,wn}]}
 @end table
 
+\BJP
 @itemize @bullet
 @item
 多項式 @var{f} に対し, @var{f^s} の annihilator ideal を計算する.
@@ -297,6 +415,20 @@ annihilator ideal を計算する.
 を設定して計算が行われる. このオプションは, @var{f} が @var{(w1,...,wn)}
 に関して weighted homogeneous の場合に有効に働く.
 @end itemize
+\E
+\BEG
+@itemize @bullet
+@item
+This function computes the annihilator ideal of @var{f^s} for @var{f}.
+The output is a list of defferential operators containing @var{s} in thier coefficients.
+The differential operators are represented in the same manner as @code{ndbf.bf_local}.
+@item
+If an option @code{weight=[@var{v1,w1,...,vn,wn}]} is given,
+the computation is done with a weight @var{(w1,...,wn)} for @var{(v1,...,vn)}.
+This option is useful when @var{f} is weighted homogeneous with respect to @var{(w1,...,wn)}.
+@end itemize
+\E
+
 @example
 [1625] ndbf.ann(x*y*z*(x^3-y^2*z^2));
 [(-x^4*dy^2+3*z^4*x*dz^2+12*z^3*x*dz+6*z^2*x)*dx+4*z*x^3*dz*dy^2
