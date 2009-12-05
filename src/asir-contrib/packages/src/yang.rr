@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.20 2009/04/08 07:20:05 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.21 2009/04/12 08:21:33 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -56,14 +56,17 @@ localf actr_theta_D, actr_theta_DE;
 localf mul, mulL;
 localf multi, multi_D, multi_DE, multiL;
 localf mulr, multir, multir_D, multir_DE;
-localf dp_coef_gcd, red1, red2, reducible, division, division_D, division_DE;
-localf nf, reduction, add, spolynomial, spolynomial_D, spolynomial_DE;
-localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger;
-localf initial_term, in, stdmon;
-localf criterionF, criterionM, dp_revcmp, gr2rgr, gr, buchberger, in, stdmon;
+localf dp_coef_gcd, red1, red2, red3, reducible, add, sub, neg;
+localf add_v, sub_v, multir_sv, addmul_sv;
+localf division, division_D, division_DE, reduction;
+localf spolynomial, spolynomial_D, spolynomial_DE;
+localf dp_revcmp, gr2rgr, buchberger; 
+localf division_s, division_s_D, division_s_DE, reduction_s;
+localf spolynomial_s, spolynomial_s_DE;
+localf dp_revcmp_s, gr2rgr_s, buchberger_s;
+localf gr, nf, criterionF, criterionM, initial_term, in, stdmon;
 localf dp_matrix_form, matrix_form;
-localf dp_ltom, pfaffian, check_pfaffian;
-localf pf;
+localf dp_ltom, pfaffian, check_pfaffian, pf;
 localf check_frac_expansion_before, check_frac_expansion_after;
 localf frac_expansion, sing_point, residue;
 localf extract_denom_poly, matrix_to_coef_matrix, pfaffian_to_coef_matrices;
@@ -706,6 +709,11 @@ def multiL(L)
     return R;
 }
 
+/* negativate */
+def neg(P) {
+    return isList(P)? [-P[0],P[1]]: -P;
+}
+
 /* 分散表現多項式の係数たちの gcd */
 def dp_coef_gcd(P) {
     C = dp_hc(P);
@@ -749,6 +757,18 @@ def red2(DP) {
     return Q;
 }
 
+/* 分散表現多項式の係数から共通因子をくくりだす */
+def red3(DP) {
+    if(DP==0) {
+        return 0;
+    }
+    C = dp_coef_gcd(DP);
+    for(Q = 0; DP != 0; DP = dp_rest(DP)) {
+        Q += sdiv(dp_hc(DP),C)*dp_ht(DP);
+    }
+    return [Q,C];
+}
+
 /* LP が LQ で簡約可能ならば 1 を返す */
 def reducible(LP,LQ) {
     LP=NM(LP);
@@ -785,6 +805,45 @@ def division_DE(P,Q) {
         R  = red1(R);
     }
     return R;
+}
+
+/* 係数情報付き除算関数 */
+/* P = C*Q+R なる [R,C] を求める (R = P mod Q) */
+def division_s(P,Q) {
+    return division_s_DE(P,Q);
+}
+
+/* R = P - ((dp_hc(NM(P))/DN(P))*(1/dp_hc(NM(Q)))*DQ*S)*Q; */
+def division_s_D(P,Q) {
+    D = DN(P); P = NM(P);
+    S = DN(Q); Q = NM(Q);
+    R = P;
+    if (dp_redble(P,Q)) {
+        DQ = dp_subd(P,Q);
+        PP = red(dp_hc(P)/(dp_hc(Q)));
+        F  = nm(PP); G = dn(PP);
+        R  = [G*P - F*multi(DQ,Q),D*G];
+        R  = red1(R);
+        C  = [F*multi(DQ,S),D*G];
+        C  = red1(C);
+    }
+    return [R,C];
+}
+
+def division_s_DE(P,Q) {
+    D = DN(P); P = NM(P);
+    S = DN(Q); Q = NM(Q);
+    R = P;
+    if (dp_redble(P,Q)) {
+        DQ = dp_subd(P,Q);
+        PP = red(dp_hc(P)/act_difference(DQ,dp_hc(Q)));
+        F  = nm(PP); G = dn(PP);
+        R  = [G*P - F*multi(DQ,Q),D*G];
+        R  = red1(R);
+        C  = [F*multi(DQ,S),D*G];
+        C  = red1(C);
+    }
+    return [R,C];
 }
 
 /* 正規形を求める */
@@ -825,6 +884,38 @@ def reduction(F,G)
     return Rem;
 }
 
+/* 分散表現多項式 F を 集合 G で簡約する
+   F = Rem + Q[0]*G[0] + ... Q[N-1]*G[N-1]
+   Output: [Rem, Q]
+ */
+def reduction_s(F,G) {
+    if (!isList(F)) F=[F,1];
+    N = length(G);
+    Q = newvect(N); /* quotient */
+    Rem = [0,1];
+    while (F[0] != 0) {
+        for (U = 0, I = 0; I < N; I++) {
+            Red = G[I];
+            if (reducible(F,Red)) {
+                FL = division_s(F,Red);
+                Q[I] = add(Q[I],FL[1]);
+                F  = FL[0];
+                if (F[0] == 0) {
+                    return [Rem,vtol(Q)];
+                }
+                U = 1;
+                break;
+            }
+        }
+        if (U == 0) {
+            H   = [dp_hm(F[0]),   F[1]];
+            F   = [dp_rest(F[0]), F[1]];
+            Rem = add(Rem,H);
+        }
+    }
+    return [Rem,vtol(Q)];
+}
+
 def add(F,G) {
     if (!isList(F)) F=[F,1];
     if (!isList(G)) G=[G,1];
@@ -833,6 +924,43 @@ def add(F,G) {
     FF = sdiv(F[1],H);
     L =  GG*F[1]; /* LCM */
     return [GG*F[0]+FF*G[0], L];
+}
+
+def sub(F,G) {
+    return add(F,neg(G));
+}
+
+/* V1,V2: vectors */
+def add_v(V1,V2) {
+    N=length(V1);
+    V=newvect(N);
+    for(I=0; I<N; I++) {
+        V[I] = add(V1[I],V2[I]);
+    }
+    return V;
+}
+
+def sub_v(V1,V2) {
+    return add_v(V1,map(neg,V2));
+}
+
+/* S: scalar, V: vector */
+def multir_sv(S,V) {
+    return mapat(multir_DE,1,S,V);
+}
+
+/* V = SL[0]*VL[0] + ... + SL[M-1]*VL[M-1] */
+def addmul_sv(SL,VL) {
+    M=length(VL);
+    N=length(VL[0]);
+    V=newvect(N);
+    for(J=0; J<M; J++) {
+        C=multir_sv(SL[J],VL[J]);
+        for(I=0; I<N; I++) {
+            V[I] = add(V[I],C[I]);
+        }
+    }
+    return V;
 }
 
 def spolynomial(P,Q) {
@@ -881,6 +1009,34 @@ def spolynomial_DE(P,Q) {
     return red2(SP);
 }
 
+def spolynomial_s(P,Q) {
+    return spolynomial_s_DE(P,Q);
+}
+
+/* 係数情報付き S 多項式*/
+def spolynomial_s_DE(P,Q) {
+    DNP = DN(P); NMP=NM(P);
+    DNQ = DN(Q); NMQ=NM(Q);
+
+    LCM= dp_lcm(NMP,NMQ);
+    DP = dp_subd(LCM,dp_ht(NMP));
+    DQ = dp_subd(LCM,dp_ht(NMQ));
+    CP = act_difference(DP,dp_hc(NMP));
+    CQ = act_difference(DQ,dp_hc(NMQ));
+    GCD= gcd(CP,CQ);
+
+    C0 = sdiv(CQ,GCD);
+    C1 = -sdiv(CP,GCD);
+    SP = C0*multi_DE(DP,NMP)+C1*multi_DE(DQ,NMQ);
+    SP = red3(SP); CD = SP[1]; SP = SP[0];
+
+    C0 = red1([multi_DE(C0*DP,DN(P)),CD]);
+    C1 = red1([multi_DE(C1*DQ,DN(Q)),CD]);
+    Coef = [C0,C1];
+    /* Note: SP = Coef[0]*P + Coef[1]*Q */
+    return [SP,Coef];
+}
+
 /* Gebauer-Moeller's Criterion F */
 def criterionF(I,J,G) {
     if (I>=J) {
@@ -924,6 +1080,12 @@ def dp_revcmp(P,Q) {
     return (P==Q)? 0: ((P<Q)? 1: -1);
 }
 
+def dp_revcmp_s(P,Q) {
+    P=NM(P[0]);
+    Q=NM(Q[0]);
+    return (P==Q)? 0: ((P<Q)? 1: -1);
+}
+
 /*
 Input: (Groebner basis, Variables)
 Output: reduced Groebner basis
@@ -940,6 +1102,32 @@ def gr2rgr(G) {
         }
     }
     return map(red1,RedGr); /* 昇順 */
+}
+
+def gr2rgr_s(G, Syz) {
+    GS = qsort(assoc(G,Syz), dp_revcmp_s);
+    G  = map('car', GS);
+    Syz= map(list_second, GS);
+    Gr = [];
+    Syzygy = [];
+    while(G != []) {
+        F = car(G); G = cdr(G);
+        S = car(Syz); Syz = cdr(Syz);
+        H = reduction_s(F,G); C = H[1]; H = H[0];
+        /* F = H + C[0]*G[0] + C[1]*G[1] + ... */
+        if (H[0] != 0) {
+            NM = dp_hc(H[0]); 
+            DN = H[1];
+            H  = red1([H[0], NM]); /* H := (DN/NM)*H,   hc(H) == 1 */
+            Gr = cons(H, Gr);
+            if (C!=[]) {
+                S = sub_v(S,addmul_sv(C,Syz));
+            }
+            S = map(red1,multir_sv([DN,NM],S));
+            Syzygy = cons(S,Syzygy);
+        }
+    }
+    return [Gr,Syzygy]; /* 昇順 */
 }
 
 /*
@@ -965,14 +1153,14 @@ def buchberger(G) {
     for(J=N-1; J>=0; J--) {
         for(I=J-1; I>=0; I--) {
             if (!criterionM(I,J,G) && !criterionF(I,J,G)) {
-                Pairs = cons([G[I],G[J],spair_sugar(G[I],G[J])],Pairs);
+                Pairs = cons([I,J,spair_sugar(G[I],G[J])],Pairs);
             }
         }
     }
     Pairs = qsort(Pairs, spair_compare); /* sort by sugar */
     while(Pairs != []) {
 /*      message(length(G)); */
-        K = car(Pairs);
+        K = car(Pairs); K0=K[0]; K1=K[1];
         Pairs = cdr(Pairs);
         if(MaxSugar < K[2]) {
             MaxSugar=K[2];
@@ -986,7 +1174,7 @@ def buchberger(G) {
                 break;
             }
         }
-        SP = spolynomial(K[0],K[1]);
+        SP = spolynomial(G[K0],G[K1]);
         Rem = reduction(SP,G);
         if (Rem[0] != 0) {
             message(".");
@@ -994,7 +1182,7 @@ def buchberger(G) {
             L = [];
             for(I=0; I<N; I++) {
                 if (!criterionM(I,N,G) && !criterionF(I,N,G)) {
-                    L = cons([G[I],G[N],spair_sugar(G[I],G[N])],L);
+                    L = cons([I,N,spair_sugar(G[I],G[N])],L);
                 }
             }
             Pairs = qsort(append(Pairs, L), spair_compare); /* sort by sugar */
@@ -1007,9 +1195,72 @@ def buchberger(G) {
     return gr2rgr(G); /* Reducing G a Groebner basis. */
 }
 
+def buchberger_s(G) {
+    MaxSugar=0;
+    N = length(G);
+    Pairs = [];
+    for(J=N-1; J>=0; J--) {
+        for(I=J-1; I>=0; I--) {
+            if (!criterionM(I,J,G) && !criterionF(I,J,G)) {
+                Pairs = cons([I,J,spair_sugar(G[I],G[J])],Pairs);
+            }
+        }
+    }
+    Syzygy= matrix_rows(matrix_identity_matrix(N));
+    Pairs = qsort(Pairs, spair_compare); /* sort by sugar */
+    while(Pairs != []) {
+        K = car(Pairs); K0=K[0]; K1=K[1];
+        Pairs = cdr(Pairs);
+        if(MaxSugar < K[2]) {
+            MaxSugar=K[2];
+            message(" "+rtostr(MaxSugar)+" ");
+        }
+        SP = spolynomial_s(G[K0],G[K1]); SPC=SP[1]; SP=SP[0];
+        Rem = reduction_s(SP,G); RemC = Rem[1]; Rem = Rem[0];
+        if (Rem[0] != 0) {
+            message(".");
+            G = append(G, [Rem]);
+            /* C を SPC,RemC,Syzygy から計算 */
+            /* C1=SPC[0]*Syzygy[K0]+SPC[1]*Syzygy[K1] */
+            /* C2=RemC[0]*Syzygy[0]+...+RemC[N-1]*Syzygy[N-1] */
+            /* C = C1-C2 */
+            C1 = addmul_sv(SPC,[Syzygy[K0],Syzygy[K1]]);
+            C2 = addmul_sv(RemC,Syzygy);
+            C  = sub_v(C1,C2);
+            C  = map(red1,C);
+            Syzygy = append(Syzygy, [C]);
+            L = [];
+            for(I=0; I<N; I++) {
+                if (!criterionM(I,N,G) && !criterionF(I,N,G)) {
+                    L = cons([I,N,spair_sugar(G[I],G[N])],L);
+                }
+            }
+            Pairs = qsort(append(Pairs, L), spair_compare); /* sort by sugar */
+            N++;
+        }else {
+            message("o");
+        }
+    }
+    message("\n");
+    return gr2rgr_s(G,Syzygy); /* Reducing G a Groebner basis. */
+}
+
+/*
 def gr(F) {
     OPTS=getopt();
     return map(opr,buchberger(map(op,F)|option_list=OPTS));
+}
+*/
+
+def gr(F) {
+    OPTS=getopt();
+    if (isvoid(getopt(syzygy))) {
+        return map(opr,buchberger(map(op,F)|option_list=OPTS));
+    }
+    R=buchberger_s(map(op,F)|option_list=OPTS);
+    G=map(opr,R[0]); 
+    Syzygy=mapat('map',1,opr,R[1]);
+    return [G,Syzygy];
 }
 
 /* it returns in(G) */

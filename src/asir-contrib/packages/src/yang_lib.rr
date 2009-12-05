@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang_lib.rr,v 1.2 2006/03/20 14:14:04 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang_lib.rr,v 1.3 2008/09/01 15:23:22 ohara Exp $ */
 
 /* library functions of yang. */
 
@@ -13,7 +13,7 @@ module yang;
 struct yang_ring {ringdef, v, f, d, op}$
 
 localf extract_denom, mtriple, mpair;
-localf matrix_column_nth, matrix_row_nth;
+localf matrix_column_nth, matrix_row_nth, matrix_rows;
 localf 'std_+', 'std_*', 'std_=';
 localf mat_incr, list_incr, list_sum, list_second, list_add_prefix;
 localf list_indefinite, matrix_indefinite;
@@ -60,6 +60,15 @@ def matrix_column_nth(A,N) {
 def matrix_row_nth(A,N) {
     V=A[N];
     return (islist(V))? ltov(V): V;
+}
+
+def matrix_rows(M) {
+    N=size(M)[0];
+    V=newvect(N);
+    for(I=0; I<N; I++) {
+        V[I]=M[I];
+    }
+    return vtol(V);
 }
 
 /* --------------------------------
