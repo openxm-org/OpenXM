@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.21 2009/04/12 08:21:33 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.22 2009/12/05 18:30:37 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -848,7 +848,13 @@ def division_s_DE(P,Q) {
 
 /* 正規形を求める */
 def nf(F,Gr) {
-    return opr(reduction(op(F),map(op,Gr)));
+    if (isvoid(getopt(syzygy))) {
+        return opr(reduction(op(F),map(op,Gr)));
+    }
+    R = reduction_s(op(F),map(op,Gr));
+    NF = red(opr(R[0]));
+    Syz= map(opr,R[1]);
+    return [NF,Syz];
 }
 
 /* 分散表現多項式 F を 集合 G で簡約する */
@@ -1244,13 +1250,6 @@ def buchberger_s(G) {
     message("\n");
     return gr2rgr_s(G,Syzygy); /* Reducing G a Groebner basis. */
 }
-
-/*
-def gr(F) {
-    OPTS=getopt();
-    return map(opr,buchberger(map(op,F)|option_list=OPTS));
-}
-*/
 
 def gr(F) {
     OPTS=getopt();
