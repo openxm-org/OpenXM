@@ -89,7 +89,7 @@ def generate_coef_ideal(F)
 def pdecomp(B,V) {
 	if ( type(IsF4=getopt(f4)) == -1 ) f4(0);
 	else f4(IsF4);
-	if ( type(IsGBCheck=getopt(gbcheck)) == -1 ) gbcheck(0);
+	if ( type(IsGBCheck=getopt(gbcheck)) == -1 ) gbcheck(1);
 	else gbcheck(IsGBCheck);
 	if ( F4 ) G0 = nd_f4_trace(B,V,1,GBCheck,0);
 	else G0 = nd_gr_trace(B,V,1,GBCheck,0);
