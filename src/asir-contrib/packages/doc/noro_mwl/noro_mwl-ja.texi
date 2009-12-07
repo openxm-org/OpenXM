@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_mwl/noro_mwl-ja.texi,v 1.1 2009/11/01 13:44:10 noro Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/noro_mwl/noro_mwl-ja.texi,v 1.2 2009/11/03 02:43:36 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -111,7 +111,7 @@ MWL 関連計算パッケージ @samp{noro_mwl.rr} について解説する.
 
 @table @var
 @item return
-多項式リストのリスト
+二要素からなるリスト
 @item ideal
 多項式リスト
 @item varlist
@@ -126,7 +126,8 @@ MWL 関連計算パッケージ @samp{noro_mwl.rr} について解説する.
 @item
 0 次元イデアル @var{ideal} の各変数の最小多項式を既約分解し, 各既約
 成分を重複度つきで @var{ideal} に添加することを繰り返して得られた
-イデアルのリストを返す.
+イデアルのリストを第一要素, @var{ideal} の全次数逆辞書式順序に
+関するグレブナー基底を第二要素とするリストを返す.
 @item
 @code{mwl.pdecomp} は有理数体上, @code{mwl.pdecomp_ff} は
 GF(@var{mod}) (位数 @var{mod} の有限体) 上での分解を行う.
@@ -148,8 +149,23 @@ GF(@var{mod}) (位数 @var{mod} の有限体) 上での分解を行う.
 出力されたイデアルリストの全ての共通部分が入力
 と一致すれば, 出力が入力イデアルの分解になっていることは保証される.
 @end itemize
-@example
 
+@example
+[1520] load("noro_mwl.rr");
+[1554] B=[(x+y+z)^2*(x+y-z)^2,(x+y*z)^2*(x-y*z)^2,
+ (x^2+y^2+z^2)^2*(x^2-y^2-z^2)^2]$
+[1555] V=[x,y,z]$
+[1556] L=mwl.pdecomp(B,V)$
+[1557] C=L[0]$
+[1558] G=L[1]$
+[1559] length(C);
+5
+[1560] C0=primadec(C[0],V)$
+[1561] C0[0];
+[[x^2+(2*y-2*z)*x+y^2-2*z*y+z^2,...],[z^2+z+1,y-z-1,x+1]]
+[1562] CM=mwl.pdecomp_ff(B,V,31991|f4=1)$
+[1563] length(CM[0]);
+5
 @end example
 
 @subsection @code{mwl.generate_coef_ideal}
@@ -186,7 +202,14 @@ GF(@var{mod}) (位数 @var{mod} の有限体) 上での分解を行う.
 @var{am=v^2}, @var{bn=v^3} により @var{am,bn} を消去した結果を返す.
 @end itemize
 @example
-
+[1519] load("noro_mwl.rr")$
+[1553] F=y^2-(x^3-x+t^2)$
+[1554] L=mwl.generate_coef_ideal(F);
+[[b3^2-a2^3,2*b3*b2-3*a2^2*a1,2*b3*b1+b2^2-3*a2^2*a0-3*a2*a1^2,...],
+[b3,b2,b1,b0,a2,a1,a0]]
+[1555] L=mwl.generate_coef_ideal(F|simp=1);
+[[-3*a1*v^4+2*b2*v^3,-3*a0*v^4+2*b1*v^3-3*a1^2*v^2+b2^2,...],
+[b2,b1,b0,a1,a0,v]]
 @end example
 @comment --- おまじない ---
 @node Index,,, Top
