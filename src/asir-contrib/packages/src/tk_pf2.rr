@@ -1,9 +1,11 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.4 2009/11/20 11:28:13 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.5 2009/11/21 06:15:26 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
 As to examples of using these functions, see functions test*()
+cf. @s/2009/11/14-my-note-ri-pfaffian-na.pdf
+    @s/2009/12/09-my-note-*
 */
 import("glib3.rr")$
 import("taka_runge_kutta.rr")$  /* updated */
@@ -12,10 +14,14 @@ import("taka_plot.rr")$
 import("mt_graph.rr");
 
 module tk_rk;
+localf taka_minus;
 localf taka_runge_kutta_reverse ;
 localf taka_runge_kutta_4a;
 localf test4 ;
 localf test4b ;
+def taka_minus(Ob) {
+  return(-Ob);
+}
 def taka_runge_kutta_reverse(A) {
   B=[];
   for (; length(A) != 0; A=cdr(A)) {
@@ -27,7 +33,8 @@ def taka_runge_kutta_reverse(A) {
 def taka_runge_kutta_4a(FF,X0,Y,S0,Ys,T0,H) {
   if (T0 < S0) {
     /* opposite direction */
-    return taka_runge_kutta_reverse(taka_runge_kutta_4a(base_replace(FF,[[X0,-X0]]),X0,Y,-S0,Ys,-T0,H));
+    return taka_runge_kutta_reverse(
+      taka_runge_kutta_4a(map(taka_minus,base_replace(FF,[[X0,-X0]])),X0,Y,-S0,Ys,-T0,H));
   }
   if (H >= T0-S0) {
     A=taka_runge_kutta_4(FF,X0,Y,S0,Ys,T0-S0,0 | onestep=1);
@@ -85,9 +92,11 @@ def setGtable(L) {
   for (I=0; number_abs(Y0-L[I][0][1])<Eps; I++) {
     Xn++;
   }
-  Yn = number_floor(length(L)/Xn+Eps);
+  Yn = number_floor(length(L)/Xn+Eps+1);
   Hx = L[1][0][0] -L[0][0][0];
+  if (number_abs(Hx) < Eps) Hx=L[2][0][0] -L[1][0][0];
   Hy = L[Xn+1][0][1]-L[0][0][1];
+  if (Hx < 0) return setGtable(reverse(L)); 
   setGtable0(L,Xn+1,Yn+1,Hx,Hy);
 }
 
@@ -237,16 +246,19 @@ endmodule;
 
 module tk_pf2;
 localf test1 ;
+localf test1rr;
 localf rk2x ;
 localf test2 ;
 localf rk2y ;
 localf test3 ;
 localf rk2;
 localf test5;
+localf test5rr;
 localf test5b;
 localf test5c;
 localf rk2all;
 localf test6;
+localf test6rr;
 
 /* f=x^2-y^2
   f_xy = 0
@@ -265,6 +277,20 @@ def test1() {
           [x0,x1],[y0,y1,y2],
           [1,0.1], II , [2,3],0.1);
 }
+
+def test1rr() {
+  S=[x^2-y^2, 2*x,-2*y];
+  II=base_replace(S,[[x,3],[y,0.1]]); /* Initial */
+  print("Value at (3,0.1)",0); print(II);
+  TT=base_replace(S,[[x,2],[y,0.1]]); /* target 1 */
+  print("Value at (2,0.1)",0); print(TT);
+  TT=base_replace(S,[[x,1],[y,3]]); /* target 2 */
+  print("Value at (1,3)",0); print(TT);
+  A=rk2x([[y1,y1/x0,0],[y2,0,y2/x1]],
+          [x0,x1],[y0,y1,y2],
+          [3,0.1], II , [1,3],0.1);
+}
+
 /*
   F=[[y1,y1/x0,0],[y2,0,y2/x1]] Pfaffian for x0 and x1.
   X=[x0,x1];  independent variable
@@ -348,7 +374,7 @@ def test3() {
   Fs=          starting value of Y
   Tt=[t0,t1];  target point.
   H step
-  Ts < Tt  (This condition is not necessary for rk2x and rk2y.)
+  Ts < Tt  or   Ts > Tt
 
   options  mesh  H/mesh is used for the steps in rk2x and rk2y. The data for these finer steps are discarded.
                 Increase H and Mesh to get smaller list size as the return of rk2().
@@ -362,34 +388,37 @@ def rk2(A,T,F,Ts,Fs,Tt,H) {
   X=T[0]; Y=T[1];
   Sx=Ts[0]; Sy=Ts[1];
   Tx=Tt[0]; Ty=Tt[1];
-  Dy=number_abs(Ty-Sy); 
-  Dx=number_abs(Tx-Sx); 
+  Xsig = 1; Ysig = 1;
+  if (Ty-Sy < 0) Ysig = -1;
+  if (Tx-Sx < 0) Xsig = -1;
+  Dy=Ysig*(Ty-Sy); 
+  Dx=Xsig*(Tx-Sx); 
   Ans=[cons(Ts,Fs)];
   if ((Dx == 0) && (Dy==0)) return Ans;
   if (Dy < Dx) {
     Hx = H;
     Hy = H*Dy/Dx;
-    Ux = Sx+Hx; Uy=Sy+Hy;
-    while ( Ux-Tx < Eps) {
+    Ux = Sx+Xsig*Hx; Uy=Sy+Ysig*Hy;
+    while ( (Ux-Tx)*Xsig < Eps) {
       NN=rk2x(A,T,F,Ts,Fs,[Ux,Uy],H/Mesh);
       Ans=cons(NN,Ans);
       Ts=car(NN);
       Fs=cdr(NN);
-      Ux=Ux+Hx; Uy=Uy+Hy;
+      Ux=Ux+Xsig*Hx; Uy=Uy+Ysig*Hy;
     }
     NN=rk2x(A,T,F,Ts,Fs,Tt,H);
     return cons(NN,Ans);
   }else {
     Hy = H;
     Hx = H*Dx/Dy;
-    Ux = Sx+Hx; Uy=Sy+Hy;
-    while (Uy-Ty < Eps) {
+    Ux = Sx+Xsig*Hx; Uy=Sy+Ysig*Hy;
+    while ( (Uy-Ty)*Ysig < Eps) {
       print(Uy);
       NN=rk2y(A,T,F,Ts,Fs,[Ux,Uy],H/Mesh);
       Ans=cons(NN,Ans);
       Ts=car(NN);
       Fs=cdr(NN);
-      Ux=Ux+Hx; Uy=Uy+Hy;
+      Ux=Ux+Xsig*Hx; Uy=Uy+Ysig*Hy;
     }
     NN=rk2y(A,T,F,Ts,Fs,Tt,H);
     return cons(NN,Ans);
@@ -406,6 +435,18 @@ def test5() {
           [x0,x1],[y0,y1],
           [1,0.1], II , [5,3],0.1);
 }
+
+def test5rr() {
+  S=[x^2-y^2, -2*y];
+  II=base_replace(S,[[x,3],[y,2.5]]); /* Initial */
+  print("Value at (3,2.5)",0); print(II);
+  TT=base_replace(S,[[x,1],[y,2]]); /* target 2 */
+  print("Value at (1,2)",0); print(TT);
+  A=rk2([[(2*y0-x1*y1)/x0,0],[y1,y1/x1]],
+          [x0,x1],[y0,y1],
+          [3,2.5], II , [1,2],0.1);
+}
+
 def test5b() {
   S=[x^2-y^2, -2*y];
   II=base_replace(S,[[x,1],[y,0.1]]); /* Initial */
@@ -456,6 +497,20 @@ def test6(N) {
   A=rk2all([[(2*y0-x1*y1)/x0,0],[y1,y1/x1]],
           [x0,x1],[y0,y1],
           [1,0.1], II , [3,3],H);
+  /* setGtable0(A,N+1,number_floor(deval(N*3/2))+2,H,H); */
+/*  return A; */
+  mtg.setGtable(A); 
+  return A;
+}
+
+def test6rr(N) {
+  S=[x^2-y^2, -2*y];
+  H=deval(2/N);
+  II=base_replace(S,[[x,3],[y,3]]); /* Initial */
+  print("Value at (3,3)",0); print(II);
+  A=rk2all([[(2*y0-x1*y1)/x0,0],[y1,y1/x1]],
+          [x0,x1],[y0,y1],
+          [3,3], II , [1,1],H);
   /* setGtable0(A,N+1,number_floor(deval(N*3/2))+2,H,H); */
 /*  return A; */
   mtg.setGtable(A); 
