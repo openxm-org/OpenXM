@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.22 2009/12/05 18:30:37 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.23 2009/12/07 13:58:04 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -1159,14 +1159,14 @@ def buchberger(G) {
     for(J=N-1; J>=0; J--) {
         for(I=J-1; I>=0; I--) {
             if (!criterionM(I,J,G) && !criterionF(I,J,G)) {
-                Pairs = cons([I,J,spair_sugar(G[I],G[J])],Pairs);
+                Pairs = cons([G[I],G[J],spair_sugar(G[I],G[J])],Pairs);
             }
         }
     }
     Pairs = qsort(Pairs, spair_compare); /* sort by sugar */
     while(Pairs != []) {
 /*      message(length(G)); */
-        K = car(Pairs); K0=K[0]; K1=K[1];
+        K = car(Pairs);
         Pairs = cdr(Pairs);
         if(MaxSugar < K[2]) {
             MaxSugar=K[2];
@@ -1180,7 +1180,7 @@ def buchberger(G) {
                 break;
             }
         }
-        SP = spolynomial(G[K0],G[K1]);
+        SP = spolynomial(K[0],K[1]);
         Rem = reduction(SP,G);
         if (Rem[0] != 0) {
             message(".");
@@ -1188,7 +1188,7 @@ def buchberger(G) {
             L = [];
             for(I=0; I<N; I++) {
                 if (!criterionM(I,N,G) && !criterionF(I,N,G)) {
-                    L = cons([I,N,spair_sugar(G[I],G[N])],L);
+                    L = cons([G[I],G[N],spair_sugar(G[I],G[N])],L);
                 }
             }
             Pairs = qsort(append(Pairs, L), spair_compare); /* sort by sugar */
@@ -1208,20 +1208,20 @@ def buchberger_s(G) {
     for(J=N-1; J>=0; J--) {
         for(I=J-1; I>=0; I--) {
             if (!criterionM(I,J,G) && !criterionF(I,J,G)) {
-                Pairs = cons([I,J,spair_sugar(G[I],G[J])],Pairs);
+                Pairs = cons([G[I],G[J],spair_sugar(G[I],G[J]),I,J],Pairs);
             }
         }
     }
-    Syzygy= matrix_rows(matrix_identity_matrix(N));
+    Syzygy= matrix_rows(constant(1)*matrix_identity_matrix(N));
     Pairs = qsort(Pairs, spair_compare); /* sort by sugar */
     while(Pairs != []) {
-        K = car(Pairs); K0=K[0]; K1=K[1];
+        K = car(Pairs); K0=K[3]; K1=K[4];
         Pairs = cdr(Pairs);
         if(MaxSugar < K[2]) {
             MaxSugar=K[2];
             message(" "+rtostr(MaxSugar)+" ");
         }
-        SP = spolynomial_s(G[K0],G[K1]); SPC=SP[1]; SP=SP[0];
+        SP = spolynomial_s(K[0],K[1]); SPC=SP[1]; SP=SP[0];
         Rem = reduction_s(SP,G); RemC = Rem[1]; Rem = Rem[0];
         if (Rem[0] != 0) {
             message(".");
@@ -1238,7 +1238,7 @@ def buchberger_s(G) {
             L = [];
             for(I=0; I<N; I++) {
                 if (!criterionM(I,N,G) && !criterionF(I,N,G)) {
-                    L = cons([I,N,spair_sugar(G[I],G[N])],L);
+                    L = cons([G[I],G[N],spair_sugar(G[I],G[N]),I,N],L);
                 }
             }
             Pairs = qsort(append(Pairs, L), spair_compare); /* sort by sugar */
