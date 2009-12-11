@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.16 2004/03/11 12:36:53 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.17 2006/10/05 20:12:15 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -385,7 +385,7 @@ def taka_poly_hilbert_polynomial(I) {
     A=gr(G,V,0); 
     B=map(dp_ht,map(dp_ptod,A,V));
   }else{
-    if (I->Order != 0) {
+    if (I->Ring->Order != 0) {
      /*
       Use poly_initial instead. 
       print("Warning. It computes the hilbert polynomial for initial.");
@@ -394,7 +394,7 @@ def taka_poly_hilbert_polynomial(I) {
      */
       A = gr(G,V,0);
     }else{
-      dp_ord(I->Order);
+      dp_ord(I->Ring->Order);
       A = G;
     }
     B=map(dp_ht,map(dp_ptod,A,V));
