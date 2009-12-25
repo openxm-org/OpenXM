@@ -1,0 +1,75 @@
+def utabout(U,Name)
+{
+	output(Name);
+	M = U[0][0];
+	D = U[0][1];
+	F = U[1];
+	N = size(M)[0];
+	for ( I = 0; I < N; I++ ) {
+		for ( J = 0; J < N; J++ ) { print(M[I][J],0);  print(" ",0); }
+		print("");
+	}
+	print("");
+	print(D);
+	print("");
+	for ( D = deg(F,var(F)), I = 0; I <= D; I++ ) {
+		print(I,0); print(" ",0); print(coef(F,I));
+	}
+	output();
+}
+
+def minipoly_mat(G,V,O,V1,V0)
+{
+	if ( !zero_dim(hmlist(G,V,O),V,O) )
+		error("tolex : ideal is not zero-dimensional!");
+
+	N = length(V);
+	dp_ord(O);
+
+	HM = hmlist(G,V,O);
+	MB = dp_mbase(map(dp_ptod,HM,V));
+	Mat = utabtomat(G,V,V1,MB);
+
+	for ( J = 0; ; J++ ) {
+		M = lprime(J);
+		if ( !valid_modulus(HM,M) )
+			continue;
+		MP = minipolym(G,V,O,V1,V0,M);
+		MP = subst(MP,V0,V1);
+		for ( D = deg(MP,V1), TL = [], J = 0; J <= D; J++ )
+			TL = cons(V1^J,TL);
+		NF = gennf(G,TL,V,O,V1,1)[0];
+		R = tolex_main(V,O,NF,[MP],M,MB);
+		return [Mat,subst(ptozp(R[0]),V1,V0)];
+	}
+}
+
+def utabtomat(G,V,V1,MB)
+{
+	Len = length(G); PS = vector(Len);
+	for ( I = 0, T = G; T != []; T = cdr(T), I++ ) PS[I] = dp_ptod(car(T),V);
+	for ( I = Len - 1, GI = []; I >= 0; I-- ) GI = cons(I,GI);
+	N = length(MB);
+	U = dp_ptod(V1,V);
+	UTAB = newvect(N);
+	for ( I = 0; I < N; I++ ) {
+		UTAB[I] = [MB[I],remove_cont(dp_true_nf(GI,U*MB[I],PS,1))];
+		if ( dp_gr_print() )
+			print(".",2);
+	}
+	if ( dp_gr_print() )
+		print("");
+
+	M = matrix(N,N);
+	for ( I = 0, LCM = 1; I < N; I++ ) LCM = ilcm(UTAB[I][1][1],LCM);	
+	for ( I = 0; I < N; I++ ) {
+		F = UTAB[I][1][0]; Mul = LCM/UTAB[I][1][1];
+		for ( K = 0; K < N; K++ )
+			if ( MB[K] == dp_ht(F) ) {
+				M[K][I] = Mul*dp_hc(F);
+				F = dp_rest(F);
+			}
+	}
+	return [M,LCM];
+}
+end$
