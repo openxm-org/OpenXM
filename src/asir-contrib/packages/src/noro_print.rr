@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.14 2006/05/24 08:54:34 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.15 2009/12/29 02:40:28 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -205,9 +205,15 @@ def taka_dvi_form(S,Opt) {
   File = File0+".tex";
   shell("rm -f "+File);
   output(File);
+  if (!AMSTeX) {
   S = "\\documentclass[12pt]{article} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
       "$"+
       S + "$ \n \\end{document}\n";
+  }else{
+  S = "\\documentclass[12pt]{article} \\usepackage{amsmath} \\usepackage{amssymb} \\pagestyle{empty} \\oddsidemargin 0cm \\begin{document}\n"+
+      "$"+
+      S + "$ \n \\end{document}\n";
+  }
   print(S);
   output();
   shell(" (cd "+ox_work_dir()+" ; latex "+File0+" >>/dev/null) ");
