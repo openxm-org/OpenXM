@@ -1,8 +1,9 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.13 2006/03/22 00:52:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.14 2006/05/24 08:54:34 ohara Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
 extern Taka_png_form_res$
+extern AMSTeX$
 Taka_png_form_res=150$
 
 def taka_tex_form_top(S,Argv) {
@@ -79,25 +80,25 @@ def taka_tex_form_quote(S,Tb) {
 def taka_tex_form_matrix(A,Tb) {
   N = size(A)[0];
   M = size(A)[1];
-  write_to_tb("\\pmatrix{\n",Tb);
+  write_to_tb(AMSTeX?"\\begin{pmatrix}\n":"\\pmatrix{\n",Tb);
   for (I=0; I<N; I++) {
     for (J=0; J<M; J++) {
       taka_tex_form(A[I][J],Tb);
       if (J != M-1) write_to_tb("& ",Tb);
     }
-    write_to_tb(" \\cr\n",Tb);
+    write_to_tb(AMSTeX?" \\\\\n":" \\cr\n",Tb);
   }
-  write_to_tb("}\n",Tb);
+  write_to_tb(AMSTeX?"\\\end{pmatrix}\n":"}\n",Tb);
 }
 
 def taka_tex_form_vector(A,Tb) {
   N = size(A)[0];
-  write_to_tb("\\pmatrix{\n",Tb);
+  write_to_tb(AMSTeX?"\\begin{pmatrix}\n":"\\pmatrix{\n",Tb);
   for (I=0; I<N; I++) {
     taka_tex_form(A[I],Tb);
     if (I != N-1) write_to_tb("& ",Tb);
   }
-  write_to_tb("\\cr}\n",Tb);
+  write_to_tb(AMSTeX?"\\\\\n\\end{pmatrix}\n":"\\cr}\n",Tb);
 }
 
 def taka_is_fractional(A) {
