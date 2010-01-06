@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.23 2009/12/07 13:58:04 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.24 2009/12/09 12:43:23 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -41,7 +41,7 @@ import("yang_lib.rr") $
 module yang;
 
 localf push_ring, pop_ring, define_ring, parse_ringdef, print_ring, ring_size;
-localf op_type, op_diff, op_var, op_match, op_nomatch, op_i;
+localf op_type, op_diff, op_var, op_op, op_match, op_nomatch, op_i;
 localf op_register, op, opr; 
 localf set_ring, new_ring;
 localf constant, operator_id, operator;
@@ -56,6 +56,7 @@ localf actr_theta_D, actr_theta_DE;
 localf mul, mulL;
 localf multi, multi_D, multi_DE, multiL;
 localf mulr, multir, multir_D, multir_DE;
+localf matmul;
 localf dp_coef_gcd, red1, red2, red3, reducible, add, sub, neg;
 localf add_v, sub_v, multir_sv, addmul_sv;
 localf division, division_D, division_DE, reduction;
@@ -64,9 +65,9 @@ localf dp_revcmp, gr2rgr, buchberger;
 localf division_s, division_s_D, division_s_DE, reduction_s;
 localf spolynomial_s, spolynomial_s_DE;
 localf dp_revcmp_s, gr2rgr_s, buchberger_s;
-localf gr, nf, criterionF, criterionM, initial_term, in, stdmon;
+localf gr, nf, nf_l, criterionF, criterionM, initial_term, in, stdmon;
 localf dp_matrix_form, matrix_form;
-localf dp_ltom, pfaffian, check_pfaffian, pf;
+localf dp_ltom, ltom, pfaffian, check_pfaffian, pf, pf_i;
 localf check_frac_expansion_before, check_frac_expansion_after;
 localf frac_expansion, sing_point, residue;
 localf extract_denom_poly, matrix_to_coef_matrix, pfaffian_to_coef_matrices;
@@ -211,6 +212,10 @@ def op_diff(I)  {
 
 def op_var(I)  {
     return Ring->v[I];
+}
+
+def op_op(I)  {
+    return Ring->op[I];
 }
 
 /* ある Type の作用素のみを取り出す */
@@ -709,6 +714,26 @@ def multiL(L)
     return R;
 }
 
+def matmul(M1,M2) {
+    S1=size(M1);
+    S2=size(M2);
+    N1=S1[0];
+    N2=S2[1];
+    N=S1[1];
+    if (S1[1]!=S2[0]) {
+       error("invalid arguments");
+    }
+    R=newmat(N1,N2);
+    for(I=0; I<N1; I++) {
+        for(J=0; J<N2; J++) {
+            for(K=0; K<N; K++) {
+                R[I][J] += mul(M1[I][K],M2[K][J]);
+            }
+        }
+    }
+    return base_cancel(R);
+}
+
 /* negativate */
 def neg(P) {
     return isList(P)? [-P[0],P[1]]: -P;
@@ -855,6 +880,17 @@ def nf(F,Gr) {
     NF = red(opr(R[0]));
     Syz= map(opr,R[1]);
     return [NF,Syz];
+}
+
+def nf_l(L,G) {
+    OPTS=getopt();
+    NFS=mapat(nf,0,L,G|option_list=OPTS);
+    if (isvoid(getopt(syzygy))) {
+        return NFS;
+    }
+    SYZ=call(matr,map(list_second,NFS));
+    NFS=map('car',NFS);
+    return [NFS,SYZ];
 }
 
 /* 分散表現多項式 F を 集合 G で簡約する */
@@ -1328,10 +1364,46 @@ def dp_ltom(LP, LM) {
     return Mat;
 }
 
+def ltom(L,B) {
+    if (!isList(B[0]) && !isdpoly(B[0])) {
+        L = map(op,L);
+        B = map(op,B);
+    }
+    return dp_ltom(L,B);
+}
+
 def pf(Base,Gr) {
     Base = map(op,Base);
     Gr   = map(op,Gr);
     return pfaffian(Base,Gr);
+}
+
+/* incomplete pfaffian system */
+def pf_i(Base,Gr,S) {
+    Stdmon=stdmon(Gr);
+    C=nf_l(Base,Gr|syzygy=1);
+    D=C[1];
+    C=ltom(C[0],Stdmon);
+    Ci=matrix_inverse(C);
+
+    N=ring_size();
+    P=newvect(N);
+    for(J=0; J<N; J++) {
+        X  = op_var(J);
+        DX = op_op(J);
+        DX_Stdmon = mapat(mul,1,DX,Stdmon);
+        A  = nf_l(DX_Stdmon,Gr|syzygy=1);
+        B  = A[1];
+        A  = ltom(A[0],Stdmon);
+
+        DC = mapat(action,1,op(DX),C);
+        A  = base_cancel((1/X)*((DC + C*A)*Ci));
+        B  = matmul((1/X)*(C*B+mapat(mul,1,DX,D))-A*D,S);
+        B  = base_cancel(B);
+        P[J]=[A,B];
+        A=0; B=0;
+    }
+    return vtol(P);
 }
 
 /* Let Gr be a reduced Groebner basis and Base a set of monomials.
