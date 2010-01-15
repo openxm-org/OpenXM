@@ -1,3 +1,32 @@
+def printsys(F,V,Name) {
+	D = map(dp_ptod,F,V);
+	output(Name);
+	print(length(V),0); print(" ",0); print(length(F));
+	map(printpoly,D);
+	output();
+}
+
+def printpoly(F)
+{
+	for ( I = 0, T = F; T; T = dp_rest(T), I++ );
+	print(I);
+	for ( T = F; T; T = dp_rest(T) ) {
+		print(dp_hc(T),0); print(" ",0); print(dp_etov(dp_ht(T)));
+	}
+}
+
+def allmat(F,V,O,Name) {
+	printsys(F,V,Name);
+	G = nd_gr_trace(F,V,1,1,O);
+	N = length(V);
+	T = ttttt;
+	for ( I = 0; I < N; I++ ) {
+		NameI = Name+rtostr(I+1);
+		UI = minipoly_mat(G,V,O,V[I],T);
+		utabout(UI,NameI);
+	}
+}
+
 def utabout(U,Name)
 {
 	output(Name);
@@ -40,7 +69,7 @@ def minipoly_mat(G,V,O,V1,V0)
 			TL = cons(V1^J,TL);
 		NF = gennf(G,TL,V,O,V1,1)[0];
 		R = tolex_main(V,O,NF,[MP],M,MB);
-		return [Mat,subst(ptozp(R[0]),V1,V0)];
+		return [Mat,sqpart(subst(ptozp(R[0]),V1,V0))];
 	}
 }
 
@@ -71,5 +100,11 @@ def utabtomat(G,V,V1,MB)
 			}
 	}
 	return [M,LCM];
+}
+
+def sqpart(F)
+{
+	G = gcd(F,diff(F,var(F)));
+	return sdiv(F,G);
 }
 end$
