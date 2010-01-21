@@ -1,0 +1,176 @@
+/* $OpenXM$ 
+
+tk_pfn is for numerical analysis of Pfaffian system in n variables.
+*/
+
+import("tk_pf2.rr");
+
+/* A-hg is used for testing this program. tk_pfn.test3() */
+/* Program to generate test data. 
+   [SST,  p.25]
+  beta=(c-1, -a, -b)
+  Solution is x1^(c-1)*x2^(-a)*x3^(-b)*f(x1*x4/(x2*x3))
+  where f(z) = hypergeometric2f1(a,b,c;z)
+
+import("yang.rr");
+Xm_noX=1$
+def pfa11() {
+ LL=sm1.gkz([[[1,0,0,-1],
+              [0,1,0,1],
+              [0,0,1,1]], [1/2,1/3,1/5]]); 
+ LL=LL[0];             
+ V=[x1,x2,x3,x4];
+ Dv=[dx1,dx2,dx3,dx4];
+ yang.define_ring(V);
+ L=yang.util_pd_to_euler(LL,V);
+ L=map(nm,L);
+ L=map(dp_ptod,L,Dv);
+ yang.verbose();
+ G=yang.buchberger(L | hilbert=1);
+ print(yang.stdmon(G));
+ S0=yang.constant(1);
+ S1=yang.operator(x4);
+ Base=[S0,S1];
+ Pf = yang.pfaffian(Base,G);
+ return Pf;
+}
+*/
+
+module tk_pfn;
+localf consRule$
+localf partialRule$
+localf multiTime$
+localf rkn$
+localf test1$
+localf test2$
+localf a2f1$
+localf mymul$
+localf test3$
+
+def consRule(A,B) {
+  if (length(A) == 0 && length(B) == 0) return [];
+  else {
+    return cons([A[0],B[0]],consRule(cdr(A),cdr(B)));
+  }
+}
+def partialRule(R,Pos) {
+  Rule=newvect(length(R)-1);
+  for (I=0,J=0; I<length(R); I++) {
+    if (I != Pos) {
+       Rule[J] = R[I]; J++;
+    }
+  }
+  return vtol(Rule);
+}
+def multiTime(A,Pos,Rule) {
+  TT=newvect(length(Rule));
+  for (I=0; I<length(Rule); I++) {
+    TT[I] = Rule[I][1];
+  }
+  Ans=[];
+  for (I=0; I<length(A); I++) {
+    TT[Pos] = A[I][0];
+    Ans = cons(cons(vtol(TT),cdr(A[I])),Ans);
+  }
+  return reverse(Ans);
+}
+/*
+  F=[[y1,y1/x0,0],[y2,0,y2/x1]] Pfaffian Y_(X[I]) = F[I] Y
+  X=[x0,x1];  independent variable
+  Y=[y0,y1,y1]; dependent variable
+  Xs=[s0,s1];  starting point.       Only real values are accepted.
+  Ys=          starting value of Y.  Only real values are accepted.
+  Xt=[t0,t1];  target point.
+  H step
+*/
+def rkn(F,X,Y,Xs,Ys,Xt,H) {
+  Rule=consRule(X,Xs);
+  Rule=ltov(Rule);
+  N=length(X);
+  Ans=[];
+  for (I = 0; I<N; I++) {
+    FF = base_replace(F[I], partialRule(Rule,I));
+    A=tk_rk.taka_runge_kutta_4a(FF,X[I],Y,Xs[I],Ys,Xt[I],H);
+    A=multiTime(A,I,Rule);
+    Ans=append(A,Ans);
+    T=A[0];
+    Ys = cdr(T);
+    Rule[I]=[X[I],Xt[I]];
+  }
+  return Ans;
+}
+
+def test1() {
+  S=[x^2-y^2, 2*x,-2*y];
+  II=base_replace(S,[[x,3],[y,0.1]]); /* Initial */
+  print("Value at (3,0.1)",0); print(II);
+  TT=base_replace(S,[[x,1],[y,3]]); /* target 2 */
+  print("Value at (1,3)",0); print(TT);
+  A=rkn([[y1,y1/x0,0],[y2,0,y2/x1]],
+         [x0,x1],[y0,y1,y2],
+         [3,0.1], II , [1,3],0.1);
+}
+
+/*
+  A=test2([1,3,3])$
+  A[0];
+*/
+def test2(T) {
+  S=[x^2-y^2-z^3, 2*x,-2*y,-3*z^2];
+  Rule=consRule([x,y,z],T);
+  II=base_replace(S,[[x,3],[y,0.1],[z,1]]); /* Initial */
+  print("Value at (3,0.1,1)",0); print(II);
+  TT=base_replace(S,Rule); /* target  */
+  print("Value at "+rtostr(T),0); print(TT);
+  A=rkn([[y2,y2/x,0,0],   /* S_x =  [2x,2,0,0] */
+         [y3,0,-(y2/x),0],   /* S_y = [-2y,0,-2,0] */
+         [y4,0,0,2*y4/z ]  /* S_z = [-3*z^2,0,0,-6*z] */  
+        ],
+         [x,y,z],[y1,y2,y3,y4],
+         [3,0.1,1], II , T, 0.1);
+}
+
+def a2f1(Beta) {
+  C=Beta[0]+1; A=-Beta[1]; B=-Beta[2];
+  F=x1^(C-1)*x2^(-A)*x3^(-B)*hypergeometric_2f1(A,B,C,z);
+  F=subst(F,z,x1*x4/(x2*x3));
+  return F;
+}
+
+def mymul(A,B) {
+  return A*B;
+}
+
+/*
+  A=test3()$
+  A[0];
+*/
+def test3() {
+/*
+  beta=(c-1, -a, -b)
+  Solution is x1^(c-1)*x2^(-a)*x3^(-b)*f(x1*x4/(x2*x3))
+  beta=[1/2,1/3,1/5]
+*/
+  Beta=[1/2,1/3,1/5];
+  V=[x1,x2,x3,x4];
+  X0=[0.2,1,1,0.3];
+  /* X1=[0.4,1,1,0.3]; */
+  X1=[0.4,2,3,0.5]; 
+  F=a2f1(Beta);
+  F0=base_replace([F,x4*diff(F,x4)],consRule(V,X0));
+  F0=map(deval,F0);
+  print([X0,F0]);
+  F1=base_replace([F,x4*diff(F,x4)],consRule(V,X1));
+  F1=map(deval,F1);
+  print([X1,F1]);
+  /*  taka_input_form(pfa11()); */
+  Pf=newvect(4,[newmat(2,2,[[(1/2)/(x1),(1)/(x1)],[(-1/15*x4)/(x1*x4-x2*x3),(31/30*x4)/(x1*x4-x2*x3)]]),newmat(2,2,[[(1/3)/(x2),(-1)/(x2)],[(1/15*x1*x4)/(x1*x2*x4-x2^2*x3),(-1/5*x1*x4-5/6*x2*x3)/(x1*x2*x4-x2^2*x3)]]),newmat(2,2,[[(1/5)/(x3),(-1)/(x3)],[(1/15*x1*x4)/(x1*x3*x4-x2*x3^2),(-1/3*x1*x4-7/10*x2*x3)/(x1*x3*x4-x2*x3^2)]]),newmat(2,2,[[0,(1)/(x4)],[(-1/15*x1)/(x1*x4-x2*x3),(8/15*x1*x4+1/2*x2*x3)/(x1*x4^2-x2*x3*x4)]])]);
+  Pf=map(mymul,Pf,newvect(2,[y1,y2]));
+  Pf=map(vtol,Pf);
+  A=rkn(Pf,V,[y1,y2],X0,F0,X1,0.1);
+  return A;
+}
+endmodule;
+
+
+end$
