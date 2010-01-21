@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.15 2009/12/29 02:40:28 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.16 2009/12/29 02:54:19 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -370,8 +370,23 @@ def taka_input_form(S) {
        taka_print_warning("input_form() for this object has not yet been implemented.");
        A = rtostr(S);
     }
-  }else if (type(S) == LIST || type(S) == VECTOR || type(S) == MATRIX) {
+  }else if (type(S) == LIST) { 
     return rtostr(map(taka_input_form,S));
+  }else if (type(S) == VECTOR) {
+    return "newvect("+rtostr(length(S))+","+
+           rtostr(vtol(map(taka_input_form,S)))+")";
+  }else if (type(S) == MATRIX) {
+    Iform="newmat(";  Size=size(S);
+    for (I=0; I<length(Size); I++) {
+      Iform += rtostr(Size[I])+",";
+    }
+    Iform += "[";
+    for (I=0; I<Size[0]; I++) {
+      Iform += rtostr(vtol(map(taka_input_form,S[I])));
+      if (I != Size[0]-1) Iform += ",";
+    }
+    Iform += "])";
+    A=Iform;
   }else {
     A = rtostr(S);
   }
