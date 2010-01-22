@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.17 2010/01/21 03:02:33 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.18 2010/01/22 05:09:07 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -7,18 +7,21 @@ extern AMSTeX$
 Taka_png_form_res=150$
 
 def taka_tex_form_top(S,Argv) {
+  Opt=[];
   PrevSymTab = quotetotex_env("symbol_table");
   PrevConvFlag = quotetotex_env("conv_rule");
   for (I=0; I<length(Argv); I++) {
     if (Argv[I][0] == "table") {
 	  quotetotex_env("symbol_table",Argv[I][1]);
 	  quotetotex_env("conv_rule",ior(PrevConvFlag,1));
-    }else{
+    }else if (Argv[I][0] == "raw") {
+       Opt=cons(Argv[I],Opt);
+    }else {
       error("Unknown option "+rtostr(Argv[I][0])+" in print_tex_form.");
     }
   }
   Tb = string_to_tb("");
-  taka_tex_form(S,Tb);
+  taka_tex_form(S,Tb | option_list=Opt);
   Str = tb_to_string(Tb);
   quotetotex_env("symbol_table",PrevSymTab);
   quotetotex_env("conv_rule",PrevConvFlag);
@@ -26,6 +29,8 @@ def taka_tex_form_top(S,Argv) {
 }
 
 def taka_tex_form(S,Tb) {
+  Raw=0;
+  Raw=getopt(raw);
   if (type(S) == MATRIX) {
      taka_tex_form_matrix(S,Tb);
   }else if (type(S) == VECTOR) {
@@ -45,9 +50,17 @@ def taka_tex_form(S,Tb) {
   }else if (type(S) == QUOTE) {
      taka_tex_form_quote(S,Tb);
   }else if (type(S) == STRING) {
-     write_to_tb("\\verb`",Tb);
-     write_to_tb(S,Tb);
-     write_to_tb("`",Tb);
+    if (Raw == 1) {
+      write_to_tb(S,Tb);
+    }else if (Raw == 2) {
+      write_to_tb("\\texttt{",Tb);
+      write_to_tb(osm_verb_tex_form(S),Tb);
+      write_to_tb("}",Tb);
+    }else{
+      write_to_tb("\\verb`",Tb);
+      write_to_tb(S,Tb);
+      write_to_tb("`",Tb);
+    }
   }else {
    /* How to translate sin to \sin?
       Use vtype, get args, ... to print sin. 
