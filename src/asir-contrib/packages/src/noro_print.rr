@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.16 2009/12/29 02:54:19 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/noro_print.rr,v 1.17 2010/01/21 03:02:33 takayama Exp $ */
 #include "tags.h"
 #define NOT_YET   print("It has not yet been implemented.")
 
@@ -46,7 +46,7 @@ def taka_tex_form(S,Tb) {
      taka_tex_form_quote(S,Tb);
   }else if (type(S) == STRING) {
      write_to_tb("\\verb`",Tb);
-     write_to_tb(rtostr(S),Tb);
+     write_to_tb(S,Tb);
      write_to_tb("`",Tb);
   }else {
    /* How to translate sin to \sin?
@@ -838,5 +838,29 @@ def noro_print_env(Mode) {
         quotetotex_env("dp_vars_prefix", "theta");
     }
 }
+
+/* 
+ Example.
+ "\texttt{ "+osm_verb_tex_form("\\sum_{i=1}^n a_i")+" }"
+*/
+def osm_verb_tex_form(P)
+{
+  L = reverse(strtoascii(rtostr(P)));
+  for(SS = []; L != []; L = cdr(L)){
+    Ch = car(L); /* ^~\{} */
+    if(Ch == 92 || Ch == 94 || Ch == 123 || Ch == 125 || Ch == 126){
+      SS = append([92,Ch,123,125],SS); /* \Ch{} */
+      if(Ch != 94 && Ch != 126) /* \char` */
+      SS = append([92,99,104,97,114,96],SS);
+      continue;
+    }
+    SS = cons(Ch, SS);
+    if((Ch >= 35 && Ch <= 38) || Ch == 95) /* #$%&_ */
+      SS = cons(92, SS); /* \Ch */
+  }
+  return asciitostr(SS);
+}
+
+
 Loaded_noro_print=1$
 end$
