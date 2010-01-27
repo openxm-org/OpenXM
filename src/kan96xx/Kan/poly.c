@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.4 2004/09/13 11:24:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/poly.c,v 1.5 2005/07/03 11:08:54 ohara Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "datatype.h"
@@ -89,7 +89,7 @@ void KinitKan(void) {
 #ifndef NOGC
 void *sGC_realloc2(void *p,size_t old,size_t new)
 {
-  return((void *)sGC_realloc(p,(int) new));
+  return(sGC_realloc(p,new));
 }
 void sGC_free2(void *p,size_t size)
 {

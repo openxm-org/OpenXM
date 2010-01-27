@@ -1,10 +1,11 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.11 2005/06/16 06:54:55 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/datatype.h,v 1.12 2006/12/21 05:29:49 takayama Exp $ */
 #include "gmp.h"
 
 /* GC */
 void *GC_malloc(size_t size);
 void *GC_realloc(void *p,size_t new);
 void *sGC_malloc(size_t size);
+void *sGC_realloc(void *p,size_t new);
 void *sGC_realloc2(void *p,size_t old,size_t new);
 void sGC_free2(void *p,size_t size);
 void sGC_free(void *p);
