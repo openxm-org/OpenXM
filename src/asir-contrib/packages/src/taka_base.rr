@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.21 2003/11/27 11:41:08 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.22 2005/01/13 06:00:42 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -89,6 +89,19 @@ def taka_subst(S,X,A) {
     return(subst(S,X,A));
   }
   return subst_quote(S,X,A);
+}
+
+def taka_base_replace_n(F,L) {
+  if ((type(F) == 1) || (type(F)==0)) {
+    return F;
+  }else if ((type(F) == 2) || (type(F) ==3)) {
+    return substr2np(F,L);
+  }else if (type(F) == LIST) {
+    if (length(F)==0) return F;
+    return cons(taka_base_replace_n(F[0],L),taka_base_replace_n(cdr(F),L));
+  }else if ((type(F) == VECTOR) || (type(F)==MATRIX)) {
+     return map(taka_base_replace_n,F,L);
+  }else return base_replace(F,L);
 }
 
 def taka_base_set_minus(A,B) {
