@@ -1,4 +1,4 @@
-/* $OpenXM$ 
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.1 2010/01/21 06:45:51 takayama Exp $ 
 
 tk_pfn is for numerical analysis of Pfaffian system in n variables.
 */
@@ -75,7 +75,15 @@ def multiTime(A,Pos,Rule) {
   return reverse(Ans);
 }
 /*
-  F=[[y1,y1/x0,0],[y2,0,y2/x1]] Pfaffian Y_(X[I]) = F[I] Y
+  F=[[[0,1,0],
+      [0,1/x0,0],
+      [0,0,0]],
+     [[0,0,1],
+      [0,0,0],
+      [0,0,1/x1]]];
+  F_old=[[y1,y1/x0,0],[y2,0,y2/x1]] 
+  Pfaffian Y_(X[I]) = F[I] Y
+
   X=[x0,x1];  independent variable
   Y=[y0,y1,y1]; dependent variable
   Xs=[s0,s1];  starting point.       Only real values are accepted.
@@ -89,8 +97,8 @@ def rkn(F,X,Y,Xs,Ys,Xt,H) {
   N=length(X);
   Ans=[];
   for (I = 0; I<N; I++) {
-    FF = base_replace(F[I], partialRule(Rule,I));
-    A=tk_rk.taka_runge_kutta_4a(FF,X[I],Y,Xs[I],Ys,Xt[I],H);
+    FF = base_replace_n(F[I], partialRule(Rule,I));
+    A=tk_rk.taka_runge_kutta_4a_linear(FF,X[I],Y,Xs[I],Ys,Xt[I],H);
     A=multiTime(A,I,Rule);
     Ans=append(A,Ans);
     T=A[0];
@@ -106,7 +114,13 @@ def test1() {
   print("Value at (3,0.1)",0); print(II);
   TT=base_replace(S,[[x,1],[y,3]]); /* target 2 */
   print("Value at (1,3)",0); print(TT);
-  A=rkn([[y1,y1/x0,0],[y2,0,y2/x1]],
+  F=[[[0,1,0],
+      [0,1/x0,0],
+      [0,0,0]],
+     [[0,0,1],
+      [0,0,0],
+      [0,0,1/x1]]];
+  A=rkn(F,
          [x0,x1],[y0,y1,y2],
          [3,0.1], II , [1,3],0.1);
 }
@@ -122,10 +136,27 @@ def test2(T) {
   print("Value at (3,0.1,1)",0); print(II);
   TT=base_replace(S,Rule); /* target  */
   print("Value at "+rtostr(T),0); print(TT);
-  A=rkn([[y2,y2/x,0,0],   /* S_x =  [2x,2,0,0] */
-         [y3,0,-(y2/x),0],   /* S_y = [-2y,0,-2,0] */
-         [y4,0,0,2*y4/z ]  /* S_z = [-3*z^2,0,0,-6*z] */  
+/*
+  A=rkn([[y2,y2/x,0,0],     S_x =  [2x,2,0,0] 
+         [y3,0,-(y2/x),0],  S_y = [-2y,0,-2,0] 
+         [y4,0,0,2*y4/z ]   S_z = [-3*z^2,0,0,-6*z] 
         ],
+         [x,y,z],[y1,y2,y3,y4],
+         [3,0.1,1], II , T, 0.1);
+*/
+  F=[[[0,1,0,0],
+      [0,1/x,0,0],
+      [0,0,0,0],
+      [0,0,0,0]],
+     [[0,0,1,0],
+      [0,0,0,0],
+      [0,-1/x,0,0],
+      [0,0,0,0]],
+     [[0,0,0,1],
+      [0,0,0,0],
+      [0,0,0,0],
+      [0,0,0,2/z]]];
+  A=rkn(F,
          [x,y,z],[y1,y2,y3,y4],
          [3,0.1,1], II , T, 0.1);
 }
@@ -165,8 +196,6 @@ def test3() {
   print([X1,F1]);
   /*  taka_input_form(pfa11()); */
   Pf=newvect(4,[newmat(2,2,[[(1/2)/(x1),(1)/(x1)],[(-1/15*x4)/(x1*x4-x2*x3),(31/30*x4)/(x1*x4-x2*x3)]]),newmat(2,2,[[(1/3)/(x2),(-1)/(x2)],[(1/15*x1*x4)/(x1*x2*x4-x2^2*x3),(-1/5*x1*x4-5/6*x2*x3)/(x1*x2*x4-x2^2*x3)]]),newmat(2,2,[[(1/5)/(x3),(-1)/(x3)],[(1/15*x1*x4)/(x1*x3*x4-x2*x3^2),(-1/3*x1*x4-7/10*x2*x3)/(x1*x3*x4-x2*x3^2)]]),newmat(2,2,[[0,(1)/(x4)],[(-1/15*x1)/(x1*x4-x2*x3),(8/15*x1*x4+1/2*x2*x3)/(x1*x4^2-x2*x3*x4)]])]);
-  Pf=map(mymul,Pf,newvect(2,[y1,y2]));
-  Pf=map(vtol,Pf);
   A=rkn(Pf,V,[y1,y2],X0,F0,X1,0.1);
   return A;
 }
