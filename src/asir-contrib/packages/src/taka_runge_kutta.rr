@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.12 2009/11/12 04:56:21 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.13 2009/11/14 01:33:57 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -102,6 +102,8 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
   OneStep = getopt(onestep);
   if (type(OneStep) <= 0) OneStep = 0; else OneStep = 1;
   if (OneStep) X1=X0+2*H;
+  if ((H<0) && (X1-X0)>0) error("taka_runge_kutta_4, X1-X0 should be <0");
+  if ((H>0) && (X1-X0)<0) error("taka_runge_kutta_4, X1-X0 should be >0");
   Ans = [];
   if (Taka_Runge_kutta_graphic0) {
      glib_open();
@@ -125,7 +127,7 @@ def taka_runge_kutta_4(F,X,Y,X0,Y0,H,X1) {
   Yk1 = newvect(N);
   Xk = X0;
 
-  while (Xk < X1) {
+  while (H<0? Xk > X1: Xk < X1) {
     taka_runge_kutta_replace(K1,F,Y,N,X,Xk,Yk);
     taka_runge_kutta_replace(K2,F,Y,N,X,Xk+H*(1/2),Yk+K1*(1/2)*H);
     taka_runge_kutta_replace(K3,F,Y,N,X,Xk+H*(1/2),Yk+K2*(1/2)*H);
@@ -279,6 +281,15 @@ def taka_runge_kutta_4_test() {
    F = newvect(2,[y2,-y1]);
    Y = [y1,y2];
    T=taka_runge_kutta_4(F,x,Y,0,[1,0],0.1,15);
+   print(T);
+   taka_plot_auto(T);
+}
+
+def taka_runge_kutta_4_test2() {
+   /* Equation of oscilations */
+   F = newvect(2,[y2,-y1]);
+   Y = [y1,y2];
+   T=taka_runge_kutta_4(F,x,Y,15,[1,0],-0.1,0);
    print(T);
    taka_plot_auto(T);
 }
