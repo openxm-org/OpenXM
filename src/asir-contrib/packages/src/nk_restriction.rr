@@ -1,8 +1,9 @@
-load("bfct")$
-
 /*
 #define DEBUG_RESTRICTION
 */
+
+load("bfct")$
+load("noro_module_syz.rr")$	/* for newsyz.module_syz() */
 
 module nk_restriction;
 
@@ -20,6 +21,7 @@ localf test_restriction;
 localf test_restriction2;
 localf test_restriction3;
 localf restriction_ideal;
+localf test_restriction_ideal;
 localf restriction_ideal_internal;
 localf test_restriction_ideal_internal;
 localf test_nd_weyl_gr;
@@ -41,6 +43,8 @@ localf test_integration_ideal;
 localf test_integration_ideal2;
 localf test_integration_ideal5;
 localf test_integration_ideal5_;
+localf test_integration_ideal6;
+localf test_integration_ideal7;
 localf fano2;
 localf fano3;
 localf p_to_mat;
@@ -55,11 +59,33 @@ localf test_var_list;
 localf d_var;
 localf int_fano;
 
+/* inhomogeneous */
+localf inhomo_part;
+localf separate_var, make_elim_order_mat;
+localf action_exp, action_exp_1;
+localf subset, zero_inhomo;
+localf integration_exp;
+localf test_integration_exp;
+localf ost_integration_ideal;
+localf test_ost_integration_ideal;
+localf ost_integration_exp;
+
+
+/* parameter  */
+localf weyl_minipoly_by_elim, weyl_minipoly_by_elim2, weyl_minipoly_by_elim3;
+
+
 /* source from lib/bfct generic_bfct */
 /* generic b-fucntion に加えて F の <_(-W,W) についての GB を返す */ 
 /* F : ideal, V : var list(x), DV : var list(dx), W : weight vect */
 def generic_bfct_and_gr(F,V,DV,W)
 {
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
+        if ( member(s,append(vars(F),vars(Param))) )
+                error("generic_bfct_and_gr : the variable 's' is reserved.");
+
 	N = length(V);
 	N2 = N*2;
 
@@ -103,7 +129,14 @@ def generic_bfct_and_gr(F,V,DV,W)
 	
 	/* compute a groebner basis of FH w.r.t. MWH */
 	dp_gr_flags(["Top",1,"NoRA",1]);
-	GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
+tstart();
+	if ( version() < 20100206 ) {
+		/* これ以前の nd_weyl_gr は係数体が有理関数体では動かない */
+		GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
+	} else
+		GH = nd_weyl_gr(FH,VDVH,0,11);
+print("-- nd_weyl_gr :", 2);
+tstop();
 	dp_gr_flags(["Top",0,"NoRA",0]);
 
 	/* dehomigenize GH */
@@ -119,7 +152,21 @@ def generic_bfct_and_gr(F,V,DV,W)
 	/* find b(W1*x1*d1+...+WN*xN*dN) in Id(GIN) */
 	for ( I = 0, T = 0; I < N; I++ )
 		T += W[I]*V[I]*DV[I];
-	B = weyl_minipoly(GIN,VDV,0,T); /* M represents DRL order */
+
+	if ( S0 >= 0 ) {
+print("skip the computation of generic b-function");
+		return [s-S0, G];
+	}
+tstart();
+	if ( Param ) {
+	/* パラメータ付きは消去法で計算  */
+		B = weyl_minipoly_by_elim2(GIN,V,DV,Param,T);
+print("-- weyl_minipoly_by_elim :", 2);
+	} else {
+		B = weyl_minipoly(GIN,VDV,0,T); /* M represents DRL order */
+print("-- weyl_minipoly :", 2);
+	}
+tstop();
 	return [B, G];
 }
 
@@ -187,6 +234,135 @@ def initial_ideal(F,V,DV,W)
 	return [G, GIN];
 }
 
+/* 消去法による最小多項式計算 (パラメータを含む場合) */
+def weyl_minipoly_by_elim(GIN,V,DV,Param,T)
+{
+	TMP_S = s; TMP_DS = ds;
+	SV = cons(TMP_S,V); DSV = cons(TMP_DS,DV);
+	DParam = map(d_var,Param);
+	VV = append(append(SV,Param),append(DSV,DParam));
+
+	NP = length(Param);
+	NV = length(V);
+	N = NP+NV+1;
+	M = make_elim_order_mat(0,N);
+
+	G = cons(TMP_S-T,GIN);
+	for ( K = 0; K < 2; K++ ) {
+		for ( I = 0; I < NV; I++ ) {
+			IND = 2*NV+NP+1-I-K*(NV+NP+1);
+			M[0][IND] = 1;
+			GB = nd_weyl_gr(G,VV,0,M);
+			G = [];
+			while ( GB != [] ) {
+				if ( member(VV[IND],vars(car(GB))) )
+					break;
+				G = cons(car(GB),G);
+				GB = cdr(GB);
+			}
+			G = reverse(G);
+		}
+	}
+	if ( !subset(vars(G),cons(TMP_S,Param)) )
+		error("weyl_minipoly_by_elim : invalid elimination");
+	if ( G == [] )
+		error("weyl_minipoly_by_elim : b-function does not exist");
+	if ( length(G) != 1 ) {
+		print(G);
+		G = nd_gr(G,[TMP_S],0,0);
+		print(G);
+	}
+	if ( length(G) != 1 )
+		error("weyl_minipoly_by_elim : invalid b-function");
+	return car(G);
+}
+
+/* 消去法による最小多項式計算 (パラメータを含む場合) */
+def weyl_minipoly_by_elim2(GIN,V,DV,Param,T)
+{
+	TMP_S = s; TMP_DS = ds;
+	SV = cons(TMP_S,V); DSV = cons(TMP_DS,DV);
+	DParam = map(d_var,Param);
+	VV = append(SV,DSV);
+
+	NP = length(Param);
+	NV = length(V);
+	N = NV+1;
+	M = make_elim_order_mat(0,N);
+
+	G = cons(TMP_S-T,GIN);
+	for ( K = 0; K < 2; K++ ) {
+		for ( I = 0; I < NV; I++ ) {
+			IND = 2*NV+1-I-K*(NV+1);
+			M[0][IND] = 1;
+			if ( version() < 20100206  )
+				GB = dp_weyl_gr_main(G,VV,0,0,M);
+			else
+				GB = nd_weyl_gr(G,VV,0,M);
+			G = [];
+			while ( GB != [] ) {
+				if ( member(VV[IND],vars(car(GB))) )
+					break;
+				G = cons(car(GB),G);
+				GB = cdr(GB);
+			}
+			G = reverse(G);
+		}
+	}
+	if ( !subset(vars(G),cons(TMP_S,Param)) )
+		error("weyl_minipoly_by_elim : invalid elimination");
+	if ( G == [] )
+		error("weyl_minipoly_by_elim : b-function does not exist");
+	if ( length(G) != 1 )
+		error("weyl_minipoly_by_elim : invalid b-function");
+	return car(G);
+}
+
+/* 消去法による最小多項式計算 (パラメータを含む場合) */
+def weyl_minipoly_by_elim3(GIN,V,DV,Param,T)
+{
+	TMP_S = s; TMP_DS = ds;
+	SV = cons(TMP_S,V); DSV = cons(TMP_DS,DV);
+	DParam = map(d_var,Param);
+	VV = append(append(SV,Param),append(DSV,DParam));
+
+	NP = length(Param);
+	NV = length(V);
+	N = NP+NV+1;
+	M = make_elim_order_mat(0,N);
+
+	G = cons(TMP_S-T,GIN);
+	for ( K = 0; K < 2; K++ ) {
+		for ( I = 0; I < NV; I++ ) {
+			IND = 2*NV+NP+1-I-K*(NV+NP+1);
+			M[0][IND] = 1;
+			GB = dp_weyl_gr_main(G,VV,0,0,M);
+			G = [];
+			while ( GB != [] ) {
+				if ( member(VV[IND],vars(car(GB))) )
+					break;
+				G = cons(car(GB),G);
+				GB = cdr(GB);
+			}
+			G = reverse(G);
+		}
+	}
+	if ( !subset(vars(G),cons(TMP_S,Param)) )
+		error("weyl_minipoly_by_elim : invalid elimination");
+	if ( G == [] )
+		error("weyl_minipoly_by_elim : b-function does not exist");
+	if ( length(G) != 1 ) {
+		print(G);
+		G = nd_gr(G,[TMP_S],0,0);
+		print(G);
+	}
+	if ( length(G) != 1 )
+		error("weyl_minipoly_by_elim : invalid b-function");
+	return car(G);
+}
+
+
+
 /*
  * restriction module の計算([SST, Alg5.2.8])
  * Id : ideal
@@ -195,11 +371,19 @@ def initial_ideal(F,V,DV,W)
  * W  : weight vector
  *      VL と長さは同じ
  *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ *
+ * Option
+ * param : パラメータとみなす変数のリスト
+ * s0    : s0 >= 0 のとき generic b-function の計算を行わず
+ *         s-s0 を generic b-function として計算する
  */
 def restriction(Id, VL, DVL, W)
 {
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 tstart();
-	Result = generic_bfct_and_gr(Id, VL, DVL, W);
+	Result = generic_bfct_and_gr(Id, VL, DVL, W|param=Param, s0=S0);
 print("-- generic_bfct_and_gr :",2);
 tstop();
 	BF = Result[0];
@@ -215,20 +399,26 @@ tstart();
 	S0 = [];
 	for (I = 0; I < N; I++) {
 		T = L[I][0];
-		Root = -coef(T, 0, s) / coef(T, 1, s);
-		if (dn(Root) == 1) {
-			if (S0 == []) {
-				S0 = Root;
-			} else if (Root > S0) {
-				S0 = Root;
-			} 
+		if ( vars(T) == [s] ) { /* パラメータは generic とする */
+			Root = -coef(T, 0, s) / coef(T, 1, s);
+			if (dn(Root) == 1) {
+				if (S0 == []) {
+					S0 = Root;
+				} else if (Root > S0) {
+					S0 = Root;
+				} 
+			}
 		}
 	}
-	/* b-function が非負整数根を持たない場合([SST, Cor5.2.7]) */
-	if (S0 == [] || S0 < 0) 
-		return 0;
 	print("generic bfct : " + rtostr(BFF), 1);
 	print("S0 : " + rtostr(S0), 1);
+	/* b-function が非負整数根を持たない場合([SST, Cor5.2.7]) */
+	if (S0 == [] || S0 < 0) {
+		if ( IH )
+			S0 = 0;
+		else
+			return 0;
+	}
 	for (M = 0; M < length(W); M++) 
 		if (W[M] <= 0)
 			break;
@@ -251,6 +441,7 @@ tstart();
 	for (I = 0; I < NN; I++) 
 		OrderGB[I] = ord_w(GB[I], VarL, WVect); 
 	Generator = [];
+	RGen = [];
 	for (I = 0; I < NN; I++) {
 		/* 
 		 * B_{S0 - OrderGB[I]} 
@@ -264,16 +455,21 @@ tstart();
 			for (J = 0; J < M; J++) 
 				D *= DVL[J]^Index[J];
 			P = weyl_mul(D, GB[I], VarL);
+			Q = P;
 			for (J = 0; J < M; J++)
-				P = subst(P, VL[J], 0);	
-			if (P != 0)  
+				P = subst(P, VL[J], 0);
+			if (P != 0) {
 				Generator = cons(P, Generator);
+				/* inhomogeneous part の保持 */
+				if ( IH ) RGen = cons(P-Q, RGen);
+			}
 			B = cdr(B);
 		}
 	}
 print("-- fctr(BF) + base :", 2);
 tstop();
-	return [Generator, Base];
+	if ( !IH ) return [Generator, Base];
+	return [Generator, Base, RGen];
 }
 
 /* F は s の多項式 */
@@ -399,9 +595,11 @@ def test_restriction2()
 def test_restriction3()
 {
 	/* Appell F_1 */
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
 	L = [x*(1-x)*dx^2+y*(1-x)*dx*dy+(c-(a+b+1)*x)*dx-b*y*dy-a*b,
 	     y*(1-y)*dy^2+x*(1-y)*dx*dy+(c-(a+bb+1)*y)*dy-bb*x*dx-a*bb];
-	/* parameter つきでは無理なので特定の値で */
+	return restriction(L,[x,y],[dx,dy],[1,0]|param=[a,b,aa,bb,c],s0=S0);
 }
 
 /*
@@ -412,24 +610,46 @@ def test_restriction3()
  * W  : weight vector
  *      VL と長さは同じ
  *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ *
+ * Option
+ * param : パラメータとみなす変数のリスト
+ * s0    : s0 >= 0 のとき generic b-function の計算を行わず
+ *         s-s0 を generic b-function として計算する
  */
 def restriction_ideal(Id, VL, DVL, W)
 {
-	L = restriction(Id, VL, DVL, W);
-#ifdef DEBUG_RESTRICTION
-	print("restriction :");
-	print(L);
-#endif
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
+	L = restriction(Id, VL, DVL, W|inhomo=IH,param=Param,s0=S0);
+	if ( !L ) return [1];
 tstart();
-	GG = restriction_ideal_internal(L, VL, DVL, W);
-print("-- restriction_ideal_internal :", 2);
+	GG = restriction_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param);
+	print("-- restriction_ideal_internal :", 2);
 tstop();
+
 	return GG;
+}
+
+def test_restriction_ideal()
+{
+	/* Appell F_1 */
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
+	L = [x*(1-x)*dx^2+y*(1-x)*dx*dy+(c-(a+b+1)*x)*dx-b*y*dy-a*b,
+	     y*(1-y)*dy^2+x*(1-y)*dx*dy+(c-(a+bb+1)*y)*dy-bb*x*dx-a*bb];
+	return restriction_ideal(L,[x,y],[dx,dy],[1,0]|inhomo=IH,param=[a,b,aa,bb,c],s0=S0);
 }
 
 /* L : result of restriction */
 def restriction_ideal_internal(L, VL, DVL, W)
 {
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+
 	/* 
 	 * restriction module の結果をベクトル表示に直す       
 	 * Base と同じ順に dx^Base[I] の係数を I 成分に格納   
@@ -438,6 +658,7 @@ def restriction_ideal_internal(L, VL, DVL, W)
 	 */
 	Gen = L[0];
 	Base = L[1];
+	if ( IH ) RGen = L[2];
 
 	M = 0;
 	for (M = 0; M < length(W); M++)
@@ -465,22 +686,29 @@ def restriction_ideal_internal(L, VL, DVL, W)
 	print("Generators :");
 	print(GenV);
 #endif
-	
-	NN = length(VL) - M;
-	VLY = newvect(NN * 2);
-	for (I = 0; I < NN; I++) {
-		VLY[I] = VL[I + M];
-		VLY[I + NN] = DVL[I + M];
-		
-	}
-	VLY = vtol(VLY);
+
+	TMP = separate_var(VL,DVL,W|param=Param);
+	VY = TMP[0]; DVY = TMP[1]; VLY = append(VY,DVY);
+	VZ = TMP[2]; DVZ = TMP[3];
+	OrdM = TMP[4];
+
 	GenV = vtol(GenV);
-	/* GenV の要素はリストでないと nd_weyl_gr で internal error */
-	G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
-#ifdef DEBUG_RESTRICTION
-	print("GB :");
-	print(G);
-#endif
+
+	if ( !IH ) {
+		G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);
+		if ( G == []) G = [vtol(newvect(N))];
+	}
+	else {
+		/* 生成関係式を得るために sygyzy を計算 */
+		/* OpenXM/src/asir-contrib/testing/noro/module_syz.rr が必要 */
+		VDVL = append(VL,DVL);
+		if ( GenV == [] ) GenV = [[0]];
+		SYZ = newsyz.module_syz(GenV, VLY, 1, OrdM|weyl=1);
+		G = SYZ[1];
+		QUO = SYZ[2];
+		DRGen = map(dp_ptod,RGen,VDVL);
+		RL = [];
+	}
 
 	/* G の元の中で、最後の成分(i.e. 1 の係数) のみ 0 でないものを取り出す */
 	Len = length(G);
@@ -490,15 +718,29 @@ def restriction_ideal_internal(L, VL, DVL, W)
 		for (J = 0; J < N - 1; J++) 
 			if (T[J] != 0) 
 				break;
-		if (J == N - 1 && T[N - 1] != 0) 
-			GG = cons(T[N - 1], GG);		
+		if (J == N - 1 && T[N - 1] != 0) {
+			if ( !IH ) 
+				GG = cons(T[N - 1], GG);
+			else {
+				R = inhomo_part(T[N-1],QUO[I],DRGen,VZ,DVZ,VDVL|rest=1);
+				GG = cons(R[0],GG);
+				RL = cons(R[1],RL);
+			}
+		}
+
 	}
+	if ( GG == [] )
+		GG = [0];
+
 #ifdef DEBUG_RESTRICTION
 	print("GG :");
 	print(GG);
 #endif
-
-	return GG;
+	if ( !IH )
+		return GG;
+	if ( RL == [] )
+		RL = zero_inhomo(VZ);
+	return [GG,RL];
 }
 
 def test_restriction_ideal_internal()
@@ -620,9 +862,18 @@ def test_inv_fourier_trans()
  * W  : weight vector
  *      VL と長さは同じ
  *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ *
+ * Option
+ * param : パラメータとみなす変数のリスト
+ * s0    : s0 >= 0 のとき generic b-function の計算を行わず
+ *         s-s0 を generic b-function として計算する
  */
 def integration(Id, VL, DVL, W)
 {
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
 	for (M = 0; M < length(W); M++) 
 		if (W[M] <= 0)
 			break;
@@ -636,13 +887,15 @@ def integration(Id, VL, DVL, W)
 	DVLM = vtol(DVLM);
 	
 	FId = map(fourier_trans, Id, VLM, DVLM);
-	R = restriction(FId, VL, DVL, W);
+	R = restriction(FId, VL, DVL, W|inhomo=IH,param=Param, s0=S0);
+	if ( !R ) return 0;
 #ifdef DEBUG_RESTRICTION
 	print("restriction of FId :");
 	print(R); 
 #endif
 	Generator = map(inv_fourier_trans, R[0], VLM, DVLM);
-	return [Generator, R[1]];
+	if ( !IH ) return [Generator, R[1]];
+	return [Generator, R[1], R[2]];
 }
 
 def test_integration()
@@ -702,16 +955,27 @@ def test_integration5()
  * W  : weight vector
  *      VL と長さは同じ
  *      W[0], ..., W[M] が正で、それ以降の要素は 0 としておく
+ *
+ * Option
+ * param : パラメータとみなす変数のリスト
+ * s0    : s0 >= 0 のとき generic b-function の計算を行わず
+ *         s-s0 を generic b-function として計算する
+ * inhomo: 0 でないとき inhomogeneous part の情報もあわせて返す
  */
 def integration_ideal(Id, VL, DVL, W)
 {
-	L = integration(Id, VL, DVL, W);
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
+	L = integration(Id, VL, DVL, W|inhomo=IH,param=Param, s0=S0);
+	if ( !L ) return [1];
 #ifdef DEBUG_RESTRICTION
 	print("integration :");
 	print(L);
 #endif
 tstart();
-	GG = integration_ideal_internal(L, VL, DVL, W);
+	GG = integration_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param);
 print("-- integration_ideal_internal :", 2);
 tstop();
 	return GG;
@@ -720,6 +984,9 @@ tstop();
 /* L : result of integration */
 def integration_ideal_internal(L, VL, DVL, W)
 {
+	if ( type(IH=getopt(inhomo)) == -1) IH = 0;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+
 	/* 
 	 * integration module の結果をベクトル表示に直す       
 	 * Base と同じ順に x^Base[I] の係数を I 成分に格納   
@@ -728,6 +995,7 @@ def integration_ideal_internal(L, VL, DVL, W)
 	 */
 	Gen = L[0];
 	Base = L[1];
+	if ( IH ) RGen = L[2];
 
 	M = 0;
 	for (M = 0; M < length(W); M++)
@@ -755,21 +1023,79 @@ def integration_ideal_internal(L, VL, DVL, W)
 	print("Generators :");
 	print(GenV);
 #endif
-	
-	NN = length(VL) - M;
-	VLY = newvect(NN * 2);
-	for (I = 0; I < NN; I++) {
-		VLY[I] = VL[I + M];
-		VLY[I + NN] = DVL[I + M];
-		
-	}
-	VLY = vtol(VLY);
+
+	TMP = separate_var(VL,DVL,W|param=Param);
+	VY = TMP[0]; DVY = TMP[1]; VLY = append(VY,DVY);
+	VZ = TMP[2]; DVZ = TMP[3];
+	OrdM = TMP[4];
+
 	GenV = vtol(GenV);
-	/* GenV の要素はリストでないと nd_weyl_gr で internal error */
-	G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
-#ifdef DEBUG_RESTRICTION
-	print("GB :");
-	print(G);
+
+	if ( !IH ) {
+		G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);
+		if ( G == []) G = [vtol(newvect(N))];
+	}
+	else {
+		/* 生成関係式を得るために sygyzy を計算 */
+		/* OpenXM/src/asir-contrib/testing/noro/module_syz.rr が必要 */
+		VDVL = append(VL,DVL);
+		if ( GenV == [] ) GenV = [[0]];
+		SYZ = newsyz.module_syz(GenV, VLY, 1, OrdM|weyl=1);
+		G = SYZ[1];
+		QUO = SYZ[2];
+		DRGen = map(dp_ptod,RGen,VDVL);
+		RL = [];
+	}
+
+
+#if 0
+	if (ParamType != 4) { 
+		NN = length(VL) - M;
+		VLY = newvect(NN * 2);
+		for (I = 0; I < NN; I++) {
+			VLY[I] = VL[I + M];
+			VLY[I + NN] = DVL[I + M];
+		
+		}
+		VLY = vtol(VLY);
+		GenV = vtol(GenV);
+		G = nd_weyl_gr(GenV, VLY, 0, [1,0]);	
+	} else {
+		/* 
+		 * VLY
+		 * [x, param, dx, dparam] 
+		 */
+		NN = length(VL) - M + length(Param);
+		VLY = newvect(NN * 2);
+		for (I = 0; I < length(VL) - M; I++) {
+			VLY[I] = VL[I + M];
+			VLY[I + NN] = DVL[I + M];
+		}
+		for (;I < NN; I++) {
+			VLY[I] = Param[I - length(VL) + M]; 
+			VLY[I + NN] = strtov("d" + rtostr(Param[I - length(VL) + M]));
+		}
+		VLY = vtol(VLY);
+		GenV = vtol(GenV);
+
+		/* 
+		 * OrdM 
+		 * x,param,dx,dparam
+		 * [1, 0, 1, 0]
+		 * [  grevlex ] 
+		 */
+		OrdM = newmat(2 * NN + 2, 2 * NN);
+		for (I = 0; I < length(VL) - M; I++) {
+			OrdM[0][I] = 1;
+			OrdM[0][I + NN] = 1;
+		}
+		for (I = 0; I < 2 * NN; I++) 
+			OrdM[1][I] = 1;
+		for (I = 0; I < 2 * NN; I++) 
+			OrdM[I][2 * NN - 1 - I] = -1; 
+
+		G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);	
+	}
 #endif
 
 	/* G の元の中で、最後の成分(i.e. 1 の係数) のみ 0 でないものを取り出す */
@@ -780,15 +1106,28 @@ def integration_ideal_internal(L, VL, DVL, W)
 		for (J = 0; J < N - 1; J++) 
 			if (T[J] != 0) 
 				break;
-		if (J == N - 1 && T[N - 1] != 0) 
-			GG = cons(T[N - 1], GG);		
+		if (J == N - 1 && T[N - 1] != 0) {
+			if ( !IH ) 
+				GG = cons(T[N - 1], GG);
+			else {
+				R = inhomo_part(T[N-1],QUO[I],DRGen,VZ,DVZ,VDVL);
+				GG = cons(R[0],GG);
+				RL = cons(R[1],RL);
+			}
+		}
+
 	}
+	if ( GG == [] )
+		GG = [0];
 #ifdef DEBUG_RESTRICTION
 	print("GG :");
 	print(GG);
 #endif
-
-	return GG;
+	if ( !IH )
+		return GG;
+	if ( RL == [] )
+		RL = zero_inhomo(DVZ);
+	return [GG,RL];
 }
 
 /* nd_weyl_gr を実行せず、加群の生成元を返す */
@@ -868,6 +1207,8 @@ def test_integration_ideal()
 def test_integration_ideal2()
 {
 	/* [SST, Ex5.5.7] */
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
 	F = (x1+x2*t+x3*t^2+x4*t^3)*t^2;
 	BF = bfct(F);
 	print("BF :");
@@ -877,31 +1218,62 @@ def test_integration_ideal2()
 	print("Ann(F^s)|s=(-1/5) :");
 	print(Ann0);
 	print("integration ideal :");
-	Int = integration_ideal(Ann0, [t,x1,x2,x3,x4],[dt,dx1,dx2,dx3,dx4],[1,0,0,0,0]);
+	Int = integration_ideal(Ann0, [t,x1,x2,x3,x4],[dt,dx1,dx2,dx3,dx4],[1,0,0,0,0]|inhomo=IH);
 	print(Int);
 }
 
 def test_integration_ideal5()
 {
 	/* [SST, Ex5.6.4] */
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
 	G = x1*t1^2*t2+x2*t1^2*t2^2+x3*t1*t2^2+x4+x5*t1*t2;
 	Ann = ann(G);
 	/* G の bfct は s + 1 */
 	Ann0 = map(subst, Ann, s, -1);	
-	/* 計算終わらず */
-	Int = integration_ideal(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]);
+	Int = integration_ideal(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]|inhomo=IH);
 	return Int;
 }
 
 def test_integration_ideal5_()
 {
 	/* [SST, Ex5.6.4] */
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
 	G = x1*t1^2*t2+x2*t1^2*t2^2+x3*t1*t2^2+x4+x5*t1*t2;
 	Ann = ann(G);
 	/* G の bfct は s + 1 */
 	Ann0 = map(subst, Ann, s, -1);	
-	Int = integration_ideal_(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]);
+	Int = integration_ideal_(Ann0, [t1,t2,x1,x2,x3,x4,x5],[dt1,dt2,dx1,dx2,dx3,dx4,dx5],[1,1,0,0,0,0,0]|inhomo=IH);
 	return Int;
+}
+
+def test_integration_ideal6()
+{
+	/* 
+	 * Gauss hypergeometric integration 
+	 * L = ndbf.ann_n([t,1-t,1-x*t]);
+	 * L = map(subst, L, s0, b-1, s1, c-b-1, s2, -a); 
+	 */
+	if (type(IH=getopt(inhomo)) == -1) IH = 0;
+	if (type(S0=getopt(s0)) == -1) S0 = -1;
+
+	L = [(-x^2+x)*dx^2+((-t+1)*dt+(-a-b-1)*x+c-1)*dx-b*a,(-t+1)*x*dx+(t^2-t)*dt+(-c+2)*t+b-1,(t*x-1)*dx+a*t];
+	Int = integration_ideal(L,[t,x],[dt,dx],[1,0]|param=[a,b,c],s0=S0,inhomo=IH);
+	return Int;
+}
+
+def test_integration_ideal7()
+{
+	/* A-hypergeometric */
+	/* \int (x11+x21*t)^a1 (x12+x22*t)^a2 t^c dt */
+	if (type(IH=getopt(inhomo)) == -1) IH = 0;
+	if (type(S0=getopt(s0)) == -1) S0 = -1;
+
+	L = [-x11*dx11-dx21*x21+a1,-x12*dx12-dx22*x22+a2,-t*dt+c+dx21*x21+dx22*x22,t*dx12-dx22,t*dx11-dx21,dx21*dx12-dx22*dx11];
+	Int = integration_ideal(L,[t,x11,x12,x21,x22],[dt,dx11,dx12,dx21,dx22],[1,0,0,0,0]|param=[a1,a2,c],s0=S0,inhomo=IH);
+	return Int;
+
 }
 
 /*----------------------------------------------------------------- */
@@ -928,7 +1300,7 @@ def fano2(I)
 def fano3(I)
 {
 	Fano3 = [
-		[[-1,0,0],[0,0,1],[0,1,0],[1,-1,1],[0,0,0]],
+		[[-1,0,0],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
 		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,1],[1,-1,-1],[0,0,0]],
 		[[-1,0,0],[-1,1,1],[0,0,1],[0,1,0],[1,-1,-1],[0,0,0]],
 		[[-1,0,0],[0,0,-1],[0,0,1],[0,1,-1],[1,-1,-1],[0,0,0]],
@@ -1083,7 +1455,7 @@ tstart();
 print("-- ann :", 2);
 tstop();
 	print("Ann F^s : ", 2);
-	print(Id, 2);
+	print(Id);
 
 #ifdef DEBUG_FANO
 	/* b　関数の計算が重たいので skip */
@@ -1100,5 +1472,284 @@ tstop();
 	J = integration_ideal(Id0, VL, DVL, W);
 	return J;
 }
+
+
+/**** added functions for inhomogeneous ****/
+
+/*
+ * J = (I + dt_1 D + dt_2 D + ... + dt_m D) \cap D_Y
+ *
+ * Input 
+ * TT    : 積分イデアル J の生成元 (content が取れる可能性あり)
+ * QI    : 生成関係式の係数 i.e TT = \sum QI[I]*(GenV[I]の最後の成分)
+ * DRGen : Rest part
+ * VZ    : [ t_1,  t_2, ...,  t_m]
+ * DVZ   : [dt_1, dt_2, ..., dt_m]
+ * 
+ * Output [G,R]
+ * G[K] : 積分イデアル J の生成元 (content = 1)
+ * R[K] : [[[dt_1, ***],[dt_2, ***],...,[dt_m, ***]], 分母]
+ * i.e.
+ * G[K]-(dt_1 R[K][0][0][1] + dt_2 R[K][0][1][1] 
+ *				+ ... + dt_m R[K][0][m][1])/R[K][1] \in I
+ *
+ */
+
+def inhomo_part(TT,QI,DRGen,VZ,DVZ,VDVL)
+{
+	if ( type(REST=getopt(rest)) == -1 ) REST = 0;
+	TMP = cont(TT);
+	CT = dp_hc(dp_ptod(TMP,vars(TMP)));
+	G = TT/CT;
+	DQI = map(dp_ptod,QI,VDVL);
+	for ( DP = 0, K = 0; K < length(DQI); K++ )
+		DP += dp_weyl_mul(DQI[K],DRGen[K]);
+	P = dp_dtop(DP,VDVL);
+	GCD = 1;
+	if ( P ) {
+		TMP = cont(P);
+		CP = dp_hc(dp_ptod(TMP,vars(TMP)));
+		GCD = igcd(CT,CP);
+		P /= GCD;
+	}
+	R = [];
+	for ( I = 0; I < length(VZ); I++ ) {
+		Q = subst(P,VZ[I],0);
+		S = sdiv(P-Q,VZ[I]);
+		if ( REST )
+			R = cons([VZ[I],S],R);
+		else 
+			R = cons([DVZ[I],inv_fourier_trans(S,VZ,DVZ)],R);
+		P = Q;
+	}
+	if ( P )
+		error("inhomo_part : invalid inhomogeneous operator");
+	R = [reverse(R),CT/GCD];
+	return [G,R];
+}
+
+
+def separate_var(VL,DVL,W)
+{
+	DUMMY = dummy_var;
+	if ( type(Param=getopt(param)) == -1 ) Param = 0;
+	VY = []; DVY = [];
+	VZ = []; DVZ = [];
+	for ( I = 0; I < length(VL); I++ ) {
+		if ( W[I] ) {
+			VZ = cons(VL[I],VZ);
+			DVZ = cons(DVL[I],DVZ);
+		} else {
+			VY = cons(VL[I],VY);
+			DVY = cons(DVL[I],DVY);
+		}
+	}
+	OrdM = 0;
+	if ( VY == [] ) {
+		VY = [DUMMY];
+		DVY = [strtov("d"+rtostr(DUMMY))];
+	}
+	if ( Param ) {
+		DParam =[];
+		for ( I = 0; I < length(Param); I++ )
+			DParam = cons(strtov("d"+rtostr(Param[I])),DParam);
+		OrdM = make_elim_order_mat(length(VY),length(Param));
+		DVY = append(DParam,DVY);
+		VY = append(reverse(Param),VY);
+	}
+	return append(map(reverse,[VY,DVY,VZ,DVZ]),[OrdM]);
+}
+
+
+/*  1 行目の左から順に 1 が M 個, 0 が N 個, 1が M 個, 0 が N 個 並び,
+ *  下は grevlex 順を表す行列を返す
+ */
+def make_elim_order_mat(M,N)
+{
+	NN = M+N;
+	OrdM = newmat(2*NN+1,2*NN);
+	for ( I = 0; I < M; I++ ) {
+		OrdM[0][I] = 1;
+		OrdM[0][I+NN] = 1;
+	}
+	for ( I = 0; I < 2*NN; I++ )
+		OrdM[1][I] = 1;
+	for ( I = 2; I < 2*NN+1 ; I++ )
+		OrdM[I][2*NN-I+1] = -1;
+	return OrdM;
+}
+
+/* P  : a operator in D<V,DV>
+ * CE : C*exp(E) を表すリスト [C,E]
+ * 
+ * C*exp(E) に P を左から作用させた結果を返す
+ */
+def action_exp(P,V,DV,CE)
+{
+	VDV = append(V,DV);
+	DP = dp_ptod(P,VDV);
+	N = length(V);
+	R = 0;
+	for ( T = DP; T; T = dp_rest(T) )
+		R += action_exp_1(dp_hm(T),N,V,CE);
+	return [R,CE[1]];
+}
+
+def action_exp_1(M,N,V,CE)
+{
+	C = CE[0];
+	E = CE[1];
+	CO = dp_hc(M);
+	EX = dp_etov(M);
+	for ( I = 0; I < N; I++ ) {
+		VI = V[I];
+		CO *= VI^EX[I];
+		DEVI = diff(E,VI);
+		for ( J = 0, EXI = EX[I+N]; J < EXI; J++ )
+			C = diff(C,VI)+C*DEVI;
+	}
+	return CO*C;
+}
+
+
+/* A \subset B ?  */
+def subset(A,B)
+{
+	while ( A != [] ) {
+		if ( !member(car(A),B) )
+			return 0;
+		A = cdr(A);
+	}
+	return 1;
+}
+
+
+def zero_inhomo(VL)
+{
+	R = [];
+	for ( I = 0; I < length(VL); I++ )
+		R = cons([VL[I],0],R);
+	R = reverse(R);
+	RL = [R,1];
+	return RL;
+}
+
+
+/* \int C*exp(E) dt */
+def integration_exp(C,E,V,DV,W)
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	Id = [];
+	for ( I = 0; I < length(V); I++ )
+		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
+	G = integration_ideal(Id,V,DV,W|param=Param,s0=S0,inhomo=IH);
+	return G;
+}
+
+def test_integration_exp()
+{
+	/* CREST GB School 演習問題 2-(c) */
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	return integration_exp(1,-t-x*t^3,[t,x],[dt,dx],[1,0]|inhomo=IH);
+}
+
+
+
+/*
+ * Input
+ * Id : an ideal of D<t,dt,x,dx> which annihilates u(x,t)
+ * V  : var list (t,x)   : [ t_1,..., t_m, x_1,..., x_n]
+ * DV : var list (dt,dx) : [dt_1,...,dt_m,dx_1,...,dx_n]
+ * W  : weight : W[I] > 0 ( I < m ), W[I] = 0 ( I >= m )
+ * LB : list of lower bounds [a_1,...,a_m]
+ * UB : list of upper bounds [b_1,...,b_m]
+ *	a_i, b_i : number, strings "inf" or "-inf", parameter
+ *
+ * Output
+ * ideal J \subset D<x,dx> s.t.
+ * J \bullet \int_{a_1}^{b_1} ... \int_{a_m}^{b_m} u(x,t) dt = 0
+ */
+def ost_integration_ideal(Id,V,DV,W,LB,UB)
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
+	if ( (VB = vars(append(LB,UB))) != [] )
+		if ( Param == 0 )
+			Param = VB;
+		else
+			Param = append(Param,VB);
+	TMP = separate_var(V,DV,W);
+	VX = TMP[0]; DVX = TMP[1];
+	VY = TMP[2]; DVY = TMP[3]; VYDVY = append(VY,DVY);
+	
+	M = length(VY);
+	WW = newvect(M);
+	TI = [];
+	while ( Id != [] ) {
+		T = 1;
+		MIN = 0; J = 0; /* for  #else */
+		P = car(Id);
+		for ( I = 0; I < M; I++ ) {
+			WW[I] = W[I];
+			MWW = -WW;
+			WT = append(vtol(MWW),vtol(WW));
+			O = ord_w(P,VYDVY,WT);
+			WW[I] = 0;
+#if 0
+			if ( O > 0 ) {
+				if ( LB[I] != "-inf" )
+					T *= (VY[I]-LB[I])^O;
+				if ( UB[I] != "inf" && UB[I] != "+inf" )
+					T *= (UB[I]-VY[I])^O;
+			}
+		}
+#else
+			if ( O > 0 ) {
+				if ( MIN ) {
+					if ( O < MIN ) {
+						MIN = O;
+						J = I;
+					}
+				} else {
+					MIN = O;
+					J = I;
+				}
+			}
+
+		}
+		if ( LB[J] != "-inf" )
+			T *= (VY[J]-LB[J])^MIN;
+		if ( UB[J] != "inf" && UB[J] != "+inf" )
+			T *= (UB[J]-VY[J])^MIN;
+#endif		
+		TI = cons(T*P,TI);
+		Id = cdr(Id);
+	}
+	return integration_ideal(TI,V,DV,W|param=Param,s0=S0,inhomo=IH);
+}
+
+def test_ost_integration_ideal()
+{
+	B = [dt+(3*t^2-1)*x,dx+t^3-t];
+	return ost_integration_ideal(B,[t,x],[dt,dx],[1,0],[0],["inf"]);
+}
+
+
+def ost_integration_exp(C,E,V,DV,W,LB,UB)
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	Id = [];
+	for ( I = 0; I < length(V); I++ )
+		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
+	G = ost_integration_ideal(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH);
+	return G;
+}
+
 endmodule$
 end$
