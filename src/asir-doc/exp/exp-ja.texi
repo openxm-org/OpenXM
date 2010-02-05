@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.34 2009/05/16 04:56:32 ohara Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.35 2009/12/09 04:58:29 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -2837,10 +2837,133 @@ B_@{S0@} length : 2
 [1432]
 @end example
 
+@node nk_restriction,,, D 加群の制限, 積分に関する関数の説明 (option)
+@subsection @code{nk_restriction (option)}
+@comment --- 索引用キーワード
+@findex nk_restriction (option)
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.restriction(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
+@item nk_restriction.restriction_ideal(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
+@item nk_restriction.integration(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
+@item nk_restriction.integration_ideal(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
+:: D 加群の制限, 積分に関する関数のオプションの説明
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item @var{n}
+0 または 1
+@item @var{p}
+リスト (係数体に属する変数のリスト)
+@item @var{m}
+整数
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item @var{n} が 0 でないとき, 非斉次部分の計算を行う.
+
+restriction_ideal (integration_ideal) に関しては, イデアル @code{I} の
+@code{M} 変数についての制限(積分)イデアル @code{J} と
+
+@iftex
+@tex
+{\tt J[K]-(1/IH[K][1])(IH[K][0][0][0]IH[K][0][0][1]+...+IH[K][0][M][0]IH[K][0][M][1])} $\in$ {\tt I}
+@end tex
+@end iftex
+@ifinfo
+J[K]-(1/IH[K][1])(IH[K][0][0][0]IH[K][0][0][1]+...+IH[K][0][M][0]IH[K][0][M][1]) \in I
+@end ifinfo
+
+を満たす非斉次部分を構成する情報 @code{IH} とのペア @code{[J,IH]} を出力する.
+詳しい出力の見方については, 下の例やソースの @code{inhomo_part} の
+コメントを参照.
+
+restriction, integration に対する @code{inhomo} オプションは
+restriction_ideal, integration_ideal のサブルーチンとしての実行用なので,
+ユーザが明示的に使用することはない.
+
+@item @var{param} に指定された変数は係数体に属するものとみなされて計算が行われる.
+また, ``generic'' であることが仮定される.
+つまり, これらの変数に依存するような generic b-関数の根は,
+最大整数根でないということである.
+
+@item @var{param} が指定されると, generic b-関数の計算は noro による
+高速アルゴリズムではなく, 消去法が用いられる.
+@var{param} に空リストを指定することで, b-関数の計算方法のフラグとしても
+利用できる.
+
+@item @var{m} が負でないとき, 計算を行わずに s-m を generic b-関数として
+制限, 積分等の計算を行う. 
+@end itemize
+
+以下は,
+@iftex
+@tex
+$ t^{b-1} (1-t)^{c-b-1} (1-xt)^{-a} $
+@end tex
+の annihilator
+@tex
+$I = D \cdot \{ x(1-x) \partial_x^2+((1-t) \partial_t-(a+b+1)x+c-1)
+ \partial_x-ab, (1-t)x \partial_x+t(1-t) \partial_t+(2-c)t+b-1,
+ (xt-1) \partial_x+at \}$
+@end tex
+の
+@tex
+$t$
+@end tex
+についての積分イデアル
+@tex
+$J$
+@end tex
+を計算し, Gauss の超幾何微分方程式を導出した例である. ([SST, Chap 1.3])
+@end iftex
+@ifinfo
+t^{b-1} (1-t)^{c-b-1} (1-xt)^{-a}
+の annihilator
+I = D . @{ x(1-x)dx^2+((1-t)dt-(a+b+1)x+c-1)dx-ab,
+ (1-t)x dx+t(1-t)dt+(2-c)t+b-1, (xt-1)dx+at @}
+の t についての積分イデアル J
+を計算し, Gauss の超幾何微分方程式を導出した例である. ([SST, Chap 1.3])
+@end ifinfo
+@example
+[1555] A=ndbf.ann_n([t,1-t,1-x*t])$
+[1556] I=map(subst,A,s0,b-1,s1,c-b-1,s2,-a);
+[(x^2-x)*dx^2+((t-1)*dt+(a+b+1)*x-c+1)*dx+b*a,(-t+1)*x*dx+(t^2-t)*dt+(-c+2)*t+b-1,(t*x-1)*dx+a*t]
+[1557] J=nk_restriction.integration_ideal(I,[t,x],[dt,dx],[1,0]|inhomo=1, param=[a,b,c]);
+-- nd_weyl_gr :0sec(0.001875sec)
+-- weyl_minipoly_by_elim :0.008001sec(0.006133sec)
+-- generic_bfct_and_gr :0.008001sec(0.006181sec)
+generic bfct : [[-1,1],[s,1],[s-a+c-1,1]]
+S0 : 0
+B_{S0} length : 1
+-- fctr(BF) + base :0sec(0.003848sec)
+-- integration_ideal_internal :0sec(0.07707sec)
+[[(x^2-x)*dx^2+((a+b+1)*x-c)*dx+b*a],[[[[dt,(-t+1)*dx]],1]]]
+@end example
+@iftex
+この出力は
+@tex
+$\{(x^2-x) \partial_x^2+((a+b+1)x-c) \partial_x+ab \}
+- 1/1 \{ \partial_t (-t+1) \partial_x \} \in I$
+@end tex
+であることを意味する.
+@end iftex
+@ifinfo
+この出力は
+@{(x^2-x)dx^2+((a+b+1)x-c)dx+ab @} - 1/1 @{ dt (-t+1)dx @} \in I
+であることを意味する.
+@end ifinfo
+
 @noindent
 ChangeLog
 @itemize @bullet
 @item  これらの関数は OpenXM/src/asir-contrib/packages/src/nk_restriction.rr で定義されている. nk_restriction.rr, 1.1--1.6 を見よ.
+@item 2010-02-05 に 3 つの option (@code{inhomo}, @code{param}, @code{s0}) が追加された.
 @end itemize
 
 @node その他,,, 実験的仕様の関数
