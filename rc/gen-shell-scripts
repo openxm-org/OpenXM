@@ -1,10 +1,11 @@
 #!/bin/sh
-# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.12 2004/06/20 04:55:32 takayama Exp $
+# $OpenXM: OpenXM/rc/gen-shell-scripts,v 1.13 2004/06/21 06:06:15 takayama Exp $
 
 # openxm
 	rm -f openxm
 	echo "#!/bin/sh" >openxm
 	cat dot.bashrc >>openxm
+	cat inst-feprc.sh >>openxm
 	echo 'exec $*' >>openxm
 	chmod +x openxm
 

@@ -1,0 +1,55 @@
+#
+# $Header$
+# This is a sample .feprc file.
+#
+
+set alarm-on-eof
+set savehist=50
+
+#set editmode=vi
+
+echo "Welcome to fep! Editmode is" $editmode
+echo "I'm a front end processor for" $command
+
+if $editmode == emacs
+	fep-bind delete-to-kill-buffer "\^X\^W"
+endif
+
+if $command == sh
+	set ignore-eof
+	set history-file .fephistdir/sh
+	set delimiters=" 	\"';&<>()|^%"
+	set auto-repaint
+	set clear-repaint
+	alias cd 'fep-cd !$;cd !$'
+	alias chdir 'fep-cd !$;cd !$'
+
+	if $editmode == vi
+		fep-bind list-file-name "\^D"
+	endif
+
+elseif $command == adb
+	set history-file .fephistdir/adb
+
+elseif $command == bc
+	unset alarm-on-eof
+	unset alarm-on-eof
+
+elseif $command == dbx
+	set history-file .fephistdir/dbx
+
+else
+	echo "History will be saved to" $history-file
+endif
+
+fep-bind suspend "\^Z"
+
+#Fujimoto's setting
+        fep-bind delete-previous-character "\^H"
+        fep-bind backward-character "\^[[D"
+        fep-bind forward-character "\^[[C"
+#        fep-bind beginning-of-line "\^A"
+#        fep-bind end-of-line "\^E"
+        fep-bind previous-history "\^[[A"
+        fep-bind next-history "\^[[B"
+
