@@ -1,6 +1,6 @@
 # Do source dot.bashrc before doing something.
 
-VERSION=1.2.3-12
+VERSION=1.3.1-1
 # This VERSION must be compatible with debian/control ver. 
 #   use "make update-version" to update these values.
 #                                OpenXM/download/Makefile

@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/misc/packages/Makefile,v 1.31 2003/04/22 00:19:12 takayama Exp $
+# $OpenXM: OpenXM/misc/packages/Makefile,v 1.32 2003/12/26 07:27:27 takayama Exp $
 
-VERSION=1.2.1
+VERSION=1.3.1
 TAG=HEAD
-## TAG=RELEASE_1_2_1
+## TAG=RELEASE_1_3_1
 
 ### Configure below.
 TAR_WORK=$(HOME)/tmp
@@ -37,7 +37,7 @@ usage :
 	@echo "4.  build-on-redhat (do not forget to set .rpmrc)"
 	@echo "5.  build-on-unkei"
 	@echo "6.  copy-to-ftp-area "
-	@echo "7.  copy-head-tar-all-to-ftp-area "
+	@echo "[[7]].  copy-head-tar-ball-to-ftp-area "
 	@echo "7.b  copy-release-tar-ball-to-ftp-area "
 	@echo "8.  copy-asir-head-tar-ball-to-ftp-area "
 	@echo "9.  copy-asir-stable-tar-ball-to-ftp-area "
