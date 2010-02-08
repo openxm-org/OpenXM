@@ -12,7 +12,7 @@ OS=`uname -s`
 RSYNC=rsync -avz -e ssh
 #FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
 FTP_DIR=/home/web/pub/OpenXM/head/knoppix
-APT_DIR=/usr/local/www/data/nobuki/DVD3
+APT_DIR=/usr/local/www/data/KnoppixMath
 TM_OX=work/OpenXM/src/kxx/init-openxm.scm
 
 build-package: fetch  make-tar-ball-2  make-tar-ball-3
@@ -117,6 +117,6 @@ clean-tilde:
 	rm -rf *~
 
 update-version:
-	../../../../bin/oxreplace --old VERSION=1.2.3-11 --new VERSION=1.2.3-12 OpenXM/download/Makefile
-	../../../../bin/oxreplace --old VERSION=1.2.3-11 --new VERSION=1.2.3-12 ../../../../src/asir-port/Makefile
+	../../../../bin/oxreplace --old VERSION=1.2.3-12 --new VERSION=1.3.1-1 OpenXM/download/Makefile
+	../../../../bin/oxreplace --old VERSION=1.2.3-12 --new VERSION=1.3.1-1 ../../../../src/asir-port/Makefile
 	echo "make commit under OpenXM/src/asir-port and here"
