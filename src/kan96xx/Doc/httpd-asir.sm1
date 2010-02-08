@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.28 2006/02/11 02:34:53 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-asir.sm1,v 1.29 2009/02/22 17:30:03 ohara Exp $
 %% http server by sm1
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -55,7 +55,7 @@ def
   /httpd.port 1200 rrr add def
   httpd.port message 
 
-  %%[(sleep 3; netscape -geometry 800x500 http://localhost:)
+  %%[(sleep 3; firefox -geometry 800x500 http://localhost:)
   %%  httpd.port toString
   %% ( &)] cat system
    [(ostype)] extension 0 get

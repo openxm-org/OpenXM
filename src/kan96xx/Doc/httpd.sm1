@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.18 2005/11/21 09:12:22 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd.sm1,v 1.19 2005/11/21 12:46:49 takayama Exp $
 %% common modules for httpd on sm1.
 % [(Strict) 1] system_variable  % for debugging.
 /Oxserver_history_variable (Oxserver_history_variable_) def
@@ -819,7 +819,7 @@ def
      [(getenv) (OX_BROWSER)]  extension /browser set
      {
       browser tag 0 eq {
-        [(sleep 3 ; netscape http://localhost:) portnum ( & ) ] cat
+        [(sleep 3 ; firefox http://localhost:) portnum ( & ) ] cat
         /cmd set cmd message
         cmd system
         exit

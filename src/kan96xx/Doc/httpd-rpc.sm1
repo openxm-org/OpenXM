@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.13 2002/12/04 00:02:10 takayama Exp $
+%% $OpenXM: OpenXM/src/kan96xx/Doc/httpd-rpc.sm1,v 1.14 2009/02/22 17:30:03 ohara Exp $
 %% http server by sm1. Used for RPC.  Generic example.
 
 [(parse) (httpd.sm1) pushfile] extension pop
@@ -81,7 +81,7 @@ oxNoX
       3] extension
    }{
       %% On unix.
-      [(sleep 3 ; netscape http://) 
+      [(sleep 3 ; firefox http://) 
                  [(sm1.socket) (gethostname) []] extension 
                 (:) httpd.port toString ( & ) ] cat
       system
