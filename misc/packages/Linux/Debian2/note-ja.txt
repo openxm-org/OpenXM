@@ -146,7 +146,7 @@ A.
 
  (*) OpenXM/download/version.txt $B$O(B work/OpenXM/src/asir-port $B$N(B Makefile $B$G@8@.$5$l$k(B.
 
-Q. deb file $B$KF~$C$F$k$b$N$r$H$j$@$7$?$$(B.
+Q. deb file $B$KF~$C$F$k$b$N$r$H$j$@$7$?$$(B.  deb $B2rE`(B
 A. 
    dpkg-deb --extract xxxyyy.deb  tmp-any
    dpkg-deb --control xxxyyy.deb
@@ -218,7 +218,20 @@ A. $B$b$&0lEY(B make $B$7$F2<$5$$(B. ($BESCf$+$i$b$&0lEY;O$a$k$H$&$^$/$$$-$
 Q. emacs $B$NCf$G(B make $B$9$k$H$&$^$/$$$-$^$;$s(B.
 A. make fetch $B$N$_(B, $BIaDL$N(B shell $B$G$d$C$F2<$5$$(B.
 
-$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.21 2010/02/07 05:35:49 takayama Exp $
+
+Q. Debian file $B$N2rE`(B.
+
+A. mkdir tmp  
+   dpkg-deb -x  xxx.deb  tmp
+
+Q. Cache $B$N>C5n(B. Cache $B$N>uBVI=<((B
+A. rm /var/cache/apt/archives/xxx.deb
+   apt-cache show openxm
+   apt-cache showpg openxm
+   $B$J$I(B.
+
+$OpenXM: OpenXM/misc/packages/Linux/Debian2/note-ja.txt,v 1.22 2010/02/08 02:09:35 takayama Exp $
+
 
    
 
