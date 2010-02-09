@@ -66,6 +66,7 @@ localf action_exp, action_exp_1;
 localf subset, zero_inhomo;
 localf integration_exp;
 localf test_integration_exp;
+localf time_print, time_round;
 localf ost_integration_ideal;
 localf test_ost_integration_ideal;
 localf ost_integration_exp;
@@ -129,14 +130,16 @@ def generic_bfct_and_gr(F,V,DV,W)
 	
 	/* compute a groebner basis of FH w.r.t. MWH */
 	dp_gr_flags(["Top",1,"NoRA",1]);
-tstart();
-	if ( version() < 20100206 ) {
+T0 = time(); /*tstart();*/
+	if ( Param && Param != [] && version() < 20100206 ) {
 		/* これ以前の nd_weyl_gr は係数体が有理関数体では動かない */
+print("-- dp_weyl_gr_main :", 2);
 		GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
-	} else
-		GH = nd_weyl_gr(FH,VDVH,0,11);
+	} else {
 print("-- nd_weyl_gr :", 2);
-tstop();
+		GH = nd_weyl_gr(FH,VDVH,0,11);
+	}
+time_print(T0); /*tstop();*/
 	dp_gr_flags(["Top",0,"NoRA",0]);
 
 	/* dehomigenize GH */
@@ -157,7 +160,7 @@ tstop();
 print("skip the computation of generic b-function");
 		return [s-S0, G];
 	}
-tstart();
+T0 = time(); /*tstart();*/
 	if ( Param ) {
 	/* パラメータ付きは消去法で計算  */
 		B = weyl_minipoly_by_elim2(GIN,V,DV,Param,T);
@@ -166,7 +169,7 @@ print("-- weyl_minipoly_by_elim :", 2);
 		B = weyl_minipoly(GIN,VDV,0,T); /* M represents DRL order */
 print("-- weyl_minipoly :", 2);
 	}
-tstop();
+time_print(T0); /*tstop();*/
 	return [B, G];
 }
 
@@ -295,7 +298,7 @@ def weyl_minipoly_by_elim2(GIN,V,DV,Param,T)
 		for ( I = 0; I < NV; I++ ) {
 			IND = 2*NV+1-I-K*(NV+1);
 			M[0][IND] = 1;
-			if ( version() < 20100206  )
+			if ( Param != [] && version() < 20100206 )
 				GB = dp_weyl_gr_main(G,VV,0,0,M);
 			else
 				GB = nd_weyl_gr(G,VV,0,M);
@@ -1656,6 +1659,39 @@ def test_integration_exp()
 }
 
 
+def time_print(T)
+{
+	T1 = time();
+	CPU = time_round(T1[0] - T[0],4);
+	GC  = time_round(T1[1] - T[1],4);
+	ESP = time_round(T1[3] - T[3],4);
+	P = rtostr(CPU)+"sec";
+	if ( GC )
+		P = P + " + gc : " + rtostr(GC)+ "sec";
+	P = P + "(" + rtostr(ESP) + "sec)";
+	print(P);
+	return 1;
+}
+
+def time_round(Z,N)
+{
+	if ( Z == 0 ) return 0;
+	B = 10^N;
+	if ( Z >= B ) {
+		for ( I = 0; Z > B; I++, Z = deval(Z/10) );
+		Z = rint(Z);
+		Z = deval(Z*10^I);
+		/*
+		Z = deval(rint(Z));
+		*/
+	} else {
+		B /= 10;
+		for ( I = 0; Z < B; I++, Z *= 10 );
+		Z = rint(Z);
+		Z = deval(Z/10^I);
+	}
+	return Z;
+}
 
 /*
  * Input
