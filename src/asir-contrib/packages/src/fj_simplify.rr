@@ -1,0 +1,1881 @@
+/* fj_simplify.rr Version 0.6 */
+
+/* quote operators */
+extern Pow$
+Pow = quote_to_funargs(quote(1^1))[1]$
+extern Prod$
+Prod = quote_to_funargs(quote(1*1))[1]$
+extern Frac$
+Frac = quote_to_funargs(quote(1/1))[1]$
+extern Sum$
+Sum = quote_to_funargs(quote(1+1))[1]$
+extern Diff$
+Diff = quote_to_funargs(quote(1-1))[1]$
+extern VarsOrder$
+VarsOrder = ord()$
+extern Napier$
+Napier = quote_to_funargs(quote(exp(x)))[1]$
+
+/* Extended Euclid
+ * ex_euclid(A,B)->[M,N,gcd(A,B)]
+ * where, M*A+N*B=gcd(A,B)
+ */
+def ex_euclid(A,B){
+	Mpp=1;Mp=0;
+	Npp=0;Np=1;
+	while(B!=0){
+		Q=idiv(A,B);
+		R=irem(A,B);
+		A=B;B=R;
+		M=Mpp-Q*Mp;
+		N=Npp-Q*Np;
+		Mpp=Mp;Mp=M;
+		Npp=Np;Np=N;
+	}
+	if(A>=0) return[Mpp,Npp,A];
+	else return[-Mpp,-Npp,-A];
+}
+/* A^N mod M
+ * powmod(618,299,1333); --> 666
+ */
+def powmod(A,N,M){
+	R=1;
+	while(N!=0){
+		if(irem(N,2)==1) R=irem(A*R,M);
+		A=irem(A^2,M);
+		N=idiv(N,2);
+	}
+	return R;
+}
+/* Encode
+   M=P*Q needs 14 digit (since 256^5+256^4+256^3+256^2+256 is 13 digit)
+   P=pari(nextprime,4361725);->4361729
+   Q=pari(nextprime,3146932);->3146953
+   M=P*Q;->13726156161737
+   N=(P-1)*(Q-1);->13726148653056
+   E=13;
+   igcd(N,E);->1
+   ex_euclid(N,E);->[5,-5279287943483,1]
+   D=@@[1]+N;
+   irem(E*D,N);->1
+   Public key:M=13726156161737,E=13
+   Private key:D=8446860709573
+   C=encode("Hello world!",M,E);
+ */
+def encode(H,M,E){
+	H=concat(strtoascii(H));/* convert H to ASCII */
+	R=[];
+	while(H!=[]){
+		C=powmod(car(H),E,M);
+		R=cons(C,R);
+		H=cdr(H);
+	}
+	return reverse(R);
+}
+/* 
+ * decode(C,M,D)
+ */
+def decode(C,M,D){
+	R=[];
+	while(C!=[]){
+		H=powmod(car(C),D,M);
+		R=cons(H,R);
+		C=cdr(C);
+	}
+	R=expandff(reverse(R));
+	return asciitostr(R);
+}
+/* Concatenation per 5 characters */
+def concat(T) /* T is an ASCII list */
+{
+	R=[];
+	while(T!=[]){
+		Tmp=0;
+		L=length(T);
+		if(L>=5) L=5;
+		for(I=L-1;I>=0;I--){
+			Tmp=Tmp+car(T)*256^I;
+			T=cdr(T);
+		}
+		R=cons(Tmp,R);
+	}
+	return reverse(R);
+}
+/* 256-adic expansion */
+def expandff(L)
+{
+	NL=[];
+	while(L!=[]){
+		R=[];
+		A=car(L);
+		do{
+			R=cons(irem(A,256),R);
+			A=idiv(A,256);
+		}while(A!=0);
+		NL=append(NL,R);
+		L=cdr(L);
+	}
+	return NL;
+}
+/* Chinese remainder theorem
+ * china(M,X), M:divisors list, X:remaiders list
+ * ex) china([13,5,6,11],[7,3,5,4])-->2633
+ */
+def china(M,X){
+	N=car(M);
+	S=car(X);
+	for(I=1 ; I < length(M) ; I++){
+		X1=X[I];
+		M1=M[I];
+		E=ex_euclid(N,M1);
+		C=E[0];
+		D=E[1];
+		S=C*N*X1+D*M1*S;
+		N=N*M1;
+	}
+	return S%N;
+}
+/* simplify_rational_number(U):Uは分数か整数(quote)
+   →Uのrational number in standard form(quote) */
+def simplify_rational_number(U){
+	if(full_kind(U)==0){/* 整数 */
+		return(U);
+	}
+	else if(full_kind(U)==1){/* 分数 */
+		L=quote_to_funargs(U);
+		N=eval_quote(L[2]);
+		D=eval_quote(L[3]);
+		if(irem(N,D)==0) return objtoquote(idiv(N,D));
+		else{
+			G=igcd(N,D);
+			if(D>0) 
+				return funargs_to_quote([0,Frac,objtoquote(idiv(N,G)),objtoquote(idiv(D,G))]);
+			else
+				return funargs_to_quote([0,Frac,objtoquote(idiv(-N,G)),objtoquote(idiv(-D,G))]);
+
+		}
+	}
+}
+
+/* f2q(U): U is quote integer or fraction(asir internal)
+	Convert a fraction to a quotient
+	U=objtoquote(1/2);
+  f2q(U)-->[b_op,/,[internal,1],[internal,2]]
+ */
+def f2q(U){
+	Q=eval_quote(U);
+	if(dn(Q)!=1)
+		return funargs_to_quote([0,Frac,objtoquote(nm(Q)),objtoquote(dn(Q))]);
+	else return U;
+}
+/* qt_is_internal_frac(U): U is quote integer or fraction(asir internal)
+  decision of integer or fraction
+ */
+def qt_is_internal_frac(U){
+	Q=eval_quote(U);
+	if(dn(Q)!=1)
+		return 1;
+	else return 0;
+}
+
+/* kind(U):quote U
+ *  →0:整数or不定元(x,-y), "^", "/", "*", "+", "-",
+ *    "()", "minus", "function" */
+def kind(U){
+	L=quote_to_funargs(U);
+	if(car(L)==8) return "function";
+	T=get_function_name(L[1]);
+	if(T!=0) return T;
+	else if(car(L)==35){/* minus: U=`-(-3) or `-2/3 */
+		if(quote_to_funargs(L[1])[0]==34 || quote_to_funargs(L[1])[0]==0 
+		|| quote_to_funargs(L[1])[0]==36)
+			return "minus";
+	}
+	else if(car(L)==34)/* () */
+		return "()";
+	return 0;
+}
+/* full_kind(U):quote U
+ *  →0:整数, 1:分数, 2:不定元, "^", "/", "*", "+", "-",
+ *    "()", "minus", 及び 函数子
+ *  kindの結果の0(整数or不定元)、"/"(分数か有理式)、"function"をより詳細に判定
+ *  函数子は@e,@piと引数一個(sin,logなど)で、functionで定義されたものも可(sqrtなど)
+ *  -xは不定元ではなく、"minus"と判定する(Oct-28, 2009)
+ */
+def full_kind(U){
+	T=kind(U);
+	if(T==0){
+		L=quote_to_funargs(U);
+		if(car(L)==35){/* minus */
+			if(qt_is_var(L[1])) return "minus"; /* U=`-x */
+			else return 0; /* U=`-2 */
+		}else if(qt_is_var(U)) return 2; /* U=`x */
+		else return 0; /* U=`3 */
+	}
+	else if(T=="/"){
+/*		if(qt_is_coef(U)) return 1;*/
+		WL=quote_to_funargs(U);
+		if(full_kind(WL[2])==0 && full_kind(WL[3])==0) return 1;
+		else return T;
+	}
+	else if(T=="function") return functor(eval_quote(U));
+	else return T;
+}
+
+/* eval_sum(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+   →quote ((V1*W2+V2*W1)/igcd(V2,W2))/(V2*W2/igcd(V2,W2)) */
+def eval_sum(V,W){
+	if(kind(V)==0) V=funargs_to_quote(
+		[0,Frac,V,objtoquote(1)]);
+	if(kind(W)==0) W=funargs_to_quote(
+		[0,Frac,W,objtoquote(1)]);
+	WL=quote_to_funargs(W);
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	W2=eval_quote(WL[3]);/* Wの分母 */
+	VL=quote_to_funargs(V);
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
+	return funargs_to_quote([0,Frac,
+		objtoquote((V1*W2+V2*W1)/igcd(V2,W2)),
+		objtoquote(V2*W2/igcd(V2,W2))]);
+}
+/* eval_diff(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+   →quote ((V1*W2-V2*W1)/igcd(V2,W2))/(V2*W2/igcd(V2,W2)) */
+def eval_diff(V,W){
+	if(kind(V)==0) V=funargs_to_quote(
+		[0,Frac,V,objtoquote(1)]);
+	if(kind(W)==0) W=funargs_to_quote(
+		[0,Frac,W,objtoquote(1)]);
+	WL=quote_to_funargs(W);
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	W2=eval_quote(WL[3]);/* Wの分母 */
+	VL=quote_to_funargs(V);
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
+	return funargs_to_quote([0,Frac,
+		objtoquote((V1*W2-V2*W1)/igcd(V2,W2)),
+		objtoquote(V2*W2/igcd(V2,W2))]);
+}
+/* eval_prod(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+   V2,W2!=0
+   →quote (V1*W1)/(V2*W2) */
+def eval_prod(V,W){
+	if(kind(V)==0) V=funargs_to_quote(
+		[0,Frac,V,objtoquote(1)]);
+	if(kind(W)==0) W=funargs_to_quote(
+		[0,Frac,W,objtoquote(1)]);
+	WL=quote_to_funargs(W);
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	W2=eval_quote(WL[3]);/* Wの分母 */
+	VL=quote_to_funargs(V);
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
+	return funargs_to_quote(
+		[0,Frac,objtoquote(V1*W1),objtoquote(V2*W2)]);
+}
+/* eval_quotient(V,W):Vは整数or分数V1/V2,Wは整数or分数W1/W2(quote)
+
+   V2,W2!=0
+   →quote (V1*W2)/(V2*W1) */
+def eval_quotient(V,W){
+	if(kind(V)==0) V=funargs_to_quote(
+		[0,Frac,V,objtoquote(1)]);
+	if(kind(W)==0) W=funargs_to_quote(
+		[0,Frac,W,objtoquote(1)]);
+	WL=quote_to_funargs(W);
+	W1=eval_quote(WL[2]);/* Wの分子 */
+	if(W1==0) return "undefined";
+	else{
+		W2=eval_quote(WL[3]);/* Wの分母 */
+		VL=quote_to_funargs(V);
+		V1=eval_quote(VL[2]);/* Vの分子 */
+		V2=eval_quote(VL[3]);/* Vの分母 */
+		return funargs_to_quote(
+		[0,Frac,objtoquote(V1*W2),objtoquote(V2*W1)]);
+	}
+}
+/* eval_power(V,N):Vは整数or分数V1/V2(quote),Nは整数
+   V2!=0
+   →quote V^N */
+def eval_power(V,N){
+	if(kind(V)==0) V=funargs_to_quote(
+		[0,Frac,V,objtoquote(1)]);
+	VL=quote_to_funargs(V);
+	V1=eval_quote(VL[2]);/* Vの分子 */
+	V2=eval_quote(VL[3]);/* Vの分母 */
+	if(V1!=0){
+		if(N>0) return eval_prod(eval_power(V,N-1),V);
+		else if(N==0) return objtoquote(1);
+		else if(N==-1) return funargs_to_quote(
+		[0,Frac,objtoquote(V2),objtoquote(V1)]);
+		else return eval_power(funargs_to_quote(
+		[0,Frac,objtoquote(V2),objtoquote(V1)]),-N);
+	}
+	else{
+		if(N>=1) return 0;
+		else return "undefined";
+	}
+}
+/* simplify_rne_rec(U):UはRNE(quote)*/
+def simplify_rne_rec(U){
+	if(full_kind(U)==0) return U;
+	else if(full_kind(U)==1){
+		UL=quote_to_funargs(U);
+		U1=eval_quote(UL[2]);/* Uの分子 */
+		U2=eval_quote(UL[3]);/* Uの分母 */
+		if(U2==0) return "undefined";
+		else return U;
+	}
+	else if(full_kind(U)==2) return U;
+	else if(kind(U)=="minus"||kind(U)=="()"){
+		UL=quote_to_funargs(U);
+		V=simplify_rne_rec(UL[1]);
+		if(V=="undefined") return "undefined";
+		else if(kind(U)=="minus") return eval_prod(objtoquote(-1),V);
+		else if(kind(U)=="()") return V;
+	}
+	else{
+		if(kind(U)=="+"||
+			 kind(U)=="*"||
+			 kind(U)=="-"||
+			 kind(U)=="/"){
+			UL=quote_to_funargs(U);
+			V=simplify_rne_rec(UL[2]);
+			W=simplify_rne_rec(UL[3]);
+			if(V=="undefined"||W=="undefined"){
+				return "undefined";
+			}
+			else{
+				if(kind(U)=="+") return eval_sum(V,W);
+				else if(kind(U)=="-") return eval_diff(V,W);
+				else if(kind(U)=="*") return eval_prod(V,W);
+				else if(kind(U)=="/") return eval_quotient(V,W);
+			}
+		}
+		else if(kind(U)=="^"){
+			UL=quote_to_funargs(U);
+			V=simplify_rne_rec(UL[2]);
+			N=eval_quote(UL[3]);
+			if(V=="undefined") return "undefined";
+			else return eval_power(V,N);
+		}
+	}
+}
+def simplify_rne(U){
+	V=simplify_rne_rec(U);
+	if(V=="undefined") return "undefined";
+	else return simplify_rational_number(V);
+}
+
+/* add_paren(U):quote Uの一番外側に括弧を追加
+ * add_paren(`-2)->`(-2)
+ */
+def add_paren(U){
+	if(kind(U)!="()") return funargs_to_quote([34,U]);
+	else return U;
+}
+/* rm_paren(U):quote Uの一番外側の余分な括弧を除く
+ * rm_paren(`(x+1))->`x+1
+ */
+def rm_paren(U){
+	if(kind(U)=="()") return quote_to_funargs(U)[1];
+	else return U;
+}
+/* base(U):quote U=a^b のベースa */
+/*
+[1] base(`(x+1)^2);
+[b_op,+,[internal,x],[internal,1]]
+[2] base(`3^5);
+[internal,3]
+*/
+def base(U){
+	L=quote_to_funargs(U);
+	if(kind(U)=="^") return rm_paren(L[2]);
+	else if(full_kind(U)==2||kind(U)=="*"||kind(U)=="+"||kind(U)=="function")
+		return U;
+	else return "undefined";
+}
+/* exponent(U):quote U=a^b の指数部b */
+/*
+[1] exponent(`3^(1/2));
+[b_op,/,[internal,1],[internal,2]]
+[2] exponent(`3^5);
+[internal,5]
+*/
+def exponent(U){
+	L=quote_to_funargs(U);
+	if(kind(U)=="^") return rm_paren(L[3]);
+	else if(full_kind(U)==2||kind(U)=="*"||kind(U)=="+"||kind(U)=="function")
+		return objtoquote(1);
+	else return "undefined";
+}
+/* term(U):quote U=2*x*y の項*x*y */
+def term(U){
+	L=quote_to_funargs(U);
+	if(full_kind(U)==2||kind(U)=="+"||kind(U)=="^"||kind(U)=="function")
+		return funargs_to_quote([36,Prod,[U]]);
+	else if(kind(U)=="*"){
+/*		L=quote_to_funargs(qt_normalize(U));*/
+		L=quote_to_funargs(qt_to_nary(U));
+		if(type(eval_quote(L[2][0]))==1)
+			return funargs_to_quote([36,Prod,cdr(L[2])]);
+		else return U;
+	}
+	else return "undefined";
+}
+/* const(U):quote U=(-2)*x*y の係数-2 
+ * この関数の引数に -x のような入力は認めない(x-yの-は演算子)
+ */
+def const(U){
+	L=quote_to_funargs(U);
+	if(full_kind(U)==2||kind(U)=="+"||kind(U)=="^"||kind(U)=="function")
+		return quote(1);
+	else if(kind(U)=="*"){
+/*		L=quote_to_funargs(qt_normalize(U));*/
+		L=quote_to_funargs(qt_to_nary(U));
+		if(type(eval_quote(L[2][0]))==1)
+			return rm_paren(car(L[2]));
+		else return quote(1);
+	}
+	else return "undefined";
+}
+
+/* min(A,B) */
+def min(A,B){
+	if(A<B) return A;
+	else return B;
+}
+/* compare(U,V): quote U,V
+ * true→1, false→0
+ * compare(U,V|prn=1): 経由した規則を表示
+	[100] compare(`a*x^2,`x^3|prn=1);
+	O-8
+	O-3
+	O-4
+	O-1
+	1
+ */
+def compare(U,V){
+	U=rm_paren(U);V=rm_paren(V);
+	Prn = getopt(prn);
+	/* O-1 */
+	if((full_kind(U)==0&&full_kind(V)==0)||(full_kind(U)==0&&full_kind(V)==1)
+		||(full_kind(U)==1&&full_kind(V)==0)||(full_kind(U)==1&&full_kind(V)==1)){
+if(Prn==1) print("O-1");
+		return eval_quote(U)<eval_quote(V);
+	}
+	/* O-2 */
+	else if(full_kind(U)==2&&full_kind(V)==2){
+if(Prn==1) print("O-2");
+		return rtostr(eval_quote(U))<rtostr(eval_quote(V));
+	}
+	/* O-3 */
+	else if( (full_kind(U)=="*" && full_kind(V)=="*")
+		|| (full_kind(U)=="+" && full_kind(V)=="+") ){
+if(Prn==1) print("O-3");
+			UL=quote_to_funargs(U);
+			if(UL[0]!=36)/* U is not n-ry */
+				UL=quote_to_funargs(qt_to_nary(U));
+			VL=quote_to_funargs(V);
+			if(VL[0]!=36)/* V is not n-ry */
+				VL=quote_to_funargs(qt_to_nary(V));
+			M=length(UL[2]);N=length(VL[2]);T=min(M,N);
+			for(J=0;J<T;J++)
+				if(UL[2][M-1-J]!=VL[2][N-1-J]) break;
+			if(J!=T) return compare(UL[2][M-1-J],VL[2][N-1-J]|prn=Prn);
+			else return M<N;
+	}
+	/* O-4 */
+	else if(full_kind(U)=="^" && full_kind(V)=="^"){
+if(Prn==1) print("O-4");
+		if(base(U)!=base(V)) return compare(base(U),base(V)|prn=Prn);
+		else compare(exponent(U),exponent(V)|prn=Prn);
+	}
+	/* O-6 */
+	else if(kind(U)=="function" && kind(V)=="function"){
+if(Prn==1) print("O-6");
+		if(full_kind(U)!=full_kind(V)){
+			R=nqt_comp(objtoquote(full_kind(U)),objtoquote(full_kind(V)));
+			if(R==1) return 1;
+			else return 0;
+		}
+		else{
+			UL=quote_to_funargs(U);Arg_u=quote_to_funargs(UL[2]);
+			VL=quote_to_funargs(V);Arg_v=quote_to_funargs(VL[2]);
+			M=length(Arg_u[1]);N=length(Arg_v[1]);T=min(M,N);
+			for(J=0;J<T;J++)
+				if(Arg_u[1][J]!=Arg_v[1][J]) break;
+			if(J!=T) return compare(Arg_u[1][J],Arg_v[1][J]|prn=Prn);
+			else return M<N;
+		}
+	}
+	/* O-7 */
+	else if( (full_kind(U)==0 || full_kind(U)==1)
+		&& full_kind(V)!=0 && full_kind(V)!=1 ){
+if(Prn==1) print("O-7");
+		return 1;
+	}
+	/* O-8 */
+	else if(kind(U)=="*"){
+if(Prn==1) print("O-8");
+		T=kind(V);
+		if(T=="^"||T=="+"||T=="function"||full_kind(V)==2)
+			return compare(U,funargs_to_quote([36,Prod,[V]])|prn=Prn);
+	}
+	/* O-9 */
+	else if(kind(U)=="^"){
+if(Prn==1) print("O-9");
+		T=kind(V);
+		if(T=="+"||T=="function"||full_kind(V)==2)
+			return compare(U,funargs_to_quote([0,Pow,V,objtoquote(1)])|prn=Prn);
+	}
+	/* O-10 */
+	/* 注意:compare(`1+x,`y)の場合、qt_normalizeにより、`x+1となるため
+	 *      テキストと若干異なる結果となる。並べ替えなしのqt_normalizeが必要かも
+	 *    →qt_to_naryというコマンドを発見し、解決(2009.1.27)
+	 */
+	else if(kind(U)=="+"){
+if(Prn==1) print("O-10");
+		T=kind(V);
+		if(T=="function"||full_kind(V)==2)
+			return compare(U,funargs_to_quote([36,Sum,[V]])|prn=Prn);
+	}
+	/* O-12 */
+	else if(kind(U)=="function"){
+if(Prn==1) print("O-12");
+		if(full_kind(V)==2){
+			if(rtostr(full_kind(U))==rtostr(eval_quote(V))) return 0;
+			else return compare(objtoquote(full_kind(U)),V|prn=Prn);
+		}
+	}
+	/* O-13 */
+	else{
+if(Prn==1) print("O-13");
+		T=compare(V,U|prn=Prn);
+		if(T==0) return 1;
+		else return 0;
+	}
+}
+
+/* member(A,L):AがリストLのメンバーかどうかチェック */
+def member(A,L){
+	while(L!=[]){
+		if(A==car(L)) return 1;
+		L=cdr(L);
+	}
+	return 0;
+}
+/* member2(A,L):AがリストL=[[C,..],[A,...],...]のメンバーかどうかチェック
+   もしメンバーであれば、[A,..]を返す */
+def member2(A,L){
+	while(L!=[]){
+		if(A==car(L[0])) return car(L);
+		L=cdr(L);
+	}
+	return 0;
+}
+/* member3(A,L):AがリストL=[[...,C],[...,A],...]のメンバーかどうかチェック
+   もしメンバーであれば、[...,A]を返す */
+def member3(A,L){
+	while(L!=[]){
+		if(A==car(reverse(L[0]))) return car(L);
+		L=cdr(L);
+	}
+	return 0;
+}
+/* del_element(A,L):AがリストLのメンバーであれば削除する */
+def del_element(A,L){
+	R=[];
+	while(L!=[]){
+		if(A!=car(L)) R=cons(car(L),R);
+		L=cdr(L);
+	}
+	return reverse(R);
+}
+/* del_element2(A,L):AがリストL=[[C,..],[A,...],...]のメンバーであれば[A,...]を削除する */
+def del_element2(A,L){
+	R=[];
+	while(L!=[]){
+		if(A!=car(L[0])) R=cons(car(L),R);
+		L=cdr(L);
+	}
+	return reverse(R);
+}
+
+/* asae(U):quote表現で与えられた bae U が asae かどうかチェック
+ * true→1, false→0
+ */
+def asae(U){
+	/* ASAE-1 */
+	if(full_kind(U)==0) return 1;
+	/* ASAE-2 */
+	else if(full_kind(U)==1){
+		if(simplify_rne(U)==U) return 1;
+		else return 0;
+	}
+	/* ASAE-3 */
+	else if(full_kind(U)==2 && U!="undefined") return 1;
+	/* ASAE-4 */
+	else if(kind(U)=="*"){
+		UL=quote_to_funargs(qt_to_nary(U))[2];
+		N=length(UL);
+		for(J=0;J<N;J++){
+			if(
+				!(
+				(full_kind(UL[J])==0 && eval_quote(UL[J])!=0
+					&& eval_quote(UL[J])!=1)
+				||full_kind(UL[J])==1
+				||(full_kind(UL[J])==2 && UL[J]!="undefined")
+				||kind(UL[J])=="+"
+				||kind(UL[J])=="^"
+				||kind(UL[J])=="function"
+				)
+			)
+				return 0;
+		}
+		for(J=1;J<N;J++){
+			if(full_kind(UL[J])==0||full_kind(UL[J])==1)
+				return 0;
+		}
+		for(Tmp=[],J=0;J<N;J++){
+			if(member(base(UL[J]),Tmp)) return 0;
+			else Tmp=cons(base(UL[J]),Tmp);
+		}
+		for(I=0;I<N;I++){
+			for(J=I+1;J<N;J++){
+				if(!compare(UL[I],UL[J])) return 0;
+			}
+		}
+		return 1;
+	}
+	/* ASAE-5 */
+	else if(kind(U)=="+"){
+		UL=quote_to_funargs(qt_to_nary(U))[2];
+		N=length(UL);
+		for(J=0;J<N;J++){
+			if(
+				!(
+				(full_kind(UL[J])==0 && eval_quote(UL[J])!=0)
+				||full_kind(UL[J])==1
+				||(full_kind(UL[J])==2 && UL[J]!="undefined")
+				||kind(UL[J])=="*"
+				||kind(UL[J])=="^"
+				||kind(UL[J])=="function"
+				)
+			)
+				return 0;
+		}
+		for(J=1;J<N;J++){
+			if(full_kind(UL[J])==0||full_kind(UL[J])==1)
+				return 0;
+		}
+		for(Tmp=[],J=0;J<N;J++){
+			if(member(term(UL[J]),Tmp)) return 0;
+			else Tmp=cons(term(UL[J]),Tmp);
+		}
+		for(I=0;I<N;I++){
+			for(J=I+1;J<N;J++){
+				if(!compare(UL[I],UL[J])) return 0;
+			}
+		}
+		return 1;
+	}
+	/* ASAE-6 */
+	else if(kind(U)=="^"){
+		V=base(U);
+		W=exponent(U);
+		if(!( asae(V) && asae(W) )) return 0;
+		if( eval_quote(W)==0 || eval_quote(W)==1 ) return 0;
+		if(full_kind(W)==0){
+			if(!(
+				(full_kind(V)==2 && V!="undefined")
+				||kind(V)=="+"
+				||kind(V)=="function"
+			))
+				return 0;
+		}
+		else{
+			if( eval_quote(V)==0 || eval_quote(V)==1 ) return 0;
+		}
+		return 1;
+	}
+	/* ASAE-8 */
+	else if(kind(U)=="function") return 1;
+	else return 0;
+}
+
+/* simplify_power(U):U=v^w is quote && v,w:asae 
+ * ex. simplify_power(`((x*y)^(1/2)*z^2)^2);
+ */
+def simplify_power(U){
+	V=base(U);W=exponent(U);
+	if(V=="undefined" || W=="undefined") return "undefined";
+	else if(eval_quote(V)==0){
+		if((full_kind(W)==0 && eval_quote(W)>0)||full_kind(W)==1)
+			return objtoquote(0);
+		else return "undefined";
+	}
+	else if(eval_quote(V)==1) return objtoquote(1);
+	else if(full_kind(W)==0) return simplify_int_power(V,W);
+	else return U;
+}
+/* simplify_int_power(V,N):v,n is quote && v!=0:asae, n:integer */
+def simplify_int_power(V,N){
+	if(full_kind(V)==0 || full_kind(V)=="1"){
+		return simplify_rne(funargs_to_quote([0,Pow,V,N]));
+	}else if(eval_quote(N)==0){
+		return objtoquote(1);
+	}else if(eval_quote(N)==1){
+		return V;
+	}else if(kind(V)=="^"){
+		R=base(V);S=exponent(V);
+		P=simplify_product(funargs_to_quote([0,Prod,S,N]));
+		if(full_kind(P)==0) return simplify_int_power(R,P);
+		else return funargs_to_quote([0,Pow,R,P]);
+	}else if(kind(V)=="*"){
+		VL=quote_to_funargs(qt_to_nary(V));
+		R=map(simplify_int_power,VL[2],N);
+		return simplify_product(funargs_to_quote([36,Prod,R]));
+	}else{
+		return funargs_to_quote([0,Pow,V,N]);
+	}
+}
+
+/* simplify_product(U) :U=v*w is quote && v,w:asae
+ * ex. simplify_product(`c*2*b*c*a);-->[n_op,*,[internal,2],[internal,a],[internal,b],[b_op,^,[internal,c],[internal,2]]]
+ * ex. simplify_product(`(2*a*c*e)*(3*b*d*e));-->[n_op,*,[internal,6],[internal,a],[internal,b],[internal,c],[internal,d],[b_op,^,[internal,e],[internal,2]]]
+ */
+def simplify_product(U){
+	UL=quote_to_funargs(qt_to_nary(U));
+	L=UL[2];N=length(L);
+	for(J=0;J<N;J++){
+		if(L[J]=="undefined") return "undefined";
+	}
+	for(J=0;J<N;J++){
+		if(L[J]==objtoquote(0)) return objtoquote(0);
+	}
+	if(N==1) return car(L);
+	else{
+		V=simplify_product_rec(L);
+		if(length(V)==1) return car(V);
+		else if(length(V)==2){
+			W0=rm_paren(V[0]);W1=rm_paren(V[1]);
+			K=full_kind(W0);
+			if((K==0||K==1)&&kind(W1)=="+"){
+			/* const*(u+w): W0*(W1.1+W1.2)-->W0*W1.1+W0*W1.2 */
+				WL=quote_to_funargs(qt_to_nary(W1));
+				T=WL[2];M=length(T);R=[];
+				for(J=0;J<M;J++) R=cons(funargs_to_quote([0,Prod,W0,T[J]]),R);
+				R=reverse(R);
+				return funargs_to_quote([36,Sum,R]);
+#if 0
+			}else if((full_kind(W1)==0||full_kind(W1)==1)&&kind(W0)=="+"){
+			/* (u+w):const */
+				WL=quote_to_funargs(qt_to_nary(W0));
+				T=WL[2];M=length(T);R=[];
+				for(J=0;J<M;J++) R=cons(funargs_to_quote([0,Prod,W1,T[J]]),R);
+				R=reverse(R);
+				return funargs_to_quote([36,Sum,R]);
+#endif
+			}else return funargs_to_quote([36,Prod,V]);
+		}
+		else if(length(V)>2) return funargs_to_quote([36,Prod,V]);
+		else return objtoquote(1);
+	}
+}
+
+/* simplify_product_rec(L):L is a list of quote
+ *  L=[U1,U2,...,Un], Ui:quote, n>=2, non-zero, asae
+ *  ex. simplify_product_rec([`a^-1,`b,`a]);-->[[internal,b]]
+ */
+#if 0
+/* rm_parenを使用していないバージョン(括弧がある場合はおかしくなる) */
+def simplify_product_rec(L){
+	if(length(L)==2){
+		/* SPRDREC-1 */
+		if( kind(L[0])!="*" && kind(L[1])!="*" ){
+			/* SPRDREC-1-1 ex. L=[`3/4,`2/3] */
+			if((full_kind(L[0])==0||full_kind(L[0])==1)
+			&& (full_kind(L[1])==0||full_kind(L[1])==1)){
+				P=simplify_rne(funargs_to_quote([0,Prod,L[0],L[1]]));
+				if(eval_quote(P)==1) return [];
+				else return [P];
+			}
+			/* SPRDREC-1-2 ex. L=[`1,`2/3] */
+			else if(eval_quote(L[0])==1) return [L[1]];
+			else if(eval_quote(L[1])==1) return [L[0]];
+			/* SPRDREC-1-3 ex. L=[`a,`a^-1] */
+			else if(base(L[0])==base(L[1])){
+				S=simplify_sum(funargs_to_quote([0,Sum,exponent(L[0]),exponent(L[1])]));
+				P=simplify_power(funargs_to_quote([0,Pow,base(L[0]),S]));
+				if(eval_quote(P)==1) return [];
+				else return [P];
+			}
+			/* SPRDREC-1-4 */
+			else if(compare(L[1],L[0])) return [L[1],L[0]];
+			else return L;
+		}
+		/* SPRDREC-2 */
+		else if( kind(L[0])=="*" || kind(L[1])=="*" ){
+			/* SPRDREC-2-1 ex. L=[`2*a*c*e,`3*b*d*e] */
+			if(kind(L[0])=="*" && kind(L[1])=="*"){
+				P=quote_to_funargs(qt_to_nary(L[0]))[2];
+				Q=quote_to_funargs(qt_to_nary(L[1]))[2];
+				return merge_products(P,Q);
+			}
+			/* SPRDREC-2-2 */
+			else if(kind(L[0])=="*" && kind(L[1])!="*"){
+				P=quote_to_funargs(qt_to_nary(L[0]))[2];
+				return merge_products(P,[L[1]]);
+			}
+			/* SPRDREC-2-3 */
+			else if(kind(L[0])!="*" && kind(L[1])=="*"){
+				Q=quote_to_funargs(qt_to_nary(L[1]))[2];
+				return merge_products([L[0]],Q);
+			}
+		}
+	}
+	/* SPRDREC-3 ex. L=[`a*b,`c,`b] */
+	else{
+		W=simplify_product_rec(cdr(L));
+		/* SPRDREC-3-1 */
+		if(kind(L[0])=="*"){
+			P=quote_to_funargs(qt_to_nary(L[0]))[2];
+			return merge_products(P,W);
+		}
+		/* SPRDREC-3-2 */
+		else return merge_products([L[0]],W);
+	}
+}
+#endif
+def simplify_product_rec(L){
+	if(length(L)==2){
+		/* remove unnecessary parenthesis */
+		L0=rm_paren(L[0]);L1=rm_paren(L[1]);
+		/* SPRDREC-1 */
+		if( kind(L0)!="*" && kind(L1)!="*" ){
+			/* SPRDREC-1-1 ex. L=[`3/4,`2/3] */
+			if((full_kind(L0)==0||full_kind(L0)==1)
+			&& (full_kind(L1)==0||full_kind(L1)==1)){
+				P=simplify_rne(funargs_to_quote([0,Prod,L0,L1]));
+				if(eval_quote(P)==1) return [];
+				else return [P];
+			}
+			/* SPRDREC-1-2 ex. L=[`1,`2/3] */
+			else if(eval_quote(L0)==1) return [L1];
+			else if(eval_quote(L1)==1) return [L0];
+			/* SPRDREC-1-3 ex. L=[`a,`a^-1] */
+			else if(base(L0)==base(L1)){
+				S=simplify_sum(funargs_to_quote([0,Sum,exponent(L0),exponent(L1)]));
+				P=simplify_power(funargs_to_quote([0,Pow,base(L0),S]));
+				if(eval_quote(P)==1) return [];
+				else return [P];
+			}
+			/* SPRDREC-1-4 */
+			else if(compare(L1,L0)) return [L1,L0];
+			else return L;
+		}
+		/* SPRDREC-2 */
+		else if( kind(L0)=="*" || kind(L1)=="*" ){
+			/* SPRDREC-2-1 ex. L=[`2*a*c*e,`3*b*d*e] */
+			if(kind(L0)=="*" && kind(L1)=="*"){
+				P=quote_to_funargs(qt_to_nary(L0))[2];
+				Q=quote_to_funargs(qt_to_nary(L1))[2];
+				return merge_products(P,Q);
+			}
+			/* SPRDREC-2-2 */
+			else if(kind(L0)=="*" && kind(L1)!="*"){
+				P=quote_to_funargs(qt_to_nary(L0))[2];
+				return merge_products(P,[L1]);
+			}
+			/* SPRDREC-2-3 */
+			else if(kind(L0)!="*" && kind(L1)=="*"){
+				Q=quote_to_funargs(qt_to_nary(L1))[2];
+				return merge_products([L0],Q);
+			}
+		}
+	}
+	/* SPRDREC-3 ex. L=[`a*b,`c,`b] */
+	else{
+		W=simplify_product_rec(cdr(L));
+		/* remove unnecessary parenthesis */
+		L0=rm_paren(L[0]);
+		/* SPRDREC-3-1 */
+		if(kind(L0)=="*"){
+			P=quote_to_funargs(qt_to_nary(L0))[2];
+			return merge_products(P,W);
+		}
+		/* SPRDREC-3-2 */
+		else return merge_products([L0],W);
+	}
+}
+
+/* merge_products(P,Q): P,Q:リスト */
+def merge_products(P,Q){
+	if(Q==[]) return P;
+	else if(P==[]) return Q;
+	else{
+		P1=car(P);Q1=car(Q);
+		H=simplify_product_rec([P1,Q1]);
+		if(H==[]) return merge_products(cdr(P),cdr(Q));
+		else if(length(H)==1){
+			/* add paren if car(H) is negative number */
+			if(eval_quote(car(H))<0) return cons(add_paren(car(H)),merge_products(cdr(P),cdr(Q)));
+			else return cons(car(H),merge_products(cdr(P),cdr(Q)));
+		}
+		else if(H==[P1,Q1])
+			return cons(P1,merge_products(cdr(P),Q));
+		else if(H==[Q1,P1])
+			return cons(Q1,merge_products(P,cdr(Q)));
+	}
+}
+
+/* UWO: Oct-22,2009 */
+/* simplify_sum(U) :U=v+w+x is quote && v,w,x:asae
+simplify_sum(`(-1)*a+b+a);-->[internal,b]
+simplify_sum(`c+2+b+c+a);-->[n_op,+,[internal,2],[internal,a],[internal,b],[n_op,*,[internal,2],[internal,c]]]
+simplify_sum(`a+(-1)*a);-->[internal,0]
+simplify_sum(`(2+a+c+e)+(3+b+d+e));-->[n_op,+,[internal,5],[internal,a],[internal,b],[internal,c],[internal,d],[n_op,*,[internal,2],[internal,e]]]
+simplify_sum(`(a+b)+c+b);-->[n_op,+,[internal,a],[n_op,*,[internal,2],[internal,b]],[internal,c]]
+simplify_sum(`(a+c+e)+(a+(-1)*c+d+f));-->[n_op,+,[n_op,*,[internal,2],[internal,a]],[internal,d],[internal,e],[internal,f]]
+*/
+def simplify_sum(U){
+	UL=quote_to_funargs(qt_to_nary(U));
+	L=UL[2];N=length(L);
+	for(J=0;J<N;J++){
+		if(L[J]=="undefined") return "undefined";
+	}
+	if(N==1) return car(L);
+	else{
+		V=simplify_sum_rec(L);
+		if(length(V)==1) return car(V);
+		else if(length(V)>1) return funargs_to_quote([36,Sum,V]);
+		else return objtoquote(0);
+	}
+}
+
+/* simplify_sum_rec(L):L is a list of quote
+ *  L=[U1,U2,...,Un], Ui:quote, n>=2, (non-zero), asae
+ */
+def simplify_sum_rec(L){
+	if(length(L)==2){
+		/* remove unnecessary parenthesis */
+		L0=rm_paren(L[0]);L1=rm_paren(L[1]);
+		/* SSUMREC-1 */
+		if( kind(L0)!="+" && kind(L1)!="+" ){
+			/* SSUMREC-1-1 */
+			if((full_kind(L0)==0||full_kind(L0)==1)
+			&& (full_kind(L1)==0||full_kind(L1)==1)){
+				P=simplify_rne(funargs_to_quote([0,Sum,L0,L1]));
+				if(eval_quote(P)==0) return [];
+				else return [P];
+			}
+			/* SSUMREC-1-2 */
+			else if(eval_quote(L0)==0) return [L1];
+			else if(eval_quote(L1)==0) return [L0];
+			/* SSUMREC-1-3 */
+			else if(term(L0)==term(L1)){
+				S=simplify_sum(funargs_to_quote([0,Sum,const(L0),const(L1)]));
+				P=simplify_product(funargs_to_quote([0,Prod,S,term(L0)]));
+				if(eval_quote(P)==0) return [];
+				else return [P];
+			}
+			/* SSUMREC-1-4 */
+			else if(compare(L1,L0)) return [L1,L0];
+			else return L;
+		}
+		/* SSUMREC-2 */
+		else if( kind(L0)=="+" || kind(L1)=="+" ){
+			/* SSUMREC-2-1 */
+			if(kind(L0)=="+" && kind(L1)=="+"){
+				P=quote_to_funargs(qt_to_nary(L0))[2];
+				Q=quote_to_funargs(qt_to_nary(L1))[2];
+				return merge_sums(P,Q);
+			}
+			/* SSUMREC-2-2 */
+			else if(kind(L0)=="+" && kind(L1)!="+"){
+				P=quote_to_funargs(qt_to_nary(L0))[2];
+				return merge_sums(P,[L1]);
+			}
+			/* SSUMREC-2-3 */
+			else if(kind(L0)!="+" && kind(L1)=="+"){
+				Q=quote_to_funargs(qt_to_nary(L1))[2];
+				return merge_sums([L0],Q);
+			}
+		}
+	}
+	/* SSUMREC-3 */
+	else{
+		W=simplify_sum_rec(cdr(L));
+		/* remove unnecessary parenthesis */
+		L0=rm_paren(L[0]);
+		/* SSUMREC-3-1 */
+		if(kind(L0)=="+"){
+			P=quote_to_funargs(qt_to_nary(L0))[2];
+			return merge_sums(P,W);
+		}
+		/* SSUMREC-3-2 */
+		else return merge_sums([L0],W);
+	}
+}
+
+/* merge_sums(P,Q): P,Q:リスト */
+def merge_sums(P,Q){
+	if(Q==[]) return P;
+	else if(P==[]) return Q;
+	else{
+		P1=car(P);Q1=car(Q);
+		H=simplify_sum_rec([P1,Q1]);
+		if(H==[]) return merge_sums(cdr(P),cdr(Q));
+		else if(length(H)==1) 
+			return cons(car(H),merge_sums(cdr(P),cdr(Q)));
+		else if(H==[P1,Q1])
+			return cons(P1,merge_sums(cdr(P),Q));
+		else if(H==[Q1,P1])
+			return cons(Q1,merge_sums(P,cdr(Q)));
+	}
+}
+
+/* UWO: Oct-28,2009 */
+/* simplify_quotient(U):U=v/w is quote && v,w:asae
+*/
+def simplify_quotient(U){
+	UL=quote_to_funargs(U);
+	L0=rm_paren(UL[2]);L1=rm_paren(UL[3]);
+	D=simplify_int_power(L1,`-1);
+	if(D=="undefined") return "undefined";
+	else return simplify_product(funargs_to_quote([0,Prod,L0,D]));
+}
+/* simplify_diff(U):U=v-w is quote && v,w:asae
+	v-w --> v+(-1)*w, -v --> (-1)*v, -2*x-->(-2)*x
+*/
+def simplify_diff(U){
+	UL=quote_to_funargs(U);
+	if(full_kind(U)=="minus") /* U=`-a or `-(a+b) */
+		return simplify_product(funargs_to_quote([0,Prod,`(-1),rm_paren(UL[1])]));
+	else{ /* U=`a-b */
+		L0=rm_paren(UL[2]);L1=rm_paren(UL[3]);
+		return simplify_sum(funargs_to_quote([0,Sum,L0,
+			simplify_product(funargs_to_quote([0,Prod,`(-1),L1]))]));
+	}
+}
+/* UWO: Feb-09,2010 */
+/* simplify_function(U):U is a quote && function
+[525] U=`pow(x,-y);
+[function,sin,[internal,x],[u_op,-,[internal,y]]]
+[526] simplify_function(U);
+[function,pow,[internal,x],[n_op,*,[u_op,(),[u_op,-,[internal,1]]],[internal,y]]]
+[527] U=`pow(x,1/0);
+[function,sin,[internal,x],[b_op,/,[internal,1],[internal,0]]]
+[528] simplify_function(U);
+undefined
+[1210] simplify_function(`exp(x));
+[b_op,^,[function,@e],[internal,x]]
+[1211] simplify_function(`exp(-x));
+[b_op,^,[function,@e],[n_op,*,[u_op,(),[u_op,-,[internal,1]]],[internal,x]]]
+*/
+def simplify_function(U){
+	UL=quote_to_funargs(U);
+	if(UL[1]==Napier){
+		X=car(quote_to_funargs(UL[2])[1]);/* arg x of exp(x) */
+		V=automatic_simplify(X);
+		if(V=="undefined") return "undefined";
+		else return funargs_to_quote([0,Pow,objtoquote(@e),V]);
+	}else{
+		L=quote_to_funargs(UL[2])[1];/* list of args of U */
+		V=map(automatic_simplify,L);/* list of simplified args of U */
+		if(member("undefined",V)) return "undefined";
+		else return funargs_to_quote(reverse(cons(funargs_to_quote([18,V]),cdr(reverse(UL)))));
+	}
+}
+
+/* automatic_simplify(U):U is BAE quote */
+def automatic_simplify(U){
+	U=rm_paren(U);/* remove unnecessary parenthesis */
+	K=full_kind(U);
+	/* return 0 if U is -0 */
+	if(K==0 && eval_quote(U)==0) return objtoquote(0);
+	/* return U if U is a integer or indeterminant */
+	else if((K==0 && qt_is_internal_frac(U)==0)|| K==2) return U;
+	/* U is an internal fraction */
+	else if(K==0 && qt_is_internal_frac(U)==1) return simplify_rational_number(f2q(U));
+	/* U is an fraction */
+	else if(K==1) return simplify_rne(U);
+	else if(K=="minus"){
+		U1=automatic_simplify(quote_to_funargs(U)[1]);
+		return simplify_product(funargs_to_quote([0,Prod,`(-1),U1]));
+	}else if(kind(U)=="function") return simplify_function(U);
+	else{
+		UL=quote_to_funargs(qt_to_nary(U));
+		if(car(UL)==36) V=map(automatic_simplify,UL[2]);/* n-ary */
+		else V=map(automatic_simplify,cdr(cdr(UL)));/* binary */
+		if(K=="^") return simplify_power(funargs_to_quote([0,Pow,V[0],V[1]]));
+		else if(K=="*") return simplify_product(funargs_to_quote([36,Prod,V]));
+		else if(K=="+") return simplify_sum(funargs_to_quote([36,Sum,V]));
+		else if(K=="/") return simplify_quotient(funargs_to_quote([0,Frac,V[0],V[1]]));
+		else if(K=="-") return simplify_diff(funargs_to_quote([0,Diff,V[0],V[1]]));
+		else{
+			print("unsupported type");
+			return 0;
+		}
+	}
+}
+
+/* sort(L):リストLの要素を辞書順序でソート
+ * sort([4,5,2])->[2,4,5]
+ * sort([g,a,c,b])->[a,b,c,g]
+ */
+def lex(A,B){
+	A=rtostr(A);
+	B=rtostr(B);
+	if(A<B) return -1;
+	else if(A>B) return 1;
+	else return 0;
+}
+/* 分数べきのオブジェクトのソートのための補助関数 */
+def rational(A,B){
+	QA=objtoquote(A);
+	QB=objtoquote(B);
+	if(kind(QA)!="^" && kind(QB)!="^"){
+		A=rtostr(A);
+		B=rtostr(B);
+		if(A>B) return -1;
+		else if(A<B) return 1;
+		else return 0;
+	}else{
+		N=compare(QA,QB);
+		if(N==0) return 1;
+		else return -1;
+	}
+}
+def sort(L){
+	return qsort(L,rational);
+}
+
+/* simplify(F): compute the simplification of asir object F
+	apply automatic_simplification and radcan for F */
+def simplify(F){
+	R=automatic_simplify(objtoquote(F));
+	/* VarsOrder=ord(reverse(sort(vars(eval_quote(R))))); */
+	R=eval_quote(radcan(R|no_auto_simpl=1));
+	return R;
+}
+/* absolute(N): asir object Nの絶対値を求める */
+def absolute(N){
+	if(N>=0) return N;
+	else return -1*N;
+}
+
+#if 0
+/* eval_abs(U): 絶対値の関数
+ eval_abs(-3)-->3, eval_abs(3/5)-->3/5, eval_abs(`abs(-2))-->`2
+ eval_abs(`abs(x))-->`abs(x), eval_abs(`sin(2))-->`sin(2)
+ */
+function abs(x);
+def eval_abs(U){
+	if(type(U)==1&&U>=0) return U;
+	else if(type(U)==1&&U<0) return -1*U;
+	else if(type(U)==17&&kind(U)=="function"){
+		if(full_kind(U)==abs){
+			L=quote_to_funargs(U);
+			V=eval_quote(quote_to_funargs(L[2])[1][0]);
+			if(type(V)==1&&V>=0) return objtoquote(V);
+			else if(type(V)==1&&V<0) return objtoquote(-1*V);
+			else return U;
+		}
+		else return U;
+	}
+}
+/* eval_factorial(U): 階乗の関数
+ eval_factorial(3)-->6, eval_factorial(`factorial(3))-->`6
+ eval_factorial(`factorial(x))-->`factorial(x), eval_factorial(`sin(2))-->`sin(2)
+ */
+function factorial(x);
+def eval_factorial(U){
+	if(type(U)==1||type(U)==0) return fac(U);
+	else if(type(U)==17&&kind(U)=="function"){
+		if(full_kind(U)==factorial){
+			L=quote_to_funargs(U);
+			V=eval_quote(quote_to_funargs(L[2])[1][0]);
+			if(type(V)==1||type(V)==0) return objtoquote(fac(V));
+			else return U;
+		}
+		else return U;
+	}
+}
+#endif
+
+/*************************************************************
+2009.11.30 Cohen book の実装完了
+***************************************************************/
+
+/* U=V^W, Vが整数(または分数)の分数べきV=B^Eの場合、U=V^(E*W) を求める */
+/*
+def num_ratexp_simplify(U){
+	K=kind(U);
+	if(K=="^"){
+		B=base(U);E=exponent(U);
+		if(full_kind(base(B))==0||full_kind(base(B))==1)
+			return num_ratexp_simplify(
+				funargs_to_quote([0,Pow,base(B),simplify_product(exponent(B),W)]));
+		else num_ratexp_simlify(
+
+	}else return U;
+まだ途中
+	rad_convertを参考にするか
+*/
+
+/* radical(U): ASAE quote Uにradicalが含まれていれば1,そうでなければ0 */
+def radical(U){
+	if(kind(U)=="^"){
+		if(kind(exponent(U))=="/") return 1;
+		else return radical(base(U));
+	}else if(kind(U)=="*"||kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		while(L!=[]){
+			if(radical(car(L))) return 1;
+			else L=cdr(L);
+		}
+		return 0;
+	}else return 0;
+}
+/* nestrad(U): ASAE quote Uがneseted radicalなら1,そうでなければ0 */
+def nestrad(U){
+	if(kind(U)=="^"){
+		if(kind(exponent(U))=="/"){
+			if(radical(base(U))) return 1;
+		}else{
+			return nestrad(base(U));
+		}
+	}else if(kind(U)=="*"||kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		while(L!=[]){
+			if(nestrad(car(L))) return 1;
+			else L=cdr(L);
+		}
+		return 0;
+	}else return 0;
+}
+/* collect_rad(U): Collect radicals in ASAE quote unnested radical expression U */
+def collect_rad(U){
+	R=[];
+	if(kind(U)=="^"){
+		if(kind(exponent(U))=="/"){
+			R=cons(U,R);
+		}else{
+			T=collect_rad(base(U));
+			if(T!=[]) R=append(T,R);
+		}
+	}else if(kind(U)=="*"||kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		while(L!=[]){
+			T=collect_rad(car(L));
+			if(T!=[]) R=append(T,R);
+			L=cdr(L);
+		}
+	}
+	return R;
+}
+/* collect_radicand(R): Collect radicands in a list R for ASAE quote unnested radicals */
+#if 0
+def collect_radicand(R){
+	P=[];
+	while(R!=[]){
+		P=cons(base(car(R)),P);
+		R=cdr(R);
+	}
+	return P;
+}
+#endif
+
+#if 0
+/* basis_rad(P): compute basis in a list P for radicands
+ 入力も出力もasir objectsのリスト */
+def basis_rad(P){
+	B=[];
+	while(P!=[]){
+		T=type(car(P));
+		if(T==1){
+			FL=pari(factor,car(P));/* factorization of number car(P) */
+			N=size(FL)[0];/* a number of divisors */
+			for(I=0;I<N;I++) if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+		}else if(T==2){
+			FL=fctr(car(P));
+			N=length(FL);
+			if(FL[0][0]!=1){
+				FL=pari(factor,FL[0][0]);
+				N=size(FL)[0];/* a number of divisors */
+				for(I=0;I<N;I++) if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+			}
+			for(I=1;I<N;I++){
+				if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+			}
+		}else if(T==3){
+			Nm=nm(car(P));Dn=dn(car(P));
+			/* numerator */
+			FL=fctr(Nm);
+			N=length(FL);
+			if(FL[0][0]!=1){
+				FL=pari(factor,FL[0][0]);
+				N=size(FL)[0];/* a number of divisors */
+				for(I=0;I<N;I++) if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+			}
+			for(I=1;I<N;I++){
+				if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+			}
+			/* denominator */
+			FL=fctr(Dn);
+			N=length(FL);
+			if(FL[0][0]!=1){
+				FL=pari(factor,FL[0][0]);
+				N=size(FL)[0];/* a number of divisors */
+				for(I=0;I<N;I++) if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+			}
+			for(I=1;I<N;I++){
+				if(!member(FL[I][0],B)) B=cons(FL[I][0],B);
+			}
+		}
+		P=cdr(P);
+	}
+	return B;
+}
+#endif
+#if 0
+/* basis_rad(P,R): compute basis(asir object) in a list P
+   R:radicals list(quote), P:cadicands list(asir object) */
+def basis_rad(P,R){
+	B=[];M=length(P);
+	for(J=0;J<M;J++){
+		T=type(P[J]);
+		if(T==1){/* P[J] is a number */
+			FL=pari(factor,P[J]);/* factorization of number P[J] */
+			N=size(FL)[0];/* a number of divisors */
+			for(I=0;I<N;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));/* denominator of exponent of R[J] */
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+			}
+		}else if(T==2){/* P[J] is a polynomial */
+			FL=fctr(P[J]);
+			NF=length(FL);
+			if(FL[0][0]!=1){
+				Coef=pari(factor,FL[0][0]);
+				N=size(Coef)[0];/* a number of divisors */
+				for(I=0;I<N;I++){
+					D=member2(Coef[I][0],B);
+					E=dn(eval_quote(exponent(R[J])));
+					if(D==0){
+						B=cons([Coef[I][0],E],B);
+					}else{
+						Lcm=D[1]*E/igcd(D[1],E);
+						B=del_element2(Coef[I][0],B);
+						B=cons([Coef[I][0],Lcm],B);
+					}
+				}
+			}
+			for(I=1;I<NF;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+			}
+		}else if(T==3){/* P[J] is rational function */
+			Nm=nm(P[J]);Dn=dn(P[J]);
+			/* numerator */
+			FL=fctr(Nm);
+			NF=length(FL);
+			if(FL[0][0]!=1){
+				Coef=pari(factor,FL[0][0]);
+				N=size(Coef)[0];/* a number of divisors */
+				for(I=0;I<N;I++){
+					D=member2(Coef[I][0],B);
+					E=dn(eval_quote(exponent(R[J])));
+					if(D==0){
+						B=cons([Coef[I][0],E],B);
+					}else{
+						Lcm=D[1]*E/igcd(D[1],E);
+						B=del_element2(Coef[I][0],B);
+						B=cons([Coef[I][0],Lcm],B);
+					}
+				}
+			}
+			for(I=1;I<NF;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+			}
+			/* denominator */
+			FL=fctr(Dn);
+			NF=length(FL);
+			if(FL[0][0]!=1){
+				Coef=pari(factor,FL[0][0]);
+				N=size(Coef)[0];/* a number of divisors */
+				for(I=0;I<N;I++){
+					D=member2(Coef[I][0],B);
+					E=dn(eval_quote(exponent(R[J])));
+					if(D==0){
+						B=cons([Coef[I][0],E],B);
+					}else{
+						Lcm=D[1]*E/igcd(D[1],E);
+						B=del_element2(Coef[I][0],B);
+						B=cons([Coef[I][0],Lcm],B);
+					}
+				}
+			}
+			for(I=1;I<NF;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+			}
+		}
+	}
+	return B;
+}
+#endif
+/* basis_rad(P,R): compute basis(asir object) B in a list P and expressions of R by B
+   R:radicals list(quote), P:cadicands list(asir object) */
+def basis_rad(P,R){
+	B=[];M=length(P);Exp=[];
+	for(J=0;J<M;J++){
+		T=type(P[J]);
+		if(T==1){/* P[J] is a number */
+			FL=pari(factor,P[J]);/* factorization of number P[J] */
+			N=size(FL)[0];/* a number of divisors */
+			Tmp=[];
+			for(I=0;I<N;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));/* denominator of exponent of R[J] */
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+				Tmp=cons(funargs_to_quote([0,Pow,objtoquote(FL[I][0]),objtoquote(FL[I][1])]),Tmp);
+			}
+			if(length(Tmp)==1) Exp=cons(car(Tmp),Exp);
+			else Exp=cons(funargs_to_quote([36,Prod,reverse(Tmp)]),Exp);
+		}else if(T==2){/* P[J] is a polynomial */
+			FL=fctr(P[J]);
+			NF=length(FL);
+			Tmp=[];
+			if(FL[0][0]!=1){
+				Coef=pari(factor,FL[0][0]);
+				N=size(Coef)[0];/* a number of divisors */
+				for(I=0;I<N;I++){
+					D=member2(Coef[I][0],B);
+					E=dn(eval_quote(exponent(R[J])));
+					if(D==0){
+						B=cons([Coef[I][0],E],B);
+					}else{
+						Lcm=D[1]*E/igcd(D[1],E);
+						B=del_element2(Coef[I][0],B);
+						B=cons([Coef[I][0],Lcm],B);
+					}
+					Tmp=cons(funargs_to_quote([0,Pow,objtoquote(Coef[I][0]),objtoquote(Coef[I][1])]),Tmp);
+				}
+			}
+			for(I=1;I<NF;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+				Tmp=cons(funargs_to_quote([0,Pow,objtoquote(FL[I][0]),objtoquote(FL[I][1])]),Tmp);
+			}
+			if(length(Tmp)==1) Exp=cons(car(Tmp),Exp);
+			else Exp=cons(funargs_to_quote([36,Prod,reverse(Tmp)]),Exp);
+		}else if(T==3){/* P[J] is rational function */
+			Nm=nm(P[J]);Dn=dn(P[J]);
+			/* numerator */
+			FL=fctr(Nm);
+			NF=length(FL);
+			Tmp1=[];
+			if(FL[0][0]!=1){
+				Coef=pari(factor,FL[0][0]);
+				N=size(Coef)[0];/* a number of divisors */
+				for(I=0;I<N;I++){
+					D=member2(Coef[I][0],B);
+					E=dn(eval_quote(exponent(R[J])));
+					if(D==0){
+						B=cons([Coef[I][0],E],B);
+					}else{
+						Lcm=D[1]*E/igcd(D[1],E);
+						B=del_element2(Coef[I][0],B);
+						B=cons([Coef[I][0],Lcm],B);
+					}
+					Tmp1=cons(funargs_to_quote([0,Pow,objtoquote(Coef[I][0]),objtoquote(Coef[I][1])]),Tmp1);
+				}
+			}
+			for(I=1;I<NF;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+				Tmp1=cons(funargs_to_quote([0,Pow,objtoquote(FL[I][0]),objtoquote(FL[I][1])]),Tmp1);
+			}
+			if(length(Tmp1)==0) Exp1=objtoquote(1);
+			else if(length(Tmp1)==1) Exp1=car(Tmp1);
+			else Exp1=funargs_to_quote([36,Prod,reverse(Tmp1)]);
+			/* denominator */
+			FL=fctr(Dn);
+			NF=length(FL);
+			Tmp2=[];
+			if(FL[0][0]!=1){
+				Coef=pari(factor,FL[0][0]);
+				N=size(Coef)[0];/* a number of divisors */
+				for(I=0;I<N;I++){
+					D=member2(Coef[I][0],B);
+					E=dn(eval_quote(exponent(R[J])));
+					if(D==0){
+						B=cons([Coef[I][0],E],B);
+					}else{
+						Lcm=D[1]*E/igcd(D[1],E);
+						B=del_element2(Coef[I][0],B);
+						B=cons([Coef[I][0],Lcm],B);
+					}
+					Tmp2=cons(funargs_to_quote([0,Pow,objtoquote(Coef[I][0]),objtoquote(Coef[I][1])]),Tmp2);
+				}
+			}
+			for(I=1;I<NF;I++){
+				D=member2(FL[I][0],B);
+				E=dn(eval_quote(exponent(R[J])));
+				if(D==0){
+					B=cons([FL[I][0],E],B);
+				}else{
+					Lcm=D[1]*E/igcd(D[1],E);
+					B=del_element2(FL[I][0],B);
+					B=cons([FL[I][0],Lcm],B);
+				}
+				Tmp2=cons(funargs_to_quote([0,Pow,objtoquote(FL[I][0]),objtoquote(FL[I][1])]),Tmp2);
+			}
+			if(length(Tmp2)==0) Exp2=objtoquote(1);
+			else if(length(Tmp2)==1) Exp2=car(Tmp2);
+			else Exp2=funargs_to_quote([36,Prod,reverse(Tmp2)]);
+			Exp=cons(funargs_to_quote([0,Frac,Exp1,Exp2]),Exp);
+		}
+	}
+	return [B,reverse(Exp)];
+}
+/* qt_pow_mono(U,N): U=p^e--> p^(e*N), U,N:quote */
+def qt_pow_mono(U,N){
+	E=automatic_simplify(objtoquote(eval_quote(exponent(U))*eval_quote(N)));
+	return funargs_to_quote([0,Pow,base(U),E]);
+}
+/* qt_pow(U,N): U=p*q*r--> p^N*q^N*r^N, U=p/q--> p^N/q^N */
+def qt_pow(U,N){
+	K=kind(U);
+	if(K=="^"){/* U is a pow (x+1)^2 */
+		return qt_pow_mono(U,N);
+	}else if(K=="/"){/* U is a fraction p/q */
+		L=quote_to_funargs(U);
+		Nm=L[2];Dn=L[3];
+		return funargs_to_quote([0,Frac,qt_pow(Nm,N),qt_pow(Dn,N)]);
+	}else if(K=="*"){/* U is a n-ary product p*q*r */
+		L=quote_to_funargs(U);
+		return funargs_to_quote([36,Prod,map(qt_pow_mono,L[2],N)]);
+	}else return 0;
+}
+/* powtrans(P,B1): quoteによる単純べき表現Pをbasis情報B1(gen_newvarsで生成されたもの)
+  を元に新変数で表現
+  注意：この関数は、radtransのための補助関数
+  ex) powtrans(automatic_simplify(`2^(-3/4)),[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]])
+      -->Y^(-9)
+  ex) powtrans(automatic_simplify(`2^(-7/3)),[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]])
+      -->2^(-2)*Y^(-4)
+  ex) powtrans(automatic_simplify(`2^3),[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]])
+      -->2^3
+*/
+def powtrans(P,B1){
+	E=exponent(P);
+	if(full_kind(E)==1){
+		T=member2(eval_quote(base(P)),B1);
+		D=T[1];/* Pのbaseのdegreeを取得 */
+		Y=T[2];/* Pのbaseに関する新変数を取得 */
+		L=quote_to_funargs(E);Nm=L[2];Dn=L[3];/* 指数の分子と分母 */
+		Q=idiv(eval_quote(Nm),eval_quote(Dn));
+		R=irem(eval_quote(Nm),eval_quote(Dn));
+		if(Q==0){
+			N=R*idiv(D,eval_quote(Dn));
+			return funargs_to_quote([0,Pow,objtoquote(Y),objtoquote(N)]);
+		}else{
+			P1=funargs_to_quote([0,Pow,base(P),objtoquote(Q)]);
+			N=R*idiv(D,eval_quote(Dn));
+			return funargs_to_quote([0,Prod,P1,funargs_to_quote([0,Pow,objtoquote(Y),objtoquote(N)])]);
+		}
+	}else if(full_kind(E)==0){
+		return P;
+	}
+}
+/* basis B=[[x+1,4],[3,4],[2,12],[x^2+x+1,3]] に関連した新変数を生成
+  -->[[x+1,4,_0],[3,4,_1],[2,12,_2],[x^2+x+1,3,_3]]
+  このように、各リストの最後に新変数を格納する
+*/
+def gen_newvars(B){
+	B1=[];
+	while(B!=[]){
+		B1=cons(append(car(B),[uc()]),B1);
+		B=cdr(B);
+	}
+	return reverse(B1);
+}
+/* radtrans(S,E,B1): Caviness-Fateman's algorithm (Step 1.7--1.9) 
+   S: a radicand(分解済み) obtained by basis_rad, (quote)
+   E: exponent of S, (quote)
+   B1: basis info(basis and its degree) obtained by basis_rad of total expression U
+   --> an expression of S^E by basis and new variables
+*/
+def radtrans(S,E,B1){
+	U=qt_pow(S,E);/* Sの各要素をE乗した表現を求める */
+	K=kind(U);
+	if(K=="^"){/* U is a pow (x+1)^2 */
+		return powtrans(U,B1);
+	}else if(K=="/"){/* U is a fraction p/q */
+		L=quote_to_funargs(U);
+		Nm=L[2];Dn=L[3];
+		return funargs_to_quote([0,Frac,radtrans(Nm,`1,B1),radtrans(Dn,`1,B1)]);
+	}else if(K=="*"){/* U is a n-ary product p*q*r */
+		L=quote_to_funargs(U);
+		return funargs_to_quote([36,Prod,map(powtrans,L[2],B1)]);
+	}else return 0;
+}
+/* ASAE表現Uにおけるradicals list RをTに置き換える
+ ex) 
+V=`2^(1/2)+1/(1+(x+1)^(3/5));
+V=automatic_simplify(V);
+ --> `2^(1/2)+(1+(x+1)^(3/5))^(-1)
+rad_convert(V,[automatic_simplify(`2^(1/2)),automatic_simplify(`(x+1)^(3/5))],[`a^4,`b^5]);
+*/
+def rad_convert(U,R,T){
+	N=length(R);
+	if(kind(U)=="^"){
+		if(kind(exponent(U))=="/"){
+			for(I=0;I<N;I++){
+				if(U==R[I]) return T[I];
+			}
+		}else{
+			B=rad_convert(base(U),R,T);
+			return funargs_to_quote([0,Pow,B,exponent(U)]);
+		}
+	}else if(kind(U)=="*"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(rad_convert(car(L),R,T),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Prod,reverse(P)]);
+	}else if(kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(rad_convert(car(L),R,T),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Sum,reverse(P)]);
+	}return U;
+}
+#if 0
+/* 最小多項式に関する情報をB1から得て、新変数でASAE表現Uを簡約(unnested 専用)*/
+/* このsimplify_newvarsも問題なく動くが、何度もautomatic_simplifyを呼ぶ */
+def simplify_newvars(U,B1){
+	/* simplify_newvar(U,B1) を利用 */
+	while(B1!=[]){
+		U=automatic_simplify(simplify_newvar(U,car(B1)));
+		B1=cdr(B1);
+	}
+	return U;
+}
+/* １変数のみの簡約(UはASAE表現&unnested)
+ ex) 使用のイメージ simplify_newvar(`_0^5,[x+1,4,_0])-->_0*(x+1)
+ 実際には
+ simplify_newvar(`y^5,[x+1,4,y])-->y*(x+1)
+ simplify_newvar(`4*y1^13*y2*y3,[2,12,y1])-->4*(2*y1)*y2*y3
+*/
+def simplify_newvar(U,B1){
+	/*rad_convertを参考にする*/
+	if(kind(U)=="^"){
+		Base=eval_quote(base(U));Exponent=eval_quote(exponent(U));
+		if(Base==B1[2] && absolute(Exponent)>=B1[1]){
+			Q=idiv(Exponent,B1[1]);
+			R=irem(Exponent,B1[1]);
+			return automatic_simplify(funargs_to_quote([0,Prod,
+				funargs_to_quote([0,Pow,objtoquote(B1[0]),objtoquote(Q)]),
+				funargs_to_quote([0,Pow,objtoquote(B1[2]),objtoquote(R)])]));
+		}else return U;
+	}else if(kind(U)=="*"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(simplify_newvar(car(L),B1),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Prod,reverse(P)]);
+	}else if(kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(simplify_newvar(car(L),B1),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Sum,reverse(P)]);
+	}return U;
+}
+#endif
+/* 最小多項式に関する情報をB1から得て、新変数でASAE表現Uを簡約(unnested 専用)*/
+/* このsimplify_newvarsは一度もautomatic_simplifyを呼ばない
+   最後の結果もsimplifyされてないので、結果を利用する際にautomatic_simplifyが必要 */
+/*
+ ex) 使用のイメージ simplify_newvars(`_0^5,[[x+1,4,_0],[2,12,_1]])-->_0*(x+1)
+ 実際には
+ simplify_newvars(`y^5,[[x+1,4,y],[2,12,_1]])-->y*(x+1)
+ simplify_newvars(`4*y1^13*y2*y3,[[2,12,y1],[2,12,_1]])-->4*(2*y1)*y2*y3
+ simplify_newvars(automatic_simplify(`(y^5+1)^(-1)),[[x+1,4,y],[2,12,_1]])-->(y*(x+1)+1)^(-1)
+*/
+def simplify_newvars(U,B1){
+	/*rad_convertを参考にした*/
+	if(kind(U)=="^"){
+		Base=eval_quote(base(U));Exponent=eval_quote(exponent(U));
+		if((B=member3(Base,B1))!=0) return convert_newvar(U,Exponent,B);
+		else return funargs_to_quote([0,Pow,simplify_newvars(base(U),B1),exponent(U)]);
+	}else if(kind(U)=="*"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(simplify_newvars(car(L),B1),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Prod,reverse(P)]);
+	}else if(kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(simplify_newvars(car(L),B1),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Sum,reverse(P)]);
+	}return U;
+}
+/* 指数Eのquote Uを新変数V(B=[変換後のasirobj,変換に必要な指数,変数V])で簡約
+(UはASAE表現&unnested) これはsimplify_newvarsのための補助関数 */
+def convert_newvar(U,E,B){
+		if(absolute(E)>=B[1]){
+			Q=idiv(E,B[1]);
+			R=irem(E,B[1]);
+/*			return automatic_simplify(funargs_to_quote([0,Prod,
+				funargs_to_quote([0,Pow,objtoquote(B[0]),objtoquote(Q)]),
+				funargs_to_quote([0,Pow,objtoquote(B[2]),objtoquote(R)])]));
+*/			return funargs_to_quote([0,Prod,
+				funargs_to_quote([0,Pow,objtoquote(B[0]),objtoquote(Q)]),
+				funargs_to_quote([0,Pow,objtoquote(B[2]),objtoquote(R)])]);
+		}else return U;
+}
+/* 新変数から元の変数に戻す */
+def return_orgvars(U,B1){
+	/*rad_convertを参考にする*/
+	if(full_kind(U)==2){
+		if((B=member3(eval_quote(U),B1))!=0)
+			return funargs_to_quote([0,Pow,objtoquote(B[0]),
+				funargs_to_quote([0,Frac,objtoquote(1),objtoquote(B[1])])]);
+		else return U;
+	}else if(kind(U)=="^"){
+		if((B=member3(eval_quote(base(U)),B1))!=0)
+			return funargs_to_quote([0,Pow,objtoquote(B[0]),
+				simplify_rational_number(funargs_to_quote([0,Frac,exponent(U),objtoquote(B[1])]))]);
+		else return funargs_to_quote([0,Pow,return_orgvars(base(U),B1),exponent(U)]);
+	}else if(kind(U)=="*"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(return_orgvars(car(L),B1),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Prod,reverse(P)]);
+	}else if(kind(U)=="+"){
+		L=quote_to_funargs(U)[2];
+		P=[];
+		while(L!=[]){
+			P=cons(return_orgvars(car(L),B1),P);
+			L=cdr(L);
+		}
+		return funargs_to_quote([36,Sum,reverse(P)]);
+	}return U;
+}
+
+/* radcan(U): if quote U is an unnested radical, return the canonical form of U,
+ otherwise return U. 
+ ex) radcan(`(((2*x-2)/(x^3-1))^(-7/3)+(2/(x+1))^(1/2))/(24*x+24)^(1/4))
+ radcan(U|no_auto_simpl=1):このオプションが指定されると、最初にautomatic_simplifyをやならい
+ */
+def radcan(U){
+	Opt=getopt(no_auto_simpl);
+	if(Opt!=1) U=automatic_simplify(U);
+	if(nestrad(U)) return U;
+	else{
+		R=reverse(collect_rad(U));
+		P=map(base,R);
+		Exponent=map(exponent,R);
+		RedP=map(red,map(eval_quote,P));/* rationally simplifying */
+		T=basis_rad(RedP,R);
+		B=reverse(sort(T[0]));S=T[1];
+		B1=gen_newvars(B);/* basis Bに関連した新変数を生成 */
+		/* 変換前の準備 */
+		Trans=[];
+		while(Exponent!=[]){
+			Trans=cons(radtrans(car(S),car(Exponent),B1),Trans);
+			S=cdr(S);Exponent=cdr(Exponent);
+		}
+		/* 表現Uにおけるradicals RをTransに置き換える */
+		S=rad_convert(U,R,reverse(Trans));
+		/*S=automatic_simplify(objtoquote(red(eval_quote(S))));*/
+		/*S=automatic_simplify(S);*/
+		S=automatic_simplify(objtoquote(eval_quote(S)));/* 式を展開するために必要 */
+		/* ここまでで上の例は次のようになる
+		(1/4*y2^2*y0*x^4+1/2*y2^2*y0*x^3+3/4*y2^2*y0*x^2+1/2*y2^2*y0*x+1/4*y2^2*y0+y1^10)/(y^3*y2^3*y1^13) */
+		/* 新変数で簡約 */
+		S=automatic_simplify(simplify_newvars(S,B1));
+		/* 新変数から元の変数に戻す */
+		return automatic_simplify(objtoquote(red(eval_quote(return_orgvars(S,B1)))));
+		/* 最後のautomatic_simplifyは、変数順序が異なる場合があるので必要 */
+	}
+}
+
+
+
+/****************************************************************
+2009.12.23 Caviness-Fateman1976によるRADCANアルゴリズムの実装完了
+*****************************************************************/
+end$

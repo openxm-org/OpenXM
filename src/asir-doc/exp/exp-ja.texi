@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.36 2010/02/05 07:45:48 nisiyama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.37 2010/02/06 01:32:31 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -3028,6 +3028,69 @@ ChangeLog
 @item この関数は 2009-12 から 2010-01 にかけて最初の版が書かれた.
 @item @code{OpenXM/src/asir-contrib/packages/src/tk_pfn.rr} 1.1, 1.2
 @item このモジュールの前身は @code{tk_pf2.rr} である. これは独立変数が 2 個の場合である.  
+@end itemize
+
+@node fj_simp.simplify,,, 実験的仕様の関数
+@subsection @code{fj_simp.simplify}
+@findex fj_simp.simplify
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item fj_simp.simplify(@var{arg1})
+:: arg1 を簡単化する.
+@end table
+
+@table @var
+@item return
+多項式, 有理式 または quote
+@item arg1
+多項式 または 有理式
+@end table
+
+@itemize @bullet
+@item 
+現在のバージョンでは fj_simp.simplify でなく, 単に simplify とよぶ.
+@item
+この関数は
+Joel S. Cohen, Computer Algebra and Symbolic Computation,
+http://web.cs.du.edu/~jscohen/MathematicalMethods/index.htm
+に記述されている Automatic simplification algorithm と
+B.F.Caviness, R.J.Fateman, Simplification of Radical Expressions (1976)
+に記述されている radcan アルゴリズムの実装である.
+@item 
+複素多値関数としては (x*y)^a = x^a*x^b は一般には成立しないので, 結果を複素関数に使うときは
+注意が必要である. (x^a = exp(a*log(x)) なので)
+@end itemize
+
+@example
+load("fj_simplify.rr");
+[1434] simplify((x^(1/2))^3);
+((x)^(3/2))
+[1435] simplify((2^(1/2))^2);
+2
+[1436] simplify((2+2^(1/2))^3);
+14*((2)^(1/2))+20
+[1437] simplify(exp(x)*exp(-x+y));
+((@@e)^(y))
+@end example
+
+@table @t
+@item 参照
+@ref{quote}
+@end table
+
+@noindent
+ChangeLog
+@itemize @bullet
+@item 
+将来的には module 化して fj_simp module に含める予定. 
+poly_simplify から fj_simp.simplify を呼ぶ.
+@item 
+Todo: exp 以外の特殊関数についてのsimplification の機能.
+@item 
+この関数は 2010.01 に M.Fujimoto により最初の版が書かれた. 
+OpenXM/src/asir-contrib/packages/src/fj_simplify.rr
 @end itemize
 
 @comment -----------  以下は見本. 消すな.
