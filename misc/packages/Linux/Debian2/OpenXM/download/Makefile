@@ -1,4 +1,4 @@
-VERSION=1.3.1-1
+VERSION=1.3.1-2
 OpenXMBinaryTGZ=openxm-binary-Linux-${VERSION}.tar.gz
 AsirBinaryTGZ=asir-binary-Linux-${VERSION}.tar.gz
 DISTDIR=${HOME}/OpenXM_tmp
