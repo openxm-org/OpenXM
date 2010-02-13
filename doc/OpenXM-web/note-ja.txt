@@ -1,0 +1,17 @@
+2010.02.13
+Document を更新した場合 (top level の html ファイルなど)
+
+make で
+
+(cd ../. ; rsync -Cavz asir2000 asir-contrib kan96xx ox_math /home/web/OpenXM/Current/doc)
+
+が実行する.
+
+-----------------
+[1]  asir-doc や asir-contrib の document を更新した時は,
+cd ~/OpenXM/src 
+cd asir-doc ; rm .*_done ; ./make-configure ; make install
+cd asir-contrib/packages/doc ; rm .*done ; ./make-configure ; make clean ; make install
+
+をやってから doc/OpenXM-web で make する.
+;;
