@@ -1,6 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.4 2009/02/14 08:34:38 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.5 2009/02/15 01:51:12 takayama Exp $
 LLL=$1
 OXREPLACE=$2
 
@@ -72,6 +72,16 @@ ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> $
 NEW0="[[mt_graph]]"
 NEW1="mk_graph-html/mk_graph-${LLL}.html"
 NEW2="mt_graph (mt_graph 3D grapher)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[nn_ndbf]]"
+NEW1="nn_ndbf-html/nn_ndbf-${LLL}.html"
+NEW2="nn_ndbf (Local b-functioin)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[noro_mwl]]"
+NEW1="noro_mwl-html/noro_mwl-${LLL}.html"
+NEW2="noro_mwl (Mordel Weil Lattice)"
 ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
 
 rm -f cman-*.old

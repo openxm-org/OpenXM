@@ -1,4 +1,4 @@
-%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.8 2009/02/15 02:19:40 takayama Exp $
+%$OpenXM: OpenXM/src/asir-contrib/packages/doc/README,v 1.9 2009/02/22 17:30:03 ohara Exp $
 
 cd OpenXM/src/util; make install
 cd OpenXM/src/asir-doc; make install
@@ -6,7 +6,14 @@ are required for "make install" or "make install-document"
 in this directory.
 
 -------------------------------------------------------------
-
+* Reconstruct all 
+rm .*done ; make clean ; ./make-configure ; make
+make install
+** To check
+${BROWSER}  ${OpenXM_HOME}/doc/asir-contrib/ja/top/cman-html/cman-ja_toc.html
+** Partial reconstruction
+make clean --> e.g., cd top ; rm .*done
+-----------
 * How to generate the OpenXM-contrib documents:
 
 make install-document
