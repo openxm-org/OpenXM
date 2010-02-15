@@ -1,4 +1,5 @@
 #!/bin/sh
+# $OpenXM$
 #Set OpenXM_HOME properly to use this script.  See debian/openxm.postinst
 version=`cat $OpenXM_HOME/download/version.txt`
 os=`uname -s`
@@ -20,7 +21,7 @@ _agree() {
 	echo "Will you go ahead?"
 	echo "------------------------------------------------------------------"
 	echo "y: yes, n: no"
-	read -e -p "(y/n)" ans
+	read -p "(y/n)" ans
 	if [ $ans = "y" ]; then
 		return
 	fi
