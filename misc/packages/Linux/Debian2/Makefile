@@ -1,6 +1,6 @@
 # Do source dot.bashrc before doing something.
 
-VERSION=1.3.1-2
+VERSION=1.3.1-3
 # This VERSION must be compatible with debian/control and changelog ver. 
 #   use "make update-version" to update these values.
 #                                OpenXM/download/Makefile
@@ -117,6 +117,6 @@ clean-tilde:
 	rm -rf *~
 
 update-version:
-	../../../../bin/oxreplace --old VERSION=1.3.1-1 --new VERSION=1.3.1-2 OpenXM/download/Makefile
-	../../../../bin/oxreplace --old VERSION=1.3.1-1 --new VERSION=1.3.1-2 ../../../../src/asir-port/Makefile
+	../../../../bin/oxreplace --old VERSION=1.3.1-2 --new VERSION=1.3.1-3 OpenXM/download/Makefile
+	../../../../bin/oxreplace --old VERSION=1.3.1-2 --new VERSION=1.3.1-3 ../../../../src/asir-port/Makefile
 	echo "make commit under OpenXM/src/asir-port and here"
