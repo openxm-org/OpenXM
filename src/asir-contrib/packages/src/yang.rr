@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.24 2009/12/09 12:43:23 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.25 2010/01/06 07:39:02 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -311,8 +311,8 @@ def opr(P)
 "opr(<<1,1>>) => dx1*dx2, opr([<<1,1>>,2]) => (dx1*dx2)/2"
 {
     if (isList(P)) {
-        DN = P[1]; NM = P[0];
-        return isdpoly(NM)? dp_dtop(NM,Ring->op)/DN: NM/DN;
+        Dn = P[1]; Nm = P[0];
+        return isdpoly(Nm)? dp_dtop(Nm,Ring->op)/Dn: Nm/Dn;
     }else if (isdpoly(P)) {
         return dp_dtop(P,Ring->op);
     }else {
@@ -1158,14 +1158,14 @@ def gr2rgr_s(G, Syz) {
         H = reduction_s(F,G); C = H[1]; H = H[0];
         /* F = H + C[0]*G[0] + C[1]*G[1] + ... */
         if (H[0] != 0) {
-            NM = dp_hc(H[0]); 
-            DN = H[1];
-            H  = red1([H[0], NM]); /* H := (DN/NM)*H,   hc(H) == 1 */
+            Nm = dp_hc(H[0]); 
+            Dn = H[1];
+            H  = red1([H[0], Nm]); /* H := (Dn/Nm)*H,   hc(H) == 1 */
             Gr = cons(H, Gr);
             if (C!=[]) {
                 S = sub_v(S,addmul_sv(C,Syz));
             }
-            S = map(red1,multir_sv([DN,NM],S));
+            S = map(red1,multir_sv([Dn,Nm],S));
             Syzygy = cons(S,Syzygy);
         }
     }
@@ -2271,8 +2271,8 @@ def gkz_series(GKZ,W,Deg) {
     N=length(T);
     print("--")$
     for(S=[],I=0;I<N;I++) {
-        TT=make_terms(T[I],IAGr,Deg);
-        S=cons(terms_to_series(TT),S);
+        TTx=make_terms(T[I],IAGr,Deg);
+        S=cons(terms_to_series(TTx),S);
     }
     return S;
 }
