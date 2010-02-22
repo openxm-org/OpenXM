@@ -1,8 +1,8 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.23 2010/02/12 11:16:06 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.24 2010/02/16 02:49:50 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix.
 #### Do not add extra spaces after the VERSION.
-VERSION=1.3.1-3
+VERSION=1.3.1-4
 
 KNOPPIX_HOME=/home/knoppix
 LIBS=alpi bfct bgk const cyclic defs.h dmul fctrdata fctrtest fff \
