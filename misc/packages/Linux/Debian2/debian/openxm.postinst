@@ -3,9 +3,9 @@ if [ -x /usr/bin/update-menus ] ; then
   update-menus ; 
 fi
 #
-rm -rf $HOME/.asir-tmp
-OpenXM_HOME=/usr/local/OpenXM /usr/local/OpenXM/download/openxm-install.sh
-rm -rf $HOME/OpenXM_tmp 
+rm -rf /root/.asir-tmp
+OpenXM_HOME=/usr/local/OpenXM HOME=/root /usr/local/OpenXM/download/openxm-install.sh
+rm -rf /root/OpenXM_tmp 
 #
 if [ -f /usr/local/bin/openxm ] ; then
  echo "--------------------------------------------------------------------------" ;
@@ -13,7 +13,7 @@ if [ -f /usr/local/bin/openxm ] ; then
  echo "If not (e.g., installing this package for commercial system,) "             ;
  echo "please answer n."                                                           ;
  echo "--------------------------------------------------------------------------" ;
- (export OpenXM_HOME=/usr/local/OpenXM ; /usr/local/bin/openxm asir-install.sh) ;
+OpenXM_HOME=/usr/local/OpenXM HOME=/root /usr/local/bin/openxm asir-install.sh ;
 fi
 rm -rf /root/.asir-tmp
 (cd /usr/local/OpenXM && chown -fR root *)
