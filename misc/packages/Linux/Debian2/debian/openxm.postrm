@@ -1,6 +1,13 @@
 #!/bin/sh
 if [ -x /usr/bin/update-menus ]; then update-menus ; fi
-rm -rf /usr/local/OpenXM
+rm -rf /usr/local/OpenXM/[A-a]*
+rm -rf /usr/local/OpenXM/bin/[A-n]*
+rm -rf /usr/local/OpenXM/bin/[p-z]*
+# Keep only oxfetch.sh and download
+rm -rf /usr/local/OpenXM/bin/ox[!f]*
+rm -rf /usr/local/OpenXM/bin/openxm
+rm -rf /usr/local/OpenXM/bin/ox
+rm -rf /usr/local/OpenXM/[ce-z]*
 rm -f /usr/local/bin/asir
 rm -f /usr/local/bin/openxm
 rm -f /usr/local/bin/ox
