@@ -12,6 +12,7 @@
 
 if (!module_definedp("gr")) load("gr")$ else{ }$
 if (!module_definedp("primdec")) load("primdec")$ else{ }$
+if (!module_definedp("newsyz")) load("noro_module_syz.rr")$ else{ }$
   /* Empty for now. It will be used in a future. */
 
 /* toplevel */
@@ -21,7 +22,7 @@ module ndbf$
 /* bfunction */
 
 localf bfunction, in_ww, in_ww_main, ann, ann_n$
-localf ann0, psi, ww_weight, compare_first, generic_bfct$
+localf ann0, ann_fa, psi, ww_weight, compare_first, generic_bfct$
 localf generic_bfct_1, initial_part, bfct, indicial1, bfct_via_gbfct$
 localf bfct_via_gbfct_weight, bfct_via_gbfct_weight_1, bfct_via_gbfct_weight_2$
 localf weyl_minipolym, weyl_minipoly, weyl_nf, weyl_nf_quo_check$
@@ -467,6 +468,52 @@ def ann0(F)
 			Min = Root;
 	}
 	return [Min,map(subst,Ann,s,Min,TMP_S,s,TMP_DS,ds)];
+}
+
+/*
+ * For a polynomial F and a scalar A,
+ * compute generators of Ann(F^A).
+ */
+
+def ann_fa(F,A)
+{
+	if ( type(Syz=getopt(syz)) == -1 ) Syz = 0;
+	
+	F = subst(F,s,TMP_S);
+	Ann = ann(F);
+	Bf = bfunction(F);
+
+	FList = cdr(fctr(Bf));
+	for ( T = FList, Min = 0; T != []; T = cdr(T) ) {
+		LF = car(car(T));
+		Root = -coef(LF,0)/coef(LF,1);
+		if ( dn(Root) == 1 && Root < Min )
+			Min = Root;
+	}
+	D = A-Min;
+	if ( dn(D) != 1 || D <= 0 )
+		return map(ptozp,map(subst,Ann,s,A,TMP_S,s,TMP_DS,ds));
+	
+	V = vars(F);
+	for ( I = length(V)-1, DV = []; I >= 0; I-- )
+		DV = cons(strtov("d"+rtostr(V[I])),DV);
+	VDV = append(V,DV);
+	R = map(subst,Ann,s,Min,TMP_S,s,TMP_DS,ds);
+	F = ptozp(F);
+	
+	if ( Syz ) {
+		/* syzygy method */
+		S = newsyz.module_syz(cons(F^D,R),VDV,1,0|weyl=1);
+		B = car(S);
+		for ( R = []; B != []; B = cdr(B) )
+			if ( H = car(car(B)) )
+				R = cons(H,R);
+	} else {
+		/* colon method */
+		for ( I = 0; I < D; I++ )
+			R = weyl_ideal_quotient(R,F,VDV);
+	}
+	return R;
 }
 
 def psi0(F,T,DT)
@@ -1323,7 +1370,7 @@ def weyl_ideal_quotient(B,F,VDV)
 	O1 = [[0,1],[0,N+1]];
 	GJ = nd_weyl_gr(J,VDV1,0,O1);
 	R = elimination(GJ,VDV);
-	return R;
+	return map(weyl_divide_by_right,R,F,VDV,0);
 }
 
 def bf_strat(F)
