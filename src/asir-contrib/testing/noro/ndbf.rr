@@ -507,7 +507,7 @@ def ann_fa(F,A)
 		B = car(S);
 		for ( R = []; B != []; B = cdr(B) )
 			if ( H = car(car(B)) )
-				R = cons(H,R);
+				R = cons(ptozp(H),R);
 	} else {
 		/* colon method */
 		for ( I = 0; I < D; I++ )
