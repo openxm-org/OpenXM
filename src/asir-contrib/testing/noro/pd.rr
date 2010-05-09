@@ -73,81 +73,143 @@ def kill_procs()
 
 def syca_dec(B,V)
 {
+T00 = time();
 	if ( type(Nolexdec=getopt(nolexdec)) == -1 ) Nolexdec = 0;
 	if ( type(SepIdeal=getopt(sepideal)) == -1 ) SepIdeal = 1;
+	if ( type(NoSimp=getopt(nosimp)) == -1 ) NoSimp = 0;
+	if ( type(Time=getopt(time)) == -1 ) Time = 0;
 	Ord = 0;
 	Gt = G0 = G = fast_gb(B,V,0,Ord); 
 	Q0 = Q = []; IntQ0 = IntQ = [1]; First = 1;
+	C = 0;
+
+	Tass = Tiso = Tcolon = Tsep = Tirred = 0;
+	Rass = Riso = Rcolon = Rsep = Rirred = 0;
 	while ( 1 ) {
 		if ( type(Gt[0])==1 ) break;
+		T0 = time();
 		Pt = prime_dec(Gt,V|indep=1,nolexdec=Nolexdec);
+		T1 = time(); Tass += T1[0]-T0[0]+T1[1]-T0[1]; Rass += T1[3]-T0[3];
+		T0 = time();
 		Qt = iso_comp(Gt,Pt,V,Ord);
+		T1 = time(); Tiso += T1[0]-T0[0]+T1[1]-T0[1]; Riso += T1[3]-T0[3];
 		IntQt = ideal_list_intersection(map(first_element,Qt),V,Ord);
 		IntPt = ideal_list_intersection(map(first_element,Pt),V,Ord);
 		if ( First ) {
 			IntQ0 = IntQ = IntQt; IntP = IntPt; Qi = Qt; First = 0;
 		} else {
-			IntQ = ideal_intersection(IntQ,IntQt,V,Ord);
-			IntQ1 = ideal_intersection(IntQ0,IntQt,V,Ord);
-			if ( !gb_comp(IntQ0,IntQ1) ) {
-				IntQ0 = IntQ1; Q = append(Qt,Q); Q0 = append(Qt,Q0);
+			IntQ1 = ideal_intersection(IntQ,IntQt,V,Ord);
+			if ( gb_comp(IntQ,IntQ1) ) {
+				G = Gt; IntP = IntPt; Q = []; IntQ = [1]; C = 0;
+				continue;
+			} else {
+				IntQ = IntQ1; 
+				IntQ1 = ideal_intersection(IntQ0,IntQt,V,Ord);
+				if ( !gb_comp(IntQ0,IntQ1) ) {
+					IntQ0 = IntQ1;
+					Q = append(Qt,Q); Q0 = append(Qt,Q0);
+				}
 			}
 		}
 		if ( gb_comp(IntQt,Gt) || gb_comp(IntQ,G) || gb_comp(IntQ0,G0) ) break;
+		T0 = time();
+		C1 = ideal_colon(G,IntQ,V);
+		T1 = time(); Tcolon += T1[0]-T0[0]+T1[1]-T0[1]; Rcolon += T1[3]-T0[3];
+		if ( C && gb_comp(C,C1) ) {
+			G = Gt; IntP = IntPt; Q = []; IntQ = [1]; C = 0;
+			continue;
+		} else C = C1;
+		T0 = time();
 		if ( SepIdeal == 0 )
-			Ok = find_separating_ideal0(G,IntQ,IntP,V,Ord);
+			Ok = find_separating_ideal0(C,G,IntQ,IntP,V,Ord);
 		else if ( SepIdeal == 1 )
-			Ok = find_separating_ideal1(G,IntQ,IntP,V,Ord);
+			Ok = find_separating_ideal1(C,G,IntQ,IntP,V,Ord);
 		else if ( SepIdeal == 2 )
-			Ok = find_separating_ideal2(G,IntQ,IntP,V,Ord);
+			Ok = find_separating_ideal2(C,G,IntQ,IntP,V,Ord);
 		G1 = append(Ok,G);
 		Gt1 = fast_gb(G1,V,0,Ord);
+		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
+#if 0
 		if ( ideal_inclusion(Gt1,Gt,V,Ord) ) {
-			G = Gt; IntP = IntPt; Q = []; IntQ = [1];
+			G = Gt; IntP = IntPt; Q = []; IntQ = [1]; C = 0;
 		} else
+#endif
 			Gt = Gt1;
+	}		
+	T0 = time();
+	if ( !NoSimp ) Q1 = qd_remove_redundant_comp(G0,Qi,Q0,V,Ord);
+	else Q1 = Q0;
+	if ( Time ) {
+		T1 = time(); Tirred += T1[0]-T0[0]+T1[1]-T0[1]; Rirred += T1[3]-T0[3];
+		Tall = T1[0]-T00[0]+T1[1]-T00[1]; Rall += T1[3]-T00[3];
+		print(["total",Tall,"ass",Tass,"iso",Tiso, "colon",Tcolon,"sep",Tsep,"irred",Tirred]);
+		print(["Rtotal",Rall,"Rass",Rass,"Riso",Riso, "Rcolon",Rcolon,"Rsep",Rsep,"Rirred",Rirred]);
+		print(["iso",length(Qi),"emb",length(Q0),"->",length(Q1)]);
 	}
-	Q1 = qd_remove_redundant_comp(G0,Qi,Q0,V,Ord);
-	return append(Qi,Q1);
+	return [Qi,Q1];
 }
 
 def syc_dec(B,V)
 {
+T00 = time();
 	if ( type(Nolexdec=getopt(nolexdec)) == -1 ) Nolexdec = 0;
 	if ( type(SepIdeal=getopt(sepideal)) == -1 ) SepIdeal = 1;
+	if ( type(NoSimp=getopt(nosimp)) == -1 ) NoSimp = 0;
+	if ( type(Time=getopt(time)) == -1 ) Time = 0;
 	Ord = 0;
 	G = fast_gb(B,V,0,Ord);
 	Q = []; IntQ = [1]; Gt = G; First = 1;
+	Tass = Tiso = Tcolon = Tsep = Tirred = 0;
+	Rass = Riso = Rcolon = Rsep = Rirred = 0;
 	while ( 1 ) {
 		if ( type(Gt[0])==1 ) break;
+		T0 = time();
 		Pt = prime_dec(Gt,V|indep=1,nolexdec=Nolexdec);
+		T1 = time(); Tass += T1[0]-T0[0]+T1[1]-T0[1]; Rass += T1[3]-T0[3];
+		T0 = time();
 		Qt = iso_comp(Gt,Pt,V,Ord);
+		T1 = time(); Tiso += T1[0]-T0[0]+T1[1]-T0[1]; Riso += T1[3]-T0[3];
 		IntQt = ideal_list_intersection(map(first_element,Qt),V,Ord);
 		IntPt = ideal_list_intersection(map(first_element,Pt),V,Ord);
 		if ( First ) {
 			IntQ = IntQt; Qi = Qt; First = 0;
 		} else {
-			IntQ = ideal_intersection(IntQ,IntQt,V,Ord);
-			Q = append(Qt,Q);
+			IntQ1 = ideal_intersection(IntQ,IntQt,V,Ord);
+			if ( !gb_comp(IntQ1,IntQ) )
+				Q = append(Qt,Q);
 		}
-		if ( gb_comp(IntQ,G) ) break;
+		if ( gb_comp(IntQ,G) || gb_comp(IntQt,Gt) ) 
+			break;
+		T0 = time();
+		C = ideal_colon(Gt,IntQt,V);
+		T1 = time(); Tcolon += T1[0]-T0[0]+T1[1]-T0[1]; Rcolon += T1[3]-T0[3];
 		if ( SepIdeal == 0 )
-			Ok = find_separating_ideal0(Gt,IntQt,IntPt,V,Ord);
+			Ok = find_separating_ideal0(C,Gt,IntQt,IntPt,V,Ord);
 		else if ( SepIdeal == 1 )
-			Ok = find_separating_ideal1(Gt,IntQt,IntPt,V,Ord);
+			Ok = find_separating_ideal1(C,Gt,IntQt,IntPt,V,Ord);
 		else if ( SepIdeal == 2 )
-			Ok = find_separating_ideal2(Gt,IntQt,IntPt,V,Ord);
+			Ok = find_separating_ideal2(C,Gt,IntQt,IntPt,V,Ord);
 		G1 = append(Ok,Gt);
+		T0 = time();
 		Gt = fast_gb(G1,V,0,Ord);
+		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
 	}
-	Q = qd_remove_redundant_comp(G,Qi,Q,V,Ord);
-	return append(Qi,Q);
+	T0 = time();
+	if ( !NoSimp ) Q1 = qd_remove_redundant_comp(G,Qi,Q,V,Ord);
+	else Q1 = Q;
+	T1 = time(); Tirred += T1[0]-T0[0]+T1[1]-T0[1]; Rirred += T1[3]-T0[3];
+	Tall = T1[0]-T00[0]+T1[1]-T00[1]; Rall += T1[3]-T00[3];
+	if ( Time ) {
+		print(["total",Tall,"ass",Tass,"iso",Tiso, "colon",Tcolon,"sep",Tsep,"irred",Tirred]);
+		print(["Rtotal",Rall,"Rass",Rass,"Riso",Riso, "Rcolon",Rcolon,"Rsep",Rsep,"Rirred",Rirred]);
+		print(["iso",length(Qi),"emb",length(Q),"->",length(Q1)]);
+	}
+	return [Qi,Q1];
 }
 
-/* Rad=rad(Q), return J s.t. Q cap (G+J) = G */
+/* C=G:Q, Rad=rad(Q), return J s.t. Q cap (G+J) = G */
 
-def find_separating_ideal0(G,Q,Rad,V,Ord) {
-	C = ideal_colon(G,Q,V);
+def find_separating_ideal0(C,G,Q,Rad,V,Ord) {
 	for ( CI = C, I = 1; ; I++ ) {
 		for ( T = CI, S = []; T != []; T = cdr(T) )
 			if ( nd_nf(car(T),Q,V,Ord,0) ) S = cons(car(T),S);
@@ -161,8 +223,7 @@ def find_separating_ideal0(G,Q,Rad,V,Ord) {
 	}
 }
 
-def find_separating_ideal1(G,Q,Rad,V,Ord) {
-	C = ideal_colon(G,Q,V);
+def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 	for ( T = C, S = []; T != []; T = cdr(T) )
 		if ( nd_nf(car(T),Q,V,Ord,0) ) S = cons(car(T),S);
 	if ( S == [] )
@@ -194,8 +255,7 @@ def find_separating_ideal1(G,Q,Rad,V,Ord) {
 	return reverse(S);
 }
 
-def find_separating_ideal2(G,Q,Rad,V,Ord) {
-	C = ideal_colon(G,Q,V);
+def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 	for ( T = C, S = []; T != []; T = cdr(T) )
 		if ( nd_nf(car(T),Q,V,Ord,0) ) S = cons(car(T),S);
 	if ( S == [] )
