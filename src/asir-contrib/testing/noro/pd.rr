@@ -15,7 +15,7 @@ localf maxindep, contraction, ideal_list_intersection, ideal_intersection$
 localf radical_membership, quick_radical_membership, modular_radical_membership$
 localf radical_membership_rep, ideal_product, saturation$
 localf sat, satind, sat_ind, colon$
-localf ideal_colon, ideal_inclusion, qd_simp_comp, qd_remove_redundant_comp$
+localf ideal_colon, ideal_sat, ideal_inclusion, qd_simp_comp, qd_remove_redundant_comp$
 localf remove_redundant_comp, remove_redundant_comp_first, ppart, sq$
 localf lcfactor, compute_deg0, compute_deg, member$
 localf elimination, setintersection, setminus, sep_list$
@@ -183,6 +183,7 @@ T00 = time();
 		T0 = time();
 		C = ideal_colon(Gt,IntQt,V);
 		T1 = time(); Tcolon += T1[0]-T0[0]+T1[1]-T0[1]; Rcolon += T1[3]-T0[3];
+		T0 = time();
 		if ( SepIdeal == 0 )
 			Ok = find_separating_ideal0(C,Gt,IntQt,IntPt,V,Ord);
 		else if ( SepIdeal == 1 )
@@ -190,7 +191,6 @@ T00 = time();
 		else if ( SepIdeal == 2 )
 			Ok = find_separating_ideal2(C,Gt,IntQt,IntPt,V,Ord);
 		G1 = append(Ok,Gt);
-		T0 = time();
 		Gt = fast_gb(G1,V,0,Ord);
 		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
 	}
@@ -1181,6 +1181,13 @@ def ideal_colon(G,F,V)
 {
 	G = nd_gr(G,V,0,0);
 	L = mapat(colon,1,G,F,V);
+	return ideal_list_intersection(L,V,0);
+}
+
+def ideal_sat(G,F,V)
+{
+	G = nd_gr(G,V,0,0);
+	L = mapat(sat,1,G,F,V);
 	return ideal_list_intersection(L,V,0);
 }
 
