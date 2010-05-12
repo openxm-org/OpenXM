@@ -1169,11 +1169,7 @@ def colon(G,F,V)
 {
 	F = p_nf(F,G,V,0);
 	if ( !F ) return [1];
-	NV = ttttt;
-	V1 = cons(NV,V);
-	T = nd_gr_trace(append(vtol(NV*ltov(G)),[(1-NV)*F]),V1,1,GBCheck,
-		[[0,1],[0,length(V)]]|gbblock=[[0,length(G)]],nora=1);
-	T = elimination(T,V);
+	T = ideal_intersection(G,[F],V,0);
 	return map(ptozp,map(sdiv,T,F));
 }
 
