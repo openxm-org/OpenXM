@@ -45,6 +45,12 @@ localf test_integration_ideal5;
 localf test_integration_ideal5_;
 localf test_integration_ideal6;
 localf test_integration_ideal7;
+localf coord_conv;
+localf check_coord_conv, check_coord_conv2;
+localf dummy_var;
+localf ann_mul;
+localf test_ann_mul, test_ann_mul2, test_ann_mul3;
+localf subst_vect;
 localf fano2;
 localf fano3;
 localf p_to_mat;
@@ -67,10 +73,10 @@ localf subset, zero_inhomo;
 localf integration_exp;
 localf test_integration_exp;
 localf time_print, time_round;
-localf ost_integration_ideal;
+localf ost_integration_ideal, ost_integration_ideal2;
 localf test_ost_integration_ideal;
-localf ost_integration_exp;
-
+localf ost_integration_exp, ost_integration_exp2;
+localf ann_heaviside;
 
 /* parameter  */
 localf weyl_minipoly_by_elim, weyl_minipoly_by_elim2, weyl_minipoly_by_elim3;
@@ -385,6 +391,7 @@ def restriction(Id, VL, DVL, W)
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+
 tstart();
 	Result = generic_bfct_and_gr(Id, VL, DVL, W|param=Param, s0=S0);
 print("-- generic_bfct_and_gr :",2);
@@ -618,17 +625,24 @@ def test_restriction3()
  * param : パラメータとみなす変数のリスト
  * s0    : s0 >= 0 のとき generic b-function の計算を行わず
  *         s-s0 を generic b-function として計算する
+ * ht    : homo, trace-lifting のフラグ
+ *	     ht
+ *	 0 = 00(2) 以下 : homo なし, trace なし
+ *	 1 = 01(2)      : homo なし, trace あり
+ *	 2 = 10(2)      : homo あり, trace なし default (version() >= 20100415)
+ *	 3 = 11(2) 以上 : homo あり, trace あり
  */
 def restriction_ideal(Id, VL, DVL, W)
 {
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 
 	L = restriction(Id, VL, DVL, W|inhomo=IH,param=Param,s0=S0);
 	if ( !L ) return [1];
 tstart();
-	GG = restriction_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param);
+	GG = restriction_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace);
 	print("-- restriction_ideal_internal :", 2);
 tstop();
 
@@ -652,6 +666,7 @@ def restriction_ideal_internal(L, VL, DVL, W)
 {
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 
 	/* 
 	 * restriction module の結果をベクトル表示に直す       
@@ -698,10 +713,16 @@ def restriction_ideal_internal(L, VL, DVL, W)
 	GenV = vtol(GenV);
 
 	if ( !IH ) {
-		G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);
+		if ( HTrace <= 0 )
+			G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);
+		else if ( HTrace == 1 )
+			G = nd_weyl_gr_trace(GenV, VLY, 0, 0, [1,OrdM]);
+		else if ( HTrace == 2 )
+			G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]|homo=1);
+		else
+			G = nd_weyl_gr_trace(GenV, VLY, 1, 0, [1,OrdM]);
 		if ( G == []) G = [vtol(newvect(N))];
-	}
-	else {
+	} else {
 		/* 生成関係式を得るために sygyzy を計算 */
 		/* OpenXM/src/asir-contrib/testing/noro/module_syz.rr が必要 */
 		VDVL = append(VL,DVL);
@@ -964,12 +985,19 @@ def test_integration5()
  * s0    : s0 >= 0 のとき generic b-function の計算を行わず
  *         s-s0 を generic b-function として計算する
  * inhomo: 0 でないとき inhomogeneous part の情報もあわせて返す
+ * ht    : homo, trace-lifting のフラグ
+ *	     ht
+ *	 0 = 00(2) 以下 : homo なし, trace なし
+ *	 1 = 01(2)      : homo なし, trace あり
+ *	 2 = 10(2)      : homo あり, trace なし default (version() >= 20100415)
+ *	 3 = 11(2) 以上 : homo あり, trace あり
  */
 def integration_ideal(Id, VL, DVL, W)
 {
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 
 	L = integration(Id, VL, DVL, W|inhomo=IH,param=Param, s0=S0);
 	if ( !L ) return [1];
@@ -978,7 +1006,7 @@ def integration_ideal(Id, VL, DVL, W)
 	print(L);
 #endif
 tstart();
-	GG = integration_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param);
+	GG = integration_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace);
 print("-- integration_ideal_internal :", 2);
 tstop();
 	return GG;
@@ -988,7 +1016,8 @@ tstop();
 def integration_ideal_internal(L, VL, DVL, W)
 {
 	if ( type(IH=getopt(inhomo)) == -1) IH = 0;
-	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(Param=getopt(param)) == -1 ) Param = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 
 	/* 
 	 * integration module の結果をベクトル表示に直す       
@@ -1035,10 +1064,16 @@ def integration_ideal_internal(L, VL, DVL, W)
 	GenV = vtol(GenV);
 
 	if ( !IH ) {
-		G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);
+		if ( HTrace <= 0 )
+			G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]);
+		else if ( HTrace == 1 )
+			G = nd_weyl_gr_trace(GenV, VLY, 0, 0, [1,OrdM]);
+		else if ( HTrace == 2 )
+			G = nd_weyl_gr(GenV, VLY, 0, [1,OrdM]|homo=1);
+		else
+			G = nd_weyl_gr_trace(GenV, VLY, 1, 0, [1,OrdM]);
 		if ( G == []) G = [vtol(newvect(N))];
-	}
-	else {
+	} else {
 		/* 生成関係式を得るために sygyzy を計算 */
 		/* OpenXM/src/asir-contrib/testing/noro/module_syz.rr が必要 */
 		VDVL = append(VL,DVL);
@@ -1279,6 +1314,110 @@ def test_integration_ideal7()
 
 }
 
+
+/* ann_mul */
+
+/*
+ * x_i --> x_i 
+ * y_i --> x_i - y_i
+ * dx_i --> dx_i + dy_i
+ * dy_i -->      - dy_i
+ */
+def coord_conv(P, VL1, DVL1, VL2, DVL2)
+{
+	N = length(VL1);
+	for (I = 0; I < N; I++)
+		P = subst(P, VL2[I], VL1[I] - VL2[I]); 	
+	for (I = 0; I < N; I++)
+		P = subst(P, DVL2[I], -DVL2[I]); 	
+	for (I = 0; I < N; I++)
+		P = subst(P, DVL1[I], DVL1[I] + DVL2[I]); 	
+	return P;
+}
+
+def check_coord_conv()
+{
+	return coord_conv((1-tt)*dtt,[t],[dt],[tt],[dtt]);
+}
+
+def check_coord_conv2()
+{
+	return coord_conv(t*dt,[t],[dt],[tt],[dtt]);
+}
+
+/* variable a --> a_ */
+def dummy_var(A)
+{
+	return strtov(rtostr(A) + "_");
+}
+
+def ann_mul(Id1, Id2, VL, DVL)
+{
+	if (type(Param = getopt(param)) == -1) 
+		Param = 0;
+	if (type(S0 = getopt(s0)) == -1)
+		S0 = -1;	
+
+	VLL = map(dummy_var, VL);
+	DVLL = map(dummy_var, DVL);	
+	Id2 = map(subst_vect, Id2, VL, VLL);
+	Id2 = map(subst_vect, Id2, DVL, DVLL);
+	Id1 = map(coord_conv, Id1, VL, DVL, VLL, DVLL);
+	Id2 = map(coord_conv, Id2, VL, DVL, VLL, DVLL);
+	Id = append(Id1, Id2);
+	V = append(VLL, VL);
+	DV = append(DVLL, DVL);
+	W = newvect(length(V));
+	for (I = 0; I < length(V)/2; I++)
+		W[I] = 1; 
+	W = vtol(W);
+	print([Id, V, DV, W]);
+	print("option:" + rtostr([Param, S0]));
+	return restriction_ideal(Id, V, DV, W|param = Param, s0 = S0);
+}
+
+def test_ann_mul()
+{
+	return ann_mul([t*dt], [(1-t)*dt],[t],[dt]);
+}
+
+def test_ann_mul2()
+{
+	F = x^3+y^2;
+	G = x+y^2;
+	Ann1 = map(subst, ann(F), s, -1);
+	Ann2 = map(subst, ann(G), s, -1);
+	Ann = map(subst, ann(F*G), s, -1);
+	AnnMul = ann_mul(Ann1, Ann2, [x,y],[dx,dy]);
+	return [AnnMul,Ann];
+}
+
+def test_ann_mul3()
+{
+	/* t^{a-1} (1-t)^{c-a-1} の ann */
+	I12 = ndbf.ann_n([t,1-t]);
+	I12 = map(subst, I12, s0, a-1, s1, c-a-1);
+	/* I12 は C<t,z,dt,dz> のイデアルとみなすので dz も追加 */
+	I12 = cons(dz, I12);
+	print("I12 :"); print(I12);
+
+	/* e^{tz} の ann */
+	I3 = [dt-z,dz-t];
+	I123 = ann_mul(I12, I3, [t,z], [dt,dz]|param=[a,c],s0=0);
+	print("I12 :"); print(I12);
+	
+	return integration_ideal(I123, [t,z], [dt,dz], [1,0]|param=[a,c],s0=0);
+}
+
+/* F の VL[0] に V[0], ... を代入 */
+def subst_vect(F, VL, V)
+{
+	N = length(VL);
+	for (I = 0; I < N; I++) 
+		F = subst(F, VL[I], V[I]);
+	return F;
+}
+
 /*----------------------------------------------------------------- */
 /*-------------- test data for integration ideal ------------------ */
 /*----------------------------------------------------------------- */
@@ -1501,17 +1640,27 @@ tstop();
 def inhomo_part(TT,QI,DRGen,VZ,DVZ,VDVL)
 {
 	if ( type(REST=getopt(rest)) == -1 ) REST = 0;
+#if 0
 	TMP = cont(TT);
 	CT = dp_hc(dp_ptod(TMP,vars(TMP)));
 	G = TT/CT;
+#else
+	G = ptozp(TT);
+	CT = tdiv(TT,G);
+#endif
 	DQI = map(dp_ptod,QI,VDVL);
 	for ( DP = 0, K = 0; K < length(DQI); K++ )
 		DP += dp_weyl_mul(DQI[K],DRGen[K]);
 	P = dp_dtop(DP,VDVL);
 	GCD = 1;
 	if ( P ) {
+#if 0
 		TMP = cont(P);
 		CP = dp_hc(dp_ptod(TMP,vars(TMP)));
+#else
+		CP = tdiv(P,ptozp(P));
+
+#endif
 		GCD = igcd(CT,CP);
 		P /= GCD;
 	}
@@ -1644,10 +1793,11 @@ def integration_exp(C,E,V,DV,W)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 	Id = [];
 	for ( I = 0; I < length(V); I++ )
 		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
-	G = integration_ideal(Id,V,DV,W|param=Param,s0=S0,inhomo=IH);
+	G = integration_ideal(Id,V,DV,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 	return G;
 }
 
@@ -1712,6 +1862,7 @@ def ost_integration_ideal(Id,V,DV,W,LB,UB)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 
 	if ( (VB = vars(append(LB,UB))) != [] )
 		if ( Param == 0 )
@@ -1765,7 +1916,7 @@ def ost_integration_ideal(Id,V,DV,W,LB,UB)
 		TI = cons(T*P,TI);
 		Id = cdr(Id);
 	}
-	return integration_ideal(TI,V,DV,W|param=Param,s0=S0,inhomo=IH);
+	return integration_ideal(TI,V,DV,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 }
 
 def test_ost_integration_ideal()
@@ -1780,10 +1931,64 @@ def ost_integration_exp(C,E,V,DV,W,LB,UB)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 	Id = [];
 	for ( I = 0; I < length(V); I++ )
 		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
-	G = ost_integration_ideal(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH);
+	G = ost_integration_ideal(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH,ht=HTrace);
+	return G;
+}
+
+def ost_integration_ideal2(Id,V,DV,W,LB,UB)
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+T = time();
+	L = ann_heaviside(V,DV,LB,UB);
+	TI = ann_mul(L,Id,V,DV); /* ann_mul.rr が必要  */
+print("-- ann_mul :",2);
+time_print(T);
+T = time();
+	INT = integration_ideal(TI,V,DV,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
+print("-- integration_ideal :",2);
+time_print(T);
+	return INT;
+}
+
+def ann_heaviside(V,DV,LB,UB)
+{
+	L = [];
+	for ( I = 0; I < length(LB); I++ ) {
+		T = 1;
+		if ( type(LB[I]) > 1 ) {
+			if ( LB[I] != "-inf" )
+				error("ann_heaviside: invalid lower bound.");
+		} else
+			T *= V[I]-LB[I];
+		if ( type(UB[I]) > 1 ) { 
+			if ( UB[I] != "inf" && UB[I] != "+inf" )
+				error("ann_heaviside: invalid upper bound.");
+		} else
+			T *= V[I]-UB[I];
+		L = cons(T*DV[I],L);
+	}
+	for ( ; I < length(V); I++ )
+		L = cons(DV[I],L);
+	return L;
+} 
+
+def ost_integration_exp2(C,E,V,DV,W,LB,UB)
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	Id = [];
+	for ( I = 0; I < length(V); I++ )
+		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
+	G = ost_integration_ideal2(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 	return G;
 }
 
