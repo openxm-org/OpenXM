@@ -16,11 +16,11 @@ localf radical_membership, quick_radical_membership, modular_radical_membership$
 localf radical_membership_rep, ideal_product, saturation$
 localf sat, satind, sat_ind, colon$
 localf ideal_colon, ideal_sat, ideal_inclusion, qd_simp_comp, qd_remove_redundant_comp$
-localf remove_redundant_comp, remove_redundant_comp_first, ppart, sq$
+localf pd_remove_redundant_comp, ppart, sq$
 localf lcfactor, compute_deg0, compute_deg, member$
 localf elimination, setintersection, setminus, sep_list$
 localf first_element, comp_tdeg, tdeg, comp_by_ord, comp_by_second$
-localf gbcheck,f4,sathomo$
+localf gbcheck,f4,sathomo,qdcheck$
 
 SatHomo=0$
 GBCheck=1$
@@ -67,6 +67,15 @@ def kill_procs()
 		ox_shutdown(Procs[1]);
 		Procs = 0;
 	}
+}
+
+def qd_check(B,V,QD)
+{
+	G = nd_gr(B,V,0,0);
+	Iso = ideal_list_intersection(map(first_element,QD[0]),V,0);
+	Emb = ideal_list_intersection(map(first_element,QD[1]),V,0);
+	GG = ideal_intersection(Iso,Emb,V,0);
+	return gb_comp(G,GG);
 }
 
 /* SYC primary decomositions */
@@ -357,7 +366,7 @@ def sy_dec(B,V)
 		}
 		Gt = fast_gb(append(Gt,St),V,0,Ord);
 	}
-	Q = remove_redundant_comp(G,Qi,Q,V,Ord);
+	Q = qd_remove_redundant_comp(G,Qi,Q,V,Ord);
 	return append(Qi,Q);
 }
 
@@ -466,16 +475,16 @@ def prime_dec(B,V)
 	else
 		PD = [B];
 	G = ideal_list_intersection(PD,V,0);
-	PD = remove_redundant_comp(G,[],PD,V,0);
+	PD = pd_remove_redundant_comp(G,PD,V,0);
 	R = [];
 	for ( T = PD; T != []; T = cdr(T) )
 		R = append(prime_dec_main(car(T),V|indep=Indep),R);
 	if ( Indep ) {
 		G = ideal_list_intersection(map(first_element,R),V,0);
-		if ( !NoLexDec ) R = remove_redundant_comp_first(G,R,V,0);
+		if ( !NoLexDec ) R = pd_remove_redundant_comp(G,R,V,0|first=1);
 	} else {
 		G = ideal_list_intersection(R,V,0);
-		if ( !NoLexDec ) R = remove_redundant_comp(G,[],R,V,0);
+		if ( !NoLexDec ) R = pd_remove_redundant_comp(G,R,V,0);
 	}
 	return R;
 }
@@ -1281,63 +1290,44 @@ def qd_remove_redundant_comp(G,Iso,Emb,V,Ord)
 {
 	IsoInt = ideal_list_intersection(map(first_element,Iso),V,Ord);
 	Emb = qd_simp_comp(Emb,V);
-	Emb = qsort(Emb);
-	A = ltov(Emb);
-	N = length(A);
+	Emb = reverse(qsort(Emb));
+	A = ltov(Emb); N = length(A);
+	Pre = IsoInt; Post = vector(N+1);
+	for ( Post[N] = [1], I = N-1; I >= 1; I-- )
+		Post[I] = ideal_intersection(Post[I+1],A[I][0],V,Ord);
 	for ( I = 0; I < N; I++ ) {
-		if ( !A[I] ) continue;
-		for ( T = [], J = 0; J < N; J++ )
-			if ( J != I && A[J] ) T = cons(A[J][0],T);
-		Int = ideal_list_intersection(T,V,Ord);
-		Int = ideal_intersection(IsoInt,Int,V,Ord);
+		Int = ideal_intersection(Pre,Post[I+1],V,Ord);
 		if ( gb_comp(Int,G) ) A[I] = 0;
+		else
+			Pre = ideal_intersection(Pre,A[I][0],V,Ord);
 	}
 	for ( T = [], I = 0; I < N; I++ )
 		if ( A[I] ) T = cons(A[I],T);
 	return reverse(T);
 }
 
-def remove_redundant_comp(G,Iso,Emb,V,Ord)
+def pd_remove_redundant_comp(G,P,V,Ord)
 {
-	IsoInt = ideal_list_intersection(Iso,V,Ord);
-
-	A = ltov(Emb);
-	N = length(A);
+	if ( type(First=getopt(first)) == -1 ) First = 0;
+	A = ltov(P); N = length(A);
 	for ( I = 0; I < N; I++ ) {
 		if ( !A[I] ) continue;
 		for ( J = I+1; J < N; J++ )
-			if ( A[J] && gb_comp(A[I],A[J]) ) A[J] = 0;
+			if ( A[J] && 
+				gb_comp(First?A[I][0]:A[I],First?A[J][0]:A[J]) ) A[J] = 0;
 	}
+	for ( I = 0, T = []; I < N; I++ ) if ( A[I] ) T = cons(A[I],T);
+	A = ltov(reverse(T)); N = length(A);
+	Pre = [1]; Post = vector(N+1);
+	for ( Post[N] = [1], I = N-1; I >= 1; I-- )
+		Post[I] = ideal_intersection(Post[I+1],First?A[I][0]:A[I],V,Ord);
 	for ( I = 0; I < N; I++ ) {
-		if ( !A[I] ) continue;
-		for ( T = [], J = 0; J < N; J++ )
-			if ( J != I && A[J] ) T = cons(A[J],T);
-		Int = ideal_list_intersection(cons(IsoInt,T),V,Ord);
+		Int = ideal_intersection(Pre,Post[I+1],V,Ord);
 		if ( gb_comp(Int,G) ) A[I] = 0;
+		else
+			Pre = ideal_intersection(Pre,First?A[I][0]:A[I],V,Ord);
 	}
-	for ( T = [], I = 0; I < N; I++ )
-		if ( A[I] ) T = cons(A[I],T);
-	return reverse(T);
-}
-
-def remove_redundant_comp_first(G,P,V,Ord)
-{
-	A = ltov(P);
-	N = length(A);
-	for ( I = 0; I < N; I++ ) {
-		if ( !A[I] ) continue;
-		for ( J = I+1; J < N; J++ )
-			if ( A[J] && gb_comp(A[I][0],A[J][0]) ) A[J] = 0;
-	}
-	for ( I = 0; I < N; I++ ) {
-		if ( !A[I] ) continue;
-		for ( T = [], J = 0; J < N; J++ )
-			if ( J != I && A[J] ) T = cons(A[J][0],T);
-		Int = ideal_list_intersection(T,V,Ord);
-		if ( gb_comp(Int,G) ) A[I] = 0;
-	}
-	for ( T = [], I = 0; I < N; I++ )
-		if ( A[I] ) T = cons(A[I],T);
+	for ( T = [], I = 0; I < N; I++ ) if ( A[I] ) T = cons(A[I],T);
 	return reverse(T);
 }
 
