@@ -9,7 +9,7 @@ localf sy_dec, pseudo_dec, iso_comp, prima_dec$
 localf prime_dec, prime_dec_main, lex_predec1, zprimedec, zprimadec$
 localf complete_qdecomp, partial_qdecomp, partial_qdecomp0, complete_decomp$
 localf partial_decomp, partial_decomp0, zprimacomp, zprimecomp$
-localf fast_gb, elim_gb, ldim, make_mod_subst$
+localf fast_gb, incremental_gb, elim_gb, ldim, make_mod_subst$
 localf rsgn, find_npos, gen_minipoly, indepset$
 localf maxindep, contraction, ideal_list_intersection, ideal_intersection$
 localf radical_membership, quick_radical_membership, modular_radical_membership$
@@ -233,7 +233,12 @@ def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 	/* check whether (Q cap (G+S)) = G */
 	if ( gb_comp(Int,G) ) return reverse(S);
 
+	/* or qsort(C,comp_tdeg) */
 	C = qsort(S,comp_tdeg);
+
+	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
+	Int0 = incremental_gb(append(vtol(ltov(G)*Tmp),vtol(ltov(Q)*(1-Tmp))),
+		TV,Ord1|gbblock=[[0,length(G)]]);
 	for ( T = C, S = []; T != []; T = cdr(T) ) {
 		if ( !nd_nf(car(T),Rad,V,Ord,0) ) continue;
 		Ui = U = car(T);
@@ -244,13 +249,15 @@ def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 			else
 				Ui = nd_nf(Ui*U,G,V,Ord,0);
 		}
-		if ( length(S) ) {
-			G1 = append(cons(Ui,S),G);
-			Int = ideal_intersection(G1,Q,V,Ord);
-			if ( !gb_comp(Int,G) ) 
-				break;
+		Int1 = incremental_gb(append(Int0,[Tmp*Ui]),TV,Ord1
+			|gbblock=[[0,length(Int0)]]);
+		Int = elimination(Int1,V);
+		if ( !gb_comp(Int,G) ) 
+			break;
+		else {
+			Int0 = Int1;
+			S = cons(Ui,S);
 		}
-		S = cons(Ui,S);
 	}
 	return reverse(S);
 }
@@ -265,8 +272,11 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 	/* check whether (Q cap (G+S)) = G */
 	if ( gb_comp(Int,G) ) return reverse(S);
 
+	/* or qsort(S,comp_tdeg) */
 	C = qsort(C,comp_tdeg);
+	Dp = dp_gr_print(); dp_gr_print(0);
 	for ( T = C, S = []; T != []; T = cdr(T) ) {
+		print(length(T));
 		if ( !nd_nf(car(T),Rad,V,Ord,0) ) continue;
 		Ui = U = car(T);
 		for ( I = 1; ; I++ ) {
@@ -278,24 +288,37 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 		}
 		S = cons(Ui,S);
 	}
-	S = reverse(S);
+	S = qsort(S,comp_tdeg);
+	/* S = reverse(S); */
 	Len = length(S);
-	Ok = [S[0]];
+
+	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
 	if ( Len > 1 ) {
-		K = 2;
-		while ( 1 ) {
-			for ( St = [], I = 0; I < K; I++ ) St = cons(S[I],St);
-			G1 = append(St,G);
-			Int = ideal_intersection(G1,Q,V,Ord);
-			if ( !gb_comp(Int,G) ) break;
-			Ok = St;
-			if ( K == Len ) break;
-			else {
-				K = 2*K;
-				if ( K > Len ) K = Len;
+		Prev = 1;
+		Cur = 2;
+		G1 = append(G,[S[0]]);
+		Int0 = incremental_gb(append(vtol(ltov(G1)*Tmp),vtol(ltov(Q)*(1-Tmp))),
+			TV,Ord1|gbblock=[[0,length(G)]]);
+		while ( Prev < Cur ) {
+			for ( St = [], I = Prev; I < Cur; I++ ) St = cons(Tmp*S[I],St);
+			Int1 = incremental_gb(append(Int0,St),TV,Ord1
+				|gbblock=[[0,length(Int0)]]);
+			Int = elimination(Int1,V);
+			if ( gb_comp(Int,G) ) {
+				print(Cur);
+				Prev = Cur;
+				Cur = Cur+idiv(Len-Cur+1,2);
+				Int0 = Int1;
+			} else {
+				Cur = Prev + idiv(Cur-Prev,2);
 			}
 		}
-	}
+		for ( St = [], I = 0; I < Prev; I++ ) St = cons(S[I],St);
+		Ok = reverse(St);
+	} else
+		Ok = [S[0]];
+	print([length(S),length(Ok)]);
+	dp_gr_print(Dp);
 	return Ok;
 }
 
@@ -382,6 +405,7 @@ def iso_comp(G,L,V,Ord)
 	Ind = vector(N);
 	Q = vector(N);
 	L0 = map(first_element,L);
+	G = nd_gr(G,V,0,Ord);
 	for ( I = 0; I < N; I++ ) {
 		LI = setminus(L0,[L0[I]]);
 		PI = ideal_list_intersection(LI,V,Ord);
@@ -389,7 +413,7 @@ def iso_comp(G,L,V,Ord)
 			if ( p_nf(car(T),L0[I],V,Ord) ) break;
 		if ( T == [] ) error("separator : cannot happen");
 		S[I] = car(T);
-		QI = sat(G,S[I],V);
+		QI = sat(G,S[I],V|isgb=1);
 		PV = L[I][1];
 		V0 = setminus(V,PV);
 		GI = elim_gb(QI,V0,PV,0,[[0,length(V0)],[0,length(PV)]]);
@@ -448,10 +472,10 @@ def prime_dec(B,V)
 		R = append(prime_dec_main(car(T),V|indep=Indep),R);
 	if ( Indep ) {
 		G = ideal_list_intersection(map(first_element,R),V,0);
-		R = remove_redundant_comp_first(G,R,V,0);
+		if ( !NoLexDec ) R = remove_redundant_comp_first(G,R,V,0);
 	} else {
 		G = ideal_list_intersection(R,V,0);
-		R = remove_redundant_comp(G,[],R,V,0);
+		if ( !NoLexDec ) R = remove_redundant_comp(G,[],R,V,0);
 	}
 	return R;
 }
@@ -781,6 +805,22 @@ def fast_gb(B,V,Mod,Ord)
 	return G;
 }
 
+def incremental_gb(A,V,Ord)
+{
+	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+	if ( type(Block=getopt(gbblock)) == -1 ) Block = 0;
+	if ( Mod )
+		G = nd_gr(A,V,Mod,Ord);
+	else if ( Procs ) {
+		Arg0 = ["nd_gr",A,V,0,Ord];
+		Arg1 = ["nd_gr_trace",A,V,1,GBCheck,Ord];
+		G = competitive_exec(Procs,Arg0,Arg1);
+	} else if ( Block )
+		G = nd_gr(A,V,0,Ord|gbblock=Block);
+	else
+		G = nd_gr(A,V,0,Ord);
+	return G;
+}
 
 def elim_gb(G,V,PV,Mod,Ord)
 {
@@ -1116,6 +1156,7 @@ def saturation(GNV,F,V)
 
 def sat(G,F,V) 
 {
+	if ( type(IsGB=getopt(isgb)) == -1 ) IsGB = 0;
 	NV = ttttt;
 	if ( Procs ) {
 		Arg0 = ["nd_gr_trace", 
@@ -1123,8 +1164,16 @@ def sat(G,F,V)
 		Arg1 = ["nd_gr_trace", 
 		cons(NV*F-1,G),cons(NV,V),1,GBCheck,[[0,1],[0,length(V)]]];
 		G1 = competitive_exec(Procs,Arg0,Arg1);
-	} else
-		G1 = nd_gr_trace(cons(NV*F-1,G),cons(NV,V),SatHomo,GBCheck,[[0,1],[0,length(V)]]);
+	} else {
+		B1 = append(G,[NV*F-1]);
+		V1 = cons(NV,V);
+		Ord1 = [[0,1],[0,length(V)]];
+		if ( IsGB )
+			G1 = nd_gr_trace(B1,V1,SatHomo,GBCheck,Ord1|
+				gbblock=[[0,length(G)]]);
+		else
+			G1 = nd_gr_trace(B1,V1,SatHomo,GBCheck,Ord1);
+	}
 	return elimination(G1,V);
 }
 
@@ -1167,16 +1216,22 @@ def sat_ind(G,F,V)
 
 def colon(G,F,V)
 {
+	if ( type(IsGB=getopt(isgb)) == -1 ) IsGB = 0;
 	F = p_nf(F,G,V,0);
 	if ( !F ) return [1];
-	T = ideal_intersection(G,[F],V,0);
+	if ( IsGB )
+		T = ideal_intersection(G,[F],V,0|gbblock=[[0,length(G)]]);
+	else
+		T = ideal_intersection(G,[F],V,0);
 	return map(ptozp,map(sdiv,T,F));
 }
 
 def ideal_colon(G,F,V)
 {
 	G = nd_gr(G,V,0,0);
-	L = mapat(colon,1,G,F,V);
+	for ( T = F, L = []; T != []; T = cdr(T) )
+		L = cons(colon(G,car(T),V|isgb=1),L);
+	L = reverse(L);
 	return ideal_list_intersection(L,V,0);
 }
 
