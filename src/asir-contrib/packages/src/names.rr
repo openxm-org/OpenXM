@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.96 2010/01/30 02:25:17 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.97 2010/02/04 01:57:26 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -397,7 +397,16 @@ def poly_sort(F) {
   return taka_quote_sort(F | option_list=Opt);
 }
 
-def poly_weight_vector(W) { NOT_YET; }
+/*&usage begin: poly_weight_to_omatrix(W,V)
+ It translates the weight vector {W} into a matrix, which is used to set
+ the order in asir Grobner basis functions.
+ {V} is a list of variables.
+ example: poly_weight_to_omatrix([2,1,0],[x,y,z]);
+end: */
+def poly_weight_to_omatrix(W,V) { 
+  Opt = getopt();
+  return taka_poly_weight_vector(W,V | option_list=Opt);
+}
 
 
 /* ---------------------hypergeometric------------------ */

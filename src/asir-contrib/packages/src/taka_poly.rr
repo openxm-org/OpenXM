@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.17 2006/10/05 20:12:15 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.18 2009/12/11 01:00:18 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -617,9 +617,10 @@ def taka_poly_weight_vector(W,V) {
 def taka_poly_weight_vector1(W,V) {
   WW = taka_poly_weight_vector_parse(W,V);
   N = length(V);
-  WW = newmat(N+1,N,[WW]);
-  for (I=1; I<N+1; I++) {
-    WW[I][N-I] = -1;
+  WW = newmat(N+2,N,[WW]);
+  for (I=0; I<N; I++) WW[1][I] = 1;
+  for (I=2; I<N+2; I++) {
+    WW[I][N-(I-1)] = -1;
   }
   return WW;
 }
@@ -632,9 +633,10 @@ def taka_poly_weight_vectors(W,V) {
   }
   N = length(V);
   M = N+L;
-  WW = newmat(M,N,WW);
+  WW = newmat(M+1,N,WW);
+  for (I=0; I<N; I++) WW[L][I] = 1;
   J = 1;
-  for (I=L; I<M; I++) {
+  for (I=L+1; I<M+1; I++) {
     WW[I][N-J] = -1; J++;
   }
   return WW;
