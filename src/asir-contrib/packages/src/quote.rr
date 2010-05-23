@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.18 2006/10/05 08:30:36 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/quote.rr,v 1.19 2006/10/05 20:12:15 takayama Exp $ */
 #include "tags.h"
 
 /* Functions for asir quote object. */
@@ -8,8 +8,8 @@ def quote_to_quote(S) {
   else if (type(S) == LIST || type(S) == VECTOR || type(X) == MATRIX) {
     S = map(quote_to_quote,S);
   }else {
-    return eval_str("quote("+rtostr(S)+")");
-    /* bug: objtoquote should be used. */
+    /* return eval_str("quote("+rtostr(S)+")"); */
+    return objtoquote(S);
   }
 }
 /* Inverse of quote_to_obj */
