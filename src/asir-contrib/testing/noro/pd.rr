@@ -99,13 +99,23 @@ T00 = time();
 	while ( 1 ) {
 		if ( type(Gt[0])==1 ) break;
 		T0 = time();
-		Pt = prime_dec(Gt,V|indep=1,nolexdec=Nolexdec,mod=Mod);
+		PtR = prime_dec(Gt,V|indep=1,nolexdec=Nolexdec,mod=Mod,radical=1);
 		T1 = time(); Tass += T1[0]-T0[0]+T1[1]-T0[1]; Rass += T1[3]-T0[3];
+		Pt = PtR[0]; IntPt = PtR[1];
+		if ( gen_gb_comp(Gt,IntPt,Mod) ) {
+			/* Gt is radical and Gt = cap Pt */
+			for ( T = Pt, Qt = []; T != []; T = cdr(T) )
+				Qt = cons([car(T)[0],car(T)[0]],Qt);
+			if ( First )
+				return [Qt,[]];
+			else
+				Q0 = append(Qt,Q0);
+			break;
+		}
 		T0 = time();
 		Qt = iso_comp(Gt,Pt,V,Ord|mod=Mod,isgb=1);
 		T1 = time(); Tiso += T1[0]-T0[0]+T1[1]-T0[1]; Riso += T1[3]-T0[3];
 		IntQt = ideal_list_intersection(map(first_element,Qt),V,Ord|mod=Mod);
-		IntPt = ideal_list_intersection(map(first_element,Pt),V,Ord|mod=Mod);
 		if ( First ) {
 			IntQ0 = IntQ = IntQt; IntP = IntPt; Qi = Qt; First = 0;
 		} else {
@@ -144,8 +154,10 @@ T00 = time();
 			Ok = find_separating_ideal1(C,G,IntQ,IntP,V,Ord|mod=Mod);
 		else if ( SepIdeal == 2 )
 			Ok = find_separating_ideal2(C,G,IntQ,IntP,V,Ord|mod=Mod);
+		else if ( SepIdeal == 3 )
+			Ok = find_separating_ideal2(C,G,IntQ,IntP,V,Ord|mod=Mod,complete=1);
 		G1 = append(Ok,G);
-		Gt1 = fast_gb(G1,V,Mod,Ord);
+		Gt1 = incremental_gb(G1,V,Ord|mod=Mod);
 		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
 #if 0
 		if ( ideal_inclusion(Gt1,Gt,V,Ord|mod=Mod) ) {
@@ -183,13 +195,24 @@ T00 = time();
 	while ( 1 ) {
 		if ( type(Gt[0])==1 ) break;
 		T0 = time();
-		Pt = prime_dec(Gt,V|indep=1,nolexdec=Nolexdec,mod=Mod);
+		PtR = prime_dec(Gt,V|indep=1,nolexdec=Nolexdec,mod=Mod,radical=1);
 		T1 = time(); Tass += T1[0]-T0[0]+T1[1]-T0[1]; Rass += T1[3]-T0[3];
+		Pt = PtR[0]; IntPt = PtR[1];
+		if ( gen_gb_comp(Gt,IntPt,Mod) ) {
+			/* Gt is radical and Gt = cap Pt */
+			for ( T = Pt, Qt = []; T != []; T = cdr(T) )
+				Qt = cons([car(T)[0],car(T)[0]],Qt);
+			if ( First )
+				return [Qt,[]];
+			else
+				Q = append(Qt,Q);
+			break;
+		}
+
 		T0 = time();
 		Qt = iso_comp(Gt,Pt,V,Ord|mod=Mod,isgb=1);
 		T1 = time(); Tiso += T1[0]-T0[0]+T1[1]-T0[1]; Riso += T1[3]-T0[3];
 		IntQt = ideal_list_intersection(map(first_element,Qt),V,Ord|mod=Mod);
-		IntPt = ideal_list_intersection(map(first_element,Pt),V,Ord|mod=Mod);
 		if ( First ) {
 			IntQ = IntQt; Qi = Qt; First = 0;
 		} else {
@@ -209,8 +232,10 @@ T00 = time();
 			Ok = find_separating_ideal1(C,Gt,IntQt,IntPt,V,Ord|mod=Mod);
 		else if ( SepIdeal == 2 )
 			Ok = find_separating_ideal2(C,Gt,IntQt,IntPt,V,Ord|mod=Mod);
+		else if ( SepIdeal == 3 )
+			Ok = find_separating_ideal2(C,Gt,IntQt,IntPt,V,Ord|mod=Mod,complete=1);
 		G1 = append(Ok,Gt);
-		Gt = fast_gb(G1,V,Mod,Ord);
+		Gt = incremental_gb(G1,V,Ord|mod=Mod);
 		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
 	}
 	T0 = time();
@@ -261,6 +286,7 @@ def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
 	Int0 = incremental_gb(append(vtol(ltov(G)*Tmp),vtol(ltov(Q)*(1-Tmp))),
 		TV,Ord1|gbblock=[[0,length(G)]],mod=Mod);
+	Dp = dp_gr_print(); dp_gr_print(0);
 	for ( T = C, S = []; T != []; T = cdr(T) ) {
 		if ( !gen_nf(car(T),Rad,V,Ord,Mod) ) continue;
 		Ui = U = car(T);
@@ -271,21 +297,25 @@ def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 			else
 				Ui = gen_nf(Ui*U,G,V,Ord,Mod);
 		}
+		print([length(T),I],2);
 		Int1 = incremental_gb(append(Int0,[Tmp*Ui]),TV,Ord1
 			|gbblock=[[0,length(Int0)]],mod=Mod);
 		Int = elimination(Int1,V);
-		if ( !gen_gb_comp(Int,G,Mod) ) 
+		if ( !gen_gb_comp(Int,G,Mod) ) {
 			break;
-		else {
+		} else {
 			Int0 = Int1;
 			S = cons(Ui,S);
 		}
 	}
+	print("");
+	dp_gr_print(Dp);
 	return reverse(S);
 }
 
 def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+	if ( type(Complete=getopt(complete)) == -1 ) Complete = 0;
 	for ( T = C, S = []; T != []; T = cdr(T) )
 		if ( gen_nf(car(T),Q,V,Ord,Mod) ) S = cons(car(T),S);
 	if ( S == [] )
@@ -313,35 +343,54 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 		S = cons(Ui,S);
 	}
 	print("");
+#if 1
 	S = qsort(S,comp_tdeg);
-	/* S = reverse(S); */
-	Len = length(S);
+#else
+	S = reverse(S);
+#endif
+	End = Len = length(S);
 
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
-	if ( Len > 1 ) {
-		Prev = 1;
+	Prev = 1;
+	G1 = append(G,[S[0]]);
+	Int0 = incremental_gb(append(vtol(ltov(G1)*Tmp),vtol(ltov(Q)*(1-Tmp))),
+		TV,Ord1|gbblock=[[0,length(G)]],mod=Mod);
+	if ( End > 1 ) {
 		Cur = 2;
-		G1 = append(G,[S[0]]);
-		Int0 = incremental_gb(append(vtol(ltov(G1)*Tmp),vtol(ltov(Q)*(1-Tmp))),
-			TV,Ord1|gbblock=[[0,length(G)]],mod=Mod);
 		while ( Prev < Cur ) {
 			for ( St = [], I = Prev; I < Cur; I++ ) St = cons(Tmp*S[I],St);
 			Int1 = incremental_gb(append(Int0,St),TV,Ord1
 				|gbblock=[[0,length(Int0)]],mod=Mod);
 			Int = elimination(Int1,V);
 			if ( gen_gb_comp(Int,G,Mod) ) {
-				print(Cur);
+				print([Cur],2);
 				Prev = Cur;
-				Cur = Cur+idiv(Len-Cur+1,2);
+				Cur = Cur+idiv(End-Cur+1,2);
 				Int0 = Int1;
 			} else {
+				End = Cur;
 				Cur = Prev + idiv(Cur-Prev,2);
 			}
 		}
 		for ( St = [], I = 0; I < Prev; I++ ) St = cons(S[I],St);
-		Ok = reverse(St);
 	} else
-		Ok = [S[0]];
+		St = [S[0]];
+	print("");
+
+	if ( Complete ) {
+		for ( I = Prev; I < Len; I++ ) {
+			Int1 = incremental_gb(append(Int0,[Tmp*S[I]]),TV,Ord1
+				|gbblock=[[0,length(Int0)]],mod=Mod);
+			Int = elimination(Int1,V);
+			if ( gen_gb_comp(Int,G,Mod) ) {
+				print([I],2);
+				St = cons(S[I],St);
+				Int0 = Int1;
+			}
+		}
+	}
+	Ok = reverse(St);
+	print("");
 	print([length(S),length(Ok)]);
 	dp_gr_print(Dp);
 	return Ok;
@@ -495,6 +544,7 @@ def prime_dec(B,V)
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
 	if ( type(Indep=getopt(indep)) == -1 ) Indep = 0;
 	if ( type(NoLexDec=getopt(nolexdec)) == -1 ) NoLexDec = 0;
+	if ( type(Rad=getopt(radical)) == -1 ) Rad = 0;
 	B = map(sq,B,Mod);
 	if ( !NoLexDec )
 		PD = lex_predec1(B,V|mod=Mod);
@@ -512,7 +562,7 @@ def prime_dec(B,V)
 		G = ideal_list_intersection(R,V,0|mod=Mod);
 		if ( !NoLexDec ) R = pd_remove_redundant_comp(G,R,V,0|mod=Mod);
 	}
-	return R;
+	return Rad ? [R,G] : R;
 }
 
 def prime_dec_main(B,V)
