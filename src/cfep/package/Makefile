@@ -43,6 +43,7 @@ clean:
 dist-cfep: gentar install
 	rm -rf work
 	mkdir work
+	-cp install.txt work
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
 		  tar cf - OpenXM/lib/libgc* OpenXM/lib/libgmp* OpenXM/rc \
 		    OpenXM/bin/ox OpenXM/bin/ox_asir OpenXM/bin/asir \
