@@ -1,6 +1,5 @@
 import("gr")$
 module noro_pd$
-
 static GBCheck,F4,Procs,SatHomo$
 
 localf init_procs, kill_procs, syca_dec, syc_dec, find_separating_ideal0$
@@ -154,8 +153,6 @@ T00 = time();
 			Ok = find_separating_ideal1(C,G,IntQ,IntP,V,Ord|mod=Mod);
 		else if ( SepIdeal == 2 )
 			Ok = find_separating_ideal2(C,G,IntQ,IntP,V,Ord|mod=Mod);
-		else if ( SepIdeal == 3 )
-			Ok = find_separating_ideal2(C,G,IntQ,IntP,V,Ord|mod=Mod,complete=1);
 		G1 = append(Ok,G);
 		Gt1 = incremental_gb(G1,V,Ord|mod=Mod);
 		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
@@ -232,8 +229,6 @@ T00 = time();
 			Ok = find_separating_ideal1(C,Gt,IntQt,IntPt,V,Ord|mod=Mod);
 		else if ( SepIdeal == 2 )
 			Ok = find_separating_ideal2(C,Gt,IntQt,IntPt,V,Ord|mod=Mod);
-		else if ( SepIdeal == 3 )
-			Ok = find_separating_ideal2(C,Gt,IntQt,IntPt,V,Ord|mod=Mod,complete=1);
 		G1 = append(Ok,Gt);
 		Gt = incremental_gb(G1,V,Ord|mod=Mod);
 		T1 = time(); Tsep += T1[0]-T0[0]+T1[1]-T0[1]; Rsep += T1[3]-T0[3];
@@ -315,7 +310,6 @@ def find_separating_ideal1(C,G,Q,Rad,V,Ord) {
 
 def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
-	if ( type(Complete=getopt(complete)) == -1 ) Complete = 0;
 	for ( T = C, S = []; T != []; T = cdr(T) )
 		if ( gen_nf(car(T),Q,V,Ord,Mod) ) S = cons(car(T),S);
 	if ( S == [] )
@@ -343,11 +337,7 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 		S = cons(Ui,S);
 	}
 	print("");
-#if 1
 	S = qsort(S,comp_tdeg);
-#else
-	S = reverse(S);
-#endif
 	End = Len = length(S);
 
 	Tmp = ttttt; TV = cons(Tmp,V); Ord1 = [[0,1],[Ord,length(V)]];
@@ -376,17 +366,14 @@ def find_separating_ideal2(C,G,Q,Rad,V,Ord) {
 	} else
 		St = [S[0]];
 	print("");
-
-	if ( Complete ) {
-		for ( I = Prev; I < Len; I++ ) {
-			Int1 = incremental_gb(append(Int0,[Tmp*S[I]]),TV,Ord1
-				|gbblock=[[0,length(Int0)]],mod=Mod);
-			Int = elimination(Int1,V);
-			if ( gen_gb_comp(Int,G,Mod) ) {
-				print([I],2);
-				St = cons(S[I],St);
-				Int0 = Int1;
-			}
+	for ( I = Prev; I < Len; I++ ) {
+		Int1 = incremental_gb(append(Int0,[Tmp*S[I]]),TV,Ord1
+			|gbblock=[[0,length(Int0)]],mod=Mod);
+		Int = elimination(Int1,V);
+		if ( gen_gb_comp(Int,G,Mod) ) {
+			print([I],2);
+			St = cons(S[I],St);
+			Int0 = Int1;
 		}
 	}
 	Ok = reverse(St);
