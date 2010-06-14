@@ -10,7 +10,7 @@ def rats_prec(X,K) {
         Sign = -1; X = -X; 
     }
 
-// continued fraction (X ~= reverse(L))
+/* continued fraction (X ~= reverse(L)) */
     Flag = 1;
     Bound = 2^62;
     L = [];
@@ -18,18 +18,18 @@ def rats_prec(X,K) {
         Q = number_floor(X);
         L = cons(Q,L);
         X = X - Q;
-        if (Bound*X < 1) { // underflow for ieee754 double prec.
+        if (Bound*X < 1) { /* underflow for ieee754 double prec. */
             Flag = 0;
             break;
         }
     }
     if (Flag) {
-//      Q = number_round(X);  // number_round is not implemented.
+/*      Q = number_round(X);  // number_round is not implemented. */
         Q = rint(deval(X));
         L = cons(Q,L); 
     }
 
-// continued fraction to rational number
+/* continued fraction to rational number */
     for(R=car(L),L=cdr(L); L!=[]; L=cdr(L)) {
         R = car(L) + 1/R;
     }
@@ -43,7 +43,7 @@ def rats(X) {
 }
 
 endmodule;
-end;
+end$
 /*
 ctrl("bigfloat",1);
 setprec(100);
