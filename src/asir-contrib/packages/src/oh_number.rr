@@ -1,0 +1,73 @@
+module oh_number;
+localf rats_prec;
+localf rats;
+
+def rats_prec(X,K) {
+    Sign = 1;
+    if (X==0) {
+        return 0;
+    }else if (X<0) {
+        Sign = -1; X = -X; 
+    }
+
+// continued fraction (X ~= reverse(L))
+    Flag = 1;
+    Bound = 2^62;
+    L = [];
+    for(I=0; I<K; I++,X=1/X) {
+        Q = number_floor(X);
+        L = cons(Q,L);
+        X = X - Q;
+        if (Bound*X < 1) { // underflow for ieee754 double prec.
+            Flag = 0;
+            break;
+        }
+    }
+    if (Flag) {
+//      Q = number_round(X);  // number_round is not implemented.
+        Q = rint(deval(X));
+        L = cons(Q,L); 
+    }
+
+// continued fraction to rational number
+    for(R=car(L),L=cdr(L); L!=[]; L=cdr(L)) {
+        R = car(L) + 1/R;
+    }
+    return Sign*R;
+}
+
+def rats(X) {
+   P=getopt(prec);
+   if (type(P) == 1) return rats_prec(X,P);
+   else rats_prec(X,14);
+}
+
+endmodule;
+end;
+/*
+ctrl("bigfloat",1);
+setprec(100);
+ctrl("real_digit",32);
+
+printf("\n")$
+Z=deval(@pi);
+R=rats(Z);
+printf("Error=%a\n",number_abs(Z-R));
+
+printf("\n")$
+Z=0.7595;
+R=rats(Z);
+printf("Error=%a\n",number_abs(Z-R));
+
+printf("\n")$
+Z=deval(2^(1/2));
+R=rats(Z);
+printf("Error=%a\n",number_abs(Z-R));
+
+printf("\n")$
+Z=deval(3^(1/2));
+R=rats(Z);
+printf("Error=%a\n",number_abs(Z-R));
+
+end;
+*/

@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.97 2010/02/04 01:57:26 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.98 2010/05/22 00:58:31 takayama Exp $ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
@@ -42,6 +42,7 @@ load("plucker.rr")$
 load("oxshell.rr")$
 load("taka_ahg.rr")$
 load("mt_graph.rr")$
+load("oh_number.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
@@ -219,6 +220,13 @@ def number_chop(Exp,Dx) {  NOT_YET; }
 /*&usage begin: number_factor(X)  It factors the given integer {X}.
   example: number_factor(20); end: */
 def number_factor(X) { return(pari(factorint,X)); }
+/*&usage begin: number_float_to_rational(X) 
+    example: number_float_to_rational(1.5234); 
+             number_float_to_rational(1.5234 | prec=14); 
+end: */
+def number_float_to_rational(X) { 
+  return oh_number.rats(X | option_list=getopt());
+}
 /*&usage begin: number_floor(X) example: number_floor(1.5); end: */
 def number_floor(X) { return(pari(floor,X)); }
 /*&usage begin: number_imaginary_part(X) example: number_imaginary_part(1+2*@@i); end: */
