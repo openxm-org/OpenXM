@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf.texi,v 1.2 2009/12/02 04:38:47 noro Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf.texi,v 1.3 2009/12/02 04:59:13 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -124,8 +124,8 @@ In this manual we also explain about some related built-in functions.
 @findex ndbf.bfunction
 
 @table @t
-\JP @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v}]) :: 多項式 @var{f} の大域 b 関数を計算する.
-\EG @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v}]) :: computes the global b-function of a polynomial @var{f}
+\JP @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: 多項式 @var{f} の大域 b 関数を計算する.
+\EG @item ndbf.bfunction(@var{f}[|weight=@var{w},heruristic=@var{yesno},vord=@var{v},op=@var{yesno}]) :: computes the global b-function of a polynomial @var{f}
 @end table
 
 @table @var
@@ -151,8 +151,11 @@ In this manual we also explain about some related built-in functions.
 @item
 この関数は asir-contrib のパッケージ @samp{nn_ndbf.rr} で定義されている.
 @item
-多項式 @var{f} の大域 b 関数 (global b-function) を計算する. 出力は
-変数 @var{s} の多項式である. 
+多項式 @var{f} の大域 b 関数 (global b-function) を計算する. 
+デフォルトでは大域 b 関数のみが出力されるが, オプション @code{op=1} が指定
+された場合, 大域 b 関数 @var{b}, および
+微分作用素 @var{P} の組 @var{[b,P]} を返す. これらは 
+@var{Pf^(s+1)=b(s)f^s} を満たす.
 @item
 オプション @code{weight=[@var{v1,w1,...,vn,wn}]} が指定された場合, 
 変数リスト @var{(v1,...,vn)} に対して weight @var{(w1,...,wn)}
@@ -171,7 +174,10 @@ In this manual we also explain about some related built-in functions.
 This function is defined in an asir-contrib package @samp{nn_ndbf.rr}.
 @item
 This function computes the global b-function of a polynomial @var{f}.
-The output is a polynomial in @var{s}.
+By default only the global b-function is returned. 
+If an option @code{op=1} is given,
+a pair @var{[b,P]} of the global b-function and 
+a differential operator satisfying @var{Pf^(s+1)=b(s)f^s}. 
 @item
 If an option @code{weight=[@var{v1,w1,...,vn,wn}]} is given,
 the computation is done with a weight @var{(w1,...,wn)} for @var{(v1,...,vn)}.
@@ -236,9 +242,9 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 局所 b 関数 (local b-function) を計算する. 出力は局所 $b$ 関数の因子, 重複度のペアのリストである. 
 @item
 デフォルトでは局所 b 関数のみが出力されるが, オプション @code{op=1} が指定
-された場合, 局所 b 関数 @var{b} と, それを実現する微分作用素 @var{P} の
-ペア @var{[b,P]} を返す. これらは 
-@var{Pf^(s+1)=b(s)f^s}
+された場合, 局所 b 関数 @var{b}, 微分作用素の共通分母 $a(x)$ および
+微分作用素 @var{P} の組 @var{[b,a(x),P]} を返す. これらは 
+@var{a(x)Pf^(s+1)=b(s)f^s}
 を満たす. 微分作用素は @var{v1,...,vn,dv1,...,dvn} の可換多項式として
 表現されている. この表現においては, 微分を表す d のついた変数も単なる
 不定元として扱われているため, 係数多項式環の変数の前に表示されることも
@@ -267,9 +273,11 @@ This function is defined in an asir-contrib package @samp{nn_ndbf.rr}.
 This function computes the local b-function of a polynomial @var{f} at a point @var{(v1,...,vn)=(a1,...,an)}.
 The output is a list of pairs of each factor of the local b-function and its multiplicity.
 @item
-By default only the local b-function is returned. If an option @code{op=1} is given,
-a pair @var{[b,P]} of the local b-function and a differential operator satisfying
-@var{Pf^(s+1)=b(s)f^s}. The operator P is represented as a commutative polynomial
+By default only the local b-function is returned. 
+If an option @code{op=1} is given,
+a triple @var{[b,a,P]} of the local b-function, a polynomial and 
+a differential operator satisfying @var{Pf^(s+1)=ab(s)f^s}. 
+The operator P is represented as a commutative polynomial
 of variables @var{v1,...,vn,dv1,...,dvn}. Although the d-variables 
 are treated as commutative indeterminates in this representation,
 it should be regarded as a canonical representation with each polynomial coefficient

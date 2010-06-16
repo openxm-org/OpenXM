@@ -85,7 +85,7 @@ def bfunction(F)
 	Cont = cont(CR); CR /= Cont; 
 	Cont *= dn(Fcont); Den *= nm(Fcont);
 	Gcd = igcd(Den,Cont);
-	return [subst(B,s,-s-1),(Den/Gcd)*Ax,(Cont/Gcd)*CR];
+	return [subst(B,s,-s-1),(Cont*CR)/(Den*Ax)];
 }
 
 /*
