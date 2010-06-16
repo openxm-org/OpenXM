@@ -44,9 +44,13 @@ localf ideal_intersection$
 
 def bfunction(F)
 {
+	/* F -> F/Fcont */
+	F1 = ptozp(F); Fcont = sdiv(F,F1); F = F1;
+
 	if ( type(Heu=getopt(heuristic)) == -1 ) Heu = 0;
 	if ( type(Vord=getopt(vord)) == -1 || type(Vord) != 4 ) Vord = 0;
 	if ( type(Wt=getopt(weight)) == -1 ) Wt = 0;
+	if ( type(Op=getopt(op)) == -1 ) Op = 0;
 	L = in_ww(F|weight=Wt,heuristic=Heu,vord=Vord);
 	Indata = L[0]; AllData = L[1]; VData = L[2];
 	GIN = Indata[0]; VDV = Indata[1]; WVDV = AllData[4];
@@ -54,7 +58,34 @@ def bfunction(F)
 	dp_set_weight(W);
 	B = weyl_minipoly(GIN,VDV,0,WVDV);
 	dp_set_weight(0);	
-	return subst(B,s,-s-1);
+	if ( !Op ) return subst(B,s,-s-1);
+
+	V0 = VData[0]; DV0 = VData[1]; T = VData[2]; DT = VData[3];
+	BPT = weyl_subst(B,T*DT,VDV);
+
+	/* computation using G0,GIN0,VDV0 */
+	G0 = AllData[0]; GIN0 = AllData[1]; VDV0 = AllData[2]; WtV0 = AllData[5];
+	dp_set_weight(WtV0); dp_ord(0);
+	PS = map(dp_ptod,GIN0,VDV0); Len = length(PS);
+	for ( I = Len-1, Ind = []; I >= 0; I-- ) Ind = cons(I,Ind);
+	/* QR = [D,M,Coef] */
+	Ax = 1;
+	AxBPT = dp_ptod(Ax*BPT,VDV0);
+	QR = weyl_nf_quo(Ind,AxBPT,1,PS);
+	if ( !weyl_nf_quo_check(AxBPT,PS,QR) ) 
+		error("bfunction : invalid quotient");
+	if ( QR[0] ) error("bfunction : invalid quotient");
+	Den = QR[1]; Coef = QR[2];
+	for ( I = 0, R = Den*AxBPT; I < Len; I++ )
+		R -= dp_weyl_mul(Coef[I],dp_ptod(G0[I],VDV0));
+	R = dp_dtop(R,VDV0);
+	CR = conv_tdt(R,F,V0,DV0,T,DT);
+
+	dp_set_weight(0);
+	Cont = cont(CR); CR /= Cont; 
+	Cont *= dn(Fcont); Den *= nm(Fcont);
+	Gcd = igcd(Den,Cont);
+	return [subst(B,s,-s-1),(Den/Gcd)*Ax,(Cont/Gcd)*CR];
 }
 
 /*
