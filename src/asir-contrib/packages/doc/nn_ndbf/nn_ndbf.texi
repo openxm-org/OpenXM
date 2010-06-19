@@ -1,4 +1,4 @@
-%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf.texi,v 1.4 2010/06/16 08:53:03 noro Exp $
+%comment $OpenXM: OpenXM/src/asir-contrib/packages/doc/nn_ndbf/nn_ndbf.texi,v 1.5 2010/06/16 10:39:08 noro Exp $
 %comment --- おまじない ---
 \input ../../../../asir-doc/texinfo
 @iftex
@@ -90,7 +90,7 @@ In this manual we explain about a new b-function package @samp{nn_ndbf.rr}
 in asir-contrib. To use this package one has to load @samp{nn_ndbf.rr}.
 \E
 @example
-[1518] load("nn_ndbf.rr");
+[...] load("nn_ndbf.rr");
 @end example
 \BJP
 このパッケージの函数を呼び出すには, 全て @code{ndbf.} を先頭につける.
@@ -202,18 +202,18 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 \E
 @end itemize
 @example
-[1519] load("nn_ndbf.rr");
-[1602] ndbf.bfunction(x^3-y^2*z^2);
+[...] load("nn_ndbf.rr");
+[...] ndbf.bfunction(x^3-y^2*z^2);
 -11664*s^7-93312*s^6-316872*s^5-592272*s^4-658233*s^3-435060*s^2
 -158375*s-24500
-[1603] ndbf.bfunction(x^3-y^2*z^2|op=1);
+[...] ndbf.bfunction(x^3-y^2*z^2|op=1);
 [-11664*s^7-93312*s^6-316872*s^5-592272*s^4-658233*s^3-435060*s^2
 -158375*s-24500,(108*z^3*x*dz^3+756*z^2*x*dz^2+1080*z*x*dz+216*x)*dx^4
 ...
 +(729/8*z^3*dz^5+9477/8*z^2*dz^4+5103/2*z*dz^3+2025/2*dz^2)*dy^2]
-[1604] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
+[...] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
 -4*u3^3*u2^2$
-[1605] ndbf.bfunction(F|weight=[u3,2,u2,3,u1,4]);
+[...] ndbf.bfunction(F|weight=[u3,2,u2,3,u1,4]);
 576*s^6+3456*s^5+8588*s^4+11312*s^3+8329*s^2+3250*s+525
 @end example
 
@@ -313,10 +313,10 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 \E
 
 @example
-[1527] load("nn_ndbf.rr");
-[1610] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]);
+[...] load("nn_ndbf.rr");
+[...] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]);
 [[-s-1,2]]
-[1611] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]|op=1);
+[...] ndbf.bf_local(y*((x+1)*x^3-y^2),[x,-1,y,0]|op=1);
 [[[-s-1,2]],12*x^3+36*y^2*x-36*y^2,(32*y*x^2+56*y*x)*dx^2
 +((-8*x^3-2*x^2+(128*y^2-6)*x+112*y^2)*dy+288*y*x+(-240*s-128)*y)*dx
 +(32*y*x^2-6*y*x+128*y^3-9*y)*dy^2+(32*x^2+6*s*x+640*y^2+39*s+30)*dy
@@ -399,15 +399,15 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 \E
 
 @example
-[1537] load("nn_ndbf.rr");
-[1620] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
+[...] load("nn_ndbf.rr");
+[...] F=256*u1^3-128*u3^2*u1^2+(144*u3*u2^2+16*u3^4)*u1-27*u2^4
 -4*u3^3*u2^2$
-[1621] ndbf.bf_strat(F);
-[[u3^2,-u1,-u2],[-1],[[-s-1,2],[16*s^2+32*s+15,1],[36*s^2+72*s+35,1]]]
-[[-4*u1+u3^2,-u2],[96*u1^2+40*u3^2*u1-9*u3*u2^2,...],[[-s-1,2]]]
-[[...],[-u3*u2,u2*u1,...],[[-s-1,1],...]]]
-[[-256*u1^3+128*u3^2*u1^2+...],[...],[[-s-1,1]]]
-[[],[-256*u1^3+128*u3^2*u1^2+...],[]]
+[...] ndbf.bf_strat(F);
+[[[u3^2,-u1,-u2],[-1],[[-s-1,2],[16*s^2+32*s+15,1],[36*s^2+72*s+35,1]]],
+[[-4*u1+u3^2,-u2],[96*u1^2+40*u3^2*u1-9*u3*u2^2,...],[[-s-1,2]]],
+[[-2048*u1^3-...],[-u3*u2,u2*u1,...],[[-s-1,1],...]]],
+[[-256*u1^3+128*u3^2*u1^2+...],[...],[[-s-1,1]]],
+[[],[-256*u1^3+128*u3^2*u1^2+...],[]]]
 @end example
 
 \JP @node ndbf.action_on_gfs,,, b 関数計算
@@ -417,8 +417,8 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 
 @table @t
 @item ndbf.action_on_gfs(@var{op},@var{v},@var{gfs})
-\JP :: 微分作用素 @var{op} の @var{gf^(s+1)} への作用を計算する.
-\EG :: computes the action of an operatior @var{op} on @var{gf^(s+1)}
+\JP :: 微分作用素 @var{op} の @var{gf^(s+a)} への作用を計算する.
+\EG :: computes the action of an operatior @var{op} on @var{gf^(s+a)}
 @end table
 
 @table @var
@@ -429,40 +429,52 @@ If an option @code{vord=@var{v}} is given, a variable order @var{v} is used iste
 \JP 微分作用素
 \EG a differential operator
 @item gfs
-\JP @var{[g,f,s-a]} なるリスト
-\EG a list @var{[g,f,s-a]}
-@item v
-\JP @var{f} の変数のリスト 
-\EG list of variables of @var{f}
+\JP @var{[g,f,s+a]} なるリスト
+\EG a list @var{[g,f,s+a]}
+@item v 
+\JP @var{f} の変数のリスト (@var{v=[v1,...,vn]})
+\EG list of variables of @var{f} (@var{v=[v1,...,vn]})
 @end table
 
 \BJP
 @itemize @bullet
-@item 微分作用素 @var{op} を @var{gf^(s+1)} に作用させた結果を計算する.
-@item @var{g} および @var{h} は @var{v} を変数とする多項式である.
+@item 微分作用素 @var{op} を @var{gf^(s+a)} に作用させた結果を計算する.
+@item @var{g} は @var{v1,...,vn} を変数とする多項式である.
 @item @var{op} は @var{[v1,...,vn,dv1,...,dvn]} を変数とする多項式で表現する.
-@item 入力リスト @var{[g,f,s+1]} は @var{gf^(s+1)} を表す.
-@item 結果は @var{[h,f,s-a]} なるリストで, @var{hf^(s-a)} を
-意味する. ここで @var{a} は整数で, @var{op} が
-b-関数を与える作用素なら, @var{a} は 0 となり, @var{h} は b-関数となる.
+@item 入力リスト @var{[g,f,s+a]} は @var{gf^(s+a)} を表す.
+@item 結果は @var{[h,f,s+c]} なるリストで, @var{hf^(s+b)} を
+意味する. ここで @var{c} は整数である.
+@var{op} が b-関数 @var{b(s)} を与える作用素なら, 
+@var{a=1} に対し @var{c=0} で, @var{h=b(s)} (global case) または
+@var{h=d(v)b(s)} (local case) である.
 @end itemize
 \E
 
 \BEG
 @itemize @bullet
 @item This function computes the action of a differential operator
-@var{op} on @var{gf^(s+1)}.
-@item @var{g} and @var{h} are polynomials with variables @var{v}=@var{v1,\ldots,vn}.
+@var{op} on @var{gf^(s+a)}.
+@item @var{g} is a polynomial with variables @var{v1,...,vn}.
 @item @var{op} is represented by a polynonmial with @var{[v1,...,vn,dv1,...,dvn]}.
-@item The input list @var{[g,f,s+1]} represents @var{gf^(s+1)}.
-@item The result is a list @var{[h,f,s-a]} and it means @var{hf^(s-a)},
-where @var{a} is an integer. If @var{op} is an operator giving b-function,
-then @var{a}=0 and @var{h} is a b-functio n.
+@item The input list @var{[g,f,s+a]} represents @var{gf^(s+a)}.
+@item The result is a list @var{[h,f,s+c]} and it means @var{hf^(s+c)},
+where @var{c} is an integer. If @var{op} is an operator giving b-function 
+@var{b(s)},
+then @var{c=0} for @var{a=1} and @var{h=b(s)} (global case)
+or @var{h=b(s)d(v)} (local case).
 @end itemize
 \E
 
 @example
-
+[...] load("nn_ndbf.rr");
+[...] F=x^5-y^2*z^2$
+[...] B=ndbf.bfunction(F|op=1)$
+[...] ndbf.action_on_gfs(B[1],[x,y,z],[1,F,s+1]);
+[-62500000000*s^13-...-2985505717194*s-245434132944,x^5-z^2*y^2,s]
+[...] L=ndbf.bf_local(F,[x,0,y,0,z,1]|op=1)$     
+[...] ndbf.action_on_gfs(L[2],[x,y,z],[1,F,s+1]);
+[(-100000*s^5-500000*s^4-990000*s^3-970000*s^2-470090*s-90090)*z^2,
+x^5-z^2*y^2,s]
 @end example
 
 \JP @node Annihilator イデアル計算,,, 新 b 関数パッケージ nn_ndbf.rr
@@ -527,8 +539,8 @@ This option is useful when @var{f} is weighted homogeneous with respect to @var{
 \E
 
 @example
-[1542] load("nn_ndbf.rr");
-[1625] ndbf.ann(x*y*z*(x^3-y^2*z^2));
+[...] load("nn_ndbf.rr");
+[...] ndbf.ann(x*y*z*(x^3-y^2*z^2));
 [(-x^4*dy^2+3*z^4*x*dz^2+12*z^3*x*dz+6*z^2*x)*dx+4*z*x^3*dz*dy^2
 -z^5*dz^3-6*z^4*dz^2-6*z^3*dz,
 (x^4*dy-3*z^3*y*x*dz-6*z^2*y*x)*dx-4*z*x^3*dz*dy+z^4*y*dz^2+3*z^3*y*dz,
