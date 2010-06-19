@@ -1260,6 +1260,9 @@ def replace_var(V,X,Y)
 
 def action_on_gfs(P,V,GFS)
 {
+	for ( T = V, DV = []; T != []; T = cdr(T) )
+		DV = cons(strtov("d"+rtostr(car(T))),DV);
+	V = append(append(V,[s]),reverse(cons(ds,DV)));
 	DP = dp_ptod(P,V);	
 	N = length(V)/2;
 	for ( I = N-1, V0 = []; I >= 0; I-- )
