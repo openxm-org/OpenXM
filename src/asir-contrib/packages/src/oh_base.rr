@@ -1,8 +1,8 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.2 2008/09/01 06:46:29 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.3 2008/09/01 15:30:54 ohara Exp $ */
 
 module oh_base;
 
-localf length, nth, range;
+localf length, nth, remove_nth, range;
 localf max2, min2, sum2, mul2;
 localf iterate, max, min, sum, mul;
 
@@ -24,6 +24,17 @@ def nth(L,I) {
         return (0<=I && I<::length(L))? L[I]: Alt;
     }
     return L[I];
+}
+
+def remove_nth(L,I) {
+    A=[];
+    Len=::length(L);
+    for(J=0; J<Len; J++) {
+        if(J!=I) {
+            A = cons(L[J],A);
+        }
+    }
+    return reverse(A);
 }
 
 /*&usage
