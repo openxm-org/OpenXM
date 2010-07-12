@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.15 2010/06/19 08:32:37 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.16 2010/07/12 07:01:04 noro Exp $ */
 /* requires 'primdec' */
 
 #define TMP_H hhhhhhhh
@@ -299,8 +299,13 @@ def ann(F)
 {
 	if ( member(s,vars(F)) )
 		error("ann : the variable 's' is reserved.");
+	if ( type(Vord=getopt(vord)) == -1 ) Vord = 0;
 	F = ptozp(F);
 	V = vars(F);
+	if ( Vord ) {
+		Param = setminus(V,Vord);
+		V = Vord;
+	}
 	N = length(V);
 	D = newvect(N);
 	if ( type(Wt=getopt(weight)) == -1 )
