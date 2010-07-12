@@ -1,11 +1,11 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.15 2010/06/19 08:32:37 noro Exp $ */
 /* requires 'primdec' */
 
 #define TMP_H hhhhhhhh
 #define TMP_S ssssssss
 #define TMP_DS dssssssss
-#define TMP_T t
-#define TMP_DT dt
+#define TMP_T tttttttt
+#define TMP_DT dtttttttt
 #define TMP_Y1 yyyyyyyy1
 #define TMP_DY1 dyyyyyyyy1
 #define TMP_Y2 yyyyyyyy2
@@ -45,6 +45,8 @@ localf ideal_intersection$
 
 def bfunction(F)
 {
+	if ( member(s,vars(F)) )
+		error("ann : the variable 's' is reserved.");
 	/* F -> F/Fcont */
 	F1 = ptozp(F); Fcont = sdiv(F,F1); F = F1;
 
@@ -1410,6 +1412,8 @@ def weyl_ideal_quotient(B,F,VDV)
 
 def bf_strat(F)
 {
+	if ( member(s,vars(F)) )
+		error("ann : the variable 's' is reserved.");
 	dp_ord(0);
 	T0 = time();
 	if ( type(Heu=getopt(heuristic)) == -1 ) Heu = 0;
@@ -1563,6 +1567,8 @@ def bf_strat_stage3(L)
 
 def bf_local(F,P)
 {
+	if ( member(s,vars(F)) )
+		error("ann : the variable 's' is reserved.");
 	/* F -> F/Fcont */
 	F1 = ptozp(F); Fcont = sdiv(F,F1); F = F1;
 	if ( type(Heu=getopt(heuristic)) == -1 ) Heu = 0;
