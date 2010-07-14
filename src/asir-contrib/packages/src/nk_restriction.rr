@@ -45,6 +45,7 @@ localf test_integration_ideal5;
 localf test_integration_ideal5_;
 localf test_integration_ideal6;
 localf test_integration_ideal7;
+localf test_integration_ideal8;
 localf coord_conv;
 localf check_coord_conv, check_coord_conv2;
 localf dummy_var;
@@ -67,6 +68,7 @@ localf int_fano;
 
 /* inhomogeneous */
 localf inhomo_part;
+localf trans_inhomo, trans_inhomo_sub, pick_gen_relation, is_nonzero_const;
 localf separate_var, make_elim_order_mat;
 localf action_exp, action_exp_1;
 localf subset, zero_inhomo;
@@ -638,11 +640,15 @@ def restriction_ideal(Id, VL, DVL, W)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	if ( type(TIE=getopt(tie)) == -1 ) TIE = 0;
+
+	if ( TIE && Param )
+		error("The option `param' and `tie' must be used exclusively.");
 
 	L = restriction(Id, VL, DVL, W|inhomo=IH,param=Param,s0=S0);
 	if ( !L ) return [1];
 tstart();
-	GG = restriction_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace);
+	GG = restriction_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace,tie=TIE);
 	print("-- restriction_ideal_internal :", 2);
 tstop();
 
@@ -667,6 +673,7 @@ def restriction_ideal_internal(L, VL, DVL, W)
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	if ( type(TIE=getopt(tie)) == -1 ) TIE = 0;
 
 	/* 
 	 * restriction module の結果をベクトル表示に直す       
@@ -705,7 +712,7 @@ def restriction_ideal_internal(L, VL, DVL, W)
 	print(GenV);
 #endif
 
-	TMP = separate_var(VL,DVL,W|param=Param);
+	TMP = separate_var(VL,DVL,W|param=Param,tie=TIE);
 	VY = TMP[0]; DVY = TMP[1]; VLY = append(VY,DVY);
 	VZ = TMP[2]; DVZ = TMP[3];
 	OrdM = TMP[4];
@@ -998,6 +1005,10 @@ def integration_ideal(Id, VL, DVL, W)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	if ( type(TIE=getopt(tie)) == -1 ) TIE = 0;
+
+	if ( TIE && Param )
+		error("The option `param' and `tie' must be used exclusively.");
 
 	L = integration(Id, VL, DVL, W|inhomo=IH,param=Param, s0=S0);
 	if ( !L ) return [1];
@@ -1006,7 +1017,7 @@ def integration_ideal(Id, VL, DVL, W)
 	print(L);
 #endif
 tstart();
-	GG = integration_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace);
+	GG = integration_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace, tie=TIE);
 print("-- integration_ideal_internal :", 2);
 tstop();
 	return GG;
@@ -1018,6 +1029,7 @@ def integration_ideal_internal(L, VL, DVL, W)
 	if ( type(IH=getopt(inhomo)) == -1) IH = 0;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	if ( type(TIE=getopt(tie)) == -1 ) TIE = 0;
 
 	/* 
 	 * integration module の結果をベクトル表示に直す       
@@ -1056,7 +1068,7 @@ def integration_ideal_internal(L, VL, DVL, W)
 	print(GenV);
 #endif
 
-	TMP = separate_var(VL,DVL,W|param=Param);
+	TMP = separate_var(VL,DVL,W|param=Param,tie=TIE);
 	VY = TMP[0]; DVY = TMP[1]; VLY = append(VY,DVY);
 	VZ = TMP[2]; DVZ = TMP[3];
 	OrdM = TMP[4];
@@ -1311,7 +1323,22 @@ def test_integration_ideal7()
 	L = [-x11*dx11-dx21*x21+a1,-x12*dx12-dx22*x22+a2,-t*dt+c+dx21*x21+dx22*x22,t*dx12-dx22,t*dx11-dx21,dx21*dx12-dx22*dx11];
 	Int = integration_ideal(L,[t,x11,x12,x21,x22],[dt,dx11,dx12,dx21,dx22],[1,0,0,0,0]|param=[a1,a2,c],s0=S0,inhomo=IH);
 	return Int;
+}
 
+def test_integration_ideal8()
+{
+	F = a*x^2-2*b*x+c;
+	A = ann(F);
+	AN = map(subst,A,s,-(-p*dp-1));
+	MB = cons(p*F-1,AN);
+	V = [x,p,a,b,c];
+	DV = [dx,dp,da,db,dc];
+	W = [1,0,0,0,0];
+	M = newmat(9,8,[[0,0,0,0,0,1,1,1],[1,1,1,1,1,1,1,1]]);
+	for ( I = 0; I < 7; I++ )
+		M[2+I][7-I]=-1;
+	INT = integration_ideal(MB,V,DV,W|inhomo=1,tie=M);
+	return INT;
 }
 
 
@@ -1680,11 +1707,72 @@ def inhomo_part(TT,QI,DRGen,VZ,DVZ,VDVL)
 	return [G,R];
 }
 
+def trans_inhomo(P,INT,V,DV,W)
+{
+	TMP = separate_var(V,DV,W);
+	VX = TMP[0]; DVX = TMP[1]; VDVX = append(VX,DVX);
+	VY = TMP[2]; DVY = TMP[3]; VDVY = append(VY,DVY);
+	VDV = append(V,DV);
+	J = INT[0]; IH = INT[1];
+	IND = car(car(IH));
+	for ( CJ = [], CIH = []; J != []; J = cdr(J), IH =cdr(IH) ) {
+		A = car(IH);
+		CJ = cons(A[1]*car(J),CJ);
+		CIH = cons(A[0],CIH);
+	}
+	SYZ = newsyz.module_syz(cons(P,CJ),VDVX,1,0|weyl=1);
+
+	GR = pick_gen_relation(SYZ[0],VDVX);
+	DR = vtol(newvect(length(IND)));
+	CONST = car(GR);
+	for ( GR = cdr(GR); GR != []; GR = cdr(GR), CIH = cdr(CIH) ) {
+		if ( HGR = car(GR) ) {
+			DH = dp_ptod(HGR,VDV);
+			DR = trans_inhomo_sub(DH,DR,car(CIH),VDV);
+		}
+	}
+	RR = map(dp_dtop,DR,VDV);
+	for ( GCD = CONST, TR = RR; TR != []; TR =cdr(TR) ) {
+		if ( car(TR) ) {
+			CC = tdiv(TT,ptozp(TT));
+			GCD = igcd(GCD,CC);
+		}
+	}
+	for ( R = []; RR != []; RR = cdr(RR), IND = cdr(IND) )
+		R = cons([car(car(IND)),car(RR)/GCD],R);
+	return [reverse(R),-CONST/GCD];
+}
+
+def trans_inhomo_sub(DH,DR,IH,VDV)
+{
+	for ( L = []; IH != []; IH = cdr(IH), DR = cdr(DR) )
+		L = cons(dp_weyl_mul(DH,dp_ptod(car(IH)[1],VDV)) + car(DR),L);
+	return reverse(L);
+}
+
+def pick_gen_relation(GR,V)
+{
+	for ( ; GR != []; GR = cdr(GR) )
+		if ( is_nonzero_const(car(GR)[0],V) )
+			return car(GR);
+	error("The input is not in integration/restriction ideal.");
+}
+
+def is_nonzero_const(A,V)
+{
+	if ( !A )
+		return 0;
+	for ( VA = vars(A); VA != []; VA = cdr(VA) )
+		if ( member(car(VA),V) )
+			return 0;
+	return 1;
+}
 
 def separate_var(VL,DVL,W)
 {
 	DUMMY = dummy_var;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0;
+	if ( type(TIE=getopt(tie)) == -1 ) TIE = 0;
 	VY = []; DVY = [];
 	VZ = []; DVZ = [];
 	for ( I = 0; I < length(VL); I++ ) {
@@ -1696,7 +1784,7 @@ def separate_var(VL,DVL,W)
 			DVY = cons(DVL[I],DVY);
 		}
 	}
-	OrdM = 0;
+	OrdM = TIE;
 	if ( VY == [] ) {
 		VY = [DUMMY];
 		DVY = [strtov("d"+rtostr(DUMMY))];
