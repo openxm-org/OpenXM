@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.37 2010/02/06 01:32:31 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.38 2010/02/10 05:49:58 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -2849,9 +2849,9 @@ B_@{S0@} length : 2
 @comment --- 関数の簡単な説明 ---
 @table @t
 @item nk_restriction.restriction(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
-@item nk_restriction.restriction_ideal(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
+@item nk_restriction.restriction_ideal(... | inhomo=@var{n}, param=@var{p}, s0=@var{m}, ht=@var{b}, ord=@var{ord})
 @item nk_restriction.integration(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
-@item nk_restriction.integration_ideal(... | inhomo=@var{n}, param=@var{p}, s0=@var{m})
+@item nk_restriction.integration_ideal(... | inhomo=@var{n}, param=@var{p}, s0=@var{m}, ht=@var{b}, ord=@var{ord})
 :: D 加群の制限, 積分に関する関数のオプションの説明
 @end table
 
@@ -2863,6 +2863,10 @@ B_@{S0@} length : 2
 リスト (係数体に属する変数のリスト)
 @item @var{m}
 整数
+@item @var{b}
+0, 1, 2, 3 のいずれか
+@item @var{ord}
+重み0の変数に対する項順序
 @end table
 
 @comment --- ここで関数の詳しい説明 ---
@@ -2903,6 +2907,25 @@ restriction_ideal, integration_ideal のサブルーチンとしての実行用なので,
 
 @item @var{m} が負でないとき, 計算を行わずに s-m を generic b-関数として
 制限, 積分等の計算を行う. 
+
+@item @var{b} により, 加群のグレブナ基底計算に斉次化, trace アルゴリズム
+を用いるかどうか指定できる.
+ただし, 斉次化ありで計算できるのは Risa/Asir バージョン 20100415 以降である.
+
+0: 斉次化なし, trace なし
+
+1: 斉次化なし, trace あり
+
+2: 斉次化あり, trace なし (デフォルト) 
+
+3: 斉次化あり, trace あり
+
+@item @var{ord} が指定されると, 出力の積分, 制限イデアルは, その項順序に
+関するグレブナ基底となる. 加群のグレブナ基底計算の POT 順序の tie breaker
+として使用されるので計算効率に大きな影響を与える可能性がある.
+デフォルトは 0, つまり全次数逆次書式順序である.
+
+このオプションは @var{param} と同時利用できない. (後に対応予定.)
 @end itemize
 
 以下は,
@@ -2963,11 +2986,48 @@ $\{(x^2-x) \partial_x^2+((a+b+1)x-c) \partial_x+ab \}
 であることを意味する.
 @end ifinfo
 
+@node nk_restriction,,, D 加群の積分イデアルの非斉次部分に関する関数
+@subsection @code{nk_restriction.trans_inhomo}
+@comment --- 索引用キーワード
+@findex trans_inhomo
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.trans_inhomo(@var{P}, @var{INT}, @var{VL}, @var{DVL}, @var{W})
+:: D 加群の制限イデアル, 積分イデアルの生成元に対する非斉次部分の情報から, 任意の元に対する非斉次部分を計算する関数
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item P
+積分イデアルの元, または制限イデアルの元
+@item INT
+nk_restriction.integration_ideal( ... |inhomo=1); または
+
+nk_restriction.restriction_ideal( ... |inhomo=1); の出力
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する微分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item @var{VL}, @var{DVL}, @var{W} は @var{INT} の計算に用いたものをそのまま使用しなければならない.
+@item もし, @var{P} が @var{INT[0]} で生成される積分, 制限イデアルの元でない場合はエラーメッセージが表示される.
+@end itemize
+
 @noindent
 ChangeLog
 @itemize @bullet
 @item  これらの関数は OpenXM/src/asir-contrib/packages/src/nk_restriction.rr で定義されている. nk_restriction.rr, 1.1--1.6 を見よ.
-@item 2010-02-05 に 3 つの option (@code{inhomo}, @code{param}, @code{s0}) が追加された.
+@item 2010-02-05 に 3 つの option (@code{inhomo}, @code{param}, @code{s0}) が追加された. 1.7--1.9 を見よ.
+@item 2010-05 から 2010-07 にかけて 2 つの option (@code{ht}, @code{ord}) と
+新たな関数 trans_inhomo() が追加された. 1.10--1.13 を見よ.
 @end itemize
 
 @node その他(未分類),,, 実験的仕様の関数
