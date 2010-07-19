@@ -1,12 +1,12 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.17 2009/02/24 10:21:52 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-port.sh,v 1.18 2009/09/13 01:18:53 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems.
 # Risa/Asir is installed under $HOME/.asir-tmp/$asirname
 # Symbolic link to $asirname from $OpenXM_HOME/bin/asir must exist
 # in the distribution of FLL-free distribution.
 # Starting script of Risa/Asir may call this shell script.
 version=`cat $OpenXM_HOME/lib/version.txt`
-os=`uname -s`
+os=`dpkg --print-architecture`
 md=`cat $OpenXM_HOME/lib/asir/distinfo-asir.md5`
 libmd=`cat $OpenXM_HOME/lib/asir/distinfo-asirlib.md5`
 # For testing

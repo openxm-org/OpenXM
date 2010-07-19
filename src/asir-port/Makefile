@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.24 2010/02/16 02:49:50 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/Makefile,v 1.25 2010/02/22 22:23:27 takayama Exp $
 # touch for_knoppix ; make install
 # to generate a distribution for knoppix.
 #### Do not add extra spaces after the VERSION.
@@ -10,7 +10,7 @@ LIBS=alpi bfct bgk const cyclic defs.h dmul fctrdata fctrtest fff \
 	 sturm xm
 # bug: md5sum is called md5 in FreeBSD.
 MD5=md5sum
-OS=`uname -s`
+OS=`dpkg --print-architecture`
 OpenXM_HOME_=../..
 RSYNC=rsync -avz -e ssh
 #FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix

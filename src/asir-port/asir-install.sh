@@ -1,5 +1,5 @@
 #!/bin/bash
-# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.15 2009/02/24 10:21:52 takayama Exp $
+# $OpenXM: OpenXM/src/asir-port/asir-install.sh,v 1.16 2009/09/13 01:18:53 takayama Exp $
 # Downloading Risa/Asir for FLL-free systems
 # under $HOME/.asir-tmp and installs asir to $OpenXM_HOME/bin
 #
@@ -11,7 +11,7 @@
 #  /root/.asir-tmp will be a work-directory in this case.
 #
 version=`cat $OpenXM_HOME/lib/version.txt`
-os=`uname -s`
+os=`dpkg --print-architecture`
 md=`cat $OpenXM_HOME/lib/asir/distinfo-asir.md5`
 libmd=`cat $OpenXM_HOME/lib/asir/distinfo-asirlib.md5`
 # For testing

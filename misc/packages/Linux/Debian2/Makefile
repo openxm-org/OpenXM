@@ -1,6 +1,6 @@
 # Do source dot.bashrc before doing something.
 
-VERSION=1.3.1-4
+VERSION=1.3.1-5
 # This VERSION must be compatible with debian/control and changelog ver. 
 #   use "make update-version" to update these values.
 #                                OpenXM/download/Makefile
@@ -8,7 +8,7 @@ VERSION=1.3.1-4
 #                                    (OpenXM/src/asir-port/Makefile)
 
 MD5=md5sum
-OS=`uname -s`
+OS=`dpkg --print-architecture`
 RSYNC=rsync -avz -e ssh
 #FTP_DIR=/home/ftp/pub/OpenXM/head/knoppix
 FTP_DIR=/home/web/pub/OpenXM/head/knoppix
