@@ -117,6 +117,6 @@ clean-tilde:
 	rm -rf *~
 
 update-version:
-	../../../../bin/oxreplace --old VERSION=1.3.1-3 --new VERSION=1.3.1-4 OpenXM/download/Makefile
-	../../../../bin/oxreplace --old VERSION=1.3.1-3 --new VERSION=1.3.1-4 ../../../../src/asir-port/Makefile
+	../../../../bin/oxreplace --old VERSION=1.3.1-4 --new VERSION=1.3.1-5 OpenXM/download/Makefile
+	../../../../bin/oxreplace --old VERSION=1.3.1-4 --new VERSION=1.3.1-5 ../../../../src/asir-port/Makefile
 	echo "make commit under OpenXM/src/asir-port and here"
