@@ -1,8 +1,8 @@
 #!/bin/sh
-# $OpenXM$
+# $OpenXM: OpenXM/misc/packages/Linux/Debian2/OpenXM/download/openxm-install.sh,v 1.2 2010/02/15 23:21:26 takayama Exp $
 #Set OpenXM_HOME properly to use this script.  See debian/openxm.postinst
 version=`cat $OpenXM_HOME/download/version.txt`
-os=`uname -s`
+os=`dpkg --print-architecture`
 md=`cat $OpenXM_HOME/download/distinfo-openxm-binary.md5`
 openxmBinaryName=openxm-binary-$os-$version.tar.gz
 DISTDIR=$HOME/OpenXM_tmp

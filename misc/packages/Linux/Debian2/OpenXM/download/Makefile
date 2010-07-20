@@ -1,6 +1,7 @@
 VERSION=1.3.1-5
-OpenXMBinaryTGZ=openxm-binary-Linux-${VERSION}.tar.gz
-AsirBinaryTGZ=asir-binary-Linux-${VERSION}.tar.gz
+OS=`dpkg --print-architecture`
+OpenXMBinaryTGZ=openxm-binary-${OS}-${VERSION}.tar.gz
+AsirBinaryTGZ=asir-binary-${OS}-${VERSION}.tar.gz
 DISTDIR=${HOME}/OpenXM_tmp
 #MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix
 MASTER_SITE=http://www.math.kobe-u.ac.jp/pub/OpenXM/head/knoppix
