@@ -1,4 +1,4 @@
-# $OpenXM$
+# $OpenXM: OpenXM/src/mcpp/Makefile,v 1.1 2010/07/30 08:43:00 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -7,7 +7,6 @@ MASTER_SITE=ftp://ftp.math.kobe-u.ac.jp/pub/OpenXM/misc/
 DISTNAME=mcpp-2.7.2
 DISTFILES=${DISTNAME}.tar.gz
 WRKSRC=work/${DISTNAME}
-#PATCHFILES = gmp.diff
 PATCHFILES = 
 
 all : build 
@@ -52,6 +51,7 @@ install: build
 	-mkdir ${PREFIX}/bin ${PREFIX}/lib
 	@if [ ! -f work/.install_done ]; then \
 		(cd ${WRKSRC} ; ${MAKE} install) ; \
+		(cd ${OpenXM_HOME}/bin ; cp -p mcpp cpp) ; \
 	fi
 	@touch work/.install_done
 
