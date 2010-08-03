@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot.rr,v 1.1 2005/04/08 05:56:47 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/gnuplot.rr,v 1.2 2005/07/26 05:52:50 takayama Exp $ */
 /* Old: gnuplot. See Attic */
 
 module gnuplot;
@@ -353,8 +353,8 @@ def set_heat_N(A) {
 def heat(K,M) {
   /*! extern Heat_N ; */
   H = 1.0/Heat_N;   /* 空間差分 */
-  print("時間差分K=",0); print(K);
-  print("CFL条件 K/(H*H) (<= 0.5): ",0); print(K/(H*H));
+  print("Time difference K=",0); print(K);
+  print("CFL condition K/(H*H) (<= 0.5): ",0); print(K/(H*H));
 
   A = newvect(Heat_N+1);
   B = newvect(Heat_N+1);
@@ -369,7 +369,7 @@ def heat(K,M) {
      }
   }
 
-  print("初期ベクトル: ",0); print(A);
+  print("Initial vector: ",0); print(A);
 
   plot_dots([],0);
   for (P=1; P<=M; P++) {
