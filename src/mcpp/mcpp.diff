@@ -1,0 +1,13 @@
+# $OpenXM$
+diff -u src/system.c.orig src/system.c
+--- src/system.c.orig	2008-11-26 18:53:51.000000000 +0900
++++ src/system.c	2010-08-03 20:06:07.000000000 +0900
+@@ -1276,7 +1276,7 @@
+     chk_opts( sflag, trad);
+ 
+     if (warn_level == -1)               /* No -W option             */
+-        warn_level = 1;                 /* Default warning level    */
++        warn_level = 0;                 /* Default warning level    */
+     else if (warn_level == 0xFF)
+         warn_level = 0;                 /* -W0 has high precedence  */
+ 
