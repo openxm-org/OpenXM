@@ -7,6 +7,8 @@ load("noro_module_syz.rr")$	/* for newsyz.module_syz() */
 
 module nk_restriction;
 
+extern NK_RESTRICTION_NOLOG;
+
 localf generic_bfct_and_gr;
 localf initial_ideal;
 localf restriction;
@@ -138,16 +140,16 @@ def generic_bfct_and_gr(F,V,DV,W)
 	
 	/* compute a groebner basis of FH w.r.t. MWH */
 	dp_gr_flags(["Top",1,"NoRA",1]);
-T0 = time(); /*tstart();*/
+	if ( !NK_RESTRICTION_NOLOG ) T0 = time(); /*tstart();*/
 	if ( Param && Param != [] && version() < 20100206 ) {
 		/* これ以前の nd_weyl_gr は係数体が有理関数体では動かない */
-print("-- dp_weyl_gr_main :", 2);
+		if ( !NK_RESTRICTION_NOLOG ) print("-- dp_weyl_gr_main :", 2);
 		GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
 	} else {
-print("-- nd_weyl_gr :", 2);
+		if ( !NK_RESTRICTION_NOLOG ) print("-- nd_weyl_gr :", 2);
 		GH = nd_weyl_gr(FH,VDVH,0,11);
 	}
-time_print(T0); /*tstop();*/
+	if ( !NK_RESTRICTION_NOLOG ) time_print(T0); /*tstop();*/
 	dp_gr_flags(["Top",0,"NoRA",0]);
 
 	/* dehomigenize GH */
@@ -165,19 +167,19 @@ time_print(T0); /*tstop();*/
 		T += W[I]*V[I]*DV[I];
 
 	if ( S0 >= 0 ) {
-print("skip the computation of generic b-function");
+		if ( !NK_RESTRICTION_NOLOG ) print("skip the computation of generic b-function");
 		return [s-S0, G];
 	}
-T0 = time(); /*tstart();*/
+	if ( !NK_RESTRICTION_NOLOG ) T0 = time(); /*tstart();*/
 	if ( Param ) {
 	/* パラメータ付きは消去法で計算  */
 		B = weyl_minipoly_by_elim2(GIN,V,DV,Param,T);
-print("-- weyl_minipoly_by_elim :", 2);
+		if ( !NK_RESTRICTION_NOLOG ) print("-- weyl_minipoly_by_elim :", 2);
 	} else {
 		B = weyl_minipoly(GIN,VDV,0,T); /* M represents DRL order */
-print("-- weyl_minipoly :", 2);
+		if ( !NK_RESTRICTION_NOLOG ) print("-- weyl_minipoly :", 2);
 	}
-time_print(T0); /*tstop();*/
+	if ( !NK_RESTRICTION_NOLOG ) time_print(T0); /*tstop();*/
 	return [B, G];
 }
 
@@ -279,9 +281,9 @@ def weyl_minipoly_by_elim(GIN,V,DV,Param,T)
 	if ( G == [] )
 		error("weyl_minipoly_by_elim : b-function does not exist");
 	if ( length(G) != 1 ) {
-		print(G);
+		if ( !NK_RESTRICTION_NOLOG ) print(G);
 		G = nd_gr(G,[TMP_S],0,0);
-		print(G);
+		if ( !NK_RESTRICTION_NOLOG ) print(G);
 	}
 	if ( length(G) != 1 )
 		error("weyl_minipoly_by_elim : invalid b-function");
@@ -363,9 +365,9 @@ def weyl_minipoly_by_elim3(GIN,V,DV,Param,T)
 	if ( G == [] )
 		error("weyl_minipoly_by_elim : b-function does not exist");
 	if ( length(G) != 1 ) {
-		print(G);
+		if ( !NK_RESTRICTION_NOLOG ) print(G);
 		G = nd_gr(G,[TMP_S],0,0);
-		print(G);
+		if ( !NK_RESTRICTION_NOLOG ) print(G);
 	}
 	if ( length(G) != 1 )
 		error("weyl_minipoly_by_elim : invalid b-function");
@@ -394,14 +396,14 @@ def restriction(Id, VL, DVL, W)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 
-tstart();
+	if ( !NK_RESTRICTION_NOLOG ) tstart();
 	Result = generic_bfct_and_gr(Id, VL, DVL, W|param=Param, s0=S0);
-print("-- generic_bfct_and_gr :",2);
-tstop();
+	if ( !NK_RESTRICTION_NOLOG ) print("-- generic_bfct_and_gr :",2);
+	if ( !NK_RESTRICTION_NOLOG ) tstop();
 	BF = Result[0];
 	GB = Result[1];
 
-tstart();
+	if ( !NK_RESTRICTION_NOLOG ) tstart();
 	/* BF の最大整数根 S0 を取り出す */
 	L = fctr(BF);
 	BFF = L;
@@ -422,8 +424,10 @@ tstart();
 			}
 		}
 	}
-	print("generic bfct : " + rtostr(BFF), 1);
-	print("S0 : " + rtostr(S0), 1);
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print("generic bfct : " + rtostr(BFF), 1);
+		print("S0 : " + rtostr(S0), 1);
+	}
 	/* b-function が非負整数根を持たない場合([SST, Cor5.2.7]) */
 	if (S0 == [] || S0 < 0) {
 		if ( IH )
@@ -442,7 +446,7 @@ tstart();
 	WW = vtol(WW);
 	/* B_{S0} の生成 */
 	Base = gen(WW, S0);
-	print("B_{S0} length : " + rtostr(length(Base)),1); 
+	if ( !NK_RESTRICTION_NOLOG ) print("B_{S0} length : " + rtostr(length(Base)),1); 
 
 	V = newvect(length(W), W); 
 	MinusW = vtol(-V);
@@ -478,8 +482,10 @@ tstart();
 			B = cdr(B);
 		}
 	}
-print("-- fctr(BF) + base :", 2);
-tstop();
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print("-- fctr(BF) + base :", 2);
+		tstop();
+	}
 	if ( !IH ) return [Generator, Base];
 	return [Generator, Base, RGen];
 }
@@ -647,11 +653,12 @@ def restriction_ideal(Id, VL, DVL, W)
 
 	L = restriction(Id, VL, DVL, W|inhomo=IH,param=Param,s0=S0);
 	if ( !L ) return [1];
-tstart();
+	if ( !NK_RESTRICTION_NOLOG ) tstart();
 	GG = restriction_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace,ord=ORD);
-	print("-- restriction_ideal_internal :", 2);
-tstop();
-
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print("-- restriction_ideal_internal :", 2);
+		tstop();
+	}
 	return GG;
 }
 
@@ -1016,10 +1023,12 @@ def integration_ideal(Id, VL, DVL, W)
 	print("integration :");
 	print(L);
 #endif
-tstart();
+	if ( !NK_RESTRICTION_NOLOG ) tstart();
 	GG = integration_ideal_internal(L, VL, DVL, W|inhomo=IH,param=Param,ht=HTrace, ord=ORD);
-print("-- integration_ideal_internal :", 2);
-tstop();
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print("-- integration_ideal_internal :", 2);
+		tstop();
+	}
 	return GG;
 }
 
@@ -1402,8 +1411,10 @@ def ann_mul(Id1, Id2, VL, DVL)
 	for (I = 0; I < length(V)/2; I++)
 		W[I] = 1; 
 	W = vtol(W);
-	print([Id, V, DV, W]);
-	print("option:" + rtostr([Param, S0]));
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print([Id, V, DV, W]);
+		print("option:" + rtostr([Param, S0]));
+	}
 	return restriction_ideal(Id, V, DV, W|param = Param, s0 = S0);
 }
 
@@ -1914,7 +1925,7 @@ def time_print(T)
 	if ( GC )
 		P = P + " + gc : " + rtostr(GC)+ "sec";
 	P = P + "(" + rtostr(ESP) + "sec)";
-	print(P);
+	if ( !NK_RESTRICTION_NOLOG ) print(P);
 	return 1;
 }
 
@@ -2040,15 +2051,20 @@ def ost_integration_ideal2(Id,V,DV,W,LB,UB)
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
-T = time();
+
+	if ( !NK_RESTRICTION_NOLOG ) T = time();
 	L = ann_heaviside(V,DV,LB,UB);
 	TI = ann_mul(L,Id,V,DV); /* ann_mul.rr が必要  */
-print("-- ann_mul :",2);
-time_print(T);
-T = time();
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print("-- ann_mul :",2);
+		time_print(T);
+		T = time();
+	}
 	INT = integration_ideal(TI,V,DV,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
-print("-- integration_ideal :",2);
-time_print(T);
+	if ( !NK_RESTRICTION_NOLOG ) {
+		print("-- integration_ideal :",2);
+		time_print(T);
+	}
 	return INT;
 }
 
