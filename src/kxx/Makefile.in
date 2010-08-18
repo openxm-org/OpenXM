@@ -1,4 +1,4 @@
-##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.39 2006/10/08 23:49:18 takayama Exp $
+##  $OpenXM: OpenXM/src/kxx/Makefile.in,v 1.40 2008/01/12 11:26:16 takayama Exp $
 #  Depends on  all-kan96xx [source tree of kan96xx at ${Kan96xx} is required]
 #              install-gmp, install-gc, install-util
 #
@@ -32,12 +32,8 @@ OpenXM_include_for_debug=${OpenXM_HOME_for_debug}/include
 CC=@CC@
 RANLIB=@RANLIB@
 LIBS=@LIBS@ 
-CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE
+CFLAGS = @CFLAGS@ -g -D_BSD_SOURCE -I${OpenXM_include}
 # University binary is no longer supported. See old configure.in (version 1.7)
-#CFLAG2 = @CFLAG2@
-#CFLAG2p = @CFLAG2p@
-CFLAG2 = 
-CFLAG2p = 
 # Or use "lipo -create ox-i386 ox-ppc -output ox"
 #STATIC_LINK_FLAG=-static
 STATIC_LINK_FLAG=
@@ -63,8 +59,6 @@ configure-old : Makefile.in configure.in
 #	autoconf
 #	.error  "Run ./make-configure"
 
-.c.o:
-	${CC}  ${CFLAGS} ${CFLAG2} -I${OpenXM_include} -c  $<
 ox.a: ${Kan96xx}/plugin/ox.a
 	/bin/rm -f ox.a
 	ln -s ${Kan96xx}/plugin/ox.a ox.a
@@ -73,7 +67,7 @@ ox_kan.h: ${Kan96xx}/plugin/ox_kan.h
 	ln -s ${Kan96xx}/plugin/ox_kan.h ox_kan.h
 
 ox: oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o
-	${CC} ${STATIC_LINK_FLAG} ${CFLAGS} ${CFLAG2p} oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o ox  ${LIBS}
+	${CC} ${STATIC_LINK_FLAG} ${CFLAGS} oxmain.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o -o ox  ${LIBS}
 oxmain.o: oxmain.c ox_kan.h serversm.h
 
 oxd: oxd.o xtag.o ${Kan96xx}/plugin/mytcpio.o ${Kan96xx}/plugin/oxmisc.o file2.o 
@@ -100,7 +94,7 @@ ox100start : ox100start.o  ${OpenXM_lib}/libox_pathfinder.a
 ox100start.o: ox100start.c
 
 file2.o: ${Kan96xx}/plugin/file2.c  ${Kan96xx}/plugin/file2.h
-	${CC} $(CFLAGS) ${CFLAG2} -DKXX=1 -I${Kan96xx}/plugin -c ${Kan96xx}/plugin/file2.c 
+	${CC} $(CFLAGS) -DKXX=1 -I${Kan96xx}/plugin -c ${Kan96xx}/plugin/file2.c 
 
 nullstackmachine.o: nullstackmachine.c ox_kan.h
 sm1stackmachine.o: sm1stackmachine.c  ox_kan.h
