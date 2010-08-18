@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/gc/Makefile,v 1.16 2006/04/29 12:56:07 takayama Exp $
+# $OpenXM: OpenXM/src/gc/Makefile,v 1.17 2008/03/19 07:11:53 ohara Exp $
 OpenXM_HOME=../..
 PREFIX=${OpenXM_HOME}
 DISTDIR=${OpenXM_HOME}/../OpenXM_dist
@@ -22,6 +22,7 @@ fetch:
 extract: fetch
 	@if [ ! -f work/.extract_done ]; then \
 	    cat ${DISTDIR}/${DISTFILES} | (cd work; tar xzvf -) ; \
+		chmod +x ${WRKSRC}/install-sh ; \
 	fi
 	@touch work/.extract_done
 
