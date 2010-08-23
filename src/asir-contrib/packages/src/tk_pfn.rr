@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.1 2010/01/21 06:45:51 takayama Exp $ 
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.2 2010/01/30 04:36:20 takayama Exp $ 
 
 tk_pfn is for numerical analysis of Pfaffian system in n variables.
 */
@@ -199,6 +199,32 @@ def test3() {
   A=rkn(Pf,V,[y1,y2],X0,F0,X1,0.1);
   return A;
 }
+endmodule;
+
+module tk_pfn;
+localf graph$
+/* x, y are independent variables. Fixed. 
+  Pf[0] = P_1, Pf[1] = P_2  (matrix in x and y)
+  import("tk_pf2.rr") to use this.
+*/
+def graph(Pf,Dom,Iv,Step) {
+  N=length(Pf[0]);
+  G=[];
+  for (I=1; I<=N; I++) {
+    G=cons(util_v(g,[I]),G);
+  }
+  G=reverse(G);
+  A=rk2all(Pf,
+          [x,y],
+          G,
+          Iv , [Dom[0][0],Dom[1][0]],
+          [Dom[0][1],Dom[1][1]], 
+          Step);
+  mtg.genGtable(A);
+  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=Dom);
+  return A;
+}
+
 endmodule;
 
 

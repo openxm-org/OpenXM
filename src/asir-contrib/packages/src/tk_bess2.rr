@@ -1,0 +1,179 @@
+/* $OpenXM$ */
+import("yang.rr")$
+import("tk_pf2.rr")$
+import("tk_pfn.rr")$
+
+module tk_bess2;
+/* Original version: misc-2009/10/fish/bess.rr Check functions are included. */
+/* 
+quotetotex_env("conv_rule",7)$ 
+*/
+
+/* f=int(exp(-t^2/4-x*t+y/t)t^(-a-1),C)   There is a typo in [OST].
+   a=1/2,  [0,1.4]x[0,9]
+   series:  Paper3/200310-ascm/ok2.rr
+  bess2_series() is used to get initial values.
+*/
+static CC_SIZE$
+static CC$
+static Idx$
+static AA$
+
+localf wcomp$
+localf ccinit$
+localf getIdx$
+localf cc$
+localf s$
+localf bess2_series$
+localf bess2pf$
+localf bess2g0$
+localf shrink$
+localf bess2g$
+localf test1$
+
+
+CC_SIZE=20$
+CC = newmat(CC_SIZE,CC_SIZE)$
+Idx = newvect(CC_SIZE*CC_SIZE)$
+
+/* comparison by the weight vector (1,2) */
+def wcomp(V,W) {
+  R = W[0]+2*W[1] - (V[0]+2*V[1]);
+  if ( R < 0 ) return 1;
+  else  if (R == 0) return 0;
+  else return -1;
+}
+def ccinit() {
+  for (I=0; I<CC_SIZE; I++) {
+    for (J=0; J<CC_SIZE; J++) {
+      CC[I][J] = "?";
+    }
+  }
+  CC[0][0] = 1; CC[1][0] = 0;
+}
+def getIdx() {
+ K = 0;
+ for (I=0; I<CC_SIZE; I++) {
+   for (J=0; J<CC_SIZE; J++) {
+     Idx[K] = [I,J]; K++;
+   }    
+ }
+ qsort(Idx,wcomp);
+}
+def cc(M,N) {
+  if ((M < 0) || (N < 0)) return 0;
+  else return CC[M][N];
+}
+def s(M,N) {
+  if (type(cc(M,N) < 7)) return cc(M,N);
+  Ans = "?";
+  if ((type(cc(M-2,N)) < 7) && (M*(M-1) != 0)) {
+    L = -2*( (M-2) - N - AA)*cc(M-2,N);
+    R = M*(M-1);
+    Ans = (-L/R);
+  }
+  if ((type(cc(M-1,N-1)) < 7) && (M*N != 0)) {
+    L = cc(M-1,N-1);
+    R = M*N;
+    Ans = -L/R;
+  }
+  if ((type(cc(M+1,N-1)) < 7) &&
+      (type(cc(M-1,N-1)) < 7) && (N*(N+AA) != 0)) {
+    L = -(M+1)*cc(M+1,N-1) + 2*cc(M-1,N-1);
+    R = 2*N*(N+AA);
+    Ans = -L/R;
+  }
+  if (type(Ans) != 7) {
+    CC[M][N] = Ans;
+    return Ans;
+  }else{
+    print([M,N]); error("cannot determine the coefficient");
+  }
+}
+
+def bess2_series(A) {
+  AA=A;
+  ccinit();
+  getIdx();
+  F = 0;
+  for (I=0; I<100; I++) {
+    K = Idx[I];
+    C = s(K[0],K[1]);
+    F += C*x^K[0]*y^K[1]; 
+  }
+  return F;
+}
+
+def bess2pf(A) {
+ yang.define_ring([x,y]);
+ L1o=dx*dy+1;
+ L2o=dx^2-2*x*dx+2*y*dy+2*a;
+ L3o=2*y*dy^2+2*(a+1)*dy-dx+2*x;
+ Lo=[L1o,L2o,L3o];
+ L=base_replace(Lo,[[a,A]]); 
+ L=yang.util_pd_to_euler(L,[x,y]);
+ L=map(nm,L);
+ /* L=base_replace([L1,L2,L3],[[dx,Sx],[dy,Sy]]);  does not work. */
+ L=map(dp_ptod,L,[dx,dy]);
+ G=yang.buchberger(L);
+ yang.stdmon(G);
+ S1=yang.constant(1);
+ Sx=yang.operator(x);
+ Sy=yang.operator(y);
+ Base=[S1,Sx,Sy];
+ Pf=yang.pfaffian(Base,G);
+ return Pf; 
+/* Pf[0], Pf[1] */
+}
+
+/* A=1/2, Dom=[[0.5,1.5],[1.5,9]] */
+def bess2g0(A,Dom) {
+  F=bess2_series(A);
+  X0=Dom[0][0]; Y0=Dom[1][0];
+  F0=[F,x*diff(F,x),y*diff(F,y)];
+  F0=base_replace(F0,[[x,X0],[y,Y0]]);
+  Pf=bess2pf(A);
+  F=newvect(3,[y0,y1,y2]);
+
+
+  Pf0=vtol(Pf[0]*F);
+  Pf1=vtol(Pf[1]*F);
+  Values=tk_pf2.rk2all([Pf0,Pf1],[x,y],[y0,y1,y2],[X0,Y0],F0,
+                       [Dom[1][0],Dom[1][1]],0.5);
+  mtg.setGtable(Values);
+
+
+  /* we need rknAll. rkn partially obtains values. */
+  /*
+  Values=tk_pfn.rkn(Pf,[x,y],F,[Dom[0][0],Dom[1][0]],F0,
+                               [Dom[0][1],Dom[1][1]],0.5);
+  mtg.genGtable(Values);
+*/
+
+  return Values;
+}
+
+def shrink(Dom) {
+  X=Dom[0][1]-Dom[0][0];
+  Y=Dom[1][1]-Dom[1][0];
+  X = X*0.1;
+  Y = Y*0.1;
+  return [[Dom[0][0]+X,Dom[0][1]-X],
+          [Dom[1][0]+Y,Dom[1][1]-Y]];
+}
+
+def bess2g(A,Dom) {
+  Values=bess2g0(A,Dom);
+  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=shrink(Dom));
+  return Values;
+}
+
+def test1() {
+  Values=bess2g(1/2,[[0.5,1.5],[1.5,9]]);
+  return Values;
+}
+
+endmodule;
+
+end$
+

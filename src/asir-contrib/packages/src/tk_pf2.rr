@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.6 2009/12/09 07:22:54 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.7 2010/01/30 04:24:09 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
@@ -17,6 +17,8 @@ import("mt_graph.rr");
 module mtg;
 localf setGtable;
 localf setGtable0;
+localf genGtable;
+localf genGtable0;
 localf f_gtable;
 localf staticv;
 localf test6a;
@@ -74,6 +76,58 @@ def setGtable0(L,Xn,Yn,Hx,Hy) {
      Q=number_floor((Y-Gtable_ymin)/Gtable_yh + Eps);
      if (P==0 && Q==0) print(I);
      Gtable[P][Q] = L[I][1];
+  }
+  return Gtable; 
+}
+
+/* setGtable is obsolete now. */
+def genGtable(L) {
+  Eps = (0.1)^10;
+  N = length(L);
+  Xmin=Xmax=L[0][0][0];
+  Ymin=Ymax=L[0][0][1];
+  Hx = Hy=Eps;
+  Xold=Xmin; Yold=Ymin;
+  for (I=1; I<N; I++) {
+    X=L[I][0][0];
+    Y=L[I][0][1];
+    if (X < Xmin) Xmin = X;
+    if (X > Xmax) Xmax = X;
+    if (Y < Ymin) Ymin = Y;
+    if (Y > Ymax) Ymax = Y;
+    if (number_abs(X-Xold) > Hx) Hx = number_abs(X-Xold);
+    if (number_abs(Y-Yold) > Hy) Hy = number_abs(Y-Yold);
+    Xold=X; Yold=Y;
+  }
+  Xn = number_floor((Xmax-Xmin)/Hx)+2;
+  Yn = number_floor((Ymax-Ymin)/Hy)+2;
+  genGtable0(L,Xn+1,Yn+1,Hx,Hy,[[Xmin,Xmax],[Ymin,Ymax]]);
+}
+
+def genGtable0(L,Xn,Yn,Hx,Hy,Dom) {
+/*  
+  extern Gtable;
+  extern Gtable_xmin;
+  extern Gtable_ymin;
+  extern Gtable_xh;
+  extern Gtable_yh;
+  extern Gtable_xn;
+  extern Gtable_yn;
+*/
+  Gtable_xn = Xn; Gtable_yn = Yn;
+  Gtable=newmat(Gtable_xn,Gtable_yn);
+  Gtable_xmin=Dom[0][0];
+  Gtable_ymin=Dom[1][0];
+  Gtable_xh =Hx;
+  Gtable_yh =Hy;
+  Eps = 0.00001;
+  for (I=0; I<length(L); I++) {
+     X=L[I][0][0];
+     Y=L[I][0][1];
+     P=number_floor((X-Gtable_xmin)/Gtable_xh + Eps);
+     Q=number_floor((Y-Gtable_ymin)/Gtable_yh + Eps);
+     if (P==0 && Q==0) print(I);
+     if ((P<Xn) && (Q < Yn)) Gtable[P][Q] = L[I][1];
   }
   return Gtable; 
 }
@@ -208,6 +262,7 @@ localf test5b;
 localf test5c;
 localf rk2all;
 localf test6;
+localf test6n;
 localf test6rr;
 
 /* f=x^2-y^2
@@ -453,6 +508,24 @@ def test6(N) {
   return A;
 }
 
+/* tk_pf2.test6n(10) for testing... */
+def test6n(N) {
+  S=[x^2-y^2, -2*y];
+  H=deval(2/N);
+  II=base_replace(S,[[x,1],[y,0.1]]); /* Initial */
+  print("Value at (1,0.1)",0); print(II);
+  A=rk2all([[(2*y0-x1*y1)/x0,0],[y1,y1/x1]],
+          [x0,x1],[y0,y1],
+          [1,0.1], II , [3,3],H);
+  mtg.genGtable(A); 
+  Dom=[[1,3],[0.1,3]];
+  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=Dom);
+  sleep(2000);
+  A2=test6(N);
+  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=Dom);
+  return [A,A2];
+}
+
 def test6rr(N) {
   S=[x^2-y^2, -2*y];
   H=deval(2/N);
@@ -468,7 +541,6 @@ def test6rr(N) {
 }
 
 endmodule;
-
 
 
 end$

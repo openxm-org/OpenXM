@@ -21,6 +21,10 @@ static MYtoJ$     /* (Y-Ymin)*MYtoJ --> index J */
 static MXfromI$
 static MYfromJ$
 
+static Gid$
+
+Gid=0$
+
 LevelMax = -1$  /* -1, no recursion */ 
 Slope = 0.1$
 
@@ -139,7 +143,8 @@ def plot3d(F) {
   S=tb_to_string(Tb);
 
   Fname0 = "/tmp/oxm-"+getenv("USER")+"-";
-  Fname = Fname0+rtostr(get_pid())+".txt";
+  Fname = Fname0+rtostr(get_pid()+Gid)+".txt";
+  Gid++;
   shell("rm -f "+Fname);
   output(Fname)$
   printf("%a",S)$
