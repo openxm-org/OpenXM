@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.7 2010/01/30 04:24:09 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.8 2010/08/23 08:08:38 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
@@ -27,6 +27,7 @@ localf test6b;
 localf test6b2;
 localf test6c;
 localf plot2d;
+localf shrink$
 
 static Gtable$
 static Gtable_xmin$
@@ -35,6 +36,15 @@ static Gtable_xh$
 static Gtable_yh$
 static Gtable_xn$
 static Gtable_yn$
+
+def shrink(Dom) {
+  X=Dom[0][1]-Dom[0][0];
+  Y=Dom[1][1]-Dom[1][0];
+  X = X*0.1;
+  Y = Y*0.1;
+  return [[Dom[0][0]+X,Dom[0][1]-X],
+          [Dom[1][0]+Y,Dom[1][1]-Y]];
+}
 
 def setGtable(L) {
   Eps = 0.00001;

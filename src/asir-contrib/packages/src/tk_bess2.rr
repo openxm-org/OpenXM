@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_bess2.rr,v 1.1 2010/08/23 08:08:38 takayama Exp $ */
 import("yang.rr")$
 import("tk_pf2.rr")$
 import("tk_pfn.rr")$
@@ -26,8 +26,8 @@ localf cc$
 localf s$
 localf bess2_series$
 localf bess2pf$
+localf bess2Iv$
 localf bess2g0$
-localf shrink$
 localf bess2g$
 localf test1$
 
@@ -126,12 +126,18 @@ def bess2pf(A) {
 /* Pf[0], Pf[1] */
 }
 
-/* A=1/2, Dom=[[0.5,1.5],[1.5,9]] */
-def bess2g0(A,Dom) {
+def bess2Iv(A,Pt) {
   F=bess2_series(A);
-  X0=Dom[0][0]; Y0=Dom[1][0];
+  X0=Pt[0]; Y0=Pt[1];
   F0=[F,x*diff(F,x),y*diff(F,y)];
   F0=base_replace(F0,[[x,X0],[y,Y0]]);
+  return(F0);
+}
+
+/* A=1/2, Dom=[[0.5,1.5],[1.5,9]] */
+def bess2g0(A,Dom) {
+  X0=Dom[0][0]; Y0=Dom[1][0];
+  F0=bess2Iv(A,[X0,Y0]); /* initial values */
   Pf=bess2pf(A);
   F=newvect(3,[y0,y1,y2]);
 
@@ -153,18 +159,10 @@ def bess2g0(A,Dom) {
   return Values;
 }
 
-def shrink(Dom) {
-  X=Dom[0][1]-Dom[0][0];
-  Y=Dom[1][1]-Dom[1][0];
-  X = X*0.1;
-  Y = Y*0.1;
-  return [[Dom[0][0]+X,Dom[0][1]-X],
-          [Dom[1][0]+Y,Dom[1][1]-Y]];
-}
 
 def bess2g(A,Dom) {
   Values=bess2g0(A,Dom);
-  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=shrink(Dom));
+  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=mtg.shrink(Dom));
   return Values;
 }
 
