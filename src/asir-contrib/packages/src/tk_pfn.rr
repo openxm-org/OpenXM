@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.3 2010/08/23 08:08:38 takayama Exp $ 
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.4 2010/08/23 22:19:21 takayama Exp $ 
 
 tk_pfn is for numerical analysis of Pfaffian system in n variables.
 */
@@ -210,7 +210,8 @@ localf testgraph1$
   import("tk_pf2.rr") to use this.
 */
 def graph(Pf,Dom,Iv,Step) {
-  N=length(Pf[0]);
+  if (type(Pf[0]) == 4) N=length(Pf[0]);
+  else N=size(Pf[0])[0];
   G=[];
   for (I=1; I<=N; I++) {
     G=cons(util_v(g,[I]),G);
