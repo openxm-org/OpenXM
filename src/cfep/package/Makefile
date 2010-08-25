@@ -114,3 +114,8 @@ gendoc: gendoc.c
 cfep-grep: cfep-grep.c
 	gcc -o cfep-grep -I${OpenXM_HOME}/include cfep-grep.c -L${OpenXM_HOME}/lib -lox_pathfinder
 
+copy-all-tmp:
+	-(cp ${OpenXM_HOME}/bin/[a-z]* work/OpenXM/bin)
+	-(cp ${OpenXM_HOME}/lib/[a-z]* work/OpenXM/lib)
+	-(cp -r ${OpenXM_HOME}/lib/java-support work/OpenXM/lib)
+
