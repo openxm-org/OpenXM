@@ -7,8 +7,8 @@ Install:
 Drag and drop "cfep" at any place you want. Then, the installation is done.
 
 Optional install:
-Install "X11" from MacOS install disk.  It is under the optional tools.
-Asir "plot" command will work.
+Install "X11" from MacOS install disk if you are using 10.4 or 10.5.  
+It is under the optional tools. Asir "plot" command will work.
 
 Uninstall:
 Move cfep to the trash.
@@ -19,4 +19,27 @@ Installation of xcode tools is no longer necessary.
 Info:
 http://www.math.kobe-u.ac.jp/Asir
 
+
+--------------------------
+Advanced installation
+--------------------------
+1. Optional software.
+In order to use the module gnuplot in the asir contrib, install gnuplot 
+in your command search path.
+In order to use pretty printing,  /usr/local/bin/latex and /usr/local/bin/dvipng
+must be installed.
+In order to use the module phc, download the phcpack from 
+http://www.math.uic.edu/~jan/download.html and put the binary "phc" under
+cfep.app/OpenXM/bin
+--------------------------
+2. In order to use asir and other binaries of the OpenXM project 
+from the command line,
+  cd cfep.app/OpenXM/rc
+  make
+and add
+ source  cfep.app/OpenXM/rc/dot.bashrc  
+at the last of your .bashrc
+or copy cfep.app/OpenXM/rc/openxm to your command search path
+and start, e.g., asir by 
+ openxm asir
 
