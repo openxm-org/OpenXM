@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.8 2010/08/23 08:08:38 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.9 2010/08/23 22:19:21 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
@@ -96,8 +96,6 @@ def genGtable(L) {
   N = length(L);
   Xmin=Xmax=L[0][0][0];
   Ymin=Ymax=L[0][0][1];
-  Hx = Hy=Eps;
-  Xold=Xmin; Yold=Ymin;
   for (I=1; I<N; I++) {
     X=L[I][0][0];
     Y=L[I][0][1];
@@ -105,12 +103,24 @@ def genGtable(L) {
     if (X > Xmax) Xmax = X;
     if (Y < Ymin) Ymin = Y;
     if (Y > Ymax) Ymax = Y;
-    if (number_abs(X-Xold) > Hx) Hx = number_abs(X-Xold);
-    if (number_abs(Y-Yold) > Hy) Hy = number_abs(Y-Yold);
+  }
+  Hx = Hy=Eps;
+  Xold=L[0][0][0]; Yold=L[0][0][1];
+  for (I=1; I<N; I++) {
+    X=L[I][0][0];
+    Y=L[I][0][1];
+    Dx= number_abs(X-Xold);
+    Dy = number_abs(Y-Yold);
+    if ((Dx > Hx) && (Dx < (Xmax-Xmin)/2)) Hx = Dx;
+    if ((Dy > Hy) && (Dy < (Ymax-Ymin)/2)) Hy = Dy;
     Xold=X; Yold=Y;
   }
   Xn = number_floor((Xmax-Xmin)/Hx)+2;
   Yn = number_floor((Ymax-Ymin)/Hy)+2;
+/*
+  print("domain=",0);print([[Xmin,Xmax],[Ymin,Ymax]]);
+  print("Hx,Hy=",0); print([Hx,Hy]);
+*/
   genGtable0(L,Xn+1,Yn+1,Hx,Hy,[[Xmin,Xmax],[Ymin,Ymax]]);
 }
 
