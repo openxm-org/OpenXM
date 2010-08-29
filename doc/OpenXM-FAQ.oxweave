@@ -1,12 +1,23 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.28 2009/11/23 05:14:41 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.29 2010/05/26 09:51:49 takayama Exp $
 
-//&C Dec 3, 2009. Mac OS Snow Leopard,  CPU=intel core2
-//&ja gmp のリンクに失敗します.
-//&en The link with the gmp fails.
+//&C Dec 3, 2009/Aug 29, 2010. Mac OS Snow Leopard,  CPU=intel core2
+//&ja Q. gmp のリンクに失敗します.
+//&en Q. The link with the gmp fails.
+
+/*&ja Now Leopard (10.6) 用の変更はまだソースに反映させていません.
+ gc, gmp は最新のものに変更する必要があります.
+ src/mcpp/work/mcpp-2.7.2/src/internal.H の最後の3行を削除します.
+ これでもうまくいかない時は次のようにやるとうまくいくかもしれません.
+*/
+/*&en We have not changed source codes for Mac OS 10.6 (Snow Leopard).
+ gc and gmp should be replaced with the latest versions.
+ The last 3 lines of src/mcpp/work/mcpp-2.7.2/src/internal.H should be removed.
+ If the compilation does not succeed, the following might solve the problem
+*/
 /*&C
   export ABI=32
   cd OpenXM/src
-  Follow the standard procedure.
+
 */
 
 //&C Nov 21, 2009. Mac OS Snow Leopard (10.6)
