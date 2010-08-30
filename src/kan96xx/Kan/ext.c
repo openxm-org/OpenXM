@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.40 2005/09/27 05:46:50 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/ext.c,v 1.41 2005/09/27 06:10:43 takayama Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -387,6 +387,7 @@ struct object Kextension(struct object obj)
     if (obj1.tag != Sdollar) errorKan1("%s\n","[(getServerEnv) serverName] extension.");
     {
       char **se; int ii; int nn;
+	  char **getServerEnv(char *);
       se = getServerEnv(KopString(obj1));
       if (se == NULL) {
         debugServerEnv(KopString(obj1));

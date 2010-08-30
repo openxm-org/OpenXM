@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.29 2006/01/10 11:52:56 takayama Exp $ */
+/* $OpenXM: OpenXM/src/util/ox_pathfinder.c,v 1.30 2006/01/26 08:36:50 takayama Exp $ */
 /* Moved from misc-2003/07/cygwin/test.c */
 
 #include <stdio.h>
@@ -13,6 +13,8 @@
 #include <time.h>
 #include <string.h>
 #include "ox_pathfinder.h"
+
+void *sGC_malloc(int);
 
 int OX_P_stdin = -1;
 int OX_P_stdout = -1;
@@ -40,7 +42,7 @@ static int NoX = 0;
 static int ErrorVerbose = 1;
 static int EngineLogToStdout = 0;
 
-#define nomemory(a) {fprintf(stderr,"(%d) no more memory.\n",a);exit(10);}
+#define nomemory(a) {fprintf(stderr,"(%p) no more memory.\n",(void *)a);exit(10);}
 #define mymalloc(a)  sGC_malloc(a)
 
 void pathFinderErrorVerbose(int k) {
