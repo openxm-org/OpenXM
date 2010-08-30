@@ -1,0 +1,36 @@
+load("tk_pfn.rr")$
+load("tk_pf2.rr")$
+load("tk_math.rr")$
+load("yang.rr")$
+
+def test1() {
+    V=[x,y];
+  	yang.define_ring(V);
+    S=dx+dy;
+    L1=yang.mul(dx,S+c-1)-x*yang.mul(dx+b1,S+a);
+    L2=yang.mul(dy,S+c-1)-y*yang.mul(dy+b2,S+a);
+	G = yang.gr([L1,L2]);
+	/* STD = yang.stdmon(G);*/
+    STD=[1,dx,dy];
+    Pf=yang.pf(STD,G);
+    A=1/2; B=1/2; Bp=1/3; C=1;
+    Pf = base_replace(Pf,[[a,A],[b1,B],[b2,Bp],[c,C]]);
+    X0 = 0.1; Y0 = 0.5;
+    Iv=[tk_math.n_appell_f1(A,B,Bp,C,X0,Y0),
+        X0*tk_math.n_appell_f1_x(A,B,Bp,C,X0,Y0),
+        Y0*tk_math.n_appell_f1_y(A,B,Bp,C,X0,Y0)];
+    print(Iv);
+    Dom=[[X0,0.4],[Y0,0.8]];
+    Step=0.05;
+    Ans=tk_pfn.graph(Pf,Dom,Iv,Step);
+    Er=[];
+    for (I=0; I<length(Ans); I++) {
+       V=tk_math.n_appell_f1(A,B,Bp,C,Ans[I][0][0],Ans[I][0][1]);
+       if (number_abs(V-Ans[I][1])>0.01) {
+          Er=cons([V,Ans[I]],Er);
+          print([V,Ans[I]]);
+       }
+    }
+
+    return [Ans,Er];
+}

@@ -1,0 +1,71 @@
+/* $OpenXM$
+Mathematica interface by file (not by OpenXM). 
+*/
+
+module tk_math;
+localf math;
+localf test1;
+localf n_appell_f1;
+localf n_appell_f1_x;
+localf n_appell_f1_y;
+localf test2;
+
+def math(S) {
+  Fname="/tmp/tmp-tk-math.txt"; /* bug, use pid and serial */
+  OFname="/tmp/tmp-tk-math-out.txt";
+  shell("rm -f "+OFname);
+  S="Tktmp=Block[{},"+S+"];\nTktmp >>\""+OFname+"\";\n";
+  util_write_string_to_a_file(Fname,S);
+  shell("math <"+Fname);
+  Ans=util_read_file_as_a_string(OFname);
+  return Ans;
+}
+
+def test1() {
+  return math("N[AppellF1[1/2,1/2,1/3,1,0.2,0.3]]");
+}
+
+def n_appell_f1(A,B,Bp,C,X,Y) {
+  S="N[AppellF1["+rtostr(A)+","
+                 +rtostr(B)+","
+                 +rtostr(Bp)+","
+                 +rtostr(C)+","
+                 +rtostr(X)+","
+                 +rtostr(Y)+"]]";
+  V=eval_str(math(S));
+  return V;
+}
+
+def n_appell_f1_x(A,B,Bp,C,X,Y) {
+  S0="f1x[a_,b_,bp_,c_,x_,y_]=D[AppellF1[a,b,bp,c,x,y],x]";
+  S="N[f1x["+rtostr(A)+","
+                 +rtostr(B)+","
+                 +rtostr(Bp)+","
+                 +rtostr(C)+","
+                 +rtostr(X)+","
+                 +rtostr(Y)+"]]";
+  V=eval_str(math(S0+";\n"+S));
+  return V;
+}
+
+def n_appell_f1_y(A,B,Bp,C,X,Y) {
+  S0="f1y[a_,b_,bp_,c_,x_,y_]=D[AppellF1[a,b,bp,c,x,y],y]";
+  S="N[f1y["+rtostr(A)+","
+                 +rtostr(B)+","
+                 +rtostr(Bp)+","
+                 +rtostr(C)+","
+                 +rtostr(X)+","
+                 +rtostr(Y)+"]]";
+  V=eval_str(math(S0+";\n"+S));
+  return V;
+}
+
+def test2() {
+  print(n_appell_f1(1/2,1/2,1/3,1,0.1,0.2));
+  print(n_appell_f1_x(1/2,1/2,1/3,1,0.1,0.2));
+  print(n_appell_f1_y(1/2,1/2,1/3,1,0.1,0.2));
+}
+
+endmodule;
+
+
