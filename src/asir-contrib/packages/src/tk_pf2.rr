@@ -1,5 +1,5 @@
 /*
-$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.9 2010/08/23 22:19:21 takayama Exp $
+$OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pf2.rr,v 1.10 2010/08/29 08:40:40 takayama Exp $
 tk_pf2 is a package for numerical analysis of Pfaffian systems (systems of differential equaitons) in two variables.
 Preliminary version was misc-2009/11/fish/ri.rr
 tk_pf2.rk2 and tk_pf2.rk2all are main functions of this package which numerically solve dF=AFdx+BFdy
@@ -111,16 +111,20 @@ def genGtable(L) {
     Y=L[I][0][1];
     Dx= number_abs(X-Xold);
     Dy = number_abs(Y-Yold);
-    if ((Dx > Hx) && (Dx < (Xmax-Xmin)/2)) Hx = Dx;
-    if ((Dy > Hy) && (Dy < (Ymax-Ymin)/2)) Hy = Dy;
+    if ((Dx > Hx) && (Dx < (Xmax-Xmin)/1.2)) Hx = Dx;
+    if ((Dy > Hy) && (Dy < (Ymax-Ymin)/1.2)) Hy = Dy;
     Xold=X; Yold=Y;
   }
   Xn = number_floor((Xmax-Xmin)/Hx)+2;
   Yn = number_floor((Ymax-Ymin)/Hy)+2;
+
 /*
   print("domain=",0);print([[Xmin,Xmax],[Ymin,Ymax]]);
   print("Hx,Hy=",0); print([Hx,Hy]);
 */
+  if ((Hx <= Eps) || (Hy <= Eps)) {
+    error("The data is too coarse. Hx or Hy is too small."); debug();
+  }
   genGtable0(L,Xn+1,Yn+1,Hx,Hy,[[Xmin,Xmax],[Ymin,Ymax]]);
 }
 

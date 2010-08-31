@@ -22,7 +22,7 @@ def test1() {
     print(Iv);
     Dom=[[X0,0.4],[Y0,0.8]];
     Step=0.05;
-    Ans=tk_pfn.graph(Pf,Dom,Iv,Step);
+    Ans=tk_pfn.graph(Pf,Dom,Iv,Step | fit=1);
     Er=[];
     for (I=0; I<length(Ans); I++) {
        V=tk_math.n_appell_f1(A,B,Bp,C,Ans[I][0][0],Ans[I][0][1]);

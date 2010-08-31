@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.6 2010/08/29 08:40:40 takayama Exp $ 
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/tk_pfn.rr,v 1.7 2010/08/29 11:25:35 nisiyama Exp $ 
 
 tk_pfn is for numerical analysis of Pfaffian system in n variables.
 */
@@ -212,6 +212,8 @@ localf testgraph2f$
   import("tk_pf2.rr") to use this.
 */
 def graph(Pf,Dom,Iv,Step) {
+  Fit = getopt(fit);
+  if (type(Fit) != 1) Fit=0;
   if (type(Pf[0]) == 4) N=length(Pf[0]);
   else N=size(Pf[0])[0];
   G=[];
@@ -241,7 +243,7 @@ def graph(Pf,Dom,Iv,Step) {
           [Dom[0][1],Dom[1][1]], 
           Step);
   mtg.genGtable(A);
-  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=mtg.shrink(Dom));
+  mtg.plot3d(quote(mtg.f_gtable(x,y)) | domain=mtg.shrink(Dom), fit=Fit);
   return A;
 }
 
@@ -257,7 +259,7 @@ def testgraph1() {
   Iv = [0.105994,-0.651603,-0.760628];
   Dom=[[0.5,1.5],[1.5,9]];
   Step = 0.5;
-  return graph(Pf,Dom,Iv,Step);  
+  return graph(Pf,Dom,Iv,Step | fit=1);  
 }
 
 def testgraph2f(X,Y) {
@@ -281,7 +283,7 @@ def testgraph2() {
   Iv = testgraph2f(X0,Y0);
   Dom=[[X0,1],[Y0,2]];
   Step = 0.5;
-  A=graph(Pf,Dom,Iv,Step);  
+  A=graph(Pf,Dom,Iv,Step | fit=1);  
   print("testing the return value of rk2all.");
   for (I=0; I<length(A); I++) {
     P = A[I][0];
