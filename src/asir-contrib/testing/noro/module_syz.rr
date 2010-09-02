@@ -84,6 +84,7 @@ def module_minres(F,V,H,O)
 			L = module_syz(car(R),V,H,O);
 		if ( L[0] == [] ) return R;
 		S = simplify_syz(L[0],R[0],H);
+		if ( S == [[],[]] ) return cdr(R);
 		R = append(S,cdr(R));	
 		if ( R[0] == [] ) return cdr(R);
 	}
