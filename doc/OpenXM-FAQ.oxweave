@@ -1,17 +1,36 @@
-%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.29 2010/05/26 09:51:49 takayama Exp $
+%  $OpenXM: OpenXM/doc/OpenXM-FAQ.oxweave,v 1.30 2010/08/29 00:10:24 takayama Exp $
+
+//&C Sep 7, 2010. 
+//&ja Q. TeXmacs interface 用の startup code はどのようにインストールしますか?
+//&en Q. How to install the startup codes for the TeXmacs interface?
+
+/*&ja
+ Debian package openxm-skel を http://fe.math.kobe-u.ac.jp/KnoppixMath からインストールして下さい.
+ これでだめなとき(insert->session->OpenXM が出ないとき)はインストールのあと, 次のコマンドを実行して下さい.
+*/
+/*&en
+ Please install the Debian package openxm-skel from http://fe.math.kobe-u.ac.jp/KnoppixMath
+ If you do not get a new menu insert->session->OpenXM in the TeXmacs, copy files by the command
+*/
+//&C  cp -r /etc/skel/.TeXmacs ~
+
 
 //&C Dec 3, 2009/Aug 29, 2010. Mac OS Snow Leopard,  CPU=intel core2
 //&ja Q. gmp のリンクに失敗します.
 //&en Q. The link with the gmp fails.
 
 /*&ja Now Leopard (10.6) 用の変更はまだソースに反映させていません.
- gc, gmp は最新のものに変更する必要があります.
+ ソースコードの更新をお待ち下さい.
+ Todo: gc, gmp は最新のものに変更する必要があります.
  src/mcpp/work/mcpp-2.7.2/src/internal.H の最後の3行を削除します.
+ sm1 は gmp の内部構造にアクセスしていますが, そのやり方を変更します. 
  これでもうまくいかない時は次のようにやるとうまくいくかもしれません.
 */
 /*&en We have not changed source codes for Mac OS 10.6 (Snow Leopard).
- gc and gmp should be replaced with the latest versions.
+ Please wait our updates of the source code.
+ Todo: gc and gmp should be replaced with the latest versions.
  The last 3 lines of src/mcpp/work/mcpp-2.7.2/src/internal.H should be removed.
+ sm1 accesses the internal structure of the gmp. We have to change the access code.
  If the compilation does not succeed, the following might solve the problem
 */
 /*&C
