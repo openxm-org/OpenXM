@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.38 2010/02/10 05:49:58 takayama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.39 2010/07/16 07:55:06 nisiyama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -3089,6 +3089,71 @@ ChangeLog
 @item @code{OpenXM/src/asir-contrib/packages/src/tk_pfn.rr} 1.1, 1.2
 @item このモジュールの前身は @code{tk_pf2.rr} である. これは独立変数が 2 個の場合である.  
 @end itemize
+
+
+@node tk_pfn.graph,,, 実験的仕様の関数
+@subsection @code{tk_pfn.graph}
+@findex tk_pfn.graph
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item tk_pfn.graph(@var{Pf},@var{Dom},@var{Iv},@var{Step})
+:: 2変数 Pfaffian 方程式を Runge-Kutta 法で解いてグラフ表示する.
+@end table
+
+@table @var
+@item return
+リスト  リストの要素は以下の形式 [[xの値,yの値],Y_1の値,Y_2の値, ...]
+@item Pf, Dom, Iv, Step
+@var{Pf} は Pfaffian 方程式の係数行列リスト.  独立変数は x, y で固定.
+@var{Dom} リスト. 解くべき領域.
+@var{Iv} リスト. 領域の左端での初期値.
+@var{Step} 刻み幅.
+@end table
+
+@itemize @bullet
+@item tk_pf2.rr, mt_graph.rr を import しておく必要がある.
+@item この関数は連立Pfaffian方程式 dY/dx = Pf[0] Y, dY/dy = Pf[1] Y を数値的に解いてグラフ表示する. 
+@item @var{Dom} は [[xmin,xmax],[ymin,ymax]] の形式.
+@item 例はソースコード (@code{OpenXM/lib/asir-contrib/tk_pfn.rr} )の @code{tk_pfn.testgraph1()}, @code{tk_pfn.testgraph2()} を参照.
+@item option としては fit=1 がある. Z軸を適宜調整する.
+@end itemize
+
+@example
+[1355] import("tk_pf2.rr"); import("mt_graph.rr"); import("tk_pfn.rr");
+[1590] tk_pfn.testgraph();
+
+ここで testgraph1() は以下のとおり. 
+def testgraph1() {
+  /* tk_bess2.bess2pf(1/2); */
+  Pf=  [[[ 0, (1)/(x), 0 ],
+         [ -x, (2*x^2+1)/(x), -2*x ],
+         [ -y, 0, 0 ]],
+        [[ 0, 0, (1)/(y) ],
+         [ -x, 0, 0 ],
+         [ -x, (1/2)/(x), (-1/2)/(y) ]]];
+  /* tk_bess2.bess2Iv(1/2,[0.5,1.5]); */
+  Iv = [0.105994,-0.651603,-0.760628];
+  Dom=[[0.5,1.5],[1.5,9]];
+  Step = 0.5;
+  return graph(Pf,Dom,Iv,Step | fit=1);  
+}
+
+
+@end example
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2010-08 に最初の版が書かれた.
+@item @code{OpenXM/src/asir-contrib/packages/src/tk_pfn.rr} 1.8
+@end itemize
+
+
 
 @node fj_simp.simplify,,, 実験的仕様の関数
 @subsection @code{fj_simp.simplify}
