@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.39 2010/07/16 07:55:06 nisiyama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.40 2010/09/28 07:24:34 takayama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -38,7 +38,7 @@
 @title 実験的仕様の関数
 @subtitle Risa/Asir 実験的仕様関数説明書
 @subtitle 1.0 版
-@subtitle 2010 年 2 月
+@subtitle 2010 年 9 月
 
 @author  by Risa/Asir committers
 @page
@@ -134,7 +134,10 @@ ChangeLog の項目は www.openxm.org の cvsweb で
 * dcurrenttime::
 * nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (module)::
 * nd_gr nd_gr_trace nd_weyl_gr nd_weyl_gr_trace (option)::
-* tk_pf.rkn::
+* tk_pfn.rkn::
+* tk_pfn.graph::
+* tk_rk.runge_kutta_4::
+* tk_rk.runge_kutta_4_linear::
 @end menu
 
 @node クオート,,, 実験的仕様の関数
@@ -3104,7 +3107,9 @@ ChangeLog
 
 @table @var
 @item return
-リスト  リストの要素は以下の形式 [[xの値,yの値],Y_1の値,Y_2の値, ...]
+リスト  リストの要素は以下の形式 [[xの値,yの値],Y_1の値,Y_2の値, ...].
+[xの値, yの値] は [0,0],[0.2,0],[0.4,0], ... , [0,0.2],[0.2,0.2], ... のように 
+y の値が外側ループ, x の値が内側ループの形式で増える.
 @item Pf, Dom, Iv, Step
 @var{Pf} は Pfaffian 方程式の係数行列リスト.  独立変数は x, y で固定.
 @var{Dom} リスト. 解くべき領域.
@@ -3118,11 +3123,12 @@ ChangeLog
 @item @var{Dom} は [[xmin,xmax],[ymin,ymax]] の形式.
 @item 例はソースコード (@code{OpenXM/lib/asir-contrib/tk_pfn.rr} )の @code{tk_pfn.testgraph1()}, @code{tk_pfn.testgraph2()} を参照.
 @item option としては fit=1 がある. Z軸を適宜調整する.
+@item @var{Dom} の端はグラフ表示の時に一部カットされるので注意.
 @end itemize
 
 @example
 [1355] import("tk_pf2.rr"); import("mt_graph.rr"); import("tk_pfn.rr");
-[1590] tk_pfn.testgraph();
+[1590] tk_pfn.testgraph1();
 
 ここで testgraph1() は以下のとおり. 
 def testgraph1() {
@@ -3137,7 +3143,7 @@ def testgraph1() {
   Iv = [0.105994,-0.651603,-0.760628];
   Dom=[[0.5,1.5],[1.5,9]];
   Step = 0.5;
-  return graph(Pf,Dom,Iv,Step | fit=1);  
+  return tk_pfn.graph(Pf,Dom,Iv,Step | fit=1);  
 }
 
 
@@ -3151,6 +3157,114 @@ ChangeLog
 @itemize @bullet
 @item この関数は 2010-08 に最初の版が書かれた.
 @item @code{OpenXM/src/asir-contrib/packages/src/tk_pfn.rr} 1.8
+@end itemize
+
+@node tk_rk.runge_kutta_4,,, 実験的仕様の関数
+@subsection @code{tk_rk.runge_kutta_4}
+@findex tk_rk.runge_kutta_4
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item tk_rk.runge_kutta_4(@var{Eq},@var{X},@var{Y},@var{X0},@var{Y0},@var{Terminal},@var{Step})
+:: 4次の Runge-Kutta 法による微分方程式の数値近似解
+@end table
+
+@table @var
+@item return
+リスト  リストの要素は以下の形式 [@var{X}の値,Y_1の値,Y_2の値, ...].
+ @var{X} の値は減っていく. よってリストの先頭が @var{Terminal} 付近での @var{Y} の値.
+@item Eq, X, Y, Step
+@var{Eq} は 方程式の右辺. リスト. Y[0]'=Eq[0], Y[1]'=Eq[1], ... である.
+@var{X} 独立変数名.
+@var{Y} リスト. 従属変数のリスト.
+@var{Step} 刻み幅.
+@item X0, Y0, Terminal
+@var{X0} 出発点の @var{X} の値.
+@var{Y0} 出発点での @var{Y} の初期値.
+@var{Terminal} @var{X} の終着点.
+@end table
+
+@itemize @bullet
+@item taka_runge_kutta.rr を import しておく必要がある.
+@item この関数は連立常微分方程式 Y[0]'=Eq[0], Y[1]'=Eq[1], ... を数値的に解く.
+@item 例はソースコード (@code{OpenXM/lib/asir-contrib/src/taka_runge_kutta.rr} )の 
+@code{tk_rk.test4()} を参照.
+@end itemize
+
+@example
+[1355] import("taka_runge_kutta.rr");
+[1590] tk_rk.test4();
+
+ここで test4() は以下のとおり. 振動の方程式, y0'=y1, y1'=-y0 (y0''+y0=0). 答は y0=cos(x)
+taka_plot_auto は下方向で y が正.
+
+def test4() {
+  A=runge_kutta_4([y1,-y0],x,[y0,y1],0,[1,0],3.14*2,0.1);
+  taka_plot_auto(A);
+  return(A);
+}
+
+@end example
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item この関数は 2000 年代の前半に最初の版が書かれた. 2010年 Pfaffian の数値解析の為に再度整備
+@item @code{OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr} 1.17
+@end itemize
+
+@node tk_rk.runge_kutta_4_linear,,, 実験的仕様の関数
+@subsection @code{tk_rk.runge_kutta_4_linear}
+@findex tk_rk.runge_kutta_4_linear
+
+@comment --- 関数の簡単な説明 ---
+@comment --- @itemx は複数に対して説明を一つつける場合に使う ---
+@table @t
+@item tk_rk.runge_kutta_4_linear(@var{P},@var{X},@var{Y},@var{X0},@var{Y0},@var{Terminal},@var{Step})
+:: 4次の Runge-Kutta 法による微分方程式の数値近似解. 線形方程式専用.
+@end table
+
+@table @var
+@item return
+リスト  リストの要素は以下の形式 [@var{X}の値,Y_1の値,Y_2の値, ...].
+ @var{X} の値は減っていく. よってリストの先頭が @var{Terminal} 付近での @var{Y} の値.
+@item P, X, Y, Step
+@var{P} は 方程式の右辺. リスト. Y'=P Y である. 従属変数 @var{Y} は不要.
+@var{X} 独立変数名.
+@var{Y} リスト. 従属変数のリスト. 従属変数は自動生成される. 使われていないので空リストでよい.
+@var{Step} 刻み幅.
+@item X0, Y0, Terminal
+@var{X0} 出発点の @var{X} の値.
+@var{Y0} 出発点での @var{Y} の初期値.
+@var{Terminal} @var{X} の終着点.
+@end table
+
+@itemize @bullet
+@item taka_runge_kutta.rr を import しておく必要がある.
+@end itemize
+
+@example
+[1355] import("taka_runge_kutta.rr");
+[1590] A=tk_rk.runge_kutta_4_linear([[0,1],[-1,0]],x,[ ], 0, [1,0], 3.14*2, 0.1);
+[1591] taka_plot_auto(A);
+
+振動の方程式, y0'=y1, y1'=-y0 (y0''+y0=0). 答は y0=cos(x) を解いている.
+taka_plot_auto は下方向で y が正.
+
+@end example
+
+
+@comment --- ChangeLog を書く. 動機. ソースコードの位置. 変更日時 など CVSサーバを見るため
+@comment --- openxm の外部からの寄与も述べる. Credit.
+@noindent
+ChangeLog
+@itemize @bullet
+@item 2010年 Pfaffian の数値解析の為に再整備.
+@item @code{OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr} 1.17
 @end itemize
 
 

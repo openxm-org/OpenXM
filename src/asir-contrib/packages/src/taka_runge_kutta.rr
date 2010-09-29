@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.16 2010/01/30 04:24:09 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_runge_kutta.rr,v 1.17 2010/04/18 01:08:37 takayama Exp $ */
 /* From misc/200205/runge-kutta.rr */
 
 /* They have not yet been registered in names.rr */
@@ -410,6 +410,8 @@ localf taka_runge_kutta_4a;
 localf taka_runge_kutta_4a_linear;
 localf test4 ;
 localf test4b ;
+localf runge_kutta_4;
+localf runge_kutta_4_linear;
 def taka_minus(Ob) {
   if (type(Ob) != 4) return(-Ob);
   else return map(taka_minus,Ob);
@@ -441,6 +443,12 @@ def taka_runge_kutta_4a(FF,X0,Y,S0,Ys,T0,H) {
  }
  return(A);
 }
+def runge_kutta_4(FF,X0,Y,S0,Ys,T0,H) {
+   return taka_runge_kutta_4a(FF,X0,Y,S0,Ys,T0,H);
+}
+def runge_kutta_4_linear(FF,X0,Y,S0,Ys,T0,H) {
+   return taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H);
+}
 
 def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
   if (T0 < S0) {
@@ -464,7 +472,7 @@ def taka_runge_kutta_4a_linear(FF,X0,Y,S0,Ys,T0,H) {
 
 /* equation of oscilation */
 def test4() {
-  A=taka_runge_kutta_4a([y1,-y0],x,[y0,y1],0,[1,0],3.14*2,0.1);
+  A=runge_kutta_4([y1,-y0],x,[y0,y1],0,[1,0],3.14*2,0.1);
   taka_plot_auto(A);
   return(A);
 }
