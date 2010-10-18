@@ -26,12 +26,13 @@
 <h2> ニュース </h2>
 
 <ul>
-<li> Debian パッケージ openxm-1.3.1-4 (Debian, 32bit, ネットワークインストーラ) は 
+<li> Debian パッケージ openxm-1.3.1-5 (Debian, 32bit, ネットワークインストーラ) は 
   <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath"> こちらから </a>
   入手できます. 
+  (64 版は <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath64"> こちら </a>.)
   <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath/readme-ja.html">
   こちらに </a> 注意事項が書いてありますのでご覧下さい.
-  (Feb 23, 2010. openxm-1.3.1-4) <br>
+  (Aug, 2010. openxm-1.3.1-5) <br>
   D-加群についての機能が充実しました. <br>
   1.3.1-3 以前がインストールしてある場合, 下記のようにインストールして下さい. 
   <pre>
@@ -40,11 +41,22 @@
      dpkg --purge openxm
      apt-get install openxm
   </pre>
-  TeXmacs インタフェースをインストールするには
+  TeXmacs インタフェース, desktop アイコンをインストールするには
   <pre>
     apt-get install openxm-skel
+    apt-get install openxm-gnome-desktop
   </pre>
   です. <br>
+  apt-get を使えない時(つかってはいけないとき)は, まず openxm- ではじまるすべてのファイルを
+  <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath"> http://fe.math.kobe-u.ac.jp/KnoppixMath </a>
+  からダウンロードしたあと, 次のようにして手動でインストールします.
+  <pre>
+   sudo su
+   dpkg --install openxm_*.deb
+   dpkg --install openxm-skel*.deb
+  </pre>
+  なお openxm_*.deb はネットワークインストーラで本体は internet からダウンロードされます.
+
 <li> <a href="news-o-ja.html"> 過去のニュース </a>
 </ul>
 
@@ -118,7 +130,7 @@ http://www.openxm.org
 openxm2005@math.Xkobe-u.Xac.Xjp  (".X" を "." で置き換えて下さい)
 
 <pre>
-$OpenXM: OpenXM/doc/OpenXM-web/top-ja.html,v 1.16 2010/02/07 05:35:49 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/top-ja.html,v 1.17 2010/02/25 03:24:30 takayama Exp $
 </pre>
 
 </BODY>

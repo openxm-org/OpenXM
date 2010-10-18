@@ -25,8 +25,9 @@
 <h2> The News </h2>
 
 <ul>
-<li> Debian package openxm-1.3.1-4 (network installer, 32bit) can be obtained from
+<li> Debian package openxm-1.3.1-5 (network installer, 32bit) can be obtained from
   <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath"> here </a>.
+  64 bit version is provided at <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath64"> here </a>.
   Please read readme-en.html in the directory. Note that the package openxm should 
   be updated explicitly (apt-get install will not work properly) if openxm 1.3.1-3 or prior
   is already installed, i.e., 
@@ -36,12 +37,22 @@
     dpkg --purge openxm
     apt-get install openxm
   </pre>
-  (Feb 23, 2010. openxm-1.3.1-4) <br>
-  In order to install the TeXmacs interface, do
+  (Aug, 2010. openxm-1.3.1-5) <br>
+  In order to install the TeXmacs interface and desktop icons, do
   <pre>
     apt-get install openxm-skel
+    apt-get install openxm-gnome-desktop
   </pre>
-
+  If you cannot or must not use apt-get, please download all files starting with openxm-
+  from 
+  <a href="http://fe.math.kobe-u.ac.jp/KnoppixMath"> http://fe.math.kobe-u.ac.jp/KnoppixMath </a>
+  and install them by hand as follows.
+  <pre>
+   sudo su
+   dpkg --install openxm_*.deb
+   dpkg --install openxm-skel*.deb
+  </pre>
+  Note that openxm_*.deb is a network installer and the main body of the package is downloaded from the internet.
 <li> <a href="news-o.html"> News Archive </a>
 </ul>
 
@@ -121,7 +132,7 @@ openxm2005@math.Xkobe-u.Xac.Xjp  (please replace ".X" by ".")
 
 
 <pre>
-$OpenXM: OpenXM/doc/OpenXM-web/top.html,v 1.23 2010/02/07 05:35:49 takayama Exp $
+$OpenXM: OpenXM/doc/OpenXM-web/top.html,v 1.24 2010/02/25 03:24:30 takayama Exp $
 </pre>
 
 </BODY>
