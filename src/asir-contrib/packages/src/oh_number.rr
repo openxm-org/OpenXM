@@ -1,15 +1,21 @@
 module oh_number;
 localf rats_prec;
 localf rats;
+localf to_continued_fraction;
+localf continued_fraction_to_rat;
 
 def rats_prec(X,K) {
+    L = to_continued_fraction(X,K|rev=no);
+    return continued_fraction_to_rat(L|rev=no);
+}
+
+def to_continued_fraction(X,K) {
     Sign = 1;
     if (X==0) {
         return 0;
     }else if (X<0) {
         Sign = -1; X = -X; 
     }
-
 /* continued fraction (X ~= reverse(L)) */
     Flag = 1;
     Bound = 2^62;
@@ -28,8 +34,22 @@ def rats_prec(X,K) {
         Q = rint(deval(X));
         L = cons(Q,L); 
     }
+    if(getopt(rev)!=no) {
+        L = reverse(L);
+    }
+    return [Sign,L];
+}
 
 /* continued fraction to rational number */
+def continued_fraction_to_rat(L) {
+    Sign = 1;
+    if (type(L[1])==4) { /* if L ~= [Sign, List] */
+        Sign = L[0];
+        L = L[1];
+    }
+    if(getopt(rev)!=no) {
+        L = reverse(L);
+    }
     for(R=car(L),L=cdr(L); L!=[]; L=cdr(L)) {
         R = car(L) + 1/R;
     }
