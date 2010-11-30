@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/cshrc,v 1.15 2004/03/04 05:13:39 takayama Exp $
+# $OpenXM: OpenXM/rc/cshrc,v 1.16 2007/11/18 01:50:02 takayama Exp $
 setenv OpenXM_HOME $HOME/OpenXM
 set path=($OpenXM_HOME/bin $path)
 rehash
@@ -13,6 +13,12 @@ if ( ${?LD_LIBRARY_PATH} ) then
    setenv LD_LIBRARY_PATH $OpenXM_HOME/lib:${LD_LIBRARY_PATH}
 else
    setenv LD_LIBRARY_PATH $OpenXM_HOME/lib
+endif
+# for MacOS
+if ( ${?DYLD_LIBRARY_PATH} ) then
+   setenv DYLD_LIBRARY_PATH $OpenXM_HOME/lib:${DYLD_LIBRARY_PATH}
+else
+   setenv DYLD_LIBRARY_PATH $OpenXM_HOME/lib
 endif
 
 

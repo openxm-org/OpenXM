@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/rc/bashrc,v 1.13 2004/03/04 05:13:39 takayama Exp $
+# $OpenXM: OpenXM/rc/bashrc,v 1.14 2007/11/27 22:26:29 takayama Exp $
 OpenXM_HOME=$HOME/OpenXM
 export OpenXM_HOME
 PATH=$OpenXM_HOME/bin:$PATH
@@ -24,5 +24,12 @@ else
   LD_LIBRARY_PATH=$OpenXM_HOME/lib ;
 fi
 export LD_LIBRARY_PATH
+# for MacOS
+if test $DYLD_LIBRARY_PATH ; then
+  DYLD_LIBRARY_PATH=$OpenXM_HOME/lib:$DYLD_LIBRARY_PATH  ;
+else
+  DYLD_LIBRARY_PATH=$OpenXM_HOME/lib ;
+fi
+export DYLD_LIBRARY_PATH
 
 
