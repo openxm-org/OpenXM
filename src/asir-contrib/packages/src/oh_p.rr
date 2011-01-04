@@ -1,0 +1,246 @@
+/* $OpenXM$ */
+
+/* A library for parallel computing with OpenXM */
+
+#include <defs.h>
+
+#define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
+#define LIB_FILE  file
+#define LIB_CODE  code
+#define LIB_VAR   var
+
+/*
+examples of libraries:
+[file, "oh_base.rr"],
+[code, "def foo(A) { return A+1;}"]
+[env,  "GlobalVar"]
+*/
+
+module oh_p$
+
+localf _config, _load, _load_lib, _iterator, _filter;
+localf open, reopen, close, register;
+localf set_env, get_env, bload_env, bsave_env;
+localf execute_function;
+localf foreach;
+
+static Workers;
+static Libs;
+static ConfX11;
+static ConfDir;
+
+/* */
+def _config() {
+    ConfX11  =(_getopt(x,no)==yes)?  1: 0;
+    ConfDir=(_getopt(cd,yes)==no)? 0: 1;
+}
+
+/*
+  Example: open(|num=4)
+  options: x = no  (default)
+           cd= yes (default)
+*/
+def open() {
+	local I,N,Launch;
+    if (Workers!=0) {
+        printf("Servers are already working.\n");
+        return -1;
+    }
+    N=getopt(num);
+    if(!isnum_int(N) || N<=0) {
+        return -1;
+    }
+    _config(|option_list=getopt());
+    Workers=newvect(N);
+    Launch = ConfX11? ox_launch: ox_launch_nox;
+    for(I=0; I<N; I++) {
+        Workers[I] = (*Launch)();
+    }
+    if (getopt(cd)!=no) {
+        map(ox_rpc,Workers,"chdir",::pwd());
+        map(ox_pop_local,Workers);
+    }
+    Workers=vtol(Workers);
+    _load();
+    return 0;
+}
+
+/* Example: reopen(3) */
+def reopen(Id) {
+    local Launch,Id,Id2;
+    ox_shutdown(Id);
+    Launch = ConfX11? ox_launch: ox_launch_nox;
+    Id2 = call(Launch,[]|fd=Id);
+    if (Id2 < 0) {
+        perror(sprintf("Id=%a is already used.",Id));
+        return;
+    }
+    if (getopt(cd)!=no) {
+        ox_rpc(Id,"chdir",::pwd());
+        ox_pop_local(Id);
+    }
+    _load(|id=Id);
+    return 0;
+}
+
+def close() {
+    map(ox_shutdown, Workers);
+    Workers=0;
+    return 0;
+}
+
+def register(T,L) {
+    if(T==LIB_FILE||T==LIB_CODE||T==LIB_VAR) {
+        C = [T,L];
+        Libs = (Libs==0)? [C]: cons(C,Libs);
+        if(Workers!=0) {
+            map(_load_lib,Workers,C);
+        }
+    }
+}
+
+def _load_lib(Id,Lib) {
+	printf("<%a>",Lib);
+    C = Lib;
+    if(C[0]==LIB_FILE) {
+        ox_rpc(Id,"import", C[1]);
+        ox_pop_local(Id);
+    }else if (C[0]==LIB_CODE){
+        ox_execute_string(Id,C[1]);
+        R=ox_pop_local(Id);
+		printf("R=%a\n",R);
+    }else if (C[0]==LIB_VAR){
+        ox_execute_string(Id,sprintf("extern %a;",C[1]));
+    }
+}
+
+def _load() {
+    Id=getopt(id);
+    W=(type(Id)<0)? Workers: [Id]; 
+    for(L=reverse(Libs); L!=[]; L=cdr(L)) {
+        map(_load_lib,W,car(L));
+    }
+}
+
+def execute_function(FuncArgs) {
+    Node=length(Workers);
+    for(I=0; I<Node; I++) {
+        call(ox_rpc, cons(Workers[I], FuncArgs));
+    }
+}
+
+def set_env(EnvName,Env) {
+    map(ox_execute_string,Workers,"extern "+EnvName+";");
+    map(ox_push_local,Workers,Env);
+    map(ox_setname,Workers,EnvName);
+}
+
+def get_env(EnvName) {
+    map(ox_execute_string,Workers,EnvName+";");
+    return map(ox_pop_local,Workers);
+}
+
+/* load_env([1,2,3],'Env',"A"); */
+def bload_env(Env,ValName) {
+    local File;
+    File = sprintf("%a.sav", Env);
+    map(ox_rpc,Workers,"bload",File);
+    map(ox_setname,Workers,ValName);
+    map(ox_pop_local,Workers);
+}
+
+/* load_env('Env',A); */
+def bsave_env(Env,Data) {
+    local File;
+    File = sprintf("%a.sav", Env);
+    bsave(Data,File);
+}
+
+def _iterator(Unused,Finished,Args) {
+    Index=car(Unused);
+    Unused=cdr(Unused);
+    return [Index,Unused];
+}
+
+def _filter(I,Set,Args,Ret) {
+    return Args;
+}
+
+/*
+oh_p.foreach(Set,"foo",[Arg1,Arg2,...]);
+options:
+debug=yes,  (for printing messages)
+restart=yes
+*/
+
+def foreach(Set,Func,Args) {
+    local Unused, Finished, Running, NW;
+    local Ret, Id, Recv, Index, Pos;
+    local Restart, Debug, Filter, Iterator;
+    local Busy, Next, FuncArgs, A;
+    
+    /* オプション処理 */
+    Restart  = (getopt(restart)==yes);
+    Debug    = (getopt(debug)==yes);
+    Filter   = _getopt(filter, _filter);
+    Iterator = _getopt(iterate,_iterator);
+
+    Ret = newvect(length(Set));
+    NW  = length(Workers);
+
+	/* バグ対策: 関数名を不定元として認識させないと call が失敗する. */
+    map(ox_execute_string,Workers,sprintf("%a;",Func));
+	/* ここまで */
+
+    /* 制御変数 */
+    Busy=0; // Busy==1 ならばJobを新規に割り当てできない
+    Unused   = Set;
+    Running  = [];     /* the list of identity numbers of running servers */
+    Finished = [];
+    while(Unused!=[] || Running!=[]) {
+        Busy = 0;
+        if (Unused!=[]) {
+            Next = (*Iterator)(Unused,Finished,Args);
+            if (Next==[]) {
+                Busy=1;
+            }else {
+                Index = Next[0]; Unused = Next[1];
+                Id = base_set_minus(Workers,Running)[0]; /* Unused server */
+                A = (*Filter)(Index,Set,Args,Ret);
+                ox_rpc(Id,"oh_p_call",Func,Index,A);
+                ox_push_cmd(Id,258); /* SM_popSerializedLocalObject */
+                Running=cons(Id,Running);
+            }
+        }
+        if (Busy || length(Running)>=NW || Unused==[]) {
+            Id=ox_select(Running)[0];
+            Recv=ox_get(Id); /* Recv == [Index, ReturnValue] */
+            if (Debug) {
+                printf("oh_p.foreach(%a): Recv<%a>=%a\n",Func,Id,Recv);
+            }
+            Finished = cons(Recv[0],Finished);
+            Pos = base_position(Recv[0],Set);
+            if (Debug) {
+                printf("oh_p.foreach(%a): Pos=%a,Index=%a,Set=%a\n",Func,Pos,Recv[0],Set);
+            }
+            Ret[Pos]=Recv[1];
+            Running=base_prune(Id,Running);
+            if (Restart) { /* Restarting server */
+                reopen(Id);
+            }
+        }
+    }
+    return vtol(Ret);
+}
+
+endmodule$
+
+#define RCALL "def oh_p_call(F,I,A){return [I,call(F,cons(I,A))];}"
+/*
+def oh_p_call(F,I,A) {
+    return [I,call(F,cons(I,A))];
+}
+*/
+oh_p.register(code,RCALL)$
+
+end$
