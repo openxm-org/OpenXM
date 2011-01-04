@@ -1,10 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.3 2008/09/01 15:30:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.4 2010/06/30 00:11:31 ohara Exp $ */
 
 module oh_base;
 
 localf length, nth, remove_nth, range;
 localf max2, min2, sum2, mul2;
 localf iterate, max, min, sum, mul;
+localf assoc_index, assoc_index_r, assoc_keyset, assoc_valset;
 
 def length(L) {
     return (type(L)==4||type(L)==5)? ::length(L): 0;
@@ -145,6 +146,56 @@ def sum(L) {
 def mul(L) {
     OPTS=getopt();
     return iterate(mul2,L|option_list=OPTS);
+}
+
+/* Example:
+[0] load("oh_base.rr")$
+[1] A=assoc([1,-2,3,-4,5],[dog,cat,cow,bird,dog]);
+[[1,dog],[-2,cat],[3,cow],[-4,bird],[5,dog]]
+[2] oh_base.assoc_index(A,-4);
+3
+[3] A[3];   
+[-4,bird]
+[4] oh_base.assoc_index_r(A,dog);
+[0,4]
+[5] oh_base.assoc_keyset(A);
+[1,-2,3,-4,5]
+[6] oh_base.assoc_valset(A);
+[dog,cat,cow,bird,dog]
+*/
+/* Find an element which is matched with Key in an associated list.
+   Output its index. */
+def assoc_index(Assoc,Key) {
+    N=length(Assoc);
+    for(I=0; I<N; I++) {
+        if (Key==Assoc[I][0]) {
+            return I;
+        }
+    }
+    return -1; // no match
+}
+
+/* Find the elements which is matched with Value in an associated list.
+   Output their indexes. */
+def assoc_index_r(Assoc,Value) {
+    N=length(Assoc);
+    L=[];
+    for(I=0; I<N; I++) {
+        if (Value==Assoc[I][1]) {
+            L=cons(I,L);
+        }
+    }
+    return reverse(L); // no match
+}
+
+/* Output the set of the keys of associated list. */
+def assoc_keyset(Assoc) {
+    return map('car',Assoc);
+}
+
+/* Output the set of the values of associated list. */
+def assoc_valset(Assoc) {
+    return map('car',map('cdr',Assoc));
 }
 
 endmodule;
