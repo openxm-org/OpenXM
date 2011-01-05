@@ -1,4 +1,4 @@
-/* $OpenXM$ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.1 2011/01/04 17:35:45 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -100,7 +100,6 @@ def register(T,L) {
 }
 
 def _load_lib(Id,Lib) {
-	printf("<%a>",Lib);
     C = Lib;
     if(C[0]==LIB_FILE) {
         ox_rpc(Id,"import", C[1]);
@@ -108,7 +107,6 @@ def _load_lib(Id,Lib) {
     }else if (C[0]==LIB_CODE){
         ox_execute_string(Id,C[1]);
         R=ox_pop_local(Id);
-		printf("R=%a\n",R);
     }else if (C[0]==LIB_VAR){
         ox_execute_string(Id,sprintf("extern %a;",C[1]));
     }
@@ -173,7 +171,7 @@ debug=yes,  (for printing messages)
 restart=yes
 */
 
-def foreach(Set,Func,Args) {
+def foreach(Func,Set,Args) {
     local Unused, Finished, Running, NW;
     local Ret, Id, Recv, Index, Pos;
     local Restart, Debug, Filter, Iterator;
@@ -232,7 +230,6 @@ def foreach(Set,Func,Args) {
     }
     return vtol(Ret);
 }
-
 endmodule$
 
 #define RCALL "def oh_p_call(F,I,A){return [I,call(F,cons(I,A))];}"
