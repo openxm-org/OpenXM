@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.16 2010/07/12 07:01:04 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.17 2010/07/12 07:20:03 noro Exp $ */
 /* requires 'primdec' */
 
 #define TMP_H hhhhhhhh
@@ -1424,6 +1424,7 @@ def bf_strat(F)
 	if ( type(Heu=getopt(heuristic)) == -1 ) Heu = 0;
 	if ( type(Vord=getopt(vord)) == -1 || type(Vord) != 4 ) Vord = 0;
 	if ( type(Wt=getopt(weight)) == -1 ) Wt = 0;
+	if ( type(ElimIdeal=getopt(elimideal)) == -1 ) ElimIdeal = 0;
 	L = in_ww(F|weight=Wt,heuristic=Heu,vord=Vord);
 	T1 = time();
 	print(["in_ww",(T1[0]+T1[1])-(T0[0]+T0[1])]);
@@ -1462,6 +1463,7 @@ def bf_strat(F)
 	}
 
 	L2 = bf_strat_stage2(L);
+	if ( ElimIdeal ) return L2;
 	S = bf_strat_stage3(L2);
 	R = [];
 	for ( T = S; T != []; T = cdr(T) ) {
