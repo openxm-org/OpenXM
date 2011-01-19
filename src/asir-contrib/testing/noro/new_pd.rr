@@ -6,10 +6,10 @@ static GBCheck,F4,EProcs,Procs,SatHomo,GBRat$
 localf get_lc,tomonic$
 localf para_exec,nd_gr_rat,competitive_exec,call_func$
 localf call_ideal_list_intersection$
+localf call_colon,call_prime_dec$
 localf first_second$
 localf third$
 localf locsat,iso_comp_para,extract_qj,colon_prime_dec,extract_comp$
-localf colon_prime_dec1$
 localf separator$
 localf member,mingen,compute_gbsyz,redcoef,recompute_trace3,dtop,topnum$
 localf ideal_colon1$
@@ -365,21 +365,40 @@ def colon_prime_dec(G,IntQ,V) {
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
 	if ( type(Lexdec=getopt(lexdec)) == -1 ) Lexdec = 0;
 	if ( type(Para=getopt(para)) == -1 ) Para = 0;
+	if ( !Para ) {
+		print("colon_pd:",2); print(length(IntQ),2);
+	}
 	if ( !Mod ) M = mingen(IntQ,V);
 	else M = IntQ;
 	if ( Para ) {
 		L = length(M);
-		for ( Task = [], J = 0, RI = []; J < L; J++ )
+		for ( Task = [], J = 0; J < L; J++ )
 			if ( gen_nf(M[J],G,V,Ord,Mod) ) {
-				T = ["noro_pd.colon_prime_dec1",G,M[J],Mod,V];
+				T = ["noro_pd.call_colon",G,M[J],V,Mod,1];
 				Task = cons(T,Task);
 			}
 		Task = reverse(Task);
 		R = para_exec(Para,Task);
+		R = pd_simp_comp(R,V|mod=Mod); L = length(R);
+
+		for ( Task = [], J = 0; J < L; J++ ) {
+			T = ["noro_pd.call_prime_dec",R[J],V,1,Lexdec,Mod];
+			Task = cons(T,Task);
+		}
+		Task = reverse(Task);
+		R = para_exec(Para,Task);
+
 		for ( Pt = [], T = R; T != []; T = cdr(T) ) Pt = append(Pt,car(T));
 	} else {
-		for ( Pt = [], T = M; T != []; T = cdr(T) ) {
-			Pi = colon_prime_dec1(G,car(T),Mod,V);
+		for ( R = [], T = M; T != []; T = cdr(T) ) {
+			Ci = colon(G,car(T),V|isgb=1,mod=Mod);
+			R = cons(Ci,R);
+		}
+		print("->",2); print(length(M),2);
+		R = pd_simp_comp(R,V|mod=Mod);
+		print("->",2); print(length(R));
+		for ( Pt = [], T = R; T != []; T = cdr(T) ) {
+			Pi = prime_dec(car(T),V|indep=1,lexdec=Lexdec,mod=Mod);
 			Pt = append(Pt,Pi);
 		}
 	}
@@ -387,11 +406,15 @@ def colon_prime_dec(G,IntQ,V) {
 	return Pt;
 }
 
-def colon_prime_dec1(G,F,Mod,V)
+def call_colon(G,F,V,Mod,IsGB)
 {
-	Ci = colon(G,F,V|isgb=1,mod=Mod);
-	if ( type(Ci[0]) != 1 )
-		Pi = prime_dec(Ci,V|indep=1,lexdec=Lexdec,mod=Mod);
+	return colon(G,F,V|isgb=1,mod=Mod);
+}
+
+def call_prime_dec(G,V,Indep,Lexdec,Mod)
+{
+	if ( type(G[0]) != 1 )
+		Pi = prime_dec(G,V|indep=Indep,lexdec=Lexdec,mod=Mod);
 	else
 		Pi = [];
 	return Pi;
