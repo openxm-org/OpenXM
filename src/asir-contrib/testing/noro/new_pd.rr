@@ -284,6 +284,12 @@ T0 = time();
 		if ( First ) {
 			PtR = prime_dec(G,V|indep=1,lexdec=Lexdec,mod=Mod,radical=1);
 			Pt = PtR[0]; IntPt = PtR[1]; Rad = IntPt;
+			if ( gen_gb_comp(G,Rad,Mod) ) {
+				/* Gt is radical and Gt = cap Pt */
+				for ( T = Pt, Qt = []; T != []; T = cdr(T) )
+					Qt = cons([car(T)[0],car(T)[0],car(T)[1]],Qt);
+				return [reverse(Qt)];
+			}
 		} else
 			Pt = colon_prime_dec(G,IntQ,V|lexdec=Lexdec,mod=Mod,para=Para);
 ACCUM_TIME(Tpd,RTpd)
@@ -1458,7 +1464,7 @@ def elim_gb(G,V,PV,Mod,Ord)
 		return G1;
 	} else
 #if 1
-#if 1
+#if 0
 		G = dp_gr_main(G,V,0,0,Ord);
 #else
 		G = nd_gr_trace(G,V,1,1,Ord);
@@ -1656,20 +1662,29 @@ def ideal_list_intersection(L,V,Ord)
 	N = length(L);
 	if ( N == 0 ) return [1];
 	if ( N == 1 ) return fast_gb(L[0],V,Mod,Ord);
-	N2 = idiv(N,2);
-	for ( L1 = [], I = 0; I < N2; I++ ) L1 = cons(L[I],L1);
-	for ( L2 = []; I < N; I++ ) L2 = cons(L[I],L2);
-	if ( length(Para) >= 2 ) {
-		T1 = ["noro_pd.call_ideal_list_intersection",L1,V,Mod,Ord];
-		T2 = ["noro_pd.call_ideal_list_intersection",L2,V,Mod,Ord];
-		R = para_exec(Para,[T1,T2]);
-		I1 = R[0]; I2 = R[1];
+	if ( N > 2 && (Len = length(Para)) >= 2 ) {
+		Div = N >= 2*Len ? Len : 2;
+		QR = iqr(N,Div); Q = QR[0]; R = QR[1];
+		T = []; K = 0;
+		for ( I = 0; I < Div; I++ ) {
+			LenI = I<R? Q+1 : Q;
+			if ( LenI ) {
+				for ( LI = [], J = 0; J < LenI; J++ ) LI = cons(L[K++],LI);
+				TI = ["noro_pd.call_ideal_list_intersection",LI,V,Mod,Ord];
+				T = cons(TI,T);
+			}
+		}
+		Tint = para_exec(Para,T);
+		return ideal_list_intersection(Tint,V,Ord|mod=Mod,para=Para);
 	} else {
+		N2 = idiv(N,2);
+		for ( L1 = [], I = 0; I < N2; I++ ) L1 = cons(L[I],L1);
+		for ( L2 = []; I < N; I++ ) L2 = cons(L[I],L2);
 		I1 = ideal_list_intersection(L1,V,Ord|mod=Mod);
 		I2 = ideal_list_intersection(L2,V,Ord|mod=Mod);
+		return ideal_intersection(I1,I2,V,Ord|mod=Mod,
+			gbblock=[[0,length(I1)],[length(I1),length(I2)]]);
 	}
-	return ideal_intersection(I1,I2,V,Ord|mod=Mod,
-		gbblock=[[0,length(I1)],[length(I1),length(I2)]]);
 }
 
 def call_ideal_list_intersection(L,V,Mod,Ord)
