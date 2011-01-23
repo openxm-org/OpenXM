@@ -11,6 +11,7 @@ extern NK_RESTRICTION_NOLOG;
 
 localf generic_bfct_and_gr;
 localf initial_ideal;
+localf initial_w, initial_part_w;
 localf restriction;
 localf max_int_root;
 localf test_max_int_root;
@@ -71,7 +72,7 @@ localf int_fano;
 /* inhomogeneous */
 localf inhomo_part;
 localf trans_inhomo, trans_inhomo_sub, pick_gen_relation, is_nonzero_const;
-localf separate_var, make_elim_order_mat;
+localf separate_var, make_elim_order_mat, make_weight_mat;
 localf action_exp, action_exp_1;
 localf subset, zero_inhomo;
 localf integration_exp;
@@ -245,6 +246,41 @@ def initial_ideal(F,V,DV,W)
 	/* As -W+W=0, gr_(-W,W)(D<x,d>) = D<x,d> */
 	
 	return [G, GIN];
+}
+
+def initial_w(B,V,W)
+{
+	MW = make_weight_mat(W);
+	GB = nd_weyl_gr(B,V,0,MW);
+	return map(initial_part_w,GB,V,MW,W);
+}
+
+def initial_part_w(F,V,MW,W)
+{
+	N2 = length(V);
+	N = N2/2;
+	dp_ord(MW);
+	DF = dp_ptod(F,V);
+	R = dp_hm(DF);
+	DF = dp_rest(DF);
+
+	E = dp_etov(R);
+	for ( I = 0, TW = 0; I < N2; I++ )
+		TW += W[I]*E[I];
+	RW = TW;		
+
+	for ( ; DF; DF = dp_rest(DF) ) {
+		E = dp_etov(DF);
+		for ( I = 0, TW = 0; I < N2; I++ )
+			TW += W[I]*E[I];
+		if ( TW == RW )
+			R += dp_hm(DF);
+		else if ( TW < RW )
+			break;
+		else 
+			error("initial_part : cannot happen");
+	}
+	return dp_dtop(R,V);
 }
 
 /* 消去法による最小多項式計算 (パラメータを含む場合) */
@@ -1835,6 +1871,18 @@ def make_elim_order_mat(M,N)
 	for ( I = 2; I < 2*NN+1 ; I++ )
 		OrdM[I][2*NN-I+1] = -1;
 	return OrdM;
+}
+
+def make_weight_mat(W)
+{
+	N = length(W);
+	M = newmat(N+1,N,[W]);
+	
+	for ( I = 0; I < N; I++)
+		M[1][I] = 1;
+	for ( I = 0; I < N-1; I++)
+		M[I+2][N-I-1] = -1;
+	return M;
 }
 
 /* P  : a operator in D<V,DV>
