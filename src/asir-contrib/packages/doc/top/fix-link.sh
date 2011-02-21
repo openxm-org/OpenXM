@@ -1,6 +1,6 @@
 #!/bin/sh
 # fix-link.sh ja ~/OpenXM/bin/oxreplace
-# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.5 2009/02/15 01:51:12 takayama Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/doc/top/fix-link.sh,v 1.6 2010/02/13 04:38:36 takayama Exp $
 LLL=$1
 OXREPLACE=$2
 
@@ -82,6 +82,11 @@ ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> $
 NEW0="[[noro_mwl]]"
 NEW1="noro_mwl-html/noro_mwl-${LLL}.html"
 NEW2="noro_mwl (Mordel Weil Lattice)"
+${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
+
+NEW0="[[noro_pd]]"
+NEW1="noro_pd-html/noro_pd-${LLL}.html"
+NEW2="noro_pd (New Primary Ideal Decomposition)"
 ${OXREPLACE} --replaceLine --old "${NEW0}" --new "<li> <a href=\"../${NEW1}\"> ${NEW2} </a>" cman-${LLL}.html
 
 rm -f cman-*.old
