@@ -1,0 +1,560 @@
+%comment $OpenXM$
+%comment --- おまじない ---
+\input ../../../../asir-doc/texinfo
+@iftex
+@catcode`@#=6
+@def@fref#1{@xrefX[#1,,@code{#1},,,]}
+@def@b#1{{@bf@gt #1}}
+@catcode`@#=@other
+@end iftex
+@overfullrule=0pt
+@c -*-texinfo-*-
+@comment %**start of header
+@comment --- おまじない終り ---
+
+@comment --- GNU info ファイルの名前 ---
+@setfilename asir-contrib-noro_pd
+
+@comment --- タイトル ---
+@settitle noro_pd
+
+@comment %**end of header
+@comment %@setchapternewpage odd
+
+@comment --- おまじない ---
+@ifinfo
+@macro fref{name}
+@ref{\name\,,@code{\name\}}
+@end macro
+@end ifinfo
+
+@iftex
+@comment @finalout
+@end iftex
+
+@titlepage
+@comment --- おまじない終り ---
+
+@comment --- タイトル, バージョン, 著者名, 著作権表示 ---
+@title noro_pd
+@subtitle noro_pd User's Manual
+@subtitle Edition 1.0
+@subtitle Nov 2011
+
+@author  by Masayuki Noro
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} Masayuki Noro
+2011. All rights reserved.
+@end titlepage
+
+@comment --- おまじない ---
+@synindex vr fn
+@comment --- おまじない終り ---
+
+@comment --- @node は GNU info, HTML 用 ---
+@comment --- @node  の引数は node-name,  next,  previous,  up --- 
+@node Top,, (dir), (dir)
+
+@comment --- @menu は GNU info, HTML 用 ---
+@comment --- chapter 名を正確に並べる ---
+@menu
+* 準素分解パッケージ noro_pd.rr::
+* Index::
+@end menu
+
+@comment --- chapter の開始 ---
+@comment --- 親 chapter 名を正確に ---
+@node 準素分解パッケージ noro_pd.rr,,, Top
+@chapter 準素分解パッケージ noro_pd.rr
+
+@comment --- section 名を正確に並べる ---
+@menu
+* 準素分解::
+@end menu
+
+このマニュアルでは, asir-contrib パッケージに収録されている,
+準素パッケージ @samp{noro_pd.rr} について解説する.
+このパッケージを使うには, まず @samp{noro_pd.rr} をロードする.
+@example
+[1539] load("noro_pd.rr");
+@end example
+このパッケージの函数を呼び出すには, 全て @code{noro_pd.} を先頭につける.
+@example
+
+@end example
+
+@comment --- section の開始 ---
+@comment --- 書体指定について ---
+@comment --- @code{} はタイプライタ体表示 ---
+@comment --- @var{} は斜字体表示 ---
+@comment --- @b{} はボールド表示 ---
+@comment --- @samp{} はファイル名などの表示 ---
+
+@node アルゴリズムの概要,,, 準素分解パッケージ noro_pd.rr
+
+@section 準素分解
+
+@menu
+* noro_pd.syci_dec::
+* noro_pd.prime_dec::
+@end menu
+
+@node noro_pd.syci_dec,,, 準素分解
+
+@subsection @code{noro_pd.syci_dec}
+@findex noro_pd.syci_dec
+
+@table @t
+@item noro_pd.syci_dec(@var{I},@var{vars}[|@var{options}])
+イデアル @var{I} の最短準素分解を計算する.
+@end table
+
+@table @var
+@item return
+@var{[QL(1),QL(2),...]} なるリスト, 各 @var{QL(i)} は
+@var{[[Q(i1),P(i1)],[Q(i2),P(i2)],...]} なるリスト.
+
+@item I
+多項式リスト
+@item vars
+変数リスト
+@item options
+下の説明参照.
+@end table
+
+@itemize @bullet
+@item
+イデアル @var{I} の最短準素分解を計算する.
+@samp{noro_pd.rr} で実装されている準素分解アルゴリズムは SYCI アルゴリズム
+と呼ばれるもので,  @samp{primdec} に実装されている Shimoyama-Yokoyama 
+(SY アルゴリズム) を改良したものである. 
+
+イデアル @var{I} の付属素イデアル全体 @var{Ass(I)} を次のように分ける:
+@var{A(1)} を極小付属素イデアル全体とし, @var{Ass(I)}から
+@var{A(1)},...,@var{A(i-1)} を除いたものの中で極小なもの全体を @var{A(i)}
+とする. SYCI アルゴリズムは, @var{A(i)} を @var{i} の小さい順に
+計算しつつ, 対応する準素成分
+を計算するアルゴリズムである. 準素成分の計算は省略することができる. この
+場合, @var{I} の付属素イデアルのみを計算するアルゴリズムとなる. @var{A(i)}
+に属する付属素イデアルおよび対応する準素成分はレベル @var{i} であるという.
+
+出力において, @var{Q(ij)} は @var{I} の @var{Pij}-準素成分であり, @var{Q(ij)} 全体が
+@var{I} の最短準素分解を与える. 各 @var{QL(i)} はレベル @var{i} の成分全体
+を与える. 特に @var{QL(1)} は孤立成分および極小付属素イデアル全体を与える.
+@item
+オプション @var{ass=1} が指定された場合, @var{QL(1)} に現われる成分 @var{Q(1j)} のみ準素成分
+(孤立準素成分)となるが, @var{QL(2)} 以降に現われる @var{Q(ij)} は @var{I} のある中間
+分解成分となる. しかし, @var{P(ij)} は @var{I} の付属素イデアルであり,
+@var{P(ij)} 全体が @var{I} の付属素イデアル全体の集合を与えることは保証される.
+@item
+デフォルトでは有理数体上での分解を計算するが, オプション @var{mod=p} (@var{p} は30ビット以下の素数) を
+指定すると @var{p}元体上での分解を計算する. ただし, @var{p} が小さいときには正しく計算
+できないか, 無限ループに陥る. (@var{p} が 5桁以上なら問題ないであろう.)
+@item
+@var{iso=n} (@var{n}は 0,1,2,3のいずれか) を指定すると, saturation 計算の方法が変わる.
+デフォルトでは @var{n=1} である.
+@item
+オプション @var{time=1} を指定すると, 計算時間の内訳を表示する.
+@item
+オプション @var{para=proclist} を指定すると, 部分的な分散計算を行う.
+@var{proclist}は @code{noro_pd.init_pprocs} により生成されたプロセスのリストである.
+@end itemize
+
+@example
+[1539] load("noro_pd.rr");
+[1707] B=[x00*x11-x01*x10,x01*x12-x02*x11,x02*x13-x03*x12,x03*x14-x04*x13,
+-x11*x20+x21*x10,-x21*x12+x22*x11,-x22*x13+x23*x12,-x23*x14+x24*x13]$
+[1708] V=[x00,x01,x02,x03,x04,x10,x11,x12,x13,x14,x20,x21,x22,x23,x24]$
+[1709] QD=noro_pd.syci_dec(B,V|time=1)$
+[total,1.08407,ass,0.620039,pd,0.33202,iso,0.260016,int,0.024003,
+ext,0.464029]
+[elapsed,1.09038,ass,0.624087,pd,0.338769,iso,0.244057,int,0.0343642,
+ext,0.466293]
+[1710] map(length,QD);
+[10,5,3,1]
+[1711] QD[2][0];
+[[x03*x01*x14*x20-x21*x04*x03*x10,(x23*x21*x02-x22*x21*x03)*x10,
+x23*x21*x03*x10,x01*x12*x20-x21*x02*x10,-x01*x13*x20+x21*x03*x10,
+-x21*x03*x14+x23*x04*x11,-x22*x03*x14+x23*x04*x12,x01^2,x03^2,
+-x00*x11+x01*x10,x10^2,x01*x11,-x01*x12+x02*x11,x01*x13-x03*x11,
+x10*x11,x11^2,-x02*x13+x03*x12,-x11*x12,x12^2,x03*x13,-x03*x14+x04*x13,
+x11*x13,-x12*x13,x13^2,x13*x14,x14^2,-x11*x20+x21*x10,x21*x11,
+x21*x12-x22*x11,x21*x13-x23*x11,x21^2,x22*x13-x23*x12,-x23*x13,
+-x23*x14+x24*x13,x23^2],
+[x01,x03,x10,x11,x12,x13,x14,x21,x23]]
+@end example
+
+@node noro_pd.prime_dec,,, 準素分解
+
+@subsection @code{noro_pd.prime_dec}
+@findex noro_pd.prime_dec
+
+@table @t
+@item noro_pd.syci_dec(@var{I},@var{vars}[|@var{options}])
+イデアル @var{I} の根基の素イデアル分解を計算する.
+@end table
+
+@table @var
+@item return
+リスト (成分の詳細は下で説明する)
+@item I
+多項式リスト
+@item vars
+変数リスト
+@item options
+下の説明参照.
+@end table
+
+@itemize @bullet
+@item
+デフォルトでは, @var{I} の根基の素イデアル分解の成分のリスト
+@var{[P(1),P(2),...]} を返す.
+@item
+オプション @var{indep=1} が指定された場合, @var{[[P(1),Y(1)],[P(2),Y(2)],...]}
+を返す. ここで, @var{Y(i)} は @var{P(i)} に対する極大独立集合である.
+@item
+オプション @var{radical=1} が指定された場合, 素イデアル成分のリスト @var{PL}
+と, @var{I} の根基 @var{rad} のペアのリスト @var{[PL,rad]} が返される.
+@end itemize
+
+@example
+[1712] PD=noro_pd.prime_dec(B,V|radical=1)$
+[1713] PD[0][0];
+[x10,-x11,x12,x13,x14]
+[1714] PD[1];
+[-x03*x02*x01*x14*x20+x24*x02*x01*x00*x13,...,x23*x14-x24*x13]
+@end example
+
+
+@section 関連する関数
+
+@menu
+* noro_pd.ideal_intersection::
+* noro_pd.ideal_intersection_m::
+* noro_pd.ideal_list_intersection::
+* noro_pd.colon::
+* noro_pd.ideal_colon::
+* noro_pd.sat::
+* noro_pd.ideal_sat::
+* noro_pd.init_pprocs::
+@end menu
+
+@node noro_pd.ideal_intersection,,, 関連する関数
+
+@subsection @code{noro_pd.ideal_intersection}
+@findex noro_pd.ideal_intersection
+
+@table @t
+@item noro_pd.ideal_intersection(@var{I1},@var{I2},@var{vars},@var{ord}[|@var{mod=p}])
+イデアル @var{I1}, @var{I2} の共通部分を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item I
+多項式リスト
+@item vars
+変数リスト
+@item ord
+項順序
+@end table
+
+@itemize @bullet
+@item
+返されるリストは @var{I1} と @var{I2} の共通部分の @var{ord} に関するグレブナー
+基底になっている.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1707] A=[j*h*g*f*e*d*b,j*i*g*d*c*b,j*i*h*g*d*b,j*i*h*e*b,i*e*c*b,z]$
+[1708] B=[a*d-j*c,b*c,d*e-f*g*h]$
+[1709] V=[a,b,c,d,e,f,g,h,i,j,z]$
+[1710] noro_pd.ideal_intersection(A,B,V,0);
+[(j*h*g*f*e^2*d^2-j*h^2*g^2*f^2*e*d)*b,j*h*g*f*e*d*b*a,
+-j*h*g*f*e*d*c*b,j*i*h*g*f*e*b*a,(-j*i*h*e*d^2+j*i*h^2*g*f*d)*b,
+(-j*i*h*e^2*d+j*i*h^2*g*f*e)*b,-j*i*h*e*d*b*a,-j*i*h*g*d*b*a,
+j*i*g*d*c*b,i*e*c*b,-z*e*d+z*h*g*f,-z*c*b,-z*d*a+z*j*c]
+@end example
+
+@node noro_pd.ideal_intersection_m,,, 関連する関数
+
+@subsection @code{noro_pd.ideal_intersection_m}
+@findex noro_pd.ideal_intersection_m
+
+@table @t
+@item noro_pd.ideal_intersection_m(@var{I1},@var{I2},@var{vars},@var{ord}[|@var{mod=p}])
+イデアル @var{I1}, @var{I2} の共通部分を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item I
+多項式リスト
+@item vars
+変数リスト
+@item ord
+項順序
+@end table
+
+@itemize @bullet
+@var{I2} がグレブナー基底で, @var{I1} の生成系の個数が多い場合に
+@code{noro_pd.ideal_intersection} より高速な場合がある.
+@item
+返されるリストは共通部分の生成系だが
+必ずしも共通部分のグレブナー基底になってはいない.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1754] B=[z*j*i*e*d*c*b+(z*i*h*g+z*j*h)*f*e*d*c,...,z*j*e*c*b+4*z*i*h*g*e*c]
+[1755] V=[b,c,d,e,f,g,h,i,j,z]
+[1756] G=nd_gr(B,V,0,0)$
+[1757] cputime(1)$
+0sec(1.907e-06sec)
+[1758] I1=noro_pd.ideal_intersection(G,G,V,0)$
+0.316sec + gc : 0.012sec(0.3301sec)
+[1759] I2=noro_pd.ideal_intersection_m(G,G,V,0)$
+0.064sec + gc : 0.012sec(0.07933sec)
+@end example
+
+@node noro_pd.ideal_list_intersection,,, 関連する関数
+
+@subsection @code{noro_pd.ideal_list_intersection}
+@findex noro_pd.ideal_list_intersection
+
+@table @t
+@item noro_pd.ideal_intersection(@var{ilist},@var{vars},@var{ord}[|@var{mod=p}])
+イデアルのリスト @var{ilist} の成分の共通部分を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item ilist
+多項式リストのリスト
+@item vars
+変数リスト
+@end table
+
+@itemize @bullet
+@item
+返されるリストは共通部分のグレブナー基底になっている.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1709] PL=noro_pd.prime_dec(B,V|radical=1)$
+[1710] Int=noro_pd.ideal_list_intersection(PL[0],V,0)$
+[1711] gb_comp(Int,PL[1]);
+1
+@end example
+
+@subsection @code{noro_pd.colon}
+@findex noro_pd.colon
+
+@table @t
+@item noro_pd.colon(@var{I},@var{f},@var{vars}[|@var{mod=p}])
+@var{I:f} を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item I
+多項式リスト
+@item f
+多項式
+@item vars
+変数リスト
+@end table
+
+@itemize @bullet
+@item
+返されるリストは @var{I:f} のグレブナー基底とは限らない.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1640] B=[(x+y+z)^50,(x-y+z)^50]$
+[1641] V=[x,y,z]$
+[1642] noro_pd.colon(B,y^98,V);
+[-x-z,-y]
+@end example
+
+@subsection @code{noro_pd.ideal_colon}
+@findex noro_pd.colon
+
+@table @t
+@item noro_pd.colon(@var{I},@var{J},@var{vars}[|@var{mod=p}])
+@var{I:J} を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item I
+多項式リスト
+@item J
+多項式リスト
+@item vars
+変数リスト
+@end table
+
+@itemize @bullet
+@item
+返されるリストは@var{I:J}のグレブナー基底になっている.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1640] B=[(x+y+z)^50,(x-y+z)^50]$
+[1641] V=[x,y,z]$
+[1642] noro_pd.ideal_colon(B,[(x+y+z)^49,(x-y+z)^49],V);
+[-y^49*x-z*y^49,-y^50,-x^2-2*z*x+y^2-z^2]
+@end example
+
+@subsection @code{noro_pd.sat}
+@findex noro_pd.sat
+
+@table @t
+@item noro_pd.sat(@var{I},@var{f},@var{vars}[|@var{mod=p}])
+@var{I} の @var{f} による saturation を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item I
+多項式リスト
+@item f
+多項式
+@item vars
+変数リスト
+@end table
+
+@itemize @bullet
+@item
+返されるリストは@var{I:f}のグレブナー基底になっている.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1640] B=[(x+y+z)^50,(x-y+z)^50]$
+[1641] V=[x,y,z]$
+[1642] noro_pd.sat(B,y,V);
+[1]
+@end example
+
+@subsection @code{noro_pd.ideal_sat}
+@findex noro_pd.ideal_sat
+
+@table @t
+@item noro_pd.ideal_sat(@var{I},@var{J},@var{vars}[|@var{mod=p}])
+@var{I:J} を計算する.
+@end table
+
+@table @var
+@item return
+多項式リスト
+
+@item I
+多項式リスト
+@item J
+多項式リスト
+@item vars
+変数リスト
+@end table
+
+@itemize @bullet
+@item
+返されるリストは@var{I:J}のグレブナー基底になっている.
+@item
+デフォルトでは有理数体上で計算だが, オプション @var{mod=p} が指定された場合
+@var{p}元体上での計算を行う.
+@end itemize
+
+@example
+[1640] B=[(x+y+z)^50,(x-y+z)^50]$
+[1641] V=[x,y,z]$
+[1642] noro_pd.ideal_sat(B,[(x+y+z)^49,(x-y+z)^49],V);      
+[1]
+@end example
+
+@subsection @code{noro_pd.init_pprocs}
+@findex noro_pd.init_pprocs
+
+@table @t
+@item noro_pd.init_pprocs(@var{m}[|@var{nox=1}])
+分散計算用プロセスを起動する.
+@end table
+
+@table @var
+@item return
+整数リスト
+
+@item m
+正整数
+@end table
+
+@itemize @bullet
+@item
+分散計算に用いるためのプロセス (@code{ox_asir})を起動し, その番号のリストを返す.
+@item
+ホームディレクトリの @samp{.asirrc} に @code{load("noro_pd.rr")$} を
+入れておくことで, @code{ox_asir} の起動時に @samp{noro_pd.rr} が
+読み込まれ, 分散計算の準備ができる.
+@item
+オプション @var{nox=1} が指定された場合, 起動されたプロセスからの
+画面出力のためのウィンドウが開かない.
+@end itemize
+
+@example
+[1544] P=noro_pd.init_pprocs(6|nox=1)$
+[1545] B=[x00*x11-x01*x10,x01*x12-x02*x11,x02*x13-x03*x12,x03*x14-x04*x13,
+x04*x15-x05*x14,x05*x16-x06*x15,x06*x17-x07*x16,-x11*x20+x21*x10,
+-x21*x12+x22*x11,-x22*x13+x23*x12,-x23*x14+x24*x13,-x24*x15+x25*x14,
+-x25*x16+x26*x15,-x26*x17+x27*x16]$
+[1546] V=[x00,x01,x02,x03,x04,x05,x06,x07,x10,x11,x12,x13,x14,x15,x16,
+x17,x20,x21,x22,x23,x24,x25,x26,x27]$
+[1547] noro_pd.syci_dec(B,V|time=1)$
+[total,205.581,ass,108.743,pd,31.582,iso,64.9081,int,11.7367,ext,96.8381]
+[elapsed,206.177,ass,109.052,pd,31.679,iso,65.0682,int,11.7853,ext,97.1254]
+[1548] noro_pd.syci_dec(B,V|time=1,para=P)$
+[total,30.0339,ass,29.5498,pd,23.7695,iso,1.96412,int,3.32021,ext,0.48403]
+[elapsed,79.0897,ass,62.5683,pd,26.0532,iso,28.037,int,7.97536,ext,16.5214]
+@end example
+@comment --- おまじない ---
+@node Index,,, Top
+@unnumbered Index
+@printindex fn
+@printindex cp
+@iftex
+@vfill @eject
+@end iftex
+@summarycontents
+@contents
+@bye
+@comment --- おまじない終り ---
+
