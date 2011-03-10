@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.1 2011/01/04 17:35:45 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.2 2011/01/05 16:05:59 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -19,7 +19,7 @@ examples of libraries:
 module oh_p$
 
 localf _config, _load, _load_lib, _iterator, _filter;
-localf open, reopen, close, register;
+localf open, reopen, close, enable_p, register;
 localf set_env, get_env, bload_env, bsave_env;
 localf execute_function;
 localf foreach;
@@ -33,6 +33,10 @@ static ConfDir;
 def _config() {
     ConfX11  =(_getopt(x,no)==yes)?  1: 0;
     ConfDir=(_getopt(cd,yes)==no)? 0: 1;
+}
+
+def enable_p() {
+	return Workers!=0;
 }
 
 /*
@@ -176,7 +180,10 @@ def foreach(Func,Set,Args) {
     local Ret, Id, Recv, Index, Pos;
     local Restart, Debug, Filter, Iterator;
     local Busy, Next, FuncArgs, A;
-    
+
+	if(!enable_p()) {
+		return call('map',Func,cons(Set,Args));
+	}
     /* オプション処理 */
     Restart  = (getopt(restart)==yes);
     Debug    = (getopt(debug)==yes);
