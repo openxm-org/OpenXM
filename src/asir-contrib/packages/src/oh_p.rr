@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.2 2011/01/05 16:05:59 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.3 2011/03/10 10:43:59 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -6,6 +6,7 @@
 
 #define _getopt(X,Y) (type(getopt(X))<0? (Y): getopt(X))
 #define LIB_FILE  file
+#define LIB_FILECODE  file_to_code
 #define LIB_CODE  code
 #define LIB_VAR   var
 
@@ -19,6 +20,7 @@ examples of libraries:
 module oh_p$
 
 localf _config, _load, _load_lib, _iterator, _filter;
+localf _file_to_code;
 localf open, reopen, close, enable_p, register;
 localf set_env, get_env, bload_env, bsave_env;
 localf execute_function;
@@ -94,6 +96,10 @@ def close() {
 }
 
 def register(T,L) {
+	if(T==LIB_FILECODE) { /* read program as a string. */
+		L=_file_to_code(L);
+		T=LIB_CODE;
+	}
     if(T==LIB_FILE||T==LIB_CODE||T==LIB_VAR) {
         C = [T,L];
         Libs = (Libs==0)? [C]: cons(C,Libs);
@@ -101,6 +107,16 @@ def register(T,L) {
             map(_load_lib,Workers,C);
         }
     }
+}
+
+/* This function can run in only UNIX because of cpp, egrep, tr and sed */
+def _file_to_code(File) {
+	Libdir=get_rootdir();
+	if (getenv("windir")!=0) { /* MS Windows */
+		Libdir=Libdir+"\\lib";
+	}
+    Cmd=sprintf("(cpp -E -I%a | egrep -v '^#' | tr '\\012\\015\\011' ' ' | sed -e 's/  *end *[;\\$].*$//' -e 's/^  *//' | tr -d '\\012')", Libdir);
+	return util_filter(Cmd, util_read_file_as_a_string(File));
 }
 
 def _load_lib(Id,Lib) {
