@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.3 2011/03/10 10:43:59 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.4 2011/03/11 06:37:15 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -115,7 +115,7 @@ def _file_to_code(File) {
 	if (getenv("windir")!=0) { /* MS Windows */
 		Libdir=Libdir+"\\lib";
 	}
-    Cmd=sprintf("(cpp -E -I%a | egrep -v '^#' | tr '\\012\\015\\011' ' ' | sed -e 's/  *end *[;\\$].*$//' -e 's/^  *//' | tr -d '\\012')", Libdir);
+    Cmd=sprintf("(cpp -E -Doh_p_remote -I%a | egrep -v '^#' | tr '\\012\\015\\011' ' ' | sed -e 's/  *end *[;\\$].*$//' -e 's/^  *//' | tr -d '\\012')", Libdir);
 	return util_filter(Cmd, util_read_file_as_a_string(File));
 }
 
