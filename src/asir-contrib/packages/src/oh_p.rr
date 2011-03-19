@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.5 2011/03/15 10:08:59 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.6 2011/03/18 15:04:03 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -38,7 +38,7 @@ def _config() {
 }
 
 def enable_p() {
-	return Workers!=0;
+	return islist(Workers)? length(Workers): 0;
 }
 
 /*
