@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.6 2011/03/18 15:04:03 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.7 2011/03/19 05:11:04 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -21,12 +21,14 @@ module oh_p$
 
 localf _config, _load, _load_lib, _iterator, _filter;
 localf _file_to_code;
+localf _open_local, _open_remote;
 localf open, reopen, close, enable_p, register;
 localf set_env, get_env, bload_env, bsave_env;
 localf execute_function;
 localf foreach;
 
 static Workers;
+static Flags;
 static Libs;
 static ConfX11;
 static ConfDir;
@@ -43,32 +45,67 @@ def enable_p() {
 
 /*
   Example: open(|num=4)
+           open(|num=[[4,"localhost"],[4,"orange3f"],[4,"orange3g"]],x=yes)
   options: x = no  (default)
            cd= yes (default)
 */
 def open() {
-	local I,N,Launch;
+    local L,C,N,H,Dir;
     if (Workers!=0) {
         printf("Servers are already working.\n");
         return -1;
     }
-    N=getopt(num);
-    if(!isnum_int(N) || N<=0) {
+    _config(|option_list=getopt());
+    Workers=[];
+    L=getopt(num);
+    if(isnum_int(L) && L>0) {
+		L=[[L]];
+    }
+    if(!islist(L)) {
         return -1;
     }
-    _config(|option_list=getopt());
-    Workers=newvect(N);
-    Launch = ConfX11? ox_launch: ox_launch_nox;
-    for(I=0; I<N; I++) {
-        Workers[I] = (*Launch)();
+    for( ; L!=[]; L=cdr(L)) {
+        C=car(L);  /* C==[Num,Host,Dir] */
+        N=C[0];
+        H=(length(C)<2)? 0: C[1];
+        if(H==0 || H=="localhost" || H=="127.0.0.1") {
+            _open_local(N|option_list=getopt());
+        }else {
+            Dir = (length(C)<3)? get_rootdir(): C[2];
+            _open_remote(N,H,Dir|option_list=getopt());
+        }
     }
-    if (getopt(cd)!=no) {
-        map(ox_rpc,Workers,"chdir",::pwd());
-        map(ox_pop_local,Workers);
-    }
-    Workers=vtol(Workers);
     _load();
     return 0;
+}
+
+def _open_local(N) {
+    local I,Launch,W,F;
+    Launch = ConfX11? ox_launch: ox_launch_nox;
+    W=newvect(N);
+    F=newvect(N);
+    for(I=0; I<N; I++) {
+        W[I] = (*Launch)();
+    }
+    if (getopt(cd)!=no) {
+        map(ox_rpc,W,"chdir",::pwd());
+        map(ox_pop_local,W);
+    }
+    Workers=append(Workers,vtol(W));
+    Flags=append(Workers,vtol(F));
+}
+
+def _open_remote(N,Host,Dir) {
+    local I,Launch,W,F;
+    Launch = ConfX11? ox_launch: ox_launch_nox;
+    W=newvect(N);
+    F=newvect(N);
+    for(I=0; I<N; I++) {
+        W[I] = (*Launch)(Host,Dir,"ox_asir");
+        F[I] = [Host,Dir];
+    }
+    Workers=append(Workers,vtol(W));
+    Flags=append(Workers,vtol(F));
 }
 
 /* Example: reopen(3) */
