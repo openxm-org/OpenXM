@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.17 2010/07/12 07:20:03 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/ndbf.rr,v 1.18 2011/01/16 08:46:10 noro Exp $ */
 /* requires 'primdec' */
 
 #define TMP_H hhhhhhhh
@@ -31,7 +31,7 @@ localf weyl_nf_quo, weyl_nf_mod, b_subst, v_factorial, w_tdeg$
 localf replace_vars_f, replace_vars_v, replace_var$
 localf action_on_gfs, action_on_gfs_1$
 localf nd_gb_candidate$
-localf in_gb_oaku$
+localf in_gb_oaku, homogenize_oaku$
 
 /* stratification */
 
@@ -428,6 +428,31 @@ def in_gb_oaku(F)
 	dp_set_weight(0);
 	G1 = map(subst,G0,TMP_Y1,1);
 	return [G1,append(V,DV)];
+}
+
+/* homogenization w.r.t. (-W,W)-weight */
+/* VDV = [x1,...,xn,dx1,...,dxn] */
+/* homogenize F w.r.t. (W,-W,1) for (x,dx,y) */
+
+def homogenize_oaku(F,VDV,W,Y)
+{
+	N = length(VDV);
+	if ( N%2 ) error("invalid variable list");
+	N2 = N/2;
+	if ( length(W) != N2 ) error("inconsistent weight vector");
+	W0 = dp_set_weight();
+	Wt = append(W,append(vtol(-ltov(W)),[1]));
+	dp_set_weight(Wt);
+	H = homogenize(F,VDV,Y);
+	dp_set_weight(W0);
+	if ( type(Vars=getopt(vars)) != -1 && Vars ) {
+		DY = strtov("d"+rtostr(Y));
+		for ( I = 0, T = VDV, V = []; I < N2; I++, T = cdr(T) )
+			V = cons(car(T),V);
+		T = cons(Y,append(T,[DY]));
+		for ( ; V != []; V = cdr(V) ) T = cons(car(V),T);
+		return [H,T];
+	} else return H;
 }
 
 /* F = [F0,F1,...] */
