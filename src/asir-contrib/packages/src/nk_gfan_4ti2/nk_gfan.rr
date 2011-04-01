@@ -1,0 +1,168 @@
+import("oxrfc100.rr")$
+import("misc.rr")$
+
+module nk_gfan;
+
+localf input_gfan;
+localf test_input_gfan;
+localf output_gfan;
+localf test_output_gfan;
+localf ugb;
+localf test_ugb;
+localf test_ugb2;
+localf gbcone;
+localf test_gbcone;
+localf test_gbcone2;
+localf test_gbcone3;
+localf poly_to_str;
+localf test_poly_to_str;
+
+def input_gfan(L, VL, FileName)
+{
+	if (access(FileName))
+                remove_file(FileName);
+	output(FileName);
+	Ring = "Q" + rtostr(VL);
+	print(Ring);
+	L = map(poly_to_str, L, VL, 0);
+	Ideal = rtostr(L);
+	Ideal = sub_str(Ideal, 1, str_len(Ideal) - 2);
+	Ideal = "{" + Ideal + "}";
+	print(Ideal);
+	output();
+}
+
+def test_input_gfan()
+{
+	input_gfan([a^2-b^2-1, a*b*c-1, c^3-a^2], [a,b,c], "test_input");
+}
+
+def output_gfan(FileName)
+{
+	RubyProg = which("gfan_rr.rb");
+	shell("ruby " + RubyProg + " " + FileName);
+	OutputFile = FileName + ".rr";
+	Id = open_file(OutputFile);
+	Line = get_line(Id);
+	UGB = eval_str(Line);
+	Line = get_line(Id);
+	HT_UGB = eval_str(Line);
+	close_file(Id);
+	return [UGB, HT_UGB];
+}
+
+def test_output_gfan()
+{
+	return output_gfan("test_input");
+}
+
+/* gfan による universal GB の計算    */
+/* 返り値は [UniversalGB, InitialTerms] */
+def ugb(L, VL)
+{
+	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
+	input_gfan(L, VL, TmpFileName);
+	shell("gfan < " + TmpFileName + " > " +
+		TmpFileName + ".result");
+	return output_gfan(TmpFileName + ".result");
+}
+
+def test_ugb()
+{
+	return ugb([a^2-b^2-1, a*b*c-1, c^3-a^2], [a,b,c]);
+}
+
+def test_ugb2()
+{
+	return ugb([a+b+c, a*b+b*c+c*a, a*b*c-1], [a,b,c]);
+}
+
+/* gfan による universal GB の計算 + 各被約グレブナ基底に対応する weight も返す */
+def gbcone(L, VL)
+{
+	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
+	input_gfan(L, VL, TmpFileName);
+	shell("gfan < " + TmpFileName + " > " +
+		TmpFileName + ".result");
+	UGB = output_gfan(TmpFileName + ".result");
+	TmpFileName += ".result";
+	RubyProg = which("gfan_gbcone.rb");
+	shell("ruby " + RubyProg + " " + TmpFileName);
+	OutputFile = TmpFileName + "_weight.rr";
+	Id = open_file(OutputFile);
+	Line = get_line(Id);
+	Weight = eval_str(Line);
+	close_file(Id);
+	return [UGB[0], UGB[1], Weight];
+}
+
+def test_gbcone()
+{
+	gbcone([x^2+y-1, x+y^2-1], [x,y]);
+}
+
+def test_gbcone2()
+{
+	gbcone([x^2+y^2-4, x*y-1], [x,y]);
+}
+
+def test_gbcone3()
+{
+	gbcone([x+y+z, y+2*z], [x,y,z]);
+}
+
+/* gfan が (x+y)*z + x のような入力は受け付けない */
+/* e.g. (x-2*y)*z + x ---> "x*z-2*y*z+x"               */
+def poly_to_str(F, VL, Ord)
+{
+	if (F == 0)
+		return "0";
+
+	OldOrd = dp_ord();
+	dp_ord(Ord);
+	DF = dp_ptod(F, VL);
+	StrF = "";
+	while (DF != 0) {
+		T = dp_ht(DF);
+		C = dp_hc(DF);	
+		Term = dp_dtop(T, VL);
+		if (C > 0) {
+			StrF += "+"; 
+			if (C != 1) {
+				StrF += rtostr(C);	
+				if (Term != 1) {
+					StrF += "*";
+					StrF += rtostr(Term);
+				}
+			} else {
+				StrF += rtostr(Term);
+			}
+		} else {
+			StrF += "-"; 
+			if (C != -1) {
+				StrF += rtostr(-C); 	
+				if (Term != 1) {
+					StrF += "*";
+					StrF += rtostr(Term);
+				}
+			} else {
+				StrF += rtostr(Term);
+			}
+		}
+		DF = dp_rest(DF);
+	}
+	dp_ord(OldOrd);
+	return StrF;
+}
+
+def test_poly_to_str()
+{
+	print(poly_to_str((x-2*y)*z+x-2, [x,y,z], 2));
+	print(poly_to_str(-x*y+z+1, [x,y,z], 2));
+	print(poly_to_str(x*z+x*y-1, [x,y,z], 2));
+	print(poly_to_str(2*x*z+x*y+2, [x,y,z], 2));
+	print(poly_to_str(x*z+x*y-3, [x,y,z], 2));
+}
+
+endmodule$
+end$

@@ -1,0 +1,610 @@
+import("oxrfc100.rr");
+import("misc.rr");
+
+module nk_4ti2;
+
+localf input_4ti2;
+localf test_input_4ti2;
+localf output_4ti2;
+localf test_output_4ti2;
+localf groebner;
+localf test_groebner;
+localf test_groebner_;
+localf circuits;
+localf test_circuits;
+localf test_circuits_;
+localf graver;
+localf test_graver;
+localf test_graver_;
+localf markov;
+localf test_markov;
+localf test_markov_;
+localf v_to_binom;
+localf test_v_to_binom;
+localf test_v_to_binom_;
+localf v_plus;
+localf test_v_plus;
+localf v_minus;
+localf test_v_minus;
+localf binom_to_v;
+localf test_binom_to_v;
+localf enumerate_fiber;
+localf test_enumerate_fiber;
+localf cont2;
+localf test_cont2;
+localf cont3;
+localf test_cont3;
+localf l_to_num;
+localf test_l_to_num;
+localf t_mat;
+localf vtoe;
+localf id_psi;
+localf test_id_psi;
+localf cube_mat;
+localf test_cube_mat;
+localf num_binary;
+localf test_num_binary;
+localf sub_mat; 
+localf test_sub_mat;
+localf lawrence;
+localf test_lawrence;
+localf a_root_sys;
+localf test_a_root_sys;
+localf a_root_sys_;
+localf a_perfect_graph;
+
+/* Ruby 4ti2_rr.rb を使う */
+
+/* 
+ * 行列データ L を 4ti2 の形式で
+ * ファイル FileName に書き出す 
+ */
+def input_4ti2(L, FileName)
+{
+	if (type(L) == 4) {
+		/* L : list */
+		M = length(L);
+		N = length(L[0]);
+	} else if (type(L) == 6) {
+		/* L : matrix */
+		M = size(L)[0];
+		N = size(L)[1];
+	} else {
+		error("L must be list or matrix");
+	}
+
+	if (access(FileName))
+		remove_file(FileName);
+
+	output(FileName);
+	print(rtostr(M) + " " + rtostr(N));
+	for (I = 0; I < M; I++) {
+		Line = "";
+		for (J = 0; J < N; J++) {
+			Line += rtostr(L[I][J]);
+			Line += " ";
+		}
+		print(Line);
+	}
+	output();
+}
+
+def test_input_4ti2()
+{
+	L = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15]];
+	input_4ti2(L, "test");
+}
+
+/*
+ * ファイル FileName に書き出された 4ti2 の出力を
+ * 読み込み, リストデータとして返す 
+ */
+def output_4ti2(FileName)
+{
+	RubyProg = which("4ti2_rr.rb");
+	shell("ruby " + RubyProg + " " + FileName);
+	OutputFile = FileName + ".rr";
+	Id = open_file(OutputFile);
+	Line = get_line(Id);
+	close_file(Id);
+	eval_str(Line);
+	return Output;
+}
+
+def test_output_4ti2()
+{
+	return output_4ti2("test.gro");
+}
+
+/*
+ * 行列データ L に対して, 
+ * 4ti2 のコマンド groebner を実行し, 
+ * その出力を返す
+ */
+def groebner(L)
+{
+	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
+	input_4ti2(L, TmpFileName);	
+	shell("groebner " + TmpFileName);
+	return output_4ti2(TmpFileName + ".gro");
+}
+
+def test_groebner()
+{
+	L = [[1,1,1,1],[0,1,2,3]];
+	return groebner(L);
+}
+
+def test_groebner_()
+{
+	L = [[4,0,0,2,1,1],[0,4,0,1,2,1],[0,0,4,1,1,2]];
+	return groebner(L);
+}
+
+def circuits(L)
+{
+	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
+	input_4ti2(L, TmpFileName);	
+	shell("circuits " + TmpFileName);
+	return output_4ti2(TmpFileName + ".cir");
+}
+
+def test_circuits()
+{
+	L = [[1,1,1,1],[0,1,2,3]];
+	return circuits(L);
+}
+
+def test_circuits_()
+{
+	L = [[4,0,0,2,1,1],[0,4,0,1,2,1],[0,0,4,1,1,2]];
+	return circuits(L);
+}
+
+def graver(L)
+{
+	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
+	input_4ti2(L, TmpFileName);	
+	shell("graver " + TmpFileName);
+	return output_4ti2(TmpFileName + ".gra");
+}
+
+def test_graver()
+{
+	L = [[1,1,1,1],[0,1,2,3]];
+	return graver(L);
+}
+
+def test_graver_()
+{
+	L = [[4,0,0,2,1,1],[0,4,0,1,2,1],[0,0,4,1,1,2]];
+	return graver(L);
+}
+
+def markov(L)
+{
+	TmpFileName = ox_work_dir() + "/" + ox_new_file_name();
+	input_4ti2(L, TmpFileName);	
+	shell("markov " + TmpFileName);
+	return output_4ti2(TmpFileName + ".mar");
+}
+
+def test_markov()
+{
+	L = [[1,1,1,1],[0,1,2,3]];
+	return markov(L);
+}
+
+def test_markov_()
+{
+	L = [[4,0,0,2,1,1],[0,4,0,1,2,1],[0,0,4,1,1,2]];
+	return markov(L);
+}
+
+/* ベクトル V から 2 項式 x^V+ - x^V- に変換 */
+def v_to_binom(V, VL)
+{
+	Plus = 1;
+	Minus = 1;
+	N = length(V);
+	for (I = 0; I < N; I++) {
+		if (V[I] > 0) 
+			Plus *= VL[I]^V[I];
+		else if (V[I] < 0)
+			Minus *= VL[I]^(-V[I]);
+	}
+	return Plus - Minus;
+}
+
+def test_v_to_binom()
+{
+	return v_to_binom([-1,1,1,-1,0,1,-1,0], [x1,x2,x3,x4,x5,x6,x7,x8]);
+}
+
+def test_v_to_binom_()
+{
+	L = [[1,1,1,1],[0,1,2,3]];
+	Gr = graver(L);
+	print("Graver:"); print(Gr);
+	return map(v_to_binom, Gr, [x1,x2,x3,x4]);	
+}
+
+def v_plus(V)
+{
+	N = length(V);
+	VP = newvect(N);
+	for (I = 0; I < N; I++)
+		if (V[I] > 0)
+			VP[I] = V[I];
+	return vtol(VP);
+}
+
+def test_v_plus()
+{
+	return v_plus([1,0,-1,-1,0,1,1,0,-1,0]);
+}
+
+def v_minus(V)
+{
+	N = length(V);
+	VM = newvect(N);
+	for (I = 0; I < N; I++)
+		if (V[I] < 0)
+			VM[I] = -V[I];
+	return vtol(VM);
+}
+
+def test_v_minus()
+{
+	return v_minus([1,0,-1,-1,0,1,1,0,-1,0]);
+}
+
+/* Binom は 2 項式と仮定 */
+def binom_to_v(Binom, VL)
+{
+	V = newvect(length(VL));
+	VP = newvect(length(VL));
+	VM = newvect(length(VL));
+	DP = dp_ptod(Binom, VL);
+	HM = dp_hm(DP);
+	CHM = dp_hc(HM);
+	RM = dp_rest(DP);
+	CRM = dp_hc(RM);	
+	if (CHM > 0) {
+		VP = dp_etov(HM);
+		VM = -dp_etov(RM);
+	} else {
+		VP = dp_etov(RM);
+		VM = -dp_etov(HM);
+	}
+	return vtol(VP + VM);		
+}
+
+def test_binom_to_v()
+{
+	return binom_to_v(a*b^2*e-c*d*f^2, [a,b,c,d,e,f]);
+}
+
+def enumerate_fiber(Start, Move)
+{
+	TmpStart = ox_work_dir() + "/" + ox_new_file_name();
+	TmpMove = ox_work_dir() + "/" + ox_new_file_name();
+	TmpFiber = ox_work_dir() + "/" + ox_new_file_name();
+	input_4ti2([Start], TmpStart);
+	input_4ti2(Move, TmpMove);
+	shell("./enumerate_fiber " + TmpStart + " " + TmpMove + " > " + TmpFiber);
+	return output_4ti2(TmpFiber);
+} 
+
+def test_enumerate_fiber()
+{
+	/* count : 9316 */ 
+	/* 3x3 cont */
+	Move = 
+	[[-1,0,1,0,0,0,1,0,-1],[-1,0,1,1,0,-1,0,0,0],[-1,1,0,0,0,0,1,-1,0],
+	[-1,1,0,1,-1,0,0,0,0],[0,-1,1,0,0,0,0,1,-1],[0,-1,1,0,1,-1,0,0,0],
+	[0,0,0,-1,0,1,1,0,-1],[0,0,0,-1,1,0,1,-1,0],[0,0,0,0,-1,1,0,1,-1]];
+	Start = [4,9,2,3,5,7,8,1,6];
+
+	return enumerate_fiber(Start, Move);
+}
+
+/* M x N contingency table */
+/* {x_.j}, {x_i.} fixed    */
+def cont2(M, N)
+{
+	A = newmat(M + N, M * N);
+	T = 0; /* 関係式の count */
+	/* 列和についての式 {x_i.} */
+	for (I = 0; I < M; I++) {
+		for (J = 0; J < N; J++) {
+			L = [I, J];
+			U = l_to_num(L, [M, N]);	
+			A[T][U] = 1;
+		}		
+		T++;
+	}
+	/* 行和についての式 {x_.j} */
+	for (J = 0; J < N; J++) {
+		for (I = 0; I < M; I++) {
+			L = [I, J];
+			U = l_to_num(L, [M, N]);	
+			A[T][U] = 1;
+		}		
+		T++;
+	}
+	return A;
+}
+
+def test_cont2()
+{
+	print("cont2(2,3)");
+	print(cont2(2,3));
+	print("cont2(3,3)");
+	print(cont2(3,3));
+	print("cont2(4,4)");
+	print(cont2(4,4));
+}
+
+/* L x M x N contingency table        */
+/* {x_.jk}, {x_i.k}, {x_ij.} fixed    */
+def cont3(L, M, N)
+{
+	A = newmat(L*M + M*N + N*L, L*M*N);
+	T = 0; /* 関係式の count */
+	/* {x_ij.} */
+	for (I = 0; I < L; I++) {
+		for (J = 0; J < M; J++) {
+			for (K = 0; K < N; K++) {
+				Index = [I, J, K];
+				U = l_to_num(Index, [L, M, N]);	
+				A[T][U] = 1;
+			}
+			T++;
+		}		
+	}
+	/* {x_i.k} */
+	for (I = 0; I < L; I++) {
+		for (K = 0; K < N; K++) {
+			for (J = 0; J < M; J++) {
+				Index = [I, J, K];
+				U = l_to_num(Index, [L, M, N]);	
+				A[T][U] = 1;
+			}
+			T++;
+		}		
+	}
+	/* {x_.jk} */
+	for (J = 0; J < M; J++) {
+		for (K = 0; K < N; K++) {
+			for (I = 0; I < L; I++) {
+				Index = [I, J, K];
+				U = l_to_num(Index, [L, M, N]);	
+				A[T][U] = 1;
+			}
+			T++;
+		}		
+	}
+	return A;
+}
+
+def test_cont3()
+{
+	print("cont3(2,2,2)");
+	print(cont3(2,2,2));
+	print("cont3(3,3,3)");
+	print(cont3(3,3,3));
+	print("cont3(3,3,4)");
+	print(cont3(3,3,4));
+}
+
+/* e.g. L1 = [1,2],  L2 = [3,3] --> 1 * 3 + 2 */
+def l_to_num(L1, L2)
+{
+	N = length(L1);
+	S = 0;
+	for (I = N - 1; I >= 0; I--) {
+		T = 1;
+		for (J = N - 1; J >= I + 1; J--)
+			T *= L2[J];
+		S += L1[I] * T;
+	}
+	return S;
+}
+
+def test_l_to_num()
+{
+	print("2 x 3 cont");
+	for (I = 0; I < 2; I++)
+		for (J = 0; J < 3; J++)
+			print([[I, J], l_to_num([I, J], [2, 3])]);
+	print("2 x 2 x 2 cont");
+	for (I = 0; I < 2; I++)
+		for (J = 0; J < 2; J++)
+			for (K = 0; K < 2; K++)
+				print([[I, J, K], l_to_num([I, J, K], [2, 2, 2])]);
+	print("2 x 3 x 4 cont");
+	for (I = 0; I < 2; I++)
+		for (J = 0; J < 3; J++)
+			for (K = 0; K < 4; K++)
+				print([[I, J, K], l_to_num([I, J, K], [2, 3, 4])]);
+}
+
+def t_mat(A)
+{
+	M = size(A)[0];
+	N = size(A)[1];
+	B = newmat(N, M);
+	for (I = 0; I < M; I++)
+		for (J = 0; J < N; J++)
+			B[J][I] = A[I][J];
+	return B;
+}
+
+def vtoe(V, VL)
+{
+	DP = dp_vtoe(V);
+	return dp_dtop(DP, VL);
+}
+
+def id_psi(A)
+{
+	TA = t_mat(A);
+	M = size(TA)[0];
+	N = size(TA)[1];
+	VLU = var_list("u", 1, M);	
+	VLV = var_list("v", 1, N);	
+	L = [];
+	for (I = 0; I < M; I++) {
+		T = VLU[I] - vtoe(TA[I], VLV); 
+		L = cons(T, L);
+	}
+	return reverse(L);
+}
+
+def test_id_psi()
+{
+	A = cont2(2,3);
+	return id_psi(A);
+}
+
+def cube_mat(N)
+{
+	A = newmat(N + 1, 2^N);
+	for (I = 0; I < 2^N; I++)
+		A[0][I] = 1;
+	for (I = 0; I < 2^N; I++) {
+		L = reverse(num_binary(I));
+		for (J = 0; J < length(L); J++)
+			A[J + 1][I] = L[J];
+	}
+	return A;
+}
+
+def test_cube_mat()
+{
+	print(cube_mat(2));
+	print(cube_mat(3));
+	print(cube_mat(4));
+	print(cube_mat(5));
+}
+
+def num_binary(N)
+{
+	L = [];
+	do {
+		L = cons(N % 2, L);
+		N = idiv(N, 2); 	
+	} while (N != 0);
+	return L;
+}
+
+def test_num_binary()
+{
+	for (I = 0; I < 64; I++)
+		print([I, num_binary(I)]);
+}
+
+/* L : 抜き出す列番号を指定 */
+def sub_mat(A, L) 
+{
+	M = size(A)[0];
+	N = length(L);
+	B = newmat(M, N);
+	for (I = 0; I < M; I++)
+		for (J = 0; J < N; J++)
+			B[I][J] = A[I][L[J]];
+	return B;
+}
+
+def test_sub_mat()
+{
+	A = newmat(3,4,[[1,2,3,4],[5,6,7,8],[9,10,11,12]]);
+	return sub_mat(A, [0,2,3]);
+}
+
+def lawrence(A)
+{
+	if (type(A) == 6) {
+		M = size(A)[0];
+		N = size(A)[1];
+	} else if (type(A) == 4) {
+		M = length(A);
+		N = length(A[0]);
+	} else {
+		print("data type of A is wrong");
+		return 0;
+	}
+
+	B = newmat(M + N, N + N);	
+	for (I = 0; I < M; I++)
+		for (J = 0; J < N; J++)
+			B[I][J] = A[I][J];
+	for (I = 0; I < N; I++) {
+		B[M + I][I] = 1;
+		B[M + I][N + I] = 1;
+	} 
+	return B;
+}
+
+def test_lawrence()
+{
+	A = newmat(2,4, [[1,1,1,1],[0,1,2,3]]);
+	return lawrence(A);
+}
+
+def a_root_sys(N)
+{
+	A = newmat(N + 1, N*(N-1)/2);		
+	K = 0;
+	for (I = 0; I < N; I++) {
+		for (J = I + 1; J < N; J++) {
+			A[I][K] = 1;
+			A[J][K] = -1;
+			A[N][K] = 1;
+			K++;
+		}
+	}
+	return A;
+}
+
+def test_a_root_sys()
+{
+	print(a_root_sys(3));
+	print(a_root_sys(4));
+	print(a_root_sys(5));
+	print(a_root_sys(6));
+}
+
+def a_root_sys_(N)
+{
+	A = newmat(N + 1, N*(N-1)/2 + 1);		
+	K = 0;
+	for (I = 0; I < N; I++) {
+		for (J = I + 1; J < N; J++) {
+			A[I][K] = 1;
+			A[J][K] = -1;
+			A[N][K] = 1;
+			K++;
+		}
+	}
+	A[N][N*(N-1)/2] = 1;	
+	return A;
+}
+
+def a_perfect_graph(N)
+{
+	A = newmat(N, N*(N-1)/2);		
+	K = 0;
+	for (I = 0; I < N; I++) {
+		for (J = I + 1; J < N; J++) {
+			A[I][K] = 1;
+			A[J][K] = 1;
+			K++;
+		}
+	}
+	return A;
+}
+
+endmodule$
+end$
