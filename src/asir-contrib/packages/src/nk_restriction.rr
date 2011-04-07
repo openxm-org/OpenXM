@@ -95,8 +95,8 @@ def generic_bfct_and_gr(F,V,DV,W)
 	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 
-        if ( member(s,append(vars(F),vars(Param))) )
-                error("generic_bfct_and_gr : the variable 's' is reserved.");
+	if ( member(s,append(vars(F),vars(Param))) )
+		error("generic_bfct_and_gr : the variable 's' is reserved.");
 
 	N = length(V);
 	N2 = N*2;
@@ -591,35 +591,35 @@ def test_gen()
 /* from localb.rr */
 def ord_w(P, VL, W)
 {
-        if (P == 0) {
-                print("ord_w(0)");
-                return;
-        }
+	if (P == 0) {
+		print("ord_w(0)");
+		return;
+	}
 
-        N = length(VL);
-        DP = dp_ptod(P, VL);
+	N = length(VL);
+	DP = dp_ptod(P, VL);
 
-        V = dp_etov(DP);
-        DP = dp_rest(DP);       
-        for (Max = 0, I = 0; I < N; I++)
-                Max += V[I] * W[I];     
-        while (DP != 0) {
-                V = dp_etov(DP);
-                DP = dp_rest(DP);       
-                for (Weight = 0, I = 0; I < N; I++)
-                        Weight += V[I] * W[I];  
-                if (Max < Weight)
-                        Max = Weight;
-        }
-        return Max;
+	V = dp_etov(DP);
+	DP = dp_rest(DP);
+	for (Max = 0, I = 0; I < N; I++)
+		Max += V[I] * W[I];
+	while (DP != 0) {
+		V = dp_etov(DP);
+		DP = dp_rest(DP);
+		for (Weight = 0, I = 0; I < N; I++)
+			Weight += V[I] * W[I];
+		if (Max < Weight)
+			Max = Weight;
+	}
+	return Max;
 }
 
 /* from localb.rr */
 def weyl_mul(P, Q, VL)
 {
-        DP = dp_ptod(P, VL);
-        DQ = dp_ptod(Q, VL);
-        return dp_dtop(dp_weyl_mul(DP, DQ), VL);
+	DP = dp_ptod(P, VL);
+	DQ = dp_ptod(Q, VL);
+	return dp_dtop(dp_weyl_mul(DP, DQ), VL);
 }
 
 /* restriction のよい計算例はないか... */
@@ -1678,7 +1678,7 @@ tstop();
 	print(Id);
 
 #ifdef DEBUG_FANO
-	/* b　関数の計算が重たいので skip */
+	/* b-関数の計算が重たいので skip */
 tstart();
 	BF = bfunction(F);
 print("-- bfunction :", 2);
@@ -1949,8 +1949,11 @@ def integration_exp(C,E,V,DV,W)
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 	Id = [];
-	for ( I = 0; I < length(V); I++ )
-		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
+	for ( I = 0; I < length(V); I++ ) {
+		T = red(diff(C,V[I])/C);
+		NT = nm(T); DT = dn(T);
+		Id = cons(DT*DV[I]-NT-DT*diff(E,V[I]),Id);
+	}
 	G = integration_ideal(Id,V,DV,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 	return G;
 }
@@ -2005,7 +2008,7 @@ def time_round(Z,N)
  * W  : weight : W[I] > 0 ( I < m ), W[I] = 0 ( I >= m )
  * LB : list of lower bounds [a_1,...,a_m]
  * UB : list of upper bounds [b_1,...,b_m]
- *	a_i, b_i : number, strings "inf" or "-inf", parameter
+ * a_i, b_i : number, strings "inf" or "-inf", parameter
  *
  * Output
  * ideal J \subset D<x,dx> s.t.
@@ -2017,7 +2020,8 @@ def ost_integration_ideal(Id,V,DV,W,LB,UB)
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
-
+	if ( type(OL=getopt(ol)) == -1 ) OL = 0;
+	
 	if ( (VB = vars(append(LB,UB))) != [] )
 		if ( Param == 0 )
 			Param = VB;
@@ -2030,21 +2034,26 @@ def ost_integration_ideal(Id,V,DV,W,LB,UB)
 	M = length(VY);
 	WW = newvect(M);
 	TI = [];
+	DT = 1; OLL = newvect(length(VY)); /* for option ol */
 	while ( Id != [] ) {
 		T = 1;
 		MIN = 0; J = 0; /* for  #else */
 		P = car(Id);
+		if ( OL ) {
+			OLL = car(OL); OL = cdr(OL);
+			DT = car(OLL); OLL = cdr(OLL);
+		}
 		for ( I = 0; I < M; I++ ) {
 			WW[I] = W[I];
 			MWW = -WW;
 			WT = append(vtol(MWW),vtol(WW));
-			O = ord_w(P,VYDVY,WT);
+			O = ord_w(P,VYDVY,WT)-OLL[I];
 			WW[I] = 0;
 #if 0
 			if ( O > 0 ) {
-				if ( LB[I] != "-inf" )
+				if ( LB[I] != "-inf" && subst(DT,VY[J],LB[J]) )
 					T *= (VY[I]-LB[I])^O;
-				if ( UB[I] != "inf" && UB[I] != "+inf" )
+				if ( UB[I] != "inf" && UB[I] != "+inf" && subst(DT,VY[J],UB[J]) )
 					T *= (UB[I]-VY[I])^O;
 			}
 		}
@@ -2062,9 +2071,9 @@ def ost_integration_ideal(Id,V,DV,W,LB,UB)
 			}
 
 		}
-		if ( LB[J] != "-inf" )
+		if ( LB[J] != "-inf" && subst(DT,VY[J],LB[J]) )
 			T *= (VY[J]-LB[J])^MIN;
-		if ( UB[J] != "inf" && UB[J] != "+inf" )
+		if ( UB[J] != "inf" && UB[J] != "+inf" && subst(DT,VY[J],UB[J]) )
 			T *= (UB[J]-VY[J])^MIN;
 #endif		
 		TI = cons(T*P,TI);
@@ -2086,10 +2095,17 @@ def ost_integration_exp(C,E,V,DV,W,LB,UB)
 	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
-	Id = [];
-	for ( I = 0; I < length(V); I++ )
-		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
-	G = ost_integration_ideal(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH,ht=HTrace);
+	Id = []; OL = [];
+	TMP = separate_var(V,DV,W); VY = TMP[2]; DVY = TMP[3];
+	for ( I = 0; I < length(V); I++ ) {
+		T = red(diff(C,V[I])/C);
+		NT = nm(T); DT = dn(T);
+		Id = cons(DT*DV[I]-NT-DT*diff(E,V[I]),Id);
+		for ( OLL = [], J = 0; J < length(VY); J++ )
+			OLL = cons(ord_w(DT,[VY[J],DVY[J]],[-1,1]),OLL);
+		OL = cons(cons(DT,reverse(OLL)),OL);
+	}
+	G = ost_integration_ideal(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH,ht=HTrace,ol=OL);
 	return G;
 }
 
@@ -2145,8 +2161,11 @@ def ost_integration_exp2(C,E,V,DV,W,LB,UB)
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 	Id = [];
-	for ( I = 0; I < length(V); I++ )
-		Id = cons(C*DV[I]-diff(C,V[I])-C*diff(E,V[I]),Id);
+	for ( I = 0; I < length(V); I++ ) {
+		T = red(diff(C,V[I])/C);
+		NT = nm(T); DT = dn(T);
+		Id = cons(DT*DV[I]-NT-DT*diff(E,V[I]),Id);
+	}
 	G = ost_integration_ideal2(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 	return G;
 }
