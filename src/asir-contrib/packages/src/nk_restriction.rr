@@ -83,6 +83,13 @@ localf test_ost_integration_ideal;
 localf ost_integration_exp, ost_integration_exp2;
 localf ann_heaviside;
 
+/* difference */
+localf mellin_trans, inv_mellin_trans;
+localf mellin1, dsubst, theta, normal;
+localf integration_ideal_shift;
+localf test_integration_ideal_shift, test_integration_ideal_shift2;
+localf test_integration_ideal_shift3;
+
 /* parameter  */
 localf weyl_minipoly_by_elim, weyl_minipoly_by_elim2, weyl_minipoly_by_elim3;
 
@@ -1826,23 +1833,28 @@ def separate_var(VL,DVL,W)
 	DUMMY = dummy_var;
 	if ( type(Param=getopt(param)) == -1 ) Param = 0;
 	if ( type(ORD=getopt(ord)) == -1 ) ORD = 0;
+	if ( type(Weight=getopt(weight)) == -1 ) Weight = 0;
 
 	VY = []; DVY = [];
 	VZ = []; DVZ = [];
+	W1 = []; W2 = [];
 	for ( I = 0; I < length(VL); I++ ) {
 		if ( W[I] ) {
 			VZ = cons(VL[I],VZ);
 			DVZ = cons(DVL[I],DVZ);
+			W1 = cons(W[I],W1);
 		} else {
 			VY = cons(VL[I],VY);
 			DVY = cons(DVL[I],DVY);
+			W2 = cons(W[I],W2);
 		}
 	}
 	OrdM = ORD;
-	if ( VY == [] ) {
-		VY = [DUMMY];
-		DVY = [strtov("d"+rtostr(DUMMY))];
-	}
+	if ( !Weight )
+		if ( VY == [] ) {
+			VY = [DUMMY];
+			DVY = [strtov("d"+rtostr(DUMMY))];
+		}
 	if ( Param ) {
 		DParam =[];
 		for ( I = 0; I < length(Param); I++ )
@@ -1851,7 +1863,10 @@ def separate_var(VL,DVL,W)
 		DVY = append(DParam,DVY);
 		VY = append(reverse(Param),VY);
 	}
-	return append(map(reverse,[VY,DVY,VZ,DVZ]),[OrdM]);
+	R = append(map(reverse,[VY,DVY,VZ,DVZ]),[OrdM]);
+	if ( Weight )
+		return append(R,map(reverse,[W2,W1]));
+	return R;
 }
 
 
@@ -2168,6 +2183,147 @@ def ost_integration_exp2(C,E,V,DV,W,LB,UB)
 	}
 	G = ost_integration_ideal2(Id,V,DV,W,LB,UB|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 	return G;
+}
+
+/**** added functions for difference operators ****/
+
+/* Mellin transform */
+/* es <=> x, s+1 <=> -x*dx */
+/* mellin_trans((s+1)*es,[s],[es],[x],[dx]) = -dx*x^2-x */
+/* 差分作用素は常に右側にあるものとする */
+
+def mellin_trans(F,E,EV,V,DV)
+{
+	F = normal(F,E,EV|right=1);
+	for ( I = 0; I < length(E); I ++ )
+		F = mellin1(F,E[I],EV[I],V[I],DV[I]);
+	return F;
+}
+
+def mellin1(F,E,EV,V,DV)
+{
+	R = dsubst(F,E,-V*DV-1,[V,DV]);
+	RR = subst(R,EV,V);
+	return RR;
+}
+
+def dsubst(P,X,L,XL)
+{
+	R = 0;
+	LL = dp_ptod(1,XL);
+	DL = dp_ptod(L,XL);
+	for ( I = 0; I <= deg(P,X); I++ ){
+		C = coef(P,I,X);
+		SC = C*dp_dtop(LL,XL);
+		R += SC;
+		LL = dp_weyl_mul(LL,DL);
+	}
+	return R;
+}
+
+def inv_mellin_trans(F,V,DV,E,EV)
+{
+	VDV = append(V,DV);
+	DF = dp_ptod(F,VDV);
+	N = length(V);
+	R = 0;
+	while ( DF ) {
+		H = dp_etov(DF);
+		for ( C = 1, I = 0; I < N; I++ ) {
+			S = H[I] - H[I+N];
+			C *= EV[I]^S;
+			C *= theta(E[I],H[I+N]);
+		}
+		R += dp_hc(DF)*C;
+		DF = dp_rest(DF);
+	}
+	return normal(R,E,EV);
+}
+
+def theta(S,N)
+{
+	for ( R=1, I = 0; I < N; I++ )
+		R *= -S-1-I;
+	return R;
+}
+
+/* right=0: 右にある変数を差分作用素の"左"に */
+/* right=1: 左にある変数を差分作用素の"右"に */
+def normal(P,E,EV)
+{
+	if ( type(Right=getopt(right)) == -1 ) Right = 0;
+	DP = dp_ptod(P,EV);
+	N = length(EV);
+	R = 0;
+	while ( DP ) {
+		H = dp_etov(DP);
+		C = dp_hc(DP);
+		for ( I = 0; I < N; I++ )
+			if ( Right )
+				C = subst(C,E[I],E[I]-H[I]);
+			else
+				C = subst(C,E[I],E[I]+H[I]);
+		R += C*dp_vtoe(H);
+		DP = dp_rest(DP);
+	}
+	return dp_dtop(R,EV);
+}
+
+
+def integration_ideal_shift(Id,V,DV,W1,E,EV,W2)
+{
+	MV = pppppppp;
+	for ( P = DP = [], I = 0; I < length(E); I++ ) {
+		P = cons(strtov(rtostr(MV)+rtostr(I+1)),P);
+		DP = cons(strtov("d"+rtostr(MV)+rtostr(I+1)),DP);
+	}
+	P = reverse(P); DP = reverse(DP);
+	MId = map(mellin_trans,Id,E,EV,P,DP);
+	TMP1 = separate_var(V,DV,W1|weight=1);
+	TMP2 = separate_var(P,DP,W2|weight=1);
+	NV = append(append(TMP1[2],TMP2[2]),append(TMP1[0],TMP2[0]));
+	NDV = append(append(TMP1[3],TMP2[3]),append(TMP1[1],TMP2[1]));
+	NW = append(append(TMP1[6],TMP2[6]),append(TMP1[5],TMP2[5]));
+	J = integration_ideal(MId,NV,NDV,NW);
+	IMJ = map(inv_mellin_trans,J,P,DP,E,EV);
+	return IMJ;
+}
+
+
+def test_integration_ideal_shift()
+{
+	F = t*(1-t);
+	A = ann(F);
+	I = cons(es-F,A);
+	V = [t]; DV = [dt];
+	E = [s]; EV = [es];
+	W1 = [1];
+	W2 = [0];
+	return integration_ideal_shift(I,V,DV,W1,E,EV,W2);
+}
+
+
+def test_integration_ideal_shift2()
+{
+	F = t1*t2*(1-t1-t2);
+	A = ann(F);
+	I = cons(es-F,A);
+	V = [t1,t2]; DV = [dt1,dt2];
+	E = [s]; EV = [es];
+	W1 = [1,1];
+	W2 = [0];
+	return integration_ideal_shift(I,V,DV,W1,E,EV,W2);
+}
+
+
+def test_integration_ideal_shift3()
+{
+	/* A = ndbf.ann_n([t,1-t,1+2*t]); */
+	A = [2*dt*t^3+(-dt-2*s0-2*s1-2*s2)*t^2+(-dt+s0-s1+2*s2)*t+s0];
+	AN = map(ptozp,map(subst,A,s0,1/2,s1,1/2+n,s2,1/2));
+	I = cons(en-(1-t),AN);
+	J = integration_ideal_shift(I,[t],[dt],[1],[n],[en],[0]);
+	return J;
 }
 
 endmodule$
