@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.107 2011/04/27 06:48:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.108 2011/04/27 08:41:04 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -431,6 +431,40 @@ def poly_degree(I) {
   return taka_poly_degree(I | option_list=OL);
 }
 
+/*&usage begin: poly_gr_w(F,V,W)
+ It returns the Grobner basis of F for the weight vector W.
+ It is the second interface for poly_grobner_basis.
+ example: poly_gr_w([x^2+y^2-1,x*y-1],[x,y],[1,0]);
+ ref: poly_in_w, poly_grobner_bais
+end: */
+def poly_gr_w(F,V,W) { 
+  Opt = getopt();
+  return taka_poly_gr_w(F,V,W | option_list=Opt);
+}
+
+/*&usage begin: poly_r_omatrix(N)
+ It gives a weight matrix, which is used to compute
+ a Grobner basis in K(x)<dx>, |x|=|dx|=N.
+ example: poly_r_omatrix(3);
+ ref: poly_weight_to_omatrix(W,V);
+end: */
+def poly_r_omatrix(N) { 
+  Opt = getopt();
+  return taka_poly_dblock(N | option_list=Opt);
+}
+
+/*&usage begin: poly_in_w(F,V,W)
+ It returns the initial term or the initial ideal in_w(F)
+ for the weight vector W.
+ example: poly_in_w([x^2+y^2-1,x*y-1],[x,y],[1,0]);
+ ref: poly_weight_to_omatrix(W,V), poly_grobner_basis, poly_gr_w
+end: */
+def poly_in_w(F,V,W) { 
+  Opt = getopt();
+  return taka_poly_in_w(F,V,W | option_list=Opt);
+}
+
+
 def poly_solve(Eqs,V) { NOT_YET; }
 
 /*&usage begin: poly_solve_linear(Eqs,V)
@@ -459,7 +493,8 @@ def poly_sort(F) {
  It translates the weight vector {W} into a matrix, which is used to set
  the order in asir Grobner basis functions.
  {V} is a list of variables.
- example: poly_weight_to_omatrix([2,1,0],[x,y,z]);
+ example: M=poly_weight_to_omatrix([2,1,0],[x,y,z]);
+          nd_gr([x^3+z^3-1,x*y*z-1,y^2+z^2-1,[x,y,z],0,M);
 end: */
 def poly_weight_to_omatrix(W,V) { 
   Opt = getopt();

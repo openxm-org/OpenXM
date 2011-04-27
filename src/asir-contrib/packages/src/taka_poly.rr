@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.19 2010/05/22 00:58:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.20 2011/04/27 08:41:04 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -725,6 +725,37 @@ def taka_poly_weight_list2(V,W) {
   }
   return reverse(L);
 }
+
+/*
+ The block matrix to find a GB in R=K(x)<dx>, |x|=N  
+ or  R=K(x)[y], |x|=|y|=N
+*/
+def taka_poly_dblock(N) {
+  M=newmat(2+N*2,2*N);
+  for (I=N; I<2*N; I++) M[0][I]=1;
+  for (I=2*N-1; I>=N; I--) M[1+(2*N-1)-I][I]= -1;
+  for (I=0; I<N; I++) M[N+1][I]=1;
+  for (I=N-1; I>=0; I--) M[N+1+1+(N-1)-I][I] = -1;
+  return M;  
+}
+
+def taka_poly_gr_w(F,V,W) {
+    G=poly_grobner_basis(F | v=V, order=[W]);
+    return(G->Generators);
+}
+def taka_poly_in_w(F,V,W) {
+  if (type(F) == LIST) {
+    G = taka_poly_gr_w(F,V,W);
+    L=[];
+    for (; G != []; G=cdr(G)) {
+       L=cons(poly_initial_term(car(G) | v=V, weight=W)[0],L);
+    }
+    return reverse(L);
+  }
+  G=poly_initial_term(F | v=V, weight=W)[0];
+  return(G);
+}
+
 
 Taka_poly_loaded = 1$
 end$
