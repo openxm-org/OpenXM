@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.24 2011/04/27 05:59:46 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.25 2011/04/27 06:48:58 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -120,16 +120,16 @@ def taka_base_set_union(A,B) {
   N = length(A);
   for (I=0; I<N; I++) {
     if (!taka_base_memberq(A[I],Ans)) {
-      Ans = append(Ans,[A[I]]);
+      Ans = cons(A[I],Ans);
     }
   }
   N = length(B);
   for (I=0; I<N; I++) {
     if (!taka_base_memberq(B[I],Ans)) {
-      Ans = append(Ans,[B[I]]);
+      Ans = cons(B[I],Ans);
     }
   }
-  return vtol(qsort(newvect(length(Ans),Ans)));
+  return reverse(vtol(qsort(newvect(length(Ans),Ans))));
 }
 
 def taka_base_memberq(A,S) {
