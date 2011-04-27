@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.23 2010/01/28 11:58:13 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.24 2011/04/27 05:59:46 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -332,6 +332,20 @@ def taka_base_product(Obj,Ksym,S,T) {
   return(L);
 }
 
+def taka_base_str_add(Idx,Name) {
+  return(rtostr(Name)+rtostr(Idx));
+}
+def taka_base_var_list(Name,B,T) {
+  D=0;
+  if (type(getopt(d))>0) D=1;
+  Name=rtostr(Name);
+  if (D) Name = "d"+Name;
+  L=base_makelist(k,k,B,T);
+  L=map(taka_base_str_add,L,Name);
+  /* it does not work. base_makelist(quote(eval_str(Name+rtostr(k))),k,B,T);*/
+  L=map(eval_str,L);
+  return(L);
+}
 
 Taka_base_loaded = 1$
 end$

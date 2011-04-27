@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.105 2011/04/16 09:21:31 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.106 2011/04/27 05:59:46 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -245,6 +245,16 @@ def base_sum(Obj,K,B,T) {
   return taka_base_sum(Obj,K,B,T | option_list=getopt());
 }
 
+/*&usage begin: base_var_list(Name,B,T)
+ base_var_list generate a list of variables Name+Index where Index runs on [B,T].
+ example: base_var_list(x,0,10);
+ example: base_var_list(x,1,4 | d = 1);
+ Options: d=1 (add d before the name).
+end: */
+def base_var_list(Name,B,T) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_var_list(Name,B,T | option_list=getopt());
+}
 
 /* Canonical function names for numbers. cf. Mathematica/Numbers */
 /*&usage begin: number_abs(X) example: number_abs(-3); end: */
