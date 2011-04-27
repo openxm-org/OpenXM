@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.104 2011/04/16 09:11:44 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.105 2011/04/16 09:21:31 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -116,6 +116,18 @@ def base_intersection(A,B) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_intersection(A,B);
 }
+
+/*&usage begin: base_makelist(Obj,K,B,T)
+ base_makelist generate a list from Obj where K runs in [B,T].
+ example: base_makelist(k^2,k,1,10);
+ example: map(print_input_form,base_makelist(quote(x^2),x,1,10 | qt=1, step=0.5))
+ Options: qt=1 (keep quote data), step (step size)
+end: */
+def base_makelist(Obj,K,B,T) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_makelist(Obj,K,B,T | option_list=getopt());
+}
+
 /*&usage begin: base_memberq(A,S)
  It returns 1 if {A} is a member of the set {S} else returns 0.
  example: base_memberq(2,[1,2,3]);
@@ -140,6 +152,18 @@ def base_position(A,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_position(A,S);
 }
+
+/*&usage begin: base_product(Obj,K,B,T)
+ base_product returns the product of Obj where K runs in [B,T].
+ example: base_product(k^2,k,1,10);
+ example: base_product(quote(x^2),x,1,10 | qt=1, step=0.5);
+ Options: qt=1 (keep quote data), step (step size)
+end: */
+def base_product(Obj,K,B,T) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_product(Obj,K,B,T | option_list=getopt());
+}
+
 /*&usage begin: base_prune(A,S)
  It returns a list in which {A} is removed from {S}.
  example: base_prune("cat",["dog","cat","monkey"]);
@@ -207,6 +231,18 @@ end: */
 def base_subsets_of_size(K,S) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
   return taka_base_subsets_of_size(K,S);
+}
+
+
+/*&usage begin: base_sum(Obj,K,B,T)
+ base_sum returns the sum of Obj where K runs in [B,T].
+ example: base_sum(k^2,k,1,10);
+ example: base_sum(quote(x^2),x,1,10 | qt=1, step=0.5);
+ Options: qt=1 (keep quote data), step (step size)
+end: */
+def base_sum(Obj,K,B,T) {
+  OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
+  return taka_base_sum(Obj,K,B,T | option_list=getopt());
 }
 
 
