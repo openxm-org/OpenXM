@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.108 2011/04/27 08:41:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.109 2011/04/27 10:57:20 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -122,7 +122,7 @@ def base_intersection(A,B) {
  base_makelist generate a list from Obj where K runs in [B,T].
  example: base_makelist(k^2,k,1,10);
  example: map(print_input_form,base_makelist(quote(x^2),x,1,10 | qt=1, step=0.5))
- Options: qt=1 (keep quote data), step (step size)
+ Options are qt=1 (keep quote data), step (step size)
 end: */
 def base_makelist(Obj,K,B,T) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
@@ -158,7 +158,7 @@ def base_position(A,S) {
  base_product returns the product of Obj where K runs in [B,T].
  example: base_product(k^2,k,1,10);
  example: base_product(quote(x^2),x,1,10 | qt=1, step=0.5);
- Options: qt=1 (keep quote data), step (step size)
+ Options are qt=1 (keep quote data), step (step size)
 end: */
 def base_product(Obj,K,B,T) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
@@ -239,7 +239,7 @@ def base_subsets_of_size(K,S) {
  base_sum returns the sum of Obj where K runs in [B,T].
  example: base_sum(k^2,k,1,10);
  example: base_sum(quote(x^2),x,1,10 | qt=1, step=0.5);
- Options: qt=1 (keep quote data), step (step size)
+ Options are qt=1 (keep quote data), step (step size)
 end: */
 def base_sum(Obj,K,B,T) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
@@ -250,7 +250,7 @@ def base_sum(Obj,K,B,T) {
  base_var_list generate a list of variables Name+Index where Index runs on [B,T].
  example: base_var_list(x,0,10);
  example: base_var_list(x,1,4 | d = 1);
- Options: d=1 (add d before the name).
+ Options are d=1 (add d before the name).
 end: */
 def base_var_list(Name,B,T) {
   OX_LOADFILE(Loaded_taka_base,"taka_base.rr");
