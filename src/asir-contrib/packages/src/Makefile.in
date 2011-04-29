@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.7 2007/03/17 07:27:42 noro Exp $
+# $OpenXM: OpenXM/src/asir-contrib/packages/src/Makefile.in,v 1.8 2009/02/22 02:34:41 ohara Exp $
 # targets
 # all :
 #     do nothing
@@ -9,6 +9,8 @@
 RM = rm -f
 INSTALL_DATA = cp -f
 LIBDIR=@prefix@/lib/asir-contrib
+LIB_FOLDERS=todo_parametrize nk_mora nk_gfan_4ti2 \
+           fj_curve f_res y_prime
 
 ## If you add a new source to be installed, add in the list below.
 SOURCE=*.rr *.h
@@ -17,7 +19,7 @@ all :
 
 install : clean-for-install
 	${INSTALL_DATA} ${SOURCE} ${LIBDIR}
-	for d in todo_parametrize nk_mora fj_curve f_res y_prime ; do \
+	for d in ${LIB_FOLDERS} ; do \
 		mkdir -p ${LIBDIR}/$$d ; \
 		${INSTALL_DATA} $$d/*.rr ${LIBDIR}/$$d ; \
 	done

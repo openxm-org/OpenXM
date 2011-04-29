@@ -40,6 +40,8 @@ def test_input_gfan()
 def output_gfan(FileName)
 {
 	RubyProg = which("gfan_rr.rb");
+        if (type(RubyProg)==0) RubyProg = which("nk_gfan_4ti2/gfan_rr.rb");
+        if (type(RubyProg)==0) debug("gfan_rr.rb is not found.");
 	shell("ruby " + RubyProg + " " + FileName);
 	OutputFile = FileName + ".rr";
 	Id = open_file(OutputFile);

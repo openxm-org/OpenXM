@@ -102,6 +102,8 @@ def test_input_4ti2()
 def output_4ti2(FileName)
 {
 	RubyProg = which("4ti2_rr.rb");
+        if (type(RubyProg)==0) RubyProg = which("nk_gfan_4ti2/4ti2_rr.rb");
+        if (type(RubyProg)==0) debug("4ti2_rr.rb is not found.");
 	shell("ruby " + RubyProg + " " + FileName);
 	OutputFile = FileName + ".rr";
 	Id = open_file(OutputFile);
