@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.25 2011/04/27 06:48:58 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_base.rr,v 1.26 2011/04/27 08:41:04 takayama Exp $ */
 #include "tags.h"
 
 def taka_base_rule_name(I) {
@@ -295,11 +295,20 @@ def taka_base_makelist(Obj,Ksym,S,T) {
   if (type(getopt(qt))>=0) KeepQuote=1;
   if (type(getopt(step))>=0) Step=getopt(step);
   L=[];
-  for (K=S;K<=T; K += Step) {
-    O2=base_replace(Obj,[[Ksym,K]]);
-    if (KeepQuote) L=cons(O2,L);
-    else L=cons(eval_quote(O2),L);
-  } 
+  if (type(S) != LIST) {
+    for (K=S;K<=T; K += Step) {
+      O2=base_replace(Obj,[[Ksym,K]]);
+      if (KeepQuote) L=cons(O2,L);
+      else L=cons(eval_quote(O2),L);
+    }
+  }else{
+    for (;S != []; S = cdr(S)) {
+      K=car(S);
+      O2=base_replace(Obj,[[Ksym,K]]);
+      if (KeepQuote) L=cons(O2,L);
+      else L=cons(eval_quote(O2),L);
+    }
+  }
   return(reverse(L));
 }
 
@@ -310,11 +319,20 @@ def taka_base_sum(Obj,Ksym,S,T) {
   if (type(getopt(qt))>=0) KeepQuote=1;
   if (type(getopt(step))>=0) Step=getopt(step);
   L=0;
-  for (K=S;K<=T; K += Step) {
-    O2=base_replace(Obj,[[Ksym,K]]);
-    if (KeepQuote) L += O2;
-    else L += eval_quote(O2);
-  } 
+  if (type(S) != LIST) {
+    for (K=S;K<=T; K += Step) {
+      O2=base_replace(Obj,[[Ksym,K]]);
+      if (KeepQuote) L += O2;
+      else L += eval_quote(O2);
+    } 
+  }else{
+    for (;S != []; S=cdr(S)) {
+      K=car(S);
+      O2=base_replace(Obj,[[Ksym,K]]);
+      if (KeepQuote) L += O2;
+      else L += eval_quote(O2);
+    } 
+  }
   return(L);
 }
 
@@ -324,11 +342,20 @@ def taka_base_product(Obj,Ksym,S,T) {
   if (type(getopt(qt))>=0) KeepQuote=1;
   if (type(getopt(step))>=0) Step=getopt(step);
   L=1;
-  for (K=S;K<=T; K += Step) {
-    O2=base_replace(Obj,[[Ksym,K]]);
-    if (KeepQuote) L *= O2;
-    else L *= eval_quote(O2);
-  } 
+  if (type(S) != LIST) {
+    for (K=S;K<=T; K += Step) {
+      O2=base_replace(Obj,[[Ksym,K]]);
+      if (KeepQuote) L *= O2;
+      else L *= eval_quote(O2);
+    }
+  }else{
+    for (;S != []; S=cdr(S)) {
+      K=car(S);
+      O2=base_replace(Obj,[[Ksym,K]]);
+      if (KeepQuote) L *= O2;
+      else L *= eval_quote(O2);
+    }
+  }
   return(L);
 }
 

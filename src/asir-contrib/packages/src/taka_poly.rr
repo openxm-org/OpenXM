@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.20 2011/04/27 08:41:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/taka_poly.rr,v 1.21 2011/04/27 10:57:20 takayama Exp $ */
 #include "tags.h"
 
 def taka_poly_solve_poly1(F,V) {
@@ -753,6 +753,19 @@ def taka_poly_in_w(F,V,W) {
     return reverse(L);
   }
   G=poly_initial_term(F | v=V, weight=W)[0];
+  return(G);
+}
+
+def taka_poly_ord_w(F,V,W) {
+  if (type(F) == LIST) {
+    G=F;
+    L=[];
+    for (; G != []; G=cdr(G)) {
+       L=cons(poly_initial_term(car(G) | v=V, weight=W)[1],L);
+    }
+    return reverse(L);
+  }
+  G=poly_initial_term(F | v=V, weight=W)[1];
   return(G);
 }
 
