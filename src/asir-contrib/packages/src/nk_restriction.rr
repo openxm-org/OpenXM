@@ -9,6 +9,7 @@ module nk_restriction;
 
 extern NK_RESTRICTION_NOLOG;
 
+localf version;
 localf generic_bfct_and_gr;
 localf initial_ideal;
 localf initial_w, initial_part_w;
@@ -93,6 +94,12 @@ localf test_integration_ideal_shift3;
 /* parameter  */
 localf weyl_minipoly_by_elim, weyl_minipoly_by_elim2, weyl_minipoly_by_elim3;
 
+def version()
+{
+	T = "$Revision$";
+	S = str_chr(T,0," ")+1;
+	return sub_str(T,S,str_chr(T,S," ")-1);
+}
 
 /* source from lib/bfct generic_bfct */
 /* generic b-fucntion に加えて F の <_(-W,W) についての GB を返す */ 
