@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.111 2011/04/29 11:12:04 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.112 2011/04/30 07:49:52 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -21,6 +21,13 @@ if (!ctrl("quiet_mode")) {
   print(asir_contrib_document_url())$
 }else{ }$
 
+def asir_contrib_revision() {
+  S="$Revision$";
+  T=strtoascii(S);
+  for (I=0; I<10;I++) T=cdr(T);
+  T=cdr(reverse(T)); T=reverse(T);
+  return(asciitostr(T));
+}
 
 /* Include data type declaration. */
 load("datatype.rr")$
