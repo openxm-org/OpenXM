@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.28 2011/04/14 04:58:56 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.29 2011/04/30 08:30:31 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -40,7 +40,7 @@ import("yang_lib.rr") $
 
 module yang;
 
-loaclf version;
+localf version;
 localf push_ring, pop_ring, define_ring, parse_ringdef, print_ring, ring_size;
 localf op_type, op_diff, op_var, op_op, op_match, op_nomatch, op_i;
 localf op_register, op, opr; 
@@ -105,7 +105,8 @@ if (RingStack == 0) {
 }
 
 def version() {
-    return "$Revision$";
+    RevStr = "$Revision$";
+    return sub_str(RevStr, 11, str_len(RevStr)-3);
 }
 
 /* --------------------------------
