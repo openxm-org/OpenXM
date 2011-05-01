@@ -52,6 +52,8 @@ localf a_root_sys;
 localf test_a_root_sys;
 localf a_root_sys_;
 localf a_perfect_graph;
+localf toric_ideal;
+localf test_toric_ideal;
 
 /* Ruby 4ti2_rr.rb ¤ò»È¤¦ */
 
@@ -606,6 +608,20 @@ def a_perfect_graph(N)
 		}
 	}
 	return A;
+}
+
+def toric_ideal(A, VL)
+{
+	G = groebner(A);
+	G = map(v_to_binom, G, VL);
+	return G;	
+}
+
+def test_toric_ideal()
+{
+	A = cont2(3,3);
+	VL = [x1,x2,x3,x4,x5,x6,x7,x8,x9];
+	return toric_ideal(A, VL);
 }
 
 endmodule$
