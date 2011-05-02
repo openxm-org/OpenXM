@@ -1,10 +1,11 @@
-/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.5 2005/07/03 08:27:38 ohara Exp $ */
+/* $OpenXM: OpenXM/src/util/oxreplace.c,v 1.6 2009/02/15 01:31:51 takayama Exp $ */
 /* cf. fb/src/misc/nan-tfb2.c */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 int ReplaceLine=0;
+int Verbose=0;
 
 char *readAsString(FILE *fp) {
   static char *s = NULL;
@@ -12,6 +13,7 @@ char *readAsString(FILE *fp) {
   int p = 0;
   char *s2;
   int c;
+  if (fp == NULL) { s=NULL; return(NULL); }
   if (s == NULL) {
     s = (char *) malloc(size);
     if (s == NULL) {
@@ -79,6 +81,7 @@ main(int argc, char *argv[]) {
   int i;
   char *old = NULL;
   char *new = NULL;
+  FILE *fp;
   if (argc < 2) {usage(); exit(0); }
   for (i=1; i<argc; i++) {
 	if (strcmp(argv[i],"--old") == 0) {
@@ -94,11 +97,19 @@ main(int argc, char *argv[]) {
     } else if (strcmp(argv[i],"--f") == 0) {
 	  fprintf(stderr,"--f option (rule file) has not yet been implemented.\n");
 	  exit(10);
+	} else if (strcmp(argv[i],"--newfile")==0) {
+	  fp = fopen(argv[i+1],"r"); i++;
+	  if (fp == NULL) {
+		fprintf(stderr,"Error: File %s is not found\n",argv[i]); exit(10);
+	  }
+      new = readAsString(fp); fclose(fp); readAsString(NULL);
+	} else if (strcmp(argv[i],"--verbose")==0) {
+      Verbose = 1;
 	}else {
 	  if ((old != NULL) && (new != NULL)) {
 		replaceOneWord(argv[i],old,new);
 	  }else{
-		fprintf(stderr,"--old and --new option or --f option are not given.\n");
+		fprintf(stderr,"--old and --new option or --newfile or --f option are not given.\n");
 		usage();
 		exit(10);
 	  }
@@ -175,7 +186,7 @@ replaceOneWord(char *fname,char *old, char *new) {
 
 
 usage() {
-  fprintf(stderr,"oxreplace [--old oword --new nword --f rule_file_name --replaceLine] \n");
+  fprintf(stderr,"oxreplace [--old oword [--new nword | --newfile filename] --f rule_file_name --replaceLine] \n");
   fprintf(stderr,"          [file1 file2 ... ] \n");
   fprintf(stderr,"    Use --oldx or --newx to give a word in hexadecimal codes\n");
 }
