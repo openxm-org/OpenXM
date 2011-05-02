@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.112 2011/04/30 07:49:52 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.113 2011/04/30 08:11:11 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
@@ -52,6 +52,7 @@ load("taka_ahg.rr")$
 load("mt_graph.rr")$
 load("oh_number.rr")$
 import("nn_ndbf.rr")$
+import("nk_gfan_4ti2/nk_4ti2.rr")$
 
 /* should use load_exec() for demand loading. */
 def ox_loadfile(Tag,FileName) {
@@ -510,6 +511,16 @@ end: */
 def poly_sort(F) {
   Opt = getopt();
   return taka_quote_sort(F | option_list=Opt);
+}
+
+/*&usage begin: poly_toric_ideal(A,V)
+ It returns generators of the affine toric ideal defined by the matrix(list) A.
+ V is a list of variables.
+ example: poly_toric_ideal([[1,1,1,1],[0,1,2,3]],base_var_list(x,0,3));
+end: */
+def poly_toric_ideal(A,V) {
+  Opt = getopt();
+  return nk_4ti2.toric_ideal(A,V | option_list=Opt);
 }
 
 /*&usage begin: poly_weight_to_omatrix(W,V)
