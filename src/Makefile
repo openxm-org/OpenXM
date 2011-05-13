@@ -1,4 +1,4 @@
-## $OpenXM: OpenXM/src/Makefile,v 1.159 2009/02/23 02:12:24 takayama Exp $
+## $OpenXM: OpenXM/src/Makefile,v 1.160 2010/07/31 10:00:59 takayama Exp $
 
 OpenXM_HOME=..
 OpenXM_contrib2=../../OpenXM_contrib2
@@ -10,7 +10,7 @@ COPYRIGHTDIR=../Copyright
 
 all: all-util all-gc all-gmp all-asir all-gnuplot all-k097 all-kan96xx \
      all-kxx all-pari all-phc all-openmath all-oxmath all-tigers all-fep all-phcpack all-oxcdd \
-	all-oxmgraph all-mcpp
+	all-oxmgraph all-pcc
 
 all-gc: install-util 
 	(cd gc; ${MAKE} all)
@@ -92,8 +92,8 @@ all-oxcdd: install-oxtoolkit
 	-(cd ox_cdd; ${MAKE} all)
 all-oxmgraph: configure-oxmgraph
 	-(cd oxmgraph; ${MAKE} all)
-all-mcpp: configure-mcpp
-	-(cd mcpp; ${MAKE} all)
+all-pcc: configure-pcc
+	-(cd pcc; ${MAKE} all)
 
 all-document-asir-contrib: configure-document-asir-contrib
 	(cd asir-contrib/packages/doc; ${MAKE} all)
@@ -103,7 +103,7 @@ install: install-oxtags install-util install-asir install-gnuplot \
 	 install-kxx install-openmath install-oxmath install-pari \
 	 install-phc install-tigers install-asir-doc install-asir-contrib \
 	 install-misc install-fep install-phcpack install-oxcdd \
-     install-oxmgraph install-mcpp
+     install-oxmgraph install-pcc
 
 install-oxtags:
 	(cd ../doc/OpenXM-web; ${MAKE} install-exec)
@@ -205,21 +205,21 @@ install-oxcdd: all-oxcdd
 install-oxmgraph: all-oxmgraph
 	-(cd oxmgraph; ${MAKE} install)
 
-install-mcpp: all-mcpp
-	-(cd mcpp; ${MAKE} install)
+install-pcc: all-pcc
+	-(cd pcc; ${MAKE} install)
 
 clean:
 	-rm ./.configure-links-done
 	-@for i in OpenMath asir-contrib asir-doc asir2000 gc gmp gnuplot \
 	           k097 kan96xx kxx ox_math ox_toolkit oxc pari phc phcpack tigers \
-               oxmgraph mcpp \
+               oxmgraph pcc \
 	           util ${OpenXM_contrib2}/fep ; do \
 		(cd $$i; ${MAKE} clean); \
 	done
 
 distclean: clean
 	-@for i in OpenMath asir2000 gc gmp gnuplot kan96xx kxx ox_math \
-	           ox_toolkit oxc pari phc phcpack tigers oxmgraph mcpp ; do \
+	           ox_toolkit oxc pari phc phcpack tigers oxmgraph pcc ; do \
 		(cd $$i; ${MAKE} distclean); \
 	done
 	-(cd ${BINDIR} && rm -f  d0 k0 ox ox_sm1 oxlog oxweave sm1)
@@ -229,7 +229,7 @@ configure: configure-util configure-asir \
 	   configure-gnuplot \
 	   configure-k097 configure-kan96xx configure-kxx configure-oxmath \
 	   configure-pari configure-gmp configure-asir-doc configure-asir-contrib \
-       configure-oxmgraph configure-mcpp
+       configure-oxmgraph configure-pcc
 
 configure-util:
 	(cd util; ./make-configure)
@@ -278,8 +278,8 @@ configure-pari: install-util
 configure-oxmgraph: 
 	-(cd oxmgraph; ./make-configure)
 
-configure-mcpp:
-	-(cd mcpp; ${MAKE} configure)
+configure-pcc:
+	-(cd pcc; ${MAKE} configure)
 
 configure-document-asir-contrib: install-util-bin install-asir-doc
 	(cd asir-contrib/packages/doc; ./make-configure)
