@@ -1,0 +1,29 @@
+--- cc/cpp/Makefile.in.orig	2010-12-19 00:22:13.000000000 +0900
++++ cc/cpp/Makefile.in	2011-01-14 22:05:51.000000000 +0900
+@@ -12,7 +12,7 @@
+ prefix = @prefix@
+ exec_prefix = @exec_prefix@
+ bindir = @bindir@
+-libexecdir = @libexecdir@
++libexecdir = @bindir@
+ datarootdir = @datarootdir@
+ mandir = @mandir@
+ strip = @strip@
+@@ -30,7 +30,7 @@
+ 
+ OBJS=cpp.o cpy.o token.o compat.o
+ HEADERS=cpp.h
+-DEST=@BINPREFIX@cpp$(EXEEXT)
++DEST=@BINPREFIX@ox_cpp$(EXEEXT)
+ 
+ MIPDIR=$(top_srcdir)/mip
+ MDIR=$(top_srcdir)/arch/$(TARGMACH)
+@@ -89,8 +89,6 @@
+ 		strip ${DESTDIR}${libexecdir}/${DEST} ;	\
+ 		echo strip ${DESTDIR}${libexecdir}/${DEST} ;	\
+ 	fi
+-	test -z "${DESTDIR}$(mandir)/man1" || mkdir -p "${DESTDIR}$(mandir)/man1"       
+-	${INSTALL} $(srcdir)/cpp.1 ${DESTDIR}${mandir}/man1/$(DEST).1
+ 
+ clean:
+ 	/bin/rm -f $(OBJS) $(DEST) lex.yy.c y.tab.[ch] tests/run*
