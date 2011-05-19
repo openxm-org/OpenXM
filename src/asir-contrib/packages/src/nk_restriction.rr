@@ -156,7 +156,7 @@ def generic_bfct_and_gr(F,V,DV,W)
 	/* compute a groebner basis of FH w.r.t. MWH */
 	dp_gr_flags(["Top",1,"NoRA",1]);
 	if ( !NK_RESTRICTION_NOLOG ) T0 = time(); /*tstart();*/
-	if ( Param && Param != [] && version() < 20100206 ) {
+	if ( Param && Param != [] && ::version() < 20100206 ) {
 		/* これ以前の nd_weyl_gr は係数体が有理関数体では動かない */
 		if ( !NK_RESTRICTION_NOLOG ) print("-- dp_weyl_gr_main :", 2);
 		GH = dp_weyl_gr_main(FH,VDVH,0,1,11);
@@ -358,7 +358,7 @@ def weyl_minipoly_by_elim2(GIN,V,DV,Param,T)
 		for ( I = 0; I < NV; I++ ) {
 			IND = 2*NV+1-I-K*(NV+1);
 			M[0][IND] = 1;
-			if ( Param != [] && version() < 20100206 )
+			if ( Param != [] && ::version() < 20100206 )
 				GB = dp_weyl_gr_main(G,VV,0,0,M);
 			else
 				GB = nd_weyl_gr(G,VV,0,M);
@@ -687,7 +687,7 @@ def test_restriction3()
  *	     ht
  *	 0 = 00(2) 以下 : homo なし, trace なし
  *	 1 = 01(2)      : homo なし, trace あり
- *	 2 = 10(2)      : homo あり, trace なし default (version() >= 20100415)
+ *	 2 = 10(2)      : homo あり, trace なし default (::version() >= 20100415)
  *	 3 = 11(2) 以上 : homo あり, trace あり
  */
 def restriction_ideal(Id, VL, DVL, W)
@@ -1053,7 +1053,7 @@ def test_integration5()
  *	     ht
  *	 0 = 00(2) 以下 : homo なし, trace なし
  *	 1 = 01(2)      : homo なし, trace あり
- *	 2 = 10(2)      : homo あり, trace なし default (version() >= 20100415)
+ *	 2 = 10(2)      : homo あり, trace なし default (::version() >= 20100415)
  *	 3 = 11(2) 以上 : homo あり, trace あり
  */
 def integration_ideal(Id, VL, DVL, W)
