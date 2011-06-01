@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.7 2011/03/19 05:11:04 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.8 2011/03/19 16:27:46 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -148,7 +148,9 @@ def register(T,L) {
 
 /* This function can run in only UNIX because of cpp, egrep, tr and sed */
 def _file_to_code(File) {
-	File=which(File);
+	if(!access(File)) {
+		File=which(File);
+	}
 	Libdir=get_rootdir();
 	if (getenv("windir")!=0) { /* MS Windows */
 		Libdir=Libdir+"\\lib";
