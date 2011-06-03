@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.3 2011/01/19 04:52:03 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.4 2011/02/18 02:59:04 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat$
@@ -1569,6 +1569,7 @@ def find_npos(GD,V,PV,Mod)
 {
 	N = length(V); PN = length(PV);
 	G = GD[0]; D = GD[1]; LD = D[N];
+	DH = map(dp_dtop,map(dp_ht,map(dp_ptod,D,V)),V);
 	Ord0 = dp_ord(); dp_ord(0);
 	HC = map(dp_hc,map(dp_ptod,G,V));
 	dp_ord(Ord0);
@@ -1582,8 +1583,10 @@ def find_npos(GD,V,PV,Mod)
 	NV = ttttt;
 	for ( B = 2; ; B++ ) {
 		for ( J = N-2; J >= 0; J-- ) {
-			for ( U = 0, K = J; K < N; K++ )
+			for ( U = 0, K = J; K < N; K++ ) {
+				if ( DH[K] == V[K] ) continue;
 				U += rsgn()*((random()%B+1))*V[K];
+			}
 			M = minipolym(G,V,0,U,NV,Mod);
 			if ( deg(M,NV) == LD ) return U;
 		}
