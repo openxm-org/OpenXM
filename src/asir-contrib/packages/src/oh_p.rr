@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.8 2011/03/19 16:27:46 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.9 2011/06/01 05:25:41 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -20,7 +20,7 @@ examples of libraries:
 module oh_p$
 
 localf _config, _load, _load_lib, _iterator, _filter;
-localf _file_to_code;
+localf _file_to_code, _wrap_code;
 localf _open_local, _open_remote;
 localf open, reopen, close, enable_p, register;
 localf set_env, get_env, bload_env, bsave_env;
@@ -116,7 +116,7 @@ def reopen(Id) {
     Id2 = call(Launch,[]|fd=Id);
     if (Id2 < 0) {
         perror(sprintf("Id=%a is already used.",Id));
-        return;
+        return -1;
     }
     if (getopt(cd)!=no) {
         ox_rpc(Id,"chdir",::pwd());
@@ -133,17 +133,24 @@ def close() {
 }
 
 def register(T,L) {
-	if(T==LIB_FILECODE) { /* read program as a string. */
-		L=_file_to_code(L);
-		T=LIB_CODE;
-	}
-    if(T==LIB_FILE||T==LIB_CODE||T==LIB_VAR) {
+    if(T==LIB_FILECODE) { /* read program as a string. */
+        C=[LIB_CODE,_wrap_code(_file_to_code(L))];
+    }else if(T==LIB_CODE) {
+        C = [T,_wrap_code(L)];
+    }else if (T==LIB_FILE||T==LIB_VAR) {
         C = [T,L];
-        Libs = (Libs==0)? [C]: cons(C,Libs);
-        if(Workers!=0) {
-            map(_load_lib,Workers,C);
-        }
+    }else {
+        return -1;
     }
+    Libs = (Libs==0)? [C]: cons(C,Libs);
+    if(Workers!=0) {
+        map(_load_lib,Workers,C);
+    }
+    return 0;
+}
+
+def _wrap_code(L) {
+    return sprintf("def oh_p_wrap(){%a;}",L);
 }
 
 /* This function can run in only UNIX because of cpp, egrep, tr and sed */
