@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.9 2011/06/01 05:25:41 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.10 2011/06/25 16:43:57 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -133,10 +133,12 @@ def close() {
 }
 
 def register(T,L) {
+    Nowrap=(_getopt(nowrap,no)==yes);
     if(T==LIB_FILECODE) { /* read program as a string. */
-        C=[LIB_CODE,_wrap_code(_file_to_code(L))];
+        L=_file_to_code(L);
+        C=[LIB_CODE,Nowrap? L: _wrap_code(L)];
     }else if(T==LIB_CODE) {
-        C = [T,_wrap_code(L)];
+        C = [T,Nowrap? L: _wrap_code(L)];
     }else if (T==LIB_FILE||T==LIB_VAR) {
         C = [T,L];
     }else {
