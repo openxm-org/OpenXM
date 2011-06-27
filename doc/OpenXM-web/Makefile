@@ -1,4 +1,4 @@
-# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.49 2005/06/17 02:46:34 takayama Exp $
+# $OpenXM: OpenXM/doc/OpenXM-web/Makefile,v 1.50 2005/11/18 12:20:58 takayama Exp $
 #
 OpenXM_HOME=../..
 OpenXM_include=${OpenXM_HOME}/include
@@ -67,6 +67,8 @@ all-current: configure-dir
 	cp index-doc-asir-contrib2-ja.html ${CURRENT_DOC}/asir-contrib
 	cp index-doc-asir-contrib2-en.html ${CURRENT_DOC}/asir-contrib
 	cp index-license.html ${CURRENT_DOC}/index-license.html
+	cp video.html ${CURRENT}/video.html
+	cp video-ja.html ${CURRENT}/video-ja.html
 	@echo "***************************************************"
 	@echo "*  Have you done (cd OpenXM/src ; make install)   *"
 	@echo "*                (cd OpenXM/src ; make install-document) "
