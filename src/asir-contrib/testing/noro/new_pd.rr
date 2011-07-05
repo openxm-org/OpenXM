@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.4 2011/02/18 02:59:04 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.5 2011/06/03 04:51:15 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat$
@@ -1228,7 +1228,7 @@ def complete_qdecomp(GD,V,Mod)
 	NV = ttttt;
 	M = gen_minipoly(cons(NV-U,GQ),cons(NV,V),PV,0,NV,Mod);
 	M = ppart(M,NV,Mod);
-	MF = Mod ? modfctr(M) : fctr(M);		
+	MF = Mod ? modfctr(M,Mod) : fctr(M);		
 	R = [];
 	for ( T = cdr(MF); T != []; T = cdr(T) ) {
 		S = car(T);
@@ -1325,7 +1325,7 @@ def complete_decomp(GD,V,Mod)
 	NV = ttttt;
 	M = gen_minipoly(cons(NV-U,G),cons(NV,V),PV,0,NV,Mod);
 	M = ppart(M,NV,Mod);
-	MF = Mod ? modfctr(M) : fctr(M);		
+	MF = Mod ? modfctr(M,Mod) : fctr(M);		
 	if ( length(MF) == 2 ) return [G];
 	R = [];
 	for ( T = cdr(MF); T != []; T = cdr(T) ) {
@@ -1587,7 +1587,11 @@ def find_npos(GD,V,PV,Mod)
 				if ( DH[K] == V[K] ) continue;
 				U += rsgn()*((random()%B+1))*V[K];
 			}
+#if 0
 			M = minipolym(G,V,0,U,NV,Mod);
+#else
+			M = gen_minipoly(cons(NV-U,G),cons(NV,V),PV,0,NV,Mod);
+#endif
 			if ( deg(M,NV) == LD ) return U;
 		}
 	}
@@ -1595,12 +1599,14 @@ def find_npos(GD,V,PV,Mod)
 
 def gen_minipoly(G,V,PV,Ord,VI,Mod)
 {
+	O0 = dp_ord();
 	if ( PV == [] ) {
 		NV = sssss;
 		if ( Mod )
 			M = minipolym(G,V,Ord,VI,NV,Mod);
 		else
 			M = minipoly(G,V,Ord,VI,NV);
+		dp_ord(O0);
 		return subst(M,NV,VI);
 	}
 	W = setminus(V,[VI]);
@@ -1643,6 +1649,7 @@ def gen_minipoly(G,V,PV,Ord,VI,Mod)
 		G = nd_gr_trace(G,PV1,1,GBCheck,[[0,1],[0,length(PV)]]|nora=1);
 	for ( M = car(G), T = cdr(G); T != []; T = cdr(T) )
 		if ( deg(car(T),VI) < deg(M,VI) ) M = car(T);
+	dp_ord(O0);
 	return M;
 }
 
