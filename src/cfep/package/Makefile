@@ -46,7 +46,7 @@ dist-cfep: gentar install
 	-cp install.txt work
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
 		  tar cf - OpenXM/lib/libgc* OpenXM/lib/libgmp* OpenXM/rc \
-		    OpenXM/bin/ox OpenXM/bin/ox_asir OpenXM/bin/asir \
+		    OpenXM/bin \
 			OpenXM/lib/cfep OpenXM/lib/sm1/bin \
 			OpenXM/doc/cfep )  | tar xvf -)
 	(cd work ; (cd ${OpenXM_HOME}/.. ; \
