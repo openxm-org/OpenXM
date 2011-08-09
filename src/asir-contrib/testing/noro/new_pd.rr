@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.5 2011/06/03 04:51:15 noro Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/testing/noro/new_pd.rr,v 1.6 2011/07/05 07:46:09 noro Exp $ */
 import("gr")$
 module noro_pd$
 static GBCheck,F4,EProcs,Procs,SatHomo,GBRat$
@@ -8,6 +8,7 @@ localf get_lc,tomonic,aa,ideal_intersection_m,redbase$
 localf para_exec,nd_gr_rat,competitive_exec,call_func$
 localf call_ideal_list_intersection$
 localf call_colon,call_prime_dec$
+localf prime_dec2, prime_dec_main2$
 localf first_second$
 localf third$
 localf locsat,iso_comp_para,extract_qj,colon_prime_dec,extract_comp$
@@ -35,12 +36,12 @@ localf complete_qdecomp, partial_qdecomp, partial_qdecomp0, complete_decomp$
 localf partial_decomp, partial_decomp0, zprimacomp, zprimecomp$
 localf fast_gb, incremental_gb, elim_gb, ldim, make_mod_subst$
 localf rsgn, find_npos, gen_minipoly, indepset$
-localf maxindep, contraction, ideal_list_intersection, ideal_intersection$
+localf maxindep, maxindep2, contraction, ideal_list_intersection, ideal_intersection$
 localf radical_membership, modular_radical_membership$
 localf radical_membership_rep, ideal_product, saturation$
 localf sat, satind, sat_ind, colon, isat$
 localf ideal_colon, ideal_sat, ideal_inclusion, qd_simp_comp, qd_remove_redundant_comp$
-localf pd_simp_comp$
+localf pd_simp_comp, remove_identical_comp$
 localf pd_remove_redundant_comp, ppart, sq, gen_fctr, gen_nf, gen_gb_comp$
 localf gen_mptop, lcfactor, compute_deg0, compute_deg, member$
 localf elimination, setintersection, setminus, sep_list$
@@ -1098,7 +1099,7 @@ def prime_dec(B,V)
 {
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
 	if ( type(Indep=getopt(indep)) == -1 ) Indep = 0;
-	if ( type(NoLexDec=getopt(lexdec)) == -1 ) LexDec = 0;
+	if ( type(LexDec=getopt(lexdec)) == -1 ) LexDec = 0;
 	if ( type(Rad=getopt(radical)) == -1 ) Rad = 0;
 	B = map(sq,B,Mod);
 	if ( LexDec )
@@ -1117,7 +1118,36 @@ def prime_dec(B,V)
 		if ( LexDec ) R = pd_simp_comp(R,V|first=1,mod=Mod);
 	} else {
 		G = ideal_list_intersection(R,V,0|mod=Mod);
-		if ( LexDec ) R = pd_simp_comp(R,V|first=1,mod=Mod);
+		if ( LexDec ) R = pd_simp_comp(R,V|mod=Mod);
+	}
+	return Rad ? [R,G] : R;
+}
+
+def prime_dec2(B,V)
+{
+	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+	if ( type(Indep=getopt(indep)) == -1 ) Indep = 0;
+	if ( type(LexDec=getopt(lexdec)) == -1 ) LexDec = 0;
+	if ( type(Rad=getopt(radical)) == -1 ) Rad = 0;
+	if ( type(Para=getopt(para)) == -1 || type(Para) != 4 ) Para = [];
+	B = map(sq,B,Mod);
+	if ( LexDec )
+		PD = lex_predec1(B,V|mod=Mod);
+	else
+		PD = [B];
+	if ( length(PD) > 1 ) {
+		G = ideal_list_intersection(PD,V,0|mod=Mod);
+		PD = pd_remove_redundant_comp(G,PD,V,0|mod=Mod);
+	}
+	R = [];
+	for ( T = PD; T != []; T = cdr(T) )
+		R = append(prime_dec_main2(car(T),V|indep=Indep,mod=Mod,para=Para),R);
+	if ( Indep ) {
+		G = ideal_list_intersection(map(first,R),V,0|mod=Mod);
+		R = pd_simp_comp(R,V|first=1,mod=Mod);
+	} else {
+		G = ideal_list_intersection(R,V,0|mod=Mod);
+		R = pd_simp_comp(R,V|mod=Mod);
 	}
 	return Rad ? [R,G] : R;
 }
@@ -1136,34 +1166,55 @@ def prime_dec_main(B,V)
 		/* rad(G) subset IntP */		
 		/* check if IntP subset rad(G) */
 		/* print([length(PD),length(IntP)],2); */
-		for ( T = IntP; T != []; T = cdr(T) ) {
-			if ( (GNV = radical_membership(car(T),G,V|mod=Mod,isgb=1,dg=[DG,Ind])) ) {
+		for ( T = IntP; T != []; T = cdr(T) )
+			if ( (G0 = radical_membership(car(T),G,V|mod=Mod,isgb=1,dg=[DG,Ind],sat=1)) ) {
 				F = car(T);
 				break;
 			}
-		}
 		if ( T == [] ) return PD;
-
-		/* GNV = [GB(<NV*F-1,G>),NV] */
-		G1 = fast_gb(GNV[0],cons(GNV[1],V),Mod,[[0,1],[0,length(V)]]);
-		G0 = elimination(G1,V);
 		PD0 = zprimecomp(G0,V,Indep|mod=Mod);
-		if ( Indep ) {
-			Int = ideal_list_intersection(PD0[0],V,0|mod=Mod);
-			IndepSet = PD0[1];	
-			for ( PD1 = [], T = PD0[0]; T != []; T = cdr(T) )
-				PD1 = cons([car(T),IndepSet],PD1);
-			PD = append(PD,reverse(PD1));
-		} else {
-			Int = ideal_list_intersection(PD0,V,0|mod=Mod);
-			PD = append(PD,PD0);
-		}
+		Int = ideal_list_intersection(Indep?map(first,PD0):PD0,V,0|mod=Mod);
+		PD = append(PD,PD0);
 #if 0
 		IntP = ideal_intersection_m(IntP,Int,V,0|mod=Mod);
 #else
-		IntP = ideal_intersection(IntP,Int,V,0
-			|mod=Mod,gbblock=[[0,length(IntP)]]);
+		IntP = ideal_intersection(IntP,Int,V,0|mod=Mod,gbblock=[[0,length(IntP)]]);
 #endif
+	}
+}
+
+def prime_dec_main2(B,V)
+{
+	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+	if ( type(Indep=getopt(indep)) == -1 ) Indep = 0;
+	if ( type(Para=getopt(para)) == -1 || type(Para) != 4 ) Para = [];
+	NPara = length(Para);
+
+	G = fast_gb(B,V,Mod,0);
+	IntP = [1];
+	PD = [];
+	DG = ltov(map(dp_ptod,G,V)); 
+	for ( Ind = [], I = length(G)-1; I >= 0; I-- ) Ind = cons(I,Ind);
+	if ( Mod ) DG = map(dp_mod,DG,Mod,[]);
+	while ( 1 ) {
+		/* rad(G) subset IntP */		
+		/* check if IntP subset rad(G) */
+		/* print([length(PD),length(IntP)],2); */
+		Sat = [];
+		IntPM = mingen(IntP,V);
+		for ( T = IntPM; T != [] && length(Sat) < 16; T = cdr(T) )
+			if ( G0 = radical_membership(car(T),G,V|mod=Mod,isgb=1,dg=[DG,Ind],sat=1) )
+				Sat = cons(G0,Sat);
+		if ( Sat == [] ) return PD;
+		print(length(Sat),2); print("->",2);
+		Sat = remove_identical_comp(Sat|mod=Mod);
+		print(length(Sat));
+		for ( T = Sat; T != []; T = cdr(T) ) {
+			PD0 = zprimecomp(car(T),V,Indep|mod=Mod);
+			Int = ideal_list_intersection(Indep?map(first,PD0):PD0,V,0|mod=Mod);
+			PD = append(PD,PD0);
+			IntP = ideal_intersection(IntP,Int,V,0|mod=Mod,gbblock=[[0,length(IntP)]]);
+		}
 	}
 }
 
@@ -1441,10 +1492,9 @@ def zprimecomp(G,V,Indep) {
 	for ( T = PD; T != []; T = cdr(T) ) {
 		U = contraction(car(T),V0|mod=Mod);
 		U = nd_gr(U,V,Mod,0);
-		R = cons(U,R);
+		R = cons(Indep?[U,W]:U,R);
 	}
-	if ( Indep ) return [R,W];
-	else return R;
+	return R;
 } 
 
 def fast_gb(B,V,Mod,Ord)
@@ -1624,7 +1674,7 @@ def gen_minipoly(G,V,PV,Ord,VI,Mod)
 			G = elimination(G,cdr(V1));
 		}
 	}
-#elif 1
+#elif 0
 	if ( Mod ) {
 		V1 = append(W,PV1);
 		G = nd_gr(G,V1,Mod,[[0,length(W)],[0,length(PV1)]]);
@@ -1694,6 +1744,34 @@ def maxindep(B,V,O)
 	dp_ord(Old);
 	return R;
 }
+
+def maxindep2(B,V,O)
+{
+	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+	G = fast_gb(B,V,Mod,O);
+	Old = dp_ord();
+	dp_ord(O);
+	H = map(dp_dtop,map(dp_ht,map(dp_ptod,G,V)),V);
+	H = map(sq,H,0);
+	H = nd_gr(H,V,0,0);
+	H = monodec0(H,V);
+	N = length(V);
+	Dep = [];
+	for ( T = H, Len = N+1; T != []; T = cdr(T) ) {
+		M = length(car(T));
+		if ( M < Len ) {
+			Dep = [car(T)];
+			Len = M;
+		} else if ( M == Len )
+			Dep = cons(car(T),Dep);
+	}
+	R = [];
+	for ( T = Dep; T != []; T = cdr(T) )
+		R = cons(setminus(V,car(T)),R);
+	dp_ord(Old);
+	return reverse(R);
+}
+
 
 /* ideal operations */
 def contraction(G,V)
@@ -1818,6 +1896,7 @@ def radical_membership(F,G,V) {
 	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
 	if ( type(IsGB=getopt(isgb)) == -1 ) IsGB = 0;
 	if ( type(L=getopt(dg)) == -1 ) L = 0;
+	if ( type(Sat=getopt(sat)) == -1 ) Sat = 0;
 	dp_ord(0);
 	if ( L ) { DG = L[0]; Ind = L[1]; }
 	else { 
@@ -1840,8 +1919,12 @@ def radical_membership(F,G,V) {
 			|gbblock=[[0,length(G)]]);
 	else
 		T = nd_gr(append(G,[NV*F-1]),cons(NV,V),Mod,0);
-	if ( type(car(T)) != 1 ) return [T,NV];
-	else return 0;
+	if ( type(car(T)) == 1 ) return 0;
+	else if ( Sat ) {
+		G1 = fast_gb(T,cons(NV,V),Mod,[[0,1],[0,length(V)]]);
+		G0 = elimination(G1,V);
+		return G0;
+	} else return [T,NV];
 }
 
 def modular_radical_membership(F,G,V) {
@@ -2219,6 +2302,22 @@ def pd_remove_redundant_comp(G,P,V,Ord)
 			Pre = ideal_intersection(Pre,First?A[I][0]:A[I],V,Ord|mod=Mod);
 	}
 	for ( T = [], I = 0; I < N; I++ ) if ( A[I] ) T = cons(A[I],T);
+	return reverse(T);
+}
+
+def remove_identical_comp(L)
+{
+	if ( type(Mod=getopt(mod)) == -1 ) Mod = 0;
+	if ( length(L) == 1 )  return L;
+
+	A = ltov(L); N = length(A);
+	for ( I = 0; I < N; I++ ) {
+		if ( !A[I] ) continue;
+		for ( J = I+1; J < N; J++ )
+			if ( A[J] && 
+				gen_gb_comp(A[I],A[J],Mod) ) A[J] = 0;
+	}
+	for ( I = 0, T = []; I < N; I++ ) if ( A[I] ) T = cons(A[I],T);
 	return reverse(T);
 }
 
