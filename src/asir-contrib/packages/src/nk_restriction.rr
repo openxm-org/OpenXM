@@ -2400,8 +2400,6 @@ def ost_sum(Id,E,EV,W)
 	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
 	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
 	
-	TMP1 = separate_var(E,EV,W);
-	
 	MV = pppppppp;
 	for ( P = DP = [], I = 0; I < length(E); I++ ) {
 		P = cons(strtov(rtostr(MV)+rtostr(I+1)),P);
@@ -2410,7 +2408,7 @@ def ost_sum(Id,E,EV,W)
 	P = reverse(P); DP = reverse(DP);
 	MId = map(mellin_trans,Id,E,EV,P,DP);
 	for ( I = 0; W[I] > 0; I++ )
-		MId = subst(MId,P[I],P[I]-1);
+		MId = subst(MId,P[I],P[I]+1);
 	J = restriction_ideal(MId,P,DP,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
 	if ( IH ) {
 		IMJ = map(inv_mellin_trans,J[0],P,DP,E,EV);
