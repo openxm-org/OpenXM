@@ -88,8 +88,11 @@ localf ann_heaviside;
 localf mellin_trans, inv_mellin_trans;
 localf mellin1, dsubst, theta, normal;
 localf integration_ideal_shift;
+localf inhomo_inv_mellin, inhomo_inv_mellin_sub;
+localf car_func;
 localf test_integration_ideal_shift, test_integration_ideal_shift2;
-localf test_integration_ideal_shift3;
+localf test_integration_ideal_shift3, test_integration_ideal_shift4;
+localf ost_sum, test_ost_sum;
 
 /* parameter  */
 localf weyl_minipoly_by_elim, weyl_minipoly_by_elim2, weyl_minipoly_by_elim3;
@@ -2228,6 +2231,7 @@ def dsubst(P,X,L,XL)
 	return R;
 }
 
+/* output: [nm,dn] dn*nm (dn は nm の左からかかる) */
 def inv_mellin_trans(F,V,DV,E,EV)
 {
 	VDV = append(V,DV);
@@ -2244,7 +2248,8 @@ def inv_mellin_trans(F,V,DV,E,EV)
 		R += dp_hc(DF)*C;
 		DF = dp_rest(DF);
 	}
-	return normal(R,E,EV);
+	R = red(R);
+	return [normal(nm(R),E,EV),dn(R)];
 }
 
 def theta(S,N)
@@ -2279,6 +2284,11 @@ def normal(P,E,EV)
 
 def integration_ideal_shift(Id,V,DV,W1,E,EV,W2)
 {
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+
 	MV = pppppppp;
 	for ( P = DP = [], I = 0; I < length(E); I++ ) {
 		P = cons(strtov(rtostr(MV)+rtostr(I+1)),P);
@@ -2291,14 +2301,47 @@ def integration_ideal_shift(Id,V,DV,W1,E,EV,W2)
 	NV = append(append(TMP1[2],TMP2[2]),append(TMP1[0],TMP2[0]));
 	NDV = append(append(TMP1[3],TMP2[3]),append(TMP1[1],TMP2[1]));
 	NW = append(append(TMP1[6],TMP2[6]),append(TMP1[5],TMP2[5]));
-	J = integration_ideal(MId,NV,NDV,NW);
-	IMJ = map(inv_mellin_trans,J,P,DP,E,EV);
-	return IMJ;
+	J = integration_ideal(MId,NV,NDV,NW|param=Param,s0=S0,inhomo=IH,ht=HTrace);
+	if ( IH ) {
+		IMJ = map(inv_mellin_trans,J[0],P,DP,E,EV);
+		return [map(car_func,IMJ),inhomo_inv_mellin(J[1],P,DP,E,EV,IMJ)];
+	} else
+		return map(car_func,map(inv_mellin_trans,J,P,DP,E,EV));
 }
 
 
+def inhomo_inv_mellin(IH,P,DP,E,EV,DN)
+{
+	if ( type(Sum=getopt(sum)) == -1 ) Sum = 0;
+
+	R = [];
+	while ( IH != [] ) {
+		H = car(IH);
+		R = cons([map(inhomo_inv_mellin_sub,H[0],P,DP,E,EV,Sum),H[1]/car(DN)[1]],R);
+		IH = cdr(IH);
+		DN = cdr(DN);
+	}
+	return reverse(R);
+}
+
+def inhomo_inv_mellin_sub(IH,P,DP,E,EV,Sum)
+{
+	F = IH[0];
+	if ( Sum )
+		F = car(inv_mellin_trans(F,P,DP,E,EV))-1;
+	return [F,inv_mellin_trans(IH[1],P,DP,E,EV)];
+}
+
+def car_func(L)
+{
+	return car(L);
+}
+
+/* グレブナー道場 例題7.4.29 */
 def test_integration_ideal_shift()
 {
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
 	F = t*(1-t);
 	A = ann(F);
 	I = cons(es-F,A);
@@ -2306,12 +2349,14 @@ def test_integration_ideal_shift()
 	E = [s]; EV = [es];
 	W1 = [1];
 	W2 = [0];
-	return integration_ideal_shift(I,V,DV,W1,E,EV,W2);
+	return integration_ideal_shift(I,V,DV,W1,E,EV,W2|inhomo=IH);
 }
 
-
+/* グレブナー道場 問題7.4.29 */
 def test_integration_ideal_shift2()
 {
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
 	F = t1*t2*(1-t1-t2);
 	A = ann(F);
 	I = cons(es-F,A);
@@ -2319,18 +2364,75 @@ def test_integration_ideal_shift2()
 	E = [s]; EV = [es];
 	W1 = [1,1];
 	W2 = [0];
-	return integration_ideal_shift(I,V,DV,W1,E,EV,W2);
+	return integration_ideal_shift(I,V,DV,W1,E,EV,W2|inhomo=IH);
 }
 
-
+/* グレブナー道場 例題7.4.30 */
 def test_integration_ideal_shift3()
 {
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+
 	/* A = ndbf.ann_n([t,1-t,1+2*t]); */
 	A = [2*dt*t^3+(-dt-2*s0-2*s1-2*s2)*t^2+(-dt+s0-s1+2*s2)*t+s0];
 	AN = map(ptozp,map(subst,A,s0,1/2,s1,1/2+n,s2,1/2));
 	I = cons(en-(1-t),AN);
-	J = integration_ideal_shift(I,[t],[dt],[1],[n],[en],[0]);
+	J = integration_ideal_shift(I,[t],[dt],[1],[n],[en],[0]|inhomo=IH);
 	return J;
+}
+
+def test_integration_ideal_shift4()
+{
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	
+	/* A = ndbf.ann_n([t,1-t,1+2*t]); */
+	A = [2*dt*t^3+(-dt-2*s0-2*s1-2*s2)*t^2+(-dt+s0-s1+2*s2)*t+s0];
+	AN = map(ptozp,map(subst,A,s0,1/2+m,s1,1/2+n,s2,1/2));
+	I = append([en-(1-t),em-(t)],AN);
+	J = integration_ideal_shift(I,[t],[dt],[1],[n,m],[en,em],[0,0]|inhomo=IH);
+	return J;
+}
+
+
+def ost_sum(Id,E,EV,W)
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	
+	TMP1 = separate_var(E,EV,W);
+	
+	MV = pppppppp;
+	for ( P = DP = [], I = 0; I < length(E); I++ ) {
+		P = cons(strtov(rtostr(MV)+rtostr(I+1)),P);
+		DP = cons(strtov("d"+rtostr(MV)+rtostr(I+1)),DP);
+	}
+	P = reverse(P); DP = reverse(DP);
+	MId = map(mellin_trans,Id,E,EV,P,DP);
+	for ( I = 0; W[I] > 0; I++ )
+		MId = subst(MId,P[I],P[I]-1);
+	J = restriction_ideal(MId,P,DP,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
+	if ( IH ) {
+		IMJ = map(inv_mellin_trans,J[0],P,DP,E,EV);
+		return [map(car_func,IMJ),inhomo_inv_mellin(J[1],P,DP,E,EV,IMJ|sum=1)];
+	} else
+		return map(car_func,map(inv_mellin_trans,J,P,DP,E,EV));
+}
+
+def test_ost_sum()
+{
+	if ( type(Param=getopt(param)) == -1 ) Param = 0; 
+	if ( type(S0=getopt(s0)) == -1 ) S0 = -1;
+	if ( type(IH=getopt(inhomo)) == -1 ) IH = 0;
+	if ( type(HTrace=getopt(ht)) == -1 ) HTrace = 2;
+	
+	IN = [(m1+1-n1)*em1-(m1+1),(m2+1-n+n1)*em2-(m2+1),(n1+1)*(m2-n+n1+1)*en1-(m1-n1)*(n-n1)];
+	I = subst(IN,n,10);
+	E = [n1,m1,m2];
+	EV = [en1,em1,em2];
+	W = [1,0,0];
+	R = ost_sum(I,E,EV,W|param=Param,s0=S0,inhomo=IH,ht=HTrace);
+	return R;
 }
 
 endmodule$
