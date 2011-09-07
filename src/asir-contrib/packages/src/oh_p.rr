@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.10 2011/06/25 16:43:57 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_p.rr,v 1.11 2011/06/26 03:06:01 ohara Exp $ */
 
 /* A library for parallel computing with OpenXM */
 
@@ -190,6 +190,9 @@ def _load() {
 }
 
 def execute_function(FuncArgs) {
+	if(!isstr(FuncArgs[0])) {
+		FuncArgs = cons(rtostr(FuncArgs[0]),cdr(FuncArgs));
+	}
     Node=length(Workers);
     for(I=0; I<Node; I++) {
         call(ox_rpc, cons(Workers[I], FuncArgs));
