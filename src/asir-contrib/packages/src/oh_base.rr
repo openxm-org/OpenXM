@@ -1,11 +1,19 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.4 2010/06/30 00:11:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.5 2011/01/04 04:52:28 ohara Exp $ */
 
 module oh_base;
 
 localf length, nth, remove_nth, range;
 localf max2, min2, sum2, mul2;
 localf iterate, max, min, sum, mul;
-localf assoc_index, assoc_index_r, assoc_keyset, assoc_valset;
+localf assoc_index, assoc_index_r, assoc_keyset, assoc_valset, assoc_match;
+localf extern_get,extern_set;
+
+static Extern; /* associated list */
+
+if (Extern==0) {
+    Extern = [];
+}else {
+}
 
 def length(L) {
     return (type(L)==4||type(L)==5)? ::length(L): 0;
@@ -163,12 +171,16 @@ def mul(L) {
 [6] oh_base.assoc_valset(A);
 [dog,cat,cow,bird,dog]
 */
-/* Find an element which is matched with Key in an associated list.
+/* Find an element which is matched with Key or Value in an associated list.
    Output its index. */
 def assoc_index(Assoc,Key) {
+    K=0; // key
+    if(getopt(key)==value) {
+        K=1; // value
+    }
     N=length(Assoc);
     for(I=0; I<N; I++) {
-        if (Key==Assoc[I][0]) {
+        if (T==Assoc[I][K]) {
             return I;
         }
     }
@@ -196,6 +208,30 @@ def assoc_keyset(Assoc) {
 /* Output the set of the values of associated list. */
 def assoc_valset(Assoc) {
     return map('car',map('cdr',Assoc));
+}
+
+def assoc_match(Assoc,Key) {
+    I=assoc_index(Assoc,Key | option_list=getopt());
+    if (I<0) {
+        error(sprintf("no match for key %a", Key));
+    }
+    K=(getopt(key)==value)? 0: 1;
+    return Assoc[I][K];
+}
+
+def extern_get(Key) {
+    return oh_base.assoc_match(Extern,Key);
+}
+
+def extern_set(Key,Val) {
+    I=oh_base.assoc_index(Extern,Key);
+    if(I>=0) {
+        Extern=ltov(Extern);
+        Extern[I] = [Key,Val];
+        Extern=vtol(Extern);
+    }else {
+        Extern=cons([Key,Val],Extern);
+    }
 }
 
 endmodule;
