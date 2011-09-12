@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.5 2011/01/04 04:52:28 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/oh_base.rr,v 1.6 2011/09/08 01:48:49 ohara Exp $ */
 
 module oh_base;
 
@@ -180,7 +180,7 @@ def assoc_index(Assoc,Key) {
     }
     N=length(Assoc);
     for(I=0; I<N; I++) {
-        if (T==Assoc[I][K]) {
+        if (Key==Assoc[I][K]) {
             return I;
         }
     }
@@ -225,6 +225,7 @@ def extern_get(Key) {
 
 def extern_set(Key,Val) {
     I=oh_base.assoc_index(Extern,Key);
+	printf("oh_base.extern_set(%a,%a)(I=%a)\n",Key,type(Val),I);
     if(I>=0) {
         Extern=ltov(Extern);
         Extern[I] = [Key,Val];
