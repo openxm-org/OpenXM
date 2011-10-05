@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.5 2005/07/03 11:08:54 ohara Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/output.c,v 1.6 2006/12/21 05:29:49 takayama Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +60,7 @@ char *POLYToString(f,multSym,brace)
 {
   extern int Wrap;
   extern int UseDsmall;
+  extern int COutput;
   int i,j,jj,fi;
   int printed = 0;
   int vi; /* index for variables */
@@ -131,34 +132,67 @@ char *POLYToString(f,multSym,brace)
     for (jj=0; jj<n*2; jj++) {
       j = xout[jj];
       if (j <n) {
-        if (f->m->e[j].x) {
-          vi++;
-          if (vi != 1) putstr(multStr(multSym),&oq);
-          putstr(xnames[j],&oq);
-          if (f->m->e[j].x >= 2) {
-            putstr("^",&oq);
-            putstr(intToString(f->m->e[j].x),&oq);
-          }else if (f->m->e[j].x < 0) {
-            putstr("^(",&oq);
-            putstr(intToString(f->m->e[j].x),&oq);
-            putstr(")",&oq);
-          }
-        }
+		if (COutput) {
+		  if (f->m->e[j].x) {
+			vi++;
+			if (vi != 1) putstr(multStr(multSym),&oq);
+			if (f->m->e[j].x == 1) {
+			  putstr(xnames[j],&oq);
+			} else {
+			  putstr("sm1power(",&oq);
+			  putstr(xnames[j],&oq);
+			  putstr(",",&oq);
+			  putstr(intToString(f->m->e[j].x),&oq);
+			  putstr(")",&oq);
+			}
+		  }
+		}else{
+		  if (f->m->e[j].x) {
+			vi++;
+			if (vi != 1) putstr(multStr(multSym),&oq);
+			putstr(xnames[j],&oq);
+			if (f->m->e[j].x >= 2) {
+			  putstr("^",&oq);
+			  putstr(intToString(f->m->e[j].x),&oq);
+			}else if (f->m->e[j].x < 0) {
+			  putstr("^(",&oq);
+			  putstr(intToString(f->m->e[j].x),&oq);
+			  putstr(")",&oq);
+			}
+		  }
+		}
       }else {
-        j = j-n;  
-        if (f->m->e[j].D) {
-          vi++;
-          if (vi != 1) putstr(multStr(multSym),&oq);
-          putstr(dnames[j],&oq);
-          if (f->m->e[j].D >= 2) {
-            putstr("^",&oq);
-            putstr(intToString(f->m->e[j].D),&oq);
-          }else if (f->m->e[j].D < 0) {
-            putstr("^(",&oq);
-            putstr(intToString(f->m->e[j].D),&oq);
-            putstr(")",&oq);
-          }
-        }
+		if (COutput) {
+		  j = j-n;  
+		  if (f->m->e[j].D) {
+			vi++;
+			if (vi != 1) putstr(multStr(multSym),&oq);
+			if (f->m->e[j].D == 1) {
+			  putstr(dnames[j],&oq);
+			}else {
+			  if (f->m->e[j].D) putstr("sm1power(",&oq);
+			  putstr(dnames[j],&oq);
+			  putstr(",",&oq);
+			  putstr(intToString(f->m->e[j].D),&oq);
+			  putstr(")",&oq);
+			}
+		  }
+		}else{
+		  j = j-n;  
+		  if (f->m->e[j].D) {
+			vi++;
+			if (vi != 1) putstr(multStr(multSym),&oq);
+			putstr(dnames[j],&oq);
+			if (f->m->e[j].D >= 2) {
+			  putstr("^",&oq);
+			  putstr(intToString(f->m->e[j].D),&oq);
+			}else if (f->m->e[j].D < 0) {
+			  putstr("^(",&oq);
+			  putstr(intToString(f->m->e[j].D),&oq);
+			  putstr(")",&oq);
+			}
+		  }
+		}
       }
     }
     fi++;

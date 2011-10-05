@@ -1,4 +1,4 @@
-/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.16 2005/06/16 05:07:23 takayama Exp $ */
+/* $OpenXM: OpenXM/src/kan96xx/Kan/option.c,v 1.17 2006/12/21 05:29:49 takayama Exp $ */
 #include <stdio.h>
 #include "datatype.h"
 #include "stackm.h"
@@ -17,6 +17,7 @@ struct object KsystemVariable(ob)
   /* Don't forget to write the keys in usage.c */
   extern int PrintDollar;
   extern int Wrap;
+  extern int COutput;
   extern struct ring *CurrentRingp;
   extern int Verbose;
   extern int UseCriterion1;
@@ -75,6 +76,8 @@ struct object KsystemVariable(ob)
         rob = KpoInteger(PrintDollar);
       }else if (strcmp(ob1.lc.str,"Wrap") == 0) {
         rob = KpoInteger(Wrap);
+      }else if (strcmp(ob1.lc.str,"COutput") == 0) {
+        rob = KpoInteger(COutput);
       }else if (strcmp(ob1.lc.str,"P") == 0) {
         rob = KpoInteger(CurrentRingp->p);
       }else if (strcmp(ob1.lc.str,"N") == 0) {
@@ -229,6 +232,9 @@ struct object KsystemVariable(ob)
           P = ob2.lc.ival;  Q should be set here too. 
           CurrentRingp->p = P;
           rob = KpoInteger(P); */
+      }else if (strcmp(ob1.lc.str,"COutput") == 0) {
+        COutput = ob2.lc.ival;
+        rob = KpoInteger(COutput);
       }else if (strcmp(ob1.lc.str,"NN") == 0) {
         if (ob2.lc.ival <= CurrentRingp->n && ob2.lc.ival >= CurrentRingp->m) {
           CurrentRingp->nn = ob2.lc.ival;

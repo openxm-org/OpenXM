@@ -1,4 +1,4 @@
-/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.34 2005/06/15 02:22:50 takayama Exp $ */
+/* global.c $OpenXM: OpenXM/src/kan96xx/Kan/global.c,v 1.35 2006/12/21 05:29:49 takayama Exp $ */
 #include <stdio.h>
 #include <setjmp.h>
 #include "datatype.h"
@@ -79,6 +79,7 @@ int Commutative = 0;
 int UseCriterion1 = 0;
 int UseCriterion2B = 0;
 int OutputStyle = '*';
+int COutput = 0; /* C sytle output of polynomial */
 int Wrap = 0;  /* output.c */
 int Verbose = 0;
 int ReduceLowerTerms = 1;
