@@ -1,0 +1,72 @@
+/* $OpenXM$ 
+*/
+
+module tk_cform;
+static Tk_cform_double$
+static Tk_cform_sm1$
+Tk_cform_double=1$
+Tk_cform_sm1=-1$
+localf mystart;
+localf to_cform;
+
+def mystart() {
+ /* extern Tk_cform_sm1; */
+ extern Sm1_lib;
+ extern Xm_noX;
+ if (Xm_noX) {
+   P = ox_launch_nox(0,Sm1_lib+"/bin/ox_sm1_forAsir");
+ }else{
+   P = ox_launch(0,Sm1_lib+"/bin/ox_sm1_forAsir");
+ }
+ if (Xm_noX) {
+   sm1.sm1(P," oxNoX ");
+ }
+ ox_check_errors(P);
+ Tk_cform_sm1 = P;
+ sm1.sm1(P,"[(COutput) 1] system_variable ");
+ return(P);
+}
+
+def to_cform(F) {
+  /*extern Tk_cform_double;
+  extern Tk_cform_sm1; */
+  if (type(getopt(nodouble)) >= 0) {
+	  if (getopt(nodouble)) Tk_cform_double=0;
+	  else Tk_cform_double=1;
+  }
+  if (type(F) <= 1) {
+    if (Tk_cform_double) {
+      return("(double)"+rtostr(F));
+    }else return(rtostr(F));
+  }
+  if (Tk_cform_sm1 < 0) mystart();
+  V=vars(F);
+  G=dp_ptod(F,V);
+  Den=1;
+  while (G != 0) {
+     C=dn(dp_hc(G));
+     Den=Den*C/igcd(Den,C);
+     G=dp_rest(G);
+  }
+  F = F*Den;
+  /* return([F,Den]); */
+  Com="[(";
+  for (I=0; I<length(V)-1; I++) {
+    Com=Com+rtostr(V[I])+",";
+  }
+  Com = Com+rtostr(V[length(V)-1])+") ring_of_polynomials 0] define_ring ";
+  /* print(Com); */
+  sm1.sm1(Tk_cform_sm1,Com);
+  sm1.sm1(Tk_cform_sm1,"("+rtostr(F)+"). toString ");
+  R=ox_pop_cmo(Tk_cform_sm1);
+  if (Tk_cform_double) {
+    if (Den == 1) return(R);
+    else return("("+ R + ")/(double)"+rtostr(Den));
+  }else{
+    if (Den == 1) return(R);
+    else return("("+ R + ")/"+rtostr(Den));
+  }
+}
+endmodule;
+
+end$
