@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.29 2011/04/30 08:30:31 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.30 2011/04/30 08:42:12 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -120,7 +120,11 @@ def version() {
    yang.define_ring([x,y,z]);
    yang.define_ring(["euler",[x,y],"difference",[p,q],"euler",[z]]);
 */
-def define_ring(RingDef) {
+def define_ring(RingDef)
+"Example:
+   yang.define_ring([x,y,z]);
+   yang.define_ring([\"euler\",[x],\"difference\",[[p,-1]]]);"
+ {
     if (!islist(RingDef)) {
         print("invalid ring data.\n");
         return [];
@@ -173,7 +177,8 @@ def parse_ringdef(RingDef) {
     }else {
         error("yang.define_ring(): invalid ring definition.");
     }
-    Ring->v  = append(Ring->v, map(left, VSet));
+	VSet=map(left, VSet);
+    Ring->v  = append(Ring->v, VSet);
     Ring->f  = append(Ring->f, F);
     Ring->d  = append(Ring->d, D);
     Ring->op = op_register(Ring->op, VSet);
