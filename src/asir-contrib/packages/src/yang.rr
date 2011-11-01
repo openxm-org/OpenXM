@@ -1,5 +1,5 @@
 /* -*- mode: C -*- */
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.30 2011/04/30 08:42:12 ohara Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/yang.rr,v 1.31 2011/10/31 08:37:22 ohara Exp $ */
 
 /* 
    1. At first you must define a ring structure.
@@ -33,6 +33,7 @@ import("yang_lib.rr") $
 #define EULER        0
 #define DIFFERENCE   1
 #define Q_DIFFERENCE 2
+#define PARTIAL      3
 
 #define isList(A)    (islist(A)||isvect(A))
 #define NM(A)        (isList(A)? ((A)[0]): (A))
@@ -51,6 +52,8 @@ localf verbose, quiet, message;
 localf spair_lcm, spair_compare, spair_sugar;
 localf euler_diff, euler_diff_list, euler_diff_dp_list, euler_diff_dp;
 localf euler_diff_list_r, euler_diff_dp_list_r;
+localf partial_diff, partial_diff_list, partial_diff_dp_list, partial_diff_dp;
+localf partial_diff_list_r, partial_diff_dp_list_r;
 localf operator_shift;
 localf act_theta_D, act_theta_DE, act_difference;
 localf actr_theta_D, actr_theta_DE;
@@ -123,8 +126,9 @@ def version() {
 def define_ring(RingDef)
 "Example:
    yang.define_ring([x,y,z]);
-   yang.define_ring([\"euler\",[x],\"difference\",[[p,-1]]]);"
- {
+   yang.define_ring([\"euler\",[x],\"difference\",[[p,-1]]]);
+   yang.define_ring([\"partial\",[s,t]]);"
+{
     if (!islist(RingDef)) {
         print("invalid ring data.\n");
         return [];
@@ -156,7 +160,8 @@ def new_ring(RingDef) {
 
 /*
    Examples of RingDef:
-     ["euler", [x,y]]
+     ["euler",   [x,y]]
+     ["partial", [x,y]]
      ["difference", [a,b]]
      ["difference", [[a,1],[b,1]]]
      ["q-difference", [[a,q]]]
@@ -172,6 +177,9 @@ def parse_ringdef(RingDef) {
     }else if(S=="q-difference") {
         D = map(right, VSet, q);
         F = map('std_=', F, Q_DIFFERENCE);
+    }else if(S=="partial") {
+        D = vtol(newvect(N));
+        F = map('std_=', F, PARTIAL);
     }else if(S=="euler" || S=="differential"){
         D = vtol(newvect(N));
     }else {
@@ -412,6 +420,88 @@ def spair_sugar(P,Q) {
 
 /** 有理式係数分散表現多項式: [Dpoly, Poly] **/
 
+/* 再帰表現多項式を N回 偏微分する*/
+def partial_diff(P, V, N) {
+    for (I=0; I<N; I++) {
+        P = diff(P, V);
+    }
+    return P;
+}
+
+/* 再帰表現多項式を 0...N 回 偏微分したものの配列(長さN+1)を返す */
+def partial_diff_list(P, V, N) {
+    L = newvect(N+1);
+    L[0] = P;
+    for (I=0; I<N; I++) {
+        L[I+1] = diff(L[I], V);
+    }
+    return L;
+}
+
+/* P: 有理式 */
+/* 返値: [vector, den] */
+/* vector[I]/den == partial_diff(P,V,I) */
+def partial_diff_list_r(P, V, N) {
+    L = newvect(N+1);
+    L[0] = P;
+    for (I=0; I<N; I++) {
+        L[I+1] = partial_diff(L[I], V, 1);
+    }
+    Dn = dn(red(L[N])); /* 共通分母 */
+    if (Dn==1) { /* L[N] == 0 の場合にはこちらが共通分母 */
+        Dn=dn(red(L[0]));
+    }
+    return [base_cancel(Dn*L), Dn];
+}
+
+/* 分散表現多項式の係数を 0...N 回 偏微分したものの配列(長さN+1)を返す */
+def partial_diff_dp_list(P, V, N) {
+    if (isdpoly(P)) {
+        Q = newvect(N+1);
+        while(P!=0) {
+            Q += dp_ht(P)*partial_diff_list(dp_hc(P),V,N);
+            P  = dp_rest(P);
+        }
+    }else {
+        Q=partial_diff_list(P, V, N);
+    }
+    return Q;
+}
+
+/* P: [分散表現多項式, 分母] */
+/* 返値: [vector, den] */
+/* vector[I]/den == partial_diff(P,V,I) */
+def partial_diff_dp_list_r(P, V, N) {
+    Dn = DN(P);
+    P  = NM(P);
+    if (isdpoly(P)) {
+        Q = [0,1]; /* Q = [ newvect(N+1), 0 ]; */
+        while(P!=0) {
+            L = partial_diff_list_r(dp_hc(P)/Dn,V,N); /* vector */
+            L = [dp_ht(P)*L[0],L[1]];
+            Q = add(Q,L);
+            P = dp_rest(P);
+        }
+    }else {
+        Q=partial_diff_list_r(P/Dn, V, N);
+    }
+    return Q;
+}
+
+/* 分散表現多項式の係数を N回 偏微分する*/
+def partial_diff_dp(P, V, N) {
+    if (isdpoly(P)) {
+        Q=0;
+        while(P!=0) {
+            Q+=partial_diff(dp_hc(P),V,N)*dp_ht(P);
+            P=dp_rest(P);
+        }
+    }else {
+        Q=partial_diff(P, V, N);
+    }
+    return Q;
+}
+
 /* 再帰表現多項式を N回 オイラー微分する*/
 def euler_diff(P, V, N) {
     if (israt(P)) {
@@ -501,7 +591,7 @@ def euler_diff_dp(P, V, N) {
     return Q;
 }
 
-/* 微分作用素(単項式) E と微分作用素 Q の積 */
+/* オイラー微分作用素(単項式) E と微分作用素 Q の積 */
 def act_theta_D(E,Q) {
     E = dp_etov(E);
     N = length(E);
@@ -525,9 +615,17 @@ def act_theta_DE(E,Q) {
     N = length(E);
     T = newvect(N);
     for (I=0; I<N; I++) {
-        if (op_type(I)==EULER) { /* 微分 */
+        if (op_type(I)==EULER) { /* オイラー微分 */
             F=0;
             LC = euler_diff_dp_list(Q,op_var(I),E[I]);
+            for (K=0; K<=E[I]; K++) {
+                T[I]=K;
+                F += linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+            }
+            Q=F;
+		}else if (op_type(I)==PARTIAL) { /* 偏微分 */
+            F=0;
+            LC = partial_diff_dp_list(Q,op_var(I),E[I]);
             for (K=0; K<=E[I]; K++) {
                 T[I]=K;
                 F += linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
@@ -580,9 +678,20 @@ def actr_theta_DE(E,Q) {
     N = length(E);
     T = newvect(N);
     for (I=0; I<N; I++) {
-        if (op_type(I)==EULER) { /* 微分 */
+        if (op_type(I)==EULER) { /* オイラー微分 */
 			F=0;
 			LC = euler_diff_dp_list_r(Q,op_var(I),E[I]);
+			Dn = LC[1];
+			LC = LC[0];
+			for (K=0; K<=E[I]; K++) {
+				T[I]=K;
+				G = linalg.binomial_coef(E[I],K)*LC[E[I]-K]*dp_vtoe(T);
+				F = add(F,[G,Dn]);
+			}
+			Q=F;
+        }else if (op_type(I)==PARTIAL) { /* 偏微分 */
+			F=0;
+			LC = partial_diff_dp_list_r(Q,op_var(I),E[I]);
 			Dn = LC[1];
 			LC = LC[0];
 			for (K=0; K<=E[I]; K++) {
@@ -1434,7 +1543,7 @@ def pfaffian(Base,Gr) {
     M = ring_size();
     L = newvect(M);
     for(J=0; J<M; J++) {
-		OP = [op_i(M,J), (op_type(J)==EULER)? op_var(J): 1]; /* 偏微分作用素 */
+		OP = [op_i(M,J), (op_type(J)==EULER)? op_var(J): 1]; /* オイラー微分作用素から偏微分作用素に */
         P = mapat(multir,1,OP,Base); 
         P = map(reduction,P,Gr); /* normal form */
         P = dp_ltom(P,StdMon);   /* 行列表現 */
@@ -1790,8 +1899,10 @@ def action_monomial_DE(E, P) {
     E = dp_etov(E);
     N = length(E);
     for (I=0; I<N; I++) {
-        if (op_type(I)==EULER) { /* 微分 */
+        if (op_type(I)==EULER) { /* オイラー微分 */
             P = euler_diff(P,op_var(I),E[I]);
+        }else if (op_type(I)==PARTIAL) { /* 偏微分 */
+            P = partial_diff(P,op_var(I),E[I]);
         }else if (op_type(I)==DIFFERENCE) { /* 差分 */
             P = base_replace(P,[[ op_var(I), op_var(I)+op_diff(I)*E[I] ]]);
         }else if (op_type(I)==Q_DIFFERENCE) { /* q-差分 */
