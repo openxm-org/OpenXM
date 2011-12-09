@@ -1,4 +1,4 @@
-%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.42 2011/12/08 06:31:22 nisiyama Exp $
+%% $OpenXM: OpenXM/src/asir-doc/exp/exp-ja.texi,v 1.43 2011/12/08 06:40:52 nisiyama Exp $
 \input texinfo
 @iftex
 @catcode`@#=6
@@ -3100,7 +3100,7 @@ nk_restriction.restriction_ideal( ... |inhomo=1); の出力
 @tex
 $ \int_0^\infty \exp((-t^3+t)x) dt $
 @end tex
-の非積分関数の満たすホロノミックイデアルは
+の被積分関数の満たすホロノミックイデアルは
 @tex
 $ I = \langle \partial_t +(3t^2-1)x, \partial_x+t^3-t \rangle $
 @end tex
@@ -3135,6 +3135,72 @@ B_{S0} length : 3
 @end example
 この出力は, 積分を零化するホロノミック系である.
 
+@node nk_restriction.ost_sum,,, D 加群の積分イデアル
+@subsection @code{nk_restriction.ost_sum}
+@comment --- 索引用キーワード
+@findex nk_restriction.ost_sum
+
+@comment --- 関数の簡単な説明 ---
+@table @t
+@item nk_restriction.ost_sum(@var{Id}, @var{VL}, @var{DVL}, @var{W})
+:: 和の満たす(斉次/非斉次)差分方程式系を返す.
+@end table
+
+@comment --- 引数の簡単な説明 ---
+@table @var
+@item Id
+イデアルの生成元のリスト
+@item VL
+変数のリスト
+@item DVL
+変数のリスト(@var{VL} に対応する差分作用素の方の変数)
+@item W
+重みベクトルを表すリスト
+@end table
+
+@comment --- ここで関数の詳しい説明 ---
+@comment --- @itemize〜@end itemize は箇条書き ---
+@comment --- @bullet は黒点付き ---
+@itemize @bullet
+@item Oaku-Shiraki-Takayama (2003) の第6節のアルゴリズムの実装.
+@item オプション inhomo が 0 でないとき, 非斉次部分を与える情報も返す.
+@end itemize
+
+以下は, Oaku-Shiraki-Takayama (2003) の例6.5の非斉次部分まで計算したものである.
+@iftex
+@tex
+$ \sum_{k=a}^b {n \choose k} $
+@end tex
+の非和関数の満たすホロノミックイデアルは
+@tex
+$ I = \langle (n-k+1)E_n-(n+1), (k+1)E_k-(n-k) \rangle $
+@end tex
+であるから, これを入力として次のように計算を行う.
+@end iftex
+@ifinfo
+\sum_{k=a}^b n_C_k
+の非和関数の満たすホロノミックイデアルは
+I = < (n-k+1)E_n-(n+1), (k+1)E_k-(n-k) >
+であるから, これを入力として次のように計算を行う.
+@end ifinfo
+@example
+[1871] Id=[(n-k+1)*en-(n+1), (k+1)*ek-(n-k)]$  
+[1872] VL=[k,n]$
+[1873] DVL=[ek,en]$
+[1874] W=[1,0]$
+[1875] nk_restriction.ost_sum(Id,VL,DVL,W|inhomo=1);
+-- nd_weyl_gr :0.006667sec(0.004057sec)
+-- weyl_minipoly :0sec(0.001163sec)
+-- generic_bfct_and_gr :0.01sec(0.007085sec)
+generic bfct : [[1,1],[s,1]]
+S0 : 0
+B_{S0} length : 1
+-- fctr(BF) + base :0.003333sec(0.001785sec)
+-- restriction_ideal_internal :0sec(0.002336sec)
+[[(en-2)*n+en-2],[[[[ek-1,[(-en+1)*n-en+1,1]]],1]]]
+@end example
+
+
 @noindent
 ChangeLog
 @itemize @bullet
@@ -3142,6 +3208,7 @@ ChangeLog
 @item 2010-02-05 に 3 つの option (@code{inhomo}, @code{param}, @code{s0}) が追加された. 1.7--1.9 を見よ.
 @item 2010-05 から 2010-07 にかけて 2 つの option (@code{ht}, @code{ord}) と
 新たな関数 trans_inhomo() が追加された. 1.10--1.13 を見よ.
+@item 2011-08 に ost_sum() が追加された. 1.20 を見よ.
 @end itemize
 
 @node その他(未分類),,, 実験的仕様の関数
