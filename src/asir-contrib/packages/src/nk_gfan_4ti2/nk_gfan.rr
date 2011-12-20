@@ -89,6 +89,8 @@ def gbcone(L, VL)
 	UGB = output_gfan(TmpFileName + ".result");
 	TmpFileName += ".result";
 	RubyProg = which("gfan_gbcone.rb");
+        if (type(RubyProg)==0) RubyProg = which("nk_gfan_4ti2/gfan_gbcone.rb");
+        if (type(RubyProg)==0) debug("gfan_gbcone.rb is not found.");
 	shell("ruby " + RubyProg + " " + TmpFileName);
 	OutputFile = TmpFileName + "_weight.rr";
 	Id = open_file(OutputFile);
