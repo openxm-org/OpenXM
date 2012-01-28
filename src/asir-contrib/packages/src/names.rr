@@ -1,11 +1,11 @@
-/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.113 2011/04/30 08:11:11 takayama Exp $ */
+/* $OpenXM: OpenXM/src/asir-contrib/packages/src/names.rr,v 1.114 2011/05/02 05:49:24 takayama Exp $ */
 /* $Revision$ */
 #define NOT_YET   print("It has not yet been implemented.")
 load("oxrfc100.rr")$
 
 def asir_contrib_copyright() {
   S=
-  "OpenXM/Risa/Asir-Contrib $Revision$ (20110430), Copyright 2000-2011, OpenXM.org committers\n"+
+  "OpenXM/Risa/Asir-Contrib $Revision$ (20120128), Copyright 2000-2011, OpenXM.org committers\n"+
   "helph(); [html help], ox_help(0); ox_help("+asciitostr([34])+"keyword"+asciitostr([34])+
  "); ox_grep("+asciitostr([34])+"keyword"+asciitostr([34])+");\n"+
   "     for help messages (unix version only).\n";
@@ -581,6 +581,15 @@ def series_solve(Eq,A) { NOT_YET; }
 def series_limit(F,A) { NOT_YET; }
 
 /* Canonical function names for matrix. cf. Mathematica/LiearAlgebra */
+/*&usage begin: matrix_adjugate(M)
+ It generates the adjugate matrix of the matrix {M}.
+ example: matrix_adjugate(matrix_list_to_matrix([[a,b],[c,d]]));
+end: */
+def matrix_adjugate(M) {
+  OX_LOADFILE(Loaded_ok_matrix,"ok_matrix.rr");
+  return omatrix_adjugate(M);
+}
+
 /*&usage begin: matrix_clone(M)
  It generates the clone of the matrix {M}.
  example: matrix_clone(matrix_list_to_matrix([[1,1],[0,1]]));
